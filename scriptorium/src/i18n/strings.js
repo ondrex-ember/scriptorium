@@ -1,14 +1,11 @@
 // Scriptorium i18n — STRINGS assembler + t() helper
-// Jazyky jsou v samostatných souborech: cs.js, en.js, de.js ...
-// Přidání nového jazyka: 1) vytvořit xx.js, 2) přidat do STRINGS níže, 3) přidat do build.js
+// Přidání jazyka: 1) xx.js, 2) přidat do STRINGS, 3) přidat do build.js
 
 const STRINGS = {
     cs: STRINGS_cs,
     en: STRINGS_en,
 };
 
-
-// Překladová funkce — fallback na CS pokud klíč chybí
 function t(path) {
     const lang = (typeof GameState !== 'undefined' && GameState.settings && GameState.settings.language) || 'cs';
     const obj = STRINGS[lang] || STRINGS.cs;
@@ -17,7 +14,8 @@ function t(path) {
     return path.split('.').reduce((o, k) => (o && o[k] !== undefined ? o[k] : null), STRINGS.cs) || path;
 }
 
-// Item name helper — vrátí přeložený název itemu, fallback na CS
+
+// Item name helper — přeložený název dle jazyka
 function iName(id) {
     const item = ItemsDB[id];
     if (!item) return id;
@@ -25,7 +23,31 @@ function iName(id) {
     return (lang !== 'cs' && item.name_en) ? item.name_en : item.name;
 }
 
-// Item description helper — vrátí přeložený popis itemu
+// Item description helper
+function iDesc(id) {
+    const item = ItemsDB[id];
+    if (!item) return '';
+    const lang = (typeof GameState !== 'undefined' && GameState.settings && GameState.settings.language) || 'cs';
+    return (lang !== 'cs' && item.desc_en) ? item.desc_en : item.desc;
+}
+
+// Tech name helper
+function tName(id) {
+    const tech = TechTree.find(x => x.id === id);
+    if (!tech) return id;
+    const lang = (typeof GameState !== 'undefined' && GameState.settings && GameState.settings.language) || 'cs';
+    return (lang !== 'cs' && tech.name_en) ? tech.name_en : tech.name;
+}
+
+// Item name helper — přeložený název dle jazyka, fallback na CS
+function iName(id) {
+    const item = ItemsDB[id];
+    if (!item) return id;
+    const lang = (typeof GameState !== 'undefined' && GameState.settings && GameState.settings.language) || 'cs';
+    return (lang !== 'cs' && item.name_en) ? item.name_en : item.name;
+}
+
+// Item description helper
 function iDesc(id) {
     const item = ItemsDB[id];
     if (!item) return '';

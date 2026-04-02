@@ -199,8 +199,9 @@ renderActions: function() {
             const done = GameState.researchedTechs.includes(t.id);
             let canResearch = res >= t.cost;
             let reqText = "";
-            const tDisplayName = tName(t.id);
-            const tDisplayDesc = (typeof GameState !== 'undefined' && GameState.settings && GameState.settings.language === 'en' && t.desc_en) ? t.desc_en : t.desc;
+            const lang = (GameState.settings && GameState.settings.language) || 'cs';
+            const displayName = (lang !== 'cs' && t.name_en) ? t.name_en : t.name;
+            const displayDesc = (lang !== 'cs' && t.desc_en) ? t.desc_en : t.desc;
 
             // Check requirements
             if(t.requires && !done) {
@@ -208,11 +209,12 @@ renderActions: function() {
                 if(missing) {
                     canResearch = false;
                     const reqTech = TechTree.find(x => x.id === missing);
-                    reqText = `<div class="text-sm text-danger">${t('game.techRequired')} ${tName(reqTech.id)}</div>`;
+                    const reqName = (lang !== 'cs' && reqTech.name_en) ? reqTech.name_en : reqTech.name;
+                    reqText = `<div class="text-sm text-danger">${t('game.techRequired')} ${reqName}</div>`;
                 }
             }
 
-            h += `<div class="card" style="border-color:${done?'var(--accent-gold)':'var(--ink-secondary)'}"><div class="item-icon" style="background:${done?'#c5a059':'#e8dec0'}">${done?'🎓':'📖'}</div><div style="flex:1"><strong>${tDisplayName}</strong><div class="text-sm">${tDisplayDesc}</div>${typeof TechLoreDB !== 'undefined' && TechLoreDB[t.id] ? `<div class="text-sm" style="margin-top:8px;padding:8px;background:rgba(197,160,89,0.1);border-left:3px solid var(--accent-gold);font-style:italic;">${TechLoreDB[t.id]}</div>` : ''}${reqText}</div>${done?`<span style="font-weight:bold;color:var(--accent-gold)">${t('game.techDone')}</span>`:`<button class="craft-btn" onclick="Game.study('${t.id}')" ${canResearch?'':'disabled'}>${t('game.techStudy')} (${t.cost} 📜)</button>`}</div>`;
+            h += `<div class="card" style="border-color:${done?'var(--accent-gold)':'var(--ink-secondary)'}"><div class="item-icon" style="background:${done?'#c5a059':'#e8dec0'}">${done?'🎓':'📖'}</div><div style="flex:1"><strong>${displayName}</strong><div class="text-sm">${displayDesc}</div>${typeof TechLoreDB !== 'undefined' && TechLoreDB[t.id] ? `<div class="text-sm" style="margin-top:8px;padding:8px;background:rgba(197,160,89,0.1);border-left:3px solid var(--accent-gold);font-style:italic;">${TechLoreDB[t.id]}</div>` : ''}${reqText}</div>${done?`<span style="font-weight:bold;color:var(--accent-gold)">${t('game.techDone')}</span>`:`<button class="craft-btn" onclick="Game.study('${t.id}')" ${canResearch?'':'disabled'}>${t('game.techStudy')} (${t.cost} 📜)</button>`}</div>`;
         });
         el.innerHTML = h;
     },

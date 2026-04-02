@@ -25,9 +25,7 @@ const STRINGS_cs = {
         },
         game: {
             eat:'Sníst', required:'(Nutné)',
-            techDone:'HOTOVO',
-            techStudy:'Studovat',
-            techRequired:'Nutné:',
+            techDone:'HOTOVO', techStudy:'Studovat', techRequired:'Nutné:',
             noTinderbox:'Nemáš Troud!',
             fireKindled:'Krb rozežehnut.',
             needFire:'Nejdřív oheň!',
@@ -91,5 +89,6 @@ const STRINGS_cs = {
             title:'Scriptorium – Středověká idle hra',
             desc:'Středověká idle hra o životě v klášterním skriptoriu. Kopíruj rukopisy, pěstuj byliny a odemykej tajemství pergamenu a inkoustu.',
             ogLocale:'cs_CZ'
+
         }
 };

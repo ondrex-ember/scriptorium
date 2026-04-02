@@ -24,9 +24,7 @@ const STRINGS_en = {
         },
         game: {
             eat:'Eat', required:'(Required)',
-            techDone:'DONE',
-            techStudy:'Study',
-            techRequired:'Required:',
+            techDone:'DONE', techStudy:'Study', techRequired:'Required:',
             noTinderbox:'Thou hast no tinderbox!',
             fireKindled:'The hearth is kindled.',
             needFire:'The hearth must burn first!',
@@ -90,5 +88,6 @@ const STRINGS_en = {
             title:'Scriptorium — Medieval Monastery Idle Game',
             desc:'A medieval idle game set in a monastery scriptorium. Copy manuscripts, tend thy garden, and unlock the secrets of parchment and ink.',
             ogLocale:'en_US'
+
         }
 };

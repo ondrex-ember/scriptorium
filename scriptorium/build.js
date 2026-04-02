@@ -6,17 +6,16 @@ const fs   = require('fs');
 const path = require('path');
 
 const BASE = __dirname;
-const SRC  = path.join(BASE, 'src');
 const DIST = path.join(BASE, 'dist');
 
 // ─── Pořadí JS modulů ───────────────────────────────────────────────
-// POZOR: pořadí je kritické — závislosti musí být dříve než konzumenti
+// KRITICKÉ: závislosti musí být definovány před konzumenty
 
 const JS_MAIN = [
-    // Core config první — ostatní na ni závisí
+    // Core config — vše závisí na CONFIG
     'src/core/config.js',
 
-    // Data — na sobě nezávislá, jen závisí na CONFIG
+    // Data — nezávislá, závisí jen na CONFIG
     'src/data/library.js',          // LibraryDB, FontSpecimensDB, TechLoreDB
     'src/data/library-helpers.js',  // EasterEggsDB, ScribeNPC, LibraryHelpers
     'src/data/items.js',            // ItemsDB
@@ -45,25 +44,27 @@ const JS_MAIN = [
     'src/games/karnoffel.js',
     'src/games/freecell.js',
 
-    // i18n — musí být před Game a UI
+    // i18n — MUSÍ být před Game a UI
     'src/i18n/cs.js',               // Čeština (master)
     'src/i18n/en.js',               // English
     // 'src/i18n/de.js',            // Deutsch (budoucí)
     // 'src/i18n/pl.js',            // Polski (budoucí)
-    'src/i18n/strings.js',          // STRINGS assembler + t()
+    'src/i18n/strings.js',          // STRINGS assembler + t() + iName() + iDesc()
     'src/i18n/lang.js',             // LangSystem
 
     // Herní logika — závisí na všem výše
     'src/core/game.js',             // Game
     'src/core/ui.js',               // UI
-    'src/systems/iching.js',        // IChing — musí být po UI (přiřazuje UI.renderIChing)
+
+    // IChing — MUSÍ být po UI (přiřazuje UI.renderIChing)
+    'src/systems/iching.js',
 ];
 
 const JS_BOOTSTRAP = [
     'src/core/bootstrap.js',        // ConsentManager, Analytics, window.onload
 ];
 
-// ─── Build funkce ────────────────────────────────────────────────────
+// ─── Build ───────────────────────────────────────────────────────────
 
 function readFile(relPath) {
     const fullPath = path.join(BASE, relPath);
@@ -74,51 +75,39 @@ function readFile(relPath) {
 }
 
 function build() {
-    console.log('🔨 Scriptorium build start...\n');
+    console.log('🔨 Scriptorium build...\n');
 
-    // 1. Načíst shell
     let shell = readFile('src/shell.html');
 
-    // 2. Sestavit hlavní JS blok
     let jsMain = '';
     for (const file of JS_MAIN) {
-        const content = readFile(file);
         jsMain += `\n// ═══ ${file} ═══\n`;
-        jsMain += content;
+        jsMain += readFile(file);
     }
 
-    // 3. Sestavit bootstrap JS blok
     let jsBootstrap = '';
     for (const file of JS_BOOTSTRAP) {
-        const content = readFile(file);
         jsBootstrap += `\n// ═══ ${file} ═══\n`;
-        jsBootstrap += content;
+        jsBootstrap += readFile(file);
     }
 
-    // 4. Injektovat do shellu
-    let output = shell;
-    if (!output.includes('/* BUILD:JS_MAIN */')) {
-        throw new Error('Placeholder BUILD:JS_MAIN nenalezen v shell.html!');
-    }
-    if (!output.includes('/* BUILD:JS_BOOTSTRAP */')) {
-        throw new Error('Placeholder BUILD:JS_BOOTSTRAP nenalezen v shell.html!');
-    }
+    if (!shell.includes('/* BUILD:JS_MAIN */'))      throw new Error('Placeholder JS_MAIN chybí v shell.html!');
+    if (!shell.includes('/* BUILD:JS_BOOTSTRAP */')) throw new Error('Placeholder JS_BOOTSTRAP chybí v shell.html!');
 
-    output = output.replace('/* BUILD:JS_MAIN */', jsMain);
-    output = output.replace('/* BUILD:JS_BOOTSTRAP */', jsBootstrap);
+    let output = shell
+        .replace('/* BUILD:JS_MAIN */', jsMain)
+        .replace('/* BUILD:JS_BOOTSTRAP */', jsBootstrap);
 
-    // 5. Zapsat výstup
     if (!fs.existsSync(DIST)) fs.mkdirSync(DIST);
     const outPath = path.join(DIST, 'index.html');
     fs.writeFileSync(outPath, output, 'utf-8');
 
-    // 6. Statistiky
     const lines = output.split('\n').length;
     const sizeKB = Math.round(Buffer.byteLength(output, 'utf-8') / 1024);
-    console.log(`✅ Build hotov: dist/index.html`);
-    console.log(`   Řádků:  ${lines.toLocaleString()}`);
+    console.log(`✅ dist/index.html`);
+    console.log(`   Řádků:    ${lines.toLocaleString()}`);
     console.log(`   Velikost: ${sizeKB} KB`);
-    console.log(`   Modulů: ${JS_MAIN.length + JS_BOOTSTRAP.length}`);
+    console.log(`   Modulů:   ${JS_MAIN.length + JS_BOOTSTRAP.length}`);
 }
 
 build();
