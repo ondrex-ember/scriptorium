@@ -1,0 +1,1437 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+	<!-- Google Tag Manager -->
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-NZSGNPD8');</script>
+<!-- End Google Tag Manager -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Scriptorium">
+    <meta name="description" content="Středověká idle hra o životě v klášterním skriptoriu. Kopíruj rukopisy, pěstuj byliny a odemykej tajemství pergamenu a inkoustu.">
+    <meta name="theme-color" content="#2c241b">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://myscriptorium.cz/">
+    <link rel="alternate" hreflang="cs"       href="https://myscriptorium.cz/">
+    <link rel="alternate" hreflang="en"       href="https://myscriptorium.cz/?lang=en">
+    <link rel="alternate" hreflang="x-default" href="https://myscriptorium.cz/">
+
+    <!-- ═══════ Open Graph (Facebook, Discord, WhatsApp…) ═══════ -->
+    <meta property="og:type"        content="website">
+    <meta property="og:site_name"   content="Scriptorium">
+    <meta property="og:title"       content="Scriptorium – Středověká idle hra">
+    <meta property="og:description" content="Kopíruj rukopisy, pěstuj byliny a odemykej tajemství pergamenu a inkoustu. Hra zasazená do klášterního skriptoria 15. století.">
+    <meta property="og:url"         content="https://myscriptorium.cz/">
+    <meta property="og:image"       content="https://myscriptorium.cz/og-image.jpg">
+    <meta property="og:image:width"  content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt"   content="Scriptorium – středověká idle hra">
+    <meta property="og:locale"      content="cs_CZ">
+
+    <!-- ═══════ Twitter / X Card ═══════════════════════════════ -->
+    <meta name="twitter:card"        content="summary_large_image">
+    <meta name="twitter:title"       content="Scriptorium – Středověká idle hra">
+    <meta name="twitter:description" content="Kopíruj rukopisy, pěstuj byliny a odemykej tajemství pergamenu a inkoustu.">
+    <meta name="twitter:image"       content="https://myscriptorium.cz/og-image.jpg">
+
+    <link rel="manifest" href="/manifest.json">
+    <link rel="apple-touch-icon" href="/icon-192.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="/icon-512.png">
+    <title>Scriptorium</title>
+	<script type="application/ld+json">
+	{
+	  "@context": "https://schema.org",
+	  "@type": "VideoGame",
+	  "name": "Scriptorium",
+	  "author": { "@type": "Person", "name": "Ondrex Ember" },
+	  "genre": [ "Idle game", "Simulation", "Survival" ],
+	  "gamePlatform": "Web Browser",
+	  "applicationCategory": "Game"
+	}
+	</script>
+
+    <script>
+        window.GA_ID = 'G-25YYWRNX2H';
+
+        // GA načteme až po souhlasu – nikdy dříve
+        function loadGA() {
+            if (window._gaLoaded) return;
+            window._gaLoaded = true;
+            const s = document.createElement('script');
+            s.src = 'https://www.googletagmanager.com/gtag/js?id=' + window.GA_ID;
+            s.async = true;
+            document.head.appendChild(s);
+            window.dataLayer = window.dataLayer || [];
+            window.gtag = function(){ dataLayer.push(arguments); };
+            gtag('js', new Date());
+            gtag('config', window.GA_ID, {
+                // Anonymizace IP – dobré i pro consent
+                anonymize_ip: true,
+                // Bez cookies dokud uživatel nesouhlasí
+                cookie_flags: 'SameSite=None;Secure'
+            });
+        }
+
+        // Pokud uživatel již souhlas udělil dříve, načteme GA hned
+        if (localStorage.getItem('scriptorium_consent') === 'granted') {
+            loadGA();
+        }
+    </script>
+	<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 fill=%22%23fcf5e5%22 rx=%2220%22/><path d=%22M10 85 Q 45 100 90 70%22 stroke=%22%232c241b%22 stroke-width=%226%22 fill=%22none%22 stroke-linecap=%22round%22/><g transform=%22rotate(45 50 50)%22><path d=%22M35 -20 L 65 -20 L 65 30 Q 65 65 50 100 Q 35 65 35 30 Z%22 fill=%22%232c241b%22/><circle cx=%2250%22 cy=%2245%22 r=%225%22 fill=%22%23fcf5e5%22/><line x1=%2250%22 y1=%2250%22 x2=%2250%22 y2=%2290%22 stroke=%22%23fcf5e5%22 stroke-width=%222%22/></g></svg>">
+
+	<link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 fill=%22%23fcf5e5%22/><path d=%22M10 85 Q 45 100 90 70%22 stroke=%22%232c241b%22 stroke-width=%226%22 fill=%22none%22 stroke-linecap=%22round%22/><g transform=%22rotate(45 50 50)%22><path d=%22M35 -20 L 65 -20 L 65 30 Q 65 65 50 100 Q 35 65 35 30 Z%22 fill=%22%232c241b%22/><circle cx=%2250%22 cy=%2245%22 r=%225%22 fill=%22%23fcf5e5%22/><line x1=%2250%22 y1=%2250%22 x2=%2250%22 y2=%2290%22 stroke=%22%23fcf5e5%22 stroke-width=%222%22/></g></svg>">
+	<link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 fill=%22%23fcf5e5%22/><path d=%22M10 85 Q 45 100 90 70%22 stroke=%22%232c241b%22 stroke-width=%226%22 fill=%22none%22 stroke-linecap=%22round%22/><g transform=%22rotate(45 50 50)%22><path d=%22M35 -20 L 65 -20 L 65 30 Q 65 65 50 100 Q 35 65 35 30 Z%22 fill=%22%232c241b%22/><circle cx=%2250%22 cy=%2245%22 r=%225%22 fill=%22%23fcf5e5%22/><line x1=%2250%22 y1=%2250%22 x2=%2250%22 y2=%2290%22 stroke=%22%23fcf5e5%22 stroke-width=%222%22/></g></svg>">
+	<link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 fill=%22%23fcf5e5%22/><path d=%22M15 85 Q 45 100 90 75%22 stroke=%22%232c241b%22 stroke-width=%227%22 fill=%22none%22 stroke-linecap=%22round%22/><g transform=%22rotate(45 50 50)%22><path d=%22M35 10 L 65 10 L 68 35 C 80 40, 85 50, 85 60 C 85 75, 55 95, 50 100 C 45 95, 15 75, 15 60 C 15 50, 20 40, 32 35 Z%22 fill=%22%232c241b%22/><circle cx=%2250%22 cy=%2255%22 r=%226%22 fill=%22%23fcf5e5%22/><line x1=%2250%22 y1=%2260%22 x2=%2250%22 y2=%2295%22 stroke=%22%23fcf5e5%22 stroke-width=%223%22/></g></svg>">
+	<link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 fill=%22%23fcf5e5%22/><g transform=%22rotate(45 50 50)%22><path d=%22M30 5 L 70 5 L 72 35 C 85 40, 90 55, 90 65 C 90 85, 55 98, 50 100 C 45 98, 10 85, 10 65 C 10 55, 15 40, 28 35 Z%22 fill=%22%232c241b%22/><circle cx=%2250%22 cy=%2255%22 r=%227%22 fill=%22%23fcf5e5%22/><line x1=%2250%22 y1=%2260%22 x2=%2250%22 y2=%2295%22 stroke=%22%23fcf5e5%22 stroke-width=%224%22/></g></svg>">  
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700&family=Crimson+Text:ital,wght@0,400;0,600;0,700;1,400&family=UnifrakturMaguntia&family=IM+Fell+English:ital@0;1&family=Uncial+Antiqua&display=swap" rel="stylesheet">
+
+    <style>
+        /* DEFAULT THEME - Light Parchment */
+        :root {
+            --bg-parchment: #fcf5e5;
+            --bg-header: rgba(252, 245, 229, 0.9);
+            --ink-primary: #2c241b;
+            --ink-secondary: #5c4d3c;
+            --accent-wax: #8a3324;
+            --accent-gold: #c5a059;
+            --leather-dark: #3e3226;
+            --bg-card: rgba(255, 255, 255, 0.6);
+            --border-color: var(--ink-primary);
+            --shadow: rgba(0, 0, 0, 0.1);
+        }
+        
+        /* DARK MODE */
+        body.theme-dark {
+            --bg-parchment: #1a1612;
+            --bg-header: rgba(26, 22, 18, 0.95);
+            --ink-primary: #e8dec0;
+            --ink-secondary: #b8aa8e;
+            --accent-wax: #d4695a;
+            --accent-gold: #f0d98f;
+            --leather-dark: #2a231a;
+            --bg-card: rgba(30, 25, 20, 0.7);
+            --border-color: #4a3f32;
+            --shadow: rgba(0, 0, 0, 0.4);
+        }
+
+        /* Modaly – dark theme čitelnost */
+        body.theme-dark #welcome-modal > div,
+        body.theme-dark #fireout-modal > div,
+        body.theme-dark #lang-picker-modal > div {
+            border-color: var(--accent-gold);
+            box-shadow: 0 0 60px rgba(0,0,0,0.95), 0 0 20px rgba(240,217,143,0.15);
+        }
+        
+        /* SPRING THEME */
+        body.theme-spring {
+            --bg-parchment: #f0fdf4;
+            --bg-header: rgba(240, 253, 244, 0.9);
+            --ink-primary: #14532d;
+            --ink-secondary: #166534;
+            --accent-wax: #84cc16;
+            --accent-gold: #facc15;
+            --leather-dark: #365314;
+            --bg-card: rgba(240, 253, 244, 0.7);
+            --border-color: #22c55e;
+            --shadow: rgba(34, 197, 94, 0.1);
+        }
+        
+        /* SUMMER THEME */
+        body.theme-summer {
+            --bg-parchment: #fffbeb;
+            --bg-header: rgba(255, 251, 235, 0.9);
+            --ink-primary: #78350f;
+            --ink-secondary: #92400e;
+            --accent-wax: #f59e0b;
+            --accent-gold: #fbbf24;
+            --leather-dark: #451a03;
+            --bg-card: rgba(255, 251, 235, 0.7);
+            --border-color: #f59e0b;
+            --shadow: rgba(245, 158, 11, 0.1);
+        }
+        
+        /* AUTUMN THEME */
+        body.theme-autumn {
+            --bg-parchment: #fef3c7;
+            --bg-header: rgba(254, 243, 199, 0.9);
+            --ink-primary: #78350f;
+            --ink-secondary: #92400e;
+            --accent-wax: #dc2626;
+            --accent-gold: #f59e0b;
+            --leather-dark: #451a03;
+            --bg-card: rgba(254, 243, 199, 0.7);
+            --border-color: #ea580c;
+            --shadow: rgba(234, 88, 12, 0.1);
+        }
+        
+        /* WINTER THEME */
+        body.theme-winter {
+            --bg-parchment: #f0f9ff;
+            --bg-header: rgba(240, 249, 255, 0.9);
+            --ink-primary: #0c4a6e;
+            --ink-secondary: #075985;
+            --accent-wax: #0284c7;
+            --accent-gold: #06b6d4;
+            --leather-dark: #082f49;
+            --bg-card: rgba(240, 249, 255, 0.7);
+            --border-color: #0ea5e9;
+            --shadow: rgba(14, 165, 233, 0.1);
+        }
+        
+        /* Apply theme to body */
+        body {
+            background: var(--bg-parchment);
+            color: var(--ink-primary);
+            transition: background-color 0.5s, color 0.5s;
+        }
+        
+        .card {
+            background: var(--bg-card);
+            border-color: var(--border-color);
+            transition: background-color 0.5s, border-color 0.5s, color 0.5s;
+        }
+        
+        /* Smooth transitions for all themed elements */
+        header, nav, button, input, select, .item-icon, .craft-btn, .nav-btn, .time-btn, .filter-btn {
+            transition: background-color 0.5s, border-color 0.5s, color 0.5s;
+        }
+
+        * { 
+            box-sizing: border-box; 
+            -webkit-tap-highlight-color: transparent; 
+        }
+        
+        html {
+            overscroll-behavior: none; /* Disable pull-to-refresh */
+            -webkit-overflow-scrolling: touch;
+        }
+        
+        body { 
+            margin: 0; 
+            padding: 0; 
+            background-color: #0d0a08; 
+            font-family: 'Crimson Text', serif; 
+            color: var(--ink-primary); 
+            height: 100vh;
+            height: 100dvh; /* Dynamic viewport height for mobile */
+            overflow: hidden; 
+            display: flex; 
+            justify-content: center;
+            position: fixed;
+            width: 100%;
+            overscroll-behavior: none;
+        }
+
+        #game-container { 
+            width: 100%; 
+            max-width: 500px; 
+            height: 100%; 
+            background-color: var(--bg-parchment); 
+            position: relative; 
+            display: flex; 
+            flex-direction: column; 
+            background-image: radial-gradient(circle, transparent 40%, rgba(0,0,0,0.05) 90%); 
+            transition: filter 1s ease;
+        }
+
+        .mode-frozen { pointer-events: none; }
+        .mode-frozen > header,
+        .mode-frozen > #main-content,
+        .mode-frozen > nav,
+        .mode-frozen > #notification-area { filter: brightness(0.4) sepia(0.2) hue-rotate(190deg) blur(1px); }
+        .mode-frozen #card-fireplace { filter: none !important; pointer-events: auto !important; opacity: 1 !important; }
+        .mode-frozen #crafting-list .blind-recipe { pointer-events: auto !important; filter: none !important; opacity: 1 !important; }
+        .ui-frozen { pointer-events: auto !important; filter: none !important; z-index: 100; position: relative; }
+        .lore-darkness { filter: brightness(0.2) blur(3px) grayscale(0.8); pointer-events: none; user-select: none; }
+
+        /* FONT SPECIMEN – ukázky historických písem */
+        .font-specimen {
+            margin-top: 18px;
+            border-top: 1px solid var(--accent-gold);
+            padding-top: 14px;
+        }
+        .font-specimen-label {
+            font-size: 0.68rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--ink-secondary);
+            margin-bottom: 8px;
+        }
+        .font-specimen-name {
+            font-size: 0.72rem;
+            color: var(--accent-gold);
+            margin-bottom: 6px;
+            font-style: italic;
+        }
+        .font-specimen-text {
+            line-height: 1.8;
+            color: var(--ink-primary);
+            padding: 10px 14px;
+            background: rgba(0,0,0,0.04);
+            border-left: 3px solid var(--accent-gold);
+            margin-bottom: 8px;
+        }
+        .font-specimen-context {
+            font-size: 0.78rem;
+            color: var(--ink-secondary);
+            font-style: italic;
+            line-height: 1.6;
+        }
+        .font-fraktur { font-family: 'UnifrakturMaguntia', serif; font-size: 1.15rem; }
+        .font-antiqua  { font-family: 'IM Fell English', serif; font-size: 1rem; }
+        .font-uncial   { font-family: 'Uncial Antiqua', serif; font-size: 1rem; }
+        .font-italic   { font-family: 'IM Fell English', serif; font-size: 1rem; font-style: italic; }
+
+        @keyframes fire-breathe { 0% { box-shadow: 0 -5px 40px 10px rgba(255, 60, 0, 0.2); } 50% { box-shadow: 0 -10px 50px 15px rgba(255, 100, 0, 0.3); } 100% { box-shadow: 0 -5px 40px 10px rgba(255, 60, 0, 0.2); } }
+        .fireplace-active { border: 1px solid rgba(200, 50, 0, 0.5) !important; animation: fire-breathe 4s infinite ease-in-out; background: rgba(255, 150, 100, 0.1) !important; }
+
+        @keyframes candle-flicker { 0% { box-shadow: 0 0 15px 2px rgba(255, 200, 0, 0.3); opacity: 0.9; } 100% { box-shadow: 0 0 18px 4px rgba(255, 220, 50, 0.4); opacity: 1; } }
+        .candle-active { animation: candle-flicker 0.1s infinite alternate; border-color: var(--accent-gold) !important; background: rgba(255, 220, 100, 0.2) !important; }
+        
+        @keyframes torch-flicker { 0% { box-shadow: 0 0 10px 5px rgba(255, 69, 0, 0.2); } 50% { box-shadow: 0 0 18px 10px rgba(255, 80, 0, 0.35); } 100% { box-shadow: 0 0 10px 5px rgba(255, 69, 0, 0.2); } }
+        .torch-active { animation: torch-flicker 0.2s infinite cubic-bezier(0.1, 0.7, 1.0, 0.1); border-color: #a04000 !important; background: rgba(255, 100, 50, 0.15) !important; }
+
+        @keyframes nav-pulse-fire { 50% { color: #ffbd40; text-shadow: 0 0 15px rgba(255, 140, 0, 0.8); border-top-color: #ff9d00; } }
+        .nav-fire-active { animation: nav-pulse-fire 3s infinite ease-in-out !important; border-top-width: 2px !important; }
+        @keyframes nav-pulse-candle { 50% { color: #fffacd; text-shadow: 0 0 15px rgba(255, 255, 0, 0.8); border-top-color: #ffff00; } }
+        .nav-candle-active { animation: nav-pulse-candle 3s infinite ease-in-out !important; border-top-width: 2px !important; }
+        .nav-torch-active { animation: torch-flicker 0.5s infinite alternate !important; border-top-width: 2px !important; }
+
+        h1, h2, h3 { font-family: 'Cinzel Decorative', cursive; margin: 0; font-weight: 700; }
+        .text-sm { font-size: 0.9rem; color: var(--ink-secondary); line-height: 1.2; }
+        .text-danger { color: var(--accent-wax); }
+
+		/* --- NOVÁ HLAVIČKA --- */
+		header {
+			background-color: #1a1410;
+			/* Vrstva 1: Jemný gradient zespodu nahoru (ztmavuje spodek pro text) */
+			/* Vrstva 2: Obrázek pozadí */
+			background-image: 
+				linear-gradient(to top, rgba(0,0,0,0.6) 0%, transparent 60%),
+				url('header-bg.jpg');
+			background-position: center;
+			background-repeat: no-repeat;
+			background-size: cover;
+			
+			/* Layout */
+			padding: 10px 12px; /* Increased from 8px for better background visibility */
+			border-bottom: 2px solid var(--accent-gold); /* Používáme proměnnou pro konzistenci */
+			position: sticky;
+			top: 0;
+			z-index: 100;
+			box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+			
+			/* Flex pro logo vlevo/uprostřed */
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			gap: 8px; /* Increased from 5px for more vertical space */
+		}
+
+		/* Logo sekce */
+		header .logo-container {
+			display: flex; 
+			justify-content: center; 
+			align-items: center; 
+			gap: 10px;
+			filter: drop-shadow(0 2px 4px rgba(0,0,0,0.8)); /* Stín jen pod logem */
+		}
+
+		/* Status bar kontejner */
+		.status-bar {
+			background: none !important; /* Žádné pozadí kontejneru */
+			backdrop-filter: none !important;
+			border: none !important;
+			padding: 2px 0;
+			margin-top: 2px;
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			gap: 15px; /* Větší rozestup pro vzdušnost */
+			width: 100%;
+		}
+
+		/* Styl pro VŠECHNY ikony a hodnoty v hlavičce */
+		.status-bar span, 
+		.status-bar div,
+		#research-count,
+		#streak-number {
+			/* Reset starých stylů */
+			background: none !important; /* ODSTRANĚNÍ BUBLIN */
+			border: none !important;
+			border-radius: 0 !important;
+			box-shadow: none !important;
+			filter: none !important;
+			padding: 0 !important;
+			margin: 0 !important;
+			
+			/* Nová typografie */
+			font-size: 20px !important;
+			font-weight: 700 !important;
+			color: #ffffff !important; /* Čistá bílá */
+			font-family: 'Crimson Text', serif;
+			
+			/* Požadovaný stín pro čitelnost */
+			text-shadow: 
+				0 2px 4px rgba(0,0,0,0.9), 
+				0 0 12px rgba(255,255,255,0.4) !important;
+				
+			cursor: pointer;
+			transition: transform 0.2s ease;
+		}
+
+		/* Interakce - zvětšení při najetí */
+		.status-bar span:hover, 
+		.status-bar div:hover {
+			transform: scale(1.15);
+		}
+
+		/* Oddělovače */
+		.status-bar .separator {
+			color: var(--accent-gold) !important; /* Zlaté tečky */
+			opacity: 0.6;
+			font-size: 14px !important;
+			text-shadow: none !important;
+			margin: 0 4px !important;
+			cursor: default !important;
+		}
+
+		/* Research kontejner specifika */
+		#research-indicator {
+			display: flex !important;
+			align-items: center;
+			gap: 6px;
+		}
+
+		/* Responzivita pro malé mobily */
+		@media (max-width: 500px) {
+			header { padding: 6px; }
+			.status-bar { gap: 8px; }
+			.status-bar span, .status-bar div { font-size: 18px !important; }
+		}
+
+		/* Oddělovače mezi ikonami - jemnější */
+		.status-bar span[style*="color:#999"] {
+			background: none !important;
+			padding: 0 !important;
+			filter: none !important;
+		}
+		
+        @media (max-width: 500px) {
+            header { padding: 6px 8px; height: 65px; gap: 3px; }
+            header > div:first-child span { font-size: 1.1rem !important; letter-spacing: 1px !important; }
+            .status-bar { gap: 6px; font-size: 0.75rem; }
+            .status-bar span { margin: 0 !important; }
+        }
+        
+        main { 
+            flex: 1; 
+            overflow-y: auto; 
+            overflow-x: hidden;
+            padding: 20px; 
+            padding-bottom: calc(70px + env(safe-area-inset-bottom)); 
+            transition: opacity 0.5s; 
+            position: relative;
+            -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+        }
+        .screen { display: none; animation: fadeIn 0.3s ease-out; }
+        .screen.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+
+        .card { border: 1px solid var(--ink-secondary); padding: 10px; margin-bottom: 8px; background: rgba(255,255,255,0.4); display: flex; align-items: center; gap: 12px; box-shadow: 2px 2px 0px rgba(44, 36, 27, 0.1); transition: all 0.3s; min-height: 60px; }
+        .item-icon { width: 44px; height: 44px; min-width: 44px; background: #e8dec0; border: 1px solid var(--ink-primary); display: flex; justify-content: center; align-items: center; font-size: 1.5rem; border-radius: 3px; }
+        .craft-btn { margin-left: auto; background: var(--accent-wax); color: #fff; border: none; padding: 8px 14px; font-family: 'Cinzel Decorative'; cursor: pointer; border-radius: 2px; font-size: 0.85rem; white-space: nowrap; }
+        .craft-btn:disabled { background: #bbb; cursor: not-allowed; opacity: 0.7; }
+        
+        .craft-btn.running { background: var(--ink-secondary); animation: pulse 2s infinite; }
+        .craft-btn.claim { background: #4caf50; border-color: #2e7d32; animation: bounce 1s infinite alternate; }
+        .craft-btn.cancel { background: #8a3324; border-color: #5c180e; font-size: 0.75rem; }
+        .craft-btn.instant { background: #c5a059; border-color: #8f7238; }
+
+        @keyframes pulse { 0% { opacity: 0.7; } 50% { opacity: 1; } 100% { opacity: 0.7; } }
+        @keyframes bounce { from { transform: scale(1); } to { transform: scale(1.05); } }
+        
+        /* Mobile-friendly touch targets */
+        @media (max-width: 500px) {
+            .craft-btn, button {
+                min-height: 44px;
+                min-width: 44px;
+            }
+        }
+        
+        .filter-bar { display: flex; gap: 5px; margin-bottom: 15px; overflow-x: auto; padding-bottom: 5px; -webkit-overflow-scrolling: touch; }
+        .filter-btn { background: var(--bg-card); color: var(--ink-primary); border: 1px solid var(--ink-secondary); padding: 4px 10px; font-family: 'Cinzel Decorative'; font-size: 0.75rem; cursor: pointer; white-space: nowrap; }
+        .filter-btn.active { background: var(--ink-primary); color: var(--bg-parchment); border-color: var(--accent-gold);}
+
+        nav { 
+            height: calc(60px + env(safe-area-inset-bottom));
+            background: var(--leather-dark); 
+            position: fixed; 
+            bottom: 0; 
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%; 
+            max-width: 500px;
+            display: flex; 
+            justify-content: space-around; 
+            align-items: flex-start;
+            padding-top: 10px;
+            border-top: 2px solid var(--accent-gold); 
+            z-index: 100;
+            padding-bottom: max(10px, env(safe-area-inset-bottom));
+        }
+        .nav-btn { background: none; border: none; color: #a89f91; font-family: 'Cinzel Decorative'; font-size: 0.7rem; text-transform: uppercase; display: flex; flex-direction: column; align-items: center; cursor: pointer; transition: all 0.3s; }
+        .nav-btn.active { color: var(--accent-gold); }
+        .nav-btn:disabled { opacity: 0.3; filter: grayscale(1); }
+
+		#notification-area { 
+			position: fixed;      /* Změna z absolute na fixed - bude plavat nad stránkou */
+			top: 90px;            /* Posunuto níže pod hlavičku */
+			left: 0;
+			width: 100%; 
+			text-align: center; 
+			pointer-events: none; /* Aby šlo klikat "skrz" notifikaci */
+			z-index: 10001;       /* Musí být víc než header (100) a modaly (1000) */
+		}
+        .toast { display: inline-block; background: var(--ink-primary); color: var(--bg-parchment); padding: 8px 16px; border-radius: 4px; margin-top: 5px; border: 1px solid var(--accent-gold); font-family: 'Cinzel Decorative'; animation: fadeOut 2.5s forwards; }
+        @keyframes fadeOut { 0% { opacity: 0; transform: translateY(-10px); } 10% { opacity: 1; transform: translateY(0); } 80% { opacity: 1; } 100% { opacity: 0; visibility: hidden; } }
+
+        .garden-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .garden-plot { border: 1px dashed var(--ink-secondary); padding: 10px; text-align: center; background: rgba(255,255,255,0.2); min-height: 140px; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+        .plot-soil { color: #5c4d3c; font-size: 2rem; }
+        
+        .time-selector { display: flex; justify-content: center; gap: 5px; margin-bottom: 10px; padding: 5px; background: rgba(0,0,0,0.05); border-radius: 4px; }
+        .time-btn { flex: 1; background: transparent; border: 1px solid transparent; cursor: pointer; font-family: 'Cinzel Decorative'; font-size: 0.75rem; color: var(--ink-secondary); padding: 4px; border-radius: 3px; }
+        .time-btn.active { background: var(--ink-primary); color: #fff; border-color: var(--ink-primary); }
+        
+        /* Library specific styles */
+        .book-card {
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .book-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px var(--shadow);
+        }
+        
+        .book-modal-content {
+            animation: fadeIn 0.3s ease-in-out;
+        }
+		/* ===== I-CHING STYLES ===== */
+		.iching-intro {
+		  background: rgba(40, 30, 20, 0.5);
+		  padding: 20px;
+		  border-radius: 10px;
+		  border: 2px solid #8b6434;
+		  margin-bottom: 20px;
+		}
+
+		.cooldown-text {
+		  color: #d4a574;
+		  font-size: 14px;
+		  margin-top: 10px;
+		}
+
+		.btn-mystical {
+		  background: linear-gradient(135deg, #2d1b4e 0%, #1a0d30 100%);
+		  color: #d4a5ff;
+		  border: 3px solid #6b4fa0;
+		  padding: 15px 40px;
+		  font-size: 20px;
+		  font-weight: bold;
+		  border-radius: 12px;
+		  cursor: pointer;
+		  box-shadow: 0 0 20px rgba(107, 79, 160, 0.5);
+		  transition: all 0.3s;
+		  display: block;
+		  margin: 20px auto;
+		}
+
+		.btn-mystical:hover:not(:disabled) {
+		  box-shadow: 0 0 40px rgba(107, 79, 160, 0.8);
+		  transform: scale(1.05);
+		}
+
+		.btn-mystical:disabled {
+		  opacity: 0.5;
+		  cursor: not-allowed;
+		}
+
+		.hexagram-container {
+		  display: grid;
+		  grid-template-columns: 200px 1fr;
+		  gap: 30px;
+		  margin-top: 30px;
+		  padding: 30px;
+		  background: rgba(0, 0, 0, 0.4);
+		  border: 3px solid #6b4fa0;
+		  border-radius: 15px;
+		}
+
+		.hexagram-art {
+		  display: flex;
+		  flex-direction: column;
+		  align-items: center;
+		  justify-content: center;
+		  gap: 8px; /* Mezera mezi čarami */
+		  background: rgba(0, 0, 0, 0.6);
+		  padding: 20px;
+		  border-radius: 10px;
+		  border: 2px solid #6b4fa0;
+		}
+
+		.iching-line {
+		  font-size: 3.5rem; /* Velké Unicode znaky čar */
+		  line-height: 0.5; /* Aby byly blízko sebe */
+		  color: #d4a5ff;
+		  text-shadow: 0 0 10px rgba(212, 165, 255, 0.5);
+		}
+
+		.iching-line.yang { font-weight: bold; }
+
+		/* Ochrana proti přetékání na mobilech */
+		@media (max-width: 600px) {
+		  .hexagram-container {
+			grid-template-columns: 1fr; /* Na mobilu budou bloky pod sebou! */
+			gap: 15px;
+			padding: 15px;
+		  }
+		  .iching-line { font-size: 3rem; }
+		}
+
+		#hexagram-info {
+		  color: #f4e8d0;
+		}
+
+		#hex-number {
+		  color: #8b6434;
+		  font-size: 14px;
+		  margin-bottom: 5px;
+		}
+
+		#hex-name {
+		  color: #d4a5ff;
+		  font-size: 28px;
+		  margin: 10px 0;
+		}
+
+		.chinese-char {
+		  font-size: 48px;
+		  margin: 15px 0;
+		  color: #ffd700;
+		}
+
+		.judgment-text {
+		  font-style: italic;
+		  color: #c4b49a;
+		  font-size: 16px;
+		  margin: 15px 0;
+		  line-height: 1.6;
+		}
+
+		.effect-box {
+		  background: linear-gradient(135deg, rgba(107, 79, 160, 0.3) 0%, rgba(45, 27, 78, 0.3) 100%);
+		  padding: 20px;
+		  border-radius: 10px;
+		  border: 2px solid #6b4fa0;
+		  margin-top: 20px;
+		}
+
+		.effect-box h4 {
+		  color: #ffd700;
+		  margin-bottom: 10px;
+		}
+
+		.effect-box p {
+		  color: #f4e8d0;
+		  font-size: 16px;
+		  line-height: 1.5;
+		}
+
+		/* Coin animation */
+		@keyframes coinFlip {
+		  0%, 100% { transform: rotateY(0deg); }
+		  50% { transform: rotateY(180deg); }
+		}
+
+		.coin-animating {
+		  animation: coinFlip 0.5s ease-in-out 3;
+		}
+		
+
+		/* =========================================================
+		   🖥️ DESKTOP UPGRADE (PERFEKTNÍ ZAROVNÁNÍ)
+		   ========================================================= */
+
+		@media (min-width: 768px) {
+			#game-container { 
+				max-width: 1000px; /* Širší a pohodlnější stůl */
+			}
+			
+			/* 1. HLAVIČKA: Musíme ji odsadit zleva stejně jako hlavní obsah, 
+			   aby byl text "SCRIPTORIUM" perfektně zarovnaný se zbytkem hry! 
+			   Background-image tím zůstane nedotčen. */
+			header {
+				padding-left: 90px !important; 
+			}
+
+			/* 2. LIŠTA: Přesně pod hlavičkou až na dno obrazovky */
+			nav {
+				position: absolute; 
+				top: 72px; /* Výška hlavičky */
+				left: 0;
+				width: 80px;
+				height: calc(100% - 72px); /* Dopočítá výšku přesně na dno */
+				transform: none; 
+				flex-direction: column; 
+				justify-content: center; 
+				gap: 30px; 
+				border-top: none; 
+				border-right: 2px solid var(--accent-gold); 
+				padding-top: 0;
+				align-items: center;
+				background: var(--leather-dark); /* Plná barva lišty */
+				z-index: 50;
+			}
+
+			.nav-btn span {
+				font-size: 1.6rem;
+				margin-bottom: 5px;
+			}
+			
+			/* 3. OBSAH: Odsazený za lištu */
+			main {
+				padding-left: 100px; /* 80px lišta + 20px estetická mezera */
+				padding-bottom: 20px; 
+			}
+			
+			#notification-area {
+				width: calc(100% - 80px);
+				left: 80px;
+			}
+
+			/* 4. MŘÍŽKA: 2 sloupce karet */
+			#workspace-actions, #crafting-list, #inventory-grid {
+				display: grid;
+				grid-template-columns: repeat(2, 1fr);
+				gap: 15px;
+			}
+			
+			#workspace-actions .card, #crafting-list .card, #inventory-grid .card {
+				margin-bottom: 0;
+				height: 100%; 
+				box-sizing: border-box;
+			}
+
+			.garden-grid { 
+				grid-template-columns: repeat(4, 1fr); 
+			}
+			
+			#lore-content-wrapper {
+				max-width: 650px;
+				margin: 0 auto;
+			}
+		}
+
+		/* Velké PC monitory (od 1200px šířky) */
+		@media (min-width: 1200px) {
+			#game-container { 
+				max-width: 1200px; 
+			}
+			
+			/* 3 sloupce na velkém monitoru */
+			#workspace-actions, #crafting-list, #inventory-grid {
+				grid-template-columns: repeat(3, 1fr);
+			}
+		}
+				
+		/* ============================================
+		   GAMES GRID LAYOUT - Záznamy
+		   ============================================ */
+
+		/* Grid container */
+		.games-grid {
+			display: grid;
+			grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+			gap: 15px;
+			margin: 20px 0;
+		}
+
+		/* Responsive breakpoints */
+		@media (max-width: 768px) {
+			.games-grid {
+				grid-template-columns: repeat(2, 1fr);
+				gap: 12px;
+			}
+		}
+
+		@media (max-width: 480px) {
+			.games-grid {
+				grid-template-columns: 1fr;
+				gap: 10px;
+			}
+		}
+
+		/* Game card */
+		.game-card {
+			background: var(--bg-card);
+			border: 2px solid var(--border-color);
+			border-radius: 12px; /* Zaoblené rohy! */
+			padding: 20px 15px;
+			text-align: center;
+			transition: all 0.3s ease;
+			box-shadow: 0 2px 4px var(--shadow);
+			position: relative;
+			overflow: hidden;
+		}
+
+		.game-card:hover {
+			transform: translateY(-5px);
+			box-shadow: 0 4px 12px var(--shadow);
+			border-color: var(--accent-gold);
+		}
+
+		/* Locked state */
+		.game-card.locked {
+			opacity: 0.6;
+			filter: grayscale(40%);
+		}
+
+		.game-card.locked:hover {
+			transform: none;
+			box-shadow: 0 2px 4px var(--shadow);
+		}
+
+		/* Game icon */
+		.game-icon {
+			font-size: 3rem;
+			margin-bottom: 10px;
+			display: block;
+			line-height: 1;
+		}
+
+		/* Game title */
+		.game-title {
+			font-weight: bold;
+			font-size: 1rem;
+			margin-bottom: 8px;
+			color: var(--ink-primary);
+			min-height: 40px;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+		}
+
+		/* Game description */
+		.game-desc {
+			font-size: 0.85rem;
+			opacity: 0.7;
+			margin-bottom: 15px;
+			min-height: 40px;
+			line-height: 1.3;
+		}
+
+		/* Lock badge */
+		.game-lock-badge {
+			position: absolute;
+			top: 10px;
+			right: 10px;
+			font-size: 1.2rem;
+			opacity: 0.5;
+		}
+
+		/* Unlock requirement text */
+		.game-unlock-text {
+			font-size: 0.8rem;
+			opacity: 0.7;
+			padding: 10px;
+			background: rgba(0,0,0,0.05);
+			border-radius: 6px;
+			margin-top: 10px;
+		}
+
+		/* Buttons in cards */
+		.game-card .craft-btn {
+			width: 100%;
+			margin-top: 5px;
+			font-size: 0.9rem;
+			padding: 8px 12px;
+		}
+
+		.game-card .craft-btn:first-of-type {
+			margin-top: 10px;
+		}
+
+		/* Game containers (když se hra spustí) */
+		.game-card [id$="-game-card"] {
+			display: none; /* Skryté dokud hra neběží */
+		}
+
+		.game-card.active [id$="-game-card"] {
+			display: block;
+			margin-top: 15px;
+		}
+
+		/* Dark mode adjustments */
+		body.theme-dark .game-card {
+			background: rgba(30, 25, 20, 0.8);
+			border-color: #4a3f32;
+		}
+
+		body.theme-dark .game-card:hover {
+			background: rgba(40, 35, 30, 0.9);
+			border-color: var(--accent-gold);
+		}
+        
+        /* ============================================
+           GAME MODAL SYSTEM - Standalone Windows
+           ============================================ */
+        
+        .game-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(3px);
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        .game-modal-content {
+            background: var(--bg-parchment);
+            border: 3px solid var(--border-color);
+            border-radius: 12px;
+            padding: 30px;
+            max-width: 90vw;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+            box-shadow: 0 10px 50px rgba(0, 0, 0, 0.7);
+            animation: slideIn 0.3s ease;
+        }
+        
+        @keyframes slideIn {
+            from { 
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+            to { 
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+        
+        .game-modal-close {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: var(--accent-wax);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            font-size: 24px;
+            cursor: pointer;
+            line-height: 1;
+            transition: all 0.3s;
+            font-weight: bold;
+        }
+        
+        .game-modal-close:hover {
+            background: #c74236;
+            transform: rotate(90deg) scale(1.1);
+        }
+        
+        body.theme-dark .game-modal-content {
+            background: rgba(30, 25, 20, 0.95);
+            border-color: #4a3f32;
+        }
+    </style>
+	<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 fill=%22%23fcf5e5%22 rx=%2220%22/><path d=%22M10 85 Q 45 100 90 70%22 stroke=%22%232c241b%22 stroke-width=%226%22 fill=%22none%22 stroke-linecap=%22round%22/><g transform=%22rotate(45 50 50)%22><path d=%22M35 -20 L 65 -20 L 65 30 Q 65 65 50 100 Q 35 65 35 30 Z%22 fill=%22%232c241b%22/><circle cx=%2250%22 cy=%2245%22 r=%225%22 fill=%22%23fcf5e5%22/><line x1=%2250%22 y1=%2250%22 x2=%2250%22 y2=%2290%22 stroke=%22%23fcf5e5%22 stroke-width=%222%22/></g></svg>">
+	<link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 fill=%22%23fcf5e5%22/><path d=%22M10 85 Q 45 100 90 70%22 stroke=%22%232c241b%22 stroke-width=%226%22 fill=%22none%22 stroke-linecap=%22round%22/><g transform=%22rotate(45 50 50)%22><path d=%22M35 -20 L 65 -20 L 65 30 Q 65 65 50 100 Q 35 65 35 30 Z%22 fill=%22%232c241b%22/><circle cx=%2250%22 cy=%2245%22 r=%225%22 fill=%22%23fcf5e5%22/><line x1=%2250%22 y1=%2250%22 x2=%2250%22 y2=%2290%22 stroke=%22%23fcf5e5%22 stroke-width=%222%22/></g></svg>">
+</head>
+<body>
+	<!-- Google Tag Manager (noscript) -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-NZSGNPD8"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<!-- End Google Tag Manager (noscript) -->
+
+<!-- Hidden container for NotebookSystem (used temporarily during render) -->
+<div id="notebook-content" style="display:none;"></div>
+
+    <!-- VÝBĚR JAZYKA – zobrazí se jako první, před consent bannerem -->
+    <div id="lang-picker-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:2100; justify-content:center; align-items:center;">
+        <div style="background:var(--bg-parchment); border:2px solid var(--accent-gold); padding:36px 30px; max-width:380px; width:92%; box-shadow: 0 0 100px rgba(0,0,0,0.95), 0 0 30px rgba(197,160,89,0.2); animation: fadeIn 0.7s; position:relative; z-index:2101; text-align:center;">
+            <div style="font-size:2.8rem; margin-bottom:8px; opacity:0.75;">🪶</div>
+            <h2 id="lang-picker-heading" style="color:var(--accent-gold); margin:0 0 4px; font-size:1rem; letter-spacing:3px; text-transform:uppercase;">Scriptorium</h2>
+            <div id="lang-picker-sub" style="font-size:0.68rem; color:var(--ink-secondary); margin-bottom:22px; font-style:italic; letter-spacing:1px;">Léta Páně 1465 · Město Olomouc</div>
+            <div id="lang-picker-prompt" style="font-size:0.82rem; color:var(--ink-primary); margin-bottom:20px; font-family:'Crimson Text', serif; opacity:0.85;">Vyber jazyk / Choose thy tongue</div>
+            <div style="display:flex; gap:12px; justify-content:center;">
+                <button onclick="UI.pickLanguage('cs')" style="flex:1; padding:13px 8px; background:transparent; color:var(--ink-primary); border:1px solid var(--accent-gold); font-family:'Cinzel Decorative'; font-size:0.72rem; cursor:pointer; border-radius:2px; letter-spacing:1px; transition: background 0.2s;">🇨🇿 Česky</button>
+                <button onclick="UI.pickLanguage('en')" style="flex:1; padding:13px 8px; background:transparent; color:var(--ink-primary); border:1px solid var(--ink-secondary); font-family:'Cinzel Decorative'; font-size:0.72rem; cursor:pointer; border-radius:2px; letter-spacing:1px; opacity:0.85; transition: background 0.2s;">🏴󠁧󠁢󠁥󠁮󠁧󠁿 English</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- UVÍTACÍ MODAL – první návštěva -->
+    <div id="welcome-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0); z-index:1001; justify-content:center; align-items:center;">
+        <div style="background:var(--bg-parchment); border:2px solid var(--accent-gold); padding:30px; max-width:420px; width:92%; box-shadow: 0 0 80px rgba(0,0,0,0.9); animation: fadeIn 0.6s; position:relative; z-index:1002; opacity:1;">
+            <div style="text-align:center; margin-bottom:18px;">
+                <div style="font-size:2.5rem; margin-bottom:6px; opacity:0.7;">🪵</div>
+                <h2 style="color:var(--accent-gold); margin:0; font-size:1rem; letter-spacing:3px; text-transform:uppercase;">Scriptorium</h2>
+                <div style="font-size:0.7rem; color:var(--ink-secondary); margin-top:5px; font-style:italic; letter-spacing:1px;">Léta Páně 1465 · Město Olomouc</div>
+            </div>
+            <div id="welcome-text" style="font-style:italic; line-height:1.9; color:var(--ink-primary); font-size:0.9rem; border-left:2px solid var(--accent-gold); padding-left:14px; margin-bottom:22px;"></div>
+            <button id="welcome-btn" onclick="UI.closeWelcomeModal()" style="width:100%; padding:12px; background:transparent; color:var(--ink-primary); border:1px solid var(--ink-secondary); font-family:'Cinzel Decorative'; font-size:0.8rem; cursor:pointer; border-radius:2px; letter-spacing:2px; opacity:0.8;">Vstoupit →</button>
+        </div>
+    </div>
+
+    <!-- VYHASLÝ KRB MODAL – vracející se hráč po 3+ dnech -->
+    <div id="fireout-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0); z-index:1001; justify-content:center; align-items:center;">
+        <div style="background:var(--bg-parchment); border:2px solid #555; padding:30px; max-width:400px; width:92%; box-shadow: 0 0 80px rgba(0,0,0,0.9); animation: fadeIn 0.5s; position:relative; z-index:1002; opacity:1;">
+            <div style="text-align:center; margin-bottom:16px;">
+                <div style="font-size:2.5rem; margin-bottom:6px; opacity:0.4;">🪵</div>
+                <h2 id="fireout-heading" style="color:var(--ink-secondary); margin:0; font-size:0.95rem; letter-spacing:2px; text-transform:uppercase;">Pracovna je studená</h2>
+            </div>
+            <div id="fireout-text" style="font-style:italic; line-height:1.9; color:var(--ink-primary); font-size:0.88rem; background:rgba(0,0,0,0.04); padding:14px; border-left:2px solid #777; margin-bottom:16px;"></div>
+            <div id="fireout-days" style="text-align:center; font-size:0.75rem; color:var(--ink-secondary); margin-bottom:18px; opacity:0.7;"></div>
+            <button id="fireout-btn" onclick="UI.closeFireoutModal()" style="width:100%; padding:11px; background:transparent; color:var(--ink-primary); border:1px solid var(--ink-secondary); font-family:'Cinzel Decorative'; font-size:0.78rem; cursor:pointer; border-radius:2px; letter-spacing:2px; opacity:0.7;">Hledat oheň →</button>
+        </div>
+    </div>
+
+    <!-- DENNÍ ODMĚNA MODAL – mimo game-container aby nebyl ovlivněn mode-frozen -->
+    <div id="daily-reward-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:1001; justify-content:center; align-items:center;">
+        <div style="background:var(--bg-parchment); border:3px solid var(--accent-gold); padding:30px; max-width:400px; width:90%; box-shadow: 0 0 40px rgba(197,160,89,0.6); animation: fadeIn 0.3s;">
+            <div style="text-align:center; margin-bottom:20px;">
+                <div style="font-size:4rem; animation: bounce 1s ease-in-out infinite;">🎁</div>
+                <h2 style="color:var(--accent-gold); margin:10px 0;">Denní Odměna!</h2>
+            </div>
+            <div id="daily-reward-content" style="text-align:center; margin-bottom:20px;"></div>
+            <div id="daily-fact" style="background:rgba(0,0,0,0.05); padding:15px; border-left:3px solid var(--accent-gold); font-style:italic; margin:20px 0; line-height:1.6;"></div>
+            <button onclick="UI.closeDailyRewardModal()" style="width:100%; padding:12px; background:var(--accent-gold); color:var(--ink-primary); border:none; font-family:'Cinzel Decorative'; font-size:1rem; cursor:pointer; border-radius:3px;">Děkuji! ✨</button>
+        </div>
+    </div>
+
+<div id="about-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1001; overflow-y: auto; padding: 20px 0;">
+    <div style="max-width: 500px; margin: 20px auto; background: var(--bg-parchment); border: 2px solid var(--accent-gold); padding: 20px; position: relative; border-radius: 4px;">
+        <button onclick="UI.closeAboutModal()" style="position: absolute; top: 10px; right: 10px; background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--ink-primary); width: 40px; height: 40px;">✕</button>
+        
+        <h2 style="margin-bottom: 20px; color: var(--accent-gold); font-family: 'Cinzel Decorative';">📜 SCRIPTORIUM</h2>
+        
+        <div style="margin-bottom: 20px; padding: 12px; background: var(--bg-card); border-left: 3px solid var(--accent-gold);">
+            <strong>Verze:</strong> 7.6 "Lingua Scriptorii"<br>
+            <strong>Datum:</strong> 10. března 2026<br>
+            <strong>Autor:</strong> Ondrex Ember
+        </div>
+        
+        <h3 style="margin: 20px 0 10px; color: var(--accent-gold); font-family: 'Cinzel Decorative';">O hře</h3>
+        <p style="line-height: 1.6;">Středověká idle hra o kopírování rukopisů, výrobě papíru a studiu v klášterním skriptoriu. Kombinuje survival mechaniky (oheň, světlo, hlad) s craftingem, zahradničením a postupným odemykáním technologií. Historicky podložená hra zasazená do roku 1465 v Olomouci.</p>
+        
+        <h3 style="margin: 20px 0 10px; color: var(--accent-gold); font-family: 'Cinzel Decorative';">📓 Release Notes</h3>
+
+        <div style="border-left: 3px solid var(--accent-gold); padding-left: 12px; margin: 10px 0; padding: 10px; background: rgba(197,160,89,0.12);">
+            <strong>v7.6 "Lingua Scriptorii" (10.03.2026)</strong>
+            <ul style="font-size: 0.9rem; margin: 5px 0; line-height: 1.6;">
+                <li>🌐 CZ/EN lokalizace — výběr jazyka při prvním spuštění</li>
+                <li>🏴󠁧󠁢󠁥󠁮󠁧󠁿 English (Olde) — autentický středověký styl</li>
+                <li>🗺️ Přepínač jazyka v Nastavení, ?lang=en URL podpora</li>
+                <li>🔍 SEO: hreflang alternate links (cs/en/x-default)</li>
+                <li>📊 GA4 event language_switched</li>
+            </ul>
+        </div>
+
+        <div style="border-left: 3px solid var(--accent-gold); padding-left: 12px; margin: 10px 0; padding: 10px; background: rgba(197,160,89,0.08);">
+            <strong>v7.5 "Codex Aureus" (09.03.2026)</strong>
+            <ul style="font-size: 0.9rem; margin: 5px 0; line-height: 1.6;">
+                <li>🔤 Font Specimens — 7 knih + 5 technologií s ukázkami písem</li>
+                <li>🏆 Rank System — 8 ranků (Laicus → Magister Artium)</li>
+                <li>🥚 Easter Eggs — 10+ skrytých achievementů</li>
+                <li>📅 Daily Facts — 50+ historických faktů při denní odměně</li>
+                <li>🌦️ Weather System — real-time počasí Praha, auto-téma</li>
+                <li>📊 GA4 + GDPR consent (podmíněné načítání)</li>
+                <li>📱 PWA manifest + service worker</li>
+            </ul>
+        </div>
+        
+        <div style="border-left: 3px solid var(--accent-wax); padding-left: 12px; margin: 10px 0; background: rgba(138, 51, 36, 0.05); padding: 10px;">
+            <strong>v7.4 "Historical Realities" (15.02.2026)</strong>
+            <ul style="font-size: 0.9rem; margin: 5px 0; line-height: 1.6;">
+                <li>📜 3 nové knihy (De arte predicandi, Kutnohorská Bible, Olomoucký Misál)</li>
+                <li>🦌 Pergamen (vellum) crafting chain — historicky přesná výroba</li>
+                <li>🪶 Husí brko (quill) systém — 10× použití</li>
+                <li>✒️ Železitoduběnkový inkoust — standard 15. století</li>
+                <li>📘 3 typy kodexů (common/luxury/vellum) dle Petra Voita</li>
+                <li>🔔 Kanonické Hodiny — benediktinský denní řád (8 buffů)</li>
+                <li>⚔️ Události: Švédské obléhání (1642), Skrytý prvotisk</li>
+                <li>🏛️ 12 nových technologií — vše z PDF pramenů</li>
+            </ul>
+        </div>
+
+        <div style="border-left: 3px solid var(--ink-secondary); padding-left: 12px; margin: 10px 0; opacity: 0.7; padding: 10px;">
+            <strong>v7.0 "Library" (12.02.2026)</strong>
+            <ul style="font-size: 0.9rem; margin: 5px 0; line-height: 1.6;">
+                <li>📚 15 historických knih + 1 secret (Starý Písař NPC)</li>
+                <li>🎴 Memory game, osobní statistiky, achievement systém</li>
+                <li>🃏 Historické deskové hry (Ur, Primero, Karnöffel)</li>
+            </ul>
+        </div>
+
+        <div style="border-left: 3px solid var(--ink-secondary); padding-left: 12px; margin: 10px 0; opacity: 0.5; padding: 10px;">
+            <strong>v6.4 "Expansion" — v6.0 "Origins" (2026-02)</strong>
+            <ul style="font-size: 0.9rem; margin: 5px 0; line-height: 1.6;">
+                <li>🍖 Cooking, alchymie, zahrada, hunger mechanika</li>
+                <li>🌱 Survival loop — oheň, světlo, hlad, sběr</li>
+                <li>⚒️ Crafting základ, tech tree, zápisníky</li>
+            </ul>
+        </div>
+        
+        <h3 style="margin: 20px 0 10px; color: var(--accent-gold); font-family: 'Cinzel Decorative';">Credits</h3>
+        <p style="font-size: 0.9rem; line-height: 1.6;">
+            <strong>Vývoj:</strong> Ondrex (koncept, design, testování)<br>
+            <strong>Kódování:</strong> Ondrex, Claude, Gemini<br>
+            <strong>Fonty:</strong> Google Fonts (Cinzel Decorative, Crimson Text)<br>
+            <strong>Historické zdroje:</strong> České kláštery, středověké kroniky<br>
+            <strong>Inspirace:</strong> Bouvard a Pecuchét (Gustave Flaubert) & Byli jednou dva písaři; střet rukopisců a prvních knihtiskařů
+        </p>
+        
+        <div style="margin-top: 20px; padding: 15px; background: rgba(197, 160, 89, 0.1); border: 1px solid var(--accent-gold); border-radius: 4px; text-align: center;">
+            <strong>🎮 <i></i>Ludite et, super omnia, nolite pugnare</i></strong><br>
+        </div>
+    </div>
+</div>
+
+<div id="game-container">
+<header>
+    <div class="logo-container">
+        <svg width="28" height="28" viewBox="0 0 100 100">
+            <g transform="rotate(45 50 50)">
+                <rect x="25" y="10" width="50" height="25" fill="#c5a059" stroke="#2c241b" stroke-width="6" rx="2"/>
+                <path d="M25 35 L 75 35 L 80 55 L 50 95 L 20 55 Z" fill="#d0d0d0" stroke="#2c241b" stroke-width="6" stroke-linejoin="round"/>
+                <circle cx="50" cy="60" r="6" fill="#2c241b"/>
+                <line x1="50" y1="60" x2="50" y2="90" stroke="#2c241b" stroke-width="4" stroke-linecap="round"/>
+            </g>
+        </svg>
+        <span style="font-size:1.4rem; letter-spacing:2px; font-family:'Cinzel Decorative'; font-weight:700; color:#d4b883; text-shadow: 2px 2px 4px #000;">
+            SCRIPTORIUM
+        </span>
+    </div>
+
+	<div class="status-bar">
+		<div style="display: flex; align-items: center; gap: 5px;">
+			<span id="weather-today" title="Aktuálně v Praze (klikni pro refresh)" onclick="WeatherSystem.fetchWeather()">⏳</span>
+			<span style="opacity: 0.6; font-size: 16px !important;">/</span>
+			<span id="weather-tomorrow" title="Předpověď na zítra" onclick="WeatherSystem.fetchWeather()" style="opacity: 0.9; font-size: 0.85em !important;">⏳</span>
+		</div>
+		
+		<span class="separator">•</span>
+		
+		<span id="hunger-display" title="Hlad">🍖</span>
+		
+		<span class="separator">•</span>
+
+		<span id="streak-display" style="display:none;" title="Denní streak">
+			🔥 <span id="streak-number">0</span>
+		</span>
+
+		<div id="research-indicator" title="Počet Research">
+			<span>📜</span>
+			<span id="research-count">0</span>
+		</div>
+		
+		<span class="separator">•</span>
+		
+		<span id="time-display" style="text-transform:uppercase;">...</span>
+		
+		<span class="separator">•</span>
+		
+		<span onclick="UI.switchScreen('settings')" title="Nastavení">⚙️</span>
+	</div>
+</header>
+
+    <div id="notification-area"></div>
+    
+
+
+    <main id="main-content">
+        <div id="screen-home" class="screen active">
+            <h2>Pracovna</h2>
+            
+            <div class="time-selector">
+                <button class="time-btn active" onclick="Game.setDuration(0, this)">Ihned</button>
+                <button class="time-btn" onclick="Game.setDuration(1, this)">1 min</button>
+                <button class="time-btn" onclick="Game.setDuration(5, this)">5 min</button>
+                <button class="time-btn" onclick="Game.setDuration(10, this)">10 min</button>
+            </div>
+
+            <div id="card-fireplace" class="card ui-frozen">
+                <div class="item-icon" style="background: #333; color: #555;">🔥</div>
+                <div><strong id="fireplace-title">Vyhaslý Krb</strong><div id="fireplace-desc" class="text-sm">Je tu zima.</div></div>
+                <button id="btn-ignite" class="craft-btn" onclick="Game.igniteFireplace()">ROZEŽEHNOUT</button>
+            </div>
+
+            <div id="card-light-source" class="card" style="opacity: 0.5;">
+                <div class="item-icon" id="light-icon">🌑</div>
+                <div><strong id="light-title">Není světlo</strong><div id="light-desc" class="text-sm">Tma halí knihy.</div></div>
+                <button id="btn-light-torch" class="craft-btn" onclick="Game.lightSource('torch')" disabled style="display:none; margin-left:5px;">ZAPÁLIT LOUČ</button>
+                <button id="btn-light-candle" class="craft-btn" onclick="Game.lightSource('candle')" disabled style="display:none;">ZAPÁLIT SVÍČKU</button>
+            </div>
+            
+            <hr style="border:0; border-top:1px solid var(--ink-secondary); margin:20px 0; opacity:0.3;">
+
+            <div id="workspace-actions"></div>
+        </div>
+
+        <div id="screen-garden" class="screen">
+            <h2>Zahrada</h2>
+            <p class="text-sm" style="margin-bottom:15px;">Pěstuj vzácné rostliny. Půda vyžaduje péči.</p>
+            <div id="garden-container" class="garden-grid"></div>
+			<!-- WELL MANAGEMENT (PŘIDAT před </div> crafting screenu) -->
+		<div id="well-management" style="margin-top: 30px; padding: 20px; background: rgba(0,0,0,0.2); border-radius: 10px;">
+			<h3>🚰 Správa Studny</h3>
+			
+			<div id="well-not-built" style="display: none;">
+				<p>Nemáš studnu. Můžeš ji postavit níže.</p>
+				<button onclick="Game.upgradeWell('basic')" class="craft-btn" style="background: #4a7c59;">
+					🏗️ Postavit studnu (20 kámen, 10 větev, 3 provaz)
+				</button>
+			</div>
+			
+			<div id="well-built" style="display: none;">
+				<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px;">
+					<div>
+						<strong>Úroveň:</strong> <span id="well-level-text">Základní</span>
+					</div>
+					<div>
+						<strong>Stav:</strong> <span id="well-condition-text">✓ Čistá</span>
+					</div>
+				</div>
+				
+				<div style="display: flex; gap: 10px; flex-wrap: wrap;">
+					<button onclick="Game.cleanWell()" id="btn-clean-well" class="craft-btn" style="background: #5a8dc7; display: none;">
+						✨ Vyčistit (prášek)
+					</button>
+					
+					<button onclick="Game.repairWell()" id="btn-repair-well" class="craft-btn" style="background: #c75a5a; display: none;">
+						🔧 Opravit (sada)
+					</button>
+					
+					<button onclick="Game.upgradeWell('stone')" id="btn-upgrade-stone" class="craft-btn" style="background: #8b6434; display: none;">
+						🏛️ Vyzdít kamenem (30 kámen, 5 provaz, 10 uhel)
+					</button>
+				</div>
+			</div>
+		</div>
+        </div>
+
+        <div id="screen-craft" class="screen">
+            <h2>Dílna</h2>
+                <div class="filter-bar" style="margin-top:10px; margin-bottom:15px; flex; flex-wrap: wrap; gap: 5px;">
+                <button class="filter-btn active" onclick="UI.filterCrafting('all', this)">Vše</button>
+                <button class="filter-btn" onclick="UI.filterCrafting('tool', this)">Nástroje</button>
+                <button class="filter-btn" onclick="UI.filterCrafting('mat', this)">Materiály</button>
+                <button class="filter-btn" onclick="UI.filterCrafting('food', this)">Jídlo</button>
+                <button class="filter-btn" onclick="UI.filterCrafting('alchemy', this)">Alchymie</button>
+                <button class="filter-btn" onclick="UI.filterCrafting('lore', this)">Vědění</button>
+            </div>
+            <div id="crafting-list"></div>
+        </div>
+
+        <div id="screen-inv" class="screen">
+            <h2>Batoh</h2>
+                <div id="inv-filter-bar" class="filter-bar" style="margin-top:10px; margin-bottom:15px; display:none; flex-wrap: wrap; gap: 5px;">
+                <button class="filter-btn active" onclick="UI.filterInventory('all', this)">Vše</button>
+                <button class="filter-btn" onclick="UI.filterInventory('mat', this)">Suroviny</button>
+                <button class="filter-btn" onclick="UI.filterInventory('tool', this)">Nástroje</button>
+                <button class="filter-btn" onclick="UI.filterInventory('lore', this)">Ostatní</button>
+            </div>
+            <div id="inventory-grid" style="margin-top:15px;"></div>
+        </div>
+        
+        <div id="screen-lore" class="screen">
+            <h2>Scriptorium</h2>
+            <div id="lore-overlay" style="display:none;">
+                <div class="lore-overlay-msg"><div style="font-size:3rem;">🌑</div><h3>Je tu tma</h3><p>Zapálit Louč nebo Svíčku v pracovně.</p></div>
+            </div>
+            <div id="lore-content-wrapper">
+                <div class="filter-bar" style="margin-top:10px; margin-bottom:15px; flex; flex-wrap: wrap; gap: 5px;">
+                    <button class="filter-btn active" onclick="UI.switchLoreTab('research', this)">Research</button>
+                    <button class="filter-btn" onclick="UI.switchLoreTab('codex', this)">Codex</button>
+                    <button class="filter-btn" onclick="UI.switchLoreTab('notebooks', this)">📓 Zápisníky</button>
+                    <button class="filter-btn" onclick="UI.switchLoreTab('achievements', this)">Achievementy</button>
+                </div>
+                <div id="lore-research-content" style="margin-top:20px;"></div>
+                <div id="lore-codex-content" style="margin-top:20px; display:none;"></div>
+                <div id="lore-notebooks-content" style="margin-top:20px; display:none;"></div>
+                <div id="lore-achievements-content" style="margin-top:20px; display:none;"></div>
+            </div>
+        </div>
+		
+
+        <div id="screen-library" class="screen">
+            <h2>Knihovna</h2>
+            <div id="library-content-wrapper">
+                <div class="filter-bar" style="margin-top:10px; margin-bottom:15px; flex-wrap: wrap; gap: 5px;">
+                    <button class="filter-btn active" onclick="UI.switchLibraryTab('books', this)">📚 Knihy</button>
+                    <button class="filter-btn" onclick="UI.switchLibraryTab('records', this)">🏆 Hry &amp; Záznamy</button>
+                    <button class="filter-btn" onclick="UI.switchLibraryTab('iching', this)">☯️ Věštění</button>
+                    <button class="filter-btn" onclick="UI.switchLibraryTab('news', this)">📜 Zprávy</button>
+                </div>
+                <div id="library-books-content" style="margin-top:20px;"></div>
+                <div id="library-records-content" style="margin-top:20px; display:none;"></div>
+                <div id="library-iching-content" style="margin-top:20px; display:none;"></div>
+                <div id="library-news-content" style="margin-top:20px; display:none;"></div>
+            </div>
+        </div>
+
+        <div id="screen-settings" class="screen">
+            <h2>Nastavení</h2>
+            
+            <div class="card" style="flex-direction: column; align-items: flex-start;">
+                <strong>Hlasitost</strong>
+                <input type="range" id="volume-slider" min="0" max="100" value="17" oninput="Game.setVolume(this.value)">
+            </div>
+            
+            <div class="card" style="flex-direction: column; align-items: flex-start;">
+                <strong id="lang-selector-label">🗺️ Jazyk / Language</strong>
+                <select id="lang-selector" onchange="Game.setLanguage(this.value)" style="width:100%; padding:8px; margin-top:8px; font-family:'Crimson Text'; font-size:1rem; background:var(--bg-card); border:1px solid var(--border-color); color:var(--ink-primary); border-radius:3px;">
+                    <option value="cs">🇨🇿 Česky</option>
+                    <option value="en">🏴󠁧󠁢󠁥󠁮󠁧󠁿 English (Olde)</option>
+                </select>
+            </div>
+
+            <div class="card" style="flex-direction: column; align-items: flex-start;">
+                <strong>🎨 Téma</strong>
+                <select id="theme-selector" onchange="Game.setTheme(this.value)" style="width:100%; padding:8px; margin-top:8px; font-family:'Crimson Text'; font-size:1rem; background:var(--bg-card); border:1px solid var(--border-color); color:var(--ink-primary); border-radius:3px;">
+                    <option value="default">Klasické Pergamen</option>
+                    <option value="dark">Temný Mód 🌙</option>
+                    <option value="spring">Jaro 🌸</option>
+                    <option value="summer">Léto ☀️</option>
+                    <option value="autumn">Podzim 🍂</option>
+                    <option value="winter">Zima ❄️</option>
+                    <option value="auto">Automaticky (počasí) 🌦️</option>
+                </select>
+                <div class="text-sm" style="margin-top:8px; color:var(--ink-secondary);">
+                    Automatické téma se přizpůsobí aktuálnímu počasí v Praze.
+                </div>
+            </div>
+            
+            <div class="card" style="border-color: #8a3324;">
+                <div class="item-icon" style="background: #8a3324; color: white;">⚠</div>
+                <div><strong>Reset</strong><div class="text-sm">Smaže postup (v6.4).</div></div>
+                <button class="craft-btn" onclick="Game.resetSave()">Smazat</button>
+            </div>
+			
+			<!-- Přidat do settings nebo menu sekce -->
+			<div style="margin-top: 20px; padding: 15px; background: rgba(0,0,0,0.1); border-radius: 8px;">
+				<h3>💾 Záloha Save</h3>
+				<p style="font-size: 13px; color: #888; margin-bottom: 10px;">
+					Exportuj save jako zálohu nebo přenes na jiné zařízení.
+				</p>
+				
+				<div style="display: flex; gap: 10px; flex-wrap: wrap;">
+					<button onclick="Game.exportSave()" class="craft-btn" style="background: #4a7c59;">
+						📥 Stáhnout Save
+					</button>
+					
+					<button onclick="Game.triggerImport()" class="craft-btn" style="background: #7c594a;">
+						📤 Nahrát Save
+					</button>
+					
+					<button onclick="Game.resetSave()" class="craft-btn" style="background: #c75a5a;">
+						🗑️ Resetovat Hru
+					</button>
+				</div>
+				
+				<p style="font-size: 11px; color: #666; margin-top: 10px;">
+					⚠️ Před velkými změnami doporučujeme stáhnout zálohu!
+				</p>
+			</div>
+            
+            <!-- O HŘE BUTTON -->
+            <div class="card" style="margin-top: 20px;">
+                <div class="item-icon">ℹ️</div>
+                <div style="flex: 1;">
+                    <strong>O hře</strong>
+                    <div class="text-sm">Verze, changelog a credits</div>
+                </div>
+                <button class="craft-btn" onclick="UI.openAboutModal()">Zobrazit</button>
+            </div>
+            
+            <!-- PATIČKA -->
+            <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid var(--ink-secondary); text-align: center; font-size: 0.8rem; opacity: 0.7;">
+                <div style="margin-bottom: 8px;">
+					<a href="https://www.ember-pa.cz/" target="_blank" style="color: var(--accent-gold); text-decoration: none; margin: 0 8px;">🔥 Ember PA</a> |
+					<a href="https://newsandradio.cz" target="_blank" style="color: var(--accent-gold); text-decoration: none; margin: 0 8px;">📰 Jouza News&amp;Radio 📻</a> |
+					<a href="https://oracoolio.com" target="_blank" style="color: var(--accent-gold); text-decoration: none; margin: 0 8px;">🔮 Oracoolio</a> |
+                    <a href="https://open.spotify.com/user/ondrex?si=99fddbc102c44f73" target="_blank" style="color: var(--accent-gold); text-decoration: none; margin: 0 8px;">🎵 Spotify</a> |
+                    <a href="https://ondrex-ember.github.io/doupe-2/" target="_blank" style="color: var(--accent-gold); text-decoration: none; margin: 0 8px;">👾 Doupě 2</a>
+                </div>
+                <div style="margin-top: 8px; font-style: italic;">
+                    Vyvíjeno s ❤️ v Novém Boru by Ondrex
+                </div>
+            </div>
+        </div>
+        
+        
+    </main>
+
+    <nav>
+        <button id="nav-home" class="nav-btn active" onclick="UI.switchScreen('home', this)"><span>🏰</span>Pracovna</button>
+        <button id="nav-garden" class="nav-btn" onclick="UI.switchScreen('garden', this)"><span>🌱</span>Zahrada</button>
+        <button id="nav-craft" class="nav-btn" onclick="UI.switchScreen('craft', this)"><span>⚒</span>Výroba</button>
+        <button id="nav-inv" class="nav-btn" onclick="UI.switchScreen('inv', this)"><span>🎒</span>Batoh</button>
+        <button id="nav-lore" class="nav-btn" onclick="UI.switchScreen('lore', this)"><span>✒</span>Scriptorium</button>
+        <button id="nav-library" class="nav-btn" onclick="UI.switchScreen('library', this)"><span>📚</span>Knihovna</button>
+    </nav>
+</div>
+
+<!-- ABOUT MODAL -->
+
+
+
+<script>
+/* BUILD:JS_MAIN */
+</script>
+
+<!-- ═══════════════════════════════════════════════
+     CONSENT BANNER – stylově odpovídá hře
+     Zobrazí se pouze pokud souhlas nebyl ještě udělen.
+     ═══════════════════════════════════════════════ -->
+<div id="consent-banner" style="display:none; position:fixed; bottom:0; left:0; right:0; z-index:2000; padding:14px 20px; background:var(--ink-primary); color:var(--bg-parchment); border-top:2px solid var(--accent-gold); font-family:'Crimson Text', serif; font-size:0.88rem; line-height:1.6;">
+    <div style="max-width:500px; margin:0 auto; display:flex; flex-direction:column; gap:10px;">
+        <div>
+            <span id="consent-text">📜 <strong>Scriptorium používá Google Analytics</strong> pro měření herního postupu (které technologie se odemykají, jak dlouho se hraje apod.). Žádné osobní údaje nejsou sdíleny.</span>
+            <a href="#" id="consent-more" onclick="ConsentManager.showPolicy(); return false;" style="color:var(--accent-gold); margin-left:6px;">Více info</a>
+        </div>
+        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+            <button id="consent-btn-grant" onclick="ConsentManager.grant()" style="padding:7px 18px; background:var(--accent-gold); color:var(--ink-primary); border:none; font-family:'Cinzel Decorative'; font-size:0.75rem; cursor:pointer; border-radius:2px; letter-spacing:1px;">Souhlasím</button>
+            <button id="consent-btn-deny" onclick="ConsentManager.deny()" style="padding:7px 18px; background:transparent; color:var(--bg-parchment); border:1px solid var(--bg-parchment); font-family:'Cinzel Decorative'; font-size:0.75rem; cursor:pointer; border-radius:2px; letter-spacing:1px; opacity:0.7;">Odmítám</button>
+        </div>
+    </div>
+</div>
+
+<script>
+/* BUILD:JS_BOOTSTRAP */
+</script>
+</body>
+</html>
