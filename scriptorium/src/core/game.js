@@ -770,10 +770,10 @@ const Game = {
         if(isFirstTime && LoreDB[id] && !GameState.discoveredLore.includes(id)) {
             GameState.discoveredLore.push(id);
             if(GameState.achievements) GameState.achievements.stats.itemsDiscovered++;
-            UI.notify(`📖 Nový zápis v Codexu!`);
-            setTimeout(() => UI.notify(`+${qty} ${ItemsDB[id].name}`), 500);
+            UI.notify(`📖 ${(typeof GameState !== 'undefined' && GameState.settings && GameState.settings.language === 'en') ? 'New entry in the Codex!' : 'Nový zápis v Codexu!'}`);
+            setTimeout(() => UI.notify(`+${qty} ${iName(id)}`), 500);
         } else {
-            UI.notify(`+${qty} ${ItemsDB[id].name}`);
+            UI.notify(`+${qty} ${iName(id)}`);
         }
         
         Game.save(); Game.checkEnvironment(); UI.renderAll();
@@ -790,7 +790,7 @@ const Game = {
         if(!GameState.flags.fireplaceLit && !r.blind) { UI.notify(t('game.frozenHands'), true); return; }
         for(let [item, amt] of Object.entries(r.req)) {
             if(amt > 0 && (!GameState.inventory[item] || GameState.inventory[item] < amt)) { UI.notify(t('game.missingMats'), true); return; }
-            if(amt === 0 && !GameState.inventory[item]) { UI.notify(`Nutno: ${ItemsDB[item].name}`, true); return; }
+            if(amt === 0 && !GameState.inventory[item]) { UI.notify(`${t('game.required2')} ${iName(item)}`, true); return; }
         }
         for(let [item, amt] of Object.entries(r.req)) if(amt > 0) this.removeItem(item, amt);
         this.addItem(r.output, r.qty);
@@ -837,7 +837,7 @@ const Game = {
             const missing = tech.requires.find(req => !GameState.researchedTechs.includes(req));
             if(missing) {
                 const reqTech = TechTree.find(x => x.id === missing);
-                UI.notify(`Nutné: ${reqTech.name}`, true); 
+                UI.notify(`${t('game.techRequired')} ${tName(reqTech.id)}`, true); 
                 return;
             }
         }
@@ -852,7 +852,7 @@ const Game = {
             GameState.garden[3].locked = false;
         }
         
-        UI.notify(`Vynalezeno: ${tech.name}`);
+        UI.notify(`${t('game.crafted')} ${tName(tech.id)}`);
         Game.save(); UI.renderAll(); Game.checkEnvironment();
         Game.checkAchievements();
 
@@ -1009,12 +1009,12 @@ const Game = {
 
 	drawWater: function(useBucket = false) {
 		if (!GameState.well.built) {
-			UI.notify("❌ Nemáš studnu!", true);
+			UI.notify(t('game.wellNoWell'), true);
 			return;
 		}
 		
 		if (GameState.well.condition === "broken") {
-			UI.notify("❌ Studna je rozbitá! Potřebuješ ji opravit.", true);
+			UI.notify(t('game.wellBroken'), true);
 			return;
 		}
 		
@@ -1033,13 +1033,13 @@ const Game = {
 		// Dirty penalty
 		if (GameState.well.condition === "dirty") {
 			waterAmount = Math.floor(waterAmount * 0.5);
-			UI.notify("⚠️ Voda je zakalená. Měl bys studnu vyčistit.");
+			UI.notify(t('game.wellMurky'));
 		}
 		
 		// Special: Blessed well může dát holy water
 		if (level === "blessed" && Math.random() < 0.2) {
 			this.addItem("holy_water", 1);
-			UI.notify("✨ Ze studny vytryskla svěcená voda!");
+			UI.notify(t('game.wellHolyWater'));
 		} else {
 			this.addItem("water", waterAmount);
 			UI.notify(`🚰 +${waterAmount} voda`);
@@ -1060,12 +1060,12 @@ const Game = {
 
 	cleanWell: function() {
 		if (GameState.well.condition !== "dirty") {
-			UI.notify("Studna není znečištěná.", true);
+			UI.notify(t('game.wellNotDirty'), true);
 			return;
 		}
 		
 		if (!GameState.inventory.purification_powder || GameState.inventory.purification_powder < 1) {
-			UI.notify("❌ Potřebuješ čisticí prášek!", true);
+			UI.notify(t('game.wellNoPowder'), true);
 			return;
 		}
 		
@@ -1077,25 +1077,25 @@ const Game = {
 			GameState.achievements.stats.wellCleans++;
 		}
 		
-		UI.notify("✨ Studna je opět čistá!");
+		UI.notify(t('game.wellCleaned'));
 		this.save();
 		UI.renderAll();
 	},
 
 	repairWell: function() {
 		if (GameState.well.condition !== "broken") {
-			UI.notify("Studna není rozbitá.", true);
+			UI.notify(t('game.wellNotBroken'), true);
 			return;
 		}
 		
 		if (!GameState.inventory.repair_kit || GameState.inventory.repair_kit < 1) {
-			UI.notify("❌ Potřebuješ opravnou sadu!", true);
+			UI.notify(t('game.wellNoKit'), true);
 			return;
 		}
 		
 		this.addItem("repair_kit", -1);
 		GameState.well.condition = "clean";
-		UI.notify("🔧 Studna je opravená!");
+		UI.notify(t('game.wellRepaired'));
 		this.save();
 		UI.renderAll();
 	},
@@ -1111,12 +1111,12 @@ const Game = {
 		
 		// Check if we can build/upgrade
 		if (toLevel === "basic" && GameState.well.built) {
-			UI.notify("Už máš studnu!", true);
+			UI.notify(t('game.wellAlreadyBuilt'), true);
 			return;
 		}
 		
 		if (toLevel === "stone" && GameState.well.level !== "basic") {
-			UI.notify("Nejprve musíš mít základní studnu!", true);
+			UI.notify(t('game.wellNeedBasic'), true);
 			return;
 		}
 		
@@ -1139,7 +1139,7 @@ const Game = {
 			GameState.well.built = true;
 			GameState.well.level = "basic";
 			GameState.well.condition = "clean";
-			UI.notify("🚰 Studna vybudována!");
+			UI.notify(t('game.wellBuilt'));
 			this.save();
 			UI.renderAll();
 			return;
@@ -1161,7 +1161,7 @@ const Game = {
 			}
 			
 			GameState.well.level = "stone";
-			UI.notify("🏛️ Studna vylepšena na kamennou!");
+			UI.notify(t('game.wellUpgraded'));
 			this.save();
 			UI.renderAll();
 		}
@@ -1173,13 +1173,13 @@ const Game = {
 		// Dirty check
 		if (GameState.well.condition === "clean" && Math.random() < stats.degradeChance) {
 			GameState.well.condition = "dirty";
-			UI.notify("⚠️ Voda ve studně začíná zelenat!", true);
+			UI.notify(t('game.wellTurningGreen'), true);
 		}
 		
 		// Break check (pouze pokud už je dirty)
 		if (GameState.well.condition === "dirty" && Math.random() < stats.breakChance) {
 			GameState.well.condition = "broken";
-			UI.notify("💥 Studna se zbortila! Potřebuješ ji opravit.", true);
+			UI.notify(t('game.wellCollapsed'), true);
 		}
 	},
 
@@ -1240,14 +1240,14 @@ const Game = {
 			
 			UI.notify(`💾 Save exportován: ${filename}`);
 		} catch(e) {
-			UI.notify("❌ Export selhal!", true);
+			UI.notify(t('game.saveExportFail'), true);
 			console.error('Export error:', e);
 		}
 	},
 
 	importSave: function(file) {
 		if (!file) {
-			UI.notify("❌ Žádný soubor nevybrán!", true);
+			UI.notify(t('game.saveNoFile'), true);
 			return;
 		}
 		
@@ -1259,13 +1259,13 @@ const Game = {
 				
 				// Validation - check if it looks like valid save
 				if (!importedData.inventory || !importedData.flags) {
-					UI.notify("❌ Neplatný save soubor!", true);
+					UI.notify(t('game.saveImportFail'), true);
 					return;
 				}
 				
 				// Confirm before overwriting
 				if (!confirm("⚠️ VAROVÁNÍ: Toto přepíše tvůj současný save!\n\nPokračovat?")) {
-					UI.notify("Import zrušen.");
+					UI.notify(t('game.saveImportCancelled'));
 					return;
 				}
 				

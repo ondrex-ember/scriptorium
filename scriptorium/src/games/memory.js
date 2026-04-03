@@ -11,7 +11,7 @@ const MemoryGame = {
         // Get discovered items (min 4, max 12 pairs)
         const discovered = GameState.discoveredLore.slice();
         if(discovered.length < 4) {
-            UI.notify("Potřebuješ objevit alespoň 4 items!", true);
+            UI.notify(t('minigames.memory.need_items'), true);
             return;
         }
         
@@ -100,22 +100,24 @@ const MemoryGame = {
             GameState.achievements.stats.totalResearchGained += reward;
         }
         
-        UI.notify(`🎉 Výhra! +${reward} Research (${this.moves} tahů)`);
+        let winMsg = t('minigames.memory.win')
+            .replace('{reward}', reward)
+            .replace('{moves}', this.moves);
+        UI.notify(winMsg);
         
+        // Počkáme 1.5 vteřiny, než se ukáže vítězná obrazovka uvnitř modalu
         setTimeout(() => {
-            this.close();
-            UI.switchScreen('records');
+            this.render(); // Překreslí modal na vítěznou obrazovku
+            if (typeof UI.renderAll === 'function') {
+                UI.renderAll(); // Aktualizuje resource bary v pozadí
+            }
         }, 1500);
     },
     
     render: function() {
         let modal = document.getElementById('memory-game-modal');
         
-        if(!this.gameActive) {
-            if(modal) modal.remove();
-            return;
-        }
-        
+        // Vytvoření okna, pokud neexistuje
         if(!modal) {
             modal = document.createElement('div');
             modal.id = 'memory-game-modal';
@@ -136,30 +138,48 @@ const MemoryGame = {
         const container = document.getElementById('memory-game-content');
         if(!container) return;
         
-        let h = `<div style="display:flex; justify-content:space-between; margin-bottom:10px;">`;
-        h += `<strong>Memory Game</strong>`;
-        h += `<span>Tahy: ${this.moves}</span>`;
-        h += `</div>`;
+        let h = '<div style="background: var(--bg-card); padding: 15px; border-radius: 8px;">';
         
-        h += `<div style="display:grid; grid-template-columns:repeat(4, 1fr); gap:8px;">`;
-        this.cards.forEach((card, idx) => {
-            const isFlipped = this.flipped.includes(idx) || card.matched;
-            const item = ItemsDB[card.id];
-            
-            if(isFlipped) {
-                h += `<div style="padding:15px; background:var(--bg-card); border:2px solid var(--accent-gold); border-radius:4px; cursor:pointer; text-align:center; font-size:1.5rem;" onclick="MemoryGame.flip(${idx})">`;
-                h += item.icon;
+        if (!this.gameActive) {
+            // ÚVODNÍ NEBO VÍTĚZNÁ OBRAZOVKA
+            h += `<h3 style="text-align: center; margin-top: 0;">🧠 Memory Game</h3>`;
+            if (this.moves > 0) {
+                h += `<div style="text-align: center; padding: 20px; margin: 15px 0; background: rgba(76,175,80,0.2); border: 2px solid #4CAF50; border-radius: 8px;">`;
+                h += `<strong>Skvělá práce!</strong><br><br>`;
+                h += `Dokončeno na <strong>${this.moves}</strong> ${t('minigames.memory.moves').toLowerCase()}.`;
                 h += `</div>`;
             } else {
-                h += `<div style="padding:15px; background:var(--accent-wax); border:2px solid var(--border-color); border-radius:4px; cursor:pointer; text-align:center; font-size:1.5rem;" onclick="MemoryGame.flip(${idx})">`;
-                h += `🎴`;
-                h += `</div>`;
+                h += `<p style="text-align: center; margin: 20px 0; opacity: 0.8;">Nalezněte všechny dvojice.</p>`;
             }
-        });
+            h += `<button class="craft-btn" onclick="MemoryGame.start()" style="width: 100%; padding: 15px; font-size: 1.1rem;">${t('minigames.memory.new_game')}</button>`;
+        } else {
+            // SAMOTNÁ HRA
+            h += `<div style="display:flex; justify-content:space-between; margin-bottom:10px;">`;
+            h += `<strong>Memory Game</strong>`;
+            h += `<span>${t('minigames.memory.moves')}: ${this.moves}</span>`;
+            h += `</div>`;
+            
+            h += `<div style="display:grid; grid-template-columns:repeat(4, 1fr); gap:8px;">`;
+            this.cards.forEach((card, idx) => {
+                const isFlipped = this.flipped.includes(idx) || card.matched;
+                const item = ItemsDB[card.id];
+                
+                if(isFlipped) {
+                    h += `<div style="padding:15px; background:var(--bg-card); border:2px solid var(--accent-gold); border-radius:4px; cursor:pointer; text-align:center; font-size:1.5rem;" onclick="MemoryGame.flip(${idx})">`;
+                    h += item.icon;
+                    h += `</div>`;
+                } else {
+                    h += `<div style="padding:15px; background:var(--accent-wax); border:2px solid var(--border-color); border-radius:4px; cursor:pointer; text-align:center; font-size:1.5rem;" onclick="MemoryGame.flip(${idx})">`;
+                    h += `🎴`;
+                    h += `</div>`;
+                }
+            });
+            h += `</div>`;
+            
+            h += `<button class="craft-btn" onclick="MemoryGame.start()" style="margin-top:10px;">${t('minigames.memory.new_game')}</button>`;
+        }
+        
         h += `</div>`;
-        
-        h += `<button class="craft-btn" onclick="MemoryGame.start()" style="margin-top:10px;">Nová hra 🔄</button>`;
-        
         container.innerHTML = h;
     },
     
@@ -169,8 +189,3 @@ const MemoryGame = {
         if(modal) modal.remove();
     }
 };
-
-// PŘIDAT hned po MemoryGame (po jeho closing });
-
-// ========== PRIMERO GAME ==========
-

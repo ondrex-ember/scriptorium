@@ -1,4 +1,4 @@
-  const PrimeroGame = {
+const PrimeroGame = {
     gameActive: false,
     deck: [],
     playerHand: [],
@@ -13,12 +13,12 @@
     
     start: function() {
         if (!GameState.inventory.primero_deck || GameState.inventory.primero_deck < 1) {
-            UI.notify("❌ Potřebuješ Primero Balíček!", true);
+            UI.notify(t('minigames.primero.need_deck'), true);
             return;
         }
         
         if (!GameState.inventory.research || GameState.inventory.research < this.bet) {
-            UI.notify(`❌ Potřebuješ ${this.bet} Research na sázku!`, true);
+            UI.notify(t('minigames.primero.need_bet').replace('{bet}', this.bet), true);
             return;
         }
         
@@ -96,12 +96,16 @@
         let result = '';
         if(playerValue > opponentValue) {
             this.playerScore++;
-            result = `🎉 Vyhráls! (${playerValue} vs ${opponentValue})`;
+            result = t('minigames.primero.round_win')
+                        .replace('{player}', playerValue)
+                        .replace('{opponent}', opponentValue);
         } else if(opponentValue > playerValue) {
             this.opponentScore++;
-            result = `😔 Prohrál... (${playerValue} vs ${opponentValue})`;
+            result = t('minigames.primero.round_loss')
+                        .replace('{player}', playerValue)
+                        .replace('{opponent}', opponentValue);
         } else {
-            result = `🤝 Remíza! (${playerValue})`;
+            result = t('minigames.primero.round_draw').replace('{player}', playerValue);
         }
         
         UI.notify(result);
@@ -131,14 +135,14 @@
                 GameState.achievements.stats.totalResearchGained += reward;
             }
             
-            UI.notify(`🏆 Výhra! +${reward} Research`);
+            UI.notify(t('minigames.primero.game_win').replace('{reward}', reward));
         } else if(this.playerScore < this.opponentScore) {
             // Track played (even if lost)
             if(GameState.achievements) {
                 GameState.achievements.stats.totalGamesPlayed++;
             }
             
-            UI.notify(`💀 Prohra! -${this.bet} Research`);
+            UI.notify(t('minigames.primero.game_loss').replace('{bet}', this.bet));
         } else {
             Game.addItem('research', this.bet);
             
@@ -148,7 +152,7 @@
                 GameState.achievements.stats.totalResearchGained += this.bet;
             }
             
-            UI.notify(`🤝 Remíza! Vráceno ${this.bet} Research`);
+            UI.notify(t('minigames.primero.game_draw').replace('{bet}', this.bet));
         }
         
         setTimeout(() => this.render(), 1500);
@@ -183,31 +187,31 @@
         if(!container) return;
         
         let h = '<div style="background: var(--bg-card); padding: 15px; border-radius: 8px;">';
-        h += '<h3>🃏 Primero (Předchůdce Pokeru)</h3>';
+        h += `<h3>${t('minigames.primero.title')}</h3>`;
         
         if(!this.gameActive) {
-            h += `<p style="margin: 10px 0;">Hra dvorů - Jindřich VIII prohrál jmění!</p>`;
-            h += `<p style="opacity: 0.8; font-size: 0.9rem;">Sázka: ${this.bet} Research | Best of 3</p>`;
-            h += `<button class="craft-btn" onclick="PrimeroGame.start()" style="margin-top: 10px;">Hrát 🎮</button>`;
+            h += `<p style="margin: 10px 0;">${t('minigames.primero.subtitle')}</p>`;
+            h += `<p style="opacity: 0.8; font-size: 0.9rem;">${t('minigames.primero.bet_info').replace('{bet}', this.bet)}</p>`;
+            h += `<button class="craft-btn" onclick="PrimeroGame.start()" style="margin-top: 10px;">${t('minigames.primero.btn_play')}</button>`;
         } else {
             h += `<div style="display: flex; justify-content: space-between; margin: 10px 0;">`;
-            h += `<div>Ty: ${this.playerScore}</div>`;
-            h += `<div>Kolo: ${this.round}/3</div>`;
-            h += `<div>Soupeř: ${this.opponentScore}</div>`;
+            h += `<div>${t('minigames.primero.label_you')}: ${this.playerScore}</div>`;
+            h += `<div>${t('minigames.primero.label_round')}: ${this.round}/3</div>`;
+            h += `<div>${t('minigames.primero.label_opponent')}: ${this.opponentScore}</div>`;
             h += `</div>`;
             
             h += `<div style="margin: 15px 0;">`;
-            h += `<strong>Tvé karty:</strong>`;
+            h += `<strong>${t('minigames.primero.label_your_cards')}</strong>`;
             h += `<div style="display: flex; gap: 5px; margin-top: 5px;">`;
             this.playerHand.forEach(card => {
-                h += `<div style="padding: 10px; background: white; border: 2px solid var(--border-color); border-radius: 4px; text-align: center; min-width: 40px;">`;
+                h += `<div style="padding: 10px; background: white; border: 2px solid var(--border-color); border-radius: 4px; text-align: center; min-width: 40px; color: black;">`;
                 h += `${card.rank}${card.suit}`;
                 h += `</div>`;
             });
             h += `</div></div>`;
             
             h += `<div style="margin: 15px 0;">`;
-            h += `<strong>Soupeř:</strong>`;
+            h += `<strong>${t('minigames.primero.label_opponent')}</strong>`;
             h += `<div style="display: flex; gap: 5px; margin-top: 5px;">`;
             this.opponentHand.forEach(() => {
                 h += `<div style="padding: 10px; background: var(--accent-wax); border: 2px solid var(--border-color); border-radius: 4px; text-align: center; min-width: 40px;">`;
@@ -216,22 +220,16 @@
             });
             h += `</div></div>`;
             
-            h += `<button class="craft-btn" onclick="PrimeroGame.playRound()" style="margin-top: 10px;">Odhalit a Hrát 🎲</button>`;
+            h += `<button class="craft-btn" onclick="PrimeroGame.playRound()" style="margin-top: 10px;">${t('minigames.primero.btn_reveal')}</button>`;
         }
         
         h += '</div>';
         container.innerHTML = h;
-    }
-,
+    },
     
     close: function() {
         this.gameActive = false;
         const modal = document.getElementById('primero-modal');
         if(modal) modal.remove();
     }
-};
-// ============================================
-// RITHMOMACHIA - SIMPLIFIED VERSION
-// 8×8 board, basic pieces, 2 victory conditions
-// ============================================
-
+  };
