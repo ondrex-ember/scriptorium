@@ -1245,12 +1245,12 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         <div id="screen-craft" class="screen">
             <h2>Dílna</h2>
                 <div class="filter-bar" style="margin-top:10px; margin-bottom:15px; flex; flex-wrap: wrap; gap: 5px;">
-                <button class="filter-btn active" onclick="UI.filterCrafting('all', this)">Vše</button>
-                <button class="filter-btn" onclick="UI.filterCrafting('tool', this)">Nástroje</button>
-                <button class="filter-btn" onclick="UI.filterCrafting('mat', this)">Materiály</button>
-                <button class="filter-btn" onclick="UI.filterCrafting('food', this)">Jídlo</button>
-                <button class="filter-btn" onclick="UI.filterCrafting('alchemy', this)">Alchymie</button>
-                <button class="filter-btn" onclick="UI.filterCrafting('lore', this)">Vědění</button>
+                <button id="craft-filter-all"  class="filter-btn active" onclick="UI.filterCrafting('all', this)">Vše</button>
+                <button id="craft-filter-tool" class="filter-btn" onclick="UI.filterCrafting('tool', this)">Nástroje</button>
+                <button id="craft-filter-mat"  class="filter-btn" onclick="UI.filterCrafting('mat', this)">Materiály</button>
+                <button id="craft-filter-food" class="filter-btn" onclick="UI.filterCrafting('food', this)">Jídlo</button>
+                <button id="craft-filter-alch" class="filter-btn" onclick="UI.filterCrafting('alchemy', this)">Alchymie</button>
+                <button id="craft-filter-lore" class="filter-btn" onclick="UI.filterCrafting('lore', this)">Vědění</button>
             </div>
             <div id="crafting-list"></div>
         </div>
@@ -1258,10 +1258,10 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         <div id="screen-inv" class="screen">
             <h2>Batoh</h2>
                 <div id="inv-filter-bar" class="filter-bar" style="margin-top:10px; margin-bottom:15px; display:none; flex-wrap: wrap; gap: 5px;">
-                <button class="filter-btn active" onclick="UI.filterInventory('all', this)">Vše</button>
-                <button class="filter-btn" onclick="UI.filterInventory('mat', this)">Suroviny</button>
-                <button class="filter-btn" onclick="UI.filterInventory('tool', this)">Nástroje</button>
-                <button class="filter-btn" onclick="UI.filterInventory('lore', this)">Ostatní</button>
+                <button id="inv-filter-all"  class="filter-btn active" onclick="UI.filterInventory('all', this)">Vše</button>
+                <button id="inv-filter-mat"  class="filter-btn" onclick="UI.filterInventory('mat', this)">Suroviny</button>
+                <button id="inv-filter-tool" class="filter-btn" onclick="UI.filterInventory('tool', this)">Nástroje</button>
+                <button id="inv-filter-lore" class="filter-btn" onclick="UI.filterInventory('lore', this)">Ostatní</button>
             </div>
             <div id="inventory-grid" style="margin-top:15px;"></div>
         </div>
@@ -1273,10 +1273,10 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             </div>
             <div id="lore-content-wrapper">
                 <div class="filter-bar" style="margin-top:10px; margin-bottom:15px; flex; flex-wrap: wrap; gap: 5px;">
-                    <button class="filter-btn active" onclick="UI.switchLoreTab('research', this)">Research</button>
-                    <button class="filter-btn" onclick="UI.switchLoreTab('codex', this)">Codex</button>
-                    <button class="filter-btn" onclick="UI.switchLoreTab('notebooks', this)">📓 Zápisníky</button>
-                    <button class="filter-btn" onclick="UI.switchLoreTab('achievements', this)">Achievementy</button>
+                    <button id="lore-tab-research"     class="filter-btn active" onclick="UI.switchLoreTab('research', this)">Research</button>
+                    <button id="lore-tab-codex"        class="filter-btn" onclick="UI.switchLoreTab('codex', this)">Codex</button>
+                    <button id="lore-tab-notebooks"    class="filter-btn" onclick="UI.switchLoreTab('notebooks', this)">📓 Zápisníky</button>
+                    <button id="lore-tab-achievements" class="filter-btn" onclick="UI.switchLoreTab('achievements', this)">Achievementy</button>
                 </div>
                 <div id="lore-research-content" style="margin-top:20px;"></div>
                 <div id="lore-codex-content" style="margin-top:20px; display:none;"></div>
@@ -1290,10 +1290,10 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             <h2>Knihovna</h2>
             <div id="library-content-wrapper">
                 <div class="filter-bar" style="margin-top:10px; margin-bottom:15px; flex-wrap: wrap; gap: 5px;">
-                    <button class="filter-btn active" onclick="UI.switchLibraryTab('books', this)">📚 Knihy</button>
-                    <button class="filter-btn" onclick="UI.switchLibraryTab('records', this)">🏆 Hry &amp; Záznamy</button>
-                    <button class="filter-btn" onclick="UI.switchLibraryTab('iching', this)">☯️ Věštění</button>
-                    <button class="filter-btn" onclick="UI.switchLibraryTab('news', this)">📜 Zprávy</button>
+                    <button id="lib-tab-books"   class="filter-btn active" onclick="UI.switchLibraryTab('books', this)">📚 Knihy</button>
+                    <button id="lib-tab-records" class="filter-btn" onclick="UI.switchLibraryTab('records', this)">🏆 Hry &amp; Záznamy</button>
+                    <button id="lib-tab-iching"  class="filter-btn" onclick="UI.switchLibraryTab('iching', this)">☯️ Věštění</button>
+                    <button id="lib-tab-news"    class="filter-btn" onclick="UI.switchLibraryTab('news', this)">📜 Zprávy</button>
                 </div>
                 <div id="library-books-content" style="margin-top:20px;"></div>
                 <div id="library-records-content" style="margin-top:20px; display:none;"></div>
@@ -7268,6 +7268,9 @@ const STRINGS_cs = {
         },
         craft: { filterAll:'Vše', filterMat:'Materiály', filterFood:'Jídlo', filterAlchemy:'Alchymie', filterLore:'Vědění', btn:'Výroba' },
         inv:   { filterAll:'Vše', filterMat:'Suroviny', filterTool:'Nástroje', filterLore:'Ostatní' },
+        lore:  { tabResearch:'Research', tabCodex:'Codex', tabNotebooks:'📓 Zápisníky', tabAchievements:'Achievementy',
+                 notes:'Zápisky:', discovered:'Objeveno:' },
+        library: { tabBooks:'📚 Knihy', tabRecords:'🏆 Hry & Záznamy', tabIching:'☯️ Věštění', tabNews:'📜 Zprávy' },
         settings: { langLabel:'🗺️ Jazyk / Language' },
         actions: {
             hunt:'Lovit', bark:'Řezat', default:'Hledat',
@@ -7363,6 +7366,9 @@ const STRINGS_en = {
         },
         craft: { filterAll:'All', filterMat:'Materials', filterFood:'Provisions', filterAlchemy:'Alchemy', filterLore:'Knowledge', btn:'Craft' },
         inv:   { filterAll:'All', filterMat:'Materials', filterTool:'Tools', filterLore:'Other' },
+        lore:  { tabResearch:'Research', tabCodex:'Codex', tabNotebooks:'📓 Notebooks', tabAchievements:'Achievements',
+                 notes:'Notes:', discovered:'Discovered:' },
+        library: { tabBooks:'📚 Books', tabRecords:'🏆 Games & Records', tabIching:'☯️ Divination', tabNews:'📜 Tidings' },
         settings: { langLabel:'🗺️ Language / Jazyk' },
         actions: {
             hunt:'Hunt', bark:'Cut', default:'Search',
@@ -7560,7 +7566,6 @@ const LangSystem = {
         if (sel) sel.value = lang;
 
         // 8. Fireplace text (cold state) + light source buttons
-        // checkEnvironment() handles the lit state; this handles cold/idle state
         if (typeof GameState !== 'undefined') {
             const fpTitle = document.getElementById('fireplace-title');
             const fpDesc  = document.getElementById('fireplace-desc');
@@ -7575,6 +7580,32 @@ const LangSystem = {
             if (btnTorch)  btnTorch.textContent  = L.light.btnTorch;
             if (btnCandle) btnCandle.textContent = L.light.btnCandle;
         }
+
+        // 9. Filter buttons — craft, inv, lore tabs, library tabs
+        const filterMap = {
+            'craft-filter-all':       L.craft.filterAll,
+            'craft-filter-tool':      L.craft.filterMat,
+            'craft-filter-mat':       L.craft.filterMat,
+            'craft-filter-food':      L.craft.filterFood,
+            'craft-filter-alch':      L.craft.filterAlchemy,
+            'craft-filter-lore':      L.craft.filterLore,
+            'inv-filter-all':         L.inv.filterAll,
+            'inv-filter-mat':         L.inv.filterMat,
+            'inv-filter-tool':        L.inv.filterTool,
+            'inv-filter-lore':        L.inv.filterLore,
+            'lore-tab-research':      L.lore.tabResearch,
+            'lore-tab-codex':         L.lore.tabCodex,
+            'lore-tab-notebooks':     L.lore.tabNotebooks,
+            'lore-tab-achievements':  L.lore.tabAchievements,
+            'lib-tab-books':          L.library.tabBooks,
+            'lib-tab-records':        L.library.tabRecords,
+            'lib-tab-iching':         L.library.tabIching,
+            'lib-tab-news':           L.library.tabNews,
+        };
+        Object.entries(filterMap).forEach(([id, text]) => {
+            const el = document.getElementById(id);
+            if (el) el.textContent = text;
+        });
     }
 };
 
@@ -9095,8 +9126,10 @@ renderActions: function() {
 	
     renderScriptorium: function() {
         const el = document.getElementById('lore-research-content'); const res = GameState.inventory['research'] || 0;
-        const _t = window.t || t; // explicitní reference na globální t() funkci
-        let h = `<div style="text-align:center;margin-bottom:15px;border:1px solid var(--accent-gold);padding:10px;">Zápisky: <strong>${res}</strong> 📜</div>`;
+        const _t = window.t || t;
+        const _lang = (GameState.settings && GameState.settings.language) || 'cs';
+        const notesLabel = _lang === 'en' ? 'Notes:' : 'Zápisky:';
+        let h = `<div style="text-align:center;margin-bottom:15px;border:1px solid var(--accent-gold);padding:10px;">${notesLabel} <strong>${res}</strong> 📜</div>`;
         TechTree.forEach(tech => {
             const done = GameState.researchedTechs.includes(tech.id);
             let canResearch = res >= tech.cost;
@@ -9124,8 +9157,10 @@ renderActions: function() {
         const el = document.getElementById('lore-codex-content');
         const discovered = GameState.discoveredLore.length;
         const total = Object.keys(LoreDB).length;
+        const _lang = (GameState.settings && GameState.settings.language) || 'cs';
+        const discoveredLabel = _lang === 'en' ? 'Discovered:' : 'Objeveno:';
         
-        let h = `<div style="text-align:center;margin-bottom:15px;border:1px solid var(--accent-gold);padding:10px;">Objeveno: <strong>${discovered}/${total}</strong> 📚</div>`;
+        let h = `<div style="text-align:center;margin-bottom:15px;border:1px solid var(--accent-gold);padding:10px;">${discoveredLabel} <strong>${discovered}/${total}</strong> 📚</div>`;
         
         // Group by category
         const categories = {};
