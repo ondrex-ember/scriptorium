@@ -357,7 +357,7 @@ renderActions: function() {
 		el.innerHTML = h;
 	},
 
-    renderLibrary: function() {
+renderLibrary: function() {
         const el = document.getElementById('library-books-content');
         
         // Check unlocks
@@ -371,28 +371,28 @@ renderActions: function() {
         
         let h = `
             <div style="text-align:center;margin-bottom:15px;border:1px solid var(--accent-gold);padding:10px;">
-                📚 Knihovna: <strong>${unlocked}/${total}</strong> odemčeno | 
-                📖 Přečteno: <strong>${read}/${total}</strong>
+                📚 ${t('library_lore.lib_title')}: <strong>${unlocked}/${total}</strong> ${t('library_lore.lib_unlocked')} | 
+                📖 ${t('library_lore.lib_read')}: <strong>${read}/${total}</strong>
             </div>
             
             <div style="margin-bottom:20px;padding:15px;background:var(--bg-card);border:1px solid var(--border-color);border-radius:5px;">
                 <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
                     <div style="font-size:2rem;">🖋️</div>
                     <div style="flex:1;">
-                        <strong>Starý Písař</strong>
+                        <strong>${t('library_lore.npc_scribe.name')}</strong>
                         <div class="text-sm" style="color:var(--ink-secondary);">
                             "Za 3x Papír ti odkryji jednu knihu předčasně..."
                         </div>
                     </div>
                     <button class="craft-btn" onclick="LibraryHelpers.scribeTrade()">
-                        Obchod (3x 📄)
+                        ${t('library_lore.npc_scribe.opt_trade')}
                     </button>
                 </div>
             </div>
         `;
         
         if(typeof LibraryDB === 'undefined' || typeof GameState.library === 'undefined') {
-            el.innerHTML = h + '<p>Knihovna není dostupná.</p>';
+            el.innerHTML = h + `<p>${t('library_lore.lib_not_avail')}</p>`;
             return;
         }
         
@@ -400,10 +400,11 @@ renderActions: function() {
         Object.entries(LibraryDB.categories).forEach(([catId, catData]) => {
             const books = LibraryDB.books.filter(b => b.category === catId);
             const unlockedInCat = books.filter(b => GameState.library.unlockedBooks.includes(b.id));
+            const catName = t(`library_lore.categories.${catId}`); // Získáme přeložený název kategorie
             
             h += `<div style="margin-top:20px;">`;
             h += `<h3 style="color:var(--accent-gold);border-bottom:2px solid var(--accent-gold);padding-bottom:5px;">
-                    ${catData.icon} ${catData.name} (${unlockedInCat.length}/${books.length})
+                    ${catData.icon} ${catName} (${unlockedInCat.length}/${books.length})
                   </h3>`;
             
             books.forEach(book => {
@@ -411,17 +412,20 @@ renderActions: function() {
                 const isRead = GameState.library.readBooks.includes(book.id);
                 
                 if (isUnlocked) {
+                    const bookTitle = t(`library_lore.books.${book.id}.title`);
+                    const bookAuthor = t(`library_lore.books.${book.id}.author`);
+                    
                     h += `
                         <div class="card" style="border-color:${isRead?'var(--accent-gold)':'var(--ink-secondary)'};">
                             <div class="item-icon" style="background:${isRead?'#c5a059':'#e8dec0'}">
                                 ${book.icon}
                             </div>
                             <div style="flex:1;">
-                                <strong>${book.title}</strong> ${isRead?'✓':''}
-                                <div class="text-sm">${book.author} (${book.year})</div>
+                                <strong>${bookTitle}</strong> ${isRead?'✓':''}
+                                <div class="text-sm">${bookAuthor} (${book.year})</div>
                             </div>
                             <button class="craft-btn" onclick="LibraryHelpers.readBook('${book.id}')">
-                                ${isRead?'Přečíst znovu':'Číst'}
+                                ${isRead ? t('library_lore.btn_read_again') : t('library_lore.btn_read')}
                             </button>
                         </div>
                     `;
@@ -435,7 +439,7 @@ renderActions: function() {
                             <div class="item-icon" style="background:#666;">🔒</div>
                             <div style="flex:1;">
                                 <strong>???</strong>
-                                <div class="text-sm">Odemkne se za ${daysToUnlock} dní</div>
+                                <div class="text-sm">${t('library_lore.lib_unlocks_in')} ${daysToUnlock} ${t('library_lore.lib_days')}</div>
                             </div>
                         </div>
                     `;
@@ -447,7 +451,7 @@ renderActions: function() {
         
         el.innerHTML = h;
     },
-    showBookModal: function(book) {
+showBookModal: function(book) {
         const modal = document.createElement('div');
         modal.style.cssText = `
             position: fixed;
@@ -462,6 +466,11 @@ renderActions: function() {
             z-index: 10000;
             padding: 20px;
         `;
+        
+        const bookTitle = t(`library_lore.books.${book.id}.title`);
+        const bookAuthor = t(`library_lore.books.${book.id}.author`);
+        // Pro content použijeme marked() pro parsování markdownu, pokud to knihovna umožňuje, jinak jen innerHTML
+        const bookContent = t(`library_lore.books.${book.id}.content`);
         
         modal.innerHTML = `
             <div style="
@@ -482,9 +491,9 @@ renderActions: function() {
                 
                 <div style="text-align:center;margin-bottom:20px;">
                     <div style="font-size:3rem;margin-bottom:10px;">${book.icon}</div>
-                    <h2 style="margin:0;color:var(--accent-gold);">${book.title}</h2>
+                    <h2 style="margin:0;color:var(--accent-gold);">${bookTitle}</h2>
                     <div style="color:var(--ink-secondary);margin-top:5px;">
-                        ${book.author} | ${book.year}
+                        ${bookAuthor} | ${book.year}
                     </div>
                 </div>
                 
@@ -494,7 +503,7 @@ renderActions: function() {
                     line-height: 1.8;
                     white-space: pre-wrap;
                 ">
-                    ${book.content}
+                    ${bookContent}
                 </div>
 
                 ${(() => {
