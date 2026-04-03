@@ -23,7 +23,7 @@ const RoyalGameOfUr = {
     
     start: function() {
         if (!GameState.inventory.ur_board || GameState.inventory.ur_board < 1) {
-            UI.notify("❌ Potřebuješ Královskou Desku z Uru!", true);
+            UI.notify(t('minigames.ur.need_board'), true);
             return;
         }
         
@@ -56,7 +56,7 @@ const RoyalGameOfUr = {
     rollDice: function() {
         if(!this.gameActive) return;
         if(this.canMove) {
-            UI.notify("❌ Nejprve proveď tah!", true);
+            UI.notify(t('minigames.ur.err_move_first'), true);
             return;
         }
         
@@ -72,14 +72,14 @@ const RoyalGameOfUr = {
             const validMoves = this.getValidMoves('player');
             if(validMoves.length === 0) {
                 if(this.diceRoll === 0) {
-                    UI.notify("💀 Hod 0 - přeskakuješ!");
+                    UI.notify(t('minigames.ur.roll_zero_skip'));
                 } else {
-                    UI.notify("❌ Žádné platné tahy!");
+                    UI.notify(t('minigames.ur.err_no_moves'));
                 }
                 setTimeout(() => this.endTurn(), 1500);
             } else {
                 this.canMove = true;
-                UI.notify(`🎲 Hodil jsi ${this.diceRoll}! Vyber žeton.`);
+                UI.notify(t('minigames.ur.roll_success').replace('{roll}', this.diceRoll));
             }
         } else {
             setTimeout(() => this.aiMove(), 1000);
@@ -169,14 +169,14 @@ const RoyalGameOfUr = {
         const newPos = this.calculateNewPosition(piece.position, this.diceRoll, 'player');
         
         if(!this.isValidMove(piece.position, newPos, 'player')) {
-            UI.notify("❌ Neplatný tah!", true);
+            UI.notify(t('minigames.ur.err_invalid'), true);
             return;
         }
         
         this.executeMoveForPlayer(pieceIndex, newPos, 'player');
         
         if(this.rosettes.includes(newPos)) {
-            UI.notify("✨ Roseta! Hraj znovu!");
+            UI.notify(t('minigames.ur.rosette'));
             this.canMove = false;
             this.diceRoll = 0;
         } else {
@@ -202,7 +202,7 @@ const RoyalGameOfUr = {
                 const enemyPieces = captured.player === 'player' ? this.playerPieces : this.aiPieces;
                 enemyPieces[captured.pieceId].position = -1;
                 this.stats.captures++;
-                UI.notify(`⚔️ Vyhodil jsi soupeře!`);
+                UI.notify(t('minigames.ur.capture'));
             }
         }
         
@@ -237,9 +237,9 @@ const RoyalGameOfUr = {
         
         if(validMoves.length === 0) {
             if(this.diceRoll === 0) {
-                UI.notify("🤖 AI hodil 0");
+                UI.notify(t('minigames.ur.ai_roll_zero'));
             } else {
-                UI.notify("🤖 AI nemůže táhnout");
+                UI.notify(t('minigames.ur.ai_no_moves'));
             }
             setTimeout(() => this.endTurn(), 1500);
             return;
@@ -273,10 +273,10 @@ const RoyalGameOfUr = {
             const newPos = this.calculateNewPosition(this.aiPieces[bestMove].position, this.diceRoll, 'ai');
             this.executeMoveForPlayer(bestMove, newPos, 'ai');
             
-            UI.notify(`🤖 AI táhl na pole ${newPos}`);
+            UI.notify(t('minigames.ur.ai_move').replace('{pos}', newPos));
             
             if(this.rosettes.includes(newPos)) {
-                UI.notify("✨ AI trefil rosetu!");
+                UI.notify(t('minigames.ur.ai_rosette'));
                 setTimeout(() => this.rollDice(), 1500);
             } else {
                 setTimeout(() => this.endTurn(), 1500);
@@ -293,24 +293,22 @@ const RoyalGameOfUr = {
             const reward = 4;
             Game.addItem('research', reward);
             
-            // Track stats
             if(GameState.achievements) {
                 GameState.achievements.stats.urGamesWon++;
                 GameState.achievements.stats.totalGamesPlayed++;
                 GameState.achievements.stats.totalResearchGained += reward;
             }
             
-            UI.notify(`🏆 VÝHRA! +${reward} Research`);
+            UI.notify(t('minigames.ur.win_vs').replace('{reward}', reward));
             setTimeout(() => this.render(), 2000);
         } else if(this.stats.aiFinished === 7) {
             this.gameActive = false;
             
-            // Track played (even if lost)
             if(GameState.achievements) {
                 GameState.achievements.stats.totalGamesPlayed++;
             }
             
-            UI.notify(`💀 Prohra! AI vyhrál.`);
+            UI.notify(t('minigames.ur.loss_vs'));
             setTimeout(() => this.render(), 2000);
         }
     },
@@ -344,25 +342,25 @@ const RoyalGameOfUr = {
         if(!container) return;
         
         let h = '<div style="background: var(--bg-card); padding: 15px; border-radius: 8px;">';
-        h += '<h3>🎲 Královská Hra z Uru (2600 př.n.l.)</h3>';
+        h += `<h3>${t('minigames.ur.title_vs')}</h3>`;
         
         if(!this.gameActive) {
-            h += `<p style="margin: 10px 0;">Nejstarší desková hra světa!</p>`;
-            h += `<p style="font-size: 0.9rem; opacity: 0.8;">Závoď s AI, kdo první dostane 7 žetonů do cíle.</p>`;
-            h += `<button class="craft-btn" onclick="RoyalGameOfUr.start()" style="margin-top: 10px;">Hrát vs AI 🎮</button>`;
-            h += `<button class="craft-btn" onclick="RoyalGameOfUrSolo.start()" style="margin-top: 10px; background: var(--accent-gold);">Solo Puzzle 🧩</button>`;
+            h += `<p style="margin: 10px 0;">${t('minigames.ur.subtitle_vs')}</p>`;
+            h += `<p style="font-size: 0.9rem; opacity: 0.8;">${t('minigames.ur.desc_vs')}</p>`;
+            h += `<button class="craft-btn" onclick="RoyalGameOfUr.start()" style="margin-top: 10px;">${t('minigames.ur.btn_vs_ai')}</button>`;
+            h += `<button class="craft-btn" onclick="RoyalGameOfUrSolo.start()" style="margin-top: 10px; background: var(--accent-gold);">${t('minigames.ur.btn_solo')}</button>`;
         } else {
             h += `<div style="display: flex; justify-content: space-between; margin: 10px 0; padding: 10px; background: rgba(0,0,0,0.1); border-radius: 4px;">`;
-            h += `<div>Ty: ${this.stats.playerFinished}/7</div>`;
-            h += `<div>Tahy: ${this.stats.moves}</div>`;
-            h += `<div>AI: ${this.stats.aiFinished}/7</div>`;
+            h += `<div>${t('minigames.ur.label_you')}: ${this.stats.playerFinished}/7</div>`;
+            h += `<div>${t('minigames.ur.label_moves')}: ${this.stats.moves}</div>`;
+            h += `<div>${t('minigames.ur.label_ai')}: ${this.stats.aiFinished}/7</div>`;
             h += `</div>`;
             
             if(this.currentTurn === 'player' && !this.canMove) {
-                h += `<button class="craft-btn" onclick="RoyalGameOfUr.rollDice()" style="margin: 10px 0; width: 100%;">🎲 Hodit kostky</button>`;
+                h += `<button class="craft-btn" onclick="RoyalGameOfUr.rollDice()" style="margin: 10px 0; width: 100%;">${t('minigames.ur.btn_roll')}</button>`;
             } else if(this.diceRoll > 0) {
-                h += `<div style="text-align: center; margin: 10px 0; padding: 10px; background: gold; border-radius: 4px; font-size: 1.2rem;">`;
-                h += `🎲 Hod: ${this.diceRoll}`;
+                h += `<div style="text-align: center; margin: 10px 0; padding: 10px; background: gold; border-radius: 4px; font-size: 1.2rem; color: black;">`;
+                h += t('minigames.ur.label_roll').replace('{roll}', this.diceRoll);
                 h += `</div>`;
             }
             
@@ -371,7 +369,7 @@ const RoyalGameOfUr = {
             const playerOffBoard = this.playerPieces.filter(p => p.position === -1);
             if(playerOffBoard.length > 0 && this.canMove) {
                 h += `<div style="margin-top: 15px;">`;
-                h += `<strong>Tvé žetony mimo desku (${playerOffBoard.length}):</strong>`;
+                h += `<strong>${t('minigames.ur.label_offboard').replace('{count}', playerOffBoard.length)}</strong>`;
                 h += `<div style="display: flex; gap: 5px; margin-top: 5px;">`;
                 playerOffBoard.forEach(piece => {
                     h += `<button class="craft-btn" onclick="RoyalGameOfUr.movePiece(${piece.id})" style="padding: 8px;">`;
@@ -437,8 +435,7 @@ const RoyalGameOfUr = {
         if(pieceIdx >= 0) {
             this.movePiece(pieceIdx);
         }
-    }
-,
+    },
     
     close: function() {
         this.gameActive = false;
@@ -475,7 +472,7 @@ const RoyalGameOfUrSolo = {
     
     start: function() {
         if (!GameState.inventory.ur_board || GameState.inventory.ur_board < 1) {
-            UI.notify("❌ Potřebuješ Královskou Desku z Uru!", true);
+            UI.notify(t('minigames.ur.need_board'), true);
             return;
         }
         
@@ -503,7 +500,7 @@ const RoyalGameOfUrSolo = {
     rollDice: function() {
         if(!this.gameActive) return;
         if(this.canMove) {
-            UI.notify("❌ Nejprve proveď tah!", true);
+            UI.notify(t('minigames.ur.err_move_first'), true);
             return;
         }
         
@@ -518,14 +515,14 @@ const RoyalGameOfUrSolo = {
         const validMoves = this.getValidMoves();
         if(validMoves.length === 0) {
             if(this.diceRoll === 0) {
-                UI.notify("💀 Hod 0 - zkus znovu!");
+                UI.notify(t('minigames.ur.roll_zero_retry'));
             } else {
-                UI.notify("❌ Žádné platné tahy!");
+                UI.notify(t('minigames.ur.err_no_moves'));
             }
             this.diceRoll = 0;
         } else {
             this.canMove = true;
-            UI.notify(`🎲 Hodil jsi ${this.diceRoll}! Vyber žeton.`);
+            UI.notify(t('minigames.ur.roll_success').replace('{roll}', this.diceRoll));
         }
         
         this.render();
@@ -583,7 +580,7 @@ const RoyalGameOfUrSolo = {
         const newPos = this.calculateNewPosition(piece.position, this.diceRoll);
         
         if(!this.isValidMove(piece.position, newPos)) {
-            UI.notify("❌ Neplatný tah!", true);
+            UI.notify(t('minigames.ur.err_invalid'), true);
             return;
         }
         
@@ -591,7 +588,7 @@ const RoyalGameOfUrSolo = {
         this.stats.moves++;
         
         if(this.rosettes.includes(newPos)) {
-            UI.notify("✨ Roseta! Hraj znovu!");
+            UI.notify(t('minigames.ur.rosette'));
             this.canMove = false;
             this.diceRoll = 0;
         } else {
@@ -625,29 +622,35 @@ const RoyalGameOfUrSolo = {
             this.gameActive = false;
             
             let reward = 2;
-            let grade = 'OK';
+            let gradeKey = 'grade_pass';
             
             if(this.stats.rollsUsed <= this.targets.perfect) {
                 reward = 6;
-                grade = 'PERFEKTNÍ';
+                gradeKey = 'grade_perfect';
             } else if(this.stats.rollsUsed <= this.targets.good) {
                 reward = 4;
-                grade = 'VÝBORNÝ';
+                gradeKey = 'grade_good';
             } else if(this.stats.rollsUsed <= this.targets.ok) {
                 reward = 3;
-                grade = 'DOBRÝ';
+                gradeKey = 'grade_ok';
             }
+            
+            const translatedGrade = t('minigames.ur.' + gradeKey);
             
             Game.addItem('research', reward);
             
-            // Track stats (solo puzzle counts as Ur game)
             if(GameState.achievements) {
                 GameState.achievements.stats.urGamesWon++;
                 GameState.achievements.stats.totalGamesPlayed++;
                 GameState.achievements.stats.totalResearchGained += reward;
             }
             
-            UI.notify(`🏆 ${grade}! +${reward} Research (${this.stats.rollsUsed} hodů)`);
+            let winMsg = t('minigames.ur.win_solo')
+                .replace('{grade}', translatedGrade)
+                .replace('{reward}', reward)
+                .replace('{rolls}', this.stats.rollsUsed);
+            
+            UI.notify(winMsg);
             
             setTimeout(() => this.render(), 2000);
         }
@@ -667,14 +670,14 @@ const RoyalGameOfUrSolo = {
             modal.className = 'game-modal';
             modal.innerHTML = `
                 <div class="game-modal-content">
-                    <button class="game-modal-close" onclick="RoyalGameOfUr.close()">×</button>
+                    <button class="game-modal-close" onclick="RoyalGameOfUrSolo.close()">×</button>
                     <div id="ur-game-content"></div>
                 </div>
             `;
             document.body.appendChild(modal);
             
             modal.addEventListener('click', (e) => {
-                if(e.target === modal) RoyalGameOfUr.close();
+                if(e.target === modal) RoyalGameOfUrSolo.close();
             });
         }
         
@@ -682,48 +685,50 @@ const RoyalGameOfUrSolo = {
         if(!container) return;
         
         let h = '<div style="background: var(--bg-card); padding: 15px; border-radius: 8px;">';
-        h += '<h3>🧩 Královská Hra z Uru - Solo Puzzle</h3>';
+        h += `<h3>${t('minigames.ur.title_solo')}</h3>`;
         
         if(!this.gameActive) {
-            h += `<p style="margin: 10px 0;">Dostaň všech 7 žetonů do cíle!</p>`;
+            h += `<p style="margin: 10px 0;">${t('minigames.ur.subtitle_solo')}</p>`;
             h += `<div style="font-size: 0.85rem; opacity: 0.8; margin: 10px 0;">`;
-            h += `<strong>Hodnocení:</strong><br>`;
-            h += `🏆 Perfektní: ≤${this.targets.perfect} hodů (6 Research)<br>`;
-            h += `⭐ Výborný: ≤${this.targets.good} hodů (4 Research)<br>`;
-            h += `✓ Dobrý: ≤${this.targets.ok} hodů (3 Research)<br>`;
-            h += `○ OK: ${this.targets.ok}+ hodů (2 Research)`;
+            h += `<strong>${t('minigames.ur.label_rating')}</strong><br>`;
+            h += `${t('minigames.ur.rating_perfect').replace('{target}', this.targets.perfect)}<br>`;
+            h += `${t('minigames.ur.rating_good').replace('{target}', this.targets.good)}<br>`;
+            h += `${t('minigames.ur.rating_ok').replace('{target}', this.targets.ok)}<br>`;
+            h += `${t('minigames.ur.rating_pass').replace('{target}', this.targets.ok)}`;
             h += `</div>`;
-            h += `<button class="craft-btn" onclick="RoyalGameOfUrSolo.start()" style="margin-top: 10px;">Hrát Solo 🧩</button>`;
-            h += `<button class="craft-btn" onclick="RoyalGameOfUr.start()" style="margin-top: 10px; background: var(--accent-wax);">Zpět na VS AI 🤖</button>`;
+            h += `<button class="craft-btn" onclick="RoyalGameOfUrSolo.start()" style="margin-top: 10px;">${t('minigames.ur.btn_play_solo')}</button>`;
+            h += `<button class="craft-btn" onclick="RoyalGameOfUr.start()" style="margin-top: 10px; background: var(--accent-wax);">${t('minigames.ur.btn_back_vs')}</button>`;
         } else {
             h += `<div style="display: flex; justify-content: space-between; margin: 10px 0; padding: 10px; background: rgba(0,0,0,0.1); border-radius: 4px;">`;
-            h += `<div>Dokončeno: ${this.stats.finished}/7</div>`;
-            h += `<div>Hody: ${this.stats.rollsUsed}</div>`;
-            h += `<div>Tahy: ${this.stats.moves}</div>`;
+            h += `<div>${t('minigames.ur.label_finished')}: ${this.stats.finished}/7</div>`;
+            h += `<div>${t('minigames.ur.label_rolls')}: ${this.stats.rollsUsed}</div>`;
+            h += `<div>${t('minigames.ur.label_moves')}: ${this.stats.moves}</div>`;
             h += `</div>`;
             
             let targetColor = '#999';
             let targetText = 'OK';
             if(this.stats.rollsUsed <= this.targets.perfect) {
                 targetColor = 'gold';
-                targetText = 'PERFEKTNÍ';
+                targetText = t('minigames.ur.grade_perfect');
             } else if(this.stats.rollsUsed <= this.targets.good) {
                 targetColor = '#4ade80';
-                targetText = 'VÝBORNÝ';
+                targetText = t('minigames.ur.grade_good');
             } else if(this.stats.rollsUsed <= this.targets.ok) {
                 targetColor = '#60a5fa';
-                targetText = 'DOBRÝ';
+                targetText = t('minigames.ur.grade_ok');
+            } else {
+                targetText = t('minigames.ur.grade_pass');
             }
             
-            h += `<div style="text-align: center; margin: 5px 0; padding: 5px; background: ${targetColor}; color: white; border-radius: 4px; font-size: 0.85rem; font-weight: bold;">`;
-            h += `Aktuální tempo: ${targetText}`;
+            h += `<div style="text-align: center; margin: 5px 0; padding: 5px; background: ${targetColor}; color: white; border-radius: 4px; font-size: 0.85rem; font-weight: bold; text-shadow: 1px 1px 2px rgba(0,0,0,0.5);">`;
+            h += t('minigames.ur.label_pace').replace('{grade}', targetText);
             h += `</div>`;
             
             if(!this.canMove) {
-                h += `<button class="craft-btn" onclick="RoyalGameOfUrSolo.rollDice()" style="margin: 10px 0; width: 100%;">🎲 Hodit kostky</button>`;
+                h += `<button class="craft-btn" onclick="RoyalGameOfUrSolo.rollDice()" style="margin: 10px 0; width: 100%;">${t('minigames.ur.btn_roll')}</button>`;
             } else if(this.diceRoll > 0) {
-                h += `<div style="text-align: center; margin: 10px 0; padding: 10px; background: gold; border-radius: 4px; font-size: 1.2rem;">`;
-                h += `🎲 Hod: ${this.diceRoll}`;
+                h += `<div style="text-align: center; margin: 10px 0; padding: 10px; background: gold; color: black; border-radius: 4px; font-size: 1.2rem;">`;
+                h += t('minigames.ur.label_roll').replace('{roll}', this.diceRoll);
                 h += `</div>`;
             }
             
@@ -732,7 +737,7 @@ const RoyalGameOfUrSolo = {
             const offBoard = this.playerPieces.filter(p => p.position === -1);
             if(offBoard.length > 0 && this.canMove) {
                 h += `<div style="margin-top: 15px;">`;
-                h += `<strong>Žetony mimo desku (${offBoard.length}):</strong>`;
+                h += `<strong>${t('minigames.ur.label_offboard_solo').replace('{count}', offBoard.length)}</strong>`;
                 h += `<div style="display: flex; gap: 5px; margin-top: 5px; flex-wrap: wrap;">`;
                 offBoard.forEach(piece => {
                     h += `<button class="craft-btn" onclick="RoyalGameOfUrSolo.movePiece(${piece.id})" style="padding: 8px;">`;
@@ -749,7 +754,7 @@ const RoyalGameOfUrSolo = {
     
     renderBoard: function() {
         let h = '<div style="margin: 15px 0;">';
-        h += '<strong style="display: block; margin-bottom: 5px;">Herní dráha:</strong>';
+        h += `<strong style="display: block; margin-bottom: 5px;">${t('minigames.ur.label_track')}</strong>`;
         h += '<div style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; font-size: 0.8rem;">';
         
         for(let i = 0; i < 7; i++) {
@@ -790,8 +795,7 @@ const RoyalGameOfUrSolo = {
         if(pieceIdx >= 0) {
             this.movePiece(pieceIdx);
         }
-    }
-,
+    },
     
     close: function() {
         this.gameActive = false;
@@ -799,6 +803,3 @@ const RoyalGameOfUrSolo = {
         if(modal) modal.remove();
     }
 };
-
-// ========== KARNÖFFEL GAME ==========
-

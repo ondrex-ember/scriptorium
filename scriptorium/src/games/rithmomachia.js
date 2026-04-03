@@ -72,7 +72,7 @@ const Rithmomachia = {
     
     start: function() {
         if (!GameState.inventory.rithmomachia_board || GameState.inventory.rithmomachia_board < 1) {
-            UI.notify("❌ Potřebuješ Rithmomachia Desku!", true);
+            UI.notify(t('minigames.rithmomachia.need_board'), true);
             return;
         }
         
@@ -109,7 +109,7 @@ const Rithmomachia = {
     },
     
     showTutorial: function() {
-        UI.notify("🔢 Bitva čísel! ○ táhne 1, △ táhne 2 po diagonále, □ táhne 3. Zabiješ sečtením hodnot nebo přeskočením!");
+        UI.notify(t('minigames.rithmomachia.tut_msg'));
     },
     
     // ========== PIECE SELECTION ==========
@@ -129,7 +129,7 @@ const Rithmomachia = {
         }
         
         if (piece.player !== 'white') {
-            UI.notify("❌ To není tvůj kámen!", true);
+            UI.notify(t('minigames.rithmomachia.err_not_yours'), true);
             return;
         }
         
@@ -139,7 +139,7 @@ const Rithmomachia = {
         this.render();
         
         if (this.validMoves.length === 0) {
-            UI.notify("❌ Tento kámen nemůže táhnout!", true);
+            UI.notify(t('minigames.rithmomachia.err_no_move'), true);
         }
     },
     
@@ -219,7 +219,7 @@ const Rithmomachia = {
         // Check if valid move
         const isValid = this.validMoves.some(([mx, my]) => mx === x && my === y);
         if (!isValid) {
-            UI.notify("❌ Neplatný tah!", true);
+            UI.notify(t('minigames.rithmomachia.err_invalid'), true);
             return;
         }
         
@@ -304,7 +304,7 @@ const Rithmomachia = {
             }
         }
         
-        UI.notify(`⚔️ Chycen! +${piece.value} bodů`);
+        UI.notify(t('minigames.rithmomachia.capture').replace('{value}', piece.value));
     },
     
     // ========== AI OPPONENT ==========
@@ -345,7 +345,7 @@ const Rithmomachia = {
             piece.pos = [x, y];
             
             this.checkCaptures(piece);
-            UI.notify(`🤖 AI táhl ${piece.type} na [${x},${y}]`);
+            UI.notify(t('minigames.rithmomachia.ai_move').replace('{type}', piece.type).replace('{x}', x).replace('{y}', y));
         }
         
         this.checkVictory();
@@ -369,23 +369,23 @@ const Rithmomachia = {
         const blackTriangles = this.blackPieces.filter(p => p.type === 'triangle').length;
         
         if (whiteTriangles === 0) {
-            this.endGame('black', 'Všechny bílé pyramidy zničeny!');
+            this.endGame('black', t('minigames.rithmomachia.win_white_pyr'));
             return true;
         }
         
         if (blackTriangles === 0) {
-            this.endGame('white', 'Všechny černé pyramidy zničeny!');
+            this.endGame('white', t('minigames.rithmomachia.win_black_pyr'));
             return true;
         }
         
         // Condition 2: Reached 100 points
         if (this.points.white >= 100) {
-            this.endGame('white', 'Dosaženo 100 bodů!');
+            this.endGame('white', t('minigames.rithmomachia.win_points'));
             return true;
         }
         
         if (this.points.black >= 100) {
-            this.endGame('black', 'Dosaženo 100 bodů!');
+            this.endGame('black', t('minigames.rithmomachia.win_points'));
             return true;
         }
         
@@ -406,14 +406,14 @@ const Rithmomachia = {
                 GameState.achievements.stats.totalResearchGained += reward;
             }
             
-            UI.notify(`🏆 VÝHRA! ${reason} +${reward} Research`);
+            UI.notify(t('minigames.rithmomachia.win').replace('{reason}', reason).replace('{reward}', reward));
         } else {
             // Track played (even if lost)
             if(GameState.achievements) {
                 GameState.achievements.stats.totalGamesPlayed++;
             }
             
-            UI.notify(`💀 Prohra! ${reason}`);
+            UI.notify(t('minigames.rithmomachia.loss').replace('{reason}', reason));
         }
         
         setTimeout(() => this.render(), 2000);
@@ -450,23 +450,21 @@ const Rithmomachia = {
         if (!container) return;
         
         let h = '<div style="background: var(--bg-card); padding: 15px; border-radius: 8px;">';
-        h += '<h3>🔢 Rithmomachia - Bitva Čísel</h3>';
+        h += `<h3>${t('minigames.rithmomachia.title')}</h3>`;
         
         if (!this.gameActive) {
-            h += `<p style="margin: 10px 0;">Šachy Filozofů - vyučováno na univerzitách!</p>`;
+            h += `<p style="margin: 10px 0;">${t('minigames.rithmomachia.subtitle')}</p>`;
             h += `<p style="font-size: 0.9rem; opacity: 0.8; margin: 10px 0;">`;
-            h += `<strong>Vítězství:</strong><br>`;
-            h += `1. Znič všechny pyramidy (△) soupeře<br>`;
-            h += `2. Získej 100 bodů z chycených kamenů`;
+            h += t('minigames.rithmomachia.victory_cond');
             h += `</p>`;
-            h += `<button class="craft-btn" onclick="Rithmomachia.start()" style="margin-top: 10px;">Hrát 🎮</button>`;
-            h += `<button class="craft-btn" onclick="Rithmomachia.showRules()" style="margin-top: 10px; background: var(--accent-gold);">📖 Pravidla</button>`;
+            h += `<button class="craft-btn" onclick="Rithmomachia.start()" style="margin-top: 10px;">${t('minigames.rithmomachia.btn_play')}</button>`;
+            h += `<button class="craft-btn" onclick="Rithmomachia.showRules()" style="margin-top: 10px; background: var(--accent-gold);">${t('minigames.rithmomachia.btn_rules')}</button>`;
         } else {
             // Score
             h += `<div style="display: flex; justify-content: space-between; margin: 10px 0; padding: 10px; background: rgba(0,0,0,0.1); border-radius: 4px; font-size: 0.9rem;">`;
-            h += `<div>Ty: ${this.points.white} bodů</div>`;
-            h += `<div>${this.currentTurn === 'white' ? '▶️ Tvůj tah' : '🤖 AI'}</div>`;
-            h += `<div>AI: ${this.points.black} bodů</div>`;
+            h += `<div>${t('minigames.rithmomachia.label_you')}: ${this.points.white} ${t('minigames.rithmomachia.label_points')}</div>`;
+            h += `<div>${this.currentTurn === 'white' ? t('minigames.rithmomachia.label_your_turn') : t('minigames.rithmomachia.label_ai_turn')}</div>`;
+            h += `<div>${t('minigames.rithmomachia.label_ai')}: ${this.points.black} ${t('minigames.rithmomachia.label_points')}</div>`;
             h += `</div>`;
             
             // Board
@@ -474,7 +472,7 @@ const Rithmomachia = {
             
             // Legend
             h += `<div style="margin-top: 10px; font-size: 0.85rem; opacity: 0.8;">`;
-            h += `○ Kruh (1 pole) | △ Pyramida (2 diag.) | □ Čtverec (3 pole)`;
+            h += t('minigames.rithmomachia.legend');
             h += `</div>`;
         }
         
@@ -527,25 +525,17 @@ const Rithmomachia = {
         const modal = `
             <div style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); z-index: 10000; display: flex; align-items: center; justify-content: center; padding: 20px;" onclick="this.remove()">
                 <div style="background: var(--bg-parchment); padding: 30px; border-radius: 10px; max-width: 500px; max-height: 80vh; overflow-y: auto;" onclick="event.stopPropagation()">
-                    <h2 style="margin-top: 0;">🔢 Pravidla Rithmomachia</h2>
+                    <h2 style="margin-top: 0;">${t('minigames.rithmomachia.rules_title')}</h2>
                     
-                    <h3>Pohyb:</h3>
-                    <p>○ <strong>Kruh</strong>: 1 pole (N/S/E/W)<br>
-                    △ <strong>Pyramida</strong>: 2 pole (diagonálně)<br>
-                    □ <strong>Čtverec</strong>: 3 pole (jakýmkoliv směrem)</p>
+                    ${t('minigames.rithmomachia.rules_movement')}
                     
-                    <h3>Chytání:</h3>
-                    <p>Chyť soupeřův kámen když <strong>součet hodnot tvých sousedních kamenů = hodnota soupeře</strong>!</p>
-                    <p>Příklad: Tvé kameny 4+5 mohou chytit soupeřův kámen 9.</p>
+                    ${t('minigames.rithmomachia.rules_capture')}
                     
-                    <h3>Vítězství:</h3>
-                    <p>1️⃣ Znič všechny <strong>pyramidy (△)</strong> soupeře<br>
-                    2️⃣ Získej <strong>100 bodů</strong> z chycených kamenů</p>
+                    ${t('minigames.rithmomachia.rules_victory')}
                     
-                    <h3>Historie:</h3>
-                    <p style="font-size: 0.9rem; opacity: 0.8;">Vynalezeno r. 1030 mnichem Asilo z Würzburgu. Vyučováno na univerzitách jako matematická pomůcka - Karlova univerzita, Oxford, Bologna!</p>
+                    ${t('minigames.rithmomachia.rules_history')}
                     
-                    <button class="craft-btn" onclick="this.parentElement.parentElement.remove()" style="margin-top: 20px; width: 100%;">Zavřít</button>
+                    <button class="craft-btn" onclick="this.parentElement.parentElement.remove()" style="margin-top: 20px; width: 100%;">${t('minigames.rithmomachia.btn_close')}</button>
                 </div>
             </div>
         `;
@@ -559,8 +549,3 @@ const Rithmomachia = {
         if(modal) modal.remove();
     }
 };
-
-// PŘIDAT hned po PrimeroGame (po jeho closing });
-
-// ========== ROYAL GAME OF UR - VS AI ==========
-

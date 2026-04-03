@@ -12,7 +12,7 @@ const FreeCellGame = {
     
     start: function() {
         if (!GameState.inventory.french_deck || GameState.inventory.french_deck < 1) {
-            UI.notify("❌ Potřebuješ Francouzský Balíček!", true);
+            UI.notify(t('minigames.freecell.need_deck'), true);
             return;
         }
         
@@ -73,14 +73,14 @@ const FreeCellGame = {
         const foundation = this.foundations[foundationIndex];
         
         if(foundation.length === 0 && card.rank !== 'A') {
-            UI.notify("❌ Foundations začínají Esem!", true);
+            UI.notify(t('minigames.freecell.err_ace'), true);
             return;
         }
         
         if(foundation.length > 0) {
             const topCard = foundation[foundation.length - 1];
             if(topCard.suit !== card.suit || topCard.value + 1 !== card.value) {
-                UI.notify("❌ Neplatný tah!", true);
+                UI.notify(t('minigames.freecell.err_invalid'), true);
                 return;
             }
         }
@@ -110,7 +110,7 @@ const FreeCellGame = {
         } else {
             const topCard = column[column.length - 1];
             if(topCard.color === card.color || topCard.value !== card.value + 1) {
-                UI.notify("❌ Musí být opačná barva a o 1 menší!", true);
+                UI.notify(t('minigames.freecell.err_color_val'), true);
                 return;
             }
         }
@@ -125,7 +125,7 @@ const FreeCellGame = {
     moveToFreeCell: function(cellIndex) {
         if(!this.selected) return;
         if(this.freeCells[cellIndex] !== null) {
-            UI.notify("❌ Free cell obsazena!", true);
+            UI.notify(t('minigames.freecell.err_cell_full'), true);
             return;
         }
         
@@ -177,7 +177,7 @@ const FreeCellGame = {
             GameState.achievements.stats.totalResearchGained += reward;
         }
         
-        UI.notify(`🏆 VÝHRA! +${reward} Research (${this.moves} tahů)`);
+        UI.notify(t('minigames.freecell.win').replace('{reward}', reward).replace('{moves}', this.moves));
         
         setTimeout(() => this.render(), 2000);
     },
@@ -211,20 +211,21 @@ const FreeCellGame = {
         if(!container) return;
         
         let h = '<div style="background: var(--bg-card); padding: 15px; border-radius: 8px;">';
-        h += '<h3>🂡 FreeCell Solitaire</h3>';
+        h += `<h3>${t('minigames.freecell.title')}</h3>`;
         
         if(!this.gameActive && this.tableau.length === 0) {
-            h += `<p style="margin: 10px 0;">Logická karetní hra. Přesuň všechny karty na základy!</p>`;
-            h += `<button class="craft-btn" onclick="FreeCellGame.start()" style="margin-top: 10px;">Hrát 🎮</button>`;
+            h += `<p style="margin: 10px 0;">${t('minigames.freecell.subtitle')}</p>`;
+            h += `<button class="craft-btn" onclick="FreeCellGame.start()" style="margin-top: 10px;">${t('minigames.freecell.btn_play')}</button>`;
         } else {
-            h += `<div style="margin-bottom: 10px;"><strong>Tahy: ${this.moves}</strong></div>`;
+            h += `<div style="margin-bottom: 10px;"><strong>${t('minigames.freecell.label_moves').replace('{moves}', this.moves)}</strong></div>`;
             
             h += `<div style="display: grid; grid-template-columns: repeat(8, 1fr); gap: 5px; margin-bottom: 10px;">`;
             
             for(let i = 0; i < 4; i++) {
                 const card = this.freeCells[i];
                 const isSelected = this.selected && this.selected.location === 'freecell' && this.selected.index === i;
-                h += `<div style="padding: 10px; background: ${isSelected ? 'gold' : 'rgba(0,0,0,0.1)'}; border: 2px dashed var(--border-color); border-radius: 4px; min-height: 40px; text-align: center; cursor: pointer; font-size: 0.9rem;" onclick="FreeCellGame.${card ? `selectCard('freecell', ${i})` : `moveToFreeCell(${i})`}">`;
+                const textColor = card ? card.color : 'inherit';
+                h += `<div style="padding: 10px; background: ${isSelected ? 'gold' : 'rgba(0,0,0,0.1)'}; border: 2px dashed var(--border-color); border-radius: 4px; min-height: 40px; text-align: center; cursor: pointer; font-size: 0.9rem; color: ${textColor};" onclick="FreeCellGame.${card ? `selectCard('freecell', ${i})` : `moveToFreeCell(${i})`}">`;
                 if(card) h += `${card.rank}${card.suit}`;
                 else h += `💠`;
                 h += `</div>`;
@@ -233,7 +234,8 @@ const FreeCellGame = {
             for(let i = 0; i < 4; i++) {
                 const foundation = this.foundations[i];
                 const topCard = foundation[foundation.length - 1];
-                h += `<div style="padding: 10px; background: rgba(197,160,89,0.2); border: 2px solid var(--accent-gold); border-radius: 4px; min-height: 40px; text-align: center; cursor: pointer; font-size: 0.9rem;" onclick="FreeCellGame.moveToFoundation(${i})">`;
+                const textColor = topCard ? topCard.color : 'inherit';
+                h += `<div style="padding: 10px; background: rgba(197,160,89,0.2); border: 2px solid var(--accent-gold); border-radius: 4px; min-height: 40px; text-align: center; cursor: pointer; font-size: 0.9rem; color: ${textColor};" onclick="FreeCellGame.moveToFoundation(${i})">`;
                 if(topCard) h += `${topCard.rank}${topCard.suit}`;
                 else h += `🏆`;
                 h += `</div>`;
@@ -249,7 +251,7 @@ const FreeCellGame = {
                 col.forEach((card, cardIdx) => {
                     const isTop = cardIdx === col.length - 1;
                     const isSelected = this.selected && this.selected.location === 'tableau' && this.selected.index === i && isTop;
-                    h += `<div style="padding: 3px; background: ${isSelected ? 'gold' : 'white'}; border: 1px solid var(--border-color); border-radius: 2px; margin-bottom: 2px; font-size: 0.7rem; text-align: center; cursor: pointer;" onclick="event.stopPropagation(); ${isTop ? `FreeCellGame.selectCard('tableau', ${i})` : 'void(0)'}">`;
+                    h += `<div style="padding: 3px; background: ${isSelected ? 'gold' : 'white'}; border: 1px solid var(--border-color); border-radius: 2px; margin-bottom: 2px; font-size: 0.7rem; text-align: center; cursor: pointer; color: ${card.color};" onclick="event.stopPropagation(); ${isTop ? `FreeCellGame.selectCard('tableau', ${i})` : 'void(0)'}">`;
                     h += `${card.rank}${card.suit}`;
                     h += `</div>`;
                 });
@@ -258,13 +260,12 @@ const FreeCellGame = {
             }
             h += `</div>`;
             
-            h += `<button class="craft-btn" onclick="FreeCellGame.start()" style="margin-top: 10px;">Nová hra 🔄</button>`;
+            h += `<button class="craft-btn" onclick="FreeCellGame.start()" style="margin-top: 10px;">${t('minigames.freecell.btn_new')}</button>`;
         }
         
         h += '</div>';
         container.innerHTML = h;
-    }
-,
+    },
     
     close: function() {
         this.gameActive = false;
@@ -272,4 +273,3 @@ const FreeCellGame = {
         if(modal) modal.remove();
     }
 };
-

@@ -51,7 +51,6 @@ const LangSystem = {
         if (sel) sel.value = lang;
 
         // 8. Fireplace text (cold state) + light source buttons
-        // checkEnvironment() handles the lit state; this handles cold/idle state
         if (typeof GameState !== 'undefined') {
             const fpTitle = document.getElementById('fireplace-title');
             const fpDesc  = document.getElementById('fireplace-desc');
@@ -66,6 +65,32 @@ const LangSystem = {
             if (btnTorch)  btnTorch.textContent  = L.light.btnTorch;
             if (btnCandle) btnCandle.textContent = L.light.btnCandle;
         }
+
+        // 9. Filter buttons — craft, inv, lore tabs, library tabs
+        const filterMap = {
+            'craft-filter-all':       L.craft.filterAll,
+            'craft-filter-tool':      L.craft.filterMat,
+            'craft-filter-mat':       L.craft.filterMat,
+            'craft-filter-food':      L.craft.filterFood,
+            'craft-filter-alch':      L.craft.filterAlchemy,
+            'craft-filter-lore':      L.craft.filterLore,
+            'inv-filter-all':         L.inv.filterAll,
+            'inv-filter-mat':         L.inv.filterMat,
+            'inv-filter-tool':        L.inv.filterTool,
+            'inv-filter-lore':        L.inv.filterLore,
+            'lore-tab-research':      L.lore.tabResearch,
+            'lore-tab-codex':         L.lore.tabCodex,
+            'lore-tab-notebooks':     L.lore.tabNotebooks,
+            'lore-tab-achievements':  L.lore.tabAchievements,
+            'lib-tab-books':          L.library.tabBooks,
+            'lib-tab-records':        L.library.tabRecords,
+            'lib-tab-iching':         L.library.tabIching,
+            'lib-tab-news':           L.library.tabNews,
+        };
+        Object.entries(filterMap).forEach(([id, text]) => {
+            const el = document.getElementById(id);
+            if (el) el.textContent = text;
+        });
     }
 };
 

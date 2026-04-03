@@ -13,7 +13,7 @@ const KarnoffelGame = {
     
     start: function() {
         if (!GameState.inventory.karnoffel_deck || GameState.inventory.karnoffel_deck < 1) {
-            UI.notify("❌ Potřebuješ Karnöffel Balíček!", true);
+            UI.notify(t('minigames.karnoffel.need_deck'), true);
             return;
         }
         
@@ -96,10 +96,10 @@ const KarnoffelGame = {
         
         if(winner === 'you') {
             this.playerTricks++;
-            UI.notify("🎉 Vyhráls trik!");
+            UI.notify(t('minigames.karnoffel.trick_win'));
         } else {
             this.opponentTricks++;
-            UI.notify("😔 Soupeř vyhrál trik");
+            UI.notify(t('minigames.karnoffel.trick_loss'));
         }
         
         this.currentTrick = [];
@@ -118,21 +118,19 @@ const KarnoffelGame = {
             const reward = 3;
             Game.addItem('research', reward);
             
-            // Track stats
             if(GameState.achievements) {
                 GameState.achievements.stats.karnoffelGamesWon++;
                 GameState.achievements.stats.totalGamesPlayed++;
                 GameState.achievements.stats.totalResearchGained += reward;
             }
             
-            UI.notify(`🏆 Výhra! +${reward} Research`);
+            UI.notify(t('minigames.karnoffel.game_win').replace('{reward}', reward));
         } else {
-            // Track played (even if lost)
             if(GameState.achievements) {
                 GameState.achievements.stats.totalGamesPlayed++;
             }
             
-            UI.notify(`💀 Prohra! Zkus to znovu.`);
+            UI.notify(t('minigames.karnoffel.game_loss'));
         }
         
         setTimeout(() => this.render(), 1500);
@@ -167,23 +165,23 @@ const KarnoffelGame = {
         if(!container) return;
         
         let h = '<div style="background: var(--bg-card); padding: 15px; border-radius: 8px;">';
-        h += '<h3>🎴 Karnöffel (1426 - Nejstarší hra!)</h3>';
+        h += `<h3>${t('minigames.karnoffel.title')}</h3>`;
         
         if(!this.gameActive) {
-            h += `<p style="margin: 10px 0;">Trumfová hra z Norimberk. Církev ji zakazovala!</p>`;
-            h += `<button class="craft-btn" onclick="KarnoffelGame.start()" style="margin-top: 10px;">Hrát 🎮</button>`;
+            h += `<p style="margin: 10px 0;">${t('minigames.karnoffel.subtitle')}</p>`;
+            h += `<button class="craft-btn" onclick="KarnoffelGame.start()" style="margin-top: 10px;">${t('minigames.karnoffel.btn_play')}</button>`;
         } else {
             h += `<div style="display: flex; justify-content: space-between; margin: 10px 0; padding: 10px; background: rgba(0,0,0,0.1); border-radius: 4px;">`;
-            h += `<div>Tvé triky: ${this.playerTricks}</div>`;
-            h += `<div>Trumf: ${this.trump}</div>`;
-            h += `<div>Soupeř: ${this.opponentTricks}</div>`;
+            h += `<div>${t('minigames.karnoffel.label_your_tricks')}: ${this.playerTricks}</div>`;
+            h += `<div>${t('minigames.karnoffel.label_trump')}: ${this.trump}</div>`;
+            h += `<div>${t('minigames.karnoffel.label_opponent')}: ${this.opponentTricks}</div>`;
             h += `</div>`;
             
             if(this.currentTrick.length > 0) {
                 h += `<div style="margin: 15px 0; padding: 10px; background: rgba(197,160,89,0.2); border-radius: 4px;">`;
-                h += `<strong>Aktuální trik:</strong><div style="display: flex; gap: 10px; margin-top: 5px; justify-content: center;">`;
+                h += `<strong>${t('minigames.karnoffel.label_current_trick')}</strong><div style="display: flex; gap: 10px; margin-top: 5px; justify-content: center;">`;
                 this.currentTrick.forEach(play => {
-                    h += `<div style="padding: 10px; background: white; border: 2px solid var(--accent-gold); border-radius: 4px; text-align: center;">`;
+                    h += `<div style="padding: 10px; background: white; border: 2px solid var(--accent-gold); border-radius: 4px; text-align: center; color: black;">`;
                     h += `${play.card.rank}${play.card.suit}`;
                     h += `</div>`;
                 });
@@ -191,11 +189,11 @@ const KarnoffelGame = {
             }
             
             h += `<div style="margin: 15px 0;">`;
-            h += `<strong>Tvé karty:</strong>`;
+            h += `<strong>${t('minigames.karnoffel.label_your_cards')}</strong>`;
             h += `<div style="display: flex; gap: 5px; margin-top: 5px; flex-wrap: wrap;">`;
             this.playerHand.forEach((card, idx) => {
                 const isTrump = card.suit === this.trump;
-                h += `<div style="padding: 10px; background: ${isTrump ? 'gold' : 'white'}; border: 2px solid var(--border-color); border-radius: 4px; text-align: center; min-width: 40px; cursor: pointer;" onclick="KarnoffelGame.playCard(${idx})">`;
+                h += `<div style="padding: 10px; background: ${isTrump ? 'gold' : 'white'}; border: 2px solid var(--border-color); border-radius: 4px; text-align: center; min-width: 40px; cursor: pointer; color: black;" onclick="KarnoffelGame.playCard(${idx})">`;
                 h += `${card.rank}${card.suit}`;
                 h += `</div>`;
             });
@@ -204,8 +202,7 @@ const KarnoffelGame = {
         
         h += '</div>';
         container.innerHTML = h;
-    }
-,
+    },
     
     close: function() {
         this.gameActive = false;
@@ -213,6 +210,3 @@ const KarnoffelGame = {
         if(modal) modal.remove();
     }
 };
-
-// ========== FREECELL GAME (simplified) ==========
-
