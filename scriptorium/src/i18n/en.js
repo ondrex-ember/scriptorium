@@ -522,8 +522,6 @@ time: {
         starving: 'STARVING!',
         notified: 'Thy belly rumbles. Thou art starving!'
     },
-    // candleBurnedOut: 'Thy candle hath burned out.',
-
 tidings: {
         empty: "No tidings as yet. Resume thy work.",
         subtitle: "Letters and tidings that have reached the scriptorium...",
@@ -542,7 +540,6 @@ tidings: {
         news_25: "The abbot seeketh a scribe who knoweth gall ink. For a special commission, 'tis said. From the bishop.",
         news_28: "Hast thou decided who thou art? A craftsman — or a servant? Both paths are honorable. But they are not the same."
     },
-
 garden: {
         desc: 'Cultivate rare flora. The soil requires thy care.',
         fertilize: 'Fertilize',
