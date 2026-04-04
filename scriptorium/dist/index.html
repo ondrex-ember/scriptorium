@@ -9174,18 +9174,27 @@ const Game = {
         Game.save(); Game.checkEnvironment(); UI.renderAll();
         Game.checkAchievements();
     },
-   craft: function(id) {
+  craft: function(id) {
         const r = RecipesDB.find(x => x.id === id);
         if(!GameState.flags.fireplaceLit && !r.blind) { UI.notify(t('game.frozenHands'), true); return; }
+        
+        // OPRAVA TADY: Změněno t('item') zpět na item
         for(let [item, amt] of Object.entries(r.req)) {
-            if(amt > 0 && (!GameState.inventory[item] || GameState.inventory[item] < amt)) { UI.notify(t('game.missingMats'), true); return; }
-            // TADY JE TA OPRAVA:
-            if(amt === 0 && !GameState.inventory[item]) { UI.notify(`${t('game.required2')} ${iName(item)}`, true); return; }
+            if(amt > 0 && (!GameState.inventory[item] || GameState.inventory[item] < amt)) { 
+                UI.notify(t('game.missingMats'), true); 
+                return; 
+            }
+            // Zde už iName(item) funguje správně
+            if(amt === 0 && !GameState.inventory[item]) { 
+                UI.notify(`${t('game.required2')} ${iName(item)}`, true); 
+                return; 
+            }
         }
+        
         for(let [item, amt] of Object.entries(r.req)) if(amt > 0) this.removeItem(item, amt);
         this.addItem(r.output, r.qty);
         
-        // Analytics – zaznamenej craft (Tady můžeme nechat původní name, pro statistiky je lepší jeden stálý jazyk)
+        // Analytics – zaznamenej craft
         const craftedItem = ItemsDB[r.output];
         if (craftedItem) Analytics.itemCrafted(r.output, craftedItem.name, craftedItem.type);
         
