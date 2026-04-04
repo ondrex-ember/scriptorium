@@ -1393,12 +1393,12 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <div id="consent-banner" style="display:none; position:fixed; bottom:0; left:0; right:0; z-index:2000; padding:14px 20px; background:var(--ink-primary); color:var(--bg-parchment); border-top:2px solid var(--accent-gold); font-family:'Crimson Text', serif; font-size:0.88rem; line-height:1.6;">
     <div style="max-width:500px; margin:0 auto; display:flex; flex-direction:column; gap:10px;">
         <div>
-            <span id="consent-text">📜 <strong>Scriptorium používá Google Analytics</strong> pro měření herního postupu (které technologie se odemykají, jak dlouho se hraje apod.). Žádné osobní údaje nejsou sdíleny.</span>
-            <a href="#" id="consent-more" onclick="ConsentManager.showPolicy(); return false;" style="color:var(--accent-gold); margin-left:6px;">Více info</a>
+            <span id="consent-text" data-i18n="consent.text">📜 <strong>Scriptorium používá Google Analytics</strong> pro měření herního postupu (které technologie se odemykají, jak dlouho se hraje apod.). Žádné osobní údaje nejsou sdíleny.</span>
+            <a href="#" id="consent-more" onclick="ConsentManager.showPolicy(); return false;" style="color:var(--accent-gold); margin-left:6px;" data-i18n="consent.moreInfo">Více info</a>
         </div>
         <div style="display:flex; gap:10px; flex-wrap:wrap;">
-            <button id="consent-btn-grant" onclick="ConsentManager.grant()" style="padding:7px 18px; background:var(--accent-gold); color:var(--ink-primary); border:none; font-family:'Cinzel Decorative'; font-size:0.75rem; cursor:pointer; border-radius:2px; letter-spacing:1px;">Souhlasím</button>
-            <button id="consent-btn-deny" onclick="ConsentManager.deny()" style="padding:7px 18px; background:transparent; color:var(--bg-parchment); border:1px solid var(--bg-parchment); font-family:'Cinzel Decorative'; font-size:0.75rem; cursor:pointer; border-radius:2px; letter-spacing:1px; opacity:0.7;">Odmítám</button>
+            <button id="consent-btn-grant" onclick="ConsentManager.grant()" style="padding:7px 18px; background:var(--accent-gold); color:var(--ink-primary); border:none; font-family:'Cinzel Decorative'; font-size:0.75rem; cursor:pointer; border-radius:2px; letter-spacing:1px;" data-i18n="consent.grant">Souhlasím</button>
+            <button id="consent-btn-deny" onclick="ConsentManager.deny()" style="padding:7px 18px; background:transparent; color:var(--bg-parchment); border:1px solid var(--bg-parchment); font-family:'Cinzel Decorative'; font-size:0.75rem; cursor:pointer; border-radius:2px; letter-spacing:1px; opacity:0.7;" data-i18n="consent.deny">Odmítám</button>
         </div>
     </div>
 </div>

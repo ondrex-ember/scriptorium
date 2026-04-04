@@ -7495,7 +7495,6 @@ const FreeCellGame = {
 const STRINGS_cs = {
         nav: { home:'Pracovna', garden:'Zahrada', craft:'Výroba', inv:'Batoh', lore:'Scriptorium', library:'Knihovna' },
         screens: { home:'Pracovna', garden:'Zahrada', craft:'Výroba', inv:'Batoh', lore:'Scriptorium', library:'Knihovna', settings:'Nastavení' },
-    header: { weatherNow: 'Aktuálně v Praze (klikni pro refresh)', weatherTomorrow: 'Předpověď na zítra', hunger: 'Hlad', streak: 'Denní streak', research: 'Počet Research', settings: 'Nastavení' },
         fireplace: {
             cold:'Vyhaslý Krb', coldDesc:'Je tu zima.', kindle:'ROZEŽEHNOUT',
             lit:'Hřejivý Krb', litDesc:'Oheň dává život.'
@@ -7507,7 +7506,7 @@ const STRINGS_cs = {
 	    torchDesc: 'Kouří a prská, ale svítí jasně.',
             btnTorch:'ZAPÁLIT LOUČ', btnCandle:'ZAPÁLIT SVÍČKU'
         },
-header: {
+    header: {
         weatherNow: 'Aktuálně v Praze (klikni pro refresh)',
         weatherTomorrow: 'Předpověď na zítra',
         hunger: 'Hlad',
@@ -7856,17 +7855,9 @@ const STRINGS_en = {
 	    torchDesc: 'It smokes and crackles, yet burns bright.',
             btnTorch:'LIGHT TORCH', btnCandle:'LIGHT CANDLE'
         },
-        craft: { filterAll:'All', filterMat:'Materials', filterFood:'Provisions', filterAlchemy:'Alchemy', filterLore:'Knowledge', btn:'Craft' },
+        craft: { filterAll:'All', filterTool:'Tools', filterMat:'Materials', filterFood:'Provisions', filterAlchemy:'Alchemy', filterLore:'Knowledge', btn:'Craft' },
         inv:   { filterAll:'All', filterMat:'Materials', filterTool:'Tools', filterLore:'Other' },
         settings: { langLabel:'🗺️ Language / Jazyk' },
-header: {
-        weatherNow: 'Presently in Prague (click to refresh)',
-        weatherTomorrow: 'Morrow\'s forecast',
-        hunger: 'Hunger',
-        streak: 'Daily Streak',
-        research: 'Knowledge Gathered',
-        settings: 'Settings'
-    },
     wellUI: {
         title: '🚰 The Well',
         notBuilt: 'Thou hast no well. Thou mayest construct one below.',
@@ -7875,7 +7866,14 @@ header: {
         condition: 'Condition:',
         clean: '✨ Purify (powder)',
         repair: '🔧 Repair (kit)',
-        upgrade: '🏛️ Fortify with Stone (30 rock, 5 rope, 10 charcoal)'
+        upgrade: '🏛️ Fortify with Stone (30 rock, 5 rope, 10 charcoal)',
+        levelBasic: 'Basic',
+        levelStone: 'Stone',
+        levelBlessed: 'Blessed',
+        levelUnknown: 'Unknown',
+        condClean: '✓ Pure',
+        condDirty: '⚠️ Fouled',
+        condBroken: '💥 Broken'
     },
     settingsUI: {
         volume: 'Volume',
@@ -8194,7 +8192,6 @@ garden: {
     factTitle: 'Today\'s Fact'
 },
 };
-
 // ═══ src/i18n/strings.js ═══
 // Scriptorium i18n — STRINGS assembler + t() helper
 // Přidání jazyka: 1) xx.js, 2) přidat do STRINGS, 3) přidat do build.js
@@ -8236,31 +8233,6 @@ function tName(id) {
     const lang = (typeof GameState !== 'undefined' && GameState.settings && GameState.settings.language) || 'cs';
     return (lang !== 'cs' && tech.name_en) ? tech.name_en : tech.name;
 }
-
-// Item name helper — přeložený název dle jazyka, fallback na CS
-function iName(id) {
-    const item = ItemsDB[id];
-    if (!item) return id;
-    const lang = (typeof GameState !== 'undefined' && GameState.settings && GameState.settings.language) || 'cs';
-    return (lang !== 'cs' && item.name_en) ? item.name_en : item.name;
-}
-
-// Item description helper
-function iDesc(id) {
-    const item = ItemsDB[id];
-    if (!item) return '';
-    const lang = (typeof GameState !== 'undefined' && GameState.settings && GameState.settings.language) || 'cs';
-    return (lang !== 'cs' && item.desc_en) ? item.desc_en : item.desc;
-}
-
-// Tech name helper
-function tName(id) {
-    const tech = TechTree.find(x => x.id === id);
-    if (!tech) return id;
-    const lang = (typeof GameState !== 'undefined' && GameState.settings && GameState.settings.language) || 'cs';
-    return (lang !== 'cs' && tech.name_en) ? tech.name_en : tech.name;
-}
-
 // ═══ src/i18n/lang.js ═══
 const LangSystem = {
     apply: function(lang) {
@@ -8333,7 +8305,7 @@ const LangSystem = {
         // 9. Filter buttons — craft, inv, lore tabs, library tabs
         const filterMap = {
             'craft-filter-all':       L.craft.filterAll,
-            'craft-filter-tool':      L.craft.filterMat,
+            'craft-filter-tool':      L.craft.filterTool,
             'craft-filter-mat':       L.craft.filterMat,
             'craft-filter-food':      L.craft.filterFood,
             'craft-filter-alch':      L.craft.filterAlchemy,
@@ -8357,8 +8329,6 @@ const LangSystem = {
         });
     }
 };
-
-
 // ═══ src/core/game.js ═══
 const Game = {
     init: function() {
@@ -9883,25 +9853,25 @@ renderActions: function() {
 			// Update level text
 			const levelText = document.getElementById('well-level-text');
 			if (levelText) {
-				const levelNames = {
-					"basic": "Základní",
-					"stone": "Kamenná",
-					"blessed": "Posvěcená"
+				const levelKeys = {
+					"basic": 'wellUI.levelBasic',
+					"stone": 'wellUI.levelStone',
+					"blessed": 'wellUI.levelBlessed'
 				};
-				levelText.textContent = levelNames[GameState.well.level] || "Neznámá";
+				levelText.textContent = t(levelKeys[GameState.well.level] || 'wellUI.levelUnknown');
 			}
 			
 			// Update condition
 			const condText = document.getElementById('well-condition-text');
 			if (condText) {
 				if (GameState.well.condition === "clean") {
-					condText.textContent = "✓ Čistá";
+					condText.textContent = t('wellUI.condClean');
 					condText.style.color = "#4ade80";
 				} else if (GameState.well.condition === "dirty") {
-					condText.textContent = "⚠️ Znečištěná";
+					condText.textContent = t('wellUI.condDirty');
 					condText.style.color = "#fbbf24";
 				} else {
-					condText.textContent = "💥 Rozbitá";
+					condText.textContent = t('wellUI.condBroken');
 					condText.style.color = "#f87171";
 				}
 			}
@@ -10846,7 +10816,6 @@ renderRecords: function() {
 	// ===============================================
 	// NOTEBOOK SYSTEM - LOCAL ONLY (NO CLOUD)
 	// ===============================================
-
 // ═══ src/systems/iching.js ═══
 	const IChing = {
 	  
@@ -11517,12 +11486,12 @@ renderRecords: function() {
 <div id="consent-banner" style="display:none; position:fixed; bottom:0; left:0; right:0; z-index:2000; padding:14px 20px; background:var(--ink-primary); color:var(--bg-parchment); border-top:2px solid var(--accent-gold); font-family:'Crimson Text', serif; font-size:0.88rem; line-height:1.6;">
     <div style="max-width:500px; margin:0 auto; display:flex; flex-direction:column; gap:10px;">
         <div>
-            <span id="consent-text">📜 <strong>Scriptorium používá Google Analytics</strong> pro měření herního postupu (které technologie se odemykají, jak dlouho se hraje apod.). Žádné osobní údaje nejsou sdíleny.</span>
-            <a href="#" id="consent-more" onclick="ConsentManager.showPolicy(); return false;" style="color:var(--accent-gold); margin-left:6px;">Více info</a>
+            <span id="consent-text" data-i18n="consent.text">📜 <strong>Scriptorium používá Google Analytics</strong> pro měření herního postupu (které technologie se odemykají, jak dlouho se hraje apod.). Žádné osobní údaje nejsou sdíleny.</span>
+            <a href="#" id="consent-more" onclick="ConsentManager.showPolicy(); return false;" style="color:var(--accent-gold); margin-left:6px;" data-i18n="consent.moreInfo">Více info</a>
         </div>
         <div style="display:flex; gap:10px; flex-wrap:wrap;">
-            <button id="consent-btn-grant" onclick="ConsentManager.grant()" style="padding:7px 18px; background:var(--accent-gold); color:var(--ink-primary); border:none; font-family:'Cinzel Decorative'; font-size:0.75rem; cursor:pointer; border-radius:2px; letter-spacing:1px;">Souhlasím</button>
-            <button id="consent-btn-deny" onclick="ConsentManager.deny()" style="padding:7px 18px; background:transparent; color:var(--bg-parchment); border:1px solid var(--bg-parchment); font-family:'Cinzel Decorative'; font-size:0.75rem; cursor:pointer; border-radius:2px; letter-spacing:1px; opacity:0.7;">Odmítám</button>
+            <button id="consent-btn-grant" onclick="ConsentManager.grant()" style="padding:7px 18px; background:var(--accent-gold); color:var(--ink-primary); border:none; font-family:'Cinzel Decorative'; font-size:0.75rem; cursor:pointer; border-radius:2px; letter-spacing:1px;" data-i18n="consent.grant">Souhlasím</button>
+            <button id="consent-btn-deny" onclick="ConsentManager.deny()" style="padding:7px 18px; background:transparent; color:var(--bg-parchment); border:1px solid var(--bg-parchment); font-family:'Cinzel Decorative'; font-size:0.75rem; cursor:pointer; border-radius:2px; letter-spacing:1px; opacity:0.7;" data-i18n="consent.deny">Odmítám</button>
         </div>
     </div>
 </div>

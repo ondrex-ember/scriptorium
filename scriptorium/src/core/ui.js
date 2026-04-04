@@ -153,25 +153,25 @@ renderActions: function() {
 			// Update level text
 			const levelText = document.getElementById('well-level-text');
 			if (levelText) {
-				const levelNames = {
-					"basic": "Základní",
-					"stone": "Kamenná",
-					"blessed": "Posvěcená"
+				const levelKeys = {
+					"basic": 'wellUI.levelBasic',
+					"stone": 'wellUI.levelStone',
+					"blessed": 'wellUI.levelBlessed'
 				};
-				levelText.textContent = levelNames[GameState.well.level] || "Neznámá";
+				levelText.textContent = t(levelKeys[GameState.well.level] || 'wellUI.levelUnknown');
 			}
 			
 			// Update condition
 			const condText = document.getElementById('well-condition-text');
 			if (condText) {
 				if (GameState.well.condition === "clean") {
-					condText.textContent = "✓ Čistá";
+					condText.textContent = t('wellUI.condClean');
 					condText.style.color = "#4ade80";
 				} else if (GameState.well.condition === "dirty") {
-					condText.textContent = "⚠️ Znečištěná";
+					condText.textContent = t('wellUI.condDirty');
 					condText.style.color = "#fbbf24";
 				} else {
-					condText.textContent = "💥 Rozbitá";
+					condText.textContent = t('wellUI.condBroken');
 					condText.style.color = "#f87171";
 				}
 			}

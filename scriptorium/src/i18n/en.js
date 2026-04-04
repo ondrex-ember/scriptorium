@@ -17,17 +17,9 @@ const STRINGS_en = {
 	    torchDesc: 'It smokes and crackles, yet burns bright.',
             btnTorch:'LIGHT TORCH', btnCandle:'LIGHT CANDLE'
         },
-        craft: { filterAll:'All', filterMat:'Materials', filterFood:'Provisions', filterAlchemy:'Alchemy', filterLore:'Knowledge', btn:'Craft' },
+        craft: { filterAll:'All', filterTool:'Tools', filterMat:'Materials', filterFood:'Provisions', filterAlchemy:'Alchemy', filterLore:'Knowledge', btn:'Craft' },
         inv:   { filterAll:'All', filterMat:'Materials', filterTool:'Tools', filterLore:'Other' },
         settings: { langLabel:'🗺️ Language / Jazyk' },
-header: {
-        weatherNow: 'Presently in Prague (click to refresh)',
-        weatherTomorrow: 'Morrow\'s forecast',
-        hunger: 'Hunger',
-        streak: 'Daily Streak',
-        research: 'Knowledge Gathered',
-        settings: 'Settings'
-    },
     wellUI: {
         title: '🚰 The Well',
         notBuilt: 'Thou hast no well. Thou mayest construct one below.',
@@ -36,7 +28,14 @@ header: {
         condition: 'Condition:',
         clean: '✨ Purify (powder)',
         repair: '🔧 Repair (kit)',
-        upgrade: '🏛️ Fortify with Stone (30 rock, 5 rope, 10 charcoal)'
+        upgrade: '🏛️ Fortify with Stone (30 rock, 5 rope, 10 charcoal)',
+        levelBasic: 'Basic',
+        levelStone: 'Stone',
+        levelBlessed: 'Blessed',
+        levelUnknown: 'Unknown',
+        condClean: '✓ Pure',
+        condDirty: '⚠️ Fouled',
+        condBroken: '💥 Broken'
     },
     settingsUI: {
         volume: 'Volume',

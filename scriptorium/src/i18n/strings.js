@@ -38,27 +38,3 @@ function tName(id) {
     const lang = (typeof GameState !== 'undefined' && GameState.settings && GameState.settings.language) || 'cs';
     return (lang !== 'cs' && tech.name_en) ? tech.name_en : tech.name;
 }
-
-// Item name helper — přeložený název dle jazyka, fallback na CS
-function iName(id) {
-    const item = ItemsDB[id];
-    if (!item) return id;
-    const lang = (typeof GameState !== 'undefined' && GameState.settings && GameState.settings.language) || 'cs';
-    return (lang !== 'cs' && item.name_en) ? item.name_en : item.name;
-}
-
-// Item description helper
-function iDesc(id) {
-    const item = ItemsDB[id];
-    if (!item) return '';
-    const lang = (typeof GameState !== 'undefined' && GameState.settings && GameState.settings.language) || 'cs';
-    return (lang !== 'cs' && item.desc_en) ? item.desc_en : item.desc;
-}
-
-// Tech name helper
-function tName(id) {
-    const tech = TechTree.find(x => x.id === id);
-    if (!tech) return id;
-    const lang = (typeof GameState !== 'undefined' && GameState.settings && GameState.settings.language) || 'cs';
-    return (lang !== 'cs' && tech.name_en) ? tech.name_en : tech.name;
-}

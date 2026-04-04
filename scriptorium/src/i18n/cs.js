@@ -5,7 +5,6 @@
 const STRINGS_cs = {
         nav: { home:'Pracovna', garden:'Zahrada', craft:'Výroba', inv:'Batoh', lore:'Scriptorium', library:'Knihovna' },
         screens: { home:'Pracovna', garden:'Zahrada', craft:'Výroba', inv:'Batoh', lore:'Scriptorium', library:'Knihovna', settings:'Nastavení' },
-    header: { weatherNow: 'Aktuálně v Praze (klikni pro refresh)', weatherTomorrow: 'Předpověď na zítra', hunger: 'Hlad', streak: 'Denní streak', research: 'Počet Research', settings: 'Nastavení' },
         fireplace: {
             cold:'Vyhaslý Krb', coldDesc:'Je tu zima.', kindle:'ROZEŽEHNOUT',
             lit:'Hřejivý Krb', litDesc:'Oheň dává život.'
@@ -17,7 +16,7 @@ const STRINGS_cs = {
 	    torchDesc: 'Kouří a prská, ale svítí jasně.',
             btnTorch:'ZAPÁLIT LOUČ', btnCandle:'ZAPÁLIT SVÍČKU'
         },
-header: {
+    header: {
         weatherNow: 'Aktuálně v Praze (klikni pro refresh)',
         weatherTomorrow: 'Předpověď na zítra',
         hunger: 'Hlad',

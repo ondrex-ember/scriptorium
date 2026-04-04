@@ -69,7 +69,7 @@ const LangSystem = {
         // 9. Filter buttons — craft, inv, lore tabs, library tabs
         const filterMap = {
             'craft-filter-all':       L.craft.filterAll,
-            'craft-filter-tool':      L.craft.filterMat,
+            'craft-filter-tool':      L.craft.filterTool,
             'craft-filter-mat':       L.craft.filterMat,
             'craft-filter-food':      L.craft.filterFood,
             'craft-filter-alch':      L.craft.filterAlchemy,
@@ -93,4 +93,3 @@ const LangSystem = {
         });
     }
 };
-
