@@ -221,21 +221,29 @@ renderActions: function() {
         });
         el.innerHTML = h;
     },
-    renderCodex: function() {
+ renderCodex: function() {
         const el = document.getElementById('lore-codex-content');
+        if (!el) return;
+        
         const discovered = GameState.discoveredLore.length;
         const total = Object.keys(LoreDB).length;
         const _lang = (GameState.settings && GameState.settings.language) || 'cs';
+        
+        // Lokalizace štítků
         const discoveredLabel = _lang === 'en' ? 'Discovered:' : 'Objeveno:';
+        const undiscoveredLabel = _lang === 'en' ? 'Undiscovered' : 'Neobjeveno';
         
         let h = `<div style="text-align:center;margin-bottom:15px;border:1px solid var(--accent-gold);padding:10px;">${discoveredLabel} <strong>${discovered}/${total}</strong> 📚</div>`;
         
-        // Group by category
+        // Seskupení podle kategorií
         const categories = {};
         Object.keys(LoreDB).forEach(id => {
             const cat = LoreDB[id].category;
-            if(!categories[cat]) categories[cat] = [];
-            categories[cat].push(id);
+            // Pokud byste v budoucnu přidali 'category_en' do LoreDB, rovnou se to přeloží
+            const catName = (_lang === 'en' && LoreDB[id].category_en) ? LoreDB[id].category_en : cat;
+            
+            if(!categories[catName]) categories[catName] = [];
+            categories[catName].push(id);
         });
         
         Object.keys(categories).sort().forEach(cat => {
@@ -243,20 +251,25 @@ renderActions: function() {
             categories[cat].forEach(id => {
                 const lore = LoreDB[id];
                 const isDiscovered = GameState.discoveredLore.includes(id);
-                const item = ItemsDB[id];
+                const item = ItemsDB[id] || {}; 
+                const icon = item.icon || '📜'; // Fallback ikonka
                 
                 if(isDiscovered) {
+                    // Magie překladu: Pokud nemá LoreDB vlastní title_en, sáhne si to na iName(id) z ItemsDB!
+                    const title = _lang === 'en' ? (lore.title_en || (typeof iName === 'function' ? iName(id) : lore.title)) : lore.title;
+                    const text = _lang === 'en' ? (lore.text_en || (typeof iDesc === 'function' ? iDesc(id) : lore.text)) : lore.text;
+
                     h += `<div class="card" style="flex-direction:column; align-items:flex-start; border-color:var(--accent-gold); background:rgba(197,160,89,0.1);">`;
                     h += `<div style="display:flex; align-items:center; gap:12px; width:100%; margin-bottom:8px;">`;
-                    h += `<div class="item-icon">${item.icon}</div>`;
-                    h += `<strong style="flex:1;">${lore.title}</strong>`;
+                    h += `<div class="item-icon">${icon}</div>`;
+                    h += `<strong style="flex:1;">${title}</strong>`;
                     h += `</div>`;
-                    h += `<div class="text-sm" style="white-space:pre-line; line-height:1.6;">${lore.text}</div>`;
+                    h += `<div class="text-sm" style="white-space:pre-line; line-height:1.6;">${text}</div>`;
                     h += `</div>`;
                 } else {
                     h += `<div class="card" style="opacity:0.4;">`;
                     h += `<div class="item-icon">❓</div>`;
-                    h += `<div><strong>???</strong><div class="text-sm">Neobjeveno</div></div>`;
+                    h += `<div><strong>???</strong><div class="text-sm">${undiscoveredLabel}</div></div>`;
                     h += `</div>`;
                 }
             });
