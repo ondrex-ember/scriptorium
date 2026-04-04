@@ -13,6 +13,7 @@ jobs:
         with:
           node-version: '20'
       - run: node build.js
+        working-directory: scriptorium
       - run: |
           git config user.email "action@github.com"
           git config user.name "GitHub Action"
