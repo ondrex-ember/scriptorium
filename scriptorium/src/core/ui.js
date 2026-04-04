@@ -194,27 +194,30 @@ renderActions: function() {
 	
     renderScriptorium: function() {
         const el = document.getElementById('lore-research-content'); const res = GameState.inventory['research'] || 0;
-        let h = `<div style="text-align:center;margin-bottom:15px;border:1px solid var(--accent-gold);padding:10px;">Zápisky: <strong>${res}</strong> 📜</div>`;
-        TechTree.forEach(t => {
-            const done = GameState.researchedTechs.includes(t.id);
-            let canResearch = res >= t.cost;
+        const _t = window.t || t;
+        const _lang = (GameState.settings && GameState.settings.language) || 'cs';
+        const notesLabel = _lang === 'en' ? 'Notes:' : 'Zápisky:';
+        let h = `<div style="text-align:center;margin-bottom:15px;border:1px solid var(--accent-gold);padding:10px;">${notesLabel} <strong>${res}</strong> 📜</div>`;
+        TechTree.forEach(tech => {
+            const done = GameState.researchedTechs.includes(tech.id);
+            let canResearch = res >= tech.cost;
             let reqText = "";
             const lang = (GameState.settings && GameState.settings.language) || 'cs';
-            const displayName = (lang !== 'cs' && t.name_en) ? t.name_en : t.name;
-            const displayDesc = (lang !== 'cs' && t.desc_en) ? t.desc_en : t.desc;
+            const displayName = (lang !== 'cs' && tech.name_en) ? tech.name_en : tech.name;
+            const displayDesc = (lang !== 'cs' && tech.desc_en) ? tech.desc_en : tech.desc;
 
             // Check requirements
-            if(t.requires && !done) {
-                const missing = t.requires.find(req => !GameState.researchedTechs.includes(req));
+            if(tech.requires && !done) {
+                const missing = tech.requires.find(req => !GameState.researchedTechs.includes(req));
                 if(missing) {
                     canResearch = false;
                     const reqTech = TechTree.find(x => x.id === missing);
                     const reqName = (lang !== 'cs' && reqTech.name_en) ? reqTech.name_en : reqTech.name;
-                    reqText = `<div class="text-sm text-danger">${t('game.techRequired')} ${reqName}</div>`;
+                    reqText = `<div class="text-sm text-danger">${_t('game.techRequired')} ${reqName}</div>`;
                 }
             }
 
-            h += `<div class="card" style="border-color:${done?'var(--accent-gold)':'var(--ink-secondary)'}"><div class="item-icon" style="background:${done?'#c5a059':'#e8dec0'}">${done?'🎓':'📖'}</div><div style="flex:1"><strong>${displayName}</strong><div class="text-sm">${displayDesc}</div>${typeof TechLoreDB !== 'undefined' && TechLoreDB[t.id] ? `<div class="text-sm" style="margin-top:8px;padding:8px;background:rgba(197,160,89,0.1);border-left:3px solid var(--accent-gold);font-style:italic;">${TechLoreDB[t.id]}</div>` : ''}${reqText}</div>${done?`<span style="font-weight:bold;color:var(--accent-gold)">${t('game.techDone')}</span>`:`<button class="craft-btn" onclick="Game.study('${t.id}')" ${canResearch?'':'disabled'}>${t('game.techStudy')} (${t.cost} 📜)</button>`}</div>`;
+            h += `<div class="card" style="border-color:${done?'var(--accent-gold)':'var(--ink-secondary)'}"><div class="item-icon" style="background:${done?'#c5a059':'#e8dec0'}">${done?'🎓':'📖'}</div><div style="flex:1"><strong>${displayName}</strong><div class="text-sm">${displayDesc}</div>${typeof TechLoreDB !== 'undefined' && TechLoreDB[tech.id] ? `<div class="text-sm" style="margin-top:8px;padding:8px;background:rgba(197,160,89,0.1);border-left:3px solid var(--accent-gold);font-style:italic;">${TechLoreDB[tech.id]}</div>` : ''}${reqText}</div>${done?`<span style="font-weight:bold;color:var(--accent-gold)">${_t('game.techDone')}</span>`:`<button class="craft-btn" onclick="Game.study('${tech.id}')" ${canResearch?'':'disabled'}>${_t('game.techStudy')} (${tech.cost} 📜)</button>`}</div>`;
         });
         el.innerHTML = h;
     },
@@ -222,8 +225,10 @@ renderActions: function() {
         const el = document.getElementById('lore-codex-content');
         const discovered = GameState.discoveredLore.length;
         const total = Object.keys(LoreDB).length;
+        const _lang = (GameState.settings && GameState.settings.language) || 'cs';
+        const discoveredLabel = _lang === 'en' ? 'Discovered:' : 'Objeveno:';
         
-        let h = `<div style="text-align:center;margin-bottom:15px;border:1px solid var(--accent-gold);padding:10px;">Objeveno: <strong>${discovered}/${total}</strong> 📚</div>`;
+        let h = `<div style="text-align:center;margin-bottom:15px;border:1px solid var(--accent-gold);padding:10px;">${discoveredLabel} <strong>${discovered}/${total}</strong> 📚</div>`;
         
         // Group by category
         const categories = {};
@@ -352,7 +357,7 @@ renderActions: function() {
 		el.innerHTML = h;
 	},
 
-    renderLibrary: function() {
+renderLibrary: function() {
         const el = document.getElementById('library-books-content');
         
         // Check unlocks
@@ -366,28 +371,28 @@ renderActions: function() {
         
         let h = `
             <div style="text-align:center;margin-bottom:15px;border:1px solid var(--accent-gold);padding:10px;">
-                📚 Knihovna: <strong>${unlocked}/${total}</strong> odemčeno | 
-                📖 Přečteno: <strong>${read}/${total}</strong>
+                📚 ${t('library_lore.lib_title')}: <strong>${unlocked}/${total}</strong> ${t('library_lore.lib_unlocked')} | 
+                📖 ${t('library_lore.lib_read')}: <strong>${read}/${total}</strong>
             </div>
             
             <div style="margin-bottom:20px;padding:15px;background:var(--bg-card);border:1px solid var(--border-color);border-radius:5px;">
                 <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
                     <div style="font-size:2rem;">🖋️</div>
                     <div style="flex:1;">
-                        <strong>Starý Písař</strong>
+                        <strong>${t('library_lore.npc_scribe.name')}</strong>
                         <div class="text-sm" style="color:var(--ink-secondary);">
                             "Za 3x Papír ti odkryji jednu knihu předčasně..."
                         </div>
                     </div>
                     <button class="craft-btn" onclick="LibraryHelpers.scribeTrade()">
-                        Obchod (3x 📄)
+                        ${t('library_lore.npc_scribe.opt_trade')}
                     </button>
                 </div>
             </div>
         `;
         
         if(typeof LibraryDB === 'undefined' || typeof GameState.library === 'undefined') {
-            el.innerHTML = h + '<p>Knihovna není dostupná.</p>';
+            el.innerHTML = h + `<p>${t('library_lore.lib_not_avail')}</p>`;
             return;
         }
         
@@ -395,10 +400,11 @@ renderActions: function() {
         Object.entries(LibraryDB.categories).forEach(([catId, catData]) => {
             const books = LibraryDB.books.filter(b => b.category === catId);
             const unlockedInCat = books.filter(b => GameState.library.unlockedBooks.includes(b.id));
+            const catName = t(`library_lore.categories.${catId}`); // Získáme přeložený název kategorie
             
             h += `<div style="margin-top:20px;">`;
             h += `<h3 style="color:var(--accent-gold);border-bottom:2px solid var(--accent-gold);padding-bottom:5px;">
-                    ${catData.icon} ${catData.name} (${unlockedInCat.length}/${books.length})
+                    ${catData.icon} ${catName} (${unlockedInCat.length}/${books.length})
                   </h3>`;
             
             books.forEach(book => {
@@ -406,17 +412,20 @@ renderActions: function() {
                 const isRead = GameState.library.readBooks.includes(book.id);
                 
                 if (isUnlocked) {
+                    const bookTitle = t(`library_lore.books.${book.id}.title`);
+                    const bookAuthor = t(`library_lore.books.${book.id}.author`);
+                    
                     h += `
                         <div class="card" style="border-color:${isRead?'var(--accent-gold)':'var(--ink-secondary)'};">
                             <div class="item-icon" style="background:${isRead?'#c5a059':'#e8dec0'}">
                                 ${book.icon}
                             </div>
                             <div style="flex:1;">
-                                <strong>${book.title}</strong> ${isRead?'✓':''}
-                                <div class="text-sm">${book.author} (${book.year})</div>
+                                <strong>${bookTitle}</strong> ${isRead?'✓':''}
+                                <div class="text-sm">${bookAuthor} (${book.year})</div>
                             </div>
                             <button class="craft-btn" onclick="LibraryHelpers.readBook('${book.id}')">
-                                ${isRead?'Přečíst znovu':'Číst'}
+                                ${isRead ? t('library_lore.btn_read_again') : t('library_lore.btn_read')}
                             </button>
                         </div>
                     `;
@@ -430,7 +439,7 @@ renderActions: function() {
                             <div class="item-icon" style="background:#666;">🔒</div>
                             <div style="flex:1;">
                                 <strong>???</strong>
-                                <div class="text-sm">Odemkne se za ${daysToUnlock} dní</div>
+                                <div class="text-sm">${t('library_lore.lib_unlocks_in')} ${daysToUnlock} ${t('library_lore.lib_days')}</div>
                             </div>
                         </div>
                     `;
@@ -442,7 +451,7 @@ renderActions: function() {
         
         el.innerHTML = h;
     },
-    showBookModal: function(book) {
+showBookModal: function(book) {
         const modal = document.createElement('div');
         modal.style.cssText = `
             position: fixed;
@@ -457,6 +466,11 @@ renderActions: function() {
             z-index: 10000;
             padding: 20px;
         `;
+        
+        const bookTitle = t(`library_lore.books.${book.id}.title`);
+        const bookAuthor = t(`library_lore.books.${book.id}.author`);
+        // Pro content použijeme marked() pro parsování markdownu, pokud to knihovna umožňuje, jinak jen innerHTML
+        const bookContent = t(`library_lore.books.${book.id}.content`);
         
         modal.innerHTML = `
             <div style="
@@ -477,9 +491,9 @@ renderActions: function() {
                 
                 <div style="text-align:center;margin-bottom:20px;">
                     <div style="font-size:3rem;margin-bottom:10px;">${book.icon}</div>
-                    <h2 style="margin:0;color:var(--accent-gold);">${book.title}</h2>
+                    <h2 style="margin:0;color:var(--accent-gold);">${bookTitle}</h2>
                     <div style="color:var(--ink-secondary);margin-top:5px;">
-                        ${book.author} | ${book.year}
+                        ${bookAuthor} | ${book.year}
                     </div>
                 </div>
                 
@@ -489,7 +503,7 @@ renderActions: function() {
                     line-height: 1.8;
                     white-space: pre-wrap;
                 ">
-                    ${book.content}
+                    ${bookContent}
                 </div>
 
                 ${(() => {
@@ -521,23 +535,25 @@ renderActions: function() {
             el.innerHTML = '<p>Achievements nejsou dostupné.</p>';
             return;
         }
-        
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
         const unlocked = GameState.achievements.unlocked.length;
         const total = AchievementsDB.length;
         const progress = Math.floor((unlocked / total) * 100);
-        
+        const unlockedLabel = lang === 'en' ? 'Achievements unlocked' : 'Achievementy odemčeny';
+        const hiddenLabel = lang === 'en' ? 'Hidden' : 'Neobjeveno';
+        const rewardLabel = lang === 'en' ? 'Reward:' : 'Odměna:';
+
         let h = `<div style="text-align:center;margin-bottom:20px;border:1px solid var(--accent-gold);padding:15px;">`;
         h += `<div style="font-size:1.2rem; font-weight:bold; color:var(--accent-gold);">🏆 ${unlocked}/${total} (${progress}%)</div>`;
-        h += `<div class="text-sm" style="margin-top:5px;">Achievementy odemčeny</div>`;
+        h += `<div class="text-sm" style="margin-top:5px;">${unlockedLabel}</div>`;
         h += `</div>`;
-        
-        // Group by category
+
         const categories = {};
         AchievementsDB.forEach(ach => {
             if(!categories[ach.category]) categories[ach.category] = [];
             categories[ach.category].push(ach);
         });
-        
+
         Object.keys(categories).forEach(cat => {
             h += `<h3 style="margin-top:20px; margin-bottom:10px; font-size:1.1rem; color:var(--accent-gold);">${cat}</h3>`;
             categories[cat].forEach(ach => {
@@ -545,14 +561,16 @@ renderActions: function() {
                 const borderColor = isUnlocked ? 'var(--accent-gold)' : 'var(--ink-secondary)';
                 const bgColor = isUnlocked ? 'rgba(197,160,89,0.1)' : 'rgba(0,0,0,0.02)';
                 const opacity = isUnlocked ? '1' : '0.5';
-                
+                const achName = (lang === 'en' && ach.name_en) ? ach.name_en : ach.name;
+                const achDesc = (lang === 'en' && ach.desc_en) ? ach.desc_en : ach.desc;
+
                 h += `<div class="card" style="border-color:${borderColor}; background:${bgColor}; opacity:${opacity};">`;
                 h += `<div class="item-icon" style="background:${isUnlocked ? '#c5a059' : '#e8dec0'}">${ach.icon}</div>`;
                 h += `<div style="flex:1;">`;
-                h += `<strong>${isUnlocked ? ach.name : '???'}</strong>`;
-                h += `<div class="text-sm">${isUnlocked ? ach.desc : 'Neobjeveno'}</div>`;
+                h += `<strong>${isUnlocked ? achName : '???'}</strong>`;
+                h += `<div class="text-sm">${isUnlocked ? achDesc : hiddenLabel}</div>`;
                 if(isUnlocked && ach.reward.research) {
-                    h += `<div class="text-sm" style="color:var(--accent-gold); margin-top:4px;">Odměna: +${ach.reward.research} 📜</div>`;
+                    h += `<div class="text-sm" style="color:var(--accent-gold); margin-top:4px;">${rewardLabel} +${ach.reward.research} 📜</div>`;
                 }
                 h += `</div>`;
                 if(isUnlocked) {
@@ -563,7 +581,7 @@ renderActions: function() {
                 h += `</div>`;
             });
         });
-        
+
         el.innerHTML = h;
     },
     renderNotebooks: function() {

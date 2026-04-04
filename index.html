@@ -1137,24 +1137,33 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
 	<div class="status-bar">
 		<div style="display: flex; align-items: center; gap: 5px;">
-			<span id="weather-today" data-i18n-title="header.weatherNow" onclick="WeatherSystem.fetchWeather()">⏳</span>
+			<span id="weather-today" title="Aktuálně v Praze (klikni pro refresh)" onclick="WeatherSystem.fetchWeather()">⏳</span>
 			<span style="opacity: 0.6; font-size: 16px !important;">/</span>
-			<span id="weather-tomorrow" data-i18n-title="header.weatherTomorrow" onclick="WeatherSystem.fetchWeather()" style="opacity: 0.9; font-size: 0.85em !important;">⏳</span>
+			<span id="weather-tomorrow" title="Předpověď na zítra" onclick="WeatherSystem.fetchWeather()" style="opacity: 0.9; font-size: 0.85em !important;">⏳</span>
 		</div>
+		
 		<span class="separator">•</span>
-		<span id="hunger-display" data-i18n-title="header.hunger">🍖</span>
+		
+		<span id="hunger-display" title="Hlad">🍖</span>
+		
 		<span class="separator">•</span>
-		<span id="streak-display" style="display:none;" data-i18n-title="header.streak">
+
+		<span id="streak-display" style="display:none;" title="Denní streak">
 			🔥 <span id="streak-number">0</span>
 		</span>
-		<div id="research-indicator" data-i18n-title="header.research">
+
+		<div id="research-indicator" title="Počet Research">
 			<span>📜</span>
 			<span id="research-count">0</span>
 		</div>
+		
 		<span class="separator">•</span>
+		
 		<span id="time-display" style="text-transform:uppercase;">...</span>
+		
 		<span class="separator">•</span>
-		<span onclick="UI.switchScreen('settings')" data-i18n-title="header.settings">⚙️</span>
+		
+		<span onclick="UI.switchScreen('settings')" title="Nastavení">⚙️</span>
 	</div>
 </header>
 
@@ -1195,13 +1204,13 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             <h2>Zahrada</h2>
             <p class="text-sm" style="margin-bottom:15px;">Pěstuj vzácné rostliny. Půda vyžaduje péči.</p>
             <div id="garden-container" class="garden-grid"></div>
-			<!-- WELL MANAGEMENT -->
+			<!-- WELL MANAGEMENT (PŘIDAT před </div> crafting screenu) -->
 		<div id="well-management" style="margin-top: 30px; padding: 20px; background: rgba(0,0,0,0.2); border-radius: 10px;">
-			<h3 data-i18n="wellUI.title">🚰 Správa Studny</h3>
+			<h3>🚰 Správa Studny</h3>
 			
 			<div id="well-not-built" style="display: none;">
-				<p data-i18n="wellUI.notBuilt">Nemáš studnu. Můžeš ji postavit níže.</p>
-				<button onclick="Game.upgradeWell('basic')" class="craft-btn" style="background: #4a7c59;" data-i18n="wellUI.buildBasic">
+				<p>Nemáš studnu. Můžeš ji postavit níže.</p>
+				<button onclick="Game.upgradeWell('basic')" class="craft-btn" style="background: #4a7c59;">
 					🏗️ Postavit studnu (20 kámen, 10 větev, 3 provaz)
 				</button>
 			</div>
@@ -1209,21 +1218,23 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 			<div id="well-built" style="display: none;">
 				<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px;">
 					<div>
-						<strong data-i18n="wellUI.level">Úroveň:</strong> <span id="well-level-text">Základní</span>
+						<strong>Úroveň:</strong> <span id="well-level-text">Základní</span>
 					</div>
 					<div>
-						<strong data-i18n="wellUI.condition">Stav:</strong> <span id="well-condition-text">✓ Čistá</span>
+						<strong>Stav:</strong> <span id="well-condition-text">✓ Čistá</span>
 					</div>
 				</div>
 				
 				<div style="display: flex; gap: 10px; flex-wrap: wrap;">
-					<button onclick="Game.cleanWell()" id="btn-clean-well" class="craft-btn" style="background: #5a8dc7; display: none;" data-i18n="wellUI.clean">
+					<button onclick="Game.cleanWell()" id="btn-clean-well" class="craft-btn" style="background: #5a8dc7; display: none;">
 						✨ Vyčistit (prášek)
 					</button>
-					<button onclick="Game.repairWell()" id="btn-repair-well" class="craft-btn" style="background: #c75a5a; display: none;" data-i18n="wellUI.repair">
+					
+					<button onclick="Game.repairWell()" id="btn-repair-well" class="craft-btn" style="background: #c75a5a; display: none;">
 						🔧 Opravit (sada)
 					</button>
-					<button onclick="Game.upgradeWell('stone')" id="btn-upgrade-stone" class="craft-btn" style="background: #8b6434; display: none;" data-i18n="wellUI.upgrade">
+					
+					<button onclick="Game.upgradeWell('stone')" id="btn-upgrade-stone" class="craft-btn" style="background: #8b6434; display: none;">
 						🏛️ Vyzdít kamenem (30 kámen, 5 provaz, 10 uhel)
 					</button>
 				</div>
@@ -4150,33 +4161,54 @@ const EventsSystem = {
     events: [
         {
             id: 'pellinga_swedish_siege',
-            titleKey: 'events.swedish_siege.title',
-            textKey: 'events.swedish_siege.text',
+            title: '⚔️ Švédové u bran kláštera',
             trigger: () => {
+                // Trigger if player has 15+ books
                 const totalBooks = (GameState.inventory['paper'] || 0) + 
                                   (GameState.inventory['research'] || 0) + 
                                   (GameState.inventory['common_codex'] || 0) + 
                                   (GameState.inventory['luxury_codex'] || 0) + 
                                   (GameState.inventory['vellum_codex'] || 0);
-                return totalBooks >= 20 && Math.random() < 0.02;
+                return totalBooks >= 20 && Math.random() < 0.02; // 2% per day
             },
+            text: `"Jako v Olomouci roku 1642 — vojáci prohledávají klášter. Bratr Pellinga se ptá: Co zachrán
+íme?"
+            
+Student Michael Sartorius našeptává: "Mohu v noci odnášet nejcennější kusy..."
+
+Ale je to riziko. Pokud nás chytí, přijdeme o vše.`,
             choices: [
                 {
-                    labelKey: "events.swedish_siege.sartorius_btn",
-                    descKey: "events.swedish_siege.sartorius_desc",
+                    label: "🌙 Schovej tajně (Sartorius metoda)",
+                    desc: "Schovává v noci nejcennější kusy",
                     action: () => {
-                        if(GameState.inventory['paper']) Game.addItem('paper', -Math.floor(GameState.inventory['paper'] * 0.4));
-                        if(GameState.inventory['research']) Game.addItem('research', -Math.floor(GameState.inventory['research'] * 0.4));
-                        if(GameState.inventory['common_codex']) Game.addItem('common_codex', -Math.floor(GameState.inventory['common_codex'] * 0.4));
-                        
-                        UI.notify(t("events.swedish_siege.sartorius_notif"));
-                        return t("events.swedish_siege.sartorius_res");
+                        // Lose 40% of common books, luxury survive
+                        const losses = {};
+                        if(GameState.inventory['paper']) {
+                            const loss = Math.floor(GameState.inventory['paper'] * 0.4);
+                            Game.addItem('paper', -loss);
+                            losses['paper'] = loss;
+                        }
+                        if(GameState.inventory['research']) {
+                            const loss = Math.floor(GameState.inventory['research'] * 0.4);
+                            Game.addItem('research', -loss);
+                            losses['research'] = loss;
+                        }
+                        if(GameState.inventory['common_codex']) {
+                            const loss = Math.floor(GameState.inventory['common_codex'] * 0.4);
+                            Game.addItem('common_codex', -loss);
+                            losses['common_codex'] = loss;
+                        }
+                        // Luxury and vellum survive!
+                        UI.notify("Sartorius zachránil luxury kodexy! Ztratil jsi běžné knihy.");
+                        return `Michael Sartorius to dělal přesně takhle. V noci, po jedné knize. Švédové odešli s vozem papírů, ale ty nejcennější přežily.`;
                     }
                 },
                 {
-                    labelKey: "events.swedish_siege.wall_btn",
-                    descKey: "events.swedish_siege.wall_desc",
+                    label: "📦 Zazdít vše",
+                    desc: "Noc strávíš zazdíváním",
                     action: () => {
+                        // Lose ALL for 48h, then return -20%
                         GameState.eventData = GameState.eventData || {};
                         GameState.eventData.walledBooks = {
                             paper: GameState.inventory['paper'] || 0,
@@ -4191,20 +4223,19 @@ const EventsSystem = {
                         Game.addItem('common_codex', -(GameState.inventory['common_codex'] || 0));
                         Game.addItem('luxury_codex', -(GameState.inventory['luxury_codex'] || 0));
                         Game.addItem('vellum_codex', -(GameState.inventory['vellum_codex'] || 0));
-                        
-                        UI.notify(t("events.swedish_siege.wall_notif"));
-                        return t("events.swedish_siege.wall_res");
+                        UI.notify("Vše zazděno. Za 48h můžeš vykopat.");
+                        return `Jako v Sázavě 1097. Zazdil jsi vše. Švédové nic nenašli. Za 2 dny můžeš vykopat (trochu poškozené).`;
                     }
                 },
                 {
-                    labelKey: "events.swedish_siege.nego_btn",
-                    descKey: "events.swedish_siege.nego_desc",
+                    label: "🤝 Vyjednávat",
+                    desc: "Nabídneš common místo luxury",
                     action: () => {
+                        // Lose 60% common, luxury survive
                         if(GameState.inventory['paper']) Game.addItem('paper', -Math.floor(GameState.inventory['paper'] * 0.6));
                         if(GameState.inventory['common_codex']) Game.addItem('common_codex', -Math.floor(GameState.inventory['common_codex'] * 0.6));
-                        
-                        UI.notify(t("events.swedish_siege.nego_notif"));
-                        return t("events.swedish_siege.nego_res");
+                        UI.notify("Švédové vzali běžné knihy. Luxury přežily!");
+                        return `"Vezměte si tyto. Jsou dost dobré." Švédský důstojník kývl. Vozy odjely. Luxury kodexy zůstaly.`;
                     }
                 }
             ],
@@ -4212,36 +4243,44 @@ const EventsSystem = {
         },
         {
             id: 'hidden_incunabula',
-            titleKey: 'events.hidden_incunabula.title',
-            textKey: 'events.hidden_incunabula.text',
+            title: '📖 Podivná kniha v knihovně',
             trigger: () => {
+                // Only if player has luxury_codex and has read Kutnohorská bible book
                 const hasBook = GameState.library && GameState.library.readBooks.includes('book_kutnohorska_bible');
                 const hasLuxury = (GameState.inventory['luxury_codex'] || 0) > 0;
-                return hasBook && hasLuxury && Math.random() < 0.01;
+                return hasBook && hasLuxury && Math.random() < 0.01; // 1% per day
             },
+            text: `"Listoval jsi starými záznamy. Jedna z knih je vedena jako: 'Benátský tisk, 1506.' 
+            
+Ale písmo... to není benátské. Ty iniciály, ten rytmus sazby...
+
+Tohle je **české písmo**. A je o 17 let starší, než se myslelo!"`,
             choices: [
                 {
-                    labelKey: "events.hidden_incunabula.compare_btn",
-                    descKey: "events.hidden_incunabula.compare_desc",
+                    label: "🔍 Porovnej písmo (minigame)",
+                    desc: "Identifikuj pravý původ",
                     action: () => {
-                        if(Math.random() > 0.3) {
+                        // Simple success check
+                        if(Math.random() > 0.3) { // 70% success
                             Game.addItem('research', 10);
                             Game.addItem('luxury_codex', 1);
-                            UI.notify(t("events.hidden_incunabula.compare_notif_ok"));
-                            return t("events.hidden_incunabula.compare_res_ok");
+                            UI.notify("⭐ Nalezl jsi Kutnohorskou bibli (1489)! +10 research");
+                            return `Měl jsi pravdu! Rukopisný doplněk použil JINÉ vydání. Toto je Kutnohorská bible z roku 1489, ne benátský tisk z 1506. 
+
+Právě jsi objevil ztracený poklad. Jako v VKOL roku 2005.`;
                         } else {
                             Game.addItem('research', 2);
-                            UI.notify(t("events.hidden_incunabula.compare_notif_fail"));
-                            return t("events.hidden_incunabula.compare_res_fail");
+                            UI.notify("Nelze určit. +2 research za snahu.");
+                            return `Písmo je podobné, ale nemáš referenční materiál. Možná to skutečně je benátský tisk. Nebo ne? Zůstává záhadou.`;
                         }
                     }
                 },
                 {
-                    labelKey: "events.hidden_incunabula.ignore_btn",
-                    descKey: "events.hidden_incunabula.ignore_desc",
+                    label: "❌ Ignorovat",
+                    desc: "Je to asi jen benátský tisk",
                     action: () => {
-                        UI.notify(t("events.hidden_incunabula.ignore_notif"));
-                        return t("events.hidden_incunabula.ignore_res");
+                        UI.notify("Možná jsi právě minul objev století.");
+                        return `Pravda čeká trpělivě. Někdy staletí.`;
                     }
                 }
             ],
@@ -4252,6 +4291,7 @@ const EventsSystem = {
     lastCheck: 0,
     
     checkEvents: function() {
+        // Check once per hour
         if(Date.now() - this.lastCheck < 60 * 60 * 1000) return;
         this.lastCheck = Date.now();
         
@@ -4259,70 +4299,93 @@ const EventsSystem = {
             if(!event.canTrigger) continue;
             if(event.trigger()) {
                 this.showEvent(event);
-                event.canTrigger = false;
-                break;
+                event.canTrigger = false; // Don't trigger again
+                break; // Only one event at a time
             }
         }
         
+        // Check walled books return
         if(GameState.eventData && GameState.eventData.walledBooks) {
             const data = GameState.eventData.walledBooks;
             if(Date.now() >= data.returnTime) {
+                // Return 80% of books
                 Game.addItem('paper', Math.floor(data.paper * 0.8));
                 Game.addItem('research', Math.floor(data.research * 0.8));
                 Game.addItem('common_codex', Math.floor(data.common_codex * 0.8));
                 Game.addItem('luxury_codex', Math.floor(data.luxury_codex * 0.8));
                 Game.addItem('vellum_codex', Math.floor(data.vellum_codex * 0.8));
                 delete GameState.eventData.walledBooks;
-                
-                // Dynamický překlad notifikace
-                UI.notify(t("events.swedish_siege.wall_return"));
+                UI.notify("⭐ Vykopals zazděné knihy! Trochu poškozené, ale většina přežila.");
                 Game.save();
             }
         }
     },
     
     showEvent: function(event) {
+        // Create modal dialog
         const modal = document.createElement('div');
         modal.style.cssText = `
-            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            background: #f5f5dc; border: 3px solid #8b4513; border-radius: 10px;
-            padding: 20px; max-width: 500px; z-index: 10000; box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: #f5f5dc;
+            border: 3px solid #8b4513;
+            border-radius: 10px;
+            padding: 20px;
+            max-width: 500px;
+            z-index: 10000;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
         `;
         
-        // Dynamické načtení textů přes t()
-        let html = `<h3 style="margin-top:0;">${t(event.titleKey)}</h3>`;
-        html += `<p style="white-space: pre-wrap;">${t(event.textKey)}</p>`;
+        let html = `<h3 style="margin-top:0;">${event.title}</h3>`;
+        html += `<p style="white-space: pre-wrap;">${event.text}</p>`;
         html += `<div style="margin-top:20px;">`;
         
         for(let choice of event.choices) {
             html += `<button class="game-btn" style="display:block; width:100%; margin-bottom:10px; text-align:left;" data-choice="${event.choices.indexOf(choice)}">
-                ${t(choice.labelKey)}<br>
-                <small style="opacity:0.7;">${t(choice.descKey)}</small>
+                ${choice.label}<br>
+                <small style="opacity:0.7;">${choice.desc}</small>
             </button>`;
         }
         
         html += `</div>`;
         modal.innerHTML = html;
         
+        // Add backdrop
         const backdrop = document.createElement('div');
-        backdrop.style.cssText = `position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); z-index: 9999;`;
+        backdrop.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.7);
+            z-index: 9999;
+        `;
         
         document.body.appendChild(backdrop);
         document.body.appendChild(modal);
         
+        // Handle choice clicks
         modal.querySelectorAll('button').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 const choiceIdx = parseInt(e.currentTarget.dataset.choice);
                 const choice = event.choices[choiceIdx];
                 const result = choice.action();
                 
-                modal.innerHTML = `<h3 style="margin-top:0;">${t('events.ui.result')}</h3>
-                <p style="white-space: pre-wrap;">${result}</p>
-                <button class="game-btn" onclick="this.parentElement.parentElement.remove(); document.body.querySelector('div[style*=\\'background: rgba\\']').remove(); Game.save(); UI.renderAll();">${t('events.ui.close')}</button>`;
+                // Show result
+                modal.innerHTML = `<h3 style="margin-top:0;">Výsledek</h3><p style="white-space: pre-wrap;">${result}</p><button class="game-btn" onclick="this.parentElement.parentElement.remove(); document.body.querySelector('div[style*=\\'background: rgba\\']').remove(); Game.save(); UI.renderAll();">Zavřít</button>`;
             });
         });
     }
 };
+
+// ============================================================
+// RANK SYSTEM v1.0 – Světská a klášterní kariérní dráha
+// Časové zasazení: ~1455–1490 (střet rukopisu a knihtisku)
+// ============================================================
+
 // ═══ src/systems/rank.js ═══
 const RankSystem = {
 
@@ -4925,7 +4988,7 @@ const MemoryGame = {
         // Get discovered items (min 4, max 12 pairs)
         const discovered = GameState.discoveredLore.slice();
         if(discovered.length < 4) {
-            UI.notify(t('minigames.memory.need_items'), true);
+            UI.notify("Potřebuješ objevit alespoň 4 items!", true);
             return;
         }
         
@@ -5014,24 +5077,22 @@ const MemoryGame = {
             GameState.achievements.stats.totalResearchGained += reward;
         }
         
-        let winMsg = t('minigames.memory.win')
-            .replace('{reward}', reward)
-            .replace('{moves}', this.moves);
-        UI.notify(winMsg);
+        UI.notify(`🎉 Výhra! +${reward} Research (${this.moves} tahů)`);
         
-        // Počkáme 1.5 vteřiny, než se ukáže vítězná obrazovka uvnitř modalu
         setTimeout(() => {
-            this.render(); // Překreslí modal na vítěznou obrazovku
-            if (typeof UI.renderAll === 'function') {
-                UI.renderAll(); // Aktualizuje resource bary v pozadí
-            }
+            this.close();
+            UI.switchScreen('records');
         }, 1500);
     },
     
     render: function() {
         let modal = document.getElementById('memory-game-modal');
         
-        // Vytvoření okna, pokud neexistuje
+        if(!this.gameActive) {
+            if(modal) modal.remove();
+            return;
+        }
+        
         if(!modal) {
             modal = document.createElement('div');
             modal.id = 'memory-game-modal';
@@ -5052,48 +5113,30 @@ const MemoryGame = {
         const container = document.getElementById('memory-game-content');
         if(!container) return;
         
-        let h = '<div style="background: var(--bg-card); padding: 15px; border-radius: 8px;">';
+        let h = `<div style="display:flex; justify-content:space-between; margin-bottom:10px;">`;
+        h += `<strong>Memory Game</strong>`;
+        h += `<span>Tahy: ${this.moves}</span>`;
+        h += `</div>`;
         
-        if (!this.gameActive) {
-            // ÚVODNÍ NEBO VÍTĚZNÁ OBRAZOVKA
-            h += `<h3 style="text-align: center; margin-top: 0;">🧠 Memory Game</h3>`;
-            if (this.moves > 0) {
-                h += `<div style="text-align: center; padding: 20px; margin: 15px 0; background: rgba(76,175,80,0.2); border: 2px solid #4CAF50; border-radius: 8px;">`;
-                h += `<strong>Skvělá práce!</strong><br><br>`;
-                h += `Dokončeno na <strong>${this.moves}</strong> ${t('minigames.memory.moves').toLowerCase()}.`;
+        h += `<div style="display:grid; grid-template-columns:repeat(4, 1fr); gap:8px;">`;
+        this.cards.forEach((card, idx) => {
+            const isFlipped = this.flipped.includes(idx) || card.matched;
+            const item = ItemsDB[card.id];
+            
+            if(isFlipped) {
+                h += `<div style="padding:15px; background:var(--bg-card); border:2px solid var(--accent-gold); border-radius:4px; cursor:pointer; text-align:center; font-size:1.5rem;" onclick="MemoryGame.flip(${idx})">`;
+                h += item.icon;
                 h += `</div>`;
             } else {
-                h += `<p style="text-align: center; margin: 20px 0; opacity: 0.8;">Nalezněte všechny dvojice.</p>`;
+                h += `<div style="padding:15px; background:var(--accent-wax); border:2px solid var(--border-color); border-radius:4px; cursor:pointer; text-align:center; font-size:1.5rem;" onclick="MemoryGame.flip(${idx})">`;
+                h += `🎴`;
+                h += `</div>`;
             }
-            h += `<button class="craft-btn" onclick="MemoryGame.start()" style="width: 100%; padding: 15px; font-size: 1.1rem;">${t('minigames.memory.new_game')}</button>`;
-        } else {
-            // SAMOTNÁ HRA
-            h += `<div style="display:flex; justify-content:space-between; margin-bottom:10px;">`;
-            h += `<strong>Memory Game</strong>`;
-            h += `<span>${t('minigames.memory.moves')}: ${this.moves}</span>`;
-            h += `</div>`;
-            
-            h += `<div style="display:grid; grid-template-columns:repeat(4, 1fr); gap:8px;">`;
-            this.cards.forEach((card, idx) => {
-                const isFlipped = this.flipped.includes(idx) || card.matched;
-                const item = ItemsDB[card.id];
-                
-                if(isFlipped) {
-                    h += `<div style="padding:15px; background:var(--bg-card); border:2px solid var(--accent-gold); border-radius:4px; cursor:pointer; text-align:center; font-size:1.5rem;" onclick="MemoryGame.flip(${idx})">`;
-                    h += item.icon;
-                    h += `</div>`;
-                } else {
-                    h += `<div style="padding:15px; background:var(--accent-wax); border:2px solid var(--border-color); border-radius:4px; cursor:pointer; text-align:center; font-size:1.5rem;" onclick="MemoryGame.flip(${idx})">`;
-                    h += `🎴`;
-                    h += `</div>`;
-                }
-            });
-            h += `</div>`;
-            
-            h += `<button class="craft-btn" onclick="MemoryGame.start()" style="margin-top:10px;">${t('minigames.memory.new_game')}</button>`;
-        }
-        
+        });
         h += `</div>`;
+        
+        h += `<button class="craft-btn" onclick="MemoryGame.start()" style="margin-top:10px;">Nová hra 🔄</button>`;
+        
         container.innerHTML = h;
     },
     
@@ -5103,8 +5146,14 @@ const MemoryGame = {
         if(modal) modal.remove();
     }
 };
+
+// PŘIDAT hned po MemoryGame (po jeho closing });
+
+// ========== PRIMERO GAME ==========
+
+
 // ═══ src/games/primero.js ═══
-const PrimeroGame = {
+  const PrimeroGame = {
     gameActive: false,
     deck: [],
     playerHand: [],
@@ -5119,12 +5168,12 @@ const PrimeroGame = {
     
     start: function() {
         if (!GameState.inventory.primero_deck || GameState.inventory.primero_deck < 1) {
-            UI.notify(t('minigames.primero.need_deck'), true);
+            UI.notify("❌ Potřebuješ Primero Balíček!", true);
             return;
         }
         
         if (!GameState.inventory.research || GameState.inventory.research < this.bet) {
-            UI.notify(t('minigames.primero.need_bet').replace('{bet}', this.bet), true);
+            UI.notify(`❌ Potřebuješ ${this.bet} Research na sázku!`, true);
             return;
         }
         
@@ -5202,16 +5251,12 @@ const PrimeroGame = {
         let result = '';
         if(playerValue > opponentValue) {
             this.playerScore++;
-            result = t('minigames.primero.round_win')
-                        .replace('{player}', playerValue)
-                        .replace('{opponent}', opponentValue);
+            result = `🎉 Vyhráls! (${playerValue} vs ${opponentValue})`;
         } else if(opponentValue > playerValue) {
             this.opponentScore++;
-            result = t('minigames.primero.round_loss')
-                        .replace('{player}', playerValue)
-                        .replace('{opponent}', opponentValue);
+            result = `😔 Prohrál... (${playerValue} vs ${opponentValue})`;
         } else {
-            result = t('minigames.primero.round_draw').replace('{player}', playerValue);
+            result = `🤝 Remíza! (${playerValue})`;
         }
         
         UI.notify(result);
@@ -5241,14 +5286,14 @@ const PrimeroGame = {
                 GameState.achievements.stats.totalResearchGained += reward;
             }
             
-            UI.notify(t('minigames.primero.game_win').replace('{reward}', reward));
+            UI.notify(`🏆 Výhra! +${reward} Research`);
         } else if(this.playerScore < this.opponentScore) {
             // Track played (even if lost)
             if(GameState.achievements) {
                 GameState.achievements.stats.totalGamesPlayed++;
             }
             
-            UI.notify(t('minigames.primero.game_loss').replace('{bet}', this.bet));
+            UI.notify(`💀 Prohra! -${this.bet} Research`);
         } else {
             Game.addItem('research', this.bet);
             
@@ -5258,7 +5303,7 @@ const PrimeroGame = {
                 GameState.achievements.stats.totalResearchGained += this.bet;
             }
             
-            UI.notify(t('minigames.primero.game_draw').replace('{bet}', this.bet));
+            UI.notify(`🤝 Remíza! Vráceno ${this.bet} Research`);
         }
         
         setTimeout(() => this.render(), 1500);
@@ -5293,31 +5338,31 @@ const PrimeroGame = {
         if(!container) return;
         
         let h = '<div style="background: var(--bg-card); padding: 15px; border-radius: 8px;">';
-        h += `<h3>${t('minigames.primero.title')}</h3>`;
+        h += '<h3>🃏 Primero (Předchůdce Pokeru)</h3>';
         
         if(!this.gameActive) {
-            h += `<p style="margin: 10px 0;">${t('minigames.primero.subtitle')}</p>`;
-            h += `<p style="opacity: 0.8; font-size: 0.9rem;">${t('minigames.primero.bet_info').replace('{bet}', this.bet)}</p>`;
-            h += `<button class="craft-btn" onclick="PrimeroGame.start()" style="margin-top: 10px;">${t('minigames.primero.btn_play')}</button>`;
+            h += `<p style="margin: 10px 0;">Hra dvorů - Jindřich VIII prohrál jmění!</p>`;
+            h += `<p style="opacity: 0.8; font-size: 0.9rem;">Sázka: ${this.bet} Research | Best of 3</p>`;
+            h += `<button class="craft-btn" onclick="PrimeroGame.start()" style="margin-top: 10px;">Hrát 🎮</button>`;
         } else {
             h += `<div style="display: flex; justify-content: space-between; margin: 10px 0;">`;
-            h += `<div>${t('minigames.primero.label_you')}: ${this.playerScore}</div>`;
-            h += `<div>${t('minigames.primero.label_round')}: ${this.round}/3</div>`;
-            h += `<div>${t('minigames.primero.label_opponent')}: ${this.opponentScore}</div>`;
+            h += `<div>Ty: ${this.playerScore}</div>`;
+            h += `<div>Kolo: ${this.round}/3</div>`;
+            h += `<div>Soupeř: ${this.opponentScore}</div>`;
             h += `</div>`;
             
             h += `<div style="margin: 15px 0;">`;
-            h += `<strong>${t('minigames.primero.label_your_cards')}</strong>`;
+            h += `<strong>Tvé karty:</strong>`;
             h += `<div style="display: flex; gap: 5px; margin-top: 5px;">`;
             this.playerHand.forEach(card => {
-                h += `<div style="padding: 10px; background: white; border: 2px solid var(--border-color); border-radius: 4px; text-align: center; min-width: 40px; color: black;">`;
+                h += `<div style="padding: 10px; background: white; border: 2px solid var(--border-color); border-radius: 4px; text-align: center; min-width: 40px;">`;
                 h += `${card.rank}${card.suit}`;
                 h += `</div>`;
             });
             h += `</div></div>`;
             
             h += `<div style="margin: 15px 0;">`;
-            h += `<strong>${t('minigames.primero.label_opponent')}</strong>`;
+            h += `<strong>Soupeř:</strong>`;
             h += `<div style="display: flex; gap: 5px; margin-top: 5px;">`;
             this.opponentHand.forEach(() => {
                 h += `<div style="padding: 10px; background: var(--accent-wax); border: 2px solid var(--border-color); border-radius: 4px; text-align: center; min-width: 40px;">`;
@@ -5326,19 +5371,26 @@ const PrimeroGame = {
             });
             h += `</div></div>`;
             
-            h += `<button class="craft-btn" onclick="PrimeroGame.playRound()" style="margin-top: 10px;">${t('minigames.primero.btn_reveal')}</button>`;
+            h += `<button class="craft-btn" onclick="PrimeroGame.playRound()" style="margin-top: 10px;">Odhalit a Hrát 🎲</button>`;
         }
         
         h += '</div>';
         container.innerHTML = h;
-    },
+    }
+,
     
     close: function() {
         this.gameActive = false;
         const modal = document.getElementById('primero-modal');
         if(modal) modal.remove();
     }
-  };
+};
+// ============================================
+// RITHMOMACHIA - SIMPLIFIED VERSION
+// 8×8 board, basic pieces, 2 victory conditions
+// ============================================
+
+
 // ═══ src/games/rithmomachia.js ═══
 const Rithmomachia = {
     gameActive: false,
@@ -5414,7 +5466,7 @@ const Rithmomachia = {
     
     start: function() {
         if (!GameState.inventory.rithmomachia_board || GameState.inventory.rithmomachia_board < 1) {
-            UI.notify(t('minigames.rithmomachia.need_board'), true);
+            UI.notify("❌ Potřebuješ Rithmomachia Desku!", true);
             return;
         }
         
@@ -5451,7 +5503,7 @@ const Rithmomachia = {
     },
     
     showTutorial: function() {
-        UI.notify(t('minigames.rithmomachia.tut_msg'));
+        UI.notify("🔢 Bitva čísel! ○ táhne 1, △ táhne 2 po diagonále, □ táhne 3. Zabiješ sečtením hodnot nebo přeskočením!");
     },
     
     // ========== PIECE SELECTION ==========
@@ -5471,7 +5523,7 @@ const Rithmomachia = {
         }
         
         if (piece.player !== 'white') {
-            UI.notify(t('minigames.rithmomachia.err_not_yours'), true);
+            UI.notify("❌ To není tvůj kámen!", true);
             return;
         }
         
@@ -5481,7 +5533,7 @@ const Rithmomachia = {
         this.render();
         
         if (this.validMoves.length === 0) {
-            UI.notify(t('minigames.rithmomachia.err_no_move'), true);
+            UI.notify("❌ Tento kámen nemůže táhnout!", true);
         }
     },
     
@@ -5561,7 +5613,7 @@ const Rithmomachia = {
         // Check if valid move
         const isValid = this.validMoves.some(([mx, my]) => mx === x && my === y);
         if (!isValid) {
-            UI.notify(t('minigames.rithmomachia.err_invalid'), true);
+            UI.notify("❌ Neplatný tah!", true);
             return;
         }
         
@@ -5646,7 +5698,7 @@ const Rithmomachia = {
             }
         }
         
-        UI.notify(t('minigames.rithmomachia.capture').replace('{value}', piece.value));
+        UI.notify(`⚔️ Chycen! +${piece.value} bodů`);
     },
     
     // ========== AI OPPONENT ==========
@@ -5687,7 +5739,7 @@ const Rithmomachia = {
             piece.pos = [x, y];
             
             this.checkCaptures(piece);
-            UI.notify(t('minigames.rithmomachia.ai_move').replace('{type}', piece.type).replace('{x}', x).replace('{y}', y));
+            UI.notify(`🤖 AI táhl ${piece.type} na [${x},${y}]`);
         }
         
         this.checkVictory();
@@ -5711,23 +5763,23 @@ const Rithmomachia = {
         const blackTriangles = this.blackPieces.filter(p => p.type === 'triangle').length;
         
         if (whiteTriangles === 0) {
-            this.endGame('black', t('minigames.rithmomachia.win_white_pyr'));
+            this.endGame('black', 'Všechny bílé pyramidy zničeny!');
             return true;
         }
         
         if (blackTriangles === 0) {
-            this.endGame('white', t('minigames.rithmomachia.win_black_pyr'));
+            this.endGame('white', 'Všechny černé pyramidy zničeny!');
             return true;
         }
         
         // Condition 2: Reached 100 points
         if (this.points.white >= 100) {
-            this.endGame('white', t('minigames.rithmomachia.win_points'));
+            this.endGame('white', 'Dosaženo 100 bodů!');
             return true;
         }
         
         if (this.points.black >= 100) {
-            this.endGame('black', t('minigames.rithmomachia.win_points'));
+            this.endGame('black', 'Dosaženo 100 bodů!');
             return true;
         }
         
@@ -5748,14 +5800,14 @@ const Rithmomachia = {
                 GameState.achievements.stats.totalResearchGained += reward;
             }
             
-            UI.notify(t('minigames.rithmomachia.win').replace('{reason}', reason).replace('{reward}', reward));
+            UI.notify(`🏆 VÝHRA! ${reason} +${reward} Research`);
         } else {
             // Track played (even if lost)
             if(GameState.achievements) {
                 GameState.achievements.stats.totalGamesPlayed++;
             }
             
-            UI.notify(t('minigames.rithmomachia.loss').replace('{reason}', reason));
+            UI.notify(`💀 Prohra! ${reason}`);
         }
         
         setTimeout(() => this.render(), 2000);
@@ -5792,21 +5844,23 @@ const Rithmomachia = {
         if (!container) return;
         
         let h = '<div style="background: var(--bg-card); padding: 15px; border-radius: 8px;">';
-        h += `<h3>${t('minigames.rithmomachia.title')}</h3>`;
+        h += '<h3>🔢 Rithmomachia - Bitva Čísel</h3>';
         
         if (!this.gameActive) {
-            h += `<p style="margin: 10px 0;">${t('minigames.rithmomachia.subtitle')}</p>`;
+            h += `<p style="margin: 10px 0;">Šachy Filozofů - vyučováno na univerzitách!</p>`;
             h += `<p style="font-size: 0.9rem; opacity: 0.8; margin: 10px 0;">`;
-            h += t('minigames.rithmomachia.victory_cond');
+            h += `<strong>Vítězství:</strong><br>`;
+            h += `1. Znič všechny pyramidy (△) soupeře<br>`;
+            h += `2. Získej 100 bodů z chycených kamenů`;
             h += `</p>`;
-            h += `<button class="craft-btn" onclick="Rithmomachia.start()" style="margin-top: 10px;">${t('minigames.rithmomachia.btn_play')}</button>`;
-            h += `<button class="craft-btn" onclick="Rithmomachia.showRules()" style="margin-top: 10px; background: var(--accent-gold);">${t('minigames.rithmomachia.btn_rules')}</button>`;
+            h += `<button class="craft-btn" onclick="Rithmomachia.start()" style="margin-top: 10px;">Hrát 🎮</button>`;
+            h += `<button class="craft-btn" onclick="Rithmomachia.showRules()" style="margin-top: 10px; background: var(--accent-gold);">📖 Pravidla</button>`;
         } else {
             // Score
             h += `<div style="display: flex; justify-content: space-between; margin: 10px 0; padding: 10px; background: rgba(0,0,0,0.1); border-radius: 4px; font-size: 0.9rem;">`;
-            h += `<div>${t('minigames.rithmomachia.label_you')}: ${this.points.white} ${t('minigames.rithmomachia.label_points')}</div>`;
-            h += `<div>${this.currentTurn === 'white' ? t('minigames.rithmomachia.label_your_turn') : t('minigames.rithmomachia.label_ai_turn')}</div>`;
-            h += `<div>${t('minigames.rithmomachia.label_ai')}: ${this.points.black} ${t('minigames.rithmomachia.label_points')}</div>`;
+            h += `<div>Ty: ${this.points.white} bodů</div>`;
+            h += `<div>${this.currentTurn === 'white' ? '▶️ Tvůj tah' : '🤖 AI'}</div>`;
+            h += `<div>AI: ${this.points.black} bodů</div>`;
             h += `</div>`;
             
             // Board
@@ -5814,7 +5868,7 @@ const Rithmomachia = {
             
             // Legend
             h += `<div style="margin-top: 10px; font-size: 0.85rem; opacity: 0.8;">`;
-            h += t('minigames.rithmomachia.legend');
+            h += `○ Kruh (1 pole) | △ Pyramida (2 diag.) | □ Čtverec (3 pole)`;
             h += `</div>`;
         }
         
@@ -5867,17 +5921,25 @@ const Rithmomachia = {
         const modal = `
             <div style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); z-index: 10000; display: flex; align-items: center; justify-content: center; padding: 20px;" onclick="this.remove()">
                 <div style="background: var(--bg-parchment); padding: 30px; border-radius: 10px; max-width: 500px; max-height: 80vh; overflow-y: auto;" onclick="event.stopPropagation()">
-                    <h2 style="margin-top: 0;">${t('minigames.rithmomachia.rules_title')}</h2>
+                    <h2 style="margin-top: 0;">🔢 Pravidla Rithmomachia</h2>
                     
-                    ${t('minigames.rithmomachia.rules_movement')}
+                    <h3>Pohyb:</h3>
+                    <p>○ <strong>Kruh</strong>: 1 pole (N/S/E/W)<br>
+                    △ <strong>Pyramida</strong>: 2 pole (diagonálně)<br>
+                    □ <strong>Čtverec</strong>: 3 pole (jakýmkoliv směrem)</p>
                     
-                    ${t('minigames.rithmomachia.rules_capture')}
+                    <h3>Chytání:</h3>
+                    <p>Chyť soupeřův kámen když <strong>součet hodnot tvých sousedních kamenů = hodnota soupeře</strong>!</p>
+                    <p>Příklad: Tvé kameny 4+5 mohou chytit soupeřův kámen 9.</p>
                     
-                    ${t('minigames.rithmomachia.rules_victory')}
+                    <h3>Vítězství:</h3>
+                    <p>1️⃣ Znič všechny <strong>pyramidy (△)</strong> soupeře<br>
+                    2️⃣ Získej <strong>100 bodů</strong> z chycených kamenů</p>
                     
-                    ${t('minigames.rithmomachia.rules_history')}
+                    <h3>Historie:</h3>
+                    <p style="font-size: 0.9rem; opacity: 0.8;">Vynalezeno r. 1030 mnichem Asilo z Würzburgu. Vyučováno na univerzitách jako matematická pomůcka - Karlova univerzita, Oxford, Bologna!</p>
                     
-                    <button class="craft-btn" onclick="this.parentElement.parentElement.remove()" style="margin-top: 20px; width: 100%;">${t('minigames.rithmomachia.btn_close')}</button>
+                    <button class="craft-btn" onclick="this.parentElement.parentElement.remove()" style="margin-top: 20px; width: 100%;">Zavřít</button>
                 </div>
             </div>
         `;
@@ -5891,6 +5953,12 @@ const Rithmomachia = {
         if(modal) modal.remove();
     }
 };
+
+// PŘIDAT hned po PrimeroGame (po jeho closing });
+
+// ========== ROYAL GAME OF UR - VS AI ==========
+
+
 // ═══ src/games/ur.js ═══
 const RoyalGameOfUr = {
     gameActive: false,
@@ -5917,7 +5985,7 @@ const RoyalGameOfUr = {
     
     start: function() {
         if (!GameState.inventory.ur_board || GameState.inventory.ur_board < 1) {
-            UI.notify(t('minigames.ur.need_board'), true);
+            UI.notify("❌ Potřebuješ Královskou Desku z Uru!", true);
             return;
         }
         
@@ -5950,7 +6018,7 @@ const RoyalGameOfUr = {
     rollDice: function() {
         if(!this.gameActive) return;
         if(this.canMove) {
-            UI.notify(t('minigames.ur.err_move_first'), true);
+            UI.notify("❌ Nejprve proveď tah!", true);
             return;
         }
         
@@ -5966,14 +6034,14 @@ const RoyalGameOfUr = {
             const validMoves = this.getValidMoves('player');
             if(validMoves.length === 0) {
                 if(this.diceRoll === 0) {
-                    UI.notify(t('minigames.ur.roll_zero_skip'));
+                    UI.notify("💀 Hod 0 - přeskakuješ!");
                 } else {
-                    UI.notify(t('minigames.ur.err_no_moves'));
+                    UI.notify("❌ Žádné platné tahy!");
                 }
                 setTimeout(() => this.endTurn(), 1500);
             } else {
                 this.canMove = true;
-                UI.notify(t('minigames.ur.roll_success').replace('{roll}', this.diceRoll));
+                UI.notify(`🎲 Hodil jsi ${this.diceRoll}! Vyber žeton.`);
             }
         } else {
             setTimeout(() => this.aiMove(), 1000);
@@ -6063,14 +6131,14 @@ const RoyalGameOfUr = {
         const newPos = this.calculateNewPosition(piece.position, this.diceRoll, 'player');
         
         if(!this.isValidMove(piece.position, newPos, 'player')) {
-            UI.notify(t('minigames.ur.err_invalid'), true);
+            UI.notify("❌ Neplatný tah!", true);
             return;
         }
         
         this.executeMoveForPlayer(pieceIndex, newPos, 'player');
         
         if(this.rosettes.includes(newPos)) {
-            UI.notify(t('minigames.ur.rosette'));
+            UI.notify("✨ Roseta! Hraj znovu!");
             this.canMove = false;
             this.diceRoll = 0;
         } else {
@@ -6096,7 +6164,7 @@ const RoyalGameOfUr = {
                 const enemyPieces = captured.player === 'player' ? this.playerPieces : this.aiPieces;
                 enemyPieces[captured.pieceId].position = -1;
                 this.stats.captures++;
-                UI.notify(t('minigames.ur.capture'));
+                UI.notify(`⚔️ Vyhodil jsi soupeře!`);
             }
         }
         
@@ -6131,9 +6199,9 @@ const RoyalGameOfUr = {
         
         if(validMoves.length === 0) {
             if(this.diceRoll === 0) {
-                UI.notify(t('minigames.ur.ai_roll_zero'));
+                UI.notify("🤖 AI hodil 0");
             } else {
-                UI.notify(t('minigames.ur.ai_no_moves'));
+                UI.notify("🤖 AI nemůže táhnout");
             }
             setTimeout(() => this.endTurn(), 1500);
             return;
@@ -6167,10 +6235,10 @@ const RoyalGameOfUr = {
             const newPos = this.calculateNewPosition(this.aiPieces[bestMove].position, this.diceRoll, 'ai');
             this.executeMoveForPlayer(bestMove, newPos, 'ai');
             
-            UI.notify(t('minigames.ur.ai_move').replace('{pos}', newPos));
+            UI.notify(`🤖 AI táhl na pole ${newPos}`);
             
             if(this.rosettes.includes(newPos)) {
-                UI.notify(t('minigames.ur.ai_rosette'));
+                UI.notify("✨ AI trefil rosetu!");
                 setTimeout(() => this.rollDice(), 1500);
             } else {
                 setTimeout(() => this.endTurn(), 1500);
@@ -6187,22 +6255,24 @@ const RoyalGameOfUr = {
             const reward = 4;
             Game.addItem('research', reward);
             
+            // Track stats
             if(GameState.achievements) {
                 GameState.achievements.stats.urGamesWon++;
                 GameState.achievements.stats.totalGamesPlayed++;
                 GameState.achievements.stats.totalResearchGained += reward;
             }
             
-            UI.notify(t('minigames.ur.win_vs').replace('{reward}', reward));
+            UI.notify(`🏆 VÝHRA! +${reward} Research`);
             setTimeout(() => this.render(), 2000);
         } else if(this.stats.aiFinished === 7) {
             this.gameActive = false;
             
+            // Track played (even if lost)
             if(GameState.achievements) {
                 GameState.achievements.stats.totalGamesPlayed++;
             }
             
-            UI.notify(t('minigames.ur.loss_vs'));
+            UI.notify(`💀 Prohra! AI vyhrál.`);
             setTimeout(() => this.render(), 2000);
         }
     },
@@ -6236,25 +6306,25 @@ const RoyalGameOfUr = {
         if(!container) return;
         
         let h = '<div style="background: var(--bg-card); padding: 15px; border-radius: 8px;">';
-        h += `<h3>${t('minigames.ur.title_vs')}</h3>`;
+        h += '<h3>🎲 Královská Hra z Uru (2600 př.n.l.)</h3>';
         
         if(!this.gameActive) {
-            h += `<p style="margin: 10px 0;">${t('minigames.ur.subtitle_vs')}</p>`;
-            h += `<p style="font-size: 0.9rem; opacity: 0.8;">${t('minigames.ur.desc_vs')}</p>`;
-            h += `<button class="craft-btn" onclick="RoyalGameOfUr.start()" style="margin-top: 10px;">${t('minigames.ur.btn_vs_ai')}</button>`;
-            h += `<button class="craft-btn" onclick="RoyalGameOfUrSolo.start()" style="margin-top: 10px; background: var(--accent-gold);">${t('minigames.ur.btn_solo')}</button>`;
+            h += `<p style="margin: 10px 0;">Nejstarší desková hra světa!</p>`;
+            h += `<p style="font-size: 0.9rem; opacity: 0.8;">Závoď s AI, kdo první dostane 7 žetonů do cíle.</p>`;
+            h += `<button class="craft-btn" onclick="RoyalGameOfUr.start()" style="margin-top: 10px;">Hrát vs AI 🎮</button>`;
+            h += `<button class="craft-btn" onclick="RoyalGameOfUrSolo.start()" style="margin-top: 10px; background: var(--accent-gold);">Solo Puzzle 🧩</button>`;
         } else {
             h += `<div style="display: flex; justify-content: space-between; margin: 10px 0; padding: 10px; background: rgba(0,0,0,0.1); border-radius: 4px;">`;
-            h += `<div>${t('minigames.ur.label_you')}: ${this.stats.playerFinished}/7</div>`;
-            h += `<div>${t('minigames.ur.label_moves')}: ${this.stats.moves}</div>`;
-            h += `<div>${t('minigames.ur.label_ai')}: ${this.stats.aiFinished}/7</div>`;
+            h += `<div>Ty: ${this.stats.playerFinished}/7</div>`;
+            h += `<div>Tahy: ${this.stats.moves}</div>`;
+            h += `<div>AI: ${this.stats.aiFinished}/7</div>`;
             h += `</div>`;
             
             if(this.currentTurn === 'player' && !this.canMove) {
-                h += `<button class="craft-btn" onclick="RoyalGameOfUr.rollDice()" style="margin: 10px 0; width: 100%;">${t('minigames.ur.btn_roll')}</button>`;
+                h += `<button class="craft-btn" onclick="RoyalGameOfUr.rollDice()" style="margin: 10px 0; width: 100%;">🎲 Hodit kostky</button>`;
             } else if(this.diceRoll > 0) {
-                h += `<div style="text-align: center; margin: 10px 0; padding: 10px; background: gold; border-radius: 4px; font-size: 1.2rem; color: black;">`;
-                h += t('minigames.ur.label_roll').replace('{roll}', this.diceRoll);
+                h += `<div style="text-align: center; margin: 10px 0; padding: 10px; background: gold; border-radius: 4px; font-size: 1.2rem;">`;
+                h += `🎲 Hod: ${this.diceRoll}`;
                 h += `</div>`;
             }
             
@@ -6263,7 +6333,7 @@ const RoyalGameOfUr = {
             const playerOffBoard = this.playerPieces.filter(p => p.position === -1);
             if(playerOffBoard.length > 0 && this.canMove) {
                 h += `<div style="margin-top: 15px;">`;
-                h += `<strong>${t('minigames.ur.label_offboard').replace('{count}', playerOffBoard.length)}</strong>`;
+                h += `<strong>Tvé žetony mimo desku (${playerOffBoard.length}):</strong>`;
                 h += `<div style="display: flex; gap: 5px; margin-top: 5px;">`;
                 playerOffBoard.forEach(piece => {
                     h += `<button class="craft-btn" onclick="RoyalGameOfUr.movePiece(${piece.id})" style="padding: 8px;">`;
@@ -6329,7 +6399,8 @@ const RoyalGameOfUr = {
         if(pieceIdx >= 0) {
             this.movePiece(pieceIdx);
         }
-    },
+    }
+,
     
     close: function() {
         this.gameActive = false;
@@ -6366,7 +6437,7 @@ const RoyalGameOfUrSolo = {
     
     start: function() {
         if (!GameState.inventory.ur_board || GameState.inventory.ur_board < 1) {
-            UI.notify(t('minigames.ur.need_board'), true);
+            UI.notify("❌ Potřebuješ Královskou Desku z Uru!", true);
             return;
         }
         
@@ -6394,7 +6465,7 @@ const RoyalGameOfUrSolo = {
     rollDice: function() {
         if(!this.gameActive) return;
         if(this.canMove) {
-            UI.notify(t('minigames.ur.err_move_first'), true);
+            UI.notify("❌ Nejprve proveď tah!", true);
             return;
         }
         
@@ -6409,14 +6480,14 @@ const RoyalGameOfUrSolo = {
         const validMoves = this.getValidMoves();
         if(validMoves.length === 0) {
             if(this.diceRoll === 0) {
-                UI.notify(t('minigames.ur.roll_zero_retry'));
+                UI.notify("💀 Hod 0 - zkus znovu!");
             } else {
-                UI.notify(t('minigames.ur.err_no_moves'));
+                UI.notify("❌ Žádné platné tahy!");
             }
             this.diceRoll = 0;
         } else {
             this.canMove = true;
-            UI.notify(t('minigames.ur.roll_success').replace('{roll}', this.diceRoll));
+            UI.notify(`🎲 Hodil jsi ${this.diceRoll}! Vyber žeton.`);
         }
         
         this.render();
@@ -6474,7 +6545,7 @@ const RoyalGameOfUrSolo = {
         const newPos = this.calculateNewPosition(piece.position, this.diceRoll);
         
         if(!this.isValidMove(piece.position, newPos)) {
-            UI.notify(t('minigames.ur.err_invalid'), true);
+            UI.notify("❌ Neplatný tah!", true);
             return;
         }
         
@@ -6482,7 +6553,7 @@ const RoyalGameOfUrSolo = {
         this.stats.moves++;
         
         if(this.rosettes.includes(newPos)) {
-            UI.notify(t('minigames.ur.rosette'));
+            UI.notify("✨ Roseta! Hraj znovu!");
             this.canMove = false;
             this.diceRoll = 0;
         } else {
@@ -6516,35 +6587,29 @@ const RoyalGameOfUrSolo = {
             this.gameActive = false;
             
             let reward = 2;
-            let gradeKey = 'grade_pass';
+            let grade = 'OK';
             
             if(this.stats.rollsUsed <= this.targets.perfect) {
                 reward = 6;
-                gradeKey = 'grade_perfect';
+                grade = 'PERFEKTNÍ';
             } else if(this.stats.rollsUsed <= this.targets.good) {
                 reward = 4;
-                gradeKey = 'grade_good';
+                grade = 'VÝBORNÝ';
             } else if(this.stats.rollsUsed <= this.targets.ok) {
                 reward = 3;
-                gradeKey = 'grade_ok';
+                grade = 'DOBRÝ';
             }
-            
-            const translatedGrade = t('minigames.ur.' + gradeKey);
             
             Game.addItem('research', reward);
             
+            // Track stats (solo puzzle counts as Ur game)
             if(GameState.achievements) {
                 GameState.achievements.stats.urGamesWon++;
                 GameState.achievements.stats.totalGamesPlayed++;
                 GameState.achievements.stats.totalResearchGained += reward;
             }
             
-            let winMsg = t('minigames.ur.win_solo')
-                .replace('{grade}', translatedGrade)
-                .replace('{reward}', reward)
-                .replace('{rolls}', this.stats.rollsUsed);
-            
-            UI.notify(winMsg);
+            UI.notify(`🏆 ${grade}! +${reward} Research (${this.stats.rollsUsed} hodů)`);
             
             setTimeout(() => this.render(), 2000);
         }
@@ -6564,14 +6629,14 @@ const RoyalGameOfUrSolo = {
             modal.className = 'game-modal';
             modal.innerHTML = `
                 <div class="game-modal-content">
-                    <button class="game-modal-close" onclick="RoyalGameOfUrSolo.close()">×</button>
+                    <button class="game-modal-close" onclick="RoyalGameOfUr.close()">×</button>
                     <div id="ur-game-content"></div>
                 </div>
             `;
             document.body.appendChild(modal);
             
             modal.addEventListener('click', (e) => {
-                if(e.target === modal) RoyalGameOfUrSolo.close();
+                if(e.target === modal) RoyalGameOfUr.close();
             });
         }
         
@@ -6579,50 +6644,48 @@ const RoyalGameOfUrSolo = {
         if(!container) return;
         
         let h = '<div style="background: var(--bg-card); padding: 15px; border-radius: 8px;">';
-        h += `<h3>${t('minigames.ur.title_solo')}</h3>`;
+        h += '<h3>🧩 Královská Hra z Uru - Solo Puzzle</h3>';
         
         if(!this.gameActive) {
-            h += `<p style="margin: 10px 0;">${t('minigames.ur.subtitle_solo')}</p>`;
+            h += `<p style="margin: 10px 0;">Dostaň všech 7 žetonů do cíle!</p>`;
             h += `<div style="font-size: 0.85rem; opacity: 0.8; margin: 10px 0;">`;
-            h += `<strong>${t('minigames.ur.label_rating')}</strong><br>`;
-            h += `${t('minigames.ur.rating_perfect').replace('{target}', this.targets.perfect)}<br>`;
-            h += `${t('minigames.ur.rating_good').replace('{target}', this.targets.good)}<br>`;
-            h += `${t('minigames.ur.rating_ok').replace('{target}', this.targets.ok)}<br>`;
-            h += `${t('minigames.ur.rating_pass').replace('{target}', this.targets.ok)}`;
+            h += `<strong>Hodnocení:</strong><br>`;
+            h += `🏆 Perfektní: ≤${this.targets.perfect} hodů (6 Research)<br>`;
+            h += `⭐ Výborný: ≤${this.targets.good} hodů (4 Research)<br>`;
+            h += `✓ Dobrý: ≤${this.targets.ok} hodů (3 Research)<br>`;
+            h += `○ OK: ${this.targets.ok}+ hodů (2 Research)`;
             h += `</div>`;
-            h += `<button class="craft-btn" onclick="RoyalGameOfUrSolo.start()" style="margin-top: 10px;">${t('minigames.ur.btn_play_solo')}</button>`;
-            h += `<button class="craft-btn" onclick="RoyalGameOfUr.start()" style="margin-top: 10px; background: var(--accent-wax);">${t('minigames.ur.btn_back_vs')}</button>`;
+            h += `<button class="craft-btn" onclick="RoyalGameOfUrSolo.start()" style="margin-top: 10px;">Hrát Solo 🧩</button>`;
+            h += `<button class="craft-btn" onclick="RoyalGameOfUr.start()" style="margin-top: 10px; background: var(--accent-wax);">Zpět na VS AI 🤖</button>`;
         } else {
             h += `<div style="display: flex; justify-content: space-between; margin: 10px 0; padding: 10px; background: rgba(0,0,0,0.1); border-radius: 4px;">`;
-            h += `<div>${t('minigames.ur.label_finished')}: ${this.stats.finished}/7</div>`;
-            h += `<div>${t('minigames.ur.label_rolls')}: ${this.stats.rollsUsed}</div>`;
-            h += `<div>${t('minigames.ur.label_moves')}: ${this.stats.moves}</div>`;
+            h += `<div>Dokončeno: ${this.stats.finished}/7</div>`;
+            h += `<div>Hody: ${this.stats.rollsUsed}</div>`;
+            h += `<div>Tahy: ${this.stats.moves}</div>`;
             h += `</div>`;
             
             let targetColor = '#999';
             let targetText = 'OK';
             if(this.stats.rollsUsed <= this.targets.perfect) {
                 targetColor = 'gold';
-                targetText = t('minigames.ur.grade_perfect');
+                targetText = 'PERFEKTNÍ';
             } else if(this.stats.rollsUsed <= this.targets.good) {
                 targetColor = '#4ade80';
-                targetText = t('minigames.ur.grade_good');
+                targetText = 'VÝBORNÝ';
             } else if(this.stats.rollsUsed <= this.targets.ok) {
                 targetColor = '#60a5fa';
-                targetText = t('minigames.ur.grade_ok');
-            } else {
-                targetText = t('minigames.ur.grade_pass');
+                targetText = 'DOBRÝ';
             }
             
-            h += `<div style="text-align: center; margin: 5px 0; padding: 5px; background: ${targetColor}; color: white; border-radius: 4px; font-size: 0.85rem; font-weight: bold; text-shadow: 1px 1px 2px rgba(0,0,0,0.5);">`;
-            h += t('minigames.ur.label_pace').replace('{grade}', targetText);
+            h += `<div style="text-align: center; margin: 5px 0; padding: 5px; background: ${targetColor}; color: white; border-radius: 4px; font-size: 0.85rem; font-weight: bold;">`;
+            h += `Aktuální tempo: ${targetText}`;
             h += `</div>`;
             
             if(!this.canMove) {
-                h += `<button class="craft-btn" onclick="RoyalGameOfUrSolo.rollDice()" style="margin: 10px 0; width: 100%;">${t('minigames.ur.btn_roll')}</button>`;
+                h += `<button class="craft-btn" onclick="RoyalGameOfUrSolo.rollDice()" style="margin: 10px 0; width: 100%;">🎲 Hodit kostky</button>`;
             } else if(this.diceRoll > 0) {
-                h += `<div style="text-align: center; margin: 10px 0; padding: 10px; background: gold; color: black; border-radius: 4px; font-size: 1.2rem;">`;
-                h += t('minigames.ur.label_roll').replace('{roll}', this.diceRoll);
+                h += `<div style="text-align: center; margin: 10px 0; padding: 10px; background: gold; border-radius: 4px; font-size: 1.2rem;">`;
+                h += `🎲 Hod: ${this.diceRoll}`;
                 h += `</div>`;
             }
             
@@ -6631,7 +6694,7 @@ const RoyalGameOfUrSolo = {
             const offBoard = this.playerPieces.filter(p => p.position === -1);
             if(offBoard.length > 0 && this.canMove) {
                 h += `<div style="margin-top: 15px;">`;
-                h += `<strong>${t('minigames.ur.label_offboard_solo').replace('{count}', offBoard.length)}</strong>`;
+                h += `<strong>Žetony mimo desku (${offBoard.length}):</strong>`;
                 h += `<div style="display: flex; gap: 5px; margin-top: 5px; flex-wrap: wrap;">`;
                 offBoard.forEach(piece => {
                     h += `<button class="craft-btn" onclick="RoyalGameOfUrSolo.movePiece(${piece.id})" style="padding: 8px;">`;
@@ -6648,7 +6711,7 @@ const RoyalGameOfUrSolo = {
     
     renderBoard: function() {
         let h = '<div style="margin: 15px 0;">';
-        h += `<strong style="display: block; margin-bottom: 5px;">${t('minigames.ur.label_track')}</strong>`;
+        h += '<strong style="display: block; margin-bottom: 5px;">Herní dráha:</strong>';
         h += '<div style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; font-size: 0.8rem;">';
         
         for(let i = 0; i < 7; i++) {
@@ -6689,7 +6752,8 @@ const RoyalGameOfUrSolo = {
         if(pieceIdx >= 0) {
             this.movePiece(pieceIdx);
         }
-    },
+    }
+,
     
     close: function() {
         this.gameActive = false;
@@ -6697,6 +6761,10 @@ const RoyalGameOfUrSolo = {
         if(modal) modal.remove();
     }
 };
+
+// ========== KARNÖFFEL GAME ==========
+
+
 // ═══ src/games/karnoffel.js ═══
 const KarnoffelGame = {
     gameActive: false,
@@ -6713,7 +6781,7 @@ const KarnoffelGame = {
     
     start: function() {
         if (!GameState.inventory.karnoffel_deck || GameState.inventory.karnoffel_deck < 1) {
-            UI.notify(t('minigames.karnoffel.need_deck'), true);
+            UI.notify("❌ Potřebuješ Karnöffel Balíček!", true);
             return;
         }
         
@@ -6796,10 +6864,10 @@ const KarnoffelGame = {
         
         if(winner === 'you') {
             this.playerTricks++;
-            UI.notify(t('minigames.karnoffel.trick_win'));
+            UI.notify("🎉 Vyhráls trik!");
         } else {
             this.opponentTricks++;
-            UI.notify(t('minigames.karnoffel.trick_loss'));
+            UI.notify("😔 Soupeř vyhrál trik");
         }
         
         this.currentTrick = [];
@@ -6818,19 +6886,21 @@ const KarnoffelGame = {
             const reward = 3;
             Game.addItem('research', reward);
             
+            // Track stats
             if(GameState.achievements) {
                 GameState.achievements.stats.karnoffelGamesWon++;
                 GameState.achievements.stats.totalGamesPlayed++;
                 GameState.achievements.stats.totalResearchGained += reward;
             }
             
-            UI.notify(t('minigames.karnoffel.game_win').replace('{reward}', reward));
+            UI.notify(`🏆 Výhra! +${reward} Research`);
         } else {
+            // Track played (even if lost)
             if(GameState.achievements) {
                 GameState.achievements.stats.totalGamesPlayed++;
             }
             
-            UI.notify(t('minigames.karnoffel.game_loss'));
+            UI.notify(`💀 Prohra! Zkus to znovu.`);
         }
         
         setTimeout(() => this.render(), 1500);
@@ -6865,23 +6935,23 @@ const KarnoffelGame = {
         if(!container) return;
         
         let h = '<div style="background: var(--bg-card); padding: 15px; border-radius: 8px;">';
-        h += `<h3>${t('minigames.karnoffel.title')}</h3>`;
+        h += '<h3>🎴 Karnöffel (1426 - Nejstarší hra!)</h3>';
         
         if(!this.gameActive) {
-            h += `<p style="margin: 10px 0;">${t('minigames.karnoffel.subtitle')}</p>`;
-            h += `<button class="craft-btn" onclick="KarnoffelGame.start()" style="margin-top: 10px;">${t('minigames.karnoffel.btn_play')}</button>`;
+            h += `<p style="margin: 10px 0;">Trumfová hra z Norimberk. Církev ji zakazovala!</p>`;
+            h += `<button class="craft-btn" onclick="KarnoffelGame.start()" style="margin-top: 10px;">Hrát 🎮</button>`;
         } else {
             h += `<div style="display: flex; justify-content: space-between; margin: 10px 0; padding: 10px; background: rgba(0,0,0,0.1); border-radius: 4px;">`;
-            h += `<div>${t('minigames.karnoffel.label_your_tricks')}: ${this.playerTricks}</div>`;
-            h += `<div>${t('minigames.karnoffel.label_trump')}: ${this.trump}</div>`;
-            h += `<div>${t('minigames.karnoffel.label_opponent')}: ${this.opponentTricks}</div>`;
+            h += `<div>Tvé triky: ${this.playerTricks}</div>`;
+            h += `<div>Trumf: ${this.trump}</div>`;
+            h += `<div>Soupeř: ${this.opponentTricks}</div>`;
             h += `</div>`;
             
             if(this.currentTrick.length > 0) {
                 h += `<div style="margin: 15px 0; padding: 10px; background: rgba(197,160,89,0.2); border-radius: 4px;">`;
-                h += `<strong>${t('minigames.karnoffel.label_current_trick')}</strong><div style="display: flex; gap: 10px; margin-top: 5px; justify-content: center;">`;
+                h += `<strong>Aktuální trik:</strong><div style="display: flex; gap: 10px; margin-top: 5px; justify-content: center;">`;
                 this.currentTrick.forEach(play => {
-                    h += `<div style="padding: 10px; background: white; border: 2px solid var(--accent-gold); border-radius: 4px; text-align: center; color: black;">`;
+                    h += `<div style="padding: 10px; background: white; border: 2px solid var(--accent-gold); border-radius: 4px; text-align: center;">`;
                     h += `${play.card.rank}${play.card.suit}`;
                     h += `</div>`;
                 });
@@ -6889,11 +6959,11 @@ const KarnoffelGame = {
             }
             
             h += `<div style="margin: 15px 0;">`;
-            h += `<strong>${t('minigames.karnoffel.label_your_cards')}</strong>`;
+            h += `<strong>Tvé karty:</strong>`;
             h += `<div style="display: flex; gap: 5px; margin-top: 5px; flex-wrap: wrap;">`;
             this.playerHand.forEach((card, idx) => {
                 const isTrump = card.suit === this.trump;
-                h += `<div style="padding: 10px; background: ${isTrump ? 'gold' : 'white'}; border: 2px solid var(--border-color); border-radius: 4px; text-align: center; min-width: 40px; cursor: pointer; color: black;" onclick="KarnoffelGame.playCard(${idx})">`;
+                h += `<div style="padding: 10px; background: ${isTrump ? 'gold' : 'white'}; border: 2px solid var(--border-color); border-radius: 4px; text-align: center; min-width: 40px; cursor: pointer;" onclick="KarnoffelGame.playCard(${idx})">`;
                 h += `${card.rank}${card.suit}`;
                 h += `</div>`;
             });
@@ -6902,7 +6972,8 @@ const KarnoffelGame = {
         
         h += '</div>';
         container.innerHTML = h;
-    },
+    }
+,
     
     close: function() {
         this.gameActive = false;
@@ -6910,6 +6981,10 @@ const KarnoffelGame = {
         if(modal) modal.remove();
     }
 };
+
+// ========== FREECELL GAME (simplified) ==========
+
+
 // ═══ src/games/freecell.js ═══
 const FreeCellGame = {
     gameActive: false,
@@ -6925,7 +7000,7 @@ const FreeCellGame = {
     
     start: function() {
         if (!GameState.inventory.french_deck || GameState.inventory.french_deck < 1) {
-            UI.notify(t('minigames.freecell.need_deck'), true);
+            UI.notify("❌ Potřebuješ Francouzský Balíček!", true);
             return;
         }
         
@@ -6986,14 +7061,14 @@ const FreeCellGame = {
         const foundation = this.foundations[foundationIndex];
         
         if(foundation.length === 0 && card.rank !== 'A') {
-            UI.notify(t('minigames.freecell.err_ace'), true);
+            UI.notify("❌ Foundations začínají Esem!", true);
             return;
         }
         
         if(foundation.length > 0) {
             const topCard = foundation[foundation.length - 1];
             if(topCard.suit !== card.suit || topCard.value + 1 !== card.value) {
-                UI.notify(t('minigames.freecell.err_invalid'), true);
+                UI.notify("❌ Neplatný tah!", true);
                 return;
             }
         }
@@ -7023,7 +7098,7 @@ const FreeCellGame = {
         } else {
             const topCard = column[column.length - 1];
             if(topCard.color === card.color || topCard.value !== card.value + 1) {
-                UI.notify(t('minigames.freecell.err_color_val'), true);
+                UI.notify("❌ Musí být opačná barva a o 1 menší!", true);
                 return;
             }
         }
@@ -7038,7 +7113,7 @@ const FreeCellGame = {
     moveToFreeCell: function(cellIndex) {
         if(!this.selected) return;
         if(this.freeCells[cellIndex] !== null) {
-            UI.notify(t('minigames.freecell.err_cell_full'), true);
+            UI.notify("❌ Free cell obsazena!", true);
             return;
         }
         
@@ -7090,7 +7165,7 @@ const FreeCellGame = {
             GameState.achievements.stats.totalResearchGained += reward;
         }
         
-        UI.notify(t('minigames.freecell.win').replace('{reward}', reward).replace('{moves}', this.moves));
+        UI.notify(`🏆 VÝHRA! +${reward} Research (${this.moves} tahů)`);
         
         setTimeout(() => this.render(), 2000);
     },
@@ -7124,21 +7199,20 @@ const FreeCellGame = {
         if(!container) return;
         
         let h = '<div style="background: var(--bg-card); padding: 15px; border-radius: 8px;">';
-        h += `<h3>${t('minigames.freecell.title')}</h3>`;
+        h += '<h3>🂡 FreeCell Solitaire</h3>';
         
         if(!this.gameActive && this.tableau.length === 0) {
-            h += `<p style="margin: 10px 0;">${t('minigames.freecell.subtitle')}</p>`;
-            h += `<button class="craft-btn" onclick="FreeCellGame.start()" style="margin-top: 10px;">${t('minigames.freecell.btn_play')}</button>`;
+            h += `<p style="margin: 10px 0;">Logická karetní hra. Přesuň všechny karty na základy!</p>`;
+            h += `<button class="craft-btn" onclick="FreeCellGame.start()" style="margin-top: 10px;">Hrát 🎮</button>`;
         } else {
-            h += `<div style="margin-bottom: 10px;"><strong>${t('minigames.freecell.label_moves').replace('{moves}', this.moves)}</strong></div>`;
+            h += `<div style="margin-bottom: 10px;"><strong>Tahy: ${this.moves}</strong></div>`;
             
             h += `<div style="display: grid; grid-template-columns: repeat(8, 1fr); gap: 5px; margin-bottom: 10px;">`;
             
             for(let i = 0; i < 4; i++) {
                 const card = this.freeCells[i];
                 const isSelected = this.selected && this.selected.location === 'freecell' && this.selected.index === i;
-                const textColor = card ? card.color : 'inherit';
-                h += `<div style="padding: 10px; background: ${isSelected ? 'gold' : 'rgba(0,0,0,0.1)'}; border: 2px dashed var(--border-color); border-radius: 4px; min-height: 40px; text-align: center; cursor: pointer; font-size: 0.9rem; color: ${textColor};" onclick="FreeCellGame.${card ? `selectCard('freecell', ${i})` : `moveToFreeCell(${i})`}">`;
+                h += `<div style="padding: 10px; background: ${isSelected ? 'gold' : 'rgba(0,0,0,0.1)'}; border: 2px dashed var(--border-color); border-radius: 4px; min-height: 40px; text-align: center; cursor: pointer; font-size: 0.9rem;" onclick="FreeCellGame.${card ? `selectCard('freecell', ${i})` : `moveToFreeCell(${i})`}">`;
                 if(card) h += `${card.rank}${card.suit}`;
                 else h += `💠`;
                 h += `</div>`;
@@ -7147,8 +7221,7 @@ const FreeCellGame = {
             for(let i = 0; i < 4; i++) {
                 const foundation = this.foundations[i];
                 const topCard = foundation[foundation.length - 1];
-                const textColor = topCard ? topCard.color : 'inherit';
-                h += `<div style="padding: 10px; background: rgba(197,160,89,0.2); border: 2px solid var(--accent-gold); border-radius: 4px; min-height: 40px; text-align: center; cursor: pointer; font-size: 0.9rem; color: ${textColor};" onclick="FreeCellGame.moveToFoundation(${i})">`;
+                h += `<div style="padding: 10px; background: rgba(197,160,89,0.2); border: 2px solid var(--accent-gold); border-radius: 4px; min-height: 40px; text-align: center; cursor: pointer; font-size: 0.9rem;" onclick="FreeCellGame.moveToFoundation(${i})">`;
                 if(topCard) h += `${topCard.rank}${topCard.suit}`;
                 else h += `🏆`;
                 h += `</div>`;
@@ -7164,7 +7237,7 @@ const FreeCellGame = {
                 col.forEach((card, cardIdx) => {
                     const isTop = cardIdx === col.length - 1;
                     const isSelected = this.selected && this.selected.location === 'tableau' && this.selected.index === i && isTop;
-                    h += `<div style="padding: 3px; background: ${isSelected ? 'gold' : 'white'}; border: 1px solid var(--border-color); border-radius: 2px; margin-bottom: 2px; font-size: 0.7rem; text-align: center; cursor: pointer; color: ${card.color};" onclick="event.stopPropagation(); ${isTop ? `FreeCellGame.selectCard('tableau', ${i})` : 'void(0)'}">`;
+                    h += `<div style="padding: 3px; background: ${isSelected ? 'gold' : 'white'}; border: 1px solid var(--border-color); border-radius: 2px; margin-bottom: 2px; font-size: 0.7rem; text-align: center; cursor: pointer;" onclick="event.stopPropagation(); ${isTop ? `FreeCellGame.selectCard('tableau', ${i})` : 'void(0)'}">`;
                     h += `${card.rank}${card.suit}`;
                     h += `</div>`;
                 });
@@ -7173,12 +7246,13 @@ const FreeCellGame = {
             }
             h += `</div>`;
             
-            h += `<button class="craft-btn" onclick="FreeCellGame.start()" style="margin-top: 10px;">${t('minigames.freecell.btn_new')}</button>`;
+            h += `<button class="craft-btn" onclick="FreeCellGame.start()" style="margin-top: 10px;">Nová hra 🔄</button>`;
         }
         
         h += '</div>';
         container.innerHTML = h;
-    },
+    }
+,
     
     close: function() {
         this.gameActive = false;
@@ -7186,6 +7260,8 @@ const FreeCellGame = {
         if(modal) modal.remove();
     }
 };
+
+
 // ═══ src/i18n/cs.js ═══
 // Scriptorium i18n — Čeština (master jazyk)
 // Tento soubor je zdrojem pravdy pro všechny klíče.
@@ -7205,6 +7281,9 @@ const STRINGS_cs = {
         },
         craft: { filterAll:'Vše', filterMat:'Materiály', filterFood:'Jídlo', filterAlchemy:'Alchymie', filterLore:'Vědění', btn:'Výroba' },
         inv:   { filterAll:'Vše', filterMat:'Suroviny', filterTool:'Nástroje', filterLore:'Ostatní' },
+        lore:  { tabResearch:'Research', tabCodex:'Codex', tabNotebooks:'📓 Zápisníky', tabAchievements:'Achievementy',
+                 notes:'Zápisky:', discovered:'Objeveno:' },
+        library: { tabBooks:'📚 Knihy', tabRecords:'🏆 Hry & Záznamy', tabIching:'☯️ Věštění', tabNews:'📜 Zprávy' },
         settings: { langLabel:'🗺️ Jazyk / Language' },
         actions: {
             hunt:'Lovit', bark:'Řezat', default:'Hledat',
@@ -7215,6 +7294,50 @@ const STRINGS_cs = {
         game: {
             eat:'Sníst', required:'(Nutné)',
             techDone:'HOTOVO', techStudy:'Studovat', techRequired:'Nutné:',
+            noTinderbox:'Nemáš Troud!',
+            fireKindled:'Krb rozežehnut.',
+            needFire:'Nejdřív oheň!',
+            plotLocked:'Zamčeno! (Tech)',
+            needHoe:'Motyku!',
+            needFertilizer:'Hnojivo!',
+            needSeeds:'Semínka!',
+            needWater:'Vodu!',
+            growing:'Roste...',
+            needWell:'❌ Nejprve musíš postavit studnu v Řemeslo!',
+            frozenHands:'Máš zmrzlé ruce!',
+            missingMats:'Chybí suroviny!',
+            notEnoughResearch:'Zápisky!',
+            notFood:'Tohle nejde jíst!',
+            noFood:'Nemáš to!',
+            busy:'Jsem zaneprázdněn!',
+            quickScavenge:'Rychlý sběr!',
+            rareFind:'⭐ Vzácný nález: Netolického pozůstalost!',
+            candleBurnedOut:'Svíčka dohořela.',
+            hungry:'⚠️ Máš hlad!',
+            saveExported:'💾 Save exportován!',
+            saveExportFail:'❌ Export selhal!',
+            saveImported:'✅ Save importován! Reloaduji...',
+            saveImportFail:'❌ Neplatný save soubor!',
+            saveNoFile:'❌ Žádný soubor nevybrán!',
+            saveImportCancelled:'Import zrušen.',
+            crafted:'Vynalezeno:',
+            required2:'Nutno:',
+            wellNoWell:'❌ Nemáš studnu!',
+            wellBroken:'❌ Studna je rozbitá! Potřebuješ ji opravit.',
+            wellMurky:'⚠️ Voda je zakalená. Měl bys studnu vyčistit.',
+            wellHolyWater:'✨ Ze studny vytryskla svěcená voda!',
+            wellNotDirty:'Studna není znečištěná.',
+            wellNoPowder:'❌ Potřebuješ čisticí prášek!',
+            wellCleaned:'✨ Studna je opět čistá!',
+            wellNotBroken:'Studna není rozbitá.',
+            wellNoKit:'❌ Potřebuješ opravnou sadu!',
+            wellRepaired:'🔧 Studna je opravená!',
+            wellAlreadyBuilt:'Už máš studnu!',
+            wellNeedBasic:'Nejprve musíš mít základní studnu!',
+            wellBuilt:'🚰 Studna vybudována!',
+            wellUpgraded:'🏛️ Studna vylepšena na kamennou!',
+            wellTurningGreen:'⚠️ Voda ve studně začíná zelenat!',
+            wellCollapsed:'💥 Studna se zbortila! Potřebuješ ji opravit.',
             noTinderbox:'Nemáš Troud!',
             fireKindled:'Krb rozežehnut.',
             needFire:'Nejdřív oheň!',
@@ -7300,6 +7423,9 @@ const STRINGS_en = {
         },
         craft: { filterAll:'All', filterMat:'Materials', filterFood:'Provisions', filterAlchemy:'Alchemy', filterLore:'Knowledge', btn:'Craft' },
         inv:   { filterAll:'All', filterMat:'Materials', filterTool:'Tools', filterLore:'Other' },
+        lore:  { tabResearch:'Research', tabCodex:'Codex', tabNotebooks:'📓 Notebooks', tabAchievements:'Achievements',
+                 notes:'Notes:', discovered:'Discovered:' },
+        library: { tabBooks:'📚 Books', tabRecords:'🏆 Games & Records', tabIching:'☯️ Divination', tabNews:'📜 Tidings' },
         settings: { langLabel:'🗺️ Language / Jazyk' },
         actions: {
             hunt:'Hunt', bark:'Cut', default:'Search',
@@ -7310,6 +7436,50 @@ const STRINGS_en = {
         game: {
             eat:'Eat', required:'(Required)',
             techDone:'DONE', techStudy:'Study', techRequired:'Required:',
+            noTinderbox:'Thou hast no tinderbox!',
+            fireKindled:'The hearth is kindled.',
+            needFire:'The hearth must burn first!',
+            plotLocked:'Locked! (Tech required)',
+            needHoe:'A hoe is needed!',
+            needFertilizer:'Fertilizer is needed!',
+            needSeeds:'Seeds are needed!',
+            needWater:'Water is needed!',
+            growing:'Growing...',
+            needWell:'❌ Thou must first build a well in Crafting!',
+            frozenHands:'Thy hands are too cold to work!',
+            missingMats:'Materials are wanting!',
+            notEnoughResearch:'More study is needed!',
+            notFood:'That cannot be eaten!',
+            noFood:'Thou hast none!',
+            busy:'Already occupied!',
+            quickScavenge:'Quick gather!',
+            rareFind:"⭐ Rare find: Netolický's legacy!",
+            candleBurnedOut:'The candle hath burned out.',
+            hungry:'⚠️ Hunger claimeth thee!',
+            saveExported:'💾 Save exported!',
+            saveExportFail:'❌ Export failed!',
+            saveImported:'✅ Save imported! Reloading...',
+            saveImportFail:'❌ Invalid save file!',
+            saveNoFile:'❌ No file selected!',
+            saveImportCancelled:'Import cancelled.',
+            crafted:'Discovered:',
+            required2:'Required:',
+            wellNoWell:'❌ Thou hast no well!',
+            wellBroken:'❌ The well is broken! It needeth repair.',
+            wellMurky:'⚠️ The water is murky. The well should be cleaned.',
+            wellHolyWater:'✨ Holy water hath sprung from the well!',
+            wellNotDirty:'The well is not contaminated.',
+            wellNoPowder:'❌ Purification powder is needed!',
+            wellCleaned:'✨ The well is clean once more!',
+            wellNotBroken:'The well is not broken.',
+            wellNoKit:'❌ A repair kit is needed!',
+            wellRepaired:'🔧 The well is repaired!',
+            wellAlreadyBuilt:'Thou already hast a well!',
+            wellNeedBasic:'A basic well must be built first!',
+            wellBuilt:'🚰 The well is built!',
+            wellUpgraded:'🏛️ The well hath been upgraded to stone!',
+            wellTurningGreen:'⚠️ The well water is beginning to turn.',
+            wellCollapsed:'💥 The well hath collapsed! It needeth repair.',
             noTinderbox:'Thou hast no tinderbox!',
             fireKindled:'The hearth is kindled.',
             needFire:'The hearth must burn first!',
@@ -7779,12 +7949,6 @@ const Game = {
             GameState.settings.langChosen = true;
         }
         LangSystem.apply(GameState.settings.language);
-	document.querySelectorAll('[data-i18n]').forEach(el => {
-            if(el) el.innerHTML = t(el.getAttribute('data-i18n'));
-        });
-        document.querySelectorAll('[data-i18n-title]').forEach(el => {
-            if(el) el.title = t(el.getAttribute('data-i18n-title'));
-        });
         
         // Initialize weather system FIRST (needed by auto-theme)
         WeatherSystem.init();
@@ -7898,7 +8062,7 @@ const Game = {
                     throw new Error('Invalid save!');
                 }
                 
-                if(!confirm(t('game.overwriteSave'))) {
+                if(!confirm('⚠️ Přepsat současný save?')) {
                     return;
                 }
                 
@@ -7929,7 +8093,7 @@ const Game = {
         input.click();
     },
     
-    resetSave: function() { if(confirm(t('game.confirmReset'))) { try { localStorage.removeItem('scriptorium_save_v6_4'); } 	catch(e){} location.reload(); } },
+    resetSave: function() { if(confirm("Reset?")) { try { localStorage.removeItem('scriptorium_save_v6_4'); } catch(e){} location.reload(); } },
     setVolume: function(val) { if(audioSys) audioSys.setVolume(val); },
     setTheme: function(themeName) {
         if(themeName === 'auto') {
@@ -7940,21 +8104,12 @@ const Game = {
             ThemeSystem.applyTheme(themeName);
         }
     },
-	setLanguage: function(lang) {
+    setLanguage: function(lang) {
         if (lang !== 'cs' && lang !== 'en') return;
         const prev = GameState.settings.language || 'cs';
         GameState.settings.language = lang;
         LangSystem.apply(lang);
         Game.checkEnvironment(); // Refresh fireplace/light strings
-        
-        // MAGICKÝ TRIK PRO STATICKÉ HTML
-        document.querySelectorAll('[data-i18n]').forEach(el => {
-            el.innerHTML = t(el.getAttribute('data-i18n'));
-        });
-        document.querySelectorAll('[data-i18n-title]').forEach(el => {
-            el.title = t(el.getAttribute('data-i18n-title'));
-        });
-
         UI.notify(t('notify.langSwitched'));
         Analytics.languageSwitched(prev, lang);
         Game.save();
@@ -7979,7 +8134,7 @@ const Game = {
     lightSource: function(type) {
         if (!GameState.flags.fireplaceLit) { UI.notify(t('game.needFire'), true); return; }
         let item = (type === 'candle') ? 'candle' : 'primitive_torch';
-        if (!GameState.inventory[item]) { UI.notify(t('game.missingItem').replace('{item}', ItemsDB[item].name), true); return; }
+        if (!GameState.inventory[item]) { UI.notify(`Nemáš ${ItemsDB[item].name}!`, true); return; }
         
         if (type === 'candle') { 
             GameState.flags.torchLit = false; 
@@ -7994,7 +8149,7 @@ const Game = {
         else { GameState.flags.candleLit = false; GameState.flags.torchLit = true; }
         
         this.removeItem(item, 1);
-        UI.notify(t('game.itemIgnited').replace('{item}', ItemsDB[item].name));
+        UI.notify(`${ItemsDB[item].name} zapálena.`);
         Game.save(); Game.checkEnvironment();
     },
     farmAction: function(plotIdx) {
@@ -8196,7 +8351,7 @@ const Game = {
         // Check requirements
         const action = ActionsDB.find(a => a.id === type);
         if (action && action.req && !(GameState.inventory[action.req] > 0)) { 
-            UI.notify(t('game.missingItem').replace('{item}', ItemsDB[action.req].name), true); 
+            UI.notify(`Potřebuješ ${ItemsDB[action.req].name}!`, true); 
             return; 
         }
         
@@ -8275,39 +8430,26 @@ const Game = {
         const isDark = GameState.flags.forceDark || (!TimeSys.isDaytime() && !GameState.flags.fireplaceLit && !GameState.flags.candleLit && !GameState.flags.torchLit);
         if (isDark) container.classList.add('mode-frozen');
         else container.classList.remove('mode-frozen');
-        
         const lightCard = document.getElementById('card-light-source');
         const navLore = document.getElementById('nav-lore');
         const loreOverlay = document.getElementById('lore-overlay');
         const loreWrap = document.getElementById('lore-content-wrapper');
         const btnCandle = document.getElementById('btn-light-candle');
         const btnTorch = document.getElementById('btn-light-torch');
-        const lightDesc = document.getElementById('light-desc'); // Přidáno pro popisek
-        
         lightCard.classList.remove('candle-active', 'torch-active');
         navLore.classList.remove('nav-candle-active', 'nav-torch-active');
         lightCard.style.opacity = GameState.flags.fireplaceLit ? "1" : "0.5";
-        
         if (GameState.flags.candleLit) {
-            document.getElementById('light-icon').innerText = "🕯️"; 
-            document.getElementById('light-title').innerText = t('light.candle');
-            if (lightDesc) lightDesc.innerText = t('light.candleDesc'); // Aktualizace popisku
-            navLore.classList.add('nav-candle-active'); 
-            btnCandle.style.display = 'none'; btnTorch.style.display = 'inline-block';
+            document.getElementById('light-icon').innerText = "🕯️"; document.getElementById('light-title').innerText = t('light.candle');
+            navLore.classList.add('nav-candle-active'); btnCandle.style.display = 'none'; btnTorch.style.display = 'inline-block';
             loreOverlay.style.display = 'none'; loreWrap.classList.remove('lore-darkness');
         } else if (GameState.flags.torchLit) {
-            document.getElementById('light-icon').innerText = "🔥"; 
-            document.getElementById('light-title').innerText = t('light.torch');
-            if (lightDesc) lightDesc.innerText = t('light.torchDesc'); // Aktualizace popisku
-            navLore.classList.add('nav-torch-active'); 
-            btnTorch.style.display = 'none'; btnCandle.style.display = 'inline-block';
+            document.getElementById('light-icon').innerText = "🔥"; document.getElementById('light-title').innerText = t('light.torch');
+            navLore.classList.add('nav-torch-active'); btnTorch.style.display = 'none'; btnCandle.style.display = 'inline-block';
             loreOverlay.style.display = 'none'; loreWrap.classList.remove('lore-darkness');
         } else {
-            document.getElementById('light-icon').innerText = "🌑"; 
-            document.getElementById('light-title').innerText = t('light.none');
-            if (lightDesc) lightDesc.innerText = t('light.noneDesc'); // Aktualizace popisku
-            const hasC = (GameState.inventory['candle'] || 0) > 0; 
-            const hasT = (GameState.inventory['primitive_torch'] || 0) > 0;
+            document.getElementById('light-icon').innerText = "🌑"; document.getElementById('light-title').innerText = t('light.none');
+            const hasC = (GameState.inventory['candle'] || 0) > 0; const hasT = (GameState.inventory['primitive_torch'] || 0) > 0;
             btnCandle.style.display = (GameState.flags.fireplaceLit && hasC) ? 'inline-block' : 'none';
             btnTorch.style.display = (GameState.flags.fireplaceLit && hasT) ? 'inline-block' : 'none';
             loreOverlay.style.display = 'block'; loreWrap.classList.add('lore-darkness');
@@ -8342,10 +8484,10 @@ const Game = {
         if(isFirstTime && LoreDB[id] && !GameState.discoveredLore.includes(id)) {
             GameState.discoveredLore.push(id);
             if(GameState.achievements) GameState.achievements.stats.itemsDiscovered++;
-            UI.notify(t('game.newCodexEntry'));
-            setTimeout(() => UI.notify(t('game.itemAdded').replace('{qty}', qty).replace('{item}', ItemsDB[id].name)), 500);
+            UI.notify(`📖 ${(typeof GameState !== 'undefined' && GameState.settings && GameState.settings.language === 'en') ? 'New entry in the Codex!' : 'Nový zápis v Codexu!'}`);
+            setTimeout(() => UI.notify(`+${qty} ${iName(id)}`), 500);
         } else {
-            UI.notify(t('game.itemAdded').replace('{qty}', qty).replace('{item}', ItemsDB[id].name));
+            UI.notify(`+${qty} ${iName(id)}`);
         }
         
         Game.save(); Game.checkEnvironment(); UI.renderAll();
@@ -8362,7 +8504,7 @@ const Game = {
         if(!GameState.flags.fireplaceLit && !r.blind) { UI.notify(t('game.frozenHands'), true); return; }
         for(let [item, amt] of Object.entries(r.req)) {
             if(amt > 0 && (!GameState.inventory[item] || GameState.inventory[item] < amt)) { UI.notify(t('game.missingMats'), true); return; }
-            if(amt === 0 && !GameState.inventory[item]) { UI.notify(`${t('game.required2')} ${ItemsDB[item].name}`, true); return; }
+            if(amt === 0 && !GameState.inventory[item]) { UI.notify(`${t('game.required2')} ${iName(item)}`, true); return; }
         }
         for(let [item, amt] of Object.entries(r.req)) if(amt > 0) this.removeItem(item, amt);
         this.addItem(r.output, r.qty);
@@ -8384,7 +8526,13 @@ const Game = {
             if (Math.random() < chance) {
                 this.removeItem(r.output, r.qty); // ukradne výstup
                 Analytics.titivillusStruck(r.output, isNight && noLight);
-                const quotes = t('titivillus');
+                const quotes = [
+                    '👿 Titivillus byl zde. Zápisek zmizl.',
+                    '👿 "Scripsi totum..." — ale Titivillus vzal výsledek.',
+                    '👿 Inkoust je řídký. Písmeno zmizlo do jeho pytle.',
+                    '👿 Titivillus sbírá chyby pro ďábla. Dnes i tvoji.',
+                    '👿 "Est mihi causa mali..." Chyba tvá, zisk jeho.',
+                ];
                 UI.notify(quotes[Math.floor(Math.random() * quotes.length)], true);
                 Game.save(); UI.renderAll();
                 return;
@@ -8403,7 +8551,7 @@ const Game = {
             const missing = tech.requires.find(req => !GameState.researchedTechs.includes(req));
             if(missing) {
                 const reqTech = TechTree.find(x => x.id === missing);
-                UI.notify(`${t('game.techRequired')} ${reqTech.name}`, true); 
+                UI.notify(`${t('game.techRequired')} ${tName(reqTech.id)}`, true); 
                 return;
             }
         }
@@ -8418,7 +8566,7 @@ const Game = {
             GameState.garden[3].locked = false;
         }
         
-        UI.notify(`${t('game.crafted')} ${tech.name}`);
+        UI.notify(`${t('game.crafted')} ${tName(tech.id)}`);
         Game.save(); UI.renderAll(); Game.checkEnvironment();
         Game.checkAchievements();
 
@@ -8451,7 +8599,7 @@ const Game = {
         }
         
         const bonusText = GameState.researchedTechs.includes('tech_preservation') ? ' (2x konzervace!)' : '';
-        UI.notify(t('game.fed').replace('{hours}', hungerHours).replace('{bonus}', bonusText));
+        UI.notify(`Nasycen na ${hungerHours}h${bonusText}`);
         Game.save();
         UI.renderAll();
     },
@@ -8587,7 +8735,7 @@ const Game = {
 		// Check tool
 		const tool = useBucket ? "bucket" : "cooking_pot";
 		if (!GameState.inventory[tool] || GameState.inventory[tool] <= 0) {
-			UI.notify(t('game.needItemAmt').replace('{amt}', 1).replace('{item}', ItemsDB[tool].name), true);
+			UI.notify(`❌ Potřebuješ ${ItemsDB[tool].name}!`, true);
 			return;
 		}
 		
@@ -8608,7 +8756,7 @@ const Game = {
 			UI.notify(t('game.wellHolyWater'));
 		} else {
 			this.addItem("water", waterAmount);
-			UI.notify(t('game.waterDrawn').replace('{amt}', waterAmount));
+			UI.notify(`🚰 +${waterAmount} voda`);
 		}
 		
 		// Degradace check
@@ -8692,7 +8840,7 @@ const Game = {
 			
 			for (let [item, amt] of Object.entries(cost)) {
 				if (!GameState.inventory[item] || GameState.inventory[item] < amt) {
-					UI.notify(t('game.needItemAmt').replace('{amt}', amt).replace('{item}', ItemsDB[item].name), true);
+					UI.notify(`❌ Potřebuješ ${amt}x ${ItemsDB[item].name}!`, true);
 					return;
 				}
 			}
@@ -8717,7 +8865,7 @@ const Game = {
 			
 			for (let [item, amt] of Object.entries(cost)) {
 				if (!GameState.inventory[item] || GameState.inventory[item] < amt) {
-					UI.notify(t('game.needItemAmt').replace('{amt}', amt).replace('{item}', ItemsDB[item].name), true);
+					UI.notify(`❌ Potřebuješ ${amt}x ${ItemsDB[item].name}!`, true);
 					return;
 				}
 			}
@@ -8804,7 +8952,7 @@ const Game = {
 			document.body.removeChild(a);
 			URL.revokeObjectURL(url);
 			
-			UI.notify(t('game.saveExportedFile').replace('{file}', filename));
+			UI.notify(`💾 Save exportován: ${filename}`);
 		} catch(e) {
 			UI.notify(t('game.saveExportFail'), true);
 			console.error('Export error:', e);
@@ -8830,7 +8978,7 @@ const Game = {
 				}
 				
 				// Confirm before overwriting
-				if (!confirm(t('game.overwriteSave'))) {
+				if (!confirm("⚠️ VAROVÁNÍ: Toto přepíše tvůj současný save!\n\nPokračovat?")) {
 					UI.notify(t('game.saveImportCancelled'));
 					return;
 				}
@@ -8845,19 +8993,19 @@ const Game = {
 				UI.renderAll();
 				Game.checkEnvironment();
 				
-				UI.notify(t('game.successImport'));
+				UI.notify("✅ Save importován! Refresh pro jistotu.");
 				
 				// Auto-refresh after 2 seconds
 				setTimeout(() => location.reload(), 2000);
 				
 			} catch(e) {
-				UI.notify(t('game.errorImport'), true);
+				UI.notify("❌ Chyba při importu!", true);
 				console.error('Import error:', e);
 			}
 		};
 		
 		reader.onerror = function() {
-			UI.notify(t('game.errorRead'), true);
+			UI.notify("❌ Nelze přečíst soubor!", true);
 		};
 		
 		reader.readAsText(file);
@@ -8880,6 +9028,8 @@ const Game = {
 	},
 	
 };
+
+
 // ═══ src/core/ui.js ═══
 const UI = {
     currentInvFilter: 'all',
@@ -9240,7 +9390,7 @@ renderActions: function() {
 		el.innerHTML = h;
 	},
 
-renderLibrary: function() {
+    renderLibrary: function() {
         const el = document.getElementById('library-books-content');
         
         // Check unlocks
@@ -9254,28 +9404,28 @@ renderLibrary: function() {
         
         let h = `
             <div style="text-align:center;margin-bottom:15px;border:1px solid var(--accent-gold);padding:10px;">
-                📚 ${t('library_lore.lib_title')}: <strong>${unlocked}/${total}</strong> ${t('library_lore.lib_unlocked')} | 
-                📖 ${t('library_lore.lib_read')}: <strong>${read}/${total}</strong>
+                📚 Knihovna: <strong>${unlocked}/${total}</strong> odemčeno | 
+                📖 Přečteno: <strong>${read}/${total}</strong>
             </div>
             
             <div style="margin-bottom:20px;padding:15px;background:var(--bg-card);border:1px solid var(--border-color);border-radius:5px;">
                 <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
                     <div style="font-size:2rem;">🖋️</div>
                     <div style="flex:1;">
-                        <strong>${t('library_lore.npc_scribe.name')}</strong>
+                        <strong>Starý Písař</strong>
                         <div class="text-sm" style="color:var(--ink-secondary);">
                             "Za 3x Papír ti odkryji jednu knihu předčasně..."
                         </div>
                     </div>
                     <button class="craft-btn" onclick="LibraryHelpers.scribeTrade()">
-                        ${t('library_lore.npc_scribe.opt_trade')}
+                        Obchod (3x 📄)
                     </button>
                 </div>
             </div>
         `;
         
         if(typeof LibraryDB === 'undefined' || typeof GameState.library === 'undefined') {
-            el.innerHTML = h + `<p>${t('library_lore.lib_not_avail')}</p>`;
+            el.innerHTML = h + '<p>Knihovna není dostupná.</p>';
             return;
         }
         
@@ -9283,11 +9433,10 @@ renderLibrary: function() {
         Object.entries(LibraryDB.categories).forEach(([catId, catData]) => {
             const books = LibraryDB.books.filter(b => b.category === catId);
             const unlockedInCat = books.filter(b => GameState.library.unlockedBooks.includes(b.id));
-            const catName = t(`library_lore.categories.${catId}`); // Získáme přeložený název kategorie
             
             h += `<div style="margin-top:20px;">`;
             h += `<h3 style="color:var(--accent-gold);border-bottom:2px solid var(--accent-gold);padding-bottom:5px;">
-                    ${catData.icon} ${catName} (${unlockedInCat.length}/${books.length})
+                    ${catData.icon} ${catData.name} (${unlockedInCat.length}/${books.length})
                   </h3>`;
             
             books.forEach(book => {
@@ -9295,20 +9444,17 @@ renderLibrary: function() {
                 const isRead = GameState.library.readBooks.includes(book.id);
                 
                 if (isUnlocked) {
-                    const bookTitle = t(`library_lore.books.${book.id}.title`);
-                    const bookAuthor = t(`library_lore.books.${book.id}.author`);
-                    
                     h += `
                         <div class="card" style="border-color:${isRead?'var(--accent-gold)':'var(--ink-secondary)'};">
                             <div class="item-icon" style="background:${isRead?'#c5a059':'#e8dec0'}">
                                 ${book.icon}
                             </div>
                             <div style="flex:1;">
-                                <strong>${bookTitle}</strong> ${isRead?'✓':''}
-                                <div class="text-sm">${bookAuthor} (${book.year})</div>
+                                <strong>${book.title}</strong> ${isRead?'✓':''}
+                                <div class="text-sm">${book.author} (${book.year})</div>
                             </div>
                             <button class="craft-btn" onclick="LibraryHelpers.readBook('${book.id}')">
-                                ${isRead ? t('library_lore.btn_read_again') : t('library_lore.btn_read')}
+                                ${isRead?'Přečíst znovu':'Číst'}
                             </button>
                         </div>
                     `;
@@ -9322,7 +9468,7 @@ renderLibrary: function() {
                             <div class="item-icon" style="background:#666;">🔒</div>
                             <div style="flex:1;">
                                 <strong>???</strong>
-                                <div class="text-sm">${t('library_lore.lib_unlocks_in')} ${daysToUnlock} ${t('library_lore.lib_days')}</div>
+                                <div class="text-sm">Odemkne se za ${daysToUnlock} dní</div>
                             </div>
                         </div>
                     `;
@@ -9334,7 +9480,7 @@ renderLibrary: function() {
         
         el.innerHTML = h;
     },
-showBookModal: function(book) {
+    showBookModal: function(book) {
         const modal = document.createElement('div');
         modal.style.cssText = `
             position: fixed;
@@ -9349,11 +9495,6 @@ showBookModal: function(book) {
             z-index: 10000;
             padding: 20px;
         `;
-        
-        const bookTitle = t(`library_lore.books.${book.id}.title`);
-        const bookAuthor = t(`library_lore.books.${book.id}.author`);
-        // Pro content použijeme marked() pro parsování markdownu, pokud to knihovna umožňuje, jinak jen innerHTML
-        const bookContent = t(`library_lore.books.${book.id}.content`);
         
         modal.innerHTML = `
             <div style="
@@ -9374,9 +9515,9 @@ showBookModal: function(book) {
                 
                 <div style="text-align:center;margin-bottom:20px;">
                     <div style="font-size:3rem;margin-bottom:10px;">${book.icon}</div>
-                    <h2 style="margin:0;color:var(--accent-gold);">${bookTitle}</h2>
+                    <h2 style="margin:0;color:var(--accent-gold);">${book.title}</h2>
                     <div style="color:var(--ink-secondary);margin-top:5px;">
-                        ${bookAuthor} | ${book.year}
+                        ${book.author} | ${book.year}
                     </div>
                 </div>
                 
@@ -9386,7 +9527,7 @@ showBookModal: function(book) {
                     line-height: 1.8;
                     white-space: pre-wrap;
                 ">
-                    ${bookContent}
+                    ${book.content}
                 </div>
 
                 ${(() => {

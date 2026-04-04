@@ -12,53 +12,8 @@ const STRINGS_cs = {
         light: {
             none:'Není světlo', noneDesc:'Tma halí knihy.',
             candle:'Svíčka (Hoří)', torch:'Louč (Praská)',
-	    candleDesc: 'Malý, ale stálý plamen.',
-	    torchDesc: 'Kouří a prská, ale svítí jasně.',
             btnTorch:'ZAPÁLIT LOUČ', btnCandle:'ZAPÁLIT SVÍČKU'
         },
-header: {
-        weatherNow: 'Aktuálně v Praze (klikni pro refresh)',
-        weatherTomorrow: 'Předpověď na zítra',
-        hunger: 'Hlad',
-        streak: 'Denní streak',
-        research: 'Počet Research',
-        settings: 'Nastavení'
-    },
-    wellUI: {
-        title: '🚰 Správa Studny',
-        notBuilt: 'Nemáš studnu. Můžeš ji postavit níže.',
-        buildBasic: '🏗️ Postavit studnu (20 kámen, 10 větev, 3 provaz)',
-        level: 'Úroveň:',
-        condition: 'Stav:',
-        clean: '✨ Vyčistit (prášek)',
-        repair: '🔧 Opravit (sada)',
-        upgrade: '🏛️ Vyzdít kamenem (30 kámen, 5 provaz, 10 uhel)'
-    },
-    settingsUI: {
-        volume: 'Hlasitost',
-        theme: '🎨 Téma',
-        themeClassic: 'Klasické Pergamen',
-        themeDark: 'Temný Mód 🌙',
-        themeSpring: 'Jaro 🌸',
-        themeSummer: 'Léto ☀️',
-        themeAutumn: 'Podzim 🍂',
-        themeWinter: 'Zima ❄️',
-        themeAuto: 'Automaticky (počasí) 🌦️',
-        themeAutoDesc: 'Automatické téma se přizpůsobí aktuálnímu počasí v Praze.',
-        reset: 'Reset',
-        resetDesc: 'Smaže postup (v6.4).',
-        resetBtn: 'Smazat',
-        backup: '💾 Záloha Save',
-        backupDesc: 'Exportuj save jako zálohu nebo přenes na jiné zařízení.',
-        downloadSave: '📥 Stáhnout Save',
-        uploadSave: '📤 Nahrát Save',
-        resetGame: '🗑️ Resetovat Hru',
-        backupWarning: '⚠️ Před velkými změnami doporučujeme stáhnout zálohu!',
-        about: 'O hře',
-        aboutDesc: 'Verze, changelog a credits',
-        showBtn: 'Zobrazit',
-        footerMadeIn: 'Vyvíjeno s ❤️ v Novém Boru by Ondrex'
-    },
         craft: { filterAll:'Vše', filterMat:'Materiály', filterFood:'Jídlo', filterAlchemy:'Alchymie', filterLore:'Vědění', btn:'Výroba' },
         inv:   { filterAll:'Vše', filterMat:'Suroviny', filterTool:'Nástroje', filterLore:'Ostatní' },
         settings: { langLabel:'🗺️ Jazyk / Language' },
@@ -68,13 +23,6 @@ header: {
             quick:'Rychle!', quickDesc:'Ruční sběr',
             done:'Hotovo!', waiting:'Čekám...', remaining:'Zbývá:'
         },
-	titivillus: [
- 	   '👿 Titivillus byl zde. Zápisek zmizel.',
-	    '👿 "Scripsi totum..." — ale Titivillus vzal výsledek.',
-	    '👿 Inkoust je řídký. Písmeno zmizelo do jeho pytle.',
-	    '👿 Titivillus sbírá chyby pro ďábla. Dnes i tvoje.',
-	    '👿 "Est mihi causa mali..." Chyba tvá, zisk jeho.'
-	],
         game: {
             eat:'Sníst', required:'(Nutné)',
             techDone:'HOTOVO', techStudy:'Studovat', techRequired:'Nutné:',
@@ -101,19 +49,6 @@ header: {
             saveExported:'💾 Save exportován!',
             saveExportFail:'❌ Export selhal!',
             saveImported:'✅ Save importován! Reloaduji...',
-	    waterDrawn: '🚰 +{amt} voda',
-	    needItemAmt: '❌ Potřebuješ {amt}x {item}!',
-	    missingItem: 'Nemáš {item}!',
-	    itemIgnited: '{item} zapálena.',
-	    fed: 'Nasycen na {hours}h{bonus}',
-	    itemAdded: '+{qty} {item}',
-	    saveExportedFile: '💾 Save exportován: {file}',
-	    overwriteSave: '⚠️ VAROVÁNÍ: Toto přepíše tvůj současný save!\n\nPokračovat?',
-	    confirmReset: 'Opravdu chceš nenávratně smazat celý svůj postup a resetovat hru?',
-	    newCodexEntry: '📖 Nový zápis v Codexu!',
-	    errorImport: '❌ Chyba při importu!',
-	    errorRead: '❌ Nelze přečíst soubor!',
-	    successImport: '✅ Save importován! Refresh pro jistotu.',
             saveImportFail:'❌ Neplatný save file!'
         },
         notify: {
