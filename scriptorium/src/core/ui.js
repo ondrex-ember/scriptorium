@@ -322,40 +322,40 @@ renderActions: function() {
 	},
 
 	renderLibraryNews: function() {
-		const el = document.getElementById('library-news-content');
-		if (!el) return;
-		const day = GameState.library ? Math.floor((Date.now() - new Date(GameState.library.startDate).getTime()) / 86400000) : 0;
+        const el = document.getElementById('library-news-content');
+        if (!el) return;
+        const day = GameState.library ? Math.floor((Date.now() - new Date(GameState.library.startDate).getTime()) / 86400000) : 0;
 
-		// Narativní kotvy pro volbu role — rostou postupně s dny
-		const newsItems = [
-			{ minDay: 0,  icon: '✉️', from: 'Starý Písař', text: 'Víš, že v klášteře za kopcem opisují celé noci? Prý mají pergamen z vlastních ovcí.' },
-			{ minDay: 3,  icon: '📜', from: 'Neznámý',     text: 'Byl jsem v refektáři. Četli tam rukopis který nikdo z nás nikdy neviděl. Říkali mu Regula.' },
-			{ minDay: 7,  icon: '✉️', from: 'Starý Písař', text: 'Hledají zkušeného písaře do kláštera sv. Prokopa. Práce pro Boha, ne pro trh. Přemýšlím.' },
-			{ minDay: 10, icon: '🔔', from: 'Z kláštera',  text: 'Slyšel jsi ranní zvony? Oni píší od Matutina. My píšeme jen za denního světla. Možná nám něco uniká.' },
-			{ minDay: 15, icon: '📜', from: 'Neznámý',     text: 'Zákazník přinesl stránku z Mohuče. Říká tomu Druk. Rychlé. Bez duše. Ale levné.' },
-			{ minDay: 20, icon: '✉️', from: 'Starý Písař', text: 'Přišel za mnou bratr z kláštera. Nabídl výměnu — naše papíry za jejich pergamen. Dobrý obchod?' },
-			{ minDay: 25, icon: '🔔', from: 'Z kláštera',  text: 'Opat hledá písaře který zná galický inkoust. Prý pro zvláštní zakázku. Biskupa.' },
-			{ minDay: 28, icon: '✉️', from: 'Starý Písař', text: 'Rozhodl ses kdo jsi? Řemeslník — nebo služebník? Obě cesty jsou čestné. Ale nejsou stejné.' },
-		].filter(n => day >= n.minDay);
+        // Narativní kotvy pro volbu role — rostou postupně s dny (tažené přes t() funkci)
+        const newsItems = [
+            { minDay: 0,  icon: '✉️', from: t('tidings.senders.scribe'),    text: t('tidings.news_0') },
+            { minDay: 3,  icon: '📜', from: t('tidings.senders.unknown'),   text: t('tidings.news_3') },
+            { minDay: 7,  icon: '✉️', from: t('tidings.senders.scribe'),    text: t('tidings.news_7') },
+            { minDay: 10, icon: '🔔', from: t('tidings.senders.monastery'), text: t('tidings.news_10') },
+            { minDay: 15, icon: '📜', from: t('tidings.senders.unknown'),   text: t('tidings.news_15') },
+            { minDay: 20, icon: '✉️', from: t('tidings.senders.scribe'),    text: t('tidings.news_20') },
+            { minDay: 25, icon: '🔔', from: t('tidings.senders.monastery'), text: t('tidings.news_25') },
+            { minDay: 28, icon: '✉️', from: t('tidings.senders.scribe'),    text: t('tidings.news_28') },
+        ].filter(n => day >= n.minDay);
 
-		if (newsItems.length === 0) {
-			el.innerHTML = `<div style="text-align:center;padding:30px;opacity:0.6;">
-				<div style="font-size:2rem;">📭</div>
-				<p>Zatím žádné zprávy. Pokračuj v práci.</p>
-			</div>`;
-			return;
-		}
+        if (newsItems.length === 0) {
+            el.innerHTML = `<div style="text-align:center;padding:30px;opacity:0.6;">
+                <div style="font-size:2rem;">📭</div>
+                <p>${t('tidings.empty')}</p>
+            </div>`;
+            return;
+        }
 
-		let h = `<div style="margin-bottom:10px;font-style:italic;opacity:0.7;font-size:0.85rem;">Dopisy a zprávy které přišly do skriptoria...</div>`;
-		// Nejnovější nahoře
-		[...newsItems].reverse().forEach(n => {
-			h += `<div style="margin-bottom:12px;padding:12px;background:var(--bg-card);border:1px solid var(--border-color);border-radius:4px;">
-				<div style="font-size:0.75rem;opacity:0.6;margin-bottom:4px;">${n.icon} Od: <strong>${n.from}</strong></div>
-				<div style="font-size:0.9rem;font-style:italic;">"${n.text}"</div>
-			</div>`;
-		});
-		el.innerHTML = h;
-	},
+        let h = `<div style="margin-bottom:10px;font-style:italic;opacity:0.7;font-size:0.85rem;">${t('tidings.subtitle')}</div>`;
+        // Nejnovější nahoře
+        [...newsItems].reverse().forEach(n => {
+            h += `<div style="margin-bottom:12px;padding:12px;background:var(--bg-card);border:1px solid var(--border-color);border-radius:4px;">
+                <div style="font-size:0.75rem;opacity:0.6;margin-bottom:4px;">${n.icon} ${t('tidings.from')} <strong>${n.from}</strong></div>
+                <div style="font-size:0.9rem;font-style:italic;">"${n.text}"</div>
+            </div>`;
+        });
+        el.innerHTML = h;
+    },
 
 renderLibrary: function() {
         const el = document.getElementById('library-books-content');

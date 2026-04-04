@@ -310,4 +310,23 @@ time: {
         notified: 'Thy belly rumbles. Thou art starving!'
     },
     // candleBurnedOut: 'Thy candle hath burned out.',
+
+tidings: {
+        empty: "No tidings as yet. Resume thy work.",
+        subtitle: "Letters and tidings that have reached the scriptorium...",
+        from: "From:",
+        senders: {
+            scribe: "The Elder Scribe",
+            unknown: "Unknown",
+            monastery: "From the Monastery"
+        },
+        news_0: "Knowest thou that in the monastery o'er the hill they scribe through the night? 'Tis said they have vellum from their own flock.",
+        news_3: "I was in the refectory. They read a manuscript none of us had ever laid eyes upon. They called it the Regula.",
+        news_7: "They seek an experienced scribe for the Monastery of St. Procopius. Labor for God, not the market. I ponder on it.",
+        news_10: "Hast thou heard the morning bells? They scribe since Matins. We write only by daylight. Perchance we miss something.",
+        news_15: "A patron brought a leaf from Mainz. He calleth it 'Print'. Swift. Soulless. Yet cheap.",
+        news_20: "A brother from the monastery approached me. He offered a trade — our paper for their vellum. A fair bargain?",
+        news_25: "The abbot seeketh a scribe who knoweth gall ink. For a special commission, 'tis said. From the bishop.",
+        news_28: "Hast thou decided who thou art? A craftsman — or a servant? Both paths are honorable. But they are not the same."
+    },
 };

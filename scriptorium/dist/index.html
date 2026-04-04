@@ -7503,6 +7503,25 @@ time: {
         starving: 'HLADOVÝ!',
         notified: 'Tvé břicho kručí. Jsi hladový!'
     },
+
+tidings: {
+        empty: "Zatím žádné zprávy. Pokračuj v práci.",
+        subtitle: "Dopisy a zprávy, které přišly do skriptoria...",
+        from: "Od:",
+        senders: {
+            scribe: "Starý Písař",
+            unknown: "Neznámý",
+            monastery: "Z kláštera"
+        },
+        news_0: "Víš, že v klášteře za kopcem opisují celé noci? Prý mají pergamen z vlastních ovcí.",
+        news_3: "Byl jsem v refektáři. Četli tam rukopis, který nikdo z nás nikdy neviděl. Říkali mu Regula.",
+        news_7: "Hledají zkušeného písaře do kláštera sv. Prokopa. Práce pro Boha, ne pro trh. Přemýšlím.",
+        news_10: "Slyšel jsi ranní zvony? Oni píší od Matutina. My píšeme jen za denního světla. Možná nám něco uniká.",
+        news_15: "Zákazník přinesl stránku z Mohuče. Říká tomu Druk. Rychlé. Bez duše. Ale levné.",
+        news_20: "Přišel za mnou bratr z kláštera. Nabídl výměnu — naše papíry za jejich pergamen. Dobrý obchod?",
+        news_25: "Opat hledá písaře, který zná galický inkoust. Prý pro zvláštní zakázku. Biskupa.",
+        news_28: "Rozhodl ses, kdo jsi? Řemeslník — nebo služebník? Obě cesty jsou čestné. Ale nejsou stejné."
+    },
 };
 
 // ═══ src/i18n/en.js ═══
@@ -7818,6 +7837,25 @@ time: {
         notified: 'Thy belly rumbles. Thou art starving!'
     },
     // candleBurnedOut: 'Thy candle hath burned out.',
+
+tidings: {
+        empty: "No tidings as yet. Resume thy work.",
+        subtitle: "Letters and tidings that have reached the scriptorium...",
+        from: "From:",
+        senders: {
+            scribe: "The Elder Scribe",
+            unknown: "Unknown",
+            monastery: "From the Monastery"
+        },
+        news_0: "Knowest thou that in the monastery o'er the hill they scribe through the night? 'Tis said they have vellum from their own flock.",
+        news_3: "I was in the refectory. They read a manuscript none of us had ever laid eyes upon. They called it the Regula.",
+        news_7: "They seek an experienced scribe for the Monastery of St. Procopius. Labor for God, not the market. I ponder on it.",
+        news_10: "Hast thou heard the morning bells? They scribe since Matins. We write only by daylight. Perchance we miss something.",
+        news_15: "A patron brought a leaf from Mainz. He calleth it 'Print'. Swift. Soulless. Yet cheap.",
+        news_20: "A brother from the monastery approached me. He offered a trade — our paper for their vellum. A fair bargain?",
+        news_25: "The abbot seeketh a scribe who knoweth gall ink. For a special commission, 'tis said. From the bishop.",
+        news_28: "Hast thou decided who thou art? A craftsman — or a servant? Both paths are honorable. But they are not the same."
+    },
 };
 
 // ═══ src/i18n/strings.js ═══
@@ -9648,40 +9686,40 @@ renderActions: function() {
 	},
 
 	renderLibraryNews: function() {
-		const el = document.getElementById('library-news-content');
-		if (!el) return;
-		const day = GameState.library ? Math.floor((Date.now() - new Date(GameState.library.startDate).getTime()) / 86400000) : 0;
+        const el = document.getElementById('library-news-content');
+        if (!el) return;
+        const day = GameState.library ? Math.floor((Date.now() - new Date(GameState.library.startDate).getTime()) / 86400000) : 0;
 
-		// Narativní kotvy pro volbu role — rostou postupně s dny
-		const newsItems = [
-			{ minDay: 0,  icon: '✉️', from: 'Starý Písař', text: 'Víš, že v klášteře za kopcem opisují celé noci? Prý mají pergamen z vlastních ovcí.' },
-			{ minDay: 3,  icon: '📜', from: 'Neznámý',     text: 'Byl jsem v refektáři. Četli tam rukopis který nikdo z nás nikdy neviděl. Říkali mu Regula.' },
-			{ minDay: 7,  icon: '✉️', from: 'Starý Písař', text: 'Hledají zkušeného písaře do kláštera sv. Prokopa. Práce pro Boha, ne pro trh. Přemýšlím.' },
-			{ minDay: 10, icon: '🔔', from: 'Z kláštera',  text: 'Slyšel jsi ranní zvony? Oni píší od Matutina. My píšeme jen za denního světla. Možná nám něco uniká.' },
-			{ minDay: 15, icon: '📜', from: 'Neznámý',     text: 'Zákazník přinesl stránku z Mohuče. Říká tomu Druk. Rychlé. Bez duše. Ale levné.' },
-			{ minDay: 20, icon: '✉️', from: 'Starý Písař', text: 'Přišel za mnou bratr z kláštera. Nabídl výměnu — naše papíry za jejich pergamen. Dobrý obchod?' },
-			{ minDay: 25, icon: '🔔', from: 'Z kláštera',  text: 'Opat hledá písaře který zná galický inkoust. Prý pro zvláštní zakázku. Biskupa.' },
-			{ minDay: 28, icon: '✉️', from: 'Starý Písař', text: 'Rozhodl ses kdo jsi? Řemeslník — nebo služebník? Obě cesty jsou čestné. Ale nejsou stejné.' },
-		].filter(n => day >= n.minDay);
+        // Narativní kotvy pro volbu role — rostou postupně s dny (tažené přes t() funkci)
+        const newsItems = [
+            { minDay: 0,  icon: '✉️', from: t('tidings.senders.scribe'),    text: t('tidings.news_0') },
+            { minDay: 3,  icon: '📜', from: t('tidings.senders.unknown'),   text: t('tidings.news_3') },
+            { minDay: 7,  icon: '✉️', from: t('tidings.senders.scribe'),    text: t('tidings.news_7') },
+            { minDay: 10, icon: '🔔', from: t('tidings.senders.monastery'), text: t('tidings.news_10') },
+            { minDay: 15, icon: '📜', from: t('tidings.senders.unknown'),   text: t('tidings.news_15') },
+            { minDay: 20, icon: '✉️', from: t('tidings.senders.scribe'),    text: t('tidings.news_20') },
+            { minDay: 25, icon: '🔔', from: t('tidings.senders.monastery'), text: t('tidings.news_25') },
+            { minDay: 28, icon: '✉️', from: t('tidings.senders.scribe'),    text: t('tidings.news_28') },
+        ].filter(n => day >= n.minDay);
 
-		if (newsItems.length === 0) {
-			el.innerHTML = `<div style="text-align:center;padding:30px;opacity:0.6;">
-				<div style="font-size:2rem;">📭</div>
-				<p>Zatím žádné zprávy. Pokračuj v práci.</p>
-			</div>`;
-			return;
-		}
+        if (newsItems.length === 0) {
+            el.innerHTML = `<div style="text-align:center;padding:30px;opacity:0.6;">
+                <div style="font-size:2rem;">📭</div>
+                <p>${t('tidings.empty')}</p>
+            </div>`;
+            return;
+        }
 
-		let h = `<div style="margin-bottom:10px;font-style:italic;opacity:0.7;font-size:0.85rem;">Dopisy a zprávy které přišly do skriptoria...</div>`;
-		// Nejnovější nahoře
-		[...newsItems].reverse().forEach(n => {
-			h += `<div style="margin-bottom:12px;padding:12px;background:var(--bg-card);border:1px solid var(--border-color);border-radius:4px;">
-				<div style="font-size:0.75rem;opacity:0.6;margin-bottom:4px;">${n.icon} Od: <strong>${n.from}</strong></div>
-				<div style="font-size:0.9rem;font-style:italic;">"${n.text}"</div>
-			</div>`;
-		});
-		el.innerHTML = h;
-	},
+        let h = `<div style="margin-bottom:10px;font-style:italic;opacity:0.7;font-size:0.85rem;">${t('tidings.subtitle')}</div>`;
+        // Nejnovější nahoře
+        [...newsItems].reverse().forEach(n => {
+            h += `<div style="margin-bottom:12px;padding:12px;background:var(--bg-card);border:1px solid var(--border-color);border-radius:4px;">
+                <div style="font-size:0.75rem;opacity:0.6;margin-bottom:4px;">${n.icon} ${t('tidings.from')} <strong>${n.from}</strong></div>
+                <div style="font-size:0.9rem;font-style:italic;">"${n.text}"</div>
+            </div>`;
+        });
+        el.innerHTML = h;
+    },
 
 renderLibrary: function() {
         const el = document.getElementById('library-books-content');

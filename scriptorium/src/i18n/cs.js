@@ -309,4 +309,23 @@ time: {
         starving: 'HLADOVÝ!',
         notified: 'Tvé břicho kručí. Jsi hladový!'
     },
+
+tidings: {
+        empty: "Zatím žádné zprávy. Pokračuj v práci.",
+        subtitle: "Dopisy a zprávy, které přišly do skriptoria...",
+        from: "Od:",
+        senders: {
+            scribe: "Starý Písař",
+            unknown: "Neznámý",
+            monastery: "Z kláštera"
+        },
+        news_0: "Víš, že v klášteře za kopcem opisují celé noci? Prý mají pergamen z vlastních ovcí.",
+        news_3: "Byl jsem v refektáři. Četli tam rukopis, který nikdo z nás nikdy neviděl. Říkali mu Regula.",
+        news_7: "Hledají zkušeného písaře do kláštera sv. Prokopa. Práce pro Boha, ne pro trh. Přemýšlím.",
+        news_10: "Slyšel jsi ranní zvony? Oni píší od Matutina. My píšeme jen za denního světla. Možná nám něco uniká.",
+        news_15: "Zákazník přinesl stránku z Mohuče. Říká tomu Druk. Rychlé. Bez duše. Ale levné.",
+        news_20: "Přišel za mnou bratr z kláštera. Nabídl výměnu — naše papíry za jejich pergamen. Dobrý obchod?",
+        news_25: "Opat hledá písaře, který zná galický inkoust. Prý pro zvláštní zakázku. Biskupa.",
+        news_28: "Rozhodl ses, kdo jsi? Řemeslník — nebo služebník? Obě cesty jsou čestné. Ale nejsou stejné."
+    },
 };
