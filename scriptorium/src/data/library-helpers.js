@@ -30,10 +30,68 @@ const EasterEggsDB = {
             },
             reward: { research: 5 },
             secret: false
+        },
+		{
+            id: 'defenestrace_detective',
+            name: 'Pravda padá z okna',
+            desc: 'Zjisti, co se skutečně stalo na Pražském hradě. (Přečti knihu: Apologie stavův)',
+            icon: '🪟',
+            condition: () => GameState.library && GameState.library.readBooks.includes('book_defenestrace'),
+            reward: { research: 15, coins: 50 },
+            secret: false
+        },
+        {
+            id: 'master_of_herbs',
+            name: 'Křišťanův učeň',
+            desc: 'Kombinuj bylinářství z Mattioliho a Křišťana z Prachatic a poraz mor.',
+            icon: '🌿',
+            condition: () => {
+                if (!GameState.library) return false;
+                const required = ['book_mattioli_herbar', 'book_cerny_herbar', 'book_kristan_mor'];
+                return required.every(id => GameState.library.readBooks.includes(id));
+            },
+            reward: { item: 'mattioli_woodcut' }, // Dropne speciální item z předchozího kódu
+            secret: true
+        },
+        {
+            id: 'codex_gigas_summon',
+            name: 'Osamělá noc v Podlažicích',
+            desc: 'Napiš Codex Gigas. (Hraj hru nepřetržitě v kuse mezi půlnocí a 3:00 ráno reálného času).',
+            icon: '👹',
+            condition: () => {
+                // Tento achievement kontroluje reálný čas hráče!
+                const hour = new Date().getHours();
+                return hour >= 0 && hour < 3 && (GameState.inventory.research || 0) > 1000;
+            },
+            reward: { book: 'book_voynich' }, // Odměnou je samotný Voynichův rukopis!
+            secret: true
+        },
+        {
+            id: 'koldin_lawyer',
+            name: 'Kancléř Starého Města',
+            desc: 'Nastol řád a právo. Přečti všechny právní kodexy v knihovně.',
+            icon: '⚖️',
+            condition: () => {
+                if (!GameState.library) return false;
+                const lawBooks = ['book_rozmberk', 'book_majestas', 'book_koldin'];
+                return lawBooks.every(id => GameState.library.readBooks.includes(id));
+            },
+            reward: { coins: 300 }, // Peníze z daní a soudních poplatků
+            secret: false
         }
     ],
     
     specialItems: {
+		'mattioli_woodcut': {
+            name: 'Mattioliho dřevořez',
+            icon: '🪵',
+            type: 'lore',
+            desc: 'Původní tiskařský štoček z tvrdého hruškového dřeva k Mattioliho herbáři.',
+            rarity: 0.005,
+            lore: `Když toto staré, zčernalé dřevo otočíš proti světlu, uvidíš mistrovskou práci. Je na něm neuvěřitelně detailně vyřezán kořen mandragory. Zbytky zaschlé, drolící se tiskařské černě z roku 1562 se stále paličatě drží v těch nejjemnějších rýhách vyrytých dlátkem. 
+Kolikrát asi tento kousek dřeva tvrdě projel pod obrovským tlakem lisu Jiřího Melantricha, než byl pro své opotřebení odhozen do zaprášeného rohu dílny?`
+        },
+		
         'netolicky_legacy': {
             name: 'Netolického hořká pozůstalost',
             icon: '📜',
