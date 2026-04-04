@@ -8902,8 +8902,13 @@ const Game = {
             const elapsed = now - GameState.activeAction.startTime;
             const multiplier = GameState.activeAction.multiplier;
             let count = 0; let msg = "";
+<<<<<<< HEAD
             if (now >= GameState.activeAction.endTime) { count = multiplier; msg = t('game.done'); }
             else { const ratio = elapsed / totalDur; count = Math.floor(multiplier * ratio); msg = t('game.interrupted'); }
+=======
+            if (now >= GameState.activeAction.endTime) { count = multiplier; msg = "Hotovo!"; }
+            else { const ratio = elapsed / totalDur; count = Math.floor(multiplier * ratio); msg = "Přerušeno."; }
+>>>>>>> 13c61bfffad51a78886ddf8766734b9545b88a71
             GameState.activeAction = null;
             
             // Track action completion
@@ -8969,11 +8974,15 @@ const Game = {
                 }
                 total++;
             }
+<<<<<<< HEAD
             if(total > 0) {
             UI.notify(t('game.scavengeResult').replace('{msg}', msg).replace('{total}', total));
             } else {
             UI.notify(t('game.scavengeNothing').replace('{msg}', msg));
             }            
+=======
+            if(total > 0) UI.notify(`${msg} +${total}ks.`); else UI.notify(`${msg} Nic nestihli.`);
+>>>>>>> 13c61bfffad51a78886ddf8766734b9545b88a71
             Game.save(); UI.renderAll(); return;
         }
         if (GameState.activeAction && (type === 'basic' || type === 'nature')) {
@@ -9155,9 +9164,15 @@ const Game = {
             GameState.discoveredLore.push(id);
             if(GameState.achievements) GameState.achievements.stats.itemsDiscovered++;
             UI.notify(t('game.newCodexEntry'));
+<<<<<<< HEAD
             setTimeout(() => UI.notify(t('game.itemAdded').replace('{qty}', qty).replace('{item}', iName(id))), 500);
         } else {
             UI.notify(t('game.itemAdded').replace('{qty}', qty).replace('{item}', iName(id)));
+=======
+            setTimeout(() => UI.notify(t('game.itemAdded').replace('{qty}', qty).replace('{item}', ItemsDB[id].name)), 500);
+        } else {
+            UI.notify(t('game.itemAdded').replace('{qty}', qty).replace('{item}', ItemsDB[id].name));
+>>>>>>> 13c61bfffad51a78886ddf8766734b9545b88a71
         }
         
         Game.save(); Game.checkEnvironment(); UI.renderAll();
@@ -9174,7 +9189,11 @@ const Game = {
         if(!GameState.flags.fireplaceLit && !r.blind) { UI.notify(t('game.frozenHands'), true); return; }
         for(let [item, amt] of Object.entries(r.req)) {
             if(amt > 0 && (!GameState.inventory[item] || GameState.inventory[item] < amt)) { UI.notify(t('game.missingMats'), true); return; }
+<<<<<<< HEAD
             if(amt === 0 && !GameState.inventory[item]) { UI.notify(${t('game.required2')} ${iName(item)}, true); return; }        
+=======
+            if(amt === 0 && !GameState.inventory[item]) { UI.notify(`${t('game.required2')} ${ItemsDB[item].name}`, true); return; }
+>>>>>>> 13c61bfffad51a78886ddf8766734b9545b88a71
         }
         for(let [item, amt] of Object.entries(r.req)) if(amt > 0) this.removeItem(item, amt);
         this.addItem(r.output, r.qty);
@@ -9691,7 +9710,12 @@ const Game = {
 		input.click();
 	},
 	
+<<<<<<< HEAD
 };
+=======
+};
+>>>>>>> 13c61bfffad51a78886ddf8766734b9545b88a71
+
 // ═══ src/core/ui.js ═══
 const UI = {
     currentInvFilter: 'all',
