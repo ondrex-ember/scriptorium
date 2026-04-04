@@ -317,7 +317,189 @@ lore: {
 				Pfister did not sell his books to universities or abbots. He offered his wares directly at noisy city markets and fairs. People enthusiastically carried home beloved fables, knightly epics, and poems supplemented with pictures. Gutenberg indeed brought the technology itself, but it was precisely Pfister who brought the printed word to the masses. That is the subtle difference between a brilliant inventor and a true cultural revolutionary.
 
 				*"Gutenberg gave words a body of lead, but Pfister breathed a soul into them and sent them dancing among the common folk. Words are for learned minds, but pictures speak directly to the heart." - Notes of a Bamberg burgher*`
-            }
+            },
+			{
+            id: 'book_veleslavin',
+            title: 'The Golden Age: Daniel Adam of Veleslavín',
+            category: 'local',
+            unlockDay: 19,
+            icon: '📚',
+            author: 'A Prague Humanist and the University Annals',
+            year: 
+1590,
+            content: `**The Academick who Inherited a Printing Empire**
+
+When the mighty Typographical Magnate, Jiří Melantrich, sought a Successor, he chose not a meer Craftsman.
+He selected an elite Intellectual. Daniel Adam, a most esteemed University Professor of History, took to Wife Anna, one of Melantrich’s Daughters.
+[cite: 61] Whether 'twas a Marriage of Reason, of Interest, or of pure Love, no Soul living can affirm with Certainty!
+Yet 'tis most certain that when Daniel took Charge of his Father-in-law's vast Printing House, he transformed the same from a meer Engine of Lucre into a **veritable Centre of European Erudition**.
+[cite: 62]
+
+**A Humanist at the Press**
+
+Daniel was by no means a dry Man of Business. He was a brilliant Scholar, a tireless Translator, a gifted Poet, and a rigorous Editor, all in one Person.
+[cite: 63] His Editorial Design was prodigious. From his Presses there issued unto the Market:
+- Refined Bohemian Translations of the Antient Classicks.
+[cite: 64]
+- Monumental Polyglot Dictionaries (e.g., *Nomenclator quadrilinguis*), which conjoined Latin with the Bohemian Tongue and other Languages.
+[cite: 64]
+- Astronomical and Oeconomical Calendars for the common Folk. [cite: 64]
+- Books of Prayer and Chronicles.
+[cite: 64]
+
+His Bohemian Diction was so perfect, rich, and exquisite, that for this Epoch the Term "Veleslavínian Bohemian" is used to this Day – it became the Linguistic Standard for entire Centuries.
+**The Nobleman of Veleslavín**
+
+His immense Contribution to Culture and Commerce did not remain unrequited.
+He attained the coveted Title of Nobility and proudly changed his Name to **"Daniel Adam of Veleslavín"**.
+[cite: 65] He possessed vast Ambitions and even greater Discipline. [cite: 65] His Typographical Mark served as a Warrant for the absolute Absence of Errours.
+**Books in every Tavern**
+
+Historians say, with some Hyperbole, that it was he who, by his unwearied publishing Labours, compelled the Citizens of Prague to read, though they had at first no Desire for it.
+[cite: 66] During his Lifetime, Books flooded the whole Kingdom – they lay in clamorous Taverns, were sold at Fairs, and were even read at the Barber’s during the shearing of Beards.
+[cite: 66] Printing was no longer a Privilege, but became a daily Necessity.
+He departed this Life in the Year 1599, and although his Printing House continued, it never again reached such celestial Renown.
+[cite: 67]
+
+*"The Press doth indeed liberate the Mind, but that holdeth true only if thou first compellest that slothful Mind to read. A Book upon a Shelf is but dead Wood; a Book in Hand is a Weapon."* - Attributed to Veleslavín`
+        },
+
+
+// TIER 4 - The Fourth Week (day 22-28)
+        {
+            id: 'book_rudolf_alchemists',
+            title: 'The City of Madmen and Geniuses: Rudolph II
+and the 300 Alchymists',
+            category: 'local',
+            unlockDay: 22,
+            icon: '🔮',
+            author: 'A Secret Court Chronicle',
+            year: 1583,
+            content: `**Prague as the Occult Navel of the World**
+
+In the Year 1583, the Emperour of the Holy Roman Empire, the eccentrick and melancholy Rudolph II, 
+made a most shocking Resolution. [cite: 69] He removed the entire Imperial Court from Vienna unto Prague. [cite: 70] The City was transformed over Night.
+Rudolph, obsessed with Hermetism, the Stars, and the Occult, gathered at his Court an incredible Throng of **300 Alchymists, Magi, and Mountebanks** from all Europe.
+[cite: 70] Amongst them were the legendary Englishmen – the Scholar John Dee, who communed with Angels, and his strange Companion Edward Kelley, a Master of Illusions.
+[cite: 70]
+
+**The Secrets of the Golden Lane**
+
+Legend hath it that the small, cramped Dwellings affixed to the Walls just below the Prague Castle (the Golden Lane) served as secret Laboratories for these Masters.
+ Above the Hearths, Retorts and Crucibles bubbled Day and Night.
+All sought the *Lapis Philosophorum* – the legendary Philosophers' Stone, the Elixir of Eternal Youth, and that Substance which might transmute base Metals into pure Gold.
+ 
+
+Gold for the Emperour they never found... But in their fanatical Experiments, they unwittingly laid the Foundations of Modern Science.
+By meer Chance, they discovered:
+- The Manufacture of Oil of Vitriol (Sulphurick Acid).
+- Elementary Phosphorus, glowing in the Dark.
+
+- The Isolation of Zinc and other Compounds.
+
+**Death amongst the Stars**
+
+In this esoteric Atmosphere, the famous Danish Astronomer Tycho Brahe also lived and laboured in Prague.
+ His precise Measurements of the Stars without a Telescope move Men to Wonder even to-day.
+He died here in the Year 1601 – according to the Gossips of the Time, 'twas at a Banquet where, by Court Etiquette, he could not rise from the Table, and his Bladder burst.
+However, modern Analysis of his Beard hath revealed a more ghastly Truth: **Mercury Poisoning**, likely from his own Alchymical Elixirs, which he took for his ailing Kidneys.
+
+
+In Rudolphine Prague, the Boundary between Magick and the nascent Modern Science was blurred.
+ It was a Time distracted, perilous, but incredibly fruitful.
+
+
+*"In the Mist above the Moldau, the Veil between Dream and Reality is as thin as Parchment. We sought Gold, but found the very Composition of the Stars."* - John Dee in his Journals`
+        },
+        {
+            id: 'book_czech_glass',
+            title: 'A Fragile War: Bohemian Glassmaking vs. Venice',
+            category: 'local',
+            
+unlockDay: 25,
+            icon: '💎',
+            author: 'A Secret Master of the Glassmakers' Guild',
+            year: 'The 13th-18th
+Centuries',
+            content: `**The Secret of Forest Crystal**
+
+Few suspect that while Europe bled in Wars of Territory, there occurred in Parallel another War, much quieter yet far more lucrative – the War for Light.
+Bohemian Forest Glassmaking experienced a Flourishing since the **13th Century** and was accounted amongst the absolute finest in all Europe.
+ The Glassworks hidden deep in the frontier Forests (the Bohemian Forest, the Jizera Mountains) possessed an inexhaustible Source of Wood for the Furnaces and quality Potash from Ash, which gave Bohemian Glass its typical Purity and Hardness.
+**The Blood Diamonds of Bohemian Kings**
+
+Bohemian Glass and Gemstones were a strategick Wealth.
+For Instance, the dark red Bohemian Garnet (Pyrope) from Podsedice was so extremely prized and sought after at Courts that the Emperour Rudolph II
+utterly forbade its Export from the Land **under Pain of Death**.
+ Later, in the 18th Century, Jablonec cut Crystal and Jewellery became such a Commodity that in certain Parts of the World (e.g., in African Colonies), these Glass Pearls **served as Currency in Place of Coin**!
+ It was the primary Article of Export, which sustained entire Generations of Mountaineers.
+
+
+**Venetian Jealousy and Industrial Espionage**
+
+Our principal Rival was proud Venice.
+The Venetians for many Centuries held an absolute **Monopoly** on the Manufacture of luxurious Mirrors and delicate Glass.
+ They were so jealous of this Secret that they interned all their Glass-masters upon the isolated Island of **Murano** under Threat of draconian Punishments.
+It was a forced golden Cage – and de facto the first organised Technological Quarantine in the World.
+ Whosoever should dare to flee the Island with the Secret, against him the Authorities dispatched hired Assassinators.
+He was automatically declared a Traitor to the Republick.
+
+Notwithstanding the Assassinators, the Bohemians succeeded in obtaining the Venetian Receipts through Spies, Merchants, and Fugitives.
+We improved them by the Addition of Chalk and created the so-called *Bohemian Crystal* – Glass that was more massive, could be beautifully ground and engraved, which the thin Venetian Glass could not endure.
+The Monopoly ended, and Bohemian Dominance commenced. Glassmaking was, in Truth, not merely a Craft; it was the high-tech Industry of that Age, combining occult Alchymy with Opticks.
+
+
+*"Our Glass is frozen Light, carved from the Sweat of Forest Labourers and the Tears of Venetian Merchants."* - A Master Glass-maker of the North`
+        },
+        {
+            id: 'book_hussite_wars',
+            title: 'Ashes of Memory: The Hussite Wars and the End of Libraries',
+            category: 'local',
+            unlockDay: 28,
+       
+     icon: '🔥',
+            author: 'Laurentius de Březová',
+            year: 1419,
+            content: `**An Apocalypse of Culture and Blood**
+
+The Hussite Wars (1419–1434) were no meer local peasant Rebellion.
+They were brutal, and indeed the first truly great Religious Wars upon the Continent of Europe, which shook the very Foundations of the Western World.
+ The Toll of this Conflict was most dire – it is estimated that the Bohemian Lands lost, by Famine, Pestilence, and the Sword, up to **one Third of their entire Population**.
+
+
+**The Fire that Consumed Centuries**
+
+While the reformative Ideas of the Chalice spread a new Interpretation of the Faith, the Armies of the radical Hussites (the Taborites and Orphans) left Ruin in their Wake.
+To them, the Monasteries were Symbols of Ecclesiastical Corruption and Wealth. Yet with their pillaging and burning, the Flames devoured that which was most precious – the Monastick Libraries, those vast Treasuries of Mediaeval Erudition.
+In a few Years, Hundreds of Thousands of Pages were irrevocably burnt:
+- At Vyšší Brod, Libraries containing Thousands of rare Works were set ablaze (some Sources speak, with Hyperbole, of up to 70,000 Volumes).
+
+- At Zlatá Koruna, Thousands of hand-written and illuminated Manuscripts from all Europe were lost to the Flames.
+
+- At the Emmaus Monastery in Prague, unique Old-Slavonick Texts and Chorals were reduced to Ashes.
+
+
+**The Price of Accents and Diatriticks**
+
+The Loss of Cultural Memory was absolute.
+That which was then burnt – unknown Antient Texts, old Bohemian Chronicles, antient Medical Treatises – we shall never discover again.
+They are the vacant Places of our History. 
+
+At the Beginning of this fiery Hell stood Master John Huss (1372–1415), a charismatick Preacher burnt at Constance for Heresy.
+ Though the Teaching of Huss did not survive in its pure Form, it endured in Thought for two hundred Years until the Advent of Martin Luther.
+ Paradoxically, the most enduring Legacy of Huss is not merely religious, but linguistic.
+By his Treatise *De orthographia bohemica* (1406), he simplified the complex Orthography of Digraphs and genially reformed the Bohemian Tongue by the Introduction of **Hooks and Accents** (nabodeníčka).
+ Were it not for his linguistic Vision, we should write Names and Words as awkwardly as the Poles, heaping Consonants one after another.
+
+
+Subsequently, the newly-founded South Bohemian military City of **Tabor** (established 1420) became the Scene of a primal Social Experiment – it functioned as an early, radical "Democratical" Community, where equal Brothers and Sisters elected their Captains and Pastors, and where (at least initially) Money held no Dominion, but communal Vats were used instead.
+ 
+
+The Reformation brought to the Land an unprecedented Freedom of Thought and stood against mighty Europe, but we paid for it with the Blood of entire Generations and with Fire that consumed our Past.
+
+
+*"The Truth of God triumpheth over all, yet at the Battle's End, naught remaineth but hot Ashes and the Lamentation of Widows."* - The Motto upon the Banner of the Vanquished`
+        }
         }
     },
 time: {
