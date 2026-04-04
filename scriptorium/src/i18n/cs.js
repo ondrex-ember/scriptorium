@@ -167,14 +167,21 @@ lore: {
         tabNotebooks:'📓 Zápisníky', 
         tabAchievements:'Achievementy',
         notes:'Zápisky:', 
+	notebooks_empty: 'Zatím nemáš žádný zápisník',
+        notebooks_hint: 'Odemkni tech "Základy Psaní" (3 research) a vycrafti svou první Tabulu!',
         discovered:'Objeveno:' 
     },
     library: { 
         tabBooks:'📚 Knihy', 
         tabRecords:'🏆 Hry & Záznamy', 
         tabIching:'☯️ Věštění', 
-        tabNews:'📜 Zprávy' 
+        tabNews:'📜 Zprávy',
+	locked: 'Zamčeno',
+        divination_hint: 'Odemkni tech "Starověká Moudrost" pro přístup k věštění.',
+        records_hint: 'Odemkni tech "Hry a Záznamy" pro přístup k mini-games a statistikám.',
+        scribe_short: '"Za 3x Papír ti odkryji jednu knihu předčasně..."' 
     },
+
     library_lore: {
         new_book: "📚 Nová kniha v knihovně! ({count})",
         lib_title: "Knihovna",
@@ -327,5 +334,11 @@ tidings: {
         news_20: "Přišel za mnou bratr z kláštera. Nabídl výměnu — naše papíry za jejich pergamen. Dobrý obchod?",
         news_25: "Opat hledá písaře, který zná galický inkoust. Prý pro zvláštní zakázku. Biskupa.",
         news_28: "Rozhodl ses, kdo jsi? Řemeslník — nebo služebník? Obě cesty jsou čestné. Ale nejsou stejné."
+    },
+garden: {
+        desc: 'Pěstuj vzácné rostliny. Půda vyžaduje péči.',
+        fertilize: 'Zúrodnit',
+        locked: 'Zamčeno',
+        lockedTech: 'Tech Tree'
     },
 };

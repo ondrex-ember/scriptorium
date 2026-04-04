@@ -1191,45 +1191,44 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             <div id="workspace-actions"></div>
         </div>
 
-        <div id="screen-garden" class="screen">
+       <div id="screen-garden" class="screen">
             <h2>Zahrada</h2>
-            <p class="text-sm" style="margin-bottom:15px;">Pěstuj vzácné rostliny. Půda vyžaduje péči.</p>
+            <p id="text-garden-desc" class="text-sm" style="margin-bottom:15px;">Pěstuj vzácné rostliny. Půda vyžaduje péči.</p>
             <div id="garden-container" class="garden-grid"></div>
-			<!-- WELL MANAGEMENT -->
-		<div id="well-management" style="margin-top: 30px; padding: 20px; background: rgba(0,0,0,0.2); border-radius: 10px;">
-			<h3 data-i18n="wellUI.title">🚰 Správa Studny</h3>
-			
-			<div id="well-not-built" style="display: none;">
-				<p data-i18n="wellUI.notBuilt">Nemáš studnu. Můžeš ji postavit níže.</p>
-				<button onclick="Game.upgradeWell('basic')" class="craft-btn" style="background: #4a7c59;" data-i18n="wellUI.buildBasic">
-					🏗️ Postavit studnu (20 kámen, 10 větev, 3 provaz)
-				</button>
-			</div>
-			
-			<div id="well-built" style="display: none;">
-				<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px;">
-					<div>
-						<strong data-i18n="wellUI.level">Úroveň:</strong> <span id="well-level-text">Základní</span>
-					</div>
-					<div>
-						<strong data-i18n="wellUI.condition">Stav:</strong> <span id="well-condition-text">✓ Čistá</span>
-					</div>
-				</div>
-				
-				<div style="display: flex; gap: 10px; flex-wrap: wrap;">
-					<button onclick="Game.cleanWell()" id="btn-clean-well" class="craft-btn" style="background: #5a8dc7; display: none;" data-i18n="wellUI.clean">
-						✨ Vyčistit (prášek)
-					</button>
-					<button onclick="Game.repairWell()" id="btn-repair-well" class="craft-btn" style="background: #c75a5a; display: none;" data-i18n="wellUI.repair">
-						🔧 Opravit (sada)
-					</button>
-					<button onclick="Game.upgradeWell('stone')" id="btn-upgrade-stone" class="craft-btn" style="background: #8b6434; display: none;" data-i18n="wellUI.upgrade">
-						🏛️ Vyzdít kamenem (30 kámen, 5 provaz, 10 uhel)
-					</button>
-				</div>
-			</div>
-		</div>
+            <div id="well-management" style="margin-top: 30px; padding: 20px; background: rgba(0,0,0,0.2); border-radius: 10px;">
+            <h3 data-i18n="wellUI.title">🚰 Správa Studny</h3>
+            
+            <div id="well-not-built" style="display: none;">
+                <p data-i18n="wellUI.notBuilt">Nemáš studnu. Můžeš ji postavit níže.</p>
+                <button onclick="Game.upgradeWell('basic')" class="craft-btn" style="background: #4a7c59;" data-i18n="wellUI.buildBasic">
+                    🏗️ Postavit studnu (20 kámen, 10 větev, 3 provaz)
+                </button>
+            </div>
+            
+            <div id="well-built" style="display: none;">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px;">
+                    <div>
+                        <strong data-i18n="wellUI.level">Úroveň:</strong> <span id="well-level-text">Základní</span>
+                    </div>
+                    <div>
+                        <strong data-i18n="wellUI.condition">Stav:</strong> <span id="well-condition-text">✓ Čistá</span>
+                    </div>
+                </div>
+                
+                <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                    <button onclick="Game.cleanWell()" id="btn-clean-well" class="craft-btn" style="background: #5a8dc7; display: none;" data-i18n="wellUI.clean">
+                        ✨ Vyčistit (prášek)
+                    </button>
+                    <button onclick="Game.repairWell()" id="btn-repair-well" class="craft-btn" style="background: #c75a5a; display: none;" data-i18n="wellUI.repair">
+                        🔧 Opravit (sada)
+                    </button>
+                    <button onclick="Game.upgradeWell('stone')" id="btn-upgrade-stone" class="craft-btn" style="background: #8b6434; display: none;" data-i18n="wellUI.upgrade">
+                        🏛️ Vyzdít kamenem (30 kámen, 5 provaz, 10 uhel)
+                    </button>
+                </div>
+            </div>
         </div>
+     </div>
 
         <div id="screen-craft" class="screen">
             <h2>Dílna</h2>
@@ -7649,14 +7648,21 @@ lore: {
         tabNotebooks:'📓 Zápisníky', 
         tabAchievements:'Achievementy',
         notes:'Zápisky:', 
+	notebooks_empty: 'Zatím nemáš žádný zápisník',
+        notebooks_hint: 'Odemkni tech "Základy Psaní" (3 research) a vycrafti svou první Tabulu!',
         discovered:'Objeveno:' 
     },
     library: { 
         tabBooks:'📚 Knihy', 
         tabRecords:'🏆 Hry & Záznamy', 
         tabIching:'☯️ Věštění', 
-        tabNews:'📜 Zprávy' 
+        tabNews:'📜 Zprávy',
+	locked: 'Zamčeno',
+        divination_hint: 'Odemkni tech "Starověká Moudrost" pro přístup k věštění.',
+        records_hint: 'Odemkni tech "Hry a Záznamy" pro přístup k mini-games a statistikám.',
+        scribe_short: '"Za 3x Papír ti odkryji jednu knihu předčasně..."' 
     },
+
     library_lore: {
         new_book: "📚 Nová kniha v knihovně! ({count})",
         lib_title: "Knihovna",
@@ -7809,6 +7815,12 @@ tidings: {
         news_20: "Přišel za mnou bratr z kláštera. Nabídl výměnu — naše papíry za jejich pergamen. Dobrý obchod?",
         news_25: "Opat hledá písaře, který zná galický inkoust. Prý pro zvláštní zakázku. Biskupa.",
         news_28: "Rozhodl ses, kdo jsi? Řemeslník — nebo služebník? Obě cesty jsou čestné. Ale nejsou stejné."
+    },
+garden: {
+        desc: 'Pěstuj vzácné rostliny. Půda vyžaduje péči.',
+        fertilize: 'Zúrodnit',
+        locked: 'Zamčeno',
+        lockedTech: 'Tech Tree'
     },
 };
 
@@ -7982,13 +7994,19 @@ lore: {
         tabNotebooks:'📓 Notebooks', 
         tabAchievements:'Achievements',
         notes:'Notes:', 
-        discovered:'Discovered:' 
+        discovered:'Discovered:',
+	notebooks_empty: 'Thou hast no notebooks as yet',
+        notebooks_hint: 'Unlock the "Basics of Writing" tech (3 research) and craft thy first Tabula!' 
     },
     library: { 
         tabBooks:'📚 Books', 
         tabRecords:'🏆 Games & Records', 
         tabIching:'☯️ Divination', 
-        tabNews:'📜 Tidings' 
+        tabNews:'📜 Tidings',
+	locked: 'Locked',
+        divination_hint: 'Unlock the "Ancient Wisdom" tech to access divination.',
+        records_hint: 'Unlock the "Games and Records" tech to access mini-games and statistics.',
+        scribe_short: '"For 3x Paper, I shall reveal one tome unto thee prematurely..."' 
     },
     library_lore: {
         new_book: "📚 A new tome hath arrived! ({count})",
@@ -8143,6 +8161,13 @@ tidings: {
         news_20: "A brother from the monastery approached me. He offered a trade — our paper for their vellum. A fair bargain?",
         news_25: "The abbot seeketh a scribe who knoweth gall ink. For a special commission, 'tis said. From the bishop.",
         news_28: "Hast thou decided who thou art? A craftsman — or a servant? Both paths are honorable. But they are not the same."
+    },
+
+garden: {
+        desc: 'Cultivate rare flora. The soil requires thy care.',
+        fertilize: 'Fertilize',
+        locked: 'Locked',
+        lockedTech: 'Tech Tree'
     },
 };
 

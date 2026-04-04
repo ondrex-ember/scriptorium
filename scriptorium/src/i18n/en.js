@@ -167,13 +167,19 @@ lore: {
         tabNotebooks:'📓 Notebooks', 
         tabAchievements:'Achievements',
         notes:'Notes:', 
-        discovered:'Discovered:' 
+        discovered:'Discovered:',
+	notebooks_empty: 'Thou hast no notebooks as yet',
+        notebooks_hint: 'Unlock the "Basics of Writing" tech (3 research) and craft thy first Tabula!' 
     },
     library: { 
         tabBooks:'📚 Books', 
         tabRecords:'🏆 Games & Records', 
         tabIching:'☯️ Divination', 
-        tabNews:'📜 Tidings' 
+        tabNews:'📜 Tidings',
+	locked: 'Locked',
+        divination_hint: 'Unlock the "Ancient Wisdom" tech to access divination.',
+        records_hint: 'Unlock the "Games and Records" tech to access mini-games and statistics.',
+        scribe_short: '"For 3x Paper, I shall reveal one tome unto thee prematurely..."' 
     },
     library_lore: {
         new_book: "📚 A new tome hath arrived! ({count})",
@@ -328,5 +334,12 @@ tidings: {
         news_20: "A brother from the monastery approached me. He offered a trade — our paper for their vellum. A fair bargain?",
         news_25: "The abbot seeketh a scribe who knoweth gall ink. For a special commission, 'tis said. From the bishop.",
         news_28: "Hast thou decided who thou art? A craftsman — or a servant? Both paths are honorable. But they are not the same."
+    },
+
+garden: {
+        desc: 'Cultivate rare flora. The soil requires thy care.',
+        fertilize: 'Fertilize',
+        locked: 'Locked',
+        lockedTech: 'Tech Tree'
     },
 };
