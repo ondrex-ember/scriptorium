@@ -1291,11 +1291,11 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             </div>
         </div>
 
-        <div id="screen-settings" class="screen">
-            <h2>Nastavení</h2>
+      <div id="screen-settings" class="screen">
+            <h2 data-i18n="header.settings">Nastavení</h2>
             
             <div class="card" style="flex-direction: column; align-items: flex-start;">
-                <strong>Hlasitost</strong>
+                <strong data-i18n="settingsUI.volume">Hlasitost</strong>
                 <input type="range" id="volume-slider" min="0" max="100" value="17" oninput="Game.setVolume(this.value)">
             </div>
             
@@ -1308,78 +1308,64 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             </div>
 
             <div class="card" style="flex-direction: column; align-items: flex-start;">
-                <strong>🎨 Téma</strong>
+                <strong data-i18n="settingsUI.theme">🎨 Téma</strong>
                 <select id="theme-selector" onchange="Game.setTheme(this.value)" style="width:100%; padding:8px; margin-top:8px; font-family:'Crimson Text'; font-size:1rem; background:var(--bg-card); border:1px solid var(--border-color); color:var(--ink-primary); border-radius:3px;">
-                    <option value="default">Klasické Pergamen</option>
-                    <option value="dark">Temný Mód 🌙</option>
-                    <option value="spring">Jaro 🌸</option>
-                    <option value="summer">Léto ☀️</option>
-                    <option value="autumn">Podzim 🍂</option>
-                    <option value="winter">Zima ❄️</option>
-                    <option value="auto">Automaticky (počasí) 🌦️</option>
+                    <option value="default" data-i18n="settingsUI.themeClassic">Klasické Pergamen</option>
+                    <option value="dark" data-i18n="settingsUI.themeDark">Temný Mód 🌙</option>
+                    <option value="spring" data-i18n="settingsUI.themeSpring">Jaro 🌸</option>
+                    <option value="summer" data-i18n="settingsUI.themeSummer">Léto ☀️</option>
+                    <option value="autumn" data-i18n="settingsUI.themeAutumn">Podzim 🍂</option>
+                    <option value="winter" data-i18n="settingsUI.themeWinter">Zima ❄️</option>
+                    <option value="auto" data-i18n="settingsUI.themeAuto">Automaticky (počasí) 🌦️</option>
                 </select>
-                <div class="text-sm" style="margin-top:8px; color:var(--ink-secondary);">
+                <div class="text-sm" style="margin-top:8px; color:var(--ink-secondary);" data-i18n="settingsUI.themeAutoDesc">
                     Automatické téma se přizpůsobí aktuálnímu počasí v Praze.
                 </div>
             </div>
             
             <div class="card" style="border-color: #8a3324;">
                 <div class="item-icon" style="background: #8a3324; color: white;">⚠</div>
-                <div><strong>Reset</strong><div class="text-sm">Smaže postup (v6.4).</div></div>
-                <button class="craft-btn" onclick="Game.resetSave()">Smazat</button>
+                <div><strong data-i18n="settingsUI.reset">Reset</strong><div class="text-sm" data-i18n="settingsUI.resetDesc">Smaže postup (v6.4).</div></div>
+                <button class="craft-btn" onclick="Game.resetSave()" data-i18n="settingsUI.resetBtn">Smazat</button>
             </div>
 			
-			<!-- Přidat do settings nebo menu sekce -->
 			<div style="margin-top: 20px; padding: 15px; background: rgba(0,0,0,0.1); border-radius: 8px;">
-				<h3>💾 Záloha Save</h3>
-				<p style="font-size: 13px; color: #888; margin-bottom: 10px;">
+				<h3 data-i18n="settingsUI.backup">💾 Záloha Save</h3>
+				<p style="font-size: 13px; color: #888; margin-bottom: 10px;" data-i18n="settingsUI.backupDesc">
 					Exportuj save jako zálohu nebo přenes na jiné zařízení.
 				</p>
-				
 				<div style="display: flex; gap: 10px; flex-wrap: wrap;">
-					<button onclick="Game.exportSave()" class="craft-btn" style="background: #4a7c59;">
-						📥 Stáhnout Save
-					</button>
-					
-					<button onclick="Game.triggerImport()" class="craft-btn" style="background: #7c594a;">
-						📤 Nahrát Save
-					</button>
-					
-					<button onclick="Game.resetSave()" class="craft-btn" style="background: #c75a5a;">
-						🗑️ Resetovat Hru
-					</button>
+					<button onclick="Game.exportSave()" class="craft-btn" style="background: #4a7c59;" data-i18n="settingsUI.downloadSave">📥 Stáhnout Save</button>
+					<button onclick="Game.triggerImport()" class="craft-btn" style="background: #7c594a;" data-i18n="settingsUI.uploadSave">📤 Nahrát Save</button>
+					<button onclick="Game.resetSave()" class="craft-btn" style="background: #c75a5a;" data-i18n="settingsUI.resetGame">🗑️ Resetovat Hru</button>
 				</div>
-				
-				<p style="font-size: 11px; color: #666; margin-top: 10px;">
+				<p style="font-size: 11px; color: #666; margin-top: 10px;" data-i18n="settingsUI.backupWarning">
 					⚠️ Před velkými změnami doporučujeme stáhnout zálohu!
 				</p>
 			</div>
             
-            <!-- O HŘE BUTTON -->
             <div class="card" style="margin-top: 20px;">
                 <div class="item-icon">ℹ️</div>
                 <div style="flex: 1;">
-                    <strong>O hře</strong>
-                    <div class="text-sm">Verze, changelog a credits</div>
+                    <strong data-i18n="settingsUI.about">O hře</strong>
+                    <div class="text-sm" data-i18n="settingsUI.aboutDesc">Verze, changelog a credits</div>
                 </div>
-                <button class="craft-btn" onclick="UI.openAboutModal()">Zobrazit</button>
+                <button class="craft-btn" onclick="UI.openAboutModal()" data-i18n="settingsUI.showBtn">Zobrazit</button>
             </div>
             
-            <!-- PATIČKA -->
             <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid var(--ink-secondary); text-align: center; font-size: 0.8rem; opacity: 0.7;">
                 <div style="margin-bottom: 8px;">
 					<a href="https://www.ember-pa.cz/" target="_blank" style="color: var(--accent-gold); text-decoration: none; margin: 0 8px;">🔥 Ember PA</a> |
-					<a href="https://newsandradio.cz" target="_blank" style="color: var(--accent-gold); text-decoration: none; margin: 0 8px;">📰 Jouza News&amp;Radio 📻</a> |
+					<a href="https://newsandradio.cz" target="_blank" style="color: var(--accent-gold); text-decoration: none; margin: 0 8px;">📰 Jouza News&Radio 📻</a> |
 					<a href="https://oracoolio.com" target="_blank" style="color: var(--accent-gold); text-decoration: none; margin: 0 8px;">🔮 Oracoolio</a> |
                     <a href="https://open.spotify.com/user/ondrex?si=99fddbc102c44f73" target="_blank" style="color: var(--accent-gold); text-decoration: none; margin: 0 8px;">🎵 Spotify</a> |
                     <a href="https://ondrex-ember.github.io/doupe-2/" target="_blank" style="color: var(--accent-gold); text-decoration: none; margin: 0 8px;">👾 Doupě 2</a>
                 </div>
-                <div style="margin-top: 8px; font-style: italic;">
+                <div style="margin-top: 8px; font-style: italic;" data-i18n="settingsUI.footerMadeIn">
                     Vyvíjeno s ❤️ v Novém Boru by Ondrex
                 </div>
             </div>
         </div>
-        
         
     </main>
 
