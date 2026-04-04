@@ -235,6 +235,12 @@ const Game = {
             GameState.settings.langChosen = true;
         }
         LangSystem.apply(GameState.settings.language);
+	document.querySelectorAll('[data-i18n]').forEach(el => {
+            if(el) el.innerHTML = t(el.getAttribute('data-i18n'));
+        });
+        document.querySelectorAll('[data-i18n-title]').forEach(el => {
+            if(el) el.title = t(el.getAttribute('data-i18n-title'));
+        });
         
         // Initialize weather system FIRST (needed by auto-theme)
         WeatherSystem.init();
@@ -348,7 +354,7 @@ const Game = {
                     throw new Error('Invalid save!');
                 }
                 
-                if(!confirm('⚠️ Přepsat současný save?')) {
+                if(!confirm(t('game.overwriteSave'))) {
                     return;
                 }
                 
@@ -379,7 +385,7 @@ const Game = {
         input.click();
     },
     
-    resetSave: function() { if(confirm("Reset?")) { try { localStorage.removeItem('scriptorium_save_v6_4'); } catch(e){} location.reload(); } },
+    resetSave: function() { if(confirm(t('game.confirmReset'))) { try { localStorage.removeItem('scriptorium_save_v6_4'); } 	catch(e){} location.reload(); } },
     setVolume: function(val) { if(audioSys) audioSys.setVolume(val); },
     setTheme: function(themeName) {
         if(themeName === 'auto') {
@@ -390,12 +396,21 @@ const Game = {
             ThemeSystem.applyTheme(themeName);
         }
     },
-    setLanguage: function(lang) {
+	setLanguage: function(lang) {
         if (lang !== 'cs' && lang !== 'en') return;
         const prev = GameState.settings.language || 'cs';
         GameState.settings.language = lang;
         LangSystem.apply(lang);
         Game.checkEnvironment(); // Refresh fireplace/light strings
+        
+        // MAGICKÝ TRIK PRO STATICKÉ HTML
+        document.querySelectorAll('[data-i18n]').forEach(el => {
+            el.innerHTML = t(el.getAttribute('data-i18n'));
+        });
+        document.querySelectorAll('[data-i18n-title]').forEach(el => {
+            el.title = t(el.getAttribute('data-i18n-title'));
+        });
+
         UI.notify(t('notify.langSwitched'));
         Analytics.languageSwitched(prev, lang);
         Game.save();
@@ -420,7 +435,7 @@ const Game = {
     lightSource: function(type) {
         if (!GameState.flags.fireplaceLit) { UI.notify(t('game.needFire'), true); return; }
         let item = (type === 'candle') ? 'candle' : 'primitive_torch';
-        if (!GameState.inventory[item]) { UI.notify(`Nemáš ${ItemsDB[item].name}!`, true); return; }
+        if (!GameState.inventory[item]) { UI.notify(t('game.missingItem').replace('{item}', ItemsDB[item].name), true); return; }
         
         if (type === 'candle') { 
             GameState.flags.torchLit = false; 
@@ -435,7 +450,7 @@ const Game = {
         else { GameState.flags.candleLit = false; GameState.flags.torchLit = true; }
         
         this.removeItem(item, 1);
-        UI.notify(`${ItemsDB[item].name} zapálena.`);
+        UI.notify(t('game.itemIgnited').replace('{item}', ItemsDB[item].name));
         Game.save(); Game.checkEnvironment();
     },
     farmAction: function(plotIdx) {
@@ -637,7 +652,7 @@ const Game = {
         // Check requirements
         const action = ActionsDB.find(a => a.id === type);
         if (action && action.req && !(GameState.inventory[action.req] > 0)) { 
-            UI.notify(`Potřebuješ ${ItemsDB[action.req].name}!`, true); 
+            UI.notify(t('game.missingItem').replace('{item}', ItemsDB[action.req].name), true); 
             return; 
         }
         
@@ -716,26 +731,39 @@ const Game = {
         const isDark = GameState.flags.forceDark || (!TimeSys.isDaytime() && !GameState.flags.fireplaceLit && !GameState.flags.candleLit && !GameState.flags.torchLit);
         if (isDark) container.classList.add('mode-frozen');
         else container.classList.remove('mode-frozen');
+        
         const lightCard = document.getElementById('card-light-source');
         const navLore = document.getElementById('nav-lore');
         const loreOverlay = document.getElementById('lore-overlay');
         const loreWrap = document.getElementById('lore-content-wrapper');
         const btnCandle = document.getElementById('btn-light-candle');
         const btnTorch = document.getElementById('btn-light-torch');
+        const lightDesc = document.getElementById('light-desc'); // Přidáno pro popisek
+        
         lightCard.classList.remove('candle-active', 'torch-active');
         navLore.classList.remove('nav-candle-active', 'nav-torch-active');
         lightCard.style.opacity = GameState.flags.fireplaceLit ? "1" : "0.5";
+        
         if (GameState.flags.candleLit) {
-            document.getElementById('light-icon').innerText = "🕯️"; document.getElementById('light-title').innerText = t('light.candle');
-            navLore.classList.add('nav-candle-active'); btnCandle.style.display = 'none'; btnTorch.style.display = 'inline-block';
+            document.getElementById('light-icon').innerText = "🕯️"; 
+            document.getElementById('light-title').innerText = t('light.candle');
+            if (lightDesc) lightDesc.innerText = t('light.candleDesc'); // Aktualizace popisku
+            navLore.classList.add('nav-candle-active'); 
+            btnCandle.style.display = 'none'; btnTorch.style.display = 'inline-block';
             loreOverlay.style.display = 'none'; loreWrap.classList.remove('lore-darkness');
         } else if (GameState.flags.torchLit) {
-            document.getElementById('light-icon').innerText = "🔥"; document.getElementById('light-title').innerText = t('light.torch');
-            navLore.classList.add('nav-torch-active'); btnTorch.style.display = 'none'; btnCandle.style.display = 'inline-block';
+            document.getElementById('light-icon').innerText = "🔥"; 
+            document.getElementById('light-title').innerText = t('light.torch');
+            if (lightDesc) lightDesc.innerText = t('light.torchDesc'); // Aktualizace popisku
+            navLore.classList.add('nav-torch-active'); 
+            btnTorch.style.display = 'none'; btnCandle.style.display = 'inline-block';
             loreOverlay.style.display = 'none'; loreWrap.classList.remove('lore-darkness');
         } else {
-            document.getElementById('light-icon').innerText = "🌑"; document.getElementById('light-title').innerText = t('light.none');
-            const hasC = (GameState.inventory['candle'] || 0) > 0; const hasT = (GameState.inventory['primitive_torch'] || 0) > 0;
+            document.getElementById('light-icon').innerText = "🌑"; 
+            document.getElementById('light-title').innerText = t('light.none');
+            if (lightDesc) lightDesc.innerText = t('light.noneDesc'); // Aktualizace popisku
+            const hasC = (GameState.inventory['candle'] || 0) > 0; 
+            const hasT = (GameState.inventory['primitive_torch'] || 0) > 0;
             btnCandle.style.display = (GameState.flags.fireplaceLit && hasC) ? 'inline-block' : 'none';
             btnTorch.style.display = (GameState.flags.fireplaceLit && hasT) ? 'inline-block' : 'none';
             loreOverlay.style.display = 'block'; loreWrap.classList.add('lore-darkness');
@@ -770,10 +798,10 @@ const Game = {
         if(isFirstTime && LoreDB[id] && !GameState.discoveredLore.includes(id)) {
             GameState.discoveredLore.push(id);
             if(GameState.achievements) GameState.achievements.stats.itemsDiscovered++;
-            UI.notify(`📖 Nový zápis v Codexu!`);
-            setTimeout(() => UI.notify(`+${qty} ${ItemsDB[id].name}`), 500);
+            UI.notify(t('game.newCodexEntry'));
+            setTimeout(() => UI.notify(t('game.itemAdded').replace('{qty}', qty).replace('{item}', ItemsDB[id].name)), 500);
         } else {
-            UI.notify(`+${qty} ${ItemsDB[id].name}`);
+            UI.notify(t('game.itemAdded').replace('{qty}', qty).replace('{item}', ItemsDB[id].name));
         }
         
         Game.save(); Game.checkEnvironment(); UI.renderAll();
@@ -790,7 +818,7 @@ const Game = {
         if(!GameState.flags.fireplaceLit && !r.blind) { UI.notify(t('game.frozenHands'), true); return; }
         for(let [item, amt] of Object.entries(r.req)) {
             if(amt > 0 && (!GameState.inventory[item] || GameState.inventory[item] < amt)) { UI.notify(t('game.missingMats'), true); return; }
-            if(amt === 0 && !GameState.inventory[item]) { UI.notify(`Nutno: ${ItemsDB[item].name}`, true); return; }
+            if(amt === 0 && !GameState.inventory[item]) { UI.notify(`${t('game.required2')} ${ItemsDB[item].name}`, true); return; }
         }
         for(let [item, amt] of Object.entries(r.req)) if(amt > 0) this.removeItem(item, amt);
         this.addItem(r.output, r.qty);
@@ -812,13 +840,7 @@ const Game = {
             if (Math.random() < chance) {
                 this.removeItem(r.output, r.qty); // ukradne výstup
                 Analytics.titivillusStruck(r.output, isNight && noLight);
-                const quotes = [
-                    '👿 Titivillus byl zde. Zápisek zmizl.',
-                    '👿 "Scripsi totum..." — ale Titivillus vzal výsledek.',
-                    '👿 Inkoust je řídký. Písmeno zmizlo do jeho pytle.',
-                    '👿 Titivillus sbírá chyby pro ďábla. Dnes i tvoji.',
-                    '👿 "Est mihi causa mali..." Chyba tvá, zisk jeho.',
-                ];
+                const quotes = t('titivillus');
                 UI.notify(quotes[Math.floor(Math.random() * quotes.length)], true);
                 Game.save(); UI.renderAll();
                 return;
@@ -837,7 +859,7 @@ const Game = {
             const missing = tech.requires.find(req => !GameState.researchedTechs.includes(req));
             if(missing) {
                 const reqTech = TechTree.find(x => x.id === missing);
-                UI.notify(`Nutné: ${reqTech.name}`, true); 
+                UI.notify(`${t('game.techRequired')} ${reqTech.name}`, true); 
                 return;
             }
         }
@@ -852,7 +874,7 @@ const Game = {
             GameState.garden[3].locked = false;
         }
         
-        UI.notify(`Vynalezeno: ${tech.name}`);
+        UI.notify(`${t('game.crafted')} ${tech.name}`);
         Game.save(); UI.renderAll(); Game.checkEnvironment();
         Game.checkAchievements();
 
@@ -885,7 +907,7 @@ const Game = {
         }
         
         const bonusText = GameState.researchedTechs.includes('tech_preservation') ? ' (2x konzervace!)' : '';
-        UI.notify(`Nasycen na ${hungerHours}h${bonusText}`);
+        UI.notify(t('game.fed').replace('{hours}', hungerHours).replace('{bonus}', bonusText));
         Game.save();
         UI.renderAll();
     },
@@ -1009,19 +1031,19 @@ const Game = {
 
 	drawWater: function(useBucket = false) {
 		if (!GameState.well.built) {
-			UI.notify("❌ Nemáš studnu!", true);
+			UI.notify(t('game.wellNoWell'), true);
 			return;
 		}
 		
 		if (GameState.well.condition === "broken") {
-			UI.notify("❌ Studna je rozbitá! Potřebuješ ji opravit.", true);
+			UI.notify(t('game.wellBroken'), true);
 			return;
 		}
 		
 		// Check tool
 		const tool = useBucket ? "bucket" : "cooking_pot";
 		if (!GameState.inventory[tool] || GameState.inventory[tool] <= 0) {
-			UI.notify(`❌ Potřebuješ ${ItemsDB[tool].name}!`, true);
+			UI.notify(t('game.needItemAmt').replace('{amt}', 1).replace('{item}', ItemsDB[tool].name), true);
 			return;
 		}
 		
@@ -1033,16 +1055,16 @@ const Game = {
 		// Dirty penalty
 		if (GameState.well.condition === "dirty") {
 			waterAmount = Math.floor(waterAmount * 0.5);
-			UI.notify("⚠️ Voda je zakalená. Měl bys studnu vyčistit.");
+			UI.notify(t('game.wellMurky'));
 		}
 		
 		// Special: Blessed well může dát holy water
 		if (level === "blessed" && Math.random() < 0.2) {
 			this.addItem("holy_water", 1);
-			UI.notify("✨ Ze studny vytryskla svěcená voda!");
+			UI.notify(t('game.wellHolyWater'));
 		} else {
 			this.addItem("water", waterAmount);
-			UI.notify(`🚰 +${waterAmount} voda`);
+			UI.notify(t('game.waterDrawn').replace('{amt}', waterAmount));
 		}
 		
 		// Degradace check
@@ -1060,12 +1082,12 @@ const Game = {
 
 	cleanWell: function() {
 		if (GameState.well.condition !== "dirty") {
-			UI.notify("Studna není znečištěná.", true);
+			UI.notify(t('game.wellNotDirty'), true);
 			return;
 		}
 		
 		if (!GameState.inventory.purification_powder || GameState.inventory.purification_powder < 1) {
-			UI.notify("❌ Potřebuješ čisticí prášek!", true);
+			UI.notify(t('game.wellNoPowder'), true);
 			return;
 		}
 		
@@ -1077,25 +1099,25 @@ const Game = {
 			GameState.achievements.stats.wellCleans++;
 		}
 		
-		UI.notify("✨ Studna je opět čistá!");
+		UI.notify(t('game.wellCleaned'));
 		this.save();
 		UI.renderAll();
 	},
 
 	repairWell: function() {
 		if (GameState.well.condition !== "broken") {
-			UI.notify("Studna není rozbitá.", true);
+			UI.notify(t('game.wellNotBroken'), true);
 			return;
 		}
 		
 		if (!GameState.inventory.repair_kit || GameState.inventory.repair_kit < 1) {
-			UI.notify("❌ Potřebuješ opravnou sadu!", true);
+			UI.notify(t('game.wellNoKit'), true);
 			return;
 		}
 		
 		this.addItem("repair_kit", -1);
 		GameState.well.condition = "clean";
-		UI.notify("🔧 Studna je opravená!");
+		UI.notify(t('game.wellRepaired'));
 		this.save();
 		UI.renderAll();
 	},
@@ -1111,12 +1133,12 @@ const Game = {
 		
 		// Check if we can build/upgrade
 		if (toLevel === "basic" && GameState.well.built) {
-			UI.notify("Už máš studnu!", true);
+			UI.notify(t('game.wellAlreadyBuilt'), true);
 			return;
 		}
 		
 		if (toLevel === "stone" && GameState.well.level !== "basic") {
-			UI.notify("Nejprve musíš mít základní studnu!", true);
+			UI.notify(t('game.wellNeedBasic'), true);
 			return;
 		}
 		
@@ -1126,7 +1148,7 @@ const Game = {
 			
 			for (let [item, amt] of Object.entries(cost)) {
 				if (!GameState.inventory[item] || GameState.inventory[item] < amt) {
-					UI.notify(`❌ Potřebuješ ${amt}x ${ItemsDB[item].name}!`, true);
+					UI.notify(t('game.needItemAmt').replace('{amt}', amt).replace('{item}', ItemsDB[item].name), true);
 					return;
 				}
 			}
@@ -1139,7 +1161,7 @@ const Game = {
 			GameState.well.built = true;
 			GameState.well.level = "basic";
 			GameState.well.condition = "clean";
-			UI.notify("🚰 Studna vybudována!");
+			UI.notify(t('game.wellBuilt'));
 			this.save();
 			UI.renderAll();
 			return;
@@ -1151,7 +1173,7 @@ const Game = {
 			
 			for (let [item, amt] of Object.entries(cost)) {
 				if (!GameState.inventory[item] || GameState.inventory[item] < amt) {
-					UI.notify(`❌ Potřebuješ ${amt}x ${ItemsDB[item].name}!`, true);
+					UI.notify(t('game.needItemAmt').replace('{amt}', amt).replace('{item}', ItemsDB[item].name), true);
 					return;
 				}
 			}
@@ -1161,7 +1183,7 @@ const Game = {
 			}
 			
 			GameState.well.level = "stone";
-			UI.notify("🏛️ Studna vylepšena na kamennou!");
+			UI.notify(t('game.wellUpgraded'));
 			this.save();
 			UI.renderAll();
 		}
@@ -1173,13 +1195,13 @@ const Game = {
 		// Dirty check
 		if (GameState.well.condition === "clean" && Math.random() < stats.degradeChance) {
 			GameState.well.condition = "dirty";
-			UI.notify("⚠️ Voda ve studně začíná zelenat!", true);
+			UI.notify(t('game.wellTurningGreen'), true);
 		}
 		
 		// Break check (pouze pokud už je dirty)
 		if (GameState.well.condition === "dirty" && Math.random() < stats.breakChance) {
 			GameState.well.condition = "broken";
-			UI.notify("💥 Studna se zbortila! Potřebuješ ji opravit.", true);
+			UI.notify(t('game.wellCollapsed'), true);
 		}
 	},
 
@@ -1238,16 +1260,16 @@ const Game = {
 			document.body.removeChild(a);
 			URL.revokeObjectURL(url);
 			
-			UI.notify(`💾 Save exportován: ${filename}`);
+			UI.notify(t('game.saveExportedFile').replace('{file}', filename));
 		} catch(e) {
-			UI.notify("❌ Export selhal!", true);
+			UI.notify(t('game.saveExportFail'), true);
 			console.error('Export error:', e);
 		}
 	},
 
 	importSave: function(file) {
 		if (!file) {
-			UI.notify("❌ Žádný soubor nevybrán!", true);
+			UI.notify(t('game.saveNoFile'), true);
 			return;
 		}
 		
@@ -1259,13 +1281,13 @@ const Game = {
 				
 				// Validation - check if it looks like valid save
 				if (!importedData.inventory || !importedData.flags) {
-					UI.notify("❌ Neplatný save soubor!", true);
+					UI.notify(t('game.saveImportFail'), true);
 					return;
 				}
 				
 				// Confirm before overwriting
-				if (!confirm("⚠️ VAROVÁNÍ: Toto přepíše tvůj současný save!\n\nPokračovat?")) {
-					UI.notify("Import zrušen.");
+				if (!confirm(t('game.overwriteSave'))) {
+					UI.notify(t('game.saveImportCancelled'));
 					return;
 				}
 				
@@ -1279,19 +1301,19 @@ const Game = {
 				UI.renderAll();
 				Game.checkEnvironment();
 				
-				UI.notify("✅ Save importován! Refresh pro jistotu.");
+				UI.notify(t('game.successImport'));
 				
 				// Auto-refresh after 2 seconds
 				setTimeout(() => location.reload(), 2000);
 				
 			} catch(e) {
-				UI.notify("❌ Chyba při importu!", true);
+				UI.notify(t('game.errorImport'), true);
 				console.error('Import error:', e);
 			}
 		};
 		
 		reader.onerror = function() {
-			UI.notify("❌ Nelze přečíst soubor!", true);
+			UI.notify(t('game.errorRead'), true);
 		};
 		
 		reader.readAsText(file);
@@ -1314,4 +1336,3 @@ const Game = {
 	},
 	
 };
-

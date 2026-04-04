@@ -1137,33 +1137,24 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
 	<div class="status-bar">
 		<div style="display: flex; align-items: center; gap: 5px;">
-			<span id="weather-today" title="Aktuálně v Praze (klikni pro refresh)" onclick="WeatherSystem.fetchWeather()">⏳</span>
+			<span id="weather-today" data-i18n-title="header.weatherNow" onclick="WeatherSystem.fetchWeather()">⏳</span>
 			<span style="opacity: 0.6; font-size: 16px !important;">/</span>
-			<span id="weather-tomorrow" title="Předpověď na zítra" onclick="WeatherSystem.fetchWeather()" style="opacity: 0.9; font-size: 0.85em !important;">⏳</span>
+			<span id="weather-tomorrow" data-i18n-title="header.weatherTomorrow" onclick="WeatherSystem.fetchWeather()" style="opacity: 0.9; font-size: 0.85em !important;">⏳</span>
 		</div>
-		
 		<span class="separator">•</span>
-		
-		<span id="hunger-display" title="Hlad">🍖</span>
-		
+		<span id="hunger-display" data-i18n-title="header.hunger">🍖</span>
 		<span class="separator">•</span>
-
-		<span id="streak-display" style="display:none;" title="Denní streak">
+		<span id="streak-display" style="display:none;" data-i18n-title="header.streak">
 			🔥 <span id="streak-number">0</span>
 		</span>
-
-		<div id="research-indicator" title="Počet Research">
+		<div id="research-indicator" data-i18n-title="header.research">
 			<span>📜</span>
 			<span id="research-count">0</span>
 		</div>
-		
 		<span class="separator">•</span>
-		
 		<span id="time-display" style="text-transform:uppercase;">...</span>
-		
 		<span class="separator">•</span>
-		
-		<span onclick="UI.switchScreen('settings')" title="Nastavení">⚙️</span>
+		<span onclick="UI.switchScreen('settings')" data-i18n-title="header.settings">⚙️</span>
 	</div>
 </header>
 
@@ -1204,13 +1195,13 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             <h2>Zahrada</h2>
             <p class="text-sm" style="margin-bottom:15px;">Pěstuj vzácné rostliny. Půda vyžaduje péči.</p>
             <div id="garden-container" class="garden-grid"></div>
-			<!-- WELL MANAGEMENT (PŘIDAT před </div> crafting screenu) -->
+			<!-- WELL MANAGEMENT -->
 		<div id="well-management" style="margin-top: 30px; padding: 20px; background: rgba(0,0,0,0.2); border-radius: 10px;">
-			<h3>🚰 Správa Studny</h3>
+			<h3 data-i18n="wellUI.title">🚰 Správa Studny</h3>
 			
 			<div id="well-not-built" style="display: none;">
-				<p>Nemáš studnu. Můžeš ji postavit níže.</p>
-				<button onclick="Game.upgradeWell('basic')" class="craft-btn" style="background: #4a7c59;">
+				<p data-i18n="wellUI.notBuilt">Nemáš studnu. Můžeš ji postavit níže.</p>
+				<button onclick="Game.upgradeWell('basic')" class="craft-btn" style="background: #4a7c59;" data-i18n="wellUI.buildBasic">
 					🏗️ Postavit studnu (20 kámen, 10 větev, 3 provaz)
 				</button>
 			</div>
@@ -1218,23 +1209,21 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 			<div id="well-built" style="display: none;">
 				<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px;">
 					<div>
-						<strong>Úroveň:</strong> <span id="well-level-text">Základní</span>
+						<strong data-i18n="wellUI.level">Úroveň:</strong> <span id="well-level-text">Základní</span>
 					</div>
 					<div>
-						<strong>Stav:</strong> <span id="well-condition-text">✓ Čistá</span>
+						<strong data-i18n="wellUI.condition">Stav:</strong> <span id="well-condition-text">✓ Čistá</span>
 					</div>
 				</div>
 				
 				<div style="display: flex; gap: 10px; flex-wrap: wrap;">
-					<button onclick="Game.cleanWell()" id="btn-clean-well" class="craft-btn" style="background: #5a8dc7; display: none;">
+					<button onclick="Game.cleanWell()" id="btn-clean-well" class="craft-btn" style="background: #5a8dc7; display: none;" data-i18n="wellUI.clean">
 						✨ Vyčistit (prášek)
 					</button>
-					
-					<button onclick="Game.repairWell()" id="btn-repair-well" class="craft-btn" style="background: #c75a5a; display: none;">
+					<button onclick="Game.repairWell()" id="btn-repair-well" class="craft-btn" style="background: #c75a5a; display: none;" data-i18n="wellUI.repair">
 						🔧 Opravit (sada)
 					</button>
-					
-					<button onclick="Game.upgradeWell('stone')" id="btn-upgrade-stone" class="craft-btn" style="background: #8b6434; display: none;">
+					<button onclick="Game.upgradeWell('stone')" id="btn-upgrade-stone" class="craft-btn" style="background: #8b6434; display: none;" data-i18n="wellUI.upgrade">
 						🏛️ Vyzdít kamenem (30 kámen, 5 provaz, 10 uhel)
 					</button>
 				</div>

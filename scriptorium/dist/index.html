@@ -1137,33 +1137,24 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
 	<div class="status-bar">
 		<div style="display: flex; align-items: center; gap: 5px;">
-			<span id="weather-today" title="Aktuálně v Praze (klikni pro refresh)" onclick="WeatherSystem.fetchWeather()">⏳</span>
+			<span id="weather-today" data-i18n-title="header.weatherNow" onclick="WeatherSystem.fetchWeather()">⏳</span>
 			<span style="opacity: 0.6; font-size: 16px !important;">/</span>
-			<span id="weather-tomorrow" title="Předpověď na zítra" onclick="WeatherSystem.fetchWeather()" style="opacity: 0.9; font-size: 0.85em !important;">⏳</span>
+			<span id="weather-tomorrow" data-i18n-title="header.weatherTomorrow" onclick="WeatherSystem.fetchWeather()" style="opacity: 0.9; font-size: 0.85em !important;">⏳</span>
 		</div>
-		
 		<span class="separator">•</span>
-		
-		<span id="hunger-display" title="Hlad">🍖</span>
-		
+		<span id="hunger-display" data-i18n-title="header.hunger">🍖</span>
 		<span class="separator">•</span>
-
-		<span id="streak-display" style="display:none;" title="Denní streak">
+		<span id="streak-display" style="display:none;" data-i18n-title="header.streak">
 			🔥 <span id="streak-number">0</span>
 		</span>
-
-		<div id="research-indicator" title="Počet Research">
+		<div id="research-indicator" data-i18n-title="header.research">
 			<span>📜</span>
 			<span id="research-count">0</span>
 		</div>
-		
 		<span class="separator">•</span>
-		
 		<span id="time-display" style="text-transform:uppercase;">...</span>
-		
 		<span class="separator">•</span>
-		
-		<span onclick="UI.switchScreen('settings')" title="Nastavení">⚙️</span>
+		<span onclick="UI.switchScreen('settings')" data-i18n-title="header.settings">⚙️</span>
 	</div>
 </header>
 
@@ -1204,13 +1195,13 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             <h2>Zahrada</h2>
             <p class="text-sm" style="margin-bottom:15px;">Pěstuj vzácné rostliny. Půda vyžaduje péči.</p>
             <div id="garden-container" class="garden-grid"></div>
-			<!-- WELL MANAGEMENT (PŘIDAT před </div> crafting screenu) -->
+			<!-- WELL MANAGEMENT -->
 		<div id="well-management" style="margin-top: 30px; padding: 20px; background: rgba(0,0,0,0.2); border-radius: 10px;">
-			<h3>🚰 Správa Studny</h3>
+			<h3 data-i18n="wellUI.title">🚰 Správa Studny</h3>
 			
 			<div id="well-not-built" style="display: none;">
-				<p>Nemáš studnu. Můžeš ji postavit níže.</p>
-				<button onclick="Game.upgradeWell('basic')" class="craft-btn" style="background: #4a7c59;">
+				<p data-i18n="wellUI.notBuilt">Nemáš studnu. Můžeš ji postavit níže.</p>
+				<button onclick="Game.upgradeWell('basic')" class="craft-btn" style="background: #4a7c59;" data-i18n="wellUI.buildBasic">
 					🏗️ Postavit studnu (20 kámen, 10 větev, 3 provaz)
 				</button>
 			</div>
@@ -1218,23 +1209,21 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 			<div id="well-built" style="display: none;">
 				<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px;">
 					<div>
-						<strong>Úroveň:</strong> <span id="well-level-text">Základní</span>
+						<strong data-i18n="wellUI.level">Úroveň:</strong> <span id="well-level-text">Základní</span>
 					</div>
 					<div>
-						<strong>Stav:</strong> <span id="well-condition-text">✓ Čistá</span>
+						<strong data-i18n="wellUI.condition">Stav:</strong> <span id="well-condition-text">✓ Čistá</span>
 					</div>
 				</div>
 				
 				<div style="display: flex; gap: 10px; flex-wrap: wrap;">
-					<button onclick="Game.cleanWell()" id="btn-clean-well" class="craft-btn" style="background: #5a8dc7; display: none;">
+					<button onclick="Game.cleanWell()" id="btn-clean-well" class="craft-btn" style="background: #5a8dc7; display: none;" data-i18n="wellUI.clean">
 						✨ Vyčistit (prášek)
 					</button>
-					
-					<button onclick="Game.repairWell()" id="btn-repair-well" class="craft-btn" style="background: #c75a5a; display: none;">
+					<button onclick="Game.repairWell()" id="btn-repair-well" class="craft-btn" style="background: #c75a5a; display: none;" data-i18n="wellUI.repair">
 						🔧 Opravit (sada)
 					</button>
-					
-					<button onclick="Game.upgradeWell('stone')" id="btn-upgrade-stone" class="craft-btn" style="background: #8b6434; display: none;">
+					<button onclick="Game.upgradeWell('stone')" id="btn-upgrade-stone" class="craft-btn" style="background: #8b6434; display: none;" data-i18n="wellUI.upgrade">
 						🏛️ Vyzdít kamenem (30 kámen, 5 provaz, 10 uhel)
 					</button>
 				</div>
@@ -1245,12 +1234,12 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         <div id="screen-craft" class="screen">
             <h2>Dílna</h2>
                 <div class="filter-bar" style="margin-top:10px; margin-bottom:15px; flex; flex-wrap: wrap; gap: 5px;">
-                <button id="craft-filter-all"  class="filter-btn active" onclick="UI.filterCrafting('all', this)">Vše</button>
-                <button id="craft-filter-tool" class="filter-btn" onclick="UI.filterCrafting('tool', this)">Nástroje</button>
-                <button id="craft-filter-mat"  class="filter-btn" onclick="UI.filterCrafting('mat', this)">Materiály</button>
-                <button id="craft-filter-food" class="filter-btn" onclick="UI.filterCrafting('food', this)">Jídlo</button>
-                <button id="craft-filter-alch" class="filter-btn" onclick="UI.filterCrafting('alchemy', this)">Alchymie</button>
-                <button id="craft-filter-lore" class="filter-btn" onclick="UI.filterCrafting('lore', this)">Vědění</button>
+                <button class="filter-btn active" onclick="UI.filterCrafting('all', this)">Vše</button>
+                <button class="filter-btn" onclick="UI.filterCrafting('tool', this)">Nástroje</button>
+                <button class="filter-btn" onclick="UI.filterCrafting('mat', this)">Materiály</button>
+                <button class="filter-btn" onclick="UI.filterCrafting('food', this)">Jídlo</button>
+                <button class="filter-btn" onclick="UI.filterCrafting('alchemy', this)">Alchymie</button>
+                <button class="filter-btn" onclick="UI.filterCrafting('lore', this)">Vědění</button>
             </div>
             <div id="crafting-list"></div>
         </div>
@@ -1258,10 +1247,10 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         <div id="screen-inv" class="screen">
             <h2>Batoh</h2>
                 <div id="inv-filter-bar" class="filter-bar" style="margin-top:10px; margin-bottom:15px; display:none; flex-wrap: wrap; gap: 5px;">
-                <button id="inv-filter-all"  class="filter-btn active" onclick="UI.filterInventory('all', this)">Vše</button>
-                <button id="inv-filter-mat"  class="filter-btn" onclick="UI.filterInventory('mat', this)">Suroviny</button>
-                <button id="inv-filter-tool" class="filter-btn" onclick="UI.filterInventory('tool', this)">Nástroje</button>
-                <button id="inv-filter-lore" class="filter-btn" onclick="UI.filterInventory('lore', this)">Ostatní</button>
+                <button class="filter-btn active" onclick="UI.filterInventory('all', this)">Vše</button>
+                <button class="filter-btn" onclick="UI.filterInventory('mat', this)">Suroviny</button>
+                <button class="filter-btn" onclick="UI.filterInventory('tool', this)">Nástroje</button>
+                <button class="filter-btn" onclick="UI.filterInventory('lore', this)">Ostatní</button>
             </div>
             <div id="inventory-grid" style="margin-top:15px;"></div>
         </div>
@@ -1273,10 +1262,10 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             </div>
             <div id="lore-content-wrapper">
                 <div class="filter-bar" style="margin-top:10px; margin-bottom:15px; flex; flex-wrap: wrap; gap: 5px;">
-                    <button id="lore-tab-research"     class="filter-btn active" onclick="UI.switchLoreTab('research', this)">Research</button>
-                    <button id="lore-tab-codex"        class="filter-btn" onclick="UI.switchLoreTab('codex', this)">Codex</button>
-                    <button id="lore-tab-notebooks"    class="filter-btn" onclick="UI.switchLoreTab('notebooks', this)">📓 Zápisníky</button>
-                    <button id="lore-tab-achievements" class="filter-btn" onclick="UI.switchLoreTab('achievements', this)">Achievementy</button>
+                    <button class="filter-btn active" onclick="UI.switchLoreTab('research', this)">Research</button>
+                    <button class="filter-btn" onclick="UI.switchLoreTab('codex', this)">Codex</button>
+                    <button class="filter-btn" onclick="UI.switchLoreTab('notebooks', this)">📓 Zápisníky</button>
+                    <button class="filter-btn" onclick="UI.switchLoreTab('achievements', this)">Achievementy</button>
                 </div>
                 <div id="lore-research-content" style="margin-top:20px;"></div>
                 <div id="lore-codex-content" style="margin-top:20px; display:none;"></div>
@@ -1290,10 +1279,10 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             <h2>Knihovna</h2>
             <div id="library-content-wrapper">
                 <div class="filter-bar" style="margin-top:10px; margin-bottom:15px; flex-wrap: wrap; gap: 5px;">
-                    <button id="lib-tab-books"   class="filter-btn active" onclick="UI.switchLibraryTab('books', this)">📚 Knihy</button>
-                    <button id="lib-tab-records" class="filter-btn" onclick="UI.switchLibraryTab('records', this)">🏆 Hry &amp; Záznamy</button>
-                    <button id="lib-tab-iching"  class="filter-btn" onclick="UI.switchLibraryTab('iching', this)">☯️ Věštění</button>
-                    <button id="lib-tab-news"    class="filter-btn" onclick="UI.switchLibraryTab('news', this)">📜 Zprávy</button>
+                    <button class="filter-btn active" onclick="UI.switchLibraryTab('books', this)">📚 Knihy</button>
+                    <button class="filter-btn" onclick="UI.switchLibraryTab('records', this)">🏆 Hry &amp; Záznamy</button>
+                    <button class="filter-btn" onclick="UI.switchLibraryTab('iching', this)">☯️ Věštění</button>
+                    <button class="filter-btn" onclick="UI.switchLibraryTab('news', this)">📜 Zprávy</button>
                 </div>
                 <div id="library-books-content" style="margin-top:20px;"></div>
                 <div id="library-records-content" style="margin-top:20px; display:none;"></div>
@@ -7264,13 +7253,55 @@ const STRINGS_cs = {
         light: {
             none:'Není světlo', noneDesc:'Tma halí knihy.',
             candle:'Svíčka (Hoří)', torch:'Louč (Praská)',
+	    candleDesc: 'Malý, ale stálý plamen.',
+	    torchDesc: 'Kouří a prská, ale svítí jasně.',
             btnTorch:'ZAPÁLIT LOUČ', btnCandle:'ZAPÁLIT SVÍČKU'
         },
+header: {
+        weatherNow: 'Aktuálně v Praze (klikni pro refresh)',
+        weatherTomorrow: 'Předpověď na zítra',
+        hunger: 'Hlad',
+        streak: 'Denní streak',
+        research: 'Počet Research',
+        settings: 'Nastavení'
+    },
+    wellUI: {
+        title: '🚰 Správa Studny',
+        notBuilt: 'Nemáš studnu. Můžeš ji postavit níže.',
+        buildBasic: '🏗️ Postavit studnu (20 kámen, 10 větev, 3 provaz)',
+        level: 'Úroveň:',
+        condition: 'Stav:',
+        clean: '✨ Vyčistit (prášek)',
+        repair: '🔧 Opravit (sada)',
+        upgrade: '🏛️ Vyzdít kamenem (30 kámen, 5 provaz, 10 uhel)'
+    },
+    settingsUI: {
+        volume: 'Hlasitost',
+        theme: '🎨 Téma',
+        themeClassic: 'Klasické Pergamen',
+        themeDark: 'Temný Mód 🌙',
+        themeSpring: 'Jaro 🌸',
+        themeSummer: 'Léto ☀️',
+        themeAutumn: 'Podzim 🍂',
+        themeWinter: 'Zima ❄️',
+        themeAuto: 'Automaticky (počasí) 🌦️',
+        themeAutoDesc: 'Automatické téma se přizpůsobí aktuálnímu počasí v Praze.',
+        reset: 'Reset',
+        resetDesc: 'Smaže postup (v6.4).',
+        resetBtn: 'Smazat',
+        backup: '💾 Záloha Save',
+        backupDesc: 'Exportuj save jako zálohu nebo přenes na jiné zařízení.',
+        downloadSave: '📥 Stáhnout Save',
+        uploadSave: '📤 Nahrát Save',
+        resetGame: '🗑️ Resetovat Hru',
+        backupWarning: '⚠️ Před velkými změnami doporučujeme stáhnout zálohu!',
+        about: 'O hře',
+        aboutDesc: 'Verze, changelog a credits',
+        showBtn: 'Zobrazit',
+        footerMadeIn: 'Vyvíjeno s ❤️ v Novém Boru by Ondrex'
+    },
         craft: { filterAll:'Vše', filterMat:'Materiály', filterFood:'Jídlo', filterAlchemy:'Alchymie', filterLore:'Vědění', btn:'Výroba' },
         inv:   { filterAll:'Vše', filterMat:'Suroviny', filterTool:'Nástroje', filterLore:'Ostatní' },
-        lore:  { tabResearch:'Research', tabCodex:'Codex', tabNotebooks:'📓 Zápisníky', tabAchievements:'Achievementy',
-                 notes:'Zápisky:', discovered:'Objeveno:' },
-        library: { tabBooks:'📚 Knihy', tabRecords:'🏆 Hry & Záznamy', tabIching:'☯️ Věštění', tabNews:'📜 Zprávy' },
         settings: { langLabel:'🗺️ Jazyk / Language' },
         actions: {
             hunt:'Lovit', bark:'Řezat', default:'Hledat',
@@ -7278,6 +7309,13 @@ const STRINGS_cs = {
             quick:'Rychle!', quickDesc:'Ruční sběr',
             done:'Hotovo!', waiting:'Čekám...', remaining:'Zbývá:'
         },
+	titivillus: [
+ 	   '👿 Titivillus byl zde. Zápisek zmizel.',
+	    '👿 "Scripsi totum..." — ale Titivillus vzal výsledek.',
+	    '👿 Inkoust je řídký. Písmeno zmizelo do jeho pytle.',
+	    '👿 Titivillus sbírá chyby pro ďábla. Dnes i tvoje.',
+	    '👿 "Est mihi causa mali..." Chyba tvá, zisk jeho.'
+	],
         game: {
             eat:'Sníst', required:'(Nutné)',
             techDone:'HOTOVO', techStudy:'Studovat', techRequired:'Nutné:',
@@ -7304,6 +7342,19 @@ const STRINGS_cs = {
             saveExported:'💾 Save exportován!',
             saveExportFail:'❌ Export selhal!',
             saveImported:'✅ Save importován! Reloaduji...',
+	    waterDrawn: '🚰 +{amt} voda',
+	    needItemAmt: '❌ Potřebuješ {amt}x {item}!',
+	    missingItem: 'Nemáš {item}!',
+	    itemIgnited: '{item} zapálena.',
+	    fed: 'Nasycen na {hours}h{bonus}',
+	    itemAdded: '+{qty} {item}',
+	    saveExportedFile: '💾 Save exportován: {file}',
+	    overwriteSave: '⚠️ VAROVÁNÍ: Toto přepíše tvůj současný save!\n\nPokračovat?',
+	    confirmReset: 'Opravdu chceš nenávratně smazat celý svůj postup a resetovat hru?',
+	    newCodexEntry: '📖 Nový zápis v Codexu!',
+	    errorImport: '❌ Chyba při importu!',
+	    errorRead: '❌ Nelze přečíst soubor!',
+	    successImport: '✅ Save importován! Refresh pro jistotu.',
             saveImportFail:'❌ Neplatný save file!'
         },
         notify: {
@@ -7362,20 +7413,69 @@ const STRINGS_en = {
         light: {
             none:'No Light', noneDesc:'Darkness claimeth this place.',
             candle:'Candle (Burning)', torch:'Torch (Crackling)',
+       	    candleDesc: 'A small but steady flame.',
+	    torchDesc: 'It smokes and crackles, yet burns bright.',
             btnTorch:'LIGHT TORCH', btnCandle:'LIGHT CANDLE'
         },
         craft: { filterAll:'All', filterMat:'Materials', filterFood:'Provisions', filterAlchemy:'Alchemy', filterLore:'Knowledge', btn:'Craft' },
         inv:   { filterAll:'All', filterMat:'Materials', filterTool:'Tools', filterLore:'Other' },
-        lore:  { tabResearch:'Research', tabCodex:'Codex', tabNotebooks:'📓 Notebooks', tabAchievements:'Achievements',
-                 notes:'Notes:', discovered:'Discovered:' },
-        library: { tabBooks:'📚 Books', tabRecords:'🏆 Games & Records', tabIching:'☯️ Divination', tabNews:'📜 Tidings' },
         settings: { langLabel:'🗺️ Language / Jazyk' },
+header: {
+        weatherNow: 'Presently in Prague (click to refresh)',
+        weatherTomorrow: 'Morrow\'s forecast',
+        hunger: 'Hunger',
+        streak: 'Daily Streak',
+        research: 'Knowledge Gathered',
+        settings: 'Settings'
+    },
+    wellUI: {
+        title: '🚰 The Well',
+        notBuilt: 'Thou hast no well. Thou mayest construct one below.',
+        buildBasic: '🏗️ Construct Well (20 rock, 10 branch, 3 rope)',
+        level: 'Tier:',
+        condition: 'Condition:',
+        clean: '✨ Purify (powder)',
+        repair: '🔧 Repair (kit)',
+        upgrade: '🏛️ Fortify with Stone (30 rock, 5 rope, 10 charcoal)'
+    },
+    settingsUI: {
+        volume: 'Volume',
+        theme: '🎨 Theme',
+        themeClassic: 'Classic Parchment',
+        themeDark: 'Dark Mode 🌙',
+        themeSpring: 'Spring 🌸',
+        themeSummer: 'Summer ☀️',
+        themeAutumn: 'Autumn 🍂',
+        themeWinter: 'Winter ❄️',
+        themeAuto: 'Auto (Weather) 🌦️',
+        themeAutoDesc: 'The theme shall adapt to the present weather in Prague.',
+        reset: 'Reset',
+        resetDesc: 'Erase thy progress.',
+        resetBtn: 'Erase',
+        backup: '💾 Safekeeping',
+        backupDesc: 'Export thy progress for safekeeping or another device.',
+        downloadSave: '📥 Download Save',
+        uploadSave: '📤 Upload Save',
+        resetGame: '🗑️ Reset Game',
+        backupWarning: '⚠️ We urge thee to secure a backup ere making grave changes!',
+        about: 'About',
+        aboutDesc: 'Version, changelog and credits',
+        showBtn: 'View',
+        footerMadeIn: 'Forged with ❤️ in Nový Bor by Ondrex'
+    },
         actions: {
             hunt:'Hunt', bark:'Cut', default:'Search',
             cancel:'CANCEL', claim:'COLLECT',
             quick:'Quick!', quickDesc:'Gather by hand',
             done:'Done!', waiting:'Waiting...', remaining:'Remaining:'
         },
+	titivillus: [
+	    '👿 Titivillus hath visited. A note hath vanished.',
+	    '👿 "Scripsi totum..." — yet Titivillus claimed the fruit of thy labor.',
+	    '👿 The ink runs thin. A letter hath slipped into his sack.',
+	    '👿 Titivillus gathers errors for the Devil. Today he took thine.',
+	    '👿 "Est mihi causa mali..." Thy blunder, his gain.'
+	],
         game: {
             eat:'Eat', required:'(Required)',
             techDone:'DONE', techStudy:'Study', techRequired:'Required:',
@@ -7402,7 +7502,20 @@ const STRINGS_en = {
             saveExported:'💾 Save exported!',
             saveExportFail:'❌ Export failed!',
             saveImported:'✅ Save imported! Reloading...',
-            saveImportFail:'❌ Invalid save file!'
+            saveImportFail:'❌ Invalid save file!',
+	    waterDrawn: '🚰 +{amt} water',
+	    needItemAmt: '❌ Thou needest {amt}x {item}!',
+            missingItem: 'Thou lackest {item}!',
+	    itemIgnited: '{item} kindled.',
+	    fed: 'Nourished for {hours}h{bonus}',
+	    itemAdded: '+{qty} {item}',
+	    saveExportedFile: '💾 Save exported: {file}',
+	    overwriteSave: '⚠️ WARNING: This shall overwrite thy current progress!\n\nDost thou wish to proceed?',
+	    confirmReset: 'Dost thou truly wish to cast thy progress into the void and start anew?',
+	    newCodexEntry: '📖 A new record in thy Codex!',
+	    errorImport: '❌ An error occurred during import!',
+	    errorRead: '❌ The file could not be read!',
+	    successImport: '✅ Save imported! Refreshing to be certain.'
         },
         notify: {
             langSwitched:'🏴󠁧󠁢󠁥󠁮󠁧󠁿 Language set to English.',
@@ -7566,6 +7679,7 @@ const LangSystem = {
         if (sel) sel.value = lang;
 
         // 8. Fireplace text (cold state) + light source buttons
+        // checkEnvironment() handles the lit state; this handles cold/idle state
         if (typeof GameState !== 'undefined') {
             const fpTitle = document.getElementById('fireplace-title');
             const fpDesc  = document.getElementById('fireplace-desc');
@@ -7580,32 +7694,6 @@ const LangSystem = {
             if (btnTorch)  btnTorch.textContent  = L.light.btnTorch;
             if (btnCandle) btnCandle.textContent = L.light.btnCandle;
         }
-
-        // 9. Filter buttons — craft, inv, lore tabs, library tabs
-        const filterMap = {
-            'craft-filter-all':       L.craft.filterAll,
-            'craft-filter-tool':      L.craft.filterMat,
-            'craft-filter-mat':       L.craft.filterMat,
-            'craft-filter-food':      L.craft.filterFood,
-            'craft-filter-alch':      L.craft.filterAlchemy,
-            'craft-filter-lore':      L.craft.filterLore,
-            'inv-filter-all':         L.inv.filterAll,
-            'inv-filter-mat':         L.inv.filterMat,
-            'inv-filter-tool':        L.inv.filterTool,
-            'inv-filter-lore':        L.inv.filterLore,
-            'lore-tab-research':      L.lore.tabResearch,
-            'lore-tab-codex':         L.lore.tabCodex,
-            'lore-tab-notebooks':     L.lore.tabNotebooks,
-            'lore-tab-achievements':  L.lore.tabAchievements,
-            'lib-tab-books':          L.library.tabBooks,
-            'lib-tab-records':        L.library.tabRecords,
-            'lib-tab-iching':         L.library.tabIching,
-            'lib-tab-news':           L.library.tabNews,
-        };
-        Object.entries(filterMap).forEach(([id, text]) => {
-            const el = document.getElementById(id);
-            if (el) el.textContent = text;
-        });
     }
 };
 
@@ -7848,6 +7936,12 @@ const Game = {
             GameState.settings.langChosen = true;
         }
         LangSystem.apply(GameState.settings.language);
+	document.querySelectorAll('[data-i18n]').forEach(el => {
+            if(el) el.innerHTML = t(el.getAttribute('data-i18n'));
+        });
+        document.querySelectorAll('[data-i18n-title]').forEach(el => {
+            if(el) el.title = t(el.getAttribute('data-i18n-title'));
+        });
         
         // Initialize weather system FIRST (needed by auto-theme)
         WeatherSystem.init();
@@ -7961,7 +8055,7 @@ const Game = {
                     throw new Error('Invalid save!');
                 }
                 
-                if(!confirm('⚠️ Přepsat současný save?')) {
+                if(!confirm(t('game.overwriteSave'))) {
                     return;
                 }
                 
@@ -7992,7 +8086,7 @@ const Game = {
         input.click();
     },
     
-    resetSave: function() { if(confirm("Reset?")) { try { localStorage.removeItem('scriptorium_save_v6_4'); } catch(e){} location.reload(); } },
+    resetSave: function() { if(confirm(t('game.confirmReset'))) { try { localStorage.removeItem('scriptorium_save_v6_4'); } 	catch(e){} location.reload(); } },
     setVolume: function(val) { if(audioSys) audioSys.setVolume(val); },
     setTheme: function(themeName) {
         if(themeName === 'auto') {
@@ -8003,12 +8097,21 @@ const Game = {
             ThemeSystem.applyTheme(themeName);
         }
     },
-    setLanguage: function(lang) {
+	setLanguage: function(lang) {
         if (lang !== 'cs' && lang !== 'en') return;
         const prev = GameState.settings.language || 'cs';
         GameState.settings.language = lang;
         LangSystem.apply(lang);
         Game.checkEnvironment(); // Refresh fireplace/light strings
+        
+        // MAGICKÝ TRIK PRO STATICKÉ HTML
+        document.querySelectorAll('[data-i18n]').forEach(el => {
+            el.innerHTML = t(el.getAttribute('data-i18n'));
+        });
+        document.querySelectorAll('[data-i18n-title]').forEach(el => {
+            el.title = t(el.getAttribute('data-i18n-title'));
+        });
+
         UI.notify(t('notify.langSwitched'));
         Analytics.languageSwitched(prev, lang);
         Game.save();
@@ -8033,7 +8136,7 @@ const Game = {
     lightSource: function(type) {
         if (!GameState.flags.fireplaceLit) { UI.notify(t('game.needFire'), true); return; }
         let item = (type === 'candle') ? 'candle' : 'primitive_torch';
-        if (!GameState.inventory[item]) { UI.notify(`Nemáš ${ItemsDB[item].name}!`, true); return; }
+        if (!GameState.inventory[item]) { UI.notify(t('game.missingItem').replace('{item}', ItemsDB[item].name), true); return; }
         
         if (type === 'candle') { 
             GameState.flags.torchLit = false; 
@@ -8048,7 +8151,7 @@ const Game = {
         else { GameState.flags.candleLit = false; GameState.flags.torchLit = true; }
         
         this.removeItem(item, 1);
-        UI.notify(`${ItemsDB[item].name} zapálena.`);
+        UI.notify(t('game.itemIgnited').replace('{item}', ItemsDB[item].name));
         Game.save(); Game.checkEnvironment();
     },
     farmAction: function(plotIdx) {
@@ -8250,7 +8353,7 @@ const Game = {
         // Check requirements
         const action = ActionsDB.find(a => a.id === type);
         if (action && action.req && !(GameState.inventory[action.req] > 0)) { 
-            UI.notify(`Potřebuješ ${ItemsDB[action.req].name}!`, true); 
+            UI.notify(t('game.missingItem').replace('{item}', ItemsDB[action.req].name), true); 
             return; 
         }
         
@@ -8329,26 +8432,39 @@ const Game = {
         const isDark = GameState.flags.forceDark || (!TimeSys.isDaytime() && !GameState.flags.fireplaceLit && !GameState.flags.candleLit && !GameState.flags.torchLit);
         if (isDark) container.classList.add('mode-frozen');
         else container.classList.remove('mode-frozen');
+        
         const lightCard = document.getElementById('card-light-source');
         const navLore = document.getElementById('nav-lore');
         const loreOverlay = document.getElementById('lore-overlay');
         const loreWrap = document.getElementById('lore-content-wrapper');
         const btnCandle = document.getElementById('btn-light-candle');
         const btnTorch = document.getElementById('btn-light-torch');
+        const lightDesc = document.getElementById('light-desc'); // Přidáno pro popisek
+        
         lightCard.classList.remove('candle-active', 'torch-active');
         navLore.classList.remove('nav-candle-active', 'nav-torch-active');
         lightCard.style.opacity = GameState.flags.fireplaceLit ? "1" : "0.5";
+        
         if (GameState.flags.candleLit) {
-            document.getElementById('light-icon').innerText = "🕯️"; document.getElementById('light-title').innerText = t('light.candle');
-            navLore.classList.add('nav-candle-active'); btnCandle.style.display = 'none'; btnTorch.style.display = 'inline-block';
+            document.getElementById('light-icon').innerText = "🕯️"; 
+            document.getElementById('light-title').innerText = t('light.candle');
+            if (lightDesc) lightDesc.innerText = t('light.candleDesc'); // Aktualizace popisku
+            navLore.classList.add('nav-candle-active'); 
+            btnCandle.style.display = 'none'; btnTorch.style.display = 'inline-block';
             loreOverlay.style.display = 'none'; loreWrap.classList.remove('lore-darkness');
         } else if (GameState.flags.torchLit) {
-            document.getElementById('light-icon').innerText = "🔥"; document.getElementById('light-title').innerText = t('light.torch');
-            navLore.classList.add('nav-torch-active'); btnTorch.style.display = 'none'; btnCandle.style.display = 'inline-block';
+            document.getElementById('light-icon').innerText = "🔥"; 
+            document.getElementById('light-title').innerText = t('light.torch');
+            if (lightDesc) lightDesc.innerText = t('light.torchDesc'); // Aktualizace popisku
+            navLore.classList.add('nav-torch-active'); 
+            btnTorch.style.display = 'none'; btnCandle.style.display = 'inline-block';
             loreOverlay.style.display = 'none'; loreWrap.classList.remove('lore-darkness');
         } else {
-            document.getElementById('light-icon').innerText = "🌑"; document.getElementById('light-title').innerText = t('light.none');
-            const hasC = (GameState.inventory['candle'] || 0) > 0; const hasT = (GameState.inventory['primitive_torch'] || 0) > 0;
+            document.getElementById('light-icon').innerText = "🌑"; 
+            document.getElementById('light-title').innerText = t('light.none');
+            if (lightDesc) lightDesc.innerText = t('light.noneDesc'); // Aktualizace popisku
+            const hasC = (GameState.inventory['candle'] || 0) > 0; 
+            const hasT = (GameState.inventory['primitive_torch'] || 0) > 0;
             btnCandle.style.display = (GameState.flags.fireplaceLit && hasC) ? 'inline-block' : 'none';
             btnTorch.style.display = (GameState.flags.fireplaceLit && hasT) ? 'inline-block' : 'none';
             loreOverlay.style.display = 'block'; loreWrap.classList.add('lore-darkness');
@@ -8383,10 +8499,10 @@ const Game = {
         if(isFirstTime && LoreDB[id] && !GameState.discoveredLore.includes(id)) {
             GameState.discoveredLore.push(id);
             if(GameState.achievements) GameState.achievements.stats.itemsDiscovered++;
-            UI.notify(`📖 Nový zápis v Codexu!`);
-            setTimeout(() => UI.notify(`+${qty} ${ItemsDB[id].name}`), 500);
+            UI.notify(t('game.newCodexEntry'));
+            setTimeout(() => UI.notify(t('game.itemAdded').replace('{qty}', qty).replace('{item}', ItemsDB[id].name)), 500);
         } else {
-            UI.notify(`+${qty} ${ItemsDB[id].name}`);
+            UI.notify(t('game.itemAdded').replace('{qty}', qty).replace('{item}', ItemsDB[id].name));
         }
         
         Game.save(); Game.checkEnvironment(); UI.renderAll();
@@ -8403,7 +8519,7 @@ const Game = {
         if(!GameState.flags.fireplaceLit && !r.blind) { UI.notify(t('game.frozenHands'), true); return; }
         for(let [item, amt] of Object.entries(r.req)) {
             if(amt > 0 && (!GameState.inventory[item] || GameState.inventory[item] < amt)) { UI.notify(t('game.missingMats'), true); return; }
-            if(amt === 0 && !GameState.inventory[item]) { UI.notify(`Nutno: ${ItemsDB[item].name}`, true); return; }
+            if(amt === 0 && !GameState.inventory[item]) { UI.notify(`${t('game.required2')} ${ItemsDB[item].name}`, true); return; }
         }
         for(let [item, amt] of Object.entries(r.req)) if(amt > 0) this.removeItem(item, amt);
         this.addItem(r.output, r.qty);
@@ -8425,13 +8541,7 @@ const Game = {
             if (Math.random() < chance) {
                 this.removeItem(r.output, r.qty); // ukradne výstup
                 Analytics.titivillusStruck(r.output, isNight && noLight);
-                const quotes = [
-                    '👿 Titivillus byl zde. Zápisek zmizl.',
-                    '👿 "Scripsi totum..." — ale Titivillus vzal výsledek.',
-                    '👿 Inkoust je řídký. Písmeno zmizlo do jeho pytle.',
-                    '👿 Titivillus sbírá chyby pro ďábla. Dnes i tvoji.',
-                    '👿 "Est mihi causa mali..." Chyba tvá, zisk jeho.',
-                ];
+                const quotes = t('titivillus');
                 UI.notify(quotes[Math.floor(Math.random() * quotes.length)], true);
                 Game.save(); UI.renderAll();
                 return;
@@ -8450,7 +8560,7 @@ const Game = {
             const missing = tech.requires.find(req => !GameState.researchedTechs.includes(req));
             if(missing) {
                 const reqTech = TechTree.find(x => x.id === missing);
-                UI.notify(`Nutné: ${reqTech.name}`, true); 
+                UI.notify(`${t('game.techRequired')} ${reqTech.name}`, true); 
                 return;
             }
         }
@@ -8465,7 +8575,7 @@ const Game = {
             GameState.garden[3].locked = false;
         }
         
-        UI.notify(`Vynalezeno: ${tech.name}`);
+        UI.notify(`${t('game.crafted')} ${tech.name}`);
         Game.save(); UI.renderAll(); Game.checkEnvironment();
         Game.checkAchievements();
 
@@ -8498,7 +8608,7 @@ const Game = {
         }
         
         const bonusText = GameState.researchedTechs.includes('tech_preservation') ? ' (2x konzervace!)' : '';
-        UI.notify(`Nasycen na ${hungerHours}h${bonusText}`);
+        UI.notify(t('game.fed').replace('{hours}', hungerHours).replace('{bonus}', bonusText));
         Game.save();
         UI.renderAll();
     },
@@ -8622,19 +8732,19 @@ const Game = {
 
 	drawWater: function(useBucket = false) {
 		if (!GameState.well.built) {
-			UI.notify("❌ Nemáš studnu!", true);
+			UI.notify(t('game.wellNoWell'), true);
 			return;
 		}
 		
 		if (GameState.well.condition === "broken") {
-			UI.notify("❌ Studna je rozbitá! Potřebuješ ji opravit.", true);
+			UI.notify(t('game.wellBroken'), true);
 			return;
 		}
 		
 		// Check tool
 		const tool = useBucket ? "bucket" : "cooking_pot";
 		if (!GameState.inventory[tool] || GameState.inventory[tool] <= 0) {
-			UI.notify(`❌ Potřebuješ ${ItemsDB[tool].name}!`, true);
+			UI.notify(t('game.needItemAmt').replace('{amt}', 1).replace('{item}', ItemsDB[tool].name), true);
 			return;
 		}
 		
@@ -8646,16 +8756,16 @@ const Game = {
 		// Dirty penalty
 		if (GameState.well.condition === "dirty") {
 			waterAmount = Math.floor(waterAmount * 0.5);
-			UI.notify("⚠️ Voda je zakalená. Měl bys studnu vyčistit.");
+			UI.notify(t('game.wellMurky'));
 		}
 		
 		// Special: Blessed well může dát holy water
 		if (level === "blessed" && Math.random() < 0.2) {
 			this.addItem("holy_water", 1);
-			UI.notify("✨ Ze studny vytryskla svěcená voda!");
+			UI.notify(t('game.wellHolyWater'));
 		} else {
 			this.addItem("water", waterAmount);
-			UI.notify(`🚰 +${waterAmount} voda`);
+			UI.notify(t('game.waterDrawn').replace('{amt}', waterAmount));
 		}
 		
 		// Degradace check
@@ -8673,12 +8783,12 @@ const Game = {
 
 	cleanWell: function() {
 		if (GameState.well.condition !== "dirty") {
-			UI.notify("Studna není znečištěná.", true);
+			UI.notify(t('game.wellNotDirty'), true);
 			return;
 		}
 		
 		if (!GameState.inventory.purification_powder || GameState.inventory.purification_powder < 1) {
-			UI.notify("❌ Potřebuješ čisticí prášek!", true);
+			UI.notify(t('game.wellNoPowder'), true);
 			return;
 		}
 		
@@ -8690,25 +8800,25 @@ const Game = {
 			GameState.achievements.stats.wellCleans++;
 		}
 		
-		UI.notify("✨ Studna je opět čistá!");
+		UI.notify(t('game.wellCleaned'));
 		this.save();
 		UI.renderAll();
 	},
 
 	repairWell: function() {
 		if (GameState.well.condition !== "broken") {
-			UI.notify("Studna není rozbitá.", true);
+			UI.notify(t('game.wellNotBroken'), true);
 			return;
 		}
 		
 		if (!GameState.inventory.repair_kit || GameState.inventory.repair_kit < 1) {
-			UI.notify("❌ Potřebuješ opravnou sadu!", true);
+			UI.notify(t('game.wellNoKit'), true);
 			return;
 		}
 		
 		this.addItem("repair_kit", -1);
 		GameState.well.condition = "clean";
-		UI.notify("🔧 Studna je opravená!");
+		UI.notify(t('game.wellRepaired'));
 		this.save();
 		UI.renderAll();
 	},
@@ -8724,12 +8834,12 @@ const Game = {
 		
 		// Check if we can build/upgrade
 		if (toLevel === "basic" && GameState.well.built) {
-			UI.notify("Už máš studnu!", true);
+			UI.notify(t('game.wellAlreadyBuilt'), true);
 			return;
 		}
 		
 		if (toLevel === "stone" && GameState.well.level !== "basic") {
-			UI.notify("Nejprve musíš mít základní studnu!", true);
+			UI.notify(t('game.wellNeedBasic'), true);
 			return;
 		}
 		
@@ -8739,7 +8849,7 @@ const Game = {
 			
 			for (let [item, amt] of Object.entries(cost)) {
 				if (!GameState.inventory[item] || GameState.inventory[item] < amt) {
-					UI.notify(`❌ Potřebuješ ${amt}x ${ItemsDB[item].name}!`, true);
+					UI.notify(t('game.needItemAmt').replace('{amt}', amt).replace('{item}', ItemsDB[item].name), true);
 					return;
 				}
 			}
@@ -8752,7 +8862,7 @@ const Game = {
 			GameState.well.built = true;
 			GameState.well.level = "basic";
 			GameState.well.condition = "clean";
-			UI.notify("🚰 Studna vybudována!");
+			UI.notify(t('game.wellBuilt'));
 			this.save();
 			UI.renderAll();
 			return;
@@ -8764,7 +8874,7 @@ const Game = {
 			
 			for (let [item, amt] of Object.entries(cost)) {
 				if (!GameState.inventory[item] || GameState.inventory[item] < amt) {
-					UI.notify(`❌ Potřebuješ ${amt}x ${ItemsDB[item].name}!`, true);
+					UI.notify(t('game.needItemAmt').replace('{amt}', amt).replace('{item}', ItemsDB[item].name), true);
 					return;
 				}
 			}
@@ -8774,7 +8884,7 @@ const Game = {
 			}
 			
 			GameState.well.level = "stone";
-			UI.notify("🏛️ Studna vylepšena na kamennou!");
+			UI.notify(t('game.wellUpgraded'));
 			this.save();
 			UI.renderAll();
 		}
@@ -8786,13 +8896,13 @@ const Game = {
 		// Dirty check
 		if (GameState.well.condition === "clean" && Math.random() < stats.degradeChance) {
 			GameState.well.condition = "dirty";
-			UI.notify("⚠️ Voda ve studně začíná zelenat!", true);
+			UI.notify(t('game.wellTurningGreen'), true);
 		}
 		
 		// Break check (pouze pokud už je dirty)
 		if (GameState.well.condition === "dirty" && Math.random() < stats.breakChance) {
 			GameState.well.condition = "broken";
-			UI.notify("💥 Studna se zbortila! Potřebuješ ji opravit.", true);
+			UI.notify(t('game.wellCollapsed'), true);
 		}
 	},
 
@@ -8851,16 +8961,16 @@ const Game = {
 			document.body.removeChild(a);
 			URL.revokeObjectURL(url);
 			
-			UI.notify(`💾 Save exportován: ${filename}`);
+			UI.notify(t('game.saveExportedFile').replace('{file}', filename));
 		} catch(e) {
-			UI.notify("❌ Export selhal!", true);
+			UI.notify(t('game.saveExportFail'), true);
 			console.error('Export error:', e);
 		}
 	},
 
 	importSave: function(file) {
 		if (!file) {
-			UI.notify("❌ Žádný soubor nevybrán!", true);
+			UI.notify(t('game.saveNoFile'), true);
 			return;
 		}
 		
@@ -8872,13 +8982,13 @@ const Game = {
 				
 				// Validation - check if it looks like valid save
 				if (!importedData.inventory || !importedData.flags) {
-					UI.notify("❌ Neplatný save soubor!", true);
+					UI.notify(t('game.saveImportFail'), true);
 					return;
 				}
 				
 				// Confirm before overwriting
-				if (!confirm("⚠️ VAROVÁNÍ: Toto přepíše tvůj současný save!\n\nPokračovat?")) {
-					UI.notify("Import zrušen.");
+				if (!confirm(t('game.overwriteSave'))) {
+					UI.notify(t('game.saveImportCancelled'));
 					return;
 				}
 				
@@ -8892,19 +9002,19 @@ const Game = {
 				UI.renderAll();
 				Game.checkEnvironment();
 				
-				UI.notify("✅ Save importován! Refresh pro jistotu.");
+				UI.notify(t('game.successImport'));
 				
 				// Auto-refresh after 2 seconds
 				setTimeout(() => location.reload(), 2000);
 				
 			} catch(e) {
-				UI.notify("❌ Chyba při importu!", true);
+				UI.notify(t('game.errorImport'), true);
 				console.error('Import error:', e);
 			}
 		};
 		
 		reader.onerror = function() {
-			UI.notify("❌ Nelze přečíst soubor!", true);
+			UI.notify(t('game.errorRead'), true);
 		};
 		
 		reader.readAsText(file);
@@ -8927,8 +9037,6 @@ const Game = {
 	},
 	
 };
-
-
 // ═══ src/core/ui.js ═══
 const UI = {
     currentInvFilter: 'all',
@@ -9126,30 +9234,27 @@ renderActions: function() {
 	
     renderScriptorium: function() {
         const el = document.getElementById('lore-research-content'); const res = GameState.inventory['research'] || 0;
-        const _t = window.t || t;
-        const _lang = (GameState.settings && GameState.settings.language) || 'cs';
-        const notesLabel = _lang === 'en' ? 'Notes:' : 'Zápisky:';
-        let h = `<div style="text-align:center;margin-bottom:15px;border:1px solid var(--accent-gold);padding:10px;">${notesLabel} <strong>${res}</strong> 📜</div>`;
-        TechTree.forEach(tech => {
-            const done = GameState.researchedTechs.includes(tech.id);
-            let canResearch = res >= tech.cost;
+        let h = `<div style="text-align:center;margin-bottom:15px;border:1px solid var(--accent-gold);padding:10px;">Zápisky: <strong>${res}</strong> 📜</div>`;
+        TechTree.forEach(t => {
+            const done = GameState.researchedTechs.includes(t.id);
+            let canResearch = res >= t.cost;
             let reqText = "";
             const lang = (GameState.settings && GameState.settings.language) || 'cs';
-            const displayName = (lang !== 'cs' && tech.name_en) ? tech.name_en : tech.name;
-            const displayDesc = (lang !== 'cs' && tech.desc_en) ? tech.desc_en : tech.desc;
+            const displayName = (lang !== 'cs' && t.name_en) ? t.name_en : t.name;
+            const displayDesc = (lang !== 'cs' && t.desc_en) ? t.desc_en : t.desc;
 
             // Check requirements
-            if(tech.requires && !done) {
-                const missing = tech.requires.find(req => !GameState.researchedTechs.includes(req));
+            if(t.requires && !done) {
+                const missing = t.requires.find(req => !GameState.researchedTechs.includes(req));
                 if(missing) {
                     canResearch = false;
                     const reqTech = TechTree.find(x => x.id === missing);
                     const reqName = (lang !== 'cs' && reqTech.name_en) ? reqTech.name_en : reqTech.name;
-                    reqText = `<div class="text-sm text-danger">${_t('game.techRequired')} ${reqName}</div>`;
+                    reqText = `<div class="text-sm text-danger">${t('game.techRequired')} ${reqName}</div>`;
                 }
             }
 
-            h += `<div class="card" style="border-color:${done?'var(--accent-gold)':'var(--ink-secondary)'}"><div class="item-icon" style="background:${done?'#c5a059':'#e8dec0'}">${done?'🎓':'📖'}</div><div style="flex:1"><strong>${displayName}</strong><div class="text-sm">${displayDesc}</div>${typeof TechLoreDB !== 'undefined' && TechLoreDB[tech.id] ? `<div class="text-sm" style="margin-top:8px;padding:8px;background:rgba(197,160,89,0.1);border-left:3px solid var(--accent-gold);font-style:italic;">${TechLoreDB[tech.id]}</div>` : ''}${reqText}</div>${done?`<span style="font-weight:bold;color:var(--accent-gold)">${_t('game.techDone')}</span>`:`<button class="craft-btn" onclick="Game.study('${tech.id}')" ${canResearch?'':'disabled'}>${_t('game.techStudy')} (${tech.cost} 📜)</button>`}</div>`;
+            h += `<div class="card" style="border-color:${done?'var(--accent-gold)':'var(--ink-secondary)'}"><div class="item-icon" style="background:${done?'#c5a059':'#e8dec0'}">${done?'🎓':'📖'}</div><div style="flex:1"><strong>${displayName}</strong><div class="text-sm">${displayDesc}</div>${typeof TechLoreDB !== 'undefined' && TechLoreDB[t.id] ? `<div class="text-sm" style="margin-top:8px;padding:8px;background:rgba(197,160,89,0.1);border-left:3px solid var(--accent-gold);font-style:italic;">${TechLoreDB[t.id]}</div>` : ''}${reqText}</div>${done?`<span style="font-weight:bold;color:var(--accent-gold)">${t('game.techDone')}</span>`:`<button class="craft-btn" onclick="Game.study('${t.id}')" ${canResearch?'':'disabled'}>${t('game.techStudy')} (${t.cost} 📜)</button>`}</div>`;
         });
         el.innerHTML = h;
     },
@@ -9157,10 +9262,8 @@ renderActions: function() {
         const el = document.getElementById('lore-codex-content');
         const discovered = GameState.discoveredLore.length;
         const total = Object.keys(LoreDB).length;
-        const _lang = (GameState.settings && GameState.settings.language) || 'cs';
-        const discoveredLabel = _lang === 'en' ? 'Discovered:' : 'Objeveno:';
         
-        let h = `<div style="text-align:center;margin-bottom:15px;border:1px solid var(--accent-gold);padding:10px;">${discoveredLabel} <strong>${discovered}/${total}</strong> 📚</div>`;
+        let h = `<div style="text-align:center;margin-bottom:15px;border:1px solid var(--accent-gold);padding:10px;">Objeveno: <strong>${discovered}/${total}</strong> 📚</div>`;
         
         // Group by category
         const categories = {};
