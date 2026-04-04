@@ -4,11 +4,7 @@
 const STRINGS_en = {
         nav: { home:'Workshop', garden:'Garden', craft:'Craft', inv:'Satchel', lore:'Scriptorium', library:'Library' },
         screens: { home:'The Workshop', garden:'The Garden', craft:'Crafting', inv:'Thy Satchel', lore:'Scriptorium', library:'The Library', settings:'Settings' },
-time: { night: 'NIGHT', morning: 'MORNING', forenoon: 'FORENOON', noon: 'NOON', afternoon: 'AFTERNOON', evening: 'EVENING' },
     header: { weatherNow: 'Presently in Prague (click to refresh)', weatherTomorrow: 'Morrow\'s forecast', hunger: 'Hunger', streak: 'Daily Streak', research: 'Knowledge Gathered', settings: 'Settings' },
-    wellUI: { title: '🚰 The Well', notBuilt: 'Thou hast no well. Thou mayest construct one below.', buildBasic: '🏗️ Construct Well (20 rock, 10 branch, 3 rope)', level: 'Tier:', condition: 'Condition:', clean: '✨ Purify (powder)', repair: '🔧 Repair (kit)', upgrade: '🏛️ Fortify with Stone (30 rock, 5 rope, 10 charcoal)' },
-    settingsUI: { volume: 'Volume', theme: '🎨 Theme', themeClassic: 'Classic Parchment', themeDark: 'Dark Mode 🌙', themeSpring: 'Spring 🌸', themeSummer: 'Summer ☀️', themeAutumn: 'Autumn 🍂', themeWinter: 'Winter ❄️', themeAuto: 'Auto (Weather) 🌦️', themeAutoDesc: 'The theme shall adapt to the present weather in Prague.', reset: 'Reset', resetDesc: 'Erase thy progress.', resetBtn: 'Erase', backup: '💾 Safekeeping', backupDesc: 'Export thy progress for safekeeping or another device.', downloadSave: '📥 Download Save', uploadSave: '📤 Upload Save', resetGame: '🗑️ Reset Game', backupWarning: '⚠️ We urge thee to secure a backup ere making grave changes!', about: 'About', aboutDesc: 'Version, changelog and credits', showBtn: 'View', footerMadeIn: 'Forged with ❤️ in Nový Bor by Ondrex' },
-    titivillus: [ '👿 Titivillus hath visited. A note hath vanished.', '👿 "Scripsi totum..." — yet Titivillus claimed the fruit of thy labor.', '👿 The ink runs thin. A letter hath slipped into his sack.', '👿 Titivillus gathers errors for the Devil. Today he took thine.', '👿 "Est mihi causa mali..." Thy blunder, his gain.' ],
     // ------------------------------
         fireplace: {
             cold:'The Hearth Lies Cold', coldDesc:'A bitter chill claimeth the chamber.', kindle:'KINDLE',
@@ -74,12 +70,12 @@ header: {
             done:'Done!', waiting:'Waiting...', remaining:'Remaining:'
         },
 	titivillus: [
-	    '👿 Titivillus hath visited. A note hath vanished.',
-	    '👿 "Scripsi totum..." — yet Titivillus claimed the fruit of thy labor.',
-	    '👿 The ink runs thin. A letter hath slipped into his sack.',
-	    '👿 Titivillus gathers errors for the Devil. Today he took thine.',
-	    '👿 "Est mihi causa mali..." Thy blunder, his gain.'
-	],
+        '👿 Titivillus hath visited. A note hath vanished.',
+        '👿 "Scripsi totum..." — yet Titivillus claimed the fruit of thy labor.',
+        '👿 The ink runs thin. A letter hath slipped into his sack.',
+        '👿 Titivillus gathers errors for the Devil. Today he took thine.',
+        '👿 "Est mihi causa mali..." Thy blunder, his gain.'
+    ],
         game: {
             eat:'Eat', required:'(Required)',
             techDone:'DONE', techStudy:'Study', techRequired:'Required:',
@@ -196,6 +192,7 @@ lore: {
         lib_not_avail: "The Library is shut unto thee.",
         lib_unlocks_in: "Unlocks in",
         lib_days: "days",
+        desc: 'For 3x Paper, I shall reveal one book unto thee prematurely...',
         btn_read: "Read",
         btn_read_again: "Read Anew",
         categories: {
@@ -312,8 +309,9 @@ time: {
         phase_evening: 'Evening',
         phase_night: 'Night',
         phase_midnight: 'Midnight',
-        phase_deepnight: 'Deep Night'
-    },
+        phase_deepnight: 'Deep Night',
+        night: 'NIGHT', morning: 'MORNING', forenoon: 'FORENOON', noon: 'NOON', afternoon: 'AFTERNOON', evening: 'EVENING'
+        },
     hunger: {
         full: 'Fully Nourished ({h}h {m}m)',
         light: 'Peckish ({h}h {m}m)',
@@ -349,4 +347,11 @@ garden: {
         locked: 'Locked',
         lockedTech: 'Tech Tree'
     },
+
+    daily: {
+    streak: 'Streak',
+    streakTitle: 'Daily streak:',
+    loyaltyBonus: '🎉 Loyalty Bonus!',
+    factTitle: 'Today\'s Fact'
+},
 };

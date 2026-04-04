@@ -414,6 +414,7 @@ const Game = {
         UI.notify(t('notify.langSwitched'));
         Analytics.languageSwitched(prev, lang);
         Game.save();
+        UI.renderAll(); // <--- TOTO PŘIDAT!
     },
     setDuration: function(min, btn) {
         GameState.selectedDuration = min;

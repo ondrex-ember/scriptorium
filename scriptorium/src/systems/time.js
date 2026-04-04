@@ -32,62 +32,18 @@ const TimeSys = {
         const phase = this.getPhase();
         timeEl.innerText = phase;
         
-        // Hunger display - VÝRAZNÝ progresivní indikátor
-        hungerEl.style.color = ""; // Reset color
+        // ==========================================
+        // 1. KONTROLY STAVU (Provádí se před UI)
+        // ==========================================
         
-        if(GameState.hunger.fed) {
+        // Hunger check
+        if (GameState.hunger.fed) {
             const elapsed = Date.now() - GameState.hunger.lastMeal;
-            const remaining = GameState.hunger.duration - elapsed;
-            const percentRemaining = Math.max(0, remaining / GameState.hunger.duration);
-            
-            // Různá emoji podle stavu
-            let icon = "🍖";
-            let tooltip = "";
-            
-            const hoursLeft = Math.floor(remaining / (60 * 60 * 1000));
-            const minutesLeft = Math.floor((remaining % (60 * 60 * 1000)) / (60 * 1000));
-            
-            if(percentRemaining > 0.75) {
-                // 100-75% = plně nasycen
-                icon = "🍖";
-                tooltip = t('hunger.full').replace('{h}', hoursLeft).replace('{m}', minutesLeft);
-                hungerEl.style.filter = "drop-shadow(0 0 3px #4caf50)";
-                hungerEl.style.transform = "scale(1.1)";
-                hungerEl.style.animation = "";
-            } else if(percentRemaining > 0.5) {
-                // 75-50% = lehký hlad
-                icon = "🥩";
-                tooltip = t('hunger.light').replace('{h}', hoursLeft).replace('{m}', minutesLeft);
-                hungerEl.style.filter = "drop-shadow(0 0 2px #ff9800)";
-                hungerEl.style.transform = "scale(1.05)";
-                hungerEl.style.animation = "";
-            } else if(percentRemaining > 0.25) {
-                // 50-25% = střední hlad
-                icon = "🦴";
-                tooltip = t('hunger.medium').replace('{h}', hoursLeft).replace('{m}', minutesLeft);
-                hungerEl.style.filter = "drop-shadow(0 0 2px #ff5722)";
-                hungerEl.style.transform = "scale(1)";
-                hungerEl.style.animation = "";
-            } else {
-                // 25-0% = velký hlad (bliká!)
-                icon = "☠️";
-                tooltip = t('hunger.heavy').replace('{h}', hoursLeft).replace('{m}', minutesLeft);
-                hungerEl.style.filter = "drop-shadow(0 0 4px #f44336)";
-                hungerEl.style.transform = "";
-                hungerEl.style.animation = "pulse 1s ease-in-out infinite";
+            if (elapsed >= GameState.hunger.duration) {
+                GameState.hunger.fed = false;
+                UI.notify(t('hunger.notified'), true);
+                Game.save();
             }
-            
-            hungerEl.innerText = icon;
-            hungerEl.style.opacity = "1";
-            hungerEl.title = tooltip;
-        } else {
-            // Hladový = lebka (červená, blikající)
-            hungerEl.innerText = "💀";
-            hungerEl.style.filter = "drop-shadow(0 0 5px #f44336)";
-            hungerEl.style.opacity = "1";
-            hungerEl.style.transform = "";
-            hungerEl.style.animation = "pulse 0.8s ease-in-out infinite";
-            hungerEl.title = t('hunger.starving');
         }
         
         // Candle check
@@ -101,15 +57,68 @@ const TimeSys = {
                 Game.save();
             }
         }
+
+        // ==========================================
+        // 2. VYKRESLENÍ UI
+        // ==========================================
         
-        // Hunger check
-        if (GameState.hunger.fed) {
+        // Hunger display - VÝRAZNÝ progresivní indikátor
+        hungerEl.style.color = ""; // Reset color
+        
+        if(GameState.hunger.fed) {
             const elapsed = Date.now() - GameState.hunger.lastMeal;
-            if (elapsed > GameState.hunger.duration) {
-                GameState.hunger.fed = false;
-                UI.notify(t('hunger.notified'), true);
-                Game.save();
+            const remaining = Math.max(0, GameState.hunger.duration - elapsed);
+            const percentRemaining = remaining / GameState.hunger.duration;
+            
+            // Různá emoji podle stavu
+            let icon = "🍖";
+            let tooltip = "";
+            
+            const hoursLeft = Math.floor(remaining / (60 * 60 * 1000));
+            // Přidáno padStart pro úhledné zobrazení minut (např. 05m)
+            const minutesLeft = Math.floor((remaining % (60 * 60 * 1000)) / (60 * 1000)).toString().padStart(2, '0');
+            
+            if(percentRemaining > 0.75) {
+                // 100-75% = plně nasycen
+                icon = "🍖";
+                tooltip = t('hunger.full').replace('{h}', hoursLeft).replace('{m}', minutesLeft);
+                hungerEl.style.filter = "drop-shadow(0 0 3px #4caf50)";
+                hungerEl.style.transform = "scale(1.1)";
+                hungerEl.style.animation = "none";
+            } else if(percentRemaining > 0.5) {
+                // 75-50% = lehký hlad
+                icon = "🥩";
+                tooltip = t('hunger.light').replace('{h}', hoursLeft).replace('{m}', minutesLeft);
+                hungerEl.style.filter = "drop-shadow(0 0 2px #ff9800)";
+                hungerEl.style.transform = "scale(1.05)";
+                hungerEl.style.animation = "none";
+            } else if(percentRemaining > 0.25) {
+                // 50-25% = střední hlad
+                icon = "🦴";
+                tooltip = t('hunger.medium').replace('{h}', hoursLeft).replace('{m}', minutesLeft);
+                hungerEl.style.filter = "drop-shadow(0 0 2px #ff5722)";
+                hungerEl.style.transform = "scale(1)";
+                hungerEl.style.animation = "none";
+            } else {
+                // 25-0% = velký hlad (bliká!)
+                icon = "☠️";
+                tooltip = t('hunger.heavy').replace('{h}', hoursLeft).replace('{m}', minutesLeft);
+                hungerEl.style.filter = "drop-shadow(0 0 4px #f44336)";
+                hungerEl.style.transform = "scale(1)";
+                hungerEl.style.animation = "pulse 1s ease-in-out infinite";
             }
+            
+            hungerEl.innerText = icon;
+            hungerEl.style.opacity = "1";
+            hungerEl.title = tooltip;
+        } else {
+            // Hladový = lebka (červená, blikající)
+            hungerEl.innerText = "💀";
+            hungerEl.style.filter = "drop-shadow(0 0 5px #f44336)";
+            hungerEl.style.opacity = "1";
+            hungerEl.style.transform = "scale(1)";
+            hungerEl.style.animation = "pulse 0.8s ease-in-out infinite";
+            hungerEl.title = t('hunger.starving');
         }
         
         const researchCount = GameState.inventory.research || 0;

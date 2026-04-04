@@ -5,11 +5,7 @@
 const STRINGS_cs = {
         nav: { home:'Pracovna', garden:'Zahrada', craft:'Výroba', inv:'Batoh', lore:'Scriptorium', library:'Knihovna' },
         screens: { home:'Pracovna', garden:'Zahrada', craft:'Výroba', inv:'Batoh', lore:'Scriptorium', library:'Knihovna', settings:'Nastavení' },
-time: { night: 'NOC', morning: 'RÁNO', forenoon: 'DOPOLEDNE', noon: 'POLEDNE', afternoon: 'ODPOLEDNE', evening: 'VEČER' },
     header: { weatherNow: 'Aktuálně v Praze (klikni pro refresh)', weatherTomorrow: 'Předpověď na zítra', hunger: 'Hlad', streak: 'Denní streak', research: 'Počet Research', settings: 'Nastavení' },
-    wellUI: { title: '🚰 Správa Studny', notBuilt: 'Nemáš studnu. Můžeš ji postavit níže.', buildBasic: '🏗️ Postavit studnu (20 kámen, 10 větev, 3 provaz)', level: 'Úroveň:', condition: 'Stav:', clean: '✨ Vyčistit (prášek)', repair: '🔧 Opravit (sada)', upgrade: '🏛️ Vyzdít kamenem (30 kámen, 5 provaz, 10 uhel)' },
-    settingsUI: { volume: 'Hlasitost', theme: '🎨 Téma', themeClassic: 'Klasické Pergamen', themeDark: 'Temný Mód 🌙', themeSpring: 'Jaro 🌸', themeSummer: 'Léto ☀️', themeAutumn: 'Podzim 🍂', themeWinter: 'Zima ❄️', themeAuto: 'Automaticky (počasí) 🌦️', themeAutoDesc: 'Automatické téma se přizpůsobí aktuálnímu počasí v Praze.', reset: 'Reset', resetDesc: 'Smaže postup (v6.4).', resetBtn: 'Smazat', backup: '💾 Záloha Save', backupDesc: 'Exportuj save jako zálohu nebo přenes na jiné zařízení.', downloadSave: '📥 Stáhnout Save', uploadSave: '📤 Nahrát Save', resetGame: '🗑️ Resetovat Hru', backupWarning: '⚠️ Před velkými změnami doporučujeme stáhnout zálohu!', about: 'O hře', aboutDesc: 'Verze, changelog a credits', showBtn: 'Zobrazit', footerMadeIn: 'Vyvíjeno s ❤️ v Novém Boru by Ondrex' },
-    titivillus: [ '👿 Titivillus byl zde. Zápisek zmizel.', '👿 "Scripsi totum..." — ale Titivillus vzal výsledek.', '👿 Inkoust je řídký. Písmeno zmizelo do jeho pytle.', '👿 Titivillus sbírá chyby pro ďábla. Dnes i tvoje.', '👿 "Est mihi causa mali..." Chyba tvá, zisk jeho.' ],
         fireplace: {
             cold:'Vyhaslý Krb', coldDesc:'Je tu zima.', kindle:'ROZEŽEHNOUT',
             lit:'Hřejivý Krb', litDesc:'Oheň dává život.'
@@ -197,6 +193,7 @@ lore: {
         lib_not_avail: "Knihovna není dostupná.",
         lib_unlocks_in: "Odemkne se za",
         lib_days: "dní",
+        desc: 'Za 3x Papír ti odkryji jednu knihu předčasně...',
         btn_read: "Číst",
         btn_read_again: "Přečíst znovu",
         categories: {
@@ -304,16 +301,9 @@ lore: {
             }
         }
     },
-time: {
-        phase_dawn: 'Svítání',
-        phase_morning: 'Ráno',
-        phase_forenoon: 'Dopoledne',
-        phase_noon: 'Poledne',
-        phase_afternoon: 'Odpoledne',
-        phase_evening: 'Večer',
-        phase_night: 'Noc',
-        phase_midnight: 'Půlnoc',
-        phase_deepnight: 'Hluboká noc'
+    time: { 
+        night: 'NOC', morning: 'RÁNO', forenoon: 'DOPOLEDNE', noon: 'POLEDNE', afternoon: 'ODPOLEDNE', evening: 'VEČER',
+        phase_dawn: 'Svítání', phase_morning: 'Ráno', phase_forenoon: 'Dopoledne', phase_noon: 'Poledne', phase_afternoon: 'Odpoledne', phase_evening: 'Večer', phase_night: 'Noc', phase_midnight: 'Půlnoc', phase_deepnight: 'Hluboká noc' 
     },
     hunger: {
         full: 'Plně sytý ({h}h {m}m)',
@@ -347,5 +337,11 @@ garden: {
         fertilize: 'Zúrodnit',
         locked: 'Zamčeno',
         lockedTech: 'Tech Tree'
+    },
+    daily: {
+    streak: 'Streak',
+    streakTitle: 'Denní streak:',
+    loyaltyBonus: '🎉 Bonus za věrnost!',
+    factTitle: 'Dnešní fakt'
     },
 };
