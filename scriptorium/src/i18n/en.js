@@ -344,7 +344,18 @@ garden: {
         desc: 'Cultivate rare flora. The soil requires thy care.',
         fertilize: 'Fertilize',
         locked: 'Locked',
-        lockedTech: 'Tech Tree'
+        lockedTech: 'Tech Tree',
+        herb: 'Herbs',
+        vegetable: 'Vegetables',
+        special: 'Special',
+        any: 'Any crop',
+        sow: 'Sow',
+        water: 'Water',
+        dry: 'Parched',
+        growing: 'Growing...',
+        grown: 'Ready',
+        harvest: 'Harvest',
+        wait: 'Wait'
     },
 
     daily: {
@@ -353,4 +364,36 @@ garden: {
     loyaltyBonus: '🎉 Loyalty Bonus!',
     factTitle: 'Today\'s Fact'
 },
+    achievements: {
+        unlocked: 'Achievements unlocked',
+        hidden: 'Hidden',
+        reward: 'Reward:'
+    },
+    records: {
+        locked: 'Locked',
+        lockHint: 'Unlock the "Games and Records" tech to access mini-games and statistics.',
+        miniGames: '🎮 Mini-Games',
+        stats: '📊 Personal Records',
+        harvests: '🌿 Harvests',
+        gamesWon: '🎮 Games Won',
+        meals: '🍖 Meals',
+        candles: '🕯️ Candles',
+        wellUses: '💧 Well',
+        streakDays: 'days',
+        streakMax: 'best',
+        backup: '💾 Safekeeping',
+        backupDesc: 'Export thy progress for safekeeping or another device.',
+        backupWarning: '💡 We urge thee to secure a copy ere making grave changes!',
+        backupReset: 'To reset the game, visit Settings.',
+        downloadSave: '📥 Download Save',
+        uploadSave: '📤 Upload Save'
+    },
+    fontSpec: {
+        unlocked: 'Unlocked',
+        title: '✒️ Script of the Age',
+        close: 'Close'
+    },
+    ui: {
+        close: 'Close'
+    },
 };

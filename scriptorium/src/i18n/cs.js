@@ -335,12 +335,55 @@ garden: {
         desc: 'Pěstuj vzácné rostliny. Půda vyžaduje péči.',
         fertilize: 'Zúrodnit',
         locked: 'Zamčeno',
-        lockedTech: 'Tech Tree'
+        lockedTech: 'Tech Tree',
+        herb: 'Byliny',
+        vegetable: 'Zelenina',
+        special: 'Speciál',
+        any: 'Jakékoliv',
+        sow: 'Zasít',
+        water: 'Zalít',
+        dry: 'Suché',
+        growing: 'Roste...',
+        grown: 'Vzrostlé',
+        harvest: 'Sklidit',
+        wait: 'Čekat'
     },
     daily: {
     streak: 'Streak',
     streakTitle: 'Denní streak:',
     loyaltyBonus: '🎉 Bonus za věrnost!',
     factTitle: 'Dnešní fakt'
+    },
+    achievements: {
+        unlocked: 'Achievementy odemčeny',
+        hidden: 'Neobjeveno',
+        reward: 'Odměna:'
+    },
+    records: {
+        locked: 'Zamčeno',
+        lockHint: 'Odemkni tech "Hry a Záznamy" pro přístup k mini-games a statistikám.',
+        miniGames: '🎮 Mini-Games',
+        stats: '📊 Osobní Statistiky',
+        harvests: '🌿 Sklizně',
+        gamesWon: '🎮 Hry vyhráno',
+        meals: '🍖 Jídel',
+        candles: '🕯️ Svíčky',
+        wellUses: '💧 Studna',
+        streakDays: 'dní',
+        streakMax: 'max',
+        backup: '💾 Záloha Save',
+        backupDesc: 'Exportuj save jako zálohu nebo přenes na jiné zařízení.',
+        backupWarning: '💡 Před velkými experimenty doporučujeme stáhnout zálohu!',
+        backupReset: 'Pro reset hry jdi do Nastavení.',
+        downloadSave: '📥 Stáhnout Save',
+        uploadSave: '📤 Nahrát Save'
+    },
+    fontSpec: {
+        unlocked: 'Odemčeno',
+        title: '✒️ Písmo té doby',
+        close: 'Zavřít'
+    },
+    ui: {
+        close: 'Zavřít'
     },
 };
