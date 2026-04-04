@@ -119,7 +119,11 @@ header: {
 	    errorImport: '❌ Chyba při importu!',
 	    errorRead: '❌ Nelze přečíst soubor!',
 	    successImport: '✅ Save importován! Refresh pro jistotu.',
-            saveImportFail:'❌ Neplatný save file!'
+            saveImportFail:'❌ Neplatný save file!',
+            done: "Hotovo!",
+        interrupted: "Přerušeno.",
+        scavengeResult: "{msg} +{total} ks.",
+        scavengeNothing: "{msg} Nic nestihli."
         },
         notify: {
             langSwitched:'🇨🇿 Jazyk přepnut na češtinu.',
@@ -176,10 +180,13 @@ lore: {
         tabRecords:'🏆 Hry & Záznamy', 
         tabIching:'☯️ Věštění', 
         tabNews:'📜 Zprávy',
-	locked: 'Zamčeno',
+	    locked: 'Zamčeno',
         divination_hint: 'Odemkni tech "Starověká Moudrost" pro přístup k věštění.',
         records_hint: 'Odemkni tech "Hry a Záznamy" pro přístup k mini-games a statistikám.',
-        scribe_short: '"Za 3x Papír ti odkryji jednu knihu předčasně..."' 
+        scribe_short: '"Za 3x Papír ti odkryji jednu knihu předčasně..."',
+        iching_title: '☯️ I-Ching (Kniha Proměn)',
+        iching_need_book: 'Potřebuješ Knihu Proměn',
+        iching_craft_hint: 'Vyrob si ji v sekci Výroba → Scriptorium.', 
     },
 
     library_lore: {

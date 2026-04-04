@@ -550,11 +550,18 @@ const Game = {
             const elapsed = now - GameState.activeAction.startTime;
             const multiplier = GameState.activeAction.multiplier;
             let count = 0; let msg = "";
-            if (now >= GameState.activeAction.endTime) { count = multiplier; msg = "Hotovo!"; }
-            else { const ratio = elapsed / totalDur; count = Math.floor(multiplier * ratio); msg = "Přerušeno."; }
+            
+            // PŘEKLAD: Hotovo / Přerušeno
+            if (now >= GameState.activeAction.endTime) { 
+                count = multiplier; 
+                msg = t('game.done'); 
+            } else { 
+                const ratio = elapsed / totalDur; 
+                count = Math.floor(multiplier * ratio); 
+                msg = t('game.interrupted'); 
+            }
             GameState.activeAction = null;
             
-            // Track action completion
             if(GameState.achievements) {
                 GameState.achievements.stats.actionsCompleted++;
             }
@@ -617,7 +624,12 @@ const Game = {
                 }
                 total++;
             }
-            if(total > 0) UI.notify(`${msg} +${total}ks.`); else UI.notify(`${msg} Nic nestihli.`);
+            if(total > 0) {
+                UI.notify(t('game.scavengeResult').replace('{msg}', msg).replace('{total}', total));
+            } else {
+                UI.notify(t('game.scavengeNothing').replace('{msg}', msg));
+            }
+
             Game.save(); UI.renderAll(); return;
         }
         if (GameState.activeAction && (type === 'basic' || type === 'nature')) {
@@ -650,9 +662,9 @@ const Game = {
         if (GameState.activeAction) { UI.notify(t('game.busy'), true); return; }
         
         // Check requirements
-        const action = ActionsDB.find(a => a.id === type);
+       const action = ActionsDB.find(a => a.id === type);
         if (action && action.req && !(GameState.inventory[action.req] > 0)) { 
-            UI.notify(t('game.missingItem').replace('{item}', ItemsDB[action.req].name), true); 
+            UI.notify(t('game.missingItem').replace('{item}', iName(action.req)), true); 
             return; 
         }
         
@@ -780,7 +792,7 @@ const Game = {
             }
         }
     },
-    addItem: function(id, qty) {
+ addItem: function(id, qty) {
         const isFirstTime = !GameState.inventory[id] || GameState.inventory[id] === 0;
         
         if(!GameState.inventory[id]) GameState.inventory[id] = 0;
@@ -799,36 +811,37 @@ const Game = {
             GameState.discoveredLore.push(id);
             if(GameState.achievements) GameState.achievements.stats.itemsDiscovered++;
             UI.notify(t('game.newCodexEntry'));
-            setTimeout(() => UI.notify(t('game.itemAdded').replace('{qty}', qty).replace('{item}', ItemsDB[id].name)), 500);
+            
+            // OPRAVA 1: Přidáno iName(id) pro správný překlad v notifikaci
+            setTimeout(() => UI.notify(t('game.itemAdded').replace('{qty}', qty).replace('{item}', iName(id))), 500);
         } else {
-            UI.notify(t('game.itemAdded').replace('{qty}', qty).replace('{item}', ItemsDB[id].name));
+            // OPRAVA 2: Přidáno iName(id) pro správný překlad v notifikaci
+            UI.notify(t('game.itemAdded').replace('{qty}', qty).replace('{item}', iName(id)));
         }
         
         Game.save(); Game.checkEnvironment(); UI.renderAll();
         Game.checkAchievements();
     },
-    removeItem: function(id, qty) {
-        if(GameState.inventory[id] >= qty) {
-            GameState.inventory[id] -= qty; if(GameState.inventory[id] <= 0) delete GameState.inventory[id];
-            Game.save(); Game.checkEnvironment(); UI.renderAll(); return true;
-        } return false;
-    },
-    craft: function(id) {
+   craft: function(id) {
         const r = RecipesDB.find(x => x.id === id);
         if(!GameState.flags.fireplaceLit && !r.blind) { UI.notify(t('game.frozenHands'), true); return; }
         for(let [item, amt] of Object.entries(r.req)) {
             if(amt > 0 && (!GameState.inventory[item] || GameState.inventory[item] < amt)) { UI.notify(t('game.missingMats'), true); return; }
-            if(amt === 0 && !GameState.inventory[item]) { UI.notify(`${t('game.required2')} ${ItemsDB[item].name}`, true); return; }
+            // TADY JE TA OPRAVA:
+            if(amt === 0 && !GameState.inventory[item]) { UI.notify(`${t('game.required2')} ${iName(item)}`, true); return; }
         }
         for(let [item, amt] of Object.entries(r.req)) if(amt > 0) this.removeItem(item, amt);
         this.addItem(r.output, r.qty);
-        // Analytics – zaznamenej craft
+        
+        // Analytics – zaznamenej craft (Tady můžeme nechat původní name, pro statistiky je lepší jeden stálý jazyk)
         const craftedItem = ItemsDB[r.output];
         if (craftedItem) Analytics.itemCrafted(r.output, craftedItem.name, craftedItem.type);
+        
         // Speciálně pro research
         if (r.output === 'research') {
             Analytics.researchCrafted((GameState.inventory['research'] || 0) + r.qty);
         }
+    },
 
         // 👿 TITIVILLUS – démon překlepů
         // Sbírá chyby z lore itemů (papír, inkoust, zápisky)

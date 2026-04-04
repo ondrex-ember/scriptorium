@@ -119,7 +119,11 @@ header: {
 	    newCodexEntry: '📖 A new record in thy Codex!',
 	    errorImport: '❌ An error occurred during import!',
 	    errorRead: '❌ The file could not be read!',
-	    successImport: '✅ Save imported! Refreshing to be certain.'
+	    successImport: '✅ Save imported! Refreshing to be certain.',
+        done: "Done!",
+        interrupted: "Interrupted.",
+        scavengeResult: "{msg} +{total} pcs.",
+        scavengeNothing: "{msg} They found nothing."
         },
         notify: {
             langSwitched:'🏴󠁧󠁢󠁥󠁮󠁧󠁿 Language set to English.',
@@ -176,10 +180,13 @@ lore: {
         tabRecords:'🏆 Games & Records', 
         tabIching:'☯️ Divination', 
         tabNews:'📜 Tidings',
-	locked: 'Locked',
+	    locked: 'Locked',
         divination_hint: 'Unlock the "Ancient Wisdom" tech to access divination.',
         records_hint: 'Unlock the "Games and Records" tech to access mini-games and statistics.',
-        scribe_short: '"For 3x Paper, I shall reveal one tome unto thee prematurely..."' 
+        scribe_short: '"For 3x Paper, I shall reveal one tome unto thee prematurely..."',
+        iching_title: '☯️ I-Ching (Book of Changes)',
+        iching_need_book: 'Thou lackest the Book of Changes',
+        iching_craft_hint: 'Craft it within the Crafting → Knowledge section.', 
     },
     library_lore: {
         new_book: "📚 A new tome hath arrived! ({count})",
