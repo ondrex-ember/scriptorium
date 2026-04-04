@@ -1,0 +1,21 @@
+name: Build dist
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - run: node build.js
+      - run: |
+          git config user.email "action@github.com"
+          git config user.name "GitHub Action"
+          git add dist/index.html
+          git commit -m "chore: auto-build dist [skip ci]" || echo "Nothing to commit"
+          git push
