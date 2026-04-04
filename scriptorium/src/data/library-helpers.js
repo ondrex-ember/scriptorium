@@ -195,7 +195,7 @@ const LibraryHelpers = {
         });
         
         if (newUnlocks > 0) {
-            UI.notify(`📚 Nová kniha v knihovně! (${newUnlocks})`);
+            UI.notify(t('library_lore.new_book').replace('{count}', newUnlocks));
         }
     },
     
@@ -230,7 +230,9 @@ const LibraryHelpers = {
                 // Grant reward
                 if (egg.reward.book) {
                     GameState.library.unlockedBooks.push(egg.reward.book);
-                    UI.notify(`🎉 Easter Egg: ${egg.name}! Odemčena tajná kniha!`);
+                    const eggBaseId = egg.id.split('_')[0]; // faust, complete, scholar...
+                    const eggName = t(`library_lore.easter_eggs.${eggBaseId}_name`);
+                    UI.notify(t('library_lore.easter_eggs.notify_found').replace('{name}', eggName || egg.name));
                 }
                 if (egg.reward.research) {
                     Game.addItem('research', egg.reward.research);
@@ -247,7 +249,7 @@ const LibraryHelpers = {
         
         // Check if player has enough
         if ((GameState.inventory.paper || 0) < cost.paper) {
-            UI.notify('Nemáš dost papíru!', true);
+            UI.notify(t('library_lore.npc_scribe.err_paper'), true);
             return;
         }
         
@@ -267,13 +269,22 @@ const LibraryHelpers = {
             GameState.library.scribeState.totalTrades++;
             GameState.library.scribeState.lastTrade = Date.now();
             
-            UI.notify(`📖 Písař ti dal knihu: "${randomBook.title}"`);
+            // Trik pro získání názvu knihy rovnou ze slovníku
+            const currentLang = (typeof GameState !== 'undefined' && GameState.settings && GameState.settings.language) || 'cs';
+            const dict = currentLang === 'en' ? STRINGS_en : STRINGS_cs;
+            const bookTitle = dict.library_lore.books[randomBook.id].title;
+            
+            UI.notify(`${t('library_lore.npc_scribe.notify_book')} "${bookTitle}"`);
         } else {
-            UI.notify('Písař: "Už znáš všechny příběhy..."');
+            UI.notify(t('library_lore.npc_scribe.notify_empty'));
         }
         
         Game.save();
-        UI.renderLibrary();
+        if (typeof UI.renderLibrary === 'function') {
+            UI.renderLibrary();
+        } else {
+            UI.renderAll();
+        }
     }
 };
 

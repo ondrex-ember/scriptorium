@@ -412,8 +412,10 @@ renderLibrary: function() {
                 const isRead = GameState.library.readBooks.includes(book.id);
                 
                 if (isUnlocked) {
-                    const bookTitle = t(`library_lore.books.${book.id}.title`);
-                    const bookAuthor = t(`library_lore.books.${book.id}.author`);
+                    const currentLang = (typeof GameState !== 'undefined' && GameState.settings && GameState.settings.language) || 'cs';
+                    const dict = currentLang === 'en' ? STRINGS_en : STRINGS_cs;
+                    const bookTitle = dict.library_lore.books[book.id].title;
+                    const bookAuthor = dict.library_lore.books[book.id].author;
                     
                     h += `
                         <div class="card" style="border-color:${isRead?'var(--accent-gold)':'var(--ink-secondary)'};">
@@ -467,10 +469,11 @@ showBookModal: function(book) {
             padding: 20px;
         `;
         
-        const bookTitle = t(`library_lore.books.${book.id}.title`);
-        const bookAuthor = t(`library_lore.books.${book.id}.author`);
-        // Pro content použijeme marked() pro parsování markdownu, pokud to knihovna umožňuje, jinak jen innerHTML
-        const bookContent = t(`library_lore.books.${book.id}.content`);
+        const currentLang = (typeof GameState !== 'undefined' && GameState.settings && GameState.settings.language) || 'cs';
+        const dict = currentLang === 'en' ? STRINGS_en : STRINGS_cs;
+        const bookTitle = dict.library_lore.books[book.id].title;
+        const bookAuthor = dict.library_lore.books[book.id].author;
+        const bookContent = dict.library_lore.books[book.id].content;
         
         modal.innerHTML = `
             <div style="
