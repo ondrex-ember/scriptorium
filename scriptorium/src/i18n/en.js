@@ -290,4 +290,24 @@ lore: {
             }
         }
     },
+time: {
+        phase_dawn: 'Dawn',
+        phase_morning: 'Morning',
+        phase_forenoon: 'Forenoon',
+        phase_noon: 'Noon',
+        phase_afternoon: 'Afternoon',
+        phase_evening: 'Evening',
+        phase_night: 'Night',
+        phase_midnight: 'Midnight',
+        phase_deepnight: 'Deep Night'
+    },
+    hunger: {
+        full: 'Fully Nourished ({h}h {m}m)',
+        light: 'Peckish ({h}h {m}m)',
+        medium: 'Moderate Hunger ({h}h {m}m)',
+        heavy: 'Ravenous! ({h}h {m}m)',
+        starving: 'STARVING!',
+        notified: 'Thy belly rumbles. Thou art starving!'
+    },
+    // candleBurnedOut: 'Thy candle hath burned out.',
 };

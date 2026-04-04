@@ -290,4 +290,23 @@ lore: {
             }
         }
     },
+time: {
+        phase_dawn: 'Svítání',
+        phase_morning: 'Ráno',
+        phase_forenoon: 'Dopoledne',
+        phase_noon: 'Poledne',
+        phase_afternoon: 'Odpoledne',
+        phase_evening: 'Večer',
+        phase_night: 'Noc',
+        phase_midnight: 'Půlnoc',
+        phase_deepnight: 'Hluboká noc'
+    },
+    hunger: {
+        full: 'Plně sytý ({h}h {m}m)',
+        light: 'Lehký hlad ({h}h {m}m)',
+        medium: 'Střední hlad ({h}h {m}m)',
+        heavy: 'Velký hlad! ({h}h {m}m)',
+        starving: 'HLADOVÝ!',
+        notified: 'Tvé břicho kručí. Jsi hladový!'
+    },
 };

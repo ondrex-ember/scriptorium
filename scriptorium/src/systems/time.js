@@ -1,20 +1,25 @@
 const TimeSys = {
     getPhase: function() {
         const now = new Date();
-        // Oprava: Přičteme minuty jako desetinné místo (např. 23:30 = 23.5)
+        // Přičteme minuty jako desetinné místo (např. 23:30 = 23.5)
         const h = now.getHours() + (now.getMinutes() / 60);
         
-        if (h >= 5 && h < 7) return "🌅 Svítání";
-        if (h >= 7 && h < 9) return "🌄 Ráno";
-        if (h >= 9 && h < 11) return "☀️ Dopoledne";
-        if (h >= 11 && h < 13) return "🌞 Poledne";
-        if (h >= 13 && h < 18) return "🌥️ Odpoledne";
-        if (h >= 18 && h < 22) return "🌇 Večer";
-        if (h >= 22 && h < 23.5) return "🕯️ Noc";
-        if (h >= 23.5 || h < 0.5) return "🌑 Půlnoc"; // Teď už 23.5 bude fungovat
-        return "🌌 Hluboká noc";
+        if (h >= 5 && h < 7) return `🌅 ${t('time.phase_dawn')}`;
+        if (h >= 7 && h < 9) return `🌄 ${t('time.phase_morning')}`;
+        if (h >= 9 && h < 11) return `☀️ ${t('time.phase_forenoon')}`;
+        if (h >= 11 && h < 13) return `🌞 ${t('time.phase_noon')}`;
+        if (h >= 13 && h < 18) return `🌥️ ${t('time.phase_afternoon')}`;
+        if (h >= 18 && h < 22) return `🌇 ${t('time.phase_evening')}`;
+        if (h >= 22 && h < 23.5) return `🕯️ ${t('time.phase_night')}`;
+        if (h >= 23.5 || h < 0.5) return `🌑 ${t('time.phase_midnight')}`; // Půlnoc
+        return `🌌 ${t('time.phase_deepnight')}`;
     },
-    isDaytime: function() { const h = new Date().getHours(); return (h >= 5 && h < 18); },
+    
+    isDaytime: function() { 
+        const h = new Date().getHours(); 
+        return (h >= 5 && h < 18); 
+    },
+    
     update: function() {
         const timeEl = document.getElementById('time-display');
         const hungerEl = document.getElementById('hunger-display');
@@ -45,28 +50,28 @@ const TimeSys = {
             if(percentRemaining > 0.75) {
                 // 100-75% = plně nasycen
                 icon = "🍖";
-                tooltip = `Plně sytý (${hoursLeft}h ${minutesLeft}m)`;
+                tooltip = t('hunger.full').replace('{h}', hoursLeft).replace('{m}', minutesLeft);
                 hungerEl.style.filter = "drop-shadow(0 0 3px #4caf50)";
                 hungerEl.style.transform = "scale(1.1)";
                 hungerEl.style.animation = "";
             } else if(percentRemaining > 0.5) {
                 // 75-50% = lehký hlad
                 icon = "🥩";
-                tooltip = `Lehký hlad (${hoursLeft}h ${minutesLeft}m)`;
+                tooltip = t('hunger.light').replace('{h}', hoursLeft).replace('{m}', minutesLeft);
                 hungerEl.style.filter = "drop-shadow(0 0 2px #ff9800)";
                 hungerEl.style.transform = "scale(1.05)";
                 hungerEl.style.animation = "";
             } else if(percentRemaining > 0.25) {
                 // 50-25% = střední hlad
                 icon = "🦴";
-                tooltip = `Střední hlad (${hoursLeft}h ${minutesLeft}m)`;
+                tooltip = t('hunger.medium').replace('{h}', hoursLeft).replace('{m}', minutesLeft);
                 hungerEl.style.filter = "drop-shadow(0 0 2px #ff5722)";
                 hungerEl.style.transform = "scale(1)";
                 hungerEl.style.animation = "";
             } else {
                 // 25-0% = velký hlad (bliká!)
                 icon = "☠️";
-                tooltip = `Velký hlad! (${hoursLeft}h ${minutesLeft}m)`;
+                tooltip = t('hunger.heavy').replace('{h}', hoursLeft).replace('{m}', minutesLeft);
                 hungerEl.style.filter = "drop-shadow(0 0 4px #f44336)";
                 hungerEl.style.transform = "";
                 hungerEl.style.animation = "pulse 1s ease-in-out infinite";
@@ -82,7 +87,7 @@ const TimeSys = {
             hungerEl.style.opacity = "1";
             hungerEl.style.transform = "";
             hungerEl.style.animation = "pulse 0.8s ease-in-out infinite";
-            hungerEl.title = "HLADOVÝ!";
+            hungerEl.title = t('hunger.starving');
         }
         
         // Candle check
@@ -90,8 +95,10 @@ const TimeSys = {
             if ((Date.now() - GameState.candleStart) > CONFIG.CANDLE_DURATION) {
                 GameState.flags.candleLit = false;
                 GameState.candleStart = 0;
-                UI.notify(t('game.candleBurnedOut'), true);
-                Game.checkEnvironment(); Game.save();
+                // Fallback na natvrdo napsaný řetězec, pokud klíč chybí
+                UI.notify(t('game.candleBurnedOut') || 'Svíčka dohořela.', true);
+                Game.checkEnvironment(); 
+                Game.save();
             }
         }
         
@@ -100,12 +107,12 @@ const TimeSys = {
             const elapsed = Date.now() - GameState.hunger.lastMeal;
             if (elapsed > GameState.hunger.duration) {
                 GameState.hunger.fed = false;
-                UI.notify(t('game.hungry'), true);
+                UI.notify(t('hunger.notified'), true);
                 Game.save();
             }
         }
-		
-		const researchCount = GameState.inventory.research || 0;
+        
+        const researchCount = GameState.inventory.research || 0;
         const researchEl = document.getElementById('research-count');
         if (researchEl) {
             researchEl.textContent = researchCount;
@@ -118,14 +125,16 @@ const TimeSys = {
             } else {
                 researchEl.style.color = '#4ade80'; // Zelená
             }
-		}
+        }
         
         // Check library unlocks (daily)
-        if(GameState.library) {
+        if(GameState.library && typeof LibraryHelpers !== 'undefined') {
             LibraryHelpers.checkLibraryUnlocks();
         }
         
-        UI.renderActions();
+        if (typeof UI !== 'undefined' && typeof UI.renderActions === 'function') {
+            UI.renderActions();
+        }
     }
 };
 
