@@ -273,6 +273,11 @@ const LibraryHelpers = {
         
         // Check Easter egg achievements
         LibraryHelpers.checkEasterEggs();
+        
+        // Refresh library UI to update button text
+        if (typeof UI.renderLibrary === 'function') {
+            UI.renderLibrary();
+        }
     },
     
     // Kontrola Easter eggs
@@ -330,10 +335,11 @@ const LibraryHelpers = {
             // Trik pro získání názvu knihy rovnou ze slovníku
             const currentLang = (typeof GameState !== 'undefined' && GameState.settings && GameState.settings.language) || 'cs';
             const dict = currentLang === 'en' ? STRINGS_en : STRINGS_cs;
-           // Fallback pro nepřeložené knihy
-			const bookData = dict.library_lore?.books?.[randomBook.id];
-			const csData = STRINGS_cs.library_lore?.books?.[randomBook.id];
-			const bookTitle = bookData?.title || csData?.title || randomBook.title || randomBook.id;
+            
+            // Robustní fallback: STRINGS_en → STRINGS_cs → LibraryDB
+            const bookTitle = dict.library_lore?.books?.[randomBook.id]?.title || 
+                             STRINGS_cs.library_lore?.books?.[randomBook.id]?.title || 
+                             randomBook.title;
             
             UI.notify(`${t('library_lore.npc_scribe.notify_book')} "${bookTitle}"`);
         } else {
@@ -368,4 +374,3 @@ const ScriptoriumLibraryModule = {
 // ================================================
 
 console.log('📚 Library Module loaded successfully!');
-

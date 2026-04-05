@@ -427,8 +427,14 @@ renderLibrary: function() {
                 if (isUnlocked) {
                     const currentLang = (typeof GameState !== 'undefined' && GameState.settings && GameState.settings.language) || 'cs';
                     const dict = currentLang === 'en' ? STRINGS_en : STRINGS_cs;
-                    const bookTitle = dict.library_lore.books[book.id].title;
-                    const bookAuthor = dict.library_lore.books[book.id].author;
+                    
+                    // Robustní fallback: STRINGS_en → STRINGS_cs → LibraryDB
+                    const bookTitle = dict.library_lore?.books?.[book.id]?.title || 
+                                     STRINGS_cs.library_lore?.books?.[book.id]?.title || 
+                                     book.title;
+                    const bookAuthor = dict.library_lore?.books?.[book.id]?.author || 
+                                      STRINGS_cs.library_lore?.books?.[book.id]?.author || 
+                                      book.author;
                     
                     h += `
                         <div class="card" style="border-color:${isRead?'var(--accent-gold)':'var(--ink-secondary)'};">
@@ -484,9 +490,17 @@ showBookModal: function(book) {
         
         const currentLang = (typeof GameState !== 'undefined' && GameState.settings && GameState.settings.language) || 'cs';
         const dict = currentLang === 'en' ? STRINGS_en : STRINGS_cs;
-        const bookTitle = dict.library_lore.books[book.id].title;
-        const bookAuthor = dict.library_lore.books[book.id].author;
-        const bookContent = dict.library_lore.books[book.id].content;
+        
+        // Robustní fallback: STRINGS_en → STRINGS_cs → LibraryDB
+        const bookTitle = dict.library_lore?.books?.[book.id]?.title || 
+                         STRINGS_cs.library_lore?.books?.[book.id]?.title || 
+                         book.title;
+        const bookAuthor = dict.library_lore?.books?.[book.id]?.author || 
+                          STRINGS_cs.library_lore?.books?.[book.id]?.author || 
+                          book.author;
+        const bookContent = dict.library_lore?.books?.[book.id]?.content || 
+                           STRINGS_cs.library_lore?.books?.[book.id]?.content || 
+                           book.content;
         
         modal.innerHTML = `
             <div style="
