@@ -11355,7 +11355,7 @@ renderActions: function() {
 		// Show selected tab
 		if (tab === 'research') {
 			document.getElementById('lore-research-content').style.display = 'block';
-			UI.renderResearch();
+			UI.renderScriptorium(); 
 		} else if (tab === 'codex') {
 			document.getElementById('lore-codex-content').style.display = 'block';
 			UI.renderCodex();
@@ -11490,8 +11490,10 @@ renderLibrary: function() {
                 if (isUnlocked) {
                     const currentLang = (typeof GameState !== 'undefined' && GameState.settings && GameState.settings.language) || 'cs';
                     const dict = currentLang === 'en' ? STRINGS_en : STRINGS_cs;
-                    const bookTitle = dict.library_lore.books[book.id].title;
-                    const bookAuthor = dict.library_lore.books[book.id].author;
+                    const bookData = dict.library_lore?.books?.[book.id];
+					const csData = STRINGS_cs.library_lore?.books?.[book.id];
+					const bookTitle = bookData?.title || csData?.title || book.id;
+					const bookAuthor = bookData?.author || csData?.author || '???';
                     
                     h += `
                         <div class="card" style="border-color:${isRead?'var(--accent-gold)':'var(--ink-secondary)'};">
@@ -11547,9 +11549,11 @@ showBookModal: function(book) {
         
         const currentLang = (typeof GameState !== 'undefined' && GameState.settings && GameState.settings.language) || 'cs';
         const dict = currentLang === 'en' ? STRINGS_en : STRINGS_cs;
-        const bookTitle = dict.library_lore.books[book.id].title;
-        const bookAuthor = dict.library_lore.books[book.id].author;
-        const bookContent = dict.library_lore.books[book.id].content;
+		const bookData = dict.library_lore?.books?.[book.id];
+		const csData = STRINGS_cs.library_lore?.books?.[book.id];
+		const bookTitle = bookData?.title || csData?.title || book.id;
+		const bookAuthor = bookData?.author || csData?.author || '???';
+		const bookContent = bookData?.content || csData?.content || 'Content not available';
         
         modal.innerHTML = `
             <div style="
