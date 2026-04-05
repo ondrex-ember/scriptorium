@@ -3724,7 +3724,10 @@ const LibraryHelpers = {
             // Trik pro získání názvu knihy rovnou ze slovníku
             const currentLang = (typeof GameState !== 'undefined' && GameState.settings && GameState.settings.language) || 'cs';
             const dict = currentLang === 'en' ? STRINGS_en : STRINGS_cs;
-            const bookTitle = dict.library_lore.books[randomBook.id].title;
+           // Fallback pro nepřeložené knihy
+			const bookData = dict.library_lore?.books?.[randomBook.id];
+			const csData = STRINGS_cs.library_lore?.books?.[randomBook.id];
+			const bookTitle = bookData?.title || csData?.title || randomBook.title || randomBook.id;
             
             UI.notify(`${t('library_lore.npc_scribe.notify_book')} "${bookTitle}"`);
         } else {
