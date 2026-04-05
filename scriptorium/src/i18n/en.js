@@ -167,7 +167,9 @@ lore: {
         notes:'Notes:', 
         discovered:'Discovered:',
 	notebooks_empty: 'Thou hast no notebooks as yet',
-        notebooks_hint: 'Unlock the "Basics of Writing" tech (3 research) and craft thy first Tabula!' 
+        notebooks_hint: 'Unlock the "Basics of Writing" tech (3 research) and craft thy first Tabula!',
+        darkTitle: 'Darkness falls',
+        darkDesc: 'Light a Torch or Candle in the workroom.'
     },
     library: { 
         tabBooks:'📚 Books', 
@@ -201,6 +203,7 @@ lore: {
         },
         npc_scribe: {
             name: "Master Bartholomew, The Elder Scribe",
+            scribe_short: '"For 3x Paper, I shall reveal one tome unto thee prematurely..."',
             first_visit_text: "*An aged man, his fingers forever stained by the black gall ink, slowly lifteth his gaze from his pulpit. A heavy, ancient scent of parchment and beeswax hangs in the air.*\n\n\"Ah... I hear thy steps. Another of those so-called 'printers', eh? Another who, in his unholy pride, thinketh a mechanical press can replace a human soul. I remember the days, lad, when books were penned by hand... Hast thou even the patience to listen to an old man?\"",
             opt_yes: "Aye, Master. Speak on!",
             opt_no: "Perchance later. The presses wait for no man.",

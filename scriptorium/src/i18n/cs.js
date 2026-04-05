@@ -168,7 +168,9 @@ lore: {
         notes:'Zápisky:', 
 	notebooks_empty: 'Zatím nemáš žádný zápisník',
         notebooks_hint: 'Odemkni tech "Základy Psaní" (3 research) a vycrafti svou první Tabulu!',
-        discovered:'Objeveno:' 
+        discovered:'Objeveno:',
+        darkTitle: 'Je tu tma',
+        darkDesc: 'Zapálit Louč nebo Svíčku v pracovně.'
     },
     library: { 
         tabBooks:'📚 Knihy', 
@@ -203,6 +205,7 @@ lore: {
         },
         npc_scribe: {
             name: "Mistr Bartoloměj, Starý Písař",
+            scribe_short: '"Za 3x Papír ti odkryji jednu knihu předčasně..."',
             first_visit_text: "*Starý muž s hlubokými vráskami a prsty navždy zčernalými od duběnkového inkoustu pomalu zvedne zrak od svého pulpitu. Ve vzduchu je cítit těžká, starobylá vůně pergamenu a včelího vosku.*\n\n\"Ah... slyším ty tvé kroky. Další z těch takzvaných 'tiskařů', že? Další z těch, co si ve své pýše myslí, že mechanický lis dokáže nahradit lidskou duši. Pamatuji si časy, chlapče, kdy se knihy psaly rukou... Máš vůbec dost trpělivosti poslouchat starce?\"",
             opt_yes: "Ano, mistře. Vypravuj!",
             opt_no: "Možná později, lisy nepočkají.",

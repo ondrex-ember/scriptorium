@@ -394,7 +394,7 @@ renderLibrary: function() {
                     <div style="flex:1;">
                         <strong>${t('library_lore.npc_scribe.name')}</strong>
                         <div class="text-sm" style="color:var(--ink-secondary);">
-                            "Za 3x Papír ti odkryji jednu knihu předčasně..."
+                            ${t('library_lore.npc_scribe.scribe_short')}
                         </div>
                     </div>
                     <button class="craft-btn" onclick="LibraryHelpers.scribeTrade()">
@@ -914,36 +914,36 @@ renderRecords: function() {
             let c = "", b = "", typeLabel = "";
             
             if(plot.locked) {
-                c = `<div class="plot-soil" style="opacity:0.2">🔒</div><div class="text-sm">Zamčeno</div>`;
-                b = `<button class="craft-btn" disabled>Tech Tree</button>`;
+                c = `<div class="plot-soil" style="opacity:0.2">🔒</div><div class="text-sm">${t('garden.locked')}</div>`;
+                b = `<button class="craft-btn" disabled>${t('garden.lockedTech')}</button>`;
             }
             else if (plot.state === 0) { 
-                if(plot.cropType === 'herb') typeLabel = "Byliny";
-                else if(plot.cropType === 'vegetable') typeLabel = "Zelenina";
-                else if(plot.cropType === 'special') typeLabel = "Speciál";
+                if(plot.cropType === 'herb') typeLabel = t('garden.herb');
+                else if(plot.cropType === 'vegetable') typeLabel = t('garden.vegetable');
+                else if(plot.cropType === 'special') typeLabel = t('garden.special');
                 c = `<div class="plot-soil" style="opacity:0.3">🟫</div><div class="text-sm">${typeLabel}</div>`; 
-                b = `<button class="craft-btn" onclick="Game.farmAction(${idx})">Zúrodnit</button>`; 
+                b = `<button class="craft-btn" onclick="Game.farmAction(${idx})">${t('garden.fertilize')}</button>`; 
             }
             else if (plot.state === 1) { 
-                if(plot.cropType === 'herb') typeLabel = "Byliny";
-                else if(plot.cropType === 'vegetable') typeLabel = "Zelenina";
-                else if(plot.cropType === 'special') typeLabel = "Jakékoliv";
+                if(plot.cropType === 'herb') typeLabel = t('garden.herb');
+                else if(plot.cropType === 'vegetable') typeLabel = t('garden.vegetable');
+                else if(plot.cropType === 'special') typeLabel = t('garden.any');
                 c = `<div class="plot-soil">🟫</div><div class="text-sm">${typeLabel}</div>`; 
-                b = `<button class="craft-btn" onclick="Game.farmAction(${idx})">Zasít</button>`; 
+                b = `<button class="craft-btn" onclick="Game.farmAction(${idx})">${t('garden.sow')}</button>`; 
             }
             else if (plot.state === 2) {
                 const cropIcon = ItemsDB[plot.crop] ? ItemsDB[plot.crop].icon : '🌱';
                 if (!plot.water) { 
-                    c = `<div class="plot-soil">${cropIcon}</div><div class="text-sm">Suché</div>`; 
-                    b = `<button class="craft-btn" onclick="Game.farmAction(${idx})">Zalít</button>`; 
+                    c = `<div class="plot-soil">${cropIcon}</div><div class="text-sm">${t('garden.dry')}</div>`; 
+                    b = `<button class="craft-btn" onclick="Game.farmAction(${idx})">${t('garden.water')}</button>`; 
                 }
                 else if (Date.now() < plot.plantedAt + needed) { 
-                    c = `<div class="plot-soil" style="color:#888">${cropIcon}</div><div class="text-sm">Roste...</div>`; 
-                    b = `<button class="craft-btn" disabled>Čekat</button>`; 
+                    c = `<div class="plot-soil" style="color:#888">${cropIcon}</div><div class="text-sm">${t('garden.growing')}</div>`; 
+                    b = `<button class="craft-btn" disabled>${t('garden.wait')}</button>`; 
                 }
                 else { 
-                    c = `<div class="plot-soil" style="color:#4caf50">${cropIcon}</div><div class="text-sm">Vzrostlé</div>`; 
-                    b = `<button class="craft-btn" onclick="Game.farmAction(${idx})">Sklidit</button>`; 
+                    c = `<div class="plot-soil" style="color:#4caf50">${cropIcon}</div><div class="text-sm">${t('garden.grown')}</div>`; 
+                    b = `<button class="craft-btn" onclick="Game.farmAction(${idx})">${t('garden.harvest')}</button>`; 
                 }
             }
             el.innerHTML += `<div class="garden-plot">${c}<div style="margin-top:auto">${b}</div></div>`;

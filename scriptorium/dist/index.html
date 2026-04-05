@@ -1257,7 +1257,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         <div id="screen-lore" class="screen">
             <h2>Scriptorium</h2>
             <div id="lore-overlay" style="display:none;">
-                <div class="lore-overlay-msg"><div style="font-size:3rem;">🌑</div><h3>Je tu tma</h3><p>Zapálit Louč nebo Svíčku v pracovně.</p></div>
+                <div class="lore-overlay-msg"><div style="font-size:3rem;">🌑</div><h3 data-i18n="lore.darkTitle">Je tu tma</h3><p data-i18n="lore.darkDesc">Zapálit Louč nebo Svíčku v pracovně.</p></div>
             </div>
             <div id="lore-content-wrapper">
                 <div class="filter-bar" style="margin-top:10px; margin-bottom:15px; flex; flex-wrap: wrap; gap: 5px;">
@@ -9199,7 +9199,9 @@ lore: {
         notes:'Zápisky:', 
 	notebooks_empty: 'Zatím nemáš žádný zápisník',
         notebooks_hint: 'Odemkni tech "Základy Psaní" (3 research) a vycrafti svou první Tabulu!',
-        discovered:'Objeveno:' 
+        discovered:'Objeveno:',
+        darkTitle: 'Je tu tma',
+        darkDesc: 'Zapálit Louč nebo Svíčku v pracovně.'
     },
     library: { 
         tabBooks:'📚 Knihy', 
@@ -9234,6 +9236,7 @@ lore: {
         },
         npc_scribe: {
             name: "Mistr Bartoloměj, Starý Písař",
+            scribe_short: '"Za 3x Papír ti odkryji jednu knihu předčasně..."',
             first_visit_text: "*Starý muž s hlubokými vráskami a prsty navždy zčernalými od duběnkového inkoustu pomalu zvedne zrak od svého pulpitu. Ve vzduchu je cítit těžká, starobylá vůně pergamenu a včelího vosku.*\n\n\"Ah... slyším ty tvé kroky. Další z těch takzvaných 'tiskařů', že? Další z těch, co si ve své pýše myslí, že mechanický lis dokáže nahradit lidskou duši. Pamatuji si časy, chlapče, kdy se knihy psaly rukou... Máš vůbec dost trpělivosti poslouchat starce?\"",
             opt_yes: "Ano, mistře. Vypravuj!",
             opt_no: "Možná později, lisy nepočkají.",
@@ -9588,7 +9591,9 @@ lore: {
         notes:'Notes:', 
         discovered:'Discovered:',
 	notebooks_empty: 'Thou hast no notebooks as yet',
-        notebooks_hint: 'Unlock the "Basics of Writing" tech (3 research) and craft thy first Tabula!' 
+        notebooks_hint: 'Unlock the "Basics of Writing" tech (3 research) and craft thy first Tabula!',
+        darkTitle: 'Darkness falls',
+        darkDesc: 'Light a Torch or Candle in the workroom.'
     },
     library: { 
         tabBooks:'📚 Books', 
@@ -9622,6 +9627,7 @@ lore: {
         },
         npc_scribe: {
             name: "Master Bartholomew, The Elder Scribe",
+            scribe_short: '"For 3x Paper, I shall reveal one tome unto thee prematurely..."',
             first_visit_text: "*An aged man, his fingers forever stained by the black gall ink, slowly lifteth his gaze from his pulpit. A heavy, ancient scent of parchment and beeswax hangs in the air.*\n\n\"Ah... I hear thy steps. Another of those so-called 'printers', eh? Another who, in his unholy pride, thinketh a mechanical press can replace a human soul. I remember the days, lad, when books were penned by hand... Hast thou even the patience to listen to an old man?\"",
             opt_yes: "Aye, Master. Speak on!",
             opt_no: "Perchance later. The presses wait for no man.",
@@ -9813,7 +9819,6 @@ garden: {
         close: 'Close'
     },
 };
-
 // ═══ src/i18n/strings.js ═══
 // Scriptorium i18n — STRINGS assembler + t() helper
 // Přidání jazyka: 1) xx.js, 2) přidat do STRINGS, 3) přidat do build.js
@@ -11698,7 +11703,7 @@ renderLibrary: function() {
                     <div style="flex:1;">
                         <strong>${t('library_lore.npc_scribe.name')}</strong>
                         <div class="text-sm" style="color:var(--ink-secondary);">
-                            "Za 3x Papír ti odkryji jednu knihu předčasně..."
+                            ${t('library_lore.npc_scribe.scribe_short')}
                         </div>
                     </div>
                     <button class="craft-btn" onclick="LibraryHelpers.scribeTrade()">
@@ -12218,36 +12223,36 @@ renderRecords: function() {
             let c = "", b = "", typeLabel = "";
             
             if(plot.locked) {
-                c = `<div class="plot-soil" style="opacity:0.2">🔒</div><div class="text-sm">Zamčeno</div>`;
-                b = `<button class="craft-btn" disabled>Tech Tree</button>`;
+                c = `<div class="plot-soil" style="opacity:0.2">🔒</div><div class="text-sm">${t('garden.locked')}</div>`;
+                b = `<button class="craft-btn" disabled>${t('garden.lockedTech')}</button>`;
             }
             else if (plot.state === 0) { 
-                if(plot.cropType === 'herb') typeLabel = "Byliny";
-                else if(plot.cropType === 'vegetable') typeLabel = "Zelenina";
-                else if(plot.cropType === 'special') typeLabel = "Speciál";
+                if(plot.cropType === 'herb') typeLabel = t('garden.herb');
+                else if(plot.cropType === 'vegetable') typeLabel = t('garden.vegetable');
+                else if(plot.cropType === 'special') typeLabel = t('garden.special');
                 c = `<div class="plot-soil" style="opacity:0.3">🟫</div><div class="text-sm">${typeLabel}</div>`; 
-                b = `<button class="craft-btn" onclick="Game.farmAction(${idx})">Zúrodnit</button>`; 
+                b = `<button class="craft-btn" onclick="Game.farmAction(${idx})">${t('garden.fertilize')}</button>`; 
             }
             else if (plot.state === 1) { 
-                if(plot.cropType === 'herb') typeLabel = "Byliny";
-                else if(plot.cropType === 'vegetable') typeLabel = "Zelenina";
-                else if(plot.cropType === 'special') typeLabel = "Jakékoliv";
+                if(plot.cropType === 'herb') typeLabel = t('garden.herb');
+                else if(plot.cropType === 'vegetable') typeLabel = t('garden.vegetable');
+                else if(plot.cropType === 'special') typeLabel = t('garden.any');
                 c = `<div class="plot-soil">🟫</div><div class="text-sm">${typeLabel}</div>`; 
-                b = `<button class="craft-btn" onclick="Game.farmAction(${idx})">Zasít</button>`; 
+                b = `<button class="craft-btn" onclick="Game.farmAction(${idx})">${t('garden.sow')}</button>`; 
             }
             else if (plot.state === 2) {
                 const cropIcon = ItemsDB[plot.crop] ? ItemsDB[plot.crop].icon : '🌱';
                 if (!plot.water) { 
-                    c = `<div class="plot-soil">${cropIcon}</div><div class="text-sm">Suché</div>`; 
-                    b = `<button class="craft-btn" onclick="Game.farmAction(${idx})">Zalít</button>`; 
+                    c = `<div class="plot-soil">${cropIcon}</div><div class="text-sm">${t('garden.dry')}</div>`; 
+                    b = `<button class="craft-btn" onclick="Game.farmAction(${idx})">${t('garden.water')}</button>`; 
                 }
                 else if (Date.now() < plot.plantedAt + needed) { 
-                    c = `<div class="plot-soil" style="color:#888">${cropIcon}</div><div class="text-sm">Roste...</div>`; 
-                    b = `<button class="craft-btn" disabled>Čekat</button>`; 
+                    c = `<div class="plot-soil" style="color:#888">${cropIcon}</div><div class="text-sm">${t('garden.growing')}</div>`; 
+                    b = `<button class="craft-btn" disabled>${t('garden.wait')}</button>`; 
                 }
                 else { 
-                    c = `<div class="plot-soil" style="color:#4caf50">${cropIcon}</div><div class="text-sm">Vzrostlé</div>`; 
-                    b = `<button class="craft-btn" onclick="Game.farmAction(${idx})">Sklidit</button>`; 
+                    c = `<div class="plot-soil" style="color:#4caf50">${cropIcon}</div><div class="text-sm">${t('garden.grown')}</div>`; 
+                    b = `<button class="craft-btn" onclick="Game.farmAction(${idx})">${t('garden.harvest')}</button>`; 
                 }
             }
             el.innerHTML += `<div class="garden-plot">${c}<div style="margin-top:auto">${b}</div></div>`;
