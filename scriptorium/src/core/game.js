@@ -981,7 +981,13 @@ const Game = {
         
         // Get daily fact
         const factIndex = GameState.dailyRewards.totalLogins % DailyFactsDB.length;
-        const fact = DailyFactsDB[factIndex];
+        const factObj = DailyFactsDB[factIndex];
+        
+        // Support CS/EN structure
+        const currentLang = (GameState.settings && GameState.settings.language) || 'cs';
+        const fact = (typeof factObj === 'object') 
+            ? (currentLang === 'en' ? factObj.en : factObj.cs)
+            : factObj; // Fallback pro starý formát (plain string)
         
         // Show modal
         UI.showDailyRewardModal(bonusText, GameState.dailyRewards.streak, fact, streakBonus);
