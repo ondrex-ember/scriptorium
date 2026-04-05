@@ -1,6 +1,14 @@
 // Scriptorium — Build Script
 // Spuštění: node build.js
 // Výstup:   dist/index.html
+//
+// Proces:
+//   1. Vytvořit dist/ složku (pokud neexistuje)
+//   2. Zkopírovat assety z public/ → dist/ (CNAME, og-image.jpg, ikony...)
+//   3. Sestavit index.html ze src/ modulů
+//   4. Zapsat dist/index.html
+//
+// TIP: Statické soubory (obrázky, CNAME, ikony) patří do public/
 
 const fs   = require('fs');
 const path = require('path');
@@ -76,6 +84,38 @@ function readFile(relPath) {
 
 function build() {
     console.log('🔨 Scriptorium build...\n');
+
+    // Vytvořit dist/ pokud neexistuje
+    if (!fs.existsSync(DIST)) {
+        fs.mkdirSync(DIST);
+        console.log('📁 Vytvořena složka dist/');
+    }
+
+    // Zkopírovat assety z public/ do dist/
+    const PUBLIC = path.join(BASE, 'public');
+    if (fs.existsSync(PUBLIC)) {
+        console.log('📦 Kopíruji assety z public/ → dist/...');
+        const files = fs.readdirSync(PUBLIC);
+        let copied = 0;
+        files.forEach(file => {
+            const src = path.join(PUBLIC, file);
+            const dest = path.join(DIST, file);
+            const stat = fs.statSync(src);
+            if (stat.isFile()) {
+                fs.copyFileSync(src, dest);
+                copied++;
+                console.log(`   ✓ ${file}`);
+            } else if (stat.isDirectory()) {
+                // Rekurzivní kopírování složek
+                fs.cpSync(src, dest, { recursive: true });
+                copied++;
+                console.log(`   ✓ ${file}/ (složka)`);
+            }
+        });
+        console.log(`   📌 Zkopírováno: ${copied} souborů/složek\n`);
+    } else {
+        console.log('⚠️  Složka public/ neexistuje - assety nebudou zkopírovány\n');
+    }
 
     let shell = readFile('src/shell.html');
 
