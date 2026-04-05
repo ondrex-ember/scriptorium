@@ -1,1 +1,5 @@
+<<<<<<< HEAD
 myscriptorium.cz
+=======
+myscriptorium.cz
+>>>>>>> 4fab100f0fdb1510e2e2768035f245bbb754345c
