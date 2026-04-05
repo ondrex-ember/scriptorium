@@ -48,7 +48,7 @@ const RecipesDB = [
 		req: { stick: 3, rope: 2, rock: 2 },
 		cat: "tool",
 		locked: true, // Unlock: tech_water_bucket
-		desc: "Větší nádoba - přináší více vody ze studny."
+		desc: "Větší nádoba - přináší více vody ze studny.", desc_en: "Larger vessel - draws more water from the well."
 	},
 
 	{
@@ -58,7 +58,7 @@ const RecipesDB = [
 		req: { stick: 5, rope: 2, rock: 3 },
 		cat: "tool",
 		locked: true, // Unlock: tech_well_maintenance
-		desc: "Sada na opravu studny."
+		desc: "Sada na opravu studny.", desc_en: "Kit for well repairs."
 	},
 
 	{
@@ -68,7 +68,7 @@ const RecipesDB = [
 		req: { ash: 2, charcoal: 1, herb_blue: 1, pestle: 0 },
 		cat: "alchemy",
 		locked: true, // Unlock: tech_well_maintenance
-		desc: "Vyčistí znečištěnou studnu."
+		desc: "Vyčistí znečištěnou studnu.", desc_en: "Purifies a contaminated well."
 	},
 	{
     id: "rithmomachia_board",
@@ -83,7 +83,7 @@ const RecipesDB = [
     },
     cat: "tool",
     locked: true,
-    desc: "Hra filozofů - Pythagorejská matematika v bitvě."
+    desc: "Hra filozofů - Pythagorejská matematika v bitvě.", desc_en: "The Philosophers' Game - Pythagorean mathematics in battle."
 	},
 	{
     id: "primero_deck",
@@ -92,7 +92,7 @@ const RecipesDB = [
     req: { paper: 40, ink: 10, preservation_oil: 2 },
     cat: "tool",
     locked: true,
-    desc: "Španělský balíček pro Primero."
+    desc: "Španělský balíček pro Primero.", desc_en: "Spanish deck for Primero."
 	},
 
 	{
@@ -102,7 +102,7 @@ const RecipesDB = [
 		req: { paper: 48, ink: 12, charcoal: 5 },
 		cat: "tool",
 		locked: true,
-		desc: "Německý trumfový balíček."
+		desc: "Německý trumfový balíček.", desc_en: "German trump deck."
 	},
 
 	{
@@ -112,7 +112,7 @@ const RecipesDB = [
 		req: { paper: 52, ink: 15, preservation_oil: 3, herb_blue: 2 },
 		cat: "tool",
 		locked: true,
-		desc: "Francouzský balíček 52 karet."
+		desc: "Francouzský balíček 52 karet.", desc_en: "French deck of 52 cards."
 	},
 	
 	{
@@ -128,7 +128,7 @@ const RecipesDB = [
     },
     cat: "tool",
     locked: true,
-    desc: "Nejstarší desková hra světa - 2600 př.n.l."
+    desc: "Nejstarší desková hra světa - 2600 př.n.l.", desc_en: "The world's oldest board game - 2600 BC."
 	},
     
     // NOTEBOOKS (5 types - progressive)
@@ -161,34 +161,33 @@ const RecipesDB = [
     // ========== v7.5 NEW RECIPES - Historical Realities ==========
     
     // VELLUM CHAIN (Pergamen výroba - historicky přesná)
-    { id: "ash_water", output: "ash_water", qty: 1, req: { "ash": 2, "water": 3 }, cat: "mat", desc: "Louh na namáčení kůže. Historicky 3-4 dny." },
-    { id: "soaked_hide", output: "soaked_hide", qty: 1, req: { "hide": 1, "ash_water": 1 }, cat: "mat", locked: true, desc: "Kůže loužená 3 dny." },
-    { id: "stretched_hide", output: "stretched_hide", qty: 1, req: { "soaked_hide": 1, "rope": 2 }, cat: "mat", locked: true, desc: "Napnuto v rámu." },
-    { id: "pumice", output: "pumice", qty: 1, req: { "rock": 3 }, cat: "mat", locked: true, desc: "Sopečný kámen - leští." },
-    { id: "vellum", output: "vellum", qty: 1, req: { "stretched_hide": 1, "pumice": 0, "chalk": 1 }, cat: "lore", locked: true, desc: "Konečný pergamen. 1 kodex = kůže 3 ovcí." },
+    { id: "ash_water", output: "ash_water", qty: 1, req: { "ash": 2, "water": 3 }, cat: "mat", desc: "Louh na namáčení kůže. Historicky 3-4 dny.", desc_en: "Lye for soaking hides. Historically 3-4 days." },
+    { id: "soaked_hide", output: "soaked_hide", qty: 1, req: { "hide": 1, "ash_water": 1 }, cat: "mat", locked: true, desc: "Kůže loužená 3 dny.", desc_en: "Hide soaked for 3 days." },
+    { id: "stretched_hide", output: "stretched_hide", qty: 1, req: { "soaked_hide": 1, "rope": 2 }, cat: "mat", locked: true, desc: "Napnuto v rámu.", desc_en: "Stretched on a frame." },
+    { id: "pumice", output: "pumice", qty: 1, req: { "rock": 3 }, cat: "mat", locked: true, desc: "Sopečný kámen - leští.", desc_en: "Volcanic stone - for smoothing." },
+    { id: "vellum", output: "vellum", qty: 1, req: { "stretched_hide": 1, "pumice": 0, "chalk": 1 }, cat: "lore", locked: true, desc: "Konečný pergamen. 1 kodex = kůže 3 ovcí.", desc_en: "Finished parchment. 1 codex = 3 sheep hides." },
     
     // QUILL (Husí brko)
-    { id: "quill", output: "quill", qty: 1, req: { "feather": 1, "stone_knife": 0 }, cat: "tool", locked: true, desc: "Řez pod úhlem. 10x použití." },
+    { id: "quill", output: "quill", qty: 1, req: { "feather": 1, "stone_knife": 0 }, cat: "tool", locked: true, desc: "Řez pod úhlem. 10x použití.", desc_en: "Cut at an angle. 10 uses." },
     
     // GALLIC INK (Železitoduběnkový inkoust - 15. století standard)
-    { id: "iron_sulfate", output: "iron_sulfate", qty: 1, req: { "rock": 2, "ash": 1, "water": 1 }, cat: "alchemy_ing", locked: true, desc: "Vitriol. Chemická reakce." },
-    { id: "gum_arabic", output: "gum_arabic", qty: 1, req: { "resin": 2, "water": 1 }, cat: "alchemy_ing", locked: true, desc: "Pojidlo z akácie." },
-    { id: "ink_gallic", output: "ink_gallic", qty: 2, req: { "gall_nut": 2, "iron_sulfate": 1, "gum_arabic": 1, "pestle": 0 }, cat: "lore", locked: true, desc: "Permanentní. Po 80 letech černá→hnědá." },
+    { id: "iron_sulfate", output: "iron_sulfate", qty: 1, req: { "rock": 2, "ash": 1, "water": 1 }, cat: "alchemy_ing", locked: true, desc: "Vitriol. Chemická reakce.", desc_en: "Vitriol. Chemical reaction." },
+    { id: "gum_arabic", output: "gum_arabic", qty: 1, req: { "resin": 2, "water": 1 }, cat: "alchemy_ing", locked: true, desc: "Pojidlo z akácie.", desc_en: "Binder from acacia." },
+    { id: "ink_gallic", output: "ink_gallic", qty: 2, req: { "gall_nut": 2, "iron_sulfate": 1, "gum_arabic": 1, "pestle": 0 }, cat: "lore", locked: true, desc: "Permanentní. Po 80 letech černá→hnědá.", desc_en: "Permanent. After 80 years black→brown." },
     
     // ADVANCED CODEX TYPES
-    { id: "common_codex", output: "common_codex", qty: 1, req: { "paper": 10, "ink": 3 }, cat: "lore", locked: true, desc: "Běžný tisk. 'Nižší typografie' (Voit)." },
-    { id: "luxury_codex", output: "luxury_codex", qty: 1, req: { "paper": 20, "ink_gallic": 5, "preservation_oil": 1 }, cat: "lore", locked: true, desc: "'Vyšší typografie' s kvalitním inkoustem." },
-    { id: "vellum_codex", output: "vellum_codex", qty: 1, req: { "vellum": 3, "ink_gallic": 8, "preservation_oil": 2 }, cat: "lore", locked: true, desc: "Pergamenový. Jak Olomoucký misál (1488) - pouze 20 z 420 výtisků." },
+    { id: "common_codex", output: "common_codex", qty: 1, req: { "paper": 10, "ink": 3 }, cat: "lore", locked: true, desc: "Běžný tisk. 'Nižší typografie' (Voit).", desc_en: "Common print. 'Lower typography' (Voit)." },
+    { id: "luxury_codex", output: "luxury_codex", qty: 1, req: { "paper": 20, "ink_gallic": 5, "preservation_oil": 1 }, cat: "lore", locked: true, desc: "'Vyšší typografie' s kvalitním inkoustem.", desc_en: "'Higher typography' with quality ink." },
+    { id: "vellum_codex", output: "vellum_codex", qty: 1, req: { "vellum": 3, "ink_gallic": 8, "preservation_oil": 2 }, cat: "lore", locked: true, desc: "Pergamenový. Jak Olomoucký misál (1488) - pouze 20 z 420 výtisků.", desc_en: "On vellum. Like the Olomouc Missal (1488) - only 20 of 420 copies." },
     
     // PRINTING PRESS SYSTEM
-    { id: "lead_alloy", output: "lead_alloy", qty: 1, req: { "rock": 5, "charcoal": 3, "water": 1 }, cat: "mat", locked: true, desc: "Tavení kamene na olovo." },
-    { id: "printing_type", output: "printing_type", qty: 100, req: { "lead_alloy": 5, "pestle": 0 }, cat: "tool", locked: true, desc: "100 použití. Pak worn_type. Historicky se prodávaly za kovový odpad." },
+    { id: "lead_alloy", output: "lead_alloy", qty: 1, req: { "rock": 5, "charcoal": 3, "water": 1 }, cat: "mat", locked: true, desc: "Tavení kamene na olovo.", desc_en: "Smelting stone into lead." },
+    { id: "printing_type", output: "printing_type", qty: 100, req: { "lead_alloy": 5, "pestle": 0 }, cat: "tool", locked: true, desc: "100 použití. Pak worn_type. Historicky se prodávaly za kovový odpad.", desc_en: "100 uses. Then worn_type. Historically sold as scrap metal." },
     
     // CANONICAL HOURS UNLOCK
-    { id: "book_of_hours", output: "book_of_hours", qty: 1, req: { "luxury_codex": 1, "herb_blue": 5, "herb_yellow": 5 }, cat: "lore", locked: true, desc: "Horologium. Odemkne 8 denních buffů dle benediktinského řádu." },
+    { id: "book_of_hours", output: "book_of_hours", qty: 1, req: { "luxury_codex": 1, "herb_blue": 5, "herb_yellow": 5 }, cat: "lore", locked: true, desc: "Horologium. Odemkne 8 denních buffů dle benediktinského řádu.", desc_en: "Horologium. Unlocks 8 daily buffs according to Benedictine order." },
     
     // PRIVILEGIUM QUESTLINE
-    { id: "bishop_seal", output: "bishop_seal", qty: 1, req: { "vellum_codex": 10, "luxury_codex": 20 }, cat: "lore", locked: true, desc: "Daruj biskupovi 10 pergamenových + 20 luxusních kodexů." },
-    { id: "printing_privilege", output: "printing_privilege", qty: 1, req: { "bishop_seal": 1, "research": 100 }, cat: "lore", locked: true, desc: "Monopol. Endgame." }
+    { id: "bishop_seal", output: "bishop_seal", qty: 1, req: { "vellum_codex": 10, "luxury_codex": 20 }, cat: "lore", locked: true, desc: "Daruj biskupovi 10 pergamenových + 20 luxusních kodexů.", desc_en: "Gift the bishop 10 vellum + 20 luxury codices." },
+    { id: "printing_privilege", output: "printing_privilege", qty: 1, req: { "bishop_seal": 1, "research": 100 }, cat: "lore", locked: true, desc: "Monopol. Endgame.", desc_en: "Monopoly. Endgame." }
 ];
-
