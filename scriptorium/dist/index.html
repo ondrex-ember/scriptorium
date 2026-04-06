@@ -1001,7 +1001,10 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                 <div style="font-size:0.7rem; color:var(--ink-secondary); margin-top:5px; font-style:italic; letter-spacing:1px;">Léta Páně 1465 · Město Olomouc</div>
             </div>
             <div id="welcome-text" style="font-style:italic; line-height:1.9; color:var(--ink-primary); font-size:0.9rem; border-left:2px solid var(--accent-gold); padding-left:14px; margin-bottom:22px;"></div>
-            <button id="welcome-btn" onclick="UI.closeWelcomeModal()" style="width:100%; padding:12px; background:transparent; color:var(--ink-primary); border:1px solid var(--ink-secondary); font-family:'Cinzel Decorative'; font-size:0.8rem; cursor:pointer; border-radius:2px; letter-spacing:2px; opacity:0.8;">Vstoupit →</button>
+            <button id="welcome-btn" onclick="UI.closeWelcomeModal()" style="width:100%; padding:12px; background:transparent; color:var(--ink-primary); border:1px solid var(--ink-secondary); font-family:'Cinzel Decorative'; font-size:0.8rem; cursor:pointer; border-radius:2px; letter-spacing:2px; opacity:0.8;" data-i18n="welcome.btn">Vstoupit →</button>
+            <div style="text-align:center; margin-top:12px;">
+                <a href="/about.html" target="_blank" style="font-size:0.75rem; color:var(--ink-secondary); text-decoration:none; opacity:0.6; font-style:italic;" data-i18n="welcome.aboutLink">O hře &amp; Credits →</a>
+            </div>
         </div>
     </div>
 
@@ -1038,83 +1041,41 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         <h2 style="margin-bottom: 20px; color: var(--accent-gold); font-family: 'Cinzel Decorative';">📜 SCRIPTORIUM</h2>
         
         <div style="margin-bottom: 20px; padding: 12px; background: var(--bg-card); border-left: 3px solid var(--accent-gold);">
-            <strong>Verze:</strong> 7.6 "Lingua Scriptorii"<br>
-            <strong>Datum:</strong> 10. března 2026<br>
-            <strong>Autor:</strong> Ondrex Ember
+            <strong data-i18n="about.version">Verze:</strong> 7.7 "Verbum Omnibus"<br>
+            <strong data-i18n="about.date">Datum:</strong> <span data-i18n="about.dateVal">6. dubna 2026</span><br>
+            <strong data-i18n="about.author">Autor:</strong> Ondrex Ember
         </div>
         
-        <h3 style="margin: 20px 0 10px; color: var(--accent-gold); font-family: 'Cinzel Decorative';">O hře</h3>
-        <p style="line-height: 1.6;">Středověká idle hra o kopírování rukopisů, výrobě papíru a studiu v klášterním skriptoriu. Kombinuje survival mechaniky (oheň, světlo, hlad) s craftingem, zahradničením a postupným odemykáním technologií. Historicky podložená hra zasazená do roku 1465 v Olomouci.</p>
+        <h3 style="margin: 20px 0 10px; color: var(--accent-gold); font-family: 'Cinzel Decorative';" data-i18n="about.aboutTitle">O hře</h3>
+        <p style="line-height: 1.6;" data-i18n="about.aboutText">Středověká idle hra o kopírování rukopisů, výrobě papíru a studiu v klášterním skriptoriu. Kombinuje survival mechaniky (oheň, světlo, hlad) s craftingem, zahradničením a postupným odemykáním technologií. Historicky podložená hra zasazená do roku 1465 v Olomouci.</p>
         
         <h3 style="margin: 20px 0 10px; color: var(--accent-gold); font-family: 'Cinzel Decorative';">📓 Release Notes</h3>
 
-        <div style="border-left: 3px solid var(--accent-gold); padding-left: 12px; margin: 10px 0; padding: 10px; background: rgba(197,160,89,0.12);">
+        <div style="border-left: 3px solid var(--accent-gold); padding: 10px; background: rgba(197,160,89,0.12); margin: 10px 0;">
+            <strong>v7.7 "Verbum Omnibus" (06.04.2026)</strong>
+            <ul style="font-size: 0.9rem; margin: 5px 0; line-height: 1.6;">
+                <li>🌐 <span data-i18n="about.r771">i18n Phase 1 dokončena — kompletní překlad UI do EN</span></li>
+                <li>📖 <span data-i18n="about.r772">61 historických knih v knihovně</span></li>
+                <li>🔽 <span data-i18n="about.r773">Collapsible tech cards — preview lore textu</span></li>
+                <li>💧 <span data-i18n="about.r774">Well system, Games & Records, Divination — lokalizovány</span></li>
+            </ul>
+        </div>
+
+        <div style="border-left: 3px solid var(--accent-gold); padding: 10px; background: rgba(197,160,89,0.08); margin: 10px 0;">
             <strong>v7.6 "Lingua Scriptorii" (10.03.2026)</strong>
             <ul style="font-size: 0.9rem; margin: 5px 0; line-height: 1.6;">
-                <li>🌐 CZ/EN lokalizace — výběr jazyka při prvním spuštění</li>
-                <li>🏴󠁧󠁢󠁥󠁮󠁧󠁿 English (Olde) — autentický středověký styl</li>
-                <li>🗺️ Přepínač jazyka v Nastavení, ?lang=en URL podpora</li>
-                <li>🔍 SEO: hreflang alternate links (cs/en/x-default)</li>
-                <li>📊 GA4 event language_switched</li>
+                <li>🌐 <span data-i18n="about.r761">CZ/EN lokalizace — výběr jazyka při prvním spuštění</span></li>
+                <li>🏴󠁧󠁢󠁥󠁮󠁧󠁿 <span data-i18n="about.r762">English (Olde) — autentický středověký styl</span></li>
+                <li>🗺️ <span data-i18n="about.r763">Přepínač jazyka v Nastavení, ?lang=en URL podpora</span></li>
             </ul>
         </div>
 
-        <div style="border-left: 3px solid var(--accent-gold); padding-left: 12px; margin: 10px 0; padding: 10px; background: rgba(197,160,89,0.08);">
-            <strong>v7.5 "Codex Aureus" (09.03.2026)</strong>
-            <ul style="font-size: 0.9rem; margin: 5px 0; line-height: 1.6;">
-                <li>🔤 Font Specimens — 7 knih + 5 technologií s ukázkami písem</li>
-                <li>🏆 Rank System — 8 ranků (Laicus → Magister Artium)</li>
-                <li>🥚 Easter Eggs — 10+ skrytých achievementů</li>
-                <li>📅 Daily Facts — 50+ historických faktů při denní odměně</li>
-                <li>🌦️ Weather System — real-time počasí Praha, auto-téma</li>
-                <li>📊 GA4 + GDPR consent (podmíněné načítání)</li>
-                <li>📱 PWA manifest + service worker</li>
-            </ul>
+        <div style="margin: 16px 0; text-align: center;">
+            <a href="/about.html" target="_blank" style="font-family:'Cinzel Decorative'; font-size:0.75rem; letter-spacing:0.08em; color:var(--ink-primary); background:var(--accent-gold); padding:10px 24px; text-decoration:none; border-radius:2px; display:inline-block;" data-i18n="about.fullChangelog">📜 Celý changelog & Credits →</a>
         </div>
-        
-        <div style="border-left: 3px solid var(--accent-wax); padding-left: 12px; margin: 10px 0; background: rgba(138, 51, 36, 0.05); padding: 10px;">
-            <strong>v7.4 "Historical Realities" (15.02.2026)</strong>
-            <ul style="font-size: 0.9rem; margin: 5px 0; line-height: 1.6;">
-                <li>📜 3 nové knihy (De arte predicandi, Kutnohorská Bible, Olomoucký Misál)</li>
-                <li>🦌 Pergamen (vellum) crafting chain — historicky přesná výroba</li>
-                <li>🪶 Husí brko (quill) systém — 10× použití</li>
-                <li>✒️ Železitoduběnkový inkoust — standard 15. století</li>
-                <li>📘 3 typy kodexů (common/luxury/vellum) dle Petra Voita</li>
-                <li>🔔 Kanonické Hodiny — benediktinský denní řád (8 buffů)</li>
-                <li>⚔️ Události: Švédské obléhání (1642), Skrytý prvotisk</li>
-                <li>🏛️ 12 nových technologií — vše z PDF pramenů</li>
-            </ul>
-        </div>
-
-        <div style="border-left: 3px solid var(--ink-secondary); padding-left: 12px; margin: 10px 0; opacity: 0.7; padding: 10px;">
-            <strong>v7.0 "Library" (12.02.2026)</strong>
-            <ul style="font-size: 0.9rem; margin: 5px 0; line-height: 1.6;">
-                <li>📚 15 historických knih + 1 secret (Starý Písař NPC)</li>
-                <li>🎴 Memory game, osobní statistiky, achievement systém</li>
-                <li>🃏 Historické deskové hry (Ur, Primero, Karnöffel)</li>
-            </ul>
-        </div>
-
-        <div style="border-left: 3px solid var(--ink-secondary); padding-left: 12px; margin: 10px 0; opacity: 0.5; padding: 10px;">
-            <strong>v6.4 "Expansion" — v6.0 "Origins" (2026-02)</strong>
-            <ul style="font-size: 0.9rem; margin: 5px 0; line-height: 1.6;">
-                <li>🍖 Cooking, alchymie, zahrada, hunger mechanika</li>
-                <li>🌱 Survival loop — oheň, světlo, hlad, sběr</li>
-                <li>⚒️ Crafting základ, tech tree, zápisníky</li>
-            </ul>
-        </div>
-        
-        <h3 style="margin: 20px 0 10px; color: var(--accent-gold); font-family: 'Cinzel Decorative';">Credits</h3>
-        <p style="font-size: 0.9rem; line-height: 1.6;">
-            <strong>Vývoj:</strong> Ondrex (koncept, design, testování)<br>
-            <strong>Kódování:</strong> Ondrex, Claude, Gemini<br>
-            <strong>Fonty:</strong> Google Fonts (Cinzel Decorative, Crimson Text)<br>
-            <strong>Historické zdroje:</strong> České kláštery, středověké kroniky<br>
-            <strong>Inspirace:</strong> Bouvard a Pecuchét (Gustave Flaubert) & Byli jednou dva písaři; střet rukopisců a prvních knihtiskařů
-        </p>
         
         <div style="margin-top: 20px; padding: 15px; background: rgba(197, 160, 89, 0.1); border: 1px solid var(--accent-gold); border-radius: 4px; text-align: center;">
-            <strong>🎮 <i></i>Ludite et, super omnia, nolite pugnare</i></strong><br>
+            <strong><i>🎮 Ludite et, super omnia, nolite pugnare</i></strong>
         </div>
     </div>
 </div>
@@ -1167,7 +1128,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             <h2>Pracovna</h2>
             
             <div class="time-selector">
-                <button class="time-btn active" onclick="Game.setDuration(0, this)">Ihned</button>
+                <button class="time-btn active" onclick="Game.setDuration(0, this)" data-i18n="actions.instantly">Ihned</button>
                 <button class="time-btn" onclick="Game.setDuration(1, this)">1 min</button>
                 <button class="time-btn" onclick="Game.setDuration(5, this)">5 min</button>
                 <button class="time-btn" onclick="Game.setDuration(10, this)">10 min</button>
@@ -1193,7 +1154,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
        <div id="screen-garden" class="screen">
             <h2>Zahrada</h2>
-            <p id="text-garden-desc" class="text-sm" style="margin-bottom:15px;">Pěstuj vzácné rostliny. Půda vyžaduje péči.</p>
+            <p id="text-garden-desc" class="text-sm" style="margin-bottom:15px;" data-i18n="garden.desc">Pěstuj vzácné rostliny. Půda vyžaduje péči.</p>
             <div id="garden-container" class="garden-grid"></div>
             <div id="well-management" style="margin-top: 30px; padding: 20px; background: rgba(0,0,0,0.2); border-radius: 10px;">
             <h3 data-i18n="wellUI.title">🚰 Správa Studny</h3>
@@ -9172,7 +9133,21 @@ const STRINGS_cs = {
         },
         welcome: {
             text:'Nalezl jsi opuštěnou pracovnu.<br><br>Na stole leží vyhaslý troud, kousek křemene a pár listů pergamenu pokrytých prachem. Za oknem je slyšet rytmické klepání – někdo v sousední ulici provozuje nový stroj. Říkají mu <em>tiskařský lis</em>.<br><br>Ale to je venku. Tady uvnitř je tma a zima.<br><br><strong>Začni s tím, co máš.</strong>',
-            btn:'Vstoupit →'
+            btn:'Vstoupit →',
+            aboutLink:'O hře & Credits →'
+        },
+        about: {
+            version:'Verze:', date:'Datum:', dateVal:'6. dubna 2026', author:'Autor:',
+            aboutTitle:'O hře',
+            aboutText:'Středověká idle hra o kopírování rukopisů, výrobě papíru a studiu v klášterním skriptoriu. Kombinuje survival mechaniky (oheň, světlo, hlad) s craftingem, zahradničením a postupným odemykáním technologií. Historicky podložená hra zasazená do roku 1465 v Olomouci.',
+            r771:'i18n Phase 1 dokončena — kompletní překlad UI do EN',
+            r772:'61 historických knih v knihovně',
+            r773:'Collapsible tech cards — preview lore textu',
+            r774:'Well system, Games & Records, Věštění — lokalizovány',
+            r761:'CZ/EN lokalizace — výběr jazyka při prvním spuštění',
+            r762:'English (Olde) — autentický středověký styl',
+            r763:'Přepínač jazyka v Nastavení, ?lang=en URL podpora',
+            fullChangelog:'📜 Celý changelog & Credits →'
         },
         fireout: {
             heading:'Pracovna je studená',
@@ -9565,7 +9540,21 @@ const STRINGS_en = {
         },
         welcome: {
             text:'Thou hast found an abandoned workshop.<br><br>Upon the desk: a cold tinderbox, a shard of flint, a few sheets of parchment thick with dust. Through the shutter comes a steady knocking — someone in the next street works a new machine. They call it a <em>printing press</em>.<br><br>That is outside. In here there is only dark and cold.<br><br><strong>Begin with what thou hast.</strong>',
-            btn:'Enter →'
+            btn:'Enter →',
+            aboutLink:'About & Credits →'
+        },
+        about: {
+            version:'Version:', date:'Date:', dateVal:'6 April 2026', author:'Author:',
+            aboutTitle:'About the Game',
+            aboutText:'A medieval idle game about copying manuscripts, crafting paper, and studying in a monastery scriptorium. Blends survival mechanics (fire, light, hunger) with crafting, gardening, and gradual technology unlocks. Historically grounded, set in the year 1465 in Olomouc.',
+            r771:'i18n Phase 1 complete — full UI translation into English',
+            r772:'61 historical books in the library',
+            r773:'Collapsible tech cards — lore preview, expandable detail',
+            r774:'Well system, Games & Records, Divination — localised',
+            r761:'CZ/EN localisation — language choice on first launch',
+            r762:'English (Olde) — authentic medieval style',
+            r763:'Language switcher in Settings, ?lang=en URL support',
+            fullChangelog:'📜 Full changelog & Credits →'
         },
         fireout: {
             heading:'The Workshop Lies Cold',
@@ -9582,6 +9571,7 @@ const STRINGS_en = {
             title:'Scriptorium — Medieval Monastery Idle Game',
             desc:'A medieval idle game set in a monastery scriptorium. Copy manuscripts, tend thy garden, and unlock the secrets of parchment and ink.',
             ogLocale:'en_US'
+
         },
 lore: { 
         tabResearch:'Research', 
@@ -9591,9 +9581,7 @@ lore: {
         notes:'Notes:', 
         discovered:'Discovered:',
 	notebooks_empty: 'Thou hast no notebooks as yet',
-        notebooks_hint: 'Unlock the "Basics of Writing" tech (3 research) and craft thy first Tabula!',
-        darkTitle: 'Darkness falls',
-        darkDesc: 'Light a Torch or Candle in the workroom.'
+        notebooks_hint: 'Unlock the "Basics of Writing" tech (3 research) and craft thy first Tabula!' 
     },
     library: { 
         tabBooks:'📚 Books', 
@@ -9627,7 +9615,6 @@ lore: {
         },
         npc_scribe: {
             name: "Master Bartholomew, The Elder Scribe",
-            scribe_short: '"For 3x Paper, I shall reveal one tome unto thee prematurely..."',
             first_visit_text: "*An aged man, his fingers forever stained by the black gall ink, slowly lifteth his gaze from his pulpit. A heavy, ancient scent of parchment and beeswax hangs in the air.*\n\n\"Ah... I hear thy steps. Another of those so-called 'printers', eh? Another who, in his unholy pride, thinketh a mechanical press can replace a human soul. I remember the days, lad, when books were penned by hand... Hast thou even the patience to listen to an old man?\"",
             opt_yes: "Aye, Master. Speak on!",
             opt_no: "Perchance later. The presses wait for no man.",
@@ -9722,8 +9709,202 @@ lore: {
                 title: "Faust's Covenant: A Myth Clad in Lead",
                 author: "An Unknown Heretic and Alchemist",
                 content: "**Who Was the True Doctor Faust?**\n\nHistorical legend recounts with horror that the scholar and astrologer Johann Georg Faust (1480–1540), a real historical figure wandering Renaissance Germany, sold his immortal soul to the powerful demon Mephistopheles. In exchange, he gained 24 years of absolute earthly knowledge, wealth, and supernatural power before the devils carried him off to hell.\n\n**But the truth is far more pragmatic and darker...**\n\nConsider the chronological coincidence! Johann **Fust**, the wealthy financier and printer who robbed Gutenberg, published his printed volumes in unprecedented quantities. The books appeared in the markets so swiftly and in hundreds of identical, flawless copies that the superstitious and illiterate populace simply refused to believe they were created by human hands. How could an ordinary mortal transcribe a massive Bible two hundred times without a single error?\n\n**The Loop of Names (Fust ~ Faust)**\n\nThe names of these two entirely distinct men—the printer Fust and the occultist Faust—sounded so similar in the streets that in oral tradition they soon merged into one. From the real events of the invention of the printing press and the charlatan tricks of an astrologer, the ultimate myth was born.\n\n**Goethe and the Demonic Machine**\n\nOver 200 years later, the great German playwright Johann Wolfgang von Goethe wrote his life's monumental work, **Faust** (1808). He brilliantly used this old legend as a metaphor. Faust's pact with the devil was the embodiment of humanity's insatiable desire for divine knowledge, scientific progress at any cost, but also the danger of the newly emerging mechanical and industrial age, which threatened to devour human souls. The printing press, in this conception, was the first \"infernal machine.\"\n\n**Did a Pact with the Devil Ever Exist?**\n\nNo, unless you believe in horned beings smelling of brimstone. But the merchant Johann Fust did indeed draft a pact—a very real, notarized contract with Johannes Gutenberg. And in his pursuit of wealth, he betrayed and socially destroyed him without mercy. Many scholars argue that destroying the life of a genius master and stealing his life's work for personal gain is perhaps a far more terrible and real sin than signing an imaginary pact with a demon in one's own blood.\n\n*\"Sometimes reality itself, written in black printer's ink and account books, is far darker and colder than an ancient legend.\"*\n\n---\n\n**Easter Egg:** This ancient tome, filled with heretical thoughts, is unlocked in the library only to those hardened individuals who have gathered and retained exactly 666 points of forbidden research. Congratulations, you have just peered into the dark abyss of history and discovered one of the greatest secrets of the game! You are now a true master of the Scriptorium."
-            }
+            },
+			book_pfister: {  
+                title: "The Man with Pictures: Albrecht Pfister and the First Comic",
+                author: "Bamberg Register & Guild of Woodcarvers",
+                content: `**Books for the Common Folk**
+
+				While the noble Gutenberg in Mainz sweated blood over his perfect and extraordinarily expensive Latin Bibles intended exclusively for bishops and wealthy monasteries, around 1460 in nearby Bamberg there appeared a man with an entirely different vision. Albrecht Pfister was a pragmatic printer. He swiftly grasped that the true market lay not in Latin, but on the muddy streets. He therefore began to print what we would today call **picture books for the people**.
+
+				**Revolution in German**
+
+				He was the very first to dare to print books on a large scale in the local language—in **German**. Ordinary burghers, merchants, and craftsmen did not command Latin, but they spoke German and desired to read stories they could understand.
+
+				**The Birth of the Illustrated Book**
+
+				Pfister's greatest triumph, however, lay in technology. He was the first in the world to successfully combine typesetting from metal letters with hand-carved **woodcuts** (illustrations) on a single printing form! In 1461, he published the renowned book of fables *Der Edelstein* (The Jewel) by the Dominican monk Ulrich Boner. This book was filled with crude yet remarkably expressive images, which were often hand-colored after printing. It was, in fact, the great-grandfather of today's comic book.
+
+				**Democratization of Knowledge**
+
+				Pfister did not sell his books to universities or abbots. He offered his wares directly at noisy city markets and fairs. People enthusiastically carried home beloved fables, knightly epics, and poems supplemented with pictures. Gutenberg indeed brought the technology itself, but it was precisely Pfister who brought the printed word to the masses. That is the subtle difference between a brilliant inventor and a true cultural revolutionary.
+
+				*"Gutenberg gave words a body of lead, but Pfister breathed a soul into them and sent them dancing among the common folk. Words are for learned minds, but pictures speak directly to the heart." - Notes of a Bamberg burgher*`
+            },
+			book_veleslavin: {
+            title: 'The Golden Age: Daniel Adam of Veleslavín',
+            category: 'local',
+            unlockDay: 19,
+            icon: '📚',
+            author: 'A Prague Humanist and the University Annals',
+            year: 1590,
+            content: `**The Academick who Inherited a Printing Empire**
+
+When the mighty Typographical Magnate, Jiří Melantrich, sought a Successor, he chose not a meer Craftsman.
+He selected an elite Intellectual. Daniel Adam, a most esteemed University Professor of History, took to Wife Anna, one of Melantrich’s Daughters.
+[cite: 61] Whether 'twas a Marriage of Reason, of Interest, or of pure Love, no Soul living can affirm with Certainty!
+Yet 'tis most certain that when Daniel took Charge of his Father-in-law's vast Printing House, he transformed the same from a meer Engine of Lucre into a **veritable Centre of European Erudition**.
+[cite: 62]
+
+**A Humanist at the Press**
+
+Daniel was by no means a dry Man of Business. He was a brilliant Scholar, a tireless Translator, a gifted Poet, and a rigorous Editor, all in one Person.
+[cite: 63] His Editorial Design was prodigious. From his Presses there issued unto the Market:
+- Refined Bohemian Translations of the Antient Classicks.
+[cite: 64]
+- Monumental Polyglot Dictionaries (e.g., *Nomenclator quadrilinguis*), which conjoined Latin with the Bohemian Tongue and other Languages.
+[cite: 64]
+- Astronomical and Oeconomical Calendars for the common Folk. [cite: 64]
+- Books of Prayer and Chronicles.
+[cite: 64]
+
+His Bohemian Diction was so perfect, rich, and exquisite, that for this Epoch the Term "Veleslavínian Bohemian" is used to this Day – it became the Linguistic Standard for entire Centuries.
+**The Nobleman of Veleslavín**
+
+His immense Contribution to Culture and Commerce did not remain unrequited.
+He attained the coveted Title of Nobility and proudly changed his Name to **"Daniel Adam of Veleslavín"**.
+[cite: 65] He possessed vast Ambitions and even greater Discipline. [cite: 65] His Typographical Mark served as a Warrant for the absolute Absence of Errours.
+**Books in every Tavern**
+
+Historians say, with some Hyperbole, that it was he who, by his unwearied publishing Labours, compelled the Citizens of Prague to read, though they had at first no Desire for it.
+[cite: 66] During his Lifetime, Books flooded the whole Kingdom – they lay in clamorous Taverns, were sold at Fairs, and were even read at the Barber’s during the shearing of Beards.
+[cite: 66] Printing was no longer a Privilege, but became a daily Necessity.
+He departed this Life in the Year 1599, and although his Printing House continued, it never again reached such celestial Renown.
+[cite: 67]
+
+*"The Press doth indeed liberate the Mind, but that holdeth true only if thou first compellest that slothful Mind to read. A Book upon a Shelf is but dead Wood; a Book in Hand is a Weapon."* - Attributed to Veleslavín`
+        },
+
+
+        book_rudolf_alchemists: {
+            title: 'The City of Madmen and Geniuses: Rudolph II and the 300 Alchymists',
+            category: 'local',
+            unlockDay: 22,
+            icon: '🔮',
+            author: 'A Secret Court Chronicle',
+            year: 1583,
+            content: `**Prague as the Occult Navel of the World**
+
+In the Year 1583, the Emperour of the Holy Roman Empire, the eccentrick and melancholy Rudolph II, 
+made a most shocking Resolution. [cite: 69] He removed the entire Imperial Court from Vienna unto Prague. [cite: 70] The City was transformed over Night.
+Rudolph, obsessed with Hermetism, the Stars, and the Occult, gathered at his Court an incredible Throng of **300 Alchymists, Magi, and Mountebanks** from all Europe.
+[cite: 70] Amongst them were the legendary Englishmen – the Scholar John Dee, who communed with Angels, and his strange Companion Edward Kelley, a Master of Illusions.
+[cite: 70]
+
+**The Secrets of the Golden Lane**
+
+Legend hath it that the small, cramped Dwellings affixed to the Walls just below the Prague Castle (the Golden Lane) served as secret Laboratories for these Masters.
+ Above the Hearths, Retorts and Crucibles bubbled Day and Night.
+All sought the *Lapis Philosophorum* – the legendary Philosophers' Stone, the Elixir of Eternal Youth, and that Substance which might transmute base Metals into pure Gold.
+ 
+
+Gold for the Emperour they never found... But in their fanatical Experiments, they unwittingly laid the Foundations of Modern Science.
+By meer Chance, they discovered:
+- The Manufacture of Oil of Vitriol (Sulphurick Acid).
+- Elementary Phosphorus, glowing in the Dark.
+
+- The Isolation of Zinc and other Compounds.
+
+**Death amongst the Stars**
+
+In this esoteric Atmosphere, the famous Danish Astronomer Tycho Brahe also lived and laboured in Prague.
+ His precise Measurements of the Stars without a Telescope move Men to Wonder even to-day.
+He died here in the Year 1601 – according to the Gossips of the Time, 'twas at a Banquet where, by Court Etiquette, he could not rise from the Table, and his Bladder burst.
+However, modern Analysis of his Beard hath revealed a more ghastly Truth: **Mercury Poisoning**, likely from his own Alchymical Elixirs, which he took for his ailing Kidneys.
+
+
+In Rudolphine Prague, the Boundary between Magick and the nascent Modern Science was blurred.
+ It was a Time distracted, perilous, but incredibly fruitful.
+
+
+*"In the Mist above the Moldau, the Veil between Dream and Reality is as thin as Parchment. We sought Gold, but found the very Composition of the Stars."* - John Dee in his Journals`
+        },
+        book_czech_glass: {
+            title: 'A Fragile War: Bohemian Glassmaking vs. Venice',
+            category: 'local',
+            unlockDay: 25,
+            icon: '💎',
+            author: "A Secret Master of the Glassmakers' Guild",
+            year: '13th-18th Centuries',
+            content: `**The Secret of Forest Crystal**
+
+Few suspect that while Europe bled in Wars of Territory, there occurred in Parallel another War, much quieter yet far more lucrative – the War for Light.
+Bohemian Forest Glassmaking experienced a Flourishing since the **13th Century** and was accounted amongst the absolute finest in all Europe.
+ The Glassworks hidden deep in the frontier Forests (the Bohemian Forest, the Jizera Mountains) possessed an inexhaustible Source of Wood for the Furnaces and quality Potash from Ash, which gave Bohemian Glass its typical Purity and Hardness.
+**The Blood Diamonds of Bohemian Kings**
+
+Bohemian Glass and Gemstones were a strategick Wealth.
+For Instance, the dark red Bohemian Garnet (Pyrope) from Podsedice was so extremely prized and sought after at Courts that the Emperour Rudolph II
+utterly forbade its Export from the Land **under Pain of Death**.
+ Later, in the 18th Century, Jablonec cut Crystal and Jewellery became such a Commodity that in certain Parts of the World (e.g., in African Colonies), these Glass Pearls **served as Currency in Place of Coin**!
+ It was the primary Article of Export, which sustained entire Generations of Mountaineers.
+
+
+**Venetian Jealousy and Industrial Espionage**
+
+Our principal Rival was proud Venice.
+The Venetians for many Centuries held an absolute **Monopoly** on the Manufacture of luxurious Mirrors and delicate Glass.
+ They were so jealous of this Secret that they interned all their Glass-masters upon the isolated Island of **Murano** under Threat of draconian Punishments.
+It was a forced golden Cage – and de facto the first organised Technological Quarantine in the World.
+ Whosoever should dare to flee the Island with the Secret, against him the Authorities dispatched hired Assassinators.
+He was automatically declared a Traitor to the Republick.
+
+Notwithstanding the Assassinators, the Bohemians succeeded in obtaining the Venetian Receipts through Spies, Merchants, and Fugitives.
+We improved them by the Addition of Chalk and created the so-called *Bohemian Crystal* – Glass that was more massive, could be beautifully ground and engraved, which the thin Venetian Glass could not endure.
+The Monopoly ended, and Bohemian Dominance commenced. Glassmaking was, in Truth, not merely a Craft; it was the high-tech Industry of that Age, combining occult Alchymy with Opticks.
+
+
+*"Our Glass is frozen Light, carved from the Sweat of Forest Labourers and the Tears of Venetian Merchants."* - A Master Glass-maker of the North`
+        },
+        book_hussite_wars: {
+            title: 'Ashes of Memory: The Hussite Wars and the End of Libraries',
+            category: 'local',
+            unlockDay: 28,
+       
+     icon: '🔥',
+            author: 'Laurentius de Březová',
+            year: 1419,
+            content: `**An Apocalypse of Culture and Blood**
+
+The Hussite Wars (1419–1434) were no meer local peasant Rebellion.
+They were brutal, and indeed the first truly great Religious Wars upon the Continent of Europe, which shook the very Foundations of the Western World.
+ The Toll of this Conflict was most dire – it is estimated that the Bohemian Lands lost, by Famine, Pestilence, and the Sword, up to **one Third of their entire Population**.
+
+
+**The Fire that Consumed Centuries**
+
+While the reformative Ideas of the Chalice spread a new Interpretation of the Faith, the Armies of the radical Hussites (the Taborites and Orphans) left Ruin in their Wake.
+To them, the Monasteries were Symbols of Ecclesiastical Corruption and Wealth. Yet with their pillaging and burning, the Flames devoured that which was most precious – the Monastick Libraries, those vast Treasuries of Mediaeval Erudition.
+In a few Years, Hundreds of Thousands of Pages were irrevocably burnt:
+- At Vyšší Brod, Libraries containing Thousands of rare Works were set ablaze (some Sources speak, with Hyperbole, of up to 70,000 Volumes).
+
+- At Zlatá Koruna, Thousands of hand-written and illuminated Manuscripts from all Europe were lost to the Flames.
+
+- At the Emmaus Monastery in Prague, unique Old-Slavonick Texts and Chorals were reduced to Ashes.
+
+
+**The Price of Accents and Diatriticks**
+
+The Loss of Cultural Memory was absolute.
+That which was then burnt – unknown Antient Texts, old Bohemian Chronicles, antient Medical Treatises – we shall never discover again.
+They are the vacant Places of our History. 
+
+At the Beginning of this fiery Hell stood Master John Huss (1372–1415), a charismatick Preacher burnt at Constance for Heresy.
+ Though the Teaching of Huss did not survive in its pure Form, it endured in Thought for two hundred Years until the Advent of Martin Luther.
+ Paradoxically, the most enduring Legacy of Huss is not merely religious, but linguistic.
+By his Treatise *De orthographia bohemica* (1406), he simplified the complex Orthography of Digraphs and genially reformed the Bohemian Tongue by the Introduction of **Hooks and Accents** (nabodeníčka).
+ Were it not for his linguistic Vision, we should write Names and Words as awkwardly as the Poles, heaping Consonants one after another.
+
+
+Subsequently, the newly-founded South Bohemian military City of **Tabor** (established 1420) became the Scene of a primal Social Experiment – it functioned as an early, radical "Democratical" Community, where equal Brothers and Sisters elected their Captains and Pastors, and where (at least initially) Money held no Dominion, but communal Vats were used instead.
+ 
+
+The Reformation brought to the Land an unprecedented Freedom of Thought and stood against mighty Europe, but we paid for it with the Blood of entire Generations and with Fire that consumed our Past.
+
+
+*"The Truth of God triumpheth over all, yet at the Battle's End, naught remaineth but hot Ashes and the Lamentation of Widows."* - The Motto upon the Banner of the Vanquished`
         }
+        },
     },
 time: {
         phase_dawn: 'Dawn',
@@ -9745,6 +9926,8 @@ time: {
         starving: 'STARVING!',
         notified: 'Thy belly rumbles. Thou art starving!'
     },
+    // candleBurnedOut: 'Thy candle hath burned out.',
+
 tidings: {
         empty: "No tidings as yet. Resume thy work.",
         subtitle: "Letters and tidings that have reached the scriptorium...",
@@ -9763,6 +9946,7 @@ tidings: {
         news_25: "The abbot seeketh a scribe who knoweth gall ink. For a special commission, 'tis said. From the bishop.",
         news_28: "Hast thou decided who thou art? A craftsman — or a servant? Both paths are honorable. But they are not the same."
     },
+
 garden: {
         desc: 'Cultivate rare flora. The soil requires thy care.',
         fertilize: 'Fertilize',
@@ -9780,6 +9964,7 @@ garden: {
         harvest: 'Harvest',
         wait: 'Wait'
     },
+
     daily: {
     streak: 'Streak',
     streakTitle: 'Daily streak:',
@@ -11526,7 +11711,18 @@ renderActions: function() {
                 }
             }
 
-            h += `<div class="card" style="border-color:${done?'var(--accent-gold)':'var(--ink-secondary)'}"><div class="item-icon" style="background:${done?'#c5a059':'#e8dec0'}">${done?'🎓':'📖'}</div><div style="flex:1"><strong>${displayName}</strong><div class="text-sm">${displayDesc}</div>${typeof TechLoreDB !== 'undefined' && TechLoreDB[tech.id] ? `<div class="text-sm" style="margin-top:8px;padding:8px;background:rgba(197,160,89,0.1);border-left:3px solid var(--accent-gold);font-style:italic;">${TechLoreDB[tech.id]}</div>` : ''}${reqText}</div>${done?`<span style="font-weight:bold;color:var(--accent-gold)">${_t('game.techDone')}</span>`:`<button class="craft-btn" onclick="Game.study('${tech.id}')" ${canResearch?'':'disabled'}>${_t('game.techStudy')} (${tech.cost} 📜)</button>`}</div>`;
+            h += `<div class="card" style="border-color:${done?'var(--accent-gold)':'var(--ink-secondary)'};flex-wrap:wrap;" onclick="(function(el){var f=el.querySelector('.tech-lore-full');if(f)f.style.display=f.style.display==='block'?'none':'block'})(this)">
+                <div class="item-icon" style="background:${done?'#c5a059':'#e8dec0'};flex-shrink:0">${done?'🎓':'📖'}</div>
+                <div style="flex:1;min-width:0">
+                    <strong>${displayName}</strong>
+                    <div class="text-sm">${displayDesc}</div>
+                    ${reqText}
+                    ${typeof TechLoreDB !== 'undefined' && TechLoreDB[tech.id] ? `<div class="text-sm" style="margin-top:6px;font-style:italic;opacity:0.75;">${TechLoreDB[tech.id].replace(/<[^>]*>/g,'').split(' ').slice(0,8).join(' ')}… <div class="tech-lore-full" style="display:none;margin-top:6px;padding:8px;background:rgba(197,160,89,0.1);border-left:3px solid var(--accent-gold);font-style:italic;">${TechLoreDB[tech.id]}</div></div>` : ''}
+                </div>
+                <div style="flex-shrink:0;align-self:flex-end;padding-left:8px;margin-top:6px;">
+                    ${done ? `<span style="font-weight:bold;color:var(--accent-gold)">${_t('game.techDone')}</span>` : `<button class="craft-btn" onclick="event.stopPropagation();Game.study('${tech.id}')" ${canResearch?'':'disabled'}>${_t('game.techStudy')} (${tech.cost} 📜)</button>`}
+                </div>
+            </div>`;
         });
         el.innerHTML = h;
     },
@@ -11935,9 +12131,9 @@ showBookModal: function(book) {
         if(!hasAny) {
             let h = `<div style="padding:20px; background:rgba(0,0,0,0.05); border-radius:8px; text-align:center;">
                 <div style="font-size:3rem; opacity:0.3; margin-bottom:10px;">🔒</div>
-                <strong>Zatím nemáš žádný zápisník</strong>
+                <strong>${t('lore.notebooks_empty')}</strong>
                 <p style="margin-top:10px; opacity:0.7;">
-                    Odemkni tech "Základy Psaní" (3 research) a vycrafti svou první Tabulu!
+                    ${t('lore.notebooks_hint')}
                 </p>
             </div>`;
             el.innerHTML = h;
@@ -11990,9 +12186,9 @@ renderRecords: function() {
     if(!hasTech) {
         let h = `<div style="padding:20px; background:rgba(0,0,0,0.05); border-radius:8px; text-align:center;">
             <div style="font-size:3rem; opacity:0.3; margin-bottom:10px;">🔒</div>
-            <strong>Zamčeno</strong>
+            <strong>${t('library.locked')}</strong>
             <p style="margin-top:10px; opacity:0.7;">
-                Odemkni tech "Hry a Záznamy" pro přístup k mini-games a statistikám.
+                ${t('library.records_hint')}
             </p>
         </div>`;
         el.innerHTML = h;
@@ -12440,7 +12636,7 @@ renderRecords: function() {
 	// NOTEBOOK SYSTEM - LOCAL ONLY (NO CLOUD)
 	// ===============================================
 // ═══ src/systems/iching.js ═══
-	const IChing = {
+const IChing = {
 	  
 	  // === HEXAGRAM DATABASE (všech 64) ===
 	  hexagrams: {
@@ -12993,15 +13189,15 @@ renderRecords: function() {
     const hasTech = GameState.researchedTechs.includes('tech_iching');
     
     // Build HTML
-    let html = '<h2>☯️ I-Ching (Kniha Proměn)</h2>';
+    let html = `<h2>${t('library.iching_title')}</h2>`;
     
     if (!hasTech) {
         html += `
             <div style="padding: 40px; text-align: center;">
                 <div style="font-size: 4rem; opacity: 0.3; margin-bottom: 20px;">🔒</div>
-                <h3 style="color: var(--ink-secondary); margin-bottom: 10px;">Zamčeno</h3>
+                <h3 style="color: var(--ink-secondary); margin-bottom: 10px;">${t('library.locked')}</h3>
                 <p style="color: var(--ink-secondary); font-size: 14px;">
-                    Odemkni tech "Starověká Moudrost" pro přístup k věštění.
+                    ${t('library.divination_hint')}
                 </p>
             </div>
         `;
@@ -13009,9 +13205,9 @@ renderRecords: function() {
         html += `
             <div style="padding: 40px; text-align: center;">
                 <div style="font-size: 4rem; margin-bottom: 20px;">📜</div>
-                <h3 style="color: var(--ink-secondary); margin-bottom: 10px;">Potřebuješ Knihu Proměn</h3>
+                <h3 style="color: var(--ink-secondary); margin-bottom: 10px;">${t('library.iching_need_book')}</h3>
                 <p style="color: var(--ink-secondary); font-size: 14px; margin-bottom: 20px;">
-                    Vyrob si ji v sekci Řemeslo → Lore.
+                    ${t('library.iching_craft_hint')}
                 </p>
             </div>
         `;
@@ -13099,7 +13295,6 @@ renderRecords: function() {
     
     container.innerHTML = html;
 };
-
 </script>
 
 <!-- ═══════════════════════════════════════════════
