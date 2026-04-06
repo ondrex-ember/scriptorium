@@ -88,116 +88,6 @@ const FontSpecimensDB = {
 const LibraryDB = {
     books: [
         // TIER 1 - První týden (day 1-7)
-        {
-            id: 'book_gutenberg_betrayal',
-            title: 'Mohučská zrada: Krvavý úsvit tisku',
-            category: 'history',
-            unlockDay: 1,
-            icon: '⚖️',
-            author: 'Anonymní kronikář',
-            year: 1455,
-            content: `**Půjčka od lichváře a hořký konec**
-
-Johannes Gutenberg byl bezesporu vizionář, který změnil běh dějin, ale byl to muž bez groše. Aby mohl svůj tajný projekt realizovat, půjčil si astronomickou částku 1600 zlatých od mohučského právníka a bohatého obchodníka Johanna Fusta. Jako zástavu použil to jediné, co měl – ručil vším: svou dílnou, inovativními lisy i tou svou slavnou dvaačtyřicetiřádkovou Biblí, kterou právě s nesmírným úsilím tiskl. 
-
-**Helmaspergerův notářský zápis (6. listopadu 1455)**
-
-Těsně předtím, než mohla být Bible dokončena a začít vydělávat, Fust tvrdě udeřil. Hnán vidinou zisku obvinil Gutenberga, že peníze „neprojedl v knihách", ale prý je zpronevěřil na jiné účely. Následný soud byl neúprosný a rozhodl ve prospěch Fusta. Gutenberg přišel ze dne na den o všechno – o své lisy, o pečlivě odlité kovové litery (typy) i o drahocenný papír.
-
-**Kdo byl onen Jidáš tiskařského umění?**
-
-Historie ukazuje prstem na Petera Schöffera! Byl to Gutenbergův nejtalentovanější tovaryš a původně zručný písař pocházející z Paříže. Právě on u soudu chladnokrevně svědčil proti svému vlastnímu mistrovi! Odměna na sebe nenechala dlouho čekat – Fust si bystrého Schöffera vzal za svého obchodního společníka a aby spojenectví zpečetil, dal mu později za ženu svou vlastní dceru Christinu. Gutenbergova celoživotní práce a dílna tak plynule přešla pod novou, dravou značku Fust & Schöffer. Brzy poté, v roce 1459, tato mocná dvojice vydala slavné dílo *Rationale Divinorum Officiorum*.
-
-**Temná legenda o doktoru Faustovi**
-
-Johann Fust byl jako obchodník neuvěřitelně úspěšný. Chrlil na trh takové množství knih a tiskl tak rychle zcela identické kopie, že si prostý lid začal šeptat temné zvěsti: ten muž musel upsat svou duši samotnému ďáblu. Odtud prý pramení děsivá legenda o Doktoru Faustovi (vzniklá ze zkomoleniny jmen Fust a Faust), kterou o staletí později proslavil německý básník Goethe. Zcela nová technologie tisku byla v očích tehdejšího negramotného lidu zkrátka čistá, černá magie!
-
-*"Kdo zradí mistra, získá impérium, ale ztratí duši. V inkoustu je vždy přimíchána krev."* - Starý kronikářský spis`
-        },
-        {
-            id: 'book_jenson_spy',
-            title: 'Špion, který se nevrátil: Jensonovo tajemství',
-            category: 'history',
-            unlockDay: 3,
-            icon: '🕵️',
-            author: 'Královská kronika & Tajné archivy',
-            year: 1458,
-            content: `**Tajná mise do srdce Svaté říše římské (1458)**
-
-Francouzský král Karel VII. zaslechl neuvěřitelné zvěsti o „zázraku v Mohuči". Zcela fascinován poslal v roce 1458 svého nejlepšího rytce mincí, Nicolase Jensona, na přísně tajnou špionážní misi do Německa. Králův rozkaz zněl jasně: *"Nauč se toto nové umění, zjisti, jak to dělají, a přines to tajemství domů, pro slávu Francie!"* 
-
-**Zběhnutí mistra rytce**
-
-Jenson do Mohuče skutečně dorazil a revoluční technologii tisku si do detailu osvojil. Zjistil však něco zásadního – tisk mu dával svobodu, kterou mu úzkostlivý královský dvůr nikdy nenabídne. Ke svému králi se už nikdy nevrátil! Po letech ticha se v roce 1470 triumfálně vynořil v Benátkách, svobodném obchodním srdci tehdejší Evropy. Zde založil svou vlastní prosperující tiskárnu a vytvořil písmo **Antiqua**. Jenson je dnes široce uznáván jako skutečný otec římského typu písma. 
-
-**Zrození moderní typografie**
-
-Jednou z prvních knih, kterou v Benátkách v roce 1470 vydal, bylo proslulé Eusebiovo dílo *De evangelica præparatione*. Jensonův návrh byl naprosto revoluční: písmo nebylo jen otrockou kopií starých rukopisných modelů, ale bylo založeno na zcela nových typografických principech. Plynulé tvary a decentní serify pomáhaly oku klouzat po stránce. Bylo to písmo tak nadčasové a dokonalé, že se principielně používá dodnes (dokonce i slavný font Times New Roman z něj myšlenkově přímo vychází).
-
-**Benátský azyl**
-
-V liberálních Benátkách byl Jenson rázem považován za naprostou hvězdu. Král v Paříži sice zuřil a spřádal plány na pomstu, ale nemohl s tím dělat vůbec nic. Hrdé italské městské státy si bedlivě chránily své umělce a špičkové řemeslníky před jakýmkoliv vnějším zásahem. Nicolas Jenson zemřel bohatý, uctívaný a do konce života oslavovaný. Jeho geniální písmo přežilo plných pět století.
-
-*"Král posílá špeha v okovech povinnosti, ale krása umění ho osvobodí."* - Benátské přísloví`
-        },
-        {
-            id: 'book_manutius',
-            title: 'Smartphony renesance: Aldus Manutius',
-            category: 'innovation',
-            unlockDay: 5,
-            icon: '📱',
-            author: 'Benátský obchodní registr',
-            year: 1501,
-            content: `**Aldus Manutius - Steve Jobs své doby**
-
-Tento benátský tiskař a humanista (1449–1515), který v roce 1494 založil proslulou tiskárnu Aldine Press, byl skutečným vizionářem, jenž navždy změnil konzumaci textu. Před ním byly knihy – takzvané inkunábule – obrovské, těžké a neforemné folianty, které musely ležet na masivním stole v knihovně. Manutius však vymyslel revoluční formát velikosti oktáva zvaný **enchiridion** (příručka). Šlo o malé knížky, přímé předchůdce dnešních moderních paperbacků, které se hravě vešly do kapsy u sedla či do záhybů pláště.
-
-**Mobilita vědění a čistota textu**
-
-Najednou mohli šlechtici a kupci číst i na dlouhých cestách! Studenti si mohli koupit Aristotela nebo Homéra za cenu běžné večeře. Knihy přes noc přestaly být kusem nedotknutelného nábytku a staly se z nich dostupní osobní průvodci každodenním životem. Manutius byl navíc posedlý přesností. Chtěl vydávat klasické řecké texty v jejich původní, čisté podobě, nezkreslené staletími špatných překladů. Kvůli tomu spolupracoval s předními učenci tehdejší doby, včetně slavného Erasma Rotterdamského. 
-
-**Vynález kurzívy (Italiky)**
-
-Aby se do malé a levné knížky vešlo co nejvíce textu a ušetřilo se za drahý papír, najal Manutius geniálního rytce Francesca Griffa. Ten vytvořil zcela nový typ písma, který napodoboval elegantní, ale úsporné nakloněné psaní renesančních úředníků a humanistů – **italiku** (kurzívu). Nebylo to původně určeno pro zvýrazňování textu, jak to děláme dnes, ale čistě pro ekonomickou úsporu papíru! Jejich vydání Vergiliova díla *Opera* z roku 1501 bylo vůbec první knihou na světě tištěnou tímto novým, úsporným písmem.
-
-**Delfín a Kotva**
-
-Jeho nezaměnitelným tiskařským znakem byl mrštný delfín (symbolizující rychlost a neustálou inovaci) omotaný kolem pevné kotvy (symbolizující stabilitu, spolehlivost a pečlivost). Jeho celoživotní motto znělo: **Festina Lente** (Spěchej pomalu). Manutius dokázal celému světu, že knihy nemusí být jen zamčené poklady v truhlách, ale aktivní nástroje v rukou lidí.
-
-*"Malá kniha v ruce je mocnější než obrovská na stole. Svoboda myšlení leží v kapse."*`
-        },
-        {
-            id: 'book_scribes_war',
-            title: 'Válka písařů: Panna a Děvka',
-            category: 'conflict',
-            unlockDay: 7,
-            icon: '⚔️',
-            author: 'Filippo de Strata & Johannes Trithemius',
-            year: 1473,
-            content: `**"Pero je panna, tisk je děvka"**
-
-Ne každý vítal vynález knihtisku s otevřenou náručí. Filippo de Strata, benátský mnich a profesionální písař, se stal radikálním hlasem odporu. Někdy v letech 1473 až 1474 sepsal zoufalou a ohnivou polemiku adresovanou tehdejšímu benátskému dóžeti Nicolò Marcellovi, ve které ho zapřísahal, aby z města nechal tiskařské lisy nadobro vyhnat. Ve svém textu mimo jiné nekompromisně hlásal: 
-
-*"Pero je čistá panna, tisk je prodejná děvka! Tiskaři jsou pasáci, kteří zaplavují trh, tisknou milostnou poezii a mladé dívky pak čtou Ovidia jen proto, aby se učily hříchu a neřesti. Tito tiskaři guzzlí víno, opíjejí se v krčmách a za pár drobných prodávají posvátnost textu!"*
-
-Bohaté město podle něj bylo sice přecpané knihami, ale zcela a nenávratně ztratilo svou duši.
-
-**Trithemiův paradox (1492)**
-
-Na druhé straně Evropy se do kulturního boje zapojil významný opat Johannes Trithemius. V roce 1492 sepsal dnes již legendární dílo **De Laude Scriptorum** (Chvála písařů). Ve spise plamenně přesvědčoval své mnichy, aby v žádném případě nepřestávali ručně kopírovat texty, s odůvodněním na nepopiratelnou kvalitu materiálu:
-
-*"Tištěná kniha je pouze z křehkého papíru. Shoří, podlehne hmyzu nebo se nevyhnutelně rozpadne za 200 let. Naproti tomu naše pečlivá práce na pergamenu přetrvá věky a nese v sobě duchovní hodnotu."*
-
-Krutou historickou ironií osudu a naprosto dokonalým paradoxem však zůstává, že právě Trithemius nechal tento svůj útočný spis proti knihtisku v roce 1494 **vytisknout** na lisu, protože si pragmaticky uvědomil, že jinak by se jeho naléhavé myšlenky nikdy nedostaly k masám!
-
-**Konec zlaté éry kaligrafie**
-
-Nová technologie byla nezastavitelná jako lavina. Mnozí hrdí písaři nakonec s hořkostí v srdci skončili v těch samých tiskárnách, které z hloubi duše nenáviděli, jako prachobyčejní sazeči nebo korektoři. Museli se ponižujícím způsobem "přeškolit". Jejich ušlechtilé řemeslo, které bez přerušení a větších změn trvalo tisíc let, bylo absolutně vyhlazeno za jedinou generaci.
-
-Ale jejich nádherné, ručně iluminované rukopisy přežily. Dnes tiše leží v muzeích a trezorech jako vznešené památníky věku, kdy každé jednotlivé slovo vyžadovalo krev, pot a hodiny naprostého soustředění a bylo proto považováno za posvátné.
-
-*"Rychlost zabíjí krásu detailu, ale pravda přežije v obou formách."* - Poslední klášterní písař`
-        },
 
 // TIER 2 - Druhý týden (day 8-14)
         {
@@ -338,35 +228,6 @@ S nadsázkou se mezi historiky říká, že to byl právě on, kdo svou neúnavn
 
 // TIER 4 - Čtvrtý týden (day 22-28)
         {
-            id: 'book_rudolf_alchemists',
-            title: 'Město bláznů a géniů: Rudolf II. a 300 alchymistů',
-            category: 'local',
-            unlockDay: 22,
-            icon: '🔮',
-            author: 'Tajná dvorská kronika',
-            year: 1583,
-            content: `**Praha jako okultní pupek světa**
-
-[cite_start]Píše se rok 1583 a císař Svaté říše římské, excentrický a melancholický Rudolf II., dělá šokující rozhodnutí. [cite: 69] [cite_start]Přesouvá celý císařský dvůr z Vídně do Prahy. [cite: 70] Město se přes noc mění. [cite_start]Rudolf, posedlý hermetismem, hvězdami a okultismem, shromáždil na svém dvoře neuvěřitelných **300 alchymistů, mágů a šarlatánů** z celé Evropy. [cite: 70] [cite_start]Byli mezi nimi i legendární Angličané – učenec John Dee, který rozmlouval s anděly, a jeho podivný společník Edward Kelley, mistr iluzí. [cite: 70]
-
-**Tajemství Zlaté uličky**
-
-[cite_start]Legenda praví, že malé, stísněné domky přilepené k hradbám těsně pod Pražským hradem (Zlatá ulička) sloužily jako tajné laboratoře těchto mistrů. [cite: 71] Nad ohništěmi dnem i nocí bublaly křivule a tyglíky. [cite_start]Všichni hledali *Lapis Philosophorum* – legendární kámen mudrců, elixír věčného mládí a substanci, která by dokázala proměňovat obyčejné kovy v ryzí zlato. [cite: 71] 
-
-[cite_start]Zlato pro císaře nikdy nenašli... [cite: 72] Ale při svých fanatických pokusech mimoděk položili základy moderní vědy. Zcela náhodou objevili:
-- [cite_start]Výrobu kyseliny sírové (vitriol). [cite: 72]
-- [cite_start]Elementární fosfor, zářící ve tmě. [cite: 72]
-- [cite_start]Izolaci zinku a dalších sloučenin. [cite: 72]
-
-**Smrt mezi hvězdami**
-
-[cite_start]V této esoterické atmosféře žil a bádal v Praze i slavný dánský astronom Tycho Brahe. [cite: 73] Jeho přesná měření hvězd bez dalekohledu dodnes udivují. Zemřel tu roku 1601 – podle dobových klepů prý při hostině, kdy z dvorské etikety nemohl vstát od stolu a praskl mu močový měchýř. [cite_start]Moderní analýza jeho vousů však odhalila děsivější pravdu: **otravu rtutí**, pravděpodobně z jeho vlastních alchymistických elixírů, které užíval na nemocné ledviny. [cite: 73]
-
-[cite_start]V Rudolfově Praze se stírala hranice mezi magií a rodící se moderní vědou. [cite: 74] [cite_start]Byla to doba šílená, nebezpečná, ale neuvěřitelně plodná. [cite: 74]
-
-*"V mlze nad Vltavou je hranice mezi snem a skutečností tenká jako pergamen. Hledali jsme zlato, ale našli jsme samotné složení hvězd."* - John Dee ve svých denících`
-        },
-        {
             id: 'book_czech_glass',
             title: 'Křehká válka: České sklářství vs. Benátky',
             category: 'local',
@@ -389,38 +250,6 @@ Hlavním rivalem nám byly hrdé Benátky. [cite_start]Benátčané měli po dlo
 Navzdory zabijákům se však Čechům díky špionům, kupcům a uprchlíkům podařilo benátské receptury získat. Vylepšili jsme je přidáním křídy a vytvořili takzvaný *český křišťál* – sklo, které bylo masivnější, dalo se nádherně brousit do hloubky a rýt, což tenké benátské sklo nevydrželo. [cite_start]Skončil monopol, začala česká dominance. [cite: 80, 81] [cite_start]Sklářství zkrátka nebylo jen řemeslo, byl to tehdejší přísně střežený high-tech průmysl, kombinující okultní alchymii s optikou. [cite: 82]
 
 *"Naše sklo je zmrzlé světlo, vytesané z potu lesních dělníků a slz benátských kupců."* - Mistr huťmistr ze severu`
-        },
-        {
-            id: 'book_hussite_wars',
-            title: 'Popel paměti: Husitské války a konec knihoven',
-            category: 'local',
-            unlockDay: 28,
-            icon: '🔥',
-            author: 'Laurentius de Březová (Vavřinec z Březové)',
-            year: 1419,
-            content: `**Apokalypsa kultury a krve**
-
-Husitské války (1419–1434) nebyly jen lokální selskou rebelií. [cite_start]Byly to brutální, vůbec první skutečně velké náboženské války na území Evropy, které otřásly samotnými základy západního světa. [cite: 83] [cite_start]Daň za tento konflikt byla strašlivá – odhaduje se, že české země během těchto let ztratily hladem, nemocemi a mečem až **třetinu veškerého obyvatelstva**. [cite: 84]
-
-**Oheň, který pohltil staletí**
-
-Zatímco reformní myšlenky kalicha šířily novou interpretaci víry, vojska radikálních husitů (táborité a sirotci) zanechávala za svými pochody zkázu. Kláštery pro ně byly symbolem církevní zkorumpovanosti a bohatství. S jejich pleněním a vypalováním však plameny pohlcovaly to nejcennější – klášterní knihovny, obří trezory středověké vzdělanosti.
-Během několika let nenávratně shořely statisíce stran:
-- [cite_start]Ve Vyšším Brodě vzplály knihovny čítající tisíce vzácných děl (některé prameny s nadsázkou mluví až o 70 000 svazcích). [cite: 84]
-- [cite_start]Ve Zlaté Koruně byly v plamenech ztraceny tisíce ručně psaných a iluminovaných rukopisů z celé Evropy. [cite: 84]
-- [cite_start]V pražských Emauzích lehly popelem unikátní staroslověnské texty a chorály. [cite: 84]
-
-**Cena za háčky a čárky**
-
-Ztráta kulturní paměti byla absolutní. To, co tehdy shořelo – neznámé antické texty, staré české kroniky, prastaré lékařské spisy – už nikdy znovu neobjevíme. [cite_start]Jsou to prázdná místa naší historie. [cite: 85] 
-
-[cite_start]Na počátku tohoto ohnivého pekla stál mistr Jan Hus (1372–1415), charismatický kazatel upálený v Kostnici pro kacířství. [cite: 86] [cite_start]Husovo učení sice nepřežilo ve své čisté podobě, ale přežilo v myšlenkách o 200 let déle až do příchodu Martina Luthera. [cite: 86] Paradoxně, Husův nejtrvalejší odkaz není jen náboženský, ale jazykový. [cite_start]Spisem *De orthographia bohemica* (1406) zjednodušil složitý pravopis spřežek a geniálně reformoval češtinu zavedením **háčků a čárek** (nabodeníček). [cite: 86] [cite_start]Kdyby nebylo jeho lingvistického vizionářství, psali bychom dnes jména a slova neohrabaně jako Poláci, vršící hlásky za sebe. [cite: 86]
-
-[cite_start]Následně vzniklé jihočeské vojenské město **Tábor** (založeno 1420) se stalo dějištěm prvotního sociálního experimentu – fungovalo jako raná, radikální "demokratická" obec, kde si rovní bratři a sestry volili své hejtmany i faráře a kde (alespoň zpočátku) neplatily peníze, ale společné kádě. [cite: 87] 
-
-[cite_start]Reformace přinesla zemi nevídanou svobodu myšlení a postavila se mocné Evropě, ale zaplatili jsme za ni krví celých generací a ohněm, který spálil naši minulost. [cite: 88]
-
-*"Pravda Boží vítězí nad vším, ale na konci bitvy zůstává jen horký popel a pláč vdov."* - Heslo na korouhvi poražených`
         },
         
 // TIER 4 - Poslední týden (day 26-30)
@@ -451,38 +280,6 @@ Kniha měla neuvěřitelné štěstí. Píše se rok 1642 a v rámci třicetilet
 ---
 
 **HERNÍ EFEKT:** Čtení této knihy odemkne vzácný skill **"Fustův paradox"**. Mistrovství, které se zrodilo ze zrady: jednou za herní seanci můžeš obětovat 10 bodů výzkumu (research) a okamžitě, bez potřeby jakýchkoliv dalších materiálů, "vycraftit" jakýkoliv předmět, dokonce i ty, které jsou jinak pro tvou úroveň zamčené (locked).`
-        },
-        {
-            id: 'book_kutnohorska_bible',
-            title: 'Kutnohorská Bible: Detektivka z archivu',
-            category: 'local',
-            unlockDay: 28,
-            icon: '🔍',
-            author: 'Martin z Tišnova (Tiskař Pražské bible)',
-            year: 1489,
-            content: `**Velký omyl knihovních pultů**
-
-Někdy se to největší dobrodružství neodehrává na bojišti, ale v tichu studovny. Píše se rok 2005 a jeden z pečlivých badatelů ve Vědecké knihovně v Olomouci zkoumá starý, těžký svazek, který byl v inventáři celá desetiletí bezpečně evidován a katalogizován jako poměrně běžná *"Benátská bible z roku 1506"*. Při bližším pohledu však badatel zažil šok. [cite_start]Zjistil, že se dívá na extrémně vzácnou, českou **Kutnohorskou bibli vytištěnou bohatým kramářem a sponzorem knihtisku Martinem z Tišnova už v roce 1489!** [cite: 97]
-
-**Jak k takovému omylu vůbec došlo?**
-
-Byl to mistrovský podvod pramenící z nouze o celistvost. [cite_start]Někdy v hluboké minulosti (patrně v 16. nebo 17. století) se kniha poškodila a nenávratně ztratila své první a poslední složky (papíry obsahující začátek Genesis a tiráž s údaji o tisku). [cite: 98] [cite_start]Jakýsi horlivý předchozí majitel nebo sběratel se rozhodl, že knihu "opraví" a chybějící stránky znovu rukopisně dopíše. [cite: 99] Udělal však jednu obrovskou, byť logickou chybu – jako textovou předlohu pro přepis použil JINÉ, novější vydání Bible, které měl zrovna po ruce na stole! [cite_start]A to byl onen benátský tisk z roku 1506. [cite: 99] 
-
-[cite_start]Písař, který stránky krasopisně doplňoval, tak do starobylé české olomoucké knihy fyzicky vepsal překlad textu a letopočty z benátské edice. [cite: 100] Celá staletí si pak knihovníci četli tento doplněný úvod a věřili falšované titulce, aniž by zkoumali tištěné tělo uvnitř. [cite_start]Pravdu nekompromisně odhalila až moderní forenzní typografie – porovnání jedinečných tvarů původních tištěných kovových liter uvnitř knihy s fonty používanými v Kutné Hoře na konci 15. století. [cite: 100] 
-
-Tento tisk tak rázem "zestárl" a stal se o **17 let starším**, než se původně předpokládalo. [cite_start]Tím se automaticky zařadil mezi vůbec nejstarší kompletní české knižní tisky. [cite: 101] [cite_start]A celou tu neuvěřitelně dlouhou dobu ležel zaprášený, chybně popsaný a podceňovaný v běžných regálech knihovny. [cite: 102]
-
-**Záhada čekající na poličkách**
-
-[cite_start]Tato událost mezi archiváři vyvolala mrazení: Kolik dalších domněle "běžných benátských nebo německých" tisků, roztroušených v depozitářích po celé Evropě, je ve skutečnosti vzácnými českými prvotisky? [cite: 102, 103] [cite_start]Kolik historické pravdy je bezpečně ukryto pod vrstvami omylů, špatných katalogizačních lístků a omyvatelných etiket? [cite: 103]
-
-V každé velké historické knihovně tiše dýchají tisíce svazků a trpělivě čekají na své pravé odhalení. [cite_start]Stačí se podívat zblízka a pozorně. [cite: 103, 104] [cite_start]Stačí mít znalosti, pečlivě porovnat litery z olova a bezmezně nevěřit přilepeným etiketám na hřbetech. [cite: 104]
-
-*"Pravda umí čekat trpělivě. Někdy se schovává celé staletí pod špatným kabátem."*
-
----
-
-**HERNÍ EFEKT:** Získáš pasivní schopnost eventu **"Skrytý prvotisk"**. Kdykoliv budeš vyrábět luxusní kodexy (luxury_codex), máš trvalou **5% šanci na kritický úspěch**, při kterém badatelé odhalí, že i tvůj běžný kodex (common_codex) vyrobený v minulosti byl vlastně chybně zařazený luxusní originál! Okamžitě získáváš dvojnásobnou hodnotu předmětu v mincích a obrovský bonus do výzkumu (research).`
         },
         {
             id: 'book_olomouc_misal',
@@ -764,24 +561,6 @@ Bartoš detailně popisoval korupci, intriky konšelů a zradu na radnici. Jmeno
 *"Když úředník přestane psát to, co mu diktují, a začne psát to, co vidí, podepisuje si rozsudek smrti."*`
         },
         {
-            id: 'book_koldin',
-            title: 'Práva městská: Koldínův kodex',
-            category: 'innovation',
-            unlockDay: 53,
-            icon: '⚖️',
-            author: 'Pavel Kristián z Koldína',
-            year: '1579',
-            content: `**Konec právního chaosu**
-
-Ve středověku co město, to jiné zákony. V Praze platilo něco jiného než v Brně nebo v Kutné Hoře. Kancléř Starého Města pražského, Pavel Kristián z Koldína, se rozhodl tento chaos ukončit. Sepsal monumentální dílo *Práva městská Království českého*.
-
-**Zákoník, který přežil staletí**
-
-Tato tištěná právní příručka byla tak geniálně a logicky uspořádaná, že ji brzy začala používat všechna královská města. Sjednocovala tresty za vraždy, pravidla pro dědictví i cechovní spory. Koldínův zákoník byl tak kvalitní, že v některých ohledech platil v našich zemích neuvěřitelných 230 let, až do roku 1811 (vyhlášení Všeobecného zákoníku občanského).
-
-*"Město bez pevných zákonů je jen hlučným táborem, čekajícím na svůj zánik."*`
-        },
-        {
             id: 'book_sit_viry',
             title: 'Síť víry pravé: Středověký anarchismus',
             category: 'conflict',
@@ -801,44 +580,6 @@ Podle jeho metafory je církev a stát jako těžká velryba, která trhá jemno
         },
 
         // TIER 8 - Hudba, mapy a obří formáty (day 56-60)
-        {
-            id: 'book_codex_gigas',
-            title: 'Codex Gigas: Ďáblova bible',
-            category: 'local',
-            unlockDay: 56,
-            icon: '👹',
-            author: 'Herman Inkluz (dle legendy)',
-            year: 'začátek 13. století',
-            content: `**Největší rukopis světa**
-
-Tato kniha nebyla vytištěna. Byla napsána ručně na kůži ze 160 oslů a váží 75 kilogramů. Vznikla v malém benediktinském klášteře v Podlažicích u Chrudimi. Obsahuje celou Bibli, Kosmovu kroniku, zaklínadla proti nemocem a spisy o magii.
-
-**Smlouva za jednu noc**
-
-Legenda praví, že ji sepsal mnich odsouzený k zazdění zaživa. Slíbil, že za jedinou noc napíše největší knihu světa, aby odčinil svůj hřích. Když o půlnoci zjistil, že to nestihne, přivolal na pomoc ďábla. Ráno byla kniha hotová a na straně 290 se tyčí obří, děsivá ilustrace samotného rohatého Satana.
-
-Moderní grafologický rozbor potvrzuje, že celý obří kodex psal jeden jediný člověk. Zabralo mu to odhadem 20 až 30 let každodenní, osamělé práce.
-
-*"Zázraky a monstra se neliší. Obojí vyžaduje lidskou oběť a oceány inkoustu."*`
-        },
-        {
-            id: 'book_klaudyan',
-            title: 'Klaudyánova mapa: Čechy vzhůru nohama',
-            category: 'innovation',
-            unlockDay: 57,
-            icon: '🗺️',
-            author: 'Mikuláš Klaudyán',
-            year: '1518',
-            content: `**První tištěná mapa Čech**
-
-Mikuláš Klaudyán, lékař a tiskař z Mladé Boleslavi, nechal v Norimberku vytisknout první dochovanou mapu Čech. A je pro moderního člověka naprosto matoucí – má totiž **jih nahoře a sever dole**! Důvodem bylo, že se orientovala podle kompasů tehdejších slunečních hodin.
-
-**Vůz tažený na dvě strany**
-
-Mapa nebyla jen geografická, byla hluboce politická. Ve spodní části obsahuje bohaté ilustrace a alegorie. Nejznámější je obrázek vozu, který tahají koně na dvě opačné strany. Byla to ostrá kritika rozdělené české společnosti – neustálých sporů mezi katolíky a utrakvisty (kališníky), které brzdily rozvoj země.
-
-*"Země, která se hádá o to, kterým směrem vyrazit, nakonec roztrhá sama sebe na kusy."*`
-        },
         {
             id: 'book_jistebnicky',
             title: 'Jistebnický kancionál: Zpěv místo zbraní',
@@ -952,24 +693,6 @@ Kelley byl showman. Při veřejných transmutacích prý schovával kousky zlata
 
         // TIER 10 - Apokalypsa a nové světy (day 65)
         {
-            id: 'book_defenestrace',
-            title: 'Apologie stavův: Výstřel k třicetileté válce',
-            category: 'conflict',
-            unlockDay: 65,
-            icon: '⚔️',
-            author: 'Čeští stavové',
-            year: '1618',
-            content: `**Ospravedlnění vyhození z okna**
-
-Když 23. května 1618 rozzuření čeští nekatoličtí páni vyhodili královské místodržící z oken Pražského hradu (Třetí pražská defenestrace), věděli, že překročili Rubikon. Aby svůj revoluční akt vysvětlili Evropě, okamžitě vytiskli a rozeslali *Apologii* (Obranu).
-
-**PR kampaň pro válku**
-
-Šlo o mistrovský kus politické propagandy. Spis dokazoval, že defenestrace nebyla rebelií proti císaři jako takovému, ale spravedlivým soudem nad jeho zkorumpovanými úředníky, kteří porušovali Rudolfův Majestát (náboženskou svobodu). Tato malá tištěná knížečka nedokázala zabránit krveprolití – odstartovala hrůznou Třicetiletou válku, která zdecimovala polovinu Evropy.
-
-*"Slova vytištěná na omluvu násilí jsou jen prvním výstřelem ve válce, která pohltí nás všechny."*`
-        },
-        {
             id: 'book_kralice',
             title: 'Bible kralická: Šestidílný klenot',
             category: 'innovation',
@@ -986,24 +709,6 @@ Jednota bratrská byla pronásledovaná a musela svou tiskárnu neustále přeso
 Šestidílná edice obsahovala nejen samotný text, ale po stranách i nesmírně podrobné komentáře a vysvětlivky. Čeština použitá v této Bibli vybrousila náš jazyk k naprosté dokonalosti. Když po Bílé hoře hrozilo zničení národa, byla to právě pašovaná Kralická bible, která udržela český jazyk při životě v exilu i v selských skrýších pod podlahou.
 
 *"Když ztratíš zemi, krále i svobodu, domovem se ti stane jazyk skrytý mezi stránkami jediné knihy."*`
-        },
-        {
-            id: 'book_komensky_labyrint',
-            title: 'Labyrint světa a ráj srdce',
-            category: 'history',
-            unlockDay: 65,
-            icon: '👁️',
-            author: 'Jan Amos Komenský',
-            year: '1623 (tisk 1631)',
-            content: `**Cesta zničenou duší Evropy**
-
-Po tragédii na Bílé hoře musel Komenský prchat před popravčími a ztratil svou rodinu při morové epidemii. V nejhlubším zoufalství, skrývajíc se na panství Karla staršího ze Žerotína, napsal alegorický klenot Labyrint světa.
-
-**Všezvěd Všudybud a Mámení**
-
-Poutník prochází fiktivním městem (světem) s brýlemi klamu na nose. Vidí alchymisty pálící majetky, vojáky radující se z krve, soudce soudící podle úplatků a učence hádající se o nesmysly. Zjišťuje, že celý venkovní svět je jen chaos a marnost. Jediné bezpečné útočiště a pravdu nachází ve svém vlastním nitru, v "ráji srdce". Kniha je dodnes jednou z nejbrilantnějších kritik lidské společnosti.
-
-*"Nenašel jsem ve světě nic, co by nebylo plné bolesti a lži. Cestu ven z Labyrintu nelze najít očima, ale jen zavřením očí a pohledem dovnitř."*`
         },
 		// TIER 10 (Pokračování) - Baroko a vzdor (day 66-70)
         {
@@ -1023,24 +728,6 @@ Zatímco Gutenberg tiskl latinsky pro elity, skupina bohatých pražských měš
 Sázet český text znamenalo vytvořit zcela nové olověné litery. Čeština potřebovala své specifické spřežky a znaky, které němečtí tiskaři neznali. Tato kniha tak de facto standardizovala podobu tištěné češtiny na dlouhá desetiletí. A co víc, kniha byla vydána ve velkém nákladu a stala se přístupnou pro bohatší měšťanské rodiny, ne jen pro nedotknutelné kláštery.
 
 *"Když Bůh poprvé promluvil z tištěného papíru česky, staré pergameniště se otřáslo v základech."*`
-        },
-        {
-            id: 'book_kristan_mor',
-            title: 'Knihy lékařské: Tanec se smrtí',
-            category: 'innovation',
-            unlockDay: 67,
-            icon: '💀',
-            author: 'Křišťan z Prachatic',
-            year: 'počátek 15. století',
-            content: `**Rádce do časů apokalypsy**
-
-Křišťan z Prachatic byl rektorem Karlovy univerzity, brilantním astronomem a přítelem Jana Husa. Kromě hvězd ho ale zajímalo přežití. Sepsal v češtině *Lékařské knížky*, které se staly doslova hitem. Nejčtenější částí byla takzvaná "Rada proti moru".
-
-**Vykuřování a pouštění žilou**
-
-Černá smrt byla nevysvětlitelným démonem doby. Křišťan v knize radí z dnešního pohledu úsměvné, ale tehdy naprosto vážně míněné postupy: zběsilé vykuřování domů jalovcem, polykání drcených smaragdů, přísné diety a masivní pouštění krve, aby se "zkažené humory" dostaly z těla ven. Kniha byla tak populární, že se opisovala a později tiskla po celá staletí.
-
-*"Když na město padne stín černé smrti, i učené rady rektorů se změní v zoufalé modlitby a dým z jalovce."*`
         },
         {
             id: 'book_michna_loutna',
@@ -1740,4 +1427,3 @@ Každý mnich měl přidělený svůj vlastní záhon, a každý tento záhon by
 // ================================================
 // 3. EASTER EGGS - Skryté achievementy a speciální itemy
 // ================================================
-
