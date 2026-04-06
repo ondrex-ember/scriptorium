@@ -217,7 +217,18 @@ renderActions: function() {
                 }
             }
 
-            h += `<div class="card" style="border-color:${done?'var(--accent-gold)':'var(--ink-secondary)'}"><div class="item-icon" style="background:${done?'#c5a059':'#e8dec0'}">${done?'🎓':'📖'}</div><div style="flex:1"><strong>${displayName}</strong><div class="text-sm">${displayDesc}</div>${typeof TechLoreDB !== 'undefined' && TechLoreDB[tech.id] ? `<div class="text-sm" style="margin-top:8px;padding:8px;background:rgba(197,160,89,0.1);border-left:3px solid var(--accent-gold);font-style:italic;">${TechLoreDB[tech.id]}</div>` : ''}${reqText}</div>${done?`<span style="font-weight:bold;color:var(--accent-gold)">${_t('game.techDone')}</span>`:`<button class="craft-btn" onclick="Game.study('${tech.id}')" ${canResearch?'':'disabled'}>${_t('game.techStudy')} (${tech.cost} 📜)</button>`}</div>`;
+            h += `<div class="card" style="border-color:${done?'var(--accent-gold)':'var(--ink-secondary)'};flex-wrap:wrap;" onclick="(function(el){var f=el.querySelector('.tech-lore-full');if(f)f.style.display=f.style.display==='block'?'none':'block'})(this)">
+                <div class="item-icon" style="background:${done?'#c5a059':'#e8dec0'};flex-shrink:0">${done?'🎓':'📖'}</div>
+                <div style="flex:1;min-width:0">
+                    <strong>${displayName}</strong>
+                    <div class="text-sm">${displayDesc}</div>
+                    ${reqText}
+                    ${typeof TechLoreDB !== 'undefined' && TechLoreDB[tech.id] ? `<div class="text-sm" style="margin-top:6px;font-style:italic;opacity:0.75;">${TechLoreDB[tech.id].replace(/<[^>]*>/g,'').split(' ').slice(0,8).join(' ')}… <div class="tech-lore-full" style="display:none;margin-top:6px;padding:8px;background:rgba(197,160,89,0.1);border-left:3px solid var(--accent-gold);font-style:italic;">${TechLoreDB[tech.id]}</div></div>` : ''}
+                </div>
+                <div style="flex-shrink:0;align-self:flex-end;padding-left:8px;margin-top:6px;">
+                    ${done ? `<span style="font-weight:bold;color:var(--accent-gold)">${_t('game.techDone')}</span>` : `<button class="craft-btn" onclick="event.stopPropagation();Game.study('${tech.id}')" ${canResearch?'':'disabled'}>${_t('game.techStudy')} (${tech.cost} 📜)</button>`}
+                </div>
+            </div>`;
         });
         el.innerHTML = h;
     },
@@ -626,9 +637,9 @@ showBookModal: function(book) {
         if(!hasAny) {
             let h = `<div style="padding:20px; background:rgba(0,0,0,0.05); border-radius:8px; text-align:center;">
                 <div style="font-size:3rem; opacity:0.3; margin-bottom:10px;">🔒</div>
-                <strong>Zatím nemáš žádný zápisník</strong>
+                <strong>${t('lore.notebooks_empty')}</strong>
                 <p style="margin-top:10px; opacity:0.7;">
-                    Odemkni tech "Základy Psaní" (3 research) a vycrafti svou první Tabulu!
+                    ${t('lore.notebooks_hint')}
                 </p>
             </div>`;
             el.innerHTML = h;
@@ -681,9 +692,9 @@ renderRecords: function() {
     if(!hasTech) {
         let h = `<div style="padding:20px; background:rgba(0,0,0,0.05); border-radius:8px; text-align:center;">
             <div style="font-size:3rem; opacity:0.3; margin-bottom:10px;">🔒</div>
-            <strong>Zamčeno</strong>
+            <strong>${t('library.locked')}</strong>
             <p style="margin-top:10px; opacity:0.7;">
-                Odemkni tech "Hry a Záznamy" pro přístup k mini-games a statistikám.
+                ${t('library.records_hint')}
             </p>
         </div>`;
         el.innerHTML = h;

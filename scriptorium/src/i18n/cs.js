@@ -141,7 +141,21 @@ const STRINGS_cs = {
         },
         welcome: {
             text:'Nalezl jsi opuštěnou pracovnu.<br><br>Na stole leží vyhaslý troud, kousek křemene a pár listů pergamenu pokrytých prachem. Za oknem je slyšet rytmické klepání – někdo v sousední ulici provozuje nový stroj. Říkají mu <em>tiskařský lis</em>.<br><br>Ale to je venku. Tady uvnitř je tma a zima.<br><br><strong>Začni s tím, co máš.</strong>',
-            btn:'Vstoupit →'
+            btn:'Vstoupit →',
+            aboutLink:'O hře & Credits →'
+        },
+        about: {
+            version:'Verze:', date:'Datum:', dateVal:'6. dubna 2026', author:'Autor:',
+            aboutTitle:'O hře',
+            aboutText:'Středověká idle hra o kopírování rukopisů, výrobě papíru a studiu v klášterním skriptoriu. Kombinuje survival mechaniky (oheň, světlo, hlad) s craftingem, zahradničením a postupným odemykáním technologií. Historicky podložená hra zasazená do roku 1465 v Olomouci.',
+            r771:'i18n Phase 1 dokončena — kompletní překlad UI do EN',
+            r772:'61 historických knih v knihovně',
+            r773:'Collapsible tech cards — preview lore textu',
+            r774:'Well system, Games & Records, Věštění — lokalizovány',
+            r761:'CZ/EN lokalizace — výběr jazyka při prvním spuštění',
+            r762:'English (Olde) — autentický středověký styl',
+            r763:'Přepínač jazyka v Nastavení, ?lang=en URL podpora',
+            fullChangelog:'📜 Celý changelog & Credits →'
         },
         fireout: {
             heading:'Pracovna je studená',

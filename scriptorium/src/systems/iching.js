@@ -1,4 +1,4 @@
-	const IChing = {
+const IChing = {
 	  
 	  // === HEXAGRAM DATABASE (všech 64) ===
 	  hexagrams: {
@@ -551,15 +551,15 @@
     const hasTech = GameState.researchedTechs.includes('tech_iching');
     
     // Build HTML
-    let html = '<h2>☯️ I-Ching (Kniha Proměn)</h2>';
+    let html = `<h2>${t('library.iching_title')}</h2>`;
     
     if (!hasTech) {
         html += `
             <div style="padding: 40px; text-align: center;">
                 <div style="font-size: 4rem; opacity: 0.3; margin-bottom: 20px;">🔒</div>
-                <h3 style="color: var(--ink-secondary); margin-bottom: 10px;">Zamčeno</h3>
+                <h3 style="color: var(--ink-secondary); margin-bottom: 10px;">${t('library.locked')}</h3>
                 <p style="color: var(--ink-secondary); font-size: 14px;">
-                    Odemkni tech "Starověká Moudrost" pro přístup k věštění.
+                    ${t('library.divination_hint')}
                 </p>
             </div>
         `;
@@ -567,9 +567,9 @@
         html += `
             <div style="padding: 40px; text-align: center;">
                 <div style="font-size: 4rem; margin-bottom: 20px;">📜</div>
-                <h3 style="color: var(--ink-secondary); margin-bottom: 10px;">Potřebuješ Knihu Proměn</h3>
+                <h3 style="color: var(--ink-secondary); margin-bottom: 10px;">${t('library.iching_need_book')}</h3>
                 <p style="color: var(--ink-secondary); font-size: 14px; margin-bottom: 20px;">
-                    Vyrob si ji v sekci Řemeslo → Lore.
+                    ${t('library.iching_craft_hint')}
                 </p>
             </div>
         `;

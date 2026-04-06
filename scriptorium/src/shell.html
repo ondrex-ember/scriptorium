@@ -1001,7 +1001,10 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                 <div style="font-size:0.7rem; color:var(--ink-secondary); margin-top:5px; font-style:italic; letter-spacing:1px;">Léta Páně 1465 · Město Olomouc</div>
             </div>
             <div id="welcome-text" style="font-style:italic; line-height:1.9; color:var(--ink-primary); font-size:0.9rem; border-left:2px solid var(--accent-gold); padding-left:14px; margin-bottom:22px;"></div>
-            <button id="welcome-btn" onclick="UI.closeWelcomeModal()" style="width:100%; padding:12px; background:transparent; color:var(--ink-primary); border:1px solid var(--ink-secondary); font-family:'Cinzel Decorative'; font-size:0.8rem; cursor:pointer; border-radius:2px; letter-spacing:2px; opacity:0.8;">Vstoupit →</button>
+            <button id="welcome-btn" onclick="UI.closeWelcomeModal()" style="width:100%; padding:12px; background:transparent; color:var(--ink-primary); border:1px solid var(--ink-secondary); font-family:'Cinzel Decorative'; font-size:0.8rem; cursor:pointer; border-radius:2px; letter-spacing:2px; opacity:0.8;" data-i18n="welcome.btn">Vstoupit →</button>
+            <div style="text-align:center; margin-top:12px;">
+                <a href="/about.html" target="_blank" style="font-size:0.75rem; color:var(--ink-secondary); text-decoration:none; opacity:0.6; font-style:italic;" data-i18n="welcome.aboutLink">O hře &amp; Credits →</a>
+            </div>
         </div>
     </div>
 
@@ -1038,83 +1041,41 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         <h2 style="margin-bottom: 20px; color: var(--accent-gold); font-family: 'Cinzel Decorative';">📜 SCRIPTORIUM</h2>
         
         <div style="margin-bottom: 20px; padding: 12px; background: var(--bg-card); border-left: 3px solid var(--accent-gold);">
-            <strong>Verze:</strong> 7.6 "Lingua Scriptorii"<br>
-            <strong>Datum:</strong> 10. března 2026<br>
-            <strong>Autor:</strong> Ondrex Ember
+            <strong data-i18n="about.version">Verze:</strong> 7.7 "Verbum Omnibus"<br>
+            <strong data-i18n="about.date">Datum:</strong> <span data-i18n="about.dateVal">6. dubna 2026</span><br>
+            <strong data-i18n="about.author">Autor:</strong> Ondrex Ember
         </div>
         
-        <h3 style="margin: 20px 0 10px; color: var(--accent-gold); font-family: 'Cinzel Decorative';">O hře</h3>
-        <p style="line-height: 1.6;">Středověká idle hra o kopírování rukopisů, výrobě papíru a studiu v klášterním skriptoriu. Kombinuje survival mechaniky (oheň, světlo, hlad) s craftingem, zahradničením a postupným odemykáním technologií. Historicky podložená hra zasazená do roku 1465 v Olomouci.</p>
+        <h3 style="margin: 20px 0 10px; color: var(--accent-gold); font-family: 'Cinzel Decorative';" data-i18n="about.aboutTitle">O hře</h3>
+        <p style="line-height: 1.6;" data-i18n="about.aboutText">Středověká idle hra o kopírování rukopisů, výrobě papíru a studiu v klášterním skriptoriu. Kombinuje survival mechaniky (oheň, světlo, hlad) s craftingem, zahradničením a postupným odemykáním technologií. Historicky podložená hra zasazená do roku 1465 v Olomouci.</p>
         
         <h3 style="margin: 20px 0 10px; color: var(--accent-gold); font-family: 'Cinzel Decorative';">📓 Release Notes</h3>
 
-        <div style="border-left: 3px solid var(--accent-gold); padding-left: 12px; margin: 10px 0; padding: 10px; background: rgba(197,160,89,0.12);">
+        <div style="border-left: 3px solid var(--accent-gold); padding: 10px; background: rgba(197,160,89,0.12); margin: 10px 0;">
+            <strong>v7.7 "Verbum Omnibus" (06.04.2026)</strong>
+            <ul style="font-size: 0.9rem; margin: 5px 0; line-height: 1.6;">
+                <li>🌐 <span data-i18n="about.r771">i18n Phase 1 dokončena — kompletní překlad UI do EN</span></li>
+                <li>📖 <span data-i18n="about.r772">61 historických knih v knihovně</span></li>
+                <li>🔽 <span data-i18n="about.r773">Collapsible tech cards — preview lore textu</span></li>
+                <li>💧 <span data-i18n="about.r774">Well system, Games & Records, Divination — lokalizovány</span></li>
+            </ul>
+        </div>
+
+        <div style="border-left: 3px solid var(--accent-gold); padding: 10px; background: rgba(197,160,89,0.08); margin: 10px 0;">
             <strong>v7.6 "Lingua Scriptorii" (10.03.2026)</strong>
             <ul style="font-size: 0.9rem; margin: 5px 0; line-height: 1.6;">
-                <li>🌐 CZ/EN lokalizace — výběr jazyka při prvním spuštění</li>
-                <li>🏴󠁧󠁢󠁥󠁮󠁧󠁿 English (Olde) — autentický středověký styl</li>
-                <li>🗺️ Přepínač jazyka v Nastavení, ?lang=en URL podpora</li>
-                <li>🔍 SEO: hreflang alternate links (cs/en/x-default)</li>
-                <li>📊 GA4 event language_switched</li>
+                <li>🌐 <span data-i18n="about.r761">CZ/EN lokalizace — výběr jazyka při prvním spuštění</span></li>
+                <li>🏴󠁧󠁢󠁥󠁮󠁧󠁿 <span data-i18n="about.r762">English (Olde) — autentický středověký styl</span></li>
+                <li>🗺️ <span data-i18n="about.r763">Přepínač jazyka v Nastavení, ?lang=en URL podpora</span></li>
             </ul>
         </div>
 
-        <div style="border-left: 3px solid var(--accent-gold); padding-left: 12px; margin: 10px 0; padding: 10px; background: rgba(197,160,89,0.08);">
-            <strong>v7.5 "Codex Aureus" (09.03.2026)</strong>
-            <ul style="font-size: 0.9rem; margin: 5px 0; line-height: 1.6;">
-                <li>🔤 Font Specimens — 7 knih + 5 technologií s ukázkami písem</li>
-                <li>🏆 Rank System — 8 ranků (Laicus → Magister Artium)</li>
-                <li>🥚 Easter Eggs — 10+ skrytých achievementů</li>
-                <li>📅 Daily Facts — 50+ historických faktů při denní odměně</li>
-                <li>🌦️ Weather System — real-time počasí Praha, auto-téma</li>
-                <li>📊 GA4 + GDPR consent (podmíněné načítání)</li>
-                <li>📱 PWA manifest + service worker</li>
-            </ul>
+        <div style="margin: 16px 0; text-align: center;">
+            <a href="/about.html" target="_blank" style="font-family:'Cinzel Decorative'; font-size:0.75rem; letter-spacing:0.08em; color:var(--ink-primary); background:var(--accent-gold); padding:10px 24px; text-decoration:none; border-radius:2px; display:inline-block;" data-i18n="about.fullChangelog">📜 Celý changelog & Credits →</a>
         </div>
-        
-        <div style="border-left: 3px solid var(--accent-wax); padding-left: 12px; margin: 10px 0; background: rgba(138, 51, 36, 0.05); padding: 10px;">
-            <strong>v7.4 "Historical Realities" (15.02.2026)</strong>
-            <ul style="font-size: 0.9rem; margin: 5px 0; line-height: 1.6;">
-                <li>📜 3 nové knihy (De arte predicandi, Kutnohorská Bible, Olomoucký Misál)</li>
-                <li>🦌 Pergamen (vellum) crafting chain — historicky přesná výroba</li>
-                <li>🪶 Husí brko (quill) systém — 10× použití</li>
-                <li>✒️ Železitoduběnkový inkoust — standard 15. století</li>
-                <li>📘 3 typy kodexů (common/luxury/vellum) dle Petra Voita</li>
-                <li>🔔 Kanonické Hodiny — benediktinský denní řád (8 buffů)</li>
-                <li>⚔️ Události: Švédské obléhání (1642), Skrytý prvotisk</li>
-                <li>🏛️ 12 nových technologií — vše z PDF pramenů</li>
-            </ul>
-        </div>
-
-        <div style="border-left: 3px solid var(--ink-secondary); padding-left: 12px; margin: 10px 0; opacity: 0.7; padding: 10px;">
-            <strong>v7.0 "Library" (12.02.2026)</strong>
-            <ul style="font-size: 0.9rem; margin: 5px 0; line-height: 1.6;">
-                <li>📚 15 historických knih + 1 secret (Starý Písař NPC)</li>
-                <li>🎴 Memory game, osobní statistiky, achievement systém</li>
-                <li>🃏 Historické deskové hry (Ur, Primero, Karnöffel)</li>
-            </ul>
-        </div>
-
-        <div style="border-left: 3px solid var(--ink-secondary); padding-left: 12px; margin: 10px 0; opacity: 0.5; padding: 10px;">
-            <strong>v6.4 "Expansion" — v6.0 "Origins" (2026-02)</strong>
-            <ul style="font-size: 0.9rem; margin: 5px 0; line-height: 1.6;">
-                <li>🍖 Cooking, alchymie, zahrada, hunger mechanika</li>
-                <li>🌱 Survival loop — oheň, světlo, hlad, sběr</li>
-                <li>⚒️ Crafting základ, tech tree, zápisníky</li>
-            </ul>
-        </div>
-        
-        <h3 style="margin: 20px 0 10px; color: var(--accent-gold); font-family: 'Cinzel Decorative';">Credits</h3>
-        <p style="font-size: 0.9rem; line-height: 1.6;">
-            <strong>Vývoj:</strong> Ondrex (koncept, design, testování)<br>
-            <strong>Kódování:</strong> Ondrex, Claude, Gemini<br>
-            <strong>Fonty:</strong> Google Fonts (Cinzel Decorative, Crimson Text)<br>
-            <strong>Historické zdroje:</strong> České kláštery, středověké kroniky<br>
-            <strong>Inspirace:</strong> Bouvard a Pecuchét (Gustave Flaubert) & Byli jednou dva písaři; střet rukopisců a prvních knihtiskařů
-        </p>
         
         <div style="margin-top: 20px; padding: 15px; background: rgba(197, 160, 89, 0.1); border: 1px solid var(--accent-gold); border-radius: 4px; text-align: center;">
-            <strong>🎮 <i></i>Ludite et, super omnia, nolite pugnare</i></strong><br>
+            <strong><i>🎮 Ludite et, super omnia, nolite pugnare</i></strong>
         </div>
     </div>
 </div>
@@ -1167,7 +1128,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             <h2>Pracovna</h2>
             
             <div class="time-selector">
-                <button class="time-btn active" onclick="Game.setDuration(0, this)">Ihned</button>
+                <button class="time-btn active" onclick="Game.setDuration(0, this)" data-i18n="actions.instantly">Ihned</button>
                 <button class="time-btn" onclick="Game.setDuration(1, this)">1 min</button>
                 <button class="time-btn" onclick="Game.setDuration(5, this)">5 min</button>
                 <button class="time-btn" onclick="Game.setDuration(10, this)">10 min</button>
@@ -1193,7 +1154,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
        <div id="screen-garden" class="screen">
             <h2>Zahrada</h2>
-            <p id="text-garden-desc" class="text-sm" style="margin-bottom:15px;">Pěstuj vzácné rostliny. Půda vyžaduje péči.</p>
+            <p id="text-garden-desc" class="text-sm" style="margin-bottom:15px;" data-i18n="garden.desc">Pěstuj vzácné rostliny. Půda vyžaduje péči.</p>
             <div id="garden-container" class="garden-grid"></div>
             <div id="well-management" style="margin-top: 30px; padding: 20px; background: rgba(0,0,0,0.2); border-radius: 10px;">
             <h3 data-i18n="wellUI.title">🚰 Správa Studny</h3>
