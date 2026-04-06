@@ -1,0 +1,815 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Scriptorium — Katalog Tisků</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&family=Crimson+Text:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+:root {
+    --ink:      #1a1410;
+    --ink-soft: #3d2f1f;
+    --parch:    #f5f0e4;
+    --parch2:   #ede5ce;
+    --gold:     #c5a059;
+    --gold-d:   #9a7a3a;
+    --wax:      #7c2d12;
+    --green:    #2d5a27;
+    --border:   rgba(197,160,89,0.3);
+    --shadow:   rgba(26,20,16,0.12);
+    --mono:     'JetBrains Mono', monospace;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+    background: var(--ink);
+    color: var(--parch);
+    font-family: 'Crimson Text', Georgia, serif;
+    font-size: 1rem;
+    line-height: 1.6;
+    min-height: 100vh;
+}
+
+/* ── HEADER ── */
+header {
+    background: linear-gradient(135deg, #1a1410 0%, #2c1810 50%, #1a1410 100%);
+    border-bottom: 1px solid var(--gold);
+    padding: 20px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+header h1 {
+    font-family: 'Cinzel', serif;
+    font-size: 1.1rem;
+    color: var(--gold);
+    letter-spacing: 0.12em;
+    font-weight: 600;
+}
+
+header .subtitle {
+    font-size: 0.8rem;
+    color: rgba(197,160,89,0.6);
+    font-style: italic;
+    margin-top: 2px;
+}
+
+.import-zone {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.import-btn {
+    font-family: 'Cinzel', serif;
+    font-size: 0.65rem;
+    letter-spacing: 0.1em;
+    padding: 7px 14px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--gold);
+    cursor: pointer;
+    border-radius: 2px;
+    transition: all 0.2s;
+    white-space: nowrap;
+}
+
+.import-btn:hover { background: var(--gold); color: var(--ink); }
+.import-btn.loaded { border-color: var(--green); color: #6abf69; }
+
+#id-counter {
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    color: rgba(197,160,89,0.5);
+    white-space: nowrap;
+}
+
+/* ── LAYOUT ── */
+.container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 32px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+}
+
+@media(max-width: 900px) {
+    .container { grid-template-columns: 1fr; padding: 16px; }
+}
+
+/* ── PANEL ── */
+.panel {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    overflow: hidden;
+}
+
+.panel-header {
+    background: rgba(197,160,89,0.08);
+    border-bottom: 1px solid var(--border);
+    padding: 12px 20px;
+    font-family: 'Cinzel', serif;
+    font-size: 0.75rem;
+    letter-spacing: 0.1em;
+    color: var(--gold);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.panel-body { padding: 20px; }
+
+/* ── FORM ── */
+.field { margin-bottom: 16px; }
+
+label {
+    display: block;
+    font-size: 0.75rem;
+    color: rgba(197,160,89,0.7);
+    letter-spacing: 0.06em;
+    margin-bottom: 5px;
+    font-family: 'Cinzel', serif;
+}
+
+label .req { color: var(--wax); }
+label .hint { color: rgba(197,160,89,0.4); font-family: 'Crimson Text', serif; letter-spacing: 0; font-style: italic; }
+
+input, select, textarea {
+    width: 100%;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(197,160,89,0.2);
+    color: var(--parch);
+    font-family: 'Crimson Text', Georgia, serif;
+    font-size: 0.95rem;
+    padding: 8px 12px;
+    border-radius: 2px;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+input:focus, select:focus, textarea:focus {
+    border-color: var(--gold);
+    background: rgba(255,255,255,0.07);
+}
+
+input.error { border-color: var(--wax) !important; }
+input.ok    { border-color: var(--green) !important; }
+
+textarea { resize: vertical; min-height: 100px; font-size: 0.9rem; line-height: 1.5; }
+textarea.tall { min-height: 180px; }
+
+select option { background: #1a1410; }
+
+.field-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+
+.field-row-3 {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr;
+    gap: 12px;
+}
+
+/* ── ID CHECK ── */
+.id-status {
+    font-size: 0.75rem;
+    margin-top: 4px;
+    height: 16px;
+    font-style: italic;
+}
+.id-status.ok    { color: #6abf69; }
+.id-status.warn  { color: #f59e0b; }
+.id-status.error { color: #ef4444; }
+
+/* ── GENERATE BTN ── */
+.gen-btn {
+    width: 100%;
+    font-family: 'Cinzel', serif;
+    font-size: 0.8rem;
+    letter-spacing: 0.12em;
+    padding: 14px;
+    background: var(--gold);
+    color: var(--ink);
+    border: none;
+    cursor: pointer;
+    border-radius: 2px;
+    transition: background 0.2s, transform 0.1s;
+    margin-top: 8px;
+}
+.gen-btn:hover { background: var(--gold-d); color: var(--parch); }
+.gen-btn:active { transform: scale(0.99); }
+
+.clear-btn {
+    width: 100%;
+    font-family: 'Cinzel', serif;
+    font-size: 0.7rem;
+    letter-spacing: 0.1em;
+    padding: 8px;
+    background: transparent;
+    color: rgba(197,160,89,0.4);
+    border: 1px solid rgba(197,160,89,0.15);
+    cursor: pointer;
+    border-radius: 2px;
+    margin-top: 6px;
+    transition: all 0.2s;
+}
+.clear-btn:hover { color: var(--gold); border-color: var(--border); }
+
+/* ── OUTPUT ── */
+.output-tabs {
+    display: flex;
+    border-bottom: 1px solid var(--border);
+}
+
+.tab-btn {
+    font-family: 'Cinzel', serif;
+    font-size: 0.65rem;
+    letter-spacing: 0.1em;
+    padding: 10px 18px;
+    background: transparent;
+    border: none;
+    color: rgba(197,160,89,0.5);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s;
+}
+.tab-btn.active { color: var(--gold); border-bottom-color: var(--gold); }
+
+.tab-pane { display: none; padding: 16px; }
+.tab-pane.active { display: block; }
+
+pre {
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    line-height: 1.6;
+    background: rgba(0,0,0,0.3);
+    border: 1px solid rgba(197,160,89,0.1);
+    border-radius: 2px;
+    padding: 14px;
+    overflow-x: auto;
+    white-space: pre-wrap;
+    word-break: break-word;
+    color: #d4c4a0;
+    max-height: 500px;
+    overflow-y: auto;
+}
+
+pre .kw  { color: #c792ea; }
+pre .str { color: #c3e88d; }
+pre .key { color: #82aaff; }
+pre .val { color: #f78c6c; }
+
+.copy-btn {
+    font-family: 'Cinzel', serif;
+    font-size: 0.65rem;
+    letter-spacing: 0.1em;
+    padding: 7px 14px;
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--gold);
+    cursor: pointer;
+    border-radius: 2px;
+    transition: all 0.2s;
+}
+.copy-btn:hover { background: var(--gold); color: var(--ink); }
+.copy-btn.copied { background: var(--green); border-color: var(--green); color: white; }
+
+/* ── CATALOG ── */
+.catalog {
+    grid-column: 1 / -1;
+}
+
+.cat-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 8px;
+    max-height: 400px;
+    overflow-y: auto;
+    padding: 4px;
+}
+
+.cat-item {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(197,160,89,0.15);
+    border-radius: 2px;
+    padding: 10px 12px;
+    font-size: 0.82rem;
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+}
+
+.cat-item .cat-icon { font-size: 1.2rem; flex-shrink: 0; }
+.cat-item .cat-info { flex: 1; min-width: 0; }
+.cat-item .cat-id { font-family: var(--mono); font-size: 0.65rem; color: rgba(197,160,89,0.5); }
+.cat-item .cat-title { color: var(--parch); font-size: 0.85rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cat-item .cat-meta { font-size: 0.72rem; color: rgba(197,160,89,0.4); font-style: italic; }
+
+.filter-bar {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+}
+
+.filter-bar input {
+    flex: 1;
+    min-width: 200px;
+    font-size: 0.85rem;
+    padding: 6px 10px;
+}
+
+.cat-badge {
+    font-family: 'Cinzel', serif;
+    font-size: 0.6rem;
+    padding: 2px 7px;
+    border-radius: 10px;
+    display: inline-block;
+    margin-top: 2px;
+}
+.cat-badge.history    { background: rgba(130,170,255,0.15); color: #82aaff; }
+.cat-badge.innovation { background: rgba(195,232,141,0.15); color: #c3e88d; }
+.cat-badge.conflict   { background: rgba(239,68,68,0.15);   color: #f87171; }
+.cat-badge.local      { background: rgba(197,160,89,0.15);  color: var(--gold); }
+.cat-badge.special    { background: rgba(192,132,252,0.15); color: #c084fc; }
+
+/* ── EMPTY STATE ── */
+.empty {
+    text-align: center;
+    padding: 40px;
+    color: rgba(197,160,89,0.3);
+    font-style: italic;
+    font-size: 0.9rem;
+}
+
+/* ── TOAST ── */
+#toast {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    background: var(--green);
+    color: white;
+    font-family: 'Cinzel', serif;
+    font-size: 0.7rem;
+    letter-spacing: 0.08em;
+    padding: 10px 18px;
+    border-radius: 2px;
+    opacity: 0;
+    transform: translateY(10px);
+    transition: all 0.3s;
+    pointer-events: none;
+    z-index: 999;
+}
+#toast.show { opacity: 1; transform: translateY(0); }
+
+input[type="file"] { display: none; }
+</style>
+</head>
+<body>
+
+<header>
+    <div>
+        <h1>📜 SCRIPTORIUM · KATALOG TISKŮ</h1>
+        <div class="subtitle">Editor nových knih pro library.js &amp; en.js</div>
+    </div>
+    <div class="import-zone">
+        <span id="id-counter">Načti soubory →</span>
+        <button class="import-btn" id="btn-lib" onclick="document.getElementById('file-lib').click()">
+            📚 library.js
+        </button>
+        <button class="import-btn" id="btn-en" onclick="document.getElementById('file-en').click()">
+            🏴󠁧󠁢󠁥󠁮󠁧󠁿 en.js
+        </button>
+        <input type="file" id="file-lib" accept=".js" onchange="loadLibrary(this)">
+        <input type="file" id="file-en" accept=".js" onchange="loadEnJs(this)">
+    </div>
+</header>
+
+<div class="container">
+
+    <!-- ── FORM ── -->
+    <div class="panel">
+        <div class="panel-header">
+            <span>✏️ NOVÁ KNIHA</span>
+            <span style="color:rgba(197,160,89,0.4);font-size:0.65rem;">* = povinné</span>
+        </div>
+        <div class="panel-body">
+
+            <div class="field">
+                <label>ID knihy <span class="req">*</span> <span class="hint">— např. book_biblia_pauperum</span></label>
+                <input type="text" id="f-id" placeholder="book_nazev_knihy" oninput="checkId(this.value)" autocomplete="off">
+                <div class="id-status" id="id-status"></div>
+            </div>
+
+            <div class="field-row">
+                <div class="field">
+                    <label>Kategorie <span class="req">*</span></label>
+                    <select id="f-cat">
+                        <option value="history">history — Historie tisku</option>
+                        <option value="innovation">innovation — Inovace</option>
+                        <option value="conflict">conflict — Konflikty</option>
+                        <option value="local">local — Praha &amp; Čechy</option>
+                        <option value="special">special — Speciální</option>
+                    </select>
+                </div>
+                <div class="field">
+                    <label>Unlock Day <span class="req">*</span></label>
+                    <input type="number" id="f-day" placeholder="napr. 45" min="1" max="200">
+                </div>
+            </div>
+
+            <div class="field-row-3">
+                <div class="field">
+                    <label>Ikona (emoji) <span class="req">*</span></label>
+                    <input type="text" id="f-icon" placeholder="📖" maxlength="4">
+                </div>
+                <div class="field">
+                    <label>Rok vydání <span class="req">*</span></label>
+                    <input type="text" id="f-year" placeholder="1488">
+                </div>
+                <div class="field">
+                    <label>Jazyk originálu</label>
+                    <select id="f-lang">
+                        <option value="">—</option>
+                        <option value="cs">česky</option>
+                        <option value="la">latinsky</option>
+                        <option value="de">německy</option>
+                        <option value="it">italsky</option>
+                        <option value="other">jiný</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="field">
+                <label>Název (česky) <span class="req">*</span></label>
+                <input type="text" id="f-title-cs" placeholder="Kutnohorská Bible: Detektivka ze studovny">
+            </div>
+
+            <div class="field">
+                <label>Autor / Pramen (česky) <span class="req">*</span></label>
+                <input type="text" id="f-author-cs" placeholder="Martin z Tišnova (tiskař), pražští měšťané (sponzoři)">
+            </div>
+
+            <div class="field">
+                <label>Obsah (česky) <span class="req">*</span> <span class="hint">— Markdown podporován, ** pro tučné</span></label>
+                <textarea id="f-content-cs" class="tall" placeholder="**Kapitola I: Název**&#10;&#10;Text knihy..."></textarea>
+            </div>
+
+            <hr style="border:none;border-top:1px solid var(--border);margin:20px 0">
+
+            <div class="field">
+                <label>Název (anglicky) <span class="hint">— pro en.js</span></label>
+                <input type="text" id="f-title-en" placeholder="The Kutná Hora Bible: A Detective Story in the Reading Room">
+            </div>
+
+            <div class="field">
+                <label>Autor / Pramen (anglicky)</label>
+                <input type="text" id="f-author-en" placeholder="Martin of Tišnov (printer), Prague burghers (patrons)">
+            </div>
+
+            <div class="field">
+                <label>Obsah (anglicky) <span class="hint">— pro en.js</span></label>
+                <textarea id="f-content-en" class="tall" placeholder="**Chapter I: Title**&#10;&#10;English text..."></textarea>
+            </div>
+
+            <button class="gen-btn" onclick="generate()">📜 GENEROVAT KÓD</button>
+            <button class="clear-btn" onclick="clearForm()">Vymazat formulář</button>
+        </div>
+    </div>
+
+    <!-- ── OUTPUT ── -->
+    <div class="panel">
+        <div class="output-tabs">
+            <button class="tab-btn active" onclick="switchTab('cs')">library.js (CS)</button>
+            <button class="tab-btn" onclick="switchTab('en')">en.js (EN)</button>
+        </div>
+
+        <div class="tab-pane active" id="tab-cs">
+            <div style="display:flex;justify-content:flex-end;margin-bottom:10px;gap:8px">
+                <button class="copy-btn" id="copy-cs" onclick="copyCode('cs')">Kopírovat</button>
+            </div>
+            <pre id="out-cs"><span style="color:rgba(197,160,89,0.3);font-style:italic">// Výstup se zobrazí po kliknutí na GENEROVAT KÓD</span></pre>
+        </div>
+
+        <div class="tab-pane" id="tab-en">
+            <div style="display:flex;justify-content:flex-end;margin-bottom:10px;gap:8px">
+                <button class="copy-btn" id="copy-en" onclick="copyCode('en')">Kopírovat</button>
+            </div>
+            <pre id="out-en"><span style="color:rgba(197,160,89,0.3);font-style:italic">// Výstup se zobrazí po kliknutí na GENEROVAT KÓD</span></pre>
+            <div style="margin-top:12px;padding:12px;background:rgba(197,160,89,0.05);border:1px solid var(--border);border-radius:2px;font-size:0.8rem;color:rgba(197,160,89,0.6);">
+                💡 EN blok patří do <code style="font-family:var(--mono)">STRINGS_en.library_lore.books</code> v souboru <code style="font-family:var(--mono)">en.js</code>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── CATALOG ── -->
+    <div class="panel catalog">
+        <div class="panel-header">
+            <span>📚 AKTUÁLNÍ KATALOG</span>
+            <span id="cat-count" style="color:rgba(197,160,89,0.5);font-size:0.65rem;">Načti library.js</span>
+        </div>
+        <div class="panel-body">
+            <div class="filter-bar">
+                <input type="text" id="cat-search" placeholder="Hledat v katalogu..." oninput="filterCatalog()">
+                <button class="import-btn" onclick="filterCatalog('history')">Historie</button>
+                <button class="import-btn" onclick="filterCatalog('innovation')">Inovace</button>
+                <button class="import-btn" onclick="filterCatalog('conflict')">Konflikty</button>
+                <button class="import-btn" onclick="filterCatalog('local')">Čechy</button>
+                <button class="import-btn" onclick="filterCatalog('')">Vše</button>
+            </div>
+            <div class="cat-list" id="cat-list">
+                <div class="empty">Nahraj library.js pro zobrazení katalogu</div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<div id="toast">✓ Zkopírováno do schránky</div>
+
+<script>
+// ── STATE ──────────────────────────────────────────────────────
+let knownIds = new Set();
+let knownIdsEn = new Set();
+let catalog = [];
+let activeTab = 'cs';
+let activeFilter = '';
+let csCode = '';
+let enCode = '';
+
+// ── IMPORT library.js ──────────────────────────────────────────
+function loadLibrary(input) {
+    const file = input.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = e => {
+        const text = e.target.result;
+        // Extract all book IDs
+        const ids = [...text.matchAll(/id:\s*'(book_[^']+)'/g)].map(m => m[1]);
+        knownIds = new Set(ids);
+
+        // Extract catalog entries
+        catalog = [];
+        const bookMatches = [...text.matchAll(/\{\s*\n?\s*id:\s*'(book_[^']+)'[\s\S]*?(?=\{\s*\n?\s*id:\s*'book_|\]\s*;)/g)];
+
+        // Simpler extraction
+        const idRe = /id:\s*'(book_[^']+)'/g;
+        const titleRe = /title:\s*[`'"]([^`'"]+)/;
+        const catRe = /category:\s*'([^']+)'/;
+        const dayRe = /unlockDay:\s*(\d+)/;
+        const iconRe = /icon:\s*'([^']+)'/;
+        const authorRe = /author:\s*[`'"]([^`'"\\]+)/;
+        const yearRe = /year:\s*[`'"]?([^`'",\n]+)/;
+
+        // Split into book blocks
+        const blocks = text.split(/(?=\{\s*\n?\s*id:\s*'book_)/);
+        for (const block of blocks) {
+            const idM = block.match(/id:\s*'(book_[^']+)'/);
+            if (!idM) continue;
+            const id = idM[1];
+            const titleM = block.match(titleRe);
+            const catM = block.match(catRe);
+            const dayM = block.match(dayRe);
+            const iconM = block.match(iconRe);
+            const authorM = block.match(authorRe);
+            const yearM = block.match(yearRe);
+            // Deduplicate catalog (keep last occurrence = longer version)
+            const existing = catalog.findIndex(b => b.id === id);
+            const entry = {
+                id,
+                title: titleM ? titleM[1] : id,
+                category: catM ? catM[1] : '',
+                unlockDay: dayM ? parseInt(dayM[1]) : 0,
+                icon: iconM ? iconM[1] : '📖',
+                author: authorM ? authorM[1] : '',
+                year: yearM ? yearM[1].trim() : ''
+            };
+            if (existing >= 0) catalog[existing] = entry;
+            else catalog.push(entry);
+        }
+
+        catalog.sort((a, b) => a.unlockDay - b.unlockDay);
+
+        document.getElementById('btn-lib').classList.add('loaded');
+        document.getElementById('btn-lib').textContent = `✓ ${ids.length} knih`;
+        document.getElementById('id-counter').textContent = `${knownIds.size} unikátních ID`;
+        renderCatalog();
+        // Re-check current ID
+        const cur = document.getElementById('f-id').value;
+        if (cur) checkId(cur);
+    };
+    reader.readAsText(file);
+}
+
+// ── IMPORT en.js ───────────────────────────────────────────────
+function loadEnJs(input) {
+    const file = input.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = e => {
+        const text = e.target.result;
+        const ids = [...text.matchAll(/(book_[a-z_]+):\s*\{/g)].map(m => m[1]);
+        knownIdsEn = new Set(ids);
+        document.getElementById('btn-en').classList.add('loaded');
+        document.getElementById('btn-en').textContent = `✓ ${ids.size || ids.length} EN překladů`;
+    };
+    reader.readAsText(file);
+}
+
+// ── ID CHECK ───────────────────────────────────────────────────
+function checkId(val) {
+    const el = document.getElementById('f-id');
+    const status = document.getElementById('id-status');
+    val = val.trim();
+
+    if (!val) {
+        el.className = '';
+        status.textContent = '';
+        status.className = 'id-status';
+        return;
+    }
+
+    if (!val.startsWith('book_')) {
+        el.className = 'error';
+        status.textContent = '⚠ ID musí začínat book_';
+        status.className = 'id-status warn';
+        return;
+    }
+
+    if (!/^book_[a-z0-9_]+$/.test(val)) {
+        el.className = 'error';
+        status.textContent = '⚠ Pouze malá písmena, čísla a podtržítka';
+        status.className = 'id-status warn';
+        return;
+    }
+
+    if (knownIds.has(val)) {
+        el.className = 'error';
+        status.textContent = '✗ Toto ID již existuje v library.js!';
+        status.className = 'id-status error';
+        return;
+    }
+
+    el.className = 'ok';
+    status.textContent = knownIds.size > 0 ? '✓ ID je volné' : '✓ Formát OK (nahraj library.js pro plnou kontrolu)';
+    status.className = 'id-status ok';
+}
+
+// ── GENERATE ───────────────────────────────────────────────────
+function generate() {
+    const id      = document.getElementById('f-id').value.trim();
+    const cat     = document.getElementById('f-cat').value;
+    const day     = document.getElementById('f-day').value.trim();
+    const icon    = document.getElementById('f-icon').value.trim() || '📖';
+    const year    = document.getElementById('f-year').value.trim();
+    const titleCs = document.getElementById('f-title-cs').value.trim();
+    const authCs  = document.getElementById('f-author-cs').value.trim();
+    const contCs  = document.getElementById('f-content-cs').value.trim();
+    const titleEn = document.getElementById('f-title-en').value.trim();
+    const authEn  = document.getElementById('f-author-en').value.trim();
+    const contEn  = document.getElementById('f-content-en').value.trim();
+
+    // Validation
+    const errors = [];
+    if (!id) errors.push('ID');
+    if (!day) errors.push('Unlock Day');
+    if (!titleCs) errors.push('Název (CS)');
+    if (!authCs) errors.push('Autor (CS)');
+    if (!contCs) errors.push('Obsah (CS)');
+    if (knownIds.has(id)) errors.push('ID již existuje!');
+
+    if (errors.length) {
+        showToast('⚠ Chybí: ' + errors.join(', '), '#7c2d12');
+        return;
+    }
+
+    // Escape backticks in content
+    const escCs = contCs.replace(/`/g, '\\`').replace(/\${/g, '\\${');
+    const escEn = contEn.replace(/`/g, '\\`').replace(/\${/g, '\\${');
+
+    // CS output for library.js
+    csCode = `        {
+            id: '${id}',
+            title: '${titleCs.replace(/'/g,"\\'")}',
+            category: '${cat}',
+            unlockDay: ${day},
+            icon: '${icon}',
+            author: '${authCs.replace(/'/g,"\\'")}',
+            year: ${isNaN(year) ? `'${year}'` : year},
+            content: \`${escCs}\`
+        },`;
+
+    // EN output for en.js
+    enCode = contEn ? `            ${id}: {
+                title: "${titleEn.replace(/"/g,'\\"')}",
+                author: "${authEn.replace(/"/g,'\\"')}",
+                content: \`${escEn}\`
+            },` :
+            `            ${id}: {
+                title: "${titleEn.replace(/"/g,'\\"') || titleCs.replace(/"/g,'\\"')}",
+                author: "${authEn.replace(/"/g,'\\"') || authCs.replace(/"/g,'\\""')}",
+                content: \`// TODO: English translation\`
+            },`;
+
+    document.getElementById('out-cs').textContent = csCode;
+    document.getElementById('out-en').textContent = enCode;
+
+    showToast('✓ Kód vygenerován');
+}
+
+// ── TABS ───────────────────────────────────────────────────────
+function switchTab(tab) {
+    activeTab = tab;
+    document.querySelectorAll('.tab-btn').forEach((b,i) => b.classList.toggle('active', i === (tab==='cs'?0:1)));
+    document.querySelectorAll('.tab-pane').forEach((p,i) => p.classList.toggle('active', i === (tab==='cs'?0:1)));
+}
+
+// ── COPY ───────────────────────────────────────────────────────
+function copyCode(which) {
+    const code = which === 'cs' ? csCode : enCode;
+    if (!code) { showToast('⚠ Nejprve generuj kód', '#7c2d12'); return; }
+    navigator.clipboard.writeText(code).then(() => {
+        const btn = document.getElementById('copy-' + which);
+        btn.textContent = '✓ Zkopírováno';
+        btn.classList.add('copied');
+        setTimeout(() => { btn.textContent = 'Kopírovat'; btn.classList.remove('copied'); }, 2000);
+    });
+}
+
+// ── CATALOG RENDER ─────────────────────────────────────────────
+function renderCatalog(filter) {
+    const list = document.getElementById('cat-list');
+    const search = document.getElementById('cat-search').value.toLowerCase();
+    const catFilter = filter !== undefined ? filter : activeFilter;
+    if (filter !== undefined) activeFilter = filter;
+
+    let items = catalog;
+    if (catFilter) items = items.filter(b => b.category === catFilter);
+    if (search) items = items.filter(b =>
+        b.id.includes(search) || b.title.toLowerCase().includes(search) || b.author.toLowerCase().includes(search)
+    );
+
+    document.getElementById('cat-count').textContent = `${items.length} / ${catalog.length} knih`;
+
+    if (!items.length) {
+        list.innerHTML = '<div class="empty">Nic nenalezeno</div>';
+        return;
+    }
+
+    const hasEn = id => knownIdsEn.has(id);
+
+    list.innerHTML = items.map(b => `
+        <div class="cat-item">
+            <div class="cat-icon">${b.icon}</div>
+            <div class="cat-info">
+                <div class="cat-id">${b.id} · den ${b.unlockDay} ${hasEn(b.id) ? '🏴󠁧󠁢󠁥󠁮󠁧󠁿' : '⚠️'}</div>
+                <div class="cat-title" title="${b.title}">${b.title}</div>
+                <div class="cat-meta">${b.author} · ${b.year}</div>
+                <span class="cat-badge ${b.category}">${b.category}</span>
+            </div>
+        </div>
+    `).join('');
+}
+
+function filterCatalog(cat) {
+    if (cat === undefined) cat = activeFilter;
+    renderCatalog(cat);
+}
+
+// ── CLEAR ──────────────────────────────────────────────────────
+function clearForm() {
+    ['f-id','f-day','f-icon','f-year','f-title-cs','f-author-cs','f-content-cs','f-title-en','f-author-en','f-content-en'].forEach(id => {
+        document.getElementById(id).value = '';
+        document.getElementById(id).className = '';
+    });
+    document.getElementById('id-status').textContent = '';
+    document.getElementById('id-status').className = 'id-status';
+    document.getElementById('out-cs').innerHTML = '<span style="color:rgba(197,160,89,0.3);font-style:italic">// Výstup se zobrazí po kliknutí na GENEROVAT KÓD</span>';
+    document.getElementById('out-en').innerHTML = '<span style="color:rgba(197,160,89,0.3);font-style:italic">// Výstup se zobrazí po kliknutí na GENEROVAT KÓD</span>';
+    csCode = ''; enCode = '';
+}
+
+// ── TOAST ──────────────────────────────────────────────────────
+function showToast(msg, bg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.style.background = bg || 'var(--green)';
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2500);
+}
+</script>
+</body>
+</html>
