@@ -43,7 +43,11 @@ const JS_MAIN = [
     'src/systems/events.js',        // EventsSystem
     'src/systems/rank.js',          // RankSystem
     'src/systems/notebook.js',      // NotebookSystem
-    'src/systems/audio.js', 
+    'src/systems/audio.js',
+    'src/systems/VigorSystem.js',
+    'src/systems/CellariumSystem.js',
+    'src/systems/PersonaSystem.js',
+    'src/systems/SecretsSystem.js', 
 
     // Mini-hry
     'src/games/memory.js',

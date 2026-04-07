@@ -265,6 +265,10 @@ const Game = {
         
         // Initialize rank system
         RankSystem.init();
+        VigorSystem.init();
+        CellariumSystem.init();
+        PersonaSystem.init();
+        SecretsSystem.init();
 
         // Consent banner – musí být až po načtení UI
         ConsentManager.init();
