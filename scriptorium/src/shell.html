@@ -1044,91 +1044,85 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
             border-color: #4a3f32;
         }
         
-        /* ═══════════════════════════════════════════════════════
-   CANONICAL HOURS BADGE
-   ═══════════════════════════════════════════════════════ */
-
-    #canonical-badge {
+       /* ═══════════════════════════════════════════════════════
+        CANONICAL HOURS BADGE - COMPACT VERSION
+        ═══════════════════════════════════════════════════════ */
+        #canonical-badge {
         position: absolute;
-        bottom: 12px;
+        top: auto;  /* ← PŘIDEJ! Vypne auto top */
+        bottom: 4px;  /* ← Už tam je */
         left: 50%;
         transform: translateX(-50%);
         z-index: 10;
         
-        display: none;  /* Hidden by default, shown by CanonicalHours.renderUI() */
-        align-items: center;
-        gap: 8px;
         
-        padding: 8px 16px;
-        background: rgba(0, 0, 0, 0.75);
-        backdrop-filter: blur(8px);
-        border: 1px solid var(--accent-gold);
-        border-radius: 20px;
+        /* VÝŠKA - FIX! */
+        height: 24px;  /* ← EXPLICITNÍ VÝŠKA! */
+        max-height: 24px;
+        min-height: 24px;
+        
+        display: none;
+        flex-direction: row;  /* ← Horizontální! */
+        align-items: center;
+        gap: 6px;
+        
+        padding: 4px 12px;
+        background: rgba(0, 0, 0, 0.6);
+        backdrop-filter: blur(6px);
+        border: 1px solid rgba(197, 160, 89, 0.5);
+        border-radius: 16px;
         
         font-family: 'Crimson Text', serif;
         color: var(--bg-parchment);
         
         cursor: help;
         transition: all 0.3s ease;
+        opacity: 0.85;
+        
+        /* Prevence stretche */
+        flex-shrink: 0;
+        overflow: hidden;
     }
 
     #canonical-badge:hover {
-        background: rgba(0, 0, 0, 0.85);
-        transform: translateX(-50%) scale(1.05);
-        box-shadow: 0 4px 12px rgba(197, 160, 89, 0.4);
+        background: rgba(0, 0, 0, 0.8);
+        transform: translateX(-50%) scale(1.03);
+        box-shadow: 0 2px 8px rgba(197, 160, 89, 0.3);
+        opacity: 1;
     }
 
     #canonical-badge .canonical-icon {
-        font-size: 1.4rem;
-        animation: canonical-pulse 2s ease-in-out infinite;
+        font-size: 1rem;
+        line-height: 1;  /* ← FIX line-height! */
+        animation: canonical-pulse 3s ease-in-out infinite;
+        flex-shrink: 0;
     }
 
     @keyframes canonical-pulse {
-        0%, 100% { 
-            opacity: 1; 
-            transform: scale(1);
-        }
-        50% { 
-            opacity: 0.7; 
-            transform: scale(1.1);
-        }
+        0%, 100% { opacity: 0.8; }
+        50% { opacity: 1; }
     }
 
     #canonical-badge .canonical-name {
         font-family: 'Cinzel Decorative', serif;
-        font-size: 1rem;
+        font-size: 0.75rem;
+        line-height: 1;  /* ← FIX line-height! */
         font-weight: 600;
-        letter-spacing: 1px;
+        letter-spacing: 0.5px;
         color: var(--accent-gold);
-        text-shadow: 0 0 8px rgba(197, 160, 89, 0.5);
+        text-shadow: 0 0 4px rgba(197, 160, 89, 0.3);
+        white-space: nowrap;
+        flex-shrink: 0;
     }
 
     #canonical-badge .canonical-buff {
-        font-size: 0.85rem;
-        opacity: 0.9;
+        font-size: 0.7rem;
+        line-height: 1;  /* ← FIX line-height! */
+        opacity: 0.8;
         font-style: italic;
         color: #d4b883;
-    }
-
-    /* Mobile responsiveness */
-    @media (max-width: 768px) {
-        #canonical-badge {
-            bottom: 8px;
-            padding: 6px 12px;
-            gap: 6px;
-        }
-        
-        #canonical-badge .canonical-icon {
-            font-size: 1.2rem;
-        }
-        
-        #canonical-badge .canonical-name {
-            font-size: 0.85rem;
-        }
-        
-        #canonical-badge .canonical-buff {
-            font-size: 0.75rem;
-        }
+        white-space: nowrap;
+        flex-shrink: 0;
     }
 
     </style>

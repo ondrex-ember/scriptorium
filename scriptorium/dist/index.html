@@ -1043,6 +1043,88 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
             background: rgba(30, 25, 20, 0.95);
             border-color: #4a3f32;
         }
+        
+       /* ═══════════════════════════════════════════════════════
+        CANONICAL HOURS BADGE - COMPACT VERSION
+        ═══════════════════════════════════════════════════════ */
+        #canonical-badge {
+        position: absolute;
+        top: auto;  /* ← PŘIDEJ! Vypne auto top */
+        bottom: 4px;  /* ← Už tam je */
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 10;
+        
+        
+        /* VÝŠKA - FIX! */
+        height: 24px;  /* ← EXPLICITNÍ VÝŠKA! */
+        max-height: 24px;
+        min-height: 24px;
+        
+        display: none;
+        flex-direction: row;  /* ← Horizontální! */
+        align-items: center;
+        gap: 6px;
+        
+        padding: 4px 12px;
+        background: rgba(0, 0, 0, 0.6);
+        backdrop-filter: blur(6px);
+        border: 1px solid rgba(197, 160, 89, 0.5);
+        border-radius: 16px;
+        
+        font-family: 'Crimson Text', serif;
+        color: var(--bg-parchment);
+        
+        cursor: help;
+        transition: all 0.3s ease;
+        opacity: 0.85;
+        
+        /* Prevence stretche */
+        flex-shrink: 0;
+        overflow: hidden;
+    }
+
+    #canonical-badge:hover {
+        background: rgba(0, 0, 0, 0.8);
+        transform: translateX(-50%) scale(1.03);
+        box-shadow: 0 2px 8px rgba(197, 160, 89, 0.3);
+        opacity: 1;
+    }
+
+    #canonical-badge .canonical-icon {
+        font-size: 1rem;
+        line-height: 1;  /* ← FIX line-height! */
+        animation: canonical-pulse 3s ease-in-out infinite;
+        flex-shrink: 0;
+    }
+
+    @keyframes canonical-pulse {
+        0%, 100% { opacity: 0.8; }
+        50% { opacity: 1; }
+    }
+
+    #canonical-badge .canonical-name {
+        font-family: 'Cinzel Decorative', serif;
+        font-size: 0.75rem;
+        line-height: 1;  /* ← FIX line-height! */
+        font-weight: 600;
+        letter-spacing: 0.5px;
+        color: var(--accent-gold);
+        text-shadow: 0 0 4px rgba(197, 160, 89, 0.3);
+        white-space: nowrap;
+        flex-shrink: 0;
+    }
+
+    #canonical-badge .canonical-buff {
+        font-size: 0.7rem;
+        line-height: 1;  /* ← FIX line-height! */
+        opacity: 0.8;
+        font-style: italic;
+        color: #d4b883;
+        white-space: nowrap;
+        flex-shrink: 0;
+    }
+
     </style>
 	<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 fill=%22%23fcf5e5%22 rx=%2220%22/><path d=%22M10 85 Q 45 100 90 70%22 stroke=%22%232c241b%22 stroke-width=%226%22 fill=%22none%22 stroke-linecap=%22round%22/><g transform=%22rotate(45 50 50)%22><path d=%22M35 -20 L 65 -20 L 65 30 Q 65 65 50 100 Q 35 65 35 30 Z%22 fill=%22%232c241b%22/><circle cx=%2250%22 cy=%2245%22 r=%225%22 fill=%22%23fcf5e5%22/><line x1=%2250%22 y1=%2250%22 x2=%2250%22 y2=%2290%22 stroke=%22%23fcf5e5%22 stroke-width=%222%22/></g></svg>">
 	<link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 fill=%22%23fcf5e5%22/><path d=%22M10 85 Q 45 100 90 70%22 stroke=%22%232c241b%22 stroke-width=%226%22 fill=%22none%22 stroke-linecap=%22round%22/><g transform=%22rotate(45 50 50)%22><path d=%22M35 -20 L 65 -20 L 65 30 Q 65 65 50 100 Q 35 65 35 30 Z%22 fill=%22%232c241b%22/><circle cx=%2250%22 cy=%2245%22 r=%225%22 fill=%22%23fcf5e5%22/><line x1=%2250%22 y1=%2250%22 x2=%2250%22 y2=%2290%22 stroke=%22%23fcf5e5%22 stroke-width=%222%22/></g></svg>">
@@ -9407,6 +9489,16 @@ tidings: {
         news_25: "Opat hledá písaře, který zná galický inkoust. Prý pro zvláštní zakázku. Biskupa.",
         news_28: "Rozhodl ses, kdo jsi? Řemeslník — nebo služebník? Obě cesty jsou čestné. Ale nejsou stejné."
     },
+canonical: {
+        buff_crafting: 'Výroba +{percent}%',
+        buff_research: 'Výzkum +{percent}%',
+        buff_foraging: 'Sběr +{percent}%',
+        buff_alchemy: 'Alchymie +{percent}%',
+        buff_garden: 'Kontrola zahrady',
+        buff_quest: 'Denní úkol',
+        buff_darkness: 'Varování před tmou',
+        vesperae_warning: 'Blíží se tma. Zapal světlo!'
+    },
 garden: {
         desc: 'Pěstuj vzácné rostliny. Půda vyžaduje péči.',
         fertilize: 'Zúrodnit',
@@ -9462,18 +9554,6 @@ garden: {
     ui: {
         close: 'Zavřít'
     },
-    // Po "tidings" sekci přidej:
-
-canonical: {
-    buff_crafting: 'Výroba +{percent}%',
-    buff_research: 'Výzkum +{percent}%',
-    buff_foraging: 'Sběr +{percent}%',
-    buff_alchemy: 'Alchymie +{percent}%',
-    buff_garden: 'Kontrola zahrady',
-    buff_quest: 'Denní úkol',
-    buff_darkness: 'Varování před tmou',
-    vesperae_warning: 'Blíží se tma. Zapal světlo!'
-},
 };
 // ═══ src/i18n/en.js ═══
 // Scriptorium i18n — English (Olde)
@@ -10191,6 +10271,16 @@ tidings: {
         news_25: "The abbot seeketh a scribe who knoweth gall ink. For a special commission, 'tis said. From the bishop.",
         news_28: "Hast thou decided who thou art? A craftsman — or a servant? Both paths are honorable. But they are not the same."
     },
+canonical: {
+        buff_crafting: 'Crafting +{percent}%',
+        buff_research: 'Research +{percent}%',
+        buff_foraging: 'Foraging +{percent}%',
+        buff_alchemy: 'Alchemy +{percent}%',
+        buff_garden: 'Garden check',
+        buff_quest: 'Daily quest',
+        buff_darkness: 'Darkness warning',
+        vesperae_warning: 'Darkness approaches. Light thy lamp!'
+    },
 
 garden: {
         desc: 'Cultivate rare flora. The soil requires thy care.',
@@ -10247,18 +10337,6 @@ garden: {
     },
     ui: {
         close: 'Close'
-    },
-    // Po "tidings" sekci přidej:
-
-    canonical: {
-        buff_crafting: 'Crafting +{percent}%',
-        buff_research: 'Research +{percent}%',
-        buff_foraging: 'Foraging +{percent}%',
-        buff_alchemy: 'Alchemy +{percent}%',
-        buff_garden: 'Garden check',
-        buff_quest: 'Daily quest',
-        buff_darkness: 'Darkness warning',
-        vesperae_warning: 'Darkness approaches. Light thy lamp!'
     },
 };
 // ═══ src/i18n/strings.js ═══
