@@ -348,6 +348,16 @@ tidings: {
         news_25: "Opat hledá písaře, který zná galický inkoust. Prý pro zvláštní zakázku. Biskupa.",
         news_28: "Rozhodl ses, kdo jsi? Řemeslník — nebo služebník? Obě cesty jsou čestné. Ale nejsou stejné."
     },
+canonical: {
+        buff_crafting: 'Výroba +{percent}%',
+        buff_research: 'Výzkum +{percent}%',
+        buff_foraging: 'Sběr +{percent}%',
+        buff_alchemy: 'Alchymie +{percent}%',
+        buff_garden: 'Kontrola zahrady',
+        buff_quest: 'Denní úkol',
+        buff_darkness: 'Varování před tmou',
+        vesperae_warning: 'Blíží se tma. Zapal světlo!'
+    },
 garden: {
         desc: 'Pěstuj vzácné rostliny. Půda vyžaduje péči.',
         fertilize: 'Zúrodnit',
@@ -403,16 +413,4 @@ garden: {
     ui: {
         close: 'Zavřít'
     },
-    // Po "tidings" sekci přidej:
-
-canonical: {
-    buff_crafting: 'Výroba +{percent}%',
-    buff_research: 'Výzkum +{percent}%',
-    buff_foraging: 'Sběr +{percent}%',
-    buff_alchemy: 'Alchymie +{percent}%',
-    buff_garden: 'Kontrola zahrady',
-    buff_quest: 'Denní úkol',
-    buff_darkness: 'Varování před tmou',
-    vesperae_warning: 'Blíží se tma. Zapal světlo!'
-},
 };

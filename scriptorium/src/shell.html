@@ -1043,6 +1043,94 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
             background: rgba(30, 25, 20, 0.95);
             border-color: #4a3f32;
         }
+        
+        /* ═══════════════════════════════════════════════════════
+   CANONICAL HOURS BADGE
+   ═══════════════════════════════════════════════════════ */
+
+    #canonical-badge {
+        position: absolute;
+        bottom: 12px;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 10;
+        
+        display: none;  /* Hidden by default, shown by CanonicalHours.renderUI() */
+        align-items: center;
+        gap: 8px;
+        
+        padding: 8px 16px;
+        background: rgba(0, 0, 0, 0.75);
+        backdrop-filter: blur(8px);
+        border: 1px solid var(--accent-gold);
+        border-radius: 20px;
+        
+        font-family: 'Crimson Text', serif;
+        color: var(--bg-parchment);
+        
+        cursor: help;
+        transition: all 0.3s ease;
+    }
+
+    #canonical-badge:hover {
+        background: rgba(0, 0, 0, 0.85);
+        transform: translateX(-50%) scale(1.05);
+        box-shadow: 0 4px 12px rgba(197, 160, 89, 0.4);
+    }
+
+    #canonical-badge .canonical-icon {
+        font-size: 1.4rem;
+        animation: canonical-pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes canonical-pulse {
+        0%, 100% { 
+            opacity: 1; 
+            transform: scale(1);
+        }
+        50% { 
+            opacity: 0.7; 
+            transform: scale(1.1);
+        }
+    }
+
+    #canonical-badge .canonical-name {
+        font-family: 'Cinzel Decorative', serif;
+        font-size: 1rem;
+        font-weight: 600;
+        letter-spacing: 1px;
+        color: var(--accent-gold);
+        text-shadow: 0 0 8px rgba(197, 160, 89, 0.5);
+    }
+
+    #canonical-badge .canonical-buff {
+        font-size: 0.85rem;
+        opacity: 0.9;
+        font-style: italic;
+        color: #d4b883;
+    }
+
+    /* Mobile responsiveness */
+    @media (max-width: 768px) {
+        #canonical-badge {
+            bottom: 8px;
+            padding: 6px 12px;
+            gap: 6px;
+        }
+        
+        #canonical-badge .canonical-icon {
+            font-size: 1.2rem;
+        }
+        
+        #canonical-badge .canonical-name {
+            font-size: 0.85rem;
+        }
+        
+        #canonical-badge .canonical-buff {
+            font-size: 0.75rem;
+        }
+    }
+
     </style>
 	<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 fill=%22%23fcf5e5%22 rx=%2220%22/><path d=%22M10 85 Q 45 100 90 70%22 stroke=%22%232c241b%22 stroke-width=%226%22 fill=%22none%22 stroke-linecap=%22round%22/><g transform=%22rotate(45 50 50)%22><path d=%22M35 -20 L 65 -20 L 65 30 Q 65 65 50 100 Q 35 65 35 30 Z%22 fill=%22%232c241b%22/><circle cx=%2250%22 cy=%2245%22 r=%225%22 fill=%22%23fcf5e5%22/><line x1=%2250%22 y1=%2250%22 x2=%2250%22 y2=%2290%22 stroke=%22%23fcf5e5%22 stroke-width=%222%22/></g></svg>">
 	<link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 fill=%22%23fcf5e5%22/><path d=%22M10 85 Q 45 100 90 70%22 stroke=%22%232c241b%22 stroke-width=%226%22 fill=%22none%22 stroke-linecap=%22round%22/><g transform=%22rotate(45 50 50)%22><path d=%22M35 -20 L 65 -20 L 65 30 Q 65 65 50 100 Q 35 65 35 30 Z%22 fill=%22%232c241b%22/><circle cx=%2250%22 cy=%2245%22 r=%225%22 fill=%22%23fcf5e5%22/><line x1=%2250%22 y1=%2250%22 x2=%2250%22 y2=%2290%22 stroke=%22%23fcf5e5%22 stroke-width=%222%22/></g></svg>">

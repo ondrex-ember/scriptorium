@@ -713,6 +713,16 @@ tidings: {
         news_25: "The abbot seeketh a scribe who knoweth gall ink. For a special commission, 'tis said. From the bishop.",
         news_28: "Hast thou decided who thou art? A craftsman — or a servant? Both paths are honorable. But they are not the same."
     },
+canonical: {
+        buff_crafting: 'Crafting +{percent}%',
+        buff_research: 'Research +{percent}%',
+        buff_foraging: 'Foraging +{percent}%',
+        buff_alchemy: 'Alchemy +{percent}%',
+        buff_garden: 'Garden check',
+        buff_quest: 'Daily quest',
+        buff_darkness: 'Darkness warning',
+        vesperae_warning: 'Darkness approaches. Light thy lamp!'
+    },
 
 garden: {
         desc: 'Cultivate rare flora. The soil requires thy care.',
@@ -769,17 +779,5 @@ garden: {
     },
     ui: {
         close: 'Close'
-    },
-    // Po "tidings" sekci přidej:
-
-    canonical: {
-        buff_crafting: 'Crafting +{percent}%',
-        buff_research: 'Research +{percent}%',
-        buff_foraging: 'Foraging +{percent}%',
-        buff_alchemy: 'Alchemy +{percent}%',
-        buff_garden: 'Garden check',
-        buff_quest: 'Daily quest',
-        buff_darkness: 'Darkness warning',
-        vesperae_warning: 'Darkness approaches. Light thy lamp!'
     },
 };
