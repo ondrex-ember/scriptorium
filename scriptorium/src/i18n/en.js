@@ -669,9 +669,8 @@ The Reformation brought to the Land an unprecedented Freedom of Thought and stoo
 
 *"The Truth of God triumpheth over all, yet at the Battle's End, naught remaineth but hot Ashes and the Lamentation of Widows."* - The Motto upon the Banner of the Vanquished`
         }
-        },
     },
-time: {
+    time: {
         phase_dawn: 'Dawn',
         phase_morning: 'Morning',
         phase_forenoon: 'Forenoon',

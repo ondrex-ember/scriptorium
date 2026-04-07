@@ -310,39 +310,117 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
 		/* --- NOVÁ HLAVIČKA --- */
 		header {
-			background-color: #1a1410;
-			/* Vrstva 1: Jemný gradient zespodu nahoru (ztmavuje spodek pro text) */
-			/* Vrstva 2: Obrázek pozadí */
-			background-image: 
-				linear-gradient(to top, rgba(0,0,0,0.6) 0%, transparent 60%),
-				url('header-bg.jpg');
-			background-position: center;
-			background-repeat: no-repeat;
-			background-size: cover;
-			
-			/* Layout */
-			padding: 10px 12px; /* Increased from 8px for better background visibility */
-			border-bottom: 2px solid var(--accent-gold); /* Používáme proměnnou pro konzistenci */
-			position: sticky;
-			top: 0;
-			z-index: 100;
-			box-shadow: 0 4px 15px rgba(0,0,0,0.5);
-			
-			/* Flex pro logo vlevo/uprostřed */
-			display: flex;
-			flex-direction: column;
-			align-items: center;
-			gap: 8px; /* Increased from 5px for more vertical space */
-		}
+		background-color: #1a1410;
+		position: relative; /* Changed for layering */
+		
+		/* Layout */
+		padding: 10px 12px;
+		border-bottom: 2px solid var(--accent-gold);
+		position: sticky;
+		top: 0;
+		z-index: 100;
+		box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+		
+		/* Flex pro logo vlevo/uprostřed */
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: 8px;
+		
+		/* Height for background layers */
+		min-height: 128px;
+		overflow: hidden;
+	}
+	
+	/* ========== HEADER BACKGROUND LAYERS ========== */
+	
+	/* Layer 1: Dynamic seasonal/weather background */
+	.header-bg-layer {
+		position: absolute;
+		inset: 0;
+		background-image: 
+			linear-gradient(to top, rgba(0,0,0,0.6) 0%, transparent 60%),
+			url('/header/base-universal.jpg');
+		background-position: center;
+		background-repeat: no-repeat;
+		background-size: cover;
+		transition: opacity 2s ease-in-out;
+		z-index: 1;
+	}
+	
+	/* Layer 2: Canonical Hours overlay (Phase 2 - hidden for now) */
+	.header-canonical-overlay {
+		position: absolute;
+		inset: 0;
+		opacity: 0;
+		pointer-events: none;
+		transition: opacity 1s ease-in-out;
+		z-index: 2;
+	}
+	
+	/* Canonical hour overlay styles (Phase 2) */
+	.header-canonical-overlay.vigilie {
+		background: linear-gradient(to bottom, rgba(75, 0, 130, 0.4) 0%, rgba(30, 0, 60, 0.2) 100%);
+		opacity: 1;
+	}
+	
+	.header-canonical-overlay.laudes {
+		background: linear-gradient(to right, rgba(255, 200, 100, 0.5) 0%, rgba(255, 150, 50, 0.3) 50%, rgba(255, 100, 0, 0.2) 100%);
+		opacity: 1;
+	}
+	
+	.header-canonical-overlay.completorium {
+		background: radial-gradient(ellipse at center, rgba(255, 140, 0, 0.3) 0%, rgba(139, 69, 19, 0.2) 100%);
+		opacity: 1;
+	}
+	
+	/* Layer 3: UI content wrapper */
+	.header-content {
+		position: relative;
+		z-index: 3;
+		width: 100%;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: 8px;
+	}
+	
+	/* Canonical Hour Badge (Phase 2) */
+	#canonical-badge {
+		display: none; /* Hidden until Phase 2 */
+		flex-direction: row;
+		align-items: center;
+		gap: 8px;
+		background: rgba(0, 0, 0, 0.6);
+		border: 2px solid var(--accent-gold);
+		border-radius: 20px;
+		padding: 6px 14px;
+		backdrop-filter: blur(5px);
+		animation: bell-pulse 2s ease-in-out infinite;
+		position: absolute;
+		top: 10px;
+		left: 10px;
+		z-index: 4;
+	}
+	
+	@keyframes bell-pulse {
+		0%, 100% { transform: scale(1); opacity: 0.9; }
+		50% { transform: scale(1.05); opacity: 1; }
+	}
+	
+	.canonical-icon { font-size: 1.2rem; filter: drop-shadow(0 0 3px gold); }
+	.canonical-name { font-family: 'Cinzel', serif; font-weight: bold; color: var(--accent-gold); font-size: 0.9rem; }
+	.canonical-buff { font-size: 0.75rem; color: rgba(255, 255, 255, 0.8); font-style: italic; }
 
 		/* Logo sekce */
-		header .logo-container {
-			display: flex; 
-			justify-content: center; 
-			align-items: center; 
-			gap: 10px;
-			filter: drop-shadow(0 2px 4px rgba(0,0,0,0.8)); /* Stín jen pod logem */
-		}
+		/* Logo sekce */
+	.logo-container {
+		display: flex; 
+		justify-content: center; 
+		align-items: center; 
+		gap: 10px;
+		filter: drop-shadow(0 2px 4px rgba(0,0,0,0.8));
+	}
 
 		/* Status bar kontejner */
 		.status-bar {
@@ -1082,40 +1160,56 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
 <div id="game-container">
 <header>
-    <div class="logo-container">
-        <svg width="28" height="28" viewBox="0 0 100 100">
-            <g transform="rotate(45 50 50)">
-                <rect x="25" y="10" width="50" height="25" fill="#c5a059" stroke="#2c241b" stroke-width="6" rx="2"/>
-                <path d="M25 35 L 75 35 L 80 55 L 50 95 L 20 55 Z" fill="#d0d0d0" stroke="#2c241b" stroke-width="6" stroke-linejoin="round"/>
-                <circle cx="50" cy="60" r="6" fill="#2c241b"/>
-                <line x1="50" y1="60" x2="50" y2="90" stroke="#2c241b" stroke-width="4" stroke-linecap="round"/>
-            </g>
-        </svg>
-        <span style="font-size:1.4rem; letter-spacing:2px; font-family:'Cinzel Decorative'; font-weight:700; color:#d4b883; text-shadow: 2px 2px 4px #000;">
-            SCRIPTORIUM
-        </span>
-    </div>
+	<!-- Layer 1: Dynamic background -->
+	<div class="header-bg-layer"></div>
+	
+	<!-- Layer 2: Canonical overlay (Phase 2) -->
+	<div class="header-canonical-overlay"></div>
+	
+	<!-- Layer 3: UI content wrapper -->
+	<div class="header-content">
+		<div class="logo-container">
+			<svg width="28" height="28" viewBox="0 0 100 100">
+				<g transform="rotate(45 50 50)">
+					<rect x="25" y="10" width="50" height="25" fill="#c5a059" stroke="#2c241b" stroke-width="6" rx="2"/>
+					<path d="M25 35 L 75 35 L 80 55 L 50 95 L 20 55 Z" fill="#d0d0d0" stroke="#2c241b" stroke-width="6" stroke-linejoin="round"/>
+					<circle cx="50" cy="60" r="6" fill="#2c241b"/>
+					<line x1="50" y1="60" x2="50" y2="90" stroke="#2c241b" stroke-width="4" stroke-linecap="round"/>
+				</g>
+			</svg>
+			<span style="font-size:1.4rem; letter-spacing:2px; font-family:'Cinzel Decorative'; font-weight:700; color:#d4b883; text-shadow: 2px 2px 4px #000;">
+				SCRIPTORIUM
+			</span>
+		</div>
 
-	<div class="status-bar">
-		<div style="display: flex; align-items: center; gap: 5px;">
-			<span id="weather-today" data-i18n-title="header.weatherNow" onclick="WeatherSystem.fetchWeather()">⏳</span>
-			<span style="opacity: 0.6; font-size: 16px !important;">/</span>
-			<span id="weather-tomorrow" data-i18n-title="header.weatherTomorrow" onclick="WeatherSystem.fetchWeather()" style="opacity: 0.9; font-size: 0.85em !important;">⏳</span>
+		<div class="status-bar">
+			<div style="display: flex; align-items: center; gap: 5px;">
+				<span id="weather-today" data-i18n-title="header.weatherNow" onclick="WeatherSystem.fetchWeather()">⏳</span>
+				<span style="opacity: 0.6; font-size: 16px !important;">/</span>
+				<span id="weather-tomorrow" data-i18n-title="header.weatherTomorrow" onclick="WeatherSystem.fetchWeather()" style="opacity: 0.9; font-size: 0.85em !important;">⏳</span>
+			</div>
+			<span class="separator">•</span>
+			<span id="hunger-display" data-i18n-title="header.hunger">🍖</span>
+			<span class="separator">•</span>
+			<span id="streak-display" style="display:none;" data-i18n-title="header.streak">
+				🔥 <span id="streak-number">0</span>
+			</span>
+			<div id="research-indicator" data-i18n-title="header.research">
+				<span>📜</span>
+				<span id="research-count">0</span>
+			</div>
+			<span class="separator">•</span>
+			<span id="time-display" style="text-transform:uppercase;">...</span>
+			<span class="separator">•</span>
+			<span onclick="UI.switchScreen('settings')" data-i18n-title="header.settings">⚙️</span>
 		</div>
-		<span class="separator">•</span>
-		<span id="hunger-display" data-i18n-title="header.hunger">🍖</span>
-		<span class="separator">•</span>
-		<span id="streak-display" style="display:none;" data-i18n-title="header.streak">
-			🔥 <span id="streak-number">0</span>
-		</span>
-		<div id="research-indicator" data-i18n-title="header.research">
-			<span>📜</span>
-			<span id="research-count">0</span>
-		</div>
-		<span class="separator">•</span>
-		<span id="time-display" style="text-transform:uppercase;">...</span>
-		<span class="separator">•</span>
-		<span onclick="UI.switchScreen('settings')" data-i18n-title="header.settings">⚙️</span>
+	</div>
+	
+	<!-- Canonical Hour Badge (Phase 2 - hidden) -->
+	<div id="canonical-badge" style="display:none;">
+		<span class="canonical-icon">🔔</span>
+		<span class="canonical-name">Laudes</span>
+		<span class="canonical-buff">+25% crafting</span>
 	</div>
 </header>
 
