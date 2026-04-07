@@ -6253,154 +6253,154 @@ const EventsSystem = {
 // ═══ src/systems/rank.js ═══
 const RankSystem = {
 
+    // ═══════════════════════════════════════════════════════════════════════
+    // SECULAR RANKS (6 tiers) — TEXT PROPERTIES REMOVED, USE t() INSTEAD
+    // ═══════════════════════════════════════════════════════════════════════
     secular: [
         {
-            id: 'laicus', name: 'Laicus', nameCz: 'Laický písař', nameCzShort: 'Laicus', tier: 1, icon: '📋',
-            desc: 'Nováček v skriptoriu. Čistíš brka, mícháš inkoust, opisuješ modlitby pod dohledem.',
-            desc_en: 'A novice in the scriptorium. Cleaning quills, mixing ink, copying prayers under watchful eyes.',
-            lore: 'Písaři od 12 let začínali takto. Levá ruka držela nůž, pravá pero. Obě pracovaly vždy zároveň.',
-            unlockCondition: { desc: 'Startovní rank', check: () => true },
-            unlocks: { features: [] },
-            toast: 'Jsi Laicus – nejnižší článek řetězce. Ale někde začít musíš.',
-            toast_en: 'Thou art Laicus — the lowest link in the chain. But somewhere a start must be made.'
+            id: 'laicus',
+            tier: 1,
+            icon: '📋',
+            unlockCondition: {
+                check: () => true
+            },
+            unlocks: { features: [] }
         },
         {
-            id: 'librarius', name: 'Librarius', nameCz: 'Opisovač', tier: 2, icon: '📜',
-            desc: 'Opisuješ samostatně. Liturgické texty, legendy. Nikdo nestojí za tvými zády.',
-            desc_en: 'Thou dost copy alone. Liturgical texts, legends. No one stands behind thee now.',
-            lore: 'V Cîteaux (12. stol.) byli librarii nejnižším plně funkčním členem skriptoria. Na okraje psali: "Je mi zima. Inkoust je řídký."',
+            id: 'librarius',
+            tier: 2,
+            icon: '📜',
             unlockCondition: {
-                desc: '5× research + zápisník',
                 check: () => (GameState.achievements?.stats?.researchCount || 0) >= 5
             },
-            unlocks: { features: ['library_basic'] },
-            toast: 'Librarius – inkoust je na stole. Mistr tě sleduje jen z povzdálí.',
-            toast_en: 'Librarius — the ink is on the desk. The master watcheth from afar.'
+            unlocks: { features: ['library_basic'] }
         },
         {
-            id: 'antiquarius', name: 'Antiquarius', nameCz: 'Starší opisovač', tier: 3, icon: '✒️',
-            desc: 'Opisuješ složité texty. Ostatní přepisují kalendáře – tobě dali Augustina.',
-            desc_en: 'Thou dost copy complex texts. Others transcribe calendars — thou hast been given Augustine.',
-            lore: '"The antiquarii were senior scribes and the librarii junior scribes." Antiquarius stanovoval Ductus – rukopis celé dílny.',
+            id: 'antiquarius',
+            tier: 3,
+            icon: '✒️',
             unlockCondition: {
-                desc: '15 research + 2 tech odemčeny',
                 check: () => (GameState.achievements?.stats?.researchCount || 0) >= 15
                           && (GameState.researchedTechs || []).length >= 2
             },
-            unlocks: { features: ['library_advanced'] },
-            toast: 'Antiquarius – tvůj Ductus je čitelný. Ostatní tě kopírují.',
-            toast_en: 'Antiquarius — thy Ductus is legible. Others copy thee now.'
+            unlocks: { features: ['library_advanced'] }
         },
         {
-            id: 'rubricator', name: 'Rubricator', nameCz: 'Rubrikátor', tier: 4, icon: '🔴',
-            desc: 'Přidáváš červené nadpisy a iniciály. Rudá barva je jedovatá. Neoliž štětec.',
-            desc_en: 'Thou dost add red headings and initials. The red pigment is poisonous. Do not lick the brush.',
-            lore: 'V prvotiscích jsou dodnes prázdné čtverečky – tam měla být iniciála, ale majitel nezaplatil rubrikátora.',
+            id: 'rubricator',
+            tier: 4,
+            icon: '🔴',
             unlockCondition: {
-                desc: 'Tech iluminace + gallic_ink',
                 check: () => (GameState.researchedTechs || []).includes('tech_illumination')
                           && (GameState.inventory['gallic_ink'] || 0) > 0
             },
-            unlocks: { features: ['illumination_basic'] },
-            toast: 'Rubricator – červená je tvoje. Pamatuj, co se stalo Mikuláši z Cluny.',
-            toast_en: 'Rubricator — the red is thine. Remember what befell Nicholas of Cluny.'
+            unlocks: { features: ['illumination_basic'] }
         },
         {
-            id: 'illuminator', name: 'Illuminator', nameCz: 'Iluminátor', tier: 5, icon: '🎨',
-            desc: 'Malíř. Zlatem, lapis lazuli, malachitem. Nejvíce placený v celém řetězci výroby.',
-            desc_en: 'A painter. Gold, lapis lazuli, malachite. The highest paid in the entire chain of craft.',
-            lore: 'V zubním kameni jeptišky z Dalheim (11. stol.) našli lapis lazuli z Afghánistánu. Olizovala štětec při iluminaci. Ženy iluminátoři existovaly, jen se o nich nemluvilo.',
+            id: 'illuminator',
+            tier: 5,
+            icon: '🎨',
             unlockCondition: {
-                desc: 'vellum_codex + tech_illumination + 25 research',
                 check: () => (GameState.researchedTechs || []).includes('tech_illumination')
                           && (GameState.inventory['vellum_codex'] || 0) > 0
                           && (GameState.achievements?.stats?.researchCount || 0) >= 25
             },
-            unlocks: { features: ['library_full', 'illumination_advanced'] },
-            toast: 'Illuminator – lapis lazuli z Afghánistánu. Každá kapka stojí groš. Nekap.',
-            toast_en: 'Illuminator — lapis lazuli from Afghanistan. Every drop costeth a groat. Spill not.'
+            unlocks: { features: ['library_full', 'illumination_advanced'] }
         },
         {
-            id: 'stationarius', name: 'Stationarius', nameCz: 'Stacionář', tier: 6, icon: '📦',
-            desc: 'Vedoucí dílny. Přijímáš zakázky. Rozhoduješ, co se bude opisovat. A co tisknout.',
-            desc_en: 'Head of the workshop. Thou dost take commissions. Thou decidest what shall be copied. And what printed.',
-            lore: 'Vespasiano da Bisticci (Florencie) odmítl přejít od rukopisů k tisku – a v roce 1480 zkrachoval. Flexibilní přežili.',
+            id: 'stationarius',
+            tier: 6,
+            icon: '📦',
             unlockCondition: {
-                desc: 'bishop_seal + 40 research',
                 check: () => (GameState.inventory['bishop_seal'] || 0) > 0
                           && (GameState.achievements?.stats?.researchCount || 0) >= 40
             },
-            unlocks: { features: ['trading_system'] },
-            toast: 'Stationarius – máš dílnu. Za zdí klepe tiskařský lis. Zatím tě nepotřebuje.',
-            toast_en: 'Stationarius — thou hast a workshop. Beyond the wall, a printing press knocketh. It needeth thee not yet.'
+            unlocks: { features: ['trading_system'] }
         }
     ],
 
+    // ═══════════════════════════════════════════════════════════════════════
+    // MONASTIC RANKS (5 tiers) — TEXT PROPERTIES REMOVED, USE t() INSTEAD
+    // ═══════════════════════════════════════════════════════════════════════
     monastic: [
         {
-            id: 'candidatus', name: 'Candidatus', nameCz: 'Uchazeč', tier: 'B1', icon: '🚪',
-            desc: 'Klepeš na bránu. Opat tě odmítl. Přijď zítra.',
-            desc_en: 'Thou knockest at the gate. The abbot hath refused thee. Come again tomorrow.',
-            lore: 'Řehole sv. Benedikta (kap. 58): "Nechť mu není přijímání ulehčeno." Čtyřikrát odmítni. Pokud vytrvá, teprve pak ho vpusť.',
-            unlockCondition: { desc: 'Antiquarius+ a dobrovolná volba', check: () => RankSystem.getSecularRankTier() >= 3 },
-            toast: 'Přistoupils ke bráně. Opat tě odmítl. Je třeba vytrvalosti.',
-            toast_en: 'Thou hast approached the gate. The abbot hath refused thee. Perseverance is needed.'
+            id: 'candidatus',
+            tier: 'B1',
+            icon: '🚪',
+            unlockCondition: {
+                check: () => RankSystem.getSecularRankTier() >= 3
+            }
         },
         {
-            id: 'novitius', name: 'Novitius', nameCz: 'Novic', tier: 'B2', icon: '🕊️',
-            desc: 'Rok pod dohledem Magistra. Učíš se Řeholi, zpěvu, liturgii. Od nuly.',
-            desc_en: 'A year under the Master\'s watch. Learning the Rule, the chant, the liturgy. From nothing.',
-            lore: 'Novic rok nesměl vlastnit osobní majetek. Pýcha byla důvodem k vyloučení.',
+            id: 'novitius',
+            tier: 'B2',
+            icon: '🕊️',
             unlockCondition: {
-                desc: 'Candidatus + 24h + 10 research obětováno',
                 check: () => GameState.rank?.monastic === 'candidatus'
                           && (Date.now() - (GameState.rank?.monasticStart || 0)) >= 24 * 60 * 60 * 1000
             },
-            cost: { research: 10 },
-            toast: 'Novitius – sundal jsi světský oděv. Co jsi byl venku, tady nehraje roli.',
-            toast_en: 'Novitius — thou hast shed thy worldly garb. What thou wert outside mattereth not here.'
+            cost: { research: 10 }
         },
         {
-            id: 'frater', name: 'Frater', nameCz: 'Mnich', tier: 'B3', icon: '✝️',
-            desc: 'Složil jsi sliby. Stabilitas. Obedientia. Conversatio morum.',
-            desc_en: 'Thou hast taken thy vows. Stabilitas. Obedientia. Conversatio morum.',
-            lore: 'Mniši v 15. stol. většinou nenajímali opisovače sami – najímali světské písaře. Mnich kontroloval a schvaloval.',
+            id: 'frater',
+            tier: 'B3',
+            icon: '✝️',
             unlockCondition: {
-                desc: 'Novitius + 50 research + 7 Canonical Hours streak',
                 check: () => GameState.rank?.monastic === 'novitius'
                           && (GameState.achievements?.stats?.researchCount || 0) >= 50
                           && (GameState.rank?.canonicalStreak || 0) >= 7
-            },
-            toast: 'Frater – modlitba v šest. Skriptorium v devět.',
-            toast_en: 'Frater — prayer at six. Scriptorium at nine.'
+            }
         },
         {
-            id: 'armarius', name: 'Armarius', nameCz: 'Vedoucí skriptoria', tier: 'B4', icon: '📚',
-            desc: 'Klíče od regálů jsou teď tvoje starost. Ty rozhoduješ, co se opisuje.',
-            desc_en: 'The keys to the shelves are now thy care. Thou decidest what shall be copied.',
-            lore: 'Armarius přiděloval suroviny, dohlížel na kopírování. Od 10. stol. zpíval 8. responsorium a držel lucernu při opátově čtení.',
+            id: 'armarius',
+            tier: 'B4',
+            icon: '📚',
             unlockCondition: {
-                desc: 'Frater + 75 research',
                 check: () => GameState.rank?.monastic === 'frater'
                           && (GameState.achievements?.stats?.researchCount || 0) >= 75
-            },
-            toast: 'Armarius – skriptorium je tvoje. Každý písař čeká na tvé slovo.',
-            toast_en: 'Armarius — the scriptorium is thine. Every scribe awaiteth thy word.'
+            }
         },
         {
-            id: 'prior', name: 'Prior', nameCz: 'Prior', tier: 'B5', icon: '👑',
-            desc: 'Druhý v klášteře. Nejsi povýšen za body – jsi jmenován za zásluhy.',
-            desc_en: 'Second in the monastery. Thou art not promoted for points — thou art appointed for merit.',
-            lore: 'Prior nebyl kariérní postup – byl jmenován nebo volen komunitou. Opat ho mohl kdykoliv odvolat.',
+            id: 'prior',
+            tier: 'B5',
+            icon: '👑',
             unlockCondition: {
-                desc: 'Armarius + nomination event',
                 check: () => GameState.rank?.monastic === 'armarius'
                           && (GameState.rank?.priorNomination || false) === true
-            },
-            toast: 'Prior – Opat tě jmenoval. Komunita tě přijala.',
-            toast_en: 'Prior — the abbot hath named thee. The community hath accepted thee.'
+            }
         }
     ],
+
+    // ═══════════════════════════════════════════════════════════════════════
+    // HELPER FUNCTIONS — NEW: Use t() for all text lookups
+    // ═══════════════════════════════════════════════════════════════════════
+
+    getRankName: function(rankId) {
+        return t(`ranks.${rankId}_name`);
+    },
+
+    getRankNameShort: function(rankId) {
+        return t(`ranks.${rankId}_name_short`);
+    },
+
+    getRankDesc: function(rankId) {
+        return t(`ranks.${rankId}_desc`);
+    },
+
+    getRankLore: function(rankId) {
+        return t(`ranks.${rankId}_lore`);
+    },
+
+    getRankToast: function(rankId) {
+        return t(`ranks.${rankId}_toast`);
+    },
+
+    getRankRequirement: function(rankId) {
+        return t(`ranks.${rankId}_requirement`);
+    },
+
+    // ═══════════════════════════════════════════════════════════════════════
+    // EXISTING FUNCTIONS — MODIFIED to use t()
+    // ═══════════════════════════════════════════════════════════════════════
 
     getSecularRankTier: function() {
         const rankId = GameState.rank?.secular || 'laicus';
@@ -6422,19 +6422,21 @@ const RankSystem = {
         return true;
     },
 
+    // MODIFIED: Use t() for rank name and toast
     promoteSecular: function(rankId) {
         if (!GameState.rank) this._initRankState();
         const oldRank = GameState.rank.secular;
         GameState.rank.secular = rankId;
         GameState.rank.rankHistory = GameState.rank.rankHistory || [];
         GameState.rank.rankHistory.push({ type: 'promotion', from: oldRank, to: rankId, ts: Date.now() });
+        
         const rank = this.secular.find(r => r.id === rankId);
         if (rank) {
-            const lang = (typeof GameState !== 'undefined' && GameState.settings && GameState.settings.language) || 'cs';
-            const toast = (lang === 'en' && rank.toast_en) ? rank.toast_en : rank.toast;
-            const rankName = (lang === 'en') ? rank.name : rank.nameCz;
+            const rankName = this.getRankName(rankId);
+            const toast = this.getRankToast(rankId);
             UI.notify(`⬆️ ${rank.icon} ${rankName}! ${toast}`);
         }
+        
         Analytics.rankPromoted(oldRank, rankId, GameState.rank.path || 'secular');
         Game.save();
     },
@@ -6449,33 +6451,37 @@ const RankSystem = {
         GameState.rank.rankHistory.push({ type: 'demotion', from: old, to: prevRank.id, ts: Date.now() });
     },
 
+    // MODIFIED: Use t() for messages
     enterMonasticPath: function() {
         if (this.getSecularRankTier() < 3) {
-            const lang = (typeof GameState !== 'undefined' && GameState.settings && GameState.settings.language) || 'cs';
-            const msg = lang === 'en' ? '⛔ Thou must be at least Antiquarius for the monastery to accept thee.' : '⛔ Musíš být alespoň Antiquarius, aby tě klášter přijal.';
-            UI.notify(msg, true);
+            UI.notify(t('rank.monasticNotEligible'), true);
             return false;
         }
-        if (!confirm('Vstoupit na klášterní cestu? Tato volba změní tvůj postup.')) return false;
+        if (!confirm(t('rank.monasticEntry') + '?')) return false;
+        
         if (!GameState.rank) this._initRankState();
         GameState.rank.path = 'monastic';
         GameState.rank.monastic = 'candidatus';
         GameState.rank.monasticStart = Date.now();
-        const lang2 = (typeof GameState !== 'undefined' && GameState.settings && GameState.settings.language) || 'cs';
-        const candidatus = this.monastic[0];
-        const toastMsg = (lang2 === 'en' && candidatus.toast_en) ? candidatus.toast_en : candidatus.toast;
+        
+        const toastMsg = this.getRankToast('candidatus');
         UI.notify('🚪 ' + toastMsg);
         Game.save();
         return true;
     },
 
+    // MODIFIED: Use t() for display name and lore
     renderRankBadge: function() {
         if (!GameState.rank) return '';
         const monasticId = GameState.rank.monastic;
         const active = monasticId
             ? (this.monastic.find(r => r.id === monasticId) || this.getCurrentSecularRank())
             : this.getCurrentSecularRank();
-        return `<span style="font-size:0.75rem; padding:2px 8px; border:1px solid var(--accent-gold); border-radius:3px; color:var(--accent-gold); font-family:'Cinzel',serif;" title="${active.lore}">${active.icon} ${active.nameCz}</span>`;
+        
+        const displayName = this.getRankNameShort(active.id);
+        const lore = this.getRankLore(active.id);
+        
+        return `<span style="font-size:0.75rem; padding:2px 8px; border:1px solid var(--accent-gold); border-radius:3px; color:var(--accent-gold); font-family:'Cinzel',serif;" title="${lore}">${active.icon} ${displayName}</span>`;
     },
 
     _initRankState: function() {
@@ -6496,12 +6502,6 @@ const RankSystem = {
         console.log('[RankSystem] OK – rank:', GameState.rank.secular);
     }
 };
-
-// ═══════════════════════════════════════════════════════════════════════
-// i18n — STRINGS (CS / EN) + t() + LangSystem
-// Přidat nové klíče sem. Nikdy nesmazat CS fallback.
-// ═══════════════════════════════════════════════════════════════════════
-
 // ═══ src/systems/notebook.js ═══
 	const NotebookSystem = {
     activeType: null,
@@ -9953,6 +9953,181 @@ garden: {
     ui: {
         close: 'Zavřít'
     },
+
+  rank: {
+  current: 'SOUČASNÁ HODNOST',
+  next: 'Další hodnost',
+  remaining: 'zbývá',
+  needCreate: 'musí být vyrobeno',
+  needObtain: 'musí být získáno',
+  maxReached: 'Dosáhl jsi nejvyššího světského ranku!',
+  monasticEntry: 'Vstoupit do kláštera',
+  monasticNotEligible: '⛔ Musíš být alespoň Antiquarius, aby tě klášter přijal.'
+},
+
+
+    ranks: {
+  // ===== TIER 1: LAICUS =====
+  laicus_name: 'Laický písař',
+  laicus_name_short: 'Laicus',
+  laicus_desc: 'Nováček v skriptoriu. Čistíš brka, mícháš inkoust, opisuješ modlitby pod dohledem.',
+  laicus_lore: 'Písaři od 12 let začínali takto. Levá ruka držela nůž, pravá pero. Obě pracovaly vždy zároveň.',
+  laicus_toast: 'Jsi Laicus – nejnižší článek řetězce. Ale někde začít musíš.',
+  laicus_requirement: 'Startovní rank',
+  
+  // ===== TIER 2: LIBRARIUS =====
+  librarius_name: 'Opisovač',
+  librarius_name_short: 'Librarius',
+  librarius_desc: 'Opisuješ samostatně. Liturgické texty, legendy. Nikdo nestojí za tvými zády.',
+  librarius_lore: 'V Cîteaux (12. stol.) byli librarii nejnižším plně funkčním členem skriptoria. Na okraje psali: "Je mi zima. Inkoust je řídký."',
+  librarius_toast: 'Librarius – inkoust je na stole. Mistr tě sleduje jen z povzdálí.',
+  librarius_requirement: '5× research + zápisník',
+  
+  // ===== TIER 3: ANTIQUARIUS =====
+  antiquarius_name: 'Starší opisovač',
+  antiquarius_name_short: 'Antiquarius',
+  antiquarius_desc: 'Opisuješ složité texty. Ostatní přepisují kalendáře – tobě dali Augustina.',
+  antiquarius_lore: '"The antiquarii were senior scribes and the librarii junior scribes." Antiquarius stanovoval Ductus – rukopis celé dílny.',
+  antiquarius_toast: 'Antiquarius – tvůj Ductus je čitelný. Ostatní tě kopírují.',
+  antiquarius_requirement: '15 research + 2 tech odemčeny',
+  
+  // ===== TIER 4: RUBRICATOR =====
+  rubricator_name: 'Rubrikátor',
+  rubricator_name_short: 'Rubricator',
+  rubricator_desc: 'Přidáváš červené nadpisy a iniciály. Rudá barva je jedovatá. Neoliž štětec.',
+  rubricator_lore: 'V prvotiscích jsou dodnes prázdné čtverečky – tam měla být iniciála, ale majitel nezaplatil rubrikátora.',
+  rubricator_toast: 'Rubricator – červená je tvoje. Pamatuj, co se stalo Mikuláši z Cluny.',
+  rubricator_requirement: 'Tech iluminace + gallic_ink',
+  
+  // ===== TIER 5: ILLUMINATOR =====
+  illuminator_name: 'Iluminátor',
+  illuminator_name_short: 'Illuminator',
+  illuminator_desc: 'Malíř. Zlatem, lapis lazuli, malachitem. Nejvíce placený v celém řetězci výroby.',
+  illuminator_lore: 'V zubním kameni jeptišky z Dalheim (11. stol.) našli lapis lazuli z Afghánistánu. Olizovala štětec při iluminaci. Ženy iluminátoři existovaly, jen se o nich nemluvilo.',
+  illuminator_toast: 'Illuminator – lapis lazuli z Afghánistánu. Každá kapka stojí groš. Nekap.',
+  illuminator_requirement: 'vellum_codex + tech_illumination + 25 research',
+  
+  // ===== TIER 6: STATIONARIUS =====
+  stationarius_name: 'Stacionář',
+  stationarius_name_short: 'Stationarius',
+  stationarius_desc: 'Vedoucí dílny. Přijímáš zakázky. Rozhoduješ, co se bude opisovat. A co tisknout.',
+  stationarius_lore: 'Vespasiano da Bisticci (Florencie) odmítl přejít od rukopisů k tisku – a v roce 1480 zkrachoval. Flexibilní přežili.',
+  stationarius_toast: 'Stationarius – máš dílnu. Za zdí klepe tiskařský lis. Zatím tě nepotřebuje.',
+  stationarius_requirement: 'bishop_seal + 40 research',
+
+  // ===== MONASTIC B1: CANDIDATUS =====
+  candidatus_name: 'Uchazeč',
+  candidatus_name_short: 'Candidatus',
+  candidatus_desc: 'Klepeš na bránu. Opat tě odmítl. Přijď zítra.',
+  candidatus_lore: 'Řehole sv. Benedikta (kap. 58): "Nechť mu není přijímání ulehčeno." Čtyřikrát odmítni. Pokud vytrvá, teprve pak ho vpusť.',
+  candidatus_toast: 'Přistoupils ke bráně. Opat tě odmítl. Je třeba vytrvalosti.',
+  candidatus_requirement: 'Antiquarius+ a dobrovolná volba',
+  
+  // ===== MONASTIC B2: NOVITIUS =====
+  novitius_name: 'Novic',
+  novitius_name_short: 'Novitius',
+  novitius_desc: 'Rok pod dohledem Magistra. Učíš se Řeholi, zpěvu, liturgii. Od nuly.',
+  novitius_lore: 'Novic rok nesměl vlastnit osobní majetek. Pýcha byla důvodem k vyloučení.',
+  novitius_toast: 'Novitius – sundal jsi světský oděv. Co jsi byl venku, tady nehraje roli.',
+  novitius_requirement: 'Candidatus + 24h + 10 research obětováno',
+  
+  // ===== MONASTIC B3: FRATER =====
+  frater_name: 'Mnich',
+  frater_name_short: 'Frater',
+  frater_desc: 'Složil jsi sliby. Stabilitas. Obedientia. Conversatio morum.',
+  frater_lore: 'Mniši v 15. stol. většinou nenajímali opisovače sami – najímali světské písaře. Mnich kontroloval a schvaloval.',
+  frater_toast: 'Frater – modlitba v šest. Skriptorium v devět.',
+  frater_requirement: 'Novitius + 50 research + 7 Canonical Hours streak',
+  
+  // ===== MONASTIC B4: ARMARIUS =====
+  armarius_name: 'Vedoucí skriptoria',
+  armarius_name_short: 'Armarius',
+  armarius_desc: 'Klíče od regálů jsou teď tvoje starost. Ty rozhoduješ, co se opisuje.',
+  armarius_lore: 'Armarius přiděloval suroviny, dohlížel na kopírování. Od 10. stol. zpíval 8. responsorium a držel lucernu při opátově čtení.',
+  armarius_toast: 'Armarius – skriptorium je tvoje. Každý písař čeká na tvé slovo.',
+  armarius_requirement: 'Frater + 75 research',
+  
+  // ===== MONASTIC B5: PRIOR =====
+  prior_name: 'Prior',
+  prior_name_short: 'Prior',
+  prior_desc: 'Druhý v klášteře. Nejsi povýšen za body – jsi jmenován za zásluhy.',
+  prior_lore: 'Prior nebyl kariérní postup – byl jmenován nebo volen komunitou. Opat ho mohl kdykoliv odvolat.',
+  prior_toast: 'Prior – Opat tě jmenoval. Komunita tě přijala.',
+  prior_requirement: 'Armarius + nomination event',
+},
+
+    records: {
+  // Stats labels (with emoji included)
+  stats: '📊 Osobní záznamy',
+  items: '📦 Items',
+  discovered: '📖 Discovered',
+  crafts: '⚒️ Crafts',
+  harvests: '🌿 Sklizně',
+  researchGained: '📜 Research získáno',
+  tech: '👑 Tech',
+  gamesWon: '🎮 Hry vyhráno',
+  mealsEaten: '🍖 Jídel',
+  candlesLit: '🕯️ Svíčky',
+  well: '💧 Well',
+  streak: '🔥 Streak',
+  days: 'dní',
+  max: 'max',
+  booksRead: '📚 Knihy přečtené',
+  booksUnlocked: '📖 Knihy odemčené',
+  
+  // Backup section
+  backupTitle: '💾 Záloha Save',
+  backupDesc: 'Exportuj save jako zálohu nebo přenes na jiné zařízení.',
+  btnDownload: '📥 Stáhnout Save',
+  btnUpload: '📤 Nahrát Save',
+  backupNote: '💡 Před velkými experimenty doporučujeme stáhnout zálohu!<br>Pro reset hry jdi do Nastavení.'
+},
+    
+    games: {
+  // Header
+  title: '🎮 Mini-Games',
+  
+  // Memory Game
+  memoryName: 'Memory Game',
+  memoryDesc: 'Najdi páry discovered items!',
+  memoryCraft: 'Vyrobit playing_cards',
+  
+  // Royal Game of Ur
+  urName: 'Royal Game of Ur',
+  urDesc: 'Nejstarší hra světa (2600 př.n.l.)',
+  urTech: 'Tech: Starobylé Hry (6 Research)',
+  urCraft: 'Vyrobit ur_board',
+  urPlayVsAI: 'VS AI 🤖',
+  urPlaySolo: 'Solo 🧩',
+  
+  // Primero
+  primeroName: 'Primero',
+  primeroDesc: 'Předchůdce pokeru (1530)',
+  primeroTech: 'Tech: Primero (10 Research)',
+  primeroCraft: 'Vyrobit primero_deck',
+  
+  // Karnöffel
+  karnoffelName: 'Karnöffel',
+  karnoffelDesc: 'Nejstarší trumfová hra (1426)',
+  karnoffelTech: 'Tech: Karnöffel (12 Research)',
+  karnoffelCraft: 'Vyrobit karnoffel_deck',
+  
+  // FreeCell
+  freecellName: 'FreeCell Solitaire',
+  freecellDesc: 'Logická karetní hra',
+  freecellTech: 'Tech: Solitér Mistryně (15 Research)',
+  freecellCraft: 'Vyrobit french_deck',
+  
+  // Rithmomachia
+  rithmoName: 'Rithmomachia',
+  rithmoDesc: '"Šachy Filozofů" (1030)',
+  rithmoTech: 'Tech: Filozofická Matematika (20 Research)',
+  rithmoCraft: 'Vyrobit rithmomachia_board',
+  
+  // Common buttons
+  btnPlay: 'Hrát 🎮',
+  btnRules: '📖 Pravidla'
+},
 };
 // ═══ src/i18n/en.js ═══
 // Scriptorium i18n — English (Olde)
@@ -10764,7 +10939,180 @@ garden: {
     ui: {
         close: 'Close'
     },
+    rank: {
+    current: 'CURRENT RANK',
+    next: 'Next Rank',
+    remaining: 'remaining',
+    needCreate: 'must be crafted',
+    needObtain: 'must be obtained',
+    maxReached: 'Thou hast attained the highest secular rank!',
+    monasticEntry: 'Enter the Monastery',
+    monasticNotEligible: '⛔ Thou must be at least Antiquarius for the monastery to accept thee.'
+    },
 
+    ranks: {
+  // ===== TIER 1: LAICUS =====
+  laicus_name: 'Laicus',
+  laicus_name_short: 'Laicus',
+  laicus_desc: 'A novice in the scriptorium. Cleaning quills, mixing ink, copying prayers under watchful eyes.',
+  laicus_lore: 'Scribes began thus from the age of twelve. The left hand held the knife, the right the quill. Both labored together always.',
+  laicus_toast: 'Thou art Laicus — the lowest link in the chain. But somewhere a start must be made.',
+  laicus_requirement: 'Starting rank',
+  
+  // ===== TIER 2: LIBRARIUS =====
+  librarius_name: 'Librarius',
+  librarius_name_short: 'Librarius',
+  librarius_desc: 'Thou dost copy alone. Liturgical texts, legends. No one stands behind thee now.',
+  librarius_lore: 'At Cîteaux (12th century) the librarii were the lowest fully functioning members of the scriptorium. In the margins they wrote: "I am cold. The ink is thin."',
+  librarius_toast: 'Librarius — the ink is on the desk. The master watcheth from afar.',
+  librarius_requirement: '5× research + notebook',
+  
+  // ===== TIER 3: ANTIQUARIUS =====
+  antiquarius_name: 'Antiquarius',
+  antiquarius_name_short: 'Antiquarius',
+  antiquarius_desc: 'Thou dost copy complex texts. Others transcribe calendars — thou hast been given Augustine.',
+  antiquarius_lore: '"The antiquarii were senior scribes and the librarii junior scribes." The antiquarius established the Ductus — the hand of the entire workshop.',
+  antiquarius_toast: 'Antiquarius — thy Ductus is legible. Others copy thee now.',
+  antiquarius_requirement: '15 research + 2 tech unlocked',
+  
+  // ===== TIER 4: RUBRICATOR =====
+  rubricator_name: 'Rubricator',
+  rubricator_name_short: 'Rubricator',
+  rubricator_desc: 'Thou dost add red headings and initials. The red pigment is poisonous. Do not lick the brush.',
+  rubricator_lore: 'In early printed books there remain empty squares to this day — there should have been an initial, but the owner paid not the rubricator.',
+  rubricator_toast: 'Rubricator — the red is thine. Remember what befell Nicholas of Cluny.',
+  rubricator_requirement: 'Tech illumination + gallic_ink',
+  
+  // ===== TIER 5: ILLUMINATOR =====
+  illuminator_name: 'Illuminator',
+  illuminator_name_short: 'Illuminator',
+  illuminator_desc: 'A painter. Gold, lapis lazuli, malachite. The highest paid in the entire chain of craft.',
+  illuminator_lore: 'In the dental calculus of a nun from Dalheim (11th century) they found lapis lazuli from Afghanistan. She licked the brush during illumination. Women illuminators existed, though none spoke of them.',
+  illuminator_toast: 'Illuminator — lapis lazuli from Afghanistan. Every drop costeth a groat. Spill not.',
+  illuminator_requirement: 'vellum_codex + tech_illumination + 25 research',
+  
+  // ===== TIER 6: STATIONARIUS =====
+  stationarius_name: 'Stationarius',
+  stationarius_name_short: 'Stationarius',
+  stationarius_desc: 'Head of the workshop. Thou dost take commissions. Thou decidest what shall be copied. And what printed.',
+  stationarius_lore: 'Vespasiano da Bisticci (Florence) refused to shift from manuscripts to print — and in the year 1480 went bankrupt. The flexible survived.',
+  stationarius_toast: 'Stationarius — thou hast a workshop. Beyond the wall, a printing press knocketh. It needeth thee not yet.',
+  stationarius_requirement: 'bishop_seal + 40 research',
+
+  // ===== MONASTIC B1: CANDIDATUS =====
+  candidatus_name: 'Candidatus',
+  candidatus_name_short: 'Candidatus',
+  candidatus_desc: 'Thou knockest at the gate. The abbot hath refused thee. Come again tomorrow.',
+  candidatus_lore: 'The Rule of St. Benedict (ch. 58): "Let not admission be easily granted." Refuse four times. If he persisteth, only then admit him.',
+  candidatus_toast: 'Thou hast approached the gate. The abbot hath refused thee. Perseverance is needed.',
+  candidatus_requirement: 'Antiquarius+ and voluntary choice',
+  
+  // ===== MONASTIC B2: NOVITIUS =====
+  novitius_name: 'Novitius',
+  novitius_name_short: 'Novitius',
+  novitius_desc: 'A year under the Master\'s watch. Learning the Rule, the chant, the liturgy. From nothing.',
+  novitius_lore: 'A novice for one year might not own personal property. Pride was grounds for expulsion.',
+  novitius_toast: 'Novitius — thou hast shed thy worldly garb. What thou wert outside mattereth not here.',
+  novitius_requirement: 'Candidatus + 24h + 10 research sacrificed',
+  
+  // ===== MONASTIC B3: FRATER =====
+  frater_name: 'Frater',
+  frater_name_short: 'Frater',
+  frater_desc: 'Thou hast taken thy vows. Stabilitas. Obedientia. Conversatio morum.',
+  frater_lore: 'Monks in the 15th century mostly hired not copyists themselves — they hired lay scribes. The monk supervised and approved.',
+  frater_toast: 'Frater — prayer at six. Scriptorium at nine.',
+  frater_requirement: 'Novitius + 50 research + 7 Canonical Hours streak',
+  
+  // ===== MONASTIC B4: ARMARIUS =====
+  armarius_name: 'Armarius',
+  armarius_name_short: 'Armarius',
+  armarius_desc: 'The keys to the shelves are now thy care. Thou decidest what shall be copied.',
+  armarius_lore: 'The armarius assigned materials, supervised copying. From the 10th century he sang the 8th responsory and held the lamp during the abbot\'s reading.',
+  armarius_toast: 'Armarius — the scriptorium is thine. Every scribe awaiteth thy word.',
+  armarius_requirement: 'Frater + 75 research',
+  
+  // ===== MONASTIC B5: PRIOR =====
+  prior_name: 'Prior',
+  prior_name_short: 'Prior',
+  prior_desc: 'Second in the monastery. Thou art not promoted for points — thou art appointed for merit.',
+  prior_lore: 'The prior was not a career advancement — he was appointed or elected by the community. The abbot could recall him at any time.',
+  prior_toast: 'Prior — the abbot hath named thee. The community hath accepted thee.',
+  prior_requirement: 'Armarius + nomination event',
+},
+
+    records: {
+  // Stats labels (with emoji included)
+  stats: '📊 Personal Statistics',
+  items: '📦 Items',
+  discovered: '📖 Discovered',
+  crafts: '⚒️ Crafts',
+  harvests: '🌿 Harvests',
+  researchGained: '📜 Research Gained',
+  tech: '👑 Tech',
+  gamesWon: '🎮 Games Won',
+  mealsEaten: '🍖 Meals Eaten',
+  candlesLit: '🕯️ Candles Lit',
+  well: '💧 Well',
+  streak: '🔥 Streak',
+  days: 'days',
+  max: 'max',
+  booksRead: '📚 Books Read',
+  booksUnlocked: '📖 Books Unlocked',
+  
+  // Backup section
+  backupTitle: '💾 Save Backup',
+  backupDesc: 'Export thy save as backup or transfer to another device.',
+  btnDownload: '📥 Download Save',
+  btnUpload: '📤 Upload Save',
+  backupNote: '💡 Before great experiments, we recommend downloading a backup!<br>For game reset, go to Settings.'
+},
+
+
+    games: {
+  // Header
+  title: '🎮 Miniature Games',
+  
+  // Memory Game
+  memoryName: 'Memory Game',
+  memoryDesc: 'Match pairs of discovered items!',
+  memoryCraft: 'Craft playing_cards',
+  
+  // Royal Game of Ur
+  urName: 'Royal Game of Ur',
+  urDesc: 'The world\'s oldest game (2600 BCE)',
+  urTech: 'Tech: Ancient Games (6 Research)',
+  urCraft: 'Craft ur_board',
+  urPlayVsAI: 'VS AI 🤖',
+  urPlaySolo: 'Solo 🧩',
+  
+  // Primero
+  primeroName: 'Primero',
+  primeroDesc: 'Ancestor of poker (1530)',
+  primeroTech: 'Tech: Primero (10 Research)',
+  primeroCraft: 'Craft primero_deck',
+  
+  // Karnöffel
+  karnoffelName: 'Karnöffel',
+  karnoffelDesc: 'The oldest trump game (1426)',
+  karnoffelTech: 'Tech: Karnöffel (12 Research)',
+  karnoffelCraft: 'Craft karnoffel_deck',
+  
+  // FreeCell
+  freecellName: 'FreeCell Solitaire',
+  freecellDesc: 'A game of logic and cards',
+  freecellTech: 'Tech: Solitaire Mastery (15 Research)',
+  freecellCraft: 'Craft french_deck',
+  
+  // Rithmomachia
+  rithmoName: 'Rithmomachia',
+  rithmoDesc: '"Philosophers\' Chess" (1030)',
+  rithmoTech: 'Tech: Philosophical Mathematics (20 Research)',
+  rithmoCraft: 'Craft rithmomachia_board',
+  
+  // Common buttons
+  btnPlay: 'Play 🎮',
+  btnRules: '📖 Rules'
+},
 };
 // ═══ src/i18n/strings.js ═══
 // Scriptorium i18n — STRINGS assembler + t() helper
@@ -11180,10 +11528,7 @@ const Game = {
         
         // Check daily reward AFTER UI render (only from 2nd session onwards)
         setTimeout(() => {
-            // Show daily reward only if player has logged in before (not first time)
-            if(GameState.dailyRewards.totalLogins > 0) {
-                Game.checkDailyReward();
-            }
+            Game.checkDailyReward();
         }, 500);
         
         document.body.addEventListener('click', () => { 
@@ -13103,7 +13448,7 @@ renderRecords: function() {
     let h = '';
     
     // ========== GAMES SECTION ==========
-    h += '<h2 style="margin-bottom: 20px; color: var(--ink-primary);">🎮 Mini-Games</h2>';
+    h += `<h2 style="margin-bottom: 20px; color: var(--ink-primary);">${t('games.title')}</h2>`;
     h += '<div class="games-grid">';
     
     // ========== TIER 1: MEMORY GAME ==========
@@ -13111,12 +13456,12 @@ renderRecords: function() {
     
     h += `<div class="game-card">`;
     h += `<span class="game-icon">🎴</span>`;
-    h += `<div class="game-title">Memory Game</div>`;
-    h += `<div class="game-desc">Najdi páry discovered items!</div>`;
+    h += `<div class="game-title">${t('games.memoryName')}</div>`;
+    h += `<div class="game-desc">${t('games.memoryDesc')}</div>`;
     if(hasCards) {
-        h += `<button class="craft-btn" onclick="MemoryGame.start()">Hrát 🎮</button>`;
+        h += `<button class="craft-btn" onclick="MemoryGame.start()">${t('games.btnPlay')}</button>`;
     } else {
-        h += `<div class="game-unlock-text">Vyrobit playing_cards</div>`;
+        h += `<div class="game-unlock-text">${t('games.memoryCraft')}</div>`;
     }
     h += `</div>`;
     
@@ -13127,15 +13472,15 @@ renderRecords: function() {
     h += `<div class="game-card ${hasUrTech ? '' : 'locked'}">`;
     if(!hasUrTech) h += `<span class="game-lock-badge">🔒</span>`;
     h += `<span class="game-icon">🎲</span>`;
-    h += `<div class="game-title">Royal Game of Ur</div>`;
-    h += `<div class="game-desc">Nejstarší hra světa (2600 př.n.l.)</div>`;
+    h += `<div class="game-title">${t('games.urName')}</div>`;
+    h += `<div class="game-desc">${t('games.urDesc')}</div>`;
     if(!hasUrTech) {
-        h += `<div class="game-unlock-text">Tech: Starobylé Hry (6 Research)</div>`;
+        h += `<div class="game-unlock-text">${t('games.urTech')}</div>`;
     } else if(!hasUrBoard) {
-        h += `<div class="game-unlock-text">Vyrobit ur_board</div>`;
+        h += `<div class="game-unlock-text">${t('games.urCraft')}</div>`;
     } else {
-        h += `<button class="craft-btn" onclick="RoyalGameOfUr.start()">VS AI 🤖</button>`;
-        h += `<button class="craft-btn" onclick="RoyalGameOfUrSolo.start()" style="background: var(--accent-gold);">Solo 🧩</button>`;
+        h += `<button class="craft-btn" onclick="RoyalGameOfUr.start()">${t('games.urPlayVsAI')}</button>`;
+        h += `<button class="craft-btn" onclick="RoyalGameOfUrSolo.start()" style="background: var(--accent-gold);">${t('games.urPlaySolo')}</button>`;
     }
     h += `</div>`;
     
@@ -13146,14 +13491,14 @@ renderRecords: function() {
     h += `<div class="game-card ${hasPrimeroTech ? '' : 'locked'}">`;
     if(!hasPrimeroTech) h += `<span class="game-lock-badge">🔒</span>`;
     h += `<span class="game-icon">🃏</span>`;
-    h += `<div class="game-title">Primero</div>`;
-    h += `<div class="game-desc">Předchůdce pokeru (1530)</div>`;
+    h += `<div class="game-title">${t('games.primeroName')}</div>`;
+    h += `<div class="game-desc">${t('games.primeroDesc')}</div>`;
     if(!hasPrimeroTech) {
-        h += `<div class="game-unlock-text">Tech: Primero (10 Research)</div>`;
+        h += `<div class="game-unlock-text">${t('games.primeroTech')}</div>`;
     } else if(!hasPrimero) {
-        h += `<div class="game-unlock-text">Vyrobit primero_deck</div>`;
+        h += `<div class="game-unlock-text">${t('games.primeroCraft')}</div>`;
     } else {
-        h += `<button class="craft-btn" onclick="PrimeroGame.start()">Hrát 🎮</button>`;
+        h += `<button class="craft-btn" onclick="PrimeroGame.start()">${t('games.btnPlay')}</button>`;
     }
     h += `</div>`;
     
@@ -13164,14 +13509,14 @@ renderRecords: function() {
     h += `<div class="game-card ${hasKarnoffelTech ? '' : 'locked'}">`;
     if(!hasKarnoffelTech) h += `<span class="game-lock-badge">🔒</span>`;
     h += `<span class="game-icon">🎴</span>`;
-    h += `<div class="game-title">Karnöffel</div>`;
-    h += `<div class="game-desc">Nejstarší trumfová hra (1426)</div>`;
+    h += `<div class="game-title">${t('games.karnoffelName')}</div>`;
+    h += `<div class="game-desc">${t('games.karnoffelDesc')}</div>`;
     if(!hasKarnoffelTech) {
-        h += `<div class="game-unlock-text">Tech: Karnöffel (12 Research)</div>`;
+        h += `<div class="game-unlock-text">${t('games.karnoffelTech')}</div>`;
     } else if(!hasKarnoffel) {
-        h += `<div class="game-unlock-text">Vyrobit karnoffel_deck</div>`;
+        h += `<div class="game-unlock-text">${t('games.karnoffelCraft')}</div>`;
     } else {
-        h += `<button class="craft-btn" onclick="KarnoffelGame.start()">Hrát 🎮</button>`;
+        h += `<button class="craft-btn" onclick="KarnoffelGame.start()">${t('games.btnPlay')}</button>`;
     }
     h += `</div>`;
     
@@ -13182,14 +13527,14 @@ renderRecords: function() {
     h += `<div class="game-card ${hasFreeCellTech ? '' : 'locked'}">`;
     if(!hasFreeCellTech) h += `<span class="game-lock-badge">🔒</span>`;
     h += `<span class="game-icon">🂡</span>`;
-    h += `<div class="game-title">FreeCell Solitaire</div>`;
-    h += `<div class="game-desc">Logická karetní hra</div>`;
+    h += `<div class="game-title">${t('games.freecellName')}</div>`;
+    h += `<div class="game-desc">${t('games.freecellDesc')}</div>`;
     if(!hasFreeCellTech) {
-        h += `<div class="game-unlock-text">Tech: Solitér Mistryně (15 Research)</div>`;
+        h += `<div class="game-unlock-text">${t('games.freecellTech')}</div>`;
     } else if(!hasFrenchDeck) {
-        h += `<div class="game-unlock-text">Vyrobit french_deck</div>`;
+        h += `<div class="game-unlock-text">${t('games.freecellCraft')}</div>`;
     } else {
-        h += `<button class="craft-btn" onclick="FreeCellGame.start()">Hrát 🎮</button>`;
+        h += `<button class="craft-btn" onclick="FreeCellGame.start()">${t('games.btnPlay')}</button>`;
     }
     h += `</div>`;
     
@@ -13200,22 +13545,107 @@ renderRecords: function() {
     h += `<div class="game-card ${hasRithmoTech ? '' : 'locked'}">`;
     if(!hasRithmoTech) h += `<span class="game-lock-badge">🔒</span>`;
     h += `<span class="game-icon">🔢</span>`;
-    h += `<div class="game-title">Rithmomachia</div>`;
-    h += `<div class="game-desc">"Šachy Filozofů" (1030)</div>`;
+    h += `<div class="game-title">${t('games.rithmoName')}</div>`;
+    h += `<div class="game-desc">${t('games.rithmoDesc')}</div>`;
     if(!hasRithmoTech) {
-        h += `<div class="game-unlock-text">Tech: Filozofická Matematika (20 Research)</div>`;
+        h += `<div class="game-unlock-text">${t('games.rithmoTech')}</div>`;
     } else if(!hasRithmo) {
-        h += `<div class="game-unlock-text">Vyrobit rithmomachia_board</div>`;
+        h += `<div class="game-unlock-text">${t('games.rithmoCraft')}</div>`;
     } else {
-        h += `<button class="craft-btn" onclick="Rithmomachia.start()">Hrát 🎮</button>`;
-        h += `<button class="craft-btn" onclick="Rithmomachia.showRules()" style="background: var(--accent-gold);">📖 Pravidla</button>`;
+        h += `<button class="craft-btn" onclick="Rithmomachia.start()">${t('games.btnPlay')}</button>`;
+        h += `<button class="craft-btn" onclick="Rithmomachia.showRules()" style="background: var(--accent-gold);">${t('games.btnRules')}</button>`;
     }
     h += `</div>`;
     
     h += '</div>'; // Close games-grid
     
+    // ========== PROGRESSION SUMMARY ==========
+    const currentRank = RankSystem.getCurrentSecularRank();
+    const currentTier = RankSystem.getSecularRankTier();
+    const nextRank = RankSystem.secular[currentTier]; // next rank in array
+    const currentResearch = GameState.achievements?.stats?.researchCount || 0;
+    
+    h += `<div style="margin-top: 40px; margin-bottom: 30px; padding: 20px; background: linear-gradient(135deg, rgba(197,160,89,0.1) 0%, rgba(138,51,36,0.1) 100%); border-radius: 8px; border: 2px solid var(--accent-gold);">`;
+    h += `<h2 style="margin: 0 0 15px 0; color: var(--accent-gold); display: flex; align-items: center; gap: 10px;">`;
+    h += `${currentRank.icon} <span>${t('rank.current')}: ${RankSystem.getRankName(currentRank.id)}</span>`;
+    h += `</h2>`;
+    
+    if (nextRank) {
+        // Parse requirements from rank i18n strings
+        const requirementText = RankSystem.getRankRequirement(nextRank.id);
+        const researchMatch = requirementText.match(/(\d+)\s*(?:×\s*)?research/i);
+        const requiredResearch = researchMatch ? parseInt(researchMatch[1]) : 0;
+        const researchLeft = Math.max(0, requiredResearch - currentResearch);
+        
+        const techMatch = requirementText.match(/(\d+)\s+tech/i);
+        const requiredTechs = techMatch ? parseInt(techMatch[1]) : 0;
+        const techCount = GameState.researchedTechs?.length || 0;
+        const techsLeft = Math.max(0, requiredTechs - techCount);
+        
+        h += `<div style="margin-top: 10px; padding: 12px; background: rgba(0,0,0,0.1); border-radius: 5px;">`;
+        h += `<strong style="color: var(--ink-primary);">${t('rank.next')}: ${nextRank.icon} ${RankSystem.getRankName(nextRank.id)}</strong>`;
+        h += `<div style="margin-top: 8px; font-size: 0.9rem; color: var(--ink-secondary);">`;
+        
+        // Research requirement
+        if (requiredResearch > 0) {
+            if (researchLeft > 0) {
+                h += `<div>📜 Research: ${currentResearch}/${requiredResearch} <span style="color: var(--accent-wax);">(${t('rank.remaining')}: ${researchLeft})</span></div>`;
+            } else {
+                h += `<div>📜 Research: <span style="color: #4caf50;">✓ ${requiredResearch}</span></div>`;
+            }
+        }
+        
+        // Tech requirement
+        if (requiredTechs > 0) {
+            if (techsLeft > 0) {
+                h += `<div>👑 Tech: ${techCount}/${requiredTechs} <span style="color: var(--accent-wax);">(${t('rank.remaining')}: ${techsLeft})</span></div>`;
+            } else {
+                h += `<div>👑 Tech: <span style="color: #4caf50;">✓ ${requiredTechs}</span></div>`;
+            }
+        }
+        
+        // Special item requirements (check requirement text for keywords)
+        const desc = requirementText.toLowerCase();
+        
+        if (desc.includes('gallic_ink')) {
+            const hasItem = (GameState.inventory['gallic_ink'] || 0) > 0;
+            if (!hasItem) {
+                h += `<div>🖋️ Gallic Ink: <span style="color: var(--accent-wax);">${t('rank.needCreate')}</span></div>`;
+            } else {
+                h += `<div>🖋️ Gallic Ink: <span style="color: #4caf50;">✓</span></div>`;
+            }
+        }
+        
+        if (desc.includes('vellum_codex')) {
+            const hasItem = (GameState.inventory['vellum_codex'] || 0) > 0;
+            if (!hasItem) {
+                h += `<div>📘 Vellum Codex: <span style="color: var(--accent-wax);">${t('rank.needCreate')}</span></div>`;
+            } else {
+                h += `<div>📘 Vellum Codex: <span style="color: #4caf50;">✓</span></div>`;
+            }
+        }
+        
+        if (desc.includes('bishop_seal')) {
+            const hasItem = (GameState.inventory['bishop_seal'] || 0) > 0;
+            if (!hasItem) {
+                h += `<div>🏛️ Bishop Seal: <span style="color: var(--accent-wax);">${t('rank.needObtain')}</span></div>`;
+            } else {
+                h += `<div>🏛️ Bishop Seal: <span style="color: #4caf50;">✓</span></div>`;
+            }
+        }
+        
+        h += `</div></div>`;
+    } else {
+        // Max rank reached
+        h += `<div style="margin-top: 10px; padding: 12px; background: rgba(76,175,80,0.2); border-radius: 5px; color: #4caf50; font-weight: bold;">`;
+        h += `🎓 ${t('rank.maxReached')}`;
+        h += `</div>`;
+    }
+    
+    h += `</div>`;
+    
     // ========== PERSONAL STATISTICS ==========
-    h += `<h2 style="margin-top: 40px; margin-bottom: 20px; color: var(--ink-primary);">📊 Osobní Statistiky</h2>`;
+    h += `<h2 style="margin-top: 20px; margin-bottom: 20px; color: var(--ink-primary);">${t('records.stats')}</h2>`;
     h += `<div class="card" style="flex-direction:column; align-items:stretch;">`;
     
     const stats = GameState.achievements.stats;
@@ -13229,7 +13659,7 @@ renderRecords: function() {
             <strong>📦 Items</strong><div style="font-size:1.2rem; margin-top:4px;">${totalItems}</div>
           </div>`;
     h += `<div style="padding:8px; background:rgba(0,0,0,0.05); border-left:3px solid var(--accent-gold);">
-            <strong>📖 Discovered</strong><div style="font-size:1.2rem; margin-top:4px;">${GameState.discoveredLore.length}/64</div>
+            <strong>📖 Discovered</strong><div style="font-size:1.2rem; margin-top:4px;">${GameState.discoveredLore.length}/${typeof LoreDB !== 'undefined' ? Object.keys(LoreDB).length : 64}</div>
           </div>`;
     
     // Row 2
@@ -13237,36 +13667,48 @@ renderRecords: function() {
             <strong>⚒️ Crafts</strong><div style="font-size:1.2rem; margin-top:4px;">${stats.itemsCrafted}</div>
           </div>`;
     h += `<div style="padding:8px; background:rgba(0,0,0,0.05); border-left:3px solid var(--accent-wax);">
-            <strong>🌿 Sklizně</strong><div style="font-size:1.2rem; margin-top:4px;">${stats.harvests}</div>
+            <strong>${t('records.harvests')}</strong><div style="font-size:1.2rem; margin-top:4px;">${stats.harvests}</div>
           </div>`;
     
     // Row 3
     h += `<div style="padding:8px; background:rgba(0,0,0,0.05); border-left:3px solid var(--accent-gold);">
-            <strong>📜 Research získáno</strong><div style="font-size:1.2rem; margin-top:4px;">${stats.totalResearchGained || stats.researchCount}</div>
+            <strong>${t('records.researchGained')}</strong><div style="font-size:1.2rem; margin-top:4px;">${stats.totalResearchGained || stats.researchCount}</div>
           </div>`;
     h += `<div style="padding:8px; background:rgba(0,0,0,0.05); border-left:3px solid var(--accent-gold);">
-            <strong>👑 Tech</strong><div style="font-size:1.2rem; margin-top:4px;">${totalTech}/27</div>
+            <strong>👑 Tech</strong><div style="font-size:1.2rem; margin-top:4px;">${totalTech}/${typeof TechTree !== 'undefined' ? TechTree.length : 27}</div>
           </div>`;
     
-    // Row 4
+    // Row 4 - Library Stats
+    const booksRead = GameState.library?.readBooks?.length || 0;
+    const booksUnlocked = GameState.library?.unlockedBooks?.length || 0;
+    const totalBooks = 17; // 16 normal + 1 secret
+    
+    h += `<div style="padding:8px; background:rgba(0,0,0,0.05); border-left:3px solid #8e44ad;">
+            <strong>${t('records.booksRead')}</strong><div style="font-size:1.2rem; margin-top:4px;">${booksRead}/${totalBooks}</div>
+          </div>`;
+    h += `<div style="padding:8px; background:rgba(0,0,0,0.05); border-left:3px solid #8e44ad;">
+            <strong>${t('records.booksUnlocked')}</strong><div style="font-size:1.2rem; margin-top:4px;">${booksUnlocked}/${totalBooks}</div>
+          </div>`;
+    
+    // Row 5 - Games/Meals
     h += `<div style="padding:8px; background:rgba(0,0,0,0.05); border-left:3px solid #8a3324;">
-            <strong>🎮 Hry vyhráno</strong><div style="font-size:1.2rem; margin-top:4px;">${stats.totalGamesPlayed || 0}</div>
+            <strong>${t('records.gamesWon')}</strong><div style="font-size:1.2rem; margin-top:4px;">${stats.totalGamesPlayed || 0}</div>
           </div>`;
     h += `<div style="padding:8px; background:rgba(0,0,0,0.05); border-left:3px solid #4caf50;">
-            <strong>🍖 Jídel</strong><div style="font-size:1.2rem; margin-top:4px;">${stats.mealsEaten || 0}</div>
+            <strong>${t('records.mealsEaten')}</strong><div style="font-size:1.2rem; margin-top:4px;">${stats.mealsEaten || 0}</div>
           </div>`;
     
-    // Row 5
+    // Row 6 - Candles/Well
     h += `<div style="padding:8px; background:rgba(0,0,0,0.05); border-left:3px solid #fbbf24;">
-            <strong>🕯️ Svíčky</strong><div style="font-size:1.2rem; margin-top:4px;">${stats.candlesLit || 0}</div>
+            <strong>${t('records.candlesLit')}</strong><div style="font-size:1.2rem; margin-top:4px;">${stats.candlesLit || 0}</div>
           </div>`;
     h += `<div style="padding:8px; background:rgba(0,0,0,0.05); border-left:3px solid #06b6d4;">
             <strong>💧 Well</strong><div style="font-size:1.2rem; margin-top:4px;">${stats.wellUses || 0}</div>
           </div>`;
     
-    // Row 6 - Full width
+    // Row 7 - Streak (Full width)
     h += `<div style="grid-column:1/-1; padding:8px; background:rgba(197,160,89,0.1); border-left:3px solid var(--accent-gold);">
-            <strong>🔥 Streak</strong><div style="font-size:1.2rem; margin-top:4px;">${GameState.dailyRewards.streak} dní (max: ${stats.longestStreak || 0})</div>
+            <strong>${t('records.streak')}</strong><div style="font-size:1.2rem; margin-top:4px;">${GameState.dailyRewards.streak} ${t('records.days')} (${t('records.max')}: ${stats.longestStreak || 0})</div>
           </div>`;
     
     h += `</div></div>`;
@@ -13274,24 +13716,23 @@ renderRecords: function() {
     // ========== BACKUP SECTION ==========
     h += `
         <div style="margin-top: 30px; padding: 20px; background: rgba(0,0,0,0.2); border-radius: 10px;">
-            <h3>💾 Záloha Save</h3>
+            <h3>${t('records.backupTitle')}</h3>
             <p style="font-size: 13px; opacity: 0.8; margin-bottom: 15px;">
-                Exportuj save jako zálohu nebo přenes na jiné zařízení.
+                ${t('records.backupDesc')}
             </p>
             
             <div style="display: flex; gap: 10px; flex-wrap: wrap;">
                 <button onclick="Game.exportSave()" class="craft-btn" style="background: #4a7c59;">
-                    📥 Stáhnout Save
+                    ${t('records.btnDownload')}
                 </button>
                 
                 <button onclick="Game.triggerImport()" class="craft-btn" style="background: #7c594a;">
-                    📤 Nahrát Save
+                    ${t('records.btnUpload')}
                 </button>
             </div>
             
             <p style="font-size: 11px; opacity: 0.6; margin-top: 10px;">
-                💡 Před velkými experimenty doporučujeme stáhnout zálohu!<br>
-                Pro reset hry jdi do Nastavení.
+                ${t('records.backupNote')}
             </p>
         </div>
     `;

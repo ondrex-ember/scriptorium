@@ -274,10 +274,7 @@ const Game = {
         
         // Check daily reward AFTER UI render (only from 2nd session onwards)
         setTimeout(() => {
-            // Show daily reward only if player has logged in before (not first time)
-            if(GameState.dailyRewards.totalLogins > 0) {
-                Game.checkDailyReward();
-            }
+            Game.checkDailyReward();
         }, 500);
         
         document.body.addEventListener('click', () => { 

@@ -752,7 +752,7 @@ renderRecords: function() {
     let h = '';
     
     // ========== GAMES SECTION ==========
-    h += '<h2 style="margin-bottom: 20px; color: var(--ink-primary);">🎮 Mini-Games</h2>';
+    h += `<h2 style="margin-bottom: 20px; color: var(--ink-primary);">${t('games.title')}</h2>`;
     h += '<div class="games-grid">';
     
     // ========== TIER 1: MEMORY GAME ==========
@@ -760,12 +760,12 @@ renderRecords: function() {
     
     h += `<div class="game-card">`;
     h += `<span class="game-icon">🎴</span>`;
-    h += `<div class="game-title">Memory Game</div>`;
-    h += `<div class="game-desc">Najdi páry discovered items!</div>`;
+    h += `<div class="game-title">${t('games.memoryName')}</div>`;
+    h += `<div class="game-desc">${t('games.memoryDesc')}</div>`;
     if(hasCards) {
-        h += `<button class="craft-btn" onclick="MemoryGame.start()">Hrát 🎮</button>`;
+        h += `<button class="craft-btn" onclick="MemoryGame.start()">${t('games.btnPlay')}</button>`;
     } else {
-        h += `<div class="game-unlock-text">Vyrobit playing_cards</div>`;
+        h += `<div class="game-unlock-text">${t('games.memoryCraft')}</div>`;
     }
     h += `</div>`;
     
@@ -776,15 +776,15 @@ renderRecords: function() {
     h += `<div class="game-card ${hasUrTech ? '' : 'locked'}">`;
     if(!hasUrTech) h += `<span class="game-lock-badge">🔒</span>`;
     h += `<span class="game-icon">🎲</span>`;
-    h += `<div class="game-title">Royal Game of Ur</div>`;
-    h += `<div class="game-desc">Nejstarší hra světa (2600 př.n.l.)</div>`;
+    h += `<div class="game-title">${t('games.urName')}</div>`;
+    h += `<div class="game-desc">${t('games.urDesc')}</div>`;
     if(!hasUrTech) {
-        h += `<div class="game-unlock-text">Tech: Starobylé Hry (6 Research)</div>`;
+        h += `<div class="game-unlock-text">${t('games.urTech')}</div>`;
     } else if(!hasUrBoard) {
-        h += `<div class="game-unlock-text">Vyrobit ur_board</div>`;
+        h += `<div class="game-unlock-text">${t('games.urCraft')}</div>`;
     } else {
-        h += `<button class="craft-btn" onclick="RoyalGameOfUr.start()">VS AI 🤖</button>`;
-        h += `<button class="craft-btn" onclick="RoyalGameOfUrSolo.start()" style="background: var(--accent-gold);">Solo 🧩</button>`;
+        h += `<button class="craft-btn" onclick="RoyalGameOfUr.start()">${t('games.urPlayVsAI')}</button>`;
+        h += `<button class="craft-btn" onclick="RoyalGameOfUrSolo.start()" style="background: var(--accent-gold);">${t('games.urPlaySolo')}</button>`;
     }
     h += `</div>`;
     
@@ -795,14 +795,14 @@ renderRecords: function() {
     h += `<div class="game-card ${hasPrimeroTech ? '' : 'locked'}">`;
     if(!hasPrimeroTech) h += `<span class="game-lock-badge">🔒</span>`;
     h += `<span class="game-icon">🃏</span>`;
-    h += `<div class="game-title">Primero</div>`;
-    h += `<div class="game-desc">Předchůdce pokeru (1530)</div>`;
+    h += `<div class="game-title">${t('games.primeroName')}</div>`;
+    h += `<div class="game-desc">${t('games.primeroDesc')}</div>`;
     if(!hasPrimeroTech) {
-        h += `<div class="game-unlock-text">Tech: Primero (10 Research)</div>`;
+        h += `<div class="game-unlock-text">${t('games.primeroTech')}</div>`;
     } else if(!hasPrimero) {
-        h += `<div class="game-unlock-text">Vyrobit primero_deck</div>`;
+        h += `<div class="game-unlock-text">${t('games.primeroCraft')}</div>`;
     } else {
-        h += `<button class="craft-btn" onclick="PrimeroGame.start()">Hrát 🎮</button>`;
+        h += `<button class="craft-btn" onclick="PrimeroGame.start()">${t('games.btnPlay')}</button>`;
     }
     h += `</div>`;
     
@@ -813,14 +813,14 @@ renderRecords: function() {
     h += `<div class="game-card ${hasKarnoffelTech ? '' : 'locked'}">`;
     if(!hasKarnoffelTech) h += `<span class="game-lock-badge">🔒</span>`;
     h += `<span class="game-icon">🎴</span>`;
-    h += `<div class="game-title">Karnöffel</div>`;
-    h += `<div class="game-desc">Nejstarší trumfová hra (1426)</div>`;
+    h += `<div class="game-title">${t('games.karnoffelName')}</div>`;
+    h += `<div class="game-desc">${t('games.karnoffelDesc')}</div>`;
     if(!hasKarnoffelTech) {
-        h += `<div class="game-unlock-text">Tech: Karnöffel (12 Research)</div>`;
+        h += `<div class="game-unlock-text">${t('games.karnoffelTech')}</div>`;
     } else if(!hasKarnoffel) {
-        h += `<div class="game-unlock-text">Vyrobit karnoffel_deck</div>`;
+        h += `<div class="game-unlock-text">${t('games.karnoffelCraft')}</div>`;
     } else {
-        h += `<button class="craft-btn" onclick="KarnoffelGame.start()">Hrát 🎮</button>`;
+        h += `<button class="craft-btn" onclick="KarnoffelGame.start()">${t('games.btnPlay')}</button>`;
     }
     h += `</div>`;
     
@@ -831,14 +831,14 @@ renderRecords: function() {
     h += `<div class="game-card ${hasFreeCellTech ? '' : 'locked'}">`;
     if(!hasFreeCellTech) h += `<span class="game-lock-badge">🔒</span>`;
     h += `<span class="game-icon">🂡</span>`;
-    h += `<div class="game-title">FreeCell Solitaire</div>`;
-    h += `<div class="game-desc">Logická karetní hra</div>`;
+    h += `<div class="game-title">${t('games.freecellName')}</div>`;
+    h += `<div class="game-desc">${t('games.freecellDesc')}</div>`;
     if(!hasFreeCellTech) {
-        h += `<div class="game-unlock-text">Tech: Solitér Mistryně (15 Research)</div>`;
+        h += `<div class="game-unlock-text">${t('games.freecellTech')}</div>`;
     } else if(!hasFrenchDeck) {
-        h += `<div class="game-unlock-text">Vyrobit french_deck</div>`;
+        h += `<div class="game-unlock-text">${t('games.freecellCraft')}</div>`;
     } else {
-        h += `<button class="craft-btn" onclick="FreeCellGame.start()">Hrát 🎮</button>`;
+        h += `<button class="craft-btn" onclick="FreeCellGame.start()">${t('games.btnPlay')}</button>`;
     }
     h += `</div>`;
     
@@ -849,22 +849,107 @@ renderRecords: function() {
     h += `<div class="game-card ${hasRithmoTech ? '' : 'locked'}">`;
     if(!hasRithmoTech) h += `<span class="game-lock-badge">🔒</span>`;
     h += `<span class="game-icon">🔢</span>`;
-    h += `<div class="game-title">Rithmomachia</div>`;
-    h += `<div class="game-desc">"Šachy Filozofů" (1030)</div>`;
+    h += `<div class="game-title">${t('games.rithmoName')}</div>`;
+    h += `<div class="game-desc">${t('games.rithmoDesc')}</div>`;
     if(!hasRithmoTech) {
-        h += `<div class="game-unlock-text">Tech: Filozofická Matematika (20 Research)</div>`;
+        h += `<div class="game-unlock-text">${t('games.rithmoTech')}</div>`;
     } else if(!hasRithmo) {
-        h += `<div class="game-unlock-text">Vyrobit rithmomachia_board</div>`;
+        h += `<div class="game-unlock-text">${t('games.rithmoCraft')}</div>`;
     } else {
-        h += `<button class="craft-btn" onclick="Rithmomachia.start()">Hrát 🎮</button>`;
-        h += `<button class="craft-btn" onclick="Rithmomachia.showRules()" style="background: var(--accent-gold);">📖 Pravidla</button>`;
+        h += `<button class="craft-btn" onclick="Rithmomachia.start()">${t('games.btnPlay')}</button>`;
+        h += `<button class="craft-btn" onclick="Rithmomachia.showRules()" style="background: var(--accent-gold);">${t('games.btnRules')}</button>`;
     }
     h += `</div>`;
     
     h += '</div>'; // Close games-grid
     
+    // ========== PROGRESSION SUMMARY ==========
+    const currentRank = RankSystem.getCurrentSecularRank();
+    const currentTier = RankSystem.getSecularRankTier();
+    const nextRank = RankSystem.secular[currentTier]; // next rank in array
+    const currentResearch = GameState.achievements?.stats?.researchCount || 0;
+    
+    h += `<div style="margin-top: 40px; margin-bottom: 30px; padding: 20px; background: linear-gradient(135deg, rgba(197,160,89,0.1) 0%, rgba(138,51,36,0.1) 100%); border-radius: 8px; border: 2px solid var(--accent-gold);">`;
+    h += `<h2 style="margin: 0 0 15px 0; color: var(--accent-gold); display: flex; align-items: center; gap: 10px;">`;
+    h += `${currentRank.icon} <span>${t('rank.current')}: ${RankSystem.getRankName(currentRank.id)}</span>`;
+    h += `</h2>`;
+    
+    if (nextRank) {
+        // Parse requirements from rank i18n strings
+        const requirementText = RankSystem.getRankRequirement(nextRank.id);
+        const researchMatch = requirementText.match(/(\d+)\s*(?:×\s*)?research/i);
+        const requiredResearch = researchMatch ? parseInt(researchMatch[1]) : 0;
+        const researchLeft = Math.max(0, requiredResearch - currentResearch);
+        
+        const techMatch = requirementText.match(/(\d+)\s+tech/i);
+        const requiredTechs = techMatch ? parseInt(techMatch[1]) : 0;
+        const techCount = GameState.researchedTechs?.length || 0;
+        const techsLeft = Math.max(0, requiredTechs - techCount);
+        
+        h += `<div style="margin-top: 10px; padding: 12px; background: rgba(0,0,0,0.1); border-radius: 5px;">`;
+        h += `<strong style="color: var(--ink-primary);">${t('rank.next')}: ${nextRank.icon} ${RankSystem.getRankName(nextRank.id)}</strong>`;
+        h += `<div style="margin-top: 8px; font-size: 0.9rem; color: var(--ink-secondary);">`;
+        
+        // Research requirement
+        if (requiredResearch > 0) {
+            if (researchLeft > 0) {
+                h += `<div>📜 Research: ${currentResearch}/${requiredResearch} <span style="color: var(--accent-wax);">(${t('rank.remaining')}: ${researchLeft})</span></div>`;
+            } else {
+                h += `<div>📜 Research: <span style="color: #4caf50;">✓ ${requiredResearch}</span></div>`;
+            }
+        }
+        
+        // Tech requirement
+        if (requiredTechs > 0) {
+            if (techsLeft > 0) {
+                h += `<div>👑 Tech: ${techCount}/${requiredTechs} <span style="color: var(--accent-wax);">(${t('rank.remaining')}: ${techsLeft})</span></div>`;
+            } else {
+                h += `<div>👑 Tech: <span style="color: #4caf50;">✓ ${requiredTechs}</span></div>`;
+            }
+        }
+        
+        // Special item requirements (check requirement text for keywords)
+        const desc = requirementText.toLowerCase();
+        
+        if (desc.includes('gallic_ink')) {
+            const hasItem = (GameState.inventory['gallic_ink'] || 0) > 0;
+            if (!hasItem) {
+                h += `<div>🖋️ Gallic Ink: <span style="color: var(--accent-wax);">${t('rank.needCreate')}</span></div>`;
+            } else {
+                h += `<div>🖋️ Gallic Ink: <span style="color: #4caf50;">✓</span></div>`;
+            }
+        }
+        
+        if (desc.includes('vellum_codex')) {
+            const hasItem = (GameState.inventory['vellum_codex'] || 0) > 0;
+            if (!hasItem) {
+                h += `<div>📘 Vellum Codex: <span style="color: var(--accent-wax);">${t('rank.needCreate')}</span></div>`;
+            } else {
+                h += `<div>📘 Vellum Codex: <span style="color: #4caf50;">✓</span></div>`;
+            }
+        }
+        
+        if (desc.includes('bishop_seal')) {
+            const hasItem = (GameState.inventory['bishop_seal'] || 0) > 0;
+            if (!hasItem) {
+                h += `<div>🏛️ Bishop Seal: <span style="color: var(--accent-wax);">${t('rank.needObtain')}</span></div>`;
+            } else {
+                h += `<div>🏛️ Bishop Seal: <span style="color: #4caf50;">✓</span></div>`;
+            }
+        }
+        
+        h += `</div></div>`;
+    } else {
+        // Max rank reached
+        h += `<div style="margin-top: 10px; padding: 12px; background: rgba(76,175,80,0.2); border-radius: 5px; color: #4caf50; font-weight: bold;">`;
+        h += `🎓 ${t('rank.maxReached')}`;
+        h += `</div>`;
+    }
+    
+    h += `</div>`;
+    
     // ========== PERSONAL STATISTICS ==========
-    h += `<h2 style="margin-top: 40px; margin-bottom: 20px; color: var(--ink-primary);">📊 Osobní Statistiky</h2>`;
+    h += `<h2 style="margin-top: 20px; margin-bottom: 20px; color: var(--ink-primary);">${t('records.stats')}</h2>`;
     h += `<div class="card" style="flex-direction:column; align-items:stretch;">`;
     
     const stats = GameState.achievements.stats;
@@ -878,7 +963,7 @@ renderRecords: function() {
             <strong>📦 Items</strong><div style="font-size:1.2rem; margin-top:4px;">${totalItems}</div>
           </div>`;
     h += `<div style="padding:8px; background:rgba(0,0,0,0.05); border-left:3px solid var(--accent-gold);">
-            <strong>📖 Discovered</strong><div style="font-size:1.2rem; margin-top:4px;">${GameState.discoveredLore.length}/64</div>
+            <strong>📖 Discovered</strong><div style="font-size:1.2rem; margin-top:4px;">${GameState.discoveredLore.length}/${typeof LoreDB !== 'undefined' ? Object.keys(LoreDB).length : 64}</div>
           </div>`;
     
     // Row 2
@@ -886,36 +971,48 @@ renderRecords: function() {
             <strong>⚒️ Crafts</strong><div style="font-size:1.2rem; margin-top:4px;">${stats.itemsCrafted}</div>
           </div>`;
     h += `<div style="padding:8px; background:rgba(0,0,0,0.05); border-left:3px solid var(--accent-wax);">
-            <strong>🌿 Sklizně</strong><div style="font-size:1.2rem; margin-top:4px;">${stats.harvests}</div>
+            <strong>${t('records.harvests')}</strong><div style="font-size:1.2rem; margin-top:4px;">${stats.harvests}</div>
           </div>`;
     
     // Row 3
     h += `<div style="padding:8px; background:rgba(0,0,0,0.05); border-left:3px solid var(--accent-gold);">
-            <strong>📜 Research získáno</strong><div style="font-size:1.2rem; margin-top:4px;">${stats.totalResearchGained || stats.researchCount}</div>
+            <strong>${t('records.researchGained')}</strong><div style="font-size:1.2rem; margin-top:4px;">${stats.totalResearchGained || stats.researchCount}</div>
           </div>`;
     h += `<div style="padding:8px; background:rgba(0,0,0,0.05); border-left:3px solid var(--accent-gold);">
-            <strong>👑 Tech</strong><div style="font-size:1.2rem; margin-top:4px;">${totalTech}/27</div>
+            <strong>👑 Tech</strong><div style="font-size:1.2rem; margin-top:4px;">${totalTech}/${typeof TechTree !== 'undefined' ? TechTree.length : 27}</div>
           </div>`;
     
-    // Row 4
+    // Row 4 - Library Stats
+    const booksRead = GameState.library?.readBooks?.length || 0;
+    const booksUnlocked = GameState.library?.unlockedBooks?.length || 0;
+    const totalBooks = 17; // 16 normal + 1 secret
+    
+    h += `<div style="padding:8px; background:rgba(0,0,0,0.05); border-left:3px solid #8e44ad;">
+            <strong>${t('records.booksRead')}</strong><div style="font-size:1.2rem; margin-top:4px;">${booksRead}/${totalBooks}</div>
+          </div>`;
+    h += `<div style="padding:8px; background:rgba(0,0,0,0.05); border-left:3px solid #8e44ad;">
+            <strong>${t('records.booksUnlocked')}</strong><div style="font-size:1.2rem; margin-top:4px;">${booksUnlocked}/${totalBooks}</div>
+          </div>`;
+    
+    // Row 5 - Games/Meals
     h += `<div style="padding:8px; background:rgba(0,0,0,0.05); border-left:3px solid #8a3324;">
-            <strong>🎮 Hry vyhráno</strong><div style="font-size:1.2rem; margin-top:4px;">${stats.totalGamesPlayed || 0}</div>
+            <strong>${t('records.gamesWon')}</strong><div style="font-size:1.2rem; margin-top:4px;">${stats.totalGamesPlayed || 0}</div>
           </div>`;
     h += `<div style="padding:8px; background:rgba(0,0,0,0.05); border-left:3px solid #4caf50;">
-            <strong>🍖 Jídel</strong><div style="font-size:1.2rem; margin-top:4px;">${stats.mealsEaten || 0}</div>
+            <strong>${t('records.mealsEaten')}</strong><div style="font-size:1.2rem; margin-top:4px;">${stats.mealsEaten || 0}</div>
           </div>`;
     
-    // Row 5
+    // Row 6 - Candles/Well
     h += `<div style="padding:8px; background:rgba(0,0,0,0.05); border-left:3px solid #fbbf24;">
-            <strong>🕯️ Svíčky</strong><div style="font-size:1.2rem; margin-top:4px;">${stats.candlesLit || 0}</div>
+            <strong>${t('records.candlesLit')}</strong><div style="font-size:1.2rem; margin-top:4px;">${stats.candlesLit || 0}</div>
           </div>`;
     h += `<div style="padding:8px; background:rgba(0,0,0,0.05); border-left:3px solid #06b6d4;">
             <strong>💧 Well</strong><div style="font-size:1.2rem; margin-top:4px;">${stats.wellUses || 0}</div>
           </div>`;
     
-    // Row 6 - Full width
+    // Row 7 - Streak (Full width)
     h += `<div style="grid-column:1/-1; padding:8px; background:rgba(197,160,89,0.1); border-left:3px solid var(--accent-gold);">
-            <strong>🔥 Streak</strong><div style="font-size:1.2rem; margin-top:4px;">${GameState.dailyRewards.streak} dní (max: ${stats.longestStreak || 0})</div>
+            <strong>${t('records.streak')}</strong><div style="font-size:1.2rem; margin-top:4px;">${GameState.dailyRewards.streak} ${t('records.days')} (${t('records.max')}: ${stats.longestStreak || 0})</div>
           </div>`;
     
     h += `</div></div>`;
@@ -923,24 +1020,23 @@ renderRecords: function() {
     // ========== BACKUP SECTION ==========
     h += `
         <div style="margin-top: 30px; padding: 20px; background: rgba(0,0,0,0.2); border-radius: 10px;">
-            <h3>💾 Záloha Save</h3>
+            <h3>${t('records.backupTitle')}</h3>
             <p style="font-size: 13px; opacity: 0.8; margin-bottom: 15px;">
-                Exportuj save jako zálohu nebo přenes na jiné zařízení.
+                ${t('records.backupDesc')}
             </p>
             
             <div style="display: flex; gap: 10px; flex-wrap: wrap;">
                 <button onclick="Game.exportSave()" class="craft-btn" style="background: #4a7c59;">
-                    📥 Stáhnout Save
+                    ${t('records.btnDownload')}
                 </button>
                 
                 <button onclick="Game.triggerImport()" class="craft-btn" style="background: #7c594a;">
-                    📤 Nahrát Save
+                    ${t('records.btnUpload')}
                 </button>
             </div>
             
             <p style="font-size: 11px; opacity: 0.6; margin-top: 10px;">
-                💡 Před velkými experimenty doporučujeme stáhnout zálohu!<br>
-                Pro reset hry jdi do Nastavení.
+                ${t('records.backupNote')}
             </p>
         </div>
     `;

@@ -807,5 +807,178 @@ garden: {
     ui: {
         close: 'Close'
     },
+    rank: {
+    current: 'CURRENT RANK',
+    next: 'Next Rank',
+    remaining: 'remaining',
+    needCreate: 'must be crafted',
+    needObtain: 'must be obtained',
+    maxReached: 'Thou hast attained the highest secular rank!',
+    monasticEntry: 'Enter the Monastery',
+    monasticNotEligible: '⛔ Thou must be at least Antiquarius for the monastery to accept thee.'
+    },
 
+    ranks: {
+  // ===== TIER 1: LAICUS =====
+  laicus_name: 'Laicus',
+  laicus_name_short: 'Laicus',
+  laicus_desc: 'A novice in the scriptorium. Cleaning quills, mixing ink, copying prayers under watchful eyes.',
+  laicus_lore: 'Scribes began thus from the age of twelve. The left hand held the knife, the right the quill. Both labored together always.',
+  laicus_toast: 'Thou art Laicus — the lowest link in the chain. But somewhere a start must be made.',
+  laicus_requirement: 'Starting rank',
+  
+  // ===== TIER 2: LIBRARIUS =====
+  librarius_name: 'Librarius',
+  librarius_name_short: 'Librarius',
+  librarius_desc: 'Thou dost copy alone. Liturgical texts, legends. No one stands behind thee now.',
+  librarius_lore: 'At Cîteaux (12th century) the librarii were the lowest fully functioning members of the scriptorium. In the margins they wrote: "I am cold. The ink is thin."',
+  librarius_toast: 'Librarius — the ink is on the desk. The master watcheth from afar.',
+  librarius_requirement: '5× research + notebook',
+  
+  // ===== TIER 3: ANTIQUARIUS =====
+  antiquarius_name: 'Antiquarius',
+  antiquarius_name_short: 'Antiquarius',
+  antiquarius_desc: 'Thou dost copy complex texts. Others transcribe calendars — thou hast been given Augustine.',
+  antiquarius_lore: '"The antiquarii were senior scribes and the librarii junior scribes." The antiquarius established the Ductus — the hand of the entire workshop.',
+  antiquarius_toast: 'Antiquarius — thy Ductus is legible. Others copy thee now.',
+  antiquarius_requirement: '15 research + 2 tech unlocked',
+  
+  // ===== TIER 4: RUBRICATOR =====
+  rubricator_name: 'Rubricator',
+  rubricator_name_short: 'Rubricator',
+  rubricator_desc: 'Thou dost add red headings and initials. The red pigment is poisonous. Do not lick the brush.',
+  rubricator_lore: 'In early printed books there remain empty squares to this day — there should have been an initial, but the owner paid not the rubricator.',
+  rubricator_toast: 'Rubricator — the red is thine. Remember what befell Nicholas of Cluny.',
+  rubricator_requirement: 'Tech illumination + gallic_ink',
+  
+  // ===== TIER 5: ILLUMINATOR =====
+  illuminator_name: 'Illuminator',
+  illuminator_name_short: 'Illuminator',
+  illuminator_desc: 'A painter. Gold, lapis lazuli, malachite. The highest paid in the entire chain of craft.',
+  illuminator_lore: 'In the dental calculus of a nun from Dalheim (11th century) they found lapis lazuli from Afghanistan. She licked the brush during illumination. Women illuminators existed, though none spoke of them.',
+  illuminator_toast: 'Illuminator — lapis lazuli from Afghanistan. Every drop costeth a groat. Spill not.',
+  illuminator_requirement: 'vellum_codex + tech_illumination + 25 research',
+  
+  // ===== TIER 6: STATIONARIUS =====
+  stationarius_name: 'Stationarius',
+  stationarius_name_short: 'Stationarius',
+  stationarius_desc: 'Head of the workshop. Thou dost take commissions. Thou decidest what shall be copied. And what printed.',
+  stationarius_lore: 'Vespasiano da Bisticci (Florence) refused to shift from manuscripts to print — and in the year 1480 went bankrupt. The flexible survived.',
+  stationarius_toast: 'Stationarius — thou hast a workshop. Beyond the wall, a printing press knocketh. It needeth thee not yet.',
+  stationarius_requirement: 'bishop_seal + 40 research',
+
+  // ===== MONASTIC B1: CANDIDATUS =====
+  candidatus_name: 'Candidatus',
+  candidatus_name_short: 'Candidatus',
+  candidatus_desc: 'Thou knockest at the gate. The abbot hath refused thee. Come again tomorrow.',
+  candidatus_lore: 'The Rule of St. Benedict (ch. 58): "Let not admission be easily granted." Refuse four times. If he persisteth, only then admit him.',
+  candidatus_toast: 'Thou hast approached the gate. The abbot hath refused thee. Perseverance is needed.',
+  candidatus_requirement: 'Antiquarius+ and voluntary choice',
+  
+  // ===== MONASTIC B2: NOVITIUS =====
+  novitius_name: 'Novitius',
+  novitius_name_short: 'Novitius',
+  novitius_desc: 'A year under the Master\'s watch. Learning the Rule, the chant, the liturgy. From nothing.',
+  novitius_lore: 'A novice for one year might not own personal property. Pride was grounds for expulsion.',
+  novitius_toast: 'Novitius — thou hast shed thy worldly garb. What thou wert outside mattereth not here.',
+  novitius_requirement: 'Candidatus + 24h + 10 research sacrificed',
+  
+  // ===== MONASTIC B3: FRATER =====
+  frater_name: 'Frater',
+  frater_name_short: 'Frater',
+  frater_desc: 'Thou hast taken thy vows. Stabilitas. Obedientia. Conversatio morum.',
+  frater_lore: 'Monks in the 15th century mostly hired not copyists themselves — they hired lay scribes. The monk supervised and approved.',
+  frater_toast: 'Frater — prayer at six. Scriptorium at nine.',
+  frater_requirement: 'Novitius + 50 research + 7 Canonical Hours streak',
+  
+  // ===== MONASTIC B4: ARMARIUS =====
+  armarius_name: 'Armarius',
+  armarius_name_short: 'Armarius',
+  armarius_desc: 'The keys to the shelves are now thy care. Thou decidest what shall be copied.',
+  armarius_lore: 'The armarius assigned materials, supervised copying. From the 10th century he sang the 8th responsory and held the lamp during the abbot\'s reading.',
+  armarius_toast: 'Armarius — the scriptorium is thine. Every scribe awaiteth thy word.',
+  armarius_requirement: 'Frater + 75 research',
+  
+  // ===== MONASTIC B5: PRIOR =====
+  prior_name: 'Prior',
+  prior_name_short: 'Prior',
+  prior_desc: 'Second in the monastery. Thou art not promoted for points — thou art appointed for merit.',
+  prior_lore: 'The prior was not a career advancement — he was appointed or elected by the community. The abbot could recall him at any time.',
+  prior_toast: 'Prior — the abbot hath named thee. The community hath accepted thee.',
+  prior_requirement: 'Armarius + nomination event',
+},
+
+    records: {
+  // Stats labels (with emoji included)
+  stats: '📊 Personal Statistics',
+  items: '📦 Items',
+  discovered: '📖 Discovered',
+  crafts: '⚒️ Crafts',
+  harvests: '🌿 Harvests',
+  researchGained: '📜 Research Gained',
+  tech: '👑 Tech',
+  gamesWon: '🎮 Games Won',
+  mealsEaten: '🍖 Meals Eaten',
+  candlesLit: '🕯️ Candles Lit',
+  well: '💧 Well',
+  streak: '🔥 Streak',
+  days: 'days',
+  max: 'max',
+  booksRead: '📚 Books Read',
+  booksUnlocked: '📖 Books Unlocked',
+  
+  // Backup section
+  backupTitle: '💾 Save Backup',
+  backupDesc: 'Export thy save as backup or transfer to another device.',
+  btnDownload: '📥 Download Save',
+  btnUpload: '📤 Upload Save',
+  backupNote: '💡 Before great experiments, we recommend downloading a backup!<br>For game reset, go to Settings.'
+},
+
+
+    games: {
+  // Header
+  title: '🎮 Miniature Games',
+  
+  // Memory Game
+  memoryName: 'Memory Game',
+  memoryDesc: 'Match pairs of discovered items!',
+  memoryCraft: 'Craft playing_cards',
+  
+  // Royal Game of Ur
+  urName: 'Royal Game of Ur',
+  urDesc: 'The world\'s oldest game (2600 BCE)',
+  urTech: 'Tech: Ancient Games (6 Research)',
+  urCraft: 'Craft ur_board',
+  urPlayVsAI: 'VS AI 🤖',
+  urPlaySolo: 'Solo 🧩',
+  
+  // Primero
+  primeroName: 'Primero',
+  primeroDesc: 'Ancestor of poker (1530)',
+  primeroTech: 'Tech: Primero (10 Research)',
+  primeroCraft: 'Craft primero_deck',
+  
+  // Karnöffel
+  karnoffelName: 'Karnöffel',
+  karnoffelDesc: 'The oldest trump game (1426)',
+  karnoffelTech: 'Tech: Karnöffel (12 Research)',
+  karnoffelCraft: 'Craft karnoffel_deck',
+  
+  // FreeCell
+  freecellName: 'FreeCell Solitaire',
+  freecellDesc: 'A game of logic and cards',
+  freecellTech: 'Tech: Solitaire Mastery (15 Research)',
+  freecellCraft: 'Craft french_deck',
+  
+  // Rithmomachia
+  rithmoName: 'Rithmomachia',
+  rithmoDesc: '"Philosophers\' Chess" (1030)',
+  rithmoTech: 'Tech: Philosophical Mathematics (20 Research)',
+  rithmoCraft: 'Craft rithmomachia_board',
+  
+  // Common buttons
+  btnPlay: 'Play 🎮',
+  btnRules: '📖 Rules'
+},
 };

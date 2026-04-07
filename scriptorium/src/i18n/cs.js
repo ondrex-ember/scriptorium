@@ -438,4 +438,179 @@ garden: {
     ui: {
         close: 'Zavřít'
     },
+
+  rank: {
+  current: 'SOUČASNÁ HODNOST',
+  next: 'Další hodnost',
+  remaining: 'zbývá',
+  needCreate: 'musí být vyrobeno',
+  needObtain: 'musí být získáno',
+  maxReached: 'Dosáhl jsi nejvyššího světského ranku!',
+  monasticEntry: 'Vstoupit do kláštera',
+  monasticNotEligible: '⛔ Musíš být alespoň Antiquarius, aby tě klášter přijal.'
+},
+
+
+    ranks: {
+  // ===== TIER 1: LAICUS =====
+  laicus_name: 'Laický písař',
+  laicus_name_short: 'Laicus',
+  laicus_desc: 'Nováček v skriptoriu. Čistíš brka, mícháš inkoust, opisuješ modlitby pod dohledem.',
+  laicus_lore: 'Písaři od 12 let začínali takto. Levá ruka držela nůž, pravá pero. Obě pracovaly vždy zároveň.',
+  laicus_toast: 'Jsi Laicus – nejnižší článek řetězce. Ale někde začít musíš.',
+  laicus_requirement: 'Startovní rank',
+  
+  // ===== TIER 2: LIBRARIUS =====
+  librarius_name: 'Opisovač',
+  librarius_name_short: 'Librarius',
+  librarius_desc: 'Opisuješ samostatně. Liturgické texty, legendy. Nikdo nestojí za tvými zády.',
+  librarius_lore: 'V Cîteaux (12. stol.) byli librarii nejnižším plně funkčním členem skriptoria. Na okraje psali: "Je mi zima. Inkoust je řídký."',
+  librarius_toast: 'Librarius – inkoust je na stole. Mistr tě sleduje jen z povzdálí.',
+  librarius_requirement: '5× research + zápisník',
+  
+  // ===== TIER 3: ANTIQUARIUS =====
+  antiquarius_name: 'Starší opisovač',
+  antiquarius_name_short: 'Antiquarius',
+  antiquarius_desc: 'Opisuješ složité texty. Ostatní přepisují kalendáře – tobě dali Augustina.',
+  antiquarius_lore: '"The antiquarii were senior scribes and the librarii junior scribes." Antiquarius stanovoval Ductus – rukopis celé dílny.',
+  antiquarius_toast: 'Antiquarius – tvůj Ductus je čitelný. Ostatní tě kopírují.',
+  antiquarius_requirement: '15 research + 2 tech odemčeny',
+  
+  // ===== TIER 4: RUBRICATOR =====
+  rubricator_name: 'Rubrikátor',
+  rubricator_name_short: 'Rubricator',
+  rubricator_desc: 'Přidáváš červené nadpisy a iniciály. Rudá barva je jedovatá. Neoliž štětec.',
+  rubricator_lore: 'V prvotiscích jsou dodnes prázdné čtverečky – tam měla být iniciála, ale majitel nezaplatil rubrikátora.',
+  rubricator_toast: 'Rubricator – červená je tvoje. Pamatuj, co se stalo Mikuláši z Cluny.',
+  rubricator_requirement: 'Tech iluminace + gallic_ink',
+  
+  // ===== TIER 5: ILLUMINATOR =====
+  illuminator_name: 'Iluminátor',
+  illuminator_name_short: 'Illuminator',
+  illuminator_desc: 'Malíř. Zlatem, lapis lazuli, malachitem. Nejvíce placený v celém řetězci výroby.',
+  illuminator_lore: 'V zubním kameni jeptišky z Dalheim (11. stol.) našli lapis lazuli z Afghánistánu. Olizovala štětec při iluminaci. Ženy iluminátoři existovaly, jen se o nich nemluvilo.',
+  illuminator_toast: 'Illuminator – lapis lazuli z Afghánistánu. Každá kapka stojí groš. Nekap.',
+  illuminator_requirement: 'vellum_codex + tech_illumination + 25 research',
+  
+  // ===== TIER 6: STATIONARIUS =====
+  stationarius_name: 'Stacionář',
+  stationarius_name_short: 'Stationarius',
+  stationarius_desc: 'Vedoucí dílny. Přijímáš zakázky. Rozhoduješ, co se bude opisovat. A co tisknout.',
+  stationarius_lore: 'Vespasiano da Bisticci (Florencie) odmítl přejít od rukopisů k tisku – a v roce 1480 zkrachoval. Flexibilní přežili.',
+  stationarius_toast: 'Stationarius – máš dílnu. Za zdí klepe tiskařský lis. Zatím tě nepotřebuje.',
+  stationarius_requirement: 'bishop_seal + 40 research',
+
+  // ===== MONASTIC B1: CANDIDATUS =====
+  candidatus_name: 'Uchazeč',
+  candidatus_name_short: 'Candidatus',
+  candidatus_desc: 'Klepeš na bránu. Opat tě odmítl. Přijď zítra.',
+  candidatus_lore: 'Řehole sv. Benedikta (kap. 58): "Nechť mu není přijímání ulehčeno." Čtyřikrát odmítni. Pokud vytrvá, teprve pak ho vpusť.',
+  candidatus_toast: 'Přistoupils ke bráně. Opat tě odmítl. Je třeba vytrvalosti.',
+  candidatus_requirement: 'Antiquarius+ a dobrovolná volba',
+  
+  // ===== MONASTIC B2: NOVITIUS =====
+  novitius_name: 'Novic',
+  novitius_name_short: 'Novitius',
+  novitius_desc: 'Rok pod dohledem Magistra. Učíš se Řeholi, zpěvu, liturgii. Od nuly.',
+  novitius_lore: 'Novic rok nesměl vlastnit osobní majetek. Pýcha byla důvodem k vyloučení.',
+  novitius_toast: 'Novitius – sundal jsi světský oděv. Co jsi byl venku, tady nehraje roli.',
+  novitius_requirement: 'Candidatus + 24h + 10 research obětováno',
+  
+  // ===== MONASTIC B3: FRATER =====
+  frater_name: 'Mnich',
+  frater_name_short: 'Frater',
+  frater_desc: 'Složil jsi sliby. Stabilitas. Obedientia. Conversatio morum.',
+  frater_lore: 'Mniši v 15. stol. většinou nenajímali opisovače sami – najímali světské písaře. Mnich kontroloval a schvaloval.',
+  frater_toast: 'Frater – modlitba v šest. Skriptorium v devět.',
+  frater_requirement: 'Novitius + 50 research + 7 Canonical Hours streak',
+  
+  // ===== MONASTIC B4: ARMARIUS =====
+  armarius_name: 'Vedoucí skriptoria',
+  armarius_name_short: 'Armarius',
+  armarius_desc: 'Klíče od regálů jsou teď tvoje starost. Ty rozhoduješ, co se opisuje.',
+  armarius_lore: 'Armarius přiděloval suroviny, dohlížel na kopírování. Od 10. stol. zpíval 8. responsorium a držel lucernu při opátově čtení.',
+  armarius_toast: 'Armarius – skriptorium je tvoje. Každý písař čeká na tvé slovo.',
+  armarius_requirement: 'Frater + 75 research',
+  
+  // ===== MONASTIC B5: PRIOR =====
+  prior_name: 'Prior',
+  prior_name_short: 'Prior',
+  prior_desc: 'Druhý v klášteře. Nejsi povýšen za body – jsi jmenován za zásluhy.',
+  prior_lore: 'Prior nebyl kariérní postup – byl jmenován nebo volen komunitou. Opat ho mohl kdykoliv odvolat.',
+  prior_toast: 'Prior – Opat tě jmenoval. Komunita tě přijala.',
+  prior_requirement: 'Armarius + nomination event',
+},
+
+    records: {
+  // Stats labels (with emoji included)
+  stats: '📊 Osobní záznamy',
+  items: '📦 Items',
+  discovered: '📖 Discovered',
+  crafts: '⚒️ Crafts',
+  harvests: '🌿 Sklizně',
+  researchGained: '📜 Research získáno',
+  tech: '👑 Tech',
+  gamesWon: '🎮 Hry vyhráno',
+  mealsEaten: '🍖 Jídel',
+  candlesLit: '🕯️ Svíčky',
+  well: '💧 Well',
+  streak: '🔥 Streak',
+  days: 'dní',
+  max: 'max',
+  booksRead: '📚 Knihy přečtené',
+  booksUnlocked: '📖 Knihy odemčené',
+  
+  // Backup section
+  backupTitle: '💾 Záloha Save',
+  backupDesc: 'Exportuj save jako zálohu nebo přenes na jiné zařízení.',
+  btnDownload: '📥 Stáhnout Save',
+  btnUpload: '📤 Nahrát Save',
+  backupNote: '💡 Před velkými experimenty doporučujeme stáhnout zálohu!<br>Pro reset hry jdi do Nastavení.'
+},
+    
+    games: {
+  // Header
+  title: '🎮 Mini-Games',
+  
+  // Memory Game
+  memoryName: 'Memory Game',
+  memoryDesc: 'Najdi páry discovered items!',
+  memoryCraft: 'Vyrobit playing_cards',
+  
+  // Royal Game of Ur
+  urName: 'Royal Game of Ur',
+  urDesc: 'Nejstarší hra světa (2600 př.n.l.)',
+  urTech: 'Tech: Starobylé Hry (6 Research)',
+  urCraft: 'Vyrobit ur_board',
+  urPlayVsAI: 'VS AI 🤖',
+  urPlaySolo: 'Solo 🧩',
+  
+  // Primero
+  primeroName: 'Primero',
+  primeroDesc: 'Předchůdce pokeru (1530)',
+  primeroTech: 'Tech: Primero (10 Research)',
+  primeroCraft: 'Vyrobit primero_deck',
+  
+  // Karnöffel
+  karnoffelName: 'Karnöffel',
+  karnoffelDesc: 'Nejstarší trumfová hra (1426)',
+  karnoffelTech: 'Tech: Karnöffel (12 Research)',
+  karnoffelCraft: 'Vyrobit karnoffel_deck',
+  
+  // FreeCell
+  freecellName: 'FreeCell Solitaire',
+  freecellDesc: 'Logická karetní hra',
+  freecellTech: 'Tech: Solitér Mistryně (15 Research)',
+  freecellCraft: 'Vyrobit french_deck',
+  
+  // Rithmomachia
+  rithmoName: 'Rithmomachia',
+  rithmoDesc: '"Šachy Filozofů" (1030)',
+  rithmoTech: 'Tech: Filozofická Matematika (20 Research)',
+  rithmoCraft: 'Vyrobit rithmomachia_board',
+  
+  // Common buttons
+  btnPlay: 'Hrát 🎮',
+  btnRules: '📖 Pravidla'
+},
 };
