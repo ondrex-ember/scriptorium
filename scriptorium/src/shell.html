@@ -1436,6 +1436,14 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             </div>
             
             <div class="card" style="flex-direction: column; align-items: flex-start;">
+                <strong data-i18n="settingsUI.fireVolume">🔥 Hlasitost krbu</strong>
+                <input type="range" id="fire-volume-slider" min="0" max="100" value="50" oninput="Game.setFireVolume(this.value)">
+                <div style="margin-top: 6px; font-size: 0.85rem; color: var(--ink-secondary);" data-i18n="settingsUI.fireVolumeDesc">
+                    Ovládá pouze zvuk hořícího krbu
+                </div>
+            </div>
+            
+            <div class="card" style="flex-direction: column; align-items: flex-start;">
                 <strong id="lang-selector-label">🗺️ Jazyk / Language</strong>
                 <select id="lang-selector" onchange="Game.setLanguage(this.value)" style="width:100%; padding:8px; margin-top:8px; font-family:'Crimson Text'; font-size:1rem; background:var(--bg-card); border:1px solid var(--border-color); color:var(--ink-primary); border-radius:3px;">
                     <option value="cs">🇨🇿 Česky</option>
@@ -1464,46 +1472,46 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             <!-- ═══════════════════════════════════════════════════════════ -->
             
             <div class="card" style="flex-direction: column; align-items: flex-start;">
-                <strong>🔔 <span data-i18n="hourChime.title">Zvuk hodinového zvonu</span></strong>
+                <strong>🔔 <span data-i18n="settingsUI.hourChime.title">Zvuk hodinového zvonu</span></strong>
                 
                 <!-- BASIC TOGGLE (vždy viditelné) -->
                 <div id="basic-chime-section" style="margin-top: 8px;">
                     <label style="display: flex; align-items: center; cursor: pointer;">
                         <input type="checkbox" id="hour-chime-basic" checked style="margin-right: 8px;">
-                        <span data-i18n="hourChime.basicEnabled">Zapnuto (základní zvuk)</span>
+                        <span data-i18n="settingsUI.hourChime.basicEnabled">Zapnuto (základní zvuk)</span>
                     </label>
                 </div>
                 
                 <!-- CANONICAL SETTINGS (zobrazí se po unlock tech_canonical_hours) -->
                 <div id="canonical-chime-section" style="display: none; margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border-color);">
                     <div style="margin-bottom: 8px;">
-                        <strong data-i18n="hourChime.mode">Mód:</strong>
+                        <strong data-i18n="settingsUI.hourChime.mode">Mód:</strong>
                     </div>
                     
                     <div style="margin-left: 12px; margin-bottom: 8px;">
                         <label style="display: flex; align-items: center; cursor: pointer;">
                             <input type="radio" name="chimeMode" value="auto" checked style="margin-right: 8px;">
-                            <span data-i18n="hourChime.modeAuto">Podle kanonických hodin</span>
+                            <span data-i18n="settingsUI.hourChime.modeAuto">Podle kanonických hodin</span>
                         </label>
                     </div>
                     
                     <div style="margin-left: 12px; margin-bottom: 8px;">
                         <label style="display: flex; align-items: center; cursor: pointer;">
                             <input type="radio" name="chimeMode" value="custom" style="margin-right: 8px;">
-                            <span data-i18n="hourChime.modeCustom">Vlastní výběr</span>
+                            <span data-i18n="settingsUI.hourChime.modeCustom">Vlastní výběr</span>
                         </label>
                     </div>
                     
                     <div style="margin-top: 12px;">
                         <label style="display: flex; align-items: center;">
-                            <span data-i18n="hourChime.sound" style="margin-right: 8px;">Zvuk:</span>
+                            <span data-i18n="settingsUI.hourChime.sound" style="margin-right: 8px;">Zvuk:</span>
                             <select id="chime-sound" style="flex: 1; padding: 6px 8px; font-family: 'Crimson Text'; font-size: 1rem; background: var(--bg-card); border: 1px solid var(--border-color); color: var(--ink-primary); border-radius: 3px;">
-                                <option value="cink" data-i18n="hourChime.cink">Cink (základní)</option>
-                                <option value="sanctus" data-i18n="hourChime.sanctus">Sanctus (vysoký)</option>
-                                <option value="avemaria" selected data-i18n="hourChime.avemaria">Ave Maria (střední)</option>
-                                <option value="compline" data-i18n="hourChime.compline">Compline (hluboký)</option>
-                                <option value="deathknell" data-i18n="hourChime.deathknell">Death Knell (temný)</option>
-                                <option value="off" data-i18n="hourChime.off">Vypnuto</option>
+                                <option value="cink" data-i18n="settingsUI.hourChime.cink">Cink (základní)</option>
+                                <option value="sanctus" data-i18n="settingsUI.hourChime.sanctus">Sanctus (vysoký)</option>
+                                <option value="avemaria" selected data-i18n="settingsUI.hourChime.avemaria">Ave Maria (střední)</option>
+                                <option value="compline" data-i18n="settingsUI.hourChime.compline">Compline (hluboký)</option>
+                                <option value="deathknell" data-i18n="settingsUI.hourChime.deathknell">Death Knell (temný)</option>
+                                <option value="off" data-i18n="settingsUI.hourChime.off">Vypnuto</option>
                             </select>
                         </label>
                     </div>
@@ -1511,18 +1519,18 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             </div>
             
             <div class="card" style="flex-direction: column; align-items: flex-start;">
-                <strong>🌙 <span data-i18n="hourChime.quietTitle">Noční klid</span></strong>
+                <strong>🌙 <span data-i18n="settingsUI.hourChime.quietTitle">Noční klid</span></strong>
                 
                 <div style="margin-top: 8px;">
                     <label style="display: flex; align-items: center; cursor: pointer;">
                         <input type="checkbox" id="quiet-hours-enabled" style="margin-right: 8px;">
-                        <span data-i18n="hourChime.quietEnabled">Zapnuto</span>
+                        <span data-i18n="settingsUI.hourChime.quietEnabled">Zapnuto</span>
                     </label>
                 </div>
                 
                 <div style="margin-top: 12px; display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
                     <label style="display: flex; align-items: center;">
-                        <span data-i18n="hourChime.quietFrom" style="margin-right: 8px;">Od:</span>
+                        <span data-i18n="settingsUI.hourChime.quietFrom" style="margin-right: 8px;">Od:</span>
                         <select id="quiet-hours-start" style="padding: 4px 8px; font-family: 'Crimson Text'; background: var(--bg-card); border: 1px solid var(--border-color); color: var(--ink-primary); border-radius: 3px;">
                             <option value="19">19:00</option>
                             <option value="20">20:00</option>
@@ -1535,7 +1543,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                     </label>
                     
                     <label style="display: flex; align-items: center;">
-                        <span data-i18n="hourChime.quietTo" style="margin-right: 8px;">Do:</span>
+                        <span data-i18n="settingsUI.hourChime.quietTo" style="margin-right: 8px;">Do:</span>
                         <select id="quiet-hours-end" style="padding: 4px 8px; font-family: 'Crimson Text'; background: var(--bg-card); border: 1px solid var(--border-color); color: var(--ink-primary); border-radius: 3px;">
                             <option value="4">04:00</option>
                             <option value="5">05:00</option>
@@ -1549,7 +1557,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                 </div>
                 
                 <div style="margin-top: 8px; font-size: 0.85rem; color: var(--ink-secondary);">
-                    <span data-i18n="hourChime.quietNote">Zvuky budou ztlumeny v této době</span>
+                    <span data-i18n="settingsUI.hourChime.quietNote">Zvuky budou ztlumeny v této době</span>
                 </div>
             </div>
             

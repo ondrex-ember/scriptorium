@@ -30,6 +30,11 @@ class AudioSystem {
         this.masterGain.gain.value = 0;
         this.masterGain.connect(this.audioContext.destination);
         
+        // Fire gain node (separate from master)
+        this.fireGain = this.audioContext.createGain();
+        this.fireGain.gain.value = 0.5;  // Default 50%
+        this.fireGain.connect(this.masterGain);
+        
         this.isPlaying = false;
         this.crackleInterval = null;
         
@@ -38,12 +43,16 @@ class AudioSystem {
                       ? GameState.settings.volume 
                       : 0.17;
         
+        // Fire volume z GameState
+        this.fireVolume = (typeof GameState !== 'undefined' && GameState.settings) 
+                          ? GameState.settings.fireVolume 
+                          : 0.5;
+        
         // Storage pro audio smyčky
         this.loops = {};
         
         // Backwards compatibility
         this.ctx = this.audioContext;
-        this.fireGain = null;
     }
     
     // ═══════════════════════════════════════════════════════════
@@ -81,13 +90,29 @@ class AudioSystem {
         }
     }
     
+    setFireVolume(volume) {
+        // volume = 0-1 (normalized)
+        this.fireVolume = volume;
+        
+        if (this.fireGain) {
+            this.fireGain.gain.setTargetAtTime(volume, this.audioContext.currentTime, 0.1);
+        }
+    }
+    
     startFireLoop(instant = false) {
         if (this.isPlaying) return;
         
         this.isPlaying = true;
-        this.fireGain = this.masterGain; // Backwards compatibility
         
-        // Fade in
+        // Fade in fire gain
+        this.fireGain.gain.cancelScheduledValues(this.audioContext.currentTime);
+        if (instant) {
+            this.fireGain.gain.setValueAtTime(this.fireVolume, this.audioContext.currentTime);
+        } else {
+            this.fireGain.gain.setTargetAtTime(this.fireVolume, this.audioContext.currentTime, 0.5);
+        }
+        
+        // Fade in master gain
         this.masterGain.gain.cancelScheduledValues(this.audioContext.currentTime);
         if (instant) {
             this.masterGain.gain.setValueAtTime(this.volume, this.audioContext.currentTime);
@@ -108,9 +133,9 @@ class AudioSystem {
         
         this.isPlaying = false;
         
-        // Fade out
-        this.masterGain.gain.cancelScheduledValues(this.audioContext.currentTime);
-        this.masterGain.gain.setTargetAtTime(0, this.audioContext.currentTime, 0.5);
+        // Fade out fire gain (not master - bells still need to play)
+        this.fireGain.gain.cancelScheduledValues(this.audioContext.currentTime);
+        this.fireGain.gain.setTargetAtTime(0, this.audioContext.currentTime, 0.5);
         
         // Zastavení smyček s malým zpožděním
         setTimeout(() => {
@@ -185,7 +210,7 @@ class AudioSystem {
         
         noise.connect(filter);
         filter.connect(gain);
-        gain.connect(this.masterGain);
+        gain.connect(this.fireGain);  // Fire sounds connect to fireGain
         noise.start(time);
     }
     
@@ -218,7 +243,7 @@ class AudioSystem {
         
         noise.connect(filter);
         filter.connect(gain);
-        gain.connect(this.masterGain);
+        gain.connect(this.fireGain);  // Fire sounds connect to fireGain
         noise.start(time);
     }
     
@@ -249,7 +274,7 @@ class AudioSystem {
         
         noise.connect(filter);
         filter.connect(gain);
-        gain.connect(this.masterGain);
+        gain.connect(this.fireGain);  // Fire sounds connect to fireGain
         noise.start();
         this.loops.rumble = noise;
     }
@@ -280,7 +305,7 @@ class AudioSystem {
         
         noise.connect(filter);
         filter.connect(gain);
-        gain.connect(this.masterGain);
+        gain.connect(this.fireGain);  // Fire sounds connect to fireGain
         noise.start();
         this.loops.hiss = noise;
     }

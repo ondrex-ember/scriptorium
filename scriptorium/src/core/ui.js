@@ -18,6 +18,12 @@ const UI = {
                 themeSelector.value = GameState.settings.theme || 'default';
             }
             
+            // Load fire volume slider
+            const fireVolumeSlider = document.getElementById('fire-volume-slider');
+            if (fireVolumeSlider) {
+                fireVolumeSlider.value = (GameState.settings.fireVolume || 0.5) * 100;
+            }
+            
             // Update hour chime settings visibility
             const canonicalUnlocked = GameState.researchedTechs.includes('tech_canonical_hours');
             const canonicalSection = document.getElementById('canonical-chime-section');

@@ -36,6 +36,8 @@ const STRINGS_cs = {
     },
     settingsUI: {
         volume: 'Hlasitost',
+        fireVolume: '🔥 Hlasitost krbu',
+        fireVolumeDesc: 'Ovládá pouze zvuk hořícího krbu',
         theme: '🎨 Téma',
         themeClassic: 'Klasické Pergamen',
         themeDark: 'Temný Mód 🌙',
@@ -57,7 +59,30 @@ const STRINGS_cs = {
         about: 'O hře',
         aboutDesc: 'Verze, changelog a credits',
         showBtn: 'Zobrazit',
-        footerMadeIn: 'Vyvíjeno s ❤️ v Novém Boru by Ondrex'
+        footerMadeIn: 'Vyvíjeno s ❤️ v Novém Boru by Ondrex',
+        hourChime: {
+        title: 'Zvuk hodinového zvonu',
+        basicEnabled: 'Zapnuto (základní zvuk)',
+        mode: 'Mód',
+        modeAuto: 'Podle kanonických hodin',
+        modeCustom: 'Vlastní výběr',
+        sound: 'Zvuk',
+        
+        // Bell names
+        cink: 'Cink (základní)',
+        sanctus: 'Sanctus (vysoký)',
+        avemaria: 'Ave Maria (střední)',
+        compline: 'Compline (hluboký)',
+        deathknell: 'Death Knell (temný)',
+        off: 'Vypnuto',
+        
+        // Quiet hours
+        quietTitle: 'Noční klid',
+        quietEnabled: 'Zapnuto',
+        quietFrom: 'Od',
+        quietTo: 'Do',
+        quietNote: 'Zvuky budou ztlumeny v této době'
+        }
     },
         craft: { filterAll:'Vše', filterMat:'Materiály', filterFood:'Jídlo', filterAlchemy:'Alchymie', filterLore:'Vědění', btn:'Výroba' },
         inv:   { filterAll:'Vše', filterMat:'Suroviny', filterTool:'Nástroje', filterLore:'Ostatní' },
@@ -413,27 +438,4 @@ garden: {
     ui: {
         close: 'Zavřít'
     },
-hourChime: {
-    title: 'Zvuk hodinového zvonu',
-    basicEnabled: 'Zapnuto (základní zvuk)',
-    mode: 'Mód',
-    modeAuto: 'Podle kanonických hodin',
-    modeCustom: 'Vlastní výběr',
-    sound: 'Zvuk',
-    
-    // Bell names
-    cink: 'Cink (základní)',
-    sanctus: 'Sanctus (vysoký)',
-    avemaria: 'Ave Maria (střední)',
-    compline: 'Compline (hluboký)',
-    deathknell: 'Death Knell (temný)',
-    off: 'Vypnuto',
-    
-    // Quiet hours
-    quietTitle: 'Noční klid',
-    quietEnabled: 'Zapnuto',
-    quietFrom: 'Od',
-    quietTo: 'Do',
-    quietNote: 'Zvuky budou ztlumeny v této době'
-}
 };

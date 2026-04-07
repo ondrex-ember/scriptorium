@@ -39,6 +39,8 @@ const STRINGS_en = {
     },
     settingsUI: {
         volume: 'Volume',
+        fireVolume: '🔥 Hearth Volume',
+        fireVolumeDesc: 'Controls only the sound of the burning hearth',
         theme: '🎨 Theme',
         themeClassic: 'Classic Parchment',
         themeDark: 'Dark Mode 🌙',
@@ -60,7 +62,30 @@ const STRINGS_en = {
         about: 'About',
         aboutDesc: 'Version, changelog and credits',
         showBtn: 'View',
-        footerMadeIn: 'Forged with ❤️ in Nový Bor by Ondrex'
+        footerMadeIn: 'Forged with ❤️ in Nový Bor by Ondrex',
+        hourChime: {
+        title: 'Hour Chime Sound',
+        basicEnabled: 'Enabled (basic sound)',
+        mode: 'Mode',
+        modeAuto: 'Follow canonical hours',
+        modeCustom: 'Custom selection',
+        sound: 'Sound',
+        
+        // Bell names
+        cink: 'Cink (basic)',
+        sanctus: 'Sanctus (high)',
+        avemaria: 'Ave Maria (medium)',
+        compline: 'Compline (deep)',
+        deathknell: 'Death Knell (dark)',
+        off: 'Disabled',
+        
+        // Quiet hours
+        quietTitle: 'Quiet Hours',
+        quietEnabled: 'Enabled',
+        quietFrom: 'From',
+        quietTo: 'To',
+        quietNote: 'Sounds will be muted during this time'
+        }
     },
         actions: {
             hunt:'Hunt', bark:'Cut', default:'Search',
@@ -780,29 +805,5 @@ garden: {
     ui: {
         close: 'Close'
     },
-    // V STRINGS_EN objekt, přidat novou sekci:
 
-hourChime: {
-    title: 'Hour Chime Sound',
-    basicEnabled: 'Enabled (basic sound)',
-    mode: 'Mode',
-    modeAuto: 'Follow canonical hours',
-    modeCustom: 'Custom selection',
-    sound: 'Sound',
-    
-    // Bell names
-    cink: 'Cink (basic)',
-    sanctus: 'Sanctus (high)',
-    avemaria: 'Ave Maria (medium)',
-    compline: 'Compline (deep)',
-    deathknell: 'Death Knell (dark)',
-    off: 'Disabled',
-    
-    // Quiet hours
-    quietTitle: 'Quiet Hours',
-    quietEnabled: 'Enabled',
-    quietFrom: 'From',
-    quietTo: 'To',
-    quietNote: 'Sounds will be muted during this time'
-}
 };

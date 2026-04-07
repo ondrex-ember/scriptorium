@@ -1436,6 +1436,14 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             </div>
             
             <div class="card" style="flex-direction: column; align-items: flex-start;">
+                <strong data-i18n="settingsUI.fireVolume">🔥 Hlasitost krbu</strong>
+                <input type="range" id="fire-volume-slider" min="0" max="100" value="50" oninput="Game.setFireVolume(this.value)">
+                <div style="margin-top: 6px; font-size: 0.85rem; color: var(--ink-secondary);" data-i18n="settingsUI.fireVolumeDesc">
+                    Ovládá pouze zvuk hořícího krbu
+                </div>
+            </div>
+            
+            <div class="card" style="flex-direction: column; align-items: flex-start;">
                 <strong id="lang-selector-label">🗺️ Jazyk / Language</strong>
                 <select id="lang-selector" onchange="Game.setLanguage(this.value)" style="width:100%; padding:8px; margin-top:8px; font-family:'Crimson Text'; font-size:1rem; background:var(--bg-card); border:1px solid var(--border-color); color:var(--ink-primary); border-radius:3px;">
                     <option value="cs">🇨🇿 Česky</option>
@@ -1464,46 +1472,46 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             <!-- ═══════════════════════════════════════════════════════════ -->
             
             <div class="card" style="flex-direction: column; align-items: flex-start;">
-                <strong>🔔 <span data-i18n="hourChime.title">Zvuk hodinového zvonu</span></strong>
+                <strong>🔔 <span data-i18n="settingsUI.hourChime.title">Zvuk hodinového zvonu</span></strong>
                 
                 <!-- BASIC TOGGLE (vždy viditelné) -->
                 <div id="basic-chime-section" style="margin-top: 8px;">
                     <label style="display: flex; align-items: center; cursor: pointer;">
                         <input type="checkbox" id="hour-chime-basic" checked style="margin-right: 8px;">
-                        <span data-i18n="hourChime.basicEnabled">Zapnuto (základní zvuk)</span>
+                        <span data-i18n="settingsUI.hourChime.basicEnabled">Zapnuto (základní zvuk)</span>
                     </label>
                 </div>
                 
                 <!-- CANONICAL SETTINGS (zobrazí se po unlock tech_canonical_hours) -->
                 <div id="canonical-chime-section" style="display: none; margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border-color);">
                     <div style="margin-bottom: 8px;">
-                        <strong data-i18n="hourChime.mode">Mód:</strong>
+                        <strong data-i18n="settingsUI.hourChime.mode">Mód:</strong>
                     </div>
                     
                     <div style="margin-left: 12px; margin-bottom: 8px;">
                         <label style="display: flex; align-items: center; cursor: pointer;">
                             <input type="radio" name="chimeMode" value="auto" checked style="margin-right: 8px;">
-                            <span data-i18n="hourChime.modeAuto">Podle kanonických hodin</span>
+                            <span data-i18n="settingsUI.hourChime.modeAuto">Podle kanonických hodin</span>
                         </label>
                     </div>
                     
                     <div style="margin-left: 12px; margin-bottom: 8px;">
                         <label style="display: flex; align-items: center; cursor: pointer;">
                             <input type="radio" name="chimeMode" value="custom" style="margin-right: 8px;">
-                            <span data-i18n="hourChime.modeCustom">Vlastní výběr</span>
+                            <span data-i18n="settingsUI.hourChime.modeCustom">Vlastní výběr</span>
                         </label>
                     </div>
                     
                     <div style="margin-top: 12px;">
                         <label style="display: flex; align-items: center;">
-                            <span data-i18n="hourChime.sound" style="margin-right: 8px;">Zvuk:</span>
+                            <span data-i18n="settingsUI.hourChime.sound" style="margin-right: 8px;">Zvuk:</span>
                             <select id="chime-sound" style="flex: 1; padding: 6px 8px; font-family: 'Crimson Text'; font-size: 1rem; background: var(--bg-card); border: 1px solid var(--border-color); color: var(--ink-primary); border-radius: 3px;">
-                                <option value="cink" data-i18n="hourChime.cink">Cink (základní)</option>
-                                <option value="sanctus" data-i18n="hourChime.sanctus">Sanctus (vysoký)</option>
-                                <option value="avemaria" selected data-i18n="hourChime.avemaria">Ave Maria (střední)</option>
-                                <option value="compline" data-i18n="hourChime.compline">Compline (hluboký)</option>
-                                <option value="deathknell" data-i18n="hourChime.deathknell">Death Knell (temný)</option>
-                                <option value="off" data-i18n="hourChime.off">Vypnuto</option>
+                                <option value="cink" data-i18n="settingsUI.hourChime.cink">Cink (základní)</option>
+                                <option value="sanctus" data-i18n="settingsUI.hourChime.sanctus">Sanctus (vysoký)</option>
+                                <option value="avemaria" selected data-i18n="settingsUI.hourChime.avemaria">Ave Maria (střední)</option>
+                                <option value="compline" data-i18n="settingsUI.hourChime.compline">Compline (hluboký)</option>
+                                <option value="deathknell" data-i18n="settingsUI.hourChime.deathknell">Death Knell (temný)</option>
+                                <option value="off" data-i18n="settingsUI.hourChime.off">Vypnuto</option>
                             </select>
                         </label>
                     </div>
@@ -1511,18 +1519,18 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             </div>
             
             <div class="card" style="flex-direction: column; align-items: flex-start;">
-                <strong>🌙 <span data-i18n="hourChime.quietTitle">Noční klid</span></strong>
+                <strong>🌙 <span data-i18n="settingsUI.hourChime.quietTitle">Noční klid</span></strong>
                 
                 <div style="margin-top: 8px;">
                     <label style="display: flex; align-items: center; cursor: pointer;">
                         <input type="checkbox" id="quiet-hours-enabled" style="margin-right: 8px;">
-                        <span data-i18n="hourChime.quietEnabled">Zapnuto</span>
+                        <span data-i18n="settingsUI.hourChime.quietEnabled">Zapnuto</span>
                     </label>
                 </div>
                 
                 <div style="margin-top: 12px; display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
                     <label style="display: flex; align-items: center;">
-                        <span data-i18n="hourChime.quietFrom" style="margin-right: 8px;">Od:</span>
+                        <span data-i18n="settingsUI.hourChime.quietFrom" style="margin-right: 8px;">Od:</span>
                         <select id="quiet-hours-start" style="padding: 4px 8px; font-family: 'Crimson Text'; background: var(--bg-card); border: 1px solid var(--border-color); color: var(--ink-primary); border-radius: 3px;">
                             <option value="19">19:00</option>
                             <option value="20">20:00</option>
@@ -1535,7 +1543,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                     </label>
                     
                     <label style="display: flex; align-items: center;">
-                        <span data-i18n="hourChime.quietTo" style="margin-right: 8px;">Do:</span>
+                        <span data-i18n="settingsUI.hourChime.quietTo" style="margin-right: 8px;">Do:</span>
                         <select id="quiet-hours-end" style="padding: 4px 8px; font-family: 'Crimson Text'; background: var(--bg-card); border: 1px solid var(--border-color); color: var(--ink-primary); border-radius: 3px;">
                             <option value="4">04:00</option>
                             <option value="5">05:00</option>
@@ -1549,7 +1557,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                 </div>
                 
                 <div style="margin-top: 8px; font-size: 0.85rem; color: var(--ink-secondary);">
-                    <span data-i18n="hourChime.quietNote">Zvuky budou ztlumeny v této době</span>
+                    <span data-i18n="settingsUI.hourChime.quietNote">Zvuky budou ztlumeny v této době</span>
                 </div>
             </div>
             
@@ -5966,9 +5974,104 @@ const CanonicalHours = {
         // Tooltip
         const desc = GameState.settings.language === 'en' ? hour.descEN : hour.desc;
         container.title = `${hourName} — ${desc}`;
+    },
+    
+    // ────────────────────────────────────────────────────────────────
+    // HOUR CHIME SYSTEM
+    // ────────────────────────────────────────────────────────────────
+    
+    /**
+     * Check if current time is within quiet hours
+     * @returns {boolean}
+     */
+    isQuietHours: function() {
+        if (!GameState.settings.quietHoursEnabled) return false;
+        
+        const currentHour = new Date().getHours();
+        const start = GameState.settings.quietHoursStart || 22;
+        const end = GameState.settings.quietHoursEnd || 6;
+        
+        // Handle overnight range (e.g., 22:00-06:00)
+        if (start > end) {
+            return currentHour >= start || currentHour < end;
+        } else {
+            return currentHour >= start && currentHour < end;
+        }
+    },
+    
+    /**
+     * Get bell type for a specific hour (auto mode)
+     * @param {number} hour - Hour of day (0-23)
+     * @returns {string} Bell type ID
+     */
+    getBellForHour: function(hour) {
+        const mapping = {
+            0: 'sanctus',       // Vigilie (midnight) - high bell
+            6: 'avemaria',      // Laudes (dawn) - triple bell
+            9: 'sanctus',       // Prima (morning) - high bell
+            12: 'avemaria',     // Sexta (midday) - triple bell
+            15: 'deathknell',   // Nona (3pm) - memento mori
+            18: 'avemaria',     // Vesperae (evening) - triple bell
+            21: 'compline'      // Completorium (night) - deep double bell
+        };
+        
+        return mapping[hour] || 'cink';  // Other hours default to basic cink
+    },
+    
+    /**
+     * Play hour chime sound (called from TimeSys.update() at XX:00:00)
+     * @param {number} hour - Current hour (0-23)
+     */
+    playHourChime: function(hour) {
+        // Check if audio system exists
+        if (typeof audioSys === 'undefined' || !audioSys) {
+            console.log('🔕 Audio system not initialized');
+            return;
+        }
+        
+        // Check quiet hours
+        if (this.isQuietHours()) {
+            console.log('🌙 Quiet hours active - chime suppressed');
+            return;
+        }
+        
+        // PRE-TECH: Basic cink only
+        if (!this.enabled) {
+            if (GameState.settings.hourChimeBasic !== false) {
+                audioSys.playCink();
+                console.log(`🔔 ${hour}:00 - Basic chime (cink)`);
+            }
+            return;
+        }
+        
+        // POST-TECH: Canonical bells
+        const mode = GameState.settings.hourChimeMode || 'auto';
+        const customSound = GameState.settings.hourChimeSound || 'avemaria';
+        
+        // Check if chimes are disabled
+        if (customSound === 'off') {
+            console.log('🔕 Hour chimes disabled');
+            return;
+        }
+        
+        // Determine which bell to play
+        let bellType;
+        if (mode === 'auto') {
+            bellType = this.getBellForHour(hour);
+        } else {
+            bellType = customSound;
+        }
+        
+        // Play the bell
+        if (bellType === 'cink') {
+            audioSys.playCink();
+        } else {
+            audioSys.playChurchBell(bellType);
+        }
+        
+        console.log(`🔔 ${hour}:00 - ${mode} mode: ${bellType}`);
     }
 };
-
 // ═══ src/systems/events.js ═══
 const EventsSystem = {
     events: [
@@ -6768,6 +6871,11 @@ class AudioSystem {
         this.masterGain.gain.value = 0;
         this.masterGain.connect(this.audioContext.destination);
         
+        // Fire gain node (separate from master)
+        this.fireGain = this.audioContext.createGain();
+        this.fireGain.gain.value = 0.5;  // Default 50%
+        this.fireGain.connect(this.masterGain);
+        
         this.isPlaying = false;
         this.crackleInterval = null;
         
@@ -6776,12 +6884,16 @@ class AudioSystem {
                       ? GameState.settings.volume 
                       : 0.17;
         
+        // Fire volume z GameState
+        this.fireVolume = (typeof GameState !== 'undefined' && GameState.settings) 
+                          ? GameState.settings.fireVolume 
+                          : 0.5;
+        
         // Storage pro audio smyčky
         this.loops = {};
         
         // Backwards compatibility
         this.ctx = this.audioContext;
-        this.fireGain = null;
     }
     
     // ═══════════════════════════════════════════════════════════
@@ -6819,13 +6931,29 @@ class AudioSystem {
         }
     }
     
+    setFireVolume(volume) {
+        // volume = 0-1 (normalized)
+        this.fireVolume = volume;
+        
+        if (this.fireGain) {
+            this.fireGain.gain.setTargetAtTime(volume, this.audioContext.currentTime, 0.1);
+        }
+    }
+    
     startFireLoop(instant = false) {
         if (this.isPlaying) return;
         
         this.isPlaying = true;
-        this.fireGain = this.masterGain; // Backwards compatibility
         
-        // Fade in
+        // Fade in fire gain
+        this.fireGain.gain.cancelScheduledValues(this.audioContext.currentTime);
+        if (instant) {
+            this.fireGain.gain.setValueAtTime(this.fireVolume, this.audioContext.currentTime);
+        } else {
+            this.fireGain.gain.setTargetAtTime(this.fireVolume, this.audioContext.currentTime, 0.5);
+        }
+        
+        // Fade in master gain
         this.masterGain.gain.cancelScheduledValues(this.audioContext.currentTime);
         if (instant) {
             this.masterGain.gain.setValueAtTime(this.volume, this.audioContext.currentTime);
@@ -6846,9 +6974,9 @@ class AudioSystem {
         
         this.isPlaying = false;
         
-        // Fade out
-        this.masterGain.gain.cancelScheduledValues(this.audioContext.currentTime);
-        this.masterGain.gain.setTargetAtTime(0, this.audioContext.currentTime, 0.5);
+        // Fade out fire gain (not master - bells still need to play)
+        this.fireGain.gain.cancelScheduledValues(this.audioContext.currentTime);
+        this.fireGain.gain.setTargetAtTime(0, this.audioContext.currentTime, 0.5);
         
         // Zastavení smyček s malým zpožděním
         setTimeout(() => {
@@ -6923,7 +7051,7 @@ class AudioSystem {
         
         noise.connect(filter);
         filter.connect(gain);
-        gain.connect(this.masterGain);
+        gain.connect(this.fireGain);  // Fire sounds connect to fireGain
         noise.start(time);
     }
     
@@ -6956,7 +7084,7 @@ class AudioSystem {
         
         noise.connect(filter);
         filter.connect(gain);
-        gain.connect(this.masterGain);
+        gain.connect(this.fireGain);  // Fire sounds connect to fireGain
         noise.start(time);
     }
     
@@ -6987,7 +7115,7 @@ class AudioSystem {
         
         noise.connect(filter);
         filter.connect(gain);
-        gain.connect(this.masterGain);
+        gain.connect(this.fireGain);  // Fire sounds connect to fireGain
         noise.start();
         this.loops.rumble = noise;
     }
@@ -7018,7 +7146,7 @@ class AudioSystem {
         
         noise.connect(filter);
         filter.connect(gain);
-        gain.connect(this.masterGain);
+        gain.connect(this.fireGain);  // Fire sounds connect to fireGain
         noise.start();
         this.loops.hiss = noise;
     }
@@ -9423,6 +9551,8 @@ const STRINGS_cs = {
     },
     settingsUI: {
         volume: 'Hlasitost',
+        fireVolume: '🔥 Hlasitost krbu',
+        fireVolumeDesc: 'Ovládá pouze zvuk hořícího krbu',
         theme: '🎨 Téma',
         themeClassic: 'Klasické Pergamen',
         themeDark: 'Temný Mód 🌙',
@@ -9444,7 +9574,30 @@ const STRINGS_cs = {
         about: 'O hře',
         aboutDesc: 'Verze, changelog a credits',
         showBtn: 'Zobrazit',
-        footerMadeIn: 'Vyvíjeno s ❤️ v Novém Boru by Ondrex'
+        footerMadeIn: 'Vyvíjeno s ❤️ v Novém Boru by Ondrex',
+        hourChime: {
+        title: 'Zvuk hodinového zvonu',
+        basicEnabled: 'Zapnuto (základní zvuk)',
+        mode: 'Mód',
+        modeAuto: 'Podle kanonických hodin',
+        modeCustom: 'Vlastní výběr',
+        sound: 'Zvuk',
+        
+        // Bell names
+        cink: 'Cink (základní)',
+        sanctus: 'Sanctus (vysoký)',
+        avemaria: 'Ave Maria (střední)',
+        compline: 'Compline (hluboký)',
+        deathknell: 'Death Knell (temný)',
+        off: 'Vypnuto',
+        
+        // Quiet hours
+        quietTitle: 'Noční klid',
+        quietEnabled: 'Zapnuto',
+        quietFrom: 'Od',
+        quietTo: 'Do',
+        quietNote: 'Zvuky budou ztlumeny v této době'
+        }
     },
         craft: { filterAll:'Vše', filterMat:'Materiály', filterFood:'Jídlo', filterAlchemy:'Alchymie', filterLore:'Vědění', btn:'Výroba' },
         inv:   { filterAll:'Vše', filterMat:'Suroviny', filterTool:'Nástroje', filterLore:'Ostatní' },
@@ -9843,6 +9996,8 @@ const STRINGS_en = {
     },
     settingsUI: {
         volume: 'Volume',
+        fireVolume: '🔥 Hearth Volume',
+        fireVolumeDesc: 'Controls only the sound of the burning hearth',
         theme: '🎨 Theme',
         themeClassic: 'Classic Parchment',
         themeDark: 'Dark Mode 🌙',
@@ -9864,7 +10019,30 @@ const STRINGS_en = {
         about: 'About',
         aboutDesc: 'Version, changelog and credits',
         showBtn: 'View',
-        footerMadeIn: 'Forged with ❤️ in Nový Bor by Ondrex'
+        footerMadeIn: 'Forged with ❤️ in Nový Bor by Ondrex',
+        hourChime: {
+        title: 'Hour Chime Sound',
+        basicEnabled: 'Enabled (basic sound)',
+        mode: 'Mode',
+        modeAuto: 'Follow canonical hours',
+        modeCustom: 'Custom selection',
+        sound: 'Sound',
+        
+        // Bell names
+        cink: 'Cink (basic)',
+        sanctus: 'Sanctus (high)',
+        avemaria: 'Ave Maria (medium)',
+        compline: 'Compline (deep)',
+        deathknell: 'Death Knell (dark)',
+        off: 'Disabled',
+        
+        // Quiet hours
+        quietTitle: 'Quiet Hours',
+        quietEnabled: 'Enabled',
+        quietFrom: 'From',
+        quietTo: 'To',
+        quietNote: 'Sounds will be muted during this time'
+        }
     },
         actions: {
             hunt:'Hunt', bark:'Cut', default:'Search',
@@ -10584,6 +10762,7 @@ garden: {
     ui: {
         close: 'Close'
     },
+
 };
 // ═══ src/i18n/strings.js ═══
 // Scriptorium i18n — STRINGS assembler + t() helper
@@ -10944,6 +11123,11 @@ const Game = {
         if(GameState.settings.autoTheme === undefined) {
             GameState.settings.autoTheme = false;
         }
+        
+        // Fire volume default (v7.9)
+        if(GameState.settings.fireVolume === undefined) {
+            GameState.settings.fireVolume = 0.5;  // 50% default
+        }
 
         // Language default + URL param detection (i18n)
         if(!GameState.settings.language) {
@@ -11160,6 +11344,12 @@ const Game = {
     
     resetSave: function() { if(confirm(t('game.confirmReset'))) { try { localStorage.removeItem('scriptorium_save_v6_4'); } 	catch(e){} location.reload(); } },
     setVolume: function(val) { if(audioSys) audioSys.setVolume(val); },
+    setFireVolume: function(val) { 
+        const volume = parseInt(val) / 100;
+        GameState.settings.fireVolume = volume;
+        if(audioSys) audioSys.setFireVolume(volume);
+        this.save();
+    },
     setTheme: function(themeName) {
         if(themeName === 'auto') {
             GameState.settings.autoTheme = true;
@@ -12165,6 +12355,12 @@ const UI = {
             const themeSelector = document.getElementById('theme-selector');
             if(themeSelector) {
                 themeSelector.value = GameState.settings.theme || 'default';
+            }
+            
+            // Load fire volume slider
+            const fireVolumeSlider = document.getElementById('fire-volume-slider');
+            if (fireVolumeSlider) {
+                fireVolumeSlider.value = (GameState.settings.fireVolume || 0.5) * 100;
             }
             
             // Update hour chime settings visibility

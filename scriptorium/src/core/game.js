@@ -219,6 +219,11 @@ const Game = {
         if(GameState.settings.autoTheme === undefined) {
             GameState.settings.autoTheme = false;
         }
+        
+        // Fire volume default (v7.9)
+        if(GameState.settings.fireVolume === undefined) {
+            GameState.settings.fireVolume = 0.5;  // 50% default
+        }
 
         // Language default + URL param detection (i18n)
         if(!GameState.settings.language) {
@@ -435,6 +440,12 @@ const Game = {
     
     resetSave: function() { if(confirm(t('game.confirmReset'))) { try { localStorage.removeItem('scriptorium_save_v6_4'); } 	catch(e){} location.reload(); } },
     setVolume: function(val) { if(audioSys) audioSys.setVolume(val); },
+    setFireVolume: function(val) { 
+        const volume = parseInt(val) / 100;
+        GameState.settings.fireVolume = volume;
+        if(audioSys) audioSys.setFireVolume(volume);
+        this.save();
+    },
     setTheme: function(themeName) {
         if(themeName === 'auto') {
             GameState.settings.autoTheme = true;
