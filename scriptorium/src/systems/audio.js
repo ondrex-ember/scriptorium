@@ -286,33 +286,88 @@ class AudioSystem {
     }
     
     // ═══════════════════════════════════════════════════════════
-    // FUTURE: Bell sound for Canonical Hours
+    // HOUR CHIME SYSTEM — Church bells
     // ═══════════════════════════════════════════════════════════
     
-    playBell(pitch = 440, duration = 2.0) {
-        // TODO: Church bell synthesis
-        // Komponenty: fundamental + overtones (harmonics)
-        // Attack: sharp, Decay: long (5-10s), Release: slow fade
+    playCink(volumeMultiplier = 1.0) {
+        // Jednoduchý "cink" — high-pitched bell tap
+        // Použití: Basic hour chime (před unlock canonical tech)
         
         const now = this.audioContext.currentTime;
+        const pitch = 1047; // C6
         
-        // Základní tón
         const osc = this.audioContext.createOscillator();
         osc.type = 'sine';
         osc.frequency.value = pitch;
         
         const gain = this.audioContext.createGain();
-        gain.gain.setValueAtTime(0.3, now);
-        gain.gain.exponentialRampToValueAtTime(0.01, now + duration);
+        const vol = 0.15 * volumeMultiplier * this.volume;
+        gain.gain.setValueAtTime(vol, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.5);
         
         osc.connect(gain);
         gain.connect(this.masterGain);
         
         osc.start(now);
-        osc.stop(now + duration);
+        osc.stop(now + 0.5);
+    }
+    
+    playChurchBell(type = 'avemaria', volumeMultiplier = 1.0) {
+        // Komplexní zvony s harmonics
+        // Použití: Po unlocku tech_canonical_hours
         
-        // TODO: Add overtones (partials at: 2.0×, 3.0×, 4.2×, 5.4× fundamental)
-        // TODO: Add slight beating (detune oscillators)
-        // TODO: Add reverb tail
+        const bells = {
+            cink:       { pitch: 1047, pattern: [0],           duration: 0.5, harmonics: [] },
+            sanctus:    { pitch: 330,  pattern: [0],           duration: 2.0, harmonics: [2.0, 3.0, 4.2] },
+            avemaria:   { pitch: 220,  pattern: [0, 0.3, 0.6], duration: 3.0, harmonics: [2.0, 3.0, 4.2, 5.4] },
+            compline:   { pitch: 147,  pattern: [0, 1.2],      duration: 5.0, harmonics: [2.0, 3.0, 4.2, 5.4, 6.8] },
+            deathknell: { pitch: 98,   pattern: [0],           duration: 8.0, harmonics: [2.0, 3.0, 4.2, 5.4, 6.8] }
+        };
+        
+        const bell = bells[type] || bells.avemaria;
+        
+        // Play each strike in pattern
+        bell.pattern.forEach(delay => {
+            this.playBellStrike(bell.pitch, bell.duration, bell.harmonics, delay, volumeMultiplier);
+        });
+    }
+    
+    playBellStrike(fundamental, duration, harmonics, delay, volumeMultiplier) {
+        const now = this.audioContext.currentTime + delay;
+        
+        // Create fundamental + harmonics
+        const partials = [1.0, ...harmonics];
+        
+        partials.forEach((ratio, index) => {
+            const freq = fundamental * ratio;
+            const amplitude = 1.0 / (index + 1); // Каждая гармоника тише
+            
+            // Main oscillator
+            const osc1 = this.audioContext.createOscillator();
+            osc1.type = 'sine';
+            osc1.frequency.value = freq;
+            
+            // Detuned oscillator for beating effect
+            const osc2 = this.audioContext.createOscillator();
+            osc2.type = 'sine';
+            osc2.frequency.value = freq + (Math.random() * 2 - 1); // ±1 Hz detune
+            
+            // Envelope
+            const gain = this.audioContext.createGain();
+            const vol = 0.2 * amplitude * volumeMultiplier * this.volume;
+            
+            gain.gain.setValueAtTime(0, now);
+            gain.gain.linearRampToValueAtTime(vol, now + 0.05); // Sharp attack
+            gain.gain.exponentialRampToValueAtTime(0.001, now + duration); // Long decay
+            
+            osc1.connect(gain);
+            osc2.connect(gain);
+            gain.connect(this.masterGain);
+            
+            osc1.start(now);
+            osc2.start(now);
+            osc1.stop(now + duration);
+            osc2.stop(now + duration);
+        });
     }
 }

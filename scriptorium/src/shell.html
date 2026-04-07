@@ -1459,6 +1459,104 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                 </div>
             </div>
             
+            <!-- ═══════════════════════════════════════════════════════════ -->
+            <!-- HOUR CHIME SETTINGS -->
+            <!-- ═══════════════════════════════════════════════════════════ -->
+            
+            <div class="card" style="flex-direction: column; align-items: flex-start;">
+                <strong>🔔 <span data-i18n="hourChime.title">Zvuk hodinového zvonu</span></strong>
+                
+                <!-- BASIC TOGGLE (vždy viditelné) -->
+                <div id="basic-chime-section" style="margin-top: 8px;">
+                    <label style="display: flex; align-items: center; cursor: pointer;">
+                        <input type="checkbox" id="hour-chime-basic" checked style="margin-right: 8px;">
+                        <span data-i18n="hourChime.basicEnabled">Zapnuto (základní zvuk)</span>
+                    </label>
+                </div>
+                
+                <!-- CANONICAL SETTINGS (zobrazí se po unlock tech_canonical_hours) -->
+                <div id="canonical-chime-section" style="display: none; margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border-color);">
+                    <div style="margin-bottom: 8px;">
+                        <strong data-i18n="hourChime.mode">Mód:</strong>
+                    </div>
+                    
+                    <div style="margin-left: 12px; margin-bottom: 8px;">
+                        <label style="display: flex; align-items: center; cursor: pointer;">
+                            <input type="radio" name="chimeMode" value="auto" checked style="margin-right: 8px;">
+                            <span data-i18n="hourChime.modeAuto">Podle kanonických hodin</span>
+                        </label>
+                    </div>
+                    
+                    <div style="margin-left: 12px; margin-bottom: 8px;">
+                        <label style="display: flex; align-items: center; cursor: pointer;">
+                            <input type="radio" name="chimeMode" value="custom" style="margin-right: 8px;">
+                            <span data-i18n="hourChime.modeCustom">Vlastní výběr</span>
+                        </label>
+                    </div>
+                    
+                    <div style="margin-top: 12px;">
+                        <label style="display: flex; align-items: center;">
+                            <span data-i18n="hourChime.sound" style="margin-right: 8px;">Zvuk:</span>
+                            <select id="chime-sound" style="flex: 1; padding: 6px 8px; font-family: 'Crimson Text'; font-size: 1rem; background: var(--bg-card); border: 1px solid var(--border-color); color: var(--ink-primary); border-radius: 3px;">
+                                <option value="cink" data-i18n="hourChime.cink">Cink (základní)</option>
+                                <option value="sanctus" data-i18n="hourChime.sanctus">Sanctus (vysoký)</option>
+                                <option value="avemaria" selected data-i18n="hourChime.avemaria">Ave Maria (střední)</option>
+                                <option value="compline" data-i18n="hourChime.compline">Compline (hluboký)</option>
+                                <option value="deathknell" data-i18n="hourChime.deathknell">Death Knell (temný)</option>
+                                <option value="off" data-i18n="hourChime.off">Vypnuto</option>
+                            </select>
+                        </label>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card" style="flex-direction: column; align-items: flex-start;">
+                <strong>🌙 <span data-i18n="hourChime.quietTitle">Noční klid</span></strong>
+                
+                <div style="margin-top: 8px;">
+                    <label style="display: flex; align-items: center; cursor: pointer;">
+                        <input type="checkbox" id="quiet-hours-enabled" style="margin-right: 8px;">
+                        <span data-i18n="hourChime.quietEnabled">Zapnuto</span>
+                    </label>
+                </div>
+                
+                <div style="margin-top: 12px; display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
+                    <label style="display: flex; align-items: center;">
+                        <span data-i18n="hourChime.quietFrom" style="margin-right: 8px;">Od:</span>
+                        <select id="quiet-hours-start" style="padding: 4px 8px; font-family: 'Crimson Text'; background: var(--bg-card); border: 1px solid var(--border-color); color: var(--ink-primary); border-radius: 3px;">
+                            <option value="19">19:00</option>
+                            <option value="20">20:00</option>
+                            <option value="21">21:00</option>
+                            <option value="22" selected>22:00</option>
+                            <option value="23">23:00</option>
+                            <option value="0">00:00</option>
+                            <option value="1">01:00</option>
+                        </select>
+                    </label>
+                    
+                    <label style="display: flex; align-items: center;">
+                        <span data-i18n="hourChime.quietTo" style="margin-right: 8px;">Do:</span>
+                        <select id="quiet-hours-end" style="padding: 4px 8px; font-family: 'Crimson Text'; background: var(--bg-card); border: 1px solid var(--border-color); color: var(--ink-primary); border-radius: 3px;">
+                            <option value="4">04:00</option>
+                            <option value="5">05:00</option>
+                            <option value="6" selected>06:00</option>
+                            <option value="7">07:00</option>
+                            <option value="8">08:00</option>
+                            <option value="9">09:00</option>
+                            <option value="10">10:00</option>
+                        </select>
+                    </label>
+                </div>
+                
+                <div style="margin-top: 8px; font-size: 0.85rem; color: var(--ink-secondary);">
+                    <span data-i18n="hourChime.quietNote">Zvuky budou ztlumeny v této době</span>
+                </div>
+            </div>
+            
+            <!-- ═══════════════════════════════════════════════════════════ -->
+            <!-- END HOUR CHIME SETTINGS -->
+            <!-- ═══════════════════════════════════════════════════════════ -->
+            
             <div class="card" style="border-color: #8a3324;">
                 <div class="item-icon" style="background: #8a3324; color: white;">⚠</div>
                 <div><strong data-i18n="settingsUI.reset">Reset</strong><div class="text-sm" data-i18n="settingsUI.resetDesc">Smaže postup (v6.4).</div></div>

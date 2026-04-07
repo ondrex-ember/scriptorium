@@ -277,6 +277,54 @@ const Game = {
         
         document.body.addEventListener('click', () => { if (!audioSys) { audioSys = new AudioSystem(); audioSys.start(); } }, { once: true });
         
+        // ========== NEW: Hour chime event listeners ==========
+        const hourChimeBasic = document.getElementById('hour-chime-basic');
+        if (hourChimeBasic) {
+            hourChimeBasic.addEventListener('change', (e) => {
+                GameState.settings.hourChimeBasic = e.target.checked;
+                Game.save();
+            });
+        }
+        
+        document.querySelectorAll('input[name="chimeMode"]').forEach(radio => {
+            radio.addEventListener('change', (e) => {
+                GameState.settings.hourChimeMode = e.target.value;
+                Game.save();
+            });
+        });
+        
+        const chimeSound = document.getElementById('chime-sound');
+        if (chimeSound) {
+            chimeSound.addEventListener('change', (e) => {
+                GameState.settings.hourChimeSound = e.target.value;
+                Game.save();
+            });
+        }
+        
+        const quietEnabled = document.getElementById('quiet-hours-enabled');
+        if (quietEnabled) {
+            quietEnabled.addEventListener('change', (e) => {
+                GameState.settings.quietHoursEnabled = e.target.checked;
+                Game.save();
+            });
+        }
+        
+        const quietStart = document.getElementById('quiet-hours-start');
+        if (quietStart) {
+            quietStart.addEventListener('change', (e) => {
+                GameState.settings.quietHoursStart = parseInt(e.target.value);
+                Game.save();
+            });
+        }
+        
+        const quietEnd = document.getElementById('quiet-hours-end');
+        if (quietEnd) {
+            quietEnd.addEventListener('change', (e) => {
+                GameState.settings.quietHoursEnd = parseInt(e.target.value);
+                Game.save();
+            });
+        }
+        
         // Time update with error protection
         setInterval(() => { 
             try {

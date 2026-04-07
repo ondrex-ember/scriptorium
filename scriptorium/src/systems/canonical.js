@@ -300,5 +300,101 @@ const CanonicalHours = {
         // Tooltip
         const desc = GameState.settings.language === 'en' ? hour.descEN : hour.desc;
         container.title = `${hourName} — ${desc}`;
+    },
+    
+    // ────────────────────────────────────────────────────────────────
+    // HOUR CHIME SYSTEM
+    // ────────────────────────────────────────────────────────────────
+    
+    /**
+     * Check if current time is within quiet hours
+     * @returns {boolean}
+     */
+    isQuietHours: function() {
+        if (!GameState.settings.quietHoursEnabled) return false;
+        
+        const currentHour = new Date().getHours();
+        const start = GameState.settings.quietHoursStart || 22;
+        const end = GameState.settings.quietHoursEnd || 6;
+        
+        // Handle overnight range (e.g., 22:00-06:00)
+        if (start > end) {
+            return currentHour >= start || currentHour < end;
+        } else {
+            return currentHour >= start && currentHour < end;
+        }
+    },
+    
+    /**
+     * Get bell type for a specific hour (auto mode)
+     * @param {number} hour - Hour of day (0-23)
+     * @returns {string} Bell type ID
+     */
+    getBellForHour: function(hour) {
+        const mapping = {
+            0: 'sanctus',       // Vigilie (midnight) - high bell
+            6: 'avemaria',      // Laudes (dawn) - triple bell
+            9: 'sanctus',       // Prima (morning) - high bell
+            12: 'avemaria',     // Sexta (midday) - triple bell
+            15: 'deathknell',   // Nona (3pm) - memento mori
+            18: 'avemaria',     // Vesperae (evening) - triple bell
+            21: 'compline'      // Completorium (night) - deep double bell
+        };
+        
+        return mapping[hour] || 'cink';  // Other hours default to basic cink
+    },
+    
+    /**
+     * Play hour chime sound (called from TimeSys.update() at XX:00:00)
+     * @param {number} hour - Current hour (0-23)
+     */
+    playHourChime: function(hour) {
+        // Check if audio system exists
+        if (typeof audioSys === 'undefined' || !audioSys) {
+            console.log('🔕 Audio system not initialized');
+            return;
+        }
+        
+        // Check quiet hours
+        if (this.isQuietHours()) {
+            console.log('🌙 Quiet hours active - chime suppressed');
+            return;
+        }
+        
+        // PRE-TECH: Basic cink only
+        if (!this.enabled) {
+            if (GameState.settings.hourChimeBasic !== false) {
+                audioSys.playCink();
+                console.log(`🔔 ${hour}:00 - Basic chime (cink)`);
+            }
+            return;
+        }
+        
+        // POST-TECH: Canonical bells
+        const mode = GameState.settings.hourChimeMode || 'auto';
+        const customSound = GameState.settings.hourChimeSound || 'avemaria';
+        
+        // Check if chimes are disabled
+        if (customSound === 'off') {
+            console.log('🔕 Hour chimes disabled');
+            return;
+        }
+        
+        // Determine which bell to play
+        let bellType;
+        if (mode === 'auto') {
+            bellType = this.getBellForHour(hour);
+        } else {
+            bellType = customSound;
+        }
+        
+        // Play the bell
+        if (bellType === 'cink') {
+            audioSys.playCink();
+        } else {
+            audioSys.playChurchBell(bellType);
+        }
+        
+        console.log(`🔔 ${hour}:00 - ${mode} mode: ${bellType}`);
     }
 };

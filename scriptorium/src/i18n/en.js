@@ -780,4 +780,29 @@ garden: {
     ui: {
         close: 'Close'
     },
+    // V STRINGS_EN objekt, přidat novou sekci:
+
+hourChime: {
+    title: 'Hour Chime Sound',
+    basicEnabled: 'Enabled (basic sound)',
+    mode: 'Mode',
+    modeAuto: 'Follow canonical hours',
+    modeCustom: 'Custom selection',
+    sound: 'Sound',
+    
+    // Bell names
+    cink: 'Cink (basic)',
+    sanctus: 'Sanctus (high)',
+    avemaria: 'Ave Maria (medium)',
+    compline: 'Compline (deep)',
+    deathknell: 'Death Knell (dark)',
+    off: 'Disabled',
+    
+    // Quiet hours
+    quietTitle: 'Quiet Hours',
+    quietEnabled: 'Enabled',
+    quietFrom: 'From',
+    quietTo: 'To',
+    quietNote: 'Sounds will be muted during this time'
+}
 };

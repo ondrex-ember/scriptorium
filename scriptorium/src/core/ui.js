@@ -17,6 +17,48 @@ const UI = {
             if(themeSelector) {
                 themeSelector.value = GameState.settings.theme || 'default';
             }
+            
+            // Update hour chime settings visibility
+            const canonicalUnlocked = GameState.researchedTechs.includes('tech_canonical_hours');
+            const canonicalSection = document.getElementById('canonical-chime-section');
+            const basicSection = document.getElementById('basic-chime-section');
+            
+            if (canonicalSection && basicSection) {
+                if (canonicalUnlocked) {
+                    canonicalSection.style.display = 'block';
+                    basicSection.style.display = 'none';
+                    
+                    // Set current values
+                    const mode = GameState.settings.hourChimeMode || 'auto';
+                    document.querySelector(`input[name="chimeMode"][value="${mode}"]`).checked = true;
+                    
+                    const sound = GameState.settings.hourChimeSound || 'avemaria';
+                    document.getElementById('chime-sound').value = sound;
+                } else {
+                    canonicalSection.style.display = 'none';
+                    basicSection.style.display = 'block';
+                    
+                    // Set basic checkbox
+                    const basicEnabled = GameState.settings.hourChimeBasic !== false;
+                    document.getElementById('hour-chime-basic').checked = basicEnabled;
+                }
+            }
+            
+            // Set quiet hours values
+            const quietEnabled = document.getElementById('quiet-hours-enabled');
+            if (quietEnabled) {
+                quietEnabled.checked = GameState.settings.quietHoursEnabled || false;
+            }
+            
+            const quietStart = document.getElementById('quiet-hours-start');
+            if (quietStart) {
+                quietStart.value = (GameState.settings.quietHoursStart || 22).toString();
+            }
+            
+            const quietEnd = document.getElementById('quiet-hours-end');
+            if (quietEnd) {
+                quietEnd.value = (GameState.settings.quietHoursEnd || 6).toString();
+            }
         }
     },
 	renderAll: function() { 

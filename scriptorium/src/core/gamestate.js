@@ -22,7 +22,17 @@ const GameState = {
         monasticStart: 0, canonicalStreak: 0, priorNomination: false,
         disciplines: [], rankHistory: []
     },
-    settings: { volume: 0.17, theme: 'default', autoTheme: false },
+    settings: { volume: 0.17, theme: 'default', autoTheme: false,
+    // NEW: Hour chime
+    hourChimeBasic: true,
+    hourChimeMode: 'auto',
+    hourChimeSound: 'avemaria',
+    
+    // NEW: Quiet hours
+    quietHoursEnabled: false,
+    quietHoursStart: 22,
+    quietHoursEnd: 6
+     },
     candleStart: 0, 
     hunger: { fed: true, lastMeal: Date.now(), duration: 24 * 60 * 60 * 1000 }, // 24h do hladu
     garden: [

@@ -413,4 +413,27 @@ garden: {
     ui: {
         close: 'Zavřít'
     },
+hourChime: {
+    title: 'Zvuk hodinového zvonu',
+    basicEnabled: 'Zapnuto (základní zvuk)',
+    mode: 'Mód',
+    modeAuto: 'Podle kanonických hodin',
+    modeCustom: 'Vlastní výběr',
+    sound: 'Zvuk',
+    
+    // Bell names
+    cink: 'Cink (základní)',
+    sanctus: 'Sanctus (vysoký)',
+    avemaria: 'Ave Maria (střední)',
+    compline: 'Compline (hluboký)',
+    deathknell: 'Death Knell (temný)',
+    off: 'Vypnuto',
+    
+    // Quiet hours
+    quietTitle: 'Noční klid',
+    quietEnabled: 'Zapnuto',
+    quietFrom: 'Od',
+    quietTo: 'Do',
+    quietNote: 'Zvuky budou ztlumeny v této době'
+}
 };

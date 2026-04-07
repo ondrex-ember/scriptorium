@@ -151,6 +151,15 @@ const TimeSys = {
             CanonicalHours.checkCurrentHour();
         }
         
+        // ========== NEW: Hour chime check ==========
+        const now = new Date();
+        const minutes = now.getMinutes();
+        const seconds = now.getSeconds();
+        
+        if (minutes === 0 && seconds === 0 && typeof CanonicalHours !== 'undefined') {
+            CanonicalHours.playHourChime(now.getHours());
+        }
+        
         if (typeof UI !== 'undefined' && typeof UI.renderActions === 'function') {
             UI.renderActions();
         }

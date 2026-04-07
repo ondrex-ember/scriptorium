@@ -1459,6 +1459,104 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                 </div>
             </div>
             
+            <!-- ═══════════════════════════════════════════════════════════ -->
+            <!-- HOUR CHIME SETTINGS -->
+            <!-- ═══════════════════════════════════════════════════════════ -->
+            
+            <div class="card" style="flex-direction: column; align-items: flex-start;">
+                <strong>🔔 <span data-i18n="hourChime.title">Zvuk hodinového zvonu</span></strong>
+                
+                <!-- BASIC TOGGLE (vždy viditelné) -->
+                <div id="basic-chime-section" style="margin-top: 8px;">
+                    <label style="display: flex; align-items: center; cursor: pointer;">
+                        <input type="checkbox" id="hour-chime-basic" checked style="margin-right: 8px;">
+                        <span data-i18n="hourChime.basicEnabled">Zapnuto (základní zvuk)</span>
+                    </label>
+                </div>
+                
+                <!-- CANONICAL SETTINGS (zobrazí se po unlock tech_canonical_hours) -->
+                <div id="canonical-chime-section" style="display: none; margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border-color);">
+                    <div style="margin-bottom: 8px;">
+                        <strong data-i18n="hourChime.mode">Mód:</strong>
+                    </div>
+                    
+                    <div style="margin-left: 12px; margin-bottom: 8px;">
+                        <label style="display: flex; align-items: center; cursor: pointer;">
+                            <input type="radio" name="chimeMode" value="auto" checked style="margin-right: 8px;">
+                            <span data-i18n="hourChime.modeAuto">Podle kanonických hodin</span>
+                        </label>
+                    </div>
+                    
+                    <div style="margin-left: 12px; margin-bottom: 8px;">
+                        <label style="display: flex; align-items: center; cursor: pointer;">
+                            <input type="radio" name="chimeMode" value="custom" style="margin-right: 8px;">
+                            <span data-i18n="hourChime.modeCustom">Vlastní výběr</span>
+                        </label>
+                    </div>
+                    
+                    <div style="margin-top: 12px;">
+                        <label style="display: flex; align-items: center;">
+                            <span data-i18n="hourChime.sound" style="margin-right: 8px;">Zvuk:</span>
+                            <select id="chime-sound" style="flex: 1; padding: 6px 8px; font-family: 'Crimson Text'; font-size: 1rem; background: var(--bg-card); border: 1px solid var(--border-color); color: var(--ink-primary); border-radius: 3px;">
+                                <option value="cink" data-i18n="hourChime.cink">Cink (základní)</option>
+                                <option value="sanctus" data-i18n="hourChime.sanctus">Sanctus (vysoký)</option>
+                                <option value="avemaria" selected data-i18n="hourChime.avemaria">Ave Maria (střední)</option>
+                                <option value="compline" data-i18n="hourChime.compline">Compline (hluboký)</option>
+                                <option value="deathknell" data-i18n="hourChime.deathknell">Death Knell (temný)</option>
+                                <option value="off" data-i18n="hourChime.off">Vypnuto</option>
+                            </select>
+                        </label>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card" style="flex-direction: column; align-items: flex-start;">
+                <strong>🌙 <span data-i18n="hourChime.quietTitle">Noční klid</span></strong>
+                
+                <div style="margin-top: 8px;">
+                    <label style="display: flex; align-items: center; cursor: pointer;">
+                        <input type="checkbox" id="quiet-hours-enabled" style="margin-right: 8px;">
+                        <span data-i18n="hourChime.quietEnabled">Zapnuto</span>
+                    </label>
+                </div>
+                
+                <div style="margin-top: 12px; display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
+                    <label style="display: flex; align-items: center;">
+                        <span data-i18n="hourChime.quietFrom" style="margin-right: 8px;">Od:</span>
+                        <select id="quiet-hours-start" style="padding: 4px 8px; font-family: 'Crimson Text'; background: var(--bg-card); border: 1px solid var(--border-color); color: var(--ink-primary); border-radius: 3px;">
+                            <option value="19">19:00</option>
+                            <option value="20">20:00</option>
+                            <option value="21">21:00</option>
+                            <option value="22" selected>22:00</option>
+                            <option value="23">23:00</option>
+                            <option value="0">00:00</option>
+                            <option value="1">01:00</option>
+                        </select>
+                    </label>
+                    
+                    <label style="display: flex; align-items: center;">
+                        <span data-i18n="hourChime.quietTo" style="margin-right: 8px;">Do:</span>
+                        <select id="quiet-hours-end" style="padding: 4px 8px; font-family: 'Crimson Text'; background: var(--bg-card); border: 1px solid var(--border-color); color: var(--ink-primary); border-radius: 3px;">
+                            <option value="4">04:00</option>
+                            <option value="5">05:00</option>
+                            <option value="6" selected>06:00</option>
+                            <option value="7">07:00</option>
+                            <option value="8">08:00</option>
+                            <option value="9">09:00</option>
+                            <option value="10">10:00</option>
+                        </select>
+                    </label>
+                </div>
+                
+                <div style="margin-top: 8px; font-size: 0.85rem; color: var(--ink-secondary);">
+                    <span data-i18n="hourChime.quietNote">Zvuky budou ztlumeny v této době</span>
+                </div>
+            </div>
+            
+            <!-- ═══════════════════════════════════════════════════════════ -->
+            <!-- END HOUR CHIME SETTINGS -->
+            <!-- ═══════════════════════════════════════════════════════════ -->
+            
             <div class="card" style="border-color: #8a3324;">
                 <div class="item-icon" style="background: #8a3324; color: white;">⚠</div>
                 <div><strong data-i18n="settingsUI.reset">Reset</strong><div class="text-sm" data-i18n="settingsUI.resetDesc">Smaže postup (v6.4).</div></div>
@@ -4491,7 +4589,17 @@ const GameState = {
         monasticStart: 0, canonicalStreak: 0, priorNomination: false,
         disciplines: [], rankHistory: []
     },
-    settings: { volume: 0.17, theme: 'default', autoTheme: false },
+    settings: { volume: 0.17, theme: 'default', autoTheme: false,
+    // NEW: Hour chime
+    hourChimeBasic: true,
+    hourChimeMode: 'auto',
+    hourChimeSound: 'avemaria',
+    
+    // NEW: Quiet hours
+    quietHoursEnabled: false,
+    quietHoursStart: 22,
+    quietHoursEnd: 6
+     },
     candleStart: 0, 
     hunger: { fed: true, lastMeal: Date.now(), duration: 24 * 60 * 60 * 1000 }, // 24h do hladu
     garden: [
@@ -5447,6 +5555,15 @@ const TimeSys = {
         // ========== NEW: Check canonical hours ==========
         if (typeof CanonicalHours !== 'undefined') {
             CanonicalHours.checkCurrentHour();
+        }
+        
+        // ========== NEW: Hour chime check ==========
+        const now = new Date();
+        const minutes = now.getMinutes();
+        const seconds = now.getSeconds();
+        
+        if (minutes === 0 && seconds === 0 && typeof CanonicalHours !== 'undefined') {
+            CanonicalHours.playHourChime(now.getHours());
         }
         
         if (typeof UI !== 'undefined' && typeof UI.renderActions === 'function') {
@@ -6907,37 +7024,91 @@ class AudioSystem {
     }
     
     // ═══════════════════════════════════════════════════════════
-    // FUTURE: Bell sound for Canonical Hours
+    // HOUR CHIME SYSTEM — Church bells
     // ═══════════════════════════════════════════════════════════
     
-    playBell(pitch = 440, duration = 2.0) {
-        // TODO: Church bell synthesis
-        // Komponenty: fundamental + overtones (harmonics)
-        // Attack: sharp, Decay: long (5-10s), Release: slow fade
+    playCink(volumeMultiplier = 1.0) {
+        // Jednoduchý "cink" — high-pitched bell tap
+        // Použití: Basic hour chime (před unlock canonical tech)
         
         const now = this.audioContext.currentTime;
+        const pitch = 1047; // C6
         
-        // Základní tón
         const osc = this.audioContext.createOscillator();
         osc.type = 'sine';
         osc.frequency.value = pitch;
         
         const gain = this.audioContext.createGain();
-        gain.gain.setValueAtTime(0.3, now);
-        gain.gain.exponentialRampToValueAtTime(0.01, now + duration);
+        const vol = 0.15 * volumeMultiplier * this.volume;
+        gain.gain.setValueAtTime(vol, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.5);
         
         osc.connect(gain);
         gain.connect(this.masterGain);
         
         osc.start(now);
-        osc.stop(now + duration);
+        osc.stop(now + 0.5);
+    }
+    
+    playChurchBell(type = 'avemaria', volumeMultiplier = 1.0) {
+        // Komplexní zvony s harmonics
+        // Použití: Po unlocku tech_canonical_hours
         
-        // TODO: Add overtones (partials at: 2.0×, 3.0×, 4.2×, 5.4× fundamental)
-        // TODO: Add slight beating (detune oscillators)
-        // TODO: Add reverb tail
+        const bells = {
+            cink:       { pitch: 1047, pattern: [0],           duration: 0.5, harmonics: [] },
+            sanctus:    { pitch: 330,  pattern: [0],           duration: 2.0, harmonics: [2.0, 3.0, 4.2] },
+            avemaria:   { pitch: 220,  pattern: [0, 0.3, 0.6], duration: 3.0, harmonics: [2.0, 3.0, 4.2, 5.4] },
+            compline:   { pitch: 147,  pattern: [0, 1.2],      duration: 5.0, harmonics: [2.0, 3.0, 4.2, 5.4, 6.8] },
+            deathknell: { pitch: 98,   pattern: [0],           duration: 8.0, harmonics: [2.0, 3.0, 4.2, 5.4, 6.8] }
+        };
+        
+        const bell = bells[type] || bells.avemaria;
+        
+        // Play each strike in pattern
+        bell.pattern.forEach(delay => {
+            this.playBellStrike(bell.pitch, bell.duration, bell.harmonics, delay, volumeMultiplier);
+        });
+    }
+    
+    playBellStrike(fundamental, duration, harmonics, delay, volumeMultiplier) {
+        const now = this.audioContext.currentTime + delay;
+        
+        // Create fundamental + harmonics
+        const partials = [1.0, ...harmonics];
+        
+        partials.forEach((ratio, index) => {
+            const freq = fundamental * ratio;
+            const amplitude = 1.0 / (index + 1); // Каждая гармоника тише
+            
+            // Main oscillator
+            const osc1 = this.audioContext.createOscillator();
+            osc1.type = 'sine';
+            osc1.frequency.value = freq;
+            
+            // Detuned oscillator for beating effect
+            const osc2 = this.audioContext.createOscillator();
+            osc2.type = 'sine';
+            osc2.frequency.value = freq + (Math.random() * 2 - 1); // ±1 Hz detune
+            
+            // Envelope
+            const gain = this.audioContext.createGain();
+            const vol = 0.2 * amplitude * volumeMultiplier * this.volume;
+            
+            gain.gain.setValueAtTime(0, now);
+            gain.gain.linearRampToValueAtTime(vol, now + 0.05); // Sharp attack
+            gain.gain.exponentialRampToValueAtTime(0.001, now + duration); // Long decay
+            
+            osc1.connect(gain);
+            osc2.connect(gain);
+            gain.connect(this.masterGain);
+            
+            osc1.start(now);
+            osc2.start(now);
+            osc1.stop(now + duration);
+            osc2.stop(now + duration);
+        });
     }
 }
-
 // ═══ src/games/memory.js ═══
 const MemoryGame = {
     gameActive: false,
@@ -10831,6 +11002,54 @@ const Game = {
         
         document.body.addEventListener('click', () => { if (!audioSys) { audioSys = new AudioSystem(); audioSys.start(); } }, { once: true });
         
+        // ========== NEW: Hour chime event listeners ==========
+        const hourChimeBasic = document.getElementById('hour-chime-basic');
+        if (hourChimeBasic) {
+            hourChimeBasic.addEventListener('change', (e) => {
+                GameState.settings.hourChimeBasic = e.target.checked;
+                Game.save();
+            });
+        }
+        
+        document.querySelectorAll('input[name="chimeMode"]').forEach(radio => {
+            radio.addEventListener('change', (e) => {
+                GameState.settings.hourChimeMode = e.target.value;
+                Game.save();
+            });
+        });
+        
+        const chimeSound = document.getElementById('chime-sound');
+        if (chimeSound) {
+            chimeSound.addEventListener('change', (e) => {
+                GameState.settings.hourChimeSound = e.target.value;
+                Game.save();
+            });
+        }
+        
+        const quietEnabled = document.getElementById('quiet-hours-enabled');
+        if (quietEnabled) {
+            quietEnabled.addEventListener('change', (e) => {
+                GameState.settings.quietHoursEnabled = e.target.checked;
+                Game.save();
+            });
+        }
+        
+        const quietStart = document.getElementById('quiet-hours-start');
+        if (quietStart) {
+            quietStart.addEventListener('change', (e) => {
+                GameState.settings.quietHoursStart = parseInt(e.target.value);
+                Game.save();
+            });
+        }
+        
+        const quietEnd = document.getElementById('quiet-hours-end');
+        if (quietEnd) {
+            quietEnd.addEventListener('change', (e) => {
+                GameState.settings.quietHoursEnd = parseInt(e.target.value);
+                Game.save();
+            });
+        }
+        
         // Time update with error protection
         setInterval(() => { 
             try {
@@ -11946,6 +12165,48 @@ const UI = {
             const themeSelector = document.getElementById('theme-selector');
             if(themeSelector) {
                 themeSelector.value = GameState.settings.theme || 'default';
+            }
+            
+            // Update hour chime settings visibility
+            const canonicalUnlocked = GameState.researchedTechs.includes('tech_canonical_hours');
+            const canonicalSection = document.getElementById('canonical-chime-section');
+            const basicSection = document.getElementById('basic-chime-section');
+            
+            if (canonicalSection && basicSection) {
+                if (canonicalUnlocked) {
+                    canonicalSection.style.display = 'block';
+                    basicSection.style.display = 'none';
+                    
+                    // Set current values
+                    const mode = GameState.settings.hourChimeMode || 'auto';
+                    document.querySelector(`input[name="chimeMode"][value="${mode}"]`).checked = true;
+                    
+                    const sound = GameState.settings.hourChimeSound || 'avemaria';
+                    document.getElementById('chime-sound').value = sound;
+                } else {
+                    canonicalSection.style.display = 'none';
+                    basicSection.style.display = 'block';
+                    
+                    // Set basic checkbox
+                    const basicEnabled = GameState.settings.hourChimeBasic !== false;
+                    document.getElementById('hour-chime-basic').checked = basicEnabled;
+                }
+            }
+            
+            // Set quiet hours values
+            const quietEnabled = document.getElementById('quiet-hours-enabled');
+            if (quietEnabled) {
+                quietEnabled.checked = GameState.settings.quietHoursEnabled || false;
+            }
+            
+            const quietStart = document.getElementById('quiet-hours-start');
+            if (quietStart) {
+                quietStart.value = (GameState.settings.quietHoursStart || 22).toString();
+            }
+            
+            const quietEnd = document.getElementById('quiet-hours-end');
+            if (quietEnd) {
+                quietEnd.value = (GameState.settings.quietHoursEnd || 6).toString();
             }
         }
     },
