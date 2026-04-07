@@ -11184,7 +11184,17 @@ const Game = {
             }
         }, 500);
         
-        document.body.addEventListener('click', () => { if (!audioSys) { audioSys = new AudioSystem(); audioSys.start(); } }, { once: true });
+        document.body.addEventListener('click', () => { 
+            if (!audioSys) { 
+                audioSys = new AudioSystem(); 
+                audioSys.start(); 
+            }
+            
+            // Auto-start fire if lit (after F5 refresh)
+            if (GameState.flags.fireplaceLit && !audioSys.isPlaying) {
+                audioSys.startFireLoop(true);
+            }
+        }, { once: true });
         
         // ========== NEW: Hour chime event listeners ==========
         const hourChimeBasic = document.getElementById('hour-chime-basic');
