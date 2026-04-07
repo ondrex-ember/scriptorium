@@ -227,7 +227,7 @@ const HeaderBG = {
     
     getWeather: function() {
         // Integrate with WeatherSystem (if available)
-        if (typeof WeatherSystem === 'undefined' || !WeatherSystem.cache.current) {
+        if (typeof WeatherSystem === 'undefined' || !WeatherSystem.cache || !WeatherSystem.cache.current) {
             return 'clear'; // Default when API not available
         }
         

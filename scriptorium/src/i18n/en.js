@@ -66,7 +66,8 @@ const STRINGS_en = {
             hunt:'Hunt', bark:'Cut', default:'Search',
             cancel:'CANCEL', claim:'COLLECT',
             quick:'Quick!', quickDesc:'Gather by hand',
-            done:'Done!', waiting:'Waiting...', remaining:'Remaining:'
+            done:'Done!', waiting:'Waiting...', remaining:'Remaining:',
+            instantly:'Instantly!'
         },
 	titivillus: [
         '👿 Titivillus hath visited. A note hath vanished.',
@@ -182,7 +183,9 @@ lore: {
         notes:'Notes:', 
         discovered:'Discovered:',
 	notebooks_empty: 'Thou hast no notebooks as yet',
-        notebooks_hint: 'Unlock the "Basics of Writing" tech (3 research) and craft thy first Tabula!' 
+        notebooks_hint: 'Unlock the "Basics of Writing" tech (3 research) and craft thy first Tabula!',
+        darkness: 'Darkness claimeth this place',
+        darkness_hint: 'Light a Torch or Candle in the Workshop.'
     },
     library: { 
         tabBooks:'📚 Books', 

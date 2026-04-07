@@ -58,7 +58,7 @@ self.addEventListener('fetch', event => {
       fetch(event.request)
         .catch(() => new Response('', {
           status: 503,
-          statusText: 'Offline – external resource unavailable'
+          statusText: 'Offline - external resource unavailable'
         }))
     );
     return;
