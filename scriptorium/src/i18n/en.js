@@ -770,4 +770,16 @@ garden: {
     ui: {
         close: 'Close'
     },
+    // Po "tidings" sekci přidej:
+
+    canonical: {
+        buff_crafting: 'Crafting +{percent}%',
+        buff_research: 'Research +{percent}%',
+        buff_foraging: 'Foraging +{percent}%',
+        buff_alchemy: 'Alchemy +{percent}%',
+        buff_garden: 'Garden check',
+        buff_quest: 'Daily quest',
+        buff_darkness: 'Darkness warning',
+        vesperae_warning: 'Darkness approaches. Light thy lamp!'
+    },
 };

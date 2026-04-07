@@ -403,4 +403,16 @@ garden: {
     ui: {
         close: 'Zavřít'
     },
+    // Po "tidings" sekci přidej:
+
+canonical: {
+    buff_crafting: 'Výroba +{percent}%',
+    buff_research: 'Výzkum +{percent}%',
+    buff_foraging: 'Sběr +{percent}%',
+    buff_alchemy: 'Alchymie +{percent}%',
+    buff_garden: 'Kontrola zahrady',
+    buff_quest: 'Denní úkol',
+    buff_darkness: 'Varování před tmou',
+    vesperae_warning: 'Blíží se tma. Zapal světlo!'
+},
 };
