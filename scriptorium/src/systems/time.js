@@ -146,6 +146,11 @@ const TimeSys = {
             HeaderBG.update();
         }
         
+        // ========== NEW: Check canonical hours ==========
+        if (typeof CanonicalHours !== 'undefined') {
+            CanonicalHours.checkCurrentHour();
+        }
+        
         if (typeof UI !== 'undefined' && typeof UI.renderActions === 'function') {
             UI.renderActions();
         }

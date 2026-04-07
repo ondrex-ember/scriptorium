@@ -5694,6 +5694,11 @@ const TimeSys = {
             HeaderBG.update();
         }
         
+        // ========== NEW: Check canonical hours ==========
+        if (typeof CanonicalHours !== 'undefined') {
+            CanonicalHours.checkCurrentHour();
+        }
+        
         if (typeof UI !== 'undefined' && typeof UI.renderActions === 'function') {
             UI.renderActions();
         }
@@ -11197,7 +11202,14 @@ const Game = {
                 else this.addItem('bark', 1);
             }
         } else {
-            const multiplier = durationMin === 1 ? 10 : (durationMin === 5 ? 50 : 100);
+            let multiplier = durationMin === 1 ? 10 : (durationMin === 5 ? 50 : 100);
+            
+            // ========== NEW: Apply canonical hours foraging buff ==========
+            if (typeof CanonicalHours !== 'undefined') {
+                const foragingMult = CanonicalHours.getForagingMultiplier();
+                multiplier = Math.floor(multiplier * foragingMult);
+            }
+            
             GameState.activeAction = { id: type, startTime: Date.now(), endTime: Date.now() + (durationMin * 60 * 1000), multiplier: multiplier };
             Game.save(); UI.renderActions();
         }
@@ -11305,13 +11317,26 @@ const Game = {
             if(amt === 0 && !GameState.inventory[item]) { UI.notify(`${t('game.required2')} ${iName(item)}`, true); return; }
         }
         for(let [item, amt] of Object.entries(r.req)) if(amt > 0) this.removeItem(item, amt);
-        this.addItem(r.output, r.qty);
+        
+        // ========== NEW: Apply canonical hours crafting buff ==========
+        let craftQty = r.qty;
+        if (typeof CanonicalHours !== 'undefined') {
+            const mult = CanonicalHours.getCraftingSpeedMultiplier();
+            if (mult > 1.0) {
+                // Laudes (+25%): chance to craft extra item
+                if (Math.random() < (mult - 1.0)) {
+                    craftQty += 1;
+                }
+            }
+        }
+        
+        this.addItem(r.output, craftQty);
         // Analytics – zaznamenej craft
         const craftedItem = ItemsDB[r.output];
         if (craftedItem) Analytics.itemCrafted(r.output, craftedItem.name, craftedItem.type);
         // Speciálně pro research
         if (r.output === 'research') {
-            Analytics.researchCrafted((GameState.inventory['research'] || 0) + r.qty);
+            Analytics.researchCrafted((GameState.inventory['research'] || 0) + craftQty);
         }
 
         // 👿 TITIVILLUS – démon překlepů
@@ -11455,6 +11480,12 @@ const Game = {
         }
         
         // Grant bonus
+        // ========== NEW: Apply canonical hours research buff ==========
+        if (typeof CanonicalHours !== 'undefined') {
+            const researchMult = CanonicalHours.getResearchMultiplier();
+            bonus = Math.floor(bonus * researchMult);
+        }
+        
         this.addItem('research', bonus);
         GameState.dailyRewards.lastBonusClaimed = now;
         
