@@ -122,26 +122,66 @@ const PersonaSystem = {
     
     const img = new Image();
     img.onload = () => {
-      // Draw centered and cropped
+      // 1. Draw centered and cropped
       const size = Math.min(img.width, img.height);
       const x = (img.width - size) / 2;
       const y = (img.height - size) / 2;
       ctx.drawImage(img, x, y, size, size, 0, 0, 128, 128);
       
-      // Apply medieval manuscript filters
-      ctx.filter = 'contrast(1.3) saturate(0.7) sepia(0.2)';
-      ctx.drawImage(canvas, 0, 0);
+      // 2. Get pixel data
+      const imageData = ctx.getImageData(0, 0, 128, 128);
+      const data = imageData.data;
       
-      // Add parchment border
-      ctx.filter = 'none';
-      ctx.strokeStyle = 'rgba(139, 69, 19, 0.8)';
-      ctx.lineWidth = 6;
+      // Woodcut palette: parchment bg + dark ink
+      const PARCHMENT_R = 235, PARCHMENT_G = 215, PARCHMENT_B = 175;
+      const INK_R = 28, INK_G = 18, INK_B = 10;
+      
+      for (let i = 0; i < data.length; i += 4) {
+        // Convert to grayscale (luminance)
+        const lum = 0.299 * data[i] + 0.587 * data[i+1] + 0.114 * data[i+2];
+        
+        // Add grain noise
+        const noise = (Math.random() - 0.5) * 40;
+        const val = lum + noise;
+        
+        // Threshold — high contrast woodcut
+        const threshold = 128;
+        if (val > threshold) {
+          // Light area → parchment
+          data[i]   = PARCHMENT_R;
+          data[i+1] = PARCHMENT_G;
+          data[i+2] = PARCHMENT_B;
+        } else {
+          // Dark area → ink (with slight variation for wood texture)
+          const grain = Math.floor(Math.random() * 15);
+          data[i]   = INK_R + grain;
+          data[i+1] = INK_G + grain;
+          data[i+2] = INK_B + grain;
+        }
+        data[i+3] = 255; // full opacity
+      }
+      
+      ctx.putImageData(imageData, 0, 0);
+      
+      // 3. Aged parchment overlay
+      ctx.fillStyle = 'rgba(139, 90, 30, 0.08)';
+      ctx.fillRect(0, 0, 128, 128);
+      
+      // 4. Heavy border — dřevěný rám
+      ctx.strokeStyle = 'rgba(60, 30, 10, 0.95)';
+      ctx.lineWidth = 8;
       ctx.strokeRect(0, 0, 128, 128);
       
-      // Inner gold line
-      ctx.strokeStyle = 'rgba(197, 160, 89, 0.6)';
+      // 5. Inner decorative line
+      ctx.strokeStyle = 'rgba(139, 90, 30, 0.7)';
       ctx.lineWidth = 2;
-      ctx.strokeRect(6, 6, 116, 116);
+      ctx.strokeRect(10, 10, 108, 108);
+      
+      // 6. Corner marks (charakteristické pro středověké dřevoryty)
+      ctx.fillStyle = 'rgba(60, 30, 10, 0.9)';
+      [[0,0],[118,0],[0,118],[118,118]].forEach(([cx, cy]) => {
+        ctx.fillRect(cx, cy, 10, 10);
+      });
       
       // Save
       GameState.character.portrait = canvas.toDataURL('image/png');

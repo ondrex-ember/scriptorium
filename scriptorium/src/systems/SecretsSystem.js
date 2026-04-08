@@ -127,6 +127,89 @@ const SecretsSystem = {
   },
   
   // ═══════════════════════════════════════════════════════════════════════════
+  // ═══════════════════════════════════════════════════════════════════════════
+  // SCRINIUM SCREEN (Tab content with password gate)
+  // ═══════════════════════════════════════════════════════════════════════════
+  
+  renderScriniumScreen: function(elementId) {
+    const el = document.getElementById(elementId || 'scrinium-content');
+    if (!el) return;
+    
+    if (GameState.secrets && GameState.secrets.forbiddenUnlocked) {
+      el.innerHTML = this.renderScriniumTab();
+      return;
+    }
+    
+    el.innerHTML = `
+      <div style="padding: 40px; text-align: center;">
+        <h2 style="margin-bottom: 10px;">📕 Scrinium Abbatis</h2>
+        <p style="font-style: italic; opacity: 0.7; margin-bottom: 30px;">(Abbot's Private Library)</p>
+        <div style="max-width: 400px; margin: 0 auto; padding: 40px; background: rgba(0,0,0,0.03); border-radius: 10px; border: 2px dashed rgba(0,0,0,0.2);">
+          <div style="font-size: 3rem; margin-bottom: 20px; opacity: 0.3;">🔒</div>
+          <p style="font-style: italic; line-height: 1.6; margin-bottom: 25px;">
+            "Nondum tempus tuum venit, frater."<br>
+            <span style="font-size: 0.85rem; opacity: 0.7;">Thy time hath not yet come, brother.</span>
+          </p>
+          <p style="font-size: 0.85rem; opacity: 0.7; margin-bottom: 20px;">Tato místnost se odemkne v příští fázi hry.</p>
+          <div style="display: flex; gap: 8px; justify-content: center;">
+            <input type="password" id="scrinium-pw" placeholder="Heslo..."
+                   style="padding: 8px 12px; border: 1px solid rgba(0,0,0,0.2); border-radius: 3px; font-family: 'Crimson Text'; font-size: 1rem; background: var(--bg-card); color: var(--ink-primary);"
+                   onkeydown="if(event.key==='Enter') SecretsSystem.tryPassword('scrinium', '${elementId || 'scrinium-content'}')">
+            <button onclick="SecretsSystem.tryPassword('scrinium', '${elementId || 'scrinium-content'}')" class="craft-btn">🔓</button>
+          </div>
+        </div>
+      </div>
+    `;
+  },
+
+  renderAthanorScreen: function(elementId) {
+    const el = document.getElementById(elementId || 'home-athanor-content');
+    if (!el) return;
+    
+    if (GameState.secrets && GameState.secrets.laboratoryUnlocked) {
+      el.innerHTML = this.renderAthanorTab();
+      return;
+    }
+    
+    el.innerHTML = `
+      <div style="padding: 40px; text-align: center;">
+        <h2 style="margin-bottom: 10px;">🔬 Athanor Secretus</h2>
+        <p style="font-style: italic; opacity: 0.7; margin-bottom: 30px;">(Secret Laboratory)</p>
+        <div style="max-width: 400px; margin: 0 auto; padding: 40px; background: rgba(0,0,0,0.03); border-radius: 10px; border: 2px dashed rgba(0,0,0,0.2);">
+          <div style="font-size: 3rem; margin-bottom: 20px; opacity: 0.3;">🧪</div>
+          <p style="font-style: italic; line-height: 1.6; margin-bottom: 25px;">
+            "Ignis latet in cinere, frater."<br>
+            <span style="font-size: 0.85rem; opacity: 0.7;">Fire hides in the ashes, brother.</span>
+          </p>
+          <p style="font-size: 0.85rem; opacity: 0.7; margin-bottom: 20px;">Tato laboratoř se odemkne v příští fázi hry.</p>
+          <div style="display: flex; gap: 8px; justify-content: center;">
+            <input type="password" id="athanor-pw" placeholder="Heslo..."
+                   style="padding: 8px 12px; border: 1px solid rgba(0,0,0,0.2); border-radius: 3px; font-family: 'Crimson Text'; font-size: 1rem; background: var(--bg-card); color: var(--ink-primary);"
+                   onkeydown="if(event.key==='Enter') SecretsSystem.tryPassword('athanor', '${elementId || 'home-athanor-content'}')">
+            <button onclick="SecretsSystem.tryPassword('athanor', '${elementId || 'home-athanor-content'}')" class="craft-btn">🔓</button>
+          </div>
+        </div>
+      </div>
+    `;
+  },
+
+  tryPassword: function(type, elementId) {
+    const inputId = type === 'scrinium' ? 'scrinium-pw' : 'athanor-pw';
+    const input = document.getElementById(inputId);
+    if (!input) return;
+    if (input.value === (GameState.secrets.devPassword || 'exordium')) {
+      GameState.secrets.forbiddenUnlocked = true;
+      GameState.secrets.laboratoryUnlocked = true;
+      Game.save();
+      if (typeof UI !== 'undefined') UI.notify('🔓 Omnes ianuae apertae sunt!');
+      if (type === 'scrinium') this.renderScriniumScreen(elementId);
+      else this.renderAthanorScreen(elementId);
+    } else {
+      if (typeof UI !== 'undefined') UI.notify('❌ Heslo není správné.', true);
+      input.value = '';
+    }
+  },
+
   // DEV BUTTON (Hidden in Settings)
   // ═══════════════════════════════════════════════════════════════════════════
   

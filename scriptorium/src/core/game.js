@@ -266,6 +266,7 @@ const Game = {
         // Initialize rank system
         RankSystem.init();
         VigorSystem.init();
+        VigorSystem.renderMiniDisplay();
         CellariumSystem.init();
         PersonaSystem.init();
         SecretsSystem.init();

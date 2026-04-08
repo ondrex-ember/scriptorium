@@ -74,7 +74,8 @@ const UI = {
 		this.renderGarden(); 
 		this.renderActions(); 
 		this.updateStreak(); 
-		this.renderWell(); 
+		this.renderWell();
+		this.renderRecords();
 	},
 		
 renderActions: function() {
@@ -366,7 +367,7 @@ renderActions: function() {
 
 	switchLibraryTab: function(tab, btn) {
 		// Hide all library tabs
-		const tabs = ['books', 'records', 'iching', 'news'];
+		const tabs = ['books', 'records', 'iching', 'news', 'scrinium'];
 		tabs.forEach(t => {
 			const el = document.getElementById('library-' + t + '-content');
 			if (el) el.style.display = 'none';
@@ -390,7 +391,18 @@ renderActions: function() {
 		} else if (tab === 'news') {
 			const el = document.getElementById('library-news-content');
 			if (el) { el.style.display = 'block'; UI.renderLibraryNews(); }
+		} else if (tab === 'scrinium') {
+			const el = document.getElementById('library-scrinium-content');
+			if (el) { el.style.display = 'block'; SecretsSystem.renderScriniumScreen('library-scrinium-content'); }
 		}
+	},
+
+	switchHomeTab: function(tab, btn) {
+		document.getElementById('home-main-content').style.display = tab === 'main' ? 'block' : 'none';
+		document.getElementById('home-athanor-content').style.display = tab === 'athanor' ? 'block' : 'none';
+		document.querySelectorAll('#screen-home .filter-btn').forEach(b => b.classList.remove('active'));
+		if (btn) btn.classList.add('active');
+		if (tab === 'athanor') SecretsSystem.renderAthanorScreen('home-athanor-content');
 	},
 
 	renderLibraryNews: function() {
@@ -948,6 +960,10 @@ renderRecords: function() {
     
     h += `</div>`;
     
+    // ========== PERSONA + VIGOR ==========
+    if (typeof PersonaSystem !== 'undefined') h += PersonaSystem.renderPersonaSection();
+    if (typeof VigorSystem !== 'undefined') h += VigorSystem.renderFullDisplay();
+
     // ========== PERSONAL STATISTICS ==========
     h += `<h2 style="margin-top: 20px; margin-bottom: 20px; color: var(--ink-primary);">${t('records.stats')}</h2>`;
     h += `<div class="card" style="flex-direction:column; align-items:stretch;">`;

@@ -91,7 +91,8 @@ const STRINGS_cs = {
             hunt:'Lovit', bark:'Řezat', default:'Hledat',
             cancel:'ZRUŠIT', claim:'VYZVEDNOUT',
             quick:'Rychle!', quickDesc:'Ruční sběr',
-            done:'Hotovo!', waiting:'Čekám...', remaining:'Zbývá:'
+            done:'Hotovo!', waiting:'Čekám...', remaining:'Zbývá:',
+            instantly:'Ihned!'
         },
 	titivillus: [
  	   '👿 Titivillus byl zde. Zápisek zmizel.',
