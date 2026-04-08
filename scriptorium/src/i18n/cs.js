@@ -166,7 +166,7 @@ const STRINGS_cs = {
             policyBody:'• Herní postup (odemčené technologie, achievementy)\n• Délka session a opakované návštěvy\n• Které části hry se nejvíce používají\n\nCo NEMĚŘÍME:\n• Žádné osobní údaje\n• IP adresy jsou anonymizovány\n• Data nejdou třetím stranám kromě Google Analytics\n\nSouhlas lze kdykoliv odvolat smazáním localStorage klíče "scriptorium_consent".'
         },
         welcome: {
-            text:'Nalezl jsi opuštěnou pracovnu.<br><br>Na stole leží vyhaslý troud, kousek křemene a pár listů pergamenu pokrytých prachem. Za oknem je slyšet rytmické klepání – někdo v sousední ulici provozuje nový stroj. Říkají mu <em>tiskařský lis</em>.<br><br>Ale to je venku. Tady uvnitř je tma a zima.<br><br><strong>Začni s tím, co máš.</strong>',
+            text:'Nalezl jsi opuštěnou pracovnu.<br><br>Na stole leží vyhaslý troud, kousek křemene a pár listů pergamenu pokrytých prachem. Za oknem je slyšet rytmické klepání – někdo v sousední ulici provozuje nový stroj. Říkají mu <em>tiskařský lis</em>.<br><br>Ale to je venku. Tady uvnitř je tma a zima. Tak rozežehni oheň v krbu a rozhlédni se po dílně.<br><br><strong>Začni s tím, co máš.</strong>',
             btn:'Vstoupit →',
             aboutLink:'O hře & Credits →'
         },
