@@ -259,17 +259,18 @@ const Game = {
         // v7.5: Initialize Canonical Hours system
         CanonicalHours.init();
         
-        // NOW render UI (after theme is set)
-        UI.renderAll(); 
-        Game.checkEnvironment(); 
-        
-        // Initialize rank system
+        // v8.0: Initialize new systems BEFORE renderAll (GameState must be ready)
         RankSystem.init();
         VigorSystem.init();
-        VigorSystem.renderMiniDisplay();
         CellariumSystem.init();
         PersonaSystem.init();
         SecretsSystem.init();
+        
+        // NOW render UI (after theme is set and all systems initialized)
+        UI.renderAll(); 
+        Game.checkEnvironment();
+        
+        VigorSystem.renderMiniDisplay();
 
         // Consent banner – musí být až po načtení UI
         ConsentManager.init();
