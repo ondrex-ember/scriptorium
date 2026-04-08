@@ -113,20 +113,19 @@ const VigorSystem = {
     if (!el) return;
     
     const pct = this.getPercentage();
-    const totalDrops = 5; // Mini: only 5 drops
-    const filledDrops = Math.ceil((pct / 100) * totalDrops);
     
-    let drops = '';
-    for (let i = 0; i < totalDrops; i++) {
-      drops += (i < filledDrops) ? '●' : '○';
-    }
+    let symbol, color;
+    if (pct > 80)      { symbol = '◉'; color = 'var(--ink-primary)'; }
+    else if (pct > 60) { symbol = '◎'; color = 'var(--ink-secondary)'; }
+    else if (pct > 40) { symbol = '○'; color = 'var(--ink-secondary)'; }
+    else if (pct > 20) { symbol = '◌'; color = 'var(--accent-wax)'; }
+    else               { symbol = '·'; color = '#8a3324'; }
     
     el.innerHTML = `
-      <div style="display: flex; align-items: center; gap: 4px; cursor: help;" 
-           title="Vigor: ${pct}%">
-        <span>🖋️</span>
-        <span style="font-size: 0.7rem; opacity: 0.8; letter-spacing: 1px;">${drops}</span>
-      </div>
+      <span title="Vigor: ${pct}%" 
+            style="font-size: 0.85rem; color: ${color}; cursor: help; line-height: 1;">
+        🖋️${symbol}
+      </span>
     `;
   },
   
