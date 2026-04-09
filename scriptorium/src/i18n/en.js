@@ -216,7 +216,8 @@ lore: {
     },
     library: { 
         tabBooks:'📚 Books', 
-        tabRecords:'🏆 Games & Records', 
+        tabRecords:'🏅 Records', 
+        tabGames:'🎲 Aula Ludi',
         tabIching:'☯️ Divination', 
         tabNews:'📜 Tidings',
 	    locked: 'Locked',

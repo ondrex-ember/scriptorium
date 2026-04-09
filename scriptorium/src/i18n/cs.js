@@ -214,7 +214,8 @@ lore: {
     },
     library: { 
         tabBooks:'📚 Knihy', 
-        tabRecords:'🏆 Hry & Záznamy', 
+        tabRecords:'🏅 Záznamy', 
+        tabGames:'🎲 Aula Ludi',
         tabIching:'☯️ Věštění', 
         tabNews:'📜 Zprávy',
 	    locked: 'Zamčeno',

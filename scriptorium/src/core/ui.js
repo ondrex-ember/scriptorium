@@ -76,6 +76,7 @@ const UI = {
 		this.updateStreak(); 
 		this.renderWell();
 		this.renderRecords();
+		this.renderGamesTab();
 	},
 		
 renderActions: function() {
@@ -367,7 +368,7 @@ renderActions: function() {
 
 	switchLibraryTab: function(tab, btn) {
 		// Hide all library tabs
-		const tabs = ['books', 'records', 'iching', 'news', 'scrinium'];
+		const tabs = ['books', 'records', 'games', 'iching', 'news', 'scrinium'];
 		tabs.forEach(t => {
 			const el = document.getElementById('library-' + t + '-content');
 			if (el) el.style.display = 'none';
@@ -385,6 +386,9 @@ renderActions: function() {
 		} else if (tab === 'records') {
 			const el = document.getElementById('library-records-content');
 			if (el) { el.style.display = 'block'; UI.renderRecords(); }
+		} else if (tab === 'games') {
+			const el = document.getElementById('library-games-content');
+			if (el) { el.style.display = 'block'; UI.renderGamesTab(); }
 		} else if (tab === 'iching') {
 			const el = document.getElementById('library-iching-content');
 			if (el) { el.style.display = 'block'; UI.renderIChing(); }
@@ -743,33 +747,28 @@ showBookModal: function(book) {
 	
 	// ========== HTML/RENDERING UPDATE pro UI.renderRecords() ==========
 
-renderRecords: function() {
-    const el = document.getElementById('library-records-content');
-    
+renderGamesTab: function() {
+    const el = document.getElementById('library-games-content');
+    if (!el) return;
+
     // Check tech unlock
     const hasTech = GameState.researchedTechs.includes('tech_games');
-    
+
     if(!hasTech) {
-        let h = `<div style="padding:20px; background:rgba(0,0,0,0.05); border-radius:8px; text-align:center;">
+        el.innerHTML = `<div style="padding:20px; background:rgba(0,0,0,0.05); border-radius:8px; text-align:center;">
             <div style="font-size:3rem; opacity:0.3; margin-bottom:10px;">🔒</div>
             <strong>${t('library.locked')}</strong>
-            <p style="margin-top:10px; opacity:0.7;">
-                ${t('library.records_hint')}
-            </p>
+            <p style="margin-top:10px; opacity:0.7;">${t('library.records_hint')}</p>
         </div>`;
-        el.innerHTML = h;
         return;
     }
-    
+
     let h = '';
-    
-    // ========== GAMES SECTION ==========
     h += `<h2 style="margin-bottom: 20px; color: var(--ink-primary);">${t('games.title')}</h2>`;
     h += '<div class="games-grid">';
-    
-    // ========== TIER 1: MEMORY GAME ==========
+
+    // Memory Game
     const hasCards = GameState.inventory['playing_cards'] > 0;
-    
     h += `<div class="game-card">`;
     h += `<span class="game-icon">🎴</span>`;
     h += `<div class="game-title">${t('games.memoryName')}</div>`;
@@ -780,11 +779,10 @@ renderRecords: function() {
         h += `<div class="game-unlock-text">${t('games.memoryCraft')}</div>`;
     }
     h += `</div>`;
-    
-    // ========== TIER 2: ROYAL GAME OF UR ==========
+
+    // Royal Game of Ur
     const hasUrBoard = GameState.inventory['ur_board'] > 0;
     const hasUrTech = GameState.researchedTechs.includes('tech_ur_game');
-    
     h += `<div class="game-card ${hasUrTech ? '' : 'locked'}">`;
     if(!hasUrTech) h += `<span class="game-lock-badge">🔒</span>`;
     h += `<span class="game-icon">🎲</span>`;
@@ -799,11 +797,10 @@ renderRecords: function() {
         h += `<button class="craft-btn" onclick="RoyalGameOfUrSolo.start()" style="background: var(--accent-gold);">${t('games.urPlaySolo')}</button>`;
     }
     h += `</div>`;
-    
-    // ========== TIER 3: PRIMERO ==========
+
+    // Primero
     const hasPrimero = GameState.inventory['primero_deck'] > 0;
     const hasPrimeroTech = GameState.researchedTechs.includes('tech_primero');
-    
     h += `<div class="game-card ${hasPrimeroTech ? '' : 'locked'}">`;
     if(!hasPrimeroTech) h += `<span class="game-lock-badge">🔒</span>`;
     h += `<span class="game-icon">🃏</span>`;
@@ -817,11 +814,10 @@ renderRecords: function() {
         h += `<button class="craft-btn" onclick="PrimeroGame.start()">${t('games.btnPlay')}</button>`;
     }
     h += `</div>`;
-    
-    // ========== TIER 4: KARNÖFFEL ==========
+
+    // Karnöffel
     const hasKarnoffel = GameState.inventory['karnoffel_deck'] > 0;
     const hasKarnoffelTech = GameState.researchedTechs.includes('tech_karnoffel');
-    
     h += `<div class="game-card ${hasKarnoffelTech ? '' : 'locked'}">`;
     if(!hasKarnoffelTech) h += `<span class="game-lock-badge">🔒</span>`;
     h += `<span class="game-icon">🎴</span>`;
@@ -835,11 +831,10 @@ renderRecords: function() {
         h += `<button class="craft-btn" onclick="KarnoffelGame.start()">${t('games.btnPlay')}</button>`;
     }
     h += `</div>`;
-    
-    // ========== TIER 5: FREECELL ==========
+
+    // FreeCell
     const hasFrenchDeck = GameState.inventory['french_deck'] > 0;
     const hasFreeCellTech = GameState.researchedTechs.includes('tech_freecell');
-    
     h += `<div class="game-card ${hasFreeCellTech ? '' : 'locked'}">`;
     if(!hasFreeCellTech) h += `<span class="game-lock-badge">🔒</span>`;
     h += `<span class="game-icon">🂡</span>`;
@@ -853,11 +848,10 @@ renderRecords: function() {
         h += `<button class="craft-btn" onclick="FreeCellGame.start()">${t('games.btnPlay')}</button>`;
     }
     h += `</div>`;
-    
-    // ========== TIER 6: RITHMOMACHIA ==========
+
+    // Rithmomachia
     const hasRithmo = GameState.inventory['rithmomachia_board'] > 0;
     const hasRithmoTech = GameState.researchedTechs.includes('tech_rithmomachia');
-    
     h += `<div class="game-card ${hasRithmoTech ? '' : 'locked'}">`;
     if(!hasRithmoTech) h += `<span class="game-lock-badge">🔒</span>`;
     h += `<span class="game-icon">🔢</span>`;
@@ -872,11 +866,30 @@ renderRecords: function() {
         h += `<button class="craft-btn" onclick="Rithmomachia.showRules()" style="background: var(--accent-gold);">${t('games.btnRules')}</button>`;
     }
     h += `</div>`;
-    
+
     h += '</div>'; // Close games-grid
+    el.innerHTML = h;
+
+    // Initialize game renders if active
+    if(hasUrBoard) {
+        if(RoyalGameOfUr.gameActive) RoyalGameOfUr.render();
+        if(RoyalGameOfUrSolo.gameActive) RoyalGameOfUrSolo.render();
+    }
+    if(hasPrimero && PrimeroGame.gameActive) PrimeroGame.render();
+    if(hasKarnoffel && KarnoffelGame.gameActive) KarnoffelGame.render();
+    if(hasFrenchDeck && FreeCellGame.gameActive) FreeCellGame.render();
+    if(hasRithmo && Rithmomachia.gameActive) Rithmomachia.render();
+},
+
+renderRecords: function() {
+    const el = document.getElementById('library-records-content');
+    if (!el) return;
+    
+    let h = '';
     
     // ========== PROGRESSION SUMMARY ==========
     const currentRank = RankSystem.getCurrentSecularRank();
+    
     const currentTier = RankSystem.getSecularRankTier();
     const nextRank = RankSystem.secular[currentTier]; // next rank in array
     const currentResearch = GameState.achievements?.stats?.researchCount || 0;

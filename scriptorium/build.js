@@ -47,7 +47,8 @@ const JS_MAIN = [
     'src/systems/VigorSystem.js',
     'src/systems/CellariumSystem.js',
     'src/systems/PersonaSystem.js',
-    'src/systems/SecretsSystem.js', 
+    'src/systems/SecretsSystem.js',
+    'src/systems/GamesSystem.js',
 
     // Mini-hry
     'src/games/memory.js',
