@@ -14839,6 +14839,13 @@ renderRecords: function() {
     const el = document.getElementById('library-records-content');
     if (!el) return;
     
+    // Game inventory checks (needed for render at bottom)
+    const hasUrBoard = (GameState.inventory['ur_board'] || 0) > 0;
+    const hasPrimero = (GameState.inventory['primero_deck'] || 0) > 0;
+    const hasKarnoffel = (GameState.inventory['karnoffel_deck'] || 0) > 0;
+    const hasFrenchDeck = (GameState.inventory['french_deck'] || 0) > 0;
+    const hasRithmo = (GameState.inventory['rithmomachia_board'] || 0) > 0;
+    
     let h = '';
     
     // ========== PROGRESSION SUMMARY ==========
