@@ -4578,7 +4578,7 @@ const TechTree = [
     { id:"tech_czech_glass",     name:"České Sklářství",           name_en:"Bohemian Glasswork",         cost:10, desc:"České sklářství 13. stol bylo nejlepší v Evropě. Benátky kopírovaly naše techniky.", desc_en:"13th-century Bohemian glasswork was the finest in Europe. Venice copied our techniques.", unlocks:[], requires:["tech_master_alchemist"] },
 
     // GAMES
-    { id:"tech_games",           name:"Hry a Záznamy",             name_en:"Games & Records",            cost:8,  desc:"Středověké hry.",                              desc_en:"Medieval games.",                       unlocks:["playing_cards"], requires:["tech_monastery_wisdom"] },
+    { id:"tech_games",           name:"Aula Ludi",                name_en:"Aula Ludi",                  cost:8,  desc:"Středověké hry a zábava.",                         desc_en:"Medieval games and entertainment.",             unlocks:["playing_cards"], requires:[] },
     { id:"tech_iching",          name:"Starověká Moudrost",        name_en:"Ancient Wisdom",             cost:8,  desc:"Prostudoval jsi záhadné texty z Dálného východu. Kniha Proměn odhaluje skrytý řád věcí.", desc_en:"Thou hast studied strange texts from the Far East. The Book of Changes revealeth a hidden order.", unlocks:["recipe_iching_book"], requires:["tech_alchemy_2"] },
     { id:"tech_ur_game",         name:"Starobylé Hry",             name_en:"Ancient Games",              cost:6,  desc:"Královská hra z Uru (2600 př.n.l.) — starší než pyramidy!",    desc_en:"The Royal Game of Ur (2600 BC) — older than the pyramids!", unlocks:["ur_board"], requires:["tech_games"] },
     { id:"tech_primero",         name:"Primero",                   name_en:"Primero",                    cost:10, desc:"Předchůdce pokeru. Jindřich VIII prohrál jmění! (1530)",       desc_en:"Ancestor of poker. Henry VIII lost a fortune at it! (1530)", unlocks:["primero_deck"], requires:["tech_games"] },
@@ -4622,7 +4622,6 @@ const TechTree = [
     { id:"tech_printing_basics",  name:"Základy Knihtisku",        name_en:"Printing Basics",            cost:15, desc:"Tavení olova na litery. Gutenbergův vynález (1450). Revoluce.", desc_en:"Casting lead into type. Gutenberg's invention (1450). A revolution.", unlocks:["lead_alloy","printing_type"], requires:["tech_codex_luxury"] },
     { id:"tech_privilegium",      name:"Tiskařské Privilegium",    name_en:"Printing Privilege",         cost:20, desc:"Biskupská pečeť. Monopol na tisk. Melantrich to dosáhl roku 1552. Endgame unlock.", desc_en:"The bishop's seal. A monopoly on printing. Melantrich achieved this in 1552. Endgame unlock.", unlocks:["bishop_seal","printing_privilege"], requires:["tech_printing_basics","tech_codex_vellum"] },
 ];
-
 // ═══ src/core/gamestate.js ═══
 const ActionsDB = [
     { id: 'basic',        name: 'Průzkum okolí',    name_en: 'Scour the grounds',  icon: '🖐',  desc: 'Suroviny',         desc_en: 'Raw materials',      yield: 1 },
@@ -14838,21 +14837,7 @@ renderGamesTab: function() {
 
 renderRecords: function() {
     const el = document.getElementById('library-records-content');
-    
-    // Check tech unlock
-    const hasTech = GameState.researchedTechs.includes('tech_games');
-    
-    if(!hasTech) {
-        let h = `<div style="padding:20px; background:rgba(0,0,0,0.05); border-radius:8px; text-align:center;">
-            <div style="font-size:3rem; opacity:0.3; margin-bottom:10px;">🔒</div>
-            <strong>${t('library.locked')}</strong>
-            <p style="margin-top:10px; opacity:0.7;">
-                ${t('library.records_hint')}
-            </p>
-        </div>`;
-        el.innerHTML = h;
-        return;
-    }
+    if (!el) return;
     
     let h = '';
     
