@@ -302,7 +302,8 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
         .nav-fire-active { animation: nav-pulse-fire 3s infinite ease-in-out !important; }
         @keyframes nav-pulse-candle { 50% { color: #fffacd; text-shadow: 0 0 15px rgba(255, 255, 0, 0.8); } }
         .nav-candle-active { animation: nav-pulse-candle 3s infinite ease-in-out !important; }
-        .nav-torch-active { animation: torch-flicker 0.5s infinite alternate !important; }
+        @keyframes nav-torch-glow { 0% { color: #ffbd40; text-shadow: 0 0 8px rgba(255,120,0,0.9), 0 0 20px rgba(255,80,0,0.5); } 50% { color: #ff9d00; text-shadow: 0 0 14px rgba(255,100,0,1), 0 0 30px rgba(255,60,0,0.7); } 100% { color: #ffbd40; text-shadow: 0 0 8px rgba(255,120,0,0.9), 0 0 20px rgba(255,80,0,0.5); } }
+        .nav-torch-active { animation: nav-torch-glow 0.5s infinite alternate !important; background: none !important; box-shadow: none !important; border: none !important; }
 
         h1, h2, h3 { font-family: 'Cinzel Decorative', cursive; margin: 0; font-weight: 700; }
         .text-sm { font-size: 0.9rem; color: var(--ink-secondary); line-height: 1.2; }
