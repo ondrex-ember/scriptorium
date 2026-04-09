@@ -135,4 +135,25 @@ const ItemsDB = {
 
     // EASTER EGG
     "netolicky_legacy":    { name:"Netolického pozůstalost",  name_en:"Netolický's Legacy",  icon:"📜", type:"lore", desc:"Starý dokument z tiskárny.",     desc_en:"An old document from the print shop." },
+
+    // ATHANOR — ingredience (nové suroviny)
+    "carbon_black":   { name:"Saze",             name_en:"Carbon Black",    icon:"🖤", type:"alchemy_ing", desc:"Saze z krbu. Nejstarší černý pigment.",           desc_en:"Soot from the hearth. The oldest black pigment." },
+    "ochre":          { name:"Okr",              name_en:"Ochre",           icon:"🟤", type:"alchemy_ing", desc:"Žlutohnědá zemina. Pigment od pravěku.",          desc_en:"Yellow-brown earth. A pigment since prehistory." },
+    "cinnabar":       { name:"Rumělka",          name_en:"Cinnabar",        icon:"🔴", type:"alchemy_ing", desc:"Sulfid rtuťnatý. Krásně červený, ale jedovatý.",  desc_en:"Mercuric sulfide. Beautiful red, but poisonous." },
+    "lapis_lazuli":   { name:"Lapis lazuli",     name_en:"Lapis Lazuli",    icon:"💎", type:"alchemy_ing", desc:"Dražší než zlato. Barva roucha Panny Marie.",     desc_en:"More precious than gold. The colour of the Virgin's robe." },
+    "verdigris":      { name:"Měděnka",          name_en:"Verdigris",       icon:"🟢", type:"alchemy_ing", desc:"Zelená patina mědi. Časem koroduje pergamen.",    desc_en:"Green copper patina. Corrodes vellum over time." },
+    "egg_tempera":    { name:"Vaječná tempera",  name_en:"Egg Tempera",     icon:"🥚", type:"alchemy_ing", desc:"Žloutek s vínem. Nejstarší pojivo pigmentů.",     desc_en:"Egg yolk with wine. The oldest pigment binder." },
+    "chamomile":      { name:"Heřmánek",         name_en:"Chamomile",       icon:"🌼", type:"herb",        desc:"Matka bylinek. Hildegarda ho doporučovala.",      desc_en:"Mother of herbs. Hildegard recommended it." },
+    "st_johns_wort":  { name:"Třezalka",         name_en:"St. John's Wort", icon:"🌻", type:"herb",        desc:"Bylina sv. Jana. Léčí rány i melancholii.",       desc_en:"Herb of St. John. Heals wounds and melancholy." },
+    "beeswax":        { name:"Včelí vosk",       name_en:"Beeswax",         icon:"🕯️", type:"mat",         desc:"Z klášterního úlu. Pojivo masti i pečetidlo.",   desc_en:"From the monastery hive. Salve binder and sealant." },
+
+    // ATHANOR — výsledné produkty
+    "ink_carbon":          { name:"Sazový inkoust",    name_en:"Carbon Ink",          icon:"🖤", type:"lore",    desc:"Černý inkoust ze sazí. Levný a trvanlivý.",          desc_en:"Black ink from soot. Cheap and durable." },
+    "ink_red":             { name:"Červený inkoust",   name_en:"Red Ink",             icon:"🔴", type:"lore",    desc:"Rumělkový inkoust pro rubriky a iniciály.",          desc_en:"Cinnabar ink for rubrics and initials." },
+    "pigment_yellow":      { name:"Žlutý pigment",     name_en:"Yellow Pigment",      icon:"🟡", type:"lore",    desc:"Okrový pigment v tempera. Pro iluminace.",           desc_en:"Ochre pigment in tempera. For illuminations." },
+    "pigment_green":       { name:"Zelený pigment",    name_en:"Green Pigment",       icon:"🟢", type:"lore",    desc:"Měděnka v tempera. Časem koroduje pergamen.",       desc_en:"Verdigris in tempera. Corrodes vellum over time." },
+    "pigment_blue":        { name:"Ultramarín",        name_en:"Ultramarine",         icon:"💙", type:"lore",    desc:"Z lapis lazuli. Dražší než zlato.",                  desc_en:"From lapis lazuli. More precious than gold." },
+    "potion_vigor_minor":  { name:"Heřmánkový odvar",  name_en:"Chamomile Draught",   icon:"🌼", type:"potion",  desc:"Obnoví síly. Vigor +20.",                            desc_en:"Restores strength. Vigor +20." },
+    "potion_craft_boost":  { name:"Třezalkový lektvar", name_en:"St. John's Tincture", icon:"🌻", type:"potion",  desc:"Crafting ×1.5 po dobu 1 hodiny.",                   desc_en:"Crafting ×1.5 for 1 hour." },
+    "potion_hunger_remedy":{ name:"Hojivá mast",       name_en:"Healing Salve",       icon:"🕯️", type:"potion",  desc:"Zpomalí hlad o 4 hodiny.",                           desc_en:"Slows hunger by 4 hours." },
 };

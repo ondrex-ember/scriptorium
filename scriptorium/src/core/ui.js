@@ -406,7 +406,7 @@ renderActions: function() {
 		document.getElementById('home-athanor-content').style.display = tab === 'athanor' ? 'block' : 'none';
 		document.querySelectorAll('#screen-home .filter-btn').forEach(b => b.classList.remove('active'));
 		if (btn) btn.classList.add('active');
-		if (tab === 'athanor') SecretsSystem.renderAthanorScreen('home-athanor-content');
+		if (tab === 'athanor') AthanorSystem.render('home-athanor-content');
 	},
 
 	renderLibraryNews: function() {

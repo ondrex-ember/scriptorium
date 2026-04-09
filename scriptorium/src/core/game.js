@@ -265,6 +265,7 @@ const Game = {
         CellariumSystem.init();
         PersonaSystem.init();
         SecretsSystem.init();
+        AthanorSystem.init();
         
         // NOW render UI (after theme is set and all systems initialized)
         UI.renderAll(); 
