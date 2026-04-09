@@ -883,7 +883,21 @@ renderGamesTab: function() {
 
 renderRecords: function() {
     const el = document.getElementById('library-records-content');
-    if (!el) return;
+    
+    // Check tech unlock
+    const hasTech = GameState.researchedTechs.includes('tech_games');
+    
+    if(!hasTech) {
+        let h = `<div style="padding:20px; background:rgba(0,0,0,0.05); border-radius:8px; text-align:center;">
+            <div style="font-size:3rem; opacity:0.3; margin-bottom:10px;">🔒</div>
+            <strong>${t('library.locked')}</strong>
+            <p style="margin-top:10px; opacity:0.7;">
+                ${t('library.records_hint')}
+            </p>
+        </div>`;
+        el.innerHTML = h;
+        return;
+    }
     
     let h = '';
     
