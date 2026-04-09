@@ -299,10 +299,10 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
         .torch-active { animation: torch-flicker 0.2s infinite cubic-bezier(0.1, 0.7, 1.0, 0.1); border-color: #a04000 !important; background: rgba(255, 100, 50, 0.15) !important; }
 
         @keyframes nav-pulse-fire { 50% { color: #ffbd40; text-shadow: 0 0 15px rgba(255, 140, 0, 0.8); border-top-color: #ff9d00; } }
-        .nav-fire-active { animation: nav-pulse-fire 3s infinite ease-in-out !important; border-top-width: 2px !important; }
-        @keyframes nav-pulse-candle { 50% { color: #fffacd; text-shadow: 0 0 15px rgba(255, 255, 0, 0.8); border-top-color: #ffff00; } }
-        .nav-candle-active { animation: nav-pulse-candle 3s infinite ease-in-out !important; border-top-width: 2px !important; }
-        .nav-torch-active { animation: torch-flicker 0.5s infinite alternate !important; border-top-width: 2px !important; }
+        .nav-fire-active { animation: nav-pulse-fire 3s infinite ease-in-out !important; }
+        @keyframes nav-pulse-candle { 50% { color: #fffacd; text-shadow: 0 0 15px rgba(255, 255, 0, 0.8); } }
+        .nav-candle-active { animation: nav-pulse-candle 3s infinite ease-in-out !important; }
+        .nav-torch-active { animation: torch-flicker 0.5s infinite alternate !important; }
 
         h1, h2, h3 { font-family: 'Cinzel Decorative', cursive; margin: 0; font-weight: 700; }
         .text-sm { font-size: 0.9rem; color: var(--ink-secondary); line-height: 1.2; }
@@ -7366,20 +7366,19 @@ const VigorSystem = {
     if (!el) return;
     
     const pct = this.getPercentage();
-    const totalDrops = 5; // Mini: only 5 drops
-    const filledDrops = Math.ceil((pct / 100) * totalDrops);
     
-    let drops = '';
-    for (let i = 0; i < totalDrops; i++) {
-      drops += (i < filledDrops) ? '●' : '○';
-    }
+    let symbol, color;
+    if (pct > 80)      { symbol = '◉'; color = 'var(--ink-primary)'; }
+    else if (pct > 60) { symbol = '◎'; color = 'var(--ink-secondary)'; }
+    else if (pct > 40) { symbol = '○'; color = 'var(--ink-secondary)'; }
+    else if (pct > 20) { symbol = '◌'; color = 'var(--accent-wax)'; }
+    else               { symbol = '·'; color = '#8a3324'; }
     
     el.innerHTML = `
-      <div style="display: flex; align-items: center; gap: 4px; cursor: help;" 
-           title="Vigor: ${pct}%">
-        <span>🖋️</span>
-        <span style="font-size: 0.7rem; opacity: 0.8; letter-spacing: 1px;">${drops}</span>
-      </div>
+      <span title="Vigor: ${pct}%" 
+            style="font-size: 0.85rem; color: ${color}; cursor: help; line-height: 1;">
+        🖋️${symbol}
+      </span>
     `;
   },
   
