@@ -48,6 +48,7 @@ const JS_MAIN = [
     'src/systems/CellariumSystem.js',
     'src/systems/PersonaSystem.js',
     'src/systems/SecretsSystem.js',
+    'src/systems/athanor.js',
     'src/systems/GamesSystem.js',
 
     // Mini-hry

@@ -265,7 +265,6 @@ const Game = {
         CellariumSystem.init();
         PersonaSystem.init();
         SecretsSystem.init();
-        AthanorSystem.init();
         
         // NOW render UI (after theme is set and all systems initialized)
         UI.renderAll(); 
@@ -659,6 +658,9 @@ const Game = {
                     
                     // v7.5: NEW DROP - gall_nut for gallic ink
                     if(Math.random() < 0.06) this.addItem('gall_nut', 1); // 6% chance
+                    // Athanor: byliny
+                    if(Math.random() < 0.08) this.addItem('chamomile', 1);
+                    if(Math.random() < 0.05) this.addItem('st_johns_wort', 1);
                     
                     // Rare drop - Netolického pozůstalost (0.1% chance)
                     if(Math.random() < 0.001) {
@@ -666,7 +668,11 @@ const Game = {
                         UI.notify(t('game.rareFind'));
                     }
                 }
-                else if (type === 'basic') { this.addItem((r<0.5?'rock':'stick'), 1); }
+                else if (type === 'basic') {
+                    this.addItem((r<0.5?'rock':'stick'), 1);
+                    if(Math.random() < 0.05) this.addItem('carbon_black', 1);
+                    if(Math.random() < 0.04) this.addItem('ochre', 1);
+                }
                 else if (type === 'bark') { this.addItem('bark', 2); }
                 else if (type === 'fishing') { this.addItem('fish', r<0.3?2:1); if(r>0.8) this.addItem('water', 1); }
                 else if (type === 'foraging') { 
@@ -688,6 +694,7 @@ const Game = {
                     if(r<0.5) this.addItem('resin', 1);
                     else if(r<0.7) this.addItem('honey', 1);
                     else this.addItem('bark', 1);
+                    if(Math.random() < 0.15) this.addItem('beeswax', 1);
                 }
                 total++;
             }
@@ -760,6 +767,9 @@ const Game = {
                 
                 // v7.5: NEW DROP - gall_nut for gallic ink
                 if(Math.random() < 0.06) this.addItem('gall_nut', 1); // 6% chance
+                // Athanor: byliny
+                if(Math.random() < 0.08) this.addItem('chamomile', 1);
+                if(Math.random() < 0.05) this.addItem('st_johns_wort', 1);
                 
                 // Rare drop - Netolického pozůstalost (0.1% chance)
                 if(Math.random() < 0.001) {
@@ -767,7 +777,11 @@ const Game = {
                     UI.notify(t('game.rareFind'));
                 }
             }
-            else if (type === 'basic') { this.addItem((r<0.5?'rock':'stick'), 1); }
+            else if (type === 'basic') {
+                this.addItem((r<0.5?'rock':'stick'), 1);
+                if(Math.random() < 0.05) this.addItem('carbon_black', 1);
+                if(Math.random() < 0.04) this.addItem('ochre', 1);
+            }
             else if (type === 'bark') { this.addItem('bark', 2); }
             else if (type === 'fishing') { this.addItem('fish', r<0.3?2:1); if(r>0.8) this.addItem('water', 1); }
             else if (type === 'foraging') { 
@@ -789,6 +803,7 @@ const Game = {
                 if(r<0.5) this.addItem('resin', 1);
                 else if(r<0.7) this.addItem('honey', 1);
                 else this.addItem('bark', 1);
+                if(Math.random() < 0.15) this.addItem('beeswax', 1);
             }
         } else {
             let multiplier = durationMin === 1 ? 10 : (durationMin === 5 ? 50 : 100);

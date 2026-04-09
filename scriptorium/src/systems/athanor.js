@@ -3,7 +3,7 @@
 //  src/systems/athanor.js
 //  v1.0 | Scriptorium Phase 2
 //
-//  Závislosti: GameState, Game.addItem(), Game.hasItems(),
+//  Závislosti: GameState, Game.addItem(), Game.removeItem(),
 //              Game.save(), UI.notify()
 //  Volání render: AthanorSystem.render('home-athanor-content')
 //  Tick: AthanorSystem.tick() každé 2s z TimeSys nebo Game loop
@@ -323,17 +323,16 @@ const AthanorSystem = {
     if (!recipe) return;
 
     // Zkontroluj ingredience
-    const needed = {};
-    recipe.ingredients.forEach(i => { needed[i.id] = i.qty; });
-    if (!Game.hasItems(needed)) {
-      UI.notify('⚗️ Nemáš dostatek surovin.', true);
-      return;
+    for (const ing of recipe.ingredients) {
+      const have = GameState.inventory[ing.id] || 0;
+      if (have < ing.qty) {
+        UI.notify('⚗️ Nemáš dostatek surovin.', true);
+        return;
+      }
     }
 
     // Odečti ingredience
-    recipe.ingredients.forEach(i => {
-      GameState.inventory[i.id] = (GameState.inventory[i.id] || 0) - i.qty;
-    });
+    recipe.ingredients.forEach(i => Game.removeItem(i.id, i.qty));
 
     // Přidej výsledek do inventáře
     Game.addItem(recipe.result.id, recipe.result.qty);
@@ -461,9 +460,7 @@ const AthanorSystem = {
   },
 
   buildRecipeCard(recipe, ingMap) {
-    const needed = {};
-    recipe.ingredients.forEach(i => { needed[i.id] = i.qty; });
-    const canCraft = Game.hasItems(needed);
+    const canCraft = recipe.ingredients.every(i => (GameState.inventory[i.id] || 0) >= i.qty);
 
     const ingList = recipe.ingredients.map(i => {
       const have = GameState.inventory[i.id] || 0;
