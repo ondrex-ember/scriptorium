@@ -12,7 +12,7 @@ const CellariumSystem = {
   init: function() {
     if (!GameState.treasury) {
       GameState.treasury = {
-        grose: 0        // 🪙 Pražský groš
+        grose: 0        // 💰 Pražský groš
       };
     }
     // Migrate old save: silver → grose
@@ -210,7 +210,7 @@ const CellariumSystem = {
     this.addGrose(total);
     GameState.economy.tradesTotal++;
     Game.save();
-    UI.notify(`🪙 +${total} grošů za ${qty}× ${itemId}`);
+    UI.notify(`💰 +${total} grošů za ${qty}× ${itemId}`);
     this.renderCellariumContent();
   },
 
@@ -283,7 +283,7 @@ const CellariumSystem = {
           </div>
         </div>
         <div style="text-align:center; min-width:70px;">
-          <div style="font-size:1.8rem;">🪙</div>
+          <div style="font-size:1.8rem;">💰</div>
           <div style="font-weight:bold; font-size:1.3rem;" id="cellarium-grose-count">${this.getGrose()}</div>
           <div style="font-size:0.7rem; opacity:0.6;">grošů</div>
         </div>
@@ -318,6 +318,7 @@ const CellariumSystem = {
       { id: 'market', icon: '⛺', label: 'Trh',     label_en: 'Market' },
     ];
     const lang = (GameState.settings && GameState.settings.language) || 'cs';
+    if (!GameState.ui) GameState.ui = {};
     const active = GameState.ui.cellariumEntity || 'tavern';
 
     // Tab buttons
@@ -378,8 +379,15 @@ const CellariumSystem = {
       return h;
     }
 
-    // Prodejní tabulka — co má hráč z BASE_PRICES
-    const sellable = Object.keys(this.BASE_PRICES).filter(id => (GameState.inventory[id] || 0) > 0);
+    // Prodejní tabulka — co má hráč z BASE_PRICES (Hospoda má whitelist)
+    const TAVERN_ITEMS = ['bread','cooked_meat','cooked_fish','stew','mushroom_soup',
+                          'berry_pie','honey','water','potion_heal','stamina_tonic',
+                          'sleep_potion','candle'];
+    const sellable = Object.keys(this.BASE_PRICES).filter(id => {
+      if ((GameState.inventory[id] || 0) === 0) return false;
+      if (entity === 'tavern') return TAVERN_ITEMS.includes(id);
+      return true;
+    });
 
     if (sellable.length === 0) {
       h += `<div style="text-align:center; padding:20px; opacity:0.5; font-style:italic;">
@@ -394,14 +402,19 @@ const CellariumSystem = {
       sellable.forEach(id => {
         const have  = GameState.inventory[id] || 0;
         const price = this.calcPrice(id, entity);
-        const name  = id; // v budoucnu iName(id)
+        const item  = ItemsDB[id];
+        const icon  = item ? item.icon : '📦';
+        const name  = (typeof iName === 'function') ? iName(id) : (item ? item.name : id);
         h += `
           <div style="padding:10px; background:rgba(197,160,89,0.06);
                       border-radius:6px; border:1px solid rgba(197,160,89,0.2);">
-            <div style="font-weight:bold; font-size:0.85rem; margin-bottom:4px;">${name}</div>
+            <div style="display:flex; align-items:center; gap:6px; margin-bottom:4px;">
+              <span style="font-size:1.2rem;">${icon}</span>
+              <span style="font-weight:bold; font-size:0.85rem;">${name}</span>
+            </div>
             <div style="font-size:0.75rem; opacity:0.65;">
               ${lang === 'en' ? 'Have' : 'Máš'}: ${have} &nbsp;|&nbsp;
-              ${lang === 'en' ? 'Price' : 'Cena'}: <strong>${price} 🪙</strong>
+              ${lang === 'en' ? 'Price' : 'Cena'}: <strong>${price} 💰</strong>
             </div>
             <div style="display:flex; gap:4px; margin-top:8px;">
               <button onclick="CellariumSystem.sellItem('${id}',1,'${entity}')"
