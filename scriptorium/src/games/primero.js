@@ -13,12 +13,12 @@ const PrimeroGame = {
     
     start: function() {
         if (!GameState.inventory.primero_deck || GameState.inventory.primero_deck < 1) {
-            UI.notify(t('minigames.primero.need_deck'), true);
+            UI.notify(t('games.primeroNeedDeck'), true);
             return;
         }
         
         if (!GameState.inventory.research || GameState.inventory.research < this.bet) {
-            UI.notify(t('minigames.primero.need_bet').replace('{bet}', this.bet), true);
+            UI.notify(t('games.primeroNeedBet').replace('{bet}', this.bet), true);
             return;
         }
         
@@ -96,16 +96,16 @@ const PrimeroGame = {
         let result = '';
         if(playerValue > opponentValue) {
             this.playerScore++;
-            result = t('minigames.primero.round_win')
+            result = t('games.primeroRoundWin')
                         .replace('{player}', playerValue)
                         .replace('{opponent}', opponentValue);
         } else if(opponentValue > playerValue) {
             this.opponentScore++;
-            result = t('minigames.primero.round_loss')
+            result = t('games.primeroRoundLoss')
                         .replace('{player}', playerValue)
                         .replace('{opponent}', opponentValue);
         } else {
-            result = t('minigames.primero.round_draw').replace('{player}', playerValue);
+            result = t('games.primeroRoundDraw').replace('{player}', playerValue);
         }
         
         UI.notify(result);
@@ -135,14 +135,14 @@ const PrimeroGame = {
                 GameState.achievements.stats.totalResearchGained += reward;
             }
             
-            UI.notify(t('minigames.primero.game_win').replace('{reward}', reward));
+            UI.notify(t('games.primeroGameWin').replace('{reward}', reward));
         } else if(this.playerScore < this.opponentScore) {
             // Track played (even if lost)
             if(GameState.achievements) {
                 GameState.achievements.stats.totalGamesPlayed++;
             }
             
-            UI.notify(t('minigames.primero.game_loss').replace('{bet}', this.bet));
+            UI.notify(t('games.primeroGameLoss').replace('{bet}', this.bet));
         } else {
             Game.addItem('research', this.bet);
             
@@ -152,7 +152,7 @@ const PrimeroGame = {
                 GameState.achievements.stats.totalResearchGained += this.bet;
             }
             
-            UI.notify(t('minigames.primero.game_draw').replace('{bet}', this.bet));
+            UI.notify(t('games.primeroGameDraw').replace('{bet}', this.bet));
         }
         
         setTimeout(() => this.render(), 1500);
@@ -187,21 +187,21 @@ const PrimeroGame = {
         if(!container) return;
         
         let h = '<div style="background: var(--bg-card); padding: 15px; border-radius: 8px;">';
-        h += `<h3>${t('minigames.primero.title')}</h3>`;
+        h += `<h3>${t('games.primeroTitle')}</h3>`;
         
         if(!this.gameActive) {
-            h += `<p style="margin: 10px 0;">${t('minigames.primero.subtitle')}</p>`;
-            h += `<p style="opacity: 0.8; font-size: 0.9rem;">${t('minigames.primero.bet_info').replace('{bet}', this.bet)}</p>`;
-            h += `<button class="craft-btn" onclick="PrimeroGame.start()" style="margin-top: 10px;">${t('minigames.primero.btn_play')}</button>`;
+            h += `<p style="margin: 10px 0;">${t('games.primeroSubtitle')}</p>`;
+            h += `<p style="opacity: 0.8; font-size: 0.9rem;">${t('games.primeroBetInfo').replace('{bet}', this.bet)}</p>`;
+            h += `<button class="craft-btn" onclick="PrimeroGame.start()" style="margin-top: 10px;">${t('games.primeroBtnPlay')}</button>`;
         } else {
             h += `<div style="display: flex; justify-content: space-between; margin: 10px 0;">`;
-            h += `<div>${t('minigames.primero.label_you')}: ${this.playerScore}</div>`;
-            h += `<div>${t('minigames.primero.label_round')}: ${this.round}/3</div>`;
-            h += `<div>${t('minigames.primero.label_opponent')}: ${this.opponentScore}</div>`;
+            h += `<div>${t('games.primeroLabelYou')}: ${this.playerScore}</div>`;
+            h += `<div>${t('games.primeroLabelRound')}: ${this.round}/3</div>`;
+            h += `<div>${t('games.primeroLabelOpponent')}: ${this.opponentScore}</div>`;
             h += `</div>`;
             
             h += `<div style="margin: 15px 0;">`;
-            h += `<strong>${t('minigames.primero.label_your_cards')}</strong>`;
+            h += `<strong>${t('games.primeroLabelYourCards')}</strong>`;
             h += `<div style="display: flex; gap: 5px; margin-top: 5px;">`;
             this.playerHand.forEach(card => {
                 h += `<div style="padding: 10px; background: white; border: 2px solid var(--border-color); border-radius: 4px; text-align: center; min-width: 40px; color: black;">`;
@@ -211,7 +211,7 @@ const PrimeroGame = {
             h += `</div></div>`;
             
             h += `<div style="margin: 15px 0;">`;
-            h += `<strong>${t('minigames.primero.label_opponent')}</strong>`;
+            h += `<strong>${t('games.primeroLabelOpponent')}</strong>`;
             h += `<div style="display: flex; gap: 5px; margin-top: 5px;">`;
             this.opponentHand.forEach(() => {
                 h += `<div style="padding: 10px; background: var(--accent-wax); border: 2px solid var(--border-color); border-radius: 4px; text-align: center; min-width: 40px;">`;
@@ -220,7 +220,7 @@ const PrimeroGame = {
             });
             h += `</div></div>`;
             
-            h += `<button class="craft-btn" onclick="PrimeroGame.playRound()" style="margin-top: 10px;">${t('minigames.primero.btn_reveal')}</button>`;
+            h += `<button class="craft-btn" onclick="PrimeroGame.playRound()" style="margin-top: 10px;">${t('games.primeroBtnReveal')}</button>`;
         }
         
         h += '</div>';
@@ -231,5 +231,52 @@ const PrimeroGame = {
         this.gameActive = false;
         const modal = document.getElementById('primero-modal');
         if(modal) modal.remove();
+    },
+    
+    showRules: function() {
+        let modal = document.getElementById('primero-rules-modal');
+        
+        if(!modal) {
+            modal = document.createElement('div');
+            modal.id = 'primero-rules-modal';
+            modal.className = 'game-modal';
+            document.body.appendChild(modal);
+            
+            modal.addEventListener('click', (e) => {
+                if(e.target === modal) {
+                    modal.remove();
+                }
+            });
+        }
+        
+        let h = '<div class="game-modal-content" style="max-width: 600px;">';
+        h += '<button class="game-modal-close" onclick="document.getElementById(\'primero-rules-modal\').remove()">×</button>';
+        h += '<div style="background: var(--bg-card); padding: 20px; border-radius: 8px;">';
+        
+        h += `<h2 style="margin-bottom: 15px; color: var(--ink-primary);">${t('games.primeroRulesTitle')}</h2>`;
+        
+        h += `<h3 style="margin-top: 15px;">${t('games.primeroRulesHistory')}</h3>`;
+        h += `<p style="opacity: 0.9;">${t('games.primeroRulesHistoryText')}</p>`;
+        
+        h += `<h3 style="margin-top: 15px;">${t('games.primeroRulesDeck')}</h3>`;
+        h += `<p style="opacity: 0.9;">${t('games.primeroRulesDeckText')}</p>`;
+        
+        h += `<h3 style="margin-top: 15px;">${t('games.primeroRulesGoal')}</h3>`;
+        h += `<p style="opacity: 0.9;">${t('games.primeroRulesGoalText')}</p>`;
+        
+        h += `<h3 style="margin-top: 15px;">${t('games.primeroRulesScoring')}</h3>`;
+        h += `<div style="opacity: 0.9; line-height: 1.6;">`;
+        h += `${t('games.primeroRulesScoringFlux')}<br>`;
+        h += `${t('games.primeroRulesScoringFour')}<br>`;
+        h += `${t('games.primeroRulesScoringThree')}<br>`;
+        h += `${t('games.primeroRulesScoringPair')}<br>`;
+        h += `${t('games.primeroRulesScoringFace')}`;
+        h += `</div>`;
+        
+        h += `<h3 style="margin-top: 15px;">${t('games.primeroRulesHowTo')}</h3>`;
+        h += `<p style="opacity: 0.9;">${t('games.primeroRulesHowToText')}</p>`;
+        
+        h += '</div></div>';
+        modal.innerHTML = h;
     }
   };
