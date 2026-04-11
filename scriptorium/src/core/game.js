@@ -344,6 +344,7 @@ const Game = {
         }
         
         // Time update with error protection
+        let _tickCounter = 0;
         setInterval(() => { 
             try {
                 TimeSys.update(); 
@@ -352,6 +353,12 @@ const Game = {
                 CanonicalHours.checkCurrentHour();
                 // v7.5: Check events
                 EventsSystem.checkEvents();
+                // v8.1: Giacomo weekly check (once per minute)
+                _tickCounter++;
+                if (_tickCounter >= 60) {
+                    _tickCounter = 0;
+                    CellariumSystem.checkGiacomoEvent();
+                }
             } catch(e) {
                 console.error('Time update error:', e);
             }

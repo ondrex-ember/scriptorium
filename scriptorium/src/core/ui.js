@@ -77,6 +77,7 @@ const UI = {
 		this.renderWell();
 		this.renderRecords();
 		this.renderGamesTab();
+		this.renderCellariumIfOpen();
 	},
 		
 renderActions: function() {
@@ -404,9 +405,22 @@ renderActions: function() {
 	switchHomeTab: function(tab, btn) {
 		document.getElementById('home-main-content').style.display = tab === 'main' ? 'block' : 'none';
 		document.getElementById('home-athanor-content').style.display = tab === 'athanor' ? 'block' : 'none';
+		document.getElementById('home-cellarium-content').style.display = tab === 'cellarium' ? 'block' : 'none';
 		document.querySelectorAll('#screen-home .filter-btn').forEach(b => b.classList.remove('active'));
 		if (btn) btn.classList.add('active');
 		if (tab === 'athanor') AthanorSystem.render('home-athanor-content');
+		if (tab === 'cellarium') {
+			const el = document.getElementById('home-cellarium-content');
+			if (el) el.innerHTML = CellariumSystem.renderCellariumTab();
+			CellariumSystem.refreshGroseDisplay();
+		}
+	},
+
+	renderCellariumIfOpen: function() {
+		const el = document.getElementById('home-cellarium-content');
+		if (!el || el.style.display === 'none') return;
+		el.innerHTML = CellariumSystem.renderCellariumTab();
+		CellariumSystem.refreshGroseDisplay();
 	},
 
 	renderLibraryNews: function() {
