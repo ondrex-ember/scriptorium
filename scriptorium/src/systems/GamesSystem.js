@@ -50,6 +50,7 @@ const GamesSystem = {
             h += `<div class="game-unlock-text">${t('games.urTech')}</div>`;
         } else if (!hasUrBoard) {
             h += `<div class="game-unlock-text">${t('games.urCraft')}</div>`;
+            h += `<button class="craft-btn" onclick="RoyalGameOfUr.showRules()" style="background: var(--accent-wax);">${t('games.btnRules')}</button>`;
         } else {
             h += `<button class="craft-btn" onclick="RoyalGameOfUr.start()">${t('games.urPlayVsAI')}</button>`;
             h += `<button class="craft-btn" onclick="RoyalGameOfUrSolo.start()" style="background: var(--accent-gold);">${t('games.urPlaySolo')}</button>`;
@@ -69,6 +70,7 @@ const GamesSystem = {
             h += `<div class="game-unlock-text">${t('games.primeroTech')}</div>`;
         } else if (!hasPrimero) {
             h += `<div class="game-unlock-text">${t('games.primeroCraft')}</div>`;
+            h += `<button class="craft-btn" onclick="PrimeroGame.showRules()" style="background: var(--accent-gold);">${t('games.btnRules')}</button>`;
         } else {
             h += `<button class="craft-btn" onclick="PrimeroGame.start()">${t('games.btnPlay')}</button>`;
             h += `<button class="craft-btn" onclick="PrimeroGame.showRules()" style="background: var(--accent-gold);">${t('games.btnRules')}</button>`;
@@ -87,6 +89,7 @@ const GamesSystem = {
             h += `<div class="game-unlock-text">${t('games.karnoffelTech')}</div>`;
         } else if (!hasKarnoffel) {
             h += `<div class="game-unlock-text">${t('games.karnoffelCraft')}</div>`;
+            h += `<button class="craft-btn" onclick="KarnoffelGame.showRules()" style="background: var(--accent-gold);">${t('games.btnRules')}</button>`;
         } else {
             h += `<button class="craft-btn" onclick="KarnoffelGame.start()">${t('games.btnPlay')}</button>`;
             h += `<button class="craft-btn" onclick="KarnoffelGame.showRules()" style="background: var(--accent-gold);">${t('games.btnRules')}</button>`;
@@ -105,6 +108,7 @@ const GamesSystem = {
             h += `<div class="game-unlock-text">${t('games.freecellTech')}</div>`;
         } else if (!hasFrenchDeck) {
             h += `<div class="game-unlock-text">${t('games.freecellCraft')}</div>`;
+            h += `<button class="craft-btn" onclick="FreeCellGame.showRules()" style="background: var(--accent-gold);">${t('games.btnRules')}</button>`;
         } else {
             h += `<button class="craft-btn" onclick="FreeCellGame.start()">${t('games.btnPlay')}</button>`;
             h += `<button class="craft-btn" onclick="FreeCellGame.showRules()" style="background: var(--accent-gold);">${t('games.btnRules')}</button>`;
@@ -123,6 +127,7 @@ const GamesSystem = {
             h += `<div class="game-unlock-text">${t('games.rithmoTech')}</div>`;
         } else if (!hasRithmo) {
             h += `<div class="game-unlock-text">${t('games.rithmoCraft')}</div>`;
+            h += `<button class="craft-btn" onclick="Rithmomachia.showRules()" style="background: var(--accent-gold);">${t('games.btnRules')}</button>`;
         } else {
             h += `<button class="craft-btn" onclick="Rithmomachia.start()">${t('games.btnPlay')}</button>`;
             h += `<button class="craft-btn" onclick="Rithmomachia.showRules()" style="background: var(--accent-gold);">${t('games.btnRules')}</button>`;

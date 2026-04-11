@@ -4638,6 +4638,11 @@ const TechTree = [
     // CELLARIUM
     { id:"tech_cellarium",        name:"Celerář — Skladník Kláštera", name_en:"Cellarer — Monastic Steward", cost:8, desc:"Bratr Celerář každé ráno přiděloval práci a inventář. Automatická organizace zásob.", desc_en:"The Brother Cellarer assigned work and inventory each morning. Automatic supply organisation.", unlocks:[], requires:["tech_monastery_wisdom"] },
 
+    // ECONOMY
+    { id:"tech_commercium",     name:"Commercium — Stezky Kupců",   name_en:"Commercium — Merchant Routes",   cost:6,  desc:"Klášter není ostrovem. Za hradbami prochází svět — a s ním i ti, kdo nesou zboží z daleké Benátky, z Říma, z Levanty. Nauč se rozpoznat příchod kupce, otevři bránu a naslouchej. Někdy přiveze surovinu, jindy příběh — a oboje má svou cenu.", desc_en:"The monastery is no island. Beyond its walls the world passes by — and with it those who carry goods from distant Venice, from Rome, from the Levant. Learn to recognise the merchant's arrival, open the gate and listen. Sometimes he brings a raw material, sometimes a story — and both have their price.", unlocks:[], requires:[] },
+    { id:"tech_cellarium_rd2",  name:"Cellarium — Řád Sklepa",      name_en:"Cellarium — Order of the Cellar", cost:8,  desc:"Každý klášter má své srdce v kapli, ale své střevo ve sklepě. Cellarius není jen správce sudů a pytlů — je to muž, který ví, co klášter potřebuje, co může prodat a za kolik. Bez něj jsi jen mnichem s plnýma rukama a prázdnou kapsou.", desc_en:"Every monastery has its heart in the chapel, but its belly in the cellar. The Cellarius is no mere keeper of barrels and sacks — he is the man who knows what the monastery needs, what it can sell, and for how much. Without him thou art but a monk with full hands and an empty purse.", unlocks:[], requires:["tech_commercium"] },
+    { id:"tech_numismatica",    name:"Numismatica — Věda o Groších", name_en:"Numismatica — The Science of Groschen", cost:10, desc:"Pražský groš je malý, ale těžký. Nese na sobě korunu, lva i latinský nápis — a v pravých rukou otevírá více dveří než modlitba. Nauč se počítat, nakupovat, prodávat. Hospoda, obchod, trh — každé místo má svůj rytmus a svou cenu.", desc_en:"The Prague groschen is small, but heavy. It bears a crown, a lion and a Latin inscription — and in the right hands it opens more doors than prayer. Learn to count, to buy, to sell. The tavern, the shop, the market — each place has its own rhythm and its own price.", unlocks:[], requires:["tech_cellarium_rd2"] },
+
     // PRINTING ENDGAME
     { id:"tech_printing_basics",  name:"Základy Knihtisku",        name_en:"Printing Basics",            cost:15, desc:"Tavení olova na litery. Gutenbergův vynález (1450). Revoluce.", desc_en:"Casting lead into type. Gutenberg's invention (1450). A revolution.", unlocks:["lead_alloy","printing_type"], requires:["tech_codex_luxury"] },
     { id:"tech_privilegium",      name:"Tiskařské Privilegium",    name_en:"Printing Privilege",         cost:20, desc:"Biskupská pečeť. Monopol na tisk. Melantrich to dosáhl roku 1552. Endgame unlock.", desc_en:"The bishop's seal. A monopoly on printing. Melantrich achieved this in 1552. Endgame unlock.", unlocks:["bishop_seal","printing_privilege"], requires:["tech_printing_basics","tech_codex_vellum"] },
@@ -8991,6 +8996,7 @@ const GamesSystem = {
             h += `<div class="game-unlock-text">${t('games.urTech')}</div>`;
         } else if (!hasUrBoard) {
             h += `<div class="game-unlock-text">${t('games.urCraft')}</div>`;
+            h += `<button class="craft-btn" onclick="RoyalGameOfUr.showRules()" style="background: var(--accent-wax);">${t('games.btnRules')}</button>`;
         } else {
             h += `<button class="craft-btn" onclick="RoyalGameOfUr.start()">${t('games.urPlayVsAI')}</button>`;
             h += `<button class="craft-btn" onclick="RoyalGameOfUrSolo.start()" style="background: var(--accent-gold);">${t('games.urPlaySolo')}</button>`;
@@ -9010,6 +9016,7 @@ const GamesSystem = {
             h += `<div class="game-unlock-text">${t('games.primeroTech')}</div>`;
         } else if (!hasPrimero) {
             h += `<div class="game-unlock-text">${t('games.primeroCraft')}</div>`;
+            h += `<button class="craft-btn" onclick="PrimeroGame.showRules()" style="background: var(--accent-gold);">${t('games.btnRules')}</button>`;
         } else {
             h += `<button class="craft-btn" onclick="PrimeroGame.start()">${t('games.btnPlay')}</button>`;
             h += `<button class="craft-btn" onclick="PrimeroGame.showRules()" style="background: var(--accent-gold);">${t('games.btnRules')}</button>`;
@@ -9028,6 +9035,7 @@ const GamesSystem = {
             h += `<div class="game-unlock-text">${t('games.karnoffelTech')}</div>`;
         } else if (!hasKarnoffel) {
             h += `<div class="game-unlock-text">${t('games.karnoffelCraft')}</div>`;
+            h += `<button class="craft-btn" onclick="KarnoffelGame.showRules()" style="background: var(--accent-gold);">${t('games.btnRules')}</button>`;
         } else {
             h += `<button class="craft-btn" onclick="KarnoffelGame.start()">${t('games.btnPlay')}</button>`;
             h += `<button class="craft-btn" onclick="KarnoffelGame.showRules()" style="background: var(--accent-gold);">${t('games.btnRules')}</button>`;
@@ -9046,6 +9054,7 @@ const GamesSystem = {
             h += `<div class="game-unlock-text">${t('games.freecellTech')}</div>`;
         } else if (!hasFrenchDeck) {
             h += `<div class="game-unlock-text">${t('games.freecellCraft')}</div>`;
+            h += `<button class="craft-btn" onclick="FreeCellGame.showRules()" style="background: var(--accent-gold);">${t('games.btnRules')}</button>`;
         } else {
             h += `<button class="craft-btn" onclick="FreeCellGame.start()">${t('games.btnPlay')}</button>`;
             h += `<button class="craft-btn" onclick="FreeCellGame.showRules()" style="background: var(--accent-gold);">${t('games.btnRules')}</button>`;
@@ -9064,6 +9073,7 @@ const GamesSystem = {
             h += `<div class="game-unlock-text">${t('games.rithmoTech')}</div>`;
         } else if (!hasRithmo) {
             h += `<div class="game-unlock-text">${t('games.rithmoCraft')}</div>`;
+            h += `<button class="craft-btn" onclick="Rithmomachia.showRules()" style="background: var(--accent-gold);">${t('games.btnRules')}</button>`;
         } else {
             h += `<button class="craft-btn" onclick="Rithmomachia.start()">${t('games.btnPlay')}</button>`;
             h += `<button class="craft-btn" onclick="Rithmomachia.showRules()" style="background: var(--accent-gold);">${t('games.btnRules')}</button>`;
@@ -10084,24 +10094,39 @@ const Rithmomachia = {
     },
     
     showRules: function() {
-        const modal = `
-            <div style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); z-index: 10000; display: flex; align-items: center; justify-content: center; padding: 20px;" onclick="this.remove()">
-                <div style="background: var(--bg-parchment); padding: 30px; border-radius: 10px; max-width: 500px; max-height: 80vh; overflow-y: auto;" onclick="event.stopPropagation()">
-                    <h2 style="margin-top: 0;">${t('games.rithmoRulesTitle')}</h2>
-                    
-                    ${t('games.rithmoRulesMovement')}
-                    
-                    ${t('games.rithmoRulesCapture')}
-                    
-                    ${t('games.rithmoRulesVictory')}
-                    
-                    ${t('games.rithmoRulesHistory')}
-                    
-                    <button class="craft-btn" onclick="this.parentElement.parentElement.remove()" style="margin-top: 20px; width: 100%;">${t('games.rithmoBtnClose')}</button>
-                </div>
-            </div>
-        `;
-        document.body.insertAdjacentHTML('beforeend', modal);
+        let modal = document.getElementById('rithmomachia-rules-modal');
+
+        if(!modal) {
+            modal = document.createElement('div');
+            modal.id = 'rithmomachia-rules-modal';
+            modal.className = 'game-modal';
+            document.body.appendChild(modal);
+
+            modal.addEventListener('click', (e) => {
+                if(e.target === modal) modal.remove();
+            });
+        }
+
+        let h = '<div class="game-modal-content" style="max-width: 600px;">';
+        h += '<button class="game-modal-close" onclick="document.getElementById(\'rithmomachia-rules-modal\').remove()">×</button>';
+        h += '<div style="background: var(--bg-card); padding: 20px; border-radius: 8px;">';
+
+        h += `<h2 style="margin-bottom: 15px; color: var(--ink-primary);">${t('games.rithmoRulesTitle')}</h2>`;
+
+        h += `<h3 style="margin-top: 15px;">${t('games.rithmoRulesMovementTitle')}</h3>`;
+        h += `<p style="opacity: 0.9;">${t('games.rithmoRulesMovementText')}</p>`;
+
+        h += `<h3 style="margin-top: 15px;">${t('games.rithmoRulesCaptureTitle')}</h3>`;
+        h += `<p style="opacity: 0.9;">${t('games.rithmoRulesCaptureText')}</p>`;
+
+        h += `<h3 style="margin-top: 15px;">${t('games.rithmoRulesVictoryTitle')}</h3>`;
+        h += `<p style="opacity: 0.9;">${t('games.rithmoRulesVictoryText')}</p>`;
+
+        h += `<h3 style="margin-top: 15px;">${t('games.rithmoRulesHistoryTitle')}</h3>`;
+        h += `<p style="opacity: 0.9;">${t('games.rithmoRulesHistoryText')}</p>`;
+
+        h += '</div></div>';
+        modal.innerHTML = h;
     }
 ,
     
@@ -10440,7 +10465,7 @@ const RoyalGameOfUr = {
         
         if(!modal) {
             modal = document.createElement('div');
-            modal.id = 'ur-solo-modal';
+            modal.id = 'ur-game-modal';
             modal.className = 'game-modal';
             modal.innerHTML = `
                 <div class="game-modal-content">
@@ -10824,7 +10849,7 @@ const RoyalGameOfUrSolo = {
     },
     
     render: function() {
-        let modal = document.getElementById('ur-game-modal');
+        let modal = document.getElementById('ur-solo-modal');
         
         if(!this.gameActive) {
             if(modal) modal.remove();
@@ -10838,7 +10863,7 @@ const RoyalGameOfUrSolo = {
             modal.innerHTML = `
                 <div class="game-modal-content">
                     <button class="game-modal-close" onclick="RoyalGameOfUrSolo.close()">×</button>
-                    <div id="ur-game-content"></div>
+                    <div id="ur-solo-content"></div>
                 </div>
             `;
             document.body.appendChild(modal);
@@ -10848,7 +10873,7 @@ const RoyalGameOfUrSolo = {
             });
         }
         
-        const container = document.getElementById('ur-game-content');
+        const container = document.getElementById('ur-solo-content');
         if(!container) return;
         
         let h = '<div style="background: var(--bg-card); padding: 15px; border-radius: 8px;">';
@@ -12127,13 +12152,13 @@ garden: {
   // Memory Game
   memoryName: 'Memory Game',
   memoryDesc: 'Najdi páry discovered items!',
-  memoryCraft: 'Vyrobit playing_cards',
+  memoryCraft: 'Vyrobit Hrací karty',
   
   // Royal Game of Ur
   urName: 'Royal Game of Ur',
   urDesc: 'Nejstarší hra světa (2600 př.n.l.)',
   urTech: 'Tech: Starobylé Hry (6 Research)',
-  urCraft: 'Vyrobit ur_board',
+  urCraft: 'Vyrobit Královskou desku z Uru',
   urPlayVsAI: 'VS AI 🤖',
   urPlaySolo: 'Solo 🧩',
   urNeedBoard: 'Nemáš hrací desku Ur!',
@@ -12203,7 +12228,7 @@ garden: {
   primeroName: 'Primero',
   primeroDesc: 'Předchůdce pokeru (1530)',
   primeroTech: 'Tech: Primero (10 Research)',
-  primeroCraft: 'Vyrobit primero_deck',
+  primeroCraft: 'Vyrobit Primero balíček',
   primeroNeedDeck: 'Nemáš balíček Primero!',
   primeroNeedBet: 'Nemáš dostatek Výzkumu na sázku ({bet})',
   primeroTitle: 'Primero',
@@ -12243,7 +12268,7 @@ garden: {
   karnoffelName: 'Karnöffel',
   karnoffelDesc: 'Nejstarší trumfová hra (1426)',
   karnoffelTech: 'Tech: Karnöffel (12 Research)',
-  karnoffelCraft: 'Vyrobit karnoffel_deck',
+  karnoffelCraft: 'Vyrobit Karnöffel balíček',
   karnoffelNeedDeck: 'Nemáš Karnöffel balíček!',
   karnoffelTitle: 'Karnöffel',
   karnoffelSubtitle: 'Německá trumfová hra ze 15. století',
@@ -12275,7 +12300,7 @@ garden: {
   freecellName: 'FreeCell Solitaire',
   freecellDesc: 'Logická karetní hra',
   freecellTech: 'Tech: Solitér Mistryně (15 Research)',
-  freecellCraft: 'Vyrobit french_deck',
+  freecellCraft: 'Vyrobit Francouzský balíček',
   freecellNeedDeck: 'Nemáš Francouzský balíček!',
   freecellTitle: 'FreeCell Solitaire',
   freecellSubtitle: 'Logický patience založený na strategii',
@@ -12305,7 +12330,7 @@ garden: {
   rithmoName: 'Rithmomachia',
   rithmoDesc: '"Šachy Filozofů" (1030)',
   rithmoTech: 'Tech: Filozofická Matematika (20 Research)',
-  rithmoCraft: 'Vyrobit rithmomachia_board',
+  rithmoCraft: 'Vyrobit Rithmomachia desku',
   rithmoNeedBoard: 'Nemáš Rithmomachia hrací desku!',
   rithmoTitle: 'Rithmomachia',
   rithmoSubtitle: 'Středověká hra čísel a geometrie',
@@ -12332,11 +12357,15 @@ garden: {
   rithmoLoss: '💀 Prohra. {reason}',
   
   // Rithmomachia Rules
-  rithmoRulesTitle: 'RITHMOMACHIA — Pravidla',
-  rithmoRulesMovement: '🎯 Pohyb: Kruhy se pohybují o 1 pole, Čtverce o 2, Trojúhelníky o 3. Pyramidy kombinují všechny.',
-  rithmoRulesCapture: '⚔️ Zajímání: Můžeš zajmout soupeřův kámen pokud tvoje číslo odpovídá matematickému vztahu (rovnost, násobek, rozdíl).',
-  rithmoRulesVictory: '🏆 Vítězství: Zajmi 3 pyramidy soupeře NEBO překroč 160 bodů ze zajatých kamenů.',
-  rithmoRulesHistory: '📜 Historie: Hra pochází z roku 1030, hrála se na středověkých univerzitách jako cvičení z aritmetiky a geometrie.',
+  rithmoRulesTitle: 'Rithmomachia — Pravidla',
+  rithmoRulesMovementTitle: '🎯 Pohyb',
+  rithmoRulesMovementText: 'Kruhy se pohybují o 1 pole, Čtverce o 2, Trojúhelníky o 3. Pyramidy kombinují všechny pohyby.',
+  rithmoRulesCaptureTitle: '⚔️ Zajímání',
+  rithmoRulesCaptureText: 'Můžeš zajmout soupeřův kámen pokud tvoje číslo odpovídá matematickému vztahu (rovnost, násobek, rozdíl).',
+  rithmoRulesVictoryTitle: '🏆 Vítězství',
+  rithmoRulesVictoryText: 'Zajmi 3 pyramidy soupeře NEBO překroč 160 bodů ze zajatých kamenů.',
+  rithmoRulesHistoryTitle: '📜 Historie',
+  rithmoRulesHistoryText: 'Hra pochází z roku 1030, hrála se na středověkých univerzitách jako cvičení z aritmetiky a geometrie.',
   
   // Common buttons
   btnPlay: 'Hrát 🎮',
@@ -13290,13 +13319,13 @@ garden: {
   // Memory Game
   memoryName: 'Memory Game',
   memoryDesc: 'Match pairs of discovered items!',
-  memoryCraft: 'Craft playing_cards',
+  memoryCraft: 'Craft Playing Cards',
   
   // Royal Game of Ur
   urName: 'Royal Game of Ur',
   urDesc: 'The world\'s oldest game (2600 BCE)',
   urTech: 'Tech: Ancient Games (6 Research)',
-  urCraft: 'Craft ur_board',
+  urCraft: 'Craft the Royal Game of Ur Board',
   urPlayVsAI: 'VS AI 🤖',
   urPlaySolo: 'Solo 🧩',
   urNeedBoard: 'You don\'t have an Ur board!',
@@ -13360,7 +13389,7 @@ garden: {
   primeroName: 'Primero',
   primeroDesc: 'Ancestor of poker (1530)',
   primeroTech: 'Tech: Primero (10 Research)',
-  primeroCraft: 'Craft primero_deck',
+  primeroCraft: 'Craft the Primero Deck',
   primeroNeedDeck: 'You don\'t have a Primero deck!',
   primeroNeedBet: 'Not enough Research for the bet ({bet})',
   primeroTitle: 'Primero',
@@ -13400,7 +13429,7 @@ garden: {
   karnoffelName: 'Karnöffel',
   karnoffelDesc: 'The oldest trump game (1426)',
   karnoffelTech: 'Tech: Karnöffel (12 Research)',
-  karnoffelCraft: 'Craft karnoffel_deck',
+  karnoffelCraft: 'Craft the Karnöffel Deck',
   karnoffelNeedDeck: 'You don\'t have a Karnöffel deck!',
   karnoffelTitle: 'Karnöffel',
   karnoffelSubtitle: '15th century German trump game',
@@ -13432,7 +13461,7 @@ garden: {
   freecellName: 'FreeCell Solitaire',
   freecellDesc: 'A game of logic and cards',
   freecellTech: 'Tech: Solitaire Mastery (15 Research)',
-  freecellCraft: 'Craft french_deck',
+  freecellCraft: 'Craft the French Deck',
   freecellNeedDeck: 'You don\'t have a French deck!',
   freecellTitle: 'FreeCell Solitaire',
   freecellSubtitle: 'Strategy-based patience game',
@@ -13462,7 +13491,7 @@ garden: {
   rithmoName: 'Rithmomachia',
   rithmoDesc: '"Philosophers\' Chess" (1030)',
   rithmoTech: 'Tech: Philosophical Mathematics (20 Research)',
-  rithmoCraft: 'Craft rithmomachia_board',
+  rithmoCraft: 'Craft the Rithmomachia Board',
   rithmoNeedBoard: 'You don\'t have a Rithmomachia board!',
   rithmoTitle: 'Rithmomachia',
   rithmoSubtitle: 'Medieval game of numbers and geometry',
@@ -13489,11 +13518,15 @@ garden: {
   rithmoLoss: '💀 Defeat. {reason}',
   
   // Rithmomachia Rules
-  rithmoRulesTitle: 'RITHMOMACHIA — Rules',
-  rithmoRulesMovement: '🎯 Movement: Circles move 1 square, Squares 2, Triangles 3. Pyramids combine all.',
-  rithmoRulesCapture: '⚔️ Capture: You can capture opponent\'s piece if your number matches a mathematical relationship (equality, multiple, difference).',
-  rithmoRulesVictory: '🏆 Victory: Capture 3 opponent pyramids OR exceed 160 points from captured pieces.',
-  rithmoRulesHistory: '📜 History: The game dates from 1030 AD, played at medieval universities as arithmetic and geometry exercise.',
+  rithmoRulesTitle: 'Rithmomachia — Rules',
+  rithmoRulesMovementTitle: '🎯 Movement',
+  rithmoRulesMovementText: 'Circles move 1 square, Squares move 2, Triangles move 3. Pyramids combine all movement types.',
+  rithmoRulesCaptureTitle: '⚔️ Capture',
+  rithmoRulesCaptureText: 'You can capture an opponent\'s piece if your number matches a mathematical relationship (equality, multiple, or difference).',
+  rithmoRulesVictoryTitle: '🏆 Victory',
+  rithmoRulesVictoryText: 'Capture 3 opponent pyramids OR exceed 160 points from captured pieces.',
+  rithmoRulesHistoryTitle: '📜 History',
+  rithmoRulesHistoryText: 'The game dates from 1030 AD, played at medieval universities as an exercise in arithmetic and geometry.',
   
   // Common buttons
   btnPlay: 'Play 🎮',
@@ -15896,9 +15929,11 @@ renderGamesTab: function() {
         h += `<div class="game-unlock-text">${t('games.urTech')}</div>`;
     } else if(!hasUrBoard) {
         h += `<div class="game-unlock-text">${t('games.urCraft')}</div>`;
+        h += `<button class="craft-btn" onclick="RoyalGameOfUr.showRules()" style="background: var(--accent-gold);">${t('games.btnRules')}</button>`;
     } else {
         h += `<button class="craft-btn" onclick="RoyalGameOfUr.start()">${t('games.urPlayVsAI')}</button>`;
         h += `<button class="craft-btn" onclick="RoyalGameOfUrSolo.start()" style="background: var(--accent-gold);">${t('games.urPlaySolo')}</button>`;
+        h += `<button class="craft-btn" onclick="RoyalGameOfUr.showRules()" style="background: var(--accent-gold);">${t('games.btnRules')}</button>`;
     }
     h += `</div>`;
 
@@ -15914,8 +15949,10 @@ renderGamesTab: function() {
         h += `<div class="game-unlock-text">${t('games.primeroTech')}</div>`;
     } else if(!hasPrimero) {
         h += `<div class="game-unlock-text">${t('games.primeroCraft')}</div>`;
+        h += `<button class="craft-btn" onclick="PrimeroGame.showRules()" style="background: var(--accent-gold);">${t('games.btnRules')}</button>`;
     } else {
         h += `<button class="craft-btn" onclick="PrimeroGame.start()">${t('games.btnPlay')}</button>`;
+        h += `<button class="craft-btn" onclick="PrimeroGame.showRules()" style="background: var(--accent-gold);">${t('games.btnRules')}</button>`;
     }
     h += `</div>`;
 
@@ -15931,8 +15968,10 @@ renderGamesTab: function() {
         h += `<div class="game-unlock-text">${t('games.karnoffelTech')}</div>`;
     } else if(!hasKarnoffel) {
         h += `<div class="game-unlock-text">${t('games.karnoffelCraft')}</div>`;
+        h += `<button class="craft-btn" onclick="KarnoffelGame.showRules()" style="background: var(--accent-gold);">${t('games.btnRules')}</button>`;
     } else {
         h += `<button class="craft-btn" onclick="KarnoffelGame.start()">${t('games.btnPlay')}</button>`;
+        h += `<button class="craft-btn" onclick="KarnoffelGame.showRules()" style="background: var(--accent-gold);">${t('games.btnRules')}</button>`;
     }
     h += `</div>`;
 
@@ -15948,8 +15987,10 @@ renderGamesTab: function() {
         h += `<div class="game-unlock-text">${t('games.freecellTech')}</div>`;
     } else if(!hasFrenchDeck) {
         h += `<div class="game-unlock-text">${t('games.freecellCraft')}</div>`;
+        h += `<button class="craft-btn" onclick="FreeCellGame.showRules()" style="background: var(--accent-gold);">${t('games.btnRules')}</button>`;
     } else {
         h += `<button class="craft-btn" onclick="FreeCellGame.start()">${t('games.btnPlay')}</button>`;
+        h += `<button class="craft-btn" onclick="FreeCellGame.showRules()" style="background: var(--accent-gold);">${t('games.btnRules')}</button>`;
     }
     h += `</div>`;
 
@@ -15965,6 +16006,7 @@ renderGamesTab: function() {
         h += `<div class="game-unlock-text">${t('games.rithmoTech')}</div>`;
     } else if(!hasRithmo) {
         h += `<div class="game-unlock-text">${t('games.rithmoCraft')}</div>`;
+        h += `<button class="craft-btn" onclick="Rithmomachia.showRules()" style="background: var(--accent-gold);">${t('games.btnRules')}</button>`;
     } else {
         h += `<button class="craft-btn" onclick="Rithmomachia.start()">${t('games.btnPlay')}</button>`;
         h += `<button class="craft-btn" onclick="Rithmomachia.showRules()" style="background: var(--accent-gold);">${t('games.btnRules')}</button>`;

@@ -326,7 +326,7 @@ const RoyalGameOfUr = {
         
         if(!modal) {
             modal = document.createElement('div');
-            modal.id = 'ur-solo-modal';
+            modal.id = 'ur-game-modal';
             modal.className = 'game-modal';
             modal.innerHTML = `
                 <div class="game-modal-content">
@@ -710,7 +710,7 @@ const RoyalGameOfUrSolo = {
     },
     
     render: function() {
-        let modal = document.getElementById('ur-game-modal');
+        let modal = document.getElementById('ur-solo-modal');
         
         if(!this.gameActive) {
             if(modal) modal.remove();
@@ -724,7 +724,7 @@ const RoyalGameOfUrSolo = {
             modal.innerHTML = `
                 <div class="game-modal-content">
                     <button class="game-modal-close" onclick="RoyalGameOfUrSolo.close()">×</button>
-                    <div id="ur-game-content"></div>
+                    <div id="ur-solo-content"></div>
                 </div>
             `;
             document.body.appendChild(modal);
@@ -734,7 +734,7 @@ const RoyalGameOfUrSolo = {
             });
         }
         
-        const container = document.getElementById('ur-game-content');
+        const container = document.getElementById('ur-solo-content');
         if(!container) return;
         
         let h = '<div style="background: var(--bg-card); padding: 15px; border-radius: 8px;">';

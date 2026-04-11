@@ -522,24 +522,39 @@ const Rithmomachia = {
     },
     
     showRules: function() {
-        const modal = `
-            <div style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); z-index: 10000; display: flex; align-items: center; justify-content: center; padding: 20px;" onclick="this.remove()">
-                <div style="background: var(--bg-parchment); padding: 30px; border-radius: 10px; max-width: 500px; max-height: 80vh; overflow-y: auto;" onclick="event.stopPropagation()">
-                    <h2 style="margin-top: 0;">${t('games.rithmoRulesTitle')}</h2>
-                    
-                    ${t('games.rithmoRulesMovement')}
-                    
-                    ${t('games.rithmoRulesCapture')}
-                    
-                    ${t('games.rithmoRulesVictory')}
-                    
-                    ${t('games.rithmoRulesHistory')}
-                    
-                    <button class="craft-btn" onclick="this.parentElement.parentElement.remove()" style="margin-top: 20px; width: 100%;">${t('games.rithmoBtnClose')}</button>
-                </div>
-            </div>
-        `;
-        document.body.insertAdjacentHTML('beforeend', modal);
+        let modal = document.getElementById('rithmomachia-rules-modal');
+
+        if(!modal) {
+            modal = document.createElement('div');
+            modal.id = 'rithmomachia-rules-modal';
+            modal.className = 'game-modal';
+            document.body.appendChild(modal);
+
+            modal.addEventListener('click', (e) => {
+                if(e.target === modal) modal.remove();
+            });
+        }
+
+        let h = '<div class="game-modal-content" style="max-width: 600px;">';
+        h += '<button class="game-modal-close" onclick="document.getElementById(\'rithmomachia-rules-modal\').remove()">×</button>';
+        h += '<div style="background: var(--bg-card); padding: 20px; border-radius: 8px;">';
+
+        h += `<h2 style="margin-bottom: 15px; color: var(--ink-primary);">${t('games.rithmoRulesTitle')}</h2>`;
+
+        h += `<h3 style="margin-top: 15px;">${t('games.rithmoRulesMovementTitle')}</h3>`;
+        h += `<p style="opacity: 0.9;">${t('games.rithmoRulesMovementText')}</p>`;
+
+        h += `<h3 style="margin-top: 15px;">${t('games.rithmoRulesCaptureTitle')}</h3>`;
+        h += `<p style="opacity: 0.9;">${t('games.rithmoRulesCaptureText')}</p>`;
+
+        h += `<h3 style="margin-top: 15px;">${t('games.rithmoRulesVictoryTitle')}</h3>`;
+        h += `<p style="opacity: 0.9;">${t('games.rithmoRulesVictoryText')}</p>`;
+
+        h += `<h3 style="margin-top: 15px;">${t('games.rithmoRulesHistoryTitle')}</h3>`;
+        h += `<p style="opacity: 0.9;">${t('games.rithmoRulesHistoryText')}</p>`;
+
+        h += '</div></div>';
+        modal.innerHTML = h;
     }
 ,
     
