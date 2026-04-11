@@ -12,7 +12,7 @@ const FreeCellGame = {
     
     start: function() {
         if (!GameState.inventory.french_deck || GameState.inventory.french_deck < 1) {
-            UI.notify(t('minigames.freecell.need_deck'), true);
+            UI.notify(t('games.freecellNeedDeck'), true);
             return;
         }
         
@@ -73,14 +73,14 @@ const FreeCellGame = {
         const foundation = this.foundations[foundationIndex];
         
         if(foundation.length === 0 && card.rank !== 'A') {
-            UI.notify(t('minigames.freecell.err_ace'), true);
+            UI.notify(t('games.freecellErrAce'), true);
             return;
         }
         
         if(foundation.length > 0) {
             const topCard = foundation[foundation.length - 1];
             if(topCard.suit !== card.suit || topCard.value + 1 !== card.value) {
-                UI.notify(t('minigames.freecell.err_invalid'), true);
+                UI.notify(t('games.freecellErrInvalid'), true);
                 return;
             }
         }
@@ -110,7 +110,7 @@ const FreeCellGame = {
         } else {
             const topCard = column[column.length - 1];
             if(topCard.color === card.color || topCard.value !== card.value + 1) {
-                UI.notify(t('minigames.freecell.err_color_val'), true);
+                UI.notify(t('games.freecellErrColorVal'), true);
                 return;
             }
         }
@@ -125,7 +125,7 @@ const FreeCellGame = {
     moveToFreeCell: function(cellIndex) {
         if(!this.selected) return;
         if(this.freeCells[cellIndex] !== null) {
-            UI.notify(t('minigames.freecell.err_cell_full'), true);
+            UI.notify(t('games.freecellErrCellFull'), true);
             return;
         }
         
@@ -177,7 +177,7 @@ const FreeCellGame = {
             GameState.achievements.stats.totalResearchGained += reward;
         }
         
-        UI.notify(t('minigames.freecell.win').replace('{reward}', reward).replace('{moves}', this.moves));
+        UI.notify(t('games.freecellWin').replace('{reward}', reward).replace('{moves}', this.moves));
         
         setTimeout(() => this.render(), 2000);
     },
@@ -211,13 +211,13 @@ const FreeCellGame = {
         if(!container) return;
         
         let h = '<div style="background: var(--bg-card); padding: 15px; border-radius: 8px;">';
-        h += `<h3>${t('minigames.freecell.title')}</h3>`;
+        h += `<h3>${t('games.freecellTitle')}</h3>`;
         
         if(!this.gameActive && this.tableau.length === 0) {
-            h += `<p style="margin: 10px 0;">${t('minigames.freecell.subtitle')}</p>`;
-            h += `<button class="craft-btn" onclick="FreeCellGame.start()" style="margin-top: 10px;">${t('minigames.freecell.btn_play')}</button>`;
+            h += `<p style="margin: 10px 0;">${t('games.freecellSubtitle')}</p>`;
+            h += `<button class="craft-btn" onclick="FreeCellGame.start()" style="margin-top: 10px;">${t('games.freecellBtnPlay')}</button>`;
         } else {
-            h += `<div style="margin-bottom: 10px;"><strong>${t('minigames.freecell.label_moves').replace('{moves}', this.moves)}</strong></div>`;
+            h += `<div style="margin-bottom: 10px;"><strong>${t('games.freecellLabelMoves').replace('{moves}', this.moves)}</strong></div>`;
             
             h += `<div style="display: grid; grid-template-columns: repeat(8, 1fr); gap: 5px; margin-bottom: 10px;">`;
             
@@ -260,7 +260,7 @@ const FreeCellGame = {
             }
             h += `</div>`;
             
-            h += `<button class="craft-btn" onclick="FreeCellGame.start()" style="margin-top: 10px;">${t('minigames.freecell.btn_new')}</button>`;
+            h += `<button class="craft-btn" onclick="FreeCellGame.start()" style="margin-top: 10px;">${t('games.freecellBtnNew')}</button>`;
         }
         
         h += '</div>';
@@ -271,5 +271,46 @@ const FreeCellGame = {
         this.gameActive = false;
         const modal = document.getElementById('freecell-modal');
         if(modal) modal.remove();
+    },
+    
+    showRules: function() {
+        let modal = document.getElementById('freecell-rules-modal');
+        
+        if(!modal) {
+            modal = document.createElement('div');
+            modal.id = 'freecell-rules-modal';
+            modal.className = 'game-modal';
+            document.body.appendChild(modal);
+            
+            modal.addEventListener('click', (e) => {
+                if(e.target === modal) {
+                    modal.remove();
+                }
+            });
+        }
+        
+        let h = '<div class="game-modal-content" style="max-width: 600px;">';
+        h += '<button class="game-modal-close" onclick="document.getElementById(\'freecell-rules-modal\').remove()">×</button>';
+        h += '<div style="background: var(--bg-card); padding: 20px; border-radius: 8px;">';
+        
+        h += `<h2 style="margin-bottom: 15px; color: var(--ink-primary);">${t('games.freecellRulesTitle')}</h2>`;
+        
+        h += `<h3 style="margin-top: 15px;">${t('games.freecellRulesHistory')}</h3>`;
+        h += `<p style="opacity: 0.9;">${t('games.freecellRulesHistoryText')}</p>`;
+        
+        h += `<h3 style="margin-top: 15px;">${t('games.freecellRulesGoal')}</h3>`;
+        h += `<p style="opacity: 0.9;">${t('games.freecellRulesGoalText')}</p>`;
+        
+        h += `<h3 style="margin-top: 15px;">${t('games.freecellRulesFreeCells')}</h3>`;
+        h += `<p style="opacity: 0.9;">${t('games.freecellRulesFreeCellsText')}</p>`;
+        
+        h += `<h3 style="margin-top: 15px;">${t('games.freecellRulesTableau')}</h3>`;
+        h += `<p style="opacity: 0.9;">${t('games.freecellRulesTableauText')}</p>`;
+        
+        h += `<h3 style="margin-top: 15px;">${t('games.freecellRulesStrategy')}</h3>`;
+        h += `<p style="opacity: 0.9;">${t('games.freecellRulesStrategyText')}</p>`;
+        
+        h += '</div></div>';
+        modal.innerHTML = h;
     }
 };

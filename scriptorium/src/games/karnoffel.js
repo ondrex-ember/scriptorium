@@ -13,7 +13,7 @@ const KarnoffelGame = {
     
     start: function() {
         if (!GameState.inventory.karnoffel_deck || GameState.inventory.karnoffel_deck < 1) {
-            UI.notify(t('minigames.karnoffel.need_deck'), true);
+            UI.notify(t('games.karnoffelNeedDeck'), true);
             return;
         }
         
@@ -96,10 +96,10 @@ const KarnoffelGame = {
         
         if(winner === 'you') {
             this.playerTricks++;
-            UI.notify(t('minigames.karnoffel.trick_win'));
+            UI.notify(t('games.karnoffelTrickWin'));
         } else {
             this.opponentTricks++;
-            UI.notify(t('minigames.karnoffel.trick_loss'));
+            UI.notify(t('games.karnoffelTrickLoss'));
         }
         
         this.currentTrick = [];
@@ -124,13 +124,13 @@ const KarnoffelGame = {
                 GameState.achievements.stats.totalResearchGained += reward;
             }
             
-            UI.notify(t('minigames.karnoffel.game_win').replace('{reward}', reward));
+            UI.notify(t('games.karnoffelGameWin').replace('{reward}', reward));
         } else {
             if(GameState.achievements) {
                 GameState.achievements.stats.totalGamesPlayed++;
             }
             
-            UI.notify(t('minigames.karnoffel.game_loss'));
+            UI.notify(t('games.karnoffelGameLoss'));
         }
         
         setTimeout(() => this.render(), 1500);
@@ -165,21 +165,21 @@ const KarnoffelGame = {
         if(!container) return;
         
         let h = '<div style="background: var(--bg-card); padding: 15px; border-radius: 8px;">';
-        h += `<h3>${t('minigames.karnoffel.title')}</h3>`;
+        h += `<h3>${t('games.karnoffelTitle')}</h3>`;
         
         if(!this.gameActive) {
-            h += `<p style="margin: 10px 0;">${t('minigames.karnoffel.subtitle')}</p>`;
-            h += `<button class="craft-btn" onclick="KarnoffelGame.start()" style="margin-top: 10px;">${t('minigames.karnoffel.btn_play')}</button>`;
+            h += `<p style="margin: 10px 0;">${t('games.karnoffelSubtitle')}</p>`;
+            h += `<button class="craft-btn" onclick="KarnoffelGame.start()" style="margin-top: 10px;">${t('games.karnoffelBtnPlay')}</button>`;
         } else {
             h += `<div style="display: flex; justify-content: space-between; margin: 10px 0; padding: 10px; background: rgba(0,0,0,0.1); border-radius: 4px;">`;
-            h += `<div>${t('minigames.karnoffel.label_your_tricks')}: ${this.playerTricks}</div>`;
-            h += `<div>${t('minigames.karnoffel.label_trump')}: ${this.trump}</div>`;
-            h += `<div>${t('minigames.karnoffel.label_opponent')}: ${this.opponentTricks}</div>`;
+            h += `<div>${t('games.karnoffelLabelYourTricks')}: ${this.playerTricks}</div>`;
+            h += `<div>${t('games.karnoffelLabelTrump')}: ${this.trump}</div>`;
+            h += `<div>${t('games.karnoffelLabelOpponent')}: ${this.opponentTricks}</div>`;
             h += `</div>`;
             
             if(this.currentTrick.length > 0) {
                 h += `<div style="margin: 15px 0; padding: 10px; background: rgba(197,160,89,0.2); border-radius: 4px;">`;
-                h += `<strong>${t('minigames.karnoffel.label_current_trick')}</strong><div style="display: flex; gap: 10px; margin-top: 5px; justify-content: center;">`;
+                h += `<strong>${t('games.karnoffelLabelCurrentTrick')}</strong><div style="display: flex; gap: 10px; margin-top: 5px; justify-content: center;">`;
                 this.currentTrick.forEach(play => {
                     h += `<div style="padding: 10px; background: white; border: 2px solid var(--accent-gold); border-radius: 4px; text-align: center; color: black;">`;
                     h += `${play.card.rank}${play.card.suit}`;
@@ -189,7 +189,7 @@ const KarnoffelGame = {
             }
             
             h += `<div style="margin: 15px 0;">`;
-            h += `<strong>${t('minigames.karnoffel.label_your_cards')}</strong>`;
+            h += `<strong>${t('games.karnoffelLabelYourCards')}</strong>`;
             h += `<div style="display: flex; gap: 5px; margin-top: 5px; flex-wrap: wrap;">`;
             this.playerHand.forEach((card, idx) => {
                 const isTrump = card.suit === this.trump;
@@ -208,5 +208,46 @@ const KarnoffelGame = {
         this.gameActive = false;
         const modal = document.getElementById('karnoffel-modal');
         if(modal) modal.remove();
+    },
+    
+    showRules: function() {
+        let modal = document.getElementById('karnoffel-rules-modal');
+        
+        if(!modal) {
+            modal = document.createElement('div');
+            modal.id = 'karnoffel-rules-modal';
+            modal.className = 'game-modal';
+            document.body.appendChild(modal);
+            
+            modal.addEventListener('click', (e) => {
+                if(e.target === modal) {
+                    modal.remove();
+                }
+            });
+        }
+        
+        let h = '<div class="game-modal-content" style="max-width: 600px;">';
+        h += '<button class="game-modal-close" onclick="document.getElementById(\'karnoffel-rules-modal\').remove()">×</button>';
+        h += '<div style="background: var(--bg-card); padding: 20px; border-radius: 8px;">';
+        
+        h += `<h2 style="margin-bottom: 15px; color: var(--ink-primary);">${t('games.karnoffelRulesTitle')}</h2>`;
+        
+        h += `<h3 style="margin-top: 15px;">${t('games.karnoffelRulesHistory')}</h3>`;
+        h += `<p style="opacity: 0.9;">${t('games.karnoffelRulesHistoryText')}</p>`;
+        
+        h += `<h3 style="margin-top: 15px;">${t('games.karnoffelRulesDeck')}</h3>`;
+        h += `<p style="opacity: 0.9;">${t('games.karnoffelRulesDeckText')}</p>`;
+        
+        h += `<h3 style="margin-top: 15px;">${t('games.karnoffelRulesGoal')}</h3>`;
+        h += `<p style="opacity: 0.9;">${t('games.karnoffelRulesGoalText')}</p>`;
+        
+        h += `<h3 style="margin-top: 15px;">${t('games.karnoffelRulesTrump')}</h3>`;
+        h += `<p style="opacity: 0.9;">${t('games.karnoffelRulesTrumpText')}</p>`;
+        
+        h += `<h3 style="margin-top: 15px;">${t('games.karnoffelRulesPlay')}</h3>`;
+        h += `<p style="opacity: 0.9;">${t('games.karnoffelRulesPlayText')}</p>`;
+        
+        h += '</div></div>';
+        modal.innerHTML = h;
     }
 };

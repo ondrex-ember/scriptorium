@@ -1,6 +1,7 @@
 const RoyalGameOfUr = {
     gameActive: false,
     mode: 'ai',
+     lastMessage: '',
     
     board: [],
     playerPieces: [],
@@ -23,9 +24,11 @@ const RoyalGameOfUr = {
     
     start: function() {
         if (!GameState.inventory.ur_board || GameState.inventory.ur_board < 1) {
-            UI.notify(t('minigames.ur.need_board'), true);
+            this.lastMessage = t('games.urNeedBoard'), true; this.render();
             return;
         }
+        
+        this.lastMessage = ''; // Clear previous message
         
         this.gameActive = true;
         this.mode = 'ai';
@@ -56,7 +59,7 @@ const RoyalGameOfUr = {
     rollDice: function() {
         if(!this.gameActive) return;
         if(this.canMove) {
-            UI.notify(t('minigames.ur.err_move_first'), true);
+            this.lastMessage = t('games.urErrMoveFirst'), true; this.render();
             return;
         }
         
@@ -72,14 +75,14 @@ const RoyalGameOfUr = {
             const validMoves = this.getValidMoves('player');
             if(validMoves.length === 0) {
                 if(this.diceRoll === 0) {
-                    UI.notify(t('minigames.ur.roll_zero_skip'));
+                    this.lastMessage = t('games.urRollZeroSkip'); this.render();
                 } else {
-                    UI.notify(t('minigames.ur.err_no_moves'));
+                    this.lastMessage = t('games.urErrNoMoves'); this.render();
                 }
                 setTimeout(() => this.endTurn(), 1500);
             } else {
                 this.canMove = true;
-                UI.notify(t('minigames.ur.roll_success').replace('{roll}', this.diceRoll));
+                this.lastMessage = t('games.urRollSuccess').replace('{roll}', this.diceRoll); this.render();
             }
         } else {
             setTimeout(() => this.aiMove(), 1000);
@@ -169,14 +172,14 @@ const RoyalGameOfUr = {
         const newPos = this.calculateNewPosition(piece.position, this.diceRoll, 'player');
         
         if(!this.isValidMove(piece.position, newPos, 'player')) {
-            UI.notify(t('minigames.ur.err_invalid'), true);
+            this.lastMessage = t('games.urErrInvalid'), true; this.render();
             return;
         }
         
         this.executeMoveForPlayer(pieceIndex, newPos, 'player');
         
         if(this.rosettes.includes(newPos)) {
-            UI.notify(t('minigames.ur.rosette'));
+            this.lastMessage = t('games.urRosette'); this.render();
             this.canMove = false;
             this.diceRoll = 0;
         } else {
@@ -202,7 +205,7 @@ const RoyalGameOfUr = {
                 const enemyPieces = captured.player === 'player' ? this.playerPieces : this.aiPieces;
                 enemyPieces[captured.pieceId].position = -1;
                 this.stats.captures++;
-                UI.notify(t('minigames.ur.capture'));
+                this.lastMessage = t('games.urCapture'); this.render();
             }
         }
         
@@ -237,9 +240,9 @@ const RoyalGameOfUr = {
         
         if(validMoves.length === 0) {
             if(this.diceRoll === 0) {
-                UI.notify(t('minigames.ur.ai_roll_zero'));
+                this.lastMessage = t('games.urAiRollZero'); this.render();
             } else {
-                UI.notify(t('minigames.ur.ai_no_moves'));
+                this.lastMessage = t('games.urAiNoMoves'); this.render();
             }
             setTimeout(() => this.endTurn(), 1500);
             return;
@@ -273,10 +276,10 @@ const RoyalGameOfUr = {
             const newPos = this.calculateNewPosition(this.aiPieces[bestMove].position, this.diceRoll, 'ai');
             this.executeMoveForPlayer(bestMove, newPos, 'ai');
             
-            UI.notify(t('minigames.ur.ai_move').replace('{pos}', newPos));
+            this.lastMessage = t('games.urAiMove').replace('{pos}', newPos); this.render();
             
             if(this.rosettes.includes(newPos)) {
-                UI.notify(t('minigames.ur.ai_rosette'));
+                this.lastMessage = t('games.urAiRosette'); this.render();
                 setTimeout(() => this.rollDice(), 1500);
             } else {
                 setTimeout(() => this.endTurn(), 1500);
@@ -299,7 +302,7 @@ const RoyalGameOfUr = {
                 GameState.achievements.stats.totalResearchGained += reward;
             }
             
-            UI.notify(t('minigames.ur.win_vs').replace('{reward}', reward));
+            this.lastMessage = t('games.urWinVs').replace('{reward}', reward); this.render();
             setTimeout(() => this.render(), 2000);
         } else if(this.stats.aiFinished === 7) {
             this.gameActive = false;
@@ -308,7 +311,7 @@ const RoyalGameOfUr = {
                 GameState.achievements.stats.totalGamesPlayed++;
             }
             
-            UI.notify(t('minigames.ur.loss_vs'));
+            this.lastMessage = t('games.urLossVs'); this.render();
             setTimeout(() => this.render(), 2000);
         }
     },
@@ -323,7 +326,7 @@ const RoyalGameOfUr = {
         
         if(!modal) {
             modal = document.createElement('div');
-            modal.id = 'ur-game-modal';
+            modal.id = 'ur-solo-modal';
             modal.className = 'game-modal';
             modal.innerHTML = `
                 <div class="game-modal-content">
@@ -342,25 +345,31 @@ const RoyalGameOfUr = {
         if(!container) return;
         
         let h = '<div style="background: var(--bg-card); padding: 15px; border-radius: 8px;">';
-        h += `<h3>${t('minigames.ur.title_vs')}</h3>`;
+        h += `<h3>${t('games.urTitleVs')}</h3>`;
         
         if(!this.gameActive) {
-            h += `<p style="margin: 10px 0;">${t('minigames.ur.subtitle_vs')}</p>`;
-            h += `<p style="font-size: 0.9rem; opacity: 0.8;">${t('minigames.ur.desc_vs')}</p>`;
-            h += `<button class="craft-btn" onclick="RoyalGameOfUr.start()" style="margin-top: 10px;">${t('minigames.ur.btn_vs_ai')}</button>`;
-            h += `<button class="craft-btn" onclick="RoyalGameOfUrSolo.start()" style="margin-top: 10px; background: var(--accent-gold);">${t('minigames.ur.btn_solo')}</button>`;
+            h += `<p style="margin: 10px 0;">${t('games.urSubtitleVs')}</p>`;
+            h += `<p style="font-size: 0.9rem; opacity: 0.8;">${t('games.urDescVs')}</p>`;
+            h += `<button class="craft-btn" onclick="RoyalGameOfUr.start()" style="margin-top: 10px;">${t('games.urBtnVsAi')}</button>`;
+            h += `<button class="craft-btn" onclick="RoyalGameOfUrSolo.start()" style="margin-top: 10px; background: var(--accent-gold);">${t('games.urBtnSolo')}</button>`;
         } else {
             h += `<div style="display: flex; justify-content: space-between; margin: 10px 0; padding: 10px; background: rgba(0,0,0,0.1); border-radius: 4px;">`;
-            h += `<div>${t('minigames.ur.label_you')}: ${this.stats.playerFinished}/7</div>`;
-            h += `<div>${t('minigames.ur.label_moves')}: ${this.stats.moves}</div>`;
-            h += `<div>${t('minigames.ur.label_ai')}: ${this.stats.aiFinished}/7</div>`;
+            h += `<div>${t('games.urLabelYou')}: ${this.stats.playerFinished}/7</div>`;
+            h += `<div>${t('games.urLabelMoves')}: ${this.stats.moves}</div>`;
+            h += `<div>${t('games.urLabelAi')}: ${this.stats.aiFinished}/7</div>`;
             h += `</div>`;
             
+            if(this.lastMessage) {
+                h += `<div style="text-align: center; margin: 10px 0; padding: 10px; background: rgba(197,160,89,0.3); border: 2px solid var(--accent-gold); border-radius: 4px; font-size: 0.95rem; color: var(--ink-primary);">`;
+                h += this.lastMessage;
+                h += `</div>`;
+            }
+            
             if(this.currentTurn === 'player' && !this.canMove) {
-                h += `<button class="craft-btn" onclick="RoyalGameOfUr.rollDice()" style="margin: 10px 0; width: 100%;">${t('minigames.ur.btn_roll')}</button>`;
+                h += `<button class="craft-btn" onclick="RoyalGameOfUr.rollDice()" style="margin: 10px 0; width: 100%;">${t('games.urBtnRoll')}</button>`;
             } else if(this.diceRoll > 0) {
                 h += `<div style="text-align: center; margin: 10px 0; padding: 10px; background: gold; border-radius: 4px; font-size: 1.2rem; color: black;">`;
-                h += t('minigames.ur.label_roll').replace('{roll}', this.diceRoll);
+                h += t('games.urLabelRoll').replace('{roll}', this.diceRoll);
                 h += `</div>`;
             }
             
@@ -369,7 +378,7 @@ const RoyalGameOfUr = {
             const playerOffBoard = this.playerPieces.filter(p => p.position === -1);
             if(playerOffBoard.length > 0 && this.canMove) {
                 h += `<div style="margin-top: 15px;">`;
-                h += `<strong>${t('minigames.ur.label_offboard').replace('{count}', playerOffBoard.length)}</strong>`;
+                h += `<strong>${t('games.urLabelOffboard').replace('{count}', playerOffBoard.length)}</strong>`;
                 h += `<div style="display: flex; gap: 5px; margin-top: 5px;">`;
                 playerOffBoard.forEach(piece => {
                     h += `<button class="craft-btn" onclick="RoyalGameOfUr.movePiece(${piece.id})" style="padding: 8px;">`;
@@ -441,6 +450,47 @@ const RoyalGameOfUr = {
         this.gameActive = false;
         const modal = document.getElementById('ur-game-modal');
         if(modal) modal.remove();
+    },
+    
+    showRules: function() {
+        let modal = document.getElementById('ur-rules-modal');
+        
+        if(!modal) {
+            modal = document.createElement('div');
+            modal.id = 'ur-rules-modal';
+            modal.className = 'game-modal';
+            document.body.appendChild(modal);
+            
+            modal.addEventListener('click', (e) => {
+                if(e.target === modal) {
+                    modal.remove();
+                }
+            });
+        }
+        
+        let h = '<div class="game-modal-content" style="max-width: 600px;">';
+        h += '<button class="game-modal-close" onclick="document.getElementById(\'ur-rules-modal\').remove()">×</button>';
+        h += '<div style="background: var(--bg-card); padding: 20px; border-radius: 8px;">';
+        
+        h += `<h2 style="margin-bottom: 15px; color: var(--ink-primary);">${t('games.urRulesTitle')}</h2>`;
+        
+        h += `<h3 style="margin-top: 15px;">${t('games.urRulesHistory')}</h3>`;
+        h += `<p style="opacity: 0.9;">${t('games.urRulesHistoryText')}</p>`;
+        
+        h += `<h3 style="margin-top: 15px;">${t('games.urRulesGoal')}</h3>`;
+        h += `<p style="opacity: 0.9;">${t('games.urRulesGoalText')}</p>`;
+        
+        h += `<h3 style="margin-top: 15px;">${t('games.urRulesDice')}</h3>`;
+        h += `<p style="opacity: 0.9;">${t('games.urRulesDiceText')}</p>`;
+        
+        h += `<h3 style="margin-top: 15px;">${t('games.urRulesRosettes')}</h3>`;
+        h += `<p style="opacity: 0.9;">${t('games.urRulesRosettesText')}</p>`;
+        
+        h += `<h3 style="margin-top: 15px;">${t('games.urRulesCapture')}</h3>`;
+        h += `<p style="opacity: 0.9;">${t('games.urRulesCaptureText')}</p>`;
+        
+        h += '</div></div>';
+        modal.innerHTML = h;
     }
 };
 
@@ -448,6 +498,7 @@ const RoyalGameOfUr = {
 
 const RoyalGameOfUrSolo = {
     gameActive: false,
+     lastMessage: '',
     
     board: [],
     playerPieces: [],
@@ -472,9 +523,11 @@ const RoyalGameOfUrSolo = {
     
     start: function() {
         if (!GameState.inventory.ur_board || GameState.inventory.ur_board < 1) {
-            UI.notify(t('minigames.ur.need_board'), true);
+            this.lastMessage = t('games.urNeedBoard'), true; this.render();
             return;
         }
+        
+        this.lastMessage = ''; // Clear previous message
         
         this.gameActive = true;
         this.diceRoll = 0;
@@ -500,7 +553,7 @@ const RoyalGameOfUrSolo = {
     rollDice: function() {
         if(!this.gameActive) return;
         if(this.canMove) {
-            UI.notify(t('minigames.ur.err_move_first'), true);
+            this.lastMessage = t('games.urErrMoveFirst'), true; this.render();
             return;
         }
         
@@ -515,14 +568,14 @@ const RoyalGameOfUrSolo = {
         const validMoves = this.getValidMoves();
         if(validMoves.length === 0) {
             if(this.diceRoll === 0) {
-                UI.notify(t('minigames.ur.roll_zero_retry'));
+                this.lastMessage = t('games.urRollZeroRetry'); this.render();
             } else {
-                UI.notify(t('minigames.ur.err_no_moves'));
+                this.lastMessage = t('games.urErrNoMoves'); this.render();
             }
             this.diceRoll = 0;
         } else {
             this.canMove = true;
-            UI.notify(t('minigames.ur.roll_success').replace('{roll}', this.diceRoll));
+            this.lastMessage = t('games.urRollSuccess').replace('{roll}', this.diceRoll); this.render();
         }
         
         this.render();
@@ -580,7 +633,7 @@ const RoyalGameOfUrSolo = {
         const newPos = this.calculateNewPosition(piece.position, this.diceRoll);
         
         if(!this.isValidMove(piece.position, newPos)) {
-            UI.notify(t('minigames.ur.err_invalid'), true);
+            this.lastMessage = t('games.urErrInvalid'), true; this.render();
             return;
         }
         
@@ -588,7 +641,7 @@ const RoyalGameOfUrSolo = {
         this.stats.moves++;
         
         if(this.rosettes.includes(newPos)) {
-            UI.notify(t('minigames.ur.rosette'));
+            this.lastMessage = t('games.urRosette'); this.render();
             this.canMove = false;
             this.diceRoll = 0;
         } else {
@@ -645,12 +698,12 @@ const RoyalGameOfUrSolo = {
                 GameState.achievements.stats.totalResearchGained += reward;
             }
             
-            let winMsg = t('minigames.ur.win_solo')
+            let winMsg = t('games.urWinSolo')
                 .replace('{grade}', translatedGrade)
                 .replace('{reward}', reward)
                 .replace('{rolls}', this.stats.rollsUsed);
             
-            UI.notify(winMsg);
+            this.lastMessage = winMsg; this.render();
             
             setTimeout(() => this.render(), 2000);
         }
@@ -666,7 +719,7 @@ const RoyalGameOfUrSolo = {
         
         if(!modal) {
             modal = document.createElement('div');
-            modal.id = 'ur-game-modal';
+            modal.id = 'ur-solo-modal';
             modal.className = 'game-modal';
             modal.innerHTML = `
                 <div class="game-modal-content">
@@ -685,50 +738,56 @@ const RoyalGameOfUrSolo = {
         if(!container) return;
         
         let h = '<div style="background: var(--bg-card); padding: 15px; border-radius: 8px;">';
-        h += `<h3>${t('minigames.ur.title_solo')}</h3>`;
+        h += `<h3>${t('games.urTitleSolo')}</h3>`;
         
         if(!this.gameActive) {
-            h += `<p style="margin: 10px 0;">${t('minigames.ur.subtitle_solo')}</p>`;
+            h += `<p style="margin: 10px 0;">${t('games.urSubtitleSolo')}</p>`;
             h += `<div style="font-size: 0.85rem; opacity: 0.8; margin: 10px 0;">`;
-            h += `<strong>${t('minigames.ur.label_rating')}</strong><br>`;
-            h += `${t('minigames.ur.rating_perfect').replace('{target}', this.targets.perfect)}<br>`;
-            h += `${t('minigames.ur.rating_good').replace('{target}', this.targets.good)}<br>`;
-            h += `${t('minigames.ur.rating_ok').replace('{target}', this.targets.ok)}<br>`;
-            h += `${t('minigames.ur.rating_pass').replace('{target}', this.targets.ok)}`;
+            h += `<strong>${t('games.urLabelRating')}</strong><br>`;
+            h += `${t('games.urRatingPerfect').replace('{target}', this.targets.perfect)}<br>`;
+            h += `${t('games.urRatingGood').replace('{target}', this.targets.good)}<br>`;
+            h += `${t('games.urRatingOk').replace('{target}', this.targets.ok)}<br>`;
+            h += `${t('games.urRatingPass').replace('{target}', this.targets.ok)}`;
             h += `</div>`;
-            h += `<button class="craft-btn" onclick="RoyalGameOfUrSolo.start()" style="margin-top: 10px;">${t('minigames.ur.btn_play_solo')}</button>`;
-            h += `<button class="craft-btn" onclick="RoyalGameOfUr.start()" style="margin-top: 10px; background: var(--accent-wax);">${t('minigames.ur.btn_back_vs')}</button>`;
+            h += `<button class="craft-btn" onclick="RoyalGameOfUrSolo.start()" style="margin-top: 10px;">${t('games.urBtnPlaySolo')}</button>`;
+            h += `<button class="craft-btn" onclick="RoyalGameOfUr.start()" style="margin-top: 10px; background: var(--accent-wax);">${t('games.urBtnBackVs')}</button>`;
         } else {
             h += `<div style="display: flex; justify-content: space-between; margin: 10px 0; padding: 10px; background: rgba(0,0,0,0.1); border-radius: 4px;">`;
-            h += `<div>${t('minigames.ur.label_finished')}: ${this.stats.finished}/7</div>`;
-            h += `<div>${t('minigames.ur.label_rolls')}: ${this.stats.rollsUsed}</div>`;
-            h += `<div>${t('minigames.ur.label_moves')}: ${this.stats.moves}</div>`;
+            h += `<div>${t('games.urLabelFinished')}: ${this.stats.finished}/7</div>`;
+            h += `<div>${t('games.urLabelRolls')}: ${this.stats.rollsUsed}</div>`;
+            h += `<div>${t('games.urLabelMoves')}: ${this.stats.moves}</div>`;
             h += `</div>`;
+            
+            if(this.lastMessage) {
+                h += `<div style="text-align: center; margin: 10px 0; padding: 10px; background: rgba(197,160,89,0.3); border: 2px solid var(--accent-gold); border-radius: 4px; font-size: 0.95rem; color: var(--ink-primary);">`;
+                h += this.lastMessage;
+                h += `</div>`;
+            }
             
             let targetColor = '#999';
             let targetText = 'OK';
             if(this.stats.rollsUsed <= this.targets.perfect) {
                 targetColor = 'gold';
-                targetText = t('minigames.ur.grade_perfect');
+                targetText = t('games.urGradePerfect');
             } else if(this.stats.rollsUsed <= this.targets.good) {
                 targetColor = '#4ade80';
-                targetText = t('minigames.ur.grade_good');
+                targetText = t('games.urGradeGood');
             } else if(this.stats.rollsUsed <= this.targets.ok) {
                 targetColor = '#60a5fa';
-                targetText = t('minigames.ur.grade_ok');
+                targetText = t('games.urGradeOk');
             } else {
-                targetText = t('minigames.ur.grade_pass');
+                targetText = t('games.urGradePass');
             }
             
             h += `<div style="text-align: center; margin: 5px 0; padding: 5px; background: ${targetColor}; color: white; border-radius: 4px; font-size: 0.85rem; font-weight: bold; text-shadow: 1px 1px 2px rgba(0,0,0,0.5);">`;
-            h += t('minigames.ur.label_pace').replace('{grade}', targetText);
+            h += t('games.urLabelPace').replace('{grade}', targetText);
             h += `</div>`;
             
             if(!this.canMove) {
-                h += `<button class="craft-btn" onclick="RoyalGameOfUrSolo.rollDice()" style="margin: 10px 0; width: 100%;">${t('minigames.ur.btn_roll')}</button>`;
+                h += `<button class="craft-btn" onclick="RoyalGameOfUrSolo.rollDice()" style="margin: 10px 0; width: 100%;">${t('games.urBtnRoll')}</button>`;
             } else if(this.diceRoll > 0) {
                 h += `<div style="text-align: center; margin: 10px 0; padding: 10px; background: gold; color: black; border-radius: 4px; font-size: 1.2rem;">`;
-                h += t('minigames.ur.label_roll').replace('{roll}', this.diceRoll);
+                h += t('games.urLabelRoll').replace('{roll}', this.diceRoll);
                 h += `</div>`;
             }
             
@@ -737,7 +796,7 @@ const RoyalGameOfUrSolo = {
             const offBoard = this.playerPieces.filter(p => p.position === -1);
             if(offBoard.length > 0 && this.canMove) {
                 h += `<div style="margin-top: 15px;">`;
-                h += `<strong>${t('minigames.ur.label_offboard_solo').replace('{count}', offBoard.length)}</strong>`;
+                h += `<strong>${t('games.urLabelOffboardSolo').replace('{count}', offBoard.length)}</strong>`;
                 h += `<div style="display: flex; gap: 5px; margin-top: 5px; flex-wrap: wrap;">`;
                 offBoard.forEach(piece => {
                     h += `<button class="craft-btn" onclick="RoyalGameOfUrSolo.movePiece(${piece.id})" style="padding: 8px;">`;
@@ -754,7 +813,7 @@ const RoyalGameOfUrSolo = {
     
     renderBoard: function() {
         let h = '<div style="margin: 15px 0;">';
-        h += `<strong style="display: block; margin-bottom: 5px;">${t('minigames.ur.label_track')}</strong>`;
+        h += `<strong style="display: block; margin-bottom: 5px;">${t('games.urLabelTrack')}</strong>`;
         h += '<div style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; font-size: 0.8rem;">';
         
         for(let i = 0; i < 7; i++) {

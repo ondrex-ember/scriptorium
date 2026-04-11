@@ -8994,6 +8994,7 @@ const GamesSystem = {
         } else {
             h += `<button class="craft-btn" onclick="RoyalGameOfUr.start()">${t('games.urPlayVsAI')}</button>`;
             h += `<button class="craft-btn" onclick="RoyalGameOfUrSolo.start()" style="background: var(--accent-gold);">${t('games.urPlaySolo')}</button>`;
+            h += `<button class="craft-btn" onclick="RoyalGameOfUr.showRules()" style="background: var(--accent-wax);">${t('games.btnRules')}</button>`;
         }
         h += `</div>`;
 
@@ -9029,6 +9030,7 @@ const GamesSystem = {
             h += `<div class="game-unlock-text">${t('games.karnoffelCraft')}</div>`;
         } else {
             h += `<button class="craft-btn" onclick="KarnoffelGame.start()">${t('games.btnPlay')}</button>`;
+            h += `<button class="craft-btn" onclick="KarnoffelGame.showRules()" style="background: var(--accent-gold);">${t('games.btnRules')}</button>`;
         }
         h += `</div>`;
 
@@ -9046,6 +9048,7 @@ const GamesSystem = {
             h += `<div class="game-unlock-text">${t('games.freecellCraft')}</div>`;
         } else {
             h += `<button class="craft-btn" onclick="FreeCellGame.start()">${t('games.btnPlay')}</button>`;
+            h += `<button class="craft-btn" onclick="FreeCellGame.showRules()" style="background: var(--accent-gold);">${t('games.btnRules')}</button>`;
         }
         h += `</div>`;
 
@@ -9631,7 +9634,7 @@ const Rithmomachia = {
     
     start: function() {
         if (!GameState.inventory.rithmomachia_board || GameState.inventory.rithmomachia_board < 1) {
-            UI.notify(t('minigames.rithmomachia.need_board'), true);
+            UI.notify(t('games.rithmoNeedBoard'), true);
             return;
         }
         
@@ -9668,7 +9671,7 @@ const Rithmomachia = {
     },
     
     showTutorial: function() {
-        UI.notify(t('minigames.rithmomachia.tut_msg'));
+        UI.notify(t('games.rithmoTutMsg'));
     },
     
     // ========== PIECE SELECTION ==========
@@ -9688,7 +9691,7 @@ const Rithmomachia = {
         }
         
         if (piece.player !== 'white') {
-            UI.notify(t('minigames.rithmomachia.err_not_yours'), true);
+            UI.notify(t('games.rithmoErrNotYours'), true);
             return;
         }
         
@@ -9698,7 +9701,7 @@ const Rithmomachia = {
         this.render();
         
         if (this.validMoves.length === 0) {
-            UI.notify(t('minigames.rithmomachia.err_no_move'), true);
+            UI.notify(t('games.rithmoErrNoMove'), true);
         }
     },
     
@@ -9778,7 +9781,7 @@ const Rithmomachia = {
         // Check if valid move
         const isValid = this.validMoves.some(([mx, my]) => mx === x && my === y);
         if (!isValid) {
-            UI.notify(t('minigames.rithmomachia.err_invalid'), true);
+            UI.notify(t('games.rithmoErrInvalid'), true);
             return;
         }
         
@@ -9863,7 +9866,7 @@ const Rithmomachia = {
             }
         }
         
-        UI.notify(t('minigames.rithmomachia.capture').replace('{value}', piece.value));
+        UI.notify(t('games.rithmoCapture').replace('{value}', piece.value));
     },
     
     // ========== AI OPPONENT ==========
@@ -9904,7 +9907,7 @@ const Rithmomachia = {
             piece.pos = [x, y];
             
             this.checkCaptures(piece);
-            UI.notify(t('minigames.rithmomachia.ai_move').replace('{type}', piece.type).replace('{x}', x).replace('{y}', y));
+            UI.notify(t('games.rithmoAiMove').replace('{type}', piece.type).replace('{x}', x).replace('{y}', y));
         }
         
         this.checkVictory();
@@ -9928,23 +9931,23 @@ const Rithmomachia = {
         const blackTriangles = this.blackPieces.filter(p => p.type === 'triangle').length;
         
         if (whiteTriangles === 0) {
-            this.endGame('black', t('minigames.rithmomachia.win_white_pyr'));
+            this.endGame('black', t('games.rithmoWinWhitePyr'));
             return true;
         }
         
         if (blackTriangles === 0) {
-            this.endGame('white', t('minigames.rithmomachia.win_black_pyr'));
+            this.endGame('white', t('games.rithmoWinBlackPyr'));
             return true;
         }
         
         // Condition 2: Reached 100 points
         if (this.points.white >= 100) {
-            this.endGame('white', t('minigames.rithmomachia.win_points'));
+            this.endGame('white', t('games.rithmoWinPoints'));
             return true;
         }
         
         if (this.points.black >= 100) {
-            this.endGame('black', t('minigames.rithmomachia.win_points'));
+            this.endGame('black', t('games.rithmoWinPoints'));
             return true;
         }
         
@@ -9965,14 +9968,14 @@ const Rithmomachia = {
                 GameState.achievements.stats.totalResearchGained += reward;
             }
             
-            UI.notify(t('minigames.rithmomachia.win').replace('{reason}', reason).replace('{reward}', reward));
+            UI.notify(t('games.rithmoWin').replace('{reason}', reason).replace('{reward}', reward));
         } else {
             // Track played (even if lost)
             if(GameState.achievements) {
                 GameState.achievements.stats.totalGamesPlayed++;
             }
             
-            UI.notify(t('minigames.rithmomachia.loss').replace('{reason}', reason));
+            UI.notify(t('games.rithmoLoss').replace('{reason}', reason));
         }
         
         setTimeout(() => this.render(), 2000);
@@ -10009,21 +10012,21 @@ const Rithmomachia = {
         if (!container) return;
         
         let h = '<div style="background: var(--bg-card); padding: 15px; border-radius: 8px;">';
-        h += `<h3>${t('minigames.rithmomachia.title')}</h3>`;
+        h += `<h3>${t('games.rithmoTitle')}</h3>`;
         
         if (!this.gameActive) {
-            h += `<p style="margin: 10px 0;">${t('minigames.rithmomachia.subtitle')}</p>`;
+            h += `<p style="margin: 10px 0;">${t('games.rithmoSubtitle')}</p>`;
             h += `<p style="font-size: 0.9rem; opacity: 0.8; margin: 10px 0;">`;
-            h += t('minigames.rithmomachia.victory_cond');
+            h += t('games.rithmoVictoryCond');
             h += `</p>`;
-            h += `<button class="craft-btn" onclick="Rithmomachia.start()" style="margin-top: 10px;">${t('minigames.rithmomachia.btn_play')}</button>`;
-            h += `<button class="craft-btn" onclick="Rithmomachia.showRules()" style="margin-top: 10px; background: var(--accent-gold);">${t('minigames.rithmomachia.btn_rules')}</button>`;
+            h += `<button class="craft-btn" onclick="Rithmomachia.start()" style="margin-top: 10px;">${t('games.rithmoBtnPlay')}</button>`;
+            h += `<button class="craft-btn" onclick="Rithmomachia.showRules()" style="margin-top: 10px; background: var(--accent-gold);">${t('games.rithmoBtnRules')}</button>`;
         } else {
             // Score
             h += `<div style="display: flex; justify-content: space-between; margin: 10px 0; padding: 10px; background: rgba(0,0,0,0.1); border-radius: 4px; font-size: 0.9rem;">`;
-            h += `<div>${t('minigames.rithmomachia.label_you')}: ${this.points.white} ${t('minigames.rithmomachia.label_points')}</div>`;
-            h += `<div>${this.currentTurn === 'white' ? t('minigames.rithmomachia.label_your_turn') : t('minigames.rithmomachia.label_ai_turn')}</div>`;
-            h += `<div>${t('minigames.rithmomachia.label_ai')}: ${this.points.black} ${t('minigames.rithmomachia.label_points')}</div>`;
+            h += `<div>${t('games.rithmoLabelYou')}: ${this.points.white} ${t('games.rithmoLabelPoints')}</div>`;
+            h += `<div>${this.currentTurn === 'white' ? t('games.rithmoLabelYourTurn') : t('games.rithmoLabelAiTurn')}</div>`;
+            h += `<div>${t('games.rithmoLabelAi')}: ${this.points.black} ${t('games.rithmoLabelPoints')}</div>`;
             h += `</div>`;
             
             // Board
@@ -10031,7 +10034,7 @@ const Rithmomachia = {
             
             // Legend
             h += `<div style="margin-top: 10px; font-size: 0.85rem; opacity: 0.8;">`;
-            h += t('minigames.rithmomachia.legend');
+            h += t('games.rithmoLegend');
             h += `</div>`;
         }
         
@@ -10084,17 +10087,17 @@ const Rithmomachia = {
         const modal = `
             <div style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); z-index: 10000; display: flex; align-items: center; justify-content: center; padding: 20px;" onclick="this.remove()">
                 <div style="background: var(--bg-parchment); padding: 30px; border-radius: 10px; max-width: 500px; max-height: 80vh; overflow-y: auto;" onclick="event.stopPropagation()">
-                    <h2 style="margin-top: 0;">${t('minigames.rithmomachia.rules_title')}</h2>
+                    <h2 style="margin-top: 0;">${t('games.rithmoRulesTitle')}</h2>
                     
-                    ${t('minigames.rithmomachia.rules_movement')}
+                    ${t('games.rithmoRulesMovement')}
                     
-                    ${t('minigames.rithmomachia.rules_capture')}
+                    ${t('games.rithmoRulesCapture')}
                     
-                    ${t('minigames.rithmomachia.rules_victory')}
+                    ${t('games.rithmoRulesVictory')}
                     
-                    ${t('minigames.rithmomachia.rules_history')}
+                    ${t('games.rithmoRulesHistory')}
                     
-                    <button class="craft-btn" onclick="this.parentElement.parentElement.remove()" style="margin-top: 20px; width: 100%;">${t('minigames.rithmomachia.btn_close')}</button>
+                    <button class="craft-btn" onclick="this.parentElement.parentElement.remove()" style="margin-top: 20px; width: 100%;">${t('games.rithmoBtnClose')}</button>
                 </div>
             </div>
         `;
@@ -10112,6 +10115,7 @@ const Rithmomachia = {
 const RoyalGameOfUr = {
     gameActive: false,
     mode: 'ai',
+     lastMessage: '',
     
     board: [],
     playerPieces: [],
@@ -10134,9 +10138,11 @@ const RoyalGameOfUr = {
     
     start: function() {
         if (!GameState.inventory.ur_board || GameState.inventory.ur_board < 1) {
-            UI.notify(t('minigames.ur.need_board'), true);
+            this.lastMessage = t('games.urNeedBoard'), true; this.render();
             return;
         }
+        
+        this.lastMessage = ''; // Clear previous message
         
         this.gameActive = true;
         this.mode = 'ai';
@@ -10167,7 +10173,7 @@ const RoyalGameOfUr = {
     rollDice: function() {
         if(!this.gameActive) return;
         if(this.canMove) {
-            UI.notify(t('minigames.ur.err_move_first'), true);
+            this.lastMessage = t('games.urErrMoveFirst'), true; this.render();
             return;
         }
         
@@ -10183,14 +10189,14 @@ const RoyalGameOfUr = {
             const validMoves = this.getValidMoves('player');
             if(validMoves.length === 0) {
                 if(this.diceRoll === 0) {
-                    UI.notify(t('minigames.ur.roll_zero_skip'));
+                    this.lastMessage = t('games.urRollZeroSkip'); this.render();
                 } else {
-                    UI.notify(t('minigames.ur.err_no_moves'));
+                    this.lastMessage = t('games.urErrNoMoves'); this.render();
                 }
                 setTimeout(() => this.endTurn(), 1500);
             } else {
                 this.canMove = true;
-                UI.notify(t('minigames.ur.roll_success').replace('{roll}', this.diceRoll));
+                this.lastMessage = t('games.urRollSuccess').replace('{roll}', this.diceRoll); this.render();
             }
         } else {
             setTimeout(() => this.aiMove(), 1000);
@@ -10280,14 +10286,14 @@ const RoyalGameOfUr = {
         const newPos = this.calculateNewPosition(piece.position, this.diceRoll, 'player');
         
         if(!this.isValidMove(piece.position, newPos, 'player')) {
-            UI.notify(t('minigames.ur.err_invalid'), true);
+            this.lastMessage = t('games.urErrInvalid'), true; this.render();
             return;
         }
         
         this.executeMoveForPlayer(pieceIndex, newPos, 'player');
         
         if(this.rosettes.includes(newPos)) {
-            UI.notify(t('minigames.ur.rosette'));
+            this.lastMessage = t('games.urRosette'); this.render();
             this.canMove = false;
             this.diceRoll = 0;
         } else {
@@ -10313,7 +10319,7 @@ const RoyalGameOfUr = {
                 const enemyPieces = captured.player === 'player' ? this.playerPieces : this.aiPieces;
                 enemyPieces[captured.pieceId].position = -1;
                 this.stats.captures++;
-                UI.notify(t('minigames.ur.capture'));
+                this.lastMessage = t('games.urCapture'); this.render();
             }
         }
         
@@ -10348,9 +10354,9 @@ const RoyalGameOfUr = {
         
         if(validMoves.length === 0) {
             if(this.diceRoll === 0) {
-                UI.notify(t('minigames.ur.ai_roll_zero'));
+                this.lastMessage = t('games.urAiRollZero'); this.render();
             } else {
-                UI.notify(t('minigames.ur.ai_no_moves'));
+                this.lastMessage = t('games.urAiNoMoves'); this.render();
             }
             setTimeout(() => this.endTurn(), 1500);
             return;
@@ -10384,10 +10390,10 @@ const RoyalGameOfUr = {
             const newPos = this.calculateNewPosition(this.aiPieces[bestMove].position, this.diceRoll, 'ai');
             this.executeMoveForPlayer(bestMove, newPos, 'ai');
             
-            UI.notify(t('minigames.ur.ai_move').replace('{pos}', newPos));
+            this.lastMessage = t('games.urAiMove').replace('{pos}', newPos); this.render();
             
             if(this.rosettes.includes(newPos)) {
-                UI.notify(t('minigames.ur.ai_rosette'));
+                this.lastMessage = t('games.urAiRosette'); this.render();
                 setTimeout(() => this.rollDice(), 1500);
             } else {
                 setTimeout(() => this.endTurn(), 1500);
@@ -10410,7 +10416,7 @@ const RoyalGameOfUr = {
                 GameState.achievements.stats.totalResearchGained += reward;
             }
             
-            UI.notify(t('minigames.ur.win_vs').replace('{reward}', reward));
+            this.lastMessage = t('games.urWinVs').replace('{reward}', reward); this.render();
             setTimeout(() => this.render(), 2000);
         } else if(this.stats.aiFinished === 7) {
             this.gameActive = false;
@@ -10419,7 +10425,7 @@ const RoyalGameOfUr = {
                 GameState.achievements.stats.totalGamesPlayed++;
             }
             
-            UI.notify(t('minigames.ur.loss_vs'));
+            this.lastMessage = t('games.urLossVs'); this.render();
             setTimeout(() => this.render(), 2000);
         }
     },
@@ -10434,7 +10440,7 @@ const RoyalGameOfUr = {
         
         if(!modal) {
             modal = document.createElement('div');
-            modal.id = 'ur-game-modal';
+            modal.id = 'ur-solo-modal';
             modal.className = 'game-modal';
             modal.innerHTML = `
                 <div class="game-modal-content">
@@ -10453,25 +10459,31 @@ const RoyalGameOfUr = {
         if(!container) return;
         
         let h = '<div style="background: var(--bg-card); padding: 15px; border-radius: 8px;">';
-        h += `<h3>${t('minigames.ur.title_vs')}</h3>`;
+        h += `<h3>${t('games.urTitleVs')}</h3>`;
         
         if(!this.gameActive) {
-            h += `<p style="margin: 10px 0;">${t('minigames.ur.subtitle_vs')}</p>`;
-            h += `<p style="font-size: 0.9rem; opacity: 0.8;">${t('minigames.ur.desc_vs')}</p>`;
-            h += `<button class="craft-btn" onclick="RoyalGameOfUr.start()" style="margin-top: 10px;">${t('minigames.ur.btn_vs_ai')}</button>`;
-            h += `<button class="craft-btn" onclick="RoyalGameOfUrSolo.start()" style="margin-top: 10px; background: var(--accent-gold);">${t('minigames.ur.btn_solo')}</button>`;
+            h += `<p style="margin: 10px 0;">${t('games.urSubtitleVs')}</p>`;
+            h += `<p style="font-size: 0.9rem; opacity: 0.8;">${t('games.urDescVs')}</p>`;
+            h += `<button class="craft-btn" onclick="RoyalGameOfUr.start()" style="margin-top: 10px;">${t('games.urBtnVsAi')}</button>`;
+            h += `<button class="craft-btn" onclick="RoyalGameOfUrSolo.start()" style="margin-top: 10px; background: var(--accent-gold);">${t('games.urBtnSolo')}</button>`;
         } else {
             h += `<div style="display: flex; justify-content: space-between; margin: 10px 0; padding: 10px; background: rgba(0,0,0,0.1); border-radius: 4px;">`;
-            h += `<div>${t('minigames.ur.label_you')}: ${this.stats.playerFinished}/7</div>`;
-            h += `<div>${t('minigames.ur.label_moves')}: ${this.stats.moves}</div>`;
-            h += `<div>${t('minigames.ur.label_ai')}: ${this.stats.aiFinished}/7</div>`;
+            h += `<div>${t('games.urLabelYou')}: ${this.stats.playerFinished}/7</div>`;
+            h += `<div>${t('games.urLabelMoves')}: ${this.stats.moves}</div>`;
+            h += `<div>${t('games.urLabelAi')}: ${this.stats.aiFinished}/7</div>`;
             h += `</div>`;
             
+            if(this.lastMessage) {
+                h += `<div style="text-align: center; margin: 10px 0; padding: 10px; background: rgba(197,160,89,0.3); border: 2px solid var(--accent-gold); border-radius: 4px; font-size: 0.95rem; color: var(--ink-primary);">`;
+                h += this.lastMessage;
+                h += `</div>`;
+            }
+            
             if(this.currentTurn === 'player' && !this.canMove) {
-                h += `<button class="craft-btn" onclick="RoyalGameOfUr.rollDice()" style="margin: 10px 0; width: 100%;">${t('minigames.ur.btn_roll')}</button>`;
+                h += `<button class="craft-btn" onclick="RoyalGameOfUr.rollDice()" style="margin: 10px 0; width: 100%;">${t('games.urBtnRoll')}</button>`;
             } else if(this.diceRoll > 0) {
                 h += `<div style="text-align: center; margin: 10px 0; padding: 10px; background: gold; border-radius: 4px; font-size: 1.2rem; color: black;">`;
-                h += t('minigames.ur.label_roll').replace('{roll}', this.diceRoll);
+                h += t('games.urLabelRoll').replace('{roll}', this.diceRoll);
                 h += `</div>`;
             }
             
@@ -10480,7 +10492,7 @@ const RoyalGameOfUr = {
             const playerOffBoard = this.playerPieces.filter(p => p.position === -1);
             if(playerOffBoard.length > 0 && this.canMove) {
                 h += `<div style="margin-top: 15px;">`;
-                h += `<strong>${t('minigames.ur.label_offboard').replace('{count}', playerOffBoard.length)}</strong>`;
+                h += `<strong>${t('games.urLabelOffboard').replace('{count}', playerOffBoard.length)}</strong>`;
                 h += `<div style="display: flex; gap: 5px; margin-top: 5px;">`;
                 playerOffBoard.forEach(piece => {
                     h += `<button class="craft-btn" onclick="RoyalGameOfUr.movePiece(${piece.id})" style="padding: 8px;">`;
@@ -10552,6 +10564,47 @@ const RoyalGameOfUr = {
         this.gameActive = false;
         const modal = document.getElementById('ur-game-modal');
         if(modal) modal.remove();
+    },
+    
+    showRules: function() {
+        let modal = document.getElementById('ur-rules-modal');
+        
+        if(!modal) {
+            modal = document.createElement('div');
+            modal.id = 'ur-rules-modal';
+            modal.className = 'game-modal';
+            document.body.appendChild(modal);
+            
+            modal.addEventListener('click', (e) => {
+                if(e.target === modal) {
+                    modal.remove();
+                }
+            });
+        }
+        
+        let h = '<div class="game-modal-content" style="max-width: 600px;">';
+        h += '<button class="game-modal-close" onclick="document.getElementById(\'ur-rules-modal\').remove()">×</button>';
+        h += '<div style="background: var(--bg-card); padding: 20px; border-radius: 8px;">';
+        
+        h += `<h2 style="margin-bottom: 15px; color: var(--ink-primary);">${t('games.urRulesTitle')}</h2>`;
+        
+        h += `<h3 style="margin-top: 15px;">${t('games.urRulesHistory')}</h3>`;
+        h += `<p style="opacity: 0.9;">${t('games.urRulesHistoryText')}</p>`;
+        
+        h += `<h3 style="margin-top: 15px;">${t('games.urRulesGoal')}</h3>`;
+        h += `<p style="opacity: 0.9;">${t('games.urRulesGoalText')}</p>`;
+        
+        h += `<h3 style="margin-top: 15px;">${t('games.urRulesDice')}</h3>`;
+        h += `<p style="opacity: 0.9;">${t('games.urRulesDiceText')}</p>`;
+        
+        h += `<h3 style="margin-top: 15px;">${t('games.urRulesRosettes')}</h3>`;
+        h += `<p style="opacity: 0.9;">${t('games.urRulesRosettesText')}</p>`;
+        
+        h += `<h3 style="margin-top: 15px;">${t('games.urRulesCapture')}</h3>`;
+        h += `<p style="opacity: 0.9;">${t('games.urRulesCaptureText')}</p>`;
+        
+        h += '</div></div>';
+        modal.innerHTML = h;
     }
 };
 
@@ -10559,6 +10612,7 @@ const RoyalGameOfUr = {
 
 const RoyalGameOfUrSolo = {
     gameActive: false,
+     lastMessage: '',
     
     board: [],
     playerPieces: [],
@@ -10583,9 +10637,11 @@ const RoyalGameOfUrSolo = {
     
     start: function() {
         if (!GameState.inventory.ur_board || GameState.inventory.ur_board < 1) {
-            UI.notify(t('minigames.ur.need_board'), true);
+            this.lastMessage = t('games.urNeedBoard'), true; this.render();
             return;
         }
+        
+        this.lastMessage = ''; // Clear previous message
         
         this.gameActive = true;
         this.diceRoll = 0;
@@ -10611,7 +10667,7 @@ const RoyalGameOfUrSolo = {
     rollDice: function() {
         if(!this.gameActive) return;
         if(this.canMove) {
-            UI.notify(t('minigames.ur.err_move_first'), true);
+            this.lastMessage = t('games.urErrMoveFirst'), true; this.render();
             return;
         }
         
@@ -10626,14 +10682,14 @@ const RoyalGameOfUrSolo = {
         const validMoves = this.getValidMoves();
         if(validMoves.length === 0) {
             if(this.diceRoll === 0) {
-                UI.notify(t('minigames.ur.roll_zero_retry'));
+                this.lastMessage = t('games.urRollZeroRetry'); this.render();
             } else {
-                UI.notify(t('minigames.ur.err_no_moves'));
+                this.lastMessage = t('games.urErrNoMoves'); this.render();
             }
             this.diceRoll = 0;
         } else {
             this.canMove = true;
-            UI.notify(t('minigames.ur.roll_success').replace('{roll}', this.diceRoll));
+            this.lastMessage = t('games.urRollSuccess').replace('{roll}', this.diceRoll); this.render();
         }
         
         this.render();
@@ -10691,7 +10747,7 @@ const RoyalGameOfUrSolo = {
         const newPos = this.calculateNewPosition(piece.position, this.diceRoll);
         
         if(!this.isValidMove(piece.position, newPos)) {
-            UI.notify(t('minigames.ur.err_invalid'), true);
+            this.lastMessage = t('games.urErrInvalid'), true; this.render();
             return;
         }
         
@@ -10699,7 +10755,7 @@ const RoyalGameOfUrSolo = {
         this.stats.moves++;
         
         if(this.rosettes.includes(newPos)) {
-            UI.notify(t('minigames.ur.rosette'));
+            this.lastMessage = t('games.urRosette'); this.render();
             this.canMove = false;
             this.diceRoll = 0;
         } else {
@@ -10756,12 +10812,12 @@ const RoyalGameOfUrSolo = {
                 GameState.achievements.stats.totalResearchGained += reward;
             }
             
-            let winMsg = t('minigames.ur.win_solo')
+            let winMsg = t('games.urWinSolo')
                 .replace('{grade}', translatedGrade)
                 .replace('{reward}', reward)
                 .replace('{rolls}', this.stats.rollsUsed);
             
-            UI.notify(winMsg);
+            this.lastMessage = winMsg; this.render();
             
             setTimeout(() => this.render(), 2000);
         }
@@ -10777,7 +10833,7 @@ const RoyalGameOfUrSolo = {
         
         if(!modal) {
             modal = document.createElement('div');
-            modal.id = 'ur-game-modal';
+            modal.id = 'ur-solo-modal';
             modal.className = 'game-modal';
             modal.innerHTML = `
                 <div class="game-modal-content">
@@ -10796,50 +10852,56 @@ const RoyalGameOfUrSolo = {
         if(!container) return;
         
         let h = '<div style="background: var(--bg-card); padding: 15px; border-radius: 8px;">';
-        h += `<h3>${t('minigames.ur.title_solo')}</h3>`;
+        h += `<h3>${t('games.urTitleSolo')}</h3>`;
         
         if(!this.gameActive) {
-            h += `<p style="margin: 10px 0;">${t('minigames.ur.subtitle_solo')}</p>`;
+            h += `<p style="margin: 10px 0;">${t('games.urSubtitleSolo')}</p>`;
             h += `<div style="font-size: 0.85rem; opacity: 0.8; margin: 10px 0;">`;
-            h += `<strong>${t('minigames.ur.label_rating')}</strong><br>`;
-            h += `${t('minigames.ur.rating_perfect').replace('{target}', this.targets.perfect)}<br>`;
-            h += `${t('minigames.ur.rating_good').replace('{target}', this.targets.good)}<br>`;
-            h += `${t('minigames.ur.rating_ok').replace('{target}', this.targets.ok)}<br>`;
-            h += `${t('minigames.ur.rating_pass').replace('{target}', this.targets.ok)}`;
+            h += `<strong>${t('games.urLabelRating')}</strong><br>`;
+            h += `${t('games.urRatingPerfect').replace('{target}', this.targets.perfect)}<br>`;
+            h += `${t('games.urRatingGood').replace('{target}', this.targets.good)}<br>`;
+            h += `${t('games.urRatingOk').replace('{target}', this.targets.ok)}<br>`;
+            h += `${t('games.urRatingPass').replace('{target}', this.targets.ok)}`;
             h += `</div>`;
-            h += `<button class="craft-btn" onclick="RoyalGameOfUrSolo.start()" style="margin-top: 10px;">${t('minigames.ur.btn_play_solo')}</button>`;
-            h += `<button class="craft-btn" onclick="RoyalGameOfUr.start()" style="margin-top: 10px; background: var(--accent-wax);">${t('minigames.ur.btn_back_vs')}</button>`;
+            h += `<button class="craft-btn" onclick="RoyalGameOfUrSolo.start()" style="margin-top: 10px;">${t('games.urBtnPlaySolo')}</button>`;
+            h += `<button class="craft-btn" onclick="RoyalGameOfUr.start()" style="margin-top: 10px; background: var(--accent-wax);">${t('games.urBtnBackVs')}</button>`;
         } else {
             h += `<div style="display: flex; justify-content: space-between; margin: 10px 0; padding: 10px; background: rgba(0,0,0,0.1); border-radius: 4px;">`;
-            h += `<div>${t('minigames.ur.label_finished')}: ${this.stats.finished}/7</div>`;
-            h += `<div>${t('minigames.ur.label_rolls')}: ${this.stats.rollsUsed}</div>`;
-            h += `<div>${t('minigames.ur.label_moves')}: ${this.stats.moves}</div>`;
+            h += `<div>${t('games.urLabelFinished')}: ${this.stats.finished}/7</div>`;
+            h += `<div>${t('games.urLabelRolls')}: ${this.stats.rollsUsed}</div>`;
+            h += `<div>${t('games.urLabelMoves')}: ${this.stats.moves}</div>`;
             h += `</div>`;
+            
+            if(this.lastMessage) {
+                h += `<div style="text-align: center; margin: 10px 0; padding: 10px; background: rgba(197,160,89,0.3); border: 2px solid var(--accent-gold); border-radius: 4px; font-size: 0.95rem; color: var(--ink-primary);">`;
+                h += this.lastMessage;
+                h += `</div>`;
+            }
             
             let targetColor = '#999';
             let targetText = 'OK';
             if(this.stats.rollsUsed <= this.targets.perfect) {
                 targetColor = 'gold';
-                targetText = t('minigames.ur.grade_perfect');
+                targetText = t('games.urGradePerfect');
             } else if(this.stats.rollsUsed <= this.targets.good) {
                 targetColor = '#4ade80';
-                targetText = t('minigames.ur.grade_good');
+                targetText = t('games.urGradeGood');
             } else if(this.stats.rollsUsed <= this.targets.ok) {
                 targetColor = '#60a5fa';
-                targetText = t('minigames.ur.grade_ok');
+                targetText = t('games.urGradeOk');
             } else {
-                targetText = t('minigames.ur.grade_pass');
+                targetText = t('games.urGradePass');
             }
             
             h += `<div style="text-align: center; margin: 5px 0; padding: 5px; background: ${targetColor}; color: white; border-radius: 4px; font-size: 0.85rem; font-weight: bold; text-shadow: 1px 1px 2px rgba(0,0,0,0.5);">`;
-            h += t('minigames.ur.label_pace').replace('{grade}', targetText);
+            h += t('games.urLabelPace').replace('{grade}', targetText);
             h += `</div>`;
             
             if(!this.canMove) {
-                h += `<button class="craft-btn" onclick="RoyalGameOfUrSolo.rollDice()" style="margin: 10px 0; width: 100%;">${t('minigames.ur.btn_roll')}</button>`;
+                h += `<button class="craft-btn" onclick="RoyalGameOfUrSolo.rollDice()" style="margin: 10px 0; width: 100%;">${t('games.urBtnRoll')}</button>`;
             } else if(this.diceRoll > 0) {
                 h += `<div style="text-align: center; margin: 10px 0; padding: 10px; background: gold; color: black; border-radius: 4px; font-size: 1.2rem;">`;
-                h += t('minigames.ur.label_roll').replace('{roll}', this.diceRoll);
+                h += t('games.urLabelRoll').replace('{roll}', this.diceRoll);
                 h += `</div>`;
             }
             
@@ -10848,7 +10910,7 @@ const RoyalGameOfUrSolo = {
             const offBoard = this.playerPieces.filter(p => p.position === -1);
             if(offBoard.length > 0 && this.canMove) {
                 h += `<div style="margin-top: 15px;">`;
-                h += `<strong>${t('minigames.ur.label_offboard_solo').replace('{count}', offBoard.length)}</strong>`;
+                h += `<strong>${t('games.urLabelOffboardSolo').replace('{count}', offBoard.length)}</strong>`;
                 h += `<div style="display: flex; gap: 5px; margin-top: 5px; flex-wrap: wrap;">`;
                 offBoard.forEach(piece => {
                     h += `<button class="craft-btn" onclick="RoyalGameOfUrSolo.movePiece(${piece.id})" style="padding: 8px;">`;
@@ -10865,7 +10927,7 @@ const RoyalGameOfUrSolo = {
     
     renderBoard: function() {
         let h = '<div style="margin: 15px 0;">';
-        h += `<strong style="display: block; margin-bottom: 5px;">${t('minigames.ur.label_track')}</strong>`;
+        h += `<strong style="display: block; margin-bottom: 5px;">${t('games.urLabelTrack')}</strong>`;
         h += '<div style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; font-size: 0.8rem;">';
         
         for(let i = 0; i < 7; i++) {
@@ -10930,7 +10992,7 @@ const KarnoffelGame = {
     
     start: function() {
         if (!GameState.inventory.karnoffel_deck || GameState.inventory.karnoffel_deck < 1) {
-            UI.notify(t('minigames.karnoffel.need_deck'), true);
+            UI.notify(t('games.karnoffelNeedDeck'), true);
             return;
         }
         
@@ -11013,10 +11075,10 @@ const KarnoffelGame = {
         
         if(winner === 'you') {
             this.playerTricks++;
-            UI.notify(t('minigames.karnoffel.trick_win'));
+            UI.notify(t('games.karnoffelTrickWin'));
         } else {
             this.opponentTricks++;
-            UI.notify(t('minigames.karnoffel.trick_loss'));
+            UI.notify(t('games.karnoffelTrickLoss'));
         }
         
         this.currentTrick = [];
@@ -11041,13 +11103,13 @@ const KarnoffelGame = {
                 GameState.achievements.stats.totalResearchGained += reward;
             }
             
-            UI.notify(t('minigames.karnoffel.game_win').replace('{reward}', reward));
+            UI.notify(t('games.karnoffelGameWin').replace('{reward}', reward));
         } else {
             if(GameState.achievements) {
                 GameState.achievements.stats.totalGamesPlayed++;
             }
             
-            UI.notify(t('minigames.karnoffel.game_loss'));
+            UI.notify(t('games.karnoffelGameLoss'));
         }
         
         setTimeout(() => this.render(), 1500);
@@ -11082,21 +11144,21 @@ const KarnoffelGame = {
         if(!container) return;
         
         let h = '<div style="background: var(--bg-card); padding: 15px; border-radius: 8px;">';
-        h += `<h3>${t('minigames.karnoffel.title')}</h3>`;
+        h += `<h3>${t('games.karnoffelTitle')}</h3>`;
         
         if(!this.gameActive) {
-            h += `<p style="margin: 10px 0;">${t('minigames.karnoffel.subtitle')}</p>`;
-            h += `<button class="craft-btn" onclick="KarnoffelGame.start()" style="margin-top: 10px;">${t('minigames.karnoffel.btn_play')}</button>`;
+            h += `<p style="margin: 10px 0;">${t('games.karnoffelSubtitle')}</p>`;
+            h += `<button class="craft-btn" onclick="KarnoffelGame.start()" style="margin-top: 10px;">${t('games.karnoffelBtnPlay')}</button>`;
         } else {
             h += `<div style="display: flex; justify-content: space-between; margin: 10px 0; padding: 10px; background: rgba(0,0,0,0.1); border-radius: 4px;">`;
-            h += `<div>${t('minigames.karnoffel.label_your_tricks')}: ${this.playerTricks}</div>`;
-            h += `<div>${t('minigames.karnoffel.label_trump')}: ${this.trump}</div>`;
-            h += `<div>${t('minigames.karnoffel.label_opponent')}: ${this.opponentTricks}</div>`;
+            h += `<div>${t('games.karnoffelLabelYourTricks')}: ${this.playerTricks}</div>`;
+            h += `<div>${t('games.karnoffelLabelTrump')}: ${this.trump}</div>`;
+            h += `<div>${t('games.karnoffelLabelOpponent')}: ${this.opponentTricks}</div>`;
             h += `</div>`;
             
             if(this.currentTrick.length > 0) {
                 h += `<div style="margin: 15px 0; padding: 10px; background: rgba(197,160,89,0.2); border-radius: 4px;">`;
-                h += `<strong>${t('minigames.karnoffel.label_current_trick')}</strong><div style="display: flex; gap: 10px; margin-top: 5px; justify-content: center;">`;
+                h += `<strong>${t('games.karnoffelLabelCurrentTrick')}</strong><div style="display: flex; gap: 10px; margin-top: 5px; justify-content: center;">`;
                 this.currentTrick.forEach(play => {
                     h += `<div style="padding: 10px; background: white; border: 2px solid var(--accent-gold); border-radius: 4px; text-align: center; color: black;">`;
                     h += `${play.card.rank}${play.card.suit}`;
@@ -11106,7 +11168,7 @@ const KarnoffelGame = {
             }
             
             h += `<div style="margin: 15px 0;">`;
-            h += `<strong>${t('minigames.karnoffel.label_your_cards')}</strong>`;
+            h += `<strong>${t('games.karnoffelLabelYourCards')}</strong>`;
             h += `<div style="display: flex; gap: 5px; margin-top: 5px; flex-wrap: wrap;">`;
             this.playerHand.forEach((card, idx) => {
                 const isTrump = card.suit === this.trump;
@@ -11125,6 +11187,47 @@ const KarnoffelGame = {
         this.gameActive = false;
         const modal = document.getElementById('karnoffel-modal');
         if(modal) modal.remove();
+    },
+    
+    showRules: function() {
+        let modal = document.getElementById('karnoffel-rules-modal');
+        
+        if(!modal) {
+            modal = document.createElement('div');
+            modal.id = 'karnoffel-rules-modal';
+            modal.className = 'game-modal';
+            document.body.appendChild(modal);
+            
+            modal.addEventListener('click', (e) => {
+                if(e.target === modal) {
+                    modal.remove();
+                }
+            });
+        }
+        
+        let h = '<div class="game-modal-content" style="max-width: 600px;">';
+        h += '<button class="game-modal-close" onclick="document.getElementById(\'karnoffel-rules-modal\').remove()">×</button>';
+        h += '<div style="background: var(--bg-card); padding: 20px; border-radius: 8px;">';
+        
+        h += `<h2 style="margin-bottom: 15px; color: var(--ink-primary);">${t('games.karnoffelRulesTitle')}</h2>`;
+        
+        h += `<h3 style="margin-top: 15px;">${t('games.karnoffelRulesHistory')}</h3>`;
+        h += `<p style="opacity: 0.9;">${t('games.karnoffelRulesHistoryText')}</p>`;
+        
+        h += `<h3 style="margin-top: 15px;">${t('games.karnoffelRulesDeck')}</h3>`;
+        h += `<p style="opacity: 0.9;">${t('games.karnoffelRulesDeckText')}</p>`;
+        
+        h += `<h3 style="margin-top: 15px;">${t('games.karnoffelRulesGoal')}</h3>`;
+        h += `<p style="opacity: 0.9;">${t('games.karnoffelRulesGoalText')}</p>`;
+        
+        h += `<h3 style="margin-top: 15px;">${t('games.karnoffelRulesTrump')}</h3>`;
+        h += `<p style="opacity: 0.9;">${t('games.karnoffelRulesTrumpText')}</p>`;
+        
+        h += `<h3 style="margin-top: 15px;">${t('games.karnoffelRulesPlay')}</h3>`;
+        h += `<p style="opacity: 0.9;">${t('games.karnoffelRulesPlayText')}</p>`;
+        
+        h += '</div></div>';
+        modal.innerHTML = h;
     }
 };
 // ═══ src/games/freecell.js ═══
@@ -11142,7 +11245,7 @@ const FreeCellGame = {
     
     start: function() {
         if (!GameState.inventory.french_deck || GameState.inventory.french_deck < 1) {
-            UI.notify(t('minigames.freecell.need_deck'), true);
+            UI.notify(t('games.freecellNeedDeck'), true);
             return;
         }
         
@@ -11203,14 +11306,14 @@ const FreeCellGame = {
         const foundation = this.foundations[foundationIndex];
         
         if(foundation.length === 0 && card.rank !== 'A') {
-            UI.notify(t('minigames.freecell.err_ace'), true);
+            UI.notify(t('games.freecellErrAce'), true);
             return;
         }
         
         if(foundation.length > 0) {
             const topCard = foundation[foundation.length - 1];
             if(topCard.suit !== card.suit || topCard.value + 1 !== card.value) {
-                UI.notify(t('minigames.freecell.err_invalid'), true);
+                UI.notify(t('games.freecellErrInvalid'), true);
                 return;
             }
         }
@@ -11240,7 +11343,7 @@ const FreeCellGame = {
         } else {
             const topCard = column[column.length - 1];
             if(topCard.color === card.color || topCard.value !== card.value + 1) {
-                UI.notify(t('minigames.freecell.err_color_val'), true);
+                UI.notify(t('games.freecellErrColorVal'), true);
                 return;
             }
         }
@@ -11255,7 +11358,7 @@ const FreeCellGame = {
     moveToFreeCell: function(cellIndex) {
         if(!this.selected) return;
         if(this.freeCells[cellIndex] !== null) {
-            UI.notify(t('minigames.freecell.err_cell_full'), true);
+            UI.notify(t('games.freecellErrCellFull'), true);
             return;
         }
         
@@ -11307,7 +11410,7 @@ const FreeCellGame = {
             GameState.achievements.stats.totalResearchGained += reward;
         }
         
-        UI.notify(t('minigames.freecell.win').replace('{reward}', reward).replace('{moves}', this.moves));
+        UI.notify(t('games.freecellWin').replace('{reward}', reward).replace('{moves}', this.moves));
         
         setTimeout(() => this.render(), 2000);
     },
@@ -11341,13 +11444,13 @@ const FreeCellGame = {
         if(!container) return;
         
         let h = '<div style="background: var(--bg-card); padding: 15px; border-radius: 8px;">';
-        h += `<h3>${t('minigames.freecell.title')}</h3>`;
+        h += `<h3>${t('games.freecellTitle')}</h3>`;
         
         if(!this.gameActive && this.tableau.length === 0) {
-            h += `<p style="margin: 10px 0;">${t('minigames.freecell.subtitle')}</p>`;
-            h += `<button class="craft-btn" onclick="FreeCellGame.start()" style="margin-top: 10px;">${t('minigames.freecell.btn_play')}</button>`;
+            h += `<p style="margin: 10px 0;">${t('games.freecellSubtitle')}</p>`;
+            h += `<button class="craft-btn" onclick="FreeCellGame.start()" style="margin-top: 10px;">${t('games.freecellBtnPlay')}</button>`;
         } else {
-            h += `<div style="margin-bottom: 10px;"><strong>${t('minigames.freecell.label_moves').replace('{moves}', this.moves)}</strong></div>`;
+            h += `<div style="margin-bottom: 10px;"><strong>${t('games.freecellLabelMoves').replace('{moves}', this.moves)}</strong></div>`;
             
             h += `<div style="display: grid; grid-template-columns: repeat(8, 1fr); gap: 5px; margin-bottom: 10px;">`;
             
@@ -11390,7 +11493,7 @@ const FreeCellGame = {
             }
             h += `</div>`;
             
-            h += `<button class="craft-btn" onclick="FreeCellGame.start()" style="margin-top: 10px;">${t('minigames.freecell.btn_new')}</button>`;
+            h += `<button class="craft-btn" onclick="FreeCellGame.start()" style="margin-top: 10px;">${t('games.freecellBtnNew')}</button>`;
         }
         
         h += '</div>';
@@ -11401,6 +11504,47 @@ const FreeCellGame = {
         this.gameActive = false;
         const modal = document.getElementById('freecell-modal');
         if(modal) modal.remove();
+    },
+    
+    showRules: function() {
+        let modal = document.getElementById('freecell-rules-modal');
+        
+        if(!modal) {
+            modal = document.createElement('div');
+            modal.id = 'freecell-rules-modal';
+            modal.className = 'game-modal';
+            document.body.appendChild(modal);
+            
+            modal.addEventListener('click', (e) => {
+                if(e.target === modal) {
+                    modal.remove();
+                }
+            });
+        }
+        
+        let h = '<div class="game-modal-content" style="max-width: 600px;">';
+        h += '<button class="game-modal-close" onclick="document.getElementById(\'freecell-rules-modal\').remove()">×</button>';
+        h += '<div style="background: var(--bg-card); padding: 20px; border-radius: 8px;">';
+        
+        h += `<h2 style="margin-bottom: 15px; color: var(--ink-primary);">${t('games.freecellRulesTitle')}</h2>`;
+        
+        h += `<h3 style="margin-top: 15px;">${t('games.freecellRulesHistory')}</h3>`;
+        h += `<p style="opacity: 0.9;">${t('games.freecellRulesHistoryText')}</p>`;
+        
+        h += `<h3 style="margin-top: 15px;">${t('games.freecellRulesGoal')}</h3>`;
+        h += `<p style="opacity: 0.9;">${t('games.freecellRulesGoalText')}</p>`;
+        
+        h += `<h3 style="margin-top: 15px;">${t('games.freecellRulesFreeCells')}</h3>`;
+        h += `<p style="opacity: 0.9;">${t('games.freecellRulesFreeCellsText')}</p>`;
+        
+        h += `<h3 style="margin-top: 15px;">${t('games.freecellRulesTableau')}</h3>`;
+        h += `<p style="opacity: 0.9;">${t('games.freecellRulesTableauText')}</p>`;
+        
+        h += `<h3 style="margin-top: 15px;">${t('games.freecellRulesStrategy')}</h3>`;
+        h += `<p style="opacity: 0.9;">${t('games.freecellRulesStrategyText')}</p>`;
+        
+        h += '</div></div>';
+        modal.innerHTML = h;
     }
 };
 // ═══ src/i18n/cs.js ═══
@@ -11992,6 +12136,68 @@ garden: {
   urCraft: 'Vyrobit ur_board',
   urPlayVsAI: 'VS AI 🤖',
   urPlaySolo: 'Solo 🧩',
+  urNeedBoard: 'Nemáš hrací desku Ur!',
+  
+  // Royal Game of Ur - VS AI mode
+  urTitleVs: 'Royal Game of Ur',
+  urSubtitleVs: 'Hra proti AI',
+  urDescVs: 'Nejstarší desková hra na světě (2600 př.n.l.)',
+  urBtnVsAi: 'Hrát VS AI',
+  urBtnBackVs: 'Zpět na výběr',
+  urLabelYou: 'Ty',
+  urLabelAi: 'AI',
+  urLabelFinished: 'dokončeno',
+  urLabelOffboard: 'mimo hru',
+  urLabelRoll: 'Hod',
+  urLabelTrack: 'Dráha',
+  urBtnRoll: 'Hodit kostkami',
+  urErrMoveFirst: 'Nejdřív hoď kostkami!',
+  urErrNoMoves: 'Nemůžeš táhnout! Zkus jiného kamene.',
+  urErrInvalid: 'Neplatný tah!',
+  urRollSuccess: 'Hodil jsi {roll}!',
+  urRollZeroRetry: 'Hodil jsi 0. Hod znovu!',
+  urRollZeroSkip: 'Hodil jsi 0. Soupeř je na řadě.',
+  urRosette: '🌟 Roseta! Hraješ znovu!',
+  urCapture: '⚔️ Zajal jsi soupeřův kámen!',
+  urAiMove: 'AI posunulo kámen.',
+  urAiRosette: 'AI trefilo Rosetu!',
+  urAiRollZero: 'AI hodilo 0.',
+  urAiNoMoves: 'AI nemůže táhnout.',
+  urWinVs: '🏆 Vyhrál jsi! +{reward} Výzkumu',
+  urLossVs: '💀 AI vyhrála.',
+  
+  // Royal Game of Ur - Solo mode
+  urTitleSolo: 'Royal Game of Ur — Solo',
+  urSubtitleSolo: 'Zkušební hra',
+  urBtnPlaySolo: 'Hrát Solo',
+  urBtnSolo: 'Solo mód',
+  urLabelOffboardSolo: 'Mimo hru',
+  urLabelRolls: 'Hodů',
+  urLabelMoves: 'Tahů',
+  urLabelPace: 'Tempo',
+  urLabelRating: 'Hodnocení',
+  urGradePass: 'Projít',
+  urGradeOk: 'Dobrý',
+  urGradeGood: 'Skvělý',
+  urGradePerfect: 'Perfektní',
+  urRatingPass: '⭐ Projít (30+ hodů)',
+  urRatingOk: '⭐⭐ Dobrý (20-29 hodů)',
+  urRatingGood: '⭐⭐⭐ Skvělý (15-19 hodů)',
+  urRatingPerfect: '⭐⭐⭐⭐ Perfektní (<15 hodů)',
+  urWinSolo: '🎉 Všechny kameny dokončeny! {grade} | +{reward} Výzkumu | {rolls} hodů',
+  
+  // Royal Game of Ur - Rules
+  urRulesTitle: 'ROYAL GAME OF UR — Pravidla',
+  urRulesHistory: '📜 Historie',
+  urRulesHistoryText: 'Nejstarší známá desková hra na světě, objevená v hrobech v Uru (dnešní Irák) z roku 2600 př.n.l.',
+  urRulesGoal: '🎯 Cíl',
+  urRulesGoalText: 'Jako první dostat všech 7 kamenů skrz herní dráhu a ven z hrací desky.',
+  urRulesDice: '🎲 Kostky',
+  urRulesDiceText: 'Hod 4 tetraedry (pyramidy). Součet značek = počet polí k pohybu (0-4).',
+  urRulesRosettes: '🌟 Rosety',
+  urRulesRosettesText: 'Pole s hvězdou = Roseta. Pokud na ní přistaneš, hraješ znovu! Na střední rosetu tě soupeř nemůže zajmout.',
+  urRulesCapture: '⚔️ Zajímání',
+  urRulesCaptureText: 'Přistaneš-li na soupeřově kameni (mimo střední rosetu), pošleš ho zpět na start.',
   
   // Primero
   primeroName: 'Primero',
@@ -12038,18 +12244,99 @@ garden: {
   karnoffelDesc: 'Nejstarší trumfová hra (1426)',
   karnoffelTech: 'Tech: Karnöffel (12 Research)',
   karnoffelCraft: 'Vyrobit karnoffel_deck',
+  karnoffelNeedDeck: 'Nemáš Karnöffel balíček!',
+  karnoffelTitle: 'Karnöffel',
+  karnoffelSubtitle: 'Německá trumfová hra ze 15. století',
+  karnoffelBtnPlay: 'Hrát',
+  karnoffelLabelYourTricks: 'Tvé štychy',
+  karnoffelLabelTrump: 'Trumf',
+  karnoffelLabelOpponent: 'Soupeř',
+  karnoffelLabelCurrentTrick: 'Aktuální štych',
+  karnoffelLabelYourCards: 'Tvé karty',
+  karnoffelTrickWin: '🎉 Vyhrál jsi štych!',
+  karnoffelTrickLoss: '😔 Soupeř vyhrál štych',
+  karnoffelGameWin: '🏆 Vyhrál jsi! +{reward} Výzkumu',
+  karnoffelGameLoss: '💸 Prohrál jsi.',
+  
+  // Karnöffel Rules
+  karnoffelRulesTitle: 'KARNÖFFEL — Pravidla',
+  karnoffelRulesHistory: '📜 Historie',
+  karnoffelRulesHistoryText: 'Karnöffel je nejstarší známá trumfová hra, první zmínka z roku 1426 z Německa. Název pochází z "Karniffel" (kat/popravčí).',
+  karnoffelRulesDeck: '🎴 Balíček',
+  karnoffelRulesDeckText: '32 karet (4 barvy × 8 hodnot): 🍃 Listy, 🔔 Zvonky, ❤️ Srdce, 🎯 Terče',
+  karnoffelRulesGoal: '🎯 Cíl',
+  karnoffelRulesGoalText: 'Vyhrát většinu ze 5 štychů (3+).',
+  karnoffelRulesTrump: '🃏 Trumf',
+  karnoffelRulesTrumpText: 'Na začátku hry se náhodně určí trumfová barva. Karty trumfové barvy bijí ostatní barvy.',
+  karnoffelRulesPlay: '🎮 Hra',
+  karnoffelRulesPlayText: 'Klikni na kartu z ruky — zahraješ ji. AI zahraje svou kartu. Vyšší hodnota (nebo trumf) vyhrává štych.',
   
   // FreeCell
   freecellName: 'FreeCell Solitaire',
   freecellDesc: 'Logická karetní hra',
   freecellTech: 'Tech: Solitér Mistryně (15 Research)',
   freecellCraft: 'Vyrobit french_deck',
+  freecellNeedDeck: 'Nemáš Francouzský balíček!',
+  freecellTitle: 'FreeCell Solitaire',
+  freecellSubtitle: 'Logický patience založený na strategii',
+  freecellBtnPlay: 'Hrát',
+  freecellBtnNew: 'Nová hra',
+  freecellLabelMoves: 'Tahy: {moves}',
+  freecellErrAce: 'Na základ můžeš položit jen Eso!',
+  freecellErrInvalid: 'Neplatný tah!',
+  freecellErrColorVal: 'Musí být opačná barva a o 1 nižší hodnota!',
+  freecellErrCellFull: 'Tato volná buňka je obsazená!',
+  freecellWin: '🏆 Vyhrál jsi! +{reward} Výzkumu ({moves} tahů)',
+  
+  // FreeCell Rules
+  freecellRulesTitle: 'FREECELL SOLITAIRE — Pravidla',
+  freecellRulesHistory: '📜 Historie',
+  freecellRulesHistoryText: 'FreeCell byl vytvořen v roce 1978 Paulem Alfille. Proslavil se v roce 1995 jako součást Windows.',
+  freecellRulesGoal: '🎯 Cíl',
+  freecellRulesGoalText: 'Přesunout všechny karty na 4 základové hromádky (seřazené podle barvy od A do K).',
+  freecellRulesFreeCells: '💠 Volné buňky',
+  freecellRulesFreeCellsText: '4 volné buňky (💠) mohou dočasně držet 1 kartu. Používej je strategicky!',
+  freecellRulesTableau: '🃏 Sloupce',
+  freecellRulesTableauText: 'Karty musí být kladeny v klesajícím pořadí a v opačných barvách (červená na černou, černá na červenou).',
+  freecellRulesStrategy: '🧠 Strategie',
+  freecellRulesStrategyText: 'Skoro každá partie je řešitelná! Klíčem je plánování dopředu a chytré využití volných buněk.',
   
   // Rithmomachia
   rithmoName: 'Rithmomachia',
   rithmoDesc: '"Šachy Filozofů" (1030)',
   rithmoTech: 'Tech: Filozofická Matematika (20 Research)',
   rithmoCraft: 'Vyrobit rithmomachia_board',
+  rithmoNeedBoard: 'Nemáš Rithmomachia hrací desku!',
+  rithmoTitle: 'Rithmomachia',
+  rithmoSubtitle: 'Středověká hra čísel a geometrie',
+  rithmoVictoryCond: 'Podmínky vítězství: Zajmi 3 pyramidy soupeře NEBO získej 160+ bodů',
+  rithmoBtnPlay: 'Hrát',
+  rithmoBtnClose: 'Zavřít',
+  rithmoBtnRules: 'Pravidla',
+  rithmoLabelYou: 'Ty (bílý)',
+  rithmoLabelAi: 'AI (černý)',
+  rithmoLabelPoints: 'bodů',
+  rithmoLabelYourTurn: 'Tvůj tah',
+  rithmoLabelAiTurn: 'Tah AI',
+  rithmoLegend: 'Legenda: ○ kruh | □ čtverec | △ trojúhelník | Číslo = hodnota kamene',
+  rithmoTutMsg: 'Klikni na svůj kámen (bílý) a pak na cílové pole.',
+  rithmoErrNotYours: 'To není tvůj kámen!',
+  rithmoErrNoMove: 'Tento kámen se nemůže pohybovat!',
+  rithmoErrInvalid: 'Neplatný tah!',
+  rithmoCapture: 'Zajal jsi {value}!',
+  rithmoAiMove: 'AI přesunulo {type} na [{x}, {y}]',
+  rithmoWinWhitePyr: 'Zajal jsi 3 pyramidy!',
+  rithmoWinBlackPyr: 'AI zajalo 3 pyramidy!',
+  rithmoWinPoints: 'Vyhrál jsi na body!',
+  rithmoWin: '🏆 Vítězství! {reason} +{reward} Výzkumu',
+  rithmoLoss: '💀 Prohra. {reason}',
+  
+  // Rithmomachia Rules
+  rithmoRulesTitle: 'RITHMOMACHIA — Pravidla',
+  rithmoRulesMovement: '🎯 Pohyb: Kruhy se pohybují o 1 pole, Čtverce o 2, Trojúhelníky o 3. Pyramidy kombinují všechny.',
+  rithmoRulesCapture: '⚔️ Zajímání: Můžeš zajmout soupeřův kámen pokud tvoje číslo odpovídá matematickému vztahu (rovnost, násobek, rozdíl).',
+  rithmoRulesVictory: '🏆 Vítězství: Zajmi 3 pyramidy soupeře NEBO překroč 160 bodů ze zajatých kamenů.',
+  rithmoRulesHistory: '📜 Historie: Hra pochází z roku 1030, hrála se na středověkých univerzitách jako cvičení z aritmetiky a geometrie.',
   
   // Common buttons
   btnPlay: 'Hrát 🎮',
@@ -13012,6 +13299,62 @@ garden: {
   urCraft: 'Craft ur_board',
   urPlayVsAI: 'VS AI 🤖',
   urPlaySolo: 'Solo 🧩',
+  urNeedBoard: 'You don\'t have an Ur board!',
+  urTitleVs: 'Royal Game of Ur',
+  urSubtitleVs: 'Play against AI',
+  urDescVs: 'The world\'s oldest board game (2600 BCE)',
+  urBtnVsAi: 'Play VS AI',
+  urBtnBackVs: 'Back to selection',
+  urLabelYou: 'You',
+  urLabelAi: 'AI',
+  urLabelFinished: 'finished',
+  urLabelOffboard: 'off board',
+  urLabelRoll: 'Roll',
+  urLabelTrack: 'Track',
+  urBtnRoll: 'Roll dice',
+  urErrMoveFirst: 'Roll dice first!',
+  urErrNoMoves: 'Can\'t move! Try another piece.',
+  urErrInvalid: 'Invalid move!',
+  urRollSuccess: 'You rolled {roll}!',
+  urRollZeroRetry: 'You rolled 0. Roll again!',
+  urRollZeroSkip: 'You rolled 0. Opponent\'s turn.',
+  urRosette: '🌟 Rosette! Play again!',
+  urCapture: '⚔️ You captured opponent\'s piece!',
+  urAiMove: 'AI moved a piece.',
+  urAiRosette: 'AI hit a Rosette!',
+  urAiRollZero: 'AI rolled 0.',
+  urAiNoMoves: 'AI can\'t move.',
+  urWinVs: '🏆 You won! +{reward} Research',
+  urLossVs: '💀 AI won.',
+  urTitleSolo: 'Royal Game of Ur — Solo',
+  urSubtitleSolo: 'Practice game',
+  urBtnPlaySolo: 'Play Solo',
+  urBtnSolo: 'Solo mode',
+  urLabelOffboardSolo: 'Off board',
+  urLabelRolls: 'Rolls',
+  urLabelMoves: 'Moves',
+  urLabelPace: 'Pace',
+  urLabelRating: 'Rating',
+  urGradePass: 'Pass',
+  urGradeOk: 'Good',
+  urGradeGood: 'Great',
+  urGradePerfect: 'Perfect',
+  urRatingPass: '⭐ Pass (30+ rolls)',
+  urRatingOk: '⭐⭐ Good (20-29 rolls)',
+  urRatingGood: '⭐⭐⭐ Great (15-19 rolls)',
+  urRatingPerfect: '⭐⭐⭐⭐ Perfect (<15 rolls)',
+  urWinSolo: '🎉 All pieces finished! {grade} | +{reward} Research | {rolls} rolls',
+  urRulesTitle: 'ROYAL GAME OF UR — Rules',
+  urRulesHistory: '📜 History',
+  urRulesHistoryText: 'The world\'s oldest known board game, discovered in tombs at Ur (modern Iraq) from 2600 BCE.',
+  urRulesGoal: '🎯 Goal',
+  urRulesGoalText: 'Be the first to get all 7 pieces through the track and off the board.',
+  urRulesDice: '🎲 Dice',
+  urRulesDiceText: 'Roll 4 tetrahedra (pyramids). Sum of marks = squares to move (0-4).',
+  urRulesRosettes: '🌟 Rosettes',
+  urRulesRosettesText: 'Star squares = Rosettes. Landing on one gives you another turn! Opponent can\'t capture you on the middle rosette.',
+  urRulesCapture: '⚔️ Capture',
+  urRulesCaptureText: 'Landing on opponent\'s piece (except middle rosette) sends it back to start.',
   
   // Primero
   primeroName: 'Primero',
@@ -13058,18 +13401,99 @@ garden: {
   karnoffelDesc: 'The oldest trump game (1426)',
   karnoffelTech: 'Tech: Karnöffel (12 Research)',
   karnoffelCraft: 'Craft karnoffel_deck',
+  karnoffelNeedDeck: 'You don\'t have a Karnöffel deck!',
+  karnoffelTitle: 'Karnöffel',
+  karnoffelSubtitle: '15th century German trump game',
+  karnoffelBtnPlay: 'Play',
+  karnoffelLabelYourTricks: 'Your tricks',
+  karnoffelLabelTrump: 'Trump',
+  karnoffelLabelOpponent: 'Opponent',
+  karnoffelLabelCurrentTrick: 'Current trick',
+  karnoffelLabelYourCards: 'Your cards',
+  karnoffelTrickWin: '🎉 You won the trick!',
+  karnoffelTrickLoss: '😔 Opponent won the trick',
+  karnoffelGameWin: '🏆 You won! +{reward} Research',
+  karnoffelGameLoss: '💸 You lost.',
+  
+  // Karnöffel Rules
+  karnoffelRulesTitle: 'KARNÖFFEL — Rules',
+  karnoffelRulesHistory: '📜 History',
+  karnoffelRulesHistoryText: 'Karnöffel is the oldest known trump card game, first mentioned in 1426 in Germany. The name comes from "Karniffel" (executioner).',
+  karnoffelRulesDeck: '🎴 Deck',
+  karnoffelRulesDeckText: '32 cards (4 suits × 8 ranks): 🍃 Leaves, 🔔 Bells, ❤️ Hearts, 🎯 Acorns',
+  karnoffelRulesGoal: '🎯 Goal',
+  karnoffelRulesGoalText: 'Win the majority of 5 tricks (3+).',
+  karnoffelRulesTrump: '🃏 Trump',
+  karnoffelRulesTrumpText: 'At game start, a trump suit is randomly chosen. Trump cards beat other suits.',
+  karnoffelRulesPlay: '🎮 Play',
+  karnoffelRulesPlayText: 'Click a card from your hand to play it. AI plays its card. Higher value (or trump) wins the trick.',
   
   // FreeCell
   freecellName: 'FreeCell Solitaire',
   freecellDesc: 'A game of logic and cards',
   freecellTech: 'Tech: Solitaire Mastery (15 Research)',
   freecellCraft: 'Craft french_deck',
+  freecellNeedDeck: 'You don\'t have a French deck!',
+  freecellTitle: 'FreeCell Solitaire',
+  freecellSubtitle: 'Strategy-based patience game',
+  freecellBtnPlay: 'Play',
+  freecellBtnNew: 'New Game',
+  freecellLabelMoves: 'Moves: {moves}',
+  freecellErrAce: 'Only Aces can start foundations!',
+  freecellErrInvalid: 'Invalid move!',
+  freecellErrColorVal: 'Must be opposite color and 1 lower value!',
+  freecellErrCellFull: 'This free cell is occupied!',
+  freecellWin: '🏆 You won! +{reward} Research ({moves} moves)',
+  
+  // FreeCell Rules
+  freecellRulesTitle: 'FREECELL SOLITAIRE — Rules',
+  freecellRulesHistory: '📜 History',
+  freecellRulesHistoryText: 'FreeCell was created in 1978 by Paul Alfille. It became famous in 1995 as part of Windows.',
+  freecellRulesGoal: '🎯 Goal',
+  freecellRulesGoalText: 'Move all cards to 4 foundation piles (sorted by suit from A to K).',
+  freecellRulesFreeCells: '💠 Free Cells',
+  freecellRulesFreeCellsText: '4 free cells (💠) can temporarily hold 1 card each. Use them strategically!',
+  freecellRulesTableau: '🃏 Columns',
+  freecellRulesTableauText: 'Cards must be placed in descending order and alternating colors (red on black, black on red).',
+  freecellRulesStrategy: '🧠 Strategy',
+  freecellRulesStrategyText: 'Almost every deal is solvable! The key is planning ahead and smart use of free cells.',
   
   // Rithmomachia
   rithmoName: 'Rithmomachia',
   rithmoDesc: '"Philosophers\' Chess" (1030)',
   rithmoTech: 'Tech: Philosophical Mathematics (20 Research)',
   rithmoCraft: 'Craft rithmomachia_board',
+  rithmoNeedBoard: 'You don\'t have a Rithmomachia board!',
+  rithmoTitle: 'Rithmomachia',
+  rithmoSubtitle: 'Medieval game of numbers and geometry',
+  rithmoVictoryCond: 'Victory conditions: Capture 3 opponent pyramids OR reach 160+ points',
+  rithmoBtnPlay: 'Play',
+  rithmoBtnClose: 'Close',
+  rithmoBtnRules: 'Rules',
+  rithmoLabelYou: 'You (white)',
+  rithmoLabelAi: 'AI (black)',
+  rithmoLabelPoints: 'points',
+  rithmoLabelYourTurn: 'Your turn',
+  rithmoLabelAiTurn: 'AI\'s turn',
+  rithmoLegend: 'Legend: ○ circle | □ square | △ triangle | Number = piece value',
+  rithmoTutMsg: 'Click on your piece (white) then on target square.',
+  rithmoErrNotYours: 'That\'s not your piece!',
+  rithmoErrNoMove: 'This piece cannot move!',
+  rithmoErrInvalid: 'Invalid move!',
+  rithmoCapture: 'You captured {value}!',
+  rithmoAiMove: 'AI moved {type} to [{x}, {y}]',
+  rithmoWinWhitePyr: 'You captured 3 pyramids!',
+  rithmoWinBlackPyr: 'AI captured 3 pyramids!',
+  rithmoWinPoints: 'You won by points!',
+  rithmoWin: '🏆 Victory! {reason} +{reward} Research',
+  rithmoLoss: '💀 Defeat. {reason}',
+  
+  // Rithmomachia Rules
+  rithmoRulesTitle: 'RITHMOMACHIA — Rules',
+  rithmoRulesMovement: '🎯 Movement: Circles move 1 square, Squares 2, Triangles 3. Pyramids combine all.',
+  rithmoRulesCapture: '⚔️ Capture: You can capture opponent\'s piece if your number matches a mathematical relationship (equality, multiple, difference).',
+  rithmoRulesVictory: '🏆 Victory: Capture 3 opponent pyramids OR exceed 160 points from captured pieces.',
+  rithmoRulesHistory: '📜 History: The game dates from 1030 AD, played at medieval universities as arithmetic and geometry exercise.',
   
   // Common buttons
   btnPlay: 'Play 🎮',

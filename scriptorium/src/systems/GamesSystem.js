@@ -53,6 +53,7 @@ const GamesSystem = {
         } else {
             h += `<button class="craft-btn" onclick="RoyalGameOfUr.start()">${t('games.urPlayVsAI')}</button>`;
             h += `<button class="craft-btn" onclick="RoyalGameOfUrSolo.start()" style="background: var(--accent-gold);">${t('games.urPlaySolo')}</button>`;
+            h += `<button class="craft-btn" onclick="RoyalGameOfUr.showRules()" style="background: var(--accent-wax);">${t('games.btnRules')}</button>`;
         }
         h += `</div>`;
 
@@ -88,6 +89,7 @@ const GamesSystem = {
             h += `<div class="game-unlock-text">${t('games.karnoffelCraft')}</div>`;
         } else {
             h += `<button class="craft-btn" onclick="KarnoffelGame.start()">${t('games.btnPlay')}</button>`;
+            h += `<button class="craft-btn" onclick="KarnoffelGame.showRules()" style="background: var(--accent-gold);">${t('games.btnRules')}</button>`;
         }
         h += `</div>`;
 
@@ -105,6 +107,7 @@ const GamesSystem = {
             h += `<div class="game-unlock-text">${t('games.freecellCraft')}</div>`;
         } else {
             h += `<button class="craft-btn" onclick="FreeCellGame.start()">${t('games.btnPlay')}</button>`;
+            h += `<button class="craft-btn" onclick="FreeCellGame.showRules()" style="background: var(--accent-gold);">${t('games.btnRules')}</button>`;
         }
         h += `</div>`;
 

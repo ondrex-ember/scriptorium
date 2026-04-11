@@ -72,7 +72,7 @@ const Rithmomachia = {
     
     start: function() {
         if (!GameState.inventory.rithmomachia_board || GameState.inventory.rithmomachia_board < 1) {
-            UI.notify(t('minigames.rithmomachia.need_board'), true);
+            UI.notify(t('games.rithmoNeedBoard'), true);
             return;
         }
         
@@ -109,7 +109,7 @@ const Rithmomachia = {
     },
     
     showTutorial: function() {
-        UI.notify(t('minigames.rithmomachia.tut_msg'));
+        UI.notify(t('games.rithmoTutMsg'));
     },
     
     // ========== PIECE SELECTION ==========
@@ -129,7 +129,7 @@ const Rithmomachia = {
         }
         
         if (piece.player !== 'white') {
-            UI.notify(t('minigames.rithmomachia.err_not_yours'), true);
+            UI.notify(t('games.rithmoErrNotYours'), true);
             return;
         }
         
@@ -139,7 +139,7 @@ const Rithmomachia = {
         this.render();
         
         if (this.validMoves.length === 0) {
-            UI.notify(t('minigames.rithmomachia.err_no_move'), true);
+            UI.notify(t('games.rithmoErrNoMove'), true);
         }
     },
     
@@ -219,7 +219,7 @@ const Rithmomachia = {
         // Check if valid move
         const isValid = this.validMoves.some(([mx, my]) => mx === x && my === y);
         if (!isValid) {
-            UI.notify(t('minigames.rithmomachia.err_invalid'), true);
+            UI.notify(t('games.rithmoErrInvalid'), true);
             return;
         }
         
@@ -304,7 +304,7 @@ const Rithmomachia = {
             }
         }
         
-        UI.notify(t('minigames.rithmomachia.capture').replace('{value}', piece.value));
+        UI.notify(t('games.rithmoCapture').replace('{value}', piece.value));
     },
     
     // ========== AI OPPONENT ==========
@@ -345,7 +345,7 @@ const Rithmomachia = {
             piece.pos = [x, y];
             
             this.checkCaptures(piece);
-            UI.notify(t('minigames.rithmomachia.ai_move').replace('{type}', piece.type).replace('{x}', x).replace('{y}', y));
+            UI.notify(t('games.rithmoAiMove').replace('{type}', piece.type).replace('{x}', x).replace('{y}', y));
         }
         
         this.checkVictory();
@@ -369,23 +369,23 @@ const Rithmomachia = {
         const blackTriangles = this.blackPieces.filter(p => p.type === 'triangle').length;
         
         if (whiteTriangles === 0) {
-            this.endGame('black', t('minigames.rithmomachia.win_white_pyr'));
+            this.endGame('black', t('games.rithmoWinWhitePyr'));
             return true;
         }
         
         if (blackTriangles === 0) {
-            this.endGame('white', t('minigames.rithmomachia.win_black_pyr'));
+            this.endGame('white', t('games.rithmoWinBlackPyr'));
             return true;
         }
         
         // Condition 2: Reached 100 points
         if (this.points.white >= 100) {
-            this.endGame('white', t('minigames.rithmomachia.win_points'));
+            this.endGame('white', t('games.rithmoWinPoints'));
             return true;
         }
         
         if (this.points.black >= 100) {
-            this.endGame('black', t('minigames.rithmomachia.win_points'));
+            this.endGame('black', t('games.rithmoWinPoints'));
             return true;
         }
         
@@ -406,14 +406,14 @@ const Rithmomachia = {
                 GameState.achievements.stats.totalResearchGained += reward;
             }
             
-            UI.notify(t('minigames.rithmomachia.win').replace('{reason}', reason).replace('{reward}', reward));
+            UI.notify(t('games.rithmoWin').replace('{reason}', reason).replace('{reward}', reward));
         } else {
             // Track played (even if lost)
             if(GameState.achievements) {
                 GameState.achievements.stats.totalGamesPlayed++;
             }
             
-            UI.notify(t('minigames.rithmomachia.loss').replace('{reason}', reason));
+            UI.notify(t('games.rithmoLoss').replace('{reason}', reason));
         }
         
         setTimeout(() => this.render(), 2000);
@@ -450,21 +450,21 @@ const Rithmomachia = {
         if (!container) return;
         
         let h = '<div style="background: var(--bg-card); padding: 15px; border-radius: 8px;">';
-        h += `<h3>${t('minigames.rithmomachia.title')}</h3>`;
+        h += `<h3>${t('games.rithmoTitle')}</h3>`;
         
         if (!this.gameActive) {
-            h += `<p style="margin: 10px 0;">${t('minigames.rithmomachia.subtitle')}</p>`;
+            h += `<p style="margin: 10px 0;">${t('games.rithmoSubtitle')}</p>`;
             h += `<p style="font-size: 0.9rem; opacity: 0.8; margin: 10px 0;">`;
-            h += t('minigames.rithmomachia.victory_cond');
+            h += t('games.rithmoVictoryCond');
             h += `</p>`;
-            h += `<button class="craft-btn" onclick="Rithmomachia.start()" style="margin-top: 10px;">${t('minigames.rithmomachia.btn_play')}</button>`;
-            h += `<button class="craft-btn" onclick="Rithmomachia.showRules()" style="margin-top: 10px; background: var(--accent-gold);">${t('minigames.rithmomachia.btn_rules')}</button>`;
+            h += `<button class="craft-btn" onclick="Rithmomachia.start()" style="margin-top: 10px;">${t('games.rithmoBtnPlay')}</button>`;
+            h += `<button class="craft-btn" onclick="Rithmomachia.showRules()" style="margin-top: 10px; background: var(--accent-gold);">${t('games.rithmoBtnRules')}</button>`;
         } else {
             // Score
             h += `<div style="display: flex; justify-content: space-between; margin: 10px 0; padding: 10px; background: rgba(0,0,0,0.1); border-radius: 4px; font-size: 0.9rem;">`;
-            h += `<div>${t('minigames.rithmomachia.label_you')}: ${this.points.white} ${t('minigames.rithmomachia.label_points')}</div>`;
-            h += `<div>${this.currentTurn === 'white' ? t('minigames.rithmomachia.label_your_turn') : t('minigames.rithmomachia.label_ai_turn')}</div>`;
-            h += `<div>${t('minigames.rithmomachia.label_ai')}: ${this.points.black} ${t('minigames.rithmomachia.label_points')}</div>`;
+            h += `<div>${t('games.rithmoLabelYou')}: ${this.points.white} ${t('games.rithmoLabelPoints')}</div>`;
+            h += `<div>${this.currentTurn === 'white' ? t('games.rithmoLabelYourTurn') : t('games.rithmoLabelAiTurn')}</div>`;
+            h += `<div>${t('games.rithmoLabelAi')}: ${this.points.black} ${t('games.rithmoLabelPoints')}</div>`;
             h += `</div>`;
             
             // Board
@@ -472,7 +472,7 @@ const Rithmomachia = {
             
             // Legend
             h += `<div style="margin-top: 10px; font-size: 0.85rem; opacity: 0.8;">`;
-            h += t('minigames.rithmomachia.legend');
+            h += t('games.rithmoLegend');
             h += `</div>`;
         }
         
@@ -525,17 +525,17 @@ const Rithmomachia = {
         const modal = `
             <div style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); z-index: 10000; display: flex; align-items: center; justify-content: center; padding: 20px;" onclick="this.remove()">
                 <div style="background: var(--bg-parchment); padding: 30px; border-radius: 10px; max-width: 500px; max-height: 80vh; overflow-y: auto;" onclick="event.stopPropagation()">
-                    <h2 style="margin-top: 0;">${t('minigames.rithmomachia.rules_title')}</h2>
+                    <h2 style="margin-top: 0;">${t('games.rithmoRulesTitle')}</h2>
                     
-                    ${t('minigames.rithmomachia.rules_movement')}
+                    ${t('games.rithmoRulesMovement')}
                     
-                    ${t('minigames.rithmomachia.rules_capture')}
+                    ${t('games.rithmoRulesCapture')}
                     
-                    ${t('minigames.rithmomachia.rules_victory')}
+                    ${t('games.rithmoRulesVictory')}
                     
-                    ${t('minigames.rithmomachia.rules_history')}
+                    ${t('games.rithmoRulesHistory')}
                     
-                    <button class="craft-btn" onclick="this.parentElement.parentElement.remove()" style="margin-top: 20px; width: 100%;">${t('minigames.rithmomachia.btn_close')}</button>
+                    <button class="craft-btn" onclick="this.parentElement.parentElement.remove()" style="margin-top: 20px; width: 100%;">${t('games.rithmoBtnClose')}</button>
                 </div>
             </div>
         `;
