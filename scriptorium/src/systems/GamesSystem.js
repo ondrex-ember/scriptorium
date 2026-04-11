@@ -70,6 +70,7 @@ const GamesSystem = {
             h += `<div class="game-unlock-text">${t('games.primeroCraft')}</div>`;
         } else {
             h += `<button class="craft-btn" onclick="PrimeroGame.start()">${t('games.btnPlay')}</button>`;
+            h += `<button class="craft-btn" onclick="PrimeroGame.showRules()" style="background: var(--accent-gold);">${t('games.btnRules')}</button>`;
         }
         h += `</div>`;
 
