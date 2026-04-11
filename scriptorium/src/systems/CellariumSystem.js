@@ -210,8 +210,83 @@ const CellariumSystem = {
     this.addGrose(total);
     GameState.economy.tradesTotal++;
     Game.save();
-    UI.notify(`💰 +${total} grošů za ${qty}× ${itemId}`);
+    const itemName = (typeof iName === 'function') ? iName(itemId) : itemId;
+    UI.notify(t('cellariumSoldNotify').replace('{total}', total).replace('{qty}', qty).replace('{item}', itemName));
     this.renderCellariumContent();
+  },
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // BUY — entita prodává hráči (special item per entita)
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  ENTITY_SHOP: {
+    tavern: { itemId: 'stamina_tonic', basePrice: 8  },
+    shop:   { itemId: 'water',         basePrice: 2  },
+    market: { itemId: 'paper',         basePrice: 3  },
+  },
+
+  buyItem: function(entity) {
+    if (!this.hasNumismatica()) return;
+    if (!this.isEntityOpen(entity)) {
+      UI.notify(t('cellariumClosed'), true);
+      return;
+    }
+    const shop  = this.ENTITY_SHOP[entity];
+    if (!shop) return;
+    const price = this.calcBuyPrice(shop.itemId, entity);
+    if (this.getGrose() < price) {
+      UI.notify(t('cellariumNoGrose'), true);
+      return;
+    }
+    this.spendGrose(price);
+    Game.addItem(shop.itemId, 1);
+    GameState.economy.tradesTotal++;
+    Game.save();
+    const itemName = (typeof iName === 'function') ? iName(shop.itemId) : shop.itemId;
+    UI.notify(t('cellariumBoughtNotify').replace('{qty}', 1).replace('{item}', itemName).replace('{total}', price));
+    this.renderCellariumContent();
+  },
+
+  calcBuyPrice: function(itemId, entity) {
+    const shop  = this.ENTITY_SHOP[entity];
+    if (!shop) return 0;
+    const today = new Date();
+    const seed  = today.getFullYear() * 10000 + (today.getMonth()+1) * 100 + today.getDate();
+    const pseudoRand = ((seed * 9301 + entity.charCodeAt(0) * 49297 + itemId.charCodeAt(0) * 233 + 777) % 1000) / 1000;
+    const offset = 0.85 + pseudoRand * 0.30;
+    return Math.max(1, Math.round(shop.basePrice * offset));
+  },
+
+  renderBuyPanel: function(entity, lang) {
+    const shop = this.ENTITY_SHOP[entity];
+    if (!shop) return '';
+    const item  = ItemsDB[shop.itemId];
+    const icon  = item ? item.icon : '📦';
+    const name  = (typeof iName === 'function') ? iName(shop.itemId) : (item ? item.name : shop.itemId);
+    const price = this.calcBuyPrice(shop.itemId, entity);
+    const canAfford = this.getGrose() >= price;
+    const entityNames = { tavern: lang === 'en' ? 'Tavern' : 'Hospody', shop: lang === 'en' ? 'Shop' : 'Obchodu', market: lang === 'en' ? 'Market' : 'Trhu' };
+    return `
+      <div style="margin-bottom:16px; padding:14px; background:rgba(197,160,89,0.08);
+                  border-radius:8px; border:1px solid rgba(197,160,89,0.3);">
+        <div style="font-size:0.75rem; opacity:0.6; margin-bottom:10px; font-style:italic; text-transform:uppercase; letter-spacing:0.05em;">
+          ${t('cellariumBuySection').replace('{entity}', entityNames[entity] || entity)}
+        </div>
+        <div style="display:flex; align-items:center; gap:12px;">
+          <span style="font-size:2rem;">${icon}</span>
+          <div style="flex:1;">
+            <div style="font-weight:bold; font-size:0.9rem;">${name}</div>
+            <div style="font-size:0.75rem; opacity:0.65;">${price} 💰</div>
+          </div>
+          <button onclick="CellariumSystem.buyItem('${entity}')"
+                  class="craft-btn"
+                  style="padding:6px 16px;"
+                  ${canAfford ? '' : 'disabled'}>
+            ${lang === 'en' ? 'Buy' : 'Koupit'}
+          </button>
+        </div>
+      </div>
+    `;
   },
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -230,7 +305,43 @@ const CellariumSystem = {
   },
 
   showGiacomoArrival: function() {
-    UI.notify('⛵ Giacomo Foscari přijel do kláštera! Navštiv Cellarium → Trh.');
+    // Show modal
+    let existing = document.getElementById('giacomo-modal');
+    if (existing) existing.remove();
+    const lang = (GameState.settings && GameState.settings.language) || 'cs';
+    const modal = document.createElement('div');
+    modal.id = 'giacomo-modal';
+    modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:9999;display:flex;align-items:center;justify-content:center;';
+    modal.innerHTML = `
+      <div style="background:var(--bg-parchment);border:2px solid var(--accent-gold);border-radius:12px;
+                  max-width:480px;width:90%;padding:30px;position:relative;box-shadow:0 8px 40px rgba(0,0,0,0.5);">
+        <div style="text-align:center;margin-bottom:20px;">
+          <div style="font-size:4rem;margin-bottom:8px;">⛵</div>
+          <div style="font-family:'Cinzel Decorative';font-size:1.1rem;color:var(--accent-gold);">
+            ${t('giacomoTitle')}
+          </div>
+          <div style="font-size:0.8rem;opacity:0.65;font-style:italic;margin-top:4px;">
+            ${t('giacomoSubtitle')}
+          </div>
+        </div>
+        <div style="font-style:italic;font-size:0.9rem;opacity:0.85;margin-bottom:24px;
+                    padding:15px;background:rgba(197,160,89,0.08);border-radius:8px;
+                    border-left:3px solid var(--accent-gold);">
+          ${t('giacomoGreeting')}
+        </div>
+        <div style="display:flex;gap:10px;">
+          <button onclick="document.getElementById('giacomo-modal').remove()"
+                  class="craft-btn" style="flex:1;">
+            ${t('giacomoBtnClose')}
+          </button>
+          <button onclick="document.getElementById('giacomo-modal').remove(); UI.showScreen('home'); UI.switchHomeTab('cellarium', document.getElementById('home-tab-cellarium')); CellariumSystem.switchEntity('market');"
+                  class="craft-btn" style="flex:1;background:var(--accent-gold);color:var(--bg-parchment);">
+            ${t('giacomoBtnVisit')}
+          </button>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(modal);
   },
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -254,10 +365,7 @@ const CellariumSystem = {
           <em>Cellarium clausum est.</em>
         </div>
         <div style="font-size:0.85rem; opacity:0.8;">
-          ${hasCom
-            ? 'Vyzkum <strong>Cellarium — Řád Sklepa</strong> odemkne přístup k Benediktovi z Litomyšle.'
-            : 'Vyzkum <strong>Commercium — Stezky Kupců</strong> otevře cestu k obchodu.'
-          }
+          ${hasCom ? t('cellariumLockedMsg') : t('cellariumLockedMsgPre')}
         </div>
       </div>
     `;
@@ -370,7 +478,7 @@ const CellariumSystem = {
         <div style="text-align:center; padding:20px; opacity:0.6;">
           <div style="font-size:2rem;">🔒</div>
           <div style="font-style:italic; margin-top:8px; font-size:0.9rem;">
-            ${lang === 'en' ? 'Closed now.' : 'Nyní zavřeno.'}<br>
+            ${t('cellariumClosed')}<br>
             <span style="font-size:0.8rem;">${label}</span>
           </div>
         </div>
@@ -379,7 +487,10 @@ const CellariumSystem = {
       return h;
     }
 
-    // Prodejní tabulka — co má hráč z BASE_PRICES (Hospoda má whitelist)
+    // ── Nákupní sekce (special item per entita) ─────────────────────────────
+    h += this.renderBuyPanel(entity, lang);
+
+    // ── Prodejní sekce ───────────────────────────────────────────────────────
     const TAVERN_ITEMS = ['bread','cooked_meat','cooked_fish','stew','mushroom_soup',
                           'berry_pie','honey','water','potion_heal','stamina_tonic',
                           'sleep_potion','candle'];
@@ -391,11 +502,11 @@ const CellariumSystem = {
 
     if (sellable.length === 0) {
       h += `<div style="text-align:center; padding:20px; opacity:0.5; font-style:italic;">
-              ${lang === 'en' ? 'Nothing to sell.' : 'Nic k prodeji.'}
+              ${t('cellariumNothingToSell')}
             </div>`;
     } else {
       h += `<div style="font-size:0.8rem; opacity:0.6; margin-bottom:10px; font-style:italic;">
-              ${lang === 'en' ? 'Select quantity and sell:' : 'Vyber množství a prodej:'}
+              ${t('cellariumSellPrompt')}
             </div>`;
       h += `<div style="display:grid; grid-template-columns:repeat(auto-fill,minmax(180px,1fr)); gap:10px;">`;
 
