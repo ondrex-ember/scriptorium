@@ -3658,6 +3658,12 @@ const ItemsDB = {
     "potion_vigor_minor":  { name:"Heřmánkový odvar",  name_en:"Chamomile Draught",   icon:"🌼", type:"potion",  desc:"Obnoví síly. Vigor +20.",                            desc_en:"Restores strength. Vigor +20." },
     "potion_craft_boost":  { name:"Třezalkový lektvar", name_en:"St. John's Tincture", icon:"🌻", type:"potion",  desc:"Crafting ×1.5 po dobu 1 hodiny.",                   desc_en:"Crafting ×1.5 for 1 hour." },
     "potion_hunger_remedy":{ name:"Hojivá mast",       name_en:"Healing Salve",       icon:"🕯️", type:"potion",  desc:"Zpomalí hlad o 4 hodiny.",                           desc_en:"Slows hunger by 4 hours." },
+
+    // NOVÉ HRÁČSKÉ DESKY (sprint v8.x)
+    "senet_board":      { name:"Senet",               name_en:"Senet Board",         icon:"𓂀", type:"tool", cat:"tool", desc:"Egyptská hra faraonů. 3100 př.n.l.",               desc_en:"Egyptian game of the pharaohs. 3100 BC." },
+    "backgammon_board": { name:"Tables (Vrhcáby)",    name_en:"Tables Board",        icon:"🎯", type:"tool", cat:"tool", desc:"Hra kamenů a kostek. Předchůdce vrhcábů.",          desc_en:"Game of stones and dice. Ancestor of backgammon." },
+    "draughts_board":   { name:"Dáma",                name_en:"Draughts Board",      icon:"⚫", type:"tool", cat:"tool", desc:"Hra dam a pánů. Jednoduchá, hluboká.",             desc_en:"Game of ladies and lords. Simple yet deep." },
+    "hnefatafl_board":  { name:"Hnefatafl",           name_en:"Hnefatafl Board",     icon:"♟️", type:"tool", cat:"tool", desc:"Královská hra Vikingů. Král prchá, útočníci loví.", desc_en:"Royal Viking game. The king flees, warriors hunt." },
 };
 // ═══ src/data/recipes.js ═══
 const RecipesDB = [
@@ -3851,7 +3857,48 @@ const RecipesDB = [
     
     // PRIVILEGIUM QUESTLINE
     { id: "bishop_seal", output: "bishop_seal", qty: 1, req: { "vellum_codex": 10, "luxury_codex": 20 }, cat: "lore", locked: true, desc: "Daruj biskupovi 10 pergamenových + 20 luxusních kodexů.", desc_en: "Gift the bishop 10 vellum + 20 luxury codices." },
-    { id: "printing_privilege", output: "printing_privilege", qty: 1, req: { "bishop_seal": 1, "research": 100 }, cat: "lore", locked: true, desc: "Monopol. Endgame.", desc_en: "Monopoly. Endgame." }
+    { id: "printing_privilege", output: "printing_privilege", qty: 1, req: { "bishop_seal": 1, "research": 100 }, cat: "lore", locked: true, desc: "Monopol. Endgame.", desc_en: "Monopoly. Endgame." },
+
+    // ═══════════════════════════════════════════════════════════════════════════
+    // NOVÉ HERNÍ DESKY (sprint v8.x)
+    // chalk není craftitelný — kupuje se v Cellariu (Obchod, 2 groše / 3 křída)
+    // ═══════════════════════════════════════════════════════════════════════════
+    {
+        id: "senet_board",
+        output: "senet_board",
+        qty: 1,
+        req: { stick: 2, bone: 2, ink: 1 },
+        cat: "tool",
+        locked: true,
+        desc: "Egyptská hra faraonů — 30 polí, 5 kamenů, 4 hůlky-kostky.", desc_en: "Egyptian game of pharaohs — 30 squares, 5 stones, 4 stick-dice."
+    },
+    {
+        id: "backgammon_board",
+        output: "backgammon_board",
+        qty: 1,
+        req: { stick: 3, leather: 2, bone: 2 },
+        cat: "tool",
+        locked: true,
+        desc: "Vrhcáby — deska z kůže, kameny z kostí, dvě kostky.", desc_en: "Tables — leather board, bone stones, two dice."
+    },
+    {
+        id: "draughts_board",
+        output: "draughts_board",
+        qty: 1,
+        req: { stick: 3, charcoal: 1, chalk: 1 },
+        cat: "tool",
+        locked: true,
+        desc: "Dáma — střídavá pole z uhlí a křídy, 24 kamenů.", desc_en: "Draughts — alternating charcoal and chalk squares, 24 stones."
+    },
+    {
+        id: "hnefatafl_board",
+        output: "hnefatafl_board",
+        qty: 1,
+        req: { stick: 4, bone: 3, vellum: 1 },
+        cat: "tool",
+        locked: true,
+        desc: "Hnefatafl — asymetrická hra. Král a 12 obránců vs. 24 útočníků.", desc_en: "Hnefatafl — asymmetric game. King and 12 defenders vs. 24 attackers."
+    }
 ];
 // ═══ src/data/lore.js ═══
 const LoreDB = {
@@ -7671,6 +7718,13 @@ const CellariumSystem = {
     stamina_tonic:  7,
     preservation_oil: 8,
     candle:         2,
+    // Suroviny — nové
+    chalk:          2,
+    // Herní desky (jen nákup, ne prodej)
+    senet_board:    6,
+    backgammon_board: 10,
+    draughts_board:  8,
+    hnefatafl_board: 15,
   },
 
   // Koeficienty per entita (prodej hráče → entita)
@@ -7688,6 +7742,8 @@ const CellariumSystem = {
     fiber: 'mat', bark: 'mat', hide: 'mat', leather: 'mat', bone: 'mat',
     feather: 'mat', resin: 'mat', charcoal: 'mat',
     herb_red: 'mat', herb_yellow: 'mat', herb_blue: 'mat', roots: 'mat',
+    chalk: 'mat',
+    senet_board: 'tool', backgammon_board: 'tool', draughts_board: 'tool', hnefatafl_board: 'tool',
     potion_heal: 'alchemy', antidote: 'alchemy', stamina_tonic: 'alchemy',
     preservation_oil: 'alchemy', candle: 'alchemy',
   },
@@ -7739,7 +7795,7 @@ const CellariumSystem = {
 
   ENTITY_SHOP: {
     tavern: { itemId: 'stamina_tonic', basePrice: 8  },
-    shop:   { itemId: 'water',         basePrice: 2  },
+    shop:   { itemId: 'chalk',         basePrice: 2  },
     market: { itemId: 'paper',         basePrice: 3  },
   },
 
@@ -7852,7 +7908,7 @@ const CellariumSystem = {
                   class="craft-btn" style="flex:1;">
             ${t('giacomoBtnClose')}
           </button>
-          <button onclick="document.getElementById('giacomo-modal').remove(); UI.showScreen('home'); UI.switchHomeTab('cellarium', document.getElementById('home-tab-cellarium')); CellariumSystem.switchEntity('market');"
+          <button onclick="document.getElementById('giacomo-modal').remove(); UI.switchScreen('home', document.getElementById('nav-home')); UI.switchHomeTab('cellarium', document.getElementById('home-tab-cellarium')); CellariumSystem.switchEntity('market');"
                   class="craft-btn" style="flex:1;background:var(--accent-gold);color:var(--bg-parchment);">
             ${t('giacomoBtnVisit')}
           </button>

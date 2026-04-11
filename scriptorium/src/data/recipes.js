@@ -189,5 +189,46 @@ const RecipesDB = [
     
     // PRIVILEGIUM QUESTLINE
     { id: "bishop_seal", output: "bishop_seal", qty: 1, req: { "vellum_codex": 10, "luxury_codex": 20 }, cat: "lore", locked: true, desc: "Daruj biskupovi 10 pergamenových + 20 luxusních kodexů.", desc_en: "Gift the bishop 10 vellum + 20 luxury codices." },
-    { id: "printing_privilege", output: "printing_privilege", qty: 1, req: { "bishop_seal": 1, "research": 100 }, cat: "lore", locked: true, desc: "Monopol. Endgame.", desc_en: "Monopoly. Endgame." }
+    { id: "printing_privilege", output: "printing_privilege", qty: 1, req: { "bishop_seal": 1, "research": 100 }, cat: "lore", locked: true, desc: "Monopol. Endgame.", desc_en: "Monopoly. Endgame." },
+
+    // ═══════════════════════════════════════════════════════════════════════════
+    // NOVÉ HERNÍ DESKY (sprint v8.x)
+    // chalk není craftitelný — kupuje se v Cellariu (Obchod, 2 groše / 3 křída)
+    // ═══════════════════════════════════════════════════════════════════════════
+    {
+        id: "senet_board",
+        output: "senet_board",
+        qty: 1,
+        req: { stick: 2, bone: 2, ink: 1 },
+        cat: "tool",
+        locked: true,
+        desc: "Egyptská hra faraonů — 30 polí, 5 kamenů, 4 hůlky-kostky.", desc_en: "Egyptian game of pharaohs — 30 squares, 5 stones, 4 stick-dice."
+    },
+    {
+        id: "backgammon_board",
+        output: "backgammon_board",
+        qty: 1,
+        req: { stick: 3, leather: 2, bone: 2 },
+        cat: "tool",
+        locked: true,
+        desc: "Vrhcáby — deska z kůže, kameny z kostí, dvě kostky.", desc_en: "Tables — leather board, bone stones, two dice."
+    },
+    {
+        id: "draughts_board",
+        output: "draughts_board",
+        qty: 1,
+        req: { stick: 3, charcoal: 1, chalk: 1 },
+        cat: "tool",
+        locked: true,
+        desc: "Dáma — střídavá pole z uhlí a křídy, 24 kamenů.", desc_en: "Draughts — alternating charcoal and chalk squares, 24 stones."
+    },
+    {
+        id: "hnefatafl_board",
+        output: "hnefatafl_board",
+        qty: 1,
+        req: { stick: 4, bone: 3, vellum: 1 },
+        cat: "tool",
+        locked: true,
+        desc: "Hnefatafl — asymetrická hra. Král a 12 obránců vs. 24 útočníků.", desc_en: "Hnefatafl — asymmetric game. King and 12 defenders vs. 24 attackers."
+    }
 ];

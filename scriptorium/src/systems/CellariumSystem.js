@@ -153,6 +153,13 @@ const CellariumSystem = {
     stamina_tonic:  7,
     preservation_oil: 8,
     candle:         2,
+    // Suroviny — nové
+    chalk:          2,
+    // Herní desky (jen nákup, ne prodej)
+    senet_board:    6,
+    backgammon_board: 10,
+    draughts_board:  8,
+    hnefatafl_board: 15,
   },
 
   // Koeficienty per entita (prodej hráče → entita)
@@ -170,6 +177,8 @@ const CellariumSystem = {
     fiber: 'mat', bark: 'mat', hide: 'mat', leather: 'mat', bone: 'mat',
     feather: 'mat', resin: 'mat', charcoal: 'mat',
     herb_red: 'mat', herb_yellow: 'mat', herb_blue: 'mat', roots: 'mat',
+    chalk: 'mat',
+    senet_board: 'tool', backgammon_board: 'tool', draughts_board: 'tool', hnefatafl_board: 'tool',
     potion_heal: 'alchemy', antidote: 'alchemy', stamina_tonic: 'alchemy',
     preservation_oil: 'alchemy', candle: 'alchemy',
   },
@@ -221,7 +230,7 @@ const CellariumSystem = {
 
   ENTITY_SHOP: {
     tavern: { itemId: 'stamina_tonic', basePrice: 8  },
-    shop:   { itemId: 'water',         basePrice: 2  },
+    shop:   { itemId: 'chalk',         basePrice: 2  },
     market: { itemId: 'paper',         basePrice: 3  },
   },
 
@@ -334,7 +343,7 @@ const CellariumSystem = {
                   class="craft-btn" style="flex:1;">
             ${t('giacomoBtnClose')}
           </button>
-          <button onclick="document.getElementById('giacomo-modal').remove(); UI.showScreen('home'); UI.switchHomeTab('cellarium', document.getElementById('home-tab-cellarium')); CellariumSystem.switchEntity('market');"
+          <button onclick="document.getElementById('giacomo-modal').remove(); UI.switchScreen('home', document.getElementById('nav-home')); UI.switchHomeTab('cellarium', document.getElementById('home-tab-cellarium')); CellariumSystem.switchEntity('market');"
                   class="craft-btn" style="flex:1;background:var(--accent-gold);color:var(--bg-parchment);">
             ${t('giacomoBtnVisit')}
           </button>
