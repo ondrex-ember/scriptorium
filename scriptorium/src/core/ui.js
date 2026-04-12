@@ -186,6 +186,7 @@ renderActions: function() {
         const el = document.getElementById('inventory-grid'); el.innerHTML = "";
         Object.entries(GameState.inventory).forEach(([id, qty]) => {
             const item = ItemsDB[id];
+            if (!item) return;
             if (this.currentInvFilter !== 'all' && item.type !== this.currentInvFilter) return;
             
             let eatBtn = "";

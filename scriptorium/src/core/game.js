@@ -1469,10 +1469,6 @@ const Game = {
 				// Save to localStorage
 				Game.save();
 				
-				// Refresh UI
-				UI.renderAll();
-				Game.checkEnvironment();
-				
 				UI.notify(t('game.successImport'));
 				
 				// Auto-refresh after 2 seconds
