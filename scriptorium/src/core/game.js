@@ -225,6 +225,14 @@ const Game = {
             GameState.settings.fireVolume = 0.5;  // 50% default
         }
 
+        // Music defaults (v8.x)
+        if(GameState.settings.musicEnabled === undefined) {
+            GameState.settings.musicEnabled = true;
+        }
+        if(GameState.settings.musicVolume === undefined) {
+            GameState.settings.musicVolume = 0.5;
+        }
+
         // Language default + URL param detection (i18n)
         if(!GameState.settings.language) {
             GameState.settings.language = 'cs';
@@ -293,6 +301,16 @@ const Game = {
             if (GameState.flags.fireplaceLit && !audioSys.isPlaying) {
                 audioSys.startFireLoop(true);
             }
+
+            // Restore music settings to AudioSystem
+            audioSys.setMusicEnabled(GameState.settings.musicEnabled !== false);
+            audioSys.setMusicVolume((GameState.settings.musicVolume ?? 0.5) * 100);
+
+            // Sync music UI controls
+            const musicChk = document.getElementById('music-enabled-checkbox');
+            if (musicChk) musicChk.checked = (GameState.settings.musicEnabled !== false);
+            const musicSlider = document.getElementById('music-volume-slider');
+            if (musicSlider) musicSlider.value = Math.round((GameState.settings.musicVolume ?? 0.5) * 100);
         }, { once: true });
         
         // ========== NEW: Hour chime event listeners ==========
@@ -464,6 +482,17 @@ const Game = {
         const volume = parseInt(val) / 100;
         GameState.settings.fireVolume = volume;
         if(audioSys) audioSys.setFireVolume(volume);
+        this.save();
+    },
+    setMusicEnabled: function(enabled) {
+        GameState.settings.musicEnabled = enabled;
+        if(audioSys) audioSys.setMusicEnabled(enabled);
+        this.save();
+    },
+    setMusicVolume: function(val) {
+        const volume = parseInt(val) / 100;
+        GameState.settings.musicVolume = volume;
+        if(audioSys) audioSys.setMusicVolume(val);
         this.save();
     },
     setTheme: function(themeName) {

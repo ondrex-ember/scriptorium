@@ -1497,6 +1497,22 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             </div>
             
             <div class="card" style="flex-direction: column; align-items: flex-start;">
+                <strong data-i18n="settingsUI.musicTitle">🎵 Hudba</strong>
+                <label style="display:flex; align-items:center; gap:10px; margin-top:8px; cursor:pointer;">
+                    <input type="checkbox" id="music-enabled-checkbox" checked
+                           onchange="Game.setMusicEnabled(this.checked)"
+                           style="width:16px; height:16px; cursor:pointer;">
+                    <span data-i18n="settingsUI.musicEnabled">Zapnout generativní hudbu</span>
+                </label>
+                <input type="range" id="music-volume-slider" min="0" max="100" value="50"
+                       oninput="Game.setMusicVolume(this.value)"
+                       style="margin-top:10px;">
+                <div style="margin-top: 6px; font-size: 0.85rem; color: var(--ink-secondary);" data-i18n="settingsUI.musicVolumeDesc">
+                    Procedurálně generovaná středověká melodie
+                </div>
+            </div>
+
+            <div class="card" style="flex-direction: column; align-items: flex-start;">
                 <strong id="lang-selector-label">🗺️ Jazyk / Language</strong>
                 <select id="lang-selector" onchange="Game.setLanguage(this.value)" style="width:100%; padding:8px; margin-top:8px; font-family:'Crimson Text'; font-size:1rem; background:var(--bg-card); border:1px solid var(--border-color); color:var(--ink-primary); border-radius:3px;">
                     <option value="cs">🇨🇿 Česky</option>

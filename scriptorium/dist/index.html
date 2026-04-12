@@ -1497,6 +1497,22 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             </div>
             
             <div class="card" style="flex-direction: column; align-items: flex-start;">
+                <strong data-i18n="settingsUI.musicTitle">🎵 Hudba</strong>
+                <label style="display:flex; align-items:center; gap:10px; margin-top:8px; cursor:pointer;">
+                    <input type="checkbox" id="music-enabled-checkbox" checked
+                           onchange="Game.setMusicEnabled(this.checked)"
+                           style="width:16px; height:16px; cursor:pointer;">
+                    <span data-i18n="settingsUI.musicEnabled">Zapnout generativní hudbu</span>
+                </label>
+                <input type="range" id="music-volume-slider" min="0" max="100" value="50"
+                       oninput="Game.setMusicVolume(this.value)"
+                       style="margin-top:10px;">
+                <div style="margin-top: 6px; font-size: 0.85rem; color: var(--ink-secondary);" data-i18n="settingsUI.musicVolumeDesc">
+                    Procedurálně generovaná středověká melodie
+                </div>
+            </div>
+
+            <div class="card" style="flex-direction: column; align-items: flex-start;">
                 <strong id="lang-selector-label">🗺️ Jazyk / Language</strong>
                 <select id="lang-selector" onchange="Game.setLanguage(this.value)" style="width:100%; padding:8px; margin-top:8px; font-family:'Crimson Text'; font-size:1rem; background:var(--bg-card); border:1px solid var(--border-color); color:var(--ink-primary); border-radius:3px;">
                     <option value="cs">🇨🇿 Česky</option>
@@ -6970,7 +6986,7 @@ const RankSystem = {
 // ═══════════════════════════════════════════════════════════════
 // AUDIO SYSTEM — Procedural fire sound & ambience
 // ═══════════════════════════════════════════════════════════════
-// Version: 1.0
+// Version: 1.1 — + AbyssalKeepGenerative music engine
 // Dependencies: GameState (for volume setting)
 //
 // Features:
@@ -7017,11 +7033,29 @@ class AudioSystem {
                           ? GameState.settings.fireVolume 
                           : 0.5;
         
+        // Music gain node (generativní hudba → masterGain)
+        this.musicGain = this.audioContext.createGain();
+        this.musicGain.gain.value = 0;
+        this.musicGain.connect(this.masterGain);
+
+        // Music enabled flag
+        this.musicEnabled = (typeof GameState !== 'undefined' && GameState.settings)
+                            ? (GameState.settings.musicEnabled !== false)
+                            : true;
+
+        // Music volume z GameState
+        this.musicVolume = (typeof GameState !== 'undefined' && GameState.settings)
+                           ? (GameState.settings.musicVolume ?? 0.5)
+                           : 0.5;
+
         // Storage pro audio smyčky
         this.loops = {};
-        
+
         // Backwards compatibility
         this.ctx = this.audioContext;
+
+        // Generativní hudební engine (inicializuje se při start())
+        this.music = null;
     }
     
     // ═══════════════════════════════════════════════════════════
@@ -7039,6 +7073,15 @@ class AudioSystem {
         // Pokud je krb rozžehnutý, spustit zvuk
         if (typeof GameState !== 'undefined' && GameState.flags.fireplaceLit && !this.fireGain) {
             this.startFireLoop(true);
+        }
+
+        // Spustit generativní hudbu
+        if (!this.music) {
+            this.music = new AbyssalKeepGenerative(this.audioContext, this.musicGain);
+        }
+        if (this.musicEnabled) {
+            this.musicGain.gain.setTargetAtTime(this.musicVolume, this.audioContext.currentTime, 1.0);
+            this.music.start();
         }
     }
     
@@ -7065,6 +7108,47 @@ class AudioSystem {
         
         if (this.fireGain) {
             this.fireGain.gain.setTargetAtTime(volume, this.audioContext.currentTime, 0.1);
+        }
+    }
+
+    setMusicEnabled(enabled) {
+        this.musicEnabled = enabled;
+
+        if (typeof GameState !== 'undefined' && GameState.settings) {
+            GameState.settings.musicEnabled = enabled;
+        }
+
+        if (enabled) {
+            // Spustit engine pokud ještě neběží
+            if (!this.music) {
+                this.music = new AbyssalKeepGenerative(this.audioContext, this.musicGain);
+                this.music.start();
+            }
+            this.musicGain.gain.setTargetAtTime(this.musicVolume, this.audioContext.currentTime, 1.0);
+        } else {
+            this.musicGain.gain.setTargetAtTime(0, this.audioContext.currentTime, 1.0);
+        }
+
+        if (typeof Game !== 'undefined' && typeof Game.save === 'function') {
+            Game.save();
+        }
+    }
+
+    setMusicVolume(val) {
+        // val = 0-100 (slider value)
+        const normalized = val / 100;
+        this.musicVolume = normalized;
+
+        if (typeof GameState !== 'undefined' && GameState.settings) {
+            GameState.settings.musicVolume = normalized;
+        }
+
+        if (this.musicEnabled) {
+            this.musicGain.gain.setTargetAtTime(normalized, this.audioContext.currentTime, 0.1);
+        }
+
+        if (typeof Game !== 'undefined' && typeof Game.save === 'function') {
+            Game.save();
         }
     }
     
@@ -7363,6 +7447,288 @@ class AudioSystem {
             osc1.stop(now + duration);
             osc2.stop(now + duration);
         });
+    }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// ABYSSAL KEEP GENERATIVE — Procedural medieval music engine
+// ═══════════════════════════════════════════════════════════════
+// Adaptováno pro AudioSystem: přijímá audioContext + destinationNode
+// Mood engine: 0.0 = Světlo/Vesnice  →  1.0 = Temnota/Kobka
+// ═══════════════════════════════════════════════════════════════
+
+class AbyssalKeepGenerative {
+    constructor(audioContext, destinationNode) {
+        this.ctx = audioContext;
+        this.dest = destinationNode;
+
+        this.master = this.ctx.createGain();
+        this.master.gain.value = 0.8;
+        this.master.connect(this.dest);
+
+        // D Aeolian (D, E, F, G, A, Bb, C)
+        this.scale = [293.7, 329.6, 349.2, 392.0, 440.0, 466.2, 523.3, 587.3, 659.3, 698.5];
+
+        // Motivy (-1 = pomlka/ticho)
+        this.motifs = [
+            [0, -1, -1, 4, -1, -1],
+            [-1, -1, 1,  0, -1, -1],
+            [4,  -1,  2, -1,  0, -1],
+            [-1,  3, -1,  6, -1,  5],
+            [0,   1, -1, -1, -1, -1]
+        ];
+
+        this.currentPhrase = [];
+        this.step    = 0;
+        this.measure = 0;
+
+        // Mood engine
+        this.mood          = 0.3;   // Začínáme ve "světle"
+        this.moodDirection = 0.015;
+
+        // Drone nodes (lazy init)
+        this.droneOsc    = null;
+        this.droneOsc2   = null;
+        this.droneGain   = null;
+        this.droneFilter = null;
+
+        this._interval = null;
+        this._started  = false;
+    }
+
+    // ── Makra (interní, nahrazují globální getA/B/C) ───────────────
+    _macroA() { return 0; }   // Lze v budoucnu napojit na GameState
+    _macroB() { return 0; }
+    _macroC() { return 0; }
+
+    // ── Nástroje ───────────────────────────────────────────────────
+
+    playLute(freq) {
+        if (!freq) return;
+        const t = this.ctx.currentTime;
+        const osc1 = this.ctx.createOscillator();
+        const osc2 = this.ctx.createOscillator();
+        const filter = this.ctx.createBiquadFilter();
+        const gain   = this.ctx.createGain();
+
+        osc1.type = 'sawtooth'; osc1.frequency.value = freq;
+        osc2.type = 'square';   osc2.frequency.value = freq * 1.005;
+
+        filter.type = 'lowpass';
+        filter.frequency.setValueAtTime(800, t);
+        filter.frequency.exponentialRampToValueAtTime(250, t + 0.1);
+
+        const dur = 0.2 + this._macroC();
+        gain.gain.setValueAtTime(0, t);
+        gain.gain.linearRampToValueAtTime(0.15, t + 0.015);
+        gain.gain.exponentialRampToValueAtTime(0.001, t + dur);
+
+        osc1.connect(filter); osc2.connect(filter);
+        filter.connect(gain); gain.connect(this.master);
+        osc1.start(t); osc2.start(t);
+        osc1.stop(t + dur); osc2.stop(t + dur);
+    }
+
+    playPsalterium(freq) {
+        if (!freq) return;
+        const t = this.ctx.currentTime;
+        const osc    = this.ctx.createOscillator();
+        const gain   = this.ctx.createGain();
+        const filter = this.ctx.createBiquadFilter();
+
+        osc.type = 'square'; osc.frequency.value = freq * 2;
+        filter.type = 'bandpass'; filter.frequency.value = freq * 5;
+
+        gain.gain.setValueAtTime(0, t);
+        gain.gain.linearRampToValueAtTime(0.1, t + 0.01);
+        gain.gain.exponentialRampToValueAtTime(0.001, t + 2.5);
+
+        osc.connect(filter); filter.connect(gain); gain.connect(this.master);
+        osc.start(t); osc.stop(t + 2.5);
+    }
+
+    playChant(freq) {
+        if (!freq) return;
+        const t  = this.ctx.currentTime;
+        const osc  = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        const f1   = this.ctx.createBiquadFilter();
+        const f2   = this.ctx.createBiquadFilter();
+
+        osc.type = 'sawtooth'; osc.frequency.value = freq / 2;
+
+        f1.type = 'bandpass'; f1.frequency.value = 600;  f1.Q.value = 4;
+        f2.type = 'bandpass'; f2.frequency.value = 1100; f2.Q.value = 5;
+
+        osc.connect(f1); f1.connect(gain);
+        osc.connect(f2); f2.connect(gain);
+        gain.connect(this.master);
+
+        gain.gain.setValueAtTime(0, t);
+        gain.gain.linearRampToValueAtTime(0.12, t + 1.0);
+        gain.gain.linearRampToValueAtTime(0,    t + 3.0);
+
+        osc.start(t); osc.stop(t + 3.0);
+    }
+
+    playCreepyChoir(freq) {
+        if (!freq) return;
+        const t      = this.ctx.currentTime;
+        const osc    = this.ctx.createOscillator();
+        const gain   = this.ctx.createGain();
+        const filter = this.ctx.createBiquadFilter();
+
+        osc.type = 'triangle'; osc.frequency.value = freq;
+        filter.type = 'lowpass'; filter.frequency.value = 300 + this._macroC() * 300;
+
+        gain.gain.setValueAtTime(0, t);
+        gain.gain.linearRampToValueAtTime(0.1, t + 1.5);
+        gain.gain.linearRampToValueAtTime(0,   t + 4.0);
+
+        osc.connect(filter); filter.connect(gain); gain.connect(this.master);
+        osc.start(t); osc.stop(t + 4.0);
+    }
+
+    playRhythm() {
+        const t = this.ctx.currentTime;
+
+        if (this.mood > 0.6 && this.step === 0) {
+            const osc  = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
+            osc.frequency.setValueAtTime(60, t);
+            osc.frequency.exponentialRampToValueAtTime(10, t + 0.8);
+            gain.gain.setValueAtTime(0, t);
+            gain.gain.linearRampToValueAtTime(0.5, t + 0.05);
+            gain.gain.exponentialRampToValueAtTime(0.01, t + 0.8);
+            osc.connect(gain); gain.connect(this.master);
+            osc.start(t); osc.stop(t + 0.8);
+        }
+
+        if (this.mood > 0.7 && Math.random() < 0.2 && this.step !== 0) {
+            const bufSize = this.ctx.sampleRate * 0.5;
+            const buffer  = this.ctx.createBuffer(1, bufSize, this.ctx.sampleRate);
+            for (let i = 0; i < bufSize; i++) buffer.getChannelData(0)[i] = Math.random() * 2 - 1;
+            const noise  = this.ctx.createBufferSource(); noise.buffer = buffer;
+            const filter = this.ctx.createBiquadFilter();
+            filter.type = 'bandpass'; filter.frequency.value = 1500 + Math.random() * 500; filter.Q.value = 25;
+            const gain = this.ctx.createGain();
+            gain.gain.setValueAtTime(0, t);
+            gain.gain.linearRampToValueAtTime(0.2, t + 0.01);
+            gain.gain.exponentialRampToValueAtTime(0.001, t + 0.5);
+            noise.connect(filter); filter.connect(gain); gain.connect(this.master);
+            noise.start(t);
+        }
+
+        if (this.mood < 0.5 && (this.step === 2 || this.step === 5)) {
+            const bufSize = this.ctx.sampleRate * 0.1;
+            const buffer  = this.ctx.createBuffer(1, bufSize, this.ctx.sampleRate);
+            for (let i = 0; i < bufSize; i++) buffer.getChannelData(0)[i] = Math.random() * 2 - 1;
+            const noise  = this.ctx.createBufferSource(); noise.buffer = buffer;
+            const filter = this.ctx.createBiquadFilter();
+            filter.type = 'highpass'; filter.frequency.value = 4000;
+            const gain = this.ctx.createGain();
+            gain.gain.setValueAtTime(0, t);
+            gain.gain.linearRampToValueAtTime(0.05, t + 0.01);
+            gain.gain.exponentialRampToValueAtTime(0.01, t + 0.1);
+            noise.connect(filter); filter.connect(gain); gain.connect(this.master);
+            noise.start(t);
+        }
+    }
+
+    manageDrone() {
+        if (!this.droneOsc) {
+            this.droneOsc    = this.ctx.createOscillator();
+            this.droneOsc2   = this.ctx.createOscillator();
+            this.droneGain   = this.ctx.createGain();
+            this.droneFilter = this.ctx.createBiquadFilter();
+
+            this.droneOsc.type  = 'sawtooth'; this.droneOsc.frequency.value  = 73.42; // D2
+            this.droneOsc2.type = 'square';   this.droneOsc2.frequency.value = 74.00;
+
+            this.droneFilter.type = 'lowpass';
+            this.droneGain.gain.value = 0;
+
+            this.droneOsc.connect(this.droneFilter);
+            this.droneOsc2.connect(this.droneFilter);
+            this.droneFilter.connect(this.droneGain);
+            this.droneGain.connect(this.master);
+
+            this.droneOsc.start();
+            this.droneOsc2.start();
+        }
+
+        const targetVol = this.mood > 0.4 ? (this.mood * 0.25) : 0.05;
+        this.droneGain.gain.linearRampToValueAtTime(targetVol, this.ctx.currentTime + 2);
+        this.droneFilter.frequency.linearRampToValueAtTime(
+            100 + (this.mood * 400) + (this._macroA() * 2),
+            this.ctx.currentTime + 2
+        );
+    }
+
+    start() {
+        if (this._started) return;
+        this._started = true;
+
+        this.manageDrone();
+
+        this._interval = setInterval(() => {
+            // 1. Mood engine
+            if (this.step === 0) {
+                this.mood += this.moodDirection;
+                if (this.mood > 1.0 || this.mood < 0.0) {
+                    this.moodDirection *= -1;
+                    this.mood += this.moodDirection;
+                }
+
+                // Výběr motivu
+                let baseMotif    = this.motifs[Math.floor(Math.random() * this.motifs.length)];
+                let transposition = Math.random() < 0.3 ? 2 : 0;
+                if (this.measure % 4 === 0) transposition = 0;
+
+                this.currentPhrase = baseMotif.map(index => {
+                    if (index === -1) return null;
+                    let newIndex = index + transposition;
+                    if (newIndex >= this.scale.length) newIndex = this.scale.length - 1;
+                    return this.scale[newIndex];
+                });
+
+                this.manageDrone();
+                this.measure++;
+            }
+
+            // 2. Rytmus
+            this.playRhythm();
+
+            // 3. Melodie
+            const note = this.currentPhrase[this.step];
+            if (note) {
+                if (this.mood < 0.4) {
+                    if (Math.random() > 0.3) this.playLute(note);
+                } else if (this.mood < 0.7) {
+                    if (Math.random() > 0.5) this.playChant(note);
+                    else this.playPsalterium(note);
+                    if (Math.random() < 0.15) this.playLute(note);
+                } else {
+                    if (Math.random() > 0.4) this.playCreepyChoir(note);
+                    if (Math.random() < 0.2)  this.playPsalterium(note);
+                }
+            }
+
+            this.step = (this.step + 1) % 6;
+
+        }, 320 - (this._macroB() * 120));
+    }
+
+    stop() {
+        if (this._interval) {
+            clearInterval(this._interval);
+            this._interval = null;
+        }
+        this._started = false;
+        if (this.droneOsc)  { this.droneOsc.stop();  this.droneOsc  = null; }
+        if (this.droneOsc2) { this.droneOsc2.stop(); this.droneOsc2 = null; }
+        this.droneGain   = null;
+        this.droneFilter = null;
     }
 }
 // ═══ src/systems/VigorSystem.js ═══
@@ -14531,6 +14897,14 @@ const Game = {
             GameState.settings.fireVolume = 0.5;  // 50% default
         }
 
+        // Music defaults (v8.x)
+        if(GameState.settings.musicEnabled === undefined) {
+            GameState.settings.musicEnabled = true;
+        }
+        if(GameState.settings.musicVolume === undefined) {
+            GameState.settings.musicVolume = 0.5;
+        }
+
         // Language default + URL param detection (i18n)
         if(!GameState.settings.language) {
             GameState.settings.language = 'cs';
@@ -14599,6 +14973,16 @@ const Game = {
             if (GameState.flags.fireplaceLit && !audioSys.isPlaying) {
                 audioSys.startFireLoop(true);
             }
+
+            // Restore music settings to AudioSystem
+            audioSys.setMusicEnabled(GameState.settings.musicEnabled !== false);
+            audioSys.setMusicVolume((GameState.settings.musicVolume ?? 0.5) * 100);
+
+            // Sync music UI controls
+            const musicChk = document.getElementById('music-enabled-checkbox');
+            if (musicChk) musicChk.checked = (GameState.settings.musicEnabled !== false);
+            const musicSlider = document.getElementById('music-volume-slider');
+            if (musicSlider) musicSlider.value = Math.round((GameState.settings.musicVolume ?? 0.5) * 100);
         }, { once: true });
         
         // ========== NEW: Hour chime event listeners ==========
@@ -14770,6 +15154,17 @@ const Game = {
         const volume = parseInt(val) / 100;
         GameState.settings.fireVolume = volume;
         if(audioSys) audioSys.setFireVolume(volume);
+        this.save();
+    },
+    setMusicEnabled: function(enabled) {
+        GameState.settings.musicEnabled = enabled;
+        if(audioSys) audioSys.setMusicEnabled(enabled);
+        this.save();
+    },
+    setMusicVolume: function(val) {
+        const volume = parseInt(val) / 100;
+        GameState.settings.musicVolume = volume;
+        if(audioSys) audioSys.setMusicVolume(val);
         this.save();
     },
     setTheme: function(themeName) {
