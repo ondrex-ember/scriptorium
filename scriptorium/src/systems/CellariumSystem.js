@@ -220,7 +220,7 @@ const CellariumSystem = {
     GameState.economy.tradesTotal++;
     Game.save();
     const itemName = (typeof iName === 'function') ? iName(itemId) : itemId;
-    UI.notify(t('cellariumSoldNotify').replace('{total}', total).replace('{qty}', qty).replace('{item}', itemName));
+    UI.notify(t('cellarium.soldNotify').replace('{total}', total).replace('{qty}', qty).replace('{item}', itemName));
     this.renderCellariumContent();
   },
 
@@ -237,14 +237,14 @@ const CellariumSystem = {
   buyItem: function(entity) {
     if (!this.hasNumismatica()) return;
     if (!this.isEntityOpen(entity)) {
-      UI.notify(t('cellariumClosed'), true);
+      UI.notify(t('cellarium.closed'), true);
       return;
     }
     const shop  = this.ENTITY_SHOP[entity];
     if (!shop) return;
     const price = this.calcBuyPrice(shop.itemId, entity);
     if (this.getGrose() < price) {
-      UI.notify(t('cellariumNoGrose'), true);
+      UI.notify(t('cellarium.noGrose'), true);
       return;
     }
     this.spendGrose(price);
@@ -252,7 +252,7 @@ const CellariumSystem = {
     GameState.economy.tradesTotal++;
     Game.save();
     const itemName = (typeof iName === 'function') ? iName(shop.itemId) : shop.itemId;
-    UI.notify(t('cellariumBoughtNotify').replace('{qty}', 1).replace('{item}', itemName).replace('{total}', price));
+    UI.notify(t('cellarium.boughtNotify').replace('{qty}', 1).replace('{item}', itemName).replace('{total}', price));
     this.renderCellariumContent();
   },
 
@@ -279,7 +279,7 @@ const CellariumSystem = {
       <div style="margin-bottom:16px; padding:14px; background:rgba(197,160,89,0.08);
                   border-radius:8px; border:1px solid rgba(197,160,89,0.3);">
         <div style="font-size:0.75rem; opacity:0.6; margin-bottom:10px; font-style:italic; text-transform:uppercase; letter-spacing:0.05em;">
-          ${t('cellariumBuySection').replace('{entity}', entityNames[entity] || entity)}
+          ${t('cellarium.buySection').replace('{entity}', entityNames[entity] || entity)}
         </div>
         <div style="display:flex; align-items:center; gap:12px;">
           <span style="font-size:2rem;">${icon}</span>
@@ -327,25 +327,25 @@ const CellariumSystem = {
         <div style="text-align:center;margin-bottom:20px;">
           <div style="font-size:4rem;margin-bottom:8px;">⛵</div>
           <div style="font-family:'Cinzel Decorative';font-size:1.1rem;color:var(--accent-gold);">
-            ${t('giacomoTitle')}
+            ${t('cellarium.giacomoTitle')}
           </div>
           <div style="font-size:0.8rem;opacity:0.65;font-style:italic;margin-top:4px;">
-            ${t('giacomoSubtitle')}
+            ${t('cellarium.giacomoSubtitle')}
           </div>
         </div>
         <div style="font-style:italic;font-size:0.9rem;opacity:0.85;margin-bottom:24px;
                     padding:15px;background:rgba(197,160,89,0.08);border-radius:8px;
                     border-left:3px solid var(--accent-gold);">
-          ${t('giacomoGreeting')}
+          ${t('cellarium.giacomoGreeting')}
         </div>
         <div style="display:flex;gap:10px;">
           <button onclick="document.getElementById('giacomo-modal').remove()"
                   class="craft-btn" style="flex:1;">
-            ${t('giacomoBtnClose')}
+            ${t('cellarium.giacomoBtnClose')}
           </button>
           <button onclick="document.getElementById('giacomo-modal').remove(); UI.switchScreen('home', document.getElementById('nav-home')); UI.switchHomeTab('cellarium', document.getElementById('home-tab-cellarium')); CellariumSystem.switchEntity('market');"
                   class="craft-btn" style="flex:1;background:var(--accent-gold);color:var(--bg-parchment);">
-            ${t('giacomoBtnVisit')}
+            ${t('cellarium.giacomoBtnVisit')}
           </button>
         </div>
       </div>
@@ -374,7 +374,7 @@ const CellariumSystem = {
           <em>Cellarium clausum est.</em>
         </div>
         <div style="font-size:0.85rem; opacity:0.8;">
-          ${hasCom ? t('cellariumLockedMsg') : t('cellariumLockedMsgPre')}
+          ${hasCom ? t('cellarium.lockedMsg') : t('cellarium.lockedMsgPre')}
         </div>
       </div>
     `;
@@ -487,7 +487,7 @@ const CellariumSystem = {
         <div style="text-align:center; padding:20px; opacity:0.6;">
           <div style="font-size:2rem;">🔒</div>
           <div style="font-style:italic; margin-top:8px; font-size:0.9rem;">
-            ${t('cellariumClosed')}<br>
+            ${t('cellarium.closed')}<br>
             <span style="font-size:0.8rem;">${label}</span>
           </div>
         </div>
@@ -511,11 +511,11 @@ const CellariumSystem = {
 
     if (sellable.length === 0) {
       h += `<div style="text-align:center; padding:20px; opacity:0.5; font-style:italic;">
-              ${t('cellariumNothingToSell')}
+              ${t('cellarium.nothingToSell')}
             </div>`;
     } else {
       h += `<div style="font-size:0.8rem; opacity:0.6; margin-bottom:10px; font-style:italic;">
-              ${t('cellariumSellPrompt')}
+              ${t('cellarium.sellPrompt')}
             </div>`;
       h += `<div style="display:grid; grid-template-columns:repeat(auto-fill,minmax(180px,1fr)); gap:10px;">`;
 

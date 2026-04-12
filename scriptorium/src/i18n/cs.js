@@ -792,39 +792,39 @@ garden: {
   rithmoRulesHistoryTitle: '📜 Historie',
   rithmoRulesHistoryText: 'Hra pochází z roku 1030, hrála se na středověkých univerzitách jako cvičení z aritmetiky a geometrie.',
   
+  // Common buttons
+  btnPlay: 'Hrát 🎮',
+  btnRules: '📖 Pravidla'
+},
 
-  // CELLARIUM & ECONOMY
-  cellariumTitle: 'Cellarium',
-  cellariumBenedict: 'Benedikt z Litomyšle',
-  cellariumBenedictRole: 'Cellarius · správce klášterního hospodářství',
-  cellariumMotto: '„Quid offers? Quid quaeris?" — Co nabízíš? Co hledáš?',
-  cellariumGrose: 'grošů',
-  cellariumHave: 'Máš',
-  cellariumPrice: 'Cena',
-  cellariumSellPrompt: 'Vyber množství a prodej:',
-  cellariumNothingToSell: 'Nic k prodeji.',
-  cellariumClosed: 'Nyní zavřeno.',
-  cellariumLockedMsg: 'Odemkni <strong>Cellarium — Řád Sklepa</strong> pro přístup k Benediktovi.',
-  cellariumLockedMsgPre: 'Odemkni <strong>Commercium — Stezky Kupců</strong> pro první kontakt s kupci.',
-  cellariumNumLocked: 'Benedikt vítá tvou návštěvu, ale obchod zatím stojí. Odemkni <strong>Numismatica — Věda o Groších</strong> pro plný přístup.',
-  cellariumSoldNotify: '+{total} grošů za {qty}× {item}',
-  cellariumBoughtNotify: 'Koupeno: {qty}× {item} za {total} grošů',
-  cellariumNoGrose: 'Nedostatek grošů!',
-  cellariumEntityOpen: 'OPEN',
-  cellariumEntityClosed: 'CLOSED',
-  cellariumBuySection: 'Koupit od {entity}:',
-  cellariumTavernHours: 'každý den 14:00–02:00',
-  cellariumShopHours: 'Po–Pá 09:00–17:00',
-  cellariumMarketHours: 'So–Ne 08:00–16:00',
-  // Giacomo modal
+cellarium: {
+  title: 'Cellarium',
+  benedict: 'Benedikt z Litomyšle',
+  benedictRole: 'Cellarius · správce klášterního hospodářství',
+  motto: '„Quid offers? Quid quaeris?" — Co nabízíš? Co hledáš?',
+  grose: 'grošů',
+  have: 'Máš',
+  price: 'Cena',
+  sellPrompt: 'Vyber množství a prodej:',
+  nothingToSell: 'Nic k prodeji.',
+  closed: 'Nyní zavřeno.',
+  lockedMsg: 'Odemkni <strong>Cellarium — Řád Sklepa</strong> pro přístup k Benediktovi.',
+  lockedMsgPre: 'Odemkni <strong>Commercium — Stezky Kupců</strong> pro první kontakt s kupci.',
+  numLocked: 'Benedikt vítá tvou návštěvu, ale obchod zatím stojí. Odemkni <strong>Numismatica — Věda o Groších</strong> pro plný přístup.',
+  soldNotify: '+{total} grošů za {qty}× {item}',
+  boughtNotify: 'Koupeno: {qty}× {item} za {total} grošů',
+  noGrose: 'Nedostatek grošů!',
+  entityOpen: 'OPEN',
+  entityClosed: 'CLOSED',
+  buySection: 'Koupit od {entity}:',
+  tavernHours: 'každý den 14:00–02:00',
+  shopHours: 'Po–Pá 09:00–17:00',
+  marketHours: 'So–Ne 08:00–16:00',
   giacomoTitle: 'Giacomo Foscari přijel!',
   giacomoSubtitle: 'Benátský kupec · obchodník z dálky',
   giacomoGreeting: '„Salve, fratello! Přivezl jsem zboží z daleka — z Benátek, z Levanty, z míst, kde slunce spaluje jinak než zde. Podívej, co mám pro tebe..."',
   giacomoBtnClose: 'Zavřít bránu',
   giacomoBtnVisit: 'Navštívit na Trhu',
-
-  // Common buttons
-  btnPlay: 'Hrát 🎮',
-  btnRules: '📖 Pravidla'
 },
+
 };

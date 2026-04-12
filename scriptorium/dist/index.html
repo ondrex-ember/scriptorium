@@ -7785,7 +7785,7 @@ const CellariumSystem = {
     GameState.economy.tradesTotal++;
     Game.save();
     const itemName = (typeof iName === 'function') ? iName(itemId) : itemId;
-    UI.notify(t('cellariumSoldNotify').replace('{total}', total).replace('{qty}', qty).replace('{item}', itemName));
+    UI.notify(t('cellarium.soldNotify').replace('{total}', total).replace('{qty}', qty).replace('{item}', itemName));
     this.renderCellariumContent();
   },
 
@@ -7802,14 +7802,14 @@ const CellariumSystem = {
   buyItem: function(entity) {
     if (!this.hasNumismatica()) return;
     if (!this.isEntityOpen(entity)) {
-      UI.notify(t('cellariumClosed'), true);
+      UI.notify(t('cellarium.closed'), true);
       return;
     }
     const shop  = this.ENTITY_SHOP[entity];
     if (!shop) return;
     const price = this.calcBuyPrice(shop.itemId, entity);
     if (this.getGrose() < price) {
-      UI.notify(t('cellariumNoGrose'), true);
+      UI.notify(t('cellarium.noGrose'), true);
       return;
     }
     this.spendGrose(price);
@@ -7817,7 +7817,7 @@ const CellariumSystem = {
     GameState.economy.tradesTotal++;
     Game.save();
     const itemName = (typeof iName === 'function') ? iName(shop.itemId) : shop.itemId;
-    UI.notify(t('cellariumBoughtNotify').replace('{qty}', 1).replace('{item}', itemName).replace('{total}', price));
+    UI.notify(t('cellarium.boughtNotify').replace('{qty}', 1).replace('{item}', itemName).replace('{total}', price));
     this.renderCellariumContent();
   },
 
@@ -7844,7 +7844,7 @@ const CellariumSystem = {
       <div style="margin-bottom:16px; padding:14px; background:rgba(197,160,89,0.08);
                   border-radius:8px; border:1px solid rgba(197,160,89,0.3);">
         <div style="font-size:0.75rem; opacity:0.6; margin-bottom:10px; font-style:italic; text-transform:uppercase; letter-spacing:0.05em;">
-          ${t('cellariumBuySection').replace('{entity}', entityNames[entity] || entity)}
+          ${t('cellarium.buySection').replace('{entity}', entityNames[entity] || entity)}
         </div>
         <div style="display:flex; align-items:center; gap:12px;">
           <span style="font-size:2rem;">${icon}</span>
@@ -7892,25 +7892,25 @@ const CellariumSystem = {
         <div style="text-align:center;margin-bottom:20px;">
           <div style="font-size:4rem;margin-bottom:8px;">⛵</div>
           <div style="font-family:'Cinzel Decorative';font-size:1.1rem;color:var(--accent-gold);">
-            ${t('giacomoTitle')}
+            ${t('cellarium.giacomoTitle')}
           </div>
           <div style="font-size:0.8rem;opacity:0.65;font-style:italic;margin-top:4px;">
-            ${t('giacomoSubtitle')}
+            ${t('cellarium.giacomoSubtitle')}
           </div>
         </div>
         <div style="font-style:italic;font-size:0.9rem;opacity:0.85;margin-bottom:24px;
                     padding:15px;background:rgba(197,160,89,0.08);border-radius:8px;
                     border-left:3px solid var(--accent-gold);">
-          ${t('giacomoGreeting')}
+          ${t('cellarium.giacomoGreeting')}
         </div>
         <div style="display:flex;gap:10px;">
           <button onclick="document.getElementById('giacomo-modal').remove()"
                   class="craft-btn" style="flex:1;">
-            ${t('giacomoBtnClose')}
+            ${t('cellarium.giacomoBtnClose')}
           </button>
           <button onclick="document.getElementById('giacomo-modal').remove(); UI.switchScreen('home', document.getElementById('nav-home')); UI.switchHomeTab('cellarium', document.getElementById('home-tab-cellarium')); CellariumSystem.switchEntity('market');"
                   class="craft-btn" style="flex:1;background:var(--accent-gold);color:var(--bg-parchment);">
-            ${t('giacomoBtnVisit')}
+            ${t('cellarium.giacomoBtnVisit')}
           </button>
         </div>
       </div>
@@ -7939,7 +7939,7 @@ const CellariumSystem = {
           <em>Cellarium clausum est.</em>
         </div>
         <div style="font-size:0.85rem; opacity:0.8;">
-          ${hasCom ? t('cellariumLockedMsg') : t('cellariumLockedMsgPre')}
+          ${hasCom ? t('cellarium.lockedMsg') : t('cellarium.lockedMsgPre')}
         </div>
       </div>
     `;
@@ -8052,7 +8052,7 @@ const CellariumSystem = {
         <div style="text-align:center; padding:20px; opacity:0.6;">
           <div style="font-size:2rem;">🔒</div>
           <div style="font-style:italic; margin-top:8px; font-size:0.9rem;">
-            ${t('cellariumClosed')}<br>
+            ${t('cellarium.closed')}<br>
             <span style="font-size:0.8rem;">${label}</span>
           </div>
         </div>
@@ -8076,11 +8076,11 @@ const CellariumSystem = {
 
     if (sellable.length === 0) {
       h += `<div style="text-align:center; padding:20px; opacity:0.5; font-style:italic;">
-              ${t('cellariumNothingToSell')}
+              ${t('cellarium.nothingToSell')}
             </div>`;
     } else {
       h += `<div style="font-size:0.8rem; opacity:0.6; margin-bottom:10px; font-style:italic;">
-              ${t('cellariumSellPrompt')}
+              ${t('cellarium.sellPrompt')}
             </div>`;
       h += `<div style="display:grid; grid-template-columns:repeat(auto-fill,minmax(180px,1fr)); gap:10px;">`;
 
@@ -12710,41 +12710,41 @@ garden: {
   rithmoRulesHistoryTitle: '📜 Historie',
   rithmoRulesHistoryText: 'Hra pochází z roku 1030, hrála se na středověkých univerzitách jako cvičení z aritmetiky a geometrie.',
   
+  // Common buttons
+  btnPlay: 'Hrát 🎮',
+  btnRules: '📖 Pravidla'
+},
 
-  // CELLARIUM & ECONOMY
-  cellariumTitle: 'Cellarium',
-  cellariumBenedict: 'Benedikt z Litomyšle',
-  cellariumBenedictRole: 'Cellarius · správce klášterního hospodářství',
-  cellariumMotto: '„Quid offers? Quid quaeris?" — Co nabízíš? Co hledáš?',
-  cellariumGrose: 'grošů',
-  cellariumHave: 'Máš',
-  cellariumPrice: 'Cena',
-  cellariumSellPrompt: 'Vyber množství a prodej:',
-  cellariumNothingToSell: 'Nic k prodeji.',
-  cellariumClosed: 'Nyní zavřeno.',
-  cellariumLockedMsg: 'Odemkni <strong>Cellarium — Řád Sklepa</strong> pro přístup k Benediktovi.',
-  cellariumLockedMsgPre: 'Odemkni <strong>Commercium — Stezky Kupců</strong> pro první kontakt s kupci.',
-  cellariumNumLocked: 'Benedikt vítá tvou návštěvu, ale obchod zatím stojí. Odemkni <strong>Numismatica — Věda o Groších</strong> pro plný přístup.',
-  cellariumSoldNotify: '+{total} grošů za {qty}× {item}',
-  cellariumBoughtNotify: 'Koupeno: {qty}× {item} za {total} grošů',
-  cellariumNoGrose: 'Nedostatek grošů!',
-  cellariumEntityOpen: 'OPEN',
-  cellariumEntityClosed: 'CLOSED',
-  cellariumBuySection: 'Koupit od {entity}:',
-  cellariumTavernHours: 'každý den 14:00–02:00',
-  cellariumShopHours: 'Po–Pá 09:00–17:00',
-  cellariumMarketHours: 'So–Ne 08:00–16:00',
-  // Giacomo modal
+cellarium: {
+  title: 'Cellarium',
+  benedict: 'Benedikt z Litomyšle',
+  benedictRole: 'Cellarius · správce klášterního hospodářství',
+  motto: '„Quid offers? Quid quaeris?" — Co nabízíš? Co hledáš?',
+  grose: 'grošů',
+  have: 'Máš',
+  price: 'Cena',
+  sellPrompt: 'Vyber množství a prodej:',
+  nothingToSell: 'Nic k prodeji.',
+  closed: 'Nyní zavřeno.',
+  lockedMsg: 'Odemkni <strong>Cellarium — Řád Sklepa</strong> pro přístup k Benediktovi.',
+  lockedMsgPre: 'Odemkni <strong>Commercium — Stezky Kupců</strong> pro první kontakt s kupci.',
+  numLocked: 'Benedikt vítá tvou návštěvu, ale obchod zatím stojí. Odemkni <strong>Numismatica — Věda o Groších</strong> pro plný přístup.',
+  soldNotify: '+{total} grošů za {qty}× {item}',
+  boughtNotify: 'Koupeno: {qty}× {item} za {total} grošů',
+  noGrose: 'Nedostatek grošů!',
+  entityOpen: 'OPEN',
+  entityClosed: 'CLOSED',
+  buySection: 'Koupit od {entity}:',
+  tavernHours: 'každý den 14:00–02:00',
+  shopHours: 'Po–Pá 09:00–17:00',
+  marketHours: 'So–Ne 08:00–16:00',
   giacomoTitle: 'Giacomo Foscari přijel!',
   giacomoSubtitle: 'Benátský kupec · obchodník z dálky',
   giacomoGreeting: '„Salve, fratello! Přivezl jsem zboží z daleka — z Benátek, z Levanty, z míst, kde slunce spaluje jinak než zde. Podívej, co mám pro tebe..."',
   giacomoBtnClose: 'Zavřít bránu',
   giacomoBtnVisit: 'Navštívit na Trhu',
-
-  // Common buttons
-  btnPlay: 'Hrát 🎮',
-  btnRules: '📖 Pravidla'
 },
+
 };
 // ═══ src/i18n/en.js ═══
 // Scriptorium i18n — English (Olde)
@@ -13902,41 +13902,41 @@ garden: {
   rithmoRulesHistoryTitle: '📜 History',
   rithmoRulesHistoryText: 'The game dates from 1030 AD, played at medieval universities as an exercise in arithmetic and geometry.',
   
+  // Common buttons
+  btnPlay: 'Play 🎮',
+  btnRules: '📖 Rules'
+},
 
-  // CELLARIUM & ECONOMY
-  cellariumTitle: 'Cellarium',
-  cellariumBenedict: 'Benedikt of Litomyšl',
-  cellariumBenedictRole: 'Cellarius · monastic steward',
-  cellariumMotto: '"Quid offers? Quid quaeris?" — What dost thou offer? What dost thou seek?',
-  cellariumGrose: 'groschen',
-  cellariumHave: 'Have',
-  cellariumPrice: 'Price',
-  cellariumSellPrompt: 'Select quantity and sell:',
-  cellariumNothingToSell: 'Nothing to sell.',
-  cellariumClosed: 'Closed now.',
-  cellariumLockedMsg: 'Unlock <strong>Cellarium — Order of the Cellar</strong> to access Benedikt.',
-  cellariumLockedMsgPre: 'Unlock <strong>Commercium — Merchant Routes</strong> for first contact with traders.',
-  cellariumNumLocked: 'Benedikt welcomes thy visit, but trade stands still. Unlock <strong>Numismatica — The Science of Groschen</strong> for full access.',
-  cellariumSoldNotify: '+{total} groschen for {qty}× {item}',
-  cellariumBoughtNotify: 'Purchased: {qty}× {item} for {total} groschen',
-  cellariumNoGrose: 'Insufficient groschen!',
-  cellariumEntityOpen: 'OPEN',
-  cellariumEntityClosed: 'CLOSED',
-  cellariumBuySection: 'Buy from {entity}:',
-  cellariumTavernHours: 'daily 14:00–02:00',
-  cellariumShopHours: 'Mon–Fri 09:00–17:00',
-  cellariumMarketHours: 'Sat–Sun 08:00–16:00',
-  // Giacomo modal
+cellarium: {
+  title: 'Cellarium',
+  benedict: 'Benedikt of Litomyšl',
+  benedictRole: 'Cellarius · monastic steward',
+  motto: '"Quid offers? Quid quaeris?" — What dost thou offer? What dost thou seek?',
+  grose: 'groschen',
+  have: 'Have',
+  price: 'Price',
+  sellPrompt: 'Select quantity and sell:',
+  nothingToSell: 'Nothing to sell.',
+  closed: 'Closed now.',
+  lockedMsg: 'Unlock <strong>Cellarium — Order of the Cellar</strong> to access Benedikt.',
+  lockedMsgPre: 'Unlock <strong>Commercium — Merchant Routes</strong> for first contact with traders.',
+  numLocked: 'Benedikt welcomes thy visit, but trade stands still. Unlock <strong>Numismatica — The Science of Groschen</strong> for full access.',
+  soldNotify: '+{total} groschen for {qty}× {item}',
+  boughtNotify: 'Purchased: {qty}× {item} for {total} groschen',
+  noGrose: 'Insufficient groschen!',
+  entityOpen: 'OPEN',
+  entityClosed: 'CLOSED',
+  buySection: 'Buy from {entity}:',
+  tavernHours: 'daily 14:00–02:00',
+  shopHours: 'Mon–Fri 09:00–17:00',
+  marketHours: 'Sat–Sun 08:00–16:00',
   giacomoTitle: 'Giacomo Foscari has arrived!',
   giacomoSubtitle: 'Venetian merchant · trader from afar',
   giacomoGreeting: '"Salve, fratello! I have brought goods from distant lands — from Venice, from the Levant, from places where the sun burns differently. See what I have for thee..."',
   giacomoBtnClose: 'Close the gate',
   giacomoBtnVisit: 'Visit at the Market',
-
-  // Common buttons
-  btnPlay: 'Play 🎮',
-  btnRules: '📖 Rules'
 },
+
 };
 // ═══ src/i18n/strings.js ═══
 // Scriptorium i18n — STRINGS assembler + t() helper

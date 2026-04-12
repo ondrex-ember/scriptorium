@@ -1153,39 +1153,39 @@ garden: {
   rithmoRulesHistoryTitle: '📜 History',
   rithmoRulesHistoryText: 'The game dates from 1030 AD, played at medieval universities as an exercise in arithmetic and geometry.',
   
+  // Common buttons
+  btnPlay: 'Play 🎮',
+  btnRules: '📖 Rules'
+},
 
-  // CELLARIUM & ECONOMY
-  cellariumTitle: 'Cellarium',
-  cellariumBenedict: 'Benedikt of Litomyšl',
-  cellariumBenedictRole: 'Cellarius · monastic steward',
-  cellariumMotto: '"Quid offers? Quid quaeris?" — What dost thou offer? What dost thou seek?',
-  cellariumGrose: 'groschen',
-  cellariumHave: 'Have',
-  cellariumPrice: 'Price',
-  cellariumSellPrompt: 'Select quantity and sell:',
-  cellariumNothingToSell: 'Nothing to sell.',
-  cellariumClosed: 'Closed now.',
-  cellariumLockedMsg: 'Unlock <strong>Cellarium — Order of the Cellar</strong> to access Benedikt.',
-  cellariumLockedMsgPre: 'Unlock <strong>Commercium — Merchant Routes</strong> for first contact with traders.',
-  cellariumNumLocked: 'Benedikt welcomes thy visit, but trade stands still. Unlock <strong>Numismatica — The Science of Groschen</strong> for full access.',
-  cellariumSoldNotify: '+{total} groschen for {qty}× {item}',
-  cellariumBoughtNotify: 'Purchased: {qty}× {item} for {total} groschen',
-  cellariumNoGrose: 'Insufficient groschen!',
-  cellariumEntityOpen: 'OPEN',
-  cellariumEntityClosed: 'CLOSED',
-  cellariumBuySection: 'Buy from {entity}:',
-  cellariumTavernHours: 'daily 14:00–02:00',
-  cellariumShopHours: 'Mon–Fri 09:00–17:00',
-  cellariumMarketHours: 'Sat–Sun 08:00–16:00',
-  // Giacomo modal
+cellarium: {
+  title: 'Cellarium',
+  benedict: 'Benedikt of Litomyšl',
+  benedictRole: 'Cellarius · monastic steward',
+  motto: '"Quid offers? Quid quaeris?" — What dost thou offer? What dost thou seek?',
+  grose: 'groschen',
+  have: 'Have',
+  price: 'Price',
+  sellPrompt: 'Select quantity and sell:',
+  nothingToSell: 'Nothing to sell.',
+  closed: 'Closed now.',
+  lockedMsg: 'Unlock <strong>Cellarium — Order of the Cellar</strong> to access Benedikt.',
+  lockedMsgPre: 'Unlock <strong>Commercium — Merchant Routes</strong> for first contact with traders.',
+  numLocked: 'Benedikt welcomes thy visit, but trade stands still. Unlock <strong>Numismatica — The Science of Groschen</strong> for full access.',
+  soldNotify: '+{total} groschen for {qty}× {item}',
+  boughtNotify: 'Purchased: {qty}× {item} for {total} groschen',
+  noGrose: 'Insufficient groschen!',
+  entityOpen: 'OPEN',
+  entityClosed: 'CLOSED',
+  buySection: 'Buy from {entity}:',
+  tavernHours: 'daily 14:00–02:00',
+  shopHours: 'Mon–Fri 09:00–17:00',
+  marketHours: 'Sat–Sun 08:00–16:00',
   giacomoTitle: 'Giacomo Foscari has arrived!',
   giacomoSubtitle: 'Venetian merchant · trader from afar',
   giacomoGreeting: '"Salve, fratello! I have brought goods from distant lands — from Venice, from the Levant, from places where the sun burns differently. See what I have for thee..."',
   giacomoBtnClose: 'Close the gate',
   giacomoBtnVisit: 'Visit at the Market',
-
-  // Common buttons
-  btnPlay: 'Play 🎮',
-  btnRules: '📖 Rules'
 },
+
 };
