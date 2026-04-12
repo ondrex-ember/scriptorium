@@ -91,5 +91,12 @@ const LangSystem = {
             const el = document.getElementById(id);
             if (el) el.textContent = text;
         });
+
+        // 10. Generic data-i18n sweep — pokryje všechny elementy automaticky
+        document.querySelectorAll('[data-i18n]').forEach(el => {
+            const key = el.getAttribute('data-i18n');
+            const val = t(key);
+            if (val && val !== key) el.innerHTML = val;
+        });
     }
 };
