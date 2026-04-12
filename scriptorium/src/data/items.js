@@ -164,6 +164,12 @@ const ItemsDB = {
     "hnefatafl_board":  { name:"Hnefatafl",           name_en:"Hnefatafl Board",     icon:"♟️", type:"tool", cat:"tool", desc:"Královská hra Vikingů. Král prchá, útočníci loví.", desc_en:"Royal Viking game. The king flees, warriors hunt." },
 
     // ═══════════════════════════════════════════════════════════════════════════
+    // MUSIC SYSTEM (v8.x) — Hudební nástroje a notace
+    // ═══════════════════════════════════════════════════════════════════════════
+    "sheet_music":    { name:"Notový zápis",          name_en:"Sheet Music",         icon:"🎼", type:"lore",             desc:"Pergamen s neumatickou notací. Základ gregoriánského chorálu.",  desc_en:"Parchment with neume notation. The foundation of Gregorian chant." },
+    "organ":          { name:"Varhany",               name_en:"Organ",               icon:"🎹", type:"tool", cat:"tool", desc:"Hydraulické varhany podle Theophila Presbytera. Hlas Boží.",     desc_en:"Hydraulic organ after Theophilus Presbyter. The voice of God." },
+
+    // ═══════════════════════════════════════════════════════════════════════════
     // LEATHER SYSTEM (v8.x) — Kožené výrobky skriptoria
     // ═══════════════════════════════════════════════════════════════════════════
     "glue":           { name:"Klej",                  name_en:"Glue",                icon:"🫧", type:"mat",              desc:"Kostní klej. Váže dřevo i pergamen.",                           desc_en:"Bone glue. Bonds wood and parchment." },
