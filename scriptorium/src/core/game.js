@@ -679,6 +679,7 @@ const Game = {
                     this.addItem((r<0.5?'rock':'stick'), 1);
                     if(Math.random() < 0.05) this.addItem('carbon_black', 1);
                     if(Math.random() < 0.04) this.addItem('ochre', 1);
+                    if(Math.random() < 0.10) this.addItem('chalk', 1); // Křídová pánev — lokálně dostupná
                 }
                 else if (type === 'bark') { this.addItem('bark', 2); }
                 else if (type === 'fishing') { this.addItem('fish', r<0.3?2:1); if(r>0.8) this.addItem('water', 1); }
@@ -735,7 +736,10 @@ const Game = {
                     UI.notify(t('game.rareFind'));
                 }
             }
-            else if (type === 'basic') { this.addItem((r<0.5?'rock':'stick'), 1); }
+            else if (type === 'basic') { 
+                this.addItem((r<0.5?'rock':'stick'), 1); 
+                if(Math.random() < 0.10) this.addItem('chalk', 1);
+            }
             UI.notify(t('game.quickScavenge'));
             Game.save(); UI.renderAll(); return;
         }
@@ -788,6 +792,7 @@ const Game = {
                 this.addItem((r<0.5?'rock':'stick'), 1);
                 if(Math.random() < 0.05) this.addItem('carbon_black', 1);
                 if(Math.random() < 0.04) this.addItem('ochre', 1);
+                if(Math.random() < 0.10) this.addItem('chalk', 1); // Křídová pánev — lokálně dostupná
             }
             else if (type === 'bark') { this.addItem('bark', 2); }
             else if (type === 'fishing') { this.addItem('fish', r<0.3?2:1); if(r>0.8) this.addItem('water', 1); }

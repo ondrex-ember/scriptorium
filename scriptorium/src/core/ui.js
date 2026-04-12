@@ -77,7 +77,6 @@ const UI = {
 		this.renderWell();
 		this.renderRecords();
 		this.renderGamesTab();
-		this.renderCellariumIfOpen();
 	},
 		
 renderActions: function() {
@@ -405,22 +404,9 @@ renderActions: function() {
 	switchHomeTab: function(tab, btn) {
 		document.getElementById('home-main-content').style.display = tab === 'main' ? 'block' : 'none';
 		document.getElementById('home-athanor-content').style.display = tab === 'athanor' ? 'block' : 'none';
-		document.getElementById('home-cellarium-content').style.display = tab === 'cellarium' ? 'block' : 'none';
 		document.querySelectorAll('#screen-home .filter-btn').forEach(b => b.classList.remove('active'));
 		if (btn) btn.classList.add('active');
 		if (tab === 'athanor') AthanorSystem.render('home-athanor-content');
-		if (tab === 'cellarium') {
-			const el = document.getElementById('home-cellarium-content');
-			if (el) el.innerHTML = CellariumSystem.renderCellariumTab();
-			CellariumSystem.refreshGroseDisplay();
-		}
-	},
-
-	renderCellariumIfOpen: function() {
-		const el = document.getElementById('home-cellarium-content');
-		if (!el || el.style.display === 'none') return;
-		el.innerHTML = CellariumSystem.renderCellariumTab();
-		CellariumSystem.refreshGroseDisplay();
 	},
 
 	renderLibraryNews: function() {
@@ -890,6 +876,82 @@ renderGamesTab: function() {
     }
     h += `</div>`;
 
+    // Senet
+    const hasSenet = GameState.inventory['senet_board'] > 0;
+    const hasSenetTech = GameState.researchedTechs.includes('tech_senet');
+    h += `<div class="game-card ${hasSenetTech ? '' : 'locked'}">`;
+    if(!hasSenetTech) h += `<span class="game-lock-badge">🔒</span>`;
+    h += `<span class="game-icon">𓂀</span>`;
+    h += `<div class="game-title">${t('games.senetName')}</div>`;
+    h += `<div class="game-desc">${t('games.senetDesc')}</div>`;
+    if(!hasSenetTech) {
+        h += `<div class="game-unlock-text">${t('games.senetTech')}</div>`;
+    } else if(!hasSenet) {
+        h += `<div class="game-unlock-text">${t('games.senetCraft')}</div>`;
+        h += `<button class="craft-btn" onclick="SenetGame.showRules()" style="background: var(--accent-gold);">${t('games.btnRules')}</button>`;
+    } else {
+        h += `<button class="craft-btn" onclick="SenetGame.start()">${t('games.btnPlay')}</button>`;
+        h += `<button class="craft-btn" onclick="SenetGame.showRules()" style="background: var(--accent-gold);">${t('games.btnRules')}</button>`;
+    }
+    h += `</div>`;
+
+    // Tables (Backgammon)
+    const hasBackgammon = GameState.inventory['backgammon_board'] > 0;
+    const hasBackgammonTech = GameState.researchedTechs.includes('tech_backgammon');
+    h += `<div class="game-card ${hasBackgammonTech ? '' : 'locked'}">`;
+    if(!hasBackgammonTech) h += `<span class="game-lock-badge">🔒</span>`;
+    h += `<span class="game-icon">🎯</span>`;
+    h += `<div class="game-title">${t('games.backgammonName')}</div>`;
+    h += `<div class="game-desc">${t('games.backgammonDesc')}</div>`;
+    if(!hasBackgammonTech) {
+        h += `<div class="game-unlock-text">${t('games.backgammonTech')}</div>`;
+    } else if(!hasBackgammon) {
+        h += `<div class="game-unlock-text">${t('games.backgammonCraft')}</div>`;
+        h += `<button class="craft-btn" onclick="BackgammonGame.showRules()" style="background: var(--accent-gold);">${t('games.btnRules')}</button>`;
+    } else {
+        h += `<button class="craft-btn" onclick="BackgammonGame.start()">${t('games.btnPlay')}</button>`;
+        h += `<button class="craft-btn" onclick="BackgammonGame.showRules()" style="background: var(--accent-gold);">${t('games.btnRules')}</button>`;
+    }
+    h += `</div>`;
+
+    // Dama (Draughts)
+    const hasDraughts = GameState.inventory['draughts_board'] > 0;
+    const hasDraughtsTech = GameState.researchedTechs.includes('tech_draughts');
+    h += `<div class="game-card ${hasDraughtsTech ? '' : 'locked'}">`;
+    if(!hasDraughtsTech) h += `<span class="game-lock-badge">🔒</span>`;
+    h += `<span class="game-icon">⚫</span>`;
+    h += `<div class="game-title">${t('games.draughtsName')}</div>`;
+    h += `<div class="game-desc">${t('games.draughtsDesc')}</div>`;
+    if(!hasDraughtsTech) {
+        h += `<div class="game-unlock-text">${t('games.draughtsTech')}</div>`;
+    } else if(!hasDraughts) {
+        h += `<div class="game-unlock-text">${t('games.draughtsCraft')}</div>`;
+        h += `<button class="craft-btn" onclick="DraughtsGame.showRules()" style="background: var(--accent-gold);">${t('games.btnRules')}</button>`;
+    } else {
+        h += `<button class="craft-btn" onclick="DraughtsGame.start()">${t('games.btnPlay')}</button>`;
+        h += `<button class="craft-btn" onclick="DraughtsGame.showRules()" style="background: var(--accent-gold);">${t('games.btnRules')}</button>`;
+    }
+    h += `</div>`;
+
+    // Hnefatafl
+    const hasHnefatafl = GameState.inventory['hnefatafl_board'] > 0;
+    const hasHnefataflTech = GameState.researchedTechs.includes('tech_hnefatafl');
+    h += `<div class="game-card ${hasHnefataflTech ? '' : 'locked'}">`;
+    if(!hasHnefataflTech) h += `<span class="game-lock-badge">🔒</span>`;
+    h += `<span class="game-icon">♟️</span>`;
+    h += `<div class="game-title">${t('games.hnefataflName')}</div>`;
+    h += `<div class="game-desc">${t('games.hnefataflDesc')}</div>`;
+    if(!hasHnefataflTech) {
+        h += `<div class="game-unlock-text">${t('games.hnefataflTech')}</div>`;
+    } else if(!hasHnefatafl) {
+        h += `<div class="game-unlock-text">${t('games.hnefataflCraft')}</div>`;
+        h += `<button class="craft-btn" onclick="HnefataflGame.showRules()" style="background: var(--accent-gold);">${t('games.btnRules')}</button>`;
+    } else {
+        h += `<button class="craft-btn" onclick="HnefataflGame.start()">${t('games.btnPlay')}</button>`;
+        h += `<button class="craft-btn" onclick="HnefataflGame.showRules()" style="background: var(--accent-gold);">${t('games.btnRules')}</button>`;
+    }
+    h += `</div>`;
+
     h += '</div>'; // Close games-grid
     el.innerHTML = h;
 
@@ -902,6 +964,10 @@ renderGamesTab: function() {
     if(hasKarnoffel && KarnoffelGame.gameActive) KarnoffelGame.render();
     if(hasFrenchDeck && FreeCellGame.gameActive) FreeCellGame.render();
     if(hasRithmo && Rithmomachia.gameActive) Rithmomachia.render();
+    if(hasSenet && SenetGame.gameActive) SenetGame.render();
+    if(hasBackgammon && BackgammonGame.gameActive) BackgammonGame.render();
+    if(hasDraughts && DraughtsGame.gameActive) DraughtsGame.render();
+    if(hasHnefatafl && HnefataflGame.gameActive) HnefataflGame.render();
 },
 
 renderRecords: function() {
