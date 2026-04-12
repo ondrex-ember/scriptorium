@@ -156,6 +156,8 @@ const ItemsDB = {
     "potion_vigor_minor":  { name:"Heřmánkový odvar",  name_en:"Chamomile Draught",   icon:"🌼", type:"potion",  desc:"Obnoví síly. Vigor +20.",                            desc_en:"Restores strength. Vigor +20." },
     "potion_craft_boost":  { name:"Třezalkový lektvar", name_en:"St. John's Tincture", icon:"🌻", type:"potion",  desc:"Crafting ×1.5 po dobu 1 hodiny.",                   desc_en:"Crafting ×1.5 for 1 hour." },
     "potion_hunger_remedy":{ name:"Hojivá mast",       name_en:"Healing Salve",       icon:"🕯️", type:"potion",  desc:"Zpomalí hlad o 4 hodiny.",                           desc_en:"Slows hunger by 4 hours." },
+    "beer":                { name:"Pivo",              name_en:"Beer",                icon:"🍺", type:"food",    desc:"Otupí mysl, ale zažene hlad na 2h. Vigor -10.",      desc_en:"Dulls the mind but wards off hunger for 2h. Vigor -10." },
+    "wine":                { name:"Víno",              name_en:"Wine",                icon:"🍷", type:"food",    desc:"In vino veritas. Crafting ×1.1 / 30 min. Vigor -15.", desc_en:"In vino veritas. Crafting ×1.1 / 30 min. Vigor -15." },
     "varnish":             { name:"Vernix",            name_en:"Varnish",             icon:"✨", type:"lore",    desc:"Průzračný lak na pergamen. Chrání iluminace.",       desc_en:"Clear varnish for parchment. Protects illuminations." },
     "salve_hands":         { name:"Mast na prsty",     name_en:"Hand Salve",          icon:"🌻", type:"potion",  desc:"Léčí písařská záda. Crafting ×1.25 / 30 min.",       desc_en:"Heals scribe hands. Crafting ×1.25 / 30 min." },
 

@@ -3723,6 +3723,8 @@ const ItemsDB = {
     "potion_vigor_minor":  { name:"Heřmánkový odvar",  name_en:"Chamomile Draught",   icon:"🌼", type:"potion",  desc:"Obnoví síly. Vigor +20.",                            desc_en:"Restores strength. Vigor +20." },
     "potion_craft_boost":  { name:"Třezalkový lektvar", name_en:"St. John's Tincture", icon:"🌻", type:"potion",  desc:"Crafting ×1.5 po dobu 1 hodiny.",                   desc_en:"Crafting ×1.5 for 1 hour." },
     "potion_hunger_remedy":{ name:"Hojivá mast",       name_en:"Healing Salve",       icon:"🕯️", type:"potion",  desc:"Zpomalí hlad o 4 hodiny.",                           desc_en:"Slows hunger by 4 hours." },
+    "beer":                { name:"Pivo",              name_en:"Beer",                icon:"🍺", type:"food",    desc:"Otupí mysl, ale zažene hlad na 2h. Vigor -10.",      desc_en:"Dulls the mind but wards off hunger for 2h. Vigor -10." },
+    "wine":                { name:"Víno",              name_en:"Wine",                icon:"🍷", type:"food",    desc:"In vino veritas. Crafting ×1.1 / 30 min. Vigor -15.", desc_en:"In vino veritas. Crafting ×1.1 / 30 min. Vigor -15." },
     "varnish":             { name:"Vernix",            name_en:"Varnish",             icon:"✨", type:"lore",    desc:"Průzračný lak na pergamen. Chrání iluminace.",       desc_en:"Clear varnish for parchment. Protects illuminations." },
     "salve_hands":         { name:"Mast na prsty",     name_en:"Hand Salve",          icon:"🌻", type:"potion",  desc:"Léčí písařská záda. Crafting ×1.25 / 30 min.",       desc_en:"Heals scribe hands. Crafting ×1.25 / 30 min." },
 
@@ -9028,6 +9030,9 @@ const CellariumSystem = {
     stamina_tonic:  7,
     preservation_oil: 8,
     candle:         2,
+    // Nápoje
+    beer:           2,
+    wine:           5,
     // Suroviny — nové
     chalk:          2,
     // Leather system
@@ -9066,6 +9071,7 @@ const CellariumSystem = {
     bellows: 'tool', book_binding: 'tool', organ: 'tool',
     senet_board: 'tool', backgammon_board: 'tool', draughts_board: 'tool', hnefatafl_board: 'tool',
     potion_heal: 'alchemy', antidote: 'alchemy', stamina_tonic: 'alchemy',
+    beer: 'food', wine: 'food',
     preservation_oil: 'alchemy', candle: 'alchemy',
   },
 
@@ -9115,71 +9121,130 @@ const CellariumSystem = {
   // ═══════════════════════════════════════════════════════════════════════════
 
   ENTITY_SHOP: {
-    tavern: { itemId: 'stamina_tonic', basePrice: 8  },
-    shop:   { itemId: 'chalk',         basePrice: 2  },
-    market: { itemId: 'paper',         basePrice: 3  },
+    tavern: [
+      { itemId: 'stamina_tonic', basePrice: 8 },
+      { itemId: 'beer',          basePrice: 2 },
+      { itemId: 'wine',          basePrice: 7 },
+    ],
+    shop: [
+      { itemId: 'chalk',         basePrice: 2 },
+      { itemId: 'wine',          basePrice: 4 },
+    ],
+    market: [
+      { itemId: 'paper',         basePrice: 3 },
+    ],
   },
 
-  buyItem: function(entity) {
+  buyItem: function(entity, itemId) {
     if (!this.hasNumismatica()) return;
     if (!this.isEntityOpen(entity)) {
       UI.notify(t('cellarium.closed'), true);
       return;
     }
-    const shop  = this.ENTITY_SHOP[entity];
-    if (!shop) return;
-    const price = this.calcBuyPrice(shop.itemId, entity);
+    const shopList = this.ENTITY_SHOP[entity];
+    if (!shopList) return;
+    const shopEntry = shopList.find(s => s.itemId === itemId);
+    if (!shopEntry) return;
+    const price = this.calcBuyPrice(itemId, entity, shopEntry.basePrice);
     if (this.getGrose() < price) {
       UI.notify(t('cellarium.noGrose'), true);
       return;
     }
     this.spendGrose(price);
-    Game.addItem(shop.itemId, 1);
+    Game.addItem(itemId, 1);
+    // Aplikuj efekt nápoje (pivo/víno)
+    CellariumSystem.applyDrinkEffect(itemId);
     GameState.economy.tradesTotal++;
     Game.save();
-    const itemName = (typeof iName === 'function') ? iName(shop.itemId) : shop.itemId;
+    const itemName = (typeof iName === 'function') ? iName(itemId) : itemId;
     UI.notify(t('cellarium.boughtNotify').replace('{qty}', 1).replace('{item}', itemName).replace('{total}', price));
     this.renderCellariumContent();
   },
 
-  calcBuyPrice: function(itemId, entity) {
-    const shop  = this.ENTITY_SHOP[entity];
-    if (!shop) return 0;
+  applyDrinkEffect: function(itemId) {
+    if (itemId === 'beer') {
+      // Pivo: zažene hlad, ale otupí mysl (vigor dolů)
+      if (GameState.hunger) {
+        GameState.hunger.duration = (GameState.hunger.duration || 0) + 7200000; // +2h
+        GameState.hunger.fed = true;
+      }
+      if (GameState.vigor) {
+        GameState.vigor.current = Math.max(0, GameState.vigor.current - 10);
+      }
+      UI.notify('🍺 Lupulin — hlad zažehnán, mysl trochu zakalena.', false);
+    } else if (itemId === 'wine') {
+      // Víno: in vino veritas — drobný crafting boost, ale vigor dolů
+      if (GameState.vigor) {
+        GameState.vigor.current = Math.max(0, GameState.vigor.current - 15);
+      }
+      if (GameState.athanor) {
+        const expiresAt = Date.now() + 1800000; // 30 min
+        GameState.athanor.activeEffects = GameState.athanor.activeEffects.filter(e => e.type !== 'craft_boost');
+        GameState.athanor.activeEffects.push({
+          type: 'craft_boost',
+          value: 1.1,
+          label: 'In vino veritas — Crafting ×1.1 / 30 min',
+          source: 'wine',
+          expiresAt
+        });
+      }
+      UI.notify('🍷 In vino veritas — ruka písaře se uvolnila.', false);
+    }
+  },
+
+  calcBuyPrice: function(itemId, entity, basePrice) {
+    const shopList = this.ENTITY_SHOP[entity];
+    if (!shopList) return 0;
+    // Pokud basePrice není předán, najdi ho
+    const entry = shopList.find(s => s.itemId === itemId);
+    const base = basePrice !== undefined ? basePrice : (entry ? entry.basePrice : 0);
+    if (!base) return 0;
     const today = new Date();
     const seed  = today.getFullYear() * 10000 + (today.getMonth()+1) * 100 + today.getDate();
     const pseudoRand = ((seed * 9301 + entity.charCodeAt(0) * 49297 + itemId.charCodeAt(0) * 233 + 777) % 1000) / 1000;
     const offset = 0.85 + pseudoRand * 0.30;
-    return Math.max(1, Math.round(shop.basePrice * offset));
+    return Math.max(1, Math.round(base * offset));
   },
 
   renderBuyPanel: function(entity, lang) {
-    const shop = this.ENTITY_SHOP[entity];
-    if (!shop) return '';
-    const item  = ItemsDB[shop.itemId];
-    const icon  = item ? item.icon : '📦';
-    const name  = (typeof iName === 'function') ? iName(shop.itemId) : (item ? item.name : shop.itemId);
-    const price = this.calcBuyPrice(shop.itemId, entity);
-    const canAfford = this.getGrose() >= price;
+    const shopList = this.ENTITY_SHOP[entity];
+    if (!shopList || shopList.length === 0) return '';
     const entityNames = { tavern: lang === 'en' ? 'Tavern' : 'Hospody', shop: lang === 'en' ? 'Shop' : 'Obchodu', market: lang === 'en' ? 'Market' : 'Trhu' };
+    const rows = shopList.map(entry => {
+      const item = ItemsDB[entry.itemId];
+      const icon = item ? item.icon : '📦';
+      const name = (typeof iName === 'function') ? iName(entry.itemId) : (item ? item.name : entry.itemId);
+      const desc = item ? (lang === 'en' ? (item.desc_en || item.desc) : item.desc) : '';
+      const price = this.calcBuyPrice(entry.itemId, entity, entry.basePrice);
+      const canAfford = this.getGrose() >= price;
+      return `
+        <div style="display:flex; align-items:center; gap:12px; padding:8px 0;
+                    border-bottom:1px solid rgba(197,160,89,0.1);">
+          <span style="font-size:1.6rem; min-width:32px; text-align:center;">${icon}</span>
+          <div style="flex:1; min-width:0;">
+            <div style="font-weight:bold; font-size:0.88rem;">${name}</div>
+            <div style="font-size:0.72rem; opacity:0.55; font-style:italic;">${desc}</div>
+          </div>
+          <div style="text-align:right; flex-shrink:0;">
+            <div style="font-size:0.78rem; opacity:0.7; margin-bottom:4px;">${price} 💰</div>
+            <button onclick="CellariumSystem.buyItem('${entity}','${entry.itemId}')"
+                    class="craft-btn"
+                    style="padding:4px 12px; font-size:0.78rem;"
+                    ${canAfford ? '' : 'disabled'}>
+              ${lang === 'en' ? 'Buy' : 'Koupit'}
+            </button>
+          </div>
+        </div>
+      `;
+    }).join('');
     return `
       <div style="margin-bottom:16px; padding:14px; background:rgba(197,160,89,0.08);
                   border-radius:8px; border:1px solid rgba(197,160,89,0.3);">
-        <div style="font-size:0.75rem; opacity:0.6; margin-bottom:10px; font-style:italic; text-transform:uppercase; letter-spacing:0.05em;">
+        <div style="font-size:0.75rem; opacity:0.6; margin-bottom:10px; font-style:italic;
+                    text-transform:uppercase; letter-spacing:0.05em;">
           ${t('cellarium.buySection').replace('{entity}', entityNames[entity] || entity)}
         </div>
-        <div style="display:flex; align-items:center; gap:12px;">
-          <span style="font-size:2rem;">${icon}</span>
-          <div style="flex:1;">
-            <div style="font-weight:bold; font-size:0.9rem;">${name}</div>
-            <div style="font-size:0.75rem; opacity:0.65;">${price} 💰</div>
-          </div>
-          <button onclick="CellariumSystem.buyItem('${entity}')"
-                  class="craft-btn"
-                  style="padding:6px 16px;"
-                  ${canAfford ? '' : 'disabled'}>
-            ${lang === 'en' ? 'Buy' : 'Koupit'}
-          </button>
-        </div>
+        ${rows}
       </div>
     `;
   },
