@@ -413,6 +413,12 @@ const AthanorSystem = {
     const el = document.getElementById(containerId);
     if (!el) return;
 
+    // PASSWORD GATE — deleguj na SecretsSystem pokud není odemčeno
+    if (!GameState.secrets || !GameState.secrets.laboratoryUnlocked) {
+      SecretsSystem.renderAthanorScreen(containerId);
+      return;
+    }
+
     const ingMap = {};
     AthanorDB.ingredients.forEach(i => { ingMap[i.id] = i; });
 
