@@ -7484,43 +7484,61 @@ class AudioSystem {
     }
 }
 
+
 // ═══════════════════════════════════════════════════════════════
 // ABYSSAL KEEP GENERATIVE — Procedural medieval music engine
 // ═══════════════════════════════════════════════════════════════
+// Cathedral Keep (Deep Sub-Drone Update)
 // Adaptováno pro AudioSystem: přijímá audioContext + destinationNode
 // Mood engine: 0.0 = Světlo/Vesnice  →  1.0 = Temnota/Kobka
 // ═══════════════════════════════════════════════════════════════
 
 class AbyssalKeepGenerative {
     constructor(audioContext, destinationNode) {
-        this.ctx = audioContext;
+        this.ctx  = audioContext;
         this.dest = destinationNode;
 
         this.master = this.ctx.createGain();
         this.master.gain.value = 0.8;
         this.master.connect(this.dest);
 
-        // D Aeolian (D, E, F, G, A, Bb, C)
+        // Katedrální reverb (3.5s)
+        this.reverbBus = this.ctx.createGain();
+        this.reverbBus.gain.value = 1.0;
+
+        const revLen = this.ctx.sampleRate * 3.5;
+        const revBuf = this.ctx.createBuffer(2, revLen, this.ctx.sampleRate);
+        for (let c = 0; c < 2; c++) {
+            const d = revBuf.getChannelData(c);
+            for (let i = 0; i < revLen; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / revLen, 5.0);
+        }
+        this.convolver = this.ctx.createConvolver();
+        this.convolver.buffer = revBuf;
+
+        this.reverbOutGain = this.ctx.createGain();
+        this.reverbOutGain.gain.value = 1.8;
+
+        this.reverbBus.connect(this.convolver);
+        this.convolver.connect(this.reverbOutGain);
+        this.reverbOutGain.connect(this.master);
+
+        // D Aeolian
         this.scale = [293.7, 329.6, 349.2, 392.0, 440.0, 466.2, 523.3, 587.3, 659.3, 698.5];
 
-        // Motivy (-1 = pomlka/ticho)
         this.motifs = [
-            [0, -1, -1, 4, -1, -1],
-            [-1, -1, 1,  0, -1, -1],
-            [4,  -1,  2, -1,  0, -1],
-            [-1,  3, -1,  6, -1,  5],
-            [0,   1, -1, -1, -1, -1]
+            [0,  1,  2, -1,  3,  2],
+            [4, -1,  2,  1,  0, -1],
+            [2,  3,  4, -1,  5,  4],
+            [0, -1,  4, -1,  2, -1],
+            [-1, 2,  1,  0, -1,  0]
         ];
 
         this.currentPhrase = [];
         this.step    = 0;
         this.measure = 0;
-
-        // Mood engine
-        this.mood          = 0.3;   // Začínáme ve "světle"
+        this.mood    = 0.3;
         this.moodDirection = 0.015;
 
-        // Drone nodes (lazy init)
         this.droneOsc    = null;
         this.droneOsc2   = null;
         this.droneGain   = null;
@@ -7530,37 +7548,64 @@ class AbyssalKeepGenerative {
         this._started  = false;
     }
 
-    // ── Makra (interní, nahrazují globální getA/B/C) ───────────────
-    _macroA() { return 0; }   // Lze v budoucnu napojit na GameState
+    // ── Makra ──────────────────────────────────────────────────
+    _macroA() { return 0; }
     _macroB() { return 0; }
     _macroC() { return 0; }
 
-    // ── Nástroje ───────────────────────────────────────────────────
+    // ── Nástroje ───────────────────────────────────────────────
 
     playLute(freq) {
         if (!freq) return;
         const t = this.ctx.currentTime;
-        const osc1 = this.ctx.createOscillator();
-        const osc2 = this.ctx.createOscillator();
+        const osc    = this.ctx.createOscillator();
         const filter = this.ctx.createBiquadFilter();
         const gain   = this.ctx.createGain();
 
-        osc1.type = 'sawtooth'; osc1.frequency.value = freq;
-        osc2.type = 'square';   osc2.frequency.value = freq * 1.005;
+        osc.type = 'triangle';
+        osc.frequency.value = freq;
 
         filter.type = 'lowpass';
-        filter.frequency.setValueAtTime(800, t);
-        filter.frequency.exponentialRampToValueAtTime(250, t + 0.1);
+        filter.frequency.setValueAtTime(2000, t);
+        filter.frequency.exponentialRampToValueAtTime(200, t + 0.1);
 
-        const dur = 0.2 + this._macroC();
+        const dur = 1.0 + this._macroC() * 2.0;
         gain.gain.setValueAtTime(0, t);
-        gain.gain.linearRampToValueAtTime(0.15, t + 0.015);
+        gain.gain.linearRampToValueAtTime(0.4, t + 0.015);
         gain.gain.exponentialRampToValueAtTime(0.001, t + dur);
 
-        osc1.connect(filter); osc2.connect(filter);
-        filter.connect(gain); gain.connect(this.master);
-        osc1.start(t); osc2.start(t);
-        osc1.stop(t + dur); osc2.stop(t + dur);
+        osc.connect(filter); filter.connect(gain);
+        gain.connect(this.master);
+
+        const sendRev = this.ctx.createGain(); sendRev.gain.value = 0.8;
+        gain.connect(sendRev); sendRev.connect(this.reverbBus);
+
+        osc.start(t); osc.stop(t + dur);
+    }
+
+    playFlute(freq) {
+        if (!freq) return;
+        const t = this.ctx.currentTime;
+        const osc    = this.ctx.createOscillator();
+        const gain   = this.ctx.createGain();
+        const filter = this.ctx.createBiquadFilter();
+
+        osc.type = 'sine';
+        osc.frequency.value = freq;
+
+        filter.type = 'lowpass';
+        filter.frequency.value = 800;
+
+        const dur = 2.0 + Math.random();
+        gain.gain.setValueAtTime(0, t);
+        gain.gain.linearRampToValueAtTime(0.15, t + 0.3);
+        gain.gain.exponentialRampToValueAtTime(0.001, t + dur);
+
+        osc.connect(filter); filter.connect(gain);
+        gain.connect(this.reverbBus);
+        gain.connect(this.master);
+
+        osc.start(t); osc.stop(t + dur);
     }
 
     playPsalterium(freq) {
@@ -7574,33 +7619,39 @@ class AbyssalKeepGenerative {
         filter.type = 'bandpass'; filter.frequency.value = freq * 5;
 
         gain.gain.setValueAtTime(0, t);
-        gain.gain.linearRampToValueAtTime(0.1, t + 0.01);
+        gain.gain.linearRampToValueAtTime(0.15, t + 0.01);
         gain.gain.exponentialRampToValueAtTime(0.001, t + 2.5);
 
-        osc.connect(filter); filter.connect(gain); gain.connect(this.master);
+        osc.connect(filter); filter.connect(gain);
+        gain.connect(this.master);
+
+        const sendRev = this.ctx.createGain(); sendRev.gain.value = 1.0;
+        gain.connect(sendRev); sendRev.connect(this.reverbBus);
+
         osc.start(t); osc.stop(t + 2.5);
     }
 
     playChant(freq) {
         if (!freq) return;
-        const t  = this.ctx.currentTime;
+        const t = this.ctx.currentTime;
         const osc  = this.ctx.createOscillator();
         const gain = this.ctx.createGain();
         const f1   = this.ctx.createBiquadFilter();
         const f2   = this.ctx.createBiquadFilter();
 
         osc.type = 'sawtooth'; osc.frequency.value = freq / 2;
-
         f1.type = 'bandpass'; f1.frequency.value = 600;  f1.Q.value = 4;
         f2.type = 'bandpass'; f2.frequency.value = 1100; f2.Q.value = 5;
 
         osc.connect(f1); f1.connect(gain);
         osc.connect(f2); f2.connect(gain);
-        gain.connect(this.master);
 
         gain.gain.setValueAtTime(0, t);
-        gain.gain.linearRampToValueAtTime(0.12, t + 1.0);
-        gain.gain.linearRampToValueAtTime(0,    t + 3.0);
+        gain.gain.linearRampToValueAtTime(0.15, t + 1.0);
+        gain.gain.linearRampToValueAtTime(0, t + 3.0);
+
+        gain.connect(this.master);
+        gain.connect(this.reverbBus);
 
         osc.start(t); osc.stop(t + 3.0);
     }
@@ -7616,10 +7667,12 @@ class AbyssalKeepGenerative {
         filter.type = 'lowpass'; filter.frequency.value = 300 + this._macroC() * 300;
 
         gain.gain.setValueAtTime(0, t);
-        gain.gain.linearRampToValueAtTime(0.1, t + 1.5);
-        gain.gain.linearRampToValueAtTime(0,   t + 4.0);
+        gain.gain.linearRampToValueAtTime(0.12, t + 1.5);
+        gain.gain.linearRampToValueAtTime(0, t + 4.0);
 
-        osc.connect(filter); filter.connect(gain); gain.connect(this.master);
+        osc.connect(filter); filter.connect(gain);
+        gain.connect(this.master); gain.connect(this.reverbBus);
+
         osc.start(t); osc.stop(t + 4.0);
     }
 
@@ -7634,7 +7687,8 @@ class AbyssalKeepGenerative {
             gain.gain.setValueAtTime(0, t);
             gain.gain.linearRampToValueAtTime(0.5, t + 0.05);
             gain.gain.exponentialRampToValueAtTime(0.01, t + 0.8);
-            osc.connect(gain); gain.connect(this.master);
+            osc.connect(gain);
+            gain.connect(this.master); gain.connect(this.reverbBus);
             osc.start(t); osc.stop(t + 0.8);
         }
 
@@ -7647,9 +7701,10 @@ class AbyssalKeepGenerative {
             filter.type = 'bandpass'; filter.frequency.value = 1500 + Math.random() * 500; filter.Q.value = 25;
             const gain = this.ctx.createGain();
             gain.gain.setValueAtTime(0, t);
-            gain.gain.linearRampToValueAtTime(0.2, t + 0.01);
+            gain.gain.linearRampToValueAtTime(0.15, t + 0.01);
             gain.gain.exponentialRampToValueAtTime(0.001, t + 0.5);
-            noise.connect(filter); filter.connect(gain); gain.connect(this.master);
+            noise.connect(filter); filter.connect(gain);
+            gain.connect(this.master); gain.connect(this.reverbBus);
             noise.start(t);
         }
 
@@ -7662,9 +7717,10 @@ class AbyssalKeepGenerative {
             filter.type = 'highpass'; filter.frequency.value = 4000;
             const gain = this.ctx.createGain();
             gain.gain.setValueAtTime(0, t);
-            gain.gain.linearRampToValueAtTime(0.05, t + 0.01);
+            gain.gain.linearRampToValueAtTime(0.03, t + 0.01);
             gain.gain.exponentialRampToValueAtTime(0.01, t + 0.1);
-            noise.connect(filter); filter.connect(gain); gain.connect(this.master);
+            noise.connect(filter); filter.connect(gain);
+            gain.connect(this.master);
             noise.start(t);
         }
     }
@@ -7676,14 +7732,19 @@ class AbyssalKeepGenerative {
             this.droneGain   = this.ctx.createGain();
             this.droneFilter = this.ctx.createBiquadFilter();
 
-            this.droneOsc.type  = 'sawtooth'; this.droneOsc.frequency.value  = 73.42; // D2
-            this.droneOsc2.type = 'square';   this.droneOsc2.frequency.value = 74.00;
+            // Sub-bass D1 (sine) + textura D2 (triangle)
+            this.droneOsc.type  = 'sine';     this.droneOsc.frequency.value  = 36.71;
+            this.droneOsc2.type = 'triangle'; this.droneOsc2.frequency.value = 73.42;
 
             this.droneFilter.type = 'lowpass';
             this.droneGain.gain.value = 0;
 
-            this.droneOsc.connect(this.droneFilter);
-            this.droneOsc2.connect(this.droneFilter);
+            const osc1Gain = this.ctx.createGain(); osc1Gain.gain.value = 1.0;
+            const osc2Gain = this.ctx.createGain(); osc2Gain.gain.value = 0.25;
+
+            this.droneOsc.connect(osc1Gain);   osc1Gain.connect(this.droneFilter);
+            this.droneOsc2.connect(osc2Gain);  osc2Gain.connect(this.droneFilter);
+
             this.droneFilter.connect(this.droneGain);
             this.droneGain.connect(this.master);
 
@@ -7694,7 +7755,7 @@ class AbyssalKeepGenerative {
         const targetVol = this.mood > 0.4 ? (this.mood * 0.25) : 0.05;
         this.droneGain.gain.linearRampToValueAtTime(targetVol, this.ctx.currentTime + 2);
         this.droneFilter.frequency.linearRampToValueAtTime(
-            100 + (this.mood * 400) + (this._macroA() * 2),
+            60 + (this.mood * 80) + this._macroA(),
             this.ctx.currentTime + 2
         );
     }
@@ -7706,7 +7767,6 @@ class AbyssalKeepGenerative {
         this.manageDrone();
 
         this._interval = setInterval(() => {
-            // 1. Mood engine
             if (this.step === 0) {
                 this.mood += this.moodDirection;
                 if (this.mood > 1.0 || this.mood < 0.0) {
@@ -7714,8 +7774,7 @@ class AbyssalKeepGenerative {
                     this.mood += this.moodDirection;
                 }
 
-                // Výběr motivu
-                let baseMotif    = this.motifs[Math.floor(Math.random() * this.motifs.length)];
+                let baseMotif     = this.motifs[Math.floor(Math.random() * this.motifs.length)];
                 let transposition = Math.random() < 0.3 ? 2 : 0;
                 if (this.measure % 4 === 0) transposition = 0;
 
@@ -7730,27 +7789,27 @@ class AbyssalKeepGenerative {
                 this.measure++;
             }
 
-            // 2. Rytmus
             this.playRhythm();
 
-            // 3. Melodie
             const note = this.currentPhrase[this.step];
             if (note) {
                 if (this.mood < 0.4) {
                     if (Math.random() > 0.3) this.playLute(note);
+                    if ((this.step === 0 || this.step === 3) && Math.random() > 0.4) {
+                        this.playFlute(note);
+                    }
                 } else if (this.mood < 0.7) {
                     if (Math.random() > 0.5) this.playChant(note);
                     else this.playPsalterium(note);
-                    if (Math.random() < 0.15) this.playLute(note);
                 } else {
-                    if (Math.random() > 0.4) this.playCreepyChoir(note);
+                    if (Math.random() > 0.3) this.playCreepyChoir(note);
                     if (Math.random() < 0.2)  this.playPsalterium(note);
                 }
             }
 
             this.step = (this.step + 1) % 6;
 
-        }, 320 - (this._macroB() * 120));
+        }, 320);
     }
 
     stop() {
