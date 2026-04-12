@@ -58,6 +58,10 @@ const JS_MAIN = [
     'src/games/ur.js',
     'src/games/karnoffel.js',
     'src/games/freecell.js',
+    'src/games/senet.js',
+    'src/games/backgammon.js',
+    'src/games/draughts.js',
+    'src/games/hnefatafl.js',
 
     // i18n — MUSÍ být před Game a UI
     'src/i18n/cs.js',               // Čeština (master)
