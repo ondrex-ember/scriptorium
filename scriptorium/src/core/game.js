@@ -260,6 +260,7 @@ const Game = {
         
         // Initialize theme system (may depend on weather)
         ThemeSystem.init();
+        HeaderImageSystem.init();
         
         // Initialize notebook system
         NotebookSystem.init();

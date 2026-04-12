@@ -38,6 +38,7 @@ const JS_MAIN = [
     'src/systems/theme.js',         // ThemeSystem
     'src/systems/records.js',       // PersonalRecords
     'src/systems/weather.js',       // WeatherSystem
+    'src/systems/header-image.js',  // HeaderImageSystem
     'src/systems/time.js',          // TimeSys
     'src/systems/canonical.js',     // CanonicalHours
     'src/systems/events.js',        // EventsSystem

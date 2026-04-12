@@ -108,6 +108,11 @@ const WeatherSystem = {
         if(GameState.settings.autoTheme) {
             ThemeSystem.updateAutoTheme();
         }
+
+        // Update header background image (season + time + weather)
+        if(typeof HeaderImageSystem !== 'undefined') {
+            HeaderImageSystem.update();
+        }
     },
     
     init: function() {
