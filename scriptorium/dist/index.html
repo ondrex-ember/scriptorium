@@ -7019,6 +7019,20 @@ class AudioSystem {
         this.fireGain = this.audioContext.createGain();
         this.fireGain.gain.value = 0.5;  // Default 50%
         this.fireGain.connect(this.masterGain);
+
+        // Kamenný prostor (Convolver reverb)
+        this.echoBus = this.audioContext.createGain();
+        this.echoBus.gain.value = 1.0;
+        const revLen = this.audioContext.sampleRate * 2.2;
+        const revBuf = this.audioContext.createBuffer(2, revLen, this.audioContext.sampleRate);
+        for (let c = 0; c < 2; c++) {
+            const d = revBuf.getChannelData(c);
+            for (let i = 0; i < revLen; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / revLen, 4.5);
+        }
+        this.convolver = this.audioContext.createConvolver();
+        this.convolver.buffer = revBuf;
+        this.echoBus.connect(this.convolver);
+        this.convolver.connect(this.masterGain);
         
         this.isPlaying = false;
         this.crackleInterval = null;
@@ -7212,153 +7226,173 @@ class AudioSystem {
     }
     
     // ═══════════════════════════════════════════════════════════
-    // FIRE SOUND SYNTHESIS (Internal)
+    // FIRE SOUND SYNTHESIS (Internal) — v3.2 Klidný táborák
     // ═══════════════════════════════════════════════════════════
-    
+
     scheduleRandomEvents() {
         this.crackleInterval = setInterval(() => {
             if (!this.isPlaying) return;
             const now = this.audioContext.currentTime;
-            
-            // 1. Praskání (časté)
-            if (Math.random() > 0.9) {
-                const type = Math.random() > 0.7 ? 'deep' : 'sharp';
-                this.playCrackle(type, now + Math.random() * 0.5);
+
+            // 1. Praskání — skupinové (jako v 3.2)
+            if (Math.random() > 0.7) {
+                const type = Math.random() > 0.4 ? 'sharp' : 'deep';
+                const eventTime = now + Math.random() * 0.2;
+
+                this.playCrackle(type, eventTime);
+
+                if (Math.random() > 0.3) {
+                    const nextType = type === 'deep' ? 'sharp' : 'deep';
+                    this.playCrackle(nextType, eventTime + 0.1 + Math.random() * 0.15);
+
+                    if (Math.random() > 0.6) {
+                        this.playCrackle('sharp', eventTime + 0.3 + Math.random() * 0.2);
+                    }
+                }
             }
-            
-            // 2. Pískání dřeva (vzácné)
-            if (Math.random() < 0.01) {
-                this.playWhistle(now);
+
+            // 2. Táhlé foukavé dýchání (vzácné)
+            if (Math.random() < 0.08) {
+                this.playBreath(now + Math.random() * 0.2);
             }
-        }, 500);
+
+        }, 1000);
     }
-    
+
     playCrackle(type, time) {
-        const bufferSize = this.audioContext.sampleRate * 0.1;
+        const bufferSize = this.audioContext.sampleRate * 0.15;
         const buffer = this.audioContext.createBuffer(1, bufferSize, this.audioContext.sampleRate);
         const data = buffer.getChannelData(0);
-        
-        // Envelope
-        const decay = type === 'sharp' ? 10 : 5;
+
+        const decay = type === 'sharp' ? 30 + Math.random() * 20 : 8 + Math.random() * 4;
         for (let i = 0; i < bufferSize; i++) {
             data[i] = (Math.random() * 2 - 1) * Math.exp(-(i / bufferSize) * decay);
         }
-        
+
         const noise = this.audioContext.createBufferSource();
         noise.buffer = buffer;
-        
+
         const filter = this.audioContext.createBiquadFilter();
         filter.type = 'bandpass';
-        
+
         if (type === 'sharp') {
-            filter.frequency.value = 1300 + Math.random() * 1000;
-            filter.Q.value = 1;
+            filter.frequency.value = 3500 + Math.random() * 4000;
+            filter.Q.value = 1.0 + Math.random() * 1.5;
         } else {
-            filter.frequency.value = 150 + Math.random() * 500;
-            filter.Q.value = 2;
+            filter.frequency.value = 150 + Math.random() * 200;
+            filter.Q.value = 0.5 + Math.random() * 0.5;
         }
-        
+
+        const softenFilter = this.audioContext.createBiquadFilter();
+        softenFilter.type = 'lowpass';
+        softenFilter.frequency.value = 6000;
+
         const gain = this.audioContext.createGain();
-        gain.gain.value = (type === 'sharp' ? 0.3 : 0.5) + Math.random() * 0.3;
-        
+        const targetVolume = (type === 'sharp' ? 0.3 : 0.45) + Math.random() * 0.15;
+        gain.gain.value = targetVolume;
+
         noise.connect(filter);
-        filter.connect(gain);
-        gain.connect(this.fireGain);  // Fire sounds connect to fireGain
+        filter.connect(softenFilter);
+        softenFilter.connect(gain);
+        gain.connect(this.fireGain);
+
+        // Silné prasknutí pošleme i do kamenného dozvuku
+        if (targetVolume > 0.48) {
+            const sendGain = this.audioContext.createGain();
+            sendGain.gain.value = targetVolume * 0.8;
+            gain.connect(sendGain);
+            sendGain.connect(this.echoBus);
+        }
+
         noise.start(time);
     }
-    
-    playWhistle(time) {
-        const duration = 0.5 + Math.random() * 0.8;
-        
-        // Generování šumu (páry)
+
+    playBreath(time) {
+        const duration = 2.5 + Math.random() * 3.0;
         const bufferSize = this.audioContext.sampleRate * duration;
         const buffer = this.audioContext.createBuffer(1, bufferSize, this.audioContext.sampleRate);
         const data = buffer.getChannelData(0);
-        for (let i = 0; i < bufferSize; i++) {
-            data[i] = Math.random() * 2 - 1;
-        }
-        
+        for (let i = 0; i < bufferSize; i++) data[i] = Math.random() * 2 - 1;
+
         const noise = this.audioContext.createBufferSource();
         noise.buffer = buffer;
-        
-        // Filter - dusivý charakter
+
         const filter = this.audioContext.createBiquadFilter();
         filter.type = 'bandpass';
-        filter.frequency.setValueAtTime(300, time);
-        filter.frequency.linearRampToValueAtTime(800, time + duration);
-        filter.Q.value = 0.7;
-        
-        // Hlasitost - rychlý nástup, plynulý konec
+        filter.frequency.value = 2500 + Math.random() * 1000;
+        filter.Q.value = 0.4;
+
         const gain = this.audioContext.createGain();
         gain.gain.setValueAtTime(0, time);
-        gain.gain.linearRampToValueAtTime(0.2, time + 0.2);
-        gain.gain.exponentialRampToValueAtTime(0.02, time + duration);
-        
+        gain.gain.linearRampToValueAtTime(0.02, time + duration * 0.3);
+        gain.gain.exponentialRampToValueAtTime(0.0001, time + duration);
+
         noise.connect(filter);
         filter.connect(gain);
-        gain.connect(this.fireGain);  // Fire sounds connect to fireGain
+        gain.connect(this.fireGain);
+        gain.connect(this.echoBus);
+
         noise.start(time);
     }
-    
+
     startRumble() {
-        // Generátor hlubokého hukotu
         const bufferSize = this.audioContext.sampleRate * 2;
         const buffer = this.audioContext.createBuffer(1, bufferSize, this.audioContext.sampleRate);
         const data = buffer.getChannelData(0);
         let lastOut = 0;
-        
+
         for (let i = 0; i < bufferSize; i++) {
             const white = Math.random() * 2 - 1;
             data[i] = (lastOut + (0.02 * white)) / 1.02;
             lastOut = data[i];
             data[i] *= 3.5;
         }
-        
+
         const noise = this.audioContext.createBufferSource();
         noise.buffer = buffer;
         noise.loop = true;
-        
+
         const filter = this.audioContext.createBiquadFilter();
         filter.type = 'lowpass';
-        filter.frequency.value = 180;
-        
+        filter.frequency.value = 50;
+
         const gain = this.audioContext.createGain();
-        gain.gain.value = 0.3;
-        
+        gain.gain.value = 0.45;
+
         noise.connect(filter);
         filter.connect(gain);
-        gain.connect(this.fireGain);  // Fire sounds connect to fireGain
+        gain.connect(this.fireGain);
         noise.start();
         this.loops.rumble = noise;
     }
-    
+
     startHiss() {
-        // Generátor syčení
         const bufferSize = this.audioContext.sampleRate * 2;
         const buffer = this.audioContext.createBuffer(1, bufferSize, this.audioContext.sampleRate);
         const data = buffer.getChannelData(0);
         let lastOut = 0;
-        
+
         for (let i = 0; i < bufferSize; i++) {
             let white = Math.random() * 2 - 1;
             data[i] = (lastOut + (0.02 * white)) / 1.02;
             lastOut = data[i];
         }
-        
+
         const noise = this.audioContext.createBufferSource();
         noise.buffer = buffer;
         noise.loop = true;
-        
+
         const filter = this.audioContext.createBiquadFilter();
-        filter.type = 'highpass';
-        filter.frequency.value = 1500;
-        
+        filter.type = 'bandpass';
+        filter.frequency.value = 1800;
+        filter.Q.value = 0.6;
+
         const gain = this.audioContext.createGain();
-        gain.gain.value = 0.08;
-        
+        gain.gain.value = 0.02;
+
         noise.connect(filter);
         filter.connect(gain);
-        gain.connect(this.fireGain);  // Fire sounds connect to fireGain
+        gain.connect(this.fireGain);
         noise.start();
         this.loops.hiss = noise;
     }
