@@ -162,4 +162,18 @@ const ItemsDB = {
     "backgammon_board": { name:"Tables (Vrhcáby)",    name_en:"Tables Board",        icon:"🎯", type:"tool", cat:"tool", desc:"Hra kamenů a kostek. Předchůdce vrhcábů.",          desc_en:"Game of stones and dice. Ancestor of backgammon." },
     "draughts_board":   { name:"Dáma",                name_en:"Draughts Board",      icon:"⚫", type:"tool", cat:"tool", desc:"Hra dam a pánů. Jednoduchá, hluboká.",             desc_en:"Game of ladies and lords. Simple yet deep." },
     "hnefatafl_board":  { name:"Hnefatafl",           name_en:"Hnefatafl Board",     icon:"♟️", type:"tool", cat:"tool", desc:"Královská hra Vikingů. Král prchá, útočníci loví.", desc_en:"Royal Viking game. The king flees, warriors hunt." },
+
+    // ═══════════════════════════════════════════════════════════════════════════
+    // LEATHER SYSTEM (v8.x) — Kožené výrobky skriptoria
+    // ═══════════════════════════════════════════════════════════════════════════
+    "glue":           { name:"Klej",                  name_en:"Glue",                icon:"🫧", type:"mat",              desc:"Kostní klej. Váže dřevo i pergamen.",                           desc_en:"Bone glue. Bonds wood and parchment." },
+    "bellows":        { name:"Měchy",                 name_en:"Bellows",             icon:"💨", type:"tool", cat:"tool", desc:"Kožené měchy. Rozdmýchají oheň i varhanní píšťaly.",          desc_en:"Leather bellows. Fan the fire and the organ pipes alike." },
+    "book_binding":   { name:"Vazba knih",            name_en:"Book Binding",        icon:"📚", type:"mat",              desc:"Kožená vazba drží složky pohromadě. Bez ní jsou jen listy.",   desc_en:"Leather binding holds the quires. Without it, just loose leaves." },
+    "quill_case":     { name:"Pouzdro na pera",       name_en:"Quill Case",          icon:"🖊️", type:"tool", cat:"tool", desc:"Kožené pouzdro chrání husí brka před zlomením.",               desc_en:"Leather case protects quills from snapping." },
+    "scribes_belt":   { name:"Opasek písaře",         name_en:"Scribe's Belt",       icon:"🪢", type:"tool", cat:"tool", desc:"Na opasku visí nůž, brousek a pouzdro na pero.",               desc_en:"Knife, whetstone and quill case hang from it. The scribe's kit." },
+    "book_cover":     { name:"Kožená deska",          name_en:"Book Cover",          icon:"📖", type:"mat",              desc:"Dřevěná deska potažená kůží. Chrání kodex po staletí.",         desc_en:"Wooden board covered in leather. Protects the codex for centuries." },
+    "cushion":        { name:"Kožené sedátko",        name_en:"Leather Cushion",     icon:"🪑", type:"tool", cat:"tool", desc:"Mniši seděli 6 hodin denně. Sedátko nebylo luxus — nutnost.",   desc_en:"Monks sat 6 hours daily. A cushion was necessity, not luxury." },
+    "scrinium_case":  { name:"Transportní pouzdro",   name_en:"Scrinium Case",       icon:"🧳", type:"tool", cat:"tool", desc:"Kožené pouzdro na přepravu cenných kodexů.",                   desc_en:"Leather case for transporting precious codices." },
+    "water_pouch":    { name:"Kožený měšec",          name_en:"Water Pouch",         icon:"🫗", type:"tool", cat:"tool", desc:"Kožený měšec na vodu. Mniši nosili pití při práci.",            desc_en:"Leather pouch for water. Monks carried drink during work." },
+    "ink_pouch":      { name:"Váček na inkoust",      name_en:"Ink Pouch",           icon:"🫙", type:"mat",              desc:"Kožený váček na suchý inkoust a práškové pigmenty.",            desc_en:"Leather pouch for dry ink and powdered pigments." },
 };

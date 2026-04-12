@@ -162,7 +162,7 @@ const RecipesDB = [
     
     // VELLUM CHAIN (Pergamen výroba - historicky přesná)
     { id: "ash_water", output: "ash_water", qty: 1, req: { "ash": 2, "water": 3 }, cat: "mat", desc: "Louh na namáčení kůže. Historicky 3-4 dny.", desc_en: "Lye for soaking hides. Historically 3-4 days." },
-    { id: "soaked_hide", output: "soaked_hide", qty: 1, req: { "hide": 1, "ash_water": 1 }, cat: "mat", locked: true, desc: "Kůže loužená 3 dny.", desc_en: "Hide soaked for 3 days." },
+    { id: "soaked_hide", output: "soaked_hide", qty: 1, req: { "hide": 2, "ash_water": 1 }, cat: "mat", locked: true, desc: "Kůže loužená 3 dny.", desc_en: "Hide soaked for 3 days." },
     { id: "stretched_hide", output: "stretched_hide", qty: 1, req: { "soaked_hide": 1, "rope": 2 }, cat: "mat", locked: true, desc: "Napnuto v rámu.", desc_en: "Stretched on a frame." },
     { id: "pumice", output: "pumice", qty: 1, req: { "rock": 3 }, cat: "mat", locked: true, desc: "Sopečný kámen - leští.", desc_en: "Volcanic stone - for smoothing." },
     { id: "vellum", output: "vellum", qty: 1, req: { "stretched_hide": 1, "pumice": 0, "chalk": 1 }, cat: "lore", locked: true, desc: "Konečný pergamen. 1 kodex = kůže 3 ovcí.", desc_en: "Finished parchment. 1 codex = 3 sheep hides." },
@@ -230,5 +230,49 @@ const RecipesDB = [
         cat: "tool",
         locked: true,
         desc: "Hnefatafl — asymetrická hra. Král a 12 obránců vs. 24 útočníků.", desc_en: "Hnefatafl — asymmetric game. King and 12 defenders vs. 24 attackers."
-    }
+    },
+
+    // ═══════════════════════════════════════════════════════════════════════════
+    // LEATHER SYSTEM (v8.x) — Koželužství a kožené výrobky skriptoria
+    // ═══════════════════════════════════════════════════════════════════════════
+
+    // Výroba kůže (dokončení řetězce: hide → soaked → stretched → leather)
+    { id: "tanned_leather", output: "leather", qty: 1, req: { stretched_hide: 2, gall_nut: 2 }, cat: "mat", locked: true,
+      desc: "Vydělená kůže. Třísloviny z duběnek zpevní vlákna.", desc_en: "Tanned leather. Gall nut tannins harden the fibres." },
+
+    // Měchy — dual use: oheň + varhany + Athanor upgrade
+    { id: "bellows", output: "bellows", qty: 1, req: { leather: 4, stick: 3, rope: 2 }, cat: "tool", locked: true,
+      desc: "Kožené měchy. Rozdmýchají oheň i varhanní píšťaly.", desc_en: "Leather bellows. Fan the fire and the organ pipes alike." },
+
+    // Vazba knih — základ pro luxury/vellum codex
+    { id: "book_binding", output: "book_binding", qty: 1, req: { leather: 2, stick: 3, glue: 1 }, cat: "tool", locked: true,
+      desc: "Kožená vazba drží složky pohromadě. Bez ní jsou jen volné listy.", desc_en: "Leather binding holds the quires together. Without it, just loose leaves." },
+
+    // Pouzdro na pera
+    { id: "quill_case", output: "quill_case", qty: 1, req: { leather: 1, rope: 1 }, cat: "tool", locked: true,
+      desc: "Kožené pouzdro chrání husí brka před zlomením.", desc_en: "Leather case protects quills from snapping." },
+
+    // Opasek písaře — buff later
+    { id: "scribes_belt", output: "scribes_belt", qty: 1, req: { leather: 2, rope: 1 }, cat: "tool", locked: true,
+      desc: "Na opasku visí nůž, brousek a pouzdro na pero. Písařova výbava.", desc_en: "Knife, whetstone and quill case hang from it. The scribe's kit." },
+
+    // Kožená deska — pro luxury codex
+    { id: "book_cover", output: "book_cover", qty: 1, req: { leather: 3, stick: 5 }, cat: "tool", locked: true,
+      desc: "Dřevěná deska potažená kůží. Chrání kodex po staletí.", desc_en: "Wooden board covered in leather. Protects the codex for centuries." },
+
+    // Kožené sedátko — komfort buff later
+    { id: "cushion", output: "cushion", qty: 1, req: { leather: 2, fiber: 3 }, cat: "tool", locked: true,
+      desc: "Mniši seděli 6 hodin denně. Sedátko nebylo luxus — bylo nutnost.", desc_en: "Monks sat 6 hours daily. A cushion was not luxury — it was necessity." },
+
+    // Transportní pouzdro — pro export/trade later
+    { id: "scrinium_case", output: "scrinium_case", qty: 1, req: { leather: 4, rope: 2 }, cat: "tool", locked: true,
+      desc: "Kožené pouzdro na přepravu cenných kodexů. Cestovní skriptorium.", desc_en: "Leather case for transporting precious codices. A travelling scriptorium." },
+
+    // Kožený měšec na vodu
+    { id: "water_pouch", output: "water_pouch", qty: 1, req: { leather: 1, rope: 1 }, cat: "tool", locked: true,
+      desc: "Kožený měšec. Mniši nosili pití při práci v skriptoriu.", desc_en: "Leather pouch. Monks carried drink during work in the scriptorium." },
+
+    // Váček na inkoust/pigmenty
+    { id: "ink_pouch", output: "ink_pouch", qty: 1, req: { leather: 1, rope: 1 }, cat: "tool", locked: true,
+      desc: "Kožený váček na suchý inkoust a práškové pigmenty.", desc_en: "Leather pouch for dry ink and powdered pigments." }
 ];

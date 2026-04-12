@@ -675,9 +675,8 @@ const Game = {
                     this.addItem('fat', 1); 
                     this.addItem('meat', 1); 
                     if (r > 0.4) this.addItem('bone', 1);
-                    if (r > 0.7) this.addItem('leather', 1); // 30% chance
-                    // v7.5: NEW DROPS
-                    if (r > 0.5) this.addItem('hide', 1); // 50% chance - for vellum
+                    // leather se nyní vyrábí přes tanning chain (tech_tanning)
+                    if (r > 0.5) this.addItem('hide', 1); // 50% chance - for tanning chain
                     if (r > 0.7) this.addItem('feather', 1); // 30% chance - for quill
                 }
                 else if (type === 'nature') { 
@@ -788,9 +787,8 @@ const Game = {
                 this.addItem('fat', 1); 
                 this.addItem('meat', 1); 
                 if (r > 0.4) this.addItem('bone', 1);
-                if (r > 0.7) this.addItem('leather', 1); // 30% chance
-                // v7.5: NEW DROPS
-                if (r > 0.5) this.addItem('hide', 1); // 50% chance
+                // leather se nyní vyrábí přes tanning chain (tech_tanning)
+                if (r > 0.5) this.addItem('hide', 1); // 50% chance - for tanning chain
                 if (r > 0.7) this.addItem('feather', 1); // 30% chance
             }
             else if (type === 'nature') { 
