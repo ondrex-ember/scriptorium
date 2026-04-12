@@ -3047,6 +3047,38 @@ Po prohlídce celého světa, od žebráků až po císaře, Poutník zjišťuje
 Zcela vyčerpaný a blízko absolutnímu šílenství chce Poutník utéct ze světa úplně. V tu chvíli zaslechne tichý hlas, který ho volá zpět, ne však do vnějšího města, ale do jeho vlastního nitra. Poutník se zavře ve svém vlastním srdci, kam nemá svět, války ani falešní lidé přístup. Zde se setkává s Kristem a nachází onen "Ráj srdce". 
 
 Tato neuvěřitelně silná literární terapie zachránila Komenského před šílenstvím a umožnila mu později se stát „učitelem národů“, i když pro zbytek svého života už nesměl spatřit svou vlast.`
+        },
+        {
+            id: 'book_schedula_diversarum_artium',
+            title: 'Schedula Diversarum Artium: Tajemství řemesel',
+            title_en: 'Schedula Diversarum Artium: The Secrets of Crafts',
+            category: 'technical',
+            unlockDay: 35,
+            icon: '🎹',
+            author: 'Theophilus Presbyter',
+            year: 'cca 1100–1120',
+            content: `**Mnich, který uměl vše**
+
+Theophilus Presbyter — pravděpodobně německý benediktinský mnich — napsal na počátku 12. století dílo, které nemá v tehdejší Evropě obdoby. Schedula Diversarum Artium (Příručka rozmanitých umění) je třísvazková encyklopedie řemeslných technik: malířství, sklářství a kovářství. Ale skrývá i něco, co dnes badatele překvapuje — podrobný návod na stavbu varhan.
+
+**Kůže, vzduch a Bůh**
+
+Podle Theophila jsou varhany nástrojem hodným Boha, ale jejich stavba je prací hodnou mistra. Klíčem jsou měchy — obrovské kožené pytle, které pohánějí vzduch do píšťal. Theophilus popisuje, jak musí být kůže napuštěna voskem a lojem, aby vzduch neunikal. Bez dokonalých měchů není zvuku. Bez zvuku není modlitby.
+
+*"Mistře, než sáhneš po dřevu a kovu, připrav kůži. Na ní vše závisí."*
+
+**HERNÍ EFEKT:** Odemkne tech Organum Hydraulicum — stavbu hydraulických varhan. Bez přečtení tohoto spisu varhanář z Norimberka nepřijede.`,
+            content_en: `**The Monk Who Knew Everything**
+
+Theophilus Presbyter — likely a German Benedictine monk — wrote in the early 12th century a work without parallel in contemporary Europe. The Schedula Diversarum Artium (Handbook of Various Arts) is a three-volume encyclopaedia of craft techniques: painting, glasswork and metalwork. But it conceals something that surprises scholars even today — a detailed guide to building organs.
+
+**Leather, Air and God**
+
+According to Theophilus, the organ is an instrument worthy of God, but its construction is work worthy of a master. The key is the bellows — great leather sacks that drive air into the pipes. Theophilus describes how the leather must be saturated with wax and tallow so that no air escapes. Without perfect bellows there is no sound. Without sound there is no prayer.
+
+*"Master, before thou reach for wood and metal, prepare the leather. Upon it all depends."*
+
+**GAME EFFECT:** Unlocks the Organum Hydraulicum tech — the construction of hydraulic organs. Without reading this treatise, the organ builder from Nuremberg shall not come.`
         }
     ],
 
@@ -8860,6 +8892,7 @@ const CellariumSystem = {
     if (!GameState.economy) {
       GameState.economy = {
         lastGiacomoVisit: 0,    // timestamp poslední návštěvy Giacoma
+        lastHeinrichVisit: 0,   // timestamp poslední návštěvy Heinricha Traxdorfa
         tradesTotal: 0          // celkový počet transakcí
       };
     }
@@ -8989,6 +9022,15 @@ const CellariumSystem = {
     candle:         2,
     // Suroviny — nové
     chalk:          2,
+    // Leather system
+    metal:          15,
+    glue:           6,
+    tallow:         4,
+    sealant:        12,
+    bellows:        40,
+    book_binding:   25,
+    // Varhany — Heinrich Traxdorf (fixed price, prodej jen přes NPC modal)
+    organ:          600,
     // Herní desky (jen nákup, ne prodej)
     senet_board:    6,
     backgammon_board: 10,
@@ -9012,6 +9054,8 @@ const CellariumSystem = {
     feather: 'mat', resin: 'mat', charcoal: 'mat',
     herb_red: 'mat', herb_yellow: 'mat', herb_blue: 'mat', roots: 'mat',
     chalk: 'mat',
+    metal: 'mat', glue: 'mat', tallow: 'mat', sealant: 'mat',
+    bellows: 'tool', book_binding: 'tool', organ: 'tool',
     senet_board: 'tool', backgammon_board: 'tool', draughts_board: 'tool', hnefatafl_board: 'tool',
     potion_heal: 'alchemy', antidote: 'alchemy', stamina_tonic: 'alchemy',
     preservation_oil: 'alchemy', candle: 'alchemy',
@@ -9145,6 +9189,8 @@ const CellariumSystem = {
       Game.save();
       this.showGiacomoArrival();
     }
+    // Heinrich Traxdorf — varhanář z Norimberka
+    this.checkHeinrichEvent();
   },
 
   showGiacomoArrival: function() {
@@ -9185,6 +9231,77 @@ const CellariumSystem = {
       </div>
     `;
     document.body.appendChild(modal);
+  },
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // HEINRICH TRAXDORF EVENT — weekly organ merchant
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  hasOrganum: function() {
+    return GameState.researchedTechs && GameState.researchedTechs.includes('tech_organum_hydraulicum');
+  },
+
+  checkHeinrichEvent: function() {
+    if (!this.hasOrganum()) return;
+    const now  = Date.now();
+    const week = 7 * 24 * 60 * 60 * 1000;
+    if (now - (GameState.economy.lastHeinrichVisit || 0) >= week) {
+      GameState.economy.lastHeinrichVisit = now;
+      Game.save();
+      this.showHeinrichArrival();
+    }
+  },
+
+  showHeinrichArrival: function() {
+    let existing = document.getElementById('heinrich-modal');
+    if (existing) existing.remove();
+    const lang = (GameState.settings && GameState.settings.language) || 'cs';
+    const modal = document.createElement('div');
+    modal.id = 'heinrich-modal';
+    modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:9999;display:flex;align-items:center;justify-content:center;';
+    const title    = t('cellarium.heinrichTitle');
+    const subtitle = t('cellarium.heinrichSubtitle');
+    const greeting = t('cellarium.heinrichGreeting');
+    const btnClose = t('cellarium.heinrichBtnClose');
+    const btnBuy   = t('cellarium.heinrichBtnBuy');
+    const alreadyHas = (GameState.inventory['organ'] || 0) > 0;
+    const canAfford  = this.getGrose() >= 600;
+
+    modal.innerHTML = `
+      <div style="background:var(--bg-parchment);border:2px solid var(--accent-gold);border-radius:12px;
+                  max-width:480px;width:90%;padding:30px;position:relative;box-shadow:0 8px 40px rgba(0,0,0,0.5);">
+        <div style="text-align:center;margin-bottom:20px;">
+          <div style="font-size:4rem;margin-bottom:8px;">🎹</div>
+          <div style="font-family:'Cinzel Decorative';font-size:1.1rem;color:var(--accent-gold);">${title}</div>
+          <div style="font-size:0.8rem;opacity:0.65;font-style:italic;margin-top:4px;">${subtitle}</div>
+        </div>
+        <div style="font-style:italic;font-size:0.9rem;opacity:0.85;margin-bottom:24px;
+                    padding:15px;background:rgba(197,160,89,0.08);border-radius:8px;
+                    border-left:3px solid var(--accent-gold);">
+          ${greeting}
+        </div>
+        ${alreadyHas ? `<div style="font-size:0.85rem;opacity:0.7;margin-bottom:16px;text-align:center;">${t('cellarium.heinrichAlready')}</div>` : ''}
+        <div style="display:flex;gap:10px;">
+          <button onclick="document.getElementById('heinrich-modal').remove()"
+                  class="craft-btn" style="flex:1;">${btnClose}</button>
+          <button onclick="CellariumSystem.buyOrganFromHeinrich()"
+                  class="craft-btn" style="flex:1;background:var(--accent-gold);color:var(--bg-parchment);"
+                  ${(!canAfford || alreadyHas) ? 'disabled' : ''}>${btnBuy}</button>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(modal);
+  },
+
+  buyOrganFromHeinrich: function() {
+    if (this.getGrose() < 600) return;
+    if ((GameState.inventory['organ'] || 0) > 0) return;
+    this.spendGrose(600);
+    Game.addItem('organ', 1);
+    document.getElementById('heinrich-modal').remove();
+    const lang = (GameState.settings && GameState.settings.language) || 'cs';
+    UI.notify(lang === 'en' ? '🎹 Organ acquired from Heinrich Traxdorf!' : '🎹 Varhany zakoupeny od Heinricha Traxdorfa!');
+    Game.save();
   },
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -16121,6 +16238,12 @@ cellarium: {
   giacomoGreeting: '„Salve, fratello! Přivezl jsem zboží z daleka — z Benátek, z Levanty, z míst, kde slunce spaluje jinak než zde. Podívej, co mám pro tebe..."',
   giacomoBtnClose: 'Zavřít bránu',
   giacomoBtnVisit: 'Navštívit na Trhu',
+  heinrichTitle: 'Heinrich Traxdorf z Norimberka',
+  heinrichSubtitle: 'Varhanář · týdenní návštěva',
+  heinrichGreeting: '"Mé varhany zní v kostelích od Prahy po Basilej! Píšťaly liji z cínu norimberkého — nejlepšího v celém císařství. Nepotřebuješ varhany, bratře?"',
+  heinrichBtnClose: 'Dnes ne',
+  heinrichBtnBuy: 'Koupit varhany (600 💰)',
+  heinrichAlready: '(Varhany již vlastníš)',
 },
 
 };
@@ -17432,6 +17555,12 @@ cellarium: {
   giacomoGreeting: '"Salve, fratello! I have brought goods from distant lands — from Venice, from the Levant, from places where the sun burns differently. See what I have for thee..."',
   giacomoBtnClose: 'Close the gate',
   giacomoBtnVisit: 'Visit at the Market',
+  heinrichTitle: 'Heinrich Traxdorf from Nuremberg',
+  heinrichSubtitle: 'Organ builder · weekly visit',
+  heinrichGreeting: '"My organs resound in churches from Prague to Basel! I cast the pipes from Nuremberg tin — the finest in all the Empire. Dost thou require a set of pipes?"',
+  heinrichBtnClose: 'Not today',
+  heinrichBtnBuy: 'Buy organ (600 💰)',
+  heinrichAlready: '(Thou already hast an organ)',
 },
 
 };

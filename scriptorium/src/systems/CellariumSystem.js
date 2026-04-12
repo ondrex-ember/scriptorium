@@ -26,6 +26,7 @@ const CellariumSystem = {
     if (!GameState.economy) {
       GameState.economy = {
         lastGiacomoVisit: 0,    // timestamp poslední návštěvy Giacoma
+        lastHeinrichVisit: 0,   // timestamp poslední návštěvy Heinricha Traxdorfa
         tradesTotal: 0          // celkový počet transakcí
       };
     }
@@ -155,6 +156,15 @@ const CellariumSystem = {
     candle:         2,
     // Suroviny — nové
     chalk:          2,
+    // Leather system
+    metal:          15,
+    glue:           6,
+    tallow:         4,
+    sealant:        12,
+    bellows:        40,
+    book_binding:   25,
+    // Varhany — Heinrich Traxdorf (fixed price, prodej jen přes NPC modal)
+    organ:          600,
     // Herní desky (jen nákup, ne prodej)
     senet_board:    6,
     backgammon_board: 10,
@@ -178,6 +188,8 @@ const CellariumSystem = {
     feather: 'mat', resin: 'mat', charcoal: 'mat',
     herb_red: 'mat', herb_yellow: 'mat', herb_blue: 'mat', roots: 'mat',
     chalk: 'mat',
+    metal: 'mat', glue: 'mat', tallow: 'mat', sealant: 'mat',
+    bellows: 'tool', book_binding: 'tool', organ: 'tool',
     senet_board: 'tool', backgammon_board: 'tool', draughts_board: 'tool', hnefatafl_board: 'tool',
     potion_heal: 'alchemy', antidote: 'alchemy', stamina_tonic: 'alchemy',
     preservation_oil: 'alchemy', candle: 'alchemy',
@@ -311,6 +323,8 @@ const CellariumSystem = {
       Game.save();
       this.showGiacomoArrival();
     }
+    // Heinrich Traxdorf — varhanář z Norimberka
+    this.checkHeinrichEvent();
   },
 
   showGiacomoArrival: function() {
@@ -351,6 +365,77 @@ const CellariumSystem = {
       </div>
     `;
     document.body.appendChild(modal);
+  },
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // HEINRICH TRAXDORF EVENT — weekly organ merchant
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  hasOrganum: function() {
+    return GameState.researchedTechs && GameState.researchedTechs.includes('tech_organum_hydraulicum');
+  },
+
+  checkHeinrichEvent: function() {
+    if (!this.hasOrganum()) return;
+    const now  = Date.now();
+    const week = 7 * 24 * 60 * 60 * 1000;
+    if (now - (GameState.economy.lastHeinrichVisit || 0) >= week) {
+      GameState.economy.lastHeinrichVisit = now;
+      Game.save();
+      this.showHeinrichArrival();
+    }
+  },
+
+  showHeinrichArrival: function() {
+    let existing = document.getElementById('heinrich-modal');
+    if (existing) existing.remove();
+    const lang = (GameState.settings && GameState.settings.language) || 'cs';
+    const modal = document.createElement('div');
+    modal.id = 'heinrich-modal';
+    modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:9999;display:flex;align-items:center;justify-content:center;';
+    const title    = t('cellarium.heinrichTitle');
+    const subtitle = t('cellarium.heinrichSubtitle');
+    const greeting = t('cellarium.heinrichGreeting');
+    const btnClose = t('cellarium.heinrichBtnClose');
+    const btnBuy   = t('cellarium.heinrichBtnBuy');
+    const alreadyHas = (GameState.inventory['organ'] || 0) > 0;
+    const canAfford  = this.getGrose() >= 600;
+
+    modal.innerHTML = `
+      <div style="background:var(--bg-parchment);border:2px solid var(--accent-gold);border-radius:12px;
+                  max-width:480px;width:90%;padding:30px;position:relative;box-shadow:0 8px 40px rgba(0,0,0,0.5);">
+        <div style="text-align:center;margin-bottom:20px;">
+          <div style="font-size:4rem;margin-bottom:8px;">🎹</div>
+          <div style="font-family:'Cinzel Decorative';font-size:1.1rem;color:var(--accent-gold);">${title}</div>
+          <div style="font-size:0.8rem;opacity:0.65;font-style:italic;margin-top:4px;">${subtitle}</div>
+        </div>
+        <div style="font-style:italic;font-size:0.9rem;opacity:0.85;margin-bottom:24px;
+                    padding:15px;background:rgba(197,160,89,0.08);border-radius:8px;
+                    border-left:3px solid var(--accent-gold);">
+          ${greeting}
+        </div>
+        ${alreadyHas ? `<div style="font-size:0.85rem;opacity:0.7;margin-bottom:16px;text-align:center;">${t('cellarium.heinrichAlready')}</div>` : ''}
+        <div style="display:flex;gap:10px;">
+          <button onclick="document.getElementById('heinrich-modal').remove()"
+                  class="craft-btn" style="flex:1;">${btnClose}</button>
+          <button onclick="CellariumSystem.buyOrganFromHeinrich()"
+                  class="craft-btn" style="flex:1;background:var(--accent-gold);color:var(--bg-parchment);"
+                  ${(!canAfford || alreadyHas) ? 'disabled' : ''}>${btnBuy}</button>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(modal);
+  },
+
+  buyOrganFromHeinrich: function() {
+    if (this.getGrose() < 600) return;
+    if ((GameState.inventory['organ'] || 0) > 0) return;
+    this.spendGrose(600);
+    Game.addItem('organ', 1);
+    document.getElementById('heinrich-modal').remove();
+    const lang = (GameState.settings && GameState.settings.language) || 'cs';
+    UI.notify(lang === 'en' ? '🎹 Organ acquired from Heinrich Traxdorf!' : '🎹 Varhany zakoupeny od Heinricha Traxdorfa!');
+    Game.save();
   },
 
   // ═══════════════════════════════════════════════════════════════════════════

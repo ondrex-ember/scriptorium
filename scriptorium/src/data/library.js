@@ -1319,6 +1319,38 @@ Po prohlídce celého světa, od žebráků až po císaře, Poutník zjišťuje
 Zcela vyčerpaný a blízko absolutnímu šílenství chce Poutník utéct ze světa úplně. V tu chvíli zaslechne tichý hlas, který ho volá zpět, ne však do vnějšího města, ale do jeho vlastního nitra. Poutník se zavře ve svém vlastním srdci, kam nemá svět, války ani falešní lidé přístup. Zde se setkává s Kristem a nachází onen "Ráj srdce". 
 
 Tato neuvěřitelně silná literární terapie zachránila Komenského před šílenstvím a umožnila mu později se stát „učitelem národů“, i když pro zbytek svého života už nesměl spatřit svou vlast.`
+        },
+        {
+            id: 'book_schedula_diversarum_artium',
+            title: 'Schedula Diversarum Artium: Tajemství řemesel',
+            title_en: 'Schedula Diversarum Artium: The Secrets of Crafts',
+            category: 'technical',
+            unlockDay: 35,
+            icon: '🎹',
+            author: 'Theophilus Presbyter',
+            year: 'cca 1100–1120',
+            content: `**Mnich, který uměl vše**
+
+Theophilus Presbyter — pravděpodobně německý benediktinský mnich — napsal na počátku 12. století dílo, které nemá v tehdejší Evropě obdoby. Schedula Diversarum Artium (Příručka rozmanitých umění) je třísvazková encyklopedie řemeslných technik: malířství, sklářství a kovářství. Ale skrývá i něco, co dnes badatele překvapuje — podrobný návod na stavbu varhan.
+
+**Kůže, vzduch a Bůh**
+
+Podle Theophila jsou varhany nástrojem hodným Boha, ale jejich stavba je prací hodnou mistra. Klíčem jsou měchy — obrovské kožené pytle, které pohánějí vzduch do píšťal. Theophilus popisuje, jak musí být kůže napuštěna voskem a lojem, aby vzduch neunikal. Bez dokonalých měchů není zvuku. Bez zvuku není modlitby.
+
+*"Mistře, než sáhneš po dřevu a kovu, připrav kůži. Na ní vše závisí."*
+
+**HERNÍ EFEKT:** Odemkne tech Organum Hydraulicum — stavbu hydraulických varhan. Bez přečtení tohoto spisu varhanář z Norimberka nepřijede.`,
+            content_en: `**The Monk Who Knew Everything**
+
+Theophilus Presbyter — likely a German Benedictine monk — wrote in the early 12th century a work without parallel in contemporary Europe. The Schedula Diversarum Artium (Handbook of Various Arts) is a three-volume encyclopaedia of craft techniques: painting, glasswork and metalwork. But it conceals something that surprises scholars even today — a detailed guide to building organs.
+
+**Leather, Air and God**
+
+According to Theophilus, the organ is an instrument worthy of God, but its construction is work worthy of a master. The key is the bellows — great leather sacks that drive air into the pipes. Theophilus describes how the leather must be saturated with wax and tallow so that no air escapes. Without perfect bellows there is no sound. Without sound there is no prayer.
+
+*"Master, before thou reach for wood and metal, prepare the leather. Upon it all depends."*
+
+**GAME EFFECT:** Unlocks the Organum Hydraulicum tech — the construction of hydraulic organs. Without reading this treatise, the organ builder from Nuremberg shall not come.`
         }
     ],
 
