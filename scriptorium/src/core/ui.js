@@ -23,6 +23,42 @@ const UI = {
             if (fireVolumeSlider) {
                 fireVolumeSlider.value = (GameState.settings.fireVolume || 0.5) * 100;
             }
+
+            // Music track selector — zobrazit dle odemčených tierů
+            const techs = GameState.researchedTechs || [];
+            const secrets = GameState.secrets || {};
+            const tier1 = techs.includes('tech_neuma_notation');
+            const tier2 = techs.includes('tech_schola_cantorum');
+            const tier3 = secrets.cellariumUnlocked || techs.includes('tech_cellarium');
+
+            const trackSelector = document.getElementById('music-track-selector');
+            const tier2Option   = document.getElementById('music-tier2-option');
+            const tier3Option   = document.getElementById('music-tier3-option');
+
+            if (trackSelector) {
+                // Zobrazit selector pokud jsou odemčeny 2+ tiery
+                const multiTier = (tier1 && tier2) || (tier1 && tier3) || (tier2 && tier3);
+                trackSelector.style.display = multiTier ? 'block' : 'none';
+            }
+            if (tier2Option) tier2Option.style.display = tier2 ? 'flex' : 'none';
+            if (tier3Option) tier3Option.style.display = tier3 ? 'flex' : 'none';
+
+            // Nastavit aktuálně vybraný radio button
+            const currentTier = (typeof audioSys !== 'undefined') ? audioSys.musicTier : (GameState.settings.musicTier || 1);
+            const tierRadio = document.querySelector(`input[name="musicTier"][value="${currentTier}"]`);
+            if (tierRadio) tierRadio.checked = true;
+
+            // Music volume slider
+            const musicVolumeSlider = document.getElementById('music-volume-slider');
+            if (musicVolumeSlider) {
+                musicVolumeSlider.value = (GameState.settings.musicVolume ?? 0.5) * 100;
+            }
+
+            // Music enabled checkbox
+            const musicCheckbox = document.getElementById('music-enabled-checkbox');
+            if (musicCheckbox) {
+                musicCheckbox.checked = GameState.settings.musicEnabled !== false;
+            }
             
             // Update hour chime settings visibility
             const canonicalUnlocked = GameState.researchedTechs.includes('tech_canonical_hours');

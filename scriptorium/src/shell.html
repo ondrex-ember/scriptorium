@@ -1510,6 +1510,23 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                 <div style="margin-top: 6px; font-size: 0.85rem; color: var(--ink-secondary);" data-i18n="settingsUI.musicVolumeDesc">
                     Procedurálně generovaná středověká melodie
                 </div>
+                <div id="music-track-selector" style="margin-top:12px; padding-top:12px; border-top:1px solid var(--border-color); display:none; width:100%;">
+                    <strong data-i18n="settingsUI.musicTrack">Skladba</strong>
+                    <div style="margin-top:8px; display:flex; flex-direction:column; gap:8px;">
+                        <label style="display:flex; align-items:center; gap:8px; cursor:pointer;">
+                            <input type="radio" name="musicTier" value="1" onchange="Game.setMusicTier(1)" style="cursor:pointer;">
+                            <span data-i18n="settingsUI.musicTier1">🏛️ Sacral Cathedral</span>
+                        </label>
+                        <label id="music-tier2-option" style="display:none; align-items:center; gap:8px; cursor:pointer;">
+                            <input type="radio" name="musicTier" value="2" onchange="Game.setMusicTier(2)" style="cursor:pointer;">
+                            <span data-i18n="settingsUI.musicTier2">🏰 Abyssal Keep</span>
+                        </label>
+                        <label id="music-tier3-option" style="display:none; align-items:center; gap:8px; cursor:pointer;">
+                            <input type="radio" name="musicTier" value="3" onchange="Game.setMusicTier(3)" style="cursor:pointer;">
+                            <span data-i18n="settingsUI.musicTier3">🎻 Ars Nova</span>
+                        </label>
+                    </div>
+                </div>
             </div>
 
             <div class="card" style="flex-direction: column; align-items: flex-start;">

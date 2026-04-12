@@ -38,6 +38,13 @@ const STRINGS_en = {
         condBroken: '💥 Broken'
     },
     settingsUI: {
+        musicTitle: '🎵 Music',
+        musicEnabled: 'Enable music',
+        musicVolumeDesc: 'Volume of the generative music',
+        musicTrack: 'Track',
+        musicTier1: '🏛️ Sacral Cathedral',
+        musicTier2: '🏰 Abyssal Keep',
+        musicTier3: '🎻 Ars Nova',
         volume: 'Volume',
         fireVolume: '🔥 Hearth Volume',
         fireVolumeDesc: 'Controls only the sound of the burning hearth',

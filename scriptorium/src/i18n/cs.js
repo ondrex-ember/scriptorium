@@ -35,6 +35,13 @@ const STRINGS_cs = {
         upgrade: '🏛️ Vyzdít kamenem (30 kámen, 5 provaz, 10 uhel)'
     },
     settingsUI: {
+        musicTitle: '🎵 Hudba',
+        musicEnabled: 'Zapnout hudbu',
+        musicVolumeDesc: 'Hlasitost generativní hudby',
+        musicTrack: 'Skladba',
+        musicTier1: '🏛️ Sacral Cathedral',
+        musicTier2: '🏰 Abyssal Keep',
+        musicTier3: '🎻 Ars Nova',
         volume: 'Hlasitost',
         fireVolume: '🔥 Hlasitost krbu',
         fireVolumeDesc: 'Ovládá pouze zvuk hořícího krbu',
