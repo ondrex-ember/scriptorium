@@ -156,6 +156,8 @@ const ItemsDB = {
     "potion_vigor_minor":  { name:"Heřmánkový odvar",  name_en:"Chamomile Draught",   icon:"🌼", type:"potion",  desc:"Obnoví síly. Vigor +20.",                            desc_en:"Restores strength. Vigor +20." },
     "potion_craft_boost":  { name:"Třezalkový lektvar", name_en:"St. John's Tincture", icon:"🌻", type:"potion",  desc:"Crafting ×1.5 po dobu 1 hodiny.",                   desc_en:"Crafting ×1.5 for 1 hour." },
     "potion_hunger_remedy":{ name:"Hojivá mast",       name_en:"Healing Salve",       icon:"🕯️", type:"potion",  desc:"Zpomalí hlad o 4 hodiny.",                           desc_en:"Slows hunger by 4 hours." },
+    "varnish":             { name:"Vernix",            name_en:"Varnish",             icon:"✨", type:"lore",    desc:"Průzračný lak na pergamen. Chrání iluminace.",       desc_en:"Clear varnish for parchment. Protects illuminations." },
+    "salve_hands":         { name:"Mast na prsty",     name_en:"Hand Salve",          icon:"🌻", type:"potion",  desc:"Léčí písařská záda. Crafting ×1.25 / 30 min.",       desc_en:"Heals scribe hands. Crafting ×1.25 / 30 min." },
 
     // NOVÉ HRÁČSKÉ DESKY (sprint v8.x)
     "senet_board":      { name:"Senet",               name_en:"Senet Board",         icon:"𓂀", type:"tool", cat:"tool", desc:"Egyptská hra faraonů. 3100 př.n.l.",               desc_en:"Egyptian game of the pharaohs. 3100 BC." },
