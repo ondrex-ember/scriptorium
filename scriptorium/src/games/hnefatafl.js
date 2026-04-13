@@ -375,7 +375,15 @@ const HnefataflGame = {
         const container = document.getElementById('hnefatafl-content');
         if (!container) return;
 
-        let h = `<div style="background:var(--bg-card); padding:15px; border-radius:8px;">`;
+        // Responzivní velikost buněk
+        const isMobile = window.innerWidth <= 500;
+        const cellSize = isMobile ? 30 : 44;
+        const kingSize = isMobile ? 24 : 36;
+        const pieceSize = isMobile ? 21 : 32;
+        const pieceFontSize = isMobile ? '0.75rem' : '1.1rem';
+        const smallFontSize = isMobile ? '0.5rem' : '0.65rem';
+
+        let h = `<div style="background:var(--bg-card); padding:15px; border-radius:8px;">`
         h += `<h3 style="margin:0 0 8px; color:var(--ink-primary);">${t('games.hnefataflTitle')} <span style="font-size:0.65em; opacity:0.5;">— ${t('games.hnefataflSubtitle')}</span></h3>`;
 
         if (!this.gameActive && !this.findKing()) {
@@ -417,7 +425,7 @@ const HnefataflGame = {
 
                     const clickable = this.currentTurn === 'player' && this.gameActive;
                     h += `<div onclick="${clickable ? `HnefataflGame.selectCell(${r},${c})` : ''}"
-                        style="width:44px; height:44px; background:${bg}; display:flex; align-items:center; justify-content:center;
+                        style="width:${cellSize}px; height:${cellSize}px; background:${bg}; display:flex; align-items:center; justify-content:center;
                         cursor:${clickable ? 'pointer' : 'default'}; position:relative; border:1px solid rgba(0,0,0,0.1);">`;
 
                     // Speciální symboly pro prázdná pole
@@ -428,11 +436,11 @@ const HnefataflGame = {
 
                     if (piece) {
                         if (piece.type === 'king') {
-                            h += `<div style="width:36px; height:36px; border-radius:50%; background:radial-gradient(circle, #ffd700 50%, #b8860b 100%); border:2px solid #8B6914; display:flex; align-items:center; justify-content:center; font-size:1.1rem; box-shadow:${isSel?'0 0 8px 3px gold':'0 2px 4px rgba(0,0,0,0.4)'};">👑</div>`;
+                            h += `<div style="width:${kingSize}px; height:${kingSize}px; border-radius:50%; background:radial-gradient(circle, #ffd700 50%, #b8860b 100%); border:2px solid #8B6914; display:flex; align-items:center; justify-content:center; font-size:${pieceFontSize}; box-shadow:${isSel?'0 0 8px 3px gold':'0 2px 4px rgba(0,0,0,0.4)'};">👑</div>`;
                         } else if (piece.type === 'defender') {
-                            h += `<div style="width:32px; height:32px; border-radius:50%; background:radial-gradient(circle, #fff 60%, #ccc 100%); border:2px solid #999; box-shadow:${isSel?'0 0 8px 3px var(--accent-gold)':'0 2px 3px rgba(0,0,0,0.3)'}; display:flex; align-items:center; justify-content:center;">⚪</div>`;
+                            h += `<div style="width:${pieceSize}px; height:${pieceSize}px; border-radius:50%; background:radial-gradient(circle, #fff 60%, #ccc 100%); border:2px solid #999; box-shadow:${isSel?'0 0 8px 3px var(--accent-gold)':'0 2px 3px rgba(0,0,0,0.3)'}; display:flex; align-items:center; justify-content:center;">⚪</div>`;
                         } else {
-                            h += `<div style="width:32px; height:32px; border-radius:50%; background:radial-gradient(circle, #444 60%, #111 100%); border:2px solid #8B4513; box-shadow:0 2px 3px rgba(0,0,0,0.4); display:flex; align-items:center; justify-content:center; color:rgba(255,255,255,0.6); font-size:0.65rem;">⚫</div>`;
+                            h += `<div style="width:${pieceSize}px; height:${pieceSize}px; border-radius:50%; background:radial-gradient(circle, #444 60%, #111 100%); border:2px solid #8B4513; box-shadow:0 2px 3px rgba(0,0,0,0.4); display:flex; align-items:center; justify-content:center; color:rgba(255,255,255,0.6); font-size:${smallFontSize};">⚫</div>`;
                         }
                     }
 

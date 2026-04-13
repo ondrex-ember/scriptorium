@@ -481,8 +481,14 @@ const Rithmomachia = {
     },
     
     renderBoard: function() {
+        const isMobile = window.innerWidth <= 500;
+        const cellMin = isMobile ? 36 : 45;
+        const pieceSize = isMobile ? 26 : 35;
+        const pieceFontSize = isMobile ? '0.55rem' : '0.7rem';
+        const symbolSize = isMobile ? '0.75rem' : '1rem';
+        const maxW = isMobile ? '310px' : '400px';
         let h = '<div style="margin: 15px 0;">';
-        h += '<div style="display: grid; grid-template-columns: repeat(8, 1fr); gap: 2px; max-width: 400px; margin: 0 auto;">';
+        h += `<div style="display: grid; grid-template-columns: repeat(8, 1fr); gap: 2px; max-width: ${maxW}; margin: 0 auto;">`;
         
         for (let y = 0; y < 8; y++) {
             for (let x = 0; x < 8; x++) {
@@ -508,13 +514,13 @@ const Rithmomachia = {
             const symbol = this.pieceTypes[piece.type].symbol;
             const color = piece.player === 'white' ? '#fff' : '#000';
             const textColor = piece.player === 'white' ? '#000' : '#fff';
-            content = `<div style="background: ${color}; color: ${textColor}; border-radius: 50%; width: 35px; height: 35px; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 0.7rem; border: 1px solid var(--border-color);">`;
-            content += `<div style="font-size: 1rem;">${symbol}</div>`;
-            content += `<div style="font-size: 0.7rem;">${piece.value}</div>`;
+            content = `<div style="background: ${color}; color: ${textColor}; border-radius: 50%; width: ${pieceSize}px; height: ${pieceSize}px; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: ${pieceFontSize}; border: 1px solid var(--border-color);">`;
+            content += `<div style="font-size: ${symbolSize};">${symbol}</div>`;
+            content += `<div style="font-size: ${pieceFontSize};">${piece.value}</div>`;
             content += `</div>`;
         }
         
-        let h = `<div style="padding: 5px; background: ${bgColor}; border: 1px solid var(--border-color); min-height: 45px; display: flex; align-items: center; justify-content: center; cursor: pointer;" onclick="Rithmomachia.selectPiece(${x}, ${y})">`;
+        let h = `<div style="padding: 3px; background: ${bgColor}; border: 1px solid var(--border-color); min-height: ${cellMin}px; display: flex; align-items: center; justify-content: center; cursor: pointer;" onclick="Rithmomachia.selectPiece(${x}, ${y})">`;
         h += content;
         h += '</div>';
         

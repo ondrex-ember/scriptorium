@@ -210,6 +210,13 @@ const FreeCellGame = {
         const container = document.getElementById('freecell-content');
         if(!container) return;
         
+        const isMobile = window.innerWidth <= 500;
+        const cardPad = isMobile ? '4px 2px' : '10px';
+        const cardFontSize = isMobile ? '0.65rem' : '0.9rem';
+        const cardMinH = isMobile ? '28px' : '40px';
+        const colMinH = isMobile ? '100px' : '150px';
+        const cardItemFontSize = isMobile ? '0.6rem' : '0.7rem';
+
         let h = '<div style="background: var(--bg-card); padding: 15px; border-radius: 8px;">';
         h += `<h3>${t('games.freecellTitle')}</h3>`;
         
@@ -225,7 +232,7 @@ const FreeCellGame = {
                 const card = this.freeCells[i];
                 const isSelected = this.selected && this.selected.location === 'freecell' && this.selected.index === i;
                 const textColor = card ? card.color : 'inherit';
-                h += `<div style="padding: 10px; background: ${isSelected ? 'gold' : 'rgba(0,0,0,0.1)'}; border: 2px dashed var(--border-color); border-radius: 4px; min-height: 40px; text-align: center; cursor: pointer; font-size: 0.9rem; color: ${textColor};" onclick="FreeCellGame.${card ? `selectCard('freecell', ${i})` : `moveToFreeCell(${i})`}">`;
+                h += `<div style="padding: ${cardPad}; background: ${isSelected ? 'gold' : 'rgba(0,0,0,0.1)'}; border: 2px dashed var(--border-color); border-radius: 4px; min-height: ${cardMinH}; text-align: center; cursor: pointer; font-size: ${cardFontSize}; color: ${textColor}; display:flex; flex-direction:column; align-items:center; justify-content:center;" onclick="FreeCellGame.${card ? `selectCard('freecell', ${i})` : `moveToFreeCell(${i})`}">`;
                 if(card) h += `${card.rank}${card.suit}`;
                 else h += `💠`;
                 h += `</div>`;
@@ -235,7 +242,7 @@ const FreeCellGame = {
                 const foundation = this.foundations[i];
                 const topCard = foundation[foundation.length - 1];
                 const textColor = topCard ? topCard.color : 'inherit';
-                h += `<div style="padding: 10px; background: rgba(197,160,89,0.2); border: 2px solid var(--accent-gold); border-radius: 4px; min-height: 40px; text-align: center; cursor: pointer; font-size: 0.9rem; color: ${textColor};" onclick="FreeCellGame.moveToFoundation(${i})">`;
+                h += `<div style="padding: ${cardPad}; background: rgba(197,160,89,0.2); border: 2px solid var(--accent-gold); border-radius: 4px; min-height: ${cardMinH}; text-align: center; cursor: pointer; font-size: ${cardFontSize}; color: ${textColor}; display:flex; flex-direction:column; align-items:center; justify-content:center;" onclick="FreeCellGame.moveToFoundation(${i})">`;
                 if(topCard) h += `${topCard.rank}${topCard.suit}`;
                 else h += `🏆`;
                 h += `</div>`;
@@ -246,13 +253,13 @@ const FreeCellGame = {
             h += `<div style="display: grid; grid-template-columns: repeat(8, 1fr); gap: 5px;">`;
             for(let i = 0; i < 8; i++) {
                 const col = this.tableau[i];
-                h += `<div style="min-height: 150px; background: rgba(0,0,0,0.05); border-radius: 4px; padding: 5px; cursor: pointer;" onclick="FreeCellGame.moveToTableau(${i})">`;
+                h += `<div style="min-height: ${colMinH}; background: rgba(0,0,0,0.05); border-radius: 4px; padding: 3px; cursor: pointer;" onclick="FreeCellGame.moveToTableau(${i})">`;
                 
                 col.forEach((card, cardIdx) => {
                     const isTop = cardIdx === col.length - 1;
                     const isSelected = this.selected && this.selected.location === 'tableau' && this.selected.index === i && isTop;
-                    h += `<div style="padding: 3px; background: ${isSelected ? 'gold' : 'white'}; border: 1px solid var(--border-color); border-radius: 2px; margin-bottom: 2px; font-size: 0.7rem; text-align: center; cursor: pointer; color: ${card.color};" onclick="event.stopPropagation(); ${isTop ? `FreeCellGame.selectCard('tableau', ${i})` : 'void(0)'}">`;
-                    h += `${card.rank}${card.suit}`;
+                    h += `<div style="padding: 2px 1px; background: ${isSelected ? 'gold' : 'white'}; border: 1px solid var(--border-color); border-radius: 2px; margin-bottom: 2px; font-size: ${cardItemFontSize}; text-align: center; cursor: pointer; color: ${card.color}; display:flex; flex-direction:column; align-items:center; line-height:1.1;" onclick="event.stopPropagation(); ${isTop ? `FreeCellGame.selectCard('tableau', ${i})` : 'void(0)'}">`;
+                    h += `<span>${card.rank}</span><span>${card.suit}</span>`;
                     h += `</div>`;
                 });
                 
