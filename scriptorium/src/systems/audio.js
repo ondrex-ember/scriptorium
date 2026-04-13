@@ -807,11 +807,17 @@ class AudioSystem {
             this.music = null;
         }
 
+        // Guard proti race condition — každé volání dostane unikátní ID
+        if (!this._switchId) this._switchId = 0;
+        this._switchId++;
+        const thisSwitchId = this._switchId;
+
         // Fade out před přepnutím
         this.musicGain.gain.setTargetAtTime(0, this.audioContext.currentTime, 0.5);
 
         // Spustit nový engine po krátkém fade
         setTimeout(() => {
+            if (this._switchId !== thisSwitchId) return; // Přišlo novější volání, zrušit
             if (tier === 1) {
                 this.music = new SacralCathedralGenerative(this.audioContext, this.musicGain);
                 console.log('🎵 Hudba: Tier 1 — Sacral Cathedral');
