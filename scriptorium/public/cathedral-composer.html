@@ -61,23 +61,20 @@
 <body>
 
     <h1>JOUZA LAB v6</h1>
-    <p>LEVEL 1: SACRAL CATHEDRAL (Generative Sitar + Spectrum Analyzer)</p>
+    <p>LEVEL 1: SACRAL CATHEDRAL (Limiter + Smooth Envelopes)</p>
 
     <canvas id="visualizer" width="800" height="300"></canvas>
     <button id="startBtn">Iniciovat Opus</button>
 
     <script>
-        // --- GLOBÁLNÍ PROMĚNNÉ PRO WEB AUDIO ---
         let ctx;
         let analyser;
         let destination;
 
-        // Zástupné funkce pro tvoje parametry, aby kód běžel bez chyb
         const getA = () => Math.random();
-        const getB = () => 0.5; // Střední tempo
+        const getB = () => 0.5; 
         const getC = () => Math.random();
 
-        // --- VIZUALIZACE SPEKTRA ---
         const canvas = document.getElementById('visualizer');
         const canvasCtx = canvas.getContext('2d');
         let dataArray;
@@ -85,13 +82,10 @@
 
         function drawSpectrum() {
             requestAnimationFrame(drawSpectrum);
-            
             if (!analyser) return;
 
-            // Získání frekvenčních dat
             analyser.getByteFrequencyData(dataArray);
 
-            // Vyčištění plátna (s lehkým "ghosting" efektem pro plynulejší vizuál)
             canvasCtx.fillStyle = 'rgba(5, 5, 8, 0.2)';
             canvasCtx.fillRect(0, 0, canvas.width, canvas.height);
 
@@ -101,33 +95,35 @@
 
             for (let i = 0; i < bufferLength; i++) {
                 barHeight = dataArray[i];
-
-                // Dynamické barvy: Basy červené/žluté, výšky modré/tyrkysové
                 const r = barHeight + (25 * (i/bufferLength));
                 const g = 250 * (i/bufferLength);
                 const b = 255;
                 
                 canvasCtx.fillStyle = `rgb(${r},${g},${b})`;
-                
-                // Vykreslení sloupce odspodu nahoru
                 const y = canvas.height - (barHeight * 1.2);
                 canvasCtx.fillRect(x, y, barWidth, canvas.height - y);
-
-                x += barWidth + 1; // Mezera mezi sloupci
+                x += barWidth + 1; 
             }
         }
 
-        // Vykreslení prázdného spektra před spuštěním
         canvasCtx.fillStyle = '#050508';
         canvasCtx.fillRect(0, 0, canvas.width, canvas.height);
 
-        // --- JOUZA LAB AUDIO CLASS ---
         class SacralCathedralGenerative {
             constructor() {
                 this.master = ctx.createGain(); 
                 this.master.gain.value = 0.8;
-                // Připojení masteru do globální destination (což je náš vizualizér)
-                this.master.connect(destination); 
+
+                // 🛡️ OCHRANA PROTI PRASKÁNÍ: MASTER KOMPRESOR/LIMITER
+                this.compressor = ctx.createDynamicsCompressor();
+                this.compressor.threshold.value = -4; // Zabere, když se zvuk blíží nule
+                this.compressor.knee.value = 10;
+                this.compressor.ratio.value = 12; // Tvrdá komprese (limiter)
+                this.compressor.attack.value = 0.002;
+                this.compressor.release.value = 0.15;
+
+                this.master.connect(this.compressor);
+                this.compressor.connect(destination); 
 
                 this.reverbBus = ctx.createGain();
                 this.reverbBus.gain.value = 1.0;
@@ -182,103 +178,134 @@
                 const t = ctx.currentTime;
                 const dur = 3.0 + getC() * 2.0; 
                 
-                const osc = ctx.createOscillator();
-                osc.type = 'sawtooth'; 
+                const osc = ctx.createOscillator(); osc.type = 'sawtooth'; 
                 osc.frequency.setValueAtTime(freq * 1.05, t); 
                 osc.frequency.exponentialRampToValueAtTime(freq, t + 0.1); 
                 
-                const subOsc = ctx.createOscillator();
-                subOsc.type = 'triangle';
+                const subOsc = ctx.createOscillator(); subOsc.type = 'triangle';
                 subOsc.frequency.setValueAtTime((freq / 2) * 1.02, t); 
                 subOsc.frequency.exponentialRampToValueAtTime(freq / 2, t + 0.15);
 
-                const symOsc1 = ctx.createOscillator();
-                symOsc1.type = 'triangle';
+                const symOsc1 = ctx.createOscillator(); symOsc1.type = 'triangle';
                 symOsc1.frequency.value = freq * 1.5; 
 
-                const symOsc2 = ctx.createOscillator();
-                symOsc2.type = 'sine';
+                const symOsc2 = ctx.createOscillator(); symOsc2.type = 'sine';
                 symOsc2.frequency.value = freq * 2; 
 
                 const bandpass = ctx.createBiquadFilter(); 
-                bandpass.type = 'bandpass'; 
-                bandpass.frequency.value = freq * 2 + (getA() * 2); 
-                bandpass.Q.value = 3.5; 
+                bandpass.type = 'bandpass'; bandpass.frequency.value = freq * 2 + (getA() * 2); bandpass.Q.value = 3.5; 
 
                 const lowpass = ctx.createBiquadFilter(); 
-                lowpass.type = 'lowpass';
-                lowpass.frequency.value = freq * 1.2; 
+                lowpass.type = 'lowpass'; lowpass.frequency.value = freq * 1.2; 
 
                 const gain = ctx.createGain();
                 gain.gain.setValueAtTime(0, t);
                 gain.gain.linearRampToValueAtTime(0.25, t + 0.05); 
-                gain.gain.exponentialRampToValueAtTime(0.001, t + dur);
-
-                osc.connect(bandpass); 
-                symOsc1.connect(bandpass); 
-                symOsc2.connect(bandpass);
-                subOsc.connect(lowpass); 
-
-                bandpass.connect(gain);
-                lowpass.connect(gain);
-
-                const panner = ctx.createPanner();
-                panner.panningModel = 'HRTF'; 
-                panner.distanceModel = 'inverse';
                 
-                const orbitSpeed = 0.3; 
-                const radius = 4.0; 
+                // Hladké ztlumení na absolutní 0 PŘED zastavením oscilátoru
+                gain.gain.exponentialRampToValueAtTime(0.001, t + dur - 0.1);
+                gain.gain.linearRampToValueAtTime(0, t + dur);
+
+                osc.connect(bandpass); symOsc1.connect(bandpass); symOsc2.connect(bandpass); subOsc.connect(lowpass); 
+                bandpass.connect(gain); lowpass.connect(gain);
+
+                const panner = ctx.createPanner(); panner.panningModel = 'HRTF'; panner.distanceModel = 'inverse';
+                const orbitSpeed = 0.3; const radius = 4.0; 
                 
-                const startX = Math.sin(t * orbitSpeed) * radius;
-                const startZ = Math.cos(t * orbitSpeed) * radius;
-                const endX = Math.sin((t + dur) * orbitSpeed) * radius;
-                const endZ = Math.cos((t + dur) * orbitSpeed) * radius;
+                const startX = Math.sin(t * orbitSpeed) * radius; const startZ = Math.cos(t * orbitSpeed) * radius;
+                const endX = Math.sin((t + dur) * orbitSpeed) * radius; const endZ = Math.cos((t + dur) * orbitSpeed) * radius;
                 
                 if (panner.positionX) {
-                    panner.positionX.setValueAtTime(startX, t);
-                    panner.positionX.linearRampToValueAtTime(endX, t + dur);
-                    panner.positionZ.setValueAtTime(startZ, t);
-                    panner.positionZ.linearRampToValueAtTime(endZ, t + dur);
+                    panner.positionX.setValueAtTime(startX, t); panner.positionX.linearRampToValueAtTime(endX, t + dur);
+                    panner.positionZ.setValueAtTime(startZ, t); panner.positionZ.linearRampToValueAtTime(endZ, t + dur);
                 } else {
                     panner.setPosition(startX, 0, startZ); 
                 }
 
-                gain.connect(panner); 
-                panner.connect(this.master); 
+                gain.connect(panner); panner.connect(this.master); 
                 
                 const sendRev = ctx.createGain(); 
-                const isMassiveReverb = Math.random() > 0.8;
-                sendRev.gain.value = isMassiveReverb ? 2.5 : 0.1;
-                
-                panner.connect(sendRev); 
-                sendRev.connect(this.reverbBus);
+                sendRev.gain.value = Math.random() > 0.8 ? 2.5 : 0.1;
+                panner.connect(sendRev); sendRev.connect(this.reverbBus);
 
-                osc.start(t); osc.stop(t + dur);
-                subOsc.start(t); subOsc.stop(t + dur);
-                symOsc1.start(t); symOsc1.stop(t + dur);
-                symOsc2.start(t); symOsc2.stop(t + dur);
+                // Zastaví se až chvilku po úplném utichnutí
+                const stopTime = t + dur + 0.05;
+                osc.start(t); osc.stop(stopTime);
+                subOsc.start(t); subOsc.stop(stopTime);
+                symOsc1.start(t); symOsc1.stop(stopTime);
+                symOsc2.start(t); symOsc2.stop(stopTime);
+            }
+
+            playAngelVoice(freq) {
+                if (!freq) return;
+                const t = ctx.currentTime; const dur = 4.0 + Math.random() * 2.0;
+
+                const osc = ctx.createOscillator(); const gain = ctx.createGain(); const filter = ctx.createBiquadFilter();
+                osc.type = 'sine'; osc.frequency.value = freq * 2; 
+
+                const vibrato = ctx.createOscillator(); vibrato.frequency.value = 4.5 + Math.random(); 
+                const vibratoGain = ctx.createGain(); vibratoGain.gain.value = (freq * 2) * 0.015; 
+                vibrato.connect(vibratoGain); vibratoGain.connect(osc.frequency);
+
+                filter.type = 'bandpass'; filter.frequency.value = freq * 2; filter.Q.value = 1.5;
+
+                gain.gain.setValueAtTime(0, t);
+                gain.gain.linearRampToValueAtTime(0.12, t + 1.5); 
+                gain.gain.exponentialRampToValueAtTime(0.001, t + dur - 0.1);
+                gain.gain.linearRampToValueAtTime(0, t + dur);
+
+                osc.connect(filter); filter.connect(gain); gain.connect(this.master);
+                
+                const sendRev = ctx.createGain(); sendRev.gain.value = 2.0; 
+                gain.connect(sendRev); sendRev.connect(this.reverbBus);
+
+                osc.start(t); vibrato.start(t);
+                osc.stop(t + dur + 0.05); vibrato.stop(t + dur + 0.05);
+            }
+
+            playSingingBowl(freq) {
+                if (!freq) return;
+                const t = ctx.currentTime; const dur = 8.0 + Math.random() * 4.0;
+
+                const masterGain = ctx.createGain();
+                masterGain.gain.setValueAtTime(0, t);
+                masterGain.gain.linearRampToValueAtTime(0.2, t + 2.5); 
+                masterGain.gain.exponentialRampToValueAtTime(0.001, t + dur - 0.1);
+                masterGain.gain.linearRampToValueAtTime(0, t + dur);
+
+                const frictionLfo = ctx.createOscillator(); frictionLfo.type = 'sine'; frictionLfo.frequency.value = 1.2 + (Math.random() * 0.8); 
+                const frictionGain = ctx.createGain(); frictionGain.gain.value = 0.4; frictionLfo.connect(frictionGain);
+                
+                const amNode = ctx.createGain(); amNode.gain.value = 0.6; frictionGain.connect(amNode.gain); 
+
+                [-0.5, 0, 0.4].forEach(detune => {
+                    const osc = ctx.createOscillator(); osc.type = 'sine'; osc.frequency.value = freq + detune;
+                    osc.connect(amNode); osc.start(t); osc.stop(t + dur + 0.05);
+                });
+
+                frictionLfo.start(t); frictionLfo.stop(t + dur + 0.05);
+
+                amNode.connect(masterGain); masterGain.connect(this.master);
+                
+                const sendRev = ctx.createGain(); sendRev.gain.value = 1.5;
+                masterGain.connect(sendRev); sendRev.connect(this.reverbBus);
             }
 
             playFlute(freq) {
                 if (!freq) return;
                 const t = ctx.currentTime;
-                const osc = ctx.createOscillator(); 
-                const gain = ctx.createGain();
-                const filter = ctx.createBiquadFilter();
+                const osc = ctx.createOscillator(); const gain = ctx.createGain(); const filter = ctx.createBiquadFilter();
                 
-                osc.type = 'sine'; 
-                osc.frequency.value = freq; 
-                filter.type = 'lowpass'; filter.frequency.value = 600; 
-                
+                osc.type = 'sine'; osc.frequency.value = freq; filter.type = 'lowpass'; filter.frequency.value = 600; 
                 const dur = 3.5 + Math.random(); 
                 
                 gain.gain.setValueAtTime(0, t);
                 gain.gain.linearRampToValueAtTime(0.12, t + 0.8); 
-                gain.gain.exponentialRampToValueAtTime(0.001, t + dur); 
+                gain.gain.exponentialRampToValueAtTime(0.001, t + dur - 0.1); 
+                gain.gain.linearRampToValueAtTime(0, t + dur); 
 
-                osc.connect(filter); filter.connect(gain); 
-                gain.connect(this.reverbBus); gain.connect(this.master);
-                osc.start(t); osc.stop(t + dur);
+                osc.connect(filter); filter.connect(gain); gain.connect(this.reverbBus); gain.connect(this.master);
+                osc.start(t); osc.stop(t + dur + 0.05);
             }
 
             playBell(freq) {
@@ -287,74 +314,57 @@
                 const overtones = [1, 2.76, 5.4, 8.9, 11.3];
                 
                 overtones.forEach((mult, i) => {
-                    const osc = ctx.createOscillator();
-                    const gain = ctx.createGain();
+                    const osc = ctx.createOscillator(); const gain = ctx.createGain();
+                    const physMod = ctx.createOscillator(); const physModGain = ctx.createGain();
                     
-                    const physMod = ctx.createOscillator();
-                    const physModGain = ctx.createGain();
-                    physMod.type = 'sine';
-                    physMod.frequency.value = freq * 0.5; 
-                    physModGain.gain.setValueAtTime(freq * 0.1, t); 
-                    physModGain.gain.exponentialRampToValueAtTime(0.01, t + 0.5); 
+                    physMod.type = 'sine'; physMod.frequency.value = freq * 0.5; 
+                    physModGain.gain.setValueAtTime(freq * 0.1, t); physModGain.gain.exponentialRampToValueAtTime(0.01, t + 0.5); 
                     
-                    osc.type = 'sine';
-                    osc.frequency.value = freq * mult;
-                    
-                    physMod.connect(physModGain);
-                    physModGain.connect(osc.frequency); 
+                    osc.type = 'sine'; osc.frequency.value = freq * mult;
+                    physMod.connect(physModGain); physModGain.connect(osc.frequency); 
 
                     const dur = 6.0 / (i + 1); 
                     
                     gain.gain.setValueAtTime(0, t);
                     gain.gain.linearRampToValueAtTime(0.4 / (i + 1), t + 0.01);
-                    gain.gain.exponentialRampToValueAtTime(0.001, t + dur);
+                    gain.gain.exponentialRampToValueAtTime(0.001, t + dur - 0.1);
+                    gain.gain.linearRampToValueAtTime(0, t + dur);
                     
-                    osc.connect(gain);
-                    gain.connect(this.master);
-                    
-                    const sendRev = ctx.createGain(); sendRev.gain.value = 1.0;
-                    gain.connect(sendRev); sendRev.connect(this.reverbBus);
+                    osc.connect(gain); gain.connect(this.master);
+                    const sendRev = ctx.createGain(); sendRev.gain.value = 1.0; gain.connect(sendRev); sendRev.connect(this.reverbBus);
                     
                     osc.start(t); physMod.start(t);
-                    osc.stop(t + dur); physMod.stop(t + dur);
+                    osc.stop(t + dur + 0.05); physMod.stop(t + dur + 0.05);
                 });
             }
 
             playOrgan(freq) {
                 if (!freq) return;
-                const t = ctx.currentTime;
-                const dur = 4.0 + getC() * 2; 
+                const t = ctx.currentTime; const dur = 4.0 + getC() * 2; 
                 
                 const gain = ctx.createGain();
                 gain.gain.setValueAtTime(0, t);
                 gain.gain.linearRampToValueAtTime(0.12, t + 0.8); 
                 gain.gain.setValueAtTime(0.12, t + dur - 1.5);
-                gain.gain.linearRampToValueAtTime(0.001, t + dur);
+                gain.gain.linearRampToValueAtTime(0, t + dur);
 
                 [0.5, 1, 2].forEach(mult => {
-                    const osc = ctx.createOscillator();
-                    osc.type = mult === 1 ? 'square' : 'sine';
-                    osc.frequency.value = freq * mult;
+                    const osc = ctx.createOscillator(); osc.type = mult === 1 ? 'square' : 'sine'; osc.frequency.value = freq * mult;
                     
-                    const airPressureMod = ctx.createOscillator();
-                    const airPressureGain = ctx.createGain();
-                    airPressureMod.frequency.value = 4 + (Math.random() * 2); 
-                    airPressureGain.gain.value = 3; 
+                    const airPressureMod = ctx.createOscillator(); const airPressureGain = ctx.createGain();
+                    airPressureMod.frequency.value = 4 + (Math.random() * 2); airPressureGain.gain.value = 3; 
                     
-                    airPressureMod.connect(airPressureGain);
-                    airPressureGain.connect(osc.frequency);
+                    airPressureMod.connect(airPressureGain); airPressureGain.connect(osc.frequency);
                     
-                    const filter = ctx.createBiquadFilter();
-                    filter.type = 'lowpass'; filter.frequency.value = 1200;
+                    const filter = ctx.createBiquadFilter(); filter.type = 'lowpass'; filter.frequency.value = 1200;
                     
                     osc.connect(filter); filter.connect(gain);
                     osc.start(t); airPressureMod.start(t);
-                    osc.stop(t + dur); airPressureMod.stop(t + dur);
+                    osc.stop(t + dur + 0.05); airPressureMod.stop(t + dur + 0.05);
                 });
                 
                 gain.connect(this.master);
-                const sendRev = ctx.createGain(); sendRev.gain.value = 0.8;
-                gain.connect(sendRev); sendRev.connect(this.reverbBus);
+                const sendRev = ctx.createGain(); sendRev.gain.value = 0.8; gain.connect(sendRev); sendRev.connect(this.reverbBus);
             }
 
             playChant(freq) {
@@ -374,14 +384,13 @@
                 gain.gain.linearRampToValueAtTime(0, t + 3.0);
                 
                 gain.connect(this.master); gain.connect(this.reverbBus); 
-                osc.start(t); osc.stop(t + 3.0);
+                osc.start(t); osc.stop(t + 3.05);
             }
 
             playCreepyChoir(freq) {
                 if (!freq) return;
                 const t = ctx.currentTime;
-                const osc = ctx.createOscillator(); const gain = ctx.createGain();
-                const filter = ctx.createBiquadFilter();
+                const osc = ctx.createOscillator(); const gain = ctx.createGain(); const filter = ctx.createBiquadFilter();
 
                 osc.type = 'triangle'; osc.frequency.value = freq;
                 filter.type = 'lowpass'; filter.frequency.value = 250 + getC() * 300; 
@@ -390,23 +399,17 @@
                 gain.gain.linearRampToValueAtTime(0.12, t + 2.0); 
                 gain.gain.linearRampToValueAtTime(0, t + 5.0);   
 
-                osc.connect(filter); filter.connect(gain); 
-                gain.connect(this.master); gain.connect(this.reverbBus);
-                osc.start(t); osc.stop(t + 5.0);
+                osc.connect(filter); filter.connect(gain); gain.connect(this.master); gain.connect(this.reverbBus);
+                osc.start(t); osc.stop(t + 5.05);
             }
 
             manageDrone() {
                 if (!this.droneOsc) {
-                    this.droneOsc = ctx.createOscillator(); 
-                    this.droneOsc2 = ctx.createOscillator();
-                    this.droneGain = ctx.createGain(); 
-                    this.droneFilter = ctx.createBiquadFilter();
+                    this.droneOsc = ctx.createOscillator(); this.droneOsc2 = ctx.createOscillator();
+                    this.droneGain = ctx.createGain(); this.droneFilter = ctx.createBiquadFilter();
 
-                    this.droneOsc.type = 'sine'; 
-                    this.droneOsc2.type = 'triangle'; 
-
-                    this.droneFilter.type = 'lowpass'; 
-                    this.droneGain.gain.value = 0; 
+                    this.droneOsc.type = 'sine'; this.droneOsc2.type = 'triangle'; 
+                    this.droneFilter.type = 'lowpass'; this.droneGain.gain.value = 0; 
                     
                     const osc1Gain = ctx.createGain(); osc1Gain.gain.value = 1.0;
                     const osc2Gain = ctx.createGain(); osc2Gain.gain.value = 0.20;
@@ -415,23 +418,24 @@
                     this.droneOsc2.connect(osc2Gain); osc2Gain.connect(this.droneFilter);
                     
                     this.droneFilter.connect(this.droneGain); 
-                    
                     this.droneGain.connect(this.master);
+                    
                     const sendRev = ctx.createGain(); sendRev.gain.value = 0.4;
                     this.droneGain.connect(sendRev); sendRev.connect(this.reverbBus);
                     
                     this.droneOsc.start(); this.droneOsc2.start();
                 }
                 
+                // POUŽITÍ setTargetAtTime PRO HLADKÉ PŘECHODY BEZ PRASKÁNÍ (Dříve tu bylo linearRamp)
                 const currentRoot = this.scale[0] / 8; 
-                this.droneOsc.frequency.linearRampToValueAtTime(currentRoot, ctx.currentTime + 4);
-                this.droneOsc2.frequency.linearRampToValueAtTime(currentRoot * 2, ctx.currentTime + 4);
+                this.droneOsc.frequency.setTargetAtTime(currentRoot, ctx.currentTime, 1.0);
+                this.droneOsc2.frequency.setTargetAtTime(currentRoot * 2, ctx.currentTime, 1.0);
 
                 const targetVol = this.mood > 0.4 ? (this.mood * 0.25) : 0.05;
-                this.droneGain.gain.linearRampToValueAtTime(targetVol, ctx.currentTime + 2);
+                this.droneGain.gain.setTargetAtTime(targetVol, ctx.currentTime, 0.5);
                 
                 const physicalTension = Math.sin(ctx.currentTime * 0.5) * 20; 
-                this.droneFilter.frequency.linearRampToValueAtTime(60 + (this.mood * 80) + getA() + physicalTension, ctx.currentTime + 2); 
+                this.droneFilter.frequency.setTargetAtTime(60 + (this.mood * 80) + getA() + physicalTension, ctx.currentTime, 0.5); 
             }
 
             start() {
@@ -441,8 +445,7 @@
                     if (this.step === 0) {
                         this.mood += this.moodDirection;
                         if (this.mood > 1.0 || this.mood < 0.0) {
-                            this.moodDirection *= -1; 
-                            this.mood += this.moodDirection;
+                            this.moodDirection *= -1; this.mood += this.moodDirection;
                         }
 
                         if (this.measure > 0 && this.measure % 16 === 0) {
@@ -471,56 +474,45 @@
                         if (this.mood < 0.4) {
                             if (Math.random() > 0.3) this.playSitar(note);
                             if (Math.random() > 0.85) this.playBell(note); 
-                            if ((this.step === 0 || this.step === 3) && Math.random() > 0.85) {
-                                this.playFlute(note); 
-                            }
+                            if ((this.step === 0 || this.step === 3) && Math.random() > 0.85) this.playFlute(note); 
+                            if (Math.random() > 0.75) this.playAngelVoice(note); 
                         } 
                         else if (this.mood >= 0.4 && this.mood < 0.7) {
                             if (Math.random() > 0.25) this.playChant(note); 
                             if (Math.random() > 0.8) this.playOrgan(note); 
+                            if (Math.random() > 0.6) this.playSingingBowl(note); 
                         } 
                         else {
                             if (Math.random() > 0.15) this.playCreepyChoir(note); 
                             if (Math.random() > 0.75) this.playOrgan(note / 2); 
                             if (Math.random() > 0.8) this.playBell(note / 2); 
+                            if (Math.random() > 0.85) this.playSingingBowl(note / 2); 
                         }
                     }
-
                     this.step = (this.step + 1) % 6;
-                    
                 }, 400 - (getB() * 150)); 
             }
         }
 
-        // --- INICIALIZACE APLIKACE ---
         const startBtn = document.getElementById('startBtn');
 
         startBtn.addEventListener('click', () => {
-            // Skrytí tlačítka po spuštění
             startBtn.textContent = 'Běží generování...';
             startBtn.disabled = true;
 
-            // Inicializace Web Audio API
             const AudioContext = window.AudioContext || window.webkitAudioContext;
             ctx = new AudioContext();
 
-            // Vytvoření analyzátoru pro vizualizaci
             analyser = ctx.createAnalyser();
-            analyser.fftSize = 1024; // Velikost okena pro detailní spektrum
+            analyser.fftSize = 1024; 
             bufferLength = analyser.frequencyBinCount;
             dataArray = new Uint8Array(bufferLength);
 
-            // Nastavení master destination na analyzátor
-            // Tím se všechno z Jouza labu prožene přes vizualizér
             destination = analyser;
-            
-            // Propojení analyzátoru do reproduktorů počítače
             analyser.connect(ctx.destination);
 
-            // Spuštění vizualizační smyčky
             drawSpectrum();
 
-            // Spuštění samotného generátoru
             const app = new SacralCathedralGenerative();
             app.start();
         });
