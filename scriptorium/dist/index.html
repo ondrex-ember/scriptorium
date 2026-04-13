@@ -390,20 +390,32 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 	
 	/* Canonical Hour Badge (Phase 2) */
 	#canonical-badge {
-		display: none; /* Hidden until Phase 2 */
+		display: none;
 		flex-direction: row;
 		align-items: center;
-		gap: 8px;
-		background: rgba(0, 0, 0, 0.6);
+		gap: 6px;
+		background: rgba(0, 0, 0, 0.72);
 		border: 2px solid var(--accent-gold);
 		border-radius: 20px;
-		padding: 6px 14px;
-		backdrop-filter: blur(5px);
+		padding: 5px 10px;
+		backdrop-filter: blur(6px);
 		animation: bell-pulse 2s ease-in-out infinite;
-		position: absolute;
-		top: 10px;
-		left: 10px;
-		z-index: 4;
+		position: fixed;
+		bottom: 72px;
+		right: 12px;
+		z-index: 500;
+		cursor: pointer;
+		max-width: 44px;
+		overflow: hidden;
+		transition: max-width 0.35s ease, padding 0.35s ease;
+	}
+	#canonical-badge.expanded {
+		max-width: 220px;
+	}
+	#canonical-badge .canonical-name,
+	#canonical-badge .canonical-buff {
+		white-space: nowrap;
+		overflow: hidden;
 	}
 	
 	@keyframes bell-pulse {
@@ -1322,11 +1334,10 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 		</div>
 
 		<div class="status-bar">
-			<div style="display: flex; align-items: center; gap: 5px;">
-				<span id="weather-today" data-i18n-title="header.weatherNow" onclick="WeatherSystem.fetchWeather()">⏳</span>
-				<span id="weather-tomorrow-wrap" style="display:inline-flex; align-items:center; gap:3px;">
-					<span style="opacity: 0.6; font-size: 16px !important;">/</span>
-					<span id="weather-tomorrow" data-i18n-title="header.weatherTomorrow" onclick="WeatherSystem.fetchWeather()" style="opacity: 0.9; font-size: 0.85em !important;">⏳</span>
+			<div style="display: flex; flex-direction: column; align-items: flex-start; gap: 1px;">
+				<span id="weather-today" data-i18n-title="header.weatherNow" onclick="WeatherSystem.fetchWeather()" style="line-height:1.1;">⏳</span>
+				<span id="weather-tomorrow-wrap" style="display:inline-flex; align-items:center; gap:2px;">
+					<span id="weather-tomorrow" data-i18n-title="header.weatherTomorrow" onclick="WeatherSystem.fetchWeather()" style="opacity: 0.8; font-size: 0.78em !important; line-height:1.1;">⏳</span>
 				</span>
 			</div>
 			<span class="separator">•</span>
@@ -1342,14 +1353,14 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 				<span id="research-count">0</span>
 			</div>
 			<span class="separator">•</span>
-			<span id="time-display" style="text-transform:uppercase;">...</span>
+			<span id="time-display" style="text-transform:uppercase; font-size:0.72rem; letter-spacing:-0.3px;">...</span>
 			<span class="separator">•</span>
 			<span id="settings-btn-bar" onclick="UI.switchScreen('settings')" data-i18n-title="header.settings">⚙️</span>
 		</div>
 	</div>
 	
 	<!-- Canonical Hour Badge (Phase 2 - hidden) -->
-	<div id="canonical-badge" style="display:none;">
+	<div id="canonical-badge" style="display:none;" onclick="this.classList.toggle('expanded')">
 		<span class="canonical-icon">🔔</span>
 		<span class="canonical-name">Laudes</span>
 		<span class="canonical-buff">+25% crafting</span>
