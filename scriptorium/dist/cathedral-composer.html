@@ -216,6 +216,13 @@
             <div class="glyph-cell" id="g-CHOIR"><canvas width="90" height="90"></canvas><span>CHOIR</span></div>
             <div class="glyph-cell" id="g-DRONE"><canvas width="90" height="90"></canvas><span>DRONE</span></div>
         </div>
+        <div id="glyph-label" style="margin-top:8px">INTERMEZZO · TRANSITIONAL VOICES</div>
+        <div id="glyph-grid" style="justify-content:flex-start;gap:6px">
+            <div class="glyph-cell" id="g-TAMBURA"><canvas width="90" height="90"></canvas><span>TAMBURA</span></div>
+            <div class="glyph-cell" id="g-ISON"><canvas width="90" height="90"></canvas><span>ISON</span></div>
+            <div class="glyph-cell" id="g-CHALUMEAU"><canvas width="90" height="90"></canvas><span>CHALUMEAU</span></div>
+            <div class="glyph-cell" id="g-WATERPHONE"><canvas width="90" height="90"></canvas><span>WATERPHONE</span></div>
+        </div>
     </div>
 
     <button id="startBtn">Iniciovat Opus</button>
@@ -235,6 +242,8 @@
             SCALE ROOT <span id="s-root">—</span> Hz &nbsp;|&nbsp;
             CIRCLE IDX <span id="s-circle">—</span> &nbsp;|&nbsp;
             STEP <span id="s-step">—</span>/6 &nbsp;|&nbsp;
+            MOD·SCORE <span id="s-modscore">—</span> &nbsp;|&nbsp;
+            INT·SCORE <span id="s-intscore">—</span> &nbsp;|&nbsp;
             NODES FIRED <span id="s-nodes">0</span>
         </div>
     </div>
@@ -260,6 +269,8 @@
         const sCircle    = document.getElementById('s-circle');
         const sStep      = document.getElementById('s-step');
         const sNodes     = document.getElementById('s-nodes');
+        const sModScore  = document.getElementById('s-modscore');
+        const sIntScore  = document.getElementById('s-intscore');
         let totalNodes   = 0;
         const MAX_LINES  = 60;
 
@@ -304,6 +315,7 @@
             SITAR: '#00ffcc', BELL:  '#aaffee', FLUTE: '#55ffdd',
             ANGEL: '#ccffff', CHANT: '#ffcc44', ORGAN: '#ff9944',
             BOWL:  '#44ddff', CHOIR: '#ff4488', DRONE: '#334466',
+            TAMBURA: '#bb88ff', ISON: '#ff88cc', CHALUMEAU: '#88aaff', WATERPHONE: '#ffaa00',
         };
 
         // Každý nástroj má phase, pulse, freq, mood
@@ -491,7 +503,79 @@
                 }
             },
 
-            // DRONE — velmi pomalý pulsující kruh s filtrovaným šumem
+            // TAMBURA — 4 paralelní sinusoidy mírně rozladěné
+            TAMBURA(cx2d, s, t, col, W) {
+                [0, 1, 2, 3].forEach((i) => {
+                    const detune = (i - 1.5) * 0.003;
+                    cx2d.beginPath();
+                    for (let x = 0; x <= W; x += 2) {
+                        const y = W/2 + Math.sin((x/W)*Math.PI*6*(1+detune) + t*0.8 + s.phase + i*0.5)
+                                  * W * 0.18 * (0.4 + s.energy * 0.6);
+                        x === 0 ? cx2d.moveTo(x,y) : cx2d.lineTo(x,y);
+                    }
+                    cx2d.strokeStyle = col;
+                    cx2d.lineWidth = 1;
+                    cx2d.globalAlpha = (0.15 + s.energy*0.5) / (1 + Math.abs(i-1.5));
+                    cx2d.stroke();
+                });
+            },
+
+            // ISON — dvě stacionární horizontální vlny (unisono + kvinta)
+            ISON(cx2d, s, t, col, W) {
+                [1, 1.5].forEach((mult, i) => {
+                    const amp = W * 0.15 * s.energy / (i+1);
+                    const yBase = W * (0.35 + i * 0.3);
+                    cx2d.beginPath();
+                    for (let x = 0; x <= W; x += 2) {
+                        const y = yBase + Math.sin((x/W)*Math.PI*3*mult + t*0.4 + s.phase) * amp;
+                        x === 0 ? cx2d.moveTo(x,y) : cx2d.lineTo(x,y);
+                    }
+                    cx2d.strokeStyle = col;
+                    cx2d.lineWidth = 2 - i*0.5;
+                    cx2d.globalAlpha = 0.2 + s.energy*0.6;
+                    cx2d.stroke();
+                });
+            },
+
+            // CHALUMEAU — temná stoupající vlna s noise texturou
+            CHALUMEAU(cx2d, s, t, col, W) {
+                cx2d.strokeStyle = col;
+                cx2d.lineWidth = 2;
+                cx2d.globalAlpha = 0.15 + s.energy * 0.55;
+                cx2d.beginPath();
+                for (let x = 0; x <= W; x += 3) {
+                    const noise = (Math.sin(x*0.7+t*3+s.phase)*0.5 + Math.sin(x*1.3+t*2)*0.5);
+                    const y = W*0.7 - (x/W)*W*0.4 + noise * W * 0.08 * s.energy;
+                    x === 0 ? cx2d.moveTo(x,y) : cx2d.lineTo(x,y);
+                }
+                cx2d.stroke();
+                // Noise dots
+                for (let i = 0; i < 12 * s.energy; i++) {
+                    cx2d.beginPath();
+                    cx2d.arc(Math.random()*W, Math.random()*W, 0.8, 0, Math.PI*2);
+                    cx2d.fillStyle = col;
+                    cx2d.globalAlpha = 0.2 * s.energy;
+                    cx2d.fill();
+                }
+            },
+
+            // WATERPHONE — inharmonické paprsky rotující z centra
+            WATERPHONE(cx2d, s, t, col, W) {
+                const primes = [1.0, 1.41, 1.73, 2.23, 2.83];
+                primes.forEach((mult, i) => {
+                    const angle = s.phase + (i/primes.length)*Math.PI*2 + t*0.2*mult;
+                    const r = W*0.1 + Math.sin(t*mult+s.phase)*W*0.2*s.energy;
+                    const x2 = W/2 + Math.cos(angle)*(W*0.38);
+                    const y2 = W/2 + Math.sin(angle)*(W*0.38);
+                    cx2d.beginPath();
+                    cx2d.moveTo(W/2 + Math.cos(angle)*r, W/2 + Math.sin(angle)*r);
+                    cx2d.lineTo(x2, y2);
+                    cx2d.strokeStyle = col;
+                    cx2d.lineWidth = 1;
+                    cx2d.globalAlpha = (0.1 + s.energy*0.6) / (i*0.3+1);
+                    cx2d.stroke();
+                });
+            },
             DRONE(cx2d, s, t, col, W) {
                 const slow = Math.sin(t * 0.4 + s.phase);
                 for (let ring = 0; ring < 3; ring++) {
@@ -663,7 +747,28 @@
                 this.step = 0;    
                 this.measure = 0; 
                 this.mood = 0.5; 
-                this.moodDirection = 0.008 + Math.random() * 0.02; // variabilní rychlost
+                this.moodDirection = 0.008 + Math.random() * 0.02;
+
+                // ── COMPOSER BRAIN ───────────────────────────────────
+                this.minMeasuresBetweenModulations = 8; // absolutní minimum
+                this.measuresSinceModulation = 0;
+                this.measuresSinceIntermezzo = 0;
+                this.moodHistory = [];          // posledních 16 hodnot
+                this.instrumentHistory = [];    // posledních 16 nástrojů
+                this.motifHistory = [];         // indexy posledních 8 motivů
+                this.lastModulationInterval = 0; // vzdálenost posledního skoku na kruhu kvint
+                this.intermezzoActive = false;
+                this.intermezzoMeasuresLeft = 0;
+
+                // Váhy pro modulation scoring (součet = 1.0)
+                this.weights = {
+                    harmonicTension:   0.30, // vzdálenost od výchozí tóniny na kruhu kvint
+                    moodTrajectory:    0.25, // trend mood (stoupá / klesá / osciluje)
+                    instrumentSaturation: 0.20, // kolik různých nástrojů zaznělo
+                    motifEntropy:      0.15, // opakování vs variace motivů
+                    stagnation:        0.10, // jak dlouho jsme v aktuální tónině
+                };
+                // ─────────────────────────────────────────────────────
             }
 
             updateScale() {
@@ -672,6 +777,258 @@
                 const newRoot = this.baseFreq * Math.pow(2, shift / 12);
                 this.scale = this.scaleRatios.map(ratio => newRoot * ratio);
             }
+
+            // ── COMPOSER SCORING ENGINE ──────────────────────────────
+
+            scoreModulation() {
+                const w = this.weights;
+                let score = 0;
+
+                // 1. HARMONICKÉ NAPĚTÍ — vzdálenost od rootu (idx 0) na kruhu kvint
+                //    tritón (6 kroků) = max napětí = tlak na modulaci
+                const distFromRoot = Math.min(this.currentCircleIndex, 12 - this.currentCircleIndex);
+                const tensionScore = distFromRoot / 6; // 0 = jsme doma, 1 = tritón
+                score += tensionScore * w.harmonicTension;
+
+                // 2. MOOD TRAJECTORY — stoupající mood = tlak na změnu
+                const hist = this.moodHistory.slice(-8);
+                let trajectory = 0;
+                if (hist.length >= 4) {
+                    const half = Math.floor(hist.length / 2);
+                    const avgOld = hist.slice(0, half).reduce((a,b)=>a+b,0) / half;
+                    const avgNew = hist.slice(half).reduce((a,b)=>a+b,0) / (hist.length - half);
+                    trajectory = Math.abs(avgNew - avgOld) * 3; // amplituda změny
+                }
+                score += Math.min(1, trajectory) * w.moodTrajectory;
+
+                // 3. INSTRUMENT SATURATION — málo variety = nuda = moduluj
+                const recentInst = this.instrumentHistory.slice(-12);
+                const uniqueInst = new Set(recentInst).size;
+                const saturation = 1 - (uniqueInst / 9); // 9 nástrojů celkem
+                score += saturation * w.instrumentSaturation;
+
+                // 4. MOTIF ENTROPY — opakování stejného motivu = nízká entropie
+                const recentMotifs = this.motifHistory.slice(-8);
+                const uniqueMotifs = new Set(recentMotifs).size;
+                const entropy = recentMotifs.length > 0 ? 1 - (uniqueMotifs / Math.min(recentMotifs.length, 5)) : 0;
+                score += entropy * w.motifEntropy;
+
+                // 5. STAGNATION — čím déle v tónině, tím vyšší tlak
+                const stag = Math.min(1, this.measuresSinceModulation / 24);
+                score += stag * w.stagnation;
+
+                return score; // 0.0 – 1.0
+            }
+
+            scoreIntermezzo() {
+                // Intermezzo chce: velký harmonický skok + mood peak nebo valley + saturation
+                const jumpSize = this.lastModulationInterval; // půltóny skoku
+                const jumpScore = jumpSize >= 6 ? 1.0 : jumpSize / 6; // tritón = max
+
+                const moodPeak = this.mood > 0.75 || this.mood < 0.2 ? 1.0 : 0.3;
+
+                const recentInst = this.instrumentHistory.slice(-8);
+                const unique = new Set(recentInst).size;
+                const variety = unique / 9;
+
+                const timeSince = Math.min(1, this.measuresSinceIntermezzo / 20);
+
+                return (jumpScore * 0.35) + (moodPeak * 0.30) + (variety * 0.15) + (timeSince * 0.20);
+            }
+
+            evaluateComposer() {
+                // Zaznamenej historii
+                this.moodHistory.push(this.mood);
+                if (this.moodHistory.length > 32) this.moodHistory.shift();
+                this.measuresSinceModulation++;
+                this.measuresSinceIntermezzo++;
+
+                // Absolutní minimum před rozhodnutím
+                if (this.measuresSinceModulation < this.minMeasuresBetweenModulations) return;
+
+                const modScore = this.scoreModulation();
+                const intScore = this.scoreIntermezzo();
+
+                // Práh pro modulaci — dynamický (vyšší skóre = nižší práh)
+                const modThreshold = 0.62 - (this.measuresSinceModulation * 0.008);
+                const intThreshold = 0.58;
+
+                // Intermezzo má přednost před modulací pokud obě překročí práh
+                if (intScore > intThreshold && this.measuresSinceIntermezzo >= 12 && !this.intermezzoActive) {
+                    this.triggerIntermezzo(intScore);
+                } else if (modScore > modThreshold) {
+                    this.triggerModulation(modScore);
+                }
+
+                // Log do status baru
+                sModScore.textContent = modScore.toFixed(2);
+                sIntScore.textContent = intScore.toFixed(2);
+            }
+
+            triggerModulation(score) {
+                // Směr modulace závisí na mood — vysoký mood = odvážnější skok
+                let step;
+                if (this.mood > 0.7) {
+                    // Velký skok — tritón nebo kvartu
+                    step = Math.random() > 0.5 ? 6 : 5;
+                } else if (this.mood > 0.4) {
+                    // Střední — kvinta nebo tercie
+                    step = Math.random() > 0.5 ? 1 : 2;
+                } else {
+                    // Klidný — malý krok po kruhu
+                    step = 1;
+                }
+                const direction = Math.random() > 0.4 ? 1 : -1;
+                const prevIndex = this.currentCircleIndex;
+                this.currentCircleIndex = (this.currentCircleIndex + step * direction + 12) % 12;
+                this.lastModulationInterval = Math.abs(
+                    this.circleSteps[this.currentCircleIndex] - this.circleSteps[prevIndex]
+                );
+                this.updateScale();
+                this.moodDirection = (0.008 + Math.random() * 0.018) * (Math.random() > 0.5 ? 1 : -1);
+                this.measuresSinceModulation = 0;
+                matrixPush('DRONE', this.scale[0] / 8, this.mood,
+                    `MODULATION→${this.currentCircleIndex} score:${score.toFixed(2)}`);
+                sCircle.textContent = this.currentCircleIndex;
+                sRoot.textContent   = this.scale[0].toFixed(1);
+            }
+
+            triggerIntermezzo(score) {
+                this.intermezzoActive = true;
+                this.intermezzoMeasuresLeft = 4 + Math.floor(Math.random() * 6); // 4–9 měr
+                this.measuresSinceIntermezzo = 0;
+                matrixPush('DRONE', this.scale[0] / 8, this.mood,
+                    `INTERMEZZO·${this.intermezzoMeasuresLeft}m score:${score.toFixed(2)}`);
+            }
+
+            // ── INTERMEZZO NÁSTROJE ──────────────────────────────────
+
+            // TAMBURA — indický otevřený drone, čistý alikvotní obsah
+            playTambura(freq) {
+                if (!freq) return;
+                const t = ctx.currentTime;
+                const dur = 6.0 + getC() * 4.0;
+                matrixPush('TAMBURA', freq, this.mood, 'intermezzo·drone');
+                const masterGain = ctx.createGain();
+                masterGain.gain.setValueAtTime(0, t);
+                masterGain.gain.linearRampToValueAtTime(0.15, t + 1.5);
+                masterGain.gain.exponentialRampToValueAtTime(0.001, t + dur);
+
+                // Čtyři struny tambury — mírně rozladěné
+                [1, 2, 2.001, 4].forEach((mult, i) => {
+                    const osc = ctx.createOscillator();
+                    osc.type = 'sine';
+                    osc.frequency.value = (freq / 2) * mult + (i * 0.3);
+                    const g = ctx.createGain(); g.gain.value = [0.5, 0.3, 0.3, 0.2][i];
+                    osc.connect(g); g.connect(masterGain);
+                    osc.start(t); osc.stop(t + dur + 0.1);
+                });
+
+                masterGain.connect(this.master);
+                const rev = ctx.createGain(); rev.gain.value = 0.6;
+                masterGain.connect(rev); rev.connect(this.reverbBus);
+            }
+
+            // ISON — byzantský bordunový hlas, unisono + kvinta
+            playIson(freq) {
+                if (!freq) return;
+                const t = ctx.currentTime;
+                const dur = 5.0 + getC() * 3.0;
+                matrixPush('ISON', freq, this.mood, 'intermezzo·byzantine');
+                [1, 1.5].forEach((mult, i) => {
+                    const osc = ctx.createOscillator(); osc.type = 'sine';
+                    osc.frequency.value = (freq / 2) * mult;
+                    const vib = ctx.createOscillator(); vib.frequency.value = 3.5;
+                    const vibG = ctx.createGain(); vibG.gain.value = freq * 0.006;
+                    vib.connect(vibG); vibG.connect(osc.frequency);
+
+                    const filt = ctx.createBiquadFilter();
+                    filt.type = 'bandpass'; filt.frequency.value = freq * mult; filt.Q.value = 2;
+
+                    const g = ctx.createGain();
+                    g.gain.setValueAtTime(0, t);
+                    g.gain.linearRampToValueAtTime(0.1 - i * 0.03, t + 2.0);
+                    g.gain.exponentialRampToValueAtTime(0.001, t + dur);
+
+                    osc.connect(filt); filt.connect(g); g.connect(this.master);
+                    const rev = ctx.createGain(); rev.gain.value = 1.2;
+                    g.connect(rev); rev.connect(this.reverbBus);
+                    osc.start(t); vib.start(t);
+                    osc.stop(t + dur + 0.1); vib.stop(t + dur + 0.1);
+                });
+            }
+
+            // CHALUMEAU — nejnižší rejstřík, temný vzduch, lichá harmonická
+            playChalumeau(freq) {
+                if (!freq) return;
+                const t = ctx.currentTime;
+                const dur = 4.0 + getC() * 2.0;
+                matrixPush('CHALUMEAU', freq / 2, this.mood, 'intermezzo·dark-air');
+                const osc = ctx.createOscillator(); osc.type = 'square'; // jen liché harmonické
+                osc.frequency.value = freq / 2;
+
+                // Breath noise
+                const bufLen = ctx.sampleRate * dur;
+                const noiseBuf = ctx.createBuffer(1, bufLen, ctx.sampleRate);
+                const nd = noiseBuf.getChannelData(0);
+                let ln = 0;
+                for (let i = 0; i < bufLen; i++) {
+                    ln = ln + 0.05 * ((Math.random()*2-1) - ln);
+                    nd[i] = ln;
+                }
+                const noise = ctx.createBufferSource(); noise.buffer = noiseBuf;
+                const nFilt = ctx.createBiquadFilter();
+                nFilt.type = 'bandpass'; nFilt.frequency.value = freq * 0.8; nFilt.Q.value = 8;
+                const nGain = ctx.createGain(); nGain.gain.value = 0.04;
+                noise.connect(nFilt); nFilt.connect(nGain);
+
+                const filt = ctx.createBiquadFilter();
+                filt.type = 'lowpass'; filt.frequency.value = freq * 1.8;
+
+                const g = ctx.createGain();
+                g.gain.setValueAtTime(0, t);
+                g.gain.linearRampToValueAtTime(0.12, t + 0.4);
+                g.gain.exponentialRampToValueAtTime(0.001, t + dur);
+
+                osc.connect(filt); filt.connect(g);
+                nGain.connect(g);
+                g.connect(this.master);
+                const rev = ctx.createGain(); rev.gain.value = 0.5;
+                g.connect(rev); rev.connect(this.reverbBus);
+
+                osc.start(t); osc.stop(t + dur + 0.1);
+                noise.start(t); noise.stop(t + dur + 0.1);
+            }
+
+            // WATERPHONE — friction idiophone, přechodový nástroj
+            playWaterphone(freq) {
+                if (!freq) return;
+                const t = ctx.currentTime;
+                const dur = 5.0 + getC() * 3.0;
+                matrixPush('WATERPHONE', freq, this.mood, 'intermezzo·friction');
+                // Série inharmonických sinů s FM modulací
+                [1.0, 1.41, 1.73, 2.23, 2.83].forEach((mult, i) => {
+                    const carrier = ctx.createOscillator(); carrier.type = 'sine';
+                    carrier.frequency.value = freq * mult * 0.5;
+                    const mod = ctx.createOscillator(); mod.type = 'sine';
+                    mod.frequency.value = freq * mult * 0.5 * 0.007; // pomalé FM
+                    const modG = ctx.createGain(); modG.gain.value = freq * 0.3;
+                    mod.connect(modG); modG.connect(carrier.frequency);
+
+                    const g = ctx.createGain();
+                    const attack = 0.1 + i * 0.2;
+                    g.gain.setValueAtTime(0, t);
+                    g.gain.linearRampToValueAtTime(0.06 / (i + 1), t + attack);
+                    g.gain.exponentialRampToValueAtTime(0.001, t + dur * (1 - i * 0.1));
+
+                    carrier.connect(g); g.connect(this.master);
+                    const rev = ctx.createGain(); rev.gain.value = 1.8;
+                    g.connect(rev); rev.connect(this.reverbBus);
+                    carrier.start(t); mod.start(t);
+                    carrier.stop(t + dur + 0.1); mod.stop(t + dur + 0.1);
+                });
+            }
+            // ─────────────────────────────────────────────────────────
 
             playSitar(freq) {
                 if (!freq) return;
@@ -982,71 +1339,85 @@
             start() {
                 this.manageDrone();
 
-                // FIX 5: setInterval → AudioContext-aware scheduling
-                // setInterval trpí JS event loop jitterem (±50ms), 
-                // scheduleNext rekurzivně plánuje přesně přes setTimeout + AudioContext clock
                 const scheduleNext = () => {
                     if (this.step === 0) {
+                        // Mood update
                         this.mood += this.moodDirection;
                         if (this.mood > 1.0 || this.mood < 0.0) {
                             this.moodDirection *= -1; this.mood += this.moodDirection;
                         }
+                        this.mood = Math.max(0, Math.min(1, this.mood));
 
-                        if (this.measure > 0 && this.measure % 16 === 0) {
-                            this.currentCircleIndex = (this.currentCircleIndex + 1) % this.circleSteps.length;
-                            this.updateScale();
-                            // Randomizuj směr i rychlost — zabraňuje uvíznutí na ABYSS
-                            this.moodDirection = (0.008 + Math.random() * 0.018) * (Math.random() > 0.5 ? 1 : -1);
-                        }
+                        // Zaznamenej nástroje
+                        this.instrumentHistory.push(...(this.currentPhrase.filter(Boolean).map(() => 'X')));
+                        if (this.instrumentHistory.length > 48) this.instrumentHistory.splice(0, 12);
 
-                        let baseMotif = this.motifs[Math.floor(Math.random() * this.motifs.length)];
-                        let transposition = Math.random() < 0.3 ? 2 : 0; 
-                        if (this.measure % 4 === 0) transposition = 0; 
-                        
+                        // Motif výběr
+                        const motifIdx = Math.floor(Math.random() * this.motifs.length);
+                        this.motifHistory.push(motifIdx);
+                        if (this.motifHistory.length > 16) this.motifHistory.shift();
+                        let baseMotif = this.motifs[motifIdx];
+                        let transposition = Math.random() < 0.3 ? 2 : 0;
+                        if (this.measure % 4 === 0) transposition = 0;
+
                         this.currentPhrase = baseMotif.map(index => {
-                            if (index === -1) return null; 
+                            if (index === -1) return null;
                             let newIndex = index + transposition;
                             if (newIndex >= this.scale.length) newIndex = this.scale.length - 1;
                             return this.scale[newIndex];
                         });
 
+                        // COMPOSER BRAIN — evaluuje každou měru
+                        this.evaluateComposer();
+
+                        // Intermezzo countdown
+                        if (this.intermezzoActive) {
+                            this.intermezzoMeasuresLeft--;
+                            if (this.intermezzoMeasuresLeft <= 0) {
+                                this.intermezzoActive = false;
+                                // Po intermezzo vždy moduluj
+                                this.triggerModulation(0.99);
+                            }
+                        }
+
                         this.manageDrone();
                         matrixPush('DRONE', this.scale[0] / 8, this.mood, `root/8·filter`);
                         this.measure++;
-
-                        // Status bar
                         sMeasure.textContent = this.measure;
-                        sRoot.textContent    = this.scale[0].toFixed(1);
-                        sCircle.textContent  = this.currentCircleIndex;
                         sStep.textContent    = this.step;
                     }
 
                     const note = this.currentPhrase[this.step];
-                    
+
                     if (note) {
-                        if (this.mood < 0.4) {
-                            if (Math.random() > 0.3) this.playSitar(note);
-                            if (Math.random() > 0.85) this.playBell(note); 
-                            if ((this.step === 0 || this.step === 3) && Math.random() > 0.85) this.playFlute(note); 
-                            if (Math.random() > 0.75) this.playAngelVoice(note); 
-                        } 
-                        else if (this.mood >= 0.4 && this.mood < 0.7) {
-                            if (Math.random() > 0.25) this.playChant(note); 
-                            if (Math.random() > 0.8) this.playOrgan(note); 
-                            if (Math.random() > 0.6) this.playSingingBowl(note); 
-                        } 
-                        else {
-                            if (Math.random() > 0.45) this.playCreepyChoir(note);  // bylo 0.15
-                            if (Math.random() > 0.55) this.playOrgan(note / 2);    // bylo 0.75
-                            if (Math.random() > 0.5)  this.playBell(note / 2);     // bylo 0.8
-                            if (Math.random() > 0.6)  this.playSingingBowl(note / 2); // bylo 0.85
-                            if (Math.random() > 0.7)  this.playAngelVoice(note);   // nový — přidán i do ABYSS
+                        if (this.intermezzoActive) {
+                            // Intermezzo — pouze nové nástroje, ticho nebo dlouhé tóny
+                            const r = Math.random();
+                            if (r > 0.3)  this.playTambura(note / 2);
+                            if (r > 0.55) this.playIson(note);
+                            if (r > 0.7)  this.playChalumeau(note);
+                            if (r > 0.85) this.playWaterphone(note);
+                        } else if (this.mood < 0.4) {
+                            if (Math.random() > 0.3)  this.playSitar(note);
+                            if (Math.random() > 0.85) this.playBell(note);
+                            if ((this.step === 0 || this.step === 3) && Math.random() > 0.85) this.playFlute(note);
+                            if (Math.random() > 0.75) this.playAngelVoice(note);
+                        } else if (this.mood >= 0.4 && this.mood < 0.7) {
+                            if (Math.random() > 0.25) this.playChant(note);
+                            if (Math.random() > 0.8)  this.playOrgan(note);
+                            if (Math.random() > 0.6)  this.playSingingBowl(note);
+                        } else {
+                            if (Math.random() > 0.45) this.playCreepyChoir(note);
+                            if (Math.random() > 0.55) this.playOrgan(note / 2);
+                            if (Math.random() > 0.5)  this.playBell(note / 2);
+                            if (Math.random() > 0.6)  this.playSingingBowl(note / 2);
+                            if (Math.random() > 0.7)  this.playAngelVoice(note);
                         }
                     }
+
                     this.step = (this.step + 1) % 6;
                     sStep.textContent = this.step;
 
-                    // Variabilní interval – původně bylo getB() vždy 0.5
                     const interval = 400 - (getB() * 150);
                     setTimeout(scheduleNext, interval);
                 };
