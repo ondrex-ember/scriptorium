@@ -386,6 +386,12 @@ const DraughtsGame = {
         const container = document.getElementById('draughts-content');
         if (!container) return;
 
+        // Responzivní velikost buněk
+        const isMobile = window.innerWidth <= 500;
+        const cellSize = isMobile ? 38 : 52;
+        const pieceSize = isMobile ? 28 : 40;
+        const pieceFontSize = isMobile ? '0.8rem' : '1.1rem';
+
         let h = `<div style="background:var(--bg-card); padding:15px; border-radius:8px;">`;
         h += `<h3 style="margin:0 0 8px; color:var(--ink-primary);">${t('games.draughtsTitle')}</h3>`;
 
@@ -426,13 +432,13 @@ const DraughtsGame = {
                     const clickable = isDark && this.currentTurn === 'player' && this.gameActive;
 
                     h += `<div onclick="${clickable ? `DraughtsGame.selectCell(${r},${c})` : ''}"
-                        style="width:52px; height:52px; background:${bg}; display:flex; align-items:center; justify-content:center; cursor:${clickable ? 'pointer' : 'default'};">`;
+                        style="width:${cellSize}px; height:${cellSize}px; background:${bg}; display:flex; align-items:center; justify-content:center; cursor:${clickable ? 'pointer' : 'default'};">`;
 
                     if (piece) {
                         const isPlayer = piece.owner === 'player';
                         const bg2 = isPlayer ? 'radial-gradient(circle, #fff 60%, #ddd 100%)' : 'radial-gradient(circle, #333 60%, #111 100%)';
                         const shadow = isSel ? '0 0 8px 3px var(--accent-gold)' : '0 2px 4px rgba(0,0,0,0.4)';
-                        h += `<div style="width:40px; height:40px; border-radius:50%; background:${bg2}; box-shadow:${shadow}; display:flex; align-items:center; justify-content:center; font-size:1.1rem;">`;
+                        h += `<div style="width:${pieceSize}px; height:${pieceSize}px; border-radius:50%; background:${bg2}; box-shadow:${shadow}; display:flex; align-items:center; justify-content:center; font-size:${pieceFontSize};">`;
                         if (piece.king) h += `👑`;
                         h += `</div>`;
                     }
