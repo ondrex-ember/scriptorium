@@ -56,42 +56,511 @@
             cursor: not-allowed;
             box-shadow: none;
         }
+        #glyph-wrap {
+            width: 800px;
+            margin-bottom: 20px;
+            background: #050508;
+            border: 1px solid #333;
+            border-radius: 8px;
+            padding: 12px 14px 8px;
+            box-sizing: border-box;
+        }
+        #glyph-label {
+            font-size: 0.55rem;
+            color: #1a4a38;
+            letter-spacing: 2px;
+            margin-bottom: 10px;
+            text-align: left;
+        }
+        #glyph-grid {
+            display: flex;
+            justify-content: space-between;
+            gap: 6px;
+        }
+        .glyph-cell {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            flex: 1;
+        }
+        .glyph-cell canvas {
+            border-radius: 4px;
+            background: #02080a;
+            border: 1px solid #0a2a20;
+            transition: border-color 0.2s;
+            width: 100%;
+            height: auto;
+            aspect-ratio: 1;
+        }
+        .glyph-cell.active canvas {
+            border-color: currentColor;
+        }
+        .glyph-cell span {
+            font-size: 0.52rem;
+            letter-spacing: 1.5px;
+            color: #1a4a38;
+            transition: color 0.3s;
+        }
+        .glyph-cell.active span { color: inherit; }
+            width: 800px;
+            margin-top: 24px;
+            position: relative;
+        }
+        #matrix-header {
+            display: grid;
+            grid-template-columns: 60px 70px 130px 80px 130px 1fr;
+            font-size: 0.65rem;
+            color: #00ffcc;
+            letter-spacing: 2px;
+            border-bottom: 1px solid #0f3f30;
+            padding: 0 14px 6px 14px;
+            margin-bottom: 0;
+            text-transform: uppercase;
+            opacity: 0.6;
+        }
+        #matrix-log {
+            background: #02080a;
+            border: 1px solid #0a2a20;
+            border-top: none;
+            height: 180px;
+            overflow: hidden;
+            position: relative;
+            font-size: 0.72rem;
+            letter-spacing: 1.5px;
+            line-height: 1.7;
+            padding: 10px 14px;
+            box-sizing: border-box;
+            text-align: left;
+        }
+        #matrix-log::after {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 40px;
+            background: linear-gradient(to bottom, #02080a, transparent);
+            pointer-events: none;
+        }
+        .log-line {
+            display: grid;
+            grid-template-columns: 60px 70px 130px 80px 130px 1fr;
+            gap: 0;
+            opacity: 0;
+            animation: fadeIn 0.15s ease forwards;
+            white-space: nowrap;
+        }
+        @keyframes fadeIn {
+            to { opacity: 1; }
+        }
+        .log-time  { color: #1a4a38; }
+        .log-ms    { color: #0a6644; }
+        .log-inst  { font-weight: bold; }
+        .log-freq  { color: #00aa88; }
+        .log-mood  { }
+        .log-note  { color: #336655; font-size: 0.65rem; }
+
+        .inst-SITAR       { color: #00ffcc; }
+        .inst-BELL        { color: #aaffee; }
+        .inst-FLUTE       { color: #55ffdd; }
+        .inst-ANGEL       { color: #ccffff; }
+        .inst-CHANT       { color: #ffcc44; }
+        .inst-ORGAN       { color: #ff9944; }
+        .inst-BOWL        { color: #44ddff; }
+        .inst-CHOIR       { color: #ff4488; }
+        .inst-DRONE       { color: #334455; }
+
+        .mood-bar {
+            display: inline-block;
+            height: 8px;
+            background: currentColor;
+            vertical-align: middle;
+            margin-right: 4px;
+            border-radius: 1px;
+        }
+        .mood-low    { color: #00aacc; }
+        .mood-mid    { color: #aacc00; }
+        .mood-high   { color: #ff4455; }
+
+        #status-bar {
+            display: flex;
+            justify-content: space-between;
+            border: 1px solid #0a2a20;
+            border-top: 1px solid #0f3f30;
+            padding: 6px 14px;
+            font-size: 0.62rem;
+            color: #1a6644;
+            letter-spacing: 1.5px;
+            background: #010608;
+        }
+        #status-bar span { color: #00ffcc; }
     </style>
 </head>
 <body>
 
     <h1>JOUZA LAB v6</h1>
-    <p>LEVEL 1: SACRAL CATHEDRAL (Generative Sitar + Spectrum Analyzer)</p>
+    <p>LEVEL 1: SACRAL CATHEDRAL (Native Dark IR & Gentle Glue) · FIXED</p>
 
     <canvas id="visualizer" width="800" height="300"></canvas>
+
+    <!-- INSTRUMENT GLYPH GRID -->
+    <div id="glyph-wrap">
+        <div id="glyph-label">ACTIVE NODES · INSTRUMENT DNA</div>
+        <div id="glyph-grid">
+            <div class="glyph-cell" id="g-SITAR"><canvas width="90" height="90"></canvas><span>SITAR</span></div>
+            <div class="glyph-cell" id="g-BELL"><canvas width="90" height="90"></canvas><span>BELL</span></div>
+            <div class="glyph-cell" id="g-FLUTE"><canvas width="90" height="90"></canvas><span>FLUTE</span></div>
+            <div class="glyph-cell" id="g-ANGEL"><canvas width="90" height="90"></canvas><span>ANGEL</span></div>
+            <div class="glyph-cell" id="g-CHANT"><canvas width="90" height="90"></canvas><span>CHANT</span></div>
+            <div class="glyph-cell" id="g-ORGAN"><canvas width="90" height="90"></canvas><span>ORGAN</span></div>
+            <div class="glyph-cell" id="g-BOWL"><canvas width="90" height="90"></canvas><span>BOWL</span></div>
+            <div class="glyph-cell" id="g-CHOIR"><canvas width="90" height="90"></canvas><span>CHOIR</span></div>
+            <div class="glyph-cell" id="g-DRONE"><canvas width="90" height="90"></canvas><span>DRONE</span></div>
+        </div>
+    </div>
+
     <button id="startBtn">Iniciovat Opus</button>
 
+    <div id="matrix-wrap">
+        <div id="matrix-header">
+            <span>TIMESTAMP</span>
+            <span>CTX·MS</span>
+            <span>INSTRUMENT</span>
+            <span>FREQ</span>
+            <span>MOOD</span>
+            <span>NOTE·INFO</span>
+        </div>
+        <div id="matrix-log"></div>
+        <div id="status-bar">
+            MEASURE <span id="s-measure">—</span> &nbsp;|&nbsp;
+            SCALE ROOT <span id="s-root">—</span> Hz &nbsp;|&nbsp;
+            CIRCLE IDX <span id="s-circle">—</span> &nbsp;|&nbsp;
+            STEP <span id="s-step">—</span>/6 &nbsp;|&nbsp;
+            NODES FIRED <span id="s-nodes">0</span>
+        </div>
+    </div>
+
     <script>
-        // --- GLOBÁLNÍ PROMĚNNÉ PRO WEB AUDIO ---
         let ctx;
         let analyser;
         let destination;
 
-        // Zástupné funkce pro tvoje parametry, aby kód běžel bez chyb
         const getA = () => Math.random();
-        const getB = () => 0.5; // Střední tempo
+        const getB = () => Math.random();
         const getC = () => Math.random();
 
-        // --- VIZUALIZACE SPEKTRA ---
         const canvas = document.getElementById('visualizer');
         const canvasCtx = canvas.getContext('2d');
         let dataArray;
         let bufferLength;
 
+        // ── MATRIX LOGGER ──────────────────────────────────────────
+        const matrixLog  = document.getElementById('matrix-log');
+        const sMeasure   = document.getElementById('s-measure');
+        const sRoot      = document.getElementById('s-root');
+        const sCircle    = document.getElementById('s-circle');
+        const sStep      = document.getElementById('s-step');
+        const sNodes     = document.getElementById('s-nodes');
+        let totalNodes   = 0;
+        const MAX_LINES  = 60;
+
+        function moodLabel(m) {
+            if (m < 0.4)  return { cls: 'mood-low',  label: 'SERENE' };
+            if (m < 0.7)  return { cls: 'mood-mid',  label: 'TENSION' };
+            return               { cls: 'mood-high', label: 'ABYSS' };
+        }
+
+        function matrixPush(instrument, freq, mood, extra = '') {
+            totalNodes++;
+            sNodes.textContent = totalNodes;
+            if (typeof glyphFire === 'function') glyphFire(instrument, freq, mood);
+
+            const now  = new Date();
+            const ts   = `${String(now.getMinutes()).padStart(2,'0')}:${String(now.getSeconds()).padStart(2,'0')}`;
+            const ms   = ctx ? ctx.currentTime.toFixed(2) : '0.00';
+            const mBar = Math.round(mood * 16);
+            const { cls, label } = moodLabel(mood);
+
+            const line = document.createElement('div');
+            line.className = 'log-line';
+            line.innerHTML =
+                `<span class="log-time">${ts}</span>` +
+                `<span class="log-ms">${ms}s</span>` +
+                `<span class="log-inst inst-${instrument}">${instrument}</span>` +
+                `<span class="log-freq">${freq ? freq.toFixed(1)+'Hz' : '——'}</span>` +
+                `<span class="log-mood ${cls}"><span class="mood-bar" style="width:${mBar * 4}px"></span>${label}</span>` +
+                `<span class="log-note">${extra}</span>`;
+
+            matrixLog.appendChild(line);
+
+            // Scrolluj dolů, ořež staré řádky
+            matrixLog.scrollTop = matrixLog.scrollHeight;
+            const lines = matrixLog.querySelectorAll('.log-line');
+            if (lines.length > MAX_LINES) lines[0].remove();
+        }
+        // ────────────────────────────────────────────────────────────
+
+        // ── INSTRUMENT GLYPH ENGINE ─────────────────────────────────
+        const INST_COLORS = {
+            SITAR: '#00ffcc', BELL:  '#aaffee', FLUTE: '#55ffdd',
+            ANGEL: '#ccffff', CHANT: '#ffcc44', ORGAN: '#ff9944',
+            BOWL:  '#44ddff', CHOIR: '#ff4488', DRONE: '#334466',
+        };
+
+        // Každý nástroj má phase, pulse, freq, mood
+        const glyphState = {};
+        const glyphCells = {};
+        Object.keys(INST_COLORS).forEach(name => {
+            const cell = document.getElementById(`g-${name}`);
+            const cv   = cell.querySelector('canvas');
+            glyphState[name] = { phase: Math.random() * Math.PI * 2, pulse: 0, freq: 220, mood: 0.5, energy: 0 };
+            glyphCells[name] = { cell, cv, cx: cv.getContext('2d') };
+            cell.style.color = INST_COLORS[name];
+        });
+
+        function glyphFire(instrument, freq, mood) {
+            if (!glyphState[instrument]) return;
+            const s = glyphState[instrument];
+            s.pulse  = 1.0;
+            s.freq   = freq || 220;
+            s.mood   = mood;
+            s.energy = Math.min(1, s.energy + 0.6);
+            glyphCells[instrument].cell.classList.add('active');
+        }
+
+        // Glyph draw functions — každý nástroj má svůj vizuální charakter
+        const glyphDrawers = {
+
+            // SITAR — roztočená spirála s rozkmitanými větvemi (sawtooth harmonics)
+            SITAR(cx2d, s, t, col, W) {
+                const R = W * 0.35;
+                cx2d.strokeStyle = col;
+                cx2d.lineWidth = 1;
+                for (let i = 0; i < 5; i++) {
+                    const a = s.phase + (i / 5) * Math.PI * 2 + t * 0.8;
+                    const wobble = Math.sin(t * 4 + i * 1.3) * s.energy * 8;
+                    cx2d.beginPath();
+                    for (let j = 0; j < 60; j++) {
+                        const r = (j / 60) * (R + wobble);
+                        const angle = a + (j / 60) * Math.PI * 1.2;
+                        const x = W/2 + Math.cos(angle) * r;
+                        const y = W/2 + Math.sin(angle) * r;
+                        j === 0 ? cx2d.moveTo(x, y) : cx2d.lineTo(x, y);
+                    }
+                    cx2d.globalAlpha = 0.3 + s.energy * 0.5;
+                    cx2d.stroke();
+                }
+            },
+
+            // BELL — soustředné kruhy s fyzikálním rozkmitem (overtones)
+            BELL(cx2d, s, t, col, W) {
+                const overtones = [1, 2.76, 5.4, 8.9];
+                overtones.forEach((mult, i) => {
+                    const decay = Math.exp(-s.energy * 0.5 * i);
+                    const r = (W * 0.1) + (i / overtones.length) * W * 0.35;
+                    const ripple = Math.sin(t * mult * 2 + s.phase) * s.energy * 5 * decay;
+                    cx2d.beginPath();
+                    cx2d.arc(W/2, W/2, r + ripple, 0, Math.PI * 2);
+                    cx2d.strokeStyle = col;
+                    cx2d.lineWidth = 1.5 - i * 0.2;
+                    cx2d.globalAlpha = decay * (0.2 + s.energy * 0.7);
+                    cx2d.stroke();
+                });
+                // Střed — bod dopadu
+                cx2d.beginPath();
+                cx2d.arc(W/2, W/2, 3 + s.pulse * 6, 0, Math.PI * 2);
+                cx2d.fillStyle = col;
+                cx2d.globalAlpha = s.pulse;
+                cx2d.fill();
+            },
+
+            // FLUTE — sinusoida procházející zleva doprava (čistý sine)
+            FLUTE(cx2d, s, t, col, W) {
+                cx2d.strokeStyle = col;
+                cx2d.lineWidth = 1.5;
+                cx2d.globalAlpha = 0.3 + s.energy * 0.6;
+                for (let harmonic = 1; harmonic <= 3; harmonic++) {
+                    cx2d.beginPath();
+                    for (let x = 0; x <= W; x += 2) {
+                        const y = W/2 + Math.sin((x / W) * Math.PI * 4 * harmonic + t * 2 + s.phase) 
+                                  * (W * 0.28 / harmonic) * s.energy;
+                        x === 0 ? cx2d.moveTo(x, y) : cx2d.lineTo(x, y);
+                    }
+                    cx2d.globalAlpha = (0.15 + s.energy * 0.5) / harmonic;
+                    cx2d.stroke();
+                }
+            },
+
+            // ANGEL — lissajous figury (vibrato × sine)
+            ANGEL(cx2d, s, t, col, W) {
+                cx2d.strokeStyle = col;
+                cx2d.lineWidth = 1;
+                cx2d.globalAlpha = 0.2 + s.energy * 0.7;
+                const ratios = [[3,2],[5,4],[2,1]];
+                ratios.forEach(([a, b], i) => {
+                    cx2d.beginPath();
+                    for (let k = 0; k <= 300; k++) {
+                        const theta = (k / 300) * Math.PI * 2;
+                        const x = W/2 + Math.sin(a * theta + s.phase + t * 0.3) * W * 0.38;
+                        const y = W/2 + Math.sin(b * theta + t * 0.2) * W * 0.38;
+                        k === 0 ? cx2d.moveTo(x, y) : cx2d.lineTo(x, y);
+                    }
+                    cx2d.globalAlpha = (0.1 + s.energy * 0.4) / (i + 1);
+                    cx2d.stroke();
+                });
+            },
+
+            // CHANT — vertikální harmonické sloupce (formant bandpass)
+            CHANT(cx2d, s, t, col, W) {
+                const formants = [600, 1100];
+                formants.forEach((f, fi) => {
+                    const bars = 12;
+                    for (let i = 0; i < bars; i++) {
+                        const x = (i / bars) * W + W / bars / 2;
+                        const phase = s.phase + (i / bars) * Math.PI * 2 + t * (1 + fi * 0.7);
+                        const h = (Math.abs(Math.sin(phase)) * W * 0.4 + 2) * s.energy;
+                        cx2d.fillStyle = col;
+                        cx2d.globalAlpha = (0.1 + s.energy * 0.5) * (fi === 0 ? 1 : 0.5);
+                        cx2d.fillRect(x - 2, W/2 - h/2, 3, h);
+                    }
+                });
+            },
+
+            // ORGAN — pipe stack — vertikální obdélníky různých výšek (harmonics 0.5, 1, 2)
+            ORGAN(cx2d, s, t, col, W) {
+                const pipes = 7;
+                for (let i = 0; i < pipes; i++) {
+                    const x = (i / pipes) * W * 0.85 + W * 0.075;
+                    const mult = [0.5, 0.75, 1, 1.25, 1.5, 1.75, 2][i];
+                    const breathe = Math.sin(t * (3 + i * 0.4) + s.phase) * s.energy * 10;
+                    const h = (W * 0.15 * mult + breathe) * (0.3 + s.energy * 0.7);
+                    cx2d.strokeStyle = col;
+                    cx2d.lineWidth = W / pipes * 0.55;
+                    cx2d.globalAlpha = 0.15 + s.energy * 0.55;
+                    cx2d.beginPath();
+                    cx2d.moveTo(x, W * 0.8);
+                    cx2d.lineTo(x, W * 0.8 - h);
+                    cx2d.stroke();
+                    // Cap
+                    cx2d.fillStyle = col;
+                    cx2d.globalAlpha = s.energy * 0.8;
+                    cx2d.fillRect(x - W/pipes*0.35, W*0.8 - h - 2, W/pipes*0.7, 2);
+                }
+            },
+
+            // BOWL — AM friction — pomalu rotující elipsa s třesením
+            BOWL(cx2d, s, t, col, W) {
+                const frict = Math.sin(t * 1.5 + s.phase) * s.energy;
+                for (let ring = 0; ring < 4; ring++) {
+                    const r  = W * (0.12 + ring * 0.07);
+                    const rx = r + frict * 8;
+                    const ry = r * (0.6 + frict * 0.3);
+                    cx2d.save();
+                    cx2d.translate(W/2, W/2);
+                    cx2d.rotate(t * 0.15 + ring * 0.4 + s.phase);
+                    cx2d.beginPath();
+                    cx2d.ellipse(0, 0, rx, ry, 0, 0, Math.PI * 2);
+                    cx2d.strokeStyle = col;
+                    cx2d.lineWidth = 1;
+                    cx2d.globalAlpha = (0.15 + s.energy * 0.5) * (1 - ring * 0.18);
+                    cx2d.stroke();
+                    cx2d.restore();
+                }
+            },
+
+            // CHOIR — fraktální hvězda — mnoho paprsků (creepy, triangle)
+            CHOIR(cx2d, s, t, col, W) {
+                const spikes = Math.floor(6 + s.mood * 8);
+                cx2d.strokeStyle = col;
+                cx2d.lineWidth = 0.8;
+                for (let i = 0; i < spikes; i++) {
+                    const a = (i / spikes) * Math.PI * 2 + s.phase + t * 0.25;
+                    const rOuter = W * 0.38 * (0.7 + Math.sin(t * 3 + i) * 0.3 * s.energy);
+                    const rInner = W * 0.12 * (1 + Math.cos(t * 5 + i * 1.7) * s.energy);
+                    cx2d.beginPath();
+                    cx2d.moveTo(W/2, W/2);
+                    cx2d.lineTo(W/2 + Math.cos(a) * rOuter, W/2 + Math.sin(a) * rOuter);
+                    cx2d.globalAlpha = 0.15 + s.energy * 0.6;
+                    cx2d.stroke();
+                    // Inner node
+                    const a2 = a + Math.PI / spikes;
+                    cx2d.beginPath();
+                    cx2d.moveTo(W/2 + Math.cos(a) * rOuter, W/2 + Math.sin(a) * rOuter);
+                    cx2d.lineTo(W/2 + Math.cos(a2) * rInner, W/2 + Math.sin(a2) * rInner);
+                    cx2d.globalAlpha = 0.08 + s.energy * 0.35;
+                    cx2d.stroke();
+                }
+            },
+
+            // DRONE — velmi pomalý pulsující kruh s filtrovaným šumem
+            DRONE(cx2d, s, t, col, W) {
+                const slow = Math.sin(t * 0.4 + s.phase);
+                for (let ring = 0; ring < 3; ring++) {
+                    const r = W * (0.15 + ring * 0.1) * (0.8 + slow * 0.2 * s.energy);
+                    cx2d.beginPath();
+                    cx2d.arc(W/2, W/2, r, 0, Math.PI * 2);
+                    cx2d.strokeStyle = col;
+                    cx2d.lineWidth = 3 - ring;
+                    cx2d.globalAlpha = (0.08 + s.energy * 0.25) * (1 - ring * 0.25);
+                    cx2d.stroke();
+                }
+                // Scan line
+                const scanAngle = t * 0.5 + s.phase;
+                cx2d.beginPath();
+                cx2d.moveTo(W/2, W/2);
+                cx2d.lineTo(W/2 + Math.cos(scanAngle) * W * 0.4, W/2 + Math.sin(scanAngle) * W * 0.4);
+                cx2d.strokeStyle = col;
+                cx2d.lineWidth = 1;
+                cx2d.globalAlpha = 0.1 + s.energy * 0.4;
+                cx2d.stroke();
+            },
+        };
+
+        function drawGlyphs() {
+            requestAnimationFrame(drawGlyphs);
+            const t = Date.now() * 0.001;
+
+            Object.keys(glyphState).forEach(name => {
+                const s    = glyphState[name];
+                const { cv, cx: cx2d, cell } = glyphCells[name];
+                const W    = cv.width;
+                const col  = INST_COLORS[name];
+
+                // Physics decay
+                s.pulse  *= 0.88;
+                s.energy *= 0.97;
+                s.phase  += 0.004 + s.energy * 0.02;
+
+                if (s.energy < 0.02) cell.classList.remove('active');
+
+                // Clear
+                cx2d.clearRect(0, 0, W, W);
+
+                // Pulse flash overlay
+                if (s.pulse > 0.05) {
+                    cx2d.fillStyle = col;
+                    cx2d.globalAlpha = s.pulse * 0.08;
+                    cx2d.fillRect(0, 0, W, W);
+                }
+
+                cx2d.globalAlpha = 1;
+                cx2d.shadowColor = col;
+                cx2d.shadowBlur  = 4 + s.energy * 10;
+
+                const draw = glyphDrawers[name];
+                if (draw) draw(cx2d, s, t, col, W);
+
+                cx2d.shadowBlur = 0;
+                cx2d.globalAlpha = 1;
+            });
+        }
+        // ────────────────────────────────────────────────────────────
+
         function drawSpectrum() {
             requestAnimationFrame(drawSpectrum);
-            
             if (!analyser) return;
 
-            // Získání frekvenčních dat
             analyser.getByteFrequencyData(dataArray);
 
-            // Vyčištění plátna (s lehkým "ghosting" efektem pro plynulejší vizuál)
             canvasCtx.fillStyle = 'rgba(5, 5, 8, 0.2)';
             canvasCtx.fillRect(0, 0, canvas.width, canvas.height);
 
@@ -101,48 +570,75 @@
 
             for (let i = 0; i < bufferLength; i++) {
                 barHeight = dataArray[i];
-
-                // Dynamické barvy: Basy červené/žluté, výšky modré/tyrkysové
                 const r = barHeight + (25 * (i/bufferLength));
                 const g = 250 * (i/bufferLength);
                 const b = 255;
                 
                 canvasCtx.fillStyle = `rgb(${r},${g},${b})`;
-                
-                // Vykreslení sloupce odspodu nahoru
                 const y = canvas.height - (barHeight * 1.2);
                 canvasCtx.fillRect(x, y, barWidth, canvas.height - y);
-
-                x += barWidth + 1; // Mezera mezi sloupci
+                x += barWidth + 1; 
             }
         }
 
-        // Vykreslení prázdného spektra před spuštěním
         canvasCtx.fillStyle = '#050508';
         canvasCtx.fillRect(0, 0, canvas.width, canvas.height);
 
-        // --- JOUZA LAB AUDIO CLASS ---
         class SacralCathedralGenerative {
             constructor() {
                 this.master = ctx.createGain(); 
-                this.master.gain.value = 0.8;
-                // Připojení masteru do globální destination (což je náš vizualizér)
-                this.master.connect(destination); 
+                this.master.gain.value = 0.45; // sníženo z 0.8 — hlavní headroom fix
+
+                // Glue kompresor — stejné hodnoty, ale teď má prostor pracovat
+                this.compressor = ctx.createDynamicsCompressor();
+                this.compressor.threshold.value = -12; // sníženo z -6, dřívější zásah
+                this.compressor.knee.value = 10;
+                this.compressor.ratio.value = 6;        // mírně zvýšeno pro jistotu
+                this.compressor.attack.value = 0.005;   // rychlejší — stíhá transients
+                this.compressor.release.value = 0.15;
+
+                // TRUE LIMITER na úplném konci chain — tvrdý strop, nulový knee
+                this.limiter = ctx.createDynamicsCompressor();
+                this.limiter.threshold.value = -1.0;  // téměř 0 dBFS
+                this.limiter.knee.value = 0;          // hard knee = opravdový limiter
+                this.limiter.ratio.value = 20;        // 20:1 = efektivně nekonečno
+                this.limiter.attack.value = 0.001;    // 1ms — zachytí každý spike
+                this.limiter.release.value = 0.05;
+
+                this.masterTapeFilter = ctx.createBiquadFilter();
+                this.masterTapeFilter.type = 'lowpass';
+                this.masterTapeFilter.frequency.value = 14000;
+
+                // Chain: master → compressor → tapeFilter → limiter → output
+                this.master.connect(this.compressor);
+                this.compressor.connect(this.masterTapeFilter);
+                this.masterTapeFilter.connect(this.limiter);
+                this.limiter.connect(destination); 
 
                 this.reverbBus = ctx.createGain();
                 this.reverbBus.gain.value = 1.0;
                 
                 const revLen = ctx.sampleRate * 4.0; 
                 const revBuf = ctx.createBuffer(2, revLen, ctx.sampleRate);
-                for (let c = 0; c < 2; c++) {
-                    const d = revBuf.getChannelData(c);
-                    for (let i = 0; i < revLen; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / revLen, 5.0);
+                const dL = revBuf.getChannelData(0);
+                const dR = revBuf.getChannelData(1);
+                
+                let lastL = 0, lastR = 0;
+                for (let i = 0; i < revLen; i++) {
+                    let noiseL = (Math.random() * 2 - 1);
+                    let noiseR = (Math.random() * 2 - 1);
+                    lastL = lastL + 0.15 * (noiseL - lastL);
+                    lastR = lastR + 0.15 * (noiseR - lastR);
+                    let envelope = Math.pow(1 - i / revLen, 5.0);
+                    dL[i] = lastL * envelope;
+                    dR[i] = lastR * envelope;
                 }
+
                 this.convolver = ctx.createConvolver();
                 this.convolver.buffer = revBuf;
                 
                 this.reverbOutGain = ctx.createGain();
-                this.reverbOutGain.gain.value = 1.8; 
+                this.reverbOutGain.gain.value = 0.7; // bylo 1.8 — reverb přetěžoval master bus
                 
                 this.reverbBus.connect(this.convolver);
                 this.convolver.connect(this.reverbOutGain);
@@ -167,7 +663,7 @@
                 this.step = 0;    
                 this.measure = 0; 
                 this.mood = 0.5; 
-                this.moodDirection = 0.015; 
+                this.moodDirection = 0.008 + Math.random() * 0.02; // variabilní rychlost
             }
 
             updateScale() {
@@ -179,11 +675,14 @@
 
             playSitar(freq) {
                 if (!freq) return;
+                matrixPush('SITAR', freq, this.mood, `Q:1.2 dur:${(3.0+getC()*2).toFixed(1)}s`);
                 const t = ctx.currentTime;
                 const dur = 3.0 + getC() * 2.0; 
                 
+                // FIX 1: Sawtooth → triangle pro základ = okamžité odebrání agresivních harmonických
+                // Sawtooth má všechny harmonické (1/n), triangle má jen liché a rychle klesají (1/n²)
                 const osc = ctx.createOscillator();
-                osc.type = 'sawtooth'; 
+                osc.type = 'triangle'; // bylo: 'sawtooth'
                 osc.frequency.setValueAtTime(freq * 1.05, t); 
                 osc.frequency.exponentialRampToValueAtTime(freq, t + 0.1); 
                 
@@ -193,17 +692,25 @@
                 subOsc.frequency.exponentialRampToValueAtTime(freq / 2, t + 0.15);
 
                 const symOsc1 = ctx.createOscillator();
-                symOsc1.type = 'triangle';
+                symOsc1.type = 'sine'; // bylo: 'triangle' – odebráno zdvojování středů
                 symOsc1.frequency.value = freq * 1.5; 
 
                 const symOsc2 = ctx.createOscillator();
                 symOsc2.type = 'sine';
                 symOsc2.frequency.value = freq * 2; 
 
+                // FIX 2: Bandpass Q sníženo z 2.8 → 1.2 a frequency posunuta výš
+                // Q 2.8 způsobovalo rezonanci = ten škrábavý zvuk uprostřed spektra
                 const bandpass = ctx.createBiquadFilter(); 
-                bandpass.type = 'bandpass'; 
-                bandpass.frequency.value = freq * 2 + (getA() * 2); 
-                bandpass.Q.value = 3.5; 
+                bandpass.type = 'bandpass';
+                bandpass.frequency.value = freq * 3.5; // bylo: freq * 2 + random – příliš nízko
+                bandpass.Q.value = 1.2;                // bylo: 2.8 – rezonovalo
+
+                // FIX 3: Přidán pre-lowpass před bandpass pro ořez hrubých harmonických
+                const preLowpass = ctx.createBiquadFilter();
+                preLowpass.type = 'lowpass';
+                preLowpass.frequency.value = freq * 4;
+                preLowpass.Q.value = 0.5; // Butterworth-like, bez rezonance
 
                 const lowpass = ctx.createBiquadFilter(); 
                 lowpass.type = 'lowpass';
@@ -211,22 +718,23 @@
 
                 const gain = ctx.createGain();
                 gain.gain.setValueAtTime(0, t);
-                gain.gain.linearRampToValueAtTime(0.25, t + 0.05); 
-                gain.gain.exponentialRampToValueAtTime(0.001, t + dur);
+                gain.gain.linearRampToValueAtTime(0.18, t + 0.02); // mírně sníženo z 0.25
+                gain.gain.exponentialRampToValueAtTime(0.001, t + dur - 0.1);
+                gain.gain.linearRampToValueAtTime(0, t + dur);
 
-                osc.connect(bandpass); 
-                symOsc1.connect(bandpass); 
+                // Signal chain: osc → preLowpass → bandpass → gain
+                osc.connect(preLowpass);
+                preLowpass.connect(bandpass);
+                symOsc1.connect(bandpass);
                 symOsc2.connect(bandpass);
                 subOsc.connect(lowpass); 
-
                 bandpass.connect(gain);
                 lowpass.connect(gain);
 
                 const panner = ctx.createPanner();
-                panner.panningModel = 'HRTF'; 
+                panner.panningModel = 'HRTF';
                 panner.distanceModel = 'inverse';
-                
-                const orbitSpeed = 0.3; 
+                const orbitSpeed = 0.3;
                 const radius = 4.0; 
                 
                 const startX = Math.sin(t * orbitSpeed) * radius;
@@ -243,122 +751,162 @@
                     panner.setPosition(startX, 0, startZ); 
                 }
 
-                gain.connect(panner); 
+                gain.connect(panner);
                 panner.connect(this.master); 
                 
+                // FIX 4: Reverb send spike odstraněn – konstantní nízká hodnota
+                // Původní: Math.random() > 0.8 ? 2.5 : 0.1 → náhodné skoky na 2.5 způsobovaly přehlušení
                 const sendRev = ctx.createGain(); 
-                const isMassiveReverb = Math.random() > 0.8;
-                sendRev.gain.value = isMassiveReverb ? 2.5 : 0.1;
-                
-                panner.connect(sendRev); 
+                sendRev.gain.value = 0.15; // bylo: random spike 2.5 nebo 0.1
+                panner.connect(sendRev);
                 sendRev.connect(this.reverbBus);
 
-                osc.start(t); osc.stop(t + dur);
-                subOsc.start(t); subOsc.stop(t + dur);
-                symOsc1.start(t); symOsc1.stop(t + dur);
-                symOsc2.start(t); symOsc2.stop(t + dur);
+                const stopTime = t + dur + 0.05;
+                osc.start(t); osc.stop(stopTime);
+                subOsc.start(t); subOsc.stop(stopTime);
+                symOsc1.start(t); symOsc1.stop(stopTime);
+                symOsc2.start(t); symOsc2.stop(stopTime);
+            }
+
+            playAngelVoice(freq) {
+                if (!freq) return;
+                matrixPush('ANGEL', freq, this.mood, 'vibrato·sine');
+                const t = ctx.currentTime; const dur = 4.0 + Math.random() * 2.0;
+
+                const osc = ctx.createOscillator(); const gain = ctx.createGain(); const filter = ctx.createBiquadFilter();
+                osc.type = 'sine'; osc.frequency.value = freq * 2; 
+
+                const vibrato = ctx.createOscillator(); vibrato.frequency.value = 4.5 + Math.random(); 
+                const vibratoGain = ctx.createGain(); vibratoGain.gain.value = (freq * 2) * 0.015; 
+                vibrato.connect(vibratoGain); vibratoGain.connect(osc.frequency);
+
+                filter.type = 'bandpass'; filter.frequency.value = freq * 2; filter.Q.value = 1.5;
+
+                gain.gain.setValueAtTime(0, t);
+                gain.gain.linearRampToValueAtTime(0.12, t + 1.5); 
+                gain.gain.exponentialRampToValueAtTime(0.001, t + dur - 0.1);
+                gain.gain.linearRampToValueAtTime(0, t + dur);
+
+                osc.connect(filter); filter.connect(gain); gain.connect(this.master);
+                
+                const sendRev = ctx.createGain(); sendRev.gain.value = 2.0; 
+                gain.connect(sendRev); sendRev.connect(this.reverbBus);
+
+                osc.start(t); vibrato.start(t);
+                osc.stop(t + dur + 0.05); vibrato.stop(t + dur + 0.05);
+            }
+
+            playSingingBowl(freq) {
+                if (!freq) return;
+                matrixPush('BOWL', freq, this.mood, 'AM·friction');
+                const t = ctx.currentTime; const dur = 8.0 + Math.random() * 4.0;
+
+                const masterGain = ctx.createGain();
+                masterGain.gain.setValueAtTime(0, t);
+                masterGain.gain.linearRampToValueAtTime(0.2, t + 2.5); 
+                masterGain.gain.exponentialRampToValueAtTime(0.001, t + dur - 0.1);
+                masterGain.gain.linearRampToValueAtTime(0, t + dur);
+
+                const frictionLfo = ctx.createOscillator(); frictionLfo.type = 'sine'; frictionLfo.frequency.value = 1.2 + (Math.random() * 0.8); 
+                const frictionGain = ctx.createGain(); frictionGain.gain.value = 0.4; frictionLfo.connect(frictionGain);
+                
+                const amNode = ctx.createGain(); amNode.gain.value = 0.6; frictionGain.connect(amNode.gain); 
+
+                [-0.5, 0, 0.4].forEach(detune => {
+                    const osc = ctx.createOscillator(); osc.type = 'sine'; osc.frequency.value = freq + detune;
+                    osc.connect(amNode); osc.start(t); osc.stop(t + dur + 0.05);
+                });
+
+                frictionLfo.start(t); frictionLfo.stop(t + dur + 0.05);
+
+                amNode.connect(masterGain); masterGain.connect(this.master);
+                
+                const sendRev = ctx.createGain(); sendRev.gain.value = 1.5;
+                masterGain.connect(sendRev); sendRev.connect(this.reverbBus);
             }
 
             playFlute(freq) {
                 if (!freq) return;
+                matrixPush('FLUTE', freq, this.mood, 'lp:600Hz');
                 const t = ctx.currentTime;
-                const osc = ctx.createOscillator(); 
-                const gain = ctx.createGain();
-                const filter = ctx.createBiquadFilter();
+                const osc = ctx.createOscillator(); const gain = ctx.createGain(); const filter = ctx.createBiquadFilter();
                 
-                osc.type = 'sine'; 
-                osc.frequency.value = freq; 
-                filter.type = 'lowpass'; filter.frequency.value = 600; 
-                
+                osc.type = 'sine'; osc.frequency.value = freq; filter.type = 'lowpass'; filter.frequency.value = 600; 
                 const dur = 3.5 + Math.random(); 
                 
                 gain.gain.setValueAtTime(0, t);
                 gain.gain.linearRampToValueAtTime(0.12, t + 0.8); 
-                gain.gain.exponentialRampToValueAtTime(0.001, t + dur); 
+                gain.gain.exponentialRampToValueAtTime(0.001, t + dur - 0.1); 
+                gain.gain.linearRampToValueAtTime(0, t + dur); 
 
-                osc.connect(filter); filter.connect(gain); 
-                gain.connect(this.reverbBus); gain.connect(this.master);
-                osc.start(t); osc.stop(t + dur);
+                osc.connect(filter); filter.connect(gain); gain.connect(this.reverbBus); gain.connect(this.master);
+                osc.start(t); osc.stop(t + dur + 0.05);
             }
 
             playBell(freq) {
                 if (!freq) return;
+                matrixPush('BELL', freq, this.mood, '5×overtone·physmod');
                 const t = ctx.currentTime;
                 const overtones = [1, 2.76, 5.4, 8.9, 11.3];
                 
                 overtones.forEach((mult, i) => {
-                    const osc = ctx.createOscillator();
-                    const gain = ctx.createGain();
+                    const osc = ctx.createOscillator(); const gain = ctx.createGain();
+                    const physMod = ctx.createOscillator(); const physModGain = ctx.createGain();
                     
-                    const physMod = ctx.createOscillator();
-                    const physModGain = ctx.createGain();
-                    physMod.type = 'sine';
-                    physMod.frequency.value = freq * 0.5; 
-                    physModGain.gain.setValueAtTime(freq * 0.1, t); 
-                    physModGain.gain.exponentialRampToValueAtTime(0.01, t + 0.5); 
+                    physMod.type = 'sine'; physMod.frequency.value = freq * 0.5; 
+                    physModGain.gain.setValueAtTime(freq * 0.1, t); physModGain.gain.exponentialRampToValueAtTime(0.01, t + 0.5); 
                     
-                    osc.type = 'sine';
-                    osc.frequency.value = freq * mult;
-                    
-                    physMod.connect(physModGain);
-                    physModGain.connect(osc.frequency); 
+                    osc.type = 'sine'; osc.frequency.value = freq * mult;
+                    physMod.connect(physModGain); physModGain.connect(osc.frequency); 
 
                     const dur = 6.0 / (i + 1); 
                     
                     gain.gain.setValueAtTime(0, t);
-                    gain.gain.linearRampToValueAtTime(0.4 / (i + 1), t + 0.01);
-                    gain.gain.exponentialRampToValueAtTime(0.001, t + dur);
+                    gain.gain.linearRampToValueAtTime(0.4 / (i + 1), t + 0.02);
+                    gain.gain.exponentialRampToValueAtTime(0.001, t + dur - 0.1);
+                    gain.gain.linearRampToValueAtTime(0, t + dur);
                     
-                    osc.connect(gain);
-                    gain.connect(this.master);
-                    
-                    const sendRev = ctx.createGain(); sendRev.gain.value = 1.0;
-                    gain.connect(sendRev); sendRev.connect(this.reverbBus);
+                    osc.connect(gain); gain.connect(this.master);
+                    const sendRev = ctx.createGain(); sendRev.gain.value = 1.0; gain.connect(sendRev); sendRev.connect(this.reverbBus);
                     
                     osc.start(t); physMod.start(t);
-                    osc.stop(t + dur); physMod.stop(t + dur);
+                    osc.stop(t + dur + 0.05); physMod.stop(t + dur + 0.05);
                 });
             }
 
             playOrgan(freq) {
                 if (!freq) return;
-                const t = ctx.currentTime;
-                const dur = 4.0 + getC() * 2; 
+                matrixPush('ORGAN', freq, this.mood, 'sq+2×sine·airmod');
+                const t = ctx.currentTime; const dur = 4.0 + getC() * 2; 
                 
                 const gain = ctx.createGain();
                 gain.gain.setValueAtTime(0, t);
                 gain.gain.linearRampToValueAtTime(0.12, t + 0.8); 
                 gain.gain.setValueAtTime(0.12, t + dur - 1.5);
-                gain.gain.linearRampToValueAtTime(0.001, t + dur);
+                gain.gain.linearRampToValueAtTime(0, t + dur);
 
                 [0.5, 1, 2].forEach(mult => {
-                    const osc = ctx.createOscillator();
-                    osc.type = mult === 1 ? 'square' : 'sine';
-                    osc.frequency.value = freq * mult;
+                    const osc = ctx.createOscillator(); osc.type = mult === 1 ? 'square' : 'sine'; osc.frequency.value = freq * mult;
                     
-                    const airPressureMod = ctx.createOscillator();
-                    const airPressureGain = ctx.createGain();
-                    airPressureMod.frequency.value = 4 + (Math.random() * 2); 
-                    airPressureGain.gain.value = 3; 
+                    const airPressureMod = ctx.createOscillator(); const airPressureGain = ctx.createGain();
+                    airPressureMod.frequency.value = 4 + (Math.random() * 2); airPressureGain.gain.value = 3; 
                     
-                    airPressureMod.connect(airPressureGain);
-                    airPressureGain.connect(osc.frequency);
+                    airPressureMod.connect(airPressureGain); airPressureGain.connect(osc.frequency);
                     
-                    const filter = ctx.createBiquadFilter();
-                    filter.type = 'lowpass'; filter.frequency.value = 1200;
+                    const filter = ctx.createBiquadFilter(); filter.type = 'lowpass'; filter.frequency.value = 1200;
                     
                     osc.connect(filter); filter.connect(gain);
                     osc.start(t); airPressureMod.start(t);
-                    osc.stop(t + dur); airPressureMod.stop(t + dur);
+                    osc.stop(t + dur + 0.05); airPressureMod.stop(t + dur + 0.05);
                 });
                 
                 gain.connect(this.master);
-                const sendRev = ctx.createGain(); sendRev.gain.value = 0.8;
-                gain.connect(sendRev); sendRev.connect(this.reverbBus);
+                const sendRev = ctx.createGain(); sendRev.gain.value = 0.8; gain.connect(sendRev); sendRev.connect(this.reverbBus);
             }
 
             playChant(freq) {
                 if (!freq) return;
+                matrixPush('CHANT', freq, this.mood, 'bp:600+1100Hz');
                 const t = ctx.currentTime;
                 const osc = ctx.createOscillator(); const gain = ctx.createGain();
                 const f1 = ctx.createBiquadFilter(); const f2 = ctx.createBiquadFilter();
@@ -373,40 +921,37 @@
                 gain.gain.linearRampToValueAtTime(0.15, t + 1.0);
                 gain.gain.linearRampToValueAtTime(0, t + 3.0);
                 
-                gain.connect(this.master); gain.connect(this.reverbBus); 
-                osc.start(t); osc.stop(t + 3.0);
+                gain.connect(this.master);
+                // FIX: chant reverb přes gain node, ne přímo — zabraňuje nekontrolovanému feedu
+                const chantRev = ctx.createGain(); chantRev.gain.value = 0.3;
+                gain.connect(chantRev); chantRev.connect(this.reverbBus);
+                osc.start(t); osc.stop(t + 3.05);
             }
 
             playCreepyChoir(freq) {
                 if (!freq) return;
+                matrixPush('CHOIR', freq, this.mood, `lp:${(250+getC()*300).toFixed(0)}Hz·tri`);
                 const t = ctx.currentTime;
-                const osc = ctx.createOscillator(); const gain = ctx.createGain();
-                const filter = ctx.createBiquadFilter();
+                const osc = ctx.createOscillator(); const gain = ctx.createGain(); const filter = ctx.createBiquadFilter();
 
                 osc.type = 'triangle'; osc.frequency.value = freq;
                 filter.type = 'lowpass'; filter.frequency.value = 250 + getC() * 300; 
                 
                 gain.gain.setValueAtTime(0, t);
-                gain.gain.linearRampToValueAtTime(0.12, t + 2.0); 
+                gain.gain.linearRampToValueAtTime(0.07, t + 2.0); // bylo 0.12
                 gain.gain.linearRampToValueAtTime(0, t + 5.0);   
 
-                osc.connect(filter); filter.connect(gain); 
-                gain.connect(this.master); gain.connect(this.reverbBus);
-                osc.start(t); osc.stop(t + 5.0);
+                osc.connect(filter); filter.connect(gain); gain.connect(this.master); gain.connect(this.reverbBus);
+                osc.start(t); osc.stop(t + 5.05);
             }
 
             manageDrone() {
                 if (!this.droneOsc) {
-                    this.droneOsc = ctx.createOscillator(); 
-                    this.droneOsc2 = ctx.createOscillator();
-                    this.droneGain = ctx.createGain(); 
-                    this.droneFilter = ctx.createBiquadFilter();
+                    this.droneOsc = ctx.createOscillator(); this.droneOsc2 = ctx.createOscillator();
+                    this.droneGain = ctx.createGain(); this.droneFilter = ctx.createBiquadFilter();
 
-                    this.droneOsc.type = 'sine'; 
-                    this.droneOsc2.type = 'triangle'; 
-
-                    this.droneFilter.type = 'lowpass'; 
-                    this.droneGain.gain.value = 0; 
+                    this.droneOsc.type = 'sine'; this.droneOsc2.type = 'triangle'; 
+                    this.droneFilter.type = 'lowpass'; this.droneGain.gain.value = 0; 
                     
                     const osc1Gain = ctx.createGain(); osc1Gain.gain.value = 1.0;
                     const osc2Gain = ctx.createGain(); osc2Gain.gain.value = 0.20;
@@ -415,8 +960,8 @@
                     this.droneOsc2.connect(osc2Gain); osc2Gain.connect(this.droneFilter);
                     
                     this.droneFilter.connect(this.droneGain); 
-                    
                     this.droneGain.connect(this.master);
+                    
                     const sendRev = ctx.createGain(); sendRev.gain.value = 0.4;
                     this.droneGain.connect(sendRev); sendRev.connect(this.reverbBus);
                     
@@ -424,30 +969,34 @@
                 }
                 
                 const currentRoot = this.scale[0] / 8; 
-                this.droneOsc.frequency.linearRampToValueAtTime(currentRoot, ctx.currentTime + 4);
-                this.droneOsc2.frequency.linearRampToValueAtTime(currentRoot * 2, ctx.currentTime + 4);
+                this.droneOsc.frequency.setTargetAtTime(currentRoot, ctx.currentTime, 1.0);
+                this.droneOsc2.frequency.setTargetAtTime(currentRoot * 2, ctx.currentTime, 1.0);
 
                 const targetVol = this.mood > 0.4 ? (this.mood * 0.25) : 0.05;
-                this.droneGain.gain.linearRampToValueAtTime(targetVol, ctx.currentTime + 2);
+                this.droneGain.gain.setTargetAtTime(targetVol, ctx.currentTime, 0.5);
                 
                 const physicalTension = Math.sin(ctx.currentTime * 0.5) * 20; 
-                this.droneFilter.frequency.linearRampToValueAtTime(60 + (this.mood * 80) + getA() + physicalTension, ctx.currentTime + 2); 
+                this.droneFilter.frequency.setTargetAtTime(60 + (this.mood * 80) + getA() + physicalTension, ctx.currentTime, 0.5); 
             }
 
             start() {
                 this.manageDrone();
 
-                setInterval(() => {
+                // FIX 5: setInterval → AudioContext-aware scheduling
+                // setInterval trpí JS event loop jitterem (±50ms), 
+                // scheduleNext rekurzivně plánuje přesně přes setTimeout + AudioContext clock
+                const scheduleNext = () => {
                     if (this.step === 0) {
                         this.mood += this.moodDirection;
                         if (this.mood > 1.0 || this.mood < 0.0) {
-                            this.moodDirection *= -1; 
-                            this.mood += this.moodDirection;
+                            this.moodDirection *= -1; this.mood += this.moodDirection;
                         }
 
                         if (this.measure > 0 && this.measure % 16 === 0) {
                             this.currentCircleIndex = (this.currentCircleIndex + 1) % this.circleSteps.length;
                             this.updateScale();
+                            // Randomizuj směr i rychlost — zabraňuje uvíznutí na ABYSS
+                            this.moodDirection = (0.008 + Math.random() * 0.018) * (Math.random() > 0.5 ? 1 : -1);
                         }
 
                         let baseMotif = this.motifs[Math.floor(Math.random() * this.motifs.length)];
@@ -461,8 +1010,15 @@
                             return this.scale[newIndex];
                         });
 
-                        this.manageDrone(); 
+                        this.manageDrone();
+                        matrixPush('DRONE', this.scale[0] / 8, this.mood, `root/8·filter`);
                         this.measure++;
+
+                        // Status bar
+                        sMeasure.textContent = this.measure;
+                        sRoot.textContent    = this.scale[0].toFixed(1);
+                        sCircle.textContent  = this.currentCircleIndex;
+                        sStep.textContent    = this.step;
                     }
 
                     const note = this.currentPhrase[this.step];
@@ -471,56 +1027,54 @@
                         if (this.mood < 0.4) {
                             if (Math.random() > 0.3) this.playSitar(note);
                             if (Math.random() > 0.85) this.playBell(note); 
-                            if ((this.step === 0 || this.step === 3) && Math.random() > 0.85) {
-                                this.playFlute(note); 
-                            }
+                            if ((this.step === 0 || this.step === 3) && Math.random() > 0.85) this.playFlute(note); 
+                            if (Math.random() > 0.75) this.playAngelVoice(note); 
                         } 
                         else if (this.mood >= 0.4 && this.mood < 0.7) {
                             if (Math.random() > 0.25) this.playChant(note); 
                             if (Math.random() > 0.8) this.playOrgan(note); 
+                            if (Math.random() > 0.6) this.playSingingBowl(note); 
                         } 
                         else {
-                            if (Math.random() > 0.15) this.playCreepyChoir(note); 
-                            if (Math.random() > 0.75) this.playOrgan(note / 2); 
-                            if (Math.random() > 0.8) this.playBell(note / 2); 
+                            if (Math.random() > 0.45) this.playCreepyChoir(note);  // bylo 0.15
+                            if (Math.random() > 0.55) this.playOrgan(note / 2);    // bylo 0.75
+                            if (Math.random() > 0.5)  this.playBell(note / 2);     // bylo 0.8
+                            if (Math.random() > 0.6)  this.playSingingBowl(note / 2); // bylo 0.85
+                            if (Math.random() > 0.7)  this.playAngelVoice(note);   // nový — přidán i do ABYSS
                         }
                     }
-
                     this.step = (this.step + 1) % 6;
-                    
-                }, 400 - (getB() * 150)); 
+                    sStep.textContent = this.step;
+
+                    // Variabilní interval – původně bylo getB() vždy 0.5
+                    const interval = 400 - (getB() * 150);
+                    setTimeout(scheduleNext, interval);
+                };
+
+                scheduleNext();
             }
         }
 
-        // --- INICIALIZACE APLIKACE ---
         const startBtn = document.getElementById('startBtn');
 
         startBtn.addEventListener('click', () => {
-            // Skrytí tlačítka po spuštění
             startBtn.textContent = 'Běží generování...';
             startBtn.disabled = true;
 
-            // Inicializace Web Audio API
             const AudioContext = window.AudioContext || window.webkitAudioContext;
             ctx = new AudioContext();
 
-            // Vytvoření analyzátoru pro vizualizaci
             analyser = ctx.createAnalyser();
-            analyser.fftSize = 1024; // Velikost okena pro detailní spektrum
+            analyser.fftSize = 1024; 
             bufferLength = analyser.frequencyBinCount;
             dataArray = new Uint8Array(bufferLength);
 
-            // Nastavení master destination na analyzátor
-            // Tím se všechno z Jouza labu prožene přes vizualizér
             destination = analyser;
-            
-            // Propojení analyzátoru do reproduktorů počítače
             analyser.connect(ctx.destination);
 
-            // Spuštění vizualizační smyčky
             drawSpectrum();
+            drawGlyphs();
 
-            // Spuštění samotného generátoru
             const app = new SacralCathedralGenerative();
             app.start();
         });
