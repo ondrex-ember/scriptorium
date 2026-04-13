@@ -501,6 +501,11 @@ const Rithmomachia = {
     },
     
     renderSquare: function(x, y) {
+        const isMobile = window.innerWidth <= 500;
+        const cellMin = isMobile ? 36 : 45;
+        const pieceSize = isMobile ? 26 : 35;
+        const pieceFontSize = isMobile ? '0.55rem' : '0.7rem';
+        const symbolSize = isMobile ? '0.75rem' : '1rem';
         const piece = this.board[y][x];
         const isSelected = this.selectedPiece && this.selectedPiece.pos[0] === x && this.selectedPiece.pos[1] === y;
         const isValidMove = this.validMoves.some(([mx, my]) => mx === x && my === y);
