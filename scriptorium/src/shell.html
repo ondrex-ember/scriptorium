@@ -890,6 +890,29 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 			}
 		}
 
+		@media (max-width: 420px) {
+			.games-grid {
+				grid-template-columns: repeat(2, 1fr);
+				gap: 8px;
+			}
+			.game-card {
+				padding: 12px 8px;
+			}
+			.game-icon {
+				font-size: 1.8rem;
+			}
+			.game-title {
+				font-size: 0.85rem;
+			}
+			.game-desc {
+				font-size: 0.75rem;
+			}
+			.game-card .craft-btn {
+				font-size: 0.75rem;
+				padding: 6px 8px;
+			}
+		}
+
 		/* Game card */
 		.game-card {
 			background: var(--bg-card);
