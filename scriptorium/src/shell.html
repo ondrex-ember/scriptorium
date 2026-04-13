@@ -1429,41 +1429,41 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             <div id="garden-tab-dvur" style="display:none;">
                 <p class="text-sm" style="margin-bottom:15px;" data-i18n="garden.dvorDesc">Hospodářský dvůr kláštera. Brzy zde bude možné chovat zvířata.</p>
                 <div id="farmyard-container"></div>
-            </div>
 
-            <div id="well-management" style="margin-top: 30px; padding: 20px; background: rgba(0,0,0,0.2); border-radius: 10px;">
-            <h3 data-i18n="wellUI.title">🚰 Správa Studny</h3>
-            
-            <div id="well-not-built" style="display: none;">
-                <p data-i18n="wellUI.notBuilt">Nemáš studnu. Můžeš ji postavit níže.</p>
-                <button onclick="Game.upgradeWell('basic')" class="craft-btn" style="background: #4a7c59;" data-i18n="wellUI.buildBasic">
-                    🏗️ Postavit studnu (20 kámen, 10 větev, 3 provaz)
-                </button>
-            </div>
-            
-            <div id="well-built" style="display: none;">
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px;">
-                    <div>
-                        <strong data-i18n="wellUI.level">Úroveň:</strong> <span id="well-level-text">Základní</span>
-                    </div>
-                    <div>
-                        <strong data-i18n="wellUI.condition">Stav:</strong> <span id="well-condition-text">✓ Čistá</span>
-                    </div>
+                <div id="well-management" style="margin-top: 30px; padding: 20px; background: rgba(0,0,0,0.2); border-radius: 10px;">
+                <h3 data-i18n="wellUI.title">🚰 Správa Studny</h3>
+                
+                <div id="well-not-built" style="display: none;">
+                    <p data-i18n="wellUI.notBuilt">Nemáš studnu. Můžeš ji postavit níže.</p>
+                    <button onclick="Game.upgradeWell('basic')" class="craft-btn" style="background: #4a7c59;" data-i18n="wellUI.buildBasic">
+                        🏗️ Postavit studnu (20 kámen, 10 větev, 3 provaz)
+                    </button>
                 </div>
                 
-                <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-                    <button onclick="Game.cleanWell()" id="btn-clean-well" class="craft-btn" style="background: #5a8dc7; display: none;" data-i18n="wellUI.clean">
-                        ✨ Vyčistit (prášek)
-                    </button>
-                    <button onclick="Game.repairWell()" id="btn-repair-well" class="craft-btn" style="background: #c75a5a; display: none;" data-i18n="wellUI.repair">
-                        🔧 Opravit (sada)
-                    </button>
-                    <button onclick="Game.upgradeWell('stone')" id="btn-upgrade-stone" class="craft-btn" style="background: #8b6434; display: none;" data-i18n="wellUI.upgrade">
-                        🏛️ Vyzdít kamenem (30 kámen, 5 provaz, 10 uhel)
-                    </button>
+                <div id="well-built" style="display: none;">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px;">
+                        <div>
+                            <strong data-i18n="wellUI.level">Úroveň:</strong> <span id="well-level-text">Základní</span>
+                        </div>
+                        <div>
+                            <strong data-i18n="wellUI.condition">Stav:</strong> <span id="well-condition-text">✓ Čistá</span>
+                        </div>
+                    </div>
+                    
+                    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                        <button onclick="Game.cleanWell()" id="btn-clean-well" class="craft-btn" style="background: #5a8dc7; display: none;" data-i18n="wellUI.clean">
+                            ✨ Vyčistit (prášek)
+                        </button>
+                        <button onclick="Game.repairWell()" id="btn-repair-well" class="craft-btn" style="background: #c75a5a; display: none;" data-i18n="wellUI.repair">
+                            🔧 Opravit (sada)
+                        </button>
+                        <button onclick="Game.upgradeWell('stone')" id="btn-upgrade-stone" class="craft-btn" style="background: #8b6434; display: none;" data-i18n="wellUI.upgrade">
+                            🏛️ Vyzdít kamenem (30 kámen, 5 provaz, 10 uhel)
+                        </button>
+                    </div>
                 </div>
             </div>
-        </div>
+            </div>
      </div>
 
         <div id="screen-craft" class="screen">
