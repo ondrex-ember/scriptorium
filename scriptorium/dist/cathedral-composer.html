@@ -56,12 +56,96 @@
             cursor: not-allowed;
             box-shadow: none;
         }
-        #debug {
-            margin-top: 20px;
-            color: #444;
-            font-size: 0.75rem;
-            letter-spacing: 1px;
+        #matrix-wrap {
+            width: 800px;
+            margin-top: 24px;
+            position: relative;
         }
+        #matrix-header {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.65rem;
+            color: #00ffcc;
+            letter-spacing: 2px;
+            border-bottom: 1px solid #0f3f30;
+            padding-bottom: 6px;
+            margin-bottom: 0;
+            text-transform: uppercase;
+            opacity: 0.6;
+        }
+        #matrix-log {
+            background: #02080a;
+            border: 1px solid #0a2a20;
+            border-top: none;
+            height: 180px;
+            overflow: hidden;
+            position: relative;
+            font-size: 0.72rem;
+            letter-spacing: 1.5px;
+            line-height: 1.7;
+            padding: 10px 14px;
+            box-sizing: border-box;
+            text-align: left;
+        }
+        #matrix-log::after {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 40px;
+            background: linear-gradient(to bottom, #02080a, transparent);
+            pointer-events: none;
+        }
+        .log-line {
+            display: flex;
+            gap: 14px;
+            opacity: 0;
+            animation: fadeIn 0.15s ease forwards;
+            white-space: nowrap;
+        }
+        @keyframes fadeIn {
+            to { opacity: 1; }
+        }
+        .log-time  { color: #1a4a38; min-width: 60px; }
+        .log-ms    { color: #0a6644; min-width: 50px; }
+        .log-inst  { min-width: 120px; font-weight: bold; }
+        .log-freq  { color: #00aa88; min-width: 70px; }
+        .log-mood  { min-width: 90px; }
+        .log-note  { color: #336655; font-size: 0.65rem; }
+
+        .inst-SITAR       { color: #00ffcc; }
+        .inst-BELL        { color: #aaffee; }
+        .inst-FLUTE       { color: #55ffdd; }
+        .inst-ANGEL       { color: #ccffff; }
+        .inst-CHANT       { color: #ffcc44; }
+        .inst-ORGAN       { color: #ff9944; }
+        .inst-BOWL        { color: #44ddff; }
+        .inst-CHOIR       { color: #ff4488; }
+        .inst-DRONE       { color: #334455; }
+
+        .mood-bar {
+            display: inline-block;
+            height: 8px;
+            background: currentColor;
+            vertical-align: middle;
+            margin-right: 4px;
+            border-radius: 1px;
+        }
+        .mood-low    { color: #00aacc; }
+        .mood-mid    { color: #aacc00; }
+        .mood-high   { color: #ff4455; }
+
+        #status-bar {
+            display: flex;
+            justify-content: space-between;
+            border: 1px solid #0a2a20;
+            border-top: 1px solid #0f3f30;
+            padding: 6px 14px;
+            font-size: 0.62rem;
+            color: #1a6644;
+            letter-spacing: 1.5px;
+            background: #010608;
+        }
+        #status-bar span { color: #00ffcc; }
     </style>
 </head>
 <body>
@@ -71,7 +155,25 @@
 
     <canvas id="visualizer" width="800" height="300"></canvas>
     <button id="startBtn">Iniciovat Opus</button>
-    <div id="debug">mood: — | scale root: — | measure: —</div>
+
+    <div id="matrix-wrap">
+        <div id="matrix-header">
+            <span>TIMESTAMP</span>
+            <span>CTX·MS</span>
+            <span>INSTRUMENT</span>
+            <span>FREQ</span>
+            <span>MOOD</span>
+            <span>NOTE·INFO</span>
+        </div>
+        <div id="matrix-log"></div>
+        <div id="status-bar">
+            MEASURE <span id="s-measure">—</span> &nbsp;|&nbsp;
+            SCALE ROOT <span id="s-root">—</span> Hz &nbsp;|&nbsp;
+            CIRCLE IDX <span id="s-circle">—</span> &nbsp;|&nbsp;
+            STEP <span id="s-step">—</span>/6 &nbsp;|&nbsp;
+            NODES FIRED <span id="s-nodes">0</span>
+        </div>
+    </div>
 
     <script>
         let ctx;
@@ -79,7 +181,6 @@
         let destination;
 
         const getA = () => Math.random();
-        // FIX: getB() bylo hardcoded 0.5 — vrácena randomizace pro timing variaci
         const getB = () => Math.random();
         const getC = () => Math.random();
 
@@ -87,7 +188,51 @@
         const canvasCtx = canvas.getContext('2d');
         let dataArray;
         let bufferLength;
-        const debugEl = document.getElementById('debug');
+
+        // ── MATRIX LOGGER ──────────────────────────────────────────
+        const matrixLog  = document.getElementById('matrix-log');
+        const sMeasure   = document.getElementById('s-measure');
+        const sRoot      = document.getElementById('s-root');
+        const sCircle    = document.getElementById('s-circle');
+        const sStep      = document.getElementById('s-step');
+        const sNodes     = document.getElementById('s-nodes');
+        let totalNodes   = 0;
+        const MAX_LINES  = 60;
+
+        function moodLabel(m) {
+            if (m < 0.4)  return { cls: 'mood-low',  label: 'SERENE' };
+            if (m < 0.7)  return { cls: 'mood-mid',  label: 'TENSION' };
+            return               { cls: 'mood-high', label: 'ABYSS' };
+        }
+
+        function matrixPush(instrument, freq, mood, extra = '') {
+            totalNodes++;
+            sNodes.textContent = totalNodes;
+
+            const now  = new Date();
+            const ts   = `${String(now.getMinutes()).padStart(2,'0')}:${String(now.getSeconds()).padStart(2,'0')}`;
+            const ms   = ctx ? ctx.currentTime.toFixed(2) : '0.00';
+            const mBar = Math.round(mood * 16);
+            const { cls, label } = moodLabel(mood);
+
+            const line = document.createElement('div');
+            line.className = 'log-line';
+            line.innerHTML =
+                `<span class="log-time">${ts}</span>` +
+                `<span class="log-ms">${ms}s</span>` +
+                `<span class="log-inst inst-${instrument}">${instrument}</span>` +
+                `<span class="log-freq">${freq ? freq.toFixed(1)+'Hz' : '——'}</span>` +
+                `<span class="log-mood ${cls}"><span class="mood-bar" style="width:${mBar * 4}px"></span>${label}</span>` +
+                `<span class="log-note">${extra}</span>`;
+
+            matrixLog.appendChild(line);
+
+            // Scrolluj dolů, ořež staré řádky
+            matrixLog.scrollTop = matrixLog.scrollHeight;
+            const lines = matrixLog.querySelectorAll('.log-line');
+            if (lines.length > MAX_LINES) lines[0].remove();
+        }
+        // ────────────────────────────────────────────────────────────
 
         function drawSpectrum() {
             requestAnimationFrame(drawSpectrum);
@@ -209,6 +354,7 @@
 
             playSitar(freq) {
                 if (!freq) return;
+                matrixPush('SITAR', freq, this.mood, `Q:1.2 dur:${(3.0+getC()*2).toFixed(1)}s`);
                 const t = ctx.currentTime;
                 const dur = 3.0 + getC() * 2.0; 
                 
@@ -303,6 +449,7 @@
 
             playAngelVoice(freq) {
                 if (!freq) return;
+                matrixPush('ANGEL', freq, this.mood, 'vibrato·sine');
                 const t = ctx.currentTime; const dur = 4.0 + Math.random() * 2.0;
 
                 const osc = ctx.createOscillator(); const gain = ctx.createGain(); const filter = ctx.createBiquadFilter();
@@ -330,6 +477,7 @@
 
             playSingingBowl(freq) {
                 if (!freq) return;
+                matrixPush('BOWL', freq, this.mood, 'AM·friction');
                 const t = ctx.currentTime; const dur = 8.0 + Math.random() * 4.0;
 
                 const masterGain = ctx.createGain();
@@ -358,6 +506,7 @@
 
             playFlute(freq) {
                 if (!freq) return;
+                matrixPush('FLUTE', freq, this.mood, 'lp:600Hz');
                 const t = ctx.currentTime;
                 const osc = ctx.createOscillator(); const gain = ctx.createGain(); const filter = ctx.createBiquadFilter();
                 
@@ -375,6 +524,7 @@
 
             playBell(freq) {
                 if (!freq) return;
+                matrixPush('BELL', freq, this.mood, '5×overtone·physmod');
                 const t = ctx.currentTime;
                 const overtones = [1, 2.76, 5.4, 8.9, 11.3];
                 
@@ -405,6 +555,7 @@
 
             playOrgan(freq) {
                 if (!freq) return;
+                matrixPush('ORGAN', freq, this.mood, 'sq+2×sine·airmod');
                 const t = ctx.currentTime; const dur = 4.0 + getC() * 2; 
                 
                 const gain = ctx.createGain();
@@ -434,6 +585,7 @@
 
             playChant(freq) {
                 if (!freq) return;
+                matrixPush('CHANT', freq, this.mood, 'bp:600+1100Hz');
                 const t = ctx.currentTime;
                 const osc = ctx.createOscillator(); const gain = ctx.createGain();
                 const f1 = ctx.createBiquadFilter(); const f2 = ctx.createBiquadFilter();
@@ -457,6 +609,7 @@
 
             playCreepyChoir(freq) {
                 if (!freq) return;
+                matrixPush('CHOIR', freq, this.mood, `lp:${(250+getC()*300).toFixed(0)}Hz·tri`);
                 const t = ctx.currentTime;
                 const osc = ctx.createOscillator(); const gain = ctx.createGain(); const filter = ctx.createBiquadFilter();
 
@@ -534,11 +687,15 @@
                             return this.scale[newIndex];
                         });
 
-                        this.manageDrone(); 
+                        this.manageDrone();
+                        matrixPush('DRONE', this.scale[0] / 8, this.mood, `root/8·filter`);
                         this.measure++;
 
-                        // Debug výstup
-                        debugEl.textContent = `mood: ${this.mood.toFixed(2)} | root: ${(this.scale[0]).toFixed(1)} Hz | measure: ${this.measure}`;
+                        // Status bar
+                        sMeasure.textContent = this.measure;
+                        sRoot.textContent    = this.scale[0].toFixed(1);
+                        sCircle.textContent  = this.currentCircleIndex;
+                        sStep.textContent    = this.step;
                     }
 
                     const note = this.currentPhrase[this.step];
@@ -563,6 +720,7 @@
                         }
                     }
                     this.step = (this.step + 1) % 6;
+                    sStep.textContent = this.step;
 
                     // Variabilní interval – původně bylo getB() vždy 0.5
                     const interval = 400 - (getB() * 150);
