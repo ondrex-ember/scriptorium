@@ -7584,6 +7584,15 @@ this.limiter.connect(destinationNode);
         // Tempo je o něco pomalejší pro důstojnost a prostor zvonů
         }, 400 - ((Math.random() * 0.3) * 150)); 
     }
+
+    stop() {
+        if (this._interval) {
+            clearInterval(this._interval);
+            this._interval = null;
+        }
+        this._started = false;
+        if (this.droneOsc) { try { this.droneOsc.stop(); } catch(e) {} this.droneOsc = null; }
+    }
 }
 
 // ═══ TIER 3: Ars Nova ═══
@@ -7922,6 +7931,16 @@ this.limiter.connect(destinationNode);
             this.step = (this.step + 1) % 6;
             
         }, 280 - ((Math.random() * 0.3) * 100)); 
+    }
+
+    stop() {
+        if (this._interval) {
+            clearInterval(this._interval);
+            this._interval = null;
+        }
+        this._started = false;
+        if (this.droneOsc)  { try { this.droneOsc.stop();  } catch(e) {} this.droneOsc  = null; }
+        if (this.droneOsc2) { try { this.droneOsc2.stop(); } catch(e) {} this.droneOsc2 = null; }
     }
 }
 
