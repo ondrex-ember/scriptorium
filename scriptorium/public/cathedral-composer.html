@@ -56,7 +56,53 @@
             cursor: not-allowed;
             box-shadow: none;
         }
-        #matrix-wrap {
+        #glyph-wrap {
+            width: 800px;
+            margin-bottom: 20px;
+            background: #050508;
+            border: 1px solid #333;
+            border-radius: 8px;
+            padding: 12px 14px 8px;
+            box-sizing: border-box;
+        }
+        #glyph-label {
+            font-size: 0.55rem;
+            color: #1a4a38;
+            letter-spacing: 2px;
+            margin-bottom: 10px;
+            text-align: left;
+        }
+        #glyph-grid {
+            display: flex;
+            justify-content: space-between;
+            gap: 6px;
+        }
+        .glyph-cell {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            flex: 1;
+        }
+        .glyph-cell canvas {
+            border-radius: 4px;
+            background: #02080a;
+            border: 1px solid #0a2a20;
+            transition: border-color 0.2s;
+            width: 100%;
+            height: auto;
+            aspect-ratio: 1;
+        }
+        .glyph-cell.active canvas {
+            border-color: currentColor;
+        }
+        .glyph-cell span {
+            font-size: 0.52rem;
+            letter-spacing: 1.5px;
+            color: #1a4a38;
+            transition: color 0.3s;
+        }
+        .glyph-cell.active span { color: inherit; }
             width: 800px;
             margin-top: 24px;
             position: relative;
@@ -155,6 +201,23 @@
     <p>LEVEL 1: SACRAL CATHEDRAL (Native Dark IR & Gentle Glue) · FIXED</p>
 
     <canvas id="visualizer" width="800" height="300"></canvas>
+
+    <!-- INSTRUMENT GLYPH GRID -->
+    <div id="glyph-wrap">
+        <div id="glyph-label">ACTIVE NODES · INSTRUMENT DNA</div>
+        <div id="glyph-grid">
+            <div class="glyph-cell" id="g-SITAR"><canvas width="90" height="90"></canvas><span>SITAR</span></div>
+            <div class="glyph-cell" id="g-BELL"><canvas width="90" height="90"></canvas><span>BELL</span></div>
+            <div class="glyph-cell" id="g-FLUTE"><canvas width="90" height="90"></canvas><span>FLUTE</span></div>
+            <div class="glyph-cell" id="g-ANGEL"><canvas width="90" height="90"></canvas><span>ANGEL</span></div>
+            <div class="glyph-cell" id="g-CHANT"><canvas width="90" height="90"></canvas><span>CHANT</span></div>
+            <div class="glyph-cell" id="g-ORGAN"><canvas width="90" height="90"></canvas><span>ORGAN</span></div>
+            <div class="glyph-cell" id="g-BOWL"><canvas width="90" height="90"></canvas><span>BOWL</span></div>
+            <div class="glyph-cell" id="g-CHOIR"><canvas width="90" height="90"></canvas><span>CHOIR</span></div>
+            <div class="glyph-cell" id="g-DRONE"><canvas width="90" height="90"></canvas><span>DRONE</span></div>
+        </div>
+    </div>
+
     <button id="startBtn">Iniciovat Opus</button>
 
     <div id="matrix-wrap">
@@ -209,6 +272,7 @@
         function matrixPush(instrument, freq, mood, extra = '') {
             totalNodes++;
             sNodes.textContent = totalNodes;
+            if (typeof glyphFire === 'function') glyphFire(instrument, freq, mood);
 
             const now  = new Date();
             const ts   = `${String(now.getMinutes()).padStart(2,'0')}:${String(now.getSeconds()).padStart(2,'0')}`;
@@ -232,6 +296,262 @@
             matrixLog.scrollTop = matrixLog.scrollHeight;
             const lines = matrixLog.querySelectorAll('.log-line');
             if (lines.length > MAX_LINES) lines[0].remove();
+        }
+        // ────────────────────────────────────────────────────────────
+
+        // ── INSTRUMENT GLYPH ENGINE ─────────────────────────────────
+        const INST_COLORS = {
+            SITAR: '#00ffcc', BELL:  '#aaffee', FLUTE: '#55ffdd',
+            ANGEL: '#ccffff', CHANT: '#ffcc44', ORGAN: '#ff9944',
+            BOWL:  '#44ddff', CHOIR: '#ff4488', DRONE: '#334466',
+        };
+
+        // Každý nástroj má phase, pulse, freq, mood
+        const glyphState = {};
+        const glyphCells = {};
+        Object.keys(INST_COLORS).forEach(name => {
+            const cell = document.getElementById(`g-${name}`);
+            const cv   = cell.querySelector('canvas');
+            glyphState[name] = { phase: Math.random() * Math.PI * 2, pulse: 0, freq: 220, mood: 0.5, energy: 0 };
+            glyphCells[name] = { cell, cv, cx: cv.getContext('2d') };
+            cell.style.color = INST_COLORS[name];
+        });
+
+        function glyphFire(instrument, freq, mood) {
+            if (!glyphState[instrument]) return;
+            const s = glyphState[instrument];
+            s.pulse  = 1.0;
+            s.freq   = freq || 220;
+            s.mood   = mood;
+            s.energy = Math.min(1, s.energy + 0.6);
+            glyphCells[instrument].cell.classList.add('active');
+        }
+
+        // Glyph draw functions — každý nástroj má svůj vizuální charakter
+        const glyphDrawers = {
+
+            // SITAR — roztočená spirála s rozkmitanými větvemi (sawtooth harmonics)
+            SITAR(cx2d, s, t, col, W) {
+                const R = W * 0.35;
+                cx2d.strokeStyle = col;
+                cx2d.lineWidth = 1;
+                for (let i = 0; i < 5; i++) {
+                    const a = s.phase + (i / 5) * Math.PI * 2 + t * 0.8;
+                    const wobble = Math.sin(t * 4 + i * 1.3) * s.energy * 8;
+                    cx2d.beginPath();
+                    for (let j = 0; j < 60; j++) {
+                        const r = (j / 60) * (R + wobble);
+                        const angle = a + (j / 60) * Math.PI * 1.2;
+                        const x = W/2 + Math.cos(angle) * r;
+                        const y = W/2 + Math.sin(angle) * r;
+                        j === 0 ? cx2d.moveTo(x, y) : cx2d.lineTo(x, y);
+                    }
+                    cx2d.globalAlpha = 0.3 + s.energy * 0.5;
+                    cx2d.stroke();
+                }
+            },
+
+            // BELL — soustředné kruhy s fyzikálním rozkmitem (overtones)
+            BELL(cx2d, s, t, col, W) {
+                const overtones = [1, 2.76, 5.4, 8.9];
+                overtones.forEach((mult, i) => {
+                    const decay = Math.exp(-s.energy * 0.5 * i);
+                    const r = (W * 0.1) + (i / overtones.length) * W * 0.35;
+                    const ripple = Math.sin(t * mult * 2 + s.phase) * s.energy * 5 * decay;
+                    cx2d.beginPath();
+                    cx2d.arc(W/2, W/2, r + ripple, 0, Math.PI * 2);
+                    cx2d.strokeStyle = col;
+                    cx2d.lineWidth = 1.5 - i * 0.2;
+                    cx2d.globalAlpha = decay * (0.2 + s.energy * 0.7);
+                    cx2d.stroke();
+                });
+                // Střed — bod dopadu
+                cx2d.beginPath();
+                cx2d.arc(W/2, W/2, 3 + s.pulse * 6, 0, Math.PI * 2);
+                cx2d.fillStyle = col;
+                cx2d.globalAlpha = s.pulse;
+                cx2d.fill();
+            },
+
+            // FLUTE — sinusoida procházející zleva doprava (čistý sine)
+            FLUTE(cx2d, s, t, col, W) {
+                cx2d.strokeStyle = col;
+                cx2d.lineWidth = 1.5;
+                cx2d.globalAlpha = 0.3 + s.energy * 0.6;
+                for (let harmonic = 1; harmonic <= 3; harmonic++) {
+                    cx2d.beginPath();
+                    for (let x = 0; x <= W; x += 2) {
+                        const y = W/2 + Math.sin((x / W) * Math.PI * 4 * harmonic + t * 2 + s.phase) 
+                                  * (W * 0.28 / harmonic) * s.energy;
+                        x === 0 ? cx2d.moveTo(x, y) : cx2d.lineTo(x, y);
+                    }
+                    cx2d.globalAlpha = (0.15 + s.energy * 0.5) / harmonic;
+                    cx2d.stroke();
+                }
+            },
+
+            // ANGEL — lissajous figury (vibrato × sine)
+            ANGEL(cx2d, s, t, col, W) {
+                cx2d.strokeStyle = col;
+                cx2d.lineWidth = 1;
+                cx2d.globalAlpha = 0.2 + s.energy * 0.7;
+                const ratios = [[3,2],[5,4],[2,1]];
+                ratios.forEach(([a, b], i) => {
+                    cx2d.beginPath();
+                    for (let k = 0; k <= 300; k++) {
+                        const theta = (k / 300) * Math.PI * 2;
+                        const x = W/2 + Math.sin(a * theta + s.phase + t * 0.3) * W * 0.38;
+                        const y = W/2 + Math.sin(b * theta + t * 0.2) * W * 0.38;
+                        k === 0 ? cx2d.moveTo(x, y) : cx2d.lineTo(x, y);
+                    }
+                    cx2d.globalAlpha = (0.1 + s.energy * 0.4) / (i + 1);
+                    cx2d.stroke();
+                });
+            },
+
+            // CHANT — vertikální harmonické sloupce (formant bandpass)
+            CHANT(cx2d, s, t, col, W) {
+                const formants = [600, 1100];
+                formants.forEach((f, fi) => {
+                    const bars = 12;
+                    for (let i = 0; i < bars; i++) {
+                        const x = (i / bars) * W + W / bars / 2;
+                        const phase = s.phase + (i / bars) * Math.PI * 2 + t * (1 + fi * 0.7);
+                        const h = (Math.abs(Math.sin(phase)) * W * 0.4 + 2) * s.energy;
+                        cx2d.fillStyle = col;
+                        cx2d.globalAlpha = (0.1 + s.energy * 0.5) * (fi === 0 ? 1 : 0.5);
+                        cx2d.fillRect(x - 2, W/2 - h/2, 3, h);
+                    }
+                });
+            },
+
+            // ORGAN — pipe stack — vertikální obdélníky různých výšek (harmonics 0.5, 1, 2)
+            ORGAN(cx2d, s, t, col, W) {
+                const pipes = 7;
+                for (let i = 0; i < pipes; i++) {
+                    const x = (i / pipes) * W * 0.85 + W * 0.075;
+                    const mult = [0.5, 0.75, 1, 1.25, 1.5, 1.75, 2][i];
+                    const breathe = Math.sin(t * (3 + i * 0.4) + s.phase) * s.energy * 10;
+                    const h = (W * 0.15 * mult + breathe) * (0.3 + s.energy * 0.7);
+                    cx2d.strokeStyle = col;
+                    cx2d.lineWidth = W / pipes * 0.55;
+                    cx2d.globalAlpha = 0.15 + s.energy * 0.55;
+                    cx2d.beginPath();
+                    cx2d.moveTo(x, W * 0.8);
+                    cx2d.lineTo(x, W * 0.8 - h);
+                    cx2d.stroke();
+                    // Cap
+                    cx2d.fillStyle = col;
+                    cx2d.globalAlpha = s.energy * 0.8;
+                    cx2d.fillRect(x - W/pipes*0.35, W*0.8 - h - 2, W/pipes*0.7, 2);
+                }
+            },
+
+            // BOWL — AM friction — pomalu rotující elipsa s třesením
+            BOWL(cx2d, s, t, col, W) {
+                const frict = Math.sin(t * 1.5 + s.phase) * s.energy;
+                for (let ring = 0; ring < 4; ring++) {
+                    const r  = W * (0.12 + ring * 0.07);
+                    const rx = r + frict * 8;
+                    const ry = r * (0.6 + frict * 0.3);
+                    cx2d.save();
+                    cx2d.translate(W/2, W/2);
+                    cx2d.rotate(t * 0.15 + ring * 0.4 + s.phase);
+                    cx2d.beginPath();
+                    cx2d.ellipse(0, 0, rx, ry, 0, 0, Math.PI * 2);
+                    cx2d.strokeStyle = col;
+                    cx2d.lineWidth = 1;
+                    cx2d.globalAlpha = (0.15 + s.energy * 0.5) * (1 - ring * 0.18);
+                    cx2d.stroke();
+                    cx2d.restore();
+                }
+            },
+
+            // CHOIR — fraktální hvězda — mnoho paprsků (creepy, triangle)
+            CHOIR(cx2d, s, t, col, W) {
+                const spikes = Math.floor(6 + s.mood * 8);
+                cx2d.strokeStyle = col;
+                cx2d.lineWidth = 0.8;
+                for (let i = 0; i < spikes; i++) {
+                    const a = (i / spikes) * Math.PI * 2 + s.phase + t * 0.25;
+                    const rOuter = W * 0.38 * (0.7 + Math.sin(t * 3 + i) * 0.3 * s.energy);
+                    const rInner = W * 0.12 * (1 + Math.cos(t * 5 + i * 1.7) * s.energy);
+                    cx2d.beginPath();
+                    cx2d.moveTo(W/2, W/2);
+                    cx2d.lineTo(W/2 + Math.cos(a) * rOuter, W/2 + Math.sin(a) * rOuter);
+                    cx2d.globalAlpha = 0.15 + s.energy * 0.6;
+                    cx2d.stroke();
+                    // Inner node
+                    const a2 = a + Math.PI / spikes;
+                    cx2d.beginPath();
+                    cx2d.moveTo(W/2 + Math.cos(a) * rOuter, W/2 + Math.sin(a) * rOuter);
+                    cx2d.lineTo(W/2 + Math.cos(a2) * rInner, W/2 + Math.sin(a2) * rInner);
+                    cx2d.globalAlpha = 0.08 + s.energy * 0.35;
+                    cx2d.stroke();
+                }
+            },
+
+            // DRONE — velmi pomalý pulsující kruh s filtrovaným šumem
+            DRONE(cx2d, s, t, col, W) {
+                const slow = Math.sin(t * 0.4 + s.phase);
+                for (let ring = 0; ring < 3; ring++) {
+                    const r = W * (0.15 + ring * 0.1) * (0.8 + slow * 0.2 * s.energy);
+                    cx2d.beginPath();
+                    cx2d.arc(W/2, W/2, r, 0, Math.PI * 2);
+                    cx2d.strokeStyle = col;
+                    cx2d.lineWidth = 3 - ring;
+                    cx2d.globalAlpha = (0.08 + s.energy * 0.25) * (1 - ring * 0.25);
+                    cx2d.stroke();
+                }
+                // Scan line
+                const scanAngle = t * 0.5 + s.phase;
+                cx2d.beginPath();
+                cx2d.moveTo(W/2, W/2);
+                cx2d.lineTo(W/2 + Math.cos(scanAngle) * W * 0.4, W/2 + Math.sin(scanAngle) * W * 0.4);
+                cx2d.strokeStyle = col;
+                cx2d.lineWidth = 1;
+                cx2d.globalAlpha = 0.1 + s.energy * 0.4;
+                cx2d.stroke();
+            },
+        };
+
+        function drawGlyphs() {
+            requestAnimationFrame(drawGlyphs);
+            const t = Date.now() * 0.001;
+
+            Object.keys(glyphState).forEach(name => {
+                const s    = glyphState[name];
+                const { cv, cx: cx2d, cell } = glyphCells[name];
+                const W    = cv.width;
+                const col  = INST_COLORS[name];
+
+                // Physics decay
+                s.pulse  *= 0.88;
+                s.energy *= 0.97;
+                s.phase  += 0.004 + s.energy * 0.02;
+
+                if (s.energy < 0.02) cell.classList.remove('active');
+
+                // Clear
+                cx2d.clearRect(0, 0, W, W);
+
+                // Pulse flash overlay
+                if (s.pulse > 0.05) {
+                    cx2d.fillStyle = col;
+                    cx2d.globalAlpha = s.pulse * 0.08;
+                    cx2d.fillRect(0, 0, W, W);
+                }
+
+                cx2d.globalAlpha = 1;
+                cx2d.shadowColor = col;
+                cx2d.shadowBlur  = 4 + s.energy * 10;
+
+                const draw = glyphDrawers[name];
+                if (draw) draw(cx2d, s, t, col, W);
+
+                cx2d.shadowBlur = 0;
+                cx2d.globalAlpha = 1;
+            });
         }
         // ────────────────────────────────────────────────────────────
 
@@ -753,6 +1073,7 @@
             analyser.connect(ctx.destination);
 
             drawSpectrum();
+            drawGlyphs();
 
             const app = new SacralCathedralGenerative();
             app.start();
