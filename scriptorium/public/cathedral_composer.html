@@ -61,23 +61,20 @@
 <body>
 
     <h1>JOUZA LAB v6</h1>
-    <p>LEVEL 1: SACRAL CATHEDRAL (Generative Sitar + Spectrum Analyzer)</p>
+    <p>LEVEL 1: SACRAL CATHEDRAL (9 Generative Instruments + Circle of Fifths)</p>
 
     <canvas id="visualizer" width="800" height="300"></canvas>
     <button id="startBtn">Iniciovat Opus</button>
 
     <script>
-        // --- GLOBÁLNÍ PROMĚNNÉ PRO WEB AUDIO ---
         let ctx;
         let analyser;
         let destination;
 
-        // Zástupné funkce pro tvoje parametry, aby kód běžel bez chyb
         const getA = () => Math.random();
-        const getB = () => 0.5; // Střední tempo
+        const getB = () => 0.5; 
         const getC = () => Math.random();
 
-        // --- VIZUALIZACE SPEKTRA ---
         const canvas = document.getElementById('visualizer');
         const canvasCtx = canvas.getContext('2d');
         let dataArray;
@@ -88,10 +85,8 @@
             
             if (!analyser) return;
 
-            // Získání frekvenčních dat
             analyser.getByteFrequencyData(dataArray);
 
-            // Vyčištění plátna (s lehkým "ghosting" efektem pro plynulejší vizuál)
             canvasCtx.fillStyle = 'rgba(5, 5, 8, 0.2)';
             canvasCtx.fillRect(0, 0, canvas.width, canvas.height);
 
@@ -102,22 +97,19 @@
             for (let i = 0; i < bufferLength; i++) {
                 barHeight = dataArray[i];
 
-                // Dynamické barvy: Basy červené/žluté, výšky modré/tyrkysové
                 const r = barHeight + (25 * (i/bufferLength));
                 const g = 250 * (i/bufferLength);
                 const b = 255;
                 
                 canvasCtx.fillStyle = `rgb(${r},${g},${b})`;
                 
-                // Vykreslení sloupce odspodu nahoru
                 const y = canvas.height - (barHeight * 1.2);
                 canvasCtx.fillRect(x, y, barWidth, canvas.height - y);
 
-                x += barWidth + 1; // Mezera mezi sloupci
+                x += barWidth + 1; 
             }
         }
 
-        // Vykreslení prázdného spektra před spuštěním
         canvasCtx.fillStyle = '#050508';
         canvasCtx.fillRect(0, 0, canvas.width, canvas.height);
 
@@ -126,7 +118,6 @@
             constructor() {
                 this.master = ctx.createGain(); 
                 this.master.gain.value = 0.8;
-                // Připojení masteru do globální destination (což je náš vizualizér)
                 this.master.connect(destination); 
 
                 this.reverbBus = ctx.createGain();
@@ -177,6 +168,7 @@
                 this.scale = this.scaleRatios.map(ratio => newRoot * ratio);
             }
 
+            // 🪕 ZNĚJÍCÍ SITAR
             playSitar(freq) {
                 if (!freq) return;
                 const t = ctx.currentTime;
@@ -259,6 +251,94 @@
                 symOsc2.start(t); symOsc2.stop(t + dur);
             }
 
+            // 👼 ANDĚLSKÝ SOPRÁN (NOVÉ)
+            playAngelVoice(freq) {
+                if (!freq) return;
+                const t = ctx.currentTime;
+                const dur = 4.0 + Math.random() * 2.0;
+
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                const filter = ctx.createBiquadFilter();
+
+                osc.type = 'sine';
+                osc.frequency.value = freq * 2; // Zní o oktávu výš (soprán)
+
+                // Jemné andělské vibrato
+                const vibrato = ctx.createOscillator();
+                vibrato.frequency.value = 4.5 + Math.random(); // Přirozená nestabilita hlasu
+                const vibratoGain = ctx.createGain();
+                vibratoGain.gain.value = (freq * 2) * 0.015; // Hloubka vibrata
+                vibrato.connect(vibratoGain);
+                vibratoGain.connect(osc.frequency);
+
+                filter.type = 'bandpass';
+                filter.frequency.value = freq * 2;
+                filter.Q.value = 1.5;
+
+                gain.gain.setValueAtTime(0, t);
+                gain.gain.linearRampToValueAtTime(0.12, t + 1.5); 
+                gain.gain.exponentialRampToValueAtTime(0.001, t + dur);
+
+                osc.connect(filter);
+                filter.connect(gain);
+                gain.connect(this.master);
+                
+                const sendRev = ctx.createGain();
+                sendRev.gain.value = 2.0; // Plave v obřím reverbu
+                gain.connect(sendRev);
+                sendRev.connect(this.reverbBus);
+
+                osc.start(t); vibrato.start(t);
+                osc.stop(t + dur); vibrato.stop(t + dur);
+            }
+
+            // 🥣 TIBETSKÁ ZPÍVAJÍCÍ MÍSA (NOVÉ)
+            playSingingBowl(freq) {
+                if (!freq) return;
+                const t = ctx.currentTime;
+                const dur = 8.0 + Math.random() * 4.0; // Extrémně dlouhý zvuk
+
+                const masterGain = ctx.createGain();
+                masterGain.gain.setValueAtTime(0, t);
+                masterGain.gain.linearRampToValueAtTime(0.2, t + 2.5); // Velmi pomalý náběh
+                masterGain.gain.exponentialRampToValueAtTime(0.001, t + dur);
+
+                // LFO simulující kroužení tloučku (Amplitude modulation)
+                const frictionLfo = ctx.createOscillator();
+                frictionLfo.type = 'sine';
+                frictionLfo.frequency.value = 1.2 + (Math.random() * 0.8); 
+                const frictionGain = ctx.createGain();
+                frictionGain.gain.value = 0.4;
+                frictionLfo.connect(frictionGain);
+                
+                const amNode = ctx.createGain(); 
+                amNode.gain.value = 0.6; // Base volume
+                frictionGain.connect(amNode.gain); 
+
+                // 3 mírně rozladěné oscilátory pro "houpání" zvuku (Zázněje)
+                [-0.5, 0, 0.4].forEach(detune => {
+                    const osc = ctx.createOscillator();
+                    osc.type = 'sine';
+                    osc.frequency.value = freq + detune;
+                    osc.connect(amNode);
+                    osc.start(t);
+                    osc.stop(t + dur);
+                });
+
+                frictionLfo.start(t);
+                frictionLfo.stop(t + dur);
+
+                amNode.connect(masterGain);
+                masterGain.connect(this.master);
+                
+                const sendRev = ctx.createGain();
+                sendRev.gain.value = 1.5;
+                masterGain.connect(sendRev);
+                sendRev.connect(this.reverbBus);
+            }
+
+            // 🌬️ DŘEVĚNÁ FLÉTNA
             playFlute(freq) {
                 if (!freq) return;
                 const t = ctx.currentTime;
@@ -281,6 +361,7 @@
                 osc.start(t); osc.stop(t + dur);
             }
 
+            // 🔔 CHRÁMOVÝ ZVON
             playBell(freq) {
                 if (!freq) return;
                 const t = ctx.currentTime;
@@ -320,6 +401,7 @@
                 });
             }
 
+            // 🎹 PÍŠŤALOVÉ VARHANY
             playOrgan(freq) {
                 if (!freq) return;
                 const t = ctx.currentTime;
@@ -357,6 +439,7 @@
                 gain.connect(sendRev); sendRev.connect(this.reverbBus);
             }
 
+            // 🗣️ MNIŠSKÝ CHORÁL
             playChant(freq) {
                 if (!freq) return;
                 const t = ctx.currentTime;
@@ -377,6 +460,7 @@
                 osc.start(t); osc.stop(t + 3.0);
             }
 
+            // 👻 CREEPY CHOIR
             playCreepyChoir(freq) {
                 if (!freq) return;
                 const t = ctx.currentTime;
@@ -468,21 +552,26 @@
                     const note = this.currentPhrase[this.step];
                     
                     if (note) {
+                        // ÚPRAVA LOGIKY PRO NOVÉ NÁSTROJE
                         if (this.mood < 0.4) {
                             if (Math.random() > 0.3) this.playSitar(note);
                             if (Math.random() > 0.85) this.playBell(note); 
-                            if ((this.step === 0 || this.step === 3) && Math.random() > 0.85) {
-                                this.playFlute(note); 
-                            }
+                            if ((this.step === 0 || this.step === 3) && Math.random() > 0.85) this.playFlute(note); 
+                            // Nástup andělského hlasu ve světlé fázi
+                            if (Math.random() > 0.75) this.playAngelVoice(note); 
                         } 
                         else if (this.mood >= 0.4 && this.mood < 0.7) {
                             if (Math.random() > 0.25) this.playChant(note); 
                             if (Math.random() > 0.8) this.playOrgan(note); 
+                            // Mystická tibetská mísa v přechodech
+                            if (Math.random() > 0.6) this.playSingingBowl(note); 
                         } 
                         else {
                             if (Math.random() > 0.15) this.playCreepyChoir(note); 
                             if (Math.random() > 0.75) this.playOrgan(note / 2); 
                             if (Math.random() > 0.8) this.playBell(note / 2); 
+                            // Temná hluboká rezonance mísy v temné fázi
+                            if (Math.random() > 0.85) this.playSingingBowl(note / 2); 
                         }
                     }
 
@@ -492,35 +581,25 @@
             }
         }
 
-        // --- INICIALIZACE APLIKACE ---
         const startBtn = document.getElementById('startBtn');
 
         startBtn.addEventListener('click', () => {
-            // Skrytí tlačítka po spuštění
             startBtn.textContent = 'Běží generování...';
             startBtn.disabled = true;
 
-            // Inicializace Web Audio API
             const AudioContext = window.AudioContext || window.webkitAudioContext;
             ctx = new AudioContext();
 
-            // Vytvoření analyzátoru pro vizualizaci
             analyser = ctx.createAnalyser();
-            analyser.fftSize = 1024; // Velikost okena pro detailní spektrum
+            analyser.fftSize = 1024; 
             bufferLength = analyser.frequencyBinCount;
             dataArray = new Uint8Array(bufferLength);
 
-            // Nastavení master destination na analyzátor
-            // Tím se všechno z Jouza labu prožene přes vizualizér
             destination = analyser;
-            
-            // Propojení analyzátoru do reproduktorů počítače
             analyser.connect(ctx.destination);
 
-            // Spuštění vizualizační smyčky
             drawSpectrum();
 
-            // Spuštění samotného generátoru
             const app = new SacralCathedralGenerative();
             app.start();
         });
