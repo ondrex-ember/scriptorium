@@ -8074,42 +8074,47 @@ class AudioSystem {
 
     switchMusicTier(tier) {
         if (tier === 0) {
-            // Žádná hudba — fade out
-            this.musicGain.gain.setTargetAtTime(0, this.audioContext.currentTime, 1.0);
+            // Stopnout engine + odpojit gain = utiší vše včetně naplánovaných oscillátorů
             if (this.music) { this.music.stop(); this.music = null; }
+            try { this.musicGain.disconnect(); } catch(e) {}
+            this.musicGain = this.audioContext.createGain();
+            this.musicGain.gain.value = 0;
+            this.musicGain.connect(this.masterGain);
             this.musicTier = 0;
-            console.log('🎵 Hudba: vypnuta (žádný tier odemčen)');
+            console.log('Hudba: vypnuta');
             return;
         }
 
-        if (this.musicTier === tier && this.music && this.music._started) return; // Už hraje správný tier
+        if (this.musicTier === tier && this.music && this.music._started) return;
 
-        // Stopnout aktuální engine
+        // 1. Stopnout starý engine (interval + drony)
         if (this.music) {
             if (typeof this.music.stop === 'function') this.music.stop();
             this.music = null;
         }
 
-        // Guard proti race condition — každé volání dostane unikátní ID
+        // 2. KLIC: Odpojit starý musicGain — okamžitě utiší zbývající oscillátory
+        try { this.musicGain.disconnect(); } catch(e) {}
+
+        // 3. Vytvořit čistý nový musicGain
+        this.musicGain = this.audioContext.createGain();
+        this.musicGain.gain.value = 0;
+        this.musicGain.connect(this.masterGain);
+
+        // 4. Race condition guard
         if (!this._switchId) this._switchId = 0;
         this._switchId++;
         const thisSwitchId = this._switchId;
 
-        // Fade out před přepnutím
-        this.musicGain.gain.setTargetAtTime(0, this.audioContext.currentTime, 0.5);
-
-        // Spustit nový engine po krátkém fade
+        // 5. Spustit nový engine po krátkém fade-in
         setTimeout(() => {
-            if (this._switchId !== thisSwitchId) return; // Přišlo novější volání, zrušit
+            if (this._switchId !== thisSwitchId) return;
             if (tier === 1) {
                 this.music = new SacralCathedralGenerative(this.audioContext, this.musicGain);
-                console.log('🎵 Hudba: Tier 1 — Sacral Cathedral');
             } else if (tier === 2) {
                 this.music = new AbyssalKeepGenerative(this.audioContext, this.musicGain);
-                console.log('🎵 Hudba: Tier 2 — Abyssal Keep');
             } else if (tier === 3) {
                 this.music = new ArsNovaGenerative(this.audioContext, this.musicGain);
-                console.log('🎵 Hudba: Tier 3 — Ars Nova');
             }
             this.musicTier = tier;
             if (this.music && this.musicEnabled) {
