@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://myscriptorium.cz/sitemap.xml
