@@ -1769,6 +1769,62 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     </div>
 </div>
 
+
+<!-- PWA Install Banner -->
+<div id="pwa-install-banner" style="display:none; position:fixed; top:0; left:0; right:0; z-index:3000; padding:10px 16px; background:var(--ink-primary); color:var(--bg-parchment); border-bottom:2px solid var(--accent-gold); font-family:'Crimson Text', serif; font-size:0.9rem; align-items:center; gap:12px; box-shadow:0 2px 8px rgba(0,0,0,0.4);">
+    <img src="/icon-192.png" style="width:36px; height:36px; border-radius:8px; flex-shrink:0;" alt="Scriptorium">
+    <div style="flex:1; min-width:0;">
+        <div style="font-weight:bold; font-family:'Cinzel', serif; font-size:0.85rem; color:var(--accent-gold);">Scriptorium</div>
+        <div style="font-size:0.78rem; opacity:0.85;">Funguje offline, jako nativni app</div>
+    </div>
+    <button id="pwa-install-btn" style="padding:7px 14px; background:var(--accent-gold); color:var(--ink-primary); border:none; border-radius:4px; font-family:'Cinzel', serif; font-size:0.78rem; font-weight:bold; cursor:pointer; white-space:nowrap; flex-shrink:0;">Nainstalovat</button>
+    <button onclick="ScriptoriumPWA.dismiss()" style="background:none; border:none; color:var(--bg-parchment); font-size:1.3rem; cursor:pointer; padding:0 4px; opacity:0.7; flex-shrink:0; line-height:1;">&#215;</button>
+</div>
+
+<script>
+const ScriptoriumPWA = {
+    deferredPrompt: null,
+    init: function() {
+        if (localStorage.getItem('pwa_dismissed')) return;
+
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            this.deferredPrompt = e;
+            const banner = document.getElementById('pwa-install-banner');
+            if (banner) banner.style.display = 'flex';
+        });
+
+        window.addEventListener('appinstalled', () => {
+            this.hide();
+            localStorage.setItem('pwa_dismissed', '1');
+        });
+
+        const btn = document.getElementById('pwa-install-btn');
+        if (btn) btn.addEventListener('click', () => { this.install(); });
+    },
+    install: function() {
+        if (!this.deferredPrompt) return;
+        this.deferredPrompt.prompt();
+        this.deferredPrompt.userChoice.then((result) => {
+            if (result.outcome === 'accepted') {
+                localStorage.setItem('pwa_dismissed', '1');
+            }
+            this.deferredPrompt = null;
+            this.hide();
+        });
+    },
+    dismiss: function() {
+        localStorage.setItem('pwa_dismissed', '1');
+        this.hide();
+    },
+    hide: function() {
+        const banner = document.getElementById('pwa-install-banner');
+        if (banner) banner.style.display = 'none';
+    }
+};
+ScriptoriumPWA.init();
+</script>
+
 <script>
 /* BUILD:JS_BOOTSTRAP */
 </script>
