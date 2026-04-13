@@ -1415,9 +1415,22 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         </div>
 
        <div id="screen-garden" class="screen">
-            <h2>Zahrada</h2>
-            <p id="text-garden-desc" class="text-sm" style="margin-bottom:15px;" data-i18n="garden.desc">Pěstuj vzácné rostliny. Půda vyžaduje péči.</p>
-            <div id="garden-container" class="garden-grid"></div>
+            <h2 data-i18n="garden.title">Zahrada</h2>
+            <div class="filter-bar" style="margin-top:10px; margin-bottom:15px; flex-wrap: wrap; gap: 5px;">
+                <button id="garden-tab-btn-zahony" class="filter-btn active" onclick="UI.switchGardenTab('zahony', this)" data-i18n="garden.tabZahony">🌱 Záhony</button>
+                <button id="garden-tab-btn-dvur" class="filter-btn" onclick="UI.switchGardenTab('dvur', this)" data-i18n="garden.tabDvur">🐄 Dvůr</button>
+            </div>
+
+            <div id="garden-tab-zahony">
+                <p id="text-garden-desc" class="text-sm" style="margin-bottom:15px;" data-i18n="garden.desc">Pěstuj vzácné rostliny. Půda vyžaduje péči.</p>
+                <div id="garden-container" class="garden-grid"></div>
+            </div>
+
+            <div id="garden-tab-dvur" style="display:none;">
+                <p class="text-sm" style="margin-bottom:15px;" data-i18n="garden.dvorDesc">Hospodářský dvůr kláštera. Brzy zde bude možné chovat zvířata.</p>
+                <div id="farmyard-container"></div>
+            </div>
+
             <div id="well-management" style="margin-top: 30px; padding: 20px; background: rgba(0,0,0,0.2); border-radius: 10px;">
             <h3 data-i18n="wellUI.title">🚰 Správa Studny</h3>
             

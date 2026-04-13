@@ -1415,9 +1415,22 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         </div>
 
        <div id="screen-garden" class="screen">
-            <h2>Zahrada</h2>
-            <p id="text-garden-desc" class="text-sm" style="margin-bottom:15px;" data-i18n="garden.desc">Pěstuj vzácné rostliny. Půda vyžaduje péči.</p>
-            <div id="garden-container" class="garden-grid"></div>
+            <h2 data-i18n="garden.title">Zahrada</h2>
+            <div class="filter-bar" style="margin-top:10px; margin-bottom:15px; flex-wrap: wrap; gap: 5px;">
+                <button id="garden-tab-btn-zahony" class="filter-btn active" onclick="UI.switchGardenTab('zahony', this)" data-i18n="garden.tabZahony">🌱 Záhony</button>
+                <button id="garden-tab-btn-dvur" class="filter-btn" onclick="UI.switchGardenTab('dvur', this)" data-i18n="garden.tabDvur">🐄 Dvůr</button>
+            </div>
+
+            <div id="garden-tab-zahony">
+                <p id="text-garden-desc" class="text-sm" style="margin-bottom:15px;" data-i18n="garden.desc">Pěstuj vzácné rostliny. Půda vyžaduje péči.</p>
+                <div id="garden-container" class="garden-grid"></div>
+            </div>
+
+            <div id="garden-tab-dvur" style="display:none;">
+                <p class="text-sm" style="margin-bottom:15px;" data-i18n="garden.dvorDesc">Hospodářský dvůr kláštera. Brzy zde bude možné chovat zvířata.</p>
+                <div id="farmyard-container"></div>
+            </div>
+
             <div id="well-management" style="margin-top: 30px; padding: 20px; background: rgba(0,0,0,0.2); border-radius: 10px;">
             <h3 data-i18n="wellUI.title">🚰 Správa Studny</h3>
             
@@ -16955,6 +16968,7 @@ canonical: {
         vesperae_warning: 'Blíží se tma. Zapal světlo!'
     },
 garden: {
+        title: 'Zahrada',
         desc: 'Pěstuj vzácné rostliny. Půda vyžaduje péči.',
         fertilize: 'Zúrodnit',
         locked: 'Zamčeno',
@@ -16969,7 +16983,10 @@ garden: {
         growing: 'Roste...',
         grown: 'Vzrostlé',
         harvest: 'Sklidit',
-        wait: 'Čekat'
+        wait: 'Čekat',
+        tabZahony: '🌱 Záhony',
+        tabDvur: '🐄 Dvůr',
+        dvorDesc: 'Hospodářský dvůr kláštera. Brzy zde bude možné chovat zvířata.'
     },
     daily: {
     streak: 'Streak',
@@ -18278,6 +18295,7 @@ canonical: {
     },
 
 garden: {
+        title: 'The Garden',
         desc: 'Cultivate rare flora. The soil requires thy care.',
         fertilize: 'Fertilize',
         locked: 'Locked',
@@ -18292,7 +18310,10 @@ garden: {
         growing: 'Growing...',
         grown: 'Ready',
         harvest: 'Harvest',
-        wait: 'Wait'
+        wait: 'Wait',
+        tabZahony: '🌱 Plots',
+        tabDvur: '🐄 Farmyard',
+        dvorDesc: 'The monastery farmyard. Animals shall dwell here in time.'
     },
 
     daily: {
@@ -21708,6 +21729,21 @@ renderRecords: function() {
 },
 
 	
+    switchGardenTab: function(tab, btn) {
+        document.getElementById('garden-tab-zahony').style.display = tab === 'zahony' ? '' : 'none';
+        document.getElementById('garden-tab-dvur').style.display = tab === 'dvur' ? '' : 'none';
+        document.querySelectorAll('#screen-garden .filter-btn').forEach(b => b.classList.remove('active'));
+        if (btn) btn.classList.add('active');
+        if (tab === 'dvur') this.renderFarmyard();
+    },
+
+    renderFarmyard: function() {
+        const el = document.getElementById('farmyard-container');
+        if (!el) return;
+        // Placeholder — hospodářský dvůr bude implementován v dalším sezení
+        el.innerHTML = '<p class="text-sm" style="opacity:0.5; text-align:center; margin-top:20px;">🚧 In constructione...</p>';
+    },
+
     renderGarden: function() {
         const el = document.getElementById('garden-container'); el.innerHTML = "";
         

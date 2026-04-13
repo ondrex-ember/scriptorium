@@ -760,6 +760,7 @@ canonical: {
     },
 
 garden: {
+        title: 'The Garden',
         desc: 'Cultivate rare flora. The soil requires thy care.',
         fertilize: 'Fertilize',
         locked: 'Locked',
@@ -774,7 +775,10 @@ garden: {
         growing: 'Growing...',
         grown: 'Ready',
         harvest: 'Harvest',
-        wait: 'Wait'
+        wait: 'Wait',
+        tabZahony: '🌱 Plots',
+        tabDvur: '🐄 Farmyard',
+        dvorDesc: 'The monastery farmyard. Animals shall dwell here in time.'
     },
 
     daily: {

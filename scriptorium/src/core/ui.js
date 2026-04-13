@@ -1220,6 +1220,21 @@ renderRecords: function() {
 },
 
 	
+    switchGardenTab: function(tab, btn) {
+        document.getElementById('garden-tab-zahony').style.display = tab === 'zahony' ? '' : 'none';
+        document.getElementById('garden-tab-dvur').style.display = tab === 'dvur' ? '' : 'none';
+        document.querySelectorAll('#screen-garden .filter-btn').forEach(b => b.classList.remove('active'));
+        if (btn) btn.classList.add('active');
+        if (tab === 'dvur') this.renderFarmyard();
+    },
+
+    renderFarmyard: function() {
+        const el = document.getElementById('farmyard-container');
+        if (!el) return;
+        // Placeholder — hospodářský dvůr bude implementován v dalším sezení
+        el.innerHTML = '<p class="text-sm" style="opacity:0.5; text-align:center; margin-top:20px;">🚧 In constructione...</p>';
+    },
+
     renderGarden: function() {
         const el = document.getElementById('garden-container'); el.innerHTML = "";
         

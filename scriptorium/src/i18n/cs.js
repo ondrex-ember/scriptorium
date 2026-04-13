@@ -393,6 +393,7 @@ canonical: {
         vesperae_warning: 'Blíží se tma. Zapal světlo!'
     },
 garden: {
+        title: 'Zahrada',
         desc: 'Pěstuj vzácné rostliny. Půda vyžaduje péči.',
         fertilize: 'Zúrodnit',
         locked: 'Zamčeno',
@@ -407,7 +408,10 @@ garden: {
         growing: 'Roste...',
         grown: 'Vzrostlé',
         harvest: 'Sklidit',
-        wait: 'Čekat'
+        wait: 'Čekat',
+        tabZahony: '🌱 Záhony',
+        tabDvur: '🐄 Dvůr',
+        dvorDesc: 'Hospodářský dvůr kláštera. Brzy zde bude možné chovat zvířata.'
     },
     daily: {
     streak: 'Streak',
