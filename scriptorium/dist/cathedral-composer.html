@@ -216,6 +216,21 @@
             <div class="glyph-cell" id="g-CHOIR"><canvas width="90" height="90"></canvas><span>CHOIR</span></div>
             <div class="glyph-cell" id="g-DRONE"><canvas width="90" height="90"></canvas><span>DRONE</span></div>
         </div>
+        <div id="glyph-label" style="margin-top:8px">INTERMEZZO · TRANSITIONAL VOICES</div>
+        <div id="glyph-grid" style="justify-content:flex-start;gap:6px">
+            <div class="glyph-cell" id="g-TAMBURA"><canvas width="90" height="90"></canvas><span>TAMBURA</span></div>
+            <div class="glyph-cell" id="g-ISON"><canvas width="90" height="90"></canvas><span>ISON</span></div>
+            <div class="glyph-cell" id="g-CHALUMEAU"><canvas width="90" height="90"></canvas><span>CHALUMEAU</span></div>
+            <div class="glyph-cell" id="g-WATERPHONE"><canvas width="90" height="90"></canvas><span>WATERPHONE</span></div>
+        </div>
+        <div id="glyph-label" style="margin-top:8px">SOLOISTS · SPATIAL VOICES</div>
+        <div id="glyph-grid" style="justify-content:flex-start;gap:6px">
+            <div class="glyph-cell" id="g-KALIMBA"><canvas width="90" height="90"></canvas><span>KALIMBA</span></div>
+            <div class="glyph-cell" id="g-HURDY"><canvas width="90" height="90"></canvas><span>HURDY</span></div>
+            <div class="glyph-cell" id="g-NAY"><canvas width="90" height="90"></canvas><span>NAY</span></div>
+            <div class="glyph-cell" id="g-CRYSTAL"><canvas width="90" height="90"></canvas><span>CRYSTAL</span></div>
+            <div class="glyph-cell" id="g-SHRUTI"><canvas width="90" height="90"></canvas><span>SHRUTI</span></div>
+        </div>
     </div>
 
     <button id="startBtn">Iniciovat Opus</button>
@@ -235,6 +250,8 @@
             SCALE ROOT <span id="s-root">—</span> Hz &nbsp;|&nbsp;
             CIRCLE IDX <span id="s-circle">—</span> &nbsp;|&nbsp;
             STEP <span id="s-step">—</span>/6 &nbsp;|&nbsp;
+            MOD·SCORE <span id="s-modscore">—</span> &nbsp;|&nbsp;
+            INT·SCORE <span id="s-intscore">—</span> &nbsp;|&nbsp;
             NODES FIRED <span id="s-nodes">0</span>
         </div>
     </div>
@@ -260,6 +277,8 @@
         const sCircle    = document.getElementById('s-circle');
         const sStep      = document.getElementById('s-step');
         const sNodes     = document.getElementById('s-nodes');
+        const sModScore  = document.getElementById('s-modscore');
+        const sIntScore  = document.getElementById('s-intscore');
         let totalNodes   = 0;
         const MAX_LINES  = 60;
 
@@ -304,6 +323,8 @@
             SITAR: '#00ffcc', BELL:  '#aaffee', FLUTE: '#55ffdd',
             ANGEL: '#ccffff', CHANT: '#ffcc44', ORGAN: '#ff9944',
             BOWL:  '#44ddff', CHOIR: '#ff4488', DRONE: '#334466',
+            TAMBURA: '#bb88ff', ISON: '#ff88cc', CHALUMEAU: '#88aaff', WATERPHONE: '#ffaa00',
+            KALIMBA: '#aaff88', HURDY: '#ff6644', NAY: '#88ffee', CRYSTAL: '#eeeeff', SHRUTI: '#ffdd88',
         };
 
         // Každý nástroj má phase, pulse, freq, mood
@@ -491,7 +512,168 @@
                 }
             },
 
-            // DRONE — velmi pomalý pulsující kruh s filtrovaným šumem
+            // KALIMBA — rychlý spike s kovovou rezonancí
+            KALIMBA(cx2d, s, t, col, W) {
+                [1, 2.3, 4.1, 6.8].forEach((mult, i) => {
+                    const decay = Math.exp(-s.energy * 2 * i);
+                    const h = W * 0.35 * decay * s.energy;
+                    const x = W * (0.15 + i * 0.2);
+                    cx2d.fillStyle = col;
+                    cx2d.globalAlpha = decay * (0.2 + s.energy * 0.7);
+                    cx2d.fillRect(x - 2, W/2 - h, 4, h * 2);
+                    // Shimmer
+                    cx2d.beginPath();
+                    cx2d.arc(x, W/2 - h, 3, 0, Math.PI*2);
+                    cx2d.globalAlpha = decay * s.pulse;
+                    cx2d.fill();
+                });
+            },
+
+            // HURDY — horizontální dronová struna + buzzing dot
+            HURDY(cx2d, s, t, col, W) {
+                // Dronová struna
+                cx2d.beginPath();
+                for (let x = 0; x <= W; x += 2) {
+                    const bow = Math.sin(x * 0.08 + t * 7.5 + s.phase) * W * 0.06 * s.energy;
+                    const y = W * 0.45 + bow;
+                    x === 0 ? cx2d.moveTo(x, y) : cx2d.lineTo(x, y);
+                }
+                cx2d.strokeStyle = col; cx2d.lineWidth = 2;
+                cx2d.globalAlpha = 0.3 + s.energy * 0.5; cx2d.stroke();
+                // Melodická struna
+                cx2d.beginPath();
+                for (let x = 0; x <= W; x += 2) {
+                    const mel = Math.sin(x * 0.12 + t * 7.5 + s.phase + 1) * W * 0.1 * s.energy;
+                    const y = W * 0.55 + mel;
+                    x === 0 ? cx2d.moveTo(x, y) : cx2d.lineTo(x, y);
+                }
+                cx2d.strokeStyle = col; cx2d.lineWidth = 1.5;
+                cx2d.globalAlpha = 0.2 + s.energy * 0.4; cx2d.stroke();
+                // Buzz point
+                cx2d.beginPath();
+                cx2d.arc(W * 0.75, W * 0.45, 4 + s.pulse * 4, 0, Math.PI*2);
+                cx2d.fillStyle = col; cx2d.globalAlpha = s.energy * 0.8; cx2d.fill();
+            },
+
+            // NAY — noise texture s formant linkou
+            NAY(cx2d, s, t, col, W) {
+                // Breath noise jako scattered dots
+                for (let i = 0; i < 30 * s.energy; i++) {
+                    const nx = (Math.sin(i * 2.3 + t * 3) * 0.5 + 0.5) * W;
+                    const ny = (Math.cos(i * 1.7 + t * 2 + s.phase) * 0.5 + 0.5) * W;
+                    cx2d.beginPath();
+                    cx2d.arc(nx, ny, 0.8, 0, Math.PI*2);
+                    cx2d.fillStyle = col;
+                    cx2d.globalAlpha = 0.15 * s.energy;
+                    cx2d.fill();
+                }
+                // Formant linka
+                cx2d.beginPath();
+                for (let x = 0; x <= W; x += 3) {
+                    const y = W/2 + Math.sin((x/W)*Math.PI*3 + t*0.8 + s.phase) * W*0.25*s.energy;
+                    x === 0 ? cx2d.moveTo(x,y) : cx2d.lineTo(x,y);
+                }
+                cx2d.strokeStyle = col; cx2d.lineWidth = 1.5;
+                cx2d.globalAlpha = 0.4 + s.energy * 0.4; cx2d.stroke();
+            },
+
+            // CRYSTAL — velmi jemné soustředné kruhy s beatem
+            CRYSTAL(cx2d, s, t, col, W) {
+                [0, 0.15, -0.22].forEach((det, i) => {
+                    const beat = Math.sin(t * det * 2 + s.phase + i);
+                    const r = W * (0.15 + i * 0.1) + beat * W * 0.03 * s.energy;
+                    cx2d.beginPath();
+                    cx2d.arc(W/2, W/2, r, 0, Math.PI*2);
+                    cx2d.strokeStyle = col; cx2d.lineWidth = 1;
+                    cx2d.globalAlpha = (0.1 + s.energy * 0.5) * (1 - i * 0.2);
+                    cx2d.stroke();
+                });
+            },
+
+            // SHRUTI — AM pulzující obdélníkové vlny
+            SHRUTI(cx2d, s, t, col, W) {
+                const bellows = Math.sin(t * 0.4 * Math.PI * 2 + s.phase) * 0.5 + 0.5;
+                const bars = 8;
+                for (let i = 0; i < bars; i++) {
+                    const h = (W * 0.3 + Math.sin(i * 1.1 + s.phase) * W * 0.1) * bellows * s.energy;
+                    const x = (i / bars) * W + W / bars / 2;
+                    cx2d.fillStyle = col;
+                    cx2d.globalAlpha = 0.15 + bellows * s.energy * 0.5;
+                    cx2d.fillRect(x - 3, W/2 - h/2, 5, h);
+                }
+            },
+            TAMBURA(cx2d, s, t, col, W) {
+                [0, 1, 2, 3].forEach((i) => {
+                    const detune = (i - 1.5) * 0.003;
+                    cx2d.beginPath();
+                    for (let x = 0; x <= W; x += 2) {
+                        const y = W/2 + Math.sin((x/W)*Math.PI*6*(1+detune) + t*0.8 + s.phase + i*0.5)
+                                  * W * 0.18 * (0.4 + s.energy * 0.6);
+                        x === 0 ? cx2d.moveTo(x,y) : cx2d.lineTo(x,y);
+                    }
+                    cx2d.strokeStyle = col;
+                    cx2d.lineWidth = 1;
+                    cx2d.globalAlpha = (0.15 + s.energy*0.5) / (1 + Math.abs(i-1.5));
+                    cx2d.stroke();
+                });
+            },
+
+            // ISON — dvě stacionární horizontální vlny (unisono + kvinta)
+            ISON(cx2d, s, t, col, W) {
+                [1, 1.5].forEach((mult, i) => {
+                    const amp = W * 0.15 * s.energy / (i+1);
+                    const yBase = W * (0.35 + i * 0.3);
+                    cx2d.beginPath();
+                    for (let x = 0; x <= W; x += 2) {
+                        const y = yBase + Math.sin((x/W)*Math.PI*3*mult + t*0.4 + s.phase) * amp;
+                        x === 0 ? cx2d.moveTo(x,y) : cx2d.lineTo(x,y);
+                    }
+                    cx2d.strokeStyle = col;
+                    cx2d.lineWidth = 2 - i*0.5;
+                    cx2d.globalAlpha = 0.2 + s.energy*0.6;
+                    cx2d.stroke();
+                });
+            },
+
+            // CHALUMEAU — temná stoupající vlna s noise texturou
+            CHALUMEAU(cx2d, s, t, col, W) {
+                cx2d.strokeStyle = col;
+                cx2d.lineWidth = 2;
+                cx2d.globalAlpha = 0.15 + s.energy * 0.55;
+                cx2d.beginPath();
+                for (let x = 0; x <= W; x += 3) {
+                    const noise = (Math.sin(x*0.7+t*3+s.phase)*0.5 + Math.sin(x*1.3+t*2)*0.5);
+                    const y = W*0.7 - (x/W)*W*0.4 + noise * W * 0.08 * s.energy;
+                    x === 0 ? cx2d.moveTo(x,y) : cx2d.lineTo(x,y);
+                }
+                cx2d.stroke();
+                // Noise dots
+                for (let i = 0; i < 12 * s.energy; i++) {
+                    cx2d.beginPath();
+                    cx2d.arc(Math.random()*W, Math.random()*W, 0.8, 0, Math.PI*2);
+                    cx2d.fillStyle = col;
+                    cx2d.globalAlpha = 0.2 * s.energy;
+                    cx2d.fill();
+                }
+            },
+
+            // WATERPHONE — inharmonické paprsky rotující z centra
+            WATERPHONE(cx2d, s, t, col, W) {
+                const primes = [1.0, 1.41, 1.73, 2.23, 2.83];
+                primes.forEach((mult, i) => {
+                    const angle = s.phase + (i/primes.length)*Math.PI*2 + t*0.2*mult;
+                    const r = W*0.1 + Math.sin(t*mult+s.phase)*W*0.2*s.energy;
+                    const x2 = W/2 + Math.cos(angle)*(W*0.38);
+                    const y2 = W/2 + Math.sin(angle)*(W*0.38);
+                    cx2d.beginPath();
+                    cx2d.moveTo(W/2 + Math.cos(angle)*r, W/2 + Math.sin(angle)*r);
+                    cx2d.lineTo(x2, y2);
+                    cx2d.strokeStyle = col;
+                    cx2d.lineWidth = 1;
+                    cx2d.globalAlpha = (0.1 + s.energy*0.6) / (i*0.3+1);
+                    cx2d.stroke();
+                });
+            },
             DRONE(cx2d, s, t, col, W) {
                 const slow = Math.sin(t * 0.4 + s.phase);
                 for (let ring = 0; ring < 3; ring++) {
@@ -663,7 +845,55 @@
                 this.step = 0;    
                 this.measure = 0; 
                 this.mood = 0.5; 
-                this.moodDirection = 0.008 + Math.random() * 0.02; // variabilní rychlost
+                this.moodDirection = 0.008 + Math.random() * 0.02;
+
+                // ── COMPOSER BRAIN ───────────────────────────────────
+                this.minMeasuresBetweenModulations = 8;
+                this.measuresSinceModulation = 0;
+                this.measuresSinceIntermezzo = 0;
+                this.moodHistory = [];
+                this.instrumentHistory = [];
+                this.motifHistory = [];
+                this.lastModulationInterval = 0;
+                this.intermezzoActive = false;
+                this.intermezzoMeasuresLeft = 0;
+
+                // Váhy pro modulation scoring
+                this.weights = {
+                    harmonicTension:      0.30,
+                    moodTrajectory:       0.25,
+                    instrumentSaturation: 0.20,
+                    motifEntropy:         0.15,
+                    stagnation:           0.10,
+                };
+
+                // ── TEMPORÁLNÍ ARCHITEKTURA ──────────────────────────
+                // Tři vrstvy — každá má vlastní časový horizont
+                this.layers = {
+                    FOUNDATION: {
+                        instruments: ['DRONE','TAMBURA','ISON','SHRUTI'],
+                        horizonMeasures: 999, // permanentní
+                        maxSimultaneous: 2,
+                    },
+                    TEXTURE: {
+                        instruments: ['CHOIR','ORGAN','BOWL','CRYSTAL'],
+                        horizonMeasures: 8,
+                        maxSimultaneous: 2,
+                    },
+                    SOLOIST: {
+                        instruments: ['SITAR','FLUTE','KALIMBA','HURDY','NAY'],
+                        horizonMeasures: 1,
+                        maxSimultaneous: 1, // nikdy dva sólisté současně
+                    },
+                };
+
+                // Space tracking
+                this.recentFiredCount  = 0;   // nody v posledních 2 měrách
+                this.measuresSinceSolo = 999;  // ticho po sólistovi
+                this.soloActive        = false;
+                this.soloSuppressFor   = 0;    // měry blokace dalšího sólisty
+                this.nodeFiredThisMeasure = 0;
+                // ─────────────────────────────────────────────────────
             }
 
             updateScale() {
@@ -790,13 +1020,235 @@
 
             triggerIntermezzo(score) {
                 this.intermezzoActive = true;
-                this.intermezzoMeasuresLeft = 4 + Math.floor(Math.random() * 6); // 4–9 měr
+                this.intermezzoMeasuresLeft = 4 + Math.floor(Math.random() * 6);
                 this.measuresSinceIntermezzo = 0;
                 matrixPush('DRONE', this.scale[0] / 8, this.mood,
                     `INTERMEZZO·${this.intermezzoMeasuresLeft}m score:${score.toFixed(2)}`);
             }
 
-            // ── INTERMEZZO NÁSTROJE ──────────────────────────────────
+            // ── SPACE SCORE ──────────────────────────────────────────
+            // Měří kolik "prostoru" je aktuálně v poli — čím více tím lepší pro sólistu
+            scoreSpace() {
+                // 1. Hustota nodů — méně = více prostoru
+                const densityScore = 1 - Math.min(1, this.nodeFiredThisMeasure / 5);
+
+                // 2. Ticho od posledního sólisty
+                const silenceScore = Math.min(1, this.measuresSinceSolo / 6);
+
+                // 3. Foundation přítomnost — musí být něco pod sólistou
+                const foundationActive = this.droneGain && this.droneGain.gain.value > 0.02 ? 1 : 0;
+
+                // 4. Reverb tail — pokud jsme právě modulovali, tail ještě doznívá = dobrý prostor
+                const tailScore = Math.min(1, this.measuresSinceModulation / 4);
+
+                return (densityScore * 0.35) + (silenceScore * 0.35) +
+                       (foundationActive * 0.15) + (tailScore * 0.15);
+            }
+
+            // ── NOVÉ NÁSTROJE ────────────────────────────────────────
+
+            // KALIMBA — kovové plátky, inharmonický decay, africká idiofon
+            playKalimba(freq) {
+                if (!freq) return;
+                matrixPush('KALIMBA', freq, this.mood, 'SOLOIST·inharmonic-decay');
+                const t = ctx.currentTime;
+
+                // Kalimba má inharmonické parciály — 1, 2.3, 4.1, 6.8
+                [1, 2.3, 4.1, 6.8].forEach((mult, i) => {
+                    const osc = ctx.createOscillator(); osc.type = 'sine';
+                    osc.frequency.value = freq * mult;
+
+                    // Fyzikální decay — rychlejší pro vyšší parciály
+                    const dur = 2.5 / (1 + i * 0.8);
+                    const g = ctx.createGain();
+                    g.gain.setValueAtTime(0, t);
+                    g.gain.linearRampToValueAtTime(0.15 / (i + 1), t + 0.003); // ostrý attack
+                    g.gain.exponentialRampToValueAtTime(0.001, t + dur);
+
+                    // Kovový charakter — lehký metalický shimmer přes peaking EQ
+                    const peak = ctx.createBiquadFilter();
+                    peak.type = 'peaking';
+                    peak.frequency.value = freq * mult * 1.02;
+                    peak.gain.value = 3;
+                    peak.Q.value = 8;
+
+                    osc.connect(peak); peak.connect(g); g.connect(this.master);
+                    const rev = ctx.createGain(); rev.gain.value = 0.8;
+                    g.connect(rev); rev.connect(this.reverbBus);
+                    osc.start(t); osc.stop(t + dur + 0.05);
+                });
+            }
+
+            // HURDY-GURDY — dronová struna + melodická + buzzing trompette
+            playHurdy(freq) {
+                if (!freq) return;
+                matrixPush('HURDY', freq, this.mood, 'SOLOIST·mechanical-bow');
+                const t = ctx.currentTime;
+                const dur = 4.0 + getC() * 2.0;
+
+                // Dronová struna — continuous bow = sawtooth přes lowpass
+                const droneOsc = ctx.createOscillator(); droneOsc.type = 'sawtooth';
+                droneOsc.frequency.value = freq / 2; // kvinta pod melodií
+                const droneLp = ctx.createBiquadFilter();
+                droneLp.type = 'lowpass'; droneLp.frequency.value = 600;
+                const droneG = ctx.createGain();
+                droneG.gain.setValueAtTime(0, t);
+                droneG.gain.linearRampToValueAtTime(0.06, t + 0.3);
+                droneG.gain.setValueAtTime(0.06, t + dur - 0.3);
+                droneG.gain.linearRampToValueAtTime(0, t + dur);
+                droneOsc.connect(droneLp); droneLp.connect(droneG); droneG.connect(this.master);
+
+                // Melodická struna — mechanické vibrato 7.5 Hz
+                const melOsc = ctx.createOscillator(); melOsc.type = 'sawtooth';
+                melOsc.frequency.value = freq;
+                const mechVib = ctx.createOscillator(); mechVib.frequency.value = 7.5;
+                const mechVibG = ctx.createGain(); mechVibG.gain.value = freq * 0.008;
+                mechVib.connect(mechVibG); mechVibG.connect(melOsc.frequency);
+                const melLp = ctx.createBiquadFilter();
+                melLp.type = 'lowpass'; melLp.frequency.value = 1200;
+                const melG = ctx.createGain();
+                melG.gain.setValueAtTime(0, t);
+                melG.gain.linearRampToValueAtTime(0.09, t + 0.2);
+                melG.gain.setValueAtTime(0.09, t + dur - 0.2);
+                melG.gain.linearRampToValueAtTime(0, t + dur);
+                melOsc.connect(melLp); melLp.connect(melG); melG.connect(this.master);
+
+                // Trompette — buzzing dog — nárazová rezonance, velmi krátká
+                const buzzOsc = ctx.createOscillator(); buzzOsc.type = 'square';
+                buzzOsc.frequency.value = freq * 2.03; // mírně mimo tón = buzz
+                const buzzBp = ctx.createBiquadFilter();
+                buzzBp.type = 'bandpass'; buzzBp.frequency.value = freq * 4; buzzBp.Q.value = 3;
+                const buzzG = ctx.createGain();
+                buzzG.gain.setValueAtTime(0.04, t);
+                buzzG.gain.setValueAtTime(0.04, t + dur);
+                buzzOsc.connect(buzzBp); buzzBp.connect(buzzG); buzzG.connect(this.master);
+
+                const rev = ctx.createGain(); rev.gain.value = 0.4;
+                melG.connect(rev); rev.connect(this.reverbBus);
+
+                [droneOsc, melOsc, mechVib, buzzOsc].forEach(o => { o.start(t); o.stop(t + dur + 0.1); });
+            }
+
+            // NAY — egyptská/perská flétna, breath noise jako primární charakter
+            playNay(freq) {
+                if (!freq) return;
+                matrixPush('NAY', freq, this.mood, 'SOLOIST·breath-edge');
+                const t = ctx.currentTime;
+                const dur = 3.5 + getC() * 2.5;
+
+                // Breath edge tone — noise přes úzký bandpass = základ tónu
+                const bufLen = Math.ceil(ctx.sampleRate * dur);
+                const nBuf = ctx.createBuffer(1, bufLen, ctx.sampleRate);
+                const nd = nBuf.getChannelData(0);
+                let ln = 0;
+                for (let i = 0; i < bufLen; i++) {
+                    ln = ln + 0.08 * ((Math.random() * 2 - 1) - ln);
+                    nd[i] = ln;
+                }
+                const noise = ctx.createBufferSource(); noise.buffer = nBuf;
+
+                // Embouchure — bandpass ladění na freq, Q simuluje aperture
+                const emb = ctx.createBiquadFilter();
+                emb.type = 'bandpass'; emb.frequency.value = freq; emb.Q.value = 18;
+
+                // Harmonický oscilátorový základ — subtilní pod noise
+                const osc = ctx.createOscillator(); osc.type = 'sine';
+                osc.frequency.value = freq;
+                // Pomalé vibrato — 4 Hz, hluboké pro nay
+                const vib = ctx.createOscillator(); vib.frequency.value = 4.0;
+                const vibG = ctx.createGain(); vibG.gain.value = freq * 0.012;
+                vib.connect(vibG); vibG.connect(osc.frequency);
+
+                const oscG = ctx.createGain(); oscG.gain.value = 0.3; // podřízené noise
+
+                const masterG = ctx.createGain();
+                masterG.gain.setValueAtTime(0, t);
+                masterG.gain.linearRampToValueAtTime(0.14, t + 0.6); // pomalý náběh
+                masterG.gain.setValueAtTime(0.14, t + dur - 0.8);
+                masterG.gain.linearRampToValueAtTime(0, t + dur);
+
+                noise.connect(emb); emb.connect(masterG);
+                osc.connect(oscG); oscG.connect(masterG);
+                masterG.connect(this.master);
+
+                const rev = ctx.createGain(); rev.gain.value = 1.2;
+                masterG.connect(rev); rev.connect(this.reverbBus);
+
+                noise.start(t); noise.stop(t + dur + 0.1);
+                osc.start(t); osc.stop(t + dur + 0.1);
+                vib.start(t); vib.stop(t + dur + 0.1);
+            }
+
+            // CRYSTAL BOWL — čisté kvarcové mísy, beating mezi sinusoidy
+            playCrystal(freq) {
+                if (!freq) return;
+                matrixPush('CRYSTAL', freq, this.mood, 'TEXTURE·quartz-beating');
+                const t = ctx.currentTime;
+                const dur = 10.0 + getC() * 6.0;
+
+                // Tři mírně rozladěné sinusoidy = přirozený beating
+                const detunes = [0, 0.15, -0.22]; // Hz offset — velmi malý
+                detunes.forEach((det, i) => {
+                    const osc = ctx.createOscillator(); osc.type = 'sine';
+                    osc.frequency.value = freq + det;
+
+                    // Overtone — crystal má silnou oktávu
+                    const ot = ctx.createOscillator(); ot.type = 'sine';
+                    ot.frequency.value = (freq + det) * 2;
+                    const otG = ctx.createGain(); otG.gain.value = 0.2;
+
+                    const g = ctx.createGain();
+                    g.gain.setValueAtTime(0, t);
+                    g.gain.linearRampToValueAtTime(0.08 / (i + 1), t + 3.0); // velmi pomalý attack
+                    g.gain.exponentialRampToValueAtTime(0.001, t + dur);
+
+                    osc.connect(g); ot.connect(otG); otG.connect(g);
+                    g.connect(this.master);
+                    const rev = ctx.createGain(); rev.gain.value = 2.0; // crystal žije v reverbu
+                    g.connect(rev); rev.connect(this.reverbBus);
+
+                    osc.start(t); ot.start(t);
+                    osc.stop(t + dur + 0.1); ot.stop(t + dur + 0.1);
+                });
+            }
+
+            // SHRUTI BOX — vzduchový harmonium reed, pulzující měch
+            playShruti(freq) {
+                if (!freq) return;
+                matrixPush('SHRUTI', freq, this.mood, 'FOUNDATION·reed-bellows');
+                const t = ctx.currentTime;
+                const dur = 8.0 + getC() * 4.0;
+
+                // Reed = sawtooth přes velmi úzký bandpass
+                const osc = ctx.createOscillator(); osc.type = 'sawtooth';
+                osc.frequency.value = freq / 2;
+
+                // Měch LFO — pomalé 0.4 Hz AM = tlak vzduchu
+                const bellows = ctx.createOscillator(); bellows.type = 'sine';
+                bellows.frequency.value = 0.4;
+                const bellowsG = ctx.createGain(); bellowsG.gain.value = 0.25;
+                bellows.connect(bellowsG);
+
+                const reedBp = ctx.createBiquadFilter();
+                reedBp.type = 'bandpass'; reedBp.frequency.value = freq * 0.9; reedBp.Q.value = 6;
+
+                const amNode = ctx.createGain(); amNode.gain.value = 0.55;
+                bellowsG.connect(amNode.gain); // AM modulace
+
+                const g = ctx.createGain();
+                g.gain.setValueAtTime(0, t);
+                g.gain.linearRampToValueAtTime(0.12, t + 1.5);
+                g.gain.setValueAtTime(0.12, t + dur - 1.5);
+                g.gain.linearRampToValueAtTime(0, t + dur);
+
+                osc.connect(reedBp); reedBp.connect(amNode); amNode.connect(g);
+                g.connect(this.master);
+                const rev = ctx.createGain(); rev.gain.value = 0.5;
+                g.connect(rev); rev.connect(this.reverbBus);
+
+                osc.start(t); bellows.start(t);
+                osc.stop(t + dur + 0.1); bellows.stop(t + dur + 0.1);
+            }
 
             // TAMBURA — indický otevřený drone, čistý alikvotní obsah
             playTambura(freq) {
@@ -1234,28 +1686,27 @@
             start() {
                 this.manageDrone();
 
-                // FIX 5: setInterval → AudioContext-aware scheduling
-                // setInterval trpí JS event loop jitterem (±50ms), 
-                // scheduleNext rekurzivně plánuje přesně přes setTimeout + AudioContext clock
                 const scheduleNext = () => {
                     if (this.step === 0) {
+                        this.nodeFiredThisMeasure = 0;
+
                         // Mood update
                         this.mood += this.moodDirection;
                         if (this.mood > 1.0 || this.mood < 0.0) {
                             this.moodDirection *= -1; this.mood += this.moodDirection;
                         }
+                        this.mood = Math.max(0, Math.min(1, this.mood));
 
-                        if (this.measure > 0 && this.measure % 16 === 0) {
-                            this.currentCircleIndex = (this.currentCircleIndex + 1) % this.circleSteps.length;
-                            this.updateScale();
-                            // Randomizuj směr i rychlost — zabraňuje uvíznutí na ABYSS
-                            this.moodDirection = (0.008 + Math.random() * 0.018) * (Math.random() > 0.5 ? 1 : -1);
-                        }
+                        // Historie
+                        this.instrumentHistory.push('tick');
+                        if (this.instrumentHistory.length > 48) this.instrumentHistory.splice(0, 12);
+                        const motifIdx = Math.floor(Math.random() * this.motifs.length);
+                        this.motifHistory.push(motifIdx);
+                        if (this.motifHistory.length > 16) this.motifHistory.shift();
 
-                        let baseMotif = this.motifs[Math.floor(Math.random() * this.motifs.length)];
-                        let transposition = Math.random() < 0.3 ? 2 : 0; 
-                        if (this.measure % 4 === 0) transposition = 0; 
-                        
+                        let baseMotif = this.motifs[motifIdx];
+                        let transposition = Math.random() < 0.3 ? 2 : 0;
+                        if (this.measure % 4 === 0) transposition = 0;
                         this.currentPhrase = baseMotif.map(index => {
                             if (index === -1) return null;
                             let newIndex = index + transposition;
@@ -1263,15 +1714,16 @@
                             return this.scale[newIndex];
                         });
 
-                        // COMPOSER BRAIN — evaluuje každou měru
+                        // Space tracking
+                        this.measuresSinceSolo++;
+                        if (this.soloSuppressFor > 0) this.soloSuppressFor--;
+
                         this.evaluateComposer();
 
-                        // Intermezzo countdown
                         if (this.intermezzoActive) {
                             this.intermezzoMeasuresLeft--;
                             if (this.intermezzoMeasuresLeft <= 0) {
                                 this.intermezzoActive = false;
-                                // Po intermezzo vždy moduluj
                                 this.triggerModulation(0.99);
                             }
                         }
@@ -1279,8 +1731,6 @@
                         this.manageDrone();
                         matrixPush('DRONE', this.scale[0] / 8, this.mood, `root/8·filter`);
                         this.measure++;
-
-                        // Status bar
                         sMeasure.textContent = this.measure;
                         sRoot.textContent    = this.scale[0].toFixed(1);
                         sCircle.textContent  = this.currentCircleIndex;
@@ -1290,30 +1740,66 @@
                     const note = this.currentPhrase[this.step];
 
                     if (note) {
-                        if (this.mood < 0.4) {
-                            if (Math.random() > 0.3) this.playSitar(note);
-                            if (Math.random() > 0.85) this.playBell(note); 
-                            if ((this.step === 0 || this.step === 3) && Math.random() > 0.85) this.playFlute(note); 
-                            if (Math.random() > 0.75) this.playAngelVoice(note); 
-                        } 
-                        else if (this.mood >= 0.4 && this.mood < 0.7) {
-                            if (Math.random() > 0.25) this.playChant(note); 
-                            if (Math.random() > 0.8) this.playOrgan(note); 
-                            if (Math.random() > 0.6) this.playSingingBowl(note); 
-                        } 
-                        else {
-                            if (Math.random() > 0.45) this.playCreepyChoir(note);  // bylo 0.15
-                            if (Math.random() > 0.55) this.playOrgan(note / 2);    // bylo 0.75
-                            if (Math.random() > 0.5)  this.playBell(note / 2);     // bylo 0.8
-                            if (Math.random() > 0.6)  this.playSingingBowl(note / 2); // bylo 0.85
-                            if (Math.random() > 0.7)  this.playAngelVoice(note);   // nový — přidán i do ABYSS
+                        if (this.intermezzoActive) {
+                            // Intermezzo — přechodové nástroje, řídké
+                            const r = Math.random();
+                            if (r > 0.4)  { this.playTambura(note / 2); this.nodeFiredThisMeasure++; }
+                            if (r > 0.6)  { this.playIson(note); this.nodeFiredThisMeasure++; }
+                            if (r > 0.75) { this.playChalumeau(note); this.nodeFiredThisMeasure++; }
+                            if (r > 0.88) { this.playWaterphone(note); this.nodeFiredThisMeasure++; }
+
+                        } else {
+                            // ── FOUNDATION — vždy přítomná ──
+                            if (Math.random() > 0.7) {
+                                this.playShruti(note / 2);
+                                this.nodeFiredThisMeasure++;
+                            }
+
+                            // ── TEXTURE — závisí na mood ──
+                            const spaceNow = this.scoreSpace();
+
+                            if (this.mood < 0.4) {
+                                if (Math.random() > 0.6)  { this.playAngelVoice(note); this.nodeFiredThisMeasure++; }
+                                if (Math.random() > 0.75) { this.playSingingBowl(note); this.nodeFiredThisMeasure++; }
+                                if (Math.random() > 0.8)  { this.playCrystal(note); this.nodeFiredThisMeasure++; }
+                            } else if (this.mood < 0.7) {
+                                if (Math.random() > 0.3)  { this.playChant(note); this.nodeFiredThisMeasure++; }
+                                if (Math.random() > 0.7)  { this.playOrgan(note); this.nodeFiredThisMeasure++; }
+                                if (Math.random() > 0.65) { this.playSingingBowl(note); this.nodeFiredThisMeasure++; }
+                            } else {
+                                if (Math.random() > 0.45) { this.playCreepyChoir(note); this.nodeFiredThisMeasure++; }
+                                if (Math.random() > 0.55) { this.playOrgan(note / 2); this.nodeFiredThisMeasure++; }
+                                if (Math.random() > 0.6)  { this.playSingingBowl(note / 2); this.nodeFiredThisMeasure++; }
+                                if (Math.random() > 0.7)  { this.playBell(note / 2); this.nodeFiredThisMeasure++; }
+                            }
+
+                            // ── SOLOIST — pouze do připraveného prostoru, jen na downbeat ──
+                            const canSolo = spaceNow > 0.55 &&
+                                            this.soloSuppressFor === 0 &&
+                                            this.step === 0;
+
+                            if (canSolo) {
+                                this.measuresSinceSolo = 0;
+                                this.soloSuppressFor = 3 + Math.floor(Math.random() * 4);
+
+                                if (this.mood < 0.35) {
+                                    Math.random() > 0.5 ? this.playKalimba(note) : this.playNay(note);
+                                } else if (this.mood < 0.65) {
+                                    Math.random() > 0.5 ? this.playHurdy(note) : this.playSitar(note);
+                                } else {
+                                    Math.random() > 0.6 ? this.playFlute(note / 2) : this.playSitar(note / 2);
+                                }
+
+                                this.nodeFiredThisMeasure++;
+                                matrixPush('DRONE', note, this.mood,
+                                    `SPACE:${spaceNow.toFixed(2)}→SOLOIST·suppress:${this.soloSuppressFor}m`);
+                            }
                         }
                     }
 
                     this.step = (this.step + 1) % 6;
                     sStep.textContent = this.step;
 
-                    // Variabilní interval – původně bylo getB() vždy 0.5
                     const interval = 400 - (getB() * 150);
                     setTimeout(scheduleNext, interval);
                 };
