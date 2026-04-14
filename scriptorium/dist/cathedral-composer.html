@@ -201,13 +201,29 @@
             transition: color 0.5s;
         }
         #engine-status.running { color: #00ffcc; }
-        #startBtn.stop {
+        #quality-badge {
+            font-size: 0.55rem;
+            letter-spacing: 2px;
+            color: #1a4a38;
+            margin: 6px 0 16px;
+        }
+        #quality-badge.mobile  { color: #ffaa44; }
+        #quality-badge.desktop { color: #00ffcc; }
+        #engine-status-bottom {
+            font-size: 0.65rem;
+            letter-spacing: 3px;
+            color: #1a4a38;
+            margin-bottom: 8px;
+            transition: color 0.5s;
+        }
+        #engine-status-bottom.running { color: #00ffcc; }
+        #startBtn.stop, #startBtn2.stop {
             background-color: #1a0008;
             color: #ff4466;
             border: 1px solid #ff4466;
             box-shadow: 0 0 12px rgba(255,60,80,0.3);
         }
-        #startBtn.stop:hover {
+        #startBtn.stop:hover, #startBtn2.stop:hover {
             background-color: #ff4466;
             color: #000;
             box-shadow: 0 0 24px #ff4466;
@@ -218,6 +234,9 @@
 
     <h1>JOUZA LAB v6</h1>
     <p>LEVEL 1: SACRAL CATHEDRAL (Native Dark IR & Gentle Glue) · FIXED</p>
+
+    <div id="engine-status">SILENTIUM</div>
+    <button id="startBtn">INITIA OPUS</button>
 
     <canvas id="visualizer" width="800" height="300"></canvas>
 
@@ -252,11 +271,11 @@
         </div>
     </div>
 
-    <div id="engine-status">SILENTIUM</div>
-    <button id="startBtn">INITIA OPUS</button>
+    <div id="engine-status-bottom"></div>
+    <button id="startBtn2">INITIA OPUS</button>
+    <div id="quality-badge"></div>
 
     <div id="matrix-wrap">
-        <div id="matrix-header">
             <span>TIMESTAMP</span>
             <span>CTX·MS</span>
             <span>INSTRUMENT</span>
@@ -787,9 +806,13 @@
         canvasCtx.fillRect(0, 0, canvas.width, canvas.height);
 
         class SacralCathedralGenerative {
-            constructor() {
-                this.master = ctx.createGain(); 
-                this.master.gain.value = 0.45; // sníženo z 0.8 — hlavní headroom fix
+            constructor(mobileProfile = null) {
+                this.mobile = mobileProfile; // null = desktop, objekt = mobilní omezení
+                const masterGainVal = mobileProfile ? mobileProfile.masterGain : 0.45;
+                const reverbLen    = mobileProfile ? mobileProfile.reverbLen   : 4.0;
+
+                this.master = ctx.createGain();
+                this.master.gain.value = masterGainVal;
 
                 // Glue kompresor — stejné hodnoty, ale teď má prostor pracovat
                 this.compressor = ctx.createDynamicsCompressor();
@@ -820,7 +843,7 @@
                 this.reverbBus = ctx.createGain();
                 this.reverbBus.gain.value = 1.0;
                 
-                const revLen = ctx.sampleRate * 4.0; 
+                const revLen = ctx.sampleRate * reverbLen;
                 const revBuf = ctx.createBuffer(2, revLen, ctx.sampleRate);
                 const dL = revBuf.getChannelData(0);
                 const dR = revBuf.getChannelData(1);
@@ -1760,12 +1783,16 @@
                     const note = this.currentPhrase[this.step];
 
                     if (note) {
-                        if (this.intermezzoActive) {
-                            // Intermezzo — přechodové nástroje, řídké
+                        // Mobilní limit — nepřidávej nody pokud je jich moc
+                        const nodeLimit = this.mobile ? this.mobile.maxSimultaneousNodes : 99;
+                        if (this.nodeFiredThisMeasure >= nodeLimit) {
+                            // přeskočit
+                        } else if (this.intermezzoActive) {
                             const r = Math.random();
                             if (r > 0.4)  { this.playTambura(note / 2); this.nodeFiredThisMeasure++; }
                             if (r > 0.6)  { this.playIson(note); this.nodeFiredThisMeasure++; }
-                            if (r > 0.75) { this.playChalumeau(note); this.nodeFiredThisMeasure++; }
+                            // CHALUMEAU a NAY — BufferSource noise, zakázány na mobilu
+                            if (!this.mobile && r > 0.75) { this.playChalumeau(note); this.nodeFiredThisMeasure++; }
                             if (r > 0.88) { this.playWaterphone(note); this.nodeFiredThisMeasure++; }
 
                         } else {
@@ -1820,7 +1847,9 @@
                     this.step = (this.step + 1) % 6;
                     sStep.textContent = this.step;
 
-                    const interval = 400 - (getB() * 150);
+                    const interval = this.mobile
+                        ? this.mobile.intervalMin + (getB() * 100)
+                        : 400 - (getB() * 150);
                     setTimeout(scheduleNext, interval);
                 };
 
@@ -1829,30 +1858,66 @@
         }
 
         const startBtn      = document.getElementById('startBtn');
+        const startBtn2     = document.getElementById('startBtn2');
         const engineStatus  = document.getElementById('engine-status');
+        const engineStatusB = document.getElementById('engine-status-bottom');
+        const qualityBadge  = document.getElementById('quality-badge');
 
-        // Latinské věty pro restart — každý restart dostane jinou
+        // Detekce mobilu — kombinace user agent + hardware concurrency + touch
+        const isMobile = /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent)
+                      || (navigator.hardwareConcurrency !== undefined && navigator.hardwareConcurrency <= 4)
+                      || ('ontouchstart' in window && window.innerWidth < 900);
+
+        // Mobilní profil — odlehčený engine
+        const MOBILE = {
+            maxSimultaneousNodes: 3,    // max nodů najednou
+            noiseBufferDisabled: true,  // žádné BufferSource noise (NAY, CHALUMEAU vypnuty)
+            hrtfDisabled: true,         // HRTF panner → stereo panner (levnější)
+            glyphFps: 20,               // glyph renderer na 20fps místo 60
+            reverbLen: 2.0,             // kratší IR reverb (bylo 4.0s)
+            masterGain: 0.35,           // nižší gain = méně práce pro kompresor
+            intervalMin: 500,           // pomalejší scheduling
+        };
+
+        qualityBadge.className = isMobile ? 'mobile' : 'desktop';
+        qualityBadge.textContent = isMobile
+            ? '⚡ MOBILE MODE · LIGHTWEIGHT ENGINE'
+            : '◈ DESKTOP MODE · FULL QUALITY ENGINE';
+
         const latinPhrases = [
             'ITERUM RESONAT', 'SURGE ET CANTA', 'FIAT LUX SONORA',
             'REDI AD SONUM',  'INITIA OPUS',    'VENI CREATOR',
             'EX SILENTIO',    'AUDI ET VIVE',   'RESONARE FIBRIS',
         ];
         let latinIdx = 0;
-
         let isRunning = false;
+
+        function syncButtons(running, label) {
+            [startBtn, startBtn2].forEach(b => {
+                b.textContent = label;
+                running ? b.classList.add('stop') : b.classList.remove('stop');
+            });
+            [engineStatus, engineStatusB].forEach(el => {
+                el.textContent = running
+                    ? 'GENERATIO ACTIVE · ' + new Date().toLocaleTimeString()
+                    : 'SILENTIUM';
+                running ? el.classList.add('running') : el.classList.remove('running');
+            });
+        }
 
         function startEngine() {
             isRunning = true;
-            startBtn.textContent = 'SILENTIUM';
-            startBtn.classList.add('stop');
-            engineStatus.textContent = 'GENERATIO ACTIVE · ' + new Date().toLocaleTimeString();
-            engineStatus.classList.add('running');
+            syncButtons(true, 'SILENTIUM');
 
             const AudioContext = window.AudioContext || window.webkitAudioContext;
-            ctx = new AudioContext();
+
+            // Mobilní AudioContext — větší latencyHint pro stabilitu
+            ctx = isMobile
+                ? new AudioContext({ latencyHint: 'playback', sampleRate: 22050 })
+                : new AudioContext({ latencyHint: 'interactive' });
 
             analyser = ctx.createAnalyser();
-            analyser.fftSize = 1024;
+            analyser.fftSize = isMobile ? 512 : 1024; // poloviční FFT na mobilu
             bufferLength = analyser.frequencyBinCount;
             dataArray = new Uint8Array(bufferLength);
 
@@ -1862,41 +1927,22 @@
             drawSpectrum();
             drawGlyphs();
 
-            const app = new SacralCathedralGenerative();
+            const app = new SacralCathedralGenerative(isMobile ? MOBILE : null);
             app.start();
         }
 
         function stopEngine() {
             isRunning = false;
-            if (ctx) {
-                ctx.close(); // killne všechny audio nody
-                ctx = null;
-            }
-            // Reset glyph energies
+            if (ctx) { ctx.close(); ctx = null; }
             Object.values(glyphState).forEach(s => { s.energy = 0; s.pulse = 0; });
-
             latinIdx = (latinIdx + 1) % latinPhrases.length;
-            startBtn.textContent = latinPhrases[latinIdx];
-            startBtn.classList.remove('stop');
-            engineStatus.textContent = 'SILENTIUM';
-            engineStatus.classList.remove('running');
-
-            // Reset status bar
-            sMeasure.textContent = '—';
-            sRoot.textContent    = '—';
-            sCircle.textContent  = '—';
-            sStep.textContent    = '—';
-            sModScore.textContent = '—';
-            sIntScore.textContent = '—';
+            syncButtons(false, latinPhrases[latinIdx]);
+            [sMeasure, sRoot, sCircle, sStep, sModScore, sIntScore].forEach(el => el.textContent = '—');
         }
 
-        startBtn.addEventListener('click', () => {
-            if (isRunning) {
-                stopEngine();
-            } else {
-                startEngine();
-            }
-        });
+        function onBtnClick() { isRunning ? stopEngine() : startEngine(); }
+        startBtn.addEventListener('click', onBtnClick);
+        startBtn2.addEventListener('click', onBtnClick);
 
     </script>
 </body>
