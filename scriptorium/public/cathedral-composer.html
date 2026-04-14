@@ -228,6 +228,78 @@
             color: #000;
             box-shadow: 0 0 24px #ff4466;
         }
+
+        /* ── MOBILE FLOATING CARDS ──────────────────────────────── */
+        #mobile-stage {
+            display: none; /* viditelný jen na mobilu přes JS */
+            flex-direction: column;
+            width: 100%;
+            min-height: 60px;
+            margin-bottom: 12px;
+        }
+        .float-card {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: #02080a;
+            border: 1px solid #0a2a20;
+            border-radius: 6px;
+            padding: 8px 12px;
+            margin-bottom: 6px;
+            animation: cardIn 0.22s cubic-bezier(0.22,1,0.36,1) forwards;
+            position: relative;
+            overflow: hidden;
+        }
+        @keyframes cardIn {
+            from { opacity: 0; transform: translateY(-16px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        .float-card.falling {
+            animation: cardOut 0.35s ease-in forwards;
+            pointer-events: none;
+        }
+        @keyframes cardOut {
+            from { opacity: 1; transform: translateY(0) scale(1);    max-height: 70px; margin-bottom: 6px; }
+            to   { opacity: 0; transform: translateY(20px) scale(0.96); max-height: 0; margin-bottom: 0; padding-top:0; padding-bottom:0; }
+        }
+        .float-card canvas {
+            width: 48px; height: 48px;
+            border-radius: 4px; flex-shrink: 0;
+            background: #050508;
+        }
+        .float-card-info { flex: 1; text-align: left; }
+        .float-card-name {
+            font-size: 0.82rem; font-weight: bold;
+            letter-spacing: 2px;
+        }
+        .float-card-detail {
+            font-size: 0.58rem; color: #336655;
+            letter-spacing: 1px; margin-top: 2px;
+        }
+        .float-card-mood {
+            font-size: 0.6rem; letter-spacing: 1.5px; opacity: 0.7;
+        }
+        .float-card-bar {
+            position: absolute; bottom: 0; left: 0;
+            height: 2px; background: currentColor;
+            border-radius: 0 0 6px 0;
+            transition: width 0.12s linear;
+        }
+
+        @media (max-width: 900px) {
+            body { padding: 14px 10px; }
+            h1   { font-size: 1.1rem; margin-bottom: 4px; }
+            p    { font-size: 0.65rem; margin-bottom: 10px; }
+            #visualizer { width: 100%; height: 130px; margin-bottom: 10px; }
+            #startBtn, #startBtn2 { padding: 11px 24px; font-size: 0.9rem; }
+            #glyph-wrap    { display: none; } /* PC mřížka pryč */
+            #mobile-stage  { display: flex; } /* karty zapnuty */
+            #matrix-wrap   { width: 100%; }
+            #matrix-header { display: none; }
+            .log-time, .log-ms, .log-note { display: none; }
+            .log-line { grid-template-columns: 90px 70px 1fr; }
+            #status-bar { flex-wrap: wrap; gap: 3px; font-size: 0.52rem; }
+        }
     </style>
 </head>
 <body>
@@ -239,6 +311,9 @@
     <button id="startBtn">INITIA OPUS</button>
 
     <canvas id="visualizer" width="800" height="300"></canvas>
+
+    <!-- MOBILE: plovoucí karty aktivních nástrojů -->
+    <div id="mobile-stage"></div>
 
     <!-- INSTRUMENT GLYPH GRID -->
     <div id="glyph-wrap">
@@ -309,7 +384,112 @@
         let dataArray;
         let bufferLength;
 
-        // ── MATRIX LOGGER ──────────────────────────────────────────
+        // ── MOBILE FLOATING CARD ENGINE ─────────────────────────────
+        const mobileStage = document.getElementById('mobile-stage');
+        const activeCards = {}; // instrument → { el, canvas, ctx2d, timer }
+        const MAX_CARDS   = 5; // max viditelných karet najednou
+
+        function moodLabelShort(m) {
+            if (m < 0.4) return 'SERENE';
+            if (m < 0.7) return 'TENSION';
+            return 'ABYSS';
+        }
+
+        function mobileFire(instrument, freq, mood, extra) {
+            if (!isMobile) return;
+            const col = INST_COLORS[instrument] || '#00ffcc';
+
+            // Pokud karta už existuje — obnov energii a aktualizuj
+            if (activeCards[instrument]) {
+                const card = activeCards[instrument];
+                clearTimeout(card.timer);
+                card.el.style.color = col;
+                card.detail.textContent = extra || '';
+                card.moodEl.textContent = moodLabelShort(mood);
+                card.bar.style.width = '100%';
+                // Přesuň navrch
+                mobileStage.prepend(card.el);
+                // Nový timer pro pád
+                card.timer = setTimeout(() => dropCard(instrument), 4000);
+                return;
+            }
+
+            // Limit karet — nejstarší pryč
+            const cards = mobileStage.querySelectorAll('.float-card:not(.falling)');
+            if (cards.length >= MAX_CARDS) {
+                const oldest = cards[cards.length - 1];
+                const oldInst = oldest.dataset.instrument;
+                dropCard(oldInst);
+            }
+
+            // Vytvoř novou kartu
+            const el = document.createElement('div');
+            el.className = 'float-card';
+            el.dataset.instrument = instrument;
+            el.style.color = col;
+            el.style.borderColor = col + '44';
+
+            const cv = document.createElement('canvas');
+            cv.width = 90; cv.height = 90;
+            const cx2d = cv.getContext('2d');
+
+            const info = document.createElement('div');
+            info.className = 'float-card-info';
+
+            const nameEl = document.createElement('div');
+            nameEl.className = 'float-card-name';
+            nameEl.textContent = instrument;
+
+            const detailEl = document.createElement('div');
+            detailEl.className = 'float-card-detail';
+            detailEl.textContent = extra || '';
+
+            const moodEl = document.createElement('div');
+            moodEl.className = 'float-card-mood';
+            moodEl.textContent = moodLabelShort(mood);
+
+            const bar = document.createElement('div');
+            bar.className = 'float-card-bar';
+            bar.style.width = '100%';
+
+            info.append(nameEl, detailEl, moodEl);
+            el.append(cv, info, bar);
+            mobileStage.prepend(el);
+
+            // Energy bar decay
+            let energy = 1.0;
+            const barInterval = setInterval(() => {
+                energy *= 0.97;
+                bar.style.width = (energy * 100) + '%';
+                // Animuj glyf na mini canvas
+                const s = glyphState[instrument];
+                const draw = glyphDrawers[instrument];
+                if (s && draw) {
+                    cx2d.clearRect(0, 0, 90, 90);
+                    cx2d.shadowColor = col;
+                    cx2d.shadowBlur = 4 + s.energy * 8;
+                    draw(cx2d, s, Date.now() * 0.001, col, 90);
+                    cx2d.shadowBlur = 0;
+                }
+                if (energy < 0.02) clearInterval(barInterval);
+            }, 50);
+
+            const timer = setTimeout(() => dropCard(instrument), 4000 + Math.random() * 2000);
+            activeCards[instrument] = { el, canvas: cv, ctx2d: cx2d, timer, barInterval, detail: detailEl, moodEl, bar };
+        }
+
+        function dropCard(instrument) {
+            const card = activeCards[instrument];
+            if (!card) return;
+            clearTimeout(card.timer);
+            clearInterval(card.barInterval);
+            card.el.classList.add('falling');
+            card.el.addEventListener('animationend', () => {
+                card.el.remove();
+            }, { once: true });
+            delete activeCards[instrument];
+        }
+        // ─────────────────────────────────────────────────────────────
         const matrixLog  = document.getElementById('matrix-log');
         const sMeasure   = document.getElementById('s-measure');
         const sRoot      = document.getElementById('s-root');
@@ -330,7 +510,8 @@
         function matrixPush(instrument, freq, mood, extra = '') {
             totalNodes++;
             sNodes.textContent = totalNodes;
-            if (typeof glyphFire === 'function') glyphFire(instrument, freq, mood);
+            if (typeof glyphFire    === 'function') glyphFire(instrument, freq, mood);
+            if (typeof mobileFire   === 'function') mobileFire(instrument, freq, mood, extra);
 
             const now  = new Date();
             const ts   = `${String(now.getMinutes()).padStart(2,'0')}:${String(now.getSeconds()).padStart(2,'0')}`;
@@ -1479,7 +1660,7 @@
                 lowpass.connect(gain);
 
                 const panner = ctx.createPanner();
-                panner.panningModel = 'HRTF';
+                panner.panningModel = (this.mobile && this.mobile.hrtfDisabled) ? 'equalpower' : 'HRTF';
                 panner.distanceModel = 'inverse';
                 const orbitSpeed = 0.3;
                 const radius = 4.0; 
@@ -1830,7 +2011,9 @@
                                 this.soloSuppressFor = 3 + Math.floor(Math.random() * 4);
 
                                 if (this.mood < 0.35) {
-                                    Math.random() > 0.5 ? this.playKalimba(note) : this.playNay(note);
+                                    // NAY zakázán na mobilu (BufferSource noise)
+                                    const useNay = !this.mobile && Math.random() > 0.5;
+                                    useNay ? this.playNay(note) : this.playKalimba(note);
                                 } else if (this.mood < 0.65) {
                                     Math.random() > 0.5 ? this.playHurdy(note) : this.playSitar(note);
                                 } else {
