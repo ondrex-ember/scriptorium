@@ -193,7 +193,54 @@
             background: #010608;
         }
         #status-bar span { color: #00ffcc; }
-        #engine-status {
+        #tet-wrap {
+            width: 800px;
+            margin-bottom: 16px;
+            background: #050508;
+            border: 1px solid #0a2a20;
+            border-radius: 8px;
+            padding: 10px 14px;
+            box-sizing: border-box;
+        }
+        #tet-header {
+            font-size: 0.58rem;
+            color: #1a4a38;
+            letter-spacing: 2px;
+            margin-bottom: 8px;
+            text-align: left;
+        }
+        #tet-header span { color: #00ffcc; }
+        #tet-grid {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+        .tet-btn {
+            background: #02080a;
+            color: #1a6644;
+            border: 1px solid #0a2a20;
+            border-radius: 4px;
+            padding: 6px 14px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.75rem;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        .tet-btn:hover {
+            color: #00ffcc;
+            border-color: #00ffcc44;
+        }
+        .tet-btn.active {
+            background: #00ffcc18;
+            color: #00ffcc;
+            border-color: #00ffcc;
+            box-shadow: 0 0 8px rgba(0,255,204,0.2);
+        }
+        @media (max-width: 900px) {
+            #tet-wrap { width: 100%; }
+            .tet-btn  { padding: 6px 10px; font-size: 0.7rem; }
+        }
             font-size: 0.65rem;
             letter-spacing: 3px;
             color: #1a4a38;
@@ -229,7 +276,57 @@
             box-shadow: 0 0 24px #ff4466;
         }
 
-        /* ── MOBILE FLOATING CARDS ──────────────────────────────── */
+        /* ── TET PŘEPÍNAČ ───────────────────────────────────────── */
+        #tet-wrap {
+            width: 800px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 16px;
+            padding: 10px 16px;
+            background: #050508;
+            border: 1px solid #0a2a20;
+            border-radius: 6px;
+            box-sizing: border-box;
+        }
+        #tet-label {
+            font-size: 0.7rem;
+            letter-spacing: 2px;
+            color: #00ffcc;
+            min-width: 70px;
+            text-align: left;
+        }
+        #tet-btns {
+            display: flex;
+            gap: 5px;
+            flex-wrap: wrap;
+        }
+        .tet-btn {
+            background: #02080a;
+            color: #1a4a38;
+            border: 1px solid #0a2a20;
+            padding: 4px 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.72rem;
+            letter-spacing: 1px;
+            border-radius: 3px;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        .tet-btn:hover {
+            border-color: #00ffcc44;
+            color: #00ffcc88;
+        }
+        .tet-btn.active {
+            background: #001a12;
+            color: #00ffcc;
+            border-color: #00ffcc;
+            box-shadow: 0 0 8px rgba(0,255,204,0.2);
+        }
+        @media (max-width: 900px) {
+            #tet-wrap { width: 100%; gap: 8px; padding: 8px 10px; }
+            .tet-btn  { padding: 5px 8px; font-size: 0.7rem; }
+        }
         #mobile-stage {
             display: none; /* viditelný jen na mobilu přes JS */
             flex-direction: column;
@@ -312,6 +409,22 @@
 
     <canvas id="visualizer" width="800" height="300"></canvas>
 
+    <!-- TET PŘEPÍNAČ -->
+    <div id="tet-wrap">
+        <div id="tet-label">12-TET</div>
+        <div id="tet-btns">
+            <button class="tet-btn active" data-tet="5">5</button>
+            <button class="tet-btn"        data-tet="7">7</button>
+            <button class="tet-btn active" data-tet="12">12</button>
+            <button class="tet-btn"        data-tet="17">17</button>
+            <button class="tet-btn"        data-tet="19">19</button>
+            <button class="tet-btn"        data-tet="22">22</button>
+            <button class="tet-btn"        data-tet="24">24</button>
+            <button class="tet-btn"        data-tet="31">31</button>
+            <button class="tet-btn"        data-tet="53">53</button>
+        </div>
+    </div>
+
     <!-- MOBILE: plovoucí karty aktivních nástrojů -->
     <div id="mobile-stage"></div>
 
@@ -349,6 +462,22 @@
     <div id="engine-status-bottom"></div>
     <button id="startBtn2">INITIA OPUS</button>
     <div id="quality-badge"></div>
+
+    <!-- TET PŘEPÍNAČ -->
+    <div id="tet-wrap">
+        <div id="tet-header">TEMPERAMENT · <span id="tet-label">12-TET</span></div>
+        <div id="tet-grid">
+            <button class="tet-btn"        data-tet="5"  onclick="setTET(5)">5</button>
+            <button class="tet-btn"        data-tet="7"  onclick="setTET(7)">7</button>
+            <button class="tet-btn active" data-tet="12" onclick="setTET(12)">12</button>
+            <button class="tet-btn"        data-tet="17" onclick="setTET(17)">17</button>
+            <button class="tet-btn"        data-tet="19" onclick="setTET(19)">19</button>
+            <button class="tet-btn"        data-tet="22" onclick="setTET(22)">22</button>
+            <button class="tet-btn"        data-tet="24" onclick="setTET(24)">24</button>
+            <button class="tet-btn"        data-tet="31" onclick="setTET(31)">31</button>
+            <button class="tet-btn"        data-tet="53" onclick="setTET(53)">53</button>
+        </div>
+    </div>
 
     <div id="matrix-wrap">
             <span>TIMESTAMP</span>
@@ -957,6 +1086,33 @@
         }
         // ────────────────────────────────────────────────────────────
 
+        // ── TET SYSTÉMY ─────────────────────────────────────────────
+        // Každý systém: steps = kruh kvint v daném TET, scaleSteps = vybrané stupně
+        const TET_SYSTEMS = {
+             5: { name:  '5-TET', steps: 5,  circle: [0,3,1,4,2],               scale: [0,1,2,3,4] },
+             7: { name:  '7-TET', steps: 7,  circle: [0,4,1,5,2,6,3],           scale: [0,1,2,3,4,5,6] },
+            12: { name: '12-TET', steps: 12, circle: [0,7,2,9,4,11,6,1,8,3,10,5], scale: [0,2,4,5,7,9,10,12,14,17] },
+            17: { name: '17-TET', steps: 17, circle: [0,10,3,13,6,16,9,2,12,5,15,8,1,11,4,14,7], scale: [0,2,4,6,7,9,11,14,16,17] },
+            19: { name: '19-TET', steps: 19, circle: [0,11,3,14,6,17,9,1,12,4,15,7,18,10,2,13,5,16,8], scale: [0,3,5,8,11,13,16,19,22,27] },
+            22: { name: '22-TET', steps: 22, circle: [0,13,4,17,8,21,12,3,16,7,20,11,2,15,6,19,10,1,14,5,18,9], scale: [0,4,7,9,13,18,20,22,26,31] },
+            24: { name: '24-TET', steps: 24, circle: [0,14,4,18,8,22,12,2,16,6,20,10,24,14,4,18,8,22,12,2,16,6,20,10], scale: [0,4,8,10,14,18,20,24,28,34] },
+            31: { name: '31-TET', steps: 31, circle: [0,18,5,23,10,28,15,2,20,7,25,12,30,17,4,22,9,27,14,1,19,6,24,11,29,16,3,21,8,26,13], scale: [0,5,10,13,18,26,28,31,36,44] },
+            53: { name: '53-TET', steps: 53, circle: [0,31,9,40,18,49,27,5,36,14,45,23,1,32,10,41,19,50,28,6,37,15,46,24,2,33,11,42,20,51,29,7,38,16,47,25,3,34,12,43,21,52,30,8,39,17,48,26,4,35,13,44,22], scale: [0,9,18,22,31,44,49,53,62,75] },
+        };
+        let currentTET = 12; // výchozí
+
+        function setTET(n) {
+            currentTET = n;
+            // Pokud engine běží — okamžitě přepočítej
+            if (window._jouza) window._jouza.applyTET(n);
+            // Aktualizuj UI
+            document.querySelectorAll('.tet-btn').forEach(b => {
+                b.classList.toggle('active', parseInt(b.dataset.tet) === n);
+            });
+            document.getElementById('tet-label').textContent = TET_SYSTEMS[n].name;
+        }
+        // ─────────────────────────────────────────────────────────────
+
         function drawSpectrum() {
             requestAnimationFrame(drawSpectrum);
             if (!analyser) return;
@@ -1050,9 +1206,8 @@
                 this.convolver.connect(this.reverbOutGain);
                 this.reverbOutGain.connect(this.master);
 
-                this.baseFreq = 293.7; 
-                this.scaleRatios = [1.0, 1.059, 1.259, 1.335, 1.498, 1.587, 1.888, 1.999, 2.118, 2.519];
-                this.circleSteps = [0, 7, 2, 9, 4, 11, 6, 1, 8, 3, 10, 5]; 
+                this.baseFreq = 293.7;
+                this.applyTET(currentTET); // inicializace z aktuálního TET
                 this.currentCircleIndex = 0;
                 this.scale = [];
                 this.updateScale();
@@ -1120,10 +1275,26 @@
                 // ─────────────────────────────────────────────────────
             }
 
+            applyTET(n) {
+                const sys = TET_SYSTEMS[n] || TET_SYSTEMS[12];
+                this.tetSteps   = sys.steps;
+                this.circleSteps = sys.circle;
+                // Přepočítej scale ratios z vybraných stupňů v daném TET
+                this.scaleRatios = sys.scale.map(s => Math.pow(2, s / sys.steps));
+                // Omez circle index na délku nového kruhu
+                this.currentCircleIndex = (this.currentCircleIndex || 0) % this.circleSteps.length;
+                this.updateScale();
+                matrixPush && matrixPush('DRONE', this.baseFreq, this.mood || 0.5,
+                    `TET→${n} steps:${sys.steps}`);
+            }
+
             updateScale() {
-                let shift = this.circleSteps[this.currentCircleIndex];
-                if (shift > 6) shift -= 12; 
-                const newRoot = this.baseFreq * Math.pow(2, shift / 12);
+                const steps = this.tetSteps || 12;
+                let shift = this.circleSteps[this.currentCircleIndex] || 0;
+                // Centruj kolem 0 — horní polovina kruhu → záporný shift
+                const half = Math.floor(steps / 2);
+                if (shift > half) shift -= steps;
+                const newRoot = this.baseFreq * Math.pow(2, shift / steps);
                 this.scale = this.scaleRatios.map(ratio => newRoot * ratio);
             }
 
@@ -1227,9 +1398,10 @@
                     // Klidný — malý krok po kruhu
                     step = 1;
                 }
+                const circleLen = this.circleSteps.length;
                 const direction = Math.random() > 0.4 ? 1 : -1;
                 const prevIndex = this.currentCircleIndex;
-                this.currentCircleIndex = (this.currentCircleIndex + step * direction + 12) % 12;
+                this.currentCircleIndex = (this.currentCircleIndex + step * direction + circleLen) % circleLen;
                 this.lastModulationInterval = Math.abs(
                     this.circleSteps[this.currentCircleIndex] - this.circleSteps[prevIndex]
                 );
@@ -2111,6 +2283,7 @@
             drawGlyphs();
 
             const app = new SacralCathedralGenerative(isMobile ? MOBILE : null);
+            window._jouza = app;
             app.start();
         }
 
@@ -2123,6 +2296,14 @@
             [sMeasure, sRoot, sCircle, sStep, sModScore, sIntScore].forEach(el => el.textContent = '—');
         }
 
+        // TET přepínač — event listeners
+        document.querySelectorAll('.tet-btn').forEach(btn => {
+            btn.addEventListener('click', () => setTET(parseInt(btn.dataset.tet)));
+        });
+        // Nastav výchozí aktivní stav správně (jen 12 aktivní)
+        document.querySelectorAll('.tet-btn').forEach(b => {
+            b.classList.toggle('active', parseInt(b.dataset.tet) === 12);
+        });
         function onBtnClick() { isRunning ? stopEngine() : startEngine(); }
         startBtn.addEventListener('click', onBtnClick);
         startBtn2.addEventListener('click', onBtnClick);
