@@ -378,6 +378,8 @@ const Game = {
                 if (_tickCounter >= 60) {
                     _tickCounter = 0;
                     CellariumSystem.checkGiacomoEvent();
+                    // v8.x: Orchard growing → mature transition
+                    Game.checkOrchardGrowth();
                 }
             } catch(e) {
                 console.error('Time update error:', e);
@@ -646,6 +648,140 @@ const Game = {
         }
         Game.save(); UI.renderAll();
     },
+
+    // ═══════════════════════════════════════════════════════════════════════════
+    // SAD (Pomarium) — herní logika
+    // ═══════════════════════════════════════════════════════════════════════════
+
+    plantTree: function(slotIdx, seedId) {
+        if (!GameState.orchard) return;
+        if (!seedId) { UI.notify(t('game.noSeedSelected'), true); return; }
+        if (!(GameState.inventory[seedId] > 0)) { UI.notify(t('game.noSeeds'), true); return; }
+        const slot = GameState.orchard[slotIdx];
+        if (slot.state !== 'empty') { UI.notify(t('game.slotOccupied'), true); return; }
+        this.removeItem(seedId, 1);
+        slot.state    = 'growing';
+        slot.treeType = seedId;
+        slot.plantedAt = Date.now();
+        slot.lastHarvestAt = 0;
+        Game.save();
+        UI.renderOrchard();
+        UI.notify('🌱 ' + t('game.treePlanted'));
+    },
+
+    harvestTree: function(slotIdx) {
+        if (!GameState.orchard) return;
+        const slot = GameState.orchard[slotIdx];
+        if (slot.state !== 'mature') return;
+        const TREE_FRUITS = {
+            seed_apple: 'apple', seed_pear: 'pear', seed_plum: 'plum',
+            seed_cherry: 'cherry', seed_walnut: 'walnut', seed_mulberry: 'mulberry',
+            seed_quince: 'quince', seed_sorb: 'sorb', seed_rowan: 'rowan',
+            seed_linden: 'linden_fruit',
+        };
+        const fruit = TREE_FRUITS[slot.treeType];
+        if (!fruit) return;
+        const qty = (slot.treeType === 'seed_walnut' || slot.treeType === 'seed_sorb') ? 2 : 3;
+        this.addItem(fruit, qty);
+        // Lípa dává navíc lipový květ
+        if (slot.treeType === 'seed_linden') this.addItem('linden_blossom', 1);
+        // Pyl při každé sklizni
+        this.addItem('pollen', 1);
+        slot.lastHarvestAt = Date.now();
+        Game.save();
+        UI.renderOrchard();
+        UI.notify('🍎 ' + t('game.treeHarvested').replace('{qty}', qty));
+    },
+
+    fellTree: function(slotIdx) {
+        if (!GameState.orchard) return;
+        const slot = GameState.orchard[slotIdx];
+        if (slot.state === 'empty') return;
+        // Kácení dá dřevo
+        const woodQty = (slot.state === 'mature') ? 5 : 2;
+        this.addItem('stick', woodQty);
+        slot.state = 'empty';
+        slot.treeType = null;
+        slot.plantedAt = 0;
+        slot.lastHarvestAt = 0;
+        Game.save();
+        UI.renderOrchard();
+        UI.notify('🪓 ' + t('game.treeFelled').replace('{qty}', woodQty));
+    },
+
+    // ═══════════════════════════════════════════════════════════════════════════
+    // APIARIUM (Včelín) — herní logika
+    // ═══════════════════════════════════════════════════════════════════════════
+
+    buildHive: function(slotIdx) {
+        if (!GameState.apiary) return;
+        const hive = GameState.apiary[slotIdx];
+        if (hive.built) return;
+        if ((GameState.inventory['stick'] || 0) < 10) { UI.notify(t('game.needWood'), true); return; }
+        if ((GameState.inventory['rope']  || 0) < 5)  { UI.notify(t('game.needRope'), true); return; }
+        this.removeItem('stick', 10);
+        this.removeItem('rope', 5);
+        hive.built = true;
+        hive.hasQueen = false;
+        hive.lastCollectAt = 0;
+        Game.save();
+        UI.renderApiary();
+        UI.notify('🪹 ' + t('game.hiveBuilt'));
+    },
+
+    addQueen: function(slotIdx) {
+        if (!GameState.apiary) return;
+        const hive = GameState.apiary[slotIdx];
+        if (!hive.built || hive.hasQueen) return;
+        if (!(GameState.inventory['queen_bee'] > 0)) { UI.notify(t('game.needQueen'), true); return; }
+        this.removeItem('queen_bee', 1);
+        hive.hasQueen = true;
+        hive.lastCollectAt = Date.now();
+        Game.save();
+        UI.renderApiary();
+        UI.notify('🐝 ' + t('game.queenAdded'));
+    },
+
+    collectHive: function(slotIdx) {
+        if (!GameState.apiary) return;
+        const hive = GameState.apiary[slotIdx];
+        if (!hive.built || !hive.hasQueen) return;
+        const COLLECT_HOURS = 12;
+        const now = Date.now();
+        if (now < hive.lastCollectAt + (COLLECT_HOURS * 3600000)) { UI.notify(t('game.hiveNotReady'), true); return; }
+        this.addItem('honey', 2);
+        this.addItem('beeswax', 1);
+        // Bonus: pyl pokud jsou v zahradě kvetoucí záhony nebo sad
+        const hasFlowers = GameState.garden && GameState.garden.some(p => p.state === 2 && p.water);
+        const hasTrees   = GameState.orchard && GameState.orchard.some(s => s.state === 'mature');
+        if (hasFlowers || hasTrees) this.addItem('pollen', 1);
+        hive.lastCollectAt = now;
+        Game.save();
+        UI.renderApiary();
+        UI.notify('🍯 ' + t('game.hiveCollected'));
+    },
+
+    checkOrchardGrowth: function() {
+        if (!GameState.orchard) return;
+        const GROW_HOURS = {
+            seed_apple: 48, seed_pear: 48, seed_plum: 36, seed_cherry: 36,
+            seed_walnut: 72, seed_mulberry: 48, seed_quince: 60,
+            seed_sorb: 72, seed_rowan: 48, seed_linden: 60,
+        };
+        let changed = false;
+        GameState.orchard.forEach(slot => {
+            if (slot.state === 'growing') {
+                const hours = GROW_HOURS[slot.treeType] || 48;
+                if (Date.now() >= slot.plantedAt + (hours * 3600000)) {
+                    slot.state = 'mature';
+                    slot.lastHarvestAt = Date.now(); // první sklizeň hned k dispozici
+                    changed = true;
+                }
+            }
+        });
+        if (changed) { Game.save(); }
+    },
+
     scavenge: function(type) {
 	    // === SPECIAL HANDLING FOR WELL === (PŘIDAT NA ZAČÁTEK)
 		if (type === 'well_water') {
@@ -711,6 +847,16 @@ const Game = {
                         this.addItem('netolicky_legacy', 1);
                         UI.notify(t('game.rareFind'));
                     }
+                    // v8.x: Sad & Apiarium drops
+                    if(Math.random() < 0.04) this.addItem('pollen', 1);          // 4% — pyl z luk
+                    if(Math.random() < 0.03) this.addItem('linden_blossom', 1);  // 3% — lipový květ
+                    // Semena stromů — vzácné nálezy při sběru v přírodě
+                    const treeSeedRoll = Math.random();
+                    if(treeSeedRoll < 0.015)      this.addItem('seed_apple', 1);
+                    else if(treeSeedRoll < 0.025) this.addItem('seed_pear', 1);
+                    else if(treeSeedRoll < 0.034) this.addItem('seed_plum', 1);
+                    else if(treeSeedRoll < 0.040) this.addItem('seed_cherry', 1);
+                    else if(treeSeedRoll < 0.043) this.addItem('seed_rowan', 1);
                 }
                 else if (type === 'basic') {
                     this.addItem((r<0.5?'rock':'stick'), 1);
@@ -739,7 +885,9 @@ const Game = {
                     if(r<0.5) this.addItem('resin', 1);
                     else if(r<0.7) this.addItem('honey', 1);
                     else this.addItem('bark', 1);
-                    if(Math.random() < 0.15) this.addItem('beeswax', 1);
+                    if(Math.random() < 0.20) this.addItem('beeswax', 1);         // 20% (bylo 15%)
+                    if(Math.random() < 0.05) this.addItem('linden_blossom', 1);  // 5% — lípa u potoka
+                    if(Math.random() < 0.03) this.addItem('pollen', 1);          // 3% — pyl
                 }
                 total++;
             }

@@ -1221,11 +1221,15 @@ renderRecords: function() {
 
 	
     switchGardenTab: function(tab, btn) {
-        document.getElementById('garden-tab-zahony').style.display = tab === 'zahony' ? '' : 'none';
-        document.getElementById('garden-tab-dvur').style.display = tab === 'dvur' ? '' : 'none';
+        document.getElementById('garden-tab-zahony').style.display   = tab === 'zahony'   ? '' : 'none';
+        document.getElementById('garden-tab-sad').style.display      = tab === 'sad'      ? '' : 'none';
+        document.getElementById('garden-tab-apiarium').style.display = tab === 'apiarium' ? '' : 'none';
+        document.getElementById('garden-tab-dvur').style.display     = tab === 'dvur'     ? '' : 'none';
         document.querySelectorAll('#screen-garden .filter-btn').forEach(b => b.classList.remove('active'));
         if (btn) btn.classList.add('active');
-        if (tab === 'dvur') this.renderFarmyard();
+        if (tab === 'dvur')     this.renderFarmyard();
+        if (tab === 'sad')      this.renderOrchard();
+        if (tab === 'apiarium') this.renderApiary();
     },
 
     renderFarmyard: function() {
@@ -1233,6 +1237,169 @@ renderRecords: function() {
         if (!el) return;
         // Placeholder — hospodářský dvůr bude implementován v dalším sezení
         el.innerHTML = '<p class="text-sm" style="opacity:0.5; text-align:center; margin-top:20px;">🚧 In constructione...</p>';
+    },
+
+    // ═══════════════════════════════════════════════════════════════════════════
+    // SAD (Pomarium) — renderOrchard
+    // ═══════════════════════════════════════════════════════════════════════════
+    renderOrchard: function() {
+        const el = document.getElementById('orchard-container');
+        if (!el) return;
+        const hasTech = GameState.researchedTechs && GameState.researchedTechs.includes('tech_tractatus_arboribus');
+
+        if (!hasTech) {
+            el.innerHTML = `
+                <div style="text-align:center; padding:40px 20px; opacity:0.7;">
+                    <div style="font-size:3rem; margin-bottom:16px;">🌳</div>
+                    <div style="font-style:italic; font-size:0.95rem; margin-bottom:12px;">
+                        <em>Pomarium clausum est.</em>
+                    </div>
+                    <div style="font-size:0.82rem; opacity:0.75;">
+                        ${t('garden.orchardLocked')}
+                    </div>
+                </div>`;
+            return;
+        }
+
+        // Inicializace orchard v GameState pokud chybí
+        if (!GameState.orchard) {
+            GameState.orchard = Array.from({length: 10}, () => ({
+                state: 'empty',   // empty | growing | mature | fruiting
+                treeType: null,   // seed id (seed_apple atd.)
+                plantedAt: 0,
+                lastHarvestAt: 0,
+            }));
+        }
+
+        const TREE_DATA = {
+            seed_apple:    { name: t('items.seed_apple')    || 'Jabloň',    fruit: 'apple',        icon: '🍎', growHours: 48, harvestHours: 24 },
+            seed_pear:     { name: t('items.seed_pear')     || 'Hrušeň',    fruit: 'pear',         icon: '🍐', growHours: 48, harvestHours: 24 },
+            seed_plum:     { name: t('items.seed_plum')     || 'Slivovník', fruit: 'plum',         icon: '🫐', growHours: 36, harvestHours: 20 },
+            seed_cherry:   { name: t('items.seed_cherry')   || 'Třešeň',    fruit: 'cherry',       icon: '🍒', growHours: 36, harvestHours: 18 },
+            seed_walnut:   { name: t('items.seed_walnut')   || 'Ořešák',    fruit: 'walnut',       icon: '🥜', growHours: 72, harvestHours: 48 },
+            seed_mulberry: { name: t('items.seed_mulberry') || 'Moruše',    fruit: 'mulberry',     icon: '🍇', growHours: 48, harvestHours: 24 },
+            seed_quince:   { name: t('items.seed_quince')   || 'Kdouloň',   fruit: 'quince',       icon: '🍋', growHours: 60, harvestHours: 36 },
+            seed_sorb:     { name: t('items.seed_sorb')     || 'Oskeruše',  fruit: 'sorb',         icon: '🟤', growHours: 72, harvestHours: 48 },
+            seed_rowan:    { name: t('items.seed_rowan')    || 'Jeřáb',     fruit: 'rowan',        icon: '🔴', growHours: 48, harvestHours: 24 },
+            seed_linden:   { name: t('items.seed_linden')   || 'Lípa',      fruit: 'linden_fruit', icon: '🌸', growHours: 60, harvestHours: 36 },
+        };
+
+        let html = `<p class="text-sm" style="margin-bottom:15px; opacity:0.75;">${t('garden.orchardDesc')}</p>`;
+        html += `<div class="garden-grid">`;
+
+        GameState.orchard.forEach((slot, idx) => {
+            const now = Date.now();
+            let content = '';
+            let btn = '';
+
+            if (slot.state === 'empty') {
+                // Zjisti dostupná semena v inventáři
+                const availableSeeds = Object.keys(TREE_DATA).filter(s => (GameState.inventory[s] || 0) > 0);
+                if (availableSeeds.length === 0) {
+                    content = `<div class="plot-soil" style="opacity:0.3;">🌱</div><div class="text-sm">${t('garden.orchardEmpty')}</div>`;
+                    btn = `<button class="craft-btn" disabled>${t('garden.orchardNoSeeds')}</button>`;
+                } else {
+                    content = `<div class="plot-soil" style="opacity:0.3;">🟫</div><div class="text-sm">${t('garden.orchardEmpty')}</div>`;
+                    const opts = availableSeeds.map(s => `<option value="${s}">${TREE_DATA[s].name} (${GameState.inventory[s]}x)</option>`).join('');
+                    btn = `<select id="orchard-seed-${idx}" class="craft-btn" style="margin-bottom:4px; font-size:0.75rem;">${opts}</select>
+                           <button class="craft-btn" onclick="Game.plantTree(${idx}, document.getElementById('orchard-seed-${idx}').value)">${t('garden.orchardPlant')}</button>`;
+                }
+            } else if (slot.state === 'growing') {
+                const td = TREE_DATA[slot.treeType];
+                const matureAt = slot.plantedAt + (td ? td.growHours * 3600000 : 172800000);
+                const pct = Math.min(100, Math.round(((now - slot.plantedAt) / (matureAt - slot.plantedAt)) * 100));
+                content = `<div class="plot-soil">🌱</div><div class="text-sm">${td ? td.name : '?'}</div>`;
+                btn = `<button class="craft-btn" disabled style="font-size:0.72rem;">${t('garden.orchardGrowing')} ${pct}%</button>`;
+            } else if (slot.state === 'mature') {
+                const td = TREE_DATA[slot.treeType];
+                const fruitAt = slot.lastHarvestAt + (td ? td.harvestHours * 3600000 : 86400000);
+                if (now >= fruitAt) {
+                    // Plodí!
+                    content = `<div class="plot-soil" style="color:#4caf50;">${td ? td.icon : '🌳'}</div><div class="text-sm">${td ? td.name : '?'}</div>`;
+                    btn = `<button class="craft-btn" onclick="Game.harvestTree(${idx})">${t('garden.orchardHarvest')}</button>
+                           <button class="craft-btn" onclick="Game.fellTree(${idx})" style="background:#8b4a3a; margin-top:4px; font-size:0.72rem;">🪓 ${t('garden.orchardFell')}</button>`;
+                } else {
+                    const waitH = Math.ceil((fruitAt - now) / 3600000);
+                    content = `<div class="plot-soil" style="color:#888;">${td ? td.icon : '🌳'}</div><div class="text-sm">${td ? td.name : '?'}</div>`;
+                    btn = `<button class="craft-btn" disabled style="font-size:0.72rem;">${t('garden.orchardWait')} ${waitH}h</button>
+                           <button class="craft-btn" onclick="Game.fellTree(${idx})" style="background:#8b4a3a; margin-top:4px; font-size:0.72rem;">🪓 ${t('garden.orchardFell')}</button>`;
+                }
+            }
+
+            html += `<div class="garden-plot">${content}<div style="margin-top:auto;">${btn}</div></div>`;
+        });
+
+        html += `</div>`;
+        el.innerHTML = html;
+    },
+
+    // ═══════════════════════════════════════════════════════════════════════════
+    // APIARIUM (Včelín) — renderApiary
+    // ═══════════════════════════════════════════════════════════════════════════
+    renderApiary: function() {
+        const el = document.getElementById('apiary-container');
+        if (!el) return;
+        const hasTech = GameState.researchedTechs && GameState.researchedTechs.includes('tech_liber_apium');
+
+        if (!hasTech) {
+            el.innerHTML = `
+                <div style="text-align:center; padding:40px 20px; opacity:0.7;">
+                    <div style="font-size:3rem; margin-bottom:16px;">🐝</div>
+                    <div style="font-style:italic; font-size:0.95rem; margin-bottom:12px;">
+                        <em>Apiarium clausum est.</em>
+                    </div>
+                    <div style="font-size:0.82rem; opacity:0.75;">
+                        ${t('garden.apiaryLocked')}
+                    </div>
+                </div>`;
+            return;
+        }
+
+        // Inicializace apiary v GameState pokud chybí
+        if (!GameState.apiary) {
+            GameState.apiary = Array.from({length: 6}, () => ({
+                built: false,       // úl postaven?
+                hasQueen: false,    // má včelí matku?
+                lastCollectAt: 0,   // kdy naposledy sklizeno
+            }));
+        }
+
+        const COLLECT_HOURS = 12; // med + vosk každých 12h
+        const now = Date.now();
+
+        let html = `<p class="text-sm" style="margin-bottom:15px; opacity:0.75;">${t('garden.apiaryDesc')}</p>`;
+        html += `<div class="garden-grid">`;
+
+        GameState.apiary.forEach((hive, idx) => {
+            let content = '';
+            let btn = '';
+
+            if (!hive.built) {
+                content = `<div class="plot-soil" style="opacity:0.3;">🪵</div><div class="text-sm">${t('garden.apiaryEmpty')}</div>`;
+                // Cena: 10 dřevo + 5 provaz
+                const canBuild = (GameState.inventory['stick'] || 0) >= 10 && (GameState.inventory['rope'] || 0) >= 5;
+                btn = `<button class="craft-btn" onclick="Game.buildHive(${idx})" ${canBuild ? '' : 'disabled'} style="font-size:0.75rem;">${t('garden.apiaryBuild')}</button>`;
+            } else if (!hive.hasQueen) {
+                content = `<div class="plot-soil" style="opacity:0.5;">🪹</div><div class="text-sm">${t('garden.apiaryNoQueen')}</div>`;
+                const hasQueen = (GameState.inventory['queen_bee'] || 0) > 0;
+                btn = `<button class="craft-btn" onclick="Game.addQueen(${idx})" ${hasQueen ? '' : 'disabled'} style="font-size:0.75rem;">${t('garden.apiaryAddQueen')}</button>`;
+            } else {
+                const readyAt = hive.lastCollectAt + (COLLECT_HOURS * 3600000);
+                if (now >= readyAt) {
+                    content = `<div class="plot-soil" style="color:#c5a059;">🐝</div><div class="text-sm">${t('garden.apiaryReady')}</div>`;
+                    btn = `<button class="craft-btn" onclick="Game.collectHive(${idx})">${t('garden.apiaryCollect')}</button>`;
+                } else {
+                    const waitH = Math.ceil((readyAt - now) / 3600000);
+                    content = `<div class="plot-soil" style="color:#888;">🐝</div><div class="text-sm">${t('garden.apiaryWorking')}</div>`;
+                    btn = `<button class="craft-btn" disabled style="font-size:0.72rem;">${t('garden.apiaryWait')} ${waitH}h</button>`;
+                }
+            }
+
+            html += `<div class="garden-plot">${content}<div style="margin-top:auto;">${btn}</div></div>`;
+        });
+
+        html += `</div>`;
+        el.innerHTML = html;
     },
 
     renderGarden: function() {
