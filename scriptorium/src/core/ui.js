@@ -1266,7 +1266,7 @@ renderRecords: function() {
             ['hen_white','hen_black','hen_colored'].forEach(type => {
                 const has = (GameState.inventory[type]||0) > 0;
                 const icon = type==='hen_white'?'🐔':type==='hen_black'?'🐓':'🐣';
-                html += `<button class="craft-btn" onclick="Game.addHen('${type}')" ${has&&hensCount<10?'':'disabled'} style="font-size:0.75rem;">${icon} ${iName(type)}</button>`;
+                html += `<button class="craft-btn" onclick="Game.addHen('${type}')" ${has&&hensCount<10?'':'disabled'} style="font-size:0.75rem; white-space:normal; word-break:break-word;">${icon} ${iName(type)}</button>`;
             });
             html += `</div>`;
             html += `<div style="display:flex; gap:6px; flex-wrap:wrap; margin-bottom:10px;">`;

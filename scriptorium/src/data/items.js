@@ -126,7 +126,6 @@ const ItemsDB = {
 
     // GAMES
     "playing_cards":       { name:"Herní karty",              name_en:"Playing Cards",       icon:"🎴", type:"tool", desc:"Odemkne memory game.",          desc_en:"Unlocks the memory game." },
-    "iching_book":         { name:"I-Ching (Kniha Proměn)",   name_en:"I-Ching (Book of Changes)", icon:"☯️", type:"lore", cat:"lore", desc:"Starověký čínský text věštění.", desc_en:"Ancient Chinese divination text." },
     "ur_board":            { name:"Královská Deska z Uru",    name_en:"Royal Game of Ur",    icon:"🎲", type:"tool", cat:"tool", desc:"Nejstarší desková hra (2600 př.n.l.).", desc_en:"The oldest known board game (2600 BC)." },
     "primero_deck":        { name:"Primero Balíček",          name_en:"Primero Deck",        icon:"🃏", type:"tool", cat:"tool", desc:"Předchůdce pokeru.",              desc_en:"Ancestor of poker." },
     "karnoffel_deck":      { name:"Karnöffel Balíček",        name_en:"Karnöffel Deck",      icon:"🎴", type:"tool", cat:"tool", desc:"Nejstarší trumfová hra. 1426.",   desc_en:"Oldest trump card game. 1426." },

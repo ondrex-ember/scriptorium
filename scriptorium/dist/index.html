@@ -3753,7 +3753,6 @@ const ItemsDB = {
 
     // GAMES
     "playing_cards":       { name:"Herní karty",              name_en:"Playing Cards",       icon:"🎴", type:"tool", desc:"Odemkne memory game.",          desc_en:"Unlocks the memory game." },
-    "iching_book":         { name:"I-Ching (Kniha Proměn)",   name_en:"I-Ching (Book of Changes)", icon:"☯️", type:"lore", cat:"lore", desc:"Starověký čínský text věštění.", desc_en:"Ancient Chinese divination text." },
     "ur_board":            { name:"Královská Deska z Uru",    name_en:"Royal Game of Ur",    icon:"🎲", type:"tool", cat:"tool", desc:"Nejstarší desková hra (2600 př.n.l.).", desc_en:"The oldest known board game (2600 BC)." },
     "primero_deck":        { name:"Primero Balíček",          name_en:"Primero Deck",        icon:"🃏", type:"tool", cat:"tool", desc:"Předchůdce pokeru.",              desc_en:"Ancestor of poker." },
     "karnoffel_deck":      { name:"Karnöffel Balíček",        name_en:"Karnöffel Deck",      icon:"🎴", type:"tool", cat:"tool", desc:"Nejstarší trumfová hra. 1426.",   desc_en:"Oldest trump card game. 1426." },
@@ -9324,6 +9323,12 @@ const CellariumSystem = {
     seed_sorb:      9,
     seed_rowan:     4,
     seed_linden:    7,
+    // Produkty Gallinarium & Ovile
+    chicken_meat:   4,
+    mutton:         6,
+    lamb_hide:      8,
+    chick:          3,
+    lamb:           5,
   },
 
   // Koeficienty per entita (prodej hráče → entita)
@@ -9359,6 +9364,8 @@ const CellariumSystem = {
     seed_apple: 'mat', seed_pear: 'mat', seed_plum: 'mat', seed_cherry: 'mat',
     seed_walnut: 'mat', seed_mulberry: 'mat', seed_quince: 'mat', seed_sorb: 'mat',
     seed_rowan: 'mat', seed_linden: 'mat',
+    chicken_meat: 'food', mutton: 'food',
+    lamb_hide: 'mat', chick: 'mat', lamb: 'mat',
   },
 
   // Výpočet ceny s náhodným offsetem (seed per den+entita pro konzistenci v rámci dne)
@@ -9836,7 +9843,7 @@ const CellariumSystem = {
     });
 
     // Wrapper — dva sloupce
-    h += `<div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; align-items:start;">`;
+    h += `<div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:16px; align-items:start;">`;
 
     // Levý sloupec — NÁKUP
     h += `<div>`;
@@ -16716,7 +16723,15 @@ const STRINGS_cs = {
         condition: 'Stav:',
         clean: '✨ Vyčistit (prášek)',
         repair: '🔧 Opravit (sada)',
-        upgrade: '🏛️ Vyzdít kamenem (30 kámen, 5 provaz, 10 uhel)'
+        upgrade: '🏛️ Vyzdít kamenem (30 kámen, 5 provaz, 10 uhel)',
+        levelNone: 'Žádná',
+        levelBasic: 'Základní',
+        levelStone: 'Kamenná',
+        levelBlessed: 'Posvěcená',
+        levelUnknown: 'Neznámá',
+        condClean: '✓ Čistá',
+        condDirty: '⚠️ Znečištěná',
+        condBroken: '💥 Poškozená'
     },
     settingsUI: {
         musicTitle: '🎵 Hudba',
@@ -17142,7 +17157,7 @@ garden: {
         tabSad: '🌳 Sad',
         tabApiarium: '🐝 Apiarium',
         tabDvur: '🐄 Dvůr',
-        dvorDesc: 'Hospodářský dvůr kláštera. Brzy zde bude možné chovat zvířata.',
+        dvorDesc: 'Hospodářský dvůr kláštera. Postav kurník, chlév a spravuj studnu.',
         // Sad (Pomarium)
         orchardLocked: 'Odemkni technologii Tractatus de Arboribus (10 zápisků) pro přístup k sadu.',
         orchardDesc: 'Klášterní sad. Zasaď semeno, čekej na vzrůst a opakovaně sklízej ovoce.',
@@ -18569,7 +18584,7 @@ garden: {
         tabSad: '🌳 Orchard',
         tabApiarium: '🐝 Apiary',
         tabDvur: '🐄 Farmyard',
-        dvorDesc: 'The monastery farmyard. Animals shall dwell here in time.',
+        dvorDesc: 'The monastery farmyard. Build a henhouse, a sheepfold and tend the well.',
         // Orchard (Pomarium)
         orchardLocked: 'Unlock the Tractatus de Arboribus (10 notes) to tend the orchard.',
         orchardDesc: 'The monastery orchard. Plant a seed, await its growth, and harvest fruit in season.',
@@ -22514,7 +22529,7 @@ renderRecords: function() {
             ['hen_white','hen_black','hen_colored'].forEach(type => {
                 const has = (GameState.inventory[type]||0) > 0;
                 const icon = type==='hen_white'?'🐔':type==='hen_black'?'🐓':'🐣';
-                html += `<button class="craft-btn" onclick="Game.addHen('${type}')" ${has&&hensCount<10?'':'disabled'} style="font-size:0.75rem;">${icon} ${iName(type)}</button>`;
+                html += `<button class="craft-btn" onclick="Game.addHen('${type}')" ${has&&hensCount<10?'':'disabled'} style="font-size:0.75rem; white-space:normal; word-break:break-word;">${icon} ${iName(type)}</button>`;
             });
             html += `</div>`;
             html += `<div style="display:flex; gap:6px; flex-wrap:wrap; margin-bottom:10px;">`;

@@ -825,7 +825,7 @@ garden: {
         tabSad: '🌳 Orchard',
         tabApiarium: '🐝 Apiary',
         tabDvur: '🐄 Farmyard',
-        dvorDesc: 'The monastery farmyard. Animals shall dwell here in time.',
+        dvorDesc: 'The monastery farmyard. Build a henhouse, a sheepfold and tend the well.',
         // Orchard (Pomarium)
         orchardLocked: 'Unlock the Tractatus de Arboribus (10 notes) to tend the orchard.',
         orchardDesc: 'The monastery orchard. Plant a seed, await its growth, and harvest fruit in season.',

@@ -204,6 +204,12 @@ const CellariumSystem = {
     seed_sorb:      9,
     seed_rowan:     4,
     seed_linden:    7,
+    // Produkty Gallinarium & Ovile
+    chicken_meat:   4,
+    mutton:         6,
+    lamb_hide:      8,
+    chick:          3,
+    lamb:           5,
   },
 
   // Koeficienty per entita (prodej hráče → entita)
@@ -239,6 +245,8 @@ const CellariumSystem = {
     seed_apple: 'mat', seed_pear: 'mat', seed_plum: 'mat', seed_cherry: 'mat',
     seed_walnut: 'mat', seed_mulberry: 'mat', seed_quince: 'mat', seed_sorb: 'mat',
     seed_rowan: 'mat', seed_linden: 'mat',
+    chicken_meat: 'food', mutton: 'food',
+    lamb_hide: 'mat', chick: 'mat', lamb: 'mat',
   },
 
   // Výpočet ceny s náhodným offsetem (seed per den+entita pro konzistenci v rámci dne)
@@ -716,7 +724,7 @@ const CellariumSystem = {
     });
 
     // Wrapper — dva sloupce
-    h += `<div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; align-items:start;">`;
+    h += `<div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:16px; align-items:start;">`;
 
     // Levý sloupec — NÁKUP
     h += `<div>`;

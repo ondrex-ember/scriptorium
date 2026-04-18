@@ -32,7 +32,15 @@ const STRINGS_cs = {
         condition: 'Stav:',
         clean: '✨ Vyčistit (prášek)',
         repair: '🔧 Opravit (sada)',
-        upgrade: '🏛️ Vyzdít kamenem (30 kámen, 5 provaz, 10 uhel)'
+        upgrade: '🏛️ Vyzdít kamenem (30 kámen, 5 provaz, 10 uhel)',
+        levelNone: 'Žádná',
+        levelBasic: 'Základní',
+        levelStone: 'Kamenná',
+        levelBlessed: 'Posvěcená',
+        levelUnknown: 'Neznámá',
+        condClean: '✓ Čistá',
+        condDirty: '⚠️ Znečištěná',
+        condBroken: '💥 Poškozená'
     },
     settingsUI: {
         musicTitle: '🎵 Hudba',
@@ -458,7 +466,7 @@ garden: {
         tabSad: '🌳 Sad',
         tabApiarium: '🐝 Apiarium',
         tabDvur: '🐄 Dvůr',
-        dvorDesc: 'Hospodářský dvůr kláštera. Brzy zde bude možné chovat zvířata.',
+        dvorDesc: 'Hospodářský dvůr kláštera. Postav kurník, chlév a spravuj studnu.',
         // Sad (Pomarium)
         orchardLocked: 'Odemkni technologii Tractatus de Arboribus (10 zápisků) pro přístup k sadu.',
         orchardDesc: 'Klášterní sad. Zasaď semeno, čekej na vzrůst a opakovaně sklízej ovoce.',
