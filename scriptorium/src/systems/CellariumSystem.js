@@ -393,42 +393,42 @@ const CellariumSystem = {
   renderBuyPanel: function(entity, lang) {
     const shopList = this.ENTITY_SHOP[entity];
     if (!shopList || shopList.length === 0) return '';
-    const entityNames = { tavern: lang === 'en' ? 'Tavern' : 'Hospody', shop: lang === 'en' ? 'Shop' : 'Obchodu', market: lang === 'en' ? 'Market' : 'Trhu' };
-    const rows = shopList.map(entry => {
+    const buyLabel = lang === 'en' ? 'BUY' : 'NÁKUP';
+    const cards = shopList.map(entry => {
       const item = ItemsDB[entry.itemId];
-      const icon = item ? item.icon : '📦';
+      const icon = (item && item.icon) ? item.icon : '📦';
       const name = (typeof iName === 'function') ? iName(entry.itemId) : (item ? item.name : entry.itemId);
-      const desc = item ? (lang === 'en' ? (item.desc_en || item.desc) : item.desc) : '';
       const price = this.calcBuyPrice(entry.itemId, entity, entry.basePrice);
       const canAfford = this.getGrose() >= price;
       return `
-        <div style="display:flex; align-items:center; gap:12px; padding:8px 0;
-                    border-bottom:1px solid rgba(197,160,89,0.1);">
-          <span style="font-size:1.6rem; min-width:32px; text-align:center;">${icon}</span>
+        <div style="padding:8px 10px; background:rgba(197,160,89,0.06);
+                    border-radius:6px; border:1px solid rgba(197,160,89,0.2);
+                    display:flex; align-items:center; gap:8px;">
+          <span style="font-size:1.4rem; min-width:28px; text-align:center;">${icon}</span>
           <div style="flex:1; min-width:0;">
-            <div style="font-weight:bold; font-size:0.88rem;">${name}</div>
-            <div style="font-size:0.72rem; opacity:0.55; font-style:italic;">${desc}</div>
+            <div style="font-weight:bold; font-size:0.82rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${name}</div>
+            <div style="font-size:0.72rem; opacity:0.65;">${price} 💰</div>
           </div>
-          <div style="text-align:right; flex-shrink:0;">
-            <div style="font-size:0.78rem; opacity:0.7; margin-bottom:4px;">${price} 💰</div>
-            <button onclick="CellariumSystem.buyItem('${entity}','${entry.itemId}')"
-                    class="craft-btn"
-                    style="padding:4px 12px; font-size:0.78rem;"
-                    ${canAfford ? '' : 'disabled'}>
-              ${lang === 'en' ? 'Buy' : 'Koupit'}
-            </button>
-          </div>
+          <button onclick="CellariumSystem.buyItem('${entity}','${entry.itemId}')"
+                  class="craft-btn"
+                  style="padding:3px 10px; font-size:0.75rem; flex-shrink:0;"
+                  ${canAfford ? '' : 'disabled'}>
+            ${lang === 'en' ? 'Buy' : 'Koupit'}
+          </button>
         </div>
       `;
     }).join('');
     return `
-      <div style="margin-bottom:16px; padding:14px; background:rgba(197,160,89,0.08);
-                  border-radius:8px; border:1px solid rgba(197,160,89,0.3);">
-        <div style="font-size:0.75rem; opacity:0.6; margin-bottom:10px; font-style:italic;
-                    text-transform:uppercase; letter-spacing:0.05em;">
-          ${t('cellarium.buySection').replace('{entity}', entityNames[entity] || entity)}
+      <div style="margin-bottom:0;">
+        <div style="font-size:0.7rem; font-weight:bold; letter-spacing:0.08em;
+                    text-transform:uppercase; color:var(--accent-gold);
+                    margin-bottom:8px; padding-bottom:4px;
+                    border-bottom:2px solid var(--accent-gold);">
+          📥 ${buyLabel}
         </div>
-        ${rows}
+        <div style="display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:6px;">
+          ${cards}
+        </div>
       </div>
     `;
   },
@@ -704,10 +704,8 @@ const CellariumSystem = {
       return h;
     }
 
-    // ── Nákupní sekce (special item per entita) ─────────────────────────────
-    h += this.renderBuyPanel(entity, lang);
-
-    // ── Prodejní sekce ───────────────────────────────────────────────────────
+    // ── Dvousloupcový layout: NÁKUP | PRODEJ ───────────────────────────────
+    const sellLabel = lang === 'en' ? 'SELL' : 'PRODEJ';
     const TAVERN_ITEMS = ['bread','cooked_meat','cooked_fish','stew','mushroom_soup',
                           'berry_pie','honey','water','potion_heal','stamina_tonic',
                           'sleep_potion','candle'];
@@ -717,54 +715,61 @@ const CellariumSystem = {
       return true;
     });
 
+    // Wrapper — dva sloupce
+    h += `<div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; align-items:start;">`;
+
+    // Levý sloupec — NÁKUP
+    h += `<div>`;
+    h += this.renderBuyPanel(entity, lang);
+    h += `</div>`;
+
+    // Pravý sloupec — PRODEJ
+    h += `<div>`;
+    h += `<div style="font-size:0.7rem; font-weight:bold; letter-spacing:0.08em;
+                      text-transform:uppercase; color:var(--accent-gold);
+                      margin-bottom:8px; padding-bottom:4px;
+                      border-bottom:2px solid var(--accent-gold);">
+            📤 ${sellLabel}
+          </div>`;
     if (sellable.length === 0) {
-      h += `<div style="text-align:center; padding:20px; opacity:0.5; font-style:italic;">
+      h += `<div style="text-align:center; padding:20px; opacity:0.5; font-style:italic; font-size:0.85rem;">
               ${t('cellarium.nothingToSell')}
             </div>`;
     } else {
-      h += `<div style="font-size:0.8rem; opacity:0.6; margin-bottom:10px; font-style:italic;">
-              ${t('cellarium.sellPrompt')}
-            </div>`;
-      h += `<div style="display:grid; grid-template-columns:repeat(auto-fill,minmax(180px,1fr)); gap:10px;">`;
-
+      h += `<div style="display:flex; flex-direction:column; gap:6px;">`;
       sellable.forEach(id => {
         const have  = GameState.inventory[id] || 0;
         const price = this.calcPrice(id, entity);
         const item  = ItemsDB[id];
-        const icon  = item ? item.icon : '📦';
+        const icon  = (item && item.icon) ? item.icon : '📦';
         const name  = (typeof iName === 'function') ? iName(id) : (item ? item.name : id);
         h += `
-          <div style="padding:10px; background:rgba(197,160,89,0.06);
-                      border-radius:6px; border:1px solid rgba(197,160,89,0.2);">
-            <div style="display:flex; align-items:center; gap:6px; margin-bottom:4px;">
-              <span style="font-size:1.2rem;">${icon}</span>
-              <span style="font-weight:bold; font-size:0.85rem;">${name}</span>
+          <div style="padding:7px 10px; background:rgba(197,160,89,0.06);
+                      border-radius:6px; border:1px solid rgba(197,160,89,0.2);
+                      display:flex; align-items:center; gap:8px;">
+            <span style="font-size:1.2rem; min-width:24px; text-align:center;">${icon}</span>
+            <div style="flex:1; min-width:0;">
+              <div style="font-weight:bold; font-size:0.8rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${name}</div>
+              <div style="font-size:0.7rem; opacity:0.65;">${lang==='en'?'Have':'Máš'}: ${have} · ${price} 💰</div>
             </div>
-            <div style="font-size:0.75rem; opacity:0.65;">
-              ${lang === 'en' ? 'Have' : 'Máš'}: ${have} &nbsp;|&nbsp;
-              ${lang === 'en' ? 'Price' : 'Cena'}: <strong>${price} 💰</strong>
-            </div>
-            <div style="display:flex; gap:4px; margin-top:8px;">
+            <div style="display:flex; gap:3px; flex-shrink:0;">
               <button onclick="CellariumSystem.sellItem('${id}',1,'${entity}')"
-                      class="craft-btn" style="flex:1; font-size:0.75rem; padding:4px;">
-                ×1
-              </button>
+                      class="craft-btn" style="font-size:0.7rem; padding:3px 6px;">×1</button>
               <button onclick="CellariumSystem.sellItem('${id}',5,'${entity}')"
-                      class="craft-btn" style="flex:1; font-size:0.75rem; padding:4px;"
-                      ${have >= 5 ? '' : 'disabled'}>
-                ×5
-              </button>
+                      class="craft-btn" style="font-size:0.7rem; padding:3px 6px;"
+                      ${have >= 5 ? '' : 'disabled'}>×5</button>
               <button onclick="CellariumSystem.sellItem('${id}',${have},'${entity}')"
-                      class="craft-btn" style="flex:1; font-size:0.75rem; padding:4px;">
+                      class="craft-btn" style="font-size:0.7rem; padding:3px 6px;">
                 ${lang === 'en' ? 'All' : 'Vše'}
               </button>
             </div>
           </div>
         `;
       });
-
       h += `</div>`;
     }
+    h += `</div>`; // konec pravého sloupce
+    h += `</div>`; // konec grid
 
     h += `</div>`;
     return h;

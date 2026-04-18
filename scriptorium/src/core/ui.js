@@ -1247,7 +1247,7 @@ renderRecords: function() {
         if (!h.built) {
             html += `<p class="text-sm" style="opacity:0.7; margin-bottom:10px;">${t('farmyard.hennhouseBuildDesc')}</p>`;
             const canBuild = (GameState.inventory['rock']||0)>=15 && (GameState.inventory['stick']||0)>=10 && (GameState.inventory['rope']||0)>=3;
-            html += `<button class="craft-btn" onclick="Game.buildHenhouse()" ${canBuild?'':'disabled'}>🏗️ ${t('farmyard.buildHenhouse')} (15🪨 10🪵 3➰)</button>`;
+            html += `<button class="craft-btn" onclick="Game.buildHenhouse()" ${canBuild?'':'disabled'}>🏗️ ${t('farmyard.buildHenhouse')} (15 ${lang==='en'?'stone':'kámen'}, 10 ${lang==='en'?'branch':'větev'}, 3 ${lang==='en'?'rope':'provaz'})</button>`;
         } else {
             const hensCount = (h.hens||[]).length;
             html += `<div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:12px; font-size:0.82rem;">`;
@@ -1303,7 +1303,7 @@ renderRecords: function() {
         } else if (!s.built) {
             html += `<p class="text-sm" style="opacity:0.7; margin-bottom:10px;">${t('farmyard.sheepfoldBuildDesc')}</p>`;
             const canBuild = (GameState.inventory['rock']||0)>=20 && (GameState.inventory['stick']||0)>=15 && (GameState.inventory['rope']||0)>=5;
-            html += `<button class="craft-btn" onclick="Game.buildSheepfold()" ${canBuild?'':'disabled'}>🏗️ ${t('farmyard.buildSheepfold')} (20🪨 15🪵 5➰)</button>`;
+            html += `<button class="craft-btn" onclick="Game.buildSheepfold()" ${canBuild?'':'disabled'}>🏗️ ${t('farmyard.buildSheepfold')} (20 ${lang==='en'?'stone':'kámen'}, 15 ${lang==='en'?'branch':'větev'}, 5 ${lang==='en'?'rope':'provaz'})</button>`;
         } else {
             html += `<div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:12px; font-size:0.82rem;">`;
             html += `<div>🐑 ${t('farmyard.sheep')}: <strong>${s.sheep||0}/6</strong></div>`;
