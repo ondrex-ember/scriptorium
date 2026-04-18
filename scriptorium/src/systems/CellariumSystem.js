@@ -173,6 +173,37 @@ const CellariumSystem = {
     backgammon_board: 10,
     draughts_board:  8,
     hnefatafl_board: 15,
+    // Ovoce ze sadu (Pomarium)
+    apple:          2,
+    pear:           2,
+    plum:           2,
+    cherry:         2,
+    walnut:         4,
+    mulberry:       3,
+    quince:         3,
+    sorb:           5,
+    rowan:          1,
+    linden_fruit:   2,
+    // Produkty dvora (Curia)
+    egg:            2,
+    milk:           3,
+    wool:           5,
+    raw_hide:       4,
+    feather_hen:    1,
+    pollen:         3,
+    linden_blossom: 3,
+    beeswax:        6,
+    // Semena (prodej přebytku — cca polovina nákupní ceny)
+    seed_apple:     4,
+    seed_pear:      4,
+    seed_plum:      3,
+    seed_cherry:    4,
+    seed_walnut:    7,
+    seed_mulberry:  6,
+    seed_quince:    5,
+    seed_sorb:      9,
+    seed_rowan:     4,
+    seed_linden:    7,
   },
 
   // Koeficienty per entita (prodej hráče → entita)
@@ -197,6 +228,17 @@ const CellariumSystem = {
     potion_heal: 'alchemy', antidote: 'alchemy', stamina_tonic: 'alchemy',
     beer: 'food', wine: 'food',
     preservation_oil: 'alchemy', candle: 'alchemy',
+    // Ovoce
+    apple: 'food', pear: 'food', plum: 'food', cherry: 'food',
+    walnut: 'food', mulberry: 'food', quince: 'food', sorb: 'food',
+    rowan: 'food', linden_fruit: 'mat',
+    // Produkty dvora
+    egg: 'food', milk: 'food', wool: 'mat', raw_hide: 'mat',
+    feather_hen: 'mat', pollen: 'mat', linden_blossom: 'mat', beeswax: 'mat',
+    // Semena
+    seed_apple: 'mat', seed_pear: 'mat', seed_plum: 'mat', seed_cherry: 'mat',
+    seed_walnut: 'mat', seed_mulberry: 'mat', seed_quince: 'mat', seed_sorb: 'mat',
+    seed_rowan: 'mat', seed_linden: 'mat',
   },
 
   // Výpočet ceny s náhodným offsetem (seed per den+entita pro konzistenci v rámci dne)
@@ -256,6 +298,24 @@ const CellariumSystem = {
     ],
     market: [
       { itemId: 'paper',         basePrice: 3 },
+      // Zvířata
+      { itemId: 'hen_white',     basePrice: 15 },
+      { itemId: 'hen_black',     basePrice: 18 },
+      { itemId: 'hen_colored',   basePrice: 25 },
+      { itemId: 'rooster',       basePrice: 20 },
+      { itemId: 'sheep',         basePrice: 35 },
+      { itemId: 'queen_bee',     basePrice: 40 },
+      // Semena stromů — drahá
+      { itemId: 'seed_apple',    basePrice: 8  },
+      { itemId: 'seed_pear',     basePrice: 8  },
+      { itemId: 'seed_plum',     basePrice: 7  },
+      { itemId: 'seed_cherry',   basePrice: 9  },
+      { itemId: 'seed_walnut',   basePrice: 15 },
+      { itemId: 'seed_mulberry', basePrice: 12 },
+      { itemId: 'seed_quince',   basePrice: 10 },
+      { itemId: 'seed_sorb',     basePrice: 18 },
+      { itemId: 'seed_rowan',    basePrice: 8  },
+      { itemId: 'seed_linden',   basePrice: 14 },
     ],
   },
 

@@ -184,7 +184,7 @@ renderActions: function() {
 
     renderInventory: function() {
         const el = document.getElementById('inventory-grid'); el.innerHTML = "";
-        Object.entries(GameState.inventory).forEach(([id, qty]) => {
+        Object.entries(GameState.inventory).filter(([,qty]) => qty > 0).sort(([,a],[,b]) => b - a).forEach(([id, qty]) => {
             const item = ItemsDB[id];
             if (!item) return;
             if (this.currentInvFilter !== 'all' && item.type !== this.currentInvFilter) return;

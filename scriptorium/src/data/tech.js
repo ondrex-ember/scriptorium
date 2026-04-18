@@ -93,4 +93,29 @@ const TechTree = [
     // PRINTING ENDGAME
     { id:"tech_printing_basics",  name:"Základy Knihtisku",        name_en:"Printing Basics",            cost:15, desc:"Tavení olova na litery. Gutenbergův vynález (1450). Revoluce.", desc_en:"Casting lead into type. Gutenberg's invention (1450). A revolution.", unlocks:["lead_alloy","printing_type"], requires:["tech_codex_luxury"] },
     { id:"tech_privilegium",      name:"Tiskařské Privilegium",    name_en:"Printing Privilege",         cost:20, desc:"Biskupská pečeť. Monopol na tisk. Melantrich to dosáhl roku 1552. Endgame unlock.", desc_en:"The bishop's seal. A monopoly on printing. Melantrich achieved this in 1552. Endgame unlock.", unlocks:["bishop_seal","printing_privilege"], requires:["tech_printing_basics","tech_codex_vellum"] },
+    // ═══════════════════════════════════════════════════════════════════════════
+    // ZAHRADA — SAD, DVŮR, VČELÍN (v8.x)
+    // ═══════════════════════════════════════════════════════════════════════════
+
+    // SAD (Pomarium) — odemkne záložku Sad v Zahradě
+    { id:"tech_tractatus_arboribus", name:"Tractatus de Arboribus",      name_en:"Tractatus de Arboribus",
+      cost:10,
+      desc:"Pojednání o stromech. Klášterní sady nesloužily jen k jídlu — hrušně stály na hřbitovech, lípy kryly studny, ořešáky dávaly pigment i léky. Odemkne: Sad (Pomarium) s 10 stromy.",
+      desc_en:"A treatise on trees. Monastic orchards served not only as food — pear trees stood in cemeteries, lindens sheltered wells, walnuts gave pigment and medicine. Unlocks: Orchard (Pomarium) with 10 trees.",
+      unlocks:[], requires:["tech_writing_basics"] },
+
+    // CHLÉV (Ovile) — odemkne stavbu chléva ve Dvoře
+    { id:"tech_de_re_rustica",       name:"De Re Rustica",                name_en:"De Re Rustica",
+      cost:15,
+      desc:"Columellův spis o zemědělství. Mniši jej opisovali od 8. století — v něm se skrývalo vše o ovcích, kravách a obilí. Odemkne: Chlév (Ovile) — chov ovcí pro vlnu, mléko a pergamen.",
+      desc_en:"Columella's treatise on agriculture. Monks copied it from the 8th century onward — within lay everything about sheep, cattle and grain. Unlocks: Sheepfold (Ovile) — raising sheep for wool, milk and vellum.",
+      unlocks:[], requires:["tech_garden_expand"] },
+
+    // VČELÍN (Apiarium) — odemkne záložku Apiarium v Zahradě
+    { id:"tech_liber_apium",         name:"Liber Apium",                  name_en:"Liber Apium",
+      cost:12,
+      desc:"Kniha o včelách. Columella, Isidor ze Sevilly i Hildegarda z Bingenu psali o včelách s úctou. Med léčil rány, vosk svítil při večerních modlitbách. Odemkne: Včelín (Apiarium) — med a vosk.",
+      desc_en:"The Book of Bees. Columella, Isidore of Seville and Hildegard of Bingen all wrote of bees with reverence. Honey healed wounds, wax lit the evening prayers. Unlocks: Apiary (Apiarium) — honey and wax.",
+      unlocks:[], requires:["tech_monastery_wisdom"] },
+
 ];

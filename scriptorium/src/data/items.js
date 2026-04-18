@@ -50,7 +50,7 @@ const ItemsDB = {
     "frog":            { name:"Žába",                name_en:"Frog",                   icon:"🐸", type:"alchemy_ing", desc:"Z mokřadu.",                                       desc_en:"From the wetlands." },
     "slug":            { name:"Slimák",              name_en:"Slug",                   icon:"🐌", type:"alchemy_ing", desc:"Sliz.",                                            desc_en:"Slimy creature." },
     "resin":           { name:"Pryskyřice",          name_en:"Resin",                  icon:"💧", type:"alchemy_ing", desc:"Ze stromů.",                                       desc_en:"Tree resin." },
-    "honey":           { name:"Med",                 name_en:"Honey",                  icon:"🍯", type:"alchemy_ing", desc:"Včelí med.",                                       desc_en:"Bee honey." },
+    "honey":           { name:"Med",                name_en:"Honey",              icon:"🍯", type:"food", hunger:4, desc:"Klášterní med. Sytí 4h, léčí rány.",  desc_en:"Monastery honey. Fills for 4h, heals wounds." },
     "mushroom_poison": { name:"Muchotrávka",         name_en:"Death Cap",              icon:"🍄", type:"alchemy_ing", desc:"Jedovatá houba.",                                  desc_en:"A poisonous mushroom." },
     "roots":           { name:"Kořeny",              name_en:"Roots",                  icon:"🪴", type:"alchemy_ing", desc:"Hluboké kořeny.",                                  desc_en:"Deep roots." },
     "nightshade":      { name:"Rulík",               name_en:"Nightshade",             icon:"🖤", type:"alchemy_ing", desc:"Jedovatý, léčivý.",                                desc_en:"Deadly yet medicinal." },
@@ -186,4 +186,52 @@ const ItemsDB = {
     "scrinium_case":  { name:"Transportní pouzdro",   name_en:"Scrinium Case",       icon:"🧳", type:"tool", cat:"tool", desc:"Kožené pouzdro na přepravu cenných kodexů.",                   desc_en:"Leather case for transporting precious codices." },
     "water_pouch":    { name:"Kožený měšec",          name_en:"Water Pouch",         icon:"🫗", type:"tool", cat:"tool", desc:"Kožený měšec na vodu. Mniši nosili pití při práci.",            desc_en:"Leather pouch for water. Monks carried drink during work." },
     "ink_pouch":      { name:"Váček na inkoust",      name_en:"Ink Pouch",           icon:"🫙", type:"mat",              desc:"Kožený váček na suchý inkoust a práškové pigmenty.",            desc_en:"Leather pouch for dry ink and powdered pigments." },
+    // ═══════════════════════════════════════════════════════════════════════════
+    // ZAHRADA — SAD (Pomarium) & DVŮR (Curia) — v8.x
+    // ═══════════════════════════════════════════════════════════════════════════
+
+    // PRODUKTY DVORA
+    "egg":            { name:"Vejce",             name_en:"Egg",             icon:"🥚", type:"food",  hunger:2, desc:"Čerstvé vejce z kurníku. Sytí 2h.",                  desc_en:"Fresh egg from the henhouse. Fills for 2h." },
+    "feather_hen":    { name:"Peří (slepičí)",    name_en:"Hen Feather",     icon:"🪶", type:"mat",         desc:"Slepičí peří. Vycpávky a ozdoby.",                    desc_en:"Hen feather. For stuffing and decoration." },
+    "raw_hide":       { name:"Surová kůže",        name_en:"Raw Hide (sheep)",icon:"🐑", type:"mat",         desc:"Surová ovčí kůže. Základ pro pergamen.",              desc_en:"Raw sheepskin. The basis for vellum." },
+    "milk":           { name:"Mléko",             name_en:"Milk",            icon:"🥛", type:"food",  hunger:3, desc:"Čerstvé mléko z ovce. Sytí 3h.",                    desc_en:"Fresh sheep milk. Fills for 3h." },
+    "wool":           { name:"Vlna",              name_en:"Wool",            icon:"🧶", type:"mat",         desc:"Ovčí vlna. Teplo v zimě.",                             desc_en:"Sheep wool. Warmth in winter." },
+    "pollen":         { name:"Pyl",               name_en:"Pollen",          icon:"🌼", type:"mat",         desc:"Zlatý prach z květů. Alchymistická surovina.",        desc_en:"Golden dust from blossoms. Alchemical ingredient." },
+    "linden_blossom": { name:"Lipový květ",       name_en:"Linden Blossom",  icon:"🌸", type:"mat",         desc:"Vonný květ lípy. Léčivý čaj, vonný vosk.",            desc_en:"Fragrant linden flower. Medicinal tea, scented wax." },
+
+    // PRODUKTY VČELÍNA (Apiarium)
+    // beeswax již existuje (řádek 148) — není duplicit
+
+    // OVOCE ZE SADU (Pomarium)
+    "apple":          { name:"Jablko",            name_en:"Apple",           icon:"🍎", type:"food",  hunger:3, desc:"Ze zahrádky. Zdraví v každém koušku. Sytí 3h.",    desc_en:"From the orchard. Health in every bite. Fills for 3h." },
+    "pear":           { name:"Hruška",            name_en:"Pear",            icon:"🍐", type:"food",  hunger:3, desc:"Šťavnatá hruška. Mniši ji sušili na zimu. Sytí 3h.", desc_en:"Juicy pear. Monks dried them for winter. Fills for 3h." },
+    "plum":           { name:"Švestka",           name_en:"Plum",            icon:"🫐", type:"food",  hunger:2, desc:"Modrá švestka. Základ slivovice i povidel. Sytí 2h.", desc_en:"Blue plum. The base of brandy and jam. Fills for 2h." },
+    "cherry":         { name:"Třešeň",            name_en:"Cherry",          icon:"🍒", type:"food",  hunger:2, desc:"Červená třešeň. Letní sladkost. Sytí 2h.",          desc_en:"Red cherry. A summer sweetness. Fills for 2h." },
+    "walnut":         { name:"Vlašský ořech",     name_en:"Walnut",          icon:"🥜", type:"food",  hunger:4, desc:"Tučný ořech. Mniši drtili na ořechový inkoust. Sytí 4h.", desc_en:"Rich walnut. Monks ground it into walnut ink. Fills for 4h." },
+    "mulberry":       { name:"Moruše",            name_en:"Mulberry",        icon:"🍇", type:"food",  hunger:2, desc:"Tmavá moruše. Červené šaty i červený pigment. Sytí 2h.", desc_en:"Dark mulberry. Red robes and red pigment alike. Fills for 2h." },
+    "quince":         { name:"Kdoule",            name_en:"Quince",          icon:"🍋", type:"food",  hunger:2, desc:"Hořká, ale léčivá. Vařená v medu — výtečná. Sytí 2h.", desc_en:"Bitter, but medicinal. Cooked in honey — exquisite. Fills for 2h." },
+    "sorb":           { name:"Oskeruše",          name_en:"Service Berry",   icon:"🟤", type:"food",  hunger:2, desc:"Středověká raritura. Dnes téměř zapomenuta. Sytí 2h.", desc_en:"A medieval rarity. Today almost forgotten. Fills for 2h." },
+    "rowan":          { name:"Jeřabina",          name_en:"Rowan Berry",     icon:"🔴", type:"food",  hunger:1, desc:"Hořká bez mrazu. Po prvním mrazu sladká. Sytí 1h.", desc_en:"Bitter without frost. Sweet after the first frost. Fills for 1h." },
+    "linden_fruit":   { name:"Lipový plod",       name_en:"Linden Fruit",    icon:"🌿", type:"mat",         desc:"Malý lipový plod. Do léčivých čajů a vonných směsí.", desc_en:"Small linden fruit. For medicinal teas and fragrant blends." },
+
+    // SEMENA STROMŮ — Pomarium
+    "seed_apple":     { name:"Semeno jabloně",    name_en:"Apple Seed",      icon:"🌱", type:"mat",   desc:"Zasaď do sadu. Roste v jabloň.",                          desc_en:"Plant in the orchard. Grows into an apple tree." },
+    "seed_pear":      { name:"Semeno hrušně",     name_en:"Pear Seed",       icon:"🌱", type:"mat",   desc:"Zasaď do sadu. Roste v hrušeň.",                          desc_en:"Plant in the orchard. Grows into a pear tree." },
+    "seed_plum":      { name:"Semeno slivovníku", name_en:"Plum Seed",       icon:"🌱", type:"mat",   desc:"Zasaď do sadu. Roste v slivovník.",                       desc_en:"Plant in the orchard. Grows into a plum tree." },
+    "seed_cherry":    { name:"Semeno třešně",     name_en:"Cherry Seed",     icon:"🌱", type:"mat",   desc:"Zasaď do sadu. Roste v třešeň.",                          desc_en:"Plant in the orchard. Grows into a cherry tree." },
+    "seed_walnut":    { name:"Semeno ořešáku",    name_en:"Walnut Seed",     icon:"🌱", type:"mat",   desc:"Zasaď do sadu. Roste v ořešák. Vzácné.",                  desc_en:"Plant in the orchard. Grows into a walnut tree. Rare." },
+    "seed_mulberry":  { name:"Semeno moruše",     name_en:"Mulberry Seed",   icon:"🌱", type:"mat",   desc:"Zasaď do sadu. Roste v moruši.",                          desc_en:"Plant in the orchard. Grows into a mulberry tree." },
+    "seed_quince":    { name:"Semeno kdouloně",   name_en:"Quince Seed",     icon:"🌱", type:"mat",   desc:"Zasaď do sadu. Roste v kdouloň.",                         desc_en:"Plant in the orchard. Grows into a quince tree." },
+    "seed_sorb":      { name:"Semeno oskeruše",   name_en:"Service Seed",    icon:"🌱", type:"mat",   desc:"Zasaď do sadu. Roste v oskeruši. Velmi vzácné.",          desc_en:"Plant in the orchard. Grows into a service tree. Very rare." },
+    "seed_rowan":     { name:"Semeno jeřábu",     name_en:"Rowan Seed",      icon:"🌱", type:"mat",   desc:"Zasaď do sadu. Roste v jeřáb.",                           desc_en:"Plant in the orchard. Grows into a rowan tree." },
+    "seed_linden":    { name:"Semeno lípy",       name_en:"Linden Seed",     icon:"🌱", type:"mat",   desc:"Zasaď do sadu. Roste v lípu. Vzácný dar přírody.",        desc_en:"Plant in the orchard. Grows into a linden tree. A rare gift of nature." },
+
+    // ZVÍŘATA — Dvůr (Curia)
+    "hen_white":      { name:"Bílá slepice",      name_en:"White Hen",       icon:"🐔", type:"animal", desc:"Bílá slepice. Snáší vejce každý den.",                   desc_en:"White hen. Lays eggs daily." },
+    "hen_black":      { name:"Černá slepice",     name_en:"Black Hen",       icon:"🐓", type:"animal", desc:"Černá slepice. Odolnější, vejce tučnější.",              desc_en:"Black hen. More resilient, richer eggs." },
+    "hen_colored":    { name:"Barevná slepice",   name_en:"Speckled Hen",    icon:"🐣", type:"animal", desc:"Pestrá slepice. Vzácnější vejce.",                       desc_en:"Speckled hen. Rarer eggs." },
+    "rooster":        { name:"Kohout",            name_en:"Rooster",         icon:"🐓", type:"animal", desc:"Kohout budí klášter v úsvitu. Bonus k produkci vajec.",   desc_en:"The rooster wakes the monastery at dawn. Egg production bonus." },
+    "sheep":          { name:"Ovce",              name_en:"Sheep",           icon:"🐑", type:"animal", desc:"Ovce dává vlnu, mléko a kůži. Základ pergamenu.",         desc_en:"Sheep give wool, milk and hide. The basis of vellum." },
+    "queen_bee":      { name:"Včelí matka",       name_en:"Queen Bee",       icon:"🐝", type:"animal", desc:"Srdce úlu. Bez ní není med ani vosk.",                    desc_en:"Heart of the hive. Without her, no honey, no wax." },
+
 };
