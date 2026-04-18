@@ -1235,8 +1235,113 @@ renderRecords: function() {
     renderFarmyard: function() {
         const el = document.getElementById('farmyard-container');
         if (!el) return;
-        // Placeholder — hospodářský dvůr bude implementován v dalším sezení
-        el.innerHTML = '<p class="text-sm" style="opacity:0.5; text-align:center; margin-top:20px;">🚧 In constructione...</p>';
+        const h = GameState.henhouse  || {};
+        const s = GameState.sheepfold || {};
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        const now = Date.now();
+        let html = '';
+
+        // GALLINARIUM
+        html += `<div style="margin-bottom:24px; padding:16px; background:rgba(197,160,89,0.06); border-radius:10px; border-left:4px solid var(--accent-gold);">`;
+        html += `<h3 style="margin:0 0 12px 0; font-size:1rem;">🐔 ${t('farmyard.gallinarium')}</h3>`;
+        if (!h.built) {
+            html += `<p class="text-sm" style="opacity:0.7; margin-bottom:10px;">${t('farmyard.hennhouseBuildDesc')}</p>`;
+            const canBuild = (GameState.inventory['rock']||0)>=15 && (GameState.inventory['stick']||0)>=10 && (GameState.inventory['rope']||0)>=3;
+            html += `<button class="craft-btn" onclick="Game.buildHenhouse()" ${canBuild?'':'disabled'}>🏗️ ${t('farmyard.buildHenhouse')} (15🪨 10🪵 3➰)</button>`;
+        } else {
+            const hensCount = (h.hens||[]).length;
+            html += `<div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:12px; font-size:0.82rem;">`;
+            html += `<div>🐔 ${t('farmyard.hens')}: <strong>${hensCount}/10</strong></div>`;
+            html += `<div>🐓 ${t('farmyard.rooster')}: <strong>${h.rooster ? '✓' : '✗'}</strong></div>`;
+            const eggReady  = now >= (h.lastEggAt||0) + 28800000;
+            const feathReady = now >= (h.lastFeatherAt||0) + 86400000;
+            html += `<div>🥚 ${t('farmyard.eggs')}: <strong>${eggReady ? t('farmyard.ready') : Math.ceil(((h.lastEggAt||0)+28800000-now)/3600000)+'h'}</strong></div>`;
+            html += `<div>🪶 ${t('farmyard.feathers')}: <strong>${feathReady ? t('farmyard.ready') : Math.ceil(((h.lastFeatherAt||0)+86400000-now)/3600000)+'h'}</strong></div>`;
+            html += `</div>`;
+            html += `<div style="display:flex; gap:6px; flex-wrap:wrap; margin-bottom:10px;">`;
+            if (!h.rooster) {
+                const hasR = (GameState.inventory['rooster']||0) > 0;
+                html += `<button class="craft-btn" onclick="Game.addHen('rooster')" ${hasR?'':'disabled'} style="font-size:0.75rem;">🐓 ${t('farmyard.addRooster')}</button>`;
+            }
+            ['hen_white','hen_black','hen_colored'].forEach(type => {
+                const has = (GameState.inventory[type]||0) > 0;
+                const icon = type==='hen_white'?'🐔':type==='hen_black'?'🐓':'🐣';
+                html += `<button class="craft-btn" onclick="Game.addHen('${type}')" ${has&&hensCount<10?'':'disabled'} style="font-size:0.75rem;">${icon} ${iName(type)}</button>`;
+            });
+            html += `</div>`;
+            html += `<div style="display:flex; gap:6px; flex-wrap:wrap; margin-bottom:10px;">`;
+            html += `<button class="craft-btn" onclick="Game.collectHenhouse()" ${hensCount>0?'':'disabled'}>🥚 ${t('farmyard.collect')}</button>`;
+            html += `<button class="craft-btn" onclick="Game.feedHenhouse()" ${hensCount>0?'':'disabled'} style="background:#4a7c59;">🌾 ${t('farmyard.feed')}</button>`;
+            html += `</div>`;
+            html += `<div style="margin-top:10px; padding:10px; background:rgba(0,0,0,0.06); border-radius:8px;">`;
+            html += `<strong style="font-size:0.85rem;">🥚 ${t('farmyard.nesting')}</strong><br>`;
+            if (!h.nesting) {
+                const canNest = h.rooster && hensCount > 0;
+                html += `<button class="craft-btn" onclick="Game.startNesting()" ${canNest?'':'disabled'} style="margin-top:6px; font-size:0.78rem;">${t('farmyard.startNesting')}</button>`;
+            } else if (h.nesting.state === 'nesting') {
+                const left = Math.max(0, Math.ceil((h.nesting.hatchAt - now)/3600000));
+                html += `<p class="text-sm" style="margin:6px 0;">🐣 ${t('farmyard.nestingProgress')} — ${left}h</p>`;
+            } else if (h.nesting.state === 'growing') {
+                const left = Math.max(0, Math.ceil((h.nesting.grownAt - now)/3600000));
+                html += `<p class="text-sm" style="margin:6px 0;">🐥 ${t('farmyard.chicksGrowing').replace('{n}', h.nesting.chicks)} — ${left}h</p>`;
+            }
+            if ((h.chickPool||0) > 0) {
+                html += `<div style="margin-top:8px; font-size:0.82rem;">🐓 ${t('farmyard.chickPool')}: <strong>${h.chickPool}</strong>
+                    <button class="craft-btn" onclick="Game.slaughterChick(1)" style="margin-left:8px; font-size:0.72rem; background:#8b4a3a;">🍗 x1</button>
+                    <button class="craft-btn" onclick="Game.slaughterChick(${h.chickPool})" style="margin-left:4px; font-size:0.72rem; background:#8b4a3a;">🍗 ${lang==='en'?'All':'Vše'}</button></div>`;
+            }
+            html += `</div>`;
+        }
+        html += `</div>`;
+
+        // OVILE
+        const hasTech = GameState.researchedTechs && GameState.researchedTechs.includes('tech_de_re_rustica');
+        html += `<div style="padding:16px; background:rgba(197,160,89,0.06); border-radius:10px; border-left:4px solid ${hasTech?'var(--accent-gold)':'rgba(0,0,0,0.2)'};">`;
+        html += `<h3 style="margin:0 0 12px 0; font-size:1rem;">🐑 ${t('farmyard.ovile')}</h3>`;
+        if (!hasTech) {
+            html += `<p class="text-sm" style="opacity:0.6; font-style:italic;">${t('farmyard.ovileLocked')}</p>`;
+        } else if (!s.built) {
+            html += `<p class="text-sm" style="opacity:0.7; margin-bottom:10px;">${t('farmyard.sheepfoldBuildDesc')}</p>`;
+            const canBuild = (GameState.inventory['rock']||0)>=20 && (GameState.inventory['stick']||0)>=15 && (GameState.inventory['rope']||0)>=5;
+            html += `<button class="craft-btn" onclick="Game.buildSheepfold()" ${canBuild?'':'disabled'}>🏗️ ${t('farmyard.buildSheepfold')} (20🪨 15🪵 5➰)</button>`;
+        } else {
+            html += `<div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:12px; font-size:0.82rem;">`;
+            html += `<div>🐑 ${t('farmyard.sheep')}: <strong>${s.sheep||0}/6</strong></div>`;
+            const milkReady = now >= (s.lastMilkAt||0) + 43200000;
+            const woolReady = now >= (s.lastWoolAt||0) + 172800000;
+            html += `<div>🥛 ${t('farmyard.milk')}: <strong>${milkReady ? t('farmyard.ready') : Math.ceil(((s.lastMilkAt||0)+43200000-now)/3600000)+'h'}</strong></div>`;
+            html += `<div>🧶 ${t('farmyard.wool')}: <strong>${woolReady ? t('farmyard.ready') : Math.ceil(((s.lastWoolAt||0)+172800000-now)/3600000)+'h'}</strong></div>`;
+            html += `</div>`;
+            html += `<div style="display:flex; gap:6px; flex-wrap:wrap; margin-bottom:10px;">`;
+            const hasSheepItem = (GameState.inventory['sheep']||0) > 0;
+            html += `<button class="craft-btn" onclick="Game.addSheep()" ${hasSheepItem&&(s.sheep||0)<6?'':'disabled'}>🐑 ${t('farmyard.addSheep')}</button>`;
+            html += `<button class="craft-btn" onclick="Game.collectSheepfold()" ${(s.sheep||0)>0?'':'disabled'}>🥛 ${t('farmyard.collect')}</button>`;
+            html += `<button class="craft-btn" onclick="Game.feedSheepfold()" ${(s.sheep||0)>0?'':'disabled'} style="background:#4a7c59;">🌿 ${t('farmyard.feed')}</button>`;
+            if ((s.sheep||0) > 0) {
+                html += `<button class="craft-btn" onclick="Game.slaughterSheep()" style="background:#8b4a3a; font-size:0.78rem;">🥩 ${t('farmyard.slaughterSheep')}</button>`;
+            }
+            html += `</div>`;
+            html += `<div style="margin-top:10px; padding:10px; background:rgba(0,0,0,0.06); border-radius:8px;">`;
+            html += `<strong style="font-size:0.85rem;">🐑 ${t('farmyard.breeding')}</strong><br>`;
+            if (!s.breeding) {
+                const canBreed = (s.sheep||0) >= 2;
+                html += `<button class="craft-btn" onclick="Game.startBreeding()" ${canBreed?'':'disabled'} style="margin-top:6px; font-size:0.78rem;">${t('farmyard.startBreeding')}</button>`;
+            } else if (s.breeding.state === 'gestating') {
+                const left = Math.max(0, Math.ceil((s.breeding.bornAt - now)/3600000));
+                html += `<p class="text-sm" style="margin:6px 0;">🤰 ${t('farmyard.gestating')} — ${left}h</p>`;
+            } else if (s.breeding.state === 'growing') {
+                const left = Math.max(0, Math.ceil((s.breeding.grownAt - now)/3600000));
+                html += `<p class="text-sm" style="margin:6px 0;">🐑 ${t('farmyard.lambGrowing')} — ${left}h</p>`;
+            }
+            if ((s.lambPool||0) > 0) {
+                html += `<div style="margin-top:8px; font-size:0.82rem;">🐑 ${t('farmyard.lambPool')}: <strong>${s.lambPool}</strong>
+                    <button class="craft-btn" onclick="Game.slaughterLamb(1)" style="margin-left:8px; font-size:0.72rem; background:#8b4a3a;">🥩 x1</button>
+                    <button class="craft-btn" onclick="Game.slaughterLamb(${s.lambPool})" style="margin-left:4px; font-size:0.72rem; background:#8b4a3a;">🥩 ${lang==='en'?'All':'Vše'}</button></div>`;
+            }
+            html += `</div>`;
+        }
+        html += `</div>`;
+        el.innerHTML = html;
     },
 
     // ═══════════════════════════════════════════════════════════════════════════
@@ -1272,16 +1377,16 @@ renderRecords: function() {
         }
 
         const TREE_DATA = {
-            seed_apple:    { name: t('items.seed_apple')    || 'Jabloň',    fruit: 'apple',        icon: '🍎', growHours: 48, harvestHours: 24 },
-            seed_pear:     { name: t('items.seed_pear')     || 'Hrušeň',    fruit: 'pear',         icon: '🍐', growHours: 48, harvestHours: 24 },
-            seed_plum:     { name: t('items.seed_plum')     || 'Slivovník', fruit: 'plum',         icon: '🫐', growHours: 36, harvestHours: 20 },
-            seed_cherry:   { name: t('items.seed_cherry')   || 'Třešeň',    fruit: 'cherry',       icon: '🍒', growHours: 36, harvestHours: 18 },
-            seed_walnut:   { name: t('items.seed_walnut')   || 'Ořešák',    fruit: 'walnut',       icon: '🥜', growHours: 72, harvestHours: 48 },
-            seed_mulberry: { name: t('items.seed_mulberry') || 'Moruše',    fruit: 'mulberry',     icon: '🍇', growHours: 48, harvestHours: 24 },
-            seed_quince:   { name: t('items.seed_quince')   || 'Kdouloň',   fruit: 'quince',       icon: '🍋', growHours: 60, harvestHours: 36 },
-            seed_sorb:     { name: t('items.seed_sorb')     || 'Oskeruše',  fruit: 'sorb',         icon: '🟤', growHours: 72, harvestHours: 48 },
-            seed_rowan:    { name: t('items.seed_rowan')    || 'Jeřáb',     fruit: 'rowan',        icon: '🔴', growHours: 48, harvestHours: 24 },
-            seed_linden:   { name: t('items.seed_linden')   || 'Lípa',      fruit: 'linden_fruit', icon: '🌸', growHours: 60, harvestHours: 36 },
+            seed_apple:    { fruit: 'apple',        icon: '🍎', growHours: 48, harvestHours: 24 },
+            seed_pear:     { fruit: 'pear',         icon: '🍐', growHours: 48, harvestHours: 24 },
+            seed_plum:     { fruit: 'plum',         icon: '🫐', growHours: 36, harvestHours: 20 },
+            seed_cherry:   { fruit: 'cherry',       icon: '🍒', growHours: 36, harvestHours: 18 },
+            seed_walnut:   { fruit: 'walnut',       icon: '🥜', growHours: 72, harvestHours: 48 },
+            seed_mulberry: { fruit: 'mulberry',     icon: '🍇', growHours: 48, harvestHours: 24 },
+            seed_quince:   { fruit: 'quince',       icon: '🍋', growHours: 60, harvestHours: 36 },
+            seed_sorb:     { fruit: 'sorb',         icon: '🟤', growHours: 72, harvestHours: 48 },
+            seed_rowan:    { fruit: 'rowan',        icon: '🔴', growHours: 48, harvestHours: 24 },
+            seed_linden:   { fruit: 'linden_fruit', icon: '🌸', growHours: 60, harvestHours: 36 },
         };
 
         let html = `<p class="text-sm" style="margin-bottom:15px; opacity:0.75;">${t('garden.orchardDesc')}</p>`;
@@ -1300,7 +1405,7 @@ renderRecords: function() {
                     btn = `<button class="craft-btn" disabled>${t('garden.orchardNoSeeds')}</button>`;
                 } else {
                     content = `<div class="plot-soil" style="opacity:0.3;">🟫</div><div class="text-sm">${t('garden.orchardEmpty')}</div>`;
-                    const opts = availableSeeds.map(s => `<option value="${s}">${TREE_DATA[s].name} (${GameState.inventory[s]}x)</option>`).join('');
+                    const opts = availableSeeds.map(s => `<option value="${s}">${iName(s)} (${GameState.inventory[s]}x)</option>`).join('');
                     btn = `<select id="orchard-seed-${idx}" class="craft-btn" style="margin-bottom:4px; font-size:0.75rem;">${opts}</select>
                            <button class="craft-btn" onclick="Game.plantTree(${idx}, document.getElementById('orchard-seed-${idx}').value)">${t('garden.orchardPlant')}</button>`;
                 }
@@ -1308,19 +1413,19 @@ renderRecords: function() {
                 const td = TREE_DATA[slot.treeType];
                 const matureAt = slot.plantedAt + (td ? td.growHours * 3600000 : 172800000);
                 const pct = Math.min(100, Math.round(((now - slot.plantedAt) / (matureAt - slot.plantedAt)) * 100));
-                content = `<div class="plot-soil">🌱</div><div class="text-sm">${td ? td.name : '?'}</div>`;
+                content = `<div class="plot-soil">🌱</div><div class="text-sm">${slot.treeType ? iName(slot.treeType) : '?'}</div>`;
                 btn = `<button class="craft-btn" disabled style="font-size:0.72rem;">${t('garden.orchardGrowing')} ${pct}%</button>`;
             } else if (slot.state === 'mature') {
                 const td = TREE_DATA[slot.treeType];
                 const fruitAt = slot.lastHarvestAt + (td ? td.harvestHours * 3600000 : 86400000);
                 if (now >= fruitAt) {
                     // Plodí!
-                    content = `<div class="plot-soil" style="color:#4caf50;">${td ? td.icon : '🌳'}</div><div class="text-sm">${td ? td.name : '?'}</div>`;
+                    content = `<div class="plot-soil" style="color:#4caf50;">${td ? td.icon : '🌳'}</div><div class="text-sm">${slot.treeType ? iName(slot.treeType) : '?'}</div>`;
                     btn = `<button class="craft-btn" onclick="Game.harvestTree(${idx})">${t('garden.orchardHarvest')}</button>
                            <button class="craft-btn" onclick="Game.fellTree(${idx})" style="background:#8b4a3a; margin-top:4px; font-size:0.72rem;">🪓 ${t('garden.orchardFell')}</button>`;
                 } else {
                     const waitH = Math.ceil((fruitAt - now) / 3600000);
-                    content = `<div class="plot-soil" style="color:#888;">${td ? td.icon : '🌳'}</div><div class="text-sm">${td ? td.name : '?'}</div>`;
+                    content = `<div class="plot-soil" style="color:#888;">${td ? td.icon : '🌳'}</div><div class="text-sm">${slot.treeType ? iName(slot.treeType) : '?'}</div>`;
                     btn = `<button class="craft-btn" disabled style="font-size:0.72rem;">${t('garden.orchardWait')} ${waitH}h</button>
                            <button class="craft-btn" onclick="Game.fellTree(${idx})" style="background:#8b4a3a; margin-top:4px; font-size:0.72rem;">🪓 ${t('garden.orchardFell')}</button>`;
                 }
