@@ -89,6 +89,10 @@ const Game = {
             GameState.garden.push({ state: 0, water: false, crop: null, plantedAt: 0, cropType: 'vegetable', locked: true });
             GameState.garden.push({ state: 0, water: false, crop: null, plantedAt: 0, cropType: 'special', locked: true });
         }
+        // Migrace na 8 záhonů — přidat chybějící
+        while(GameState.garden.length < 8) {
+            GameState.garden.push({ state: 0, water: false, crop: null, plantedAt: 0, cropType: 'herb', locked: true });
+        }
         
         // Add cropType to existing plots if missing
         GameState.garden.forEach((plot, idx) => {
@@ -96,6 +100,8 @@ const Game = {
                 if(idx === 0 || idx === 1) plot.cropType = 'herb';
                 else if(idx === 2) plot.cropType = 'vegetable';
                 else if(idx === 3) plot.cropType = 'special';
+                else if(idx === 4 || idx === 5) plot.cropType = 'herb';
+                else plot.cropType = 'vegetable';
             }
             if(plot.locked === undefined) {
                 plot.locked = (idx >= 2);
@@ -1464,6 +1470,14 @@ const Game = {
         if(id === 'tech_garden_expand') {
             GameState.garden[2].locked = false;
             GameState.garden[3].locked = false;
+        }
+        if(id === 'tech_garden_expand_2') {
+            if(GameState.garden[4]) GameState.garden[4].locked = false;
+            if(GameState.garden[5]) GameState.garden[5].locked = false;
+        }
+        if(id === 'tech_garden_expand_3') {
+            if(GameState.garden[6]) GameState.garden[6].locked = false;
+            if(GameState.garden[7]) GameState.garden[7].locked = false;
         }
         
         UI.notify(`${t('game.crafted')} ${tech.name}`);

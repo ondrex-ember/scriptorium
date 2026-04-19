@@ -450,7 +450,7 @@ garden: {
         desc: 'Pěstuj vzácné rostliny. Půda vyžaduje péči.',
         fertilize: 'Zúrodnit',
         locked: 'Zamčeno',
-        lockedTech: 'Tech Tree',
+        lockedTech: 'Vyžaduje technologii',
         herb: 'Byliny',
         vegetable: 'Zelenina',
         special: 'Speciál',

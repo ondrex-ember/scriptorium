@@ -11,7 +11,9 @@ const TechTree = [
     { id:"tech_cooking_2",       name:"Pokročilé Vaření",          name_en:"Advanced Cooking",           cost:5,  desc:"Odemkne: Guláš, polévky",                      desc_en:"Unlocks: Stew, pottages",               unlocks:["stew","mushroom_soup","berry_pie"], requires:["tech_cooking_1"] },
 
     // TIER 2 - horticulture
-    { id:"tech_garden_expand",   name:"Rozšíření Zahrady",         name_en:"Garden Expansion",           cost:4,  desc:"Odemkne: 4 políčka",                           desc_en:"Unlocks: 4 garden plots",               unlocks:[] },
+    { id:"tech_garden_expand",   name:"Rozšíření Zahrady",         name_en:"Garden Expansion",           cost:4,  desc:"Odemkne: 4 políčka zahrady.",                  desc_en:"Unlocks: 4 garden plots.",              unlocks:[] },
+    { id:"tech_garden_expand_2", name:"Větší Zahrada",             name_en:"Larger Garden",              cost:7,  desc:"Klášterní zahrada v Břevnově měla přes 200 druhů rostlin. Odemkne: 6 políček.", desc_en:"The Břevnov monastery garden held over 200 plant species. Unlocks: 6 plots.", unlocks:[], requires:["tech_garden_expand"] },
+    { id:"tech_garden_expand_3", name:"Zahrada sv. Hildegardy",    name_en:"Hildegard's Garden",         cost:10, desc:"Hildegarda z Bingenu popsala 230 rostlin ve Physica. Odemkne: 8 políček.", desc_en:"Hildegard of Bingen described 230 plants in Physica. Unlocks: 8 plots.", unlocks:[], requires:["tech_garden_expand_2"] },
     { id:"tech_herbalism_2",     name:"Pokročilé Bylinkářství",    name_en:"Advanced Herbalism",         cost:4,  desc:"Odemkne: Nové byliny",                         desc_en:"Unlocks: New herbs",                    unlocks:[] },
     { id:"tech_composting",      name:"Kompostování",              name_en:"Composting",                 cost:3,  desc:"Odemkne: Kompost",                             desc_en:"Unlocks: Compost",                      unlocks:["compost"] },
 

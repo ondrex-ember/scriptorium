@@ -857,7 +857,16 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 			}
 
 			.garden-grid { 
-				grid-template-columns: repeat(4, 1fr); 
+				grid-template-columns: repeat(2, 1fr); 
+			}
+			.garden-plot {
+				min-height: 120px;
+				padding: 8px;
+			}
+			.craft-btn {
+				white-space: normal;
+				word-break: break-word;
+				height: auto;
 			}
 			
 			#lore-content-wrapper {
@@ -895,6 +904,12 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 			.games-grid {
 				grid-template-columns: repeat(2, 1fr);
 				gap: 12px;
+			}
+		}
+
+		@media (max-width: 400px) {
+			.garden-grid {
+				grid-template-columns: 1fr;
 			}
 		}
 

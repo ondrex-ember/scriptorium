@@ -809,7 +809,7 @@ garden: {
         desc: 'Cultivate rare flora. The soil requires thy care.',
         fertilize: 'Fertilize',
         locked: 'Locked',
-        lockedTech: 'Tech Tree',
+        lockedTech: 'Technology required',
         herb: 'Herbs',
         vegetable: 'Vegetables',
         special: 'Special',
