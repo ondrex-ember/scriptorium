@@ -1454,8 +1454,10 @@ renderRecords: function() {
                 const dur     = 10 + Math.random()*12;           // 10–22s pomalé
                 const delay   = -(Math.random()*10);             // záporný delay = hned na různém místě
                 const sz      = 0.9 + Math.random()*0.6;        // různá velikost
-                const goLeft  = Math.random() > 0.5;
-                const flipX   = goLeft ? 'scaleX(-1)' : 'scaleX(1)';
+                const goLeft   = Math.random() > 0.5;
+                const backward = Math.random() < 0.15; // 15% šance pluje pozadu 🐟
+                // emoji koukají doleva — při pohybu doprava je otočíme (pokud nepluje pozadu)
+                const flipX    = goLeft ? 'scaleX(1)' : (backward ? 'scaleX(1)' : 'scaleX(-1)');
                 const swimAnim = goLeft ? 'piscinaSwimL' : 'piscinaSwim';
                 const diveDur = 4 + Math.random()*5;
                 const diveDelay = Math.random()*6;
@@ -1508,8 +1510,9 @@ renderRecords: function() {
                 const dur     = 12 + Math.random()*15;           // 12–27s velmi pomalé
                 const delay   = -(Math.random()*12);             // okamžitý start na různém místě
                 const sz      = 1.1 + Math.random()*0.8;        // 1.1–1.9rem
-                const goLeft  = Math.random() > 0.5;
-                const flipX   = goLeft ? 'scaleX(-1)' : 'scaleX(1)';
+                const goLeft   = Math.random() > 0.5;
+                const backward = Math.random() < 0.15; // 15% šance pluje pozadu
+                const flipX    = goLeft ? 'scaleX(1)' : (backward ? 'scaleX(1)' : 'scaleX(-1)');
                 const swimAnim = goLeft ? 'piscinaSwimL' : 'piscinaSwim';
                 const waveDur = 5 + Math.random()*7;
                 const waveDelay = Math.random()*8;
