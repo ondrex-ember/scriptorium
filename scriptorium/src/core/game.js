@@ -245,6 +245,21 @@ const Game = {
 				lastWateredAt: 0
 			};
 		}
+
+		// Initialize piscina (Rybník)
+		if(!GameState.piscina) {
+			GameState.piscina = {
+				tier: 0,
+				fry: 0,
+				youngCarp: 0,
+				carp: 0,
+				lastFedAt: 0,
+				fryAddedAt: 0,
+				youngAddedAt: 0,
+				lastFryProductionAt: 0,
+				pendingFry: 0,
+			};
+		}
         
         // Initialize theme settings if not present
         if(!GameState.settings.theme) {
@@ -415,6 +430,7 @@ const Game = {
                     // v8.x: Orchard growing → mature transition
                     Game.checkOrchardGrowth();
                     Game.checkFarmyardProduction();
+                    Game.checkPiscinaGrowth();
                 }
             } catch(e) {
                 console.error('Time update error:', e);
@@ -796,6 +812,116 @@ const Game = {
         UI.notify('🍯 ' + t('game.hiveCollected'));
     },
 
+    // ═══════════════════════════════════════════════════════════════════════════
+    // PISCINA (Rybník) — herní logika
+    // ═══════════════════════════════════════════════════════════════════════════
+
+    buildPiscina: function(tier) {
+        const p = GameState.piscina;
+        if (!GameState.researchedTechs.includes('tech_piscina')) { UI.notify(t('game.needDePiscibus'), true); return; }
+        const costs = {
+            1: { rock: 10, stick: 5 },
+            2: { rock: 20, stick: 10, rope: 5 },
+            3: { rock: 40, stick: 20, rope: 10 }
+        };
+        if (p.tier >= tier) { UI.notify(t('game.piscinaAlready'), true); return; }
+        if (tier !== p.tier + 1) { UI.notify(t('game.piscinaTierOrder'), true); return; }
+        const cost = costs[tier];
+        if ((GameState.inventory['rock']||0) < cost.rock)  { UI.notify(t('game.needStone') + ` (${cost.rock})`, true); return; }
+        if ((GameState.inventory['stick']||0) < cost.stick){ UI.notify(t('game.needWood')  + ` (${cost.stick})`, true); return; }
+        if (cost.rope && (GameState.inventory['rope']||0) < cost.rope){ UI.notify(t('game.needRope') + ` (${cost.rope})`, true); return; }
+        this.removeItem('rock', cost.rock);
+        this.removeItem('stick', cost.stick);
+        if (cost.rope) this.removeItem('rope', cost.rope);
+        p.tier = tier;
+        Game.save(); UI.renderPiscina();
+        UI.notify('🐟 ' + t('game.piscinaBuilt').replace('{tier}', tier));
+    },
+
+    addFry: function(qty) {
+        const p = GameState.piscina;
+        if (p.tier < 1) { UI.notify(t('game.needPiscina1'), true); return; }
+        if ((GameState.inventory['fry']||0) < qty) { UI.notify(t('game.noFry'), true); return; }
+        this.removeItem('fry', qty);
+        p.fry += qty;
+        p.fryAddedAt = p.fryAddedAt || Date.now();
+        Game.save(); UI.renderPiscina();
+        UI.notify('🫧 ' + t('game.fryAdded').replace('{qty}', qty));
+    },
+
+    feedPiscina: function() {
+        const p = GameState.piscina;
+        if (p.tier < 1) return;
+        const feedNeeded = p.fry + p.youngCarp + p.carp;
+        if (feedNeeded === 0) { UI.notify(t('game.piscinaEmpty'), true); return; }
+        if ((GameState.inventory['fiber']||0) < feedNeeded) { UI.notify(t('game.needFeedFish') + ` (${feedNeeded})`, true); return; }
+        this.removeItem('fiber', feedNeeded);
+        p.lastFedAt = Date.now();
+        Game.save(); UI.renderPiscina();
+        UI.notify('🌿 ' + t('game.piscinaFed'));
+    },
+
+    transferFry: function() {
+        const p = GameState.piscina;
+        if (!p || (p.pendingFry||0) <= 0) { UI.notify(t('game.noFryPending'), true); return; }
+        if (p.tier < 1) { UI.notify(t('game.needPiscina1'), true); return; }
+        const qty = p.pendingFry;
+        p.fry = (p.fry||0) + qty;
+        p.pendingFry = 0;
+        if (!p.fryAddedAt || p.fryAddedAt === 0) p.fryAddedAt = Date.now();
+        Game.save(); UI.renderPiscina();
+        UI.notify('🫧 ' + t('game.fryTransferred').replace('{qty}', qty));
+    },
+
+    harvestCarp: function(qty) {
+        const p = GameState.piscina;
+        qty = Math.min(qty, p.carp);
+        if (qty <= 0) { UI.notify(t('game.noCarp'), true); return; }
+        p.carp -= qty;
+        this.addItem('carp', qty);
+        Game.save(); UI.renderPiscina();
+        UI.notify('🐠 ' + t('game.carpHarvested').replace('{qty}', qty));
+    },
+
+    checkPiscinaGrowth: function() {
+        const p = GameState.piscina;
+        if (!p || p.tier < 1) return;
+        const now = Date.now();
+        const WEEK  = 7  * 24 * 3600000;
+        const WEEKS2 = 14 * 24 * 3600000;
+        let changed = false;
+
+        // Tier 1 → tier 2: plůdek po týdnu přechází do výtažníku (pokud existuje)
+        if (p.fry > 0 && p.tier >= 2 && p.fryAddedAt > 0 && now >= p.fryAddedAt + WEEK) {
+            p.youngCarp += p.fry;
+            p.fry = 0;
+            p.youngAddedAt = now;
+            p.fryAddedAt = 0;
+            changed = true;
+        }
+
+        // Tier 2 → tier 3: nedospělí kapři po 2 týdnech přechází do kaprového rybníka
+        if (p.youngCarp > 0 && p.tier >= 3 && p.youngAddedAt > 0 && now >= p.youngAddedAt + WEEKS2) {
+            p.carp += p.youngCarp;
+            p.youngCarp = 0;
+            p.youngAddedAt = 0;
+            changed = true;
+        }
+
+        // Tier 3: kaprový rybník produkuje 1 plůdek / 24h
+        const DAY = 24 * 3600000;
+        if (p.tier >= 3 && p.carp > 0) {
+            if (p.lastFryProductionAt === undefined) p.lastFryProductionAt = now;
+            if (now >= p.lastFryProductionAt + DAY) {
+                p.pendingFry = (p.pendingFry || 0) + 1;
+                p.lastFryProductionAt = now;
+                changed = true;
+            }
+        }
+
+        if (changed) { Game.save(); }
+    },
+
     checkOrchardGrowth: function() {
         if (!GameState.orchard) return;
         const GROW_HOURS = {
@@ -1168,6 +1294,8 @@ const Game = {
                     else if(r<0.7) this.addItem('slug', 2);
                     else if(r<0.85) this.addItem('water', 2);
                     else this.addItem('fiber', 1);
+                    // v8.x: plůdek — vzácný nález v mokřadu
+                    if(Math.random() < 0.08) this.addItem('fry', 1);
                 }
                 else if (type === 'resin_harvest') {
                     if(r<0.5) this.addItem('resin', 1);

@@ -204,6 +204,10 @@ const CellariumSystem = {
     seed_sorb:      9,
     seed_rowan:     4,
     seed_linden:    7,
+    // Rybník (Piscina)
+    fry:            3,
+    carp_young:     5,
+    carp:           8,
     // Produkty Gallinarium & Ovile
     chicken_meat:   4,
     mutton:         6,
@@ -245,6 +249,7 @@ const CellariumSystem = {
     seed_apple: 'mat', seed_pear: 'mat', seed_plum: 'mat', seed_cherry: 'mat',
     seed_walnut: 'mat', seed_mulberry: 'mat', seed_quince: 'mat', seed_sorb: 'mat',
     seed_rowan: 'mat', seed_linden: 'mat',
+    fry: 'mat', carp_young: 'mat', carp: 'food_raw',
     chicken_meat: 'food', mutton: 'food',
     lamb_hide: 'mat', chick: 'mat', lamb: 'mat',
   },
@@ -324,6 +329,8 @@ const CellariumSystem = {
       { itemId: 'seed_sorb',     basePrice: 18 },
       { itemId: 'seed_rowan',    basePrice: 8  },
       { itemId: 'seed_linden',   basePrice: 14 },
+      // Rybník
+      { itemId: 'fry',           basePrice: 5  },
     ],
   },
 

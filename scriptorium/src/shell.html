@@ -573,7 +573,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
         .card { border: 1px solid var(--ink-secondary); padding: 10px; margin-bottom: 8px; background: rgba(255,255,255,0.4); display: flex; align-items: center; gap: 12px; box-shadow: 2px 2px 0px rgba(44, 36, 27, 0.1); transition: all 0.3s; min-height: 60px; }
         .item-icon { width: 44px; height: 44px; min-width: 44px; background: #e8dec0; border: 1px solid var(--ink-primary); display: flex; justify-content: center; align-items: center; font-size: 1.5rem; border-radius: 3px; }
-        .craft-btn { margin-left: auto; background: var(--accent-wax); color: #fff; border: none; padding: 8px 14px; font-family: 'Cinzel Decorative'; cursor: pointer; border-radius: 2px; font-size: 0.85rem; white-space: nowrap; max-width: 100%; box-sizing: border-box; }
+        .craft-btn { margin-left: auto; background: var(--accent-wax); color: #fff; border: none; padding: 8px 14px; font-family: 'Cinzel Decorative'; cursor: pointer; border-radius: 2px; font-size: 0.85rem; white-space: nowrap; }
         .craft-btn:disabled { background: #bbb; cursor: not-allowed; opacity: 0.7; }
         
         .craft-btn.running { background: var(--ink-secondary); animation: pulse 2s infinite; }
@@ -724,13 +724,6 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
 		/* Ochrana proti přetékání na mobilech */
 		@media (max-width: 600px) {
-			.craft-btn {
-				white-space: normal !important;
-				word-break: break-word;
-				height: auto !important;
-				max-width: 100% !important;
-				box-sizing: border-box;
-			}
 		  .hexagram-container {
 			grid-template-columns: 1fr; /* Na mobilu budou bloky pod sebou! */
 			gap: 15px;
@@ -1427,6 +1420,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                 <button id="garden-tab-btn-zahony" class="filter-btn active" onclick="UI.switchGardenTab('zahony', this)" data-i18n="garden.tabZahony">🌱 Záhony</button>
                 <button id="garden-tab-btn-sad" class="filter-btn" onclick="UI.switchGardenTab('sad', this)" data-i18n="garden.tabSad">🌳 Sad</button>
                 <button id="garden-tab-btn-apiarium" class="filter-btn" onclick="UI.switchGardenTab('apiarium', this)" data-i18n="garden.tabApiarium">🐝 Apiarium</button>
+                <button id="garden-tab-btn-piscina" class="filter-btn" onclick="UI.switchGardenTab('piscina', this)" data-i18n="garden.tabPiscina">🐟 Piscina</button>
                 <button id="garden-tab-btn-dvur" class="filter-btn" onclick="UI.switchGardenTab('dvur', this)" data-i18n="garden.tabDvur">🐄 Dvůr</button>
             </div>
 
@@ -1441,6 +1435,10 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
             <div id="garden-tab-apiarium" style="display:none;">
                 <div id="apiary-container"></div>
+            </div>
+
+            <div id="garden-tab-piscina" style="display:none;">
+                <div id="piscina-container"></div>
             </div>
 
             <div id="garden-tab-dvur" style="display:none;">

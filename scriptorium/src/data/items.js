@@ -194,4 +194,11 @@ const ItemsDB = {
     "mutton":        { name:"Skopové maso",   name_en:"Mutton",         icon:"🥩", type:"food", hunger:7, desc:"Skopové z chléva. Sytí 7h.",          desc_en:"Mutton from the fold. Fills for 7h." },
     "lamb_hide":     { name:"Jehněčí kůže",   name_en:"Lamb Hide",      icon:"🦌", type:"mat",         desc:"Jemná kůže jehněte. Kvalitnější pergamen.", desc_en:"Fine lamb skin. Superior vellum quality." },
 
+    // ═══════════════════════════════════════════════════════════════════════════
+    // PISCINA (Rybník) — v8.x
+    // ═══════════════════════════════════════════════════════════════════════════
+    "fry":           { name:"Plůdek (potěr)",    name_en:"Fish Fry",       icon:"🫧", type:"mat",      desc:"Malý rybí potěr. Vyrůstá v rybníce.",                   desc_en:"Tiny fish fry. Grows in the pond." },
+    "carp_young":    { name:"Kapr (nedospělý)",  name_en:"Young Carp",     icon:"🐟", type:"mat",      desc:"Nedospělý kapr z výtažníku. Potřebuje čas.",            desc_en:"Young carp from the rearing pond. Needs time." },
+    "carp":          { name:"Kapr tržní",        name_en:"Market Carp",    icon:"🐠", type:"food_raw", desc:"Dospělý kapr. Prodej nebo vaření.",                     desc_en:"Adult carp. For sale or cooking." },
+
 };

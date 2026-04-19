@@ -573,7 +573,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
         .card { border: 1px solid var(--ink-secondary); padding: 10px; margin-bottom: 8px; background: rgba(255,255,255,0.4); display: flex; align-items: center; gap: 12px; box-shadow: 2px 2px 0px rgba(44, 36, 27, 0.1); transition: all 0.3s; min-height: 60px; }
         .item-icon { width: 44px; height: 44px; min-width: 44px; background: #e8dec0; border: 1px solid var(--ink-primary); display: flex; justify-content: center; align-items: center; font-size: 1.5rem; border-radius: 3px; }
-        .craft-btn { margin-left: auto; background: var(--accent-wax); color: #fff; border: none; padding: 8px 14px; font-family: 'Cinzel Decorative'; cursor: pointer; border-radius: 2px; font-size: 0.85rem; white-space: nowrap; max-width: 100%; box-sizing: border-box; }
+        .craft-btn { margin-left: auto; background: var(--accent-wax); color: #fff; border: none; padding: 8px 14px; font-family: 'Cinzel Decorative'; cursor: pointer; border-radius: 2px; font-size: 0.85rem; white-space: nowrap; }
         .craft-btn:disabled { background: #bbb; cursor: not-allowed; opacity: 0.7; }
         
         .craft-btn.running { background: var(--ink-secondary); animation: pulse 2s infinite; }
@@ -724,13 +724,6 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
 		/* Ochrana proti přetékání na mobilech */
 		@media (max-width: 600px) {
-			.craft-btn {
-				white-space: normal !important;
-				word-break: break-word;
-				height: auto !important;
-				max-width: 100% !important;
-				box-sizing: border-box;
-			}
 		  .hexagram-container {
 			grid-template-columns: 1fr; /* Na mobilu budou bloky pod sebou! */
 			gap: 15px;
@@ -1427,6 +1420,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                 <button id="garden-tab-btn-zahony" class="filter-btn active" onclick="UI.switchGardenTab('zahony', this)" data-i18n="garden.tabZahony">🌱 Záhony</button>
                 <button id="garden-tab-btn-sad" class="filter-btn" onclick="UI.switchGardenTab('sad', this)" data-i18n="garden.tabSad">🌳 Sad</button>
                 <button id="garden-tab-btn-apiarium" class="filter-btn" onclick="UI.switchGardenTab('apiarium', this)" data-i18n="garden.tabApiarium">🐝 Apiarium</button>
+                <button id="garden-tab-btn-piscina" class="filter-btn" onclick="UI.switchGardenTab('piscina', this)" data-i18n="garden.tabPiscina">🐟 Piscina</button>
                 <button id="garden-tab-btn-dvur" class="filter-btn" onclick="UI.switchGardenTab('dvur', this)" data-i18n="garden.tabDvur">🐄 Dvůr</button>
             </div>
 
@@ -1441,6 +1435,10 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
             <div id="garden-tab-apiarium" style="display:none;">
                 <div id="apiary-container"></div>
+            </div>
+
+            <div id="garden-tab-piscina" style="display:none;">
+                <div id="piscina-container"></div>
             </div>
 
             <div id="garden-tab-dvur" style="display:none;">
@@ -3828,6 +3826,13 @@ const ItemsDB = {
     "mutton":        { name:"Skopové maso",   name_en:"Mutton",         icon:"🥩", type:"food", hunger:7, desc:"Skopové z chléva. Sytí 7h.",          desc_en:"Mutton from the fold. Fills for 7h." },
     "lamb_hide":     { name:"Jehněčí kůže",   name_en:"Lamb Hide",      icon:"🦌", type:"mat",         desc:"Jemná kůže jehněte. Kvalitnější pergamen.", desc_en:"Fine lamb skin. Superior vellum quality." },
 
+    // ═══════════════════════════════════════════════════════════════════════════
+    // PISCINA (Rybník) — v8.x
+    // ═══════════════════════════════════════════════════════════════════════════
+    "fry":           { name:"Plůdek (potěr)",    name_en:"Fish Fry",       icon:"🫧", type:"mat",      desc:"Malý rybí potěr. Vyrůstá v rybníce.",                   desc_en:"Tiny fish fry. Grows in the pond." },
+    "carp_young":    { name:"Kapr (nedospělý)",  name_en:"Young Carp",     icon:"🐟", type:"mat",      desc:"Nedospělý kapr z výtažníku. Potřebuje čas.",            desc_en:"Young carp from the rearing pond. Needs time." },
+    "carp":          { name:"Kapr tržní",        name_en:"Market Carp",    icon:"🐠", type:"food_raw", desc:"Dospělý kapr. Prodej nebo vaření.",                     desc_en:"Adult carp. For sale or cooking." },
+
 };
 // ═══ src/data/recipes.js ═══
 const RecipesDB = [
@@ -4835,6 +4840,7 @@ const TechTree = [
     // TIER 2 - horticulture
     { id:"tech_garden_expand",   name:"Rozšíření Zahrady",         name_en:"Garden Expansion",           cost:4,  desc:"Odemkne: 4 políčka zahrady.",                  desc_en:"Unlocks: 4 garden plots.",              unlocks:[] },
     { id:"tech_garden_expand_2", name:"Větší Zahrada",             name_en:"Larger Garden",              cost:7,  desc:"Klášterní zahrada v Břevnově měla přes 200 druhů rostlin. Odemkne: 6 políček.", desc_en:"The Břevnov monastery garden held over 200 plant species. Unlocks: 6 plots.", unlocks:[], requires:["tech_garden_expand"] },
+    { id:"tech_piscina",         name:"De Piscibus",               name_en:"De Piscibus",                cost:8,  desc:"Středověké kláštery chovaly kapry v rybníce pro dny půstu. Odemkne: Rybník (Piscina).", desc_en:"Medieval monasteries raised carp in ponds for fast days. Unlocks: Pond (Piscina).", unlocks:[], requires:["tech_garden_expand"] },
     { id:"tech_garden_expand_3", name:"Zahrada sv. Hildegardy",    name_en:"Hildegard's Garden",         cost:10, desc:"Hildegarda z Bingenu popsala 230 rostlin ve Physica. Odemkne: 8 políček.", desc_en:"Hildegard of Bingen described 230 plants in Physica. Unlocks: 8 plots.", unlocks:[], requires:["tech_garden_expand_2"] },
     { id:"tech_herbalism_2",     name:"Pokročilé Bylinkářství",    name_en:"Advanced Herbalism",         cost:4,  desc:"Odemkne: Nové byliny",                         desc_en:"Unlocks: New herbs",                    unlocks:[] },
     { id:"tech_composting",      name:"Kompostování",              name_en:"Composting",                 cost:3,  desc:"Odemkne: Kompost",                             desc_en:"Unlocks: Compost",                      unlocks:["compost"] },
@@ -9332,6 +9338,10 @@ const CellariumSystem = {
     seed_sorb:      9,
     seed_rowan:     4,
     seed_linden:    7,
+    // Rybník (Piscina)
+    fry:            3,
+    carp_young:     5,
+    carp:           8,
     // Produkty Gallinarium & Ovile
     chicken_meat:   4,
     mutton:         6,
@@ -9373,6 +9383,7 @@ const CellariumSystem = {
     seed_apple: 'mat', seed_pear: 'mat', seed_plum: 'mat', seed_cherry: 'mat',
     seed_walnut: 'mat', seed_mulberry: 'mat', seed_quince: 'mat', seed_sorb: 'mat',
     seed_rowan: 'mat', seed_linden: 'mat',
+    fry: 'mat', carp_young: 'mat', carp: 'food_raw',
     chicken_meat: 'food', mutton: 'food',
     lamb_hide: 'mat', chick: 'mat', lamb: 'mat',
   },
@@ -9452,6 +9463,8 @@ const CellariumSystem = {
       { itemId: 'seed_sorb',     basePrice: 18 },
       { itemId: 'seed_rowan',    basePrice: 8  },
       { itemId: 'seed_linden',   basePrice: 14 },
+      // Rybník
+      { itemId: 'fry',           basePrice: 5  },
     ],
   },
 
@@ -16882,6 +16895,20 @@ const STRINGS_cs = {
             needHen: 'Nemáš tuto slepici!',
             needSheep: 'Nemáš ovci! (koupit na Trhu)',
             needDeReRustica: 'Odemkni technologii De Re Rustica!',
+                        needDePiscibus: 'Odemkni technologii De Piscibus!',
+            piscinaBuilt: 'Rybník tier {tier} vybudován.',
+            piscinaAlready: 'Tento rybník již existuje!',
+            piscinaTierOrder: 'Nejprve vybuduj předchozí tier!',
+            needPiscina1: 'Nejprve postav třecí rybník!',
+            noFry: 'Nemáš plůdek! (mokřad nebo Trh)',
+            fryAdded: 'Přidáno {qty} plůdku.',
+            piscinaEmpty: 'Rybník je prázdný!',
+            needFeedFish: 'Potřebuješ trávu (fiber)',
+            piscinaFed: 'Ryby nakrmeny.',
+            noCarp: 'Žádní dospělí kapři!',
+            carpHarvested: 'Sklizeno {qty} kaprů.',
+            noFryPending: 'Žádný plůdek k přesunu!',
+            fryTransferred: 'Přesunuto {qty} plůdků do třecího rybníku.',
             nestingStarted: 'Kvočna zasedla na vejce.',
             nestingActive: 'Líhnutí již probíhá!',
             nestingReq: 'Potřebuješ kohouta a alespoň 1 slepici.',
@@ -17162,7 +17189,25 @@ garden: {
         grown: 'Vzrostlé',
         harvest: 'Sklidit',
         wait: 'Čekat',
-        tabZahony: '🌱 Záhony',
+        tabPiscina: '🐟 Piscina',
+        piscinaLocked: 'Odemkni technologii De Piscibus (8 zápisků) pro přístup k rybníku.',
+        piscinaDesc: 'Klášterní rybník. Vybuduj třecí rybník, výtažník a kaprový rybník.',
+        piscinaTier1: 'Třecí rybník',
+        piscinaTier1Sub: 'Piscina Fecundationis — líhne plůdek (1 týden)',
+        piscinaTier2: 'Výtažník',
+        piscinaTier2Sub: 'Piscina Educatoria — dorůstají kapři (2 týdny)',
+        piscinaTier3: 'Kaprový rybník',
+        piscinaTier3Sub: 'Piscina Carporum — tržní kapři ke sklizni',
+        piscinaBuild: 'Vybudovat',
+        piscinaAddFry: 'Přidat plůdek',
+        piscinaFry: 'Plůdek',
+        piscinaYoung: 'Nedospělí kapři',
+        piscinaCarp: 'Kapři',
+        piscinaGrowing: 'Dorůstá',
+        piscinaMaturing: 'Dospívá',
+        piscinaWaitingCarp: 'Čeká na příchod kaprů z výtažníku...',
+        piscinaUpgradeFirst: 'Nejprve vybuduj předchozí rybník.',
+                tabZahony: '🌱 Záhony',
         tabSad: '🌳 Sad',
         tabApiarium: '🐝 Apiarium',
         tabDvur: '🐄 Dvůr',
@@ -17942,6 +17987,20 @@ const STRINGS_en = {
             needHen: 'Thou hast no such hen!',
             needSheep: 'Thou hast no sheep! (buy at the Market)',
             needDeReRustica: 'Unlock the De Re Rustica technology first!',
+                        needDePiscibus: 'Unlock the De Piscibus technology first!',
+            piscinaBuilt: 'Pond tier {tier} constructed.',
+            piscinaAlready: 'This pond already exists!',
+            piscinaTierOrder: 'Build the previous tier first!',
+            needPiscina1: 'Build the breeding pond first!',
+            noFry: 'Thou hast no fry! (wetlands or Market)',
+            fryAdded: '{qty} fry added.',
+            piscinaEmpty: 'The pond is empty!',
+            needFeedFish: 'Grass (fiber) is needed',
+            piscinaFed: 'The fish are fed.',
+            noCarp: 'No adult carp yet!',
+            carpHarvested: '{qty} carp harvested.',
+            noFryPending: 'No fry ready to transfer!',
+            fryTransferred: '{qty} fry moved to the breeding pond.',
             nestingStarted: 'The hen settles upon her eggs.',
             nestingActive: 'Nesting is already underway!',
             nestingReq: 'A rooster and at least one hen are needed.',
@@ -18589,7 +18648,25 @@ garden: {
         grown: 'Ready',
         harvest: 'Harvest',
         wait: 'Wait',
-        tabZahony: '🌱 Plots',
+        tabPiscina: '🐟 Piscina',
+        piscinaLocked: 'Unlock the De Piscibus technology (8 notes) to access the pond.',
+        piscinaDesc: 'The monastery pond. Build a breeding pond, rearing pond and carp pond.',
+        piscinaTier1: 'Breeding Pond',
+        piscinaTier1Sub: 'Piscina Fecundationis — hatches fry (1 week)',
+        piscinaTier2: 'Rearing Pond',
+        piscinaTier2Sub: 'Piscina Educatoria — young carp growing (2 weeks)',
+        piscinaTier3: 'Carp Pond',
+        piscinaTier3Sub: 'Piscina Carporum — market carp ready to harvest',
+        piscinaBuild: 'Construct',
+        piscinaAddFry: 'Add fry',
+        piscinaFry: 'Fry',
+        piscinaYoung: 'Young carp',
+        piscinaCarp: 'Carp',
+        piscinaGrowing: 'Growing',
+        piscinaMaturing: 'Maturing',
+        piscinaWaitingCarp: 'Awaiting carp from the rearing pond...',
+        piscinaUpgradeFirst: 'Build the previous pond first.',
+                tabZahony: '🌱 Plots',
         tabSad: '🌳 Orchard',
         tabApiarium: '🐝 Apiary',
         tabDvur: '🐄 Farmyard',
@@ -19578,6 +19655,21 @@ const Game = {
 				lastWateredAt: 0
 			};
 		}
+
+		// Initialize piscina (Rybník)
+		if(!GameState.piscina) {
+			GameState.piscina = {
+				tier: 0,
+				fry: 0,
+				youngCarp: 0,
+				carp: 0,
+				lastFedAt: 0,
+				fryAddedAt: 0,
+				youngAddedAt: 0,
+				lastFryProductionAt: 0,
+				pendingFry: 0,
+			};
+		}
         
         // Initialize theme settings if not present
         if(!GameState.settings.theme) {
@@ -19748,6 +19840,7 @@ const Game = {
                     // v8.x: Orchard growing → mature transition
                     Game.checkOrchardGrowth();
                     Game.checkFarmyardProduction();
+                    Game.checkPiscinaGrowth();
                 }
             } catch(e) {
                 console.error('Time update error:', e);
@@ -20129,6 +20222,116 @@ const Game = {
         UI.notify('🍯 ' + t('game.hiveCollected'));
     },
 
+    // ═══════════════════════════════════════════════════════════════════════════
+    // PISCINA (Rybník) — herní logika
+    // ═══════════════════════════════════════════════════════════════════════════
+
+    buildPiscina: function(tier) {
+        const p = GameState.piscina;
+        if (!GameState.researchedTechs.includes('tech_piscina')) { UI.notify(t('game.needDePiscibus'), true); return; }
+        const costs = {
+            1: { rock: 10, stick: 5 },
+            2: { rock: 20, stick: 10, rope: 5 },
+            3: { rock: 40, stick: 20, rope: 10 }
+        };
+        if (p.tier >= tier) { UI.notify(t('game.piscinaAlready'), true); return; }
+        if (tier !== p.tier + 1) { UI.notify(t('game.piscinaTierOrder'), true); return; }
+        const cost = costs[tier];
+        if ((GameState.inventory['rock']||0) < cost.rock)  { UI.notify(t('game.needStone') + ` (${cost.rock})`, true); return; }
+        if ((GameState.inventory['stick']||0) < cost.stick){ UI.notify(t('game.needWood')  + ` (${cost.stick})`, true); return; }
+        if (cost.rope && (GameState.inventory['rope']||0) < cost.rope){ UI.notify(t('game.needRope') + ` (${cost.rope})`, true); return; }
+        this.removeItem('rock', cost.rock);
+        this.removeItem('stick', cost.stick);
+        if (cost.rope) this.removeItem('rope', cost.rope);
+        p.tier = tier;
+        Game.save(); UI.renderPiscina();
+        UI.notify('🐟 ' + t('game.piscinaBuilt').replace('{tier}', tier));
+    },
+
+    addFry: function(qty) {
+        const p = GameState.piscina;
+        if (p.tier < 1) { UI.notify(t('game.needPiscina1'), true); return; }
+        if ((GameState.inventory['fry']||0) < qty) { UI.notify(t('game.noFry'), true); return; }
+        this.removeItem('fry', qty);
+        p.fry += qty;
+        p.fryAddedAt = p.fryAddedAt || Date.now();
+        Game.save(); UI.renderPiscina();
+        UI.notify('🫧 ' + t('game.fryAdded').replace('{qty}', qty));
+    },
+
+    feedPiscina: function() {
+        const p = GameState.piscina;
+        if (p.tier < 1) return;
+        const feedNeeded = p.fry + p.youngCarp + p.carp;
+        if (feedNeeded === 0) { UI.notify(t('game.piscinaEmpty'), true); return; }
+        if ((GameState.inventory['fiber']||0) < feedNeeded) { UI.notify(t('game.needFeedFish') + ` (${feedNeeded})`, true); return; }
+        this.removeItem('fiber', feedNeeded);
+        p.lastFedAt = Date.now();
+        Game.save(); UI.renderPiscina();
+        UI.notify('🌿 ' + t('game.piscinaFed'));
+    },
+
+    transferFry: function() {
+        const p = GameState.piscina;
+        if (!p || (p.pendingFry||0) <= 0) { UI.notify(t('game.noFryPending'), true); return; }
+        if (p.tier < 1) { UI.notify(t('game.needPiscina1'), true); return; }
+        const qty = p.pendingFry;
+        p.fry = (p.fry||0) + qty;
+        p.pendingFry = 0;
+        if (!p.fryAddedAt || p.fryAddedAt === 0) p.fryAddedAt = Date.now();
+        Game.save(); UI.renderPiscina();
+        UI.notify('🫧 ' + t('game.fryTransferred').replace('{qty}', qty));
+    },
+
+    harvestCarp: function(qty) {
+        const p = GameState.piscina;
+        qty = Math.min(qty, p.carp);
+        if (qty <= 0) { UI.notify(t('game.noCarp'), true); return; }
+        p.carp -= qty;
+        this.addItem('carp', qty);
+        Game.save(); UI.renderPiscina();
+        UI.notify('🐠 ' + t('game.carpHarvested').replace('{qty}', qty));
+    },
+
+    checkPiscinaGrowth: function() {
+        const p = GameState.piscina;
+        if (!p || p.tier < 1) return;
+        const now = Date.now();
+        const WEEK  = 7  * 24 * 3600000;
+        const WEEKS2 = 14 * 24 * 3600000;
+        let changed = false;
+
+        // Tier 1 → tier 2: plůdek po týdnu přechází do výtažníku (pokud existuje)
+        if (p.fry > 0 && p.tier >= 2 && p.fryAddedAt > 0 && now >= p.fryAddedAt + WEEK) {
+            p.youngCarp += p.fry;
+            p.fry = 0;
+            p.youngAddedAt = now;
+            p.fryAddedAt = 0;
+            changed = true;
+        }
+
+        // Tier 2 → tier 3: nedospělí kapři po 2 týdnech přechází do kaprového rybníka
+        if (p.youngCarp > 0 && p.tier >= 3 && p.youngAddedAt > 0 && now >= p.youngAddedAt + WEEKS2) {
+            p.carp += p.youngCarp;
+            p.youngCarp = 0;
+            p.youngAddedAt = 0;
+            changed = true;
+        }
+
+        // Tier 3: kaprový rybník produkuje 1 plůdek / 24h
+        const DAY = 24 * 3600000;
+        if (p.tier >= 3 && p.carp > 0) {
+            if (p.lastFryProductionAt === undefined) p.lastFryProductionAt = now;
+            if (now >= p.lastFryProductionAt + DAY) {
+                p.pendingFry = (p.pendingFry || 0) + 1;
+                p.lastFryProductionAt = now;
+                changed = true;
+            }
+        }
+
+        if (changed) { Game.save(); }
+    },
+
     checkOrchardGrowth: function() {
         if (!GameState.orchard) return;
         const GROW_HOURS = {
@@ -20501,6 +20704,8 @@ const Game = {
                     else if(r<0.7) this.addItem('slug', 2);
                     else if(r<0.85) this.addItem('water', 2);
                     else this.addItem('fiber', 1);
+                    // v8.x: plůdek — vzácný nález v mokřadu
+                    if(Math.random() < 0.08) this.addItem('fry', 1);
                 }
                 else if (type === 'resin_harvest') {
                     if(r<0.5) this.addItem('resin', 1);
@@ -22511,11 +22716,13 @@ renderRecords: function() {
         document.getElementById('garden-tab-sad').style.display      = tab === 'sad'      ? '' : 'none';
         document.getElementById('garden-tab-apiarium').style.display = tab === 'apiarium' ? '' : 'none';
         document.getElementById('garden-tab-dvur').style.display     = tab === 'dvur'     ? '' : 'none';
+        document.getElementById('garden-tab-piscina').style.display  = tab === 'piscina'  ? '' : 'none';
         document.querySelectorAll('#screen-garden .filter-btn').forEach(b => b.classList.remove('active'));
         if (btn) btn.classList.add('active');
         if (tab === 'dvur')     this.renderFarmyard();
         if (tab === 'sad')      this.renderOrchard();
         if (tab === 'apiarium') this.renderApiary();
+        if (tab === 'piscina')  this.renderPiscina();
     },
 
     renderFarmyard: function() {
@@ -22628,6 +22835,251 @@ renderRecords: function() {
         }
         html += `</div>`;
         el.innerHTML = html;
+    },
+
+    // ═══════════════════════════════════════════════════════════════════════════
+    // PISCINA (Rybník) — renderPiscina
+    // ═══════════════════════════════════════════════════════════════════════════
+    renderPiscina: function() {
+        const el = document.getElementById('piscina-container');
+        if (!el) return;
+        const hasTech = GameState.researchedTechs && GameState.researchedTechs.includes('tech_piscina');
+
+        if (!hasTech) {
+            el.innerHTML = `
+                <div style="text-align:center; padding:40px 20px; opacity:0.7;">
+                    <div style="font-size:3rem; margin-bottom:16px;">🐟</div>
+                    <em>Piscina clausa est.</em>
+                    <div style="font-size:0.82rem; opacity:0.75; margin-top:8px;">${t('garden.piscinaLocked')}</div>
+                </div>`;
+            return;
+        }
+
+        const p = GameState.piscina || {};
+        const now = Date.now();
+        const WEEK  = 7  * 24 * 3600000;
+        const WEEKS2 = 14 * 24 * 3600000;
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+
+        let html = `<p class="text-sm" style="margin-bottom:12px; opacity:0.75;">${t('garden.piscinaDesc')}</p>`;
+
+        // ── TŘECÍ RYBNÍK (Tier 1) ── 1/7 výšky
+        const t1locked = p.tier < 1;
+        html += `<div style="
+            margin-bottom:10px; border-radius:10px; overflow:hidden;
+            border:2px solid ${t1locked ? 'rgba(0,0,0,0.15)' : '#4a7c8a'};
+            background:${t1locked ? 'rgba(0,0,0,0.04)' : 'linear-gradient(180deg, #e8f4f8 0%, #b8dce8 100%)'};
+            min-height:80px; position:relative;">
+            <div style="padding:10px 14px; display:flex; align-items:center; gap:10px; position:relative; z-index:2;">
+                <div style="flex:1;">
+                    <strong style="font-size:0.9rem;">🫧 ${t('garden.piscinaTier1')}</strong>
+                    <div style="font-size:0.75rem; opacity:0.7; font-style:italic;">${t('garden.piscinaTier1Sub')}</div>
+                </div>`;
+
+        if (t1locked) {
+            const canBuild = (GameState.inventory['rock']||0)>=10 && (GameState.inventory['stick']||0)>=5;
+            html += `<button class="craft-btn" onclick="Game.buildPiscina(1)" ${canBuild?'':'disabled'} style="font-size:0.75rem; white-space:normal;">
+                🏗️ ${t('garden.piscinaBuild')} (10🪨 5🪵)</button>`;
+        } else {
+            html += `<div style="font-size:0.82rem;">🫧 ${t('garden.piscinaFry')}: <strong>${p.fry||0}</strong></div>`;
+        }
+        html += `</div>`;
+
+        // Bublinky animace
+        if (!t1locked) {
+            for (let i=0; i<6; i++) {
+                const left = 10 + Math.random()*80;
+                const delay = Math.random()*3;
+                const dur = 2 + Math.random()*2;
+                html += `<div style="position:absolute; left:${left}%; bottom:5px; font-size:0.8rem;
+                    animation:piscinaBubble ${dur}s ${delay}s infinite ease-in; opacity:0.6; z-index:1;">🫧</div>`;
+            }
+
+            // Přidat plůdek
+            const hasFry = (GameState.inventory['fry']||0) > 0;
+            html += `<div style="padding:6px 14px; display:flex; gap:8px; align-items:center; z-index:2; position:relative;">`;
+            if (p.fryAddedAt && p.fry > 0) {
+                const elapsed = now - p.fryAddedAt;
+                const pct = Math.min(100, Math.round(elapsed / WEEK * 100));
+                const daysLeft = Math.max(0, Math.ceil((WEEK - elapsed) / 86400000));
+                html += `<div style="flex:1; font-size:0.75rem; opacity:0.8;">⏳ ${t('garden.piscinaGrowing')} ${pct}% (${daysLeft}d)</div>`;
+            } else {
+                html += `<button class="craft-btn" onclick="Game.addFry(1)" ${hasFry&&p.tier>=1?'':'disabled'} style="font-size:0.72rem;">+1 ${t('garden.piscinaAddFry')}</button>`;
+                html += `<button class="craft-btn" onclick="Game.addFry(5)" ${hasFry&&(GameState.inventory['fry']||0)>=5&&p.tier>=1?'':'disabled'} style="font-size:0.72rem;">+5</button>`;
+            }
+            html += `</div>`;
+        }
+        html += `</div>`;
+
+        // ── VÝTAŽNÍK (Tier 2) ── 2/7 výšky
+        const t2locked = p.tier < 2;
+        html += `<div style="
+            margin-bottom:10px; border-radius:10px; overflow:hidden;
+            border:2px solid ${t2locked ? 'rgba(0,0,0,0.15)' : '#2a6a7a'};
+            background:${t2locked ? 'rgba(0,0,0,0.04)' : 'linear-gradient(180deg, #c8e8f0 0%, #88c4d8 100%)'};
+            min-height:160px; position:relative;">
+            <div style="padding:10px 14px; display:flex; align-items:center; gap:10px; position:relative; z-index:2;">
+                <div style="flex:1;">
+                    <strong style="font-size:0.9rem;">🐟 ${t('garden.piscinaTier2')}</strong>
+                    <div style="font-size:0.75rem; opacity:0.7; font-style:italic;">${t('garden.piscinaTier2Sub')}</div>
+                </div>`;
+
+        if (t2locked && p.tier >= 1) {
+            const canBuild = (GameState.inventory['rock']||0)>=20 && (GameState.inventory['stick']||0)>=10 && (GameState.inventory['rope']||0)>=5;
+            html += `<button class="craft-btn" onclick="Game.buildPiscina(2)" ${canBuild?'':'disabled'} style="font-size:0.75rem; white-space:normal;">
+                🏗️ ${t('garden.piscinaBuild')} (20🪨 10🪵 5➰)</button>`;
+        } else if (t2locked) {
+            html += `<div style="font-size:0.75rem; opacity:0.5; font-style:italic;">${t('garden.piscinaUpgradeFirst')}</div>`;
+        } else {
+            html += `<div style="font-size:0.82rem;">🐟 ${t('garden.piscinaYoung')}: <strong>${p.youngCarp||0}</strong></div>`;
+        }
+        html += `</div>`;
+
+        // Plovoucí rybičky (tier 2)
+        if (!t2locked && (p.youngCarp||0) > 0) {
+            const fishCount = Math.min(p.youngCarp, 4);
+            const t2icons = ['🐟','🐠','🐟','🐡'];
+            for (let i=0; i<fishCount; i++) {
+                // každá rybka má unikátní parametry
+                const topPct  = 15 + Math.random()*60;          // 15–75% výška
+                const dur     = 10 + Math.random()*12;           // 10–22s pomalé
+                const delay   = -(Math.random()*10);             // záporný delay = hned na různém místě
+                const sz      = 0.9 + Math.random()*0.6;        // různá velikost
+                const goLeft  = Math.random() > 0.5;
+                const flipX   = goLeft ? 'scaleX(-1)' : 'scaleX(1)';
+                const swimAnim = goLeft ? 'piscinaSwimL' : 'piscinaSwim';
+                const diveDur = 4 + Math.random()*5;
+                const diveDelay = Math.random()*6;
+                html += `<div style="position:absolute; top:${topPct.toFixed(1)}%; font-size:${sz.toFixed(2)}rem;
+                    transform:${flipX};
+                    animation:${swimAnim} ${dur.toFixed(1)}s ${delay.toFixed(1)}s infinite linear,
+                               piscinaWave ${diveDur.toFixed(1)}s ${diveDelay.toFixed(1)}s infinite ease-in-out;
+                    z-index:1;">${t2icons[i%4]}</div>`;
+            }
+            if (p.youngAddedAt > 0) {
+                const elapsed2 = now - p.youngAddedAt;
+                const pct2 = Math.min(100, Math.round(elapsed2 / WEEKS2 * 100));
+                const daysLeft2 = Math.max(0, Math.ceil((WEEKS2 - elapsed2) / 86400000));
+                html += `<div style="padding:6px 14px; font-size:0.75rem; opacity:0.8; position:relative; z-index:2;">
+                    ⏳ ${t('garden.piscinaMaturing')} ${pct2}% (${daysLeft2}d)</div>`;
+            }
+        }
+        html += `</div>`;
+
+        // ── KAPROVÝ RYBNÍK (Tier 3) ── 4/7 výšky
+        const t3locked = p.tier < 3;
+        html += `<div style="
+            margin-bottom:10px; border-radius:10px; overflow:hidden;
+            border:2px solid ${t3locked ? 'rgba(0,0,0,0.15)' : '#1a4a5a'};
+            background:${t3locked ? 'rgba(0,0,0,0.04)' : 'linear-gradient(180deg, #a8d8e8 0%, #4898b8 50%, #1a6888 100%)'};
+            min-height:260px; position:relative;">
+            <div style="padding:10px 14px; display:flex; align-items:center; gap:10px; position:relative; z-index:2;">
+                <div style="flex:1;">
+                    <strong style="font-size:0.9rem; color:${t3locked?'inherit':'#fff'};">🐠 ${t('garden.piscinaTier3')}</strong>
+                    <div style="font-size:0.75rem; opacity:0.7; font-style:italic; color:${t3locked?'inherit':'#e0f0ff'};">${t('garden.piscinaTier3Sub')}</div>
+                </div>`;
+
+        if (t3locked && p.tier >= 2) {
+            const canBuild = (GameState.inventory['rock']||0)>=40 && (GameState.inventory['stick']||0)>=20 && (GameState.inventory['rope']||0)>=10;
+            html += `<button class="craft-btn" onclick="Game.buildPiscina(3)" ${canBuild?'':'disabled'} style="font-size:0.75rem; white-space:normal;">
+                🏗️ ${t('garden.piscinaBuild')} (40🪨 20🪵 10➰)</button>`;
+        } else if (t3locked) {
+            html += `<div style="font-size:0.75rem; opacity:0.5; font-style:italic;">${t('garden.piscinaUpgradeFirst')}</div>`;
+        } else {
+            html += `<div style="font-size:0.82rem; color:#fff;">🐠 ${t('garden.piscinaCarp')}: <strong>${p.carp||0}</strong></div>`;
+        }
+        html += `</div>`;
+
+        // Kapři — plovoucí + potápěcí animace, každý individuální
+        if (!t3locked && (p.carp||0) > 0) {
+            const carpCount = Math.min(p.carp, 6);
+            const icons = ['🐠','🐟','🐡','🐠','🐡','🐟'];
+            for (let i=0; i<carpCount; i++) {
+                const topPct  = 10 + Math.random()*70;           // 10–80% výška
+                const dur     = 12 + Math.random()*15;           // 12–27s velmi pomalé
+                const delay   = -(Math.random()*12);             // okamžitý start na různém místě
+                const sz      = 1.1 + Math.random()*0.8;        // 1.1–1.9rem
+                const goLeft  = Math.random() > 0.5;
+                const flipX   = goLeft ? 'scaleX(-1)' : 'scaleX(1)';
+                const swimAnim = goLeft ? 'piscinaSwimL' : 'piscinaSwim';
+                const waveDur = 5 + Math.random()*7;
+                const waveDelay = Math.random()*8;
+                const diveDur = 6 + Math.random()*5;
+                const diveDelay = Math.random()*10;
+                html += `<div style="position:absolute; top:${topPct.toFixed(1)}%; font-size:${sz.toFixed(2)}rem;
+                    transform:${flipX};
+                    animation:${swimAnim} ${dur.toFixed(1)}s ${delay.toFixed(1)}s infinite linear,
+                               piscinaWave ${waveDur.toFixed(1)}s ${waveDelay.toFixed(1)}s infinite ease-in-out,
+                               piscinaDive ${diveDur.toFixed(1)}s ${diveDelay.toFixed(1)}s infinite ease-in-out;
+                    z-index:1;">${icons[i%6]}</div>`;
+            }
+        } else if (!t3locked) {
+            html += `<div style="padding:8px 14px; position:absolute; bottom:8px; left:0; right:0; z-index:2; color:#e0f0ff; font-size:0.8rem; font-style:italic; text-align:center;">${t('garden.piscinaWaitingCarp')}</div>`;
+        }
+        // Tlačítka vždy na spodku rybníku
+        if (!t3locked) {
+            // Pending plůdky z produkce
+            const pendingFry = p.pendingFry || 0;
+            const DAY = 24 * 3600000;
+            const nextFryIn = p.lastFryProductionAt > 0 ? Math.max(0, Math.ceil((p.lastFryProductionAt + DAY - now) / 3600000)) : 24;
+            html += `<div style="position:absolute; bottom:0; left:0; right:0; z-index:3; background:rgba(0,0,0,0.3); backdrop-filter:blur(2px);">`;
+            if ((p.carp||0) > 0) {
+                html += `<div style="padding:4px 14px 2px; font-size:0.72rem; color:#e0f0ff; opacity:0.85;">
+                    🫧 ${lang==='en'?'Fry produced':'Plůdek vyprodukován'}: <strong>${pendingFry}</strong>
+                    ${pendingFry > 0
+                        ? `<button class="craft-btn" onclick="Game.transferFry()" style="margin-left:8px; font-size:0.68rem; padding:2px 8px; background:#1a5a6a;">
+                            → ${lang==='en'?'Move to breeding pond':'Přesunout do třecího'}</button>`
+                        : `<span style="opacity:0.6; margin-left:6px;">(${lang==='en'?'next in':'další za'} ${nextFryIn}h)</span>`
+                    }
+                </div>`;
+            }
+            html += `<div style="padding:4px 14px 8px; display:flex; gap:8px;">`;
+            if ((p.carp||0) > 0) {
+                html += `<button class="craft-btn" onclick="Game.harvestCarp(1)" style="font-size:0.75rem; background:#2a5a3a;">🐠 ${lang==='en'?'Harvest 1':'Sklidit 1'}</button>`;
+                html += `<button class="craft-btn" onclick="Game.harvestCarp(${p.carp})" style="font-size:0.75rem; background:#2a5a3a;">🐠 ${lang==='en'?'All':'Vše'} (${p.carp})</button>`;
+            }
+            html += `<button class="craft-btn" onclick="Game.feedPiscina()" style="font-size:0.75rem; background:#4a7c59;">🌿 ${t('farmyard.feed')}</button>`;
+            html += `</div></div>`;
+        }
+        html += `</div>`;
+
+        el.innerHTML = html;
+
+        // CSS animace — vložit pokud chybí
+        if (!document.getElementById('piscina-style')) {
+            const style = document.createElement('style');
+            style.id = 'piscina-style';
+            style.textContent = [
+                '@keyframes piscinaBubble {',
+                '  0%   { transform: translateY(0) scale(1); opacity:0.6; }',
+                '  60%  { transform: translateY(-25px) scale(1.1); opacity:0.35; }',
+                '  100% { transform: translateY(-45px) scale(0.7); opacity:0; }',
+                '}',
+                '@keyframes piscinaSwim {',
+                '  0%   { left: -8%; }',
+                '  100% { left: 108%; }',
+                '}',
+                '@keyframes piscinaSwimL {',
+                '  0%   { left: 108%; }',
+                '  100% { left: -8%; }',
+                '}',
+                '@keyframes piscinaWave {',
+                '  0%   { margin-top: 0px; }',
+                '  25%  { margin-top: 12px; }',
+                '  50%  { margin-top: -8px; }',
+                '  75%  { margin-top: 18px; }',
+                '  100% { margin-top: 0px; }',
+                '}',
+                '@keyframes piscinaDive {',
+                '  0%   { margin-top: 0px; opacity: 1; }',
+                '  40%  { margin-top: 30px; opacity: 0.7; }',
+                '  55%  { margin-top: 35px; opacity: 0.5; }',
+                '  70%  { margin-top: 20px; opacity: 0.8; }',
+                '  100% { margin-top: 0px; opacity: 1; }',
+                '}'
+            ].join('\n');
+            document.head.appendChild(style);
+        }
     },
 
     // ═══════════════════════════════════════════════════════════════════════════
