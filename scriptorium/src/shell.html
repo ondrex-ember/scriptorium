@@ -573,7 +573,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
         .card { border: 1px solid var(--ink-secondary); padding: 10px; margin-bottom: 8px; background: rgba(255,255,255,0.4); display: flex; align-items: center; gap: 12px; box-shadow: 2px 2px 0px rgba(44, 36, 27, 0.1); transition: all 0.3s; min-height: 60px; }
         .item-icon { width: 44px; height: 44px; min-width: 44px; background: #e8dec0; border: 1px solid var(--ink-primary); display: flex; justify-content: center; align-items: center; font-size: 1.5rem; border-radius: 3px; }
-        .craft-btn { margin-left: auto; background: var(--accent-wax); color: #fff; border: none; padding: 8px 14px; font-family: 'Cinzel Decorative'; cursor: pointer; border-radius: 2px; font-size: 0.85rem; white-space: nowrap; }
+        .craft-btn { margin-left: auto; background: var(--accent-wax); color: #fff; border: none; padding: 8px 14px; font-family: 'Cinzel Decorative'; cursor: pointer; border-radius: 2px; font-size: 0.85rem; white-space: nowrap; max-width: 100%; box-sizing: border-box; }
         .craft-btn:disabled { background: #bbb; cursor: not-allowed; opacity: 0.7; }
         
         .craft-btn.running { background: var(--ink-secondary); animation: pulse 2s infinite; }
@@ -724,6 +724,13 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
 		/* Ochrana proti přetékání na mobilech */
 		@media (max-width: 600px) {
+			.craft-btn {
+				white-space: normal !important;
+				word-break: break-word;
+				height: auto !important;
+				max-width: 100% !important;
+				box-sizing: border-box;
+			}
 		  .hexagram-container {
 			grid-template-columns: 1fr; /* Na mobilu budou bloky pod sebou! */
 			gap: 15px;
@@ -857,16 +864,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 			}
 
 			.garden-grid { 
-				grid-template-columns: repeat(2, 1fr); 
-			}
-			.garden-plot {
-				min-height: 120px;
-				padding: 8px;
-			}
-			.craft-btn {
-				white-space: normal;
-				word-break: break-word;
-				height: auto;
+				grid-template-columns: repeat(4, 1fr); 
 			}
 			
 			#lore-content-wrapper {
@@ -904,12 +902,6 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 			.games-grid {
 				grid-template-columns: repeat(2, 1fr);
 				gap: 12px;
-			}
-		}
-
-		@media (max-width: 400px) {
-			.garden-grid {
-				grid-template-columns: 1fr;
 			}
 		}
 
