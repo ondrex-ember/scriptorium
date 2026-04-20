@@ -1,6 +1,13 @@
 <!DOCTYPE html>
 <html lang="cs">
 <head>
+<!-- Google Tag Manager -->
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-NZSGNPD8');</script>
+<!-- End Google Tag Manager -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Scriptorium — středověká idle hra o kopírování rukopisů, výrobě pergamenu a studiu v klášterním skriptoriu. Historicky podložená, zasazená do roku 1465 v Olomouci.">
@@ -24,6 +31,37 @@
     <meta name="twitter:title" content="O hře — Scriptorium · Středověká idle hra">
     <meta name="twitter:description" content="Kopíruj rukopisy, pěstuj byliny a odemykej tajemství pergamenu a inkoustu.">
     <meta name="twitter:image" content="https://myscriptorium.cz/og-image.jpg">
+
+    <!-- PWA -->
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#2c241b">
+
+    <!-- Structured Data -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "VideoGame",
+      "name": "Scriptorium",
+      "description": "Středověká idle hra o kopírování rukopisů, výrobě pergamenu a studiu v klášterním skriptoriu. Historicky podložená, zasazená do roku 1465 v Olomouci.",
+      "url": "https://myscriptorium.cz/",
+      "genre": ["Idle Game", "Simulation", "Historical"],
+      "gamePlatform": "Web Browser",
+      "applicationCategory": "Game",
+      "operatingSystem": "Any",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "CZK"
+      },
+      "author": {
+        "@type": "Person",
+        "name": "Ondrex Ember",
+        "url": "https://myscriptorium.cz"
+      },
+      "inLanguage": ["cs", "en"],
+      "image": "https://myscriptorium.cz/og-image.jpg"
+    }
+    </script>
 
     <title>O hře · Scriptorium — Středověká idle hra</title>
 
@@ -313,9 +351,120 @@
             .credits-grid { grid-template-columns: 1fr; }
             .credits-grid dt { margin-top: 8px; }
         }
+
+        /* ── HERO ── */
+        .hero {
+            background: linear-gradient(180deg, #1a1208 0%, #2c241b 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 0 0 40px;
+        }
+
+        .hero-image-wrap {
+            width: 100%;
+            max-width: 560px;
+            margin: 0 auto;
+            display: block;
+            position: relative;
+        }
+
+        .hero-image-wrap img {
+            width: 100%;
+            height: auto;
+            display: block;
+            mask-image: linear-gradient(to bottom, rgba(0,0,0,1) 60%, rgba(0,0,0,0) 100%);
+            -webkit-mask-image: linear-gradient(to bottom, rgba(0,0,0,1) 60%, rgba(0,0,0,0) 100%);
+        }
+
+        .hero-text {
+            text-align: center;
+            padding: 0 24px;
+            margin-top: -20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero-tagline {
+            font-size: 0.75rem;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            color: var(--gold);
+            opacity: 0.7;
+            margin-bottom: 10px;
+        }
+
+        .hero-title {
+            font-family: 'Cinzel Decorative', serif;
+            font-size: clamp(1.6rem, 5vw, 2.4rem);
+            color: var(--gold);
+            letter-spacing: 0.06em;
+            text-shadow: 0 2px 16px rgba(197,160,89,0.4);
+            margin-bottom: 10px;
+        }
+
+        .hero-subtitle {
+            font-style: italic;
+            color: rgba(245,240,232,0.65);
+            font-size: 0.95rem;
+            margin-bottom: 28px;
+            line-height: 1.6;
+        }
+
+        .hero-cta {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn-hero-primary {
+            font-family: 'Cinzel Decorative', serif;
+            font-size: 0.78rem;
+            letter-spacing: 0.1em;
+            color: var(--ink);
+            background: var(--gold);
+            border: none;
+            padding: 13px 32px;
+            text-decoration: none;
+            border-radius: 2px;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.15s;
+            box-shadow: 0 2px 16px rgba(197,160,89,0.35);
+        }
+
+        .btn-hero-primary:hover {
+            background: var(--gold-dark);
+            color: var(--parchment);
+            transform: translateY(-1px);
+        }
+
+        .btn-hero-secondary {
+            font-family: 'Cinzel Decorative', serif;
+            font-size: 0.78rem;
+            letter-spacing: 0.1em;
+            color: var(--gold);
+            background: transparent;
+            border: 1px solid rgba(197,160,89,0.45);
+            padding: 12px 28px;
+            text-decoration: none;
+            border-radius: 2px;
+            cursor: pointer;
+            transition: border-color 0.2s, color 0.2s;
+        }
+
+        .btn-hero-secondary:hover {
+            border-color: var(--gold);
+            color: var(--parchment);
+        }
     </style>
 </head>
 <body>
+
+<!-- Google Tag Manager (noscript) -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-NZSGNPD8"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<!-- End Google Tag Manager (noscript) -->
 
 <header class="site-header">
     <div class="lang-toggle">
@@ -328,26 +477,51 @@
     </div>
 </header>
 
+<!-- ── HERO ── -->
+<div class="hero">
+    <div class="hero-image-wrap">
+        <img src="/intro-portrait.jpg" alt="Scriptorium — středověká idle hra" width="1099" height="1860">
+    </div>
+    <div class="hero-text">
+        <p class="hero-tagline" id="hero-tagline">Historická idle hra · zdarma</p>
+        <h2 class="hero-title" id="hero-title">Scriptorium</h2>
+        <p class="hero-subtitle" id="hero-subtitle">Olomouc, Léta Páně 1465.<br>Klášterní scriptorium čeká na tvé pero a inkoust.</p>
+        <div class="hero-cta">
+            <a href="https://myscriptorium.cz/" class="btn-hero-primary" id="hero-cta-play">▶ Spustit hru</a>
+            <a href="#about" class="btn-hero-secondary" id="hero-cta-about">O hře ↓</a>
+        </div>
+    </div>
+</div>
+
 <main>
 
-    <div class="cta-wrap">
-        <a href="https://myscriptorium.cz/" class="btn-play" id="btn-play">🎮 Vstoupit do Skriptoria →</a>
-    </div>
-
-    <section>
+    <section id="about">
         <h2 class="section-title" id="lbl-about">O hře</h2>
         <div class="about-block">
             <p id="txt-about">Středověká idle hra o kopírování rukopisů, výrobě papíru a studiu v klášterním skriptoriu. Kombinuje survival mechaniky (oheň, světlo, hlad) s craftingem, zahradničením a postupným odemykáním technologií. Historicky podložená hra zasazená do roku 1465 v Olomouci.</p>
         </div>
         <div class="about-block" style="font-size:0.9rem; color: var(--ink-soft);">
-            <strong id="lbl-version">Verze:</strong> <span id="val-version">7.7 "Verbum Omnibus"</span> &nbsp;·&nbsp;
-            <strong id="lbl-date">Datum:</strong> <span id="val-date">6. dubna 2026</span> &nbsp;·&nbsp;
+            <strong id="lbl-version">Verze:</strong> <span id="val-version">7.8 "Lux et Umbra"</span> &nbsp;·&nbsp;
+            <strong id="lbl-date">Datum:</strong> <span id="val-date">20. dubna 2026</span> &nbsp;·&nbsp;
             <strong id="lbl-author">Autor:</strong> Ondrex Ember
         </div>
     </section>
 
     <section>
         <h2 class="section-title" id="lbl-changelog">📓 Release Notes</h2>
+
+        <div class="version-block">
+            <strong>v7.8 "Lux et Umbra" (20.04.2026)</strong>
+            <ul>
+                <li>🌅 <span id="r78-1">Dynamické pozadí — header mění obraz podle sezóny, denní doby a počasí</span></li>
+                <li>⚗️ <span id="r78-2">Athanor 2.0 — CombinationEngine, brewing timer, fáze Nigredo/Albedo/Rubedo, discovery log</span></li>
+                <li>🌿 <span id="r78-3">10 nových alchymistických ingrediencí a kombinací (Ferrogalický inkoust, Oxymel, Aqua Rosarum)</span></li>
+                <li>🍺 <span id="r78-4">Cellarium — Hospoda s pivem a vínem (efekty: Lupulin, In vino veritas)</span></li>
+                <li>🏛️ <span id="r78-5">Dvůr (Curia) — Studna přesunuta do záložky Dvůr, struktura připravena</span></li>
+                <li>📄 <span id="r78-6">about.html — hero sekce s obrázkem, GTM, JSON-LD VideoGame schema</span></li>
+                <li>🔧 <span id="r78-7">Opravy: PWA padding (Motorola RAZR), zahrada tab active state, Rithmomachia piece modal</span></li>
+            </ul>
+        </div>
 
         <div class="version-block">
             <strong>v7.7 "Verbum Omnibus" (06.04.2026)</strong>
@@ -464,11 +638,23 @@ const CONTENT = {
         title:       'O hře · Scriptorium',
         hdrSub:      'Léta Páně 1465 · Město Olomouc',
         btnPlay:     '🎮 Vstoupit do Skriptoria →',
+        heroTagline: 'Historická idle hra · zdarma',
+        heroTitle:   'Scriptorium',
+        heroSubtitle:'Olomouc, Léta Páně 1465.<br>Klášterní scriptorium čeká na tvé pero a inkoust.',
+        heroCTAPlay: '▶ Spustit hru',
+        heroCTAAbout:'O hře ↓',
         lblAbout:    'O hře',
         txtAbout:    'Středověká idle hra o kopírování rukopisů, výrobě papíru a studiu v klášterním skriptoriu. Kombinuje survival mechaniky (oheň, světlo, hlad) s craftingem, zahradničením a postupným odemykáním technologií. Historicky podložená hra zasazená do roku 1465 v Olomouci.',
         lblVersion:  'Verze:', lblDate: 'Datum:', lblAuthor: 'Autor:',
-        valVersion:  '7.7 "Verbum Omnibus"', valDate: '6. dubna 2026',
+        valVersion:  '7.8 "Lux et Umbra"', valDate: '20. dubna 2026',
         lblChangelog:'📓 Release Notes',
+        r781: 'Dynamické pozadí — header mění obraz podle sezóny, denní doby a počasí',
+        r782: 'Athanor 2.0 — CombinationEngine, brewing timer, fáze Nigredo/Albedo/Rubedo, discovery log',
+        r783: '10 nových alchymistických ingrediencí a kombinací (Ferrogalický inkoust, Oxymel, Aqua Rosarum)',
+        r784: 'Cellarium — Hospoda s pivem a vínem (efekty: Lupulin, In vino veritas)',
+        r785: 'Dvůr (Curia) — Studna přesunuta do záložky Dvůr, struktura připravena',
+        r786: 'about.html — hero sekce s obrázkem, GTM, JSON-LD VideoGame schema',
+        r787: 'Opravy: PWA padding (Motorola RAZR), zahrada tab active state, Rithmomachia piece modal',
         r771: 'i18n Phase 1 dokončena — kompletní překlad UI do EN',
         r772: '61 historických knih v knihovně',
         r773: 'Collapsible tech cards — preview lore textu, rozbalitelný detail',
@@ -515,11 +701,23 @@ const CONTENT = {
         title:       'About · Scriptorium',
         hdrSub:      'Anno Domini 1465 · City of Olomouc',
         btnPlay:     '🎮 Enter the Scriptorium →',
+        heroTagline: 'Historical idle game · free',
+        heroTitle:   'Scriptorium',
+        heroSubtitle:'Olomouc, Anno Domini 1465.<br>The monastery scriptorium awaits your quill and ink.',
+        heroCTAPlay: '▶ Play now',
+        heroCTAAbout:'About ↓',
         lblAbout:    'About the Game',
         txtAbout:    'A medieval idle game about copying manuscripts, crafting paper, and studying in a monastery scriptorium. Blends survival mechanics (fire, light, hunger) with crafting, gardening, and gradual technology unlocks. Historically grounded, set in the year 1465 in Olomouc.',
         lblVersion:  'Version:', lblDate: 'Date:', lblAuthor: 'Author:',
-        valVersion:  '7.7 "Verbum Omnibus"', valDate: '6 April 2026',
+        valVersion:  '7.8 "Lux et Umbra"', valDate: '20 April 2026',
         lblChangelog:'📓 Release Notes',
+        r781: 'Dynamic background — header image changes by season, time of day and weather',
+        r782: 'Athanor 2.0 — CombinationEngine, brewing timer, Nigredo/Albedo/Rubedo phases, discovery log',
+        r783: '10 new alchemical ingredients and combinations (Iron gall ink, Oxymel, Aqua Rosarum)',
+        r784: 'Cellarium — Tavern with beer and wine (effects: Lupulin, In vino veritas)',
+        r785: 'Curia (Farmyard) — Well moved to Dvůr tab, structure prepared',
+        r786: 'about.html — hero section with image, GTM, JSON-LD VideoGame schema',
+        r787: 'Fixes: PWA padding (Motorola RAZR), garden tab active state, Rithmomachia piece modal',
         r771: 'i18n Phase 1 complete — full UI translation into English',
         r772: '61 historical books in the library',
         r773: 'Collapsible tech cards — lore preview, expandable detail',
@@ -575,7 +773,14 @@ function setLang(lang) {
 
     // Header
     document.getElementById('hdr-sub').textContent    = L.hdrSub;
-    document.getElementById('btn-play').textContent   = L.btnPlay;
+    document.getElementById('btn-play') && (document.getElementById('btn-play').textContent = L.btnPlay);
+
+    // Hero
+    document.getElementById('hero-tagline').textContent  = L.heroTagline;
+    document.getElementById('hero-title').textContent    = L.heroTitle;
+    document.getElementById('hero-subtitle').innerHTML   = L.heroSubtitle;
+    document.getElementById('hero-cta-play').textContent = L.heroCTAPlay;
+    document.getElementById('hero-cta-about').textContent= L.heroCTAAbout;
 
     // About
     document.getElementById('lbl-about').textContent  = L.lblAbout;
@@ -587,6 +792,13 @@ function setLang(lang) {
 
     // Changelog
     document.getElementById('lbl-changelog').textContent = L.lblChangelog;
+    document.getElementById('r78-1').textContent = L.r781;
+    document.getElementById('r78-2').textContent = L.r782;
+    document.getElementById('r78-3').textContent = L.r783;
+    document.getElementById('r78-4').textContent = L.r784;
+    document.getElementById('r78-5').textContent = L.r785;
+    document.getElementById('r78-6').textContent = L.r786;
+    document.getElementById('r78-7').textContent = L.r787;
     document.getElementById('r77-1').textContent = L.r771;
     document.getElementById('r77-2').textContent = L.r772;
     document.getElementById('r77-3').textContent = L.r773;

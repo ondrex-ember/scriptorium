@@ -37,5 +37,21 @@
     }
   ],
   "screenshots": [],
+  "shortcuts": [
+    {
+      "name": "Hrát",
+      "short_name": "Hrát",
+      "description": "Spustit hru",
+      "url": "/",
+      "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "O hře",
+      "short_name": "O hře",
+      "description": "Informace o hře",
+      "url": "/about.html",
+      "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
+    }
+  ],
   "prefer_related_applications": false
 }
