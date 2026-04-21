@@ -253,7 +253,7 @@ const STRINGS_cs = {
             r781:'Cellarium — Hospoda s pivem a vínem (efekty: Lupulin, In vino veritas)',
             r778:'Dvůr (Curia) — Studna přesunuta do záložky Dvůr, struktura připravena',
             r775:'about.html — hero sekce s obrázkem, GTM, JSON-LD VideoGame schema',
-            r776:'Opravy: PWA padding (Motorola RAZR), zahrada tab active state, Rithmomachia piece modal',
+            r776:'Opravy: PWA padding, zahrada tab active state, Rithmomachia piece modal',
             r777:'A mnoho více :)',
             r771:'i18n Phase 1 dokončena — kompletní překlad UI do EN',
             r772:'61 historických knih v knihovně',

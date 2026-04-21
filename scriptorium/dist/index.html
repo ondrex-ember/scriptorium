@@ -1301,7 +1301,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                 <li>🍺 <span data-i18n="about.r781">Cellarium — Hospoda s pivem a vínem (efekty: Lupulin, In vino veritas)</span></li>
                 <li>🏛️ <span data-i18n="about.r778">Dvůr (Curia) — Studna přesunuta do záložky Dvůr, struktura připravena</span></li>
                 <li>📄 <span data-i18n="about.r775">about.html — hero sekce s obrázkem, GTM, JSON-LD VideoGame schema</span></li>
-                <li>🔧 <span data-i18n="about.r776">Opravy: PWA padding (Motorola RAZR), zahrada tab active state, Rithmomachia piece modal</span></li>
+                <li>🔧 <span data-i18n="about.r776">Opravy: PWA padding, zahrada tab active state, Rithmomachia piece modal</span></li>
                 <li>... <span data-i18n="about.r777">A mnoho více :)</span></li>
 
             </ul>
@@ -1437,6 +1437,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                 <button id="garden-tab-btn-sad" class="filter-btn" onclick="UI.switchGardenTab('sad', this)" data-i18n="garden.tabSad">🌳 Sad</button>
                 <button id="garden-tab-btn-apiarium" class="filter-btn" onclick="UI.switchGardenTab('apiarium', this)" data-i18n="garden.tabApiarium">🐝 Apiarium</button>
                 <button id="garden-tab-btn-dvur" class="filter-btn" onclick="UI.switchGardenTab('dvur', this)" data-i18n="garden.tabDvur">🐄 Dvůr</button>
+                <button id="garden-tab-btn-piscina" class="filter-btn" onclick="UI.switchGardenTab('piscina', this)" data-i18n="garden.tabPiscina">🐟 Piscina</button>
             </div>
 
             <div id="garden-tab-zahony">
@@ -1490,7 +1491,9 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                 </div>
             </div>
             </div>
-            <div id="garden-tab-piscina" style="display:none;"></div>
+            <div id="garden-tab-piscina" style="display:none;">
+                <div id="piscina-container"></div>
+            </div>
      </div>
 
         <div id="screen-craft" class="screen">
@@ -16979,8 +16982,12 @@ const STRINGS_cs = {
             r781:'Cellarium — Hospoda s pivem a vínem (efekty: Lupulin, In vino veritas)',
             r778:'Dvůr (Curia) — Studna přesunuta do záložky Dvůr, struktura připravena',
             r775:'about.html — hero sekce s obrázkem, GTM, JSON-LD VideoGame schema',
-            r776:'Opravy: PWA padding (Motorola RAZR), zahrada tab active state, Rithmomachia piece modal',
+            r776:'Opravy: PWA padding, zahrada tab active state, Rithmomachia piece modal',
             r777:'A mnoho více :)',
+            r771:'i18n Phase 1 dokončena — kompletní překlad UI do EN',
+            r772:'61 historických knih v knihovně',
+            r773:'Collapsible tech cards — preview lore textu',
+            r774:'Well system, Games & Records, Divination — lokalizovány',
             fullChangelog:'📜 Celý changelog & Credits →'
         },
         fireout: {
@@ -18066,13 +18073,17 @@ const STRINGS_en = {
             version:'Version:', date:'Date:', dateVal:'20 April 2026', author:'Author:',
             aboutTitle:'About the Game',
             aboutText:'A medieval idle game about copying manuscripts, crafting paper, and studying in a monastery scriptorium. Blends survival mechanics (fire, light, hunger) with crafting, gardening, and gradual technology unlocks. Historically grounded, set in the year 1465 in Olomouc.',
-            r779:'Dynamic background — header image changes by season, time of day and weather',
-            r780:'Athanor 2.0 — CombinationEngine, brewing timer, Nigredo/Albedo/Rubedo phases, discovery log',
+            r779:'Dynamic bg header changes by season, time of day and weather',
+            r780:'Athanor 2.0 — CombEngine, brewing, Nig/Alb/Rub phases, discovery log',
             r781:'Cellarium — Tavern with beer and wine (effects: Lupulin, In vino veritas)',
             r778:'Curia (Farmyard) — Well moved to Dvůr tab, structure prepared',
             r775:'about.html — hero section with image, GTM, JSON-LD VideoGame schema',
-            r776:'Fixes: PWA padding, garden tab active state, Rithmomachia piece moda',
+            r776:'Fixes: PWA padding, garden tab active state, ui fixes',
             r777:'...And many many more :)',
+            r771:'i18n Phase 1 complete — full UI translation into English',
+            r772:'61 historical books in the library',
+            r773:'Collapsible tech cards — lore preview, expandable detail',
+            r774:'Well system — fully translated and localised',
             fullChangelog:'📜 Full changelog & Credits →'
         },
         fireout: {
