@@ -255,6 +255,10 @@ const STRINGS_cs = {
             r775:'about.html — hero sekce s obrázkem, GTM, JSON-LD VideoGame schema',
             r776:'Opravy: PWA padding (Motorola RAZR), zahrada tab active state, Rithmomachia piece modal',
             r777:'A mnoho více :)',
+            r771:'i18n Phase 1 dokončena — kompletní překlad UI do EN',
+            r772:'61 historických knih v knihovně',
+            r773:'Collapsible tech cards — preview lore textu',
+            r774:'Well system, Games & Records, Divination — lokalizovány',
             fullChangelog:'📜 Celý changelog & Credits →'
         },
         fireout: {

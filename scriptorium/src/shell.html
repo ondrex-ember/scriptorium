@@ -1301,7 +1301,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                 <li>🍺 <span data-i18n="about.r781">Cellarium — Hospoda s pivem a vínem (efekty: Lupulin, In vino veritas)</span></li>
                 <li>🏛️ <span data-i18n="about.r778">Dvůr (Curia) — Studna přesunuta do záložky Dvůr, struktura připravena</span></li>
                 <li>📄 <span data-i18n="about.r775">about.html — hero sekce s obrázkem, GTM, JSON-LD VideoGame schema</span></li>
-                <li>🔧 <span data-i18n="about.r776">Opravy: PWA padding (Motorola RAZR), zahrada tab active state, Rithmomachia piece modal</span></li>
+                <li>🔧 <span data-i18n="about.r776">Opravy: PWA padding, zahrada tab active state, Rithmomachia piece modal</span></li>
                 <li>... <span data-i18n="about.r777">A mnoho více :)</span></li>
 
             </ul>
@@ -1437,6 +1437,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                 <button id="garden-tab-btn-sad" class="filter-btn" onclick="UI.switchGardenTab('sad', this)" data-i18n="garden.tabSad">🌳 Sad</button>
                 <button id="garden-tab-btn-apiarium" class="filter-btn" onclick="UI.switchGardenTab('apiarium', this)" data-i18n="garden.tabApiarium">🐝 Apiarium</button>
                 <button id="garden-tab-btn-dvur" class="filter-btn" onclick="UI.switchGardenTab('dvur', this)" data-i18n="garden.tabDvur">🐄 Dvůr</button>
+                <button id="garden-tab-btn-piscina" class="filter-btn" onclick="UI.switchGardenTab('piscina', this)" data-i18n="garden.tabPiscina">🐟 Piscina</button>
             </div>
 
             <div id="garden-tab-zahony">
@@ -1490,7 +1491,9 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                 </div>
             </div>
             </div>
-            <div id="garden-tab-piscina" style="display:none;"></div>
+            <div id="garden-tab-piscina" style="display:none;">
+                <div id="piscina-container"></div>
+            </div>
      </div>
 
         <div id="screen-craft" class="screen">
