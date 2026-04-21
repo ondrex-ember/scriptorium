@@ -63,7 +63,7 @@ const STRINGS_cs = {
         themeAuto: 'Automaticky (počasí) 🌦️',
         themeAutoDesc: 'Automatické téma se přizpůsobí aktuálnímu počasí v Praze.',
         reset: 'Reset',
-        resetDesc: 'Smaže postup (v6.4).',
+        resetDesc: 'Smaže postup (v7.6).',
         resetBtn: 'Smazat',
         backup: '💾 Záloha Save',
         backupDesc: 'Exportuj save jako zálohu nebo přenes na jiné zařízení.',
@@ -245,7 +245,7 @@ const STRINGS_cs = {
             aboutLink:'O hře & Credits →'
         },
         about: {
-            version:'Verze:', date:'Datum:', dateVal:'6. dubna 2026', author:'Autor:',
+            version:'Verze:', date:'Datum:', dateVal:'20. dubna 2026', author:'Autor:',
             aboutTitle:'O hře',
             aboutText:'Středověká idle hra o kopírování rukopisů, výrobě papíru a studiu v klášterním skriptoriu. Kombinuje survival mechaniky (oheň, světlo, hlad) s craftingem, zahradničením a postupným odemykáním technologií. Historicky podložená hra zasazená do roku 1465 v Olomouci.',
             r771:'i18n Phase 1 dokončena — kompletní překlad UI do EN',

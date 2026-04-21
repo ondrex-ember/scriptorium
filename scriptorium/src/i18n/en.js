@@ -237,7 +237,7 @@ const STRINGS_en = {
             aboutLink:'About & Credits →'
         },
         about: {
-            version:'Version:', date:'Date:', dateVal:'6 April 2026', author:'Author:',
+            version:'Version:', date:'Date:', dateVal:'20 April 2026', author:'Author:',
             aboutTitle:'About the Game',
             aboutText:'A medieval idle game about copying manuscripts, crafting paper, and studying in a monastery scriptorium. Blends survival mechanics (fire, light, hunger) with crafting, gardening, and gradual technology unlocks. Historically grounded, set in the year 1465 in Olomouc.',
             r771:'i18n Phase 1 complete — full UI translation into English',
