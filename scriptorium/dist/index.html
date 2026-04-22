@@ -21920,7 +21920,7 @@ renderActions: function() {
 
 	switchLibraryTab: function(tab, btn) {
 		// Hide all library tabs
-		const tabs = ['books', 'records', 'games', 'iching', 'news', 'scrinium'];
+		const tabs = ['books', 'records', 'games', 'iching', 'news', 'scrinium', 'kronika'];
 		tabs.forEach(t => {
 			const el = document.getElementById('library-' + t + '-content');
 			if (el) el.style.display = 'none';
@@ -21950,6 +21950,9 @@ renderActions: function() {
 		} else if (tab === 'scrinium') {
 			const el = document.getElementById('library-scrinium-content');
 			if (el) { el.style.display = 'block'; SecretsSystem.renderScriniumScreen('library-scrinium-content'); }
+		} else if (tab === 'kronika') {
+			const el = document.getElementById('library-kronika-content');
+			if (el) { el.style.display = 'block'; UI.renderKronika(); }
 		}
 	},
 
@@ -23496,7 +23499,113 @@ renderRecords: function() {
     closeAboutModal: function() {
         document.getElementById('about-modal').style.display = 'none';
         document.body.style.overflow = 'auto';
-    }
+    },
+
+    // ─── KRONIKA ─────────────────────────────────────────────────────
+    _kronikaPage: 0,
+
+    renderKronika: function(page) {
+        const el = document.getElementById('library-kronika-content');
+        if (!el) return;
+
+        if (!GameState.kronika) GameState.kronika = [];
+        if (!GameState.kronikaSavedLang) GameState.kronikaSavedLang = 'cs';
+
+        const hasArsChr = (GameState.researchedTechs || []).includes('tech_ars_chronicae');
+        if (!hasArsChr) {
+            el.innerHTML = `
+                <div style="text-align:center; padding:60px 20px; color:var(--ink-secondary);">
+                    <div style="font-size:3rem; margin-bottom:20px;">📖</div>
+                    <p><em>${t('kronika.locked')}</em></p>
+                    <p style="font-size:0.9rem; margin-top:8px;">${t('kronika.lockedHint')}</p>
+                </div>`;
+            return;
+        }
+
+        const PER_PAGE = 20;
+        const lang = GameState.kronikaSavedLang || 'cs';
+        if (page !== undefined) UI._kronikaPage = page;
+        const entries = [...GameState.kronika].reverse();
+        const total = Math.max(1, Math.ceil(entries.length / PER_PAGE));
+        if (UI._kronikaPage >= total) UI._kronikaPage = total - 1;
+        if (UI._kronikaPage < 0) UI._kronikaPage = 0;
+        const slice = entries.slice(UI._kronikaPage * PER_PAGE, (UI._kronikaPage + 1) * PER_PAGE);
+
+        const MONTHS_LA = ['Ianuarii','Februarii','Martii','Aprilis','Maii','Iunii',
+                           'Iulii','Augusti','Septembris','Octobris','Novembris','Decembris'];
+        const MONTHS_CS = ['ledna','února','března','dubna','května','června',
+                           'července','srpna','září','října','listopadu','prosince'];
+        const MONTHS_EN = ['January','February','March','April','May','June',
+                           'July','August','September','October','November','December'];
+
+        function formatDate(ts, lang) {
+            const d = new Date(ts);
+            const day = d.getDate();
+            const m = d.getMonth();
+            if (lang === 'la') return `Die ${day}. ${MONTHS_LA[m]}`;
+            if (lang === 'en') return `${day} ${MONTHS_EN[m]}`;
+            return `${day}. ${MONTHS_CS[m]}`;
+        }
+
+        function getText(entry, lang) {
+            if (lang === 'la') return entry.la || entry.cs;
+            if (lang === 'en') return entry.en || entry.cs;
+            return entry.cs;
+        }
+
+        const langBtns = ['cs','en','la'].map(l => `
+            <button onclick="GameState.kronikaSavedLang='${l}'; Game.save(); UI.renderKronika();"
+                style="padding:4px 10px; border-radius:4px; cursor:pointer; font-size:0.8rem;
+                       background:${lang===l ? 'var(--btn-active, #5a3e1b)' : 'transparent'};
+                       color:${lang===l ? '#fff' : 'var(--ink-secondary)'};
+                       border:1px solid var(--border-color, #c9b48a);">
+                ${t('kronika.lang' + l.charAt(0).toUpperCase() + l.slice(1))}
+            </button>`).join('');
+
+        const entriesHtml = slice.length === 0
+            ? `<p style="color:var(--ink-secondary); font-style:italic;">${t('kronika.empty')}</p>`
+            : slice.map(e => {
+                const isImportant = e.type === 'important';
+                return `<div style="
+                    display:flex; gap:12px; align-items:baseline;
+                    padding:8px 0;
+                    border-bottom:1px solid var(--border-color, #e8dcc8);
+                    ${isImportant ? 'font-weight:600;' : 'opacity:0.85;'}">
+                    <span style="font-size:0.78rem; color:var(--ink-secondary); white-space:nowrap; min-width:90px;">
+                        ${isImportant ? '★ ' : ''}${formatDate(e.ts, lang)}
+                    </span>
+                    <span>${getText(e, lang)}</span>
+                </div>`;
+            }).join('');
+
+        const pageLabel = t('kronika.pageOf')
+            .replace('{cur}', UI._kronikaPage + 1)
+            .replace('{total}', total);
+        const paginationHtml = total > 1 ? `
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-top:16px; font-size:0.85rem;">
+                <button onclick="UI.renderKronika(${UI._kronikaPage - 1})"
+                    ${UI._kronikaPage === 0 ? 'disabled' : ''}
+                    style="padding:4px 10px; cursor:pointer; border-radius:4px; border:1px solid var(--border-color,#c9b48a); background:transparent;">
+                    ${t('kronika.prev')}
+                </button>
+                <span style="color:var(--ink-secondary);">${pageLabel}</span>
+                <button onclick="UI.renderKronika(${UI._kronikaPage + 1})"
+                    ${UI._kronikaPage >= total - 1 ? 'disabled' : ''}
+                    style="padding:4px 10px; cursor:pointer; border-radius:4px; border:1px solid var(--border-color,#c9b48a); background:transparent;">
+                    ${t('kronika.next')}
+                </button>
+            </div>` : '';
+
+        el.innerHTML = `
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; flex-wrap:wrap; gap:8px;">
+                <h3 style="margin:0; font-family:var(--font-display,'Cinzel');">📖 ${t('kronika.title')}</h3>
+                <div style="display:flex; gap:6px;">${langBtns}</div>
+            </div>
+            <div>${entriesHtml}</div>
+            ${paginationHtml}
+        `;
+    },
+
 };
 
 	// ===============================================
