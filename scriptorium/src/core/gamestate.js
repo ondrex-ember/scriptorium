@@ -60,6 +60,8 @@ const GameState = {
             daysWithoutHunger: 0,
             researchCount: 0
         }
-    }
+    },
+    kronika: [],
+    kronikaSavedLang: 'cs'
 };
 
