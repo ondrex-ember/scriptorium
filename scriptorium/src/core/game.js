@@ -85,6 +85,14 @@ const Game = {
             );
         }
 
+        // --- 0c. KRONIKA buffer init + denní flush ---
+        if (!GameState.kronikaDailyBuffer) GameState.kronikaDailyBuffer = { date: '', gains: {} };
+        const _todayStr = new Date().toISOString().slice(0, 10);
+        if (GameState.kronikaDailyBuffer.date && GameState.kronikaDailyBuffer.date !== _todayStr) {
+            Game.kronikaFlushBuffer(); // Nový den — zapsat včerejší gains
+        }
+        if (!GameState.kronikaDailyBuffer.date) GameState.kronikaDailyBuffer.date = _todayStr;
+
         // --- 1. ZÁPISNÍKY (Přidání do hlavního savu) ---
         if(!GameState.notebooks) {
             GameState.notebooks = {
@@ -1345,6 +1353,19 @@ const Game = {
             } else {
             UI.notify(t('game.scavengeNothing').replace('{msg}', msg));
             }
+            // ── KRONIKA: agregace denních gainů ──
+            if (total > 0 && typeof GameState.kronikaDailyBuffer !== 'undefined') {
+                if (!GameState.kronikaDailyBuffer) GameState.kronikaDailyBuffer = { date: '', gains: {} };
+                const todayStr = new Date().toISOString().slice(0, 10);
+                if (GameState.kronikaDailyBuffer.date !== todayStr) {
+                    Game.kronikaFlushBuffer();
+                    GameState.kronikaDailyBuffer.date = todayStr;
+                }
+                // Přičíst získané položky z inventáře (diff)
+                // Přičteme obecně podle typu akce
+                const _actionLabel = type;
+                GameState.kronikaDailyBuffer.gains[_actionLabel] = (GameState.kronikaDailyBuffer.gains[_actionLabel] || 0) + total;
+            }
             Game.save(); UI.renderAll(); return;
         }
         if (GameState.activeAction && (type === 'basic' || type === 'nature')) {
@@ -1611,6 +1632,18 @@ const Game = {
             }
         }
 
+        // ── KRONIKA: důležité crafty ──
+        const _kronikaImportantCrafts = ['paper', 'ink', 'research', 'manuscript', 'illuminated_manuscript', 'bible', 'psalter'];
+        if (_kronikaImportantCrafts.includes(r.output)) {
+            const _ci = ItemsDB[r.output];
+            const _cn = _ci ? _ci.name : r.output;
+            const _cne = _ci ? (_ci.name_en || _ci.name) : r.output;
+            Game.addKronikaEntry('important',
+                `Vyrobeno: ${craftQty}× ${_cn}`,
+                `Crafted: ${craftQty}× ${_cne}`,
+                `Factum: ${craftQty}× ${_cn}`
+            );
+        }
         Game.save();
         UI.renderAll();
     },
@@ -2121,6 +2154,27 @@ const Game = {
 	},
 
     // ─── KRONIKA ─────────────────────────────────────────────────────
+    kronikaFlushBuffer: function() {
+        if (!GameState.kronikaDailyBuffer) GameState.kronikaDailyBuffer = { date: '', gains: {} };
+        const buf = GameState.kronikaDailyBuffer;
+        if (!buf.date || Object.keys(buf.gains).length === 0) return;
+        // Sestavit text ze získaných položek
+        const gainList = Object.entries(buf.gains)
+            .map(([id, qty]) => {
+                const item = (typeof ItemsDB !== 'undefined' && ItemsDB[id]) ? ItemsDB[id] : null;
+                const name = item ? item.name : id;
+                const nameEn = item ? (item.name_en || item.name) : id;
+                return { cs: `${qty}× ${name}`, en: `${qty}× ${nameEn}` };
+            });
+        if (gainList.length === 0) return;
+        const cs = 'Sesbíráno: ' + gainList.map(g => g.cs).join(', ');
+        const en = 'Gathered: ' + gainList.map(g => g.en).join(', ');
+        const la = 'Collectum: ' + gainList.map(g => g.cs).join(', ');
+        Game.addKronikaEntry('normal', cs, en, la);
+        // Reset buffer
+        GameState.kronikaDailyBuffer = { date: buf.date, gains: {} };
+    },
+
     addKronikaEntry: function(type, cs, en, la) {
         if (!GameState.kronika) GameState.kronika = [];
         GameState.kronika.push({

@@ -62,6 +62,6 @@ const GameState = {
         }
     },
     kronika: [],
-    kronikaSavedLang: 'cs'
+    kronikaSavedLang: 'cs',
+    kronikaDailyBuffer: { date: '', gains: {} }
 };
-
