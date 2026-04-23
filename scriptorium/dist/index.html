@@ -19467,7 +19467,28 @@ const LangSystem = {
 // ═══ src/core/game.js ═══
 const Game = {
     init: function() {
-        Game.load(); 
+        Game.load();
+
+        // --- INJEKCE CSS PRO HINT BTN-IGNITE ---
+        (function() {
+            const style = document.createElement('style');
+            style.textContent = [
+                '#btn-ignite.btn-ignite--hint {',
+                '  position: relative;',
+                '}',
+                '#btn-ignite.btn-ignite--hint::after {',
+                '  content: "\ud83d\udd25";',
+                '  margin-left: 0.4em;',
+                '  font-style: normal;',
+                '  animation: hint-pulse 1.4s ease-in-out infinite;',
+                '}',
+                '@keyframes hint-pulse {',
+                '  0%, 100% { opacity: 1; transform: scale(1); }',
+                '  50%      { opacity: 0.55; transform: scale(1.25); }',
+                '}'
+            ].join('\n');
+            document.head.appendChild(style);
+        })();
 
         // --- 0. PRVNÍ NÁVŠTĚVA + VRACEJÍCÍ SE HRÁČ ---
         // Inicializace chybějících flagů pro staré savy
@@ -19613,6 +19634,7 @@ const Game = {
                     totalResearchGained: 0,
                     
                     // Survival
+                    fireplaceCount: 0,
                     daysWithFire: 0,
                     daysWithoutHunger: 0,
                     mealsEaten: 0,
@@ -20074,6 +20096,7 @@ const Game = {
         const isFirstTime = !GameState.achievements?.stats?.fireplaceCount;
         GameState.flags.fireplaceLit = true;
         GameState.flags.forceDark = false;
+        if(GameState.achievements) GameState.achievements.stats.fireplaceCount++;
         UI.notify(t('game.fireKindled'));
         if(audioSys) audioSys.startFireLoop(false);
         Analytics.fireplaceIgnited(isFirstTime);
@@ -20912,11 +20935,16 @@ const Game = {
         const container = document.getElementById('game-container');
         const fpCard = document.getElementById('card-fireplace');
         const navHome = document.getElementById('nav-home');
+        const btnIgnite = document.getElementById('btn-ignite');
         if (GameState.flags.fireplaceLit) {
             fpCard.classList.add('fireplace-active'); navHome.classList.add('nav-fire-active');
             document.getElementById('fireplace-title').innerText = t('fireplace.lit');
             document.getElementById('fireplace-desc').innerText = t('fireplace.litDesc');
-            document.getElementById('btn-ignite').style.display = 'none';
+            btnIgnite.style.display = 'none';
+        } else {
+            // Hint pro nové hráče: krb nebyl nikdy rozžéhnut
+            const neverLit = !(GameState.achievements?.stats?.fireplaceCount);
+            btnIgnite.classList.toggle('btn-ignite--hint', neverLit);
         }
         const isDark = GameState.flags.forceDark || (!TimeSys.isDaytime() && !GameState.flags.fireplaceLit && !GameState.flags.candleLit && !GameState.flags.torchLit);
         if (isDark) container.classList.add('mode-frozen');
