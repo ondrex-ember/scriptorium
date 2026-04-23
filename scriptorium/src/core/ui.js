@@ -1812,6 +1812,40 @@ renderRecords: function() {
     filterCrafting: function(cat, btn) { this.currentFilter = cat; if(btn) { document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active')); btn.classList.add('active'); } this.renderCrafting(); },
     notify: function(m, e) { const n = document.createElement('div'); n.className = 'toast'; n.innerText = m; if(e) n.style.borderColor = 'red'; document.getElementById('notification-area').appendChild(n); setTimeout(() => n.remove(), 2600); },
 
+    // ─── AKUMULAČNÍ TOAST pro scavenge gains ─────────────────────────
+    _accumToast: null,
+    _accumTimer: null,
+    _accumData: {},
+
+    notifyAccum: function(gains) {
+        if (!gains || Object.keys(gains).length === 0) return;
+        for (const [id, qty] of Object.entries(gains)) {
+            UI._accumData[id] = (UI._accumData[id] || 0) + qty;
+        }
+        function buildContent() {
+            return Object.entries(UI._accumData).map(([id, qty]) => {
+                const item = (typeof ItemsDB !== 'undefined' && ItemsDB[id]) ? ItemsDB[id] : null;
+                const icon = item ? (item.icon || '📦') : '📦';
+                const name = item ? (typeof iName === 'function' ? iName(id) : item.name) : id;
+                return `<span style="margin-right:10px;">${icon} <strong>+${qty}</strong> ${name}</span>`;
+            }).join('');
+        }
+        const area = document.getElementById('notification-area');
+        if (!UI._accumToast || !UI._accumToast.isConnected) {
+            UI._accumToast = document.createElement('div');
+            UI._accumToast.className = 'toast toast-accum';
+            UI._accumToast.style.cssText = 'display:flex;flex-wrap:wrap;gap:4px;max-width:480px;';
+            area.appendChild(UI._accumToast);
+        }
+        UI._accumToast.innerHTML = buildContent();
+        if (UI._accumTimer) clearTimeout(UI._accumTimer);
+        UI._accumTimer = setTimeout(() => {
+            if (UI._accumToast) { UI._accumToast.remove(); UI._accumToast = null; }
+            UI._accumData = {};
+            UI._accumTimer = null;
+        }, 4000);
+    },
+
     showFontSpecimenModal: function(techName, spec) {
         const existing = document.getElementById('font-specimen-modal');
         if (existing) existing.remove();

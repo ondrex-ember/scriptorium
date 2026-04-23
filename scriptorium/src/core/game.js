@@ -1252,6 +1252,10 @@ const Game = {
 			return;
 		}
     // === END WELL HANDLING ===
+        // ── snapshot pro quick scavenge ──
+        const _qbefore = {};
+        for (const k of Object.keys(GameState.inventory)) _qbefore[k] = GameState.inventory[k] || 0;
+
         if (GameState.activeAction && GameState.activeAction.id === type) {
             const now = Date.now();
             const totalDur = GameState.activeAction.endTime - GameState.activeAction.startTime;
@@ -1395,7 +1399,16 @@ const Game = {
                 this.addItem((r<0.5?'rock':'stick'), 1); 
                 if(Math.random() < 0.10) this.addItem('chalk', 1);
             }
-            UI.notify(t('game.quickScavenge'));
+            // ── notifyAccum: quick scavenge ──
+            {
+                const _qgains = {};
+                for (const k of Object.keys(GameState.inventory)) {
+                    const diff = (GameState.inventory[k] || 0) - (_qbefore[k] || 0);
+                    if (diff > 0) _qgains[k] = diff;
+                }
+                if (Object.keys(_qgains).length > 0) UI.notifyAccum(_qgains);
+                else UI.notify(t('game.quickScavenge'));
+            }
             Game.save(); UI.renderAll(); return;
         }
         if (GameState.activeAction) { UI.notify(t('game.busy'), true); return; }
@@ -1409,6 +1422,9 @@ const Game = {
         
         const durationMin = GameState.selectedDuration;
         if (durationMin === 0) {
+            // ── snapshot pro single scavenge ──
+            const _s0before = {};
+            for (const k of Object.keys(GameState.inventory)) _s0before[k] = GameState.inventory[k] || 0;
             let r = Math.random();
             if (type === 'hunt') { 
                 this.addItem('fat', 1); 
@@ -1472,6 +1488,16 @@ const Game = {
                 else this.addItem('bark', 1);
                 if(Math.random() < 0.15) this.addItem('beeswax', 1);
             }
+            // ── notifyAccum: single scavenge ──
+            {
+                const _s0gains = {};
+                for (const k of Object.keys(GameState.inventory)) {
+                    const diff = (GameState.inventory[k] || 0) - (_s0before[k] || 0);
+                    if (diff > 0) _s0gains[k] = diff;
+                }
+                if (Object.keys(_s0gains).length > 0) UI.notifyAccum(_s0gains);
+            }
+            Game.save(); UI.renderAll(); return;
         } else {
             let multiplier = durationMin === 1 ? 10 : (durationMin === 5 ? 50 : 100);
             
