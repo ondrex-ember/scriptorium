@@ -290,6 +290,7 @@ lore: {
         tabGames:'🎲 Aula Ludi',
         tabIching:'☯️ Divination', 
         tabNews:'📜 Tidings',
+        tabKronika:'📖 Chronicle',
 	    locked: 'Locked',
         divination_hint: 'Unlock the "Ancient Wisdom" tech to access divination.',
         records_hint: 'Unlock the "Games and Records" tech to access mini-games and statistics.',
@@ -297,6 +298,19 @@ lore: {
         iching_need_book: 'Thou lackest the Book of Changes',
         iching_craft_hint: 'Craft it within the Crafting → Knowledge section.', 
     },
+    kronika: {
+        title:       'Chronicle',
+        locked:      'The Chronicle is not yet available.',
+        lockedHint:  'Unlock the Ars Chronicae tech in the Scriptorium.',
+        empty:       'No entries yet.',
+        langCs:      'Česky',
+        langEn:      'English',
+        langLa:      'Latine',
+        prev:        '← Previous',
+        next:        'Next →',
+        pageOf:      'Page {cur} of {total}',
+    },
+
     library_lore: {
         new_book: "📚 A new tome hath arrived! ({count})",
         lib_title: "The Library",

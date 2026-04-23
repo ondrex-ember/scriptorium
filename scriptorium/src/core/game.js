@@ -54,6 +54,16 @@ const Game = {
             setTimeout(() => UI.showFireoutModal(_daysSinceLastSeen), 600);
         }
 
+        // --- 0b. KRONIKA (init guard) ---
+        if (!GameState.kronika) GameState.kronika = [];
+        if (GameState.flags.firstVisit && GameState.kronika.length === 0) {
+            Game.addKronikaEntry('important',
+                'Scriptorium fundatum est.',
+                'The scriptorium has been founded.',
+                'Scriptorium fundatum est.'
+            );
+        }
+
         // --- 1. ZÁPISNÍKY (Přidání do hlavního savu) ---
         if(!GameState.notebooks) {
             GameState.notebooks = {
@@ -1591,6 +1601,11 @@ const Game = {
         }
         
         this.removeItem('research', tech.cost); GameState.researchedTechs.push(id);
+        Game.addKronikaEntry('important',
+            `Poznáno: ${tech.name}`,
+            `Discovered: ${tech.name_en || tech.name}`,
+            `Cognitum: ${tech.name}`
+        );
         tech.unlocks.forEach(rid => { if(!GameState.unlockedRecipes.includes(rid)) GameState.unlockedRecipes.push(rid); });
         Analytics.techUnlocked(id, tech.name, tech.cost);
         
@@ -2076,5 +2091,20 @@ const Game = {
 		
 		input.click();
 	},
-	
+
+    // ─── KRONIKA ─────────────────────────────────────────────────────
+    addKronikaEntry: function(type, cs, en, la) {
+        if (!GameState.kronika) GameState.kronika = [];
+        GameState.kronika.push({
+            ts:   Date.now(),
+            type: type,
+            cs:   cs,
+            en:   en,
+            la:   la
+        });
+        if (GameState.kronika.length > 500) {
+            GameState.kronika = GameState.kronika.slice(-500);
+        }
+    },
+
 };

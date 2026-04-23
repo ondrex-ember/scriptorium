@@ -296,6 +296,7 @@ lore: {
         tabGames:'🎲 Aula Ludi',
         tabIching:'☯️ Věštění', 
         tabNews:'📜 Zprávy',
+        tabKronika:'📖 Kronika',
 	    locked: 'Zamčeno',
         divination_hint: 'Odemkni tech "Starověká Moudrost" pro přístup k věštění.',
         records_hint: 'Odemkni tech "Hry a Záznamy" pro přístup k mini-games a statistikám.',
@@ -303,6 +304,19 @@ lore: {
         iching_title: '☯️ I-Ching (Kniha Proměn)',
         iching_need_book: 'Potřebuješ Knihu Proměn',
         iching_craft_hint: 'Vyrob si ji v sekci Výroba → Scriptorium.', 
+    },
+
+    kronika: {
+        title:       'Kronika',
+        locked:      'Kronika ještě není k dispozici.',
+        lockedHint:  'Odemkni tech Ars Chronicae ve Scriptoriu.',
+        empty:       'Zatím žádné záznamy.',
+        langCs:      'Česky',
+        langEn:      'English',
+        langLa:      'Latine',
+        prev:        '← Předchozí',
+        next:        'Další →',
+        pageOf:      'Strana {cur} z {total}',
     },
 
     library_lore: {
