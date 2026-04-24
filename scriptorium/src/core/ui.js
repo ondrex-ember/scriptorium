@@ -1827,14 +1827,14 @@ renderRecords: function() {
                 const item = (typeof ItemsDB !== 'undefined' && ItemsDB[id]) ? ItemsDB[id] : null;
                 const icon = item ? (item.icon || '📦') : '📦';
                 const name = item ? (typeof iName === 'function' ? iName(id) : item.name) : id;
-                return `<span style="margin-right:10px;">${icon} <strong>+${qty}</strong> ${name}</span>`;
+                return `<span style="margin:2px 6px;">${icon} <strong>+${qty}</strong> ${name}</span>`;
             }).join('');
         }
         const area = document.getElementById('notification-area');
         if (!UI._accumToast || !UI._accumToast.isConnected) {
             UI._accumToast = document.createElement('div');
-            UI._accumToast.className = 'toast toast-accum';
-            UI._accumToast.style.cssText = 'display:flex;flex-wrap:wrap;gap:4px;max-width:480px;';
+            UI._accumToast.className = 'toast-accum'; // bez fadeOut animace
+            UI._accumToast.style.cssText = 'display:inline-flex;flex-wrap:wrap;gap:4px;max-width:90vw;justify-content:center;';
             area.appendChild(UI._accumToast);
         }
         UI._accumToast.innerHTML = buildContent();

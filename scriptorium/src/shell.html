@@ -638,6 +638,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 			z-index: 10001;       /* Musí být víc než header (100) a modaly (1000) */
 		}
         .toast { display: inline-block; background: var(--ink-primary); color: var(--bg-parchment); padding: 8px 16px; border-radius: 4px; margin-top: 5px; border: 1px solid var(--accent-gold); font-family: 'Cinzel Decorative'; animation: fadeOut 2.5s forwards; }
+        .toast-accum { display: inline-flex; flex-wrap: wrap; gap: 6px; justify-content: center; background: var(--ink-primary); color: var(--bg-parchment); padding: 8px 16px; border-radius: 4px; margin-top: 5px; border: 1px solid var(--accent-gold); font-family: 'Cinzel Decorative'; max-width: 90vw; }
         @keyframes fadeOut { 0% { opacity: 0; transform: translateY(-10px); } 10% { opacity: 1; transform: translateY(0); } 80% { opacity: 1; } 100% { opacity: 0; visibility: hidden; } }
 
         .garden-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
@@ -1550,7 +1551,6 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                     <button id="lib-tab-iching"  class="filter-btn" onclick="UI.switchLibraryTab('iching', this)">☯️ Věštění</button>
                     <button id="lib-tab-news"    class="filter-btn" onclick="UI.switchLibraryTab('news', this)">📜 Zprávy</button>
                     <button id="lib-tab-scrinium" class="filter-btn" onclick="UI.switchLibraryTab('scrinium', this)">📕 Scrinium</button>
-                    <button id="lib-tab-kronika" class="filter-btn" onclick="UI.switchLibraryTab('kronika', this)" data-i18n="library.tabKronika">📖 Kronika</button>
                 </div>
                 <div id="library-books-content" style="margin-top:20px;"></div>
                 <div id="library-records-content" style="margin-top:20px; display:none;"></div>
@@ -1558,7 +1558,6 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                 <div id="library-iching-content" style="margin-top:20px; display:none;"></div>
                 <div id="library-news-content" style="margin-top:20px; display:none;"></div>
                 <div id="library-scrinium-content" style="margin-top:20px; display:none;"></div>
-                <div id="library-kronika-content" style="margin-top:20px; display:none;"></div>
             </div>
         </div>
 

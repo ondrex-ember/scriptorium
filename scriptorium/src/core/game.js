@@ -1,4 +1,5 @@
 const Game = {
+    _scavenging: false,
     init: function() {
         Game.load();
 
@@ -1253,6 +1254,7 @@ const Game = {
 		}
     // === END WELL HANDLING ===
         // ── snapshot pro quick scavenge ──
+        Game._scavenging = true;
         const _qbefore = {};
         for (const k of Object.keys(GameState.inventory)) _qbefore[k] = GameState.inventory[k] || 0;
 
@@ -1271,6 +1273,9 @@ const Game = {
                 GameState.achievements.stats.actionsCompleted++;
             }
             
+            Game._scavenging = true;
+            const _invBefore = {};
+            for (const k of Object.keys(GameState.inventory)) _invBefore[k] = GameState.inventory[k] || 0;
             let total = 0;
             for(let i=0; i<count; i++) {
                 let r = Math.random();
@@ -1352,10 +1357,23 @@ const Game = {
                 }
                 total++;
             }
-            if(total > 0) {
-            UI.notify(t('game.scavengeResult').replace('{msg}', msg).replace('{total}', total));
+            if (total > 0) {
+                const _tgains = {};
+                for (const k of Object.keys(GameState.inventory)) {
+                    const diff = (GameState.inventory[k] || 0) - (_invBefore[k] || 0);
+                    if (diff > 0) _tgains[k] = diff;
+                }
+                if (Object.keys(_tgains).length > 0) {
+                    UI.notifyAccum(_tgains);
+                    if (!GameState.kronikaDailyBuffer) GameState.kronikaDailyBuffer = { date: '', gains: {} };
+                    const _todayK = new Date().toISOString().slice(0, 10);
+                    if (GameState.kronikaDailyBuffer.date !== _todayK) { Game.kronikaFlushBuffer(); GameState.kronikaDailyBuffer.date = _todayK; }
+                    for (const [k, v] of Object.entries(_tgains)) GameState.kronikaDailyBuffer.gains[k] = (GameState.kronikaDailyBuffer.gains[k] || 0) + v;
+                } else {
+                    UI.notify(t('game.scavengeResult').replace('{msg}', msg).replace('{total}', total));
+                }
             } else {
-            UI.notify(t('game.scavengeNothing').replace('{msg}', msg));
+                UI.notify(t('game.scavengeNothing').replace('{msg}', msg));
             }
             // ── KRONIKA: agregace denních gainů ──
             if (total > 0 && typeof GameState.kronikaDailyBuffer !== 'undefined') {
@@ -1370,6 +1388,7 @@ const Game = {
                 const _actionLabel = type;
                 GameState.kronikaDailyBuffer.gains[_actionLabel] = (GameState.kronikaDailyBuffer.gains[_actionLabel] || 0) + total;
             }
+            Game._scavenging = false;
             Game.save(); UI.renderAll(); return;
         }
         if (GameState.activeAction && (type === 'basic' || type === 'nature')) {
@@ -1409,6 +1428,7 @@ const Game = {
                 if (Object.keys(_qgains).length > 0) UI.notifyAccum(_qgains);
                 else UI.notify(t('game.quickScavenge'));
             }
+            Game._scavenging = false;
             Game.save(); UI.renderAll(); return;
         }
         if (GameState.activeAction) { UI.notify(t('game.busy'), true); return; }
@@ -1423,6 +1443,7 @@ const Game = {
         const durationMin = GameState.selectedDuration;
         if (durationMin === 0) {
             // ── snapshot pro single scavenge ──
+            Game._scavenging = true;
             const _s0before = {};
             for (const k of Object.keys(GameState.inventory)) _s0before[k] = GameState.inventory[k] || 0;
             let r = Math.random();
@@ -1497,6 +1518,7 @@ const Game = {
                 }
                 if (Object.keys(_s0gains).length > 0) UI.notifyAccum(_s0gains);
             }
+            Game._scavenging = false;
             Game.save(); UI.renderAll(); return;
         } else {
             let multiplier = durationMin === 1 ? 10 : (durationMin === 5 ? 50 : 100);
@@ -1599,10 +1621,10 @@ const Game = {
             UI.notify(t('game.newCodexEntry'));
             setTimeout(() => UI.notify(t('game.itemAdded').replace('{qty}', qty).replace('{item}', iName(id))), 500);
         } else {
-            UI.notify(t('game.itemAdded').replace('{qty}', qty).replace('{item}', iName(id)));
+            if (!Game._scavenging) UI.notify(t('game.itemAdded').replace('{qty}', qty).replace('{item}', iName(id)));
         }
         
-        Game.save(); Game.checkEnvironment(); UI.renderAll();
+        if (!Game._scavenging) { Game.save(); Game.checkEnvironment(); UI.renderAll(); }
         Game.checkAchievements();
     },
     removeItem: function(id, qty) {

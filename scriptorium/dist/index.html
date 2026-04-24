@@ -638,6 +638,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 			z-index: 10001;       /* Musí být víc než header (100) a modaly (1000) */
 		}
         .toast { display: inline-block; background: var(--ink-primary); color: var(--bg-parchment); padding: 8px 16px; border-radius: 4px; margin-top: 5px; border: 1px solid var(--accent-gold); font-family: 'Cinzel Decorative'; animation: fadeOut 2.5s forwards; }
+        .toast-accum { display: inline-flex; flex-wrap: wrap; gap: 6px; justify-content: center; background: var(--ink-primary); color: var(--bg-parchment); padding: 8px 16px; border-radius: 4px; margin-top: 5px; border: 1px solid var(--accent-gold); font-family: 'Cinzel Decorative'; max-width: 90vw; }
         @keyframes fadeOut { 0% { opacity: 0; transform: translateY(-10px); } 10% { opacity: 1; transform: translateY(0); } 80% { opacity: 1; } 100% { opacity: 0; visibility: hidden; } }
 
         .garden-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
@@ -1550,7 +1551,6 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                     <button id="lib-tab-iching"  class="filter-btn" onclick="UI.switchLibraryTab('iching', this)">☯️ Věštění</button>
                     <button id="lib-tab-news"    class="filter-btn" onclick="UI.switchLibraryTab('news', this)">📜 Zprávy</button>
                     <button id="lib-tab-scrinium" class="filter-btn" onclick="UI.switchLibraryTab('scrinium', this)">📕 Scrinium</button>
-                    <button id="lib-tab-kronika" class="filter-btn" onclick="UI.switchLibraryTab('kronika', this)" data-i18n="library.tabKronika">📖 Kronika</button>
                 </div>
                 <div id="library-books-content" style="margin-top:20px;"></div>
                 <div id="library-records-content" style="margin-top:20px; display:none;"></div>
@@ -1558,7 +1558,6 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                 <div id="library-iching-content" style="margin-top:20px; display:none;"></div>
                 <div id="library-news-content" style="margin-top:20px; display:none;"></div>
                 <div id="library-scrinium-content" style="margin-top:20px; display:none;"></div>
-                <div id="library-kronika-content" style="margin-top:20px; display:none;"></div>
             </div>
         </div>
 
@@ -19465,6 +19464,7 @@ const LangSystem = {
 };
 // ═══ src/core/game.js ═══
 const Game = {
+    _scavenging: false,
     init: function() {
         Game.load();
 
@@ -20719,6 +20719,7 @@ const Game = {
 		}
     // === END WELL HANDLING ===
         // ── snapshot pro quick scavenge ──
+        Game._scavenging = true;
         const _qbefore = {};
         for (const k of Object.keys(GameState.inventory)) _qbefore[k] = GameState.inventory[k] || 0;
 
@@ -20737,6 +20738,9 @@ const Game = {
                 GameState.achievements.stats.actionsCompleted++;
             }
             
+            Game._scavenging = true;
+            const _invBefore = {};
+            for (const k of Object.keys(GameState.inventory)) _invBefore[k] = GameState.inventory[k] || 0;
             let total = 0;
             for(let i=0; i<count; i++) {
                 let r = Math.random();
@@ -20818,10 +20822,23 @@ const Game = {
                 }
                 total++;
             }
-            if(total > 0) {
-            UI.notify(t('game.scavengeResult').replace('{msg}', msg).replace('{total}', total));
+            if (total > 0) {
+                const _tgains = {};
+                for (const k of Object.keys(GameState.inventory)) {
+                    const diff = (GameState.inventory[k] || 0) - (_invBefore[k] || 0);
+                    if (diff > 0) _tgains[k] = diff;
+                }
+                if (Object.keys(_tgains).length > 0) {
+                    UI.notifyAccum(_tgains);
+                    if (!GameState.kronikaDailyBuffer) GameState.kronikaDailyBuffer = { date: '', gains: {} };
+                    const _todayK = new Date().toISOString().slice(0, 10);
+                    if (GameState.kronikaDailyBuffer.date !== _todayK) { Game.kronikaFlushBuffer(); GameState.kronikaDailyBuffer.date = _todayK; }
+                    for (const [k, v] of Object.entries(_tgains)) GameState.kronikaDailyBuffer.gains[k] = (GameState.kronikaDailyBuffer.gains[k] || 0) + v;
+                } else {
+                    UI.notify(t('game.scavengeResult').replace('{msg}', msg).replace('{total}', total));
+                }
             } else {
-            UI.notify(t('game.scavengeNothing').replace('{msg}', msg));
+                UI.notify(t('game.scavengeNothing').replace('{msg}', msg));
             }
             // ── KRONIKA: agregace denních gainů ──
             if (total > 0 && typeof GameState.kronikaDailyBuffer !== 'undefined') {
@@ -20836,6 +20853,7 @@ const Game = {
                 const _actionLabel = type;
                 GameState.kronikaDailyBuffer.gains[_actionLabel] = (GameState.kronikaDailyBuffer.gains[_actionLabel] || 0) + total;
             }
+            Game._scavenging = false;
             Game.save(); UI.renderAll(); return;
         }
         if (GameState.activeAction && (type === 'basic' || type === 'nature')) {
@@ -20875,6 +20893,7 @@ const Game = {
                 if (Object.keys(_qgains).length > 0) UI.notifyAccum(_qgains);
                 else UI.notify(t('game.quickScavenge'));
             }
+            Game._scavenging = false;
             Game.save(); UI.renderAll(); return;
         }
         if (GameState.activeAction) { UI.notify(t('game.busy'), true); return; }
@@ -20889,6 +20908,7 @@ const Game = {
         const durationMin = GameState.selectedDuration;
         if (durationMin === 0) {
             // ── snapshot pro single scavenge ──
+            Game._scavenging = true;
             const _s0before = {};
             for (const k of Object.keys(GameState.inventory)) _s0before[k] = GameState.inventory[k] || 0;
             let r = Math.random();
@@ -20963,6 +20983,7 @@ const Game = {
                 }
                 if (Object.keys(_s0gains).length > 0) UI.notifyAccum(_s0gains);
             }
+            Game._scavenging = false;
             Game.save(); UI.renderAll(); return;
         } else {
             let multiplier = durationMin === 1 ? 10 : (durationMin === 5 ? 50 : 100);
@@ -21065,10 +21086,10 @@ const Game = {
             UI.notify(t('game.newCodexEntry'));
             setTimeout(() => UI.notify(t('game.itemAdded').replace('{qty}', qty).replace('{item}', iName(id))), 500);
         } else {
-            UI.notify(t('game.itemAdded').replace('{qty}', qty).replace('{item}', iName(id)));
+            if (!Game._scavenging) UI.notify(t('game.itemAdded').replace('{qty}', qty).replace('{item}', iName(id)));
         }
         
-        Game.save(); Game.checkEnvironment(); UI.renderAll();
+        if (!Game._scavenging) { Game.save(); Game.checkEnvironment(); UI.renderAll(); }
         Game.checkAchievements();
     },
     removeItem: function(id, qty) {
@@ -23512,14 +23533,14 @@ renderRecords: function() {
                 const item = (typeof ItemsDB !== 'undefined' && ItemsDB[id]) ? ItemsDB[id] : null;
                 const icon = item ? (item.icon || '📦') : '📦';
                 const name = item ? (typeof iName === 'function' ? iName(id) : item.name) : id;
-                return `<span style="margin-right:10px;">${icon} <strong>+${qty}</strong> ${name}</span>`;
+                return `<span style="margin:2px 6px;">${icon} <strong>+${qty}</strong> ${name}</span>`;
             }).join('');
         }
         const area = document.getElementById('notification-area');
         if (!UI._accumToast || !UI._accumToast.isConnected) {
             UI._accumToast = document.createElement('div');
-            UI._accumToast.className = 'toast toast-accum';
-            UI._accumToast.style.cssText = 'display:flex;flex-wrap:wrap;gap:4px;max-width:480px;';
+            UI._accumToast.className = 'toast-accum'; // bez fadeOut animace
+            UI._accumToast.style.cssText = 'display:inline-flex;flex-wrap:wrap;gap:4px;max-width:90vw;justify-content:center;';
             area.appendChild(UI._accumToast);
         }
         UI._accumToast.innerHTML = buildContent();
