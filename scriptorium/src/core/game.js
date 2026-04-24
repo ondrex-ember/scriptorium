@@ -87,10 +87,12 @@ const Game = {
         }
 
         // --- 0c. KRONIKA buffer init + denní flush ---
+        if (!GameState.kronikaCraftBuffer) GameState.kronikaCraftBuffer = { date: '', crafts: {} };
         if (!GameState.kronikaDailyBuffer) GameState.kronikaDailyBuffer = { date: '', gains: {} };
         const _todayStr = new Date().toISOString().slice(0, 10);
         if (GameState.kronikaDailyBuffer.date && GameState.kronikaDailyBuffer.date !== _todayStr) {
             Game.kronikaFlushBuffer(); // Nový den — zapsat včerejší gains
+            Game.kronikaCraftFlushBuffer(); // Nový den — zapsat včerejší crafty
         }
         if (!GameState.kronikaDailyBuffer.date) GameState.kronikaDailyBuffer.date = _todayStr;
 
@@ -1654,6 +1656,14 @@ const Game = {
             }
         }
         
+        // ── KRONIKA: denní craft buffer ──
+        if (!GameState.kronikaCraftBuffer) GameState.kronikaCraftBuffer = { date: '', crafts: {} };
+        const _todayCraft = new Date().toISOString().slice(0, 10);
+        if (GameState.kronikaCraftBuffer.date !== _todayCraft) {
+            Game.kronikaCraftFlushBuffer();
+            GameState.kronikaCraftBuffer.date = _todayCraft;
+        }
+        GameState.kronikaCraftBuffer.crafts[r.output] = (GameState.kronikaCraftBuffer.crafts[r.output] || 0) + craftQty;
         this.addItem(r.output, craftQty);
         // Analytics – zaznamenej craft
         const craftedItem = ItemsDB[r.output];
@@ -1681,7 +1691,7 @@ const Game = {
         }
 
         // ── KRONIKA: důležité crafty ──
-        const _kronikaImportantCrafts = ['paper', 'ink', 'research', 'manuscript', 'illuminated_manuscript', 'bible', 'psalter'];
+        const _kronikaImportantCrafts = ['manuscript', 'illuminated_manuscript', 'bible', 'psalter'];
         if (_kronikaImportantCrafts.includes(r.output)) {
             const _ci = ItemsDB[r.output];
             const _cn = _ci ? _ci.name : r.output;
@@ -2202,6 +2212,24 @@ const Game = {
 	},
 
     // ─── KRONIKA ─────────────────────────────────────────────────────
+    kronikaCraftFlushBuffer: function() {
+        if (!GameState.kronikaCraftBuffer) return;
+        const buf = GameState.kronikaCraftBuffer;
+        if (!buf.date || Object.keys(buf.crafts).length === 0) return;
+        const craftList = Object.entries(buf.crafts).map(([id, qty]) => {
+            const item = (typeof ItemsDB !== 'undefined' && ItemsDB[id]) ? ItemsDB[id] : null;
+            const name = item ? item.name : id;
+            const nameEn = item ? (item.name_en || item.name) : id;
+            return { cs: `${qty}× ${name}`, en: `${qty}× ${nameEn}` };
+        });
+        if (craftList.length === 0) return;
+        const cs = 'Vyrobeno: ' + craftList.map(g => g.cs).join(', ');
+        const en = 'Crafted: ' + craftList.map(g => g.en).join(', ');
+        const la = 'Facta: ' + craftList.map(g => g.cs).join(', ');
+        Game.addKronikaEntry('normal', cs, en, la);
+        GameState.kronikaCraftBuffer = { date: buf.date, crafts: {} };
+    },
+
     kronikaFlushBuffer: function() {
         if (!GameState.kronikaDailyBuffer) GameState.kronikaDailyBuffer = { date: '', gains: {} };
         const buf = GameState.kronikaDailyBuffer;

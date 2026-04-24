@@ -63,5 +63,7 @@ const GameState = {
     },
     kronika: [],
     kronikaSavedLang: 'cs',
-    kronikaDailyBuffer: { date: '', gains: {} }
+    kronikaDailyBuffer: { date: '', gains: {} },
+    kronikaCraftBuffer: { date: '', crafts: {} },
+    craftedItems: {}
 };

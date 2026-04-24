@@ -289,6 +289,9 @@ const CellariumSystem = {
     Game.removeItem(itemId, qty);
     this.addGrose(total);
     GameState.economy.tradesTotal++;
+    if (GameState.economy.tradesTotal === 1) {
+        Game.addKronikaEntry('important', '🏛️ První obchod uzavřen v Cellariu.', '🏛️ First trade completed in the Cellarium.', '🏛️ Primum commercium in Cellario factum est.');
+    }
     Game.save();
     const itemName = (typeof iName === 'function') ? iName(itemId) : itemId;
     UI.notify(t('cellarium.soldNotify').replace('{total}', total).replace('{qty}', qty).replace('{item}', itemName));
