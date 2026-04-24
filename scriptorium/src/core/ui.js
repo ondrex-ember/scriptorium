@@ -382,6 +382,7 @@ renderActions: function() {
 		document.getElementById('lore-codex-content').style.display = 'none';
 		document.getElementById('lore-notebooks-content').style.display = 'none';
 		document.getElementById('lore-achievements-content').style.display = 'none';
+		const _lichEl = document.getElementById('lore-iching-content'); if (_lichEl) _lichEl.style.display = 'none';
 
 		// Remove active class from all buttons
 		document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
@@ -400,12 +401,15 @@ renderActions: function() {
 		} else if (tab === 'achievements') {
 			document.getElementById('lore-achievements-content').style.display = 'block';
 			UI.renderAchievements();
+		} else if (tab === 'iching') {
+			const el = document.getElementById('lore-iching-content');
+			if (el) { el.style.display = 'block'; UI.renderIChing(); }
 		}
 	},
 
 	switchLibraryTab: function(tab, btn) {
 		// Hide all library tabs
-		const tabs = ['books', 'records', 'games', 'iching', 'news', 'scrinium', 'kronika'];
+		const tabs = ['books', 'records', 'games', 'news', 'scrinium', 'kronika'];
 		tabs.forEach(t => {
 			const el = document.getElementById('library-' + t + '-content');
 			if (el) el.style.display = 'none';
@@ -426,9 +430,6 @@ renderActions: function() {
 		} else if (tab === 'games') {
 			const el = document.getElementById('library-games-content');
 			if (el) { el.style.display = 'block'; UI.renderGamesTab(); }
-		} else if (tab === 'iching') {
-			const el = document.getElementById('library-iching-content');
-			if (el) { el.style.display = 'block'; UI.renderIChing(); }
 		} else if (tab === 'news') {
 			const el = document.getElementById('library-news-content');
 			if (el) { el.style.display = 'block'; UI.renderLibraryNews(); }

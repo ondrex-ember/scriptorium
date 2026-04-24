@@ -544,7 +544,7 @@ const IChing = {
 
 	
 	UI.renderIChing = function() {
-    const container = document.getElementById('library-iching-content');
+    const container = document.getElementById('lore-iching-content');
     if (!container) return;
     
     const hasBook = GameState.inventory.iching_book > 0;
