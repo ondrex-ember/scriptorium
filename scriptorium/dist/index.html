@@ -19997,6 +19997,7 @@ const Game = {
             
             URL.revokeObjectURL(url);
             UI.notify(t('game.saveExported'));
+            Game.addKronikaEntry('important', '💾 Hra uložena (export).', '💾 Game exported.', '💾 Opus conservatum est.');
             
         } catch(e) {
             UI.notify(t('game.saveExportFail'), true);
@@ -20023,6 +20024,7 @@ const Game = {
                 Game.save();
                 
                 UI.notify(t('game.saveImported'));
+                    Game.addKronikaEntry('important', '📂 Hra načtena (import).', '📂 Game imported.', '📂 Opus recuperatum est.');
                 setTimeout(() => location.reload(), 1500);
                 
             } catch(err) {
@@ -21093,6 +21095,7 @@ const Game = {
             GameState.discoveredLore.push(id);
             if(GameState.achievements) GameState.achievements.stats.itemsDiscovered++;
             UI.notify(t('game.newCodexEntry'));
+            Game.addKronikaEntry('important', '📜 Nový zápis v Codexu.', '📜 New entry in the Codex.', '📜 Nova inscriptio in Codice.');
             setTimeout(() => UI.notify(t('game.itemAdded').replace('{qty}', qty).replace('{item}', iName(id))), 500);
         } else {
             if (!Game._scavenging) UI.notify(t('game.itemAdded').replace('{qty}', qty).replace('{item}', iName(id)));
@@ -21136,6 +21139,16 @@ const Game = {
             GameState.kronikaCraftBuffer.date = _todayCraft;
         }
         GameState.kronikaCraftBuffer.crafts[r.output] = (GameState.kronikaCraftBuffer.crafts[r.output] || 0) + craftQty;
+        // ── KRONIKA: první craft ──
+        if (!GameState.craftedItems) GameState.craftedItems = {};
+        const _firstCraft = !GameState.craftedItems[r.output];
+        GameState.craftedItems[r.output] = (GameState.craftedItems[r.output] || 0) + craftQty;
+        if (_firstCraft) {
+            const _fci = ItemsDB[r.output];
+            const _fcn = _fci ? _fci.name : r.output;
+            const _fcne = _fci ? (_fci.name_en || _fci.name) : r.output;
+            Game.addKronikaEntry('important', `⚒️ Poprvé vyrobeno: ${_fcn}`, `⚒️ Crafted for the first time: ${_fcne}`, `⚒️ Primo factum: ${_fcn}`);
+        }
         this.addItem(r.output, craftQty);
         // Analytics – zaznamenej craft
         const craftedItem = ItemsDB[r.output];
@@ -21197,7 +21210,17 @@ const Game = {
             `Discovered: ${tech.name_en || tech.name}`,
             `Cognitum: ${tech.name}`
         );
-        tech.unlocks.forEach(rid => { if(!GameState.unlockedRecipes.includes(rid)) GameState.unlockedRecipes.push(rid); });
+        tech.unlocks.forEach(rid => {
+            if(!GameState.unlockedRecipes.includes(rid)) {
+                GameState.unlockedRecipes.push(rid);
+                const _rdb = typeof RecipesDB !== 'undefined' ? RecipesDB.find(x => x.id === rid) : null;
+                const _rout = _rdb ? _rdb.output : rid;
+                const _ri = ItemsDB && ItemsDB[_rout] ? ItemsDB[_rout] : null;
+                const _rn = _ri ? _ri.name : rid;
+                const _rne = _ri ? (_ri.name_en || _ri.name) : rid;
+                Game.addKronikaEntry('important', `📋 Nová receptura: ${_rn}`, `📋 New recipe: ${_rne}`, `📋 Nova formula: ${_rn}`);
+            }
+        });
         Analytics.techUnlocked(id, tech.name, tech.cost);
         
         // Special unlocks
@@ -21366,6 +21389,8 @@ const Game = {
                 setTimeout(() => {
                     UI.notify(`🏆 Achievement: ${ach.name}!`);
                     Analytics.achievementUnlocked(ach.id, ach.name);
+                    const _an = typeof LangSystem !== 'undefined' && LangSystem.current === 'en' ? (ach.name_en || ach.name) : ach.name;
+                    Game.addKronikaEntry('important', `🏆 Dosaženo: ${ach.name}`, `🏆 Achievement: ${_an}`, `🏆 Factum est: ${ach.name}`);
                 }, 300);
             });
             
@@ -21470,6 +21495,7 @@ const Game = {
 		this.addItem("repair_kit", -1);
 		GameState.well.condition = "clean";
 		UI.notify(t('game.wellRepaired'));
+		Game.addKronikaEntry('important', '🪣 Studna opravena.', '🪣 The well has been repaired.', '🪣 Puteus reparatus est.');
 		this.save();
 		UI.renderAll();
 	},
@@ -21514,6 +21540,7 @@ const Game = {
 			GameState.well.level = "basic";
 			GameState.well.condition = "clean";
 			UI.notify(t('game.wellBuilt'));
+			Game.addKronikaEntry('important', '🪣 Studna postavena.', '🪣 The well has been built.', '🪣 Puteus aedificatus est.');
 			this.save();
 			UI.renderAll();
 			return;
@@ -21553,6 +21580,7 @@ const Game = {
 		// Break check (pouze pokud už je dirty)
 		if (GameState.well.condition === "dirty" && Math.random() < stats.breakChance) {
 			GameState.well.condition = "broken";
+			Game.addKronikaEntry('important', '🪣 Studna se zřítila!', '🪣 The well has collapsed!', '🪣 Puteus corruit!');
 			UI.notify(t('game.wellCollapsed'), true);
 		}
 	},
