@@ -3736,6 +3736,7 @@ const ItemsDB = {
     "seeds_yellow":    { name:"Semínka heřmánku",    name_en:"Chamomile Seeds",        icon:"🌾", type:"mat",         desc:"Žlutá bylina.",                                    desc_en:"Yellow herb seeds." },
     "seeds_blue":      { name:"Semínka levandule",   name_en:"Lavender Seeds",         icon:"🌾", type:"mat",         desc:"Modrá bylina.",                                    desc_en:"Blue herb seeds." },
     "seeds_mint":      { name:"Semínka máty",        name_en:"Mint Seeds",             icon:"🌾", type:"mat",         desc:"Máta.",                                            desc_en:"Mint seeds." },
+    "seeds_thyme":     { name:"Semínka tymiánu",     name_en:"Thyme Seeds",            icon:"🌾", type:"mat",         desc:"Tymián. Léčí Varroa, koření jídla.",               desc_en:"Thyme. Treats Varroa, seasons food." },
 
     // NOTEBOOKS
     "tabula":      { name:"Tabula (Vosková destička)",       name_en:"Tabula (Wax Tablet)",        icon:"📋", type:"tool", desc:"Dočasné poznámky.",  desc_en:"Temporary notes." },
@@ -3801,11 +3802,8 @@ const ItemsDB = {
     "egg_tempera":    { name:"Vaječná tempera",  name_en:"Egg Tempera",     icon:"🥚", type:"alchemy_ing", desc:"Žloutek s vínem. Nejstarší pojivo pigmentů.",     desc_en:"Egg yolk with wine. The oldest pigment binder." },
     "chamomile":      { name:"Heřmánek",         name_en:"Chamomile",       icon:"🌼", type:"herb",        desc:"Matka bylinek. Hildegarda ho doporučovala.",      desc_en:"Mother of herbs. Hildegard recommended it." },
     "st_johns_wort":  { name:"Třezalka",         name_en:"St. John's Wort", icon:"🌻", type:"herb",        desc:"Bylina sv. Jana. Léčí rány i melancholii.",       desc_en:"Herb of St. John. Heals wounds and melancholy." },
+    "thyme":          { name:"Tymián",            name_en:"Thyme",           icon:"🌿", type:"herb",        desc:"Odvání Varroa z úlů. Hildegarda jej znala dobře.", desc_en:"Drives Varroa from hives. Hildegard knew it well." },
     "beeswax":        { name:"Včelí vosk",       name_en:"Beeswax",         icon:"🕯️", type:"mat",         desc:"Z klášterního úlu. Pojivo masti i pečetidlo.",   desc_en:"From the monastery hive. Salve binder and sealant." },
-    "wax_candle":     { name:"Vosková svíčka",   name_en:"Wax Candle",      icon:"🕯️", type:"tool",        desc:"Čistá vosková svíčka. Příjemné světlo, žádný zápach. 48h světla.", desc_en:"Pure wax candle. Pleasant light, no odour. 48 hours of light." },
-    "queen_bee":      { name:"Včelí matka",       name_en:"Queen Bee",       icon:"👑", type:"mat",         desc:"Živá matka. Usaď ji do úlu a nech ji vládnout.",  desc_en:"A living queen. Place her in the hive and let her reign." },
-    "pollen":         { name:"Pyl",               name_en:"Pollen",          icon:"🌼", type:"alchemy_ing", desc:"Zlatý prach ze záhonů. Pigment, lektvar, i alchymie.", desc_en:"Golden dust from the garden. Pigment, potion, and alchemy." },
-    "thyme":          { name:"Tymián",            name_en:"Thyme",           icon:"🌿", type:"herb",        desc:"Odvání Varroa z úlů. Hildegarda jej znala dobře.",    desc_en:"Drives Varroa from hives. Hildegard knew it well." },
 
     // ATHANOR — výsledné produkty
     "ink_carbon":          { name:"Sazový inkoust",    name_en:"Carbon Ink",          icon:"🖤", type:"lore",    desc:"Černý inkoust ze sazí. Levný a trvanlivý.",          desc_en:"Black ink from soot. Cheap and durable." },
@@ -20877,7 +20875,7 @@ const Game = {
             else if(plot.cropType === 'vegetable') seedsNeeded = 'seeds_vegetable';
             else if(plot.cropType === 'special') {
                 // Special plot - can grow any herb type
-                const available = ['seeds_yellow', 'seeds_blue', 'seeds_mint', 'seeds_herb'].find(s => GameState.inventory[s] > 0);
+                const available = ['seeds_yellow', 'seeds_blue', 'seeds_mint', 'seeds_thyme', 'seeds_herb'].find(s => GameState.inventory[s] > 0);
                 if(available) seedsNeeded = available;
             }
             
@@ -20898,6 +20896,7 @@ const Game = {
             else if(seedsNeeded === 'seeds_yellow') plot.crop = 'herb_yellow';
             else if(seedsNeeded === 'seeds_blue') plot.crop = 'herb_blue';
             else if(seedsNeeded === 'seeds_mint') plot.crop = 'mint';
+            else if(seedsNeeded === 'seeds_thyme') plot.crop = 'thyme';
             
             plot.plantedAt = Date.now();
         } else if (plot.state === 2 && !plot.water) {
@@ -20926,6 +20925,7 @@ const Game = {
                 else if(harvestCrop === 'herb_yellow') this.addItem('herb_yellow', 2);
                 else if(harvestCrop === 'herb_blue') this.addItem('herb_blue', 2);
                 else if(harvestCrop === 'mint') this.addItem('mint', 2);
+                else if(harvestCrop === 'thyme') this.addItem('thyme', 2);
                 else if(['carrot','onion','potato'].includes(harvestCrop)) {
                     this.addItem(harvestCrop, 3);
                     // Chance to get seeds back
@@ -21632,6 +21632,7 @@ const Game = {
                     // Athanor: byliny
                     if(Math.random() < 0.08) this.addItem('chamomile', 1);
                     if(Math.random() < 0.05) this.addItem('st_johns_wort', 1);
+                    if(Math.random() < 0.03) this.addItem('seeds_thyme', 1);
                     
                     // Rare drop - Netolického pozůstalost (0.1% chance)
                     if(Math.random() < 0.001) {
@@ -21800,6 +21801,7 @@ const Game = {
                 // Athanor: byliny
                 if(Math.random() < 0.08) this.addItem('chamomile', 1);
                 if(Math.random() < 0.05) this.addItem('st_johns_wort', 1);
+                if(Math.random() < 0.03) this.addItem('seeds_thyme', 1);
                 
                 // Rare drop - Netolického pozůstalost (0.1% chance)
                 if(Math.random() < 0.001) {
