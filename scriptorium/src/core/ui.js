@@ -1717,44 +1717,124 @@ renderRecords: function() {
         // Inicializace apiary v GameState pokud chybí
         if (!GameState.apiary) {
             GameState.apiary = Array.from({length: 6}, () => ({
-                built: false,       // úl postaven?
-                hasQueen: false,    // má včelí matku?
-                lastCollectAt: 0,   // kdy naposledy sklizeno
+                built: false,
+                hasQueen: false,
+                queenName: null,
+                queenStrength: 0,
+                strength: 0,
+                varroaRisk: false,
+                lastCollectAt: 0,
             }));
         }
 
-        const COLLECT_HOURS = 12; // med + vosk každých 12h
+        // Migrace starých save — přidej chybějící pole
+        GameState.apiary.forEach(h => {
+            if (h.queenName     === undefined) h.queenName     = null;
+            if (h.queenStrength === undefined) h.queenStrength = 0;
+            if (h.strength      === undefined) h.strength      = h.hasQueen ? 3 : 0;
+            if (h.varroaRisk    === undefined) h.varroaRisk    = false;
+        });
+
+        const season = Game._getApiarySeason ? Game._getApiarySeason() : 'summer';
+        const seasonLabel = { spring:'🌸 Jaro', summer:'☀️ Léto', autumn:'🍂 Podzim', winter:'❄️ Zima' };
+        const COLLECT_HOURS = { spring: 16, summer: 8, autumn: 20, winter: 999 };
+        const hours = COLLECT_HOURS[season] || 12;
         const now = Date.now();
 
-        let html = `<p class="text-sm" style="margin-bottom:15px; opacity:0.75;">${t('garden.apiaryDesc')}</p>`;
+        // Zimní check
+        if (Game.checkApiaryWinter) Game.checkApiaryWinter();
+
+        let html = `
+            <div style="display:flex; align-items:center; gap:10px; margin-bottom:12px;">
+                <p class="text-sm" style="flex:1; opacity:0.75; margin:0;">${t('garden.apiaryDesc')}</p>
+                <span style="font-size:0.8rem; opacity:0.6; font-style:italic;">${seasonLabel[season] || ''}</span>
+            </div>`;
         html += `<div class="garden-grid">`;
 
         GameState.apiary.forEach((hive, idx) => {
             let content = '';
             let btn = '';
+            let extra = '';
 
             if (!hive.built) {
-                content = `<div class="plot-soil" style="opacity:0.3;">🪵</div><div class="text-sm">${t('garden.apiaryEmpty')}</div>`;
-                // Cena: 10 dřevo + 5 provaz
+                // ── Prázdný slot ───────────────────────────────────────────
                 const canBuild = (GameState.inventory['stick'] || 0) >= 10 && (GameState.inventory['rope'] || 0) >= 5;
-                btn = `<button class="craft-btn" onclick="Game.buildHive(${idx})" ${canBuild ? '' : 'disabled'} style="font-size:0.75rem;">${t('garden.apiaryBuild')}</button>`;
+                content = `<div class="plot-soil" style="opacity:0.3;">🪵</div>
+                           <div class="text-sm">${t('garden.apiaryEmpty')}</div>`;
+                btn = `<button class="craft-btn" onclick="Game.buildHive(${idx})"
+                        ${canBuild ? '' : 'disabled'} style="font-size:0.75rem;">
+                        ${t('garden.apiaryBuild')}</button>`;
+
             } else if (!hive.hasQueen) {
-                content = `<div class="plot-soil" style="opacity:0.5;">🪹</div><div class="text-sm">${t('garden.apiaryNoQueen')}</div>`;
+                // ── Úl bez matky ───────────────────────────────────────────
                 const hasQueen = (GameState.inventory['queen_bee'] || 0) > 0;
-                btn = `<button class="craft-btn" onclick="Game.addQueen(${idx})" ${hasQueen ? '' : 'disabled'} style="font-size:0.75rem;">${t('garden.apiaryAddQueen')}</button>`;
+                content = `<div class="plot-soil" style="opacity:0.5;">🪹</div>
+                           <div class="text-sm">${t('garden.apiaryNoQueen')}</div>`;
+                btn = `<button class="craft-btn" onclick="Game.addQueen(${idx})"
+                        ${hasQueen ? '' : 'disabled'} style="font-size:0.75rem;">
+                        ${t('garden.apiaryAddQueen')}</button>`;
+
             } else {
-                const readyAt = hive.lastCollectAt + (COLLECT_HOURS * 3600000);
-                if (now >= readyAt) {
-                    content = `<div class="plot-soil" style="color:#c5a059;">🐝</div><div class="text-sm">${t('garden.apiaryReady')}</div>`;
-                    btn = `<button class="craft-btn" onclick="Game.collectHive(${idx})">${t('garden.apiaryCollect')}</button>`;
+                // ── Aktivní úl ─────────────────────────────────────────────
+                const strength = hive.strength || 3;
+                const stars = '⭐'.repeat(Math.min(5, Math.ceil(strength / 2)));
+                const queenInfo = hive.queenName
+                    ? `<div style="font-size:0.72rem; opacity:0.65; font-style:italic;">
+                         👑 ${hive.queenName} ${'★'.repeat(hive.queenStrength || 2)}
+                       </div>`
+                    : '';
+
+                // Varroa varování
+                const varroaWarn = hive.varroaRisk
+                    ? `<div style="font-size:0.72rem; color:#c55; margin-top:2px;">⚠️ Varroa!</div>`
+                    : '';
+
+                if (season === 'winter') {
+                    // ── Zima: jen přikrmení ────────────────────────────────
+                    content = `<div class="plot-soil" style="color:#7aa;">❄️</div>
+                               <div class="text-sm">${t('garden.apiaryWorking')}</div>`;
+                    extra = queenInfo + varroaWarn +
+                        `<div style="font-size:0.72rem; margin-top:3px;">${stars}</div>`;
+                    const hasHoney = (GameState.inventory['honey'] || 0) >= 1;
+                    btn = `<button class="craft-btn" onclick="Game.feedHive(${idx})"
+                            ${hasHoney ? '' : 'disabled'} style="font-size:0.72rem;">
+                            🍯 Přikrmit (1× med)</button>`;
+
                 } else {
-                    const waitH = Math.ceil((readyAt - now) / 3600000);
-                    content = `<div class="plot-soil" style="color:#888;">🐝</div><div class="text-sm">${t('garden.apiaryWorking')}</div>`;
-                    btn = `<button class="craft-btn" disabled style="font-size:0.72rem;">${t('garden.apiaryWait')} ${waitH}h</button>`;
+                    const readyAt = hive.lastCollectAt + (hours * 3600000);
+                    if (now >= readyAt) {
+                        content = `<div class="plot-soil" style="color:#c5a059;">🐝</div>
+                                   <div class="text-sm">${t('garden.apiaryReady')}</div>`;
+                        btn = `<button class="craft-btn" onclick="Game.collectHive(${idx})">
+                                ${t('garden.apiaryCollect')}</button>`;
+                    } else {
+                        const waitH = Math.ceil((readyAt - now) / 3600000);
+                        content = `<div class="plot-soil" style="color:#888;">🐝</div>
+                                   <div class="text-sm">${t('garden.apiaryWorking')}</div>`;
+                        btn = `<button class="craft-btn" disabled style="font-size:0.72rem;">
+                                ${t('garden.apiaryWait')} ${waitH}h</button>`;
+                    }
+                    extra = queenInfo + varroaWarn +
+                        `<div style="font-size:0.72rem; margin-top:3px; opacity:0.7;">${stars}</div>`;
+
+                    // Léčba Varroa
+                    if (hive.varroaRisk) {
+                        const hasThyme = (GameState.inventory['thyme'] || 0) >= 1;
+                        btn += `<button class="craft-btn" onclick="Game.treatVarroa(${idx})"
+                                 ${hasThyme ? '' : 'disabled'}
+                                 style="font-size:0.7rem; margin-top:4px; background:rgba(60,120,60,0.8);">
+                                 🌿 Léčit (1× tymián)</button>`;
+                    }
                 }
             }
 
-            html += `<div class="garden-plot">${content}<div style="margin-top:auto;">${btn}</div></div>`;
+            html += `<div class="garden-plot">
+                        ${content}
+                        ${extra}
+                        <div style="margin-top:auto; display:flex; flex-direction:column; gap:4px;">
+                            ${btn}
+                        </div>
+                     </div>`;
         });
 
         html += `</div>`;

@@ -41,11 +41,11 @@ const ScriniumDB = {
             },
             glossa: {
                 textKey: 'scrinium.folios.epistola.glossa',
-                cost: { item: 'candle', amount: 3 },
+                cost: { item: 'candle', amount: 6 },  // 6 lojových NEBO 3 voskové (viz arcanum)
             },
             arcanum: {
                 textKey: 'scrinium.folios.epistola.arcanum',
-                cost: { item: 'paper', amount: 2 },
+                cost: { item: 'wax_candle', amount: 3 },  // pouze vosková svíčka — Opat trvá
                 reward: {
                     type: 'unlock_athanor',
                     notifyKey: 'scrinium.folios.epistola.reward_notify',

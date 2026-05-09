@@ -161,9 +161,19 @@ const STRINGS_cs = {
             treeHarvested: '🍎 Sklizeno {qty} kusů.',
             treeFelled: '🪓 Strom pokácen. +{qty} větve.',
             hiveBuilt: '🪹 Úl postaven.',
-            queenAdded: '🐝 Včelí matka usazena.',
-            hiveCollected: '🍯 Sklizeno: med a vosk.',
-            noSeedSelected: '❌ Vyber semeno!',
+            queenAdded: '🐝 Včelí matka usazena',
+            hiveCollected: '🍯 Sklizeno',
+            hiveNotReady: '⏳ Včely ještě pracují.',
+            hiveWinter: '❄️ Zima — včely odpočívají. Přikrm je medem.',
+            hiveRojivy: '🐝 Včelstvo se srojilo! Matka odletěla — úl je prázdný.',
+            hiveDied: '💀 Včelstvo nepřežilo zimu. Úl je prázdný.',
+            hiveVarroa: '⚠️ Varroa! Léčit tymiánem dříve než uhynou.',
+            hiveFed: '🍯 Včely přikrmeny — přežijí zimu.',
+            hiveTreated: '🌿 Varroa léčena tymiánem. Včelstvo se zotavuje.',
+            hiveFeedOnlyWinter: '❌ Přikrmovat lze jen v zimě.',
+            hiveNeedHoney: '❌ Potřebuješ med pro přikrmení.',
+            hiveNeedThyme: '❌ Potřebuješ tymián pro léčbu Varroa.',
+            hiveStrength: 'Síla včelstva',
             noSeeds: '❌ Nemáš toto semeno!',
             slotOccupied: '❌ Slot je obsazen!',
             needWood: '❌ Potřebuješ 10 větví!',
@@ -1114,148 +1124,4 @@ farmyard: {
         lambGrowing: 'Jehně dorůstá',
         lambPool: 'Jehňata k porážce',
     },
-
-// ── SCRINIUM ABBATIS ─────────────────────────────────────────────────────
-    scrinium: {
-        title: 'Scrinium Abbatis',
-        subtitle: 'Soukromá knihovna opata',
-        locked_title: 'Vstup zapovězen',
-        locked_text: '"Nondum tempus tuum venit, frater." — Tvůj čas dosud nepřišel, bratře.',
-        locked_hint: 'Získej přízeň opata, aby ti otevřel tuto místnost.',
-
-        subtabs: {
-            bestiar:     '🐉 Bestiář',
-            herbar:      '🌿 Herbář',
-            kroniky:     '📜 Kroniky',
-            tajne_spisy: '🔐 Tajné spisy',
-            mapy:        '🗺️ Mapy',
-        },
-
-        folio: {
-            not_found:       'Folio dosud nenalezeno.',
-            found:           'Folio nalezeno',
-            physical_scroll: '📜 Svitek',
-            physical_leaf:   '📃 Volný list',
-            physical_codex:  '📖 Kodex',
-            physical_map:    '🗺️ Mapa',
-            btn_lectio:      'Lectio (přečíst)',
-            btn_glossa:      'Glossa (přeložit)',
-            btn_arcanum:     'Arcanum (rozluštit)',
-            btn_done:        '✓ Přečteno',
-            layer_lectio:    'Lectio',
-            layer_glossa:    'Glossa',
-            layer_arcanum:   'Arcanum',
-            cost_label:      'Vyžaduje:',
-            err_no_item:     'Nemáš potřebné suroviny.',
-        },
-
-        folios: {
-
-            epistola: {
-                title: 'Epistola de Rebus Ignotis',
-                lectio: `*Svitek je ohořelý na okrajích. Část textu chybí. Latinský záhlaví je sotva čitelný.*
-
-"Est locus post murum, ubi ignis non dormit. Ibi calor perpetuus servat formas rerum, quae oculis communibus non patent..."
-
-— Zlomek dopisu neznámého adresáta. Rok neznámý.`,
-
-                glossa: `*Po pečlivém studiu při svíčce začínají slova dávat smysl.*
-
-„Jest místo za zdí, kde oheň nespí. Tam věčné teplo uchovává tvary věcí, jež jsou očím prostých lidí skryty."
-
-Pisatel mluví o místnosti nebo komoře se stálým ohněm — snad peci. Zmiňuje tři fáze přeměny hmoty. Slova jsou záměrně zahalena. Kdo psal tento dopis — a komu?`,
-
-                arcanum: `*Poslední řádky svitku, skryté za přeložením ohořelého okraje:*
-
-"Qui scit verbum, intrat. Verbum est: exordium."
-
-— Kdo zná slovo, vejde. Slovo jest: exordium.
-
-*V pravém dolním rohu svitku je nákres — kruh s trojúhelníkem uvnitř. Symbol athanoru.*`,
-
-                reward_notify: '🔥 Athanor odemčen! Pec za zdí je tvá.',
-            },
-
-            fausto: {
-                title: 'De Fausto Contractu',
-                lectio: `*Volný list, mastné skvrny od lojem svíček. Podpis na konci je škrtnutý.*
-
-„Slyšte, vy kteří čtete: jest muž, jenž uzavřel smlouvu přesahující rozum. Za rychlé dokončení díla — za jedinú noc — zaprodal to nejcennější."
-
-— Fragment bez titulu, bez autora.`,
-
-                glossa: `*Po srovnání s jinými dokumenty se vyjasní jméno i místo.*
-
-Johann Fust, Mohuč, léta Páně 1455. Tiskárna Gutenbergova přešla do jiných rukou — ne soudní cestou, jak říkají kroniky, ale jinak. Schöffer svědčil proti mistrovi. Gutenberg přišel o vše.
-
-Lid šeptal: nikdo netiskne tak rychle bez pomoci temných sil. „Fust" — „Faust". Zvuk jmen splýval. Legenda se rodila.`,
-
-                arcanum: `*Na rubu listu, psáno jinou rukou, malým písmem:*
-
-„Nabízím totéž. Podpiš a dílo bude dokončeno. Suroviny se množí, výzkum pokračuje.
-Nebo odmítni — a zůstaň tím, čím jsi: poctivým řemeslníkem bez zkratky."
-
-— Podpis chybí. Zbývá jen místo pro tvůj.`,
-
-                choice_prompt:  'Co učiníš?',
-                choice_sign:    '✍️ Podepsat smlouvu',
-                choice_refuse:  '🙏 Odmítnout',
-                signed_notify:  '😈 Smlouva podepsána. Dočasný bonus — ale za cenu.',
-                refused_notify: '✝️ Odmítl jsi. Poctivá práce trvá déle — ale duše zůstává tvá.',
-                achievement:    'Odolal jsem',
-            },
-
-            palimpsest: {
-                title: 'Ars Palimpsesti',
-                lectio: `*Volný list, pod textem viditelné stopy starší vrstvy — jako stín minulého písma.*
-
-„De arte radendi et rescribendi. O umění škrabání a přepisování."
-
-Technický popis v latině. Zmiňuje pemzu, nůž, mokrý hadr. Postup v pěti krocích.`,
-
-                glossa: `*Po přečtení celého listu se ukáže spodní vrstva textu — čitelná ve šikmém světle svíčky.*
-
-Pod recepturou pro škrábání pergamenu je starší text: fragment básně.
-
-„Omnia mutantur, nihil interit." — Vše se mění, nic nezaniká.
-
-Pergamen byl kdysi něčí kronikou. Pak se stal receptářem. Co bude příště?`,
-
-                arcanum: `*Na spodním okraji, skryto v přeložení:*
-
-„Pemza a voda. Oškrábej. Nech uschnout. Piš znovu. Nic se neztrácí — jen mění tvář."
-
-Tento postup lze použít v dílně. Použitý pergamen není odpad — je to nová příležitost.
-
-*Odemčen recept: Recyklace pergamenu*`,
-
-                reward_notify: '📋 Nový recept odemčen: Recyklace pergamenu.',
-            },
-
-            titivillus: {
-                title: 'De Titivillo Daemone',
-                lectio: `*Kodex opatřený četnými margináliemi — malé ručičky ☞ ukazují na klíčová místa.*
-
-„De daemone qui in scriptoriis habitat. O démonu, jenž přebývá ve skriptoriích."
-
-V každém skriptoriu číhá Titivillus. Jeho úkol není svádět ke hříchu — to dělají jiní. Titivillus sbírá chyby.`,
-
-                glossa: `*Marginálie jsou hustší než text. Jedna z nich říká:*
-
-„Viděl jsem ho. Malý, šedý, tichý. Prochází mezi pulpity. Má pytel z kozí kůže. Sbírá vynechaná písmena, přehozené slabiky, zkomolená slova. Každý den odnáší pytel k ďáblu."
-
-„Po smrti bude mnich souzen. Titivillus vysype pytel na váhy. Každá chyba zaváží."`,
-
-                arcanum: `*Poslední strana kodexu — psána jiným inkoustem, jako by doplněna mnohem později:*
-
-„Titivillus nespí. Bdí obzvláště, když je tma a písař unavený. Světlo svíčky ho odrazuje — ale jen pravé světlo."
-
-*Od této chvíle vidíš v pracovně jemné varování, když Vigor klesá příliš nízko.*`,
-
-                reward_notify: '👁️ Titivillovo varování: nyní vidíš, kdy hrozí chyby v rukopisech.',
-            },
-
-        }, // konec folios
-
-    }, // konec scrinium
 };

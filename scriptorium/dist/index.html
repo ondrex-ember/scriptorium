@@ -3802,6 +3802,10 @@ const ItemsDB = {
     "chamomile":      { name:"Heřmánek",         name_en:"Chamomile",       icon:"🌼", type:"herb",        desc:"Matka bylinek. Hildegarda ho doporučovala.",      desc_en:"Mother of herbs. Hildegard recommended it." },
     "st_johns_wort":  { name:"Třezalka",         name_en:"St. John's Wort", icon:"🌻", type:"herb",        desc:"Bylina sv. Jana. Léčí rány i melancholii.",       desc_en:"Herb of St. John. Heals wounds and melancholy." },
     "beeswax":        { name:"Včelí vosk",       name_en:"Beeswax",         icon:"🕯️", type:"mat",         desc:"Z klášterního úlu. Pojivo masti i pečetidlo.",   desc_en:"From the monastery hive. Salve binder and sealant." },
+    "wax_candle":     { name:"Vosková svíčka",   name_en:"Wax Candle",      icon:"🕯️", type:"tool",        desc:"Čistá vosková svíčka. Příjemné světlo, žádný zápach. 48h světla.", desc_en:"Pure wax candle. Pleasant light, no odour. 48 hours of light." },
+    "queen_bee":      { name:"Včelí matka",       name_en:"Queen Bee",       icon:"👑", type:"mat",         desc:"Živá matka. Usaď ji do úlu a nech ji vládnout.",  desc_en:"A living queen. Place her in the hive and let her reign." },
+    "pollen":         { name:"Pyl",               name_en:"Pollen",          icon:"🌼", type:"alchemy_ing", desc:"Zlatý prach ze záhonů. Pigment, lektvar, i alchymie.", desc_en:"Golden dust from the garden. Pigment, potion, and alchemy." },
+    "thyme":          { name:"Tymián",            name_en:"Thyme",           icon:"🌿", type:"herb",        desc:"Odvání Varroa z úlů. Hildegarda jej znala dobře.",    desc_en:"Drives Varroa from hives. Hildegard knew it well." },
 
     // ATHANOR — výsledné produkty
     "ink_carbon":          { name:"Sazový inkoust",    name_en:"Carbon Ink",          icon:"🖤", type:"lore",    desc:"Černý inkoust ze sazí. Levný a trvanlivý.",          desc_en:"Black ink from soot. Cheap and durable." },
@@ -5566,11 +5570,11 @@ const ScriniumDB = {
             },
             glossa: {
                 textKey: 'scrinium.folios.epistola.glossa',
-                cost: { item: 'candle', amount: 3 },
+                cost: { item: 'candle', amount: 6 },  // 6 lojových NEBO 3 voskové (viz arcanum)
             },
             arcanum: {
                 textKey: 'scrinium.folios.epistola.arcanum',
-                cost: { item: 'paper', amount: 2 },
+                cost: { item: 'wax_candle', amount: 3 },  // pouze vosková svíčka — Opat trvá
                 reward: {
                     type: 'unlock_athanor',
                     notifyKey: 'scrinium.folios.epistola.reward_notify',
@@ -9967,22 +9971,22 @@ const CellariumSystem = {
     const active = GameState.ui.cellariumEntity || 'tavern';
 
     // Tab buttons
-    let h = `<div style="display:flex; gap:8px; margin-bottom:16px;">`;
+    let h = `<div style="display:flex; gap:6px; margin-bottom:16px; flex-wrap:wrap;">`;
     entities.forEach(e => {
       const open   = this.isEntityOpen(e.id);
       const isCur  = e.id === active;
       const name   = lang === 'en' ? e.label_en : e.label;
       const hours  = lang === 'en' ? this.entityHoursLabel_en(e.id) : this.entityHoursLabel(e.id);
+      const openDot = `<span style="color:${open ? '#5a9' : '#c55'}; font-size:0.55rem;">
+        ${open ? '●' : '●'}</span>`;
       h += `
         <button onclick="CellariumSystem.switchEntity('${e.id}')"
                 class="filter-btn${isCur ? ' active' : ''}"
-                style="flex:1; position:relative;">
-          ${e.icon} ${name}
-          <span style="display:block; font-size:0.65rem; opacity:0.7;">${hours}</span>
-          <span style="position:absolute; top:4px; right:6px; font-size:0.6rem;
-                       color:${open ? '#5a9' : '#c55'};">
-            ${open ? '● OPEN' : '● CLOSED'}
-          </span>
+                style="flex:1; min-width:90px; position:relative; padding-bottom:6px;">
+          <div style="display:flex; align-items:center; justify-content:center; gap:4px;">
+            ${e.icon} ${name} ${openDot}
+          </div>
+          <div style="font-size:0.6rem; opacity:0.6; margin-top:2px; white-space:nowrap;">${hours}</div>
         </button>
       `;
     });
@@ -17463,9 +17467,19 @@ const STRINGS_cs = {
             treeHarvested: '🍎 Sklizeno {qty} kusů.',
             treeFelled: '🪓 Strom pokácen. +{qty} větve.',
             hiveBuilt: '🪹 Úl postaven.',
-            queenAdded: '🐝 Včelí matka usazena.',
-            hiveCollected: '🍯 Sklizeno: med a vosk.',
-            noSeedSelected: '❌ Vyber semeno!',
+            queenAdded: '🐝 Včelí matka usazena',
+            hiveCollected: '🍯 Sklizeno',
+            hiveNotReady: '⏳ Včely ještě pracují.',
+            hiveWinter: '❄️ Zima — včely odpočívají. Přikrm je medem.',
+            hiveRojivy: '🐝 Včelstvo se srojilo! Matka odletěla — úl je prázdný.',
+            hiveDied: '💀 Včelstvo nepřežilo zimu. Úl je prázdný.',
+            hiveVarroa: '⚠️ Varroa! Léčit tymiánem dříve než uhynou.',
+            hiveFed: '🍯 Včely přikrmeny — přežijí zimu.',
+            hiveTreated: '🌿 Varroa léčena tymiánem. Včelstvo se zotavuje.',
+            hiveFeedOnlyWinter: '❌ Přikrmovat lze jen v zimě.',
+            hiveNeedHoney: '❌ Potřebuješ med pro přikrmení.',
+            hiveNeedThyme: '❌ Potřebuješ tymián pro léčbu Varroa.',
+            hiveStrength: 'Síla včelstva',
             noSeeds: '❌ Nemáš toto semeno!',
             slotOccupied: '❌ Slot je obsazen!',
             needWood: '❌ Potřebuješ 10 větví!',
@@ -18416,150 +18430,6 @@ farmyard: {
         lambGrowing: 'Jehně dorůstá',
         lambPool: 'Jehňata k porážce',
     },
-
-// ── SCRINIUM ABBATIS ─────────────────────────────────────────────────────
-    scrinium: {
-        title: 'Scrinium Abbatis',
-        subtitle: 'Soukromá knihovna opata',
-        locked_title: 'Vstup zapovězen',
-        locked_text: '"Nondum tempus tuum venit, frater." — Tvůj čas dosud nepřišel, bratře.',
-        locked_hint: 'Získej přízeň opata, aby ti otevřel tuto místnost.',
-
-        subtabs: {
-            bestiar:     '🐉 Bestiář',
-            herbar:      '🌿 Herbář',
-            kroniky:     '📜 Kroniky',
-            tajne_spisy: '🔐 Tajné spisy',
-            mapy:        '🗺️ Mapy',
-        },
-
-        folio: {
-            not_found:       'Folio dosud nenalezeno.',
-            found:           'Folio nalezeno',
-            physical_scroll: '📜 Svitek',
-            physical_leaf:   '📃 Volný list',
-            physical_codex:  '📖 Kodex',
-            physical_map:    '🗺️ Mapa',
-            btn_lectio:      'Lectio (přečíst)',
-            btn_glossa:      'Glossa (přeložit)',
-            btn_arcanum:     'Arcanum (rozluštit)',
-            btn_done:        '✓ Přečteno',
-            layer_lectio:    'Lectio',
-            layer_glossa:    'Glossa',
-            layer_arcanum:   'Arcanum',
-            cost_label:      'Vyžaduje:',
-            err_no_item:     'Nemáš potřebné suroviny.',
-        },
-
-        folios: {
-
-            epistola: {
-                title: 'Epistola de Rebus Ignotis',
-                lectio: `*Svitek je ohořelý na okrajích. Část textu chybí. Latinský záhlaví je sotva čitelný.*
-
-"Est locus post murum, ubi ignis non dormit. Ibi calor perpetuus servat formas rerum, quae oculis communibus non patent..."
-
-— Zlomek dopisu neznámého adresáta. Rok neznámý.`,
-
-                glossa: `*Po pečlivém studiu při svíčce začínají slova dávat smysl.*
-
-„Jest místo za zdí, kde oheň nespí. Tam věčné teplo uchovává tvary věcí, jež jsou očím prostých lidí skryty."
-
-Pisatel mluví o místnosti nebo komoře se stálým ohněm — snad peci. Zmiňuje tři fáze přeměny hmoty. Slova jsou záměrně zahalena. Kdo psal tento dopis — a komu?`,
-
-                arcanum: `*Poslední řádky svitku, skryté za přeložením ohořelého okraje:*
-
-"Qui scit verbum, intrat. Verbum est: exordium."
-
-— Kdo zná slovo, vejde. Slovo jest: exordium.
-
-*V pravém dolním rohu svitku je nákres — kruh s trojúhelníkem uvnitř. Symbol athanoru.*`,
-
-                reward_notify: '🔥 Athanor odemčen! Pec za zdí je tvá.',
-            },
-
-            fausto: {
-                title: 'De Fausto Contractu',
-                lectio: `*Volný list, mastné skvrny od lojem svíček. Podpis na konci je škrtnutý.*
-
-„Slyšte, vy kteří čtete: jest muž, jenž uzavřel smlouvu přesahující rozum. Za rychlé dokončení díla — za jedinú noc — zaprodal to nejcennější."
-
-— Fragment bez titulu, bez autora.`,
-
-                glossa: `*Po srovnání s jinými dokumenty se vyjasní jméno i místo.*
-
-Johann Fust, Mohuč, léta Páně 1455. Tiskárna Gutenbergova přešla do jiných rukou — ne soudní cestou, jak říkají kroniky, ale jinak. Schöffer svědčil proti mistrovi. Gutenberg přišel o vše.
-
-Lid šeptal: nikdo netiskne tak rychle bez pomoci temných sil. „Fust" — „Faust". Zvuk jmen splýval. Legenda se rodila.`,
-
-                arcanum: `*Na rubu listu, psáno jinou rukou, malým písmem:*
-
-„Nabízím totéž. Podpiš a dílo bude dokončeno. Suroviny se množí, výzkum pokračuje.
-Nebo odmítni — a zůstaň tím, čím jsi: poctivým řemeslníkem bez zkratky."
-
-— Podpis chybí. Zbývá jen místo pro tvůj.`,
-
-                choice_prompt:  'Co učiníš?',
-                choice_sign:    '✍️ Podepsat smlouvu',
-                choice_refuse:  '🙏 Odmítnout',
-                signed_notify:  '😈 Smlouva podepsána. Dočasný bonus — ale za cenu.',
-                refused_notify: '✝️ Odmítl jsi. Poctivá práce trvá déle — ale duše zůstává tvá.',
-                achievement:    'Odolal jsem',
-            },
-
-            palimpsest: {
-                title: 'Ars Palimpsesti',
-                lectio: `*Volný list, pod textem viditelné stopy starší vrstvy — jako stín minulého písma.*
-
-„De arte radendi et rescribendi. O umění škrabání a přepisování."
-
-Technický popis v latině. Zmiňuje pemzu, nůž, mokrý hadr. Postup v pěti krocích.`,
-
-                glossa: `*Po přečtení celého listu se ukáže spodní vrstva textu — čitelná ve šikmém světle svíčky.*
-
-Pod recepturou pro škrábání pergamenu je starší text: fragment básně.
-
-„Omnia mutantur, nihil interit." — Vše se mění, nic nezaniká.
-
-Pergamen byl kdysi něčí kronikou. Pak se stal receptářem. Co bude příště?`,
-
-                arcanum: `*Na spodním okraji, skryto v přeložení:*
-
-„Pemza a voda. Oškrábej. Nech uschnout. Piš znovu. Nic se neztrácí — jen mění tvář."
-
-Tento postup lze použít v dílně. Použitý pergamen není odpad — je to nová příležitost.
-
-*Odemčen recept: Recyklace pergamenu*`,
-
-                reward_notify: '📋 Nový recept odemčen: Recyklace pergamenu.',
-            },
-
-            titivillus: {
-                title: 'De Titivillo Daemone',
-                lectio: `*Kodex opatřený četnými margináliemi — malé ručičky ☞ ukazují na klíčová místa.*
-
-„De daemone qui in scriptoriis habitat. O démonu, jenž přebývá ve skriptoriích."
-
-V každém skriptoriu číhá Titivillus. Jeho úkol není svádět ke hříchu — to dělají jiní. Titivillus sbírá chyby.`,
-
-                glossa: `*Marginálie jsou hustší než text. Jedna z nich říká:*
-
-„Viděl jsem ho. Malý, šedý, tichý. Prochází mezi pulpity. Má pytel z kozí kůže. Sbírá vynechaná písmena, přehozené slabiky, zkomolená slova. Každý den odnáší pytel k ďáblu."
-
-„Po smrti bude mnich souzen. Titivillus vysype pytel na váhy. Každá chyba zaváží."`,
-
-                arcanum: `*Poslední strana kodexu — psána jiným inkoustem, jako by doplněna mnohem později:*
-
-„Titivillus nespí. Bdí obzvláště, když je tma a písař unavený. Světlo svíčky ho odrazuje — ale jen pravé světlo."
-
-*Od této chvíle vidíš v pracovně jemné varování, když Vigor klesá příliš nízko.*`,
-
-                reward_notify: '👁️ Titivillovo varování: nyní vidíš, kdy hrozí chyby v rukopisech.',
-            },
-
-        }, // konec folios
-
-    }, // konec scrinium
 };
 // ═══ src/i18n/en.js ═══
 // Scriptorium i18n — English (Olde)
@@ -21132,6 +21002,26 @@ const Game = {
     // APIARIUM (Včelín) — herní logika
     // ═══════════════════════════════════════════════════════════════════════════
 
+    // ── Pomocná: vrátí sezónu dle reálného měsíce ─────────────────────────────
+    _getApiarySeason: function() {
+        const m = new Date().getMonth() + 1; // 1–12
+        if (m >= 3 && m <= 5)  return 'spring';
+        if (m >= 6 && m <= 8)  return 'summer';
+        if (m >= 9 && m <= 11) return 'autumn';
+        return 'winter';
+    },
+
+    // ── Pomocná: pool jmen královen ───────────────────────────────────────────
+    _queenNames: [
+        'Hildegarda', 'Konstancie', 'Anežka', 'Dorota', 'Markéta',
+        'Eliška', 'Žofie', 'Ludmila', 'Blanka', 'Alžběta',
+        'Kunhuta', 'Radoslava', 'Doubravka', 'Přibyslava', 'Miloslava'
+    ],
+
+    _randomQueenName: function() {
+        return this._queenNames[Math.floor(Math.random() * this._queenNames.length)];
+    },
+
     buildHive: function(slotIdx) {
         if (!GameState.apiary) return;
         const hive = GameState.apiary[slotIdx];
@@ -21140,9 +21030,13 @@ const Game = {
         if ((GameState.inventory['rope']  || 0) < 5)  { UI.notify(t('game.needRope'), true); return; }
         this.removeItem('stick', 10);
         this.removeItem('rope', 5);
-        hive.built = true;
-        hive.hasQueen = false;
-        hive.lastCollectAt = 0;
+        hive.built          = true;
+        hive.hasQueen       = false;
+        hive.queenName      = null;
+        hive.queenStrength  = 0;   // 1–5 hvězd, nastaví se při usazení matky
+        hive.strength       = 0;   // 1–10 síla včelstva
+        hive.varroaRisk     = false;
+        hive.lastCollectAt  = 0;
         Game.save();
         UI.renderApiary();
         UI.notify('🪹 ' + t('game.hiveBuilt'));
@@ -21154,30 +21048,137 @@ const Game = {
         if (!hive.built || hive.hasQueen) return;
         if (!(GameState.inventory['queen_bee'] > 0)) { UI.notify(t('game.needQueen'), true); return; }
         this.removeItem('queen_bee', 1);
-        hive.hasQueen = true;
+        hive.hasQueen      = true;
+        hive.queenName     = this._randomQueenName();
+        hive.queenStrength = Math.floor(Math.random() * 3) + 2; // 2–4 hvězdy (náhoda)
+        hive.strength      = 3; // začíná na střední síle
+        hive.varroaRisk    = false;
         hive.lastCollectAt = Date.now();
         Game.save();
         UI.renderApiary();
-        UI.notify('🐝 ' + t('game.queenAdded'));
+        UI.notify('🐝 ' + t('game.queenAdded') + ' — ' + hive.queenName);
     },
 
     collectHive: function(slotIdx) {
         if (!GameState.apiary) return;
         const hive = GameState.apiary[slotIdx];
         if (!hive.built || !hive.hasQueen) return;
-        const COLLECT_HOURS = 12;
+
+        const season = this._getApiarySeason();
+
+        // Zima — nelze sklízet
+        if (season === 'winter') {
+            UI.notify('❄️ ' + t('game.hiveWinter'), true);
+            return;
+        }
+
+        // Časy sklizně dle sezóny
+        const COLLECT_HOURS = { spring: 16, summer: 8, autumn: 20 };
+        const hours = COLLECT_HOURS[season] || 12;
         const now = Date.now();
-        if (now < hive.lastCollectAt + (COLLECT_HOURS * 3600000)) { UI.notify(t('game.hiveNotReady'), true); return; }
-        this.addItem('honey', 2);
-        this.addItem('beeswax', 1);
-        // Bonus: pyl pokud jsou v zahradě kvetoucí záhony nebo sad
-        const hasFlowers = GameState.garden && GameState.garden.some(p => p.state === 2 && p.water);
-        const hasTrees   = GameState.orchard && GameState.orchard.some(s => s.state === 'mature');
-        if (hasFlowers || hasTrees) this.addItem('pollen', 1);
+        if (now < hive.lastCollectAt + (hours * 3600000)) {
+            UI.notify(t('game.hiveNotReady'), true);
+            return;
+        }
+
+        // Produkce dle sezóny a síly včelstva
+        const strengthMod = (hive.strength || 3) / 5; // 0.2–2.0
+        const honeyBase   = { spring: 1, summer: 3, autumn: 1 };
+        const waxBase     = { spring: 1, summer: 1, autumn: 2 };
+        const honeyYield  = Math.max(1, Math.round(honeyBase[season] * strengthMod));
+        const waxYield    = Math.max(1, Math.round(waxBase[season] * strengthMod));
+
+        this.addItem('honey', honeyYield);
+        this.addItem('beeswax', waxYield);
+
+        // Pyl bonus — jen léto, jen pokud kvetou záhony nebo sad
+        if (season === 'summer') {
+            const hasFlowers = GameState.garden && GameState.garden.some(p => p.state === 2 && p.water);
+            const hasTrees   = GameState.orchard && GameState.orchard.some(s => s.state === 'mature');
+            if (hasFlowers || hasTrees) this.addItem('pollen', 1);
+        }
+
+        // Síla roste po sklizni (péče o včely)
+        hive.strength = Math.min(10, (hive.strength || 3) + 1);
+
+        // Rojivá nálada — pokud je síla max a sklizeň přichází pozdě (2× lhůta)
+        if (hive.strength >= 9 && now > hive.lastCollectAt + (hours * 2 * 3600000)) {
+            // Matka odletěla
+            hive.hasQueen  = false;
+            hive.queenName = null;
+            hive.strength  = 0;
+            Game.save();
+            UI.renderApiary();
+            UI.notify('🐝 ' + t('game.hiveRojivy'));
+            return;
+        }
+
         hive.lastCollectAt = now;
         Game.save();
         UI.renderApiary();
-        UI.notify('🍯 ' + t('game.hiveCollected'));
+        UI.notify('🍯 ' + t('game.hiveCollected') + ' (' + honeyYield + '× med, ' + waxYield + '× vosk)');
+    },
+
+    // ── Zimní přikrmení ────────────────────────────────────────────────────────
+    feedHive: function(slotIdx) {
+        if (!GameState.apiary) return;
+        const hive = GameState.apiary[slotIdx];
+        if (!hive.built || !hive.hasQueen) return;
+        const season = this._getApiarySeason();
+        if (season !== 'winter') { UI.notify(t('game.hiveFeedOnlyWinter'), true); return; }
+        if ((GameState.inventory['honey'] || 0) < 1) { UI.notify(t('game.hiveNeedHoney'), true); return; }
+        this.removeItem('honey', 1);
+        // Přikrmení zachová sílu nebo ji zvýší
+        hive.strength = Math.min(10, (hive.strength || 3) + 1);
+        Game.save();
+        UI.renderApiary();
+        UI.notify('🍯 ' + t('game.hiveFed'));
+    },
+
+    // ── Léčba Varroa ──────────────────────────────────────────────────────────
+    treatVarroa: function(slotIdx) {
+        if (!GameState.apiary) return;
+        const hive = GameState.apiary[slotIdx];
+        if (!hive.built || !hive.hasQueen || !hive.varroaRisk) return;
+        if ((GameState.inventory['thyme'] || 0) < 1) { UI.notify(t('game.hiveNeedThyme'), true); return; }
+        this.removeItem('thyme', 1);
+        hive.varroaRisk = false;
+        hive.strength   = Math.max(1, (hive.strength || 3) - 1); // léčba stojí trochu síly
+        Game.save();
+        UI.renderApiary();
+        UI.notify('🌿 ' + t('game.hiveTreated'));
+    },
+
+    // ── Zimní check (volá se 1× denně nebo při otevření Apiary) ───────────────
+    checkApiaryWinter: function() {
+        if (!GameState.apiary) return;
+        const season = this._getApiarySeason();
+        if (season !== 'winter') return;
+        let changed = false;
+        GameState.apiary.forEach(hive => {
+            if (!hive.built || !hive.hasQueen) return;
+            // Pokud síla <= 0 → včelstvo uhynulo
+            if ((hive.strength || 0) <= 0) {
+                hive.hasQueen  = false;
+                hive.queenName = null;
+                hive.strength  = 0;
+                changed = true;
+                UI.notify('💀 ' + t('game.hiveDied'));
+            }
+        });
+        if (changed) { Game.save(); UI.renderApiary(); }
+    },
+
+    // ── Náhodný Varroa event (volá se z EventsSystem nebo manuálně) ──────────
+    triggerVarroa: function(slotIdx) {
+        if (!GameState.apiary) return;
+        const hive = GameState.apiary[slotIdx];
+        if (!hive.built || !hive.hasQueen || hive.varroaRisk) return;
+        hive.varroaRisk = true;
+        hive.strength   = Math.max(1, (hive.strength || 3) - 2);
+        Game.save();
+        UI.renderApiary();
+        UI.notify('⚠️ ' + t('game.hiveVarroa'));
     },
 
     // ═══════════════════════════════════════════════════════════════════════════
@@ -24336,44 +24337,124 @@ renderRecords: function() {
         // Inicializace apiary v GameState pokud chybí
         if (!GameState.apiary) {
             GameState.apiary = Array.from({length: 6}, () => ({
-                built: false,       // úl postaven?
-                hasQueen: false,    // má včelí matku?
-                lastCollectAt: 0,   // kdy naposledy sklizeno
+                built: false,
+                hasQueen: false,
+                queenName: null,
+                queenStrength: 0,
+                strength: 0,
+                varroaRisk: false,
+                lastCollectAt: 0,
             }));
         }
 
-        const COLLECT_HOURS = 12; // med + vosk každých 12h
+        // Migrace starých save — přidej chybějící pole
+        GameState.apiary.forEach(h => {
+            if (h.queenName     === undefined) h.queenName     = null;
+            if (h.queenStrength === undefined) h.queenStrength = 0;
+            if (h.strength      === undefined) h.strength      = h.hasQueen ? 3 : 0;
+            if (h.varroaRisk    === undefined) h.varroaRisk    = false;
+        });
+
+        const season = Game._getApiarySeason ? Game._getApiarySeason() : 'summer';
+        const seasonLabel = { spring:'🌸 Jaro', summer:'☀️ Léto', autumn:'🍂 Podzim', winter:'❄️ Zima' };
+        const COLLECT_HOURS = { spring: 16, summer: 8, autumn: 20, winter: 999 };
+        const hours = COLLECT_HOURS[season] || 12;
         const now = Date.now();
 
-        let html = `<p class="text-sm" style="margin-bottom:15px; opacity:0.75;">${t('garden.apiaryDesc')}</p>`;
+        // Zimní check
+        if (Game.checkApiaryWinter) Game.checkApiaryWinter();
+
+        let html = `
+            <div style="display:flex; align-items:center; gap:10px; margin-bottom:12px;">
+                <p class="text-sm" style="flex:1; opacity:0.75; margin:0;">${t('garden.apiaryDesc')}</p>
+                <span style="font-size:0.8rem; opacity:0.6; font-style:italic;">${seasonLabel[season] || ''}</span>
+            </div>`;
         html += `<div class="garden-grid">`;
 
         GameState.apiary.forEach((hive, idx) => {
             let content = '';
             let btn = '';
+            let extra = '';
 
             if (!hive.built) {
-                content = `<div class="plot-soil" style="opacity:0.3;">🪵</div><div class="text-sm">${t('garden.apiaryEmpty')}</div>`;
-                // Cena: 10 dřevo + 5 provaz
+                // ── Prázdný slot ───────────────────────────────────────────
                 const canBuild = (GameState.inventory['stick'] || 0) >= 10 && (GameState.inventory['rope'] || 0) >= 5;
-                btn = `<button class="craft-btn" onclick="Game.buildHive(${idx})" ${canBuild ? '' : 'disabled'} style="font-size:0.75rem;">${t('garden.apiaryBuild')}</button>`;
+                content = `<div class="plot-soil" style="opacity:0.3;">🪵</div>
+                           <div class="text-sm">${t('garden.apiaryEmpty')}</div>`;
+                btn = `<button class="craft-btn" onclick="Game.buildHive(${idx})"
+                        ${canBuild ? '' : 'disabled'} style="font-size:0.75rem;">
+                        ${t('garden.apiaryBuild')}</button>`;
+
             } else if (!hive.hasQueen) {
-                content = `<div class="plot-soil" style="opacity:0.5;">🪹</div><div class="text-sm">${t('garden.apiaryNoQueen')}</div>`;
+                // ── Úl bez matky ───────────────────────────────────────────
                 const hasQueen = (GameState.inventory['queen_bee'] || 0) > 0;
-                btn = `<button class="craft-btn" onclick="Game.addQueen(${idx})" ${hasQueen ? '' : 'disabled'} style="font-size:0.75rem;">${t('garden.apiaryAddQueen')}</button>`;
+                content = `<div class="plot-soil" style="opacity:0.5;">🪹</div>
+                           <div class="text-sm">${t('garden.apiaryNoQueen')}</div>`;
+                btn = `<button class="craft-btn" onclick="Game.addQueen(${idx})"
+                        ${hasQueen ? '' : 'disabled'} style="font-size:0.75rem;">
+                        ${t('garden.apiaryAddQueen')}</button>`;
+
             } else {
-                const readyAt = hive.lastCollectAt + (COLLECT_HOURS * 3600000);
-                if (now >= readyAt) {
-                    content = `<div class="plot-soil" style="color:#c5a059;">🐝</div><div class="text-sm">${t('garden.apiaryReady')}</div>`;
-                    btn = `<button class="craft-btn" onclick="Game.collectHive(${idx})">${t('garden.apiaryCollect')}</button>`;
+                // ── Aktivní úl ─────────────────────────────────────────────
+                const strength = hive.strength || 3;
+                const stars = '⭐'.repeat(Math.min(5, Math.ceil(strength / 2)));
+                const queenInfo = hive.queenName
+                    ? `<div style="font-size:0.72rem; opacity:0.65; font-style:italic;">
+                         👑 ${hive.queenName} ${'★'.repeat(hive.queenStrength || 2)}
+                       </div>`
+                    : '';
+
+                // Varroa varování
+                const varroaWarn = hive.varroaRisk
+                    ? `<div style="font-size:0.72rem; color:#c55; margin-top:2px;">⚠️ Varroa!</div>`
+                    : '';
+
+                if (season === 'winter') {
+                    // ── Zima: jen přikrmení ────────────────────────────────
+                    content = `<div class="plot-soil" style="color:#7aa;">❄️</div>
+                               <div class="text-sm">${t('garden.apiaryWorking')}</div>`;
+                    extra = queenInfo + varroaWarn +
+                        `<div style="font-size:0.72rem; margin-top:3px;">${stars}</div>`;
+                    const hasHoney = (GameState.inventory['honey'] || 0) >= 1;
+                    btn = `<button class="craft-btn" onclick="Game.feedHive(${idx})"
+                            ${hasHoney ? '' : 'disabled'} style="font-size:0.72rem;">
+                            🍯 Přikrmit (1× med)</button>`;
+
                 } else {
-                    const waitH = Math.ceil((readyAt - now) / 3600000);
-                    content = `<div class="plot-soil" style="color:#888;">🐝</div><div class="text-sm">${t('garden.apiaryWorking')}</div>`;
-                    btn = `<button class="craft-btn" disabled style="font-size:0.72rem;">${t('garden.apiaryWait')} ${waitH}h</button>`;
+                    const readyAt = hive.lastCollectAt + (hours * 3600000);
+                    if (now >= readyAt) {
+                        content = `<div class="plot-soil" style="color:#c5a059;">🐝</div>
+                                   <div class="text-sm">${t('garden.apiaryReady')}</div>`;
+                        btn = `<button class="craft-btn" onclick="Game.collectHive(${idx})">
+                                ${t('garden.apiaryCollect')}</button>`;
+                    } else {
+                        const waitH = Math.ceil((readyAt - now) / 3600000);
+                        content = `<div class="plot-soil" style="color:#888;">🐝</div>
+                                   <div class="text-sm">${t('garden.apiaryWorking')}</div>`;
+                        btn = `<button class="craft-btn" disabled style="font-size:0.72rem;">
+                                ${t('garden.apiaryWait')} ${waitH}h</button>`;
+                    }
+                    extra = queenInfo + varroaWarn +
+                        `<div style="font-size:0.72rem; margin-top:3px; opacity:0.7;">${stars}</div>`;
+
+                    // Léčba Varroa
+                    if (hive.varroaRisk) {
+                        const hasThyme = (GameState.inventory['thyme'] || 0) >= 1;
+                        btn += `<button class="craft-btn" onclick="Game.treatVarroa(${idx})"
+                                 ${hasThyme ? '' : 'disabled'}
+                                 style="font-size:0.7rem; margin-top:4px; background:rgba(60,120,60,0.8);">
+                                 🌿 Léčit (1× tymián)</button>`;
+                    }
                 }
             }
 
-            html += `<div class="garden-plot">${content}<div style="margin-top:auto;">${btn}</div></div>`;
+            html += `<div class="garden-plot">
+                        ${content}
+                        ${extra}
+                        <div style="margin-top:auto; display:flex; flex-direction:column; gap:4px;">
+                            ${btn}
+                        </div>
+                     </div>`;
         });
 
         html += `</div>`;

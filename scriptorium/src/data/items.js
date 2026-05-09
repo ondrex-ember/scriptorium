@@ -79,6 +79,7 @@ const ItemsDB = {
     "seeds_yellow":    { name:"Semínka heřmánku",    name_en:"Chamomile Seeds",        icon:"🌾", type:"mat",         desc:"Žlutá bylina.",                                    desc_en:"Yellow herb seeds." },
     "seeds_blue":      { name:"Semínka levandule",   name_en:"Lavender Seeds",         icon:"🌾", type:"mat",         desc:"Modrá bylina.",                                    desc_en:"Blue herb seeds." },
     "seeds_mint":      { name:"Semínka máty",        name_en:"Mint Seeds",             icon:"🌾", type:"mat",         desc:"Máta.",                                            desc_en:"Mint seeds." },
+    "seeds_thyme":     { name:"Semínka tymiánu",     name_en:"Thyme Seeds",            icon:"🌾", type:"mat",         desc:"Tymián. Léčí Varroa, koření jídla.",               desc_en:"Thyme. Treats Varroa, seasons food." },
 
     // NOTEBOOKS
     "tabula":      { name:"Tabula (Vosková destička)",       name_en:"Tabula (Wax Tablet)",        icon:"📋", type:"tool", desc:"Dočasné poznámky.",  desc_en:"Temporary notes." },
@@ -144,6 +145,7 @@ const ItemsDB = {
     "egg_tempera":    { name:"Vaječná tempera",  name_en:"Egg Tempera",     icon:"🥚", type:"alchemy_ing", desc:"Žloutek s vínem. Nejstarší pojivo pigmentů.",     desc_en:"Egg yolk with wine. The oldest pigment binder." },
     "chamomile":      { name:"Heřmánek",         name_en:"Chamomile",       icon:"🌼", type:"herb",        desc:"Matka bylinek. Hildegarda ho doporučovala.",      desc_en:"Mother of herbs. Hildegard recommended it." },
     "st_johns_wort":  { name:"Třezalka",         name_en:"St. John's Wort", icon:"🌻", type:"herb",        desc:"Bylina sv. Jana. Léčí rány i melancholii.",       desc_en:"Herb of St. John. Heals wounds and melancholy." },
+    "thyme":          { name:"Tymián",            name_en:"Thyme",           icon:"🌿", type:"herb",        desc:"Odvání Varroa z úlů. Hildegarda jej znala dobře.", desc_en:"Drives Varroa from hives. Hildegard knew it well." },
     "beeswax":        { name:"Včelí vosk",       name_en:"Beeswax",         icon:"🕯️", type:"mat",         desc:"Z klášterního úlu. Pojivo masti i pečetidlo.",   desc_en:"From the monastery hive. Salve binder and sealant." },
 
     // ATHANOR — výsledné produkty

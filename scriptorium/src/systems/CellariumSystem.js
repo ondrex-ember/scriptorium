@@ -665,22 +665,22 @@ const CellariumSystem = {
     const active = GameState.ui.cellariumEntity || 'tavern';
 
     // Tab buttons
-    let h = `<div style="display:flex; gap:8px; margin-bottom:16px;">`;
+    let h = `<div style="display:flex; gap:6px; margin-bottom:16px; flex-wrap:wrap;">`;
     entities.forEach(e => {
       const open   = this.isEntityOpen(e.id);
       const isCur  = e.id === active;
       const name   = lang === 'en' ? e.label_en : e.label;
       const hours  = lang === 'en' ? this.entityHoursLabel_en(e.id) : this.entityHoursLabel(e.id);
+      const openDot = `<span style="color:${open ? '#5a9' : '#c55'}; font-size:0.55rem;">
+        ${open ? '●' : '●'}</span>`;
       h += `
         <button onclick="CellariumSystem.switchEntity('${e.id}')"
                 class="filter-btn${isCur ? ' active' : ''}"
-                style="flex:1; position:relative;">
-          ${e.icon} ${name}
-          <span style="display:block; font-size:0.65rem; opacity:0.7;">${hours}</span>
-          <span style="position:absolute; top:4px; right:6px; font-size:0.6rem;
-                       color:${open ? '#5a9' : '#c55'};">
-            ${open ? '● OPEN' : '● CLOSED'}
-          </span>
+                style="flex:1; min-width:90px; position:relative; padding-bottom:6px;">
+          <div style="display:flex; align-items:center; justify-content:center; gap:4px;">
+            ${e.icon} ${name} ${openDot}
+          </div>
+          <div style="font-size:0.6rem; opacity:0.6; margin-top:2px; white-space:nowrap;">${hours}</div>
         </button>
       `;
     });
