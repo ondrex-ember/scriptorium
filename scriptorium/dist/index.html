@@ -5516,6 +5516,145 @@ const DailyFactsDB = [
         en: "Kutná Hora - the silver city (13th c.) - richer than Prague. 1 year's production = the entire imperial budget."
     }
 ];
+// ═══ src/data/scrinium.js ═══
+﻿// ═══════════════════════════════════════════════════════════════════════════════
+// SCRINIUM ABBATIS — Data
+// Soukromá knihovna opata. Přístup pouze pro zasvěcené.
+// Struktura: ScriniumDB.subtabs + ScriniumDB.folios
+// Každé folio má tři překladové vrstvy: lectio / glossa / arcanum
+// ═══════════════════════════════════════════════════════════════════════════════
+
+const ScriniumDB = {
+
+    // ── Subtaby ────────────────────────────────────────────────────────────────
+    subtabs: {
+        bestiar:     { id: 'bestiar',     icon: '🐉', labelKey: 'scrinium.subtabs.bestiar'     },
+        herbar:      { id: 'herbar',      icon: '🌿', labelKey: 'scrinium.subtabs.herbar'      },
+        kroniky:     { id: 'kroniky',     icon: '📜', labelKey: 'scrinium.subtabs.kroniky'     },
+        tajne_spisy: { id: 'tajne_spisy', icon: '🔐', labelKey: 'scrinium.subtabs.tajne_spisy' },
+        mapy:        { id: 'mapy',        icon: '🗺️', labelKey: 'scrinium.subtabs.mapy'        },
+    },
+
+    // ── Folia ─────────────────────────────────────────────────────────────────
+    // Stav folií se uchovává v GameState.scrinium.folios[id]:
+    //   { found: bool, layer: 0–3 }
+    //   0 = nenalezeno, 1 = Lectio, 2 = Glossa, 3 = Arcanum
+
+    folios: [
+
+        // ══════════════════════════════════════════════════
+        // TAJNÉ SPISY — 4 folia
+        // ══════════════════════════════════════════════════
+
+        // ── 1. Epistola de Rebus Ignotis ──────────────────
+        // Klíčové folio: Arcanum odhalí přístup k Athanoru
+        {
+            id: 'folio_epistola',
+            subtab: 'tajne_spisy',
+            icon: '📜',
+            physicalForm: 'scroll',     // scroll | leaf | codex | map
+            titleKey: 'scrinium.folios.epistola.title',
+            lectio: {
+                textKey: 'scrinium.folios.epistola.lectio',
+                cost: null,             // Lectio = zdarma, jen nalezení
+            },
+            glossa: {
+                textKey: 'scrinium.folios.epistola.glossa',
+                cost: { item: 'candle', amount: 3 },
+            },
+            arcanum: {
+                textKey: 'scrinium.folios.epistola.arcanum',
+                cost: { item: 'paper', amount: 2 },
+                reward: {
+                    type: 'unlock_athanor',
+                    notifyKey: 'scrinium.folios.epistola.reward_notify',
+                },
+            },
+        },
+
+        // ── 2. De Fausto Contractu ────────────────────────
+        // Easter egg: hráč volí podepsat nebo odmítnout smlouvu
+        {
+            id: 'folio_fausto',
+            subtab: 'tajne_spisy',
+            icon: '📃',
+            physicalForm: 'leaf',
+            titleKey: 'scrinium.folios.fausto.title',
+            lectio: {
+                textKey: 'scrinium.folios.fausto.lectio',
+                cost: null,
+            },
+            glossa: {
+                textKey: 'scrinium.folios.fausto.glossa',
+                cost: { item: 'candle', amount: 3 },
+            },
+            arcanum: {
+                textKey: 'scrinium.folios.fausto.arcanum',
+                cost: { item: 'ink', amount: 2 },
+                reward: {
+                    type: 'choice',
+                    choiceKey: 'scrinium.folios.fausto.choice',
+                },
+            },
+        },
+
+        // ── 3. Ars Palimpsesti ────────────────────────────
+        // Odměna: nový recept — recyklace použitého pergamenu
+        {
+            id: 'folio_palimpsest',
+            subtab: 'tajne_spisy',
+            icon: '📋',
+            physicalForm: 'leaf',
+            titleKey: 'scrinium.folios.palimpsest.title',
+            lectio: {
+                textKey: 'scrinium.folios.palimpsest.lectio',
+                cost: null,
+            },
+            glossa: {
+                textKey: 'scrinium.folios.palimpsest.glossa',
+                cost: { item: 'candle', amount: 3 },
+            },
+            arcanum: {
+                textKey: 'scrinium.folios.palimpsest.arcanum',
+                cost: { item: 'candle', amount: 5 },
+                reward: {
+                    type: 'recipe_unlock',
+                    recipeId: 'recipe_palimpsest_recycle',
+                    notifyKey: 'scrinium.folios.palimpsest.reward_notify',
+                },
+            },
+        },
+
+        // ── 4. De Titivillo Daemone ───────────────────────
+        // Odměna: trvale viditelný Vigor warning indikátor v UI
+        {
+            id: 'folio_titivillus',
+            subtab: 'tajne_spisy',
+            icon: '📖',
+            physicalForm: 'codex',
+            titleKey: 'scrinium.folios.titivillus.title',
+            lectio: {
+                textKey: 'scrinium.folios.titivillus.lectio',
+                cost: null,
+            },
+            glossa: {
+                textKey: 'scrinium.folios.titivillus.glossa',
+                cost: { item: 'candle', amount: 3 },
+            },
+            arcanum: {
+                textKey: 'scrinium.folios.titivillus.arcanum',
+                cost: { item: 'candle', amount: 5 },
+                reward: {
+                    type: 'ui_flag',
+                    flag: 'titivillus_awareness',
+                    notifyKey: 'scrinium.folios.titivillus.reward_notify',
+                },
+            },
+        },
+
+    ], // konec folios[]
+
+}; // konec ScriniumDB
 // ═══ src/systems/theme.js ═══
 const ThemeSystem = {
     themes: {
@@ -17853,6 +17992,150 @@ farmyard: {
         lambGrowing: 'Jehně dorůstá',
         lambPool: 'Jehňata k porážce',
     },
+
+// ── SCRINIUM ABBATIS ─────────────────────────────────────────────────────
+    scrinium: {
+        title: 'Scrinium Abbatis',
+        subtitle: 'Soukromá knihovna opata',
+        locked_title: 'Vstup zapovězen',
+        locked_text: '"Nondum tempus tuum venit, frater." — Tvůj čas dosud nepřišel, bratře.',
+        locked_hint: 'Získej přízeň opata, aby ti otevřel tuto místnost.',
+
+        subtabs: {
+            bestiar:     '🐉 Bestiář',
+            herbar:      '🌿 Herbář',
+            kroniky:     '📜 Kroniky',
+            tajne_spisy: '🔐 Tajné spisy',
+            mapy:        '🗺️ Mapy',
+        },
+
+        folio: {
+            not_found:       'Folio dosud nenalezeno.',
+            found:           'Folio nalezeno',
+            physical_scroll: '📜 Svitek',
+            physical_leaf:   '📃 Volný list',
+            physical_codex:  '📖 Kodex',
+            physical_map:    '🗺️ Mapa',
+            btn_lectio:      'Lectio (přečíst)',
+            btn_glossa:      'Glossa (přeložit)',
+            btn_arcanum:     'Arcanum (rozluštit)',
+            btn_done:        '✓ Přečteno',
+            layer_lectio:    'Lectio',
+            layer_glossa:    'Glossa',
+            layer_arcanum:   'Arcanum',
+            cost_label:      'Vyžaduje:',
+            err_no_item:     'Nemáš potřebné suroviny.',
+        },
+
+        folios: {
+
+            epistola: {
+                title: 'Epistola de Rebus Ignotis',
+                lectio: `*Svitek je ohořelý na okrajích. Část textu chybí. Latinský záhlaví je sotva čitelný.*
+
+"Est locus post murum, ubi ignis non dormit. Ibi calor perpetuus servat formas rerum, quae oculis communibus non patent..."
+
+— Zlomek dopisu neznámého adresáta. Rok neznámý.`,
+
+                glossa: `*Po pečlivém studiu při svíčce začínají slova dávat smysl.*
+
+„Jest místo za zdí, kde oheň nespí. Tam věčné teplo uchovává tvary věcí, jež jsou očím prostých lidí skryty."
+
+Pisatel mluví o místnosti nebo komoře se stálým ohněm — snad peci. Zmiňuje tři fáze přeměny hmoty. Slova jsou záměrně zahalena. Kdo psal tento dopis — a komu?`,
+
+                arcanum: `*Poslední řádky svitku, skryté za přeložením ohořelého okraje:*
+
+"Qui scit verbum, intrat. Verbum est: exordium."
+
+— Kdo zná slovo, vejde. Slovo jest: exordium.
+
+*V pravém dolním rohu svitku je nákres — kruh s trojúhelníkem uvnitř. Symbol athanoru.*`,
+
+                reward_notify: '🔥 Athanor odemčen! Pec za zdí je tvá.',
+            },
+
+            fausto: {
+                title: 'De Fausto Contractu',
+                lectio: `*Volný list, mastné skvrny od lojem svíček. Podpis na konci je škrtnutý.*
+
+„Slyšte, vy kteří čtete: jest muž, jenž uzavřel smlouvu přesahující rozum. Za rychlé dokončení díla — za jedinú noc — zaprodal to nejcennější."
+
+— Fragment bez titulu, bez autora.`,
+
+                glossa: `*Po srovnání s jinými dokumenty se vyjasní jméno i místo.*
+
+Johann Fust, Mohuč, léta Páně 1455. Tiskárna Gutenbergova přešla do jiných rukou — ne soudní cestou, jak říkají kroniky, ale jinak. Schöffer svědčil proti mistrovi. Gutenberg přišel o vše.
+
+Lid šeptal: nikdo netiskne tak rychle bez pomoci temných sil. „Fust" — „Faust". Zvuk jmen splýval. Legenda se rodila.`,
+
+                arcanum: `*Na rubu listu, psáno jinou rukou, malým písmem:*
+
+„Nabízím totéž. Podpiš a dílo bude dokončeno. Suroviny se množí, výzkum pokračuje.
+Nebo odmítni — a zůstaň tím, čím jsi: poctivým řemeslníkem bez zkratky."
+
+— Podpis chybí. Zbývá jen místo pro tvůj.`,
+
+                choice_prompt:  'Co učiníš?',
+                choice_sign:    '✍️ Podepsat smlouvu',
+                choice_refuse:  '🙏 Odmítnout',
+                signed_notify:  '😈 Smlouva podepsána. Dočasný bonus — ale za cenu.',
+                refused_notify: '✝️ Odmítl jsi. Poctivá práce trvá déle — ale duše zůstává tvá.',
+                achievement:    'Odolal jsem',
+            },
+
+            palimpsest: {
+                title: 'Ars Palimpsesti',
+                lectio: `*Volný list, pod textem viditelné stopy starší vrstvy — jako stín minulého písma.*
+
+„De arte radendi et rescribendi. O umění škrabání a přepisování."
+
+Technický popis v latině. Zmiňuje pemzu, nůž, mokrý hadr. Postup v pěti krocích.`,
+
+                glossa: `*Po přečtení celého listu se ukáže spodní vrstva textu — čitelná ve šikmém světle svíčky.*
+
+Pod recepturou pro škrábání pergamenu je starší text: fragment básně.
+
+„Omnia mutantur, nihil interit." — Vše se mění, nic nezaniká.
+
+Pergamen byl kdysi něčí kronikou. Pak se stal receptářem. Co bude příště?`,
+
+                arcanum: `*Na spodním okraji, skryto v přeložení:*
+
+„Pemza a voda. Oškrábej. Nech uschnout. Piš znovu. Nic se neztrácí — jen mění tvář."
+
+Tento postup lze použít v dílně. Použitý pergamen není odpad — je to nová příležitost.
+
+*Odemčen recept: Recyklace pergamenu*`,
+
+                reward_notify: '📋 Nový recept odemčen: Recyklace pergamenu.',
+            },
+
+            titivillus: {
+                title: 'De Titivillo Daemone',
+                lectio: `*Kodex opatřený četnými margináliemi — malé ručičky ☞ ukazují na klíčová místa.*
+
+„De daemone qui in scriptoriis habitat. O démonu, jenž přebývá ve skriptoriích."
+
+V každém skriptoriu číhá Titivillus. Jeho úkol není svádět ke hříchu — to dělají jiní. Titivillus sbírá chyby.`,
+
+                glossa: `*Marginálie jsou hustší než text. Jedna z nich říká:*
+
+„Viděl jsem ho. Malý, šedý, tichý. Prochází mezi pulpity. Má pytel z kozí kůže. Sbírá vynechaná písmena, přehozené slabiky, zkomolená slova. Každý den odnáší pytel k ďáblu."
+
+„Po smrti bude mnich souzen. Titivillus vysype pytel na váhy. Každá chyba zaváží."`,
+
+                arcanum: `*Poslední strana kodexu — psána jiným inkoustem, jako by doplněna mnohem později:*
+
+„Titivillus nespí. Bdí obzvláště, když je tma a písař unavený. Světlo svíčky ho odrazuje — ale jen pravé světlo."
+
+*Od této chvíle vidíš v pracovně jemné varování, když Vigor klesá příliš nízko.*`,
+
+                reward_notify: '👁️ Titivillovo varování: nyní vidíš, kdy hrozí chyby v rukopisech.',
+            },
+
+        }, // konec folios
+
+    }, // konec scrinium
 };
 // ═══ src/i18n/en.js ═══
 // Scriptorium i18n — English (Olde)
@@ -19324,6 +19607,149 @@ farmyard: {
         lambGrowing: 'Lamb is growing',
         lambPool: 'Lambs ready to slaughter',
     },
+// ── SCRINIUM ABBATIS ─────────────────────────────────────────────────────
+    scrinium: {
+        title: 'Scrinium Abbatis',
+        subtitle: "The Abbot's Private Library",
+        locked_title: 'Entry Forbidden',
+        locked_text: '"Nondum tempus tuum venit, frater." — Thy time hath not yet come, brother.',
+        locked_hint: 'Earn the favour of the Abbot, that he may open this chamber unto thee.',
+
+        subtabs: {
+            bestiar:     '🐉 Bestiary',
+            herbar:      '🌿 Herbarium',
+            kroniky:     '📜 Chronicles',
+            tajne_spisy: '🔐 Secret Writings',
+            mapy:        '🗺️ Maps',
+        },
+
+        folio: {
+            not_found:       'This folio hath not yet been found.',
+            found:           'Folio found',
+            physical_scroll: '📜 Scroll',
+            physical_leaf:   '📃 Loose Leaf',
+            physical_codex:  '📖 Codex',
+            physical_map:    '🗺️ Map',
+            btn_lectio:      'Lectio (read)',
+            btn_glossa:      'Glossa (translate)',
+            btn_arcanum:     'Arcanum (decipher)',
+            btn_done:        '✓ Read',
+            layer_lectio:    'Lectio',
+            layer_glossa:    'Glossa',
+            layer_arcanum:   'Arcanum',
+            cost_label:      'Requireth:',
+            err_no_item:     'Thou lackest the necessary materials.',
+        },
+
+        folios: {
+
+            epistola: {
+                title: 'Epistola de Rebus Ignotis',
+                lectio: `*The scroll is scorched at its edges. Part of the text is missing. The Latin heading is barely legible.*
+
+"Est locus post murum, ubi ignis non dormit. Ibi calor perpetuus servat formas rerum, quae oculis communibus non patent..."
+
+— A fragment of a letter to an unknown addressee. Year unknown.`,
+
+                glossa: `*By careful study in candlelight the words begin to yield their meaning.*
+
+"There is a place behind the wall, where fire sleepeth not. There eternal heat preserveth the forms of things hidden from common eyes."
+
+The writer speaks of a room or chamber with a constant fire — perhaps a furnace. He mentions three phases of the transformation of matter. The words are deliberately veiled. Who wrote this letter — and to whom?`,
+
+                arcanum: `*The final lines of the scroll, concealed behind a scorched fold:*
+
+"Qui scit verbum, intrat. Verbum est: exordium."
+
+— He who knoweth the word, entereth. The word is: exordium.
+
+*In the lower right corner of the scroll is a drawing — a circle with a triangle within. The symbol of the athanor.*`,
+
+                reward_notify: '🔥 The Athanor is unlocked! The furnace behind the wall is thine.',
+            },
+
+            fausto: {
+                title: 'De Fausto Contractu',
+                lectio: `*A loose leaf, greasy with tallow-candle stains. The signature at the end is struck through.*
+
+"Hear ye who read: there was a man who made a compact beyond all reason. For the swift completion of his great work — in a single night — he sold that which was most precious."
+
+— A fragment. No title, no author.`,
+
+                glossa: `*By comparing with other documents, a name and place become clear.*
+
+Johann Fust, Mainz, anno Domini 1455. Gutenberg's press passed into other hands — not by law, as the chronicles say, but otherwise. Schöffer testified against his master. Gutenberg lost everything.
+
+The people whispered: no man prints so swiftly without aid from dark powers. "Fust" — "Faust". The names blurred together. The legend was born.`,
+
+                arcanum: `*On the reverse of the leaf, written in another hand, in small script:*
+
+"I offer the same. Sign, and thy work shall be completed. Materials shall multiply, knowledge shall advance.
+Or refuse — and remain what thou art: an honest craftsman without shortcut."
+
+— The signature is absent. Only the place for thine remaineth.`,
+
+                choice_prompt:  'What wilt thou do?',
+                choice_sign:    '✍️ Sign the compact',
+                choice_refuse:  '🙏 Refuse',
+                signed_notify:  '😈 The compact is signed. A fleeting boon — but at a price.',
+                refused_notify: '✝️ Thou hast refused. Honest labour taketh longer — but thy soul remaineth thine own.',
+                achievement:    'I Resisted',
+            },
+
+            palimpsest: {
+                title: 'Ars Palimpsesti',
+                lectio: `*A loose leaf, beneath the text the traces of an older layer are visible — like the shadow of a former hand.*
+
+"De arte radendi et rescribendi. On the art of scraping and rewriting."
+
+A technical description in Latin. It mentions pumice, a knife, a wet cloth. The process in five steps.`,
+
+                glossa: `*After reading the whole leaf, an older text appears beneath — legible in the oblique light of a candle.*
+
+Beneath the recipe for scraping parchment lies an older text: a fragment of verse.
+
+"Omnia mutantur, nihil interit." — All things change, nothing perisheth.
+
+The parchment was once someone's chronicle. Then it became a recipe. What shall it become next?`,
+
+                arcanum: `*At the lower margin, concealed in a fold:*
+
+"Pumice and water. Scrape. Let it dry. Write again. Nothing is lost — it only changeth its face."
+
+This method may be employed in the workshop. Spent parchment is not waste — it is a new beginning.
+
+*Recipe unlocked: Parchment Recycling*`,
+
+                reward_notify: '📋 New recipe unlocked: Parchment Recycling.',
+            },
+
+            titivillus: {
+                title: 'De Titivillo Daemone',
+                lectio: `*A codex furnished with numerous marginalia — small pointing hands ☞ mark the key passages.*
+
+"De daemone qui in scriptoriis habitat. Of the demon who dwelleth in scriptoria."
+
+In every scriptorium lurks Titivillus. His task is not to tempt to sin — others do that. Titivillus collecteth errors.`,
+
+                glossa: `*The marginalia are denser than the text itself. One of them readeth:*
+
+"I have seen him. Small, grey, silent. He passeth among the desks. He hath a sack of goatskin. He collecteth omitted letters, transposed syllables, mangled words. Each day he carrieth the sack to the devil."
+
+"After death the monk shall be judged. Titivillus shall empty the sack upon the scales. Each error shall weigh."`,
+
+                arcanum: `*The final page of the codex — written in different ink, as though added much later:*
+
+"Titivillus sleepeth not. He watcheth most keenly when the darkness falleth and the scribe is weary. The light of a candle repelleth him — but only true light."
+
+*From this hour thou shalt see a gentle warning in thy workshop when Vigour sinketh too low.*`,
+
+                reward_notify: "👁️ Titivillus's warning: thou shalt now see when errors threaten thy manuscripts.",
+            },
+
+        }, // end folios
+
+    }, // end scrinium
 };
 // ═══ src/i18n/strings.js ═══
 // Scriptorium i18n — STRINGS assembler + t() helper
