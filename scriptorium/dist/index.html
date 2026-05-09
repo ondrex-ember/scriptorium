@@ -10800,7 +10800,7 @@ const SecretsSystem = {
     if (reward.type === 'unlock_athanor') {
       GameState.secrets.laboratoryUnlocked = true;
       Game.save();
-      UI.notify(t(reward.notifyKey));
+      this.showAthanorModal();
     } else if (reward.type === 'ui_flag') {
       if (!GameState.flags) GameState.flags = {};
       GameState.flags[reward.flag] = true;
@@ -10817,6 +10817,105 @@ const SecretsSystem = {
       // Faustova smlouva — modální volba
       this.showFaustChoice(folio);
     }
+  },
+
+  // ── Athanor discovery modal ───────────────────────────────────────────────
+  showAthanorModal: function() {
+    const existing = document.getElementById('athanor-discovery-modal');
+    if (existing) existing.remove();
+
+    const modal = document.createElement('div');
+    modal.id = 'athanor-discovery-modal';
+    modal.style.cssText = `
+      position:fixed; inset:0; background:rgba(0,0,0,0.75);
+      display:flex; align-items:center; justify-content:center;
+      z-index:9999; font-family:'Crimson Text', serif;`;
+
+    modal.innerHTML = `
+      <div style="
+        background:var(--bg-card, #f5f0e8);
+        border-radius:10px;
+        padding:40px 36px 32px;
+        max-width:420px;
+        width:90%;
+        text-align:center;
+        box-shadow:0 8px 40px rgba(0,0,0,0.5);
+        border:1px solid rgba(138,51,36,0.2);">
+
+        <!-- SVG: Alchymistická křivule (alembic) -->
+        <svg viewBox="0 0 120 160" width="100" height="133"
+             xmlns="http://www.w3.org/2000/svg" style="margin-bottom:20px; opacity:0.85;">
+          <!-- Tělo baňky -->
+          <ellipse cx="60" cy="110" rx="42" ry="38"
+            fill="rgba(138,51,36,0.08)" stroke="#8a3324" stroke-width="2"/>
+          <!-- Hrdlo -->
+          <rect x="50" y="68" width="20" height="28"
+            fill="rgba(138,51,36,0.06)" stroke="#8a3324" stroke-width="2" rx="2"/>
+          <!-- Hubice (nos) -->
+          <path d="M70 75 Q95 65 105 50"
+            fill="none" stroke="#8a3324" stroke-width="2.5" stroke-linecap="round"/>
+          <!-- Kapka na konci hubice -->
+          <circle cx="106" cy="49" r="3.5" fill="#8a3324" opacity="0.7"/>
+          <!-- Víčko / zátkový uzávěr -->
+          <ellipse cx="60" cy="67" rx="13" ry="5"
+            fill="rgba(138,51,36,0.2)" stroke="#8a3324" stroke-width="1.5"/>
+          <!-- Páry / bubliny uvnitř baňky -->
+          <circle cx="48" cy="105" r="4" fill="none" stroke="#8a3324"
+            stroke-width="1" opacity="0.4"/>
+          <circle cx="65" cy="118" r="6" fill="none" stroke="#8a3324"
+            stroke-width="1" opacity="0.3"/>
+          <circle cx="75" cy="100" r="3" fill="none" stroke="#8a3324"
+            stroke-width="1" opacity="0.35"/>
+          <!-- Plamen pod baňkou -->
+          <path d="M42 150 Q50 130 60 148 Q70 130 78 150"
+            fill="rgba(200,80,0,0.25)" stroke="rgba(200,80,0,0.6)"
+            stroke-width="1.5" stroke-linejoin="round"/>
+          <path d="M50 150 Q56 138 60 150 Q64 138 70 150"
+            fill="rgba(240,120,0,0.35)" stroke="none"/>
+        </svg>
+
+        <!-- Nadpis -->
+        <div style="
+          font-size:0.7rem; letter-spacing:0.15em; text-transform:uppercase;
+          opacity:0.45; margin-bottom:8px;">
+          Athanor Secretus
+        </div>
+        <h2 style="font-size:1.5rem; margin-bottom:16px; color:var(--ink-primary,#2c1810);">
+          🔥 Ignis perpetuus ardet
+        </h2>
+
+        <!-- Hint -->
+        <p style="
+          font-style:italic; line-height:1.7; opacity:0.8;
+          margin-bottom:8px; font-size:1.05rem;">
+          „Věčný oheň hoří."
+        </p>
+        <p style="
+          line-height:1.6; font-size:0.95rem; opacity:0.7;
+          margin-bottom:28px;">
+          V Pracovně jsou zamčené dveře,<br>
+          které jsi dosud nemohl otevřít.<br>
+          <strong>Nyní znáš slovo. Nyní vejdeš.</strong>
+        </p>
+
+        <!-- Tlačítko -->
+        <button onclick="document.getElementById('athanor-discovery-modal').remove()"
+          style="
+            background:var(--accent-warm,#8a3324); color:#fff;
+            border:none; border-radius:5px;
+            padding:10px 28px; cursor:pointer;
+            font-family:'Crimson Text'; font-size:1.05rem;
+            letter-spacing:0.03em;">
+          Deo gratias
+        </button>
+      </div>`;
+
+    document.body.appendChild(modal);
+
+    // Zavřít kliknutím na pozadí
+    modal.addEventListener('click', function(e) {
+      if (e.target === modal) modal.remove();
+    });
   },
 
   // ── Faustova volba (modal) ────────────────────────────────────────────────
