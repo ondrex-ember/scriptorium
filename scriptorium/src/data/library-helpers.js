@@ -273,7 +273,13 @@ const LibraryHelpers = {
         
         // Check Easter egg achievements
         LibraryHelpers.checkEasterEggs();
-        
+
+        // Scrinium: zkus odemknout Scrinium + označ folio jako nalezené
+        if (typeof SecretsSystem !== 'undefined') {
+            SecretsSystem.checkForbiddenUnlock();
+            SecretsSystem.checkFolioDiscovery(bookId);
+        }
+
         // Refresh library UI to update button text
         if (typeof UI.renderLibrary === 'function') {
             UI.renderLibrary();
