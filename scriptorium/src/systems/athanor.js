@@ -249,34 +249,17 @@ const AthanorDB = {
       lore: 'Třísloviny z dubové kůry. Slouží k vydělávání kůže i jako základ taninu pro fixaci barviv.',
       dropNote: 'Sbírej při průzkumu v lese.'
     },
-
-    // ── CERVISIARIA (Pivovar) ──────────────────────────────────
-    {
-      id: 'grain',
-      name: 'Obilí',            name_lat: 'Granum',
-      rarity: 'common',         source: 'existing',
-      color: '#d4a820',         icon: '🌾',
-      thermal: 1,               moisture: 2,
-      lore: 'Základ chleba i piva. Kláštery pěstovaly obilí od nepaměti — ora et labora znamenalo i sklizeň.'
-    },
-    {
-      id: 'hops',
-      name: 'Chmel',            name_lat: 'Humulus',
-      rarity: 'uncommon',       source: 'existing',
-      color: '#7aad4a',         icon: '🌿',
-      thermal: -1,              moisture: 1,
-      lore: 'Hildegarda z Bingenu jako první popsala chmel jako konzervantu piva. Hořkost, vůně, zdraví.',
-      dropNote: 'Sbírej při průzkumu nebo nakup na Trhu.'
-    },
-    {
-      id: 'thyme',
-      name: 'Tymián',           name_lat: 'Thymus',
-      rarity: 'common',         source: 'existing',
-      color: '#8ab87a',         icon: '🌿',
-      thermal: 1,               moisture: 0,
-      lore: 'Odvání Varroa z úlů. Hildegarda ho znala jako bylinu síly a odvahy. Koření i lék.',
-      dropNote: 'Sbírej při průzkumu nebo pěstuj v zahradě.'
-    }
+    { id: 'grain', name: 'Obilí', name_lat: 'Granum', rarity: 'common', source: 'existing',
+      color: '#d4a820', icon: '🌾', thermal: 1, moisture: 2,
+      lore: 'Základ chleba i piva. Kláštery pěstovaly obilí od nepaměti.' },
+    { id: 'hops', name: 'Chmel', name_lat: 'Humulus', rarity: 'uncommon', source: 'existing',
+      color: '#7aad4a', icon: '🌿', thermal: -1, moisture: 1,
+      lore: 'Hildegarda jako první popsala chmel jako konzervantu piva. Hořkost, vůně, zdraví.',
+      dropNote: 'Sbírej při průzkumu nebo nakup na Trhu.' },
+    { id: 'thyme', name: 'Tymián', name_lat: 'Thymus', rarity: 'common', source: 'existing',
+      color: '#8ab87a', icon: '🌿', thermal: 1, moisture: 0,
+      lore: 'Odvání Varroa z úlů. Hildegarda ho znala jako bylinu síly a odvahy.',
+      dropNote: 'Sbírej při průzkumu nebo pěstuj v zahradě.' }
   ],
 
   // ----------------------------------------------------------
@@ -624,71 +607,41 @@ const AthanorDB = {
       lore: 'Saze žíhané se sírou dají absolutní černou. Praxis alchymistů ze 14. století. Nelze spráci jinak.'
     },
 
-    // ══════════════════════════════════════════════════════════
-    // CERVISIARIA — Pivovarské kombinace
-    // Řetězec: grain+water → wort → prima_cervisia / cervisia_nigra
-    // ══════════════════════════════════════════════════════════
-
-    // Krok 1: Základní mladina — nejdůležitější discovery
+    // ══ CERVISIARIA ══
     'grain+water:coctio': {
-      name: 'Mladina',
-      name_lat: 'Mustum Cerevisiae',
-      icon: '🫗',
       result: { id: 'wort', qty: 1 },
-      lore: 'Obilí povařené s vodou vydá zlatavou tekutinu. Základ každého piva. Mniši tomu říkali první dar obilí.',
-      effect: null
+      name: 'Mladina', name_lat: 'Mustum Cerevisiae', icon: '🫗', effect: null,
+      lore: 'Obilí povařené s vodou vydá zlatavou tekutinu. Základ každého piva.'
     },
-
-    // Krok 2a: Prima Cervisia — světlé klášterní pivo
     'hops+wort:maceratio': {
-      name: 'Prima Cervisia',
-      name_lat: 'Cervisia Prima',
-      icon: '🍺',
       result: { id: 'prima_cervisia', qty: 2 },
-      lore: 'Mladina vyluhovaná s chmelem. Hořká, zlatavá, živá. Benediktini ji vařili pro poutníky i pro sebe.',
-      effect: { type: 'vigor', amount: 15, duration_min: 30, label: 'Prima Cervisia: Vigor +15 na 30 min' }
+      name: 'Prima Cervisia', name_lat: 'Cervisia Prima', icon: '🍺',
+      effect: { type: 'vigor', amount: 15, duration_min: 30, label: 'Prima Cervisia: Vigor +15 / 30 min' },
+      lore: 'Mladina vyluhovaná s chmelem. Benediktini ji vařili pro poutníky i pro sebe.'
     },
-
-    // Krok 2b: Medovina — alternativní cesta přes med
     'honey+wort:maceratio': {
-      name: 'Hydromel',
-      name_lat: 'Hydromel Monasticum',
-      icon: '🍯',
       result: { id: 'wine', qty: 1 },
-      lore: 'Med fermentovaný v mladině. Starší než víno, starší než pivo. Nápoj bohů i mnichů na Velikonoce.',
-      effect: { type: 'vigor', amount: 20, duration_min: 20, label: 'Hydromel: Vigor +20 na 20 min' }
+      name: 'Hydromel', name_lat: 'Hydromel Monasticum', icon: '🍯',
+      effect: { type: 'vigor', amount: 20, duration_min: 20, label: 'Hydromel: Vigor +20 / 20 min' },
+      lore: 'Med fermentovaný v mladině. Starší než víno. Nápoj bohů i mnichů.'
     },
-
-    // Krok 3: Cervisia Nigra — tmavé pivo s tymiánem
     'hops+thyme+wort:coctio': {
-      name: 'Cervisia Nigra',
-      name_lat: 'Cervisia Nigra',
-      icon: '🍺',
       result: { id: 'cervisia_nigra', qty: 2 },
-      lore: 'Tmavé pivo s tymiánem. Hildegarda by schválila — tymián dává sílu a odhání nemoci. Prodává se za zlaté.',
-      effect: { type: 'vigor', amount: 25, duration_min: 45, label: 'Cervisia Nigra: Vigor +25 na 45 min' }
+      name: 'Cervisia Nigra', name_lat: 'Cervisia Nigra', icon: '🍺',
+      effect: { type: 'vigor', amount: 25, duration_min: 45, label: 'Cervisia Nigra: Vigor +25 / 45 min' },
+      lore: 'Tmavé pivo s tymiánem. Hildegarda by schválila. Prodává se za zlaté.'
     },
-
-    // Bonus: Tymián + med → léčivý lektvar Mel Thymicum
     'honey+thyme:coctio': {
-      name: 'Mel Thymicum',
-      name_lat: 'Mel Thymicum',
-      icon: '🌿',
       result: { id: 'potion_vigor_minor', qty: 1 },
-      lore: 'Med s tymiánem vařený nad Athanorem. Hildegarda tuto tinkturu doporučovala na zimnici i smutek duše.',
-      effect: { type: 'vigor', amount: 20, duration_min: 60, label: 'Mel Thymicum: Vigor +20' }
+      name: 'Mel Thymicum', name_lat: 'Mel Thymicum', icon: '🌿',
+      effect: { type: 'vigor', amount: 20, duration_min: 60, label: 'Mel Thymicum: Vigor +20' },
+      lore: 'Med s tymiánem vařený nad Athanorem. Hildegarda doporučovala na zimnici i smutek duše.'
     },
-
-    // Bonus: Obilí + med → Posca Dulcis (sladový nápoj)
     'grain+honey:coctio': {
-      name: 'Posca Dulcis',
-      name_lat: 'Posca Dulcis',
-      icon: '🥛',
       result: { id: 'stamina_tonic', qty: 1 },
-      lore: 'Obilný vývar oslazen medem. Posca — nápoj římských legionářů — zde dostává klášterní podobu.',
-      effect: null
+      name: 'Posca Dulcis', name_lat: 'Posca Dulcis', icon: '🥛', effect: null,
+      lore: 'Obilný vývar oslazen medem. Posca — nápoj římských legionářů v klášterní podobě.'
     }
-
   },
 
   // ----------------------------------------------------------
@@ -1122,78 +1075,196 @@ const AthanorSystem = {
   },
 
   // ── RENDER ────────────────────────────────────────────────
+  // ── LUNAR + CANONICAL HELPERS ────────────────────────────
+  getLunarPhase() {
+    const now = new Date();
+    const jd = 367*now.getFullYear()
+      - Math.floor(7*(now.getFullYear()+Math.floor((now.getMonth()+10)/12))/4)
+      + Math.floor(275*(now.getMonth()+1)/9)
+      + now.getDate() + 1721013.5;
+    const p = ((jd - 2451550.1) / 29.53058867) % 1;
+    const phase = p < 0 ? p + 1 : p;
+    if (phase < 0.03 || phase > 0.97) return { name:'Nov', icon:'🌑', bonus:'nigredo', label:'Nov — Nigredo +20%' };
+    if (phase < 0.47) return { name:'Dorůstá', icon:'🌔', bonus:null, label:'Dorůstající měsíc' };
+    if (phase < 0.53) return { name:'Úplněk', icon:'🌕', bonus:'rubedo', label:'Úplněk — Rubedo +20%' };
+    return { name:'Ubývá', icon:'🌖', bonus:null, label:'Ubývající měsíc' };
+  },
+
+  getCanonicalHour() {
+    const h = new Date().getHours();
+    if (h >= 3  && h < 6)  return { name:'Laudes',       icon:'🌅', bonus:'quality', label:'Laudes — +10% kvalita' };
+    if (h >= 6  && h < 9)  return { name:'Prima',        icon:'🌄', bonus:null,      label:'Prima' };
+    if (h >= 9  && h < 12) return { name:'Tertia',       icon:'☀️', bonus:null,      label:'Tertia' };
+    if (h >= 12 && h < 15) return { name:'Sexta',        icon:'🌞', bonus:null,      label:'Sexta' };
+    if (h >= 15 && h < 18) return { name:'Nona',         icon:'🌤️', bonus:null,      label:'Nona' };
+    if (h >= 18 && h < 21) return { name:'Vesper',       icon:'🌆', bonus:null,      label:'Vesper' };
+    if (h >= 21 && h < 24) return { name:'Completorium', icon:'🌙', bonus:null,      label:'Completorium' };
+    return { name:'Vigilia', icon:'⭐', bonus:null, label:'Vigilia noctis' };
+  },
+
+  buildStatsBar(lunar, canonical, state) {
+    const ingMap = {};
+    AthanorDB.ingredients.forEach(i => { ingMap[i.id] = i; });
+    let thermal = 0, moisture = 0;
+    (state.slots || []).forEach(id => {
+      const ing = ingMap[id];
+      if (ing) { thermal += ing.thermal; moisture += ing.moisture; }
+    });
+    const proc = AthanorDB.processes.find(p => p.id === state.activeProcess);
+    if (proc) { thermal += proc.thermal_mod; moisture += proc.moisture_mod; }
+    const tc = thermal > 2 ? '#e8501a' : thermal < -2 ? '#3a9ad9' : '#c9a96e';
+    const mc = moisture > 2 ? '#3a9ad9' : moisture < -2 ? '#c8961e' : '#c9a96e';
+    const bonusText = lunar.bonus === 'nigredo' ? 'Nov: Nigredo +20%'
+                    : lunar.bonus === 'rubedo' ? 'Úplněk: Rubedo +20%'
+                    : canonical.bonus === 'quality' ? 'Laudes: +10% kvalita' : '';
+    return `<div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center;
+      padding:7px 12px;margin-bottom:14px;
+      background:rgba(0,0,0,0.12);border-radius:8px;
+      border:1px solid rgba(200,160,60,0.15);
+      font-family:'Cinzel',serif;font-size:0.72rem;color:#c9a96e;">
+      <span title="${lunar.label}">${lunar.icon} ${lunar.name}</span>
+      <span style="opacity:0.3;">·</span>
+      <span title="${canonical.label}">${canonical.icon} ${canonical.name}</span>
+      <span style="opacity:0.3;">·</span>
+      <span style="color:${tc};" title="Teplo">🌡️ ${thermal>0?'+':''}${thermal}</span>
+      <span style="opacity:0.3;">·</span>
+      <span style="color:${mc};" title="Vlhkost">💧 ${moisture>0?'+':''}${moisture}</span>
+      ${bonusText ? `<span style="opacity:0.3;">·</span><span style="font-size:0.65rem;">✨ ${bonusText}</span>` : ''}
+    </div>`;
+  },
+
+  buildAlembicSvg(state) {
+    const isBrewing = !!state.brewing;
+    const now = Date.now();
+    let pct = 0, si = 0;
+    if (isBrewing) {
+      const b = state.brewing;
+      pct = Math.min(100, Math.floor(((now - b.startedAt) / b.duration) * 100));
+      si = pct < 33 ? 0 : pct < 66 ? 1 : 2;
+    }
+    const liqColors = ['#1a0f05','#d4cfc8','#8b1a1a'];
+    const glowColors = ['rgba(80,40,10,0.5)','rgba(220,210,190,0.4)','rgba(180,40,40,0.6)'];
+    const liq = isBrewing ? liqColors[si] : '#2a1a0a';
+    const glow = isBrewing ? glowColors[si] : 'transparent';
+    const bubbles = isBrewing ? `
+      <circle cx="54" cy="88" r="3" fill="rgba(255,255,255,0.15)">
+        <animate attributeName="cy" values="88;58;88" dur="2.1s" repeatCount="indefinite"/>
+        <animate attributeName="opacity" values="0.6;0;0.6" dur="2.1s" repeatCount="indefinite"/>
+      </circle>
+      <circle cx="63" cy="95" r="2" fill="rgba(255,255,255,0.1)">
+        <animate attributeName="cy" values="95;65;95" dur="1.7s" repeatCount="indefinite"/>
+        <animate attributeName="opacity" values="0.5;0;0.5" dur="1.7s" repeatCount="indefinite"/>
+      </circle>
+      <circle cx="47" cy="92" r="2.5" fill="rgba(255,255,255,0.12)">
+        <animate attributeName="cy" values="92;68;92" dur="2.5s" repeatCount="indefinite"/>
+        <animate attributeName="opacity" values="0.4;0;0.4" dur="2.5s" repeatCount="indefinite"/>
+      </circle>` : '';
+    const flame = isBrewing ? `
+      <path d="M42,148 Q50,132 58,148 Q66,132 74,148" fill="rgba(200,80,0,0.5)" stroke="none">
+        <animate attributeName="d" values="M42,148 Q50,132 58,148 Q66,132 74,148;M42,148 Q48,128 58,146 Q68,130 74,148;M42,148 Q50,132 58,148 Q66,132 74,148" dur="0.7s" repeatCount="indefinite"/>
+      </path>
+      <path d="M46,148 Q54,136 58,148 Q62,136 70,148" fill="rgba(240,140,0,0.5)" stroke="none">
+        <animate attributeName="d" values="M46,148 Q54,136 58,148 Q62,136 70,148;M46,148 Q52,132 58,146 Q64,134 70,148;M46,148 Q54,136 58,148 Q62,136 70,148" dur="0.5s" repeatCount="indefinite"/>
+      </path>` : '';
+    return `<svg viewBox="0 0 120 155" width="120" height="155" xmlns="http://www.w3.org/2000/svg"
+      style="filter:drop-shadow(0 0 14px ${glow});display:block;margin:0 auto;">
+      <ellipse cx="58" cy="100" rx="44" ry="38" fill="${liq}" stroke="#5c3d1a" stroke-width="2"/>
+      <ellipse cx="58" cy="110" rx="38" ry="26" fill="rgba(255,255,255,0.04)"/>
+      <rect x="48" y="58" width="20" height="30" fill="${liq}" stroke="#5c3d1a" stroke-width="2" rx="2"/>
+      <path d="M68 65 Q95 54 115 44" fill="none" stroke="#5c3d1a" stroke-width="3" stroke-linecap="round"/>
+      <path d="M68 65 Q95 54 115 44" fill="none" stroke="${liq}" stroke-width="1.5" stroke-linecap="round" opacity="0.6"/>
+      <ellipse cx="58" cy="57" rx="13" ry="5" fill="rgba(92,61,26,0.6)" stroke="#5c3d1a" stroke-width="1.5"/>
+      ${bubbles}
+      ${isBrewing && pct > 50 ? `<circle cx="116" cy="43" r="3" fill="${liq}" opacity="0.8">
+        <animate attributeName="r" values="3;4;3" dur="2s" repeatCount="indefinite"/>
+      </circle>` : ''}
+      ${flame}
+      <rect x="18" y="140" width="80" height="6" rx="3" fill="rgba(92,61,26,0.4)" stroke="#5c3d1a" stroke-width="1"/>
+    </svg>`;
+  },
+
+  buildIngredientListCompact(ingMap, state) {
+    const isBrewing = !!state.brewing;
+    return AthanorDB.ingredients.map(ing => {
+      const have = GameState.inventory[ing.id] || 0;
+      const inSlots = state.slots.filter(s => s === ing.id).length;
+      const available = have - inSlots;
+      const canAdd = !isBrewing && available > 0 && state.slots.length < 3;
+      return `<div style="display:flex;align-items:center;gap:6px;padding:5px 6px;border-radius:5px;
+        border:1px solid ${canAdd ? 'rgba(200,160,60,0.3)' : 'transparent'};
+        background:${have===0?'transparent':canAdd?'rgba(200,160,60,0.04)':'rgba(0,0,0,0.03)'};
+        opacity:${have===0?'0.3':'1'};cursor:${canAdd?'pointer':'default'};"
+        ${canAdd ? `onclick="AthanorSystem.addToSlot('${ing.id}')"` : ''}
+        title="${ing.lore||''}">
+        <span style="font-size:0.9rem;">${ing.icon}</span>
+        <div style="flex:1;min-width:0;">
+          <div style="font-size:0.74rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${ing.name}</div>
+          <div style="font-size:0.6rem;font-style:italic;opacity:0.5;">${ing.name_lat}</div>
+        </div>
+        <div style="font-size:0.75rem;font-weight:600;color:${have>0?'var(--accent-gold)':'#aaa'};">${available}</div>
+      </div>`;
+    }).join('');
+  },
+
   render(containerId) {
     const el = document.getElementById(containerId);
     if (!el) return;
-
-    // PASSWORD GATE
     if (!GameState.secrets || !GameState.secrets.laboratoryUnlocked) {
       SecretsSystem.renderAthanorScreen(containerId);
       return;
     }
-
     const state = GameState.athanor;
     const ingMap = {};
     AthanorDB.ingredients.forEach(i => { ingMap[i.id] = i; });
+    const lunar = AthanorSystem.getLunarPhase();
+    const canonical = AthanorSystem.getCanonicalHour();
 
     el.innerHTML = `
-      <div style="padding:16px;max-width:720px;margin:0 auto;">
-
-        <!-- Hlavička -->
-        <div style="text-align:center;margin-bottom:18px;">
-          <h2 style="font-family:'Cinzel',serif;font-size:1.3rem;color:var(--accent-gold);letter-spacing:2px;">
-            ⚗️ Athanor Secretus
-          </h2>
-          <p style="font-style:italic;font-size:0.78rem;opacity:0.55;margin-top:4px;">
-            Ignis latet in cinere — Oheň se skrývá v popelu
-          </p>
+      <div style="padding:12px 8px;max-width:900px;margin:0 auto;">
+        <div style="text-align:center;margin-bottom:10px;">
+          <h2 style="font-family:'Cinzel',serif;font-size:1.3rem;color:var(--accent-gold);letter-spacing:2px;">⚗️ Athanor Secretus</h2>
+          <p style="font-style:italic;font-size:0.78rem;opacity:0.55;margin-top:2px;">Ignis latet in cinere — Oheň se skrývá v popelu</p>
         </div>
-
-        <!-- Aktivní efekty -->
+        ${AthanorSystem.buildStatsBar(lunar, canonical, state)}
         ${AthanorSystem.buildActiveEffectsHtml()}
+        <div style="display:grid;grid-template-columns:210px 1fr 210px;gap:12px;align-items:start;" class="athanor-grid">
 
-        <!-- Last Result panel -->
-        ${AthanorSystem.buildLastResultHtml(state)}
-
-        <!-- Brewing progress (pokud běží) -->
-        ${AthanorSystem.buildBrewingProgressHtml()}
-
-        <!-- Pracovní stůl -->
-        <div class="panel-title" style="margin-bottom:10px;">🧪 Pracovní stůl</div>
-        <div style="background:rgba(0,0,0,0.05);border:1px solid rgba(0,0,0,0.1);border-radius:8px;padding:14px;margin-bottom:18px;">
-
-          <!-- Sloty kelímku -->
-          <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;">
-            ${AthanorSystem.buildSlotHtml(0, state, ingMap)}
-            ${AthanorSystem.buildSlotHtml(1, state, ingMap)}
-            ${AthanorSystem.buildSlotHtml(2, state, ingMap)}
+          <!-- LEVÝ PANEL: Ingredience -->
+          <div style="background:rgba(0,0,0,0.04);border:1px solid rgba(0,0,0,0.1);border-radius:8px;padding:10px;">
+            <div style="font-family:'Cinzel',serif;font-size:0.68rem;letter-spacing:2px;opacity:0.5;text-transform:uppercase;margin-bottom:8px;">🌿 Ingredience</div>
+            <div style="display:flex;flex-direction:column;gap:3px;max-height:440px;overflow-y:auto;">
+              ${AthanorSystem.buildIngredientListCompact(ingMap, state)}
+            </div>
           </div>
 
-          <!-- Procesy -->
-          <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;">
-            ${AthanorDB.processes.map(p => AthanorSystem.buildProcessBtn(p, state)).join('')}
+          <!-- STŘED: Pracovní stůl -->
+          <div style="background:rgba(0,0,0,0.04);border:1px solid rgba(0,0,0,0.1);border-radius:8px;padding:14px;display:flex;flex-direction:column;align-items:center;gap:10px;">
+            ${AthanorSystem.buildAlembicSvg(state)}
+            ${AthanorSystem.buildBrewingProgressHtml()}
+            <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center;width:100%;">
+              ${AthanorSystem.buildSlotHtml(0, state, ingMap)}
+              ${AthanorSystem.buildSlotHtml(1, state, ingMap)}
+              ${AthanorSystem.buildSlotHtml(2, state, ingMap)}
+            </div>
+            <div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:center;">
+              ${AthanorDB.processes.map(p => AthanorSystem.buildProcessBtn(p, state)).join('')}
+            </div>
+            <div style="width:100%;">${AthanorSystem.buildStartBtn(state)}</div>
+            ${AthanorSystem.buildLastResultHtml(state)}
           </div>
 
-          <!-- Spustit tlačítko -->
-          ${AthanorSystem.buildStartBtn(state)}
-        </div>
+          <!-- PRAVÝ PANEL: Codex -->
+          <div style="background:rgba(0,0,0,0.04);border:1px solid rgba(0,0,0,0.1);border-radius:8px;padding:10px;">
+            <div style="font-family:'Cinzel',serif;font-size:0.68rem;letter-spacing:2px;opacity:0.5;text-transform:uppercase;margin-bottom:8px;">
+              📜 Codex Athanori
+              <span style="font-size:0.62rem;display:block;margin-top:2px;">${state.discovered.length} / ${Object.keys(AthanorDB.combinations).length} odhaleno</span>
+            </div>
+            <div style="max-height:440px;overflow-y:auto;">${AthanorSystem.buildCodexHtml(state)}</div>
+          </div>
 
-        <!-- Sklad ingrediencí -->
-        <div class="panel-title" style="margin-bottom:10px;">🌿 Sklad ingrediencí</div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:18px;">
-          ${AthanorSystem.buildIngredientList(ingMap, state)}
         </div>
-
-        <!-- Codex Athanori -->
-        <div class="panel-title" style="margin-bottom:10px;">
-          📜 Codex Athanori
-          <span style="font-size:0.72rem;opacity:0.5;font-weight:normal;margin-left:8px;">
-            ${state.discovered.length} / ${Object.keys(AthanorDB.combinations).length} kombinací odhaleno
-          </span>
-        </div>
-        ${AthanorSystem.buildCodexHtml(state)}
-
       </div>
+      <style>.athanor-grid{@media(max-width:700px){grid-template-columns:1fr!important}}</style>
     `;
   },
 
@@ -1301,17 +1372,19 @@ const AthanorSystem = {
 
     const remaining = Math.max(0, Math.ceil((b.expiresAt - now) / 1000));
 
+    const stageIcons = ['🌑','🌕','🔴'];
     return `
       <div style="
-        margin-bottom:16px;
+        width:100%;
         background:${stage.color};
-        border:1px solid rgba(200,160,60,0.3);
+        border:1px solid rgba(200,160,60,0.2);
         border-radius:8px;
-        padding:14px;
+        padding:10px 12px;
+        color:#e8d5a3;
       ">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-          <span style="color:${stage.textColor};font-family:'Cinzel',serif;font-size:0.85rem;letter-spacing:1px;">
-            ${stage.label}
+          <span style="color:${stage.textColor};font-family:'Cinzel',serif;font-size:0.8rem;letter-spacing:1px;">
+            ${stageIcons[stageIndex]} ${stage.label}
           </span>
           <span style="font-size:0.75rem;opacity:0.6;">${remaining}s</span>
         </div>
@@ -1498,6 +1571,7 @@ const AthanorSystem = {
         text-align:center;
         box-shadow:0 8px 40px rgba(0,0,0,0.6);
         position:relative;
+        color:#e8d5a3;
       ">
         ${successBody}
         <div style="display:flex;gap:10px;margin-top:18px;justify-content:center;">
