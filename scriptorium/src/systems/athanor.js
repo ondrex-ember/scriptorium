@@ -1028,6 +1028,166 @@ const AthanorSystem = {
   },
 
   // ── RENDER ────────────────────────────────────────────────
+  // ── LUNAR HELPER ─────────────────────────────────────────
+  getLunarPhase() {
+    // Přibližný výpočet fáze měsíce z reálného data
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = now.getMonth() + 1;
+    const day = now.getDate();
+    // Zeller-like aproximace
+    const jd = 367*year - Math.floor(7*(year+Math.floor((month+9)/12))/4)
+              + Math.floor(275*month/9) + day + 1721013.5;
+    const phase = ((jd - 2451550.1) / 29.53058867) % 1;
+    const p = phase < 0 ? phase + 1 : phase;
+    if (p < 0.03 || p > 0.97) return { name: 'Nov', icon: '🌑', bonus: 'nigredo', label: 'Nov — Nigredo +20%' };
+    if (p < 0.22) return { name: 'Srpek', icon: '🌒', bonus: null, label: 'Dorůstající srpek' };
+    if (p < 0.28) return { name: 'Čtvrť', icon: '🌓', bonus: null, label: 'První čtvrť' };
+    if (p < 0.47) return { name: 'Dorůstá', icon: '🌔', bonus: null, label: 'Dorůstající' };
+    if (p < 0.53) return { name: 'Úplněk', icon: '🌕', bonus: 'rubedo', label: 'Úplněk — Rubedo +20%' };
+    if (p < 0.72) return { name: 'Ubývá', icon: '🌖', bonus: null, label: 'Ubývající' };
+    if (p < 0.78) return { name: 'Čtvrť', icon: '🌗', bonus: null, label: 'Poslední čtvrť' };
+    return { name: 'Ubývá', icon: '🌘', bonus: null, label: 'Ubývající srpek' };
+  },
+
+  getCanonicalHour() {
+    const h = new Date().getHours();
+    if (h >= 3  && h < 6)  return { name: 'Laudes',   icon: '🌅', bonus: 'quality', label: 'Laudes — +10% kvalita' };
+    if (h >= 6  && h < 9)  return { name: 'Prima',    icon: '🌄', bonus: null,      label: 'Prima' };
+    if (h >= 9  && h < 12) return { name: 'Tertia',   icon: '☀️', bonus: null,      label: 'Tertia' };
+    if (h >= 12 && h < 15) return { name: 'Sexta',    icon: '🌞', bonus: null,      label: 'Sexta' };
+    if (h >= 15 && h < 18) return { name: 'Nona',     icon: '🌤️', bonus: null,      label: 'Nona' };
+    if (h >= 18 && h < 21) return { name: 'Vesper',   icon: '🌆', bonus: null,      label: 'Vesper' };
+    if (h >= 21 && h < 24) return { name: 'Completorium', icon: '🌙', bonus: null,  label: 'Completorium' };
+    return { name: 'Vigilia', icon: '⭐', bonus: null, label: 'Vigilia noctis' };
+  },
+
+  buildStatsBar(lunar, canonical) {
+    const state = GameState.athanor;
+    const ingMap = {};
+    AthanorDB.ingredients.forEach(i => { ingMap[i.id] = i; });
+    let thermal = 0, moisture = 0;
+    (state.slots || []).forEach(id => {
+      const ing = ingMap[id];
+      if (ing) { thermal += ing.thermal; moisture += ing.moisture; }
+    });
+    const proc = AthanorDB.processes.find(p => p.id === state.activeProcess);
+    if (proc) { thermal += proc.thermal_mod; moisture += proc.moisture_mod; }
+
+    const thermalColor = thermal > 2 ? '#e8501a' : thermal < -2 ? '#3a9ad9' : '#c9a96e';
+    const moistColor   = moisture > 2 ? '#3a9ad9' : moisture < -2 ? '#c8961e' : '#c9a96e';
+
+    return `
+      <div style="
+        display:flex; gap:12px; flex-wrap:wrap; justify-content:center;
+        padding:8px 12px; margin-bottom:16px;
+        background:rgba(0,0,0,0.15); border-radius:8px;
+        border:1px solid rgba(200,160,60,0.15);
+        font-family:'Cinzel',serif; font-size:0.72rem;
+      ">
+        <span title="${lunar.label}" style="display:flex;align-items:center;gap:4px;color:${lunar.bonus ? '#c9a96e' : '#888'};">
+          ${lunar.icon} ${lunar.name}
+        </span>
+        <span style="opacity:0.3;">·</span>
+        <span title="${canonical.label}" style="display:flex;align-items:center;gap:4px;color:${canonical.bonus ? '#c9a96e' : '#888'};">
+          ${canonical.icon} ${canonical.name}
+        </span>
+        <span style="opacity:0.3;">·</span>
+        <span title="Teplo kombinace" style="color:${thermalColor};">
+          🌡️ ${thermal > 0 ? '+' : ''}${thermal}
+        </span>
+        <span style="opacity:0.3;">·</span>
+        <span title="Vlhkost kombinace" style="color:${moistColor};">
+          💧 ${moisture > 0 ? '+' : ''}${moisture}
+        </span>
+        ${lunar.bonus || canonical.bonus ? `<span style="opacity:0.3;">·</span>
+        <span style="color:#c9a96e;font-size:0.65rem;">
+          ✨ ${lunar.bonus === 'nigredo' ? 'Nigredo +20%' : lunar.bonus === 'rubedo' ? 'Rubedo +20%' : canonical.bonus === 'quality' ? 'Laudes +10%' : ''}
+        </span>` : ''}
+      </div>`;
+  },
+
+  buildAlembicSvg(state) {
+    const isBrewing = !!state.brewing;
+    const now = Date.now();
+    let pct = 0, stageIdx = 0;
+    if (isBrewing) {
+      const b = state.brewing;
+      pct = Math.min(100, Math.floor(((now - b.startedAt) / b.duration) * 100));
+      stageIdx = pct < 33 ? 0 : pct < 66 ? 1 : 2;
+    }
+    // Barva tekutiny dle fáze
+    const liquidColors = ['#1a0f05', '#d4cfc8', '#8b1a1a'];
+    const glowColors   = ['rgba(80,40,10,0.4)', 'rgba(220,210,190,0.4)', 'rgba(180,40,40,0.5)'];
+    const liqColor = isBrewing ? liquidColors[stageIdx] : '#2a1a0a';
+    const glowColor = isBrewing ? glowColors[stageIdx] : 'transparent';
+
+    // Animace bublin — jen při vaření
+    const bubbles = isBrewing ? `
+      <circle cx="54" cy="88" r="3" fill="rgba(255,255,255,0.15)" opacity="0.6">
+        <animate attributeName="cy" values="88;60;88" dur="2.1s" repeatCount="indefinite"/>
+        <animate attributeName="opacity" values="0.6;0;0.6" dur="2.1s" repeatCount="indefinite"/>
+      </circle>
+      <circle cx="62" cy="95" r="2" fill="rgba(255,255,255,0.1)" opacity="0.5">
+        <animate attributeName="cy" values="95;65;95" dur="1.7s" repeatCount="indefinite"/>
+        <animate attributeName="opacity" values="0.5;0;0.5" dur="1.7s" repeatCount="indefinite"/>
+      </circle>
+      <circle cx="48" cy="92" r="2.5" fill="rgba(255,255,255,0.12)" opacity="0.4">
+        <animate attributeName="cy" values="92;68;92" dur="2.5s" repeatCount="indefinite"/>
+        <animate attributeName="opacity" values="0.4;0;0.4" dur="2.5s" repeatCount="indefinite"/>
+      </circle>` : '';
+
+    // Plamen — jen při vaření
+    const flame = isBrewing ? `
+      <g transform="translate(40,128)">
+        <path d="M15,20 Q8,10 15,0 Q18,8 22,3 Q24,12 20,20 Z" fill="rgba(200,80,0,0.7)">
+          <animate attributeName="d" values="M15,20 Q8,10 15,0 Q18,8 22,3 Q24,12 20,20 Z;M15,20 Q6,8 14,0 Q19,6 23,2 Q26,13 20,20 Z;M15,20 Q8,10 15,0 Q18,8 22,3 Q24,12 20,20 Z" dur="0.8s" repeatCount="indefinite"/>
+        </path>
+        <path d="M15,20 Q10,13 15,6 Q18,12 20,8 Q22,14 19,20 Z" fill="rgba(240,140,0,0.6)">
+          <animate attributeName="d" values="M15,20 Q10,13 15,6 Q18,12 20,8 Q22,14 19,20 Z;M15,20 Q8,11 14,5 Q19,10 21,7 Q23,15 19,20 Z;M15,20 Q10,13 15,6 Q18,12 20,8 Q22,14 19,20 Z" dur="0.6s" repeatCount="indefinite"/>
+        </path>
+      </g>` : '';
+
+    // Kapka na konci hubice
+    const drop = isBrewing && pct > 50 ? `
+      <circle cx="118" cy="58" r="3" fill="${liqColor}" opacity="0.8">
+        <animate attributeName="cy" values="58;68;58" dur="3s" repeatCount="indefinite"/>
+        <animate attributeName="r"  values="3;4;3"   dur="3s" repeatCount="indefinite"/>
+      </circle>` : '';
+
+    return `
+      <svg viewBox="0 0 140 150" width="140" height="150"
+           xmlns="http://www.w3.org/2000/svg"
+           style="filter:drop-shadow(0 0 12px ${glowColor});">
+        <!-- Telo baňky -->
+        <ellipse cx="58" cy="98" rx="44" ry="38"
+          fill="${liqColor}" stroke="#5c3d1a" stroke-width="2"/>
+        <!-- Tekutina (světlejší vrh) -->
+        <ellipse cx="58" cy="108" rx="38" ry="26" fill="rgba(255,255,255,0.04)"/>
+        <!-- Hrdlo -->
+        <rect x="48" y="56" width="20" height="30"
+          fill="${liqColor}" stroke="#5c3d1a" stroke-width="2" rx="2"/>
+        <!-- Hubice -->
+        <path d="M68 63 Q95 52 115 42"
+          fill="none" stroke="#5c3d1a" stroke-width="3" stroke-linecap="round"/>
+        <!-- Vnitřek hubice -->
+        <path d="M68 63 Q95 52 115 42"
+          fill="none" stroke="${liqColor}" stroke-width="1.5" stroke-linecap="round" opacity="0.6"/>
+        <!-- Víčko -->
+        <ellipse cx="58" cy="55" rx="13" ry="5"
+          fill="rgba(92,61,26,0.6)" stroke="#5c3d1a" stroke-width="1.5"/>
+        <!-- Bubliny -->
+        ${bubbles}
+        <!-- Kapka -->
+        ${drop}
+        <!-- Plamen -->
+        ${flame}
+        <!-- Podstavec -->
+        <rect x="20" y="136" width="76" height="6" rx="3"
+          fill="rgba(92,61,26,0.4)" stroke="#5c3d1a" stroke-width="1"/>
+      </svg>`;
+  },
+
   render(containerId) {
     const el = document.getElementById(containerId);
     if (!el) return;
@@ -1042,64 +1202,118 @@ const AthanorSystem = {
     const ingMap = {};
     AthanorDB.ingredients.forEach(i => { ingMap[i.id] = i; });
 
+    const lunar    = AthanorSystem.getLunarPhase();
+    const canonical = AthanorSystem.getCanonicalHour();
+    const isBrewing = !!state.brewing;
+
     el.innerHTML = `
-      <div style="padding:16px;max-width:720px;margin:0 auto;">
+      <div style="padding:12px 8px;max-width:900px;margin:0 auto;color:var(--ink-primary);">
 
         <!-- Hlavička -->
-        <div style="text-align:center;margin-bottom:18px;">
+        <div style="text-align:center;margin-bottom:12px;">
           <h2 style="font-family:'Cinzel',serif;font-size:1.3rem;color:var(--accent-gold);letter-spacing:2px;">
             ⚗️ Athanor Secretus
           </h2>
-          <p style="font-style:italic;font-size:0.78rem;opacity:0.55;margin-top:4px;">
+          <p style="font-style:italic;font-size:0.78rem;opacity:0.55;margin-top:2px;">
             Ignis latet in cinere — Oheň se skrývá v popelu
           </p>
         </div>
 
+        <!-- Stats bar: Luna + Hodina + Teplo + Vlhkost -->
+        ${AthanorSystem.buildStatsBar(lunar, canonical)}
+
         <!-- Aktivní efekty -->
         ${AthanorSystem.buildActiveEffectsHtml()}
 
-        <!-- Last Result panel -->
-        ${AthanorSystem.buildLastResultHtml(state)}
+        <!-- 3-sloupcový layout (desktop) / pod sebou (mobil) -->
+        <div style="
+          display:grid;
+          grid-template-columns:220px 1fr 220px;
+          gap:12px;
+          align-items:start;
+        " class="athanor-grid">
 
-        <!-- Brewing progress (pokud běží) -->
-        ${AthanorSystem.buildBrewingProgressHtml()}
-
-        <!-- Pracovní stůl -->
-        <div class="panel-title" style="margin-bottom:10px;">🧪 Pracovní stůl</div>
-        <div style="background:rgba(0,0,0,0.05);border:1px solid rgba(0,0,0,0.1);border-radius:8px;padding:14px;margin-bottom:18px;">
-
-          <!-- Sloty kelímku -->
-          <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;">
-            ${AthanorSystem.buildSlotHtml(0, state, ingMap)}
-            ${AthanorSystem.buildSlotHtml(1, state, ingMap)}
-            ${AthanorSystem.buildSlotHtml(2, state, ingMap)}
+          <!-- LEVÝ PANEL: Ingredience -->
+          <div style="
+            background:rgba(0,0,0,0.04);
+            border:1px solid rgba(0,0,0,0.1);
+            border-radius:8px;
+            padding:10px;
+          ">
+            <div style="font-family:'Cinzel',serif;font-size:0.7rem;letter-spacing:2px;opacity:0.5;text-transform:uppercase;margin-bottom:8px;">
+              🌿 Ingredience
+            </div>
+            <div style="display:flex;flex-direction:column;gap:4px;max-height:420px;overflow-y:auto;">
+              ${AthanorSystem.buildIngredientListCompact(ingMap, state)}
+            </div>
           </div>
 
-          <!-- Procesy -->
-          <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;">
-            ${AthanorDB.processes.map(p => AthanorSystem.buildProcessBtn(p, state)).join('')}
+          <!-- STŘEDNÍ PANEL: Pracovní stůl -->
+          <div style="
+            background:rgba(0,0,0,0.04);
+            border:1px solid rgba(0,0,0,0.1);
+            border-radius:8px;
+            padding:14px;
+            display:flex;
+            flex-direction:column;
+            align-items:center;
+            gap:12px;
+          ">
+            <!-- Alembik SVG -->
+            ${AthanorSystem.buildAlembicSvg(state)}
+
+            <!-- Progress Nigredo/Albedo/Rubedo -->
+            ${AthanorSystem.buildBrewingProgressHtml()}
+
+            <!-- Sloty -->
+            <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center;width:100%;">
+              ${AthanorSystem.buildSlotHtml(0, state, ingMap)}
+              ${AthanorSystem.buildSlotHtml(1, state, ingMap)}
+              ${AthanorSystem.buildSlotHtml(2, state, ingMap)}
+            </div>
+
+            <!-- Procesy -->
+            <div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:center;">
+              ${AthanorDB.processes.map(p => AthanorSystem.buildProcessBtn(p, state)).join('')}
+            </div>
+
+            <!-- Start tlačítko -->
+            <div style="width:100%;">
+              ${AthanorSystem.buildStartBtn(state)}
+            </div>
+
+            <!-- Last Result -->
+            ${AthanorSystem.buildLastResultHtml(state)}
           </div>
 
-          <!-- Spustit tlačítko -->
-          ${AthanorSystem.buildStartBtn(state)}
-        </div>
+          <!-- PRAVÝ PANEL: Codex -->
+          <div style="
+            background:rgba(0,0,0,0.04);
+            border:1px solid rgba(0,0,0,0.1);
+            border-radius:8px;
+            padding:10px;
+          ">
+            <div style="font-family:'Cinzel',serif;font-size:0.7rem;letter-spacing:2px;opacity:0.5;text-transform:uppercase;margin-bottom:8px;">
+              📜 Codex Athanori
+              <span style="font-size:0.65rem;opacity:0.6;font-weight:normal;display:block;margin-top:2px;">
+                ${state.discovered.length} / ${Object.keys(AthanorDB.combinations).length} odhaleno
+              </span>
+            </div>
+            <div style="max-height:420px;overflow-y:auto;">
+              ${AthanorSystem.buildCodexHtml(state)}
+            </div>
+          </div>
 
-        <!-- Sklad ingrediencí -->
-        <div class="panel-title" style="margin-bottom:10px;">🌿 Sklad ingrediencí</div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:18px;">
-          ${AthanorSystem.buildIngredientList(ingMap, state)}
         </div>
-
-        <!-- Codex Athanori -->
-        <div class="panel-title" style="margin-bottom:10px;">
-          📜 Codex Athanori
-          <span style="font-size:0.72rem;opacity:0.5;font-weight:normal;margin-left:8px;">
-            ${state.discovered.length} / ${Object.keys(AthanorDB.combinations).length} kombinací odhaleno
-          </span>
-        </div>
-        ${AthanorSystem.buildCodexHtml(state)}
-
       </div>
+
+      <style>
+        @media (max-width: 700px) {
+          .athanor-grid {
+            grid-template-columns: 1fr !important;
+          }
+        }
+      </style>
     `;
   },
 
@@ -1207,24 +1421,28 @@ const AthanorSystem = {
 
     const remaining = Math.max(0, Math.ceil((b.expiresAt - now) / 1000));
 
+    const stageIcons = ['🌑', '🌕', '🔴'];
+    const stageIcon = stageIcons[stageIndex];
+
     return `
       <div style="
-        margin-bottom:16px;
+        width:100%;
         background:${stage.color};
-        border:1px solid rgba(200,160,60,0.3);
+        border:1px solid rgba(200,160,60,0.25);
         border-radius:8px;
-        padding:14px;
+        padding:10px 12px;
+        color:#e8d5a3;
       ">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-          <span style="color:${stage.textColor};font-family:'Cinzel',serif;font-size:0.85rem;letter-spacing:1px;">
-            ${stage.label}
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+          <span style="font-family:'Cinzel',serif;font-size:0.8rem;letter-spacing:1px;color:${stage.textColor};">
+            ${stageIcon} ${stage.label}
           </span>
-          <span style="font-size:0.75rem;opacity:0.6;">${remaining}s</span>
+          <span style="font-size:0.72rem;color:#c9a96e;opacity:0.8;">${remaining}s</span>
         </div>
-        <div style="font-style:italic;font-size:0.76rem;opacity:0.7;margin-bottom:10px;">
+        <div style="font-style:italic;font-size:0.72rem;color:#c9a96e;margin-bottom:8px;opacity:0.8;">
           ${stage.desc}
         </div>
-        <div style="background:rgba(0,0,0,0.3);border-radius:4px;height:6px;overflow:hidden;">
+        <div style="background:rgba(0,0,0,0.4);border-radius:4px;height:5px;overflow:hidden;">
           <div style="
             width:${pct}%;
             height:100%;
@@ -1285,6 +1503,39 @@ const AthanorSystem = {
           </div>
         </div>
       `;
+    }).join('');
+  },
+
+  // ── BUILD: INGREDIENT LIST COMPACT (levý panel) ─────────
+  buildIngredientListCompact(ingMap, state) {
+    const isBrewing = !!state.brewing;
+    return AthanorDB.ingredients.map(ing => {
+      const have = GameState.inventory[ing.id] || 0;
+      const inSlots = state.slots.filter(s => s === ing.id).length;
+      const available = have - inSlots;
+      const canAdd = !isBrewing && available > 0 && state.slots.length < 3;
+
+      return `
+        <div
+          style="
+            display:flex;align-items:center;gap:6px;
+            padding:5px 6px;border-radius:5px;
+            border:1px solid ${canAdd ? 'rgba(200,160,60,0.3)' : 'transparent'};
+            background:${have === 0 ? 'transparent' : canAdd ? 'rgba(200,160,60,0.04)' : 'rgba(0,0,0,0.03)'};
+            opacity:${have === 0 ? '0.3' : '1'};
+            cursor:${canAdd ? 'pointer' : 'default'};
+          "
+          ${canAdd ? `onclick="AthanorSystem.addToSlot('${ing.id}')"` : ''}
+          title="${ing.lore || ing.name_lat}">
+          <span style="font-size:0.9rem;flex-shrink:0;">${ing.icon}</span>
+          <div style="flex:1;min-width:0;">
+            <div style="font-size:0.74rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${ing.name}</div>
+            <div style="font-size:0.62rem;font-style:italic;opacity:0.5;">${ing.name_lat}</div>
+          </div>
+          <div style="font-size:0.75rem;font-weight:600;color:${have > 0 ? 'var(--accent-gold)' : '#aaa'};flex-shrink:0;">
+            ${available}
+          </div>
+        </div>`;
     }).join('');
   },
 
@@ -1404,6 +1655,7 @@ const AthanorSystem = {
         text-align:center;
         box-shadow:0 8px 40px rgba(0,0,0,0.6);
         position:relative;
+        color:#e8d5a3;
       ">
         ${successBody}
         <div style="display:flex;gap:10px;margin-top:18px;justify-content:center;">

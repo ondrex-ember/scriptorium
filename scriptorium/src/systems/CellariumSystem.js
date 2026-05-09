@@ -311,6 +311,7 @@ const CellariumSystem = {
     shop: [
       { itemId: 'chalk',         basePrice: 2 },
       { itemId: 'wine',          basePrice: 4 },
+      { itemId: 'seeds_thyme',   basePrice: 6 },  // tymián — Varroa léčba
     ],
     market: [
       { itemId: 'paper',         basePrice: 3 },
@@ -334,6 +335,9 @@ const CellariumSystem = {
       { itemId: 'seed_linden',   basePrice: 14 },
       // Rybník
       { itemId: 'fry',           basePrice: 5  },
+      // Pivovar suroviny
+      { itemId: 'grain',         basePrice: 4  },  // obilí — základ piva
+      { itemId: 'hops',          basePrice: 18 },  // chmel — vzácnější
     ],
   },
 

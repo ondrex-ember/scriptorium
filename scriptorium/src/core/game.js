@@ -685,7 +685,7 @@ const Game = {
             else if(plot.cropType === 'vegetable') seedsNeeded = 'seeds_vegetable';
             else if(plot.cropType === 'special') {
                 // Special plot - can grow any herb type
-                const available = ['seeds_yellow', 'seeds_blue', 'seeds_mint', 'seeds_thyme', 'seeds_herb'].find(s => GameState.inventory[s] > 0);
+                const available = ['seeds_yellow', 'seeds_blue', 'seeds_mint', 'seeds_thyme', 'seeds_hops', 'seeds_herb'].find(s => GameState.inventory[s] > 0);
                 if(available) seedsNeeded = available;
             }
             
@@ -707,6 +707,7 @@ const Game = {
             else if(seedsNeeded === 'seeds_blue') plot.crop = 'herb_blue';
             else if(seedsNeeded === 'seeds_mint') plot.crop = 'mint';
             else if(seedsNeeded === 'seeds_thyme') plot.crop = 'thyme';
+            else if(seedsNeeded === 'seeds_hops') plot.crop = 'hops';
             
             plot.plantedAt = Date.now();
         } else if (plot.state === 2 && !plot.water) {
@@ -736,6 +737,7 @@ const Game = {
                 else if(harvestCrop === 'herb_blue') this.addItem('herb_blue', 2);
                 else if(harvestCrop === 'mint') this.addItem('mint', 2);
                 else if(harvestCrop === 'thyme') this.addItem('thyme', 2);
+                else if(harvestCrop === 'hops') { this.addItem('hops', 2); if(Math.random() > 0.6) this.addItem('seeds_hops', 1); }
                 else if(['carrot','onion','potato'].includes(harvestCrop)) {
                     this.addItem(harvestCrop, 3);
                     // Chance to get seeds back
@@ -1442,7 +1444,10 @@ const Game = {
                     // Athanor: byliny
                     if(Math.random() < 0.08) this.addItem('chamomile', 1);
                     if(Math.random() < 0.05) this.addItem('st_johns_wort', 1);
+                    if(Math.random() < 0.04) this.addItem('thyme', 1);
                     if(Math.random() < 0.03) this.addItem('seeds_thyme', 1);
+                    if(Math.random() < 0.02) this.addItem('hops', 1);
+                    if(Math.random() < 0.01) this.addItem('seeds_hops', 1);
                     
                     // Rare drop - Netolického pozůstalost (0.1% chance)
                     if(Math.random() < 0.001) {
@@ -1611,7 +1616,10 @@ const Game = {
                 // Athanor: byliny
                 if(Math.random() < 0.08) this.addItem('chamomile', 1);
                 if(Math.random() < 0.05) this.addItem('st_johns_wort', 1);
+                if(Math.random() < 0.04) this.addItem('thyme', 1);
                 if(Math.random() < 0.03) this.addItem('seeds_thyme', 1);
+                if(Math.random() < 0.02) this.addItem('hops', 1);
+                if(Math.random() < 0.01) this.addItem('seeds_hops', 1);
                 
                 // Rare drop - Netolického pozůstalost (0.1% chance)
                 if(Math.random() < 0.001) {

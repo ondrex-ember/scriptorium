@@ -203,4 +203,14 @@ const ItemsDB = {
     "carp_young":    { name:"Kapr (nedospělý)",  name_en:"Young Carp",     icon:"🐟", type:"mat",      desc:"Nedospělý kapr z výtažníku. Potřebuje čas.",            desc_en:"Young carp from the rearing pond. Needs time." },
     "carp":          { name:"Kapr tržní",        name_en:"Market Carp",    icon:"🐠", type:"food_raw", desc:"Dospělý kapr. Prodej nebo vaření.",                     desc_en:"Adult carp. For sale or cooking." },
 
+    // ═══════════════════════════════════════════════════════════════════════════
+    // PIVOVAR (Cervisiaria) — v9.x
+    // ═══════════════════════════════════════════════════════════════════════════
+    "grain":         { name:"Obilí",             name_en:"Grain",          icon:"🌾", type:"mat",      desc:"Základní surovina pro výrobu piva a chleba.",           desc_en:"Basic material for brewing and baking." },
+    "hops":          { name:"Chmel",             name_en:"Hops",           icon:"🌿", type:"mat",      desc:"Aromatická rostlina. Dodává pivu hořkost a vůni.",      desc_en:"Aromatic plant. Gives beer bitterness and aroma." },
+    "seeds_hops":    { name:"Semínka chmele",    name_en:"Hop Seeds",      icon:"🌾", type:"mat",      desc:"Chmel lze pěstovat v zahradě. Vzácné semínko.",          desc_en:"Hops can be grown in the garden. Rare seeds." },
+    "wort":          { name:"Mladina",           name_en:"Wort",           icon:"🫗", type:"mat",      desc:"Fermentovaná obilná mladina. Základ každého piva.",      desc_en:"Fermented grain wort. The base of every beer." },
+    "prima_cervisia":{ name:"Prima Cervisia",    name_en:"Prima Cervisia", icon:"🍺", type:"food",  hunger:6, desc:"Klášterní pivo světlé. Sytí a posiluje komunitu.", desc_en:"Light monastery ale. Nourishes and strengthens the community." },
+    "cervisia_nigra":{ name:"Cervisia Nigra",    name_en:"Cervisia Nigra", icon:"🍺", type:"food",  hunger:8, desc:"Klášterní pivo tmavé. Vzácnější, chutnější.",       desc_en:"Dark monastery ale. Rarer and more flavourful." },
+
 };
