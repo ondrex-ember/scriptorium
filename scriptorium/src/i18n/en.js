@@ -1467,4 +1467,147 @@ farmyard: {
         lambGrowing: 'Lamb is growing',
         lambPool: 'Lambs ready to slaughter',
     },
+// ── SCRINIUM ABBATIS ─────────────────────────────────────────────────────
+    scrinium: {
+        title: 'Scrinium Abbatis',
+        subtitle: "The Abbot's Private Library",
+        locked_title: 'Entry Forbidden',
+        locked_text: '"Nondum tempus tuum venit, frater." — Thy time hath not yet come, brother.',
+        locked_hint: 'Earn the favour of the Abbot, that he may open this chamber unto thee.',
+
+        subtabs: {
+            bestiar:     '🐉 Bestiary',
+            herbar:      '🌿 Herbarium',
+            kroniky:     '📜 Chronicles',
+            tajne_spisy: '🔐 Secret Writings',
+            mapy:        '🗺️ Maps',
+        },
+
+        folio: {
+            not_found:       'This folio hath not yet been found.',
+            found:           'Folio found',
+            physical_scroll: '📜 Scroll',
+            physical_leaf:   '📃 Loose Leaf',
+            physical_codex:  '📖 Codex',
+            physical_map:    '🗺️ Map',
+            btn_lectio:      'Lectio (read)',
+            btn_glossa:      'Glossa (translate)',
+            btn_arcanum:     'Arcanum (decipher)',
+            btn_done:        '✓ Read',
+            layer_lectio:    'Lectio',
+            layer_glossa:    'Glossa',
+            layer_arcanum:   'Arcanum',
+            cost_label:      'Requireth:',
+            err_no_item:     'Thou lackest the necessary materials.',
+        },
+
+        folios: {
+
+            epistola: {
+                title: 'Epistola de Rebus Ignotis',
+                lectio: `*The scroll is scorched at its edges. Part of the text is missing. The Latin heading is barely legible.*
+
+"Est locus post murum, ubi ignis non dormit. Ibi calor perpetuus servat formas rerum, quae oculis communibus non patent..."
+
+— A fragment of a letter to an unknown addressee. Year unknown.`,
+
+                glossa: `*By careful study in candlelight the words begin to yield their meaning.*
+
+"There is a place behind the wall, where fire sleepeth not. There eternal heat preserveth the forms of things hidden from common eyes."
+
+The writer speaks of a room or chamber with a constant fire — perhaps a furnace. He mentions three phases of the transformation of matter. The words are deliberately veiled. Who wrote this letter — and to whom?`,
+
+                arcanum: `*The final lines of the scroll, concealed behind a scorched fold:*
+
+"Qui scit verbum, intrat. Verbum est: exordium."
+
+— He who knoweth the word, entereth. The word is: exordium.
+
+*In the lower right corner of the scroll is a drawing — a circle with a triangle within. The symbol of the athanor.*`,
+
+                reward_notify: '🔥 The Athanor is unlocked! The furnace behind the wall is thine.',
+            },
+
+            fausto: {
+                title: 'De Fausto Contractu',
+                lectio: `*A loose leaf, greasy with tallow-candle stains. The signature at the end is struck through.*
+
+"Hear ye who read: there was a man who made a compact beyond all reason. For the swift completion of his great work — in a single night — he sold that which was most precious."
+
+— A fragment. No title, no author.`,
+
+                glossa: `*By comparing with other documents, a name and place become clear.*
+
+Johann Fust, Mainz, anno Domini 1455. Gutenberg's press passed into other hands — not by law, as the chronicles say, but otherwise. Schöffer testified against his master. Gutenberg lost everything.
+
+The people whispered: no man prints so swiftly without aid from dark powers. "Fust" — "Faust". The names blurred together. The legend was born.`,
+
+                arcanum: `*On the reverse of the leaf, written in another hand, in small script:*
+
+"I offer the same. Sign, and thy work shall be completed. Materials shall multiply, knowledge shall advance.
+Or refuse — and remain what thou art: an honest craftsman without shortcut."
+
+— The signature is absent. Only the place for thine remaineth.`,
+
+                choice_prompt:  'What wilt thou do?',
+                choice_sign:    '✍️ Sign the compact',
+                choice_refuse:  '🙏 Refuse',
+                signed_notify:  '😈 The compact is signed. A fleeting boon — but at a price.',
+                refused_notify: '✝️ Thou hast refused. Honest labour taketh longer — but thy soul remaineth thine own.',
+                achievement:    'I Resisted',
+            },
+
+            palimpsest: {
+                title: 'Ars Palimpsesti',
+                lectio: `*A loose leaf, beneath the text the traces of an older layer are visible — like the shadow of a former hand.*
+
+"De arte radendi et rescribendi. On the art of scraping and rewriting."
+
+A technical description in Latin. It mentions pumice, a knife, a wet cloth. The process in five steps.`,
+
+                glossa: `*After reading the whole leaf, an older text appears beneath — legible in the oblique light of a candle.*
+
+Beneath the recipe for scraping parchment lies an older text: a fragment of verse.
+
+"Omnia mutantur, nihil interit." — All things change, nothing perisheth.
+
+The parchment was once someone's chronicle. Then it became a recipe. What shall it become next?`,
+
+                arcanum: `*At the lower margin, concealed in a fold:*
+
+"Pumice and water. Scrape. Let it dry. Write again. Nothing is lost — it only changeth its face."
+
+This method may be employed in the workshop. Spent parchment is not waste — it is a new beginning.
+
+*Recipe unlocked: Parchment Recycling*`,
+
+                reward_notify: '📋 New recipe unlocked: Parchment Recycling.',
+            },
+
+            titivillus: {
+                title: 'De Titivillo Daemone',
+                lectio: `*A codex furnished with numerous marginalia — small pointing hands ☞ mark the key passages.*
+
+"De daemone qui in scriptoriis habitat. Of the demon who dwelleth in scriptoria."
+
+In every scriptorium lurks Titivillus. His task is not to tempt to sin — others do that. Titivillus collecteth errors.`,
+
+                glossa: `*The marginalia are denser than the text itself. One of them readeth:*
+
+"I have seen him. Small, grey, silent. He passeth among the desks. He hath a sack of goatskin. He collecteth omitted letters, transposed syllables, mangled words. Each day he carrieth the sack to the devil."
+
+"After death the monk shall be judged. Titivillus shall empty the sack upon the scales. Each error shall weigh."`,
+
+                arcanum: `*The final page of the codex — written in different ink, as though added much later:*
+
+"Titivillus sleepeth not. He watcheth most keenly when the darkness falleth and the scribe is weary. The light of a candle repelleth him — but only true light."
+
+*From this hour thou shalt see a gentle warning in thy workshop when Vigour sinketh too low.*`,
+
+                reward_notify: "👁️ Titivillus's warning: thou shalt now see when errors threaten thy manuscripts.",
+            },
+
+        }, // end folios
+
+    }, // end scrinium
 };

@@ -33,6 +33,7 @@ const JS_MAIN = [
     'src/core/gamestate.js',        // ActionsDB, GameState
     'src/data/achievements.js',     // AchievementsDB
     'src/data/daily-facts.js',      // DailyFactsDB
+    'src/data/scrinium.js',         // ScriniumDB
 
     // Systémy
     'src/systems/theme.js',         // ThemeSystem
