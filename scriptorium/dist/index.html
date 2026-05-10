@@ -6854,11 +6854,107 @@ const EventsSystem = {
     ],
     
     lastCheck: 0,
-    
+    actionCount: 0,
+    ACTION_THRESHOLD: 50,
+
+    // ── Volá se z Game loop při každé akci hráče ─────────────────────────────
+    onAction: function() {
+        this.actionCount++;
+        if (this.actionCount >= this.ACTION_THRESHOLD) {
+            this.actionCount = 0;
+            this.checkRandomEvents();
+        }
+    },
+
+    // ── Náhodné eventy (akce-based, max 1/24h) ────────────────────────────────
+    checkRandomEvents: function() {
+        if (!GameState.events) GameState.events = {};
+        const now = Date.now();
+        const last = GameState.events.lastRandomEvent || 0;
+        if (now - last < 24 * 3600000) return; // max 1 za 24h
+
+        for (let event of this.events) {
+            if (!event.canTrigger) continue;
+            if (event.trigger()) {
+                this.showEvent(event);
+                event.canTrigger = false;
+                GameState.events.lastRandomEvent = now;
+                Game.save();
+                break;
+            }
+        }
+    },
+
+    // ── Kalendářní eventy (1× za den, jen dnešní datum) ───────────────────────
+    checkCalendarEvents: function() {
+        if (!GameState.events) GameState.events = {};
+        const today = new Date();
+        const todayStr = `${today.getFullYear()}-${today.getMonth()+1}-${today.getDate()}`;
+        if (GameState.events.lastCalendarDate === todayStr) return; // už zobrazeno dnes
+        GameState.events.lastCalendarDate = todayStr;
+        Game.save();
+
+        const month = today.getMonth() + 1; // 1-12
+        const day   = today.getDate();
+
+        // Velikonoce — pohyblivé datum (přibližný výpočet)
+        const easter = this._getEaster(today.getFullYear());
+        const ashWed = new Date(easter); ashWed.setDate(ashWed.getDate() - 46);
+        const isAshWed   = month === ashWed.getMonth()+1 && day === ashWed.getDate();
+        const isEaster   = month === easter.getMonth()+1 && day === easter.getDate();
+
+        // Advent — 1.12 až 23.12
+        const isAdvent = month === 12 && day >= 1 && day <= 23;
+
+        let calEvent = null;
+
+        if (isAshWed)                        calEvent = this.calendarEvents.find(e => e.id === 'cal_ash_wednesday');
+        else if (isEaster)                   calEvent = this.calendarEvents.find(e => e.id === 'cal_easter');
+        else if (month === 4 && day === 30)  calEvent = this.calendarEvents.find(e => e.id === 'cal_walpurgis');
+        else if (month === 5 && day === 1)   calEvent = this.calendarEvents.find(e => e.id === 'cal_may_day');
+        else if (month === 6 && day === 24)  calEvent = this.calendarEvents.find(e => e.id === 'cal_midsummer');
+        else if (month === 11 && day === 2)  calEvent = this.calendarEvents.find(e => e.id === 'cal_all_souls');
+        else if (isAdvent)                   calEvent = this.calendarEvents.find(e => e.id === 'cal_advent');
+        else if (month === 12 && day === 24) calEvent = this.calendarEvents.find(e => e.id === 'cal_christmas');
+        else if (month === 12 && day === 31) calEvent = this.calendarEvents.find(e => e.id === 'cal_new_year');
+        else if (month === 1  && day === 1)  calEvent = this.calendarEvents.find(e => e.id === 'cal_new_year');
+
+        if (!calEvent) return;
+
+        if (calEvent.choices && calEvent.choices.length > 0) {
+            this.showEvent(calEvent);
+        } else {
+            this.applyAutoEffect(calEvent);
+        }
+    },
+
+    // ── Výpočet Velikonoc (Anonymní Gregorian) ────────────────────────────────
+    _getEaster: function(year) {
+        const a = year % 19, b = Math.floor(year/100), c = year % 100;
+        const d = Math.floor(b/4), e = b % 4, f = Math.floor((b+8)/25);
+        const g = Math.floor((b-f+1)/3), h = (19*a+b-d-g+15) % 30;
+        const i = Math.floor(c/4), k = c % 4;
+        const l = (32+2*e+2*i-h-k) % 7;
+        const m = Math.floor((a+11*h+22*l)/451);
+        const month = Math.floor((h+l-7*m+114)/31);
+        const day   = ((h+l-7*m+114) % 31) + 1;
+        return new Date(year, month-1, day);
+    },
+
+    // ── Automatický efekt bez modalu ──────────────────────────────────────────
+    applyAutoEffect: function(event) {
+        if (!event.effect) return;
+        event.effect();
+        if (event.notifyKey) UI.notify(t(event.notifyKey));
+    },
+
+    // ── Starý checkEvents zachován pro zpětnou kompatibilitu ─────────────────
     checkEvents: function() {
         if(Date.now() - this.lastCheck < 60 * 60 * 1000) return;
         this.lastCheck = Date.now();
-        
+
+        this.checkCalendarEvents();
+
         for(let event of this.events) {
             if(!event.canTrigger) continue;
             if(event.trigger()) {
@@ -6885,6 +6981,188 @@ const EventsSystem = {
         }
     },
     
+    // ── KALENDÁŘNÍ EVENTY ────────────────────────────────────────────────────
+    calendarEvents: [
+
+        // A1 — Popeleční středa (automatický)
+        {
+            id: 'cal_ash_wednesday',
+            titleKey: 'events.cal_ash_wednesday.title',
+            textKey:  'events.cal_ash_wednesday.text',
+            notifyKey: 'events.cal_ash_wednesday.notify',
+            choices: [],
+            effect: () => {
+                if (!GameState.flags) GameState.flags = {};
+                GameState.flags.ashWednesday = Date.now() + (3 * 24 * 3600000);
+                Game.save();
+            }
+        },
+
+        // A2 — Filipojakubská noc (s volbou)
+        {
+            id: 'cal_walpurgis',
+            titleKey: 'events.cal_walpurgis.title',
+            textKey:  'events.cal_walpurgis.text',
+            choices: [
+                {
+                    labelKey: 'events.cal_walpurgis.athanor_btn',
+                    descKey:  'events.cal_walpurgis.athanor_desc',
+                    action: () => {
+                        if (!GameState.flags) GameState.flags = {};
+                        GameState.flags.walpurgisAthanor = Date.now() + (8 * 3600000);
+                        // 40% šance inkvizitor druhý den
+                        if (Math.random() < 0.4) {
+                            GameState.flags.inquisitorComing = true;
+                        }
+                        Game.save();
+                        UI.notify(t('events.cal_walpurgis.athanor_notif'));
+                        return t('events.cal_walpurgis.athanor_res');
+                    }
+                },
+                {
+                    labelKey: 'events.cal_walpurgis.pray_btn',
+                    descKey:  'events.cal_walpurgis.pray_desc',
+                    action: () => {
+                        Game.addItem('vigor_point', 10);
+                        UI.notify(t('events.cal_walpurgis.pray_notif'));
+                        return t('events.cal_walpurgis.pray_res');
+                    }
+                },
+                {
+                    labelKey: 'events.cal_walpurgis.herbs_btn',
+                    descKey:  'events.cal_walpurgis.herbs_desc',
+                    action: () => {
+                        Game.addItem('thyme', 3);
+                        Game.addItem('st_johns_wort', 2);
+                        Game.addItem('chamomile', 1);
+                        UI.notify(t('events.cal_walpurgis.herbs_notif'));
+                        return t('events.cal_walpurgis.herbs_res');
+                    }
+                }
+            ]
+        },
+
+        // A3 — Velikonoce (automatický)
+        {
+            id: 'cal_easter',
+            titleKey:  'events.cal_easter.title',
+            textKey:   'events.cal_easter.text',
+            notifyKey: 'events.cal_easter.notify',
+            choices: [],
+            effect: () => {
+                if (!GameState.flags) GameState.flags = {};
+                GameState.flags.easterBonus = true;
+                Game.addItem('honey', 2);
+                Game.save();
+            }
+        },
+
+        // A4 — Máj (automatický)
+        {
+            id: 'cal_may_day',
+            titleKey:  'events.cal_may_day.title',
+            textKey:   'events.cal_may_day.text',
+            notifyKey: 'events.cal_may_day.notify',
+            choices: [],
+            effect: () => {
+                if (!GameState.flags) GameState.flags = {};
+                GameState.flags.mayDayBonus = Date.now() + (24 * 3600000);
+                Game.save();
+            }
+        },
+
+        // A5 — Slunovrat / Svatý Jan (s volbou)
+        {
+            id: 'cal_midsummer',
+            titleKey: 'events.cal_midsummer.title',
+            textKey:  'events.cal_midsummer.text',
+            choices: [
+                {
+                    labelKey: 'events.cal_midsummer.herbs_btn',
+                    descKey:  'events.cal_midsummer.herbs_desc',
+                    action: () => {
+                        Game.addItem('st_johns_wort', 3);
+                        Game.addItem('thyme', 2);
+                        Game.addItem('pollen', 1);
+                        UI.notify(t('events.cal_midsummer.herbs_notif'));
+                        return t('events.cal_midsummer.herbs_res');
+                    }
+                },
+                {
+                    labelKey: 'events.cal_midsummer.work_btn',
+                    descKey:  'events.cal_midsummer.work_desc',
+                    action: () => {
+                        if (!GameState.flags) GameState.flags = {};
+                        GameState.flags.midsummerWork = true;
+                        Game.save();
+                        UI.notify(t('events.cal_midsummer.work_notif'));
+                        return t('events.cal_midsummer.work_res');
+                    }
+                }
+            ]
+        },
+
+        // A6 — Dušičky (automatický)
+        {
+            id: 'cal_all_souls',
+            titleKey:  'events.cal_all_souls.title',
+            textKey:   'events.cal_all_souls.text',
+            notifyKey: 'events.cal_all_souls.notify',
+            choices: [],
+            effect: () => {
+                if (!GameState.flags) GameState.flags = {};
+                GameState.flags.allSoulsNight = Date.now() + (24 * 3600000);
+                Game.save();
+            }
+        },
+
+        // A7 — Advent (automatický, jen 1. prosince)
+        {
+            id: 'cal_advent',
+            titleKey:  'events.cal_advent.title',
+            textKey:   'events.cal_advent.text',
+            notifyKey: 'events.cal_advent.notify',
+            choices: [],
+            effect: () => {
+                if (!GameState.flags) GameState.flags = {};
+                GameState.flags.adventSeason = true;
+                Game.save();
+            }
+        },
+
+        // A8 — Štědrý den (automatický)
+        {
+            id: 'cal_christmas',
+            titleKey:  'events.cal_christmas.title',
+            textKey:   'events.cal_christmas.text',
+            notifyKey: 'events.cal_christmas.notify',
+            choices: [],
+            effect: () => {
+                if (!GameState.flags) GameState.flags = {};
+                GameState.flags.christmasDay = true;
+                GameState.flags.adventSeason = false;
+                Game.save();
+            }
+        },
+
+        // A9 — Silvestr / Nový rok (automatický)
+        {
+            id: 'cal_new_year',
+            titleKey:  'events.cal_new_year.title',
+            textKey:   'events.cal_new_year.text',
+            notifyKey: 'events.cal_new_year.notify',
+            choices: [],
+            effect: () => {
+                // Reset canTrigger všech náhodných eventů
+                EventsSystem.events.forEach(e => { e.canTrigger = true; });
+                if (!GameState.flags) GameState.flags = {};
+                GameState.flags.christmasDay = false;
+                Game.save();
+            }
+        },
+
+    ], // konec calendarEvents
+
     showEvent: function(event) {
         const modal = document.createElement('div');
         modal.style.cssText = `
@@ -18618,77 +18896,76 @@ farmyard: {
         lambPool: 'Jehňata k porážce',
     },
 
-    // ── SCRINIUM ABBATIS ─────────────────────────────────────────────────────
-    scrinium: {
-        title: 'Scrinium Abbatis',
-        subtitle: 'Soukromá knihovna opata',
-        locked_hint: 'Získej přízeň opata, aby ti otevřel tuto místnost.',
-        subtabs: {
-            bestiar:     '🐉 Bestiář',
-            herbar:      '🌿 Herbář',
-            kroniky:     '📜 Kroniky',
-            tajne_spisy: '🔐 Tajné spisy',
-            mapy:        '🗺️ Mapy',
-        },
-        folio: {
-            not_found:       'Folio dosud nenalezeno.',
-            found:           'Folio nalezeno',
-            physical_scroll: '📜 Svitek',
-            physical_leaf:   '📃 Volný list',
-            physical_codex:  '📖 Kodex',
-            physical_map:    '🗺️ Mapa',
-            btn_lectio:      'Lectio (přečíst)',
-            btn_glossa:      'Glossa (přeložit)',
-            btn_arcanum:     'Arcanum (rozluštit)',
-            btn_done:        '✓ Přečteno',
-            layer_lectio:    'Lectio',
-            layer_glossa:    'Glossa',
-            layer_arcanum:   'Arcanum',
-            cost_label:      'Vyžaduje:',
-            err_no_item:     'Nemáš potřebné suroviny.',
-        },
-        folios: {
-            epistola: {
-                title: 'Epistola de Rebus Ignotis',
-                lectio: '*Svitek je ohořelý na okrajích. Část textu chybí.*\n\n"Est locus post murum, ubi ignis non dormit..."\n\n— Zlomek dopisu neznámého adresáta. Rok neznámý.',
-                glossa: '*Po pečlivém studiu při svíčce začínají slova dávat smysl.*\n\n„Jest místo za zdí, kde oheň nespí. Tam věčné teplo uchovává tvary věcí, jež jsou očím prostých lidí skryty."\n\nKdo psal tento dopis — a komu?',
-                arcanum: '*Poslední řádky svitku, skryté za přeložením ohořelého okraje:*\n\n"Qui scit verbum, intrat. Verbum est: exordium."\n\n— Kdo zná slovo, vejde. Slovo jest: exordium.\n\n*V pravém dolním rohu svitku je nákres — kruh s trojúhelníkem uvnitř. Symbol athanoru.*',
-                reward_notify: '🔥 Athanor odemčen! Pec za zdí je tvá.',
-            },
-            fausto: {
-                title: 'De Fausto Contractu',
-                lectio: '*Volný list, mastné skvrny. Podpis na konci je škrtnutý.*\n\n„Slyšte: jest muž, jenž uzavřel smlouvu přesahující rozum. Za rychlé dokončení díla zaprodal to nejcennější."',
-                glossa: '*Po srovnání s jinými dokumenty se vyjasní jméno i místo.*\n\nJohann Fust, Mohuč, léta Páně 1455. Schöffer svědčil proti mistrovi. Gutenberg přišel o vše.\n\n„Fust" — „Faust". Zvuk jmen splýval. Legenda se rodila.',
-                arcanum: '*Na rubu listu, psáno jinou rukou:*\n\n„Nabízím totéž. Podpiš a dílo bude dokončeno. Nebo odmítni — a zůstaň poctivým řemeslníkem bez zkratky."',
-                choice_prompt:  'Co učiníš?',
-                choice_sign:    '✍️ Podepsat smlouvu',
-                choice_refuse:  '🙏 Odmítnout',
-                signed_notify:  '😈 Smlouva podepsána. Dočasný bonus — ale za cenu.',
-                refused_notify: '✝️ Odmítl jsi. Poctivá práce trvá déle — ale duše zůstává tvá.',
-                achievement:    'Odolal jsem',
-            },
-            palimpsest: {
-                title: 'Ars Palimpsesti',
-                lectio: '*Volný list, pod textem stopy starší vrstvy.*\n\n„De arte radendi et rescribendi. O umění škrabání a přepisování."',
-                glossa: '*Pod recepturou je starší text: fragment básně.*\n\n„Omnia mutantur, nihil interit." — Vše se mění, nic nezaniká.',
-                arcanum: '*Na spodním okraji, skryto v přeložení:*\n\n„Pemza a voda. Oškrábej. Nech uschnout. Piš znovu."\n\n*Odemčen recept: Recyklace pergamenu*',
-                reward_notify: '📋 Nový recept odemčen: Recyklace pergamenu.',
-            },
-            titivillus: {
-                title: 'De Titivillo Daemone',
-                lectio: '*Kodex s margináliemi — malé ručičky ☞ ukazují na klíčová místa.*\n\n„O démonu, jenž přebývá ve skriptoriích."\n\nTitivillus sbírá chyby.',
-                glossa: '*Marginálie říkají:*\n\n„Viděl jsem ho. Malý, šedý, tichý. Sbírá vynechaná písmena. Každý den odnáší pytel k ďáblu."',
-                arcanum: '*Poslední strana — psána jiným inkoustem:*\n\n„Titivillus nespí. Bdí obzvláště, když je tma a písař unavený."\n\n*Od této chvíle vidíš varování, když Vigor klesá příliš nízko.*',
-                reward_notify: '👁️ Titivillovo varování aktivováno.',
-            },
-        },
-    },
-
     // ── EVENTS ───────────────────────────────────────────────────────────────
     events: {
         ui: {
             result: 'Výsledek',
             close:  'Zavřít',
+        },
+
+        // ── KALENDÁŘNÍ EVENTY ─────────────────────────────────────────────────
+        cal_ash_wednesday: {
+            title:  'Popeleční středa',
+            text:   'Zvony bijí od rána. Opat nařídil půst — žádné maso, žádné víno, žádný přepych. Čtyřicet dní pokání začíná dnes. Skriptorium pracuje dál, ale ruce jsou těžší.',
+            notify: '✝️ Popeleční středa. Čtyřicet dní půstu začíná.',
+        },
+        cal_walpurgis: {
+            title: 'Filipojakubská noc',
+            text:  'Ohně hoří na kopcích od Blaníku až po Říp. Říká se, že tuto noc mají byliny největší moc a pec Athanoru hoří jasněji. Ale také — že inkvizitor z Olomouce má oči otevřené.',
+            athanor_btn:   'Pracovat v Athanoru celou noc',
+            athanor_desc:  'Využít magické noci. Kombinace mají +30% šanci úspěchu — ale inkvizitor může přijít ráno.',
+            athanor_notif: '🔥 Pec plane. Tato noc patří ohni.',
+            athanor_res:   'Athanor hořel celou noc. Pokusy se dařily lépe než jindy. Uvidíme, zda někdo nezaregistroval světla.',
+            pray_btn:      'Zavřít okna a modlit se',
+            pray_desc:     'Bezpečná volba. Žádné riziko.',
+            pray_notif:    '🙏 Modlitba ochránila skriptorium.',
+            pray_res:      'Tichá noc. Ohně na kopcích dohorěly bez povšimnutí. Skriptorium je v bezpečí.',
+            herbs_btn:     'Vyslat pomocníka sbírat byliny',
+            herbs_desc:    'Filipojakubské byliny jsou nejvzácnější v celém roce.',
+            herbs_notif:   '🌿 Pomocník se vrátil před svítáním s plnou náručí bylin.',
+            herbs_res:     'Tymián, třezalka, heřmánek — vše trhané o půlnoci. Hildegarda by schválila.',
+        },
+        cal_easter: {
+            title:  'Velikonoční ráno',
+            text:   'Aleluja zní z kostelní věže. Poutníci přicházejí ze všech stran. Benedikt z Litomyšle otevřel Hospodu od svítání a Giacomo Foscari připlul s novým zbožím.',
+            notify: '✝️ Christus resurrexit. Skriptorium slaví.',
+        },
+        cal_may_day: {
+            title:  'První máj',
+            text:   'Mladíci celou noc stavěli máj před vesnicí. Dívky věnčí dobytek. Zahrada jako by sama věděla — vše roste rychleji, včely létají dál než jindy.',
+            notify: '🌿 Máj přišel. Zahrada se probouzí.',
+        },
+        cal_midsummer: {
+            title: 'Noc svatého Jana',
+            text:  'Nejkratší noc roku. Bylinkáři věří, že třezalka trhána o půlnoci léčí vše. Ohně na kopcích mluví pohanskou řečí, zvony v kostele řečí křesťanskou. Oba jazyky dnes znějí najednou.',
+            herbs_btn:   'Jít sbírat byliny o půlnoci',
+            herbs_desc:  'Byliny trhané o slunovratu mají největší moc. Ale krátká noc dá o sobě vědět.',
+            herbs_notif: '🌿 Byliny trhané o půlnoci mají zvláštní moc.',
+            herbs_res:   'Třezalka, tymián, pyl — vše sebráno za svitu Sv. Jana. Vigor trpí, ale zásoby jsou bohaté.',
+            work_btn:    'Zůstat ve skriptoriu a pracovat',
+            work_desc:   'Jasná noc znamená méně svíček. Dobrý čas na práci.',
+            work_notif:  '🌙 Jasná noc. Svíčky téměř nepotřeba.',
+            work_res:    'Pracoval jsi při přirozeném světle. Svíčky ušetřeny, rukopisy pokračují.',
+        },
+        cal_all_souls: {
+            title:  'Dušičky',
+            text:   'Svíčky hoří na hrobech od soumraku. Titivillus je tuto noc živější než jindy — říká se, že mrtvé duše písařů, kteří chybovali, mu nosí nová písmena do pytle. Piš opatrně.',
+            notify: '🕯️ Dušičky. Titivillus bdí.',
+        },
+        cal_advent: {
+            title:  'Advent začal',
+            text:   'Čtyři neděle čekání. Kostel voní kadidlem, trh voní perníkem. Poptávka po žaltářích a modlitebních knihách roste — každý chce mít doma slovo Boží před Vánocemi.',
+            notify: '✝️ Advent. Čas čekání a světla.',
+        },
+        cal_christmas: {
+            title:  'Štědrý večer',
+            text:   'Hvězda vyšla. Cellarium zavřeno, Benedikt i Giacomo jsou u svých rodin. Komunita potřebuje jídlo a teplo. Skriptorium odpočívá — ale oheň v krbu nikdy nezhasíná.',
+            notify: '⭐ Štědrý večer. Pax et bonum.',
+        },
+        cal_new_year: {
+            title:  'Konec roku',
+            text:   'Starý rok odchází. Kronikář zapíše poslední řádku. Všechny staré záležitosti jsou uzavřeny — a nové začínají čistou stránkou.',
+            notify: '🕯️ Nový rok. Čistá stránka.',
         },
         swedish_siege: {
             title: 'Nájezd od severu',
@@ -20342,6 +20619,71 @@ In every scriptorium lurks Titivillus. His task is not to tempt to sin — other
         ui: {
             result: 'Outcome',
             close:  'Close',
+        },
+
+        // ── CALENDAR EVENTS ───────────────────────────────────────────────────
+        cal_ash_wednesday: {
+            title:  'Ash Wednesday',
+            text:   'The bells have rung since dawn. The Abbot hath decreed a fast — no meat, no wine, no excess. Forty days of penance begin this day. The scriptorium worketh on, but the hands are heavier.',
+            notify: '✝️ Ash Wednesday. Forty days of fasting begin.',
+        },
+        cal_walpurgis: {
+            title: 'Walpurgis Night',
+            text:  'Fires burn upon the hills from Blaník to Říp. It is said that this night herbs hold their greatest power and the Athanor burns more brightly. But also — that the inquisitor from Olomouc keepeth his eyes open.',
+            athanor_btn:   'Work in the Athanor through the night',
+            athanor_desc:  'Make use of the magical night. Combinations have +30% chance of success — but the inquisitor may come in the morning.',
+            athanor_notif: '🔥 The furnace blazeth. This night belongeth to fire.',
+            athanor_res:   'The Athanor burned all night long. The experiments went better than usual. We shall see if anyone noticed the lights.',
+            pray_btn:      'Close the shutters and pray',
+            pray_desc:     'The safe choice. No risk.',
+            pray_notif:    '🙏 Prayer hath protected the scriptorium.',
+            pray_res:      'A quiet night. The fires upon the hills burned out unnoticed. The scriptorium is safe.',
+            herbs_btn:     'Send a helper to gather herbs',
+            herbs_desc:    'Walpurgis herbs are the rarest of the whole year.',
+            herbs_notif:   '🌿 The helper returned before dawn with arms full of herbs.',
+            herbs_res:     'Thyme, St. John\u2019s wort, chamomile \u2014 all gathered at midnight. Hildegard would approve.',
+        },
+        cal_easter: {
+            title:  'Easter Morning',
+            text:   'Alleluia ringeth from the church tower. Pilgrims come from every direction. Benedikt of Litomyšl hath opened the Tavern since dawn and Giacomo Foscari hath arrived with new wares.',
+            notify: '✝️ Christus resurrexit. The scriptorium rejoiceth.',
+        },
+        cal_may_day: {
+            title:  'The First of May',
+            text:   'The young men spent the whole night raising the maypole before the village. The maidens garland the cattle. The garden seemeth to know — everything groweth faster, the bees fly further than usual.',
+            notify: '🌿 May hath come. The garden awaketh.',
+        },
+        cal_midsummer: {
+            title: 'St. John\u2019s Night',
+            text:  'The shortest night of the year. Herb-gatherers believe that St. John\u2019s wort picked at midnight cureth all. The fires upon the hills speak in the pagan tongue, the bells in the church in the Christian tongue. Both tongues sound as one this day.',
+            herbs_btn:   'Go gathering herbs at midnight',
+            herbs_desc:  'Midsummer herbs hold the greatest power. But the short night will make itself felt.',
+            herbs_notif: '🌿 Herbs gathered at midnight hold a singular power.',
+            herbs_res:   'St. John’s wort, thyme, pollen — all gathered by the light of midsummer. Vigour suffereth, but the stores are rich.',
+            work_btn:    'Stay in the scriptorium and work',
+            work_desc:   'A bright night meaneth fewer candles. A good time to work.',
+            work_notif:  '🌙 A bright night. Candles scarce needed.',
+            work_res:    'Thou worked by natural light. Candles saved, manuscripts advancing.',
+        },
+        cal_all_souls: {
+            title:  'All Souls’ Day',
+            text:   'Candles burn upon the graves since dusk. Titivillus is more lively this night than any other — it is said that the dead souls of scribes who erred bring him fresh letters for his sack. Write with care.',
+            notify: '🕯️ All Souls’ Day. Titivillus watcheth.',
+        },
+        cal_advent: {
+            title:  'Advent Hath Begun',
+            text:   'Four weeks of waiting. The church smelleth of incense, the market of gingerbread. The demand for psalters and prayer books groweth — everyone wisheth to have the word of God at home before Christmas.',
+            notify: '✝️ Advent. A time of waiting and light.',
+        },
+        cal_christmas: {
+            title:  'Christmas Eve',
+            text:   'The star hath risen. The Cellarium is closed, Benedikt and Giacomo are with their families. The community needeth food and warmth. The scriptorium resteth — but the fire in the hearth never goeth out.',
+            notify: '⭐ Christmas Eve. Pax et bonum.',
+        },
+        cal_new_year: {
+            title:  'The Year’s End',
+            text:   'The old year departeth. The chronicler shall write the last line. All old matters are closed — and new ones begin upon a clean page.',
+            notify: '🕯️ New Year. A clean page.',
         },
         swedish_siege: {
             title: 'Raiders from the North',
