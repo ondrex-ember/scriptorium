@@ -12585,27 +12585,85 @@ const AthanorSystem = {
     </svg>`;
   },
 
+  // Kategorie pro filtr ingrediencí
+  _ingCategories: {
+    all:      null,
+    herbs:    ['chamomile','st_johns_wort','thyme','hops'],
+    pigments: ['lapis_lazuli','ochre','cinnabar','carbon_black','malachite','egg_tempera','linseed_oil'],
+    liquids:  ['water','wine','mercury','turpentine'],
+    minerals: ['sulfur','chalk','gum_arabic','alum','pumice','oak_bark','gall_nut'],
+    brewing:  ['grain','hops','wort','honey','thyme'],
+  },
+
+  _activeIngFilter: 'all',
+
+  setIngFilter(cat) {
+    AthanorSystem._activeIngFilter = cat;
+    const el = document.getElementById('athanor-ing-list');
+    if (el) {
+      const state = GameState.athanor;
+      const ingMap = {};
+      AthanorDB.ingredients.forEach(i => { ingMap[i.id] = i; });
+      el.innerHTML = AthanorSystem.buildIngredientListCompact(ingMap, state);
+    }
+    // Aktualizuj aktivní tlačítko
+    document.querySelectorAll('.athanor-filter-btn').forEach(btn => {
+      btn.style.background = btn.dataset.cat === cat
+        ? 'rgba(200,160,60,0.25)' : 'rgba(0,0,0,0.04)';
+      btn.style.color = btn.dataset.cat === cat
+        ? 'var(--accent-gold)' : 'var(--ink-primary)';
+    });
+  },
+
+  buildIngFilterBar() {
+    const filters = [
+      { id: 'all',      label: 'Vše' },
+      { id: 'herbs',    label: '🌿 Byliny' },
+      { id: 'pigments', label: '🎨 Pigmenty' },
+      { id: 'liquids',  label: '💧 Tekutiny' },
+      { id: 'minerals', label: '🪨 Minerály' },
+      { id: 'brewing',  label: '🍺 Pivovar' },
+    ];
+    const active = AthanorSystem._activeIngFilter || 'all';
+    return `<div style="display:flex;flex-wrap:wrap;gap:3px;margin-bottom:6px;">
+      ${filters.map(f => `<button class="athanor-filter-btn"
+        data-cat="${f.id}"
+        onclick="AthanorSystem.setIngFilter('${f.id}')"
+        style="font-size:0.62rem;padding:2px 7px;border:1px solid rgba(0,0,0,0.15);border-radius:4px;cursor:pointer;
+          background:${f.id===active?'rgba(200,160,60,0.25)':'rgba(0,0,0,0.04)'};
+          color:${f.id===active?'var(--accent-gold)':'var(--ink-primary)'};
+          font-family:'Crimson Text';">
+        ${f.label}
+      </button>`).join('')}
+    </div>`;
+  },
+
   buildIngredientListCompact(ingMap, state) {
     const isBrewing = !!state.brewing;
-    return AthanorDB.ingredients.map(ing => {
-      const have = GameState.inventory[ing.id] || 0;
-      const inSlots = state.slots.filter(s => s === ing.id).length;
-      const available = have - inSlots;
-      const canAdd = !isBrewing && available > 0 && state.slots.length < 3;
-      return `<div style="display:flex;align-items:center;gap:6px;padding:5px 6px;border-radius:5px;
-        border:1px solid ${canAdd ? 'rgba(200,160,60,0.3)' : 'transparent'};
-        background:${have===0?'transparent':canAdd?'rgba(200,160,60,0.04)':'rgba(0,0,0,0.03)'};
-        opacity:${have===0?'0.3':'1'};cursor:${canAdd?'pointer':'default'};"
-        ${canAdd ? `onclick="AthanorSystem.addToSlot('${ing.id}')"` : ''}
-        title="${ing.lore||''}">
-        <span style="font-size:0.9rem;">${ing.icon}</span>
-        <div style="flex:1;min-width:0;">
-          <div style="font-size:0.74rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${ing.name}</div>
-          <div style="font-size:0.6rem;font-style:italic;opacity:0.5;">${ing.name_lat}</div>
-        </div>
-        <div style="font-size:0.75rem;font-weight:600;color:${have>0?'var(--accent-gold)':'#aaa'};">${available}</div>
-      </div>`;
-    }).join('');
+    const activeFilter = AthanorSystem._activeIngFilter || 'all';
+    const filterIds = AthanorSystem._ingCategories[activeFilter];
+
+    return AthanorDB.ingredients
+      .filter(ing => !filterIds || filterIds.includes(ing.id))
+      .map(ing => {
+        const have = GameState.inventory[ing.id] || 0;
+        const inSlots = state.slots.filter(s => s === ing.id).length;
+        const available = have - inSlots;
+        const canAdd = !isBrewing && available > 0 && state.slots.length < 3;
+        return `<div style="display:flex;align-items:center;gap:6px;padding:5px 6px;border-radius:5px;
+          border:1px solid ${canAdd ? 'rgba(200,160,60,0.3)' : 'transparent'};
+          background:${have===0?'transparent':canAdd?'rgba(200,160,60,0.04)':'rgba(0,0,0,0.03)'};
+          opacity:${have===0?'0.3':'1'};cursor:${canAdd?'pointer':'default'};"
+          ${canAdd ? `onclick="AthanorSystem.addToSlot('${ing.id}')"` : ''}
+          title="${ing.lore||''}">
+          <span style="font-size:0.9rem;">${ing.icon}</span>
+          <div style="flex:1;min-width:0;">
+            <div style="font-size:0.74rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${ing.name}</div>
+            <div style="font-size:0.6rem;font-style:italic;opacity:0.5;">${ing.name_lat}</div>
+          </div>
+          <div style="font-size:0.75rem;font-weight:600;color:${have>0?'var(--accent-gold)':'#aaa'};">${available}</div>
+        </div>`;
+      }).join('');
   },
 
   render(containerId) {
@@ -12633,8 +12691,9 @@ const AthanorSystem = {
 
           <!-- LEVÝ PANEL: Ingredience -->
           <div style="background:rgba(0,0,0,0.04);border:1px solid rgba(0,0,0,0.1);border-radius:8px;padding:10px;">
-            <div style="font-family:'Cinzel',serif;font-size:0.68rem;letter-spacing:2px;opacity:0.5;text-transform:uppercase;margin-bottom:8px;">🌿 Ingredience</div>
-            <div style="display:flex;flex-direction:column;gap:3px;max-height:440px;overflow-y:auto;">
+            <div style="font-family:'Cinzel',serif;font-size:0.68rem;letter-spacing:2px;opacity:0.5;text-transform:uppercase;margin-bottom:6px;">🌿 Ingredience</div>
+            ${AthanorSystem.buildIngFilterBar()}
+            <div id="athanor-ing-list" style="display:flex;flex-direction:column;gap:3px;max-height:440px;overflow-y:auto;" class="athanor-ing-mobile">
               ${AthanorSystem.buildIngredientListCompact(ingMap, state)}
             </div>
           </div>
@@ -12666,7 +12725,12 @@ const AthanorSystem = {
 
         </div>
       </div>
-      <style>.athanor-grid{@media(max-width:700px){grid-template-columns:1fr!important}}</style>
+      <style>
+        @media(max-width:700px){
+          .athanor-grid{grid-template-columns:1fr!important}
+          .athanor-ing-mobile{max-height:220px!important}
+        }
+      </style>
     `;
   },
 
