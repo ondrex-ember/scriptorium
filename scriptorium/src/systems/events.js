@@ -167,10 +167,17 @@ const EventsSystem = {
                 const choiceIdx = parseInt(e.currentTarget.dataset.choice);
                 const choice = event.choices[choiceIdx];
                 const result = choice.action();
-                
+                Game.save();
+
                 modal.innerHTML = `<h3 style="margin-top:0;">${t('events.ui.result')}</h3>
                 <p style="white-space: pre-wrap;">${result}</p>
-                <button class="game-btn" onclick="this.parentElement.parentElement.remove(); document.body.querySelector('div[style*=\\'background: rgba\\']').remove(); Game.save(); UI.renderAll();">${t('events.ui.close')}</button>`;
+                <button class="game-btn" id="event-close-btn">${t('events.ui.close')}</button>`;
+
+                document.getElementById('event-close-btn').addEventListener('click', () => {
+                    modal.remove();
+                    if (backdrop && backdrop.parentElement) backdrop.remove();
+                    if (typeof UI !== 'undefined' && typeof UI.renderAll === 'function') UI.renderAll();
+                });
             });
         });
     }

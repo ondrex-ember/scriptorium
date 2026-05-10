@@ -1610,4 +1610,43 @@ In every scriptorium lurks Titivillus. His task is not to tempt to sin — other
         }, // end folios
 
     }, // end scrinium
+
+    // ── EVENTS ───────────────────────────────────────────────────────────────
+    events: {
+        ui: {
+            result: 'Outcome',
+            close:  'Close',
+        },
+        swedish_siege: {
+            title: 'Raiders from the North',
+            text: 'Word cometh from the lower town — an armed band marcheth from the north. They call them Swedes, yet they speak a strange mixture of tongues. They seek valuables. Thy manuscripts are in peril.',
+            sartorius_btn:   'Treat with Captain Sartorius',
+            sartorius_desc:  'Offer part of thy stores in exchange for protection.',
+            sartorius_notif: '⚔️ Sartorius hath accepted. The losses are bearable.',
+            sartorius_res:   'Captain Sartorius took his share and withdrew. The scriptorium still standeth.',
+            wall_btn:    'Wall up the stores in the cellar',
+            wall_desc:   'Conceal all behind a false wall. Risky, but thy best chance.',
+            wall_notif:  '🧱 The stores are walled up. Thou waitest.',
+            wall_res:    'All is hidden. The raiders searched the scriptorium — they found nothing. In 48 hours thou shalt dig it out.',
+            wall_return: '🧱 The false wall uncovered — thy stores have returned, most of them saved.',
+            nego_btn:    'Surrender part of the manuscripts as ransom',
+            nego_desc:   'Painful, but swift.',
+            nego_notif:  '📜 The ransom hath been delivered. They have gone.',
+            nego_res:    'They took the manuscripts and vanished into the forest. The rest of the scriptorium is safe.',
+        },
+        hidden_incunabula: {
+            title: 'A Mysterious Book',
+            text: 'While rearranging the shelves, thou findest a dusty book behind a beam. Printed, but old — very old. It may be an incunabulum.',
+            compare_btn:        'Compare with the Kutná Hora Bible',
+            compare_desc:       'A scholarly comparison — it may yield precious insight.',
+            compare_notif_ok:   '📚 The comparison hath yielded remarkable findings!',
+            compare_res_ok:     'The manuscript is truly rare. Thy notes shall enrich the knowledge of the scriptorium.',
+            compare_notif_fail: '📚 The comparison hath yielded no clear conclusion.',
+            compare_res_fail:   'The book remaineth a mystery. At least a few notes.',
+            ignore_btn:   'Set aside for later',
+            ignore_desc:  'There is no time for scholarship now.',
+            ignore_notif: '📦 The book awaiteth better times.',
+            ignore_res:   'Thou hast stored it safely. Perhaps thou shalt return to it.',
+        },
+    },
 };
