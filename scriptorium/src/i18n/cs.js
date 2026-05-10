@@ -1124,4 +1124,113 @@ farmyard: {
         lambGrowing: 'Jehně dorůstá',
         lambPool: 'Jehňata k porážce',
     },
+
+    // ── SCRINIUM ABBATIS ─────────────────────────────────────────────────────
+    scrinium: {
+        title: 'Scrinium Abbatis',
+        subtitle: 'Soukromá knihovna opata',
+        locked_hint: 'Získej přízeň opata, aby ti otevřel tuto místnost.',
+
+        subtabs: {
+            bestiar:     '🐉 Bestiář',
+            herbar:      '🌿 Herbář',
+            kroniky:     '📜 Kroniky',
+            tajne_spisy: '🔐 Tajné spisy',
+            mapy:        '🗺️ Mapy',
+        },
+
+        folio: {
+            not_found:       'Folio dosud nenalezeno.',
+            found:           'Folio nalezeno',
+            physical_scroll: '📜 Svitek',
+            physical_leaf:   '📃 Volný list',
+            physical_codex:  '📖 Kodex',
+            physical_map:    '🗺️ Mapa',
+            btn_lectio:      'Lectio (přečíst)',
+            btn_glossa:      'Glossa (přeložit)',
+            btn_arcanum:     'Arcanum (rozluštit)',
+            btn_done:        '✓ Přečteno',
+            layer_lectio:    'Lectio',
+            layer_glossa:    'Glossa',
+            layer_arcanum:   'Arcanum',
+            cost_label:      'Vyžaduje:',
+            err_no_item:     'Nemáš potřebné suroviny.',
+        },
+
+        folios: {
+            epistola: {
+                title: 'Epistola de Rebus Ignotis',
+                lectio: `*Svitek je ohořelý na okrajích. Část textu chybí.*
+
+"Est locus post murum, ubi ignis non dormit. Ibi calor perpetuus servat formas rerum, quae oculis communibus non patent..."
+
+— Zlomek dopisu neznámého adresáta. Rok neznámý.`,
+                glossa: `*Po pečlivém studiu při svíčce začínají slova dávat smysl.*
+
+„Jest místo za zdí, kde oheň nespí. Tam věčné teplo uchovává tvary věcí, jež jsou očím prostých lidí skryty."
+
+Kdo psal tento dopis — a komu?`,
+                arcanum: `*Poslední řádky svitku, skryté za přeložením ohořelého okraje:*
+
+"Qui scit verbum, intrat. Verbum est: exordium."
+
+— Kdo zná slovo, vejde. Slovo jest: exordium.
+
+*V pravém dolním rohu svitku je nákres — kruh s trojúhelníkem uvnitř. Symbol athanoru.*`,
+                reward_notify: '🔥 Athanor odemčen! Pec za zdí je tvá.',
+            },
+            fausto: {
+                title: 'De Fausto Contractu',
+                lectio: `*Volný list, mastné skvrny. Podpis na konci je škrtnutý.*
+
+„Slyšte: jest muž, jenž uzavřel smlouvu přesahující rozum. Za rychlé dokončení díla zaprodal to nejcennější."`,
+                glossa: `*Po srovnání s jinými dokumenty se vyjasní jméno i místo.*
+
+Johann Fust, Mohuč, léta Páně 1455. Schöffer svědčil proti mistrovi. Gutenberg přišel o vše.
+
+„Fust" — „Faust". Zvuk jmen splýval. Legenda se rodila.`,
+                arcanum: `*Na rubu listu, psáno jinou rukou:*
+
+„Nabízím totéž. Podpiš a dílo bude dokončeno. Nebo odmítni — a zůstaň poctivým řemeslníkem bez zkratky."`,
+                choice_prompt:  'Co učiníš?',
+                choice_sign:    '✍️ Podepsat smlouvu',
+                choice_refuse:  '🙏 Odmítnout',
+                signed_notify:  '😈 Smlouva podepsána. Dočasný bonus — ale za cenu.',
+                refused_notify: '✝️ Odmítl jsi. Poctivá práce trvá déle — ale duše zůstává tvá.',
+                achievement:    'Odolal jsem',
+            },
+            palimpsest: {
+                title: 'Ars Palimpsesti',
+                lectio: `*Volný list, pod textem stopy starší vrstvy.*
+
+„De arte radendi et rescribendi. O umění škrabání a přepisování."`,
+                glossa: `*Pod recepturou je starší text: fragment básně.*
+
+„Omnia mutantur, nihil interit." — Vše se mění, nic nezaniká.`,
+                arcanum: `*Na spodním okraji, skryto v přeložení:*
+
+„Pemza a voda. Oškrábej. Nech uschnout. Piš znovu."
+
+*Odemčen recept: Recyklace pergamenu*`,
+                reward_notify: '📋 Nový recept odemčen: Recyklace pergamenu.',
+            },
+            titivillus: {
+                title: 'De Titivillo Daemone',
+                lectio: `*Kodex s margináliemi — malé ručičky ☞ ukazují na klíčová místa.*
+
+„O démonu, jenž přebývá ve skriptoriích."
+
+Titivillus sbírá chyby.`,
+                glossa: `*Marginálie říkají:*
+
+„Viděl jsem ho. Malý, šedý, tichý. Sbírá vynechaná písmena, přehozené slabiky. Každý den odnáší pytel k ďáblu."`,
+                arcanum: `*Poslední strana — psána jiným inkoustem:*
+
+„Titivillus nespí. Bdí obzvláště, když je tma a písař unavený."
+
+*Od této chvíle vidíš varování, když Vigor klesá příliš nízko.*`,
+                reward_notify: '👁️ Titivillovo varování aktivováno.',
+            },
+        },
+    },
 };
