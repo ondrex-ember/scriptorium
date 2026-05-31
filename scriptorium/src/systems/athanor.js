@@ -261,7 +261,7 @@ const AthanorDB = {
       lore: 'Odvání Varroa z úlů. Hildegarda ho znala jako bylinu síly a odvahy.',
       dropNote: 'Sbírej při průzkumu nebo pěstuj v zahradě.' },
     { id: 'wort', name: 'Mladina', name_lat: 'Mustum Cerevisiae', rarity: 'uncommon', source: 'crafted',
-      color: '#c8a84b', icon: '🫗', thermal: 2, moisture: 3,
+      color: '#c8a84b', icon: '🫗', thermal: 2, moisture: 2,
       lore: 'Zlatavá tekutina z povařeného obilí. Základ každého piva. Vzniká jen v Athanoru.' }
   ],
 
