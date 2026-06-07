@@ -5745,28 +5745,18 @@ const ThemeSystem = {
         
         const currentCode = WeatherSystem.cache.current.weather_code;
         const currentTemp = WeatherSystem.cache.current.temperature_2m;
-        const month = new Date().getMonth(); // 0-11
+        const now = new Date();
+        const m = now.getMonth() + 1; // 1-12
+        const d = now.getDate();
         
         // Snow always → Winter
         if(currentCode >= 71 && currentCode <= 86) return 'winter';
         
-        // Month-based seasons (primary)
-        // Winter: Dec, Jan, Feb (11, 0, 1)
-        if(month === 11 || month === 0 || month === 1) {
-            return 'winter';
-        }
-        // Spring: Mar, Apr, May (2, 3, 4)
-        else if(month >= 2 && month <= 4) {
-            return 'spring';
-        }
-        // Summer: Jun, Jul, Aug (5, 6, 7)
-        else if(month >= 5 && month <= 7) {
-            return 'summer';
-        }
-        // Autumn: Sep, Oct, Nov (8, 9, 10)
-        else if(month >= 8 && month <= 10) {
-            return 'autumn';
-        }
+        // Astronomické dělení roku
+        if (m === 3 && d >= 20 || m === 4 || m === 5 || m === 6 && d < 21) return 'spring';
+        if (m === 6 && d >= 21 || m === 7 || m === 8 || m === 9 && d < 23) return 'summer';
+        if (m === 9 && d >= 23 || m === 10 || m === 11 || m === 12 && d < 21) return 'autumn';
+        if (m === 12 && d >= 21 || m === 1 || m === 2 || m === 3 && d < 20) return 'winter';
         
         // Fallback: temperature-based
         if(currentTemp < 5) return 'winter';
@@ -5794,8 +5784,6 @@ const ThemeSystem = {
         }
     }
 };
-
-
 // ═══ src/systems/records.js ═══
 const PersonalRecords = {
     render: function() {
