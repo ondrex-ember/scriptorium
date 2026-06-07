@@ -816,10 +816,13 @@ const Game = {
 
     // ── Pomocná: vrátí sezónu dle reálného měsíce ─────────────────────────────
     _getApiarySeason: function() {
-        const m = new Date().getMonth() + 1; // 1–12
-        if (m >= 3 && m <= 5)  return 'spring';
-        if (m >= 6 && m <= 8)  return 'summer';
-        if (m >= 9 && m <= 11) return 'autumn';
+        const now = new Date();
+        const m = now.getMonth() + 1; // 1–12
+        const d = now.getDate();
+        // Astronomické dělení roku
+        if (m === 3 && d >= 20 || m === 4 || m === 5 || m === 6 && d < 21) return 'spring';
+        if (m === 6 && d >= 21 || m === 7 || m === 8 || m === 9 && d < 23) return 'summer';
+        if (m === 9 && d >= 23 || m === 10 || m === 11 || m === 12 && d < 21) return 'autumn';
         return 'winter';
     },
 
