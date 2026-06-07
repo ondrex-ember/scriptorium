@@ -213,6 +213,7 @@ const STRINGS_cs = {
             breedingActive: 'Odchov již probíhá!',
             breedingReq: 'Potřebuješ alespoň 2 ovce.',
             hennouseCollected: 'Sklizeno z kurníku.',
+            hennouseNotReady: '⏳ Vejce ani peří ještě nejsou připraveny.',
             sheepCollected: 'Sklizeno z chléva.',
             slaughtered: 'Poraženo {qty} kuřat.',
             henSlaughtered: 'Slepice poražena.',

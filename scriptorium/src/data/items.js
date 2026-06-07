@@ -188,6 +188,16 @@ const ItemsDB = {
     "water_pouch":    { name:"Kožený měšec",          name_en:"Water Pouch",         icon:"🫗", type:"tool", cat:"tool", desc:"Kožený měšec na vodu. Mniši nosili pití při práci.",            desc_en:"Leather pouch for water. Monks carried drink during work." },
     "ink_pouch":      { name:"Váček na inkoust",      name_en:"Ink Pouch",           icon:"🫙", type:"mat",              desc:"Kožený váček na suchý inkoust a práškové pigmenty.",            desc_en:"Leather pouch for dry ink and powdered pigments." },
     // ═══════════════════════════════════════════════════════════════════════════
+    // DVŮR — Nakupitelná zvířata (Trh)
+    // ═══════════════════════════════════════════════════════════════════════════
+    "hen_white":     { name:"Slepice bílá",   name_en:"White Hen",      icon:"🐔", type:"animal", desc:"Bílá slepice. Nosí vejce každých 8h.",       desc_en:"White hen. Lays eggs every 8h." },
+    "hen_black":     { name:"Slepice černá",  name_en:"Black Hen",      icon:"🐓", type:"animal", desc:"Černá slepice. Nosí vejce každých 8h.",       desc_en:"Black hen. Lays eggs every 8h." },
+    "hen_colored":   { name:"Slepice pestrá", name_en:"Coloured Hen",   icon:"🦚", type:"animal", desc:"Pestrá slepice. Dává více peří.",             desc_en:"Colourful hen. Produces more feathers." },
+    "rooster":       { name:"Kohout",         name_en:"Rooster",        icon:"🐓", type:"animal", desc:"Kohout zvyšuje snůšku vajec o 20%.",          desc_en:"Rooster increases egg yield by 20%." },
+    "sheep":         { name:"Ovce",           name_en:"Sheep",          icon:"🐑", type:"animal", desc:"Ovce produkuje vlnu, mléko a kůži.",          desc_en:"Sheep produces wool, milk and hide." },
+    "queen_bee":     { name:"Včelí matka",    name_en:"Queen Bee",      icon:"🐝", type:"animal", desc:"Včelí matka. Nutná pro stavbu úlu.",          desc_en:"Queen bee. Required to establish a hive." },
+
+    // ═══════════════════════════════════════════════════════════════════════════
     // DVŮR — Gallinarium & Ovile mláďata + maso (v8.x)
     // ═══════════════════════════════════════════════════════════════════════════
     "chick":         { name:"Kuře",           name_en:"Chick",          icon:"🐣", type:"animal", desc:"Mladé kuře. Dorůstá v kurníku.",             desc_en:"Young chick. Growing in the henhouse." },
@@ -213,4 +223,20 @@ const ItemsDB = {
     "prima_cervisia":{ name:"Prima Cervisia",    name_en:"Prima Cervisia", icon:"🍺", type:"food",  hunger:6, desc:"Klášterní pivo světlé. Sytí a posiluje komunitu.", desc_en:"Light monastery ale. Nourishes and strengthens the community." },
     "cervisia_nigra":{ name:"Cervisia Nigra",    name_en:"Cervisia Nigra", icon:"🍺", type:"food",  hunger:8, desc:"Klášterní pivo tmavé. Vzácnější, chutnější.",       desc_en:"Dark monastery ale. Rarer and more flavourful." },
 
+    // ═══════════════════════════════════════════════════════════════════════════
+    // SAD — Semena stromů (Trh)
+    // ═══════════════════════════════════════════════════════════════════════════
+    "seed_apple":    { name:"Sazenice jabloně",    name_en:"Apple Sapling",     icon:"🍎", type:"mat", desc:"Sází se do sadu. Plodí za 48h.", desc_en:"Plant in the orchard. Bears fruit after 48h." },
+    "seed_pear":     { name:"Sazenice hrušně",     name_en:"Pear Sapling",      icon:"🍐", type:"mat", desc:"Sází se do sadu. Plodí za 48h.", desc_en:"Plant in the orchard. Bears fruit after 48h." },
+    "seed_plum":     { name:"Sazenice švestky",    name_en:"Plum Sapling",      icon:"🫐", type:"mat", desc:"Sází se do sadu. Plodí za 36h.", desc_en:"Plant in the orchard. Bears fruit after 36h." },
+    "seed_cherry":   { name:"Sazenice třešně",     name_en:"Cherry Sapling",    icon:"🍒", type:"mat", desc:"Sází se do sadu. Plodí za 36h.", desc_en:"Plant in the orchard. Bears fruit after 36h." },
+    "seed_walnut":   { name:"Sazenice ořešáku",    name_en:"Walnut Sapling",    icon:"🥜", type:"mat", desc:"Sází se do sadu. Plodí za 72h.", desc_en:"Plant in the orchard. Bears fruit after 72h." },
+    "seed_mulberry": { name:"Sazenice morušovníku",name_en:"Mulberry Sapling",  icon:"🍇", type:"mat", desc:"Sází se do sadu. Plodí za 48h.", desc_en:"Plant in the orchard. Bears fruit after 48h." },
+    "seed_quince":   { name:"Sazenice kdouloně",   name_en:"Quince Sapling",    icon:"🍋", type:"mat", desc:"Sází se do sadu. Plodí za 60h.", desc_en:"Plant in the orchard. Bears fruit after 60h." },
+    "seed_sorb":     { name:"Sazenice jeřábu",     name_en:"Sorb Sapling",      icon:"🟤", type:"mat", desc:"Sází se do sadu. Plodí za 72h.", desc_en:"Plant in the orchard. Bears fruit after 72h." },
+    "seed_rowan":    { name:"Sazenice jeřábu pt.",  name_en:"Rowan Sapling",    icon:"🔴", type:"mat", desc:"Sází se do sadu. Plodí za 48h.", desc_en:"Plant in the orchard. Bears fruit after 48h." },
+    "seed_linden":   { name:"Sazenice lípy",        name_en:"Linden Sapling",   icon:"🌸", type:"mat", desc:"Sází se do sadu. Plodí za 60h.", desc_en:"Plant in the orchard. Bears fruit after 60h." },
+
 };
+    // Oprava BUG #2 — semena stromů chybějící v ItemsDB (Trh nákup)
+    // (vloženo před uzavírací }; — merge do objektu před buildem)

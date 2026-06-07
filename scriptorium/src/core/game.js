@@ -1212,7 +1212,7 @@ const Game = {
             h.lastFeatherAt = now; collected = true;
         }
         if (collected) { Game.save(); UI.renderFarmyard(); UI.notify('🥚 ' + t('game.hennouseCollected')); }
-        else UI.notify(t('game.hiveNotReady'), true);
+        else UI.notify(t('game.hennouseNotReady'), true);
     },
 
     feedHenhouse: function() {

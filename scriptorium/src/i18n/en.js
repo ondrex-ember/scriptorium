@@ -195,6 +195,7 @@ const STRINGS_en = {
             breedingActive: 'Breeding is already underway!',
             breedingReq: 'At least two sheep are needed.',
             hennouseCollected: 'Collected from the henhouse.',
+            hennouseNotReady: '⏳ No eggs or feathers ready yet.',
             sheepCollected: 'Collected from the sheepfold.',
             slaughtered: '{qty} chicks slaughtered.',
             henSlaughtered: 'The hen is slaughtered.',
