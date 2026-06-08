@@ -123,11 +123,17 @@ const TechTree = [
       unlocks:[], requires:["tech_monastery_wisdom"] },
 
     // SKLADOVÉ HOSPODÁŘSTVÍ
+    { id:"tech_carpentaria",      name:"Carpentaria — Tesařství",         name_en:"Carpentaria — Carpentry",
+      cost:8,
+      desc:"Klášterní tesař byl nepostradatelný. Sekera, dláto a pila — z větví dělal fošny, z kamene tesané kvádry. Bez tesaře nestojí ani studna, ani sýpka, ani sklep. Odemkne: Fošna (plank) a Tesaný kámen (cut_stone).",
+      desc_en:"The monastic carpenter was indispensable. Axe, chisel, and saw — from branches he made planks, from stone he cut blocks. Without the carpenter, neither well nor granary nor cellar stands. Unlocks: Plank and Cut Stone.",
+      unlocks:["plank","cut_stone"], requires:["tech_writing_basics"] },
+
     { id:"tech_almarium",        name:"Almarium — Klášterní Skříň",     name_en:"Almarium — Monastic Cupboard",
       cost:6,
       desc:"Každý klášter měl své almarium — uzamčenou skříň či komoru na suché zásoby, pergamen a cenné suroviny. Bez pořádku ve skříni není pořádek v díle. Odemkne: stavbu Almarium (kapacita 200 jednotek).",
       desc_en:"Every monastery had its almarium — a locked cupboard or storeroom for dry goods, parchment and precious materials. Without order in the cupboard there is no order in the work. Unlocks: Almarium building (capacity 200 units).",
-      unlocks:[], requires:["tech_writing_basics"] },
+      unlocks:[], requires:["tech_carpentaria"] },
 
     { id:"tech_cella",           name:"Tacuinum Sanitatis — Cella",      name_en:"Tacuinum Sanitatis — Cella",
       cost:10,

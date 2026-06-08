@@ -12,8 +12,13 @@ const CellariumSystem = {
   init: function() {
     if (!GameState.treasury) {
       GameState.treasury = {
-        grose: 0        // 💰 Pražský groš
+        grose: 0,
+        transactions: []
       };
+    }
+    // Migrate: přidat transactions do existujících savů
+    if (!GameState.treasury.transactions) {
+      GameState.treasury.transactions = [];
     }
     // Migrate old save: silver → grose
     if (GameState.treasury.silver !== undefined) {
@@ -288,6 +293,7 @@ const CellariumSystem = {
     const total = price * qty;
     Game.removeItem(itemId, qty);
     this.addGrose(total);
+    this.recordTransaction('sell', itemId, qty, price, entity);
     GameState.economy.tradesTotal++;
     if (GameState.economy.tradesTotal === 1) {
         Game.addKronikaEntry('important', '🏛️ První obchod uzavřen v Cellariu.', '🏛️ First trade completed in the Cellarium.', '🏛️ Primum commercium in Cellario factum est.');
@@ -358,6 +364,7 @@ const CellariumSystem = {
     }
     this.spendGrose(price);
     Game.addItem(itemId, 1);
+    this.recordTransaction('buy', itemId, 1, price, entity);
     // Aplikuj efekt nápoje (pivo/víno)
     CellariumSystem.applyDrinkEffect(itemId);
     GameState.economy.tradesTotal++;
@@ -659,10 +666,16 @@ const CellariumSystem = {
   },
 
   renderEntityTabs: function() {
+    const hasInv = GameState.researchedTechs && GameState.researchedTechs.includes('tech_inventarium');
+    const hasLR  = GameState.researchedTechs && GameState.researchedTechs.includes('tech_liber_rationum');
+
     const entities = [
-      { id: 'tavern', icon: '🍺', label: 'Hospoda', label_en: 'Tavern' },
-      { id: 'shop',   icon: '🏪', label: 'Obchod',  label_en: 'Shop'   },
-      { id: 'market', icon: '⛺', label: 'Trh',     label_en: 'Market' },
+      { id: 'tavern',          icon: '🍺', label: 'Hospoda',       label_en: 'Tavern'        },
+      { id: 'shop',            icon: '🏪', label: 'Obchod',        label_en: 'Shop'          },
+      { id: 'market',          icon: '⛺', label: 'Trh',           label_en: 'Market'        },
+      ...(hasInv ? [{ id: 'inventarium',    icon: '📦', label: 'Inventarium',   label_en: 'Inventarium'   }] : []),
+      ...(hasLR  ? [{ id: 'liber_rationum', icon: '📒', label: 'Liber Rationum',label_en: 'Liber Rationum'}] : []),
+      { id: 'buildings', icon: '🏗️', label: 'Budovy', label_en: 'Buildings' },
     ];
     const lang = (GameState.settings && GameState.settings.language) || 'cs';
     if (!GameState.ui) GameState.ui = {};
@@ -704,6 +717,11 @@ const CellariumSystem = {
   },
 
   renderEntityPanel: function(entity) {
+    // Speciální chlívky — nemají hodiny ani nákup/prodej
+    if (entity === 'inventarium')    return this.renderInventarium();
+    if (entity === 'liber_rationum') return this.renderLiberRationum();
+    if (entity === 'buildings')      return this.renderBuildings();
+
     const open = this.isEntityOpen(entity);
     const lang = (GameState.settings && GameState.settings.language) || 'cs';
 
@@ -796,5 +814,309 @@ const CellariumSystem = {
     h += `</div>`;
     return h;
   },
+
+  // ════════════════════════════════════════════════════════════════════
+  // INVENTARIUM — přehled zásob s decay varováními
+  // ════════════════════════════════════════════════════════════════════
+  renderInventarium: function() {
+    const lang = (GameState.settings && GameState.settings.language) || 'cs';
+    const inv = GameState.inventory || {};
+
+    // Kategorie položek s decay parametry (h = hodiny, null = bez decayu)
+    const decayMap = {
+      milk:            { decay_h: 24,   icon: '🥛', cat: 'organic' },
+      egg:             { decay_h: 120,  icon: '🥚', cat: 'organic' },
+      raw_fish:        { decay_h: 24,   icon: '🐟', cat: 'organic' },
+      cooked_fish:     { decay_h: 48,   icon: '🐟', cat: 'organic' },
+      cooked_meat:     { decay_h: 48,   icon: '🍖', cat: 'organic' },
+      raw_hide:        { decay_h: null, icon: '🐑', cat: 'material' },
+      thyme:           { decay_h: 720,  icon: '🌿', cat: 'herb' },
+      chamomile:       { decay_h: 720,  icon: '🌼', cat: 'herb' },
+      st_johns_wort:   { decay_h: 720,  icon: '🌿', cat: 'herb' },
+      linden_blossom:  { decay_h: 720,  icon: '🌸', cat: 'herb' },
+      pollen:          { decay_h: null, icon: '🌼', cat: 'herb' },
+      honey:           { decay_h: null, icon: '🍯', cat: 'preserve' },
+      beeswax:         { decay_h: null, icon: '🕯️', cat: 'preserve' },
+      wool:            { decay_h: null, icon: '🧶', cat: 'material' },
+      feather_hen:     { decay_h: null, icon: '🪶', cat: 'material' },
+    };
+
+    const hasCella = GameState.researchedTechs && GameState.researchedTechs.includes('tech_cella');
+    const hasAlm   = GameState.researchedTechs && GameState.researchedTechs.includes('tech_almarium');
+
+    // Kapacita
+    let cap = 50;
+    if (hasAlm) cap = 200;
+    if (hasCella) cap = 600;
+    const totalItems = Object.values(inv).reduce((s, v) => s + (typeof v === 'number' ? v : 0), 0);
+    const capPct = Math.min(100, Math.round(totalItems / cap * 100));
+    const capColor = capPct > 90 ? '#c0392b' : capPct > 70 ? '#e67e22' : '#5a9a5a';
+
+    const title = lang === 'en' ? 'Inventarium — Inventory of Stores' : 'Inventarium — Soupis Zásob';
+    const capLabel = lang === 'en' ? 'Capacity' : 'Kapacita';
+    const warnLabel = lang === 'en' ? 'Expires soon' : 'Vyprší brzy';
+    const noDecayLabel = lang === 'en' ? 'Does not expire' : 'Nevyprší';
+    const storageLabel = lang === 'en' ? 'Storage' : 'Sklad';
+
+    let h = `<div style="padding:15px; background:rgba(0,0,0,0.03); border-radius:8px; border-left:3px solid var(--accent-gold);">`;
+    h += `<div style="font-size:0.75rem; font-weight:bold; letter-spacing:0.08em; text-transform:uppercase; color:var(--accent-gold); margin-bottom:12px;">${title}</div>`;
+
+    // Kapacita bar
+    h += `<div style="margin-bottom:16px; padding:10px; background:rgba(197,160,89,0.06); border-radius:6px; border:1px solid rgba(197,160,89,0.2);">
+      <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
+        <span style="font-size:0.8rem; font-weight:bold;">${capLabel}</span>
+        <span style="font-size:0.8rem; color:${capColor};">${totalItems} / ${cap}</span>
+      </div>
+      <div style="background:rgba(0,0,0,0.1); border-radius:4px; height:8px;">
+        <div style="width:${capPct}%; background:${capColor}; height:8px; border-radius:4px; transition:width 0.3s;"></div>
+      </div>
+      <div style="font-size:0.7rem; opacity:0.6; margin-top:4px;">
+        ${storageLabel}: ${hasAlm ? (hasCella ? 'Cella (600j)' : 'Almarium (200j)') : '50j'}
+      </div>
+    </div>`;
+
+    // Položky s hodnotami
+    const rows = [];
+    for (const [id, qty] of Object.entries(inv)) {
+      if (typeof qty !== 'number' || qty <= 0) continue;
+      const item = ItemsDB[id];
+      const icon = (item && item.icon) ? item.icon : (decayMap[id] ? decayMap[id].icon : '📦');
+      const name = (typeof iName === 'function') ? iName(id) : (item ? item.name : id);
+      const decay = decayMap[id];
+
+      let decayHtml = '';
+      if (decay && decay.decay_h) {
+        const h_left = hasCella ? decay.decay_h * 2.5 : decay.decay_h;
+        const warn = h_left < 48;
+        decayHtml = `<span style="font-size:0.65rem; color:${warn ? '#c0392b' : '#5a9a5a'}; margin-left:4px;">
+          ${warn ? '⚠️ ' + warnLabel : '✓ ' + Math.round(h_left) + 'h'}
+        </span>`;
+      } else if (decay && decay.decay_h === null) {
+        decayHtml = `<span style="font-size:0.65rem; opacity:0.5; margin-left:4px;">∞ ${noDecayLabel}</span>`;
+      }
+
+      rows.push({ id, qty, icon, name, decayHtml, warn: decay && decay.decay_h && (hasCella ? decay.decay_h * 2.5 : decay.decay_h) < 48 });
+    }
+
+    // Seřadit: varování nahoře
+    rows.sort((a, b) => (b.warn ? 1 : 0) - (a.warn ? 1 : 0));
+
+    if (rows.length === 0) {
+      h += `<div style="text-align:center; padding:20px; opacity:0.5; font-style:italic; font-size:0.85rem;">
+        ${lang === 'en' ? 'Stores are empty.' : 'Zásoby jsou prázdné.'}
+      </div>`;
+    } else {
+      h += `<div style="display:flex; flex-direction:column; gap:5px;">`;
+      rows.forEach(r => {
+        h += `<div style="padding:7px 10px; background:rgba(197,160,89,0.06); border-radius:6px;
+                          border:1px solid rgba(197,160,89,${r.warn ? '0.5' : '0.15'});
+                          display:flex; align-items:center; gap:8px;">
+          <span style="font-size:1.2rem; min-width:24px;">${r.icon}</span>
+          <div style="flex:1;">
+            <span style="font-weight:bold; font-size:0.85rem;">${r.name}</span>
+            ${r.decayHtml}
+          </div>
+          <span style="font-weight:bold; font-size:0.9rem; color:var(--accent-gold);">×${r.qty}</span>
+        </div>`;
+      });
+      h += `</div>`;
+    }
+
+    h += `</div>`;
+    return h;
+  },
+
+  // ════════════════════════════════════════════════════════════════════
+  // LIBER RATIONUM — účetní kniha transakcí
+  // ════════════════════════════════════════════════════════════════════
+  recordTransaction: function(type, itemId, qty, price, entity) {
+    if (!GameState.treasury) GameState.treasury = {};
+    if (!GameState.treasury.transactions) GameState.treasury.transactions = [];
+    const lang = (GameState.settings && GameState.settings.language) || 'cs';
+    const item = ItemsDB[itemId];
+    const name = (typeof iName === 'function') ? iName(itemId) : (item ? item.name : itemId);
+    const entityNames = { tavern: 'Hospoda', shop: 'Obchod', market: 'Trh' };
+    const entityNamesEn = { tavern: 'Tavern', shop: 'Shop', market: 'Market' };
+    GameState.treasury.transactions.unshift({
+      date: new Date().toLocaleDateString('cs-CZ', { day: '2-digit', month: '2-digit' }),
+      type,          // 'sell' | 'buy'
+      itemId,
+      name,
+      qty,
+      price,
+      entity,
+      entityName: entityNames[entity] || entity,
+      entityName_en: entityNamesEn[entity] || entity,
+      total: qty * price,
+    });
+    // Max 100 záznamů
+    if (GameState.treasury.transactions.length > 100) {
+      GameState.treasury.transactions = GameState.treasury.transactions.slice(0, 100);
+    }
+  },
+
+  renderLiberRationum: function() {
+    const lang = (GameState.settings && GameState.settings.language) || 'cs';
+    const txs = (GameState.treasury && GameState.treasury.transactions) || [];
+
+    const title = lang === 'en' ? 'Liber Rationum — Account Book' : 'Liber Rationum — Účetní Kniha';
+    const emptyLabel = lang === 'en' ? 'No transactions recorded yet.' : 'Zatím žádné záznamy.';
+    const typeLabel = { sell: lang === 'en' ? 'Sold' : 'Prodáno', buy: lang === 'en' ? 'Bought' : 'Koupeno' };
+
+    // Výpočet bilance
+    const income  = txs.filter(t => t.type === 'sell').reduce((s, t) => s + t.total, 0);
+    const expense = txs.filter(t => t.type === 'buy').reduce((s, t) => s + t.total, 0);
+    const balance = income - expense;
+
+    let h = `<div style="padding:15px; background:rgba(0,0,0,0.03); border-radius:8px; border-left:3px solid var(--accent-gold);">`;
+    h += `<div style="font-size:0.75rem; font-weight:bold; letter-spacing:0.08em; text-transform:uppercase; color:var(--accent-gold); margin-bottom:12px;">${title}</div>`;
+
+    // Bilance summary
+    h += `<div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; margin-bottom:16px;">
+      <div style="text-align:center; padding:8px; background:rgba(90,154,90,0.1); border-radius:6px; border:1px solid rgba(90,154,90,0.3);">
+        <div style="font-size:0.65rem; opacity:0.7;">${lang==='en'?'Income':'Příjmy'}</div>
+        <div style="font-weight:bold; color:#5a9a5a;">+${income} 💰</div>
+      </div>
+      <div style="text-align:center; padding:8px; background:rgba(192,57,43,0.1); border-radius:6px; border:1px solid rgba(192,57,43,0.3);">
+        <div style="font-size:0.65rem; opacity:0.7;">${lang==='en'?'Expenses':'Výdaje'}</div>
+        <div style="font-weight:bold; color:#c0392b;">-${expense} 💰</div>
+      </div>
+      <div style="text-align:center; padding:8px; background:rgba(197,160,89,0.1); border-radius:6px; border:1px solid rgba(197,160,89,0.3);">
+        <div style="font-size:0.65rem; opacity:0.7;">${lang==='en'?'Balance':'Bilance'}</div>
+        <div style="font-weight:bold; color:${balance >= 0 ? '#5a9a5a' : '#c0392b'};">${balance >= 0 ? '+' : ''}${balance} 💰</div>
+      </div>
+    </div>`;
+
+    if (txs.length === 0) {
+      h += `<div style="text-align:center; padding:20px; opacity:0.5; font-style:italic; font-size:0.85rem;">${emptyLabel}</div>`;
+    } else {
+      h += `<div style="display:flex; flex-direction:column; gap:5px; max-height:400px; overflow-y:auto;">`;
+      txs.forEach(tx => {
+        const isSell = tx.type === 'sell';
+        const tLabel = typeLabel[tx.type] || tx.type;
+        const eName = lang === 'en' ? tx.entityName_en : tx.entityName;
+        h += `<div style="padding:8px 10px; background:rgba(197,160,89,0.05);
+                          border-radius:6px; border:1px solid rgba(197,160,89,0.15);
+                          border-left:3px solid ${isSell ? '#5a9a5a' : '#c0392b'};
+                          display:flex; align-items:center; gap:8px; font-size:0.82rem;">
+          <span style="opacity:0.6; min-width:36px; font-size:0.7rem;">${tx.date}</span>
+          <span style="opacity:0.7; min-width:50px;">${eName}</span>
+          <span style="flex:1; font-weight:bold;">${tx.name} ×${tx.qty}</span>
+          <span style="font-weight:bold; color:${isSell ? '#5a9a5a' : '#c0392b'}; white-space:nowrap;">
+            ${isSell ? '+' : '-'}${tx.total} 💰
+          </span>
+        </div>`;
+      });
+      h += `</div>`;
+    }
+
+    h += `</div>`;
+    return h;
+  },
+
+
+
+  // ════════════════════════════════════════════════════════════════════
+  // BUILDINGS — stavby skladů
+  // ════════════════════════════════════════════════════════════════════
+  renderBuildings: function() {
+    const lang = (GameState.settings && GameState.settings.language) || 'cs';
+    const storage = GameState.storage || {};
+    const hasCarp = GameState.researchedTechs && GameState.researchedTechs.includes('tech_carpentaria');
+    const hasAlm  = GameState.researchedTechs && GameState.researchedTechs.includes('tech_almarium');
+    const hasCel  = GameState.researchedTechs && GameState.researchedTechs.includes('tech_cella');
+    const hasHor  = GameState.researchedTechs && GameState.researchedTechs.includes('tech_horreum');
+
+    const title = lang === 'en' ? 'Storage Buildings' : 'Skladové Budovy';
+
+    const buildings = [
+      {
+        id: 'almarium', icon: '🗄️',
+        name: 'Almarium', name_en: 'Almarium',
+        desc: 'Uzamčená skříň na suché zásoby. Kapacita 200 jednotek.',
+        desc_en: 'Locked storeroom for dry goods. Capacity 200 units.',
+        cost: { plank: 6, rope: 3, leather: 2 },
+        req_tech: hasAlm,
+        req_build: true,
+        req_label: null,
+      },
+      {
+        id: 'cella', icon: '🏚️',
+        name: 'Cella', name_en: 'Cella',
+        desc: 'Chladný klenutý sklep. Kapacita 600j. Organické zásoby vydrží 2–3× déle.',
+        desc_en: 'Cool vaulted cellar. Capacity 600 units. Organic stores last 2–3× longer.',
+        cost: { cut_stone: 12, rope: 5, chalk: 4 },
+        req_tech: hasCel,
+        req_build: storage.almarium && storage.almarium.built,
+        req_label: lang === 'en' ? 'Requires: Almarium built' : 'Nutné: Almarium postaveno',
+      },
+      {
+        id: 'horreum', icon: '🌾',
+        name: 'Horreum', name_en: 'Horreum',
+        desc: 'Velká sýpka. Kapacita 1600j. Aktivuje krmivo pro zvířata.',
+        desc_en: 'Large granary. Capacity 1600 units. Activates animal fodder.',
+        cost: { cut_stone: 20, plank: 10, glue: 4, rope: 6 },
+        req_tech: hasHor,
+        req_build: storage.cella && storage.cella.built,
+        req_label: lang === 'en' ? 'Requires: Cella built' : 'Nutné: Cella postavena',
+      },
+    ];
+
+    let h = `<div style="padding:15px; background:rgba(0,0,0,0.03); border-radius:8px; border-left:3px solid var(--accent-gold);">`;
+    h += `<div style="font-size:0.75rem; font-weight:bold; letter-spacing:0.08em; text-transform:uppercase; color:var(--accent-gold); margin-bottom:14px;">${title}</div>`;
+
+    if (!hasCarp) {
+      h += `<div style="text-align:center; padding:20px; opacity:0.6; border:1px dashed rgba(197,160,89,0.3); border-radius:8px;">
+        <div style="font-size:2rem; margin-bottom:8px;">🪚</div>
+        <div style="font-style:italic; font-size:0.9rem;">
+          ${lang === 'en' ? 'Study <strong>Carpentaria — Carpentry</strong> to unlock building.' : 'Prostuduj <strong>Carpentaria — Tesářství</strong> pro odemčení staveb.'}
+        </div>
+      </div>`;
+    } else {
+      buildings.forEach(b => {
+        const built = storage[b.id] && storage[b.id].built;
+        const canBuild = b.req_tech && b.req_build && !built;
+        const locked = !b.req_tech;
+        const waitBuild = b.req_tech && !b.req_build && !built;
+
+        // Cost string
+        const costStr = Object.entries(b.cost).map(([id, qty]) => {
+          const item = ItemsDB[id];
+          const icon = item ? item.icon : '📦';
+          const name = (typeof iName === 'function') ? iName(id) : (item ? item.name : id);
+          const have = GameState.inventory[id] || 0;
+          const ok = have >= qty;
+          return `<span style="color:${ok ? 'inherit' : '#c0392b'};">${icon} ${name} ×${qty} (${lang==='en'?'have':'máš'}: ${have})</span>`;
+        }).join(' &nbsp;');
+
+        const statusIcon = built ? '✅' : (locked ? '🔒' : (waitBuild ? '⏳' : '🏗️'));
+        const statusColor = built ? '#5a9a5a' : (locked ? 'rgba(0,0,0,0.3)' : 'var(--accent-gold)');
+
+        h += `<div style="margin-bottom:14px; padding:14px; background:rgba(197,160,89,0.05);
+                          border-radius:8px; border:1px solid rgba(197,160,89,${built ? '0.5' : '0.2'});
+                          border-left:4px solid ${statusColor};">
+          <div style="display:flex; align-items:center; gap:10px; margin-bottom:8px;">
+            <span style="font-size:1.8rem;">${b.icon}</span>
+            <div style="flex:1;">
+              <div style="font-weight:bold; font-size:0.95rem;">${statusIcon} ${lang==='en' ? b.name_en : b.name}</div>
+              <div style="font-size:0.8rem; opacity:0.75; margin-top:2px;">${lang==='en' ? b.desc_en : b.desc}</div>
+            </div>
+          </div>
+          ${!built ? `<div style="font-size:0.75rem; opacity:0.7; margin-bottom:8px; display:flex; flex-wrap:wrap; gap:6px;">${costStr}</div>` : ''}
+          ${b.req_label && !built ? `<div style="font-size:0.75rem; color:#e67e22; margin-bottom:8px;">⚠️ ${b.req_label}</div>` : ''}
+          ${canBuild ? `<button onclick="Game.buildStorage('${b.id}')" class="craft-btn" style="font-size:0.8rem;">
+            🏗️ ${lang==='en' ? 'Build' : 'Postavit'}
+          </button>` : ''}
+          ${built ? `<div style="font-size:0.8rem; color:#5a9a5a; font-style:italic;">✅ ${lang==='en' ? 'Built' : 'Postaveno'}</div>` : ''}
+          ${locked ? `<div style="font-size:0.8rem; opacity:0.5; font-style:italic;">🔒 ${lang==='en' ? 'Research required' : 'Vyžaduje výzkum'}</div>` : ''}
+          ${waitBuild ? `<div style="font-size:0.8rem; opacity:0.6; font-style:italic;">⏳ ${b.req_label}</div>` : ''}
+        </div>`;
+      });
+    }
+
+    h += `</div>`;
+    return h;
+  },
+
 
 };

@@ -261,6 +261,15 @@ const Game = {
 			};
 		}
 
+		// Initialize storage buildings
+		if (!GameState.storage) {
+			GameState.storage = {
+				almarium: { built: false },
+				cella:    { built: false },
+				horreum:  { built: false }
+			};
+		}
+
 		// Initialize henhouse (Gallinarium)
 		if(!GameState.henhouse) {
 			GameState.henhouse = {
@@ -1380,6 +1389,10 @@ const Game = {
 
     scavenge: function(type) {
 	    // === SPECIAL HANDLING FOR WELL === (PŘIDAT NA ZAČÁTEK)
+		if (type === 'build_almarium') { Game.buildStorage('almarium'); return; }
+		if (type === 'build_cella')    { Game.buildStorage('cella');    return; }
+		if (type === 'build_horreum')  { Game.buildStorage('horreum');  return; }
+
 		if (type === 'well_water') {
 			// Check if well exists
 			if (!GameState.well.built) {
@@ -2169,6 +2182,57 @@ const Game = {
 		UI.notify(t('game.wellRepaired'));
 		Game.addKronikaEntry('important', '🪣 Studna opravena.', '🪣 The well has been repaired.', '🪣 Puteus reparatus est.');
 		this.save();
+		UI.renderAll();
+	},
+
+	buildStorage: function(type) {
+		const lang = (GameState.settings && GameState.settings.language) || 'cs';
+		if (!GameState.storage) GameState.storage = { almarium: {built:false}, cella: {built:false}, horreum: {built:false} };
+
+		// Prerekvizity
+		if (type === 'cella' && !GameState.storage.almarium.built) {
+			UI.notify(lang === 'en' ? '⚠️ Build Almarium first.' : '⚠️ Nejprve postav Almarium.', true); return;
+		}
+		if (type === 'horreum' && !GameState.storage.cella.built) {
+			UI.notify(lang === 'en' ? '⚠️ Build Cella first.' : '⚠️ Nejprve postav Cellu.', true); return;
+		}
+		if (GameState.storage[type] && GameState.storage[type].built) {
+			UI.notify(lang === 'en' ? '⚠️ Already built.' : '⚠️ Již postaveno.', true); return;
+		}
+
+		// Náklady
+		const costs = {
+			almarium: { plank: 6, rope: 3, leather: 2 },
+			cella:    { cut_stone: 12, rope: 5, chalk: 4 },
+			horreum:  { cut_stone: 20, plank: 10, glue: 4, rope: 6 },
+		};
+		const cost = costs[type];
+		if (!cost) return;
+
+		// Ověřit zásoby
+		for (const [item, amt] of Object.entries(cost)) {
+			if ((GameState.inventory[item] || 0) < amt) {
+				const itemName = (typeof iName === 'function') ? iName(item) : item;
+				UI.notify((lang === 'en' ? '⚠️ Not enough: ' : '⚠️ Nedostatek: ') + itemName + ' ×' + amt, true);
+				return;
+			}
+		}
+
+		// Spotřebovat materiály
+		for (const [item, amt] of Object.entries(cost)) {
+			this.removeItem(item, amt);
+		}
+
+		// Postavit
+		GameState.storage[type].built = true;
+		Game.save();
+
+		// Oznámení + Kronika
+		const names = { almarium: 'Almarium', cella: 'Cella', horreum: 'Horreum' };
+		const n = names[type];
+		UI.notify(lang === 'en' ? `🏗️ ${n} built!` : `🏗️ ${n} postaveno!`);
+		Game.addKronikaEntry('important',
+			`🏗️ ${n} postaveno.`, `🏗️ ${n} built.`, `🏗️ ${n} aedificatum est.`);
 		UI.renderAll();
 	},
 
