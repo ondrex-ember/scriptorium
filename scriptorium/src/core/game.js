@@ -269,6 +269,19 @@ const Game = {
 		// Initialize feeding system
 		if (!GameState.feeding) GameState.feeding = {};
 
+		// Migrate guard — doplnit chybějící unlocks ze všech již odemčených techů
+		if (typeof TechTree !== 'undefined' && GameState.researchedTechs) {
+			GameState.researchedTechs.forEach(techId => {
+				const tech = TechTree.find(t => t.id === techId);
+				if (!tech || !tech.unlocks) return;
+				tech.unlocks.forEach(rid => {
+					if (!GameState.unlockedRecipes.includes(rid)) {
+						GameState.unlockedRecipes.push(rid);
+					}
+				});
+			});
+		}
+
 		// Initialize henhouse (Gallinarium)
 		if(!GameState.henhouse) {
 			GameState.henhouse = {

@@ -41,15 +41,6 @@ const RecipesDB = [
 	},
 	
 	// PŘIDAT na konec pole RecipesDB (před poslední ]):
-	{
-		id: "bucket",
-		output: "bucket",
-		qty: 1,
-		req: { stick: 3, rope: 2, rock: 2 },
-		cat: "tool",
-		locked: true, // Unlock: tech_water_bucket
-		desc: "Větší nádoba - přináší více vody ze studny.", desc_en: "Larger vessel - draws more water from the well."
-	},
 
 	{
 		id: "repair_kit",
