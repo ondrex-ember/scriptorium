@@ -444,6 +444,21 @@ lore: {
                 title: "Faustova smlouva: Mýtus obalený olovem",
                 author: "Neznámý heretik a alchymista",
                 content: "**Kdo byl skutečný doktor Faust?**\n\nHistorická legenda s hrůzou vypráví, že učenec a astrolog Johann Georg Faust (1480–1540), reálná postava putující renesančním Německem, upsal svou nesmrtelnou duši mocnému démonu Mefistofelovi. Výměnou za to získal 24 let absolutního pozemského vědění, bohatství a nadpřirozené moci, než si ho čerti odnesli do pekel.\n\n**Ale pravda je mnohem pragmatičtější a temnější...**\n\nUvědomte si časovou shodu! Johann **Fust**, onen bohatý finančník a tiskař, který okradl Gutenberga, vydával své tištěné svazky v nevídaných objemech. Knihy se objevovaly na trzích tak bleskově a ve stovkách na chlup identických, bezchybných kopií, že pověrčiví a negramotní lidé jednoduše odmítali uvěřit, že to dokázaly vytvořit lidské ruce. Jak by mohl obyčejný smrtelník opsat obří Bibli dvěstěkrát bez jediné chyby?\n\n**Smyčka jmen (Fust ~ Faust)**\n\nJména těchto dvou naprosto odlišných mužů – tiskaře Fusta a okultisty Fausta – zněla na ulicích natolik podobně, že v ústním podání brzy splynula v jedno. Z reálných událostí vzniku knihtisku a šarlatánských kousků astrologa se zrodil ultimátní mýtus.\n\n**Goethe a strojní démonie**\n\nO více než 200 let později velký německý dramatik Johann Wolfgang von Goethe napsal své životní, obří dílo **Faust** (1808). Brilantně v něm použil tuto starou legendu jako metaforu. Faustův pakt s ďáblem byl ztělesněním lidské neukojitelné touhy po božském poznání, vědeckém pokroku za každou cenu, ale i nebezpečí nově vznikající strojové a průmyslové doby, která hrozila požírat lidské duše. Tiskařský lis byl v tomto pojetí prvním \"pekelným strojem\".\n\n**Existovala vůbec smlouva s ďáblem?**\n\nNe, pokud nevěříte na rohaté bytosti se sirným zápachem. Ale obchodník Johann Fust přesto jednu smlouvu sepsal – velmi reálnou, notářsky ověřenou smlouvu s Johannesem Gutenbergem. A v honbě za penězi ho bez milosti zradil a sociálně zničil. Mnozí badatelé tvrdí, že zničit život geniálního mistra a ukrást jeho celoživotní dílo pro vlastní zisk je možná mnohem hroznější a reálnější hřích, než sepsat imaginární pakt s démonem vlastní krví.\n\n*\"Někdy je samotná skutečnost, psaná černou tiskařskou černí a účetními knihami, mnohem temnější a chladnější než prastará legenda.\"*\n\n---\n\n**Easter Egg:** Tato prastará kniha plná kacířských myšlenek se v knihovně odemkne pouze těm otrlým jedincům, kteří shromáždili a podrželi přesně 666 bodů zakázaného výzkumu. \nGratulujeme, právě jsi pohlédl do temné propasti historie a objevil jedno z největších tajemství hry! Nyní jsi skutečným mistrem Scriptorium."
+            },
+            book_tacuinum_sanitatis: {
+                title: "Tacuinum Sanitatis: Tabulky zdraví a zkázy",
+                author: "Ibn Butlan (latinský překlad: italské školy, 13. stol.)",
+                content: ``
+            },
+            book_crescenzi: {
+                title: "Liber Ruralium Commodorum: Řád pole a dvora",
+                author: "Pietro de' Crescenzi z Boloně",
+                content: ``
+            },
+            book_pegolotti: {
+                title: "La Pratica della Mercatura: Zápisky benátského kupce",
+                author: "Francesco Balducci Pegolotti",
+                content: ``
             }
         }
     },

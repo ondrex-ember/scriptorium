@@ -1351,6 +1351,144 @@ According to Theophilus, the organ is an instrument worthy of God, but its const
 *"Master, before thou reach for wood and metal, prepare the leather. Upon it all depends."*
 
 **GAME EFFECT:** Unlocks the Organum Hydraulicum tech — the construction of hydraulic organs. Without reading this treatise, the organ builder from Nuremberg shall not come.`
+        },
+        {
+            id: 'book_tacuinum_sanitatis',
+            title: 'Tacuinum Sanitatis: Tabulky zdraví a zkázy',
+            title_en: 'Tacuinum Sanitatis: Tables of Health and Ruin',
+            category: 'innovation',
+            unlockDay: 18,
+            icon: '🌿',
+            author: 'Ibn Butlan (latinský překlad: italské školy, 13. stol.)',
+            year: 'cca 1050 (překlad cca 1250)',
+            content: `**Arabská moudrost v latinském hávu**
+
+Původní spis napsal bagdádský křesťanský lékař Ibn Butlan kolem roku 1050. Byl to praktický zdravotní průvodce — přesné tabulky o 280 potravinách, bylinách, nádobách a podmínkách prostředí. Co kdy jíst, co uchovávat, za jakého počasí, v jaké míře. Středověká dietetika v nejčistší podobě.
+
+Latinský překlad se rozšířil italskými lékařskými školami ve 13. století a záhy se dostal do každého kláštera. Mniši ho opisovali dychtivě — ne proto, že by nutně věřili všem arabským teoriím, ale protože tabulky fungovaly. Potraviny uchovávané podle Tacuina prostě vydržely déle.
+
+**Chladný sklep jako lékárna**
+
+Klíčovým poznatkem Tacuina bylo rozlišení prostředí. Chlad, teplo, sucho, vlhkost — každá potravina má své ideální podmínky. Mléko ve sklepě vydrží pětkrát déle než na slunci. Byliny sušené ve stínu si uchovají účinné látky déle než sušené na přímém světle. Ryby zabalené do mokré trávy přežijí přenos bez zápachu.
+
+Toto vědění formovalo klášterní architekturu. Cella — chladný klenutý sklep — nebyla náhoda. Byl to vědomý nástroj výživy a přežití komunity.
+
+*"Co zachováš chladno a temno, to zachová život tvůj. Co vystavíš světlu a teplu, to ztrácí svou sílu dříve, než je užiješ."*
+
+**HERNÍ EFEKT:** Přečtením tohoto spisu odemkneš tech *Cella* — stavbu chladného sklepa. Organické suroviny (vejce, mléko, byliny, ryby) vydrží v Celle 2–3× déle než bez ní.`,
+            content_en: `**Arabic Wisdom in a Latin Garb**
+
+The original treatise was written by the Baghdad Christian physician Ibn Butlan around 1050. It was a practical health guide — precise tables covering 280 foodstuffs, herbs, vessels, and environmental conditions. What to eat and when, what to store, in what weather, in what measure. Medieval dietetics in its purest form.
+
+The Latin translation spread through the Italian medical schools in the 13th century and soon reached every monastery. Monks copied it eagerly — not because they necessarily believed all the Arabic theories, but because the tables worked. Foodstuffs kept according to the Tacuinum simply lasted longer.
+
+**The Cold Cellar as a Pharmacy**
+
+The key insight of the Tacuinum was the distinction of environments. Cold, heat, dryness, moisture — every foodstuff has its ideal conditions. Milk in a cellar lasts five times longer than in the sun. Herbs dried in the shade retain their active compounds longer than those dried in direct light. Fish wrapped in wet grass survive transport without spoiling.
+
+This knowledge shaped monastic architecture. The cella — a cool, vaulted cellar — was no accident. It was a conscious instrument of nutrition and the community's survival.
+
+*"That which thou keepest cold and dark shall preserve thy life. That which thou exposest to light and heat loses its strength before thou canst use it."*
+
+**GAME EFFECT:** Reading this treatise unlocks the *Cella* tech — the construction of a cold cellar. Organic stores (eggs, milk, herbs, fish) last 2–3 times longer in the Cella than without it.`
+        },
+        {
+            id: 'book_crescenzi',
+            title: 'Liber Ruralium Commodorum: Řád pole a dvora',
+            title_en: 'Liber Ruralium Commodorum: The Order of Field and Farmyard',
+            category: 'innovation',
+            unlockDay: 22,
+            icon: '🌾',
+            author: "Pietro de' Crescenzi z Boloně",
+            year: '1304–1309',
+            content: `**Encyklopedie hospodářství, jakou středověk neznal**
+
+Pietro de' Crescenzi byl boloňský právník a správce statků. Po odchodu do důchodu sepsal dílo, které nemělo v tehdejší Evropě obdoby — dvanáctidílnou encyklopedii zemědělství, chovu zvířat a správy hospodářství. Sám v úvodním věnování píše: "Věnuji tuto knihu urozenému pánu Karlovi z Anjou, neboť bez dobrého hospodáře není ani dobrého pána."
+
+**Co kniha skrývá**
+
+Každá kapitola je lahůdkou pro každého, kdo má zájem o zemi, zvíře nebo zásoby:
+— Jak volit polohu sýpky, aby do ní nevnikaly myši a vlhkost.
+— Kdy sklízet obilí (ne dřív, ne později — záleží na barvě klasů).
+— Jak uchovávat víno v sudech a jak poznám, že se kazí.
+— Kolik píce potřebuje ovce v zimě, kolik kráva, kolik kůň.
+— Jak léčit nemocné drůbež.
+
+Iluminované rukopisy tohoto spisu patřily k největším klenotům klášterních knihoven 14. a 15. století — viděli jsme jeden z nich na vlastní oči, s nádhernou modrou iniciálou a zlatou bordeaux vazbou.
+
+**Česká stopa**
+
+Karel IV. si dal spis přeložit do češtiny. V Čechách 15. století byl Crescenzi v každém větším klášteře. Opat si bez něj nepomyslel stavět novou sýpku.
+
+*"Pán, který nezná pole, nezná ani svůj lid. A hospodář, který nezná zásoby, nezná ani svou zimu."*
+
+**HERNÍ EFEKT:** Odemkne tech *Horreum* — velkou sýpku s kapacitou 1600 jednotek. Zároveň aktivuje mechaniku krmiva: zvířata ve Dvoře začnou vyžadovat denní krmení ze zásob.`,
+            content_en: `**An Encyclopaedia of Agriculture Such as the Middle Ages Had Not Known**
+
+Pietro de' Crescenzi was a Bolognese lawyer and estate manager. After retiring, he composed a work without parallel in contemporary Europe — a twelve-part encyclopaedia of agriculture, animal husbandry, and estate management. In the dedicatory preface he writes: "I dedicate this book to the noble lord Charles of Anjou, for without a good steward there is no good lord."
+
+**What the Book Conceals**
+
+Every chapter is a treat for anyone with an interest in land, animals, or stores:
+— How to choose the position of a granary so that mice and damp do not enter it.
+— When to harvest grain (not too early, not too late — it depends on the colour of the ears).
+— How to keep wine in barrels and how to tell when it is turning.
+— How much fodder a sheep needs in winter, a cow, a horse.
+— How to treat sick poultry.
+
+The illuminated manuscripts of this treatise were among the greatest jewels of monastic libraries in the 14th and 15th centuries — we have seen one with our own eyes: a beautiful blue initial and a gold bordeaux binding.
+
+**The Bohemian Connection**
+
+Charles IV had the treatise translated into Czech. In 15th-century Bohemia, Crescenzi was to be found in every larger monastery. No abbot would think of building a new granary without it.
+
+*"The lord who does not know the field does not know his people. And the steward who does not know his stores does not know his winter."*
+
+**GAME EFFECT:** Unlocks the *Horreum* tech — a large granary with a capacity of 1,600 units. It also activates the fodder mechanic: animals in the Farmyard begin to require daily feeding from the stores.`
+        },
+        {
+            id: 'book_pegolotti',
+            title: 'La Pratica della Mercatura: Zápisky benátského kupce',
+            title_en: 'La Pratica della Mercatura: Notes of a Venetian Merchant',
+            category: 'history',
+            unlockDay: 26,
+            icon: '💰',
+            author: 'Francesco Balducci Pegolotti (Florencie)',
+            year: 'cca 1335–1343',
+            content: `**Rukopis, který znal cenu všeho**
+
+Francesco Balducci Pegolotti byl agentem florentské bankovní rodiny Bardi a obchodoval po celé Evropě, Levantě a dokonce až do Číny. Svůj zápisník — La Pratica della Mercatura — psal průběžně jako praktickou příručku pro obchodníky na cestách. Není to filozofie ani teologie. Je to tvrdá realita trhů.
+
+**Co v zápisníku najdete**
+
+Pegolotti zapsal ceny komodit z desítek měst — od Londýna po Caffu na Krymu. Jak se platí v Benátkách, jak v Praze, jak se převádí florentské zlaté na pražské groše. Jaké váhy se používají v Paříži, jaké v Alexandrii. Kdy je trh v Champagne, kdy v Bruges.
+
+A pak — to nejcennější — záznamy o poctivosti. Která obchodní rodina platí včas. Která podvádí na váze. Ke komu se obrátit v Janově, když potřebuješ zálohu. Giacomo Foscari by tuto knihu znal nazpaměť.
+
+**Česká stopa**
+
+Pražský groš byl v době vzniku rukopisu jednou z nejstabilnějších měn Evropy — Pegolotti ho zmiňuje jako "solidní". Čechy vyvážely stříbro, plátno a kůže. Klášterní Cellarius, který obchodoval na trzích, potřeboval přesně tento typ vědění.
+
+*"Každý groš má dvě strany. Na jedné je tvář krále, na druhé cena tvé pověsti. Pečuj o obě stejně."*
+
+**HERNÍ EFEKT:** Odemkne tech *Liber Rationum* — účetní knihu v Cellariu. Každá transakce (nákup, prodej, Giacomo, Trh) se automaticky zapisuje s datem, zbožím a cenou. Vidíš trendy, nejlepší zákazníky a varování před přesycením trhu.`,
+            content_en: `**A Manuscript That Knew the Price of Everything**
+
+Francesco Balducci Pegolotti was an agent of the Florentine banking family Bardi and traded throughout Europe, the Levant, and even into China. He wrote his notebook — La Pratica della Mercatura — continuously as a practical guide for merchants on the road. This is no philosophy, no theology. It is the hard reality of markets.
+
+**What the Notebook Contains**
+
+Pegolotti recorded commodity prices from dozens of cities — from London to Caffa in the Crimea. How payment is made in Venice, how in Prague, how to convert Florentine gold florins into Prague groschen. What weights are used in Paris, what in Alexandria. When the fair is in Champagne, when in Bruges.
+
+And then — the most valuable thing — records of trustworthiness. Which merchant family pays on time. Which cheats on the scales. Whom to approach in Genoa when you need an advance. Giacomo Foscari would have known this book by heart.
+
+**The Bohemian Connection**
+
+The Prague groschen was, at the time of writing, one of the most stable currencies in Europe — Pegolotti mentions it as "solid". Bohemia exported silver, linen, and hides. The monastic Cellarius trading at the markets needed precisely this kind of knowledge.
+
+*"Every groschen has two sides. On one is the face of the king; on the other, the price of your reputation. Guard both equally."*
+
+**GAME EFFECT:** Unlocks the *Liber Rationum* tech — the account book in the Cellarium. Every transaction (purchase, sale, Giacomo, Market) is automatically recorded with date, goods, and price. You see trends, your best customers, and warnings of market saturation.`
         }
     ],
 

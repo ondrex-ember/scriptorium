@@ -122,4 +122,34 @@ const TechTree = [
       desc_en:"The Book of Bees. Columella, Isidore of Seville and Hildegard of Bingen all wrote of bees with reverence. Honey healed wounds, wax lit the evening prayers. Unlocks: Apiary (Apiarium) — honey and wax.",
       unlocks:[], requires:["tech_monastery_wisdom"] },
 
+    // SKLADOVÉ HOSPODÁŘSTVÍ
+    { id:"tech_almarium",        name:"Almarium — Klášterní Skříň",     name_en:"Almarium — Monastic Cupboard",
+      cost:6,
+      desc:"Každý klášter měl své almarium — uzamčenou skříň či komoru na suché zásoby, pergamen a cenné suroviny. Bez pořádku ve skříni není pořádek v díle. Odemkne: stavbu Almarium (kapacita 200 jednotek).",
+      desc_en:"Every monastery had its almarium — a locked cupboard or storeroom for dry goods, parchment and precious materials. Without order in the cupboard there is no order in the work. Unlocks: Almarium building (capacity 200 units).",
+      unlocks:[], requires:["tech_writing_basics"] },
+
+    { id:"tech_cella",           name:"Tacuinum Sanitatis — Cella",      name_en:"Tacuinum Sanitatis — Cella",
+      cost:10,
+      desc:"Ibn Butlanova tabulka zdraví: chlad a tma prodlužují život potravin. Klášterní cella — chladný klenutý sklep — byl vědomou zbraní proti hladu. Odemkne: stavbu Cella (kapacita 600j, decay organických 2–3× pomalejší).",
+      desc_en:"Ibn Butlan's table of health: cold and darkness prolong the life of foodstuffs. The monastic cella — a cool vaulted cellar — was a conscious weapon against hunger. Unlocks: Cella building (capacity 600 units, organic decay 2–3× slower).",
+      unlocks:[], requires:["tech_almarium","tech_cellarium"] },
+
+    { id:"tech_horreum",         name:"Liber Ruralium — Horreum",        name_en:"Liber Ruralium — Horreum",
+      cost:14,
+      desc:"Crescenziho encyklopedie hospodářství: sýpka musí stát na suchém místě, chráněna od myší i vlhkosti. Karel IV. si ho dal přeložit do češtiny. Odemkne: Horreum (kapacita 1600j) + krmivo jako denní nutnost pro zvířata.",
+      desc_en:"Crescenzi's encyclopaedia of agriculture: the granary must stand on dry ground, protected from mice and damp. Charles IV had it translated into Czech. Unlocks: Horreum (capacity 1600 units) + fodder as a daily necessity for animals.",
+      unlocks:[], requires:["tech_cella","tech_de_re_rustica"] },
+
+    { id:"tech_inventarium",     name:"Inventarium — Soupis Zásob",      name_en:"Inventarium — Inventory of Stores",
+      cost:8,
+      desc:"Klášterní cellarius vedl přesný soupis každého pytle mouky a každého sudu piva. Bez inventáře se zásoby ztrácejí samy od sebe. Odemkne: subtab Inventarium v Cellariu — přehled zásob s decay varováními.",
+      desc_en:"The monastic cellarius kept an exact inventory of every sack of flour and every barrel of ale. Without an inventory, stores disappear of their own accord. Unlocks: Inventarium subtab in the Cellarium — stock overview with decay warnings.",
+      unlocks:[], requires:["tech_almarium"] },
+
+    { id:"tech_liber_rationum",  name:"Pratica della Mercatura — Liber Rationum", name_en:"Pratica della Mercatura — Liber Rationum",
+      cost:12,
+      desc:"Pegolottiho zápisník: každý groš má cenu a každá transakce má příběh. Florentský agent znal ceny od Londýna po Caffu. Odemkne: subtab Liber Rationum v Cellariu — účetní kniha všech transakcí.",
+      desc_en:"Pegolotti's notebook: every groschen has a value and every transaction has a story. The Florentine agent knew prices from London to Caffa. Unlocks: Liber Rationum subtab in the Cellarium — account book of all transactions.",
+      unlocks:[], requires:["tech_commercium","tech_inventarium"] },
 ];
