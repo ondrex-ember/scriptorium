@@ -134,6 +134,15 @@ const NotificationSystem = {
 
     // ─── Badge (záložka) ────────────────────────────────────────────────────
     _renderPanelBadge: function() {
+        const total = (GameState.notifications || []).length;
+
+        // Skrýt záložku pokud nejsou žádné zprávy
+        if (total === 0) {
+            const existing = document.getElementById('ns-panel-tab');
+            if (existing) existing.style.display = 'none';
+            return;
+        }
+
         let tab = document.getElementById('ns-panel-tab');
         if (!tab) {
             tab = document.createElement('div');
@@ -144,6 +153,7 @@ const NotificationSystem = {
             document.body.appendChild(tab);
         }
 
+        tab.style.display = '';
         const unread = (GameState.notifications || []).filter(n => !n.read).length;
         tab.innerHTML = `
             <span class="ns-tab-icon">🔔</span>
