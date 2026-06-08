@@ -171,4 +171,10 @@ const TechTree = [
       desc:"Klášterní zahradník byl vzdělán v bylinářství, pěstování i závlaze. Odemkne: kamenné nástroje (sekerka, rýč, kosa, srp, cep, lopata), vědro, konev, sud.",
       desc_en:"The monastic gardener was learned in herbalism, cultivation and irrigation. Unlocks: stone tools (axe, spade, scythe, sickle, flail, shovel), bucket, watering can, barrel.",
       unlocks:["stone_axe","stone_spade","stone_scythe","stone_sickle","stone_flail","stone_shovel","bucket","watering_can","barrel_tool"], requires:["tech_writing_basics"] },
+
+    { id:"tech_materia_prima", name:"Materia Prima — Poznání Suroviny", name_en:"Materia Prima — Knowledge of Materials",
+      cost:34,
+      desc:"Středověký lékárník a písař věděl o každé surovině vše — odkud pochází, jak se kazí, k čemu slouží. Toto vědění se nezíská náhodou, ale pečlivým studiem a zápisky. Odemkne: kliknutí na item → podrobný modal s historií, vlastnostmi a použitím.",
+      desc_en:"The medieval apothecary and scribe knew everything about every material — where it came from, how it spoiled, what it was used for. This knowledge is not gained by chance, but by careful study and annotation. Unlocks: click on any item → detailed modal with history, properties and uses.",
+      unlocks:[], requires:["tech_inventarium"] },
 ];

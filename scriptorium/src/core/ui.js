@@ -115,6 +115,73 @@ const UI = {
 		this.renderGamesTab();
 	},
 		
+showItemModal: function(id) {
+        const item = ItemsDB[id];
+        if (!item) return;
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        const qty = GameState.inventory[id] || 0;
+        const name = (typeof iName === 'function') ? iName(id) : (item.name || id);
+        const desc = (typeof iDesc === 'function') ? iDesc(id) : (lang === 'en' ? (item.desc_en || item.desc) : item.desc);
+
+        // Decay info
+        const decayMap = { milk:{h:24}, egg:{h:120}, raw_fish:{h:24}, cooked_fish:{h:48},
+            cooked_meat:{h:48}, thyme:{h:720}, chamomile:{h:720}, st_johns_wort:{h:720},
+            linden_blossom:{h:720}, hay:{h:336}, grass:{h:48}, worms:{h:24} };
+        const decay = decayMap[id];
+        const hasCella = GameState.researchedTechs && GameState.researchedTechs.includes('tech_cella');
+        let decayHtml = '';
+        if (decay) {
+            const h = hasCella ? Math.round(decay.h * 2.5) : decay.h;
+            const days = Math.round(h / 24 * 10) / 10;
+            const cellaNote = hasCella ? ' (Cella x2.5)' : '';
+            decayHtml = `<div style="margin:10px 0;padding:8px 12px;background:rgba(192,57,43,0.08);border-radius:6px;border-left:3px solid #c0392b;font-size:0.85rem;">
+                ⏳ ${lang==='en'?'Expires in':'Vyprší za'}: <strong>${days} ${lang==='en'?'days':'dní'}${cellaNote}</strong></div>`;
+        } else if (item.type !== 'animal' && item.type !== 'key') {
+            decayHtml = `<div style="margin:10px 0;padding:8px 12px;background:rgba(90,154,90,0.08);border-radius:6px;border-left:3px solid #5a9a5a;font-size:0.85rem;">∞ ${lang==='en'?'Does not expire':'Nevyprší'}</div>`;
+        }
+
+        // Kde se item používá
+        let usedIn = '';
+        if (typeof RecipesDB !== 'undefined') {
+            const recipes = RecipesDB.filter(r => r.req && Object.keys(r.req).includes(id));
+            if (recipes.length > 0) {
+                const list = recipes.slice(0, 6).map(r => {
+                    const out = ItemsDB[r.output];
+                    const outName = out ? (lang==='en'?(out.name_en||out.name):out.name) : r.output;
+                    return `<span style="display:inline-block;margin:2px 4px;padding:2px 8px;background:rgba(197,160,89,0.15);border-radius:10px;font-size:0.8rem;">${outName}</span>`;
+                }).join('');
+                usedIn = `<div style="margin-top:10px;"><div style="font-size:0.75rem;opacity:0.6;margin-bottom:4px;">${lang==='en'?'Used in:':'Používá se v:'}</div><div>${list}</div></div>`;
+            }
+        }
+
+        // Vlastnosti
+        const props = [];
+        if (item.tier === 'stone') props.push('🪨 ' + (lang==='en'?'Stone tier':'Kamenný tier'));
+        if (item.tier === 'iron')  props.push('⚙️ ' + (lang==='en'?'Iron tier':'Železný tier'));
+        if (item.lostItem)         props.push('🔍 ' + (lang==='en'?'Found item':'Nalezený předmět'));
+        if (item.type === 'tool')  props.push('🔨 ' + (lang==='en'?'Tool (not consumed)':'Nástroj (nespotřebovává se)'));
+        if (item.type === 'key')   props.push('🗝️ ' + (lang==='en'?'Key':'Klíč'));
+        const propsHtml = props.length > 0
+            ? `<div style="margin-top:8px;display:flex;flex-wrap:wrap;gap:4px;">${props.map(p=>`<span style="padding:2px 8px;background:rgba(197,160,89,0.2);border-radius:10px;font-size:0.75rem;">${p}</span>`).join('')}</div>`
+            : '';
+
+        if (typeof NotificationSystem !== 'undefined') {
+            NotificationSystem.modal({
+                icon: item.icon || '📦',
+                title: name,
+                text: desc + '\n\n' + (lang==='en'?'In stock':'Na skladě') + ': ' + qty,
+                choices: [{ label: lang==='en'?'Close':'Zavřít', type:'primary', effect:()=>{} }]
+            });
+            setTimeout(() => {
+                const body = document.querySelector('.ns-modal-body');
+                if (body) {
+                    const extra = decayHtml + propsHtml + usedIn;
+                    if (extra) body.insertAdjacentHTML('afterend', `<div style="padding:0 28px 8px;">${extra}</div>`);
+                }
+            }, 20);
+        }
+    },
+
 renderActions: function() {
     const el = document.getElementById('workspace-actions');
     const lang = (GameState.settings && GameState.settings.language) || 'cs';
@@ -202,7 +269,9 @@ renderActions: function() {
                 eatBtn = `<button class="craft-btn" onclick="Game.eat('${id}')" style="margin-left:auto;">${t('game.eat')}</button>`;
             }
             
-            el.innerHTML += `<div class="card"><div class="item-icon">${item.icon}</div><div><strong>${iName(id)}</strong> x${qty}<div class="text-sm">${iDesc(id)}</div></div>${eatBtn}</div>`;
+            const _hasMateria = GameState.researchedTechs && GameState.researchedTechs.includes('tech_materia_prima');
+            const _click = _hasMateria ? `onclick="UI.showItemModal('${id}')" style="cursor:pointer;"` : '';
+            el.innerHTML += `<div class="card" ${_click}><div class="item-icon">${item.icon}</div><div><strong>${iName(id)}</strong> x${qty}<div class="text-sm">${iDesc(id)}</div></div>${eatBtn}</div>`;
         });
     },
     filterInventory: function(cat, btn) {
