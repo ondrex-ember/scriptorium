@@ -306,19 +306,32 @@ const RecipesDB = [
     { id:"barrel_tool",  output:"barrel_tool",  qty:1, req:{plank:6, rope:3},           cat:"tool", locked:true,
       desc:"Dřevěný sud na pivo, víno a vodu.", desc_en:"Wooden barrel for ale, wine and water." },
 
-    // ── KOVOVÉ NÁSTROJE (tech_kovarina) ──────────────────────────────────────
-    { id:"iron_axe",    output:"iron_axe",    qty:1, req:{stick:2, rock:1, rope:1, leather:1}, cat:"tool", locked:true,
+    // ── ŽELEZNÝ VÝROBNÍ ŘETĚZEC ─────────────────────────────────────────────
+    { id:"iron_ingot", output:"iron_ingot", qty:1, req:{iron_ore:3, charcoal:2}, cat:"mat", locked:true,
+      desc:"Tavení rudy s uhlím. Základ kovářství.", desc_en:"Smelting ore with charcoal. Foundation of smithcraft." },
+
+    // ── KOVOVÉ NÁSTROJE (tech_kovarina, max 1 ks) ────────────────────────────
+    { id:"iron_axe",    output:"iron_axe",    qty:1, req:{iron_ingot:1, stick:2, rope:1, leather:1}, cat:"tool", locked:true, maxStack:1,
       desc:"Železná sekerka. Více kulatiny za akci.", desc_en:"Iron axe. More logs per action." },
-    { id:"iron_spade",  output:"iron_spade",  qty:1, req:{stick:2, rock:1, rope:1},            cat:"tool", locked:true,
+    { id:"iron_spade",  output:"iron_spade",  qty:1, req:{iron_ingot:1, stick:2, rope:1},            cat:"tool", locked:true, maxStack:1,
       desc:"Železný rýč. Více červů, hlubší kopání.", desc_en:"Iron spade. More worms, deeper digging." },
-    { id:"iron_scythe", output:"iron_scythe", qty:1, req:{stick:3, rock:1, rope:2, leather:1}, cat:"tool", locked:true,
+    { id:"iron_scythe", output:"iron_scythe", qty:1, req:{iron_ingot:1, stick:3, rope:2, leather:1}, cat:"tool", locked:true, maxStack:1,
       desc:"Železná kosa. Více trávy za méně akcí.", desc_en:"Iron scythe. More grass per action." },
-    { id:"iron_sickle", output:"iron_sickle", qty:1, req:{stick:1, rock:1, rope:1},            cat:"tool", locked:true,
+    { id:"iron_sickle", output:"iron_sickle", qty:1, req:{iron_ingot:1, stick:1, rope:1},            cat:"tool", locked:true, maxStack:1,
       desc:"Železný srp. Přesná žeň.", desc_en:"Iron sickle. Precise harvesting." },
-    { id:"iron_flail",  output:"iron_flail",  qty:1, req:{stick:3, rope:2, rock:1, leather:1}, cat:"tool", locked:true,
+    { id:"iron_flail",  output:"iron_flail",  qty:1, req:{iron_ingot:1, stick:3, rope:2},            cat:"tool", locked:true, maxStack:1,
       desc:"Železný cep. Efektivnější mlácení.", desc_en:"Iron flail. More efficient threshing." },
-    { id:"iron_shovel", output:"iron_shovel", qty:1, req:{stick:2, rock:1, rope:1},            cat:"tool", locked:true,
+    { id:"iron_shovel", output:"iron_shovel", qty:1, req:{iron_ingot:1, stick:2, rope:1},            cat:"tool", locked:true, maxStack:1,
       desc:"Železná lopata. Rychlý přesun půdy.", desc_en:"Iron shovel. Fast soil moving." },
-    { id:"iron_saw",    output:"iron_saw",    qty:1, req:{stick:2, flint:1, rope:1, leather:1}, cat:"tool", locked:true,
+    { id:"iron_saw",    output:"iron_saw",    qty:1, req:{iron_ingot:1, stick:2, flint:1, leather:1},cat:"tool", locked:true, maxStack:1,
       desc:"Železná pila. Přesné opracování dřeva.", desc_en:"Iron saw. Precise wood working." },
+
+    // ── OPRAVA OPOTŘEBENÝCH NÁSTROJŮ ─────────────────────────────────────────
+    { id:"repair_iron_axe",    output:"iron_axe",    qty:1, req:{worn_iron_axe:1,    repair_kit:1}, cat:"tool", locked:true, desc:"Nabroušení a oprava sekerky.", desc_en:"Sharpen and repair the axe." },
+    { id:"repair_iron_spade",  output:"iron_spade",  qty:1, req:{worn_iron_spade:1,  repair_kit:1}, cat:"tool", locked:true, desc:"Vyrovnání a oprava rýče.", desc_en:"Straighten and repair the spade." },
+    { id:"repair_iron_scythe", output:"iron_scythe", qty:1, req:{worn_iron_scythe:1, repair_kit:1}, cat:"tool", locked:true, desc:"Nabroušení kosy.", desc_en:"Sharpen the scythe." },
+    { id:"repair_iron_sickle", output:"iron_sickle", qty:1, req:{worn_iron_sickle:1, repair_kit:1}, cat:"tool", locked:true, desc:"Nabroušení srpu.", desc_en:"Sharpen the sickle." },
+    { id:"repair_iron_flail",  output:"iron_flail",  qty:1, req:{worn_iron_flail:1,  repair_kit:1}, cat:"tool", locked:true, desc:"Utažení závaží cepu.", desc_en:"Tighten the flail weight." },
+    { id:"repair_iron_shovel", output:"iron_shovel", qty:1, req:{worn_iron_shovel:1, repair_kit:1}, cat:"tool", locked:true, desc:"Narovnání lopaty.", desc_en:"Straighten the shovel." },
+    { id:"repair_iron_saw",    output:"iron_saw",    qty:1, req:{worn_iron_saw:1,    repair_kit:1}, cat:"tool", locked:true, desc:"Přebroušení zubů pily.", desc_en:"Re-sharpen the saw teeth." },
 ];

@@ -269,6 +269,9 @@ const Game = {
 		// Initialize feeding system
 		if (!GameState.feeding) GameState.feeding = {};
 
+		// Initialize tool uses tracking
+		if (!GameState.toolUses) GameState.toolUses = {};
+
 		// Migrate guard — doplnit chybějící unlocks ze všech již odemčených techů
 		if (typeof TechTree !== 'undefined' && GameState.researchedTechs) {
 			GameState.researchedTechs.forEach(techId => {
@@ -1491,7 +1494,11 @@ const Game = {
                     this.addItem((r<0.5?'rock':'stick'), 1);
                     if(Math.random() < 0.05) this.addItem('carbon_black', 1);
                     if(Math.random() < 0.04) this.addItem('ochre', 1);
-                    if(Math.random() < 0.10) this.addItem('chalk', 1); // Křídová pánev — lokálně dostupná
+                    if(Math.random() < 0.10) this.addItem('chalk', 1);
+                    // Iron ore — vzácný nález (3%) po odemčení kovařiny
+                    if(Math.random() < 0.03 && GameState.researchedTechs && GameState.researchedTechs.includes('tech_kovarina')) {
+                        this.addItem('iron_ore', 1);
+                    }
                 }
                 else if (type === 'bark') { this.addItem('bark', 2); }
                 else if (type === 'fishing') { this.addItem('fish', r<0.3?2:1); if(r>0.8) this.addItem('water', 1); }
@@ -1590,6 +1597,7 @@ const Game = {
                 GameState.kronikaDailyBuffer.gains[_actionLabel] = (GameState.kronikaDailyBuffer.gains[_actionLabel] || 0) + total;
             }
             Game._scavenging = false;
+            if (_usedToolId) Game.useToolCharge(_usedToolId);
             Game.save(); UI.renderAll(); return;
         }
         if (GameState.activeAction && (type === 'basic' || type === 'nature')) {
@@ -1637,6 +1645,7 @@ const Game = {
         // Check requirements
         const action = ActionsDB.find(a => a.id === type);
         let _toolMult = 1.0; // multiplier z nástroje
+        let _usedToolId = null; // ID použitého nástroje pro useToolCharge
         if (action && action.req) {
             if (Array.isArray(action.req)) {
                 // Pole req — najít první dostupný nástroj a jeho multiplier
@@ -1647,6 +1656,7 @@ const Game = {
                     return;
                 }
                 _toolMult = found.mult;
+                _usedToolId = found.item;
             } else {
                 if (!(GameState.inventory[action.req] > 0)) {
                     UI.notify(t('game.missingItem').replace('{item}', ItemsDB[action.req] ? ItemsDB[action.req].name : action.req), true);
@@ -1773,9 +1783,8 @@ const Game = {
                 if (Object.keys(_s0gains).length > 0) UI.notifyAccum(_s0gains);
             }
             Game._scavenging = false;
+            if (_usedToolId) Game.useToolCharge(_usedToolId);
             Game.save(); UI.renderAll(); return;
-        } else {
-            let multiplier = durationMin === 1 ? 10 : (durationMin === 5 ? 50 : 100);
             
             // Apply tool multiplier
             if (_toolMult !== 1.0) multiplier = Math.round(multiplier * _toolMult);
@@ -1894,11 +1903,30 @@ const Game = {
     craft: function(id) {
         const r = RecipesDB.find(x => x.id === id);
         if(!GameState.flags.fireplaceLit && !r.blind) { UI.notify(t('game.frozenHands'), true); return; }
+
+        // maxStack check — iron nástroje max 1 ks
+        const outItem = ItemsDB[r.output];
+        if (outItem && outItem.maxStack) {
+            const have = GameState.inventory[r.output] || 0;
+            const worn = GameState.inventory['worn_' + r.output] || 0;
+            if (have + worn >= outItem.maxStack) {
+                const lang = (GameState.settings && GameState.settings.language) || 'cs';
+                UI.notify(lang === 'en' ? '⚠️ You already have this tool.' : '⚠️ Tento nástroj již máš.', true);
+                return;
+            }
+        }
+
         for(let [item, amt] of Object.entries(r.req)) {
             if(amt > 0 && (!GameState.inventory[item] || GameState.inventory[item] < amt)) { UI.notify(t('game.missingMats'), true); return; }
             if(amt === 0 && !GameState.inventory[item]) { UI.notify(`${t('game.required2')} ${iName(item)}`, true); return; }
         }
         for(let [item, amt] of Object.entries(r.req)) if(amt > 0) this.removeItem(item, amt);
+
+        // Init toolUses pro nový nástroj
+        if (outItem && outItem.maxUses) {
+            if (!GameState.toolUses) GameState.toolUses = {};
+            GameState.toolUses[r.output] = outItem.maxUses;
+        }
         
         // ========== NEW: Apply canonical hours crafting buff ==========
         let craftQty = r.qty;
@@ -2312,6 +2340,45 @@ const Game = {
 			}
 		});
 		Game.save();
+	},
+
+	// ─── TOOL USES SYSTÉM ──────────────────────────────────────────────────────
+	useToolCharge: function(itemId) {
+		const item = ItemsDB[itemId];
+		if (!item || !item.maxUses) return; // Nástroj bez maxUses — nespotřebovává se (pestle atd.)
+
+		if (!GameState.toolUses) GameState.toolUses = {};
+		if (GameState.toolUses[itemId] === undefined) {
+			GameState.toolUses[itemId] = item.maxUses;
+		}
+
+		GameState.toolUses[itemId]--;
+		const remaining = GameState.toolUses[itemId];
+		const lang = (GameState.settings && GameState.settings.language) || 'cs';
+		const name = (typeof iName === 'function') ? iName(itemId) : itemId;
+
+		if (remaining <= 0) {
+			// Nástroj se opotřeboval
+			const wornId = 'worn_' + itemId; // worn_iron_axe atd.
+			if (item.tier === 'iron' && ItemsDB[wornId]) {
+				// Iron → degradace na worn
+				this.removeItem(itemId, 1);
+				this.addItem(wornId, 1);
+				delete GameState.toolUses[itemId];
+				UI.notify((lang==='en' ? name + ' worn out — repair it.' : name + ' se opotřebovala — oprav ji.'), true);
+				if (typeof NotificationSystem !== 'undefined') {
+					NotificationSystem.panel((lang==='en' ? '🔧 ' + name + ' worn out. Needs repair.' : '🔧 ' + name + ' opotřebována. Potřebuje opravu.'), 'system');
+				}
+			} else {
+				// Stone → smazat
+				this.removeItem(itemId, 1);
+				delete GameState.toolUses[itemId];
+				UI.notify((lang==='en' ? name + ' broke.' : name + ' se zlomila.'), true);
+			}
+		} else if (remaining === 3) {
+			// Varování před koncem
+			UI.notify((lang==='en' ? '⚠️ ' + name + ': ' + remaining + ' uses left.' : '⚠️ ' + name + ': zbývají ' + remaining + ' použití.'));
+		}
 	},
 
 	feedAnimals: function(animalKey) {

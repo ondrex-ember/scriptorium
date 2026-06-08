@@ -102,7 +102,7 @@ const ItemsDB = {
 
     // QUILL
     "feather":        { name:"Husí pero",            name_en:"Goose Feather",          icon:"🪶", type:"mat",  desc:"Z křídla husy.",                                   desc_en:"From a goose wing." },
-    "quill":          { name:"Brko",                 name_en:"Quill",                  icon:"🪶", type:"tool", desc:"10x použití. +2 ink/craft.",                       desc_en:"10 uses. +2 ink per craft." },
+    "quill":          { maxUses:10, name:"Brko",                 name_en:"Quill",                  icon:"🪶", type:"tool", desc:"10x použití. +2 ink/craft.",                       desc_en:"10 uses. +2 ink per craft." },
 
     // GALLIC INK
     "gall_nut":       { name:"Duběnka",              name_en:"Oak Gall",               icon:"🫘", type:"alchemy_ing", desc:"Hálka na dubu. Obsahuje tanin.",             desc_en:"Oak gall. Contains tannin." },
@@ -182,13 +182,13 @@ const ItemsDB = {
     "cut_stone":      { name:"Tesaný kámen",          name_en:"Cut Stone",           icon:"🧱", type:"mat",              desc:"Kámen opracovaný dlátem. Pevný základ sklepa i sýpky.", desc_en:"Stone shaped by chisel. The firm foundation of cellar and granary." },
 
     // ── KAMENNÉ NÁSTROJE (tech_horticulture + tech_carpentaria) ────────────────
-    "stone_axe":      { name:"Kamenná sekerka",    name_en:"Stone Axe",        icon:"🪓", type:"tool", tier:"stone", desc:"Kamenné ostří na dřevěné násadě. Odemkne těžbu dřeva.",       desc_en:"Stone blade on a wooden haft. Unlocks wood harvesting." },
+    "stone_axe":      { maxUses:15, name:"Kamenná sekerka",    name_en:"Stone Axe",        icon:"🪓", type:"tool", tier:"stone", desc:"Kamenné ostří na dřevěné násadě. Odemkne těžbu dřeva.",       desc_en:"Stone blade on a wooden haft. Unlocks wood harvesting." },
     "stone_spade":    { name:"Kamenný rýč",        name_en:"Stone Spade",      icon:"⛏️", type:"tool", tier:"stone", desc:"Plochý kámen na násadě. Kopání červů a přesazování.",          desc_en:"Flat stone on a haft. Digging worms and transplanting." },
     "stone_scythe":   { name:"Kamenná kosa",       name_en:"Stone Scythe",     icon:"⚔️", type:"tool", tier:"stone", desc:"Kamenné ostří. Sečení trávy na seno.",                         desc_en:"Stone blade. Cuts grass for hay." },
     "stone_sickle":   { name:"Kamenný srp",        name_en:"Stone Sickle",     icon:"🌾", type:"tool", tier:"stone", desc:"Malé kamenné ostří. Žeň bylin a obilí.",                       desc_en:"Small stone blade. Harvesting herbs and grain." },
     "stone_flail":    { name:"Kamenný cep",        name_en:"Stone Flail",      icon:"🪵", type:"tool", tier:"stone", desc:"Dřevěný cep s kamenným závažím. Mlácení obilí.",               desc_en:"Wooden flail with stone weight. Threshing grain." },
     "stone_shovel":   { name:"Kamenná lopata",     name_en:"Stone Shovel",     icon:"🪛", type:"tool", tier:"stone", desc:"Plochý kámen jako lopata. Přesun půdy a hnoje.",               desc_en:"Flat stone as shovel. Moving soil and manure." },
-    "stone_saw":      { name:"Kamenná pila",       name_en:"Stone Saw",        icon:"🪚", type:"tool", tier:"stone", desc:"Pila z křemenných úštěpků. Hrubé opracování dřeva.",           desc_en:"Saw of flint chips. Rough wood working." },
+    "stone_saw":      { maxUses:15, name:"Kamenná pila",       name_en:"Stone Saw",        icon:"🪚", type:"tool", tier:"stone", desc:"Pila z křemenných úštěpků. Hrubé opracování dřeva.",           desc_en:"Saw of flint chips. Rough wood working." },
 
     // ── DŘEVĚNÉ NÁSTROJE (jen jedna verze) ──────────────────────────────────
     "bucket":         { name:"Vědro",              name_en:"Bucket",           icon:"🪣", type:"tool", desc:"Dřevěné vědro. Přenáší vodu ze studny.",               desc_en:"Wooden bucket. Carries water from the well." },
@@ -196,13 +196,13 @@ const ItemsDB = {
     "barrel_tool":    { name:"Sud",                name_en:"Barrel",           icon:"🛢️", type:"tool", desc:"Dřevěný sud. Skladování piva, vína a vody.",           desc_en:"Wooden barrel. Storage for ale, wine and water." },
 
     // ── KOVOVÉ NÁSTROJE (tech_kovarina — po kovárně) ─────────────────────────
-    "iron_axe":       { name:"Železná sekerka",    name_en:"Iron Axe",         icon:"🪓", type:"tool", tier:"iron", desc:"Železné ostří. Rychlejší těžba dřeva, více kulatiny.",        desc_en:"Iron blade. Faster wood harvesting, more logs." },
-    "iron_spade":     { name:"Železný rýč",        name_en:"Iron Spade",       icon:"⛏️", type:"tool", tier:"iron", desc:"Železný rýč. Více červů, hlubší kopání.",                      desc_en:"Iron spade. More worms, deeper digging." },
+    "iron_axe":       { maxUses:50, maxStack:1, name:"Železná sekerka",    name_en:"Iron Axe",         icon:"🪓", type:"tool", tier:"iron", desc:"Železné ostří. Rychlejší těžba dřeva, více kulatiny.",        desc_en:"Iron blade. Faster wood harvesting, more logs." },
+    "iron_spade":     { maxUses:50, maxStack:1, name:"Železný rýč",        name_en:"Iron Spade",       icon:"⛏️", type:"tool", tier:"iron", desc:"Železný rýč. Více červů, hlubší kopání.",                      desc_en:"Iron spade. More worms, deeper digging." },
     "iron_scythe":    { name:"Železná kosa",       name_en:"Iron Scythe",      icon:"⚔️", type:"tool", tier:"iron", desc:"Ostrá železná kosa. Více trávy za méně akcí.",                desc_en:"Sharp iron scythe. More grass per action." },
     "iron_sickle":    { name:"Železný srp",        name_en:"Iron Sickle",      icon:"🌾", type:"tool", tier:"iron", desc:"Železný srp. Přesná žeň obilí a bylin.",                      desc_en:"Iron sickle. Precise harvesting of grain and herbs." },
-    "iron_flail":     { name:"Železný cep",        name_en:"Iron Flail",       icon:"🪵", type:"tool", tier:"iron", desc:"Železné závaží. Efektivnější mlácení obilí.",                  desc_en:"Iron weight. More efficient threshing." },
+    "iron_flail":     { maxUses:50, maxStack:1, name:"Železný cep",        name_en:"Iron Flail",       icon:"🪵", type:"tool", tier:"iron", desc:"Železné závaží. Efektivnější mlácení obilí.",                  desc_en:"Iron weight. More efficient threshing." },
     "iron_shovel":    { name:"Železná lopata",     name_en:"Iron Shovel",      icon:"🪛", type:"tool", tier:"iron", desc:"Železná lopata. Rychlý přesun půdy a hnoje.",                  desc_en:"Iron shovel. Fast movement of soil and manure." },
-    "iron_saw":       { name:"Železná pila",       name_en:"Iron Saw",         icon:"🪚", type:"tool", tier:"iron", desc:"Železná pila. Přesné zpracování kulatiny na fošny.",           desc_en:"Iron saw. Precise processing of logs into planks." },
+    "iron_saw":       { maxUses:50, maxStack:1, name:"Železná pila",       name_en:"Iron Saw",         icon:"🪚", type:"tool", tier:"iron", desc:"Železná pila. Přesné zpracování kulatiny na fošny.",           desc_en:"Iron saw. Precise processing of logs into planks." },
     "log":            { name:"Kulatina",           name_en:"Log",              icon:"🪵", type:"mat",  desc:"Kmen pokáceného stromu. Základ tesařství.",            desc_en:"Felled tree trunk. The foundation of carpentry." },
     "bellows":        { name:"Měchy",                 name_en:"Bellows",             icon:"💨", type:"tool", cat:"tool", desc:"Kožené měchy. Rozdmýchají oheň i varhanní píšťaly.",          desc_en:"Leather bellows. Fan the fire and the organ pipes alike." },
     "book_binding":   { name:"Vazba knih",            name_en:"Book Binding",        icon:"📚", type:"mat",              desc:"Kožená vazba drží složky pohromadě. Bez ní jsou jen listy.",   desc_en:"Leather binding holds the quires. Without it, just loose leaves." },
@@ -302,6 +302,18 @@ const ItemsDB = {
     "mule":           { name:"Mula",              name_en:"Mule",             icon:"🐴", type:"animal", desc:"Mula: církevní limuzína. Opati jezdili na bílých mulách jako symbol pokory i statusu. Horské stezky, solné cesty.", desc_en:"Mule: the ecclesiastical limousine. Abbots rode white mules as a symbol of humility and status. Mountain paths, salt roads." },
     "pigeon":         { name:"Holub",             name_en:"Pigeon",           icon:"🕊️", type:"animal", desc:"Holub: holubník jako zdroj čerstvého masa pro vzácné hosty, brků pro iluminátory a hnojiva pro zahradu.", desc_en:"Pigeon: the dovecote as a source of fresh meat for honoured guests, quills for illuminators, and dung for the garden." },
     "pig":            { name:"Prase",             name_en:"Pig",              icon:"🐷", type:"animal", desc:"Prase: přes léto na žaludění v lese, na zimu poraženo. Sádlo a uzené maso pro konvrše a čeleď. Mniši vepřové příliš nejedli.", desc_en:"Pig: summer grazing on acorns in the forest, slaughtered for winter. Lard and cured meat for lay brothers and servants. Monks ate little pork themselves." },
+    // ── ŽELEZNÁ RUDA + INGOT ────────────────────────────────────────────────
+    "iron_ore":       { name:"Železná ruda",       name_en:"Iron Ore",          icon:"🪨", type:"mat",  desc:"Surová železná ruda. Taví se s uhlím na ingot.",        desc_en:"Raw iron ore. Smelted with charcoal into an ingot." },
+    "iron_ingot":     { name:"Železný ingot",      name_en:"Iron Ingot",        icon:"⚙️", type:"mat",  desc:"Odlitý prut železa. Základ kovářského řemesla.",        desc_en:"Cast iron bar. The foundation of the blacksmith's craft." },
+
+    // ── OPOTŘEBENÉ ŽELEZNÉ NÁSTROJE ──────────────────────────────────────────
+    "worn_iron_axe":    { name:"Otupená sekerka",   name_en:"Worn Iron Axe",    icon:"🪓", type:"tool", tier:"iron", desc:"Otupené železné ostří. Opravit repair_kitem.",  desc_en:"Blunted iron blade. Repair with a repair kit." },
+    "worn_iron_spade":  { name:"Tupý rýč",          name_en:"Worn Iron Spade",  icon:"⛏️", type:"tool", tier:"iron", desc:"Ohnutý železný rýč. Opravit repair_kitem.",     desc_en:"Bent iron spade. Repair with a repair kit." },
+    "worn_iron_scythe": { name:"Tupá kosa",         name_en:"Worn Iron Scythe", icon:"⚔️", type:"tool", tier:"iron", desc:"Otupenná železná kosa. Opravit repair_kitem.",  desc_en:"Blunted iron scythe. Repair with a repair kit." },
+    "worn_iron_sickle": { name:"Tupý srp",          name_en:"Worn Iron Sickle", icon:"🌾", type:"tool", tier:"iron", desc:"Otupenný železný srp. Opravit repair_kitem.",   desc_en:"Blunted iron sickle. Repair with a repair kit." },
+    "worn_iron_flail":  { name:"Uvolněný cep",      name_en:"Worn Iron Flail",  icon:"🪵", type:"tool", tier:"iron", desc:"Uvolněné závaží. Opravit repair_kitem.",        desc_en:"Loose weight. Repair with a repair kit." },
+    "worn_iron_shovel": { name:"Ohnutá lopata",     name_en:"Worn Iron Shovel", icon:"🪛", type:"tool", tier:"iron", desc:"Ohnutá železná lopata. Opravit repair_kitem.",  desc_en:"Bent iron shovel. Repair with a repair kit." },
+    "worn_iron_saw":    { name:"Tupá pila",         name_en:"Worn Iron Saw",    icon:"🪚", type:"tool", tier:"iron", desc:"Otupenné zuby pily. Opravit repair_kitem.",     desc_en:"Blunted saw teeth. Repair with a repair kit." },
 };
     // Oprava BUG #2 — semena stromů chybějící v ItemsDB (Trh nákup)
     // (vloženo před uzavírací }; — merge do objektu před buildem)

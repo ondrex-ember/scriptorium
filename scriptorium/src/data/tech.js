@@ -164,7 +164,7 @@ const TechTree = [
       cost:35,
       desc:"Klášterní kovář byl nepostradatelný. Z rozžhaveného železa tvaroval sekerky, rýče i kosy. Bez kováře nezaoralo žádné pole. Odemkne: železné nástroje (sekerka, rýč, kosa, srp, cep, lopata, pila).",
       desc_en:"The monastic blacksmith was indispensable. He shaped axes, spades and scythes from heated iron. Without a smith no field could be ploughed. Unlocks: iron tools (axe, spade, scythe, sickle, flail, shovel, saw).",
-      unlocks:["iron_axe","iron_spade","iron_scythe","iron_sickle","iron_flail","iron_shovel","iron_saw"], requires:["tech_horticulture"] },
+      unlocks:["iron_axe","iron_spade","iron_scythe","iron_sickle","iron_flail","iron_shovel","iron_saw","iron_ingot","repair_iron_axe","repair_iron_spade","repair_iron_scythe","repair_iron_sickle","repair_iron_flail","repair_iron_shovel","repair_iron_saw"], requires:["tech_horticulture"] },
 
     { id:"tech_horticulture",  name:"Horticultura — Zahradní umění", name_en:"Horticultura — Art of the Garden",
       cost:10,

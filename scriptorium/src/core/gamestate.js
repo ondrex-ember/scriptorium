@@ -70,5 +70,6 @@ const GameState = {
     kronikaDailyBuffer: { date: '', gains: {} },
     kronikaCraftBuffer: { date: '', crafts: {} },
     craftedItems: {},
-    notifications: []  // NotificationSystem — persistentní panel zpráv
+    notifications: [],  // NotificationSystem — persistentní panel zpráv
+    toolUses: {}        // Zbývající použití nástrojů { itemId: remainingUses }
 };
