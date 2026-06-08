@@ -3897,7 +3897,7 @@ const ItemsDB = {
 
     // QUILL
     "feather":        { name:"Husí pero",            name_en:"Goose Feather",          icon:"🪶", type:"mat",  desc:"Z křídla husy.",                                   desc_en:"From a goose wing." },
-    "quill":          { name:"Brko",                 name_en:"Quill",                  icon:"🪶", type:"tool", desc:"10x použití. +2 ink/craft.",                       desc_en:"10 uses. +2 ink per craft." },
+    "quill":          { maxUses:10, name:"Brko",                 name_en:"Quill",                  icon:"🪶", type:"tool", desc:"10x použití. +2 ink/craft.",                       desc_en:"10 uses. +2 ink per craft." },
 
     // GALLIC INK
     "gall_nut":       { name:"Duběnka",              name_en:"Oak Gall",               icon:"🫘", type:"alchemy_ing", desc:"Hálka na dubu. Obsahuje tanin.",             desc_en:"Oak gall. Contains tannin." },
@@ -3977,13 +3977,13 @@ const ItemsDB = {
     "cut_stone":      { name:"Tesaný kámen",          name_en:"Cut Stone",           icon:"🧱", type:"mat",              desc:"Kámen opracovaný dlátem. Pevný základ sklepa i sýpky.", desc_en:"Stone shaped by chisel. The firm foundation of cellar and granary." },
 
     // ── KAMENNÉ NÁSTROJE (tech_horticulture + tech_carpentaria) ────────────────
-    "stone_axe":      { name:"Kamenná sekerka",    name_en:"Stone Axe",        icon:"🪓", type:"tool", tier:"stone", desc:"Kamenné ostří na dřevěné násadě. Odemkne těžbu dřeva.",       desc_en:"Stone blade on a wooden haft. Unlocks wood harvesting." },
+    "stone_axe":      { maxUses:15, name:"Kamenná sekerka",    name_en:"Stone Axe",        icon:"🪓", type:"tool", tier:"stone", desc:"Kamenné ostří na dřevěné násadě. Odemkne těžbu dřeva.",       desc_en:"Stone blade on a wooden haft. Unlocks wood harvesting." },
     "stone_spade":    { name:"Kamenný rýč",        name_en:"Stone Spade",      icon:"⛏️", type:"tool", tier:"stone", desc:"Plochý kámen na násadě. Kopání červů a přesazování.",          desc_en:"Flat stone on a haft. Digging worms and transplanting." },
     "stone_scythe":   { name:"Kamenná kosa",       name_en:"Stone Scythe",     icon:"⚔️", type:"tool", tier:"stone", desc:"Kamenné ostří. Sečení trávy na seno.",                         desc_en:"Stone blade. Cuts grass for hay." },
     "stone_sickle":   { name:"Kamenný srp",        name_en:"Stone Sickle",     icon:"🌾", type:"tool", tier:"stone", desc:"Malé kamenné ostří. Žeň bylin a obilí.",                       desc_en:"Small stone blade. Harvesting herbs and grain." },
     "stone_flail":    { name:"Kamenný cep",        name_en:"Stone Flail",      icon:"🪵", type:"tool", tier:"stone", desc:"Dřevěný cep s kamenným závažím. Mlácení obilí.",               desc_en:"Wooden flail with stone weight. Threshing grain." },
     "stone_shovel":   { name:"Kamenná lopata",     name_en:"Stone Shovel",     icon:"🪛", type:"tool", tier:"stone", desc:"Plochý kámen jako lopata. Přesun půdy a hnoje.",               desc_en:"Flat stone as shovel. Moving soil and manure." },
-    "stone_saw":      { name:"Kamenná pila",       name_en:"Stone Saw",        icon:"🪚", type:"tool", tier:"stone", desc:"Pila z křemenných úštěpků. Hrubé opracování dřeva.",           desc_en:"Saw of flint chips. Rough wood working." },
+    "stone_saw":      { maxUses:15, name:"Kamenná pila",       name_en:"Stone Saw",        icon:"🪚", type:"tool", tier:"stone", desc:"Pila z křemenných úštěpků. Hrubé opracování dřeva.",           desc_en:"Saw of flint chips. Rough wood working." },
 
     // ── DŘEVĚNÉ NÁSTROJE (jen jedna verze) ──────────────────────────────────
     "bucket":         { name:"Vědro",              name_en:"Bucket",           icon:"🪣", type:"tool", desc:"Dřevěné vědro. Přenáší vodu ze studny.",               desc_en:"Wooden bucket. Carries water from the well." },
@@ -3991,13 +3991,13 @@ const ItemsDB = {
     "barrel_tool":    { name:"Sud",                name_en:"Barrel",           icon:"🛢️", type:"tool", desc:"Dřevěný sud. Skladování piva, vína a vody.",           desc_en:"Wooden barrel. Storage for ale, wine and water." },
 
     // ── KOVOVÉ NÁSTROJE (tech_kovarina — po kovárně) ─────────────────────────
-    "iron_axe":       { name:"Železná sekerka",    name_en:"Iron Axe",         icon:"🪓", type:"tool", tier:"iron", desc:"Železné ostří. Rychlejší těžba dřeva, více kulatiny.",        desc_en:"Iron blade. Faster wood harvesting, more logs." },
-    "iron_spade":     { name:"Železný rýč",        name_en:"Iron Spade",       icon:"⛏️", type:"tool", tier:"iron", desc:"Železný rýč. Více červů, hlubší kopání.",                      desc_en:"Iron spade. More worms, deeper digging." },
+    "iron_axe":       { maxUses:50, maxStack:1, name:"Železná sekerka",    name_en:"Iron Axe",         icon:"🪓", type:"tool", tier:"iron", desc:"Železné ostří. Rychlejší těžba dřeva, více kulatiny.",        desc_en:"Iron blade. Faster wood harvesting, more logs." },
+    "iron_spade":     { maxUses:50, maxStack:1, name:"Železný rýč",        name_en:"Iron Spade",       icon:"⛏️", type:"tool", tier:"iron", desc:"Železný rýč. Více červů, hlubší kopání.",                      desc_en:"Iron spade. More worms, deeper digging." },
     "iron_scythe":    { name:"Železná kosa",       name_en:"Iron Scythe",      icon:"⚔️", type:"tool", tier:"iron", desc:"Ostrá železná kosa. Více trávy za méně akcí.",                desc_en:"Sharp iron scythe. More grass per action." },
     "iron_sickle":    { name:"Železný srp",        name_en:"Iron Sickle",      icon:"🌾", type:"tool", tier:"iron", desc:"Železný srp. Přesná žeň obilí a bylin.",                      desc_en:"Iron sickle. Precise harvesting of grain and herbs." },
-    "iron_flail":     { name:"Železný cep",        name_en:"Iron Flail",       icon:"🪵", type:"tool", tier:"iron", desc:"Železné závaží. Efektivnější mlácení obilí.",                  desc_en:"Iron weight. More efficient threshing." },
+    "iron_flail":     { maxUses:50, maxStack:1, name:"Železný cep",        name_en:"Iron Flail",       icon:"🪵", type:"tool", tier:"iron", desc:"Železné závaží. Efektivnější mlácení obilí.",                  desc_en:"Iron weight. More efficient threshing." },
     "iron_shovel":    { name:"Železná lopata",     name_en:"Iron Shovel",      icon:"🪛", type:"tool", tier:"iron", desc:"Železná lopata. Rychlý přesun půdy a hnoje.",                  desc_en:"Iron shovel. Fast movement of soil and manure." },
-    "iron_saw":       { name:"Železná pila",       name_en:"Iron Saw",         icon:"🪚", type:"tool", tier:"iron", desc:"Železná pila. Přesné zpracování kulatiny na fošny.",           desc_en:"Iron saw. Precise processing of logs into planks." },
+    "iron_saw":       { maxUses:50, maxStack:1, name:"Železná pila",       name_en:"Iron Saw",         icon:"🪚", type:"tool", tier:"iron", desc:"Železná pila. Přesné zpracování kulatiny na fošny.",           desc_en:"Iron saw. Precise processing of logs into planks." },
     "log":            { name:"Kulatina",           name_en:"Log",              icon:"🪵", type:"mat",  desc:"Kmen pokáceného stromu. Základ tesařství.",            desc_en:"Felled tree trunk. The foundation of carpentry." },
     "bellows":        { name:"Měchy",                 name_en:"Bellows",             icon:"💨", type:"tool", cat:"tool", desc:"Kožené měchy. Rozdmýchají oheň i varhanní píšťaly.",          desc_en:"Leather bellows. Fan the fire and the organ pipes alike." },
     "book_binding":   { name:"Vazba knih",            name_en:"Book Binding",        icon:"📚", type:"mat",              desc:"Kožená vazba drží složky pohromadě. Bez ní jsou jen listy.",   desc_en:"Leather binding holds the quires. Without it, just loose leaves." },
@@ -4097,6 +4097,18 @@ const ItemsDB = {
     "mule":           { name:"Mula",              name_en:"Mule",             icon:"🐴", type:"animal", desc:"Mula: církevní limuzína. Opati jezdili na bílých mulách jako symbol pokory i statusu. Horské stezky, solné cesty.", desc_en:"Mule: the ecclesiastical limousine. Abbots rode white mules as a symbol of humility and status. Mountain paths, salt roads." },
     "pigeon":         { name:"Holub",             name_en:"Pigeon",           icon:"🕊️", type:"animal", desc:"Holub: holubník jako zdroj čerstvého masa pro vzácné hosty, brků pro iluminátory a hnojiva pro zahradu.", desc_en:"Pigeon: the dovecote as a source of fresh meat for honoured guests, quills for illuminators, and dung for the garden." },
     "pig":            { name:"Prase",             name_en:"Pig",              icon:"🐷", type:"animal", desc:"Prase: přes léto na žaludění v lese, na zimu poraženo. Sádlo a uzené maso pro konvrše a čeleď. Mniši vepřové příliš nejedli.", desc_en:"Pig: summer grazing on acorns in the forest, slaughtered for winter. Lard and cured meat for lay brothers and servants. Monks ate little pork themselves." },
+    // ── ŽELEZNÁ RUDA + INGOT ────────────────────────────────────────────────
+    "iron_ore":       { name:"Železná ruda",       name_en:"Iron Ore",          icon:"🪨", type:"mat",  desc:"Surová železná ruda. Taví se s uhlím na ingot.",        desc_en:"Raw iron ore. Smelted with charcoal into an ingot." },
+    "iron_ingot":     { name:"Železný ingot",      name_en:"Iron Ingot",        icon:"⚙️", type:"mat",  desc:"Odlitý prut železa. Základ kovářského řemesla.",        desc_en:"Cast iron bar. The foundation of the blacksmith's craft." },
+
+    // ── OPOTŘEBENÉ ŽELEZNÉ NÁSTROJE ──────────────────────────────────────────
+    "worn_iron_axe":    { name:"Otupená sekerka",   name_en:"Worn Iron Axe",    icon:"🪓", type:"tool", tier:"iron", desc:"Otupené železné ostří. Opravit repair_kitem.",  desc_en:"Blunted iron blade. Repair with a repair kit." },
+    "worn_iron_spade":  { name:"Tupý rýč",          name_en:"Worn Iron Spade",  icon:"⛏️", type:"tool", tier:"iron", desc:"Ohnutý železný rýč. Opravit repair_kitem.",     desc_en:"Bent iron spade. Repair with a repair kit." },
+    "worn_iron_scythe": { name:"Tupá kosa",         name_en:"Worn Iron Scythe", icon:"⚔️", type:"tool", tier:"iron", desc:"Otupenná železná kosa. Opravit repair_kitem.",  desc_en:"Blunted iron scythe. Repair with a repair kit." },
+    "worn_iron_sickle": { name:"Tupý srp",          name_en:"Worn Iron Sickle", icon:"🌾", type:"tool", tier:"iron", desc:"Otupenný železný srp. Opravit repair_kitem.",   desc_en:"Blunted iron sickle. Repair with a repair kit." },
+    "worn_iron_flail":  { name:"Uvolněný cep",      name_en:"Worn Iron Flail",  icon:"🪵", type:"tool", tier:"iron", desc:"Uvolněné závaží. Opravit repair_kitem.",        desc_en:"Loose weight. Repair with a repair kit." },
+    "worn_iron_shovel": { name:"Ohnutá lopata",     name_en:"Worn Iron Shovel", icon:"🪛", type:"tool", tier:"iron", desc:"Ohnutá železná lopata. Opravit repair_kitem.",  desc_en:"Bent iron shovel. Repair with a repair kit." },
+    "worn_iron_saw":    { name:"Tupá pila",         name_en:"Worn Iron Saw",    icon:"🪚", type:"tool", tier:"iron", desc:"Otupenné zuby pily. Opravit repair_kitem.",     desc_en:"Blunted saw teeth. Repair with a repair kit." },
 };
     // Oprava BUG #2 — semena stromů chybějící v ItemsDB (Trh nákup)
     // (vloženo před uzavírací }; — merge do objektu před buildem)
@@ -4409,21 +4421,34 @@ const RecipesDB = [
     { id:"barrel_tool",  output:"barrel_tool",  qty:1, req:{plank:6, rope:3},           cat:"tool", locked:true,
       desc:"Dřevěný sud na pivo, víno a vodu.", desc_en:"Wooden barrel for ale, wine and water." },
 
-    // ── KOVOVÉ NÁSTROJE (tech_kovarina) ──────────────────────────────────────
-    { id:"iron_axe",    output:"iron_axe",    qty:1, req:{stick:2, rock:1, rope:1, leather:1}, cat:"tool", locked:true,
+    // ── ŽELEZNÝ VÝROBNÍ ŘETĚZEC ─────────────────────────────────────────────
+    { id:"iron_ingot", output:"iron_ingot", qty:1, req:{iron_ore:3, charcoal:2}, cat:"mat", locked:true,
+      desc:"Tavení rudy s uhlím. Základ kovářství.", desc_en:"Smelting ore with charcoal. Foundation of smithcraft." },
+
+    // ── KOVOVÉ NÁSTROJE (tech_kovarina, max 1 ks) ────────────────────────────
+    { id:"iron_axe",    output:"iron_axe",    qty:1, req:{iron_ingot:1, stick:2, rope:1, leather:1}, cat:"tool", locked:true, maxStack:1,
       desc:"Železná sekerka. Více kulatiny za akci.", desc_en:"Iron axe. More logs per action." },
-    { id:"iron_spade",  output:"iron_spade",  qty:1, req:{stick:2, rock:1, rope:1},            cat:"tool", locked:true,
+    { id:"iron_spade",  output:"iron_spade",  qty:1, req:{iron_ingot:1, stick:2, rope:1},            cat:"tool", locked:true, maxStack:1,
       desc:"Železný rýč. Více červů, hlubší kopání.", desc_en:"Iron spade. More worms, deeper digging." },
-    { id:"iron_scythe", output:"iron_scythe", qty:1, req:{stick:3, rock:1, rope:2, leather:1}, cat:"tool", locked:true,
+    { id:"iron_scythe", output:"iron_scythe", qty:1, req:{iron_ingot:1, stick:3, rope:2, leather:1}, cat:"tool", locked:true, maxStack:1,
       desc:"Železná kosa. Více trávy za méně akcí.", desc_en:"Iron scythe. More grass per action." },
-    { id:"iron_sickle", output:"iron_sickle", qty:1, req:{stick:1, rock:1, rope:1},            cat:"tool", locked:true,
+    { id:"iron_sickle", output:"iron_sickle", qty:1, req:{iron_ingot:1, stick:1, rope:1},            cat:"tool", locked:true, maxStack:1,
       desc:"Železný srp. Přesná žeň.", desc_en:"Iron sickle. Precise harvesting." },
-    { id:"iron_flail",  output:"iron_flail",  qty:1, req:{stick:3, rope:2, rock:1, leather:1}, cat:"tool", locked:true,
+    { id:"iron_flail",  output:"iron_flail",  qty:1, req:{iron_ingot:1, stick:3, rope:2},            cat:"tool", locked:true, maxStack:1,
       desc:"Železný cep. Efektivnější mlácení.", desc_en:"Iron flail. More efficient threshing." },
-    { id:"iron_shovel", output:"iron_shovel", qty:1, req:{stick:2, rock:1, rope:1},            cat:"tool", locked:true,
+    { id:"iron_shovel", output:"iron_shovel", qty:1, req:{iron_ingot:1, stick:2, rope:1},            cat:"tool", locked:true, maxStack:1,
       desc:"Železná lopata. Rychlý přesun půdy.", desc_en:"Iron shovel. Fast soil moving." },
-    { id:"iron_saw",    output:"iron_saw",    qty:1, req:{stick:2, flint:1, rope:1, leather:1}, cat:"tool", locked:true,
+    { id:"iron_saw",    output:"iron_saw",    qty:1, req:{iron_ingot:1, stick:2, flint:1, leather:1},cat:"tool", locked:true, maxStack:1,
       desc:"Železná pila. Přesné opracování dřeva.", desc_en:"Iron saw. Precise wood working." },
+
+    // ── OPRAVA OPOTŘEBENÝCH NÁSTROJŮ ─────────────────────────────────────────
+    { id:"repair_iron_axe",    output:"iron_axe",    qty:1, req:{worn_iron_axe:1,    repair_kit:1}, cat:"tool", locked:true, desc:"Nabroušení a oprava sekerky.", desc_en:"Sharpen and repair the axe." },
+    { id:"repair_iron_spade",  output:"iron_spade",  qty:1, req:{worn_iron_spade:1,  repair_kit:1}, cat:"tool", locked:true, desc:"Vyrovnání a oprava rýče.", desc_en:"Straighten and repair the spade." },
+    { id:"repair_iron_scythe", output:"iron_scythe", qty:1, req:{worn_iron_scythe:1, repair_kit:1}, cat:"tool", locked:true, desc:"Nabroušení kosy.", desc_en:"Sharpen the scythe." },
+    { id:"repair_iron_sickle", output:"iron_sickle", qty:1, req:{worn_iron_sickle:1, repair_kit:1}, cat:"tool", locked:true, desc:"Nabroušení srpu.", desc_en:"Sharpen the sickle." },
+    { id:"repair_iron_flail",  output:"iron_flail",  qty:1, req:{worn_iron_flail:1,  repair_kit:1}, cat:"tool", locked:true, desc:"Utažení závaží cepu.", desc_en:"Tighten the flail weight." },
+    { id:"repair_iron_shovel", output:"iron_shovel", qty:1, req:{worn_iron_shovel:1, repair_kit:1}, cat:"tool", locked:true, desc:"Narovnání lopaty.", desc_en:"Straighten the shovel." },
+    { id:"repair_iron_saw",    output:"iron_saw",    qty:1, req:{worn_iron_saw:1,    repair_kit:1}, cat:"tool", locked:true, desc:"Přebroušení zubů pily.", desc_en:"Re-sharpen the saw teeth." },
 ];
 // ═══ src/data/lore.js ═══
 const LoreDB = {
@@ -5303,7 +5328,7 @@ const TechTree = [
       cost:35,
       desc:"Klášterní kovář byl nepostradatelný. Z rozžhaveného železa tvaroval sekerky, rýče i kosy. Bez kováře nezaoralo žádné pole. Odemkne: železné nástroje (sekerka, rýč, kosa, srp, cep, lopata, pila).",
       desc_en:"The monastic blacksmith was indispensable. He shaped axes, spades and scythes from heated iron. Without a smith no field could be ploughed. Unlocks: iron tools (axe, spade, scythe, sickle, flail, shovel, saw).",
-      unlocks:["iron_axe","iron_spade","iron_scythe","iron_sickle","iron_flail","iron_shovel","iron_saw"], requires:["tech_horticulture"] },
+      unlocks:["iron_axe","iron_spade","iron_scythe","iron_sickle","iron_flail","iron_shovel","iron_saw","iron_ingot","repair_iron_axe","repair_iron_spade","repair_iron_scythe","repair_iron_sickle","repair_iron_flail","repair_iron_shovel","repair_iron_saw"], requires:["tech_horticulture"] },
 
     { id:"tech_horticulture",  name:"Horticultura — Zahradní umění", name_en:"Horticultura — Art of the Garden",
       cost:10,
@@ -5390,7 +5415,8 @@ const GameState = {
     kronikaDailyBuffer: { date: '', gains: {} },
     kronikaCraftBuffer: { date: '', crafts: {} },
     craftedItems: {},
-    notifications: []  // NotificationSystem — persistentní panel zpráv
+    notifications: [],  // NotificationSystem — persistentní panel zpráv
+    toolUses: {}        // Zbývající použití nástrojů { itemId: remainingUses }
 };
 // ═══ src/data/achievements.js ═══
 const AchievementsDB = [
@@ -23236,6 +23262,9 @@ const Game = {
 		// Initialize feeding system
 		if (!GameState.feeding) GameState.feeding = {};
 
+		// Initialize tool uses tracking
+		if (!GameState.toolUses) GameState.toolUses = {};
+
 		// Migrate guard — doplnit chybějící unlocks ze všech již odemčených techů
 		if (typeof TechTree !== 'undefined' && GameState.researchedTechs) {
 			GameState.researchedTechs.forEach(techId => {
@@ -24458,7 +24487,11 @@ const Game = {
                     this.addItem((r<0.5?'rock':'stick'), 1);
                     if(Math.random() < 0.05) this.addItem('carbon_black', 1);
                     if(Math.random() < 0.04) this.addItem('ochre', 1);
-                    if(Math.random() < 0.10) this.addItem('chalk', 1); // Křídová pánev — lokálně dostupná
+                    if(Math.random() < 0.10) this.addItem('chalk', 1);
+                    // Iron ore — vzácný nález (3%) po odemčení kovařiny
+                    if(Math.random() < 0.03 && GameState.researchedTechs && GameState.researchedTechs.includes('tech_kovarina')) {
+                        this.addItem('iron_ore', 1);
+                    }
                 }
                 else if (type === 'bark') { this.addItem('bark', 2); }
                 else if (type === 'fishing') { this.addItem('fish', r<0.3?2:1); if(r>0.8) this.addItem('water', 1); }
@@ -24557,6 +24590,7 @@ const Game = {
                 GameState.kronikaDailyBuffer.gains[_actionLabel] = (GameState.kronikaDailyBuffer.gains[_actionLabel] || 0) + total;
             }
             Game._scavenging = false;
+            if (_usedToolId) Game.useToolCharge(_usedToolId);
             Game.save(); UI.renderAll(); return;
         }
         if (GameState.activeAction && (type === 'basic' || type === 'nature')) {
@@ -24604,6 +24638,7 @@ const Game = {
         // Check requirements
         const action = ActionsDB.find(a => a.id === type);
         let _toolMult = 1.0; // multiplier z nástroje
+        let _usedToolId = null; // ID použitého nástroje pro useToolCharge
         if (action && action.req) {
             if (Array.isArray(action.req)) {
                 // Pole req — najít první dostupný nástroj a jeho multiplier
@@ -24614,6 +24649,7 @@ const Game = {
                     return;
                 }
                 _toolMult = found.mult;
+                _usedToolId = found.item;
             } else {
                 if (!(GameState.inventory[action.req] > 0)) {
                     UI.notify(t('game.missingItem').replace('{item}', ItemsDB[action.req] ? ItemsDB[action.req].name : action.req), true);
@@ -24740,9 +24776,8 @@ const Game = {
                 if (Object.keys(_s0gains).length > 0) UI.notifyAccum(_s0gains);
             }
             Game._scavenging = false;
+            if (_usedToolId) Game.useToolCharge(_usedToolId);
             Game.save(); UI.renderAll(); return;
-        } else {
-            let multiplier = durationMin === 1 ? 10 : (durationMin === 5 ? 50 : 100);
             
             // Apply tool multiplier
             if (_toolMult !== 1.0) multiplier = Math.round(multiplier * _toolMult);
@@ -24861,11 +24896,30 @@ const Game = {
     craft: function(id) {
         const r = RecipesDB.find(x => x.id === id);
         if(!GameState.flags.fireplaceLit && !r.blind) { UI.notify(t('game.frozenHands'), true); return; }
+
+        // maxStack check — iron nástroje max 1 ks
+        const outItem = ItemsDB[r.output];
+        if (outItem && outItem.maxStack) {
+            const have = GameState.inventory[r.output] || 0;
+            const worn = GameState.inventory['worn_' + r.output] || 0;
+            if (have + worn >= outItem.maxStack) {
+                const lang = (GameState.settings && GameState.settings.language) || 'cs';
+                UI.notify(lang === 'en' ? '⚠️ You already have this tool.' : '⚠️ Tento nástroj již máš.', true);
+                return;
+            }
+        }
+
         for(let [item, amt] of Object.entries(r.req)) {
             if(amt > 0 && (!GameState.inventory[item] || GameState.inventory[item] < amt)) { UI.notify(t('game.missingMats'), true); return; }
             if(amt === 0 && !GameState.inventory[item]) { UI.notify(`${t('game.required2')} ${iName(item)}`, true); return; }
         }
         for(let [item, amt] of Object.entries(r.req)) if(amt > 0) this.removeItem(item, amt);
+
+        // Init toolUses pro nový nástroj
+        if (outItem && outItem.maxUses) {
+            if (!GameState.toolUses) GameState.toolUses = {};
+            GameState.toolUses[r.output] = outItem.maxUses;
+        }
         
         // ========== NEW: Apply canonical hours crafting buff ==========
         let craftQty = r.qty;
@@ -25279,6 +25333,45 @@ const Game = {
 			}
 		});
 		Game.save();
+	},
+
+	// ─── TOOL USES SYSTÉM ──────────────────────────────────────────────────────
+	useToolCharge: function(itemId) {
+		const item = ItemsDB[itemId];
+		if (!item || !item.maxUses) return; // Nástroj bez maxUses — nespotřebovává se (pestle atd.)
+
+		if (!GameState.toolUses) GameState.toolUses = {};
+		if (GameState.toolUses[itemId] === undefined) {
+			GameState.toolUses[itemId] = item.maxUses;
+		}
+
+		GameState.toolUses[itemId]--;
+		const remaining = GameState.toolUses[itemId];
+		const lang = (GameState.settings && GameState.settings.language) || 'cs';
+		const name = (typeof iName === 'function') ? iName(itemId) : itemId;
+
+		if (remaining <= 0) {
+			// Nástroj se opotřeboval
+			const wornId = 'worn_' + itemId; // worn_iron_axe atd.
+			if (item.tier === 'iron' && ItemsDB[wornId]) {
+				// Iron → degradace na worn
+				this.removeItem(itemId, 1);
+				this.addItem(wornId, 1);
+				delete GameState.toolUses[itemId];
+				UI.notify((lang==='en' ? name + ' worn out — repair it.' : name + ' se opotřebovala — oprav ji.'), true);
+				if (typeof NotificationSystem !== 'undefined') {
+					NotificationSystem.panel((lang==='en' ? '🔧 ' + name + ' worn out. Needs repair.' : '🔧 ' + name + ' opotřebována. Potřebuje opravu.'), 'system');
+				}
+			} else {
+				// Stone → smazat
+				this.removeItem(itemId, 1);
+				delete GameState.toolUses[itemId];
+				UI.notify((lang==='en' ? name + ' broke.' : name + ' se zlomila.'), true);
+			}
+		} else if (remaining === 3) {
+			// Varování před koncem
+			UI.notify((lang==='en' ? '⚠️ ' + name + ': ' + remaining + ' uses left.' : '⚠️ ' + name + ': zbývají ' + remaining + ' použití.'));
+		}
 	},
 
 	feedAnimals: function(animalKey) {
