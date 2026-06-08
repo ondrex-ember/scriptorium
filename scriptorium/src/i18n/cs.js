@@ -226,6 +226,8 @@ const STRINGS_cs = {
             henFed: 'Slepice nakrmeny.',
             sheepFed: 'Ovce nakrmeny a napojeny.',
             needStone: '❌ Potřebuješ kámen',
+            wellTurningGreen: '⚠️ Studna se zazelená — voda je znečištěná.',
+            wellCollapsed: '💥 Studna se zřítila!',
             done: "Hotovo!",
         interrupted: "Přerušeno.",
         scavengeResult: "{msg} +{total} ks.",

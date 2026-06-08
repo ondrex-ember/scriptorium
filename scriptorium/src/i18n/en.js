@@ -208,6 +208,8 @@ const STRINGS_en = {
             henFed: 'The hens are fed.',
             sheepFed: 'The sheep are fed and watered.',
             needStone: '❌ Stone is needed',
+            wellTurningGreen: '⚠️ The well is turning green — water is contaminated.',
+            wellCollapsed: '💥 The well has collapsed!',
             done: "Done!",
         interrupted: "Interrupted.",
         scavengeResult: "{msg} +{total} pcs.",
