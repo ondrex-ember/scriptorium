@@ -1425,8 +1425,8 @@ const Game = {
             const elapsed = now - GameState.activeAction.startTime;
             const multiplier = GameState.activeAction.multiplier;
             let count = 0; let msg = "";
-            if (now >= GameState.activeAction.endTime) { count = multiplier; msg = t('game.done'); }
-            else { const ratio = elapsed / totalDur; count = Math.floor(multiplier * ratio); msg = t('game.interrupted'); }
+            if (now >= GameState.activeAction.endTime) { count = Math.round(multiplier * _toolMult); msg = t('game.done'); }
+            else { const ratio = elapsed / totalDur; count = Math.floor(multiplier * ratio * _toolMult); msg = t('game.interrupted'); }
             GameState.activeAction = null;
             
             // Track action completion
@@ -1636,9 +1636,23 @@ const Game = {
         
         // Check requirements
         const action = ActionsDB.find(a => a.id === type);
-        if (action && action.req && !(GameState.inventory[action.req] > 0)) { 
-            UI.notify(t('game.missingItem').replace('{item}', ItemsDB[action.req].name), true); 
-            return; 
+        let _toolMult = 1.0; // multiplier z nástroje
+        if (action && action.req) {
+            if (Array.isArray(action.req)) {
+                // Pole req — najít první dostupný nástroj a jeho multiplier
+                const found = action.req.find(r => GameState.inventory[r.item] > 0);
+                if (!found) {
+                    const names = action.req.map(r => ItemsDB[r.item] ? ItemsDB[r.item].name : r.item).join('/');
+                    UI.notify(t('game.missingItem').replace('{item}', names), true);
+                    return;
+                }
+                _toolMult = found.mult;
+            } else {
+                if (!(GameState.inventory[action.req] > 0)) {
+                    UI.notify(t('game.missingItem').replace('{item}', ItemsDB[action.req] ? ItemsDB[action.req].name : action.req), true);
+                    return;
+                }
+            }
         }
         
         const durationMin = GameState.selectedDuration;
@@ -1763,6 +1777,9 @@ const Game = {
         } else {
             let multiplier = durationMin === 1 ? 10 : (durationMin === 5 ? 50 : 100);
             
+            // Apply tool multiplier
+            if (_toolMult !== 1.0) multiplier = Math.round(multiplier * _toolMult);
+
             // ========== NEW: Apply canonical hours foraging buff ==========
             if (typeof CanonicalHours !== 'undefined') {
                 const foragingMult = CanonicalHours.getForagingMultiplier();

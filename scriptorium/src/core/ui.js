@@ -133,7 +133,15 @@ renderActions: function() {
             // Well action passes checks - continue to render it below
         } else {
             // NORMAL REQUIREMENT CHECK - ONLY FOR NON-WELL ACTIONS
-            if (act.req && !(GameState.inventory[act.req] > 0)) return;
+            if (act.req) {
+                if (Array.isArray(act.req)) {
+                    // Pole req — zobrazit pokud hráč má alespoň jeden nástroj
+                    const hasAny = act.req.some(r => GameState.inventory[r.item] > 0);
+                    if (!hasAny) return;
+                } else {
+                    if (!(GameState.inventory[act.req] > 0)) return;
+                }
+            }
         }
         // === END WELL HANDLING ===
 

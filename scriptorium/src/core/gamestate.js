@@ -8,9 +8,9 @@ const ActionsDB = [
     { id: 'wetlands',     name: 'Průzkum mokřadu',  name_en: 'Search the wetlands',icon: '🐸',  desc: 'Žáby/Slimáci',    desc_en: 'Frogs / Snails',     yield: 1, req: 'stone_knife' },
     { id: 'resin_harvest',name: 'Sběr pryskyřice',  name_en: 'Harvest resin',      icon: '🌲',  desc: 'Pryskyřice/Med',   desc_en: 'Resin / Honey',      yield: 1, req: 'stone_knife' },
     { id: 'well_water',   name: 'Jít pro vodu',        name_en: 'Draw water',          icon: '🚰',  desc: 'Ze studny',           desc_en: 'From the well',       yield: 1, req: 'well_built' },
-    { id: 'grass_gather', name: 'Posečení trávy',      name_en: 'Mow grass',           icon: '🌿',  desc: 'Tráva na seno',       desc_en: 'Grass for hay',       yield: 1, req: 'scythe' },
-    { id: 'wood_harvest', name: 'Těžba dřeva',         name_en: 'Harvest wood',        icon: '🪓',  desc: 'Kulatina/Větve',      desc_en: 'Logs / Branches',     yield: 1, req: 'axe' },
-    { id: 'worms_dig',    name: 'Kopání červů',        name_en: 'Dig for worms',       icon: '🪱',  desc: 'Krmivo pro kapry',    desc_en: 'Feed for carp',       yield: 1, req: 'spade' },
+    { id: 'grass_gather', name: 'Posečení trávy',      name_en: 'Mow grass',           icon: '🌿',  desc: 'Tráva na seno',       desc_en: 'Grass for hay',       yield: 1, req: [{item:'stone_scythe', mult:0.7}, {item:'iron_scythe', mult:1.2}] },
+    { id: 'wood_harvest', name: 'Těžba dřeva',         name_en: 'Harvest wood',        icon: '🪓',  desc: 'Kulatina/Větve',      desc_en: 'Logs / Branches',     yield: 1, req: [{item:'stone_axe', mult:0.7}, {item:'iron_axe', mult:1.2}] },
+    { id: 'worms_dig',    name: 'Kopání červů',        name_en: 'Dig for worms',       icon: '🪱',  desc: 'Krmivo pro kapry',    desc_en: 'Feed for carp',       yield: 1, req: [{item:'stone_spade', mult:0.7}, {item:'iron_spade', mult:1.2}] },
     { id: 'yard_cleanup', name: 'Uklidit hospodářství',name_en: 'Clean the farmyard',  icon: '🧹',  desc: 'Zbytky + bonusy',     desc_en: 'Scraps + bonuses',    yield: 1 }
 ];
 
