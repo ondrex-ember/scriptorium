@@ -145,7 +145,7 @@ const TechTree = [
       cost:14,
       desc:"Crescenziho encyklopedie hospodářství: sýpka musí stát na suchém místě, chráněna od myší i vlhkosti. Karel IV. si ho dal přeložit do češtiny. Odemkne: Horreum (kapacita 1600j) + krmivo jako denní nutnost pro zvířata.",
       desc_en:"Crescenzi's encyclopaedia of agriculture: the granary must stand on dry ground, protected from mice and damp. Charles IV had it translated into Czech. Unlocks: Horreum (capacity 1600 units) + fodder as a daily necessity for animals.",
-      unlocks:["hay","grain_harvest","worms_dig","scraps_collect"], requires:["tech_cella","tech_de_re_rustica"] },
+      unlocks:["hay"], requires:["tech_cella","tech_de_re_rustica"] },
 
     { id:"tech_inventarium",     name:"Inventarium — Soupis Zásob",      name_en:"Inventarium — Inventory of Stores",
       cost:8,
@@ -168,7 +168,7 @@ const TechTree = [
 
     { id:"tech_horticulture",  name:"Horticultura — Zahradní umění", name_en:"Horticultura — Art of the Garden",
       cost:10,
-      desc:"Klášterní zahradník byl vzdělán v bylinářství, pěstování i závlaze. Vědro, konev a sud byly jeho nástroje. Odemkne: Vědro, Lopata, Konev, Sud, Pila.",
-      desc_en:"The monastic gardener was learned in herbalism, cultivation and irrigation. Bucket, watering can and barrel were his tools. Unlocks: Bucket, Shovel, Watering Can, Barrel, Saw.",
+      desc:"Klášterní zahradník byl vzdělán v bylinářství, pěstování i závlaze. Odemkne: kamenné nástroje (sekerka, rýč, kosa, srp, cep, lopata), vědro, konev, sud.",
+      desc_en:"The monastic gardener was learned in herbalism, cultivation and irrigation. Unlocks: stone tools (axe, spade, scythe, sickle, flail, shovel), bucket, watering can, barrel.",
       unlocks:["stone_axe","stone_spade","stone_scythe","stone_sickle","stone_flail","stone_shovel","bucket","watering_can","barrel_tool"], requires:["tech_writing_basics"] },
 ];
