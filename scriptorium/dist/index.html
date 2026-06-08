@@ -1256,7 +1256,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         <div style="background:var(--bg-parchment); border:2px solid #555; padding:30px; max-width:400px; width:92%; box-shadow: 0 0 80px rgba(0,0,0,0.9); animation: fadeIn 0.5s; position:relative; z-index:1002; opacity:1;">
             <div style="text-align:center; margin-bottom:16px;">
                 <div style="font-size:2.5rem; margin-bottom:6px; opacity:0.4;">🪵</div>
-                <h2 id="fireout-heading" style="color:var(--ink-secondary); margin:0; font-size:0.95rem; letter-spacing:2px; text-transform:uppercase;">Pracovna je studená</h2>
+                <h2 id="fireout-heading" style="color:var(--ink-secondary); margin:0; font-size:0.95rem; letter-spacing:2px; text-transform:uppercase;" data-i18n="fireout.heading"></h2>
             </div>
             <div id="fireout-text" style="font-style:italic; line-height:1.9; color:var(--ink-primary); font-size:0.88rem; background:rgba(0,0,0,0.04); padding:14px; border-left:2px solid #777; margin-bottom:16px;"></div>
             <div id="fireout-days" style="text-align:center; font-size:0.75rem; color:var(--ink-secondary); margin-bottom:18px; opacity:0.7;"></div>
@@ -1393,10 +1393,10 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
     <main id="main-content">
         <div id="screen-home" class="screen active">
-            <h2>Pracovna</h2>
+            <h2 data-i18n="screens.home"></h2>
             
             <div class="filter-bar" style="margin-top:10px; margin-bottom:15px; flex-wrap: wrap; gap: 5px;">
-                <button id="home-tab-main" class="filter-btn active" onclick="UI.switchHomeTab('main', this)">🏰 Pracovna</button>
+                <button id="home-tab-main" class="filter-btn active" onclick="UI.switchHomeTab('main', this)">🏰 <span data-i18n="screens.home"></span></button>
                 <button id="home-tab-athanor" class="filter-btn" onclick="UI.switchHomeTab('athanor', this)">🔬 Athanor</button>
                 <button id="home-tab-cellarium" class="filter-btn" onclick="UI.switchHomeTab('cellarium', this)">🏛️ Cellarium</button>
             </div>
@@ -1782,7 +1782,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     </main>
 
     <nav>
-        <button id="nav-home" class="nav-btn active" onclick="UI.switchScreen('home', this)"><span>🏰</span>Pracovna</button>
+        <button id="nav-home" class="nav-btn active" onclick="UI.switchScreen('home', this)"><span>🏰</span><span data-i18n="screens.home"></span></button>
         <button id="nav-garden" class="nav-btn" onclick="UI.switchScreen('garden', this)"><span>🌱</span>Zahrada</button>
         <button id="nav-craft" class="nav-btn" onclick="UI.switchScreen('craft', this)"><span>⚒</span>Výroba</button>
         <button id="nav-inv" class="nav-btn" onclick="UI.switchScreen('inv', this)"><span>🎒</span>Batoh</button>
