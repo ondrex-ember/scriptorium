@@ -197,6 +197,17 @@ const ItemsDB = {
     "hen_colored":   { name:"Slepice pestrá", name_en:"Coloured Hen",   icon:"🦚", type:"animal", desc:"Pestrá slepice. Dává více peří.",             desc_en:"Colourful hen. Produces more feathers." },
     "rooster":       { name:"Kohout",         name_en:"Rooster",        icon:"🐓", type:"animal", desc:"Kohout zvyšuje snůšku vajec o 20%.",          desc_en:"Rooster increases egg yield by 20%." },
     "sheep":         { name:"Ovce",           name_en:"Sheep",          icon:"🐑", type:"animal", desc:"Ovce produkuje vlnu, mléko a kůži.",          desc_en:"Sheep produces wool, milk and hide." },
+
+    // ── Produkty zvířat ────────────────────────────────────────────────────
+    "egg":            { name:"Vejce",            name_en:"Egg",             icon:"🥚", type:"mat",    desc:"Čerstvé vejce ze slepice. Jídlo i pigment.",   desc_en:"Fresh egg from the hen. Food and pigment." },
+    "milk":           { name:"Mléko",            name_en:"Milk",            icon:"🥛", type:"mat",    desc:"Čerstvé mléko od ovce.",                       desc_en:"Fresh milk from the sheep." },
+    "wool":           { name:"Vlna",             name_en:"Wool",            icon:"🧶", type:"mat",    desc:"Střižená vlna. Na přízi, tkaní i šití.",       desc_en:"Shorn wool. For spinning, weaving and sewing." },
+    "raw_hide":       { name:"Surová kůže",      name_en:"Raw Hide",        icon:"🐑", type:"mat",    desc:"Neupravená zvířecí kůže. Nutno vyčinit.",      desc_en:"Untreated animal hide. Must be cured." },
+    "feather_hen":    { name:"Peří",             name_en:"Hen Feather",     icon:"🪶", type:"mat",    desc:"Husté peří. Na polštáře i brky.",              desc_en:"Thick feathers. For pillows and quills." },
+
+    // ── Produkty zahrady / včelína ─────────────────────────────────────────
+    "pollen":         { name:"Pyl",              name_en:"Pollen",          icon:"🌼", type:"mat",    desc:"Včelí pyl. Léčivý a vzácný.",                  desc_en:"Bee pollen. Medicinal and rare." },
+    "linden_blossom": { name:"Lipový květ",      name_en:"Linden Blossom",  icon:"🌸", type:"mat",    desc:"Sušený lipový květ. Do čaje i léčiv.",         desc_en:"Dried linden blossom. For tea and remedies." },
     "queen_bee":     { name:"Včelí matka",    name_en:"Queen Bee",      icon:"🐝", type:"animal", desc:"Včelí matka. Nutná pro stavbu úlu.",          desc_en:"Queen bee. Required to establish a hive." },
 
     // ═══════════════════════════════════════════════════════════════════════════

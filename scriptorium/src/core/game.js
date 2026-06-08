@@ -1389,10 +1389,6 @@ const Game = {
 
     scavenge: function(type) {
 	    // === SPECIAL HANDLING FOR WELL === (PŘIDAT NA ZAČÁTEK)
-		if (type === 'build_almarium') { Game.buildStorage('almarium'); return; }
-		if (type === 'build_cella')    { Game.buildStorage('cella');    return; }
-		if (type === 'build_horreum')  { Game.buildStorage('horreum');  return; }
-
 		if (type === 'well_water') {
 			// Check if well exists
 			if (!GameState.well.built) {

@@ -283,19 +283,4 @@ const RecipesDB = [
     { id: "cut_stone", output: "cut_stone", qty: 1, req: { rock: 4 }, cat: "mat", locked: true,
       desc: "Opracovaný kvádr. Klášterní tesař ho vytesá dlátem a palicí.", desc_en: "A dressed block. The monastic carpenter shapes it with chisel and mallet." },
 
-    // ── STAVBY — SKLADY (tech_almarium / tech_cella / tech_horreum) ─────────
-    { id: "build_almarium", output: "build_almarium", qty: 1,
-      req: { plank: 6, rope: 3, leather: 2 }, cat: "mat", locked: true,
-      desc: "Almarium — uzamčená skříň na zásoby (200j). Vyžaduje: tech Almarium.",
-      desc_en: "Almarium — locked storeroom (200 units). Requires: Almarium tech." },
-
-    { id: "build_cella", output: "build_cella", qty: 1,
-      req: { cut_stone: 12, rope: 5, chalk: 4 }, cat: "mat", locked: true,
-      desc: "Cella — chladný klenutý sklep (600j). Organické zásoby vydrží 2–3× déle. Vyžaduje: Almarium postaveno.",
-      desc_en: "Cella — cool vaulted cellar (600 units). Organic stores last 2–3× longer. Requires: Almarium built." },
-
-    { id: "build_horreum", output: "build_horreum", qty: 1,
-      req: { cut_stone: 20, plank: 10, glue: 4, rope: 6 }, cat: "mat", locked: true,
-      desc: "Horreum — velká sýpka (1600j). Krmivo pro zvířata. Vyžaduje: Cella postavena.",
-      desc_en: "Horreum — large granary (1600 units). Fodder for animals. Requires: Cella built." },
 ];
