@@ -509,17 +509,65 @@ After Melantrich's death, his son-in-law **Daniel Adam of Veleslavín** took ove
             book_rudolf_alchemists: {
                 title: "The City of Fools and Geniuses: Rudolf II and the 300 Alchemists",
                 author: "Secret Court Chronicle",
-                content: ``
+                content: `**The Golden Prague of Rudolf II**
+
+When the melancholic Habsburg Emperor Rudolf II moved the imperial seat from Vienna to Prague in 1583, the Bohemian capital was transformed overnight into the most extraordinary city in Europe. Rudolf was not merely a ruler — he was a passionate collector, art lover, and above all a fervent patron of science and the occult. Prague became a magnet for the most extraordinary minds of the age.
+
+**Three Hundred Alchemists**
+
+Rudolf gathered at his court an estimated three hundred alchemists, astrologers, magicians, and natural philosophers — among them the astronomer Tycho Brahe, the mathematician Johannes Kepler, and the enigmatic Edward Kelley. All of them, genuine scientists and genuine frauds alike, worked in an atmosphere of feverish experimentation.
+
+**The Search for the Philosopher's Stone**
+
+Rudolf's primary obsession was the transmutation of base metals into gold — the Philosopher's Stone. He invested enormous sums. The alchemical laboratories in the cellars of Prague Castle worked day and night.
+
+**The Paradox of Rudolf's Legacy**
+
+Rudolf never found the Stone. Yet in their frenzied search for gold, his scientists accidentally made many real chemical and astronomical discoveries. Without Rudolf's eccentric patronage, Kepler's laws of planetary motion might have been delayed by decades.
+
+*"A fool's gold is sometimes the best ore. In the alchemist's furnace, not gold but knowledge is born." — Court chronicle of Rudolf II*`
             },
             book_czech_glass: {
                 title: "The Fragile War: Bohemian Glassmaking vs. Venice",
                 author: "Secret Master of the Glassmakers' Guild",
-                content: ``
+                content: `**The Secret of Forest Crystal**
+
+Bohemian glass became in the 17th and 18th centuries a synonym for quality throughout the civilised world. Its roots lie in the dense forests of Bohemia and Moravia, where medieval glass furnaces first began to flare up. The raw materials were ideal: pure quartz sand, potash from burned fern and beech, and unlimited wood for firing. Bohemian glass was exceptional for its purity, clarity, and almost perfect transparency.
+
+**The Venetian Monopoly and Its Cracks**
+
+For centuries Venice held an absolute monopoly on quality glass in Europe. The Venetians guarded their secrets with such fanaticism that all master glassmakers were confined on the island of Murano — officially for their protection, in practice as prisoners. Any master who dared share Venetian secrets with foreigners faced a death sentence. Despite this, the secrets gradually leaked out.
+
+**The Bohemian Counter-Attack**
+
+Around the mid-17th century, the engraver Caspar Lehmann and later Georg Schwanhardt perfected the technique of cutting and engraving glass with copper wheels. Bohemian cut glass suddenly surpassed Venetian blown glass in luxury, precision, and decorative richness. European courts began to prefer Bohemian crystal.
+
+**The Trade War**
+
+Venice reacted with panic — lobbying, attempted sabotage, trying to lure Bohemian masters away. The Bohemian masters guarded their own secrets in return. This economic war for glass supremacy was waged for two full centuries.
+
+*"Glass holds light like no other material — it neither devours it nor reflects it, but transforms it." — A Bohemian master glassmaker*`
             },
             book_hussite_wars: {
                 title: "Ashes of Memory: The Hussite Wars and the End of Libraries",
                 author: "Laurentius de Březová (Vavřinec z Březové)",
-                content: ``
+                content: `**The Bonfire of Books**
+
+The Hussite Wars (1419–1434) left behind not only a landscape ravaged by war but an almost incalculable cultural loss. The Hussite armies, driven by religious fervour and hatred of the wealthy church establishment, systematically destroyed monasteries, churches, and above all their libraries. Hundreds of years of painstaking scribal work burned within hours.
+
+**The Library of Sázava**
+
+The Benedictine monastery at Sázava — the oldest Czech monastic library — was plundered and burned. The monks fled, and with them vanished dozens of unique manuscripts, some copied since the 11th century. Czech-language liturgical texts, Old Church Slavonic manuscripts, chronicles — all lost for ever.
+
+**The Paradox of the Hussites and Books**
+
+It would be a simplification to portray the Hussites as mere barbarians. Jan Hus himself was a university-educated man who fought for the right of the common people to read the Bible in their own language. His followers were often highly literate artisans and burghers. The destruction of monastic libraries was in their eyes not an attack on knowledge but on the corrupt wealth of the church.
+
+**The Legacy of Loss**
+
+We shall never know exactly what was lost in those fires. Some scholars believe that among the destroyed manuscripts were unique Old Czech literary works that might have changed our understanding of medieval Bohemian culture entirely.
+
+*"A book burns in minutes. Recreating it takes a lifetime. And some things cannot be recreated at all." — Laurence of Březová, chronicler of the Hussite Wars*`
             },
             book_de_arte_predicandi: {
                 title: "De arte predicandi: The Cursed Incunable of Mainz",
