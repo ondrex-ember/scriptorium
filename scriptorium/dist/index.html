@@ -7058,7 +7058,7 @@ const NotificationSystem = {
         this._toastCount++;
 
         const el = document.createElement('div');
-        el.className = 'toast ns-toast';
+        el.className = 'ns-toast';
         if (type === 'error' || type === true) el.classList.add('ns-toast--error');
         if (type === 'warn')                   el.classList.add('ns-toast--warn');
         el.innerText = msg;
@@ -7103,7 +7103,7 @@ const NotificationSystem = {
 
         if (!this._accumEl || !this._accumEl.isConnected) {
             this._accumEl = document.createElement('div');
-            this._accumEl.className = 'toast ns-toast-accum';
+            this._accumEl.className = 'ns-toast-accum';
             area.appendChild(this._accumEl);
         }
         this._accumEl.innerHTML = buildContent();
@@ -7340,23 +7340,21 @@ const NotificationSystem = {
         style.id = 'ns-styles';
         style.textContent = `
 
-/* ── Toast ── */
+/* ── Toast — shodný styl s originálním .toast ── */
 .ns-toast {
-    background: var(--bg-card, #f5f0e8);
-    border: 1px solid var(--accent-gold, #c8a96e);
+    display: inline-block;
+    background: var(--ink-primary, #2c1810);
+    color: var(--bg-parchment, #f5f0e4);
+    padding: 8px 16px;
     border-radius: 4px;
-    color: var(--ink-primary, #2c1810);
-    font-family: var(--font-body, 'Crimson Text', serif);
-    font-size: 0.95rem;
-    padding: 8px 14px;
-    margin: 4px auto;
-    max-width: 90vw;
-    text-align: center;
-    opacity: 1;
-    transition: opacity 0.4s ease;
+    margin-top: 5px;
+    border: 1px solid var(--accent-gold, #c8a96e);
+    font-family: 'Cinzel Decorative', 'Cinzel', serif;
+    animation: fadeOut 2.5s forwards;
+    pointer-events: none;
 }
-.ns-toast--error { border-color: #c0392b; color: #c0392b; }
-.ns-toast--warn  { border-color: #e67e22; }
+.ns-toast--error { border-color: #c0392b; filter: brightness(1.15); }
+.ns-toast--warn  { border-color: #e67e22; filter: brightness(1.1); }
 .ns-toast--fade  { opacity: 0; }
 
 .ns-toast-accum {
