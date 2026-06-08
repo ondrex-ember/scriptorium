@@ -25326,10 +25326,12 @@ const Game = {
 		const n = names[type];
 		UI.notify((lang==='en'?n+' built!':n+' postaveno!'));
 		Game.addKronikaEntry('important', n+' postaveno.', n+' built.', n+' aedificatum est.');
-		// BUG #7 fix — re-render aktuálního tabu
+		// BUG #7 fix — re-render Buildings tabu po stavbě
 		if (typeof CellariumSystem !== 'undefined') {
-			CellariumSystem.currentTab = 'buildings';
-			CellariumSystem.render();
+			if (!GameState.ui) GameState.ui = {};
+			GameState.ui.cellariumEntity = 'buildings';
+			const _cel = document.getElementById('cellarium-content');
+			if (_cel) _cel.outerHTML = CellariumSystem.renderCellariumContent();
 		}
 	},
 
