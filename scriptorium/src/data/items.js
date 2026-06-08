@@ -180,6 +180,15 @@ const ItemsDB = {
     "glue":           { name:"Klej",                  name_en:"Glue",                icon:"🫧", type:"mat",              desc:"Kostní klej. Váže dřevo i pergamen.",                           desc_en:"Bone glue. Bonds wood and parchment." },
     "plank":          { name:"Fošna",                 name_en:"Plank",               icon:"🪵", type:"mat",              desc:"Otesaná dřevěná deska. Základ každé stavby.",           desc_en:"A hewn wooden board. The foundation of every building." },
     "cut_stone":      { name:"Tesaný kámen",          name_en:"Cut Stone",           icon:"🧱", type:"mat",              desc:"Kámen opracovaný dlátem. Pevný základ sklepa i sýpky.", desc_en:"Stone shaped by chisel. The firm foundation of cellar and granary." },
+
+    // ── NÁSTROJE (tech_kovarina + tech_horticulture) ──────────────────────────
+    "axe":            { name:"Sekerka",             name_en:"Axe",              icon:"🪓", type:"tool", desc:"Tesařská sekerka. Odemkne těžbu dřeva (kulatina).",   desc_en:"Carpenter's axe. Unlocks wood harvesting (logs)." },
+    "spade":          { name:"Rýč",                 name_en:"Spade",            icon:"⛏️", type:"tool", desc:"Rýč na kopání. Nutný pro červy a přesazování stromů.", desc_en:"Digging spade. Required for worms and transplanting trees." },
+    "bucket":         { name:"Vědro",               name_en:"Bucket",           icon:"🪣", type:"tool", desc:"Dřevěné vědro. Přenáší vodu ze studny.",              desc_en:"Wooden bucket. Carries water from the well." },
+    "shovel":         { name:"Lopata",              name_en:"Shovel",           icon:"🪛", type:"tool", desc:"Lopata na přesun půdy a hnoje.",                      desc_en:"Shovel for moving soil and manure." },
+    "watering_can":   { name:"Konev",               name_en:"Watering Can",     icon:"🚿", type:"tool", desc:"Konev na zalévání zahrady.",                          desc_en:"Watering can for the garden." },
+    "barrel_tool":    { name:"Sud",                 name_en:"Barrel",           icon:"🛢️", type:"tool", desc:"Dřevěný sud. Skladování piva, vína a vody.",          desc_en:"Wooden barrel. Storage for ale, wine and water." },
+    "saw":            { name:"Pila",                name_en:"Saw",              icon:"🪚", type:"tool", desc:"Tesařská pila. Zpracování kulatiny na fošny.",         desc_en:"Carpenter's saw. Processes logs into planks." },
     "bellows":        { name:"Měchy",                 name_en:"Bellows",             icon:"💨", type:"tool", cat:"tool", desc:"Kožené měchy. Rozdmýchají oheň i varhanní píšťaly.",          desc_en:"Leather bellows. Fan the fire and the organ pipes alike." },
     "book_binding":   { name:"Vazba knih",            name_en:"Book Binding",        icon:"📚", type:"mat",              desc:"Kožená vazba drží složky pohromadě. Bez ní jsou jen listy.",   desc_en:"Leather binding holds the quires. Without it, just loose leaves." },
     "quill_case":     { name:"Pouzdro na pera",       name_en:"Quill Case",          icon:"🖊️", type:"tool", cat:"tool", desc:"Kožené pouzdro chrání husí brka před zlomením.",               desc_en:"Leather case protects quills from snapping." },
@@ -208,6 +217,7 @@ const ItemsDB = {
     // ── Produkty zahrady / včelína ─────────────────────────────────────────
     "pollen":         { name:"Pyl",              name_en:"Pollen",          icon:"🌼", type:"mat",    desc:"Včelí pyl. Léčivý a vzácný.",                  desc_en:"Bee pollen. Medicinal and rare." },
     "linden_blossom": { name:"Lipový květ",      name_en:"Linden Blossom",  icon:"🌸", type:"mat",    desc:"Sušený lipový květ. Do čaje i léčiv.",         desc_en:"Dried linden blossom. For tea and remedies." },
+    "grass":          { name:"Tráva",              name_en:"Grass",            icon:"🌿", type:"mat",    desc:"Posečená čerstvá tráva. Suší se na seno.",     desc_en:"Cut fresh grass. Dried to make hay." },
     "queen_bee":     { name:"Včelí matka",    name_en:"Queen Bee",      icon:"🐝", type:"animal", desc:"Včelí matka. Nutná pro stavbu úlu.",          desc_en:"Queen bee. Required to establish a hive." },
 
     // ═══════════════════════════════════════════════════════════════════════════
@@ -250,6 +260,33 @@ const ItemsDB = {
     "seed_rowan":    { name:"Sazenice jeřábu pt.",  name_en:"Rowan Sapling",    icon:"🔴", type:"mat", desc:"Sází se do sadu. Plodí za 48h.", desc_en:"Plant in the orchard. Bears fruit after 48h." },
     "seed_linden":   { name:"Sazenice lípy",        name_en:"Linden Sapling",   icon:"🌸", type:"mat", desc:"Sází se do sadu. Plodí za 60h.", desc_en:"Plant in the orchard. Bears fruit after 60h." },
 
+    // ── KRMNÉ SUROVINY ────────────────────────────────────────────────────────
+    "hay":            { name:"Seno",              name_en:"Hay",              icon:"🌾", type:"mat", desc:"Sušená tráva. Základní krmivo pro ovce, kozy a koně.", desc_en:"Dried grass. Basic fodder for sheep, goats and horses." },
+    "grain":          { name:"Zrní",              name_en:"Grain",            icon:"🌾", type:"mat", desc:"Pšenice nebo ječmen. Krmivo pro slepice a prasata. Základ piva.", desc_en:"Wheat or barley. Feed for hens and pigs. The basis of ale." },
+    "worms":          { name:"Červi",             name_en:"Worms",            icon:"🪱", type:"mat", desc:"Žížaly ze zahrady. Krmivo pro kapry.", desc_en:"Earthworms from the garden. Feed for carp." },
+    "acorns":         { name:"Žaludy",            name_en:"Acorns",           icon:"🌰", type:"mat", desc:"Lesní plody z dubu. Krmivo pro prasata. Sbírají se na podzim.", desc_en:"Oak fruits from the forest. Pig fodder. Gathered in autumn." },
+    "leaves":         { name:"Listí",             name_en:"Leaves",           icon:"🍃", type:"mat", desc:"Čerstvé listí stromů. Oblíbená pochutina koz.", desc_en:"Fresh tree leaves. A favourite treat for goats." },
+    "scraps":         { name:"Zbytky",            name_en:"Scraps",           icon:"🍖", type:"mat", desc:"Kuchyňské zbytky. Prasata sní vše.", desc_en:"Kitchen scraps. Pigs eat everything." },
+
+    // ── PRODUKTY NOVÝCH ZVÍŘAT (easter eggs — zvířata teprve přijdou) ────────
+    "goat_hide":      { name:"Kozí kůže",         name_en:"Goat Hide",        icon:"🐐", type:"mat", desc:"Kozí kůže poskytuje nejkvalitnější pergamen — tenký, pevný, málo mastný. Italské kláštery ho znaly jako standard.", desc_en:"Goat hide yields the finest parchment — thin, strong, little grease. Italian monasteries knew it as the standard." },
+    "goat_milk":      { name:"Kozí mléko",        name_en:"Goat Milk",        icon:"🥛", type:"mat", desc:"Kozí mléko a syrovátka. Součást klášterní lékárny. Podávalo se nemocným bratrům.", desc_en:"Goat milk and whey. Part of the monastic infirmary. Served to ailing brothers." },
+    "vellum":         { name:"Vellum",            name_en:"Vellum",           icon:"📜", type:"mat", desc:"Pergamen z kůže nenarozeného nebo novorozeného telete. Nejluxusnější písací materiál středověku. Určen pro nejvzácnější kodexy.", desc_en:"Parchment from the hide of an unborn or newborn calf. The most luxurious writing material of the Middle Ages. Reserved for the rarest codices." },
+    "lard":           { name:"Sádlo",             name_en:"Lard",             icon:"🫙", type:"mat", desc:"Vepřové sádlo. Konzervant, mazivo i palivo do lamp.", desc_en:"Pig lard. Preservative, lubricant and lamp fuel." },
+    "cured_meat":     { name:"Uzené maso",        name_en:"Cured Meat",       icon:"🥩", type:"mat", desc:"Nasolené a uzené vepřové. Vydrží celou zimu. Zásobování konvršů a čeledi.", desc_en:"Salted and smoked pork. Lasts all winter. Provisions for lay brothers and servants." },
+    "quill_premium":  { name:"Brk holubí",        name_en:"Pigeon Quill",     icon:"🪶", type:"mat", desc:"Holubí brk. Jemnější než husí, vhodný pro drobné písmo a iluminace.", desc_en:"Pigeon quill. Finer than goose feather, suited for small script and illumination." },
+    "pigeon_dung":    { name:"Holubí trus",       name_en:"Pigeon Dung",      icon:"💩", type:"mat", desc:"Vysoce koncentrované hnojivo. Klášterní zahradníci ho sbírali z holubníku pro zahradu.", desc_en:"Highly concentrated fertiliser. Monastic gardeners collected it from the dovecote for the garden." },
+    "butter":         { name:"Máslo",             name_en:"Butter",           icon:"🧈", type:"mat", desc:"Čerstvé máslo z kravského mléka. Postní výjimka u nemocných.", desc_en:"Fresh butter from cow's milk. A Lenten exception for the sick." },
+    "cheese":         { name:"Sýr",               name_en:"Cheese",           icon:"🧀", type:"mat", desc:"Tvrdý klášterní sýr. Trvanlivý, výživný. Prodávaný na trzích.", desc_en:"Hard monastic cheese. Long-lasting, nutritious. Sold at markets." },
+
+    // ── BUDOUCÍ ZVÍŘATA (easter eggs — jen definice, mechanika přijde později) ─
+    "goat":           { name:"Koza",              name_en:"Goat",             icon:"🐐", type:"animal", desc:"Koza: kozí pergamen, léčivé mléko — ale pozor, sežere zahradní stromky. Věčný zdroj napětí v klášteře.", desc_en:"Goat: fine parchment, medicinal milk — but beware, she will eat the orchard saplings. An eternal source of tension in the monastery." },
+    "cow":            { name:"Kráva",             name_en:"Cow",              icon:"🐄", type:"animal", desc:"Kráva: vellum z telete pro nejvzácnější kodexy, máslo, sýr. Velké kláštery jich měly desítky.", desc_en:"Cow: calf vellum for the rarest codices, butter, cheese. Great monasteries kept dozens." },
+    "donkey":         { name:"Osel",              name_en:"Donkey",           icon:"🫏", type:"animal", desc:"Osel: vozí obilí ze sýpky do mlýna, pohání studnu. Levný, nenáročný, psychicky zdatný pro monotónní práci.", desc_en:"Donkey: carries grain from granary to mill, powers the well. Cheap, undemanding, mentally suited for monotonous work." },
+    "horse":          { name:"Kůň",               name_en:"Horse",            icon:"🐴", type:"animal", desc:"Kůň: koňský potah ujede 30–40 km za den. Otevírá vzdálené trhy. Klášter ho potřebuje pro reprezentaci i vojenskou povinnost.", desc_en:"Horse: a horse-drawn cart covers 30–40 km a day. Opens distant markets. The monastery needs him for representation and military obligation." },
+    "mule":           { name:"Mula",              name_en:"Mule",             icon:"🐴", type:"animal", desc:"Mula: církevní limuzína. Opati jezdili na bílých mulách jako symbol pokory i statusu. Horské stezky, solné cesty.", desc_en:"Mule: the ecclesiastical limousine. Abbots rode white mules as a symbol of humility and status. Mountain paths, salt roads." },
+    "pigeon":         { name:"Holub",             name_en:"Pigeon",           icon:"🕊️", type:"animal", desc:"Holub: holubník jako zdroj čerstvého masa pro vzácné hosty, brků pro iluminátory a hnojiva pro zahradu.", desc_en:"Pigeon: the dovecote as a source of fresh meat for honoured guests, quills for illuminators, and dung for the garden." },
+    "pig":            { name:"Prase",             name_en:"Pig",              icon:"🐷", type:"animal", desc:"Prase: přes léto na žaludění v lese, na zimu poraženo. Sádlo a uzené maso pro konvrše a čeleď. Mniši vepřové příliš nejedli.", desc_en:"Pig: summer grazing on acorns in the forest, slaughtered for winter. Lard and cured meat for lay brothers and servants. Monks ate little pork themselves." },
 };
     // Oprava BUG #2 — semena stromů chybějící v ItemsDB (Trh nákup)
     // (vloženo před uzavírací }; — merge do objektu před buildem)

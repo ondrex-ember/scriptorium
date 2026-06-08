@@ -263,12 +263,11 @@ const Game = {
 
 		// Initialize storage buildings
 		if (!GameState.storage) {
-			GameState.storage = {
-				almarium: { built: false },
-				cella:    { built: false },
-				horreum:  { built: false }
-			};
+			GameState.storage = { almarium: { built: false }, cella: { built: false }, horreum: { built: false } };
 		}
+
+		// Initialize feeding system
+		if (!GameState.feeding) GameState.feeding = {};
 
 		// Initialize henhouse (Gallinarium)
 		if(!GameState.henhouse) {
@@ -2042,6 +2041,7 @@ const Game = {
         
         Game.save();
         Game.checkAchievements();
+        Game.checkAnimalFeeding();
     },
     checkAchievements: function() {
         if(!GameState.achievements) return;
@@ -2181,22 +2181,69 @@ const Game = {
 		UI.renderAll();
 	},
 
+	// ─── KRMNÝ SYSTÉM ──────────────────────────────────────────────────────────
+	checkAnimalFeeding: function() {
+		const lang = (GameState.settings && GameState.settings.language) || 'cs';
+		const now = Date.now();
+		if (!GameState.feeding) GameState.feeding = {};
+		const animals = [
+			{ key: 'henhouse',  built: GameState.henhouse && GameState.henhouse.built && GameState.henhouse.hens && GameState.henhouse.hens.length > 0, feed: 'grain', feedAmt: 1, name: lang==='en'?'Hens':'Slepice' },
+			{ key: 'sheepfold', built: GameState.sheepfold && GameState.sheepfold.built && GameState.sheepfold.sheep && GameState.sheepfold.sheep.length > 0, feed: 'hay', feedAmt: 1, name: lang==='en'?'Sheep':'Ovce' },
+			{ key: 'piscina',   built: GameState.piscina && GameState.piscina.tier > 0, feed: 'worms', feedAmt: 1, name: lang==='en'?'Fish':'Ryby' },
+		];
+		animals.forEach(a => {
+			if (!a.built) return;
+			if (!GameState.feeding[a.key]) GameState.feeding[a.key] = { lastFed: now, hunger: 0 };
+			const hoursSinceFed = (now - GameState.feeding[a.key].lastFed) / 3600000;
+			if (hoursSinceFed >= 24) {
+				const have = GameState.inventory[a.feed] || 0;
+				if (have >= a.feedAmt) {
+					Game.removeItem(a.feed, a.feedAmt);
+					GameState.feeding[a.key].lastFed = now;
+					GameState.feeding[a.key].hunger = 0;
+					UI.notify(lang==='en' ? a.name+' fed automatically.' : a.name+' nakrmeny automaticky.');
+				} else {
+					GameState.feeding[a.key].hunger = Math.min(3, (GameState.feeding[a.key].hunger || 0) + 1);
+					const penalty = GameState.feeding[a.key].hunger >= 3 ? 75 : GameState.feeding[a.key].hunger >= 2 ? 50 : 25;
+					UI.notify((lang==='en' ? a.name+' hungry! Production -' : a.name+' hladovi! Produkce -')+penalty+'%', true);
+					Game.addKronikaEntry('warning', a.name+' hladovi — chybi '+a.feed+'.', a.name+' hungry — no '+a.feed+'.', a.name+' esuriunt.');
+				}
+			}
+		});
+		Game.save();
+	},
+
+	feedAnimals: function(animalKey) {
+		const lang = (GameState.settings && GameState.settings.language) || 'cs';
+		const feedMap = { henhouse: 'grain', sheepfold: 'hay', piscina: 'worms' };
+		const nameMap = { henhouse: lang==='en'?'Hens':'Slepice', sheepfold: lang==='en'?'Sheep':'Ovce', piscina: lang==='en'?'Fish':'Ryby' };
+		const feed = feedMap[animalKey];
+		if (!feed) return;
+		if ((GameState.inventory[feed] || 0) < 1) {
+			UI.notify(lang==='en' ? 'No '+feed+' in stores.' : 'V zasobách neni '+feed+'.', true); return;
+		}
+		Game.removeItem(feed, 1);
+		if (!GameState.feeding) GameState.feeding = {};
+		if (!GameState.feeding[animalKey]) GameState.feeding[animalKey] = {};
+		GameState.feeding[animalKey].lastFed = Date.now();
+		GameState.feeding[animalKey].hunger = 0;
+		UI.notify((lang==='en'?nameMap[animalKey]+' fed.':nameMap[animalKey]+' nakrmeny.'));
+		Game.save();
+	},
+
 	buildStorage: function(type) {
 		const lang = (GameState.settings && GameState.settings.language) || 'cs';
 		if (!GameState.storage) GameState.storage = { almarium: {built:false}, cella: {built:false}, horreum: {built:false} };
-
-		// Prerekvizity
+		if (!GameState.storage.transactions) GameState.storage.transactions = [];
 		if (type === 'cella' && !GameState.storage.almarium.built) {
-			UI.notify(lang === 'en' ? '⚠️ Build Almarium first.' : '⚠️ Nejprve postav Almarium.', true); return;
+			UI.notify(lang==='en' ? 'Build Almarium first.' : 'Nejprve postav Almarium.', true); return;
 		}
 		if (type === 'horreum' && !GameState.storage.cella.built) {
-			UI.notify(lang === 'en' ? '⚠️ Build Cella first.' : '⚠️ Nejprve postav Cellu.', true); return;
+			UI.notify(lang==='en' ? 'Build Cella first.' : 'Nejprve postav Cellu.', true); return;
 		}
 		if (GameState.storage[type] && GameState.storage[type].built) {
-			UI.notify(lang === 'en' ? '⚠️ Already built.' : '⚠️ Již postaveno.', true); return;
+			UI.notify(lang==='en' ? 'Already built.' : 'Jiz postaveno.', true); return;
 		}
-
-		// Náklady
 		const costs = {
 			almarium: { plank: 6, rope: 3, leather: 2 },
 			cella:    { cut_stone: 12, rope: 5, chalk: 4 },
@@ -2204,32 +2251,24 @@ const Game = {
 		};
 		const cost = costs[type];
 		if (!cost) return;
-
-		// Ověřit zásoby
 		for (const [item, amt] of Object.entries(cost)) {
 			if ((GameState.inventory[item] || 0) < amt) {
 				const itemName = (typeof iName === 'function') ? iName(item) : item;
-				UI.notify((lang === 'en' ? '⚠️ Not enough: ' : '⚠️ Nedostatek: ') + itemName + ' ×' + amt, true);
-				return;
+				UI.notify((lang==='en'?'Not enough: ':'Nedostatek: ')+itemName+' x'+amt, true); return;
 			}
 		}
-
-		// Spotřebovat materiály
-		for (const [item, amt] of Object.entries(cost)) {
-			this.removeItem(item, amt);
-		}
-
-		// Postavit
+		for (const [item, amt] of Object.entries(cost)) { this.removeItem(item, amt); }
 		GameState.storage[type].built = true;
 		Game.save();
-
-		// Oznámení + Kronika
 		const names = { almarium: 'Almarium', cella: 'Cella', horreum: 'Horreum' };
 		const n = names[type];
-		UI.notify(lang === 'en' ? `🏗️ ${n} built!` : `🏗️ ${n} postaveno!`);
-		Game.addKronikaEntry('important',
-			`🏗️ ${n} postaveno.`, `🏗️ ${n} built.`, `🏗️ ${n} aedificatum est.`);
-		UI.renderAll();
+		UI.notify((lang==='en'?n+' built!':n+' postaveno!'));
+		Game.addKronikaEntry('important', n+' postaveno.', n+' built.', n+' aedificatum est.');
+		// BUG #7 fix — re-render aktuálního tabu
+		if (typeof CellariumSystem !== 'undefined') {
+			CellariumSystem.currentTab = 'buildings';
+			CellariumSystem.render();
+		}
 	},
 
 	upgradeWell: function(toLevel) {

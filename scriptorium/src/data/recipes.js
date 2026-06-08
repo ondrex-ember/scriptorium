@@ -283,4 +283,11 @@ const RecipesDB = [
     { id: "cut_stone", output: "cut_stone", qty: 1, req: { rock: 4 }, cat: "mat", locked: true,
       desc: "Opracovaný kvádr. Klášterní tesař ho vytesá dlátem a palicí.", desc_en: "A dressed block. The monastic carpenter shapes it with chisel and mallet." },
 
+    // ── KRMNÉ SUROVINY (tech_horreum) ────────────────────────────────────────
+    { id: "hay", output: "hay", qty: 2, req: { grass: 5 }, cat: "mat", locked: true,
+      desc: "Posečená a sušená tráva. Základní krmivo pro ovce a kozy.", 
+      desc_en: "Cut and dried grass. Basic fodder for sheep and goats." },
+
+
+
 ];
