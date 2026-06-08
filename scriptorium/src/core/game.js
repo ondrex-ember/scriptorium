@@ -1503,9 +1503,45 @@ const Game = {
                     if(r<0.5) this.addItem('resin', 1);
                     else if(r<0.7) this.addItem('honey', 1);
                     else this.addItem('bark', 1);
-                    if(Math.random() < 0.20) this.addItem('beeswax', 1);         // 20% (bylo 15%)
-                    if(Math.random() < 0.05) this.addItem('linden_blossom', 1);  // 5% — lípa u potoka
-                    if(Math.random() < 0.03) this.addItem('pollen', 1);          // 3% — pyl
+                    if(Math.random() < 0.20) this.addItem('beeswax', 1);
+                    if(Math.random() < 0.05) this.addItem('linden_blossom', 1);
+                    if(Math.random() < 0.03) this.addItem('pollen', 1);
+                }
+                else if (type === 'grass_gather') {
+                    this.addItem('grass', Math.random() < 0.5 ? 3 : 2);
+                    if(Math.random() < 0.30) this.addItem('linden_blossom', 1);
+                    if(Math.random() < 0.20) this.addItem('chamomile', 1);
+                    if(Math.random() < 0.10) this.addItem('thyme', 1);
+                }
+                else if (type === 'wood_harvest') {
+                    this.addItem('log', Math.random() < 0.4 ? 2 : 1);
+                    if(Math.random() < 0.60) this.addItem('stick', 2);
+                    if(Math.random() < 0.20) this.addItem('bark', 1);
+                    if(Math.random() < 0.10) this.addItem('resin', 1);
+                    if(Math.random() < 0.05) this.addItem('charcoal', 1);
+                }
+                else if (type === 'worms_dig') {
+                    this.addItem('worms', Math.random() < 0.5 ? 3 : 2);
+                    if(Math.random() < 0.40) this.addItem('rock', 1);
+                    if(Math.random() < 0.20) this.addItem('clay', 1);
+                    if(Math.random() < 0.10) this.addItem('seeds_herb', 1);
+                }
+                else if (type === 'yard_cleanup') {
+                    this.addItem('scraps', Math.random() < 0.5 ? 2 : 1);
+                    if(Math.random() < 0.40) this.addItem('feather_hen', 1);
+                    if(Math.random() < 0.30) this.addItem('wool', 1);
+                    if(Math.random() < 0.20) this.addItem('egg', 1);
+                    if(Math.random() < 0.10) this.addItem('pollen', 1);
+                    if(Math.random() < 0.05) this.addItem('bone', 1);
+                    // 0.5% — náhodný lostItem
+                    if(Math.random() < 0.005) {
+                        const lostPool = Object.entries(ItemsDB).filter(([id, i]) => i.lostItem).map(([id]) => id);
+                        if(lostPool.length > 0) {
+                            const found = lostPool[Math.floor(Math.random() * lostPool.length)];
+                            this.addItem(found, 1);
+                            UI.notify('🔍 ' + (iName ? iName(found) : found) + '!');
+                        }
+                    }
                 }
                 total++;
             }
@@ -1664,6 +1700,41 @@ const Game = {
                 else if(r<0.7) this.addItem('honey', 1);
                 else this.addItem('bark', 1);
                 if(Math.random() < 0.15) this.addItem('beeswax', 1);
+            }
+            else if (type === 'grass_gather') {
+                this.addItem('grass', Math.random() < 0.5 ? 3 : 2);
+                if(Math.random() < 0.30) this.addItem('linden_blossom', 1);
+                if(Math.random() < 0.20) this.addItem('chamomile', 1);
+                if(Math.random() < 0.10) this.addItem('thyme', 1);
+            }
+            else if (type === 'wood_harvest') {
+                this.addItem('log', Math.random() < 0.4 ? 2 : 1);
+                if(Math.random() < 0.60) this.addItem('stick', 2);
+                if(Math.random() < 0.20) this.addItem('bark', 1);
+                if(Math.random() < 0.10) this.addItem('resin', 1);
+                if(Math.random() < 0.05) this.addItem('charcoal', 1);
+            }
+            else if (type === 'worms_dig') {
+                this.addItem('worms', Math.random() < 0.5 ? 3 : 2);
+                if(Math.random() < 0.40) this.addItem('rock', 1);
+                if(Math.random() < 0.20) this.addItem('clay', 1);
+                if(Math.random() < 0.10) this.addItem('seeds_herb', 1);
+            }
+            else if (type === 'yard_cleanup') {
+                this.addItem('scraps', Math.random() < 0.5 ? 2 : 1);
+                if(Math.random() < 0.40) this.addItem('feather_hen', 1);
+                if(Math.random() < 0.30) this.addItem('wool', 1);
+                if(Math.random() < 0.20) this.addItem('egg', 1);
+                if(Math.random() < 0.10) this.addItem('pollen', 1);
+                if(Math.random() < 0.05) this.addItem('bone', 1);
+                if(Math.random() < 0.005) {
+                    const lostPool = Object.entries(ItemsDB).filter(([id, i]) => i.lostItem).map(([id]) => id);
+                    if(lostPool.length > 0) {
+                        const found = lostPool[Math.floor(Math.random() * lostPool.length)];
+                        this.addItem(found, 1);
+                        UI.notify('🔍 ' + (iName ? iName(found) : found) + '!');
+                    }
+                }
             }
             // ── notifyAccum: single scavenge ──
             {

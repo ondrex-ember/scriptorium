@@ -3984,6 +3984,10 @@ const ItemsDB = {
     "watering_can":   { name:"Konev",               name_en:"Watering Can",     icon:"🚿", type:"tool", desc:"Konev na zalévání zahrady.",                          desc_en:"Watering can for the garden." },
     "barrel_tool":    { name:"Sud",                 name_en:"Barrel",           icon:"🛢️", type:"tool", desc:"Dřevěný sud. Skladování piva, vína a vody.",          desc_en:"Wooden barrel. Storage for ale, wine and water." },
     "saw":            { name:"Pila",                name_en:"Saw",              icon:"🪚", type:"tool", desc:"Tesařská pila. Zpracování kulatiny na fošny.",         desc_en:"Carpenter's saw. Processes logs into planks." },
+    "scythe":         { name:"Kosa",               name_en:"Scythe",           icon:"⚔️", type:"tool", desc:"Kosa na sečení trávy a obilí. Nutná pro výrobu sena.", desc_en:"Scythe for cutting grass and grain. Required for making hay." },
+    "sickle":         { name:"Srp",                name_en:"Sickle",           icon:"🌾", type:"tool", desc:"Srp na žeň obilí a bylin. Jemnější než kosa.",         desc_en:"Sickle for harvesting grain and herbs. Finer than a scythe." },
+    "flail":          { name:"Cep",                name_en:"Flail",            icon:"🪵", type:"tool", desc:"Cep na mlácení obilí. Oddělí zrno od plev.",           desc_en:"Flail for threshing grain. Separates grain from chaff." },
+    "log":            { name:"Kulatina",           name_en:"Log",              icon:"🪵", type:"mat",  desc:"Kmen pokáceného stromu. Základ tesařství.",            desc_en:"Felled tree trunk. The foundation of carpentry." },
     "bellows":        { name:"Měchy",                 name_en:"Bellows",             icon:"💨", type:"tool", cat:"tool", desc:"Kožené měchy. Rozdmýchají oheň i varhanní píšťaly.",          desc_en:"Leather bellows. Fan the fire and the organ pipes alike." },
     "book_binding":   { name:"Vazba knih",            name_en:"Book Binding",        icon:"📚", type:"mat",              desc:"Kožená vazba drží složky pohromadě. Bez ní jsou jen listy.",   desc_en:"Leather binding holds the quires. Without it, just loose leaves." },
     "quill_case":     { name:"Pouzdro na pera",       name_en:"Quill Case",          icon:"🖊️", type:"tool", cat:"tool", desc:"Kožené pouzdro chrání husí brka před zlomením.",               desc_en:"Leather case protects quills from snapping." },
@@ -5220,7 +5224,7 @@ const TechTree = [
       cost:8,
       desc:"Klášterní tesař byl nepostradatelný. Sekera, dláto a pila — z větví dělal fošny, z kamene tesané kvádry. Bez tesaře nestojí ani studna, ani sýpka, ani sklep. Odemkne: Fošna (plank) a Tesaný kámen (cut_stone).",
       desc_en:"The monastic carpenter was indispensable. Axe, chisel, and saw — from branches he made planks, from stone he cut blocks. Without the carpenter, neither well nor granary nor cellar stands. Unlocks: Plank and Cut Stone.",
-      unlocks:["plank","cut_stone"], requires:["tech_writing_basics"] },
+      unlocks:["plank","cut_stone","log"], requires:["tech_writing_basics"] },
 
     { id:"tech_almarium",        name:"Almarium — Klášterní Skříň",     name_en:"Almarium — Monastic Cupboard",
       cost:6,
@@ -5257,7 +5261,7 @@ const TechTree = [
       cost:10,
       desc:"Klášterní kovář byl nepostradatelný. Z rozžhaveného železa tvaroval sekerky, rýče i kosy. Bez kováře nezaoralo žádné pole. Odemkne: Sekerka (těžba dřeva), Rýč (kopání červů, práce v sadu).",
       desc_en:"The monastic blacksmith was indispensable. He shaped axes, spades and scythes from heated iron. Without a smith no field could be ploughed. Unlocks: Axe (wood harvesting), Spade (digging worms, orchard work).",
-      unlocks:["axe","spade"], requires:["tech_writing_basics"] },
+      unlocks:["axe","spade","scythe","sickle","flail"], requires:["tech_writing_basics"] },
 
     { id:"tech_horticulture",  name:"Horticultura — Zahradní umění", name_en:"Horticultura — Art of the Garden",
       cost:10,
@@ -5275,7 +5279,11 @@ const ActionsDB = [
     { id: 'foraging',     name: 'Sběr potravy',     name_en: 'Forage',             icon: '🧺',  desc: 'Houby/Bobule',     desc_en: 'Mushrooms / Berries',yield: 1, req: 'basket' },
     { id: 'wetlands',     name: 'Průzkum mokřadu',  name_en: 'Search the wetlands',icon: '🐸',  desc: 'Žáby/Slimáci',    desc_en: 'Frogs / Snails',     yield: 1, req: 'stone_knife' },
     { id: 'resin_harvest',name: 'Sběr pryskyřice',  name_en: 'Harvest resin',      icon: '🌲',  desc: 'Pryskyřice/Med',   desc_en: 'Resin / Honey',      yield: 1, req: 'stone_knife' },
-    { id: 'well_water',   name: 'Jít pro vodu',     name_en: 'Draw water',         icon: '🚰',  desc: 'Ze studny',        desc_en: 'From the well',      yield: 1, req: 'well_built' }
+    { id: 'well_water',   name: 'Jít pro vodu',        name_en: 'Draw water',          icon: '🚰',  desc: 'Ze studny',           desc_en: 'From the well',       yield: 1, req: 'well_built' },
+    { id: 'grass_gather', name: 'Posečení trávy',      name_en: 'Mow grass',           icon: '🌿',  desc: 'Tráva na seno',       desc_en: 'Grass for hay',       yield: 1, req: 'scythe' },
+    { id: 'wood_harvest', name: 'Těžba dřeva',         name_en: 'Harvest wood',        icon: '🪓',  desc: 'Kulatina/Větve',      desc_en: 'Logs / Branches',     yield: 1, req: 'axe' },
+    { id: 'worms_dig',    name: 'Kopání červů',        name_en: 'Dig for worms',       icon: '🪱',  desc: 'Krmivo pro kapry',    desc_en: 'Feed for carp',       yield: 1, req: 'spade' },
+    { id: 'yard_cleanup', name: 'Uklidit hospodářství',name_en: 'Clean the farmyard',  icon: '🧹',  desc: 'Zbytky + bonusy',     desc_en: 'Scraps + bonuses',    yield: 1 }
 ];
 
 let audioSys = null;
@@ -24416,9 +24424,45 @@ const Game = {
                     if(r<0.5) this.addItem('resin', 1);
                     else if(r<0.7) this.addItem('honey', 1);
                     else this.addItem('bark', 1);
-                    if(Math.random() < 0.20) this.addItem('beeswax', 1);         // 20% (bylo 15%)
-                    if(Math.random() < 0.05) this.addItem('linden_blossom', 1);  // 5% — lípa u potoka
-                    if(Math.random() < 0.03) this.addItem('pollen', 1);          // 3% — pyl
+                    if(Math.random() < 0.20) this.addItem('beeswax', 1);
+                    if(Math.random() < 0.05) this.addItem('linden_blossom', 1);
+                    if(Math.random() < 0.03) this.addItem('pollen', 1);
+                }
+                else if (type === 'grass_gather') {
+                    this.addItem('grass', Math.random() < 0.5 ? 3 : 2);
+                    if(Math.random() < 0.30) this.addItem('linden_blossom', 1);
+                    if(Math.random() < 0.20) this.addItem('chamomile', 1);
+                    if(Math.random() < 0.10) this.addItem('thyme', 1);
+                }
+                else if (type === 'wood_harvest') {
+                    this.addItem('log', Math.random() < 0.4 ? 2 : 1);
+                    if(Math.random() < 0.60) this.addItem('stick', 2);
+                    if(Math.random() < 0.20) this.addItem('bark', 1);
+                    if(Math.random() < 0.10) this.addItem('resin', 1);
+                    if(Math.random() < 0.05) this.addItem('charcoal', 1);
+                }
+                else if (type === 'worms_dig') {
+                    this.addItem('worms', Math.random() < 0.5 ? 3 : 2);
+                    if(Math.random() < 0.40) this.addItem('rock', 1);
+                    if(Math.random() < 0.20) this.addItem('clay', 1);
+                    if(Math.random() < 0.10) this.addItem('seeds_herb', 1);
+                }
+                else if (type === 'yard_cleanup') {
+                    this.addItem('scraps', Math.random() < 0.5 ? 2 : 1);
+                    if(Math.random() < 0.40) this.addItem('feather_hen', 1);
+                    if(Math.random() < 0.30) this.addItem('wool', 1);
+                    if(Math.random() < 0.20) this.addItem('egg', 1);
+                    if(Math.random() < 0.10) this.addItem('pollen', 1);
+                    if(Math.random() < 0.05) this.addItem('bone', 1);
+                    // 0.5% — náhodný lostItem
+                    if(Math.random() < 0.005) {
+                        const lostPool = Object.entries(ItemsDB).filter(([id, i]) => i.lostItem).map(([id]) => id);
+                        if(lostPool.length > 0) {
+                            const found = lostPool[Math.floor(Math.random() * lostPool.length)];
+                            this.addItem(found, 1);
+                            UI.notify('🔍 ' + (iName ? iName(found) : found) + '!');
+                        }
+                    }
                 }
                 total++;
             }
@@ -24577,6 +24621,41 @@ const Game = {
                 else if(r<0.7) this.addItem('honey', 1);
                 else this.addItem('bark', 1);
                 if(Math.random() < 0.15) this.addItem('beeswax', 1);
+            }
+            else if (type === 'grass_gather') {
+                this.addItem('grass', Math.random() < 0.5 ? 3 : 2);
+                if(Math.random() < 0.30) this.addItem('linden_blossom', 1);
+                if(Math.random() < 0.20) this.addItem('chamomile', 1);
+                if(Math.random() < 0.10) this.addItem('thyme', 1);
+            }
+            else if (type === 'wood_harvest') {
+                this.addItem('log', Math.random() < 0.4 ? 2 : 1);
+                if(Math.random() < 0.60) this.addItem('stick', 2);
+                if(Math.random() < 0.20) this.addItem('bark', 1);
+                if(Math.random() < 0.10) this.addItem('resin', 1);
+                if(Math.random() < 0.05) this.addItem('charcoal', 1);
+            }
+            else if (type === 'worms_dig') {
+                this.addItem('worms', Math.random() < 0.5 ? 3 : 2);
+                if(Math.random() < 0.40) this.addItem('rock', 1);
+                if(Math.random() < 0.20) this.addItem('clay', 1);
+                if(Math.random() < 0.10) this.addItem('seeds_herb', 1);
+            }
+            else if (type === 'yard_cleanup') {
+                this.addItem('scraps', Math.random() < 0.5 ? 2 : 1);
+                if(Math.random() < 0.40) this.addItem('feather_hen', 1);
+                if(Math.random() < 0.30) this.addItem('wool', 1);
+                if(Math.random() < 0.20) this.addItem('egg', 1);
+                if(Math.random() < 0.10) this.addItem('pollen', 1);
+                if(Math.random() < 0.05) this.addItem('bone', 1);
+                if(Math.random() < 0.005) {
+                    const lostPool = Object.entries(ItemsDB).filter(([id, i]) => i.lostItem).map(([id]) => id);
+                    if(lostPool.length > 0) {
+                        const found = lostPool[Math.floor(Math.random() * lostPool.length)];
+                        this.addItem(found, 1);
+                        UI.notify('🔍 ' + (iName ? iName(found) : found) + '!');
+                    }
+                }
             }
             // ── notifyAccum: single scavenge ──
             {
