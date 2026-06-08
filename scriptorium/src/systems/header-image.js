@@ -74,11 +74,13 @@ const HeaderImageSystem = {
         if (typeof ThemeSystem !== 'undefined' && WeatherSystem.cache) {
             season = ThemeSystem.getWeatherBasedTheme();
         } else {
-            // Fallback: month-based
-            const m = new Date().getMonth();
-            if (m >= 2 && m <= 4) season = 'spring';
-            else if (m >= 5 && m <= 7) season = 'summer';
-            else if (m >= 8 && m <= 10) season = 'autumn';
+            // Fallback: astronomické dělení roku
+            const now = new Date();
+            const m = now.getMonth() + 1; // 1-12
+            const d = now.getDate();
+            if (m === 3 && d >= 20 || m === 4 || m === 5 || m === 6 && d < 21) season = 'spring';
+            else if (m === 6 && d >= 21 || m === 7 || m === 8 || m === 9 && d < 23) season = 'summer';
+            else if (m === 9 && d >= 23 || m === 10 || m === 11 || m === 12 && d < 21) season = 'autumn';
             else season = 'winter';
         }
 

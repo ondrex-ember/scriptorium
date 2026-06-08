@@ -464,19 +464,73 @@ tidings: {
         empty: "Zatím žádné zprávy. Pokračuj v práci.",
         subtitle: "Dopisy a zprávy, které přišly do skriptoria...",
         from: "Od:",
+        unread: "Nepřečteno",
         senders: {
-            scribe: "Starý Písař",
-            unknown: "Neznámý",
-            monastery: "Z kláštera"
+            scribe:    "Starý Písař",
+            unknown:   "Neznámý",
+            monastery: "Z kláštera",
+            medicus:   "Bratr Lékárník",
+            cellar:    "Bratr Hospodář",
+            porter:    "Bratr Vrátný"
         },
-        news_0: "Víš, že v klášteře za kopcem opisují celé noci? Prý mají pergamen z vlastních ovcí.",
-        news_3: "Byl jsem v refektáři. Četli tam rukopis, který nikdo z nás nikdy neviděl. Říkali mu Regula.",
-        news_7: "Hledají zkušeného písaře do kláštera sv. Prokopa. Práce pro Boha, ne pro trh. Přemýšlím.",
-        news_10: "Slyšel jsi ranní zvony? Oni píší od Matutina. My píšeme jen za denního světla. Možná nám něco uniká.",
-        news_15: "Zákazník přinesl stránku z Mohuče. Říká tomu Druk. Rychlé. Bez duše. Ale levné.",
-        news_20: "Přišel za mnou bratr z kláštera. Nabídl výměnu — naše papíry za jejich pergamen. Dobrý obchod?",
-        news_25: "Opat hledá písaře, který zná galický inkoust. Prý pro zvláštní zakázku. Biskupa.",
-        news_28: "Rozhodl ses, kdo jsi? Řemeslník — nebo služebník? Obě cesty jsou čestné. Ale nejsou stejné."
+
+        // ── Denní zprávy (minDay trigger) ───────────────────────────────
+        news_0: "Víš, že v klášteře za kopcem opisují celé noci? Prý mají pergamen z vlastních ovcí. Přemýšlím o tom od včerejška. Náš pergamen je tenký a kazí se rychle — možná je v tom ta voda, možná způsob leptání. Ale jejich svazky jsou pevné jako kámen. Musím se zeptat Opata, zda by nebylo možné navštívit je pod záminkou výměny textů.",
+        news_3: "Byl jsem v refektáři, když přinesli starý rukopis. Nikdo z nás ho nikdy neviděl — říkali mu prostě Regula, ale nebyla to benediktinská Regula. Písmo bylo starší, možná karolinská minuskula, ale s podivnými ligaturami, které jsem neznal. Bratr Tomáš tvrdil, že text pochází z Irska. Bratr Kryštof se křižoval. Já jsem si tajně opsal tři řádky na kus papíru a schovám je dobře.",
+        news_7: "Hledají zkušeného písaře do kláštera sv. Prokopa u Sázavy. Práce pro Boha, ne pro trh — to jsou jejich slova. Přemýšlím o tom celý den. Tamní knihovna má prý čtyřicet svazků, z toho pět v řečtině. Zde máme třináct, jeden polorozpadlý. Ale tady znám každý kámen v dlažbě, každou prasklinu ve zdi. Je to vůbec zbabělost, zůstat na místě, které znáš?",
+        news_10: "Slyšel jsi ranní zvony o Matutinu? Říkají, že oni tam v Rajhradě píší od třetí hodiny ranní. My začínáme po Primě, po svíčkách a ovesné kaši. Přitom ty nejlepší myšlenky přicházejí v té temné hodině před svítáním, kdy ruka jede sama a hlava ještě nesoudí. Možná nám opravdu něco uniká. Nebo možná je to jen jiný způsob trápení.",
+        news_15: "Zákazník z Brna přinesl jednu stránku z Mohuče. Říká tomu Druk — říká to německy, ale myslí tisk. Viděl jsem to na vlastní oči: písmena přesná jako od Boha, každé stejně vysoké, každá řádka rovná jako vyměřená. Rychlé. Levné. Bez duše — to říkám já, on to tak nevidí. Chce sto kusů do Vánoc. Sto. Já za rok opíšu sedm svazků, a to dobře.",
+        news_20: "Přišel za mnou bratr z kláštera na Velehradě. Nabídl výměnu — naše papírové zápisky za jejich pergamen. Řekl, že mají ovčí kůže z vlastního stáda a místo na sušení. Pergamen je jiný materiál než papír — těžší, jistější, věky vydrží. Papír se boří vlhkem a myši ho rády. Nevím zda přijmout. Zeptal jsem se Opata. Opat mlčel, pak řekl: Modli se o tom. Tak se modlím.",
+        news_25: "Opat hledá písaře, který zná galický inkoust — ten tmavý, z duběnek a vitriolu. Prý pro zvláštní zakázku biskupa z Olomouce. Neřekl co. Ale galický inkoust je věc, která se připravuje tři dny a musí uzrát jako víno. Zkoušel jsem ho loni. První várka vyšla příliš světlá, druhá příliš kyselá. Třetí — třetí byla dobrá. Ale tehdy jsem to nikomu neříkal. Teď si říkám, zda to mám říci Opatovi.",
+        news_28: "Rozhodl ses, kdo jsi? Řemeslník nebo služebník? Obě cesty jsou čestné, ale nejsou stejné. Řemeslník měří cenu práce, hlídá zásoby, počítá groše. Služebník píše bez ohledu na cenu, protože slovo musí být zapsáno. Já sám stále nevím. Každé ráno si říkám: dnes budu služebník. Každý večer počítám, kolik svíček jsme spotřebovali. Možná to tak má být — možná je dobrý hospodář ten nejlepší služebník.",
+
+        // ── Sezónní zprávy ──────────────────────────────────────────────
+        season_spring: "Sníh na zahradě roztál v noci. Ráno jsem vyšel ven a ucítil jsem tu vůni — mokrá země, kůra stromů, vzduch bez té zimní tíže. Zahrada čeká. Záhony jsou ještě tvrdé, ale pod nimi to žije. Bratr zahradník říká, že letos zasadíme více tymiánu a méně mátou, protože máta se šíří jako heretická myšlenka a zabírá místo ostatním. Mám radost z jara. I z té metafory.",
+        season_summer: "Slunce svítí do skriptoria dlouho do večera a inkoust schne rychleji než obvykle. Musím přidávat více vody — ale pak jsou linky světlejší. Je to věčný kompromis léta. Na druhou stranu — světlo přirozeně až do Nony, žádné svíčky, žádný kouř nad pergamenem. Včely létají od Primy do Vesper. Opat říká, že léto je Boží odměna za přežití zimy. Věřím mu.",
+        season_autumn: "Listy padají od Blaníka ke Křemešníku. Viděl jsem to z okna skriptoria — zlatý poprašek přes celé údolí. Zásoby na zimu jsou otázka přežití, nikoli pohodlí. Bratr Hospodář počítal včera groše a tvář měl starostlivou. Já počítám svíčky — máme jich čtyřicet dva, a zima trvá sto dvacet dní, každý den svíčka. Nebude nám stačit.",
+        season_winter: "Mráz praská v trámech stropu jako výstřely z praku. Inkoust v nádobce tuhne ke ránu, musím ho každé ráno zahřívat v dlaních. Bratři píší s rukavicemi bez prstů — rukopis je pak horší, ale ruce alespoň neupadají. Opat zkrátil ranní bohoslužbu o dvacet minut, protože dech mrzne ve vzduchu kaple. To se ještě nestalo za mé paměti. Zima je letos jiná.",
+
+        // ── Flag zprávy — Athanor ────────────────────────────────────────
+        flag_athanor: "Slyšel jsem o tobě věci, příteli. Říkají, že pracuješ s ohněm v noci a že z tvé cely vychází zápachy, které bratr vrátný nedokáže pojmenovat. To nejsou výčitky — to je závist. Já jsem se alchymii učil dvacet let a vím, co ta pec znamená. Je to víra jiného druhu — víra, že svět má strukturu, že věci se mění zákonně, ne náhodně. Buď opatrný s inkvizitory. A pošli mi vzorek toho Nigredo, pokud máš.",
+        flag_athanor_nigredo: "Nigredo. První fáze. Vím, jak to vypadá — černá jako hřích, smrdí jako hrob, a přesto je v tom počátek všeho. Neplač nad ztraceným materiálem. To, co shoří v Athanoru, nezmizí — přemění se. Tak říká Paracelsus, tak říkám i já. Vytrvej. Albedo přijde, pokud budeš trpělivý. A trpělivost je v tomto skriptoriu vzácnější než lapis lazuli.",
+        flag_prima_cervisia: "Slyšel jsem, že tvé pivo je hotovo. Prima Cervisia — první vaření. To je svátek, příteli, opravdový svátek. V benediktinských klášterech se pivo vařilo od dob Karla Velikého. Mniši pili tři litry denně v postní době — místo masa, místo vína, místo všeho. Říkali tomu Flüssiges Brot, tekutý chléb. Pošli mi vzorek, pokud máš srdce. Já ho mám.",
+
+        // ── Flag zprávy — Dvůr ──────────────────────────────────────────
+        flag_henhouse: "Takže máš kurník. Dobrá věc, kurník. Slepice jsou skromné, spolehlivé a nevzdorují. Na rozdíl od koz. Jedna koza dokáže zničit zahradu za hodinu — to ti říkám z vlastní zkušenosti, ještě bolestivé. Vejce jsou jiná věc: každé ráno malý zázrak, malý protein, malá naděje. Bratr Lékárník říká, že žloutek smíchaný s pivem léčí kašel. Nevím zda věřit, ale kupodivu to chutná.",
+        flag_sheepfold: "Ovce. Ano, ovce je správná volba. Vlna v zimě, kůže pro pergamen, mléko v létě. Jsou to tvorové pokorní a mlčenliví — na rozdíl od prasat, která křičí. Jen jedno ti řeknu: ovce potřebuje jiné ovce. Jedna sama je nešťastná a přestane jíst. Dvě jsou lepší. Pět je ideál. Bratr pastýř u nás říká, že stádo je jako komunita — bez ostatních se každý člen zmenšuje.",
+        flag_piscina: "Ryby. Výborná volba pro postní dny, a těch není málo — čtyřicet dní adventu, čtyřicet dní postu, pátek každý týden. Bratr Lékárník přísahá na rybí polévku jako na lék proti melancholii. Nevím, zda to pravda je, ale polévka z kapra v zimě vskutku zahřeje jinak než cokoli jiného. Jen pozor na přemnožení. Ryby jsou plodné jako hříchy — snadno přibudou, hůře se spravují.",
+
+        // ── Flag zprávy — Knihtisk ──────────────────────────────────────
+        flag_printing: "Tedy jsi to udělal. Lis. Já jsem stál u jednoho v Mohuči v roce Páně 1462 — byl jsem tehdy mladý, zvedal jsem olověné litery z podlahy, kde padaly. Těžké, přesné, studené. Gutenberg byl tehdy ještě naživu, ale jeho soud s Fustem byl znám celému městu. Říkali, že Fust je ďábel v kožichu. Možná byl. Ale ty litery — ty litery jsou jiná věc. Jsou to semena. Jeden list papíru s jedním výtiskem je jako jedno semeno. A semena rostou.",
+        flag_zaltar: "Žaltář. Sto padesát žalmů v jednom svazku, přeložených, vytištěných, svázaných. Víš, kolik let by trvalo opsat to ručně? Sedm. Sedm let trpělivé práce jednoho písaře, od Primy do Kompletáře, s přestávkami jen na Boží hodiny. A ty jsi to udělal za — kolik? Za dny. Dny. Nevím, zda to slavit nebo plakat. Slavím. Ale pláčem přitom trochu.",
+
+        // ── Flag zprávy — Scrinium ──────────────────────────────────────
+        flag_scrinium: "Tedy se Opat rozhodl otevřít Scrinium. To se nestává často — za mého života se to stalo dvakrát. Jednou, když přišel legát z Říma. Podruhé, když hořela knihovna v Olomouci a přinesli sem zachráněné svazky. Co je tam uvnitř, to ti neřeknu — ne proto, že bych nechtěl, ale proto, že to nevím. Scrinium je místo, kde znalost čeká na toho, kdo je připraven ji přijmout. Jsi připraven?",
+        flag_epistola: "Epistola de Rebus Ignotis. Dopis o věcech neznámých. Četl jsem ho jednou, v rukopise, který mi půjčil starý mnich na Karlštejně za podmínky, že ho vrátím do tří dnů a nikomu nezmíním. Vrátil jsem ho. Nezmínil jsem. Ale zapamatoval jsem si každé slovo. Co je v tom dopise, to ví jen ten, kdo ho přečetl celý — až po Arcanum. Povím ti jen toto: Athanor není jen pec.",
+
+        // ── Záhadné zprávy (unknown sender) ────────────────────────────
+        mystery_1: "Nevím, kdo jsi. Ale vím, co děláš — a vím, že to děláš správně. Jsou takoví, kteří vidí práci skriptoria jako pouhé řemeslo. Jsou takoví, kteří v ní vidí modlitbu. A jsou takoví — nás je málo — kteří v ní vidí obojí zároveň. Patříš mezi nás. To se pozná. Pokračuj.",
+        mystery_2: "Přišel za mnou člověk bez jména. Ptal se na tebe. Neřekl proč. Měl na prstě prsten se lvem a na opasku pouzdro na pergamen — prázdné. Řekl jsem, že tě neznám. Odešel směrem ke klášteru. Buď opatrný, příteli. Nevím co chce. Ale lidé bez jmen chtívají různé věci, a málokdy je to dobré.",
+        mystery_3: "Titivillus byl u mě včera v noci. Přísahám. Seděl v rohu skriptoria, malý a šedý jako prach, a sbíral do pytle ta písmena, která jsem přeskočil. Bylo jich hodně — byl jsem unavený, světlo špatné, pergamen chlupatý. Podíval se na mě a usmál se. Pak zmizel. Ráno jsem opravoval chyby od třetí hodiny ranní. To je jeho trest — ne posmrtný soud, ale ranní oprava. Je to vlastně milosrdné.",
+        mystery_4: "Codex, který leží v Podlažicích, váží sedmdesát pět liber. Jeden člověk ho psal celý život — nebo jednu noc, pokud věříš legendě. Já jsem ho viděl. Ty stránky nejsou psány strachem ani povinností. Jsou psány — nevím jak to říct jinak — extází. Jako by ruka věděla, co dělá, i když hlava spala. Máš také takové chvíle? Já ano. Jsou vzácné. Ale jsou."
+    },
+
+    // ── NotificationSystem i18n ─────────────────────────────────────────────
+    notifications: {
+        panel_title:    "Zprávy kláštera",
+        panel_empty:    "Žádné zprávy.",
+        panel_clear:    "Označit vše jako přečtené",
+        just_now:       "právě teď",
+        minutes_ago:    "před {n} min",
+        hours_ago:      "před {n}h",
+        days_ago:       "před {n}d",
+        cat_sklad:      "sklad",
+        cat_dvur:       "dvůr",
+        cat_athanor:    "athanor",
+        cat_obchod:     "obchod",
+        cat_udalost:    "událost",
+        cat_system:     "systém",
+        cat_postup:     "postup"
     },
 canonical: {
         buff_crafting: 'Výroba +{percent}%',

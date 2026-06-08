@@ -453,24 +453,84 @@ renderActions: function() {
 		if (tab === 'cellarium' && celEl) celEl.innerHTML = CellariumSystem.renderCellariumTab();
 	},
 
-	renderLibraryNews: function() {
+    renderLibraryNews: function() {
         const el = document.getElementById('library-news-content');
         if (!el) return;
-        const day = GameState.library ? Math.floor((Date.now() - new Date(GameState.library.startDate).getTime()) / 86400000) : 0;
 
-        // Narativní kotvy pro volbu role — rostou postupně s dny (tažené přes t() funkci)
-        const newsItems = [
-            { minDay: 0,  icon: '✉️', from: t('tidings.senders.scribe'),    text: t('tidings.news_0') },
-            { minDay: 3,  icon: '📜', from: t('tidings.senders.unknown'),   text: t('tidings.news_3') },
-            { minDay: 7,  icon: '✉️', from: t('tidings.senders.scribe'),    text: t('tidings.news_7') },
-            { minDay: 10, icon: '🔔', from: t('tidings.senders.monastery'), text: t('tidings.news_10') },
-            { minDay: 15, icon: '📜', from: t('tidings.senders.unknown'),   text: t('tidings.news_15') },
-            { minDay: 20, icon: '✉️', from: t('tidings.senders.scribe'),    text: t('tidings.news_20') },
-            { minDay: 25, icon: '🔔', from: t('tidings.senders.monastery'), text: t('tidings.news_25') },
-            { minDay: 28, icon: '✉️', from: t('tidings.senders.scribe'),    text: t('tidings.news_28') },
-        ].filter(n => day >= n.minDay);
+        // ── Herní den a sezóna ───────────────────────────────────────────
+        const day = GameState.library
+            ? Math.floor((Date.now() - new Date(GameState.library.startDate).getTime()) / 86400000)
+            : 0;
+        const season = (typeof Game !== 'undefined' && Game._getApiarySeason) ? Game._getApiarySeason() : 'spring';
 
-        if (newsItems.length === 0) {
+        // ── TidingsDB — plná databáze zpráv ─────────────────────────────
+        // trigger: 'day'     → minDay podmínka
+        // trigger: 'flag'    → condition() musí vrátit true
+        // trigger: 'season'  → season podmínka
+        const TidingsDB = [
+            // Denní zprávy
+            { id: 'news_0',  trigger: 'day',    minDay: 0,  icon: '✉️', sender: 'scribe',    condition: null },
+            { id: 'news_3',  trigger: 'day',    minDay: 3,  icon: '📜', sender: 'unknown',   condition: null },
+            { id: 'news_7',  trigger: 'day',    minDay: 7,  icon: '✉️', sender: 'scribe',    condition: null },
+            { id: 'news_10', trigger: 'day',    minDay: 10, icon: '🔔', sender: 'monastery', condition: null },
+            { id: 'news_15', trigger: 'day',    minDay: 15, icon: '📜', sender: 'unknown',   condition: null },
+            { id: 'news_20', trigger: 'day',    minDay: 20, icon: '✉️', sender: 'scribe',    condition: null },
+            { id: 'news_25', trigger: 'day',    minDay: 25, icon: '🔔', sender: 'monastery', condition: null },
+            { id: 'news_28', trigger: 'day',    minDay: 28, icon: '✉️', sender: 'scribe',    condition: null },
+
+            // Sezónní zprávy
+            { id: 'season_spring', trigger: 'season', season: 'spring', icon: '🌸', sender: 'scribe',  condition: null },
+            { id: 'season_summer', trigger: 'season', season: 'summer', icon: '☀️', sender: 'scribe',  condition: null },
+            { id: 'season_autumn', trigger: 'season', season: 'autumn', icon: '🍂', sender: 'cellar',  condition: null },
+            { id: 'season_winter', trigger: 'season', season: 'winter', icon: '❄️', sender: 'medicus', condition: null },
+
+            // Flag zprávy — Athanor
+            { id: 'flag_athanor',         trigger: 'flag', icon: '⚗️', sender: 'unknown',  condition: () => GameState.secrets && GameState.secrets.laboratoryUnlocked },
+            { id: 'flag_athanor_nigredo', trigger: 'flag', icon: '🔥', sender: 'medicus',  condition: () => GameState.athanor && (GameState.athanor.discovered || []).length > 0 },
+            { id: 'flag_prima_cervisia',  trigger: 'flag', icon: '🍺', sender: 'cellar',   condition: () => (GameState.inventory['prima_cervisia'] || 0) > 0 || (GameState.craftedItems && GameState.craftedItems['prima_cervisia'] > 0) },
+
+            // Flag zprávy — Dvůr
+            { id: 'flag_henhouse',  trigger: 'flag', icon: '🐔', sender: 'porter',  condition: () => GameState.henhouse && GameState.henhouse.built },
+            { id: 'flag_sheepfold', trigger: 'flag', icon: '🐑', sender: 'porter',  condition: () => GameState.sheepfold && GameState.sheepfold.built },
+            { id: 'flag_piscina',   trigger: 'flag', icon: '🐟', sender: 'medicus', condition: () => GameState.piscina && GameState.piscina.tier > 0 },
+
+            // Flag zprávy — Knihtisk
+            { id: 'flag_printing', trigger: 'flag', icon: '📰', sender: 'unknown', condition: () => GameState.researchedTechs && GameState.researchedTechs.includes('tech_printing_basics') },
+            { id: 'flag_zaltar',   trigger: 'flag', icon: '📖', sender: 'scribe',  condition: () => GameState.craftedItems && GameState.craftedItems['zaltar'] > 0 },
+
+            // Flag zprávy — Scrinium
+            { id: 'flag_scrinium', trigger: 'flag', icon: '🔒', sender: 'unknown', condition: () => GameState.secrets && GameState.secrets.forbiddenUnlocked },
+            { id: 'flag_epistola', trigger: 'flag', icon: '📜', sender: 'unknown', condition: () => GameState.scrinium && GameState.scrinium.folios && GameState.scrinium.folios['folio_epistola'] && GameState.scrinium.folios['folio_epistola'].found },
+
+            // Záhadné zprávy
+            { id: 'mystery_1', trigger: 'day', minDay: 5,  icon: '🕯️', sender: 'unknown', condition: null },
+            { id: 'mystery_2', trigger: 'day', minDay: 12, icon: '🕯️', sender: 'unknown', condition: null },
+            { id: 'mystery_3', trigger: 'day', minDay: 18, icon: '🕯️', sender: 'unknown', condition: null },
+            { id: 'mystery_4', trigger: 'day', minDay: 35, icon: '🕯️', sender: 'unknown', condition: null },
+        ];
+
+        // ── Filtrovat dostupné zprávy ────────────────────────────────────
+        const available = TidingsDB.filter(n => {
+            if (n.trigger === 'day')    return day >= n.minDay;
+            if (n.trigger === 'season') return season === n.season;
+            if (n.trigger === 'flag')   return n.condition && n.condition();
+            return false;
+        });
+
+        // ── Stav přečtení ────────────────────────────────────────────────
+        if (!GameState.library) GameState.library = {};
+        if (!GameState.library.tidingsRead) GameState.library.tidingsRead = [];
+
+        // Badge na záložce
+        const unreadCount = available.filter(n => !GameState.library.tidingsRead.includes(n.id)).length;
+        const tabEl = document.getElementById('lib-tab-news');
+        if (tabEl) {
+            const badge = unreadCount > 0 ? ` <span style="background:#c0392b;color:#fff;font-size:0.65rem;border-radius:10px;padding:1px 5px;vertical-align:middle;">${unreadCount}</span>` : '';
+            tabEl.innerHTML = t('library.tabNews') + badge;
+        }
+
+        // ── Render ───────────────────────────────────────────────────────
+        if (available.length === 0) {
             el.innerHTML = `<div style="text-align:center;padding:30px;opacity:0.6;">
                 <div style="font-size:2rem;">📭</div>
                 <p>${t('tidings.empty')}</p>
@@ -478,15 +538,64 @@ renderActions: function() {
             return;
         }
 
-        let h = `<div style="margin-bottom:10px;font-style:italic;opacity:0.7;font-size:0.85rem;">${t('tidings.subtitle')}</div>`;
-        // Nejnovější nahoře
-        [...newsItems].reverse().forEach(n => {
-            h += `<div style="margin-bottom:12px;padding:12px;background:var(--bg-card);border:1px solid var(--border-color);border-radius:4px;">
-                <div style="font-size:0.75rem;opacity:0.6;margin-bottom:4px;">${n.icon} ${t('tidings.from')} <strong>${n.from}</strong></div>
-                <div style="font-size:0.9rem;font-style:italic;">"${n.text}"</div>
+        let h = `<div style="margin-bottom:14px;font-style:italic;opacity:0.7;font-size:0.85rem;">${t('tidings.subtitle')}</div>`;
+
+        // Nejnovější nahoře — záhadné a flag zprávy na začátek, pak denní sestupně
+        const sorted = [...available].sort((a, b) => {
+            if (a.trigger === 'flag' && b.trigger !== 'flag') return -1;
+            if (b.trigger === 'flag' && a.trigger !== 'flag') return 1;
+            if (a.trigger === 'season' && b.trigger !== 'season') return -1;
+            if (b.trigger === 'season' && a.trigger !== 'season') return 1;
+            return (b.minDay || 0) - (a.minDay || 0);
+        });
+
+        sorted.forEach(n => {
+            const isRead   = GameState.library.tidingsRead.includes(n.id);
+            const fromText = t('tidings.senders.' + n.sender) || n.sender;
+            const fullText = t('tidings.' + n.id);
+            const preview  = fullText.length > 120 ? fullText.substring(0, 120) + '…' : fullText;
+            const unreadDot = !isRead ? '<span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:#c0392b;margin-right:6px;vertical-align:middle;"></span>' : '';
+
+            h += `<div class="tiding-card ${isRead ? 'tiding-read' : 'tiding-unread'}"
+                       style="margin-bottom:12px;padding:12px 14px;background:var(--bg-card);
+                              border:1px solid var(--border-color);border-radius:4px;cursor:pointer;
+                              opacity:${isRead ? '0.7' : '1'};"
+                       onclick="UI._toggleTiding(this, '${n.id}')">
+                <div style="font-size:0.75rem;opacity:0.7;margin-bottom:6px;">
+                    ${unreadDot}${n.icon} ${t('tidings.from')} <strong>${fromText}</strong>
+                </div>
+                <div class="tiding-preview" style="font-size:0.9rem;font-style:italic;line-height:1.5;">"${preview}"</div>
+                <div class="tiding-full" style="display:none;font-size:0.9rem;font-style:italic;line-height:1.6;margin-top:6px;">"${fullText}"</div>
             </div>`;
         });
+
         el.innerHTML = h;
+    },
+
+    // ── Rozbalit/sbalit tiding + označit jako přečtené ───────────────────
+    _toggleTiding: function(card, id) {
+        const preview = card.querySelector('.tiding-preview');
+        const full    = card.querySelector('.tiding-full');
+        if (!preview || !full) return;
+
+        const isOpen = full.style.display !== 'none';
+        preview.style.display = isOpen ? '' : 'none';
+        full.style.display    = isOpen ? 'none' : '';
+
+        // Označit jako přečtené
+        if (!GameState.library.tidingsRead) GameState.library.tidingsRead = [];
+        if (!GameState.library.tidingsRead.includes(id)) {
+            GameState.library.tidingsRead.push(id);
+            Game.save();
+            // Aktualizovat badge
+            const tabEl = document.getElementById('lib-tab-news');
+            if (tabEl) UI.renderLibraryNews();
+        }
+
+        // Aktualizovat vizuál
+        card.style.opacity = '0.7';
+        const dot = card.querySelector('span[style*="border-radius:50%"]');
+        if (dot) dot.remove();
     },
 
 renderLibrary: function() {
@@ -1893,38 +2002,15 @@ renderRecords: function() {
     filterCrafting: function(cat, btn) { this.currentFilter = cat; if(btn) { document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active')); btn.classList.add('active'); } this.renderCrafting(); },
     notify: function(m, e) { const n = document.createElement('div'); n.className = 'toast'; n.innerText = m; if(e) n.style.borderColor = 'red'; document.getElementById('notification-area').appendChild(n); setTimeout(() => n.remove(), 2600); },
 
-    // ─── AKUMULAČNÍ TOAST pro scavenge gains ─────────────────────────
+    // ─── AKUMULAČNÍ TOAST pro scavenge gains → deleguje na NotificationSystem ──
     _accumToast: null,
     _accumTimer: null,
     _accumData: {},
 
     notifyAccum: function(gains) {
-        if (!gains || Object.keys(gains).length === 0) return;
-        for (const [id, qty] of Object.entries(gains)) {
-            UI._accumData[id] = (UI._accumData[id] || 0) + qty;
+        if (typeof NotificationSystem !== 'undefined') {
+            NotificationSystem.toastAccum(gains);
         }
-        function buildContent() {
-            return Object.entries(UI._accumData).map(([id, qty]) => {
-                const item = (typeof ItemsDB !== 'undefined' && ItemsDB[id]) ? ItemsDB[id] : null;
-                const icon = item ? (item.icon || '📦') : '📦';
-                const name = item ? (typeof iName === 'function' ? iName(id) : item.name) : id;
-                return `<span style="margin:2px 6px;">${icon} <strong>+${qty}</strong> ${name}</span>`;
-            }).join('');
-        }
-        const area = document.getElementById('notification-area');
-        if (!UI._accumToast || !UI._accumToast.isConnected) {
-            UI._accumToast = document.createElement('div');
-            UI._accumToast.className = 'toast-accum'; // bez fadeOut animace
-            UI._accumToast.style.cssText = 'display:inline-flex;flex-wrap:wrap;gap:4px;max-width:90vw;justify-content:center;';
-            area.appendChild(UI._accumToast);
-        }
-        UI._accumToast.innerHTML = buildContent();
-        if (UI._accumTimer) clearTimeout(UI._accumTimer);
-        UI._accumTimer = setTimeout(() => {
-            if (UI._accumToast) { UI._accumToast.remove(); UI._accumToast = null; }
-            UI._accumData = {};
-            UI._accumTimer = null;
-        }, 4000);
     },
 
     showFontSpecimenModal: function(techName, spec) {

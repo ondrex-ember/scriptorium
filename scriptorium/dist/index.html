@@ -5081,7 +5081,8 @@ const GameState = {
     kronikaSavedLang: 'cs',
     kronikaDailyBuffer: { date: '', gains: {} },
     kronikaCraftBuffer: { date: '', crafts: {} },
-    craftedItems: {}
+    craftedItems: {},
+    notifications: []  // NotificationSystem — persistentní panel zpráv
 };
 // ═══ src/data/achievements.js ═══
 const AchievementsDB = [
@@ -6064,11 +6065,13 @@ const HeaderImageSystem = {
         if (typeof ThemeSystem !== 'undefined' && WeatherSystem.cache) {
             season = ThemeSystem.getWeatherBasedTheme();
         } else {
-            // Fallback: month-based
-            const m = new Date().getMonth();
-            if (m >= 2 && m <= 4) season = 'spring';
-            else if (m >= 5 && m <= 7) season = 'summer';
-            else if (m >= 8 && m <= 10) season = 'autumn';
+            // Fallback: astronomické dělení roku
+            const now = new Date();
+            const m = now.getMonth() + 1; // 1-12
+            const d = now.getDate();
+            if (m === 3 && d >= 20 || m === 4 || m === 5 || m === 6 && d < 21) season = 'spring';
+            else if (m === 6 && d >= 21 || m === 7 || m === 8 || m === 9 && d < 23) season = 'summer';
+            else if (m === 9 && d >= 23 || m === 10 || m === 11 || m === 12 && d < 21) season = 'autumn';
             else season = 'winter';
         }
 
@@ -6101,7 +6104,6 @@ const HeaderImageSystem = {
         this.update();
     }
 };
-
 // ═══ src/systems/time.js ═══
 const TimeSys = {
     getPhase: function() {
@@ -6335,13 +6337,14 @@ const HeaderBG = {
     },
     
     getSeason: function() {
-        const month = new Date().getMonth(); // 0-11
-        
-        // Northern hemisphere seasons
-        if (month >= 2 && month <= 4) return 'spring';  // Mar-May
-        if (month >= 5 && month <= 7) return 'summer';  // Jun-Aug
-        if (month >= 8 && month <= 10) return 'autumn'; // Sep-Nov
-        return 'winter'; // Dec-Feb
+        const now = new Date();
+        const m = now.getMonth() + 1; // 1-12
+        const d = now.getDate();
+        // Astronomické dělení roku
+        if (m === 3 && d >= 20 || m === 4 || m === 5 || m === 6 && d < 21) return 'spring';
+        if (m === 6 && d >= 21 || m === 7 || m === 8 || m === 9 && d < 23) return 'summer';
+        if (m === 9 && d >= 23 || m === 10 || m === 11 || m === 12 && d < 21) return 'autumn';
+        return 'winter';
     },
     
     getWeather: function() {
@@ -6762,6 +6765,577 @@ const CanonicalHours = {
         
         console.log(`🔔 ${hour}:00 - ${mode} mode: ${bellType}`);
     }
+};
+// ═══ src/systems/notifications.js ═══
+// ═══════════════════════════════════════════════════════════════════════════════
+// NOTIFICATION SYSTEM — Scriptorium
+// Tři vrstvy: Toast | Panel | Modal
+// Kronika: automatický zápis do GameState.kronika
+// ═══════════════════════════════════════════════════════════════════════════════
+
+const NotificationSystem = {
+
+    // ─── Konfigurace ────────────────────────────────────────────────────────
+    TOAST_DURATION:  3200,   // ms — jak dlouho toast visí
+    TOAST_MAX_STACK: 3,      // max toastů najednou
+    PANEL_MAX:       50,     // max zpráv v panelu
+
+    // ─── Stav ───────────────────────────────────────────────────────────────
+    _toastCount: 0,
+    _panelOpen:  false,
+
+    // ════════════════════════════════════════════════════════════════════════
+    // VRSTVA 1 — TOAST
+    // Rychlá přechodná zpráva, zmizí sama.
+    // type: 'info' | 'warn' | 'error'
+    // ════════════════════════════════════════════════════════════════════════
+    toast: function(msg, type) {
+        if (this._toastCount >= this.TOAST_MAX_STACK) return;
+
+        const area = document.getElementById('notification-area');
+        if (!area) return;
+
+        this._toastCount++;
+
+        const el = document.createElement('div');
+        el.className = 'toast ns-toast';
+        if (type === 'error' || type === true) el.classList.add('ns-toast--error');
+        if (type === 'warn')                   el.classList.add('ns-toast--warn');
+        el.innerText = msg;
+
+        area.appendChild(el);
+
+        setTimeout(() => {
+            el.classList.add('ns-toast--fade');
+            setTimeout(() => {
+                el.remove();
+                this._toastCount = Math.max(0, this._toastCount - 1);
+            }, 400);
+        }, this.TOAST_DURATION);
+    },
+
+    // ════════════════════════════════════════════════════════════════════════
+    // TOAST ACCUM — agregovaný toast pro scavenge gains
+    // Přesunuto z UI.notifyAccum pro jednotnou správu
+    // ════════════════════════════════════════════════════════════════════════
+    _accumEl:    null,
+    _accumTimer: null,
+    _accumData:  {},
+
+    toastAccum: function(gains) {
+        if (!gains || Object.keys(gains).length === 0) return;
+
+        for (const [id, qty] of Object.entries(gains)) {
+            this._accumData[id] = (this._accumData[id] || 0) + qty;
+        }
+
+        const buildContent = () => Object.entries(this._accumData).map(([id, qty]) => {
+            const item = (typeof ItemsDB !== 'undefined' && ItemsDB[id]) ? ItemsDB[id] : null;
+            const icon = item ? (item.icon || '📦') : '📦';
+            const name = item
+                ? (typeof iName === 'function' ? iName(id) : item.name)
+                : id;
+            return `<span class="ns-accum-item">${icon} <strong>+${qty}</strong> ${name}</span>`;
+        }).join('');
+
+        const area = document.getElementById('notification-area');
+        if (!area) return;
+
+        if (!this._accumEl || !this._accumEl.isConnected) {
+            this._accumEl = document.createElement('div');
+            this._accumEl.className = 'toast ns-toast-accum';
+            area.appendChild(this._accumEl);
+        }
+        this._accumEl.innerHTML = buildContent();
+
+        if (this._accumTimer) clearTimeout(this._accumTimer);
+        this._accumTimer = setTimeout(() => {
+            if (this._accumEl) { this._accumEl.remove(); this._accumEl = null; }
+            this._accumData  = {};
+            this._accumTimer = null;
+        }, 4000);
+    },
+
+    // ════════════════════════════════════════════════════════════════════════
+    // VRSTVA 2 — PANEL (boční, persistentní)
+    // Záložka Civ5 styl — přichycena k pravému okraji.
+    // category: 'sklad' | 'dvur' | 'athanor' | 'obchod' | 'udalost' | 'system'
+    // ════════════════════════════════════════════════════════════════════════
+    panel: function(msg, category) {
+        category = category || 'system';
+
+        const entry = {
+            id:       Date.now() + Math.random(),
+            msg:      msg,
+            category: category,
+            time:     Date.now(),
+            read:     false,
+        };
+
+        if (!GameState.notifications) GameState.notifications = [];
+        GameState.notifications.unshift(entry);
+
+        // Ořez na max
+        if (GameState.notifications.length > this.PANEL_MAX) {
+            GameState.notifications = GameState.notifications.slice(0, this.PANEL_MAX);
+        }
+
+        this._renderPanelBadge();
+        if (this._panelOpen) this._renderPanelList();
+    },
+
+    // ─── Ikony kategorií ────────────────────────────────────────────────────
+    _catIcon: function(cat) {
+        const map = {
+            sklad:   '📦', dvur: '🐄', athanor: '⚗️',
+            obchod:  '💰', udalost: '📜', system: '🔔',
+        };
+        return map[cat] || '🔔';
+    },
+
+    _catLabel: function(cat) {
+        const key = 'notifications.cat_' + cat;
+        const val = (typeof t === 'function') ? t(key) : null;
+        if (val && val !== key) return val;
+        const fallback = { sklad: 'sklad', dvur: 'dvůr', athanor: 'athanor', obchod: 'obchod', udalost: 'událost', system: 'systém', postup: 'postup' };
+        return fallback[cat] || cat;
+    },
+
+    // ─── Badge (záložka) ────────────────────────────────────────────────────
+    _renderPanelBadge: function() {
+        let tab = document.getElementById('ns-panel-tab');
+        if (!tab) {
+            tab = document.createElement('div');
+            tab.id = 'ns-panel-tab';
+            tab.className = 'ns-panel-tab';
+            tab.setAttribute('aria-label', 'Otevřít zprávy kláštera');
+            tab.onclick = () => this.togglePanel();
+            document.body.appendChild(tab);
+        }
+
+        const unread = (GameState.notifications || []).filter(n => !n.read).length;
+        tab.innerHTML = `
+            <span class="ns-tab-icon">🔔</span>
+            ${unread > 0 ? `<span class="ns-tab-badge">${unread}</span>` : ''}
+        `;
+    },
+
+    // ─── Panel toggle ───────────────────────────────────────────────────────
+    togglePanel: function() {
+        this._panelOpen = !this._panelOpen;
+        const existing = document.getElementById('ns-panel');
+        if (existing) { existing.remove(); }
+        if (this._panelOpen) this._renderPanelList();
+    },
+
+    // ─── Panel list ─────────────────────────────────────────────────────────
+    _renderPanelList: function() {
+        const existing = document.getElementById('ns-panel');
+        if (existing) existing.remove();
+
+        const notifications = GameState.notifications || [];
+
+        const panel = document.createElement('div');
+        panel.id = 'ns-panel';
+        panel.className = 'ns-panel';
+        panel.innerHTML = `
+            <div class="ns-panel-head">
+                <span class="ns-panel-title">${t('notifications.panel_title')}</span>
+                <button class="ns-panel-close" onclick="NotificationSystem.togglePanel()" aria-label="Zavřít">✕</button>
+            </div>
+            <div class="ns-panel-body" id="ns-panel-body">
+                ${notifications.length === 0
+                    ? `<div class="ns-panel-empty">${t('notifications.panel_empty')}</div>`
+                    : notifications.map(n => `
+                        <div class="ns-panel-item ${n.read ? '' : 'ns-panel-item--unread'}" data-id="${n.id}">
+                            <span class="ns-item-icon">${this._catIcon(n.category)}</span>
+                            <span class="ns-item-body">
+                                <span class="ns-item-msg">${n.msg}</span>
+                                <span class="ns-item-meta">${this._catLabel(n.category)} · ${this._relTime(n.time)}</span>
+                            </span>
+                            <button class="ns-item-close" onclick="NotificationSystem.dismiss('${n.id}')" aria-label="Zavřít zprávu">✕</button>
+                        </div>
+                    `).join('')
+                }
+            </div>
+            ${notifications.length > 0 ? `
+            <div class="ns-panel-footer">
+                <button class="ns-panel-clear" onclick="NotificationSystem.dismissAll()">${t('notifications.panel_clear')}</button>
+            </div>` : ''}
+        `;
+
+        document.body.appendChild(panel);
+
+        // Označit vše jako přečtené při otevření
+        (GameState.notifications || []).forEach(n => { n.read = true; });
+        this._renderPanelBadge();
+    },
+
+    // ─── Dismiss jednotlivé zprávy ──────────────────────────────────────────
+    dismiss: function(id) {
+        if (!GameState.notifications) return;
+        GameState.notifications = GameState.notifications.filter(n => String(n.id) !== String(id));
+        this._renderPanelList();
+        this._renderPanelBadge();
+    },
+
+    dismissAll: function() {
+        GameState.notifications = [];
+        this.togglePanel();
+        this._renderPanelBadge();
+    },
+
+    // ─── Relativní čas ──────────────────────────────────────────────────────
+    _relTime: function(ts) {
+        const diff = Date.now() - ts;
+        const min  = Math.floor(diff / 60000);
+        const h    = Math.floor(diff / 3600000);
+        const d    = Math.floor(diff / 86400000);
+        if (diff < 60000)  return t('notifications.just_now');
+        if (min  < 60)     return t('notifications.minutes_ago').replace('{n}', min);
+        if (h    < 24)     return t('notifications.hours_ago').replace('{n}', h);
+        return t('notifications.days_ago').replace('{n}', d);
+    },
+
+    // ════════════════════════════════════════════════════════════════════════
+    // VRSTVA 3 — MODAL (blokující, vyžaduje rozhodnutí)
+    // opts: { title, text, choices: [{label, type, effect}], onClose }
+    // type volby: 'primary' | 'danger' | 'default'
+    // ════════════════════════════════════════════════════════════════════════
+    modal: function(opts) {
+        const existing = document.getElementById('ns-modal-overlay');
+        if (existing) existing.remove();
+
+        const overlay = document.createElement('div');
+        overlay.id = 'ns-modal-overlay';
+        overlay.className = 'ns-modal-overlay';
+
+        const choices = (opts.choices || []).map((c, i) => `
+            <button class="ns-modal-btn ns-modal-btn--${c.type || 'default'}"
+                    onclick="NotificationSystem._modalChoice(${i})">
+                ${c.label}
+            </button>
+        `).join('');
+
+        overlay.innerHTML = `
+            <div class="ns-modal" role="dialog" aria-modal="true">
+                ${opts.icon ? `<span class="ns-modal-icon">${opts.icon}</span>` : ''}
+                <div class="ns-modal-title">${opts.title || ''}</div>
+                <div class="ns-modal-body">${opts.text || ''}</div>
+                <div class="ns-modal-footer">${choices}</div>
+            </div>
+        `;
+
+        // Uložit callbacks
+        this._modalChoices  = opts.choices || [];
+        this._modalOnClose  = opts.onClose || null;
+
+        document.body.appendChild(overlay);
+    },
+
+    _modalChoices: [],
+    _modalOnClose: null,
+
+    _modalChoice: function(idx) {
+        const choice = this._modalChoices[idx];
+        const overlay = document.getElementById('ns-modal-overlay');
+        if (overlay) overlay.remove();
+        if (this._modalOnClose) this._modalOnClose();
+        if (choice && typeof choice.effect === 'function') choice.effect();
+    },
+
+    // ════════════════════════════════════════════════════════════════════════
+    // KRONIKA — automatický zápis s kategorií
+    // category: 'obchod' | 'athanor' | 'sklad' | 'udalost' | 'dvur' | 'postup'
+    // ════════════════════════════════════════════════════════════════════════
+    kronika: function(msg, category) {
+        if (typeof Game === 'undefined' || typeof Game.addKronikaEntry !== 'function') return;
+        // addKronikaEntry přijme zprávu; kategorii předáme jako prefix
+        const catPrefix = category ? `[${this._catLabel(category)}] ` : '';
+        Game.addKronikaEntry(catPrefix + msg);
+    },
+
+    // ════════════════════════════════════════════════════════════════════════
+    // INIT — vložit CSS + záložku při startu hry
+    // ════════════════════════════════════════════════════════════════════════
+    init: function() {
+        this._injectCSS();
+        this._renderPanelBadge();
+    },
+
+    // ─── CSS ────────────────────────────────────────────────────────────────
+    _injectCSS: function() {
+        if (document.getElementById('ns-styles')) return;
+        const style = document.createElement('style');
+        style.id = 'ns-styles';
+        style.textContent = `
+
+/* ── Toast ── */
+.ns-toast {
+    background: var(--bg-card, #f5f0e8);
+    border: 1px solid var(--accent-gold, #c8a96e);
+    border-radius: 4px;
+    color: var(--ink-primary, #2c1810);
+    font-family: var(--font-body, 'Crimson Text', serif);
+    font-size: 0.95rem;
+    padding: 8px 14px;
+    margin: 4px auto;
+    max-width: 90vw;
+    text-align: center;
+    opacity: 1;
+    transition: opacity 0.4s ease;
+}
+.ns-toast--error { border-color: #c0392b; color: #c0392b; }
+.ns-toast--warn  { border-color: #e67e22; }
+.ns-toast--fade  { opacity: 0; }
+
+.ns-toast-accum {
+    display: inline-flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    max-width: 90vw;
+    justify-content: center;
+    background: var(--bg-card, #f5f0e8);
+    border: 1px solid var(--accent-gold, #c8a96e);
+    border-radius: 4px;
+    padding: 6px 10px;
+    font-family: var(--font-body, 'Crimson Text', serif);
+    font-size: 0.9rem;
+    color: var(--ink-primary, #2c1810);
+}
+.ns-accum-item { margin: 2px 6px; }
+
+/* ── Panel záložka ── */
+.ns-panel-tab {
+    position: fixed;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    background: var(--bg-card, #f5f0e8);
+    border: 1px solid var(--accent-gold, #c8a96e);
+    border-right: none;
+    border-radius: 6px 0 0 6px;
+    padding: 10px 8px;
+    cursor: pointer;
+    z-index: 900;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    box-shadow: -2px 0 8px rgba(0,0,0,0.15);
+    transition: background 0.2s;
+}
+.ns-panel-tab:hover { background: var(--bg-parchment, #ede8dc); }
+.ns-tab-icon { font-size: 1.1rem; }
+.ns-tab-badge {
+    background: #c0392b;
+    color: #fff;
+    font-size: 0.65rem;
+    font-weight: bold;
+    border-radius: 10px;
+    padding: 1px 5px;
+    min-width: 16px;
+    text-align: center;
+    font-family: var(--font-ui, sans-serif);
+}
+
+/* ── Panel ── */
+.ns-panel {
+    position: fixed;
+    right: 0;
+    top: 0;
+    height: 100%;
+    width: 300px;
+    max-width: 90vw;
+    background: var(--bg-parchment, #ede8dc);
+    border-left: 2px solid var(--accent-gold, #c8a96e);
+    z-index: 950;
+    display: flex;
+    flex-direction: column;
+    box-shadow: -4px 0 16px rgba(0,0,0,0.2);
+    font-family: var(--font-body, 'Crimson Text', serif);
+}
+.ns-panel-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 14px;
+    border-bottom: 1px solid var(--accent-gold, #c8a96e);
+    background: var(--bg-card, #f5f0e8);
+}
+.ns-panel-title {
+    font-size: 1rem;
+    font-weight: bold;
+    color: var(--ink-primary, #2c1810);
+    letter-spacing: 0.03em;
+}
+.ns-panel-close {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1rem;
+    color: var(--ink-secondary, #6b4c3b);
+    padding: 2px 6px;
+    border-radius: 3px;
+}
+.ns-panel-close:hover { background: rgba(0,0,0,0.08); }
+.ns-panel-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 6px 0;
+}
+.ns-panel-empty {
+    padding: 20px;
+    text-align: center;
+    color: var(--ink-secondary, #6b4c3b);
+    font-style: italic;
+    font-size: 0.9rem;
+}
+.ns-panel-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 10px 12px;
+    border-bottom: 1px solid rgba(0,0,0,0.07);
+    transition: background 0.15s;
+}
+.ns-panel-item--unread { background: rgba(200,169,110,0.12); }
+.ns-panel-item:hover   { background: rgba(200,169,110,0.18); }
+.ns-item-icon { font-size: 1.1rem; flex-shrink: 0; margin-top: 1px; }
+.ns-item-body { flex: 1; min-width: 0; }
+.ns-item-msg  {
+    display: block;
+    font-size: 0.9rem;
+    color: var(--ink-primary, #2c1810);
+    line-height: 1.4;
+}
+.ns-item-meta {
+    display: block;
+    font-size: 0.75rem;
+    color: var(--ink-secondary, #6b4c3b);
+    margin-top: 2px;
+}
+.ns-item-close {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--ink-secondary, #6b4c3b);
+    font-size: 0.8rem;
+    padding: 2px 4px;
+    flex-shrink: 0;
+    border-radius: 3px;
+    opacity: 0.6;
+}
+.ns-item-close:hover { opacity: 1; background: rgba(0,0,0,0.08); }
+.ns-panel-footer {
+    padding: 10px 12px;
+    border-top: 1px solid var(--accent-gold, #c8a96e);
+    background: var(--bg-card, #f5f0e8);
+}
+.ns-panel-clear {
+    width: 100%;
+    background: none;
+    border: 1px solid var(--accent-gold, #c8a96e);
+    border-radius: 3px;
+    padding: 6px;
+    font-family: var(--font-body, 'Crimson Text', serif);
+    font-size: 0.85rem;
+    color: var(--ink-secondary, #6b4c3b);
+    cursor: pointer;
+}
+.ns-panel-clear:hover { background: rgba(200,169,110,0.15); }
+
+/* ── Modal ── */
+.ns-modal-overlay {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(0,0,0,0.72);
+    z-index: 1200;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+}
+.ns-modal {
+    background: var(--bg-parchment, #f5f0e4);
+    border: 2px solid var(--accent-gold, #c8a96e);
+    border-radius: 4px;
+    max-width: 420px;
+    width: 100%;
+    padding: 32px 28px 24px;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.6);
+    font-family: var(--font-body, 'Crimson Text', serif);
+    animation: nsFadeIn 0.25s ease;
+    text-align: center;
+}
+.ns-modal-icon {
+    font-size: 3.2rem;
+    margin-bottom: 12px;
+    display: block;
+}
+.ns-modal-title {
+    font-family: var(--font-display, 'Cinzel', serif);
+    font-size: 1.25rem;
+    font-weight: bold;
+    color: var(--accent-gold, #c8a96e);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 12px;
+}
+.ns-modal-body {
+    font-size: 1rem;
+    color: var(--ink-primary, #2c1810);
+    line-height: 1.65;
+    white-space: pre-line;
+    margin-bottom: 20px;
+}
+.ns-modal-footer {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-top: 4px;
+}
+.ns-modal-btn {
+    font-family: var(--font-body, 'Crimson Text', serif);
+    font-size: 1rem;
+    padding: 10px 22px;
+    border-radius: 3px;
+    border: 1px solid var(--accent-gold, #c8a96e);
+    cursor: pointer;
+    background: var(--bg-card, #f5f0e8);
+    color: var(--ink-primary, #2c1810);
+    transition: background 0.15s;
+    letter-spacing: 0.03em;
+}
+.ns-modal-btn:hover            { background: rgba(200,169,110,0.18); }
+.ns-modal-btn--primary {
+    background: var(--accent-gold, #c8a96e);
+    color: #fff;
+    border-color: var(--accent-gold, #c8a96e);
+    font-weight: bold;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    width: 100%;
+}
+.ns-modal-btn--primary:hover   { background: #b8923a; }
+.ns-modal-btn--danger          { border-color: #c0392b; color: #c0392b; }
+.ns-modal-btn--danger:hover    { background: rgba(192,57,43,0.08); }
+
+/* ── Mobile ── */
+@media (max-width: 600px) {
+    .ns-panel { width: 100%; max-width: 100%; }
+    .ns-panel-tab { top: auto; bottom: 80px; transform: none; }
+}
+
+@keyframes nsFadeIn {
+    from { opacity: 0; transform: translateY(-12px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+        `;
+        document.head.appendChild(style);
+    },
 };
 // ═══ src/systems/events.js ═══
 const EventsSystem = {
@@ -18316,19 +18890,73 @@ tidings: {
         empty: "Zatím žádné zprávy. Pokračuj v práci.",
         subtitle: "Dopisy a zprávy, které přišly do skriptoria...",
         from: "Od:",
+        unread: "Nepřečteno",
         senders: {
-            scribe: "Starý Písař",
-            unknown: "Neznámý",
-            monastery: "Z kláštera"
+            scribe:    "Starý Písař",
+            unknown:   "Neznámý",
+            monastery: "Z kláštera",
+            medicus:   "Bratr Lékárník",
+            cellar:    "Bratr Hospodář",
+            porter:    "Bratr Vrátný"
         },
-        news_0: "Víš, že v klášteře za kopcem opisují celé noci? Prý mají pergamen z vlastních ovcí.",
-        news_3: "Byl jsem v refektáři. Četli tam rukopis, který nikdo z nás nikdy neviděl. Říkali mu Regula.",
-        news_7: "Hledají zkušeného písaře do kláštera sv. Prokopa. Práce pro Boha, ne pro trh. Přemýšlím.",
-        news_10: "Slyšel jsi ranní zvony? Oni píší od Matutina. My píšeme jen za denního světla. Možná nám něco uniká.",
-        news_15: "Zákazník přinesl stránku z Mohuče. Říká tomu Druk. Rychlé. Bez duše. Ale levné.",
-        news_20: "Přišel za mnou bratr z kláštera. Nabídl výměnu — naše papíry za jejich pergamen. Dobrý obchod?",
-        news_25: "Opat hledá písaře, který zná galický inkoust. Prý pro zvláštní zakázku. Biskupa.",
-        news_28: "Rozhodl ses, kdo jsi? Řemeslník — nebo služebník? Obě cesty jsou čestné. Ale nejsou stejné."
+
+        // ── Denní zprávy (minDay trigger) ───────────────────────────────
+        news_0: "Víš, že v klášteře za kopcem opisují celé noci? Prý mají pergamen z vlastních ovcí. Přemýšlím o tom od včerejška. Náš pergamen je tenký a kazí se rychle — možná je v tom ta voda, možná způsob leptání. Ale jejich svazky jsou pevné jako kámen. Musím se zeptat Opata, zda by nebylo možné navštívit je pod záminkou výměny textů.",
+        news_3: "Byl jsem v refektáři, když přinesli starý rukopis. Nikdo z nás ho nikdy neviděl — říkali mu prostě Regula, ale nebyla to benediktinská Regula. Písmo bylo starší, možná karolinská minuskula, ale s podivnými ligaturami, které jsem neznal. Bratr Tomáš tvrdil, že text pochází z Irska. Bratr Kryštof se křižoval. Já jsem si tajně opsal tři řádky na kus papíru a schovám je dobře.",
+        news_7: "Hledají zkušeného písaře do kláštera sv. Prokopa u Sázavy. Práce pro Boha, ne pro trh — to jsou jejich slova. Přemýšlím o tom celý den. Tamní knihovna má prý čtyřicet svazků, z toho pět v řečtině. Zde máme třináct, jeden polorozpadlý. Ale tady znám každý kámen v dlažbě, každou prasklinu ve zdi. Je to vůbec zbabělost, zůstat na místě, které znáš?",
+        news_10: "Slyšel jsi ranní zvony o Matutinu? Říkají, že oni tam v Rajhradě píší od třetí hodiny ranní. My začínáme po Primě, po svíčkách a ovesné kaši. Přitom ty nejlepší myšlenky přicházejí v té temné hodině před svítáním, kdy ruka jede sama a hlava ještě nesoudí. Možná nám opravdu něco uniká. Nebo možná je to jen jiný způsob trápení.",
+        news_15: "Zákazník z Brna přinesl jednu stránku z Mohuče. Říká tomu Druk — říká to německy, ale myslí tisk. Viděl jsem to na vlastní oči: písmena přesná jako od Boha, každé stejně vysoké, každá řádka rovná jako vyměřená. Rychlé. Levné. Bez duše — to říkám já, on to tak nevidí. Chce sto kusů do Vánoc. Sto. Já za rok opíšu sedm svazků, a to dobře.",
+        news_20: "Přišel za mnou bratr z kláštera na Velehradě. Nabídl výměnu — naše papírové zápisky za jejich pergamen. Řekl, že mají ovčí kůže z vlastního stáda a místo na sušení. Pergamen je jiný materiál než papír — těžší, jistější, věky vydrží. Papír se boří vlhkem a myši ho rády. Nevím zda přijmout. Zeptal jsem se Opata. Opat mlčel, pak řekl: Modli se o tom. Tak se modlím.",
+        news_25: "Opat hledá písaře, který zná galický inkoust — ten tmavý, z duběnek a vitriolu. Prý pro zvláštní zakázku biskupa z Olomouce. Neřekl co. Ale galický inkoust je věc, která se připravuje tři dny a musí uzrát jako víno. Zkoušel jsem ho loni. První várka vyšla příliš světlá, druhá příliš kyselá. Třetí — třetí byla dobrá. Ale tehdy jsem to nikomu neříkal. Teď si říkám, zda to mám říci Opatovi.",
+        news_28: "Rozhodl ses, kdo jsi? Řemeslník nebo služebník? Obě cesty jsou čestné, ale nejsou stejné. Řemeslník měří cenu práce, hlídá zásoby, počítá groše. Služebník píše bez ohledu na cenu, protože slovo musí být zapsáno. Já sám stále nevím. Každé ráno si říkám: dnes budu služebník. Každý večer počítám, kolik svíček jsme spotřebovali. Možná to tak má být — možná je dobrý hospodář ten nejlepší služebník.",
+
+        // ── Sezónní zprávy ──────────────────────────────────────────────
+        season_spring: "Sníh na zahradě roztál v noci. Ráno jsem vyšel ven a ucítil jsem tu vůni — mokrá země, kůra stromů, vzduch bez té zimní tíže. Zahrada čeká. Záhony jsou ještě tvrdé, ale pod nimi to žije. Bratr zahradník říká, že letos zasadíme více tymiánu a méně mátou, protože máta se šíří jako heretická myšlenka a zabírá místo ostatním. Mám radost z jara. I z té metafory.",
+        season_summer: "Slunce svítí do skriptoria dlouho do večera a inkoust schne rychleji než obvykle. Musím přidávat více vody — ale pak jsou linky světlejší. Je to věčný kompromis léta. Na druhou stranu — světlo přirozeně až do Nony, žádné svíčky, žádný kouř nad pergamenem. Včely létají od Primy do Vesper. Opat říká, že léto je Boží odměna za přežití zimy. Věřím mu.",
+        season_autumn: "Listy padají od Blaníka ke Křemešníku. Viděl jsem to z okna skriptoria — zlatý poprašek přes celé údolí. Zásoby na zimu jsou otázka přežití, nikoli pohodlí. Bratr Hospodář počítal včera groše a tvář měl starostlivou. Já počítám svíčky — máme jich čtyřicet dva, a zima trvá sto dvacet dní, každý den svíčka. Nebude nám stačit.",
+        season_winter: "Mráz praská v trámech stropu jako výstřely z praku. Inkoust v nádobce tuhne ke ránu, musím ho každé ráno zahřívat v dlaních. Bratři píší s rukavicemi bez prstů — rukopis je pak horší, ale ruce alespoň neupadají. Opat zkrátil ranní bohoslužbu o dvacet minut, protože dech mrzne ve vzduchu kaple. To se ještě nestalo za mé paměti. Zima je letos jiná.",
+
+        // ── Flag zprávy — Athanor ────────────────────────────────────────
+        flag_athanor: "Slyšel jsem o tobě věci, příteli. Říkají, že pracuješ s ohněm v noci a že z tvé cely vychází zápachy, které bratr vrátný nedokáže pojmenovat. To nejsou výčitky — to je závist. Já jsem se alchymii učil dvacet let a vím, co ta pec znamená. Je to víra jiného druhu — víra, že svět má strukturu, že věci se mění zákonně, ne náhodně. Buď opatrný s inkvizitory. A pošli mi vzorek toho Nigredo, pokud máš.",
+        flag_athanor_nigredo: "Nigredo. První fáze. Vím, jak to vypadá — černá jako hřích, smrdí jako hrob, a přesto je v tom počátek všeho. Neplač nad ztraceným materiálem. To, co shoří v Athanoru, nezmizí — přemění se. Tak říká Paracelsus, tak říkám i já. Vytrvej. Albedo přijde, pokud budeš trpělivý. A trpělivost je v tomto skriptoriu vzácnější než lapis lazuli.",
+        flag_prima_cervisia: "Slyšel jsem, že tvé pivo je hotovo. Prima Cervisia — první vaření. To je svátek, příteli, opravdový svátek. V benediktinských klášterech se pivo vařilo od dob Karla Velikého. Mniši pili tři litry denně v postní době — místo masa, místo vína, místo všeho. Říkali tomu Flüssiges Brot, tekutý chléb. Pošli mi vzorek, pokud máš srdce. Já ho mám.",
+
+        // ── Flag zprávy — Dvůr ──────────────────────────────────────────
+        flag_henhouse: "Takže máš kurník. Dobrá věc, kurník. Slepice jsou skromné, spolehlivé a nevzdorují. Na rozdíl od koz. Jedna koza dokáže zničit zahradu za hodinu — to ti říkám z vlastní zkušenosti, ještě bolestivé. Vejce jsou jiná věc: každé ráno malý zázrak, malý protein, malá naděje. Bratr Lékárník říká, že žloutek smíchaný s pivem léčí kašel. Nevím zda věřit, ale kupodivu to chutná.",
+        flag_sheepfold: "Ovce. Ano, ovce je správná volba. Vlna v zimě, kůže pro pergamen, mléko v létě. Jsou to tvorové pokorní a mlčenliví — na rozdíl od prasat, která křičí. Jen jedno ti řeknu: ovce potřebuje jiné ovce. Jedna sama je nešťastná a přestane jíst. Dvě jsou lepší. Pět je ideál. Bratr pastýř u nás říká, že stádo je jako komunita — bez ostatních se každý člen zmenšuje.",
+        flag_piscina: "Ryby. Výborná volba pro postní dny, a těch není málo — čtyřicet dní adventu, čtyřicet dní postu, pátek každý týden. Bratr Lékárník přísahá na rybí polévku jako na lék proti melancholii. Nevím, zda to pravda je, ale polévka z kapra v zimě vskutku zahřeje jinak než cokoli jiného. Jen pozor na přemnožení. Ryby jsou plodné jako hříchy — snadno přibudou, hůře se spravují.",
+
+        // ── Flag zprávy — Knihtisk ──────────────────────────────────────
+        flag_printing: "Tedy jsi to udělal. Lis. Já jsem stál u jednoho v Mohuči v roce Páně 1462 — byl jsem tehdy mladý, zvedal jsem olověné litery z podlahy, kde padaly. Těžké, přesné, studené. Gutenberg byl tehdy ještě naživu, ale jeho soud s Fustem byl znám celému městu. Říkali, že Fust je ďábel v kožichu. Možná byl. Ale ty litery — ty litery jsou jiná věc. Jsou to semena. Jeden list papíru s jedním výtiskem je jako jedno semeno. A semena rostou.",
+        flag_zaltar: "Žaltář. Sto padesát žalmů v jednom svazku, přeložených, vytištěných, svázaných. Víš, kolik let by trvalo opsat to ručně? Sedm. Sedm let trpělivé práce jednoho písaře, od Primy do Kompletáře, s přestávkami jen na Boží hodiny. A ty jsi to udělal za — kolik? Za dny. Dny. Nevím, zda to slavit nebo plakat. Slavím. Ale pláčem přitom trochu.",
+
+        // ── Flag zprávy — Scrinium ──────────────────────────────────────
+        flag_scrinium: "Tedy se Opat rozhodl otevřít Scrinium. To se nestává často — za mého života se to stalo dvakrát. Jednou, když přišel legát z Říma. Podruhé, když hořela knihovna v Olomouci a přinesli sem zachráněné svazky. Co je tam uvnitř, to ti neřeknu — ne proto, že bych nechtěl, ale proto, že to nevím. Scrinium je místo, kde znalost čeká na toho, kdo je připraven ji přijmout. Jsi připraven?",
+        flag_epistola: "Epistola de Rebus Ignotis. Dopis o věcech neznámých. Četl jsem ho jednou, v rukopise, který mi půjčil starý mnich na Karlštejně za podmínky, že ho vrátím do tří dnů a nikomu nezmíním. Vrátil jsem ho. Nezmínil jsem. Ale zapamatoval jsem si každé slovo. Co je v tom dopise, to ví jen ten, kdo ho přečetl celý — až po Arcanum. Povím ti jen toto: Athanor není jen pec.",
+
+        // ── Záhadné zprávy (unknown sender) ────────────────────────────
+        mystery_1: "Nevím, kdo jsi. Ale vím, co děláš — a vím, že to děláš správně. Jsou takoví, kteří vidí práci skriptoria jako pouhé řemeslo. Jsou takoví, kteří v ní vidí modlitbu. A jsou takoví — nás je málo — kteří v ní vidí obojí zároveň. Patříš mezi nás. To se pozná. Pokračuj.",
+        mystery_2: "Přišel za mnou člověk bez jména. Ptal se na tebe. Neřekl proč. Měl na prstě prsten se lvem a na opasku pouzdro na pergamen — prázdné. Řekl jsem, že tě neznám. Odešel směrem ke klášteru. Buď opatrný, příteli. Nevím co chce. Ale lidé bez jmen chtívají různé věci, a málokdy je to dobré.",
+        mystery_3: "Titivillus byl u mě včera v noci. Přísahám. Seděl v rohu skriptoria, malý a šedý jako prach, a sbíral do pytle ta písmena, která jsem přeskočil. Bylo jich hodně — byl jsem unavený, světlo špatné, pergamen chlupatý. Podíval se na mě a usmál se. Pak zmizel. Ráno jsem opravoval chyby od třetí hodiny ranní. To je jeho trest — ne posmrtný soud, ale ranní oprava. Je to vlastně milosrdné.",
+        mystery_4: "Codex, který leží v Podlažicích, váží sedmdesát pět liber. Jeden člověk ho psal celý život — nebo jednu noc, pokud věříš legendě. Já jsem ho viděl. Ty stránky nejsou psány strachem ani povinností. Jsou psány — nevím jak to říct jinak — extází. Jako by ruka věděla, co dělá, i když hlava spala. Máš také takové chvíle? Já ano. Jsou vzácné. Ale jsou."
+    },
+
+    // ── NotificationSystem i18n ─────────────────────────────────────────────
+    notifications: {
+        panel_title:    "Zprávy kláštera",
+        panel_empty:    "Žádné zprávy.",
+        panel_clear:    "Označit vše jako přečtené",
+        just_now:       "právě teď",
+        minutes_ago:    "před {n} min",
+        hours_ago:      "před {n}h",
+        days_ago:       "před {n}d",
+        cat_sklad:      "sklad",
+        cat_dvur:       "dvůr",
+        cat_athanor:    "athanor",
+        cat_obchod:     "obchod",
+        cat_udalost:    "událost",
+        cat_system:     "systém",
+        cat_postup:     "postup"
     },
 canonical: {
         buff_crafting: 'Výroba +{percent}%',
@@ -19963,19 +20591,73 @@ tidings: {
         empty: "No tidings as yet. Resume thy work.",
         subtitle: "Letters and tidings that have reached the scriptorium...",
         from: "From:",
+        unread: "Unread",
         senders: {
-            scribe: "The Elder Scribe",
-            unknown: "Unknown",
-            monastery: "From the Monastery"
+            scribe:    "The Elder Scribe",
+            unknown:   "Unknown",
+            monastery: "From the Monastery",
+            medicus:   "Brother Physician",
+            cellar:    "Brother Cellarer",
+            porter:    "Brother Porter"
         },
-        news_0: "Knowest thou that in the monastery o'er the hill they scribe through the night? 'Tis said they have vellum from their own flock.",
-        news_3: "I was in the refectory. They read a manuscript none of us had ever laid eyes upon. They called it the Regula.",
-        news_7: "They seek an experienced scribe for the Monastery of St. Procopius. Labor for God, not the market. I ponder on it.",
-        news_10: "Hast thou heard the morning bells? They scribe since Matins. We write only by daylight. Perchance we miss something.",
-        news_15: "A patron brought a leaf from Mainz. He calleth it 'Print'. Swift. Soulless. Yet cheap.",
-        news_20: "A brother from the monastery approached me. He offered a trade — our paper for their vellum. A fair bargain?",
-        news_25: "The abbot seeketh a scribe who knoweth gall ink. For a special commission, 'tis said. From the bishop.",
-        news_28: "Hast thou decided who thou art? A craftsman — or a servant? Both paths are honorable. But they are not the same."
+
+        // ── Daily tidings (minDay trigger) ──────────────────────────────
+        news_0: "Knowest thou that in the monastery o'er the hill they scribe through the night? 'Tis said they have vellum from their own flock. I have pondered this since yesterday. Our parchment is thin and spoils quickly — perhaps it is the water, perhaps the manner of curing. But their volumes are firm as stone. I must ask the Abbot whether we might visit them under pretense of exchanging texts.",
+        news_3: "I was in the refectory when they brought an old manuscript. None of us had ever seen it — they called it simply the Regula, but it was not the Benedictine Regula. The script was older, perhaps Carolingian minuscule, but with strange ligatures I did not know. Brother Thomas claimed the text came from Ireland. Brother Kryštof crossed himself. I secretly copied three lines onto a scrap of paper and have hidden it well.",
+        news_7: "They seek an experienced scribe for the Monastery of St. Procopius by the Sázava. Work for God, not the market — those are their words. I have pondered it all day. Their library holds forty volumes, five in Greek. Here we have thirteen, one half-crumbled. Yet I know every stone in the paving here, every crack in the wall. Is it cowardice, to remain in the place one knows?",
+        news_10: "Hast thou heard the morning bells at Matins? They say at Rajhrad they scribe from the third hour of the night. We begin after Prime, by candlelight and oat gruel. And yet the finest thoughts come in that dark hour before dawn, when the hand moves of itself and the mind does not yet judge. Perhaps we miss something indeed. Or perhaps it is merely another manner of suffering.",
+        news_15: "A patron from Brno brought a single leaf from Mainz. He calleth it Druk — he says it in German, but he means Print. I saw it with mine own eyes: letters precise as God's own hand, each the same height, every line as straight as measured cord. Swift. Cheap. Soulless — that is my word, not his. He wants a hundred copies by Christmas. A hundred. In a year I copy seven volumes, and that with effort.",
+        news_20: "A brother from the monastery at Velehrad came to me. He offered an exchange — our paper notes for their vellum. He said they have sheepskins from their own flock and space for drying. Vellum is a different matter than paper — heavier, more certain, it endures the ages. Paper yields to damp and mice are fond of it. I know not whether to accept. I asked the Abbot. The Abbot was silent, then said: Pray upon it. So I pray.",
+        news_25: "The Abbot seeketh a scribe who knoweth gall ink — that dark mixture of oak galls and vitriol. For a special commission from the Bishop of Olomouc, 'tis said. He would not say what. But gall ink is a thing prepared over three days and must ripen like wine. I tried it last year. The first batch came too pale, the second too acid. The third — the third was good. But I told no one at the time. Now I wonder whether I should tell the Abbot.",
+        news_28: "Hast thou decided who thou art? A craftsman or a servant? Both paths are honorable, but they are not the same. The craftsman measures the price of work, guards the stores, counts the groschen. The servant writes without regard to price, for the word must be set down. I myself still know not. Each morning I say: today I shall be a servant. Each evening I count how many candles we have spent. Perhaps that is how it must be — perhaps a good steward is the finest servant of all.",
+
+        // ── Seasonal tidings ────────────────────────────────────────────
+        season_spring: "The snow in the garden melted in the night. I went out in the morning and caught that scent — wet earth, tree bark, air without the winter's weight. The garden awaits. The beds are still hard, but life stirs beneath. Brother Gardener says we shall plant more thyme and less mint this year, for mint spreads like heretical thought and crowds out all else. I am glad of spring. And of the metaphor.",
+        season_summer: "The sun shines into the scriptorium long into the evening and the ink dries faster than it ought. I must add more water — but then the lines grow pale. This is summer's eternal compromise. On the other hand — natural light till None, no candles, no smoke over the parchment. The bees fly from Prime to Vespers. The Abbot says summer is God's reward for surviving winter. I believe him.",
+        season_autumn: "Leaves are falling from Blaník to Křemešník. I saw it from the scriptorium window — a golden dusting across the whole valley. Winter stores are a matter of survival, not comfort. Brother Cellarer counted groschen yesterday with a troubled face. I count candles — we have forty-two, and winter lasts a hundred and twenty days, one candle each day. It will not be enough.",
+        season_winter: "Frost cracks in the roof beams like shots from a sling. The ink in the pot thickens toward morning — I must warm it in my palms each day before it will flow. The brothers scribe with fingerless gloves; the hand is worse for it, but at least the fingers do not fall. The Abbot has shortened morning prayer by twenty minutes, for breath freezes in the air of the chapel. That has not happened in my memory. This winter is different.",
+
+        // ── Flag tidings — Athanor ──────────────────────────────────────
+        flag_athanor: "I have heard things about thee, friend. They say thou dost work with fire in the night, and that from thy cell come smells the Brother Porter cannot name. These are not reproaches — they are envy. I studied the art of alchemy for twenty years and I know what that furnace means. It is faith of another kind — faith that the world has structure, that things change according to law, not by chance. Be wary of inquisitors. And send me a sample of that Nigredo, if thou hast any.",
+        flag_athanor_nigredo: "Nigredo. The first phase. I know how it looks — black as sin, foul as a grave, and yet in it lies the beginning of all. Weep not over lost material. That which burns in the Athanor does not vanish — it transforms. So says Paracelsus, so say I. Persevere. Albedo will come, if thou art patient. And patience is rarer in this scriptorium than lapis lazuli.",
+        flag_prima_cervisia: "So I hear thy ale is done. Prima Cervisia — the first brewing. That is a feast, friend, a true feast. In Benedictine monasteries ale has been brewed since the days of Charlemagne. Monks drank three litres a day in Lent — in place of meat, in place of wine, in place of all else. They called it Flüssiges Brot — liquid bread. Send me a sample, if thou hast the heart. I have.",
+
+        // ── Flag tidings — Farmyard ─────────────────────────────────────
+        flag_henhouse: "So thou hast a henhouse. A good thing, a henhouse. Hens are modest, reliable, and do not protest. Unlike goats. One goat can ruin a garden in an hour — I tell thee this from painful experience, still fresh. Eggs are another matter: each morning a small miracle, a small protein, a small hope. Brother Physician says yolk mixed with ale cures a cough. I know not whether to believe it, but it tastes well enough.",
+        flag_sheepfold: "Sheep. Yes, sheep is the right choice. Wool in winter, skin for parchment, milk in summer. They are humble, silent creatures — unlike pigs, which scream. Only one thing I tell thee: a sheep needs other sheep. One alone is wretched and will stop eating. Two are better. Five is the ideal. Brother Shepherd here says the flock is like a community — without the others, every member diminishes.",
+        flag_piscina: "Fish. An excellent choice for fasting days, and these are many — forty days of Advent, forty of Lent, every Friday. Brother Physician swears by fish broth as a remedy against melancholy. Whether that is true I know not, but a carp soup in winter warms one differently than anything else. Only beware of overpopulation. Fish are fruitful as sins — they multiply easily and are harder to manage.",
+
+        // ── Flag tidings — Printing ─────────────────────────────────────
+        flag_printing: "So thou hast done it. The press. I stood beside one in Mainz in the year of Our Lord 1462 — I was young then, picking lead type from the floor where it had fallen. Heavy, precise, cold. Gutenberg was still alive then, but his trial with Fust was known throughout the city. They said Fust was a devil in a fur coat. Perhaps he was. But those letters — those letters are another matter. They are seeds. One sheet of paper with one impression is like one seed. And seeds grow.",
+        flag_zaltar: "The Psalter. A hundred and fifty psalms in one volume, translated, printed, bound. Dost thou know how long it would take to copy that by hand? Seven years. Seven years of patient labour by one scribe, from Prime to Compline, resting only for the Divine Hours. And thou hast done it in — how long? Days. Days. I know not whether to celebrate or weep. I celebrate. But I weep a little withal.",
+
+        // ── Flag tidings — Scrinium ─────────────────────────────────────
+        flag_scrinium: "So the Abbot has decided to open the Scrinium. This does not happen often — in my lifetime it has happened twice. Once when a legate came from Rome. Once when the library at Olomouc burned and they brought the rescued volumes here. What is inside, I will not tell thee — not because I would not, but because I do not know. The Scrinium is a place where knowledge awaits the one who is ready to receive it. Art thou ready?",
+        flag_epistola: "Epistola de Rebus Ignotis. A letter concerning unknown things. I read it once, in a manuscript lent to me by an old monk at Karlštejn on condition I return it within three days and mention it to no one. I returned it. I mentioned it to no one. But I remember every word. What the letter contains, only one who has read it through to the Arcanum will know. I will tell thee only this: the Athanor is not merely a furnace.",
+
+        // ── Mystery tidings (unknown sender) ────────────────────────────
+        mystery_1: "I know not who thou art. But I know what thou dost — and I know thou dost it rightly. There are those who see the work of the scriptorium as mere craft. There are those who see in it a prayer. And there are those — we are few — who see it as both at once. Thou art among us. It can be told. Continue.",
+        mystery_2: "A man without a name came to me. He asked after thee. He would not say why. He wore a ring with a lion and at his belt a parchment case — empty. I said I did not know thee. He departed toward the monastery. Be wary, friend. I know not what he wants. But men without names want various things, and seldom is it good.",
+        mystery_3: "Titivillus was with me last night. I swear it. He sat in the corner of the scriptorium, small and grey as dust, gathering into his bag those letters I had skipped. There were many — I was tired, the light poor, the parchment rough. He looked at me and smiled. Then he vanished. In the morning I corrected errors from the third hour of the night. That is his punishment — not posthumous judgment, but morning correction. It is merciful, in its way.",
+        mystery_4: "The codex that lies at Podlažice weighs seventy-five pounds. One man wrote it all his life — or in one night, if thou believest the legend. I have seen it. Those pages are not written in fear or duty. They are written — I know not how else to say it — in ecstasy. As though the hand knew what it did, even while the mind slept. Hast thou such moments? I have. They are rare. But they are real."
+    },
+
+    // ── NotificationSystem i18n ──────────────────────────────────────────────
+    notifications: {
+        panel_title:    "Tidings from the Monastery",
+        panel_empty:    "No tidings.",
+        panel_clear:    "Mark all as read",
+        just_now:       "just now",
+        minutes_ago:    "{n} min ago",
+        hours_ago:      "{n}h ago",
+        days_ago:       "{n}d ago",
+        cat_sklad:      "stores",
+        cat_dvur:       "farmyard",
+        cat_athanor:    "athanor",
+        cat_obchod:     "trade",
+        cat_udalost:    "event",
+        cat_system:     "system",
+        cat_postup:     "progress"
     },
 canonical: {
         buff_crafting: 'Crafting +{percent}%',
@@ -21381,6 +22063,7 @@ const Game = {
         PersonaSystem.init();
         SecretsSystem.init();
         AthanorSystem.init();
+        NotificationSystem.init();
         
         // NOW render UI (after theme is set and all systems initialized)
         UI.renderAll(); 
@@ -21830,13 +22513,10 @@ const Game = {
 
     // ── Pomocná: vrátí sezónu dle reálného měsíce ─────────────────────────────
     _getApiarySeason: function() {
-        const now = new Date();
-        const m = now.getMonth() + 1; // 1–12
-        const d = now.getDate();
-        // Astronomické dělení roku
-        if (m === 3 && d >= 20 || m === 4 || m === 5 || m === 6 && d < 21) return 'spring';
-        if (m === 6 && d >= 21 || m === 7 || m === 8 || m === 9 && d < 23) return 'summer';
-        if (m === 9 && d >= 23 || m === 10 || m === 11 || m === 12 && d < 21) return 'autumn';
+        const m = new Date().getMonth() + 1; // 1–12
+        if (m >= 3 && m <= 5)  return 'spring';
+        if (m >= 6 && m <= 8)  return 'summer';
+        if (m >= 9 && m <= 11) return 'autumn';
         return 'winter';
     },
 
@@ -22229,7 +22909,7 @@ const Game = {
             h.lastFeatherAt = now; collected = true;
         }
         if (collected) { Game.save(); UI.renderFarmyard(); UI.notify('🥚 ' + t('game.hennouseCollected')); }
-        else UI.notify(t('game.hennouseNotReady'), true);
+        else UI.notify(t('game.hiveNotReady'), true);
     },
 
     feedHenhouse: function() {
@@ -23910,24 +24590,84 @@ renderActions: function() {
 		if (tab === 'cellarium' && celEl) celEl.innerHTML = CellariumSystem.renderCellariumTab();
 	},
 
-	renderLibraryNews: function() {
+    renderLibraryNews: function() {
         const el = document.getElementById('library-news-content');
         if (!el) return;
-        const day = GameState.library ? Math.floor((Date.now() - new Date(GameState.library.startDate).getTime()) / 86400000) : 0;
 
-        // Narativní kotvy pro volbu role — rostou postupně s dny (tažené přes t() funkci)
-        const newsItems = [
-            { minDay: 0,  icon: '✉️', from: t('tidings.senders.scribe'),    text: t('tidings.news_0') },
-            { minDay: 3,  icon: '📜', from: t('tidings.senders.unknown'),   text: t('tidings.news_3') },
-            { minDay: 7,  icon: '✉️', from: t('tidings.senders.scribe'),    text: t('tidings.news_7') },
-            { minDay: 10, icon: '🔔', from: t('tidings.senders.monastery'), text: t('tidings.news_10') },
-            { minDay: 15, icon: '📜', from: t('tidings.senders.unknown'),   text: t('tidings.news_15') },
-            { minDay: 20, icon: '✉️', from: t('tidings.senders.scribe'),    text: t('tidings.news_20') },
-            { minDay: 25, icon: '🔔', from: t('tidings.senders.monastery'), text: t('tidings.news_25') },
-            { minDay: 28, icon: '✉️', from: t('tidings.senders.scribe'),    text: t('tidings.news_28') },
-        ].filter(n => day >= n.minDay);
+        // ── Herní den a sezóna ───────────────────────────────────────────
+        const day = GameState.library
+            ? Math.floor((Date.now() - new Date(GameState.library.startDate).getTime()) / 86400000)
+            : 0;
+        const season = (typeof Game !== 'undefined' && Game._getApiarySeason) ? Game._getApiarySeason() : 'spring';
 
-        if (newsItems.length === 0) {
+        // ── TidingsDB — plná databáze zpráv ─────────────────────────────
+        // trigger: 'day'     → minDay podmínka
+        // trigger: 'flag'    → condition() musí vrátit true
+        // trigger: 'season'  → season podmínka
+        const TidingsDB = [
+            // Denní zprávy
+            { id: 'news_0',  trigger: 'day',    minDay: 0,  icon: '✉️', sender: 'scribe',    condition: null },
+            { id: 'news_3',  trigger: 'day',    minDay: 3,  icon: '📜', sender: 'unknown',   condition: null },
+            { id: 'news_7',  trigger: 'day',    minDay: 7,  icon: '✉️', sender: 'scribe',    condition: null },
+            { id: 'news_10', trigger: 'day',    minDay: 10, icon: '🔔', sender: 'monastery', condition: null },
+            { id: 'news_15', trigger: 'day',    minDay: 15, icon: '📜', sender: 'unknown',   condition: null },
+            { id: 'news_20', trigger: 'day',    minDay: 20, icon: '✉️', sender: 'scribe',    condition: null },
+            { id: 'news_25', trigger: 'day',    minDay: 25, icon: '🔔', sender: 'monastery', condition: null },
+            { id: 'news_28', trigger: 'day',    minDay: 28, icon: '✉️', sender: 'scribe',    condition: null },
+
+            // Sezónní zprávy
+            { id: 'season_spring', trigger: 'season', season: 'spring', icon: '🌸', sender: 'scribe',  condition: null },
+            { id: 'season_summer', trigger: 'season', season: 'summer', icon: '☀️', sender: 'scribe',  condition: null },
+            { id: 'season_autumn', trigger: 'season', season: 'autumn', icon: '🍂', sender: 'cellar',  condition: null },
+            { id: 'season_winter', trigger: 'season', season: 'winter', icon: '❄️', sender: 'medicus', condition: null },
+
+            // Flag zprávy — Athanor
+            { id: 'flag_athanor',         trigger: 'flag', icon: '⚗️', sender: 'unknown',  condition: () => GameState.secrets && GameState.secrets.laboratoryUnlocked },
+            { id: 'flag_athanor_nigredo', trigger: 'flag', icon: '🔥', sender: 'medicus',  condition: () => GameState.athanor && (GameState.athanor.discovered || []).length > 0 },
+            { id: 'flag_prima_cervisia',  trigger: 'flag', icon: '🍺', sender: 'cellar',   condition: () => (GameState.inventory['prima_cervisia'] || 0) > 0 || (GameState.craftedItems && GameState.craftedItems['prima_cervisia'] > 0) },
+
+            // Flag zprávy — Dvůr
+            { id: 'flag_henhouse',  trigger: 'flag', icon: '🐔', sender: 'porter',  condition: () => GameState.henhouse && GameState.henhouse.built },
+            { id: 'flag_sheepfold', trigger: 'flag', icon: '🐑', sender: 'porter',  condition: () => GameState.sheepfold && GameState.sheepfold.built },
+            { id: 'flag_piscina',   trigger: 'flag', icon: '🐟', sender: 'medicus', condition: () => GameState.piscina && GameState.piscina.tier > 0 },
+
+            // Flag zprávy — Knihtisk
+            { id: 'flag_printing', trigger: 'flag', icon: '📰', sender: 'unknown', condition: () => GameState.researchedTechs && GameState.researchedTechs.includes('tech_printing_basics') },
+            { id: 'flag_zaltar',   trigger: 'flag', icon: '📖', sender: 'scribe',  condition: () => GameState.craftedItems && GameState.craftedItems['zaltar'] > 0 },
+
+            // Flag zprávy — Scrinium
+            { id: 'flag_scrinium', trigger: 'flag', icon: '🔒', sender: 'unknown', condition: () => GameState.secrets && GameState.secrets.forbiddenUnlocked },
+            { id: 'flag_epistola', trigger: 'flag', icon: '📜', sender: 'unknown', condition: () => GameState.scrinium && GameState.scrinium.folios && GameState.scrinium.folios['folio_epistola'] && GameState.scrinium.folios['folio_epistola'].found },
+
+            // Záhadné zprávy
+            { id: 'mystery_1', trigger: 'day', minDay: 5,  icon: '🕯️', sender: 'unknown', condition: null },
+            { id: 'mystery_2', trigger: 'day', minDay: 12, icon: '🕯️', sender: 'unknown', condition: null },
+            { id: 'mystery_3', trigger: 'day', minDay: 18, icon: '🕯️', sender: 'unknown', condition: null },
+            { id: 'mystery_4', trigger: 'day', minDay: 35, icon: '🕯️', sender: 'unknown', condition: null },
+        ];
+
+        // ── Filtrovat dostupné zprávy ────────────────────────────────────
+        const available = TidingsDB.filter(n => {
+            if (n.trigger === 'day')    return day >= n.minDay;
+            if (n.trigger === 'season') return season === n.season;
+            if (n.trigger === 'flag')   return n.condition && n.condition();
+            return false;
+        });
+
+        // ── Stav přečtení ────────────────────────────────────────────────
+        if (!GameState.library) GameState.library = {};
+        if (!GameState.library.tidingsRead) GameState.library.tidingsRead = [];
+
+        // Badge na záložce
+        const unreadCount = available.filter(n => !GameState.library.tidingsRead.includes(n.id)).length;
+        const tabEl = document.getElementById('lib-tab-news');
+        if (tabEl) {
+            const badge = unreadCount > 0 ? ` <span style="background:#c0392b;color:#fff;font-size:0.65rem;border-radius:10px;padding:1px 5px;vertical-align:middle;">${unreadCount}</span>` : '';
+            tabEl.innerHTML = t('library.tabNews') + badge;
+        }
+
+        // ── Render ───────────────────────────────────────────────────────
+        if (available.length === 0) {
             el.innerHTML = `<div style="text-align:center;padding:30px;opacity:0.6;">
                 <div style="font-size:2rem;">📭</div>
                 <p>${t('tidings.empty')}</p>
@@ -23935,15 +24675,64 @@ renderActions: function() {
             return;
         }
 
-        let h = `<div style="margin-bottom:10px;font-style:italic;opacity:0.7;font-size:0.85rem;">${t('tidings.subtitle')}</div>`;
-        // Nejnovější nahoře
-        [...newsItems].reverse().forEach(n => {
-            h += `<div style="margin-bottom:12px;padding:12px;background:var(--bg-card);border:1px solid var(--border-color);border-radius:4px;">
-                <div style="font-size:0.75rem;opacity:0.6;margin-bottom:4px;">${n.icon} ${t('tidings.from')} <strong>${n.from}</strong></div>
-                <div style="font-size:0.9rem;font-style:italic;">"${n.text}"</div>
+        let h = `<div style="margin-bottom:14px;font-style:italic;opacity:0.7;font-size:0.85rem;">${t('tidings.subtitle')}</div>`;
+
+        // Nejnovější nahoře — záhadné a flag zprávy na začátek, pak denní sestupně
+        const sorted = [...available].sort((a, b) => {
+            if (a.trigger === 'flag' && b.trigger !== 'flag') return -1;
+            if (b.trigger === 'flag' && a.trigger !== 'flag') return 1;
+            if (a.trigger === 'season' && b.trigger !== 'season') return -1;
+            if (b.trigger === 'season' && a.trigger !== 'season') return 1;
+            return (b.minDay || 0) - (a.minDay || 0);
+        });
+
+        sorted.forEach(n => {
+            const isRead   = GameState.library.tidingsRead.includes(n.id);
+            const fromText = t('tidings.senders.' + n.sender) || n.sender;
+            const fullText = t('tidings.' + n.id);
+            const preview  = fullText.length > 120 ? fullText.substring(0, 120) + '…' : fullText;
+            const unreadDot = !isRead ? '<span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:#c0392b;margin-right:6px;vertical-align:middle;"></span>' : '';
+
+            h += `<div class="tiding-card ${isRead ? 'tiding-read' : 'tiding-unread'}"
+                       style="margin-bottom:12px;padding:12px 14px;background:var(--bg-card);
+                              border:1px solid var(--border-color);border-radius:4px;cursor:pointer;
+                              opacity:${isRead ? '0.7' : '1'};"
+                       onclick="UI._toggleTiding(this, '${n.id}')">
+                <div style="font-size:0.75rem;opacity:0.7;margin-bottom:6px;">
+                    ${unreadDot}${n.icon} ${t('tidings.from')} <strong>${fromText}</strong>
+                </div>
+                <div class="tiding-preview" style="font-size:0.9rem;font-style:italic;line-height:1.5;">"${preview}"</div>
+                <div class="tiding-full" style="display:none;font-size:0.9rem;font-style:italic;line-height:1.6;margin-top:6px;">"${fullText}"</div>
             </div>`;
         });
+
         el.innerHTML = h;
+    },
+
+    // ── Rozbalit/sbalit tiding + označit jako přečtené ───────────────────
+    _toggleTiding: function(card, id) {
+        const preview = card.querySelector('.tiding-preview');
+        const full    = card.querySelector('.tiding-full');
+        if (!preview || !full) return;
+
+        const isOpen = full.style.display !== 'none';
+        preview.style.display = isOpen ? '' : 'none';
+        full.style.display    = isOpen ? 'none' : '';
+
+        // Označit jako přečtené
+        if (!GameState.library.tidingsRead) GameState.library.tidingsRead = [];
+        if (!GameState.library.tidingsRead.includes(id)) {
+            GameState.library.tidingsRead.push(id);
+            Game.save();
+            // Aktualizovat badge
+            const tabEl = document.getElementById('lib-tab-news');
+            if (tabEl) UI.renderLibraryNews();
+        }
+
+        // Aktualizovat vizuál
+        card.style.opacity = '0.7';
+        const dot = card.querySelector('span[style*="border-radius:50%"]');
+        if (dot) dot.remove();
     },
 
 renderLibrary: function() {
@@ -25350,38 +26139,15 @@ renderRecords: function() {
     filterCrafting: function(cat, btn) { this.currentFilter = cat; if(btn) { document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active')); btn.classList.add('active'); } this.renderCrafting(); },
     notify: function(m, e) { const n = document.createElement('div'); n.className = 'toast'; n.innerText = m; if(e) n.style.borderColor = 'red'; document.getElementById('notification-area').appendChild(n); setTimeout(() => n.remove(), 2600); },
 
-    // ─── AKUMULAČNÍ TOAST pro scavenge gains ─────────────────────────
+    // ─── AKUMULAČNÍ TOAST pro scavenge gains → deleguje na NotificationSystem ──
     _accumToast: null,
     _accumTimer: null,
     _accumData: {},
 
     notifyAccum: function(gains) {
-        if (!gains || Object.keys(gains).length === 0) return;
-        for (const [id, qty] of Object.entries(gains)) {
-            UI._accumData[id] = (UI._accumData[id] || 0) + qty;
+        if (typeof NotificationSystem !== 'undefined') {
+            NotificationSystem.toastAccum(gains);
         }
-        function buildContent() {
-            return Object.entries(UI._accumData).map(([id, qty]) => {
-                const item = (typeof ItemsDB !== 'undefined' && ItemsDB[id]) ? ItemsDB[id] : null;
-                const icon = item ? (item.icon || '📦') : '📦';
-                const name = item ? (typeof iName === 'function' ? iName(id) : item.name) : id;
-                return `<span style="margin:2px 6px;">${icon} <strong>+${qty}</strong> ${name}</span>`;
-            }).join('');
-        }
-        const area = document.getElementById('notification-area');
-        if (!UI._accumToast || !UI._accumToast.isConnected) {
-            UI._accumToast = document.createElement('div');
-            UI._accumToast.className = 'toast-accum'; // bez fadeOut animace
-            UI._accumToast.style.cssText = 'display:inline-flex;flex-wrap:wrap;gap:4px;max-width:90vw;justify-content:center;';
-            area.appendChild(UI._accumToast);
-        }
-        UI._accumToast.innerHTML = buildContent();
-        if (UI._accumTimer) clearTimeout(UI._accumTimer);
-        UI._accumTimer = setTimeout(() => {
-            if (UI._accumToast) { UI._accumToast.remove(); UI._accumToast = null; }
-            UI._accumData = {};
-            UI._accumTimer = null;
-        }, 4000);
     },
 
     showFontSpecimenModal: function(techName, spec) {

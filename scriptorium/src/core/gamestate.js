@@ -65,5 +65,6 @@ const GameState = {
     kronikaSavedLang: 'cs',
     kronikaDailyBuffer: { date: '', gains: {} },
     kronikaCraftBuffer: { date: '', crafts: {} },
-    craftedItems: {}
+    craftedItems: {},
+    notifications: []  // NotificationSystem — persistentní panel zpráv
 };

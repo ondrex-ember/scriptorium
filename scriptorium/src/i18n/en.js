@@ -812,19 +812,73 @@ tidings: {
         empty: "No tidings as yet. Resume thy work.",
         subtitle: "Letters and tidings that have reached the scriptorium...",
         from: "From:",
+        unread: "Unread",
         senders: {
-            scribe: "The Elder Scribe",
-            unknown: "Unknown",
-            monastery: "From the Monastery"
+            scribe:    "The Elder Scribe",
+            unknown:   "Unknown",
+            monastery: "From the Monastery",
+            medicus:   "Brother Physician",
+            cellar:    "Brother Cellarer",
+            porter:    "Brother Porter"
         },
-        news_0: "Knowest thou that in the monastery o'er the hill they scribe through the night? 'Tis said they have vellum from their own flock.",
-        news_3: "I was in the refectory. They read a manuscript none of us had ever laid eyes upon. They called it the Regula.",
-        news_7: "They seek an experienced scribe for the Monastery of St. Procopius. Labor for God, not the market. I ponder on it.",
-        news_10: "Hast thou heard the morning bells? They scribe since Matins. We write only by daylight. Perchance we miss something.",
-        news_15: "A patron brought a leaf from Mainz. He calleth it 'Print'. Swift. Soulless. Yet cheap.",
-        news_20: "A brother from the monastery approached me. He offered a trade — our paper for their vellum. A fair bargain?",
-        news_25: "The abbot seeketh a scribe who knoweth gall ink. For a special commission, 'tis said. From the bishop.",
-        news_28: "Hast thou decided who thou art? A craftsman — or a servant? Both paths are honorable. But they are not the same."
+
+        // ── Daily tidings (minDay trigger) ──────────────────────────────
+        news_0: "Knowest thou that in the monastery o'er the hill they scribe through the night? 'Tis said they have vellum from their own flock. I have pondered this since yesterday. Our parchment is thin and spoils quickly — perhaps it is the water, perhaps the manner of curing. But their volumes are firm as stone. I must ask the Abbot whether we might visit them under pretense of exchanging texts.",
+        news_3: "I was in the refectory when they brought an old manuscript. None of us had ever seen it — they called it simply the Regula, but it was not the Benedictine Regula. The script was older, perhaps Carolingian minuscule, but with strange ligatures I did not know. Brother Thomas claimed the text came from Ireland. Brother Kryštof crossed himself. I secretly copied three lines onto a scrap of paper and have hidden it well.",
+        news_7: "They seek an experienced scribe for the Monastery of St. Procopius by the Sázava. Work for God, not the market — those are their words. I have pondered it all day. Their library holds forty volumes, five in Greek. Here we have thirteen, one half-crumbled. Yet I know every stone in the paving here, every crack in the wall. Is it cowardice, to remain in the place one knows?",
+        news_10: "Hast thou heard the morning bells at Matins? They say at Rajhrad they scribe from the third hour of the night. We begin after Prime, by candlelight and oat gruel. And yet the finest thoughts come in that dark hour before dawn, when the hand moves of itself and the mind does not yet judge. Perhaps we miss something indeed. Or perhaps it is merely another manner of suffering.",
+        news_15: "A patron from Brno brought a single leaf from Mainz. He calleth it Druk — he says it in German, but he means Print. I saw it with mine own eyes: letters precise as God's own hand, each the same height, every line as straight as measured cord. Swift. Cheap. Soulless — that is my word, not his. He wants a hundred copies by Christmas. A hundred. In a year I copy seven volumes, and that with effort.",
+        news_20: "A brother from the monastery at Velehrad came to me. He offered an exchange — our paper notes for their vellum. He said they have sheepskins from their own flock and space for drying. Vellum is a different matter than paper — heavier, more certain, it endures the ages. Paper yields to damp and mice are fond of it. I know not whether to accept. I asked the Abbot. The Abbot was silent, then said: Pray upon it. So I pray.",
+        news_25: "The Abbot seeketh a scribe who knoweth gall ink — that dark mixture of oak galls and vitriol. For a special commission from the Bishop of Olomouc, 'tis said. He would not say what. But gall ink is a thing prepared over three days and must ripen like wine. I tried it last year. The first batch came too pale, the second too acid. The third — the third was good. But I told no one at the time. Now I wonder whether I should tell the Abbot.",
+        news_28: "Hast thou decided who thou art? A craftsman or a servant? Both paths are honorable, but they are not the same. The craftsman measures the price of work, guards the stores, counts the groschen. The servant writes without regard to price, for the word must be set down. I myself still know not. Each morning I say: today I shall be a servant. Each evening I count how many candles we have spent. Perhaps that is how it must be — perhaps a good steward is the finest servant of all.",
+
+        // ── Seasonal tidings ────────────────────────────────────────────
+        season_spring: "The snow in the garden melted in the night. I went out in the morning and caught that scent — wet earth, tree bark, air without the winter's weight. The garden awaits. The beds are still hard, but life stirs beneath. Brother Gardener says we shall plant more thyme and less mint this year, for mint spreads like heretical thought and crowds out all else. I am glad of spring. And of the metaphor.",
+        season_summer: "The sun shines into the scriptorium long into the evening and the ink dries faster than it ought. I must add more water — but then the lines grow pale. This is summer's eternal compromise. On the other hand — natural light till None, no candles, no smoke over the parchment. The bees fly from Prime to Vespers. The Abbot says summer is God's reward for surviving winter. I believe him.",
+        season_autumn: "Leaves are falling from Blaník to Křemešník. I saw it from the scriptorium window — a golden dusting across the whole valley. Winter stores are a matter of survival, not comfort. Brother Cellarer counted groschen yesterday with a troubled face. I count candles — we have forty-two, and winter lasts a hundred and twenty days, one candle each day. It will not be enough.",
+        season_winter: "Frost cracks in the roof beams like shots from a sling. The ink in the pot thickens toward morning — I must warm it in my palms each day before it will flow. The brothers scribe with fingerless gloves; the hand is worse for it, but at least the fingers do not fall. The Abbot has shortened morning prayer by twenty minutes, for breath freezes in the air of the chapel. That has not happened in my memory. This winter is different.",
+
+        // ── Flag tidings — Athanor ──────────────────────────────────────
+        flag_athanor: "I have heard things about thee, friend. They say thou dost work with fire in the night, and that from thy cell come smells the Brother Porter cannot name. These are not reproaches — they are envy. I studied the art of alchemy for twenty years and I know what that furnace means. It is faith of another kind — faith that the world has structure, that things change according to law, not by chance. Be wary of inquisitors. And send me a sample of that Nigredo, if thou hast any.",
+        flag_athanor_nigredo: "Nigredo. The first phase. I know how it looks — black as sin, foul as a grave, and yet in it lies the beginning of all. Weep not over lost material. That which burns in the Athanor does not vanish — it transforms. So says Paracelsus, so say I. Persevere. Albedo will come, if thou art patient. And patience is rarer in this scriptorium than lapis lazuli.",
+        flag_prima_cervisia: "So I hear thy ale is done. Prima Cervisia — the first brewing. That is a feast, friend, a true feast. In Benedictine monasteries ale has been brewed since the days of Charlemagne. Monks drank three litres a day in Lent — in place of meat, in place of wine, in place of all else. They called it Flüssiges Brot — liquid bread. Send me a sample, if thou hast the heart. I have.",
+
+        // ── Flag tidings — Farmyard ─────────────────────────────────────
+        flag_henhouse: "So thou hast a henhouse. A good thing, a henhouse. Hens are modest, reliable, and do not protest. Unlike goats. One goat can ruin a garden in an hour — I tell thee this from painful experience, still fresh. Eggs are another matter: each morning a small miracle, a small protein, a small hope. Brother Physician says yolk mixed with ale cures a cough. I know not whether to believe it, but it tastes well enough.",
+        flag_sheepfold: "Sheep. Yes, sheep is the right choice. Wool in winter, skin for parchment, milk in summer. They are humble, silent creatures — unlike pigs, which scream. Only one thing I tell thee: a sheep needs other sheep. One alone is wretched and will stop eating. Two are better. Five is the ideal. Brother Shepherd here says the flock is like a community — without the others, every member diminishes.",
+        flag_piscina: "Fish. An excellent choice for fasting days, and these are many — forty days of Advent, forty of Lent, every Friday. Brother Physician swears by fish broth as a remedy against melancholy. Whether that is true I know not, but a carp soup in winter warms one differently than anything else. Only beware of overpopulation. Fish are fruitful as sins — they multiply easily and are harder to manage.",
+
+        // ── Flag tidings — Printing ─────────────────────────────────────
+        flag_printing: "So thou hast done it. The press. I stood beside one in Mainz in the year of Our Lord 1462 — I was young then, picking lead type from the floor where it had fallen. Heavy, precise, cold. Gutenberg was still alive then, but his trial with Fust was known throughout the city. They said Fust was a devil in a fur coat. Perhaps he was. But those letters — those letters are another matter. They are seeds. One sheet of paper with one impression is like one seed. And seeds grow.",
+        flag_zaltar: "The Psalter. A hundred and fifty psalms in one volume, translated, printed, bound. Dost thou know how long it would take to copy that by hand? Seven years. Seven years of patient labour by one scribe, from Prime to Compline, resting only for the Divine Hours. And thou hast done it in — how long? Days. Days. I know not whether to celebrate or weep. I celebrate. But I weep a little withal.",
+
+        // ── Flag tidings — Scrinium ─────────────────────────────────────
+        flag_scrinium: "So the Abbot has decided to open the Scrinium. This does not happen often — in my lifetime it has happened twice. Once when a legate came from Rome. Once when the library at Olomouc burned and they brought the rescued volumes here. What is inside, I will not tell thee — not because I would not, but because I do not know. The Scrinium is a place where knowledge awaits the one who is ready to receive it. Art thou ready?",
+        flag_epistola: "Epistola de Rebus Ignotis. A letter concerning unknown things. I read it once, in a manuscript lent to me by an old monk at Karlštejn on condition I return it within three days and mention it to no one. I returned it. I mentioned it to no one. But I remember every word. What the letter contains, only one who has read it through to the Arcanum will know. I will tell thee only this: the Athanor is not merely a furnace.",
+
+        // ── Mystery tidings (unknown sender) ────────────────────────────
+        mystery_1: "I know not who thou art. But I know what thou dost — and I know thou dost it rightly. There are those who see the work of the scriptorium as mere craft. There are those who see in it a prayer. And there are those — we are few — who see it as both at once. Thou art among us. It can be told. Continue.",
+        mystery_2: "A man without a name came to me. He asked after thee. He would not say why. He wore a ring with a lion and at his belt a parchment case — empty. I said I did not know thee. He departed toward the monastery. Be wary, friend. I know not what he wants. But men without names want various things, and seldom is it good.",
+        mystery_3: "Titivillus was with me last night. I swear it. He sat in the corner of the scriptorium, small and grey as dust, gathering into his bag those letters I had skipped. There were many — I was tired, the light poor, the parchment rough. He looked at me and smiled. Then he vanished. In the morning I corrected errors from the third hour of the night. That is his punishment — not posthumous judgment, but morning correction. It is merciful, in its way.",
+        mystery_4: "The codex that lies at Podlažice weighs seventy-five pounds. One man wrote it all his life — or in one night, if thou believest the legend. I have seen it. Those pages are not written in fear or duty. They are written — I know not how else to say it — in ecstasy. As though the hand knew what it did, even while the mind slept. Hast thou such moments? I have. They are rare. But they are real."
+    },
+
+    // ── NotificationSystem i18n ──────────────────────────────────────────────
+    notifications: {
+        panel_title:    "Tidings from the Monastery",
+        panel_empty:    "No tidings.",
+        panel_clear:    "Mark all as read",
+        just_now:       "just now",
+        minutes_ago:    "{n} min ago",
+        hours_ago:      "{n}h ago",
+        days_ago:       "{n}d ago",
+        cat_sklad:      "stores",
+        cat_dvur:       "farmyard",
+        cat_athanor:    "athanor",
+        cat_obchod:     "trade",
+        cat_udalost:    "event",
+        cat_system:     "system",
+        cat_postup:     "progress"
     },
 canonical: {
         buff_crafting: 'Crafting +{percent}%',

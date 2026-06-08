@@ -230,13 +230,14 @@ const HeaderBG = {
     },
     
     getSeason: function() {
-        const month = new Date().getMonth(); // 0-11
-        
-        // Northern hemisphere seasons
-        if (month >= 2 && month <= 4) return 'spring';  // Mar-May
-        if (month >= 5 && month <= 7) return 'summer';  // Jun-Aug
-        if (month >= 8 && month <= 10) return 'autumn'; // Sep-Nov
-        return 'winter'; // Dec-Feb
+        const now = new Date();
+        const m = now.getMonth() + 1; // 1-12
+        const d = now.getDate();
+        // Astronomické dělení roku
+        if (m === 3 && d >= 20 || m === 4 || m === 5 || m === 6 && d < 21) return 'spring';
+        if (m === 6 && d >= 21 || m === 7 || m === 8 || m === 9 && d < 23) return 'summer';
+        if (m === 9 && d >= 23 || m === 10 || m === 11 || m === 12 && d < 21) return 'autumn';
+        return 'winter';
     },
     
     getWeather: function() {

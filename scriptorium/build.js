@@ -42,6 +42,7 @@ const JS_MAIN = [
     'src/systems/header-image.js',  // HeaderImageSystem
     'src/systems/time.js',          // TimeSys
     'src/systems/canonical.js',     // CanonicalHours
+    'src/systems/notifications.js', // NotificationSystem
     'src/systems/events.js',        // EventsSystem
     'src/systems/rank.js',          // RankSystem
     'src/systems/notebook.js',      // NotebookSystem

@@ -367,6 +367,7 @@ const Game = {
         PersonaSystem.init();
         SecretsSystem.init();
         AthanorSystem.init();
+        NotificationSystem.init();
         
         // NOW render UI (after theme is set and all systems initialized)
         UI.renderAll(); 
@@ -816,13 +817,10 @@ const Game = {
 
     // ── Pomocná: vrátí sezónu dle reálného měsíce ─────────────────────────────
     _getApiarySeason: function() {
-        const now = new Date();
-        const m = now.getMonth() + 1; // 1–12
-        const d = now.getDate();
-        // Astronomické dělení roku
-        if (m === 3 && d >= 20 || m === 4 || m === 5 || m === 6 && d < 21) return 'spring';
-        if (m === 6 && d >= 21 || m === 7 || m === 8 || m === 9 && d < 23) return 'summer';
-        if (m === 9 && d >= 23 || m === 10 || m === 11 || m === 12 && d < 21) return 'autumn';
+        const m = new Date().getMonth() + 1; // 1–12
+        if (m >= 3 && m <= 5)  return 'spring';
+        if (m >= 6 && m <= 8)  return 'summer';
+        if (m >= 9 && m <= 11) return 'autumn';
         return 'winter';
     },
 
@@ -1215,7 +1213,7 @@ const Game = {
             h.lastFeatherAt = now; collected = true;
         }
         if (collected) { Game.save(); UI.renderFarmyard(); UI.notify('🥚 ' + t('game.hennouseCollected')); }
-        else UI.notify(t('game.hennouseNotReady'), true);
+        else UI.notify(t('game.hiveNotReady'), true);
     },
 
     feedHenhouse: function() {
