@@ -290,4 +290,44 @@ const RecipesDB = [
 
 
 
+
+    // ── KAMENNÉ NÁSTROJE (tech_horticulture + tech_carpentaria) ─────────────
+    { id:"stone_axe",    output:"stone_axe",    qty:1, req:{stick:2, rock:3, rope:1}, cat:"tool", locked:true,
+      desc:"Kamenné ostří na dřevené násadě.", desc_en:"Stone blade on a wooden haft." },
+    { id:"stone_spade",  output:"stone_spade",  qty:1, req:{stick:2, rock:2, rope:1}, cat:"tool", locked:true,
+      desc:"Plochý kámen na násadě.", desc_en:"Flat stone on a haft." },
+    { id:"stone_scythe", output:"stone_scythe", qty:1, req:{stick:3, rock:3, rope:2}, cat:"tool", locked:true,
+      desc:"Kamenné ostří na dlouhé násadě.", desc_en:"Stone blade on a long haft." },
+    { id:"stone_sickle", output:"stone_sickle", qty:1, req:{stick:1, rock:2, rope:1}, cat:"tool", locked:true,
+      desc:"Malé kamenné ostří. Žeň bylin.", desc_en:"Small stone blade. For harvesting herbs." },
+    { id:"stone_flail",  output:"stone_flail",  qty:1, req:{stick:3, rope:2, rock:1}, cat:"tool", locked:true,
+      desc:"Dřevěný cep s kamenným závažím.", desc_en:"Wooden flail with stone weight." },
+    { id:"stone_shovel", output:"stone_shovel", qty:1, req:{stick:2, rock:2, rope:1}, cat:"tool", locked:true,
+      desc:"Plochý kámen jako lopata.", desc_en:"Flat stone as a shovel." },
+    { id:"stone_saw",    output:"stone_saw",    qty:1, req:{stick:2, flint:2, rope:1}, cat:"tool", locked:true,
+      desc:"Pila z křemenných úštěpků.", desc_en:"Saw of flint chips." },
+
+    // ── DŘEVĚNÉ NÁSTROJE ─────────────────────────────────────────────────────
+    { id:"bucket",       output:"bucket",       qty:1, req:{plank:3, rope:2},          cat:"tool", locked:true,
+      desc:"Dřevěné vědro na vodu.", desc_en:"Wooden bucket for water." },
+    { id:"watering_can", output:"watering_can", qty:1, req:{plank:2, rope:2, leather:1}, cat:"tool", locked:true,
+      desc:"Konev na zalévání zahrady.", desc_en:"Watering can for the garden." },
+    { id:"barrel_tool",  output:"barrel_tool",  qty:1, req:{plank:6, rope:3},           cat:"tool", locked:true,
+      desc:"Dřevěný sud na pivo, víno a vodu.", desc_en:"Wooden barrel for ale, wine and water." },
+
+    // ── KOVOVÉ NÁSTROJE (tech_kovarina) ──────────────────────────────────────
+    { id:"iron_axe",    output:"iron_axe",    qty:1, req:{stick:2, rock:1, rope:1, leather:1}, cat:"tool", locked:true,
+      desc:"Železná sekerka. Více kulatiny za akci.", desc_en:"Iron axe. More logs per action." },
+    { id:"iron_spade",  output:"iron_spade",  qty:1, req:{stick:2, rock:1, rope:1},            cat:"tool", locked:true,
+      desc:"Železný rýč. Více červů, hlubší kopání.", desc_en:"Iron spade. More worms, deeper digging." },
+    { id:"iron_scythe", output:"iron_scythe", qty:1, req:{stick:3, rock:1, rope:2, leather:1}, cat:"tool", locked:true,
+      desc:"Železná kosa. Více trávy za méně akcí.", desc_en:"Iron scythe. More grass per action." },
+    { id:"iron_sickle", output:"iron_sickle", qty:1, req:{stick:1, rock:1, rope:1},            cat:"tool", locked:true,
+      desc:"Železný srp. Přesná žeň.", desc_en:"Iron sickle. Precise harvesting." },
+    { id:"iron_flail",  output:"iron_flail",  qty:1, req:{stick:3, rope:2, rock:1, leather:1}, cat:"tool", locked:true,
+      desc:"Železný cep. Efektivnější mlácení.", desc_en:"Iron flail. More efficient threshing." },
+    { id:"iron_shovel", output:"iron_shovel", qty:1, req:{stick:2, rock:1, rope:1},            cat:"tool", locked:true,
+      desc:"Železná lopata. Rychlý přesun půdy.", desc_en:"Iron shovel. Fast soil moving." },
+    { id:"iron_saw",    output:"iron_saw",    qty:1, req:{stick:2, flint:1, rope:1, leather:1}, cat:"tool", locked:true,
+      desc:"Železná pila. Přesné opracování dřeva.", desc_en:"Iron saw. Precise wood working." },
 ];

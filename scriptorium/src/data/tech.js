@@ -127,7 +127,7 @@ const TechTree = [
       cost:8,
       desc:"Klášterní tesař byl nepostradatelný. Sekera, dláto a pila — z větví dělal fošny, z kamene tesané kvádry. Bez tesaře nestojí ani studna, ani sýpka, ani sklep. Odemkne: Fošna (plank) a Tesaný kámen (cut_stone).",
       desc_en:"The monastic carpenter was indispensable. Axe, chisel, and saw — from branches he made planks, from stone he cut blocks. Without the carpenter, neither well nor granary nor cellar stands. Unlocks: Plank and Cut Stone.",
-      unlocks:["plank","cut_stone"], requires:["tech_writing_basics"] },
+      unlocks:["plank","cut_stone","log","stone_saw"], requires:["tech_writing_basics"] },
 
     { id:"tech_almarium",        name:"Almarium — Klášterní Skříň",     name_en:"Almarium — Monastic Cupboard",
       cost:6,
@@ -161,14 +161,14 @@ const TechTree = [
 
     // NÁSTROJE
     { id:"tech_kovarina",      name:"Kovářina — Kovářské řemeslo",   name_en:"Smithcraft — Blacksmithing",
-      cost:10,
-      desc:"Klášterní kovář byl nepostradatelný. Z rozžhaveného železa tvaroval sekerky, rýče i kosy. Bez kováře nezaoralo žádné pole. Odemkne: Sekerka (těžba dřeva), Rýč (kopání červů, práce v sadu).",
-      desc_en:"The monastic blacksmith was indispensable. He shaped axes, spades and scythes from heated iron. Without a smith no field could be ploughed. Unlocks: Axe (wood harvesting), Spade (digging worms, orchard work).",
-      unlocks:["axe","spade"], requires:["tech_writing_basics"] },
+      cost:35,
+      desc:"Klášterní kovář byl nepostradatelný. Z rozžhaveného železa tvaroval sekerky, rýče i kosy. Bez kováře nezaoralo žádné pole. Odemkne: železné nástroje (sekerka, rýč, kosa, srp, cep, lopata, pila).",
+      desc_en:"The monastic blacksmith was indispensable. He shaped axes, spades and scythes from heated iron. Without a smith no field could be ploughed. Unlocks: iron tools (axe, spade, scythe, sickle, flail, shovel, saw).",
+      unlocks:["iron_axe","iron_spade","iron_scythe","iron_sickle","iron_flail","iron_shovel","iron_saw"], requires:["tech_horticulture"] },
 
     { id:"tech_horticulture",  name:"Horticultura — Zahradní umění", name_en:"Horticultura — Art of the Garden",
       cost:10,
       desc:"Klášterní zahradník byl vzdělán v bylinářství, pěstování i závlaze. Vědro, konev a sud byly jeho nástroje. Odemkne: Vědro, Lopata, Konev, Sud, Pila.",
       desc_en:"The monastic gardener was learned in herbalism, cultivation and irrigation. Bucket, watering can and barrel were his tools. Unlocks: Bucket, Shovel, Watering Can, Barrel, Saw.",
-      unlocks:["bucket","shovel","watering_can","barrel_tool","saw"], requires:["tech_writing_basics"] },
+      unlocks:["stone_axe","stone_spade","stone_scythe","stone_sickle","stone_flail","stone_shovel","bucket","watering_can","barrel_tool"], requires:["tech_writing_basics"] },
 ];
