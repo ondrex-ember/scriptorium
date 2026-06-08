@@ -4144,15 +4144,6 @@ const RecipesDB = [
 	},
 	
 	// PŘIDAT na konec pole RecipesDB (před poslední ]):
-	{
-		id: "bucket",
-		output: "bucket",
-		qty: 1,
-		req: { stick: 3, rope: 2, rock: 2 },
-		cat: "tool",
-		locked: true, // Unlock: tech_water_bucket
-		desc: "Větší nádoba - přináší více vody ze studny.", desc_en: "Larger vessel - draws more water from the well."
-	},
 
 	{
 		id: "repair_kit",
@@ -23238,6 +23229,19 @@ const Game = {
 
 		// Initialize feeding system
 		if (!GameState.feeding) GameState.feeding = {};
+
+		// Migrate guard — doplnit chybějící unlocks ze všech již odemčených techů
+		if (typeof TechTree !== 'undefined' && GameState.researchedTechs) {
+			GameState.researchedTechs.forEach(techId => {
+				const tech = TechTree.find(t => t.id === techId);
+				if (!tech || !tech.unlocks) return;
+				tech.unlocks.forEach(rid => {
+					if (!GameState.unlockedRecipes.includes(rid)) {
+						GameState.unlockedRecipes.push(rid);
+					}
+				});
+			});
+		}
 
 		// Initialize henhouse (Gallinarium)
 		if(!GameState.henhouse) {
