@@ -3992,6 +3992,17 @@ const ItemsDB = {
     "hen_colored":   { name:"Slepice pestrá", name_en:"Coloured Hen",   icon:"🦚", type:"animal", desc:"Pestrá slepice. Dává více peří.",             desc_en:"Colourful hen. Produces more feathers." },
     "rooster":       { name:"Kohout",         name_en:"Rooster",        icon:"🐓", type:"animal", desc:"Kohout zvyšuje snůšku vajec o 20%.",          desc_en:"Rooster increases egg yield by 20%." },
     "sheep":         { name:"Ovce",           name_en:"Sheep",          icon:"🐑", type:"animal", desc:"Ovce produkuje vlnu, mléko a kůži.",          desc_en:"Sheep produces wool, milk and hide." },
+
+    // ── Produkty zvířat ────────────────────────────────────────────────────
+    "egg":            { name:"Vejce",            name_en:"Egg",             icon:"🥚", type:"mat",    desc:"Čerstvé vejce ze slepice. Jídlo i pigment.",   desc_en:"Fresh egg from the hen. Food and pigment." },
+    "milk":           { name:"Mléko",            name_en:"Milk",            icon:"🥛", type:"mat",    desc:"Čerstvé mléko od ovce.",                       desc_en:"Fresh milk from the sheep." },
+    "wool":           { name:"Vlna",             name_en:"Wool",            icon:"🧶", type:"mat",    desc:"Střižená vlna. Na přízi, tkaní i šití.",       desc_en:"Shorn wool. For spinning, weaving and sewing." },
+    "raw_hide":       { name:"Surová kůže",      name_en:"Raw Hide",        icon:"🐑", type:"mat",    desc:"Neupravená zvířecí kůže. Nutno vyčinit.",      desc_en:"Untreated animal hide. Must be cured." },
+    "feather_hen":    { name:"Peří",             name_en:"Hen Feather",     icon:"🪶", type:"mat",    desc:"Husté peří. Na polštáře i brky.",              desc_en:"Thick feathers. For pillows and quills." },
+
+    // ── Produkty zahrady / včelína ─────────────────────────────────────────
+    "pollen":         { name:"Pyl",              name_en:"Pollen",          icon:"🌼", type:"mat",    desc:"Včelí pyl. Léčivý a vzácný.",                  desc_en:"Bee pollen. Medicinal and rare." },
+    "linden_blossom": { name:"Lipový květ",      name_en:"Linden Blossom",  icon:"🌸", type:"mat",    desc:"Sušený lipový květ. Do čaje i léčiv.",         desc_en:"Dried linden blossom. For tea and remedies." },
     "queen_bee":     { name:"Včelí matka",    name_en:"Queen Bee",      icon:"🐝", type:"animal", desc:"Včelí matka. Nutná pro stavbu úlu.",          desc_en:"Queen bee. Required to establish a hive." },
 
     // ═══════════════════════════════════════════════════════════════════════════
@@ -4323,21 +4334,6 @@ const RecipesDB = [
     { id: "cut_stone", output: "cut_stone", qty: 1, req: { rock: 4 }, cat: "mat", locked: true,
       desc: "Opracovaný kvádr. Klášterní tesař ho vytesá dlátem a palicí.", desc_en: "A dressed block. The monastic carpenter shapes it with chisel and mallet." },
 
-    // ── STAVBY — SKLADY (tech_almarium / tech_cella / tech_horreum) ─────────
-    { id: "build_almarium", output: "build_almarium", qty: 1,
-      req: { plank: 6, rope: 3, leather: 2 }, cat: "mat", locked: true,
-      desc: "Almarium — uzamčená skříň na zásoby (200j). Vyžaduje: tech Almarium.",
-      desc_en: "Almarium — locked storeroom (200 units). Requires: Almarium tech." },
-
-    { id: "build_cella", output: "build_cella", qty: 1,
-      req: { cut_stone: 12, rope: 5, chalk: 4 }, cat: "mat", locked: true,
-      desc: "Cella — chladný klenutý sklep (600j). Organické zásoby vydrží 2–3× déle. Vyžaduje: Almarium postaveno.",
-      desc_en: "Cella — cool vaulted cellar (600 units). Organic stores last 2–3× longer. Requires: Almarium built." },
-
-    { id: "build_horreum", output: "build_horreum", qty: 1,
-      req: { cut_stone: 20, plank: 10, glue: 4, rope: 6 }, cat: "mat", locked: true,
-      desc: "Horreum — velká sýpka (1600j). Krmivo pro zvířata. Vyžaduje: Cella postavena.",
-      desc_en: "Horreum — large granary (1600 units). Fodder for animals. Requires: Cella built." },
 ];
 // ═══ src/data/lore.js ═══
 const LoreDB = {
@@ -24249,10 +24245,6 @@ const Game = {
 
     scavenge: function(type) {
 	    // === SPECIAL HANDLING FOR WELL === (PŘIDAT NA ZAČÁTEK)
-		if (type === 'build_almarium') { Game.buildStorage('almarium'); return; }
-		if (type === 'build_cella')    { Game.buildStorage('cella');    return; }
-		if (type === 'build_horreum')  { Game.buildStorage('horreum');  return; }
-
 		if (type === 'well_water') {
 			// Check if well exists
 			if (!GameState.well.built) {
