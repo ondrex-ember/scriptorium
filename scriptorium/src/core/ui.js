@@ -108,7 +108,11 @@ const UI = {
 		this.renderCrafting(); 
 		this.renderScriptorium(); 
 		this.renderGarden(); 
-		this.renderActions(); 
+		this.renderActions();
+		if (document.getElementById('home-mine-content') &&
+		    document.getElementById('home-mine-content').style.display !== 'none') {
+		    this.renderMineActions();
+		}
 		this.updateStreak(); 
 		this.renderWell();
 		this.renderRecords();
@@ -186,7 +190,7 @@ renderActions: function() {
     const el = document.getElementById('workspace-actions');
     const lang = (GameState.settings && GameState.settings.language) || 'cs';
     let newHTML = "";
-    ActionsDB.forEach(act => {
+    ActionsDB.filter(act => act.cat !== 'mine').forEach(act => {
         // === SPECIAL HANDLING FOR WELL (MUST BE FIRST!) ===
         if (act.id === 'well_water') {
             const hasWell = GameState.well && GameState.well.built;
@@ -528,6 +532,60 @@ renderActions: function() {
 		if (btn) btn.classList.add('active');
 		if (tab === 'athanor') AthanorSystem.render('home-athanor-content');
 		if (tab === 'cellarium' && celEl) celEl.innerHTML = CellariumSystem.renderCellariumTab();
+		// Reset sub-tab to scavenge when switching back to main
+		if (tab === 'main') this.switchHomeSubTab('scavenge', document.getElementById('home-sub-scavenge'));
+	},
+
+	switchHomeSubTab: function(tab, btn) {
+		const scav = document.getElementById('home-scavenge-content');
+		const mine = document.getElementById('home-mine-content');
+		if (scav) scav.style.display = tab === 'scavenge' ? 'block' : 'none';
+		if (mine) mine.style.display = tab === 'mine' ? 'block' : 'none';
+		document.querySelectorAll('#home-main-content .filter-btn').forEach(b => b.classList.remove('active'));
+		if (btn) btn.classList.add('active');
+		if (tab === 'mine') this.renderMineActions();
+	},
+
+	renderMineActions: function() {
+		const el = document.getElementById('mine-actions');
+		if (!el) return;
+		const lang = (GameState.settings && GameState.settings.language) || 'cs';
+		const mineActions = ActionsDB.filter(a => a.cat === 'mine');
+		let h = '';
+		mineActions.forEach(act => {
+			// Req check — zobrazit jen pokud má pickaxe
+			if (act.req && Array.isArray(act.req)) {
+				const hasAny = act.req.some(r => (GameState.inventory[r.item] > 0) ||
+					(GameState.inventory['worn_' + r.item] > 0));
+				if (!hasAny) return;
+			}
+			const actName = (lang === 'en' && act.name_en) ? act.name_en : act.name;
+			const actDesc = (lang === 'en' && act.desc_en) ? act.desc_en : act.desc;
+			let btnText, btnClass = 'craft-btn', btnDisabled = '', infoText = actDesc;
+
+			if (GameState.activeAction && GameState.activeAction.id === act.id) {
+				const remaining = Math.max(0, Math.ceil((GameState.activeAction.endTime - Date.now()) / 1000));
+				if (remaining > 0) {
+					const m = Math.floor(remaining / 60), s = remaining % 60;
+					btnText = `${t('actions.cancel')} (${m}:${s < 10 ? '0' : ''}${s})`;
+					btnClass += ' cancel';
+					infoText = `${t('actions.remaining')} ${m}:${s < 10 ? '0' : ''}${s}`;
+				} else {
+					btnText = lang === 'en' ? '⛏️ Collect' : '⛏️ Sbírat';
+					btnClass += ' claim';
+					infoText = t('actions.done');
+				}
+			} else if (GameState.activeAction) {
+				btnDisabled = 'disabled';
+				infoText = t('actions.waiting');
+				btnText = lang === 'en' ? '⛏️ Mine' : '⛏️ Těžit';
+			} else {
+				btnText = lang === 'en' ? '⛏️ Mine' : '⛏️ Těžit';
+			}
+			h += `<div class="card"><div class="item-icon">${act.icon}</div><div><strong>${actName}</strong><div class="text-sm">${infoText}</div></div><button class="${btnClass}" onclick="Game.scavenge('${act.id}')" ${btnDisabled}>${btnText}</button></div>`;
+		});
+		if (!h) h = `<div style="padding:20px;opacity:0.6;text-align:center">${lang === 'en' ? '🔒 Requires a pickaxe.' : '🔒 Vyžaduje krumpáč.'}</div>`;
+		el.innerHTML = h;
 	},
 
     renderLibraryNews: function() {

@@ -1402,12 +1402,6 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             </div>
 
             <div id="home-main-content">
-            <div class="time-selector">
-                <button class="time-btn active" onclick="Game.setDuration(0, this)" data-i18n="actions.instantly">Ihned</button>
-                <button class="time-btn" onclick="Game.setDuration(1, this)">1 min</button>
-                <button class="time-btn" onclick="Game.setDuration(5, this)">5 min</button>
-                <button class="time-btn" onclick="Game.setDuration(10, this)">10 min</button>
-            </div>
 
             <div id="card-fireplace" class="card ui-frozen">
                 <div class="item-icon" style="background: #333; color: #555;">🔥</div>
@@ -1421,11 +1415,31 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                 <button id="btn-light-torch" class="craft-btn" onclick="Game.lightSource('torch')" disabled style="display:none; margin-left:5px;">ZAPÁLIT LOUČ</button>
                 <button id="btn-light-candle" class="craft-btn" onclick="Game.lightSource('candle')" disabled style="display:none;">ZAPÁLIT SVÍČKU</button>
             </div>
-            
-            <hr style="border:0; border-top:1px solid var(--ink-secondary); margin:20px 0; opacity:0.3;">
 
-            <div id="workspace-actions"></div>
+            <!-- Level 2: SCAVENGE | MINE -->
+            <div class="filter-bar" style="margin-top:15px; margin-bottom:10px; flex-wrap:wrap; gap:5px;">
+                <button id="home-sub-scavenge" class="filter-btn active" onclick="UI.switchHomeSubTab('scavenge', this)">🗡️ <span data-i18n="screens.scavenge"></span></button>
+                <button id="home-sub-mine" class="filter-btn" onclick="UI.switchHomeSubTab('mine', this)">⛏️ <span data-i18n="screens.mine"></span></button>
             </div>
+
+            <!-- SCAVENGE content -->
+            <div id="home-scavenge-content">
+            <div class="time-selector">
+                <button class="time-btn active" onclick="Game.setDuration(0, this)" data-i18n="actions.instantly">Ihned</button>
+                <button class="time-btn" onclick="Game.setDuration(1, this)">1 min</button>
+                <button class="time-btn" onclick="Game.setDuration(5, this)">5 min</button>
+                <button class="time-btn" onclick="Game.setDuration(10, this)">10 min</button>
+            </div>
+            <hr style="border:0; border-top:1px solid var(--ink-secondary); margin:20px 0; opacity:0.3;">
+            <div id="workspace-actions"></div>
+            </div><!-- end home-scavenge-content -->
+
+            <!-- MINE content -->
+            <div id="home-mine-content" style="display:none;">
+                <div id="mine-actions"></div>
+            </div>
+
+            </div><!-- end home-main-content -->
 
             <div id="home-athanor-content" style="display:none;"></div>
             <div id="home-cellarium-content" style="display:none;"></div>
@@ -3665,7 +3679,7 @@ const LibraryHelpers = {
         });
         
         if (newUnlocks > 0) {
-            UI.notify(t('library_lore.new_book').replace('{count}', newUnlocks));
+            UI.notifyPanel(t('library_lore.new_book').replace('{count}', newUnlocks), 'system');
         }
     },
     
@@ -3713,7 +3727,7 @@ const LibraryHelpers = {
                     GameState.library.unlockedBooks.push(egg.reward.book);
                     const eggBaseId = egg.id.split('_')[0]; // faust, complete, scholar...
                     const eggName = t(`library_lore.easter_eggs.${eggBaseId}_name`);
-                    UI.notify(t('library_lore.easter_eggs.notify_found').replace('{name}', eggName || egg.name));
+                    UI.notifyPanel(t('library_lore.easter_eggs.notify_found').replace('{name}', eggName || egg.name), 'system');
                 }
                 if (egg.reward.research) {
                     Game.addItem('research', egg.reward.research);
@@ -3759,7 +3773,7 @@ const LibraryHelpers = {
                              STRINGS_cs.library_lore?.books?.[randomBook.id]?.title || 
                              randomBook.title;
             
-            UI.notify(`${t('library_lore.npc_scribe.notify_book')} "${bookTitle}"`);
+            UI.notifyPanel(`${t('library_lore.npc_scribe.notify_book')} "${bookTitle}"`, 'system');
         } else {
             UI.notify(t('library_lore.npc_scribe.notify_empty'));
         }
@@ -5360,19 +5374,28 @@ const TechTree = [
 ];
 // ═══ src/core/gamestate.js ═══
 const ActionsDB = [
-    { id: 'basic',        name: 'Průzkum okolí',    name_en: 'Scour the grounds',  icon: '🖐',  desc: 'Suroviny',         desc_en: 'Raw materials',      yield: 1 },
-    { id: 'nature',       name: 'Sběr bylin',       name_en: 'Gather herbs',       icon: '🌿',  desc: 'Vlákna/Semínka',   desc_en: 'Fibres / Seeds',     yield: 1 },
-    { id: 'hunt',         name: 'Lov zvěře',        name_en: 'Hunt game',          icon: '🐗',  desc: 'Tuk/Kosti',        desc_en: 'Fat / Bones',        yield: 1, req: 'stone_knife' },
-    { id: 'bark',         name: 'Oloupat strom',    name_en: 'Strip bark',         icon: '🗡️', desc: 'Kůra',             desc_en: 'Bark',               yield: 1, req: 'stone_knife' },
-    { id: 'fishing',      name: 'Rybolov',          name_en: 'Fish',               icon: '🎣',  desc: 'Ryby',             desc_en: 'Fish',               yield: 1, req: 'fishing_rod' },
-    { id: 'foraging',     name: 'Sběr potravy',     name_en: 'Forage',             icon: '🧺',  desc: 'Houby/Bobule',     desc_en: 'Mushrooms / Berries',yield: 1, req: 'basket' },
-    { id: 'wetlands',     name: 'Průzkum mokřadu',  name_en: 'Search the wetlands',icon: '🐸',  desc: 'Žáby/Slimáci',    desc_en: 'Frogs / Snails',     yield: 1, req: 'stone_knife' },
-    { id: 'resin_harvest',name: 'Sběr pryskyřice',  name_en: 'Harvest resin',      icon: '🌲',  desc: 'Pryskyřice/Med',   desc_en: 'Resin / Honey',      yield: 1, req: 'stone_knife' },
-    { id: 'well_water',   name: 'Jít pro vodu',        name_en: 'Draw water',          icon: '🚰',  desc: 'Ze studny',           desc_en: 'From the well',       yield: 1, req: 'well_built' },
-    { id: 'grass_gather', name: 'Posečení trávy',      name_en: 'Mow grass',           icon: '🌿',  desc: 'Tráva na seno',       desc_en: 'Grass for hay',       yield: 1, req: [{item:'stone_scythe', mult:0.7}, {item:'iron_scythe', mult:1.2}] },
-    { id: 'wood_harvest', name: 'Těžba dřeva',         name_en: 'Harvest wood',        icon: '🪓',  desc: 'Kulatina/Větve',      desc_en: 'Logs / Branches',     yield: 1, req: [{item:'stone_axe', mult:0.7}, {item:'iron_axe', mult:1.2}] },
-    { id: 'worms_dig',    name: 'Kopání červů',        name_en: 'Dig for worms',       icon: '🪱',  desc: 'Krmivo pro kapry',    desc_en: 'Feed for carp',       yield: 1, req: [{item:'stone_spade', mult:0.7}, {item:'iron_spade', mult:1.2}] },
-    { id: 'yard_cleanup', name: 'Uklidit hospodářství',name_en: 'Clean the farmyard',  icon: '🧹',  desc: 'Zbytky + bonusy',     desc_en: 'Scraps + bonuses',    yield: 1 }
+    { id: 'basic',        cat: 'scavenge', name: 'Průzkum okolí',    name_en: 'Scour the grounds',  icon: '🖐',  desc: 'Suroviny',         desc_en: 'Raw materials',      yield: 1 },
+    { id: 'nature',       cat: 'scavenge', name: 'Sběr bylin',       name_en: 'Gather herbs',       icon: '🌿',  desc: 'Vlákna/Semínka',   desc_en: 'Fibres / Seeds',     yield: 1 },
+    { id: 'hunt',         cat: 'scavenge', name: 'Lov zvěře',        name_en: 'Hunt game',          icon: '🐗',  desc: 'Tuk/Kosti',        desc_en: 'Fat / Bones',        yield: 1, req: 'stone_knife' },
+    { id: 'bark',         cat: 'scavenge', name: 'Oloupat strom',    name_en: 'Strip bark',         icon: '🗡️', desc: 'Kůra',             desc_en: 'Bark',               yield: 1, req: 'stone_knife' },
+    { id: 'fishing',      cat: 'scavenge', name: 'Rybolov',          name_en: 'Fish',               icon: '🎣',  desc: 'Ryby',             desc_en: 'Fish',               yield: 1, req: 'fishing_rod' },
+    { id: 'foraging',     cat: 'scavenge', name: 'Sběr potravy',     name_en: 'Forage',             icon: '🧺',  desc: 'Houby/Bobule',     desc_en: 'Mushrooms / Berries',yield: 1, req: 'basket' },
+    { id: 'wetlands',     cat: 'scavenge', name: 'Průzkum mokřadu',  name_en: 'Search the wetlands',icon: '🐸',  desc: 'Žáby/Slimáci',    desc_en: 'Frogs / Snails',     yield: 1, req: 'stone_knife' },
+    { id: 'resin_harvest',cat: 'scavenge', name: 'Sběr pryskyřice',  name_en: 'Harvest resin',      icon: '🌲',  desc: 'Pryskyřice/Med',   desc_en: 'Resin / Honey',      yield: 1, req: 'stone_knife' },
+    { id: 'well_water',   cat: 'scavenge', name: 'Jít pro vodu',        name_en: 'Draw water',          icon: '🚰',  desc: 'Ze studny',           desc_en: 'From the well',       yield: 1, req: 'well_built' },
+    { id: 'grass_gather', cat: 'scavenge', name: 'Posečení trávy',      name_en: 'Mow grass',           icon: '🌿',  desc: 'Tráva na seno',       desc_en: 'Grass for hay',       yield: 1, req: [{item:'stone_scythe', mult:0.7}, {item:'iron_scythe', mult:1.2}] },
+    { id: 'wood_harvest', cat: 'scavenge', name: 'Těžba dřeva',         name_en: 'Harvest wood',        icon: '🪓',  desc: 'Kulatina/Větve',      desc_en: 'Logs / Branches',     yield: 1, req: [{item:'stone_axe', mult:0.7}, {item:'iron_axe', mult:1.2}] },
+    { id: 'worms_dig',    cat: 'scavenge', name: 'Kopání červů',        name_en: 'Dig for worms',       icon: '🪱',  desc: 'Krmivo pro kapry',    desc_en: 'Feed for carp',       yield: 1, req: [{item:'stone_spade', mult:0.7}, {item:'iron_spade', mult:1.2}] },
+    { id: 'yard_cleanup', cat: 'scavenge', name: 'Uklidit hospodářství',name_en: 'Clean the farmyard',  icon: '🧹',  desc: 'Zbytky + bonusy',     desc_en: 'Scraps + bonuses',    yield: 1 },
+    // ── MINE ──────────────────────────────────────────────────────────────────
+    { id: 'quarry_stone', cat: 'mine', collectMode: true,
+      name: 'Lámání kamene', name_en: 'Quarry Stone',
+      icon: '🪨', desc: 'Kámen + vzácně: tesaný kámen', desc_en: 'Stone + rare: cut stone',
+      yield: 1, req: [{item:'stone_pickaxe', mult:0.7}, {item:'iron_pickaxe', mult:1.2}] },
+    { id: 'mine_iron_ore', cat: 'mine', collectMode: true,
+      name: 'Těžba rudy', name_en: 'Mine Iron Ore',
+      icon: '⛏️', desc: 'Železná ruda + vzácně: dřevěné uhlí', desc_en: 'Iron ore + rare: charcoal',
+      yield: 1, req: [{item:'stone_pickaxe', mult:0.7}, {item:'iron_pickaxe', mult:1.2}] },
 ];
 
 let audioSys = null;
@@ -10898,6 +10921,7 @@ const CellariumSystem = {
       { itemId: 'grain',         basePrice: 4  },  // obilí — základ piva
       { itemId: 'hops',          basePrice: 18 },  // chmel — vzácnější
       // Kovářství (vyžaduje tech_kovarina)
+      { itemId: 'stone_pickaxe', basePrice: 30 },
       { itemId: 'iron_ore',      basePrice: 15,  req_tech: 'tech_kovarina' },
       { itemId: 'anvil',         basePrice: 250, req_tech: 'tech_kovarina' },
       { itemId: 'iron_axe',      basePrice: 65,  req_tech: 'tech_kovarina' },
@@ -19146,7 +19170,7 @@ const HnefataflGame = {
 
 const STRINGS_cs = {
         nav: { home:'Pracovna', garden:'Zahrada', craft:'Výroba', inv:'Batoh', lore:'Scriptorium', library:'Knihovna' },
-        screens: { home:'Pracovna', garden:'Zahrada', craft:'Výroba', inv:'Batoh', lore:'Scriptorium', library:'Knihovna', settings:'Nastavení' },
+        screens: { home:'Pracovna', garden:'Zahrada', craft:'Výroba', inv:'Batoh', lore:'Scriptorium', library:'Knihovna', settings:'Nastavení', scavenge:'Sběr', mine:'Těžba' },
         fireplace: {
             cold:'Vyhaslý Krb', coldDesc:'Je tu zima.', kindle:'ROZEŽEHNOUT',
             lit:'Hřejivý Krb', litDesc:'Oheň dává život.'
@@ -20520,7 +20544,7 @@ farmyard: {
 
 const STRINGS_en = {
         nav: { home:'Workshop', garden:'Garden', craft:'Craft', inv:'Satchel', lore:'Scriptorium', library:'Library' },
-        screens: { home:'Officina', garden:'The Garden', craft:'Crafting', inv:'Thy Satchel', lore:'Scriptorium', library:'The Library', settings:'Settings' },
+        screens: { home:'Officina', garden:'The Garden', craft:'Crafting', inv:'Thy Satchel', lore:'Scriptorium', library:'The Library', settings:'Settings', scavenge:'Scavenge', mine:'Mine' },
     header: { weatherNow: 'Presently in Prague (click to refresh)', weatherTomorrow: 'Morrow\'s forecast', hunger: 'Hunger', streak: 'Daily Streak', research: 'Knowledge Gathered', settings: 'Settings' },
     // ------------------------------
         fireplace: {
@@ -24476,6 +24500,62 @@ const Game = {
 			return;
 		}
     // === END WELL HANDLING ===
+
+        // === MINE ACTIONS (collectMode) ===
+        const _mineAction = ActionsDB.find(a => a.id === type && a.collectMode);
+        if (_mineAction) {
+            // COMPLETION: kliknutí na "Sbírat" po uplynutí timeru
+            if (GameState.activeAction && GameState.activeAction.id === type) {
+                if (Date.now() < GameState.activeAction.endTime) {
+                    // Timer ještě běží — zrušit
+                    GameState.activeAction = null;
+                    Game.save(); UI.renderMineActions(); return;
+                }
+                // Doručit loot
+                const _mFoundC = _mineAction.req ? _mineAction.req.find(r => (GameState.inventory[r.item] > 0) || (GameState.inventory['worn_' + r.item] > 0)) : null;
+                const _mMultC = _mFoundC ? (_mFoundC.mult || 0.7) : 1.0;
+                const _invBefore = {};
+                for (const k of Object.keys(GameState.inventory)) _invBefore[k] = GameState.inventory[k] || 0;
+                if (type === 'quarry_stone') {
+                    const qty = Math.random() < 0.4 ? 6 : (Math.random() < 0.6 ? 4 : 3);
+                    this.addItem('rock', Math.round(qty * _mMultC));
+                    if (Math.random() < 0.15) this.addItem('cut_stone', 1);
+                    if (Math.random() < 0.05) this.addItem('clay', 1);
+                } else if (type === 'mine_iron_ore') {
+                    const qty = Math.random() < 0.4 ? 3 : (Math.random() < 0.6 ? 2 : 1);
+                    this.addItem('iron_ore', Math.round(qty * _mMultC));
+                    if (Math.random() < 0.20) this.addItem('charcoal', 1);
+                    if (Math.random() < 0.05) this.addItem('rock', 2);
+                }
+                const _tgains = {};
+                for (const k of Object.keys(GameState.inventory)) {
+                    const diff = (GameState.inventory[k] || 0) - (_invBefore[k] || 0);
+                    if (diff > 0) _tgains[k] = diff;
+                }
+                if (Object.keys(_tgains).length > 0) UI.notifyAccum(_tgains);
+                if (_mFoundC) this.useToolCharge(_mFoundC.item);
+                GameState.activeAction = null;
+                Game.save(); UI.renderMineActions();
+                return;
+            }
+            // BUSY: jiná akce běží
+            if (GameState.activeAction) {
+                UI.notify(t('game.busy'), true); return;
+            }
+            // START: první kliknutí
+            const _mFound = _mineAction.req ? _mineAction.req.find(r => (GameState.inventory[r.item] > 0) || (GameState.inventory['worn_' + r.item] > 0)) : null;
+            if (_mineAction.req && !_mFound) {
+                const lang = (GameState.settings && GameState.settings.language) || 'cs';
+                UI.notify(lang === 'en' ? '❌ Requires a pickaxe.' : '❌ Vyžaduje krumpáč.', true);
+                return;
+            }
+            const _mMult = (_mFound && _mFound.mult) ? _mFound.mult : 1.0;
+            const _mMultiplier = Math.round(8 * _mMult);
+            GameState.activeAction = { id: type, startTime: Date.now(), endTime: Date.now() + (5 * 60 * 1000), multiplier: _mMultiplier };
+            Game.save(); UI.renderMineActions();
+            return;
+        }
+        // === END MINE ACTIONS ===
         // ── snapshot pro quick scavenge ──
         Game._scavenging = true;
         const _qbefore = {};
@@ -24622,6 +24702,18 @@ const Game = {
                         }
                     }
                 }
+                else if (type === 'quarry_stone') {
+                    const qty = Math.random() < 0.4 ? 6 : (Math.random() < 0.6 ? 4 : 3);
+                    this.addItem('rock', Math.round(qty * _toolMult));
+                    if(Math.random() < 0.15) this.addItem('cut_stone', 1);
+                    if(Math.random() < 0.05) this.addItem('clay', 1);
+                }
+                else if (type === 'mine_iron_ore') {
+                    const qty = Math.random() < 0.4 ? 3 : (Math.random() < 0.6 ? 2 : 1);
+                    this.addItem('iron_ore', Math.round(qty * _toolMult));
+                    if(Math.random() < 0.20) this.addItem('charcoal', 1);
+                    if(Math.random() < 0.05) this.addItem('rock', 2);
+                }
                 total++;
             }
             if (total > 0) {
@@ -24733,7 +24825,7 @@ const Game = {
             }
         }
         
-        const durationMin = GameState.selectedDuration;
+        const durationMin = action.collectMode ? 5 : GameState.selectedDuration;
         if (durationMin === 0) {
             // ── snapshot pro single scavenge ──
             Game._scavenging = true;
@@ -24864,7 +24956,7 @@ const Game = {
             }
             
             GameState.activeAction = { id: type, startTime: Date.now(), endTime: Date.now() + (durationMin * 60 * 1000), multiplier: multiplier };
-            Game.save(); UI.renderActions();
+            Game.save(); UI.renderActions(); if (action.collectMode) UI.renderMineActions();
         }
     },
     checkEnvironment: function() {
@@ -24952,7 +25044,7 @@ const Game = {
         if(isFirstTime && LoreDB[id] && !GameState.discoveredLore.includes(id)) {
             GameState.discoveredLore.push(id);
             if(GameState.achievements) GameState.achievements.stats.itemsDiscovered++;
-            UI.notify(t('game.newCodexEntry'));
+            UI.notifyPanel(t('game.newCodexEntry'), 'system');
             Game.addKronikaEntry('important', '📜 Nový zápis v Codexu.', '📜 New entry in the Codex.', '📜 Nova inscriptio in Codice.');
             setTimeout(() => UI.notify(t('game.itemAdded').replace('{qty}', qty).replace('{item}', iName(id))), 500);
         } else {
@@ -25494,7 +25586,8 @@ const Game = {
 
 	buildStorage: function(type) {
 		const lang = (GameState.settings && GameState.settings.language) || 'cs';
-		if (!GameState.storage) GameState.storage = { almarium: {built:false}, cella: {built:false}, horreum: {built:false} };
+		if (!GameState.storage) GameState.storage = { almarium: {built:false}, cella: {built:false}, horreum: {built:false}, fabrica: {built:false} };
+		if (!GameState.storage.fabrica) GameState.storage.fabrica = {built:false};
 		if (!GameState.storage.transactions) GameState.storage.transactions = [];
 		if (type === 'cella' && !GameState.storage.almarium.built) {
 			UI.notify(lang==='en' ? 'Build Almarium first.' : 'Nejprve postav Almarium.', true); return;
@@ -25509,6 +25602,7 @@ const Game = {
 			almarium: { plank: 6, rope: 3, leather: 2 },
 			cella:    { cut_stone: 12, rope: 5, chalk: 4 },
 			horreum:  { cut_stone: 20, plank: 10, glue: 4, rope: 6 },
+			fabrica:  { rock: 30, plank: 15, charcoal: 10, anvil: 1 },
 		};
 		const cost = costs[type];
 		if (!cost) return;
@@ -25521,7 +25615,7 @@ const Game = {
 		for (const [item, amt] of Object.entries(cost)) { this.removeItem(item, amt); }
 		GameState.storage[type].built = true;
 		Game.save();
-		const names = { almarium: 'Almarium', cella: 'Cella', horreum: 'Horreum' };
+		const names = { almarium: 'Almarium', cella: 'Cella', horreum: 'Horreum', fabrica: 'Fabrica' };
 		const n = names[type];
 		UI.notifyPanel('🏗️ ' + (lang==='en' ? n+' built.' : n+' postaveno.'), 'system');
 		Game.addKronikaEntry('important', n+' postaveno.', n+' built.', n+' aedificatum est.');
@@ -25911,7 +26005,11 @@ const UI = {
 		this.renderCrafting(); 
 		this.renderScriptorium(); 
 		this.renderGarden(); 
-		this.renderActions(); 
+		this.renderActions();
+		if (document.getElementById('home-mine-content') &&
+		    document.getElementById('home-mine-content').style.display !== 'none') {
+		    this.renderMineActions();
+		}
 		this.updateStreak(); 
 		this.renderWell();
 		this.renderRecords();
@@ -25989,7 +26087,7 @@ renderActions: function() {
     const el = document.getElementById('workspace-actions');
     const lang = (GameState.settings && GameState.settings.language) || 'cs';
     let newHTML = "";
-    ActionsDB.forEach(act => {
+    ActionsDB.filter(act => act.cat !== 'mine').forEach(act => {
         // === SPECIAL HANDLING FOR WELL (MUST BE FIRST!) ===
         if (act.id === 'well_water') {
             const hasWell = GameState.well && GameState.well.built;
@@ -26331,6 +26429,60 @@ renderActions: function() {
 		if (btn) btn.classList.add('active');
 		if (tab === 'athanor') AthanorSystem.render('home-athanor-content');
 		if (tab === 'cellarium' && celEl) celEl.innerHTML = CellariumSystem.renderCellariumTab();
+		// Reset sub-tab to scavenge when switching back to main
+		if (tab === 'main') this.switchHomeSubTab('scavenge', document.getElementById('home-sub-scavenge'));
+	},
+
+	switchHomeSubTab: function(tab, btn) {
+		const scav = document.getElementById('home-scavenge-content');
+		const mine = document.getElementById('home-mine-content');
+		if (scav) scav.style.display = tab === 'scavenge' ? 'block' : 'none';
+		if (mine) mine.style.display = tab === 'mine' ? 'block' : 'none';
+		document.querySelectorAll('#home-main-content .filter-btn').forEach(b => b.classList.remove('active'));
+		if (btn) btn.classList.add('active');
+		if (tab === 'mine') this.renderMineActions();
+	},
+
+	renderMineActions: function() {
+		const el = document.getElementById('mine-actions');
+		if (!el) return;
+		const lang = (GameState.settings && GameState.settings.language) || 'cs';
+		const mineActions = ActionsDB.filter(a => a.cat === 'mine');
+		let h = '';
+		mineActions.forEach(act => {
+			// Req check — zobrazit jen pokud má pickaxe
+			if (act.req && Array.isArray(act.req)) {
+				const hasAny = act.req.some(r => (GameState.inventory[r.item] > 0) ||
+					(GameState.inventory['worn_' + r.item] > 0));
+				if (!hasAny) return;
+			}
+			const actName = (lang === 'en' && act.name_en) ? act.name_en : act.name;
+			const actDesc = (lang === 'en' && act.desc_en) ? act.desc_en : act.desc;
+			let btnText, btnClass = 'craft-btn', btnDisabled = '', infoText = actDesc;
+
+			if (GameState.activeAction && GameState.activeAction.id === act.id) {
+				const remaining = Math.max(0, Math.ceil((GameState.activeAction.endTime - Date.now()) / 1000));
+				if (remaining > 0) {
+					const m = Math.floor(remaining / 60), s = remaining % 60;
+					btnText = `${t('actions.cancel')} (${m}:${s < 10 ? '0' : ''}${s})`;
+					btnClass += ' cancel';
+					infoText = `${t('actions.remaining')} ${m}:${s < 10 ? '0' : ''}${s}`;
+				} else {
+					btnText = lang === 'en' ? '⛏️ Collect' : '⛏️ Sbírat';
+					btnClass += ' claim';
+					infoText = t('actions.done');
+				}
+			} else if (GameState.activeAction) {
+				btnDisabled = 'disabled';
+				infoText = t('actions.waiting');
+				btnText = lang === 'en' ? '⛏️ Mine' : '⛏️ Těžit';
+			} else {
+				btnText = lang === 'en' ? '⛏️ Mine' : '⛏️ Těžit';
+			}
+			h += `<div class="card"><div class="item-icon">${act.icon}</div><div><strong>${actName}</strong><div class="text-sm">${infoText}</div></div><button class="${btnClass}" onclick="Game.scavenge('${act.id}')" ${btnDisabled}>${btnText}</button></div>`;
+		});
+		if (!h) h = `<div style="padding:20px;opacity:0.6;text-align:center">${lang === 'en' ? '🔒 Requires a pickaxe.' : '🔒 Vyžaduje krumpáč.'}</div>`;
+		el.innerHTML = h;
 	},
 
     renderLibraryNews: function() {
@@ -27893,7 +28045,7 @@ renderRecords: function() {
         });
     },
     filterCrafting: function(cat, btn) { this.currentFilter = cat; if(btn) { document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active')); btn.classList.add('active'); } this.renderCrafting(); },
-    notify: function(m, e) { const n = document.createElement('div'); n.className = 'toast'; n.innerText = m; if(e) n.style.borderColor = 'red'; document.getElementById('notification-area').appendChild(n); setTimeout(() => n.remove(), 2600); },
+    notify: function(m, e) { const area = document.getElementById('notification-area'); if(!area) return; if(area.children.length >= 3) return; const n = document.createElement('div'); n.className = 'toast'; n.innerText = m; if(e) n.style.borderColor = 'red'; area.appendChild(n); setTimeout(() => n.remove(), 2600); },
     notifyPanel: function(m, category, e) {
         this.notify(m, e);
         if (typeof NotificationSystem !== 'undefined') NotificationSystem.panel(m, category || 'system');

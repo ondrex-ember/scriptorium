@@ -349,6 +349,7 @@ const CellariumSystem = {
       { itemId: 'grain',         basePrice: 4  },  // obilí — základ piva
       { itemId: 'hops',          basePrice: 18 },  // chmel — vzácnější
       // Kovářství (vyžaduje tech_kovarina)
+      { itemId: 'stone_pickaxe', basePrice: 30 },
       { itemId: 'iron_ore',      basePrice: 15,  req_tech: 'tech_kovarina' },
       { itemId: 'anvil',         basePrice: 250, req_tech: 'tech_kovarina' },
       { itemId: 'iron_axe',      basePrice: 65,  req_tech: 'tech_kovarina' },

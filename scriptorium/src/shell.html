@@ -1402,12 +1402,6 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             </div>
 
             <div id="home-main-content">
-            <div class="time-selector">
-                <button class="time-btn active" onclick="Game.setDuration(0, this)" data-i18n="actions.instantly">Ihned</button>
-                <button class="time-btn" onclick="Game.setDuration(1, this)">1 min</button>
-                <button class="time-btn" onclick="Game.setDuration(5, this)">5 min</button>
-                <button class="time-btn" onclick="Game.setDuration(10, this)">10 min</button>
-            </div>
 
             <div id="card-fireplace" class="card ui-frozen">
                 <div class="item-icon" style="background: #333; color: #555;">🔥</div>
@@ -1421,11 +1415,31 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                 <button id="btn-light-torch" class="craft-btn" onclick="Game.lightSource('torch')" disabled style="display:none; margin-left:5px;">ZAPÁLIT LOUČ</button>
                 <button id="btn-light-candle" class="craft-btn" onclick="Game.lightSource('candle')" disabled style="display:none;">ZAPÁLIT SVÍČKU</button>
             </div>
-            
-            <hr style="border:0; border-top:1px solid var(--ink-secondary); margin:20px 0; opacity:0.3;">
 
-            <div id="workspace-actions"></div>
+            <!-- Level 2: SCAVENGE | MINE -->
+            <div class="filter-bar" style="margin-top:15px; margin-bottom:10px; flex-wrap:wrap; gap:5px;">
+                <button id="home-sub-scavenge" class="filter-btn active" onclick="UI.switchHomeSubTab('scavenge', this)">🗡️ <span data-i18n="screens.scavenge"></span></button>
+                <button id="home-sub-mine" class="filter-btn" onclick="UI.switchHomeSubTab('mine', this)">⛏️ <span data-i18n="screens.mine"></span></button>
             </div>
+
+            <!-- SCAVENGE content -->
+            <div id="home-scavenge-content">
+            <div class="time-selector">
+                <button class="time-btn active" onclick="Game.setDuration(0, this)" data-i18n="actions.instantly">Ihned</button>
+                <button class="time-btn" onclick="Game.setDuration(1, this)">1 min</button>
+                <button class="time-btn" onclick="Game.setDuration(5, this)">5 min</button>
+                <button class="time-btn" onclick="Game.setDuration(10, this)">10 min</button>
+            </div>
+            <hr style="border:0; border-top:1px solid var(--ink-secondary); margin:20px 0; opacity:0.3;">
+            <div id="workspace-actions"></div>
+            </div><!-- end home-scavenge-content -->
+
+            <!-- MINE content -->
+            <div id="home-mine-content" style="display:none;">
+                <div id="mine-actions"></div>
+            </div>
+
+            </div><!-- end home-main-content -->
 
             <div id="home-athanor-content" style="display:none;"></div>
             <div id="home-cellarium-content" style="display:none;"></div>

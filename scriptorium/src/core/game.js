@@ -1417,6 +1417,62 @@ const Game = {
 			return;
 		}
     // === END WELL HANDLING ===
+
+        // === MINE ACTIONS (collectMode) ===
+        const _mineAction = ActionsDB.find(a => a.id === type && a.collectMode);
+        if (_mineAction) {
+            // COMPLETION: kliknutí na "Sbírat" po uplynutí timeru
+            if (GameState.activeAction && GameState.activeAction.id === type) {
+                if (Date.now() < GameState.activeAction.endTime) {
+                    // Timer ještě běží — zrušit
+                    GameState.activeAction = null;
+                    Game.save(); UI.renderMineActions(); return;
+                }
+                // Doručit loot
+                const _mFoundC = _mineAction.req ? _mineAction.req.find(r => (GameState.inventory[r.item] > 0) || (GameState.inventory['worn_' + r.item] > 0)) : null;
+                const _mMultC = _mFoundC ? (_mFoundC.mult || 0.7) : 1.0;
+                const _invBefore = {};
+                for (const k of Object.keys(GameState.inventory)) _invBefore[k] = GameState.inventory[k] || 0;
+                if (type === 'quarry_stone') {
+                    const qty = Math.random() < 0.4 ? 6 : (Math.random() < 0.6 ? 4 : 3);
+                    this.addItem('rock', Math.round(qty * _mMultC));
+                    if (Math.random() < 0.15) this.addItem('cut_stone', 1);
+                    if (Math.random() < 0.05) this.addItem('clay', 1);
+                } else if (type === 'mine_iron_ore') {
+                    const qty = Math.random() < 0.4 ? 3 : (Math.random() < 0.6 ? 2 : 1);
+                    this.addItem('iron_ore', Math.round(qty * _mMultC));
+                    if (Math.random() < 0.20) this.addItem('charcoal', 1);
+                    if (Math.random() < 0.05) this.addItem('rock', 2);
+                }
+                const _tgains = {};
+                for (const k of Object.keys(GameState.inventory)) {
+                    const diff = (GameState.inventory[k] || 0) - (_invBefore[k] || 0);
+                    if (diff > 0) _tgains[k] = diff;
+                }
+                if (Object.keys(_tgains).length > 0) UI.notifyAccum(_tgains);
+                if (_mFoundC) this.useToolCharge(_mFoundC.item);
+                GameState.activeAction = null;
+                Game.save(); UI.renderMineActions();
+                return;
+            }
+            // BUSY: jiná akce běží
+            if (GameState.activeAction) {
+                UI.notify(t('game.busy'), true); return;
+            }
+            // START: první kliknutí
+            const _mFound = _mineAction.req ? _mineAction.req.find(r => (GameState.inventory[r.item] > 0) || (GameState.inventory['worn_' + r.item] > 0)) : null;
+            if (_mineAction.req && !_mFound) {
+                const lang = (GameState.settings && GameState.settings.language) || 'cs';
+                UI.notify(lang === 'en' ? '❌ Requires a pickaxe.' : '❌ Vyžaduje krumpáč.', true);
+                return;
+            }
+            const _mMult = (_mFound && _mFound.mult) ? _mFound.mult : 1.0;
+            const _mMultiplier = Math.round(8 * _mMult);
+            GameState.activeAction = { id: type, startTime: Date.now(), endTime: Date.now() + (5 * 60 * 1000), multiplier: _mMultiplier };
+            Game.save(); UI.renderMineActions();
+            return;
+        }
+        // === END MINE ACTIONS ===
         // ── snapshot pro quick scavenge ──
         Game._scavenging = true;
         const _qbefore = {};
@@ -1563,6 +1619,18 @@ const Game = {
                         }
                     }
                 }
+                else if (type === 'quarry_stone') {
+                    const qty = Math.random() < 0.4 ? 6 : (Math.random() < 0.6 ? 4 : 3);
+                    this.addItem('rock', Math.round(qty * _toolMult));
+                    if(Math.random() < 0.15) this.addItem('cut_stone', 1);
+                    if(Math.random() < 0.05) this.addItem('clay', 1);
+                }
+                else if (type === 'mine_iron_ore') {
+                    const qty = Math.random() < 0.4 ? 3 : (Math.random() < 0.6 ? 2 : 1);
+                    this.addItem('iron_ore', Math.round(qty * _toolMult));
+                    if(Math.random() < 0.20) this.addItem('charcoal', 1);
+                    if(Math.random() < 0.05) this.addItem('rock', 2);
+                }
                 total++;
             }
             if (total > 0) {
@@ -1674,7 +1742,7 @@ const Game = {
             }
         }
         
-        const durationMin = GameState.selectedDuration;
+        const durationMin = action.collectMode ? 5 : GameState.selectedDuration;
         if (durationMin === 0) {
             // ── snapshot pro single scavenge ──
             Game._scavenging = true;
@@ -1805,7 +1873,7 @@ const Game = {
             }
             
             GameState.activeAction = { id: type, startTime: Date.now(), endTime: Date.now() + (durationMin * 60 * 1000), multiplier: multiplier };
-            Game.save(); UI.renderActions();
+            Game.save(); UI.renderActions(); if (action.collectMode) UI.renderMineActions();
         }
     },
     checkEnvironment: function() {
@@ -2435,7 +2503,8 @@ const Game = {
 
 	buildStorage: function(type) {
 		const lang = (GameState.settings && GameState.settings.language) || 'cs';
-		if (!GameState.storage) GameState.storage = { almarium: {built:false}, cella: {built:false}, horreum: {built:false} };
+		if (!GameState.storage) GameState.storage = { almarium: {built:false}, cella: {built:false}, horreum: {built:false}, fabrica: {built:false} };
+		if (!GameState.storage.fabrica) GameState.storage.fabrica = {built:false};
 		if (!GameState.storage.transactions) GameState.storage.transactions = [];
 		if (type === 'cella' && !GameState.storage.almarium.built) {
 			UI.notify(lang==='en' ? 'Build Almarium first.' : 'Nejprve postav Almarium.', true); return;
@@ -2450,6 +2519,7 @@ const Game = {
 			almarium: { plank: 6, rope: 3, leather: 2 },
 			cella:    { cut_stone: 12, rope: 5, chalk: 4 },
 			horreum:  { cut_stone: 20, plank: 10, glue: 4, rope: 6 },
+			fabrica:  { rock: 30, plank: 15, charcoal: 10, anvil: 1 },
 		};
 		const cost = costs[type];
 		if (!cost) return;
@@ -2462,7 +2532,7 @@ const Game = {
 		for (const [item, amt] of Object.entries(cost)) { this.removeItem(item, amt); }
 		GameState.storage[type].built = true;
 		Game.save();
-		const names = { almarium: 'Almarium', cella: 'Cella', horreum: 'Horreum' };
+		const names = { almarium: 'Almarium', cella: 'Cella', horreum: 'Horreum', fabrica: 'Fabrica' };
 		const n = names[type];
 		UI.notifyPanel('🏗️ ' + (lang==='en' ? n+' built.' : n+' postaveno.'), 'system');
 		Game.addKronikaEntry('important', n+' postaveno.', n+' built.', n+' aedificatum est.');
