@@ -253,7 +253,7 @@ const LibraryHelpers = {
         });
         
         if (newUnlocks > 0) {
-            UI.notify(t('library_lore.new_book').replace('{count}', newUnlocks));
+            UI.notifyPanel(t('library_lore.new_book').replace('{count}', newUnlocks), 'system');
         }
     },
     
@@ -301,7 +301,7 @@ const LibraryHelpers = {
                     GameState.library.unlockedBooks.push(egg.reward.book);
                     const eggBaseId = egg.id.split('_')[0]; // faust, complete, scholar...
                     const eggName = t(`library_lore.easter_eggs.${eggBaseId}_name`);
-                    UI.notify(t('library_lore.easter_eggs.notify_found').replace('{name}', eggName || egg.name));
+                    UI.notifyPanel(t('library_lore.easter_eggs.notify_found').replace('{name}', eggName || egg.name), 'system');
                 }
                 if (egg.reward.research) {
                     Game.addItem('research', egg.reward.research);
@@ -347,7 +347,7 @@ const LibraryHelpers = {
                              STRINGS_cs.library_lore?.books?.[randomBook.id]?.title || 
                              randomBook.title;
             
-            UI.notify(`${t('library_lore.npc_scribe.notify_book')} "${bookTitle}"`);
+            UI.notifyPanel(`${t('library_lore.npc_scribe.notify_book')} "${bookTitle}"`, 'system');
         } else {
             UI.notify(t('library_lore.npc_scribe.notify_empty'));
         }

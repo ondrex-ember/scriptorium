@@ -1893,7 +1893,7 @@ const Game = {
         if(isFirstTime && LoreDB[id] && !GameState.discoveredLore.includes(id)) {
             GameState.discoveredLore.push(id);
             if(GameState.achievements) GameState.achievements.stats.itemsDiscovered++;
-            UI.notify(t('game.newCodexEntry'));
+            UI.notifyPanel(t('game.newCodexEntry'), 'system');
             Game.addKronikaEntry('important', '📜 Nový zápis v Codexu.', '📜 New entry in the Codex.', '📜 Nova inscriptio in Codice.');
             setTimeout(() => UI.notify(t('game.itemAdded').replace('{qty}', qty).replace('{item}', iName(id))), 500);
         } else {

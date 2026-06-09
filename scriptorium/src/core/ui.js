@@ -2090,7 +2090,7 @@ renderRecords: function() {
         });
     },
     filterCrafting: function(cat, btn) { this.currentFilter = cat; if(btn) { document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active')); btn.classList.add('active'); } this.renderCrafting(); },
-    notify: function(m, e) { const n = document.createElement('div'); n.className = 'toast'; n.innerText = m; if(e) n.style.borderColor = 'red'; document.getElementById('notification-area').appendChild(n); setTimeout(() => n.remove(), 2600); },
+    notify: function(m, e) { const area = document.getElementById('notification-area'); if(!area) return; if(area.children.length >= 3) return; const n = document.createElement('div'); n.className = 'toast'; n.innerText = m; if(e) n.style.borderColor = 'red'; area.appendChild(n); setTimeout(() => n.remove(), 2600); },
     notifyPanel: function(m, category, e) {
         this.notify(m, e);
         if (typeof NotificationSystem !== 'undefined') NotificationSystem.panel(m, category || 'system');
