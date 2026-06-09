@@ -64,7 +64,7 @@ const SecretsSystem = {
         });
       }
       Game.save();
-      UI.notify('📕 Scrinium Abbatis apertum est! Opat ti otevřel svou soukromou knihovnu.');
+      UI.notifyPanel('📕 Scrinium Abbatis apertum est! Opat ti otevřel svou soukromou knihovnu.', 'system');
       return true;
     }
     return false;
@@ -74,7 +74,7 @@ const SecretsSystem = {
     if (GameState.secrets.laboratoryClues >= 3 && !GameState.secrets.laboratoryUnlocked) {
       GameState.secrets.laboratoryUnlocked = true;
       Game.save();
-      UI.notify('🔬 Athanor Secretus apertum est!');
+      UI.notifyPanel('🔬 Athanor Secretus apertum est!', 'system');
       return true;
     }
     return false;
@@ -83,7 +83,7 @@ const SecretsSystem = {
   addLaboratoryClue: function() {
     GameState.secrets.laboratoryClues++;
     Game.save();
-    UI.notify(`🔍 Symbolum alchemicum inventum! (${GameState.secrets.laboratoryClues}/3)`);
+    UI.notifyPanel(`🔍 Symbolum alchemicum inventum! (${GameState.secrets.laboratoryClues}/3)`, 'system');
     this.checkLaboratoryUnlock();
   },
 
@@ -116,7 +116,7 @@ const SecretsSystem = {
       ? ScriniumDB.folios.find(function(f) { return f.id === folioId; })
       : null;
     const folioTitle = folio ? t(folio.titleKey) : folioId;
-    UI.notify('📜 Nalezen zápisek ve Scrinium Abbatis: ' + folioTitle);
+    UI.notifyPanel('📜 Nalezen zápisek ve Scrinium Abbatis: ' + folioTitle, 'system');
   },
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -138,7 +138,7 @@ const SecretsSystem = {
         });
       }
       Game.save();
-      UI.notify('🔓 Omnes ianuae apertae sunt! (All doors opened)');
+      UI.notifyPanel('🔓 Omnes ianuae apertae sunt! (All doors opened)', 'system');
       setTimeout(() => location.reload(), 1000);
     } else {
       UI.notify('❌ Password incorrectum!', true);
@@ -412,14 +412,14 @@ const SecretsSystem = {
       if (!GameState.flags) GameState.flags = {};
       GameState.flags[reward.flag] = true;
       Game.save();
-      UI.notify(t(reward.notifyKey));
+      UI.notifyPanel(t(reward.notifyKey), 'system');
     } else if (reward.type === 'recipe_unlock') {
       if (!GameState.unlockedRecipes) GameState.unlockedRecipes = [];
       if (!GameState.unlockedRecipes.includes(reward.recipeId)) {
         GameState.unlockedRecipes.push(reward.recipeId);
       }
       Game.save();
-      UI.notify(t(reward.notifyKey));
+      UI.notifyPanel(t(reward.notifyKey), 'system');
     } else if (reward.type === 'choice') {
       // Faustova smlouva — modální volba
       this.showFaustChoice(folio);
@@ -569,13 +569,13 @@ const SecretsSystem = {
       }
       if (!GameState.flags) GameState.flags = {};
       GameState.flags.faust_signed = true;
-      UI.notify(t('scrinium.folios.fausto.signed_notify'));
+      UI.notifyPanel(t('scrinium.folios.fausto.signed_notify'), 'system');
     } else {
       // Achievement
       if (typeof AchievementsDB !== 'undefined' && typeof Game.unlockAchievement === 'function') {
         Game.unlockAchievement('faust_refused');
       }
-      UI.notify(t('scrinium.folios.fausto.refused_notify'));
+      UI.notifyPanel(t('scrinium.folios.fausto.refused_notify'), 'system');
     }
     Game.save();
   },
@@ -681,7 +681,7 @@ const SecretsSystem = {
         });
       }
       Game.save();
-      if (typeof UI !== 'undefined') UI.notify('🔓 Omnes ianuae apertae sunt!');
+      if (typeof UI !== 'undefined') UI.notifyPanel('🔓 Omnes ianuae apertae sunt!', 'system');
       if (type === 'scrinium') this.renderScriniumScreen(elementId);
       else this.renderAthanorScreen(elementId);
     } else {

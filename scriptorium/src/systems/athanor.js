@@ -925,7 +925,7 @@ const AthanorSystem = {
 
       // Toast + zvuk
       const critText = isCritical ? ' ✨ Kritický úspěch!' : '';
-      UI.notify(`⚗️ ${combo.icon} ${combo.name} — Dílo je dokonáno.${critText}`, false);
+      UI.notifyPanel(`⚗️ ${combo.icon} ${combo.name} — Dílo je dokonáno.${critText}`, 'system');
       AthanorSystem.playBrewingDone(isCritical);
 
     } else {
@@ -940,7 +940,7 @@ const AthanorSystem = {
         lore: f.lore
       };
 
-      UI.notify(`${f.icon} ${f.title} — ${f.msg}`, true);
+      UI.notifyPanel(`${f.icon} ${f.title} — ${f.msg}`, 'warning');
       AthanorSystem.playBrewingFail();
     }
 

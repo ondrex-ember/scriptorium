@@ -10850,6 +10850,10 @@ const CellariumSystem = {
     Game.save();
     const itemName = (typeof iName === 'function') ? iName(itemId) : itemId;
     UI.notify(t('cellarium.soldNotify').replace('{total}', total).replace('{qty}', qty).replace('{item}', itemName));
+    if (total >= 15 && typeof NotificationSystem !== 'undefined') {
+        const _slang = (GameState.settings && GameState.settings.language) || 'cs';
+        NotificationSystem.panel('💰 ' + itemName + ' ×' + qty + ' → ' + total + ' g · ' + (_slang==='en' ? entity : entity), 'system');
+    }
     this.renderCellariumContent();
   },
 
@@ -23723,7 +23727,7 @@ const Game = {
         GameState.flags.fireplaceLit = true;
         GameState.flags.forceDark = false;
         if(GameState.achievements) GameState.achievements.stats.fireplaceCount++;
-        UI.notify(t('game.fireKindled'));
+        UI.notifyPanel(t('game.fireKindled'), 'system');
         if(audioSys) audioSys.startFireLoop(false);
         Analytics.fireplaceIgnited(isFirstTime);
         Game.save(); Game.checkEnvironment();
@@ -25110,7 +25114,7 @@ const Game = {
             if(GameState.garden[7]) GameState.garden[7].locked = false;
         }
         
-        UI.notify(`${t('game.crafted')} ${tech.name}`);
+        UI.notifyPanel(`📜 ${t('game.crafted')} ${lang==='en'?(tech.name_en||tech.name):tech.name}`, 'system');
         Game.save(); UI.renderAll(); Game.checkEnvironment();
         Game.checkAchievements();
 
@@ -25228,6 +25232,11 @@ const Game = {
         
         // Show modal
         UI.showDailyRewardModal(bonusText, GameState.dailyRewards.streak, fact, streakBonus);
+        // Panel záznam — persistent reference
+        if (typeof NotificationSystem !== 'undefined') {
+            const _dlang = (GameState.settings && GameState.settings.language) || 'cs';
+            NotificationSystem.panel('🎁 ' + (_dlang==='en' ? 'Daily reward: ' : 'Denní odměna: ') + bonusText + ' · streak: ' + GameState.dailyRewards.streak, 'system');
+        }
         UI.updateStreak();
         Analytics.dailyRewardClaimed(GameState.dailyRewards.streak);
         Analytics.sessionStart(GameState.dailyRewards.totalLogins, daysSinceLastLogin);
@@ -25261,7 +25270,7 @@ const Game = {
         if(newUnlocks.length > 0) {
             newUnlocks.forEach(ach => {
                 setTimeout(() => {
-                    UI.notify(`🏆 Achievement: ${ach.name}!`);
+                    UI.notifyPanel(`🏆 Achievement: ${_an}!`, 'system');
                     Analytics.achievementUnlocked(ach.id, ach.name);
                     const _an = typeof LangSystem !== 'undefined' && LangSystem.current === 'en' ? (ach.name_en || ach.name) : ach.name;
                     Game.addKronikaEntry('important', `🏆 Dosaženo: ${ach.name}`, `🏆 Achievement: ${_an}`, `🏆 Factum est: ${ach.name}`);
@@ -25514,7 +25523,7 @@ const Game = {
 		Game.save();
 		const names = { almarium: 'Almarium', cella: 'Cella', horreum: 'Horreum' };
 		const n = names[type];
-		UI.notify((lang==='en'?n+' built!':n+' postaveno!'));
+		UI.notifyPanel('🏗️ ' + (lang==='en' ? n+' built.' : n+' postaveno.'), 'system');
 		Game.addKronikaEntry('important', n+' postaveno.', n+' built.', n+' aedificatum est.');
 		// BUG #7 fix — re-render Buildings tabu po stavbě
 		if (typeof CellariumSystem !== 'undefined') {
@@ -26391,6 +26400,19 @@ renderActions: function() {
         // ── Stav přečtení ────────────────────────────────────────────────
         if (!GameState.library) GameState.library = {};
         if (!GameState.library.tidingsRead) GameState.library.tidingsRead = [];
+        if (!GameState.library.tidingsNotified) GameState.library.tidingsNotified = [];
+
+        // Nové Tidings → panel (jednou per tiding)
+        const _tlang = (GameState.settings && GameState.settings.language) || 'cs';
+        available.forEach(n => {
+            if (!GameState.library.tidingsNotified.includes(n.id)) {
+                GameState.library.tidingsNotified.push(n.id);
+                const senderName = t('tidings.senders.' + n.sender) || n.sender;
+                if (typeof NotificationSystem !== 'undefined') {
+                    NotificationSystem.panel(n.icon + ' ' + (_tlang === 'en' ? 'New letter from ' : 'Nová zpráva od ') + senderName, 'tidings');
+                }
+            }
+        });
 
         // Badge na záložce
         const unreadCount = available.filter(n => !GameState.library.tidingsRead.includes(n.id)).length;
@@ -27872,6 +27894,10 @@ renderRecords: function() {
     },
     filterCrafting: function(cat, btn) { this.currentFilter = cat; if(btn) { document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active')); btn.classList.add('active'); } this.renderCrafting(); },
     notify: function(m, e) { const n = document.createElement('div'); n.className = 'toast'; n.innerText = m; if(e) n.style.borderColor = 'red'; document.getElementById('notification-area').appendChild(n); setTimeout(() => n.remove(), 2600); },
+    notifyPanel: function(m, category, e) {
+        this.notify(m, e);
+        if (typeof NotificationSystem !== 'undefined') NotificationSystem.panel(m, category || 'system');
+    },
 
     // ─── AKUMULAČNÍ TOAST pro scavenge gains → deleguje na NotificationSystem ──
     _accumToast: null,

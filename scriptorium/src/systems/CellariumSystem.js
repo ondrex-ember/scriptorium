@@ -301,6 +301,10 @@ const CellariumSystem = {
     Game.save();
     const itemName = (typeof iName === 'function') ? iName(itemId) : itemId;
     UI.notify(t('cellarium.soldNotify').replace('{total}', total).replace('{qty}', qty).replace('{item}', itemName));
+    if (total >= 15 && typeof NotificationSystem !== 'undefined') {
+        const _slang = (GameState.settings && GameState.settings.language) || 'cs';
+        NotificationSystem.panel('💰 ' + itemName + ' ×' + qty + ' → ' + total + ' g · ' + (_slang==='en' ? entity : entity), 'system');
+    }
     this.renderCellariumContent();
   },
 

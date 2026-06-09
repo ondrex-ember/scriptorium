@@ -597,6 +597,19 @@ renderActions: function() {
         // ── Stav přečtení ────────────────────────────────────────────────
         if (!GameState.library) GameState.library = {};
         if (!GameState.library.tidingsRead) GameState.library.tidingsRead = [];
+        if (!GameState.library.tidingsNotified) GameState.library.tidingsNotified = [];
+
+        // Nové Tidings → panel (jednou per tiding)
+        const _tlang = (GameState.settings && GameState.settings.language) || 'cs';
+        available.forEach(n => {
+            if (!GameState.library.tidingsNotified.includes(n.id)) {
+                GameState.library.tidingsNotified.push(n.id);
+                const senderName = t('tidings.senders.' + n.sender) || n.sender;
+                if (typeof NotificationSystem !== 'undefined') {
+                    NotificationSystem.panel(n.icon + ' ' + (_tlang === 'en' ? 'New letter from ' : 'Nová zpráva od ') + senderName, 'tidings');
+                }
+            }
+        });
 
         // Badge na záložce
         const unreadCount = available.filter(n => !GameState.library.tidingsRead.includes(n.id)).length;
@@ -2078,6 +2091,10 @@ renderRecords: function() {
     },
     filterCrafting: function(cat, btn) { this.currentFilter = cat; if(btn) { document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active')); btn.classList.add('active'); } this.renderCrafting(); },
     notify: function(m, e) { const n = document.createElement('div'); n.className = 'toast'; n.innerText = m; if(e) n.style.borderColor = 'red'; document.getElementById('notification-area').appendChild(n); setTimeout(() => n.remove(), 2600); },
+    notifyPanel: function(m, category, e) {
+        this.notify(m, e);
+        if (typeof NotificationSystem !== 'undefined') NotificationSystem.panel(m, category || 'system');
+    },
 
     // ─── AKUMULAČNÍ TOAST pro scavenge gains → deleguje na NotificationSystem ──
     _accumToast: null,

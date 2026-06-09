@@ -668,7 +668,7 @@ const Game = {
         GameState.flags.fireplaceLit = true;
         GameState.flags.forceDark = false;
         if(GameState.achievements) GameState.achievements.stats.fireplaceCount++;
-        UI.notify(t('game.fireKindled'));
+        UI.notifyPanel(t('game.fireKindled'), 'system');
         if(audioSys) audioSys.startFireLoop(false);
         Analytics.fireplaceIgnited(isFirstTime);
         Game.save(); Game.checkEnvironment();
@@ -2055,7 +2055,7 @@ const Game = {
             if(GameState.garden[7]) GameState.garden[7].locked = false;
         }
         
-        UI.notify(`${t('game.crafted')} ${tech.name}`);
+        UI.notifyPanel(`📜 ${t('game.crafted')} ${lang==='en'?(tech.name_en||tech.name):tech.name}`, 'system');
         Game.save(); UI.renderAll(); Game.checkEnvironment();
         Game.checkAchievements();
 
@@ -2173,6 +2173,11 @@ const Game = {
         
         // Show modal
         UI.showDailyRewardModal(bonusText, GameState.dailyRewards.streak, fact, streakBonus);
+        // Panel záznam — persistent reference
+        if (typeof NotificationSystem !== 'undefined') {
+            const _dlang = (GameState.settings && GameState.settings.language) || 'cs';
+            NotificationSystem.panel('🎁 ' + (_dlang==='en' ? 'Daily reward: ' : 'Denní odměna: ') + bonusText + ' · streak: ' + GameState.dailyRewards.streak, 'system');
+        }
         UI.updateStreak();
         Analytics.dailyRewardClaimed(GameState.dailyRewards.streak);
         Analytics.sessionStart(GameState.dailyRewards.totalLogins, daysSinceLastLogin);
@@ -2206,7 +2211,7 @@ const Game = {
         if(newUnlocks.length > 0) {
             newUnlocks.forEach(ach => {
                 setTimeout(() => {
-                    UI.notify(`🏆 Achievement: ${ach.name}!`);
+                    UI.notifyPanel(`🏆 Achievement: ${_an}!`, 'system');
                     Analytics.achievementUnlocked(ach.id, ach.name);
                     const _an = typeof LangSystem !== 'undefined' && LangSystem.current === 'en' ? (ach.name_en || ach.name) : ach.name;
                     Game.addKronikaEntry('important', `🏆 Dosaženo: ${ach.name}`, `🏆 Achievement: ${_an}`, `🏆 Factum est: ${ach.name}`);
@@ -2459,7 +2464,7 @@ const Game = {
 		Game.save();
 		const names = { almarium: 'Almarium', cella: 'Cella', horreum: 'Horreum' };
 		const n = names[type];
-		UI.notify((lang==='en'?n+' built!':n+' postaveno!'));
+		UI.notifyPanel('🏗️ ' + (lang==='en' ? n+' built.' : n+' postaveno.'), 'system');
 		Game.addKronikaEntry('important', n+' postaveno.', n+' built.', n+' aedificatum est.');
 		// BUG #7 fix — re-render Buildings tabu po stavbě
 		if (typeof CellariumSystem !== 'undefined') {
