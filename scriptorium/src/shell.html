@@ -527,23 +527,102 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 			filter: none !important;
 		}
 		
+
+        /* ═══ MOBILE PILLS (≤750px) ═══════════════════════════════════════ */
+        @media (max-width: 750px) {
+            .status-bar { display: none !important; }
+            #pills-bar {
+                display: flex !important;
+                flex-wrap: nowrap;
+                gap: 5px;
+                align-items: center;
+                justify-content: flex-end;
+                flex: 1;
+                padding: 0 2px;
+                overflow: hidden;
+            }
+        }
+        @media (min-width: 751px) {
+            #pills-bar { display: none !important; }
+        }
+
+        .hpill {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            background: rgba(0,0,0,0.55);
+            border: 1px solid rgba(197,160,89,0.45);
+            border-radius: 20px;
+            padding: 4px 10px;
+            font-size: 0.78rem;
+            color: #e8d9b0;
+            cursor: pointer;
+            backdrop-filter: blur(6px);
+            white-space: nowrap;
+            max-width: 38px;
+            overflow: hidden;
+            transition: max-width 0.35s cubic-bezier(.4,0,.2,1), 
+                        padding 0.35s ease,
+                        background 0.2s ease;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .hpill.expanded {
+            max-width: 220px;
+            background: rgba(0,0,0,0.75);
+        }
+        .hpill-icon { font-size: 1rem; flex-shrink: 0; }
+        .hpill-detail {
+            display: flex;
+            flex-direction: column;
+            gap: 1px;
+            opacity: 0;
+            transition: opacity 0.2s ease 0.1s;
+            pointer-events: none;
+        }
+        .hpill.expanded .hpill-detail {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .hpill-detail span { font-size: 0.72rem; line-height: 1.3; white-space: nowrap; }
+        .hpill-detail .hpill-label { opacity: 0.65; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.5px; }
+        .hpill-static {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            background: rgba(0,0,0,0.55);
+            border: 1px solid rgba(197,160,89,0.45);
+            border-radius: 20px;
+            padding: 4px 10px;
+            font-size: 0.78rem;
+            color: #e8d9b0;
+            cursor: pointer;
+            backdrop-filter: blur(6px);
+        }
+
         @media (max-width: 750px) {
             .header-content {
-                flex-direction: column;
+                flex-direction: row;
                 align-items: center;
-                gap: 4px;
+                justify-content: space-between;
+                gap: 6px;
                 padding: 4px 8px;
+                flex-wrap: nowrap;
             }
             .logo-container {
-                width: 100%;
+                flex-shrink: 0;
                 display: flex;
-                justify-content: space-between;
                 align-items: center;
+                gap: 4px;
+                max-width: 160px;
             }
-            #settings-btn { display: block !important; }
+            .logo-container > span:first-of-type { font-size: 0.85rem !important; letter-spacing: 1px !important; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+            .logo-container svg { width: 18px !important; height: 18px !important; }
+            #settings-btn { display: none !important; }
             #settings-btn-bar { display: none !important; }
-            .status-bar { gap: 10px; font-size: 0.85rem; width: 100%; justify-content: center; }
-            header { height: auto; min-height: 80px; }
+            .status-bar { display: none !important; }
+            .logo-container { justify-content: center; }
+            header { height: auto; min-height: 60px; padding: 6px 0; }
         }
 
         @media (min-width: 751px) {
@@ -1382,7 +1461,62 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 			<span id="settings-btn-bar" onclick="UI.switchScreen('settings')" data-i18n-title="header.settings">⚙️</span>
 		</div>
 	</div>
-	
+
+		<!-- MOBILE PILLS BAR (≤750px) -->
+		<div id="pills-bar" style="display:none;">
+
+			<!-- Pill 1: Počasí -->
+			<div class="hpill" id="pill-weather" onclick="this.classList.toggle('expanded')" ontouchstart="">
+				<span class="hpill-icon" id="pill-weather-icon">🌤️</span>
+				<div class="hpill-detail">
+					<span class="hpill-label">počasí</span>
+					<span id="pill-weather-today"></span>
+					<span id="pill-weather-tomorrow" style="opacity:0.7;"></span>
+				</div>
+			</div>
+
+			<!-- Pill 2: Vigor / Hunger -->
+			<div class="hpill" id="pill-vigor" onclick="this.classList.toggle('expanded')">
+				<span class="hpill-icon" id="pill-vigor-icon">⚡</span>
+				<div class="hpill-detail">
+					<span class="hpill-label">stav</span>
+					<span id="pill-vigor-detail"></span>
+					<span id="pill-hunger-detail"></span>
+				</div>
+			</div>
+
+			<!-- Pill 3: Datum / Čas / Kalendář -->
+			<div class="hpill" id="pill-time" onclick="this.classList.toggle('expanded')">
+				<span class="hpill-icon">🕯️</span>
+				<div class="hpill-detail">
+					<span class="hpill-label">čas</span>
+					<span id="pill-time-detail"></span>
+					<span id="pill-date-detail" style="opacity:0.75;"></span>
+					<span id="pill-lunar-detail" style="opacity:0.75;"></span>
+				</div>
+			</div>
+
+			<!-- Pill 4: Zápisky / Rank -->
+			<div class="hpill" id="pill-progress" onclick="this.classList.toggle('expanded')">
+				<span class="hpill-icon">📜</span>
+				<div class="hpill-detail">
+					<span class="hpill-label">pokrok</span>
+					<span id="pill-research-detail"></span>
+					<span id="pill-rank-detail" style="opacity:0.75;"></span>
+				</div>
+			</div>
+
+			<!-- Pill 5: Notifikace (statická) -->
+			<div class="hpill-static" id="pill-notif" onclick="NotificationSystem.togglePanel()">
+				<span id="pill-notif-icon">🔔</span>
+				<span id="pill-notif-count" style="display:none; font-size:0.7rem; background:var(--accent-gold); color:#1a1610; border-radius:10px; padding:1px 5px; font-weight:bold;"></span>
+			</div>
+
+			<!-- Pill 6: Settings (statická) -->
+			<div class="hpill-static" onclick="UI.switchScreen('settings')">⚙️</div>
+
+		</div>
+
 	<!-- Canonical Hour Badge (Phase 2 - hidden) -->
 	<div id="canonical-badge" style="display:none;" onclick="this.classList.toggle('expanded')">
 		<span class="canonical-icon">🔔</span>
@@ -1890,6 +2024,93 @@ const ScriptoriumPWA = {
     }
 };
 ScriptoriumPWA.init();
+</script>
+
+<script>
+// ═══ MOBILE PILLS SYNC ═══════════════════════════════════════════════
+(function() {
+    function syncPills() {
+
+        // Pill 1: Počasí
+        const wToday = document.getElementById('weather-today');
+        const wTomorrow = document.getElementById('weather-tomorrow');
+        const pWeatherIcon = document.getElementById('pill-weather-icon');
+        const pWeatherToday = document.getElementById('pill-weather-today');
+        const pWeatherTomorrow = document.getElementById('pill-weather-tomorrow');
+        if (wToday && pWeatherToday) {
+            pWeatherIcon.textContent = wToday.textContent.split(' ')[0] || '🌤️';
+            pWeatherToday.textContent = wToday.textContent || '';
+        }
+        if (wTomorrow && pWeatherTomorrow) {
+            pWeatherTomorrow.textContent = wTomorrow.textContent || '';
+        }
+
+        // Pill 2: Vigor / Hunger
+        const vigorMini = document.getElementById('vigor-mini');
+        const hungerEl = document.getElementById('hunger-display');
+        const pillVigorIcon = document.getElementById('pill-vigor-icon');
+        const pillVigorDetail = document.getElementById('pill-vigor-detail');
+        const pillHungerDetail = document.getElementById('pill-hunger-detail');
+        if (vigorMini && pillVigorDetail) {
+            pillVigorDetail.innerHTML = vigorMini.innerHTML || '';
+            // Icon podle stavu
+            const text = vigorMini.textContent || '';
+            if (text.includes('🔴') || text.includes('❌')) pillVigorIcon.textContent = '🔴';
+            else if (text.includes('🟡') || text.includes('⚠️')) pillVigorIcon.textContent = '🟡';
+            else pillVigorIcon.textContent = '⚡';
+        }
+        if (hungerEl && pillHungerDetail) {
+            pillHungerDetail.textContent = hungerEl.textContent || '';
+        }
+
+        // Pill 3: Čas / Datum / Lunární
+        const timeEl = document.getElementById('time-display');
+        const dateEl = document.getElementById('date-display');
+        const lunarEl = document.getElementById('lunar-display');
+        const pillTimeDetail = document.getElementById('pill-time-detail');
+        const pillDateDetail = document.getElementById('pill-date-detail');
+        const pillLunarDetail = document.getElementById('pill-lunar-detail');
+        if (timeEl && pillTimeDetail) pillTimeDetail.textContent = timeEl.textContent || '';
+        if (dateEl && pillDateDetail) pillDateDetail.textContent = dateEl.textContent || '';
+        if (lunarEl && pillLunarDetail) pillLunarDetail.textContent = lunarEl.textContent || '';
+
+        // Pill 4: Zápisky / Rank
+        const resEl = document.getElementById('research-count');
+        const pillResDetail = document.getElementById('pill-research-detail');
+        const pillRankDetail = document.getElementById('pill-rank-detail');
+        if (resEl && pillResDetail) {
+            pillResDetail.textContent = '📜 ' + (resEl.textContent || '0');
+        }
+        if (pillRankDetail && typeof GameState !== 'undefined' && GameState.rank) {
+            pillRankDetail.textContent = GameState.rank.secular || '';
+        }
+
+        // Pill 5: Notifikace badge
+        const pillNotifCount = document.getElementById('pill-notif-count');
+        if (pillNotifCount && typeof GameState !== 'undefined') {
+            const unread = (GameState.notifications || []).filter(n => !n.read).length;
+            if (unread > 0) {
+                pillNotifCount.textContent = unread;
+                pillNotifCount.style.display = 'inline';
+                document.getElementById('pill-notif-icon').textContent = '🔔';
+            } else {
+                pillNotifCount.style.display = 'none';
+                document.getElementById('pill-notif-icon').textContent = '🔔';
+            }
+        }
+    }
+
+    // Spustit sync každé 2 sekundy + po resize
+    setInterval(syncPills, 1000);
+    window.addEventListener('resize', syncPills);
+    // První sync po načtení
+    document.addEventListener('DOMContentLoaded', function() {
+        setTimeout(syncPills, 500);
+        setTimeout(syncPills, 2000);
+    });
+    // Globální hook — UI může volat window.syncPills() po renderAll
+    window.syncPills = syncPills;
+})();
 </script>
 
 <script>
