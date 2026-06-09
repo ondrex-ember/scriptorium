@@ -82,9 +82,13 @@ const VigorSystem = {
     const pct = this.getPercentage();
     
     if (pct === 0) {
-      UI.notify('⚠️ Vigor exhaustus! Cibus necesse est.', true);
+      if (typeof NotificationSystem !== 'undefined') {
+        NotificationSystem.panel(t('game.vigor.exhausted'), 'warning');
+      }
     } else if (pct < 20 && !GameState.vigor.warnedLow) {
-      UI.notify('⚠️ Vigor deficiens...', true);
+      if (typeof NotificationSystem !== 'undefined') {
+        NotificationSystem.panel(t('game.vigor.deficiens'), 'warning');
+      }
       GameState.vigor.warnedLow = true;
     } else if (pct > 20) {
       GameState.vigor.warnedLow = false;
@@ -176,7 +180,7 @@ const VigorSystem = {
     if (cost === 0) return true;
     
     if (!this.canCraft(itemId)) {
-      UI.notify(t('vigor.insufficient'), true);
+      UI.notify(t('game.vigor.insufficient'), true);
       return false;
     }
     

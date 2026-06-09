@@ -210,6 +210,11 @@ const STRINGS_en = {
             needStone: '❌ Stone is needed',
             wellTurningGreen: '⚠️ The well is turning green — water is contaminated.',
             wellCollapsed: '💥 The well has collapsed!',
+            vigor: {
+                exhausted: '⚠️ Vigor exhaustus! You must eat.',
+                deficiens: '⚠️ Vigor is failing — consume food.',
+                insufficient: '❌ Insufficient vigor for this action.'
+            },
             done: "Done!",
         interrupted: "Interrupted.",
         scavengeResult: "{msg} +{total} pcs.",

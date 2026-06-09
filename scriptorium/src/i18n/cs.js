@@ -228,6 +228,11 @@ const STRINGS_cs = {
             needStone: '❌ Potřebuješ kámen',
             wellTurningGreen: '⚠️ Studna se zazelená — voda je znečištěná.',
             wellCollapsed: '💥 Studna se zřítila!',
+            vigor: {
+                exhausted: '⚠️ Vigor exhaustus! Cibus necesse est.',
+                deficiens: '⚠️ Vigor deficiens — najez se.',
+                insufficient: '❌ Nedostatek vigoru pro tuto akci.'
+            },
             done: "Hotovo!",
         interrupted: "Přerušeno.",
         scavengeResult: "{msg} +{total} ks.",
