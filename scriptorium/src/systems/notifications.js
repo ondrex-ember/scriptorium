@@ -95,15 +95,28 @@ const NotificationSystem = {
     panel: function(msg, category) {
         category = category || 'system';
 
+        if (!GameState.notifications) GameState.notifications = [];
+
+        // Akumulace — pokud poslední zpráva má stejný text, jen inkrementuj čítač
+        const last = GameState.notifications[0];
+        if (last && last.msg === msg && last.category === category) {
+            last.count = (last.count || 1) + 1;
+            last.time = Date.now();
+            last.read = false;
+            this._renderPanelBadge();
+            if (this._panelOpen) this._renderPanelList();
+            return;
+        }
+
         const entry = {
             id:       Date.now() + Math.random(),
             msg:      msg,
             category: category,
             time:     Date.now(),
             read:     false,
+            count:    1,
         };
 
-        if (!GameState.notifications) GameState.notifications = [];
         GameState.notifications.unshift(entry);
 
         // Ořez na max
@@ -191,7 +204,7 @@ const NotificationSystem = {
                         <div class="ns-panel-item ${n.read ? '' : 'ns-panel-item--unread'}" data-id="${n.id}">
                             <span class="ns-item-icon">${this._catIcon(n.category)}</span>
                             <span class="ns-item-body">
-                                <span class="ns-item-msg">${n.msg}</span>
+                                <span class="ns-item-msg">${n.msg}${n.count > 1 ? ` <span class="ns-item-count">(${n.count})</span>` : ''}</span>
                                 <span class="ns-item-meta">${this._catLabel(n.category)} · ${this._relTime(n.time)}</span>
                             </span>
                             <button class="ns-item-close" onclick="NotificationSystem.dismiss('${n.id}')" aria-label="Zavřít zprávu">✕</button>
@@ -439,6 +452,7 @@ const NotificationSystem = {
     transition: background 0.15s;
 }
 .ns-panel-item--unread { background: rgba(200,169,110,0.12); }
+.ns-item-count { font-size: 0.8em; opacity: 0.7; font-weight: bold; color: var(--accent-gold); }
 .ns-panel-item:hover   { background: rgba(200,169,110,0.18); }
 .ns-item-icon { font-size: 1.1rem; flex-shrink: 0; margin-top: 1px; }
 .ns-item-body { flex: 1; min-width: 0; }

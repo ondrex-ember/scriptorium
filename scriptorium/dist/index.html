@@ -7276,15 +7276,28 @@ const NotificationSystem = {
     panel: function(msg, category) {
         category = category || 'system';
 
+        if (!GameState.notifications) GameState.notifications = [];
+
+        // Akumulace — pokud poslední zpráva má stejný text, jen inkrementuj čítač
+        const last = GameState.notifications[0];
+        if (last && last.msg === msg && last.category === category) {
+            last.count = (last.count || 1) + 1;
+            last.time = Date.now();
+            last.read = false;
+            this._renderPanelBadge();
+            if (this._panelOpen) this._renderPanelList();
+            return;
+        }
+
         const entry = {
             id:       Date.now() + Math.random(),
             msg:      msg,
             category: category,
             time:     Date.now(),
             read:     false,
+            count:    1,
         };
 
-        if (!GameState.notifications) GameState.notifications = [];
         GameState.notifications.unshift(entry);
 
         // Ořez na max
@@ -7372,7 +7385,7 @@ const NotificationSystem = {
                         <div class="ns-panel-item ${n.read ? '' : 'ns-panel-item--unread'}" data-id="${n.id}">
                             <span class="ns-item-icon">${this._catIcon(n.category)}</span>
                             <span class="ns-item-body">
-                                <span class="ns-item-msg">${n.msg}</span>
+                                <span class="ns-item-msg">${n.msg}${n.count > 1 ? ` <span class="ns-item-count">(${n.count})</span>` : ''}</span>
                                 <span class="ns-item-meta">${this._catLabel(n.category)} · ${this._relTime(n.time)}</span>
                             </span>
                             <button class="ns-item-close" onclick="NotificationSystem.dismiss('${n.id}')" aria-label="Zavřít zprávu">✕</button>
@@ -7620,6 +7633,7 @@ const NotificationSystem = {
     transition: background 0.15s;
 }
 .ns-panel-item--unread { background: rgba(200,169,110,0.12); }
+.ns-item-count { font-size: 0.8em; opacity: 0.7; font-weight: bold; color: var(--accent-gold); }
 .ns-panel-item:hover   { background: rgba(200,169,110,0.18); }
 .ns-item-icon { font-size: 1.1rem; flex-shrink: 0; margin-top: 1px; }
 .ns-item-body { flex: 1; min-width: 0; }
@@ -23657,72 +23671,6 @@ const Game = {
         }
     },
     
-    exportSave: function() {
-        try {
-            const saveData = JSON.stringify(GameState, null, 2);
-            const blob = new Blob([saveData], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
-            
-            const timestamp = new Date().toISOString().slice(0,19).replace(/:/g,'-');
-            const filename = `scriptorium_save_${timestamp}.json`;
-            
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = filename;
-            a.click();
-            
-            URL.revokeObjectURL(url);
-            UI.notify(t('game.saveExported'));
-            Game.addKronikaEntry('important', '💾 Hra uložena (export).', '💾 Game exported.', '💾 Opus conservatum est.');
-            
-        } catch(e) {
-            UI.notify(t('game.saveExportFail'), true);
-            console.error(e);
-        }
-    },
-    
-    importSave: function(file) {
-        const reader = new FileReader();
-        
-        reader.onload = (e) => {
-            try {
-                const importedState = JSON.parse(e.target.result);
-                
-                if(!importedState.inventory || !importedState.unlockedRecipes) {
-                    throw new Error('Invalid save!');
-                }
-                
-                if(!confirm(t('game.overwriteSave'))) {
-                    return;
-                }
-                
-                Object.assign(GameState, importedState);
-                Game.save();
-                
-                UI.notify(t('game.saveImported'));
-                    Game.addKronikaEntry('important', '📂 Hra načtena (import).', '📂 Game imported.', '📂 Opus recuperatum est.');
-                setTimeout(() => location.reload(), 1500);
-                
-            } catch(err) {
-                UI.notify(t('game.saveImportFail'), true);
-                console.error(err);
-            }
-        };
-        
-        reader.readAsText(file);
-    },
-    
-    triggerImport: function() {
-        const input = document.createElement('input');
-        input.type = 'file';
-        input.accept = '.json';
-        input.onchange = (e) => {
-            if(e.target.files[0]) {
-                Game.importSave(e.target.files[0]);
-            }
-        };
-        input.click();
-    },
     
     resetSave: function() { if(confirm(t('game.confirmReset'))) { try { localStorage.removeItem('scriptorium_save_v6_4'); } 	catch(e){} location.reload(); } },
     setVolume: function(val) { if(audioSys) audioSys.setVolume(val); },
