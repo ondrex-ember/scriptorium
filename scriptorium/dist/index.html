@@ -3665,7 +3665,7 @@ const LibraryHelpers = {
         });
         
         if (newUnlocks > 0) {
-            UI.notify(t('library_lore.new_book').replace('{count}', newUnlocks));
+            UI.notifyPanel(t('library_lore.new_book').replace('{count}', newUnlocks), 'system');
         }
     },
     
@@ -3713,7 +3713,7 @@ const LibraryHelpers = {
                     GameState.library.unlockedBooks.push(egg.reward.book);
                     const eggBaseId = egg.id.split('_')[0]; // faust, complete, scholar...
                     const eggName = t(`library_lore.easter_eggs.${eggBaseId}_name`);
-                    UI.notify(t('library_lore.easter_eggs.notify_found').replace('{name}', eggName || egg.name));
+                    UI.notifyPanel(t('library_lore.easter_eggs.notify_found').replace('{name}', eggName || egg.name), 'system');
                 }
                 if (egg.reward.research) {
                     Game.addItem('research', egg.reward.research);
@@ -3759,7 +3759,7 @@ const LibraryHelpers = {
                              STRINGS_cs.library_lore?.books?.[randomBook.id]?.title || 
                              randomBook.title;
             
-            UI.notify(`${t('library_lore.npc_scribe.notify_book')} "${bookTitle}"`);
+            UI.notifyPanel(`${t('library_lore.npc_scribe.notify_book')} "${bookTitle}"`, 'system');
         } else {
             UI.notify(t('library_lore.npc_scribe.notify_empty'));
         }
@@ -24952,7 +24952,7 @@ const Game = {
         if(isFirstTime && LoreDB[id] && !GameState.discoveredLore.includes(id)) {
             GameState.discoveredLore.push(id);
             if(GameState.achievements) GameState.achievements.stats.itemsDiscovered++;
-            UI.notify(t('game.newCodexEntry'));
+            UI.notifyPanel(t('game.newCodexEntry'), 'system');
             Game.addKronikaEntry('important', '📜 Nový zápis v Codexu.', '📜 New entry in the Codex.', '📜 Nova inscriptio in Codice.');
             setTimeout(() => UI.notify(t('game.itemAdded').replace('{qty}', qty).replace('{item}', iName(id))), 500);
         } else {
@@ -27893,7 +27893,7 @@ renderRecords: function() {
         });
     },
     filterCrafting: function(cat, btn) { this.currentFilter = cat; if(btn) { document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active')); btn.classList.add('active'); } this.renderCrafting(); },
-    notify: function(m, e) { const n = document.createElement('div'); n.className = 'toast'; n.innerText = m; if(e) n.style.borderColor = 'red'; document.getElementById('notification-area').appendChild(n); setTimeout(() => n.remove(), 2600); },
+    notify: function(m, e) { const area = document.getElementById('notification-area'); if(!area) return; if(area.children.length >= 3) return; const n = document.createElement('div'); n.className = 'toast'; n.innerText = m; if(e) n.style.borderColor = 'red'; area.appendChild(n); setTimeout(() => n.remove(), 2600); },
     notifyPanel: function(m, category, e) {
         this.notify(m, e);
         if (typeof NotificationSystem !== 'undefined') NotificationSystem.panel(m, category || 'system');
