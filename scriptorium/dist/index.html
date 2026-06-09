@@ -620,9 +620,15 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
             #settings-btn-bar { display: none !important; }
             .status-bar { display: none !important; }
             #pills-bar {
-                position: relative;
-                z-index: 10;
+                position: fixed;
+                top: 55px;
+                left: 0;
+                right: 0;
+                z-index: 9999;
                 display: flex !important;
+                background: rgba(0,0,0,0.45);
+                backdrop-filter: blur(4px);
+                padding: 4px 8px;
                 flex-wrap: nowrap;
                 gap: 5px;
                 align-items: center;
@@ -632,6 +638,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
                 overflow: visible;
             }
             header { height: auto; min-height: 80px; overflow: visible; }
+            main#main-content { padding-top: calc(40px + 20px) !important; }
             .header-content { overflow: visible; }
             .header-bg-layer, .header-canonical-overlay { pointer-events: none !important; }
         }
