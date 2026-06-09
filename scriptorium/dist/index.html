@@ -29374,83 +29374,145 @@ const CalendarSystem = {
         if (GameState.flags.calEventChecked === today) return;
         GameState.flags.calEventChecked = today;
 
-        const now = new Date();
+        const now   = new Date();
         const month = now.getMonth() + 1;
         const day   = now.getDate();
         const year  = now.getFullYear();
         const lang  = (GameState.settings && GameState.settings.language) || 'cs';
+        const L     = (key) => t('events.' + key);
         const easter = this.getEaster(year);
         const easterDate = new Date(year, easter.month - 1, easter.day);
+        const ashDate    = new Date(easterDate); ashDate.setDate(easterDate.getDate() - 46);
 
-        const EVENTS = [
-            // A2 — Filipojakub
-            { month: 4, day: 30, id: 'cal_walpurgis',
-              cs: '🔥 Filipojakubská noc. Ohně hoří na kopcích. Athanor v Officině dnes září jasněji.',
-              en: '🔥 Walpurgis Night. Fires burn on the hilltops. The Athanor burns brighter tonight.',
-              effect: () => { if (!GameState.flags) GameState.flags = {}; GameState.flags.walpurgisBonus = true; } },
-            // A4 — Máj
-            { month: 5, day: 1, id: 'cal_may_day',
-              cs: '🌿 Svátek máje. Zahrada se probouzí — dnešní sklizeň je dvojnásobná.',
-              en: '🌿 May Day. The garden awakens — today\'s harvest is doubled.',
-              effect: () => { if (!GameState.flags) GameState.flags = {}; GameState.flags.mayDayBonus = true; } },
-            // A5 — Slunovrat
-            { month: 6, day: 24, id: 'cal_midsummer',
-              cs: '🌞 Noc svatého Jana. Byliny trhané o půlnoci mají zvláštní moc.',
-              en: '🌞 Midsummer Night. Herbs gathered at midnight hold special power.',
-              effect: () => { if (!GameState.flags) GameState.flags = {}; GameState.flags.midsummerBonus = true; } },
-            // A6 — Dušičky
-            { month: 11, day: 2, id: 'cal_all_souls',
-              cs: '🕯️ Dušičky. Svíčky hoří na hrobech. Titivillus je tuto noc živější.',
-              en: '🕯️ All Souls\' Day. Candles burn on graves. Titivillus stirs more than usual tonight.',
-              effect: null },
-            // A7 — Advent
-            { month: 12, day: 1, id: 'cal_advent',
-              cs: '✝️ Advent začal. Čtyři neděle čekání. Poptávka po žaltářích roste.',
-              en: '✝️ Advent has begun. Four weeks of waiting. Demand for psalters is rising.',
-              effect: null },
-            // A8 — Štědrý
-            { month: 12, day: 24, id: 'cal_christmas',
-              cs: '⭐ Štědrý večer. Cellarium zavřeno. Komunita odpočívá. Pax et bonum.',
-              en: '⭐ Christmas Eve. The Cellarium is closed. The community rests. Pax et bonum.',
-              effect: null },
-            // A9 — Silvestr
-            { month: 12, day: 31, id: 'cal_new_year',
-              cs: '🎉 Poslední den roku. Kronikář zapíše poslední řádku. Čistá stránka čeká.',
-              en: '🎉 Last day of the year. The chronicler writes the final line. A clean page awaits.',
-              effect: null },
-            // A9b — Nový rok
-            { month: 1, day: 1, id: 'cal_new_year_b',
-              cs: '🎉 Nový rok. Calendae Ianuariae. Calendarium obnovit!',
-              en: '🎉 New Year. Calendae Ianuariae. Remember to renew the Calendarium!',
-              effect: null },
-        ];
+        const flagKey = (id) => `calEvent_${id}_${year}`;
+        const done    = (id) => !!GameState.flags[flagKey(id)];
+        const mark    = (id) => { GameState.flags[flagKey(id)] = true; };
 
-        // Pohyblivé
-        const ashDate = new Date(easterDate); ashDate.setDate(easterDate.getDate() - 46);
-        if (ashDate.getMonth()+1 === month && ashDate.getDate() === day) {
-            EVENTS.push({ id: 'cal_ash_wednesday',
-                cs: '✝️ Popeleční středa. Čtyřicet dní půstu začíná. Vigor produkce klesá.',
-                en: '✝️ Ash Wednesday. Forty days of fasting begin. Vigor production decreases.',
-                effect: null });
-        }
-        if (easter.month === month && easter.day === day) {
-            EVENTS.push({ id: 'cal_easter',
-                cs: '✝️ Velikonoce. Christus resurrexit! Vigor +30. Cellarium otevřeno celý den.',
-                en: '✝️ Easter. Christus resurrexit! Vigor +30. The Cellarium is open all day.',
-                effect: () => { if (typeof VigorSystem !== 'undefined') VigorSystem.restore('easter'); } });
+        // ── A1: Popeleční středa ───────────────────────────────────────────
+        if (ashDate.getMonth()+1 === month && ashDate.getDate() === day && !done('cal_ash_wednesday')) {
+            mark('cal_ash_wednesday');
+            NotificationSystem.panel(L('cal_ash_wednesday.notify'), 'system');
+            if (!GameState.eventFlags) GameState.eventFlags = {};
+            GameState.eventFlags.ashWednesdayUntil = Date.now() + 3 * 24 * 3600 * 1000;
+            Game.save();
         }
 
-        EVENTS.forEach(ev => {
-            if (ev.month && ev.month !== month) return;
-            if (ev.day && ev.day !== day) return;
-            if (GameState.flags[`calEvent_${ev.id}_${year}`]) return;
-            GameState.flags[`calEvent_${ev.id}_${year}`] = true;
-            const msg = lang === 'en' ? ev.en : ev.cs;
-            if (typeof NotificationSystem !== 'undefined') NotificationSystem.panel(msg, 'system');
-            if (ev.effect) ev.effect();
-        });
+        // ── A2: Filipojakubská noc ─────────────────────────────────────────
+        if (month === 4 && day === 30 && !done('cal_walpurgis')) {
+            mark('cal_walpurgis');
+            NotificationSystem.panel(L('cal_walpurgis.athanor_notif'), 'system');
+            NotificationSystem.modal({
+                title: L('cal_walpurgis.title'),
+                text:  L('cal_walpurgis.text'),
+                icon: '🔥',
+                choices: [
+                    { label: L('cal_walpurgis.athanor_btn'), type: 'primary', effect: () => {
+                        if (!GameState.eventFlags) GameState.eventFlags = {};
+                        GameState.eventFlags.walpurgisBonus = true;
+                        GameState.eventFlags.inquisitorRisk = (Math.random() < 0.4);
+                        NotificationSystem.panel(L('cal_walpurgis.athanor_res'), 'system');
+                        Game.save();
+                    }},
+                    { label: L('cal_walpurgis.pray_btn'), type: 'default', effect: () => {
+                        if (typeof VigorSystem !== 'undefined') VigorSystem.add(10);
+                        NotificationSystem.panel(L('cal_walpurgis.pray_res'), 'system');
+                        Game.save();
+                    }},
+                    { label: L('cal_walpurgis.herbs_btn'), type: 'default', effect: () => {
+                        Game.addItem('thyme', 3);
+                        Game.addItem('st_johns_wort', 2);
+                        Game.addItem('chamomile', 1);
+                        NotificationSystem.panel(L('cal_walpurgis.herbs_res'), 'system');
+                        Game.save();
+                    }},
+                ]
+            });
+        }
 
-        Game.save();
+        // ── A3: Velikonoce ─────────────────────────────────────────────────
+        if (easter.month === month && easter.day === day && !done('cal_easter')) {
+            mark('cal_easter');
+            NotificationSystem.panel(L('cal_easter.notify'), 'system');
+            if (typeof VigorSystem !== 'undefined') VigorSystem.add(30);
+            if (!GameState.eventFlags) GameState.eventFlags = {};
+            GameState.eventFlags.easterToday = true;
+            Game.save();
+        }
+
+        // ── A4: Máj ────────────────────────────────────────────────────────
+        if (month === 5 && day === 1 && !done('cal_may_day')) {
+            mark('cal_may_day');
+            NotificationSystem.panel(L('cal_may_day.notify'), 'system');
+            if (!GameState.eventFlags) GameState.eventFlags = {};
+            GameState.eventFlags.mayDayBonus = true;
+            Game.save();
+        }
+
+        // ── A5: Noc sv. Jana / Slunovrat ──────────────────────────────────
+        if (month === 6 && day === 24 && !done('cal_midsummer')) {
+            mark('cal_midsummer');
+            NotificationSystem.panel(L('cal_midsummer.herbs_notif'), 'system');
+            NotificationSystem.modal({
+                title: L('cal_midsummer.title'),
+                text:  L('cal_midsummer.text'),
+                icon: '🌞',
+                choices: [
+                    { label: L('cal_midsummer.herbs_btn'), type: 'primary', effect: () => {
+                        Game.addItem('st_johns_wort', 3);
+                        Game.addItem('thyme', 2);
+                        Game.addItem('pollen', 1);
+                        if (typeof VigorSystem !== 'undefined') VigorSystem.add(-10);
+                        NotificationSystem.panel(L('cal_midsummer.herbs_res'), 'system');
+                        Game.save();
+                    }},
+                    { label: L('cal_midsummer.work_btn'), type: 'default', effect: () => {
+                        if (!GameState.eventFlags) GameState.eventFlags = {};
+                        GameState.eventFlags.midsummerCandleBonus = true;
+                        NotificationSystem.panel(L('cal_midsummer.work_res'), 'system');
+                        Game.save();
+                    }},
+                ]
+            });
+        }
+
+        // ── A6: Dušičky ────────────────────────────────────────────────────
+        if (month === 11 && day === 2 && !done('cal_all_souls')) {
+            mark('cal_all_souls');
+            NotificationSystem.panel(L('cal_all_souls.notify'), 'system');
+            if (!GameState.eventFlags) GameState.eventFlags = {};
+            GameState.eventFlags.titivillusActive = true;
+            GameState.eventFlags.nigredoBonus     = true;
+            Game.save();
+        }
+
+        // ── A7: Advent (1. 12.) ────────────────────────────────────────────
+        if (month === 12 && day === 1 && !done('cal_advent')) {
+            mark('cal_advent');
+            NotificationSystem.panel(L('cal_advent.notify'), 'system');
+            if (!GameState.eventFlags) GameState.eventFlags = {};
+            GameState.eventFlags.adventActive = true;
+            Game.save();
+        }
+
+        // ── A8: Štědrý večer ───────────────────────────────────────────────
+        if (month === 12 && day === 24 && !done('cal_christmas')) {
+            mark('cal_christmas');
+            NotificationSystem.panel(L('cal_christmas.notify'), 'system');
+            if (typeof VigorSystem !== 'undefined') VigorSystem.add(50);
+            Game.save();
+        }
+
+        // ── A9: Silvestr ───────────────────────────────────────────────────
+        if (month === 12 && day === 31 && !done('cal_new_year')) {
+            mark('cal_new_year');
+            NotificationSystem.panel(L('cal_new_year.notify'), 'system');
+            Game.addKronikaEntry('important',
+                `Rok ${year} uzavřen. Calendarium se obnovuje.`,
+                `Year ${year} closed. The Calendarium renews.`,
+                `Annus ${year} clausus est.`
+            );
+            Game.save();
+        }
     }
 };
 </script>
