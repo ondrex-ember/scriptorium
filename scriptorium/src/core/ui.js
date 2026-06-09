@@ -464,6 +464,7 @@ renderActions: function() {
 		document.getElementById('lore-notebooks-content').style.display = 'none';
 		document.getElementById('lore-achievements-content').style.display = 'none';
 		const _lichEl = document.getElementById('lore-iching-content'); if (_lichEl) _lichEl.style.display = 'none';
+		const _lcalEl = document.getElementById('lore-calendarium-content'); if (_lcalEl) _lcalEl.style.display = 'none';
 
 		// Remove active class from all buttons
 		document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
@@ -485,6 +486,8 @@ renderActions: function() {
 		} else if (tab === 'iching') {
 			const el = document.getElementById('lore-iching-content');
 			if (el) { el.style.display = 'block'; UI.renderIChing(); }
+		} else if (tab === 'calendarium') {
+			if (_lcalEl) { _lcalEl.style.display = 'block'; CalendarSystem.render(); }
 		}
 	},
 

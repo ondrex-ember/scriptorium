@@ -553,6 +553,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
         @media (max-width: 400px) {
             #weather-tomorrow-wrap { display: none !important; }
+            #date-display, #date-separator { display: none !important; }
             .status-bar { gap: 7px; }
             .status-bar span, .status-bar div { font-size: 16px !important; }
         }
@@ -1360,6 +1361,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 					<span id="weather-tomorrow" data-i18n-title="header.weatherTomorrow" onclick="WeatherSystem.fetchWeather()" style="opacity: 0.8; font-size: 0.78em !important; line-height:1.1;">⏳</span>
 				</span>
 			</div>
+			<span id="lunar-display" title="Lunární fáze" style="font-size:0.85rem; cursor:default;">🌕</span>
 			<span class="separator">•</span>
 			<span id="hunger-display" data-i18n-title="header.hunger">🍖</span>
             <span class="separator">•</span>
@@ -1373,6 +1375,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 				<span id="research-count">0</span>
 			</div>
 			<span class="separator">•</span>
+			<span id="date-display" style="text-transform:uppercase; font-size:0.72rem; letter-spacing:-0.3px; font-family:'Cinzel'; opacity:0.85;"></span>
+			<span id="date-separator" class="separator" style="font-size:0.72rem;">·</span>
 			<span id="time-display" style="text-transform:uppercase; font-size:0.72rem; letter-spacing:-0.3px;">...</span>
 			<span class="separator">•</span>
 			<span id="settings-btn-bar" onclick="UI.switchScreen('settings')" data-i18n-title="header.settings">⚙️</span>
@@ -1547,12 +1551,14 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                     <button id="lore-tab-notebooks"    class="filter-btn" onclick="UI.switchLoreTab('notebooks', this)">📓 Zápisníky</button>
                     <button id="lore-tab-achievements" class="filter-btn" onclick="UI.switchLoreTab('achievements', this)">Achievementy</button>
                     <button id="lore-tab-iching"       class="filter-btn" onclick="UI.switchLoreTab('iching', this)">☯️ Věštění</button>
+                    <button id="lore-tab-calendarium"  class="filter-btn" onclick="UI.switchLoreTab('calendarium', this)">📅 Calendarium</button>
                 </div>
                 <div id="lore-research-content" style="margin-top:20px;"></div>
                 <div id="lore-codex-content" style="margin-top:20px; display:none;"></div>
                 <div id="lore-notebooks-content" style="margin-top:20px; display:none;"></div>
                 <div id="lore-achievements-content" style="margin-top:20px; display:none;"></div>
                 <div id="lore-iching-content" style="margin-top:20px; display:none;"></div>
+                <div id="lore-calendarium-content" style="margin-top:20px; display:none;"></div>
             </div>
         </div>
 		

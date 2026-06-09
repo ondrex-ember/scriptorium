@@ -408,6 +408,7 @@ const Game = {
         // Check daily reward AFTER UI render (only from 2nd session onwards)
         setTimeout(() => {
             Game.checkDailyReward();
+            if (typeof CalendarSystem !== 'undefined') CalendarSystem.checkCalendarEvents();
         }, 500);
         
         document.body.addEventListener('click', () => { 
@@ -2338,6 +2339,7 @@ const Game = {
 		
 		// Degradace check
 		this.checkWellDegradation();
+		this.checkCalendarium();
 		GameState.well.lastUse = Date.now();
 		
 		// Track well uses
@@ -2610,6 +2612,55 @@ const Game = {
 			UI.notify(t('game.wellUpgraded'));
 			this.save();
 			UI.renderAll();
+		}
+	},
+
+	checkCalendarium: function() {
+		// Spustit jen 1× za den
+		if (!GameState.flags) GameState.flags = {};
+		const today = new Date().toISOString().slice(0,10);
+		if (GameState.flags.calendarChecked === today) return;
+		GameState.flags.calendarChecked = today;
+
+		const hasCalendarium = (GameState.inventory['perpetuum_calendarium'] > 0);
+		if (!hasCalendarium) return;
+
+		const now = new Date();
+		const month = now.getMonth() + 1; // 1-12
+		const day = now.getDate();
+		const lang = (GameState.settings && GameState.settings.language) || 'cs';
+
+		// Leden — upozornění na obnovení
+		if (month === 1) {
+			if (!GameState.flags.calendarRenewedThisYear) {
+				const msg = lang === 'en'
+					? '📅 A new year hath begun. Craft a new Perpetuum Calendarium!'
+					: '📅 Nový rok začal. Vyroб nový Perpetuum Calendarium!';
+				UI.notifyPanel(msg, 'warning');
+				// Nezničí, jen upozorní — hráč musí craft ručně
+			}
+		} else {
+			GameState.flags.calendarRenewedThisYear = false;
+		}
+
+		// Prosinec — varování před expirací
+		if (month === 12) {
+			const warnings = [
+				{ day: 1,  key: 'month' },
+				{ day: 17, key: 'twoWeeks' },
+				{ day: 24, key: 'week' },
+				{ day: 31, key: 'expire' },
+			];
+			const warn = warnings.find(w => w.day === day);
+			if (warn && !GameState.flags[`calWarn_${warn.key}_${now.getFullYear()}`]) {
+				GameState.flags[`calWarn_${warn.key}_${now.getFullYear()}`] = true;
+				const msgs = {
+					cs: { month:'📅 Calendarium vyprší za měsíc. Připrav zásoby!', twoWeeks:'📅 Calendarium vyprší za 14 dní.', week:'📅 Calendarium vyprší za týden!', expire:'📅 Calendarium dnes vyprší. Vyroб nový v lednu!' },
+					en: { month:'📅 Calendarium expires in one month. Prepare supplies!', twoWeeks:'📅 Calendarium expires in 14 days.', week:'📅 Calendarium expires in one week!', expire:'📅 Calendarium expires today. Craft a new one in January!' },
+				};
+				UI.notifyPanel((msgs[lang] || msgs.cs)[warn.key], 'warning');
+				Game.save();
+			}
 		}
 	},
 

@@ -78,8 +78,10 @@ const JS_MAIN = [
     'src/core/game.js',             // Game
     'src/core/ui.js',               // UI
 
-    // IChing — MUSÍ být po UI (přiřazuje UI.renderIChing)
+    // Astro - iching, calendar
     'src/systems/iching.js',
+    'src/systems/calendar.js', 
+
 ];
 
 const JS_BOOTSTRAP = [

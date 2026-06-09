@@ -122,6 +122,7 @@ const ItemsDB = {
 
     // CANONICAL HOURS & PRIVILEGIUM
     "book_of_hours":       { name:"Horologium (Kniha hodin)", name_en:"Book of Hours",       icon:"🕰️", type:"lore", desc:"Odemkne kanonické hodiny.",    desc_en:"Unlocks the canonical hours system." },
+    "perpetuum_calendarium": { maxStack:1, name:"Perpetuum Calendarium", name_en:"Perpetuum Calendarium", icon:"📅", type:"lore", desc:"Klášterní kalendář na jeden rok. Ukazuje svátky, lunární cykly a doby postů. Obnovit v lednu.", desc_en:"Monastic calendar for one year. Shows feasts, lunar cycles and fasting periods. Renew in January." },
     "bishop_seal":         { name:"Biskupská pečeť",          name_en:"Bishop's Seal",       icon:"💍", type:"lore", desc:"Souhlas biskupa k tisku.",      desc_en:"The bishop's approval to print." },
     "printing_privilege":  { name:"Tiskařské privilegium",    name_en:"Printing Privilege",  icon:"📜", type:"lore", desc:"Monopol na tisk. Endgame.",     desc_en:"A monopoly on printing. Endgame." },
 

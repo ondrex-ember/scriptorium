@@ -1,7 +1,6 @@
 const TimeSys = {
     getPhase: function() {
         const now = new Date();
-        // Přičteme minuty jako desetinné místo (např. 23:30 = 23.5)
         const h = now.getHours() + (now.getMinutes() / 60);
         
         if (h >= 5 && h < 7) return `🌅 ${t('time.phase_dawn')}`;
@@ -11,8 +10,31 @@ const TimeSys = {
         if (h >= 13 && h < 18) return `🌥️ ${t('time.phase_afternoon')}`;
         if (h >= 18 && h < 22) return `🌇 ${t('time.phase_evening')}`;
         if (h >= 22 && h < 23.5) return `🕯️ ${t('time.phase_night')}`;
-        if (h >= 23.5 || h < 0.5) return `🌑 ${t('time.phase_midnight')}`; // Půlnoc
+        if (h >= 23.5 || h < 0.5) return `🌑 ${t('time.phase_midnight')}`;
         return `🌌 ${t('time.phase_deepnight')}`;
+    },
+
+    getLunarPhase: function() {
+        // Jednoduchý výpočet lunární fáze (synodická perioda 29.53 dní)
+        const now = new Date();
+        const msPerDay = 86400000;
+        // Referenční nový měsíc: 6. ledna 2000 18:14 UTC (J2000.0 nulový bod)
+        const knownNewMoon = new Date(Date.UTC(2000, 0, 6, 18, 14));
+        const daysSince = (now - knownNewMoon) / msPerDay;
+        const phase = ((daysSince % 29.53058867) + 29.53058867) % 29.53058867;
+        // 8 fází
+        const idx = Math.round(phase / 29.53058867 * 8) % 8;
+        return ['🌑','🌒','🌓','🌔','🌕','🌖','🌗','🌘'][idx];
+    },
+
+    getDateStr: function() {
+        const lang = (typeof GameState !== 'undefined' && GameState.settings && GameState.settings.language) || 'cs';
+        const now = new Date();
+        const day = now.getDate();
+        const month = now.getMonth(); // 0-11
+        const monthsCS = ['LEDNA','ÚNORA','BŘEZNA','DUBNA','KVĚTNA','ČERVNA','ČERVENCE','SRPNA','ZÁŘÍ','ŘÍJNA','LISTOPADU','PROSINCE'];
+        const monthsEN = ['JANUARY','FEBRUARY','MARCH','APRIL','MAY','JUNE','JULY','AUGUST','SEPTEMBER','OCTOBER','NOVEMBER','DECEMBER'];
+        return lang === 'en' ? `${day}. ${monthsEN[month]}` : `${day}. ${monthsCS[month]}`;
     },
     
     isDaytime: function() { 
@@ -31,6 +53,14 @@ const TimeSys = {
         
         const phase = this.getPhase();
         timeEl.innerText = phase;
+
+        // Date display (desktop only, mobile skrytý přes CSS)
+        const dateEl = document.getElementById('date-display');
+        if (dateEl) dateEl.innerText = this.getDateStr();
+
+        // Lunar phase u počasí
+        const lunarEl = document.getElementById('lunar-display');
+        if (lunarEl) lunarEl.innerText = this.getLunarPhase();
         
         // ==========================================
         // 1. KONTROLY STAVU (Provádí se před UI)

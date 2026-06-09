@@ -177,6 +177,7 @@ const RecipesDB = [
     
     // CANONICAL HOURS UNLOCK
     { id: "book_of_hours", output: "book_of_hours", qty: 1, req: { "luxury_codex": 1, "herb_blue": 5, "herb_yellow": 5 }, cat: "lore", locked: true, desc: "Horologium. Odemkne 8 denních buffů dle benediktinského řádu.", desc_en: "Horologium. Unlocks 8 daily buffs according to Benedictine order." },
+    { id: "perpetuum_calendarium", output: "perpetuum_calendarium", qty: 1, req: { "paper": 3, "ink": 2, "vellum": 1 }, cat: "lore", locked: true, desc: "Klášterní kalendář. Odemkne záložku Calendarium ve Skriptoriu. Nutno obnovit v lednu.", desc_en: "Monastic calendar. Unlocks the Calendarium tab in the Scriptorium. Must be renewed in January." },
     
     // PRIVILEGIUM QUESTLINE
     { id: "bishop_seal", output: "bishop_seal", qty: 1, req: { "vellum_codex": 10, "luxury_codex": 20 }, cat: "lore", locked: true, desc: "Daruj biskupovi 10 pergamenových + 20 luxusních kodexů.", desc_en: "Gift the bishop 10 vellum + 20 luxury codices." },
