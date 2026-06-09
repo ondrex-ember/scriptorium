@@ -473,7 +473,7 @@ renderActions: function() {
 		// Show selected tab
 		if (tab === 'research') {
 			document.getElementById('lore-research-content').style.display = 'block';
-			UI.renderResearch();
+			UI.renderScriptorium();
 		} else if (tab === 'codex') {
 			document.getElementById('lore-codex-content').style.display = 'block';
 			UI.renderCodex();
