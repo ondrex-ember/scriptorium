@@ -4100,6 +4100,7 @@ const ItemsDB = {
     // ── ŽELEZNÁ RUDA + INGOT ────────────────────────────────────────────────
     "iron_ore":       { name:"Železná ruda",       name_en:"Iron Ore",          icon:"🪨", type:"mat",  desc:"Surová železná ruda. Taví se s uhlím na ingot.",        desc_en:"Raw iron ore. Smelted with charcoal into an ingot." },
     "iron_ingot":     { name:"Železný ingot",      name_en:"Iron Ingot",        icon:"⚙️", type:"mat",  desc:"Odlitý prut železa. Základ kovářského řemesla.",        desc_en:"Cast iron bar. The foundation of the blacksmith's craft." },
+    "anvil":          { maxStack:1, name:"Kovadlina",           name_en:"Anvil",             icon:"⚒️", type:"mat",  desc:"Těžká železná kovadlina. Nutná pro stavbu kovárny.",     desc_en:"Heavy iron anvil. Required to build the smithy." },
 
     // ── OPOTŘEBENÉ ŽELEZNÉ NÁSTROJE ──────────────────────────────────────────
     "worn_iron_axe":    { name:"Otupená sekerka",   name_en:"Worn Iron Axe",    icon:"🪓", type:"tool", tier:"iron", desc:"Otupené železné ostří. Opravit repair_kitem.",  desc_en:"Blunted iron blade. Repair with a repair kit." },
@@ -4426,19 +4427,19 @@ const RecipesDB = [
       desc:"Tavení rudy s uhlím. Základ kovářství.", desc_en:"Smelting ore with charcoal. Foundation of smithcraft." },
 
     // ── KOVOVÉ NÁSTROJE (tech_kovarina, max 1 ks) ────────────────────────────
-    { id:"iron_axe",    output:"iron_axe",    qty:1, req:{iron_ingot:1, stick:2, rope:1, leather:1}, cat:"tool", locked:true, maxStack:1,
+    { id:"iron_axe",    output:"iron_axe",    qty:1, req:{iron_ingot:1, plank:1, charcoal:2}, cat:"tool", locked:true, maxStack:1,
       desc:"Železná sekerka. Více kulatiny za akci.", desc_en:"Iron axe. More logs per action." },
-    { id:"iron_spade",  output:"iron_spade",  qty:1, req:{iron_ingot:1, stick:2, rope:1},            cat:"tool", locked:true, maxStack:1,
+    { id:"iron_spade",  output:"iron_spade",  qty:1, req:{iron_ingot:1, plank:1, charcoal:2},            cat:"tool", locked:true, maxStack:1,
       desc:"Železný rýč. Více červů, hlubší kopání.", desc_en:"Iron spade. More worms, deeper digging." },
-    { id:"iron_scythe", output:"iron_scythe", qty:1, req:{iron_ingot:1, stick:3, rope:2, leather:1}, cat:"tool", locked:true, maxStack:1,
+    { id:"iron_scythe", output:"iron_scythe", qty:1, req:{iron_ingot:1, plank:1, charcoal:2}, cat:"tool", locked:true, maxStack:1,
       desc:"Železná kosa. Více trávy za méně akcí.", desc_en:"Iron scythe. More grass per action." },
-    { id:"iron_sickle", output:"iron_sickle", qty:1, req:{iron_ingot:1, stick:1, rope:1},            cat:"tool", locked:true, maxStack:1,
+    { id:"iron_sickle", output:"iron_sickle", qty:1, req:{iron_ingot:1, plank:1, charcoal:2},            cat:"tool", locked:true, maxStack:1,
       desc:"Železný srp. Přesná žeň.", desc_en:"Iron sickle. Precise harvesting." },
-    { id:"iron_flail",  output:"iron_flail",  qty:1, req:{iron_ingot:1, stick:3, rope:2},            cat:"tool", locked:true, maxStack:1,
+    { id:"iron_flail",  output:"iron_flail",  qty:1, req:{iron_ingot:1, plank:1, charcoal:2},            cat:"tool", locked:true, maxStack:1,
       desc:"Železný cep. Efektivnější mlácení.", desc_en:"Iron flail. More efficient threshing." },
-    { id:"iron_shovel", output:"iron_shovel", qty:1, req:{iron_ingot:1, stick:2, rope:1},            cat:"tool", locked:true, maxStack:1,
+    { id:"iron_shovel", output:"iron_shovel", qty:1, req:{iron_ingot:1, plank:1, charcoal:2},            cat:"tool", locked:true, maxStack:1,
       desc:"Železná lopata. Rychlý přesun půdy.", desc_en:"Iron shovel. Fast soil moving." },
-    { id:"iron_saw",    output:"iron_saw",    qty:1, req:{iron_ingot:1, stick:2, flint:1, leather:1},cat:"tool", locked:true, maxStack:1,
+    { id:"iron_saw",    output:"iron_saw",    qty:1, req:{iron_ingot:1, plank:1, charcoal:2},cat:"tool", locked:true, maxStack:1,
       desc:"Železná pila. Přesné opracování dřeva.", desc_en:"Iron saw. Precise wood working." },
 
     // ── OPRAVA OPOTŘEBENÝCH NÁSTROJŮ ─────────────────────────────────────────
@@ -10877,6 +10878,16 @@ const CellariumSystem = {
       // Pivovar suroviny
       { itemId: 'grain',         basePrice: 4  },  // obilí — základ piva
       { itemId: 'hops',          basePrice: 18 },  // chmel — vzácnější
+      // Kovářství (vyžaduje tech_kovarina)
+      { itemId: 'iron_ore',      basePrice: 15,  req_tech: 'tech_kovarina' },
+      { itemId: 'anvil',         basePrice: 250, req_tech: 'tech_kovarina' },
+      { itemId: 'iron_axe',      basePrice: 65,  req_tech: 'tech_kovarina' },
+      { itemId: 'iron_spade',    basePrice: 55,  req_tech: 'tech_kovarina' },
+      { itemId: 'iron_scythe',   basePrice: 70,  req_tech: 'tech_kovarina' },
+      { itemId: 'iron_sickle',   basePrice: 50,  req_tech: 'tech_kovarina' },
+      { itemId: 'iron_flail',    basePrice: 60,  req_tech: 'tech_kovarina' },
+      { itemId: 'iron_shovel',   basePrice: 55,  req_tech: 'tech_kovarina' },
+      { itemId: 'iron_saw',      basePrice: 65,  req_tech: 'tech_kovarina' },
     ],
   },
 
@@ -10890,6 +10901,10 @@ const CellariumSystem = {
     if (!shopList) return;
     const shopEntry = shopList.find(s => s.itemId === itemId);
     if (!shopEntry) return;
+    if (shopEntry.req_tech && !(GameState.researchedTechs && GameState.researchedTechs.includes(shopEntry.req_tech))) {
+      UI.notify(t('game.techRequired') || '❌ Vyžaduje výzkum.', true);
+      return;
+    }
     const price = this.calcBuyPrice(itemId, entity, shopEntry.basePrice);
     if (this.getGrose() < price) {
       UI.notify(t('cellarium.noGrose'), true);
@@ -10953,8 +10968,11 @@ const CellariumSystem = {
   },
 
   renderBuyPanel: function(entity, lang) {
-    const shopList = this.ENTITY_SHOP[entity];
-    if (!shopList || shopList.length === 0) return '';
+    const allItems = this.ENTITY_SHOP[entity];
+    if (!allItems || allItems.length === 0) return '';
+    const shopList = allItems.filter(entry =>
+      !entry.req_tech || (GameState.researchedTechs && GameState.researchedTechs.includes(entry.req_tech))
+    );
     const buyLabel = lang === 'en' ? 'BUY' : 'NÁKUP';
     const cards = shopList.map(entry => {
       const item = ItemsDB[entry.itemId];
@@ -11559,6 +11577,7 @@ const CellariumSystem = {
     const hasAlm  = GameState.researchedTechs && GameState.researchedTechs.includes('tech_almarium');
     const hasCel  = GameState.researchedTechs && GameState.researchedTechs.includes('tech_cella');
     const hasHor  = GameState.researchedTechs && GameState.researchedTechs.includes('tech_horreum');
+    const hasKov  = GameState.researchedTechs && GameState.researchedTechs.includes('tech_kovarina');
 
     const title = lang === 'en' ? 'Storage Buildings' : 'Skladové Budovy';
 
@@ -11592,6 +11611,16 @@ const CellariumSystem = {
         req_tech: hasHor,
         req_build: storage.cella && storage.cella.built,
         req_label: lang === 'en' ? 'Requires: Cella built' : 'Nutné: Cella postavena',
+      },
+      {
+        id: 'fabrica', icon: '⚒️',
+        name: 'Fabrica', name_en: 'Smithy',
+        desc: 'Kovářská dílna s výhní. Výroba a oprava železných nástrojů.',
+        desc_en: 'Smithy with forge. Craft and repair iron tools.',
+        cost: { rock: 30, plank: 15, charcoal: 10, anvil: 1 },
+        req_tech: hasKov,
+        req_build: true,
+        req_label: null,
       },
     ];
 

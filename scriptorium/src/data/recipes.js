@@ -311,19 +311,19 @@ const RecipesDB = [
       desc:"Tavení rudy s uhlím. Základ kovářství.", desc_en:"Smelting ore with charcoal. Foundation of smithcraft." },
 
     // ── KOVOVÉ NÁSTROJE (tech_kovarina, max 1 ks) ────────────────────────────
-    { id:"iron_axe",    output:"iron_axe",    qty:1, req:{iron_ingot:1, stick:2, rope:1, leather:1}, cat:"tool", locked:true, maxStack:1,
+    { id:"iron_axe",    output:"iron_axe",    qty:1, req:{iron_ingot:1, plank:1, charcoal:2}, cat:"tool", locked:true, maxStack:1,
       desc:"Železná sekerka. Více kulatiny za akci.", desc_en:"Iron axe. More logs per action." },
-    { id:"iron_spade",  output:"iron_spade",  qty:1, req:{iron_ingot:1, stick:2, rope:1},            cat:"tool", locked:true, maxStack:1,
+    { id:"iron_spade",  output:"iron_spade",  qty:1, req:{iron_ingot:1, plank:1, charcoal:2},            cat:"tool", locked:true, maxStack:1,
       desc:"Železný rýč. Více červů, hlubší kopání.", desc_en:"Iron spade. More worms, deeper digging." },
-    { id:"iron_scythe", output:"iron_scythe", qty:1, req:{iron_ingot:1, stick:3, rope:2, leather:1}, cat:"tool", locked:true, maxStack:1,
+    { id:"iron_scythe", output:"iron_scythe", qty:1, req:{iron_ingot:1, plank:1, charcoal:2}, cat:"tool", locked:true, maxStack:1,
       desc:"Železná kosa. Více trávy za méně akcí.", desc_en:"Iron scythe. More grass per action." },
-    { id:"iron_sickle", output:"iron_sickle", qty:1, req:{iron_ingot:1, stick:1, rope:1},            cat:"tool", locked:true, maxStack:1,
+    { id:"iron_sickle", output:"iron_sickle", qty:1, req:{iron_ingot:1, plank:1, charcoal:2},            cat:"tool", locked:true, maxStack:1,
       desc:"Železný srp. Přesná žeň.", desc_en:"Iron sickle. Precise harvesting." },
-    { id:"iron_flail",  output:"iron_flail",  qty:1, req:{iron_ingot:1, stick:3, rope:2},            cat:"tool", locked:true, maxStack:1,
+    { id:"iron_flail",  output:"iron_flail",  qty:1, req:{iron_ingot:1, plank:1, charcoal:2},            cat:"tool", locked:true, maxStack:1,
       desc:"Železný cep. Efektivnější mlácení.", desc_en:"Iron flail. More efficient threshing." },
-    { id:"iron_shovel", output:"iron_shovel", qty:1, req:{iron_ingot:1, stick:2, rope:1},            cat:"tool", locked:true, maxStack:1,
+    { id:"iron_shovel", output:"iron_shovel", qty:1, req:{iron_ingot:1, plank:1, charcoal:2},            cat:"tool", locked:true, maxStack:1,
       desc:"Železná lopata. Rychlý přesun půdy.", desc_en:"Iron shovel. Fast soil moving." },
-    { id:"iron_saw",    output:"iron_saw",    qty:1, req:{iron_ingot:1, stick:2, flint:1, leather:1},cat:"tool", locked:true, maxStack:1,
+    { id:"iron_saw",    output:"iron_saw",    qty:1, req:{iron_ingot:1, plank:1, charcoal:2},cat:"tool", locked:true, maxStack:1,
       desc:"Železná pila. Přesné opracování dřeva.", desc_en:"Iron saw. Precise wood working." },
 
     // ── OPRAVA OPOTŘEBENÝCH NÁSTROJŮ ─────────────────────────────────────────

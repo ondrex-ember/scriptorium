@@ -305,6 +305,7 @@ const ItemsDB = {
     // ── ŽELEZNÁ RUDA + INGOT ────────────────────────────────────────────────
     "iron_ore":       { name:"Železná ruda",       name_en:"Iron Ore",          icon:"🪨", type:"mat",  desc:"Surová železná ruda. Taví se s uhlím na ingot.",        desc_en:"Raw iron ore. Smelted with charcoal into an ingot." },
     "iron_ingot":     { name:"Železný ingot",      name_en:"Iron Ingot",        icon:"⚙️", type:"mat",  desc:"Odlitý prut železa. Základ kovářského řemesla.",        desc_en:"Cast iron bar. The foundation of the blacksmith's craft." },
+    "anvil":          { maxStack:1, name:"Kovadlina",           name_en:"Anvil",             icon:"⚒️", type:"mat",  desc:"Těžká železná kovadlina. Nutná pro stavbu kovárny.",     desc_en:"Heavy iron anvil. Required to build the smithy." },
 
     // ── OPOTŘEBENÉ ŽELEZNÉ NÁSTROJE ──────────────────────────────────────────
     "worn_iron_axe":    { name:"Otupená sekerka",   name_en:"Worn Iron Axe",    icon:"🪓", type:"tool", tier:"iron", desc:"Otupené železné ostří. Opravit repair_kitem.",  desc_en:"Blunted iron blade. Repair with a repair kit." },

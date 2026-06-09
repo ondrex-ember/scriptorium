@@ -344,6 +344,16 @@ const CellariumSystem = {
       // Pivovar suroviny
       { itemId: 'grain',         basePrice: 4  },  // obilí — základ piva
       { itemId: 'hops',          basePrice: 18 },  // chmel — vzácnější
+      // Kovářství (vyžaduje tech_kovarina)
+      { itemId: 'iron_ore',      basePrice: 15,  req_tech: 'tech_kovarina' },
+      { itemId: 'anvil',         basePrice: 250, req_tech: 'tech_kovarina' },
+      { itemId: 'iron_axe',      basePrice: 65,  req_tech: 'tech_kovarina' },
+      { itemId: 'iron_spade',    basePrice: 55,  req_tech: 'tech_kovarina' },
+      { itemId: 'iron_scythe',   basePrice: 70,  req_tech: 'tech_kovarina' },
+      { itemId: 'iron_sickle',   basePrice: 50,  req_tech: 'tech_kovarina' },
+      { itemId: 'iron_flail',    basePrice: 60,  req_tech: 'tech_kovarina' },
+      { itemId: 'iron_shovel',   basePrice: 55,  req_tech: 'tech_kovarina' },
+      { itemId: 'iron_saw',      basePrice: 65,  req_tech: 'tech_kovarina' },
     ],
   },
 
@@ -357,6 +367,10 @@ const CellariumSystem = {
     if (!shopList) return;
     const shopEntry = shopList.find(s => s.itemId === itemId);
     if (!shopEntry) return;
+    if (shopEntry.req_tech && !(GameState.researchedTechs && GameState.researchedTechs.includes(shopEntry.req_tech))) {
+      UI.notify(t('game.techRequired') || '❌ Vyžaduje výzkum.', true);
+      return;
+    }
     const price = this.calcBuyPrice(itemId, entity, shopEntry.basePrice);
     if (this.getGrose() < price) {
       UI.notify(t('cellarium.noGrose'), true);
@@ -420,8 +434,11 @@ const CellariumSystem = {
   },
 
   renderBuyPanel: function(entity, lang) {
-    const shopList = this.ENTITY_SHOP[entity];
-    if (!shopList || shopList.length === 0) return '';
+    const allItems = this.ENTITY_SHOP[entity];
+    if (!allItems || allItems.length === 0) return '';
+    const shopList = allItems.filter(entry =>
+      !entry.req_tech || (GameState.researchedTechs && GameState.researchedTechs.includes(entry.req_tech))
+    );
     const buyLabel = lang === 'en' ? 'BUY' : 'NÁKUP';
     const cards = shopList.map(entry => {
       const item = ItemsDB[entry.itemId];
@@ -1026,6 +1043,7 @@ const CellariumSystem = {
     const hasAlm  = GameState.researchedTechs && GameState.researchedTechs.includes('tech_almarium');
     const hasCel  = GameState.researchedTechs && GameState.researchedTechs.includes('tech_cella');
     const hasHor  = GameState.researchedTechs && GameState.researchedTechs.includes('tech_horreum');
+    const hasKov  = GameState.researchedTechs && GameState.researchedTechs.includes('tech_kovarina');
 
     const title = lang === 'en' ? 'Storage Buildings' : 'Skladové Budovy';
 
@@ -1059,6 +1077,16 @@ const CellariumSystem = {
         req_tech: hasHor,
         req_build: storage.cella && storage.cella.built,
         req_label: lang === 'en' ? 'Requires: Cella built' : 'Nutné: Cella postavena',
+      },
+      {
+        id: 'fabrica', icon: '⚒️',
+        name: 'Fabrica', name_en: 'Smithy',
+        desc: 'Kovářská dílna s výhní. Výroba a oprava železných nástrojů.',
+        desc_en: 'Smithy with forge. Craft and repair iron tools.',
+        cost: { rock: 30, plank: 15, charcoal: 10, anvil: 1 },
+        req_tech: hasKov,
+        req_build: true,
+        req_label: null,
       },
     ];
 
