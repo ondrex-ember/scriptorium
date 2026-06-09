@@ -25246,7 +25246,8 @@ const Game = {
             if(GameState.garden[7]) GameState.garden[7].locked = false;
         }
         
-        UI.notifyPanel(`📜 ${t('game.crafted')} ${lang==='en'?(tech.name_en||tech.name):tech.name}`, 'system');
+        const _slang = (GameState.settings && GameState.settings.language) || 'cs';
+        UI.notifyPanel(`📜 ${t('game.crafted')} ${_slang==='en'?(tech.name_en||tech.name):tech.name}`, 'system');
         Game.save(); UI.renderAll(); Game.checkEnvironment();
         Game.checkAchievements();
 
@@ -26460,7 +26461,7 @@ renderActions: function() {
 		// Show selected tab
 		if (tab === 'research') {
 			document.getElementById('lore-research-content').style.display = 'block';
-			UI.renderResearch();
+			UI.renderScriptorium();
 		} else if (tab === 'codex') {
 			document.getElementById('lore-codex-content').style.display = 'block';
 			UI.renderCodex();

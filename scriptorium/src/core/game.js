@@ -2124,7 +2124,8 @@ const Game = {
             if(GameState.garden[7]) GameState.garden[7].locked = false;
         }
         
-        UI.notifyPanel(`📜 ${t('game.crafted')} ${lang==='en'?(tech.name_en||tech.name):tech.name}`, 'system');
+        const _slang = (GameState.settings && GameState.settings.language) || 'cs';
+        UI.notifyPanel(`📜 ${t('game.crafted')} ${_slang==='en'?(tech.name_en||tech.name):tech.name}`, 'system');
         Game.save(); UI.renderAll(); Game.checkEnvironment();
         Game.checkAchievements();
 
