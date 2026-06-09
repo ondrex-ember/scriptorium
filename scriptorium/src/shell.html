@@ -529,22 +529,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 		
 
         /* ═══ MOBILE PILLS (≤750px) ═══════════════════════════════════════ */
-        @media (max-width: 750px) {
-            .status-bar { display: none !important; }
-            #pills-bar {
-                display: flex !important;
-                flex-wrap: nowrap;
-                gap: 5px;
-                align-items: center;
-                justify-content: flex-end;
-                flex: 1;
-                padding: 0 2px;
-                overflow: hidden;
-            }
-        }
-        @media (min-width: 751px) {
-            #pills-bar { display: none !important; }
-        }
+
 
         .hpill {
             display: inline-flex;
@@ -601,6 +586,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
         }
 
         @media (max-width: 750px) {
+            header { height: auto; min-height: 60px; }
             .header-content {
                 flex-direction: row;
                 align-items: center;
@@ -614,20 +600,28 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
                 display: flex;
                 align-items: center;
                 gap: 4px;
-                max-width: 160px;
             }
-            .logo-container > span:first-of-type { font-size: 0.85rem !important; letter-spacing: 1px !important; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-            .logo-container svg { width: 18px !important; height: 18px !important; }
+            .logo-container > span { font-size: 0.9rem !important; letter-spacing: 1px !important; }
+            .logo-container svg { width: 20px !important; height: 20px !important; }
             #settings-btn { display: none !important; }
             #settings-btn-bar { display: none !important; }
             .status-bar { display: none !important; }
-            .logo-container { justify-content: center; }
-            header { height: auto; min-height: 60px; padding: 6px 0; }
+            #pills-bar {
+                display: flex !important;
+                flex-wrap: nowrap;
+                gap: 5px;
+                align-items: center;
+                justify-content: flex-end;
+                flex: 1;
+                padding: 0 2px;
+                overflow: hidden;
+            }
         }
 
         @media (min-width: 751px) {
             #settings-btn { display: none !important; }
             #settings-btn-bar { display: inline !important; }
+            #pills-bar { display: none !important; }
         }
 
         @media (max-width: 400px) {
