@@ -1649,7 +1649,16 @@ const Game = {
         if (action && action.req) {
             if (Array.isArray(action.req)) {
                 // Pole req — najít první dostupný nástroj a jeho multiplier
-                const found = action.req.find(r => GameState.inventory[r.item] > 0);
+                let found = action.req.find(r => GameState.inventory[r.item] > 0);
+                // Fallback: worn varianta s 20% výtěží
+                if (!found) {
+                    found = action.req.reduce((best, r) => {
+                        const wornId = 'worn_' + r.item;
+                        if (!best && GameState.inventory[wornId] > 0)
+                            return { item: wornId, mult: 0.2 };
+                        return best;
+                    }, null);
+                }
                 if (!found) {
                     const names = action.req.map(r => ItemsDB[r.item] ? ItemsDB[r.item].name : r.item).join('/');
                     UI.notify(t('game.missingItem').replace('{item}', names), true);
@@ -2360,7 +2369,15 @@ const Game = {
 		if (remaining <= 0) {
 			// Nástroj se opotřeboval
 			const wornId = 'worn_' + itemId; // worn_iron_axe atd.
-			if (item.tier === 'iron' && ItemsDB[wornId]) {
+			if (itemId.startsWith('worn_') && item.tier === 'iron') {
+				// Worn iron po 3 použitích → nenávratně zničen
+				this.removeItem(itemId, 1);
+				delete GameState.toolUses[itemId];
+				UI.notify((lang==='en' ? '💀 ' + name + ' destroyed beyond repair.' : '💀 ' + name + ' — nenávratně zničena.'), true);
+				if (typeof NotificationSystem !== 'undefined') {
+					NotificationSystem.panel((lang==='en' ? '💀 ' + name + ' destroyed. Craft new tools.' : '💀 ' + name + ' zničena. Vykov nové nástroje.'), 'warning');
+				}
+			} else if (item.tier === 'iron' && ItemsDB[wornId]) {
 				// Iron → degradace na worn
 				this.removeItem(itemId, 1);
 				this.addItem(wornId, 1);
@@ -2375,9 +2392,21 @@ const Game = {
 				delete GameState.toolUses[itemId];
 				UI.notify((lang==='en' ? name + ' broke.' : name + ' se zlomila.'), true);
 			}
-		} else if (remaining === 3) {
-			// Varování před koncem
-			UI.notify((lang==='en' ? '⚠️ ' + name + ': ' + remaining + ' uses left.' : '⚠️ ' + name + ': zbývají ' + remaining + ' použití.'));
+		} else if (remaining > 0) {
+			if (itemId.startsWith('worn_') && item.tier === 'iron') {
+				// Worn nástroj — varování při každém použití
+				UI.notify((lang==='en'
+					? '⚠️ ' + name + ': ' + remaining + ' use(s) before destruction!'
+					: '⚠️ ' + name + ': ještě ' + remaining + '× než se zničí!'), true);
+				if (typeof NotificationSystem !== 'undefined') {
+					NotificationSystem.panel((lang==='en'
+						? '⚠️ ' + name + ': ' + remaining + ' use(s) left — repair or replace!'
+						: '⚠️ ' + name + ': zbývají ' + remaining + ' použití — oprav nebo vykov nové!'), 'warning');
+				}
+			} else if (remaining === 3) {
+				// Varování před koncem pro normální nástroje
+				UI.notify((lang==='en' ? '⚠️ ' + name + ': ' + remaining + ' uses left.' : '⚠️ ' + name + ': zbývají ' + remaining + ' použití.'));
+			}
 		}
 	},
 
