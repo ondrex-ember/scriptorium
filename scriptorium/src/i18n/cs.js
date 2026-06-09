@@ -99,7 +99,7 @@ const STRINGS_cs = {
         quietNote: 'Zvuky budou ztlumeny v této době'
         }
     },
-        craft: { filterAll:'Vše', filterMat:'Materiály', filterFood:'Jídlo', filterAlchemy:'Alchymie', filterLore:'Vědění', btn:'Výroba' },
+        craft: { filterAll:'Vše', filterMat:'Materiály', filterFood:'Jídlo', filterAlchemy:'Alchymie', filterLore:'Vědění', btn:'Výroba', repair:'Opravit' },
         inv:   { filterAll:'Vše', filterMat:'Suroviny', filterTool:'Nástroje', filterLore:'Ostatní' },
         settings: { langLabel:'🗺️ Jazyk / Language' },
         actions: {

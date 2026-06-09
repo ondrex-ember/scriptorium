@@ -17,7 +17,7 @@ const STRINGS_en = {
 	    torchDesc: 'It smokes and crackles, yet burns bright.',
             btnTorch:'LIGHT TORCH', btnCandle:'LIGHT CANDLE'
         },
-        craft: { filterAll:'All', filterTool:'Tools', filterMat:'Materials', filterFood:'Provisions', filterAlchemy:'Alchemy', filterLore:'Knowledge', btn:'Craft' },
+        craft: { filterAll:'All', filterTool:'Tools', filterMat:'Materials', filterFood:'Provisions', filterAlchemy:'Alchemy', filterLore:'Knowledge', btn:'Craft', repair:'Repair' },
         inv:   { filterAll:'All', filterMat:'Materials', filterTool:'Tools', filterLore:'Other' },
         settings: { langLabel:'🗺️ Language / Jazyk' },
     wellUI: {

@@ -19304,7 +19304,7 @@ const STRINGS_cs = {
         quietNote: 'Zvuky budou ztlumeny v této době'
         }
     },
-        craft: { filterAll:'Vše', filterMat:'Materiály', filterFood:'Jídlo', filterAlchemy:'Alchymie', filterLore:'Vědění', btn:'Výroba' },
+        craft: { filterAll:'Vše', filterMat:'Materiály', filterFood:'Jídlo', filterAlchemy:'Alchymie', filterLore:'Vědění', btn:'Výroba', repair:'Opravit' },
         inv:   { filterAll:'Vše', filterMat:'Suroviny', filterTool:'Nástroje', filterLore:'Ostatní' },
         settings: { langLabel:'🗺️ Jazyk / Language' },
         actions: {
@@ -20597,7 +20597,7 @@ const STRINGS_en = {
 	    torchDesc: 'It smokes and crackles, yet burns bright.',
             btnTorch:'LIGHT TORCH', btnCandle:'LIGHT CANDLE'
         },
-        craft: { filterAll:'All', filterTool:'Tools', filterMat:'Materials', filterFood:'Provisions', filterAlchemy:'Alchemy', filterLore:'Knowledge', btn:'Craft' },
+        craft: { filterAll:'All', filterTool:'Tools', filterMat:'Materials', filterFood:'Provisions', filterAlchemy:'Alchemy', filterLore:'Knowledge', btn:'Craft', repair:'Repair' },
         inv:   { filterAll:'All', filterMat:'Materials', filterTool:'Tools', filterLore:'Other' },
         settings: { langLabel:'🗺️ Language / Jazyk' },
     wellUI: {
@@ -26283,7 +26283,7 @@ renderActions: function() {
             }
             const blindIcon = r.blind ? " 🌑" : "";
             const blindClass = r.blind ? " blind-recipe" : "";
-            el.innerHTML += `<div class="card${blindClass}" style="opacity:${can?1:0.6}"><div class="item-icon">${prod.icon}</div><div style="flex:1"><strong>${iName(r.output)}${blindIcon}</strong><div class="text-sm">${reqStr.slice(0,-2)}</div></div><button class="craft-btn" onclick="Game.craft('${r.id}')" ${can?'':'disabled'}>${t('craft.btn')}</button></div>`;
+            el.innerHTML += `<div class="card${blindClass}" style="opacity:${can?1:0.6}"><div class="item-icon">${prod.icon}</div><div style="flex:1"><strong>${iName(r.output)}${blindIcon}</strong><div class="text-sm">${reqStr.slice(0,-2)}</div></div><button class="craft-btn" onclick="Game.craft('${r.id}')" ${can?'':'disabled'}>${r.id.startsWith('repair_') ? t('craft.repair') : t('craft.btn')}</button></div>`;
         });
 
     },
