@@ -259,7 +259,6 @@ const ItemsDB = {
     // ═══════════════════════════════════════════════════════════════════════════
     // PIVOVAR (Cervisiaria) — v9.x
     // ═══════════════════════════════════════════════════════════════════════════
-    "grain":         { name:"Obilí",             name_en:"Grain",          icon:"🌾", type:"mat",      desc:"Základní surovina pro výrobu piva a chleba.",           desc_en:"Basic material for brewing and baking." },
     "hops":          { name:"Chmel",             name_en:"Hops",           icon:"🌿", type:"mat",      desc:"Aromatická rostlina. Dodává pivu hořkost a vůni.",      desc_en:"Aromatic plant. Gives beer bitterness and aroma." },
     "seeds_hops":    { name:"Semínka chmele",    name_en:"Hop Seeds",      icon:"🌾", type:"mat",      desc:"Chmel lze pěstovat v zahradě. Vzácné semínko.",          desc_en:"Hops can be grown in the garden. Rare seeds." },
     "wort":          { name:"Mladina",           name_en:"Wort",           icon:"🫗", type:"mat",      desc:"Fermentovaná obilná mladina. Základ každého piva.",      desc_en:"Fermented grain wort. The base of every beer." },
@@ -322,6 +321,19 @@ const ItemsDB = {
     "worn_iron_saw":    { maxUses:3,  name:"Tupá pila",         name_en:"Worn Iron Saw",    icon:"🪚", type:"tool", tier:"iron", desc:"Otupenné zuby pily. Opravit v Kovárně.",        desc_en:"Blunted saw teeth. Repair at the Smithy." },
     "worn_iron_pickaxe":{ maxUses:3,  name:"Otupený krumpáč",  name_en:"Worn Iron Pickaxe",icon:"⛏️", type:"tool", tier:"iron", desc:"Otupená železná hlava. Opravit v Kovárně.",      desc_en:"Blunted iron head. Repair at the Smithy." },
     "worn_iron_tongs":  { maxUses:3,  name:"Opotřebené kleště",name_en:"Worn Iron Tongs",  icon:"🔧", type:"tool", tier:"iron", desc:"Kleště na hranici životnosti. Přetavit nebo zahodit.", desc_en:"Tongs past their limit. Smelt or discard." },
+
+    // ── POLE (Ager) — plodiny ─────────────────────────────────────────────────
+    "rye_grain":      { name:"Žitné zrno",      name_en:"Rye Grain",      icon:"🌾", type:"mat", desc:"Ozimé žito. Základ klášterského chleba a kaše. Krmivo pro dobytek.",             desc_en:"Winter rye. The basis of monastic bread and porridge. Livestock fodder." },
+    "wheat_grain":    { name:"Pšeničné zrno",   name_en:"Wheat Grain",    icon:"🌾", type:"mat", desc:"Pšenice jarní. Kvalitnější mouka než žitná. Lepší chléb a oplatky.",             desc_en:"Spring wheat. Finer flour than rye. Better bread and wafers." },
+    "barley":         { name:"Ječmen",           name_en:"Barley",         icon:"🌾", type:"mat", desc:"Dvouřadý ječmen. Základ každého klášterního piva. Bez ječmene není pivovar.",    desc_en:"Two-row barley. The basis of every monastic ale. Without barley, no brewery." },
+    "oats":           { name:"Oves",             name_en:"Oats",           icon:"🌾", type:"mat", desc:"Oves setý. Krmivo pro koně a osla. Bez ovsa tažný dobytek ztrácí sílu.",       desc_en:"Common oats. Feed for horses and donkeys. Without oats, draught animals lose strength." },
+    "millet":         { name:"Proso",            name_en:"Millet",         icon:"🌾", type:"mat", desc:"Proso seté. Rychlá kaše, krmivo pro drůbež. Odolné i v suchu.",                desc_en:"Common millet. Quick porridge, poultry feed. Resilient even in drought." },
+    "peas":           { name:"Hrách",            name_en:"Peas",           icon:"🫛", type:"mat", desc:"Polní hrách. Polévka, krmivo, obohacuje půdu dusíkem.",                         desc_en:"Field peas. Soup, fodder, enriches soil with nitrogen." },
+    "flax_fiber":     { name:"Lněná vlákna",     name_en:"Flax Fibre",     icon:"🧵", type:"mat", desc:"Stonky lnu po rosení a tření. Základ pro tkaní plátna a výrobu provazů.",       desc_en:"Flax stalks after retting and breaking. The basis for weaving linen and making rope." },
+    "straw":          { name:"Sláma",            name_en:"Straw",          icon:"🌿", type:"mat", desc:"Posklizňová sláma. Podestýlka pro zvířata, střešní krytina, krmivo pro skot.",  desc_en:"Post-harvest straw. Bedding for animals, thatching material, fodder for cattle." },
+    "flour":          { name:"Mouka",            name_en:"Flour",          icon:"⚪", type:"mat", desc:"Mletá pšeničná nebo žitná mouka. Základ pro chléb, oplatky a kaši.",            desc_en:"Ground wheat or rye flour. The basis for bread, wafers and porridge." },
+    "grain_feed":     { name:"Zrní (krmivo)",    name_en:"Grain Feed",     icon:"🌾", type:"mat", desc:"Směs zrní pro drůbež a prasata. Udržuje zdraví zvířat.",                        desc_en:"Grain mix for poultry and pigs. Maintains animal health." },
+    "goose_quill":    { name:"Husí pero",        name_en:"Goose Quill",    icon:"🪶", type:"tool", desc:"Nejlepší pero pro písaře. Tvrdší a pružnější než slepičí. Husy pro skriptorium.", desc_en:"The finest quill for scribes. Harder and more flexible than a hen's feather. Geese for the scriptorium." },
 };
     // Oprava BUG #2 — semena stromů chybějící v ItemsDB (Trh nákup)
     // (vloženo před uzavírací }; — merge do objektu před buildem)

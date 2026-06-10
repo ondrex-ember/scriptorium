@@ -1049,6 +1049,8 @@ const CellariumSystem = {
     const hasCel  = GameState.researchedTechs && GameState.researchedTechs.includes('tech_cella');
     const hasHor  = GameState.researchedTechs && GameState.researchedTechs.includes('tech_horreum');
     const hasKov  = GameState.researchedTechs && GameState.researchedTechs.includes('tech_kovarina');
+    const hasRust = GameState.researchedTechs && GameState.researchedTechs.includes('tech_de_re_rustica');
+    const hasCrop = GameState.researchedTechs && GameState.researchedTechs.includes('tech_crop_rotation');
 
     const title = lang === 'en' ? 'Buildings' : 'Budovy';
 
@@ -1093,6 +1095,24 @@ const CellariumSystem = {
         desc_en: 'Smithy with forge. Craft and repair iron tools.',
         cost: { rock: 30, plank: 15, charcoal: 10, anvil: 1 },
         req_tech: hasKov, req_build: true, req_label: null,
+      },
+      {
+        id: 'sulci', icon: '🪠',
+        name: 'Sulci — Brázdy', name_en: 'Sulci — Furrows',
+        desc: 'Vydlabané brázdy a dřevěný pluh. Bez brázd pole neorat. Odemkne subtab Pole.',
+        desc_en: 'Cut furrows and a wooden plough. Without furrows, fields cannot be ploughed. Unlocks the Fields tab.',
+        cost: { plank: 8, rope: 4, stick: 10 },
+        req_tech: hasRust, req_build: true, req_label: null,
+      },
+      {
+        id: 'humno', icon: '🏚️',
+        name: 'Humno — Area', name_en: 'Humno — Threshing Floor',
+        desc: 'Mlátecí plocha z udusané hlíny. Mlácení obilí na slámě. +sláma ze sklizně.',
+        desc_en: 'Threshing floor of tamped earth. Threshing grain on straw. +straw from harvest.',
+        cost: { cut_stone: 8, plank: 6, rope: 3 },
+        req_tech: hasCrop,
+        req_build: GameState.storage && GameState.storage.sulci && GameState.storage.sulci.built,
+        req_label: lang === 'en' ? 'Requires: Sulci built' : 'Nutné: Brázdy postaveny',
       },
     ];
 

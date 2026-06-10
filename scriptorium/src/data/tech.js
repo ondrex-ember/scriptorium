@@ -114,7 +114,7 @@ const TechTree = [
       cost:15,
       desc:"Columellův spis o zemědělství. Mniši jej opisovali od 8. století — v něm se skrývalo vše o ovcích, kravách a obilí. Odemkne: Chlév (Ovile) — chov ovcí pro vlnu, mléko a pergamen.",
       desc_en:"Columella's treatise on agriculture. Monks copied it from the 8th century onward — within lay everything about sheep, cattle and grain. Unlocks: Sheepfold (Ovile) — raising sheep for wool, milk and vellum.",
-      unlocks:[], requires:["tech_garden_expand"] },
+      unlocks:["sulci"], requires:["tech_garden_expand"] },
 
     // VČELÍN (Apiarium) — odemkne záložku Apiarium v Zahradě
     { id:"tech_liber_apium",         name:"Liber Apium",                  name_en:"Liber Apium",
@@ -178,4 +178,24 @@ const TechTree = [
       desc:"Středověký lékárník a písař věděl o každé surovině vše — odkud pochází, jak se kazí, k čemu slouží. Toto vědění se nezíská náhodou, ale pečlivým studiem a zápisky. Odemkne: kliknutí na item → podrobný modal s historií, vlastnostmi a použitím.",
       desc_en:"The medieval apothecary and scribe knew everything about every material — where it came from, how it spoiled, what it was used for. This knowledge is not gained by chance, but by careful study and annotation. Unlocks: click on any item → detailed modal with history, properties and uses.",
       unlocks:[], requires:["tech_inventarium"] },
+
+    // ── POLE (Ager) — tech chain ──────────────────────────────────────────────
+    { id:"tech_crop_rotation",    name:"Trojpolní systém",              name_en:"Three-Field System",
+      cost:20,
+      desc:"Středověká revoluce: první pole ozimé obilí, druhé jarní plodiny, třetí ladem. Půda si odpočine, výnosy stoupnou. Historicky nejdůležitější agrární inovace 12. století. Odemkne: +25% výnos Pole, 1 slot ladem.",
+      desc_en:"Medieval revolution: first field winter grain, second spring crops, third fallow. The soil rests, yields increase. Historically the most important agrarian innovation of the 12th century. Unlocks: +25% field yield, 1 fallow slot.",
+      unlocks:["humno"], requires:["tech_de_re_rustica"] },
+
+    { id:"tech_field_drainage",   name:"Odvodňování polí",              name_en:"Field Drainage",
+      cost:18,
+      desc:"Zamokřená pole se nedají orat. Benediktini a cisterciáci odvodňovali bažiny a proměňovali je v úrodnou půdu — historicky jedna z největších krajinných proměn středověku.",
+      desc_en:"Waterlogged fields cannot be ploughed. Benedictines and Cistercians drained marshes and transformed them into fertile land — historically one of the greatest landscape transformations of the Middle Ages.",
+      unlocks:[], requires:["tech_crop_rotation"] },
+
+    { id:"tech_field_irrigation", name:"Závlahový systém",             name_en:"Irrigation System",
+      cost:22,
+      desc:"Strouhy a kanálky od studny k poli. Méně vody na závlahu, větší odolnost při suchu. Columella o tom psal v 1. století, mniši to znovu objevili.",
+      desc_en:"Channels and ditches from the well to the field. Less water for irrigation, greater drought resistance. Columella wrote about this in the 1st century; monks rediscovered it.",
+      unlocks:[], requires:["tech_field_drainage"] },
+
 ];

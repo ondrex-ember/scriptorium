@@ -2294,6 +2294,8 @@
                         data-i18n="garden.tabDvur">🐄 Dvůr</button>
                     <button id="garden-tab-btn-piscina" class="filter-btn" onclick="UI.switchGardenTab('piscina', this)"
                         data-i18n="garden.tabPiscina">🐟 Piscina</button>
+                    <button id="garden-tab-btn-pole" class="filter-btn" onclick="UI.switchGardenTab('pole', this)"
+                        data-i18n="garden.tabPole">🌾 Pole</button>
                 </div>
 
                 <div id="garden-tab-zahony">
@@ -2358,6 +2360,9 @@
                 </div>
                 <div id="garden-tab-piscina" style="display:none;">
                     <div id="piscina-container"></div>
+                <div id="garden-tab-pole" style="display:none;">
+                    <div id="field-container"></div>
+                </div>
                 </div>
             </div>
 
@@ -5008,7 +5013,6 @@ const ItemsDB = {
     // ═══════════════════════════════════════════════════════════════════════════
     // PIVOVAR (Cervisiaria) — v9.x
     // ═══════════════════════════════════════════════════════════════════════════
-    "grain":         { name:"Obilí",             name_en:"Grain",          icon:"🌾", type:"mat",      desc:"Základní surovina pro výrobu piva a chleba.",           desc_en:"Basic material for brewing and baking." },
     "hops":          { name:"Chmel",             name_en:"Hops",           icon:"🌿", type:"mat",      desc:"Aromatická rostlina. Dodává pivu hořkost a vůni.",      desc_en:"Aromatic plant. Gives beer bitterness and aroma." },
     "seeds_hops":    { name:"Semínka chmele",    name_en:"Hop Seeds",      icon:"🌾", type:"mat",      desc:"Chmel lze pěstovat v zahradě. Vzácné semínko.",          desc_en:"Hops can be grown in the garden. Rare seeds." },
     "wort":          { name:"Mladina",           name_en:"Wort",           icon:"🫗", type:"mat",      desc:"Fermentovaná obilná mladina. Základ každého piva.",      desc_en:"Fermented grain wort. The base of every beer." },
@@ -5071,6 +5075,19 @@ const ItemsDB = {
     "worn_iron_saw":    { maxUses:3,  name:"Tupá pila",         name_en:"Worn Iron Saw",    icon:"🪚", type:"tool", tier:"iron", desc:"Otupenné zuby pily. Opravit v Kovárně.",        desc_en:"Blunted saw teeth. Repair at the Smithy." },
     "worn_iron_pickaxe":{ maxUses:3,  name:"Otupený krumpáč",  name_en:"Worn Iron Pickaxe",icon:"⛏️", type:"tool", tier:"iron", desc:"Otupená železná hlava. Opravit v Kovárně.",      desc_en:"Blunted iron head. Repair at the Smithy." },
     "worn_iron_tongs":  { maxUses:3,  name:"Opotřebené kleště",name_en:"Worn Iron Tongs",  icon:"🔧", type:"tool", tier:"iron", desc:"Kleště na hranici životnosti. Přetavit nebo zahodit.", desc_en:"Tongs past their limit. Smelt or discard." },
+
+    // ── POLE (Ager) — plodiny ─────────────────────────────────────────────────
+    "rye_grain":      { name:"Žitné zrno",      name_en:"Rye Grain",      icon:"🌾", type:"mat", desc:"Ozimé žito. Základ klášterského chleba a kaše. Krmivo pro dobytek.",             desc_en:"Winter rye. The basis of monastic bread and porridge. Livestock fodder." },
+    "wheat_grain":    { name:"Pšeničné zrno",   name_en:"Wheat Grain",    icon:"🌾", type:"mat", desc:"Pšenice jarní. Kvalitnější mouka než žitná. Lepší chléb a oplatky.",             desc_en:"Spring wheat. Finer flour than rye. Better bread and wafers." },
+    "barley":         { name:"Ječmen",           name_en:"Barley",         icon:"🌾", type:"mat", desc:"Dvouřadý ječmen. Základ každého klášterního piva. Bez ječmene není pivovar.",    desc_en:"Two-row barley. The basis of every monastic ale. Without barley, no brewery." },
+    "oats":           { name:"Oves",             name_en:"Oats",           icon:"🌾", type:"mat", desc:"Oves setý. Krmivo pro koně a osla. Bez ovsa tažný dobytek ztrácí sílu.",       desc_en:"Common oats. Feed for horses and donkeys. Without oats, draught animals lose strength." },
+    "millet":         { name:"Proso",            name_en:"Millet",         icon:"🌾", type:"mat", desc:"Proso seté. Rychlá kaše, krmivo pro drůbež. Odolné i v suchu.",                desc_en:"Common millet. Quick porridge, poultry feed. Resilient even in drought." },
+    "peas":           { name:"Hrách",            name_en:"Peas",           icon:"🫛", type:"mat", desc:"Polní hrách. Polévka, krmivo, obohacuje půdu dusíkem.",                         desc_en:"Field peas. Soup, fodder, enriches soil with nitrogen." },
+    "flax_fiber":     { name:"Lněná vlákna",     name_en:"Flax Fibre",     icon:"🧵", type:"mat", desc:"Stonky lnu po rosení a tření. Základ pro tkaní plátna a výrobu provazů.",       desc_en:"Flax stalks after retting and breaking. The basis for weaving linen and making rope." },
+    "straw":          { name:"Sláma",            name_en:"Straw",          icon:"🌿", type:"mat", desc:"Posklizňová sláma. Podestýlka pro zvířata, střešní krytina, krmivo pro skot.",  desc_en:"Post-harvest straw. Bedding for animals, thatching material, fodder for cattle." },
+    "flour":          { name:"Mouka",            name_en:"Flour",          icon:"⚪", type:"mat", desc:"Mletá pšeničná nebo žitná mouka. Základ pro chléb, oplatky a kaši.",            desc_en:"Ground wheat or rye flour. The basis for bread, wafers and porridge." },
+    "grain_feed":     { name:"Zrní (krmivo)",    name_en:"Grain Feed",     icon:"🌾", type:"mat", desc:"Směs zrní pro drůbež a prasata. Udržuje zdraví zvířat.",                        desc_en:"Grain mix for poultry and pigs. Maintains animal health." },
+    "goose_quill":    { name:"Husí pero",        name_en:"Goose Quill",    icon:"🪶", type:"tool", desc:"Nejlepší pero pro písaře. Tvrdší a pružnější než slepičí. Husy pro skriptorium.", desc_en:"The finest quill for scribes. Harder and more flexible than a hen's feather. Geese for the scriptorium." },
 };
     // Oprava BUG #2 — semena stromů chybějící v ItemsDB (Trh nákup)
     // (vloženo před uzavírací }; — merge do objektu před buildem)
@@ -6250,7 +6267,7 @@ const TechTree = [
       cost:15,
       desc:"Columellův spis o zemědělství. Mniši jej opisovali od 8. století — v něm se skrývalo vše o ovcích, kravách a obilí. Odemkne: Chlév (Ovile) — chov ovcí pro vlnu, mléko a pergamen.",
       desc_en:"Columella's treatise on agriculture. Monks copied it from the 8th century onward — within lay everything about sheep, cattle and grain. Unlocks: Sheepfold (Ovile) — raising sheep for wool, milk and vellum.",
-      unlocks:[], requires:["tech_garden_expand"] },
+      unlocks:["sulci"], requires:["tech_garden_expand"] },
 
     // VČELÍN (Apiarium) — odemkne záložku Apiarium v Zahradě
     { id:"tech_liber_apium",         name:"Liber Apium",                  name_en:"Liber Apium",
@@ -6314,6 +6331,26 @@ const TechTree = [
       desc:"Středověký lékárník a písař věděl o každé surovině vše — odkud pochází, jak se kazí, k čemu slouží. Toto vědění se nezíská náhodou, ale pečlivým studiem a zápisky. Odemkne: kliknutí na item → podrobný modal s historií, vlastnostmi a použitím.",
       desc_en:"The medieval apothecary and scribe knew everything about every material — where it came from, how it spoiled, what it was used for. This knowledge is not gained by chance, but by careful study and annotation. Unlocks: click on any item → detailed modal with history, properties and uses.",
       unlocks:[], requires:["tech_inventarium"] },
+
+    // ── POLE (Ager) — tech chain ──────────────────────────────────────────────
+    { id:"tech_crop_rotation",    name:"Trojpolní systém",              name_en:"Three-Field System",
+      cost:20,
+      desc:"Středověká revoluce: první pole ozimé obilí, druhé jarní plodiny, třetí ladem. Půda si odpočine, výnosy stoupnou. Historicky nejdůležitější agrární inovace 12. století. Odemkne: +25% výnos Pole, 1 slot ladem.",
+      desc_en:"Medieval revolution: first field winter grain, second spring crops, third fallow. The soil rests, yields increase. Historically the most important agrarian innovation of the 12th century. Unlocks: +25% field yield, 1 fallow slot.",
+      unlocks:["humno"], requires:["tech_de_re_rustica"] },
+
+    { id:"tech_field_drainage",   name:"Odvodňování polí",              name_en:"Field Drainage",
+      cost:18,
+      desc:"Zamokřená pole se nedají orat. Benediktini a cisterciáci odvodňovali bažiny a proměňovali je v úrodnou půdu — historicky jedna z největších krajinných proměn středověku.",
+      desc_en:"Waterlogged fields cannot be ploughed. Benedictines and Cistercians drained marshes and transformed them into fertile land — historically one of the greatest landscape transformations of the Middle Ages.",
+      unlocks:[], requires:["tech_crop_rotation"] },
+
+    { id:"tech_field_irrigation", name:"Závlahový systém",             name_en:"Irrigation System",
+      cost:22,
+      desc:"Strouhy a kanálky od studny k poli. Méně vody na závlahu, větší odolnost při suchu. Columella o tom psal v 1. století, mniši to znovu objevili.",
+      desc_en:"Channels and ditches from the well to the field. Less water for irrigation, greater drought resistance. Columella wrote about this in the 1st century; monks rediscovered it.",
+      unlocks:[], requires:["tech_field_drainage"] },
+
 ];
 // ═══ src/core/gamestate.js ═══
 const ActionsDB = [
@@ -12644,6 +12681,8 @@ const CellariumSystem = {
     const hasCel  = GameState.researchedTechs && GameState.researchedTechs.includes('tech_cella');
     const hasHor  = GameState.researchedTechs && GameState.researchedTechs.includes('tech_horreum');
     const hasKov  = GameState.researchedTechs && GameState.researchedTechs.includes('tech_kovarina');
+    const hasRust = GameState.researchedTechs && GameState.researchedTechs.includes('tech_de_re_rustica');
+    const hasCrop = GameState.researchedTechs && GameState.researchedTechs.includes('tech_crop_rotation');
 
     const title = lang === 'en' ? 'Buildings' : 'Budovy';
 
@@ -12688,6 +12727,24 @@ const CellariumSystem = {
         desc_en: 'Smithy with forge. Craft and repair iron tools.',
         cost: { rock: 30, plank: 15, charcoal: 10, anvil: 1 },
         req_tech: hasKov, req_build: true, req_label: null,
+      },
+      {
+        id: 'sulci', icon: '🪠',
+        name: 'Sulci — Brázdy', name_en: 'Sulci — Furrows',
+        desc: 'Vydlabané brázdy a dřevěný pluh. Bez brázd pole neorat. Odemkne subtab Pole.',
+        desc_en: 'Cut furrows and a wooden plough. Without furrows, fields cannot be ploughed. Unlocks the Fields tab.',
+        cost: { plank: 8, rope: 4, stick: 10 },
+        req_tech: hasRust, req_build: true, req_label: null,
+      },
+      {
+        id: 'humno', icon: '🏚️',
+        name: 'Humno — Area', name_en: 'Humno — Threshing Floor',
+        desc: 'Mlátecí plocha z udusané hlíny. Mlácení obilí na slámě. +sláma ze sklizně.',
+        desc_en: 'Threshing floor of tamped earth. Threshing grain on straw. +straw from harvest.',
+        cost: { cut_stone: 8, plank: 6, rope: 3 },
+        req_tech: hasCrop,
+        req_build: GameState.storage && GameState.storage.sulci && GameState.storage.sulci.built,
+        req_label: lang === 'en' ? 'Requires: Sulci built' : 'Nutné: Brázdy postaveny',
       },
     ];
 
@@ -13753,12 +13810,15 @@ const GardenSystem = {
         document.getElementById('garden-tab-apiarium').style.display = tab === 'apiarium' ? '' : 'none';
         document.getElementById('garden-tab-dvur').style.display     = tab === 'dvur'     ? '' : 'none';
         document.getElementById('garden-tab-piscina').style.display  = tab === 'piscina'  ? '' : 'none';
+        const poleEl = document.getElementById('garden-tab-pole');
+        if (poleEl) poleEl.style.display = tab === 'pole' ? '' : 'none';
         document.querySelectorAll('#screen-garden .filter-btn').forEach(b => b.classList.remove('active'));
         if (btn) btn.classList.add('active');
         if (tab === 'dvur')     GardenSystem.renderFarmyard();
         if (tab === 'sad')      GardenSystem.renderOrchard();
         if (tab === 'apiarium') GardenSystem.renderApiary();
         if (tab === 'piscina')  GardenSystem.renderPiscina();
+        if (tab === 'pole')     GardenSystem.renderFieldTab();
     },
 
     renderFarmyard: function() {
@@ -14413,6 +14473,284 @@ const GardenSystem = {
             el.innerHTML += `<div class="garden-plot">${c}<div style="margin-top:auto">${b}</div></div>`;
         });
     },
+    // ════════════════════════════════════════════════════════════════════════
+    // POLE (Ager) — polní hospodářství
+    // ════════════════════════════════════════════════════════════════════════
+
+    _initFields: function() {
+        if (!GameState.fields) {
+            GameState.fields = Array.from({length: 6}, (_, i) => ({
+                locked: i >= 2,    // start: 2 sloty, max 6
+                state: 'empty',    // empty | ploughed | sown | growing | ready
+                crop: null,        // id plodiny
+                phase: 0,          // 0-3 (orba/klíčení/růst/zrání)
+                phaseStart: 0,     // timestamp začátku fáze
+                watered: false,
+                strawBonus: false, // má Humno?
+            }));
+        }
+        // Migrace
+        GameState.fields.forEach(f => {
+            if (f.strawBonus === undefined) f.strawBonus = false;
+        });
+    },
+
+    // Délka jedné fáze v ms (3 reálné dny)
+    FIELD_PHASE_MS: 3 * 24 * 60 * 60 * 1000,
+
+    // Plodiny DB
+    CROPS_DB: {
+        rye:    { id:'rye_grain',   icon:'🌾', name:'Žito',    name_en:'Rye',     seeds:'seeds_rye',    yield:3, strawYield:2, feedVal:1 },
+        wheat:  { id:'wheat_grain', icon:'🌾', name:'Pšenice', name_en:'Wheat',   seeds:'seeds_wheat',  yield:3, strawYield:1, feedVal:0 },
+        barley: { id:'barley',      icon:'🌾', name:'Ječmen',  name_en:'Barley',  seeds:'seeds_barley', yield:3, strawYield:2, feedVal:0 },
+        oats:   { id:'oats',        icon:'🌾', name:'Oves',    name_en:'Oats',    seeds:'seeds_oats',   yield:3, strawYield:2, feedVal:2 },
+        millet: { id:'millet',      icon:'🌾', name:'Proso',   name_en:'Millet',  seeds:'seeds_millet', yield:4, strawYield:1, feedVal:2 },
+        peas:   { id:'peas',        icon:'🫛', name:'Hrách',   name_en:'Peas',    seeds:'seeds_peas',   yield:4, strawYield:0, feedVal:1 },
+        flax:   { id:'flax_fiber',  icon:'🧵', name:'Len',     name_en:'Flax',    seeds:'seeds_flax',   yield:2, strawYield:1, feedVal:0 },
+    },
+
+    renderFieldTab: function() {
+        const el = document.getElementById('field-container');
+        if (!el) return;
+        this._initFields();
+
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        const techs = GameState.researchedTechs || [];
+        const hasField = techs.includes('tech_de_re_rustica');
+
+        if (!hasField) {
+            el.innerHTML = `<div style="text-align:center; padding:30px; opacity:0.6;">
+                <div style="font-size:2.5rem; margin-bottom:12px;">🌾</div>
+                <div style="font-style:italic;">${lang==='en' ? 'Study <strong>De Re Rustica</strong> to unlock the fields.' : 'Prostuduj <strong>De Re Rustica</strong> pro odemčení polí.'}</div>
+            </div>`;
+            return;
+        }
+
+        const hasSulci  = GameState.storage && GameState.storage.sulci  && GameState.storage.sulci.built;
+        const hasHumno  = GameState.storage && GameState.storage.humno   && GameState.storage.humno.built;
+        const hasRotation = techs.includes('tech_crop_rotation');
+        const hasIrrigation = techs.includes('tech_field_irrigation');
+
+        // Sucho check
+        let droughtPenalty = false;
+        let droughtDays = 0;
+        try {
+            const wc = (typeof WeatherSystem !== 'undefined') ? WeatherSystem.cache : null;
+            if (wc && wc.daily && wc.daily.precipitation_sum) {
+                let dryDays = 0;
+                for (let d = 0; d < Math.min(7, wc.daily.precipitation_sum.length); d++) {
+                    if ((wc.daily.precipitation_sum[d] || 0) < 0.1) dryDays++;
+                }
+                droughtDays = dryDays;
+                droughtPenalty = dryDays >= 5;
+            }
+        } catch(e) {}
+
+        // Kapacita vody
+        const water = GameState.inventory['water'] || 0;
+        const waterCost = hasIrrigation ? 1 : 2;
+
+        const now = Date.now();
+        const phaseMs = this.FIELD_PHASE_MS;
+        const phaseNames = lang === 'en'
+            ? ['Ploughed','Sown','Growing','Ready']
+            : ['Zorána','Oseta','Roste','Zralá'];
+        const phaseIcons = ['🟫','🌱','🌿','🌾'];
+
+        let html = '';
+
+        // Sucho indikátor
+        if (droughtDays > 0) {
+            const color = droughtPenalty ? '#c0392b' : '#e67e22';
+            const msg = droughtPenalty
+                ? (lang==='en' ? `⚠️ Drought! ${droughtDays} dry days — yield -20%` : `⚠️ Sucho! ${droughtDays} suchých dní — výnos -20%`)
+                : (lang==='en' ? `☀️ ${droughtDays} dry days` : `☀️ ${droughtDays} suchých dní`);
+            html += `<div style="margin-bottom:12px; padding:8px 12px; background:rgba(197,160,89,0.1); border-radius:6px; border-left:3px solid ${color}; font-size:0.82rem; color:${color};">${msg}</div>`;
+        }
+
+        // Trojpolní info
+        if (hasRotation) {
+            html += `<div style="margin-bottom:10px; padding:6px 12px; background:rgba(90,154,90,0.1); border-radius:6px; font-size:0.78rem; color:#5a9a5a;">✅ ${lang==='en' ? 'Three-field system: +25% yield' : 'Trojpolní systém: +25% výnos'}</div>`;
+        }
+
+        // Sloty
+        html += '<div class="garden-grid" style="margin-bottom:16px;">';
+        GameState.fields.forEach((field, idx) => {
+            if (field.locked) {
+                html += `<div class="garden-plot"><div class="plot-soil" style="opacity:0.2">🔒</div><div class="text-sm">${lang==='en'?'Locked':'Zamčeno'}</div></div>`;
+                return;
+            }
+
+            // Fallow slot (trojpolní)
+            if (hasRotation && idx === 0 && GameState.fields.filter(f=>!f.locked && f.state!=='empty').length >= 2) {
+                html += `<div class="garden-plot"><div class="plot-soil" style="opacity:0.5">🟤</div><div class="text-sm">${lang==='en'?'Fallow':'Úhor'}</div><div style="margin-top:auto"><button class="craft-btn" disabled>${lang==='en'?'Resting':'Odpočívá'}</button></div></div>`;
+                return;
+            }
+
+            let content = '';
+            let btn = '';
+
+            if (field.state === 'empty') {
+                content = `<div class="plot-soil" style="opacity:0.3">🟫</div><div class="text-sm">${lang==='en'?'Empty':'Prázdné'}</div>`;
+                const canPlough = hasSulci;
+                btn = `<button class="craft-btn" onclick="GardenSystem.ploughField(${idx})" ${canPlough?'':'disabled'}>🪠 ${lang==='en'?'Plough':'Orat'}</button>`;
+                if (!hasSulci) btn += `<div style="font-size:0.7rem;opacity:0.5;margin-top:3px;">${lang==='en'?'Needs: Sulci':'Nutné: Brázdy'}</div>`;
+            }
+            else if (field.state === 'ploughed') {
+                content = `<div class="plot-soil">🟫</div><div class="text-sm">${lang==='en'?'Ploughed':'Zorána'}</div>`;
+                // Výběr plodiny
+                const cropOpts = Object.entries(this.CROPS_DB).map(([key, c]) =>
+                    `<option value="${key}">${lang==='en'?c.name_en:c.name}</option>`
+                ).join('');
+                btn = `<select id="field-crop-sel-${idx}" style="font-size:0.75rem;padding:2px;width:100%;margin-bottom:4px;">${cropOpts}</select>
+                       <button class="craft-btn" onclick="GardenSystem.sowField(${idx}, document.getElementById('field-crop-sel-${idx}').value)">🌱 ${lang==='en'?'Sow':'Osít'}</button>`;
+            }
+            else if (field.state === 'growing') {
+                const crop = this.CROPS_DB[field.crop];
+                const cropIcon = crop ? crop.icon : '🌱';
+                const phaseIdx = Math.min(field.phase, 3);
+                const phaseEnd = field.phaseStart + phaseMs;
+                const remaining = Math.max(0, phaseEnd - now);
+                const hoursLeft = Math.ceil(remaining / (1000*60*60));
+                const progressPct = Math.min(100, Math.round((1 - remaining/phaseMs)*100));
+
+                content = `<div class="plot-soil" style="color:${phaseIdx>=2?'#4caf50':'#888'}">${cropIcon}</div>
+                           <div class="text-sm">${phaseNames[phaseIdx]}</div>
+                           <div style="height:3px;background:rgba(0,0,0,0.1);border-radius:2px;margin:3px 0;">
+                             <div style="height:100%;width:${progressPct}%;background:var(--accent-gold);border-radius:2px;"></div>
+                           </div>
+                           <div style="font-size:0.68rem;opacity:0.6;">${hoursLeft}h</div>`;
+
+                if (!field.watered && phaseIdx < 3) {
+                    btn = `<button class="craft-btn" onclick="GardenSystem.waterField(${idx})" ${water>=waterCost?'':'disabled'}>💧 ${lang==='en'?'Water':'Zalít'} (${waterCost}💧)</button>`;
+                } else if (phaseIdx >= 3) {
+                    btn = `<button class="craft-btn" onclick="GardenSystem.harvestField(${idx})">🌾 ${lang==='en'?'Harvest':'Sklidit'}</button>`;
+                } else {
+                    btn = `<button class="craft-btn" disabled>⏳ ${lang==='en'?'Growing':'Roste'}</button>`;
+                }
+            }
+
+            html += `<div class="garden-plot">${content}<div style="margin-top:auto">${btn}</div></div>`;
+        });
+        html += '</div>';
+
+        // Info panel
+        html += `<div style="font-size:0.78rem; opacity:0.65; padding:8px 12px; background:rgba(0,0,0,0.04); border-radius:6px; border-left:3px solid rgba(197,160,89,0.3);">
+            💧 ${lang==='en'?'Water per irrigation':'Voda na závlahu'}: ${waterCost} | 
+            🌾 ${lang==='en'?'Phase duration':'Délka fáze'}: 3 ${lang==='en'?'days':'dny'} | 
+            ${hasHumno ? '✅ Humno: +sláma' : `🏗️ ${lang==='en'?'Build Humno for +straw':'Postav Humno pro +slámu'}`}
+        </div>`;
+
+        el.innerHTML = html;
+    },
+
+    ploughField: function(idx) {
+        this._initFields();
+        const field = GameState.fields[idx];
+        if (!field || field.locked) return;
+        field.state = 'ploughed';
+        Game.save();
+        this.renderFieldTab();
+    },
+
+    sowField: function(idx, cropKey) {
+        this._initFields();
+        const field = GameState.fields[idx];
+        const crop = this.CROPS_DB[cropKey];
+        if (!field || field.locked || field.state !== 'ploughed' || !crop) return;
+        // Zkontrolovat semena (TODO: přidat seeds items)
+        field.state   = 'growing';
+        field.crop    = cropKey;
+        field.phase   = 0;
+        field.phaseStart = Date.now();
+        field.watered = false;
+        Game.save();
+        this.renderFieldTab();
+    },
+
+    waterField: function(idx) {
+        this._initFields();
+        const field = GameState.fields[idx];
+        if (!field || field.state !== 'growing') return;
+        const techs = GameState.researchedTechs || [];
+        const waterCost = techs.includes('tech_field_irrigation') ? 1 : 2;
+        if ((GameState.inventory['water'] || 0) < waterCost) {
+            if (typeof UI !== 'undefined') UI.notify('Nedostatek vody!', true);
+            return;
+        }
+        Game.removeItem('water', waterCost);
+        field.watered = true;
+        Game.save();
+        this.renderFieldTab();
+    },
+
+    harvestField: function(idx) {
+        this._initFields();
+        const field = GameState.fields[idx];
+        const crop = this.CROPS_DB[field.crop];
+        if (!field || field.state !== 'growing' || field.phase < 3 || !crop) return;
+
+        const techs = GameState.researchedTechs || [];
+        const hasRotation = techs.includes('tech_crop_rotation');
+        const hasHumno   = GameState.storage && GameState.storage.humno && GameState.storage.humno.built;
+
+        // Výpočet výnosu
+        let yieldAmt = crop.yield;
+        if (hasRotation) yieldAmt = Math.round(yieldAmt * 1.25);
+
+        // Sucho penalizace
+        try {
+            const wc = (typeof WeatherSystem !== 'undefined') ? WeatherSystem.cache : null;
+            if (wc && wc.daily && wc.daily.precipitation_sum) {
+                let dryDays = 0;
+                for (let d = 0; d < Math.min(7, wc.daily.precipitation_sum.length); d++) {
+                    if ((wc.daily.precipitation_sum[d] || 0) < 0.1) dryDays++;
+                }
+                if (dryDays >= 5) yieldAmt = Math.max(1, Math.round(yieldAmt * 0.8));
+            }
+        } catch(e) {}
+
+        Game.addItem(crop.id, yieldAmt);
+
+        // Sláma
+        const strawAmt = hasHumno ? crop.strawYield * 2 : Math.min(1, crop.strawYield);
+        if (strawAmt > 0) Game.addItem('straw', strawAmt);
+
+        // Reset pole
+        field.state   = 'empty';
+        field.crop    = null;
+        field.phase   = 0;
+        field.phaseStart = 0;
+        field.watered = false;
+
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        const cropName = lang === 'en' ? crop.name_en : crop.name;
+        if (typeof UI !== 'undefined') UI.notify(`🌾 ${lang==='en'?'Harvested':'Sklizeno'}: ${cropName} ×${yieldAmt}`);
+        Game.addKronikaEntry('important', `🌾 Sklizeno: ${cropName} ×${yieldAmt}`, `🌾 Harvested: ${cropName} ×${yieldAmt}`, `🌾 Messis: ${cropName} ×${yieldAmt}`);
+        Game.save();
+        this.renderFieldTab();
+    },
+
+    // Automatická aktualizace fází pole (voláno z game tick)
+    checkFieldGrowth: function() {
+        if (!GameState.fields) return;
+        const now = Date.now();
+        const phaseMs = this.FIELD_PHASE_MS;
+        let changed = false;
+        GameState.fields.forEach(field => {
+            if (field.state !== 'growing' || field.phase >= 3) return;
+            const phaseEnd = field.phaseStart + phaseMs;
+            if (now >= phaseEnd) {
+                field.phase++;
+                field.phaseStart = now;
+                field.watered = false; // nová fáze = nová závlaha
+                changed = true;
+            }
+        });
+        if (changed) Game.save();
+    },
+
+
 };
 // ═══ src/systems/PersonaSystem.js ═══
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -22465,6 +22803,24 @@ const STRINGS_cs = {
         piscinaWaitingCarp: 'Čeká na příchod kaprů z výtažníku...',
         piscinaUpgradeFirst: 'Nejprve vybuduj předchozí rybník.',
         tabZahony: '🌱 Záhony',
+        tabPole: '🌾 Pole',
+        // Pole (Ager)
+        poleLocked: 'Odemkni De Re Rustica a postav Brázdy (Sulci) pro přístup k polím.',
+        poleDesc: 'Klášterní pole. Zor, osej, zalij a skliď.',
+        poleEmpty: 'Prázdné',
+        polePloughed: 'Zorána',
+        poleGrowing: 'Roste',
+        poleReady: 'Zralá',
+        poleFallow: 'Úhor',
+        polePlough: 'Orat',
+        poleSow: 'Osít',
+        poleWater: 'Zalít',
+        poleHarvest: 'Sklidit',
+        poleNeedsSulci: 'Nutné: Brázdy postaveny',
+        poleDrought: 'Sucho',
+        poleDroughtWarn: 'Sucho! {days} suchých dní — výnos -20%',
+        poleRotation: 'Trojpolní systém: +25% výnos',
+        poleFallowResting: 'Odpočívá',
         tabSad: '🌳 Sad',
         tabApiarium: '🐝 Apiarium',
         tabDvur: '🐄 Dvůr',
@@ -24792,6 +25148,24 @@ According to Theophilus, the organ is an instrument worthy of God, but its const
         piscinaWaitingCarp: 'Awaiting carp from the rearing pond...',
         piscinaUpgradeFirst: 'Build the previous pond first.',
         tabZahony: '🌱 Plots',
+        tabPole: '🌾 Fields',
+        // Fields (Ager)
+        poleLocked: 'Study De Re Rustica and build Sulci (Furrows) to unlock the fields.',
+        poleDesc: 'Monastic fields. Plough, sow, irrigate and harvest.',
+        poleEmpty: 'Empty',
+        polePloughed: 'Ploughed',
+        poleGrowing: 'Growing',
+        poleReady: 'Ready',
+        poleFallow: 'Fallow',
+        polePlough: 'Plough',
+        poleSow: 'Sow',
+        poleWater: 'Water',
+        poleHarvest: 'Harvest',
+        poleNeedsSulci: 'Requires: Sulci built',
+        poleDrought: 'Drought',
+        poleDroughtWarn: 'Drought! {days} dry days — yield -20%',
+        poleRotation: 'Three-field system: +25% yield',
+        poleFallowResting: 'Resting',
         tabSad: '🌳 Orchard',
         tabApiarium: '🐝 Apiary',
         tabDvur: '🐄 Farmyard',
@@ -26276,6 +26650,7 @@ const Game = {
                     CellariumSystem.checkGiacomoEvent();
                     // v8.x: Orchard growing → mature transition
                     Game.checkOrchardGrowth();
+                    if (typeof GardenSystem !== 'undefined') GardenSystem.checkFieldGrowth();
                     Game.checkFarmyardProduction();
                     Game.checkPiscinaGrowth();
                 }
@@ -28205,8 +28580,10 @@ const Game = {
 
 	buildStorage: function(type) {
 		const lang = (GameState.settings && GameState.settings.language) || 'cs';
-		if (!GameState.storage) GameState.storage = { almarium: {built:false}, cella: {built:false}, horreum: {built:false}, fabrica: {built:false} };
+		if (!GameState.storage) GameState.storage = { almarium: {built:false}, cella: {built:false}, horreum: {built:false}, fabrica: {built:false}, sulci: {built:false}, humno: {built:false} };
 		if (!GameState.storage.fabrica) GameState.storage.fabrica = {built:false};
+		if (!GameState.storage.sulci)   GameState.storage.sulci   = {built:false};
+		if (!GameState.storage.humno)   GameState.storage.humno   = {built:false};
 		if (!GameState.storage.transactions) GameState.storage.transactions = [];
 		if (type === 'cella' && !GameState.storage.almarium.built) {
 			UI.notify(lang==='en' ? 'Build Almarium first.' : 'Nejprve postav Almarium.', true); return;
@@ -28222,6 +28599,8 @@ const Game = {
 			cella:    { cut_stone: 12, rope: 5, chalk: 4 },
 			horreum:  { cut_stone: 20, plank: 10, glue: 4, rope: 6 },
 			fabrica:  { rock: 30, plank: 15, charcoal: 10, anvil: 1 },
+			sulci:    { plank: 8, rope: 4, stick: 10 },
+			humno:    { cut_stone: 8, plank: 6, rope: 3 },
 		};
 		const cost = costs[type];
 		if (!cost) return;
@@ -28234,7 +28613,7 @@ const Game = {
 		for (const [item, amt] of Object.entries(cost)) { this.removeItem(item, amt); }
 		GameState.storage[type].built = true;
 		Game.save();
-		const names = { almarium: 'Almarium', cella: 'Cella', horreum: 'Horreum', fabrica: 'Fabrica' };
+		const names = { almarium: 'Almarium', cella: 'Cella', horreum: 'Horreum', fabrica: 'Fabrica', sulci: 'Sulci', humno: 'Humno' };
 		const n = names[type];
 		UI.notifyPanel('🏗️ ' + (lang==='en' ? n+' built.' : n+' postaveno.'), 'system');
 		Game.addKronikaEntry('important', n+' postaveno.', n+' built.', n+' aedificatum est.');

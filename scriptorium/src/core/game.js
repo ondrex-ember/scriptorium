@@ -504,6 +504,7 @@ const Game = {
                     CellariumSystem.checkGiacomoEvent();
                     // v8.x: Orchard growing → mature transition
                     Game.checkOrchardGrowth();
+                    if (typeof GardenSystem !== 'undefined') GardenSystem.checkFieldGrowth();
                     Game.checkFarmyardProduction();
                     Game.checkPiscinaGrowth();
                 }
@@ -2433,8 +2434,10 @@ const Game = {
 
 	buildStorage: function(type) {
 		const lang = (GameState.settings && GameState.settings.language) || 'cs';
-		if (!GameState.storage) GameState.storage = { almarium: {built:false}, cella: {built:false}, horreum: {built:false}, fabrica: {built:false} };
+		if (!GameState.storage) GameState.storage = { almarium: {built:false}, cella: {built:false}, horreum: {built:false}, fabrica: {built:false}, sulci: {built:false}, humno: {built:false} };
 		if (!GameState.storage.fabrica) GameState.storage.fabrica = {built:false};
+		if (!GameState.storage.sulci)   GameState.storage.sulci   = {built:false};
+		if (!GameState.storage.humno)   GameState.storage.humno   = {built:false};
 		if (!GameState.storage.transactions) GameState.storage.transactions = [];
 		if (type === 'cella' && !GameState.storage.almarium.built) {
 			UI.notify(lang==='en' ? 'Build Almarium first.' : 'Nejprve postav Almarium.', true); return;
@@ -2450,6 +2453,8 @@ const Game = {
 			cella:    { cut_stone: 12, rope: 5, chalk: 4 },
 			horreum:  { cut_stone: 20, plank: 10, glue: 4, rope: 6 },
 			fabrica:  { rock: 30, plank: 15, charcoal: 10, anvil: 1 },
+			sulci:    { plank: 8, rope: 4, stick: 10 },
+			humno:    { cut_stone: 8, plank: 6, rope: 3 },
 		};
 		const cost = costs[type];
 		if (!cost) return;
@@ -2462,7 +2467,7 @@ const Game = {
 		for (const [item, amt] of Object.entries(cost)) { this.removeItem(item, amt); }
 		GameState.storage[type].built = true;
 		Game.save();
-		const names = { almarium: 'Almarium', cella: 'Cella', horreum: 'Horreum', fabrica: 'Fabrica' };
+		const names = { almarium: 'Almarium', cella: 'Cella', horreum: 'Horreum', fabrica: 'Fabrica', sulci: 'Sulci', humno: 'Humno' };
 		const n = names[type];
 		UI.notifyPanel('🏗️ ' + (lang==='en' ? n+' built.' : n+' postaveno.'), 'system');
 		Game.addKronikaEntry('important', n+' postaveno.', n+' built.', n+' aedificatum est.');
