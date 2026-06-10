@@ -71,21 +71,27 @@ const CalendarSystem = {
     },
 
     // ── Navigace ─────────────────────────────────────────────────────────────
+    GAME_YEAR: 1465,
+
     getViewState: function() {
         if (!GameState.ui) GameState.ui = {};
         const now = new Date();
         if (!GameState.ui.calViewMonth) GameState.ui.calViewMonth = now.getMonth() + 1;
-        if (!GameState.ui.calViewYear)  GameState.ui.calViewYear  = now.getFullYear();
+        if (!GameState.ui.calViewYear)  GameState.ui.calViewYear  = this.GAME_YEAR;
         return { month: GameState.ui.calViewMonth, year: GameState.ui.calViewYear };
     },
 
     navigateTo: function(month, year) {
-        // Limit: 6 měsíců zpět, 12 vpřed od dnešního měsíce
+        // Limit: 6 měsíců zpět, 12 vpřed od herního roku 1465
         const now = new Date();
-        const minDate = new Date(now.getFullYear(), now.getMonth() - 6, 1);
-        const maxDate = new Date(now.getFullYear(), now.getMonth() + 12, 1);
-        const target  = new Date(year, month - 1, 1);
-        if (target < minDate || target > maxDate) return;
+        const baseYear = this.GAME_YEAR;
+        const baseMonth = now.getMonth() + 1;
+        // Převod na absolutní měsíce pro porovnání
+        const baseAbs   = baseYear * 12 + baseMonth;
+        const minAbs    = baseAbs - 6;
+        const maxAbs    = baseAbs + 12;
+        const targetAbs = year * 12 + month;
+        if (targetAbs < minAbs || targetAbs > maxAbs) return;
         if (!GameState.ui) GameState.ui = {};
         GameState.ui.calViewMonth = month;
         GameState.ui.calViewYear  = year;
@@ -130,8 +136,8 @@ const CalendarSystem = {
         if (typeof NotificationSystem !== 'undefined') {
             NotificationSystem.modal({
                 title: `${day}. ${monthName}`,
-                text: body,
-                choices: [{ label: lang === 'en' ? 'Close' : 'Zavřít', type: 'default', effect: () => {} }]
+                body: body,
+                buttons: [{ label: lang === 'en' ? 'Close' : 'Zavřít', action: () => {} }]
             });
         }
     },
