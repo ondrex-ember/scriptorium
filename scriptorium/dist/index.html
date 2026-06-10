@@ -891,8 +891,7 @@
                 right: 0;
                 z-index: 9999;
                 display: flex !important;
-                background: rgba(0, 0, 0, 0.45);
-                backdrop-filter: blur(4px);
+                background: transparent;
                 padding: 4px 8px;
                 flex-wrap: nowrap;
                 gap: 5px;
@@ -2368,7 +2367,7 @@
                     style="margin-top:10px; margin-bottom:15px; display: flex; flex-wrap: wrap; gap: 5px;">
                     <button id="craft-filter-all" class="filter-btn active"
                         onclick="UI.filterCrafting('all', this)">Vše</button>
-                    <button id="craft-filter-tool" class="filter-btn"
+                    <button id="craft-filter-tool" class="filter-btn" data-i18n="craft.filterTool"
                         onclick="UI.filterCrafting('tool', this)">Nástroje</button>
                     <button id="craft-filter-mat" class="filter-btn"
                         onclick="UI.filterCrafting('mat', this)">Materiály</button>
@@ -21892,7 +21891,7 @@ const STRINGS_cs = {
             quietNote: 'Zvuky budou ztlumeny v této době'
         }
     },
-    craft: { filterAll: 'Vše', filterMat: 'Materiály', filterFood: 'Jídlo', filterAlchemy: 'Alchymie', filterLore: 'Vědění', btn: 'Výroba', repair: 'Opravit' },
+    craft: { filterAll: 'Vše', filterTool: 'Nástroje', filterMat: 'Materiály', filterFood: 'Jídlo', filterAlchemy: 'Alchymie', filterLore: 'Vědění', btn: 'Výroba', repair: 'Opravit' },
     inv: { filterAll: 'Vše', filterMat: 'Suroviny', filterTool: 'Nástroje', filterLore: 'Ostatní' },
     settings: { langLabel: '🗺️ Jazyk / Language' },
     actions: {
@@ -28798,6 +28797,11 @@ renderActions: function() {
             const _click = _hasMateria ? `onclick="UI.showItemModal('${id}')" style="cursor:pointer;"` : '';
             el.innerHTML += `<div class="card" ${_click}><div class="item-icon">${item.icon}</div><div><strong>${iName(id)}</strong> x${qty}<div class="text-sm">${iDesc(id)}</div></div>${eatBtn}</div>`;
         });
+    },
+    filterCrafting: function(cat, btn) {
+        this.currentFilter = cat;
+        if(btn) { document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active')); btn.classList.add('active'); }
+        this.renderCrafting();
     },
     filterInventory: function(cat, btn) {
         this.currentInvFilter = cat;

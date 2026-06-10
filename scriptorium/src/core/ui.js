@@ -278,6 +278,11 @@ renderActions: function() {
             el.innerHTML += `<div class="card" ${_click}><div class="item-icon">${item.icon}</div><div><strong>${iName(id)}</strong> x${qty}<div class="text-sm">${iDesc(id)}</div></div>${eatBtn}</div>`;
         });
     },
+    filterCrafting: function(cat, btn) {
+        this.currentFilter = cat;
+        if(btn) { document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active')); btn.classList.add('active'); }
+        this.renderCrafting();
+    },
     filterInventory: function(cat, btn) {
         this.currentInvFilter = cat;
         const container = document.getElementById('inv-filter-bar');

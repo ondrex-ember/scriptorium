@@ -891,8 +891,7 @@
                 right: 0;
                 z-index: 9999;
                 display: flex !important;
-                background: rgba(0, 0, 0, 0.45);
-                backdrop-filter: blur(4px);
+                background: transparent;
                 padding: 4px 8px;
                 flex-wrap: nowrap;
                 gap: 5px;
@@ -2368,7 +2367,7 @@
                     style="margin-top:10px; margin-bottom:15px; display: flex; flex-wrap: wrap; gap: 5px;">
                     <button id="craft-filter-all" class="filter-btn active"
                         onclick="UI.filterCrafting('all', this)">Vše</button>
-                    <button id="craft-filter-tool" class="filter-btn"
+                    <button id="craft-filter-tool" class="filter-btn" data-i18n="craft.filterTool"
                         onclick="UI.filterCrafting('tool', this)">Nástroje</button>
                     <button id="craft-filter-mat" class="filter-btn"
                         onclick="UI.filterCrafting('mat', this)">Materiály</button>
