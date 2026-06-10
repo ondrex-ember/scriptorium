@@ -1,16 +1,21 @@
 <!DOCTYPE html>
 <html lang="cs">
+
 <head>
-<!-- Google Tag Manager -->
-<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-})(window,document,'script','dataLayer','GTM-NZSGNPD8');</script>
-<!-- End Google Tag Manager -->
+    <!-- Google Tag Manager -->
+    <script>(function (w, d, s, l, i) {
+            w[l] = w[l] || []; w[l].push({
+                'gtm.start':
+                    new Date().getTime(), event: 'gtm.js'
+            }); var f = d.getElementsByTagName(s)[0],
+                j = d.createElement(s), dl = l != 'dataLayer' ? '&l=' + l : ''; j.async = true; j.src =
+                    'https://www.googletagmanager.com/gtm.js?id=' + i + dl; f.parentNode.insertBefore(j, f);
+        })(window, document, 'script', 'dataLayer', 'GTM-NZSGNPD8');</script>
+    <!-- End Google Tag Manager -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Scriptorium — středověká idle hra o kopírování rukopisů, výrobě pergamenu a studiu v klášterním skriptoriu. Historicky podložená, zasazená do roku 1465 v Olomouci.">
+    <meta name="description"
+        content="Scriptorium — středověká idle hra o kopírování rukopisů, výrobě pergamenu a studiu v klášterním skriptoriu. Historicky podložená, zasazená do roku 1465 v Olomouci.">
     <meta name="robots" content="index, follow">
     <link rel="canonical" href="https://myscriptorium.cz/about.html">
     <link rel="alternate" hreflang="cs" href="https://myscriptorium.cz/about.html">
@@ -20,7 +25,8 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="Scriptorium">
     <meta property="og:title" content="O hře — Scriptorium · Středověká idle hra">
-    <meta property="og:description" content="Kopíruj rukopisy, pěstuj byliny a odemykej tajemství pergamenu a inkoustu. Historická idle hra zasazená do klášterního skriptoria 15. století.">
+    <meta property="og:description"
+        content="Kopíruj rukopisy, pěstuj byliny a odemykej tajemství pergamenu a inkoustu. Historická idle hra zasazená do klášterního skriptoria 15. století.">
     <meta property="og:url" content="https://myscriptorium.cz/about.html">
     <meta property="og:image" content="https://myscriptorium.cz/og-image.jpg">
     <meta property="og:image:width" content="1200">
@@ -29,7 +35,8 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="O hře — Scriptorium · Středověká idle hra">
-    <meta name="twitter:description" content="Kopíruj rukopisy, pěstuj byliny a odemykej tajemství pergamenu a inkoustu.">
+    <meta name="twitter:description"
+        content="Kopíruj rukopisy, pěstuj byliny a odemykej tajemství pergamenu a inkoustu.">
     <meta name="twitter:image" content="https://myscriptorium.cz/og-image.jpg">
 
     <!-- PWA -->
@@ -68,23 +75,33 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     <link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap"
+        rel="stylesheet">
 
     <style>
-        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-        :root {
-            --parchment:    #f5f0e8;
-            --parchment-2:  #ede5d0;
-            --ink:          #2c2416;
-            --ink-soft:     #4a3f2f;
-            --gold:         #c5a059;
-            --gold-dark:    #9a7a3a;
-            --wax:          #8a3324;
-            --border:       rgba(197,160,89,0.35);
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
         }
 
-        html { scroll-behavior: smooth; }
+        :root {
+            --parchment: #f5f0e8;
+            --parchment-2: #ede5d0;
+            --ink: #2c2416;
+            --ink-soft: #4a3f2f;
+            --gold: #c5a059;
+            --gold-dark: #9a7a3a;
+            --wax: #8a3324;
+            --border: rgba(197, 160, 89, 0.35);
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
 
         body {
             background: var(--parchment);
@@ -115,7 +132,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
             content: '';
             position: absolute;
             inset: 0;
-            background: linear-gradient(to bottom, rgba(20,15,8,0.4) 0%, rgba(20,15,8,0.75) 100%);
+            background: linear-gradient(to bottom, rgba(20, 15, 8, 0.4) 0%, rgba(20, 15, 8, 0.75) 100%);
         }
 
         .header-inner {
@@ -132,13 +149,13 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
             font-size: clamp(1.8rem, 5vw, 2.8rem);
             color: var(--gold);
             letter-spacing: 0.05em;
-            text-shadow: 0 2px 12px rgba(0,0,0,0.6);
+            text-shadow: 0 2px 12px rgba(0, 0, 0, 0.6);
             margin-bottom: 6px;
         }
 
         .site-header .subtitle {
             font-style: italic;
-            color: rgba(245,240,232,0.75);
+            color: rgba(245, 240, 232, 0.75);
             font-size: 1rem;
             letter-spacing: 0.04em;
         }
@@ -171,7 +188,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
             border-radius: 2px;
             cursor: pointer;
             transition: background 0.2s, transform 0.15s;
-            box-shadow: 0 2px 12px rgba(197,160,89,0.3);
+            box-shadow: 0 2px 12px rgba(197, 160, 89, 0.3);
         }
 
         .btn-play:hover {
@@ -181,7 +198,9 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
         }
 
         /* ── SECTIONS ── */
-        section { margin-bottom: 48px; }
+        section {
+            margin-bottom: 48px;
+        }
 
         .section-title {
             font-family: 'Cinzel Decorative', serif;
@@ -206,14 +225,14 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
         .version-block {
             padding: 16px 20px;
             border-left: 3px solid var(--gold);
-            background: rgba(197,160,89,0.07);
+            background: rgba(197, 160, 89, 0.07);
             margin-bottom: 12px;
             border-radius: 0 2px 2px 0;
         }
 
         .version-block.older {
             border-left-color: var(--ink-soft);
-            background: rgba(44,36,22,0.04);
+            background: rgba(44, 36, 22, 0.04);
             opacity: 0.75;
         }
 
@@ -226,7 +245,9 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
             letter-spacing: 0.04em;
         }
 
-        .version-block.older strong { color: var(--ink-soft); }
+        .version-block.older strong {
+            color: var(--ink-soft);
+        }
 
         .version-block ul {
             list-style: none;
@@ -248,15 +269,21 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
             font-size: 0.95rem;
         }
 
-        .credits-grid dt { font-weight: 600; color: var(--gold-dark); }
-        .credits-grid dd { color: var(--ink-soft); }
+        .credits-grid dt {
+            font-weight: 600;
+            color: var(--gold-dark);
+        }
+
+        .credits-grid dd {
+            color: var(--ink-soft);
+        }
 
         /* ── MOTTO ── */
         .motto {
             text-align: center;
             padding: 24px 20px;
             border: 1px solid var(--border);
-            background: rgba(197,160,89,0.08);
+            background: rgba(197, 160, 89, 0.08);
             border-radius: 2px;
             font-style: italic;
             font-size: 1.05rem;
@@ -264,12 +291,15 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
             margin-top: 40px;
         }
 
-        .motto strong { color: var(--gold-dark); font-style: normal; }
+        .motto strong {
+            color: var(--gold-dark);
+            font-style: normal;
+        }
 
         /* ── FOOTER ── */
         footer {
             background: var(--ink);
-            color: rgba(245,240,232,0.6);
+            color: rgba(245, 240, 232, 0.6);
             text-align: center;
             padding: 28px 24px;
             font-size: 0.85rem;
@@ -290,8 +320,13 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
             transition: opacity 0.2s;
         }
 
-        footer a:hover { opacity: 0.75; }
-        footer .sep { opacity: 0.3; }
+        footer a:hover {
+            opacity: 0.75;
+        }
+
+        footer .sep {
+            opacity: 0.3;
+        }
 
         footer .made-in {
             font-style: italic;
@@ -315,15 +350,16 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
             font-size: 0.65rem;
             letter-spacing: 0.08em;
             padding: 5px 12px;
-            border: 1px solid rgba(197,160,89,0.5);
-            background: rgba(20,15,8,0.5);
+            border: 1px solid rgba(197, 160, 89, 0.5);
+            background: rgba(20, 15, 8, 0.5);
             color: var(--gold);
             cursor: pointer;
             border-radius: 2px;
             transition: background 0.2s;
         }
 
-        .lang-btn.active, .lang-btn:hover {
+        .lang-btn.active,
+        .lang-btn:hover {
             background: var(--gold);
             color: var(--ink);
             border-color: var(--gold);
@@ -331,25 +367,57 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
         /* ── ANIMATION ── */
         @keyframes fadeUp {
-            from { opacity: 0; transform: translateY(16px); }
-            to   { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(16px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
-        main > * {
+        main>* {
             animation: fadeUp 0.5s ease both;
         }
 
-        main > *:nth-child(1) { animation-delay: 0.05s; }
-        main > *:nth-child(2) { animation-delay: 0.12s; }
-        main > *:nth-child(3) { animation-delay: 0.19s; }
-        main > *:nth-child(4) { animation-delay: 0.26s; }
-        main > *:nth-child(5) { animation-delay: 0.33s; }
+        main>*:nth-child(1) {
+            animation-delay: 0.05s;
+        }
+
+        main>*:nth-child(2) {
+            animation-delay: 0.12s;
+        }
+
+        main>*:nth-child(3) {
+            animation-delay: 0.19s;
+        }
+
+        main>*:nth-child(4) {
+            animation-delay: 0.26s;
+        }
+
+        main>*:nth-child(5) {
+            animation-delay: 0.33s;
+        }
 
         @media (max-width: 480px) {
-            .site-header { min-height: 160px; }
-            main { padding: 32px 16px 48px; }
-            .credits-grid { grid-template-columns: 1fr; }
-            .credits-grid dt { margin-top: 8px; }
+            .site-header {
+                min-height: 160px;
+            }
+
+            main {
+                padding: 32px 16px 48px;
+            }
+
+            .credits-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .credits-grid dt {
+                margin-top: 8px;
+            }
         }
 
         /* ── HERO ── */
@@ -377,8 +445,8 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
             display: block;
             object-fit: cover;
             object-position: center 40%;
-            mask-image: linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(0,0,0,1) 12%, rgba(0,0,0,1) 80%, rgba(0,0,0,0) 100%);
-            -webkit-mask-image: linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(0,0,0,1) 12%, rgba(0,0,0,1) 80%, rgba(0,0,0,0) 100%);
+            mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 1) 12%, rgba(0, 0, 0, 1) 80%, rgba(0, 0, 0, 0) 100%);
+            -webkit-mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 1) 12%, rgba(0, 0, 0, 1) 80%, rgba(0, 0, 0, 0) 100%);
         }
 
         .hero-text {
@@ -403,13 +471,13 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
             font-size: clamp(1.6rem, 5vw, 2.4rem);
             color: var(--gold);
             letter-spacing: 0.06em;
-            text-shadow: 0 2px 16px rgba(197,160,89,0.4);
+            text-shadow: 0 2px 16px rgba(197, 160, 89, 0.4);
             margin-bottom: 10px;
         }
 
         .hero-subtitle {
             font-style: italic;
-            color: rgba(245,240,232,0.65);
+            color: rgba(245, 240, 232, 0.65);
             font-size: 0.95rem;
             margin-bottom: 28px;
             line-height: 1.6;
@@ -434,7 +502,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
             border-radius: 2px;
             cursor: pointer;
             transition: background 0.2s, transform 0.15s;
-            box-shadow: 0 2px 16px rgba(197,160,89,0.35);
+            box-shadow: 0 2px 16px rgba(197, 160, 89, 0.35);
         }
 
         .btn-hero-primary:hover {
@@ -449,7 +517,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
             letter-spacing: 0.1em;
             color: var(--gold);
             background: transparent;
-            border: 1px solid rgba(197,160,89,0.45);
+            border: 1px solid rgba(197, 160, 89, 0.45);
             padding: 12px 28px;
             text-decoration: none;
             border-radius: 2px;
@@ -463,408 +531,446 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
         }
     </style>
 </head>
+
 <body>
 
-<!-- Google Tag Manager (noscript) -->
-<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-NZSGNPD8"
-height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
-<!-- End Google Tag Manager (noscript) -->
+    <!-- Google Tag Manager (noscript) -->
+    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-NZSGNPD8" height="0" width="0"
+            style="display:none;visibility:hidden"></iframe></noscript>
+    <!-- End Google Tag Manager (noscript) -->
 
-<header class="site-header">
-    <div class="lang-toggle">
-        <button class="lang-btn active" id="btn-cs" onclick="setLang('cs')">🇨🇿 CS</button>
-        <button class="lang-btn" id="btn-en" onclick="setLang('en')">🏴󠁧󠁢󠁥󠁮󠁧󠁿 EN</button>
-    </div>
-    <div class="header-inner">
-        <h1>📜 Scriptorium</h1>
-        <p class="subtitle" id="hdr-sub">Léta Páně 1465 · Město Olomouc</p>
-    </div>
-</header>
+    <header class="site-header">
+        <div class="lang-toggle">
+            <button class="lang-btn active" id="btn-cs" onclick="setLang('cs')">🇨🇿 CS</button>
+            <button class="lang-btn" id="btn-en" onclick="setLang('en')">🏴󠁧󠁢󠁥󠁮󠁧󠁿 EN</button>
+        </div>
+        <div class="header-inner">
+            <h1>📜 Scriptorium</h1>
+            <p class="subtitle" id="hdr-sub">Léta Páně 1465 · Město Olomouc</p>
+        </div>
+    </header>
 
-<!-- ── HERO ── -->
-<div class="hero">
-    <div class="hero-image-wrap">
-        <img src="/intro-portrait.jpg" alt="Scriptorium — středověká idle hra" width="1099" height="1860">
-    </div>
-    <div class="hero-text">
-        <p class="hero-tagline" id="hero-tagline">Historická idle hra · zdarma</p>
-        <h2 class="hero-title" id="hero-title">Scriptorium</h2>
-        <p class="hero-subtitle" id="hero-subtitle">Olomouc, Léta Páně 1465.<br>Klášterní scriptorium čeká na tvé pero a inkoust.</p>
-        <div class="hero-cta">
-            <a href="https://myscriptorium.cz/" class="btn-hero-primary" id="hero-cta-play">▶ Spustit hru</a>
-            <a href="#about" class="btn-hero-secondary" id="hero-cta-about">O hře ↓</a>
+    <!-- ── HERO ── -->
+    <div class="hero">
+        <div class="hero-image-wrap">
+            <img src="/intro-portrait.jpg" alt="Scriptorium — středověká idle hra" width="1099" height="1860">
+        </div>
+        <div class="hero-text">
+            <p class="hero-tagline" id="hero-tagline">Historická idle hra · zdarma</p>
+            <h2 class="hero-title" id="hero-title">Scriptorium</h2>
+            <p class="hero-subtitle" id="hero-subtitle">Olomouc, Léta Páně 1465.<br>Klášterní scriptorium čeká na tvé
+                pero a inkoust.</p>
+            <div class="hero-cta">
+                <a href="https://myscriptorium.cz/" class="btn-hero-primary" id="hero-cta-play">▶ Spustit hru</a>
+                <a href="#about" class="btn-hero-secondary" id="hero-cta-about">O hře ↓</a>
+            </div>
         </div>
     </div>
-</div>
 
-<main>
+    <main>
 
-    <section id="about">
-        <h2 class="section-title" id="lbl-about">O hře</h2>
-        <div class="about-block">
-            <p id="txt-about">Středověká idle hra o kopírování rukopisů, výrobě papíru a studiu v klášterním skriptoriu. Kombinuje survival mechaniky (oheň, světlo, hlad) s craftingem, zahradničením a postupným odemykáním technologií. Historicky podložená hra zasazená do roku 1465 v Olomouci.</p>
+        <section id="about">
+            <h2 class="section-title" id="lbl-about">O hře</h2>
+            <div class="about-block">
+                <p id="txt-about">Středověká idle hra o kopírování rukopisů, výrobě papíru a studiu v klášterním
+                    skriptoriu. Kombinuje survival mechaniky (oheň, světlo, hlad) s craftingem, zahradničením a
+                    postupným odemykáním technologií. Historicky podložená hra zasazená do roku 1465 v Olomouci.</p>
+            </div>
+            <div class="about-block" style="font-size:0.9rem; color: var(--ink-soft);">
+                <strong id="lbl-version">Verze:</strong> <span id="val-version">7.9 "Ferrum et Herba"</span>
+                &nbsp;·&nbsp;
+                <strong id="lbl-date">Datum:</strong> <span id="val-date">20. dubna 2026</span> &nbsp;·&nbsp;
+                <strong id="lbl-author">Autor:</strong> Ondrex Ember
+            </div>
+        </section>
+
+        <section>
+            <h2 class="section-title" id="lbl-changelog">📓 Release Notes</h2>
+
+            <div class="version-block">
+                <strong>v7.9 "Ferrum et Herba" (10.06.2026)</strong>
+                <ul>
+                    <li>🔨 <span id="r79-1">Nástroje — kamenné a železné s opotřebením, degradací a opravou (repair
+                            system)</span></li>
+                    <li>⚒️ <span id="r79-2">Fabrica — výroba železných ingotů, nástrojů a oprav ze surovin</span></li>
+                    <li>🌾 <span id="r79-3">Sklady — Almarium / Cella / Horreum s narůstající kapacitou inventáře</span>
+                    </li>
+                    <li>🐑 <span id="r79-4">Dvůr rozšíření — Ovile (vlna, mléko, kůže, jehňata) a Piscina (kaprový
+                            rybník)</span></li>
+                    <li>🔔 <span id="r79-5">Zprávy z kláštera — trojvrstvý notifikační systém: toast / panel /
+                            modal</span></li>
+                    <li>📜 <span id="r79-6">Tidings — 26 historických dopisů v pěti hlasech (Opat, Bratr Lékárník,
+                            Kronikář...)</span></li>
+                    <li>📱 <span id="r79-7">Mobile pills — kompaktní informační lišta v hlavičce pro mobilní
+                            zařízení</span></li>
+                    <li>📅 <span id="r79-8">Calendarium — lunární kalendář s křesťanskými svátky, navigace, Anno Domini
+                            1465</span></li>
+                    <li>🔧 <span id="r79-9">Opravy: study() crash, hudba defaultně vypnuta, repair tlačítka, exportSave
+                            duplicita</span></li>
+                </ul>
+            </div>
+
+            <div class="version-block">
+                <strong>v7.8 "Lux et Umbra" (20.04.2026)</strong>
+                <ul>
+                    <li>🌅 <span id="r78-1">Dynamické pozadí — header mění obraz podle sezóny, denní doby a
+                            počasí</span></li>
+                    <li>⚗️ <span id="r78-2">Athanor 2.0 — CombinationEngine, brewing timer, fáze Nigredo/Albedo/Rubedo,
+                            discovery log</span></li>
+                    <li>🌿 <span id="r78-3">10 nových alchymistických ingrediencí a kombinací (Ferrogalický inkoust,
+                            Oxymel, Aqua Rosarum)</span></li>
+                    <li>🍺 <span id="r78-4">Cellarium — Hospoda s pivem a vínem (efekty: Lupulin, In vino
+                            veritas)</span></li>
+                    <li>🏛️ <span id="r78-5">Dvůr (Curia) — Studna přesunuta do záložky Dvůr, struktura
+                            připravena</span></li>
+                    <li>📄 <span id="r78-6">about.html — hero sekce s obrázkem, GTM, JSON-LD VideoGame schema</span>
+                    </li>
+                    <li>🔧 <span id="r78-7">Opravy: PWA padding (Motorola RAZR), zahrada tab active state, Rithmomachia
+                            piece modal</span></li>
+                </ul>
+            </div>
+
+            <div class="version-block">
+                <strong>v7.7 "Verbum Omnibus" (06.04.2026)</strong>
+                <ul>
+                    <li>🌐 <span id="r77-1">i18n Phase 1 dokončena — kompletní překlad UI do EN</span></li>
+                    <li>📖 <span id="r77-2">61 historických knih v knihovně</span></li>
+                    <li>🔽 <span id="r77-3">Collapsible tech cards — preview lore textu, rozbalitelný detail</span></li>
+                    <li>💧 <span id="r77-4">Well system — kompletní překlad a lokalizace</span></li>
+                    <li>🎲 <span id="r77-5">Games &amp; Records, Věštění — přeloženy zamčené stavy</span></li>
+                    <li>🌱 <span id="r77-6">Zahrada, Pracovna, Zprávy — přeloženy do EN</span></li>
+                    <li>🖋️ <span id="r77-7">NPC Starý Písař — dialog lokalizován</span></li>
+                    <li>🌑 <span id="r77-8">Scriptorium tma overlay — lokalizován</span></li>
+                </ul>
+            </div>
+
+            <div class="version-block">
+                <strong>v7.6 "Lingua Scriptorii" (10.03.2026)</strong>
+                <ul>
+                    <li>🌐 <span id="r76-1">CZ/EN lokalizace — výběr jazyka při prvním spuštění</span></li>
+                    <li>🏴󠁧󠁢󠁥󠁮󠁧󠁿 <span id="r76-2">English (Olde) — autentický středověký styl</span></li>
+                    <li>🗺️ <span id="r76-3">Přepínač jazyka v Nastavení, ?lang=en URL podpora</span></li>
+                    <li>🔍 <span id="r76-4">SEO: hreflang alternate links (cs/en/x-default)</span></li>
+                    <li>📊 <span id="r76-5">GA4 event language_switched</span></li>
+                </ul>
+            </div>
+
+            <div class="version-block older">
+                <strong>v7.5 "Codex Aureus" (09.03.2026)</strong>
+                <ul>
+                    <li>🔤 <span id="r75-1">Font Specimens — 7 knih + 5 technologií s ukázkami písem</span></li>
+                    <li>🏆 <span id="r75-2">Rank System — 8 ranků (Laicus → Magister Artium)</span></li>
+                    <li>🥚 <span id="r75-3">Easter Eggs — 10+ skrytých achievementů</span></li>
+                    <li>📅 <span id="r75-4">Daily Facts — 50+ historických faktů při denní odměně</span></li>
+                    <li>🌦️ <span id="r75-5">Weather System — real-time počasí Praha, auto-téma</span></li>
+                    <li>📊 <span id="r75-6">GA4 + GDPR consent (podmíněné načítání)</span></li>
+                    <li>📱 <span id="r75-7">PWA manifest + service worker</span></li>
+                </ul>
+            </div>
+
+            <div class="version-block older">
+                <strong>v7.4 "Historical Realities" (15.02.2026)</strong>
+                <ul>
+                    <li>📜 <span id="r74-1">3 nové knihy (De arte predicandi, Kutnohorská Bible, Olomoucký Misál)</span>
+                    </li>
+                    <li>🦌 <span id="r74-2">Pergamen (vellum) crafting chain — historicky přesná výroba</span></li>
+                    <li>🪶 <span id="r74-3">Husí brko (quill) systém — 10× použití</span></li>
+                    <li>✒️ <span id="r74-4">Železitoduběnkový inkoust — standard 15. století</span></li>
+                    <li>📘 <span id="r74-5">3 typy kodexů (common/luxury/vellum) dle Petra Voita</span></li>
+                    <li>🔔 <span id="r74-6">Kanonické Hodiny — benediktinský denní řád (8 buffů)</span></li>
+                    <li>⚔️ <span id="r74-7">Události: Švédské obléhání (1642), Skrytý prvotisk</span></li>
+                    <li>🏛️ <span id="r74-8">12 nových technologií — vše z PDF pramenů</span></li>
+                </ul>
+            </div>
+
+            <div class="version-block older">
+                <strong>v7.0 "Library" (12.02.2026)</strong>
+                <ul>
+                    <li>📚 <span id="r70-1">15 historických knih + 1 secret (Starý Písař NPC)</span></li>
+                    <li>🎴 <span id="r70-2">Memory game, osobní statistiky, achievement systém</span></li>
+                    <li>🃏 <span id="r70-3">Historické deskové hry (Ur, Primero, Karnöffel)</span></li>
+                </ul>
+            </div>
+
+            <div class="version-block older">
+                <strong>v6.4 "Expansion" — v6.0 "Origins" (2026-02)</strong>
+                <ul>
+                    <li>🍖 <span id="r64-1">Cooking, alchymie, zahrada, hunger mechanika</span></li>
+                    <li>🌱 <span id="r64-2">Survival loop — oheň, světlo, hlad, sběr</span></li>
+                    <li>⚒️ <span id="r64-3">Crafting základ, tech tree, zápisníky</span></li>
+                </ul>
+            </div>
+        </section>
+
+        <section>
+            <h2 class="section-title" id="lbl-credits">Credits</h2>
+            <dl class="credits-grid">
+                <dt id="lbl-dev">Vývoj</dt>
+                <dd id="val-dev">Ondrex (koncept, design, testování)</dd>
+                <dt id="lbl-code">Kódování</dt>
+                <dd>Ondrex, LLMs</dd>
+                <dt id="lbl-fonts">Fonty</dt>
+                <dd>Google Fonts (Cinzel Decorative, Crimson Text)</dd>
+                <dt id="lbl-sources">Historické zdroje</dt>
+                <dd id="val-sources">České kláštery, středověké kroniky</dd>
+                <dt id="lbl-insp">Inspirace</dt>
+                <dd id="val-insp">Bouvard a Pécuchet (Gustave Flaubert) &amp; Byli jednou dva písaři; střet rukopisců a
+                    prvních knihtiskařů</dd>
+            </dl>
+        </section>
+
+        <div class="motto">
+            <strong>🎮 Ludite et, super omnia, nolite pugnare</strong>
         </div>
-        <div class="about-block" style="font-size:0.9rem; color: var(--ink-soft);">
-            <strong id="lbl-version">Verze:</strong> <span id="val-version">7.8 "Lux et Umbra"</span> &nbsp;·&nbsp;
-            <strong id="lbl-date">Datum:</strong> <span id="val-date">20. dubna 2026</span> &nbsp;·&nbsp;
-            <strong id="lbl-author">Autor:</strong> Ondrex Ember
+
+    </main>
+
+    <footer>
+        <div class="footer-links">
+            <a href="https://www.ember-pa.cz/" target="_blank" rel="noopener">🔥 Ember PA</a>
+            <span class="sep">|</span>
+            <a href="https://newsandradio.cz" target="_blank" rel="noopener">📰 Jouza News&amp;Radio 📻</a>
+            <span class="sep">|</span>
+            <a href="https://oracoolio.com" target="_blank" rel="noopener">🔮 Oracoolio</a>
+            <span class="sep">|</span>
+            <a href="https://www.fajrum.cz/about.html" target="_blank" rel="noopener">🍷 Fajrum</a>
+            <span class="sep">|</span>
+            <a href="https://occultix.app" target="_blank" rel="noopener">⛧ Occultix</a>
+            <span class="sep">|</span>
+            <a href="https://fractout.com/" target="_blank" rel="noopener">👾 Fractout</a>
         </div>
-    </section>
+        <div class="made-in" id="footer-made">Vyvíjeno s ❤️ v Novém Boru by Ondrex</div>
+    </footer>
 
-    <section>
-        <h2 class="section-title" id="lbl-changelog">📓 Release Notes</h2>
+    <script>
+        // ── Obsah v obou jazycích ──────────────────────────────────────
+        const CONTENT = {
+            cs: {
+                title: 'O hře · Scriptorium',
+                hdrSub: 'Léta Páně 1465 · Město Olomouc',
+                btnPlay: '🎮 Vstoupit do Skriptoria →',
+                heroTagline: 'Historická idle hra · zdarma',
+                heroTitle: 'Scriptorium',
+                heroSubtitle: 'Olomouc, Léta Páně 1465.<br>Klášterní scriptorium čeká na tvé pero a inkoust.',
+                heroCTAPlay: '▶ Spustit hru',
+                heroCTAAbout: 'O hře ↓',
+                lblAbout: 'O hře',
+                txtAbout: 'Středověká idle hra o kopírování rukopisů, výrobě papíru a studiu v klášterním skriptoriu. Kombinuje survival mechaniky (oheň, světlo, hlad) s craftingem, zahradničením a postupným odemykáním technologií. Historicky podložená hra zasazená do roku 1465 v Olomouci.',
+                lblVersion: 'Verze:', lblDate: 'Datum:', lblAuthor: 'Autor:',
+                valVersion: '7.8 "Lux et Umbra"', valDate: '20. dubna 2026',
+                lblChangelog: '📓 Release Notes',
+                r781: 'Dynamické pozadí — header mění obraz podle sezóny, denní doby a počasí',
+                r782: 'Athanor 2.0 — CombinationEngine, brewing timer, fáze Nigredo/Albedo/Rubedo, discovery log',
+                r783: '10 nových alchymistických ingrediencí a kombinací (Ferrogalický inkoust, Oxymel, Aqua Rosarum)',
+                r784: 'Cellarium — Hospoda s pivem a vínem (efekty: Lupulin, In vino veritas)',
+                r785: 'Dvůr (Curia) — Studna přesunuta do záložky Dvůr, struktura připravena',
+                r786: 'about.html — hero sekce s obrázkem, GTM, JSON-LD VideoGame schema',
+                r787: 'Opravy: PWA padding (Motorola RAZR), zahrada tab active state, Rithmomachia piece modal',
+                r771: 'i18n Phase 1 dokončena — kompletní překlad UI do EN',
+                r772: '61 historických knih v knihovně',
+                r773: 'Collapsible tech cards — preview lore textu, rozbalitelný detail',
+                r774: 'Well system — kompletní překlad a lokalizace',
+                r775: 'Games & Records, Věštění — přeloženy zamčené stavy',
+                r776: 'Zahrada, Pracovna, Zprávy — přeloženy do EN',
+                r777: 'NPC Starý Písař — dialog lokalizován',
+                r778: 'Scriptorium tma overlay — lokalizován',
+                r761: 'CZ/EN lokalizace — výběr jazyka při prvním spuštění',
+                r762: 'English (Olde) — autentický středověký styl',
+                r763: 'Přepínač jazyka v Nastavení, ?lang=en URL podpora',
+                r764: 'SEO: hreflang alternate links (cs/en/x-default)',
+                r765: 'GA4 event language_switched',
+                r751: 'Font Specimens — 7 knih + 5 technologií s ukázkami písem',
+                r752: 'Rank System — 8 ranků (Laicus → Magister Artium)',
+                r753: 'Easter Eggs — 10+ skrytých achievementů',
+                r754: 'Daily Facts — 50+ historických faktů při denní odměně',
+                r755: 'Weather System — real-time počasí Praha, auto-téma',
+                r756: 'GA4 + GDPR consent (podmíněné načítání)',
+                r757: 'PWA manifest + service worker',
+                r741: '3 nové knihy (De arte predicandi, Kutnohorská Bible, Olomoucký Misál)',
+                r742: 'Pergamen (vellum) crafting chain — historicky přesná výroba',
+                r743: 'Husí brko (quill) systém — 10× použití',
+                r744: 'Železitoduběnkový inkoust — standard 15. století',
+                r745: '3 typy kodexů (common/luxury/vellum) dle Petra Voita',
+                r746: 'Kanonické Hodiny — benediktinský denní řád (8 buffů)',
+                r747: 'Události: Švédské obléhání (1642), Skrytý prvotisk',
+                r748: '12 nových technologií — vše z PDF pramenů',
+                r701: '15 historických knih + 1 secret (Starý Písař NPC)',
+                r702: 'Memory game, osobní statistiky, achievement systém',
+                r703: 'Historické deskové hry (Ur, Primero, Karnöffel)',
+                r641: 'Cooking, alchymie, zahrada, hunger mechanika',
+                r642: 'Survival loop — oheň, světlo, hlad, sběr',
+                r643: 'Crafting základ, tech tree, zápisníky',
+                lblCredits: 'Credits',
+                lblDev: 'Vývoj', valDev: 'Ondrex (koncept, design, testování)',
+                lblCode: 'Kódování',
+                lblFonts: 'Fonty',
+                lblSources: 'Historické zdroje', valSources: 'České kláštery, středověké kroniky',
+                lblInsp: 'Inspirace', valInsp: 'Bouvard a Pécuchet (Gustave Flaubert) & Byli jednou dva písaři; střet rukopisců a prvních knihtiskařů',
+                footerMade: 'Vyvíjeno s ❤️ v Novém Boru by Ondrex',
+            },
+            en: {
+                title: 'About · Scriptorium',
+                hdrSub: 'Anno Domini 1465 · City of Olomouc',
+                btnPlay: '🎮 Enter the Scriptorium →',
+                heroTagline: 'Historical idle game · free',
+                heroTitle: 'Scriptorium',
+                heroSubtitle: 'Olomouc, Anno Domini 1465.<br>The monastery scriptorium awaits your quill and ink.',
+                heroCTAPlay: '▶ Play now',
+                heroCTAAbout: 'About ↓',
+                lblAbout: 'About the Game',
+                txtAbout: 'A medieval idle game about copying manuscripts, crafting paper, and studying in a monastery scriptorium. Blends survival mechanics (fire, light, hunger) with crafting, gardening, and gradual technology unlocks. Historically grounded, set in the year 1465 in Olomouc.',
+                lblVersion: 'Version:', lblDate: 'Date:', lblAuthor: 'Author:',
+                valVersion: '7.8 "Lux et Umbra"', valDate: '20 April 2026',
+                lblChangelog: '📓 Release Notes',
+                r781: 'Dynamic background — header image changes by season, time of day and weather',
+                r782: 'Athanor 2.0 — CombinationEngine, brewing timer, Nigredo/Albedo/Rubedo phases, discovery log',
+                r783: '10 new alchemical ingredients and combinations (Iron gall ink, Oxymel, Aqua Rosarum)',
+                r784: 'Cellarium — Tavern with beer and wine (effects: Lupulin, In vino veritas)',
+                r785: 'Curia (Farmyard) — Well moved to Dvůr tab, structure prepared',
+                r786: 'about.html — hero section with image, GTM, JSON-LD VideoGame schema',
+                r787: 'Fixes: PWA padding (Motorola RAZR), garden tab active state, Rithmomachia piece modal',
+                r771: 'i18n Phase 1 complete — full UI translation into English',
+                r772: '61 historical books in the library',
+                r773: 'Collapsible tech cards — lore preview, expandable detail',
+                r774: 'Well system — fully translated and localised',
+                r775: 'Games & Records, Divination — locked states translated',
+                r776: 'Garden, Workshop, Tidings — translated into EN',
+                r777: 'Elder Scribe NPC — dialogue localised',
+                r778: 'Scriptorium darkness overlay — localised',
+                r761: 'CZ/EN localisation — language choice on first launch',
+                r762: 'English (Olde) — authentic medieval style',
+                r763: 'Language switcher in Settings, ?lang=en URL support',
+                r764: 'SEO: hreflang alternate links (cs/en/x-default)',
+                r765: 'GA4 event language_switched',
+                r751: 'Font Specimens — 7 books + 5 technologies with typeface samples',
+                r752: 'Rank System — 8 ranks (Laicus → Magister Artium)',
+                r753: 'Easter Eggs — 10+ hidden achievements',
+                r754: 'Daily Facts — 50+ historical facts at daily reward',
+                r755: 'Weather System — real-time Prague weather, auto-theme',
+                r756: 'GA4 + GDPR consent (conditional loading)',
+                r757: 'PWA manifest + service worker',
+                r741: '3 new books (De arte predicandi, Kutná Hora Bible, Olomouc Missal)',
+                r742: 'Vellum crafting chain — historically accurate production',
+                r743: 'Quill system — 10× uses',
+                r744: 'Iron gall ink — 15th-century standard',
+                r745: '3 codex types (common/luxury/vellum) after Petr Voit',
+                r746: 'Canonical Hours — Benedictine daily order (8 buffs)',
+                r747: 'Events: Swedish Siege (1642), Hidden Incunable',
+                r748: '12 new technologies — all from primary sources',
+                r701: '15 historical books + 1 secret (Elder Scribe NPC)',
+                r702: 'Memory game, personal records, achievement system',
+                r703: 'Historical board games (Ur, Primero, Karnöffel)',
+                r641: 'Cooking, alchemy, garden, hunger mechanic',
+                r642: 'Survival loop — fire, light, hunger, gathering',
+                r643: 'Crafting foundation, tech tree, notebooks',
+                lblCredits: 'Credits',
+                lblDev: 'Development', valDev: 'Ondrex (concept, design, testing)',
+                lblCode: 'Coding',
+                lblFonts: 'Fonts',
+                lblSources: 'Historical sources', valSources: 'Bohemian monasteries, medieval chronicles',
+                lblInsp: 'Inspiration', valInsp: 'Bouvard and Pécuchet (Gustave Flaubert) & Once there were two scribes; the clash of manuscript makers and the first printers',
+                footerMade: 'Crafted with ❤️ in Nový Bor by Ondrex',
+            }
+        };
 
-        <div class="version-block">
-            <strong>v7.8 "Lux et Umbra" (20.04.2026)</strong>
-            <ul>
-                <li>🌅 <span id="r78-1">Dynamické pozadí — header mění obraz podle sezóny, denní doby a počasí</span></li>
-                <li>⚗️ <span id="r78-2">Athanor 2.0 — CombinationEngine, brewing timer, fáze Nigredo/Albedo/Rubedo, discovery log</span></li>
-                <li>🌿 <span id="r78-3">10 nových alchymistických ingrediencí a kombinací (Ferrogalický inkoust, Oxymel, Aqua Rosarum)</span></li>
-                <li>🍺 <span id="r78-4">Cellarium — Hospoda s pivem a vínem (efekty: Lupulin, In vino veritas)</span></li>
-                <li>🏛️ <span id="r78-5">Dvůr (Curia) — Studna přesunuta do záložky Dvůr, struktura připravena</span></li>
-                <li>📄 <span id="r78-6">about.html — hero sekce s obrázkem, GTM, JSON-LD VideoGame schema</span></li>
-                <li>🔧 <span id="r78-7">Opravy: PWA padding (Motorola RAZR), zahrada tab active state, Rithmomachia piece modal</span></li>
-            </ul>
-        </div>
+        function setLang(lang) {
+            const L = CONTENT[lang];
+            document.title = L.title;
+            document.documentElement.lang = lang;
 
-        <div class="version-block">
-            <strong>v7.7 "Verbum Omnibus" (06.04.2026)</strong>
-            <ul>
-                <li>🌐 <span id="r77-1">i18n Phase 1 dokončena — kompletní překlad UI do EN</span></li>
-                <li>📖 <span id="r77-2">61 historických knih v knihovně</span></li>
-                <li>🔽 <span id="r77-3">Collapsible tech cards — preview lore textu, rozbalitelný detail</span></li>
-                <li>💧 <span id="r77-4">Well system — kompletní překlad a lokalizace</span></li>
-                <li>🎲 <span id="r77-5">Games &amp; Records, Věštění — přeloženy zamčené stavy</span></li>
-                <li>🌱 <span id="r77-6">Zahrada, Pracovna, Zprávy — přeloženy do EN</span></li>
-                <li>🖋️ <span id="r77-7">NPC Starý Písař — dialog lokalizován</span></li>
-                <li>🌑 <span id="r77-8">Scriptorium tma overlay — lokalizován</span></li>
-            </ul>
-        </div>
+            // Toggle buttons
+            document.getElementById('btn-cs').classList.toggle('active', lang === 'cs');
+            document.getElementById('btn-en').classList.toggle('active', lang === 'en');
 
-        <div class="version-block">
-            <strong>v7.6 "Lingua Scriptorii" (10.03.2026)</strong>
-            <ul>
-                <li>🌐 <span id="r76-1">CZ/EN lokalizace — výběr jazyka při prvním spuštění</span></li>
-                <li>🏴󠁧󠁢󠁥󠁮󠁧󠁿 <span id="r76-2">English (Olde) — autentický středověký styl</span></li>
-                <li>🗺️ <span id="r76-3">Přepínač jazyka v Nastavení, ?lang=en URL podpora</span></li>
-                <li>🔍 <span id="r76-4">SEO: hreflang alternate links (cs/en/x-default)</span></li>
-                <li>📊 <span id="r76-5">GA4 event language_switched</span></li>
-            </ul>
-        </div>
+            // Header
+            document.getElementById('hdr-sub').textContent = L.hdrSub;
+            document.getElementById('btn-play') && (document.getElementById('btn-play').textContent = L.btnPlay);
 
-        <div class="version-block older">
-            <strong>v7.5 "Codex Aureus" (09.03.2026)</strong>
-            <ul>
-                <li>🔤 <span id="r75-1">Font Specimens — 7 knih + 5 technologií s ukázkami písem</span></li>
-                <li>🏆 <span id="r75-2">Rank System — 8 ranků (Laicus → Magister Artium)</span></li>
-                <li>🥚 <span id="r75-3">Easter Eggs — 10+ skrytých achievementů</span></li>
-                <li>📅 <span id="r75-4">Daily Facts — 50+ historických faktů při denní odměně</span></li>
-                <li>🌦️ <span id="r75-5">Weather System — real-time počasí Praha, auto-téma</span></li>
-                <li>📊 <span id="r75-6">GA4 + GDPR consent (podmíněné načítání)</span></li>
-                <li>📱 <span id="r75-7">PWA manifest + service worker</span></li>
-            </ul>
-        </div>
+            // Hero
+            document.getElementById('hero-tagline').textContent = L.heroTagline;
+            document.getElementById('hero-title').textContent = L.heroTitle;
+            document.getElementById('hero-subtitle').innerHTML = L.heroSubtitle;
+            document.getElementById('hero-cta-play').textContent = L.heroCTAPlay;
+            document.getElementById('hero-cta-about').textContent = L.heroCTAAbout;
 
-        <div class="version-block older">
-            <strong>v7.4 "Historical Realities" (15.02.2026)</strong>
-            <ul>
-                <li>📜 <span id="r74-1">3 nové knihy (De arte predicandi, Kutnohorská Bible, Olomoucký Misál)</span></li>
-                <li>🦌 <span id="r74-2">Pergamen (vellum) crafting chain — historicky přesná výroba</span></li>
-                <li>🪶 <span id="r74-3">Husí brko (quill) systém — 10× použití</span></li>
-                <li>✒️ <span id="r74-4">Železitoduběnkový inkoust — standard 15. století</span></li>
-                <li>📘 <span id="r74-5">3 typy kodexů (common/luxury/vellum) dle Petra Voita</span></li>
-                <li>🔔 <span id="r74-6">Kanonické Hodiny — benediktinský denní řád (8 buffů)</span></li>
-                <li>⚔️ <span id="r74-7">Události: Švédské obléhání (1642), Skrytý prvotisk</span></li>
-                <li>🏛️ <span id="r74-8">12 nových technologií — vše z PDF pramenů</span></li>
-            </ul>
-        </div>
+            // About
+            document.getElementById('lbl-about').textContent = L.lblAbout;
+            document.getElementById('txt-about').textContent = L.txtAbout;
+            document.getElementById('lbl-version').textContent = L.lblVersion;
+            document.getElementById('lbl-date').textContent = L.lblDate;
+            document.getElementById('val-version').textContent = L.valVersion;
+            document.getElementById('val-date').textContent = L.valDate;
 
-        <div class="version-block older">
-            <strong>v7.0 "Library" (12.02.2026)</strong>
-            <ul>
-                <li>📚 <span id="r70-1">15 historických knih + 1 secret (Starý Písař NPC)</span></li>
-                <li>🎴 <span id="r70-2">Memory game, osobní statistiky, achievement systém</span></li>
-                <li>🃏 <span id="r70-3">Historické deskové hry (Ur, Primero, Karnöffel)</span></li>
-            </ul>
-        </div>
+            // Changelog
+            document.getElementById('lbl-changelog').textContent = L.lblChangelog;
+            document.getElementById('r78-1').textContent = L.r781;
+            document.getElementById('r78-2').textContent = L.r782;
+            document.getElementById('r78-3').textContent = L.r783;
+            document.getElementById('r78-4').textContent = L.r784;
+            document.getElementById('r78-5').textContent = L.r785;
+            document.getElementById('r78-6').textContent = L.r786;
+            document.getElementById('r78-7').textContent = L.r787;
+            document.getElementById('r77-1').textContent = L.r771;
+            document.getElementById('r77-2').textContent = L.r772;
+            document.getElementById('r77-3').textContent = L.r773;
+            document.getElementById('r77-4').textContent = L.r774;
+            document.getElementById('r77-5').textContent = L.r775;
+            document.getElementById('r77-6').textContent = L.r776;
+            document.getElementById('r77-7').textContent = L.r777;
+            document.getElementById('r77-8').textContent = L.r778;
+            document.getElementById('r76-1').textContent = L.r761;
+            document.getElementById('r76-2').textContent = L.r762;
+            document.getElementById('r76-3').textContent = L.r763;
+            document.getElementById('r76-4').textContent = L.r764;
+            document.getElementById('r76-5').textContent = L.r765;
 
-        <div class="version-block older">
-            <strong>v6.4 "Expansion" — v6.0 "Origins" (2026-02)</strong>
-            <ul>
-                <li>🍖 <span id="r64-1">Cooking, alchymie, zahrada, hunger mechanika</span></li>
-                <li>🌱 <span id="r64-2">Survival loop — oheň, světlo, hlad, sběr</span></li>
-                <li>⚒️ <span id="r64-3">Crafting základ, tech tree, zápisníky</span></li>
-            </ul>
-        </div>
-    </section>
+            // Older versions
+            document.getElementById('r75-1').textContent = L.r751;
+            document.getElementById('r75-2').textContent = L.r752;
+            document.getElementById('r75-3').textContent = L.r753;
+            document.getElementById('r75-4').textContent = L.r754;
+            document.getElementById('r75-5').textContent = L.r755;
+            document.getElementById('r75-6').textContent = L.r756;
+            document.getElementById('r75-7').textContent = L.r757;
+            document.getElementById('r74-1').textContent = L.r741;
+            document.getElementById('r74-2').textContent = L.r742;
+            document.getElementById('r74-3').textContent = L.r743;
+            document.getElementById('r74-4').textContent = L.r744;
+            document.getElementById('r74-5').textContent = L.r745;
+            document.getElementById('r74-6').textContent = L.r746;
+            document.getElementById('r74-7').textContent = L.r747;
+            document.getElementById('r74-8').textContent = L.r748;
+            document.getElementById('r70-1').textContent = L.r701;
+            document.getElementById('r70-2').textContent = L.r702;
+            document.getElementById('r70-3').textContent = L.r703;
+            document.getElementById('r64-1').textContent = L.r641;
+            document.getElementById('r64-2').textContent = L.r642;
+            document.getElementById('r64-3').textContent = L.r643;
 
-    <section>
-        <h2 class="section-title" id="lbl-credits">Credits</h2>
-        <dl class="credits-grid">
-            <dt id="lbl-dev">Vývoj</dt>
-            <dd id="val-dev">Ondrex (koncept, design, testování)</dd>
-            <dt id="lbl-code">Kódování</dt>
-            <dd>Ondrex, LLMs</dd>
-            <dt id="lbl-fonts">Fonty</dt>
-            <dd>Google Fonts (Cinzel Decorative, Crimson Text)</dd>
-            <dt id="lbl-sources">Historické zdroje</dt>
-            <dd id="val-sources">České kláštery, středověké kroniky</dd>
-            <dt id="lbl-insp">Inspirace</dt>
-            <dd id="val-insp">Bouvard a Pécuchet (Gustave Flaubert) &amp; Byli jednou dva písaři; střet rukopisců a prvních knihtiskařů</dd>
-        </dl>
-    </section>
+            // Credits
+            document.getElementById('lbl-credits').textContent = L.lblCredits;
+            document.getElementById('lbl-dev').textContent = L.lblDev;
+            document.getElementById('val-dev').textContent = L.valDev;
+            document.getElementById('lbl-code').textContent = L.lblCode;
+            document.getElementById('lbl-fonts').textContent = L.lblFonts;
+            document.getElementById('lbl-sources').textContent = L.lblSources;
+            document.getElementById('val-sources').textContent = L.valSources;
+            document.getElementById('lbl-insp').textContent = L.lblInsp;
+            document.getElementById('val-insp').textContent = L.valInsp;
+            document.getElementById('footer-made').textContent = L.footerMade;
 
-    <div class="motto">
-        <strong>🎮 Ludite et, super omnia, nolite pugnare</strong>
-    </div>
+            // URL param
+            const url = new URL(window.location.href);
+            if (lang === 'en') url.searchParams.set('lang', 'en');
+            else url.searchParams.delete('lang');
+            history.replaceState({}, '', url.toString());
+        }
 
-</main>
-
-<footer>
-    <div class="footer-links">
-        <a href="https://www.ember-pa.cz/" target="_blank" rel="noopener">🔥 Ember PA</a>
-        <span class="sep">|</span>
-        <a href="https://newsandradio.cz" target="_blank" rel="noopener">📰 Jouza News&amp;Radio 📻</a>
-        <span class="sep">|</span>
-        <a href="https://oracoolio.com" target="_blank" rel="noopener">🔮 Oracoolio</a>
-        <span class="sep">|</span>
-        <a href="https://www.fajrum.cz/about.html" target="_blank" rel="noopener">🍷 Fajrum</a>
-        <span class="sep">|</span>
-        <a href="https://occultix.app" target="_blank" rel="noopener">⛧ Occultix</a>
-        <span class="sep">|</span>
-        <a href="https://fractout.com/" target="_blank" rel="noopener">👾 Fractout</a>
-    </div>
-    <div class="made-in" id="footer-made">Vyvíjeno s ❤️ v Novém Boru by Ondrex</div>
-</footer>
-
-<script>
-// ── Obsah v obou jazycích ──────────────────────────────────────
-const CONTENT = {
-    cs: {
-        title:       'O hře · Scriptorium',
-        hdrSub:      'Léta Páně 1465 · Město Olomouc',
-        btnPlay:     '🎮 Vstoupit do Skriptoria →',
-        heroTagline: 'Historická idle hra · zdarma',
-        heroTitle:   'Scriptorium',
-        heroSubtitle:'Olomouc, Léta Páně 1465.<br>Klášterní scriptorium čeká na tvé pero a inkoust.',
-        heroCTAPlay: '▶ Spustit hru',
-        heroCTAAbout:'O hře ↓',
-        lblAbout:    'O hře',
-        txtAbout:    'Středověká idle hra o kopírování rukopisů, výrobě papíru a studiu v klášterním skriptoriu. Kombinuje survival mechaniky (oheň, světlo, hlad) s craftingem, zahradničením a postupným odemykáním technologií. Historicky podložená hra zasazená do roku 1465 v Olomouci.',
-        lblVersion:  'Verze:', lblDate: 'Datum:', lblAuthor: 'Autor:',
-        valVersion:  '7.8 "Lux et Umbra"', valDate: '20. dubna 2026',
-        lblChangelog:'📓 Release Notes',
-        r781: 'Dynamické pozadí — header mění obraz podle sezóny, denní doby a počasí',
-        r782: 'Athanor 2.0 — CombinationEngine, brewing timer, fáze Nigredo/Albedo/Rubedo, discovery log',
-        r783: '10 nových alchymistických ingrediencí a kombinací (Ferrogalický inkoust, Oxymel, Aqua Rosarum)',
-        r784: 'Cellarium — Hospoda s pivem a vínem (efekty: Lupulin, In vino veritas)',
-        r785: 'Dvůr (Curia) — Studna přesunuta do záložky Dvůr, struktura připravena',
-        r786: 'about.html — hero sekce s obrázkem, GTM, JSON-LD VideoGame schema',
-        r787: 'Opravy: PWA padding (Motorola RAZR), zahrada tab active state, Rithmomachia piece modal',
-        r771: 'i18n Phase 1 dokončena — kompletní překlad UI do EN',
-        r772: '61 historických knih v knihovně',
-        r773: 'Collapsible tech cards — preview lore textu, rozbalitelný detail',
-        r774: 'Well system — kompletní překlad a lokalizace',
-        r775: 'Games & Records, Věštění — přeloženy zamčené stavy',
-        r776: 'Zahrada, Pracovna, Zprávy — přeloženy do EN',
-        r777: 'NPC Starý Písař — dialog lokalizován',
-        r778: 'Scriptorium tma overlay — lokalizován',
-        r761: 'CZ/EN lokalizace — výběr jazyka při prvním spuštění',
-        r762: 'English (Olde) — autentický středověký styl',
-        r763: 'Přepínač jazyka v Nastavení, ?lang=en URL podpora',
-        r764: 'SEO: hreflang alternate links (cs/en/x-default)',
-        r765: 'GA4 event language_switched',
-        r751:'Font Specimens — 7 knih + 5 technologií s ukázkami písem',
-        r752:'Rank System — 8 ranků (Laicus → Magister Artium)',
-        r753:'Easter Eggs — 10+ skrytých achievementů',
-        r754:'Daily Facts — 50+ historických faktů při denní odměně',
-        r755:'Weather System — real-time počasí Praha, auto-téma',
-        r756:'GA4 + GDPR consent (podmíněné načítání)',
-        r757:'PWA manifest + service worker',
-        r741:'3 nové knihy (De arte predicandi, Kutnohorská Bible, Olomoucký Misál)',
-        r742:'Pergamen (vellum) crafting chain — historicky přesná výroba',
-        r743:'Husí brko (quill) systém — 10× použití',
-        r744:'Železitoduběnkový inkoust — standard 15. století',
-        r745:'3 typy kodexů (common/luxury/vellum) dle Petra Voita',
-        r746:'Kanonické Hodiny — benediktinský denní řád (8 buffů)',
-        r747:'Události: Švédské obléhání (1642), Skrytý prvotisk',
-        r748:'12 nových technologií — vše z PDF pramenů',
-        r701:'15 historických knih + 1 secret (Starý Písař NPC)',
-        r702:'Memory game, osobní statistiky, achievement systém',
-        r703:'Historické deskové hry (Ur, Primero, Karnöffel)',
-        r641:'Cooking, alchymie, zahrada, hunger mechanika',
-        r642:'Survival loop — oheň, světlo, hlad, sběr',
-        r643:'Crafting základ, tech tree, zápisníky',
-        lblCredits:  'Credits',
-        lblDev:      'Vývoj',   valDev: 'Ondrex (koncept, design, testování)',
-        lblCode:     'Kódování',
-        lblFonts:    'Fonty',
-        lblSources:  'Historické zdroje', valSources: 'České kláštery, středověké kroniky',
-        lblInsp:     'Inspirace', valInsp: 'Bouvard a Pécuchet (Gustave Flaubert) & Byli jednou dva písaři; střet rukopisců a prvních knihtiskařů',
-        footerMade:  'Vyvíjeno s ❤️ v Novém Boru by Ondrex',
-    },
-    en: {
-        title:       'About · Scriptorium',
-        hdrSub:      'Anno Domini 1465 · City of Olomouc',
-        btnPlay:     '🎮 Enter the Scriptorium →',
-        heroTagline: 'Historical idle game · free',
-        heroTitle:   'Scriptorium',
-        heroSubtitle:'Olomouc, Anno Domini 1465.<br>The monastery scriptorium awaits your quill and ink.',
-        heroCTAPlay: '▶ Play now',
-        heroCTAAbout:'About ↓',
-        lblAbout:    'About the Game',
-        txtAbout:    'A medieval idle game about copying manuscripts, crafting paper, and studying in a monastery scriptorium. Blends survival mechanics (fire, light, hunger) with crafting, gardening, and gradual technology unlocks. Historically grounded, set in the year 1465 in Olomouc.',
-        lblVersion:  'Version:', lblDate: 'Date:', lblAuthor: 'Author:',
-        valVersion:  '7.8 "Lux et Umbra"', valDate: '20 April 2026',
-        lblChangelog:'📓 Release Notes',
-        r781: 'Dynamic background — header image changes by season, time of day and weather',
-        r782: 'Athanor 2.0 — CombinationEngine, brewing timer, Nigredo/Albedo/Rubedo phases, discovery log',
-        r783: '10 new alchemical ingredients and combinations (Iron gall ink, Oxymel, Aqua Rosarum)',
-        r784: 'Cellarium — Tavern with beer and wine (effects: Lupulin, In vino veritas)',
-        r785: 'Curia (Farmyard) — Well moved to Dvůr tab, structure prepared',
-        r786: 'about.html — hero section with image, GTM, JSON-LD VideoGame schema',
-        r787: 'Fixes: PWA padding (Motorola RAZR), garden tab active state, Rithmomachia piece modal',
-        r771: 'i18n Phase 1 complete — full UI translation into English',
-        r772: '61 historical books in the library',
-        r773: 'Collapsible tech cards — lore preview, expandable detail',
-        r774: 'Well system — fully translated and localised',
-        r775: 'Games & Records, Divination — locked states translated',
-        r776: 'Garden, Workshop, Tidings — translated into EN',
-        r777: 'Elder Scribe NPC — dialogue localised',
-        r778: 'Scriptorium darkness overlay — localised',
-        r761: 'CZ/EN localisation — language choice on first launch',
-        r762: 'English (Olde) — authentic medieval style',
-        r763: 'Language switcher in Settings, ?lang=en URL support',
-        r764: 'SEO: hreflang alternate links (cs/en/x-default)',
-        r765: 'GA4 event language_switched',
-        r751:'Font Specimens — 7 books + 5 technologies with typeface samples',
-        r752:'Rank System — 8 ranks (Laicus → Magister Artium)',
-        r753:'Easter Eggs — 10+ hidden achievements',
-        r754:'Daily Facts — 50+ historical facts at daily reward',
-        r755:'Weather System — real-time Prague weather, auto-theme',
-        r756:'GA4 + GDPR consent (conditional loading)',
-        r757:'PWA manifest + service worker',
-        r741:'3 new books (De arte predicandi, Kutná Hora Bible, Olomouc Missal)',
-        r742:'Vellum crafting chain — historically accurate production',
-        r743:'Quill system — 10× uses',
-        r744:'Iron gall ink — 15th-century standard',
-        r745:'3 codex types (common/luxury/vellum) after Petr Voit',
-        r746:'Canonical Hours — Benedictine daily order (8 buffs)',
-        r747:'Events: Swedish Siege (1642), Hidden Incunable',
-        r748:'12 new technologies — all from primary sources',
-        r701:'15 historical books + 1 secret (Elder Scribe NPC)',
-        r702:'Memory game, personal records, achievement system',
-        r703:'Historical board games (Ur, Primero, Karnöffel)',
-        r641:'Cooking, alchemy, garden, hunger mechanic',
-        r642:'Survival loop — fire, light, hunger, gathering',
-        r643:'Crafting foundation, tech tree, notebooks',
-        lblCredits:  'Credits',
-        lblDev:      'Development', valDev: 'Ondrex (concept, design, testing)',
-        lblCode:     'Coding',
-        lblFonts:    'Fonts',
-        lblSources:  'Historical sources', valSources: 'Bohemian monasteries, medieval chronicles',
-        lblInsp:     'Inspiration', valInsp: 'Bouvard and Pécuchet (Gustave Flaubert) & Once there were two scribes; the clash of manuscript makers and the first printers',
-        footerMade:  'Crafted with ❤️ in Nový Bor by Ondrex',
-    }
-};
-
-function setLang(lang) {
-    const L = CONTENT[lang];
-    document.title = L.title;
-    document.documentElement.lang = lang;
-
-    // Toggle buttons
-    document.getElementById('btn-cs').classList.toggle('active', lang === 'cs');
-    document.getElementById('btn-en').classList.toggle('active', lang === 'en');
-
-    // Header
-    document.getElementById('hdr-sub').textContent    = L.hdrSub;
-    document.getElementById('btn-play') && (document.getElementById('btn-play').textContent = L.btnPlay);
-
-    // Hero
-    document.getElementById('hero-tagline').textContent  = L.heroTagline;
-    document.getElementById('hero-title').textContent    = L.heroTitle;
-    document.getElementById('hero-subtitle').innerHTML   = L.heroSubtitle;
-    document.getElementById('hero-cta-play').textContent = L.heroCTAPlay;
-    document.getElementById('hero-cta-about').textContent= L.heroCTAAbout;
-
-    // About
-    document.getElementById('lbl-about').textContent  = L.lblAbout;
-    document.getElementById('txt-about').textContent  = L.txtAbout;
-    document.getElementById('lbl-version').textContent = L.lblVersion;
-    document.getElementById('lbl-date').textContent   = L.lblDate;
-    document.getElementById('val-version').textContent = L.valVersion;
-    document.getElementById('val-date').textContent   = L.valDate;
-
-    // Changelog
-    document.getElementById('lbl-changelog').textContent = L.lblChangelog;
-    document.getElementById('r78-1').textContent = L.r781;
-    document.getElementById('r78-2').textContent = L.r782;
-    document.getElementById('r78-3').textContent = L.r783;
-    document.getElementById('r78-4').textContent = L.r784;
-    document.getElementById('r78-5').textContent = L.r785;
-    document.getElementById('r78-6').textContent = L.r786;
-    document.getElementById('r78-7').textContent = L.r787;
-    document.getElementById('r77-1').textContent = L.r771;
-    document.getElementById('r77-2').textContent = L.r772;
-    document.getElementById('r77-3').textContent = L.r773;
-    document.getElementById('r77-4').textContent = L.r774;
-    document.getElementById('r77-5').textContent = L.r775;
-    document.getElementById('r77-6').textContent = L.r776;
-    document.getElementById('r77-7').textContent = L.r777;
-    document.getElementById('r77-8').textContent = L.r778;
-    document.getElementById('r76-1').textContent = L.r761;
-    document.getElementById('r76-2').textContent = L.r762;
-    document.getElementById('r76-3').textContent = L.r763;
-    document.getElementById('r76-4').textContent = L.r764;
-    document.getElementById('r76-5').textContent = L.r765;
-
-    // Older versions
-    document.getElementById('r75-1').textContent = L.r751;
-    document.getElementById('r75-2').textContent = L.r752;
-    document.getElementById('r75-3').textContent = L.r753;
-    document.getElementById('r75-4').textContent = L.r754;
-    document.getElementById('r75-5').textContent = L.r755;
-    document.getElementById('r75-6').textContent = L.r756;
-    document.getElementById('r75-7').textContent = L.r757;
-    document.getElementById('r74-1').textContent = L.r741;
-    document.getElementById('r74-2').textContent = L.r742;
-    document.getElementById('r74-3').textContent = L.r743;
-    document.getElementById('r74-4').textContent = L.r744;
-    document.getElementById('r74-5').textContent = L.r745;
-    document.getElementById('r74-6').textContent = L.r746;
-    document.getElementById('r74-7').textContent = L.r747;
-    document.getElementById('r74-8').textContent = L.r748;
-    document.getElementById('r70-1').textContent = L.r701;
-    document.getElementById('r70-2').textContent = L.r702;
-    document.getElementById('r70-3').textContent = L.r703;
-    document.getElementById('r64-1').textContent = L.r641;
-    document.getElementById('r64-2').textContent = L.r642;
-    document.getElementById('r64-3').textContent = L.r643;
-
-    // Credits
-    document.getElementById('lbl-credits').textContent = L.lblCredits;
-    document.getElementById('lbl-dev').textContent    = L.lblDev;
-    document.getElementById('val-dev').textContent    = L.valDev;
-    document.getElementById('lbl-code').textContent   = L.lblCode;
-    document.getElementById('lbl-fonts').textContent  = L.lblFonts;
-    document.getElementById('lbl-sources').textContent = L.lblSources;
-    document.getElementById('val-sources').textContent = L.valSources;
-    document.getElementById('lbl-insp').textContent   = L.lblInsp;
-    document.getElementById('val-insp').textContent   = L.valInsp;
-    document.getElementById('footer-made').textContent = L.footerMade;
-
-    // URL param
-    const url = new URL(window.location.href);
-    if (lang === 'en') url.searchParams.set('lang', 'en');
-    else url.searchParams.delete('lang');
-    history.replaceState({}, '', url.toString());
-}
-
-// Auto-detect lang from URL
-const urlLang = new URLSearchParams(window.location.search).get('lang');
-if (urlLang === 'en') setLang('en');
-</script>
+        // Auto-detect lang from URL
+        const urlLang = new URLSearchParams(window.location.search).get('lang');
+        if (urlLang === 'en') setLang('en');
+    </script>
 
 </body>
+
 </html>
