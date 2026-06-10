@@ -1493,7 +1493,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 				<span class="hpill-val" id="pill-vigor-val">–</span>
 			</div>
 			<div class="hpill" id="pill-time" onclick="pillToggle('time')">
-				<span>🕯️</span>
+				<span id="pill-time-icon">🌙</span>
 				<span class="hpill-val" id="pill-time-val">–</span>
 			</div>
 			<div class="hpill" id="pill-progress" onclick="pillToggle('progress')">
@@ -29697,14 +29697,25 @@ ScriptoriumPWA.init();
             }
         }
 
-        // Čas + kanonická hodina
+        // Čas + kanonická hodina + lunární ikona
         var tEl = document.getElementById('time-display');
         var tVal = document.getElementById('pill-time-val');
+        var tIcon = document.getElementById('pill-time-icon');
         var canName = document.querySelector('#canonical-badge .canonical-name');
-        var canIcon = document.querySelector('#canonical-badge .canonical-icon');
+        var ldEl = document.getElementById('lunar-display');
+        // Lunární ikona — první emoji z lunar-display
+        if (tIcon && ldEl) {
+            var ldText = ldEl.textContent.trim();
+            var lunarIcon = ldText ? ldText.split(' ')[0] : '🌙';
+            tIcon.textContent = lunarIcon;
+        }
+        // Collapsed: čas + ikona kanonické hodiny (jen pokud má tech)
         if (tVal) {
-            var canText = canName ? canName.textContent.trim() : '';
-            tVal.textContent = canText || (tEl ? tEl.textContent.trim() : '–');
+            var timeText = tEl ? tEl.textContent.trim() : '–';
+            var hasCanonical = typeof GameState !== 'undefined' && GameState.researchedTechs && GameState.researchedTechs.includes('tech_canonical_hours');
+            var canIconEl = document.querySelector('#canonical-badge .canonical-icon');
+            var canIconText = (hasCanonical && canIconEl) ? ' ' + canIconEl.textContent.trim() : '';
+            tVal.textContent = timeText + canIconText;
         }
 
         // Zápisky
