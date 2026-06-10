@@ -49,10 +49,23 @@ const GameState = {
     candleStart: 0, 
     hunger: { fed: true, lastMeal: Date.now(), duration: 24 * 60 * 60 * 1000 }, // 24h do hladu
     garden: [
+        // Fáze 1: 4x herb (2 odemčené, 2 za tech_garden_expand)
         { state: 0, water: false, crop: null, plantedAt: 0, cropType: 'herb' },
         { state: 0, water: false, crop: null, plantedAt: 0, cropType: 'herb' },
+        { state: 0, water: false, crop: null, plantedAt: 0, cropType: 'herb', locked: true },
+        { state: 0, water: false, crop: null, plantedAt: 0, cropType: 'herb', locked: true },
+        // Fáze 2: 4x vegetable + 2x special (za tech_horticulture)
         { state: 0, water: false, crop: null, plantedAt: 0, cropType: 'vegetable', locked: true },
-        { state: 0, water: false, crop: null, plantedAt: 0, cropType: 'special', locked: true }
+        { state: 0, water: false, crop: null, plantedAt: 0, cropType: 'vegetable', locked: true },
+        { state: 0, water: false, crop: null, plantedAt: 0, cropType: 'vegetable', locked: true },
+        { state: 0, water: false, crop: null, plantedAt: 0, cropType: 'vegetable', locked: true },
+        { state: 0, water: false, crop: null, plantedAt: 0, cropType: 'special', locked: true },
+        { state: 0, water: false, crop: null, plantedAt: 0, cropType: 'special', locked: true },
+        // Fáze 3: 4x vegetable navíc (za tech_advanced_farming)
+        { state: 0, water: false, crop: null, plantedAt: 0, cropType: 'vegetable', locked: true },
+        { state: 0, water: false, crop: null, plantedAt: 0, cropType: 'vegetable', locked: true },
+        { state: 0, water: false, crop: null, plantedAt: 0, cropType: 'vegetable', locked: true },
+        { state: 0, water: false, crop: null, plantedAt: 0, cropType: 'vegetable', locked: true },
     ],
     activeAction: null,
     selectedDuration: 0,

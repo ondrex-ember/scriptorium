@@ -52,16 +52,37 @@ const GardenSystem = {
         if (!GameState.orchard) return;
         const slot = GameState.orchard[slotIdx];
         if (slot.state === 'empty') return;
-        // Kácení dá dřevo
-        const woodQty = (slot.state === 'mature') ? 5 : 2;
-        Game.addItem('stick', woodQty);
+
+        // Prerekvizita: sekera (kamenná nebo železná)
+        const axe = ['iron_axe', 'stone_axe'].find(a => (GameState.inventory[a] || 0) > 0);
+        if (!axe) {
+            const lang = (GameState.settings && GameState.settings.language) || 'cs';
+            UI.notify(lang === 'en' ? '🪓 You need an axe to fell trees.' : '🪓 Pro kácení potřebuješ sekeru.', true);
+            return;
+        }
+
+        // Výnos: log (kulatina) + stick
+        const isMature = slot.state === 'mature';
+        const logQty   = isMature ? (Math.random() < 0.4 ? 3 : 2) : 1;
+        const stickQty = isMature ? 3 : 1;
+
+        Game.addItem('log',   logQty);
+        Game.addItem('stick', stickQty);
+
+        // Opotřebení sekery
+        GardenSystem.useToolCharge(axe);
+
         slot.state = 'empty';
         slot.treeType = null;
         slot.plantedAt = 0;
         slot.lastHarvestAt = 0;
         Game.save();
         GardenSystem.renderOrchard();
-        UI.notify('🪓 ' + t('game.treeFelled').replace('{qty}', woodQty));
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        const msg = lang === 'en'
+            ? '🪓 Tree felled: +' + logQty + ' log, +' + stickQty + ' stick.'
+            : '🪓 Strom pokácen: +' + logQty + ' kulatina, +' + stickQty + ' větve.';
+        UI.notify(msg);
     },
 
     // ═══════════════════════════════════════════════════════════════════════════
