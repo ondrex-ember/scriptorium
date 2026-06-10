@@ -263,20 +263,80 @@ renderActions: function() {
 
     renderInventory: function() {
         const el = document.getElementById('inventory-grid'); el.innerHTML = "";
-        Object.entries(GameState.inventory).filter(([,qty]) => qty > 0).sort(([,a],[,b]) => b - a).forEach(([id, qty]) => {
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        const _hasMateria = GameState.researchedTechs && GameState.researchedTechs.includes('tech_materia_prima');
+
+        // Skupiny filtrů — více type hodnot mapovaných na jeden tab
+        const filterGroups = {
+            mat:     ['mat', 'herb'],
+            tool:    ['tool'],
+            food:    ['food', 'food_raw'],
+            alchemy: ['alchemy', 'potion', 'alchemy_ing'],
+            lore:    ['lore'],
+            animal:  ['animal'],
+        };
+
+        const renderItem = (id, qty) => {
             const item = ItemsDB[id];
-            if (!item) return;
-            if (this.currentInvFilter !== 'all' && item.type !== this.currentInvFilter) return;
-            
-            let eatBtn = "";
-            if(item.type === 'food') {
-                eatBtn = `<button class="craft-btn" onclick="Game.eat('${id}')" style="margin-left:auto;">${t('game.eat')}</button>`;
-            }
-            
-            const _hasMateria = GameState.researchedTechs && GameState.researchedTechs.includes('tech_materia_prima');
+            if (!item) return '';
             const _click = _hasMateria ? `onclick="UI.showItemModal('${id}')" style="cursor:pointer;"` : '';
-            el.innerHTML += `<div class="card" ${_click}><div class="item-icon">${item.icon}</div><div><strong>${iName(id)}</strong> x${qty}<div class="text-sm">${iDesc(id)}</div></div>${eatBtn}</div>`;
-        });
+            let actionBtn = '';
+            if (item.type === 'food') {
+                actionBtn = `<button class="craft-btn" onclick="Game.eat('${id}')" style="margin-left:auto;">${t('game.eat')}</button>`;
+            } else if (item.type === 'potion' || item.type === 'alchemy') {
+                actionBtn = `<button class="craft-btn" onclick="Game.eat('${id}')" style="margin-left:auto;">${t('game.eat')}</button>`;
+            }
+            return `<div class="card" ${_click}><div class="item-icon">${item.icon}</div><div><strong>${iName(id)}</strong> x${qty}<div class="text-sm">${iDesc(id)}</div></div>${actionBtn}</div>`;
+        };
+
+        // Všechny items s qty > 0, seřazené qty desc
+        const allItems = Object.entries(GameState.inventory)
+            .filter(([, qty]) => qty > 0)
+            .sort(([, a], [, b]) => b - a);
+
+        const filter = this.currentInvFilter || 'all';
+
+        if (filter !== 'all') {
+            // Filtrovaný pohled — jen odpovídající typy
+            const allowed = filterGroups[filter] || [filter];
+            allItems.forEach(([id, qty]) => {
+                const item = ItemsDB[id];
+                if (!item) return;
+                if (!allowed.includes(item.type)) return;
+                el.innerHTML += renderItem(id, qty);
+            });
+        } else {
+            // Vše — akční items (food/potion) nahoru, pak sekce podle kategorií
+            const catOrder = ['food', 'tool', 'mat', 'alchemy', 'lore', 'animal'];
+            const catLabels = {
+                food:    lang === 'en' ? '🍖 Food & Drink'   : '🍖 Jídlo & Nápoje',
+                tool:    lang === 'en' ? '🔨 Tools'          : '🔨 Nástroje',
+                mat:     lang === 'en' ? '🌾 Materials'      : '🌾 Suroviny',
+                alchemy: lang === 'en' ? '⚗️ Alchemy'        : '⚗️ Alchymie & Lektvary',
+                lore:    lang === 'en' ? '📜 Knowledge'      : '📜 Písemnosti & Hry',
+                animal:  lang === 'en' ? '🐄 Animals'        : '🐄 Zvířata & Produkty',
+            };
+            // Skupiny typů per sekce
+            const sectionTypes = {
+                food:    ['food', 'food_raw'],
+                tool:    ['tool'],
+                mat:     ['mat', 'herb'],
+                alchemy: ['alchemy', 'potion', 'alchemy_ing'],
+                lore:    ['lore'],
+                animal:  ['animal'],
+            };
+
+            catOrder.forEach(cat => {
+                const types = sectionTypes[cat];
+                const group = allItems.filter(([id]) => {
+                    const item = ItemsDB[id];
+                    return item && types.includes(item.type);
+                });
+                if (group.length === 0) return;
+                el.innerHTML += `<div style="grid-column:1/-1; margin:12px 0 6px; padding:4px 0; border-bottom:1px solid rgba(197,160,89,0.35);"><span style="font-size:0.72rem; font-weight:bold; letter-spacing:0.08em; text-transform:uppercase; color:var(--accent-gold); opacity:0.85;">${catLabels[cat]}</span></div>`;
+                group.forEach(([id, qty]) => { el.innerHTML += renderItem(id, qty); });
+            });
+        }
     },
     filterCrafting: function(cat, btn) {
         this.currentFilter = cat;
@@ -287,13 +347,14 @@ renderActions: function() {
         this.currentInvFilter = cat;
         const container = document.getElementById('inv-filter-bar');
         container.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active'); this.renderInventory();
+        if (btn) btn.classList.add('active');
+        this.renderInventory();
     },
     renderCrafting: function() {
         const el = document.getElementById('crafting-list'); el.innerHTML = "";
-        RecipesDB.forEach(r => {
-            if(r.locked && !GameState.unlockedRecipes.includes(r.id)) return;
-            if(this.currentFilter !== 'all' && r.cat !== this.currentFilter) return;
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+
+        const renderRecipe = (r) => {
             const prod = ItemsDB[r.output]; let reqStr = ""; let can = true;
             for(let [id, amt] of Object.entries(r.req)) {
                 const has = GameState.inventory[id] || 0; if((amt > 0 && has < amt) || (amt === 0 && !has)) can = false;
@@ -301,9 +362,40 @@ renderActions: function() {
             }
             const blindIcon = r.blind ? " 🌑" : "";
             const blindClass = r.blind ? " blind-recipe" : "";
-            el.innerHTML += `<div class="card${blindClass}" style="opacity:${can?1:0.6}"><div class="item-icon">${prod.icon}</div><div style="flex:1"><strong>${iName(r.output)}${blindIcon}</strong><div class="text-sm">${reqStr.slice(0,-2)}</div></div><button class="craft-btn" onclick="Game.craft('${r.id}')" ${can?'':'disabled'}>${r.id.startsWith('repair_') ? t('craft.repair') : t('craft.btn')}</button></div>`;
+            return `<div class="card${blindClass}" style="opacity:${can?1:0.6}"><div class="item-icon">${prod.icon}</div><div style="flex:1"><strong>${iName(r.output)}${blindIcon}</strong><div class="text-sm">${reqStr.slice(0,-2)}</div></div><button class="craft-btn" onclick="Game.craft('${r.id}')" ${can?'':'disabled'}>${r.id.startsWith('repair_') ? t('craft.repair') : t('craft.btn')}</button></div>`;
+        };
+
+        const visible = RecipesDB.filter(r => {
+            if(r.cat === 'alchemy_ing') return false;
+            if(r.locked && !GameState.unlockedRecipes.includes(r.id)) return false;
+            if(this.currentFilter !== 'all' && r.cat !== this.currentFilter) return false;
+            return true;
         });
 
+        if (this.currentFilter !== 'all') {
+            // Jednoduchý seznam bez nadpisů
+            visible.forEach(r => { el.innerHTML += renderRecipe(r); });
+        } else {
+            // Seskupení podle kategorií s nadpisy
+            const catOrder = ['stone', 'iron', 'craft', 'fire', 'parchment', 'codex', 'food', 'alchemy', 'lore'];
+            const catLabels = {
+                stone:     lang === 'en' ? '🪨 Stone Tools'  : '🪨 Kamenné nástroje',
+                iron:      lang === 'en' ? '⚒️ Iron Tools'   : '⚒️ Železné nástroje',
+                craft:     lang === 'en' ? '🪵 Crafting'     : '🪵 Řemeslo',
+                fire:      lang === 'en' ? '🕯️ Fire & Light' : '🕯️ Oheň & Světlo',
+                parchment: lang === 'en' ? '📜 Parchment'    : '📜 Pergamen & Inkoust',
+                codex:     lang === 'en' ? '📖 Codex'        : '📖 Kodex & Tisk',
+                food:      lang === 'en' ? '🍖 Food'         : '🍖 Jídlo',
+                alchemy:   lang === 'en' ? '⚗️ Alchemy'      : '⚗️ Alchymie',
+                lore:      lang === 'en' ? '🎲 Knowledge'    : '🎲 Vědění & Hry',
+            };
+            catOrder.forEach(cat => {
+                const group = visible.filter(r => r.cat === cat);
+                if (group.length === 0) return;
+                el.innerHTML += `<div style="grid-column:1/-1; margin:12px 0 6px; padding:4px 0; border-bottom:1px solid rgba(197,160,89,0.35);"><span style="font-size:0.72rem; font-weight:bold; letter-spacing:0.08em; text-transform:uppercase; color:var(--accent-gold); opacity:0.85;">${catLabels[cat]}</span></div>`;
+                group.forEach(r => { el.innerHTML += renderRecipe(r); });
+            });
+        }
     },
 	
 	// === RENDER WELL UI === (PŘIDAT na konec UI.renderCraft nebo vytvoř novou funkci)

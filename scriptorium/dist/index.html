@@ -2367,16 +2367,24 @@
                     style="margin-top:10px; margin-bottom:15px; display: flex; flex-wrap: wrap; gap: 5px;">
                     <button id="craft-filter-all" class="filter-btn active"
                         onclick="UI.filterCrafting('all', this)">Vše</button>
-                    <button id="craft-filter-tool" class="filter-btn" data-i18n="craft.filterTool"
-                        onclick="UI.filterCrafting('tool', this)">Nástroje</button>
-                    <button id="craft-filter-mat" class="filter-btn"
-                        onclick="UI.filterCrafting('mat', this)">Materiály</button>
+                    <button id="craft-filter-stone" class="filter-btn"
+                        onclick="UI.filterCrafting('stone', this)">🪨 Kamenné</button>
+                    <button id="craft-filter-iron" class="filter-btn"
+                        onclick="UI.filterCrafting('iron', this)">⚒️ Železné</button>
+                    <button id="craft-filter-craft" class="filter-btn"
+                        onclick="UI.filterCrafting('craft', this)">🪵 Řemeslo</button>
+                    <button id="craft-filter-fire" class="filter-btn"
+                        onclick="UI.filterCrafting('fire', this)">🕯️ Oheň</button>
+                    <button id="craft-filter-parchment" class="filter-btn"
+                        onclick="UI.filterCrafting('parchment', this)">📜 Pergamen</button>
+                    <button id="craft-filter-codex" class="filter-btn"
+                        onclick="UI.filterCrafting('codex', this)">📖 Kodex</button>
                     <button id="craft-filter-food" class="filter-btn"
-                        onclick="UI.filterCrafting('food', this)">Jídlo</button>
-                    <button id="craft-filter-alch" class="filter-btn"
-                        onclick="UI.filterCrafting('alchemy', this)">Alchymie</button>
+                        onclick="UI.filterCrafting('food', this)">🍖 Jídlo</button>
+                    <button id="craft-filter-alchemy" class="filter-btn"
+                        onclick="UI.filterCrafting('alchemy', this)">⚗️ Alchymie</button>
                     <button id="craft-filter-lore" class="filter-btn"
-                        onclick="UI.filterCrafting('lore', this)">Vědění</button>
+                        onclick="UI.filterCrafting('lore', this)">🎲 Vědění</button>
                 </div>
                 <div id="crafting-list"></div>
             </div>
@@ -2384,15 +2392,21 @@
             <div id="screen-inv" class="screen">
                 <h2>Batoh</h2>
                 <div id="inv-filter-bar" class="filter-bar"
-                    style="margin-top:10px; margin-bottom:15px; display:none; flex-wrap: wrap; gap: 5px;">
+                    style="margin-top:10px; margin-bottom:15px; display:flex; flex-wrap: wrap; gap: 5px;">
                     <button id="inv-filter-all" class="filter-btn active"
                         onclick="UI.filterInventory('all', this)">Vše</button>
                     <button id="inv-filter-mat" class="filter-btn"
-                        onclick="UI.filterInventory('mat', this)">Suroviny</button>
+                        onclick="UI.filterInventory('mat', this)">🌾 Suroviny</button>
                     <button id="inv-filter-tool" class="filter-btn"
-                        onclick="UI.filterInventory('tool', this)">Nástroje</button>
+                        onclick="UI.filterInventory('tool', this)">🔨 Nástroje</button>
+                    <button id="inv-filter-food" class="filter-btn"
+                        onclick="UI.filterInventory('food', this)">🍖 Jídlo</button>
+                    <button id="inv-filter-alchemy" class="filter-btn"
+                        onclick="UI.filterInventory('alchemy', this)">⚗️ Alchymie</button>
                     <button id="inv-filter-lore" class="filter-btn"
-                        onclick="UI.filterInventory('lore', this)">Ostatní</button>
+                        onclick="UI.filterInventory('lore', this)">📜 Lore</button>
+                    <button id="inv-filter-animal" class="filter-btn"
+                        onclick="UI.filterInventory('animal', this)">🐄 Zvířata</button>
                 </div>
                 <div id="inventory-grid" style="margin-top:15px;"></div>
             </div>
@@ -5057,30 +5071,30 @@ const ItemsDB = {
 // ═══ src/data/recipes.js ═══
 const RecipesDB = [
     // BASIC TOOLS
-    { id: "sharp_stone", output: "sharp_stone", qty: 1, req: { "rock": 2 }, cat: "tool" },
-    { id: "rope", output: "rope", qty: 1, req: { "fiber": 3 }, cat: "mat" },
-    { id: "stone_knife", output: "stone_knife", qty: 1, req: { "sharp_stone": 1, "stick": 1, "rope": 1 }, cat: "tool" },
-    { id: "charcoal", output: "charcoal", qty: 2, req: { "stick": 2 }, cat: "mat" },
-    { id: "pestle", output: "pestle", qty: 1, req: { "rock": 2, "sharp_stone": 1 }, cat: "tool" },
-    { id: "flint", output: "flint", qty: 1, req: { "rock": 2 }, cat: "tool" },
-    { id: "primitive_torch", output: "primitive_torch", qty: 1, req: { "stick": 1, "fat": 1 }, cat: "tool", blind: true },
-    { id: "tinderbox", output: "tinderbox", qty: 1, req: { "bark": 1, "fiber": 1 }, cat: "tool", blind: true },
-    { id: "hoe", output: "hoe", qty: 1, req: { "sharp_stone": 1, "stick": 2, "rope": 1 }, cat: "tool" },
-    { id: "bonemeal", output: "bonemeal", qty: 3, req: { "bone": 1, "pestle": 0 }, cat: "mat" },
+    { id: "sharp_stone", output: "sharp_stone", qty: 1, req: { "rock": 2 }, cat: "stone" },
+    { id: "rope", output: "rope", qty: 1, req: { "fiber": 3 }, cat: "craft" },
+    { id: "stone_knife", output: "stone_knife", qty: 1, req: { "sharp_stone": 1, "stick": 1, "rope": 1 }, cat: "stone" },
+    { id: "charcoal", output: "charcoal", qty: 2, req: { "stick": 2 }, cat: "fire" },
+    { id: "pestle", output: "pestle", qty: 1, req: { "rock": 2, "sharp_stone": 1 }, cat: "stone" },
+    { id: "flint", output: "flint", qty: 1, req: { "rock": 2 }, cat: "stone" },
+    { id: "primitive_torch", output: "primitive_torch", qty: 1, req: { "stick": 1, "fat": 1 }, cat: "fire", blind: true },
+    { id: "tinderbox", output: "tinderbox", qty: 1, req: { "bark": 1, "fiber": 1 }, cat: "fire", blind: true },
+    { id: "hoe", output: "hoe", qty: 1, req: { "sharp_stone": 1, "stick": 2, "rope": 1 }, cat: "stone" },
+    { id: "bonemeal", output: "bonemeal", qty: 3, req: { "bone": 1, "pestle": 0 }, cat: "craft" },
     
     // LORE SYSTEM
-    { id: "pulp", output: "pulp", qty: 1, req: { "bark": 2, "water": 1, "pestle": 0 }, cat: "lore" },
-    { id: "paper", output: "paper", qty: 1, req: { "pulp": 2 }, cat: "lore" },
-    { id: "ink", output: "ink", qty: 1, req: { "charcoal": 1, "water": 1, "pestle": 0 }, cat: "lore" },
+    { id: "pulp", output: "pulp", qty: 1, req: { "bark": 2, "water": 1, "pestle": 0 }, cat: "parchment" },
+    { id: "paper", output: "paper", qty: 1, req: { "pulp": 2 }, cat: "parchment" },
+    { id: "ink", output: "ink", qty: 1, req: { "charcoal": 1, "water": 1, "pestle": 0 }, cat: "parchment" },
     { id: "research", output: "research", qty: 1, req: { "paper": 1, "ink": 1 }, cat: "lore" },
     
     // COOKING TOOLS
-    { id: "fishing_rod", output: "fishing_rod", qty: 1, req: { "stick": 2, "rope": 1, "bone": 1 }, cat: "tool", locked: true },
-    { id: "cooking_pot", output: "cooking_pot", qty: 1, req: { "rock": 3, "water": 1 }, cat: "tool", locked: true },
-    { id: "basket", output: "basket", qty: 1, req: { "fiber": 5, "stick": 2 }, cat: "tool", locked: true },
+    { id: "fishing_rod", output: "fishing_rod", qty: 1, req: { "stick": 2, "rope": 1, "bone": 1 }, cat: "stone", locked: true },
+    { id: "cooking_pot", output: "cooking_pot", qty: 1, req: { "rock": 3, "water": 1 }, cat: "craft", locked: true },
+    { id: "basket", output: "basket", qty: 1, req: { "fiber": 5, "stick": 2 }, cat: "craft", locked: true },
     
     // NEW RECIPES - Mini-games & Notebooks
-    { id: "playing_cards", output: "playing_cards", qty: 1, req: { "paper": 5, "ink": 1 }, cat: "tool", locked: true },
+    { id: "playing_cards", output: "playing_cards", qty: 1, req: { "paper": 5, "ink": 1 }, cat: "lore", locked: true },
 	{
 	  id: "recipe_iching_book",
 	  output: "iching_book",
@@ -5104,7 +5118,7 @@ const RecipesDB = [
 		output: "repair_kit",
 		qty: 1,
 		req: { stick: 5, rope: 2, rock: 3 },
-		cat: "tool",
+		cat: "craft",
 		locked: true, // Unlock: tech_well_maintenance
 		desc: "Sada na opravu studny.", desc_en: "Kit for well repairs."
 	},
@@ -5129,7 +5143,7 @@ const RecipesDB = [
         bone: 24,           // bílé kameny
         charcoal: 24        // černé kameny
     },
-    cat: "tool",
+    cat: "lore",
     locked: true,
     desc: "Hra filozofů - Pythagorejská matematika v bitvě.", desc_en: "The Philosophers' Game - Pythagorean mathematics in battle."
 	},
@@ -5138,7 +5152,7 @@ const RecipesDB = [
     output: "primero_deck",
     qty: 1,
     req: { paper: 40, ink: 10, preservation_oil: 2 },
-    cat: "tool",
+    cat: "lore",
     locked: true,
     desc: "Španělský balíček pro Primero.", desc_en: "Spanish deck for Primero."
 	},
@@ -5148,7 +5162,7 @@ const RecipesDB = [
 		output: "karnoffel_deck",
 		qty: 1,
 		req: { paper: 48, ink: 12, charcoal: 5 },
-		cat: "tool",
+		cat: "lore",
 		locked: true,
 		desc: "Německý trumfový balíček.", desc_en: "German trump deck."
 	},
@@ -5158,7 +5172,7 @@ const RecipesDB = [
 		output: "french_deck",
 		qty: 1,
 		req: { paper: 52, ink: 15, preservation_oil: 3, herb_blue: 2 },
-		cat: "tool",
+		cat: "lore",
 		locked: true,
 		desc: "Francouzský balíček 52 karet.", desc_en: "French deck of 52 cards."
 	},
@@ -5174,17 +5188,17 @@ const RecipesDB = [
         bone: 7,        // kostěné žetony
         rock: 4         // 4 pyramidové kostky
     },
-    cat: "tool",
+    cat: "lore",
     locked: true,
     desc: "Nejstarší desková hra světa - 2600 př.n.l.", desc_en: "The world's oldest board game - 2600 BC."
 	},
     
     // NOTEBOOKS (5 types - progressive)
-    { id: "tabula", output: "tabula", qty: 1, req: { "stick": 2, "fat": 1, "charcoal": 1 }, cat: "tool", locked: true },
-    { id: "adversaria", output: "adversaria", qty: 1, req: { "paper": 5, "ink": 2, "rope": 1 }, cat: "tool", locked: true },
-    { id: "vademecum", output: "vademecum", qty: 1, req: { "leather": 1, "paper": 10, "ink": 3 }, cat: "tool", locked: true },
-    { id: "florilegium", output: "florilegium", qty: 1, req: { "leather": 2, "paper": 15, "ink": 5, "herb_yellow": 3 }, cat: "tool", locked: true },
-    { id: "enchiridion", output: "enchiridion", qty: 1, req: { "leather": 3, "paper": 20, "ink": 8, "preservation_oil": 1 }, cat: "tool", locked: true },
+    { id: "tabula", output: "tabula", qty: 1, req: { "stick": 2, "fat": 1, "charcoal": 1 }, cat: "lore", locked: true },
+    { id: "adversaria", output: "adversaria", qty: 1, req: { "paper": 5, "ink": 2, "rope": 1 }, cat: "codex", locked: true },
+    { id: "vademecum", output: "vademecum", qty: 1, req: { "leather": 1, "paper": 10, "ink": 3 }, cat: "codex", locked: true },
+    { id: "florilegium", output: "florilegium", qty: 1, req: { "leather": 2, "paper": 15, "ink": 5, "herb_yellow": 3 }, cat: "codex", locked: true },
+    { id: "enchiridion", output: "enchiridion", qty: 1, req: { "leather": 3, "paper": 20, "ink": 8, "preservation_oil": 1 }, cat: "codex", locked: true },
     
     // COOKING RECIPES (vyžadují krb + pot)
     { id: "cooked_meat", output: "cooked_meat", qty: 1, req: { "meat": 1, "cooking_pot": 0 }, cat: "food", locked: true },
@@ -5195,10 +5209,10 @@ const RecipesDB = [
     { id: "berry_pie", output: "berry_pie", qty: 1, req: { "berries": 3, "honey": 1, "cooking_pot": 0 }, cat: "food", locked: true },
     
     // ALCHEMY - základní
-    { id: "candle", output: "candle", qty: 1, req: { "fat": 1, "rope": 1 }, cat: "tool", locked: true }, 
+    { id: "candle", output: "candle", qty: 1, req: { "fat": 1, "rope": 1 }, cat: "fire", locked: true }, 
     { id: "potion_heal", output: "potion_heal", qty: 1, req: { "herb_red": 1, "fat": 1, "pestle": 0 }, cat: "alchemy", locked: true },
     { id: "ash", output: "ash", qty: 2, req: { "charcoal": 1 }, cat: "alchemy_ing", locked: true },
-    { id: "compost", output: "compost", qty: 2, req: { "fiber": 3, "bone": 1, "water": 1 }, cat: "mat", locked: true },
+    { id: "compost", output: "compost", qty: 2, req: { "fiber": 3, "bone": 1, "water": 1 }, cat: "craft", locked: true },
     
     // ALCHEMY - pokročilá
     { id: "antidote", output: "antidote", qty: 1, req: { "nightshade": 1, "honey": 1, "ash": 1, "pestle": 0 }, cat: "alchemy", locked: true },
@@ -5209,36 +5223,36 @@ const RecipesDB = [
     // ========== v7.5 NEW RECIPES - Historical Realities ==========
     
     // VELLUM CHAIN (Pergamen výroba - historicky přesná)
-    { id: "ash_water", output: "ash_water", qty: 1, req: { "ash": 2, "water": 3 }, cat: "mat", desc: "Louh na namáčení kůže. Historicky 3-4 dny.", desc_en: "Lye for soaking hides. Historically 3-4 days." },
-    { id: "soaked_hide", output: "soaked_hide", qty: 1, req: { "hide": 2, "ash_water": 1 }, cat: "mat", locked: true, desc: "Kůže loužená 3 dny.", desc_en: "Hide soaked for 3 days." },
-    { id: "stretched_hide", output: "stretched_hide", qty: 1, req: { "soaked_hide": 1, "rope": 2 }, cat: "mat", locked: true, desc: "Napnuto v rámu.", desc_en: "Stretched on a frame." },
-    { id: "pumice", output: "pumice", qty: 1, req: { "rock": 3 }, cat: "mat", locked: true, desc: "Sopečný kámen - leští.", desc_en: "Volcanic stone - for smoothing." },
-    { id: "vellum", output: "vellum", qty: 1, req: { "stretched_hide": 1, "pumice": 0, "chalk": 1 }, cat: "lore", locked: true, desc: "Konečný pergamen. 1 kodex = kůže 3 ovcí.", desc_en: "Finished parchment. 1 codex = 3 sheep hides." },
+    { id: "ash_water", output: "ash_water", qty: 1, req: { "ash": 2, "water": 3 }, cat: "craft", desc: "Louh na namáčení kůže. Historicky 3-4 dny.", desc_en: "Lye for soaking hides. Historically 3-4 days." },
+    { id: "soaked_hide", output: "soaked_hide", qty: 1, req: { "hide": 2, "ash_water": 1 }, cat: "craft", locked: true, desc: "Kůže loužená 3 dny.", desc_en: "Hide soaked for 3 days." },
+    { id: "stretched_hide", output: "stretched_hide", qty: 1, req: { "soaked_hide": 1, "rope": 2 }, cat: "craft", locked: true, desc: "Napnuto v rámu.", desc_en: "Stretched on a frame." },
+    { id: "pumice", output: "pumice", qty: 1, req: { "rock": 3 }, cat: "craft", locked: true, desc: "Sopečný kámen - leští.", desc_en: "Volcanic stone - for smoothing." },
+    { id: "vellum", output: "vellum", qty: 1, req: { "stretched_hide": 1, "pumice": 0, "chalk": 1 }, cat: "parchment", locked: true, desc: "Konečný pergamen. 1 kodex = kůže 3 ovcí.", desc_en: "Finished parchment. 1 codex = 3 sheep hides." },
     
     // QUILL (Husí brko)
-    { id: "quill", output: "quill", qty: 1, req: { "feather": 1, "stone_knife": 0 }, cat: "tool", locked: true, desc: "Řez pod úhlem. 10x použití.", desc_en: "Cut at an angle. 10 uses." },
+    { id: "quill", output: "quill", qty: 1, req: { "feather": 1, "stone_knife": 0 }, cat: "parchment", locked: true, desc: "Řez pod úhlem. 10x použití.", desc_en: "Cut at an angle. 10 uses." },
     
     // GALLIC INK (Železitoduběnkový inkoust - 15. století standard)
-    { id: "iron_sulfate", output: "iron_sulfate", qty: 1, req: { "rock": 2, "ash": 1, "water": 1 }, cat: "alchemy_ing", locked: true, desc: "Vitriol. Chemická reakce.", desc_en: "Vitriol. Chemical reaction." },
-    { id: "gum_arabic", output: "gum_arabic", qty: 1, req: { "resin": 2, "water": 1 }, cat: "alchemy_ing", locked: true, desc: "Pojidlo z akácie.", desc_en: "Binder from acacia." },
-    { id: "ink_gallic", output: "ink_gallic", qty: 2, req: { "gall_nut": 2, "iron_sulfate": 1, "gum_arabic": 1, "pestle": 0 }, cat: "lore", locked: true, desc: "Permanentní. Po 80 letech černá→hnědá.", desc_en: "Permanent. After 80 years black→brown." },
+    { id: "iron_sulfate", output: "iron_sulfate", qty: 1, req: { "rock": 2, "ash": 1, "water": 1 }, cat: "parchment", locked: true, desc: "Vitriol. Chemická reakce.", desc_en: "Vitriol. Chemical reaction." },
+    { id: "gum_arabic", output: "gum_arabic", qty: 1, req: { "resin": 2, "water": 1 }, cat: "parchment", locked: true, desc: "Pojidlo z akácie.", desc_en: "Binder from acacia." },
+    { id: "ink_gallic", output: "ink_gallic", qty: 2, req: { "gall_nut": 2, "iron_sulfate": 1, "gum_arabic": 1, "pestle": 0 }, cat: "parchment", locked: true, desc: "Permanentní. Po 80 letech černá→hnědá.", desc_en: "Permanent. After 80 years black→brown." },
     
     // ADVANCED CODEX TYPES
-    { id: "common_codex", output: "common_codex", qty: 1, req: { "paper": 10, "ink": 3 }, cat: "lore", locked: true, desc: "Běžný tisk. 'Nižší typografie' (Voit).", desc_en: "Common print. 'Lower typography' (Voit)." },
-    { id: "luxury_codex", output: "luxury_codex", qty: 1, req: { "paper": 20, "ink_gallic": 5, "preservation_oil": 1 }, cat: "lore", locked: true, desc: "'Vyšší typografie' s kvalitním inkoustem.", desc_en: "'Higher typography' with quality ink." },
-    { id: "vellum_codex", output: "vellum_codex", qty: 1, req: { "vellum": 3, "ink_gallic": 8, "preservation_oil": 2 }, cat: "lore", locked: true, desc: "Pergamenový. Jak Olomoucký misál (1488) - pouze 20 z 420 výtisků.", desc_en: "On vellum. Like the Olomouc Missal (1488) - only 20 of 420 copies." },
+    { id: "common_codex", output: "common_codex", qty: 1, req: { "paper": 10, "ink": 3 }, cat: "codex", locked: true, desc: "Běžný tisk. 'Nižší typografie' (Voit).", desc_en: "Common print. 'Lower typography' (Voit)." },
+    { id: "luxury_codex", output: "luxury_codex", qty: 1, req: { "paper": 20, "ink_gallic": 5, "preservation_oil": 1 }, cat: "codex", locked: true, desc: "'Vyšší typografie' s kvalitním inkoustem.", desc_en: "'Higher typography' with quality ink." },
+    { id: "vellum_codex", output: "vellum_codex", qty: 1, req: { "vellum": 3, "ink_gallic": 8, "preservation_oil": 2 }, cat: "codex", locked: true, desc: "Pergamenový. Jak Olomoucký misál (1488) - pouze 20 z 420 výtisků.", desc_en: "On vellum. Like the Olomouc Missal (1488) - only 20 of 420 copies." },
     
     // PRINTING PRESS SYSTEM
-    { id: "lead_alloy", output: "lead_alloy", qty: 1, req: { "rock": 5, "charcoal": 3, "water": 1 }, cat: "mat", locked: true, desc: "Tavení kamene na olovo.", desc_en: "Smelting stone into lead." },
-    { id: "printing_type", output: "printing_type", qty: 100, req: { "lead_alloy": 5, "pestle": 0 }, cat: "tool", locked: true, desc: "100 použití. Pak worn_type. Historicky se prodávaly za kovový odpad.", desc_en: "100 uses. Then worn_type. Historically sold as scrap metal." },
+    { id: "lead_alloy", output: "lead_alloy", qty: 1, req: { "rock": 5, "charcoal": 3, "water": 1 }, cat: "craft", locked: true, desc: "Tavení kamene na olovo.", desc_en: "Smelting stone into lead." },
+    { id: "printing_type", output: "printing_type", qty: 100, req: { "lead_alloy": 5, "pestle": 0 }, cat: "codex", locked: true, desc: "100 použití. Pak worn_type. Historicky se prodávaly za kovový odpad.", desc_en: "100 uses. Then worn_type. Historically sold as scrap metal." },
     
     // CANONICAL HOURS UNLOCK
-    { id: "book_of_hours", output: "book_of_hours", qty: 1, req: { "luxury_codex": 1, "herb_blue": 5, "herb_yellow": 5 }, cat: "lore", locked: true, desc: "Horologium. Odemkne 8 denních buffů dle benediktinského řádu.", desc_en: "Horologium. Unlocks 8 daily buffs according to Benedictine order." },
-    { id: "perpetuum_calendarium", output: "perpetuum_calendarium", qty: 1, req: { "paper": 3, "ink": 2, "vellum": 1 }, cat: "lore", locked: true, desc: "Klášterní kalendář. Odemkne záložku Calendarium ve Skriptoriu. Nutno obnovit v lednu.", desc_en: "Monastic calendar. Unlocks the Calendarium tab in the Scriptorium. Must be renewed in January." },
+    { id: "book_of_hours", output: "book_of_hours", qty: 1, req: { "luxury_codex": 1, "herb_blue": 5, "herb_yellow": 5 }, cat: "codex", locked: true, desc: "Horologium. Odemkne 8 denních buffů dle benediktinského řádu.", desc_en: "Horologium. Unlocks 8 daily buffs according to Benedictine order." },
+    { id: "perpetuum_calendarium", output: "perpetuum_calendarium", qty: 1, req: { "paper": 3, "ink": 2, "vellum": 1 }, cat: "codex", locked: true, desc: "Klášterní kalendář. Odemkne záložku Calendarium ve Skriptoriu. Nutno obnovit v lednu.", desc_en: "Monastic calendar. Unlocks the Calendarium tab in the Scriptorium. Must be renewed in January." },
     
     // PRIVILEGIUM QUESTLINE
-    { id: "bishop_seal", output: "bishop_seal", qty: 1, req: { "vellum_codex": 10, "luxury_codex": 20 }, cat: "lore", locked: true, desc: "Daruj biskupovi 10 pergamenových + 20 luxusních kodexů.", desc_en: "Gift the bishop 10 vellum + 20 luxury codices." },
-    { id: "printing_privilege", output: "printing_privilege", qty: 1, req: { "bishop_seal": 1, "research": 100 }, cat: "lore", locked: true, desc: "Monopol. Endgame.", desc_en: "Monopoly. Endgame." },
+    { id: "bishop_seal", output: "bishop_seal", qty: 1, req: { "vellum_codex": 10, "luxury_codex": 20 }, cat: "codex", locked: true, desc: "Daruj biskupovi 10 pergamenových + 20 luxusních kodexů.", desc_en: "Gift the bishop 10 vellum + 20 luxury codices." },
+    { id: "printing_privilege", output: "printing_privilege", qty: 1, req: { "bishop_seal": 1, "research": 100 }, cat: "codex", locked: true, desc: "Monopol. Endgame.", desc_en: "Monopoly. Endgame." },
 
     // ═══════════════════════════════════════════════════════════════════════════
     // NOVÉ HERNÍ DESKY (sprint v8.x)
@@ -5249,7 +5263,7 @@ const RecipesDB = [
         output: "senet_board",
         qty: 1,
         req: { stick: 2, bone: 2, ink: 1 },
-        cat: "tool",
+        cat: "lore",
         locked: true,
         desc: "Egyptská hra faraonů — 30 polí, 5 kamenů, 4 hůlky-kostky.", desc_en: "Egyptian game of pharaohs — 30 squares, 5 stones, 4 stick-dice."
     },
@@ -5258,7 +5272,7 @@ const RecipesDB = [
         output: "backgammon_board",
         qty: 1,
         req: { stick: 3, leather: 2, bone: 2 },
-        cat: "tool",
+        cat: "lore",
         locked: true,
         desc: "Vrhcáby — deska z kůže, kameny z kostí, dvě kostky.", desc_en: "Tables — leather board, bone stones, two dice."
     },
@@ -5267,7 +5281,7 @@ const RecipesDB = [
         output: "draughts_board",
         qty: 1,
         req: { stick: 3, charcoal: 1, chalk: 1 },
-        cat: "tool",
+        cat: "lore",
         locked: true,
         desc: "Dáma — střídavá pole z uhlí a křídy, 24 kamenů.", desc_en: "Draughts — alternating charcoal and chalk squares, 24 stones."
     },
@@ -5276,7 +5290,7 @@ const RecipesDB = [
         output: "hnefatafl_board",
         qty: 1,
         req: { stick: 4, bone: 3, vellum: 1 },
-        cat: "tool",
+        cat: "lore",
         locked: true,
         desc: "Hnefatafl — asymetrická hra. Král a 12 obránců vs. 24 útočníků.", desc_en: "Hnefatafl — asymmetric game. King and 12 defenders vs. 24 attackers."
     },
@@ -5286,54 +5300,54 @@ const RecipesDB = [
     // ═══════════════════════════════════════════════════════════════════════════
 
     // Výroba kůže (dokončení řetězce: hide → soaked → stretched → leather)
-    { id: "tanned_leather", output: "leather", qty: 1, req: { stretched_hide: 2, gall_nut: 2 }, cat: "mat", locked: true,
+    { id: "tanned_leather", output: "leather", qty: 1, req: { stretched_hide: 2, gall_nut: 2 }, cat: "craft", locked: true,
       desc: "Vydělená kůže. Třísloviny z duběnek zpevní vlákna.", desc_en: "Tanned leather. Gall nut tannins harden the fibres." },
 
     // Měchy — dual use: oheň + varhany + Athanor upgrade
-    { id: "bellows", output: "bellows", qty: 1, req: { leather: 4, stick: 3, rope: 2 }, cat: "tool", locked: true,
+    { id: "bellows", output: "bellows", qty: 1, req: { leather: 4, stick: 3, rope: 2 }, cat: "craft", locked: true,
       desc: "Kožené měchy. Rozdmýchají oheň i varhanní píšťaly.", desc_en: "Leather bellows. Fan the fire and the organ pipes alike." },
 
     // Vazba knih — základ pro luxury/vellum codex
-    { id: "book_binding", output: "book_binding", qty: 1, req: { leather: 2, stick: 3, glue: 1 }, cat: "tool", locked: true,
+    { id: "book_binding", output: "book_binding", qty: 1, req: { leather: 2, stick: 3, glue: 1 }, cat: "craft", locked: true,
       desc: "Kožená vazba drží složky pohromadě. Bez ní jsou jen volné listy.", desc_en: "Leather binding holds the quires together. Without it, just loose leaves." },
 
     // Pouzdro na pera
-    { id: "quill_case", output: "quill_case", qty: 1, req: { leather: 1, rope: 1 }, cat: "tool", locked: true,
+    { id: "quill_case", output: "quill_case", qty: 1, req: { leather: 1, rope: 1 }, cat: "craft", locked: true,
       desc: "Kožené pouzdro chrání husí brka před zlomením.", desc_en: "Leather case protects quills from snapping." },
 
     // Opasek písaře — buff later
-    { id: "scribes_belt", output: "scribes_belt", qty: 1, req: { leather: 2, rope: 1 }, cat: "tool", locked: true,
+    { id: "scribes_belt", output: "scribes_belt", qty: 1, req: { leather: 2, rope: 1 }, cat: "craft", locked: true,
       desc: "Na opasku visí nůž, brousek a pouzdro na pero. Písařova výbava.", desc_en: "Knife, whetstone and quill case hang from it. The scribe's kit." },
 
     // Kožená deska — pro luxury codex
-    { id: "book_cover", output: "book_cover", qty: 1, req: { leather: 3, stick: 5 }, cat: "tool", locked: true,
+    { id: "book_cover", output: "book_cover", qty: 1, req: { leather: 3, stick: 5 }, cat: "craft", locked: true,
       desc: "Dřevěná deska potažená kůží. Chrání kodex po staletí.", desc_en: "Wooden board covered in leather. Protects the codex for centuries." },
 
     // Kožené sedátko — komfort buff later
-    { id: "cushion", output: "cushion", qty: 1, req: { leather: 2, fiber: 3 }, cat: "tool", locked: true,
+    { id: "cushion", output: "cushion", qty: 1, req: { leather: 2, fiber: 3 }, cat: "craft", locked: true,
       desc: "Mniši seděli 6 hodin denně. Sedátko nebylo luxus — bylo nutnost.", desc_en: "Monks sat 6 hours daily. A cushion was not luxury — it was necessity." },
 
     // Transportní pouzdro — pro export/trade later
-    { id: "scrinium_case", output: "scrinium_case", qty: 1, req: { leather: 4, rope: 2 }, cat: "tool", locked: true,
+    { id: "scrinium_case", output: "scrinium_case", qty: 1, req: { leather: 4, rope: 2 }, cat: "craft", locked: true,
       desc: "Kožené pouzdro na přepravu cenných kodexů. Cestovní skriptorium.", desc_en: "Leather case for transporting precious codices. A travelling scriptorium." },
 
     // Kožený měšec na vodu
-    { id: "water_pouch", output: "water_pouch", qty: 1, req: { leather: 1, rope: 1 }, cat: "tool", locked: true,
+    { id: "water_pouch", output: "water_pouch", qty: 1, req: { leather: 1, rope: 1 }, cat: "craft", locked: true,
       desc: "Kožený měšec. Mniši nosili pití při práci v skriptoriu.", desc_en: "Leather pouch. Monks carried drink during work in the scriptorium." },
 
     // Váček na inkoust/pigmenty
-    { id: "ink_pouch", output: "ink_pouch", qty: 1, req: { leather: 1, rope: 1 }, cat: "tool", locked: true,
+    { id: "ink_pouch", output: "ink_pouch", qty: 1, req: { leather: 1, rope: 1 }, cat: "craft", locked: true,
       desc: "Kožený váček na suchý inkoust a práškové pigmenty.", desc_en: "Leather pouch for dry ink and powdered pigments." },
 
     // ── STAVEBNÍ MATERIÁLY (tech_carpentaria) ───────────────────────────────
-    { id: "plank", output: "plank", qty: 2, req: { stick: 5 }, cat: "mat", locked: true,
+    { id: "plank", output: "plank", qty: 2, req: { stick: 5 }, cat: "craft", locked: true,
       desc: "Otesané fošny z větví. Základ každé dřevěné stavby.", desc_en: "Hewn planks from branches. The foundation of every wooden structure." },
 
-    { id: "cut_stone", output: "cut_stone", qty: 1, req: { rock: 4 }, cat: "mat", locked: true,
+    { id: "cut_stone", output: "cut_stone", qty: 1, req: { rock: 4 }, cat: "craft", locked: true,
       desc: "Opracovaný kvádr. Klášterní tesař ho vytesá dlátem a palicí.", desc_en: "A dressed block. The monastic carpenter shapes it with chisel and mallet." },
 
     // ── KRMNÉ SUROVINY (tech_horreum) ────────────────────────────────────────
-    { id: "hay", output: "hay", qty: 2, req: { grass: 5 }, cat: "mat", locked: true,
+    { id: "hay", output: "hay", qty: 2, req: { grass: 5 }, cat: "craft", locked: true,
       desc: "Posečená a sušená tráva. Základní krmivo pro ovce a kozy.", 
       desc_en: "Cut and dried grass. Basic fodder for sheep and goats." },
 
@@ -5341,7 +5355,7 @@ const RecipesDB = [
 
 
     // ── KAMENNÉ NÁSTROJE (tech_horticulture + tech_carpentaria) ─────────────
-    { id:"stone_axe",    output:"stone_axe",    qty:1, req:{stick:2, rock:3, rope:1}, cat:"tool", locked:true,
+    { id:"stone_axe",    output:"stone_axe",    qty:1, req:{stick:2, rock:3, rope:1}, cat:"lore", locked:true,
       desc:"Kamenné ostří na dřevené násadě.", desc_en:"Stone blade on a wooden haft." },
     { id:"stone_spade",  output:"stone_spade",  qty:1, req:{stick:2, rock:2, rope:1}, cat:"tool", locked:true,
       desc:"Plochý kámen na násadě.", desc_en:"Flat stone on a haft." },
@@ -12616,7 +12630,7 @@ const CellariumSystem = {
 
 
   // ════════════════════════════════════════════════════════════════════
-  // BUILDINGS — stavby skladů
+  // BUILDINGS — stavby skladů + dílen
   // ════════════════════════════════════════════════════════════════════
   renderBuildings: function() {
     const lang = (GameState.settings && GameState.settings.language) || 'cs';
@@ -12627,18 +12641,16 @@ const CellariumSystem = {
     const hasHor  = GameState.researchedTechs && GameState.researchedTechs.includes('tech_horreum');
     const hasKov  = GameState.researchedTechs && GameState.researchedTechs.includes('tech_kovarina');
 
-    const title = lang === 'en' ? 'Storage Buildings' : 'Skladové Budovy';
+    const title = lang === 'en' ? 'Buildings' : 'Budovy';
 
-    const buildings = [
+    const storageBuildings = [
       {
         id: 'almarium', icon: '🗄️',
         name: 'Almarium', name_en: 'Almarium',
         desc: 'Uzamčená skříň na suché zásoby. Kapacita 200 jednotek.',
         desc_en: 'Locked storeroom for dry goods. Capacity 200 units.',
         cost: { plank: 6, rope: 3, leather: 2 },
-        req_tech: hasAlm,
-        req_build: true,
-        req_label: null,
+        req_tech: hasAlm, req_build: true, req_label: null, capacity: 200,
       },
       {
         id: 'cella', icon: '🏚️',
@@ -12649,6 +12661,7 @@ const CellariumSystem = {
         req_tech: hasCel,
         req_build: storage.almarium && storage.almarium.built,
         req_label: lang === 'en' ? 'Requires: Almarium built' : 'Nutné: Almarium postaveno',
+        capacity: 600,
       },
       {
         id: 'horreum', icon: '🌾',
@@ -12659,18 +12672,63 @@ const CellariumSystem = {
         req_tech: hasHor,
         req_build: storage.cella && storage.cella.built,
         req_label: lang === 'en' ? 'Requires: Cella built' : 'Nutné: Cella postavena',
+        capacity: 1600,
       },
+    ];
+
+    const workshopBuildings = [
       {
         id: 'fabrica', icon: '⚒️',
         name: 'Fabrica', name_en: 'Smithy',
         desc: 'Kovářská dílna s výhní. Výroba a oprava železných nástrojů.',
         desc_en: 'Smithy with forge. Craft and repair iron tools.',
         cost: { rock: 30, plank: 15, charcoal: 10, anvil: 1 },
-        req_tech: hasKov,
-        req_build: true,
-        req_label: null,
+        req_tech: hasKov, req_build: true, req_label: null,
       },
     ];
+
+    const renderBuilding = (b) => {
+      const built = storage[b.id] && storage[b.id].built;
+      const canBuild = b.req_tech && b.req_build && !built;
+      const locked = !b.req_tech;
+      const waitBuild = b.req_tech && !b.req_build && !built;
+      const costStr = Object.entries(b.cost).map(([id, qty]) => {
+        const item = ItemsDB[id];
+        const icon = item ? item.icon : '📦';
+        const name = (typeof iName === 'function') ? iName(id) : (item ? item.name : id);
+        const have = GameState.inventory[id] || 0;
+        const ok = have >= qty;
+        return `<span style="color:${ok ? 'inherit' : '#c0392b'};">${icon} ${name} ×${qty} (${lang==='en'?'have':'máš'}: ${have})</span>`;
+      }).join(' &nbsp;');
+      const statusIcon = built ? '✅' : (locked ? '🔒' : (waitBuild ? '⏳' : '🏗️'));
+      const statusColor = built ? '#5a9a5a' : (locked ? 'rgba(0,0,0,0.3)' : 'var(--accent-gold)');
+      return `<div style="margin-bottom:12px; padding:12px; background:rgba(197,160,89,0.05);
+                        border-radius:8px; border:1px solid rgba(197,160,89,${built ? '0.5' : '0.2'});
+                        border-left:4px solid ${statusColor};">
+        <div style="display:flex; align-items:center; gap:10px; margin-bottom:6px;">
+          <span style="font-size:1.6rem;">${b.icon}</span>
+          <div style="flex:1;">
+            <div style="font-weight:bold; font-size:0.92rem;">${statusIcon} ${lang==='en' ? b.name_en : b.name}</div>
+            <div style="font-size:0.78rem; opacity:0.75; margin-top:2px;">${lang==='en' ? b.desc_en : b.desc}</div>
+          </div>
+        </div>
+        ${!built ? `<div style="font-size:0.73rem; opacity:0.7; margin-bottom:6px; display:flex; flex-wrap:wrap; gap:6px;">${costStr}</div>` : ''}
+        ${b.req_label && !built ? `<div style="font-size:0.73rem; color:#e67e22; margin-bottom:6px;">⚠️ ${b.req_label}</div>` : ''}
+        ${canBuild ? `<button onclick="Game.buildStorage('${b.id}')" class="craft-btn" style="font-size:0.78rem;">🏗️ ${lang==='en' ? 'Build' : 'Postavit'}</button>` : ''}
+        ${built ? `<div style="font-size:0.78rem; color:#5a9a5a; font-style:italic;">✅ ${lang==='en' ? 'Built' : 'Postaveno'}</div>` : ''}
+        ${locked ? `<div style="font-size:0.78rem; opacity:0.5; font-style:italic;">🔒 ${lang==='en' ? 'Research required' : 'Vyžaduje výzkum'}</div>` : ''}
+        ${waitBuild ? `<div style="font-size:0.78rem; opacity:0.6; font-style:italic;">⏳ ${b.req_label}</div>` : ''}
+      </div>`;
+    };
+
+    const baseCap = 50;
+    const almCap  = (storage.almarium && storage.almarium.built) ? 200 : 0;
+    const celCap  = (storage.cella    && storage.cella.built)    ? 600 : 0;
+    const horCap  = (storage.horreum  && storage.horreum.built)  ? 1600 : 0;
+    const totalCap = baseCap + almCap + celCap + horCap;
+    const capLabel = lang === 'en'
+      ? `Current capacity: <strong>${totalCap} units</strong>`
+      : `Aktuální kapacita: <strong>${totalCap} j</strong>`;
 
     let h = `<div style="padding:15px; background:rgba(0,0,0,0.03); border-radius:8px; border-left:3px solid var(--accent-gold);">`;
     h += `<div style="font-size:0.75rem; font-weight:bold; letter-spacing:0.08em; text-transform:uppercase; color:var(--accent-gold); margin-bottom:14px;">${title}</div>`;
@@ -12683,45 +12741,21 @@ const CellariumSystem = {
         </div>
       </div>`;
     } else {
-      buildings.forEach(b => {
-        const built = storage[b.id] && storage[b.id].built;
-        const canBuild = b.req_tech && b.req_build && !built;
-        const locked = !b.req_tech;
-        const waitBuild = b.req_tech && !b.req_build && !built;
+      h += `<div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; align-items:start;">`;
 
-        // Cost string
-        const costStr = Object.entries(b.cost).map(([id, qty]) => {
-          const item = ItemsDB[id];
-          const icon = item ? item.icon : '📦';
-          const name = (typeof iName === 'function') ? iName(id) : (item ? item.name : id);
-          const have = GameState.inventory[id] || 0;
-          const ok = have >= qty;
-          return `<span style="color:${ok ? 'inherit' : '#c0392b'};">${icon} ${name} ×${qty} (${lang==='en'?'have':'máš'}: ${have})</span>`;
-        }).join(' &nbsp;');
+      h += `<div>`;
+      h += `<div style="font-size:0.72rem; font-weight:bold; letter-spacing:0.06em; text-transform:uppercase; opacity:0.6; margin-bottom:6px;">📦 ${lang==='en' ? 'Storage' : 'Sklady'}</div>`;
+      h += `<div style="font-size:0.78rem; margin-bottom:10px; padding:6px 8px; background:rgba(197,160,89,0.08); border-radius:6px;">${capLabel}</div>`;
+      storageBuildings.forEach(b => { h += renderBuilding(b); });
+      h += `</div>`;
 
-        const statusIcon = built ? '✅' : (locked ? '🔒' : (waitBuild ? '⏳' : '🏗️'));
-        const statusColor = built ? '#5a9a5a' : (locked ? 'rgba(0,0,0,0.3)' : 'var(--accent-gold)');
+      h += `<div>`;
+      h += `<div style="font-size:0.72rem; font-weight:bold; letter-spacing:0.06em; text-transform:uppercase; opacity:0.6; margin-bottom:6px;">⚒️ ${lang==='en' ? 'Workshops' : 'Dílny'}</div>`;
+      h += `<div style="font-size:0.78rem; margin-bottom:10px; padding:6px 8px; background:rgba(197,160,89,0.08); border-radius:6px; opacity:0;">&nbsp;</div>`;
+      workshopBuildings.forEach(b => { h += renderBuilding(b); });
+      h += `</div>`;
 
-        h += `<div style="margin-bottom:14px; padding:14px; background:rgba(197,160,89,0.05);
-                          border-radius:8px; border:1px solid rgba(197,160,89,${built ? '0.5' : '0.2'});
-                          border-left:4px solid ${statusColor};">
-          <div style="display:flex; align-items:center; gap:10px; margin-bottom:8px;">
-            <span style="font-size:1.8rem;">${b.icon}</span>
-            <div style="flex:1;">
-              <div style="font-weight:bold; font-size:0.95rem;">${statusIcon} ${lang==='en' ? b.name_en : b.name}</div>
-              <div style="font-size:0.8rem; opacity:0.75; margin-top:2px;">${lang==='en' ? b.desc_en : b.desc}</div>
-            </div>
-          </div>
-          ${!built ? `<div style="font-size:0.75rem; opacity:0.7; margin-bottom:8px; display:flex; flex-wrap:wrap; gap:6px;">${costStr}</div>` : ''}
-          ${b.req_label && !built ? `<div style="font-size:0.75rem; color:#e67e22; margin-bottom:8px;">⚠️ ${b.req_label}</div>` : ''}
-          ${canBuild ? `<button onclick="Game.buildStorage('${b.id}')" class="craft-btn" style="font-size:0.8rem;">
-            🏗️ ${lang==='en' ? 'Build' : 'Postavit'}
-          </button>` : ''}
-          ${built ? `<div style="font-size:0.8rem; color:#5a9a5a; font-style:italic;">✅ ${lang==='en' ? 'Built' : 'Postaveno'}</div>` : ''}
-          ${locked ? `<div style="font-size:0.8rem; opacity:0.5; font-style:italic;">🔒 ${lang==='en' ? 'Research required' : 'Vyžaduje výzkum'}</div>` : ''}
-          ${waitBuild ? `<div style="font-size:0.8rem; opacity:0.6; font-style:italic;">⏳ ${b.req_label}</div>` : ''}
-        </div>`;
-      });
+      h += `</div>`;
     }
 
     h += `</div>`;
@@ -21950,6 +21984,7 @@ const STRINGS_cs = {
         missingMats: 'Chybí suroviny!',
         notEnoughResearch: 'Zápisky!',
         notFood: 'Tohle nejde jíst!',
+        crafted: 'Poznáno:',
         noFood: 'Nemáš to!',
         busy: 'Jsem zaneprázdněn!',
         quickScavenge: 'Rychlý sběr!',
@@ -22467,20 +22502,37 @@ const STRINGS_cs = {
         locked: 'Zamčeno',
         lockHint: 'Odemkni tech "Hry a Záznamy" pro přístup k mini-games a statistikám.',
         miniGames: '🎮 Mini-Games',
-        stats: '📊 Osobní Statistiky',
+        stats: '📊 Osobní záznamy',
+        items: '📦 Items',
+        discovered: '📖 Discovered',
+        crafts: '⚒️ Crafts',
         harvests: '🌿 Sklizně',
+        researchGained: '📜 Research získáno',
+        tech: '👑 Tech',
         gamesWon: '🎮 Hry vyhráno',
         meals: '🍖 Jídel',
+        mealsEaten: '🍖 Jídel',
         candles: '🕯️ Svíčky',
+        candlesLit: '🕯️ Svíčky',
         wellUses: '💧 Studna',
+        well: '💧 Well',
+        streak: '🔥 Streak',
         streakDays: 'dní',
         streakMax: 'max',
+        days: 'dní',
+        max: 'max',
+        booksRead: '📚 Knihy přečtené',
+        booksUnlocked: '📖 Knihy odemčené',
         backup: '💾 Záloha Save',
+        backupTitle: '💾 Záloha Save',
         backupDesc: 'Exportuj save jako zálohu nebo přenes na jiné zařízení.',
         backupWarning: '💡 Před velkými experimenty doporučujeme stáhnout zálohu!',
         backupReset: 'Pro reset hry jdi do Nastavení.',
+        backupNote: '💡 Před velkými experimenty doporučujeme stáhnout zálohu!<br>Pro reset hry jdi do Nastavení.',
         downloadSave: '📥 Stáhnout Save',
-        uploadSave: '📤 Nahrát Save'
+        uploadSave: '📤 Nahrát Save',
+        btnDownload: '📥 Stáhnout Save',
+        btnUpload: '📤 Nahrát Save'
     },
     fontSpec: {
         unlocked: 'Odemčeno',
@@ -22591,33 +22643,6 @@ const STRINGS_cs = {
         prior_lore: 'Prior nebyl kariérní postup – byl jmenován nebo volen komunitou. Opat ho mohl kdykoliv odvolat.',
         prior_toast: 'Prior – Opat tě jmenoval. Komunita tě přijala.',
         prior_requirement: 'Armarius + nomination event',
-    },
-
-    records: {
-        // Stats labels (with emoji included)
-        stats: '📊 Osobní záznamy',
-        items: '📦 Items',
-        discovered: '📖 Discovered',
-        crafts: '⚒️ Crafts',
-        harvests: '🌿 Sklizně',
-        researchGained: '📜 Research získáno',
-        tech: '👑 Tech',
-        gamesWon: '🎮 Hry vyhráno',
-        mealsEaten: '🍖 Jídel',
-        candlesLit: '🕯️ Svíčky',
-        well: '💧 Well',
-        streak: '🔥 Streak',
-        days: 'dní',
-        max: 'max',
-        booksRead: '📚 Knihy přečtené',
-        booksUnlocked: '📖 Knihy odemčené',
-
-        // Backup section
-        backupTitle: '💾 Záloha Save',
-        backupDesc: 'Exportuj save jako zálohu nebo přenes na jiné zařízení.',
-        btnDownload: '📥 Stáhnout Save',
-        btnUpload: '📤 Nahrát Save',
-        backupNote: '💡 Před velkými experimenty doporučujeme stáhnout zálohu!<br>Pro reset hry jdi do Nastavení.'
     },
 
     games: {
@@ -23326,6 +23351,7 @@ const STRINGS_en = {
         missingMats: 'Materials are wanting!',
         notEnoughResearch: 'More study is needed!',
         notFood: 'That cannot be eaten!',
+        crafted: 'Mastered:',
         noFood: 'Thou hast none!',
         busy: 'Already occupied!',
         quickScavenge: 'Quick gather!',
@@ -24804,20 +24830,37 @@ According to Theophilus, the organ is an instrument worthy of God, but its const
         locked: 'Locked',
         lockHint: 'Unlock the "Games and Records" tech to access mini-games and statistics.',
         miniGames: '🎮 Mini-Games',
-        stats: '📊 Personal Records',
+        stats: '📊 Personal Statistics',
+        items: '📦 Items',
+        discovered: '📖 Discovered',
+        crafts: '⚒️ Crafts',
         harvests: '🌿 Harvests',
+        researchGained: '📜 Research Gained',
+        tech: '👑 Tech',
         gamesWon: '🎮 Games Won',
         meals: '🍖 Meals',
+        mealsEaten: '🍖 Meals Eaten',
         candles: '🕯️ Candles',
+        candlesLit: '🕯️ Candles Lit',
         wellUses: '💧 Well',
+        well: '💧 Well',
+        streak: '🔥 Streak',
         streakDays: 'days',
         streakMax: 'best',
+        days: 'days',
+        max: 'max',
+        booksRead: '📚 Books Read',
+        booksUnlocked: '📖 Books Unlocked',
         backup: '💾 Safekeeping',
-        backupDesc: 'Export thy progress for safekeeping or another device.',
+        backupTitle: '💾 Save Backup',
+        backupDesc: 'Export thy save as backup or transfer to another device.',
         backupWarning: '💡 We urge thee to secure a copy ere making grave changes!',
         backupReset: 'To reset the game, visit Settings.',
+        backupNote: '💡 Before great experiments, we recommend downloading a backup!<br>For game reset, go to Settings.',
         downloadSave: '📥 Download Save',
-        uploadSave: '📤 Upload Save'
+        uploadSave: '📤 Upload Save',
+        btnDownload: '📥 Download Save',
+        btnUpload: '📤 Upload Save'
     },
     fontSpec: {
         unlocked: 'Unlocked',
@@ -24926,33 +24969,6 @@ According to Theophilus, the organ is an instrument worthy of God, but its const
         prior_lore: 'The prior was not a career advancement — he was appointed or elected by the community. The abbot could recall him at any time.',
         prior_toast: 'Prior — the abbot hath named thee. The community hath accepted thee.',
         prior_requirement: 'Armarius + nomination event',
-    },
-
-    records: {
-        // Stats labels (with emoji included)
-        stats: '📊 Personal Statistics',
-        items: '📦 Items',
-        discovered: '📖 Discovered',
-        crafts: '⚒️ Crafts',
-        harvests: '🌿 Harvests',
-        researchGained: '📜 Research Gained',
-        tech: '👑 Tech',
-        gamesWon: '🎮 Games Won',
-        mealsEaten: '🍖 Meals Eaten',
-        candlesLit: '🕯️ Candles Lit',
-        well: '💧 Well',
-        streak: '🔥 Streak',
-        days: 'days',
-        max: 'max',
-        booksRead: '📚 Books Read',
-        booksUnlocked: '📖 Books Unlocked',
-
-        // Backup section
-        backupTitle: '💾 Save Backup',
-        backupDesc: 'Export thy save as backup or transfer to another device.',
-        btnDownload: '📥 Download Save',
-        btnUpload: '📤 Upload Save',
-        backupNote: '💡 Before great experiments, we recommend downloading a backup!<br>For game reset, go to Settings.'
     },
 
 
@@ -28808,20 +28824,80 @@ renderActions: function() {
 
     renderInventory: function() {
         const el = document.getElementById('inventory-grid'); el.innerHTML = "";
-        Object.entries(GameState.inventory).filter(([,qty]) => qty > 0).sort(([,a],[,b]) => b - a).forEach(([id, qty]) => {
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        const _hasMateria = GameState.researchedTechs && GameState.researchedTechs.includes('tech_materia_prima');
+
+        // Skupiny filtrů — více type hodnot mapovaných na jeden tab
+        const filterGroups = {
+            mat:     ['mat', 'herb'],
+            tool:    ['tool'],
+            food:    ['food', 'food_raw'],
+            alchemy: ['alchemy', 'potion', 'alchemy_ing'],
+            lore:    ['lore'],
+            animal:  ['animal'],
+        };
+
+        const renderItem = (id, qty) => {
             const item = ItemsDB[id];
-            if (!item) return;
-            if (this.currentInvFilter !== 'all' && item.type !== this.currentInvFilter) return;
-            
-            let eatBtn = "";
-            if(item.type === 'food') {
-                eatBtn = `<button class="craft-btn" onclick="Game.eat('${id}')" style="margin-left:auto;">${t('game.eat')}</button>`;
-            }
-            
-            const _hasMateria = GameState.researchedTechs && GameState.researchedTechs.includes('tech_materia_prima');
+            if (!item) return '';
             const _click = _hasMateria ? `onclick="UI.showItemModal('${id}')" style="cursor:pointer;"` : '';
-            el.innerHTML += `<div class="card" ${_click}><div class="item-icon">${item.icon}</div><div><strong>${iName(id)}</strong> x${qty}<div class="text-sm">${iDesc(id)}</div></div>${eatBtn}</div>`;
-        });
+            let actionBtn = '';
+            if (item.type === 'food') {
+                actionBtn = `<button class="craft-btn" onclick="Game.eat('${id}')" style="margin-left:auto;">${t('game.eat')}</button>`;
+            } else if (item.type === 'potion' || item.type === 'alchemy') {
+                actionBtn = `<button class="craft-btn" onclick="Game.eat('${id}')" style="margin-left:auto;">${t('game.eat')}</button>`;
+            }
+            return `<div class="card" ${_click}><div class="item-icon">${item.icon}</div><div><strong>${iName(id)}</strong> x${qty}<div class="text-sm">${iDesc(id)}</div></div>${actionBtn}</div>`;
+        };
+
+        // Všechny items s qty > 0, seřazené qty desc
+        const allItems = Object.entries(GameState.inventory)
+            .filter(([, qty]) => qty > 0)
+            .sort(([, a], [, b]) => b - a);
+
+        const filter = this.currentInvFilter || 'all';
+
+        if (filter !== 'all') {
+            // Filtrovaný pohled — jen odpovídající typy
+            const allowed = filterGroups[filter] || [filter];
+            allItems.forEach(([id, qty]) => {
+                const item = ItemsDB[id];
+                if (!item) return;
+                if (!allowed.includes(item.type)) return;
+                el.innerHTML += renderItem(id, qty);
+            });
+        } else {
+            // Vše — akční items (food/potion) nahoru, pak sekce podle kategorií
+            const catOrder = ['food', 'tool', 'mat', 'alchemy', 'lore', 'animal'];
+            const catLabels = {
+                food:    lang === 'en' ? '🍖 Food & Drink'   : '🍖 Jídlo & Nápoje',
+                tool:    lang === 'en' ? '🔨 Tools'          : '🔨 Nástroje',
+                mat:     lang === 'en' ? '🌾 Materials'      : '🌾 Suroviny',
+                alchemy: lang === 'en' ? '⚗️ Alchemy'        : '⚗️ Alchymie & Lektvary',
+                lore:    lang === 'en' ? '📜 Knowledge'      : '📜 Písemnosti & Hry',
+                animal:  lang === 'en' ? '🐄 Animals'        : '🐄 Zvířata & Produkty',
+            };
+            // Skupiny typů per sekce
+            const sectionTypes = {
+                food:    ['food', 'food_raw'],
+                tool:    ['tool'],
+                mat:     ['mat', 'herb'],
+                alchemy: ['alchemy', 'potion', 'alchemy_ing'],
+                lore:    ['lore'],
+                animal:  ['animal'],
+            };
+
+            catOrder.forEach(cat => {
+                const types = sectionTypes[cat];
+                const group = allItems.filter(([id]) => {
+                    const item = ItemsDB[id];
+                    return item && types.includes(item.type);
+                });
+                if (group.length === 0) return;
+                el.innerHTML += `<div style="grid-column:1/-1; margin:12px 0 6px; padding:4px 0; border-bottom:1px solid rgba(197,160,89,0.35);"><span style="font-size:0.72rem; font-weight:bold; letter-spacing:0.08em; text-transform:uppercase; color:var(--accent-gold); opacity:0.85;">${catLabels[cat]}</span></div>`;
+                group.forEach(([id, qty]) => { el.innerHTML += renderItem(id, qty); });
+            });
+        }
     },
     filterCrafting: function(cat, btn) {
         this.currentFilter = cat;
@@ -28832,13 +28908,14 @@ renderActions: function() {
         this.currentInvFilter = cat;
         const container = document.getElementById('inv-filter-bar');
         container.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active'); this.renderInventory();
+        if (btn) btn.classList.add('active');
+        this.renderInventory();
     },
     renderCrafting: function() {
         const el = document.getElementById('crafting-list'); el.innerHTML = "";
-        RecipesDB.forEach(r => {
-            if(r.locked && !GameState.unlockedRecipes.includes(r.id)) return;
-            if(this.currentFilter !== 'all' && r.cat !== this.currentFilter) return;
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+
+        const renderRecipe = (r) => {
             const prod = ItemsDB[r.output]; let reqStr = ""; let can = true;
             for(let [id, amt] of Object.entries(r.req)) {
                 const has = GameState.inventory[id] || 0; if((amt > 0 && has < amt) || (amt === 0 && !has)) can = false;
@@ -28846,9 +28923,40 @@ renderActions: function() {
             }
             const blindIcon = r.blind ? " 🌑" : "";
             const blindClass = r.blind ? " blind-recipe" : "";
-            el.innerHTML += `<div class="card${blindClass}" style="opacity:${can?1:0.6}"><div class="item-icon">${prod.icon}</div><div style="flex:1"><strong>${iName(r.output)}${blindIcon}</strong><div class="text-sm">${reqStr.slice(0,-2)}</div></div><button class="craft-btn" onclick="Game.craft('${r.id}')" ${can?'':'disabled'}>${r.id.startsWith('repair_') ? t('craft.repair') : t('craft.btn')}</button></div>`;
+            return `<div class="card${blindClass}" style="opacity:${can?1:0.6}"><div class="item-icon">${prod.icon}</div><div style="flex:1"><strong>${iName(r.output)}${blindIcon}</strong><div class="text-sm">${reqStr.slice(0,-2)}</div></div><button class="craft-btn" onclick="Game.craft('${r.id}')" ${can?'':'disabled'}>${r.id.startsWith('repair_') ? t('craft.repair') : t('craft.btn')}</button></div>`;
+        };
+
+        const visible = RecipesDB.filter(r => {
+            if(r.cat === 'alchemy_ing') return false;
+            if(r.locked && !GameState.unlockedRecipes.includes(r.id)) return false;
+            if(this.currentFilter !== 'all' && r.cat !== this.currentFilter) return false;
+            return true;
         });
 
+        if (this.currentFilter !== 'all') {
+            // Jednoduchý seznam bez nadpisů
+            visible.forEach(r => { el.innerHTML += renderRecipe(r); });
+        } else {
+            // Seskupení podle kategorií s nadpisy
+            const catOrder = ['stone', 'iron', 'craft', 'fire', 'parchment', 'codex', 'food', 'alchemy', 'lore'];
+            const catLabels = {
+                stone:     lang === 'en' ? '🪨 Stone Tools'  : '🪨 Kamenné nástroje',
+                iron:      lang === 'en' ? '⚒️ Iron Tools'   : '⚒️ Železné nástroje',
+                craft:     lang === 'en' ? '🪵 Crafting'     : '🪵 Řemeslo',
+                fire:      lang === 'en' ? '🕯️ Fire & Light' : '🕯️ Oheň & Světlo',
+                parchment: lang === 'en' ? '📜 Parchment'    : '📜 Pergamen & Inkoust',
+                codex:     lang === 'en' ? '📖 Codex'        : '📖 Kodex & Tisk',
+                food:      lang === 'en' ? '🍖 Food'         : '🍖 Jídlo',
+                alchemy:   lang === 'en' ? '⚗️ Alchemy'      : '⚗️ Alchymie',
+                lore:      lang === 'en' ? '🎲 Knowledge'    : '🎲 Vědění & Hry',
+            };
+            catOrder.forEach(cat => {
+                const group = visible.filter(r => r.cat === cat);
+                if (group.length === 0) return;
+                el.innerHTML += `<div style="grid-column:1/-1; margin:12px 0 6px; padding:4px 0; border-bottom:1px solid rgba(197,160,89,0.35);"><span style="font-size:0.72rem; font-weight:bold; letter-spacing:0.08em; text-transform:uppercase; color:var(--accent-gold); opacity:0.85;">${catLabels[cat]}</span></div>`;
+                group.forEach(r => { el.innerHTML += renderRecipe(r); });
+            });
+        }
     },
 	
 	// === RENDER WELL UI === (PŘIDAT na konec UI.renderCraft nebo vytvoř novou funkci)

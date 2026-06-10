@@ -1039,7 +1039,7 @@ const CellariumSystem = {
 
 
   // ════════════════════════════════════════════════════════════════════
-  // BUILDINGS — stavby skladů
+  // BUILDINGS — stavby skladů + dílen
   // ════════════════════════════════════════════════════════════════════
   renderBuildings: function() {
     const lang = (GameState.settings && GameState.settings.language) || 'cs';
@@ -1050,18 +1050,16 @@ const CellariumSystem = {
     const hasHor  = GameState.researchedTechs && GameState.researchedTechs.includes('tech_horreum');
     const hasKov  = GameState.researchedTechs && GameState.researchedTechs.includes('tech_kovarina');
 
-    const title = lang === 'en' ? 'Storage Buildings' : 'Skladové Budovy';
+    const title = lang === 'en' ? 'Buildings' : 'Budovy';
 
-    const buildings = [
+    const storageBuildings = [
       {
         id: 'almarium', icon: '🗄️',
         name: 'Almarium', name_en: 'Almarium',
         desc: 'Uzamčená skříň na suché zásoby. Kapacita 200 jednotek.',
         desc_en: 'Locked storeroom for dry goods. Capacity 200 units.',
         cost: { plank: 6, rope: 3, leather: 2 },
-        req_tech: hasAlm,
-        req_build: true,
-        req_label: null,
+        req_tech: hasAlm, req_build: true, req_label: null, capacity: 200,
       },
       {
         id: 'cella', icon: '🏚️',
@@ -1072,6 +1070,7 @@ const CellariumSystem = {
         req_tech: hasCel,
         req_build: storage.almarium && storage.almarium.built,
         req_label: lang === 'en' ? 'Requires: Almarium built' : 'Nutné: Almarium postaveno',
+        capacity: 600,
       },
       {
         id: 'horreum', icon: '🌾',
@@ -1082,18 +1081,63 @@ const CellariumSystem = {
         req_tech: hasHor,
         req_build: storage.cella && storage.cella.built,
         req_label: lang === 'en' ? 'Requires: Cella built' : 'Nutné: Cella postavena',
+        capacity: 1600,
       },
+    ];
+
+    const workshopBuildings = [
       {
         id: 'fabrica', icon: '⚒️',
         name: 'Fabrica', name_en: 'Smithy',
         desc: 'Kovářská dílna s výhní. Výroba a oprava železných nástrojů.',
         desc_en: 'Smithy with forge. Craft and repair iron tools.',
         cost: { rock: 30, plank: 15, charcoal: 10, anvil: 1 },
-        req_tech: hasKov,
-        req_build: true,
-        req_label: null,
+        req_tech: hasKov, req_build: true, req_label: null,
       },
     ];
+
+    const renderBuilding = (b) => {
+      const built = storage[b.id] && storage[b.id].built;
+      const canBuild = b.req_tech && b.req_build && !built;
+      const locked = !b.req_tech;
+      const waitBuild = b.req_tech && !b.req_build && !built;
+      const costStr = Object.entries(b.cost).map(([id, qty]) => {
+        const item = ItemsDB[id];
+        const icon = item ? item.icon : '📦';
+        const name = (typeof iName === 'function') ? iName(id) : (item ? item.name : id);
+        const have = GameState.inventory[id] || 0;
+        const ok = have >= qty;
+        return `<span style="color:${ok ? 'inherit' : '#c0392b'};">${icon} ${name} ×${qty} (${lang==='en'?'have':'máš'}: ${have})</span>`;
+      }).join(' &nbsp;');
+      const statusIcon = built ? '✅' : (locked ? '🔒' : (waitBuild ? '⏳' : '🏗️'));
+      const statusColor = built ? '#5a9a5a' : (locked ? 'rgba(0,0,0,0.3)' : 'var(--accent-gold)');
+      return `<div style="margin-bottom:12px; padding:12px; background:rgba(197,160,89,0.05);
+                        border-radius:8px; border:1px solid rgba(197,160,89,${built ? '0.5' : '0.2'});
+                        border-left:4px solid ${statusColor};">
+        <div style="display:flex; align-items:center; gap:10px; margin-bottom:6px;">
+          <span style="font-size:1.6rem;">${b.icon}</span>
+          <div style="flex:1;">
+            <div style="font-weight:bold; font-size:0.92rem;">${statusIcon} ${lang==='en' ? b.name_en : b.name}</div>
+            <div style="font-size:0.78rem; opacity:0.75; margin-top:2px;">${lang==='en' ? b.desc_en : b.desc}</div>
+          </div>
+        </div>
+        ${!built ? `<div style="font-size:0.73rem; opacity:0.7; margin-bottom:6px; display:flex; flex-wrap:wrap; gap:6px;">${costStr}</div>` : ''}
+        ${b.req_label && !built ? `<div style="font-size:0.73rem; color:#e67e22; margin-bottom:6px;">⚠️ ${b.req_label}</div>` : ''}
+        ${canBuild ? `<button onclick="Game.buildStorage('${b.id}')" class="craft-btn" style="font-size:0.78rem;">🏗️ ${lang==='en' ? 'Build' : 'Postavit'}</button>` : ''}
+        ${built ? `<div style="font-size:0.78rem; color:#5a9a5a; font-style:italic;">✅ ${lang==='en' ? 'Built' : 'Postaveno'}</div>` : ''}
+        ${locked ? `<div style="font-size:0.78rem; opacity:0.5; font-style:italic;">🔒 ${lang==='en' ? 'Research required' : 'Vyžaduje výzkum'}</div>` : ''}
+        ${waitBuild ? `<div style="font-size:0.78rem; opacity:0.6; font-style:italic;">⏳ ${b.req_label}</div>` : ''}
+      </div>`;
+    };
+
+    const baseCap = 50;
+    const almCap  = (storage.almarium && storage.almarium.built) ? 200 : 0;
+    const celCap  = (storage.cella    && storage.cella.built)    ? 600 : 0;
+    const horCap  = (storage.horreum  && storage.horreum.built)  ? 1600 : 0;
+    const totalCap = baseCap + almCap + celCap + horCap;
+    const capLabel = lang === 'en'
+      ? `Current capacity: <strong>${totalCap} units</strong>`
+      : `Aktuální kapacita: <strong>${totalCap} j</strong>`;
 
     let h = `<div style="padding:15px; background:rgba(0,0,0,0.03); border-radius:8px; border-left:3px solid var(--accent-gold);">`;
     h += `<div style="font-size:0.75rem; font-weight:bold; letter-spacing:0.08em; text-transform:uppercase; color:var(--accent-gold); margin-bottom:14px;">${title}</div>`;
@@ -1106,45 +1150,21 @@ const CellariumSystem = {
         </div>
       </div>`;
     } else {
-      buildings.forEach(b => {
-        const built = storage[b.id] && storage[b.id].built;
-        const canBuild = b.req_tech && b.req_build && !built;
-        const locked = !b.req_tech;
-        const waitBuild = b.req_tech && !b.req_build && !built;
+      h += `<div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; align-items:start;">`;
 
-        // Cost string
-        const costStr = Object.entries(b.cost).map(([id, qty]) => {
-          const item = ItemsDB[id];
-          const icon = item ? item.icon : '📦';
-          const name = (typeof iName === 'function') ? iName(id) : (item ? item.name : id);
-          const have = GameState.inventory[id] || 0;
-          const ok = have >= qty;
-          return `<span style="color:${ok ? 'inherit' : '#c0392b'};">${icon} ${name} ×${qty} (${lang==='en'?'have':'máš'}: ${have})</span>`;
-        }).join(' &nbsp;');
+      h += `<div>`;
+      h += `<div style="font-size:0.72rem; font-weight:bold; letter-spacing:0.06em; text-transform:uppercase; opacity:0.6; margin-bottom:6px;">📦 ${lang==='en' ? 'Storage' : 'Sklady'}</div>`;
+      h += `<div style="font-size:0.78rem; margin-bottom:10px; padding:6px 8px; background:rgba(197,160,89,0.08); border-radius:6px;">${capLabel}</div>`;
+      storageBuildings.forEach(b => { h += renderBuilding(b); });
+      h += `</div>`;
 
-        const statusIcon = built ? '✅' : (locked ? '🔒' : (waitBuild ? '⏳' : '🏗️'));
-        const statusColor = built ? '#5a9a5a' : (locked ? 'rgba(0,0,0,0.3)' : 'var(--accent-gold)');
+      h += `<div>`;
+      h += `<div style="font-size:0.72rem; font-weight:bold; letter-spacing:0.06em; text-transform:uppercase; opacity:0.6; margin-bottom:6px;">⚒️ ${lang==='en' ? 'Workshops' : 'Dílny'}</div>`;
+      h += `<div style="font-size:0.78rem; margin-bottom:10px; padding:6px 8px; background:rgba(197,160,89,0.08); border-radius:6px; opacity:0;">&nbsp;</div>`;
+      workshopBuildings.forEach(b => { h += renderBuilding(b); });
+      h += `</div>`;
 
-        h += `<div style="margin-bottom:14px; padding:14px; background:rgba(197,160,89,0.05);
-                          border-radius:8px; border:1px solid rgba(197,160,89,${built ? '0.5' : '0.2'});
-                          border-left:4px solid ${statusColor};">
-          <div style="display:flex; align-items:center; gap:10px; margin-bottom:8px;">
-            <span style="font-size:1.8rem;">${b.icon}</span>
-            <div style="flex:1;">
-              <div style="font-weight:bold; font-size:0.95rem;">${statusIcon} ${lang==='en' ? b.name_en : b.name}</div>
-              <div style="font-size:0.8rem; opacity:0.75; margin-top:2px;">${lang==='en' ? b.desc_en : b.desc}</div>
-            </div>
-          </div>
-          ${!built ? `<div style="font-size:0.75rem; opacity:0.7; margin-bottom:8px; display:flex; flex-wrap:wrap; gap:6px;">${costStr}</div>` : ''}
-          ${b.req_label && !built ? `<div style="font-size:0.75rem; color:#e67e22; margin-bottom:8px;">⚠️ ${b.req_label}</div>` : ''}
-          ${canBuild ? `<button onclick="Game.buildStorage('${b.id}')" class="craft-btn" style="font-size:0.8rem;">
-            🏗️ ${lang==='en' ? 'Build' : 'Postavit'}
-          </button>` : ''}
-          ${built ? `<div style="font-size:0.8rem; color:#5a9a5a; font-style:italic;">✅ ${lang==='en' ? 'Built' : 'Postaveno'}</div>` : ''}
-          ${locked ? `<div style="font-size:0.8rem; opacity:0.5; font-style:italic;">🔒 ${lang==='en' ? 'Research required' : 'Vyžaduje výzkum'}</div>` : ''}
-          ${waitBuild ? `<div style="font-size:0.8rem; opacity:0.6; font-style:italic;">⏳ ${b.req_label}</div>` : ''}
-        </div>`;
-      });
+      h += `</div>`;
     }
 
     h += `</div>`;

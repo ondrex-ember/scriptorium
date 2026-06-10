@@ -2367,16 +2367,24 @@
                     style="margin-top:10px; margin-bottom:15px; display: flex; flex-wrap: wrap; gap: 5px;">
                     <button id="craft-filter-all" class="filter-btn active"
                         onclick="UI.filterCrafting('all', this)">Vše</button>
-                    <button id="craft-filter-tool" class="filter-btn" data-i18n="craft.filterTool"
-                        onclick="UI.filterCrafting('tool', this)">Nástroje</button>
-                    <button id="craft-filter-mat" class="filter-btn"
-                        onclick="UI.filterCrafting('mat', this)">Materiály</button>
+                    <button id="craft-filter-stone" class="filter-btn"
+                        onclick="UI.filterCrafting('stone', this)">🪨 Kamenné</button>
+                    <button id="craft-filter-iron" class="filter-btn"
+                        onclick="UI.filterCrafting('iron', this)">⚒️ Železné</button>
+                    <button id="craft-filter-craft" class="filter-btn"
+                        onclick="UI.filterCrafting('craft', this)">🪵 Řemeslo</button>
+                    <button id="craft-filter-fire" class="filter-btn"
+                        onclick="UI.filterCrafting('fire', this)">🕯️ Oheň</button>
+                    <button id="craft-filter-parchment" class="filter-btn"
+                        onclick="UI.filterCrafting('parchment', this)">📜 Pergamen</button>
+                    <button id="craft-filter-codex" class="filter-btn"
+                        onclick="UI.filterCrafting('codex', this)">📖 Kodex</button>
                     <button id="craft-filter-food" class="filter-btn"
-                        onclick="UI.filterCrafting('food', this)">Jídlo</button>
-                    <button id="craft-filter-alch" class="filter-btn"
-                        onclick="UI.filterCrafting('alchemy', this)">Alchymie</button>
+                        onclick="UI.filterCrafting('food', this)">🍖 Jídlo</button>
+                    <button id="craft-filter-alchemy" class="filter-btn"
+                        onclick="UI.filterCrafting('alchemy', this)">⚗️ Alchymie</button>
                     <button id="craft-filter-lore" class="filter-btn"
-                        onclick="UI.filterCrafting('lore', this)">Vědění</button>
+                        onclick="UI.filterCrafting('lore', this)">🎲 Vědění</button>
                 </div>
                 <div id="crafting-list"></div>
             </div>
@@ -2384,15 +2392,21 @@
             <div id="screen-inv" class="screen">
                 <h2>Batoh</h2>
                 <div id="inv-filter-bar" class="filter-bar"
-                    style="margin-top:10px; margin-bottom:15px; display:none; flex-wrap: wrap; gap: 5px;">
+                    style="margin-top:10px; margin-bottom:15px; display:flex; flex-wrap: wrap; gap: 5px;">
                     <button id="inv-filter-all" class="filter-btn active"
                         onclick="UI.filterInventory('all', this)">Vše</button>
                     <button id="inv-filter-mat" class="filter-btn"
-                        onclick="UI.filterInventory('mat', this)">Suroviny</button>
+                        onclick="UI.filterInventory('mat', this)">🌾 Suroviny</button>
                     <button id="inv-filter-tool" class="filter-btn"
-                        onclick="UI.filterInventory('tool', this)">Nástroje</button>
+                        onclick="UI.filterInventory('tool', this)">🔨 Nástroje</button>
+                    <button id="inv-filter-food" class="filter-btn"
+                        onclick="UI.filterInventory('food', this)">🍖 Jídlo</button>
+                    <button id="inv-filter-alchemy" class="filter-btn"
+                        onclick="UI.filterInventory('alchemy', this)">⚗️ Alchymie</button>
                     <button id="inv-filter-lore" class="filter-btn"
-                        onclick="UI.filterInventory('lore', this)">Ostatní</button>
+                        onclick="UI.filterInventory('lore', this)">📜 Lore</button>
+                    <button id="inv-filter-animal" class="filter-btn"
+                        onclick="UI.filterInventory('animal', this)">🐄 Zvířata</button>
                 </div>
                 <div id="inventory-grid" style="margin-top:15px;"></div>
             </div>
