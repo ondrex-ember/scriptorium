@@ -22,6 +22,7 @@ const EventsSystem = {
                         if(GameState.inventory['common_codex']) Game.addItem('common_codex', -Math.floor(GameState.inventory['common_codex'] * 0.4));
                         
                         UI.notifyPanel(t("events.swedish_siege.sartorius_notif"), 'system');
+                        EventsSystem._addKronika(t("events.swedish_siege.sartorius_notif"));
                         return t("events.swedish_siege.sartorius_res");
                     }
                 },
@@ -45,6 +46,7 @@ const EventsSystem = {
                         Game.addItem('vellum_codex', -(GameState.inventory['vellum_codex'] || 0));
                         
                         UI.notifyPanel(t("events.swedish_siege.wall_notif"), 'system');
+                        EventsSystem._addKronika(t("events.swedish_siege.wall_notif"));
                         return t("events.swedish_siege.wall_res");
                     }
                 },
@@ -56,6 +58,7 @@ const EventsSystem = {
                         if(GameState.inventory['common_codex']) Game.addItem('common_codex', -Math.floor(GameState.inventory['common_codex'] * 0.6));
                         
                         UI.notifyPanel(t("events.swedish_siege.nego_notif"), 'system');
+                        EventsSystem._addKronika(t("events.swedish_siege.nego_notif"));
                         return t("events.swedish_siege.nego_res");
                     }
                 }
@@ -80,10 +83,12 @@ const EventsSystem = {
                             Game.addItem('research', 10);
                             Game.addItem('luxury_codex', 1);
                             UI.notifyPanel(t("events.hidden_incunabula.compare_notif_ok"), 'system');
+                            EventsSystem._addKronika(t("events.hidden_incunabula.compare_notif_ok"));
                             return t("events.hidden_incunabula.compare_res_ok");
                         } else {
                             Game.addItem('research', 2);
                             UI.notifyPanel(t("events.hidden_incunabula.compare_notif_fail"), 'system');
+                            EventsSystem._addKronika(t("events.hidden_incunabula.compare_notif_fail"));
                             return t("events.hidden_incunabula.compare_res_fail");
                         }
                     }
@@ -93,6 +98,7 @@ const EventsSystem = {
                     descKey: "events.hidden_incunabula.ignore_desc",
                     action: () => {
                         UI.notifyPanel(t("events.hidden_incunabula.ignore_notif"), 'system');
+                        EventsSystem._addKronika(t("events.hidden_incunabula.ignore_notif"));
                         return t("events.hidden_incunabula.ignore_res");
                     }
                 }
@@ -190,10 +196,22 @@ const EventsSystem = {
     },
 
     // ── Automatický efekt bez modalu ──────────────────────────────────────────
-    applyAutoEffect: function(event) {
+    // ── Helper: zápis do Kroniky ─────────────────────────────────────────────
+    _addKronika: function(msgCs) {
+        if (typeof Game !== 'undefined' && typeof Game.addKronikaEntry === 'function') {
+            Game.addKronikaEntry('important', msgCs, msgCs, '');
+        }
+    },
+
+        applyAutoEffect: function(event) {
         if (!event.effect) return;
         event.effect();
-        if (event.notifyKey) UI.notifyPanel(t(event.notifyKey), 'system');
+        if (event.notifyKey) {
+            UI.notifyPanel(t(event.notifyKey), 'system');
+            if (typeof Game !== 'undefined' && typeof Game.addKronikaEntry === 'function') {
+                Game.addKronikaEntry('important', t(event.notifyKey), t(event.notifyKey), '');
+            }
+        }
     },
 
     // ── Starý checkEvents zachován pro zpětnou kompatibilitu ─────────────────
@@ -224,6 +242,7 @@ const EventsSystem = {
                 
                 // Dynamický překlad notifikace
                 UI.notifyPanel(t("events.swedish_siege.wall_return"), 'system');
+                EventsSystem._addKronika(t("events.swedish_siege.wall_return"));
                 Game.save();
             }
         }
@@ -264,6 +283,7 @@ const EventsSystem = {
                         }
                         Game.save();
                         UI.notifyPanel(t('events.cal_walpurgis.athanor_notif'), 'system');
+                        EventsSystem._addKronika(t('events.cal_walpurgis.athanor_notif'));
                         return t('events.cal_walpurgis.athanor_res');
                     }
                 },
@@ -273,6 +293,7 @@ const EventsSystem = {
                     action: () => {
                         Game.addItem('vigor_point', 10);
                         UI.notifyPanel(t('events.cal_walpurgis.pray_notif'), 'system');
+                        EventsSystem._addKronika(t('events.cal_walpurgis.pray_notif'));
                         return t('events.cal_walpurgis.pray_res');
                     }
                 },
@@ -284,6 +305,7 @@ const EventsSystem = {
                         Game.addItem('st_johns_wort', 2);
                         Game.addItem('chamomile', 1);
                         UI.notifyPanel(t('events.cal_walpurgis.herbs_notif'), 'system');
+                        EventsSystem._addKronika(t('events.cal_walpurgis.herbs_notif'));
                         return t('events.cal_walpurgis.herbs_res');
                     }
                 }
@@ -333,6 +355,7 @@ const EventsSystem = {
                         Game.addItem('thyme', 2);
                         Game.addItem('pollen', 1);
                         UI.notifyPanel(t('events.cal_midsummer.herbs_notif'), 'system');
+                        EventsSystem._addKronika(t('events.cal_midsummer.herbs_notif'));
                         return t('events.cal_midsummer.herbs_res');
                     }
                 },
@@ -344,6 +367,7 @@ const EventsSystem = {
                         GameState.flags.midsummerWork = true;
                         Game.save();
                         UI.notifyPanel(t('events.cal_midsummer.work_notif'), 'system');
+                        EventsSystem._addKronika(t('events.cal_midsummer.work_notif'));
                         return t('events.cal_midsummer.work_res');
                     }
                 }
