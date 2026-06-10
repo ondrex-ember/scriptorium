@@ -7,6 +7,7 @@ const UI = {
         document.querySelectorAll('.nav-btn').forEach(e => e.classList.remove('active'));
         if(btn) btn.classList.add('active');
         if(name === 'garden') this.renderGarden();
+        if(name === 'inv') this._updateInvFilterBar();
         if(name === 'library') {
             // Aktivovat výchozí tab Knihy
             const defaultBtn = document.querySelector('#screen-library .filter-btn');
@@ -349,6 +350,25 @@ renderActions: function() {
         container.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
         if (btn) btn.classList.add('active');
         this.renderInventory();
+    },
+
+    _updateInvFilterBar: function() {
+        const bar = document.getElementById('inv-filter-bar');
+        if (!bar) return;
+        const techs = GameState.researchedTechs || [];
+        const hasL1 = techs.includes('tech_commonplace');
+        const hasL2 = techs.includes('tech_inventarium');
+
+        // Zobrazit/skrýt celý bar
+        bar.style.display = hasL1 ? 'flex' : 'none';
+        if (!hasL1) return;
+
+        // Úroveň 2 filtry — zobrazit jen s tech_inventarium
+        const l2 = ['inv-filter-food', 'inv-filter-alchemy', 'inv-filter-stone', 'inv-filter-iron', 'inv-filter-fire'];
+        l2.forEach(id => {
+            const btn = document.getElementById(id);
+            if (btn) btn.style.display = hasL2 ? 'inline-flex' : 'none';
+        });
     },
     renderCrafting: function() {
         const el = document.getElementById('crafting-list'); el.innerHTML = "";
