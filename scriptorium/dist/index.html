@@ -30061,7 +30061,7 @@ const CalendarSystem = {
         if (!GameState.ui) GameState.ui = {};
         const now = new Date();
         if (!GameState.ui.calViewMonth) GameState.ui.calViewMonth = now.getMonth() + 1;
-        if (!GameState.ui.calViewYear) GameState.ui.calViewYear = this.GAME_YEAR;
+        if (!GameState.ui.calViewYear || GameState.ui.calViewYear > 1500) GameState.ui.calViewYear = this.GAME_YEAR;
         return { month: GameState.ui.calViewMonth, year: GameState.ui.calViewYear };
     },
 
@@ -30120,8 +30120,8 @@ const CalendarSystem = {
         if (typeof NotificationSystem !== 'undefined') {
             NotificationSystem.modal({
                 title: `${day}. ${monthName}`,
-                body: body,
-                buttons: [{ label: lang === 'en' ? 'Close' : 'Zavřít', action: () => { } }]
+                text: body,
+                choices: [{ label: lang === 'en' ? 'Close' : 'Zavřít', type: 'default', effect: () => { } }]
             });
         }
     },
