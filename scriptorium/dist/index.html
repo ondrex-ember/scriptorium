@@ -7873,6 +7873,7 @@ const CanonicalHours = {
         const desc = GameState.settings.language === 'en' ? hour.descEN : hour.desc;
         
         UI.notify(`🔔 ${hourName} — ${desc}`, false);
+        if (typeof NotificationSystem !== 'undefined') NotificationSystem.panel(`🔔 ${hourName} — ${desc}`, 'system');
         
         // Special actions per hour
         switch(hour.buff) {
@@ -13195,7 +13196,7 @@ const GardenSystem = {
             h.lastFeatherAt = now; collected = true;
         }
         if (collected) { Game.save(); GardenSystem.renderFarmyard(); UI.notify('🥚 ' + t('game.hennouseCollected')); }
-        else UI.notify(t('game.hiveNotReady'), true);
+        else { const lang = (GameState.settings&&GameState.settings.language)||'cs'; UI.notify(lang==='en'?'🐔 Hens are still working...':'🐔 Slepice ještě pracují...', true); }
     },
 
     feedHenhouse: function() {

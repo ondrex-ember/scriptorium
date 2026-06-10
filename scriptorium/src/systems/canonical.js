@@ -166,6 +166,7 @@ const CanonicalHours = {
         const desc = GameState.settings.language === 'en' ? hour.descEN : hour.desc;
         
         UI.notify(`🔔 ${hourName} — ${desc}`, false);
+        if (typeof NotificationSystem !== 'undefined') NotificationSystem.panel(`🔔 ${hourName} — ${desc}`, 'system');
         
         // Special actions per hour
         switch(hour.buff) {

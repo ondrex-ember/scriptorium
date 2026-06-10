@@ -487,7 +487,7 @@ const GardenSystem = {
             h.lastFeatherAt = now; collected = true;
         }
         if (collected) { Game.save(); GardenSystem.renderFarmyard(); UI.notify('🥚 ' + t('game.hennouseCollected')); }
-        else UI.notify(t('game.hiveNotReady'), true);
+        else { const lang = (GameState.settings&&GameState.settings.language)||'cs'; UI.notify(lang==='en'?'🐔 Hens are still working...':'🐔 Slepice ještě pracují...', true); }
     },
 
     feedHenhouse: function() {
