@@ -12693,6 +12693,1632 @@ const CellariumSystem = {
 
 
 };
+// ═══ src/systems/GardenSystem.js ═══
+// ═══════════════════════════════════════════════════════════════════════════
+// GardenSystem — Zahrada, Dvůr, Sad, Apiarium, Piscina, Studna
+// ═══════════════════════════════════════════════════════════════════════════
+
+const GardenSystem = {
+
+    // ════════════════════════════════════════════════════════════════════════
+    // GAME LOGIC — Sad, Apiarium, Piscina, Dvůr
+    // ════════════════════════════════════════════════════════════════════════
+
+    plantTree: function(slotIdx, seedId) {
+        if (!GameState.orchard) return;
+        if (!seedId) { UI.notify(t('game.noSeedSelected'), true); return; }
+        if (!(GameState.inventory[seedId] > 0)) { UI.notify(t('game.noSeeds'), true); return; }
+        const slot = GameState.orchard[slotIdx];
+        if (slot.state !== 'empty') { UI.notify(t('game.slotOccupied'), true); return; }
+        Game.removeItem(seedId, 1);
+        slot.state    = 'growing';
+        slot.treeType = seedId;
+        slot.plantedAt = Date.now();
+        slot.lastHarvestAt = 0;
+        Game.save();
+        GardenSystem.renderOrchard();
+        UI.notify('🌱 ' + t('game.treePlanted'));
+    },
+
+    harvestTree: function(slotIdx) {
+        if (!GameState.orchard) return;
+        const slot = GameState.orchard[slotIdx];
+        if (slot.state !== 'mature') return;
+        const TREE_FRUITS = {
+            seed_apple: 'apple', seed_pear: 'pear', seed_plum: 'plum',
+            seed_cherry: 'cherry', seed_walnut: 'walnut', seed_mulberry: 'mulberry',
+            seed_quince: 'quince', seed_sorb: 'sorb', seed_rowan: 'rowan',
+            seed_linden: 'linden_fruit',
+        };
+        const fruit = TREE_FRUITS[slot.treeType];
+        if (!fruit) return;
+        const qty = (slot.treeType === 'seed_walnut' || slot.treeType === 'seed_sorb') ? 2 : 3;
+        Game.addItem(fruit, qty);
+        // Lípa dává navíc lipový květ
+        if (slot.treeType === 'seed_linden') Game.addItem('linden_blossom', 1);
+        // Pyl při každé sklizni
+        Game.addItem('pollen', 1);
+        slot.lastHarvestAt = Date.now();
+        Game.save();
+        GardenSystem.renderOrchard();
+        UI.notify('🍎 ' + t('game.treeHarvested').replace('{qty}', qty));
+    },
+
+    fellTree: function(slotIdx) {
+        if (!GameState.orchard) return;
+        const slot = GameState.orchard[slotIdx];
+        if (slot.state === 'empty') return;
+        // Kácení dá dřevo
+        const woodQty = (slot.state === 'mature') ? 5 : 2;
+        Game.addItem('stick', woodQty);
+        slot.state = 'empty';
+        slot.treeType = null;
+        slot.plantedAt = 0;
+        slot.lastHarvestAt = 0;
+        Game.save();
+        GardenSystem.renderOrchard();
+        UI.notify('🪓 ' + t('game.treeFelled').replace('{qty}', woodQty));
+    },
+
+    // ═══════════════════════════════════════════════════════════════════════════
+    // APIARIUM (Včelín) — herní logika
+    // ═══════════════════════════════════════════════════════════════════════════
+
+    // ── Pomocná: vrátí sezónu dle reálného měsíce ─────────────────────────────
+    _getApiarySeason: function() {
+        const m = new Date().getMonth() + 1; // 1–12
+        if (m >= 3 && m <= 5)  return 'spring';
+        if (m >= 6 && m <= 8)  return 'summer';
+        if (m >= 9 && m <= 11) return 'autumn';
+        return 'winter';
+    },
+
+    // ── Pomocná: pool jmen královen ───────────────────────────────────────────
+    _queenNames: [
+        'Hildegarda', 'Konstancie', 'Anežka', 'Dorota', 'Markéta',
+        'Eliška', 'Žofie', 'Ludmila', 'Blanka', 'Alžběta',
+        'Kunhuta', 'Radoslava', 'Doubravka', 'Přibyslava', 'Miloslava'
+    ],
+
+    _randomQueenName: function() {
+        return this._queenNames[Math.floor(Math.random() * this._queenNames.length)];
+    },
+
+    buildHive: function(slotIdx) {
+        if (!GameState.apiary) return;
+        const hive = GameState.apiary[slotIdx];
+        if (hive.built) return;
+        if ((GameState.inventory['stick'] || 0) < 10) { UI.notify(t('game.needWood'), true); return; }
+        if ((GameState.inventory['rope']  || 0) < 5)  { UI.notify(t('game.needRope'), true); return; }
+        Game.removeItem('stick', 10);
+        Game.removeItem('rope', 5);
+        hive.built          = true;
+        hive.hasQueen       = false;
+        hive.queenName      = null;
+        hive.queenStrength  = 0;   // 1–5 hvězd, nastaví se při usazení matky
+        hive.strength       = 0;   // 1–10 síla včelstva
+        hive.varroaRisk     = false;
+        hive.lastCollectAt  = 0;
+        Game.save();
+        GardenSystem.renderApiary();
+        UI.notify('🪹 ' + t('game.hiveBuilt'));
+    },
+
+    addQueen: function(slotIdx) {
+        if (!GameState.apiary) return;
+        const hive = GameState.apiary[slotIdx];
+        if (!hive.built || hive.hasQueen) return;
+        if (!(GameState.inventory['queen_bee'] > 0)) { UI.notify(t('game.needQueen'), true); return; }
+        Game.removeItem('queen_bee', 1);
+        hive.hasQueen      = true;
+        hive.queenName     = GardenSystem._randomQueenName();
+        hive.queenStrength = Math.floor(Math.random() * 3) + 2; // 2–4 hvězdy (náhoda)
+        hive.strength      = 3; // začíná na střední síle
+        hive.varroaRisk    = false;
+        hive.lastCollectAt = Date.now();
+        Game.save();
+        GardenSystem.renderApiary();
+        UI.notify('🐝 ' + t('game.queenAdded') + ' — ' + hive.queenName);
+    },
+
+    collectHive: function(slotIdx) {
+        if (!GameState.apiary) return;
+        const hive = GameState.apiary[slotIdx];
+        if (!hive.built || !hive.hasQueen) return;
+
+        const season = GardenSystem._getApiarySeason();
+
+        // Zima — nelze sklízet
+        if (season === 'winter') {
+            UI.notify('❄️ ' + t('game.hiveWinter'), true);
+            return;
+        }
+
+        // Časy sklizně dle sezóny
+        const COLLECT_HOURS = { spring: 16, summer: 8, autumn: 20 };
+        const hours = COLLECT_HOURS[season] || 12;
+        const now = Date.now();
+        if (now < hive.lastCollectAt + (hours * 3600000)) {
+            UI.notify(t('game.hiveNotReady'), true);
+            return;
+        }
+
+        // Produkce dle sezóny a síly včelstva
+        const strengthMod = (hive.strength || 3) / 5; // 0.2–2.0
+        const honeyBase   = { spring: 1, summer: 3, autumn: 1 };
+        const waxBase     = { spring: 1, summer: 1, autumn: 2 };
+        const honeyYield  = Math.max(1, Math.round(honeyBase[season] * strengthMod));
+        const waxYield    = Math.max(1, Math.round(waxBase[season] * strengthMod));
+
+        Game.addItem('honey', honeyYield);
+        Game.addItem('beeswax', waxYield);
+
+        // Pyl bonus — jen léto, jen pokud kvetou záhony nebo sad
+        if (season === 'summer') {
+            const hasFlowers = GameState.garden && GameState.garden.some(p => p.state === 2 && p.water);
+            const hasTrees   = GameState.orchard && GameState.orchard.some(s => s.state === 'mature');
+            if (hasFlowers || hasTrees) Game.addItem('pollen', 1);
+        }
+
+        // Síla roste po sklizni (péče o včely)
+        hive.strength = Math.min(10, (hive.strength || 3) + 1);
+
+        // Rojivá nálada — pokud je síla max a sklizeň přichází pozdě (2× lhůta)
+        if (hive.strength >= 9 && now > hive.lastCollectAt + (hours * 2 * 3600000)) {
+            // Matka odletěla
+            hive.hasQueen  = false;
+            hive.queenName = null;
+            hive.strength  = 0;
+            Game.save();
+            GardenSystem.renderApiary();
+            UI.notify('🐝 ' + t('game.hiveRojivy'));
+            return;
+        }
+
+        hive.lastCollectAt = now;
+        Game.save();
+        GardenSystem.renderApiary();
+        UI.notify('🍯 ' + t('game.hiveCollected') + ' (' + honeyYield + '× med, ' + waxYield + '× vosk)');
+    },
+
+    // ── Zimní přikrmení ────────────────────────────────────────────────────────
+    feedHive: function(slotIdx) {
+        if (!GameState.apiary) return;
+        const hive = GameState.apiary[slotIdx];
+        if (!hive.built || !hive.hasQueen) return;
+        const season = GardenSystem._getApiarySeason();
+        if (season !== 'winter') { UI.notify(t('game.hiveFeedOnlyWinter'), true); return; }
+        if ((GameState.inventory['honey'] || 0) < 1) { UI.notify(t('game.hiveNeedHoney'), true); return; }
+        Game.removeItem('honey', 1);
+        // Přikrmení zachová sílu nebo ji zvýší
+        hive.strength = Math.min(10, (hive.strength || 3) + 1);
+        Game.save();
+        GardenSystem.renderApiary();
+        UI.notify('🍯 ' + t('game.hiveFed'));
+    },
+
+    // ── Léčba Varroa ──────────────────────────────────────────────────────────
+    treatVarroa: function(slotIdx) {
+        if (!GameState.apiary) return;
+        const hive = GameState.apiary[slotIdx];
+        if (!hive.built || !hive.hasQueen || !hive.varroaRisk) return;
+        if ((GameState.inventory['thyme'] || 0) < 1) { UI.notify(t('game.hiveNeedThyme'), true); return; }
+        Game.removeItem('thyme', 1);
+        hive.varroaRisk = false;
+        hive.strength   = Math.max(1, (hive.strength || 3) - 1); // léčba stojí trochu síly
+        Game.save();
+        GardenSystem.renderApiary();
+        UI.notify('🌿 ' + t('game.hiveTreated'));
+    },
+
+    // ── Zimní check (volá se 1× denně nebo při otevření Apiary) ───────────────
+    checkApiaryWinter: function() {
+        if (!GameState.apiary) return;
+        const season = GardenSystem._getApiarySeason();
+        if (season !== 'winter') return;
+        let changed = false;
+        GameState.apiary.forEach(hive => {
+            if (!hive.built || !hive.hasQueen) return;
+            // Pokud síla <= 0 → včelstvo uhynulo
+            if ((hive.strength || 0) <= 0) {
+                hive.hasQueen  = false;
+                hive.queenName = null;
+                hive.strength  = 0;
+                changed = true;
+                UI.notify('💀 ' + t('game.hiveDied'));
+            }
+        });
+        if (changed) { Game.save(); GardenSystem.renderApiary(); }
+    },
+
+    // ── Náhodný Varroa event (volá se z EventsSystem nebo manuálně) ──────────
+    triggerVarroa: function(slotIdx) {
+        if (!GameState.apiary) return;
+        const hive = GameState.apiary[slotIdx];
+        if (!hive.built || !hive.hasQueen || hive.varroaRisk) return;
+        hive.varroaRisk = true;
+        hive.strength   = Math.max(1, (hive.strength || 3) - 2);
+        Game.save();
+        GardenSystem.renderApiary();
+        UI.notify('⚠️ ' + t('game.hiveVarroa'));
+    },
+
+    // ═══════════════════════════════════════════════════════════════════════════
+    // PISCINA (Rybník) — herní logika
+    // ═══════════════════════════════════════════════════════════════════════════
+
+    buildPiscina: function(tier) {
+        const p = GameState.piscina;
+        if (!GameState.researchedTechs.includes('tech_piscina')) { UI.notify(t('game.needDePiscibus'), true); return; }
+        const costs = {
+            1: { rock: 10, stick: 5 },
+            2: { rock: 20, stick: 10, rope: 5 },
+            3: { rock: 40, stick: 20, rope: 10 }
+        };
+        if (p.tier >= tier) { UI.notify(t('game.piscinaAlready'), true); return; }
+        if (tier !== p.tier + 1) { UI.notify(t('game.piscinaTierOrder'), true); return; }
+        const cost = costs[tier];
+        if ((GameState.inventory['rock']||0) < cost.rock)  { UI.notify(t('game.needStone') + ` (${cost.rock})`, true); return; }
+        if ((GameState.inventory['stick']||0) < cost.stick){ UI.notify(t('game.needWood')  + ` (${cost.stick})`, true); return; }
+        if (cost.rope && (GameState.inventory['rope']||0) < cost.rope){ UI.notify(t('game.needRope') + ` (${cost.rope})`, true); return; }
+        Game.removeItem('rock', cost.rock);
+        Game.removeItem('stick', cost.stick);
+        if (cost.rope) Game.removeItem('rope', cost.rope);
+        p.tier = tier;
+        Game.save(); GardenSystem.renderPiscina();
+        UI.notify('🐟 ' + t('game.piscinaBuilt').replace('{tier}', tier));
+    },
+
+    addFry: function(qty) {
+        const p = GameState.piscina;
+        if (p.tier < 1) { UI.notify(t('game.needPiscina1'), true); return; }
+        if ((GameState.inventory['fry']||0) < qty) { UI.notify(t('game.noFry'), true); return; }
+        Game.removeItem('fry', qty);
+        p.fry += qty;
+        p.fryAddedAt = p.fryAddedAt || Date.now();
+        Game.save(); GardenSystem.renderPiscina();
+        UI.notify('🫧 ' + t('game.fryAdded').replace('{qty}', qty));
+    },
+
+    feedPiscina: function() {
+        const p = GameState.piscina;
+        if (p.tier < 1) return;
+        const feedNeeded = p.fry + p.youngCarp + p.carp;
+        if (feedNeeded === 0) { UI.notify(t('game.piscinaEmpty'), true); return; }
+        if ((GameState.inventory['fiber']||0) < feedNeeded) { UI.notify(t('game.needFeedFish') + ` (${feedNeeded})`, true); return; }
+        Game.removeItem('fiber', feedNeeded);
+        p.lastFedAt = Date.now();
+        Game.save(); GardenSystem.renderPiscina();
+        UI.notify('🌿 ' + t('game.piscinaFed'));
+    },
+
+    transferFry: function() {
+        const p = GameState.piscina;
+        if (!p || (p.pendingFry||0) <= 0) { UI.notify(t('game.noFryPending'), true); return; }
+        if (p.tier < 1) { UI.notify(t('game.needPiscina1'), true); return; }
+        const qty = p.pendingFry;
+        p.fry = (p.fry||0) + qty;
+        p.pendingFry = 0;
+        if (!p.fryAddedAt || p.fryAddedAt === 0) p.fryAddedAt = Date.now();
+        Game.save(); GardenSystem.renderPiscina();
+        UI.notify('🫧 ' + t('game.fryTransferred').replace('{qty}', qty));
+    },
+
+    harvestCarp: function(qty) {
+        const p = GameState.piscina;
+        qty = Math.min(qty, p.carp);
+        if (qty <= 0) { UI.notify(t('game.noCarp'), true); return; }
+        p.carp -= qty;
+        Game.addItem('carp', qty);
+        Game.save(); GardenSystem.renderPiscina();
+        UI.notify('🐠 ' + t('game.carpHarvested').replace('{qty}', qty));
+    },
+
+    checkPiscinaGrowth: function() {
+        const p = GameState.piscina;
+        if (!p || p.tier < 1) return;
+        const now = Date.now();
+        const WEEK  = 7  * 24 * 3600000;
+        const WEEKS2 = 14 * 24 * 3600000;
+        let changed = false;
+
+        // Tier 1 → tier 2: plůdek po týdnu přechází do výtažníku (pokud existuje)
+        if (p.fry > 0 && p.tier >= 2 && p.fryAddedAt > 0 && now >= p.fryAddedAt + WEEK) {
+            p.youngCarp += p.fry;
+            p.fry = 0;
+            p.youngAddedAt = now;
+            p.fryAddedAt = 0;
+            changed = true;
+        }
+
+        // Tier 2 → tier 3: nedospělí kapři po 2 týdnech přechází do kaprového rybníka
+        if (p.youngCarp > 0 && p.tier >= 3 && p.youngAddedAt > 0 && now >= p.youngAddedAt + WEEKS2) {
+            p.carp += p.youngCarp;
+            p.youngCarp = 0;
+            p.youngAddedAt = 0;
+            changed = true;
+        }
+
+        // Tier 3: kaprový rybník produkuje 1 plůdek / 24h
+        const DAY = 24 * 3600000;
+        if (p.tier >= 3 && p.carp > 0) {
+            if (p.lastFryProductionAt === undefined) p.lastFryProductionAt = now;
+            if (now >= p.lastFryProductionAt + DAY) {
+                p.pendingFry = (p.pendingFry || 0) + 1;
+                p.lastFryProductionAt = now;
+                changed = true;
+            }
+        }
+
+        if (changed) { Game.save(); }
+    },
+
+    checkOrchardGrowth: function() {
+        if (!GameState.orchard) return;
+        const GROW_HOURS = {
+            seed_apple: 48, seed_pear: 48, seed_plum: 36, seed_cherry: 36,
+            seed_walnut: 72, seed_mulberry: 48, seed_quince: 60,
+            seed_sorb: 72, seed_rowan: 48, seed_linden: 60,
+        };
+        let changed = false;
+        GameState.orchard.forEach(slot => {
+            if (slot.state === 'growing') {
+                const hours = GROW_HOURS[slot.treeType] || 48;
+                if (Date.now() >= slot.plantedAt + (hours * 3600000)) {
+                    slot.state = 'mature';
+                    slot.lastHarvestAt = Date.now(); // první sklizeň hned k dispozici
+                    changed = true;
+                }
+            }
+        });
+        if (changed) { Game.save(); }
+    },
+
+    // ═══════════════════════════════════════════════════════════════════════════
+    // GALLINARIUM (Kurník) — herní logika
+    // ═══════════════════════════════════════════════════════════════════════════
+
+    buildHenhouse: function() {
+        const h = GameState.henhouse;
+        if (h.built) return;
+        if ((GameState.inventory['rock'] || 0) < 15)  { UI.notify(t('game.needStone') + ' (15)', true); return; }
+        if ((GameState.inventory['stick'] || 0) < 10) { UI.notify(t('game.needWood')  + ' (10)', true); return; }
+        if ((GameState.inventory['rope'] || 0) < 3)   { UI.notify(t('game.needRope')  + ' (3)',  true); return; }
+        Game.removeItem('rock', 15);
+        Game.removeItem('stick', 10);
+        Game.removeItem('rope', 3);
+        h.built = true;
+        Game.save(); GardenSystem.renderFarmyard();
+        UI.notify('🐔 ' + t('game.hennhouseBuilt'));
+    },
+
+    addHen: function(type) {
+        const h = GameState.henhouse;
+        if (!h.built) return;
+        if (type === 'rooster') {
+            if (h.rooster) { UI.notify(t('game.roosterAlready'), true); return; }
+            if (!(GameState.inventory['rooster'] > 0)) { UI.notify(t('game.needRooster'), true); return; }
+            Game.removeItem('rooster', 1);
+            h.rooster = true;
+        } else {
+            if (h.hens.length >= 10) { UI.notify(t('game.hennsFull'), true); return; }
+            if (!(GameState.inventory[type] > 0)) { UI.notify(t('game.needHen'), true); return; }
+            Game.removeItem(type, 1);
+            h.hens.push({ type, addedAt: Date.now() });
+        }
+        Game.save(); GardenSystem.renderFarmyard();
+        UI.notify('🐔 ' + t('game.henAdded'));
+    },
+
+    startNesting: function() {
+        const h = GameState.henhouse;
+        if (!h.built || !h.rooster || h.hens.length === 0) { UI.notify(t('game.nestingReq'), true); return; }
+        if (h.nesting) { UI.notify(t('game.nestingActive'), true); return; }
+        const now = Date.now();
+        h.nesting = {
+            state: 'nesting',
+            startedAt: now,
+            hatchAt: now + 86400000,  // 24h líhnutí
+        };
+        Game.save(); GardenSystem.renderFarmyard();
+        UI.notify('🥚 ' + t('game.nestingStarted'));
+    },
+
+    slaughterChick: function(qty) {
+        const h = GameState.henhouse;
+        qty = Math.min(qty, h.chickPool);
+        if (qty <= 0) { UI.notify(t('game.noChicks'), true); return; }
+        h.chickPool -= qty;
+        Game.addItem('chicken_meat', qty);
+        Game.addItem('feather_hen', qty * 2);
+        Game.save(); GardenSystem.renderFarmyard();
+        UI.notify('🍗 ' + t('game.slaughtered').replace('{qty}', qty));
+    },
+
+    slaughterHen: function(idx) {
+        const h = GameState.henhouse;
+        if (!h.hens[idx]) return;
+        h.hens.splice(idx, 1);
+        Game.addItem('chicken_meat', 2);
+        Game.addItem('feather_hen', 3);
+        Game.save(); GardenSystem.renderFarmyard();
+        UI.notify('🍗 ' + t('game.henSlaughtered'));
+    },
+
+    collectHenhouse: function() {
+        const h = GameState.henhouse;
+        if (!h.built || h.hens.length === 0) return;
+        const now = Date.now();
+        const EGG_INTERVAL   = 8  * 3600000;
+        const FEATH_INTERVAL = 24 * 3600000;
+        let collected = false;
+        if (now >= h.lastEggAt + EGG_INTERVAL) {
+            const mult = h.rooster ? 1.2 : 1.0;
+            const eggs = Math.floor(h.hens.length * mult);
+            if (eggs > 0) { Game.addItem('egg', eggs); h.lastEggAt = now; collected = true; }
+        }
+        if (now >= h.lastFeatherAt + FEATH_INTERVAL) {
+            Game.addItem('feather_hen', h.hens.length);
+            h.lastFeatherAt = now; collected = true;
+        }
+        if (collected) { Game.save(); GardenSystem.renderFarmyard(); UI.notify('🥚 ' + t('game.hennouseCollected')); }
+        else UI.notify(t('game.hiveNotReady'), true);
+    },
+
+    feedHenhouse: function() {
+        const h = GameState.henhouse;
+        if (!h.built || h.hens.length === 0) return;
+        const chickFeed = h.nesting && h.nesting.state === 'growing' ? Math.ceil(h.nesting.chicks / 2) : 0;
+        const totalFeed = h.hens.length + chickFeed;
+        const feedItem = (GameState.inventory['seeds_herb'] || 0) >= totalFeed ? 'seeds_herb' : 'seeds_vegetable';
+        if ((GameState.inventory[feedItem] || 0) < totalFeed) { UI.notify(t('game.needFeedHen') + ' (' + totalFeed + ')', true); return; }
+        Game.removeItem(feedItem, totalFeed);
+        h.lastFedAt = Date.now();
+        Game.save(); GardenSystem.renderFarmyard();
+        UI.notify('🌾 ' + t('game.henFed'));
+    },
+
+    // ═══════════════════════════════════════════════════════════════════════════
+    // OVILE (Chlév) — herní logika
+    // ═══════════════════════════════════════════════════════════════════════════
+
+    buildSheepfold: function() {
+        const s = GameState.sheepfold;
+        if (s.built) return;
+        if (!GameState.researchedTechs.includes('tech_de_re_rustica')) { UI.notify(t('game.needDeReRustica'), true); return; }
+        if ((GameState.inventory['rock'] || 0) < 20)  { UI.notify(t('game.needStone') + ' (20)', true); return; }
+        if ((GameState.inventory['stick'] || 0) < 15) { UI.notify(t('game.needWood')  + ' (15)', true); return; }
+        if ((GameState.inventory['rope'] || 0) < 5)   { UI.notify(t('game.needRope')  + ' (5)',  true); return; }
+        Game.removeItem('rock', 20);
+        Game.removeItem('stick', 15);
+        Game.removeItem('rope', 5);
+        s.built = true;
+        Game.save(); GardenSystem.renderFarmyard();
+        UI.notify('🐑 ' + t('game.sheepfoldBuilt'));
+    },
+
+    addSheep: function() {
+        const s = GameState.sheepfold;
+        if (!s.built) return;
+        if (s.sheep >= 6) { UI.notify(t('game.sheepFull'), true); return; }
+        if (!(GameState.inventory['sheep'] > 0)) { UI.notify(t('game.needSheep'), true); return; }
+        Game.removeItem('sheep', 1);
+        s.sheep++;
+        Game.save(); GardenSystem.renderFarmyard();
+        UI.notify('🐑 ' + t('game.sheepAdded'));
+    },
+
+    startBreeding: function() {
+        const s = GameState.sheepfold;
+        if (!s.built || s.sheep < 2) { UI.notify(t('game.breedingReq'), true); return; }
+        if (s.breeding) { UI.notify(t('game.breedingActive'), true); return; }
+        const now = Date.now();
+        s.breeding = {
+            state: 'gestating',
+            startedAt: now,
+            bornAt: now + 172800000,  // 48h gestace
+        };
+        Game.save(); GardenSystem.renderFarmyard();
+        UI.notify('🐑 ' + t('game.breedingStarted'));
+    },
+
+    slaughterLamb: function(qty) {
+        const s = GameState.sheepfold;
+        qty = Math.min(qty, s.lambPool);
+        if (qty <= 0) { UI.notify(t('game.noLambs'), true); return; }
+        s.lambPool -= qty;
+        Game.addItem('mutton', qty * 2);
+        Game.addItem('lamb_hide', qty);
+        Game.save(); GardenSystem.renderFarmyard();
+        UI.notify('🥩 ' + t('game.lambSlaughtered').replace('{qty}', qty));
+    },
+
+    slaughterSheep: function() {
+        const s = GameState.sheepfold;
+        if (s.sheep <= 0) return;
+        s.sheep--;
+        Game.addItem('mutton', 3);
+        Game.addItem('raw_hide', 1);
+        Game.save(); GardenSystem.renderFarmyard();
+        UI.notify('🥩 ' + t('game.sheepSlaughtered'));
+    },
+
+    collectSheepfold: function() {
+        const s = GameState.sheepfold;
+        if (!s.built || s.sheep === 0) return;
+        const now = Date.now();
+        const MILK_INTERVAL = 12 * 3600000;
+        const WOOL_INTERVAL = 48 * 3600000;
+        let collected = false;
+        if (now >= s.lastMilkAt + MILK_INTERVAL) {
+            Game.addItem('milk', s.sheep);
+            s.lastMilkAt = now; collected = true;
+        }
+        if (now >= s.lastWoolAt + WOOL_INTERVAL) {
+            Game.addItem('wool', s.sheep);
+            s.lastWoolAt = now; collected = true;
+        }
+        if (collected) { Game.save(); GardenSystem.renderFarmyard(); UI.notify('🐑 ' + t('game.sheepCollected')); }
+        else UI.notify(t('game.hiveNotReady'), true);
+    },
+
+    feedSheepfold: function() {
+        const s = GameState.sheepfold;
+        if (!s.built || s.sheep === 0) return;
+        const lambFeed = s.breeding && s.breeding.state === 'growing' ? 1 : 0; // jehně potřebuje 1 trávu (polovina dospělé 2)
+        const fiberNeeded = s.sheep * 2 + lambFeed;
+        const waterNeeded = s.sheep + (lambFeed > 0 ? 1 : 0);
+        if ((GameState.inventory['fiber'] || 0) < fiberNeeded) { UI.notify(t('game.needFeedSheep') + ' (' + fiberNeeded + ')', true); return; }
+        if ((GameState.inventory['water'] || 0) < waterNeeded) { UI.notify(t('game.needWater'), true); return; }
+        Game.removeItem('fiber', fiberNeeded);
+        Game.removeItem('water', waterNeeded);
+        s.lastFedAt = Date.now();
+        s.lastWateredAt = Date.now();
+        Game.save(); GardenSystem.renderFarmyard();
+        UI.notify('🌿 ' + t('game.sheepFed'));
+    },
+
+    // ═══════════════════════════════════════════════════════════════════════════
+    // FARMYARD PRODUCTION TICK — volán každou minutu
+    // ═══════════════════════════════════════════════════════════════════════════
+
+    checkFarmyardProduction: function() {
+        const now = Date.now();
+        let changed = false;
+
+        // Kurník — líhnutí a dorůstání
+        const h = GameState.henhouse;
+        if (h && h.nesting) {
+            if (h.nesting.state === 'nesting' && now >= h.nesting.hatchAt) {
+                // Vylíhnutí: 2–4 kuřata
+                const count = 2 + Math.floor(Math.random() * 3);
+                h.nesting.state   = 'growing';
+                h.nesting.chicks  = count;
+                h.nesting.hatchedAt = now;
+                h.nesting.grownAt   = now + 172800000; // 48h dorůstání
+                changed = true;
+            }
+            if (h.nesting.state === 'growing' && now >= h.nesting.grownAt) {
+                // Dorůstání hotovo → pool
+                const space = 10 - h.chickPool;
+                h.chickPool += Math.min(h.nesting.chicks, space);
+                h.nesting = null;
+                changed = true;
+            }
+        }
+
+        // Chlév — gestace a dorůstání
+        const s = GameState.sheepfold;
+        if (s && s.breeding) {
+            if (s.breeding.state === 'gestating' && now >= s.breeding.bornAt) {
+                s.breeding.state  = 'growing';
+                s.breeding.lambAt = now;
+                s.breeding.grownAt = now + 172800000; // 48h dorůstání
+                changed = true;
+            }
+            if (s.breeding.state === 'growing' && now >= s.breeding.grownAt) {
+                const space = 6 - s.lambPool;
+                if (space > 0) { s.lambPool++; }
+                s.breeding = null;
+                changed = true;
+            }
+        }
+
+        if (changed) Game.save();
+    },
+
+    // ════════════════════════════════════════════════════════════════════════
+    // GAME LOGIC — Studna & Voda
+    // ════════════════════════════════════════════════════════════════════════
+
+	drawWater: function(useBucket = false) {
+		if (!GameState.well.built) {
+			UI.notify(t('game.wellNoWell'), true);
+			return;
+		}
+		
+		if (GameState.well.condition === "broken") {
+			UI.notify(t('game.wellBroken'), true);
+			return;
+		}
+		
+		// Check tool
+		const tool = useBucket ? "bucket" : "cooking_pot";
+		if (!GameState.inventory[tool] || GameState.inventory[tool] <= 0) {
+			UI.notify(t('game.needItemAmt').replace('{amt}', 1).replace('{item}', ItemsDB[tool].name), true);
+			return;
+		}
+		
+		// Get water amount
+		const level = GameState.well.level;
+		const stats = this.getWellStats(level);
+		let waterAmount = useBucket ? stats.waterPerUseBucket : stats.waterPerUse;
+		
+		// Dirty penalty
+		if (GameState.well.condition === "dirty") {
+			waterAmount = Math.floor(waterAmount * 0.5);
+			UI.notify(t('game.wellMurky'));
+		}
+		
+		// Special: Blessed well může dát holy water
+		if (level === "blessed" && Math.random() < 0.2) {
+			Game.addItem("holy_water", 1);
+			UI.notify(t('game.wellHolyWater'));
+		} else {
+			Game.addItem("water", waterAmount);
+			UI.notify(t('game.waterDrawn').replace('{amt}', waterAmount));
+		}
+		
+		// Degradace check
+		this.checkWellDegradation();
+		this.checkCalendarium();
+		GameState.well.lastUse = Date.now();
+		
+		// Track well uses
+		if(GameState.achievements) {
+			GameState.achievements.stats.wellUses++;
+		}
+		
+		Game.save();
+		UI.renderAll();
+	},
+
+	cleanWell: function() {
+		if (GameState.well.condition !== "dirty") {
+			UI.notify(t('game.wellNotDirty'), true);
+			return;
+		}
+		
+		if (!GameState.inventory.purification_powder || GameState.inventory.purification_powder < 1) {
+			UI.notify(t('game.wellNoPowder'), true);
+			return;
+		}
+		
+		Game.addItem("purification_powder", -1);
+		GameState.well.condition = "clean";
+		
+		// Track well cleans
+		if(GameState.achievements) {
+			GameState.achievements.stats.wellCleans++;
+		}
+		
+		UI.notify(t('game.wellCleaned'));
+		Game.save();
+		UI.renderAll();
+	},
+
+	repairWell: function() {
+		if (GameState.well.condition !== "broken") {
+			UI.notify(t('game.wellNotBroken'), true);
+			return;
+		}
+		
+		if (!GameState.inventory.repair_kit || GameState.inventory.repair_kit < 1) {
+			UI.notify(t('game.wellNoKit'), true);
+			return;
+		}
+		
+		Game.addItem("repair_kit", -1);
+		GameState.well.condition = "clean";
+		UI.notify(t('game.wellRepaired'));
+		Game.addKronikaEntry('important', '🪣 Studna opravena.', '🪣 The well has been repaired.', '🪣 Puteus reparatus est.');
+		Game.save();
+		UI.renderAll();
+	},
+
+	// ─── KRMNÝ SYSTÉM ──────────────────────────────────────────────────────────
+	checkAnimalFeeding: function() {
+		const lang = (GameState.settings && GameState.settings.language) || 'cs';
+		const now = Date.now();
+		if (!GameState.feeding) GameState.feeding = {};
+		const animals = [
+			{ key: 'henhouse',  built: GameState.henhouse && GameState.henhouse.built && GameState.henhouse.hens && GameState.henhouse.hens.length > 0, feed: 'grain', feedAmt: 1, name: lang==='en'?'Hens':'Slepice' },
+			{ key: 'sheepfold', built: GameState.sheepfold && GameState.sheepfold.built && GameState.sheepfold.sheep && GameState.sheepfold.sheep.length > 0, feed: 'hay', feedAmt: 1, name: lang==='en'?'Sheep':'Ovce' },
+			{ key: 'piscina',   built: GameState.piscina && GameState.piscina.tier > 0, feed: 'worms', feedAmt: 1, name: lang==='en'?'Fish':'Ryby' },
+		];
+		animals.forEach(a => {
+			if (!a.built) return;
+			if (!GameState.feeding[a.key]) GameState.feeding[a.key] = { lastFed: now, hunger: 0 };
+			const hoursSinceFed = (now - GameState.feeding[a.key].lastFed) / 3600000;
+			if (hoursSinceFed >= 24) {
+				const have = GameState.inventory[a.feed] || 0;
+				if (have >= a.feedAmt) {
+					Game.removeItem(a.feed, a.feedAmt);
+					GameState.feeding[a.key].lastFed = now;
+					GameState.feeding[a.key].hunger = 0;
+					UI.notify(lang==='en' ? a.name+' fed automatically.' : a.name+' nakrmeny automaticky.');
+				} else {
+					GameState.feeding[a.key].hunger = Math.min(3, (GameState.feeding[a.key].hunger || 0) + 1);
+					const penalty = GameState.feeding[a.key].hunger >= 3 ? 75 : GameState.feeding[a.key].hunger >= 2 ? 50 : 25;
+					UI.notify((lang==='en' ? a.name+' hungry! Production -' : a.name+' hladovi! Produkce -')+penalty+'%', true);
+					Game.addKronikaEntry('warning', a.name+' hladovi — chybi '+a.feed+'.', a.name+' hungry — no '+a.feed+'.', a.name+' esuriunt.');
+				}
+			}
+		});
+		Game.save();
+	},
+
+	// ─── TOOL USES SYSTÉM ──────────────────────────────────────────────────────
+	useToolCharge: function(itemId) {
+		const item = ItemsDB[itemId];
+		if (!item || !item.maxUses) return; // Nástroj bez maxUses — nespotřebovává se (pestle atd.)
+
+		if (!GameState.toolUses) GameState.toolUses = {};
+		if (GameState.toolUses[itemId] === undefined) {
+			GameState.toolUses[itemId] = item.maxUses;
+		}
+
+		GameState.toolUses[itemId]--;
+		const remaining = GameState.toolUses[itemId];
+		const lang = (GameState.settings && GameState.settings.language) || 'cs';
+		const name = (typeof iName === 'function') ? iName(itemId) : itemId;
+
+		if (remaining <= 0) {
+			// Nástroj se opotřeboval
+			const wornId = 'worn_' + itemId; // worn_iron_axe atd.
+			if (itemId.startsWith('worn_') && item.tier === 'iron') {
+				// Worn iron po 3 použitích → nenávratně zničen
+				Game.removeItem(itemId, 1);
+				delete GameState.toolUses[itemId];
+				UI.notify((lang==='en' ? '💀 ' + name + ' destroyed beyond repair.' : '💀 ' + name + ' — nenávratně zničena.'), true);
+				if (typeof NotificationSystem !== 'undefined') {
+					NotificationSystem.panel((lang==='en' ? '💀 ' + name + ' destroyed. Craft new tools.' : '💀 ' + name + ' zničena. Vykov nové nástroje.'), 'warning');
+				}
+			} else if (item.tier === 'iron' && ItemsDB[wornId]) {
+				// Iron → degradace na worn
+				Game.removeItem(itemId, 1);
+				Game.addItem(wornId, 1);
+				delete GameState.toolUses[itemId];
+				UI.notify((lang==='en' ? name + ' worn out — repair it.' : name + ' se opotřebovala — oprav ji.'), true);
+				if (typeof NotificationSystem !== 'undefined') {
+					NotificationSystem.panel((lang==='en' ? '🔧 ' + name + ' worn out. Needs repair.' : '🔧 ' + name + ' opotřebována. Potřebuje opravu.'), 'system');
+				}
+			} else {
+				// Stone → smazat
+				Game.removeItem(itemId, 1);
+				delete GameState.toolUses[itemId];
+				UI.notify((lang==='en' ? name + ' broke.' : name + ' se zlomila.'), true);
+			}
+		} else if (remaining > 0) {
+			if (itemId.startsWith('worn_') && item.tier === 'iron') {
+				// Worn nástroj — varování při každém použití
+				UI.notify((lang==='en'
+					? '⚠️ ' + name + ': ' + remaining + ' use(s) before destruction!'
+					: '⚠️ ' + name + ': ještě ' + remaining + '× než se zničí!'), true);
+				if (typeof NotificationSystem !== 'undefined') {
+					NotificationSystem.panel((lang==='en'
+						? '⚠️ ' + name + ': ' + remaining + ' use(s) left — repair or replace!'
+						: '⚠️ ' + name + ': zbývají ' + remaining + ' použití — oprav nebo vykov nové!'), 'warning');
+				}
+			} else if (remaining === 3) {
+				// Varování před koncem pro normální nástroje
+				UI.notify((lang==='en' ? '⚠️ ' + name + ': ' + remaining + ' uses left.' : '⚠️ ' + name + ': zbývají ' + remaining + ' použití.'));
+			}
+		}
+	},
+
+	feedAnimals: function(animalKey) {
+		const lang = (GameState.settings && GameState.settings.language) || 'cs';
+		const feedMap = { henhouse: 'grain', sheepfold: 'hay', piscina: 'worms' };
+		const nameMap = { henhouse: lang==='en'?'Hens':'Slepice', sheepfold: lang==='en'?'Sheep':'Ovce', piscina: lang==='en'?'Fish':'Ryby' };
+		const feed = feedMap[animalKey];
+		if (!feed) return;
+		if ((GameState.inventory[feed] || 0) < 1) {
+			UI.notify(lang==='en' ? 'No '+feed+' in stores.' : 'V zasobách neni '+feed+'.', true); return;
+		}
+		Game.removeItem(feed, 1);
+		if (!GameState.feeding) GameState.feeding = {};
+		if (!GameState.feeding[animalKey]) GameState.feeding[animalKey] = {};
+		GameState.feeding[animalKey].lastFed = Date.now();
+		GameState.feeding[animalKey].hunger = 0;
+		UI.notify((lang==='en'?nameMap[animalKey]+' fed.':nameMap[animalKey]+' nakrmeny.'));
+		Game.save();
+	},
+
+	buildStorage: function(type) {
+		const lang = (GameState.settings && GameState.settings.language) || 'cs';
+		if (!GameState.storage) GameState.storage = { almarium: {built:false}, cella: {built:false}, horreum: {built:false}, fabrica: {built:false} };
+		if (!GameState.storage.fabrica) GameState.storage.fabrica = {built:false};
+		if (!GameState.storage.transactions) GameState.storage.transactions = [];
+		if (type === 'cella' && !GameState.storage.almarium.built) {
+			UI.notify(lang==='en' ? 'Build Almarium first.' : 'Nejprve postav Almarium.', true); return;
+		}
+		if (type === 'horreum' && !GameState.storage.cella.built) {
+			UI.notify(lang==='en' ? 'Build Cella first.' : 'Nejprve postav Cellu.', true); return;
+		}
+		if (GameState.storage[type] && GameState.storage[type].built) {
+			UI.notify(lang==='en' ? 'Already built.' : 'Jiz postaveno.', true); return;
+		}
+		const costs = {
+			almarium: { plank: 6, rope: 3, leather: 2 },
+			cella:    { cut_stone: 12, rope: 5, chalk: 4 },
+			horreum:  { cut_stone: 20, plank: 10, glue: 4, rope: 6 },
+			fabrica:  { rock: 30, plank: 15, charcoal: 10, anvil: 1 },
+		};
+		const cost = costs[type];
+		if (!cost) return;
+		for (const [item, amt] of Object.entries(cost)) {
+			if ((GameState.inventory[item] || 0) < amt) {
+				const itemName = (typeof iName === 'function') ? iName(item) : item;
+				UI.notify((lang==='en'?'Not enough: ':'Nedostatek: ')+itemName+' x'+amt, true); return;
+			}
+		}
+		for (const [item, amt] of Object.entries(cost)) { Game.removeItem(item, amt); }
+		GameState.storage[type].built = true;
+		Game.save();
+		const names = { almarium: 'Almarium', cella: 'Cella', horreum: 'Horreum', fabrica: 'Fabrica' };
+		const n = names[type];
+		UI.notifyPanel('🏗️ ' + (lang==='en' ? n+' built.' : n+' postaveno.'), 'system');
+		Game.addKronikaEntry('important', n+' postaveno.', n+' built.', n+' aedificatum est.');
+		// BUG #7 fix — re-render Buildings tabu po stavbě
+		if (typeof CellariumSystem !== 'undefined') {
+			if (!GameState.ui) GameState.ui = {};
+			GameState.ui.cellariumEntity = 'buildings';
+			const _cel = document.getElementById('cellarium-content');
+			if (_cel) _cel.outerHTML = CellariumSystem.renderCellariumContent();
+		}
+	},
+
+	upgradeWell: function(toLevel) {
+		const recipeMap = {
+			"basic": "well_basic",
+			"stone": "well_upgrade_stone"
+		};
+		
+		const recipeId = recipeMap[toLevel];
+		if (!recipeId) return;
+		
+		// Check if we can build/upgrade
+		if (toLevel === "basic" && GameState.well.built) {
+			UI.notify(t('game.wellAlreadyBuilt'), true);
+			return;
+		}
+		
+		if (toLevel === "stone" && GameState.well.level !== "basic") {
+			UI.notify(t('game.wellNeedBasic'), true);
+			return;
+		}
+		
+		// Build basic well
+		if (toLevel === "basic") {
+			const cost = { rock: 20, stick: 10, rope: 3 };
+			
+			for (let [item, amt] of Object.entries(cost)) {
+				if (!GameState.inventory[item] || GameState.inventory[item] < amt) {
+					UI.notify(t('game.needItemAmt').replace('{amt}', amt).replace('{item}', ItemsDB[item].name), true);
+					return;
+				}
+			}
+			
+			// Consume materials
+			for (let [item, amt] of Object.entries(cost)) {
+				Game.addItem(item, -amt);
+			}
+			
+			GameState.well.built = true;
+			GameState.well.level = "basic";
+			GameState.well.condition = "clean";
+			UI.notify(t('game.wellBuilt'));
+			Game.addKronikaEntry('important', '🪣 Studna postavena.', '🪣 The well has been built.', '🪣 Puteus aedificatus est.');
+			Game.save();
+			UI.renderAll();
+			return;
+		}
+		
+		// Upgrade to stone
+		if (toLevel === "stone") {
+			const cost = { rock: 30, rope: 5, charcoal: 10 };
+			
+			for (let [item, amt] of Object.entries(cost)) {
+				if (!GameState.inventory[item] || GameState.inventory[item] < amt) {
+					UI.notify(t('game.needItemAmt').replace('{amt}', amt).replace('{item}', ItemsDB[item].name), true);
+					return;
+				}
+			}
+			
+			for (let [item, amt] of Object.entries(cost)) {
+				Game.addItem(item, -amt);
+			}
+			
+			GameState.well.level = "stone";
+			UI.notify(t('game.wellUpgraded'));
+			Game.save();
+			UI.renderAll();
+		}
+	},
+
+    // ════════════════════════════════════════════════════════════════════════
+    // UI RENDER — Zahrada, Dvůr, Sad, Apiarium, Piscina
+    // ════════════════════════════════════════════════════════════════════════
+
+    switchGardenTab: function(tab, btn) {
+        document.getElementById('garden-tab-zahony').style.display   = tab === 'zahony'   ? '' : 'none';
+        document.getElementById('garden-tab-sad').style.display      = tab === 'sad'      ? '' : 'none';
+        document.getElementById('garden-tab-apiarium').style.display = tab === 'apiarium' ? '' : 'none';
+        document.getElementById('garden-tab-dvur').style.display     = tab === 'dvur'     ? '' : 'none';
+        document.getElementById('garden-tab-piscina').style.display  = tab === 'piscina'  ? '' : 'none';
+        document.querySelectorAll('#screen-garden .filter-btn').forEach(b => b.classList.remove('active'));
+        if (btn) btn.classList.add('active');
+        if (tab === 'dvur')     GardenSystem.renderFarmyard();
+        if (tab === 'sad')      GardenSystem.renderOrchard();
+        if (tab === 'apiarium') GardenSystem.renderApiary();
+        if (tab === 'piscina')  GardenSystem.renderPiscina();
+    },
+
+    renderFarmyard: function() {
+        const el = document.getElementById('farmyard-container');
+        if (!el) return;
+        const h = GameState.henhouse  || {};
+        const s = GameState.sheepfold || {};
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        const now = Date.now();
+        let html = '';
+
+        // GALLINARIUM
+        html += `<div style="margin-bottom:24px; padding:16px; background:rgba(197,160,89,0.06); border-radius:10px; border-left:4px solid var(--accent-gold);">`;
+        html += `<h3 style="margin:0 0 12px 0; font-size:1rem;">🐔 ${t('farmyard.gallinarium')}</h3>`;
+        if (!h.built) {
+            html += `<p class="text-sm" style="opacity:0.7; margin-bottom:10px;">${t('farmyard.hennhouseBuildDesc')}</p>`;
+            const canBuild = (GameState.inventory['rock']||0)>=15 && (GameState.inventory['stick']||0)>=10 && (GameState.inventory['rope']||0)>=3;
+            html += `<button class="craft-btn" onclick="Game.buildHenhouse()" ${canBuild?'':'disabled'}>🏗️ ${t('farmyard.buildHenhouse')} (15 ${lang==='en'?'stone':'kámen'}, 10 ${lang==='en'?'branch':'větev'}, 3 ${lang==='en'?'rope':'provaz'})</button>`;
+        } else {
+            const hensCount = (h.hens||[]).length;
+            html += `<div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:12px; font-size:0.82rem;">`;
+            html += `<div>🐔 ${t('farmyard.hens')}: <strong>${hensCount}/10</strong></div>`;
+            html += `<div>🐓 ${t('farmyard.rooster')}: <strong>${h.rooster ? '✓' : '✗'}</strong></div>`;
+            const eggReady  = now >= (h.lastEggAt||0) + 28800000;
+            const feathReady = now >= (h.lastFeatherAt||0) + 86400000;
+            html += `<div>🥚 ${t('farmyard.eggs')}: <strong>${eggReady ? t('farmyard.ready') : Math.ceil(((h.lastEggAt||0)+28800000-now)/3600000)+'h'}</strong></div>`;
+            html += `<div>🪶 ${t('farmyard.feathers')}: <strong>${feathReady ? t('farmyard.ready') : Math.ceil(((h.lastFeatherAt||0)+86400000-now)/3600000)+'h'}</strong></div>`;
+            html += `</div>`;
+            html += `<div style="display:flex; gap:6px; flex-wrap:wrap; margin-bottom:10px;">`;
+            if (!h.rooster) {
+                const hasR = (GameState.inventory['rooster']||0) > 0;
+                html += `<button class="craft-btn" onclick="Game.addHen('rooster')" ${hasR?'':'disabled'} style="font-size:0.75rem;">🐓 ${t('farmyard.addRooster')}</button>`;
+            }
+            ['hen_white','hen_black','hen_colored'].forEach(type => {
+                const has = (GameState.inventory[type]||0) > 0;
+                const icon = type==='hen_white'?'🐔':type==='hen_black'?'🐓':'🐣';
+                html += `<button class="craft-btn" onclick="Game.addHen('${type}')" ${has&&hensCount<10?'':'disabled'} style="font-size:0.75rem; white-space:normal; word-break:break-word;">${icon} ${iName(type)}</button>`;
+            });
+            html += `</div>`;
+            html += `<div style="display:flex; gap:6px; flex-wrap:wrap; margin-bottom:10px;">`;
+            html += `<button class="craft-btn" onclick="Game.collectHenhouse()" ${hensCount>0?'':'disabled'}>🥚 ${t('farmyard.collect')}</button>`;
+            html += `<button class="craft-btn" onclick="Game.feedHenhouse()" ${hensCount>0?'':'disabled'} style="background:#4a7c59;">🌾 ${t('farmyard.feed')}</button>`;
+            html += `</div>`;
+            html += `<div style="margin-top:10px; padding:10px; background:rgba(0,0,0,0.06); border-radius:8px;">`;
+            html += `<strong style="font-size:0.85rem;">🥚 ${t('farmyard.nesting')}</strong><br>`;
+            if (!h.nesting) {
+                const canNest = h.rooster && hensCount > 0;
+                html += `<button class="craft-btn" onclick="Game.startNesting()" ${canNest?'':'disabled'} style="margin-top:6px; font-size:0.78rem;">${t('farmyard.startNesting')}</button>`;
+            } else if (h.nesting.state === 'nesting') {
+                const left = Math.max(0, Math.ceil((h.nesting.hatchAt - now)/3600000));
+                html += `<p class="text-sm" style="margin:6px 0;">🐣 ${t('farmyard.nestingProgress')} — ${left}h</p>`;
+            } else if (h.nesting.state === 'growing') {
+                const left = Math.max(0, Math.ceil((h.nesting.grownAt - now)/3600000));
+                html += `<p class="text-sm" style="margin:6px 0;">🐥 ${t('farmyard.chicksGrowing').replace('{n}', h.nesting.chicks)} — ${left}h</p>`;
+            }
+            if ((h.chickPool||0) > 0) {
+                html += `<div style="margin-top:8px; font-size:0.82rem;">🐓 ${t('farmyard.chickPool')}: <strong>${h.chickPool}</strong>
+                    <button class="craft-btn" onclick="Game.slaughterChick(1)" style="margin-left:8px; font-size:0.72rem; background:#8b4a3a;">🍗 x1</button>
+                    <button class="craft-btn" onclick="Game.slaughterChick(${h.chickPool})" style="margin-left:4px; font-size:0.72rem; background:#8b4a3a;">🍗 ${lang==='en'?'All':'Vše'}</button></div>`;
+            }
+            html += `</div>`;
+        }
+        html += `</div>`;
+
+        // OVILE
+        const hasTech = GameState.researchedTechs && GameState.researchedTechs.includes('tech_de_re_rustica');
+        html += `<div style="padding:16px; background:rgba(197,160,89,0.06); border-radius:10px; border-left:4px solid ${hasTech?'var(--accent-gold)':'rgba(0,0,0,0.2)'};">`;
+        html += `<h3 style="margin:0 0 12px 0; font-size:1rem;">🐑 ${t('farmyard.ovile')}</h3>`;
+        if (!hasTech) {
+            html += `<p class="text-sm" style="opacity:0.6; font-style:italic;">${t('farmyard.ovileLocked')}</p>`;
+        } else if (!s.built) {
+            html += `<p class="text-sm" style="opacity:0.7; margin-bottom:10px;">${t('farmyard.sheepfoldBuildDesc')}</p>`;
+            const canBuild = (GameState.inventory['rock']||0)>=20 && (GameState.inventory['stick']||0)>=15 && (GameState.inventory['rope']||0)>=5;
+            html += `<button class="craft-btn" onclick="Game.buildSheepfold()" ${canBuild?'':'disabled'}>🏗️ ${t('farmyard.buildSheepfold')} (20 ${lang==='en'?'stone':'kámen'}, 15 ${lang==='en'?'branch':'větev'}, 5 ${lang==='en'?'rope':'provaz'})</button>`;
+        } else {
+            html += `<div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:12px; font-size:0.82rem;">`;
+            html += `<div>🐑 ${t('farmyard.sheep')}: <strong>${s.sheep||0}/6</strong></div>`;
+            const milkReady = now >= (s.lastMilkAt||0) + 43200000;
+            const woolReady = now >= (s.lastWoolAt||0) + 172800000;
+            html += `<div>🥛 ${t('farmyard.milk')}: <strong>${milkReady ? t('farmyard.ready') : Math.ceil(((s.lastMilkAt||0)+43200000-now)/3600000)+'h'}</strong></div>`;
+            html += `<div>🧶 ${t('farmyard.wool')}: <strong>${woolReady ? t('farmyard.ready') : Math.ceil(((s.lastWoolAt||0)+172800000-now)/3600000)+'h'}</strong></div>`;
+            html += `</div>`;
+            html += `<div style="display:flex; gap:6px; flex-wrap:wrap; margin-bottom:10px;">`;
+            const hasSheepItem = (GameState.inventory['sheep']||0) > 0;
+            html += `<button class="craft-btn" onclick="Game.addSheep()" ${hasSheepItem&&(s.sheep||0)<6?'':'disabled'}>🐑 ${t('farmyard.addSheep')}</button>`;
+            html += `<button class="craft-btn" onclick="Game.collectSheepfold()" ${(s.sheep||0)>0?'':'disabled'}>🥛 ${t('farmyard.collect')}</button>`;
+            html += `<button class="craft-btn" onclick="Game.feedSheepfold()" ${(s.sheep||0)>0?'':'disabled'} style="background:#4a7c59;">🌿 ${t('farmyard.feed')}</button>`;
+            if ((s.sheep||0) > 0) {
+                html += `<button class="craft-btn" onclick="Game.slaughterSheep()" style="background:#8b4a3a; font-size:0.78rem;">🥩 ${t('farmyard.slaughterSheep')}</button>`;
+            }
+            html += `</div>`;
+            html += `<div style="margin-top:10px; padding:10px; background:rgba(0,0,0,0.06); border-radius:8px;">`;
+            html += `<strong style="font-size:0.85rem;">🐑 ${t('farmyard.breeding')}</strong><br>`;
+            if (!s.breeding) {
+                const canBreed = (s.sheep||0) >= 2;
+                html += `<button class="craft-btn" onclick="Game.startBreeding()" ${canBreed?'':'disabled'} style="margin-top:6px; font-size:0.78rem;">${t('farmyard.startBreeding')}</button>`;
+            } else if (s.breeding.state === 'gestating') {
+                const left = Math.max(0, Math.ceil((s.breeding.bornAt - now)/3600000));
+                html += `<p class="text-sm" style="margin:6px 0;">🤰 ${t('farmyard.gestating')} — ${left}h</p>`;
+            } else if (s.breeding.state === 'growing') {
+                const left = Math.max(0, Math.ceil((s.breeding.grownAt - now)/3600000));
+                html += `<p class="text-sm" style="margin:6px 0;">🐑 ${t('farmyard.lambGrowing')} — ${left}h</p>`;
+            }
+            if ((s.lambPool||0) > 0) {
+                html += `<div style="margin-top:8px; font-size:0.82rem;">🐑 ${t('farmyard.lambPool')}: <strong>${s.lambPool}</strong>
+                    <button class="craft-btn" onclick="Game.slaughterLamb(1)" style="margin-left:8px; font-size:0.72rem; background:#8b4a3a;">🥩 x1</button>
+                    <button class="craft-btn" onclick="Game.slaughterLamb(${s.lambPool})" style="margin-left:4px; font-size:0.72rem; background:#8b4a3a;">🥩 ${lang==='en'?'All':'Vše'}</button></div>`;
+            }
+            html += `</div>`;
+        }
+        html += `</div>`;
+        el.innerHTML = html;
+    },
+
+    // ═══════════════════════════════════════════════════════════════════════════
+    // PISCINA (Rybník) — renderPiscina
+    // ═══════════════════════════════════════════════════════════════════════════
+    renderPiscina: function() {
+        const el = document.getElementById('piscina-container');
+        if (!el) return;
+        const hasTech = GameState.researchedTechs && GameState.researchedTechs.includes('tech_piscina');
+
+        if (!hasTech) {
+            el.innerHTML = `
+                <div style="text-align:center; padding:40px 20px; opacity:0.7;">
+                    <div style="font-size:3rem; margin-bottom:16px;">🐟</div>
+                    <em>Piscina clausa est.</em>
+                    <div style="font-size:0.82rem; opacity:0.75; margin-top:8px;">${t('garden.piscinaLocked')}</div>
+                </div>`;
+            return;
+        }
+
+        const p = GameState.piscina || {};
+        const now = Date.now();
+        const WEEK  = 7  * 24 * 3600000;
+        const WEEKS2 = 14 * 24 * 3600000;
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+
+        let html = `<p class="text-sm" style="margin-bottom:12px; opacity:0.75;">${t('garden.piscinaDesc')}</p>`;
+
+        // ── TŘECÍ RYBNÍK (Tier 1) ── 1/7 výšky
+        const t1locked = p.tier < 1;
+        html += `<div style="
+            margin-bottom:10px; border-radius:10px; overflow:hidden;
+            border:2px solid ${t1locked ? 'rgba(0,0,0,0.15)' : '#4a7c8a'};
+            background:${t1locked ? 'rgba(0,0,0,0.04)' : 'linear-gradient(180deg, #e8f4f8 0%, #b8dce8 100%)'};
+            min-height:80px; position:relative;">
+            <div style="padding:10px 14px; display:flex; align-items:center; gap:10px; position:relative; z-index:2;">
+                <div style="flex:1;">
+                    <strong style="font-size:0.9rem;">🫧 ${t('garden.piscinaTier1')}</strong>
+                    <div style="font-size:0.75rem; opacity:0.7; font-style:italic;">${t('garden.piscinaTier1Sub')}</div>
+                </div>`;
+
+        if (t1locked) {
+            const canBuild = (GameState.inventory['rock']||0)>=10 && (GameState.inventory['stick']||0)>=5;
+            html += `<button class="craft-btn" onclick="Game.buildPiscina(1)" ${canBuild?'':'disabled'} style="font-size:0.75rem; white-space:normal;">
+                🏗️ ${t('garden.piscinaBuild')} (10🪨 5🪵)</button>`;
+        } else {
+            html += `<div style="font-size:0.82rem;">🫧 ${t('garden.piscinaFry')}: <strong>${p.fry||0}</strong></div>`;
+        }
+        html += `</div>`;
+
+        // Bublinky animace
+        if (!t1locked) {
+            for (let i=0; i<6; i++) {
+                const left = 10 + Math.random()*80;
+                const delay = Math.random()*3;
+                const dur = 2 + Math.random()*2;
+                html += `<div style="position:absolute; left:${left}%; bottom:5px; font-size:0.8rem;
+                    animation:piscinaBubble ${dur}s ${delay}s infinite ease-in; opacity:0.6; z-index:1;">🫧</div>`;
+            }
+
+            // Přidat plůdek
+            const hasFry = (GameState.inventory['fry']||0) > 0;
+            html += `<div style="padding:6px 14px; display:flex; gap:8px; align-items:center; z-index:2; position:relative;">`;
+            if (p.fryAddedAt && p.fry > 0) {
+                const elapsed = now - p.fryAddedAt;
+                const pct = Math.min(100, Math.round(elapsed / WEEK * 100));
+                const daysLeft = Math.max(0, Math.ceil((WEEK - elapsed) / 86400000));
+                html += `<div style="flex:1; font-size:0.75rem; opacity:0.8;">⏳ ${t('garden.piscinaGrowing')} ${pct}% (${daysLeft}d)</div>`;
+            } else {
+                html += `<button class="craft-btn" onclick="Game.addFry(1)" ${hasFry&&p.tier>=1?'':'disabled'} style="font-size:0.72rem;">+1 ${t('garden.piscinaAddFry')}</button>`;
+                html += `<button class="craft-btn" onclick="Game.addFry(5)" ${hasFry&&(GameState.inventory['fry']||0)>=5&&p.tier>=1?'':'disabled'} style="font-size:0.72rem;">+5</button>`;
+            }
+            html += `</div>`;
+        }
+        html += `</div>`;
+
+        // ── VÝTAŽNÍK (Tier 2) ── 2/7 výšky
+        const t2locked = p.tier < 2;
+        html += `<div style="
+            margin-bottom:10px; border-radius:10px; overflow:hidden;
+            border:2px solid ${t2locked ? 'rgba(0,0,0,0.15)' : '#2a6a7a'};
+            background:${t2locked ? 'rgba(0,0,0,0.04)' : 'linear-gradient(180deg, #c8e8f0 0%, #88c4d8 100%)'};
+            min-height:160px; position:relative;">
+            <div style="padding:10px 14px; display:flex; align-items:center; gap:10px; position:relative; z-index:2;">
+                <div style="flex:1;">
+                    <strong style="font-size:0.9rem;">🐟 ${t('garden.piscinaTier2')}</strong>
+                    <div style="font-size:0.75rem; opacity:0.7; font-style:italic;">${t('garden.piscinaTier2Sub')}</div>
+                </div>`;
+
+        if (t2locked && p.tier >= 1) {
+            const canBuild = (GameState.inventory['rock']||0)>=20 && (GameState.inventory['stick']||0)>=10 && (GameState.inventory['rope']||0)>=5;
+            html += `<button class="craft-btn" onclick="Game.buildPiscina(2)" ${canBuild?'':'disabled'} style="font-size:0.75rem; white-space:normal;">
+                🏗️ ${t('garden.piscinaBuild')} (20🪨 10🪵 5➰)</button>`;
+        } else if (t2locked) {
+            html += `<div style="font-size:0.75rem; opacity:0.5; font-style:italic;">${t('garden.piscinaUpgradeFirst')}</div>`;
+        } else {
+            html += `<div style="font-size:0.82rem;">🐟 ${t('garden.piscinaYoung')}: <strong>${p.youngCarp||0}</strong></div>`;
+        }
+        html += `</div>`;
+
+        // Plovoucí rybičky (tier 2)
+        if (!t2locked && (p.youngCarp||0) > 0) {
+            const fishCount = Math.min(p.youngCarp, 4);
+            const t2icons = ['🐟','🐠','🐟','🐡'];
+            for (let i=0; i<fishCount; i++) {
+                // každá rybka má unikátní parametry
+                const topPct  = 15 + Math.random()*60;          // 15–75% výška
+                const dur     = 10 + Math.random()*12;           // 10–22s pomalé
+                const delay   = -(Math.random()*10);             // záporný delay = hned na různém místě
+                const sz      = 0.9 + Math.random()*0.6;        // různá velikost
+                const goLeft   = Math.random() > 0.5;
+                const backward = Math.random() < 0.15; // 15% šance pluje pozadu 🐟
+                // emoji koukají doleva — při pohybu doprava je otočíme (pokud nepluje pozadu)
+                const flipX    = goLeft ? 'scaleX(1)' : (backward ? 'scaleX(1)' : 'scaleX(-1)');
+                const swimAnim = goLeft ? 'piscinaSwimL' : 'piscinaSwim';
+                const diveDur = 4 + Math.random()*5;
+                const diveDelay = Math.random()*6;
+                html += `<div style="position:absolute; top:${topPct.toFixed(1)}%; font-size:${sz.toFixed(2)}rem;
+                    transform:${flipX};
+                    animation:${swimAnim} ${dur.toFixed(1)}s ${delay.toFixed(1)}s infinite linear,
+                               piscinaWave ${diveDur.toFixed(1)}s ${diveDelay.toFixed(1)}s infinite ease-in-out;
+                    z-index:1;">${t2icons[i%4]}</div>`;
+            }
+            if (p.youngAddedAt > 0) {
+                const elapsed2 = now - p.youngAddedAt;
+                const pct2 = Math.min(100, Math.round(elapsed2 / WEEKS2 * 100));
+                const daysLeft2 = Math.max(0, Math.ceil((WEEKS2 - elapsed2) / 86400000));
+                html += `<div style="padding:6px 14px; font-size:0.75rem; opacity:0.8; position:relative; z-index:2;">
+                    ⏳ ${t('garden.piscinaMaturing')} ${pct2}% (${daysLeft2}d)</div>`;
+            }
+        }
+        html += `</div>`;
+
+        // ── KAPROVÝ RYBNÍK (Tier 3) ── 4/7 výšky
+        const t3locked = p.tier < 3;
+        html += `<div style="
+            margin-bottom:10px; border-radius:10px; overflow:hidden;
+            border:2px solid ${t3locked ? 'rgba(0,0,0,0.15)' : '#1a4a5a'};
+            background:${t3locked ? 'rgba(0,0,0,0.04)' : 'linear-gradient(180deg, #a8d8e8 0%, #4898b8 50%, #1a6888 100%)'};
+            min-height:260px; position:relative;">
+            <div style="padding:10px 14px; display:flex; align-items:center; gap:10px; position:relative; z-index:2;">
+                <div style="flex:1;">
+                    <strong style="font-size:0.9rem; color:${t3locked?'inherit':'#fff'};">🐠 ${t('garden.piscinaTier3')}</strong>
+                    <div style="font-size:0.75rem; opacity:0.7; font-style:italic; color:${t3locked?'inherit':'#e0f0ff'};">${t('garden.piscinaTier3Sub')}</div>
+                </div>`;
+
+        if (t3locked && p.tier >= 2) {
+            const canBuild = (GameState.inventory['rock']||0)>=40 && (GameState.inventory['stick']||0)>=20 && (GameState.inventory['rope']||0)>=10;
+            html += `<button class="craft-btn" onclick="Game.buildPiscina(3)" ${canBuild?'':'disabled'} style="font-size:0.75rem; white-space:normal;">
+                🏗️ ${t('garden.piscinaBuild')} (40🪨 20🪵 10➰)</button>`;
+        } else if (t3locked) {
+            html += `<div style="font-size:0.75rem; opacity:0.5; font-style:italic;">${t('garden.piscinaUpgradeFirst')}</div>`;
+        } else {
+            html += `<div style="font-size:0.82rem; color:#fff;">🐠 ${t('garden.piscinaCarp')}: <strong>${p.carp||0}</strong></div>`;
+        }
+        html += `</div>`;
+
+        // Kapři — plovoucí + potápěcí animace, každý individuální
+        if (!t3locked && (p.carp||0) > 0) {
+            const carpCount = Math.min(p.carp, 6);
+            const icons = ['🐠','🐟','🐡','🐠','🐡','🐟'];
+            for (let i=0; i<carpCount; i++) {
+                const topPct  = 10 + Math.random()*70;           // 10–80% výška
+                const dur     = 12 + Math.random()*15;           // 12–27s velmi pomalé
+                const delay   = -(Math.random()*12);             // okamžitý start na různém místě
+                const sz      = 1.1 + Math.random()*0.8;        // 1.1–1.9rem
+                const goLeft   = Math.random() > 0.5;
+                const backward = Math.random() < 0.15; // 15% šance pluje pozadu
+                const flipX    = goLeft ? 'scaleX(1)' : (backward ? 'scaleX(1)' : 'scaleX(-1)');
+                const swimAnim = goLeft ? 'piscinaSwimL' : 'piscinaSwim';
+                const waveDur = 5 + Math.random()*7;
+                const waveDelay = Math.random()*8;
+                const diveDur = 6 + Math.random()*5;
+                const diveDelay = Math.random()*10;
+                html += `<div style="position:absolute; top:${topPct.toFixed(1)}%; font-size:${sz.toFixed(2)}rem;
+                    transform:${flipX};
+                    animation:${swimAnim} ${dur.toFixed(1)}s ${delay.toFixed(1)}s infinite linear,
+                               piscinaWave ${waveDur.toFixed(1)}s ${waveDelay.toFixed(1)}s infinite ease-in-out,
+                               piscinaDive ${diveDur.toFixed(1)}s ${diveDelay.toFixed(1)}s infinite ease-in-out;
+                    z-index:1;">${icons[i%6]}</div>`;
+            }
+        } else if (!t3locked) {
+            html += `<div style="padding:8px 14px; position:absolute; bottom:8px; left:0; right:0; z-index:2; color:#e0f0ff; font-size:0.8rem; font-style:italic; text-align:center;">${t('garden.piscinaWaitingCarp')}</div>`;
+        }
+        // Tlačítka vždy na spodku rybníku
+        if (!t3locked) {
+            // Pending plůdky z produkce
+            const pendingFry = p.pendingFry || 0;
+            const DAY = 24 * 3600000;
+            const nextFryIn = p.lastFryProductionAt > 0 ? Math.max(0, Math.ceil((p.lastFryProductionAt + DAY - now) / 3600000)) : 24;
+            html += `<div style="position:absolute; bottom:0; left:0; right:0; z-index:3; background:rgba(0,0,0,0.3); backdrop-filter:blur(2px);">`;
+            if ((p.carp||0) > 0) {
+                html += `<div style="padding:4px 14px 2px; font-size:0.72rem; color:#e0f0ff; opacity:0.85;">
+                    🫧 ${lang==='en'?'Fry produced':'Plůdek vyprodukován'}: <strong>${pendingFry}</strong>
+                    ${pendingFry > 0
+                        ? `<button class="craft-btn" onclick="Game.transferFry()" style="margin-left:8px; font-size:0.68rem; padding:2px 8px; background:#1a5a6a;">
+                            → ${lang==='en'?'Move to breeding pond':'Přesunout do třecího'}</button>`
+                        : `<span style="opacity:0.6; margin-left:6px;">(${lang==='en'?'next in':'další za'} ${nextFryIn}h)</span>`
+                    }
+                </div>`;
+            }
+            html += `<div style="padding:4px 14px 8px; display:flex; gap:8px;">`;
+            if ((p.carp||0) > 0) {
+                html += `<button class="craft-btn" onclick="Game.harvestCarp(1)" style="font-size:0.75rem; background:#2a5a3a;">🐠 ${lang==='en'?'Harvest 1':'Sklidit 1'}</button>`;
+                html += `<button class="craft-btn" onclick="Game.harvestCarp(${p.carp})" style="font-size:0.75rem; background:#2a5a3a;">🐠 ${lang==='en'?'All':'Vše'} (${p.carp})</button>`;
+            }
+            html += `<button class="craft-btn" onclick="Game.feedPiscina()" style="font-size:0.75rem; background:#4a7c59;">🌿 ${t('farmyard.feed')}</button>`;
+            html += `</div></div>`;
+        }
+        html += `</div>`;
+
+        el.innerHTML = html;
+
+        // CSS animace — vložit pokud chybí
+        if (!document.getElementById('piscina-style')) {
+            const style = document.createElement('style');
+            style.id = 'piscina-style';
+            style.textContent = [
+                '@keyframes piscinaBubble {',
+                '  0%   { transform: translateY(0) scale(1); opacity:0.6; }',
+                '  60%  { transform: translateY(-25px) scale(1.1); opacity:0.35; }',
+                '  100% { transform: translateY(-45px) scale(0.7); opacity:0; }',
+                '}',
+                '@keyframes piscinaSwim {',
+                '  0%   { left: -8%; }',
+                '  100% { left: 108%; }',
+                '}',
+                '@keyframes piscinaSwimL {',
+                '  0%   { left: 108%; }',
+                '  100% { left: -8%; }',
+                '}',
+                '@keyframes piscinaWave {',
+                '  0%   { margin-top: 0px; }',
+                '  25%  { margin-top: 12px; }',
+                '  50%  { margin-top: -8px; }',
+                '  75%  { margin-top: 18px; }',
+                '  100% { margin-top: 0px; }',
+                '}',
+                '@keyframes piscinaDive {',
+                '  0%   { margin-top: 0px; opacity: 1; }',
+                '  40%  { margin-top: 30px; opacity: 0.7; }',
+                '  55%  { margin-top: 35px; opacity: 0.5; }',
+                '  70%  { margin-top: 20px; opacity: 0.8; }',
+                '  100% { margin-top: 0px; opacity: 1; }',
+                '}'
+            ].join('\n');
+            document.head.appendChild(style);
+        }
+    },
+
+    // ═══════════════════════════════════════════════════════════════════════════
+    // SAD (Pomarium) — renderOrchard
+    // ═══════════════════════════════════════════════════════════════════════════
+    renderOrchard: function() {
+        const el = document.getElementById('orchard-container');
+        if (!el) return;
+        const hasTech = GameState.researchedTechs && GameState.researchedTechs.includes('tech_tractatus_arboribus');
+
+        if (!hasTech) {
+            el.innerHTML = `
+                <div style="text-align:center; padding:40px 20px; opacity:0.7;">
+                    <div style="font-size:3rem; margin-bottom:16px;">🌳</div>
+                    <div style="font-style:italic; font-size:0.95rem; margin-bottom:12px;">
+                        <em>Pomarium clausum est.</em>
+                    </div>
+                    <div style="font-size:0.82rem; opacity:0.75;">
+                        ${t('garden.orchardLocked')}
+                    </div>
+                </div>`;
+            return;
+        }
+
+        // Inicializace orchard v GameState pokud chybí
+        if (!GameState.orchard) {
+            GameState.orchard = Array.from({length: 10}, () => ({
+                state: 'empty',   // empty | growing | mature | fruiting
+                treeType: null,   // seed id (seed_apple atd.)
+                plantedAt: 0,
+                lastHarvestAt: 0,
+            }));
+        }
+
+        const TREE_DATA = {
+            seed_apple:    { fruit: 'apple',        icon: '🍎', growHours: 48, harvestHours: 24 },
+            seed_pear:     { fruit: 'pear',         icon: '🍐', growHours: 48, harvestHours: 24 },
+            seed_plum:     { fruit: 'plum',         icon: '🫐', growHours: 36, harvestHours: 20 },
+            seed_cherry:   { fruit: 'cherry',       icon: '🍒', growHours: 36, harvestHours: 18 },
+            seed_walnut:   { fruit: 'walnut',       icon: '🥜', growHours: 72, harvestHours: 48 },
+            seed_mulberry: { fruit: 'mulberry',     icon: '🍇', growHours: 48, harvestHours: 24 },
+            seed_quince:   { fruit: 'quince',       icon: '🍋', growHours: 60, harvestHours: 36 },
+            seed_sorb:     { fruit: 'sorb',         icon: '🟤', growHours: 72, harvestHours: 48 },
+            seed_rowan:    { fruit: 'rowan',        icon: '🔴', growHours: 48, harvestHours: 24 },
+            seed_linden:   { fruit: 'linden_fruit', icon: '🌸', growHours: 60, harvestHours: 36 },
+        };
+
+        let html = `<p class="text-sm" style="margin-bottom:15px; opacity:0.75;">${t('garden.orchardDesc')}</p>`;
+        html += `<div class="garden-grid">`;
+
+        GameState.orchard.forEach((slot, idx) => {
+            const now = Date.now();
+            let content = '';
+            let btn = '';
+
+            if (slot.state === 'empty') {
+                // Zjisti dostupná semena v inventáři
+                const availableSeeds = Object.keys(TREE_DATA).filter(s => (GameState.inventory[s] || 0) > 0);
+                if (availableSeeds.length === 0) {
+                    content = `<div class="plot-soil" style="opacity:0.3;">🌱</div><div class="text-sm">${t('garden.orchardEmpty')}</div>`;
+                    btn = `<button class="craft-btn" disabled>${t('garden.orchardNoSeeds')}</button>`;
+                } else {
+                    content = `<div class="plot-soil" style="opacity:0.3;">🟫</div><div class="text-sm">${t('garden.orchardEmpty')}</div>`;
+                    const opts = availableSeeds.map(s => `<option value="${s}">${iName(s)} (${GameState.inventory[s]}x)</option>`).join('');
+                    btn = `<select id="orchard-seed-${idx}" class="craft-btn" style="margin-bottom:4px; font-size:0.75rem;">${opts}</select>
+                           <button class="craft-btn" onclick="Game.plantTree(${idx}, document.getElementById('orchard-seed-${idx}').value)">${t('garden.orchardPlant')}</button>`;
+                }
+            } else if (slot.state === 'growing') {
+                const td = TREE_DATA[slot.treeType];
+                const matureAt = slot.plantedAt + (td ? td.growHours * 3600000 : 172800000);
+                const pct = Math.min(100, Math.round(((now - slot.plantedAt) / (matureAt - slot.plantedAt)) * 100));
+                content = `<div class="plot-soil">🌱</div><div class="text-sm">${slot.treeType ? iName(slot.treeType) : '?'}</div>`;
+                btn = `<button class="craft-btn" disabled style="font-size:0.72rem;">${t('garden.orchardGrowing')} ${pct}%</button>`;
+            } else if (slot.state === 'mature') {
+                const td = TREE_DATA[slot.treeType];
+                const fruitAt = slot.lastHarvestAt + (td ? td.harvestHours * 3600000 : 86400000);
+                if (now >= fruitAt) {
+                    // Plodí!
+                    content = `<div class="plot-soil" style="color:#4caf50;">${td ? td.icon : '🌳'}</div><div class="text-sm">${slot.treeType ? iName(slot.treeType) : '?'}</div>`;
+                    btn = `<button class="craft-btn" onclick="Game.harvestTree(${idx})">${t('garden.orchardHarvest')}</button>
+                           <button class="craft-btn" onclick="Game.fellTree(${idx})" style="background:#8b4a3a; margin-top:4px; font-size:0.72rem;">🪓 ${t('garden.orchardFell')}</button>`;
+                } else {
+                    const waitH = Math.ceil((fruitAt - now) / 3600000);
+                    content = `<div class="plot-soil" style="color:#888;">${td ? td.icon : '🌳'}</div><div class="text-sm">${slot.treeType ? iName(slot.treeType) : '?'}</div>`;
+                    btn = `<button class="craft-btn" disabled style="font-size:0.72rem;">${t('garden.orchardWait')} ${waitH}h</button>
+                           <button class="craft-btn" onclick="Game.fellTree(${idx})" style="background:#8b4a3a; margin-top:4px; font-size:0.72rem;">🪓 ${t('garden.orchardFell')}</button>`;
+                }
+            }
+
+            html += `<div class="garden-plot">${content}<div style="margin-top:auto;">${btn}</div></div>`;
+        });
+
+        html += `</div>`;
+        el.innerHTML = html;
+    },
+
+    // ═══════════════════════════════════════════════════════════════════════════
+    // APIARIUM (Včelín) — renderApiary
+    // ═══════════════════════════════════════════════════════════════════════════
+    renderApiary: function() {
+        const el = document.getElementById('apiary-container');
+        if (!el) return;
+        const hasTech = GameState.researchedTechs && GameState.researchedTechs.includes('tech_liber_apium');
+
+        if (!hasTech) {
+            el.innerHTML = `
+                <div style="text-align:center; padding:40px 20px; opacity:0.7;">
+                    <div style="font-size:3rem; margin-bottom:16px;">🐝</div>
+                    <div style="font-style:italic; font-size:0.95rem; margin-bottom:12px;">
+                        <em>Apiarium clausum est.</em>
+                    </div>
+                    <div style="font-size:0.82rem; opacity:0.75;">
+                        ${t('garden.apiaryLocked')}
+                    </div>
+                </div>`;
+            return;
+        }
+
+        // Inicializace apiary v GameState pokud chybí
+        if (!GameState.apiary) {
+            GameState.apiary = Array.from({length: 6}, () => ({
+                built: false,
+                hasQueen: false,
+                queenName: null,
+                queenStrength: 0,
+                strength: 0,
+                varroaRisk: false,
+                lastCollectAt: 0,
+            }));
+        }
+
+        // Migrace starých save — přidej chybějící pole
+        GameState.apiary.forEach(h => {
+            if (h.queenName     === undefined) h.queenName     = null;
+            if (h.queenStrength === undefined) h.queenStrength = 0;
+            if (h.strength      === undefined) h.strength      = h.hasQueen ? 3 : 0;
+            if (h.varroaRisk    === undefined) h.varroaRisk    = false;
+        });
+
+        const season = Game._getApiarySeason ? Game._getApiarySeason() : 'summer';
+        const seasonLabel = { spring:'🌸 Jaro', summer:'☀️ Léto', autumn:'🍂 Podzim', winter:'❄️ Zima' };
+        const COLLECT_HOURS = { spring: 16, summer: 8, autumn: 20, winter: 999 };
+        const hours = COLLECT_HOURS[season] || 12;
+        const now = Date.now();
+
+        // Zimní check
+        if (Game.checkApiaryWinter) Game.checkApiaryWinter();
+
+        let html = `
+            <div style="display:flex; align-items:center; gap:10px; margin-bottom:12px;">
+                <p class="text-sm" style="flex:1; opacity:0.75; margin:0;">${t('garden.apiaryDesc')}</p>
+                <span style="font-size:0.8rem; opacity:0.6; font-style:italic;">${seasonLabel[season] || ''}</span>
+            </div>`;
+        html += `<div class="garden-grid">`;
+
+        GameState.apiary.forEach((hive, idx) => {
+            let content = '';
+            let btn = '';
+            let extra = '';
+
+            if (!hive.built) {
+                // ── Prázdný slot ───────────────────────────────────────────
+                const canBuild = (GameState.inventory['stick'] || 0) >= 10 && (GameState.inventory['rope'] || 0) >= 5;
+                content = `<div class="plot-soil" style="opacity:0.3;">🪵</div>
+                           <div class="text-sm">${t('garden.apiaryEmpty')}</div>`;
+                btn = `<button class="craft-btn" onclick="Game.buildHive(${idx})"
+                        ${canBuild ? '' : 'disabled'} style="font-size:0.75rem;">
+                        ${t('garden.apiaryBuild')}</button>`;
+
+            } else if (!hive.hasQueen) {
+                // ── Úl bez matky ───────────────────────────────────────────
+                const hasQueen = (GameState.inventory['queen_bee'] || 0) > 0;
+                content = `<div class="plot-soil" style="opacity:0.5;">🪹</div>
+                           <div class="text-sm">${t('garden.apiaryNoQueen')}</div>`;
+                btn = `<button class="craft-btn" onclick="Game.addQueen(${idx})"
+                        ${hasQueen ? '' : 'disabled'} style="font-size:0.75rem;">
+                        ${t('garden.apiaryAddQueen')}</button>`;
+
+            } else {
+                // ── Aktivní úl ─────────────────────────────────────────────
+                const strength = hive.strength || 3;
+                const stars = '⭐'.repeat(Math.min(5, Math.ceil(strength / 2)));
+                const queenInfo = hive.queenName
+                    ? `<div style="font-size:0.72rem; opacity:0.65; font-style:italic;">
+                         👑 ${hive.queenName} ${'★'.repeat(hive.queenStrength || 2)}
+                       </div>`
+                    : '';
+
+                // Varroa varování
+                const varroaWarn = hive.varroaRisk
+                    ? `<div style="font-size:0.72rem; color:#c55; margin-top:2px;">⚠️ Varroa!</div>`
+                    : '';
+
+                if (season === 'winter') {
+                    // ── Zima: jen přikrmení ────────────────────────────────
+                    content = `<div class="plot-soil" style="color:#7aa;">❄️</div>
+                               <div class="text-sm">${t('garden.apiaryWorking')}</div>`;
+                    extra = queenInfo + varroaWarn +
+                        `<div style="font-size:0.72rem; margin-top:3px;">${stars}</div>`;
+                    const hasHoney = (GameState.inventory['honey'] || 0) >= 1;
+                    btn = `<button class="craft-btn" onclick="Game.feedHive(${idx})"
+                            ${hasHoney ? '' : 'disabled'} style="font-size:0.72rem;">
+                            🍯 Přikrmit (1× med)</button>`;
+
+                } else {
+                    const readyAt = hive.lastCollectAt + (hours * 3600000);
+                    if (now >= readyAt) {
+                        content = `<div class="plot-soil" style="color:#c5a059;">🐝</div>
+                                   <div class="text-sm">${t('garden.apiaryReady')}</div>`;
+                        btn = `<button class="craft-btn" onclick="Game.collectHive(${idx})">
+                                ${t('garden.apiaryCollect')}</button>`;
+                    } else {
+                        const waitH = Math.ceil((readyAt - now) / 3600000);
+                        content = `<div class="plot-soil" style="color:#888;">🐝</div>
+                                   <div class="text-sm">${t('garden.apiaryWorking')}</div>`;
+                        btn = `<button class="craft-btn" disabled style="font-size:0.72rem;">
+                                ${t('garden.apiaryWait')} ${waitH}h</button>`;
+                    }
+                    extra = queenInfo + varroaWarn +
+                        `<div style="font-size:0.72rem; margin-top:3px; opacity:0.7;">${stars}</div>`;
+
+                    // Léčba Varroa
+                    if (hive.varroaRisk) {
+                        const hasThyme = (GameState.inventory['thyme'] || 0) >= 1;
+                        btn += `<button class="craft-btn" onclick="Game.treatVarroa(${idx})"
+                                 ${hasThyme ? '' : 'disabled'}
+                                 style="font-size:0.7rem; margin-top:4px; background:rgba(60,120,60,0.8);">
+                                 🌿 Léčit (1× tymián)</button>`;
+                    }
+                }
+            }
+
+            html += `<div class="garden-plot">
+                        ${content}
+                        ${extra}
+                        <div style="margin-top:auto; display:flex; flex-direction:column; gap:4px;">
+                            ${btn}
+                        </div>
+                     </div>`;
+        });
+
+        html += `</div>`;
+        el.innerHTML = html;
+    },
+
+    renderGarden: function() {
+        const el = document.getElementById('garden-container'); el.innerHTML = "";
+        
+        // Calculate growth time with tech bonuses
+        let growthSpeed = CONFIG.GROWTH_SPEED;
+        if(GameState.researchedTechs.includes('tech_advanced_farming')) {
+            growthSpeed *= 1.5; // +50% faster growth
+        }
+        const needed = CONFIG.BASE_GROWTH_TIME / growthSpeed;
+        
+        GameState.garden.forEach((plot, idx) => {
+            let c = "", b = "", typeLabel = "";
+            
+            if(plot.locked) {
+                c = `<div class="plot-soil" style="opacity:0.2">🔒</div><div class="text-sm">${t('garden.locked')}</div>`;
+                b = `<button class="craft-btn" disabled>${t('garden.lockedTech')}</button>`;
+            }
+            else if (plot.state === 0) { 
+                if(plot.cropType === 'herb') typeLabel = t('garden.herb');
+                else if(plot.cropType === 'vegetable') typeLabel = t('garden.vegetable');
+                else if(plot.cropType === 'special') typeLabel = t('garden.special');
+                c = `<div class="plot-soil" style="opacity:0.3">🟫</div><div class="text-sm">${typeLabel}</div>`; 
+                b = `<button class="craft-btn" onclick="Game.farmAction(${idx})">${t('garden.fertilize')}</button>`; 
+            }
+            else if (plot.state === 1) { 
+                if(plot.cropType === 'herb') typeLabel = t('garden.herb');
+                else if(plot.cropType === 'vegetable') typeLabel = t('garden.vegetable');
+                else if(plot.cropType === 'special') typeLabel = t('garden.any');
+                c = `<div class="plot-soil">🟫</div><div class="text-sm">${typeLabel}</div>`; 
+                b = `<button class="craft-btn" onclick="Game.farmAction(${idx})">${t('garden.sow')}</button>`; 
+            }
+            else if (plot.state === 2) {
+                const cropIcon = ItemsDB[plot.crop] ? ItemsDB[plot.crop].icon : '🌱';
+                if (!plot.water) { 
+                    c = `<div class="plot-soil">${cropIcon}</div><div class="text-sm">${t('garden.dry')}</div>`; 
+                    b = `<button class="craft-btn" onclick="Game.farmAction(${idx})">${t('garden.water')}</button>`; 
+                }
+                else if (Date.now() < plot.plantedAt + needed) { 
+                    c = `<div class="plot-soil" style="color:#888">${cropIcon}</div><div class="text-sm">${t('garden.growing')}</div>`; 
+                    b = `<button class="craft-btn" disabled>${t('garden.wait')}</button>`; 
+                }
+                else { 
+                    c = `<div class="plot-soil" style="color:#4caf50">${cropIcon}</div><div class="text-sm">${t('garden.grown')}</div>`; 
+                    b = `<button class="craft-btn" onclick="Game.farmAction(${idx})">${t('garden.harvest')}</button>`; 
+                }
+            }
+            el.innerHTML += `<div class="garden-plot">${c}<div style="margin-top:auto">${b}</div></div>`;
+        });
+    },
+};
+
 // ═══ src/systems/PersonaSystem.js ═══
 // ═══════════════════════════════════════════════════════════════════════════════
 // PERSONA SYSTEM v8.0 — Character Name + Portrait
@@ -24783,629 +26409,27 @@ const Game = {
     // SAD (Pomarium) — herní logika
     // ═══════════════════════════════════════════════════════════════════════════
 
-    plantTree: function(slotIdx, seedId) {
-        if (!GameState.orchard) return;
-        if (!seedId) { UI.notify(t('game.noSeedSelected'), true); return; }
-        if (!(GameState.inventory[seedId] > 0)) { UI.notify(t('game.noSeeds'), true); return; }
-        const slot = GameState.orchard[slotIdx];
-        if (slot.state !== 'empty') { UI.notify(t('game.slotOccupied'), true); return; }
-        this.removeItem(seedId, 1);
-        slot.state    = 'growing';
-        slot.treeType = seedId;
-        slot.plantedAt = Date.now();
-        slot.lastHarvestAt = 0;
-        Game.save();
-        UI.renderOrchard();
-        UI.notify('🌱 ' + t('game.treePlanted'));
-    },
-
-    harvestTree: function(slotIdx) {
-        if (!GameState.orchard) return;
-        const slot = GameState.orchard[slotIdx];
-        if (slot.state !== 'mature') return;
-        const TREE_FRUITS = {
-            seed_apple: 'apple', seed_pear: 'pear', seed_plum: 'plum',
-            seed_cherry: 'cherry', seed_walnut: 'walnut', seed_mulberry: 'mulberry',
-            seed_quince: 'quince', seed_sorb: 'sorb', seed_rowan: 'rowan',
-            seed_linden: 'linden_fruit',
-        };
-        const fruit = TREE_FRUITS[slot.treeType];
-        if (!fruit) return;
-        const qty = (slot.treeType === 'seed_walnut' || slot.treeType === 'seed_sorb') ? 2 : 3;
-        this.addItem(fruit, qty);
-        // Lípa dává navíc lipový květ
-        if (slot.treeType === 'seed_linden') this.addItem('linden_blossom', 1);
-        // Pyl při každé sklizni
-        this.addItem('pollen', 1);
-        slot.lastHarvestAt = Date.now();
-        Game.save();
-        UI.renderOrchard();
-        UI.notify('🍎 ' + t('game.treeHarvested').replace('{qty}', qty));
-    },
-
-    fellTree: function(slotIdx) {
-        if (!GameState.orchard) return;
-        const slot = GameState.orchard[slotIdx];
-        if (slot.state === 'empty') return;
-        // Kácení dá dřevo
-        const woodQty = (slot.state === 'mature') ? 5 : 2;
-        this.addItem('stick', woodQty);
-        slot.state = 'empty';
-        slot.treeType = null;
-        slot.plantedAt = 0;
-        slot.lastHarvestAt = 0;
-        Game.save();
-        UI.renderOrchard();
-        UI.notify('🪓 ' + t('game.treeFelled').replace('{qty}', woodQty));
-    },
-
-    // ═══════════════════════════════════════════════════════════════════════════
-    // APIARIUM (Včelín) — herní logika
-    // ═══════════════════════════════════════════════════════════════════════════
-
-    // ── Pomocná: vrátí sezónu dle reálného měsíce ─────────────────────────────
-    _getApiarySeason: function() {
-        const m = new Date().getMonth() + 1; // 1–12
-        if (m >= 3 && m <= 5)  return 'spring';
-        if (m >= 6 && m <= 8)  return 'summer';
-        if (m >= 9 && m <= 11) return 'autumn';
-        return 'winter';
-    },
-
-    // ── Pomocná: pool jmen královen ───────────────────────────────────────────
-    _queenNames: [
-        'Hildegarda', 'Konstancie', 'Anežka', 'Dorota', 'Markéta',
-        'Eliška', 'Žofie', 'Ludmila', 'Blanka', 'Alžběta',
-        'Kunhuta', 'Radoslava', 'Doubravka', 'Přibyslava', 'Miloslava'
-    ],
-
-    _randomQueenName: function() {
-        return this._queenNames[Math.floor(Math.random() * this._queenNames.length)];
-    },
-
-    buildHive: function(slotIdx) {
-        if (!GameState.apiary) return;
-        const hive = GameState.apiary[slotIdx];
-        if (hive.built) return;
-        if ((GameState.inventory['stick'] || 0) < 10) { UI.notify(t('game.needWood'), true); return; }
-        if ((GameState.inventory['rope']  || 0) < 5)  { UI.notify(t('game.needRope'), true); return; }
-        this.removeItem('stick', 10);
-        this.removeItem('rope', 5);
-        hive.built          = true;
-        hive.hasQueen       = false;
-        hive.queenName      = null;
-        hive.queenStrength  = 0;   // 1–5 hvězd, nastaví se při usazení matky
-        hive.strength       = 0;   // 1–10 síla včelstva
-        hive.varroaRisk     = false;
-        hive.lastCollectAt  = 0;
-        Game.save();
-        UI.renderApiary();
-        UI.notify('🪹 ' + t('game.hiveBuilt'));
-    },
-
-    addQueen: function(slotIdx) {
-        if (!GameState.apiary) return;
-        const hive = GameState.apiary[slotIdx];
-        if (!hive.built || hive.hasQueen) return;
-        if (!(GameState.inventory['queen_bee'] > 0)) { UI.notify(t('game.needQueen'), true); return; }
-        this.removeItem('queen_bee', 1);
-        hive.hasQueen      = true;
-        hive.queenName     = this._randomQueenName();
-        hive.queenStrength = Math.floor(Math.random() * 3) + 2; // 2–4 hvězdy (náhoda)
-        hive.strength      = 3; // začíná na střední síle
-        hive.varroaRisk    = false;
-        hive.lastCollectAt = Date.now();
-        Game.save();
-        UI.renderApiary();
-        UI.notify('🐝 ' + t('game.queenAdded') + ' — ' + hive.queenName);
-    },
-
-    collectHive: function(slotIdx) {
-        if (!GameState.apiary) return;
-        const hive = GameState.apiary[slotIdx];
-        if (!hive.built || !hive.hasQueen) return;
-
-        const season = this._getApiarySeason();
-
-        // Zima — nelze sklízet
-        if (season === 'winter') {
-            UI.notify('❄️ ' + t('game.hiveWinter'), true);
-            return;
-        }
-
-        // Časy sklizně dle sezóny
-        const COLLECT_HOURS = { spring: 16, summer: 8, autumn: 20 };
-        const hours = COLLECT_HOURS[season] || 12;
-        const now = Date.now();
-        if (now < hive.lastCollectAt + (hours * 3600000)) {
-            UI.notify(t('game.hiveNotReady'), true);
-            return;
-        }
-
-        // Produkce dle sezóny a síly včelstva
-        const strengthMod = (hive.strength || 3) / 5; // 0.2–2.0
-        const honeyBase   = { spring: 1, summer: 3, autumn: 1 };
-        const waxBase     = { spring: 1, summer: 1, autumn: 2 };
-        const honeyYield  = Math.max(1, Math.round(honeyBase[season] * strengthMod));
-        const waxYield    = Math.max(1, Math.round(waxBase[season] * strengthMod));
-
-        this.addItem('honey', honeyYield);
-        this.addItem('beeswax', waxYield);
-
-        // Pyl bonus — jen léto, jen pokud kvetou záhony nebo sad
-        if (season === 'summer') {
-            const hasFlowers = GameState.garden && GameState.garden.some(p => p.state === 2 && p.water);
-            const hasTrees   = GameState.orchard && GameState.orchard.some(s => s.state === 'mature');
-            if (hasFlowers || hasTrees) this.addItem('pollen', 1);
-        }
-
-        // Síla roste po sklizni (péče o včely)
-        hive.strength = Math.min(10, (hive.strength || 3) + 1);
-
-        // Rojivá nálada — pokud je síla max a sklizeň přichází pozdě (2× lhůta)
-        if (hive.strength >= 9 && now > hive.lastCollectAt + (hours * 2 * 3600000)) {
-            // Matka odletěla
-            hive.hasQueen  = false;
-            hive.queenName = null;
-            hive.strength  = 0;
-            Game.save();
-            UI.renderApiary();
-            UI.notify('🐝 ' + t('game.hiveRojivy'));
-            return;
-        }
-
-        hive.lastCollectAt = now;
-        Game.save();
-        UI.renderApiary();
-        UI.notify('🍯 ' + t('game.hiveCollected') + ' (' + honeyYield + '× med, ' + waxYield + '× vosk)');
-    },
-
-    // ── Zimní přikrmení ────────────────────────────────────────────────────────
-    feedHive: function(slotIdx) {
-        if (!GameState.apiary) return;
-        const hive = GameState.apiary[slotIdx];
-        if (!hive.built || !hive.hasQueen) return;
-        const season = this._getApiarySeason();
-        if (season !== 'winter') { UI.notify(t('game.hiveFeedOnlyWinter'), true); return; }
-        if ((GameState.inventory['honey'] || 0) < 1) { UI.notify(t('game.hiveNeedHoney'), true); return; }
-        this.removeItem('honey', 1);
-        // Přikrmení zachová sílu nebo ji zvýší
-        hive.strength = Math.min(10, (hive.strength || 3) + 1);
-        Game.save();
-        UI.renderApiary();
-        UI.notify('🍯 ' + t('game.hiveFed'));
-    },
-
-    // ── Léčba Varroa ──────────────────────────────────────────────────────────
-    treatVarroa: function(slotIdx) {
-        if (!GameState.apiary) return;
-        const hive = GameState.apiary[slotIdx];
-        if (!hive.built || !hive.hasQueen || !hive.varroaRisk) return;
-        if ((GameState.inventory['thyme'] || 0) < 1) { UI.notify(t('game.hiveNeedThyme'), true); return; }
-        this.removeItem('thyme', 1);
-        hive.varroaRisk = false;
-        hive.strength   = Math.max(1, (hive.strength || 3) - 1); // léčba stojí trochu síly
-        Game.save();
-        UI.renderApiary();
-        UI.notify('🌿 ' + t('game.hiveTreated'));
-    },
-
-    // ── Zimní check (volá se 1× denně nebo při otevření Apiary) ───────────────
-    checkApiaryWinter: function() {
-        if (!GameState.apiary) return;
-        const season = this._getApiarySeason();
-        if (season !== 'winter') return;
-        let changed = false;
-        GameState.apiary.forEach(hive => {
-            if (!hive.built || !hive.hasQueen) return;
-            // Pokud síla <= 0 → včelstvo uhynulo
-            if ((hive.strength || 0) <= 0) {
-                hive.hasQueen  = false;
-                hive.queenName = null;
-                hive.strength  = 0;
-                changed = true;
-                UI.notify('💀 ' + t('game.hiveDied'));
-            }
-        });
-        if (changed) { Game.save(); UI.renderApiary(); }
-    },
-
-    // ── Náhodný Varroa event (volá se z EventsSystem nebo manuálně) ──────────
-    triggerVarroa: function(slotIdx) {
-        if (!GameState.apiary) return;
-        const hive = GameState.apiary[slotIdx];
-        if (!hive.built || !hive.hasQueen || hive.varroaRisk) return;
-        hive.varroaRisk = true;
-        hive.strength   = Math.max(1, (hive.strength || 3) - 2);
-        Game.save();
-        UI.renderApiary();
-        UI.notify('⚠️ ' + t('game.hiveVarroa'));
-    },
-
-    // ═══════════════════════════════════════════════════════════════════════════
-    // PISCINA (Rybník) — herní logika
-    // ═══════════════════════════════════════════════════════════════════════════
-
-    buildPiscina: function(tier) {
-        const p = GameState.piscina;
-        if (!GameState.researchedTechs.includes('tech_piscina')) { UI.notify(t('game.needDePiscibus'), true); return; }
-        const costs = {
-            1: { rock: 10, stick: 5 },
-            2: { rock: 20, stick: 10, rope: 5 },
-            3: { rock: 40, stick: 20, rope: 10 }
-        };
-        if (p.tier >= tier) { UI.notify(t('game.piscinaAlready'), true); return; }
-        if (tier !== p.tier + 1) { UI.notify(t('game.piscinaTierOrder'), true); return; }
-        const cost = costs[tier];
-        if ((GameState.inventory['rock']||0) < cost.rock)  { UI.notify(t('game.needStone') + ` (${cost.rock})`, true); return; }
-        if ((GameState.inventory['stick']||0) < cost.stick){ UI.notify(t('game.needWood')  + ` (${cost.stick})`, true); return; }
-        if (cost.rope && (GameState.inventory['rope']||0) < cost.rope){ UI.notify(t('game.needRope') + ` (${cost.rope})`, true); return; }
-        this.removeItem('rock', cost.rock);
-        this.removeItem('stick', cost.stick);
-        if (cost.rope) this.removeItem('rope', cost.rope);
-        p.tier = tier;
-        Game.save(); UI.renderPiscina();
-        UI.notify('🐟 ' + t('game.piscinaBuilt').replace('{tier}', tier));
-    },
-
-    addFry: function(qty) {
-        const p = GameState.piscina;
-        if (p.tier < 1) { UI.notify(t('game.needPiscina1'), true); return; }
-        if ((GameState.inventory['fry']||0) < qty) { UI.notify(t('game.noFry'), true); return; }
-        this.removeItem('fry', qty);
-        p.fry += qty;
-        p.fryAddedAt = p.fryAddedAt || Date.now();
-        Game.save(); UI.renderPiscina();
-        UI.notify('🫧 ' + t('game.fryAdded').replace('{qty}', qty));
-    },
-
-    feedPiscina: function() {
-        const p = GameState.piscina;
-        if (p.tier < 1) return;
-        const feedNeeded = p.fry + p.youngCarp + p.carp;
-        if (feedNeeded === 0) { UI.notify(t('game.piscinaEmpty'), true); return; }
-        if ((GameState.inventory['fiber']||0) < feedNeeded) { UI.notify(t('game.needFeedFish') + ` (${feedNeeded})`, true); return; }
-        this.removeItem('fiber', feedNeeded);
-        p.lastFedAt = Date.now();
-        Game.save(); UI.renderPiscina();
-        UI.notify('🌿 ' + t('game.piscinaFed'));
-    },
-
-    transferFry: function() {
-        const p = GameState.piscina;
-        if (!p || (p.pendingFry||0) <= 0) { UI.notify(t('game.noFryPending'), true); return; }
-        if (p.tier < 1) { UI.notify(t('game.needPiscina1'), true); return; }
-        const qty = p.pendingFry;
-        p.fry = (p.fry||0) + qty;
-        p.pendingFry = 0;
-        if (!p.fryAddedAt || p.fryAddedAt === 0) p.fryAddedAt = Date.now();
-        Game.save(); UI.renderPiscina();
-        UI.notify('🫧 ' + t('game.fryTransferred').replace('{qty}', qty));
-    },
-
-    harvestCarp: function(qty) {
-        const p = GameState.piscina;
-        qty = Math.min(qty, p.carp);
-        if (qty <= 0) { UI.notify(t('game.noCarp'), true); return; }
-        p.carp -= qty;
-        this.addItem('carp', qty);
-        Game.save(); UI.renderPiscina();
-        UI.notify('🐠 ' + t('game.carpHarvested').replace('{qty}', qty));
-    },
-
-    checkPiscinaGrowth: function() {
-        const p = GameState.piscina;
-        if (!p || p.tier < 1) return;
-        const now = Date.now();
-        const WEEK  = 7  * 24 * 3600000;
-        const WEEKS2 = 14 * 24 * 3600000;
-        let changed = false;
-
-        // Tier 1 → tier 2: plůdek po týdnu přechází do výtažníku (pokud existuje)
-        if (p.fry > 0 && p.tier >= 2 && p.fryAddedAt > 0 && now >= p.fryAddedAt + WEEK) {
-            p.youngCarp += p.fry;
-            p.fry = 0;
-            p.youngAddedAt = now;
-            p.fryAddedAt = 0;
-            changed = true;
-        }
-
-        // Tier 2 → tier 3: nedospělí kapři po 2 týdnech přechází do kaprového rybníka
-        if (p.youngCarp > 0 && p.tier >= 3 && p.youngAddedAt > 0 && now >= p.youngAddedAt + WEEKS2) {
-            p.carp += p.youngCarp;
-            p.youngCarp = 0;
-            p.youngAddedAt = 0;
-            changed = true;
-        }
-
-        // Tier 3: kaprový rybník produkuje 1 plůdek / 24h
-        const DAY = 24 * 3600000;
-        if (p.tier >= 3 && p.carp > 0) {
-            if (p.lastFryProductionAt === undefined) p.lastFryProductionAt = now;
-            if (now >= p.lastFryProductionAt + DAY) {
-                p.pendingFry = (p.pendingFry || 0) + 1;
-                p.lastFryProductionAt = now;
-                changed = true;
-            }
-        }
-
-        if (changed) { Game.save(); }
-    },
-
-    checkOrchardGrowth: function() {
-        if (!GameState.orchard) return;
-        const GROW_HOURS = {
-            seed_apple: 48, seed_pear: 48, seed_plum: 36, seed_cherry: 36,
-            seed_walnut: 72, seed_mulberry: 48, seed_quince: 60,
-            seed_sorb: 72, seed_rowan: 48, seed_linden: 60,
-        };
-        let changed = false;
-        GameState.orchard.forEach(slot => {
-            if (slot.state === 'growing') {
-                const hours = GROW_HOURS[slot.treeType] || 48;
-                if (Date.now() >= slot.plantedAt + (hours * 3600000)) {
-                    slot.state = 'mature';
-                    slot.lastHarvestAt = Date.now(); // první sklizeň hned k dispozici
-                    changed = true;
-                }
-            }
-        });
-        if (changed) { Game.save(); }
-    },
-
-    // ═══════════════════════════════════════════════════════════════════════════
-    // GALLINARIUM (Kurník) — herní logika
-    // ═══════════════════════════════════════════════════════════════════════════
-
-    buildHenhouse: function() {
-        const h = GameState.henhouse;
-        if (h.built) return;
-        if ((GameState.inventory['rock'] || 0) < 15)  { UI.notify(t('game.needStone') + ' (15)', true); return; }
-        if ((GameState.inventory['stick'] || 0) < 10) { UI.notify(t('game.needWood')  + ' (10)', true); return; }
-        if ((GameState.inventory['rope'] || 0) < 3)   { UI.notify(t('game.needRope')  + ' (3)',  true); return; }
-        this.removeItem('rock', 15);
-        this.removeItem('stick', 10);
-        this.removeItem('rope', 3);
-        h.built = true;
-        Game.save(); UI.renderFarmyard();
-        UI.notify('🐔 ' + t('game.hennhouseBuilt'));
-    },
-
-    addHen: function(type) {
-        const h = GameState.henhouse;
-        if (!h.built) return;
-        if (type === 'rooster') {
-            if (h.rooster) { UI.notify(t('game.roosterAlready'), true); return; }
-            if (!(GameState.inventory['rooster'] > 0)) { UI.notify(t('game.needRooster'), true); return; }
-            this.removeItem('rooster', 1);
-            h.rooster = true;
-        } else {
-            if (h.hens.length >= 10) { UI.notify(t('game.hennsFull'), true); return; }
-            if (!(GameState.inventory[type] > 0)) { UI.notify(t('game.needHen'), true); return; }
-            this.removeItem(type, 1);
-            h.hens.push({ type, addedAt: Date.now() });
-        }
-        Game.save(); UI.renderFarmyard();
-        UI.notify('🐔 ' + t('game.henAdded'));
-    },
-
-    startNesting: function() {
-        const h = GameState.henhouse;
-        if (!h.built || !h.rooster || h.hens.length === 0) { UI.notify(t('game.nestingReq'), true); return; }
-        if (h.nesting) { UI.notify(t('game.nestingActive'), true); return; }
-        const now = Date.now();
-        h.nesting = {
-            state: 'nesting',
-            startedAt: now,
-            hatchAt: now + 86400000,  // 24h líhnutí
-        };
-        Game.save(); UI.renderFarmyard();
-        UI.notify('🥚 ' + t('game.nestingStarted'));
-    },
-
-    slaughterChick: function(qty) {
-        const h = GameState.henhouse;
-        qty = Math.min(qty, h.chickPool);
-        if (qty <= 0) { UI.notify(t('game.noChicks'), true); return; }
-        h.chickPool -= qty;
-        this.addItem('chicken_meat', qty);
-        this.addItem('feather_hen', qty * 2);
-        Game.save(); UI.renderFarmyard();
-        UI.notify('🍗 ' + t('game.slaughtered').replace('{qty}', qty));
-    },
-
-    slaughterHen: function(idx) {
-        const h = GameState.henhouse;
-        if (!h.hens[idx]) return;
-        h.hens.splice(idx, 1);
-        this.addItem('chicken_meat', 2);
-        this.addItem('feather_hen', 3);
-        Game.save(); UI.renderFarmyard();
-        UI.notify('🍗 ' + t('game.henSlaughtered'));
-    },
-
-    collectHenhouse: function() {
-        const h = GameState.henhouse;
-        if (!h.built || h.hens.length === 0) return;
-        const now = Date.now();
-        const EGG_INTERVAL   = 8  * 3600000;
-        const FEATH_INTERVAL = 24 * 3600000;
-        let collected = false;
-        if (now >= h.lastEggAt + EGG_INTERVAL) {
-            const mult = h.rooster ? 1.2 : 1.0;
-            const eggs = Math.floor(h.hens.length * mult);
-            if (eggs > 0) { this.addItem('egg', eggs); h.lastEggAt = now; collected = true; }
-        }
-        if (now >= h.lastFeatherAt + FEATH_INTERVAL) {
-            this.addItem('feather_hen', h.hens.length);
-            h.lastFeatherAt = now; collected = true;
-        }
-        if (collected) { Game.save(); UI.renderFarmyard(); UI.notify('🥚 ' + t('game.hennouseCollected')); }
-        else UI.notify(t('game.hiveNotReady'), true);
-    },
-
-    feedHenhouse: function() {
-        const h = GameState.henhouse;
-        if (!h.built || h.hens.length === 0) return;
-        const chickFeed = h.nesting && h.nesting.state === 'growing' ? Math.ceil(h.nesting.chicks / 2) : 0;
-        const totalFeed = h.hens.length + chickFeed;
-        const feedItem = (GameState.inventory['seeds_herb'] || 0) >= totalFeed ? 'seeds_herb' : 'seeds_vegetable';
-        if ((GameState.inventory[feedItem] || 0) < totalFeed) { UI.notify(t('game.needFeedHen') + ' (' + totalFeed + ')', true); return; }
-        this.removeItem(feedItem, totalFeed);
-        h.lastFedAt = Date.now();
-        Game.save(); UI.renderFarmyard();
-        UI.notify('🌾 ' + t('game.henFed'));
-    },
-
-    // ═══════════════════════════════════════════════════════════════════════════
-    // OVILE (Chlév) — herní logika
-    // ═══════════════════════════════════════════════════════════════════════════
-
-    buildSheepfold: function() {
-        const s = GameState.sheepfold;
-        if (s.built) return;
-        if (!GameState.researchedTechs.includes('tech_de_re_rustica')) { UI.notify(t('game.needDeReRustica'), true); return; }
-        if ((GameState.inventory['rock'] || 0) < 20)  { UI.notify(t('game.needStone') + ' (20)', true); return; }
-        if ((GameState.inventory['stick'] || 0) < 15) { UI.notify(t('game.needWood')  + ' (15)', true); return; }
-        if ((GameState.inventory['rope'] || 0) < 5)   { UI.notify(t('game.needRope')  + ' (5)',  true); return; }
-        this.removeItem('rock', 20);
-        this.removeItem('stick', 15);
-        this.removeItem('rope', 5);
-        s.built = true;
-        Game.save(); UI.renderFarmyard();
-        UI.notify('🐑 ' + t('game.sheepfoldBuilt'));
-    },
-
-    addSheep: function() {
-        const s = GameState.sheepfold;
-        if (!s.built) return;
-        if (s.sheep >= 6) { UI.notify(t('game.sheepFull'), true); return; }
-        if (!(GameState.inventory['sheep'] > 0)) { UI.notify(t('game.needSheep'), true); return; }
-        this.removeItem('sheep', 1);
-        s.sheep++;
-        Game.save(); UI.renderFarmyard();
-        UI.notify('🐑 ' + t('game.sheepAdded'));
-    },
-
-    startBreeding: function() {
-        const s = GameState.sheepfold;
-        if (!s.built || s.sheep < 2) { UI.notify(t('game.breedingReq'), true); return; }
-        if (s.breeding) { UI.notify(t('game.breedingActive'), true); return; }
-        const now = Date.now();
-        s.breeding = {
-            state: 'gestating',
-            startedAt: now,
-            bornAt: now + 172800000,  // 48h gestace
-        };
-        Game.save(); UI.renderFarmyard();
-        UI.notify('🐑 ' + t('game.breedingStarted'));
-    },
-
-    slaughterLamb: function(qty) {
-        const s = GameState.sheepfold;
-        qty = Math.min(qty, s.lambPool);
-        if (qty <= 0) { UI.notify(t('game.noLambs'), true); return; }
-        s.lambPool -= qty;
-        this.addItem('mutton', qty * 2);
-        this.addItem('lamb_hide', qty);
-        Game.save(); UI.renderFarmyard();
-        UI.notify('🥩 ' + t('game.lambSlaughtered').replace('{qty}', qty));
-    },
-
-    slaughterSheep: function() {
-        const s = GameState.sheepfold;
-        if (s.sheep <= 0) return;
-        s.sheep--;
-        this.addItem('mutton', 3);
-        this.addItem('raw_hide', 1);
-        Game.save(); UI.renderFarmyard();
-        UI.notify('🥩 ' + t('game.sheepSlaughtered'));
-    },
-
-    collectSheepfold: function() {
-        const s = GameState.sheepfold;
-        if (!s.built || s.sheep === 0) return;
-        const now = Date.now();
-        const MILK_INTERVAL = 12 * 3600000;
-        const WOOL_INTERVAL = 48 * 3600000;
-        let collected = false;
-        if (now >= s.lastMilkAt + MILK_INTERVAL) {
-            this.addItem('milk', s.sheep);
-            s.lastMilkAt = now; collected = true;
-        }
-        if (now >= s.lastWoolAt + WOOL_INTERVAL) {
-            this.addItem('wool', s.sheep);
-            s.lastWoolAt = now; collected = true;
-        }
-        if (collected) { Game.save(); UI.renderFarmyard(); UI.notify('🐑 ' + t('game.sheepCollected')); }
-        else UI.notify(t('game.hiveNotReady'), true);
-    },
-
-    feedSheepfold: function() {
-        const s = GameState.sheepfold;
-        if (!s.built || s.sheep === 0) return;
-        const lambFeed = s.breeding && s.breeding.state === 'growing' ? 1 : 0; // jehně potřebuje 1 trávu (polovina dospělé 2)
-        const fiberNeeded = s.sheep * 2 + lambFeed;
-        const waterNeeded = s.sheep + (lambFeed > 0 ? 1 : 0);
-        if ((GameState.inventory['fiber'] || 0) < fiberNeeded) { UI.notify(t('game.needFeedSheep') + ' (' + fiberNeeded + ')', true); return; }
-        if ((GameState.inventory['water'] || 0) < waterNeeded) { UI.notify(t('game.needWater'), true); return; }
-        this.removeItem('fiber', fiberNeeded);
-        this.removeItem('water', waterNeeded);
-        s.lastFedAt = Date.now();
-        s.lastWateredAt = Date.now();
-        Game.save(); UI.renderFarmyard();
-        UI.notify('🌿 ' + t('game.sheepFed'));
-    },
-
-    // ═══════════════════════════════════════════════════════════════════════════
-    // FARMYARD PRODUCTION TICK — volán každou minutu
-    // ═══════════════════════════════════════════════════════════════════════════
-
-    checkFarmyardProduction: function() {
-        const now = Date.now();
-        let changed = false;
-
-        // Kurník — líhnutí a dorůstání
-        const h = GameState.henhouse;
-        if (h && h.nesting) {
-            if (h.nesting.state === 'nesting' && now >= h.nesting.hatchAt) {
-                // Vylíhnutí: 2–4 kuřata
-                const count = 2 + Math.floor(Math.random() * 3);
-                h.nesting.state   = 'growing';
-                h.nesting.chicks  = count;
-                h.nesting.hatchedAt = now;
-                h.nesting.grownAt   = now + 172800000; // 48h dorůstání
-                changed = true;
-            }
-            if (h.nesting.state === 'growing' && now >= h.nesting.grownAt) {
-                // Dorůstání hotovo → pool
-                const space = 10 - h.chickPool;
-                h.chickPool += Math.min(h.nesting.chicks, space);
-                h.nesting = null;
-                changed = true;
-            }
-        }
-
-        // Chlév — gestace a dorůstání
-        const s = GameState.sheepfold;
-        if (s && s.breeding) {
-            if (s.breeding.state === 'gestating' && now >= s.breeding.bornAt) {
-                s.breeding.state  = 'growing';
-                s.breeding.lambAt = now;
-                s.breeding.grownAt = now + 172800000; // 48h dorůstání
-                changed = true;
-            }
-            if (s.breeding.state === 'growing' && now >= s.breeding.grownAt) {
-                const space = 6 - s.lambPool;
-                if (space > 0) { s.lambPool++; }
-                s.breeding = null;
-                changed = true;
-            }
-        }
-
-        if (changed) Game.save();
-    },
-
+    // ─── Garden/Farmyard — přesunuto do GardenSystem.js ───────────────────
+    plantTree:            function(s,i)  { return GardenSystem.plantTree(s,i); },
+    harvestTree:          function(s)    { return GardenSystem.harvestTree(s); },
+    fellTree:             function(s)    { return GardenSystem.fellTree(s); },
+    _getApiarySeason:     function()     { return GardenSystem._getApiarySeason(); },
+    _randomQueenName:     function()     { return GardenSystem._randomQueenName(); },
+    buildHive:            function(s)    { return GardenSystem.buildHive(s); },
+    addQueen:             function(s)    { return GardenSystem.addQueen(s); },
+    collectHive:          function(s)    { return GardenSystem.collectHive(s); },
+    buildPiscina:         function(t)    { return GardenSystem.buildPiscina(t); },
+    harvestCarp:          function(q)    { return GardenSystem.harvestCarp(q); },
+    collectHenhouse:      function()     { return GardenSystem.collectHenhouse(); },
+    feedHenhouse:         function()     { return GardenSystem.feedHenhouse(); },
+    buildSheepfold:       function()     { return GardenSystem.buildSheepfold(); },
+    addSheep:             function()     { return GardenSystem.addSheep(); },
+    startBreeding:        function()     { return GardenSystem.startBreeding(); },
+    slaughterLamb:        function(q)    { return GardenSystem.slaughterLamb(q); },
+    slaughterSheep:       function()     { return GardenSystem.slaughterSheep(); },
+    collectSheepfold:     function()     { return GardenSystem.collectSheepfold(); },
+    feedSheepfold:        function()     { return GardenSystem.feedSheepfold(); },
+    checkFarmyardProduction: function()  { return GardenSystem.checkFarmyardProduction(); },
     scavenge: function(type) {
 	    // === SPECIAL HANDLING FOR WELL === (PŘIDAT NA ZAČÁTEK)
 		if (type === 'well_water') {
@@ -26303,322 +27327,16 @@ const Game = {
 	
 	// === WELL SYSTEM === (PŘIDAT před poslední } objektu Game)
 
-	drawWater: function(useBucket = false) {
-		if (!GameState.well.built) {
-			UI.notify(t('game.wellNoWell'), true);
-			return;
-		}
-		
-		if (GameState.well.condition === "broken") {
-			UI.notify(t('game.wellBroken'), true);
-			return;
-		}
-		
-		// Check tool
-		const tool = useBucket ? "bucket" : "cooking_pot";
-		if (!GameState.inventory[tool] || GameState.inventory[tool] <= 0) {
-			UI.notify(t('game.needItemAmt').replace('{amt}', 1).replace('{item}', ItemsDB[tool].name), true);
-			return;
-		}
-		
-		// Get water amount
-		const level = GameState.well.level;
-		const stats = this.getWellStats(level);
-		let waterAmount = useBucket ? stats.waterPerUseBucket : stats.waterPerUse;
-		
-		// Dirty penalty
-		if (GameState.well.condition === "dirty") {
-			waterAmount = Math.floor(waterAmount * 0.5);
-			UI.notify(t('game.wellMurky'));
-		}
-		
-		// Special: Blessed well může dát holy water
-		if (level === "blessed" && Math.random() < 0.2) {
-			this.addItem("holy_water", 1);
-			UI.notify(t('game.wellHolyWater'));
-		} else {
-			this.addItem("water", waterAmount);
-			UI.notify(t('game.waterDrawn').replace('{amt}', waterAmount));
-		}
-		
-		// Degradace check
-		this.checkWellDegradation();
-		this.checkCalendarium();
-		GameState.well.lastUse = Date.now();
-		
-		// Track well uses
-		if(GameState.achievements) {
-			GameState.achievements.stats.wellUses++;
-		}
-		
-		this.save();
-		UI.renderAll();
-	},
-
-	cleanWell: function() {
-		if (GameState.well.condition !== "dirty") {
-			UI.notify(t('game.wellNotDirty'), true);
-			return;
-		}
-		
-		if (!GameState.inventory.purification_powder || GameState.inventory.purification_powder < 1) {
-			UI.notify(t('game.wellNoPowder'), true);
-			return;
-		}
-		
-		this.addItem("purification_powder", -1);
-		GameState.well.condition = "clean";
-		
-		// Track well cleans
-		if(GameState.achievements) {
-			GameState.achievements.stats.wellCleans++;
-		}
-		
-		UI.notify(t('game.wellCleaned'));
-		this.save();
-		UI.renderAll();
-	},
-
-	repairWell: function() {
-		if (GameState.well.condition !== "broken") {
-			UI.notify(t('game.wellNotBroken'), true);
-			return;
-		}
-		
-		if (!GameState.inventory.repair_kit || GameState.inventory.repair_kit < 1) {
-			UI.notify(t('game.wellNoKit'), true);
-			return;
-		}
-		
-		this.addItem("repair_kit", -1);
-		GameState.well.condition = "clean";
-		UI.notify(t('game.wellRepaired'));
-		Game.addKronikaEntry('important', '🪣 Studna opravena.', '🪣 The well has been repaired.', '🪣 Puteus reparatus est.');
-		this.save();
-		UI.renderAll();
-	},
-
-	// ─── KRMNÝ SYSTÉM ──────────────────────────────────────────────────────────
-	checkAnimalFeeding: function() {
-		const lang = (GameState.settings && GameState.settings.language) || 'cs';
-		const now = Date.now();
-		if (!GameState.feeding) GameState.feeding = {};
-		const animals = [
-			{ key: 'henhouse',  built: GameState.henhouse && GameState.henhouse.built && GameState.henhouse.hens && GameState.henhouse.hens.length > 0, feed: 'grain', feedAmt: 1, name: lang==='en'?'Hens':'Slepice' },
-			{ key: 'sheepfold', built: GameState.sheepfold && GameState.sheepfold.built && GameState.sheepfold.sheep && GameState.sheepfold.sheep.length > 0, feed: 'hay', feedAmt: 1, name: lang==='en'?'Sheep':'Ovce' },
-			{ key: 'piscina',   built: GameState.piscina && GameState.piscina.tier > 0, feed: 'worms', feedAmt: 1, name: lang==='en'?'Fish':'Ryby' },
-		];
-		animals.forEach(a => {
-			if (!a.built) return;
-			if (!GameState.feeding[a.key]) GameState.feeding[a.key] = { lastFed: now, hunger: 0 };
-			const hoursSinceFed = (now - GameState.feeding[a.key].lastFed) / 3600000;
-			if (hoursSinceFed >= 24) {
-				const have = GameState.inventory[a.feed] || 0;
-				if (have >= a.feedAmt) {
-					Game.removeItem(a.feed, a.feedAmt);
-					GameState.feeding[a.key].lastFed = now;
-					GameState.feeding[a.key].hunger = 0;
-					UI.notify(lang==='en' ? a.name+' fed automatically.' : a.name+' nakrmeny automaticky.');
-				} else {
-					GameState.feeding[a.key].hunger = Math.min(3, (GameState.feeding[a.key].hunger || 0) + 1);
-					const penalty = GameState.feeding[a.key].hunger >= 3 ? 75 : GameState.feeding[a.key].hunger >= 2 ? 50 : 25;
-					UI.notify((lang==='en' ? a.name+' hungry! Production -' : a.name+' hladovi! Produkce -')+penalty+'%', true);
-					Game.addKronikaEntry('warning', a.name+' hladovi — chybi '+a.feed+'.', a.name+' hungry — no '+a.feed+'.', a.name+' esuriunt.');
-				}
-			}
-		});
-		Game.save();
-	},
-
-	// ─── TOOL USES SYSTÉM ──────────────────────────────────────────────────────
-	useToolCharge: function(itemId) {
-		const item = ItemsDB[itemId];
-		if (!item || !item.maxUses) return; // Nástroj bez maxUses — nespotřebovává se (pestle atd.)
-
-		if (!GameState.toolUses) GameState.toolUses = {};
-		if (GameState.toolUses[itemId] === undefined) {
-			GameState.toolUses[itemId] = item.maxUses;
-		}
-
-		GameState.toolUses[itemId]--;
-		const remaining = GameState.toolUses[itemId];
-		const lang = (GameState.settings && GameState.settings.language) || 'cs';
-		const name = (typeof iName === 'function') ? iName(itemId) : itemId;
-
-		if (remaining <= 0) {
-			// Nástroj se opotřeboval
-			const wornId = 'worn_' + itemId; // worn_iron_axe atd.
-			if (itemId.startsWith('worn_') && item.tier === 'iron') {
-				// Worn iron po 3 použitích → nenávratně zničen
-				this.removeItem(itemId, 1);
-				delete GameState.toolUses[itemId];
-				UI.notify((lang==='en' ? '💀 ' + name + ' destroyed beyond repair.' : '💀 ' + name + ' — nenávratně zničena.'), true);
-				if (typeof NotificationSystem !== 'undefined') {
-					NotificationSystem.panel((lang==='en' ? '💀 ' + name + ' destroyed. Craft new tools.' : '💀 ' + name + ' zničena. Vykov nové nástroje.'), 'warning');
-				}
-			} else if (item.tier === 'iron' && ItemsDB[wornId]) {
-				// Iron → degradace na worn
-				this.removeItem(itemId, 1);
-				this.addItem(wornId, 1);
-				delete GameState.toolUses[itemId];
-				UI.notify((lang==='en' ? name + ' worn out — repair it.' : name + ' se opotřebovala — oprav ji.'), true);
-				if (typeof NotificationSystem !== 'undefined') {
-					NotificationSystem.panel((lang==='en' ? '🔧 ' + name + ' worn out. Needs repair.' : '🔧 ' + name + ' opotřebována. Potřebuje opravu.'), 'system');
-				}
-			} else {
-				// Stone → smazat
-				this.removeItem(itemId, 1);
-				delete GameState.toolUses[itemId];
-				UI.notify((lang==='en' ? name + ' broke.' : name + ' se zlomila.'), true);
-			}
-		} else if (remaining > 0) {
-			if (itemId.startsWith('worn_') && item.tier === 'iron') {
-				// Worn nástroj — varování při každém použití
-				UI.notify((lang==='en'
-					? '⚠️ ' + name + ': ' + remaining + ' use(s) before destruction!'
-					: '⚠️ ' + name + ': ještě ' + remaining + '× než se zničí!'), true);
-				if (typeof NotificationSystem !== 'undefined') {
-					NotificationSystem.panel((lang==='en'
-						? '⚠️ ' + name + ': ' + remaining + ' use(s) left — repair or replace!'
-						: '⚠️ ' + name + ': zbývají ' + remaining + ' použití — oprav nebo vykov nové!'), 'warning');
-				}
-			} else if (remaining === 3) {
-				// Varování před koncem pro normální nástroje
-				UI.notify((lang==='en' ? '⚠️ ' + name + ': ' + remaining + ' uses left.' : '⚠️ ' + name + ': zbývají ' + remaining + ' použití.'));
-			}
-		}
-	},
-
-	feedAnimals: function(animalKey) {
-		const lang = (GameState.settings && GameState.settings.language) || 'cs';
-		const feedMap = { henhouse: 'grain', sheepfold: 'hay', piscina: 'worms' };
-		const nameMap = { henhouse: lang==='en'?'Hens':'Slepice', sheepfold: lang==='en'?'Sheep':'Ovce', piscina: lang==='en'?'Fish':'Ryby' };
-		const feed = feedMap[animalKey];
-		if (!feed) return;
-		if ((GameState.inventory[feed] || 0) < 1) {
-			UI.notify(lang==='en' ? 'No '+feed+' in stores.' : 'V zasobách neni '+feed+'.', true); return;
-		}
-		Game.removeItem(feed, 1);
-		if (!GameState.feeding) GameState.feeding = {};
-		if (!GameState.feeding[animalKey]) GameState.feeding[animalKey] = {};
-		GameState.feeding[animalKey].lastFed = Date.now();
-		GameState.feeding[animalKey].hunger = 0;
-		UI.notify((lang==='en'?nameMap[animalKey]+' fed.':nameMap[animalKey]+' nakrmeny.'));
-		Game.save();
-	},
-
-	buildStorage: function(type) {
-		const lang = (GameState.settings && GameState.settings.language) || 'cs';
-		if (!GameState.storage) GameState.storage = { almarium: {built:false}, cella: {built:false}, horreum: {built:false}, fabrica: {built:false} };
-		if (!GameState.storage.fabrica) GameState.storage.fabrica = {built:false};
-		if (!GameState.storage.transactions) GameState.storage.transactions = [];
-		if (type === 'cella' && !GameState.storage.almarium.built) {
-			UI.notify(lang==='en' ? 'Build Almarium first.' : 'Nejprve postav Almarium.', true); return;
-		}
-		if (type === 'horreum' && !GameState.storage.cella.built) {
-			UI.notify(lang==='en' ? 'Build Cella first.' : 'Nejprve postav Cellu.', true); return;
-		}
-		if (GameState.storage[type] && GameState.storage[type].built) {
-			UI.notify(lang==='en' ? 'Already built.' : 'Jiz postaveno.', true); return;
-		}
-		const costs = {
-			almarium: { plank: 6, rope: 3, leather: 2 },
-			cella:    { cut_stone: 12, rope: 5, chalk: 4 },
-			horreum:  { cut_stone: 20, plank: 10, glue: 4, rope: 6 },
-			fabrica:  { rock: 30, plank: 15, charcoal: 10, anvil: 1 },
-		};
-		const cost = costs[type];
-		if (!cost) return;
-		for (const [item, amt] of Object.entries(cost)) {
-			if ((GameState.inventory[item] || 0) < amt) {
-				const itemName = (typeof iName === 'function') ? iName(item) : item;
-				UI.notify((lang==='en'?'Not enough: ':'Nedostatek: ')+itemName+' x'+amt, true); return;
-			}
-		}
-		for (const [item, amt] of Object.entries(cost)) { this.removeItem(item, amt); }
-		GameState.storage[type].built = true;
-		Game.save();
-		const names = { almarium: 'Almarium', cella: 'Cella', horreum: 'Horreum', fabrica: 'Fabrica' };
-		const n = names[type];
-		UI.notifyPanel('🏗️ ' + (lang==='en' ? n+' built.' : n+' postaveno.'), 'system');
-		Game.addKronikaEntry('important', n+' postaveno.', n+' built.', n+' aedificatum est.');
-		// BUG #7 fix — re-render Buildings tabu po stavbě
-		if (typeof CellariumSystem !== 'undefined') {
-			if (!GameState.ui) GameState.ui = {};
-			GameState.ui.cellariumEntity = 'buildings';
-			const _cel = document.getElementById('cellarium-content');
-			if (_cel) _cel.outerHTML = CellariumSystem.renderCellariumContent();
-		}
-	},
-
-	upgradeWell: function(toLevel) {
-		const recipeMap = {
-			"basic": "well_basic",
-			"stone": "well_upgrade_stone"
-		};
-		
-		const recipeId = recipeMap[toLevel];
-		if (!recipeId) return;
-		
-		// Check if we can build/upgrade
-		if (toLevel === "basic" && GameState.well.built) {
-			UI.notify(t('game.wellAlreadyBuilt'), true);
-			return;
-		}
-		
-		if (toLevel === "stone" && GameState.well.level !== "basic") {
-			UI.notify(t('game.wellNeedBasic'), true);
-			return;
-		}
-		
-		// Build basic well
-		if (toLevel === "basic") {
-			const cost = { rock: 20, stick: 10, rope: 3 };
-			
-			for (let [item, amt] of Object.entries(cost)) {
-				if (!GameState.inventory[item] || GameState.inventory[item] < amt) {
-					UI.notify(t('game.needItemAmt').replace('{amt}', amt).replace('{item}', ItemsDB[item].name), true);
-					return;
-				}
-			}
-			
-			// Consume materials
-			for (let [item, amt] of Object.entries(cost)) {
-				this.addItem(item, -amt);
-			}
-			
-			GameState.well.built = true;
-			GameState.well.level = "basic";
-			GameState.well.condition = "clean";
-			UI.notify(t('game.wellBuilt'));
-			Game.addKronikaEntry('important', '🪣 Studna postavena.', '🪣 The well has been built.', '🪣 Puteus aedificatus est.');
-			this.save();
-			UI.renderAll();
-			return;
-		}
-		
-		// Upgrade to stone
-		if (toLevel === "stone") {
-			const cost = { rock: 30, rope: 5, charcoal: 10 };
-			
-			for (let [item, amt] of Object.entries(cost)) {
-				if (!GameState.inventory[item] || GameState.inventory[item] < amt) {
-					UI.notify(t('game.needItemAmt').replace('{amt}', amt).replace('{item}', ItemsDB[item].name), true);
-					return;
-				}
-			}
-			
-			for (let [item, amt] of Object.entries(cost)) {
-				this.addItem(item, -amt);
-			}
-			
-			GameState.well.level = "stone";
-			UI.notify(t('game.wellUpgraded'));
-			this.save();
-			UI.renderAll();
-		}
-	},
-
+    // ─── Well/Water — přesunuto do GardenSystem.js ────────────────────────
+    drawWater:            function(b)    { return GardenSystem.drawWater(b); },
+    cleanWell:            function()     { return GardenSystem.cleanWell(); },
+    repairWell:           function()     { return GardenSystem.repairWell(); },
+    checkAnimalFeeding:   function()     { return GardenSystem.checkAnimalFeeding(); },
+    feedAnimals:          function(k)    { return GardenSystem.feedAnimals(k); },
+    buildStorage:         function(t)    { return GardenSystem.buildStorage(t); },
+    upgradeWell:          function(l)    { return GardenSystem.upgradeWell(l); },
+    checkWellDegradation: function()     { return GardenSystem.checkWellDegradation(); },
+    getWellStats:         function(l)    { return GardenSystem.getWellStats(l); },
 	checkCalendarium: function() {
 		// Spustit jen 1× za den
 		if (!GameState.flags) GameState.flags = {};
@@ -28353,673 +29071,13 @@ renderRecords: function() {
 },
 
 	
-    switchGardenTab: function(tab, btn) {
-        document.getElementById('garden-tab-zahony').style.display   = tab === 'zahony'   ? '' : 'none';
-        document.getElementById('garden-tab-sad').style.display      = tab === 'sad'      ? '' : 'none';
-        document.getElementById('garden-tab-apiarium').style.display = tab === 'apiarium' ? '' : 'none';
-        document.getElementById('garden-tab-dvur').style.display     = tab === 'dvur'     ? '' : 'none';
-        document.getElementById('garden-tab-piscina').style.display  = tab === 'piscina'  ? '' : 'none';
-        document.querySelectorAll('#screen-garden .filter-btn').forEach(b => b.classList.remove('active'));
-        if (btn) btn.classList.add('active');
-        if (tab === 'dvur')     this.renderFarmyard();
-        if (tab === 'sad')      this.renderOrchard();
-        if (tab === 'apiarium') this.renderApiary();
-        if (tab === 'piscina')  this.renderPiscina();
-    },
-
-    renderFarmyard: function() {
-        const el = document.getElementById('farmyard-container');
-        if (!el) return;
-        const h = GameState.henhouse  || {};
-        const s = GameState.sheepfold || {};
-        const lang = (GameState.settings && GameState.settings.language) || 'cs';
-        const now = Date.now();
-        let html = '';
-
-        // GALLINARIUM
-        html += `<div style="margin-bottom:24px; padding:16px; background:rgba(197,160,89,0.06); border-radius:10px; border-left:4px solid var(--accent-gold);">`;
-        html += `<h3 style="margin:0 0 12px 0; font-size:1rem;">🐔 ${t('farmyard.gallinarium')}</h3>`;
-        if (!h.built) {
-            html += `<p class="text-sm" style="opacity:0.7; margin-bottom:10px;">${t('farmyard.hennhouseBuildDesc')}</p>`;
-            const canBuild = (GameState.inventory['rock']||0)>=15 && (GameState.inventory['stick']||0)>=10 && (GameState.inventory['rope']||0)>=3;
-            html += `<button class="craft-btn" onclick="Game.buildHenhouse()" ${canBuild?'':'disabled'}>🏗️ ${t('farmyard.buildHenhouse')} (15 ${lang==='en'?'stone':'kámen'}, 10 ${lang==='en'?'branch':'větev'}, 3 ${lang==='en'?'rope':'provaz'})</button>`;
-        } else {
-            const hensCount = (h.hens||[]).length;
-            html += `<div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:12px; font-size:0.82rem;">`;
-            html += `<div>🐔 ${t('farmyard.hens')}: <strong>${hensCount}/10</strong></div>`;
-            html += `<div>🐓 ${t('farmyard.rooster')}: <strong>${h.rooster ? '✓' : '✗'}</strong></div>`;
-            const eggReady  = now >= (h.lastEggAt||0) + 28800000;
-            const feathReady = now >= (h.lastFeatherAt||0) + 86400000;
-            html += `<div>🥚 ${t('farmyard.eggs')}: <strong>${eggReady ? t('farmyard.ready') : Math.ceil(((h.lastEggAt||0)+28800000-now)/3600000)+'h'}</strong></div>`;
-            html += `<div>🪶 ${t('farmyard.feathers')}: <strong>${feathReady ? t('farmyard.ready') : Math.ceil(((h.lastFeatherAt||0)+86400000-now)/3600000)+'h'}</strong></div>`;
-            html += `</div>`;
-            html += `<div style="display:flex; gap:6px; flex-wrap:wrap; margin-bottom:10px;">`;
-            if (!h.rooster) {
-                const hasR = (GameState.inventory['rooster']||0) > 0;
-                html += `<button class="craft-btn" onclick="Game.addHen('rooster')" ${hasR?'':'disabled'} style="font-size:0.75rem;">🐓 ${t('farmyard.addRooster')}</button>`;
-            }
-            ['hen_white','hen_black','hen_colored'].forEach(type => {
-                const has = (GameState.inventory[type]||0) > 0;
-                const icon = type==='hen_white'?'🐔':type==='hen_black'?'🐓':'🐣';
-                html += `<button class="craft-btn" onclick="Game.addHen('${type}')" ${has&&hensCount<10?'':'disabled'} style="font-size:0.75rem; white-space:normal; word-break:break-word;">${icon} ${iName(type)}</button>`;
-            });
-            html += `</div>`;
-            html += `<div style="display:flex; gap:6px; flex-wrap:wrap; margin-bottom:10px;">`;
-            html += `<button class="craft-btn" onclick="Game.collectHenhouse()" ${hensCount>0?'':'disabled'}>🥚 ${t('farmyard.collect')}</button>`;
-            html += `<button class="craft-btn" onclick="Game.feedHenhouse()" ${hensCount>0?'':'disabled'} style="background:#4a7c59;">🌾 ${t('farmyard.feed')}</button>`;
-            html += `</div>`;
-            html += `<div style="margin-top:10px; padding:10px; background:rgba(0,0,0,0.06); border-radius:8px;">`;
-            html += `<strong style="font-size:0.85rem;">🥚 ${t('farmyard.nesting')}</strong><br>`;
-            if (!h.nesting) {
-                const canNest = h.rooster && hensCount > 0;
-                html += `<button class="craft-btn" onclick="Game.startNesting()" ${canNest?'':'disabled'} style="margin-top:6px; font-size:0.78rem;">${t('farmyard.startNesting')}</button>`;
-            } else if (h.nesting.state === 'nesting') {
-                const left = Math.max(0, Math.ceil((h.nesting.hatchAt - now)/3600000));
-                html += `<p class="text-sm" style="margin:6px 0;">🐣 ${t('farmyard.nestingProgress')} — ${left}h</p>`;
-            } else if (h.nesting.state === 'growing') {
-                const left = Math.max(0, Math.ceil((h.nesting.grownAt - now)/3600000));
-                html += `<p class="text-sm" style="margin:6px 0;">🐥 ${t('farmyard.chicksGrowing').replace('{n}', h.nesting.chicks)} — ${left}h</p>`;
-            }
-            if ((h.chickPool||0) > 0) {
-                html += `<div style="margin-top:8px; font-size:0.82rem;">🐓 ${t('farmyard.chickPool')}: <strong>${h.chickPool}</strong>
-                    <button class="craft-btn" onclick="Game.slaughterChick(1)" style="margin-left:8px; font-size:0.72rem; background:#8b4a3a;">🍗 x1</button>
-                    <button class="craft-btn" onclick="Game.slaughterChick(${h.chickPool})" style="margin-left:4px; font-size:0.72rem; background:#8b4a3a;">🍗 ${lang==='en'?'All':'Vše'}</button></div>`;
-            }
-            html += `</div>`;
-        }
-        html += `</div>`;
-
-        // OVILE
-        const hasTech = GameState.researchedTechs && GameState.researchedTechs.includes('tech_de_re_rustica');
-        html += `<div style="padding:16px; background:rgba(197,160,89,0.06); border-radius:10px; border-left:4px solid ${hasTech?'var(--accent-gold)':'rgba(0,0,0,0.2)'};">`;
-        html += `<h3 style="margin:0 0 12px 0; font-size:1rem;">🐑 ${t('farmyard.ovile')}</h3>`;
-        if (!hasTech) {
-            html += `<p class="text-sm" style="opacity:0.6; font-style:italic;">${t('farmyard.ovileLocked')}</p>`;
-        } else if (!s.built) {
-            html += `<p class="text-sm" style="opacity:0.7; margin-bottom:10px;">${t('farmyard.sheepfoldBuildDesc')}</p>`;
-            const canBuild = (GameState.inventory['rock']||0)>=20 && (GameState.inventory['stick']||0)>=15 && (GameState.inventory['rope']||0)>=5;
-            html += `<button class="craft-btn" onclick="Game.buildSheepfold()" ${canBuild?'':'disabled'}>🏗️ ${t('farmyard.buildSheepfold')} (20 ${lang==='en'?'stone':'kámen'}, 15 ${lang==='en'?'branch':'větev'}, 5 ${lang==='en'?'rope':'provaz'})</button>`;
-        } else {
-            html += `<div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:12px; font-size:0.82rem;">`;
-            html += `<div>🐑 ${t('farmyard.sheep')}: <strong>${s.sheep||0}/6</strong></div>`;
-            const milkReady = now >= (s.lastMilkAt||0) + 43200000;
-            const woolReady = now >= (s.lastWoolAt||0) + 172800000;
-            html += `<div>🥛 ${t('farmyard.milk')}: <strong>${milkReady ? t('farmyard.ready') : Math.ceil(((s.lastMilkAt||0)+43200000-now)/3600000)+'h'}</strong></div>`;
-            html += `<div>🧶 ${t('farmyard.wool')}: <strong>${woolReady ? t('farmyard.ready') : Math.ceil(((s.lastWoolAt||0)+172800000-now)/3600000)+'h'}</strong></div>`;
-            html += `</div>`;
-            html += `<div style="display:flex; gap:6px; flex-wrap:wrap; margin-bottom:10px;">`;
-            const hasSheepItem = (GameState.inventory['sheep']||0) > 0;
-            html += `<button class="craft-btn" onclick="Game.addSheep()" ${hasSheepItem&&(s.sheep||0)<6?'':'disabled'}>🐑 ${t('farmyard.addSheep')}</button>`;
-            html += `<button class="craft-btn" onclick="Game.collectSheepfold()" ${(s.sheep||0)>0?'':'disabled'}>🥛 ${t('farmyard.collect')}</button>`;
-            html += `<button class="craft-btn" onclick="Game.feedSheepfold()" ${(s.sheep||0)>0?'':'disabled'} style="background:#4a7c59;">🌿 ${t('farmyard.feed')}</button>`;
-            if ((s.sheep||0) > 0) {
-                html += `<button class="craft-btn" onclick="Game.slaughterSheep()" style="background:#8b4a3a; font-size:0.78rem;">🥩 ${t('farmyard.slaughterSheep')}</button>`;
-            }
-            html += `</div>`;
-            html += `<div style="margin-top:10px; padding:10px; background:rgba(0,0,0,0.06); border-radius:8px;">`;
-            html += `<strong style="font-size:0.85rem;">🐑 ${t('farmyard.breeding')}</strong><br>`;
-            if (!s.breeding) {
-                const canBreed = (s.sheep||0) >= 2;
-                html += `<button class="craft-btn" onclick="Game.startBreeding()" ${canBreed?'':'disabled'} style="margin-top:6px; font-size:0.78rem;">${t('farmyard.startBreeding')}</button>`;
-            } else if (s.breeding.state === 'gestating') {
-                const left = Math.max(0, Math.ceil((s.breeding.bornAt - now)/3600000));
-                html += `<p class="text-sm" style="margin:6px 0;">🤰 ${t('farmyard.gestating')} — ${left}h</p>`;
-            } else if (s.breeding.state === 'growing') {
-                const left = Math.max(0, Math.ceil((s.breeding.grownAt - now)/3600000));
-                html += `<p class="text-sm" style="margin:6px 0;">🐑 ${t('farmyard.lambGrowing')} — ${left}h</p>`;
-            }
-            if ((s.lambPool||0) > 0) {
-                html += `<div style="margin-top:8px; font-size:0.82rem;">🐑 ${t('farmyard.lambPool')}: <strong>${s.lambPool}</strong>
-                    <button class="craft-btn" onclick="Game.slaughterLamb(1)" style="margin-left:8px; font-size:0.72rem; background:#8b4a3a;">🥩 x1</button>
-                    <button class="craft-btn" onclick="Game.slaughterLamb(${s.lambPool})" style="margin-left:4px; font-size:0.72rem; background:#8b4a3a;">🥩 ${lang==='en'?'All':'Vše'}</button></div>`;
-            }
-            html += `</div>`;
-        }
-        html += `</div>`;
-        el.innerHTML = html;
-    },
-
-    // ═══════════════════════════════════════════════════════════════════════════
-    // PISCINA (Rybník) — renderPiscina
-    // ═══════════════════════════════════════════════════════════════════════════
-    renderPiscina: function() {
-        const el = document.getElementById('piscina-container');
-        if (!el) return;
-        const hasTech = GameState.researchedTechs && GameState.researchedTechs.includes('tech_piscina');
-
-        if (!hasTech) {
-            el.innerHTML = `
-                <div style="text-align:center; padding:40px 20px; opacity:0.7;">
-                    <div style="font-size:3rem; margin-bottom:16px;">🐟</div>
-                    <em>Piscina clausa est.</em>
-                    <div style="font-size:0.82rem; opacity:0.75; margin-top:8px;">${t('garden.piscinaLocked')}</div>
-                </div>`;
-            return;
-        }
-
-        const p = GameState.piscina || {};
-        const now = Date.now();
-        const WEEK  = 7  * 24 * 3600000;
-        const WEEKS2 = 14 * 24 * 3600000;
-        const lang = (GameState.settings && GameState.settings.language) || 'cs';
-
-        let html = `<p class="text-sm" style="margin-bottom:12px; opacity:0.75;">${t('garden.piscinaDesc')}</p>`;
-
-        // ── TŘECÍ RYBNÍK (Tier 1) ── 1/7 výšky
-        const t1locked = p.tier < 1;
-        html += `<div style="
-            margin-bottom:10px; border-radius:10px; overflow:hidden;
-            border:2px solid ${t1locked ? 'rgba(0,0,0,0.15)' : '#4a7c8a'};
-            background:${t1locked ? 'rgba(0,0,0,0.04)' : 'linear-gradient(180deg, #e8f4f8 0%, #b8dce8 100%)'};
-            min-height:80px; position:relative;">
-            <div style="padding:10px 14px; display:flex; align-items:center; gap:10px; position:relative; z-index:2;">
-                <div style="flex:1;">
-                    <strong style="font-size:0.9rem;">🫧 ${t('garden.piscinaTier1')}</strong>
-                    <div style="font-size:0.75rem; opacity:0.7; font-style:italic;">${t('garden.piscinaTier1Sub')}</div>
-                </div>`;
-
-        if (t1locked) {
-            const canBuild = (GameState.inventory['rock']||0)>=10 && (GameState.inventory['stick']||0)>=5;
-            html += `<button class="craft-btn" onclick="Game.buildPiscina(1)" ${canBuild?'':'disabled'} style="font-size:0.75rem; white-space:normal;">
-                🏗️ ${t('garden.piscinaBuild')} (10🪨 5🪵)</button>`;
-        } else {
-            html += `<div style="font-size:0.82rem;">🫧 ${t('garden.piscinaFry')}: <strong>${p.fry||0}</strong></div>`;
-        }
-        html += `</div>`;
-
-        // Bublinky animace
-        if (!t1locked) {
-            for (let i=0; i<6; i++) {
-                const left = 10 + Math.random()*80;
-                const delay = Math.random()*3;
-                const dur = 2 + Math.random()*2;
-                html += `<div style="position:absolute; left:${left}%; bottom:5px; font-size:0.8rem;
-                    animation:piscinaBubble ${dur}s ${delay}s infinite ease-in; opacity:0.6; z-index:1;">🫧</div>`;
-            }
-
-            // Přidat plůdek
-            const hasFry = (GameState.inventory['fry']||0) > 0;
-            html += `<div style="padding:6px 14px; display:flex; gap:8px; align-items:center; z-index:2; position:relative;">`;
-            if (p.fryAddedAt && p.fry > 0) {
-                const elapsed = now - p.fryAddedAt;
-                const pct = Math.min(100, Math.round(elapsed / WEEK * 100));
-                const daysLeft = Math.max(0, Math.ceil((WEEK - elapsed) / 86400000));
-                html += `<div style="flex:1; font-size:0.75rem; opacity:0.8;">⏳ ${t('garden.piscinaGrowing')} ${pct}% (${daysLeft}d)</div>`;
-            } else {
-                html += `<button class="craft-btn" onclick="Game.addFry(1)" ${hasFry&&p.tier>=1?'':'disabled'} style="font-size:0.72rem;">+1 ${t('garden.piscinaAddFry')}</button>`;
-                html += `<button class="craft-btn" onclick="Game.addFry(5)" ${hasFry&&(GameState.inventory['fry']||0)>=5&&p.tier>=1?'':'disabled'} style="font-size:0.72rem;">+5</button>`;
-            }
-            html += `</div>`;
-        }
-        html += `</div>`;
-
-        // ── VÝTAŽNÍK (Tier 2) ── 2/7 výšky
-        const t2locked = p.tier < 2;
-        html += `<div style="
-            margin-bottom:10px; border-radius:10px; overflow:hidden;
-            border:2px solid ${t2locked ? 'rgba(0,0,0,0.15)' : '#2a6a7a'};
-            background:${t2locked ? 'rgba(0,0,0,0.04)' : 'linear-gradient(180deg, #c8e8f0 0%, #88c4d8 100%)'};
-            min-height:160px; position:relative;">
-            <div style="padding:10px 14px; display:flex; align-items:center; gap:10px; position:relative; z-index:2;">
-                <div style="flex:1;">
-                    <strong style="font-size:0.9rem;">🐟 ${t('garden.piscinaTier2')}</strong>
-                    <div style="font-size:0.75rem; opacity:0.7; font-style:italic;">${t('garden.piscinaTier2Sub')}</div>
-                </div>`;
-
-        if (t2locked && p.tier >= 1) {
-            const canBuild = (GameState.inventory['rock']||0)>=20 && (GameState.inventory['stick']||0)>=10 && (GameState.inventory['rope']||0)>=5;
-            html += `<button class="craft-btn" onclick="Game.buildPiscina(2)" ${canBuild?'':'disabled'} style="font-size:0.75rem; white-space:normal;">
-                🏗️ ${t('garden.piscinaBuild')} (20🪨 10🪵 5➰)</button>`;
-        } else if (t2locked) {
-            html += `<div style="font-size:0.75rem; opacity:0.5; font-style:italic;">${t('garden.piscinaUpgradeFirst')}</div>`;
-        } else {
-            html += `<div style="font-size:0.82rem;">🐟 ${t('garden.piscinaYoung')}: <strong>${p.youngCarp||0}</strong></div>`;
-        }
-        html += `</div>`;
-
-        // Plovoucí rybičky (tier 2)
-        if (!t2locked && (p.youngCarp||0) > 0) {
-            const fishCount = Math.min(p.youngCarp, 4);
-            const t2icons = ['🐟','🐠','🐟','🐡'];
-            for (let i=0; i<fishCount; i++) {
-                // každá rybka má unikátní parametry
-                const topPct  = 15 + Math.random()*60;          // 15–75% výška
-                const dur     = 10 + Math.random()*12;           // 10–22s pomalé
-                const delay   = -(Math.random()*10);             // záporný delay = hned na různém místě
-                const sz      = 0.9 + Math.random()*0.6;        // různá velikost
-                const goLeft   = Math.random() > 0.5;
-                const backward = Math.random() < 0.15; // 15% šance pluje pozadu 🐟
-                // emoji koukají doleva — při pohybu doprava je otočíme (pokud nepluje pozadu)
-                const flipX    = goLeft ? 'scaleX(1)' : (backward ? 'scaleX(1)' : 'scaleX(-1)');
-                const swimAnim = goLeft ? 'piscinaSwimL' : 'piscinaSwim';
-                const diveDur = 4 + Math.random()*5;
-                const diveDelay = Math.random()*6;
-                html += `<div style="position:absolute; top:${topPct.toFixed(1)}%; font-size:${sz.toFixed(2)}rem;
-                    transform:${flipX};
-                    animation:${swimAnim} ${dur.toFixed(1)}s ${delay.toFixed(1)}s infinite linear,
-                               piscinaWave ${diveDur.toFixed(1)}s ${diveDelay.toFixed(1)}s infinite ease-in-out;
-                    z-index:1;">${t2icons[i%4]}</div>`;
-            }
-            if (p.youngAddedAt > 0) {
-                const elapsed2 = now - p.youngAddedAt;
-                const pct2 = Math.min(100, Math.round(elapsed2 / WEEKS2 * 100));
-                const daysLeft2 = Math.max(0, Math.ceil((WEEKS2 - elapsed2) / 86400000));
-                html += `<div style="padding:6px 14px; font-size:0.75rem; opacity:0.8; position:relative; z-index:2;">
-                    ⏳ ${t('garden.piscinaMaturing')} ${pct2}% (${daysLeft2}d)</div>`;
-            }
-        }
-        html += `</div>`;
-
-        // ── KAPROVÝ RYBNÍK (Tier 3) ── 4/7 výšky
-        const t3locked = p.tier < 3;
-        html += `<div style="
-            margin-bottom:10px; border-radius:10px; overflow:hidden;
-            border:2px solid ${t3locked ? 'rgba(0,0,0,0.15)' : '#1a4a5a'};
-            background:${t3locked ? 'rgba(0,0,0,0.04)' : 'linear-gradient(180deg, #a8d8e8 0%, #4898b8 50%, #1a6888 100%)'};
-            min-height:260px; position:relative;">
-            <div style="padding:10px 14px; display:flex; align-items:center; gap:10px; position:relative; z-index:2;">
-                <div style="flex:1;">
-                    <strong style="font-size:0.9rem; color:${t3locked?'inherit':'#fff'};">🐠 ${t('garden.piscinaTier3')}</strong>
-                    <div style="font-size:0.75rem; opacity:0.7; font-style:italic; color:${t3locked?'inherit':'#e0f0ff'};">${t('garden.piscinaTier3Sub')}</div>
-                </div>`;
-
-        if (t3locked && p.tier >= 2) {
-            const canBuild = (GameState.inventory['rock']||0)>=40 && (GameState.inventory['stick']||0)>=20 && (GameState.inventory['rope']||0)>=10;
-            html += `<button class="craft-btn" onclick="Game.buildPiscina(3)" ${canBuild?'':'disabled'} style="font-size:0.75rem; white-space:normal;">
-                🏗️ ${t('garden.piscinaBuild')} (40🪨 20🪵 10➰)</button>`;
-        } else if (t3locked) {
-            html += `<div style="font-size:0.75rem; opacity:0.5; font-style:italic;">${t('garden.piscinaUpgradeFirst')}</div>`;
-        } else {
-            html += `<div style="font-size:0.82rem; color:#fff;">🐠 ${t('garden.piscinaCarp')}: <strong>${p.carp||0}</strong></div>`;
-        }
-        html += `</div>`;
-
-        // Kapři — plovoucí + potápěcí animace, každý individuální
-        if (!t3locked && (p.carp||0) > 0) {
-            const carpCount = Math.min(p.carp, 6);
-            const icons = ['🐠','🐟','🐡','🐠','🐡','🐟'];
-            for (let i=0; i<carpCount; i++) {
-                const topPct  = 10 + Math.random()*70;           // 10–80% výška
-                const dur     = 12 + Math.random()*15;           // 12–27s velmi pomalé
-                const delay   = -(Math.random()*12);             // okamžitý start na různém místě
-                const sz      = 1.1 + Math.random()*0.8;        // 1.1–1.9rem
-                const goLeft   = Math.random() > 0.5;
-                const backward = Math.random() < 0.15; // 15% šance pluje pozadu
-                const flipX    = goLeft ? 'scaleX(1)' : (backward ? 'scaleX(1)' : 'scaleX(-1)');
-                const swimAnim = goLeft ? 'piscinaSwimL' : 'piscinaSwim';
-                const waveDur = 5 + Math.random()*7;
-                const waveDelay = Math.random()*8;
-                const diveDur = 6 + Math.random()*5;
-                const diveDelay = Math.random()*10;
-                html += `<div style="position:absolute; top:${topPct.toFixed(1)}%; font-size:${sz.toFixed(2)}rem;
-                    transform:${flipX};
-                    animation:${swimAnim} ${dur.toFixed(1)}s ${delay.toFixed(1)}s infinite linear,
-                               piscinaWave ${waveDur.toFixed(1)}s ${waveDelay.toFixed(1)}s infinite ease-in-out,
-                               piscinaDive ${diveDur.toFixed(1)}s ${diveDelay.toFixed(1)}s infinite ease-in-out;
-                    z-index:1;">${icons[i%6]}</div>`;
-            }
-        } else if (!t3locked) {
-            html += `<div style="padding:8px 14px; position:absolute; bottom:8px; left:0; right:0; z-index:2; color:#e0f0ff; font-size:0.8rem; font-style:italic; text-align:center;">${t('garden.piscinaWaitingCarp')}</div>`;
-        }
-        // Tlačítka vždy na spodku rybníku
-        if (!t3locked) {
-            // Pending plůdky z produkce
-            const pendingFry = p.pendingFry || 0;
-            const DAY = 24 * 3600000;
-            const nextFryIn = p.lastFryProductionAt > 0 ? Math.max(0, Math.ceil((p.lastFryProductionAt + DAY - now) / 3600000)) : 24;
-            html += `<div style="position:absolute; bottom:0; left:0; right:0; z-index:3; background:rgba(0,0,0,0.3); backdrop-filter:blur(2px);">`;
-            if ((p.carp||0) > 0) {
-                html += `<div style="padding:4px 14px 2px; font-size:0.72rem; color:#e0f0ff; opacity:0.85;">
-                    🫧 ${lang==='en'?'Fry produced':'Plůdek vyprodukován'}: <strong>${pendingFry}</strong>
-                    ${pendingFry > 0
-                        ? `<button class="craft-btn" onclick="Game.transferFry()" style="margin-left:8px; font-size:0.68rem; padding:2px 8px; background:#1a5a6a;">
-                            → ${lang==='en'?'Move to breeding pond':'Přesunout do třecího'}</button>`
-                        : `<span style="opacity:0.6; margin-left:6px;">(${lang==='en'?'next in':'další za'} ${nextFryIn}h)</span>`
-                    }
-                </div>`;
-            }
-            html += `<div style="padding:4px 14px 8px; display:flex; gap:8px;">`;
-            if ((p.carp||0) > 0) {
-                html += `<button class="craft-btn" onclick="Game.harvestCarp(1)" style="font-size:0.75rem; background:#2a5a3a;">🐠 ${lang==='en'?'Harvest 1':'Sklidit 1'}</button>`;
-                html += `<button class="craft-btn" onclick="Game.harvestCarp(${p.carp})" style="font-size:0.75rem; background:#2a5a3a;">🐠 ${lang==='en'?'All':'Vše'} (${p.carp})</button>`;
-            }
-            html += `<button class="craft-btn" onclick="Game.feedPiscina()" style="font-size:0.75rem; background:#4a7c59;">🌿 ${t('farmyard.feed')}</button>`;
-            html += `</div></div>`;
-        }
-        html += `</div>`;
-
-        el.innerHTML = html;
-
-        // CSS animace — vložit pokud chybí
-        if (!document.getElementById('piscina-style')) {
-            const style = document.createElement('style');
-            style.id = 'piscina-style';
-            style.textContent = [
-                '@keyframes piscinaBubble {',
-                '  0%   { transform: translateY(0) scale(1); opacity:0.6; }',
-                '  60%  { transform: translateY(-25px) scale(1.1); opacity:0.35; }',
-                '  100% { transform: translateY(-45px) scale(0.7); opacity:0; }',
-                '}',
-                '@keyframes piscinaSwim {',
-                '  0%   { left: -8%; }',
-                '  100% { left: 108%; }',
-                '}',
-                '@keyframes piscinaSwimL {',
-                '  0%   { left: 108%; }',
-                '  100% { left: -8%; }',
-                '}',
-                '@keyframes piscinaWave {',
-                '  0%   { margin-top: 0px; }',
-                '  25%  { margin-top: 12px; }',
-                '  50%  { margin-top: -8px; }',
-                '  75%  { margin-top: 18px; }',
-                '  100% { margin-top: 0px; }',
-                '}',
-                '@keyframes piscinaDive {',
-                '  0%   { margin-top: 0px; opacity: 1; }',
-                '  40%  { margin-top: 30px; opacity: 0.7; }',
-                '  55%  { margin-top: 35px; opacity: 0.5; }',
-                '  70%  { margin-top: 20px; opacity: 0.8; }',
-                '  100% { margin-top: 0px; opacity: 1; }',
-                '}'
-            ].join('\n');
-            document.head.appendChild(style);
-        }
-    },
-
-    // ═══════════════════════════════════════════════════════════════════════════
-    // SAD (Pomarium) — renderOrchard
-    // ═══════════════════════════════════════════════════════════════════════════
-    renderOrchard: function() {
-        const el = document.getElementById('orchard-container');
-        if (!el) return;
-        const hasTech = GameState.researchedTechs && GameState.researchedTechs.includes('tech_tractatus_arboribus');
-
-        if (!hasTech) {
-            el.innerHTML = `
-                <div style="text-align:center; padding:40px 20px; opacity:0.7;">
-                    <div style="font-size:3rem; margin-bottom:16px;">🌳</div>
-                    <div style="font-style:italic; font-size:0.95rem; margin-bottom:12px;">
-                        <em>Pomarium clausum est.</em>
-                    </div>
-                    <div style="font-size:0.82rem; opacity:0.75;">
-                        ${t('garden.orchardLocked')}
-                    </div>
-                </div>`;
-            return;
-        }
-
-        // Inicializace orchard v GameState pokud chybí
-        if (!GameState.orchard) {
-            GameState.orchard = Array.from({length: 10}, () => ({
-                state: 'empty',   // empty | growing | mature | fruiting
-                treeType: null,   // seed id (seed_apple atd.)
-                plantedAt: 0,
-                lastHarvestAt: 0,
-            }));
-        }
-
-        const TREE_DATA = {
-            seed_apple:    { fruit: 'apple',        icon: '🍎', growHours: 48, harvestHours: 24 },
-            seed_pear:     { fruit: 'pear',         icon: '🍐', growHours: 48, harvestHours: 24 },
-            seed_plum:     { fruit: 'plum',         icon: '🫐', growHours: 36, harvestHours: 20 },
-            seed_cherry:   { fruit: 'cherry',       icon: '🍒', growHours: 36, harvestHours: 18 },
-            seed_walnut:   { fruit: 'walnut',       icon: '🥜', growHours: 72, harvestHours: 48 },
-            seed_mulberry: { fruit: 'mulberry',     icon: '🍇', growHours: 48, harvestHours: 24 },
-            seed_quince:   { fruit: 'quince',       icon: '🍋', growHours: 60, harvestHours: 36 },
-            seed_sorb:     { fruit: 'sorb',         icon: '🟤', growHours: 72, harvestHours: 48 },
-            seed_rowan:    { fruit: 'rowan',        icon: '🔴', growHours: 48, harvestHours: 24 },
-            seed_linden:   { fruit: 'linden_fruit', icon: '🌸', growHours: 60, harvestHours: 36 },
-        };
-
-        let html = `<p class="text-sm" style="margin-bottom:15px; opacity:0.75;">${t('garden.orchardDesc')}</p>`;
-        html += `<div class="garden-grid">`;
-
-        GameState.orchard.forEach((slot, idx) => {
-            const now = Date.now();
-            let content = '';
-            let btn = '';
-
-            if (slot.state === 'empty') {
-                // Zjisti dostupná semena v inventáři
-                const availableSeeds = Object.keys(TREE_DATA).filter(s => (GameState.inventory[s] || 0) > 0);
-                if (availableSeeds.length === 0) {
-                    content = `<div class="plot-soil" style="opacity:0.3;">🌱</div><div class="text-sm">${t('garden.orchardEmpty')}</div>`;
-                    btn = `<button class="craft-btn" disabled>${t('garden.orchardNoSeeds')}</button>`;
-                } else {
-                    content = `<div class="plot-soil" style="opacity:0.3;">🟫</div><div class="text-sm">${t('garden.orchardEmpty')}</div>`;
-                    const opts = availableSeeds.map(s => `<option value="${s}">${iName(s)} (${GameState.inventory[s]}x)</option>`).join('');
-                    btn = `<select id="orchard-seed-${idx}" class="craft-btn" style="margin-bottom:4px; font-size:0.75rem;">${opts}</select>
-                           <button class="craft-btn" onclick="Game.plantTree(${idx}, document.getElementById('orchard-seed-${idx}').value)">${t('garden.orchardPlant')}</button>`;
-                }
-            } else if (slot.state === 'growing') {
-                const td = TREE_DATA[slot.treeType];
-                const matureAt = slot.plantedAt + (td ? td.growHours * 3600000 : 172800000);
-                const pct = Math.min(100, Math.round(((now - slot.plantedAt) / (matureAt - slot.plantedAt)) * 100));
-                content = `<div class="plot-soil">🌱</div><div class="text-sm">${slot.treeType ? iName(slot.treeType) : '?'}</div>`;
-                btn = `<button class="craft-btn" disabled style="font-size:0.72rem;">${t('garden.orchardGrowing')} ${pct}%</button>`;
-            } else if (slot.state === 'mature') {
-                const td = TREE_DATA[slot.treeType];
-                const fruitAt = slot.lastHarvestAt + (td ? td.harvestHours * 3600000 : 86400000);
-                if (now >= fruitAt) {
-                    // Plodí!
-                    content = `<div class="plot-soil" style="color:#4caf50;">${td ? td.icon : '🌳'}</div><div class="text-sm">${slot.treeType ? iName(slot.treeType) : '?'}</div>`;
-                    btn = `<button class="craft-btn" onclick="Game.harvestTree(${idx})">${t('garden.orchardHarvest')}</button>
-                           <button class="craft-btn" onclick="Game.fellTree(${idx})" style="background:#8b4a3a; margin-top:4px; font-size:0.72rem;">🪓 ${t('garden.orchardFell')}</button>`;
-                } else {
-                    const waitH = Math.ceil((fruitAt - now) / 3600000);
-                    content = `<div class="plot-soil" style="color:#888;">${td ? td.icon : '🌳'}</div><div class="text-sm">${slot.treeType ? iName(slot.treeType) : '?'}</div>`;
-                    btn = `<button class="craft-btn" disabled style="font-size:0.72rem;">${t('garden.orchardWait')} ${waitH}h</button>
-                           <button class="craft-btn" onclick="Game.fellTree(${idx})" style="background:#8b4a3a; margin-top:4px; font-size:0.72rem;">🪓 ${t('garden.orchardFell')}</button>`;
-                }
-            }
-
-            html += `<div class="garden-plot">${content}<div style="margin-top:auto;">${btn}</div></div>`;
-        });
-
-        html += `</div>`;
-        el.innerHTML = html;
-    },
-
-    // ═══════════════════════════════════════════════════════════════════════════
-    // APIARIUM (Včelín) — renderApiary
-    // ═══════════════════════════════════════════════════════════════════════════
-    renderApiary: function() {
-        const el = document.getElementById('apiary-container');
-        if (!el) return;
-        const hasTech = GameState.researchedTechs && GameState.researchedTechs.includes('tech_liber_apium');
-
-        if (!hasTech) {
-            el.innerHTML = `
-                <div style="text-align:center; padding:40px 20px; opacity:0.7;">
-                    <div style="font-size:3rem; margin-bottom:16px;">🐝</div>
-                    <div style="font-style:italic; font-size:0.95rem; margin-bottom:12px;">
-                        <em>Apiarium clausum est.</em>
-                    </div>
-                    <div style="font-size:0.82rem; opacity:0.75;">
-                        ${t('garden.apiaryLocked')}
-                    </div>
-                </div>`;
-            return;
-        }
-
-        // Inicializace apiary v GameState pokud chybí
-        if (!GameState.apiary) {
-            GameState.apiary = Array.from({length: 6}, () => ({
-                built: false,
-                hasQueen: false,
-                queenName: null,
-                queenStrength: 0,
-                strength: 0,
-                varroaRisk: false,
-                lastCollectAt: 0,
-            }));
-        }
-
-        // Migrace starých save — přidej chybějící pole
-        GameState.apiary.forEach(h => {
-            if (h.queenName     === undefined) h.queenName     = null;
-            if (h.queenStrength === undefined) h.queenStrength = 0;
-            if (h.strength      === undefined) h.strength      = h.hasQueen ? 3 : 0;
-            if (h.varroaRisk    === undefined) h.varroaRisk    = false;
-        });
-
-        const season = Game._getApiarySeason ? Game._getApiarySeason() : 'summer';
-        const seasonLabel = { spring:'🌸 Jaro', summer:'☀️ Léto', autumn:'🍂 Podzim', winter:'❄️ Zima' };
-        const COLLECT_HOURS = { spring: 16, summer: 8, autumn: 20, winter: 999 };
-        const hours = COLLECT_HOURS[season] || 12;
-        const now = Date.now();
-
-        // Zimní check
-        if (Game.checkApiaryWinter) Game.checkApiaryWinter();
-
-        let html = `
-            <div style="display:flex; align-items:center; gap:10px; margin-bottom:12px;">
-                <p class="text-sm" style="flex:1; opacity:0.75; margin:0;">${t('garden.apiaryDesc')}</p>
-                <span style="font-size:0.8rem; opacity:0.6; font-style:italic;">${seasonLabel[season] || ''}</span>
-            </div>`;
-        html += `<div class="garden-grid">`;
-
-        GameState.apiary.forEach((hive, idx) => {
-            let content = '';
-            let btn = '';
-            let extra = '';
-
-            if (!hive.built) {
-                // ── Prázdný slot ───────────────────────────────────────────
-                const canBuild = (GameState.inventory['stick'] || 0) >= 10 && (GameState.inventory['rope'] || 0) >= 5;
-                content = `<div class="plot-soil" style="opacity:0.3;">🪵</div>
-                           <div class="text-sm">${t('garden.apiaryEmpty')}</div>`;
-                btn = `<button class="craft-btn" onclick="Game.buildHive(${idx})"
-                        ${canBuild ? '' : 'disabled'} style="font-size:0.75rem;">
-                        ${t('garden.apiaryBuild')}</button>`;
-
-            } else if (!hive.hasQueen) {
-                // ── Úl bez matky ───────────────────────────────────────────
-                const hasQueen = (GameState.inventory['queen_bee'] || 0) > 0;
-                content = `<div class="plot-soil" style="opacity:0.5;">🪹</div>
-                           <div class="text-sm">${t('garden.apiaryNoQueen')}</div>`;
-                btn = `<button class="craft-btn" onclick="Game.addQueen(${idx})"
-                        ${hasQueen ? '' : 'disabled'} style="font-size:0.75rem;">
-                        ${t('garden.apiaryAddQueen')}</button>`;
-
-            } else {
-                // ── Aktivní úl ─────────────────────────────────────────────
-                const strength = hive.strength || 3;
-                const stars = '⭐'.repeat(Math.min(5, Math.ceil(strength / 2)));
-                const queenInfo = hive.queenName
-                    ? `<div style="font-size:0.72rem; opacity:0.65; font-style:italic;">
-                         👑 ${hive.queenName} ${'★'.repeat(hive.queenStrength || 2)}
-                       </div>`
-                    : '';
-
-                // Varroa varování
-                const varroaWarn = hive.varroaRisk
-                    ? `<div style="font-size:0.72rem; color:#c55; margin-top:2px;">⚠️ Varroa!</div>`
-                    : '';
-
-                if (season === 'winter') {
-                    // ── Zima: jen přikrmení ────────────────────────────────
-                    content = `<div class="plot-soil" style="color:#7aa;">❄️</div>
-                               <div class="text-sm">${t('garden.apiaryWorking')}</div>`;
-                    extra = queenInfo + varroaWarn +
-                        `<div style="font-size:0.72rem; margin-top:3px;">${stars}</div>`;
-                    const hasHoney = (GameState.inventory['honey'] || 0) >= 1;
-                    btn = `<button class="craft-btn" onclick="Game.feedHive(${idx})"
-                            ${hasHoney ? '' : 'disabled'} style="font-size:0.72rem;">
-                            🍯 Přikrmit (1× med)</button>`;
-
-                } else {
-                    const readyAt = hive.lastCollectAt + (hours * 3600000);
-                    if (now >= readyAt) {
-                        content = `<div class="plot-soil" style="color:#c5a059;">🐝</div>
-                                   <div class="text-sm">${t('garden.apiaryReady')}</div>`;
-                        btn = `<button class="craft-btn" onclick="Game.collectHive(${idx})">
-                                ${t('garden.apiaryCollect')}</button>`;
-                    } else {
-                        const waitH = Math.ceil((readyAt - now) / 3600000);
-                        content = `<div class="plot-soil" style="color:#888;">🐝</div>
-                                   <div class="text-sm">${t('garden.apiaryWorking')}</div>`;
-                        btn = `<button class="craft-btn" disabled style="font-size:0.72rem;">
-                                ${t('garden.apiaryWait')} ${waitH}h</button>`;
-                    }
-                    extra = queenInfo + varroaWarn +
-                        `<div style="font-size:0.72rem; margin-top:3px; opacity:0.7;">${stars}</div>`;
-
-                    // Léčba Varroa
-                    if (hive.varroaRisk) {
-                        const hasThyme = (GameState.inventory['thyme'] || 0) >= 1;
-                        btn += `<button class="craft-btn" onclick="Game.treatVarroa(${idx})"
-                                 ${hasThyme ? '' : 'disabled'}
-                                 style="font-size:0.7rem; margin-top:4px; background:rgba(60,120,60,0.8);">
-                                 🌿 Léčit (1× tymián)</button>`;
-                    }
-                }
-            }
-
-            html += `<div class="garden-plot">
-                        ${content}
-                        ${extra}
-                        <div style="margin-top:auto; display:flex; flex-direction:column; gap:4px;">
-                            ${btn}
-                        </div>
-                     </div>`;
-        });
-
-        html += `</div>`;
-        el.innerHTML = html;
-    },
-
-    renderGarden: function() {
-        const el = document.getElementById('garden-container'); el.innerHTML = "";
-        
-        // Calculate growth time with tech bonuses
-        let growthSpeed = CONFIG.GROWTH_SPEED;
-        if(GameState.researchedTechs.includes('tech_advanced_farming')) {
-            growthSpeed *= 1.5; // +50% faster growth
-        }
-        const needed = CONFIG.BASE_GROWTH_TIME / growthSpeed;
-        
-        GameState.garden.forEach((plot, idx) => {
-            let c = "", b = "", typeLabel = "";
-            
-            if(plot.locked) {
-                c = `<div class="plot-soil" style="opacity:0.2">🔒</div><div class="text-sm">${t('garden.locked')}</div>`;
-                b = `<button class="craft-btn" disabled>${t('garden.lockedTech')}</button>`;
-            }
-            else if (plot.state === 0) { 
-                if(plot.cropType === 'herb') typeLabel = t('garden.herb');
-                else if(plot.cropType === 'vegetable') typeLabel = t('garden.vegetable');
-                else if(plot.cropType === 'special') typeLabel = t('garden.special');
-                c = `<div class="plot-soil" style="opacity:0.3">🟫</div><div class="text-sm">${typeLabel}</div>`; 
-                b = `<button class="craft-btn" onclick="Game.farmAction(${idx})">${t('garden.fertilize')}</button>`; 
-            }
-            else if (plot.state === 1) { 
-                if(plot.cropType === 'herb') typeLabel = t('garden.herb');
-                else if(plot.cropType === 'vegetable') typeLabel = t('garden.vegetable');
-                else if(plot.cropType === 'special') typeLabel = t('garden.any');
-                c = `<div class="plot-soil">🟫</div><div class="text-sm">${typeLabel}</div>`; 
-                b = `<button class="craft-btn" onclick="Game.farmAction(${idx})">${t('garden.sow')}</button>`; 
-            }
-            else if (plot.state === 2) {
-                const cropIcon = ItemsDB[plot.crop] ? ItemsDB[plot.crop].icon : '🌱';
-                if (!plot.water) { 
-                    c = `<div class="plot-soil">${cropIcon}</div><div class="text-sm">${t('garden.dry')}</div>`; 
-                    b = `<button class="craft-btn" onclick="Game.farmAction(${idx})">${t('garden.water')}</button>`; 
-                }
-                else if (Date.now() < plot.plantedAt + needed) { 
-                    c = `<div class="plot-soil" style="color:#888">${cropIcon}</div><div class="text-sm">${t('garden.growing')}</div>`; 
-                    b = `<button class="craft-btn" disabled>${t('garden.wait')}</button>`; 
-                }
-                else { 
-                    c = `<div class="plot-soil" style="color:#4caf50">${cropIcon}</div><div class="text-sm">${t('garden.grown')}</div>`; 
-                    b = `<button class="craft-btn" onclick="Game.farmAction(${idx})">${t('garden.harvest')}</button>`; 
-                }
-            }
-            el.innerHTML += `<div class="garden-plot">${c}<div style="margin-top:auto">${b}</div></div>`;
-        });
-    },
-    filterCrafting: function(cat, btn) { this.currentFilter = cat; if(btn) { document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active')); btn.classList.add('active'); } this.renderCrafting(); },
+    // ─── Garden/Farmyard render — přesunuto do GardenSystem.js ────────────
+    switchGardenTab: function(tab, btn) { return GardenSystem.switchGardenTab(tab, btn); },
+    renderFarmyard:  function()         { return GardenSystem.renderFarmyard(); },
+    renderPiscina:   function()         { return GardenSystem.renderPiscina(); },
+    renderOrchard:   function()         { return GardenSystem.renderOrchard(); },
+    renderApiary:    function()         { return GardenSystem.renderApiary(); },
+    renderGarden:    function()         { return GardenSystem.renderGarden(); },
     notify: function(m, e) { const area = document.getElementById('notification-area'); if(!area) return; if(area.children.length >= 3) return; const n = document.createElement('div'); n.className = 'toast'; n.innerText = m; if(e) n.style.borderColor = 'red'; area.appendChild(n); setTimeout(() => n.remove(), 2600); },
     notifyPanel: function(m, category, e) {
         this.notify(m, e);

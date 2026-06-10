@@ -49,6 +49,7 @@ const JS_MAIN = [
     'src/systems/audio.js',
     'src/systems/VigorSystem.js',
     'src/systems/CellariumSystem.js',
+    'src/systems/GardenSystem.js',
     'src/systems/PersonaSystem.js',
     'src/systems/SecretsSystem.js',
     'src/systems/athanor.js',
@@ -164,26 +165,6 @@ function build() {
     console.log(`   Řádků:    ${lines.toLocaleString()}`);
     console.log(`   Velikost: ${sizeKB} KB`);
     console.log(`   Modulů:   ${JS_MAIN.length + JS_BOOTSTRAP.length}`);
-
-    // ─── Post-build: kontrola duplicitních klíčů v objektu Game ────────────
-    console.log('\n🔍 Kontrola duplicitních klíčů v Game objektu...');
-    const gameMatch = output.match(/const Game\s*=\s*\{([\s\S]*?)^\};/m);
-    if (gameMatch) {
-        const gameBody = gameMatch[1];
-        const keyMatches = [...gameBody.matchAll(/^\s{4}(\w+)\s*:/mg)];
-        const keys = keyMatches.map(m => m[1]);
-        const seen = {};
-        const dupes = [];
-        keys.forEach(k => { seen[k] = (seen[k] || 0) + 1; });
-        Object.entries(seen).forEach(([k, v]) => { if (v > 1) dupes.push(`${k} (${v}×)`); });
-        if (dupes.length > 0) {
-            console.warn(`   ⚠️  Duplicitní klíče: ${dupes.join(', ')}`);
-        } else {
-            console.log(`   ✓ Žádné duplicity (${keys.length} klíčů)`);
-        }
-    } else {
-        console.log('   ⚠️  Game objekt nenalezen — přeskočeno');
-    }
 }
 
 build();
