@@ -1,11 +1,22 @@
 const UI = {
     currentInvFilter: 'all',
     currentFilter: 'all',
+    currentScreen: 'home',
+    _dirty: { home: false, inv: false, craft: false, lore: false, garden: false },
     switchScreen: function(name, btn) {
         document.querySelectorAll('.screen').forEach(e => e.classList.remove('active'));
         document.getElementById('screen-'+name).classList.add('active');
         document.querySelectorAll('.nav-btn').forEach(e => e.classList.remove('active'));
         if(btn) btn.classList.add('active');
+        this.currentScreen = name;
+        if (this._dirty[name]) {
+            this._dirty[name] = false;
+            if (name === 'inv')    { this.renderInventory(); }
+            if (name === 'craft')  { this.renderCrafting(); }
+            if (name === 'lore')   { this.renderScriptorium(); }
+            if (name === 'garden') { this.renderGarden(); }
+            if (name === 'home')   { this.renderActions(); this.renderWell(); }
+        }
         if(name === 'garden') this.renderGarden();
         if(name === 'inv') this._updateInvFilterBar();
         if(name === 'library') {
@@ -104,20 +115,24 @@ const UI = {
             }
         }
     },
-	renderAll: function() { 
-		this.renderInventory(); 
-		this.renderCrafting(); 
-		this.renderScriptorium(); 
-		this.renderGarden(); 
-		this.renderActions();
-		if (document.getElementById('home-mine-content') &&
-		    document.getElementById('home-mine-content').style.display !== 'none') {
-		    this.renderMineActions();
-		}
-		this.updateStreak(); 
-		this.renderWell();
+	renderAll: function() {
+		const s = this.currentScreen || 'home';
+		if (s === 'home') {
+			this.renderActions();
+			if (document.getElementById('home-mine-content') &&
+			    document.getElementById('home-mine-content').style.display !== 'none') {
+			    this.renderMineActions();
+			}
+			this.renderWell();
+			this.updateStreak();
+		} else if (s === 'inv')    { this.renderInventory(); }
+		  else if (s === 'craft')  { this.renderCrafting(); }
+		  else if (s === 'lore')   { this.renderScriptorium(); }
+		  else if (s === 'garden') { this.renderGarden(); }
 		this.renderRecords();
 		this.renderGamesTab();
+		const allScreens = ['home', 'inv', 'craft', 'lore', 'garden'];
+		allScreens.forEach(sc => { if (sc !== s) this._dirty[sc] = true; });
 	},
 		
 showItemModal: function(id) {
@@ -338,6 +353,7 @@ renderActions: function() {
                 group.forEach(([id, qty]) => { el.innerHTML += renderItem(id, qty); });
             });
         }
+        this._updateInvFilterBar();
     },
     filterCrafting: function(cat, btn) {
         this.currentFilter = cat;
