@@ -191,13 +191,14 @@ const CalendarSystem = {
         const monthNameLocal = lang === 'en' ? this.MONTHS_EN[month - 1] : this.MONTHS_CS[month - 1];
         const dayNames = this.DAYS_LAT;
 
-        // Navigation limits
-        const minDate = new Date(now.getFullYear(), now.getMonth() - 6, 1);
-        const maxDate = new Date(now.getFullYear(), now.getMonth() + 12, 1);
-        const prevDate = month === 1 ? new Date(year - 1, 11, 1) : new Date(year, month - 2, 1);
-        const nextDate = month === 12 ? new Date(year + 1, 0, 1) : new Date(year, month, 1);
-        const canPrev = prevDate >= minDate;
-        const canNext = nextDate <= maxDate;
+        // Navigation limits (absolutní měsíce, základ = GAME_YEAR + aktuální měsíc)
+        const baseAbs = this.GAME_YEAR * 12 + (now.getMonth() + 1);
+        const minAbs = baseAbs - 6;
+        const maxAbs = baseAbs + 12;
+        const prevAbs = (month === 1 ? (year - 1) * 12 + 12 : year * 12 + (month - 1));
+        const nextAbs = (month === 12 ? (year + 1) * 12 + 1 : year * 12 + (month + 1));
+        const canPrev = prevAbs >= minAbs;
+        const canNext = nextAbs <= maxAbs;
 
         let h = `
         <div style="font-family:'Cinzel'; text-align:center; margin-bottom:20px;">
