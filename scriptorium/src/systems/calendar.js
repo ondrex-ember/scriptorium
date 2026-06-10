@@ -130,8 +130,8 @@ const CalendarSystem = {
         if (typeof NotificationSystem !== 'undefined') {
             NotificationSystem.modal({
                 title: `${day}. ${monthName}`,
-                body: body,
-                buttons: [{ label: lang === 'en' ? 'Close' : 'Zavřít', action: () => {} }]
+                text: body,
+                choices: [{ label: lang === 'en' ? 'Close' : 'Zavřít', type: 'default', effect: () => {} }]
             });
         }
     },

@@ -641,6 +641,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
             main#main-content { padding-top: calc(40px + 20px) !important; }
             .header-content { overflow: visible; }
             .header-bg-layer, .header-canonical-overlay { pointer-events: none !important; }
+            #canonical-badge { display: none !important; }
         }
 
         @media (min-width: 751px) {
@@ -29308,8 +29309,8 @@ const CalendarSystem = {
         if (typeof NotificationSystem !== 'undefined') {
             NotificationSystem.modal({
                 title: `${day}. ${monthName}`,
-                body: body,
-                buttons: [{ label: lang === 'en' ? 'Close' : 'Zavřít', action: () => {} }]
+                text: body,
+                choices: [{ label: lang === 'en' ? 'Close' : 'Zavřít', type: 'default', effect: () => {} }]
             });
         }
     },
@@ -29696,10 +29697,15 @@ ScriptoriumPWA.init();
             }
         }
 
-        // Čas
+        // Čas + kanonická hodina
         var tEl = document.getElementById('time-display');
         var tVal = document.getElementById('pill-time-val');
-        if (tEl && tVal) tVal.textContent = tEl.textContent.trim() || '–';
+        var canName = document.querySelector('#canonical-badge .canonical-name');
+        var canIcon = document.querySelector('#canonical-badge .canonical-icon');
+        if (tVal) {
+            var canText = canName ? canName.textContent.trim() : '';
+            tVal.textContent = canText || (tEl ? tEl.textContent.trim() : '–');
+        }
 
         // Zápisky
         var rEl = document.getElementById('research-count');
@@ -29749,9 +29755,16 @@ ScriptoriumPWA.init();
             var td = document.getElementById('time-display');
             var dd = document.getElementById('date-display');
             var ld = document.getElementById('lunar-display');
+            var canN = document.querySelector('#canonical-badge .canonical-name');
+            var canB = document.querySelector('#canonical-badge .canonical-buff');
+            var canI = document.querySelector('#canonical-badge .canonical-icon');
             html = '<div class="pp-row"><span class="pp-label">Čas</span><span class="pp-val">' + (td ? td.textContent : '–') + '</span></div>';
             html += '<div class="pp-row"><span class="pp-label">Datum</span><span class="pp-val">' + (dd ? dd.textContent : '–') + '</span></div>';
             html += '<div class="pp-row"><span class="pp-label">Luna</span><span class="pp-val">' + (ld ? ld.textContent : '–') + '</span></div>';
+            if (canN && canN.textContent.trim()) {
+                html += '<div class="pp-row" style="margin-top:6px; border-top:1px solid rgba(197,160,89,0.2); padding-top:6px;"><span class="pp-label">Hora</span><span class="pp-val">' + (canI ? canI.textContent : '') + ' ' + canN.textContent + '</span></div>';
+                if (canB && canB.textContent.trim()) html += '<div class="pp-row"><span class="pp-label">Bonus</span><span class="pp-val" style="color:var(--accent-gold);">' + canB.textContent + '</span></div>';
+            }
         } else if (id === 'progress') {
             var res = document.getElementById('research-count');
             var rank = (typeof GameState !== 'undefined' && GameState.rank) ? GameState.rank.secular : '–';
