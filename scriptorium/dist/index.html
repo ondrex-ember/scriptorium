@@ -27976,9 +27976,9 @@ const Game = {
         if(newUnlocks.length > 0) {
             newUnlocks.forEach(ach => {
                 setTimeout(() => {
+                    const _an = typeof LangSystem !== 'undefined' && LangSystem.current === 'en' ? (ach.name_en || ach.name) : ach.name;
                     UI.notifyPanel(`🏆 Achievement: ${_an}!`, 'system');
                     Analytics.achievementUnlocked(ach.id, ach.name);
-                    const _an = typeof LangSystem !== 'undefined' && LangSystem.current === 'en' ? (ach.name_en || ach.name) : ach.name;
                     Game.addKronikaEntry('important', `🏆 Dosaženo: ${ach.name}`, `🏆 Achievement: ${_an}`, `🏆 Factum est: ${ach.name}`);
                 }, 300);
             });
