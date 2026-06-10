@@ -39,7 +39,7 @@ const WeatherSystem = {
         tomorrowEl.innerHTML = '⏳';
         
         try {
-            const url = `https://api.open-meteo.com/v1/forecast?latitude=${this.lat}&longitude=${this.lon}&current=temperature_2m,weather_code&daily=temperature_2m_max,temperature_2m_min,weather_code&timezone=auto&forecast_days=2`;
+            const url = `https://api.open-meteo.com/v1/forecast?latitude=${this.lat}&longitude=${this.lon}&current=temperature_2m,weather_code,wind_speed_10m&daily=temperature_2m_max,temperature_2m_min,weather_code,precipitation_sum,wind_speed_10m_max,sunrise,sunset&timezone=auto&forecast_days=7`;
             
             const response = await fetch(url);
             if (!response.ok) throw new Error('Weather API error');
@@ -139,4 +139,3 @@ const WeatherSystem = {
         }, this.cacheDuration);
     }
 };
-

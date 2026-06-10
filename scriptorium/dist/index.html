@@ -7215,7 +7215,7 @@ const WeatherSystem = {
         tomorrowEl.innerHTML = '⏳';
         
         try {
-            const url = `https://api.open-meteo.com/v1/forecast?latitude=${this.lat}&longitude=${this.lon}&current=temperature_2m,weather_code&daily=temperature_2m_max,temperature_2m_min,weather_code&timezone=auto&forecast_days=2`;
+            const url = `https://api.open-meteo.com/v1/forecast?latitude=${this.lat}&longitude=${this.lon}&current=temperature_2m,weather_code,wind_speed_10m&daily=temperature_2m_max,temperature_2m_min,weather_code,precipitation_sum,wind_speed_10m_max,sunrise,sunset&timezone=auto&forecast_days=7`;
             
             const response = await fetch(url);
             if (!response.ok) throw new Error('Weather API error');
@@ -7315,8 +7315,6 @@ const WeatherSystem = {
         }, this.cacheDuration);
     }
 };
-
-
 // ═══ src/systems/header-image.js ═══
 const HeaderImageSystem = {
 
@@ -28570,6 +28568,7 @@ const UI = {
     currentFilter: 'all',
     currentScreen: 'home',
     _dirty: { home: false, inv: false, craft: false, lore: false, garden: false },
+    _hashInv: '', _hashCraft: '', _hashActions: '',
     switchScreen: function(name, btn) {
         document.querySelectorAll('.screen').forEach(e => e.classList.remove('active'));
         document.getElementById('screen-'+name).classList.add('active');
@@ -28770,6 +28769,9 @@ showItemModal: function(id) {
     },
 
 renderActions: function() {
+    const _hAct = JSON.stringify(GameState.inventory) + (GameState.activeAction||'') + (GameState.flags.fireplaceLit?'1':'0');
+    if (_hAct === this._hashActions) return;
+    this._hashActions = _hAct;
     const el = document.getElementById('workspace-actions');
     const lang = (GameState.settings && GameState.settings.language) || 'cs';
     let newHTML = "";
@@ -28845,6 +28847,9 @@ renderActions: function() {
 },
 
     renderInventory: function() {
+        const _hInv = JSON.stringify(GameState.inventory) + (this.currentInvFilter||'all');
+        if (_hInv === this._hashInv) { this._updateInvFilterBar(); return; }
+        this._hashInv = _hInv;
         const el = document.getElementById('inventory-grid'); el.innerHTML = "";
         const lang = (GameState.settings && GameState.settings.language) || 'cs';
         const _hasMateria = GameState.researchedTechs && GameState.researchedTechs.includes('tech_materia_prima');
@@ -28954,6 +28959,9 @@ renderActions: function() {
         });
     },
     renderCrafting: function() {
+        const _hCraft = JSON.stringify(GameState.unlockedRecipes) + JSON.stringify(GameState.inventory) + (this.currentFilter||'all');
+        if (_hCraft === this._hashCraft) return;
+        this._hashCraft = _hCraft;
         const el = document.getElementById('crafting-list'); el.innerHTML = "";
         const lang = (GameState.settings && GameState.settings.language) || 'cs';
 
@@ -31905,34 +31913,82 @@ const CalendarSystem = {
                 // Obsah panelu
                 var html = '';
                 if (id === 'weather') {
-                    var w1 = document.getElementById('weather-today');
-                    var w2 = document.getElementById('weather-tomorrow');
-                    html = '<div class="pp-row"><span class="pp-label">Dnes</span><span class="pp-val">' + (w1 ? w1.textContent : '–') + '</span></div>';
-                    if (w2 && w2.textContent) html += '<div class="pp-row"><span class="pp-label">Zítra</span><span class="pp-val">' + w2.textContent + '</span></div>';
+                    var wc = (typeof WeatherSystem !== 'undefined') ? WeatherSystem.cache : null;
+                    if (wc) {
+                        var days = ['Ne','Po','Út','St','Čt','Pá','So'];
+                        var months = ['led','úno','bře','dub','kvě','čvn','čvc','srp','zář','říj','lis','pro'];
+                        var curTemp = Math.round(wc.current.temperature_2m);
+                        var curWind = wc.current.wind_speed_10m ? Math.round(wc.current.wind_speed_10m) + ' km/h' : '';
+                        var curEmoji = WeatherSystem.getWeatherEmoji(wc.current.weather_code);
+                        html += '<div class="pp-row" style="border-bottom:1px solid rgba(197,160,89,0.2);padding-bottom:6px;margin-bottom:6px;">';
+                        html += '<span class="pp-label">Nyní</span><span class="pp-val">' + curEmoji + ' ' + curTemp + '°C' + (curWind ? ' · 💨 ' + curWind : '') + '</span></div>';
+                        for (var di = 0; di < Math.min(7, wc.daily.weather_code.length); di++) {
+                            var d = new Date(); d.setDate(d.getDate() + di);
+                            var dayLabel = di === 0 ? 'Dnes' : di === 1 ? 'Zítra' : days[d.getDay()] + ' ' + d.getDate() + '. ' + months[d.getMonth()];
+                            var dEmoji = WeatherSystem.getWeatherEmoji(wc.daily.weather_code[di]);
+                            var dMax = Math.round(wc.daily.temperature_2m_max[di]);
+                            var dMin = Math.round(wc.daily.temperature_2m_min[di]);
+                            var dRain = wc.daily.precipitation_sum && wc.daily.precipitation_sum[di] > 0.1 ? ' 💧' + wc.daily.precipitation_sum[di].toFixed(1) + 'mm' : '';
+                            var dWind = wc.daily.wind_speed_10m_max && wc.daily.wind_speed_10m_max[di] > 15 ? ' 💨' + Math.round(wc.daily.wind_speed_10m_max[di]) : '';
+                            html += '<div class="pp-row"><span class="pp-label">' + dayLabel + '</span><span class="pp-val">' + dEmoji + ' ' + dMax + '°/' + dMin + '°' + dRain + dWind + '</span></div>';
+                        }
+                    } else {
+                        var w1 = document.getElementById('weather-today');
+                        var w2 = document.getElementById('weather-tomorrow');
+                        html = '<div class="pp-row"><span class="pp-label">Dnes</span><span class="pp-val">' + (w1 ? w1.textContent : '–') + '</span></div>';
+                        if (w2 && w2.textContent) html += '<div class="pp-row"><span class="pp-label">Zítra</span><span class="pp-val">' + w2.textContent + '</span></div>';
+                    }
                 } else if (id === 'vigor') {
-                    var vig = document.getElementById('vigor-mini');
-                    var hun = document.getElementById('hunger-display');
-                    html = '<div class="pp-row"><span class="pp-label">Vigor</span><span class="pp-val">' + (vig ? vig.innerHTML : '–') + '</span></div>';
-                    html += '<div class="pp-row"><span class="pp-label">Hlad</span><span class="pp-val">' + (hun ? hun.textContent : '–') + '</span></div>';
+                    if (typeof VigorSystem !== 'undefined' && typeof GameState !== 'undefined' && GameState.vigor) {
+                        var vpct = VigorSystem.getPercentage();
+                        var vbars = '';
+                        for (var vi = 0; vi < 10; vi++) vbars += vi < Math.ceil(vpct/10) ? '●' : '○';
+                        var vColor = vpct > 60 ? 'var(--ink-primary)' : vpct > 30 ? 'var(--accent-gold)' : '#c0392b';
+                        var timeSince = VigorSystem.getTimeSinceLastMeal();
+                        // Odhad do kdy stačí vigor (drain 1/hod, varování při 20%)
+                        var hoursLeft = Math.max(0, GameState.vigor.current - 20);
+                        var hoursLeftStr = hoursLeft > 0 ? hoursLeft + 'h' : 'Jez nyní!';
+                        html += '<div class="pp-row" style="margin-bottom:4px;"><span class="pp-label" style="font-size:0.7rem;opacity:0.6;">Vigor = výkon písaře při práci</span></div>';
+                        html += '<div class="pp-row"><span class="pp-label">⚡ Vigor</span><span class="pp-val" style="color:' + vColor + ';">' + vbars + ' ' + GameState.vigor.current + '/100</span></div>';
+                        html += '<div class="pp-row" style="border-top:1px solid rgba(197,160,89,0.2);padding-top:6px;margin-top:4px;"><span class="pp-label" style="font-size:0.7rem;opacity:0.6;">Hlad = čas od posledního jídla</span></div>';
+                        html += '<div class="pp-row"><span class="pp-label">🍖 Hlad</span><span class="pp-val">' + timeSince + ' bez jídla</span></div>';
+                        html += '<div class="pp-row"><span class="pp-label">⏳ Do varování</span><span class="pp-val" style="color:' + (hoursLeft < 5 ? '#c0392b' : 'inherit') + ';">' + hoursLeftStr + '</span></div>';
+                    } else {
+                        html = '<div class="pp-row"><span class="pp-label">Vigor</span><span class="pp-val">–</span></div>';
+                    }
                 } else if (id === 'time') {
                     var td = document.getElementById('time-display');
                     var dd = document.getElementById('date-display');
                     var ld = document.getElementById('lunar-display');
                     var canN = document.querySelector('#canonical-badge .canonical-name');
                     var canB = document.querySelector('#canonical-badge .canonical-buff');
-                    var canI = document.querySelector('#canonical-badge .canonical-icon');
-                    html = '<div class="pp-row"><span class="pp-label">Čas</span><span class="pp-val">' + (td ? td.textContent : '–') + '</span></div>';
-                    html += '<div class="pp-row"><span class="pp-label">Datum</span><span class="pp-val">' + (dd ? dd.textContent : '–') + '</span></div>';
-                    html += '<div class="pp-row"><span class="pp-label">Luna</span><span class="pp-val">' + (ld ? ld.textContent : '–') + '</span></div>';
+                    // Čas bez ikony kanonické hodiny (aby se neduplikovala)
+                    var timeText = td ? td.textContent.trim() : '–';
+                    var lunarText = ld ? ld.textContent.trim() : '–';
+                    html = '<div class="pp-row"><span class="pp-label">🕐 Čas</span><span class="pp-val">' + timeText + '</span></div>';
+                    html += '<div class="pp-row"><span class="pp-label">📅 Datum</span><span class="pp-val">' + (dd ? dd.textContent : '–') + '</span></div>';
+                    html += '<div class="pp-row"><span class="pp-label">🌙 Luna</span><span class="pp-val">' + lunarText + '</span></div>';
                     if (canN && canN.textContent.trim()) {
-                        html += '<div class="pp-row" style="margin-top:6px; border-top:1px solid rgba(197,160,89,0.2); padding-top:6px;"><span class="pp-label">Hora</span><span class="pp-val">' + (canI ? canI.textContent : '') + ' ' + canN.textContent + '</span></div>';
-                        if (canB && canB.textContent.trim()) html += '<div class="pp-row"><span class="pp-label">Bonus</span><span class="pp-val" style="color:var(--accent-gold);">' + canB.textContent + '</span></div>';
+                        html += '<div class="pp-row" style="margin-top:6px; border-top:1px solid rgba(197,160,89,0.2); padding-top:6px;"><span class="pp-label">⛪ Hora</span><span class="pp-val">' + canN.textContent + '</span></div>';
+                        if (canB && canB.textContent.trim()) html += '<div class="pp-row"><span class="pp-label">✨ Bonus</span><span class="pp-val" style="color:var(--accent-gold);">' + canB.textContent + '</span></div>';
                     }
                 } else if (id === 'progress') {
                     var res = document.getElementById('research-count');
+                    var grose = (typeof GameState !== 'undefined') ? (GameState.inventory && GameState.inventory['grose'] || 0) : 0;
+                    var techCount = (typeof GameState !== 'undefined' && GameState.researchedTechs) ? GameState.researchedTechs.length : 0;
+                    var techTotal = (typeof TechTree !== 'undefined') ? TechTree.length : '?';
                     var rank = (typeof GameState !== 'undefined' && GameState.rank) ? GameState.rank.secular : '–';
-                    html = '<div class="pp-row"><span class="pp-label">Zápisky</span><span class="pp-val">📜 ' + (res ? res.textContent : '0') + '</span></div>';
-                    html += '<div class="pp-row"><span class="pp-label">Rank</span><span class="pp-val">' + rank + '</span></div>';
+                    var lastKronika = '';
+                    if (typeof GameState !== 'undefined' && GameState.kronika && GameState.kronika.length > 0) {
+                        var lk = GameState.kronika[GameState.kronika.length - 1];
+                        lastKronika = lk.cs || lk.text || '';
+                        if (lastKronika.length > 35) lastKronika = lastKronika.substring(0, 35) + '…';
+                    }
+                    html = '<div class="pp-row"><span class="pp-label">📜 Zápisky</span><span class="pp-val">' + (res ? res.textContent : '0') + '</span></div>';
+                    html += '<div class="pp-row"><span class="pp-label">🪙 Groše</span><span class="pp-val">' + grose + '</span></div>';
+                    html += '<div class="pp-row"><span class="pp-label">🎓 Rank</span><span class="pp-val">' + rank + '</span></div>';
+                    html += '<div class="pp-row"><span class="pp-label">⚗️ Techy</span><span class="pp-val">' + techCount + ' / ' + techTotal + '</span></div>';
+                    if (lastKronika) html += '<div class="pp-row" style="margin-top:6px;border-top:1px solid rgba(197,160,89,0.2);padding-top:6px;"><span class="pp-label" style="font-size:0.7rem;opacity:0.6;">Poslední Kronika:</span></div><div class="pp-row"><span class="pp-val" style="font-size:0.78rem;opacity:0.8;">' + lastKronika + '</span></div>';
                 }
 
                 body.innerHTML = html;

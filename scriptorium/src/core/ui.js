@@ -3,6 +3,7 @@ const UI = {
     currentFilter: 'all',
     currentScreen: 'home',
     _dirty: { home: false, inv: false, craft: false, lore: false, garden: false },
+    _hashInv: '', _hashCraft: '', _hashActions: '',
     switchScreen: function(name, btn) {
         document.querySelectorAll('.screen').forEach(e => e.classList.remove('active'));
         document.getElementById('screen-'+name).classList.add('active');
@@ -203,6 +204,9 @@ showItemModal: function(id) {
     },
 
 renderActions: function() {
+    const _hAct = JSON.stringify(GameState.inventory) + (GameState.activeAction||'') + (GameState.flags.fireplaceLit?'1':'0');
+    if (_hAct === this._hashActions) return;
+    this._hashActions = _hAct;
     const el = document.getElementById('workspace-actions');
     const lang = (GameState.settings && GameState.settings.language) || 'cs';
     let newHTML = "";
@@ -278,6 +282,9 @@ renderActions: function() {
 },
 
     renderInventory: function() {
+        const _hInv = JSON.stringify(GameState.inventory) + (this.currentInvFilter||'all');
+        if (_hInv === this._hashInv) { this._updateInvFilterBar(); return; }
+        this._hashInv = _hInv;
         const el = document.getElementById('inventory-grid'); el.innerHTML = "";
         const lang = (GameState.settings && GameState.settings.language) || 'cs';
         const _hasMateria = GameState.researchedTechs && GameState.researchedTechs.includes('tech_materia_prima');
@@ -387,6 +394,9 @@ renderActions: function() {
         });
     },
     renderCrafting: function() {
+        const _hCraft = JSON.stringify(GameState.unlockedRecipes) + JSON.stringify(GameState.inventory) + (this.currentFilter||'all');
+        if (_hCraft === this._hashCraft) return;
+        this._hashCraft = _hCraft;
         const el = document.getElementById('crafting-list'); el.innerHTML = "";
         const lang = (GameState.settings && GameState.settings.language) || 'cs';
 
