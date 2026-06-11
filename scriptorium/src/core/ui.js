@@ -608,6 +608,7 @@ renderActions: function() {
 		document.getElementById('lore-achievements-content').style.display = 'none';
 		const _lichEl = document.getElementById('lore-iching-content'); if (_lichEl) _lichEl.style.display = 'none';
 		const _lcalEl = document.getElementById('lore-calendarium-content'); if (_lcalEl) _lcalEl.style.display = 'none';
+		const _lperEl = document.getElementById('lore-persona-content'); if (_lperEl) _lperEl.style.display = 'none';
 
 		// Remove active class from all buttons
 		document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
@@ -631,12 +632,14 @@ renderActions: function() {
 			if (el) { el.style.display = 'block'; UI.renderIChing(); }
 		} else if (tab === 'calendarium') {
 			if (_lcalEl) { _lcalEl.style.display = 'block'; CalendarSystem.render(); }
+		} else if (tab === 'persona') {
+			if (_lperEl) { _lperEl.style.display = 'block'; if (typeof PersonaSystem !== 'undefined') PersonaSystem.render(); }
 		}
 	},
 
 	switchLibraryTab: function(tab, btn) {
 		// Hide all library tabs
-		const tabs = ['books', 'records', 'games', 'news', 'scrinium', 'kronika'];
+		const tabs = ['books', 'games', 'news', 'scrinium', 'kronika'];
 		tabs.forEach(t => {
 			const el = document.getElementById('library-' + t + '-content');
 			if (el) el.style.display = 'none';
@@ -651,9 +654,6 @@ renderActions: function() {
 		if (tab === 'books') {
 			const el = document.getElementById('library-books-content');
 			if (el) { el.style.display = 'block'; UI.renderLibrary(); }
-		} else if (tab === 'records') {
-			const el = document.getElementById('library-records-content');
-			if (el) { el.style.display = 'block'; UI.renderRecords(); }
 		} else if (tab === 'games') {
 			const el = document.getElementById('library-games-content');
 			if (el) { el.style.display = 'block'; UI.renderGamesTab(); }

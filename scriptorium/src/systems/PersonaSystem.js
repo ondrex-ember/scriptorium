@@ -1,293 +1,408 @@
-// ═══════════════════════════════════════════════════════════════════════════════
-// PERSONA SYSTEM v8.0 — Character Name + Portrait
-// ═══════════════════════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════════════
+// PERSONA SYSTEM — Liber Personae
+// Subtab ve Scriptoriu — 3 sekce: Persona | Statistiky | Influentia
+// ═══════════════════════════════════════════════════════════════════════════
 
 const PersonaSystem = {
-  
-  init: function() {
-    if (!GameState.character) {
-      GameState.character = {
-        nameGiven: '',
-        nameReligious: '',
-        nameReligiousUnlocked: false, // Unlock in Phase 2 when choose Mnich
-        portrait: null,              // Base64 image or null
-        portraitStyle: 'ascii'       // 'ascii' or 'image'
-      };
-    }
-  },
-  
-  // ═══════════════════════════════════════════════════════════════════════════
-  // NAME MANAGEMENT
-  // ═══════════════════════════════════════════════════════════════════════════
-  
-  setName: function(name) {
-    GameState.character.nameGiven = name.trim();
-    Game.save();
-    UI.notify('✍️ Nomen conservatum!');
-  },
-  
-  setReligiousName: function(name) {
-    if (!GameState.character.nameReligiousUnlocked) {
-      UI.notify('⚠️ Nomen religiosum nondum disponibile!', true);
-      return;
-    }
-    GameState.character.nameReligious = name.trim();
-    Game.save();
-    UI.notify('✝️ Nomen religiosum conservatum!');
-  },
-  
-  unlockReligiousName: function() {
-    // Called when player chooses Mnich in Phase 2
-    GameState.character.nameReligiousUnlocked = true;
-    Game.save();
-    UI.notify('✝️ Nomen religiosum nunc disponibile!');
-  },
-  
-  // ═══════════════════════════════════════════════════════════════════════════
-  // PORTRAIT — ASCII GENERATOR
-  // ═══════════════════════════════════════════════════════════════════════════
-  
-  generateASCIIPortrait: function(rankId) {
-    const portraits = {
-      laicus: `  ___
- /   \\
-| o o |
-|  >  |
- \\___/`,
-      
-      librarius: `  ___
- / @ \\
-| o o |
-|  ^  |
- \\___/
-  |||`,
-  
-      antiquarius: `  ___
- /===\\
-| O O |
-|  -  |
- \\___/
- /||\\`,
-  
-      rubricator: `  ___
- /🔴\\
-| o o |
-|  ~  |
- \\___/
-  |||
- /|🖌|\\`,
-  
-      illuminator: `  ___
- /🎨\\
-| ◉ ◉ |
-|  ^  |
- \\___/
- /|||\\
-/|||||\\`,
-  
-      stationarius: `  ___
- /📦\\
-| $ $ |
-|  ≡  |
- \\___/
- /|||\\
-══════`
-    };
-    
-    return portraits[rankId] || portraits.laicus;
-  },
-  
-  // ═══════════════════════════════════════════════════════════════════════════
-  // PORTRAIT — IMAGE UPLOAD + STYLIZATION
-  // ═══════════════════════════════════════════════════════════════════════════
-  
-  uploadPortrait: function(file) {
-    if (!file || !file.type.startsWith('image/')) {
-      UI.notify('⚠️ Imago invalida!', true);
-      return;
-    }
-    
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      this.stylizeImage(e.target.result);
-    };
-    reader.readAsDataURL(file);
-  },
-  
-  stylizeImage: function(dataURL) {
-    const canvas = document.createElement('canvas');
-    const ctx = canvas.getContext('2d');
-    canvas.width = 128;
-    canvas.height = 128;
-    
-    const img = new Image();
-    img.onload = () => {
-      // 1. Draw centered and cropped
-      const size = Math.min(img.width, img.height);
-      const x = (img.width - size) / 2;
-      const y = (img.height - size) / 2;
-      ctx.drawImage(img, x, y, size, size, 0, 0, 128, 128);
-      
-      // 2. Get pixel data
-      const imageData = ctx.getImageData(0, 0, 128, 128);
-      const data = imageData.data;
-      
-      // Woodcut palette: parchment bg + dark ink
-      const PARCHMENT_R = 235, PARCHMENT_G = 215, PARCHMENT_B = 175;
-      const INK_R = 28, INK_G = 18, INK_B = 10;
-      
-      for (let i = 0; i < data.length; i += 4) {
-        // Convert to grayscale (luminance)
-        const lum = 0.299 * data[i] + 0.587 * data[i+1] + 0.114 * data[i+2];
-        
-        // Add grain noise
-        const noise = (Math.random() - 0.5) * 40;
-        const val = lum + noise;
-        
-        // Threshold — high contrast woodcut
-        const threshold = 128;
-        if (val > threshold) {
-          // Light area → parchment
-          data[i]   = PARCHMENT_R;
-          data[i+1] = PARCHMENT_G;
-          data[i+2] = PARCHMENT_B;
-        } else {
-          // Dark area → ink (with slight variation for wood texture)
-          const grain = Math.floor(Math.random() * 15);
-          data[i]   = INK_R + grain;
-          data[i+1] = INK_G + grain;
-          data[i+2] = INK_B + grain;
+
+    _activeTab: 'persona',
+
+    ORIGINS: {
+        merchant_son: {
+            nameCs: 'Syn kupce',
+            nameEn: "Merchant's Son",
+            descCs: 'Vyrostl jsi na tržišti. Znáš cenu věcí a lidé jako Giacomo s tebou mluví jinak.',
+            descEn: 'You grew up on the market square. You know the price of things, and men like Giacomo speak to you differently.',
+            bonusCs: '+10 % prodejní ceny, Giacomo tě zná od začátku.',
+            bonusEn: '+10% selling price, Giacomo knows you from the start.',
+        },
+        noble_scribe: {
+            nameCs: 'Šlechtický písař',
+            nameEn: 'Noble Scribe',
+            descCs: 'Vychován v kanceláři. Pero ti sedí v ruce jako meč rytíři. Tvůj daily streak přináší více papíru a inkoustu.',
+            descEn: 'Raised in a chancery. The quill fits your hand like a knight\'s sword. Your daily streak brings more paper and ink.',
+            bonusCs: 'Daily streak: +1 papír + 1 inkoust navíc.',
+            bonusEn: 'Daily streak: +1 extra paper + 1 ink.',
+        },
+        village_boy: {
+            nameCs: 'Venkovský chlapec',
+            nameEn: 'Village Boy',
+            descCs: 'Přišel jsi bos a bez groše. Ale znáš půdu, byliny a zvířata lépe než kdokoli v klášteře.',
+            descEn: 'You came barefoot and penniless. But you know soil, herbs and animals better than anyone in the monastery.',
+            bonusCs: '+20 % výnos zahrady, Vigor se obnovuje rychleji.',
+            bonusEn: '+20% garden yield, Vigor restores faster.',
+        },
+    },
+
+    BIRTH_PLACES: ['Olomouc', 'Brno', 'Znojmo', 'Kroměříž', 'Uherské Hradiště', 'Přerov', 'Prostějov', 'Opava'],
+
+    // ── Inicializace ─────────────────────────────────────────────────────────
+    init: function() {
+        if (!GameState.persona) {
+            GameState.persona = {
+                nameGiven: '', nameReligious: '', portrait: null,
+                bornYear: 0, bornMonth: 0, bornDay: 0, bornPlace: '',
+                origin: null, originChosen: false, originModalShown: false,
+                milestones: [],
+                influence: { benedikt: 0, giacomo: 0, abbot: 0 },
+                professions: [],
+            };
         }
-        data[i+3] = 255; // full opacity
-      }
-      
-      ctx.putImageData(imageData, 0, 0);
-      
-      // 3. Aged parchment overlay
-      ctx.fillStyle = 'rgba(139, 90, 30, 0.08)';
-      ctx.fillRect(0, 0, 128, 128);
-      
-      // 4. Heavy border — dřevěný rám
-      ctx.strokeStyle = 'rgba(60, 30, 10, 0.95)';
-      ctx.lineWidth = 8;
-      ctx.strokeRect(0, 0, 128, 128);
-      
-      // 5. Inner decorative line
-      ctx.strokeStyle = 'rgba(139, 90, 30, 0.7)';
-      ctx.lineWidth = 2;
-      ctx.strokeRect(10, 10, 108, 108);
-      
-      // 6. Corner marks (charakteristické pro středověké dřevoryty)
-      ctx.fillStyle = 'rgba(60, 30, 10, 0.9)';
-      [[0,0],[118,0],[0,118],[118,118]].forEach(([cx, cy]) => {
-        ctx.fillRect(cx, cy, 10, 10);
-      });
-      
-      // Save
-      GameState.character.portrait = canvas.toDataURL('image/png');
-      GameState.character.portraitStyle = 'image';
-      Game.save();
-      UI.notify('🎨 Imago conservata!');
-      UI.renderAll();
-    };
-    img.src = dataURL;
-  },
-  
-  removePortrait: function() {
-    GameState.character.portrait = null;
-    GameState.character.portraitStyle = 'ascii';
-    Game.save();
-    UI.notify('🗑️ Imago deleta!');
-    UI.renderAll();
-  },
-  
-  togglePortraitStyle: function() {
-    if (!GameState.character.portrait) {
-      UI.notify('⚠️ Nulla imago!', true);
-      return;
-    }
-    
-    GameState.character.portraitStyle = 
-      (GameState.character.portraitStyle === 'ascii') ? 'image' : 'ascii';
-    Game.save();
-    UI.renderAll();
-  },
-  
-  // ═══════════════════════════════════════════════════════════════════════════
-  // UI RENDERING
-  // ═══════════════════════════════════════════════════════════════════════════
-  
-  renderPersonaSection: function() {
-    const char = GameState.character;
-    const currentRank = RankSystem.getCurrentSecularRank();
-    
-    let h = `<div style="background: rgba(0,0,0,0.05); padding: 20px; border-radius: 10px; margin-bottom: 20px;">`;
-    h += `<h3 style="margin: 0 0 20px 0;">✍️ Persona</h3>`;
-    
-    // Portrait + Name side by side
-    h += `<div style="display: grid; grid-template-columns: 140px 1fr; gap: 20px;">`;
-    
-    // LEFT: Portrait
-    h += `<div>`;
-    if (char.portrait && char.portraitStyle === 'image') {
-      h += `<img src="${char.portrait}" style="width: 128px; height: 128px; border: 3px solid var(--accent-gold); border-radius: 5px;">`;
-    } else {
-      h += `<div style="width: 128px; height: 128px; border: 2px dashed rgba(0,0,0,0.2); display: flex; align-items: center; justify-content: center; font-family: monospace; font-size: 0.65rem; line-height: 1.1; white-space: pre;">`;
-      h += this.generateASCIIPortrait(currentRank.id);
-      h += `</div>`;
-    }
-    
-    // Portrait controls
-    h += `<div style="margin-top: 10px; display: flex; gap: 5px; flex-wrap: wrap;">`;
-    h += `<label class="craft-btn" style="cursor: pointer; font-size: 0.8rem; padding: 4px 8px;">
-            📤 Upload
-            <input type="file" accept="image/*" onchange="PersonaSystem.uploadPortrait(this.files[0])" style="display: none;">
-          </label>`;
-    if (char.portrait) {
-      h += `<button onclick="PersonaSystem.removePortrait()" class="craft-btn" style="font-size: 0.8rem; padding: 4px 8px;">🗑️</button>`;
-      h += `<button onclick="PersonaSystem.togglePortraitStyle()" class="craft-btn" style="font-size: 0.8rem; padding: 4px 8px;">🔄</button>`;
-    }
-    h += `</div>`;
-    h += `</div>`;
-    
-    // RIGHT: Name inputs
-    h += `<div>`;
-    
-    // Given name
-    h += `<div style="margin-bottom: 15px;">`;
-    h += `<label style="display: block; margin-bottom: 5px; font-weight: bold;">Nomen:</label>`;
-    h += `<div style="display: flex; gap: 5px;">`;
-    h += `<input type="text" id="char-name-input" value="${char.nameGiven || ''}" 
-                 placeholder="Johannes de Praga" 
-                 style="flex: 1; padding: 8px; border: 1px solid rgba(0,0,0,0.2); border-radius: 3px; font-family: 'Cinzel', serif;">`;
-    h += `<button onclick="PersonaSystem.setName(document.getElementById('char-name-input').value)" class="craft-btn" style="padding: 8px 15px;">💾</button>`;
-    h += `</div>`;
-    h += `</div>`;
-    
-    // Religious name (only if unlocked)
-    if (char.nameReligiousUnlocked) {
-      h += `<div style="margin-bottom: 15px;">`;
-      h += `<label style="display: block; margin-bottom: 5px; font-weight: bold;">✝️ Nomen religiosum:</label>`;
-      h += `<div style="display: flex; gap: 5px;">`;
-      h += `<input type="text" id="char-name-religious-input" value="${char.nameReligious || ''}" 
-                   placeholder="Frater Benedictus" 
-                   style="flex: 1; padding: 8px; border: 1px solid rgba(0,0,0,0.2); border-radius: 3px; font-family: 'Cinzel', serif;">`;
-      h += `<button onclick="PersonaSystem.setReligiousName(document.getElementById('char-name-religious-input').value)" class="craft-btn" style="padding: 8px 15px;">💾</button>`;
-      h += `</div>`;
-      h += `</div>`;
-    }
-    
-    // Display name (read-only)
-    const displayName = char.nameReligious || char.nameGiven || 'Anonymus';
-    h += `<div style="margin-top: 20px; padding: 10px; background: rgba(197,160,89,0.1); border-left: 3px solid var(--accent-gold); border-radius: 3px;">`;
-    h += `<strong>Nomen completum:</strong><br>`;
-    h += `<span style="font-size: 1.1rem; font-family: 'Cinzel', serif;">${displayName}</span>`;
-    h += `</div>`;
-    
-    h += `</div>`; // Close RIGHT
-    h += `</div>`; // Close grid
-    h += `</div>`; // Close container
-    
-    return h;
-  }
+        // Migrace — nová pole
+        if (!GameState.persona.influence) GameState.persona.influence = { benedikt: 0, giacomo: 0, abbot: 0 };
+        if (!GameState.persona.milestones) GameState.persona.milestones = [];
+        if (!GameState.persona.professions) GameState.persona.professions = [];
+
+        // Zkontrolovat zda zobrazit origin modal
+        this.checkOriginModal();
+    },
+
+    checkOriginModal: function() {
+        if (!GameState.persona) return;
+        if (GameState.persona.originChosen) return;
+        if (GameState.persona.originModalShown) return;
+
+        const daysSinceStart = Math.floor(
+            (Date.now() - (GameState.dailyRewards.lastLogin || Date.now())) / 86400000
+        );
+        const rankThreshold = GameState.rank &&
+            ['antiquarius', 'rubricator', 'illuminator', 'master_scribe'].includes(GameState.rank.secular);
+
+        if (daysSinceStart >= 7 || rankThreshold) {
+            GameState.persona.originModalShown = true;
+            Game.save();
+            this.showOriginModal();
+        }
+    },
+
+    showOriginModal: function() {
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        const modal = document.createElement('div');
+        modal.style.cssText = `position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);z-index:9999;display:flex;align-items:center;justify-content:center;padding:16px;box-sizing:border-box;`;
+
+        let opts = Object.entries(this.ORIGINS).map(([id, o]) => `
+            <div onclick="PersonaSystem.chooseOrigin('${id}', this)"
+                 style="cursor:pointer;padding:14px;margin-bottom:10px;border:2px solid rgba(197,160,89,0.3);border-radius:8px;background:rgba(197,160,89,0.05);transition:border-color 0.2s;"
+                 onmouseover="this.style.borderColor='var(--accent-gold)'"
+                 onmouseout="this.style.borderColor='rgba(197,160,89,0.3)'">
+                <div style="font-weight:bold;font-size:0.95rem;margin-bottom:4px;">${lang==='en'?o.nameEn:o.nameCs}</div>
+                <div style="font-size:0.82rem;opacity:0.8;margin-bottom:6px;font-style:italic;">${lang==='en'?o.descEn:o.descCs}</div>
+                <div style="font-size:0.78rem;color:var(--accent-gold);">✨ ${lang==='en'?o.bonusEn:o.bonusCs}</div>
+            </div>`).join('');
+
+        modal.innerHTML = `
+            <div style="background:var(--bg-card);border:1px solid var(--accent-gold);border-radius:12px;padding:24px;max-width:480px;width:100%;max-height:90vh;overflow-y:auto;">
+                <div style="font-size:1.6rem;text-align:center;margin-bottom:8px;">📜</div>
+                <h3 style="text-align:center;margin:0 0 6px 0;font-family:'Cinzel',serif;">${lang==='en'?'Who art thou, Scribe?':'Kdo jsi, písaři?'}</h3>
+                <p style="text-align:center;font-size:0.83rem;opacity:0.7;margin:0 0 18px 0;font-style:italic;">
+                    ${lang==='en'?'Your origin shapes your path. Choose once — cannot be undone.':'Tvůj původ formuje cestu. Vybereš jednou — nelze vrátit.'}
+                </p>
+                ${opts}
+                <div style="text-align:center;margin-top:12px;">
+                    <button onclick="this.closest('[style*=fixed]').remove()" class="craft-btn" style="background:rgba(0,0,0,0.1);font-size:0.8rem;">
+                        ${lang==='en'?'Decide later':'Rozhodnu se později'}
+                    </button>
+                </div>
+            </div>`;
+        document.body.appendChild(modal);
+    },
+
+    chooseOrigin: function(originId) {
+        if (!this.ORIGINS[originId]) return;
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+
+        // Generovat datum narození
+        const year = 1430 + Math.floor(Math.random() * 18);
+        const month = 1 + Math.floor(Math.random() * 12);
+        const day = 1 + Math.floor(Math.random() * 28);
+        const place = this.BIRTH_PLACES[Math.floor(Math.random() * this.BIRTH_PLACES.length)];
+
+        GameState.persona.origin = originId;
+        GameState.persona.originChosen = true;
+        GameState.persona.bornYear = year;
+        GameState.persona.bornMonth = month;
+        GameState.persona.bornDay = day;
+        GameState.persona.bornPlace = place;
+
+        Game.save();
+
+        // Zavřít modal
+        document.querySelectorAll('[style*="position:fixed"][style*="9999"]').forEach(el => el.remove());
+
+        const o = this.ORIGINS[originId];
+        if (typeof NotificationSystem !== 'undefined') {
+            NotificationSystem.panel('📜 ' + (lang==='en'?'Origin chosen: ':'Původ zvolen: ') + (lang==='en'?o.nameEn:o.nameCs), 'system');
+        }
+
+        // Re-render pokud je Persona tab otevřen
+        const el = document.getElementById('lore-persona-content');
+        if (el && el.style.display !== 'none') this.render();
+    },
+
+    // ── Hlavní render ─────────────────────────────────────────────────────────
+    render: function() {
+        const el = document.getElementById('lore-persona-content');
+        if (!el) return;
+        this.init();
+
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+
+        // Filter bar
+        let h = `<div class="filter-bar" style="margin-bottom:16px;display:flex;gap:6px;flex-wrap:wrap;">
+            <button id="persona-tab-persona" class="filter-btn ${this._activeTab==='persona'?'active':''}"
+                onclick="PersonaSystem.switchTab('persona',this)">🧑 ${lang==='en'?'Persona':'Persona'}</button>
+            <button id="persona-tab-stats" class="filter-btn ${this._activeTab==='stats'?'active':''}"
+                onclick="PersonaSystem.switchTab('stats',this)">📊 ${lang==='en'?'Statistics':'Statistiky'}</button>
+            <button id="persona-tab-influentia" class="filter-btn ${this._activeTab==='influentia'?'active':''}"
+                onclick="PersonaSystem.switchTab('influentia',this)">🤝 ${lang==='en'?'Influentia':'Influentia'}</button>
+        </div>`;
+
+        h += `<div id="persona-subtab-persona"  style="${this._activeTab==='persona'?'':'display:none'}">` + this._renderPersona(lang) + `</div>`;
+        h += `<div id="persona-subtab-stats"    style="${this._activeTab==='stats'?'':'display:none'}">` + this._renderStats(lang) + `</div>`;
+        h += `<div id="persona-subtab-influentia" style="${this._activeTab==='influentia'?'':'display:none'}">` + this._renderInfluentia(lang) + `</div>`;
+
+        el.innerHTML = h;
+    },
+
+    switchTab: function(tab, btn) {
+        this._activeTab = tab;
+        document.querySelectorAll('#lore-persona-content .filter-btn').forEach(b => b.classList.remove('active'));
+        if (btn) btn.classList.add('active');
+        ['persona','stats','influentia'].forEach(t => {
+            const d = document.getElementById('persona-subtab-' + t);
+            if (d) d.style.display = t === tab ? '' : 'none';
+        });
+    },
+
+    // ── Sekce 1: Persona ─────────────────────────────────────────────────────
+    _renderPersona: function(lang) {
+        const p = GameState.persona;
+        const rank = GameState.rank ? GameState.rank.secular : 'laicus';
+        const rankHigh = ['antiquarius','rubricator','illuminator','master_scribe','prior','abbas'].includes(rank);
+
+        // Portrét
+        const portraitHtml = p.portrait
+            ? `<img src="${p.portrait}" style="width:96px;height:96px;object-fit:cover;border-radius:6px;border:2px solid var(--accent-gold);">`
+            : `<div style="width:96px;height:96px;border:2px dashed rgba(197,160,89,0.4);border-radius:6px;display:flex;align-items:center;justify-content:center;font-family:monospace;font-size:0.6rem;line-height:1.2;white-space:pre;opacity:0.6;">  ___\n /   \\\n| o o |\n|  &gt;  |\n \\___/</div>`;
+
+        // Datum narození
+        const birthHtml = p.bornYear
+            ? `<div style="font-size:0.82rem;opacity:0.7;margin-top:8px;font-style:italic;">
+                ${lang==='en'?'Born':'Natus'}: ${p.bornDay}. ${p.bornMonth}. ${p.bornYear}, ${p.bornPlace}
+               </div>`
+            : '';
+
+        // Původ
+        const originHtml = p.originChosen && p.origin
+            ? `<div style="margin-top:8px;padding:8px 10px;background:rgba(197,160,89,0.08);border-left:3px solid var(--accent-gold);border-radius:4px;font-size:0.82rem;">
+                <strong>${lang==='en'?'Origin':'Původ'}:</strong> ${lang==='en'?this.ORIGINS[p.origin].nameEn:this.ORIGINS[p.origin].nameCs}<br>
+                <span style="opacity:0.7;">✨ ${lang==='en'?this.ORIGINS[p.origin].bonusEn:this.ORIGINS[p.origin].bonusCs}</span>
+               </div>`
+            : `<div style="margin-top:8px;">
+                <button class="craft-btn" onclick="PersonaSystem.showOriginModal()" style="font-size:0.8rem;">
+                    📜 ${lang==='en'?'Choose your origin':'Zvolit původ'}
+                </button>
+                ${!rankHigh ? `<div style="font-size:0.75rem;opacity:0.55;margin-top:4px;font-style:italic;">${lang==='en'?'Bonuses activate at rank Antiquarius+':'Bonusy se aktivují od ranku Antiquarius+'}</div>` : ''}
+               </div>`;
+
+        // Rank timeline
+        const rankHistory = (GameState.rank && GameState.rank.rankHistory) || [];
+        const timelineHtml = rankHistory.length > 0
+            ? rankHistory.map(r => `<div style="font-size:0.78rem;padding:4px 0;border-bottom:1px solid rgba(0,0,0,0.05);">
+                <span style="opacity:0.5;">${new Date(r.timestamp||0).toLocaleDateString()}</span>
+                &nbsp;→&nbsp;<strong>${r.rank}</strong>
+              </div>`).join('')
+            : `<div style="font-size:0.8rem;opacity:0.5;font-style:italic;">${lang==='en'?'Your journey has just begun.':'Tvá cesta právě začíná.'}</div>`;
+
+        return `
+        <div style="display:grid;grid-template-columns:110px 1fr;gap:16px;margin-bottom:20px;">
+            <div>
+                ${portraitHtml}
+                <div style="margin-top:8px;">
+                    <label class="craft-btn" style="cursor:pointer;font-size:0.75rem;padding:4px 8px;display:block;text-align:center;">
+                        📤 ${lang==='en'?'Upload':'Nahrát'}
+                        <input type="file" accept="image/*" onchange="PersonaSystem.uploadPortrait(this.files[0])" style="display:none;">
+                    </label>
+                    ${p.portrait ? `<button onclick="PersonaSystem.removePortrait()" class="craft-btn" style="font-size:0.72rem;padding:3px 8px;margin-top:4px;width:100%;background:#8b4a3a;">🗑️</button>` : ''}
+                </div>
+            </div>
+            <div>
+                <div style="margin-bottom:12px;">
+                    <label style="font-size:0.8rem;font-weight:bold;display:block;margin-bottom:4px;">${lang==='en'?'Nomen:':'Nomen:'}</label>
+                    <div style="display:flex;gap:6px;">
+                        <input type="text" id="persona-name-input" value="${p.nameGiven||''}"
+                            placeholder="${lang==='en'?'Johannes de Praga':'Johannes de Praga'}"
+                            style="flex:1;padding:6px 8px;border:1px solid rgba(0,0,0,0.2);border-radius:4px;font-family:'Cinzel',serif;font-size:0.85rem;">
+                        <button onclick="PersonaSystem.saveName()" class="craft-btn" style="padding:6px 12px;">💾</button>
+                    </div>
+                </div>
+                ${rankHigh ? `<div style="margin-bottom:12px;">
+                    <label style="font-size:0.8rem;font-weight:bold;display:block;margin-bottom:4px;">✝️ ${lang==='en'?'Nomen religiosum:':'Nomen religiosum:'}</label>
+                    <div style="display:flex;gap:6px;">
+                        <input type="text" id="persona-name-rel-input" value="${p.nameReligious||''}"
+                            placeholder="${lang==='en'?'Frater Benedictus':'Frater Benedictus'}"
+                            style="flex:1;padding:6px 8px;border:1px solid rgba(0,0,0,0.2);border-radius:4px;font-family:'Cinzel',serif;font-size:0.85rem;">
+                        <button onclick="PersonaSystem.saveReligiousName()" class="craft-btn" style="padding:6px 12px;">💾</button>
+                    </div>
+                </div>` : ''}
+                <div style="padding:8px 10px;background:rgba(197,160,89,0.08);border-left:3px solid var(--accent-gold);border-radius:4px;font-size:0.85rem;margin-bottom:8px;">
+                    <strong>${lang==='en'?'Nomen completum:':'Nomen completum:'}</strong><br>
+                    <span style="font-family:'Cinzel',serif;">${p.nameReligious||p.nameGiven||'Anonymus'}</span>
+                </div>
+                ${birthHtml}
+                ${originHtml}
+            </div>
+        </div>
+        <div style="margin-top:16px;">
+            <div style="font-size:0.75rem;font-weight:bold;letter-spacing:0.06em;text-transform:uppercase;opacity:0.6;margin-bottom:8px;">📜 ${lang==='en'?'Cursus Vitae':'Cursus Vitae'}</div>
+            ${timelineHtml}
+        </div>`;
+    },
+
+    // ── Sekce 2: Statistiky ──────────────────────────────────────────────────
+    _renderStats: function(lang) {
+        const stats = (GameState.achievements && GameState.achievements.stats) || {};
+        const booksRead = GameState.library ? GameState.library.readBooks.length : 0;
+        const booksUnlocked = GameState.library ? GameState.library.unlockedBooks.length : 0;
+        const totalBooks = (typeof LibraryDB !== 'undefined') ? LibraryDB.books.length : 0;
+        const techCount = (GameState.researchedTechs || []).length;
+        const totalTechs = (typeof TechTree !== 'undefined') ? TechTree.length : 0;
+        const streak = GameState.dailyRewards ? GameState.dailyRewards.streak : 0;
+        const totalLogins = GameState.dailyRewards ? GameState.dailyRewards.totalLogins : 0;
+
+        const stat = (icon, labelKey, value) => `
+            <div style="padding:10px;background:var(--bg-card);border:1px solid rgba(197,160,89,0.2);border-radius:6px;">
+                <div style="font-size:1.1rem;">${icon}</div>
+                <div style="font-size:0.72rem;opacity:0.65;margin:2px 0;">${labelKey}</div>
+                <div style="font-size:1.1rem;font-weight:bold;color:var(--accent-gold);">${value}</div>
+            </div>`;
+
+        let h = `<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:20px;">`;
+        h += stat('📦', lang==='en'?'Items discovered':'Předměty objeveny', Object.keys(GameState.inventory||{}).length);
+        h += stat('⚒️', lang==='en'?'Crafts':'Výroba', stats.itemsCrafted||0);
+        h += stat('📜', lang==='en'?'Research gained':'Research získáno', stats.researchCount||0);
+        h += stat('🔬', lang==='en'?'Technologies':'Technologie', `${techCount}/${totalTechs}`);
+        h += stat('📚', lang==='en'?'Books read':'Knihy přečtené', `${booksRead}/${totalBooks}`);
+        h += stat('🔓', lang==='en'?'Books unlocked':'Knihy odemčeny', `${booksUnlocked}/${totalBooks}`);
+        h += stat('🌾', lang==='en'?'Harvests':'Sklizně', stats.harvests||0);
+        h += stat('🎮', lang==='en'?'Games won':'Hry vyhráno', stats.totalGamesPlayed||0);
+        h += stat('🍖', lang==='en'?'Meals eaten':'Jídel snězeno', stats.mealsEaten||0);
+        h += stat('🕯️', lang==='en'?'Candles lit':'Svíčky zapáleny', stats.candlesLit||0);
+        h += stat('💧', lang==='en'?'Water drawn':'Voda načerpána', stats.waterDrawn||0);
+        h += stat('🔥', lang==='en'?'Streak':'Streak', `${streak} ${lang==='en'?'days':'dní'} (max: ${stats.maxStreak||streak})`);
+        h += stat('📅', lang==='en'?'Total logins':'Celkem přihlášení', totalLogins);
+        h += stat('⏳', lang==='en'?'Days in monastery':'Dní v klášteře', Math.max(totalLogins-1,0));
+        h += `</div>`;
+
+        // Vigor
+        if (typeof VigorSystem !== 'undefined') {
+            h += `<div style="margin-top:8px;">` + VigorSystem.renderFullDisplay() + `</div>`;
+        }
+
+        // Záloha save
+        h += `<div style="margin-top:20px;padding:14px;background:rgba(0,0,0,0.04);border-radius:8px;border:1px solid rgba(197,160,89,0.2);">
+            <div style="font-size:0.75rem;font-weight:bold;letter-spacing:0.06em;text-transform:uppercase;opacity:0.6;margin-bottom:8px;">💾 ${lang==='en'?'Save Backup':'Záloha Save'}</div>
+            <button class="craft-btn" onclick="UI.exportSave()" style="font-size:0.82rem;margin-right:8px;">📤 ${lang==='en'?'Export':'Export'}</button>
+            <button class="craft-btn" onclick="UI.importSave()" style="font-size:0.82rem;">📥 ${lang==='en'?'Import':'Import'}</button>
+        </div>`;
+
+        return h;
+    },
+
+    // ── Sekce 3: Influentia ──────────────────────────────────────────────────
+    _renderInfluentia: function(lang) {
+        const inf = (GameState.persona && GameState.persona.influence) || { benedikt:0, giacomo:0, abbot:0 };
+
+        const bar = (icon, name, value, desc) => {
+            const pct = Math.min(100, Math.round(value));
+            const color = pct >= 75 ? '#5a9a5a' : pct >= 40 ? 'var(--accent-gold)' : 'var(--ink-secondary)';
+            return `<div style="margin-bottom:16px;padding:12px;background:var(--bg-card);border:1px solid rgba(197,160,89,0.2);border-radius:8px;">
+                <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+                    <span style="font-size:1.4rem;">${icon}</span>
+                    <div style="flex:1;">
+                        <div style="font-weight:bold;font-size:0.9rem;">${name}</div>
+                        <div style="font-size:0.75rem;opacity:0.65;font-style:italic;">${desc}</div>
+                    </div>
+                    <strong style="color:${color};">${pct}/100</strong>
+                </div>
+                <div style="height:6px;background:rgba(0,0,0,0.1);border-radius:3px;">
+                    <div style="height:100%;width:${pct}%;background:${color};border-radius:3px;transition:width 0.4s;"></div>
+                </div>
+            </div>`;
+        };
+
+        let h = bar('🏠', lang==='en'?'Benedikt of Litomyšl (Cellarius)':'Benedikt z Litomyšle (Cellarius)',
+            inf.benedikt,
+            lang==='en'?'Master of the cellar and trade. High influence → better prices in Hospoda.':'Správce sklepa a obchodu. Vysoký vliv → lepší ceny v Hospodě.');
+        h += bar('⚓', lang==='en'?'Giacomo Foscari (Mercator)':'Giacomo Foscari (Mercator)',
+            inf.giacomo,
+            lang==='en'?'Venetian merchant. High influence → rare goods and special orders.':'Benátský obchodník. Vysoký vliv → vzácné zboží a speciální zakázky.');
+        h += bar('✝️', lang==='en'?'The Abbot':'Opat',
+            inf.abbot,
+            lang==='en'?'Father of the monastery. High influence → Scrinium access and rank advancement.':'Otec kláštera. Vysoký vliv → přístup do Scrinia a postup v ranku.');
+
+        h += `<div style="margin-top:16px;padding:12px;background:rgba(197,160,89,0.06);border-radius:8px;border-left:3px solid rgba(197,160,89,0.3);">
+            <div style="font-size:0.75rem;font-weight:bold;letter-spacing:0.06em;text-transform:uppercase;opacity:0.6;margin-bottom:8px;">⚒️ ${lang==='en'?'Professions':'Professio'}</div>
+            <div style="font-size:0.82rem;opacity:0.6;font-style:italic;">
+                ${lang==='en'?'Professions unlock through activity. Coming in a future update.':'Profese se odemykají aktivitou. Přijde v budoucí aktualizaci.'}
+            </div>
+        </div>`;
+
+        return h;
+    },
+
+    // ── Pomocné funkce ───────────────────────────────────────────────────────
+    saveName: function() {
+        const input = document.getElementById('persona-name-input');
+        if (!input) return;
+        GameState.persona.nameGiven = input.value.trim();
+        Game.save();
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        UI.notify('✍️ ' + (lang==='en'?'Name saved.':'Jméno uloženo.'));
+        this.render();
+    },
+
+    saveReligiousName: function() {
+        const input = document.getElementById('persona-name-rel-input');
+        if (!input) return;
+        GameState.persona.nameReligious = input.value.trim();
+        Game.save();
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        UI.notify('✝️ ' + (lang==='en'?'Religious name saved.':'Řádové jméno uloženo.'));
+        this.render();
+    },
+
+    uploadPortrait: function(file) {
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            GameState.persona.portrait = e.target.result;
+            Game.save();
+            this.render();
+        };
+        reader.readAsDataURL(file);
+    },
+
+    removePortrait: function() {
+        GameState.persona.portrait = null;
+        Game.save();
+        this.render();
+    },
+
+    // Přidat milestone (volat z jiných systémů)
+    addMilestone: function(id, descCs, descEn) {
+        if (!GameState.persona) return;
+        if (GameState.persona.milestones.find(m => m.id === id)) return; // jen jednou
+        GameState.persona.milestones.push({ id, timestamp: Date.now(), descCs, descEn });
+        Game.save();
+    },
+
+    // Upravit vliv NPC
+    addInfluence: function(npc, amount) {
+        if (!GameState.persona || !GameState.persona.influence) return;
+        if (!(npc in GameState.persona.influence)) return;
+        GameState.persona.influence[npc] = Math.max(0, Math.min(100, (GameState.persona.influence[npc]||0) + amount));
+        Game.save();
+    },
+
 };

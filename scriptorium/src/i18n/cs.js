@@ -311,6 +311,7 @@ const STRINGS_cs = {
         tabCodex: 'Codex',
         tabNotebooks: '📓 Zápisníky',
         tabAchievements: 'Achievementy',
+        tabPersona: '🧑 Persona',
         notes: 'Zápisky:',
         notebooks_empty: 'Zatím nemáš žádný zápisník',
         notebooks_hint: 'Odemkni tech "Základy Psaní" (3 research) a vycrafti svou první Tabulu!',
@@ -320,7 +321,6 @@ const STRINGS_cs = {
     },
     library: {
         tabBooks: '📚 Knihy',
-        tabRecords: '🏅 Záznamy',
         tabGames: '🎲 Aula Ludi',
         tabIching: '☯️ Věštění',
         tabNews: '📜 Zprávy',

@@ -94,5 +94,24 @@ const GameState = {
     kronikaCraftBuffer: { date: '', crafts: {} },
     craftedItems: {},
     notifications: [],  // NotificationSystem — persistentní panel zpráv
-    toolUses: {}        // Zbývající použití nástrojů { itemId: remainingUses }
+    toolUses: {},       // Zbývající použití nástrojů { itemId: remainingUses }
+    persona: {
+        nameGiven: '',
+        nameReligious: '',
+        portrait: null,
+        bornYear: 0,
+        bornMonth: 0,
+        bornDay: 0,
+        bornPlace: '',
+        origin: null,           // 'merchant_son' | 'noble_scribe' | 'village_boy'
+        originChosen: false,    // true po výběru původu
+        originModalShown: false,// true po zobrazení modalu
+        milestones: [],         // [{id, timestamp, descCs, descEn}]
+        influence: {
+            benedikt: 0,
+            giacomo:  0,
+            abbot:    0,
+        },
+        professions: [],        // odemčené profese
+    }
 };

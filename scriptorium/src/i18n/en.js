@@ -293,6 +293,7 @@ const STRINGS_en = {
         tabCodex: 'Codex',
         tabNotebooks: '📓 Notebooks',
         tabAchievements: 'Achievements',
+        tabPersona: '🧑 Persona',
         notes: 'Notes:',
         discovered: 'Discovered:',
         notebooks_empty: 'Thou hast no notebooks as yet',
@@ -304,7 +305,6 @@ const STRINGS_en = {
     },
     library: {
         tabBooks: '📚 Books',
-        tabRecords: '🏅 Records',
         tabGames: '🎲 Aula Ludi',
         tabIching: '☯️ Divination',
         tabNews: '📜 Tidings',
