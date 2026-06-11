@@ -116,25 +116,33 @@ const ScriptoriumCat = {
         const screen = document.getElementById('screen-garden');
         if (!screen || screen.style.display === 'none') return;
 
-        const bounds = screen.getBoundingClientRect();
-        const maxX = Math.max(50, bounds.width - this.FRAME_SIZE * this.SCALE - 20);
-        const maxY = Math.max(50, bounds.height - this.FRAME_SIZE * this.SCALE - 20);
+        // Vyber náhodný garden subtab (i zamčený/skrytý)
+        const tabs = screen.querySelectorAll('div[id^="garden-tab-"]');
+        if (!tabs.length) return;
+        const tab = tabs[Math.floor(Math.random() * tabs.length)];
 
-        const newX = 20 + Math.random() * maxX;
-        const newY = 60 + Math.random() * (maxY - 60); // pod filter-bar
+        // Spočítej offset tabulátoru relativně k screen-garden
+        const screenRect = screen.getBoundingClientRect();
+        const tabRect = tab.getBoundingClientRect();
+        const tabOffsetTop = tabRect.top - screenRect.top + screen.scrollTop;
+        const tabOffsetLeft = tabRect.left - screenRect.left;
+
+        const tabW = Math.max(100, tabRect.width);
+        const tabH = Math.max(60,  tabRect.height);
+
+        const newX = tabOffsetLeft + 10 + Math.random() * Math.max(10, tabW - this.FRAME_SIZE * this.SCALE - 20);
+        const newY = tabOffsetTop  + 10 + Math.random() * Math.max(10, tabH - this.FRAME_SIZE * this.SCALE - 10);
 
         this.facingLeft = newX < this.posX;
         this.posX = newX;
         this.posY = newY;
 
         this._setState('walk');
-
         if (this.el) {
             this.el.style.left = newX + 'px';
             this.el.style.top  = newY + 'px';
         }
 
-        // Po přesunu → idle → sitting/laying
         setTimeout(() => {
             this._setState('idle');
             setTimeout(() => {

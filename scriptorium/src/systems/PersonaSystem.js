@@ -375,10 +375,42 @@ const PersonaSystem = {
             </div>
         </div>`;
 
+        // ── Felis Monastica ──────────────────────────────────────────────────
+        const catName = (GameState.cat && GameState.cat.name) || (lang==='en'?'Nameless mouser':'Bezejmenný myšilov');
+        h += `<div style="margin-top:16px;padding:12px;background:rgba(197,160,89,0.06);border-radius:8px;border-left:3px solid rgba(197,160,89,0.3);">
+            <div style="font-size:0.75rem;font-weight:bold;letter-spacing:0.06em;text-transform:uppercase;opacity:0.6;margin-bottom:10px;">🐈‍⬛ ${lang==='en'?'Felis Monastica':'Felis Monastica'}</div>
+            <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px;">
+                <span style="font-size:1.4rem;">🐈‍⬛</span>
+                <div>
+                    <div style="font-weight:bold;font-size:0.9rem;">${catName}</div>
+                    <div style="font-size:0.75rem;opacity:0.6;font-style:italic;">${lang==='en'?'The monastery cat. Catches mice, warms the scriptorium.':'Klášterní kočka. Loví myši, hřeje skriptorium.'}</div>
+                </div>
+            </div>
+            <div style="display:flex;gap:6px;">
+                <input type="text" id="cat-name-input" value="${catName}"
+                    placeholder="${lang==='en'?'Name the cat...':'Pojmenuj kočku...'}"
+                    style="flex:1;padding:6px 8px;border:1px solid rgba(0,0,0,0.2);border-radius:4px;font-family:'Cinzel',serif;font-size:0.85rem;">
+                <button onclick="PersonaSystem.saveCatName()" class="craft-btn" style="padding:6px 12px;">💾</button>
+            </div>
+        </div>`;
+
         return h;
     },
 
     // ── Pomocné funkce ───────────────────────────────────────────────────────
+    saveCatName: function() {
+        const input = document.getElementById('cat-name-input');
+        if (!input) return;
+        const name = input.value.trim();
+        if (!name) return;
+        if (!GameState.cat) GameState.cat = {};
+        GameState.cat.name = name;
+        if (typeof ScriptoriumCat !== 'undefined') ScriptoriumCat.rename(name);
+        Game.save();
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        UI.notify('🐈‍⬛ ' + (lang==='en'?`${name} — name saved.`:`${name} — jméno uloženo.`));
+        this.render();
+    },
     saveName: function() {
         const input = document.getElementById('persona-name-input');
         if (!input) return;
