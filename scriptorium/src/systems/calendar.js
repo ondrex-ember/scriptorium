@@ -343,7 +343,7 @@ const CalendarSystem = {
 
         const { month, year } = this.getViewState();
         const now = new Date();
-        const isCurrentMonth = (month === now.getMonth() + 1 && year === now.getFullYear());
+        const isCurrentMonth = (month === now.getMonth() + 1);
         const today = now.getDate();
 
         const feasts = this.getFeastsForMonth(month, year);
@@ -353,9 +353,10 @@ const CalendarSystem = {
             feastMap[f.day].push(f);
         });
 
-        const firstDay = new Date(year, month - 1, 1).getDay();
+        const realYear = new Date().getFullYear();
+        const firstDay = new Date(realYear, month - 1, 1).getDay();
         const startOffset = (firstDay === 0) ? 6 : firstDay - 1;
-        const daysInMonth = new Date(year, month, 0).getDate();
+        const daysInMonth = new Date(realYear, month, 0).getDate();
         let monthHasAdvent = false;
 
         const monthNameLat = this.MONTHS_LAT[month - 1];
