@@ -31678,17 +31678,22 @@ renderRecords: function() {
         const modal = document.getElementById('daily-reward-modal');
         const content = document.getElementById('daily-reward-content');
         const factEl = document.getElementById('daily-fact');
-        
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+
+        const streakWord = lang === 'en'
+            ? (streak === 1 ? 'day' : 'days')
+            : (streak === 1 ? 'den' : (streak < 5 ? 'dny' : 'dní'));
+
         let html = `<div style="font-size:1.5rem; font-weight:bold; color:var(--accent-gold); margin-bottom:10px;">${bonusText}</div>`;
-        html += `<div style="font-size:0.9rem; color:var(--ink-secondary);">Streak: ${streak} ${streak === 1 ? 'den' : (streak < 5 ? 'dny' : 'dní')} 🔥</div>`;
-        
-        if(isStreakBonus) {
-            html += `<div style="margin-top:15px; padding:10px; background:rgba(197,160,89,0.2); border:1px solid var(--accent-gold); border-radius:4px; font-weight:bold;">🎉 Bonus za věrnost!</div>`;
+        html += `<div style="font-size:0.9rem; color:var(--ink-secondary);">Streak: ${streak} ${streakWord} 🔥</div>`;
+
+        if (isStreakBonus) {
+            html += `<div style="margin-top:15px; padding:10px; background:rgba(197,160,89,0.2); border:1px solid var(--accent-gold); border-radius:4px; font-weight:bold;">🎉 ${lang === 'en' ? 'Loyalty bonus!' : 'Bonus za věrnost!'}</div>`;
         }
-        
+
         content.innerHTML = html;
-        factEl.innerHTML = `<strong>📜 Dnešní fakt:</strong><br><br>${fact}`;
-        
+        factEl.innerHTML = `<strong>${lang === 'en' ? '📜 Daily fact:' : '📜 Dnešní fakt:'}</strong><br><br>${fact}`;
+
         modal.style.display = 'flex';
     },
     closeDailyRewardModal: function() {
