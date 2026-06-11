@@ -2360,9 +2360,9 @@
                 </div>
                 <div id="garden-tab-piscina" style="display:none;">
                     <div id="piscina-container"></div>
+                </div>
                 <div id="garden-tab-pole" style="display:none;">
                     <div id="field-container"></div>
-                </div>
                 </div>
             </div>
 
@@ -14530,9 +14530,44 @@ const GardenSystem = {
         const hasField = techs.includes('tech_de_re_rustica');
 
         if (!hasField) {
-            el.innerHTML = `<div style="text-align:center; padding:30px; opacity:0.6;">
-                <div style="font-size:2.5rem; margin-bottom:12px;">🌾</div>
-                <div style="font-style:italic;">${lang==='en' ? 'Study <strong>De Re Rustica</strong> to unlock the fields.' : 'Prostuduj <strong>De Re Rustica</strong> pro odemčení polí.'}</div>
+            el.innerHTML = `
+            <div style="padding:20px 16px;">
+                <div style="background:rgba(197,160,89,0.08); border:1px solid rgba(197,160,89,0.3); border-radius:10px; padding:20px; margin-bottom:16px;">
+                    <div style="font-size:2rem; margin-bottom:10px;">🌾</div>
+                    <h3 style="margin:0 0 8px 0; font-size:1rem;">${lang==='en'?'Fields (Ager)':'Pole (Ager)'}</h3>
+                    <p style="font-size:0.85rem; opacity:0.75; margin:0 0 12px 0; font-style:italic;">
+                        ${lang==='en'
+                            ? 'Monastic fields — plough, sow, water and harvest. Winter rye, spring wheat, barley for the brewery, oats for the horses.'
+                            : 'Klášterní pole — orat, osít, zalít a sklidit. Ozimé žito, jarní pšenice, ječmen pro pivovar, oves pro koně.'}
+                    </p>
+                    <div style="font-size:0.8rem; padding:8px 12px; background:rgba(197,160,89,0.1); border-radius:6px; border-left:3px solid var(--accent-gold);">
+                        🔒 ${lang==='en'
+                            ? '<strong>Requires:</strong> Research <em>De Re Rustica</em> (Scriptorium → Tech), then build <em>Sulci</em> (Cellarium → Workshops)'
+                            : '<strong>Nutné:</strong> Prostuduj <em>De Re Rustica</em> (Scriptorium → Výzkum), pak postav <em>Brázdy (Sulci)</em> (Cellarium → Dílny)'}
+                    </div>
+                </div>
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; font-size:0.82rem;">
+                    <div style="padding:12px; background:rgba(0,0,0,0.03); border-radius:8px; border-left:3px solid rgba(197,160,89,0.4);">
+                        <div style="font-size:1.2rem; margin-bottom:4px;">🌾</div>
+                        <strong>${lang==='en'?'7 crops':'7 plodin'}</strong>
+                        <div style="opacity:0.7; margin-top:3px;">${lang==='en'?'Rye, wheat, barley, oats, millet, peas, flax':'Žito, pšenice, ječmen, oves, proso, hrách, len'}</div>
+                    </div>
+                    <div style="padding:12px; background:rgba(0,0,0,0.03); border-radius:8px; border-left:3px solid rgba(197,160,89,0.4);">
+                        <div style="font-size:1.2rem; margin-bottom:4px;">🍺</div>
+                        <strong>${lang==='en'?'Brewery link':'Link na Pivovar'}</strong>
+                        <div style="opacity:0.7; margin-top:3px;">${lang==='en'?'Barley+hops → ale':'Ječmen+chmel → pivo'}</div>
+                    </div>
+                    <div style="padding:12px; background:rgba(0,0,0,0.03); border-radius:8px; border-left:3px solid rgba(197,160,89,0.4);">
+                        <div style="font-size:1.2rem; margin-bottom:4px;">🐎</div>
+                        <strong>${lang==='en'?'Feed animals':'Krmivo'}</strong>
+                        <div style="opacity:0.7; margin-top:3px;">${lang==='en'?'Oats for horses, grain for poultry':'Oves pro koně, zrní pro drůbež'}</div>
+                    </div>
+                    <div style="padding:12px; background:rgba(0,0,0,0.03); border-radius:8px; border-left:3px solid rgba(197,160,89,0.4);">
+                        <div style="font-size:1.2rem; margin-bottom:4px;">🌿</div>
+                        <strong>${lang==='en'?'Three-field system':'Trojpolní'}</strong>
+                        <div style="opacity:0.7; margin-top:3px;">${lang==='en'?'Tech: +25% yield':'Tech: +25% výnos'}</div>
+                    </div>
+                </div>
             </div>`;
             return;
         }
