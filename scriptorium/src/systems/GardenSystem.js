@@ -976,6 +976,8 @@ const GardenSystem = {
     // UI RENDER — Zahrada, Dvůr, Sad, Apiarium, Piscina
     // ════════════════════════════════════════════════════════════════════════
 
+    _activeTab: 'zahony',
+
     switchGardenTab: function(tab, btn) {
         document.getElementById('garden-tab-zahony').style.display   = tab === 'zahony'   ? '' : 'none';
         document.getElementById('garden-tab-sad').style.display      = tab === 'sad'      ? '' : 'none';
@@ -984,6 +986,7 @@ const GardenSystem = {
         document.getElementById('garden-tab-piscina').style.display  = tab === 'piscina'  ? '' : 'none';
         const poleEl = document.getElementById('garden-tab-pole');
         if (poleEl) poleEl.style.display = tab === 'pole' ? '' : 'none';
+        this._activeTab = tab;
         document.querySelectorAll('#screen-garden .filter-btn').forEach(b => b.classList.remove('active'));
         if (btn) btn.classList.add('active');
         if (tab === 'dvur')     GardenSystem.renderFarmyard();
@@ -1597,6 +1600,14 @@ const GardenSystem = {
     },
 
     renderGarden: function() {
+        // Obnovit aktivní tab po renderAll
+        const activeTab = this._activeTab || 'zahony';
+        if (activeTab !== 'zahony') {
+            // Přepnout na správný tab bez animace
+            const btn = document.getElementById('garden-tab-btn-' + activeTab);
+            this.switchGardenTab(activeTab, btn);
+            return;
+        }
         const el = document.getElementById('garden-container'); el.innerHTML = "";
         
         // Calculate growth time with tech bonuses
