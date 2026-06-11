@@ -113,5 +113,6 @@ const GameState = {
             abbot:    0,
         },
         professions: [],        // odemčené profese
-    }
+    },
+    cat: { name: 'Bezejmenný myšilov' }
 };

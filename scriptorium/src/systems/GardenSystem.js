@@ -997,6 +997,8 @@ const GardenSystem = {
         if (tab === 'piscina')  GardenSystem.renderPiscina();
         if (tab === 'pole')     GardenSystem.renderFieldTab();
         if (tab === 'vinohrad') GardenSystem.renderVinohrad();
+        // Kočka — init při prvním otevření Zahrady
+        if (typeof ScriptoriumCat !== 'undefined') ScriptoriumCat.show();
     },
 
     renderFarmyard: function() {

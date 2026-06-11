@@ -50,6 +50,7 @@ const JS_MAIN = [
     'src/systems/VigorSystem.js',
     'src/systems/CellariumSystem.js',
     'src/systems/GardenSystem.js',
+    'src/systems/ScriptoriumCat.js',
     'src/systems/PersonaSystem.js',
     'src/systems/SecretsSystem.js',
     'src/systems/athanor.js',
