@@ -4713,6 +4713,28 @@ const LibraryHelpers = {
         if (!GameState.library.readBooks.includes(bookId)) {
             GameState.library.readBooks.push(bookId);
         }
+
+        // unlocksTech: odemkni technologie při prvním přečtení
+        if (book.unlocksTech && Array.isArray(book.unlocksTech)) {
+            const lang = (GameState.settings && GameState.settings.language) || 'cs';
+            book.unlocksTech.forEach(techId => {
+                if (!GameState.researchedTechs.includes(techId)) {
+                    GameState.researchedTechs.push(techId);
+                    const techObj = typeof TechTree !== 'undefined' ? TechTree.find(x => x.id === techId) : null;
+                    const techName = techObj ? (lang === 'en' ? (techObj.name_en || techObj.name) : techObj.name) : techId;
+                    NotificationSystem.panel('📚 ' + (lang === 'en' ? 'Discovered: ' : 'Poznáno: ') + techName, 'system');
+                    Game.addKronikaEntry('important',
+                        '📚 Studiem knihy poznáno: ' + techName,
+                        '📚 Discovered through study: ' + techName,
+                        '📚 Per librum cognitum: ' + techName
+                    );
+                }
+            });
+            // Re-render aktivního garden tabu pokud je Vinohrad otevřen
+            if (typeof GardenSystem !== 'undefined' && GardenSystem._activeTab === 'vinohrad') {
+                GardenSystem.renderVinohrad();
+            }
+        }
         
         // Show modal with book content
         UI.showBookModal(book);
@@ -4732,6 +4754,31 @@ const LibraryHelpers = {
         if (typeof UI.renderLibrary === 'function') {
             UI.renderLibrary();
         }
+    },
+
+    // Odemknutí knihy výzkumem (dříve než unlockDay)
+    unlockBookByResearch: function(bookId) {
+        const book = LibraryDB.books.find(b => b.id === bookId);
+        if (!book || !book.unlockResearch) return;
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+
+        // Zkontroluj research
+        const hasResearch = (GameState.inventory.research || 0) >= book.unlockResearch;
+        if (!hasResearch) {
+            UI.notify((lang === 'en'
+                ? 'Not enough research points. Need: '
+                : 'Nedostatek výzkumných bodů. Potřeba: ') + book.unlockResearch + ' ⚗️', true);
+            return;
+        }
+
+        // Odečti research a odemkni
+        Game.removeItem('research', book.unlockResearch);
+        if (!GameState.library.unlockedBooks.includes(bookId)) {
+            GameState.library.unlockedBooks.push(bookId);
+        }
+        Game.save();
+        NotificationSystem.panel('📚 ' + (lang === 'en' ? 'Book unlocked: ' : 'Kniha odemčena: ') + book.title, 'system');
+        if (typeof UI.renderLibrary === 'function') UI.renderLibrary();
     },
     
     // Kontrola Easter eggs
@@ -6474,8 +6521,8 @@ const TechTree = [
     // ── VINOHRAD (Vinea) ─────────────────────────────────────────────────────
     { id:"tech_vinohrad",    name:"Vinea — Réva Vinná",        name_en:"Vinea — The Vine",
       cost:18,
-      desc:"Liber de Cultura Vitis. Réva se množí řízky, ne semínkem. Odemkne: Vinohrad (Vinea) — 6 slotů pro révu.",
-      desc_en:"Liber de Cultura Vitis. Vines propagate by cutting, not by seed. Unlocks: Vineyard (Vinea) — 6 vine slots.",
+      desc:"Liber de Cultura Vitis. Réva se množí řízky, ne semínkem. Odemkne: záložku Vinohrad. Pro výsadbu révy nejdříve postav Vinohrad (Vinea) v Cellarium → Budovy.",
+      desc_en:"Liber de Cultura Vitis. Vines propagate by cutting, not by seed. Unlocks: Vineyard tab. To plant vines, first build the Vineyard (Vinea) in Cellarium → Buildings.",
       unlocks:[], requires:["tech_de_re_rustica"] },
 
     { id:"tech_vinifikace",  name:"Ars Vinificandi",            name_en:"Ars Vinificandi",
@@ -12823,6 +12870,9 @@ const CellariumSystem = {
     const hasKov  = GameState.researchedTechs && GameState.researchedTechs.includes('tech_kovarina');
     const hasRust = GameState.researchedTechs && GameState.researchedTechs.includes('tech_de_re_rustica');
     const hasCrop = GameState.researchedTechs && GameState.researchedTechs.includes('tech_crop_rotation');
+    const hasVin  = GameState.researchedTechs && GameState.researchedTechs.includes('tech_vinohrad');
+    const hasVinF = GameState.researchedTechs && GameState.researchedTechs.includes('tech_vinifikace');
+    const hasTonn = GameState.researchedTechs && GameState.researchedTechs.includes('tech_tonnellerie');
 
     const title = lang === 'en' ? 'Buildings' : 'Budovy';
 
@@ -12885,6 +12935,55 @@ const CellariumSystem = {
         req_tech: hasCrop,
         req_build: GameState.storage && GameState.storage.sulci && GameState.storage.sulci.built,
         req_label: lang === 'en' ? 'Requires: Sulci built' : 'Nutné: Brázdy postaveny',
+      },
+      // ── VINOHRAD ────────────────────────────────────────────────────────
+      {
+        id: 'vinea', icon: '🍇',
+        name: 'Vinohrad (Vinea)', name_en: 'Vineyard (Vinea)',
+        desc: 'Ohrada s dřevěnými opěrami a drátěným vedením pro révu. Odemkne výsadbu révy (6 slotů).',
+        desc_en: 'Enclosure with wooden stakes and wire training for vines. Unlocks vine planting (6 slots).',
+        cost: { plank: 12, rope: 6, rock: 6 },
+        req_tech: hasVin, req_build: true, req_label: null,
+      },
+      {
+        id: 'prelum', icon: '🍷',
+        name: 'Prelum — Vinný lis', name_en: 'Prelum — Wine Press',
+        desc: 'Dřevěný rám, kamenná podlaha, železné šrouby. Odemkne lisování hroznů → Mustum.',
+        desc_en: 'Wooden frame, stone floor, iron screws. Unlocks grape pressing → Mustum.',
+        cost: { plank: 8, rope: 4, rock: 6, iron_ingot: 2 },
+        req_tech: hasVin,
+        req_build: GameState.storage && GameState.storage.vinea && GameState.storage.vinea.built,
+        req_label: lang === 'en' ? 'Requires: Vinea built' : 'Nutné: Vinohrad (Vinea) postaven',
+      },
+      {
+        id: 'cella_fermentaria', icon: '🫙',
+        name: 'Cella fermentaria', name_en: 'Cella fermentaria',
+        desc: 'Hliněné nádoby, kamenné zdivo, chlad. Odemkne fermentaci → Vinum a Vinum Rubrum.',
+        desc_en: 'Clay vessels, stone masonry, cool air. Unlocks fermentation → Vinum and Vinum Rubrum.',
+        cost: { plank: 10, rock: 8, rope: 3, clay: 4 },
+        req_tech: hasVinF,
+        req_build: GameState.storage && GameState.storage.prelum && GameState.storage.prelum.built,
+        req_label: lang === 'en' ? 'Requires: Prelum built + Ars Vinificandi' : 'Nutné: Prelum postaveno + Ars Vinificandi',
+      },
+      {
+        id: 'foudres', icon: '🛢️',
+        name: 'Foudres — Sudy', name_en: 'Foudres — Barrels',
+        desc: 'Velké dubové sudy. Víno zrající v sudu získá jantarovou barvu. Odemkne Vinum Praeclarum.',
+        desc_en: 'Large oak barrels. Wine aged in the barrel gains amber colour. Unlocks Vinum Praeclarum.',
+        cost: { plank: 15, rope: 6, iron_ingot: 3 },
+        req_tech: hasTonn,
+        req_build: GameState.storage && GameState.storage.cella_fermentaria && GameState.storage.cella_fermentaria.built,
+        req_label: lang === 'en' ? 'Requires: Cella fermentaria + Ars Tonnellaria' : 'Nutné: Cella fermentaria + Ars Tonnellaria',
+      },
+      {
+        id: 'bedna_dilna', icon: '🪚',
+        name: 'Bednářská dílna', name_en: 'Cooperage',
+        desc: 'Výroba sudů z dubového dřeva pro export vína.',
+        desc_en: 'Craft oak barrels for wine export.',
+        cost: { plank: 12, iron_ingot: 4, rope: 5, leather: 2 },
+        req_tech: hasTonn,
+        req_build: GameState.storage && GameState.storage.foudres && GameState.storage.foudres.built,
+        req_label: lang === 'en' ? 'Requires: Foudres built' : 'Nutné: Foudres postaveny',
       },
     ];
 
@@ -14711,13 +14810,16 @@ const GardenSystem = {
         this._initVinea();
         const slot = GameState.vinea[idx];
         const variety = this.VINEA_DB[varietyId];
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
         if (!slot || !variety) return;
+        // Blokace — Vinea musí být postavena
+        if (!(GameState.storage && GameState.storage.vinea && GameState.storage.vinea.built)) {
+            UI.notify(lang==='en' ? 'Build Vineyard (Vinea) first — Cellarium → Buildings.' : 'Nejprve postav Vinohrad (Vinea) — Cellarium → Budovy.', true); return;
+        }
         if (slot.state !== 'empty') {
-            const lang = (GameState.settings && GameState.settings.language) || 'cs';
             UI.notify(lang==='en' ? 'Slot is occupied.' : 'Záhon je obsazený.', true); return;
         }
         if ((GameState.inventory[variety.viticis] || 0) < 1) {
-            const lang = (GameState.settings && GameState.settings.language) || 'cs';
             UI.notify(lang==='en' ? 'No cutting available.' : 'Nemáš řízek.', true); return;
         }
         Game.removeItem(variety.viticis, 1);
@@ -14732,7 +14834,6 @@ const GardenSystem = {
         slot.cuttingsAvailable = 0;
         Game.save();
         this.renderVinohrad();
-        const lang = (GameState.settings && GameState.settings.language) || 'cs';
         UI.notify('🌿 ' + (lang==='en' ? variety.name_en : variety.name) + (lang==='en' ? ' planted.' : ' zasazena.'));
     },
 
@@ -15161,6 +15262,7 @@ const GardenSystem = {
         const lang = (GameState.settings && GameState.settings.language) || 'cs';
         const techs = GameState.researchedTechs || [];
         const hasTech = techs.includes('tech_vinohrad');
+        const hasVinea = GameState.storage && GameState.storage.vinea && GameState.storage.vinea.built;
 
         if (!hasTech) {
             el.innerHTML = `
@@ -15170,13 +15272,34 @@ const GardenSystem = {
                     <h3 style="margin:0 0 8px 0; font-size:1rem;">${lang==='en'?'Vineyard (Vinea)':'Vinohrad (Vinea)'}</h3>
                     <p style="font-size:0.85rem; opacity:0.75; margin:0 0 12px 0; font-style:italic;">
                         ${lang==='en'
-                            ? 'Five varieties of vine — Heunisch, Klevner, Frankovka, Traminer, Modrý Janek. Each with its own ripening window and wine.'
-                            : 'Pět odrůd révy — Bělina, Klevner, Frankovka, Tramín, Modrý Janek. Každá se svým oknem sklizně a vínem.'}
+                            ? 'Six vine varieties — Heunisch, Klevner, Frankovka, Traminer, Modrý Janek, Baco Noir. Each with its own ripening window and wine.'
+                            : 'Šest odrůd révy — Bělina, Klevner, Frankovka, Tramín, Modrý Janek, Baco Noir. Každá se svým oknem sklizně a vínem.'}
                     </p>
                     <div style="font-size:0.8rem; padding:8px 12px; background:rgba(197,160,89,0.1); border-radius:6px; border-left:3px solid var(--accent-gold);">
                         🔒 ${lang==='en'
-                            ? '<strong>Requires:</strong> Study <em>Liber de Cultura Vitis</em> (Library → Master Bartholomew)'
-                            : '<strong>Nutné:</strong> Prostuduj <em>Liber de Cultura Vitis</em> (Knihovna → Starý Písař)'}
+                            ? '<strong>Requires:</strong> Study <em>Liber de Cultura Vitis</em> (Library → Master Bartholomew) or unlock with 120 ⚗️'
+                            : '<strong>Nutné:</strong> Prostuduj <em>Liber de Cultura Vitis</em> (Knihovna → Starý Písař) nebo odemkni za 120 ⚗️'}
+                    </div>
+                </div>
+            </div>`;
+            return;
+        }
+
+        if (!hasVinea) {
+            el.innerHTML = `
+            <div style="padding:20px 16px;">
+                <div style="background:rgba(197,160,89,0.08); border:1px solid rgba(197,160,89,0.3); border-radius:10px; padding:20px; margin-bottom:16px;">
+                    <div style="font-size:2rem; margin-bottom:10px;">🍇</div>
+                    <h3 style="margin:0 0 8px 0; font-size:1rem;">${lang==='en'?'Vineyard (Vinea)':'Vinohrad (Vinea)'}</h3>
+                    <p style="font-size:0.85rem; opacity:0.75; margin:0 0 12px 0; font-style:italic;">
+                        ${lang==='en'
+                            ? 'The tech is known — but the vineyard has not been built yet.'
+                            : 'Technologie je zvládnuta — ale samotný vinohrad ještě nebyl postaven.'}
+                    </p>
+                    <div style="font-size:0.8rem; padding:8px 12px; background:rgba(197,160,89,0.1); border-radius:6px; border-left:3px solid var(--accent-gold);">
+                        🏗️ ${lang==='en'
+                            ? '<strong>Next:</strong> Build <em>Vinohrad (Vinea)</em> in Cellarium → Buildings (Plank ×12, Rope ×6, Stone ×6)'
+                            : '<strong>Další krok:</strong> Postav <em>Vinohrad (Vinea)</em> v Cellarium → Budovy (Prkno ×12, Provaz ×6, Kámen ×6)'}
                     </div>
                 </div>
             </div>`;
@@ -28822,76 +28945,33 @@ const Game = {
             GameState.dailyRewards.streak = 1;
         }
         
-        // ── DAILY REWARD SYSTEM v2 ───────────────────────────────────────────────
-        const streak = GameState.dailyRewards.streak;
-        const lang = (GameState.settings && GameState.settings.language) || 'cs';
-        let bonusText = '';
+        // Calculate bonus
+        let bonus = 1; // Base daily bonus
+        let bonusText = "+1 Research";
         let streakBonus = false;
-        const rewards = [];
-
-        // Milníky — override cyklu
-        if (streak === 100) {
-            rewards.push({item:'research', qty:10}, {item:'vellum', qty:1});
-            bonusText = lang==='en' ? '+10 Research + Vellum (100 days!)' : '+10 Research + Pergamen (100 dní!)';
+        
+        if (GameState.dailyRewards.streak === 3) {
+            bonus = 2;
+            bonusText = "+2 Research (3 dny streak!)";
             streakBonus = true;
-        } else if (streak === 60) {
-            const pool = ['lapis_lazuli','sulfur','mercury','resin','beeswax'];
-            const rare = pool[Math.floor(Math.random() * pool.length)];
-            rewards.push({item:'research', qty:5}, {item:rare, qty:1});
-            bonusText = lang==='en' ? '+5 Research + rare find (60 days!) — "The Elder Scribe comes with a small pouch."' : '+5 Research + vzácná surovina (60 dní!) — "Starý Písař přichází s váčkem."';
+        } else if (GameState.dailyRewards.streak === 7) {
+            bonus = 3;
+            bonusText = "+3 Research (7 dní streak! 🎉)";
             streakBonus = true;
-        } else if (streak === 30) {
-            rewards.push({item:'research', qty:5}, {item:'candle', qty:1});
-            bonusText = lang==='en' ? '+5 Research + Candle (30 days!) — "The Abbot has taken notice."' : '+5 Research + Svíčka (30 dní!) — "Měsíc věrnosti. Opat si tě všiml."';
+        } else if (GameState.dailyRewards.streak >= 10) {
+            bonus = 3;
+            bonusText = "+3 Research (Mistr věrnosti!)";
             streakBonus = true;
-        } else if (streak === 14) {
-            rewards.push({item:'research', qty:2}, {item:'paper', qty:1}, {item:'candle', qty:1});
-            bonusText = lang==='en' ? '+2 Research + Paper + Candle (14 days!) — "The manuscript is taking shape."' : '+2 Zápisek + Papír + Svíčka (14 dní!) — "Rukopis se začíná rýsovat."';
-            streakBonus = true;
-        } else {
-            // Cyklus dní 1–7 (opakuje se mezi milníky)
-            const cycleDay = ((streak - 1) % 7) + 1;
-            if (cycleDay === 1) {
-                bonusText = lang==='en' ? '"First day in the monastery. Be silent and observe."' : '"První den v klášteře. Mlč a pozoruj."';
-            } else if (cycleDay === 2) {
-                rewards.push({item:'paper', qty:1});
-                bonusText = lang==='en' ? '+1 Paper — "You found a sheet behind the altar."' : '+1 Papír — "Nalezl jsi arch za oltářem."';
-            } else if (cycleDay === 3) {
-                if (Math.random() < 0.5) { rewards.push({item:'paper', qty:1}); bonusText = lang==='en'?'+1 Paper':'+1 Papír'; }
-                else { rewards.push({item:'ink', qty:1}); bonusText = lang==='en'?'+1 Ink':'+1 Inkoust'; }
-                bonusText += lang==='en' ? ' — "The Elder Scribe left something on the lectern."' : ' — "Starý Písař něco nechal na pulpitu."';
-            } else if (cycleDay === 4) {
-                rewards.push({item:'research', qty:1});
-                bonusText = lang==='en' ? '+1 Research — "The Abbot noticed you for the first time."' : '+1 Zápisek — "Opat si tě poprvé všiml."';
-            } else if (cycleDay === 5) {
-                rewards.push({item:'paper', qty:1});
-                bonusText = lang==='en' ? '+1 Paper — "You take only what you need."' : '+1 Papír — "Bereš jen co potřebuješ."';
-            } else if (cycleDay === 6) {
-                const r6 = Math.random();
-                if (r6 < 0.4) { rewards.push({item:'paper', qty:1}); bonusText = lang==='en'?'+1 Paper':'+1 Papír'; }
-                else if (r6 < 0.7) { rewards.push({item:'ink', qty:1}); bonusText = lang==='en'?'+1 Ink':'+1 Inkoust'; }
-                else { rewards.push({item:'research', qty:1}); bonusText = lang==='en'?'+1 Research':'+1 Zápisek'; }
-                bonusText += lang==='en' ? ' — "Hands are stiff, but the mind is clear."' : ' — "Ruce jsou ztuhlé, ale mysl jasná."';
-            } else if (cycleDay === 7) {
-                rewards.push({item:'research', qty:1}, {item:'paper', qty:1});
-                bonusText = lang==='en' ? '+1 Research + Paper — "Seven days. You have made a habit."' : '+1 Zápisek + Papír — "Sedm dní. Stvořil jsi návyk."';
-                streakBonus = true;
-            }
         }
-
-        // Grant rewards
-        rewards.forEach(r => this.addItem(r.item, r.qty));
-
+        
         // Grant bonus
         // ========== NEW: Apply canonical hours research buff ==========
         if (typeof CanonicalHours !== 'undefined') {
             const researchMult = CanonicalHours.getResearchMultiplier();
-            const researchReward = rewards.find(r => r.item === 'research');
-            if (researchReward && researchMult > 1) {
-                const bonus = Math.floor(researchReward.qty * (researchMult - 1));
-                if (bonus > 0) this.addItem('research', bonus);
-            }
+            bonus = Math.floor(bonus * researchMult);
         }
+        
+        this.addItem('research', bonus);
         GameState.dailyRewards.lastBonusClaimed = now;
         
         // Get daily fact
@@ -29170,26 +29250,53 @@ const Game = {
 	buildStorage: function(type) {
 		const lang = (GameState.settings && GameState.settings.language) || 'cs';
 		if (!GameState.storage) GameState.storage = { almarium: {built:false}, cella: {built:false}, horreum: {built:false}, fabrica: {built:false}, sulci: {built:false}, humno: {built:false} };
-		if (!GameState.storage.fabrica) GameState.storage.fabrica = {built:false};
-		if (!GameState.storage.sulci)   GameState.storage.sulci   = {built:false};
-		if (!GameState.storage.humno)   GameState.storage.humno   = {built:false};
+		if (!GameState.storage.fabrica)           GameState.storage.fabrica           = {built:false};
+		if (!GameState.storage.sulci)             GameState.storage.sulci             = {built:false};
+		if (!GameState.storage.humno)             GameState.storage.humno             = {built:false};
+		if (!GameState.storage.vinea)             GameState.storage.vinea             = {built:false};
+		if (!GameState.storage.prelum)            GameState.storage.prelum            = {built:false};
+		if (!GameState.storage.cella_fermentaria) GameState.storage.cella_fermentaria = {built:false};
+		if (!GameState.storage.foudres)           GameState.storage.foudres           = {built:false};
+		if (!GameState.storage.bedna_dilna)       GameState.storage.bedna_dilna       = {built:false};
 		if (!GameState.storage.transactions) GameState.storage.transactions = [];
+		// Prereq checks — storage buildings
 		if (type === 'cella' && !GameState.storage.almarium.built) {
 			UI.notify(lang==='en' ? 'Build Almarium first.' : 'Nejprve postav Almarium.', true); return;
 		}
 		if (type === 'horreum' && !GameState.storage.cella.built) {
 			UI.notify(lang==='en' ? 'Build Cella first.' : 'Nejprve postav Cellu.', true); return;
 		}
+		// Prereq checks — Vinohrad buildings
+		if (type === 'vinea' && !(GameState.researchedTechs && GameState.researchedTechs.includes('tech_vinohrad'))) {
+			UI.notify(lang==='en' ? 'Research Vinea first.' : 'Nejprve prozkoumej tech Vinea.', true); return;
+		}
+		if (type === 'prelum' && !GameState.storage.vinea.built) {
+			UI.notify(lang==='en' ? 'Build Vinea first.' : 'Nejprve postav Vinohrad (Vinea).', true); return;
+		}
+		if (type === 'cella_fermentaria' && !GameState.storage.prelum.built) {
+			UI.notify(lang==='en' ? 'Build Prelum first.' : 'Nejprve postav Prelum (Lis).', true); return;
+		}
+		if (type === 'foudres' && !GameState.storage.cella_fermentaria.built) {
+			UI.notify(lang==='en' ? 'Build Cella fermentaria first.' : 'Nejprve postav Cella fermentaria.', true); return;
+		}
+		if (type === 'bedna_dilna' && !GameState.storage.foudres.built) {
+			UI.notify(lang==='en' ? 'Build Foudres first.' : 'Nejprve postav Foudres.', true); return;
+		}
 		if (GameState.storage[type] && GameState.storage[type].built) {
 			UI.notify(lang==='en' ? 'Already built.' : 'Jiz postaveno.', true); return;
 		}
 		const costs = {
-			almarium: { plank: 6, rope: 3, leather: 2 },
-			cella:    { cut_stone: 12, rope: 5, chalk: 4 },
-			horreum:  { cut_stone: 20, plank: 10, glue: 4, rope: 6 },
-			fabrica:  { rock: 30, plank: 15, charcoal: 10, anvil: 1 },
-			sulci:    { plank: 8, rope: 4, stick: 10 },
-			humno:    { cut_stone: 8, plank: 6, rope: 3 },
+			almarium:          { plank: 6,  rope: 3,  leather: 2 },
+			cella:             { cut_stone: 12, rope: 5, chalk: 4 },
+			horreum:           { cut_stone: 20, plank: 10, glue: 4, rope: 6 },
+			fabrica:           { rock: 30,  plank: 15, charcoal: 10, anvil: 1 },
+			sulci:             { plank: 8,  rope: 4,  stick: 10 },
+			humno:             { cut_stone: 8, plank: 6, rope: 3 },
+			vinea:             { plank: 12, rope: 6,  rock: 6 },
+			prelum:            { plank: 8,  rope: 4,  rock: 6,  iron_ingot: 2 },
+			cella_fermentaria: { plank: 10, rock: 8,  rope: 3,  clay: 4 },
+			foudres:           { plank: 15, rope: 6,  iron_ingot: 3 },
+			bedna_dilna:       { plank: 12, iron_ingot: 4, rope: 5, leather: 2 },
 		};
 		const cost = costs[type];
 		if (!cost) return;
@@ -29202,11 +29309,16 @@ const Game = {
 		for (const [item, amt] of Object.entries(cost)) { this.removeItem(item, amt); }
 		GameState.storage[type].built = true;
 		Game.save();
-		const names = { almarium: 'Almarium', cella: 'Cella', horreum: 'Horreum', fabrica: 'Fabrica', sulci: 'Sulci', humno: 'Humno' };
-		const n = names[type];
+		const names = {
+			almarium: 'Almarium', cella: 'Cella', horreum: 'Horreum',
+			fabrica: 'Fabrica', sulci: 'Sulci', humno: 'Humno',
+			vinea: 'Vinea', prelum: 'Prelum', cella_fermentaria: 'Cella fermentaria',
+			foudres: 'Foudres', bedna_dilna: 'Bednářská dílna',
+		};
+		const n = names[type] || type;
 		UI.notifyPanel('🏗️ ' + (lang==='en' ? n+' built.' : n+' postaveno.'), 'system');
 		Game.addKronikaEntry('important', n+' postaveno.', n+' built.', n+' aedificatum est.');
-		// BUG #7 fix — re-render Buildings tabu po stavbě
+		// re-render Buildings tabu po stavbě
 		if (typeof CellariumSystem !== 'undefined') {
 			if (!GameState.ui) GameState.ui = {};
 			GameState.ui.cellariumEntity = 'buildings';

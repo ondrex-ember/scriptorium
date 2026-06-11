@@ -1743,13 +1743,16 @@ const GardenSystem = {
         this._initVinea();
         const slot = GameState.vinea[idx];
         const variety = this.VINEA_DB[varietyId];
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
         if (!slot || !variety) return;
+        // Blokace — Vinea musí být postavena
+        if (!(GameState.storage && GameState.storage.vinea && GameState.storage.vinea.built)) {
+            UI.notify(lang==='en' ? 'Build Vineyard (Vinea) first — Cellarium → Buildings.' : 'Nejprve postav Vinohrad (Vinea) — Cellarium → Budovy.', true); return;
+        }
         if (slot.state !== 'empty') {
-            const lang = (GameState.settings && GameState.settings.language) || 'cs';
             UI.notify(lang==='en' ? 'Slot is occupied.' : 'Záhon je obsazený.', true); return;
         }
         if ((GameState.inventory[variety.viticis] || 0) < 1) {
-            const lang = (GameState.settings && GameState.settings.language) || 'cs';
             UI.notify(lang==='en' ? 'No cutting available.' : 'Nemáš řízek.', true); return;
         }
         Game.removeItem(variety.viticis, 1);
@@ -1764,7 +1767,6 @@ const GardenSystem = {
         slot.cuttingsAvailable = 0;
         Game.save();
         this.renderVinohrad();
-        const lang = (GameState.settings && GameState.settings.language) || 'cs';
         UI.notify('🌿 ' + (lang==='en' ? variety.name_en : variety.name) + (lang==='en' ? ' planted.' : ' zasazena.'));
     },
 
@@ -2193,6 +2195,7 @@ const GardenSystem = {
         const lang = (GameState.settings && GameState.settings.language) || 'cs';
         const techs = GameState.researchedTechs || [];
         const hasTech = techs.includes('tech_vinohrad');
+        const hasVinea = GameState.storage && GameState.storage.vinea && GameState.storage.vinea.built;
 
         if (!hasTech) {
             el.innerHTML = `
@@ -2202,13 +2205,34 @@ const GardenSystem = {
                     <h3 style="margin:0 0 8px 0; font-size:1rem;">${lang==='en'?'Vineyard (Vinea)':'Vinohrad (Vinea)'}</h3>
                     <p style="font-size:0.85rem; opacity:0.75; margin:0 0 12px 0; font-style:italic;">
                         ${lang==='en'
-                            ? 'Five varieties of vine — Heunisch, Klevner, Frankovka, Traminer, Modrý Janek. Each with its own ripening window and wine.'
-                            : 'Pět odrůd révy — Bělina, Klevner, Frankovka, Tramín, Modrý Janek. Každá se svým oknem sklizně a vínem.'}
+                            ? 'Six vine varieties — Heunisch, Klevner, Frankovka, Traminer, Modrý Janek, Baco Noir. Each with its own ripening window and wine.'
+                            : 'Šest odrůd révy — Bělina, Klevner, Frankovka, Tramín, Modrý Janek, Baco Noir. Každá se svým oknem sklizně a vínem.'}
                     </p>
                     <div style="font-size:0.8rem; padding:8px 12px; background:rgba(197,160,89,0.1); border-radius:6px; border-left:3px solid var(--accent-gold);">
                         🔒 ${lang==='en'
-                            ? '<strong>Requires:</strong> Study <em>Liber de Cultura Vitis</em> (Library → Master Bartholomew)'
-                            : '<strong>Nutné:</strong> Prostuduj <em>Liber de Cultura Vitis</em> (Knihovna → Starý Písař)'}
+                            ? '<strong>Requires:</strong> Study <em>Liber de Cultura Vitis</em> (Library → Master Bartholomew) or unlock with 120 ⚗️'
+                            : '<strong>Nutné:</strong> Prostuduj <em>Liber de Cultura Vitis</em> (Knihovna → Starý Písař) nebo odemkni za 120 ⚗️'}
+                    </div>
+                </div>
+            </div>`;
+            return;
+        }
+
+        if (!hasVinea) {
+            el.innerHTML = `
+            <div style="padding:20px 16px;">
+                <div style="background:rgba(197,160,89,0.08); border:1px solid rgba(197,160,89,0.3); border-radius:10px; padding:20px; margin-bottom:16px;">
+                    <div style="font-size:2rem; margin-bottom:10px;">🍇</div>
+                    <h3 style="margin:0 0 8px 0; font-size:1rem;">${lang==='en'?'Vineyard (Vinea)':'Vinohrad (Vinea)'}</h3>
+                    <p style="font-size:0.85rem; opacity:0.75; margin:0 0 12px 0; font-style:italic;">
+                        ${lang==='en'
+                            ? 'The tech is known — but the vineyard has not been built yet.'
+                            : 'Technologie je zvládnuta — ale samotný vinohrad ještě nebyl postaven.'}
+                    </p>
+                    <div style="font-size:0.8rem; padding:8px 12px; background:rgba(197,160,89,0.1); border-radius:6px; border-left:3px solid var(--accent-gold);">
+                        🏗️ ${lang==='en'
+                            ? '<strong>Next:</strong> Build <em>Vinohrad (Vinea)</em> in Cellarium → Buildings (Plank ×12, Rope ×6, Stone ×6)'
+                            : '<strong>Další krok:</strong> Postav <em>Vinohrad (Vinea)</em> v Cellarium → Budovy (Prkno ×12, Provaz ×6, Kámen ×6)'}
                     </div>
                 </div>
             </div>`;

@@ -201,8 +201,8 @@ const TechTree = [
     // ── VINOHRAD (Vinea) ─────────────────────────────────────────────────────
     { id:"tech_vinohrad",    name:"Vinea — Réva Vinná",        name_en:"Vinea — The Vine",
       cost:18,
-      desc:"Liber de Cultura Vitis. Réva se množí řízky, ne semínkem. Odemkne: Vinohrad (Vinea) — 6 slotů pro révu.",
-      desc_en:"Liber de Cultura Vitis. Vines propagate by cutting, not by seed. Unlocks: Vineyard (Vinea) — 6 vine slots.",
+      desc:"Liber de Cultura Vitis. Réva se množí řízky, ne semínkem. Odemkne: záložku Vinohrad. Pro výsadbu révy nejdříve postav Vinohrad (Vinea) v Cellarium → Budovy.",
+      desc_en:"Liber de Cultura Vitis. Vines propagate by cutting, not by seed. Unlocks: Vineyard tab. To plant vines, first build the Vineyard (Vinea) in Cellarium → Buildings.",
       unlocks:[], requires:["tech_de_re_rustica"] },
 
     { id:"tech_vinifikace",  name:"Ars Vinificandi",            name_en:"Ars Vinificandi",

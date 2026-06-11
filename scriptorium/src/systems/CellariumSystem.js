@@ -1051,6 +1051,9 @@ const CellariumSystem = {
     const hasKov  = GameState.researchedTechs && GameState.researchedTechs.includes('tech_kovarina');
     const hasRust = GameState.researchedTechs && GameState.researchedTechs.includes('tech_de_re_rustica');
     const hasCrop = GameState.researchedTechs && GameState.researchedTechs.includes('tech_crop_rotation');
+    const hasVin  = GameState.researchedTechs && GameState.researchedTechs.includes('tech_vinohrad');
+    const hasVinF = GameState.researchedTechs && GameState.researchedTechs.includes('tech_vinifikace');
+    const hasTonn = GameState.researchedTechs && GameState.researchedTechs.includes('tech_tonnellerie');
 
     const title = lang === 'en' ? 'Buildings' : 'Budovy';
 
@@ -1113,6 +1116,55 @@ const CellariumSystem = {
         req_tech: hasCrop,
         req_build: GameState.storage && GameState.storage.sulci && GameState.storage.sulci.built,
         req_label: lang === 'en' ? 'Requires: Sulci built' : 'Nutné: Brázdy postaveny',
+      },
+      // ── VINOHRAD ────────────────────────────────────────────────────────
+      {
+        id: 'vinea', icon: '🍇',
+        name: 'Vinohrad (Vinea)', name_en: 'Vineyard (Vinea)',
+        desc: 'Ohrada s dřevěnými opěrami a drátěným vedením pro révu. Odemkne výsadbu révy (6 slotů).',
+        desc_en: 'Enclosure with wooden stakes and wire training for vines. Unlocks vine planting (6 slots).',
+        cost: { plank: 12, rope: 6, rock: 6 },
+        req_tech: hasVin, req_build: true, req_label: null,
+      },
+      {
+        id: 'prelum', icon: '🍷',
+        name: 'Prelum — Vinný lis', name_en: 'Prelum — Wine Press',
+        desc: 'Dřevěný rám, kamenná podlaha, železné šrouby. Odemkne lisování hroznů → Mustum.',
+        desc_en: 'Wooden frame, stone floor, iron screws. Unlocks grape pressing → Mustum.',
+        cost: { plank: 8, rope: 4, rock: 6, iron_ingot: 2 },
+        req_tech: hasVin,
+        req_build: GameState.storage && GameState.storage.vinea && GameState.storage.vinea.built,
+        req_label: lang === 'en' ? 'Requires: Vinea built' : 'Nutné: Vinohrad (Vinea) postaven',
+      },
+      {
+        id: 'cella_fermentaria', icon: '🫙',
+        name: 'Cella fermentaria', name_en: 'Cella fermentaria',
+        desc: 'Hliněné nádoby, kamenné zdivo, chlad. Odemkne fermentaci → Vinum a Vinum Rubrum.',
+        desc_en: 'Clay vessels, stone masonry, cool air. Unlocks fermentation → Vinum and Vinum Rubrum.',
+        cost: { plank: 10, rock: 8, rope: 3, clay: 4 },
+        req_tech: hasVinF,
+        req_build: GameState.storage && GameState.storage.prelum && GameState.storage.prelum.built,
+        req_label: lang === 'en' ? 'Requires: Prelum built + Ars Vinificandi' : 'Nutné: Prelum postaveno + Ars Vinificandi',
+      },
+      {
+        id: 'foudres', icon: '🛢️',
+        name: 'Foudres — Sudy', name_en: 'Foudres — Barrels',
+        desc: 'Velké dubové sudy. Víno zrající v sudu získá jantarovou barvu. Odemkne Vinum Praeclarum.',
+        desc_en: 'Large oak barrels. Wine aged in the barrel gains amber colour. Unlocks Vinum Praeclarum.',
+        cost: { plank: 15, rope: 6, iron_ingot: 3 },
+        req_tech: hasTonn,
+        req_build: GameState.storage && GameState.storage.cella_fermentaria && GameState.storage.cella_fermentaria.built,
+        req_label: lang === 'en' ? 'Requires: Cella fermentaria + Ars Tonnellaria' : 'Nutné: Cella fermentaria + Ars Tonnellaria',
+      },
+      {
+        id: 'bedna_dilna', icon: '🪚',
+        name: 'Bednářská dílna', name_en: 'Cooperage',
+        desc: 'Výroba sudů z dubového dřeva pro export vína.',
+        desc_en: 'Craft oak barrels for wine export.',
+        cost: { plank: 12, iron_ingot: 4, rope: 5, leather: 2 },
+        req_tech: hasTonn,
+        req_build: GameState.storage && GameState.storage.foudres && GameState.storage.foudres.built,
+        req_label: lang === 'en' ? 'Requires: Foudres built' : 'Nutné: Foudres postaveny',
       },
     ];
 

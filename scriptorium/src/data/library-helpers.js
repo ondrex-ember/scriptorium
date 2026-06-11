@@ -265,6 +265,28 @@ const LibraryHelpers = {
         if (!GameState.library.readBooks.includes(bookId)) {
             GameState.library.readBooks.push(bookId);
         }
+
+        // unlocksTech: odemkni technologie při prvním přečtení
+        if (book.unlocksTech && Array.isArray(book.unlocksTech)) {
+            const lang = (GameState.settings && GameState.settings.language) || 'cs';
+            book.unlocksTech.forEach(techId => {
+                if (!GameState.researchedTechs.includes(techId)) {
+                    GameState.researchedTechs.push(techId);
+                    const techObj = typeof TechTree !== 'undefined' ? TechTree.find(x => x.id === techId) : null;
+                    const techName = techObj ? (lang === 'en' ? (techObj.name_en || techObj.name) : techObj.name) : techId;
+                    NotificationSystem.panel('📚 ' + (lang === 'en' ? 'Discovered: ' : 'Poznáno: ') + techName, 'system');
+                    Game.addKronikaEntry('important',
+                        '📚 Studiem knihy poznáno: ' + techName,
+                        '📚 Discovered through study: ' + techName,
+                        '📚 Per librum cognitum: ' + techName
+                    );
+                }
+            });
+            // Re-render aktivního garden tabu pokud je Vinohrad otevřen
+            if (typeof GardenSystem !== 'undefined' && GardenSystem._activeTab === 'vinohrad') {
+                GardenSystem.renderVinohrad();
+            }
+        }
         
         // Show modal with book content
         UI.showBookModal(book);
@@ -284,6 +306,31 @@ const LibraryHelpers = {
         if (typeof UI.renderLibrary === 'function') {
             UI.renderLibrary();
         }
+    },
+
+    // Odemknutí knihy výzkumem (dříve než unlockDay)
+    unlockBookByResearch: function(bookId) {
+        const book = LibraryDB.books.find(b => b.id === bookId);
+        if (!book || !book.unlockResearch) return;
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+
+        // Zkontroluj research
+        const hasResearch = (GameState.inventory.research || 0) >= book.unlockResearch;
+        if (!hasResearch) {
+            UI.notify((lang === 'en'
+                ? 'Not enough research points. Need: '
+                : 'Nedostatek výzkumných bodů. Potřeba: ') + book.unlockResearch + ' ⚗️', true);
+            return;
+        }
+
+        // Odečti research a odemkni
+        Game.removeItem('research', book.unlockResearch);
+        if (!GameState.library.unlockedBooks.includes(bookId)) {
+            GameState.library.unlockedBooks.push(bookId);
+        }
+        Game.save();
+        NotificationSystem.panel('📚 ' + (lang === 'en' ? 'Book unlocked: ' : 'Kniha odemčena: ') + book.title, 'system');
+        if (typeof UI.renderLibrary === 'function') UI.renderLibrary();
     },
     
     // Kontrola Easter eggs

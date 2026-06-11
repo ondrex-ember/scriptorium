@@ -2145,76 +2145,33 @@ const Game = {
             GameState.dailyRewards.streak = 1;
         }
         
-        // ── DAILY REWARD SYSTEM v2 ───────────────────────────────────────────────
-        const streak = GameState.dailyRewards.streak;
-        const lang = (GameState.settings && GameState.settings.language) || 'cs';
-        let bonusText = '';
+        // Calculate bonus
+        let bonus = 1; // Base daily bonus
+        let bonusText = "+1 Research";
         let streakBonus = false;
-        const rewards = [];
-
-        // Milníky — override cyklu
-        if (streak === 100) {
-            rewards.push({item:'research', qty:10}, {item:'vellum', qty:1});
-            bonusText = lang==='en' ? '+10 Research + Vellum (100 days!)' : '+10 Research + Pergamen (100 dní!)';
+        
+        if (GameState.dailyRewards.streak === 3) {
+            bonus = 2;
+            bonusText = "+2 Research (3 dny streak!)";
             streakBonus = true;
-        } else if (streak === 60) {
-            const pool = ['lapis_lazuli','sulfur','mercury','resin','beeswax'];
-            const rare = pool[Math.floor(Math.random() * pool.length)];
-            rewards.push({item:'research', qty:5}, {item:rare, qty:1});
-            bonusText = lang==='en' ? '+5 Research + rare find (60 days!) — "The Elder Scribe comes with a small pouch."' : '+5 Research + vzácná surovina (60 dní!) — "Starý Písař přichází s váčkem."';
+        } else if (GameState.dailyRewards.streak === 7) {
+            bonus = 3;
+            bonusText = "+3 Research (7 dní streak! 🎉)";
             streakBonus = true;
-        } else if (streak === 30) {
-            rewards.push({item:'research', qty:5}, {item:'candle', qty:1});
-            bonusText = lang==='en' ? '+5 Research + Candle (30 days!) — "The Abbot has taken notice."' : '+5 Research + Svíčka (30 dní!) — "Měsíc věrnosti. Opat si tě všiml."';
+        } else if (GameState.dailyRewards.streak >= 10) {
+            bonus = 3;
+            bonusText = "+3 Research (Mistr věrnosti!)";
             streakBonus = true;
-        } else if (streak === 14) {
-            rewards.push({item:'research', qty:2}, {item:'paper', qty:1}, {item:'candle', qty:1});
-            bonusText = lang==='en' ? '+2 Research + Paper + Candle (14 days!) — "The manuscript is taking shape."' : '+2 Zápisek + Papír + Svíčka (14 dní!) — "Rukopis se začíná rýsovat."';
-            streakBonus = true;
-        } else {
-            // Cyklus dní 1–7 (opakuje se mezi milníky)
-            const cycleDay = ((streak - 1) % 7) + 1;
-            if (cycleDay === 1) {
-                bonusText = lang==='en' ? '"First day in the monastery. Be silent and observe."' : '"První den v klášteře. Mlč a pozoruj."';
-            } else if (cycleDay === 2) {
-                rewards.push({item:'paper', qty:1});
-                bonusText = lang==='en' ? '+1 Paper — "You found a sheet behind the altar."' : '+1 Papír — "Nalezl jsi arch za oltářem."';
-            } else if (cycleDay === 3) {
-                if (Math.random() < 0.5) { rewards.push({item:'paper', qty:1}); bonusText = lang==='en'?'+1 Paper':'+1 Papír'; }
-                else { rewards.push({item:'ink', qty:1}); bonusText = lang==='en'?'+1 Ink':'+1 Inkoust'; }
-                bonusText += lang==='en' ? ' — "The Elder Scribe left something on the lectern."' : ' — "Starý Písař něco nechal na pulpitu."';
-            } else if (cycleDay === 4) {
-                rewards.push({item:'research', qty:1});
-                bonusText = lang==='en' ? '+1 Research — "The Abbot noticed you for the first time."' : '+1 Zápisek — "Opat si tě poprvé všiml."';
-            } else if (cycleDay === 5) {
-                rewards.push({item:'paper', qty:1});
-                bonusText = lang==='en' ? '+1 Paper — "You take only what you need."' : '+1 Papír — "Bereš jen co potřebuješ."';
-            } else if (cycleDay === 6) {
-                const r6 = Math.random();
-                if (r6 < 0.4) { rewards.push({item:'paper', qty:1}); bonusText = lang==='en'?'+1 Paper':'+1 Papír'; }
-                else if (r6 < 0.7) { rewards.push({item:'ink', qty:1}); bonusText = lang==='en'?'+1 Ink':'+1 Inkoust'; }
-                else { rewards.push({item:'research', qty:1}); bonusText = lang==='en'?'+1 Research':'+1 Zápisek'; }
-                bonusText += lang==='en' ? ' — "Hands are stiff, but the mind is clear."' : ' — "Ruce jsou ztuhlé, ale mysl jasná."';
-            } else if (cycleDay === 7) {
-                rewards.push({item:'research', qty:1}, {item:'paper', qty:1});
-                bonusText = lang==='en' ? '+1 Research + Paper — "Seven days. You have made a habit."' : '+1 Zápisek + Papír — "Sedm dní. Stvořil jsi návyk."';
-                streakBonus = true;
-            }
         }
-
-        // Grant rewards
-        rewards.forEach(r => this.addItem(r.item, r.qty));
-
+        
         // Grant bonus
         // ========== NEW: Apply canonical hours research buff ==========
         if (typeof CanonicalHours !== 'undefined') {
             const researchMult = CanonicalHours.getResearchMultiplier();
-            const researchReward = rewards.find(r => r.item === 'research');
-            if (researchReward && researchMult > 1) {
-                const bonus = Math.floor(researchReward.qty * (researchMult - 1));
-                if (bonus > 0) this.addItem('research', bonus);
-            }
+            bonus = Math.floor(bonus * researchMult);
         }
+        
+        this.addItem('research', bonus);
         GameState.dailyRewards.lastBonusClaimed = now;
         
         // Get daily fact
@@ -2493,26 +2450,53 @@ const Game = {
 	buildStorage: function(type) {
 		const lang = (GameState.settings && GameState.settings.language) || 'cs';
 		if (!GameState.storage) GameState.storage = { almarium: {built:false}, cella: {built:false}, horreum: {built:false}, fabrica: {built:false}, sulci: {built:false}, humno: {built:false} };
-		if (!GameState.storage.fabrica) GameState.storage.fabrica = {built:false};
-		if (!GameState.storage.sulci)   GameState.storage.sulci   = {built:false};
-		if (!GameState.storage.humno)   GameState.storage.humno   = {built:false};
+		if (!GameState.storage.fabrica)           GameState.storage.fabrica           = {built:false};
+		if (!GameState.storage.sulci)             GameState.storage.sulci             = {built:false};
+		if (!GameState.storage.humno)             GameState.storage.humno             = {built:false};
+		if (!GameState.storage.vinea)             GameState.storage.vinea             = {built:false};
+		if (!GameState.storage.prelum)            GameState.storage.prelum            = {built:false};
+		if (!GameState.storage.cella_fermentaria) GameState.storage.cella_fermentaria = {built:false};
+		if (!GameState.storage.foudres)           GameState.storage.foudres           = {built:false};
+		if (!GameState.storage.bedna_dilna)       GameState.storage.bedna_dilna       = {built:false};
 		if (!GameState.storage.transactions) GameState.storage.transactions = [];
+		// Prereq checks — storage buildings
 		if (type === 'cella' && !GameState.storage.almarium.built) {
 			UI.notify(lang==='en' ? 'Build Almarium first.' : 'Nejprve postav Almarium.', true); return;
 		}
 		if (type === 'horreum' && !GameState.storage.cella.built) {
 			UI.notify(lang==='en' ? 'Build Cella first.' : 'Nejprve postav Cellu.', true); return;
 		}
+		// Prereq checks — Vinohrad buildings
+		if (type === 'vinea' && !(GameState.researchedTechs && GameState.researchedTechs.includes('tech_vinohrad'))) {
+			UI.notify(lang==='en' ? 'Research Vinea first.' : 'Nejprve prozkoumej tech Vinea.', true); return;
+		}
+		if (type === 'prelum' && !GameState.storage.vinea.built) {
+			UI.notify(lang==='en' ? 'Build Vinea first.' : 'Nejprve postav Vinohrad (Vinea).', true); return;
+		}
+		if (type === 'cella_fermentaria' && !GameState.storage.prelum.built) {
+			UI.notify(lang==='en' ? 'Build Prelum first.' : 'Nejprve postav Prelum (Lis).', true); return;
+		}
+		if (type === 'foudres' && !GameState.storage.cella_fermentaria.built) {
+			UI.notify(lang==='en' ? 'Build Cella fermentaria first.' : 'Nejprve postav Cella fermentaria.', true); return;
+		}
+		if (type === 'bedna_dilna' && !GameState.storage.foudres.built) {
+			UI.notify(lang==='en' ? 'Build Foudres first.' : 'Nejprve postav Foudres.', true); return;
+		}
 		if (GameState.storage[type] && GameState.storage[type].built) {
 			UI.notify(lang==='en' ? 'Already built.' : 'Jiz postaveno.', true); return;
 		}
 		const costs = {
-			almarium: { plank: 6, rope: 3, leather: 2 },
-			cella:    { cut_stone: 12, rope: 5, chalk: 4 },
-			horreum:  { cut_stone: 20, plank: 10, glue: 4, rope: 6 },
-			fabrica:  { rock: 30, plank: 15, charcoal: 10, anvil: 1 },
-			sulci:    { plank: 8, rope: 4, stick: 10 },
-			humno:    { cut_stone: 8, plank: 6, rope: 3 },
+			almarium:          { plank: 6,  rope: 3,  leather: 2 },
+			cella:             { cut_stone: 12, rope: 5, chalk: 4 },
+			horreum:           { cut_stone: 20, plank: 10, glue: 4, rope: 6 },
+			fabrica:           { rock: 30,  plank: 15, charcoal: 10, anvil: 1 },
+			sulci:             { plank: 8,  rope: 4,  stick: 10 },
+			humno:             { cut_stone: 8, plank: 6, rope: 3 },
+			vinea:             { plank: 12, rope: 6,  rock: 6 },
+			prelum:            { plank: 8,  rope: 4,  rock: 6,  iron_ingot: 2 },
+			cella_fermentaria: { plank: 10, rock: 8,  rope: 3,  clay: 4 },
+			foudres:           { plank: 15, rope: 6,  iron_ingot: 3 },
+			bedna_dilna:       { plank: 12, iron_ingot: 4, rope: 5, leather: 2 },
 		};
 		const cost = costs[type];
 		if (!cost) return;
@@ -2525,11 +2509,16 @@ const Game = {
 		for (const [item, amt] of Object.entries(cost)) { this.removeItem(item, amt); }
 		GameState.storage[type].built = true;
 		Game.save();
-		const names = { almarium: 'Almarium', cella: 'Cella', horreum: 'Horreum', fabrica: 'Fabrica', sulci: 'Sulci', humno: 'Humno' };
-		const n = names[type];
+		const names = {
+			almarium: 'Almarium', cella: 'Cella', horreum: 'Horreum',
+			fabrica: 'Fabrica', sulci: 'Sulci', humno: 'Humno',
+			vinea: 'Vinea', prelum: 'Prelum', cella_fermentaria: 'Cella fermentaria',
+			foudres: 'Foudres', bedna_dilna: 'Bednářská dílna',
+		};
+		const n = names[type] || type;
 		UI.notifyPanel('🏗️ ' + (lang==='en' ? n+' built.' : n+' postaveno.'), 'system');
 		Game.addKronikaEntry('important', n+' postaveno.', n+' built.', n+' aedificatum est.');
-		// BUG #7 fix — re-render Buildings tabu po stavbě
+		// re-render Buildings tabu po stavbě
 		if (typeof CellariumSystem !== 'undefined') {
 			if (!GameState.ui) GameState.ui = {};
 			GameState.ui.cellariumEntity = 'buildings';
