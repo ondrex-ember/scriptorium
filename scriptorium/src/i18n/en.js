@@ -241,7 +241,7 @@ const STRINGS_en = {
         policyBody: '• Thy progress (unlocked arts, achievements)\n• Session length and return visits\n• Which parts of the scriptorium thou dost frequent\n\nWhat we do NOT observe:\n• No personal data\n• IP addresses are anonymised\n• Naught is shared beyond Google Analytics\n\nConsent may be revoked by removing the localStorage key "scriptorium_consent".'
     },
     welcome: {
-        text: 'Thou hast found an abandoned workshop.<br><br>Upon the desk: a cold tinderbox, a shard of flint, a few sheets of parchment thick with dust. Through the shutter comes a steady knocking — someone in the next street works a new machine. They call it a <em>printing press</em>.<br><br>That is outside. In here there is only dark and cold.<br><br><strong>Begin with what thou hast. So let the fire be kindled upon the hearth anon!</strong>',
+        text: 'Thou hast found an abandoned workshop.<br><br>Upon the desk: a cold tinderbox, a shard of flint, a few sheets of parchment thick with dust. Through the shutter comes a steady knocking — someone in the next street works a new machine. They call it a <em>printing press</em>.<br><br>That is outside. In here there is only dark and cold.<br><br><strong style="font-size:1.1em;">❄️ Thy fingers grow stiff with cold and yet work awaits.<br>The hearth must be kindled.</strong><br><br><span style="font-size:0.9em; opacity:0.8;">👉 Click <strong>Kindle</strong> in the Workshop to begin.</span>',
         btn: 'Enter →',
         aboutLink: 'About & Credits →'
     },
@@ -293,7 +293,6 @@ const STRINGS_en = {
         tabCodex: 'Codex',
         tabNotebooks: '📓 Notebooks',
         tabAchievements: 'Achievements',
-        tabPersona: '🧑 Persona',
         notes: 'Notes:',
         discovered: 'Discovered:',
         notebooks_empty: 'Thou hast no notebooks as yet',
@@ -305,6 +304,7 @@ const STRINGS_en = {
     },
     library: {
         tabBooks: '📚 Books',
+        tabRecords: '🏅 Records',
         tabGames: '🎲 Aula Ludi',
         tabIching: '☯️ Divination',
         tabNews: '📜 Tidings',
