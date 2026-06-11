@@ -2145,33 +2145,76 @@ const Game = {
             GameState.dailyRewards.streak = 1;
         }
         
-        // Calculate bonus
-        let bonus = 1; // Base daily bonus
-        let bonusText = "+1 Research";
+        // ── DAILY REWARD SYSTEM v2 ───────────────────────────────────────────────
+        const streak = GameState.dailyRewards.streak;
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        let bonusText = '';
         let streakBonus = false;
-        
-        if (GameState.dailyRewards.streak === 3) {
-            bonus = 2;
-            bonusText = "+2 Research (3 dny streak!)";
+        const rewards = [];
+
+        // Milníky — override cyklu
+        if (streak === 100) {
+            rewards.push({item:'research', qty:10}, {item:'vellum', qty:1});
+            bonusText = lang==='en' ? '+10 Research + Vellum (100 days!)' : '+10 Research + Pergamen (100 dní!)';
             streakBonus = true;
-        } else if (GameState.dailyRewards.streak === 7) {
-            bonus = 3;
-            bonusText = "+3 Research (7 dní streak! 🎉)";
+        } else if (streak === 60) {
+            const pool = ['lapis_lazuli','sulfur','mercury','resin','beeswax'];
+            const rare = pool[Math.floor(Math.random() * pool.length)];
+            rewards.push({item:'research', qty:5}, {item:rare, qty:1});
+            bonusText = lang==='en' ? '+5 Research + rare find (60 days!) — "The Elder Scribe comes with a small pouch."' : '+5 Research + vzácná surovina (60 dní!) — "Starý Písař přichází s váčkem."';
             streakBonus = true;
-        } else if (GameState.dailyRewards.streak >= 10) {
-            bonus = 3;
-            bonusText = "+3 Research (Mistr věrnosti!)";
+        } else if (streak === 30) {
+            rewards.push({item:'research', qty:5}, {item:'candle', qty:1});
+            bonusText = lang==='en' ? '+5 Research + Candle (30 days!) — "The Abbot has taken notice."' : '+5 Research + Svíčka (30 dní!) — "Měsíc věrnosti. Opat si tě všiml."';
             streakBonus = true;
+        } else if (streak === 14) {
+            rewards.push({item:'research', qty:2}, {item:'paper', qty:1}, {item:'candle', qty:1});
+            bonusText = lang==='en' ? '+2 Research + Paper + Candle (14 days!) — "The manuscript is taking shape."' : '+2 Zápisek + Papír + Svíčka (14 dní!) — "Rukopis se začíná rýsovat."';
+            streakBonus = true;
+        } else {
+            // Cyklus dní 1–7 (opakuje se mezi milníky)
+            const cycleDay = ((streak - 1) % 7) + 1;
+            if (cycleDay === 1) {
+                bonusText = lang==='en' ? '"First day in the monastery. Be silent and observe."' : '"První den v klášteře. Mlč a pozoruj."';
+            } else if (cycleDay === 2) {
+                rewards.push({item:'paper', qty:1});
+                bonusText = lang==='en' ? '+1 Paper — "You found a sheet behind the altar."' : '+1 Papír — "Nalezl jsi arch za oltářem."';
+            } else if (cycleDay === 3) {
+                if (Math.random() < 0.5) { rewards.push({item:'paper', qty:1}); bonusText = lang==='en'?'+1 Paper':'+1 Papír'; }
+                else { rewards.push({item:'ink', qty:1}); bonusText = lang==='en'?'+1 Ink':'+1 Inkoust'; }
+                bonusText += lang==='en' ? ' — "The Elder Scribe left something on the lectern."' : ' — "Starý Písař něco nechal na pulpitu."';
+            } else if (cycleDay === 4) {
+                rewards.push({item:'research', qty:1});
+                bonusText = lang==='en' ? '+1 Research — "The Abbot noticed you for the first time."' : '+1 Zápisek — "Opat si tě poprvé všiml."';
+            } else if (cycleDay === 5) {
+                rewards.push({item:'paper', qty:1});
+                bonusText = lang==='en' ? '+1 Paper — "You take only what you need."' : '+1 Papír — "Bereš jen co potřebuješ."';
+            } else if (cycleDay === 6) {
+                const r6 = Math.random();
+                if (r6 < 0.4) { rewards.push({item:'paper', qty:1}); bonusText = lang==='en'?'+1 Paper':'+1 Papír'; }
+                else if (r6 < 0.7) { rewards.push({item:'ink', qty:1}); bonusText = lang==='en'?'+1 Ink':'+1 Inkoust'; }
+                else { rewards.push({item:'research', qty:1}); bonusText = lang==='en'?'+1 Research':'+1 Zápisek'; }
+                bonusText += lang==='en' ? ' — "Hands are stiff, but the mind is clear."' : ' — "Ruce jsou ztuhlé, ale mysl jasná."';
+            } else if (cycleDay === 7) {
+                rewards.push({item:'research', qty:1}, {item:'paper', qty:1});
+                bonusText = lang==='en' ? '+1 Research + Paper — "Seven days. You have made a habit."' : '+1 Zápisek + Papír — "Sedm dní. Stvořil jsi návyk."';
+                streakBonus = true;
+            }
         }
-        
+
+        // Grant rewards
+        rewards.forEach(r => this.addItem(r.item, r.qty));
+
         // Grant bonus
         // ========== NEW: Apply canonical hours research buff ==========
         if (typeof CanonicalHours !== 'undefined') {
             const researchMult = CanonicalHours.getResearchMultiplier();
-            bonus = Math.floor(bonus * researchMult);
+            const researchReward = rewards.find(r => r.item === 'research');
+            if (researchReward && researchMult > 1) {
+                const bonus = Math.floor(researchReward.qty * (researchMult - 1));
+                if (bonus > 0) this.addItem('research', bonus);
+            }
         }
-        
-        this.addItem('research', bonus);
         GameState.dailyRewards.lastBonusClaimed = now;
         
         // Get daily fact
