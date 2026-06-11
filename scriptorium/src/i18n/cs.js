@@ -362,7 +362,8 @@ const STRINGS_cs = {
             history: "Historie Tisku",
             innovation: "Inovace",
             conflict: "Konflikty",
-            local: "Praha & Čechy"
+            local: "Praha & Čechy",
+            viticis: "Vinohradnictví"
         },
         npc_scribe: {
             name: "Mistr Bartoloměj, Starý Písař",

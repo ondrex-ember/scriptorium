@@ -1531,6 +1531,11 @@ const Game = {
                     if(Math.random() < 0.20) this.addItem('clay', 1);
                     if(Math.random() < 0.10) this.addItem('seeds_herb', 1);
                 }
+                else if (type === 'dig_clay') {
+                    this.addItem('clay', Math.random() < 0.5 ? 3 : 2);
+                    if(Math.random() < 0.30) this.addItem('rock', 1);
+                    if(Math.random() < 0.10) this.addItem('worms', 1);
+                }
                 else if (type === 'yard_cleanup') {
                     this.addItem('scraps', Math.random() < 0.5 ? 2 : 1);
                     if(Math.random() < 0.40) this.addItem('feather_hen', 1);
@@ -1762,6 +1767,11 @@ const Game = {
                 if(Math.random() < 0.40) this.addItem('rock', 1);
                 if(Math.random() < 0.20) this.addItem('clay', 1);
                 if(Math.random() < 0.10) this.addItem('seeds_herb', 1);
+            }
+            else if (type === 'dig_clay') {
+                this.addItem('clay', Math.random() < 0.5 ? 3 : 2);
+                if(Math.random() < 0.30) this.addItem('rock', 1);
+                if(Math.random() < 0.10) this.addItem('worms', 1);
             }
             else if (type === 'yard_cleanup') {
                 this.addItem('scraps', Math.random() < 0.5 ? 2 : 1);

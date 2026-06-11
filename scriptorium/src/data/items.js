@@ -2,6 +2,7 @@ const ItemsDB = {
     // BASIC MATERIALS
     "tinderbox":       { name:"Troud",               name_en:"Tinderbox",              icon:"🔥", type:"tool",        desc:"Sada na oheň.",                                    desc_en:"A fire-starting kit." },
     "rock":            { name:"Kámen",               name_en:"Stone",                  icon:"🪨", type:"mat",         desc:"Tvrdý.",                                           desc_en:"Hard stone." },
+    "clay":            { name:"Hlína",               name_en:"Clay",                   icon:"🟤", type:"mat",         desc:"Jílovitá hlína z břehu potoka. Vhodná pro hrnčířství a stavbu.", desc_en:"Clay from a streambank. Good for pottery and construction." },
     "stick":           { name:"Větev",               name_en:"Branch",                 icon:"🪵", type:"mat",         desc:"Dřevo.",                                           desc_en:"A length of wood." },
     "fiber":           { name:"Tráva",               name_en:"Grass",                  icon:"🌾", type:"mat",         desc:"Vlákna.",                                          desc_en:"Plant fibres." },
     "bark":            { name:"Kůra",                name_en:"Bark",                   icon:"🍂", type:"mat",         desc:"Kůra stromu.",                                     desc_en:"Tree bark." },

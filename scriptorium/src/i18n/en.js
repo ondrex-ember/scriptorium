@@ -344,7 +344,8 @@ const STRINGS_en = {
             history: "History of the Press",
             innovation: "Innovations",
             conflict: "Conflicts",
-            local: "Prague & Bohemia"
+            local: "Prague & Bohemia",
+            viticis: "Viticulture"
         },
         npc_scribe: {
             name: "Master Bartholomew, The Elder Scribe",

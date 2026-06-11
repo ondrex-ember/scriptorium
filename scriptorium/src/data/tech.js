@@ -198,4 +198,23 @@ const TechTree = [
       desc_en:"Channels and ditches from the well to the field. Less water for irrigation, greater drought resistance. Columella wrote about this in the 1st century; monks rediscovered it.",
       unlocks:[], requires:["tech_field_drainage"] },
 
+    // ── VINOHRAD (Vinea) ─────────────────────────────────────────────────────
+    { id:"tech_vinohrad",    name:"Vinea — Réva Vinná",        name_en:"Vinea — The Vine",
+      cost:18,
+      desc:"Liber de Cultura Vitis. Réva se množí řízky, ne semínkem. Odemkne: Vinohrad (Vinea) — 6 slotů pro révu.",
+      desc_en:"Liber de Cultura Vitis. Vines propagate by cutting, not by seed. Unlocks: Vineyard (Vinea) — 6 vine slots.",
+      unlocks:[], requires:["tech_de_re_rustica"] },
+
+    { id:"tech_vinifikace",  name:"Ars Vinificandi",            name_en:"Ars Vinificandi",
+      cost:22,
+      desc:"Umění přeměny moštu ve víno. Fermentace, filtrace, stáčení. Odemkne: Cella fermentaria — výroba Vinum a Vinum Rubrum.",
+      desc_en:"The art of turning must into wine. Fermentation, filtration, racking. Unlocks: Cella fermentaria — producing Vinum and Vinum Rubrum.",
+      unlocks:[], requires:["tech_vinohrad"] },
+
+    { id:"tech_tonnellerie", name:"Ars Tonnellaria",            name_en:"Ars Tonnellaria",
+      cost:28,
+      desc:"Výroba sudů z dubového dřeva. Víno zrající v sudu získá jantarovou barvu a hlubší chuť. Odemkne: Foudres + Bednářská dílna.",
+      desc_en:"Cooperage — crafting oak barrels. Wine aged in the barrel gains amber colour and deeper flavour. Unlocks: Foudres + Cooperage.",
+      unlocks:[], requires:["tech_vinifikace"] },
+
 ];

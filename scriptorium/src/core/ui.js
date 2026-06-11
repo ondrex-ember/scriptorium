@@ -976,14 +976,21 @@ renderLibrary: function() {
                     const daysToUnlock = book.unlockDay - Math.floor(
                         (Date.now() - GameState.library.startDate) / (24 * 60 * 60 * 1000)
                     );
-                    
+                    const currentLang = (typeof GameState !== 'undefined' && GameState.settings && GameState.settings.language) || 'cs';
+                    const researchBtn = book.unlockResearch
+                        ? `<button class="craft-btn" style="font-size:0.78rem;" onclick="LibraryHelpers.unlockBookByResearch('${book.id}')">
+                               🔬 ${currentLang === 'en' ? 'Unlock' : 'Odemknout'} (${book.unlockResearch} ⚗️)
+                           </button>`
+                        : '';
+
                     h += `
-                        <div class="card" style="opacity:0.5;">
+                        <div class="card" style="opacity:0.6;">
                             <div class="item-icon" style="background:#666;">🔒</div>
                             <div style="flex:1;">
                                 <strong>???</strong>
                                 <div class="text-sm">${t('library_lore.lib_unlocks_in')} ${daysToUnlock} ${t('library_lore.lib_days')}</div>
                             </div>
+                            ${researchBtn}
                         </div>
                     `;
                 }

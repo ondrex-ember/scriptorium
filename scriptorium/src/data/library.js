@@ -1489,6 +1489,77 @@ The Prague groschen was, at the time of writing, one of the most stable currenci
 *"Every groschen has two sides. On one is the face of the king; on the other, the price of your reputation. Guard both equally."*
 
 **GAME EFFECT:** Unlocks the *Liber Rationum* tech — the account book in the Cellarium. Every transaction (purchase, sale, Giacomo, Market) is automatically recorded with date, goods, and price. You see trends, your best customers, and warnings of market saturation.`
+        },
+        {
+            id: 'liber_de_cultura_vitis',
+            title: 'Liber de Cultura Vitis',
+            category: 'viticis',
+            unlockDay: 47,
+            unlockResearch: 120,
+            unlocksTech: ['tech_vinohrad'],
+            icon: '🍇',
+            author: 'Olomoucký klášterní archiv',
+            year: 1423,
+            content: `**O povaze révy a jejím množení**
+
+Réva vinná není rostlina pro netrpělivé. Kdo ji zasadí ze semínka, dočká se plodu možná za pět let — a plodu nepředvídatelného, divokého, bez jakékoliv záruky kvality. Proto mniši odjakživa sáhli po řízku: odřežeš jednoletou větev v zimním klidu, zapícháš do vlhké země a čekáš. Réva sama ví, co má dělat.
+
+*"Non ex semine, sed ex sarmente."* — Nikoli ze semínka, ale z ratolesti.
+
+**Odrůdy olomouckého kraje**
+
+Nejstarší odrůdou na Moravě je Bělina, kterou starší písemnosti nazývají Heunisch. Přišla s Římany, přežila Tatary, přečkala mor. Zraje rychle, odpouští chyby, dává mošt sladký i kyselý podle počasí. Vhodná pro každého, kdo teprve začíná.
+
+Klevner — v Burgundsku mu říkají Rulandské bílé — přivezl na Moravu Karel IV. Zraje pomaleji, vyžaduje více péče, ale víno z něj je čisté a trvanlivé. Benediktini ho pěstují v Třebíči již od roku 1101.
+
+Frankovka je jiná — tmavá, modrá, silná. Na Znojemsku ji pěstují s oblibou a říkají, že víno z ní je "velmi kvalitní." Zraje stejně jako Klevner, ale chce jiného odběratele — kupce, který zná cenu červeného.
+
+Tramín červený — vzácný host. Jeho řízek nedostaneš na trhu. Musíš ho získat od vlastní révy nebo od cizince, který prochází. Zraje nejdéle, okno sklizně nejkratší. Ale Vinum Praeclarum z Tramínu — to je víno pro biskupský stůl.
+
+Modrý Janek je znojemská rarita. Mutace Veltlínského zeleného, nízký výnos, tmavé víno zvláštní chuti. Říká se, že má afinitu k ohni Athanoru.
+
+**O prořezu a sklizni**
+
+Réva se prořezává na jaře — v březnu nebo dubnu, dřív než se probudí míza. Bez prořezu réva roste bujně ale plodí chaoticky. S prořezem dáš ratolesti směr a výnos vzroste. A navíc — z ořezaných výhonů získáš řízky pro nové výsadby.
+
+Sklizeň má své okno. Bělina čeká trpělivě — třicet dní. Tramín jen čtrnáct. Kdo prošvihne okno, najde hrozny na zemi.
+
+**Moravská stopa**
+
+Znojemský cech vinařů byl založen 3. listopadu 1486. Horenské právo, perkmistr, každoroční shromáždění vinařů. Klášter v Louce u Znojma vlastnil roku 1620 vinice ve 45 obcích. Réva a klášter patřily k sobě od pradávna.
+
+*"Qui vitam vitis non curat, nec vinum meretur."*
+Kdo nepečuje o život révy, nezaslouží si víno.`,
+            content_en: `**On the Nature of the Vine and Its Propagation**
+
+The grapevine is no plant for the impatient. Those who plant from seed may wait five years for fruit — unpredictable, wild, with no guarantee of quality. This is why monks have always reached for the cutting: trim a one-year branch in winter dormancy, press it into moist earth, and wait. The vine knows what to do.
+
+*"Non ex semine, sed ex sarmente."* — Not from seed, but from the shoot.
+
+**Varieties of the Olomouc Region**
+
+The oldest variety in Moravia is Bělina, which older manuscripts call Heunisch. It came with the Romans, survived the Tatars, outlasted the plague. It ripens quickly, forgives mistakes, gives must sweet or sour depending on the weather. Suitable for any beginner.
+
+Klevner — in Burgundy they call it Pinot Blanc — was brought to Moravia by Charles IV. It ripens more slowly, demands more care, but the wine is clean and lasting. The Benedictines have grown it in Třebíč since 1101.
+
+Frankovka is different — dark, blue, strong. In the Znojmo region they say the wine is "very fine." It ripens like Klevner, but requires a different buyer — one who knows the value of red.
+
+Red Traminer — a rare guest. Its cutting cannot be found at market. You must obtain it from your own vine, or from a stranger passing through. It ripens the latest, its harvest window the shortest. But Vinum Praeclarum from Traminer — that is wine for the bishop's table.
+
+Modrý Janek is a Znojmo rarity. A mutation of Grüner Veltliner, low yield, a dark wine of peculiar taste. It is said to have an affinity with the fire of the Athanor.
+
+**On Pruning and Harvest**
+
+The vine is pruned in spring — March or April, before the sap wakes. Without pruning the vine grows lush but yields chaotically. With pruning you give the shoot direction, and yield increases. And moreover — from the trimmed shoots you gain cuttings for new plantings.
+
+The harvest has its window. Bělina waits patiently — thirty days. Traminer only fourteen. Those who miss the window find the grapes on the ground.
+
+**The Moravian Thread**
+
+The Znojmo winemakers' guild was founded on 3 November 1486. Horenské právo, the perkmistr, the annual assembly of vintners. The monastery at Louka near Znojmo held vineyards in 45 villages by 1620. Vine and monastery have belonged together since time immemorial.
+
+*"Qui vitam vitis non curat, nec vinum meretur."*
+He who does not tend the life of the vine does not deserve the wine.`
         }
     ],
 
@@ -1502,7 +1573,8 @@ The Prague groschen was, at the time of writing, one of the most stable currenci
         'history': { name: 'Historie Tisku', icon: '📜', desc: 'Krvavé počátky, zrady a triumfy prvních tiskařů.' },
         'innovation': { name: 'Inovace', icon: '💡', desc: 'Technologické milníky, které navždy změnily tvář knih.' },
         'conflict': { name: 'Konflikty', icon: '⚔️', desc: 'Cenzura, války písařů a zničené knihovny.' },
-        'local': { name: 'Praha & Čechy', icon: '🏰', desc: 'Tajemství pražských uliček a českých luhů.' }
+        'local': { name: 'Praha & Čechy', icon: '🏰', desc: 'Tajemství pražských uliček a českých luhů.' },
+        'viticis': { name: 'Vinohradnictví', icon: '🍇', desc: 'Réva, víno a tajemství klášterních vinohradů.' }
     }
 };
 

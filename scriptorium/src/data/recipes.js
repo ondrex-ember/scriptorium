@@ -344,4 +344,29 @@ const RecipesDB = [
     { id:"repair_iron_shovel", output:"iron_shovel", qty:1, req:{worn_iron_shovel:1,  iron_tongs:1}, cat:"tool", locked:true, desc:"Narovnání čepele lopaty.", desc_en:"Straighten the shovel blade." },
     { id:"repair_iron_saw",     output:"iron_saw",     qty:1, req:{worn_iron_saw:1,     iron_tongs:1}, cat:"tool", locked:true, desc:"Přebroušení zubů pily.", desc_en:"Re-sharpen the saw teeth." },
     { id:"repair_iron_pickaxe", output:"iron_pickaxe", qty:1, req:{worn_iron_pickaxe:1, iron_tongs:1}, cat:"tool", locked:true, desc:"Překování hrotu krumpáče.", desc_en:"Reforge the pickaxe head." },
+
+    // ── VINOHRAD — stavby ─────────────────────────────────────────────────────
+    { id:"prelum",            output:"prelum",            qty:1,
+      req:{plank:8, rope:4, rock:6, iron_ingot:2},
+      cat:"building", locked:true, maxStack:1,
+      desc:"Vinný lis. Dřevěný rám, kamenná podlaha, železné šrouby. Odemkne zpracování hroznů.",
+      desc_en:"Wine press. Wooden frame, stone floor, iron screws. Unlocks grape processing." },
+
+    { id:"cella_fermentaria", output:"cella_fermentaria", qty:1,
+      req:{plank:10, rock:8, rope:3, clay:4},
+      cat:"building", locked:true, maxStack:1,
+      desc:"Fermentační sklep. Hliněné nádoby, kamenné zdivo, chlad. Odemkne výrobu Vinum a Vinum Rubrum.",
+      desc_en:"Fermentation cellar. Clay vessels, stone masonry, cool air. Unlocks Vinum and Vinum Rubrum." },
+
+    { id:"foudres",           output:"foudres",           qty:1,
+      req:{plank:15, rope:6, iron_ingot:3},
+      cat:"building", locked:true, maxStack:1,
+      desc:"Velké dubové sudy. Víno zrající v sudu získá jantarovou barvu. Odemkne Vinum Praeclarum.",
+      desc_en:"Large oak barrels. Wine aged in the barrel gains amber colour. Unlocks Vinum Praeclarum." },
+
+    { id:"bedna_dilna",       output:"bedna_dilna",       qty:1,
+      req:{plank:12, iron_ingot:4, rope:5, leather:2},
+      cat:"building", locked:true, maxStack:1,
+      desc:"Bednářská dílna. Výroba sudů pro export vína. Odemkne řemeslo bednáře.",
+      desc_en:"Cooperage workshop. Craft barrels for wine export. Unlocks the cooper's craft." },
 ];

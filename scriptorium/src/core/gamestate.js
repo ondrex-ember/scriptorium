@@ -11,6 +11,7 @@ const ActionsDB = [
     { id: 'grass_gather', cat: 'scavenge', name: 'Posečení trávy',      name_en: 'Mow grass',           icon: '🌿',  desc: 'Tráva na seno',       desc_en: 'Grass for hay',       yield: 1, req: [{item:'stone_scythe', mult:0.7}, {item:'iron_scythe', mult:1.2}] },
     { id: 'wood_harvest', cat: 'scavenge', name: 'Těžba dřeva',         name_en: 'Harvest wood',        icon: '🪓',  desc: 'Kulatina/Větve',      desc_en: 'Logs / Branches',     yield: 1, req: [{item:'stone_axe', mult:0.7}, {item:'iron_axe', mult:1.2}] },
     { id: 'worms_dig',    cat: 'scavenge', name: 'Kopání červů',        name_en: 'Dig for worms',       icon: '🪱',  desc: 'Krmivo pro kapry',    desc_en: 'Feed for carp',       yield: 1, req: [{item:'stone_spade', mult:0.7}, {item:'iron_spade', mult:1.2}] },
+    { id: 'dig_clay',     cat: 'scavenge', name: 'Kopání hlíny',        name_en: 'Dig for clay',        icon: '🟤',  desc: 'Jílovitá hlína',      desc_en: 'Clay from the bank',  yield: 1, req: [{item:'stone_spade', mult:0.7}, {item:'iron_spade', mult:1.2}] },
     { id: 'yard_cleanup', cat: 'scavenge', name: 'Uklidit hospodářství',name_en: 'Clean the farmyard',  icon: '🧹',  desc: 'Zbytky + bonusy',     desc_en: 'Scraps + bonuses',    yield: 1 },
     // ── MINE ──────────────────────────────────────────────────────────────────
     { id: 'quarry_stone', cat: 'mine', collectMode: true,
