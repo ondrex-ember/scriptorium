@@ -1054,6 +1054,8 @@ const CellariumSystem = {
     const hasVin  = GameState.researchedTechs && GameState.researchedTechs.includes('tech_vinohrad');
     const hasVinF = GameState.researchedTechs && GameState.researchedTechs.includes('tech_vinifikace');
     const hasTonn = GameState.researchedTechs && GameState.researchedTechs.includes('tech_tonnellerie');
+    const hasUvar = GameState.researchedTechs && GameState.researchedTechs.includes('tech_uvarium');
+    const hasPOlei= GameState.researchedTechs && GameState.researchedTechs.includes('tech_prelum_olei');
 
     const title = lang === 'en' ? 'Buildings' : 'Budovy';
 
@@ -1117,7 +1119,29 @@ const CellariumSystem = {
         req_build: GameState.storage && GameState.storage.sulci && GameState.storage.sulci.built,
         req_label: lang === 'en' ? 'Requires: Sulci built' : 'Nutné: Brázdy postaveny',
       },
-      // ── VINOHRAD ────────────────────────────────────────────────────────
+      {
+        id: 'uvarium', icon: '☀️',
+        name: 'Uvarium — Sušárna', name_en: 'Uvarium — Drying House',
+        desc: 'Sušení hroznů na slunci a ve stínu. Giacomo přivezl znalost z Benátek. Výroba hrozinek.',
+        desc_en: 'Drying grapes in sun and shade. Giacomo brought the knowledge from Venice. Raisin production.',
+        cost: { plank: 8, rock: 4, rope: 3 },
+        req_tech: hasUvar,
+        req_build: GameState.storage && GameState.storage.foudres && GameState.storage.foudres.built,
+        req_label: lang === 'en' ? 'Requires: Foudres built + Uvarium tech' : 'Nutné: Foudres postaveny + tech Uvarium',
+      },
+      {
+        id: 'prelum_olei', icon: '🫙',
+        name: 'Prelum Olei — Lisovna', name_en: 'Prelum Olei — Oil Press',
+        desc: 'Lněný olej z pole lisovaný dřevěným klínem. Propojení Pole → Skriptorium.',
+        desc_en: 'Linseed oil from the field, pressed with a wooden wedge. Links Field → Scriptorium.',
+        cost: { plank: 10, rope: 4, rock: 4, iron_ingot: 1 },
+        req_tech: hasPOlei,
+        req_build: GameState.storage && GameState.storage.sulci && GameState.storage.sulci.built,
+        req_label: lang === 'en' ? 'Requires: Sulci built + Prelum Olei tech' : 'Nutné: Brázdy postaveny + tech Prelum Olei',
+      },
+    ];
+
+    const wineBuildings = [
       {
         id: 'vinea', icon: '🍇',
         name: 'Vinohrad (Vinea)', name_en: 'Vineyard (Vinea)',
@@ -1157,17 +1181,16 @@ const CellariumSystem = {
         req_label: lang === 'en' ? 'Requires: Cella fermentaria + Ars Tonnellaria' : 'Nutné: Cella fermentaria + Ars Tonnellaria',
       },
       {
-        id: 'bedna_dilna', icon: '🪚',
-        name: 'Bednářská dílna', name_en: 'Cooperage',
-        desc: 'Výroba sudů z dubového dřeva pro export vína.',
-        desc_en: 'Craft oak barrels for wine export.',
-        cost: { plank: 12, iron_ingot: 4, rope: 5, leather: 2 },
+        id: 'cellarium_vini', icon: '🏺',
+        name: 'Cellarium Vini — Vinný sklep', name_en: 'Cellarium Vini — Wine Cellar',
+        desc: 'Chladný sklep s regály pro sudy. Giacomo platí za víno o 30% více.',
+        desc_en: 'Cool cellar with barrel racks. Giacomo pays 30% more for wine.',
+        cost: { cut_stone: 10, plank: 6, rope: 4 },
         req_tech: hasTonn,
         req_build: GameState.storage && GameState.storage.foudres && GameState.storage.foudres.built,
         req_label: lang === 'en' ? 'Requires: Foudres built' : 'Nutné: Foudres postaveny',
       },
     ];
-
     const renderBuilding = (b) => {
       const built = storage[b.id] && storage[b.id].built;
       const canBuild = b.req_tech && b.req_build && !built;
@@ -1228,6 +1251,8 @@ const CellariumSystem = {
       h += `<div style="font-size:0.72rem; font-weight:bold; letter-spacing:0.06em; text-transform:uppercase; opacity:0.6; margin-bottom:6px;">📦 ${lang==='en' ? 'Storage' : 'Sklady'}</div>`;
       h += `<div style="font-size:0.78rem; margin-bottom:10px; padding:6px 8px; background:rgba(197,160,89,0.08); border-radius:6px;">${capLabel}</div>`;
       storageBuildings.forEach(b => { h += renderBuilding(b); });
+      h += `<div style="font-size:0.72rem; font-weight:bold; letter-spacing:0.06em; text-transform:uppercase; opacity:0.6; margin-top:16px; margin-bottom:6px;">🍇 ${lang==='en' ? 'Winery' : 'Vinohrad'}</div>`;
+      wineBuildings.forEach(b => { h += renderBuilding(b); });
       h += `</div>`;
 
       h += `<div>`;

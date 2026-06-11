@@ -352,6 +352,8 @@ const ItemsDB = {
     "vinum_obscurum":      { name:"Vinum Obscurum",       name_en:"Vinum Obscurum",        icon:"🫙", type:"food", hunger:4,  desc:"Tmavé víno z Modrého Janka. Nízký výnos, znojemská kuriozita. Bonus v Athanoru.", desc_en:"Dark wine from Modrý Janek. Low yield, a Znojmo curiosity. Bonus in the Athanor." },
     "viticis_baco":        { name:"Řízek Baga",           name_en:"Baco Noir Cutting",     icon:"🌿", type:"mat",              desc:"Řízek Baco Noir (Bago). Odolný hybrid, divoce rostoucí. Vzácný nález při sběru.",   desc_en:"Baco Noir (Bago) cutting. A resilient hybrid, found growing wild. A rare find." },
     "vinum_baci":          { name:"Vinum Baci",           name_en:"Vinum Baci",            icon:"🍷", type:"food", hunger:4,  desc:"Tmavě rubínové víno z Baga. Silné barvivo, vhodné ke scelování. Lidové víno jižní Moravy.", desc_en:"Dark ruby wine from Baco Noir. Strong colourant, good for blending. A southern Moravian folk wine." },
+    "raisins":             { name:"Hrozinky",             name_en:"Raisins",               icon:"🍇", type:"food", hunger:3,  desc:"Sušené hrozny z Uvaria. Trvanlivé, sladké. Vhodné do jídla nebo na prodej.", desc_en:"Dried grapes from the Uvarium. Long-lasting and sweet. Good for food or trade." },
+    "linseed_oil":         { name:"Lněný olej",           name_en:"Linseed Oil",           icon:"🫙", type:"mat",             desc:"Olej lisovaný z lněného semene. Pojivo pro inkoust a pigmenty. Propojuje Pole se Skriptoriem.", desc_en:"Oil pressed from linseed. Binder for ink and pigments. Links the Field to the Scriptorium." },
 };
     // Oprava BUG #2 — semena stromů chybějící v ItemsDB (Trh nákup)
     // (vloženo před uzavírací }; — merge do objektu před buildem)

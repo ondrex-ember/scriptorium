@@ -217,4 +217,16 @@ const TechTree = [
       desc_en:"Cooperage — crafting oak barrels. Wine aged in the barrel gains amber colour and deeper flavour. Unlocks: Foudres + Cooperage.",
       unlocks:[], requires:["tech_vinifikace"] },
 
+    { id:"tech_uvarium",     name:"Uvarium — Sušárna hroznů",  name_en:"Uvarium — Drying House",
+      cost:22,
+      desc:"Umění sušení hroznů na slunci a ve stínu. Giacomo přivezl znalost z Benátek. Odemkne: Uvarium — výroba hrozinek.",
+      desc_en:"The art of drying grapes in sun and shade. Giacomo brought the knowledge from Venice. Unlocks: Uvarium — raisin production.",
+      unlocks:[], requires:["tech_tonnellerie"] },
+
+    { id:"tech_prelum_olei", name:"Prelum Olei — Lisovna oleje", name_en:"Prelum Olei — Oil Press",
+      cost:20,
+      desc:"Lněný olej z pole lisovaný dřevěným klínem. Propojení Pole → Skriptorium. Odemkne: Prelum Olei — výroba lněného oleje.",
+      desc_en:"Linseed oil from the field, pressed with a wooden wedge. Links Field → Scriptorium. Unlocks: Prelum Olei — linseed oil production.",
+      unlocks:[], requires:["tech_de_re_rustica","tech_vinohrad"] },
+
 ];

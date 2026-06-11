@@ -5230,6 +5230,8 @@ const ItemsDB = {
     "vinum_obscurum":      { name:"Vinum Obscurum",       name_en:"Vinum Obscurum",        icon:"🫙", type:"food", hunger:4,  desc:"Tmavé víno z Modrého Janka. Nízký výnos, znojemská kuriozita. Bonus v Athanoru.", desc_en:"Dark wine from Modrý Janek. Low yield, a Znojmo curiosity. Bonus in the Athanor." },
     "viticis_baco":        { name:"Řízek Baga",           name_en:"Baco Noir Cutting",     icon:"🌿", type:"mat",              desc:"Řízek Baco Noir (Bago). Odolný hybrid, divoce rostoucí. Vzácný nález při sběru.",   desc_en:"Baco Noir (Bago) cutting. A resilient hybrid, found growing wild. A rare find." },
     "vinum_baci":          { name:"Vinum Baci",           name_en:"Vinum Baci",            icon:"🍷", type:"food", hunger:4,  desc:"Tmavě rubínové víno z Baga. Silné barvivo, vhodné ke scelování. Lidové víno jižní Moravy.", desc_en:"Dark ruby wine from Baco Noir. Strong colourant, good for blending. A southern Moravian folk wine." },
+    "raisins":             { name:"Hrozinky",             name_en:"Raisins",               icon:"🍇", type:"food", hunger:3,  desc:"Sušené hrozny z Uvaria. Trvanlivé, sladké. Vhodné do jídla nebo na prodej.", desc_en:"Dried grapes from the Uvarium. Long-lasting and sweet. Good for food or trade." },
+    "linseed_oil":         { name:"Lněný olej",           name_en:"Linseed Oil",           icon:"🫙", type:"mat",             desc:"Olej lisovaný z lněného semene. Pojivo pro inkoust a pigmenty. Propojuje Pole se Skriptoriem.", desc_en:"Oil pressed from linseed. Binder for ink and pigments. Links the Field to the Scriptorium." },
 };
     // Oprava BUG #2 — semena stromů chybějící v ItemsDB (Trh nákup)
     // (vloženo před uzavírací }; — merge do objektu před buildem)
@@ -6536,6 +6538,18 @@ const TechTree = [
       desc:"Výroba sudů z dubového dřeva. Víno zrající v sudu získá jantarovou barvu a hlubší chuť. Odemkne: Foudres + Bednářská dílna.",
       desc_en:"Cooperage — crafting oak barrels. Wine aged in the barrel gains amber colour and deeper flavour. Unlocks: Foudres + Cooperage.",
       unlocks:[], requires:["tech_vinifikace"] },
+
+    { id:"tech_uvarium",     name:"Uvarium — Sušárna hroznů",  name_en:"Uvarium — Drying House",
+      cost:22,
+      desc:"Umění sušení hroznů na slunci a ve stínu. Giacomo přivezl znalost z Benátek. Odemkne: Uvarium — výroba hrozinek.",
+      desc_en:"The art of drying grapes in sun and shade. Giacomo brought the knowledge from Venice. Unlocks: Uvarium — raisin production.",
+      unlocks:[], requires:["tech_tonnellerie"] },
+
+    { id:"tech_prelum_olei", name:"Prelum Olei — Lisovna oleje", name_en:"Prelum Olei — Oil Press",
+      cost:20,
+      desc:"Lněný olej z pole lisovaný dřevěným klínem. Propojení Pole → Skriptorium. Odemkne: Prelum Olei — výroba lněného oleje.",
+      desc_en:"Linseed oil from the field, pressed with a wooden wedge. Links Field → Scriptorium. Unlocks: Prelum Olei — linseed oil production.",
+      unlocks:[], requires:["tech_de_re_rustica","tech_vinohrad"] },
 
 ];
 // ═══ src/core/gamestate.js ═══
@@ -12873,6 +12887,8 @@ const CellariumSystem = {
     const hasVin  = GameState.researchedTechs && GameState.researchedTechs.includes('tech_vinohrad');
     const hasVinF = GameState.researchedTechs && GameState.researchedTechs.includes('tech_vinifikace');
     const hasTonn = GameState.researchedTechs && GameState.researchedTechs.includes('tech_tonnellerie');
+    const hasUvar = GameState.researchedTechs && GameState.researchedTechs.includes('tech_uvarium');
+    const hasPOlei= GameState.researchedTechs && GameState.researchedTechs.includes('tech_prelum_olei');
 
     const title = lang === 'en' ? 'Buildings' : 'Budovy';
 
@@ -12936,7 +12952,29 @@ const CellariumSystem = {
         req_build: GameState.storage && GameState.storage.sulci && GameState.storage.sulci.built,
         req_label: lang === 'en' ? 'Requires: Sulci built' : 'Nutné: Brázdy postaveny',
       },
-      // ── VINOHRAD ────────────────────────────────────────────────────────
+      {
+        id: 'uvarium', icon: '☀️',
+        name: 'Uvarium — Sušárna', name_en: 'Uvarium — Drying House',
+        desc: 'Sušení hroznů na slunci a ve stínu. Giacomo přivezl znalost z Benátek. Výroba hrozinek.',
+        desc_en: 'Drying grapes in sun and shade. Giacomo brought the knowledge from Venice. Raisin production.',
+        cost: { plank: 8, rock: 4, rope: 3 },
+        req_tech: hasUvar,
+        req_build: GameState.storage && GameState.storage.foudres && GameState.storage.foudres.built,
+        req_label: lang === 'en' ? 'Requires: Foudres built + Uvarium tech' : 'Nutné: Foudres postaveny + tech Uvarium',
+      },
+      {
+        id: 'prelum_olei', icon: '🫙',
+        name: 'Prelum Olei — Lisovna', name_en: 'Prelum Olei — Oil Press',
+        desc: 'Lněný olej z pole lisovaný dřevěným klínem. Propojení Pole → Skriptorium.',
+        desc_en: 'Linseed oil from the field, pressed with a wooden wedge. Links Field → Scriptorium.',
+        cost: { plank: 10, rope: 4, rock: 4, iron_ingot: 1 },
+        req_tech: hasPOlei,
+        req_build: GameState.storage && GameState.storage.sulci && GameState.storage.sulci.built,
+        req_label: lang === 'en' ? 'Requires: Sulci built + Prelum Olei tech' : 'Nutné: Brázdy postaveny + tech Prelum Olei',
+      },
+    ];
+
+    const wineBuildings = [
       {
         id: 'vinea', icon: '🍇',
         name: 'Vinohrad (Vinea)', name_en: 'Vineyard (Vinea)',
@@ -12976,17 +13014,16 @@ const CellariumSystem = {
         req_label: lang === 'en' ? 'Requires: Cella fermentaria + Ars Tonnellaria' : 'Nutné: Cella fermentaria + Ars Tonnellaria',
       },
       {
-        id: 'bedna_dilna', icon: '🪚',
-        name: 'Bednářská dílna', name_en: 'Cooperage',
-        desc: 'Výroba sudů z dubového dřeva pro export vína.',
-        desc_en: 'Craft oak barrels for wine export.',
-        cost: { plank: 12, iron_ingot: 4, rope: 5, leather: 2 },
+        id: 'cellarium_vini', icon: '🏺',
+        name: 'Cellarium Vini — Vinný sklep', name_en: 'Cellarium Vini — Wine Cellar',
+        desc: 'Chladný sklep s regály pro sudy. Giacomo platí za víno o 30% více.',
+        desc_en: 'Cool cellar with barrel racks. Giacomo pays 30% more for wine.',
+        cost: { cut_stone: 10, plank: 6, rope: 4 },
         req_tech: hasTonn,
         req_build: GameState.storage && GameState.storage.foudres && GameState.storage.foudres.built,
         req_label: lang === 'en' ? 'Requires: Foudres built' : 'Nutné: Foudres postaveny',
       },
     ];
-
     const renderBuilding = (b) => {
       const built = storage[b.id] && storage[b.id].built;
       const canBuild = b.req_tech && b.req_build && !built;
@@ -13047,6 +13084,8 @@ const CellariumSystem = {
       h += `<div style="font-size:0.72rem; font-weight:bold; letter-spacing:0.06em; text-transform:uppercase; opacity:0.6; margin-bottom:6px;">📦 ${lang==='en' ? 'Storage' : 'Sklady'}</div>`;
       h += `<div style="font-size:0.78rem; margin-bottom:10px; padding:6px 8px; background:rgba(197,160,89,0.08); border-radius:6px;">${capLabel}</div>`;
       storageBuildings.forEach(b => { h += renderBuilding(b); });
+      h += `<div style="font-size:0.72rem; font-weight:bold; letter-spacing:0.06em; text-transform:uppercase; opacity:0.6; margin-top:16px; margin-bottom:6px;">🍇 ${lang==='en' ? 'Winery' : 'Vinohrad'}</div>`;
+      wineBuildings.forEach(b => { h += renderBuilding(b); });
       h += `</div>`;
 
       h += `<div>`;
@@ -29257,7 +29296,9 @@ const Game = {
 		if (!GameState.storage.prelum)            GameState.storage.prelum            = {built:false};
 		if (!GameState.storage.cella_fermentaria) GameState.storage.cella_fermentaria = {built:false};
 		if (!GameState.storage.foudres)           GameState.storage.foudres           = {built:false};
-		if (!GameState.storage.bedna_dilna)       GameState.storage.bedna_dilna       = {built:false};
+		if (!GameState.storage.cellarium_vini)    GameState.storage.cellarium_vini    = {built:false};
+		if (!GameState.storage.uvarium)           GameState.storage.uvarium           = {built:false};
+		if (!GameState.storage.prelum_olei)       GameState.storage.prelum_olei       = {built:false};
 		if (!GameState.storage.transactions) GameState.storage.transactions = [];
 		// Prereq checks — storage buildings
 		if (type === 'cella' && !GameState.storage.almarium.built) {
@@ -29279,8 +29320,14 @@ const Game = {
 		if (type === 'foudres' && !GameState.storage.cella_fermentaria.built) {
 			UI.notify(lang==='en' ? 'Build Cella fermentaria first.' : 'Nejprve postav Cella fermentaria.', true); return;
 		}
-		if (type === 'bedna_dilna' && !GameState.storage.foudres.built) {
+		if (type === 'cellarium_vini' && !GameState.storage.foudres.built) {
 			UI.notify(lang==='en' ? 'Build Foudres first.' : 'Nejprve postav Foudres.', true); return;
+		}
+		if (type === 'uvarium' && !GameState.storage.foudres.built) {
+			UI.notify(lang==='en' ? 'Build Foudres first.' : 'Nejprve postav Foudres.', true); return;
+		}
+		if (type === 'prelum_olei' && !(GameState.storage.sulci && GameState.storage.sulci.built)) {
+			UI.notify(lang==='en' ? 'Build Sulci first.' : 'Nejprve postav Brázdy (Sulci).', true); return;
 		}
 		if (GameState.storage[type] && GameState.storage[type].built) {
 			UI.notify(lang==='en' ? 'Already built.' : 'Jiz postaveno.', true); return;
@@ -29296,7 +29343,9 @@ const Game = {
 			prelum:            { plank: 8,  rope: 4,  rock: 6,  iron_ingot: 2 },
 			cella_fermentaria: { plank: 10, rock: 8,  rope: 3,  clay: 4 },
 			foudres:           { plank: 15, rope: 6,  iron_ingot: 3 },
-			bedna_dilna:       { plank: 12, iron_ingot: 4, rope: 5, leather: 2 },
+			cellarium_vini:    { cut_stone: 10, plank: 6, rope: 4 },
+			uvarium:           { plank: 8,  rock: 4,  rope: 3 },
+			prelum_olei:       { plank: 10, rope: 4,  rock: 4,  iron_ingot: 1 },
 		};
 		const cost = costs[type];
 		if (!cost) return;
@@ -29313,11 +29362,22 @@ const Game = {
 			almarium: 'Almarium', cella: 'Cella', horreum: 'Horreum',
 			fabrica: 'Fabrica', sulci: 'Sulci', humno: 'Humno',
 			vinea: 'Vinea', prelum: 'Prelum', cella_fermentaria: 'Cella fermentaria',
-			foudres: 'Foudres', bedna_dilna: 'Bednářská dílna',
+			foudres: 'Foudres', cellarium_vini: 'Cellarium Vini',
+			uvarium: 'Uvarium', prelum_olei: 'Prelum Olei',
 		};
 		const n = names[type] || type;
 		UI.notifyPanel('🏗️ ' + (lang==='en' ? n+' built.' : n+' postaveno.'), 'system');
 		Game.addKronikaEntry('important', n+' postaveno.', n+' built.', n+' aedificatum est.');
+		// Discovery: tech_prelum_olei při stavbě Sulci
+		if (type === 'sulci' && !(GameState.researchedTechs && GameState.researchedTechs.includes('tech_prelum_olei'))) {
+			const techObj = typeof TechTree !== 'undefined' ? TechTree.find(x => x.id === 'tech_prelum_olei') : null;
+			if (techObj) {
+				// Jen odemknout jako dostupný k výzkumu — ne přidat rovnou
+				NotificationSystem.panel('📜 ' + (lang==='en'
+					? 'The furrows reveal a new possibility — an oil press for linseed.'
+					: 'Brázdy odhalily novou možnost — lisovna pro lněný olej.'), 'system');
+			}
+		}
 		// re-render Buildings tabu po stavbě
 		if (typeof CellariumSystem !== 'undefined') {
 			if (!GameState.ui) GameState.ui = {};

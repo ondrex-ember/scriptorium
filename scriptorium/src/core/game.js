@@ -2457,7 +2457,9 @@ const Game = {
 		if (!GameState.storage.prelum)            GameState.storage.prelum            = {built:false};
 		if (!GameState.storage.cella_fermentaria) GameState.storage.cella_fermentaria = {built:false};
 		if (!GameState.storage.foudres)           GameState.storage.foudres           = {built:false};
-		if (!GameState.storage.bedna_dilna)       GameState.storage.bedna_dilna       = {built:false};
+		if (!GameState.storage.cellarium_vini)    GameState.storage.cellarium_vini    = {built:false};
+		if (!GameState.storage.uvarium)           GameState.storage.uvarium           = {built:false};
+		if (!GameState.storage.prelum_olei)       GameState.storage.prelum_olei       = {built:false};
 		if (!GameState.storage.transactions) GameState.storage.transactions = [];
 		// Prereq checks — storage buildings
 		if (type === 'cella' && !GameState.storage.almarium.built) {
@@ -2479,8 +2481,14 @@ const Game = {
 		if (type === 'foudres' && !GameState.storage.cella_fermentaria.built) {
 			UI.notify(lang==='en' ? 'Build Cella fermentaria first.' : 'Nejprve postav Cella fermentaria.', true); return;
 		}
-		if (type === 'bedna_dilna' && !GameState.storage.foudres.built) {
+		if (type === 'cellarium_vini' && !GameState.storage.foudres.built) {
 			UI.notify(lang==='en' ? 'Build Foudres first.' : 'Nejprve postav Foudres.', true); return;
+		}
+		if (type === 'uvarium' && !GameState.storage.foudres.built) {
+			UI.notify(lang==='en' ? 'Build Foudres first.' : 'Nejprve postav Foudres.', true); return;
+		}
+		if (type === 'prelum_olei' && !(GameState.storage.sulci && GameState.storage.sulci.built)) {
+			UI.notify(lang==='en' ? 'Build Sulci first.' : 'Nejprve postav Brázdy (Sulci).', true); return;
 		}
 		if (GameState.storage[type] && GameState.storage[type].built) {
 			UI.notify(lang==='en' ? 'Already built.' : 'Jiz postaveno.', true); return;
@@ -2496,7 +2504,9 @@ const Game = {
 			prelum:            { plank: 8,  rope: 4,  rock: 6,  iron_ingot: 2 },
 			cella_fermentaria: { plank: 10, rock: 8,  rope: 3,  clay: 4 },
 			foudres:           { plank: 15, rope: 6,  iron_ingot: 3 },
-			bedna_dilna:       { plank: 12, iron_ingot: 4, rope: 5, leather: 2 },
+			cellarium_vini:    { cut_stone: 10, plank: 6, rope: 4 },
+			uvarium:           { plank: 8,  rock: 4,  rope: 3 },
+			prelum_olei:       { plank: 10, rope: 4,  rock: 4,  iron_ingot: 1 },
 		};
 		const cost = costs[type];
 		if (!cost) return;
@@ -2513,11 +2523,22 @@ const Game = {
 			almarium: 'Almarium', cella: 'Cella', horreum: 'Horreum',
 			fabrica: 'Fabrica', sulci: 'Sulci', humno: 'Humno',
 			vinea: 'Vinea', prelum: 'Prelum', cella_fermentaria: 'Cella fermentaria',
-			foudres: 'Foudres', bedna_dilna: 'Bednářská dílna',
+			foudres: 'Foudres', cellarium_vini: 'Cellarium Vini',
+			uvarium: 'Uvarium', prelum_olei: 'Prelum Olei',
 		};
 		const n = names[type] || type;
 		UI.notifyPanel('🏗️ ' + (lang==='en' ? n+' built.' : n+' postaveno.'), 'system');
 		Game.addKronikaEntry('important', n+' postaveno.', n+' built.', n+' aedificatum est.');
+		// Discovery: tech_prelum_olei při stavbě Sulci
+		if (type === 'sulci' && !(GameState.researchedTechs && GameState.researchedTechs.includes('tech_prelum_olei'))) {
+			const techObj = typeof TechTree !== 'undefined' ? TechTree.find(x => x.id === 'tech_prelum_olei') : null;
+			if (techObj) {
+				// Jen odemknout jako dostupný k výzkumu — ne přidat rovnou
+				NotificationSystem.panel('📜 ' + (lang==='en'
+					? 'The furrows reveal a new possibility — an oil press for linseed.'
+					: 'Brázdy odhalily novou možnost — lisovna pro lněný olej.'), 'system');
+			}
+		}
 		// re-render Buildings tabu po stavbě
 		if (typeof CellariumSystem !== 'undefined') {
 			if (!GameState.ui) GameState.ui = {};
