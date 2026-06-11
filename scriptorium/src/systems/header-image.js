@@ -71,17 +71,22 @@ const HeaderImageSystem = {
 
         // Determine season
         let season = 'spring';
+        // Astronomické dělení roku — základ vždy
+        const now = new Date();
+        const m = now.getMonth() + 1;
+        const d = now.getDate();
+        if ((m === 3 && d >= 20) || m === 4 || m === 5 || (m === 6 && d < 21)) season = 'spring';
+        else if ((m === 6 && d >= 21) || m === 7 || m === 8 || (m === 9 && d < 23)) season = 'summer';
+        else if ((m === 9 && d >= 23) || m === 10 || m === 11 || (m === 12 && d < 21)) season = 'autumn';
+        else season = 'winter';
+
+        // ThemeSystem může vrátit validní roční období — použít jen pokud je to skutečná roční doba
         if (typeof ThemeSystem !== 'undefined' && WeatherSystem.cache) {
-            season = ThemeSystem.getWeatherBasedTheme();
-        } else {
-            // Fallback: astronomické dělení roku
-            const now = new Date();
-            const m = now.getMonth() + 1; // 1-12
-            const d = now.getDate();
-            if (m === 3 && d >= 20 || m === 4 || m === 5 || m === 6 && d < 21) season = 'spring';
-            else if (m === 6 && d >= 21 || m === 7 || m === 8 || m === 9 && d < 23) season = 'summer';
-            else if (m === 9 && d >= 23 || m === 10 || m === 11 || m === 12 && d < 21) season = 'autumn';
-            else season = 'winter';
+            const weatherTheme = ThemeSystem.getWeatherBasedTheme();
+            if (['spring', 'summer', 'autumn', 'winter'].includes(weatherTheme)) {
+                season = weatherTheme;
+            }
+            // 'default', 'dark' ignorujeme — zůstane astronomický season
         }
 
         const timeSlot = this.getTimeSlot();
