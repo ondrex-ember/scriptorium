@@ -2400,7 +2400,7 @@
             </div>
 
             <div id="screen-inv" class="screen">
-                <h2>Batoh</h2>
+                <h2>Zásoby</h2>
                 <div id="inv-filter-bar" class="filter-bar"
                     style="margin-top:10px; margin-bottom:15px; display:none; flex-wrap: wrap; gap: 5px;">
                     <button id="inv-filter-all" class="filter-btn active"
@@ -2747,7 +2747,7 @@
                 onclick="UI.switchScreen('garden', this)"><span>🌱</span>Zahrada</button>
             <button id="nav-craft" class="nav-btn"
                 onclick="UI.switchScreen('craft', this)"><span>⚒</span>Výroba</button>
-            <button id="nav-inv" class="nav-btn" onclick="UI.switchScreen('inv', this)"><span>🎒</span>Batoh</button>
+            <button id="nav-inv" class="nav-btn" onclick="UI.switchScreen('inv', this)"><span>🗄️</span>Zásoby</button>
             <button id="nav-lore" class="nav-btn"
                 onclick="UI.switchScreen('lore', this)"><span>✒</span>Scriptorium</button>
             <button id="nav-library" class="nav-btn"
@@ -22852,8 +22852,8 @@ const HnefataflGame = {
 // Při přidávání nového klíče: přidej SEM, pak do ostatních jazyků.
 
 const STRINGS_cs = {
-    nav: { home: 'Pracovna', garden: 'Zahrada', craft: 'Výroba', inv: 'Batoh', lore: 'Scriptorium', library: 'Knihovna' },
-    screens: { home: 'Pracovna', garden: 'Zahrada', craft: 'Výroba', inv: 'Batoh', lore: 'Scriptorium', library: 'Knihovna', settings: 'Nastavení', scavenge: 'Sběr', mine: 'Těžba' },
+    nav: { home: 'Pracovna', garden: 'Zahrada', craft: 'Výroba', inv: 'Zásoby', lore: 'Scriptorium', library: 'Knihovna' },
+    screens: { home: 'Pracovna', garden: 'Zahrada', craft: 'Výroba', inv: 'Zásoby', lore: 'Scriptorium', library: 'Knihovna', settings: 'Nastavení', scavenge: 'Sběr', mine: 'Těžba' },
     fireplace: {
         cold: 'Vyhaslý Krb', coldDesc: 'Je tu zima.', kindle: 'ROZEŽEHNOUT',
         lit: 'Hřejivý Krb', litDesc: 'Oheň dává život.'
@@ -24265,8 +24265,8 @@ const STRINGS_cs = {
 // Základ: STRINGS_cs. Chybějící klíče → fallback na CS automaticky.
 
 const STRINGS_en = {
-    nav: { home: 'Workshop', garden: 'Garden', craft: 'Craft', inv: 'Satchel', lore: 'Scriptorium', library: 'Library' },
-    screens: { home: 'Officina', garden: 'The Garden', craft: 'Crafting', inv: 'Thy Satchel', lore: 'Scriptorium', library: 'The Library', settings: 'Settings', scavenge: 'Scavenge', mine: 'Mine' },
+    nav: { home: 'Workshop', garden: 'Garden', craft: 'Craft', inv: 'Penum', lore: 'Scriptorium', library: 'Library' },
+    screens: { home: 'Officina', garden: 'The Garden', craft: 'Crafting', inv: 'Penum', lore: 'Scriptorium', library: 'The Library', settings: 'Settings', scavenge: 'Scavenge', mine: 'Mine' },
     header: { weatherNow: 'Presently in Prague (click to refresh)', weatherTomorrow: 'Morrow\'s forecast', hunger: 'Hunger', streak: 'Daily Streak', research: 'Knowledge Gathered', settings: 'Settings' },
     // ------------------------------
     fireplace: {
