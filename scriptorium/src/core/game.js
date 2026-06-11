@@ -505,6 +505,7 @@ const Game = {
                     // v8.x: Orchard growing → mature transition
                     Game.checkOrchardGrowth();
                     if (typeof GardenSystem !== 'undefined') GardenSystem.checkFieldGrowth();
+                    if (typeof GardenSystem !== 'undefined') GardenSystem.checkVineaGrowth();
                     Game.checkFarmyardProduction();
                     Game.checkPiscinaGrowth();
                 }

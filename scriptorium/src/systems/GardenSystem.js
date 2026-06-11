@@ -986,6 +986,8 @@ const GardenSystem = {
         document.getElementById('garden-tab-piscina').style.display  = tab === 'piscina'  ? '' : 'none';
         const poleEl = document.getElementById('garden-tab-pole');
         if (poleEl) poleEl.style.display = tab === 'pole' ? '' : 'none';
+        const vineaEl = document.getElementById('garden-tab-vinohrad');
+        if (vineaEl) vineaEl.style.display = tab === 'vinohrad' ? '' : 'none';
         this._activeTab = tab;
         document.querySelectorAll('#screen-garden .filter-btn').forEach(b => b.classList.remove('active'));
         if (btn) btn.classList.add('active');
@@ -994,6 +996,7 @@ const GardenSystem = {
         if (tab === 'apiarium') GardenSystem.renderApiary();
         if (tab === 'piscina')  GardenSystem.renderPiscina();
         if (tab === 'pole')     GardenSystem.renderFieldTab();
+        if (tab === 'vinohrad') GardenSystem.renderVinohrad();
     },
 
     renderFarmyard: function() {
@@ -1692,6 +1695,214 @@ const GardenSystem = {
         flax:   { id:'flax_fiber',  icon:'🧵', name:'Len',     name_en:'Flax',    seeds:'seeds_flax',   yield:2, strawYield:1, feedVal:0 },
     },
 
+    // ── VINOHRAD (Vinea) — databáze odrůd ────────────────────────────────────
+    VINEA_DB: {
+        belina:      { id:'belina',      name:'Bělina',      name_en:'Heunisch',    icon:'🍇',
+                       ripeDays:90,  windowDays:30, viticis:'viticis_belina',
+                       outputs:['mustum','pryk'],    outputPrimary:'mustum' },
+        klevner:     { id:'klevner',     name:'Klevner',     name_en:'Klevner',     icon:'🍇',
+                       ripeDays:120, windowDays:21, viticis:'viticis_klevner',
+                       outputs:['vinum'],            outputPrimary:'vinum' },
+        frankovka:   { id:'frankovka',   name:'Frankovka',   name_en:'Frankovka',   icon:'🍇',
+                       ripeDays:120, windowDays:21, viticis:'viticis_frankovka',
+                       outputs:['vinum_rubrum'],     outputPrimary:'vinum_rubrum' },
+        tramin:      { id:'tramin',      name:'Tramín',      name_en:'Traminer',    icon:'🍇',
+                       ripeDays:150, windowDays:14, viticis:'viticis_tramin',
+                       outputs:['vinum_praeclarum'], outputPrimary:'vinum_praeclarum' },
+        modry_janek: { id:'modry_janek', name:'Modrý Janek', name_en:'Modrý Janek', icon:'🍇',
+                       ripeDays:105, windowDays:18, viticis:'viticis_modry_janek',
+                       outputs:['vinum_obscurum'],   outputPrimary:'vinum_obscurum' },
+    },
+
+    // ── VINOHRAD (Vinea) — inicializace GameState ─────────────────────────────
+    _initVinea: function() {
+        if (!GameState.vinea) {
+            GameState.vinea = Array.from({length: 6}, () => ({
+                state: 'empty',           // empty | planted | growing | ripe | overripe | dormant
+                variety: null,            // key do VINEA_DB
+                plantedAt: 0,             // timestamp výsadby
+                ripeAt: 0,                // timestamp dozrání (plantedAt + ripeDays*ms)
+                windowEnd: 0,             // timestamp konce sklizňového okna
+                pruned: false,            // byl proveden jarní řez? (+výnos bonus)
+                cuttingsAvailable: 0,     // počet dostupných řízků po jarním řezu
+            }));
+        }
+        // Migrace — přidat nová pole pokud chybí
+        GameState.vinea.forEach(slot => {
+            if (slot.cuttingsAvailable === undefined) slot.cuttingsAvailable = 0;
+            if (slot.pruned === undefined) slot.pruned = false;
+        });
+    },
+
+    // ── VINOHRAD — herní logika ───────────────────────────────────────────────
+
+    plantVine: function(idx, varietyId) {
+        this._initVinea();
+        const slot = GameState.vinea[idx];
+        const variety = this.VINEA_DB[varietyId];
+        if (!slot || !variety) return;
+        if (slot.state !== 'empty') {
+            const lang = (GameState.settings && GameState.settings.language) || 'cs';
+            UI.notify(lang==='en' ? 'Slot is occupied.' : 'Záhon je obsazený.', true); return;
+        }
+        if ((GameState.inventory[variety.viticis] || 0) < 1) {
+            const lang = (GameState.settings && GameState.settings.language) || 'cs';
+            UI.notify(lang==='en' ? 'No cutting available.' : 'Nemáš řízek.', true); return;
+        }
+        Game.removeItem(variety.viticis, 1);
+        const now = Date.now();
+        const DAY_MS = 86400000;
+        slot.state     = 'planted';
+        slot.variety   = varietyId;
+        slot.plantedAt = now;
+        slot.ripeAt    = now + (variety.ripeDays * DAY_MS);
+        slot.windowEnd = now + ((variety.ripeDays + variety.windowDays) * DAY_MS);
+        slot.pruned    = false;
+        slot.cuttingsAvailable = 0;
+        Game.save();
+        this.renderVinohrad();
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        UI.notify('🌿 ' + (lang==='en' ? variety.name_en : variety.name) + (lang==='en' ? ' planted.' : ' zasazena.'));
+    },
+
+    pruneVine: function(idx) {
+        this._initVinea();
+        const slot = GameState.vinea[idx];
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        if (!slot || slot.state === 'empty') return;
+        if (slot.pruned) { UI.notify(lang==='en' ? 'Already pruned this season.' : 'Již prořezáno.', true); return; }
+        const month = new Date().getMonth() + 1;
+        if (month < 3 || month > 4) {
+            UI.notify(lang==='en' ? '✂️ Pruning is done in spring (March–April).' : '✂️ Prořez se dělá na jaře (březen–duben).', true); return;
+        }
+        const variety = slot.variety ? this.VINEA_DB[slot.variety] : null;
+        slot.pruned = true;
+        if (variety) {
+            const cuttings = Math.random() < 0.5 ? 2 : 1;
+            slot.cuttingsAvailable = cuttings;
+            Game.addItem(variety.viticis, cuttings);
+            UI.notify('✂️ ' + (lang==='en' ? 'Pruned. +' + cuttings + ' cutting(s).' : 'Prořezáno. +' + cuttings + ' řízek/řízky.'));
+        }
+        Game.save();
+        this.renderVinohrad();
+    },
+
+    uprootVine: function(idx) {
+        this._initVinea();
+        const slot = GameState.vinea[idx];
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        if (!slot || slot.state === 'empty') return;
+        slot.state     = 'empty';
+        slot.variety   = null;
+        slot.plantedAt = 0;
+        slot.ripeAt    = 0;
+        slot.windowEnd = 0;
+        slot.pruned    = false;
+        slot.cuttingsAvailable = 0;
+        Game.save();
+        this.renderVinohrad();
+        UI.notify('🪴 ' + (lang==='en' ? 'Vine uprooted.' : 'Réva vykořeněna.'));
+    },
+
+    harvestVine: function(idx) {
+        this._initVinea();
+        const slot = GameState.vinea[idx];
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        if (!slot || slot.state !== 'ripe') { UI.notify(lang==='en'?'Not ready.':'Není zralá.', true); return; }
+        const variety = this.VINEA_DB[slot.variety];
+        if (!variety) return;
+
+        // Výnos: base 2, +1 za prořez
+        let qty = 2;
+        if (slot.pruned) qty += 1;
+
+        // Počasí: sucho → pryk (jen Bělina), jinak primary output
+        let outputId = variety.outputPrimary;
+        if (variety.id === 'belina') {
+            let droughtDays = 0;
+            try {
+                const wc = (typeof WeatherSystem !== 'undefined') ? WeatherSystem.cache : null;
+                if (wc && wc.daily && wc.daily.precipitation_sum) {
+                    for (let d = 0; d < Math.min(7, wc.daily.precipitation_sum.length); d++) {
+                        if ((wc.daily.precipitation_sum[d] || 0) < 0.1) droughtDays++;
+                    }
+                }
+            } catch(e) {}
+            // Hráč mohl přepsat výběrem v UI
+            if (slot.harvestChoice) {
+                outputId = slot.harvestChoice;
+            } else {
+                outputId = droughtDays >= 5 ? 'pryk' : 'mustum';
+            }
+        }
+
+        Game.addItem(outputId, qty);
+        const itemName = (typeof iName === 'function') ? iName(outputId) : outputId;
+        UI.notify('🍇 ' + (lang==='en'?'Harvested: ':'Sklizeno: ') + itemName + ' ×' + qty);
+        Game.addKronikaEntry('important',
+            '🍇 Vinohrad: sklizeno ' + (typeof iName==='function'?iName(outputId):outputId) + ' ×' + qty + '.',
+            '🍇 Vineyard: harvested ' + outputId + ' ×' + qty + '.',
+            '🍇 Vinea: collectum ' + outputId + ' ×' + qty + '.'
+        );
+
+        // Slot → dormant (réva přežije zimu)
+        slot.state         = 'dormant';
+        slot.harvestChoice = null;
+        Game.save();
+        this.renderVinohrad();
+    },
+
+    checkVineaGrowth: function() {
+        if (!GameState.vinea) return;
+        const now = Date.now();
+        const month = new Date().getMonth() + 1;
+        let changed = false;
+
+        GameState.vinea.forEach(slot => {
+            if (slot.state === 'empty') return;
+
+            // Dormant → planted: jaro (březen), réva se probouzí
+            if (slot.state === 'dormant' && month >= 3 && month <= 4) {
+                const variety = slot.variety ? this.VINEA_DB[slot.variety] : null;
+                if (variety) {
+                    slot.state     = 'planted';
+                    slot.plantedAt = now;
+                    slot.ripeAt    = now + (variety.ripeDays * 86400000);
+                    slot.windowEnd = now + ((variety.ripeDays + variety.windowDays) * 86400000);
+                    slot.pruned    = false;
+                    changed = true;
+                }
+                return;
+            }
+
+            // Planted → growing (po 7 dnech — viditelný růst)
+            if (slot.state === 'planted' && now >= slot.plantedAt + (7 * 86400000)) {
+                slot.state = 'growing';
+                changed = true;
+            }
+
+            // Growing → ripe
+            if (slot.state === 'growing' && now >= slot.ripeAt) {
+                slot.state = 'ripe';
+                changed = true;
+            }
+
+            // Ripe → overripe: okno prošlo
+            if (slot.state === 'ripe' && now >= slot.windowEnd) {
+                slot.state = 'overripe';
+                changed = true;
+            }
+
+            // Overripe → dormant: zima (listopad+)
+            if (slot.state === 'overripe' && month >= 11) {
+                slot.state = 'dormant';
+                changed = true;
+            }
+        });
+
+        if (changed) Game.save();
+    },
+
     renderFieldTab: function() {
         const el = document.getElementById('field-container');
         if (!el) return;
@@ -1968,5 +2179,94 @@ const GardenSystem = {
         if (changed) Game.save();
     },
 
+    // ═══════════════════════════════════════════════════════════════════════════
+    // VINOHRAD (Vinea) — render
+    // ═══════════════════════════════════════════════════════════════════════════
+    renderVinohrad: function() {
+        const el = document.getElementById('vinohrad-container');
+        if (!el) return;
+        this._initVinea();
+
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        const techs = GameState.researchedTechs || [];
+        const hasTech = techs.includes('tech_vinohrad');
+
+        if (!hasTech) {
+            el.innerHTML = `
+            <div style="padding:20px 16px;">
+                <div style="background:rgba(197,160,89,0.08); border:1px solid rgba(197,160,89,0.3); border-radius:10px; padding:20px; margin-bottom:16px;">
+                    <div style="font-size:2rem; margin-bottom:10px;">🍇</div>
+                    <h3 style="margin:0 0 8px 0; font-size:1rem;">${lang==='en'?'Vineyard (Vinea)':'Vinohrad (Vinea)'}</h3>
+                    <p style="font-size:0.85rem; opacity:0.75; margin:0 0 12px 0; font-style:italic;">
+                        ${lang==='en'
+                            ? 'Five varieties of vine — Heunisch, Klevner, Frankovka, Traminer, Modrý Janek. Each with its own ripening window and wine.'
+                            : 'Pět odrůd révy — Bělina, Klevner, Frankovka, Tramín, Modrý Janek. Každá se svým oknem sklizně a vínem.'}
+                    </p>
+                    <div style="font-size:0.8rem; padding:8px 12px; background:rgba(197,160,89,0.1); border-radius:6px; border-left:3px solid var(--accent-gold);">
+                        🔒 ${lang==='en'
+                            ? '<strong>Requires:</strong> Study <em>Liber de Cultura Vitis</em> (Library → Master Bartholomew)'
+                            : '<strong>Nutné:</strong> Prostuduj <em>Liber de Cultura Vitis</em> (Knihovna → Starý Písař)'}
+                    </div>
+                </div>
+            </div>`;
+            return;
+        }
+
+        let html = `<div style="margin-bottom:12px; font-size:0.85rem; opacity:0.75; font-style:italic;">
+            ${lang==='en' ? 'Six vine plots. Plant, prune, harvest within the window.' : 'Šest záhonů révy. Zasadit, prořezat, sklidit v okně.'}
+        </div>`;
+
+        html += '<div class="garden-grid" style="margin-bottom:16px;">';
+        GameState.vinea.forEach((slot, idx) => {
+            const variety = slot.variety ? this.VINEA_DB[slot.variety] : null;
+            let content = '';
+            let btn = '';
+
+            if (slot.state === 'empty') {
+                content = `<div class="plot-soil" style="opacity:0.3">🪴</div>
+                           <div class="text-sm">${lang==='en'?'Empty':'Prázdné'}</div>`;
+                const opts = Object.values(this.VINEA_DB).map(v => {
+                    const hasViticis = (GameState.inventory[v.viticis] || 0) > 0;
+                    return `<option value="${v.id}" ${hasViticis?'':'disabled'}>${lang==='en'?v.name_en:v.name}${hasViticis?'':' 🔒'}</option>`;
+                }).join('');
+                btn = `<select id="vinea-sel-${idx}" style="font-size:0.72rem;padding:2px;width:100%;margin-bottom:4px;">${opts}</select>
+                       <button class="craft-btn" onclick="GardenSystem.plantVine(${idx}, document.getElementById('vinea-sel-${idx}').value)">🌿 ${lang==='en'?'Plant':'Zasadit'}</button>`;
+            } else if (slot.state === 'planted' || slot.state === 'growing') {
+                const daysTotal = variety ? variety.ripeDays : 90;
+                const elapsed = (Date.now() - slot.plantedAt) / 86400000;
+                const pct = Math.min(100, Math.round(elapsed / daysTotal * 100));
+                const daysLeft = Math.max(0, Math.ceil(daysTotal - elapsed));
+                content = `<div style="font-size:1.2rem;">${variety ? variety.icon : '🍇'}</div>
+                           <div class="text-sm">${variety ? (lang==='en'?variety.name_en:variety.name) : ''}</div>
+                           <div style="height:3px;background:rgba(0,0,0,0.1);border-radius:2px;margin:3px 0;">
+                             <div style="height:100%;width:${pct}%;background:var(--accent-gold);border-radius:2px;"></div>
+                           </div>
+                           <div style="font-size:0.68rem;opacity:0.6;">${daysLeft}d</div>`;
+                btn = `<button class="craft-btn" onclick="GardenSystem.pruneVine(${idx})" ${slot.pruned?'disabled':''}>✂️ ${lang==='en'?'Prune':'Prořezat'}${slot.pruned?' ✓':''}</button>
+                       <button class="craft-btn" onclick="GardenSystem.uprootVine(${idx})" style="background:#8b4a3a; font-size:0.72rem; margin-top:3px;">🪴 ${lang==='en'?'Uproot':'Vykořenit'}</button>`;
+            } else if (slot.state === 'ripe') {
+                content = `<div style="font-size:1.4rem;">🍇</div>
+                           <div class="text-sm" style="color:#5a9a5a;font-weight:600;">${lang==='en'?'Ready!':'Zralá!'}</div>
+                           <div style="font-size:0.68rem;opacity:0.6;">${variety ? (lang==='en'?variety.name_en:variety.name) : ''}</div>`;
+                btn = `<button class="craft-btn" onclick="GardenSystem.harvestVine(${idx})" style="background:#4a7c59;">🍇 ${lang==='en'?'Harvest':'Sklidit'}</button>
+                       <button class="craft-btn" onclick="GardenSystem.uprootVine(${idx})" style="background:#8b4a3a; font-size:0.72rem; margin-top:3px;">🪴 ${lang==='en'?'Uproot':'Vykořenit'}</button>`;
+            } else if (slot.state === 'overripe') {
+                content = `<div style="font-size:1.4rem;">🍂</div>
+                           <div class="text-sm" style="color:#c0392b;">${lang==='en'?'Overripe!':'Přezrálá!'}</div>
+                           <div style="font-size:0.68rem;opacity:0.6;">${variety ? (lang==='en'?variety.name_en:variety.name) : ''}</div>`;
+                btn = `<button class="craft-btn" onclick="GardenSystem.uprootVine(${idx})" style="background:#8b4a3a;">🪴 ${lang==='en'?'Uproot':'Vykořenit'}</button>`;
+            } else if (slot.state === 'dormant') {
+                content = `<div style="font-size:1.2rem;">❄️</div>
+                           <div class="text-sm">${lang==='en'?'Dormant':'Zimní klid'}</div>
+                           <div style="font-size:0.72rem;opacity:0.6;">${variety ? (lang==='en'?variety.name_en:variety.name) : ''}</div>`;
+                btn = `<button class="craft-btn" onclick="GardenSystem.uprootVine(${idx})" style="background:#8b4a3a; font-size:0.72rem;">🪴 ${lang==='en'?'Uproot':'Vykořenit'}</button>`;
+            }
+
+            html += `<div class="garden-plot">${content}<div style="margin-top:auto">${btn}</div></div>`;
+        });
+        html += '</div>';
+
+        el.innerHTML = html;
+    },
 
 };
