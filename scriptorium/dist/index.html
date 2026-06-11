@@ -15501,17 +15501,27 @@ const PersonaSystem = {
         if (daysSinceStart >= 7 || rankThreshold) {
             GameState.persona.originModalShown = true;
             Game.save();
-            this.showOriginModal();
+            // Počkat až se zavře daily reward modal
+            const _waitForReward = () => {
+                const dr = document.getElementById('daily-reward-modal');
+                if (dr && dr.style.display !== 'none') {
+                    setTimeout(_waitForReward, 500);
+                } else {
+                    setTimeout(() => PersonaSystem.showOriginModal(), 400);
+                }
+            };
+            setTimeout(_waitForReward, 800);
         }
     },
 
     showOriginModal: function() {
         const lang = (GameState.settings && GameState.settings.language) || 'cs';
         const modal = document.createElement('div');
-        modal.style.cssText = `position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);z-index:9999;display:flex;align-items:center;justify-content:center;padding:16px;box-sizing:border-box;`;
+        modal.id = 'persona-origin-modal';
+        modal.style.cssText = `position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.85);z-index:10000;display:flex;align-items:center;justify-content:center;padding:16px;box-sizing:border-box;`;
 
         let opts = Object.entries(this.ORIGINS).map(([id, o]) => `
-            <div onclick="PersonaSystem.chooseOrigin('${id}', this)"
+            <div data-origin="${id}"
                  style="cursor:pointer;padding:14px;margin-bottom:10px;border:2px solid rgba(197,160,89,0.3);border-radius:8px;background:rgba(197,160,89,0.05);transition:border-color 0.2s;"
                  onmouseover="this.style.borderColor='var(--accent-gold)'"
                  onmouseout="this.style.borderColor='rgba(197,160,89,0.3)'">
@@ -15521,7 +15531,7 @@ const PersonaSystem = {
             </div>`).join('');
 
         modal.innerHTML = `
-            <div style="background:var(--bg-card);border:1px solid var(--accent-gold);border-radius:12px;padding:24px;max-width:480px;width:100%;max-height:90vh;overflow-y:auto;">
+            <div style="background:#f5efe0;border:1px solid var(--accent-gold);border-radius:12px;padding:24px;max-width:480px;width:100%;max-height:90vh;overflow-y:auto;box-shadow:0 8px 32px rgba(0,0,0,0.5)">
                 <div style="font-size:1.6rem;text-align:center;margin-bottom:8px;">📜</div>
                 <h3 style="text-align:center;margin:0 0 6px 0;font-family:'Cinzel',serif;">${lang==='en'?'Who art thou, Scribe?':'Kdo jsi, písaři?'}</h3>
                 <p style="text-align:center;font-size:0.83rem;opacity:0.7;margin:0 0 18px 0;font-style:italic;">
@@ -15529,12 +15539,22 @@ const PersonaSystem = {
                 </p>
                 ${opts}
                 <div style="text-align:center;margin-top:12px;">
-                    <button onclick="this.closest('[style*=fixed]').remove()" class="craft-btn" style="background:rgba(0,0,0,0.1);font-size:0.8rem;">
+                    <button id="persona-origin-later" class="craft-btn" style="background:rgba(0,0,0,0.1);font-size:0.8rem;">
                         ${lang==='en'?'Decide later':'Rozhodnu se později'}
                     </button>
                 </div>
             </div>`;
         document.body.appendChild(modal);
+
+        // Event listenery — bezpečnější než inline onclick
+        modal.querySelectorAll('[data-origin]').forEach(el => {
+            el.addEventListener('click', () => {
+                PersonaSystem.chooseOrigin(el.dataset.origin);
+            });
+        });
+        document.getElementById('persona-origin-later').addEventListener('click', () => {
+            modal.remove();
+        });
     },
 
     chooseOrigin: function(originId) {
@@ -15557,7 +15577,8 @@ const PersonaSystem = {
         Game.save();
 
         // Zavřít modal
-        document.querySelectorAll('[style*="position:fixed"][style*="9999"]').forEach(el => el.remove());
+        const modal = document.getElementById('persona-origin-modal');
+        if (modal) modal.remove();
 
         const o = this.ORIGINS[originId];
         if (typeof NotificationSystem !== 'undefined') {
@@ -15637,12 +15658,18 @@ const PersonaSystem = {
 
         // Rank timeline
         const rankHistory = (GameState.rank && GameState.rank.rankHistory) || [];
-        const timelineHtml = rankHistory.length > 0
-            ? rankHistory.map(r => `<div style="font-size:0.78rem;padding:4px 0;border-bottom:1px solid rgba(0,0,0,0.05);">
-                <span style="opacity:0.5;">${new Date(r.timestamp||0).toLocaleDateString()}</span>
+        const currentRank = GameState.rank ? GameState.rank.secular : 'laicus';
+        const validHistory = rankHistory.filter(r => r.rank && r.timestamp && r.timestamp > 1000000);
+        const timelineHtml = validHistory.length > 0
+            ? validHistory.map(r => `<div style="font-size:0.78rem;padding:4px 0;border-bottom:1px solid rgba(0,0,0,0.05);">
+                <span style="opacity:0.5;">${new Date(r.timestamp).toLocaleDateString()}</span>
                 &nbsp;→&nbsp;<strong>${r.rank}</strong>
               </div>`).join('')
-            : `<div style="font-size:0.8rem;opacity:0.5;font-style:italic;">${lang==='en'?'Your journey has just begun.':'Tvá cesta právě začíná.'}</div>`;
+            : `<div style="font-size:0.82rem;padding:4px 0;border-bottom:1px solid rgba(0,0,0,0.05);">
+                <span style="opacity:0.5;">${lang==='en'?'Now':'Nyní'}</span>
+                &nbsp;→&nbsp;<strong>${currentRank}</strong>
+               </div>
+               <div style="font-size:0.78rem;opacity:0.5;font-style:italic;margin-top:4px;">${lang==='en'?'Full history records from next rank onward.':'Plná historie od příštího ranku.'}</div>`;
 
         return `
         <div style="display:grid;grid-template-columns:110px 1fr;gap:16px;margin-bottom:20px;">
