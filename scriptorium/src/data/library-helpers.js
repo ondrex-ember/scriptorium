@@ -252,7 +252,7 @@ const LibraryHelpers = {
             }
         });
         
-        if (newUnlocks > 0) {
+        if (newUnlocks > 0 && !GameState.flags.firstVisit) {
             UI.notifyPanel(t('library_lore.new_book').replace('{count}', newUnlocks), 'system');
         }
     },

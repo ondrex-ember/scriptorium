@@ -413,7 +413,9 @@ const Game = {
         
         // Check daily reward AFTER UI render (only from 2nd session onwards)
         setTimeout(() => {
-            Game.checkDailyReward();
+            if (!GameState.flags.firstVisit) {
+                Game.checkDailyReward();
+            }
             if (typeof CalendarSystem !== 'undefined') CalendarSystem.checkCalendarEvents();
         }, 500);
         
@@ -2145,75 +2147,33 @@ const Game = {
             GameState.dailyRewards.streak = 1;
         }
         
-        // ── DAILY REWARD SYSTEM v2 ───────────────────────────────────────────────
-        const streak = GameState.dailyRewards.streak;
-        const lang = (GameState.settings && GameState.settings.language) || 'cs';
-        let bonusText = '';
+        // Calculate bonus
+        let bonus = 1; // Base daily bonus
+        let bonusText = "+1 Research";
         let streakBonus = false;
-        const rewards = [];
-
-        // Milníky — override cyklu
-        if (streak === 100) {
-            rewards.push({item:'research', qty:10}, {item:'vellum', qty:1});
-            bonusText = lang==='en' ? '+10 Research + Vellum (100 days!) — "The Chronicler writes your name. Not as a visitor — as a brother."' : '+10 Zápisků + Pergamen (100 dní!) — "Kronikář zapíše tvé jméno. Ne jako hosta — jako bratra."';
+        
+        if (GameState.dailyRewards.streak === 3) {
+            bonus = 2;
+            bonusText = "+2 Research (3 dny streak!)";
             streakBonus = true;
-        } else if (streak === 60) {
-            const pool = ['lapis_lazuli','sulfur','mercury','resin','beeswax'];
-            const rare = pool[Math.floor(Math.random() * pool.length)];
-            rewards.push({item:'research', qty:5}, {item:rare, qty:1});
-            bonusText = lang==='en' ? '+5 Research + rare find (60 days!) — "The Elder Scribe comes with a small pouch."' : '+5 Zápisků + vzácná surovina (60 dní!) — "Starý Písař přichází s váčkem."';
+        } else if (GameState.dailyRewards.streak === 7) {
+            bonus = 3;
+            bonusText = "+3 Research (7 dní streak! 🎉)";
             streakBonus = true;
-        } else if (streak === 30) {
-            rewards.push({item:'research', qty:5}, {item:'candle', qty:1});
-            bonusText = lang==='en' ? '+5 Research + Candle (30 days!) — "The Abbot has taken notice."' : '+5 Zápisků + Svíčka (30 dní!) — "Měsíc věrnosti. Opat si tě všiml."';
+        } else if (GameState.dailyRewards.streak >= 10) {
+            bonus = 3;
+            bonusText = "+3 Research (Mistr věrnosti!)";
             streakBonus = true;
-        } else if (streak === 14) {
-            rewards.push({item:'research', qty:2}, {item:'paper', qty:1}, {item:'candle', qty:1});
-            bonusText = lang==='en' ? '+2 Research + Paper + Candle (14 days!) — "The manuscript is taking shape."' : '+2 Zápisky + Papír + Svíčka (14 dní!) — "Rukopis se začíná rýsovat."';
-            streakBonus = true;
-        } else {
-            // Cyklus dní 1–7 (opakuje se mezi milníky)
-            const cycleDay = ((streak - 1) % 7) + 1;
-            if (cycleDay === 1) {
-                bonusText = lang==='en' ? '"First day in the monastery. Be silent and observe."' : '"První den v klášteře. Mlč a pozoruj."';
-            } else if (cycleDay === 2) {
-                rewards.push({item:'paper', qty:1});
-                bonusText = lang==='en' ? '+1 Paper — "You found a sheet behind the altar."' : '+1 Papír — "Nalezl jsi arch za oltářem."';
-            } else if (cycleDay === 3) {
-                if (Math.random() < 0.5) { rewards.push({item:'paper', qty:1}); bonusText = lang==='en'?'+1 Paper':'+1 Papír'; }
-                else { rewards.push({item:'ink', qty:1}); bonusText = lang==='en'?'+1 Ink':'+1 Inkoust'; }
-                bonusText += lang==='en' ? ' — "The Elder Scribe left something on the lectern."' : ' — "Starý Písař něco nechal na pulpitu."';
-            } else if (cycleDay === 4) {
-                rewards.push({item:'research', qty:1});
-                bonusText = lang==='en' ? '+1 Research — "The Abbot noticed you for the first time."' : '+1 Zápisek — "Opat si tě poprvé všiml."';
-            } else if (cycleDay === 5) {
-                rewards.push({item:'paper', qty:1});
-                bonusText = lang==='en' ? '+1 Paper — "You take only what you need."' : '+1 Papír — "Bereš jen co potřebuješ."';
-            } else if (cycleDay === 6) {
-                const r6 = Math.random();
-                if (r6 < 0.4) { rewards.push({item:'paper', qty:1}); bonusText = lang==='en'?'+1 Paper':'+1 Papír'; }
-                else if (r6 < 0.7) { rewards.push({item:'ink', qty:1}); bonusText = lang==='en'?'+1 Ink':'+1 Inkoust'; }
-                else { rewards.push({item:'research', qty:1}); bonusText = lang==='en'?'+1 Zápisek':'+1 Research'; }
-                bonusText += lang==='en' ? ' — "Hands are stiff, but the mind is clear."' : ' — "Ruce jsou ztuhlé, ale mysl jasná."';
-            } else if (cycleDay === 7) {
-                rewards.push({item:'research', qty:1}, {item:'paper', qty:1});
-                bonusText = lang==='en' ? '+1 Research + Paper — "Seven days. You have made a habit."' : '+1 Zápisek + Papír — "Sedm dní. Stvořil jsi návyk."';
-                streakBonus = true;
-            }
         }
-
-        // Grant rewards
-        rewards.forEach(r => this.addItem(r.item, r.qty));
-
-        // Canonical hours research buff
+        
+        // Grant bonus
+        // ========== NEW: Apply canonical hours research buff ==========
         if (typeof CanonicalHours !== 'undefined') {
             const researchMult = CanonicalHours.getResearchMultiplier();
-            const researchReward = rewards.find(r => r.item === 'research');
-            if (researchReward && researchMult > 1) {
-                const bonus = Math.floor(researchReward.qty * (researchMult - 1));
-                if (bonus > 0) this.addItem('research', bonus);
-            }
+            bonus = Math.floor(bonus * researchMult);
         }
+        
+        this.addItem('research', bonus);
         GameState.dailyRewards.lastBonusClaimed = now;
         
         // Get daily fact
@@ -2262,11 +2222,12 @@ const Game = {
             }
         });
         
-        // Show notifications for new achievements
-        if(newUnlocks.length > 0) {
+        // Show notifications — přeskočit při prvním spuštění (jazyk ještě není zvolen)
+        if(newUnlocks.length > 0 && !GameState.flags.firstVisit) {
             newUnlocks.forEach(ach => {
                 setTimeout(() => {
-                    const _an = typeof LangSystem !== 'undefined' && LangSystem.current === 'en' ? (ach.name_en || ach.name) : ach.name;
+                    const _alang = (GameState.settings && GameState.settings.language) || 'cs';
+                    const _an = _alang === 'en' ? (ach.name_en || ach.name) : ach.name;
                     UI.notifyPanel(`🏆 Achievement: ${_an}!`, 'system');
                     Analytics.achievementUnlocked(ach.id, ach.name);
                     Game.addKronikaEntry('important', `🏆 Dosaženo: ${ach.name}`, `🏆 Achievement: ${_an}`, `🏆 Factum est: ${ach.name}`);

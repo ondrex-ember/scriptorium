@@ -1524,7 +1524,9 @@ renderRecords: function() {
     h += `</div>`;
     
     // ========== PERSONA + VIGOR ==========
-    if (typeof PersonaSystem !== 'undefined') h += PersonaSystem.renderPersonaSection();
+    if (typeof PersonaSystem !== 'undefined' && typeof PersonaSystem.render === 'function') {
+        // Persona je nyní v Scriptoriu — zde jen Vigor
+    }
     if (typeof VigorSystem !== 'undefined') h += VigorSystem.renderFullDisplay();
 
     // ========== PERSONAL STATISTICS ==========
@@ -1749,6 +1751,7 @@ renderRecords: function() {
         if (modal) modal.style.display = 'none';
         Analytics.welcomeModalClosed();
         setTimeout(() => UI.notify(t('notify.kindleHint')), 400);
+        setTimeout(() => Game.checkDailyReward(), 600);
     },
 
     showFireoutModal: function(daysSince) {
@@ -1792,7 +1795,12 @@ renderRecords: function() {
         const modal = document.getElementById('daily-reward-modal');
         const content = document.getElementById('daily-reward-content');
         const factEl = document.getElementById('daily-fact');
+        const titleEl = document.getElementById('daily-reward-title');
+        const btnEl = document.getElementById('daily-reward-btn');
         const lang = (GameState.settings && GameState.settings.language) || 'cs';
+
+        if (titleEl) titleEl.textContent = lang === 'en' ? 'Daily Reward!' : 'Denní Odměna!';
+        if (btnEl) btnEl.textContent = (lang === 'en' ? 'Thank you!' : 'Děkuji!') + ' ✨';
 
         const streakWord = lang === 'en'
             ? (streak === 1 ? 'day' : 'days')

@@ -1999,13 +1999,13 @@
             style="background:var(--bg-parchment); border:3px solid var(--accent-gold); padding:30px; max-width:400px; width:90%; box-shadow: 0 0 40px rgba(197,160,89,0.6); animation: fadeIn 0.3s;">
             <div style="text-align:center; margin-bottom:20px;">
                 <div style="font-size:4rem; animation: bounce 1s ease-in-out infinite;">🎁</div>
-                <h2 style="color:var(--accent-gold); margin:10px 0;">Denní Odměna!</h2>
+                <h2 id="daily-reward-title" style="color:var(--accent-gold); margin:10px 0;">Denní Odměna!</h2>
             </div>
             <div id="daily-reward-content" style="text-align:center; margin-bottom:20px;"></div>
             <div id="daily-fact"
                 style="background:rgba(0,0,0,0.05); padding:15px; border-left:3px solid var(--accent-gold); font-style:italic; margin:20px 0; line-height:1.6;">
             </div>
-            <button onclick="UI.closeDailyRewardModal()"
+            <button id="daily-reward-btn" onclick="UI.closeDailyRewardModal()"
                 style="width:100%; padding:12px; background:var(--accent-gold); color:var(--ink-primary); border:none; font-family:'Cinzel Decorative'; font-size:1rem; cursor:pointer; border-radius:3px;">Děkuji!
                 ✨</button>
         </div>
@@ -2451,8 +2451,6 @@
                             Věštění</button>
                         <button id="lore-tab-calendarium" class="filter-btn"
                             onclick="UI.switchLoreTab('calendarium', this)">📅 Calendarium</button>
-                        <button id="lore-tab-persona" class="filter-btn"
-                            onclick="UI.switchLoreTab('persona', this)">🧑 Persona</button>
                     </div>
                     <div id="lore-research-content" style="margin-top:20px;"></div>
                     <div id="lore-codex-content" style="margin-top:20px; display:none;"></div>
@@ -2460,7 +2458,6 @@
                     <div id="lore-achievements-content" style="margin-top:20px; display:none;"></div>
                     <div id="lore-iching-content" style="margin-top:20px; display:none;"></div>
                     <div id="lore-calendarium-content" style="margin-top:20px; display:none;"></div>
-                    <div id="lore-persona-content" style="margin-top:20px; display:none;"></div>
                 </div>
             </div>
 
@@ -2471,6 +2468,8 @@
                     <div class="filter-bar" style="margin-top:10px; margin-bottom:15px; flex-wrap: wrap; gap: 5px;">
                         <button id="lib-tab-books" class="filter-btn active"
                             onclick="UI.switchLibraryTab('books', this)">📚 Knihy</button>
+                        <button id="lib-tab-records" class="filter-btn"
+                            onclick="UI.switchLibraryTab('records', this)">📊 Záznamy</button>
                         <button id="lib-tab-games" class="filter-btn" onclick="UI.switchLibraryTab('games', this)">🎲
                             Aula Ludi</button>
                         <button id="lib-tab-news" class="filter-btn" onclick="UI.switchLibraryTab('news', this)">📜
@@ -2481,6 +2480,7 @@
                             data-i18n="library.tabKronika">📖 Kronika</button>
                     </div>
                     <div id="library-books-content" style="margin-top:20px;"></div>
+                    <div id="library-records-content" style="margin-top:20px; display:none;"></div>
                     <div id="library-games-content" style="margin-top:20px; display:none;"></div>
                     <div id="library-news-content" style="margin-top:20px; display:none;"></div>
                     <div id="library-scrinium-content" style="margin-top:20px; display:none;"></div>
