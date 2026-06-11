@@ -1495,6 +1495,7 @@ const Game = {
                     else if(r<0.8) this.addItem('seeds_vegetable', 1);
                     else if(r<0.9) this.addItem('nightshade', 1);
                     else this.addItem('fiber', 1);
+                    if(Math.random() < 0.02) this.addItem('viticis_baco', 1);
                 }
                 else if (type === 'wetlands') {
                     if(r<0.4) this.addItem('frog', 1);
@@ -1511,6 +1512,7 @@ const Game = {
                     if(Math.random() < 0.20) this.addItem('beeswax', 1);
                     if(Math.random() < 0.05) this.addItem('linden_blossom', 1);
                     if(Math.random() < 0.03) this.addItem('pollen', 1);
+                    if(Math.random() < 0.03) this.addItem('viticis_baco', 1);
                 }
                 else if (type === 'grass_gather') {
                     this.addItem('grass', Math.random() < 0.5 ? 3 : 2);
@@ -1736,6 +1738,7 @@ const Game = {
                 else if(r<0.8) this.addItem('seeds_vegetable', 1);
                 else if(r<0.9) this.addItem('nightshade', 1);
                 else this.addItem('fiber', 1);
+                if(Math.random() < 0.02) this.addItem('viticis_baco', 1);
             }
             else if (type === 'wetlands') {
                 if(r<0.4) this.addItem('frog', 1);
@@ -1748,6 +1751,7 @@ const Game = {
                 else if(r<0.7) this.addItem('honey', 1);
                 else this.addItem('bark', 1);
                 if(Math.random() < 0.15) this.addItem('beeswax', 1);
+                if(Math.random() < 0.03) this.addItem('viticis_baco', 1);
             }
             else if (type === 'grass_gather') {
                 this.addItem('grass', Math.random() < 0.5 ? 3 : 2);

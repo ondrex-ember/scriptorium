@@ -350,6 +350,8 @@ const ItemsDB = {
     "vinum_rubrum":        { name:"Vinum Rubrum",         name_en:"Vinum Rubrum",          icon:"🍷", type:"food", hunger:5,  desc:"Červené víno z Frankovky. Temnější barva, jiný odběratel než bílé.",             desc_en:"Red wine from Frankovka. Darker colour, different buyer than white." },
     "vinum_praeclarum":    { name:"Vinum Praeclarum",     name_en:"Vinum Praeclarum",      icon:"🏺", type:"food", hunger:6,  desc:"Vzácné bílé víno z Tramínu. Nejdražší víno v klášteře. Pro biskupský stůl.",    desc_en:"Rare white wine from Traminer. The costliest wine in the monastery. For the bishop's table." },
     "vinum_obscurum":      { name:"Vinum Obscurum",       name_en:"Vinum Obscurum",        icon:"🫙", type:"food", hunger:4,  desc:"Tmavé víno z Modrého Janka. Nízký výnos, znojemská kuriozita. Bonus v Athanoru.", desc_en:"Dark wine from Modrý Janek. Low yield, a Znojmo curiosity. Bonus in the Athanor." },
+    "viticis_baco":        { name:"Řízek Baga",           name_en:"Baco Noir Cutting",     icon:"🌿", type:"mat",              desc:"Řízek Baco Noir (Bago). Odolný hybrid, divoce rostoucí. Vzácný nález při sběru.",   desc_en:"Baco Noir (Bago) cutting. A resilient hybrid, found growing wild. A rare find." },
+    "vinum_baci":          { name:"Vinum Baci",           name_en:"Vinum Baci",            icon:"🍷", type:"food", hunger:4,  desc:"Tmavě rubínové víno z Baga. Silné barvivo, vhodné ke scelování. Lidové víno jižní Moravy.", desc_en:"Dark ruby wine from Baco Noir. Strong colourant, good for blending. A southern Moravian folk wine." },
 };
     // Oprava BUG #2 — semena stromů chybějící v ItemsDB (Trh nákup)
     // (vloženo před uzavírací }; — merge do objektu před buildem)

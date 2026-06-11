@@ -1712,6 +1712,9 @@ const GardenSystem = {
         modry_janek: { id:'modry_janek', name:'Modrý Janek', name_en:'Modrý Janek', icon:'🍇',
                        ripeDays:105, windowDays:18, viticis:'viticis_modry_janek',
                        outputs:['vinum_obscurum'],   outputPrimary:'vinum_obscurum' },
+        baco:        { id:'baco',        name:'Baco Noir (Bago)', name_en:'Baco Noir', icon:'🍇',
+                       ripeDays:75,  windowDays:25, viticis:'viticis_baco',
+                       outputs:['vinum_baci'],       outputPrimary:'vinum_baci' },
     },
 
     // ── VINOHRAD (Vinea) — inicializace GameState ─────────────────────────────
