@@ -1300,6 +1300,7 @@ const CellariumSystem = {
         { pen: 'rabbitry', icon: '🐇', tech: 'tech_cuniculi' },
         { pen: 'goatpen',  icon: '🐐', tech: 'tech_caprile' },
         { pen: 'pigsty',   icon: '🐖', tech: 'tech_suile' },
+        { pen: 'stable',   icon: '🐎', tech: 'tech_stabulum' },
       ];
       let dvurInner = '';
       penDefs.forEach(d => {
@@ -1322,6 +1323,34 @@ const CellariumSystem = {
             : !hasT
               ? `<div style="font-size:0.74rem; opacity:0.6;">🔒 ${t('dvur.lockedPrefix')} ${(typeof tName === 'function') ? tName(d.tech) : d.tech}</div>`
               : costStr + `<button onclick="CellariumSystem.buildPen('${d.pen}')" class="craft-btn" style="font-size:0.78rem; margin-top:6px;" ${can ? '' : 'disabled'}>🏗️ ${lang==='en' ? 'Build' : 'Postavit'}</button>`}
+        </div>`;
+      });
+
+      // Kurník a Ovčín — bespoke build funkce (Game.buildHenhouse/buildSheepfold)
+      const simplePens = [
+        { key: 'henhouse',  icon: '🐔', titleK: 'farmyard.gallinarium', descK: 'farmyard.hennhouseBuildDesc',
+          cost: { rock: 15, stick: 10, rope: 3 }, fn: 'Game.buildHenhouse()' },
+        { key: 'sheepfold', icon: '🐑', titleK: 'farmyard.ovile',       descK: 'farmyard.sheepfoldBuildDesc',
+          cost: { rock: 20, stick: 15, rope: 5 }, fn: 'Game.buildSheepfold()',
+          tech: 'tech_de_re_rustica' },
+      ];
+      simplePens.forEach(d => {
+        const built = GameState[d.key] && GameState[d.key].built;
+        const hasT = !d.tech || (GameState.researchedTechs && GameState.researchedTechs.includes(d.tech));
+        const can = hasT && !built && Object.entries(d.cost).every(([id, n]) => (GameState.inventory[id]||0) >= n);
+        const costStr2 = Object.entries(d.cost).map(([id, n]) => {
+          const it = ItemsDB[id];
+          const have = GameState.inventory[id] || 0;
+          return `<div style="font-size:0.72rem; ${have >= n ? '' : 'color:#c0392b;'}">${it ? it.icon : '📦'} ${(typeof iName === 'function') ? iName(id) : id} ×${n} <span style="opacity:0.6;">(${lang==='en'?'has':'máš'}: ${have})</span></div>`;
+        }).join('');
+        dvurInner += `<div style="padding:10px; background:rgba(197,160,89,0.05); border-radius:8px; border:1px solid rgba(197,160,89,0.18);">
+          <div style="font-weight:bold; font-size:0.88rem; margin-bottom:4px;">${d.icon} ${t(d.titleK)}</div>
+          <div style="font-size:0.75rem; opacity:0.7; margin-bottom:6px;">${t(d.descK)}</div>
+          ${built
+            ? `<div style="font-size:0.78rem; color:#5a9a5a;">✅ ${lang==='en' ? 'Built' : 'Postaveno'}</div>`
+            : !hasT
+              ? `<div style="font-size:0.74rem; opacity:0.6;">🔒 ${t('dvur.lockedPrefix')} ${(typeof tName === 'function') ? tName(d.tech) : d.tech}</div>`
+              : costStr2 + `<button onclick="${d.fn}" class="craft-btn" style="font-size:0.78rem; margin-top:6px;" ${can ? '' : 'disabled'}>🏗️ ${lang==='en' ? 'Build' : 'Postavit'}</button>`}
         </div>`;
       });
 

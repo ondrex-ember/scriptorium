@@ -414,6 +414,7 @@ const GardenSystem = {
         Game.removeItem('rope', 3);
         h.built = true;
         Game.save(); GardenSystem.renderFarmyard();
+        if (typeof CellariumSystem !== 'undefined' && (GameState.ui && GameState.ui.cellariumEntity) === 'buildings') CellariumSystem.switchEntity('buildings');
         UI.notify('🐔 ' + t('game.hennhouseBuilt'));
     },
 
@@ -519,6 +520,7 @@ const GardenSystem = {
         Game.removeItem('rope', 5);
         s.built = true;
         Game.save(); GardenSystem.renderFarmyard();
+        if (typeof CellariumSystem !== 'undefined' && (GameState.ui && GameState.ui.cellariumEntity) === 'buildings') CellariumSystem.switchEntity('buildings');
         UI.notify('🐑 ' + t('game.sheepfoldBuilt'));
     },
 
@@ -1022,8 +1024,7 @@ const GardenSystem = {
             html += `<h3 style="margin:0 0 12px 0; font-size:1rem;">🐔 ${t('farmyard.gallinarium')}</h3>`;
             if (!h.built) {
                 html += `<p class="text-sm" style="opacity:0.7; margin-bottom:10px;">${t('farmyard.hennhouseBuildDesc')}</p>`;
-                const canBuild = (GameState.inventory['rock']||0)>=15 && (GameState.inventory['stick']||0)>=10 && (GameState.inventory['rope']||0)>=3;
-                html += `<button class="craft-btn" onclick="Game.buildHenhouse()" ${canBuild?'':'disabled'}>🏗️ ${t('farmyard.buildHenhouse')} (15 ${lang==='en'?'stone':'kámen'}, 10 ${lang==='en'?'branch':'větev'}, 3 ${lang==='en'?'rope':'provaz'})</button>`;
+                html += `<div style="font-size:0.8rem; opacity:0.7; font-style:italic;">🏗️ ${t('dvur.buildInCellarium')}</div>`;
             } else {
                 const hensCount = (h.hens||[]).length;
                 html += `<div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:12px; font-size:0.82rem;">`;
@@ -1078,8 +1079,7 @@ const GardenSystem = {
                 html += `<p class="text-sm" style="opacity:0.6; font-style:italic;">${t('farmyard.ovileLocked')}</p>`;
             } else if (!s.built) {
                 html += `<p class="text-sm" style="opacity:0.7; margin-bottom:10px;">${t('farmyard.sheepfoldBuildDesc')}</p>`;
-                const canBuild = (GameState.inventory['rock']||0)>=20 && (GameState.inventory['stick']||0)>=15 && (GameState.inventory['rope']||0)>=5;
-                html += `<button class="craft-btn" onclick="Game.buildSheepfold()" ${canBuild?'':'disabled'}>🏗️ ${t('farmyard.buildSheepfold')} (20 ${lang==='en'?'stone':'kámen'}, 15 ${lang==='en'?'branch':'větev'}, 5 ${lang==='en'?'rope':'provaz'})</button>`;
+                html += `<div style="font-size:0.8rem; opacity:0.7; font-style:italic;">🏗️ ${t('dvur.buildInCellarium')}</div>`;
             } else {
                 html += `<div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:12px; font-size:0.82rem;">`;
                 html += `<div>🐑 ${t('farmyard.sheep')}: <strong>${s.sheep||0}/6</strong></div>`;
@@ -1123,6 +1123,8 @@ const GardenSystem = {
             html += this._renderAnimalPen('goatpen');
         } else if (tab === 'chlev' && GameState.researchedTechs && GameState.researchedTechs.includes('tech_suile')) {
             html += this._renderAnimalPen('pigsty');
+        } else if (tab === 'staj' && GameState.researchedTechs && GameState.researchedTechs.includes('tech_stabulum')) {
+            html += this._renderAnimalPen('stable');
         } else if (tab !== 'studna') {
             html += this._renderDvurLocked(tab);
         }
@@ -1149,6 +1151,8 @@ const GardenSystem = {
             build: { cut_stone: 15, plank: 10 },
             growMs: 60 * 24 * 60 * 60 * 1000,          // dospělost 60 dní
             acornBoostMs: 5 * 24 * 60 * 60 * 1000 },   // 1 žalud = −5 dní
+        stable:   { itemId: 'horse', cap: 2,
+            build: { plank: 15, cut_stone: 10, rope: 4 } },  // v1: jen ustájení, bez produkce
     },
 
     _penHungry: function(key) {
@@ -1160,6 +1164,7 @@ const GardenSystem = {
         if (!GameState.rabbitry) GameState.rabbitry = { built: false, animals: [], lastBreed: 0 };
         if (!GameState.goatpen)  GameState.goatpen  = { built: false, animals: [] };
         if (!GameState.pigsty)   GameState.pigsty   = { built: false, animals: [] };
+        if (!GameState.stable)   GameState.stable   = { built: false, animals: [] };
     },
 
     _animalCanBuild: function(cost) {
@@ -1291,7 +1296,7 @@ const GardenSystem = {
         const cfg = this.ANIMAL_CFG[pen];
         const st = GameState[pen];
         const lang = (GameState.settings && GameState.settings.language) || 'cs';
-        const icons = { rabbitry: '🐇', goatpen: '🐐', pigsty: '🐖' };
+        const icons = { rabbitry: '🐇', goatpen: '🐐', pigsty: '🐖', stable: '🐎' };
         let h = `<div style="padding:16px; background:rgba(197,160,89,0.06); border-radius:10px; border-left:4px solid var(--accent-gold);">`;
         h += `<h3 style="margin:0 0 12px 0; font-size:1rem;">${icons[pen]} ${t('dvur.title_' + pen)}</h3>`;
 

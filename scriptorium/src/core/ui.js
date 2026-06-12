@@ -1146,11 +1146,11 @@ showBookModal: function(book) {
     renderNotebooks: function() {
         const el = document.getElementById('lore-notebooks-content');
         
-        const hasAny = GameState.inventory['tabula'] > 0 ||
-                       GameState.inventory['adversaria'] > 0 ||
-                       GameState.inventory['vademecum'] > 0 ||
-                       GameState.inventory['florilegium'] > 0 ||
-                       GameState.inventory['enchiridion'] > 0;
+        const hasAny = (GameState.unlockedRecipes||[]).includes('tabula') ||
+                       (GameState.unlockedRecipes||[]).includes('adversaria') ||
+                       (GameState.unlockedRecipes||[]).includes('vademecum') ||
+                       (GameState.unlockedRecipes||[]).includes('florilegium') ||
+                       (GameState.unlockedRecipes||[]).includes('enchiridion');
         
         if(!hasAny) {
             let h = `<div style="padding:20px; background:rgba(0,0,0,0.05); border-radius:8px; text-align:center;">
@@ -1174,7 +1174,7 @@ showBookModal: function(book) {
             {id:'enchiridion', icon:'📖', name:'Enchiridion'}
         ];
         types.forEach(t => {
-            if(GameState.inventory[t.id] > 0) {
+            if((GameState.unlockedRecipes||[]).includes(t.id)) {
                 h += `<button onclick="UI.renderNotebookInline('${t.id}')" class="craft-btn">${t.icon} ${t.name}</button>`;
             }
         });
@@ -1185,11 +1185,12 @@ showBookModal: function(book) {
         
         // Auto-select first owned
         setTimeout(() => {
-		if(GameState.inventory['tabula'] > 0) this.renderNotebookInline('tabula');
-        else if(GameState.inventory['adversaria'] > 0) this.renderNotebookInline('adversaria');
-        else if(GameState.inventory['vademecum'] > 0) this.renderNotebookInline('vademecum');
-        else if(GameState.inventory['florilegium'] > 0) this.renderNotebookInline('florilegium');
-        else if(GameState.inventory['enchiridion'] > 0) this.renderNotebookInline('enchiridion');
+		const _ur = GameState.unlockedRecipes||[];
+		if(_ur.includes('tabula')) this.renderNotebookInline('tabula');
+        else if(_ur.includes('adversaria')) this.renderNotebookInline('adversaria');
+        else if(_ur.includes('vademecum')) this.renderNotebookInline('vademecum');
+        else if(_ur.includes('florilegium')) this.renderNotebookInline('florilegium');
+        else if(_ur.includes('enchiridion')) this.renderNotebookInline('enchiridion');
 		}, 0);
 
     },
