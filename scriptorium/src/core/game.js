@@ -543,6 +543,9 @@ const Game = {
             
             deepMerge(GameState, loadedState);
             console.log('✅ Save loaded successfully!');
+
+            // Sync: retroaktivně doplnit unlocks z hotových techů (řeší unlocks přidané po researchi)
+            this.syncTechUnlocks();
             
         } catch(e) {
             console.error('❌ Load error:', e);
@@ -551,6 +554,25 @@ const Game = {
     
     
     resetSave: function() { if(confirm(t('game.confirmReset'))) { try { localStorage.removeItem('scriptorium_save_v6_4'); } 	catch(e){} location.reload(); } },
+
+    // Retroaktivní sync: každý researchnutý tech musí mít své unlocks v unlockedRecipes
+    syncTechUnlocks: function() {
+        if (!GameState.researchedTechs || typeof TechTree === 'undefined') return;
+        if (!GameState.unlockedRecipes) GameState.unlockedRecipes = [];
+        let added = 0;
+        GameState.researchedTechs.forEach(tid => {
+            const tech = TechTree.find(x => x.id === tid);
+            if (!tech || !Array.isArray(tech.unlocks)) return;
+            tech.unlocks.forEach(u => {
+                if (!GameState.unlockedRecipes.includes(u)) {
+                    GameState.unlockedRecipes.push(u);
+                    added++;
+                }
+            });
+        });
+        if (added) console.log(`🔧 syncTechUnlocks: doplněno ${added} chybějících unlocků.`);
+    },
+
     setVolume: function(val) { if(audioSys) audioSys.setVolume(val); },
     setFireVolume: function(val) { 
         const volume = parseInt(val) / 100;
