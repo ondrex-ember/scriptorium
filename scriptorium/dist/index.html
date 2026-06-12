@@ -14128,8 +14128,8 @@ const GardenSystem = {
         if (tab === 'piscina')  GardenSystem.renderPiscina();
         if (tab === 'pole')     GardenSystem.renderFieldTab();
         if (tab === 'vinohrad') GardenSystem.renderVinohrad();
-        // Kočka — init při prvním otevření Zahrady
-        if (typeof ScriptoriumCat !== 'undefined') ScriptoriumCat.show();
+        // Kočka — init při prvním otevření Zahrady + kontrola, zda sídlí na tomto subtabu
+        if (typeof ScriptoriumCat !== 'undefined') { ScriptoriumCat.show(); ScriptoriumCat.onTabSwitch(); }
     },
 
     renderFarmyard: function() {
@@ -15433,7 +15433,9 @@ const GardenSystem = {
 // ═══ src/systems/ScriptoriumCat.js ═══
 // ═══════════════════════════════════════════════════════════════════════════
 // SCRIPTORIUM CAT — Felis Monastica
-// Animated pixel cat roaming the Garden screen
+// Animated pixel cat dwelling on ONE garden subtab at a time.
+// Player sees her only on the subtab where she currently resides.
+// Relocates to another subtab every 3–8 minutes (locked tabs included).
 // Sprites: /cat/Cat-2-*.png, frame size 50×50px
 // ═══════════════════════════════════════════════════════════════════════════
 
@@ -15443,9 +15445,11 @@ const ScriptoriumCat = {
     FRAME_SIZE: 50,
     SCALE: 2,           // zobrazit 100×100px
     BASE_PATH: '/cat/',
+    RELOCATE_MIN_MS: 3 * 60 * 1000,   // 3 min
+    RELOCATE_MAX_MS: 8 * 60 * 1000,   // 8 min
 
     SPRITES: {
-        idle:      { file: 'Cat-2-Idle.png',      frames: 10, fps: 8 },
+        idle:      { file: 'Cat-2-Idle.png',       frames: 10, fps: 8 },
         walk:      { file: 'Cat-2-Walk.png',       frames: 8,  fps: 10 },
         sitting:   { file: 'Cat-2-Sitting.png',    frames: 1,  fps: 1 },
         sleeping:  { file: 'Cat-2-Sleeping1.png',  frames: 1,  fps: 1 },
@@ -15459,14 +15463,14 @@ const ScriptoriumCat = {
     state: 'idle',
     currentFrame: 0,
     frameTimer: null,
-    moveTimer: null,
+    moveTimer: null,       // mini-pohyby v rámci subtabu
+    relocateTimer: null,   // stěhování mezi subtaby
+    currentTab: null,      // id subtabu kde kočka sídlí, např. 'garden-tab-sad'
     posX: 100,
     posY: 100,
-    targetX: 100,
-    targetY: 100,
     facingLeft: false,
     _initialized: false,
-    _idleTime: 0,
+    _relocating: false,
 
     // ── Init ──────────────────────────────────────────────────────────────
     init: function() {
@@ -15475,9 +15479,34 @@ const ScriptoriumCat = {
 
         if (!GameState.cat) GameState.cat = { name: 'Bezejmenný myšilov' };
 
+        this.currentTab = this._pickRandomTab();
         this._createEl();
         this._startFrameLoop();
         this._scheduleMove();
+        this._scheduleRelocate();
+    },
+
+    // ── Subtab helpers ────────────────────────────────────────────────────
+    _allTabs: function() {
+        const screen = document.getElementById('screen-garden');
+        if (!screen) return [];
+        return Array.from(screen.querySelectorAll('div[id^="garden-tab-"]'));
+    },
+
+    _pickRandomTab: function(excludeId) {
+        const tabs = this._allTabs().filter(t => t.id !== excludeId);
+        if (!tabs.length) return null;
+        return tabs[Math.floor(Math.random() * tabs.length)].id;
+    },
+
+    _activeTabEl: function() {
+        // Viditelný subtab (display !== 'none')
+        return this._allTabs().find(t => t.style.display !== 'none') || null;
+    },
+
+    _isCatTabActive: function() {
+        const active = this._activeTabEl();
+        return !!(active && this.currentTab && active.id === this.currentTab);
     },
 
     _createEl: function() {
@@ -15499,6 +15528,7 @@ const ScriptoriumCat = {
             top: ${this.posY}px;
             transition: left 2.5s ease-in-out, top 2.5s ease-in-out;
             pointer-events: auto;
+            display: none;
         `;
 
         el.addEventListener('click', () => this._onCatClick());
@@ -15536,7 +15566,7 @@ const ScriptoriumCat = {
         this.frameTimer = setTimeout(tick, 120);
     },
 
-    // ── Pohyb ─────────────────────────────────────────────────────────────
+    // ── Mini-pohyby v rámci subtabu ───────────────────────────────────────
     _scheduleMove: function() {
         const delay = 45000 + Math.random() * 45000; // 45–90s
         this.moveTimer = setTimeout(() => {
@@ -15546,34 +15576,22 @@ const ScriptoriumCat = {
     },
 
     _moveTo: function() {
+        // Pohybuj se jen pokud je kočka právě vidět (její subtab je aktivní)
+        if (this._relocating || !this._isCatTabActive()) return;
         const screen = document.getElementById('screen-garden');
         if (!screen || screen.style.display === 'none') return;
 
-        // Vyber náhodný garden subtab (i zamčený/skrytý)
-        const tabs = screen.querySelectorAll('div[id^="garden-tab-"]');
-        if (!tabs.length) return;
-        const tab = tabs[Math.floor(Math.random() * tabs.length)];
+        const pos = this._randomPosInTab(this._activeTabEl());
+        if (!pos) return;
 
-        // Spočítej offset tabulátoru relativně k screen-garden
-        const screenRect = screen.getBoundingClientRect();
-        const tabRect = tab.getBoundingClientRect();
-        const tabOffsetTop = tabRect.top - screenRect.top + screen.scrollTop;
-        const tabOffsetLeft = tabRect.left - screenRect.left;
-
-        const tabW = Math.max(100, tabRect.width);
-        const tabH = Math.max(60,  tabRect.height);
-
-        const newX = tabOffsetLeft + 10 + Math.random() * Math.max(10, tabW - this.FRAME_SIZE * this.SCALE - 20);
-        const newY = tabOffsetTop  + 10 + Math.random() * Math.max(10, tabH - this.FRAME_SIZE * this.SCALE - 10);
-
-        this.facingLeft = newX < this.posX;
-        this.posX = newX;
-        this.posY = newY;
+        this.facingLeft = pos.x < this.posX;
+        this.posX = pos.x;
+        this.posY = pos.y;
 
         this._setState('walk');
         if (this.el) {
-            this.el.style.left = newX + 'px';
-            this.el.style.top  = newY + 'px';
+            this.el.style.left = pos.x + 'px';
+            this.el.style.top  = pos.y + 'px';
         }
 
         setTimeout(() => {
@@ -15584,6 +15602,99 @@ const ScriptoriumCat = {
                 else if (r < 0.7) this._setState('laying');
             }, 5000);
         }, 3000);
+    },
+
+    // Náhodná pozice v rámci daného subtab elementu (souřadnice vůči screen-garden)
+    _randomPosInTab: function(tabEl) {
+        const screen = document.getElementById('screen-garden');
+        if (!screen || !tabEl) return null;
+
+        const screenRect = screen.getBoundingClientRect();
+        const tabRect = tabEl.getBoundingClientRect();
+        if (tabRect.width < 20 || tabRect.height < 20) return null;
+
+        const offTop  = tabRect.top  - screenRect.top  + screen.scrollTop;
+        const offLeft = tabRect.left - screenRect.left;
+        const size = this.FRAME_SIZE * this.SCALE;
+
+        const x = offLeft + 10 + Math.random() * Math.max(10, tabRect.width  - size - 20);
+        const y = offTop  + 10 + Math.random() * Math.max(10, tabRect.height - size - 10);
+        return { x: x, y: y };
+    },
+
+    // ── Stěhování mezi subtaby ────────────────────────────────────────────
+    _scheduleRelocate: function() {
+        const delay = this.RELOCATE_MIN_MS + Math.random() * (this.RELOCATE_MAX_MS - this.RELOCATE_MIN_MS);
+        this.relocateTimer = setTimeout(() => {
+            this._relocate();
+            this._scheduleRelocate();
+        }, delay);
+    },
+
+    _relocate: function() {
+        const newTab = this._pickRandomTab(this.currentTab);
+        if (!newTab) return;
+
+        if (this._isCatTabActive() && this.el && this.el.style.display !== 'none') {
+            // Hráč se dívá → odejde walk animací k okraji a zmizí
+            this._relocating = true;
+            this._setState('walk');
+            const screen = document.getElementById('screen-garden');
+            const goRight = Math.random() < 0.5;
+            this.facingLeft = !goRight;
+            const exitX = goRight ? (screen ? screen.clientWidth : this.posX + 300) : -this.FRAME_SIZE * this.SCALE;
+            this.el.style.left = exitX + 'px';
+            setTimeout(() => {
+                this._relocating = false;
+                this.currentTab = newTab;
+                if (this.el) this.el.style.display = 'none';
+                this._settleInCurrentTab();
+            }, 2600);
+        } else {
+            // Nikdo se nedívá → tiché přemístění
+            this.currentTab = newTab;
+            this._settleInCurrentTab();
+            this.onTabSwitch();
+        }
+    },
+
+    // Usadí kočku na náhodné pozici v jejím (možná skrytém) subtabu — bez animace
+    _settleInCurrentTab: function() {
+        const tabEl = document.getElementById(this.currentTab);
+        const pos = this._randomPosInTab(tabEl);
+        if (pos && this.el) {
+            this.el.style.transition = 'none';
+            this.posX = pos.x;
+            this.posY = pos.y;
+            this.el.style.left = pos.x + 'px';
+            this.el.style.top  = pos.y + 'px';
+            // force reflow, pak vrátit transition pro budoucí walk
+            void this.el.offsetWidth;
+            this.el.style.transition = 'left 2.5s ease-in-out, top 2.5s ease-in-out';
+        }
+    },
+
+    // ── Reakce na přepnutí garden subtabu ─────────────────────────────────
+    onTabSwitch: function() {
+        if (!this._initialized || !this.el || this._relocating) return;
+
+        if (this._isCatTabActive()) {
+            // Kočka sídlí na právě otevřeném subtabu → ukázat
+            // Pokud nemá platnou pozici v rámci tabu, usadit
+            const tabEl = document.getElementById(this.currentTab);
+            const screen = document.getElementById('screen-garden');
+            if (tabEl && screen) {
+                const screenRect = screen.getBoundingClientRect();
+                const tabRect = tabEl.getBoundingClientRect();
+                const offTop = tabRect.top - screenRect.top + screen.scrollTop;
+                const inTab = this.posY >= offTop - 5 && this.posY <= offTop + tabRect.height;
+                if (!inTab) this._settleInCurrentTab();
+            }
+            this.el.style.display = 'block';
+            this._setState('idle');
+        } else {
+            this.el.style.display = 'none';
+        }
     },
 
     _setState: function(state) {
@@ -15612,16 +15723,18 @@ const ScriptoriumCat = {
         if (typeof UI !== 'undefined' && UI.notify) UI.notify('🐈‍⬛ ' + msg);
     },
 
-    // ── Zobrazit/skrýt ────────────────────────────────────────────────────
+    // ── Zobrazit/skrýt (vstup/odchod ze Zahrady) ──────────────────────────
     show: function() {
-        if (!this._initialized) { this.init(); return; }
-        if (this.el) this.el.style.display = 'block';
+        if (!this._initialized) { this.init(); this.onTabSwitch(); return; }
         if (!this.moveTimer) this._scheduleMove();
+        if (!this.relocateTimer) this._scheduleRelocate();
+        this.onTabSwitch();
     },
 
     hide: function() {
         if (this.el) this.el.style.display = 'none';
-        if (this.moveTimer) { clearTimeout(this.moveTimer); this.moveTimer = null; }
+        if (this.moveTimer)     { clearTimeout(this.moveTimer);     this.moveTimer = null; }
+        if (this.relocateTimer) { clearTimeout(this.relocateTimer); this.relocateTimer = null; }
     },
 
     // ── Přejmenovat ───────────────────────────────────────────────────────
