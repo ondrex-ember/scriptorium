@@ -508,6 +508,8 @@ const Game = {
                     Game.checkOrchardGrowth();
                     if (typeof GardenSystem !== 'undefined') GardenSystem.checkFieldGrowth();
                     if (typeof GardenSystem !== 'undefined') GardenSystem.checkVineaGrowth();
+                    // Felis Monastica — denní tick (self-guarded 24h)
+                    if (typeof ScriptoriumCat !== 'undefined' && ScriptoriumCat.dailyTick) ScriptoriumCat.dailyTick();
                     Game.checkFarmyardProduction();
                     Game.checkPiscinaGrowth();
                 }

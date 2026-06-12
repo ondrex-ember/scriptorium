@@ -1208,6 +1208,20 @@ const STRINGS_cs = {
         heinrichAlready: '(Varhany již vlastníš)',
     },
 
+    felis: {
+        locked: 'Kočka se klášterem potuluje divoká a nedůvěřivá. Prozkoumej Cura Felium, aby ses o ni mohl starat.',
+        defaultName: 'Bezejmenný myšilov',
+        age: 'Věk',
+        namePlaceholder: 'Pojmenuj kočku...',
+        satiety: 'Sytost',
+        affection: 'Přízeň',
+        huntDrive: 'Lovecký pud',
+        feedTitle: 'Nakrmit',
+        noFood: 'Nemáš nic, co by kočka žrala. Smetana, ryba, maso...',
+        caught: 'Chyceno myší',
+        stolenCount: 'Ukradeno ze zásob',
+        shameHall: 'Síň hanby',
+    },
     farmyard: {
         gallinarium: 'Gallinarium (Kurník)',
         ovile: 'Ovile (Chlév)',

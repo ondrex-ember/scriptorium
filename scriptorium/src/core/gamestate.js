@@ -114,5 +114,15 @@ const GameState = {
         },
         professions: [],        // odemčené profese
     },
-    cat: { name: 'Bezejmenný myšilov' }
+    cat: {
+        name: 'Bezejmenný myšilov',
+        satiety: 50,        // 0–100, klesá v čase
+        affection: 20,      // 0–100, roste krmením/hlazením
+        caught: 0,          // myší chyceno celkem
+        stolen: [],         // [{item, ts}] síň hanby — ukradené potraviny
+        bornAt: 0,          // timestamp prvního setkání (init při tech_cura_felium)
+        lastPet: 0,         // timestamp posledního pohlazení (Vigor bonus 1×/den)
+        lastTick: 0,        // timestamp posledního denního ticku
+    },
+    mice: { count: 3, lastTick: 0 }   // klášterní myší populace
 };

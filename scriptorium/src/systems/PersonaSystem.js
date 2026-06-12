@@ -176,11 +176,14 @@ const PersonaSystem = {
                 onclick="PersonaSystem.switchTab('stats',this)">📊 ${lang==='en'?'Statistics':'Statistiky'}</button>
             <button id="persona-tab-influentia" class="filter-btn ${this._activeTab==='influentia'?'active':''}"
                 onclick="PersonaSystem.switchTab('influentia',this)">🤝 ${lang==='en'?'Influentia':'Influentia'}</button>
+            <button id="persona-tab-felis" class="filter-btn ${this._activeTab==='felis'?'active':''}"
+                onclick="PersonaSystem.switchTab('felis',this)">🐈‍⬛ Felis</button>
         </div>`;
 
         h += `<div id="persona-subtab-persona"  style="${this._activeTab==='persona'?'':'display:none'}">` + this._renderPersona(lang) + `</div>`;
         h += `<div id="persona-subtab-stats"    style="${this._activeTab==='stats'?'':'display:none'}">` + this._renderStats(lang) + `</div>`;
         h += `<div id="persona-subtab-influentia" style="${this._activeTab==='influentia'?'':'display:none'}">` + this._renderInfluentia(lang) + `</div>`;
+        h += `<div id="persona-subtab-felis" style="${this._activeTab==='felis'?'':'display:none'}">` + this._renderFelis(lang) + `</div>`;
 
         el.innerHTML = h;
     },
@@ -189,7 +192,7 @@ const PersonaSystem = {
         this._activeTab = tab;
         document.querySelectorAll('#lore-persona-content .filter-btn').forEach(b => b.classList.remove('active'));
         if (btn) btn.classList.add('active');
-        ['persona','stats','influentia'].forEach(t => {
+        ['persona','stats','influentia','felis'].forEach(t => {
             const d = document.getElementById('persona-subtab-' + t);
             if (d) d.style.display = t === tab ? '' : 'none';
         });
@@ -375,26 +378,109 @@ const PersonaSystem = {
             </div>
         </div>`;
 
-        // ── Felis Monastica ──────────────────────────────────────────────────
-        const catName = (GameState.cat && GameState.cat.name) || (lang==='en'?'Nameless mouser':'Bezejmenný myšilov');
-        h += `<div style="margin-top:16px;padding:12px;background:rgba(197,160,89,0.06);border-radius:8px;border-left:3px solid rgba(197,160,89,0.3);">
-            <div style="font-size:0.75rem;font-weight:bold;letter-spacing:0.06em;text-transform:uppercase;opacity:0.6;margin-bottom:10px;">🐈‍⬛ ${lang==='en'?'Felis Monastica':'Felis Monastica'}</div>
-            <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px;">
-                <span style="font-size:1.4rem;">🐈‍⬛</span>
-                <div>
-                    <div style="font-weight:bold;font-size:0.9rem;">${catName}</div>
-                    <div style="font-size:0.75rem;opacity:0.6;font-style:italic;">${lang==='en'?'The monastery cat. Catches mice, warms the scriptorium.':'Klášterní kočka. Loví myši, hřeje skriptorium.'}</div>
+        return h;
+    },
+
+    // ── Sekce 4: Felis Monastica — kočičí char sheet ─────────────────────────
+    _renderFelis: function(lang) {
+        const hasTech = !!(GameState.researchedTechs && GameState.researchedTechs.includes('tech_cura_felium'));
+
+        if (!hasTech) {
+            return `<div style="padding:24px;text-align:center;opacity:0.65;">
+                <div style="font-size:2.5rem;margin-bottom:10px;">🐈‍⬛</div>
+                <div style="font-style:italic;font-size:0.9rem;">${t('felis.locked')}</div>
+            </div>`;
+        }
+
+        if (typeof ScriptoriumCat !== 'undefined' && ScriptoriumCat._ensureCatState) ScriptoriumCat._ensureCatState();
+        const c = GameState.cat || {};
+        const catName = c.name || t('felis.defaultName');
+        const title = (typeof ScriptoriumCat !== 'undefined' && ScriptoriumCat.getTitle) ? ScriptoriumCat.getTitle() : '';
+        const satiety = Math.round(c.satiety || 0);
+        const affection = Math.round(c.affection || 0);
+        const huntDrive = 100 - satiety; // lovecký pud = inverze sytosti
+        const ageDays = c.bornAt ? Math.max(0, Math.floor((Date.now() - c.bornAt) / 86400000)) : 0;
+
+        const bar = (icon, label, val, color) => `
+            <div style="margin-bottom:10px;">
+                <div style="display:flex;justify-content:space-between;font-size:0.8rem;margin-bottom:3px;">
+                    <span>${icon} ${label}</span><span style="opacity:0.7;">${val}/100</span>
                 </div>
-            </div>
-            <div style="display:flex;gap:6px;">
-                <input type="text" id="cat-name-input" value="${catName}"
-                    placeholder="${lang==='en'?'Name the cat...':'Pojmenuj kočku...'}"
-                    style="flex:1;padding:6px 8px;border:1px solid rgba(0,0,0,0.2);border-radius:4px;font-family:'Cinzel',serif;font-size:0.85rem;">
-                <button onclick="PersonaSystem.saveCatName()" class="craft-btn" style="padding:6px 12px;">💾</button>
+                <div style="height:8px;background:rgba(0,0,0,0.12);border-radius:4px;overflow:hidden;">
+                    <div style="height:100%;width:${val}%;background:${color};border-radius:4px;"></div>
+                </div>
+            </div>`;
+
+        let h = `<div style="padding:4px;">`;
+
+        // Hlavička: portrét + jméno + titul + rename
+        h += `<div style="display:flex;gap:12px;align-items:center;margin-bottom:14px;padding:12px;background:rgba(197,160,89,0.06);border-radius:8px;border-left:3px solid rgba(197,160,89,0.3);">
+            <div style="width:64px;height:64px;background-image:url('/cat/Cat-2-Sitting.png');background-size:cover;image-rendering:pixelated;flex-shrink:0;"></div>
+            <div style="flex:1;">
+                <div style="font-weight:bold;font-size:1rem;">${catName}</div>
+                <div style="font-size:0.78rem;opacity:0.65;font-style:italic;">「 ${title} 」</div>
+                <div style="font-size:0.72rem;opacity:0.5;">${t('felis.age')}: ${ageDays} ${lang==='en'?'days':'dní'}</div>
             </div>
         </div>`;
+        h += `<div style="display:flex;gap:6px;margin-bottom:16px;">
+            <input type="text" id="cat-name-input" value="${catName}"
+                placeholder="${t('felis.namePlaceholder')}"
+                style="flex:1;padding:6px 8px;border:1px solid rgba(0,0,0,0.2);border-radius:4px;font-family:'Cinzel',serif;font-size:0.85rem;">
+            <button onclick="PersonaSystem.saveCatName()" class="craft-btn" style="padding:6px 12px;">💾</button>
+        </div>`;
 
+        // Staty
+        h += bar('🍖', t('felis.satiety'),  satiety,   'linear-gradient(90deg,#a0722d,#c5a059)');
+        h += bar('❤️', t('felis.affection'), affection, 'linear-gradient(90deg,#8c2f39,#c54a59)');
+        h += bar('🐭', t('felis.huntDrive'), huntDrive, 'linear-gradient(90deg,#4a5a4a,#7a8a6a)');
+
+        // Fuzzy myší hláška
+        const fuzzy = (typeof ScriptoriumCat !== 'undefined' && ScriptoriumCat.miceFuzzy) ? ScriptoriumCat.miceFuzzy() : '';
+        h += `<div style="margin:14px 0;padding:10px;background:rgba(0,0,0,0.04);border-radius:6px;font-size:0.82rem;font-style:italic;opacity:0.8;">
+            🏚️ ${fuzzy}
+        </div>`;
+
+        // Krmení
+        h += `<div style="font-size:0.75rem;font-weight:bold;letter-spacing:0.06em;text-transform:uppercase;opacity:0.6;margin:14px 0 8px;">🍽️ ${t('felis.feedTitle')}</div>`;
+        const ft = (typeof ScriptoriumCat !== 'undefined' && ScriptoriumCat.FEED_TABLE) ? ScriptoriumCat.FEED_TABLE : {};
+        const feedable = Object.keys(ft).filter(id => (GameState.inventory[id] || 0) > 0);
+        if (feedable.length) {
+            h += `<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:6px;">`;
+            feedable.forEach(id => {
+                const item = (typeof ItemsDB !== 'undefined') ? ItemsDB[id] : null;
+                const icon = item ? item.icon : '🍖';
+                const nm = (typeof iName === 'function') ? iName(id) : id;
+                const qty = GameState.inventory[id];
+                h += `<button class="craft-btn" style="padding:6px 8px;font-size:0.78rem;"
+                    onclick="ScriptoriumCat.feed('${id}')">${icon} ${nm} <span style="opacity:0.6;">×${qty}</span></button>`;
+            });
+            h += `</div>`;
+        } else {
+            h += `<div style="font-size:0.8rem;opacity:0.55;font-style:italic;">${t('felis.noFood')}</div>`;
+        }
+
+        // Počítadla + síň hanby
+        h += `<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:16px;font-size:0.82rem;">
+            <div style="padding:8px;background:rgba(197,160,89,0.06);border-radius:6px;">🐭 ${t('felis.caught')}: <strong>${c.caught || 0}</strong></div>
+            <div style="padding:8px;background:rgba(197,160,89,0.06);border-radius:6px;">😼 ${t('felis.stolenCount')}: <strong>${(c.stolen || []).length}</strong></div>
+        </div>`;
+        if ((c.stolen || []).length) {
+            h += `<div style="font-size:0.75rem;font-weight:bold;letter-spacing:0.06em;text-transform:uppercase;opacity:0.6;margin:12px 0 6px;">😼 ${t('felis.shameHall')}</div>`;
+            h += `<div style="font-size:0.78rem;opacity:0.7;">`;
+            c.stolen.slice(-5).reverse().forEach(s => {
+                const nm = (typeof iName === 'function') ? iName(s.item) : s.item;
+                h += `<div>· ${nm}</div>`;
+            });
+            h += `</div>`;
+        }
+
+        h += `</div>`;
         return h;
+    },
+
+    // Re-render Felis subtab pokud je otevřen (po krmení)
+    rerenderIfOpen: function() {
+        if (this._activeTab === 'felis') this.render();
     },
 
     // ── Pomocné funkce ───────────────────────────────────────────────────────

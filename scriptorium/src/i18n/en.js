@@ -2154,6 +2154,20 @@ According to Theophilus, the organ is an instrument worthy of God, but its const
         heinrichAlready: '(Thou already hast an organ)',
     },
 
+    felis: {
+        locked: 'The cat roams the cloister wild and wary. Research Cura Felium to care for her.',
+        defaultName: 'Nameless mouser',
+        age: 'Age',
+        namePlaceholder: 'Name the cat...',
+        satiety: 'Satiety',
+        affection: 'Affection',
+        huntDrive: 'Hunting drive',
+        feedTitle: 'Feed',
+        noFood: 'You have nothing the cat would eat. Cream, fish, meat...',
+        caught: 'Mice caught',
+        stolenCount: 'Stolen from stores',
+        shameHall: 'Hall of shame',
+    },
     farmyard: {
         gallinarium: 'Gallinarium (Henhouse)',
         ovile: 'Ovile (Sheepfold)',

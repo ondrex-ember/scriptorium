@@ -148,6 +148,12 @@ const TechTree = [
       desc_en:"Crescenzi's encyclopaedia of agriculture: the granary must stand on dry ground, protected from mice and damp. Charles IV had it translated into Czech. Unlocks: Horreum (capacity 1600 units) + fodder as a daily necessity for animals.",
       unlocks:["hay"], requires:["tech_cella","tech_de_re_rustica"] },
 
+    { id:"tech_cura_felium",     name:"Cura Felium — Péče o kočky",      name_en:"Cura Felium — Care of Cats",
+      cost:8,
+      desc:"„Já lovím slova, on loví myši“ — psal irský mnich v 9. století o svém kocouru Pangur Bánovi. Kočka chrání zásoby i rukopisy před myšmi; v nejednom kodexu zůstaly otisky jejích tlapek v inkoustu. Odemkne: Felis — péče o klášterní kočku (krmení, přízeň, lov myší).",
+      desc_en:"\u201CI hunt words, he hunts mice\u201D — wrote a 9th-century Irish monk of his cat Pangur Bán. The cat guards stores and manuscripts from mice; more than one codex bears her inky paw prints. Unlocks: Felis — care of the monastery cat (feeding, affection, mousing).",
+      unlocks:[], requires:["tech_de_re_rustica"] },
+
     { id:"tech_inventarium",     name:"Inventarium — Soupis Zásob",      name_en:"Inventarium — Inventory of Stores",
       cost:8,
       desc:"Klášterní cellarius vedl přesný soupis každého pytle mouky a každého sudu piva. Bez inventáře se zásoby ztrácejí samy od sebe. Odemkne: subtab Inventarium v Cellariu — přehled zásob s decay varováními.",
