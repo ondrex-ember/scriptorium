@@ -858,6 +858,14 @@
         }
 
         @media (max-width: 750px) {
+            /* Dlouhé texty v tlačítkách nesmí přetékat (BUILD HENHOUSE...) */
+            .craft-btn {
+                white-space: normal;
+                word-break: break-word;
+                max-width: 100%;
+                line-height: 1.3;
+                font-size: 0.78rem;
+            }
             .header-content {
                 flex-direction: column;
                 align-items: center;
@@ -2376,25 +2384,25 @@
                 <div class="filter-bar"
                     style="margin-top:10px; margin-bottom:15px; display: flex; flex-wrap: wrap; gap: 5px;">
                     <button id="craft-filter-all" class="filter-btn active"
-                        onclick="UI.filterCrafting('all', this)">Vše</button>
+                        onclick="UI.filterCrafting('all', this)" data-i18n="craftFilter.all">Vše</button>
                     <button id="craft-filter-stone" class="filter-btn"
-                        onclick="UI.filterCrafting('stone', this)">🪨 Kamenné</button>
+                        onclick="UI.filterCrafting('stone', this)" data-i18n="craftFilter.stone">🪨 Kamenné</button>
                     <button id="craft-filter-iron" class="filter-btn"
-                        onclick="UI.filterCrafting('iron', this)">⚒️ Železné</button>
+                        onclick="UI.filterCrafting('iron', this)" data-i18n="craftFilter.iron">⚒️ Železné</button>
                     <button id="craft-filter-craft" class="filter-btn"
-                        onclick="UI.filterCrafting('craft', this)">🪵 Řemeslo</button>
+                        onclick="UI.filterCrafting('craft', this)" data-i18n="craftFilter.craft">🪵 Řemeslo</button>
                     <button id="craft-filter-fire" class="filter-btn"
-                        onclick="UI.filterCrafting('fire', this)">🕯️ Oheň</button>
+                        onclick="UI.filterCrafting('fire', this)" data-i18n="craftFilter.fire">🕯️ Oheň</button>
                     <button id="craft-filter-parchment" class="filter-btn"
-                        onclick="UI.filterCrafting('parchment', this)">📜 Pergamen</button>
+                        onclick="UI.filterCrafting('parchment', this)" data-i18n="craftFilter.parchment">📜 Pergamen</button>
                     <button id="craft-filter-codex" class="filter-btn"
-                        onclick="UI.filterCrafting('codex', this)">📖 Kodex</button>
+                        onclick="UI.filterCrafting('codex', this)" data-i18n="craftFilter.codex">📖 Kodex</button>
                     <button id="craft-filter-food" class="filter-btn"
-                        onclick="UI.filterCrafting('food', this)">🍖 Jídlo</button>
+                        onclick="UI.filterCrafting('food', this)" data-i18n="craftFilter.food">🍖 Jídlo</button>
                     <button id="craft-filter-alchemy" class="filter-btn"
-                        onclick="UI.filterCrafting('alchemy', this)">⚗️ Alchymie</button>
+                        onclick="UI.filterCrafting('alchemy', this)" data-i18n="craftFilter.alchemy">⚗️ Alchymie</button>
                     <button id="craft-filter-lore" class="filter-btn"
-                        onclick="UI.filterCrafting('lore', this)">🎲 Vědění</button>
+                        onclick="UI.filterCrafting('lore', this)" data-i18n="craftFilter.lore">🎲 Vědění</button>
                 </div>
                 <div id="crafting-list"></div>
             </div>
@@ -4691,9 +4699,19 @@ const LibraryHelpers = {
             (Date.now() - GameState.library.startDate) / (24 * 60 * 60 * 1000)
         );
         
+        // Migrace: book_faust_secret omylem odemčená starým loopem (unlockDay 0)
+        // Odebrat, pokud hráč nezískal achievement faust_pact poctivě.
+        const faustIdx = GameState.library.unlockedBooks.indexOf('book_faust_secret');
+        if (faustIdx !== -1 &&
+            !(GameState.achievements && GameState.achievements.unlocked &&
+              GameState.achievements.unlocked.includes('faust_pact'))) {
+            GameState.library.unlockedBooks.splice(faustIdx, 1);
+        }
+        
         let newUnlocks = 0;
         LibraryDB.books.forEach(book => {
-            if (book.unlockDay <= daysPassed && 
+            if (book.unlockDay > 0 &&
+                book.unlockDay <= daysPassed && 
                 !GameState.library.unlockedBooks.includes(book.id)) {
                 GameState.library.unlockedBooks.push(book.id);
                 newUnlocks++;
@@ -12574,16 +12592,16 @@ const CellariumSystem = {
                   border-radius:10px; border-left:4px solid var(--accent-gold);">
         <div style="font-size:2.5rem;">🧾</div>
         <div style="flex:1;">
-          <div style="font-weight:bold; font-size:1rem;">Benedikt z Litomyšle</div>
-          <div style="font-size:0.8rem; opacity:0.65; font-style:italic;">Cellarius · správce klášterního hospodářství</div>
+          <div style="font-weight:bold; font-size:1rem;">${t('cellarium.benedict')}</div>
+          <div style="font-size:0.8rem; opacity:0.65; font-style:italic;">${t('cellarium.benedictRole')}</div>
           <div style="font-size:0.8rem; opacity:0.6; margin-top:4px;">
-            „Quid offers? Quid quaeris?" — Co nabízíš? Co hledáš?
+            ${t('cellarium.motto')}
           </div>
         </div>
         <div style="text-align:center; min-width:70px;">
           <div style="font-size:1.8rem;">💰</div>
           <div style="font-weight:bold; font-size:1.3rem;" id="cellarium-grose-count">${this.getGrose()}</div>
-          <div style="font-size:0.7rem; opacity:0.6;">grošů</div>
+          <div style="font-size:0.7rem; opacity:0.6;">${t('cellarium.grose')}</div>
         </div>
       </div>
     `;
@@ -25567,6 +25585,18 @@ const STRINGS_cs = {
         heinrichAlready: '(Varhany již vlastníš)',
     },
 
+    craftFilter: {
+        all: 'Vše',
+        stone: '🪨 Kamenné',
+        iron: '⚒️ Železné',
+        craft: '🪵 Řemeslo',
+        fire: '🕯️ Oheň',
+        parchment: '📜 Pergamen',
+        codex: '📖 Kodex',
+        food: '🍖 Jídlo',
+        alchemy: '⚗️ Alchymie',
+        lore: '🎲 Vědění',
+    },
     dvur: {
         dashTitle: 'Stav hospodářství',
         tab_kurnik: 'Kurník',
@@ -28015,6 +28045,18 @@ According to Theophilus, the organ is an instrument worthy of God, but its const
         heinrichAlready: '(Thou already hast an organ)',
     },
 
+    craftFilter: {
+        all: 'All',
+        stone: '🪨 Stone',
+        iron: '⚒️ Iron',
+        craft: '🪵 Crafting',
+        fire: '🕯️ Fire',
+        parchment: '📜 Parchment',
+        codex: '📖 Codex',
+        food: '🍖 Provisions',
+        alchemy: '⚗️ Alchemy',
+        lore: '🎲 Knowledge',
+    },
     dvur: {
         dashTitle: 'Farmyard status',
         tab_kurnik: 'Henhouse',

@@ -2154,6 +2154,18 @@ According to Theophilus, the organ is an instrument worthy of God, but its const
         heinrichAlready: '(Thou already hast an organ)',
     },
 
+    craftFilter: {
+        all: 'All',
+        stone: '🪨 Stone',
+        iron: '⚒️ Iron',
+        craft: '🪵 Crafting',
+        fire: '🕯️ Fire',
+        parchment: '📜 Parchment',
+        codex: '📖 Codex',
+        food: '🍖 Provisions',
+        alchemy: '⚗️ Alchemy',
+        lore: '🎲 Knowledge',
+    },
     dvur: {
         dashTitle: 'Farmyard status',
         tab_kurnik: 'Henhouse',

@@ -243,9 +243,19 @@ const LibraryHelpers = {
             (Date.now() - GameState.library.startDate) / (24 * 60 * 60 * 1000)
         );
         
+        // Migrace: book_faust_secret omylem odemčená starým loopem (unlockDay 0)
+        // Odebrat, pokud hráč nezískal achievement faust_pact poctivě.
+        const faustIdx = GameState.library.unlockedBooks.indexOf('book_faust_secret');
+        if (faustIdx !== -1 &&
+            !(GameState.achievements && GameState.achievements.unlocked &&
+              GameState.achievements.unlocked.includes('faust_pact'))) {
+            GameState.library.unlockedBooks.splice(faustIdx, 1);
+        }
+        
         let newUnlocks = 0;
         LibraryDB.books.forEach(book => {
-            if (book.unlockDay <= daysPassed && 
+            if (book.unlockDay > 0 &&
+                book.unlockDay <= daysPassed && 
                 !GameState.library.unlockedBooks.includes(book.id)) {
                 GameState.library.unlockedBooks.push(book.id);
                 newUnlocks++;

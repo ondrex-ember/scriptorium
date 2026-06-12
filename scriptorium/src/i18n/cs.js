@@ -1208,6 +1208,18 @@ const STRINGS_cs = {
         heinrichAlready: '(Varhany již vlastníš)',
     },
 
+    craftFilter: {
+        all: 'Vše',
+        stone: '🪨 Kamenné',
+        iron: '⚒️ Železné',
+        craft: '🪵 Řemeslo',
+        fire: '🕯️ Oheň',
+        parchment: '📜 Pergamen',
+        codex: '📖 Kodex',
+        food: '🍖 Jídlo',
+        alchemy: '⚗️ Alchymie',
+        lore: '🎲 Vědění',
+    },
     dvur: {
         dashTitle: 'Stav hospodářství',
         tab_kurnik: 'Kurník',

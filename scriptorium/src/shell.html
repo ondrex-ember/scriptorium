@@ -858,6 +858,14 @@
         }
 
         @media (max-width: 750px) {
+            /* Dlouhé texty v tlačítkách nesmí přetékat (BUILD HENHOUSE...) */
+            .craft-btn {
+                white-space: normal;
+                word-break: break-word;
+                max-width: 100%;
+                line-height: 1.3;
+                font-size: 0.78rem;
+            }
             .header-content {
                 flex-direction: column;
                 align-items: center;
@@ -2376,25 +2384,25 @@
                 <div class="filter-bar"
                     style="margin-top:10px; margin-bottom:15px; display: flex; flex-wrap: wrap; gap: 5px;">
                     <button id="craft-filter-all" class="filter-btn active"
-                        onclick="UI.filterCrafting('all', this)">Vše</button>
+                        onclick="UI.filterCrafting('all', this)" data-i18n="craftFilter.all">Vše</button>
                     <button id="craft-filter-stone" class="filter-btn"
-                        onclick="UI.filterCrafting('stone', this)">🪨 Kamenné</button>
+                        onclick="UI.filterCrafting('stone', this)" data-i18n="craftFilter.stone">🪨 Kamenné</button>
                     <button id="craft-filter-iron" class="filter-btn"
-                        onclick="UI.filterCrafting('iron', this)">⚒️ Železné</button>
+                        onclick="UI.filterCrafting('iron', this)" data-i18n="craftFilter.iron">⚒️ Železné</button>
                     <button id="craft-filter-craft" class="filter-btn"
-                        onclick="UI.filterCrafting('craft', this)">🪵 Řemeslo</button>
+                        onclick="UI.filterCrafting('craft', this)" data-i18n="craftFilter.craft">🪵 Řemeslo</button>
                     <button id="craft-filter-fire" class="filter-btn"
-                        onclick="UI.filterCrafting('fire', this)">🕯️ Oheň</button>
+                        onclick="UI.filterCrafting('fire', this)" data-i18n="craftFilter.fire">🕯️ Oheň</button>
                     <button id="craft-filter-parchment" class="filter-btn"
-                        onclick="UI.filterCrafting('parchment', this)">📜 Pergamen</button>
+                        onclick="UI.filterCrafting('parchment', this)" data-i18n="craftFilter.parchment">📜 Pergamen</button>
                     <button id="craft-filter-codex" class="filter-btn"
-                        onclick="UI.filterCrafting('codex', this)">📖 Kodex</button>
+                        onclick="UI.filterCrafting('codex', this)" data-i18n="craftFilter.codex">📖 Kodex</button>
                     <button id="craft-filter-food" class="filter-btn"
-                        onclick="UI.filterCrafting('food', this)">🍖 Jídlo</button>
+                        onclick="UI.filterCrafting('food', this)" data-i18n="craftFilter.food">🍖 Jídlo</button>
                     <button id="craft-filter-alchemy" class="filter-btn"
-                        onclick="UI.filterCrafting('alchemy', this)">⚗️ Alchymie</button>
+                        onclick="UI.filterCrafting('alchemy', this)" data-i18n="craftFilter.alchemy">⚗️ Alchymie</button>
                     <button id="craft-filter-lore" class="filter-btn"
-                        onclick="UI.filterCrafting('lore', this)">🎲 Vědění</button>
+                        onclick="UI.filterCrafting('lore', this)" data-i18n="craftFilter.lore">🎲 Vědění</button>
                 </div>
                 <div id="crafting-list"></div>
             </div>

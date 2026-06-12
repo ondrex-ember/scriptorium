@@ -652,16 +652,16 @@ const CellariumSystem = {
                   border-radius:10px; border-left:4px solid var(--accent-gold);">
         <div style="font-size:2.5rem;">🧾</div>
         <div style="flex:1;">
-          <div style="font-weight:bold; font-size:1rem;">Benedikt z Litomyšle</div>
-          <div style="font-size:0.8rem; opacity:0.65; font-style:italic;">Cellarius · správce klášterního hospodářství</div>
+          <div style="font-weight:bold; font-size:1rem;">${t('cellarium.benedict')}</div>
+          <div style="font-size:0.8rem; opacity:0.65; font-style:italic;">${t('cellarium.benedictRole')}</div>
           <div style="font-size:0.8rem; opacity:0.6; margin-top:4px;">
-            „Quid offers? Quid quaeris?" — Co nabízíš? Co hledáš?
+            ${t('cellarium.motto')}
           </div>
         </div>
         <div style="text-align:center; min-width:70px;">
           <div style="font-size:1.8rem;">💰</div>
           <div style="font-weight:bold; font-size:1.3rem;" id="cellarium-grose-count">${this.getGrose()}</div>
-          <div style="font-size:0.7rem; opacity:0.6;">grošů</div>
+          <div style="font-size:0.7rem; opacity:0.6;">${t('cellarium.grose')}</div>
         </div>
       </div>
     `;
