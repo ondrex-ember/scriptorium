@@ -991,6 +991,7 @@ const GardenSystem = {
         this._activeTab = tab;
         document.querySelectorAll('#screen-garden .filter-btn').forEach(b => b.classList.remove('active'));
         if (btn) btn.classList.add('active');
+        if (tab === 'zahony')   GardenSystem.renderGarden();
         if (tab === 'dvur')     GardenSystem.renderFarmyard();
         if (tab === 'sad')      GardenSystem.renderOrchard();
         if (tab === 'apiarium') GardenSystem.renderApiary();
