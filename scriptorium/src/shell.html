@@ -1255,10 +1255,18 @@
             text-align: center;
             background: rgba(255, 255, 255, 0.2);
             min-height: 140px;
+            min-width: 0;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
+        }
+
+        .garden-plot button,
+        .garden-plot .craft-btn {
+            white-space: normal;
+            word-break: break-word;
+            max-width: 100%;
         }
 
         .plot-soil {
@@ -2288,7 +2296,7 @@
                 <div id="home-cellarium-content" style="display:none;"></div>
             </div>
 
-            <div id="screen-garden" class="screen" style="position:relative;">
+            <div id="screen-garden" class="screen" style="position:relative; max-width:100%; overflow-x:hidden;">
                 <h2 data-i18n="garden.title">Zahrada</h2>
                 <div class="filter-bar" style="margin-top:10px; margin-bottom:15px; flex-wrap: wrap; gap: 5px;">
                     <button id="garden-tab-btn-dvur" class="filter-btn active" onclick="UI.switchGardenTab('dvur', this)"
