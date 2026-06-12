@@ -321,11 +321,14 @@ renderActions: function() {
 
         if (filter !== 'all') {
             // Filtrovaný pohled — jen odpovídající typy
+            const tierFilters = ['stone', 'iron', 'wood', 'fire'];
             const allowed = filterGroups[filter] || [filter];
             allItems.forEach(([id, qty]) => {
                 const item = ItemsDB[id];
                 if (!item) return;
-                if (!allowed.includes(item.type)) return;
+                if (tierFilters.includes(filter)) {
+                    if (item.tier !== filter) return;
+                } else if (!allowed.includes(item.type)) return;
                 el.innerHTML += renderItem(id, qty);
             });
         } else {

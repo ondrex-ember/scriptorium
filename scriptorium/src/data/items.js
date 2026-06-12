@@ -1,6 +1,6 @@
 const ItemsDB = {
     // BASIC MATERIALS
-    "tinderbox":       { name:"Troud",               name_en:"Tinderbox",              icon:"🔥", type:"tool",        desc:"Sada na oheň.",                                    desc_en:"A fire-starting kit." },
+    "tinderbox": { name:"Troud",               name_en:"Tinderbox",              icon:"🔥", type:"tool", tier:"fire", desc:"Sada na oheň.",                                    desc_en:"A fire-starting kit." },
     "rock":            { name:"Kámen",               name_en:"Stone",                  icon:"🪨", type:"mat",         desc:"Tvrdý.",                                           desc_en:"Hard stone." },
     "clay":            { name:"Hlína",               name_en:"Clay",                   icon:"🟤", type:"mat",         desc:"Jílovitá hlína z břehu potoka. Vhodná pro hrnčířství a stavbu.", desc_en:"Clay from a streambank. Good for pottery and construction." },
     "stick":           { name:"Větev",               name_en:"Branch",                 icon:"🪵", type:"mat",         desc:"Dřevo.",                                           desc_en:"A length of wood." },
@@ -18,9 +18,9 @@ const ItemsDB = {
     "sharp_stone":     { name:"Úštěpek",             name_en:"Flint Shard",            icon:"🔪", type:"tool",        desc:"Základní ostří.",                                  desc_en:"A crude cutting edge." },
     "stone_knife":     { name:"Nůž",                 name_en:"Stone Knife",            icon:"🗡️", type:"tool",        desc:"Nástroj k lovu.",                                  desc_en:"A hunting tool." },
     "pestle":          { name:"Hmoždíř",             name_en:"Mortar & Pestle",        icon:"🥣", type:"tool",        desc:"Na drcení.",                                       desc_en:"For grinding." },
-    "flint":           { name:"Křesadlo",            name_en:"Flint",                  icon:"🔥", type:"tool",        desc:"Na oheň.",                                         desc_en:"For striking fire." },
-    "primitive_torch": { name:"Louč",                name_en:"Torch",                  icon:"🪵", type:"tool",        desc:"Špinavé světlo.",                                  desc_en:"Crude light." },
-    "candle":          { name:"Svíčka",              name_en:"Candle",                 icon:"🕯️", type:"tool",        desc:"24h světla.",                                      desc_en:"24 hours of light." },
+    "flint": { name:"Křesadlo",            name_en:"Flint",                  icon:"🔥", type:"tool", tier:"fire", desc:"Na oheň.",                                         desc_en:"For striking fire." },
+    "primitive_torch": { name:"Louč",                name_en:"Torch",                  icon:"🪵", type:"tool", tier:"fire", desc:"Špinavé světlo.",                                  desc_en:"Crude light." },
+    "candle": { name:"Svíčka",              name_en:"Candle",                 icon:"🕯️", type:"tool", tier:"fire", desc:"24h světla.",                                      desc_en:"24 hours of light." },
     "rope":            { name:"Provaz",              name_en:"Rope",                   icon:"➰", type:"mat",         desc:"Pevný spoj.",                                      desc_en:"Strong binding." },
     "hoe":             { name:"Motyka",              name_en:"Hoe",                    icon:"⚒️", type:"tool",        desc:"K farmě.",                                         desc_en:"For the garden." },
     "fishing_rod":     { name:"Udice",               name_en:"Fishing Rod",            icon:"🎣", type:"tool",        desc:"Na ryby.",                                         desc_en:"For fishing." },
