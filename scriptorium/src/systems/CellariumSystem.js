@@ -951,6 +951,14 @@ const CellariumSystem = {
     return h;
   },
 
+  // ── Stavba zvířecího výběhu (deleguje na GardenSystem) ───────────────
+  buildPen: function(pen) {
+    if (typeof GardenSystem === 'undefined') return;
+    GardenSystem.buildAnimalPen(pen);
+    // Re-render Budovy
+    if ((GameState.ui && GameState.ui.cellariumEntity) === 'buildings') this.switchEntity('buildings');
+  },
+
   // ── Zahodit předmět ze zásob ──────────────────────────────────────────
   discardItem: function(id, qty) {
     const inv = GameState.inventory || {};
@@ -1232,7 +1240,7 @@ const CellariumSystem = {
       }).join(' &nbsp;');
       const statusIcon = built ? '✅' : (locked ? '🔒' : (waitBuild ? '⏳' : '🏗️'));
       const statusColor = built ? '#5a9a5a' : (locked ? 'rgba(0,0,0,0.3)' : 'var(--accent-gold)');
-      return `<div style="margin-bottom:12px; padding:12px; background:rgba(197,160,89,0.05);
+      return `<div style="padding:12px; background:rgba(197,160,89,0.05);
                         border-radius:8px; border:1px solid rgba(197,160,89,${built ? '0.5' : '0.2'});
                         border-left:4px solid ${statusColor};">
         <div style="display:flex; align-items:center; gap:10px; margin-bottom:6px;">
@@ -1251,7 +1259,7 @@ const CellariumSystem = {
       </div>`;
     };
 
-    const baseCap = 50;
+    const baseCap = 1000;   // sync s DecaySystem.totalCapacity
     const almCap  = (storage.almarium && storage.almarium.built) ? 200 : 0;
     const celCap  = (storage.cella    && storage.cella.built)    ? 600 : 0;
     const horCap  = (storage.horreum  && storage.horreum.built)  ? 1600 : 0;
@@ -1280,17 +1288,50 @@ const CellariumSystem = {
           <div style="padding:0 10px 10px;">${inner}</div>
         </details>`;
 
-      let storInner = `<div style="font-size:0.78rem; margin-bottom:10px; padding:6px 8px; background:rgba(197,160,89,0.08); border-radius:6px;">${capLabel}</div>`;
+      let storInner = `<div style="grid-column:1/-1; font-size:0.78rem; padding:6px 8px; background:rgba(197,160,89,0.08); border-radius:6px;">${capLabel}</div>`;
       storageBuildings.forEach(b => { storInner += renderBuilding(b); });
       let wineInner = '';
       wineBuildings.forEach(b => { wineInner += renderBuilding(b); });
       let workInner = '';
       workshopBuildings.forEach(b => { workInner += renderBuilding(b); });
 
-      h += `<div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:12px; align-items:start;">`;
-      h += section('📦', lang==='en' ? 'Storage' : 'Sklady', storInner);
-      h += section('⚒️', lang==='en' ? 'Workshops' : 'Dílny', workInner);
-      h += section('🍇', lang==='en' ? 'Winery' : 'Vinohrad', wineInner);
+      // Dvůr — zvířecí stavby (stav v GameState.<pen>.built, staví GardenSystem)
+      const penDefs = [
+        { pen: 'rabbitry', icon: '🐇', tech: 'tech_cuniculi' },
+        { pen: 'goatpen',  icon: '🐐', tech: 'tech_caprile' },
+        { pen: 'pigsty',   icon: '🐖', tech: 'tech_suile' },
+      ];
+      let dvurInner = '';
+      penDefs.forEach(d => {
+        if (typeof GardenSystem === 'undefined') return;
+        GardenSystem._ensureAnimals();
+        const cfg = GardenSystem.ANIMAL_CFG[d.pen];
+        const built = GameState[d.pen] && GameState[d.pen].built;
+        const hasT = GameState.researchedTechs && GameState.researchedTechs.includes(d.tech);
+        const can = hasT && !built && GardenSystem._animalCanBuild(cfg.build);
+        const costStr = Object.entries(cfg.build).map(([id, n]) => {
+          const it = ItemsDB[id];
+          const have = GameState.inventory[id] || 0;
+          return `<div style="font-size:0.72rem; ${have >= n ? '' : 'color:#c0392b;'}">${it ? it.icon : '📦'} ${(typeof iName === 'function') ? iName(id) : id} ×${n} <span style="opacity:0.6;">(${lang==='en'?'has':'máš'}: ${have})</span></div>`;
+        }).join('');
+        dvurInner += `<div style="padding:10px; background:rgba(197,160,89,0.05); border-radius:8px; border:1px solid rgba(197,160,89,0.18);">
+          <div style="font-weight:bold; font-size:0.88rem; margin-bottom:4px;">${d.icon} ${t('dvur.title_' + d.pen)}</div>
+          <div style="font-size:0.75rem; opacity:0.7; margin-bottom:6px;">${t('dvur.buildDesc_' + d.pen)}</div>
+          ${built
+            ? `<div style="font-size:0.78rem; color:#5a9a5a;">✅ ${lang==='en' ? 'Built' : 'Postaveno'}</div>`
+            : !hasT
+              ? `<div style="font-size:0.74rem; opacity:0.6;">🔒 ${t('dvur.lockedPrefix')} ${(typeof tName === 'function') ? tName(d.tech) : d.tech}</div>`
+              : costStr + `<button onclick="CellariumSystem.buildPen('${d.pen}')" class="craft-btn" style="font-size:0.78rem; margin-top:6px;" ${can ? '' : 'disabled'}>🏗️ ${lang==='en' ? 'Build' : 'Postavit'}</button>`}
+        </div>`;
+      });
+
+      // Sekce pod sebou (full-width), karty uvnitř v responsivním gridu
+      const grid = (inner) => `<div style="display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:8px; align-items:start;">${inner}</div>`;
+      h += `<div style="display:flex; flex-direction:column; gap:12px;">`;
+      h += section('📦', lang==='en' ? 'Storage' : 'Sklady', grid(storInner));
+      h += section('⚒️', lang==='en' ? 'Workshops' : 'Dílny', grid(workInner));
+      h += section('🐄', lang==='en' ? 'Farmyard' : 'Dvůr', grid(dvurInner));
+      h += section('🍇', lang==='en' ? 'Winery' : 'Vinohrad', grid(wineInner));
       h += `</div>`;
     }
 

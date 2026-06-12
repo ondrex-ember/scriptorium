@@ -976,7 +976,7 @@ const GardenSystem = {
     // UI RENDER — Zahrada, Dvůr, Sad, Apiarium, Piscina
     // ════════════════════════════════════════════════════════════════════════
 
-    _activeTab: 'zahony',
+    _activeTab: 'dvur',
 
     switchGardenTab: function(tab, btn) {
         document.getElementById('garden-tab-zahony').style.display   = tab === 'zahony'   ? '' : 'none';
@@ -1012,105 +1012,439 @@ const GardenSystem = {
 
         // GALLINARIUM
         html += `<div style="margin-bottom:24px; padding:16px; background:rgba(197,160,89,0.06); border-radius:10px; border-left:4px solid var(--accent-gold);">`;
-        html += `<h3 style="margin:0 0 12px 0; font-size:1rem;">🐔 ${t('farmyard.gallinarium')}</h3>`;
-        if (!h.built) {
-            html += `<p class="text-sm" style="opacity:0.7; margin-bottom:10px;">${t('farmyard.hennhouseBuildDesc')}</p>`;
-            const canBuild = (GameState.inventory['rock']||0)>=15 && (GameState.inventory['stick']||0)>=10 && (GameState.inventory['rope']||0)>=3;
-            html += `<button class="craft-btn" onclick="Game.buildHenhouse()" ${canBuild?'':'disabled'}>🏗️ ${t('farmyard.buildHenhouse')} (15 ${lang==='en'?'stone':'kámen'}, 10 ${lang==='en'?'branch':'větev'}, 3 ${lang==='en'?'rope':'provaz'})</button>`;
-        } else {
-            const hensCount = (h.hens||[]).length;
-            html += `<div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:12px; font-size:0.82rem;">`;
-            html += `<div>🐔 ${t('farmyard.hens')}: <strong>${hensCount}/10</strong></div>`;
-            html += `<div>🐓 ${t('farmyard.rooster')}: <strong>${h.rooster ? '✓' : '✗'}</strong></div>`;
-            const eggReady  = now >= (h.lastEggAt||0) + 28800000;
-            const feathReady = now >= (h.lastFeatherAt||0) + 86400000;
-            html += `<div>🥚 ${t('farmyard.eggs')}: <strong>${eggReady ? t('farmyard.ready') : Math.ceil(((h.lastEggAt||0)+28800000-now)/3600000)+'h'}</strong></div>`;
-            html += `<div>🪶 ${t('farmyard.feathers')}: <strong>${feathReady ? t('farmyard.ready') : Math.ceil(((h.lastFeatherAt||0)+86400000-now)/3600000)+'h'}</strong></div>`;
-            html += `</div>`;
-            html += `<div style="display:flex; gap:6px; flex-wrap:wrap; margin-bottom:10px;">`;
-            if (!h.rooster) {
-                const hasR = (GameState.inventory['rooster']||0) > 0;
-                html += `<button class="craft-btn" onclick="Game.addHen('rooster')" ${hasR?'':'disabled'} style="font-size:0.75rem;">🐓 ${t('farmyard.addRooster')}</button>`;
-            }
-            ['hen_white','hen_black','hen_colored'].forEach(type => {
-                const has = (GameState.inventory[type]||0) > 0;
-                const icon = type==='hen_white'?'🐔':type==='hen_black'?'🐓':'🐣';
-                html += `<button class="craft-btn" onclick="Game.addHen('${type}')" ${has&&hensCount<10?'':'disabled'} style="font-size:0.75rem; white-space:normal; word-break:break-word;">${icon} ${iName(type)}</button>`;
-            });
-            html += `</div>`;
-            html += `<div style="display:flex; gap:6px; flex-wrap:wrap; margin-bottom:10px;">`;
-            html += `<button class="craft-btn" onclick="Game.collectHenhouse()" ${hensCount>0?'':'disabled'}>🥚 ${t('farmyard.collect')}</button>`;
-            html += `<button class="craft-btn" onclick="Game.feedHenhouse()" ${hensCount>0?'':'disabled'} style="background:#4a7c59;">🌾 ${t('farmyard.feed')}</button>`;
-            html += `</div>`;
-            html += `<div style="margin-top:10px; padding:10px; background:rgba(0,0,0,0.06); border-radius:8px;">`;
-            html += `<strong style="font-size:0.85rem;">🥚 ${t('farmyard.nesting')}</strong><br>`;
-            if (!h.nesting) {
-                const canNest = h.rooster && hensCount > 0;
-                html += `<button class="craft-btn" onclick="Game.startNesting()" ${canNest?'':'disabled'} style="margin-top:6px; font-size:0.78rem;">${t('farmyard.startNesting')}</button>`;
-            } else if (h.nesting.state === 'nesting') {
-                const left = Math.max(0, Math.ceil((h.nesting.hatchAt - now)/3600000));
-                html += `<p class="text-sm" style="margin:6px 0;">🐣 ${t('farmyard.nestingProgress')} — ${left}h</p>`;
-            } else if (h.nesting.state === 'growing') {
-                const left = Math.max(0, Math.ceil((h.nesting.grownAt - now)/3600000));
-                html += `<p class="text-sm" style="margin:6px 0;">🐥 ${t('farmyard.chicksGrowing').replace('{n}', h.nesting.chicks)} — ${left}h</p>`;
-            }
-            if ((h.chickPool||0) > 0) {
-                html += `<div style="margin-top:8px; font-size:0.82rem;">🐓 ${t('farmyard.chickPool')}: <strong>${h.chickPool}</strong>
-                    <button class="craft-btn" onclick="Game.slaughterChick(1)" style="margin-left:8px; font-size:0.72rem; background:#8b4a3a;">🍗 x1</button>
-                    <button class="craft-btn" onclick="Game.slaughterChick(${h.chickPool})" style="margin-left:4px; font-size:0.72rem; background:#8b4a3a;">🍗 ${lang==='en'?'All':'Vše'}</button></div>`;
-            }
-            html += `</div>`;
-        }
-        html += `</div>`;
+        // ── Dvůr v2: dashboard + subtaby ──────────────────────────────────
+        const tab = this._dvurTab || 'kurnik';
+        html += this._renderDvurDashboard();
+        html += this._renderDvurTabs(tab);
 
-        // OVILE
-        const hasTech = GameState.researchedTechs && GameState.researchedTechs.includes('tech_de_re_rustica');
-        html += `<div style="padding:16px; background:rgba(197,160,89,0.06); border-radius:10px; border-left:4px solid ${hasTech?'var(--accent-gold)':'rgba(0,0,0,0.2)'};">`;
-        html += `<h3 style="margin:0 0 12px 0; font-size:1rem;">🐑 ${t('farmyard.ovile')}</h3>`;
-        if (!hasTech) {
-            html += `<p class="text-sm" style="opacity:0.6; font-style:italic;">${t('farmyard.ovileLocked')}</p>`;
-        } else if (!s.built) {
-            html += `<p class="text-sm" style="opacity:0.7; margin-bottom:10px;">${t('farmyard.sheepfoldBuildDesc')}</p>`;
-            const canBuild = (GameState.inventory['rock']||0)>=20 && (GameState.inventory['stick']||0)>=15 && (GameState.inventory['rope']||0)>=5;
-            html += `<button class="craft-btn" onclick="Game.buildSheepfold()" ${canBuild?'':'disabled'}>🏗️ ${t('farmyard.buildSheepfold')} (20 ${lang==='en'?'stone':'kámen'}, 15 ${lang==='en'?'branch':'větev'}, 5 ${lang==='en'?'rope':'provaz'})</button>`;
-        } else {
-            html += `<div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:12px; font-size:0.82rem;">`;
-            html += `<div>🐑 ${t('farmyard.sheep')}: <strong>${s.sheep||0}/6</strong></div>`;
-            const milkReady = now >= (s.lastMilkAt||0) + 43200000;
-            const woolReady = now >= (s.lastWoolAt||0) + 172800000;
-            html += `<div>🥛 ${t('farmyard.milk')}: <strong>${milkReady ? t('farmyard.ready') : Math.ceil(((s.lastMilkAt||0)+43200000-now)/3600000)+'h'}</strong></div>`;
-            html += `<div>🧶 ${t('farmyard.wool')}: <strong>${woolReady ? t('farmyard.ready') : Math.ceil(((s.lastWoolAt||0)+172800000-now)/3600000)+'h'}</strong></div>`;
-            html += `</div>`;
-            html += `<div style="display:flex; gap:6px; flex-wrap:wrap; margin-bottom:10px;">`;
-            const hasSheepItem = (GameState.inventory['sheep']||0) > 0;
-            html += `<button class="craft-btn" onclick="Game.addSheep()" ${hasSheepItem&&(s.sheep||0)<6?'':'disabled'}>🐑 ${t('farmyard.addSheep')}</button>`;
-            html += `<button class="craft-btn" onclick="Game.collectSheepfold()" ${(s.sheep||0)>0?'':'disabled'}>🥛 ${t('farmyard.collect')}</button>`;
-            html += `<button class="craft-btn" onclick="Game.feedSheepfold()" ${(s.sheep||0)>0?'':'disabled'} style="background:#4a7c59;">🌿 ${t('farmyard.feed')}</button>`;
-            if ((s.sheep||0) > 0) {
-                html += `<button class="craft-btn" onclick="Game.slaughterSheep()" style="background:#8b4a3a; font-size:0.78rem;">🥩 ${t('farmyard.slaughterSheep')}</button>`;
+        if (tab === 'kurnik') {
+            html += `<h3 style="margin:0 0 12px 0; font-size:1rem;">🐔 ${t('farmyard.gallinarium')}</h3>`;
+            if (!h.built) {
+                html += `<p class="text-sm" style="opacity:0.7; margin-bottom:10px;">${t('farmyard.hennhouseBuildDesc')}</p>`;
+                const canBuild = (GameState.inventory['rock']||0)>=15 && (GameState.inventory['stick']||0)>=10 && (GameState.inventory['rope']||0)>=3;
+                html += `<button class="craft-btn" onclick="Game.buildHenhouse()" ${canBuild?'':'disabled'}>🏗️ ${t('farmyard.buildHenhouse')} (15 ${lang==='en'?'stone':'kámen'}, 10 ${lang==='en'?'branch':'větev'}, 3 ${lang==='en'?'rope':'provaz'})</button>`;
+            } else {
+                const hensCount = (h.hens||[]).length;
+                html += `<div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:12px; font-size:0.82rem;">`;
+                html += `<div>🐔 ${t('farmyard.hens')}: <strong>${hensCount}/10</strong></div>`;
+                html += `<div>🐓 ${t('farmyard.rooster')}: <strong>${h.rooster ? '✓' : '✗'}</strong></div>`;
+                const eggReady  = now >= (h.lastEggAt||0) + 28800000;
+                const feathReady = now >= (h.lastFeatherAt||0) + 86400000;
+                html += `<div>🥚 ${t('farmyard.eggs')}: <strong>${eggReady ? t('farmyard.ready') : Math.ceil(((h.lastEggAt||0)+28800000-now)/3600000)+'h'}</strong></div>`;
+                html += `<div>🪶 ${t('farmyard.feathers')}: <strong>${feathReady ? t('farmyard.ready') : Math.ceil(((h.lastFeatherAt||0)+86400000-now)/3600000)+'h'}</strong></div>`;
+                html += `</div>`;
+                html += `<div style="display:flex; gap:6px; flex-wrap:wrap; margin-bottom:10px;">`;
+                if (!h.rooster) {
+                    const hasR = (GameState.inventory['rooster']||0) > 0;
+                    html += `<button class="craft-btn" onclick="Game.addHen('rooster')" ${hasR?'':'disabled'} style="font-size:0.75rem;">🐓 ${t('farmyard.addRooster')}</button>`;
+                }
+                ['hen_white','hen_black','hen_colored'].forEach(type => {
+                    const has = (GameState.inventory[type]||0) > 0;
+                    const icon = type==='hen_white'?'🐔':type==='hen_black'?'🐓':'🐣';
+                    html += `<button class="craft-btn" onclick="Game.addHen('${type}')" ${has&&hensCount<10?'':'disabled'} style="font-size:0.75rem; white-space:normal; word-break:break-word;">${icon} ${iName(type)}</button>`;
+                });
+                html += `</div>`;
+                html += `<div style="display:flex; gap:6px; flex-wrap:wrap; margin-bottom:10px;">`;
+                html += `<button class="craft-btn" onclick="Game.collectHenhouse()" ${hensCount>0?'':'disabled'}>🥚 ${t('farmyard.collect')}</button>`;
+                html += `<button class="craft-btn" onclick="Game.feedHenhouse()" ${hensCount>0?'':'disabled'} style="background:#4a7c59;">🌾 ${t('farmyard.feed')}</button>`;
+                html += `</div>`;
+                html += `<div style="margin-top:10px; padding:10px; background:rgba(0,0,0,0.06); border-radius:8px;">`;
+                html += `<strong style="font-size:0.85rem;">🥚 ${t('farmyard.nesting')}</strong><br>`;
+                if (!h.nesting) {
+                    const canNest = h.rooster && hensCount > 0;
+                    html += `<button class="craft-btn" onclick="Game.startNesting()" ${canNest?'':'disabled'} style="margin-top:6px; font-size:0.78rem;">${t('farmyard.startNesting')}</button>`;
+                } else if (h.nesting.state === 'nesting') {
+                    const left = Math.max(0, Math.ceil((h.nesting.hatchAt - now)/3600000));
+                    html += `<p class="text-sm" style="margin:6px 0;">🐣 ${t('farmyard.nestingProgress')} — ${left}h</p>`;
+                } else if (h.nesting.state === 'growing') {
+                    const left = Math.max(0, Math.ceil((h.nesting.grownAt - now)/3600000));
+                    html += `<p class="text-sm" style="margin:6px 0;">🐥 ${t('farmyard.chicksGrowing').replace('{n}', h.nesting.chicks)} — ${left}h</p>`;
+                }
+                if ((h.chickPool||0) > 0) {
+                    html += `<div style="margin-top:8px; font-size:0.82rem;">🐓 ${t('farmyard.chickPool')}: <strong>${h.chickPool}</strong>
+                        <button class="craft-btn" onclick="Game.slaughterChick(1)" style="margin-left:8px; font-size:0.72rem; background:#8b4a3a;">🍗 x1</button>
+                        <button class="craft-btn" onclick="Game.slaughterChick(${h.chickPool})" style="margin-left:4px; font-size:0.72rem; background:#8b4a3a;">🍗 ${lang==='en'?'All':'Vše'}</button></div>`;
+                }
+                html += `</div>`;
             }
             html += `</div>`;
-            html += `<div style="margin-top:10px; padding:10px; background:rgba(0,0,0,0.06); border-radius:8px;">`;
-            html += `<strong style="font-size:0.85rem;">🐑 ${t('farmyard.breeding')}</strong><br>`;
-            if (!s.breeding) {
-                const canBreed = (s.sheep||0) >= 2;
-                html += `<button class="craft-btn" onclick="Game.startBreeding()" ${canBreed?'':'disabled'} style="margin-top:6px; font-size:0.78rem;">${t('farmyard.startBreeding')}</button>`;
-            } else if (s.breeding.state === 'gestating') {
-                const left = Math.max(0, Math.ceil((s.breeding.bornAt - now)/3600000));
-                html += `<p class="text-sm" style="margin:6px 0;">🤰 ${t('farmyard.gestating')} — ${left}h</p>`;
-            } else if (s.breeding.state === 'growing') {
-                const left = Math.max(0, Math.ceil((s.breeding.grownAt - now)/3600000));
-                html += `<p class="text-sm" style="margin:6px 0;">🐑 ${t('farmyard.lambGrowing')} — ${left}h</p>`;
-            }
-            if ((s.lambPool||0) > 0) {
-                html += `<div style="margin-top:8px; font-size:0.82rem;">🐑 ${t('farmyard.lambPool')}: <strong>${s.lambPool}</strong>
-                    <button class="craft-btn" onclick="Game.slaughterLamb(1)" style="margin-left:8px; font-size:0.72rem; background:#8b4a3a;">🥩 x1</button>
-                    <button class="craft-btn" onclick="Game.slaughterLamb(${s.lambPool})" style="margin-left:4px; font-size:0.72rem; background:#8b4a3a;">🥩 ${lang==='en'?'All':'Vše'}</button></div>`;
+        } else if (tab === 'ovcin') {
+            // OVILE
+            const hasTech = GameState.researchedTechs && GameState.researchedTechs.includes('tech_de_re_rustica');
+            html += `<div style="padding:16px; background:rgba(197,160,89,0.06); border-radius:10px; border-left:4px solid ${hasTech?'var(--accent-gold)':'rgba(0,0,0,0.2)'};">`;
+            html += `<h3 style="margin:0 0 12px 0; font-size:1rem;">🐑 ${t('farmyard.ovile')}</h3>`;
+            if (!hasTech) {
+                html += `<p class="text-sm" style="opacity:0.6; font-style:italic;">${t('farmyard.ovileLocked')}</p>`;
+            } else if (!s.built) {
+                html += `<p class="text-sm" style="opacity:0.7; margin-bottom:10px;">${t('farmyard.sheepfoldBuildDesc')}</p>`;
+                const canBuild = (GameState.inventory['rock']||0)>=20 && (GameState.inventory['stick']||0)>=15 && (GameState.inventory['rope']||0)>=5;
+                html += `<button class="craft-btn" onclick="Game.buildSheepfold()" ${canBuild?'':'disabled'}>🏗️ ${t('farmyard.buildSheepfold')} (20 ${lang==='en'?'stone':'kámen'}, 15 ${lang==='en'?'branch':'větev'}, 5 ${lang==='en'?'rope':'provaz'})</button>`;
+            } else {
+                html += `<div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:12px; font-size:0.82rem;">`;
+                html += `<div>🐑 ${t('farmyard.sheep')}: <strong>${s.sheep||0}/6</strong></div>`;
+                const milkReady = now >= (s.lastMilkAt||0) + 43200000;
+                const woolReady = now >= (s.lastWoolAt||0) + 172800000;
+                html += `<div>🥛 ${t('farmyard.milk')}: <strong>${milkReady ? t('farmyard.ready') : Math.ceil(((s.lastMilkAt||0)+43200000-now)/3600000)+'h'}</strong></div>`;
+                html += `<div>🧶 ${t('farmyard.wool')}: <strong>${woolReady ? t('farmyard.ready') : Math.ceil(((s.lastWoolAt||0)+172800000-now)/3600000)+'h'}</strong></div>`;
+                html += `</div>`;
+                html += `<div style="display:flex; gap:6px; flex-wrap:wrap; margin-bottom:10px;">`;
+                const hasSheepItem = (GameState.inventory['sheep']||0) > 0;
+                html += `<button class="craft-btn" onclick="Game.addSheep()" ${hasSheepItem&&(s.sheep||0)<6?'':'disabled'}>🐑 ${t('farmyard.addSheep')}</button>`;
+                html += `<button class="craft-btn" onclick="Game.collectSheepfold()" ${(s.sheep||0)>0?'':'disabled'}>🥛 ${t('farmyard.collect')}</button>`;
+                html += `<button class="craft-btn" onclick="Game.feedSheepfold()" ${(s.sheep||0)>0?'':'disabled'} style="background:#4a7c59;">🌿 ${t('farmyard.feed')}</button>`;
+                if ((s.sheep||0) > 0) {
+                    html += `<button class="craft-btn" onclick="Game.slaughterSheep()" style="background:#8b4a3a; font-size:0.78rem;">🥩 ${t('farmyard.slaughterSheep')}</button>`;
+                }
+                html += `</div>`;
+                html += `<div style="margin-top:10px; padding:10px; background:rgba(0,0,0,0.06); border-radius:8px;">`;
+                html += `<strong style="font-size:0.85rem;">🐑 ${t('farmyard.breeding')}</strong><br>`;
+                if (!s.breeding) {
+                    const canBreed = (s.sheep||0) >= 2;
+                    html += `<button class="craft-btn" onclick="Game.startBreeding()" ${canBreed?'':'disabled'} style="margin-top:6px; font-size:0.78rem;">${t('farmyard.startBreeding')}</button>`;
+                } else if (s.breeding.state === 'gestating') {
+                    const left = Math.max(0, Math.ceil((s.breeding.bornAt - now)/3600000));
+                    html += `<p class="text-sm" style="margin:6px 0;">🤰 ${t('farmyard.gestating')} — ${left}h</p>`;
+                } else if (s.breeding.state === 'growing') {
+                    const left = Math.max(0, Math.ceil((s.breeding.grownAt - now)/3600000));
+                    html += `<p class="text-sm" style="margin:6px 0;">🐑 ${t('farmyard.lambGrowing')} — ${left}h</p>`;
+                }
+                if ((s.lambPool||0) > 0) {
+                    html += `<div style="margin-top:8px; font-size:0.82rem;">🐑 ${t('farmyard.lambPool')}: <strong>${s.lambPool}</strong>
+                        <button class="craft-btn" onclick="Game.slaughterLamb(1)" style="margin-left:8px; font-size:0.72rem; background:#8b4a3a;">🥩 x1</button>
+                        <button class="craft-btn" onclick="Game.slaughterLamb(${s.lambPool})" style="margin-left:4px; font-size:0.72rem; background:#8b4a3a;">🥩 ${lang==='en'?'All':'Vše'}</button></div>`;
+                }
+                html += `</div>`;
             }
             html += `</div>`;
+        } else if (tab === 'kralikarna' && GameState.researchedTechs && GameState.researchedTechs.includes('tech_cuniculi')) {
+            html += this._renderAnimalPen('rabbitry');
+        } else if (tab === 'kozi' && GameState.researchedTechs && GameState.researchedTechs.includes('tech_caprile')) {
+            html += this._renderAnimalPen('goatpen');
+        } else if (tab === 'chlev' && GameState.researchedTechs && GameState.researchedTechs.includes('tech_suile')) {
+            html += this._renderAnimalPen('pigsty');
+        } else if (tab !== 'studna') {
+            html += this._renderDvurLocked(tab);
         }
-        html += `</div>`;
+
         el.innerHTML = html;
+        // Studna — statický blok v shell.html, jen show/hide dle subtabu
+        const wellEl = document.getElementById('well-management');
+        if (wellEl) wellEl.style.display = (tab === 'studna') ? 'block' : 'none';
+    },
+
+
+    // ═══════════════════════════════════════════════════════════════════
+    // ZVĚŘ v2 — Králíkárna / Kozí chlívek / Chlév
+    // ═══════════════════════════════════════════════════════════════════
+
+    ANIMAL_CFG: {
+        rabbitry: { itemId: 'rabbit', cap: 6,
+            build: { plank: 10, stick: 5, rope: 2 },
+            breedMs: 7 * 24 * 60 * 60 * 1000 },        // množení: check 1×/7 dní
+        goatpen:  { itemId: 'goat', cap: 3,
+            build: { plank: 12, rock: 8, rope: 3 },
+            milkMs: 12 * 60 * 60 * 1000 },             // mléko à 12h
+        pigsty:   { itemId: 'piglet', cap: 3,
+            build: { cut_stone: 15, plank: 10 },
+            growMs: 60 * 24 * 60 * 60 * 1000,          // dospělost 60 dní
+            acornBoostMs: 5 * 24 * 60 * 60 * 1000 },   // 1 žalud = −5 dní
+    },
+
+    _penHungry: function(key) {
+        const f = GameState.feeding && GameState.feeding[key];
+        return !!(f && f.hunger > 0);
+    },
+
+    _ensureAnimals: function() {
+        if (!GameState.rabbitry) GameState.rabbitry = { built: false, animals: [], lastBreed: 0 };
+        if (!GameState.goatpen)  GameState.goatpen  = { built: false, animals: [] };
+        if (!GameState.pigsty)   GameState.pigsty   = { built: false, animals: [] };
+    },
+
+    _animalCanBuild: function(cost) {
+        const inv = GameState.inventory || {};
+        return Object.entries(cost).every(([id, n]) => (inv[id] || 0) >= n);
+    },
+
+    buildAnimalPen: function(pen) {
+        this._ensureAnimals();
+        const cfg = this.ANIMAL_CFG[pen];
+        if (!cfg || GameState[pen].built) return;
+        if (!this._animalCanBuild(cfg.build)) { UI.notify(t('dvur.notEnough'), true); return; }
+        Object.entries(cfg.build).forEach(([id, n]) => { GameState.inventory[id] -= n; });
+        GameState[pen].built = true;
+        UI.notify('🏗️ ' + t('dvur.built_' + pen));
+        Game.save(); this.renderFarmyard();
+    },
+
+    placeAnimal: function(pen) {
+        this._ensureAnimals();
+        const cfg = this.ANIMAL_CFG[pen];
+        const st = GameState[pen];
+        if (!cfg || !st.built) return;
+        if (st.animals.length >= cfg.cap) { UI.notify(t('dvur.penFull'), true); return; }
+        if ((GameState.inventory[cfg.itemId] || 0) < 1) { UI.notify(t('dvur.noAnimal'), true); return; }
+        GameState.inventory[cfg.itemId] -= 1;
+        const a = { placedAt: Date.now() };
+        if (pen === 'goatpen') a.lastMilk = Date.now();
+        st.animals.push(a);
+        UI.notify(t('dvur.placed_' + pen));
+        Game.save(); this.renderFarmyard();
+    },
+
+    // ── Králíci: množení (check na render, guard 7 dní) ──────────────────
+    _rabbitBreedCheck: function() {
+        const st = GameState.rabbitry, cfg = this.ANIMAL_CFG.rabbitry;
+        if (!st.built || st.animals.length < 2 || st.animals.length >= cfg.cap) return;
+        if (this._penHungry('rabbitry')) { st.lastBreed = Date.now(); return; }   // hladoví se nemnoží
+        const now = Date.now();
+        if (!st.lastBreed) { st.lastBreed = now; return; }
+        let births = 0;
+        while (now - st.lastBreed >= cfg.breedMs && st.animals.length < cfg.cap) {
+            st.lastBreed += cfg.breedMs;
+            if (Math.random() < 0.6) { st.animals.push({ placedAt: now }); births++; }
+        }
+        if (now - st.lastBreed >= cfg.breedMs) st.lastBreed = now; // cap dosažen — reset
+        if (births) {
+            UI.notify('🐇 ' + t('dvur.rabbitBorn'));
+            if (typeof Game !== 'undefined' && Game.addKronikaEntry) {
+                Game.addKronikaEntry('event',
+                    '🐇 V králíkárně přibylo mládě.',
+                    '🐇 A kit was born in the rabbit hutch.',
+                    '🐇 Cuniculus natus est.');
+            }
+            Game.save();
+        }
+    },
+
+    slaughterRabbit: function() {
+        const st = GameState.rabbitry;
+        if (!st.built || !st.animals.length) return;
+        st.animals.pop();
+        GameState.inventory['rabbit_meat'] = (GameState.inventory['rabbit_meat'] || 0) + 1;
+        GameState.inventory['rabbit_pelt'] = (GameState.inventory['rabbit_pelt'] || 0) + 1;
+        UI.notify('🍖 ' + t('dvur.rabbitSlaughtered'));
+        Game.save(); this.renderFarmyard();
+    },
+
+    // ── Kozy: mléko collect ──────────────────────────────────────────────
+    collectGoatMilk: function() {
+        const st = GameState.goatpen, cfg = this.ANIMAL_CFG.goatpen;
+        if (!st.built) return;
+        if (this._penHungry('goatpen')) { UI.notify(t('dvur.goatsHungry'), true); return; }
+        const now = Date.now();
+        let milk = 0;
+        st.animals.forEach(a => {
+            if (now - (a.lastMilk || a.placedAt) >= cfg.milkMs) {
+                milk++; a.lastMilk = now;
+                if (Math.random() < 0.05) GameState.inventory['goat_hide'] = (GameState.inventory['goat_hide'] || 0) + 1;
+            }
+        });
+        if (milk) {
+            GameState.inventory['goat_milk'] = (GameState.inventory['goat_milk'] || 0) + milk;
+            UI.notify('🥛 ' + t('dvur.goatMilked').replace('{n}', milk));
+            Game.save(); this.renderFarmyard();
+        } else {
+            UI.notify(t('dvur.goatNotReady'), true);
+        }
+    },
+
+    // ── Prasata: žaludy + zabijačka ──────────────────────────────────────
+    feedAcorn: function(idx) {
+        const st = GameState.pigsty, cfg = this.ANIMAL_CFG.pigsty;
+        const a = st.animals[idx];
+        if (!a) return;
+        if ((GameState.inventory['acorn'] || 0) < 1) { UI.notify(t('dvur.noAcorn'), true); return; }
+        GameState.inventory['acorn'] -= 1;
+        a.placedAt -= cfg.acornBoostMs;   // růst se "posune" o 5 dní zpět
+        UI.notify('🌰 ' + t('dvur.acornFed'));
+        Game.save(); this.renderFarmyard();
+    },
+
+    _pigMature: function(a) {
+        return Date.now() - a.placedAt >= this.ANIMAL_CFG.pigsty.growMs;
+    },
+
+    slaughterPig: function(idx) {
+        const st = GameState.pigsty;
+        const a = st.animals[idx];
+        if (!a || !this._pigMature(a)) return;
+        st.animals.splice(idx, 1);
+        const inv = GameState.inventory;
+        inv['meat'] = (inv['meat'] || 0) + 4;
+        inv['lard'] = (inv['lard'] || 0) + 3;
+        inv['cured_meat'] = (inv['cured_meat'] || 0) + 2;
+        UI.notify('🔪 ' + t('dvur.pigSlaughtered'));
+        if (typeof Game !== 'undefined' && Game.addKronikaEntry) {
+            Game.addKronikaEntry('important',
+                '🐖 Zabijačka! Klášterní spižírna se naplnila masem, sádlem a špekem.',
+                '🐖 Pig slaughter! The monastery larder filled with meat, lard and cured meat.',
+                '🐖 Porcus mactatus est.');
+        }
+        Game.save(); this.renderFarmyard();
+    },
+
+    // ── Render subtabů ────────────────────────────────────────────────────
+    _renderAnimalPen: function(pen) {
+        this._ensureAnimals();
+        const cfg = this.ANIMAL_CFG[pen];
+        const st = GameState[pen];
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        const icons = { rabbitry: '🐇', goatpen: '🐐', pigsty: '🐖' };
+        let h = `<div style="padding:16px; background:rgba(197,160,89,0.06); border-radius:10px; border-left:4px solid var(--accent-gold);">`;
+        h += `<h3 style="margin:0 0 12px 0; font-size:1rem;">${icons[pen]} ${t('dvur.title_' + pen)}</h3>`;
+
+        if (!st.built) {
+            h += `<p class="text-sm" style="opacity:0.7; margin-bottom:10px;">${t('dvur.buildDesc_' + pen)}</p>`;
+            h += `<div style="font-size:0.8rem; opacity:0.7; font-style:italic;">🏗️ ${t('dvur.buildInCellarium')}</div>`;
+            h += `</div>`;
+            return h;
+        }
+
+        if (pen === 'rabbitry') this._rabbitBreedCheck();
+
+        h += `<div style="font-size:0.82rem; margin-bottom:10px;">${t('dvur.occupancy')}: <strong>${st.animals.length} / ${cfg.cap}</strong></div>`;
+
+        const haveItem = (GameState.inventory[cfg.itemId] || 0);
+        h += `<button class="craft-btn" style="margin-bottom:10px;" onclick="GardenSystem.placeAnimal('${pen}')"
+            ${(haveItem > 0 && st.animals.length < cfg.cap) ? '' : 'disabled'}>➕ ${t('dvur.place_' + pen)} (${t('dvur.have')}: ${haveItem})</button>`;
+        if (haveItem === 0 && st.animals.length < cfg.cap) {
+            h += `<div style="font-size:0.74rem; opacity:0.6; font-style:italic; margin-bottom:10px;">${t('dvur.buyAtMarket')}</div>`;
+        }
+
+        if (this._penHungry(pen)) {
+            h += `<div style="font-size:0.78rem; color:#c0392b; margin-bottom:8px;">⚠️ ${t('dvur.penHungry')}</div>`;
+        }
+
+        if (pen === 'rabbitry' && st.animals.length) {
+            if (st.animals.length >= 2 && st.animals.length < cfg.cap && !this._penHungry('rabbitry')) {
+                h += `<div style="font-size:0.78rem; opacity:0.7; margin-bottom:8px;">💕 ${t('dvur.breeding')}</div>`;
+            }
+            h += `<button class="craft-btn" onclick="GardenSystem.slaughterRabbit()">🔪 ${t('dvur.slaughterRabbit')}</button>`;
+        }
+
+        if (pen === 'goatpen' && st.animals.length) {
+            const now = Date.now();
+            const ready = st.animals.filter(a => now - (a.lastMilk || a.placedAt) >= cfg.milkMs).length;
+            h += `<button class="craft-btn" onclick="GardenSystem.collectGoatMilk()" ${ready ? '' : 'disabled'}>🥛 ${t('dvur.milkGoats')} (${ready})</button>`;
+        }
+
+        if (pen === 'pigsty' && st.animals.length) {
+            h += `<div style="display:flex; flex-direction:column; gap:6px; margin-top:6px;">`;
+            st.animals.forEach((a, i) => {
+                const mature = this._pigMature(a);
+                const pct = Math.min(100, Math.round((Date.now() - a.placedAt) / cfg.growMs * 100));
+                h += `<div style="padding:8px 10px; background:rgba(0,0,0,0.04); border-radius:6px; display:flex; align-items:center; gap:8px;">
+                    <span style="font-size:1.2rem;">${mature ? '🐖' : '🐷'}</span>
+                    <div style="flex:1;">
+                        <div style="font-size:0.78rem;">${mature ? t('dvur.pigMature') : t('dvur.pigGrowing') + ' ' + pct + '%'}</div>
+                        <div style="height:5px; background:rgba(0,0,0,0.1); border-radius:3px; margin-top:3px;">
+                            <div style="height:100%; width:${pct}%; background:var(--accent-gold); border-radius:3px;"></div>
+                        </div>
+                    </div>
+                    ${mature
+                        ? `<button class="craft-btn" style="padding:4px 8px; font-size:0.72rem;" onclick="GardenSystem.slaughterPig(${i})">🔪 ${t('dvur.slaughterPig')}</button>`
+                        : `<button class="craft-btn" style="padding:4px 8px; font-size:0.72rem;" onclick="GardenSystem.feedAcorn(${i})" ${(GameState.inventory['acorn']||0) ? '' : 'disabled'}>🌰 ${t('dvur.feedAcorn')}</button>`}
+                </div>`;
+            });
+            h += `</div>`;
+        }
+
+        h += `</div>`;
+        return h;
+    },
+
+    // ── Dvůr v2 helpers ──────────────────────────────────────────────────
+    _dvurTab: 'kurnik',
+
+    switchDvurTab: function(tab) {
+        this._dvurTab = tab;
+        this.renderFarmyard();
+    },
+
+    DVUR_TABS: [
+        { id: 'kurnik',     icon: '🐔', tech: null },
+        { id: 'ovcin',      icon: '🐑', tech: null },
+        { id: 'kralikarna', icon: '🐇', tech: 'tech_cuniculi' },
+        { id: 'kozi',       icon: '🐐', tech: 'tech_caprile' },
+        { id: 'chlev',      icon: '🐖', tech: 'tech_suile' },
+        { id: 'staj',       icon: '🐎', tech: 'tech_stabulum' },
+        { id: 'studna',     icon: '🚰', tech: null },
+    ],
+
+    _renderDvurTabs: function(active) {
+        let h = `<div style="display:flex; flex-wrap:wrap; gap:5px; margin-bottom:14px;">`;
+        this.DVUR_TABS.forEach(tb => {
+            const isActive = tb.id === active;
+            const researched = !tb.tech || (GameState.researchedTechs && GameState.researchedTechs.includes(tb.tech));
+            const lock = researched ? '' : ' 🔒';
+            h += `<button class="filter-btn ${isActive ? 'active' : ''}" style="font-size:0.78rem; padding:5px 9px; ${researched ? '' : 'opacity:0.55;'}"
+                onclick="GardenSystem.switchDvurTab('${tb.id}')">${tb.icon} ${t('dvur.tab_' + tb.id)}${lock}</button>`;
+        });
+        h += `</div>`;
+        return h;
+    },
+
+    _renderDvurDashboard: function() {
+        const ds = (typeof DecaySystem !== 'undefined') ? DecaySystem : null;
+        const cat = GameState.cat || {};
+        const hasCatTech = GameState.researchedTechs && GameState.researchedTechs.includes('tech_cura_felium');
+        const miceN = (GameState.mice && GameState.mice.count) || 0;
+
+        let h = `<div style="margin-bottom:14px; padding:10px 12px; background:rgba(197,160,89,0.07); border:1px solid rgba(197,160,89,0.25); border-radius:8px; display:flex; flex-direction:column; gap:5px;">`;
+        h += `<div style="font-size:0.68rem; font-weight:bold; letter-spacing:0.08em; text-transform:uppercase; opacity:0.55;">${t('dvur.dashTitle')}</div>`;
+
+        const miceTxt = ds ? ds.miceFuzzyShort()
+            : (typeof ScriptoriumCat !== 'undefined' && ScriptoriumCat.miceFuzzy ? ScriptoriumCat.miceFuzzy() : '');
+        h += `<div style="font-size:0.8rem;">🐭 ${miceTxt}</div>`;
+
+        if (hasCatTech) {
+            const title = (typeof ScriptoriumCat !== 'undefined' && ScriptoriumCat.getTitle) ? ScriptoriumCat.getTitle() : '';
+            const state = (cat.satiety !== undefined && cat.satiety < 30) ? t('dvur.catHunting') : t('dvur.catFed');
+            h += `<div style="font-size:0.8rem;">🐈‍⬛ ${cat.name || ''} <span style="opacity:0.6;">(${title})</span> — ${state}</div>`;
+        }
+
+        // Krmivo — zásoba ve dnech (jen s Horreem, kdy krmení běží)
+        if (GameState.storage && GameState.storage.horreum && GameState.storage.horreum.built) {
+            const hayEaters = ((GameState.sheepfold && GameState.sheepfold.sheep) || []).length
+                + ((GameState.rabbitry && GameState.rabbitry.animals) || []).length
+                + ((GameState.goatpen && GameState.goatpen.animals) || []).length;
+            const grainEaters = ((GameState.henhouse && GameState.henhouse.hens) || []).length > 0 ? 1 : 0;
+            const grainPens = grainEaters + (((GameState.pigsty && GameState.pigsty.animals) || []).length > 0 ? 1 : 0);
+            const hayPens = (((GameState.sheepfold && GameState.sheepfold.sheep) || []).length > 0 ? 1 : 0)
+                + (((GameState.rabbitry && GameState.rabbitry.animals) || []).length > 0 ? 1 : 0)
+                + (((GameState.goatpen && GameState.goatpen.animals) || []).length > 0 ? 1 : 0);
+            const hayDays = hayPens ? Math.floor((GameState.inventory['hay'] || 0) / hayPens) : null;
+            const grainDays = grainPens ? Math.floor((GameState.inventory['grain'] || 0) / grainPens) : null;
+            const parts = [];
+            if (hayDays !== null) parts.push(`${t('dvur.feedHay')}: ${hayDays} ${t('dvur.days')}`);
+            if (grainDays !== null) parts.push(`${t('dvur.feedGrain')}: ${grainDays} ${t('dvur.days')}`);
+            if (parts.length) {
+                const low = (hayDays !== null && hayDays < 3) || (grainDays !== null && grainDays < 3);
+                h += `<div style="font-size:0.8rem; ${low ? 'color:#c0392b;' : ''}">🌾 ${t('dvur.feedStock')}: ${parts.join(' · ')}</div>`;
+            }
+        }
+
+        if (ds && ds.isActive() && miceN > 6) {
+            h += `<div style="font-size:0.76rem; color:#a0722d;">⚠️ ${t('dvur.decayImpact')}</div>`;
+        }
+
+        h += `</div>`;
+        return h;
+    },
+
+    _renderDvurLocked: function(tab) {
+        const def = this.DVUR_TABS.find(tb => tb.id === tab);
+        const researched = def && (!def.tech || (GameState.researchedTechs && GameState.researchedTechs.includes(def.tech)));
+        if (researched) {
+            return `<div style="padding:20px; text-align:center; opacity:0.6; font-style:italic; font-size:0.85rem;">
+                ${def ? def.icon : ''} ${t('dvur.comingSoon')}
+            </div>`;
+        }
+        const techNm = def && def.tech && typeof tName === 'function' ? tName(def.tech) : '';
+        return `<div style="padding:20px; text-align:center; opacity:0.6; font-size:0.85rem;">
+            🔒 <em>${t('dvur.lockedPrefix')} ${techNm}</em>
+        </div>`;
     },
 
     // ═══════════════════════════════════════════════════════════════════════════

@@ -154,6 +154,36 @@ const TechTree = [
       desc_en:"\u201CI hunt words, he hunts mice\u201D — wrote a 9th-century Irish monk of his cat Pangur Bán. The cat guards stores and manuscripts from mice; more than one codex bears her inky paw prints. Unlocks: Felis — care of the monastery cat (feeding, affection, mousing).",
       unlocks:[], requires:["tech_de_re_rustica"] },
 
+    { id:"tech_cuniculi",        name:"Cuniculi — Chov králíků",         name_en:"Cuniculi — Rabbit Keeping",
+      cost:6,
+      desc:"Králíci v ohradách (leporaria) byli známí už Římanům; kláštery je chovaly pro maso i kožky. Množí se rychle a žerou skoro cokoliv. Odemkne: Králíkárna na Dvoře.",
+      desc_en:"Rabbits in enclosures (leporaria) were known to the Romans; monasteries kept them for meat and pelts. They breed fast and eat almost anything. Unlocks: the Rabbit Hutch in the Farmyard.",
+      unlocks:[], requires:["tech_de_re_rustica"] },
+
+    { id:"tech_caprile",         name:"Caprile — Chov koz",              name_en:"Caprile — Goat Keeping",
+      cost:12,
+      desc:"Koza — kráva chudých. Nenáročná, mléko dává i v zimě, spase i to, co ovce odmítne. Odemkne: Kozí chlívek na Dvoře.",
+      desc_en:"The goat — the poor man's cow. Undemanding, gives milk even in winter, grazes what sheep refuse. Unlocks: the Goat Pen in the Farmyard.",
+      unlocks:[], requires:["tech_de_re_rustica"] },
+
+    { id:"tech_suile",           name:"Suile — Chov prasat",             name_en:"Suile — Pig Keeping",
+      cost:18,
+      desc:"Prase — živá spižírna kláštera. Na podzim žaludy v lese, v zimě zabijačka: sádlo, špek, maso. Vyžaduje pevný chlév a pevné nervy. Odemkne: Chlév na Dvoře.",
+      desc_en:"The pig — the monastery's living larder. Acorns in the woods in autumn, slaughter in winter: lard, cured meat, fresh meat. Requires a sturdy sty and steady nerves. Unlocks: the Pigsty in the Farmyard.",
+      unlocks:[], requires:["tech_de_re_rustica"] },
+
+    { id:"tech_stabulum",        name:"Stabulum — Stáj",                 name_en:"Stabulum — The Stable",
+      cost:30,
+      desc:"Kůň byl ve středověku majetek jako dnes povoz s erbem. Tažná síla pro pole i cesty na trh — ale žere oves, potřebuje podkováře a stáj z tesaného kamene. Odemkne: Stáj na Dvoře.",
+      desc_en:"In the Middle Ages a horse was property like a carriage with a coat of arms. Draught power for fields and market roads — but it eats oats, needs a farrier and a stable of cut stone. Unlocks: the Stable in the Farmyard.",
+      unlocks:[], requires:["tech_de_re_rustica"] },
+
+    { id:"tech_lactaria",        name:"Lactaria — Zpracování mléka",     name_en:"Lactaria — Dairy Craft",
+      cost:15,
+      desc:"Mléko vydrží den, máslo týdny, sýr měsíce. Klášterní mlékárna proměňuje pomíjivé v trvanlivé. Při stloukání másla zbude podmáslí — nic nepřijde nazmar. Odemkne: Máselnice, recepty Smetana a Máslo.",
+      desc_en:"Milk keeps a day, butter for weeks, cheese for months. The monastic dairy turns the perishable into the lasting. Churning butter leaves buttermilk — nothing goes to waste. Unlocks: the Churn, Cream and Butter recipes.",
+      unlocks:["churn","cream","butter"], requires:["tech_caprile"] },
+
     { id:"tech_inventarium",     name:"Inventarium — Soupis Zásob",      name_en:"Inventarium — Inventory of Stores",
       cost:8,
       desc:"Klášterní cellarius vedl přesný soupis každého pytle mouky a každého sudu piva. Bez inventáře se zásoby ztrácejí samy od sebe. Odemkne: subtab Inventarium v Cellariu — přehled zásob. POZOR: Kdo vede soupis, vidí i ztráty. Od této chvíle se zásoby kazí — mléko kysne, maso plesniví, myši žerou zrní. Připrav se na hospodaření se zásobami.",

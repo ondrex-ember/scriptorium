@@ -1985,6 +1985,11 @@ const Game = {
             Game.addKronikaEntry('important', `⚒️ Poprvé vyrobeno: ${_fcn}`, `⚒️ Crafted for the first time: ${_fcne}`, `⚒️ Primo factum: ${_fcn}`);
         }
         this.addItem(r.output, craftQty);
+        // Byproduct — vedlejší produkt receptu (např. stloukání másla → podmáslí)
+        if (r.byproduct && r.byproduct.id) {
+            this.addItem(r.byproduct.id, r.byproduct.qty || 1);
+            UI.notify('➕ ' + ((typeof iName === 'function') ? iName(r.byproduct.id) : r.byproduct.id) + ' ×' + (r.byproduct.qty || 1));
+        }
         // Analytics – zaznamenej craft
         const craftedItem = ItemsDB[r.output];
         if (craftedItem) Analytics.itemCrafted(r.output, craftedItem.name, craftedItem.type);
@@ -2350,10 +2355,15 @@ const Game = {
 		const lang = (GameState.settings && GameState.settings.language) || 'cs';
 		const now = Date.now();
 		if (!GameState.feeding) GameState.feeding = {};
+		// Krmení aktivuje až Horreum (sýpka skladuje krmivo) — do té doby se zvířata pasou sama
+		if (!(GameState.storage && GameState.storage.horreum && GameState.storage.horreum.built)) return;
 		const animals = [
 			{ key: 'henhouse',  built: GameState.henhouse && GameState.henhouse.built && GameState.henhouse.hens && GameState.henhouse.hens.length > 0, feed: 'grain', feedAmt: 1, name: lang==='en'?'Hens':'Slepice' },
 			{ key: 'sheepfold', built: GameState.sheepfold && GameState.sheepfold.built && GameState.sheepfold.sheep && GameState.sheepfold.sheep.length > 0, feed: 'hay', feedAmt: 1, name: lang==='en'?'Sheep':'Ovce' },
 			{ key: 'piscina',   built: GameState.piscina && GameState.piscina.tier > 0, feed: 'worms', feedAmt: 1, name: lang==='en'?'Fish':'Ryby' },
+			{ key: 'rabbitry',  built: GameState.rabbitry && GameState.rabbitry.built && GameState.rabbitry.animals && GameState.rabbitry.animals.length > 0, feed: 'hay', feedAmt: 1, name: lang==='en'?'Rabbits':'Králíci' },
+			{ key: 'goatpen',   built: GameState.goatpen && GameState.goatpen.built && GameState.goatpen.animals && GameState.goatpen.animals.length > 0, feed: 'hay', feedAmt: 1, name: lang==='en'?'Goats':'Kozy' },
+			{ key: 'pigsty',    built: GameState.pigsty && GameState.pigsty.built && GameState.pigsty.animals && GameState.pigsty.animals.length > 0, feed: 'grain', feedAmt: 1, name: lang==='en'?'Pigs':'Prasata' },
 		];
 		animals.forEach(a => {
 			if (!a.built) return;

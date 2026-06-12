@@ -2283,15 +2283,15 @@
             <div id="screen-garden" class="screen" style="position:relative;">
                 <h2 data-i18n="garden.title">Zahrada</h2>
                 <div class="filter-bar" style="margin-top:10px; margin-bottom:15px; flex-wrap: wrap; gap: 5px;">
-                    <button id="garden-tab-btn-zahony" class="filter-btn active"
+                    <button id="garden-tab-btn-dvur" class="filter-btn active" onclick="UI.switchGardenTab('dvur', this)"
+                        data-i18n="garden.tabDvur">🐄 Dvůr</button>
+                    <button id="garden-tab-btn-zahony" class="filter-btn"
                         onclick="UI.switchGardenTab('zahony', this)" data-i18n="garden.tabZahony">🌱 Záhony</button>
                     <button id="garden-tab-btn-sad" class="filter-btn" onclick="UI.switchGardenTab('sad', this)"
                         data-i18n="garden.tabSad">🌳 Sad</button>
                     <button id="garden-tab-btn-apiarium" class="filter-btn"
                         onclick="UI.switchGardenTab('apiarium', this)" data-i18n="garden.tabApiarium">🐝
                         Apiarium</button>
-                    <button id="garden-tab-btn-dvur" class="filter-btn" onclick="UI.switchGardenTab('dvur', this)"
-                        data-i18n="garden.tabDvur">🐄 Dvůr</button>
                     <button id="garden-tab-btn-piscina" class="filter-btn" onclick="UI.switchGardenTab('piscina', this)"
                         data-i18n="garden.tabPiscina">🐟 Piscina</button>
                     <button id="garden-tab-btn-pole" class="filter-btn" onclick="UI.switchGardenTab('pole', this)"
@@ -2300,7 +2300,7 @@
                         data-i18n="garden.tabVinohrad">🍇 Vinohrad</button>
                 </div>
 
-                <div id="garden-tab-zahony">
+                <div id="garden-tab-zahony" style="display:none;">
                     <p id="text-garden-desc" class="text-sm" style="margin-bottom:15px;" data-i18n="garden.desc">Pěstuj
                         vzácné rostliny. Půda vyžaduje péči.</p>
                     <div id="garden-container" class="garden-grid"></div>
@@ -2314,7 +2314,7 @@
                     <div id="apiary-container"></div>
                 </div>
 
-                <div id="garden-tab-dvur" style="display:none;">
+                <div id="garden-tab-dvur">
                     <p class="text-sm" style="margin-bottom:15px;" data-i18n="garden.dvorDesc">Hospodářský dvůr
                         kláštera. Brzy zde bude možné chovat zvířata.</p>
                     <div id="farmyard-container"></div>
