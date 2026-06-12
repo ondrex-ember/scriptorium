@@ -1,6 +1,6 @@
 const TechTree = [
     // TIER 1
-    { id:"tech_candle",          name:"Zpracování Tuku",           name_en:"Fat Rendering",              cost:2,  desc:"Odemkne: Svíčky",                              desc_en:"Unlocks: Candles",                      unlocks:["candle"] },
+    { id:"tech_candle",          name:"Zpracování Tuku",           name_en:"Fat Rendering",              cost:2,  desc:"Odemkne: Svíčky, Klíh",                              desc_en:"Unlocks: Candles, Glue",                      unlocks:["candle","glue"] },
     { id:"tech_backpack",        name:"Organizace Batohu",         name_en:"Satchel Organisation",       cost:3,  desc:"Odemkne: Třídění předmětů",                    desc_en:"Unlocks: Item sorting",                 unlocks:[] },
     { id:"tech_alchemy_1",       name:"Základy Bylinkářství",      name_en:"Herbalism Basics",           cost:3,  desc:"Odemkne: Hojivá mast",                         desc_en:"Unlocks: Healing salve",                unlocks:["potion_heal"] },
 
