@@ -94,11 +94,21 @@ const ScriptoriumCat = {
             left: ${this.posX}px;
             top: ${this.posY}px;
             transition: left 2.5s ease-in-out, top 2.5s ease-in-out;
-            pointer-events: auto;
+            pointer-events: none;
             display: none;
         `;
 
-        el.addEventListener('click', () => this._onCatClick());
+        // Menší hitbox — jen tělo kočky (~50×60px), průhledné okraje spritu neblokují UI
+        const hit = document.createElement('div');
+        hit.style.cssText = `
+            position: absolute;
+            left: 25px; top: 30px;
+            width: 50px; height: 60px;
+            pointer-events: auto;
+            cursor: pointer;
+        `;
+        hit.addEventListener('click', () => this._onCatClick());
+        el.appendChild(hit);
 
         const screen = document.getElementById('screen-garden');
         if (screen) {
