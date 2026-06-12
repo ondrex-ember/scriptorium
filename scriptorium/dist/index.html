@@ -29960,6 +29960,38 @@ const Game = {
             return;
         }
         // === END MINE ACTIONS ===
+        // Check requirements
+        const action = ActionsDB.find(a => a.id === type);
+        let _toolMult = 1.0; // multiplier z nástroje
+        let _usedToolId = null; // ID použitého nástroje pro useToolCharge
+        if (action && action.req) {
+            if (Array.isArray(action.req)) {
+                // Pole req — najít první dostupný nástroj a jeho multiplier
+                let found = action.req.find(r => GameState.inventory[r.item] > 0);
+                // Fallback: worn varianta s 20% výtěží
+                if (!found) {
+                    found = action.req.reduce((best, r) => {
+                        const wornId = 'worn_' + r.item;
+                        if (!best && GameState.inventory[wornId] > 0)
+                            return { item: wornId, mult: 0.2 };
+                        return best;
+                    }, null);
+                }
+                if (!found) {
+                    const names = action.req.map(r => ItemsDB[r.item] ? ItemsDB[r.item].name : r.item).join('/');
+                    UI.notify(t('game.missingItem').replace('{item}', names), true);
+                    return;
+                }
+                _toolMult = found.mult;
+                _usedToolId = found.item;
+            } else {
+                if (!(GameState.inventory[action.req] > 0)) {
+                    UI.notify(t('game.missingItem').replace('{item}', ItemsDB[action.req] ? ItemsDB[action.req].name : action.req), true);
+                    return;
+                }
+            }
+        }
+        
         // ── snapshot pro quick scavenge ──
         Game._scavenging = true;
         const _qbefore = {};
@@ -30204,38 +30236,6 @@ const Game = {
         }
         if (GameState.activeAction) { UI.notify(t('game.busy'), true); return; }
         
-        // Check requirements
-        const action = ActionsDB.find(a => a.id === type);
-        let _toolMult = 1.0; // multiplier z nástroje
-        let _usedToolId = null; // ID použitého nástroje pro useToolCharge
-        if (action && action.req) {
-            if (Array.isArray(action.req)) {
-                // Pole req — najít první dostupný nástroj a jeho multiplier
-                let found = action.req.find(r => GameState.inventory[r.item] > 0);
-                // Fallback: worn varianta s 20% výtěží
-                if (!found) {
-                    found = action.req.reduce((best, r) => {
-                        const wornId = 'worn_' + r.item;
-                        if (!best && GameState.inventory[wornId] > 0)
-                            return { item: wornId, mult: 0.2 };
-                        return best;
-                    }, null);
-                }
-                if (!found) {
-                    const names = action.req.map(r => ItemsDB[r.item] ? ItemsDB[r.item].name : r.item).join('/');
-                    UI.notify(t('game.missingItem').replace('{item}', names), true);
-                    return;
-                }
-                _toolMult = found.mult;
-                _usedToolId = found.item;
-            } else {
-                if (!(GameState.inventory[action.req] > 0)) {
-                    UI.notify(t('game.missingItem').replace('{item}', ItemsDB[action.req] ? ItemsDB[action.req].name : action.req), true);
-                    return;
-                }
-            }
-        }
-        
         const durationMin = action.collectMode ? 5 : GameState.selectedDuration;
         if (durationMin === 0) {
             // ── snapshot pro single scavenge ──
@@ -30363,18 +30363,21 @@ const Game = {
             Game._scavenging = false;
             if (_usedToolId) Game.useToolCharge(_usedToolId);
             Game.save(); UI.renderAll(); return;
-            
+        } else {
+            // TIMED scavenge — původní tabulka výnosů dle délky
+            let multiplier = durationMin === 1 ? 8 : (durationMin === 5 ? 30 : 50);
+
             // Apply tool multiplier
             if (_toolMult !== 1.0) multiplier = Math.round(multiplier * _toolMult);
 
-            // ========== NEW: Apply canonical hours foraging buff ==========
+            // Apply canonical hours foraging buff
             if (typeof CanonicalHours !== 'undefined') {
                 const foragingMult = CanonicalHours.getForagingMultiplier();
                 multiplier = Math.floor(multiplier * foragingMult);
             }
-            
+
             GameState.activeAction = { id: type, startTime: Date.now(), endTime: Date.now() + (durationMin * 60 * 1000), multiplier: multiplier };
-            Game.save(); UI.renderActions(); if (action.collectMode) UI.renderMineActions();
+            Game.save(); UI.renderActions();
         }
     },
     checkEnvironment: function() {
@@ -31639,7 +31642,7 @@ showItemModal: function(id) {
     },
 
 renderActions: function() {
-    const _hAct = JSON.stringify(GameState.inventory) + (GameState.activeAction||'') + (GameState.flags.fireplaceLit?'1':'0');
+    const _hAct = JSON.stringify(GameState.inventory) + (GameState.activeAction ? GameState.activeAction.id + GameState.activeAction.endTime : '') + (GameState.flags.fireplaceLit?'1':'0') + (GameState.activeAction ? Math.floor(Date.now()/1000) : '');
     if (_hAct === this._hashActions) return;
     this._hashActions = _hAct;
     const el = document.getElementById('workspace-actions');

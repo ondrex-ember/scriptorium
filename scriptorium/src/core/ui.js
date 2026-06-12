@@ -204,7 +204,7 @@ showItemModal: function(id) {
     },
 
 renderActions: function() {
-    const _hAct = JSON.stringify(GameState.inventory) + (GameState.activeAction||'') + (GameState.flags.fireplaceLit?'1':'0');
+    const _hAct = JSON.stringify(GameState.inventory) + (GameState.activeAction ? GameState.activeAction.id + GameState.activeAction.endTime : '') + (GameState.flags.fireplaceLit?'1':'0') + (GameState.activeAction ? Math.floor(Date.now()/1000) : '');
     if (_hAct === this._hashActions) return;
     this._hashActions = _hAct;
     const el = document.getElementById('workspace-actions');
