@@ -15826,6 +15826,200 @@ const ScriptoriumCat = {
         if (typeof Game !== 'undefined') Game.save();
     },
 };
+
+// ═══════════════════════════════════════════════════════════════════════════
+// FELIS MONASTICA — logická vrstva (tech_cura_felium)
+// Sytost, přízeň, lov myší, krádeže, krmení, hlazení
+// ═══════════════════════════════════════════════════════════════════════════
+
+Object.assign(ScriptoriumCat, {
+
+    // Co kočka žere: { satiety, affection }
+    FEED_TABLE: {
+        cream:        { satiety: 30, affection: 15 },
+        fish:         { satiety: 25, affection: 12 },
+        carp:         { satiety: 25, affection: 12 },
+        meat:         { satiety: 25, affection: 8  },
+        cured_meat:   { satiety: 20, affection: 10 },
+        cooked_fish:  { satiety: 20, affection: 10 },
+        cooked_meat:  { satiety: 20, affection: 8  },
+        chicken_meat: { satiety: 20, affection: 8  },
+        mouse:        { satiety: 20, affection: 5  },
+        milk:         { satiety: 15, affection: 8  },
+        goat_milk:    { satiety: 15, affection: 8  },
+        cheese:       { satiety: 15, affection: 6  },
+        lard:         { satiety: 15, affection: 4  },
+        buttermilk:   { satiety: 12, affection: 6  },
+        butter:       { satiety: 10, affection: 8  },
+        fat:          { satiety: 10, affection: 3  },
+    },
+
+    // Potraviny, které hladová kočka krade ze zásob
+    STEALABLE: ['cured_meat', 'lard', 'fish', 'carp', 'meat', 'cheese', 'butter', 'cream', 'chicken_meat', 'cooked_fish', 'cooked_meat'],
+
+    // Zásoby přitahující myši (zrní a jídlo)
+    MICE_FOOD: ['rye_grain', 'wheat_grain', 'barley', 'oats', 'millet', 'peas', 'bread', 'cheese', 'cured_meat'],
+
+    DAY_MS: 24 * 60 * 60 * 1000,
+    MICE_CAP: 30,
+
+    hasFelisTech: function() {
+        return !!(GameState.researchedTechs && GameState.researchedTechs.includes('tech_cura_felium'));
+    },
+
+    _ensureCatState: function() {
+        if (!GameState.cat) GameState.cat = {};
+        const c = GameState.cat;
+        if (c.name === undefined)      c.name = 'Bezejmenný myšilov';
+        if (c.satiety === undefined)   c.satiety = 50;
+        if (c.affection === undefined) c.affection = 20;
+        if (c.caught === undefined)    c.caught = 0;
+        if (!Array.isArray(c.stolen))  c.stolen = [];
+        if (!c.bornAt)                 c.bornAt = Date.now();
+        if (c.lastPet === undefined)   c.lastPet = 0;
+        if (c.lastTick === undefined)  c.lastTick = 0;
+        if (!GameState.mice) GameState.mice = { count: 3, lastTick: 0 };
+        return c;
+    },
+
+    _lang: function() {
+        return (GameState.settings && GameState.settings.language) || 'cs';
+    },
+
+    // ── Denní tick (volán z game.js intervalu, self-guarded) ─────────────
+    dailyTick: function() {
+        if (!this.hasFelisTech()) return;
+        const c = this._ensureCatState();
+        const now = Date.now();
+        if (now - c.lastTick < this.DAY_MS) return;
+        c.lastTick = now;
+
+        const lang = this._lang();
+        const hungry = c.satiety < 30;
+
+        // 1) Sytost klesá (denní úbytek)
+        c.satiety = Math.max(0, c.satiety - 25);
+        // 2) Přízeň pomalu eroduje
+        c.affection = Math.max(0, c.affection - 2);
+
+        // 3) Hladová kočka → loví myši + krade
+        if (hungry) {
+            const mice = GameState.mice;
+            if (mice.count > 0) {
+                const hunted = Math.min(mice.count, 1 + Math.floor(Math.random() * 3)); // 1–3
+                mice.count -= hunted;
+                c.caught += hunted;
+                c.satiety = Math.min(100, c.satiety + hunted * 15); // nažere se myšmi
+                const msg = lang === 'en'
+                    ? `🐈‍⬛ ${c.name} caught ${hunted} ${hunted === 1 ? 'mouse' : 'mice'} in the night.`
+                    : `🐈‍⬛ ${c.name} v noci ${hunted === 1 ? 'chytila myš' : 'chytila ' + hunted + ' myši'}.`;
+                if (typeof UI !== 'undefined' && UI.notify) UI.notify(msg);
+                // Občas přinese myš jako dar (vysoká přízeň)
+                if (c.affection >= 60 && Math.random() < 0.3) {
+                    GameState.inventory['mouse'] = (GameState.inventory['mouse'] || 0) + 1;
+                    if (typeof UI !== 'undefined' && UI.notify) UI.notify(lang === 'en'
+                        ? `🐭 ${c.name} left a mouse at your door. A gift.`
+                        : `🐭 ${c.name} ti přinesla myš ke dveřím. Dar.`);
+                }
+            }
+            // Krádež ze zásob (7%)
+            if (Math.random() < 0.07) {
+                const candidates = this.STEALABLE.filter(id => (GameState.inventory[id] || 0) > 0);
+                if (candidates.length) {
+                    const id = candidates[Math.floor(Math.random() * candidates.length)];
+                    GameState.inventory[id] -= 1;
+                    c.stolen.push({ item: id, ts: now });
+                    if (c.stolen.length > 20) c.stolen.shift();
+                    c.satiety = Math.min(100, c.satiety + 15);
+                    const iname = (typeof iName === 'function') ? iName(id) : id;
+                    const msg = lang === 'en'
+                        ? `😼 ${c.name} stole ${iname} from the stores!`
+                        : `😼 ${c.name} ukradla ze zásob: ${iname}!`;
+                    if (typeof UI !== 'undefined' && UI.notify) UI.notify(msg, true);
+                    if (typeof Game !== 'undefined' && Game.addKronikaEntry) {
+                        Game.addKronikaEntry('important',
+                            `😼 Kočka ${c.name} ukradla ze zásob: ${iname}.`,
+                            `😼 The cat ${c.name} stole ${iname} from the stores.`,
+                            `😼 Felis ${c.name} furata est.`);
+                    }
+                }
+            }
+        }
+
+        // 4) Myší populace — spawn dle zásob, lov sytou kočkou ~0
+        this._miceTick(hungry);
+
+        if (typeof Game !== 'undefined' && Game.save) Game.save();
+    },
+
+    _miceTick: function(catHungry) {
+        const mice = GameState.mice;
+        // Spawn ∝ množství jídla/zrní v zásobách
+        let foodStock = 0;
+        this.MICE_FOOD.forEach(id => { foodStock += (GameState.inventory[id] || 0); });
+        const spawn = Math.min(4, Math.floor(foodStock / 25) + 1); // 1–4 / den
+        // Sytá kočka neloví → myši rostou; hladová už lovila výše
+        mice.count = Math.min(this.MICE_CAP, mice.count + spawn);
+        // Přirozená úmrtnost / odchod
+        if (mice.count > 5 && Math.random() < 0.3) mice.count -= 1;
+    },
+
+    // Fuzzy popis myší populace (přesné číslo hra neukazuje)
+    miceFuzzy: function() {
+        const n = (GameState.mice && GameState.mice.count) || 0;
+        const lang = this._lang();
+        if (n <= 1)  return lang === 'en' ? 'The cloister is quiet. No scurrying to be heard.' : 'V klášteře je ticho. Žádný šramot.';
+        if (n <= 6)  return lang === 'en' ? 'A faint scurrying in the walls at night...' : 'V noci je za zdmi slyšet slabý šramot...';
+        if (n <= 15) return lang === 'en' ? 'Mice have been seen near the granary. The cellarius frowns.' : 'U sýpky byly vidět myši. Cellarius se mračí.';
+        return lang === 'en' ? 'A mouse paradise! Droppings in the flour, holes in the sacks.' : 'Myší ráj! Trus v mouce, díry v pytlích.';
+    },
+
+    // ── Krmení ────────────────────────────────────────────────────────────
+    feed: function(itemId) {
+        if (!this.hasFelisTech()) return false;
+        const entry = this.FEED_TABLE[itemId];
+        if (!entry) return false;
+        if ((GameState.inventory[itemId] || 0) < 1) return false;
+
+        const c = this._ensureCatState();
+        GameState.inventory[itemId] -= 1;
+        c.satiety = Math.min(100, c.satiety + entry.satiety);
+        c.affection = Math.min(100, c.affection + entry.affection);
+
+        const lang = this._lang();
+        const iname = (typeof iName === 'function') ? iName(itemId) : itemId;
+        if (typeof UI !== 'undefined' && UI.notify) UI.notify(lang === 'en'
+            ? `🐈‍⬛ ${c.name} devoured the ${iname} and purrs.`
+            : `🐈‍⬛ ${c.name} zhltla: ${iname}. Spokojeně přede.`);
+
+        if (this.el && this.el.style.display !== 'none') {
+            this._setState('meow');
+            setTimeout(() => this._setState('idle'), 2000);
+        }
+        if (typeof Game !== 'undefined' && Game.save) Game.save();
+        if (typeof PersonaSystem !== 'undefined' && PersonaSystem.rerenderIfOpen) PersonaSystem.rerenderIfOpen();
+        return true;
+    },
+
+    // ── Titul dle přízně a úlovků ─────────────────────────────────────────
+    getTitle: function() {
+        const c = this._ensureCatState();
+        const lang = this._lang();
+        if (c.affection >= 80 && c.caught >= 50) return 'Custos Penarii';
+        if (c.affection >= 60 || c.caught >= 25) return 'Felis Monastica';
+        if (c.caught >= 5) return lang === 'en' ? 'Mouser' : 'Myšilov';
+        return 'Felis Vagans';
+    },
+
+    // ── Vigor helper ──────────────────────────────────────────────────────
+    _addVigor: function(n) {
+        try {
+            if (typeof VigorSystem === 'undefined' || !GameState.vigor) return;
+            GameState.vigor.current = Math.min(VigorSystem.MAX_VIGOR, GameState.vigor.current + n);
+            VigorSystem.renderMiniDisplay();
+        } catch (e) { /* no-op */ }
+    },
+});
 // ═══ src/systems/PersonaSystem.js ═══
 // ═══════════════════════════════════════════════════════════════════════════
 // PERSONA SYSTEM — Liber Personae
