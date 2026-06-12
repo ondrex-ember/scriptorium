@@ -405,11 +405,7 @@ Object.assign(ScriptoriumCat, {
     // Potraviny, které hladová kočka krade ze zásob
     STEALABLE: ['cured_meat', 'lard', 'fish', 'carp', 'meat', 'cheese', 'butter', 'cream', 'chicken_meat', 'cooked_fish', 'cooked_meat'],
 
-    // Zásoby přitahující myši (zrní a jídlo)
-    MICE_FOOD: ['rye_grain', 'wheat_grain', 'barley', 'oats', 'millet', 'peas', 'bread', 'cheese', 'cured_meat'],
-
     DAY_MS: 24 * 60 * 60 * 1000,
-    MICE_CAP: 30,
 
     hasFelisTech: function() {
         return !!(GameState.researchedTechs && GameState.researchedTechs.includes('tech_cura_felium'));
@@ -494,22 +490,9 @@ Object.assign(ScriptoriumCat, {
             }
         }
 
-        // 4) Myší populace — spawn dle zásob, lov sytou kočkou ~0
-        this._miceTick(hungry);
+        // Myší spawn řeší DecaySystem.miceTick (skladová mechanika)
 
         if (typeof Game !== 'undefined' && Game.save) Game.save();
-    },
-
-    _miceTick: function(catHungry) {
-        const mice = GameState.mice;
-        // Spawn ∝ množství jídla/zrní v zásobách
-        let foodStock = 0;
-        this.MICE_FOOD.forEach(id => { foodStock += (GameState.inventory[id] || 0); });
-        const spawn = Math.min(4, Math.floor(foodStock / 25) + 1); // 1–4 / den
-        // Sytá kočka neloví → myši rostou; hladová už lovila výše
-        mice.count = Math.min(this.MICE_CAP, mice.count + spawn);
-        // Přirozená úmrtnost / odchod
-        if (mice.count > 5 && Math.random() < 0.3) mice.count -= 1;
     },
 
     // Fuzzy popis myší populace (přesné číslo hra neukazuje)

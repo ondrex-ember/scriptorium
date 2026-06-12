@@ -98,9 +98,45 @@ const DecaySystem = {
         return this.totalStock() > this.totalCapacity();
     },
 
+    // ── Myší populace — denní tick (běží VŽDY, i bez tech) ────────────────
+    miceTick: function() {
+        if (!GameState.mice) GameState.mice = { count: 3, lastTick: 0 };
+        const m = GameState.mice;
+        const now = Date.now();
+        if (now - (m.lastTick || 0) < this.DAY_MS) return;
+        m.lastTick = now;
+
+        // Spawn ∝ zásoby jídla/zrní; podzim+zima ×1.5 (myši táhnou do tepla)
+        let foodStock = 0;
+        const MICE_FOOD = ['rye_grain', 'wheat_grain', 'barley', 'oats', 'millet', 'peas', 'grain', 'bread', 'cheese', 'cured_meat'];
+        MICE_FOOD.forEach(id => { foodStock += (GameState.inventory[id] || 0); });
+        let spawn = Math.min(4, Math.floor(foodStock / 25) + 1);
+        const month = new Date().getMonth();           // 0=led
+        if (month >= 8 || month <= 1) spawn = Math.ceil(spawn * 1.5);   // září–únor
+        m.count = Math.min(this.MICE_CAP, m.count + spawn);
+
+        // Pastičky: každá −1 myš/den, 10% šance rozbití
+        let traps = GameState.inventory['mousetrap'] || 0;
+        if (traps > 0 && m.count > 0) {
+            const effective = Math.min(3, traps);       // cap 3 aktivní pasti
+            const caught = Math.min(m.count, effective);
+            m.count -= caught;
+            let broken = 0;
+            for (let i = 0; i < effective; i++) if (Math.random() < 0.10) broken++;
+            if (broken) {
+                GameState.inventory['mousetrap'] = Math.max(0, traps - broken);
+                if (typeof UI !== 'undefined' && UI.notify) UI.notify('🪤 ' + t('decay.trapBroken').replace('{n}', broken), true);
+            }
+        }
+
+        // Přirozená úmrtnost
+        if (m.count > 5 && Math.random() < 0.3) m.count -= 1;
+    },
+
     // ── Denní tick (volán z game.js, self-guarded 24h) ────────────────────
     dailyTick: function() {
-        if (!this.isActive()) return;
+        this.miceTick();                       // myši žijí vždy
+        if (!this.isActive()) return;          // decay až za tech_inventarium
         const st = this._ensureState();
         const now = Date.now();
         if (now - st.lastTick < this.DAY_MS) return;

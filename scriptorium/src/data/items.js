@@ -309,6 +309,7 @@ const ItemsDB = {
     "piglet":         { name:"Sele",              name_en:"Piglet",           icon:"🐖", type:"animal", desc:"Mladé prase. Za pár měsíců živá spižírna — krm ho žaludy.", desc_en:"A young pig. In a few months a living larder — feed it acorns." },
     "acorn":          { name:"Žalud",             name_en:"Acorn",            icon:"🌰", type:"mat", desc:"Dubový žalud. Prasata po nich rostou jako z vody.", desc_en:"An oak acorn. Pigs fatten on them remarkably." },
     "churn":          { name:"Máselnice",         name_en:"Butter Churn",     icon:"🛢️", type:"tool", desc:"Dřevěná máselnice. Hodiny stloukání promění smetanu v máslo — a zbude podmáslí.", desc_en:"A wooden churn. Hours of churning turn cream into butter — leaving buttermilk behind." },
+    "mousetrap":      { name:"Pastička na myši",  name_en:"Mousetrap",        icon:"🪤", type:"tool", desc:"Dřevěná past s pružinou. Chytí myš denně — než se rozbije.", desc_en:"A wooden spring trap. Catches a mouse a day — until it breaks." },
 
     // ── BUDOUCÍ ZVÍŘATA (easter eggs — jen definice, mechanika přijde později) ─
     "goat":           { name:"Koza",              name_en:"Goat",             icon:"🐐", type:"animal", desc:"Koza: kozí pergamen, léčivé mléko — ale pozor, sežere zahradní stromky. Věčný zdroj napětí v klášteře.", desc_en:"Goat: fine parchment, medicinal milk — but beware, she will eat the orchard saplings. An eternal source of tension in the monastery." },

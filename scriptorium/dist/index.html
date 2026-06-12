@@ -5187,6 +5187,7 @@ const ItemsDB = {
     "piglet":         { name:"Sele",              name_en:"Piglet",           icon:"🐖", type:"animal", desc:"Mladé prase. Za pár měsíců živá spižírna — krm ho žaludy.", desc_en:"A young pig. In a few months a living larder — feed it acorns." },
     "acorn":          { name:"Žalud",             name_en:"Acorn",            icon:"🌰", type:"mat", desc:"Dubový žalud. Prasata po nich rostou jako z vody.", desc_en:"An oak acorn. Pigs fatten on them remarkably." },
     "churn":          { name:"Máselnice",         name_en:"Butter Churn",     icon:"🛢️", type:"tool", desc:"Dřevěná máselnice. Hodiny stloukání promění smetanu v máslo — a zbude podmáslí.", desc_en:"A wooden churn. Hours of churning turn cream into butter — leaving buttermilk behind." },
+    "mousetrap":      { name:"Pastička na myši",  name_en:"Mousetrap",        icon:"🪤", type:"tool", desc:"Dřevěná past s pružinou. Chytí myš denně — než se rozbije.", desc_en:"A wooden spring trap. Catches a mouse a day — until it breaks." },
 
     // ── BUDOUCÍ ZVÍŘATA (easter eggs — jen definice, mechanika přijde později) ─
     "goat":           { name:"Koza",              name_en:"Goat",             icon:"🐐", type:"animal", desc:"Koza: kozí pergamen, léčivé mléko — ale pozor, sežere zahradní stromky. Věčný zdroj napětí v klášteře.", desc_en:"Goat: fine parchment, medicinal milk — but beware, she will eat the orchard saplings. An eternal source of tension in the monastery." },
@@ -5272,6 +5273,7 @@ const RecipesDB = [
     { id: "basket", output: "basket", qty: 1, req: { "fiber": 5, "stick": 2 }, cat: "craft", locked: true },
 
     // LACTARIA — zpracování mléka (tech_lactaria)
+    { id: "mousetrap", output: "mousetrap", qty: 1, req: { "plank": 2, "rope": 1 },          cat: "craft", locked: true },
     { id: "churn",  output: "churn",  qty: 1, req: { "plank": 5, "rope": 2 },               cat: "craft", locked: true },
     { id: "cream",  output: "cream",  qty: 1, req: { "goat_milk": 2 },                      cat: "food",  locked: true },
     { id: "butter", output: "butter", qty: 1, req: { "milk": 3, "churn": 0 },               cat: "food",  locked: true, byproduct: { id: "buttermilk", qty: 1 } },
@@ -6526,7 +6528,7 @@ const TechTree = [
       cost:8,
       desc:"Klášterní cellarius vedl přesný soupis každého pytle mouky a každého sudu piva. Bez inventáře se zásoby ztrácejí samy od sebe. Odemkne: subtab Inventarium v Cellariu — přehled zásob. POZOR: Kdo vede soupis, vidí i ztráty. Od této chvíle se zásoby kazí — mléko kysne, maso plesniví, myši žerou zrní. Připrav se na hospodaření se zásobami.",
       desc_en:"The monastic cellarius kept an exact inventory of every sack of flour and every barrel of ale. Without an inventory, stores disappear of their own accord. Unlocks: Inventarium subtab in the Cellarium — stock overview. BEWARE: He who keeps the ledger also sees the losses. From now on stores decay — milk sours, meat moulds, mice eat the grain. Prepare to manage your stores.",
-      unlocks:[], requires:["tech_almarium"] },
+      unlocks:["mousetrap"], requires:["tech_almarium"] },
 
     { id:"tech_liber_rationum",  name:"Pratica della Mercatura — Liber Rationum", name_en:"Pratica della Mercatura — Liber Rationum",
       cost:12,
@@ -13362,9 +13364,45 @@ const DecaySystem = {
         return this.totalStock() > this.totalCapacity();
     },
 
+    // ── Myší populace — denní tick (běží VŽDY, i bez tech) ────────────────
+    miceTick: function() {
+        if (!GameState.mice) GameState.mice = { count: 3, lastTick: 0 };
+        const m = GameState.mice;
+        const now = Date.now();
+        if (now - (m.lastTick || 0) < this.DAY_MS) return;
+        m.lastTick = now;
+
+        // Spawn ∝ zásoby jídla/zrní; podzim+zima ×1.5 (myši táhnou do tepla)
+        let foodStock = 0;
+        const MICE_FOOD = ['rye_grain', 'wheat_grain', 'barley', 'oats', 'millet', 'peas', 'grain', 'bread', 'cheese', 'cured_meat'];
+        MICE_FOOD.forEach(id => { foodStock += (GameState.inventory[id] || 0); });
+        let spawn = Math.min(4, Math.floor(foodStock / 25) + 1);
+        const month = new Date().getMonth();           // 0=led
+        if (month >= 8 || month <= 1) spawn = Math.ceil(spawn * 1.5);   // září–únor
+        m.count = Math.min(this.MICE_CAP, m.count + spawn);
+
+        // Pastičky: každá −1 myš/den, 10% šance rozbití
+        let traps = GameState.inventory['mousetrap'] || 0;
+        if (traps > 0 && m.count > 0) {
+            const effective = Math.min(3, traps);       // cap 3 aktivní pasti
+            const caught = Math.min(m.count, effective);
+            m.count -= caught;
+            let broken = 0;
+            for (let i = 0; i < effective; i++) if (Math.random() < 0.10) broken++;
+            if (broken) {
+                GameState.inventory['mousetrap'] = Math.max(0, traps - broken);
+                if (typeof UI !== 'undefined' && UI.notify) UI.notify('🪤 ' + t('decay.trapBroken').replace('{n}', broken), true);
+            }
+        }
+
+        // Přirozená úmrtnost
+        if (m.count > 5 && Math.random() < 0.3) m.count -= 1;
+    },
+
     // ── Denní tick (volán z game.js, self-guarded 24h) ────────────────────
     dailyTick: function() {
-        if (!this.isActive()) return;
+        this.miceTick();                       // myši žijí vždy
+        if (!this.isActive()) return;          // decay až za tech_inventarium
         const st = this._ensureState();
         const now = Date.now();
         if (now - st.lastTick < this.DAY_MS) return;
@@ -16473,11 +16511,7 @@ Object.assign(ScriptoriumCat, {
     // Potraviny, které hladová kočka krade ze zásob
     STEALABLE: ['cured_meat', 'lard', 'fish', 'carp', 'meat', 'cheese', 'butter', 'cream', 'chicken_meat', 'cooked_fish', 'cooked_meat'],
 
-    // Zásoby přitahující myši (zrní a jídlo)
-    MICE_FOOD: ['rye_grain', 'wheat_grain', 'barley', 'oats', 'millet', 'peas', 'bread', 'cheese', 'cured_meat'],
-
     DAY_MS: 24 * 60 * 60 * 1000,
-    MICE_CAP: 30,
 
     hasFelisTech: function() {
         return !!(GameState.researchedTechs && GameState.researchedTechs.includes('tech_cura_felium'));
@@ -16562,22 +16596,9 @@ Object.assign(ScriptoriumCat, {
             }
         }
 
-        // 4) Myší populace — spawn dle zásob, lov sytou kočkou ~0
-        this._miceTick(hungry);
+        // Myší spawn řeší DecaySystem.miceTick (skladová mechanika)
 
         if (typeof Game !== 'undefined' && Game.save) Game.save();
-    },
-
-    _miceTick: function(catHungry) {
-        const mice = GameState.mice;
-        // Spawn ∝ množství jídla/zrní v zásobách
-        let foodStock = 0;
-        this.MICE_FOOD.forEach(id => { foodStock += (GameState.inventory[id] || 0); });
-        const spawn = Math.min(4, Math.floor(foodStock / 25) + 1); // 1–4 / den
-        // Sytá kočka neloví → myši rostou; hladová už lovila výše
-        mice.count = Math.min(this.MICE_CAP, mice.count + spawn);
-        // Přirozená úmrtnost / odchod
-        if (mice.count > 5 && Math.random() < 0.3) mice.count -= 1;
     },
 
     // Fuzzy popis myší populace (přesné číslo hra neukazuje)
@@ -25612,6 +25633,7 @@ const STRINGS_cs = {
         discardAll: 'VŠE',
         discardConfirm: 'Opravdu zahodit celý stack: {qty}× {item}?',
         discarded: 'Zahozeno: {qty}× {item}',
+        trapBroken: 'Pastička se rozbila ({n}×).',
         lastLosses: 'Včerejší ztráty',
         miceNone: 'V klášteře je ticho. Myši zásoby neohrožují.',
         miceFew: 'V noci je za zdmi slyšet slabý šramot. Zrní mírně ubývá.',
@@ -28059,6 +28081,7 @@ According to Theophilus, the organ is an instrument worthy of God, but its const
         discardAll: 'ALL',
         discardConfirm: 'Really discard the whole stack: {qty}× {item}?',
         discarded: 'Discarded: {qty}× {item}',
+        trapBroken: 'A mousetrap broke ({n}×).',
         lastLosses: 'Yesterday\'s losses',
         miceNone: 'The cloister is quiet. Mice pose no threat to the stores.',
         miceFew: 'A faint scurrying behind the walls at night. Grain slowly dwindles.',

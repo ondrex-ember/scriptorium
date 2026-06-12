@@ -2221,6 +2221,7 @@ According to Theophilus, the organ is an instrument worthy of God, but its const
         discardAll: 'ALL',
         discardConfirm: 'Really discard the whole stack: {qty}× {item}?',
         discarded: 'Discarded: {qty}× {item}',
+        trapBroken: 'A mousetrap broke ({n}×).',
         lastLosses: 'Yesterday\'s losses',
         miceNone: 'The cloister is quiet. Mice pose no threat to the stores.',
         miceFew: 'A faint scurrying behind the walls at night. Grain slowly dwindles.',

@@ -1275,6 +1275,7 @@ const STRINGS_cs = {
         discardAll: 'VŠE',
         discardConfirm: 'Opravdu zahodit celý stack: {qty}× {item}?',
         discarded: 'Zahozeno: {qty}× {item}',
+        trapBroken: 'Pastička se rozbila ({n}×).',
         lastLosses: 'Včerejší ztráty',
         miceNone: 'V klášteře je ticho. Myši zásoby neohrožují.',
         miceFew: 'V noci je za zdmi slyšet slabý šramot. Zrní mírně ubývá.',
