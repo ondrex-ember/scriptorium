@@ -331,6 +331,10 @@ const CellariumSystem = {
       { itemId: 'hen_colored',   basePrice: 25 },
       { itemId: 'rooster',       basePrice: 20 },
       { itemId: 'sheep',         basePrice: 35 },
+      { itemId: 'rabbit',        basePrice: 21,  req_tech: 'tech_cuniculi' },
+      { itemId: 'goat',          basePrice: 44,  req_tech: 'tech_caprile' },
+      { itemId: 'piglet',        basePrice: 40,  req_tech: 'tech_suile' },
+      { itemId: 'horse',         basePrice: 250, req_tech: 'tech_stabulum' },
       { itemId: 'queen_bee',     basePrice: 40 },
       // Semena stromů — drahá
       { itemId: 'seed_apple',    basePrice: 8  },

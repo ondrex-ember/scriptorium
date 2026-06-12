@@ -5209,14 +5209,12 @@ const ItemsDB = {
     "rabbit_meat":    { name:"Králičí maso",      name_en:"Rabbit Meat",      icon:"🍖", type:"mat", desc:"Jemné maso z králíkárny. Klášterní kuchyně ho cení.", desc_en:"Tender meat from the hutch. Prized by the monastic kitchen." },
     "rabbit_pelt":    { name:"Králičí kožka",     name_en:"Rabbit Pelt",      icon:"🦊", type:"mat", desc:"Měkká kožka. Na podšívky rukavic a lemování kapucí.", desc_en:"A soft pelt. For glove linings and hood trims.", },
     "goat":           { name:"Koza",              name_en:"Goat",             icon:"🐐", type:"animal", desc:"Kráva chudých. Mléko dává i v zimě a spase, co ovce odmítne.", desc_en:"The poor man's cow. Gives milk even in winter and grazes what sheep refuse." },
-    "goat_hide":      { name:"Kozí kůže",         name_en:"Goat Hide",        icon:"🦌", type:"mat", desc:"Pevná kozí kůže. Základ jemného pergamenu.", desc_en:"Tough goat hide. The basis of fine parchment." },
     "piglet":         { name:"Sele",              name_en:"Piglet",           icon:"🐖", type:"animal", desc:"Mladé prase. Za pár měsíců živá spižírna — krm ho žaludy.", desc_en:"A young pig. In a few months a living larder — feed it acorns." },
     "acorn":          { name:"Žalud",             name_en:"Acorn",            icon:"🌰", type:"mat", desc:"Dubový žalud. Prasata po nich rostou jako z vody.", desc_en:"An oak acorn. Pigs fatten on them remarkably." },
     "churn":          { name:"Máselnice",         name_en:"Butter Churn",     icon:"🛢️", type:"tool", desc:"Dřevěná máselnice. Hodiny stloukání promění smetanu v máslo — a zbude podmáslí.", desc_en:"A wooden churn. Hours of churning turn cream into butter — leaving buttermilk behind." },
     "mousetrap":      { name:"Pastička na myši",  name_en:"Mousetrap",        icon:"🪤", type:"tool", desc:"Dřevěná past s pružinou. Chytí myš denně — než se rozbije.", desc_en:"A wooden spring trap. Catches a mouse a day — until it breaks." },
 
     // ── BUDOUCÍ ZVÍŘATA (easter eggs — jen definice, mechanika přijde později) ─
-    "goat":           { name:"Koza",              name_en:"Goat",             icon:"🐐", type:"animal", desc:"Koza: kozí pergamen, léčivé mléko — ale pozor, sežere zahradní stromky. Věčný zdroj napětí v klášteře.", desc_en:"Goat: fine parchment, medicinal milk — but beware, she will eat the orchard saplings. An eternal source of tension in the monastery." },
     "cow":            { name:"Kráva",             name_en:"Cow",              icon:"🐄", type:"animal", desc:"Kráva: vellum z telete pro nejvzácnější kodexy, máslo, sýr. Velké kláštery jich měly desítky.", desc_en:"Cow: calf vellum for the rarest codices, butter, cheese. Great monasteries kept dozens." },
     "donkey":         { name:"Osel",              name_en:"Donkey",           icon:"🫏", type:"animal", desc:"Osel: vozí obilí ze sýpky do mlýna, pohání studnu. Levný, nenáročný, psychicky zdatný pro monotónní práci.", desc_en:"Donkey: carries grain from granary to mill, powers the well. Cheap, undemanding, mentally suited for monotonous work." },
     "horse":          { name:"Kůň",               name_en:"Horse",            icon:"🐴", type:"animal", desc:"Kůň: koňský potah ujede 30–40 km za den. Otevírá vzdálené trhy. Klášter ho potřebuje pro reprezentaci i vojenskou povinnost.", desc_en:"Horse: a horse-drawn cart covers 30–40 km a day. Opens distant markets. The monastery needs him for representation and military obligation." },
@@ -6569,13 +6567,13 @@ const TechTree = [
       cost:35,
       desc:"Klášterní kovář byl nepostradatelný. Z rozžhaveného železa tvaroval sekerky, rýče i kosy. Bez kováře nezaoralo žádné pole. Odemkne: železné nástroje (sekerka, rýč, kosa, srp, cep, lopata, pila).",
       desc_en:"The monastic blacksmith was indispensable. He shaped axes, spades and scythes from heated iron. Without a smith no field could be ploughed. Unlocks: iron tools (axe, spade, scythe, sickle, flail, shovel, saw).",
-      unlocks:["iron_axe","iron_spade","iron_scythe","iron_sickle","iron_flail","iron_shovel","iron_saw","iron_ingot","repair_iron_axe","repair_iron_spade","repair_iron_scythe","repair_iron_sickle","repair_iron_flail","repair_iron_shovel","repair_iron_saw"], requires:["tech_horticulture"] },
+      unlocks:["iron_axe","iron_spade","iron_scythe","iron_sickle","iron_flail","iron_shovel","iron_saw","iron_pickaxe","iron_tongs","iron_ingot","repair_iron_axe","repair_iron_spade","repair_iron_scythe","repair_iron_sickle","repair_iron_flail","repair_iron_shovel","repair_iron_saw","repair_iron_pickaxe"], requires:["tech_horticulture"] },
 
     { id:"tech_horticulture",  name:"Horticultura — Zahradní umění", name_en:"Horticultura — Art of the Garden",
       cost:10,
       desc:"Klášterní zahradník byl vzdělán v bylinářství, pěstování i závlaze. Odemkne: kamenné nástroje (sekerka, rýč, kosa, srp, cep, lopata), vědro, konev, sud.",
       desc_en:"The monastic gardener was learned in herbalism, cultivation and irrigation. Unlocks: stone tools (axe, spade, scythe, sickle, flail, shovel), bucket, watering can, barrel.",
-      unlocks:["stone_axe","stone_spade","stone_scythe","stone_sickle","stone_flail","stone_shovel","bucket","watering_can","barrel_tool"], requires:["tech_writing_basics"] },
+      unlocks:["stone_axe","stone_spade","stone_scythe","stone_sickle","stone_flail","wooden_flail","stone_shovel","stone_pickaxe","bucket","watering_can","barrel_tool"], requires:["tech_writing_basics"] },
 
     { id:"tech_materia_prima", name:"Materia Prima — Poznání Suroviny", name_en:"Materia Prima — Knowledge of Materials",
       cost:34,
@@ -12281,6 +12279,10 @@ const CellariumSystem = {
       { itemId: 'hen_colored',   basePrice: 25 },
       { itemId: 'rooster',       basePrice: 20 },
       { itemId: 'sheep',         basePrice: 35 },
+      { itemId: 'rabbit',        basePrice: 21,  req_tech: 'tech_cuniculi' },
+      { itemId: 'goat',          basePrice: 44,  req_tech: 'tech_caprile' },
+      { itemId: 'piglet',        basePrice: 40,  req_tech: 'tech_suile' },
+      { itemId: 'horse',         basePrice: 250, req_tech: 'tech_stabulum' },
       { itemId: 'queen_bee',     basePrice: 40 },
       // Semena stromů — drahá
       { itemId: 'seed_apple',    basePrice: 8  },
