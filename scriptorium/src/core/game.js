@@ -510,6 +510,8 @@ const Game = {
                     if (typeof GardenSystem !== 'undefined') GardenSystem.checkVineaGrowth();
                     // Felis Monastica — denní tick (self-guarded 24h)
                     if (typeof ScriptoriumCat !== 'undefined' && ScriptoriumCat.dailyTick) ScriptoriumCat.dailyTick();
+                    // Decay — denní kažení zásob (self-guarded 24h, gate tech_inventarium)
+                    if (typeof DecaySystem !== 'undefined' && DecaySystem.dailyTick) DecaySystem.dailyTick();
                     Game.checkFarmyardProduction();
                     Game.checkPiscinaGrowth();
                 }

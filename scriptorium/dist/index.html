@@ -4940,7 +4940,7 @@ const ItemsDB = {
     "carrot":          { name:"Mrkev",               name_en:"Carrot",                 icon:"🥕", type:"food_raw",    desc:"Ze zahrady.",                                      desc_en:"From the garden." },
     "onion":           { name:"Cibule",              name_en:"Onion",                  icon:"🧅", type:"food_raw",    desc:"Ze zahrady.",                                      desc_en:"From the garden." },
     "potato":          { name:"Brambora",            name_en:"Potato",                 icon:"🥔", type:"food_raw",    desc:"Ze zahrady.",                                      desc_en:"From the garden." },
-    "berries":         { name:"Bobule",              name_en:"Berries",                icon:"🫐", type:"food_raw",    desc:"Lesní plody.",                                     desc_en:"Forest berries." },
+    "berries":         { name:"Bobule",              name_en:"Berries",                icon:"🫐", type:"food", hunger:2,    desc:"Lesní plody. Lze jíst syrové — zasytí na 2h.",     desc_en:"Forest berries. Edible raw — fills for 2h." },
 
     // COOKED FOOD
     "cooked_meat":     { name:"Pečené maso",         name_en:"Roasted Meat",           icon:"🍗", type:"food", hunger:6,  desc:"Sytí 6h.",   desc_en:"Fills for 6h." },
@@ -6481,8 +6481,8 @@ const TechTree = [
 
     { id:"tech_inventarium",     name:"Inventarium — Soupis Zásob",      name_en:"Inventarium — Inventory of Stores",
       cost:8,
-      desc:"Klášterní cellarius vedl přesný soupis každého pytle mouky a každého sudu piva. Bez inventáře se zásoby ztrácejí samy od sebe. Odemkne: subtab Inventarium v Cellariu — přehled zásob s decay varováními.",
-      desc_en:"The monastic cellarius kept an exact inventory of every sack of flour and every barrel of ale. Without an inventory, stores disappear of their own accord. Unlocks: Inventarium subtab in the Cellarium — stock overview with decay warnings.",
+      desc:"Klášterní cellarius vedl přesný soupis každého pytle mouky a každého sudu piva. Bez inventáře se zásoby ztrácejí samy od sebe. Odemkne: subtab Inventarium v Cellariu — přehled zásob. POZOR: Kdo vede soupis, vidí i ztráty. Od této chvíle se zásoby kazí — mléko kysne, maso plesniví, myši žerou zrní. Připrav se na hospodaření se zásobami.",
+      desc_en:"The monastic cellarius kept an exact inventory of every sack of flour and every barrel of ale. Without an inventory, stores disappear of their own accord. Unlocks: Inventarium subtab in the Cellarium — stock overview. BEWARE: He who keeps the ledger also sees the losses. From now on stores decay — milk sours, meat moulds, mice eat the grain. Prepare to manage your stores.",
       unlocks:[], requires:["tech_almarium"] },
 
     { id:"tech_liber_rationum",  name:"Pratica della Mercatura — Liber Rationum", name_en:"Pratica della Mercatura — Liber Rationum",
@@ -12720,48 +12720,30 @@ const CellariumSystem = {
   renderInventarium: function() {
     const lang = (GameState.settings && GameState.settings.language) || 'cs';
     const inv = GameState.inventory || {};
-
-    // Kategorie položek s decay parametry (h = hodiny, null = bez decayu)
-    const decayMap = {
-      milk:            { decay_h: 24,   icon: '🥛', cat: 'organic' },
-      egg:             { decay_h: 120,  icon: '🥚', cat: 'organic' },
-      raw_fish:        { decay_h: 24,   icon: '🐟', cat: 'organic' },
-      cooked_fish:     { decay_h: 48,   icon: '🐟', cat: 'organic' },
-      cooked_meat:     { decay_h: 48,   icon: '🍖', cat: 'organic' },
-      raw_hide:        { decay_h: null, icon: '🐑', cat: 'material' },
-      thyme:           { decay_h: 720,  icon: '🌿', cat: 'herb' },
-      chamomile:       { decay_h: 720,  icon: '🌼', cat: 'herb' },
-      st_johns_wort:   { decay_h: 720,  icon: '🌿', cat: 'herb' },
-      linden_blossom:  { decay_h: 720,  icon: '🌸', cat: 'herb' },
-      pollen:          { decay_h: null, icon: '🌼', cat: 'herb' },
-      honey:           { decay_h: null, icon: '🍯', cat: 'preserve' },
-      beeswax:         { decay_h: null, icon: '🕯️', cat: 'preserve' },
-      wool:            { decay_h: null, icon: '🧶', cat: 'material' },
-      feather_hen:     { decay_h: null, icon: '🪶', cat: 'material' },
-    };
-
-    const hasCella = GameState.researchedTechs && GameState.researchedTechs.includes('tech_cella');
-    const hasAlm   = GameState.researchedTechs && GameState.researchedTechs.includes('tech_almarium');
-
-    // Kapacita
-    let cap = 50;
-    if (hasAlm) cap = 200;
-    if (hasCella) cap = 600;
-    const totalItems = Object.values(inv).reduce((s, v) => s + (typeof v === 'number' ? v : 0), 0);
-    const capPct = Math.min(100, Math.round(totalItems / cap * 100));
-    const capColor = capPct > 90 ? '#c0392b' : capPct > 70 ? '#e67e22' : '#5a9a5a';
+    const ds = (typeof DecaySystem !== 'undefined') ? DecaySystem : null;
 
     const title = lang === 'en' ? 'Inventarium — Inventory of Stores' : 'Inventarium — Soupis Zásob';
     const capLabel = lang === 'en' ? 'Capacity' : 'Kapacita';
-    const warnLabel = lang === 'en' ? 'Expires soon' : 'Vyprší brzy';
-    const noDecayLabel = lang === 'en' ? 'Does not expire' : 'Nevyprší';
     const storageLabel = lang === 'en' ? 'Storage' : 'Sklad';
+
+    // Kapacita — sjednoceno s renderBuildings (storage.*.built, včetně Horrea)
+    const s = GameState.storage || {};
+    let cap = 1000;
+    const storParts = [lang === 'en' ? 'Cloister (1000u)' : 'Klášter (1000j)'];
+    if (s.almarium && s.almarium.built) { cap += 200;  storParts.push('Almarium (+200j)'); }
+    if (s.cella    && s.cella.built)    { cap += 600;  storParts.push('Cella (+600j)'); }
+    if (s.horreum  && s.horreum.built)  { cap += 1600; storParts.push('Horreum (+1600j)'); }
+    const storName = storParts.join(' · ');
+    const totalItems = (ds ? ds.totalStock() : Object.values(inv).reduce((sum, v) => sum + (typeof v === 'number' && v > 0 ? v : 0), 0));
+    const capPct = Math.min(100, Math.round(totalItems / cap * 100));
+    const overflow = totalItems > cap;
+    const capColor = overflow ? '#c0392b' : capPct > 90 ? '#c0392b' : capPct > 70 ? '#e67e22' : '#5a9a5a';
 
     let h = `<div style="padding:15px; background:rgba(0,0,0,0.03); border-radius:8px; border-left:3px solid var(--accent-gold);">`;
     h += `<div style="font-size:0.75rem; font-weight:bold; letter-spacing:0.08em; text-transform:uppercase; color:var(--accent-gold); margin-bottom:12px;">${title}</div>`;
 
     // Kapacita bar
-    h += `<div style="margin-bottom:16px; padding:10px; background:rgba(197,160,89,0.06); border-radius:6px; border:1px solid rgba(197,160,89,0.2);">
+    h += `<div style="margin-bottom:12px; padding:10px; background:rgba(197,160,89,0.06); border-radius:6px; border:1px solid rgba(197,160,89,0.2);">
       <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
         <span style="font-size:0.8rem; font-weight:bold;">${capLabel}</span>
         <span style="font-size:0.8rem; color:${capColor};">${totalItems} / ${cap}</span>
@@ -12769,36 +12751,51 @@ const CellariumSystem = {
       <div style="background:rgba(0,0,0,0.1); border-radius:4px; height:8px;">
         <div style="width:${capPct}%; background:${capColor}; height:8px; border-radius:4px; transition:width 0.3s;"></div>
       </div>
-      <div style="font-size:0.7rem; opacity:0.6; margin-top:4px;">
-        ${storageLabel}: ${hasAlm ? (hasCella ? 'Cella (600j)' : 'Almarium (200j)') : '50j'}
-      </div>
+      <div style="font-size:0.7rem; opacity:0.6; margin-top:4px;">${storageLabel}: ${storName}</div>
+      ${overflow ? `<div style="font-size:0.72rem; color:#c0392b; margin-top:6px;">⚠️ ${t('decay.overflowWarn')}</div>` : ''}
     </div>`;
 
-    // Položky s hodnotami
+    // Myší vliv (fuzzy)
+    if (ds) {
+      h += `<div style="margin-bottom:12px; padding:8px 10px; background:rgba(0,0,0,0.04); border-radius:6px; font-size:0.78rem; font-style:italic; opacity:0.8;">
+        🐭 ${ds.miceFuzzyShort()}
+      </div>`;
+    }
+
+    // Včerejší ztráty
+    const losses = (GameState.decay && GameState.decay.lastLosses) || [];
+    if (losses.length) {
+      const parts = losses.map(l => `${l.lost}× ${(typeof iName === 'function') ? iName(l.id) : l.id}`).join(', ');
+      h += `<div style="margin-bottom:12px; padding:8px 10px; background:rgba(192,57,43,0.08); border-radius:6px; border:1px solid rgba(192,57,43,0.25); font-size:0.78rem;">
+        🗑️ ${t('decay.lastLosses')}: ${parts}
+      </div>`;
+    }
+
+    // Položky s decay sazbou
     const rows = [];
     for (const [id, qty] of Object.entries(inv)) {
       if (typeof qty !== 'number' || qty <= 0) continue;
       const item = ItemsDB[id];
-      const icon = (item && item.icon) ? item.icon : (decayMap[id] ? decayMap[id].icon : '📦');
+      const icon = (item && item.icon) ? item.icon : '📦';
       const name = (typeof iName === 'function') ? iName(id) : (item ? item.name : id);
-      const decay = decayMap[id];
 
       let decayHtml = '';
-      if (decay && decay.decay_h) {
-        const h_left = hasCella ? decay.decay_h * 2.5 : decay.decay_h;
-        const warn = h_left < 48;
-        decayHtml = `<span style="font-size:0.65rem; color:${warn ? '#c0392b' : '#5a9a5a'}; margin-left:4px;">
-          ${warn ? '⚠️ ' + warnLabel : '✓ ' + Math.round(h_left) + 'h'}
+      let rate = ds ? ds.effectiveRate(id) : null;
+      if (rate !== null && rate !== undefined) {
+        const pct = Math.round(rate * 100);
+        const warn = pct >= 20;
+        decayHtml = `<span style="font-size:0.65rem; color:${warn ? '#c0392b' : '#a0722d'}; margin-left:4px;">
+          ${warn ? '⚠️ ' : ''}−${pct}%/${lang === 'en' ? 'day' : 'den'}
         </span>`;
-      } else if (decay && decay.decay_h === null) {
-        decayHtml = `<span style="font-size:0.65rem; opacity:0.5; margin-left:4px;">∞ ${noDecayLabel}</span>`;
+        rows.push({ id, qty, icon, name, decayHtml, sortKey: pct });
+      } else {
+        decayHtml = `<span style="font-size:0.65rem; opacity:0.4; margin-left:4px;">∞</span>`;
+        rows.push({ id, qty, icon, name, decayHtml, sortKey: -1 });
       }
-
-      rows.push({ id, qty, icon, name, decayHtml, warn: decay && decay.decay_h && (hasCella ? decay.decay_h * 2.5 : decay.decay_h) < 48 });
     }
 
-    // Seřadit: varování nahoře
-    rows.sort((a, b) => (b.warn ? 1 : 0) - (a.warn ? 1 : 0));
+    // Seřadit: nejrychleji se kazící nahoře
+    rows.sort((a, b) => b.sortKey - a.sortKey);
 
     if (rows.length === 0) {
       h += `<div style="text-align:center; padding:20px; opacity:0.5; font-style:italic; font-size:0.85rem;">
@@ -12808,7 +12805,7 @@ const CellariumSystem = {
       h += `<div style="display:flex; flex-direction:column; gap:5px;">`;
       rows.forEach(r => {
         h += `<div style="padding:7px 10px; background:rgba(197,160,89,0.06); border-radius:6px;
-                          border:1px solid rgba(197,160,89,${r.warn ? '0.5' : '0.15'});
+                          border:1px solid rgba(197,160,89,${r.sortKey >= 20 ? '0.5' : '0.15'});
                           display:flex; align-items:center; gap:8px;">
           <span style="font-size:1.2rem; min-width:24px;">${r.icon}</span>
           <div style="flex:1;">
@@ -12816,6 +12813,12 @@ const CellariumSystem = {
             ${r.decayHtml}
           </div>
           <span style="font-weight:bold; font-size:0.9rem; color:var(--accent-gold);">×${r.qty}</span>
+          <span style="display:flex; gap:3px;">
+            <button onclick="CellariumSystem.discardItem('${r.id}',1)" class="craft-btn" style="padding:3px 6px; font-size:0.65rem;">×1</button>
+            <button onclick="CellariumSystem.discardItem('${r.id}',5)" class="craft-btn" style="padding:3px 6px; font-size:0.65rem;" ${r.qty < 5 ? 'disabled' : ''}>×5</button>
+            <button onclick="CellariumSystem.discardItem('${r.id}',10)" class="craft-btn" style="padding:3px 6px; font-size:0.65rem;" ${r.qty < 10 ? 'disabled' : ''}>×10</button>
+            <button onclick="CellariumSystem.discardItem('${r.id}','all')" class="craft-btn" style="padding:3px 6px; font-size:0.65rem; background:#8a3324; color:#fff;">${t('decay.discardAll')}</button>
+          </span>
         </div>`;
       });
       h += `</div>`;
@@ -12823,6 +12826,29 @@ const CellariumSystem = {
 
     h += `</div>`;
     return h;
+  },
+
+  // ── Zahodit předmět ze zásob ──────────────────────────────────────────
+  discardItem: function(id, qty) {
+    const inv = GameState.inventory || {};
+    const have = inv[id] || 0;
+    if (have <= 0) return;
+
+    let n = (qty === 'all') ? have : Math.min(qty, have);
+    if (qty === 'all') {
+      const nm = (typeof iName === 'function') ? iName(id) : id;
+      if (!confirm(t('decay.discardConfirm').replace('{qty}', have).replace('{item}', nm))) return;
+    }
+
+    inv[id] = have - n;
+    const nm = (typeof iName === 'function') ? iName(id) : id;
+    if (typeof UI !== 'undefined' && UI.notify) UI.notify('🗑️ ' + t('decay.discarded').replace('{qty}', n).replace('{item}', nm));
+    if (typeof Game !== 'undefined' && Game.save) Game.save();
+
+    // Re-render Inventarium (skutečné API: switchEntity přerenderuje obsah)
+    if ((GameState.ui && GameState.ui.cellariumEntity) === 'inventarium') {
+      this.switchEntity('inventarium');
+    }
   },
 
   // ════════════════════════════════════════════════════════════════════
@@ -13122,22 +13148,26 @@ const CellariumSystem = {
         </div>
       </div>`;
     } else {
-      h += `<div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; align-items:start;">`;
+      // Collapsible sekce — grid: mobil 1 sloupec, desktop 2 (auto-fit)
+      const section = (icon, label, inner) => `
+        <details open style="background:rgba(197,160,89,0.04); border:1px solid rgba(197,160,89,0.2); border-radius:8px; padding:0;">
+          <summary style="cursor:pointer; padding:10px 12px; font-size:0.78rem; font-weight:bold; letter-spacing:0.06em; text-transform:uppercase; opacity:0.8; user-select:none; list-style:none;">
+            ${icon} ${label} <span style="float:right; opacity:0.5;">▾</span>
+          </summary>
+          <div style="padding:0 10px 10px;">${inner}</div>
+        </details>`;
 
-      h += `<div>`;
-      h += `<div style="font-size:0.72rem; font-weight:bold; letter-spacing:0.06em; text-transform:uppercase; opacity:0.6; margin-bottom:6px;">📦 ${lang==='en' ? 'Storage' : 'Sklady'}</div>`;
-      h += `<div style="font-size:0.78rem; margin-bottom:10px; padding:6px 8px; background:rgba(197,160,89,0.08); border-radius:6px;">${capLabel}</div>`;
-      storageBuildings.forEach(b => { h += renderBuilding(b); });
-      h += `<div style="font-size:0.72rem; font-weight:bold; letter-spacing:0.06em; text-transform:uppercase; opacity:0.6; margin-top:16px; margin-bottom:6px;">🍇 ${lang==='en' ? 'Winery' : 'Vinohrad'}</div>`;
-      wineBuildings.forEach(b => { h += renderBuilding(b); });
-      h += `</div>`;
+      let storInner = `<div style="font-size:0.78rem; margin-bottom:10px; padding:6px 8px; background:rgba(197,160,89,0.08); border-radius:6px;">${capLabel}</div>`;
+      storageBuildings.forEach(b => { storInner += renderBuilding(b); });
+      let wineInner = '';
+      wineBuildings.forEach(b => { wineInner += renderBuilding(b); });
+      let workInner = '';
+      workshopBuildings.forEach(b => { workInner += renderBuilding(b); });
 
-      h += `<div>`;
-      h += `<div style="font-size:0.72rem; font-weight:bold; letter-spacing:0.06em; text-transform:uppercase; opacity:0.6; margin-bottom:6px;">⚒️ ${lang==='en' ? 'Workshops' : 'Dílny'}</div>`;
-      h += `<div style="font-size:0.78rem; margin-bottom:10px; padding:6px 8px; background:rgba(197,160,89,0.08); border-radius:6px; opacity:0;">&nbsp;</div>`;
-      workshopBuildings.forEach(b => { h += renderBuilding(b); });
-      h += `</div>`;
-
+      h += `<div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:12px; align-items:start;">`;
+      h += section('📦', lang==='en' ? 'Storage' : 'Sklady', storInner);
+      h += section('⚒️', lang==='en' ? 'Workshops' : 'Dílny', workInner);
+      h += section('🍇', lang==='en' ? 'Winery' : 'Vinohrad', wineInner);
       h += `</div>`;
     }
 
@@ -13146,6 +13176,174 @@ const CellariumSystem = {
   },
 
 
+};
+// ═══ src/systems/DecaySystem.js ═══
+// ═══════════════════════════════════════════════════════════════════════════
+// DECAY SYSTEM v1 (B2 — simplified)
+// Denní kažení zásob. Gate: tech_inventarium.
+// Model: %/den z počtu kusů (bez timestampů per kus).
+// Modifikátory: myši (zrní/chléb/sýr), sklady (redukce), overflow (×2).
+// v2 plán: per-instance stáří, konzervace, sezónní vlivy.
+// ═══════════════════════════════════════════════════════════════════════════
+
+const DecaySystem = {
+
+    DAY_MS: 24 * 60 * 60 * 1000,
+
+    // ── Sazby kažení (podíl/den) — single source of truth ────────────────
+    // mice:true → položka podléhá myšímu multiplikátoru
+    DECAY_RATES: {
+        milk:         { rate: 0.30 },
+        goat_milk:    { rate: 0.30 },
+        cream:        { rate: 0.30 },
+        meat:         { rate: 0.20 },
+        fish:         { rate: 0.20 },
+        carp:         { rate: 0.20 },
+        chicken_meat: { rate: 0.20 },
+        cooked_meat:  { rate: 0.15 },
+        cooked_fish:  { rate: 0.15 },
+        bread:        { rate: 0.10, mice: true },
+        stew:         { rate: 0.15 },
+        butter:       { rate: 0.08 },
+        buttermilk:   { rate: 0.08 },
+        berries:      { rate: 0.15 },
+        mushroom:     { rate: 0.15 },
+        egg:          { rate: 0.05 },
+        cheese:       { rate: 0.03, mice: true },
+        cured_meat:   { rate: 0.01, mice: true },
+        lard:         { rate: 0.01 },
+        rye_grain:    { rate: 0.005, mice: true },
+        wheat_grain:  { rate: 0.005, mice: true },
+        barley:       { rate: 0.005, mice: true },
+        oats:         { rate: 0.005, mice: true },
+        millet:       { rate: 0.005, mice: true },
+        peas:         { rate: 0.005, mice: true },
+    },
+
+    // ── Gate ──────────────────────────────────────────────────────────────
+    isActive: function() {
+        return !!(GameState.researchedTechs && GameState.researchedTechs.includes('tech_inventarium'));
+    },
+
+    _ensureState: function() {
+        if (!GameState.decay) GameState.decay = { lastTick: 0, lastLosses: [] };
+        return GameState.decay;
+    },
+
+    // ── Modifikátory ──────────────────────────────────────────────────────
+    // Myší multiplikátor (jen pro mice:true položky)
+    miceMult: function() {
+        const n = (GameState.mice && GameState.mice.count) || 0;
+        return 1 + n / 40;   // mírné: 30 myší = ×1.75
+    },
+
+    // Redukce dle nejlepšího postaveného skladu
+    storageReduction: function() {
+        const s = GameState.storage || {};
+        if (s.horreum  && s.horreum.built)  return 0.30;  // −70 %
+        if (s.cella    && s.cella.built)    return 0.50;  // −50 %
+        if (s.almarium && s.almarium.built) return 0.70;  // −30 %
+        return 1.0;
+    },
+
+    // Celková kapacita skladů (sjednoceno s renderBuildings logikou)
+    totalCapacity: function() {
+        const s = GameState.storage || {};
+        let cap = 1000;   // base
+        if (s.almarium && s.almarium.built) cap += 200;
+        if (s.cella    && s.cella.built)    cap += 600;
+        if (s.horreum  && s.horreum.built)  cap += 1600;
+        return cap;       // max 3400
+    },
+
+    // Typy nepočítané do kapacity (nástroje na zdi, zvířata ve chlévě, knihy v knihovně)
+    CAP_EXEMPT_TYPES: ['tool', 'animal', 'lore'],
+
+    countsTowardCap: function(id) {
+        const item = (typeof ItemsDB !== 'undefined') ? ItemsDB[id] : null;
+        if (!item) return true;
+        return !this.CAP_EXEMPT_TYPES.includes(item.type);
+    },
+
+    totalStock: function() {
+        const inv = GameState.inventory || {};
+        let s = 0;
+        for (const [id, v] of Object.entries(inv)) {
+            if (typeof v === 'number' && v > 0 && this.countsTowardCap(id)) s += v;
+        }
+        return s;
+    },
+
+    isOverflow: function() {
+        return this.totalStock() > this.totalCapacity();
+    },
+
+    // ── Denní tick (volán z game.js, self-guarded 24h) ────────────────────
+    dailyTick: function() {
+        if (!this.isActive()) return;
+        const st = this._ensureState();
+        const now = Date.now();
+        if (now - st.lastTick < this.DAY_MS) return;
+        st.lastTick = now;
+
+        const inv = GameState.inventory || {};
+        const mMult = this.miceMult();
+        const sRed = this.storageReduction();
+        const oMult = this.isOverflow() ? 2 : 1;
+
+        const losses = [];
+        for (const [id, def] of Object.entries(this.DECAY_RATES)) {
+            const count = inv[id] || 0;
+            if (count <= 0) continue;
+            let rate = def.rate * sRed * oMult;
+            if (def.mice) rate *= mMult;
+            rate = Math.min(0.9, rate);
+
+            const exact = count * rate;
+            let lost = Math.floor(exact);
+            if (Math.random() < (exact - lost)) lost += 1;   // pravděpodobnostní zbytek
+            if (lost <= 0) continue;
+
+            inv[id] = Math.max(0, count - lost);
+            losses.push({ id, lost });
+        }
+
+        st.lastLosses = losses;
+        if (losses.length) this._notifyLosses(losses, oMult > 1);
+        if (typeof Game !== 'undefined' && Game.save) Game.save();
+    },
+
+    _notifyLosses: function(losses, overflow) {
+        const parts = losses.map(l => {
+            const nm = (typeof iName === 'function') ? iName(l.id) : l.id;
+            return `${l.lost}× ${nm}`;
+        });
+        let msg = t('decay.lossMsg').replace('{items}', parts.join(', '));
+        if (overflow) msg += ' ' + t('decay.overflowNote');
+        if (typeof NotificationSystem !== 'undefined' && NotificationSystem.panel) {
+            NotificationSystem.panel('📦 ' + msg, 'warning');
+        } else if (typeof UI !== 'undefined' && UI.notify) {
+            UI.notify('📦 ' + msg, true);
+        }
+    },
+
+    // ── Helpers pro Inventarium UI ────────────────────────────────────────
+    // Efektivní denní sazba položky (po modifikátorech), null = nekazí se
+    effectiveRate: function(id) {
+        const def = this.DECAY_RATES[id];
+        if (!def) return null;
+        let rate = def.rate * this.storageReduction() * (this.isOverflow() ? 2 : 1);
+        if (def.mice) rate *= this.miceMult();
+        return Math.min(0.9, rate);
+    },
+
+    miceFuzzyShort: function() {
+        const n = (GameState.mice && GameState.mice.count) || 0;
+        if (n <= 1)  return t('decay.miceNone');
+        if (n <= 6)  return t('decay.miceFew');
+        if (n <= 15) return t('decay.miceSome');
+        return t('decay.miceMany');
+    },
 };
 // ═══ src/systems/GardenSystem.js ═══
 // ═══════════════════════════════════════════════════════════════════════════
@@ -15826,6 +16024,200 @@ const ScriptoriumCat = {
         if (typeof Game !== 'undefined') Game.save();
     },
 };
+
+// ═══════════════════════════════════════════════════════════════════════════
+// FELIS MONASTICA — logická vrstva (tech_cura_felium)
+// Sytost, přízeň, lov myší, krádeže, krmení, hlazení
+// ═══════════════════════════════════════════════════════════════════════════
+
+Object.assign(ScriptoriumCat, {
+
+    // Co kočka žere: { satiety, affection }
+    FEED_TABLE: {
+        cream:        { satiety: 30, affection: 15 },
+        fish:         { satiety: 25, affection: 12 },
+        carp:         { satiety: 25, affection: 12 },
+        meat:         { satiety: 25, affection: 8  },
+        cured_meat:   { satiety: 20, affection: 10 },
+        cooked_fish:  { satiety: 20, affection: 10 },
+        cooked_meat:  { satiety: 20, affection: 8  },
+        chicken_meat: { satiety: 20, affection: 8  },
+        mouse:        { satiety: 20, affection: 5  },
+        milk:         { satiety: 15, affection: 8  },
+        goat_milk:    { satiety: 15, affection: 8  },
+        cheese:       { satiety: 15, affection: 6  },
+        lard:         { satiety: 15, affection: 4  },
+        buttermilk:   { satiety: 12, affection: 6  },
+        butter:       { satiety: 10, affection: 8  },
+        fat:          { satiety: 10, affection: 3  },
+    },
+
+    // Potraviny, které hladová kočka krade ze zásob
+    STEALABLE: ['cured_meat', 'lard', 'fish', 'carp', 'meat', 'cheese', 'butter', 'cream', 'chicken_meat', 'cooked_fish', 'cooked_meat'],
+
+    // Zásoby přitahující myši (zrní a jídlo)
+    MICE_FOOD: ['rye_grain', 'wheat_grain', 'barley', 'oats', 'millet', 'peas', 'bread', 'cheese', 'cured_meat'],
+
+    DAY_MS: 24 * 60 * 60 * 1000,
+    MICE_CAP: 30,
+
+    hasFelisTech: function() {
+        return !!(GameState.researchedTechs && GameState.researchedTechs.includes('tech_cura_felium'));
+    },
+
+    _ensureCatState: function() {
+        if (!GameState.cat) GameState.cat = {};
+        const c = GameState.cat;
+        if (c.name === undefined)      c.name = 'Bezejmenný myšilov';
+        if (c.satiety === undefined)   c.satiety = 50;
+        if (c.affection === undefined) c.affection = 20;
+        if (c.caught === undefined)    c.caught = 0;
+        if (!Array.isArray(c.stolen))  c.stolen = [];
+        if (!c.bornAt)                 c.bornAt = Date.now();
+        if (c.lastPet === undefined)   c.lastPet = 0;
+        if (c.lastTick === undefined)  c.lastTick = 0;
+        if (!GameState.mice) GameState.mice = { count: 3, lastTick: 0 };
+        return c;
+    },
+
+    _lang: function() {
+        return (GameState.settings && GameState.settings.language) || 'cs';
+    },
+
+    // ── Denní tick (volán z game.js intervalu, self-guarded) ─────────────
+    dailyTick: function() {
+        if (!this.hasFelisTech()) return;
+        const c = this._ensureCatState();
+        const now = Date.now();
+        if (now - c.lastTick < this.DAY_MS) return;
+        c.lastTick = now;
+
+        const lang = this._lang();
+        const hungry = c.satiety < 30;
+
+        // 1) Sytost klesá (denní úbytek)
+        c.satiety = Math.max(0, c.satiety - 25);
+        // 2) Přízeň pomalu eroduje
+        c.affection = Math.max(0, c.affection - 2);
+
+        // 3) Hladová kočka → loví myši + krade
+        if (hungry) {
+            const mice = GameState.mice;
+            if (mice.count > 0) {
+                const hunted = Math.min(mice.count, 1 + Math.floor(Math.random() * 3)); // 1–3
+                mice.count -= hunted;
+                c.caught += hunted;
+                c.satiety = Math.min(100, c.satiety + hunted * 15); // nažere se myšmi
+                const msg = lang === 'en'
+                    ? `🐈‍⬛ ${c.name} caught ${hunted} ${hunted === 1 ? 'mouse' : 'mice'} in the night.`
+                    : `🐈‍⬛ ${c.name} v noci ${hunted === 1 ? 'chytila myš' : 'chytila ' + hunted + ' myši'}.`;
+                if (typeof UI !== 'undefined' && UI.notify) UI.notify(msg);
+                // Občas přinese myš jako dar (vysoká přízeň)
+                if (c.affection >= 60 && Math.random() < 0.3) {
+                    GameState.inventory['mouse'] = (GameState.inventory['mouse'] || 0) + 1;
+                    if (typeof UI !== 'undefined' && UI.notify) UI.notify(lang === 'en'
+                        ? `🐭 ${c.name} left a mouse at your door. A gift.`
+                        : `🐭 ${c.name} ti přinesla myš ke dveřím. Dar.`);
+                }
+            }
+            // Krádež ze zásob (7%)
+            if (Math.random() < 0.07) {
+                const candidates = this.STEALABLE.filter(id => (GameState.inventory[id] || 0) > 0);
+                if (candidates.length) {
+                    const id = candidates[Math.floor(Math.random() * candidates.length)];
+                    GameState.inventory[id] -= 1;
+                    c.stolen.push({ item: id, ts: now });
+                    if (c.stolen.length > 20) c.stolen.shift();
+                    c.satiety = Math.min(100, c.satiety + 15);
+                    const iname = (typeof iName === 'function') ? iName(id) : id;
+                    const msg = lang === 'en'
+                        ? `😼 ${c.name} stole ${iname} from the stores!`
+                        : `😼 ${c.name} ukradla ze zásob: ${iname}!`;
+                    if (typeof UI !== 'undefined' && UI.notify) UI.notify(msg, true);
+                    if (typeof Game !== 'undefined' && Game.addKronikaEntry) {
+                        Game.addKronikaEntry('important',
+                            `😼 Kočka ${c.name} ukradla ze zásob: ${iname}.`,
+                            `😼 The cat ${c.name} stole ${iname} from the stores.`,
+                            `😼 Felis ${c.name} furata est.`);
+                    }
+                }
+            }
+        }
+
+        // 4) Myší populace — spawn dle zásob, lov sytou kočkou ~0
+        this._miceTick(hungry);
+
+        if (typeof Game !== 'undefined' && Game.save) Game.save();
+    },
+
+    _miceTick: function(catHungry) {
+        const mice = GameState.mice;
+        // Spawn ∝ množství jídla/zrní v zásobách
+        let foodStock = 0;
+        this.MICE_FOOD.forEach(id => { foodStock += (GameState.inventory[id] || 0); });
+        const spawn = Math.min(4, Math.floor(foodStock / 25) + 1); // 1–4 / den
+        // Sytá kočka neloví → myši rostou; hladová už lovila výše
+        mice.count = Math.min(this.MICE_CAP, mice.count + spawn);
+        // Přirozená úmrtnost / odchod
+        if (mice.count > 5 && Math.random() < 0.3) mice.count -= 1;
+    },
+
+    // Fuzzy popis myší populace (přesné číslo hra neukazuje)
+    miceFuzzy: function() {
+        const n = (GameState.mice && GameState.mice.count) || 0;
+        const lang = this._lang();
+        if (n <= 1)  return lang === 'en' ? 'The cloister is quiet. No scurrying to be heard.' : 'V klášteře je ticho. Žádný šramot.';
+        if (n <= 6)  return lang === 'en' ? 'A faint scurrying in the walls at night...' : 'V noci je za zdmi slyšet slabý šramot...';
+        if (n <= 15) return lang === 'en' ? 'Mice have been seen near the granary. The cellarius frowns.' : 'U sýpky byly vidět myši. Cellarius se mračí.';
+        return lang === 'en' ? 'A mouse paradise! Droppings in the flour, holes in the sacks.' : 'Myší ráj! Trus v mouce, díry v pytlích.';
+    },
+
+    // ── Krmení ────────────────────────────────────────────────────────────
+    feed: function(itemId) {
+        if (!this.hasFelisTech()) return false;
+        const entry = this.FEED_TABLE[itemId];
+        if (!entry) return false;
+        if ((GameState.inventory[itemId] || 0) < 1) return false;
+
+        const c = this._ensureCatState();
+        GameState.inventory[itemId] -= 1;
+        c.satiety = Math.min(100, c.satiety + entry.satiety);
+        c.affection = Math.min(100, c.affection + entry.affection);
+
+        const lang = this._lang();
+        const iname = (typeof iName === 'function') ? iName(itemId) : itemId;
+        if (typeof UI !== 'undefined' && UI.notify) UI.notify(lang === 'en'
+            ? `🐈‍⬛ ${c.name} devoured the ${iname} and purrs.`
+            : `🐈‍⬛ ${c.name} zhltla: ${iname}. Spokojeně přede.`);
+
+        if (this.el && this.el.style.display !== 'none') {
+            this._setState('meow');
+            setTimeout(() => this._setState('idle'), 2000);
+        }
+        if (typeof Game !== 'undefined' && Game.save) Game.save();
+        if (typeof PersonaSystem !== 'undefined' && PersonaSystem.rerenderIfOpen) PersonaSystem.rerenderIfOpen();
+        return true;
+    },
+
+    // ── Titul dle přízně a úlovků ─────────────────────────────────────────
+    getTitle: function() {
+        const c = this._ensureCatState();
+        const lang = this._lang();
+        if (c.affection >= 80 && c.caught >= 50) return 'Custos Penarii';
+        if (c.affection >= 60 || c.caught >= 25) return 'Felis Monastica';
+        if (c.caught >= 5) return lang === 'en' ? 'Mouser' : 'Myšilov';
+        return 'Felis Vagans';
+    },
+
+    // ── Vigor helper ──────────────────────────────────────────────────────
+    _addVigor: function(n) {
+        try {
+            if (typeof VigorSystem === 'undefined' || !GameState.vigor) return;
+            GameState.vigor.current = Math.min(VigorSystem.MAX_VIGOR, GameState.vigor.current + n);
+            VigorSystem.renderMiniDisplay();
+        } catch (e) { /* no-op */ }
+    },
+});
 // ═══ src/systems/PersonaSystem.js ═══
 // ═══════════════════════════════════════════════════════════════════════════
 // PERSONA SYSTEM — Liber Personae
@@ -24735,6 +25127,19 @@ const STRINGS_cs = {
         heinrichAlready: '(Varhany již vlastníš)',
     },
 
+    decay: {
+        lossMsg: 'Zkazilo se: {items}. Podrobnosti v Inventarium (Cellarium).',
+        overflowNote: 'Sklad přetéká — přebytek se kazí dvojnásob!',
+        overflowWarn: 'Sklad přetéká! Zásoby nad kapacitu se kazí dvojnásobnou rychlostí.',
+        discardAll: 'VŠE',
+        discardConfirm: 'Opravdu zahodit celý stack: {qty}× {item}?',
+        discarded: 'Zahozeno: {qty}× {item}',
+        lastLosses: 'Včerejší ztráty',
+        miceNone: 'V klášteře je ticho. Myši zásoby neohrožují.',
+        miceFew: 'V noci je za zdmi slyšet slabý šramot. Zrní mírně ubývá.',
+        miceSome: 'U sýpky byly vidět myši. Zrní, chléb a sýr se kazí rychleji.',
+        miceMany: 'Myší ráj! Trus v mouce, díry v pytlích. Zásoby trpí.',
+    },
     felis: {
         locked: 'Kočka se klášterem potuluje divoká a nedůvěřivá. Prozkoumej Cura Felium, aby ses o ni mohl starat.',
         defaultName: 'Bezejmenný myšilov',
@@ -27109,6 +27514,19 @@ According to Theophilus, the organ is an instrument worthy of God, but its const
         heinrichAlready: '(Thou already hast an organ)',
     },
 
+    decay: {
+        lossMsg: 'Spoiled: {items}. Details in the Inventarium (Cellarium).',
+        overflowNote: 'Stores are overflowing — the surplus spoils twice as fast!',
+        overflowWarn: 'Stores overflowing! Goods above capacity spoil at double speed.',
+        discardAll: 'ALL',
+        discardConfirm: 'Really discard the whole stack: {qty}× {item}?',
+        discarded: 'Discarded: {qty}× {item}',
+        lastLosses: 'Yesterday\'s losses',
+        miceNone: 'The cloister is quiet. Mice pose no threat to the stores.',
+        miceFew: 'A faint scurrying behind the walls at night. Grain slowly dwindles.',
+        miceSome: 'Mice have been seen near the granary. Grain, bread and cheese spoil faster.',
+        miceMany: 'A mouse paradise! Droppings in the flour, holes in the sacks. The stores suffer.',
+    },
     felis: {
         locked: 'The cat roams the cloister wild and wary. Research Cura Felium to care for her.',
         defaultName: 'Nameless mouser',
@@ -28060,6 +28478,8 @@ const Game = {
                     if (typeof GardenSystem !== 'undefined') GardenSystem.checkVineaGrowth();
                     // Felis Monastica — denní tick (self-guarded 24h)
                     if (typeof ScriptoriumCat !== 'undefined' && ScriptoriumCat.dailyTick) ScriptoriumCat.dailyTick();
+                    // Decay — denní kažení zásob (self-guarded 24h, gate tech_inventarium)
+                    if (typeof DecaySystem !== 'undefined' && DecaySystem.dailyTick) DecaySystem.dailyTick();
                     Game.checkFarmyardProduction();
                     Game.checkPiscinaGrowth();
                 }

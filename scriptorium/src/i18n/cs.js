@@ -1208,6 +1208,19 @@ const STRINGS_cs = {
         heinrichAlready: '(Varhany již vlastníš)',
     },
 
+    decay: {
+        lossMsg: 'Zkazilo se: {items}. Podrobnosti v Inventarium (Cellarium).',
+        overflowNote: 'Sklad přetéká — přebytek se kazí dvojnásob!',
+        overflowWarn: 'Sklad přetéká! Zásoby nad kapacitu se kazí dvojnásobnou rychlostí.',
+        discardAll: 'VŠE',
+        discardConfirm: 'Opravdu zahodit celý stack: {qty}× {item}?',
+        discarded: 'Zahozeno: {qty}× {item}',
+        lastLosses: 'Včerejší ztráty',
+        miceNone: 'V klášteře je ticho. Myši zásoby neohrožují.',
+        miceFew: 'V noci je za zdmi slyšet slabý šramot. Zrní mírně ubývá.',
+        miceSome: 'U sýpky byly vidět myši. Zrní, chléb a sýr se kazí rychleji.',
+        miceMany: 'Myší ráj! Trus v mouce, díry v pytlích. Zásoby trpí.',
+    },
     felis: {
         locked: 'Kočka se klášterem potuluje divoká a nedůvěřivá. Prozkoumej Cura Felium, aby ses o ni mohl starat.',
         defaultName: 'Bezejmenný myšilov',

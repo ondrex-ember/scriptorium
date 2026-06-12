@@ -2154,6 +2154,19 @@ According to Theophilus, the organ is an instrument worthy of God, but its const
         heinrichAlready: '(Thou already hast an organ)',
     },
 
+    decay: {
+        lossMsg: 'Spoiled: {items}. Details in the Inventarium (Cellarium).',
+        overflowNote: 'Stores are overflowing — the surplus spoils twice as fast!',
+        overflowWarn: 'Stores overflowing! Goods above capacity spoil at double speed.',
+        discardAll: 'ALL',
+        discardConfirm: 'Really discard the whole stack: {qty}× {item}?',
+        discarded: 'Discarded: {qty}× {item}',
+        lastLosses: 'Yesterday\'s losses',
+        miceNone: 'The cloister is quiet. Mice pose no threat to the stores.',
+        miceFew: 'A faint scurrying behind the walls at night. Grain slowly dwindles.',
+        miceSome: 'Mice have been seen near the granary. Grain, bread and cheese spoil faster.',
+        miceMany: 'A mouse paradise! Droppings in the flour, holes in the sacks. The stores suffer.',
+    },
     felis: {
         locked: 'The cat roams the cloister wild and wary. Research Cura Felium to care for her.',
         defaultName: 'Nameless mouser',

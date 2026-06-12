@@ -62,7 +62,7 @@ const ItemsDB = {
     "carrot":          { name:"Mrkev",               name_en:"Carrot",                 icon:"🥕", type:"food_raw",    desc:"Ze zahrady.",                                      desc_en:"From the garden." },
     "onion":           { name:"Cibule",              name_en:"Onion",                  icon:"🧅", type:"food_raw",    desc:"Ze zahrady.",                                      desc_en:"From the garden." },
     "potato":          { name:"Brambora",            name_en:"Potato",                 icon:"🥔", type:"food_raw",    desc:"Ze zahrady.",                                      desc_en:"From the garden." },
-    "berries":         { name:"Bobule",              name_en:"Berries",                icon:"🫐", type:"food_raw",    desc:"Lesní plody.",                                     desc_en:"Forest berries." },
+    "berries":         { name:"Bobule",              name_en:"Berries",                icon:"🫐", type:"food", hunger:2,    desc:"Lesní plody. Lze jíst syrové — zasytí na 2h.",     desc_en:"Forest berries. Edible raw — fills for 2h." },
 
     // COOKED FOOD
     "cooked_meat":     { name:"Pečené maso",         name_en:"Roasted Meat",           icon:"🍗", type:"food", hunger:6,  desc:"Sytí 6h.",   desc_en:"Fills for 6h." },

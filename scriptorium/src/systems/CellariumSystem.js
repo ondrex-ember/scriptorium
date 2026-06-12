@@ -843,48 +843,30 @@ const CellariumSystem = {
   renderInventarium: function() {
     const lang = (GameState.settings && GameState.settings.language) || 'cs';
     const inv = GameState.inventory || {};
-
-    // Kategorie položek s decay parametry (h = hodiny, null = bez decayu)
-    const decayMap = {
-      milk:            { decay_h: 24,   icon: '🥛', cat: 'organic' },
-      egg:             { decay_h: 120,  icon: '🥚', cat: 'organic' },
-      raw_fish:        { decay_h: 24,   icon: '🐟', cat: 'organic' },
-      cooked_fish:     { decay_h: 48,   icon: '🐟', cat: 'organic' },
-      cooked_meat:     { decay_h: 48,   icon: '🍖', cat: 'organic' },
-      raw_hide:        { decay_h: null, icon: '🐑', cat: 'material' },
-      thyme:           { decay_h: 720,  icon: '🌿', cat: 'herb' },
-      chamomile:       { decay_h: 720,  icon: '🌼', cat: 'herb' },
-      st_johns_wort:   { decay_h: 720,  icon: '🌿', cat: 'herb' },
-      linden_blossom:  { decay_h: 720,  icon: '🌸', cat: 'herb' },
-      pollen:          { decay_h: null, icon: '🌼', cat: 'herb' },
-      honey:           { decay_h: null, icon: '🍯', cat: 'preserve' },
-      beeswax:         { decay_h: null, icon: '🕯️', cat: 'preserve' },
-      wool:            { decay_h: null, icon: '🧶', cat: 'material' },
-      feather_hen:     { decay_h: null, icon: '🪶', cat: 'material' },
-    };
-
-    const hasCella = GameState.researchedTechs && GameState.researchedTechs.includes('tech_cella');
-    const hasAlm   = GameState.researchedTechs && GameState.researchedTechs.includes('tech_almarium');
-
-    // Kapacita
-    let cap = 50;
-    if (hasAlm) cap = 200;
-    if (hasCella) cap = 600;
-    const totalItems = Object.values(inv).reduce((s, v) => s + (typeof v === 'number' ? v : 0), 0);
-    const capPct = Math.min(100, Math.round(totalItems / cap * 100));
-    const capColor = capPct > 90 ? '#c0392b' : capPct > 70 ? '#e67e22' : '#5a9a5a';
+    const ds = (typeof DecaySystem !== 'undefined') ? DecaySystem : null;
 
     const title = lang === 'en' ? 'Inventarium — Inventory of Stores' : 'Inventarium — Soupis Zásob';
     const capLabel = lang === 'en' ? 'Capacity' : 'Kapacita';
-    const warnLabel = lang === 'en' ? 'Expires soon' : 'Vyprší brzy';
-    const noDecayLabel = lang === 'en' ? 'Does not expire' : 'Nevyprší';
     const storageLabel = lang === 'en' ? 'Storage' : 'Sklad';
+
+    // Kapacita — sjednoceno s renderBuildings (storage.*.built, včetně Horrea)
+    const s = GameState.storage || {};
+    let cap = 1000;
+    const storParts = [lang === 'en' ? 'Cloister (1000u)' : 'Klášter (1000j)'];
+    if (s.almarium && s.almarium.built) { cap += 200;  storParts.push('Almarium (+200j)'); }
+    if (s.cella    && s.cella.built)    { cap += 600;  storParts.push('Cella (+600j)'); }
+    if (s.horreum  && s.horreum.built)  { cap += 1600; storParts.push('Horreum (+1600j)'); }
+    const storName = storParts.join(' · ');
+    const totalItems = (ds ? ds.totalStock() : Object.values(inv).reduce((sum, v) => sum + (typeof v === 'number' && v > 0 ? v : 0), 0));
+    const capPct = Math.min(100, Math.round(totalItems / cap * 100));
+    const overflow = totalItems > cap;
+    const capColor = overflow ? '#c0392b' : capPct > 90 ? '#c0392b' : capPct > 70 ? '#e67e22' : '#5a9a5a';
 
     let h = `<div style="padding:15px; background:rgba(0,0,0,0.03); border-radius:8px; border-left:3px solid var(--accent-gold);">`;
     h += `<div style="font-size:0.75rem; font-weight:bold; letter-spacing:0.08em; text-transform:uppercase; color:var(--accent-gold); margin-bottom:12px;">${title}</div>`;
 
     // Kapacita bar
-    h += `<div style="margin-bottom:16px; padding:10px; background:rgba(197,160,89,0.06); border-radius:6px; border:1px solid rgba(197,160,89,0.2);">
+    h += `<div style="margin-bottom:12px; padding:10px; background:rgba(197,160,89,0.06); border-radius:6px; border:1px solid rgba(197,160,89,0.2);">
       <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
         <span style="font-size:0.8rem; font-weight:bold;">${capLabel}</span>
         <span style="font-size:0.8rem; color:${capColor};">${totalItems} / ${cap}</span>
@@ -892,36 +874,51 @@ const CellariumSystem = {
       <div style="background:rgba(0,0,0,0.1); border-radius:4px; height:8px;">
         <div style="width:${capPct}%; background:${capColor}; height:8px; border-radius:4px; transition:width 0.3s;"></div>
       </div>
-      <div style="font-size:0.7rem; opacity:0.6; margin-top:4px;">
-        ${storageLabel}: ${hasAlm ? (hasCella ? 'Cella (600j)' : 'Almarium (200j)') : '50j'}
-      </div>
+      <div style="font-size:0.7rem; opacity:0.6; margin-top:4px;">${storageLabel}: ${storName}</div>
+      ${overflow ? `<div style="font-size:0.72rem; color:#c0392b; margin-top:6px;">⚠️ ${t('decay.overflowWarn')}</div>` : ''}
     </div>`;
 
-    // Položky s hodnotami
+    // Myší vliv (fuzzy)
+    if (ds) {
+      h += `<div style="margin-bottom:12px; padding:8px 10px; background:rgba(0,0,0,0.04); border-radius:6px; font-size:0.78rem; font-style:italic; opacity:0.8;">
+        🐭 ${ds.miceFuzzyShort()}
+      </div>`;
+    }
+
+    // Včerejší ztráty
+    const losses = (GameState.decay && GameState.decay.lastLosses) || [];
+    if (losses.length) {
+      const parts = losses.map(l => `${l.lost}× ${(typeof iName === 'function') ? iName(l.id) : l.id}`).join(', ');
+      h += `<div style="margin-bottom:12px; padding:8px 10px; background:rgba(192,57,43,0.08); border-radius:6px; border:1px solid rgba(192,57,43,0.25); font-size:0.78rem;">
+        🗑️ ${t('decay.lastLosses')}: ${parts}
+      </div>`;
+    }
+
+    // Položky s decay sazbou
     const rows = [];
     for (const [id, qty] of Object.entries(inv)) {
       if (typeof qty !== 'number' || qty <= 0) continue;
       const item = ItemsDB[id];
-      const icon = (item && item.icon) ? item.icon : (decayMap[id] ? decayMap[id].icon : '📦');
+      const icon = (item && item.icon) ? item.icon : '📦';
       const name = (typeof iName === 'function') ? iName(id) : (item ? item.name : id);
-      const decay = decayMap[id];
 
       let decayHtml = '';
-      if (decay && decay.decay_h) {
-        const h_left = hasCella ? decay.decay_h * 2.5 : decay.decay_h;
-        const warn = h_left < 48;
-        decayHtml = `<span style="font-size:0.65rem; color:${warn ? '#c0392b' : '#5a9a5a'}; margin-left:4px;">
-          ${warn ? '⚠️ ' + warnLabel : '✓ ' + Math.round(h_left) + 'h'}
+      let rate = ds ? ds.effectiveRate(id) : null;
+      if (rate !== null && rate !== undefined) {
+        const pct = Math.round(rate * 100);
+        const warn = pct >= 20;
+        decayHtml = `<span style="font-size:0.65rem; color:${warn ? '#c0392b' : '#a0722d'}; margin-left:4px;">
+          ${warn ? '⚠️ ' : ''}−${pct}%/${lang === 'en' ? 'day' : 'den'}
         </span>`;
-      } else if (decay && decay.decay_h === null) {
-        decayHtml = `<span style="font-size:0.65rem; opacity:0.5; margin-left:4px;">∞ ${noDecayLabel}</span>`;
+        rows.push({ id, qty, icon, name, decayHtml, sortKey: pct });
+      } else {
+        decayHtml = `<span style="font-size:0.65rem; opacity:0.4; margin-left:4px;">∞</span>`;
+        rows.push({ id, qty, icon, name, decayHtml, sortKey: -1 });
       }
-
-      rows.push({ id, qty, icon, name, decayHtml, warn: decay && decay.decay_h && (hasCella ? decay.decay_h * 2.5 : decay.decay_h) < 48 });
     }
 
-    // Seřadit: varování nahoře
-    rows.sort((a, b) => (b.warn ? 1 : 0) - (a.warn ? 1 : 0));
+    // Seřadit: nejrychleji se kazící nahoře
+    rows.sort((a, b) => b.sortKey - a.sortKey);
 
     if (rows.length === 0) {
       h += `<div style="text-align:center; padding:20px; opacity:0.5; font-style:italic; font-size:0.85rem;">
@@ -931,7 +928,7 @@ const CellariumSystem = {
       h += `<div style="display:flex; flex-direction:column; gap:5px;">`;
       rows.forEach(r => {
         h += `<div style="padding:7px 10px; background:rgba(197,160,89,0.06); border-radius:6px;
-                          border:1px solid rgba(197,160,89,${r.warn ? '0.5' : '0.15'});
+                          border:1px solid rgba(197,160,89,${r.sortKey >= 20 ? '0.5' : '0.15'});
                           display:flex; align-items:center; gap:8px;">
           <span style="font-size:1.2rem; min-width:24px;">${r.icon}</span>
           <div style="flex:1;">
@@ -939,6 +936,12 @@ const CellariumSystem = {
             ${r.decayHtml}
           </div>
           <span style="font-weight:bold; font-size:0.9rem; color:var(--accent-gold);">×${r.qty}</span>
+          <span style="display:flex; gap:3px;">
+            <button onclick="CellariumSystem.discardItem('${r.id}',1)" class="craft-btn" style="padding:3px 6px; font-size:0.65rem;">×1</button>
+            <button onclick="CellariumSystem.discardItem('${r.id}',5)" class="craft-btn" style="padding:3px 6px; font-size:0.65rem;" ${r.qty < 5 ? 'disabled' : ''}>×5</button>
+            <button onclick="CellariumSystem.discardItem('${r.id}',10)" class="craft-btn" style="padding:3px 6px; font-size:0.65rem;" ${r.qty < 10 ? 'disabled' : ''}>×10</button>
+            <button onclick="CellariumSystem.discardItem('${r.id}','all')" class="craft-btn" style="padding:3px 6px; font-size:0.65rem; background:#8a3324; color:#fff;">${t('decay.discardAll')}</button>
+          </span>
         </div>`;
       });
       h += `</div>`;
@@ -946,6 +949,29 @@ const CellariumSystem = {
 
     h += `</div>`;
     return h;
+  },
+
+  // ── Zahodit předmět ze zásob ──────────────────────────────────────────
+  discardItem: function(id, qty) {
+    const inv = GameState.inventory || {};
+    const have = inv[id] || 0;
+    if (have <= 0) return;
+
+    let n = (qty === 'all') ? have : Math.min(qty, have);
+    if (qty === 'all') {
+      const nm = (typeof iName === 'function') ? iName(id) : id;
+      if (!confirm(t('decay.discardConfirm').replace('{qty}', have).replace('{item}', nm))) return;
+    }
+
+    inv[id] = have - n;
+    const nm = (typeof iName === 'function') ? iName(id) : id;
+    if (typeof UI !== 'undefined' && UI.notify) UI.notify('🗑️ ' + t('decay.discarded').replace('{qty}', n).replace('{item}', nm));
+    if (typeof Game !== 'undefined' && Game.save) Game.save();
+
+    // Re-render Inventarium (skutečné API: switchEntity přerenderuje obsah)
+    if ((GameState.ui && GameState.ui.cellariumEntity) === 'inventarium') {
+      this.switchEntity('inventarium');
+    }
   },
 
   // ════════════════════════════════════════════════════════════════════
@@ -1245,22 +1271,26 @@ const CellariumSystem = {
         </div>
       </div>`;
     } else {
-      h += `<div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; align-items:start;">`;
+      // Collapsible sekce — grid: mobil 1 sloupec, desktop 2 (auto-fit)
+      const section = (icon, label, inner) => `
+        <details open style="background:rgba(197,160,89,0.04); border:1px solid rgba(197,160,89,0.2); border-radius:8px; padding:0;">
+          <summary style="cursor:pointer; padding:10px 12px; font-size:0.78rem; font-weight:bold; letter-spacing:0.06em; text-transform:uppercase; opacity:0.8; user-select:none; list-style:none;">
+            ${icon} ${label} <span style="float:right; opacity:0.5;">▾</span>
+          </summary>
+          <div style="padding:0 10px 10px;">${inner}</div>
+        </details>`;
 
-      h += `<div>`;
-      h += `<div style="font-size:0.72rem; font-weight:bold; letter-spacing:0.06em; text-transform:uppercase; opacity:0.6; margin-bottom:6px;">📦 ${lang==='en' ? 'Storage' : 'Sklady'}</div>`;
-      h += `<div style="font-size:0.78rem; margin-bottom:10px; padding:6px 8px; background:rgba(197,160,89,0.08); border-radius:6px;">${capLabel}</div>`;
-      storageBuildings.forEach(b => { h += renderBuilding(b); });
-      h += `<div style="font-size:0.72rem; font-weight:bold; letter-spacing:0.06em; text-transform:uppercase; opacity:0.6; margin-top:16px; margin-bottom:6px;">🍇 ${lang==='en' ? 'Winery' : 'Vinohrad'}</div>`;
-      wineBuildings.forEach(b => { h += renderBuilding(b); });
-      h += `</div>`;
+      let storInner = `<div style="font-size:0.78rem; margin-bottom:10px; padding:6px 8px; background:rgba(197,160,89,0.08); border-radius:6px;">${capLabel}</div>`;
+      storageBuildings.forEach(b => { storInner += renderBuilding(b); });
+      let wineInner = '';
+      wineBuildings.forEach(b => { wineInner += renderBuilding(b); });
+      let workInner = '';
+      workshopBuildings.forEach(b => { workInner += renderBuilding(b); });
 
-      h += `<div>`;
-      h += `<div style="font-size:0.72rem; font-weight:bold; letter-spacing:0.06em; text-transform:uppercase; opacity:0.6; margin-bottom:6px;">⚒️ ${lang==='en' ? 'Workshops' : 'Dílny'}</div>`;
-      h += `<div style="font-size:0.78rem; margin-bottom:10px; padding:6px 8px; background:rgba(197,160,89,0.08); border-radius:6px; opacity:0;">&nbsp;</div>`;
-      workshopBuildings.forEach(b => { h += renderBuilding(b); });
-      h += `</div>`;
-
+      h += `<div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:12px; align-items:start;">`;
+      h += section('📦', lang==='en' ? 'Storage' : 'Sklady', storInner);
+      h += section('⚒️', lang==='en' ? 'Workshops' : 'Dílny', workInner);
+      h += section('🍇', lang==='en' ? 'Winery' : 'Vinohrad', wineInner);
       h += `</div>`;
     }
 
