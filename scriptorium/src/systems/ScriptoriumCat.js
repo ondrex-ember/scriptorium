@@ -559,13 +559,12 @@ Object.assign(ScriptoriumCat, {
         return 'Felis Vagans';
     },
 
-    // ── Vigor helper (API VigorSystem může chybět) ────────────────────────
+    // ── Vigor helper ──────────────────────────────────────────────────────
     _addVigor: function(n) {
         try {
-            if (typeof VigorSystem === 'undefined') return;
-            if (typeof VigorSystem.add === 'function')    { VigorSystem.add(n);    return; }
-            if (typeof VigorSystem.modify === 'function') { VigorSystem.modify(n); return; }
-            if (typeof VigorSystem.change === 'function') { VigorSystem.change(n); return; }
+            if (typeof VigorSystem === 'undefined' || !GameState.vigor) return;
+            GameState.vigor.current = Math.min(VigorSystem.MAX_VIGOR, GameState.vigor.current + n);
+            VigorSystem.renderMiniDisplay();
         } catch (e) { /* no-op */ }
     },
 });

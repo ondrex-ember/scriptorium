@@ -5176,6 +5176,9 @@ const ItemsDB = {
     "pigeon_dung":    { name:"Holubí trus",       name_en:"Pigeon Dung",      icon:"💩", type:"mat", desc:"Vysoce koncentrované hnojivo. Klášterní zahradníci ho sbírali z holubníku pro zahradu.", desc_en:"Highly concentrated fertiliser. Monastic gardeners collected it from the dovecote for the garden." },
     "butter":         { name:"Máslo",             name_en:"Butter",           icon:"🧈", type:"mat", desc:"Čerstvé máslo z kravského mléka. Postní výjimka u nemocných.", desc_en:"Fresh butter from cow's milk. A Lenten exception for the sick." },
     "cheese":         { name:"Sýr",               name_en:"Cheese",           icon:"🧀", type:"mat", desc:"Tvrdý klášterní sýr. Trvanlivý, výživný. Prodávaný na trzích.", desc_en:"Hard monastic cheese. Long-lasting, nutritious. Sold at markets." },
+    "cream":          { name:"Smetana",           name_en:"Cream",            icon:"🥛", type:"mat", desc:"Hustá smetana sebraná z mléka. Vzácnost klášterní kuchyně — a slabost každé kočky.", desc_en:"Thick cream skimmed from milk. A rarity of the monastic kitchen — and every cat's weakness." },
+    "buttermilk":     { name:"Podmáslí",          name_en:"Buttermilk",       icon:"🥛", type:"mat", desc:"Kyselé podmáslí, zbytek po stloukání másla. Osvěžující nápoj čeledi.", desc_en:"Sour buttermilk, left over from churning butter. A refreshing drink for the servants." },
+    "mouse":          { name:"Myš",               name_en:"Mouse",            icon:"🐭", type:"mat", desc:"Klášterní myš. Žere zrní i pergamen. Kočka ji občas přinese jako dar.", desc_en:"A monastery mouse. Eats grain and parchment alike. The cat sometimes brings one as a gift." },
 
     // ── BUDOUCÍ ZVÍŘATA (easter eggs — jen definice, mechanika přijde později) ─
     "goat":           { name:"Koza",              name_en:"Goat",             icon:"🐐", type:"animal", desc:"Koza: kozí pergamen, léčivé mléko — ale pozor, sežere zahradní stromky. Věčný zdroj napětí v klášteře.", desc_en:"Goat: fine parchment, medicinal milk — but beware, she will eat the orchard saplings. An eternal source of tension in the monastery." },
@@ -6470,6 +6473,12 @@ const TechTree = [
       desc_en:"Crescenzi's encyclopaedia of agriculture: the granary must stand on dry ground, protected from mice and damp. Charles IV had it translated into Czech. Unlocks: Horreum (capacity 1600 units) + fodder as a daily necessity for animals.",
       unlocks:["hay"], requires:["tech_cella","tech_de_re_rustica"] },
 
+    { id:"tech_cura_felium",     name:"Cura Felium — Péče o kočky",      name_en:"Cura Felium — Care of Cats",
+      cost:8,
+      desc:"„Já lovím slova, on loví myši“ — psal irský mnich v 9. století o svém kocouru Pangur Bánovi. Kočka chrání zásoby i rukopisy před myšmi; v nejednom kodexu zůstaly otisky jejích tlapek v inkoustu. Odemkne: Felis — péče o klášterní kočku (krmení, přízeň, lov myší).",
+      desc_en:"\u201CI hunt words, he hunts mice\u201D — wrote a 9th-century Irish monk of his cat Pangur Bán. The cat guards stores and manuscripts from mice; more than one codex bears her inky paw prints. Unlocks: Felis — care of the monastery cat (feeding, affection, mousing).",
+      unlocks:[], requires:["tech_de_re_rustica"] },
+
     { id:"tech_inventarium",     name:"Inventarium — Soupis Zásob",      name_en:"Inventarium — Inventory of Stores",
       cost:8,
       desc:"Klášterní cellarius vedl přesný soupis každého pytle mouky a každého sudu piva. Bez inventáře se zásoby ztrácejí samy od sebe. Odemkne: subtab Inventarium v Cellariu — přehled zásob s decay varováními.",
@@ -6669,7 +6678,17 @@ const GameState = {
         },
         professions: [],        // odemčené profese
     },
-    cat: { name: 'Bezejmenný myšilov' }
+    cat: {
+        name: 'Bezejmenný myšilov',
+        satiety: 50,        // 0–100, klesá v čase
+        affection: 20,      // 0–100, roste krmením/hlazením
+        caught: 0,          // myší chyceno celkem
+        stolen: [],         // [{item, ts}] síň hanby — ukradené potraviny
+        bornAt: 0,          // timestamp prvního setkání (init při tech_cura_felium)
+        lastPet: 0,         // timestamp posledního pohlazení (Vigor bonus 1×/den)
+        lastTick: 0,        // timestamp posledního denního ticku
+    },
+    mice: { count: 3, lastTick: 0 }   // klášterní myší populace
 };
 // ═══ src/data/achievements.js ═══
 const AchievementsDB = [
@@ -15717,18 +15736,69 @@ const ScriptoriumCat = {
         this._updateSprite();
     },
 
-    // ── Interakce ─────────────────────────────────────────────────────────
+    // ── Interakce: 1. klik → útěk, 2. klik do 8s → pohlazení ─────────────
+    _fleeUntil: 0,
+
     _onCatClick: function() {
         const lang = (GameState.settings && GameState.settings.language) || 'cs';
-        const name = (GameState.cat && GameState.cat.name) || 'Bezejmenný myšilov';
+        const c = (typeof this._ensureCatState === 'function') ? this._ensureCatState() : (GameState.cat || {});
+        const name = c.name || 'Bezejmenný myšilov';
+        const now = Date.now();
 
+        // Bez tech_cura_felium → jen meow (původní chování)
+        if (!this.hasFelisTech || !this.hasFelisTech()) {
+            this._meowAndToast(name, lang);
+            return;
+        }
+
+        const trusting = (c.affection || 0) >= 70 && Math.random() < 0.5; // vysoká přízeň → občas neuteče
+        const inFleeWindow = now < this._fleeUntil;
+
+        if (!inFleeWindow && !trusting) {
+            // 1. klik → uteče jinam v rámci tabu
+            this._fleeUntil = now + 8000;
+            this._flee();
+        } else {
+            // 2. klik (nebo důvěřivá kočka) → pohlazení
+            this._fleeUntil = 0;
+            c.affection = Math.min(100, (c.affection || 0) + 3);
+            const today = new Date().setHours(0, 0, 0, 0);
+            const petDay = new Date(c.lastPet || 0).setHours(0, 0, 0, 0);
+            let vigorMsg = '';
+            if (today !== petDay) {
+                c.lastPet = now;
+                this._addVigor(1);
+                vigorMsg = lang === 'en' ? ' (+1 Vigor)' : ' (+1 Vigor)';
+            }
+            this._setState('meow');
+            setTimeout(() => this._setState('idle'), 2000);
+            const msgs = lang === 'en'
+                ? [`${name} lets you stroke her. She purrs deeply.${vigorMsg}`, `${name} rubs against your hand.${vigorMsg}`]
+                : [`${name} se nechala pohladit. Hluboce přede.${vigorMsg}`, `${name} se otírá o tvou ruku.${vigorMsg}`];
+            if (typeof UI !== 'undefined' && UI.notify) UI.notify('🐈‍⬛ ' + msgs[Math.floor(Math.random() * msgs.length)]);
+            if (typeof Game !== 'undefined' && Game.save) Game.save();
+        }
+    },
+
+    _flee: function() {
+        const tabEl = this._activeTabEl && this._activeTabEl();
+        const pos = tabEl && this._randomPosInTab ? this._randomPosInTab(tabEl) : null;
+        this._setState('walk');
+        if (pos && this.el) {
+            this.facingLeft = pos.x < this.posX;
+            this.posX = pos.x; this.posY = pos.y;
+            this.el.style.left = pos.x + 'px';
+            this.el.style.top = pos.y + 'px';
+        }
+        setTimeout(() => this._setState('idle'), 2600);
+    },
+
+    _meowAndToast: function(name, lang) {
         this._setState('meow');
         setTimeout(() => this._setState('idle'), 2000);
-
         const msgs = lang === 'en'
             ? [`${name} says: Meow!`, `${name} purrs contentedly.`, `${name} blinks slowly at you.`]
             : [`${name} říká: Mňau!`, `${name} spokojeně přede.`, `${name} na tebe pomalu mrkne.`];
-
         const msg = msgs[Math.floor(Math.random() * msgs.length)];
         if (typeof UI !== 'undefined' && UI.notify) UI.notify('🐈‍⬛ ' + msg);
     },
@@ -15756,6 +15826,200 @@ const ScriptoriumCat = {
         if (typeof Game !== 'undefined') Game.save();
     },
 };
+
+// ═══════════════════════════════════════════════════════════════════════════
+// FELIS MONASTICA — logická vrstva (tech_cura_felium)
+// Sytost, přízeň, lov myší, krádeže, krmení, hlazení
+// ═══════════════════════════════════════════════════════════════════════════
+
+Object.assign(ScriptoriumCat, {
+
+    // Co kočka žere: { satiety, affection }
+    FEED_TABLE: {
+        cream:        { satiety: 30, affection: 15 },
+        fish:         { satiety: 25, affection: 12 },
+        carp:         { satiety: 25, affection: 12 },
+        meat:         { satiety: 25, affection: 8  },
+        cured_meat:   { satiety: 20, affection: 10 },
+        cooked_fish:  { satiety: 20, affection: 10 },
+        cooked_meat:  { satiety: 20, affection: 8  },
+        chicken_meat: { satiety: 20, affection: 8  },
+        mouse:        { satiety: 20, affection: 5  },
+        milk:         { satiety: 15, affection: 8  },
+        goat_milk:    { satiety: 15, affection: 8  },
+        cheese:       { satiety: 15, affection: 6  },
+        lard:         { satiety: 15, affection: 4  },
+        buttermilk:   { satiety: 12, affection: 6  },
+        butter:       { satiety: 10, affection: 8  },
+        fat:          { satiety: 10, affection: 3  },
+    },
+
+    // Potraviny, které hladová kočka krade ze zásob
+    STEALABLE: ['cured_meat', 'lard', 'fish', 'carp', 'meat', 'cheese', 'butter', 'cream', 'chicken_meat', 'cooked_fish', 'cooked_meat'],
+
+    // Zásoby přitahující myši (zrní a jídlo)
+    MICE_FOOD: ['rye_grain', 'wheat_grain', 'barley', 'oats', 'millet', 'peas', 'bread', 'cheese', 'cured_meat'],
+
+    DAY_MS: 24 * 60 * 60 * 1000,
+    MICE_CAP: 30,
+
+    hasFelisTech: function() {
+        return !!(GameState.researchedTechs && GameState.researchedTechs.includes('tech_cura_felium'));
+    },
+
+    _ensureCatState: function() {
+        if (!GameState.cat) GameState.cat = {};
+        const c = GameState.cat;
+        if (c.name === undefined)      c.name = 'Bezejmenný myšilov';
+        if (c.satiety === undefined)   c.satiety = 50;
+        if (c.affection === undefined) c.affection = 20;
+        if (c.caught === undefined)    c.caught = 0;
+        if (!Array.isArray(c.stolen))  c.stolen = [];
+        if (!c.bornAt)                 c.bornAt = Date.now();
+        if (c.lastPet === undefined)   c.lastPet = 0;
+        if (c.lastTick === undefined)  c.lastTick = 0;
+        if (!GameState.mice) GameState.mice = { count: 3, lastTick: 0 };
+        return c;
+    },
+
+    _lang: function() {
+        return (GameState.settings && GameState.settings.language) || 'cs';
+    },
+
+    // ── Denní tick (volán z game.js intervalu, self-guarded) ─────────────
+    dailyTick: function() {
+        if (!this.hasFelisTech()) return;
+        const c = this._ensureCatState();
+        const now = Date.now();
+        if (now - c.lastTick < this.DAY_MS) return;
+        c.lastTick = now;
+
+        const lang = this._lang();
+        const hungry = c.satiety < 30;
+
+        // 1) Sytost klesá (denní úbytek)
+        c.satiety = Math.max(0, c.satiety - 25);
+        // 2) Přízeň pomalu eroduje
+        c.affection = Math.max(0, c.affection - 2);
+
+        // 3) Hladová kočka → loví myši + krade
+        if (hungry) {
+            const mice = GameState.mice;
+            if (mice.count > 0) {
+                const hunted = Math.min(mice.count, 1 + Math.floor(Math.random() * 3)); // 1–3
+                mice.count -= hunted;
+                c.caught += hunted;
+                c.satiety = Math.min(100, c.satiety + hunted * 15); // nažere se myšmi
+                const msg = lang === 'en'
+                    ? `🐈‍⬛ ${c.name} caught ${hunted} ${hunted === 1 ? 'mouse' : 'mice'} in the night.`
+                    : `🐈‍⬛ ${c.name} v noci ${hunted === 1 ? 'chytila myš' : 'chytila ' + hunted + ' myši'}.`;
+                if (typeof UI !== 'undefined' && UI.notify) UI.notify(msg);
+                // Občas přinese myš jako dar (vysoká přízeň)
+                if (c.affection >= 60 && Math.random() < 0.3) {
+                    GameState.inventory['mouse'] = (GameState.inventory['mouse'] || 0) + 1;
+                    if (typeof UI !== 'undefined' && UI.notify) UI.notify(lang === 'en'
+                        ? `🐭 ${c.name} left a mouse at your door. A gift.`
+                        : `🐭 ${c.name} ti přinesla myš ke dveřím. Dar.`);
+                }
+            }
+            // Krádež ze zásob (7%)
+            if (Math.random() < 0.07) {
+                const candidates = this.STEALABLE.filter(id => (GameState.inventory[id] || 0) > 0);
+                if (candidates.length) {
+                    const id = candidates[Math.floor(Math.random() * candidates.length)];
+                    GameState.inventory[id] -= 1;
+                    c.stolen.push({ item: id, ts: now });
+                    if (c.stolen.length > 20) c.stolen.shift();
+                    c.satiety = Math.min(100, c.satiety + 15);
+                    const iname = (typeof iName === 'function') ? iName(id) : id;
+                    const msg = lang === 'en'
+                        ? `😼 ${c.name} stole ${iname} from the stores!`
+                        : `😼 ${c.name} ukradla ze zásob: ${iname}!`;
+                    if (typeof UI !== 'undefined' && UI.notify) UI.notify(msg, true);
+                    if (typeof Game !== 'undefined' && Game.addKronikaEntry) {
+                        Game.addKronikaEntry('important',
+                            `😼 Kočka ${c.name} ukradla ze zásob: ${iname}.`,
+                            `😼 The cat ${c.name} stole ${iname} from the stores.`,
+                            `😼 Felis ${c.name} furata est.`);
+                    }
+                }
+            }
+        }
+
+        // 4) Myší populace — spawn dle zásob, lov sytou kočkou ~0
+        this._miceTick(hungry);
+
+        if (typeof Game !== 'undefined' && Game.save) Game.save();
+    },
+
+    _miceTick: function(catHungry) {
+        const mice = GameState.mice;
+        // Spawn ∝ množství jídla/zrní v zásobách
+        let foodStock = 0;
+        this.MICE_FOOD.forEach(id => { foodStock += (GameState.inventory[id] || 0); });
+        const spawn = Math.min(4, Math.floor(foodStock / 25) + 1); // 1–4 / den
+        // Sytá kočka neloví → myši rostou; hladová už lovila výše
+        mice.count = Math.min(this.MICE_CAP, mice.count + spawn);
+        // Přirozená úmrtnost / odchod
+        if (mice.count > 5 && Math.random() < 0.3) mice.count -= 1;
+    },
+
+    // Fuzzy popis myší populace (přesné číslo hra neukazuje)
+    miceFuzzy: function() {
+        const n = (GameState.mice && GameState.mice.count) || 0;
+        const lang = this._lang();
+        if (n <= 1)  return lang === 'en' ? 'The cloister is quiet. No scurrying to be heard.' : 'V klášteře je ticho. Žádný šramot.';
+        if (n <= 6)  return lang === 'en' ? 'A faint scurrying in the walls at night...' : 'V noci je za zdmi slyšet slabý šramot...';
+        if (n <= 15) return lang === 'en' ? 'Mice have been seen near the granary. The cellarius frowns.' : 'U sýpky byly vidět myši. Cellarius se mračí.';
+        return lang === 'en' ? 'A mouse paradise! Droppings in the flour, holes in the sacks.' : 'Myší ráj! Trus v mouce, díry v pytlích.';
+    },
+
+    // ── Krmení ────────────────────────────────────────────────────────────
+    feed: function(itemId) {
+        if (!this.hasFelisTech()) return false;
+        const entry = this.FEED_TABLE[itemId];
+        if (!entry) return false;
+        if ((GameState.inventory[itemId] || 0) < 1) return false;
+
+        const c = this._ensureCatState();
+        GameState.inventory[itemId] -= 1;
+        c.satiety = Math.min(100, c.satiety + entry.satiety);
+        c.affection = Math.min(100, c.affection + entry.affection);
+
+        const lang = this._lang();
+        const iname = (typeof iName === 'function') ? iName(itemId) : itemId;
+        if (typeof UI !== 'undefined' && UI.notify) UI.notify(lang === 'en'
+            ? `🐈‍⬛ ${c.name} devoured the ${iname} and purrs.`
+            : `🐈‍⬛ ${c.name} zhltla: ${iname}. Spokojeně přede.`);
+
+        if (this.el && this.el.style.display !== 'none') {
+            this._setState('meow');
+            setTimeout(() => this._setState('idle'), 2000);
+        }
+        if (typeof Game !== 'undefined' && Game.save) Game.save();
+        if (typeof PersonaSystem !== 'undefined' && PersonaSystem.rerenderIfOpen) PersonaSystem.rerenderIfOpen();
+        return true;
+    },
+
+    // ── Titul dle přízně a úlovků ─────────────────────────────────────────
+    getTitle: function() {
+        const c = this._ensureCatState();
+        const lang = this._lang();
+        if (c.affection >= 80 && c.caught >= 50) return 'Custos Penarii';
+        if (c.affection >= 60 || c.caught >= 25) return 'Felis Monastica';
+        if (c.caught >= 5) return lang === 'en' ? 'Mouser' : 'Myšilov';
+        return 'Felis Vagans';
+    },
+
+    // ── Vigor helper ──────────────────────────────────────────────────────
+    _addVigor: function(n) {
+        try {
+            if (typeof VigorSystem === 'undefined' || !GameState.vigor) return;
+            GameState.vigor.current = Math.min(VigorSystem.MAX_VIGOR, GameState.vigor.current + n);
+            VigorSystem.renderMiniDisplay();
+        } catch (e) { /* no-op */ }
+    },
+});
 // ═══ src/systems/PersonaSystem.js ═══
 // ═══════════════════════════════════════════════════════════════════════════
 // PERSONA SYSTEM — Liber Personae
@@ -15935,11 +16199,14 @@ const PersonaSystem = {
                 onclick="PersonaSystem.switchTab('stats',this)">📊 ${lang==='en'?'Statistics':'Statistiky'}</button>
             <button id="persona-tab-influentia" class="filter-btn ${this._activeTab==='influentia'?'active':''}"
                 onclick="PersonaSystem.switchTab('influentia',this)">🤝 ${lang==='en'?'Influentia':'Influentia'}</button>
+            <button id="persona-tab-felis" class="filter-btn ${this._activeTab==='felis'?'active':''}"
+                onclick="PersonaSystem.switchTab('felis',this)">🐈‍⬛ Felis</button>
         </div>`;
 
         h += `<div id="persona-subtab-persona"  style="${this._activeTab==='persona'?'':'display:none'}">` + this._renderPersona(lang) + `</div>`;
         h += `<div id="persona-subtab-stats"    style="${this._activeTab==='stats'?'':'display:none'}">` + this._renderStats(lang) + `</div>`;
         h += `<div id="persona-subtab-influentia" style="${this._activeTab==='influentia'?'':'display:none'}">` + this._renderInfluentia(lang) + `</div>`;
+        h += `<div id="persona-subtab-felis" style="${this._activeTab==='felis'?'':'display:none'}">` + this._renderFelis(lang) + `</div>`;
 
         el.innerHTML = h;
     },
@@ -15948,7 +16215,7 @@ const PersonaSystem = {
         this._activeTab = tab;
         document.querySelectorAll('#lore-persona-content .filter-btn').forEach(b => b.classList.remove('active'));
         if (btn) btn.classList.add('active');
-        ['persona','stats','influentia'].forEach(t => {
+        ['persona','stats','influentia','felis'].forEach(t => {
             const d = document.getElementById('persona-subtab-' + t);
             if (d) d.style.display = t === tab ? '' : 'none';
         });
@@ -16134,26 +16401,109 @@ const PersonaSystem = {
             </div>
         </div>`;
 
-        // ── Felis Monastica ──────────────────────────────────────────────────
-        const catName = (GameState.cat && GameState.cat.name) || (lang==='en'?'Nameless mouser':'Bezejmenný myšilov');
-        h += `<div style="margin-top:16px;padding:12px;background:rgba(197,160,89,0.06);border-radius:8px;border-left:3px solid rgba(197,160,89,0.3);">
-            <div style="font-size:0.75rem;font-weight:bold;letter-spacing:0.06em;text-transform:uppercase;opacity:0.6;margin-bottom:10px;">🐈‍⬛ ${lang==='en'?'Felis Monastica':'Felis Monastica'}</div>
-            <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px;">
-                <span style="font-size:1.4rem;">🐈‍⬛</span>
-                <div>
-                    <div style="font-weight:bold;font-size:0.9rem;">${catName}</div>
-                    <div style="font-size:0.75rem;opacity:0.6;font-style:italic;">${lang==='en'?'The monastery cat. Catches mice, warms the scriptorium.':'Klášterní kočka. Loví myši, hřeje skriptorium.'}</div>
+        return h;
+    },
+
+    // ── Sekce 4: Felis Monastica — kočičí char sheet ─────────────────────────
+    _renderFelis: function(lang) {
+        const hasTech = !!(GameState.researchedTechs && GameState.researchedTechs.includes('tech_cura_felium'));
+
+        if (!hasTech) {
+            return `<div style="padding:24px;text-align:center;opacity:0.65;">
+                <div style="font-size:2.5rem;margin-bottom:10px;">🐈‍⬛</div>
+                <div style="font-style:italic;font-size:0.9rem;">${t('felis.locked')}</div>
+            </div>`;
+        }
+
+        if (typeof ScriptoriumCat !== 'undefined' && ScriptoriumCat._ensureCatState) ScriptoriumCat._ensureCatState();
+        const c = GameState.cat || {};
+        const catName = c.name || t('felis.defaultName');
+        const title = (typeof ScriptoriumCat !== 'undefined' && ScriptoriumCat.getTitle) ? ScriptoriumCat.getTitle() : '';
+        const satiety = Math.round(c.satiety || 0);
+        const affection = Math.round(c.affection || 0);
+        const huntDrive = 100 - satiety; // lovecký pud = inverze sytosti
+        const ageDays = c.bornAt ? Math.max(0, Math.floor((Date.now() - c.bornAt) / 86400000)) : 0;
+
+        const bar = (icon, label, val, color) => `
+            <div style="margin-bottom:10px;">
+                <div style="display:flex;justify-content:space-between;font-size:0.8rem;margin-bottom:3px;">
+                    <span>${icon} ${label}</span><span style="opacity:0.7;">${val}/100</span>
                 </div>
-            </div>
-            <div style="display:flex;gap:6px;">
-                <input type="text" id="cat-name-input" value="${catName}"
-                    placeholder="${lang==='en'?'Name the cat...':'Pojmenuj kočku...'}"
-                    style="flex:1;padding:6px 8px;border:1px solid rgba(0,0,0,0.2);border-radius:4px;font-family:'Cinzel',serif;font-size:0.85rem;">
-                <button onclick="PersonaSystem.saveCatName()" class="craft-btn" style="padding:6px 12px;">💾</button>
+                <div style="height:8px;background:rgba(0,0,0,0.12);border-radius:4px;overflow:hidden;">
+                    <div style="height:100%;width:${val}%;background:${color};border-radius:4px;"></div>
+                </div>
+            </div>`;
+
+        let h = `<div style="padding:4px;">`;
+
+        // Hlavička: portrét + jméno + titul + rename
+        h += `<div style="display:flex;gap:12px;align-items:center;margin-bottom:14px;padding:12px;background:rgba(197,160,89,0.06);border-radius:8px;border-left:3px solid rgba(197,160,89,0.3);">
+            <div style="width:64px;height:64px;background-image:url('/cat/Cat-2-Sitting.png');background-size:cover;image-rendering:pixelated;flex-shrink:0;"></div>
+            <div style="flex:1;">
+                <div style="font-weight:bold;font-size:1rem;">${catName}</div>
+                <div style="font-size:0.78rem;opacity:0.65;font-style:italic;">「 ${title} 」</div>
+                <div style="font-size:0.72rem;opacity:0.5;">${t('felis.age')}: ${ageDays} ${lang==='en'?'days':'dní'}</div>
             </div>
         </div>`;
+        h += `<div style="display:flex;gap:6px;margin-bottom:16px;">
+            <input type="text" id="cat-name-input" value="${catName}"
+                placeholder="${t('felis.namePlaceholder')}"
+                style="flex:1;padding:6px 8px;border:1px solid rgba(0,0,0,0.2);border-radius:4px;font-family:'Cinzel',serif;font-size:0.85rem;">
+            <button onclick="PersonaSystem.saveCatName()" class="craft-btn" style="padding:6px 12px;">💾</button>
+        </div>`;
 
+        // Staty
+        h += bar('🍖', t('felis.satiety'),  satiety,   'linear-gradient(90deg,#a0722d,#c5a059)');
+        h += bar('❤️', t('felis.affection'), affection, 'linear-gradient(90deg,#8c2f39,#c54a59)');
+        h += bar('🐭', t('felis.huntDrive'), huntDrive, 'linear-gradient(90deg,#4a5a4a,#7a8a6a)');
+
+        // Fuzzy myší hláška
+        const fuzzy = (typeof ScriptoriumCat !== 'undefined' && ScriptoriumCat.miceFuzzy) ? ScriptoriumCat.miceFuzzy() : '';
+        h += `<div style="margin:14px 0;padding:10px;background:rgba(0,0,0,0.04);border-radius:6px;font-size:0.82rem;font-style:italic;opacity:0.8;">
+            🏚️ ${fuzzy}
+        </div>`;
+
+        // Krmení
+        h += `<div style="font-size:0.75rem;font-weight:bold;letter-spacing:0.06em;text-transform:uppercase;opacity:0.6;margin:14px 0 8px;">🍽️ ${t('felis.feedTitle')}</div>`;
+        const ft = (typeof ScriptoriumCat !== 'undefined' && ScriptoriumCat.FEED_TABLE) ? ScriptoriumCat.FEED_TABLE : {};
+        const feedable = Object.keys(ft).filter(id => (GameState.inventory[id] || 0) > 0);
+        if (feedable.length) {
+            h += `<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:6px;">`;
+            feedable.forEach(id => {
+                const item = (typeof ItemsDB !== 'undefined') ? ItemsDB[id] : null;
+                const icon = item ? item.icon : '🍖';
+                const nm = (typeof iName === 'function') ? iName(id) : id;
+                const qty = GameState.inventory[id];
+                h += `<button class="craft-btn" style="padding:6px 8px;font-size:0.78rem;"
+                    onclick="ScriptoriumCat.feed('${id}')">${icon} ${nm} <span style="opacity:0.6;">×${qty}</span></button>`;
+            });
+            h += `</div>`;
+        } else {
+            h += `<div style="font-size:0.8rem;opacity:0.55;font-style:italic;">${t('felis.noFood')}</div>`;
+        }
+
+        // Počítadla + síň hanby
+        h += `<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:16px;font-size:0.82rem;">
+            <div style="padding:8px;background:rgba(197,160,89,0.06);border-radius:6px;">🐭 ${t('felis.caught')}: <strong>${c.caught || 0}</strong></div>
+            <div style="padding:8px;background:rgba(197,160,89,0.06);border-radius:6px;">😼 ${t('felis.stolenCount')}: <strong>${(c.stolen || []).length}</strong></div>
+        </div>`;
+        if ((c.stolen || []).length) {
+            h += `<div style="font-size:0.75rem;font-weight:bold;letter-spacing:0.06em;text-transform:uppercase;opacity:0.6;margin:12px 0 6px;">😼 ${t('felis.shameHall')}</div>`;
+            h += `<div style="font-size:0.78rem;opacity:0.7;">`;
+            c.stolen.slice(-5).reverse().forEach(s => {
+                const nm = (typeof iName === 'function') ? iName(s.item) : s.item;
+                h += `<div>· ${nm}</div>`;
+            });
+            h += `</div>`;
+        }
+
+        h += `</div>`;
         return h;
+    },
+
+    // Re-render Felis subtab pokud je otevřen (po krmení)
+    rerenderIfOpen: function() {
+        if (this._activeTab === 'felis') this.render();
     },
 
     // ── Pomocné funkce ───────────────────────────────────────────────────────
@@ -24579,6 +24929,20 @@ const STRINGS_cs = {
         heinrichAlready: '(Varhany již vlastníš)',
     },
 
+    felis: {
+        locked: 'Kočka se klášterem potuluje divoká a nedůvěřivá. Prozkoumej Cura Felium, aby ses o ni mohl starat.',
+        defaultName: 'Bezejmenný myšilov',
+        age: 'Věk',
+        namePlaceholder: 'Pojmenuj kočku...',
+        satiety: 'Sytost',
+        affection: 'Přízeň',
+        huntDrive: 'Lovecký pud',
+        feedTitle: 'Nakrmit',
+        noFood: 'Nemáš nic, co by kočka žrala. Smetana, ryba, maso...',
+        caught: 'Chyceno myší',
+        stolenCount: 'Ukradeno ze zásob',
+        shameHall: 'Síň hanby',
+    },
     farmyard: {
         gallinarium: 'Gallinarium (Kurník)',
         ovile: 'Ovile (Chlév)',
@@ -26939,6 +27303,20 @@ According to Theophilus, the organ is an instrument worthy of God, but its const
         heinrichAlready: '(Thou already hast an organ)',
     },
 
+    felis: {
+        locked: 'The cat roams the cloister wild and wary. Research Cura Felium to care for her.',
+        defaultName: 'Nameless mouser',
+        age: 'Age',
+        namePlaceholder: 'Name the cat...',
+        satiety: 'Satiety',
+        affection: 'Affection',
+        huntDrive: 'Hunting drive',
+        feedTitle: 'Feed',
+        noFood: 'You have nothing the cat would eat. Cream, fish, meat...',
+        caught: 'Mice caught',
+        stolenCount: 'Stolen from stores',
+        shameHall: 'Hall of shame',
+    },
     farmyard: {
         gallinarium: 'Gallinarium (Henhouse)',
         ovile: 'Ovile (Sheepfold)',
@@ -27874,6 +28252,8 @@ const Game = {
                     Game.checkOrchardGrowth();
                     if (typeof GardenSystem !== 'undefined') GardenSystem.checkFieldGrowth();
                     if (typeof GardenSystem !== 'undefined') GardenSystem.checkVineaGrowth();
+                    // Felis Monastica — denní tick (self-guarded 24h)
+                    if (typeof ScriptoriumCat !== 'undefined' && ScriptoriumCat.dailyTick) ScriptoriumCat.dailyTick();
                     Game.checkFarmyardProduction();
                     Game.checkPiscinaGrowth();
                 }
