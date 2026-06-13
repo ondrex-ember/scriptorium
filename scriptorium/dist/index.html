@@ -636,10 +636,14 @@
             filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.8));
         }
 
-        /* Status bar kontejner */
+        /* Status bar kontejner — SKRYTO (migrováno na pills bar na všech šířkách) */
         .status-bar {
+            display: none !important;
+        }
+
+        /* Status bar (legacy styly ponechány pro případný rollback) */
+        .status-bar-legacy {
             background: none !important;
-            /* Žádné pozadí kontejneru */
             backdrop-filter: none !important;
             border: none !important;
             padding: 2px 0;
@@ -648,7 +652,6 @@
             justify-content: center;
             align-items: center;
             gap: 15px;
-            /* Větší rozestup pro vzdušnost */
             width: 100%;
         }
 
@@ -748,6 +751,17 @@
 
 
         /* ═══ MOBILE PILLS ═══════════════════════════════════════════════ */
+        /* PILLS BAR — jednotná responsivní hlavička (desktop default: v toku, roztažené) */
+        #pills-bar {
+            display: flex !important;
+            flex: 1 1 auto;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 10px;
+            padding: 0 4px;
+        }
+
         .hpill {
             pointer-events: auto !important;
             display: inline-flex;
@@ -936,15 +950,11 @@
 
         @media (min-width: 751px) {
             #settings-btn {
-                display: none !important;
-            }
-
-            #settings-btn-bar {
-                display: inline !important;
+                display: block !important;
             }
 
             #pills-bar {
-                display: none !important;
+                display: flex !important;
             }
         }
 
@@ -2149,8 +2159,7 @@
                         style="font-size:1.4rem; letter-spacing:2px; font-family:'Cinzel Decorative'; font-weight:700; color:#d4b883; text-shadow: 2px 2px 4px #000;">
                         SCRIPTORIUM
                     </span>
-                    <span id="settings-btn" onclick="UI.switchScreen('settings')" data-i18n-title="header.settings"
-                        style="display:none;">⚙️</span>
+                    <span id="settings-btn" onclick="UI.switchScreen('settings')" data-i18n-title="header.settings">⚙️</span>
                 </div>
 
                 <div class="status-bar">
@@ -2186,31 +2195,32 @@
                     <span id="settings-btn-bar" onclick="UI.switchScreen('settings')"
                         data-i18n-title="header.settings">⚙️</span>
                 </div>
+
+                <!-- PILLS BAR — jednotná responsivní hlavička (desktop: v toku; ≤750: fixed) -->
+                <div id="pills-bar" style="display:none;">
+                    <div class="hpill" id="pill-weather" onclick="pillToggle('weather')">
+                        <span id="pill-weather-icon">🌤️</span>
+                        <span class="hpill-val" id="pill-weather-val">–</span>
+                    </div>
+                    <div class="hpill" id="pill-vigor" onclick="pillToggle('vigor')">
+                        <span id="pill-vigor-icon">⚡</span>
+                        <span class="hpill-val" id="pill-vigor-val">–</span>
+                    </div>
+                    <div class="hpill" id="pill-time" onclick="pillToggle('time')">
+                        <span id="pill-time-icon">🌙</span>
+                        <span class="hpill-val" id="pill-time-val">–</span>
+                    </div>
+                    <div class="hpill" id="pill-progress" onclick="pillToggle('progress')">
+                        <span>📜</span>
+                        <span class="hpill-val" id="pill-progress-val">–</span>
+                    </div>
+                    <div class="hpill" id="pill-notif" onclick="NotificationSystem.togglePanel()">
+                        <span>🔔</span>
+                        <span class="hpill-val" id="pill-notif-count"></span>
+                    </div>
+                </div>
             </div>
 
-            <!-- MOBILE PILLS BAR (≤750px) -->
-            <div id="pills-bar" style="display:none;">
-                <div class="hpill" id="pill-weather" onclick="pillToggle('weather')">
-                    <span id="pill-weather-icon">🌤️</span>
-                    <span class="hpill-val" id="pill-weather-val">–</span>
-                </div>
-                <div class="hpill" id="pill-vigor" onclick="pillToggle('vigor')">
-                    <span id="pill-vigor-icon">⚡</span>
-                    <span class="hpill-val" id="pill-vigor-val">–</span>
-                </div>
-                <div class="hpill" id="pill-time" onclick="pillToggle('time')">
-                    <span id="pill-time-icon">🌙</span>
-                    <span class="hpill-val" id="pill-time-val">–</span>
-                </div>
-                <div class="hpill" id="pill-progress" onclick="pillToggle('progress')">
-                    <span>📜</span>
-                    <span class="hpill-val" id="pill-progress-val">–</span>
-                </div>
-                <div class="hpill" id="pill-notif" onclick="NotificationSystem.togglePanel()">
-                    <span>🔔</span>
-                    <span class="hpill-val" id="pill-notif-count"></span>
-                </div>
-            </div>
             <!-- PILL DETAIL PANEL -->
             <div id="pill-panel" onclick="pillClose()">
                 <div id="pill-panel-content" onclick="event.stopPropagation()">
