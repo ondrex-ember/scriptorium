@@ -550,4 +550,47 @@ Object.assign(ScriptoriumCat, {
             VigorSystem.renderMiniDisplay();
         } catch (e) { /* no-op */ }
     },
+
+    // ── Návštěva u ohně (Ohniště/Foculus) ──────────────────────────────────
+    // Nezávislé na zahradním roamingu — samostatný element, viditelný jen
+    // když je krb hořící a Foculus subtab je aktivní.
+    renderFoculusVisit: function() {
+        const container = document.getElementById('home-foculus-content');
+        let el = document.getElementById('cat-by-fire');
+
+        if (!container || !GameState.flags || !GameState.flags.fireplaceLit) {
+            if (el) el.style.display = 'none';
+            return;
+        }
+
+        if (!el) {
+            el = document.createElement('div');
+            el.id = 'cat-by-fire';
+            el.title = (GameState.cat && GameState.cat.name) || 'Bezejmenný myšilov';
+            el.style.cssText = `
+                width: ${this.FRAME_SIZE * this.SCALE}px;
+                height: ${this.FRAME_SIZE * this.SCALE}px;
+                background-repeat: no-repeat;
+                background-size: auto ${this.FRAME_SIZE * this.SCALE}px;
+                image-rendering: pixelated;
+                cursor: pointer;
+                margin: 0 auto 10px;
+            `;
+            el.addEventListener('click', () => this._onCatClick());
+            const visual = document.getElementById('fireplace-visual-foculus');
+            if (visual && visual.parentNode === container) {
+                container.insertBefore(el, visual.nextSibling);
+            } else {
+                container.insertBefore(el, container.firstChild);
+            }
+        }
+
+        // Vyhřátá kočka u ohně — leží
+        const s = this.SPRITES.laying || this.SPRITES.idle;
+        const frameX = 0; // statický první frame
+        el.style.backgroundImage = `url('${this.BASE_PATH}${s.file}')`;
+        el.style.backgroundPosition = `-${frameX}px 0px`;
+        el.style.transform = 'scaleX(1)';
+        el.style.display = 'block';
+    },
 });

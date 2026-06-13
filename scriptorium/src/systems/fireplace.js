@@ -116,6 +116,10 @@ const FireplaceSystem = {
             visualFoculus.src = GameState.flags.fireplaceLit ? '/img/hearth_base_red.png' : '/img/hearth_base_dead.png';
         }
 
+        if (typeof ScriptoriumCat !== 'undefined' && ScriptoriumCat.renderFoculusVisit) {
+            ScriptoriumCat.renderFoculusVisit();
+        }
+
         const btnStick = document.getElementById('btn-fuel-stick');
         const btnLog = document.getElementById('btn-fuel-log');
         const bar = document.getElementById('fireplace-fuel-bar');
