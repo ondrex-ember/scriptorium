@@ -2362,7 +2362,8 @@
                         <div style="font-size:2rem; margin-bottom:10px;">🔒</div>
                         <div style="font-style:italic; font-size:0.9rem;" data-i18n="fireplace.foculusLocked"></div>
                     </div>
-                    <div id="foculus-unlocked" style="display:none;">
+                    <div id="foculus-unlocked" style="display:none; position:relative;">
+                        <div id="cat-lane-top" style="position:relative; width:100%; height:70px; margin-bottom:4px;"></div>
                         <img id="fireplace-visual-foculus" src="/img/hearth_base_dead.png" alt="" style="display:block; width:300px; height:300px; max-width:100%; object-fit:cover; border-radius:8px; border:1px solid var(--ink-secondary, #6b5d4f); margin:0 auto 14px;">
                         <div id="fireplace-fuel-panel" style="display:none; padding:12px; border:1px solid var(--ink-secondary); border-radius:8px;">
                             <div style="display:flex; justify-content:space-between; font-size:0.9rem; margin-bottom:8px;">
@@ -17369,44 +17370,125 @@ Object.assign(ScriptoriumCat, {
     // ── Návštěva u ohně (Ohniště/Foculus) ──────────────────────────────────
     // Nezávislé na zahradním roamingu — samostatný element, viditelný jen
     // když je krb hořící a Foculus subtab je aktivní.
+    // ── Návštěva u ohně (Ohniště/Foculus) ──────────────────────────────────
+    FOCULUS_SCALE: 3,
+    foculusState: 'idle',
+    foculusFrame: 0,
+    foculusFrameTimer: null,
+    foculusMoveTimer: null,
+    foculusFacingLeft: false,
+    foculusPosX: 10,
+    _foculusInitialized: false,
+
+    _foculusFrameSize: function() {
+        return this.FRAME_SIZE * this.FOCULUS_SCALE;
+    },
+
+    _foculusUpdateSprite: function() {
+        const el = document.getElementById('cat-by-fire');
+        if (!el) return;
+        const s = this.SPRITES[this.foculusState] || this.SPRITES.idle;
+        const size = this._foculusFrameSize();
+        const frameX = this.foculusFrame * size;
+        el.style.backgroundImage = `url('${this.BASE_PATH}${s.file}')`;
+        el.style.backgroundPosition = `-${frameX}px 0px`;
+        el.style.transform = this.foculusFacingLeft ? 'scaleX(-1)' : 'scaleX(1)';
+    },
+
+    _foculusSetState: function(state) {
+        if (!this.SPRITES[state]) return;
+        this.foculusState = state;
+        this.foculusFrame = 0;
+        this._foculusUpdateSprite();
+    },
+
+    _foculusStartFrameLoop: function() {
+        if (this.foculusFrameTimer) return;
+        const tick = () => {
+            const el = document.getElementById('cat-by-fire');
+            if (!el || el.style.display === 'none') {
+                this.foculusFrameTimer = setTimeout(tick, 500);
+                return;
+            }
+            const s = this.SPRITES[this.foculusState] || this.SPRITES.idle;
+            this.foculusFrame = (this.foculusFrame + 1) % s.frames;
+            this._foculusUpdateSprite();
+            this.foculusFrameTimer = setTimeout(tick, 1000 / s.fps);
+        };
+        tick();
+    },
+
+    _foculusScheduleMove: function() {
+        if (this.foculusMoveTimer) return;
+        const delay = 8000 + Math.random() * 12000; // 8-20s
+        this.foculusMoveTimer = setTimeout(() => {
+            this.foculusMoveTimer = null;
+            this._foculusMove();
+            this._foculusScheduleMove();
+        }, delay);
+    },
+
+    _foculusMove: function() {
+        const el = document.getElementById('cat-by-fire');
+        const lane = document.getElementById('cat-lane-top');
+        if (!el || !lane || el.style.display === 'none') return;
+
+        const laneWidth = lane.clientWidth || 300;
+        const size = this._foculusFrameSize();
+        const maxX = Math.max(10, laneWidth - size - 10);
+        const newX = 10 + Math.random() * maxX;
+
+        this.foculusFacingLeft = newX < this.foculusPosX;
+        this.foculusPosX = newX;
+
+        this._foculusSetState('walk');
+        el.style.left = newX + 'px';
+
+        setTimeout(() => {
+            const r = Math.random();
+            if (r < 0.4)      this._foculusSetState('laying');
+            else if (r < 0.7) this._foculusSetState('sitting');
+            else              this._foculusSetState('idle');
+        }, 2500);
+    },
+
     renderFoculusVisit: function() {
-        const container = document.getElementById('home-foculus-content');
+        const lane = document.getElementById('cat-lane-top');
         let el = document.getElementById('cat-by-fire');
 
-        if (!container || !GameState.flags || !GameState.flags.fireplaceLit) {
+        if (!lane || !GameState.flags || !GameState.flags.fireplaceLit) {
             if (el) el.style.display = 'none';
+            if (this.foculusMoveTimer)  { clearTimeout(this.foculusMoveTimer);  this.foculusMoveTimer = null; }
+            if (this.foculusFrameTimer) { clearTimeout(this.foculusFrameTimer); this.foculusFrameTimer = null; }
             return;
         }
+
+        const size = this._foculusFrameSize();
 
         if (!el) {
             el = document.createElement('div');
             el.id = 'cat-by-fire';
             el.title = (GameState.cat && GameState.cat.name) || 'Bezejmenný myšilov';
             el.style.cssText = `
-                width: ${this.FRAME_SIZE * this.SCALE}px;
-                height: ${this.FRAME_SIZE * this.SCALE}px;
+                position: absolute;
+                top: 0px;
+                left: ${this.foculusPosX}px;
+                width: ${size}px;
+                height: ${size}px;
                 background-repeat: no-repeat;
-                background-size: auto ${this.FRAME_SIZE * this.SCALE}px;
+                background-size: auto ${size}px;
                 image-rendering: pixelated;
                 cursor: pointer;
-                margin: 0 auto 10px;
+                transition: left 2.5s ease-in-out;
             `;
             el.addEventListener('click', () => this._onCatClick());
-            const visual = document.getElementById('fireplace-visual-foculus');
-            if (visual && visual.parentNode === container) {
-                container.insertBefore(el, visual.nextSibling);
-            } else {
-                container.insertBefore(el, container.firstChild);
-            }
+            lane.appendChild(el);
+            this._foculusSetState('laying');
         }
 
-        // Vyhřátá kočka u ohně — leží
-        const s = this.SPRITES.laying || this.SPRITES.idle;
-        const frameX = 0; // statický první frame
-        el.style.backgroundImage = `url('${this.BASE_PATH}${s.file}')`;
-        el.style.backgroundPosition = `-${frameX}px 0px`;
-        el.style.transform = 'scaleX(1)';
         el.style.display = 'block';
+        this._foculusStartFrameLoop();
+        this._foculusScheduleMove();
     },
 });
 // ═══ src/systems/PersonaSystem.js ═══
