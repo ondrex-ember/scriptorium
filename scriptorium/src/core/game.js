@@ -1430,7 +1430,11 @@ const Game = {
             }
             const _mMult = (_mFound && _mFound.mult) ? _mFound.mult : 1.0;
             const _mMultiplier = Math.round(8 * _mMult);
-            GameState.activeAction = { id: type, startTime: Date.now(), endTime: Date.now() + (5 * 60 * 1000), multiplier: _mMultiplier };
+            // Koně zrychlují Mine (tažná síla při dopravě rubaniny)
+            const _horseCount = (GameState.stable && GameState.stable.animals) ? GameState.stable.animals.length : 0;
+            const _horseTimeMult = _horseCount >= 2 ? 0.5 : _horseCount === 1 ? 0.75 : 1.0;
+            const _mineMs = Math.round(5 * 60 * 1000 * _horseTimeMult);
+            GameState.activeAction = { id: type, startTime: Date.now(), endTime: Date.now() + _mineMs, multiplier: _mMultiplier };
             Game.save(); UI.renderMineActions();
             return;
         }

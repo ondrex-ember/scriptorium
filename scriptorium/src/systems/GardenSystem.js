@@ -977,6 +977,7 @@ const GardenSystem = {
     ANIMAL_CFG: {
         rabbitry: { itemId: 'rabbit', cap: 6,
             build: { plank: 10, stick: 5, rope: 2 },
+            growMs:  4 * 24 * 60 * 60 * 1000,           // dospělost: 4 dny krmení
             breedMs: 7 * 24 * 60 * 60 * 1000 },        // množení: check 1×/7 dní
         goatpen:  { itemId: 'goat', cap: 3,
             build: { plank: 12, rock: 8, rope: 3 },
@@ -1057,10 +1058,16 @@ const GardenSystem = {
         }
     },
 
-    slaughterRabbit: function() {
-        const st = GameState.rabbitry;
+    slaughterRabbit: function(idx) {
+        const st = GameState.rabbitry, cfg = this.ANIMAL_CFG.rabbitry;
         if (!st.built || !st.animals.length) return;
-        st.animals.pop();
+        const a = st.animals[idx];
+        if (!a) return;
+        // Porazit jen dospělého (≥ growMs)
+        if (Date.now() - a.placedAt < cfg.growMs) {
+            UI.notify(t('dvur.rabbitNotMature'), true); return;
+        }
+        st.animals.splice(idx, 1);
         GameState.inventory['rabbit_meat'] = (GameState.inventory['rabbit_meat'] || 0) + 1;
         GameState.inventory['rabbit_pelt'] = (GameState.inventory['rabbit_pelt'] || 0) + 1;
         UI.notify('🍖 ' + t('dvur.rabbitSlaughtered'));
@@ -1157,16 +1164,54 @@ const GardenSystem = {
         }
 
         if (pen === 'rabbitry' && st.animals.length) {
+            // Per-rabbit display (vzor pigsty) — porazit jen dospělé (≥ growMs = 4 dny)
+            const now = Date.now();
+            h += `<div style="display:flex; flex-direction:column; gap:6px; margin-top:6px;">`;
+            st.animals.forEach((a, i) => {
+                const mature = now - a.placedAt >= cfg.growMs;
+                const pct = Math.min(100, Math.round((now - a.placedAt) / cfg.growMs * 100));
+                const daysLeft = mature ? 0 : Math.ceil((cfg.growMs - (now - a.placedAt)) / 86400000);
+                h += `<div style="padding:7px 10px; background:rgba(0,0,0,0.04); border-radius:6px; display:flex; align-items:center; gap:8px;">
+                    <span style="font-size:1.1rem;">${mature ? '🐰' : '🐇'}</span>
+                    <div style="flex:1;">
+                        <div style="font-size:0.78rem;">${mature ? t('dvur.rabbitMature') : t('dvur.rabbitGrowing') + ' ' + pct + '%' + (daysLeft ? ' (' + daysLeft + ' ' + t('dvur.daysLeft') + ')' : '')}</div>
+                        <div style="height:4px; background:rgba(0,0,0,0.1); border-radius:3px; margin-top:3px;">
+                            <div style="height:100%; width:${pct}%; background:var(--accent-gold); border-radius:3px;"></div>
+                        </div>
+                    </div>
+                    ${mature ? `<button class="craft-btn" style="padding:4px 8px; font-size:0.72rem;" onclick="GardenSystem.slaughterRabbit(${i})">🔪 ${t('dvur.slaughterRabbit')}</button>` : ''}
+                </div>`;
+            });
+            h += `</div>`;
             if (st.animals.length >= 2 && st.animals.length < cfg.cap && !this._penHungry('rabbitry')) {
-                h += `<div style="font-size:0.78rem; opacity:0.7; margin-bottom:8px;">💕 ${t('dvur.breeding')}</div>`;
+                h += `<div style="font-size:0.78rem; opacity:0.7; margin-top:8px;">💕 ${t('dvur.breeding')}</div>`;
             }
-            h += `<button class="craft-btn" onclick="GardenSystem.slaughterRabbit()">🔪 ${t('dvur.slaughterRabbit')}</button>`;
         }
 
         if (pen === 'goatpen' && st.animals.length) {
             const now = Date.now();
-            const ready = st.animals.filter(a => now - (a.lastMilk || a.placedAt) >= cfg.milkMs).length;
-            h += `<button class="craft-btn" onclick="GardenSystem.collectGoatMilk()" ${ready ? '' : 'disabled'}>🥛 ${t('dvur.milkGoats')} (${ready})</button>`;
+            const readyCount = st.animals.filter(a => now - (a.lastMilk || a.placedAt) >= cfg.milkMs).length;
+            // Stats grid
+            h += `<div style="display:grid; grid-template-columns:1fr 1fr; gap:6px; margin-bottom:10px; font-size:0.82rem;">`;
+            h += `<div>🥛 ${t('dvur.milkReady')}: <strong>${readyCount}/${st.animals.length}</strong></div>`;
+            const nextMilkMs = Math.min(...st.animals.map(a => cfg.milkMs - (now - (a.lastMilk || a.placedAt))));
+            const nextMilkH = nextMilkMs > 0 ? Math.ceil(nextMilkMs / 3600000) : 0;
+            h += `<div>${t('dvur.nextMilk')}: <strong>${readyCount === st.animals.length ? '✓' : nextMilkH + 'h'}</strong></div>`;
+            h += `</div>`;
+            // Per-goat rows
+            h += `<div style="display:flex; flex-direction:column; gap:5px; margin-bottom:10px;">`;
+            st.animals.forEach((a, i) => {
+                const goatReady = now - (a.lastMilk || a.placedAt) >= cfg.milkMs;
+                const msLeft = cfg.milkMs - (now - (a.lastMilk || a.placedAt));
+                const hLeft = Math.max(0, Math.ceil(msLeft / 3600000));
+                h += `<div style="padding:5px 8px; background:rgba(0,0,0,0.04); border-radius:5px; font-size:0.78rem; display:flex; align-items:center; gap:6px;">
+                    <span>🐐</span>
+                    <span>${t('dvur.goatLabel')} ${i+1}</span>
+                    <span style="margin-left:auto; ${goatReady ? 'color:#27ae60;' : 'opacity:0.6;'}">${goatReady ? '🥛 ' + t('dvur.ready') : hLeft + 'h'}</span>
+                </div>`;
+            });
+            h += `</div>`;
+            h += `<button class="craft-btn" onclick="GardenSystem.collectGoatMilk()" ${readyCount ? '' : 'disabled'}>🥛 ${t('dvur.milkGoats')} (${readyCount})</button>`;
         }
 
         if (pen === 'pigsty' && st.animals.length) {
@@ -1174,10 +1219,11 @@ const GardenSystem = {
             st.animals.forEach((a, i) => {
                 const mature = this._pigMature(a);
                 const pct = Math.min(100, Math.round((Date.now() - a.placedAt) / cfg.growMs * 100));
+                const daysLeft = mature ? 0 : Math.ceil((cfg.growMs - (Date.now() - a.placedAt)) / 86400000);
                 h += `<div style="padding:8px 10px; background:rgba(0,0,0,0.04); border-radius:6px; display:flex; align-items:center; gap:8px;">
                     <span style="font-size:1.2rem;">${mature ? '🐖' : '🐷'}</span>
                     <div style="flex:1;">
-                        <div style="font-size:0.78rem;">${mature ? t('dvur.pigMature') : t('dvur.pigGrowing') + ' ' + pct + '%'}</div>
+                        <div style="font-size:0.78rem;">${mature ? t('dvur.pigMature') : t('dvur.pigGrowing') + ' ' + pct + '%' + (daysLeft ? ' (' + daysLeft + ' ' + t('dvur.daysLeft') + ')' : '')}</div>
                         <div style="height:5px; background:rgba(0,0,0,0.1); border-radius:3px; margin-top:3px;">
                             <div style="height:100%; width:${pct}%; background:var(--accent-gold); border-radius:3px;"></div>
                         </div>
@@ -1188,6 +1234,30 @@ const GardenSystem = {
                 </div>`;
             });
             h += `</div>`;
+        }
+
+        if (pen === 'stable') {
+            // Mine bonus badge
+            const horseCount = st.animals.length;
+            const multMap = { 0: 1.0, 1: 0.75, 2: 0.5 };
+            const mult = multMap[horseCount] || 0.5;
+            const multLabel = mult < 1 ? `×${mult}` : t('dvur.noBonus');
+            const multColor = mult < 1 ? '#27ae60' : 'inherit';
+            h += `<div style="padding:8px 10px; background:rgba(0,0,0,0.04); border-radius:6px; margin-bottom:10px; font-size:0.82rem;">`;
+            h += `<div>⛏️ ${t('dvur.mineBonus')}: <strong style="color:${multColor};">${multLabel}</strong> ${t('dvur.mineBonusDesc')}</div>`;
+            h += `</div>`;
+            if (st.animals.length) {
+                h += `<div style="display:flex; flex-direction:column; gap:5px; margin-bottom:10px;">`;
+                st.animals.forEach((a, i) => {
+                    const ageDays = Math.floor((Date.now() - a.placedAt) / 86400000);
+                    h += `<div style="padding:6px 10px; background:rgba(0,0,0,0.04); border-radius:5px; font-size:0.8rem; display:flex; align-items:center; gap:6px;">
+                        <span>🐎</span>
+                        <span>${t('dvur.horseLabel')} ${i+1}</span>
+                        <span style="margin-left:auto; opacity:0.6;">${ageDays} ${t('dvur.days')}</span>
+                    </div>`;
+                });
+                h += `</div>`;
+            }
         }
 
         h += `</div>`;
