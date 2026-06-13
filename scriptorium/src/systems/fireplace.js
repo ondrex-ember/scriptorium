@@ -111,6 +111,11 @@ const FireplaceSystem = {
         if (lockedView) lockedView.style.display = 'none';
         if (unlockedView) unlockedView.style.display = 'block';
 
+        const visualFoculus = document.getElementById('fireplace-visual-foculus');
+        if (visualFoculus) {
+            visualFoculus.src = GameState.flags.fireplaceLit ? '/img/hearth_base_red.png' : '/img/hearth_base_dead.png';
+        }
+
         const btnStick = document.getElementById('btn-fuel-stick');
         const btnLog = document.getElementById('btn-fuel-log');
         const bar = document.getElementById('fireplace-fuel-bar');
