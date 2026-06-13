@@ -43,7 +43,12 @@ const STRINGS_en = {
         bandAlive: 'alive',
         bandMurky: 'murky',
         bandClogged: 'clogged',
-        bandDead: 'dead'
+        bandDead: 'dead',
+        yieldNow: 'Yield per draw:',
+        yieldBase: 'base',
+        graceLeft: 'Fresh water — protected for {n} more days',
+        forecast: 'Forecast (7 days): {dry} dry, {rainy} rainy',
+        statsUses: 'Drawn {uses}× · cleaned {cleans}×'
     },
     settingsUI: {
         musicTitle: '🎵 Music',
@@ -221,6 +226,7 @@ const STRINGS_en = {
         wellCollapsed: '💥 The well has collapsed!',
         wellClouding: 'The well water is beginning to cloud. It will need cleaning soon.',
         wellClogged: 'The well is clogged. Clean it before the water runs out.',
+        wellFrozen: '❄️ The well has frozen — water cannot be drawn.',
         vigor: {
             exhausted: '⚠️ Vigor exhaustus! You must eat.',
             deficiens: '⚠️ Vigor is failing — consume food.',

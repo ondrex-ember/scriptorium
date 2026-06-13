@@ -1358,6 +1358,9 @@ const CellariumSystem = {
         </div>`;
       });
 
+      // Studna — progresivní karta (patří k Dvoru, vedle kurníku/ovčína)
+      dvurInner += this._renderWellBuilding(lang);
+
       // Sekce pod sebou (full-width), karty uvnitř v responsivním gridu
       const grid = (inner) => `<div style="display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:8px; align-items:start;">${inner}</div>`;
       h += `<div style="display:flex; flex-direction:column; gap:12px;">`;
@@ -1370,6 +1373,50 @@ const CellariumSystem = {
 
     h += `</div>`;
     return h;
+  },
+
+  // Studna — progresivní karta (postavit → kamenná → posvěcená) v sekci Dvůr
+  _renderWellBuilding: function(lang) {
+    const w = GameState.well || {};
+    const lvl = w.built ? w.level : 'none';
+    const hasStone   = GameState.researchedTechs && GameState.researchedTechs.includes('tech_well_stone');
+    const hasBlessed = GameState.researchedTechs && GameState.researchedTechs.includes('tech_well_blessed');
+
+    const costRow = (cost) => Object.entries(cost).map(([id, n]) => {
+      const it = ItemsDB[id];
+      const have = GameState.inventory[id] || 0;
+      return `<div style="font-size:0.72rem; ${have >= n ? '' : 'color:#c0392b;'}">${it ? it.icon : '📦'} ${(typeof iName === 'function') ? iName(id) : id} ×${n} <span style="opacity:0.6;">(${lang==='en'?'has':'máš'}: ${have})</span></div>`;
+    }).join('');
+    const canAfford = (cost) => Object.entries(cost).every(([id, n]) => (GameState.inventory[id]||0) >= n);
+    const btn = (fn, cost, label) => `${costRow(cost)}<button onclick="${fn}" class="craft-btn" style="font-size:0.78rem; margin-top:6px;" ${canAfford(cost) ? '' : 'disabled'}>🏗️ ${label}</button>`;
+    const lockTech = (techName) => `<div style="font-size:0.74rem; opacity:0.6;">🔒 ${t('dvur.lockedPrefix')} ${(typeof tName === 'function') ? tName(techName) : techName}</div>`;
+
+    // Aktuální stav + další akce
+    let statusLine, action;
+    if (lvl === 'none') {
+      statusLine = `<span style="opacity:0.7;">${t('wellUI.notBuiltShort')}</span>`;
+      action = btn("WellSystem.upgradeWell('basic')", { rock: 20, stick: 10, rope: 3 }, t('wellUI.buildBasicBtn'));
+    } else if (lvl === 'basic') {
+      statusLine = `✅ ${t('wellUI.levelBasic')}`;
+      action = hasStone
+        ? btn("WellSystem.upgradeWell('stone')", { rock: 30, rope: 5, charcoal: 10 }, t('wellUI.upgradeStoneBtn'))
+        : lockTech('tech_well_stone');
+    } else if (lvl === 'stone') {
+      statusLine = `✅ ${t('wellUI.levelStone')}`;
+      action = hasBlessed
+        ? btn("WellSystem.upgradeWell('blessed')", { cut_stone: 30, chalk: 8, candle: 5 }, t('wellUI.upgradeBlessedBtn'))
+        : lockTech('tech_well_blessed');
+    } else {
+      statusLine = `✅ ${t('wellUI.levelBlessed')}`;
+      action = `<div style="font-size:0.78rem; color:#5a9a5a; font-style:italic;">✨ ${t('wellUI.maxLevel')}</div>`;
+    }
+
+    return `<div style="padding:10px; background:rgba(197,160,89,0.05); border-radius:8px; border:1px solid rgba(197,160,89,0.18);">
+      <div style="font-weight:bold; font-size:0.88rem; margin-bottom:4px;">🚰 ${t('wellUI.buildingName')}</div>
+      <div style="font-size:0.75rem; opacity:0.7; margin-bottom:6px;">${t('wellUI.buildingDesc')}</div>
+      <div style="font-size:0.8rem; margin-bottom:6px;">${statusLine}</div>
+      ${action}
+    </div>`;
   },
 
 

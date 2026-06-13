@@ -2340,11 +2340,7 @@
                         <h3 data-i18n="wellUI.title">🚰 Správa Studny</h3>
 
                         <div id="well-not-built" style="display: none;">
-                            <p data-i18n="wellUI.notBuilt">Nemáš studnu. Můžeš ji postavit níže.</p>
-                            <button onclick="WellSystem.upgradeWell('basic')" class="craft-btn" style="background: #4a7c59;"
-                                data-i18n="wellUI.buildBasic">
-                                🏗️ Postavit studnu (20 kámen, 10 větev, 3 provaz)
-                            </button>
+                            <p data-i18n="wellUI.notBuiltCellarium">Studnu postavíš v Cellarium → Budovy (sekce Dvůr).</p>
                         </div>
 
                         <div id="well-built" style="display: none;">
@@ -2387,7 +2383,10 @@
                             </div>
 
                             <!-- Water consumers -->
-                            <div id="well-consumers" style="margin-bottom:15px; font-size:0.82rem; opacity:0.85;"></div>
+                            <div id="well-consumers" style="margin-bottom:8px; font-size:0.82rem; opacity:0.85;"></div>
+
+                            <!-- Extra report info (výnos, grace, počítadla, předpověď) -->
+                            <div id="well-extra" style="margin-bottom:15px; font-size:0.82rem; opacity:0.85; line-height:1.7;"></div>
 
                             <div style="display: flex; gap: 10px; flex-wrap: wrap;">
                                 <button onclick="WellSystem.cleanWell()" id="btn-clean-well" class="craft-btn"
@@ -2397,10 +2396,6 @@
                                 <button onclick="WellSystem.repairWell()" id="btn-repair-well" class="craft-btn"
                                     style="background: #c75a5a; display: none;" data-i18n="wellUI.repair">
                                     🔧 Opravit (sada)
-                                </button>
-                                <button onclick="WellSystem.upgradeWell('stone')" id="btn-upgrade-stone" class="craft-btn"
-                                    style="background: #8b6434; display: none;" data-i18n="wellUI.upgrade">
-                                    🏛️ Vyzdít kamenem (30 kámen, 5 provaz, 10 uhel)
                                 </button>
                             </div>
                         </div>
@@ -13372,6 +13367,9 @@ const CellariumSystem = {
         </div>`;
       });
 
+      // Studna — progresivní karta (patří k Dvoru, vedle kurníku/ovčína)
+      dvurInner += this._renderWellBuilding(lang);
+
       // Sekce pod sebou (full-width), karty uvnitř v responsivním gridu
       const grid = (inner) => `<div style="display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:8px; align-items:start;">${inner}</div>`;
       h += `<div style="display:flex; flex-direction:column; gap:12px;">`;
@@ -13384,6 +13382,50 @@ const CellariumSystem = {
 
     h += `</div>`;
     return h;
+  },
+
+  // Studna — progresivní karta (postavit → kamenná → posvěcená) v sekci Dvůr
+  _renderWellBuilding: function(lang) {
+    const w = GameState.well || {};
+    const lvl = w.built ? w.level : 'none';
+    const hasStone   = GameState.researchedTechs && GameState.researchedTechs.includes('tech_well_stone');
+    const hasBlessed = GameState.researchedTechs && GameState.researchedTechs.includes('tech_well_blessed');
+
+    const costRow = (cost) => Object.entries(cost).map(([id, n]) => {
+      const it = ItemsDB[id];
+      const have = GameState.inventory[id] || 0;
+      return `<div style="font-size:0.72rem; ${have >= n ? '' : 'color:#c0392b;'}">${it ? it.icon : '📦'} ${(typeof iName === 'function') ? iName(id) : id} ×${n} <span style="opacity:0.6;">(${lang==='en'?'has':'máš'}: ${have})</span></div>`;
+    }).join('');
+    const canAfford = (cost) => Object.entries(cost).every(([id, n]) => (GameState.inventory[id]||0) >= n);
+    const btn = (fn, cost, label) => `${costRow(cost)}<button onclick="${fn}" class="craft-btn" style="font-size:0.78rem; margin-top:6px;" ${canAfford(cost) ? '' : 'disabled'}>🏗️ ${label}</button>`;
+    const lockTech = (techName) => `<div style="font-size:0.74rem; opacity:0.6;">🔒 ${t('dvur.lockedPrefix')} ${(typeof tName === 'function') ? tName(techName) : techName}</div>`;
+
+    // Aktuální stav + další akce
+    let statusLine, action;
+    if (lvl === 'none') {
+      statusLine = `<span style="opacity:0.7;">${t('wellUI.notBuiltShort')}</span>`;
+      action = btn("WellSystem.upgradeWell('basic')", { rock: 20, stick: 10, rope: 3 }, t('wellUI.buildBasicBtn'));
+    } else if (lvl === 'basic') {
+      statusLine = `✅ ${t('wellUI.levelBasic')}`;
+      action = hasStone
+        ? btn("WellSystem.upgradeWell('stone')", { rock: 30, rope: 5, charcoal: 10 }, t('wellUI.upgradeStoneBtn'))
+        : lockTech('tech_well_stone');
+    } else if (lvl === 'stone') {
+      statusLine = `✅ ${t('wellUI.levelStone')}`;
+      action = hasBlessed
+        ? btn("WellSystem.upgradeWell('blessed')", { cut_stone: 30, chalk: 8, candle: 5 }, t('wellUI.upgradeBlessedBtn'))
+        : lockTech('tech_well_blessed');
+    } else {
+      statusLine = `✅ ${t('wellUI.levelBlessed')}`;
+      action = `<div style="font-size:0.78rem; color:#5a9a5a; font-style:italic;">✨ ${t('wellUI.maxLevel')}</div>`;
+    }
+
+    return `<div style="padding:10px; background:rgba(197,160,89,0.05); border-radius:8px; border:1px solid rgba(197,160,89,0.18);">
+      <div style="font-weight:bold; font-size:0.88rem; margin-bottom:4px;">🚰 ${t('wellUI.buildingName')}</div>
+      <div style="font-size:0.75rem; opacity:0.7; margin-bottom:6px;">${t('wellUI.buildingDesc')}</div>
+      <div style="font-size:0.8rem; margin-bottom:6px;">${statusLine}</div>
+      ${action}
+    </div>`;
   },
 
 
@@ -13608,7 +13650,12 @@ const WellSystem = {
 
     // ── Tuning konstanty (single source of truth, doladit po testu) ──────────
     USE_DECAY:    { basic: 6, stone: 3, blessed: 1 },   // purity −/čerpání
-    TIME_DECAY:   { basic: 3, stone: 1.5, blessed: 0.5 },// purity −/den (stojatá voda)
+    RAIN_FILL:    8,                                     // hladina +/deštivý den
+    DRY_DRAIN:    { basic: 4, stone: 3, blessed: 2 },    // hladina −/suchý den
+    RAIN_MURK:    { basic: 2, stone: 0.5, blessed: 0 },  // purity −/deštivý den (kalí nekrytou)
+    DRY_MURK:     { basic: 2, stone: 1, blessed: 0.5 },  // purity −/suchý den (stojatá voda)
+    DRAW_COST:    5,                                     // hladina −/čerpání
+    TIME_DECAY:   { basic: 3, stone: 1.5, blessed: 0.5 },// purity −/den FALLBACK (když počasí nedostupné)
     CLEAN_AMT:    40,                                    // purity + za vyčištění
     GRACE_DAYS:   5,                                     // dní bez degradace po čištění/stavbě
     PURITY_BANDS: { clean: 70 },                         // ≥70 clean, <70 dirty, 0 broken
@@ -13654,6 +13701,13 @@ const WellSystem = {
             return;
         }
 
+        // Zamrzlá studna — nelze čerpat
+        if (this.isFrozen()) {
+            GameState.well.frozen = true;
+            UI.notify(t('game.wellFrozen'), true);
+            return;
+        }
+
         // Check tool
         const tool = useBucket ? "bucket" : "cooking_pot";
         if (!GameState.inventory[tool] || GameState.inventory[tool] <= 0) {
@@ -13676,6 +13730,10 @@ const WellSystem = {
             UI.notify(t('game.wellMurky'));
         }
 
+        // Škálování hladinou: plná = plný výnos, nízká = méně. Hladina 0 = min 1 kapka.
+        const wl = (typeof GameState.well.level_water === 'number') ? GameState.well.level_water : 100;
+        waterAmount = Math.max(1, Math.floor(waterAmount * (0.4 + 0.6 * wl / 100)));
+
         // Special: Blessed well může dát holy water
         if (level === "blessed" && Math.random() < 0.2) {
             Game.addItem("holy_water", 1);
@@ -13685,8 +13743,9 @@ const WellSystem = {
             UI.notify(t('game.waterDrawn').replace('{amt}', waterAmount));
         }
 
-        // Degradace užitím (purity model v2, místo RNG)
+        // Degradace užitím (purity model v2, místo RNG) + úbytek hladiny
         this._degrade(this.USE_DECAY[level] || 0);
+        GameState.well.level_water = Math.max(0, (GameState.well.level_water || 0) - this.DRAW_COST);
         Game.checkCalendarium();
         GameState.well.lastUse = Date.now();
 
@@ -13755,7 +13814,8 @@ const WellSystem = {
     upgradeWell: function(toLevel) {
         const recipeMap = {
             "basic": "well_basic",
-            "stone": "well_upgrade_stone"
+            "stone": "well_upgrade_stone",
+            "blessed": "well_upgrade_blessed"
         };
 
         const recipeId = recipeMap[toLevel];
@@ -13769,6 +13829,11 @@ const WellSystem = {
 
         if (toLevel === "stone" && GameState.well.level !== "basic") {
             UI.notify(t('game.wellNeedBasic'), true);
+            return;
+        }
+
+        if (toLevel === "blessed" && GameState.well.level !== "stone") {
+            UI.notify(t('game.wellNeedStone'), true);
             return;
         }
 
@@ -13819,7 +13884,73 @@ const WellSystem = {
             UI.notify(t('game.wellUpgraded'));
             Game.save();
             UI.renderAll();
+            return;
         }
+
+        // Upgrade to blessed (posvěcená)
+        if (toLevel === "blessed") {
+            const cost = { cut_stone: 30, chalk: 8, candle: 5 };
+
+            for (let [item, amt] of Object.entries(cost)) {
+                if (!GameState.inventory[item] || GameState.inventory[item] < amt) {
+                    UI.notify(t('game.needItemAmt').replace('{amt}', amt).replace('{item}', ItemsDB[item].name), true);
+                    return;
+                }
+            }
+
+            for (let [item, amt] of Object.entries(cost)) {
+                Game.addItem(item, -amt);
+            }
+
+            GameState.well.level = "blessed";
+            GameState.well.purity = 100;
+            GameState.well.condition = "clean";
+            GameState.well.lastClean = Date.now();
+            GameState.well.frozen = false;
+            UI.notify(t('game.wellBlessed'));
+            Game.addKronikaEntry('important', '✨ Studna byla posvěcena.', '✨ The well has been blessed.', '✨ Puteus benedictus est.');
+            if (typeof NotificationSystem !== 'undefined' && NotificationSystem.panel) {
+                NotificationSystem.panel('✨ ' + t('game.wellBlessed'), 'system');
+            }
+            Game.save();
+            UI.renderAll();
+        }
+    },
+
+    // Souhrn pro report (spočítané hodnoty) — ui.js jen zobrazuje
+    reportInfo: function() {
+        const w = GameState.well;
+        const lvl = w.level;
+        const stats = this.getWellStats(lvl);
+
+        // Aktuální výnos za nabrání (hrnec) po modifikátorech
+        let base = stats.waterPerUse;
+        const purity = w.purity;
+        if (purity < 30) base = Math.max(1, Math.floor(base * 0.4));
+        else if (purity < 70) base = Math.floor(base * 0.5);
+        const wl = (typeof w.level_water === 'number') ? w.level_water : 100;
+        const yieldNow = Math.max(1, Math.floor(base * (0.4 + 0.6 * wl / 100)));
+
+        // Grace — kolik dní ochrany zbývá
+        const graceMs = this.GRACE_DAYS * this.DAY_MS;
+        const elapsed = Date.now() - (w.lastClean || 0);
+        const graceLeft = (elapsed < graceMs) ? Math.ceil((graceMs - elapsed) / this.DAY_MS) : 0;
+
+        // Předpověď počasí (suché/deštivé z 7 dní)
+        let dry = null;
+        if (typeof WeatherSystem !== 'undefined' && WeatherSystem.countDryDays) {
+            const d = WeatherSystem.countDryDays(7);
+            if (d.total > 0) dry = { dry: d.dry, rainy: d.total - d.dry };
+        }
+
+        return {
+            yieldNow: yieldNow,
+            yieldBase: stats.waterPerUse,
+            graceLeft: graceLeft,
+            uses: (GameState.achievements && GameState.achievements.stats.wellUses) || 0,
+            cleans: (GameState.achievements && GameState.achievements.stats.wellCleans) || 0,
+            forecast: dry
+        };
     },
 
     // Seznam aktivních spotřebitelů vody (pro report). Vrací pole labelů.
@@ -13867,7 +13998,23 @@ const WellSystem = {
         }
     },
 
-    // Denní tick — časová degradace (stojatá voda). Self-guard 24h + grace 5 dní po čištění.
+    // Mráz — zima (měsíc 12–2) + aktuální teplota < 0. Blessed ignoruje.
+    isFrozen: function() {
+        const w = GameState.well;
+        if (!w || w.level === "blessed") return false;
+        const m = new Date().getMonth() + 1; // 1–12
+        if (!(m === 12 || m === 1 || m === 2)) return false;
+        try {
+            const c = (typeof WeatherSystem !== 'undefined') ? WeatherSystem.cache : null;
+            if (c && c.current && typeof c.current.temperature_2m === 'number') {
+                return c.current.temperature_2m < 0;
+            }
+        } catch (e) {}
+        return false;
+    },
+
+    // Denní tick — počasní degradace (hladina + purity). Fallback paušál když počasí nedostupné.
+    // Self-guard 24h + grace 5 dní po čištění.
     dailyTick: function() {
         this._ensureState();
         const w = GameState.well;
@@ -13877,10 +14024,31 @@ const WellSystem = {
         if (now - (w.lastTick || 0) < this.DAY_MS) return;
         w.lastTick = now;
 
+        // Aktualizovat zamrznutí (nezávisí na grace)
+        w.frozen = this.isFrozen();
+
         // Grace period po vyčištění/postavení
         if (now - (w.lastClean || 0) < this.GRACE_DAYS * this.DAY_MS) return;
 
-        this._degrade(this.TIME_DECAY[w.level] || 0);
+        const lvl = w.level;
+        // Počasí dostupné?
+        let dry = { dry: 0, total: 0 };
+        if (typeof WeatherSystem !== 'undefined' && WeatherSystem.countDryDays) {
+            dry = WeatherSystem.countDryDays(7);
+        }
+
+        if (dry.total > 0) {
+            // Hybrid: déšť plní hladinu + kalí nekrytou, sucho ubírá hladinu + stojatá voda
+            const rainy = dry.total - dry.dry;
+            w.level_water = Math.max(0, Math.min(100,
+                w.level_water + rainy * this.RAIN_FILL - dry.dry * (this.DRY_DRAIN[lvl] || 0)));
+            const purityDrop = dry.dry * (this.DRY_MURK[lvl] || 0) + rainy * (this.RAIN_MURK[lvl] || 0);
+            this._degrade(purityDrop);
+        } else {
+            // Fallback: počasí nedostupné → paušální časová degradace
+            this._degrade(this.TIME_DECAY[lvl] || 0);
+        }
+
         Game.save();
     },
 
@@ -24684,7 +24852,20 @@ const STRINGS_cs = {
         bandAlive: 'živá',
         bandMurky: 'kalná',
         bandClogged: 'zanesená',
-        bandDead: 'mrtvá'
+        bandDead: 'mrtvá',
+        yieldNow: 'Výnos za nabrání:',
+        yieldBase: 'základ',
+        graceLeft: 'Čerstvá voda — chráněno ještě {n} dní',
+        forecast: 'Předpověď (7 dní): {dry} suchých, {rainy} deštivých',
+        statsUses: 'Nabráno {uses}× · vyčištěno {cleans}×',
+        buildingName: 'Studna (Puteus)',
+        buildingDesc: 'Zdroj vody pro zahrádky, dobytek a vaření. Vylepšuje se kamenem a posvěcením.',
+        notBuiltShort: 'Nepostavena',
+        buildBasicBtn: 'Postavit studnu',
+        upgradeStoneBtn: 'Vyzdít kamenem',
+        upgradeBlessedBtn: 'Posvětit (rituál)',
+        maxLevel: 'Nejvyšší úroveň',
+        notBuiltCellarium: 'Studnu postavíš v Cellarium → Budovy (sekce Dvůr).'
     },
     settingsUI: {
         musicTitle: '🎵 Hudba',
@@ -24875,6 +25056,9 @@ const STRINGS_cs = {
         wellCollapsed: '💥 Studna se zřítila!',
         wellClouding: 'Voda ve studni začíná kalnět. Brzy ji bude třeba vyčistit.',
         wellClogged: 'Studna je zanesená. Vyčisti ji, než voda dojde.',
+        wellFrozen: '❄️ Studna zamrzla — vodu nelze nabrat.',
+        wellNeedStone: 'Nejprve vyzdi studnu kamenem.',
+        wellBlessed: '✨ Studna byla posvěcena — svěcená voda, téměř bezúdržbová.',
         vigor: {
             exhausted: '⚠️ Vigor exhaustus! Cibus necesse est.',
             deficiens: '⚠️ Vigor deficiens — najez se.',
@@ -26207,7 +26391,12 @@ const STRINGS_en = {
         bandAlive: 'alive',
         bandMurky: 'murky',
         bandClogged: 'clogged',
-        bandDead: 'dead'
+        bandDead: 'dead',
+        yieldNow: 'Yield per draw:',
+        yieldBase: 'base',
+        graceLeft: 'Fresh water — protected for {n} more days',
+        forecast: 'Forecast (7 days): {dry} dry, {rainy} rainy',
+        statsUses: 'Drawn {uses}× · cleaned {cleans}×'
     },
     settingsUI: {
         musicTitle: '🎵 Music',
@@ -26385,6 +26574,7 @@ const STRINGS_en = {
         wellCollapsed: '💥 The well has collapsed!',
         wellClouding: 'The well water is beginning to cloud. It will need cleaning soon.',
         wellClogged: 'The well is clogged. Clean it before the water runs out.',
+        wellFrozen: '❄️ The well has frozen — water cannot be drawn.',
         vigor: {
             exhausted: '⚠️ Vigor exhaustus! You must eat.',
             deficiens: '⚠️ Vigor is failing — consume food.',
@@ -32087,18 +32277,12 @@ renderActions: function() {
 				}
 			}
 			
-			// Show/hide buttons
+			// Show/hide buttons (build/upgrade přesunuto do Cellarium → Budovy)
 			const btnClean = document.getElementById('btn-clean-well');
 			const btnRepair = document.getElementById('btn-repair-well');
-			const btnUpgrade = document.getElementById('btn-upgrade-stone');
 			
 			if (btnClean) btnClean.style.display = GameState.well.condition === "dirty" ? "inline-block" : "none";
 			if (btnRepair) btnRepair.style.display = GameState.well.condition === "broken" ? "inline-block" : "none";
-			if (btnUpgrade) {
-				const canUpgrade = GameState.well.level === "basic" && 
-								  GameState.researchedTechs.includes("tech_well_stone");
-				btnUpgrade.style.display = canUpgrade ? "inline-block" : "none";
-			}
 
 			// Purity bar (% + barva + pásmo)
 			const purity = (typeof GameState.well.purity === 'number') ? GameState.well.purity : 100;
@@ -32135,6 +32319,29 @@ renderActions: function() {
 			if (consEl && typeof WellSystem !== 'undefined' && WellSystem.waterConsumers) {
 				const list = WellSystem.waterConsumers();
 				consEl.textContent = '💧 ' + t('wellUI.consumers') + ' ' + list.join(', ');
+			}
+
+			// Extra report info
+			const extraEl = document.getElementById('well-extra');
+			if (extraEl && typeof WellSystem !== 'undefined' && WellSystem.reportInfo) {
+				const info = WellSystem.reportInfo();
+				const rows = [];
+				// Aktuální výnos
+				rows.push('🪣 ' + t('wellUI.yieldNow') + ' <strong>' + info.yieldNow + '</strong>'
+					+ ' <span style="opacity:0.6;">(' + t('wellUI.yieldBase') + ' ' + info.yieldBase + ')</span>');
+				// Grace
+				if (info.graceLeft > 0) {
+					rows.push('🛡️ ' + t('wellUI.graceLeft').replace('{n}', info.graceLeft));
+				}
+				// Předpověď počasí
+				if (info.forecast) {
+					rows.push('🌦️ ' + t('wellUI.forecast')
+						.replace('{dry}', info.forecast.dry)
+						.replace('{rainy}', info.forecast.rainy));
+				}
+				// Počítadla
+				rows.push('📊 ' + t('wellUI.statsUses').replace('{uses}', info.uses).replace('{cleans}', info.cleans));
+				extraEl.innerHTML = rows.join('<br>');
 			}
 		}
 	},

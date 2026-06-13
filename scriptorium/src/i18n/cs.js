@@ -48,7 +48,20 @@ const STRINGS_cs = {
         bandAlive: 'živá',
         bandMurky: 'kalná',
         bandClogged: 'zanesená',
-        bandDead: 'mrtvá'
+        bandDead: 'mrtvá',
+        yieldNow: 'Výnos za nabrání:',
+        yieldBase: 'základ',
+        graceLeft: 'Čerstvá voda — chráněno ještě {n} dní',
+        forecast: 'Předpověď (7 dní): {dry} suchých, {rainy} deštivých',
+        statsUses: 'Nabráno {uses}× · vyčištěno {cleans}×',
+        buildingName: 'Studna (Puteus)',
+        buildingDesc: 'Zdroj vody pro zahrádky, dobytek a vaření. Vylepšuje se kamenem a posvěcením.',
+        notBuiltShort: 'Nepostavena',
+        buildBasicBtn: 'Postavit studnu',
+        upgradeStoneBtn: 'Vyzdít kamenem',
+        upgradeBlessedBtn: 'Posvětit (rituál)',
+        maxLevel: 'Nejvyšší úroveň',
+        notBuiltCellarium: 'Studnu postavíš v Cellarium → Budovy (sekce Dvůr).'
     },
     settingsUI: {
         musicTitle: '🎵 Hudba',
@@ -239,6 +252,9 @@ const STRINGS_cs = {
         wellCollapsed: '💥 Studna se zřítila!',
         wellClouding: 'Voda ve studni začíná kalnět. Brzy ji bude třeba vyčistit.',
         wellClogged: 'Studna je zanesená. Vyčisti ji, než voda dojde.',
+        wellFrozen: '❄️ Studna zamrzla — vodu nelze nabrat.',
+        wellNeedStone: 'Nejprve vyzdi studnu kamenem.',
+        wellBlessed: '✨ Studna byla posvěcena — svěcená voda, téměř bezúdržbová.',
         vigor: {
             exhausted: '⚠️ Vigor exhaustus! Cibus necesse est.',
             deficiens: '⚠️ Vigor deficiens — najez se.',

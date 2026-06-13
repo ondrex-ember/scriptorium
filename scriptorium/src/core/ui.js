@@ -490,18 +490,12 @@ renderActions: function() {
 				}
 			}
 			
-			// Show/hide buttons
+			// Show/hide buttons (build/upgrade přesunuto do Cellarium → Budovy)
 			const btnClean = document.getElementById('btn-clean-well');
 			const btnRepair = document.getElementById('btn-repair-well');
-			const btnUpgrade = document.getElementById('btn-upgrade-stone');
 			
 			if (btnClean) btnClean.style.display = GameState.well.condition === "dirty" ? "inline-block" : "none";
 			if (btnRepair) btnRepair.style.display = GameState.well.condition === "broken" ? "inline-block" : "none";
-			if (btnUpgrade) {
-				const canUpgrade = GameState.well.level === "basic" && 
-								  GameState.researchedTechs.includes("tech_well_stone");
-				btnUpgrade.style.display = canUpgrade ? "inline-block" : "none";
-			}
 
 			// Purity bar (% + barva + pásmo)
 			const purity = (typeof GameState.well.purity === 'number') ? GameState.well.purity : 100;
@@ -538,6 +532,29 @@ renderActions: function() {
 			if (consEl && typeof WellSystem !== 'undefined' && WellSystem.waterConsumers) {
 				const list = WellSystem.waterConsumers();
 				consEl.textContent = '💧 ' + t('wellUI.consumers') + ' ' + list.join(', ');
+			}
+
+			// Extra report info
+			const extraEl = document.getElementById('well-extra');
+			if (extraEl && typeof WellSystem !== 'undefined' && WellSystem.reportInfo) {
+				const info = WellSystem.reportInfo();
+				const rows = [];
+				// Aktuální výnos
+				rows.push('🪣 ' + t('wellUI.yieldNow') + ' <strong>' + info.yieldNow + '</strong>'
+					+ ' <span style="opacity:0.6;">(' + t('wellUI.yieldBase') + ' ' + info.yieldBase + ')</span>');
+				// Grace
+				if (info.graceLeft > 0) {
+					rows.push('🛡️ ' + t('wellUI.graceLeft').replace('{n}', info.graceLeft));
+				}
+				// Předpověď počasí
+				if (info.forecast) {
+					rows.push('🌦️ ' + t('wellUI.forecast')
+						.replace('{dry}', info.forecast.dry)
+						.replace('{rainy}', info.forecast.rainy));
+				}
+				// Počítadla
+				rows.push('📊 ' + t('wellUI.statsUses').replace('{uses}', info.uses).replace('{cleans}', info.cleans));
+				extraEl.innerHTML = rows.join('<br>');
 			}
 		}
 	},

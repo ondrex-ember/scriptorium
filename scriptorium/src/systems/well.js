@@ -13,7 +13,12 @@ const WellSystem = {
 
     // ── Tuning konstanty (single source of truth, doladit po testu) ──────────
     USE_DECAY:    { basic: 6, stone: 3, blessed: 1 },   // purity −/čerpání
-    TIME_DECAY:   { basic: 3, stone: 1.5, blessed: 0.5 },// purity −/den (stojatá voda)
+    RAIN_FILL:    8,                                     // hladina +/deštivý den
+    DRY_DRAIN:    { basic: 4, stone: 3, blessed: 2 },    // hladina −/suchý den
+    RAIN_MURK:    { basic: 2, stone: 0.5, blessed: 0 },  // purity −/deštivý den (kalí nekrytou)
+    DRY_MURK:     { basic: 2, stone: 1, blessed: 0.5 },  // purity −/suchý den (stojatá voda)
+    DRAW_COST:    5,                                     // hladina −/čerpání
+    TIME_DECAY:   { basic: 3, stone: 1.5, blessed: 0.5 },// purity −/den FALLBACK (když počasí nedostupné)
     CLEAN_AMT:    40,                                    // purity + za vyčištění
     GRACE_DAYS:   5,                                     // dní bez degradace po čištění/stavbě
     PURITY_BANDS: { clean: 70 },                         // ≥70 clean, <70 dirty, 0 broken
@@ -59,6 +64,13 @@ const WellSystem = {
             return;
         }
 
+        // Zamrzlá studna — nelze čerpat
+        if (this.isFrozen()) {
+            GameState.well.frozen = true;
+            UI.notify(t('game.wellFrozen'), true);
+            return;
+        }
+
         // Check tool
         const tool = useBucket ? "bucket" : "cooking_pot";
         if (!GameState.inventory[tool] || GameState.inventory[tool] <= 0) {
@@ -81,6 +93,10 @@ const WellSystem = {
             UI.notify(t('game.wellMurky'));
         }
 
+        // Škálování hladinou: plná = plný výnos, nízká = méně. Hladina 0 = min 1 kapka.
+        const wl = (typeof GameState.well.level_water === 'number') ? GameState.well.level_water : 100;
+        waterAmount = Math.max(1, Math.floor(waterAmount * (0.4 + 0.6 * wl / 100)));
+
         // Special: Blessed well může dát holy water
         if (level === "blessed" && Math.random() < 0.2) {
             Game.addItem("holy_water", 1);
@@ -90,8 +106,9 @@ const WellSystem = {
             UI.notify(t('game.waterDrawn').replace('{amt}', waterAmount));
         }
 
-        // Degradace užitím (purity model v2, místo RNG)
+        // Degradace užitím (purity model v2, místo RNG) + úbytek hladiny
         this._degrade(this.USE_DECAY[level] || 0);
+        GameState.well.level_water = Math.max(0, (GameState.well.level_water || 0) - this.DRAW_COST);
         Game.checkCalendarium();
         GameState.well.lastUse = Date.now();
 
@@ -160,7 +177,8 @@ const WellSystem = {
     upgradeWell: function(toLevel) {
         const recipeMap = {
             "basic": "well_basic",
-            "stone": "well_upgrade_stone"
+            "stone": "well_upgrade_stone",
+            "blessed": "well_upgrade_blessed"
         };
 
         const recipeId = recipeMap[toLevel];
@@ -174,6 +192,11 @@ const WellSystem = {
 
         if (toLevel === "stone" && GameState.well.level !== "basic") {
             UI.notify(t('game.wellNeedBasic'), true);
+            return;
+        }
+
+        if (toLevel === "blessed" && GameState.well.level !== "stone") {
+            UI.notify(t('game.wellNeedStone'), true);
             return;
         }
 
@@ -224,7 +247,73 @@ const WellSystem = {
             UI.notify(t('game.wellUpgraded'));
             Game.save();
             UI.renderAll();
+            return;
         }
+
+        // Upgrade to blessed (posvěcená)
+        if (toLevel === "blessed") {
+            const cost = { cut_stone: 30, chalk: 8, candle: 5 };
+
+            for (let [item, amt] of Object.entries(cost)) {
+                if (!GameState.inventory[item] || GameState.inventory[item] < amt) {
+                    UI.notify(t('game.needItemAmt').replace('{amt}', amt).replace('{item}', ItemsDB[item].name), true);
+                    return;
+                }
+            }
+
+            for (let [item, amt] of Object.entries(cost)) {
+                Game.addItem(item, -amt);
+            }
+
+            GameState.well.level = "blessed";
+            GameState.well.purity = 100;
+            GameState.well.condition = "clean";
+            GameState.well.lastClean = Date.now();
+            GameState.well.frozen = false;
+            UI.notify(t('game.wellBlessed'));
+            Game.addKronikaEntry('important', '✨ Studna byla posvěcena.', '✨ The well has been blessed.', '✨ Puteus benedictus est.');
+            if (typeof NotificationSystem !== 'undefined' && NotificationSystem.panel) {
+                NotificationSystem.panel('✨ ' + t('game.wellBlessed'), 'system');
+            }
+            Game.save();
+            UI.renderAll();
+        }
+    },
+
+    // Souhrn pro report (spočítané hodnoty) — ui.js jen zobrazuje
+    reportInfo: function() {
+        const w = GameState.well;
+        const lvl = w.level;
+        const stats = this.getWellStats(lvl);
+
+        // Aktuální výnos za nabrání (hrnec) po modifikátorech
+        let base = stats.waterPerUse;
+        const purity = w.purity;
+        if (purity < 30) base = Math.max(1, Math.floor(base * 0.4));
+        else if (purity < 70) base = Math.floor(base * 0.5);
+        const wl = (typeof w.level_water === 'number') ? w.level_water : 100;
+        const yieldNow = Math.max(1, Math.floor(base * (0.4 + 0.6 * wl / 100)));
+
+        // Grace — kolik dní ochrany zbývá
+        const graceMs = this.GRACE_DAYS * this.DAY_MS;
+        const elapsed = Date.now() - (w.lastClean || 0);
+        const graceLeft = (elapsed < graceMs) ? Math.ceil((graceMs - elapsed) / this.DAY_MS) : 0;
+
+        // Předpověď počasí (suché/deštivé z 7 dní)
+        let dry = null;
+        if (typeof WeatherSystem !== 'undefined' && WeatherSystem.countDryDays) {
+            const d = WeatherSystem.countDryDays(7);
+            if (d.total > 0) dry = { dry: d.dry, rainy: d.total - d.dry };
+        }
+
+        return {
+            yieldNow: yieldNow,
+            yieldBase: stats.waterPerUse,
+            graceLeft: graceLeft,
+            uses: (GameState.achievements && GameState.achievements.stats.wellUses) || 0,
+            cleans: (GameState.achievements && GameState.achievements.stats.wellCleans) || 0,
+            forecast: dry
+        };
     },
 
     // Seznam aktivních spotřebitelů vody (pro report). Vrací pole labelů.
@@ -272,7 +361,23 @@ const WellSystem = {
         }
     },
 
-    // Denní tick — časová degradace (stojatá voda). Self-guard 24h + grace 5 dní po čištění.
+    // Mráz — zima (měsíc 12–2) + aktuální teplota < 0. Blessed ignoruje.
+    isFrozen: function() {
+        const w = GameState.well;
+        if (!w || w.level === "blessed") return false;
+        const m = new Date().getMonth() + 1; // 1–12
+        if (!(m === 12 || m === 1 || m === 2)) return false;
+        try {
+            const c = (typeof WeatherSystem !== 'undefined') ? WeatherSystem.cache : null;
+            if (c && c.current && typeof c.current.temperature_2m === 'number') {
+                return c.current.temperature_2m < 0;
+            }
+        } catch (e) {}
+        return false;
+    },
+
+    // Denní tick — počasní degradace (hladina + purity). Fallback paušál když počasí nedostupné.
+    // Self-guard 24h + grace 5 dní po čištění.
     dailyTick: function() {
         this._ensureState();
         const w = GameState.well;
@@ -282,10 +387,31 @@ const WellSystem = {
         if (now - (w.lastTick || 0) < this.DAY_MS) return;
         w.lastTick = now;
 
+        // Aktualizovat zamrznutí (nezávisí na grace)
+        w.frozen = this.isFrozen();
+
         // Grace period po vyčištění/postavení
         if (now - (w.lastClean || 0) < this.GRACE_DAYS * this.DAY_MS) return;
 
-        this._degrade(this.TIME_DECAY[w.level] || 0);
+        const lvl = w.level;
+        // Počasí dostupné?
+        let dry = { dry: 0, total: 0 };
+        if (typeof WeatherSystem !== 'undefined' && WeatherSystem.countDryDays) {
+            dry = WeatherSystem.countDryDays(7);
+        }
+
+        if (dry.total > 0) {
+            // Hybrid: déšť plní hladinu + kalí nekrytou, sucho ubírá hladinu + stojatá voda
+            const rainy = dry.total - dry.dry;
+            w.level_water = Math.max(0, Math.min(100,
+                w.level_water + rainy * this.RAIN_FILL - dry.dry * (this.DRY_DRAIN[lvl] || 0)));
+            const purityDrop = dry.dry * (this.DRY_MURK[lvl] || 0) + rainy * (this.RAIN_MURK[lvl] || 0);
+            this._degrade(purityDrop);
+        } else {
+            // Fallback: počasí nedostupné → paušální časová degradace
+            this._degrade(this.TIME_DECAY[lvl] || 0);
+        }
+
         Game.save();
     },
 
