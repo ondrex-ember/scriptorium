@@ -2023,6 +2023,7 @@ const Game = {
             Game.addKronikaEntry('important', `⚒️ Poprvé vyrobeno: ${_fcn}`, `⚒️ Crafted for the first time: ${_fcne}`, `⚒️ Primo factum: ${_fcn}`);
         }
         this.addItem(r.output, craftQty);
+        if (typeof UI !== 'undefined' && UI.spawnFloatingGain) UI.spawnFloatingGain(r.id, craftQty);
         // Byproduct — vedlejší produkt receptu (např. stloukání másla → podmáslí)
         if (r.byproduct && r.byproduct.id) {
             this.addItem(r.byproduct.id, r.byproduct.qty || 1);

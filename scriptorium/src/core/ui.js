@@ -426,7 +426,7 @@ renderActions: function() {
             const blindClass = r.blind ? " blind-recipe" : "";
             const owned = GameState.inventory[r.output] || 0;
             const ownedStr = owned > 0 ? ` <span style="opacity:0.6; font-size:0.85em;">(${lang==='en'?'have':'máš'}: ${owned})</span>` : '';
-            return `<div class="card${blindClass}" style="opacity:${can?1:0.6}"><div class="item-icon">${prod.icon}</div><div style="flex:1"><strong>${iName(r.output)}${blindIcon}${ownedStr}</strong><div class="text-sm">${reqStr.slice(0,-2)}</div></div><button class="craft-btn" onclick="Game.craft('${r.id}')" ${can?'':'disabled'}>${r.id.startsWith('repair_') ? t('craft.repair') : t('craft.btn')}</button></div>`;
+            return `<div class="card${blindClass}" data-recipe-id="${r.id}" style="opacity:${can?1:0.6}; position:relative;"><div class="item-icon">${prod.icon}</div><div style="flex:1"><strong>${iName(r.output)}${blindIcon}${ownedStr}</strong><div class="text-sm">${reqStr.slice(0,-2)}</div></div><button class="craft-btn" onclick="Game.craft('${r.id}')" ${can?'':'disabled'}>${r.id.startsWith('repair_') ? t('craft.repair') : t('craft.btn')}</button></div>`;
         };
 
         const visible = RecipesDB.filter(r => {
@@ -459,6 +459,34 @@ renderActions: function() {
                 el.innerHTML += `<div style="grid-column:1/-1; margin:12px 0 6px; padding:4px 0; border-bottom:1px solid rgba(197,160,89,0.35);"><span style="font-size:0.72rem; font-weight:bold; letter-spacing:0.08em; text-transform:uppercase; color:var(--accent-gold); opacity:0.85;">${catLabels[cat]}</span></div>`;
                 group.forEach(r => { el.innerHTML += renderRecipe(r); });
             });
+        }
+    },
+
+    spawnFloatingGain: function(recipeId, qty) {
+        if (!qty || qty <= 0) return;
+        const card = document.querySelector(`.card[data-recipe-id="${recipeId}"]`);
+        if (!card) return;
+        let span = card.querySelector('.floating-gain');
+        if (span) {
+            const cur = parseInt(span.dataset.qty || '0', 10);
+            const next = cur + qty;
+            span.dataset.qty = next;
+            span.textContent = '+' + next;
+            span.style.animation = 'none';
+            requestAnimationFrame(() => {
+                span.style.animation = '';
+                void span.offsetWidth;
+                span.style.animation = 'float-up-fade 1.2s ease-out forwards';
+            });
+        } else {
+            span = document.createElement('span');
+            span.className = 'floating-gain';
+            span.dataset.qty = qty;
+            span.textContent = '+' + qty;
+            span.style.top = '6px';
+            span.style.right = '8px';
+            card.appendChild(span);
+            span.addEventListener('animationend', () => span.remove());
         }
     },
 	
