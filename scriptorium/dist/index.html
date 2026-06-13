@@ -17400,23 +17400,29 @@ Object.assign(ScriptoriumCat, {
         if (typeof Game !== 'undefined' && Game.save) Game.save();
     },
 
+    _foculusLeaving: false,
+
     _foculusLeave: function() {
+        if (this._foculusLeaving) return;
+        this._foculusLeaving = true;
+        if (GameState.cat) GameState.cat.warmth = 60;
         const el = document.getElementById('cat-by-fire');
         const lane = document.getElementById('cat-lane-top');
         if (el) {
-            // Walk vpravo a zmizí
             this.foculusFacingLeft = false;
             this._foculusSetState('walk');
-            const laneWidth = lane ? lane.clientWidth : 600;
+            const laneWidth = Math.min(lane ? lane.clientWidth : 300, 300);
             el.style.left = (laneWidth + 20) + 'px';
             setTimeout(() => {
+                this._foculusLeaving = false;
                 if (el) el.style.display = 'none';
                 if (this.foculusMoveTimer) { clearTimeout(this.foculusMoveTimer); this.foculusMoveTimer = null; }
                 if (this.foculusFrameTimer) { clearTimeout(this.foculusFrameTimer); this.foculusFrameTimer = null; }
-                // Spustit zahradní roaming
                 if (!this._initialized) this.init();
                 this.show();
             }, 2600);
+        } else {
+            this._foculusLeaving = false;
         }
     },
 
@@ -17546,7 +17552,7 @@ Object.assign(ScriptoriumCat, {
         const lane = document.getElementById('cat-lane-top');
         if (!el || !lane || el.style.display === 'none') return;
 
-        const laneWidth = lane.clientWidth || 300;
+        const laneWidth = Math.min(lane.clientWidth || 300, 300);
         const size = this._foculusFrameSize();
         const maxX = Math.max(10, laneWidth - size - 10);
         const newX = 10 + Math.random() * maxX;
@@ -17569,8 +17575,8 @@ Object.assign(ScriptoriumCat, {
         const lane = document.getElementById('cat-lane-top');
         let el = document.getElementById('cat-by-fire');
 
-        if (!lane || !GameState.flags || !GameState.flags.fireplaceLit) {
-            if (el) el.style.display = 'none';
+        if (!lane || !GameState.flags || !GameState.flags.fireplaceLit || this._foculusLeaving) {
+            if (el && !this._foculusLeaving) el.style.display = 'none';
             if (this.foculusMoveTimer)  { clearTimeout(this.foculusMoveTimer);  this.foculusMoveTimer = null; }
             if (this.foculusFrameTimer) { clearTimeout(this.foculusFrameTimer); this.foculusFrameTimer = null; }
             return;
