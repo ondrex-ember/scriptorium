@@ -757,7 +757,7 @@ Object.assign(ScriptoriumCat, {
             el.title = (GameState.cat && GameState.cat.name) || 'Bezejmenný myšilov';
             el.style.cssText = `
                 position: absolute;
-                bottom: 4px;
+                bottom: 35px;
                 left: ${this.foculusPosX}px;
                 width: ${size}px;
                 height: ${size}px;
