@@ -753,21 +753,23 @@
         /* ═══ FIREPLACE OVERLAY — escapes mode-frozen filter via DOM position ═══ */
         #card-fireplace-overlay {
             position: fixed;
-            top: 75px;
-            right: 20px;
-            width: 280px;
+            top: 90px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 340px;
+            max-width: calc(100vw - 32px);
             z-index: 500;
             box-shadow: 0 4px 16px rgba(0,0,0,0.35);
+        }
+        #card-fireplace-overlay > div {
+            min-width: 0;
         }
 
         @media (max-width: 750px) {
             #card-fireplace-overlay {
                 top: 100px;
-                left: 8px;
-                right: 8px;
-                width: auto;
+                width: calc(100vw - 16px);
                 max-width: 360px;
-                margin: 0 auto;
             }
         }
 
