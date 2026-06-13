@@ -424,7 +424,9 @@ renderActions: function() {
             }
             const blindIcon = r.blind ? " 🌑" : "";
             const blindClass = r.blind ? " blind-recipe" : "";
-            return `<div class="card${blindClass}" style="opacity:${can?1:0.6}"><div class="item-icon">${prod.icon}</div><div style="flex:1"><strong>${iName(r.output)}${blindIcon}</strong><div class="text-sm">${reqStr.slice(0,-2)}</div></div><button class="craft-btn" onclick="Game.craft('${r.id}')" ${can?'':'disabled'}>${r.id.startsWith('repair_') ? t('craft.repair') : t('craft.btn')}</button></div>`;
+            const owned = GameState.inventory[r.output] || 0;
+            const ownedStr = owned > 0 ? ` <span style="opacity:0.6; font-size:0.85em;">(${lang==='en'?'have':'máš'}: ${owned})</span>` : '';
+            return `<div class="card${blindClass}" style="opacity:${can?1:0.6}"><div class="item-icon">${prod.icon}</div><div style="flex:1"><strong>${iName(r.output)}${blindIcon}${ownedStr}</strong><div class="text-sm">${reqStr.slice(0,-2)}</div></div><button class="craft-btn" onclick="Game.craft('${r.id}')" ${can?'':'disabled'}>${r.id.startsWith('repair_') ? t('craft.repair') : t('craft.btn')}</button></div>`;
         };
 
         const visible = RecipesDB.filter(r => {
