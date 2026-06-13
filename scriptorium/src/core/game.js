@@ -257,15 +257,8 @@ const Game = {
                 }
             };
         }
-		// Initialize well if not present (PŘIDAT po library init)
-		if(!GameState.well) {
-			GameState.well = {
-				built: false,
-				level: "none",
-				condition: "clean",
-				lastUse: 0
-			};
-		}
+		// Initialize well if not present (přesun do WellSystem._ensureState)
+		WellSystem._ensureState();
 
 		// Initialize storage buildings
 		if (!GameState.storage) {
@@ -512,6 +505,8 @@ const Game = {
                     if (typeof ScriptoriumCat !== 'undefined' && ScriptoriumCat.dailyTick) ScriptoriumCat.dailyTick();
                     // Decay — denní kažení zásob (self-guarded 24h, gate tech_inventarium)
                     if (typeof DecaySystem !== 'undefined' && DecaySystem.dailyTick) DecaySystem.dailyTick();
+                    // Studna — časová degradace (self-guarded 24h, grace 5 dní)
+                    if (typeof WellSystem !== 'undefined' && WellSystem.dailyTick) WellSystem.dailyTick();
                     Game.checkFarmyardProduction();
                     Game.checkPiscinaGrowth();
                 }
@@ -1370,7 +1365,7 @@ const Game = {
 			
 			// Draw water with pot (default) or bucket
 			const hasBucket = GameState.inventory.bucket && GameState.inventory.bucket > 0;
-			this.drawWater(hasBucket);
+			WellSystem.drawWater(hasBucket);
 			return;
 		}
     // === END WELL HANDLING ===
@@ -2328,101 +2323,6 @@ const Game = {
 	
 	// === WELL SYSTEM === (PŘIDAT před poslední } objektu Game)
 
-	drawWater: function(useBucket = false) {
-		if (!GameState.well.built) {
-			UI.notify(t('game.wellNoWell'), true);
-			return;
-		}
-		
-		if (GameState.well.condition === "broken") {
-			UI.notify(t('game.wellBroken'), true);
-			return;
-		}
-		
-		// Check tool
-		const tool = useBucket ? "bucket" : "cooking_pot";
-		if (!GameState.inventory[tool] || GameState.inventory[tool] <= 0) {
-			UI.notify(t('game.needItemAmt').replace('{amt}', 1).replace('{item}', ItemsDB[tool].name), true);
-			return;
-		}
-		
-		// Get water amount
-		const level = GameState.well.level;
-		const stats = this.getWellStats(level);
-		let waterAmount = useBucket ? stats.waterPerUseBucket : stats.waterPerUse;
-		
-		// Dirty penalty
-		if (GameState.well.condition === "dirty") {
-			waterAmount = Math.floor(waterAmount * 0.5);
-			UI.notify(t('game.wellMurky'));
-		}
-		
-		// Special: Blessed well může dát holy water
-		if (level === "blessed" && Math.random() < 0.2) {
-			this.addItem("holy_water", 1);
-			UI.notify(t('game.wellHolyWater'));
-		} else {
-			this.addItem("water", waterAmount);
-			UI.notify(t('game.waterDrawn').replace('{amt}', waterAmount));
-		}
-		
-		// Degradace check
-		this.checkWellDegradation();
-		this.checkCalendarium();
-		GameState.well.lastUse = Date.now();
-		
-		// Track well uses
-		if(GameState.achievements) {
-			GameState.achievements.stats.wellUses++;
-		}
-		
-		this.save();
-		UI.renderAll();
-	},
-
-	cleanWell: function() {
-		if (GameState.well.condition !== "dirty") {
-			UI.notify(t('game.wellNotDirty'), true);
-			return;
-		}
-		
-		if (!GameState.inventory.purification_powder || GameState.inventory.purification_powder < 1) {
-			UI.notify(t('game.wellNoPowder'), true);
-			return;
-		}
-		
-		this.addItem("purification_powder", -1);
-		GameState.well.condition = "clean";
-		
-		// Track well cleans
-		if(GameState.achievements) {
-			GameState.achievements.stats.wellCleans++;
-		}
-		
-		UI.notify(t('game.wellCleaned'));
-		this.save();
-		UI.renderAll();
-	},
-
-	repairWell: function() {
-		if (GameState.well.condition !== "broken") {
-			UI.notify(t('game.wellNotBroken'), true);
-			return;
-		}
-		
-		if (!GameState.inventory.repair_kit || GameState.inventory.repair_kit < 1) {
-			UI.notify(t('game.wellNoKit'), true);
-			return;
-		}
-		
-		this.addItem("repair_kit", -1);
-		GameState.well.condition = "clean";
-		UI.notify(t('game.wellRepaired'));
-		Game.addKronikaEntry('important', '🪣 Studna opravena.', '🪣 The well has been repaired.', '🪣 Puteus reparatus est.');
-		this.save();
-		UI.renderAll();
-	},
-
 	// ─── KRMNÝ SYSTÉM ──────────────────────────────────────────────────────────
 	checkAnimalFeeding: function() {
 		const lang = (GameState.settings && GameState.settings.language) || 'cs';
@@ -2638,74 +2538,6 @@ const Game = {
 		}
 	},
 
-	upgradeWell: function(toLevel) {
-		const recipeMap = {
-			"basic": "well_basic",
-			"stone": "well_upgrade_stone"
-		};
-		
-		const recipeId = recipeMap[toLevel];
-		if (!recipeId) return;
-		
-		// Check if we can build/upgrade
-		if (toLevel === "basic" && GameState.well.built) {
-			UI.notify(t('game.wellAlreadyBuilt'), true);
-			return;
-		}
-		
-		if (toLevel === "stone" && GameState.well.level !== "basic") {
-			UI.notify(t('game.wellNeedBasic'), true);
-			return;
-		}
-		
-		// Build basic well
-		if (toLevel === "basic") {
-			const cost = { rock: 20, stick: 10, rope: 3 };
-			
-			for (let [item, amt] of Object.entries(cost)) {
-				if (!GameState.inventory[item] || GameState.inventory[item] < amt) {
-					UI.notify(t('game.needItemAmt').replace('{amt}', amt).replace('{item}', ItemsDB[item].name), true);
-					return;
-				}
-			}
-			
-			// Consume materials
-			for (let [item, amt] of Object.entries(cost)) {
-				this.addItem(item, -amt);
-			}
-			
-			GameState.well.built = true;
-			GameState.well.level = "basic";
-			GameState.well.condition = "clean";
-			UI.notify(t('game.wellBuilt'));
-			Game.addKronikaEntry('important', '🪣 Studna postavena.', '🪣 The well has been built.', '🪣 Puteus aedificatus est.');
-			this.save();
-			UI.renderAll();
-			return;
-		}
-		
-		// Upgrade to stone
-		if (toLevel === "stone") {
-			const cost = { rock: 30, rope: 5, charcoal: 10 };
-			
-			for (let [item, amt] of Object.entries(cost)) {
-				if (!GameState.inventory[item] || GameState.inventory[item] < amt) {
-					UI.notify(t('game.needItemAmt').replace('{amt}', amt).replace('{item}', ItemsDB[item].name), true);
-					return;
-				}
-			}
-			
-			for (let [item, amt] of Object.entries(cost)) {
-				this.addItem(item, -amt);
-			}
-			
-			GameState.well.level = "stone";
-			UI.notify(t('game.wellUpgraded'));
-			this.save();
-			UI.renderAll();
-		}
-	},
-
 	checkCalendarium: function() {
 		// Spustit jen 1× za den
 		if (!GameState.flags) GameState.flags = {};
@@ -2755,56 +2587,6 @@ const Game = {
 		}
 	},
 
-	checkWellDegradation: function() {
-		const stats = this.getWellStats(GameState.well.level);
-		
-		// Dirty check
-		if (GameState.well.condition === "clean" && Math.random() < stats.degradeChance) {
-			GameState.well.condition = "dirty";
-			UI.notify(t('game.wellTurningGreen'), true);
-		}
-		
-		// Break check (pouze pokud už je dirty)
-		if (GameState.well.condition === "dirty" && Math.random() < stats.breakChance) {
-			GameState.well.condition = "broken";
-			Game.addKronikaEntry('important', '🪣 Studna se zřítila!', '🪣 The well has collapsed!', '🪣 Puteus corruit!');
-			UI.notify(t('game.wellCollapsed'), true);
-		}
-	},
-
-	getWellStats: function(level) {
-		const defaultStats = {
-			waterPerUse: 3,
-			waterPerUseBucket: 5,
-			degradeChance: 0.08,
-			breakChance: 0.03
-		};
-		
-		const stats = {
-			"basic": {
-				waterPerUse: 3,
-				waterPerUseBucket: 5,
-				degradeChance: 0.15,
-				breakChance: 0.05
-			},
-			"stone": {
-				waterPerUse: 4,
-				waterPerUseBucket: 8,
-				degradeChance: 0.05,
-				breakChance: 0.02
-			},
-			"blessed": {
-				waterPerUse: 5,
-				waterPerUseBucket: 10,
-				degradeChance: 0.01,
-				breakChance: 0.0,
-				holyWaterChance: 0.2
-			}
-		};
-		
-		return stats[level] || defaultStats;
-	},
-	
 	// === BACKUP SYSTEM === (přidat před konec Game objektu)
 
 	exportSave: function() {
