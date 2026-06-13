@@ -7,10 +7,10 @@ const Game = {
         (function() {
             const style = document.createElement('style');
             style.textContent = [
-                '#btn-ignite.btn-ignite--hint {',
+                '#btn-ignite.btn-ignite--hint, #btn-ignite-overlay.btn-ignite--hint {',
                 '  position: relative;',
                 '}',
-                '#btn-ignite.btn-ignite--hint::after {',
+                '#btn-ignite.btn-ignite--hint::after, #btn-ignite-overlay.btn-ignite--hint::after {',
                 '  content: "\ud83d\udd25";',
                 '  margin-left: 0.4em;',
                 '  font-style: normal;',
@@ -1848,8 +1848,10 @@ const Game = {
     checkEnvironment: function() {
         const container = document.getElementById('game-container');
         const fpCard = document.getElementById('card-fireplace');
+        const fpCardOverlay = document.getElementById('card-fireplace-overlay');
         const navHome = document.getElementById('nav-home');
         const btnIgnite = document.getElementById('btn-ignite');
+        const btnIgniteOverlay = document.getElementById('btn-ignite-overlay');
         if (GameState.flags.fireplaceLit) {
             fpCard.classList.add('fireplace-active'); navHome.classList.add('nav-fire-active');
             document.getElementById('fireplace-title').innerText = t('fireplace.lit');
@@ -1857,12 +1859,24 @@ const Game = {
             btnIgnite.style.display = 'none';
             const fpVisualLit = document.getElementById('fireplace-visual');
             if (fpVisualLit) fpVisualLit.src = '/img/hearth_base_red.png';
+            // Overlay: zhasnout, krb hoří — overlay nepotřebný
+            if (fpCardOverlay) fpCardOverlay.style.display = 'none';
         } else {
             // Hint pro nové hráče: krb nebyl nikdy rozžéhnut
             const neverLit = !(GameState.achievements?.stats?.fireplaceCount);
             btnIgnite.classList.toggle('btn-ignite--hint', neverLit);
             const fpVisualDead = document.getElementById('fireplace-visual');
             if (fpVisualDead) fpVisualDead.src = '/img/hearth_base_dead.png';
+            // Overlay: zrcadlí primární kartu, viditelný jen na Pracovna/main tabu
+            if (fpCardOverlay) {
+                document.getElementById('fireplace-title-overlay').innerText = document.getElementById('fireplace-title').innerText;
+                document.getElementById('fireplace-desc-overlay').innerText = document.getElementById('fireplace-desc').innerText;
+                document.getElementById('fireplace-visual-overlay').src = '/img/hearth_base_dead.png';
+                if (btnIgniteOverlay) btnIgniteOverlay.classList.toggle('btn-ignite--hint', neverLit);
+                const onHomeMain = (UI.currentScreen === 'home') &&
+                    (!document.getElementById('home-tab-main') || document.getElementById('home-tab-main').classList.contains('active'));
+                fpCardOverlay.style.display = onHomeMain ? 'flex' : 'none';
+            }
         }
         const isDark = GameState.flags.forceDark || (!TimeSys.isDaytime() && !GameState.flags.fireplaceLit && !GameState.flags.candleLit && !GameState.flags.torchLit);
         if (isDark) container.classList.add('mode-frozen');

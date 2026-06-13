@@ -10,6 +10,7 @@ const UI = {
         document.querySelectorAll('.nav-btn').forEach(e => e.classList.remove('active'));
         if(btn) btn.classList.add('active');
         this.currentScreen = name;
+        if (typeof Game !== 'undefined' && Game.checkEnvironment) Game.checkEnvironment();
         if (this._dirty[name]) {
             this._dirty[name] = false;
             if (name === 'inv')    { this.renderInventory(); }
@@ -737,6 +738,7 @@ renderActions: function() {
 		if (tab === 'cellarium' && celEl) celEl.innerHTML = CellariumSystem.renderCellariumTab();
 		// Reset sub-tab to scavenge when switching back to main
 		if (tab === 'main') this.switchHomeSubTab('scavenge', document.getElementById('home-sub-scavenge'));
+		if (typeof Game !== 'undefined' && Game.checkEnvironment) Game.checkEnvironment();
 	},
 
 	switchHomeSubTab: function(tab, btn) {

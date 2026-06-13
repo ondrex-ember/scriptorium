@@ -750,6 +750,31 @@
         }
 
 
+        /* ═══ FIREPLACE OVERLAY — escapes mode-frozen filter via DOM position ═══ */
+        #card-fireplace-overlay {
+            position: fixed;
+            top: 75px;
+            right: 20px;
+            width: 280px;
+            z-index: 500;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.35);
+        }
+
+        @media (max-width: 750px) {
+            #card-fireplace-overlay {
+                top: 100px;
+                left: 8px;
+                right: 8px;
+                width: auto;
+                max-width: 360px;
+                margin: 0 auto;
+            }
+        }
+
+        @media (max-width: 750px) and (min-width: 401px) {
+            #card-fireplace-overlay { top: 105px; }
+        }
+
         /* ═══ MOBILE PILLS ═══════════════════════════════════════════════ */
         /* PILLS BAR — jednotná responsivní hlavička (desktop default: v toku, roztažené) */
         #pills-bar {
@@ -2234,6 +2259,14 @@
                 <span class="canonical-buff">+25% crafting</span>
             </div>
         </header>
+
+        <div id="card-fireplace-overlay" class="card ui-frozen" style="display:none;">
+            <img id="fireplace-visual-overlay" src="/img/hearth_base_dead.png" alt="" style="width:64px;height:64px;object-fit:cover;border-radius:6px;border:1px solid var(--ink-secondary, #6b5d4f);flex-shrink:0;">
+            <div><strong id="fireplace-title-overlay">Vyhaslý Krb</strong>
+                <div id="fireplace-desc-overlay" class="text-sm">Je tu zima.</div>
+            </div>
+            <button id="btn-ignite-overlay" class="craft-btn" onclick="Game.igniteFireplace()">ROZEŽEHNOUT</button>
+        </div>
 
         <div id="notification-area"></div>
 
