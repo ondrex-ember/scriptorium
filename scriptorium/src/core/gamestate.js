@@ -123,6 +123,7 @@ const GameState = {
         bornAt: 0,          // timestamp prvního setkání (init při tech_cura_felium)
         lastPet: 0,         // timestamp posledního pohlazení (Vigor bonus 1×/den)
         lastTick: 0,        // timestamp posledního denního ticku
+        warmth: 50,         // 0–100, tepelný komfort (roste u ohně, klesá venku)
     },
     mice: { count: 3, lastTick: 0 }   // klášterní myší populace
 };

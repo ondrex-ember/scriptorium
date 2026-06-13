@@ -488,6 +488,7 @@ const Game = {
             try {
                 TimeSys.update(); 
                 if (typeof FireplaceSystem !== 'undefined') FireplaceSystem.tick();
+                if (typeof ScriptoriumCat !== 'undefined') ScriptoriumCat.warmthTick();
                 Game.checkEnvironment();
                 // v7.5: Check canonical hours
                 CanonicalHours.checkCurrentHour();

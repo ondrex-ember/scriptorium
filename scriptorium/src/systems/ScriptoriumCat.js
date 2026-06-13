@@ -543,6 +543,108 @@ Object.assign(ScriptoriumCat, {
     },
 
     // ── Vigor helper ──────────────────────────────────────────────────────
+    // ── Warmth systém ─────────────────────────────────────────────────────
+    warmthTick: function() {
+        const c = this._ensureCatState ? this._ensureCatState() : (GameState.cat || {});
+        if (typeof c.warmth === 'undefined') c.warmth = 50;
+
+        const foculusActive = document.getElementById('home-foculus-content') &&
+            document.getElementById('home-foculus-content').style.display !== 'none';
+        const onFire = foculusActive && GameState.flags && GameState.flags.fireplaceLit;
+
+        if (onFire) {
+            c.warmth = Math.min(100, c.warmth + 2);
+        } else {
+            c.warmth = Math.max(0, c.warmth - 1);
+        }
+
+        // Přehřátá → odejde od ohně do zahrady
+        if (c.warmth >= 90 && document.getElementById('cat-by-fire') &&
+            document.getElementById('cat-by-fire').style.display !== 'none') {
+            this._foculusLeave();
+        }
+
+        // Vychladlá + hoří → přijde od zahrady k ohni
+        if (c.warmth <= 20 && GameState.flags && GameState.flags.fireplaceLit) {
+            if (this.el) this.el.style.display = 'none';
+            if (this.moveTimer) { clearTimeout(this.moveTimer); this.moveTimer = null; }
+        }
+
+        this.syncCatPill();
+        if (typeof Game !== 'undefined' && Game.save) Game.save();
+    },
+
+    _foculusLeave: function() {
+        const el = document.getElementById('cat-by-fire');
+        const lane = document.getElementById('cat-lane-top');
+        if (el) {
+            // Walk vpravo a zmizí
+            this.foculusFacingLeft = false;
+            this._foculusSetState('walk');
+            const laneWidth = lane ? lane.clientWidth : 600;
+            el.style.left = (laneWidth + 20) + 'px';
+            setTimeout(() => {
+                if (el) el.style.display = 'none';
+                if (this.foculusMoveTimer) { clearTimeout(this.foculusMoveTimer); this.foculusMoveTimer = null; }
+                if (this.foculusFrameTimer) { clearTimeout(this.foculusFrameTimer); this.foculusFrameTimer = null; }
+                // Spustit zahradní roaming
+                if (!this._initialized) this.init();
+                this.show();
+            }, 2600);
+        }
+    },
+
+    // ── Cat Pill ──────────────────────────────────────────────────────────
+    _warmthEmoji: function(warmth) {
+        if (warmth >= 80) return '🔥';
+        if (warmth >= 50) return '😺';
+        if (warmth >= 25) return '🐱';
+        return '🥶';
+    },
+
+    syncCatPill: function() {
+        const pill = document.getElementById('cat-pill');
+        if (!pill) return;
+        const hasTech = GameState.researchedTechs && GameState.researchedTechs.includes('tech_cura_felium');
+        if (!hasTech) { pill.style.display = 'none'; return; }
+        pill.style.display = 'flex';
+
+        const c = this._ensureCatState ? this._ensureCatState() : (GameState.cat || {});
+        const warmth = typeof c.warmth === 'number' ? c.warmth : 50;
+        const emoji = this._warmthEmoji(warmth);
+        const name = c.name || 'Felis';
+
+        const label = document.getElementById('cat-pill-label');
+        const bar = document.getElementById('cat-pill-warmth-bar');
+        if (label) label.textContent = emoji + ' ' + name;
+        if (bar) bar.style.width = warmth + '%';
+    },
+
+    renderCatPillDetail: function() {
+        const panel = document.getElementById('pill-panel-body');
+        if (!panel) return;
+        const c = this._ensureCatState ? this._ensureCatState() : (GameState.cat || {});
+        const lang = this._lang ? this._lang() : 'cs';
+        const warmth = typeof c.warmth === 'number' ? c.warmth : 50;
+        const warmthLabel = lang === 'en'
+            ? ['Freezing','Cold','Comfortable','Warm','Very warm','Roasting']
+            : ['Zmrzlá','Zima','Pohoda','Teplo','Velmi teplo','Úplně rozpálená'];
+        const wi = Math.min(5, Math.floor(warmth / 20));
+        panel.innerHTML = `
+            <div style="font-weight:bold; margin-bottom:6px;">🐈 ${c.name || 'Felis'}</div>
+            <div style="font-size:0.8rem; margin-bottom:4px;">
+                ${lang==='en'?'Warmth':'Teplo'}: ${this._warmthEmoji(warmth)} ${warmthLabel[wi]} (${warmth}/100)
+            </div>
+            <div style="height:5px; background:rgba(0,0,0,0.15); border-radius:3px; margin-bottom:8px;">
+                <div style="height:100%; width:${warmth}%; background:${warmth>=80?'#ef4444':warmth>=40?'#ffbd40':'#60a5fa'}; border-radius:3px; transition:width 0.5s;"></div>
+            </div>
+            <div style="font-size:0.78rem; opacity:0.75;">
+                ${lang==='en'?'Affection':'Přízeň'}: ${'❤️'.repeat(Math.round((c.affection||0)/20))} (${c.affection||0}/100)<br>
+                ${lang==='en'?'Mice caught':'Myší chyceno'}: ${c.caught||0}
+            </div>
+        `;
+    },
+
     _addVigor: function(n) {
         try {
             if (typeof VigorSystem === 'undefined' || !GameState.vigor) return;
@@ -576,7 +678,7 @@ Object.assign(ScriptoriumCat, {
         const frameX = this.foculusFrame * size;
         el.style.backgroundImage = `url('${this.BASE_PATH}${s.file}')`;
         el.style.backgroundPosition = `-${frameX}px 0px`;
-        el.style.transform = this.foculusFacingLeft ? 'translateY(-50%) scaleX(-1)' : 'translateY(-50%) scaleX(1)';
+        el.style.transform = this.foculusFacingLeft ? 'scaleX(-1)' : 'scaleX(1)';
     },
 
     _foculusSetState: function(state) {
@@ -655,8 +757,7 @@ Object.assign(ScriptoriumCat, {
             el.title = (GameState.cat && GameState.cat.name) || 'Bezejmenný myšilov';
             el.style.cssText = `
                 position: absolute;
-                top: 50%;
-                transform: translateY(-50%);
+                bottom: 4px;
                 left: ${this.foculusPosX}px;
                 width: ${size}px;
                 height: ${size}px;
