@@ -1447,6 +1447,70 @@ Charles IV had the treatise translated into Czech. In 15th-century Bohemia, Cres
 **GAME EFFECT:** Unlocks the *Horreum* tech — a large granary with a capacity of 1,600 units. It also activates the fodder mechanic: animals in the Farmyard begin to require daily feeding from the stores.`
         },
         {
+            id: 'book_de_animalibus',
+            title: 'De Animalibus: Kniha o živé přírodě',
+            title_en: 'De Animalibus: On the Nature of Animals',
+            category: 'innovation',
+            unlockDay: 28,
+            icon: '🐭',
+            author: 'Albertus Magnus (Albert Veliký)',
+            year: 'cca 1258–1262',
+            content: `**Muž, který se ptal proč**
+
+Albert Veliký — dominikánský mnich, učitel Tomáše Akvinského, patron přírodovědců — napsal na sklonku 13. století dílo, které nemělo v tehdejší Evropě obdoby. De Animalibus bylo dvacetsedmisvazkové pojednání o zvířatech, jejich povaze, chování a anatomii. Ale co z něj dělalo výjimečné dílo, nebyla pouhá kompilace starých autorit.
+
+Albert skutečně pozoroval. Sám. Na vlastní oči.
+
+**Hlodavci v klášterní spíži**
+
+Jednu kapitolu věnoval Albert výhradně hlodavcům — a byla to svým způsobem revoluční věda. Rozlišil různé druhy myší a potkanů. Popsal jejich způsob života: jak hloubí nory (vždy s únikovou chodbou), jak si přenášejí zásoby (v lících, v tlapkách), jak se chovají v kolonii (hierarchie samic), jak se vyhýbají pastem (nová past voní cizím, proto ji ignorují, dokud „zestárne").
+
+*„Mus domesticus,"* píše Albert, *„jest tvor, jenž prospívá z nedbalosti hospodáře. Kde jsou zásoby hlídány a uloženy řádně, tam myš strádá. Kde panuje nepořádek, tam se množí nad míru."*
+
+Toto nebyla alegorie. Byl to poznatek zkušeného hospodáře.
+
+**Kočka jako vědecký nástroj**
+
+Albert věnoval pozornost i kočce. Popsal přesně mechanismus lovu: jak kočka „počítá" vzdálenost skoku, jak dokáže v naprosté tmě sledovat pohyb myši pouze sluchem, proč hladová kočka loví lépe než sytá. Přišel s poznatkem, který kuchyně klášterů aplikovaly velmi pragmaticky: *kočka, které dáš příliš mnoho, přestane lovit. Kočka, které nedáš nic, loví sama od sebe — ale může krást ze zásoby.*
+
+*„Felis domestica,"* uzavírá, *„jest nejlepším myšolovem tehdy, když ji nepřekrmíš, avšak ani neumoříš hladem."*
+
+**Moravská stopa**
+
+Opisovači v olomouckém skriptoriu znali Albertovo dílo. Bylo součástí kanonické vědecké literatury a opat ho doporučoval ke studiu každému bratrovi, jenž měl na starost spíž. Albert sám navštívil Čechy v roce 1247 — tehdy jako provinciál dominikánského řádu.
+
+*„Kdo chce dobře hospodařit, musí znát nejen pole a zásoby, ale i nepřítele zásoby. A nepřítelem zásoby je myš."*
+
+**HERNÍ EFEKT:** Odemkne výzkum *De Animalibus* — přesné sledování myší populace v klášteře. Na Dvoře se zobrazí myší panel s přesným počtem, trendem a dopadem na zásoby.`,
+            content_en: `**The Man Who Asked Why**
+
+Albertus Magnus — Dominican friar, teacher of Thomas Aquinas, patron of natural scientists — wrote in the latter half of the 13th century a work without parallel in contemporary Europe. De Animalibus was a twenty-seven-volume treatise on animals, their nature, behaviour, and anatomy. But what made it exceptional was not mere compilation of old authorities.
+
+Albert actually observed. Himself. With his own eyes.
+
+**Rodents in the Monastic Larder**
+
+Albert devoted an entire chapter to rodents — and it was, in its way, revolutionary science. He distinguished between different species of mice and rats. He described their way of life: how they dig burrows (always with an escape tunnel), how they carry stores (in cheeks, in paws), how they behave in a colony (female hierarchy), how they avoid traps (a new trap smells foreign, so they ignore it until it has "aged").
+
+*"Mus domesticus,"* writes Albert, *"is a creature that thrives on the negligence of the steward. Where stores are guarded and properly housed, the mouse suffers. Where disorder reigns, it multiplies beyond measure."*
+
+This was no allegory. It was the insight of an experienced householder.
+
+**The Cat as a Scientific Instrument**
+
+Albert paid close attention to the cat. He described the precise mechanism of hunting: how the cat "calculates" the distance of its leap, how it can track a mouse in total darkness by sound alone, why a hungry cat hunts better than a satiated one. He arrived at an insight that monastery kitchens applied very pragmatically: *a cat given too much ceases to hunt. A cat given nothing hunts by herself — but may steal from the stores.*
+
+*"Felis domestica,"* he concludes, *"is the finest mouser when thou dost not overfeed her, yet dost not starve her either."*
+
+**The Bohemian Connection**
+
+Scribes in the Olomouc scriptorium knew Albert's work. It formed part of the canonical scientific literature and the abbot recommended it to every brother charged with the care of the larder. Albert himself visited Bohemia in 1247 — then as provincial of the Dominican order.
+
+*"He who would keep good stores must know not only the field and the cellar, but the enemy of the cellar. And the enemy of the cellar is the mouse."*
+
+**GAME EFFECT:** Unlocks the *De Animalibus* research — precise tracking of the mouse population in the monastery. A mouse panel appears in the Farmyard, showing exact count, trend, and impact on stores.`
+        },
+        {
             id: 'book_pegolotti',
             title: 'La Pratica della Mercatura: Zápisky benátského kupce',
             title_en: 'La Pratica della Mercatura: Notes of a Venetian Merchant',

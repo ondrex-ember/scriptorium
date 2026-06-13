@@ -1238,6 +1238,27 @@ const GardenSystem = {
             : (typeof ScriptoriumCat !== 'undefined' && ScriptoriumCat.miceFuzzy ? ScriptoriumCat.miceFuzzy() : '');
         h += `<div style="font-size:0.8rem;">🐭 ${miceTxt}</div>`;
 
+        // Přesný myší panel — gate: tech_de_animalibus (De Animalibus — Albertus Magnus)
+        const hasAnimaliasTech = GameState.researchedTechs && GameState.researchedTechs.includes('tech_de_animalibus');
+        if (hasAnimaliasTech && GameState.mice) {
+            const miceCount = GameState.mice.count || 0;
+            const scrapsLoss = miceCount > 0 ? Math.floor(miceCount / 5) : 0;
+            const decayMult = window.miceDecayMultiplier ? window.miceDecayMultiplier.toFixed(2) : '1.00';
+            // Trend: odhadni ze spawn logiky
+            const grain = ['grain','oats','millet','barley','rye','wheat'].reduce((s,id)=>s+(GameState.inventory[id]||0),0);
+            const spawnEst = Math.floor(grain / 30);
+            const mortalityEst = Math.floor(miceCount * 0.15);
+            const netEst = spawnEst - mortalityEst;
+            const trendArrow = netEst > 0 ? '▲' : netEst < 0 ? '▼' : '→';
+            const trendColor = netEst > 0 ? '#c0392b' : netEst < 0 ? '#27ae60' : 'inherit';
+            h += `<div style="font-size:0.78rem; margin-top:2px; padding:5px 7px; background:rgba(0,0,0,0.07); border-radius:5px; border-left:3px solid #a0722d;">`;
+            h += `<div style="font-weight:bold; font-size:0.7rem; opacity:0.6; text-transform:uppercase; letter-spacing:0.06em;">📜 De Animalibus</div>`;
+            h += `<div>${t('dvur.mice_label')}: <strong>${miceCount}</strong> <span style="color:${trendColor};">${trendArrow} ${netEst>0?'+':''}${netEst}${t('dvur.mice_net_per_day')}</span></div>`;
+            if (scrapsLoss > 0) h += `<div style="color:#a0722d;">🗑️ ${t('dvur.mice_scraps')}: <strong>${scrapsLoss}</strong></div>`;
+            h += `<div style="opacity:0.75;">⚠️ ${t('dvur.mice_decay')}: <strong>×${decayMult}</strong></div>`;
+            h += `</div>`;
+        }
+
         if (hasCatTech) {
             const title = (typeof ScriptoriumCat !== 'undefined' && ScriptoriumCat.getTitle) ? ScriptoriumCat.getTitle() : '';
             const state = (cat.satiety !== undefined && cat.satiety < 30) ? t('dvur.catHunting') : t('dvur.catFed');

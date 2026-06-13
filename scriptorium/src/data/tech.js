@@ -156,6 +156,12 @@ const TechTree = [
       desc_en:"\u201CI hunt words, he hunts mice\u201D — wrote a 9th-century Irish monk of his cat Pangur Bán. The cat guards stores and manuscripts from mice; more than one codex bears her inky paw prints. Unlocks: Felis — care of the monastery cat (feeding, affection, mousing).",
       unlocks:[], requires:["tech_de_re_rustica"] },
 
+    { id:"tech_de_animalibus",  name:"De Animalibus — Pozorování přírody", name_en:"De Animalibus — Observation of Nature",
+      cost:20,
+      desc:"Albert Veliký rozlišil druhy hlodavců, popsal jejich chování a nory. Kdo zná nepřítele spíže, dokáže ho počítat a předvídat. Odemkne: Myší panel na Dvoře — přesný počet myší, trend populace, ztráty zásob a vliv na kažení.",
+      desc_en:"Albertus Magnus distinguished rodent species, described their behaviour and burrows. He who knows the enemy of the larder can count it and predict it. Unlocks: Mouse panel in the Farmyard — exact mouse count, population trend, store losses, and decay impact.",
+      unlocks:["mice_panel"], requires:["tech_cura_felium"] },
+
     { id:"tech_cuniculi",        name:"Cuniculi — Chov králíků",         name_en:"Cuniculi — Rabbit Keeping",
       cost:6,
       desc:"Králíci v ohradách (leporaria) byli známí už Římanům; kláštery je chovaly pro maso i kožky. Množí se rychle a žerou skoro cokoliv. Odemkne: Králíkárna na Dvoře.",

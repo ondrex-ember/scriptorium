@@ -505,6 +505,8 @@ const Game = {
                     if (typeof GardenSystem !== 'undefined') GardenSystem.checkVineaGrowth();
                     // Felis Monastica — denní tick (self-guarded 24h)
                     if (typeof ScriptoriumCat !== 'undefined' && ScriptoriumCat.dailyTick) ScriptoriumCat.dailyTick();
+                    // Myší populace — denní tick spawn/mortality/scraps (self-guarded 24h)
+                    if (typeof ScriptoriumCat !== 'undefined' && ScriptoriumCat.miceTick) ScriptoriumCat.miceTick();
                     // Decay — denní kažení zásob (self-guarded 24h, gate tech_inventarium)
                     if (typeof DecaySystem !== 'undefined' && DecaySystem.dailyTick) DecaySystem.dailyTick();
                     // Studna — časová degradace (self-guarded 24h, grace 5 dní)
@@ -2362,18 +2364,21 @@ const Game = {
 			{ key: 'henhouse',  built: GameState.henhouse && GameState.henhouse.built && GameState.henhouse.hens && GameState.henhouse.hens.length > 0, feed: 'grain', feedAmt: 1, name: lang==='en'?'Hens':'Slepice' },
 			{ key: 'sheepfold', built: GameState.sheepfold && GameState.sheepfold.built && GameState.sheepfold.sheep && GameState.sheepfold.sheep.length > 0, feed: 'hay', feedAmt: 1, name: lang==='en'?'Sheep':'Ovce' },
 			{ key: 'piscina',   built: GameState.piscina && GameState.piscina.tier > 0, feed: 'worms', feedAmt: 1, name: lang==='en'?'Fish':'Ryby' },
-			{ key: 'rabbitry',  built: GameState.rabbitry && GameState.rabbitry.built && GameState.rabbitry.animals && GameState.rabbitry.animals.length > 0, feed: 'hay', feedAmt: 1, name: lang==='en'?'Rabbits':'Králíci' },
-			{ key: 'goatpen',   built: GameState.goatpen && GameState.goatpen.built && GameState.goatpen.animals && GameState.goatpen.animals.length > 0, feed: 'hay', feedAmt: 1, name: lang==='en'?'Goats':'Kozy' },
-			{ key: 'pigsty',    built: GameState.pigsty && GameState.pigsty.built && GameState.pigsty.animals && GameState.pigsty.animals.length > 0, feed: 'grain', feedAmt: 1, name: lang==='en'?'Pigs':'Prasata' },
+			{ key: 'rabbitry',  built: GameState.rabbitry && GameState.rabbitry.built && GameState.rabbitry.animals && GameState.rabbitry.animals.length > 0, feed: 'scraps', fallback: 'hay', feedAmt: 1, name: lang==='en'?'Rabbits':'Králíci' },
+			{ key: 'goatpen',   built: GameState.goatpen && GameState.goatpen.built && GameState.goatpen.animals && GameState.goatpen.animals.length > 0, feed: 'hay', fallback: 'scraps', feedAmt: 1, name: lang==='en'?'Goats':'Kozy' },
+			{ key: 'pigsty',    built: GameState.pigsty && GameState.pigsty.built && GameState.pigsty.animals && GameState.pigsty.animals.length > 0, feed: 'scraps', fallback: 'acorn', feedAmt: 2, name: lang==='en'?'Pigs':'Prasata' },
 		];
 		animals.forEach(a => {
 			if (!a.built) return;
 			if (!GameState.feeding[a.key]) GameState.feeding[a.key] = { lastFed: now, hunger: 0 };
 			const hoursSinceFed = (now - GameState.feeding[a.key].lastFed) / 3600000;
 			if (hoursSinceFed >= 24) {
-				const have = GameState.inventory[a.feed] || 0;
-				if (have >= a.feedAmt) {
-					Game.removeItem(a.feed, a.feedAmt);
+				// Zkus primární krmivo, pak fallback
+				const primaryHave = GameState.inventory[a.feed] || 0;
+				const fallbackHave = a.fallback ? (GameState.inventory[a.fallback] || 0) : 0;
+				const useFeed = primaryHave >= a.feedAmt ? a.feed : (a.fallback && fallbackHave >= a.feedAmt ? a.fallback : null);
+				if (useFeed) {
+					Game.removeItem(useFeed, a.feedAmt);
 					GameState.feeding[a.key].lastFed = now;
 					GameState.feeding[a.key].hunger = 0;
 					UI.notify(lang==='en' ? a.name+' fed automatically.' : a.name+' nakrmeny automaticky.');

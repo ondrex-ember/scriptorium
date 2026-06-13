@@ -1314,6 +1314,10 @@ const STRINGS_cs = {
         feedGrain: 'zrní',
         days: 'dní',
         lockedPrefix: 'Vyžaduje výzkum:',
+        mice_label: 'Myší',
+        mice_scraps: 'Zbytky sežrány/den',
+        mice_decay: 'Multiplikátor kažení',
+        mice_net_per_day: '/den',
     },
     decay: {
         lossMsg: 'Zkazilo se: {items}. Podrobnosti v Inventarium (Cellarium).',
