@@ -2168,11 +2168,8 @@ const GardenSystem = {
         if (variety.id === 'belina') {
             let droughtDays = 0;
             try {
-                const wc = (typeof WeatherSystem !== 'undefined') ? WeatherSystem.cache : null;
-                if (wc && wc.daily && wc.daily.precipitation_sum) {
-                    for (let d = 0; d < Math.min(7, wc.daily.precipitation_sum.length); d++) {
-                        if ((wc.daily.precipitation_sum[d] || 0) < 0.1) droughtDays++;
-                    }
+                if (typeof WeatherSystem !== 'undefined' && WeatherSystem.countDryDays) {
+                    droughtDays = WeatherSystem.countDryDays(6).dry;  // 7denní okno: dnes + 6 dní zpět
                 }
             } catch(e) {}
             // Hráč mohl přepsat výběrem v UI
@@ -2311,14 +2308,9 @@ const GardenSystem = {
         let droughtPenalty = false;
         let droughtDays = 0;
         try {
-            const wc = (typeof WeatherSystem !== 'undefined') ? WeatherSystem.cache : null;
-            if (wc && wc.daily && wc.daily.precipitation_sum) {
-                let dryDays = 0;
-                for (let d = 0; d < Math.min(7, wc.daily.precipitation_sum.length); d++) {
-                    if ((wc.daily.precipitation_sum[d] || 0) < 0.1) dryDays++;
-                }
-                droughtDays = dryDays;
-                droughtPenalty = dryDays >= 5;
+            if (typeof WeatherSystem !== 'undefined' && WeatherSystem.countDryDays) {
+                droughtDays = WeatherSystem.countDryDays(3).dry;  // okno: dnes + 3 dny zpět = 4 dny
+                droughtPenalty = droughtDays >= 3;                // citlivější: >=3 ze 4 suché
             }
         } catch(e) {}
 
@@ -2476,13 +2468,9 @@ const GardenSystem = {
 
         // Sucho penalizace
         try {
-            const wc = (typeof WeatherSystem !== 'undefined') ? WeatherSystem.cache : null;
-            if (wc && wc.daily && wc.daily.precipitation_sum) {
-                let dryDays = 0;
-                for (let d = 0; d < Math.min(7, wc.daily.precipitation_sum.length); d++) {
-                    if ((wc.daily.precipitation_sum[d] || 0) < 0.1) dryDays++;
-                }
-                if (dryDays >= 5) yieldAmt = Math.max(1, Math.round(yieldAmt * 0.8));
+            if (typeof WeatherSystem !== 'undefined' && WeatherSystem.countDryDays) {
+                const dryDays = WeatherSystem.countDryDays(3).dry;  // okno: dnes + 3 dny zpět = 4 dny
+                if (dryDays >= 3) yieldAmt = Math.max(1, Math.round(yieldAmt * 0.8));  // shoda s indikátorem
             }
         } catch(e) {}
 

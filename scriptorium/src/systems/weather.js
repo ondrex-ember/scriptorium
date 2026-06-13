@@ -39,7 +39,7 @@ const WeatherSystem = {
         tomorrowEl.innerHTML = '⏳';
         
         try {
-            const url = `https://api.open-meteo.com/v1/forecast?latitude=${this.lat}&longitude=${this.lon}&current=temperature_2m,weather_code,wind_speed_10m&daily=temperature_2m_max,temperature_2m_min,weather_code,precipitation_sum,wind_speed_10m_max,sunrise,sunset&timezone=auto&forecast_days=7`;
+            const url = `https://api.open-meteo.com/v1/forecast?latitude=${this.lat}&longitude=${this.lon}&current=temperature_2m,weather_code,wind_speed_10m&daily=temperature_2m_max,temperature_2m_min,weather_code,precipitation_sum,wind_speed_10m_max,sunrise,sunset&timezone=auto&past_days=7&forecast_days=7`;
             
             const response = await fetch(url);
             if (!response.ok) throw new Error('Weather API error');
@@ -95,10 +95,11 @@ const WeatherSystem = {
         todayEl.innerHTML = `${currentEmoji}${currentTemp}°`;
         todayEl.title = `Aktuálně v Praze: ${currentTemp}°C (klikni pro refresh)`;
         
-        // Tomorrow's forecast
-        const tomorrowMaxTemp = Math.round(data.daily.temperature_2m_max[1]);
-        const tomorrowMinTemp = Math.round(data.daily.temperature_2m_min[1]);
-        const tomorrowCode = data.daily.weather_code[1];
+        // Tomorrow's forecast (past_days posouvá pole → najdi dnešek)
+        const tIdx = this.getDailyIndex(1);
+        const tomorrowMaxTemp = Math.round(data.daily.temperature_2m_max[tIdx]);
+        const tomorrowMinTemp = Math.round(data.daily.temperature_2m_min[tIdx]);
+        const tomorrowCode = data.daily.weather_code[tIdx];
         const tomorrowEmoji = this.getWeatherEmoji(tomorrowCode);
         
         tomorrowEl.innerHTML = `${tomorrowEmoji}${tomorrowMaxTemp}°/${tomorrowMinTemp}°`;
@@ -115,6 +116,41 @@ const WeatherSystem = {
         }
     },
     
+    // ─── Daily index helpers (past_days posouvá daily pole) ──────────────
+    // Najde index "dneška" v daily.time; vrátí idx+offset.
+    // Fallback = offset (staré chování) když time chybí / dnešek nenalezen.
+    getDailyIndex: function(offset = 0) {
+        try {
+            const t = this.cache && this.cache.daily && this.cache.daily.time;
+            if (Array.isArray(t) && t.length) {
+                const d = new Date();
+                const today = d.getFullYear() + '-' +
+                    String(d.getMonth() + 1).padStart(2, '0') + '-' +
+                    String(d.getDate()).padStart(2, '0');
+                const idx = t.indexOf(today);
+                if (idx >= 0) return idx + offset;
+            }
+        } catch (e) {}
+        return offset;
+    },
+
+    // Počet suchých dní (< 0.1 mm) v okně [dnes−daysBack … dnes] včetně.
+    countDryDays: function(daysBack = 3) {
+        const out = { dry: 0, total: 0 };
+        try {
+            const ps = this.cache && this.cache.daily && this.cache.daily.precipitation_sum;
+            if (!Array.isArray(ps) || !ps.length) return out;
+            const todayIdx = this.getDailyIndex(0);
+            const start = Math.max(0, todayIdx - daysBack);
+            const end = Math.min(ps.length - 1, todayIdx);
+            for (let i = start; i <= end; i++) {
+                out.total++;
+                if ((ps[i] || 0) < 0.1) out.dry++;
+            }
+        } catch (e) {}
+        return out;
+    },
+
     init: function() {
         // Try to load from cache first (instant display)
         try {

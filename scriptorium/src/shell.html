@@ -2959,14 +2959,16 @@
                         var curEmoji = WeatherSystem.getWeatherEmoji(wc.current.weather_code);
                         html += '<div class="pp-row" style="border-bottom:1px solid rgba(197,160,89,0.2);padding-bottom:6px;margin-bottom:6px;">';
                         html += '<span class="pp-label">Nyní</span><span class="pp-val">' + curEmoji + ' ' + curTemp + '°C' + (curWind ? ' · 💨 ' + curWind : '') + '</span></div>';
-                        for (var di = 0; di < Math.min(7, wc.daily.weather_code.length); di++) {
+                        var wTodayIdx = (typeof WeatherSystem !== 'undefined' && WeatherSystem.getDailyIndex) ? WeatherSystem.getDailyIndex(0) : 0;
+                        for (var di = 0; di < Math.min(7, wc.daily.weather_code.length - wTodayIdx); di++) {
                             var d = new Date(); d.setDate(d.getDate() + di);
                             var dayLabel = di === 0 ? 'Dnes' : di === 1 ? 'Zítra' : days[d.getDay()] + ' ' + d.getDate() + '. ' + months[d.getMonth()];
-                            var dEmoji = WeatherSystem.getWeatherEmoji(wc.daily.weather_code[di]);
-                            var dMax = Math.round(wc.daily.temperature_2m_max[di]);
-                            var dMin = Math.round(wc.daily.temperature_2m_min[di]);
-                            var dRain = wc.daily.precipitation_sum && wc.daily.precipitation_sum[di] > 0.1 ? ' 💧' + wc.daily.precipitation_sum[di].toFixed(1) + 'mm' : '';
-                            var dWind = wc.daily.wind_speed_10m_max && wc.daily.wind_speed_10m_max[di] > 15 ? ' 💨' + Math.round(wc.daily.wind_speed_10m_max[di]) : '';
+                            var wi = wTodayIdx + di;
+                            var dEmoji = WeatherSystem.getWeatherEmoji(wc.daily.weather_code[wi]);
+                            var dMax = Math.round(wc.daily.temperature_2m_max[wi]);
+                            var dMin = Math.round(wc.daily.temperature_2m_min[wi]);
+                            var dRain = wc.daily.precipitation_sum && wc.daily.precipitation_sum[wi] > 0.1 ? ' 💧' + wc.daily.precipitation_sum[wi].toFixed(1) + 'mm' : '';
+                            var dWind = wc.daily.wind_speed_10m_max && wc.daily.wind_speed_10m_max[wi] > 15 ? ' 💨' + Math.round(wc.daily.wind_speed_10m_max[wi]) : '';
                             html += '<div class="pp-row"><span class="pp-label">' + dayLabel + '</span><span class="pp-val">' + dEmoji + ' ' + dMax + '°/' + dMin + '°' + dRain + dWind + '</span></div>';
                         }
                     } else {
