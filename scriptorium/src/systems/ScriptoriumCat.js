@@ -255,6 +255,10 @@ const ScriptoriumCat = {
     onTabSwitch: function() {
         if (!this._initialized || !this.el || this._relocating) return;
 
+        // Single source of truth: pokud je kočka u ohně, v zahradě není
+        const c = GameState.cat || {};
+        if (c.location === 'fire') { this.el.style.display = 'none'; return; }
+
         if (this._isCatTabActive()) {
             // Kočka sídlí na právě otevřeném subtabu → ukázat
             // Pokud nemá platnou pozici v rámci tabu, usadit
@@ -547,30 +551,36 @@ Object.assign(ScriptoriumCat, {
     warmthTick: function() {
         const c = this._ensureCatState ? this._ensureCatState() : (GameState.cat || {});
         if (typeof c.warmth !== 'number') { c.warmth = 50; }
+        if (!c.location) c.location = 'garden';
         if (!GameState.cat) GameState.cat = c;
 
-        const foculusActive = document.getElementById('home-foculus-content') &&
-            document.getElementById('home-foculus-content').style.display !== 'none';
-        const onFire = foculusActive && GameState.flags && GameState.flags.fireplaceLit;
+        const fireLit = GameState.flags && GameState.flags.fireplaceLit;
 
-        if (onFire) {
+        // Warmth dynamika podle KDE kočka je (ne podle aktivního tabu)
+        if (c.location === 'fire') {
             c.warmth = Math.min(100, c.warmth + 2);
         } else {
             c.warmth = Math.max(0, c.warmth - 1);
         }
 
-        // Přehřátá → odejde od ohně do zahrady
-        if (c.warmth >= 90 && document.getElementById('cat-by-fire') &&
-            document.getElementById('cat-by-fire').style.display !== 'none') {
+        // Přehřátá u ohně → odejde do zahrady
+        if (c.location === 'fire' && c.warmth >= 90) {
+            c.location = 'garden';
             this._foculusLeave();
         }
 
-        // Vychladlá + hoří → přijde od zahrady k ohni
-        if (c.warmth <= 20 && GameState.flags && GameState.flags.fireplaceLit) {
+        // Vychladlá v zahradě + hoří → přijde k ohni
+        if (c.location === 'garden' && c.warmth <= 20 && fireLit) {
+            c.location = 'fire';
             if (this.el) this.el.style.display = 'none';
-            if (this.moveTimer) { clearTimeout(this.moveTimer); this.moveTimer = null; }
         }
 
+        // Pokud krb zhasl a kočka byla u ohně → vrátí se do zahrady
+        if (c.location === 'fire' && !fireLit) {
+            c.location = 'garden';
+        }
+
+        this.renderFoculusVisit();
         this.syncCatPill();
         if (typeof Game !== 'undefined' && Game.save) Game.save();
     },
@@ -750,7 +760,8 @@ Object.assign(ScriptoriumCat, {
         const lane = document.getElementById('cat-lane-top');
         let el = document.getElementById('cat-by-fire');
 
-        if (!lane || !GameState.flags || !GameState.flags.fireplaceLit || this._foculusLeaving) {
+        const catLoc = (GameState.cat && GameState.cat.location) || 'garden';
+        if (!lane || !GameState.flags || !GameState.flags.fireplaceLit || this._foculusLeaving || catLoc !== 'fire') {
             if (el && !this._foculusLeaving) el.style.display = 'none';
             if (this.foculusMoveTimer)  { clearTimeout(this.foculusMoveTimer);  this.foculusMoveTimer = null; }
             if (this.foculusFrameTimer) { clearTimeout(this.foculusFrameTimer); this.foculusFrameTimer = null; }
@@ -765,7 +776,7 @@ Object.assign(ScriptoriumCat, {
             el.title = (GameState.cat && GameState.cat.name) || 'Bezejmenný myšilov';
             el.style.cssText = `
                 position: absolute;
-                bottom: 4px;
+                bottom: -45px;
                 left: ${this.foculusPosX}px;
                 width: ${size}px;
                 height: ${size}px;

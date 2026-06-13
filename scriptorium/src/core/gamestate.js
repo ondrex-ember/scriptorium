@@ -124,6 +124,7 @@ const GameState = {
         lastPet: 0,         // timestamp posledního pohlazení (Vigor bonus 1×/den)
         lastTick: 0,        // timestamp posledního denního ticku
         warmth: 50,         // 0–100, tepelný komfort (roste u ohně, klesá venku)
+        location: 'garden', // 'garden' | 'fire' — kde kočka právě je
     },
     mice: { count: 3, lastTick: 0 }   // klášterní myší populace
 };
