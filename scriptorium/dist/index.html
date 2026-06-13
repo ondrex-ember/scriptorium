@@ -2359,6 +2359,36 @@
                                 </div>
                             </div>
 
+                            <!-- Purity bar -->
+                            <div style="margin-bottom: 12px;">
+                                <div style="display:flex; justify-content:space-between; font-size:0.85rem; margin-bottom:4px;">
+                                    <strong data-i18n="wellUI.purity">Kvalita vody:</strong>
+                                    <span id="well-purity-text">100 %</span>
+                                </div>
+                                <div style="height:10px; background:rgba(0,0,0,0.25); border-radius:5px; overflow:hidden;">
+                                    <div id="well-purity-bar" style="height:100%; width:100%; background:#4ade80; transition:width .3s;"></div>
+                                </div>
+                            </div>
+
+                            <!-- Water level bar -->
+                            <div style="margin-bottom: 12px;">
+                                <div style="display:flex; justify-content:space-between; font-size:0.85rem; margin-bottom:4px;">
+                                    <strong data-i18n="wellUI.waterLevel">Hladina:</strong>
+                                    <span id="well-waterlevel-text">100 %</span>
+                                </div>
+                                <div style="height:10px; background:rgba(0,0,0,0.25); border-radius:5px; overflow:hidden;">
+                                    <div id="well-waterlevel-bar" style="height:100%; width:100%; background:#5a8dc7; transition:width .3s;"></div>
+                                </div>
+                            </div>
+
+                            <!-- Frozen indicator (hidden unless frozen) -->
+                            <div id="well-frozen" style="display:none; margin-bottom:12px; padding:6px 10px; background:rgba(90,141,199,0.15); border-left:3px solid #5a8dc7; border-radius:4px; font-size:0.85rem; color:#5a8dc7;">
+                                ❄️ <span data-i18n="wellUI.frozen">Zamrzlá</span>
+                            </div>
+
+                            <!-- Water consumers -->
+                            <div id="well-consumers" style="margin-bottom:15px; font-size:0.82rem; opacity:0.85;"></div>
+
                             <div style="display: flex; gap: 10px; flex-wrap: wrap;">
                                 <button onclick="WellSystem.cleanWell()" id="btn-clean-well" class="craft-btn"
                                     style="background: #5a8dc7; display: none;" data-i18n="wellUI.clean">
@@ -13636,8 +13666,12 @@ const WellSystem = {
         const stats = this.getWellStats(level);
         let waterAmount = useBucket ? stats.waterPerUseBucket : stats.waterPerUse;
 
-        // Dirty penalty
-        if (GameState.well.condition === "dirty") {
+        // Penalizace výnosu dle purity: <70 ×0.5, <30 ×0.4 (kriticky)
+        const purity = GameState.well.purity;
+        if (purity < 30) {
+            waterAmount = Math.max(1, Math.floor(waterAmount * 0.4));
+            UI.notify(t('game.wellMurky'));
+        } else if (purity < 70) {
             waterAmount = Math.floor(waterAmount * 0.5);
             UI.notify(t('game.wellMurky'));
         }
@@ -13687,6 +13721,9 @@ const WellSystem = {
         }
 
         UI.notify(t('game.wellCleaned'));
+        if (typeof NotificationSystem !== 'undefined' && NotificationSystem.panel) {
+            NotificationSystem.panel('🪣 ' + t('game.wellCleaned'), 'system');
+        }
         Game.save();
         UI.renderAll();
     },
@@ -13708,6 +13745,9 @@ const WellSystem = {
         GameState.well.lastClean = Date.now();
         UI.notify(t('game.wellRepaired'));
         Game.addKronikaEntry('important', '🪣 Studna opravena.', '🪣 The well has been repaired.', '🪣 Puteus reparatus est.');
+        if (typeof NotificationSystem !== 'undefined' && NotificationSystem.panel) {
+            NotificationSystem.panel('🪣 ' + t('game.wellRepaired'), 'system');
+        }
         Game.save();
         UI.renderAll();
     },
@@ -13782,20 +13822,48 @@ const WellSystem = {
         }
     },
 
+    // Seznam aktivních spotřebitelů vody (pro report). Vrací pole labelů.
+    waterConsumers: function() {
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        const out = [];
+        // Záhony (zahrádky/viridárium) — vždy, pokud studna slouží
+        out.push(lang === 'en' ? 'Plots' : 'Záhony');
+        // Dobytek (ovce ve chlévě)
+        if (GameState.sheepfold && GameState.sheepfold.built && GameState.sheepfold.sheep > 0) {
+            out.push(lang === 'en' ? 'Livestock' : 'Dobytek');
+        }
+        // Sad
+        if (GameState.orchard && GameState.orchard.built) {
+            out.push(lang === 'en' ? 'Orchard' : 'Sad');
+        }
+        return out;
+    },
+
     // Aplikuj pokles purity (clamp 0–100), přepočítej condition, hlas při zhoršení pásma
     _degrade: function(amount) {
         const w = GameState.well;
-        const before = w.condition;
+        const beforeP = w.purity;
+        const beforeCond = w.condition;
         w.purity = Math.max(0, Math.min(100, w.purity - amount));
         w.condition = this.purityToCondition(w.purity);
 
-        // Hláška při přechodu do horšího pásma
-        if (before === "clean" && w.condition === "dirty") {
+        const panel = (typeof NotificationSystem !== 'undefined' && NotificationSystem.panel)
+            ? (msg, kind) => NotificationSystem.panel(msg, kind) : null;
+
+        // Přechod pod 70 — voda kalní (clean → dirty)
+        if (beforeP >= 70 && w.purity < 70) {
             UI.notify(t('game.wellTurningGreen'), true);
+            if (panel) panel('🪣 ' + t('game.wellClouding'), 'warning');
         }
-        if (before !== "broken" && w.condition === "broken") {
+        // Přechod pod 40 — kriticky zanesená
+        if (beforeP >= 40 && w.purity < 40 && w.purity > 0) {
+            if (panel) panel('🪣 ' + t('game.wellClogged'), 'warning');
+        }
+        // Zřítila se (→ 0)
+        if (beforeCond !== "broken" && w.condition === "broken") {
             Game.addKronikaEntry('important', '🪣 Studna se zřítila!', '🪣 The well has collapsed!', '🪣 Puteus corruit!');
             UI.notify(t('game.wellCollapsed'), true);
+            if (panel) panel('🪣 ' + t('game.wellCollapsed'), 'error');
         }
     },
 
@@ -24608,7 +24676,15 @@ const STRINGS_cs = {
         levelUnknown: 'Neznámá',
         condClean: '✓ Čistá',
         condDirty: '⚠️ Znečištěná',
-        condBroken: '💥 Poškozená'
+        condBroken: '💥 Poškozená',
+        purity: 'Kvalita vody:',
+        waterLevel: 'Hladina:',
+        frozen: 'Zamrzlá',
+        consumers: 'Spotřeba vody:',
+        bandAlive: 'živá',
+        bandMurky: 'kalná',
+        bandClogged: 'zanesená',
+        bandDead: 'mrtvá'
     },
     settingsUI: {
         musicTitle: '🎵 Hudba',
@@ -24797,6 +24873,8 @@ const STRINGS_cs = {
         needStone: '❌ Potřebuješ kámen',
         wellTurningGreen: '⚠️ Studna se zazelená — voda je znečištěná.',
         wellCollapsed: '💥 Studna se zřítila!',
+        wellClouding: 'Voda ve studni začíná kalnět. Brzy ji bude třeba vyčistit.',
+        wellClogged: 'Studna je zanesená. Vyčisti ji, než voda dojde.',
         vigor: {
             exhausted: '⚠️ Vigor exhaustus! Cibus necesse est.',
             deficiens: '⚠️ Vigor deficiens — najez se.',
@@ -26121,7 +26199,15 @@ const STRINGS_en = {
         levelUnknown: 'Unknown',
         condClean: '✓ Pure',
         condDirty: '⚠️ Fouled',
-        condBroken: '💥 Broken'
+        condBroken: '💥 Broken',
+        purity: 'Water quality:',
+        waterLevel: 'Water level:',
+        frozen: 'Frozen',
+        consumers: 'Water usage:',
+        bandAlive: 'alive',
+        bandMurky: 'murky',
+        bandClogged: 'clogged',
+        bandDead: 'dead'
     },
     settingsUI: {
         musicTitle: '🎵 Music',
@@ -26297,6 +26383,8 @@ const STRINGS_en = {
         needStone: '❌ Stone is needed',
         wellTurningGreen: '⚠️ The well is turning green — water is contaminated.',
         wellCollapsed: '💥 The well has collapsed!',
+        wellClouding: 'The well water is beginning to cloud. It will need cleaning soon.',
+        wellClogged: 'The well is clogged. Clean it before the water runs out.',
         vigor: {
             exhausted: '⚠️ Vigor exhaustus! You must eat.',
             deficiens: '⚠️ Vigor is failing — consume food.',
@@ -32010,6 +32098,43 @@ renderActions: function() {
 				const canUpgrade = GameState.well.level === "basic" && 
 								  GameState.researchedTechs.includes("tech_well_stone");
 				btnUpgrade.style.display = canUpgrade ? "inline-block" : "none";
+			}
+
+			// Purity bar (% + barva + pásmo)
+			const purity = (typeof GameState.well.purity === 'number') ? GameState.well.purity : 100;
+			const pBar = document.getElementById('well-purity-bar');
+			const pText = document.getElementById('well-purity-text');
+			if (pBar && pText) {
+				const lang = (GameState.settings && GameState.settings.language) || 'cs';
+				let color, band;
+				if (purity <= 0)       { color = '#f87171'; band = t('wellUI.bandDead'); }
+				else if (purity < 40)  { color = '#f59e0b'; band = t('wellUI.bandClogged'); }
+				else if (purity < 70)  { color = '#fbbf24'; band = t('wellUI.bandMurky'); }
+				else                   { color = '#4ade80'; band = t('wellUI.bandAlive'); }
+				pBar.style.width = Math.max(0, purity) + '%';
+				pBar.style.background = color;
+				pText.textContent = Math.round(purity) + ' % · ' + band;
+				pText.style.color = color;
+			}
+
+			// Water level bar (zatím statické, rozhýbe počasí)
+			const wl = (typeof GameState.well.level_water === 'number') ? GameState.well.level_water : 100;
+			const wlBar = document.getElementById('well-waterlevel-bar');
+			const wlText = document.getElementById('well-waterlevel-text');
+			if (wlBar && wlText) {
+				wlBar.style.width = Math.max(0, wl) + '%';
+				wlText.textContent = Math.round(wl) + ' %';
+			}
+
+			// Frozen indicator
+			const frozenEl = document.getElementById('well-frozen');
+			if (frozenEl) frozenEl.style.display = GameState.well.frozen ? 'block' : 'none';
+
+			// Water consumers
+			const consEl = document.getElementById('well-consumers');
+			if (consEl && typeof WellSystem !== 'undefined' && WellSystem.waterConsumers) {
+				const list = WellSystem.waterConsumers();
+				consEl.textContent = '💧 ' + t('wellUI.consumers') + ' ' + list.join(', ');
 			}
 		}
 	},

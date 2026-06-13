@@ -71,8 +71,12 @@ const WellSystem = {
         const stats = this.getWellStats(level);
         let waterAmount = useBucket ? stats.waterPerUseBucket : stats.waterPerUse;
 
-        // Dirty penalty
-        if (GameState.well.condition === "dirty") {
+        // Penalizace výnosu dle purity: <70 ×0.5, <30 ×0.4 (kriticky)
+        const purity = GameState.well.purity;
+        if (purity < 30) {
+            waterAmount = Math.max(1, Math.floor(waterAmount * 0.4));
+            UI.notify(t('game.wellMurky'));
+        } else if (purity < 70) {
             waterAmount = Math.floor(waterAmount * 0.5);
             UI.notify(t('game.wellMurky'));
         }
@@ -122,6 +126,9 @@ const WellSystem = {
         }
 
         UI.notify(t('game.wellCleaned'));
+        if (typeof NotificationSystem !== 'undefined' && NotificationSystem.panel) {
+            NotificationSystem.panel('🪣 ' + t('game.wellCleaned'), 'system');
+        }
         Game.save();
         UI.renderAll();
     },
@@ -143,6 +150,9 @@ const WellSystem = {
         GameState.well.lastClean = Date.now();
         UI.notify(t('game.wellRepaired'));
         Game.addKronikaEntry('important', '🪣 Studna opravena.', '🪣 The well has been repaired.', '🪣 Puteus reparatus est.');
+        if (typeof NotificationSystem !== 'undefined' && NotificationSystem.panel) {
+            NotificationSystem.panel('🪣 ' + t('game.wellRepaired'), 'system');
+        }
         Game.save();
         UI.renderAll();
     },
@@ -217,20 +227,48 @@ const WellSystem = {
         }
     },
 
+    // Seznam aktivních spotřebitelů vody (pro report). Vrací pole labelů.
+    waterConsumers: function() {
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        const out = [];
+        // Záhony (zahrádky/viridárium) — vždy, pokud studna slouží
+        out.push(lang === 'en' ? 'Plots' : 'Záhony');
+        // Dobytek (ovce ve chlévě)
+        if (GameState.sheepfold && GameState.sheepfold.built && GameState.sheepfold.sheep > 0) {
+            out.push(lang === 'en' ? 'Livestock' : 'Dobytek');
+        }
+        // Sad
+        if (GameState.orchard && GameState.orchard.built) {
+            out.push(lang === 'en' ? 'Orchard' : 'Sad');
+        }
+        return out;
+    },
+
     // Aplikuj pokles purity (clamp 0–100), přepočítej condition, hlas při zhoršení pásma
     _degrade: function(amount) {
         const w = GameState.well;
-        const before = w.condition;
+        const beforeP = w.purity;
+        const beforeCond = w.condition;
         w.purity = Math.max(0, Math.min(100, w.purity - amount));
         w.condition = this.purityToCondition(w.purity);
 
-        // Hláška při přechodu do horšího pásma
-        if (before === "clean" && w.condition === "dirty") {
+        const panel = (typeof NotificationSystem !== 'undefined' && NotificationSystem.panel)
+            ? (msg, kind) => NotificationSystem.panel(msg, kind) : null;
+
+        // Přechod pod 70 — voda kalní (clean → dirty)
+        if (beforeP >= 70 && w.purity < 70) {
             UI.notify(t('game.wellTurningGreen'), true);
+            if (panel) panel('🪣 ' + t('game.wellClouding'), 'warning');
         }
-        if (before !== "broken" && w.condition === "broken") {
+        // Přechod pod 40 — kriticky zanesená
+        if (beforeP >= 40 && w.purity < 40 && w.purity > 0) {
+            if (panel) panel('🪣 ' + t('game.wellClogged'), 'warning');
+        }
+        // Zřítila se (→ 0)
+        if (beforeCond !== "broken" && w.condition === "broken") {
             Game.addKronikaEntry('important', '🪣 Studna se zřítila!', '🪣 The well has collapsed!', '🪣 Puteus corruit!');
             UI.notify(t('game.wellCollapsed'), true);
+            if (panel) panel('🪣 ' + t('game.wellCollapsed'), 'error');
         }
     },
 

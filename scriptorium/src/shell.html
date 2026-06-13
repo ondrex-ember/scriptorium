@@ -2359,6 +2359,36 @@
                                 </div>
                             </div>
 
+                            <!-- Purity bar -->
+                            <div style="margin-bottom: 12px;">
+                                <div style="display:flex; justify-content:space-between; font-size:0.85rem; margin-bottom:4px;">
+                                    <strong data-i18n="wellUI.purity">Kvalita vody:</strong>
+                                    <span id="well-purity-text">100 %</span>
+                                </div>
+                                <div style="height:10px; background:rgba(0,0,0,0.25); border-radius:5px; overflow:hidden;">
+                                    <div id="well-purity-bar" style="height:100%; width:100%; background:#4ade80; transition:width .3s;"></div>
+                                </div>
+                            </div>
+
+                            <!-- Water level bar -->
+                            <div style="margin-bottom: 12px;">
+                                <div style="display:flex; justify-content:space-between; font-size:0.85rem; margin-bottom:4px;">
+                                    <strong data-i18n="wellUI.waterLevel">Hladina:</strong>
+                                    <span id="well-waterlevel-text">100 %</span>
+                                </div>
+                                <div style="height:10px; background:rgba(0,0,0,0.25); border-radius:5px; overflow:hidden;">
+                                    <div id="well-waterlevel-bar" style="height:100%; width:100%; background:#5a8dc7; transition:width .3s;"></div>
+                                </div>
+                            </div>
+
+                            <!-- Frozen indicator (hidden unless frozen) -->
+                            <div id="well-frozen" style="display:none; margin-bottom:12px; padding:6px 10px; background:rgba(90,141,199,0.15); border-left:3px solid #5a8dc7; border-radius:4px; font-size:0.85rem; color:#5a8dc7;">
+                                ❄️ <span data-i18n="wellUI.frozen">Zamrzlá</span>
+                            </div>
+
+                            <!-- Water consumers -->
+                            <div id="well-consumers" style="margin-bottom:15px; font-size:0.82rem; opacity:0.85;"></div>
+
                             <div style="display: flex; gap: 10px; flex-wrap: wrap;">
                                 <button onclick="WellSystem.cleanWell()" id="btn-clean-well" class="craft-btn"
                                     style="background: #5a8dc7; display: none;" data-i18n="wellUI.clean">

@@ -40,7 +40,15 @@ const STRINGS_cs = {
         levelUnknown: 'Neznámá',
         condClean: '✓ Čistá',
         condDirty: '⚠️ Znečištěná',
-        condBroken: '💥 Poškozená'
+        condBroken: '💥 Poškozená',
+        purity: 'Kvalita vody:',
+        waterLevel: 'Hladina:',
+        frozen: 'Zamrzlá',
+        consumers: 'Spotřeba vody:',
+        bandAlive: 'živá',
+        bandMurky: 'kalná',
+        bandClogged: 'zanesená',
+        bandDead: 'mrtvá'
     },
     settingsUI: {
         musicTitle: '🎵 Hudba',
@@ -229,6 +237,8 @@ const STRINGS_cs = {
         needStone: '❌ Potřebuješ kámen',
         wellTurningGreen: '⚠️ Studna se zazelená — voda je znečištěná.',
         wellCollapsed: '💥 Studna se zřítila!',
+        wellClouding: 'Voda ve studni začíná kalnět. Brzy ji bude třeba vyčistit.',
+        wellClogged: 'Studna je zanesená. Vyčisti ji, než voda dojde.',
         vigor: {
             exhausted: '⚠️ Vigor exhaustus! Cibus necesse est.',
             deficiens: '⚠️ Vigor deficiens — najez se.',

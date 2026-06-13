@@ -35,7 +35,15 @@ const STRINGS_en = {
         levelUnknown: 'Unknown',
         condClean: '✓ Pure',
         condDirty: '⚠️ Fouled',
-        condBroken: '💥 Broken'
+        condBroken: '💥 Broken',
+        purity: 'Water quality:',
+        waterLevel: 'Water level:',
+        frozen: 'Frozen',
+        consumers: 'Water usage:',
+        bandAlive: 'alive',
+        bandMurky: 'murky',
+        bandClogged: 'clogged',
+        bandDead: 'dead'
     },
     settingsUI: {
         musicTitle: '🎵 Music',
@@ -211,6 +219,8 @@ const STRINGS_en = {
         needStone: '❌ Stone is needed',
         wellTurningGreen: '⚠️ The well is turning green — water is contaminated.',
         wellCollapsed: '💥 The well has collapsed!',
+        wellClouding: 'The well water is beginning to cloud. It will need cleaning soon.',
+        wellClogged: 'The well is clogged. Clean it before the water runs out.',
         vigor: {
             exhausted: '⚠️ Vigor exhaustus! You must eat.',
             deficiens: '⚠️ Vigor is failing — consume food.',

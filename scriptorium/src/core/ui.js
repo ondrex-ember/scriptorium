@@ -502,6 +502,43 @@ renderActions: function() {
 								  GameState.researchedTechs.includes("tech_well_stone");
 				btnUpgrade.style.display = canUpgrade ? "inline-block" : "none";
 			}
+
+			// Purity bar (% + barva + pásmo)
+			const purity = (typeof GameState.well.purity === 'number') ? GameState.well.purity : 100;
+			const pBar = document.getElementById('well-purity-bar');
+			const pText = document.getElementById('well-purity-text');
+			if (pBar && pText) {
+				const lang = (GameState.settings && GameState.settings.language) || 'cs';
+				let color, band;
+				if (purity <= 0)       { color = '#f87171'; band = t('wellUI.bandDead'); }
+				else if (purity < 40)  { color = '#f59e0b'; band = t('wellUI.bandClogged'); }
+				else if (purity < 70)  { color = '#fbbf24'; band = t('wellUI.bandMurky'); }
+				else                   { color = '#4ade80'; band = t('wellUI.bandAlive'); }
+				pBar.style.width = Math.max(0, purity) + '%';
+				pBar.style.background = color;
+				pText.textContent = Math.round(purity) + ' % · ' + band;
+				pText.style.color = color;
+			}
+
+			// Water level bar (zatím statické, rozhýbe počasí)
+			const wl = (typeof GameState.well.level_water === 'number') ? GameState.well.level_water : 100;
+			const wlBar = document.getElementById('well-waterlevel-bar');
+			const wlText = document.getElementById('well-waterlevel-text');
+			if (wlBar && wlText) {
+				wlBar.style.width = Math.max(0, wl) + '%';
+				wlText.textContent = Math.round(wl) + ' %';
+			}
+
+			// Frozen indicator
+			const frozenEl = document.getElementById('well-frozen');
+			if (frozenEl) frozenEl.style.display = GameState.well.frozen ? 'block' : 'none';
+
+			// Water consumers
+			const consEl = document.getElementById('well-consumers');
+			if (consEl && typeof WellSystem !== 'undefined' && WellSystem.waterConsumers) {
+				const list = WellSystem.waterConsumers();
+				consEl.textContent = '💧 ' + t('wellUI.consumers') + ' ' + list.join(', ');
+			}
 		}
 	},
 	
