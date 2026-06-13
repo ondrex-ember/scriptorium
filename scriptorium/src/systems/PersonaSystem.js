@@ -399,6 +399,12 @@ const PersonaSystem = {
         const satiety = Math.round(c.satiety || 0);
         const affection = Math.round(c.affection || 0);
         const huntDrive = 100 - satiety; // lovecký pud = inverze sytosti
+        const warmth = typeof c.warmth === 'number' ? Math.round(c.warmth) : 50;
+        const warmthEmoji = warmth >= 80 ? '🔥' : warmth >= 50 ? '😺' : warmth >= 25 ? '🐱' : '🥶';
+        const warmthLabel = lang === 'en'
+            ? ['Freezing','Cold','Comfortable','Warm','Very warm']
+            : ['Zmrzlá','Zima','Pohoda','Teplo','Velmi teplo'];
+        const warmthLabelStr = warmthLabel[Math.min(4, Math.floor(warmth / 20))];
         const ageDays = c.bornAt ? Math.max(0, Math.floor((Date.now() - c.bornAt) / 86400000)) : 0;
 
         const bar = (icon, label, val, color) => `
@@ -433,6 +439,10 @@ const PersonaSystem = {
         h += bar('🍖', t('felis.satiety'),  satiety,   'linear-gradient(90deg,#a0722d,#c5a059)');
         h += bar('❤️', t('felis.affection'), affection, 'linear-gradient(90deg,#8c2f39,#c54a59)');
         h += bar('🐭', t('felis.huntDrive'), huntDrive, 'linear-gradient(90deg,#4a5a4a,#7a8a6a)');
+        h += bar(warmthEmoji, (lang==='en'?'Warmth — ':'Teplo — ') + warmthLabelStr, warmth,
+            warmth >= 80 ? 'linear-gradient(90deg,#c0392b,#e74c3c)' :
+            warmth >= 40 ? 'linear-gradient(90deg,#c5a059,#f0c070)' :
+                           'linear-gradient(90deg,#4a7ab5,#6aabf5)');
 
         // Fuzzy myší hláška
         const fuzzy = (typeof ScriptoriumCat !== 'undefined' && ScriptoriumCat.miceFuzzy) ? ScriptoriumCat.miceFuzzy() : '';

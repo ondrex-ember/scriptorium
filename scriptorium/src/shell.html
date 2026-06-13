@@ -2257,7 +2257,7 @@
                         <span>📜</span>
                         <span class="hpill-val" id="pill-progress-val">–</span>
                     </div>
-                    <div class="hpill" id="cat-pill" onclick="ScriptoriumCat.renderCatPillDetail(); pillToggle('cat')" style="display:none;">
+                    <div class="hpill" id="cat-pill" onclick="pillToggle('cat')" style="display:none;">
                         <span id="cat-pill-label">🐈</span>
                         <span class="hpill-val" style="display:block; width:30px; height:4px; background:rgba(0,0,0,0.15); border-radius:2px; padding:0; overflow:hidden;">
                             <span id="cat-pill-warmth-bar" style="display:block; height:100%; width:50%; background:#ffbd40; border-radius:2px; transition:width 0.5s;"></span>
@@ -3154,7 +3154,15 @@
                     if (lastKronika) html += '<div class="pp-row" style="margin-top:6px;border-top:1px solid rgba(197,160,89,0.2);padding-top:6px;"><span class="pp-label" style="font-size:0.7rem;opacity:0.6;">Poslední Kronika:</span></div><div class="pp-row"><span class="pp-val" style="font-size:0.78rem;opacity:0.8;">' + lastKronika + '</span></div>';
                 }
 
-                body.innerHTML = html;
+                if (id === 'cat') {
+                    // Cat pill — obsah generuje ScriptoriumCat.renderCatPillDetail()
+                    body.innerHTML = '';
+                    if (typeof ScriptoriumCat !== 'undefined' && ScriptoriumCat.renderCatPillDetail) {
+                        ScriptoriumCat.renderCatPillDetail();
+                    }
+                } else {
+                    body.innerHTML = html;
+                }
                 panel.style.display = 'block';
 
                 // Aktivní stav na pill

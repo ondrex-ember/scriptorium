@@ -546,7 +546,8 @@ Object.assign(ScriptoriumCat, {
     // ── Warmth systém ─────────────────────────────────────────────────────
     warmthTick: function() {
         const c = this._ensureCatState ? this._ensureCatState() : (GameState.cat || {});
-        if (typeof c.warmth === 'undefined') c.warmth = 50;
+        if (typeof c.warmth !== 'number') { c.warmth = 50; }
+        if (!GameState.cat) GameState.cat = c;
 
         const foculusActive = document.getElementById('home-foculus-content') &&
             document.getElementById('home-foculus-content').style.display !== 'none';
@@ -610,7 +611,8 @@ Object.assign(ScriptoriumCat, {
         pill.style.display = 'flex';
 
         const c = this._ensureCatState ? this._ensureCatState() : (GameState.cat || {});
-        const warmth = typeof c.warmth === 'number' ? c.warmth : 50;
+        if (typeof c.warmth !== 'number') c.warmth = 50;
+        const warmth = c.warmth;
         const emoji = this._warmthEmoji(warmth);
         const name = c.name || 'Felis';
 
@@ -757,7 +759,7 @@ Object.assign(ScriptoriumCat, {
             el.title = (GameState.cat && GameState.cat.name) || 'Bezejmenný myšilov';
             el.style.cssText = `
                 position: absolute;
-                bottom: 35px;
+                bottom: 70px;
                 left: ${this.foculusPosX}px;
                 width: ${size}px;
                 height: ${size}px;
