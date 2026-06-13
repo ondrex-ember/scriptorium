@@ -576,7 +576,7 @@ Object.assign(ScriptoriumCat, {
         const frameX = this.foculusFrame * size;
         el.style.backgroundImage = `url('${this.BASE_PATH}${s.file}')`;
         el.style.backgroundPosition = `-${frameX}px 0px`;
-        el.style.transform = this.foculusFacingLeft ? 'scaleX(-1)' : 'scaleX(1)';
+        el.style.transform = this.foculusFacingLeft ? 'translateY(-50%) scaleX(-1)' : 'translateY(-50%) scaleX(1)';
     },
 
     _foculusSetState: function(state) {
@@ -655,7 +655,8 @@ Object.assign(ScriptoriumCat, {
             el.title = (GameState.cat && GameState.cat.name) || 'Bezejmenný myšilov';
             el.style.cssText = `
                 position: absolute;
-                bottom: 0px;
+                top: 50%;
+                transform: translateY(-50%);
                 left: ${this.foculusPosX}px;
                 width: ${size}px;
                 height: ${size}px;
