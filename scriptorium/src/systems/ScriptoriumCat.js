@@ -655,7 +655,7 @@ Object.assign(ScriptoriumCat, {
             el.title = (GameState.cat && GameState.cat.name) || 'Bezejmenný myšilov';
             el.style.cssText = `
                 position: absolute;
-                top: 0px;
+                bottom: 0px;
                 left: ${this.foculusPosX}px;
                 width: ${size}px;
                 height: ${size}px;
@@ -663,6 +663,7 @@ Object.assign(ScriptoriumCat, {
                 background-size: auto ${size}px;
                 image-rendering: pixelated;
                 cursor: pointer;
+                z-index: 10;
                 transition: left 2.5s ease-in-out;
             `;
             el.addEventListener('click', () => this._onCatClick());
