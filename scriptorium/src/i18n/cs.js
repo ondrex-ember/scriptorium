@@ -1318,6 +1318,7 @@ const STRINGS_cs = {
         mice_scraps: 'Zbytky sežrány/den',
         mice_decay: 'Multiplikátor kažení',
         mice_net_per_day: '/den',
+        feedScraps: 'zbytky',
     },
     decay: {
         lossMsg: 'Zkazilo se: {items}. Podrobnosti v Inventarium (Cellarium).',

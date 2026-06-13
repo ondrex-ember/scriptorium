@@ -2254,6 +2254,7 @@ According to Theophilus, the organ is an instrument worthy of God, but its const
         mice_scraps: 'Scraps eaten/day',
         mice_decay: 'Decay multiplier',
         mice_net_per_day: '/day',
+        feedScraps: 'scraps',
     },
     decay: {
         lossMsg: 'Spoiled: {items}. Details in the Inventarium (Cellarium).',

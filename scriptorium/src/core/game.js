@@ -2366,7 +2366,7 @@ const Game = {
 			{ key: 'piscina',   built: GameState.piscina && GameState.piscina.tier > 0, feed: 'worms', feedAmt: 1, name: lang==='en'?'Fish':'Ryby' },
 			{ key: 'rabbitry',  built: GameState.rabbitry && GameState.rabbitry.built && GameState.rabbitry.animals && GameState.rabbitry.animals.length > 0, feed: 'scraps', fallback: 'hay', feedAmt: 1, name: lang==='en'?'Rabbits':'Králíci' },
 			{ key: 'goatpen',   built: GameState.goatpen && GameState.goatpen.built && GameState.goatpen.animals && GameState.goatpen.animals.length > 0, feed: 'hay', fallback: 'scraps', feedAmt: 1, name: lang==='en'?'Goats':'Kozy' },
-			{ key: 'pigsty',    built: GameState.pigsty && GameState.pigsty.built && GameState.pigsty.animals && GameState.pigsty.animals.length > 0, feed: 'scraps', fallback: 'acorn', feedAmt: 2, name: lang==='en'?'Pigs':'Prasata' },
+			{ key: 'pigsty',    built: GameState.pigsty && GameState.pigsty.built && GameState.pigsty.animals && GameState.pigsty.animals.length > 0, feed: 'scraps', fallback: 'grain', feedAmt: 2, name: lang==='en'?'Pigs':'Prasata' },
 		];
 		animals.forEach(a => {
 			if (!a.built) return;

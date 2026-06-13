@@ -1267,22 +1267,26 @@ const GardenSystem = {
 
         // Krmivo — zásoba ve dnech (jen s Horreem, kdy krmení běží)
         if (GameState.storage && GameState.storage.horreum && GameState.storage.horreum.built) {
-            const hayEaters = ((GameState.sheepfold && GameState.sheepfold.sheep) || []).length
-                + ((GameState.rabbitry && GameState.rabbitry.animals) || []).length
-                + ((GameState.goatpen && GameState.goatpen.animals) || []).length;
-            const grainEaters = ((GameState.henhouse && GameState.henhouse.hens) || []).length > 0 ? 1 : 0;
-            const grainPens = grainEaters + (((GameState.pigsty && GameState.pigsty.animals) || []).length > 0 ? 1 : 0);
+            const hasPigsty   = ((GameState.pigsty   && GameState.pigsty.animals)   || []).length > 0;
+            const hasRabbitry = ((GameState.rabbitry  && GameState.rabbitry.animals) || []).length > 0;
+            const hasGoatpen  = ((GameState.goatpen   && GameState.goatpen.animals)  || []).length > 0;
+            const grainEaters = ((GameState.henhouse  && GameState.henhouse.hens)    || []).length > 0 ? 1 : 0;
+            // Prasata jedí scraps (fallback grain) — v primáru je nezapočítáváme do grainPens
+            const grainPens = grainEaters;
             const hayPens = (((GameState.sheepfold && GameState.sheepfold.sheep) || []).length > 0 ? 1 : 0)
-                + (((GameState.rabbitry && GameState.rabbitry.animals) || []).length > 0 ? 1 : 0)
-                + (((GameState.goatpen && GameState.goatpen.animals) || []).length > 0 ? 1 : 0);
-            const hayDays = hayPens ? Math.floor((GameState.inventory['hay'] || 0) / hayPens) : null;
-            const grainDays = grainPens ? Math.floor((GameState.inventory['grain'] || 0) / grainPens) : null;
+                + (hasRabbitry ? 1 : 0) + (hasGoatpen ? 1 : 0);
+            // Scraps: králíci (1/den), kozy (1/den fallback), prasata (2/den primár)
+            const scrapsPens = (hasRabbitry ? 1 : 0) + (hasGoatpen ? 1 : 0) + (hasPigsty ? 2 : 0);
+            const hayDays    = hayPens    ? Math.floor((GameState.inventory['hay']    || 0) / hayPens)    : null;
+            const grainDays  = grainPens  ? Math.floor((GameState.inventory['grain']  || 0) / grainPens)  : null;
+            const scrapsDays = scrapsPens ? Math.floor((GameState.inventory['scraps'] || 0) / scrapsPens) : null;
             const parts = [];
-            if (hayDays !== null) parts.push(`${t('dvur.feedHay')}: ${hayDays} ${t('dvur.days')}`);
-            if (grainDays !== null) parts.push(`${t('dvur.feedGrain')}: ${grainDays} ${t('dvur.days')}`);
+            if (hayDays    !== null) parts.push(`${t('dvur.feedHay')}: ${hayDays} ${t('dvur.days')}`);
+            if (grainDays  !== null) parts.push(`${t('dvur.feedGrain')}: ${grainDays} ${t('dvur.days')}`);
+            if (scrapsDays !== null) parts.push(`${t('dvur.feedScraps')}: ${scrapsDays} ${t('dvur.days')}`);
             if (parts.length) {
-                const low = (hayDays !== null && hayDays < 3) || (grainDays !== null && grainDays < 3);
-                h += `<div style="font-size:0.8rem; ${low ? 'color:#c0392b;' : ''}">🌾 ${t('dvur.feedStock')}: ${parts.join(' · ')}</div>`;
+                const low = (hayDays !== null && hayDays < 3) || (grainDays !== null && grainDays < 3) || (scrapsDays !== null && scrapsDays < 3);
+                h += `<div style="font-size:0.8rem; ${low ? 'color:#c0392b;' : ''}">\u{1F33E} ${t('dvur.feedStock')}: ${parts.join(' \u00B7 ')}</div>`;
             }
         }
 
