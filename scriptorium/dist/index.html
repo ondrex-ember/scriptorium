@@ -17586,9 +17586,8 @@ Object.assign(ScriptoriumCat, {
         const lane = document.getElementById('cat-lane-top');
         let el = document.getElementById('cat-by-fire');
 
-        const catLoc = (GameState.cat && GameState.cat.location) || 'garden';
-        if (!lane || !GameState.flags || !GameState.flags.fireplaceLit || this._foculusLeaving || catLoc !== 'fire') {
-            if (el && !this._foculusLeaving) el.style.display = 'none';
+        if (!lane || !GameState.flags || !GameState.flags.fireplaceLit) {
+            if (el) el.style.display = 'none';
             if (this.foculusMoveTimer)  { clearTimeout(this.foculusMoveTimer);  this.foculusMoveTimer = null; }
             if (this.foculusFrameTimer) { clearTimeout(this.foculusFrameTimer); this.foculusFrameTimer = null; }
             return;
