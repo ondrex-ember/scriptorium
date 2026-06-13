@@ -31868,6 +31868,13 @@ const UI = {
             if (name === 'garden') { this.renderGarden(); }
             if (name === 'home')   { this.renderActions(); this.renderWell(); }
         }
+        if (name === 'home') {
+            const celEl = document.getElementById('home-cellarium-content');
+            if (this._dirty.cellarium && celEl && celEl.style.display !== 'none') {
+                this._dirty.cellarium = false;
+                celEl.innerHTML = CellariumSystem.renderCellariumTab();
+            }
+        }
         if(name === 'garden') this.renderGarden();
         if(name === 'inv') this._updateInvFilterBar();
         if(name === 'library') {
