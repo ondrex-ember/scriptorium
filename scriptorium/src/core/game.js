@@ -1855,10 +1855,14 @@ const Game = {
             document.getElementById('fireplace-title').innerText = t('fireplace.lit');
             document.getElementById('fireplace-desc').innerText = t('fireplace.litDesc');
             btnIgnite.style.display = 'none';
+            const fpVisualLit = document.getElementById('fireplace-visual');
+            if (fpVisualLit) fpVisualLit.src = '/img/hearth_base_red.png';
         } else {
             // Hint pro nové hráče: krb nebyl nikdy rozžéhnut
             const neverLit = !(GameState.achievements?.stats?.fireplaceCount);
             btnIgnite.classList.toggle('btn-ignite--hint', neverLit);
+            const fpVisualDead = document.getElementById('fireplace-visual');
+            if (fpVisualDead) fpVisualDead.src = '/img/hearth_base_dead.png';
         }
         const isDark = GameState.flags.forceDark || (!TimeSys.isDaytime() && !GameState.flags.fireplaceLit && !GameState.flags.candleLit && !GameState.flags.torchLit);
         if (isDark) container.classList.add('mode-frozen');

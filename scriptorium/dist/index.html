@@ -2256,7 +2256,7 @@
                 <div id="home-main-content">
 
                     <div id="card-fireplace" class="card ui-frozen">
-                        <div class="item-icon" style="background: #333; color: #555;">🔥</div>
+                        <img id="fireplace-visual" src="/img/hearth_base_dead.png" alt="" style="width:64px;height:64px;object-fit:cover;border-radius:6px;border:1px solid var(--ink-secondary, #6b5d4f);flex-shrink:0;">
                         <div><strong id="fireplace-title">Vyhaslý Krb</strong>
                             <div id="fireplace-desc" class="text-sm">Je tu zima.</div>
                         </div>
@@ -30916,10 +30916,14 @@ const Game = {
             document.getElementById('fireplace-title').innerText = t('fireplace.lit');
             document.getElementById('fireplace-desc').innerText = t('fireplace.litDesc');
             btnIgnite.style.display = 'none';
+            const fpVisualLit = document.getElementById('fireplace-visual');
+            if (fpVisualLit) fpVisualLit.src = '/img/hearth_base_red.png';
         } else {
             // Hint pro nové hráče: krb nebyl nikdy rozžéhnut
             const neverLit = !(GameState.achievements?.stats?.fireplaceCount);
             btnIgnite.classList.toggle('btn-ignite--hint', neverLit);
+            const fpVisualDead = document.getElementById('fireplace-visual');
+            if (fpVisualDead) fpVisualDead.src = '/img/hearth_base_dead.png';
         }
         const isDark = GameState.flags.forceDark || (!TimeSys.isDaytime() && !GameState.flags.fireplaceLit && !GameState.flags.candleLit && !GameState.flags.torchLit);
         if (isDark) container.classList.add('mode-frozen');
