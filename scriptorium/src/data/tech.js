@@ -1,6 +1,7 @@
 const TechTree = [
     // TIER 1
     { id:"tech_candle",          name:"Zpracování Tuku",           name_en:"Fat Rendering",              cost:2,  desc:"Odemkne: Svíčky, Klíh",                              desc_en:"Unlocks: Candles, Glue",                      unlocks:["candle","glue"] },
+    { id:"tech_meteorologica",   name:"Meteorologica — Živly a Oheň", name_en:"Meteorologica — Elements and Fire", cost:20, desc:"Aristotelovo pojednání o povětří a živlech. Oheň jako horký a suchý element stoupající k nebi. Odemkne: správu paliva v krbu, subtab Ohniště.", desc_en:"Aristotle's treatise on weather and the elements. Fire as a hot, dry element rising toward heaven. Unlocks: hearth fuel management, the Foculus subtab.", unlocks:["fireplace_fuel"], requires:["tech_candle"] },
     { id:"tech_backpack",        name:"Organizace Batohu",         name_en:"Satchel Organisation",       cost:3,  desc:"Odemkne: Třídění předmětů",                    desc_en:"Unlocks: Item sorting",                 unlocks:[] },
     { id:"tech_alchemy_1",       name:"Základy Bylinkářství",      name_en:"Herbalism Basics",           cost:3,  desc:"Odemkne: Hojivá mast",                         desc_en:"Unlocks: Healing salve",                unlocks:["potion_heal"] },
 

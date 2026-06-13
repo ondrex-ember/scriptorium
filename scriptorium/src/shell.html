@@ -2301,7 +2301,8 @@
                         Cellarium</button>
                     <button id="home-tab-athanor" class="filter-btn" onclick="UI.switchHomeTab('athanor', this)">🔬
                         Athanor</button>
-                    
+                    <button id="home-tab-foculus" class="filter-btn" onclick="UI.switchHomeTab('foculus', this)">🔥
+                        <span data-i18n="fireplace.foculusTab"></span></button>
                 </div>
 
                 <div id="home-main-content">
@@ -2356,6 +2357,27 @@
 
                 <div id="home-cellarium-content" style="display:none;"></div>
                 <div id="home-athanor-content" style="display:none;"></div>
+                <div id="home-foculus-content" style="display:none;">
+                    <div id="foculus-locked" style="text-align:center; padding:30px; opacity:0.6; border:1px dashed rgba(197,160,89,0.3); border-radius:8px;">
+                        <div style="font-size:2rem; margin-bottom:10px;">🔒</div>
+                        <div style="font-style:italic; font-size:0.9rem;" data-i18n="fireplace.foculusLocked"></div>
+                    </div>
+                    <div id="foculus-unlocked" style="display:none;">
+                        <div id="fireplace-fuel-panel" style="display:none; padding:12px; border:1px solid var(--ink-secondary); border-radius:8px;">
+                            <div style="display:flex; justify-content:space-between; font-size:0.9rem; margin-bottom:8px;">
+                                <strong id="fireplace-status-text" style="color:var(--ink-secondary);"></strong>
+                                <span id="fireplace-time-left" style="font-weight:bold; color:var(--accent-gold);">0h 0m</span>
+                            </div>
+                            <div style="height:8px; background:rgba(0,0,0,0.2); border-radius:4px; overflow:hidden; margin-bottom:14px; border:1px solid rgba(197,160,89,0.3);">
+                                <div id="fireplace-fuel-bar" style="height:100%; width:0%; background:#ffbd40; transition:width 0.5s, background-color 0.5s;"></div>
+                            </div>
+                            <div style="display:flex; gap:8px;">
+                                <button class="filter-btn" onclick="FireplaceSystem.addFuel('stick')" id="btn-fuel-stick" style="flex:1;">+ Větev</button>
+                                <button class="filter-btn" onclick="FireplaceSystem.addFuel('log')" id="btn-fuel-log" style="flex:1;">+ Poleno</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <div id="screen-garden" class="screen" style="position:relative; max-width:100%; overflow-x:hidden;">

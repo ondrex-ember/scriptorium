@@ -774,10 +774,13 @@ renderActions: function() {
 		document.getElementById('home-athanor-content').style.display = tab === 'athanor' ? 'block' : 'none';
 		const celEl = document.getElementById('home-cellarium-content');
 		if (celEl) celEl.style.display = tab === 'cellarium' ? 'block' : 'none';
+		const focEl = document.getElementById('home-foculus-content');
+		if (focEl) focEl.style.display = tab === 'foculus' ? 'block' : 'none';
 		document.querySelectorAll('#screen-home .filter-btn').forEach(b => b.classList.remove('active'));
 		if (btn) btn.classList.add('active');
 		if (tab === 'athanor') AthanorSystem.render('home-athanor-content');
 		if (tab === 'cellarium' && celEl) celEl.innerHTML = CellariumSystem.renderCellariumTab();
+		if (tab === 'foculus' && typeof FireplaceSystem !== 'undefined') FireplaceSystem.render();
 		// Reset sub-tab to scavenge when switching back to main
 		if (tab === 'main') this.switchHomeSubTab('scavenge', document.getElementById('home-sub-scavenge'));
 	},

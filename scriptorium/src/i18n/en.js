@@ -8,7 +8,12 @@ const STRINGS_en = {
     // ------------------------------
     fireplace: {
         cold: 'The Hearth Lies Cold', coldDesc: 'A bitter chill claimeth the chamber.', kindle: 'KINDLE',
-        lit: 'The Hearth Burns', litDesc: 'Warmth and light fill the scriptorium.'
+        lit: 'The Hearth Burns', litDesc: 'Warmth and light fill the scriptorium.',
+        diedOutShort: 'The hearth has died out', diedOut: '❄️ The fire has died out.',
+        full: 'The hearth is full!', fuelAdded: 'Fuel added.',
+        notEnough: 'Not enough {item}.',
+        foculusTab: 'Foculus', foculusLocked: "Study Meteorologica to manage the hearth's fuel.",
+        statusLabel: 'Fire status:'
     },
     light: {
         none: 'No Light', noneDesc: 'Darkness claimeth this place.',

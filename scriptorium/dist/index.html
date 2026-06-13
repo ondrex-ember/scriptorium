@@ -2301,7 +2301,8 @@
                         Cellarium</button>
                     <button id="home-tab-athanor" class="filter-btn" onclick="UI.switchHomeTab('athanor', this)">🔬
                         Athanor</button>
-                    
+                    <button id="home-tab-foculus" class="filter-btn" onclick="UI.switchHomeTab('foculus', this)">🔥
+                        <span data-i18n="fireplace.foculusTab"></span></button>
                 </div>
 
                 <div id="home-main-content">
@@ -2356,6 +2357,27 @@
 
                 <div id="home-cellarium-content" style="display:none;"></div>
                 <div id="home-athanor-content" style="display:none;"></div>
+                <div id="home-foculus-content" style="display:none;">
+                    <div id="foculus-locked" style="text-align:center; padding:30px; opacity:0.6; border:1px dashed rgba(197,160,89,0.3); border-radius:8px;">
+                        <div style="font-size:2rem; margin-bottom:10px;">🔒</div>
+                        <div style="font-style:italic; font-size:0.9rem;" data-i18n="fireplace.foculusLocked"></div>
+                    </div>
+                    <div id="foculus-unlocked" style="display:none;">
+                        <div id="fireplace-fuel-panel" style="display:none; padding:12px; border:1px solid var(--ink-secondary); border-radius:8px;">
+                            <div style="display:flex; justify-content:space-between; font-size:0.9rem; margin-bottom:8px;">
+                                <strong id="fireplace-status-text" style="color:var(--ink-secondary);"></strong>
+                                <span id="fireplace-time-left" style="font-weight:bold; color:var(--accent-gold);">0h 0m</span>
+                            </div>
+                            <div style="height:8px; background:rgba(0,0,0,0.2); border-radius:4px; overflow:hidden; margin-bottom:14px; border:1px solid rgba(197,160,89,0.3);">
+                                <div id="fireplace-fuel-bar" style="height:100%; width:0%; background:#ffbd40; transition:width 0.5s, background-color 0.5s;"></div>
+                            </div>
+                            <div style="display:flex; gap:8px;">
+                                <button class="filter-btn" onclick="FireplaceSystem.addFuel('stick')" id="btn-fuel-stick" style="flex:1;">+ Větev</button>
+                                <button class="filter-btn" onclick="FireplaceSystem.addFuel('log')" id="btn-fuel-log" style="flex:1;">+ Poleno</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <div id="screen-garden" class="screen" style="position:relative; max-width:100%; overflow-x:hidden;">
@@ -6454,6 +6476,7 @@ const LoreDB = {
 const TechTree = [
     // TIER 1
     { id:"tech_candle",          name:"Zpracování Tuku",           name_en:"Fat Rendering",              cost:2,  desc:"Odemkne: Svíčky, Klíh",                              desc_en:"Unlocks: Candles, Glue",                      unlocks:["candle","glue"] },
+    { id:"tech_meteorologica",   name:"Meteorologica — Živly a Oheň", name_en:"Meteorologica — Elements and Fire", cost:20, desc:"Aristotelovo pojednání o povětří a živlech. Oheň jako horký a suchý element stoupající k nebi. Odemkne: správu paliva v krbu, subtab Ohniště.", desc_en:"Aristotle's treatise on weather and the elements. Fire as a hot, dry element rising toward heaven. Unlocks: hearth fuel management, the Foculus subtab.", unlocks:["fireplace_fuel"], requires:["tech_candle"] },
     { id:"tech_backpack",        name:"Organizace Batohu",         name_en:"Satchel Organisation",       cost:3,  desc:"Odemkne: Třídění předmětů",                    desc_en:"Unlocks: Item sorting",                 unlocks:[] },
     { id:"tech_alchemy_1",       name:"Základy Bylinkářství",      name_en:"Herbalism Basics",           cost:3,  desc:"Odemkne: Hojivá mast",                         desc_en:"Unlocks: Healing salve",                unlocks:["potion_heal"] },
 
@@ -14148,6 +14171,174 @@ const WellSystem = {
         return stats[level] || defaultStats;
     }
 };
+// ═══ src/systems/fireplace.js ═══
+// ═══════════════════════════════════════════════════════════════════════════
+// FIREPLACE SYSTEM — Teplo domova
+// Krb sám (ignite/dead/lit) je odemčen od začátku — beze změny.
+// FireplaceSystem rozšiřuje správu o palivo (fuel panel), gated tech_meteorologica.
+// Subtab: Pracovna → FOCULUS (home-foculus-content)
+// ═══════════════════════════════════════════════════════════════════════════
+
+const FireplaceSystem = {
+    MAX_FUEL_MS: 24 * 60 * 60 * 1000, // Maximální kapacita krbu: 24 hodin
+
+    // Kolik času přidá dané palivo
+    FUEL_VALUES: {
+        'stick': 1 * 60 * 60 * 1000,   // Větev: +1 hodina
+        'log': 4 * 60 * 60 * 1000,     // Poleno: +4 hodiny
+        'charcoal': 8 * 60 * 60 * 1000 // Dřevěné uhlí: +8 hodin
+    },
+
+    hasMeteorologica: function() {
+        return !!(GameState.researchedTechs && GameState.researchedTechs.includes('tech_meteorologica'));
+    },
+
+    _ensureState: function() {
+        if (!GameState.fire) {
+            GameState.fire = {
+                active: GameState.flags.fireplaceLit || false,
+                fuelMs: GameState.flags.fireplaceLit ? (6 * 60 * 60 * 1000) : 0, // Pro staré savy: dostanou 6h do začátku
+                lastUpdate: Date.now()
+            };
+        }
+    },
+
+    addFuel: function(itemId) {
+        this._ensureState();
+        if (!GameState.fire.active) return;
+        if (!this.hasMeteorologica()) return;
+
+        const fuelAmount = this.FUEL_VALUES[itemId];
+        if (!fuelAmount) return;
+
+        if ((GameState.inventory[itemId] || 0) < 1) {
+            const itemName = (typeof iName === 'function') ? iName(itemId) : itemId;
+            UI.notify(t('fireplace.notEnough').replace('{item}', itemName), true);
+            return;
+        }
+
+        if (GameState.fire.fuelMs + fuelAmount > this.MAX_FUEL_MS) {
+            UI.notify(t('fireplace.full'), true);
+            return;
+        }
+
+        Game.removeItem(itemId, 1);
+        GameState.fire.fuelMs += fuelAmount;
+        Game.save();
+        this.render();
+
+        UI.notify(t('fireplace.fuelAdded'));
+    },
+
+    tick: function() {
+        this._ensureState();
+        if (!GameState.fire.active) return;
+
+        const now = Date.now();
+        const delta = now - GameState.fire.lastUpdate; // Započítá i čas, kdy byl hráč offline!
+        GameState.fire.lastUpdate = now;
+
+        GameState.fire.fuelMs -= delta;
+
+        if (GameState.fire.fuelMs <= 0) {
+            this.dieOut();
+        } else {
+            this.render();
+        }
+    },
+
+    dieOut: function() {
+        GameState.fire.active = false;
+        GameState.fire.fuelMs = 0;
+        GameState.flags.fireplaceLit = false;
+        GameState.flags.candleLit = false;
+        GameState.flags.torchLit = false;
+
+        if ((GameState.inventory['tinderbox'] || 0) <= 0) {
+            GameState.inventory['tinderbox'] = 1;
+        }
+
+        if (typeof NotificationSystem !== 'undefined') {
+            NotificationSystem.panel(t('fireplace.diedOut'), 'warning');
+        }
+
+        Game.save();
+        if (typeof Game.checkEnvironment === 'function') Game.checkEnvironment();
+        this.render();
+    },
+
+    // Volá se z Game.checkEnvironment() — synchronizuje stav po ignite/dieOut
+    render: function() {
+        this._ensureState();
+
+        const panel = document.getElementById('fireplace-fuel-panel');
+        if (!panel) return; // Foculus subtab není v DOM (jiný subtab aktivní) — nic k vykreslení
+
+        const lockedView = document.getElementById('foculus-locked');
+        const unlockedView = document.getElementById('foculus-unlocked');
+
+        if (!this.hasMeteorologica()) {
+            if (lockedView) lockedView.style.display = 'block';
+            if (unlockedView) unlockedView.style.display = 'none';
+            return;
+        }
+        if (lockedView) lockedView.style.display = 'none';
+        if (unlockedView) unlockedView.style.display = 'block';
+
+        const btnStick = document.getElementById('btn-fuel-stick');
+        const btnLog = document.getElementById('btn-fuel-log');
+        const bar = document.getElementById('fireplace-fuel-bar');
+        const timeText = document.getElementById('fireplace-time-left');
+        const statusText = document.getElementById('fireplace-status-text');
+
+        if (!bar || !timeText) return;
+
+        if (GameState.fire.active) {
+            panel.style.display = 'block';
+            if (statusText) statusText.textContent = t('fireplace.lit');
+
+            let pct = (GameState.fire.fuelMs / this.MAX_FUEL_MS) * 100;
+            if (pct > 100) pct = 100;
+            if (pct < 0) pct = 0;
+            bar.style.width = pct + '%';
+
+            if (pct > 50) bar.style.backgroundColor = '#4ade80';
+            else if (pct > 20) bar.style.backgroundColor = '#ffbd40';
+            else bar.style.backgroundColor = '#ef4444';
+
+            const totalMins = Math.floor(GameState.fire.fuelMs / 60000);
+            const hours = Math.floor(totalMins / 60);
+            const mins = totalMins % 60;
+            timeText.textContent = `${hours}h ${mins}m`;
+
+            const hasStick = (GameState.inventory['stick'] || 0) > 0;
+            const hasLog = (GameState.inventory['log'] || 0) > 0;
+            const canFitStick = (GameState.fire.fuelMs + this.FUEL_VALUES['stick']) <= this.MAX_FUEL_MS;
+            const canFitLog = (GameState.fire.fuelMs + this.FUEL_VALUES['log']) <= this.MAX_FUEL_MS;
+
+            if (btnStick) {
+                btnStick.disabled = !hasStick || !canFitStick;
+                btnStick.style.opacity = (!hasStick || !canFitStick) ? '0.5' : '1';
+                const sQty = GameState.inventory['stick'] || 0;
+                btnStick.textContent = `+ ${iName('stick')} (${sQty})`;
+            }
+            if (btnLog) {
+                btnLog.disabled = !hasLog || !canFitLog;
+                btnLog.style.opacity = (!hasLog || !canFitLog) ? '0.5' : '1';
+                const lQty = GameState.inventory['log'] || 0;
+                btnLog.textContent = `+ ${iName('log')} (${lQty})`;
+            }
+        } else {
+            panel.style.display = 'block';
+            if (statusText) statusText.textContent = t('fireplace.diedOutShort');
+            bar.style.width = '0%';
+            timeText.textContent = '0h 0m';
+            if (btnStick) { btnStick.disabled = true; btnStick.style.opacity = '0.5'; btnStick.textContent = `+ ${iName('stick')}`; }
+            if (btnLog) { btnLog.disabled = true; btnLog.style.opacity = '0.5'; btnLog.textContent = `+ ${iName('log')}`; }
+        }
+    }
+};
+
 // ═══ src/systems/GardenSystem.js ═══
 // ═══════════════════════════════════════════════════════════════════════════
 // GardenSystem — Zahrada, Dvůr, Sad, Apiarium, Piscina, Studna
@@ -24874,7 +25065,12 @@ const STRINGS_cs = {
     screens: { home: 'Pracovna', garden: 'Zahrada', craft: 'Výroba', inv: 'Zásoby', lore: 'Scriptorium', library: 'Knihovna', settings: 'Nastavení', scavenge: 'Sběr', mine: 'Těžba' },
     fireplace: {
         cold: 'Vyhaslý Krb', coldDesc: 'Je tu zima.', kindle: 'ROZEŽEHNOUT',
-        lit: 'Hřejivý Krb', litDesc: 'Oheň dává život.'
+        lit: 'Hřejivý Krb', litDesc: 'Oheň dává život.',
+        diedOutShort: 'Krb vyhasl', diedOut: '❄️ Oheň v krbu vyhasl.',
+        full: 'Krb je už plný!', fuelAdded: 'Přiloženo do ohně.',
+        notEnough: 'Nedostatek: {item}.',
+        foculusTab: 'Ohniště', foculusLocked: 'Prostuduj Meteorologica pro správu paliva v krbu.',
+        statusLabel: 'Stav ohně:'
     },
     light: {
         none: 'Není světlo', noneDesc: 'Tma halí knihy.',
@@ -26419,7 +26615,12 @@ const STRINGS_en = {
     // ------------------------------
     fireplace: {
         cold: 'The Hearth Lies Cold', coldDesc: 'A bitter chill claimeth the chamber.', kindle: 'KINDLE',
-        lit: 'The Hearth Burns', litDesc: 'Warmth and light fill the scriptorium.'
+        lit: 'The Hearth Burns', litDesc: 'Warmth and light fill the scriptorium.',
+        diedOutShort: 'The hearth has died out', diedOut: '❄️ The fire has died out.',
+        full: 'The hearth is full!', fuelAdded: 'Fuel added.',
+        notEnough: 'Not enough {item}.',
+        foculusTab: 'Foculus', foculusLocked: "Study Meteorologica to manage the hearth's fuel.",
+        statusLabel: 'Fire status:'
     },
     light: {
         none: 'No Light', noneDesc: 'Darkness claimeth this place.',
@@ -29599,6 +29800,7 @@ const Game = {
         setInterval(() => { 
             try {
                 TimeSys.update(); 
+                if (typeof FireplaceSystem !== 'undefined') FireplaceSystem.tick();
                 Game.checkEnvironment();
                 // v7.5: Check canonical hours
                 CanonicalHours.checkCurrentHour();
@@ -29746,6 +29948,12 @@ const Game = {
         GameState.flags.fireplaceLit = true;
         GameState.flags.forceDark = false;
         if(GameState.achievements) GameState.achievements.stats.fireplaceCount++;
+        if (typeof FireplaceSystem !== 'undefined') {
+            if (!GameState.fire) GameState.fire = { active: false, fuelMs: 0, lastUpdate: Date.now() };
+            GameState.fire.active = true;
+            GameState.fire.fuelMs = 4 * 60 * 60 * 1000; // Úvodní zážeh: 4 hodiny
+            GameState.fire.lastUpdate = Date.now();
+        }
         UI.notifyPanel(t('game.fireKindled'), 'system');
         if(audioSys) audioSys.startFireLoop(false);
         Analytics.fireplaceIgnited(isFirstTime);
@@ -30958,6 +31166,7 @@ const Game = {
         }
     },
     checkEnvironment: function() {
+        if (typeof FireplaceSystem !== 'undefined') FireplaceSystem.render();
         const container = document.getElementById('game-container');
         const fpCard = document.getElementById('card-fireplace');
         const fpCardOverlay = document.getElementById('card-fireplace-overlay');
@@ -32643,10 +32852,13 @@ renderActions: function() {
 		document.getElementById('home-athanor-content').style.display = tab === 'athanor' ? 'block' : 'none';
 		const celEl = document.getElementById('home-cellarium-content');
 		if (celEl) celEl.style.display = tab === 'cellarium' ? 'block' : 'none';
+		const focEl = document.getElementById('home-foculus-content');
+		if (focEl) focEl.style.display = tab === 'foculus' ? 'block' : 'none';
 		document.querySelectorAll('#screen-home .filter-btn').forEach(b => b.classList.remove('active'));
 		if (btn) btn.classList.add('active');
 		if (tab === 'athanor') AthanorSystem.render('home-athanor-content');
 		if (tab === 'cellarium' && celEl) celEl.innerHTML = CellariumSystem.renderCellariumTab();
+		if (tab === 'foculus' && typeof FireplaceSystem !== 'undefined') FireplaceSystem.render();
 		// Reset sub-tab to scavenge when switching back to main
 		if (tab === 'main') this.switchHomeSubTab('scavenge', document.getElementById('home-sub-scavenge'));
 	},

@@ -487,6 +487,7 @@ const Game = {
         setInterval(() => { 
             try {
                 TimeSys.update(); 
+                if (typeof FireplaceSystem !== 'undefined') FireplaceSystem.tick();
                 Game.checkEnvironment();
                 // v7.5: Check canonical hours
                 CanonicalHours.checkCurrentHour();
@@ -634,6 +635,12 @@ const Game = {
         GameState.flags.fireplaceLit = true;
         GameState.flags.forceDark = false;
         if(GameState.achievements) GameState.achievements.stats.fireplaceCount++;
+        if (typeof FireplaceSystem !== 'undefined') {
+            if (!GameState.fire) GameState.fire = { active: false, fuelMs: 0, lastUpdate: Date.now() };
+            GameState.fire.active = true;
+            GameState.fire.fuelMs = 4 * 60 * 60 * 1000; // Úvodní zážeh: 4 hodiny
+            GameState.fire.lastUpdate = Date.now();
+        }
         UI.notifyPanel(t('game.fireKindled'), 'system');
         if(audioSys) audioSys.startFireLoop(false);
         Analytics.fireplaceIgnited(isFirstTime);
@@ -1846,6 +1853,7 @@ const Game = {
         }
     },
     checkEnvironment: function() {
+        if (typeof FireplaceSystem !== 'undefined') FireplaceSystem.render();
         const container = document.getElementById('game-container');
         const fpCard = document.getElementById('card-fireplace');
         const fpCardOverlay = document.getElementById('card-fireplace-overlay');

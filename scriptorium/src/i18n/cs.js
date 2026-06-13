@@ -7,7 +7,12 @@ const STRINGS_cs = {
     screens: { home: 'Pracovna', garden: 'Zahrada', craft: 'Výroba', inv: 'Zásoby', lore: 'Scriptorium', library: 'Knihovna', settings: 'Nastavení', scavenge: 'Sběr', mine: 'Těžba' },
     fireplace: {
         cold: 'Vyhaslý Krb', coldDesc: 'Je tu zima.', kindle: 'ROZEŽEHNOUT',
-        lit: 'Hřejivý Krb', litDesc: 'Oheň dává život.'
+        lit: 'Hřejivý Krb', litDesc: 'Oheň dává život.',
+        diedOutShort: 'Krb vyhasl', diedOut: '❄️ Oheň v krbu vyhasl.',
+        full: 'Krb je už plný!', fuelAdded: 'Přiloženo do ohně.',
+        notEnough: 'Nedostatek: {item}.',
+        foculusTab: 'Ohniště', foculusLocked: 'Prostuduj Meteorologica pro správu paliva v krbu.',
+        statusLabel: 'Stav ohně:'
     },
     light: {
         none: 'Není světlo', noneDesc: 'Tma halí knihy.',
