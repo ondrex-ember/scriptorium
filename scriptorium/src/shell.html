@@ -3002,16 +3002,17 @@
                 // Vigor — čtení přímo z GameState, ne z DOM
                 var vigVal = document.getElementById('pill-vigor-val');
                 var vigIcon = document.getElementById('pill-vigor-icon');
-                if (vigVal && typeof GameState !== 'undefined' && GameState.vigor) {
-                    var vpct = (typeof VigorSystem !== 'undefined') ? VigorSystem.getPercentage() : Math.round(GameState.vigor.current || 0);
-                    vigVal.textContent = Math.round(vpct) + '%';
-                    if (vigIcon) {
-                        if (vpct <= 30) vigIcon.textContent = '🔴';
-                        else if (vpct <= 60) vigIcon.textContent = '🟡';
-                        else vigIcon.textContent = '⚡';
+                if (vigVal) {
+                    if (typeof VigorSystem !== 'undefined' && typeof GameState !== 'undefined' && GameState.vigor) {
+                        var vpct = VigorSystem.getPercentage();
+                        vigVal.textContent = Math.round(vpct) + '%';
+                        if (vigIcon) {
+                            if (vpct <= 30) vigIcon.textContent = '🔴';
+                            else if (vpct <= 60) vigIcon.textContent = '🟡';
+                            else vigIcon.textContent = '⚡';
+                        }
                     }
-                } else if (vigVal) {
-                    vigVal.textContent = '–';
+                    // else: nič nemeníme — necháme poslední dobrou hodnotu
                 }
 
                 // Čas + kanonická hodina + lunární ikona
