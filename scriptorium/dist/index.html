@@ -958,7 +958,7 @@
                 display: flex !important;
                 background: transparent;
                 padding: 4px 8px;
-                flex-wrap: nowrap;
+                flex-wrap: wrap;
                 gap: 5px;
                 align-items: center;
                 justify-content: center;
@@ -988,6 +988,14 @@
 
             #canonical-badge {
                 display: none !important;
+            }
+
+            #cat-pill .hpill-val {
+                display: none !important;
+            }
+
+            main#main-content {
+                padding-top: calc(80px + 20px) !important;
             }
         }
 
@@ -17625,7 +17633,7 @@ Object.assign(ScriptoriumCat, {
 
         const label = document.getElementById('cat-pill-label');
         const bar = document.getElementById('cat-pill-warmth-bar');
-        if (label) label.textContent = emoji + ' ' + name;
+        if (label) label.textContent = window.innerWidth <= 750 ? emoji : emoji + ' ' + name;
         if (bar) bar.style.width = warmth + '%';
     },
 

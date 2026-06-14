@@ -634,7 +634,7 @@ Object.assign(ScriptoriumCat, {
 
         const label = document.getElementById('cat-pill-label');
         const bar = document.getElementById('cat-pill-warmth-bar');
-        if (label) label.textContent = emoji + ' ' + name;
+        if (label) label.textContent = window.innerWidth <= 750 ? emoji : emoji + ' ' + name;
         if (bar) bar.style.width = warmth + '%';
     },
 
