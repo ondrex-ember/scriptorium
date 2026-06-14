@@ -37270,17 +37270,17 @@ const CalendarSystem = {
                         if (w2 && w2.textContent) html += '<div class="pp-row"><span class="pp-label">Zítra</span><span class="pp-val">' + w2.textContent + '</span></div>';
                     }
                 } else if (id === 'vigor') {
-                    // Build fresh — cache může být stale
                     if (typeof VigorSystem !== 'undefined' && typeof GameState !== 'undefined' && GameState.vigor) {
                         var _vp = VigorSystem.getPercentage();
                         var _vb = ''; for (var _i=0;_i<10;_i++) _vb += _i < Math.ceil(_vp/10) ? '●' : '○';
                         var _vc = _vp > 60 ? 'var(--ink-primary)' : _vp > 30 ? 'var(--accent-gold)' : '#c0392b';
                         var _hl = Math.max(0, GameState.vigor.current - 20);
-                        html += '<div class="pp-row"><span class="pp-label" style="font-size:0.7rem;opacity:0.6;">Vigor = výkon písaře při práci</span></div>';
+                        html += '<div class="pp-row"><span class="pp-label" style="font-size:0.7rem;opacity:0.6;">Vigor = výkon pisaře při práci</span></div>';
                         html += '<div class="pp-row"><span class="pp-label">⚡ Vigor</span><span class="pp-val" style="color:'+_vc+';">'+_vb+' '+GameState.vigor.current+'/100</span></div>';
-                        html += '<div class="pp-row" style="border-top:1px solid rgba(197,160,89,0.2);padding-top:6px;margin-top:4px;"><span class="pp-label" style="font-size:0.7rem;opacity:0.6;">Hlad = čas od posledního jídla</span></div>';
                         html += '<div class="pp-row"><span class="pp-label">⏳ Do varování</span><span class="pp-val" style="color:'+(_hl<5?'#c0392b':'inherit')+';">'+(_hl>0?_hl+'h':'Jez nyní!')+'</span></div>';
-                    } else { html += '<div class="pp-row"><span class="pp-label">Vigor</span><span class="pp-val">–</span></div>'; }
+                    } else {
+                        html += '<div class="pp-row"><span class="pp-label">Vigor</span><span class="pp-val">–</span></div>';
+                    }
                 } else if (id === 'time') {
                     var td = document.getElementById('time-display');
                     var dd = document.getElementById('date-display');
