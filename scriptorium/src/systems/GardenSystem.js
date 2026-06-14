@@ -1876,10 +1876,34 @@ const GardenSystem = {
     _syncGardenLocks: function() {
         const techs = GameState.researchedTechs || [];
         let unlocked = 2;
-        if (techs.includes('tech_garden_expand'))   unlocked = Math.max(unlocked, 4);
-        if (techs.includes('tech_garden_expand_2')) unlocked = Math.max(unlocked, 6);
-        if (techs.includes('tech_garden_expand_3')) unlocked = Math.max(unlocked, 8);
-        GameState.garden.forEach((plot, i) => { plot.locked = i >= unlocked; });
+        if (techs.includes('tech_garden_expand'))        unlocked = Math.max(unlocked, 4);
+        if (techs.includes('tech_garden_expand_2'))      unlocked = Math.max(unlocked, 6);
+        if (techs.includes('tech_garden_expand_3'))      unlocked = Math.max(unlocked, 8);
+        if (techs.includes('tech_horticulture'))         unlocked = Math.max(unlocked, 10);
+        if (techs.includes('tech_advanced_farming'))     unlocked = Math.max(unlocked, 14);
+        if (techs.includes('tech_hortus_conclusus'))     unlocked = Math.max(unlocked, 16);
+
+        // Migrace: přidat sloty 14–15 pokud chybí
+        while (GameState.garden.length < 16) {
+            const defaults = [
+                { state: 0, water: false, crop: null, plantedAt: 0, cropType: 'herb',    locked: true },
+                { state: 0, water: false, crop: null, plantedAt: 0, cropType: 'special', locked: true },
+            ];
+            GameState.garden.push(defaults[GameState.garden.length - 14] || { state: 0, water: false, crop: null, plantedAt: 0, cropType: 'herb', locked: true });
+        }
+
+        // Kanonická mapa cropType podle indexu (migrace poškozených save)
+        const cropTypeMap = [
+            'herb','herb','herb','herb',
+            'vegetable','vegetable','vegetable','vegetable',
+            'special','special',
+            'vegetable','vegetable','vegetable','vegetable',
+            'herb','special'
+        ];
+        GameState.garden.forEach((plot, i) => {
+            plot.locked = i >= unlocked;
+            if (cropTypeMap[i]) plot.cropType = cropTypeMap[i];
+        });
     },
 
     renderGarden: function() {
