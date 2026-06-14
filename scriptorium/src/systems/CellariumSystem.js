@@ -317,11 +317,19 @@ const CellariumSystem = {
       { itemId: 'stamina_tonic', basePrice: 8 },
       { itemId: 'beer',          basePrice: 2 },
       { itemId: 'wine',          basePrice: 7 },
+      { itemId: 'seeds_nettle',  basePrice: 45 }, // konopí — vzácné, drahé
     ],
     shop: [
       { itemId: 'chalk',         basePrice: 2 },
       { itemId: 'wine',          basePrice: 4 },
       { itemId: 'seeds_thyme',   basePrice: 6 },  // tymián — Varroa léčba
+      { itemId: 'seeds_herb',      basePrice: 6  },
+      { itemId: 'seeds_vegetable', basePrice: 6  },
+      { itemId: 'seeds_yellow',    basePrice: 8  }, // heřmánek
+      { itemId: 'seeds_blue',      basePrice: 8  }, // levandule
+      { itemId: 'seeds_mint',      basePrice: 8  },
+      { itemId: 'seeds_sage',      basePrice: 10 },
+      { itemId: 'seeds_fennel',    basePrice: 10 },
     ],
     market: [
       { itemId: 'paper',         basePrice: 3 },
@@ -349,6 +357,18 @@ const CellariumSystem = {
       { itemId: 'seed_linden',   basePrice: 14 },
       // Rybník
       { itemId: 'fry',           basePrice: 5  },
+      // Zelenina
+      { itemId: 'carrot',        basePrice: 4  },
+      { itemId: 'onion',         basePrice: 4  },
+      { itemId: 'leek',          basePrice: 6  },
+      { itemId: 'cabbage',       basePrice: 4  },
+      { itemId: 'garlic',        basePrice: 8  },
+      // Semena zeleniny
+      { itemId: 'seeds_leek',    basePrice: 10 },
+      { itemId: 'seeds_cabbage', basePrice: 8  },
+      { itemId: 'seeds_garlic',  basePrice: 12 },
+      { itemId: 'seeds_radish',  basePrice: 6  },
+      { itemId: 'seeds_turnip',  basePrice: 6  },
       // Pivovar suroviny
       { itemId: 'grain',         basePrice: 4  },  // obilí — základ piva
       { itemId: 'hops',          basePrice: 18 },  // chmel — vzácnější
