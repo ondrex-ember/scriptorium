@@ -5257,6 +5257,12 @@ const ItemsDB = {
         desc:"Potrhaný list s nečitelným textem. Místy čitelné latinské slabiky. Kdo to psal?", desc_en:"A torn leaf with barely legible text. Fragments of Latin visible. Who wrote this?" },
     "wax_seal": { name:"Pečetní vosk", name_en:"Wax Seal", icon:"🔴", type:"mat", lostItem:true,
         desc:"Stará pečeť odlomená od dopisu. Heraldický znak — ale čí? Vosk lze přetavit.", desc_en:"An old seal broken from a letter. A heraldic device — but whose? The wax can be remelted." },
+    "dried_herbs_bundle": { name:"Svazek sušených bylin", name_en:"Dried Herbs Bundle", icon:"🌿", type:"mat", lostItem:true,
+        desc:"Svazek sušených bylin svázaný provázkem. Někdo je tu zapomněl. Voní heřmánkem a mátohou.", desc_en:"A bundle of dried herbs tied with twine. Someone left it behind. Smells of chamomile and mint." },
+    "hemp_pouch": { name:"Váček s konopím", name_en:"Hemp Pouch", icon:"👝", type:"mat", lostItem:true,
+        desc:"Malý plátěný váček. Uvnitř semínka konopí a trocha vlákna. Staré, ale použitelné.", desc_en:"A small linen pouch. Inside: hemp seeds and some fibre. Old but usable." },
+    "mysterious_bulb": { name:"Záhadný kořen", name_en:"Mysterious Bulb", icon:"🧅", type:"mat", lostItem:true,
+        desc:"Cibulovitý kořen neznámého původu. Mohl by to být cokoliv. Jen zahrada odhalí pravdu.", desc_en:"A bulbous root of unknown origin. Could be anything. Only the garden will reveal the truth." },
     "lost_key_1": { name:"Rezavý klíč č.1", name_en:"Rusty Key #1", icon:"🗝️", type:"key", lostItem:true,
         desc:"Starý rezavý klíč. Neznámý původ. Třeba ho prozkoumat.", desc_en:"An old rusty key. Unknown origin. Worth examining." },
     "lost_key_2": { name:"Rezavý klíč č.2", name_en:"Rusty Key #2", icon:"🗝️", type:"key", lostItem:true,
@@ -30796,6 +30802,110 @@ const Game = {
         }
     },
 
+    // ── Svazek sušených bylin — modal ────────────────────────────────────────
+    showDriedHerbsModal: function() {
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        const cs = lang === 'en';
+        const qty = GameState.inventory['dried_herbs_bundle'] || 0;
+        NotificationSystem.modal({
+            icon: '🌿',
+            title: cs ? 'Dried Herbs Bundle' : 'Svazek sušených bylin',
+            text: cs
+                ? '<em>A bundle of dried herbs tied with twine. Smells of chamomile and mint.</em><br><br>In stock: <strong>' + qty + '</strong>'
+                : '<em>Svazek sušených bylin svázaný provázkem. Voní heřmánkem a mátohou.</em><br><br>Na skladě: <strong>' + qty + '</strong>',
+            choices: [
+                {
+                    label: cs ? '🌿 Unbundle (random herbs)' : '🌿 Rozbalit (náhodné byliny)',
+                    type: 'primary',
+                    effect: function() {
+                        if ((GameState.inventory['dried_herbs_bundle'] || 0) < 1) return;
+                        Game.removeItem('dried_herbs_bundle', 1);
+                        // Náhodný výběr 2-3 bylin
+                        const herbPool = ['chamomile','thyme','mint','st_johns_wort','linden_blossom','sage','yarrow','hyssop'];
+                        const count = Math.random() < 0.5 ? 3 : 2;
+                        const shuffled = herbPool.sort(() => Math.random() - 0.5).slice(0, count);
+                        shuffled.forEach(h => Game.addItem(h, 1));
+                        const names = shuffled.map(h => typeof ItemsDB !== 'undefined' && ItemsDB[h] ? (cs ? (ItemsDB[h].name_en||ItemsDB[h].name) : ItemsDB[h].name) : h).join(', ');
+                        UI.notify('🌿 ' + (cs ? 'Found: ' : 'Nalezeno: ') + names);
+                        Game.save();
+                    }
+                },
+                { label: cs ? '🗃️ Keep' : '🗃️ Uchovat', type: 'default', effect: function() {} }
+            ]
+        });
+    },
+
+    // ── Váček s konopím — modal ───────────────────────────────────────────────
+    showHempPouchModal: function() {
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        const cs = lang === 'en';
+        const qty = GameState.inventory['hemp_pouch'] || 0;
+        NotificationSystem.modal({
+            icon: '👝',
+            title: cs ? 'Hemp Pouch' : 'Váček s konopím',
+            text: cs
+                ? '<em>A small linen pouch with hemp seeds and some fibre inside.</em><br><br>In stock: <strong>' + qty + '</strong>'
+                : '<em>Malý plátěný váček. Uvnitř semínka konopí a trocha vlákna.</em><br><br>Na skladě: <strong>' + qty + '</strong>',
+            choices: [
+                {
+                    label: cs ? '👝 Open (+seeds_nettle +fiber)' : '👝 Otevřít (+semínka kopřivy +vlákno)',
+                    type: 'primary',
+                    effect: function() {
+                        if ((GameState.inventory['hemp_pouch'] || 0) < 1) return;
+                        Game.removeItem('hemp_pouch', 1);
+                        Game.addItem('seeds_nettle', 2);
+                        Game.addItem('fiber', 3);
+                        UI.notify(cs ? '👝 Pouch opened. +2 nettle seeds, +3 fibre.' : '👝 Váček otevřen. +2 semínka kopřivy, +3 vlákno.');
+                        Game.save();
+                    }
+                },
+                { label: cs ? '🗃️ Keep' : '🗃️ Uchovat', type: 'default', effect: function() {} }
+            ]
+        });
+    },
+
+    // ── Záhadný kořen — modal ────────────────────────────────────────────────
+    showMysteriousBulbModal: function() {
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        const cs = lang === 'en';
+        const qty = GameState.inventory['mysterious_bulb'] || 0;
+        const hasHortus = GameState.researchedTechs && GameState.researchedTechs.includes('tech_hortus_conclusus');
+        NotificationSystem.modal({
+            icon: '🧅',
+            title: cs ? 'Mysterious Bulb' : 'Záhadný kořen',
+            text: cs
+                ? '<em>A bulbous root of unknown origin. Could be mandrake, belladonna, or something else entirely. Only the garden will reveal the truth.</em><br><br>In stock: <strong>' + qty + '</strong>'
+                + (!hasHortus ? '<br><small style="color:#c0392b;">⚠️ ' + (cs ? 'Requires: Hortus Conclusus' : 'Vyžaduje: Hortus Conclusus') + '</small>' : '')
+                : '<em>Cibulovitý kořen neznámého původu. Možná mandragora, rulík, nebo něco úplně jiného. Jen zahrada odhalí pravdu.</em><br><br>Na skladě: <strong>' + qty + '</strong>'
+                + (!hasHortus ? '<br><small style="color:#c0392b;">⚠️ Vyžaduje: Hortus Conclusus</small>' : ''),
+            choices: [
+                {
+                    label: cs ? '🌱 Plant in special plot' : '🌱 Zasadit do special záhonu',
+                    type: hasHortus ? 'primary' : 'default',
+                    effect: function() {
+                        if (!hasHortus) { UI.notify(cs ? '⚠️ Requires Hortus Conclusus.' : '⚠️ Vyžaduje Hortus Conclusus.', true); return; }
+                        if ((GameState.inventory['mysterious_bulb'] || 0) < 1) return;
+                        // Najít volný special záhon (state=1)
+                        const plot = GameState.garden.find((p, i) => !p.locked && p.cropType === 'special' && p.state === 1);
+                        if (!plot) { UI.notify(cs ? '⚠️ No prepared special plot available. Fertilize one first.' : '⚠️ Žádný připravený special záhon. Nejdříve zúrodni.', true); return; }
+                        // Náhodně mandrake nebo belladonna
+                        const special = Math.random() < 0.5 ? 'mandrake' : 'belladonna';
+                        Game.removeItem('mysterious_bulb', 1);
+                        plot.state = 2;
+                        plot.crop = special;
+                        plot.plantedAt = Date.now();
+                        plot.water = false;
+                        const sName = typeof ItemsDB !== 'undefined' && ItemsDB[special] ? (cs ? (ItemsDB[special].name_en||ItemsDB[special].name) : ItemsDB[special].name) : special;
+                        UI.notify('🌱 ' + (cs ? 'Planted: ' : 'Zasazeno: ') + sName + (cs ? ' (maybe...)' : ' (možná...)'));
+                        Game.save();
+                        if (typeof GardenSystem !== 'undefined') GardenSystem.renderGarden();
+                    }
+                },
+                { label: cs ? '🗃️ Keep' : '🗃️ Uchovat', type: 'default', effect: function() {} }
+            ]
+        });
+    },
+
     // ── Pečetní vosk — modal ─────────────────────────────────────────────────
     showWaxSealModal: function() {
         const lang = (GameState.settings && GameState.settings.language) || 'cs';
@@ -33221,6 +33331,18 @@ showItemModal: function(id) {
             if (typeof Game !== 'undefined' && Game.showLostKeyModal) Game.showLostKeyModal(id);
             return;
         }
+        if (id === 'dried_herbs_bundle') {
+            if (typeof Game !== 'undefined' && Game.showDriedHerbsModal) Game.showDriedHerbsModal();
+            return;
+        }
+        if (id === 'hemp_pouch') {
+            if (typeof Game !== 'undefined' && Game.showHempPouchModal) Game.showHempPouchModal();
+            return;
+        }
+        if (id === 'mysterious_bulb') {
+            if (typeof Game !== 'undefined' && Game.showMysteriousBulbModal) Game.showMysteriousBulbModal();
+            return;
+        }
         const item = ItemsDB[id];
         if (!item) return;
         const lang = (GameState.settings && GameState.settings.language) || 'cs';
@@ -33386,7 +33508,7 @@ renderActions: function() {
         const renderItem = (id, qty) => {
             const item = ItemsDB[id];
             if (!item) return '';
-            const _isRareModal = (id === 'netolicky_legacy') || id === 'old_coin_1' || id === 'old_coin_2' || id === 'old_coin_3' || id === 'torn_page' || id === 'wax_seal' || ['lost_key_1','lost_key_2','lost_key_3','lost_key_4','lost_key_5'].includes(id);
+            const _isRareModal = (id === 'netolicky_legacy') || id === 'old_coin_1' || id === 'old_coin_2' || id === 'old_coin_3' || id === 'torn_page' || id === 'wax_seal' || ['lost_key_1','lost_key_2','lost_key_3','lost_key_4','lost_key_5'].includes(id) || ['dried_herbs_bundle','hemp_pouch','mysterious_bulb'].includes(id);
             const _click = (_hasMateria || _isRareModal) ? `onclick="UI.showItemModal('${id}')" style="cursor:pointer;"` : '';
             let actionBtn = '';
             if (item.type === 'food') {
