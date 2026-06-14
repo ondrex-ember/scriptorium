@@ -150,6 +150,11 @@ const UI = {
 	},
 		
 showItemModal: function(id) {
+        // Speciální rare items — vlastní modal
+        if (id === 'netolicky_legacy') {
+            if (typeof Game !== 'undefined' && Game.showNetolickyModal) Game.showNetolickyModal();
+            return;
+        }
         const item = ItemsDB[id];
         if (!item) return;
         const lang = (GameState.settings && GameState.settings.language) || 'cs';
@@ -315,7 +320,8 @@ renderActions: function() {
         const renderItem = (id, qty) => {
             const item = ItemsDB[id];
             if (!item) return '';
-            const _click = _hasMateria ? `onclick="UI.showItemModal('${id}')" style="cursor:pointer;"` : '';
+            const _isRareModal = (id === 'netolicky_legacy');
+            const _click = (_hasMateria || _isRareModal) ? `onclick="UI.showItemModal('${id}')" style="cursor:pointer;"` : '';
             let actionBtn = '';
             if (item.type === 'food') {
                 actionBtn = `<button class="craft-btn" onclick="Game.eat('${id}')" style="margin-left:auto;">${t('game.eat')}</button>`;
