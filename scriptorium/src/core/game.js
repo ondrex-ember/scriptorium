@@ -1870,7 +1870,16 @@ const Game = {
                     if(Math.random() < 0.03) this.addItem('seeds_thyme', 1);
                     if(Math.random() < 0.02) this.addItem('hops', 1);
                     if(Math.random() < 0.01) this.addItem('seeds_hops', 1);
-                    
+                    // v8.x: Nové byliny — šalvěj, fenykl, pelyněk, yzop, řebříček
+                    if(Math.random() < 0.03) this.addItem('sage', 1);
+                    if(Math.random() < 0.02) this.addItem('fennel', 1);
+                    if(Math.random() < 0.03) this.addItem('wormwood', 1);
+                    if(Math.random() < 0.04) this.addItem('yarrow', 1);
+                    if(Math.random() < 0.02) this.addItem('hyssop', 1);
+                    // Semena nových bylin — vzácnější
+                    if(Math.random() < 0.015) this.addItem('seeds_sage', 1);
+                    if(Math.random() < 0.010) this.addItem('seeds_wormwood', 1);
+                    if(Math.random() < 0.020) this.addItem('seeds_yarrow', 1);
                     // Rare drop - Netolického pozůstalost (0.1% chance)
                     if(Math.random() < 0.001) {
                         this.addItem('netolicky_legacy', 1);
@@ -1909,6 +1918,12 @@ const Game = {
                     else if(r<0.9) this.addItem('nightshade', 1);
                     else this.addItem('fiber', 1);
                     if(Math.random() < 0.02) this.addItem('viticis_baco', 1);
+                    // v8.x: Zelenina a koření při sběru potravy
+                    if(Math.random() < 0.05) this.addItem('garlic', 1);
+                    if(Math.random() < 0.04) this.addItem('leek', 1);
+                    if(Math.random() < 0.04) this.addItem('nettle', 1);
+                    if(Math.random() < 0.03) this.addItem('seeds_garlic', 1);
+                    if(Math.random() < 0.02) this.addItem('seeds_nettle', 1);
                 }
                 else if (type === 'wetlands') {
                     if(r<0.4) this.addItem('frog', 1);
@@ -2097,7 +2112,15 @@ const Game = {
                 if(Math.random() < 0.03) this.addItem('seeds_thyme', 1);
                 if(Math.random() < 0.02) this.addItem('hops', 1);
                 if(Math.random() < 0.01) this.addItem('seeds_hops', 1);
-                
+                // v8.x: Nové byliny
+                if(Math.random() < 0.03) this.addItem('sage', 1);
+                if(Math.random() < 0.02) this.addItem('fennel', 1);
+                if(Math.random() < 0.03) this.addItem('wormwood', 1);
+                if(Math.random() < 0.04) this.addItem('yarrow', 1);
+                if(Math.random() < 0.02) this.addItem('hyssop', 1);
+                if(Math.random() < 0.015) this.addItem('seeds_sage', 1);
+                if(Math.random() < 0.010) this.addItem('seeds_wormwood', 1);
+                if(Math.random() < 0.020) this.addItem('seeds_yarrow', 1);
                 // Rare drop - Netolického pozůstalost (0.1% chance)
                 if(Math.random() < 0.001) {
                     this.addItem('netolicky_legacy', 1);
@@ -2122,6 +2145,12 @@ const Game = {
                 else if(r<0.9) this.addItem('nightshade', 1);
                 else this.addItem('fiber', 1);
                 if(Math.random() < 0.02) this.addItem('viticis_baco', 1);
+                // v8.x: Zelenina a koření
+                if(Math.random() < 0.05) this.addItem('garlic', 1);
+                if(Math.random() < 0.04) this.addItem('leek', 1);
+                if(Math.random() < 0.04) this.addItem('nettle', 1);
+                if(Math.random() < 0.03) this.addItem('seeds_garlic', 1);
+                if(Math.random() < 0.02) this.addItem('seeds_nettle', 1);
             }
             else if (type === 'wetlands') {
                 if(r<0.4) this.addItem('frog', 1);
