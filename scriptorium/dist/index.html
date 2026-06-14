@@ -2370,8 +2370,8 @@
                     </div>
                     <div id="foculus-unlocked" style="display:none; position:relative;">
                         <div style="position:relative; width:300px; max-width:100%; margin:0 auto 14px;">
-                            <div id="fireplace-visual-foculus" style="display:block; width:300px; height:320px; max-width:100%; background-image:url('/img/hearth_base_dead.png'); background-size:100% 100%; background-repeat:no-repeat; border-radius:8px; border:1px solid var(--ink-secondary, #6b5d4f); image-rendering:pixelated;"></div>
-                            <div id="cat-lane-top" style="position:absolute; bottom:0; left:0; right:0; height:60px;"></div>
+                            <img id="fireplace-visual-foculus" src="/img/hearth_base_dead.png" alt="" style="display:block; width:100%; height:300px; object-fit:cover; border-radius:8px; border:1px solid var(--ink-secondary, #6b5d4f);">
+                            <div id="cat-lane-top" style="position:absolute; bottom:0; left:0; right:0; height:100px;"></div>
                         </div>
                         <div id="fireplace-fuel-panel" style="display:none; padding:12px; border:1px solid var(--ink-secondary); border-radius:8px;">
                             <div style="display:flex; justify-content:space-between; font-size:0.9rem; margin-bottom:8px;">
@@ -37150,18 +37150,19 @@ const CalendarSystem = {
                     wVal.textContent = txt ? txt.split(' ').slice(0, 2).join(' ') : '–';
                 }
 
-                // Vigor
-                var vigEl = document.getElementById('vigor-mini');
+                // Vigor — čtení přímo z GameState, ne z DOM
                 var vigVal = document.getElementById('pill-vigor-val');
                 var vigIcon = document.getElementById('pill-vigor-icon');
-                if (vigEl && vigVal) {
-                    var vt = vigEl.textContent.trim();
-                    vigVal.textContent = vt ? vt.substring(0, 6) : '–';
+                if (vigVal && typeof GameState !== 'undefined' && GameState.vigor) {
+                    var vpct = (typeof VigorSystem !== 'undefined') ? VigorSystem.getPercentage() : Math.round(GameState.vigor.current || 0);
+                    vigVal.textContent = Math.round(vpct) + '%';
                     if (vigIcon) {
-                        if (vt.includes('🔴') || vt.includes('❌')) vigIcon.textContent = '🔴';
-                        else if (vt.includes('🟡') || vt.includes('⚠️')) vigIcon.textContent = '🟡';
+                        if (vpct <= 30) vigIcon.textContent = '🔴';
+                        else if (vpct <= 60) vigIcon.textContent = '🟡';
                         else vigIcon.textContent = '⚡';
                     }
+                } else if (vigVal) {
+                    vigVal.textContent = '–';
                 }
 
                 // Čas + kanonická hodina + lunární ikona
@@ -37186,8 +37187,9 @@ const CalendarSystem = {
                 }
 
                 // Zápisky
+                var rEl = document.getElementById('research-count');
                 var rVal = document.getElementById('pill-progress-val');
-                if (rVal) rVal.textContent = (typeof GameState !== 'undefined') ? (GameState.inventory && GameState.inventory['research'] || 0) : '0';
+                if (rEl && rVal) rVal.textContent = rEl.textContent.trim() || '0';
 
                 // Notifikace
                 var nCount = document.getElementById('pill-notif-count');
