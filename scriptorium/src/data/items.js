@@ -160,6 +160,8 @@ const ItemsDB = {
     // ── ZTRACENÉ PŘEDMĚTY (lostPool — yard_cleanup) ───────────────────────────
     "torn_page": { name:"Útržek pergamenu", name_en:"Torn Page", icon:"📄", type:"lore", lostItem:true,
         desc:"Potrhaný list s nečitelným textem. Místy čitelné latinské slabiky. Kdo to psal?", desc_en:"A torn leaf with barely legible text. Fragments of Latin visible. Who wrote this?" },
+    "wax_seal": { name:"Pečetní vosk", name_en:"Wax Seal", icon:"🔴", type:"mat", lostItem:true,
+        desc:"Stará pečeť odlomená od dopisu. Heraldický znak — ale čí? Vosk lze přetavit.", desc_en:"An old seal broken from a letter. A heraldic device — but whose? The wax can be remelted." },
     "old_coin_1": { name:"Měděná mince", name_en:"Copper Coin", icon:"🪙", type:"currency", lostItem:true,
         desc:"Stará měděná mince nalezená při úklidu dvora. Kdo ji ztratil? Dávno to bylo.", desc_en:"An old copper coin found while cleaning the yard. Who dropped it? Long ago, that." },
     "old_coin_2": { name:"Stříbrná mince", name_en:"Silver Coin", icon:"🪙", type:"currency", lostItem:true,

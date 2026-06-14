@@ -670,6 +670,38 @@ const Game = {
         UI.notify(t('game.itemIgnited').replace('{item}', ItemsDB[item].name));
         Game.save(); Game.checkEnvironment();
     },
+    // ── Pečetní vosk — modal ─────────────────────────────────────────────────
+    showWaxSealModal: function() {
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        const cs = lang === 'en';
+        const qty = GameState.inventory['wax_seal'] || 0;
+        NotificationSystem.modal({
+            icon: '🔴',
+            title: cs ? 'Wax Seal' : 'Pečetní vosk',
+            text: cs
+                ? '<em>An old seal broken from a letter. A heraldic device — but whose? The wax can be remelted and used again.</em><br><br>In stock: <strong>' + qty + '</strong>'
+                : '<em>Stará pečeť odlomená od dopisu. Heraldický znak — ale čí? Vosk lze přetavit a znovu použít.</em><br><br>Na skladě: <strong>' + qty + '</strong>',
+            choices: [
+                {
+                    label: cs ? '🕯️ Remelt (+1 beeswax)' : '🕯️ Přetavit (+1 včelí vosk)',
+                    type: 'primary',
+                    effect: function() {
+                        if ((GameState.inventory['wax_seal'] || 0) < 1) return;
+                        Game.removeItem('wax_seal', 1);
+                        Game.addItem('beeswax', 1);
+                        UI.notify(cs ? '🔴 Wax seal remelted. +1 beeswax.' : '🔴 Pečeť přetavena. +1 včelí vosk.');
+                        Game.save();
+                    }
+                },
+                {
+                    label: cs ? '🗃️ Keep' : '🗃️ Uchovat',
+                    type: 'default',
+                    effect: function() {}
+                }
+            ]
+        });
+    },
+
     // ── Útržek pergamenu — modal ─────────────────────────────────────────────
     showTornPageModal: function() {
         const lang = (GameState.settings && GameState.settings.language) || 'cs';

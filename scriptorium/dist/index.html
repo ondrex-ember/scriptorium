@@ -5255,6 +5255,8 @@ const ItemsDB = {
     // ── ZTRACENÉ PŘEDMĚTY (lostPool — yard_cleanup) ───────────────────────────
     "torn_page": { name:"Útržek pergamenu", name_en:"Torn Page", icon:"📄", type:"lore", lostItem:true,
         desc:"Potrhaný list s nečitelným textem. Místy čitelné latinské slabiky. Kdo to psal?", desc_en:"A torn leaf with barely legible text. Fragments of Latin visible. Who wrote this?" },
+    "wax_seal": { name:"Pečetní vosk", name_en:"Wax Seal", icon:"🔴", type:"mat", lostItem:true,
+        desc:"Stará pečeť odlomená od dopisu. Heraldický znak — ale čí? Vosk lze přetavit.", desc_en:"An old seal broken from a letter. A heraldic device — but whose? The wax can be remelted." },
     "old_coin_1": { name:"Měděná mince", name_en:"Copper Coin", icon:"🪙", type:"currency", lostItem:true,
         desc:"Stará měděná mince nalezená při úklidu dvora. Kdo ji ztratil? Dávno to bylo.", desc_en:"An old copper coin found while cleaning the yard. Who dropped it? Long ago, that." },
     "old_coin_2": { name:"Stříbrná mince", name_en:"Silver Coin", icon:"🪙", type:"currency", lostItem:true,
@@ -30690,6 +30692,38 @@ const Game = {
         UI.notify(t('game.itemIgnited').replace('{item}', ItemsDB[item].name));
         Game.save(); Game.checkEnvironment();
     },
+    // ── Pečetní vosk — modal ─────────────────────────────────────────────────
+    showWaxSealModal: function() {
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        const cs = lang === 'en';
+        const qty = GameState.inventory['wax_seal'] || 0;
+        NotificationSystem.modal({
+            icon: '🔴',
+            title: cs ? 'Wax Seal' : 'Pečetní vosk',
+            text: cs
+                ? '<em>An old seal broken from a letter. A heraldic device — but whose? The wax can be remelted and used again.</em><br><br>In stock: <strong>' + qty + '</strong>'
+                : '<em>Stará pečeť odlomená od dopisu. Heraldický znak — ale čí? Vosk lze přetavit a znovu použít.</em><br><br>Na skladě: <strong>' + qty + '</strong>',
+            choices: [
+                {
+                    label: cs ? '🕯️ Remelt (+1 beeswax)' : '🕯️ Přetavit (+1 včelí vosk)',
+                    type: 'primary',
+                    effect: function() {
+                        if ((GameState.inventory['wax_seal'] || 0) < 1) return;
+                        Game.removeItem('wax_seal', 1);
+                        Game.addItem('beeswax', 1);
+                        UI.notify(cs ? '🔴 Wax seal remelted. +1 beeswax.' : '🔴 Pečeť přetavena. +1 včelí vosk.');
+                        Game.save();
+                    }
+                },
+                {
+                    label: cs ? '🗃️ Keep' : '🗃️ Uchovat',
+                    type: 'default',
+                    effect: function() {}
+                }
+            ]
+        });
+    },
+
     // ── Útržek pergamenu — modal ─────────────────────────────────────────────
     showTornPageModal: function() {
         const lang = (GameState.settings && GameState.settings.language) || 'cs';
@@ -33075,6 +33109,10 @@ showItemModal: function(id) {
             if (typeof Game !== 'undefined' && Game.showTornPageModal) Game.showTornPageModal();
             return;
         }
+        if (id === 'wax_seal') {
+            if (typeof Game !== 'undefined' && Game.showWaxSealModal) Game.showWaxSealModal();
+            return;
+        }
         const item = ItemsDB[id];
         if (!item) return;
         const lang = (GameState.settings && GameState.settings.language) || 'cs';
@@ -33240,7 +33278,7 @@ renderActions: function() {
         const renderItem = (id, qty) => {
             const item = ItemsDB[id];
             if (!item) return '';
-            const _isRareModal = (id === 'netolicky_legacy') || id === 'old_coin_1' || id === 'old_coin_2' || id === 'old_coin_3' || id === 'torn_page';
+            const _isRareModal = (id === 'netolicky_legacy') || id === 'old_coin_1' || id === 'old_coin_2' || id === 'old_coin_3' || id === 'torn_page' || id === 'wax_seal';
             const _click = (_hasMateria || _isRareModal) ? `onclick="UI.showItemModal('${id}')" style="cursor:pointer;"` : '';
             let actionBtn = '';
             if (item.type === 'food') {
