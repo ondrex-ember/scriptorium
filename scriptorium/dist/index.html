@@ -13898,12 +13898,13 @@ const WellSystem = {
 
         // Penalizace výnosu dle purity: <70 ×0.5, <30 ×0.4 (kriticky)
         const purity = GameState.well.purity;
+        let murky = false;
         if (purity < 30) {
             waterAmount = Math.max(1, Math.floor(waterAmount * 0.4));
-            UI.notify(t('game.wellMurky'));
+            murky = true;
         } else if (purity < 70) {
             waterAmount = Math.floor(waterAmount * 0.5);
-            UI.notify(t('game.wellMurky'));
+            murky = true;
         }
 
         // Škálování hladinou: plná = plný výnos, nízká = méně. Hladina 0 = min 1 kapka.
@@ -13916,7 +13917,9 @@ const WellSystem = {
             UI.notify(t('game.wellHolyWater'));
         } else {
             Game.addItem("water", waterAmount);
-            UI.notify(t('game.waterDrawn').replace('{amt}', waterAmount));
+            const msg = t('game.waterDrawn').replace('{amt}', waterAmount)
+                + (murky ? ' ⚠️ ' + t('game.wellMurky') : '');
+            UI.notify(msg);
         }
 
         // Degradace užitím (purity model v2, místo RNG) + úbytek hladiny
