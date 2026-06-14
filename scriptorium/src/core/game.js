@@ -670,6 +670,38 @@ const Game = {
         UI.notify(t('game.itemIgnited').replace('{item}', ItemsDB[item].name));
         Game.save(); Game.checkEnvironment();
     },
+    // ── Útržek pergamenu — modal ─────────────────────────────────────────────
+    showTornPageModal: function() {
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        const cs = lang === 'en';
+        const qty = GameState.inventory['torn_page'] || 0;
+        NotificationSystem.modal({
+            icon: '📄',
+            title: cs ? 'Torn Page' : 'Útržek pergamenu',
+            text: cs
+                ? '<em>A torn leaf with barely legible Latin text. Fragments of a prayer? A recipe? A letter? Hard to say.</em><br><br>In stock: <strong>' + qty + '</strong>'
+                : '<em>Potrhaný list s nečitelným latinským textem. Fragment modlitby? Recept? Dopis? Těžko říct.</em><br><br>Na skladě: <strong>' + qty + '</strong>',
+            choices: [
+                {
+                    label: cs ? '📖 Study (+5 notes)' : '📖 Prostudovat (+5 zápisků)',
+                    type: 'primary',
+                    effect: function() {
+                        if ((GameState.inventory['torn_page'] || 0) < 1) return;
+                        Game.removeItem('torn_page', 1);
+                        Game.addItem('research', 5);
+                        UI.notify(cs ? '📄 Page studied. +5 notes.' : '📄 Útržek prostudován. +5 zápisků.');
+                        Game.save();
+                    }
+                },
+                {
+                    label: cs ? '🗃️ Keep' : '🗃️ Uchovat',
+                    type: 'default',
+                    effect: function() {}
+                }
+            ]
+        });
+    },
+
     // ── Staré mince — modal při nalezení nebo kliknutí ─────────────────────
     showCoinModal: function(itemId, value) {
         const lang = (GameState.settings && GameState.settings.language) || 'cs';

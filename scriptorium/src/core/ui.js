@@ -160,6 +160,10 @@ showItemModal: function(id) {
             if (typeof Game !== 'undefined' && Game.showCoinModal) Game.showCoinModal(id, _coinValues[id]);
             return;
         }
+        if (id === 'torn_page') {
+            if (typeof Game !== 'undefined' && Game.showTornPageModal) Game.showTornPageModal();
+            return;
+        }
         const item = ItemsDB[id];
         if (!item) return;
         const lang = (GameState.settings && GameState.settings.language) || 'cs';
@@ -325,7 +329,7 @@ renderActions: function() {
         const renderItem = (id, qty) => {
             const item = ItemsDB[id];
             if (!item) return '';
-            const _isRareModal = (id === 'netolicky_legacy') || id === 'old_coin_1' || id === 'old_coin_2' || id === 'old_coin_3';
+            const _isRareModal = (id === 'netolicky_legacy') || id === 'old_coin_1' || id === 'old_coin_2' || id === 'old_coin_3' || id === 'torn_page';
             const _click = (_hasMateria || _isRareModal) ? `onclick="UI.showItemModal('${id}')" style="cursor:pointer;"` : '';
             let actionBtn = '';
             if (item.type === 'food') {
