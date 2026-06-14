@@ -2911,8 +2911,8 @@
 
 const CONFIG = {
     CANDLE_DURATION: 24 * 60 * 60 * 1000, // 24 hodin
-    GROWTH_SPEED: 2.0,
-    BASE_GROWTH_TIME: 20 * 60 * 1000,     // 20 minut
+    GROWTH_SPEED: 1.0,
+    BASE_GROWTH_TIME: 24 * 60 * 60 * 1000, // 24 hodin (tech_advanced_farming → 12h)
     DARKNESS_START: 18,                    // 18:00
     DARKNESS_END: 5                        // 05:00
 };
@@ -16361,7 +16361,7 @@ const GardenSystem = {
         // Calculate growth time with tech bonuses
         let growthSpeed = CONFIG.GROWTH_SPEED;
         if(GameState.researchedTechs.includes('tech_advanced_farming')) {
-            growthSpeed *= 1.5; // +50% faster growth
+            growthSpeed *= 2.0; // +100% faster growth (24h → 12h)
         }
         const needed = CONFIG.BASE_GROWTH_TIME / growthSpeed;
         

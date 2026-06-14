@@ -1921,7 +1921,7 @@ const GardenSystem = {
         // Calculate growth time with tech bonuses
         let growthSpeed = CONFIG.GROWTH_SPEED;
         if(GameState.researchedTechs.includes('tech_advanced_farming')) {
-            growthSpeed *= 1.5; // +50% faster growth
+            growthSpeed *= 2.0; // +100% faster growth (24h → 12h)
         }
         const needed = CONFIG.BASE_GROWTH_TIME / growthSpeed;
         
