@@ -648,6 +648,7 @@ const Game = {
             GameState.fire.lastUpdate = Date.now();
         }
         UI.notifyPanel(t('game.fireKindled'), 'system');
+        if (!audioSys) { try { audioSys = new AudioSystem(); audioSys.start(); } catch(e) {} }
         if(audioSys) audioSys.startFireLoop(false);
         Analytics.fireplaceIgnited(isFirstTime);
         Game.save(); Game.checkEnvironment();
