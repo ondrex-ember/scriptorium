@@ -17678,13 +17678,20 @@ Object.assign(ScriptoriumCat, {
                 const msg = lang === 'en'
                     ? `🐈‍⬛ ${c.name} caught ${hunted} ${hunted === 1 ? 'mouse' : 'mice'} in the night.`
                     : `🐈‍⬛ ${c.name} v noci ${hunted === 1 ? 'chytila myš' : 'chytila ' + hunted + ' myši'}.`;
-                if (typeof UI !== 'undefined' && UI.notify) UI.notify(msg);
+                if (typeof UI !== 'undefined' && UI.notify) {
+                    UI.notify(msg);
+                    if (UI.notifyPanel) UI.notifyPanel(msg, 'system');
+                }
                 // Občas přinese myš jako dar (vysoká přízeň)
                 if (c.affection >= 60 && Math.random() < 0.3) {
                     GameState.inventory['mouse'] = (GameState.inventory['mouse'] || 0) + 1;
-                    if (typeof UI !== 'undefined' && UI.notify) UI.notify(lang === 'en'
+                    const giftMsg = lang === 'en'
                         ? `🐭 ${c.name} left a mouse at your door. A gift.`
-                        : `🐭 ${c.name} ti přinesla myš ke dveřím. Dar.`);
+                        : `🐭 ${c.name} ti přinesla myš ke dveřím. Dar.`;
+                    if (typeof UI !== 'undefined' && UI.notify) {
+                        UI.notify(giftMsg);
+                        if (UI.notifyPanel) UI.notifyPanel(giftMsg, 'system');
+                    }
                 }
             }
             // Krádež ze zásob (7%)
@@ -17700,7 +17707,10 @@ Object.assign(ScriptoriumCat, {
                     const msg = lang === 'en'
                         ? `😼 ${c.name} stole ${iname} from the stores!`
                         : `😼 ${c.name} ukradla ze zásob: ${iname}!`;
-                    if (typeof UI !== 'undefined' && UI.notify) UI.notify(msg, true);
+                    if (typeof UI !== 'undefined' && UI.notify) {
+                        UI.notify(msg, true);
+                        if (UI.notifyPanel) UI.notifyPanel(msg, 'warning');
+                    }
                     if (typeof Game !== 'undefined' && Game.addKronikaEntry) {
                         Game.addKronikaEntry('important',
                             `😼 Kočka ${c.name} ukradla ze zásob: ${iname}.`,
@@ -17740,9 +17750,13 @@ Object.assign(ScriptoriumCat, {
 
         const lang = this._lang();
         const iname = (typeof iName === 'function') ? iName(itemId) : itemId;
-        if (typeof UI !== 'undefined' && UI.notify) UI.notify(lang === 'en'
+        const feedMsg = lang === 'en'
             ? `🐈‍⬛ ${c.name} devoured the ${iname} and purrs.`
-            : `🐈‍⬛ ${c.name} zhltla: ${iname}. Spokojeně přede.`);
+            : `🐈‍⬛ ${c.name} zhltla: ${iname}. Spokojeně přede.`;
+        if (typeof UI !== 'undefined' && UI.notify) {
+            UI.notify(feedMsg);
+            if (UI.notifyPanel) UI.notifyPanel(feedMsg, 'system');
+        }
 
         if (this.el && this.el.style.display !== 'none') {
             this._setState('meow');
@@ -18044,9 +18058,13 @@ Object.assign(ScriptoriumCat, {
             if (eaten > 0) {
                 GameState.inventory['scraps'] = Math.max(0, (GameState.inventory['scraps'] || 0) - eaten);
                 const lang = (GameState.settings && GameState.settings.language) || 'cs';
-                if (typeof UI !== 'undefined' && UI.notify) UI.notify(lang === 'en'
-                    ? `\uD83D\uDC2D Mice ate ${eaten} scraps from the stores.`
-                    : `\uD83D\uDC2D Myši sežraly ${eaten} zbytků ze zásoby.`);
+                const miceMsg = lang === 'en'
+                    ? `🐭 Mice ate ${eaten} scraps from the stores.`
+                    : `🐭 Myši sežraly ${eaten} zbytků ze zásoby.`;
+                if (typeof UI !== 'undefined' && UI.notify) {
+                    UI.notify(miceMsg);
+                    if (UI.notifyPanel) UI.notifyPanel(miceMsg, 'warning');
+                }
             }
         }
 
