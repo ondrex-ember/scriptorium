@@ -26,7 +26,7 @@ const ActionsDB = [
 
 let audioSys = null;
 const GameState = {
-    inventory: { "tinderbox": 1, "rock": 2, "stick": 2, "water": 5, "research": 6 },
+    inventory: { "tinderbox": 1, "rock": 2, "stick": 2, "water": 5, "research": 6, "bread": 4, "fish": 3 },
     unlockedRecipes: [],
     researchedTechs: [],
     flags: { fireplaceLit: false, candleLit: false, torchLit: false, firstVisit: true, forceDark: true },
