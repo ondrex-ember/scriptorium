@@ -168,6 +168,10 @@ showItemModal: function(id) {
             if (typeof Game !== 'undefined' && Game.showWaxSealModal) Game.showWaxSealModal();
             return;
         }
+        if (['lost_key_1','lost_key_2','lost_key_3','lost_key_4','lost_key_5'].includes(id)) {
+            if (typeof Game !== 'undefined' && Game.showLostKeyModal) Game.showLostKeyModal(id);
+            return;
+        }
         const item = ItemsDB[id];
         if (!item) return;
         const lang = (GameState.settings && GameState.settings.language) || 'cs';
@@ -333,7 +337,7 @@ renderActions: function() {
         const renderItem = (id, qty) => {
             const item = ItemsDB[id];
             if (!item) return '';
-            const _isRareModal = (id === 'netolicky_legacy') || id === 'old_coin_1' || id === 'old_coin_2' || id === 'old_coin_3' || id === 'torn_page' || id === 'wax_seal';
+            const _isRareModal = (id === 'netolicky_legacy') || id === 'old_coin_1' || id === 'old_coin_2' || id === 'old_coin_3' || id === 'torn_page' || id === 'wax_seal' || ['lost_key_1','lost_key_2','lost_key_3','lost_key_4','lost_key_5'].includes(id);
             const _click = (_hasMateria || _isRareModal) ? `onclick="UI.showItemModal('${id}')" style="cursor:pointer;"` : '';
             let actionBtn = '';
             if (item.type === 'food') {

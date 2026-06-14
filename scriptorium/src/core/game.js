@@ -670,6 +670,100 @@ const Game = {
         UI.notify(t('game.itemIgnited').replace('{item}', ItemsDB[item].name));
         Game.save(); Game.checkEnvironment();
     },
+    // ── Ztracené klíče — modal ───────────────────────────────────────────────
+    showLostKeyModal: function(keyId) {
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        const cs = lang === 'en';
+        const item = typeof ItemsDB !== 'undefined' ? ItemsDB[keyId] : null;
+        const name = item ? (cs ? (item.name_en || item.name) : item.name) : keyId;
+        const qty = GameState.inventory[keyId] || 0;
+        const researchCost = 7;
+        const hasResearch = (GameState.inventory['research'] || 0) >= researchCost;
+
+        // Zjistit jestli klíč byl už prozkoumán
+        if (!GameState.flags) GameState.flags = {};
+        const exploredFlag = 'key_explored_' + keyId;
+        const alreadyExplored = !!GameState.flags[exploredFlag];
+
+        const examineLabel = cs
+            ? '🔍 Examine (-' + researchCost + ' notes)'
+            : '🔍 Prozkoumat (-' + researchCost + ' zápisků)';
+        const examineDisabled = !hasResearch;
+
+        NotificationSystem.modal({
+            icon: '🗝️',
+            title: name,
+            text: alreadyExplored
+                ? (cs ? '<em>Already examined. Its purpose is known.</em>' : '<em>Již prozkoumán. Jeho účel je znám.</em>')
+                + '<br><br>' + (cs ? 'In stock' : 'Na skladě') + ': <strong>' + qty + '</strong>'
+                : (cs
+                    ? '<em>An old rusty key. Where does it fit? You will need to examine it carefully — that takes time and knowledge.</em>'
+                    : '<em>Starý rezavý klíč. Kam pasuje? Bude třeba ho pečlivě prozkoumat — to chce čas a zápisky.</em>')
+                + '<br><br>' + (cs ? 'In stock' : 'Na skladě') + ': <strong>' + qty + '</strong>'
+                + (!hasResearch ? '<br><small style="color:#c0392b;">⚠️ ' + (cs ? 'Need ' + researchCost + ' notes' : 'Potřeba ' + researchCost + ' zápisků') + '</small>' : ''),
+            choices: alreadyExplored ? [
+                { label: cs ? 'Close' : 'Zavřít', type: 'default', effect: function() {} }
+            ] : [
+                {
+                    label: examineLabel,
+                    type: examineDisabled ? 'default' : 'primary',
+                    effect: examineDisabled ? function() { UI.notify(cs ? '⚠️ Not enough notes.' : '⚠️ Nedostatek zápisků.', true); } : function() {
+                        Game.removeItem('research', researchCost);
+                        GameState.flags[exploredFlag] = true;
+                        Game._applyLostKeyEffect(keyId, cs);
+                        Game.save();
+                    }
+                },
+                { label: cs ? '🗃️ Keep' : '🗃️ Uchovat', type: 'default', effect: function() {} }
+            ]
+        });
+    },
+
+    _applyLostKeyEffect: function(keyId, cs) {
+        // Klíče 4× — odemknou folia epistola/fausto/palimpsest/titivillus postupně
+        const key4Folios = ['folio_epistola','folio_fausto','folio_palimpsest','folio_titivillus'];
+
+        if (keyId === 'lost_key_1') {
+            // Athanor
+            if (!GameState.secrets) GameState.secrets = {};
+            if (!GameState.secrets.laboratoryUnlocked) {
+                GameState.secrets.laboratoryUnlocked = true;
+                UI.notify(cs ? '🔥 Key fits! The Athanor laboratory is now accessible.' : '🔥 Klíč pasuje! Laboratoř Athanoru je nyní přístupná.');
+                UI.notifyPanel(cs ? '🗝️ Lost Key #1 unlocked the Athanor.' : '🗝️ Klíč č.1 odemkl Athanor.', 'system');
+            } else {
+                UI.notify(cs ? '🗝️ The Athanor is already unlocked.' : '🗝️ Athanor je již odemčen.');
+            }
+        } else if (keyId === 'lost_key_2') {
+            // Scrinium
+            if (!GameState.secrets) GameState.secrets = {};
+            if (!GameState.secrets.forbiddenUnlocked) {
+                GameState.secrets.forbiddenUnlocked = true;
+                UI.notify(cs ? '📕 Key fits! Scrinium Abbatis is now accessible.' : '📕 Klíč pasuje! Scrinium Abbatis je nyní přístupné.');
+                UI.notifyPanel(cs ? '🗝️ Lost Key #2 unlocked the Scrinium.' : '🗝️ Klíč č.2 odemkl Scrinium.', 'system');
+            } else {
+                UI.notify(cs ? '🗝️ The Scrinium is already unlocked.' : '🗝️ Scrinium je již odemčeno.');
+            }
+        } else if (keyId === 'lost_key_3') {
+            // Unknown
+            UI.notify(cs ? '🗝️ The key was tried on every lock... it fits nowhere. For now.' : '🗝️ Klíč byl vyzkoušen na každém zámku... nikde nepasuje. Zatím.');
+            UI.notifyPanel(cs ? '🗝️ Lost Key #3: mystery remains.' : '🗝️ Klíč č.3: záhada trvá.', 'system');
+        } else if (keyId === 'lost_key_4') {
+            // Odemknout první nenalezené folio ze sady
+            if (!GameState.scrinium) GameState.scrinium = { activeSubtab: 'tajne_spisy', folios: {} };
+            const nextFolio = key4Folios.find(fid => !GameState.scrinium.folios[fid] || !GameState.scrinium.folios[fid].found);
+            if (nextFolio && typeof SecretsSystem !== 'undefined') {
+                SecretsSystem.unlockFolioById(nextFolio);
+                UI.notify(cs ? '📜 Key fits! A folio was found in Scrinium.' : '📜 Klíč pasuje! Ve Scrinium nalezeno folio.');
+            } else {
+                UI.notify(cs ? '🗝️ All folios in this set are already found.' : '🗝️ Všechna folia v této sadě jsou již nalezena.');
+            }
+        } else if (keyId === 'lost_key_5') {
+            // Deep unknown
+            UI.notify(cs ? '🗝️ The key hums faintly when held. It fits somewhere... but where?' : '🗝️ Klíč slabě vibruje v ruce. Někam pasuje... ale kam?');
+            UI.notifyPanel(cs ? '🗝️ Lost Key #5: something stirs.' : '🗝️ Klíč č.5: něco se probouzí.', 'system');
+        }
+    },
+
     // ── Pečetní vosk — modal ─────────────────────────────────────────────────
     showWaxSealModal: function() {
         const lang = (GameState.settings && GameState.settings.language) || 'cs';
