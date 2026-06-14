@@ -958,7 +958,7 @@
                 display: flex !important;
                 background: transparent;
                 padding: 4px 8px;
-                flex-wrap: wrap;
+                flex-wrap: nowrap;
                 gap: 5px;
                 align-items: center;
                 justify-content: center;
@@ -988,14 +988,6 @@
 
             #canonical-badge {
                 display: none !important;
-            }
-
-            #cat-pill .hpill-val {
-                display: none !important;
-            }
-
-            main#main-content {
-                padding-top: calc(80px + 20px) !important;
             }
         }
 
@@ -3007,18 +2999,9 @@
                     wVal.textContent = txt ? txt.split(' ').slice(0, 2).join(' ') : '–';
                 }
 
-                // Vigor
-                var vigEl = document.getElementById('vigor-mini');
-                var vigVal = document.getElementById('pill-vigor-val');
-                var vigIcon = document.getElementById('pill-vigor-icon');
-                if (vigEl && vigVal) {
-                    var vt = vigEl.textContent.trim();
-                    vigVal.textContent = vt ? vt.substring(0, 6) : '–';
-                    if (vigIcon) {
-                        if (vt.includes('🔴') || vt.includes('❌')) vigIcon.textContent = '🔴';
-                        else if (vt.includes('🟡') || vt.includes('⚠️')) vigIcon.textContent = '🟡';
-                        else vigIcon.textContent = '⚡';
-                    }
+                // Vigor — číst přímo z VigorSystem
+                if (typeof VigorSystem !== 'undefined' && typeof GameState !== 'undefined' && GameState.satiety !== undefined) {
+                    VigorSystem.renderPill();
                 }
 
                 // Čas + kanonická hodina + lunární ikona

@@ -148,6 +148,13 @@ const STRINGS_en = {
         busy: 'Already occupied!',
         quickScavenge: 'Quick gather!',
         rareFind: '⭐ Rare find: Netolický\'s bitter legacy!',
+        vigor: {
+            exhausted:    '😵 The scribe is utterly exhausted. Find food before continuing.',
+            deficiens:    '⚠️ Vigor deficiens. Only light tasks available.',
+            insufficient: '😔 Not enough strength for this task.',
+            tooTiredHeavy:'😵 Too exhausted for this task. Eat something first. (Vigor < 25)',
+            tooTiredLight:'😔 Too tired for crafting. Rest or eat first. (Vigor < 10)',
+        },
         candleBurnedOut: 'The candle hath burned out.',
         hungry: '⚠️ Hunger claimeth thee!',
         saveExported: '💾 Save exported!',
@@ -1559,6 +1566,8 @@ According to Theophilus, the organ is an instrument worthy of God, but its const
         special: 'Special',
         any: 'Any crop',
         sow: 'Sow',
+        restNona: 'Nona Rest',
+        restNonaUsed: 'You have already rested today.',
         plant: 'Plant',
         uproot: 'Uproot',
         noSeedsAvail: 'No seeds in stores',
@@ -2468,6 +2477,57 @@ In every scriptorium lurks Titivillus. His task is not to tempt to sin — other
 *From this hour thou shalt see a gentle warning in thy workshop when Vigour sinketh too low.*`,
 
                 reward_notify: "👁️ Titivillus's warning: thou shalt now see when errors threaten thy manuscripts.",
+            },
+
+            // ── Netolický's Legacy ──────────────────────────────────────────
+            netolicky_01: {
+                title: 'The Privilege of Ferdinand (1527)',
+                lectio: '*Parchment bearing a royal seal. The ink is faded in places, but the text remains legible.*\n\n"We, Ferdinand, by the grace of God King of Bohemia... do grant to Bartoloměj Netolický the exclusive right to print on the Lesser Town of Prague, without hindrance from any party..."\n\n— Original privilege. Lesser Town printing house, 1527.',
+                glossa: '*On closer reading, the details emerge.*\n\nNetolický was a loyal Catholic — precisely what Ferdinand needed after the Battle of Mohács. Prague was in turmoil, the nobility resisting. But a printer with a royal privilege was untouchable.\n\nA monopoly on printing in Bohemia. At the price of loyalty.',
+                arcanum: '*On the reverse of the privilege, in small script, another hand:*\n\n"Every privilege has its time. Ours ended in 1552. Melantrich came with money and young blood. What could I do?"\n\n— Netolický, old and tired.',
+                reward_notify: '📜 +5 notes. The Privilege of Ferdinand studied.',
+            },
+            netolicky_02: {
+                title: 'Price List of Prints (1541)',
+                lectio: '*A loose leaf, greasy with ink stains. The figures are carefully aligned.*\n\nNew Testament — 8 groschen\nPsalter — 3 groschen\nCalendar — 1 groschen\nOrdinary — 5 groschen\n\n— Price list of Netolický\'s printing house, Lesser Town, 1541.',
+                glossa: '*Comparison with other sources reveals the context.*\n\nDaily wage of a craftsman in Prague: 2–3 groschen. A calendar for 1 groschen was within anyone\'s reach. A psalter for 3 — a week\'s work. The New Testament for 8 — nearly a month.\n\nThe printed book had ceased to be a bishop\'s luxury. It had become a commodity.',
+                arcanum: '*At the bottom, in pencil:*\n\n"We had to lower prices three times. Competition from Nuremberg. Paper dearer. Compositors dearer. And yet — the press feeds twelve families."\n\nThe economics of printing in a nutshell. It was always about the margin.',
+                reward_notify: '📜 +5 notes. The Price List studied.',
+            },
+            netolicky_03: {
+                title: 'Letter to Melantrich (1551)',
+                lectio: '*A sheet folded into quarters. The fold is sharp — the letter was kept folded for a long time.*\n\n"Esteemed Master Melantrich, I come to you with an offer which — I hope — will be received in a spirit of mutual respect and benefit to both parties..."\n\n— Netolický, 1551. His last year before the transfer.',
+                glossa: '*Between the lines, another truth emerges.*\n\nMelantrich did not come with an offer — he came with pressure. Netolický was ageing, in debt to the papermakers, his privilege expiring. The letter is courteous. But the courtesy of a desperate man.\n\n"Mutual respect" — words that conceal a surrender.',
+                arcanum: '*On the reverse, in Melantrich\'s hand:*\n\n"Accepted. The workshop to be moved to the Old Town. Name: Melantrich of Aventino. Netolický to receive a lifetime pension — provided he does not interfere."\n\nThe end of one era. The beginning of an empire.',
+                reward_notify: '📜 +5 notes. Letter to Melantrich studied.',
+            },
+            netolicky_04: {
+                title: 'Inventory of Type (workshop stock)',
+                lectio: '*A folded sheet with tables. Each row is a different typeface.*\n\nLatin Fraktur — 847 pieces\nBohemian Bastarda — 623 pieces\nHebrew characters — 89 pieces\nGreek capitals — 44 pieces\n\n— Type inventory, Netolický\'s workshop, undated.',
+                glossa: '*Study of the inventory reveals a surprise.*\n\nHebrew type. In the Catholic printing house of Ferdinand\'s court printer. Why?\n\nPrague had a thriving Jewish community in Josefov. Someone ordered a Hebrew print — Netolický supplied it. Business is business, even for a loyal Catholic.',
+                arcanum: '*In pencil in the lower corner, an old hand:*\n\n"Gutenberg\'s type. Father brought it from Mainz himself. It cost as much as a house. Melantrich took it as part of the workshop — at scrap price."\n\nGutenberg\'s legacy in Prague. And then — scrap.',
+                reward_notify: '📜 +5 notes. The Type Inventory studied.',
+            },
+            netolicky_05: {
+                title: 'Ink Recipe (personal formula)',
+                lectio: '*A small booklet, bound with twine. Written in different inks — the recipe was amended over many years.*\n\n"Gall nuts: 4 lots. Vitriol: 2 lots. Gum arabic: 1 lot. Rainwater: 1 pint. Leave to stand 3 days before printing."\n\n— Netolický\'s personal formula, amended 1530–1548.',
+                glossa: '*Comparison with standard recipes reveals deviations.*\n\nStandard formula: vitriol and gall nuts in a ratio of 1:2. Netolický used 1:4 — more gall nuts, less acid. The ink dried more slowly, but did not eat through the type so quickly.\n\nA master\'s trick: it saved him money on type. Type lasts longer = lower costs.',
+                arcanum: '*On the last page, added later:*\n\n"For special prints: add a pinch of soot from birchwood. The ink will be blacker and lustrous. Bishops love it."\n\nRecipe unlocked: Netolický\'s iron gall ink.',
+                reward_notify: '⚗️ Recipe unlocked: Netolický\'s Iron Gall Ink.',
+            },
+            netolicky_06: {
+                title: 'Contract with the Papermaker (1538)',
+                lectio: '*Parchment bearing two seals — Netolický\'s and the mill at Zbraslav.*\n\n"Master Václav of the Zbraslav mill undertakes to supply the printer Netolický with paper of middling and better quality, in quantity 200 sheets per month, at a price of 3 groschen per hundred sheets..."\n\n— Contract, 1538, for five years.',
+                glossa: '*The numbers do not add up.*\n\n200 sheets per month. Netolický\'s largest print — the New Testament — consumed over 800 sheets. The contract barely covered a quarter.\n\nNetolický had to buy paper elsewhere — from Nuremberg, from Venice. At three times the price. The margin vanished.',
+                arcanum: '*On the margin of the contract, in red chalk:*\n\n"The mill flooded in 1541. Václav died. Contract void. I had to buy paper stocks from Melantrich — at his price. From that moment I knew how it would end."\n\nPaper as a weapon. Melantrich had known it all along.',
+                reward_notify: '📜 +5 notes. The Papermaker\'s Contract studied.',
+            },
+            netolicky_07: {
+                title: 'Colophon of the Last Book (1552)',
+                lectio: '*The final page. The ink is smeared in places — as though the paper was wet, or the hand trembling.*\n\n"Printed in Prague, in the Lesser Town, in the year of Our Lord 1552, at the printing house of Bartoloměj Netolický of Kapí Hora."\n\nBelow — added in another hand, fresh ink:\n\n"Now the printing house of Jiří Melantrich of Aventino."',
+                glossa: '*Two names on one page. History in miniature.*\n\nNetolický had been printing for thirty years. Melantrich erased it with a single sentence.\n\nYet Netolický lived another ten years. He drew his pension. He walked past the printing house that had borne his name — and then ceased to.\n\nHistory does not ask how the overwritten feel.',
+                arcanum: '*On the very last page, hidden behind a folded edge:*\n\n"Whosoever finds this page — know that I printed honestly. What was mine was good. What came after me — let time be the judge."\n\n— B. N.',
+                reward_notify: '📜 Netolický\'s legacy studied. The printer\'s memory endures.',
             },
 
         }, // end folios

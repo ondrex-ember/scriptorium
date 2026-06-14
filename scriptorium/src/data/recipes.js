@@ -141,7 +141,18 @@ const RecipesDB = [
     { id: "stew", output: "stew", qty: 1, req: { "meat": 1, "carrot": 1, "potato": 1, "water": 1, "cooking_pot": 0 }, cat: "food", locked: true },
     { id: "mushroom_soup", output: "mushroom_soup", qty: 1, req: { "mushroom": 2, "onion": 1, "water": 1, "cooking_pot": 0 }, cat: "food", locked: true },
     { id: "bread", output: "bread", qty: 2, req: { "fiber": 3, "water": 1, "cooking_pot": 0 }, cat: "food", locked: true },
-    { id: "berry_pie", output: "berry_pie", qty: 1, req: { "berries": 3, "honey": 1, "cooking_pot": 0 }, cat: "food", locked: true },
+    { id: "berry_pie",      output: "berry_pie",      qty: 1, req: { "berries": 3, "honey": 1, "cooking_pot": 0 }, cat: "food", locked: true },
+    // Bylinné nápoje — snižují Únavu, bez Athanoru
+    { id: "herbal_tea",     output: "herbal_tea",     qty: 1, req: { "chamomile": 1, "water": 1, "cooking_pot": 0 }, cat: "food", locked: true,
+      desc: "Heřmánkový čaj. Únava -15.", desc_en: "Chamomile tea. Fatigue -15." },
+    { id: "herbal_tea_alt", output: "herbal_tea",     qty: 1, req: { "thyme": 1, "water": 1, "cooking_pot": 0 }, cat: "food", locked: true,
+      desc: "Tymiánový čaj. Únava -15.", desc_en: "Thyme tea. Fatigue -15." },
+    { id: "acorn_brew",     output: "acorn_brew",     qty: 1, req: { "acorn": 2, "water": 1, "cooking_pot": 0 }, cat: "food", locked: true,
+      desc: "Žaludovka. Únava -10.", desc_en: "Acorn brew. Fatigue -10." },
+    { id: "chicory_drink",  output: "chicory_drink",  qty: 1, req: { "roots": 2, "water": 1, "cooking_pot": 0 }, cat: "food", locked: true,
+      desc: "Čekankový nápoj. Únava -12.", desc_en: "Chicory drink. Fatigue -12." },
+    { id: "linden_tea",     output: "linden_tea",     qty: 1, req: { "linden_blossom": 1, "water": 1, "cooking_pot": 0 }, cat: "food", locked: true,
+      desc: "Lipový čaj. Únava -8, Sytost +8.", desc_en: "Linden tea. Fatigue -8, Satiety +8." },
     
     // ALCHEMY - základní
     { id: "candle", output: "candle", qty: 1, req: { "fat": 1, "rope": 1 }, cat: "fire", locked: true }, 

@@ -1734,6 +1734,9 @@ const Game = {
     },
 
     scavenge: function(type) {
+        // Vigor — Fatigue z akce (scavenge vždy dostupné, jen malý cost)
+        if (typeof VigorSystem !== 'undefined') VigorSystem.onScavenge(type);
+
 	    // === SPECIAL HANDLING FOR WELL === (PŘIDAT NA ZAČÁTEK)
 		if (type === 'well_water') {
 			// Check if well exists
@@ -1950,6 +1953,8 @@ const Game = {
                     if(Math.random() < 0.04) this.addItem('nettle', 1);
                     if(Math.random() < 0.03) this.addItem('seeds_garlic', 1);
                     if(Math.random() < 0.02) this.addItem('seeds_nettle', 1);
+                    // Žaludy — podzimní nález
+                    if(Math.random() < 0.12) this.addItem('acorn', 1);
                 }
                 else if (type === 'wetlands') {
                     if(r<0.4) this.addItem('frog', 1);
@@ -2180,6 +2185,8 @@ const Game = {
                 if(Math.random() < 0.04) this.addItem('nettle', 1);
                 if(Math.random() < 0.03) this.addItem('seeds_garlic', 1);
                 if(Math.random() < 0.02) this.addItem('seeds_nettle', 1);
+                // Žaludy
+                if(Math.random() < 0.12) this.addItem('acorn', 1);
             }
             else if (type === 'wetlands') {
                 if(r<0.4) this.addItem('frog', 1);
@@ -2390,6 +2397,27 @@ const Game = {
         const r = RecipesDB.find(x => x.id === id);
         if(!GameState.flags.fireplaceLit && !r.blind) { UI.notify(t('game.frozenHands'), true); return; }
 
+        // Vigor check — těžké recepty vyžadují Vigor >= 25, lehké >= 10
+        if (typeof VigorSystem !== 'undefined') {
+            const heavyItems = ['vellum','codex_luxury','illuminated_page','vellum_codex','printing_type','ink_gallic'];
+            const isHeavy = heavyItems.includes(r.output);
+            const isLight = ['paper','ink','candle','tinderbox','quill','tallow_candle'].includes(r.output);
+            if (isHeavy && !VigorSystem.canHeavy()) {
+                const lang = (GameState.settings && GameState.settings.language) || 'cs';
+                UI.notify(lang === 'en'
+                    ? '😵 Too exhausted for this task. Eat something first. (Vigor < 25)'
+                    : '😵 Na tuto práci jsi příliš vyčerpán. Nejdříve se najez. (Vigor < 25)', true);
+                return;
+            }
+            if (!isLight && !isHeavy && !VigorSystem.canLight()) {
+                const lang = (GameState.settings && GameState.settings.language) || 'cs';
+                UI.notify(lang === 'en'
+                    ? '😔 Too tired for crafting. Rest or eat first. (Vigor < 10)'
+                    : '😔 Jsi příliš unavený. Odpočiň si nebo se najez. (Vigor < 10)', true);
+                return;
+            }
+        }
+
         // maxStack check — iron nástroje max 1 ks
         const outItem = ItemsDB[r.output];
         if (outItem && outItem.maxStack) {
@@ -2446,6 +2474,9 @@ const Game = {
         }
         this.addItem(r.output, craftQty);
         if (typeof UI !== 'undefined' && UI.spawnFloatingGain) UI.spawnFloatingGain(r.id, craftQty);
+
+        // Vigor — přidat Fatigue dle výstupu
+        if (typeof VigorSystem !== 'undefined') VigorSystem.onCraft(r.output);
         // Byproduct — vedlejší produkt receptu (např. stloukání másla → podmáslí)
         if (r.byproduct && r.byproduct.id) {
             this.addItem(r.byproduct.id, r.byproduct.qty || 1);
@@ -2554,26 +2585,19 @@ const Game = {
         const item = ItemsDB[foodId];
         if(!item || item.type !== 'food') { UI.notify(t('game.notFood'), true); return; }
         if(!(GameState.inventory[foodId] > 0)) { UI.notify(t('game.noFood'), true); return; }
-        
+
         this.removeItem(foodId, 1);
-        let hungerHours = item.hunger || 6;
-        
-        // Tech bonus: Preservation doubles food duration
-        if(GameState.researchedTechs.includes('tech_preservation')) {
-            hungerHours *= 2;
+
+        // Vigor systém v2 — VigorSystem.eat() zpracuje Satiety + Fatigue
+        if (typeof VigorSystem !== 'undefined') {
+            VigorSystem.eat(foodId);
         }
-        
-        GameState.hunger.fed = true;
-        GameState.hunger.lastMeal = Date.now();
-        GameState.hunger.duration = hungerHours * 60 * 60 * 1000;
-        
+
         // Track meals eaten
-        if(GameState.achievements) {
-            GameState.achievements.stats.mealsEaten++;
+        if(GameState.achievements && GameState.achievements.stats) {
+            GameState.achievements.stats.mealsEaten = (GameState.achievements.stats.mealsEaten || 0) + 1;
         }
-        
-        const bonusText = GameState.researchedTechs.includes('tech_preservation') ? ' (2x konzervace!)' : '';
-        UI.notify(t('game.fed').replace('{hours}', hungerHours).replace('{bonus}', bonusText));
+
         Game.save();
         UI.renderAll();
     },

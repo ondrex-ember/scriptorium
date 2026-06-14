@@ -48,7 +48,16 @@ const GameState = {
     quietHoursEnd: 6
      },
     candleStart: 0, 
-    hunger: { fed: true, lastMeal: Date.now(), duration: 24 * 60 * 60 * 1000 }, // 24h do hladu
+    satiety: 80,   // 0–100, sytost písaře (klesá pasivně ~0.5/h)
+    fatigue: 0,    // 0–100, únava (roste prací, klesá odpočinkem/časem)
+    // Vigor = max(0, satiety - fatigue) — vypočteno dynamicky VigorSystem.getVigor()
+    vigorMeta: {
+        lastTick:        0,      // timestamp posledního ticku
+        lastNonRest:     0,
+        warnedLow:       false,
+        warnedExhausted: false,
+        nonaUsed:        '',     // YYYY-MM-DD
+    },
     garden: [
         // Fáze 1: 4x herb (2 odemčené, 2 za tech_garden_expand)
         { state: 0, water: false, crop: null, plantedAt: 0, cropType: 'herb' },
