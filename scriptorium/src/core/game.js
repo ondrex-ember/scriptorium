@@ -121,10 +121,13 @@ const Game = {
             GameState.inventory['tinderbox'] = 1;
         }
         
-        // Initialize hunger if not present
-        if(!GameState.hunger) {
-            GameState.hunger = { fed: true, lastMeal: Date.now(), duration: 24 * 60 * 60 * 1000 };
+        // Migrace hunger → Vigor systém v2
+        if (GameState.hunger && typeof GameState.satiety === 'undefined') {
+            GameState.satiety = GameState.hunger.fed ? 70 : 20;
         }
+        if (GameState.hunger) delete GameState.hunger;
+        if (typeof GameState.satiety === 'undefined') GameState.satiety = 80;
+        if (typeof GameState.fatigue === 'undefined') GameState.fatigue = 0;
         
         // Migrace zahrady na novou strukturu (14 slotů)
         // Starý save (≤4 sloty) → doplnit na novou strukturu
@@ -2622,10 +2625,11 @@ const Game = {
             if(GameState.flags.fireplaceLit) {
                 GameState.achievements.stats.daysWithFire++;
             }
-            if(GameState.hunger.fed) {
+            // Vigor v2: "fed" = Vigor >= 25
+            if(typeof VigorSystem !== 'undefined' && VigorSystem.getVigor() >= 25) {
                 GameState.achievements.stats.daysWithoutHunger++;
             } else {
-                GameState.achievements.stats.daysWithoutHunger = 0; // Reset streak
+                GameState.achievements.stats.daysWithoutHunger = 0;
             }
         }
         

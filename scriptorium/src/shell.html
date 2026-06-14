@@ -957,14 +957,25 @@
                 z-index: 9999;
                 display: flex !important;
                 background: transparent;
-                padding: 4px 8px;
-                flex-wrap: nowrap;
-                gap: 5px;
+                flex-wrap: wrap !important;
+                gap: 4px;
                 align-items: center;
                 justify-content: center;
                 width: 100%;
-                padding: 2px 4px;
+                padding: 3px 6px;
                 overflow: visible;
+            }
+
+            /* Skrýt warmth bar kočky na mobilu */
+            #cat-pill .hpill-val {
+                display: none !important;
+            }
+
+            /* Pill text trochu menší aby se vešlo */
+            .hpill {
+                font-size: 0.75rem !important;
+                padding: 2px 7px !important;
+                gap: 3px !important;
             }
 
             header {
@@ -974,7 +985,7 @@
             }
 
             main#main-content {
-                padding-top: calc(40px + 20px) !important;
+                padding-top: calc(80px + 20px) !important;
             }
 
             .header-content {
@@ -2999,18 +3010,9 @@
                     wVal.textContent = txt ? txt.split(' ').slice(0, 2).join(' ') : '–';
                 }
 
-                // Vigor
-                var vigEl = document.getElementById('vigor-mini');
-                var vigVal = document.getElementById('pill-vigor-val');
-                var vigIcon = document.getElementById('pill-vigor-icon');
-                if (vigEl && vigVal) {
-                    var vt = vigEl.textContent.trim();
-                    vigVal.textContent = vt ? vt.substring(0, 6) : '–';
-                    if (vigIcon) {
-                        if (vt.includes('🔴') || vt.includes('❌')) vigIcon.textContent = '🔴';
-                        else if (vt.includes('🟡') || vt.includes('⚠️')) vigIcon.textContent = '🟡';
-                        else vigIcon.textContent = '⚡';
-                    }
+                // Vigor v2 — číst přímo z VigorSystem
+                if (typeof VigorSystem !== 'undefined' && typeof GameState !== 'undefined' && typeof GameState.satiety !== 'undefined') {
+                    VigorSystem.renderPill();
                 }
 
                 // Čas + kanonická hodina + lunární ikona
@@ -3102,20 +3104,24 @@
                         if (w2 && w2.textContent) html += '<div class="pp-row"><span class="pp-label">Zítra</span><span class="pp-val">' + w2.textContent + '</span></div>';
                     }
                 } else if (id === 'vigor') {
-                    if (typeof VigorSystem !== 'undefined' && typeof GameState !== 'undefined' && GameState.vigor) {
-                        var vpct = VigorSystem.getPercentage();
-                        var vbars = '';
-                        for (var vi = 0; vi < 10; vi++) vbars += vi < Math.ceil(vpct/10) ? '●' : '○';
-                        var vColor = vpct > 60 ? 'var(--ink-primary)' : vpct > 30 ? 'var(--accent-gold)' : '#c0392b';
-                        var timeSince = VigorSystem.getTimeSinceLastMeal();
-                        // Odhad do kdy stačí vigor (drain 1/hod, varování při 20%)
-                        var hoursLeft = Math.max(0, GameState.vigor.current - 20);
-                        var hoursLeftStr = hoursLeft > 0 ? hoursLeft + 'h' : 'Jez nyní!';
-                        html += '<div class="pp-row" style="margin-bottom:4px;"><span class="pp-label" style="font-size:0.7rem;opacity:0.6;">Vigor = výkon písaře při práci</span></div>';
-                        html += '<div class="pp-row"><span class="pp-label">⚡ Vigor</span><span class="pp-val" style="color:' + vColor + ';">' + vbars + ' ' + GameState.vigor.current + '/100</span></div>';
-                        html += '<div class="pp-row" style="border-top:1px solid rgba(197,160,89,0.2);padding-top:6px;margin-top:4px;"><span class="pp-label" style="font-size:0.7rem;opacity:0.6;">Hlad = čas od posledního jídla</span></div>';
-                        html += '<div class="pp-row"><span class="pp-label">🍖 Hlad</span><span class="pp-val">' + timeSince + ' bez jídla</span></div>';
-                        html += '<div class="pp-row"><span class="pp-label">⏳ Do varování</span><span class="pp-val" style="color:' + (hoursLeft < 5 ? '#c0392b' : 'inherit') + ';">' + hoursLeftStr + '</span></div>';
+                    if (typeof VigorSystem !== 'undefined' && typeof GameState !== 'undefined' && typeof GameState.satiety !== 'undefined') {
+                        var satiety = Math.round(GameState.satiety || 0);
+                        var fatigue = Math.round(GameState.fatigue || 0);
+                        var vigor = VigorSystem.getVigor();
+                        var vColor = vigor >= 25 ? 'var(--accent-gold)' : vigor >= 10 ? '#e67e22' : '#c0392b';
+                        var recovH = VigorSystem._recoveryHours();
+                        var recovText = recovH > 0 ? 'Odpočinek za ~' + recovH + 'h' : 'Odpočatý';
+                        var today = new Date().toISOString().slice(0, 10);
+                        var nonaAvail = !GameState.vigorMeta || GameState.vigorMeta.nonaUsed !== today;
+                        html += '<div class="pp-row"><span class="pp-label">🍎 Sytost</span><span class="pp-val">' + satiety + '/100</span></div>';
+                        html += '<div class="pp-row"><span class="pp-label">💤 Únava</span><span class="pp-val">' + fatigue + '/100</span></div>';
+                        html += '<div class="pp-row" style="border-top:1px solid rgba(197,160,89,0.2);margin-top:4px;padding-top:4px;"><span class="pp-label">⚡ Vigor</span><span class="pp-val" style="color:' + vColor + ';">' + vigor + '%</span></div>';
+                        html += '<div style="font-size:0.7rem;opacity:0.6;margin-top:4px;">' + recovText + '</div>';
+                        if (nonaAvail) {
+                            html += '<button onclick="VigorSystem.restNona()" style="margin-top:8px;width:100%;padding:4px 8px;border-radius:6px;border:1px solid var(--accent-gold);background:rgba(197,160,89,0.15);color:var(--accent-gold);cursor:pointer;font-size:0.75rem;">😴 Odpočinek při Nóně (-20 Únava, 1×/den)</button>';
+                        } else {
+                            html += '<div style="font-size:0.7rem;opacity:0.5;margin-top:6px;">Dnes již odpočinut.</div>';
+                        }
                     } else {
                         html = '<div class="pp-row"><span class="pp-label">Vigor</span><span class="pp-val">–</span></div>';
                     }
