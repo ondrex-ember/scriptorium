@@ -670,6 +670,81 @@ const Game = {
         UI.notify(t('game.itemIgnited').replace('{item}', ItemsDB[item].name));
         Game.save(); Game.checkEnvironment();
     },
+    // ── Staré mince — modal při nalezení nebo kliknutí ─────────────────────
+    showCoinModal: function(itemId, value) {
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        const cs = lang === 'en';
+        const item = typeof ItemsDB !== 'undefined' ? ItemsDB[itemId] : null;
+        const name = item ? (cs ? (item.name_en || item.name) : item.name) : itemId;
+        const desc = item ? (cs ? (item.desc_en || item.desc) : item.desc) : '';
+        const qty = GameState.inventory[itemId] || 0;
+        NotificationSystem.modal({
+            icon: item ? item.icon : '🪙',
+            title: name,
+            text: desc + '<br><br>' + (cs ? 'In stock' : 'Na skladě') + ': <strong>' + qty + '</strong>',
+            choices: [
+                {
+                    label: cs ? '💰 Sell to Giacomo (+' + value + ' gr.)' : '💰 Prodat Giacomovi (+' + value + ' gr.)',
+                    type: 'primary',
+                    effect: function() {
+                        if ((GameState.inventory[itemId] || 0) < 1) return;
+                        Game.removeItem(itemId, 1);
+                        Game.addItem('grosze', value);
+                        UI.notify(cs ? '💰 Sold for ' + value + ' groschen.' : '💰 Prodáno za ' + value + ' grošů.');
+                        Game.save();
+                    }
+                },
+                {
+                    label: cs ? '🗃️ Keep' : '🗃️ Uchovat',
+                    type: 'default',
+                    effect: function() {}
+                }
+            ]
+        });
+    },
+
+    // ── Netolického pozůstalost — modal při nalezení nebo kliknutí ──────────
+    showNetolickyModal: function() {
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        const cs = lang === 'en';
+        // Pokud hráč nemá item v inventáři, modal se nespustí
+        NotificationSystem.modal({
+            icon: '📜',
+            title: cs ? "Netolický\'s Legacy" : 'Netolického pozůstalost',
+            text: cs
+                ? '<em>You break the old wax seal. The smell of the sixteenth century escapes — dust, ink, and something burnt.</em><br><br>"Brother Bartoloměj Netolický! For God\'s sake, come to thy senses! This gloomy day is thy very last chance..."<br><br><small>A half-charred document found beneath the floor of an old printing house on the Lesser Town.</small>'
+                : '<em>Rozlomíš starou voskovou pečeť. Uniká zatuchlina šestnáctého století — prach, inkoust a něco spáleného.</em><br><br>„Bratře Bartoloměji Netolický! Probůh, vzpamatuj se! Dnešní pochmurný den je tvou naprosto poslední šancí..."<br><br><small>Napůl sežehlý dokument, nalezený pod podlahou staré tiskárny na Malé Straně.</small>',
+            choices: [
+                {
+                    label: cs ? '📖 Study (+30 notes, unlock 7 scrolls)' : '📖 Prostudovat (+30 zápisků, 7 svitků)',
+                    type: 'primary',
+                    effect: function() {
+                        Game.removeItem('netolicky_legacy', 1);
+                        Game.addItem('research', 30);
+                        if (typeof SecretsSystem !== 'undefined') SecretsSystem.unlockNetolickyFolios();
+                        UI.notify(cs ? '📜 Netolický\'s legacy studied. +30 notes.' : '📜 Pozůstalost prostudována. +30 zápisků.');
+                        Game.save();
+                    }
+                },
+                {
+                    label: cs ? '💰 Sell to Giacomo (+50 groschen)' : '💰 Prodat Giacomovi (+50 grošů)',
+                    type: 'default',
+                    effect: function() {
+                        Game.removeItem('netolicky_legacy', 1);
+                        Game.addItem('grosze', 50);
+                        UI.notify(cs ? '💰 Giacomo paid 50 groschen for the document.' : '💰 Giacomo zaplatil 50 grošů za dokument.');
+                        Game.save();
+                    }
+                },
+                {
+                    label: cs ? '🗃️ Keep for now' : '🗃️ Zatím uchovat',
+                    type: 'default',
+                    effect: function() {}
+                }
+            ]
+        });
+    },
+
     farmAction: function(plotIdx) {
         const plot = GameState.garden[plotIdx];
         if(plot.locked) { UI.notify(t('game.plotLocked'), true); return; }
@@ -1537,7 +1612,8 @@ const Game = {
                     // Rare drop - Netolického pozůstalost (0.1% chance)
                     if(Math.random() < 0.001) {
                         this.addItem('netolicky_legacy', 1);
-                        UI.notify(t('game.rareFind'));
+                        UI.notifyPanel('📜 ' + (typeof t === 'function' ? t('game.rareFind') : 'Vzácný nález!'), 'system');
+                        setTimeout(function() { Game.showNetolickyModal(); }, 300);
                     }
                     // v8.x: Sad & Apiarium drops
                     if(Math.random() < 0.04) this.addItem('pollen', 1);          // 4% — pyl z luk
@@ -1699,7 +1775,8 @@ const Game = {
                 // Rare drop - Netolického pozůstalost (0.1% chance)
                 if(Math.random() < 0.001) {
                     this.addItem('netolicky_legacy', 1);
-                    UI.notify(t('game.rareFind'));
+                    UI.notifyPanel('📜 ' + (typeof t === 'function' ? t('game.rareFind') : 'Vzácný nález!'), 'system');
+                    setTimeout(function() { Game.showNetolickyModal(); }, 300);
                 }
             }
             else if (type === 'basic') { 
@@ -1762,7 +1839,8 @@ const Game = {
                 // Rare drop - Netolického pozůstalost (0.1% chance)
                 if(Math.random() < 0.001) {
                     this.addItem('netolicky_legacy', 1);
-                    UI.notify(t('game.rareFind'));
+                    UI.notifyPanel('📜 ' + (typeof t === 'function' ? t('game.rareFind') : 'Vzácný nález!'), 'system');
+                    setTimeout(function() { Game.showNetolickyModal(); }, 300);
                 }
             }
             else if (type === 'basic') {

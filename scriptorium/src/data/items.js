@@ -157,6 +157,14 @@ const ItemsDB = {
     // EASTER EGG
     "netolicky_legacy":    { name:"Netolického pozůstalost",  name_en:"Netolický's Legacy",  icon:"📜", type:"lore", desc:"Starý dokument z tiskárny.",     desc_en:"An old document from the print shop." },
 
+    // ── ZTRACENÉ PŘEDMĚTY (lostPool — yard_cleanup) ───────────────────────────
+    "old_coin_1": { name:"Měděná mince", name_en:"Copper Coin", icon:"🪙", type:"currency", lostItem:true,
+        desc:"Stará měděná mince nalezená při úklidu dvora. Kdo ji ztratil? Dávno to bylo.", desc_en:"An old copper coin found while cleaning the yard. Who dropped it? Long ago, that." },
+    "old_coin_2": { name:"Stříbrná mince", name_en:"Silver Coin", icon:"🪙", type:"currency", lostItem:true,
+        desc:"Stříbrný groš, trochu otlučený. Nese znak českého království. Vzácnější nález.", desc_en:"A silver groschen, slightly worn. Bears the Bohemian crown mark. A rarer find." },
+    "old_coin_3": { name:"Zlatá mince", name_en:"Gold Coin", icon:"🏅", type:"currency", lostItem:true,
+        desc:"Zlatý dukát. V klášterním dvoře? Někdo ho tady musel ztratit za velmi podivných okolností.", desc_en:"A gold ducat. In the monastery yard? Someone must have dropped it under very peculiar circumstances." },
+
     // ATHANOR — ingredience (nové suroviny)
     "carbon_black":   { name:"Saze",             name_en:"Carbon Black",    icon:"🖤", type:"alchemy_ing", desc:"Saze z krbu. Nejstarší černý pigment.",           desc_en:"Soot from the hearth. The oldest black pigment." },
     "ochre":          { name:"Okr",              name_en:"Ochre",           icon:"🟤", type:"alchemy_ing", desc:"Žlutohnědá zemina. Pigment od pravěku.",          desc_en:"Yellow-brown earth. A pigment since prehistory." },
