@@ -67,6 +67,9 @@ const GameState = {
         { state: 0, water: false, crop: null, plantedAt: 0, cropType: 'vegetable', locked: true },
         { state: 0, water: false, crop: null, plantedAt: 0, cropType: 'vegetable', locked: true },
         { state: 0, water: false, crop: null, plantedAt: 0, cropType: 'vegetable', locked: true },
+        // Fáze 4: 1x herb + 1x special (za tech_hortus_conclusus)
+        { state: 0, water: false, crop: null, plantedAt: 0, cropType: 'herb',    locked: true },
+        { state: 0, water: false, crop: null, plantedAt: 0, cropType: 'special', locked: true },
     ],
     activeAction: null,
     selectedDuration: 0,

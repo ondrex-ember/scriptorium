@@ -1017,36 +1017,62 @@ const Game = {
             if (!(GameState.inventory[fertItem] > 0)) { UI.notify(t('game.needFertilizer'), true); return; }
             this.removeItem(fertItem, 1); plot.state = 1;
         } else if (plot.state === 1) {
-            // Determine what seeds to use based on cropType
+            // Pokud má hráč tech_hortus_conclusus — custom sázení řeší GardenSystem.plantGardenPlot
+            // farmAction state=1 je fallback pro auto-sow bez techu
+            const hasHortus = GameState.researchedTechs && GameState.researchedTechs.includes('tech_hortus_conclusus');
+            if (hasHortus) {
+                // S techem — UI zobrazuje select, farmAction by neměl být volán pro state=1
+                // Ale pro jistotu přesměruj na renderGarden
+                GardenSystem.renderGarden();
+                return;
+            }
+
+            // Auto-sow bez tech_hortus_conclusus
+            // Seed pool dle cropType — využít GARDEN_PLANTS_DB pokud dostupné
             let seedsNeeded = '';
-            if(plot.cropType === 'herb') seedsNeeded = 'seeds_herb';
-            else if(plot.cropType === 'vegetable') seedsNeeded = 'seeds_vegetable';
-            else if(plot.cropType === 'special') {
-                // Special plot - can grow any herb type
-                const available = ['seeds_yellow', 'seeds_blue', 'seeds_mint', 'seeds_thyme', 'seeds_hops', 'seeds_herb'].find(s => GameState.inventory[s] > 0);
-                if(available) seedsNeeded = available;
+            if (plot.cropType === 'herb') {
+                const herbSeeds = ['seeds_herb','seeds_yellow','seeds_blue','seeds_mint','seeds_thyme','seeds_sage','seeds_fennel','seeds_wormwood','seeds_hyssop','seeds_yarrow'];
+                seedsNeeded = herbSeeds.find(s => (GameState.inventory[s] || 0) > 0) || 'seeds_herb';
+            } else if (plot.cropType === 'vegetable') {
+                const vegSeeds = ['seeds_vegetable','seeds_leek','seeds_cabbage','seeds_radish','seeds_turnip','seeds_garlic'];
+                seedsNeeded = vegSeeds.find(s => (GameState.inventory[s] || 0) > 0) || 'seeds_vegetable';
+            } else if (plot.cropType === 'special') {
+                const specSeeds = ['seeds_mandrake','seeds_belladonna','seeds_poppy','seeds_nettle','seeds_hops','seeds_herb'];
+                seedsNeeded = specSeeds.find(s => (GameState.inventory[s] || 0) > 0) || '';
             }
-            
-            if(!seedsNeeded || !(GameState.inventory[seedsNeeded] > 0)) { 
-                UI.notify(t('game.needSeeds'), true); 
-                return; 
+
+            if (!seedsNeeded || !(GameState.inventory[seedsNeeded] > 0)) {
+                UI.notify(t('game.needSeeds'), true);
+                return;
             }
-            
-            this.removeItem(seedsNeeded, 1); 
-            plot.state = 2; 
-            
-            // Determine crop based on seeds
-            if(seedsNeeded === 'seeds_herb') plot.crop = 'herb_red';
-            else if(seedsNeeded === 'seeds_vegetable') {
-                const veggies = ['carrot', 'onion', 'potato'];
-                plot.crop = veggies[Math.floor(Math.random() * veggies.length)];
+
+            this.removeItem(seedsNeeded, 1);
+            plot.state = 2;
+
+            // Seed → crop mapping — přes GARDEN_PLANTS_DB pokud možno
+            if (typeof GardenSystem !== 'undefined' && GardenSystem.GARDEN_PLANTS_DB) {
+                const plantDef = Object.values(GardenSystem.GARDEN_PLANTS_DB).find(p => p.seed === seedsNeeded && p.cropType === plot.cropType);
+                if (plantDef) {
+                    plot.crop = plantDef.item;
+                } else {
+                    // Fallback pro seeds_vegetable (náhodná zelenina)
+                    const veggies = ['carrot','onion','leek','cabbage','radish','turnip'];
+                    plot.crop = veggies[Math.floor(Math.random() * veggies.length)];
+                }
+            } else {
+                // Hardcoded fallback
+                const seedCropMap = {
+                    seeds_herb: 'herb_red', seeds_yellow: 'herb_yellow', seeds_blue: 'herb_blue',
+                    seeds_mint: 'mint', seeds_thyme: 'thyme', seeds_sage: 'sage',
+                    seeds_fennel: 'fennel', seeds_wormwood: 'wormwood', seeds_hyssop: 'hyssop', seeds_yarrow: 'yarrow',
+                    seeds_vegetable: 'carrot', seeds_leek: 'leek', seeds_cabbage: 'cabbage',
+                    seeds_radish: 'radish', seeds_turnip: 'turnip', seeds_garlic: 'garlic',
+                    seeds_mandrake: 'mandrake', seeds_belladonna: 'belladonna', seeds_poppy: 'poppy', seeds_nettle: 'nettle',
+                    seeds_hops: 'hops',
+                };
+                plot.crop = seedCropMap[seedsNeeded] || 'herb_red';
             }
-            else if(seedsNeeded === 'seeds_yellow') plot.crop = 'herb_yellow';
-            else if(seedsNeeded === 'seeds_blue') plot.crop = 'herb_blue';
-            else if(seedsNeeded === 'seeds_mint') plot.crop = 'mint';
-            else if(seedsNeeded === 'seeds_thyme') plot.crop = 'thyme';
-            else if(seedsNeeded === 'seeds_hops') plot.crop = 'hops';
-            
+
             plot.plantedAt = Date.now();
         } else if (plot.state === 2 && !plot.water) {
             if (!(GameState.inventory['water'] > 0)) { UI.notify(t('game.needWater'), true); return; }
@@ -1947,6 +1973,9 @@ const Game = {
                     if(Math.random() < 0.30) this.addItem('linden_blossom', 1);
                     if(Math.random() < 0.20) this.addItem('chamomile', 1);
                     if(Math.random() < 0.10) this.addItem('thyme', 1);
+                    if(Math.random() < 0.08) this.addItem('yarrow', 1);
+                    if(Math.random() < 0.05) this.addItem('wormwood', 1);
+                    if(Math.random() < 0.04) this.addItem('sage', 1);
                 }
                 else if (type === 'wood_harvest') {
                     this.addItem('log', Math.random() < 0.4 ? 2 : 1);
@@ -2170,6 +2199,9 @@ const Game = {
                 if(Math.random() < 0.30) this.addItem('linden_blossom', 1);
                 if(Math.random() < 0.20) this.addItem('chamomile', 1);
                 if(Math.random() < 0.10) this.addItem('thyme', 1);
+                if(Math.random() < 0.08) this.addItem('yarrow', 1);
+                if(Math.random() < 0.05) this.addItem('wormwood', 1);
+                if(Math.random() < 0.04) this.addItem('sage', 1);
             }
             else if (type === 'wood_harvest') {
                 this.addItem('log', Math.random() < 0.4 ? 2 : 1);
