@@ -26,7 +26,7 @@ const ActionsDB = [
 
 let audioSys = null;
 const GameState = {
-    inventory: { "tinderbox": 1, "rock": 2, "stick": 2, "water": 5 },
+    inventory: { "tinderbox": 1, "rock": 2, "stick": 2, "water": 5, "research": 6 },
     unlockedRecipes: [],
     researchedTechs: [],
     flags: { fireplaceLit: false, candleLit: false, torchLit: false, firstVisit: true, forceDark: true },
@@ -48,16 +48,7 @@ const GameState = {
     quietHoursEnd: 6
      },
     candleStart: 0, 
-    satiety: 80,   // 0–100, sytost písaře (klesá pasivně ~0.5/h)
-    fatigue: 0,    // 0–100, únava (roste prací, klesá odpočinkem/časem)
-    // Vigor = max(0, satiety - fatigue) — vypočteno dynamicky VigorSystem.getVigor()
-    vigorMeta: {
-        lastTick:        0,      // timestamp posledního ticku
-        lastNonRest:     0,
-        warnedLow:       false,
-        warnedExhausted: false,
-        nonaUsed:        '',     // YYYY-MM-DD
-    },
+    hunger: { fed: true, lastMeal: Date.now(), duration: 24 * 60 * 60 * 1000 }, // 24h do hladu
     garden: [
         // Fáze 1: 4x herb (2 odemčené, 2 za tech_garden_expand)
         { state: 0, water: false, crop: null, plantedAt: 0, cropType: 'herb' },
@@ -76,9 +67,6 @@ const GameState = {
         { state: 0, water: false, crop: null, plantedAt: 0, cropType: 'vegetable', locked: true },
         { state: 0, water: false, crop: null, plantedAt: 0, cropType: 'vegetable', locked: true },
         { state: 0, water: false, crop: null, plantedAt: 0, cropType: 'vegetable', locked: true },
-        // Fáze 4: 1x herb + 1x special (za tech_hortus_conclusus)
-        { state: 0, water: false, crop: null, plantedAt: 0, cropType: 'herb',    locked: true },
-        { state: 0, water: false, crop: null, plantedAt: 0, cropType: 'special', locked: true },
     ],
     activeAction: null,
     selectedDuration: 0,
