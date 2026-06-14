@@ -1873,6 +1873,15 @@ const GardenSystem = {
         el.innerHTML = html;
     },
 
+    _syncGardenLocks: function() {
+        const techs = GameState.researchedTechs || [];
+        let unlocked = 2;
+        if (techs.includes('tech_garden_expand'))   unlocked = Math.max(unlocked, 4);
+        if (techs.includes('tech_garden_expand_2')) unlocked = Math.max(unlocked, 6);
+        if (techs.includes('tech_garden_expand_3')) unlocked = Math.max(unlocked, 8);
+        GameState.garden.forEach((plot, i) => { plot.locked = i >= unlocked; });
+    },
+
     renderGarden: function() {
         // Obnovit aktivní tab po renderAll
         const activeTab = this._activeTab || 'zahony';
@@ -1883,7 +1892,8 @@ const GardenSystem = {
             return;
         }
         const el = document.getElementById('garden-container'); el.innerHTML = "";
-        
+        this._syncGardenLocks();
+
         // Calculate growth time with tech bonuses
         let growthSpeed = CONFIG.GROWTH_SPEED;
         if(GameState.researchedTechs.includes('tech_advanced_farming')) {
@@ -1934,6 +1944,14 @@ const GardenSystem = {
     // POLE (Ager) — polní hospodářství
     // ════════════════════════════════════════════════════════════════════════
 
+    _syncFieldLocks: function() {
+        const techs = GameState.researchedTechs || [];
+        let unlocked = 2;
+        if (techs.includes('tech_de_re_rustica'))  unlocked = Math.max(unlocked, 4);
+        if (techs.includes('tech_crop_rotation'))  unlocked = Math.max(unlocked, 6);
+        GameState.fields.forEach((f, i) => { f.locked = i >= unlocked; });
+    },
+
     _initFields: function() {
         if (!GameState.fields) {
             GameState.fields = Array.from({length: 6}, (_, i) => ({
@@ -1950,6 +1968,7 @@ const GardenSystem = {
         GameState.fields.forEach(f => {
             if (f.strawBonus === undefined) f.strawBonus = false;
         });
+        this._syncFieldLocks();
     },
 
     // Délka jedné fáze v ms (3 reálné dny)
