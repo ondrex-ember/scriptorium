@@ -12434,9 +12434,48 @@ const VigorSystem = {
         `;
     },
 
-    // ── Legacy renderMiniDisplay (pro kompatibilitu) ──────────────────────────
+    // ── Legacy kompatibilita ─────────────────────────────────────────────────
     renderMiniDisplay: function() {
         this.renderPill();
+    },
+
+    // renderFullDisplay — volá PersonaSystem pro Vigor blok
+    renderFullDisplay: function() {
+        const satiety = Math.round(GameState.satiety || 0);
+        const fatigue = Math.round(GameState.fatigue || 0);
+        const vigor   = this.getVigor();
+        const lang    = (GameState.settings && GameState.settings.language) || 'cs';
+        const recovH  = this._recoveryHours();
+        const recovText = recovH > 0
+            ? (lang === 'en' ? `Full rest in ~${recovH}h` : `Plný odpočinek za ~${recovH}h`)
+            : (lang === 'en' ? 'Well rested' : 'Odpočatý');
+
+        const today = new Date().toISOString().slice(0, 10);
+        const nonaAvail = !GameState.vigorMeta || GameState.vigorMeta.nonaUsed !== today;
+        const nonaBtn = nonaAvail
+            ? `<button onclick="VigorSystem.restNona()" style="margin-top:8px;width:100%;padding:4px 8px;border-radius:6px;border:1px solid var(--accent-gold);background:rgba(197,160,89,0.15);color:var(--accent-gold);cursor:pointer;font-size:0.75rem;">
+                😴 ${lang === 'en' ? 'Nona rest (-20 Fatigue, 1×/day)' : 'Odpočinek při Nóně (-20 Únava, 1×/den)'}
+               </button>`
+            : `<div style="font-size:0.7rem;opacity:0.5;margin-top:6px;">${lang === 'en' ? 'Nona rest used today.' : 'Dnes již odpočinut.'}</div>`;
+
+        return `
+        <div style="background:rgba(0,0,0,0.05);padding:16px;border-radius:10px;border-left:3px solid var(--accent-gold);margin-bottom:12px;">
+            <h4 style="margin:0 0 12px 0;color:var(--ink-primary);">⚡ Vigor</h4>
+            <div style="display:flex;justify-content:space-between;margin-bottom:6px;">
+                <span>🍎 ${lang === 'en' ? 'Satiety' : 'Sytost'}</span>
+                <strong>${satiety}/100</strong>
+            </div>
+            <div style="display:flex;justify-content:space-between;margin-bottom:6px;">
+                <span>💤 ${lang === 'en' ? 'Fatigue' : 'Únava'}</span>
+                <strong>${fatigue}/100</strong>
+            </div>
+            <div style="display:flex;justify-content:space-between;padding-top:8px;border-top:1px solid rgba(197,160,89,0.2);">
+                <span>⚡ Vigor</span>
+                <strong style="color:${vigor >= 25 ? 'var(--accent-gold)' : vigor >= 10 ? '#e67e22' : '#c0392b'};">${vigor}%</strong>
+            </div>
+            <div style="font-size:0.8rem;opacity:0.6;margin-top:6px;">${recovText}</div>
+            ${nonaBtn}
+        </div>`;
     },
 };
 // ═══ src/systems/CellariumSystem.js ═══
