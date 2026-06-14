@@ -3036,9 +3036,8 @@
                 }
 
                 // Zápisky
-                var rEl = document.getElementById('research-count');
                 var rVal = document.getElementById('pill-progress-val');
-                if (rEl && rVal) rVal.textContent = rEl.textContent.trim() || '0';
+                if (rVal) rVal.textContent = (typeof GameState !== 'undefined') ? (GameState.inventory && GameState.inventory['research'] || 0) : '0';
 
                 // Notifikace
                 var nCount = document.getElementById('pill-notif-count');
