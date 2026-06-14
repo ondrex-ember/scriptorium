@@ -957,14 +957,25 @@
                 z-index: 9999;
                 display: flex !important;
                 background: transparent;
-                padding: 4px 8px;
-                flex-wrap: nowrap;
-                gap: 5px;
+                flex-wrap: wrap !important;
+                gap: 4px;
                 align-items: center;
                 justify-content: center;
                 width: 100%;
-                padding: 2px 4px;
+                padding: 3px 6px;
                 overflow: visible;
+            }
+
+            /* Skrýt warmth bar kočky na mobilu */
+            #cat-pill .hpill-val {
+                display: none !important;
+            }
+
+            /* Pill text trochu menší aby se vešlo */
+            .hpill {
+                font-size: 0.75rem !important;
+                padding: 2px 7px !important;
+                gap: 3px !important;
             }
 
             header {
@@ -974,7 +985,7 @@
             }
 
             main#main-content {
-                padding-top: calc(40px + 20px) !important;
+                padding-top: calc(80px + 20px) !important;
             }
 
             .header-content {
