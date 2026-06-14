@@ -957,25 +957,14 @@
                 z-index: 9999;
                 display: flex !important;
                 background: transparent;
-                flex-wrap: wrap !important;
-                gap: 4px;
+                padding: 4px 8px;
+                flex-wrap: nowrap;
+                gap: 5px;
                 align-items: center;
                 justify-content: center;
                 width: 100%;
-                padding: 3px 6px;
+                padding: 2px 4px;
                 overflow: visible;
-            }
-
-            /* Skrýt warmth bar kočky na mobilu */
-            #cat-pill .hpill-val {
-                display: none !important;
-            }
-
-            /* Pill text trochu menší aby se vešlo */
-            .hpill {
-                font-size: 0.75rem !important;
-                padding: 2px 7px !important;
-                gap: 3px !important;
             }
 
             header {
@@ -985,7 +974,7 @@
             }
 
             main#main-content {
-                padding-top: calc(80px + 20px) !important;
+                padding-top: calc(40px + 20px) !important;
             }
 
             .header-content {
@@ -2381,7 +2370,7 @@
                     </div>
                     <div id="foculus-unlocked" style="display:none; position:relative;">
                         <div style="position:relative; width:300px; max-width:100%; margin:0 auto 14px;">
-                            <img id="fireplace-visual-foculus" src="/img/hearth_base_dead.png" alt="" style="display:block; width:100%; height:300px; object-fit:cover; border-radius:8px; border:1px solid var(--ink-secondary, #6b5d4f);">
+                            <div id="fireplace-visual-foculus" style="display:block; width:300px; height:320px; max-width:100%; background-image:url('/img/hearth_base_dead.png'); background-size:100% 100%; background-repeat:no-repeat; border-radius:8px; border:1px solid var(--ink-secondary, #6b5d4f); image-rendering:pixelated;"></div>
                             <div id="cat-lane-top" style="position:absolute; bottom:0; left:0; right:0; height:60px;"></div>
                         </div>
                         <div id="fireplace-fuel-panel" style="display:none; padding:12px; border:1px solid var(--ink-secondary); border-radius:8px;">
@@ -3010,9 +2999,18 @@
                     wVal.textContent = txt ? txt.split(' ').slice(0, 2).join(' ') : '–';
                 }
 
-                // Vigor — číst přímo z VigorSystem
-                if (typeof VigorSystem !== 'undefined' && typeof GameState !== 'undefined' && GameState.satiety !== undefined) {
-                    VigorSystem.renderPill();
+                // Vigor
+                var vigEl = document.getElementById('vigor-mini');
+                var vigVal = document.getElementById('pill-vigor-val');
+                var vigIcon = document.getElementById('pill-vigor-icon');
+                if (vigEl && vigVal) {
+                    var vt = vigEl.textContent.trim();
+                    vigVal.textContent = vt ? vt.substring(0, 6) : '–';
+                    if (vigIcon) {
+                        if (vt.includes('🔴') || vt.includes('❌')) vigIcon.textContent = '🔴';
+                        else if (vt.includes('🟡') || vt.includes('⚠️')) vigIcon.textContent = '🟡';
+                        else vigIcon.textContent = '⚡';
+                    }
                 }
 
                 // Čas + kanonická hodina + lunární ikona
