@@ -718,7 +718,7 @@ const Game = {
             // Calculate growth time with tech bonuses
             let growthSpeed = CONFIG.GROWTH_SPEED;
             if(GameState.researchedTechs.includes('tech_advanced_farming')) {
-                growthSpeed *= 1.5; // +50% faster growth
+                growthSpeed *= 2.0; // +100% faster growth (24h → 12h)
             }
             const needed = CONFIG.BASE_GROWTH_TIME / growthSpeed;
             
@@ -732,17 +732,23 @@ const Game = {
                     GameState.achievements.stats.harvests++;
                 }
                 
-                // Harvest yields
-                if(harvestCrop === 'herb_red') this.addItem('herb_red', 2);
-                else if(harvestCrop === 'herb_yellow') this.addItem('herb_yellow', 2);
-                else if(harvestCrop === 'herb_blue') this.addItem('herb_blue', 2);
-                else if(harvestCrop === 'mint') this.addItem('mint', 2);
-                else if(harvestCrop === 'thyme') this.addItem('thyme', 2);
-                else if(harvestCrop === 'hops') { this.addItem('hops', 2); if(Math.random() > 0.6) this.addItem('seeds_hops', 1); }
-                else if(['carrot','onion','potato'].includes(harvestCrop)) {
+                // Harvest yields — via GARDEN_PLANTS_DB
+                const _gp = typeof GardenSystem !== 'undefined'
+                    ? Object.values(GardenSystem.GARDEN_PLANTS_DB).find(p => p.item === harvestCrop)
+                    : null;
+                if (_gp) {
+                    this.addItem(harvestCrop, _gp.yield);
+                    // Šance vrátit semínko (30%)
+                    if (Math.random() < 0.3) this.addItem(_gp.seed, 1);
+                } else if(harvestCrop === 'hops') {
+                    this.addItem('hops', 2);
+                    if(Math.random() > 0.6) this.addItem('seeds_hops', 1);
+                } else if(['carrot','onion','potato'].includes(harvestCrop)) {
                     this.addItem(harvestCrop, 3);
-                    // Chance to get seeds back
                     if(Math.random() > 0.5) this.addItem('seeds_vegetable', 1);
+                } else if (harvestCrop) {
+                    // fallback pro neznámé plodiny
+                    this.addItem(harvestCrop, 2);
                 }
                 
                 Game.checkAchievements();

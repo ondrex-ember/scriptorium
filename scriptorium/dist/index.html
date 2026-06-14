@@ -5156,6 +5156,11 @@ const ItemsDB = {
     "mushroom":        { name:"Houby",               name_en:"Mushrooms",              icon:"🍄", type:"food_raw",    desc:"Jedlé houby.",                                     desc_en:"Edible mushrooms." },
     "carrot":          { name:"Mrkev",               name_en:"Carrot",                 icon:"🥕", type:"food_raw",    desc:"Ze zahrady.",                                      desc_en:"From the garden." },
     "onion":           { name:"Cibule",              name_en:"Onion",                  icon:"🧅", type:"food_raw",    desc:"Ze zahrady.",                                      desc_en:"From the garden." },
+    "leek":            { name:"Pór",                 name_en:"Leek",                   icon:"🌿", type:"food_raw",    desc:"Allium porrum. Klášterní zahrada ze Sankt Gallenu. Základ polévky.", desc_en:"Allium porrum. From the St Gallen monastery plan. Soup staple." },
+    "cabbage":         { name:"Zelí",                name_en:"Cabbage",                icon:"🥬", type:"food_raw",    desc:"Brassica oleracea. Základ středověké stravy v Čechách. Kvas i vaření.", desc_en:"Brassica oleracea. Staple of medieval Czech diet. Fermented and cooked." },
+    "radish":          { name:"Ředkev",              name_en:"Radish",                 icon:"🌱", type:"food_raw",    desc:"Raphanus sativus. Capitulare de villis, 812. Jedla se syrová i vařená.", desc_en:"Raphanus sativus. Capitulare de villis, 812. Eaten raw and cooked." },
+    "turnip":          { name:"Řepa",                name_en:"Turnip",                 icon:"🟣", type:"food_raw",    desc:"Beta vulgaris. Zimní zásoby kláštera. Vydrží v sklepě celou zimu.", desc_en:"Beta vulgaris. Monastery winter stores. Keeps in the cellar all winter." },
+    "garlic":          { name:"Česnek",              name_en:"Garlic",                 icon:"🧄", type:"food_raw",    desc:"Allium sativum. Lék i koření. Hildegarda: teplý a suchý, zahání nemoci.", desc_en:"Allium sativum. Medicine and spice. Hildegard: warm and dry, drives off sickness." },
     "potato":          { name:"Brambora",            name_en:"Potato",                 icon:"🥔", type:"food_raw",    desc:"Ze zahrady.",                                      desc_en:"From the garden." },
     "berries":         { name:"Bobule",              name_en:"Berries",                icon:"🫐", type:"food", hunger:2,    desc:"Lesní plody. Lze jíst syrové — zasytí na 2h.",     desc_en:"Forest berries. Edible raw — fills for 2h." },
 
@@ -5176,6 +5181,20 @@ const ItemsDB = {
     "seeds_blue":      { name:"Semínka levandule",   name_en:"Lavender Seeds",         icon:"🌾", type:"mat",         desc:"Modrá bylina.",                                    desc_en:"Blue herb seeds." },
     "seeds_mint":      { name:"Semínka máty",        name_en:"Mint Seeds",             icon:"🌾", type:"mat",         desc:"Máta.",                                            desc_en:"Mint seeds." },
     "seeds_thyme":     { name:"Semínka tymiánu",     name_en:"Thyme Seeds",            icon:"🌾", type:"mat",         desc:"Tymián. Léčí Varroa, koření jídla.",               desc_en:"Thyme. Treats Varroa, seasons food." },
+    "seeds_sage":      { name:"Semínka šalvěje",     name_en:"Sage Seeds",             icon:"🌾", type:"mat",         desc:"Šalvěj. Salvia — zachraňuje.",                     desc_en:"Sage. Salvia — it saves." },
+    "seeds_fennel":    { name:"Semínka fenyklu",     name_en:"Fennel Seeds",           icon:"🌾", type:"mat",         desc:"Fenykl. Na trávení.",                               desc_en:"Fennel. For digestion." },
+    "seeds_wormwood":  { name:"Semínka pelynku",     name_en:"Wormwood Seeds",         icon:"🌾", type:"mat",         desc:"Pelyněk. Hořký jako pokání.",                       desc_en:"Wormwood. Bitter as penance." },
+    "seeds_hyssop":    { name:"Semínka yzopu",       name_en:"Hyssop Seeds",           icon:"🌾", type:"mat",         desc:"Yzop. Benediktinská bylina.",                       desc_en:"Hyssop. A Benedictine herb." },
+    "seeds_yarrow":    { name:"Semínka řebříčku",    name_en:"Yarrow Seeds",           icon:"🌾", type:"mat",         desc:"Řebříček. Hojení ran.",                             desc_en:"Yarrow. Wound healing." },
+    "seeds_leek":      { name:"Semínka póru",        name_en:"Leek Seeds",             icon:"🌱", type:"mat",         desc:"Pór. Ze záhonů sv. Gallenských.",                   desc_en:"Leek. From the St Gallen beds." },
+    "seeds_cabbage":   { name:"Semínka zelí",        name_en:"Cabbage Seeds",          icon:"🌱", type:"mat",         desc:"Zelí. Základ stravy.",                              desc_en:"Cabbage. Diet staple." },
+    "seeds_radish":    { name:"Semínka ředkve",      name_en:"Radish Seeds",           icon:"🌱", type:"mat",         desc:"Ředkev. Rychle klíčí.",                             desc_en:"Radish. Sprouts quickly." },
+    "seeds_turnip":    { name:"Semínka řepy",        name_en:"Turnip Seeds",           icon:"🌱", type:"mat",         desc:"Řepa. Na zimu.",                                    desc_en:"Turnip. For winter." },
+    "seeds_garlic":    { name:"Stroužky česneku",    name_en:"Garlic Cloves",          icon:"🧄", type:"mat",         desc:"Česnek. Sází se stroužky, ne semeny.",              desc_en:"Garlic. Planted as cloves, not seeds." },
+    "seeds_mandrake":  { name:"Semínka mandragory",  name_en:"Mandrake Seeds",         icon:"🌾", type:"mat",         desc:"Vzácná. Opatřit není snadné.",                      desc_en:"Rare. Not easy to obtain." },
+    "seeds_belladonna":{ name:"Semínka rulíku",      name_en:"Belladonna Seeds",       icon:"🌾", type:"mat",         desc:"Jedovatá. Zacházet opatrně.",                       desc_en:"Poisonous. Handle with care." },
+    "seeds_poppy":     { name:"Semínka máku",        name_en:"Poppy Seeds",            icon:"🌾", type:"mat",         desc:"Mák. Léčivý i jedlý.",                              desc_en:"Poppy. Medicinal and edible." },
+    "seeds_nettle":    { name:"Semínka kopřivy",     name_en:"Nettle Seeds",           icon:"🌱", type:"mat",         desc:"Kopřiva. Roste všude, ale v zahradě lépe.",         desc_en:"Nettle. Grows anywhere, better in a garden." },
 
     // NOTEBOOKS
     "tabula":      { name:"Tabula (Vosková destička)",       name_en:"Tabula (Wax Tablet)",        icon:"📋", type:"tool", desc:"Dočasné poznámky.",  desc_en:"Temporary notes." },
@@ -5243,7 +5262,16 @@ const ItemsDB = {
     "chamomile":      { name:"Heřmánek",         name_en:"Chamomile",       icon:"🌼", type:"herb",        desc:"Matka bylinek. Hildegarda ho doporučovala.",      desc_en:"Mother of herbs. Hildegard recommended it." },
     "st_johns_wort":  { name:"Třezalka",         name_en:"St. John's Wort", icon:"🌻", type:"herb",        desc:"Bylina sv. Jana. Léčí rány i melancholii.",       desc_en:"Herb of St. John. Heals wounds and melancholy." },
     "thyme":          { name:"Tymián",            name_en:"Thyme",           icon:"🌿", type:"herb",        desc:"Odvání Varroa z úlů. Hildegarda jej znala dobře.", desc_en:"Drives Varroa from hives. Hildegard knew it well." },
+    "sage":           { name:"Šalvěj",           name_en:"Sage",            icon:"🌿", type:"herb",        desc:"Salvia officinalis. Kapitulář Karla Velikého. Čistí vzduch i mysl.", desc_en:"Salvia officinalis. Capitulare de villis. Purifies air and mind." },
+    "fennel":         { name:"Fenykl",            name_en:"Fennel",          icon:"🌿", type:"herb",        desc:"Foeniculum vulgare. Dobrý na trávení, Hildegarda jej doporučovala.", desc_en:"Foeniculum vulgare. Good for digestion, praised by Hildegard." },
+    "wormwood":       { name:"Pelyněk",           name_en:"Wormwood",        icon:"🌿", type:"herb",        desc:"Artemisia absinthium. Bylina všech bylin. Chrání před morem.", desc_en:"Artemisia absinthium. Herb of herbs. Wards off pestilence." },
+    "hyssop":         { name:"Yzop",              name_en:"Hyssop",          icon:"🌿", type:"herb",        desc:"Hyssopus officinalis. Benediktinský klášter bez yzopu? Nemyslitelné.", desc_en:"Hyssopus officinalis. A Benedictine monastery without hyssop? Unthinkable." },
+    "yarrow":         { name:"Řebříček",          name_en:"Yarrow",          icon:"🌿", type:"herb",        desc:"Achillea millefolium. Hojí rány. Místní česká bylina, v Čechách od nepaměti.", desc_en:"Achillea millefolium. Heals wounds. A native Czech herb, grown here since time immemorial." },
     "beeswax":        { name:"Včelí vosk",       name_en:"Beeswax",         icon:"🕯️", type:"mat",         desc:"Z klášterního úlu. Pojivo masti i pečetidlo.",   desc_en:"From the monastery hive. Salve binder and sealant." },
+    "mandrake":       { name:"Mandragora",        name_en:"Mandrake",        icon:"🌿", type:"special",     desc:"Mandragora officinarum. Kapitulář Karla Velikého. Kořen ve tvaru člověka — křičí při vytrhnutí. Pro silné lektvary.", desc_en:"Mandragora officinarum. Root shaped like a man — screams when pulled. For powerful potions." },
+    "belladonna":     { name:"Rulík zlomocný",    name_en:"Belladonna",      icon:"🫐", type:"special",     desc:"Atropa belladonna. Jed i lék. Lékárníci jej míchali v malých dávkách. Nebezpečná rostlina.", desc_en:"Atropa belladonna. Poison and medicine alike. Apothecaries used it in small doses. Dangerous." },
+    "poppy":          { name:"Mák",               name_en:"Poppy",           icon:"🌸", type:"special",     desc:"Papaver somniferum. Hildegarda znala jeho moc. Tišil bolest, navozoval spánek. Cenný i drahý.", desc_en:"Papaver somniferum. Hildegard knew its power. Eased pain, brought sleep. Valued and costly." },
+    "nettle":         { name:"Kopřiva",           name_en:"Nettle",          icon:"🌿", type:"special",     desc:"Urtica dioica. Vlákno, jídlo i lék. Klášterní zahrady ji pěstovaly záměrně — na látku i odvar.", desc_en:"Urtica dioica. Fibre, food and medicine. Monastery gardens cultivated it deliberately." },
 
     // ATHANOR — výsledné produkty
     "ink_carbon":          { name:"Sazový inkoust",    name_en:"Carbon Ink",          icon:"🖤", type:"lore",    desc:"Černý inkoust ze sazí. Levný a trvanlivý.",          desc_en:"Black ink from soot. Cheap and durable." },
@@ -16369,6 +16397,9 @@ const GardenSystem = {
         }
         const needed = CONFIG.BASE_GROWTH_TIME / growthSpeed;
         
+        const hasCustomPlant = GameState.researchedTechs.includes('tech_hortus_conclusus');
+        const lang = (typeof UI !== 'undefined' && UI.lang) ? UI.lang() : 'cs';
+
         GameState.garden.forEach((plot, idx) => {
             let c = "", b = "", typeLabel = "";
             
@@ -16383,26 +16414,44 @@ const GardenSystem = {
                 c = `<div class="plot-soil" style="opacity:0.3">🟫</div><div class="text-sm">${typeLabel}</div>`; 
                 b = `<button class="craft-btn" onclick="Game.farmAction(${idx})">${t('garden.fertilize')}</button>`; 
             }
-            else if (plot.state === 1) { 
+            else if (plot.state === 1) {
                 if(plot.cropType === 'herb') typeLabel = t('garden.herb');
                 else if(plot.cropType === 'vegetable') typeLabel = t('garden.vegetable');
-                else if(plot.cropType === 'special') typeLabel = t('garden.any');
-                c = `<div class="plot-soil">🟫</div><div class="text-sm">${typeLabel}</div>`; 
-                b = `<button class="craft-btn" onclick="Game.farmAction(${idx})">${t('garden.sow')}</button>`; 
+                else if(plot.cropType === 'special') typeLabel = t('garden.special');
+                c = `<div class="plot-soil">🟫</div><div class="text-sm">${typeLabel}</div>`;
+                if (hasCustomPlant) {
+                    // Custom select — filtrovat podle cropType, jen ty co máme semena
+                    const opts = Object.entries(GardenSystem.GARDEN_PLANTS_DB)
+                        .filter(([, p]) => p.cropType === plot.cropType && (GameState.inventory[p.seed] || 0) > 0)
+                        .map(([key, p]) => `<option value="${key}">${p.icon} ${lang==='en'?p.name_en:p.name} (${GameState.inventory[p.seed]||0}×)</option>`)
+                        .join('');
+                    if (opts) {
+                        b = `<select id="gp-sel-${idx}" style="font-size:0.7rem;margin-bottom:3px;width:100%;border-radius:6px;padding:2px;">${opts}</select>
+                             <button class="craft-btn" onclick="GardenSystem.plantGardenPlot(${idx}, document.getElementById('gp-sel-${idx}').value)">${t('garden.plant')}</button>`;
+                    } else {
+                        b = `<button class="craft-btn" onclick="Game.farmAction(${idx})">${t('garden.sow')}</button>
+                             <div style="font-size:0.68rem;opacity:0.6;margin-top:2px;">${t('garden.noSeedsAvail')}</div>`;
+                    }
+                } else {
+                    b = `<button class="craft-btn" onclick="Game.farmAction(${idx})">${t('garden.sow')}</button>`;
+                }
             }
             else if (plot.state === 2) {
                 const cropIcon = ItemsDB[plot.crop] ? ItemsDB[plot.crop].icon : '🌱';
+                const cropName = ItemsDB[plot.crop] ? (lang==='en' ? ItemsDB[plot.crop].name_en : ItemsDB[plot.crop].name) : '';
                 if (!plot.water) { 
-                    c = `<div class="plot-soil">${cropIcon}</div><div class="text-sm">${t('garden.dry')}</div>`; 
+                    c = `<div class="plot-soil">${cropIcon}</div><div class="text-sm">${cropName||t('garden.dry')}</div>`; 
                     b = `<button class="craft-btn" onclick="Game.farmAction(${idx})">${t('garden.water')}</button>`; 
                 }
                 else if (Date.now() < plot.plantedAt + needed) { 
-                    c = `<div class="plot-soil" style="color:#888">${cropIcon}</div><div class="text-sm">${t('garden.growing')}</div>`; 
-                    b = `<button class="craft-btn" disabled>${t('garden.wait')}</button>`; 
+                    c = `<div class="plot-soil" style="color:#888">${cropIcon}</div><div class="text-sm">${cropName||t('garden.growing')}</div>`; 
+                    b = `<button class="craft-btn" disabled>${t('garden.wait')}</button>`;
+                    if (hasCustomPlant) b += ` <button class="craft-btn" style="background:#8b4a3a;margin-top:3px;font-size:0.7rem;" onclick="GardenSystem.uprootGardenPlot(${idx})">🪴 ${t('garden.uproot')}</button>`;
                 }
                 else { 
-                    c = `<div class="plot-soil" style="color:#4caf50">${cropIcon}</div><div class="text-sm">${t('garden.grown')}</div>`; 
-                    b = `<button class="craft-btn" onclick="Game.farmAction(${idx})">${t('garden.harvest')}</button>`; 
+                    c = `<div class="plot-soil" style="color:#4caf50">${cropIcon}</div><div class="text-sm">${cropName||t('garden.grown')}</div>`; 
+                    b = `<button class="craft-btn" onclick="Game.farmAction(${idx})">${t('garden.harvest')}</button>`;
+                    if (hasCustomPlant) b += ` <button class="craft-btn" style="background:#8b4a3a;margin-top:3px;font-size:0.7rem;" onclick="GardenSystem.uprootGardenPlot(${idx})">🪴 ${t('garden.uproot')}</button>`;
                 }
             }
             el.innerHTML += `<div class="garden-plot">${c}<div style="margin-top:auto">${b}</div></div>`;
@@ -16437,6 +16486,77 @@ const GardenSystem = {
             if (f.strawBonus === undefined) f.strawBonus = false;
         });
         this._syncFieldLocks();
+    },
+
+    // ── ZÁHONY — databáze plantovatelných rostlin ────────────────────────────
+    GARDEN_PLANTS_DB: {
+        // cropType: 'herb'
+        herb_red:    { cropType:'herb',      item:'herb_red',    seed:'seeds_herb',      icon:'🌺', name:'Krvavý květ',    name_en:'Bloodwort',     yield:2 },
+        chamomile:   { cropType:'herb',      item:'chamomile',   seed:'seeds_yellow',    icon:'🌼', name:'Heřmánek',       name_en:'Chamomile',     yield:2 },
+        herb_blue:   { cropType:'herb',      item:'herb_blue',   seed:'seeds_blue',      icon:'💜', name:'Levandule',      name_en:'Lavender',      yield:2 },
+        mint:        { cropType:'herb',      item:'mint',        seed:'seeds_mint',      icon:'🌿', name:'Máta',           name_en:'Mint',          yield:2 },
+        thyme:       { cropType:'herb',      item:'thyme',       seed:'seeds_thyme',     icon:'🌿', name:'Tymián',         name_en:'Thyme',         yield:2 },
+        st_johns_wort:{ cropType:'herb',     item:'st_johns_wort',seed:'seeds_herb',     icon:'🌻', name:'Třezalka',       name_en:"St. John's Wort",yield:2 },
+        sage:        { cropType:'herb',      item:'sage',        seed:'seeds_sage',      icon:'🌿', name:'Šalvěj',         name_en:'Sage',          yield:2 },
+        fennel:      { cropType:'herb',      item:'fennel',      seed:'seeds_fennel',    icon:'🌿', name:'Fenykl',         name_en:'Fennel',        yield:2 },
+        wormwood:    { cropType:'herb',      item:'wormwood',    seed:'seeds_wormwood',  icon:'🌿', name:'Pelyněk',        name_en:'Wormwood',      yield:2 },
+        hyssop:      { cropType:'herb',      item:'hyssop',      seed:'seeds_hyssop',    icon:'🌿', name:'Yzop',           name_en:'Hyssop',        yield:2 },
+        yarrow:      { cropType:'herb',      item:'yarrow',      seed:'seeds_yarrow',    icon:'🌿', name:'Řebříček',       name_en:'Yarrow',        yield:2 },
+        // cropType: 'vegetable'
+        carrot:      { cropType:'vegetable', item:'carrot',      seed:'seeds_vegetable', icon:'🥕', name:'Mrkev',          name_en:'Carrot',        yield:3 },
+        onion:       { cropType:'vegetable', item:'onion',       seed:'seeds_vegetable', icon:'🧅', name:'Cibule',         name_en:'Onion',         yield:3 },
+        leek:        { cropType:'vegetable', item:'leek',        seed:'seeds_leek',      icon:'🌿', name:'Pór',            name_en:'Leek',          yield:3 },
+        cabbage:     { cropType:'vegetable', item:'cabbage',     seed:'seeds_cabbage',   icon:'🥬', name:'Zelí',           name_en:'Cabbage',       yield:3 },
+        radish:      { cropType:'vegetable', item:'radish',      seed:'seeds_radish',    icon:'🌱', name:'Ředkev',         name_en:'Radish',        yield:3 },
+        turnip:      { cropType:'vegetable', item:'turnip',      seed:'seeds_turnip',    icon:'🟣', name:'Řepa',           name_en:'Turnip',        yield:3 },
+        garlic:      { cropType:'vegetable', item:'garlic',      seed:'seeds_garlic',    icon:'🧄', name:'Česnek',         name_en:'Garlic',        yield:3 },
+        // cropType: 'special'
+        mandrake:    { cropType:'special',   item:'mandrake',    seed:'seeds_mandrake',  icon:'🌿', name:'Mandragora',     name_en:'Mandrake',      yield:1 },
+        belladonna:  { cropType:'special',   item:'belladonna',  seed:'seeds_belladonna',icon:'🫐', name:'Rulík zlomocný', name_en:'Belladonna',    yield:1 },
+        poppy:       { cropType:'special',   item:'poppy',       seed:'seeds_poppy',     icon:'🌸', name:'Mák',            name_en:'Poppy',         yield:2 },
+        nettle:      { cropType:'special',   item:'nettle',      seed:'seeds_nettle',    icon:'🌿', name:'Kopřiva',        name_en:'Nettle',        yield:3 },
+    },
+
+    // Zasadit konkrétní plodinu (tech_hortus_conclusus)
+    plantGardenPlot: function(idx, plantKey) {
+        const plot = GameState.garden[idx];
+        if (!plot || plot.locked) return;
+        if (plot.state !== 1) { UI.notify('⚠️ Nejdříve zúrodni záhon.', true); return; }
+        const plant = this.GARDEN_PLANTS_DB[plantKey];
+        if (!plant) return;
+        if (plant.cropType !== plot.cropType) {
+            UI.notify('⚠️ Tento záhon je pro ' + (plot.cropType === 'herb' ? 'byliny' : plot.cropType === 'vegetable' ? 'zeleninu' : 'speciály') + '.', true);
+            return;
+        }
+        if (!(GameState.inventory[plant.seed] > 0)) {
+            const seedName = typeof ItemsDB !== 'undefined' && ItemsDB[plant.seed] ? ItemsDB[plant.seed].name : plant.seed;
+            UI.notify('⚠️ Chybí: ' + seedName, true);
+            return;
+        }
+        Game.removeItem(plant.seed, 1);
+        plot.state = 2;
+        plot.crop = plant.item;
+        plot.plantedAt = Date.now();
+        plot.water = false;
+        Game.save();
+        GardenSystem.renderGarden();
+        UI.notify('🌱 ' + plant.name + ' zasazen/a.');
+    },
+
+    // Vykořenit plodinu (vrátí 1 semínko)
+    uprootGardenPlot: function(idx) {
+        const plot = GameState.garden[idx];
+        if (!plot || plot.locked) return;
+        if (plot.state === 0) { UI.notify('⚠️ Záhon je prázdný.', true); return; }
+        const plant = plot.crop ? Object.values(this.GARDEN_PLANTS_DB).find(p => p.item === plot.crop) : null;
+        if (plant) Game.addItem(plant.seed, 1);
+        plot.state = 0;
+        plot.crop = null;
+        plot.water = false;
+        plot.plantedAt = 0;
+        Game.save();
+        GardenSystem.renderGarden();
+        UI.notify('🪴 Záhon vykořeněn.');
     },
 
     // Délka jedné fáze v ms (3 reálné dny)
@@ -26214,6 +26334,9 @@ const STRINGS_cs = {
         special: 'Speciál',
         any: 'Jakékoliv',
         sow: 'Zasít',
+        plant: 'Zasadit',
+        uproot: 'Vykořenit',
+        noSeedsAvail: 'Žádná semínka v zásobách',
         water: 'Zalít',
         dry: 'Suché',
         growing: 'Roste...',
@@ -28721,6 +28844,9 @@ According to Theophilus, the organ is an instrument worthy of God, but its const
         special: 'Special',
         any: 'Any crop',
         sow: 'Sow',
+        plant: 'Plant',
+        uproot: 'Uproot',
+        noSeedsAvail: 'No seeds in stores',
         water: 'Water',
         dry: 'Parched',
         growing: 'Growing...',
@@ -30602,7 +30728,7 @@ const Game = {
             // Calculate growth time with tech bonuses
             let growthSpeed = CONFIG.GROWTH_SPEED;
             if(GameState.researchedTechs.includes('tech_advanced_farming')) {
-                growthSpeed *= 1.5; // +50% faster growth
+                growthSpeed *= 2.0; // +100% faster growth (24h → 12h)
             }
             const needed = CONFIG.BASE_GROWTH_TIME / growthSpeed;
             
@@ -30616,17 +30742,23 @@ const Game = {
                     GameState.achievements.stats.harvests++;
                 }
                 
-                // Harvest yields
-                if(harvestCrop === 'herb_red') this.addItem('herb_red', 2);
-                else if(harvestCrop === 'herb_yellow') this.addItem('herb_yellow', 2);
-                else if(harvestCrop === 'herb_blue') this.addItem('herb_blue', 2);
-                else if(harvestCrop === 'mint') this.addItem('mint', 2);
-                else if(harvestCrop === 'thyme') this.addItem('thyme', 2);
-                else if(harvestCrop === 'hops') { this.addItem('hops', 2); if(Math.random() > 0.6) this.addItem('seeds_hops', 1); }
-                else if(['carrot','onion','potato'].includes(harvestCrop)) {
+                // Harvest yields — via GARDEN_PLANTS_DB
+                const _gp = typeof GardenSystem !== 'undefined'
+                    ? Object.values(GardenSystem.GARDEN_PLANTS_DB).find(p => p.item === harvestCrop)
+                    : null;
+                if (_gp) {
+                    this.addItem(harvestCrop, _gp.yield);
+                    // Šance vrátit semínko (30%)
+                    if (Math.random() < 0.3) this.addItem(_gp.seed, 1);
+                } else if(harvestCrop === 'hops') {
+                    this.addItem('hops', 2);
+                    if(Math.random() > 0.6) this.addItem('seeds_hops', 1);
+                } else if(['carrot','onion','potato'].includes(harvestCrop)) {
                     this.addItem(harvestCrop, 3);
-                    // Chance to get seeds back
                     if(Math.random() > 0.5) this.addItem('seeds_vegetable', 1);
+                } else if (harvestCrop) {
+                    // fallback pro neznámé plodiny
+                    this.addItem(harvestCrop, 2);
                 }
                 
                 Game.checkAchievements();

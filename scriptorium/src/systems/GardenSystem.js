@@ -1925,6 +1925,9 @@ const GardenSystem = {
         }
         const needed = CONFIG.BASE_GROWTH_TIME / growthSpeed;
         
+        const hasCustomPlant = GameState.researchedTechs.includes('tech_hortus_conclusus');
+        const lang = (typeof UI !== 'undefined' && UI.lang) ? UI.lang() : 'cs';
+
         GameState.garden.forEach((plot, idx) => {
             let c = "", b = "", typeLabel = "";
             
@@ -1939,26 +1942,44 @@ const GardenSystem = {
                 c = `<div class="plot-soil" style="opacity:0.3">🟫</div><div class="text-sm">${typeLabel}</div>`; 
                 b = `<button class="craft-btn" onclick="Game.farmAction(${idx})">${t('garden.fertilize')}</button>`; 
             }
-            else if (plot.state === 1) { 
+            else if (plot.state === 1) {
                 if(plot.cropType === 'herb') typeLabel = t('garden.herb');
                 else if(plot.cropType === 'vegetable') typeLabel = t('garden.vegetable');
-                else if(plot.cropType === 'special') typeLabel = t('garden.any');
-                c = `<div class="plot-soil">🟫</div><div class="text-sm">${typeLabel}</div>`; 
-                b = `<button class="craft-btn" onclick="Game.farmAction(${idx})">${t('garden.sow')}</button>`; 
+                else if(plot.cropType === 'special') typeLabel = t('garden.special');
+                c = `<div class="plot-soil">🟫</div><div class="text-sm">${typeLabel}</div>`;
+                if (hasCustomPlant) {
+                    // Custom select — filtrovat podle cropType, jen ty co máme semena
+                    const opts = Object.entries(GardenSystem.GARDEN_PLANTS_DB)
+                        .filter(([, p]) => p.cropType === plot.cropType && (GameState.inventory[p.seed] || 0) > 0)
+                        .map(([key, p]) => `<option value="${key}">${p.icon} ${lang==='en'?p.name_en:p.name} (${GameState.inventory[p.seed]||0}×)</option>`)
+                        .join('');
+                    if (opts) {
+                        b = `<select id="gp-sel-${idx}" style="font-size:0.7rem;margin-bottom:3px;width:100%;border-radius:6px;padding:2px;">${opts}</select>
+                             <button class="craft-btn" onclick="GardenSystem.plantGardenPlot(${idx}, document.getElementById('gp-sel-${idx}').value)">${t('garden.plant')}</button>`;
+                    } else {
+                        b = `<button class="craft-btn" onclick="Game.farmAction(${idx})">${t('garden.sow')}</button>
+                             <div style="font-size:0.68rem;opacity:0.6;margin-top:2px;">${t('garden.noSeedsAvail')}</div>`;
+                    }
+                } else {
+                    b = `<button class="craft-btn" onclick="Game.farmAction(${idx})">${t('garden.sow')}</button>`;
+                }
             }
             else if (plot.state === 2) {
                 const cropIcon = ItemsDB[plot.crop] ? ItemsDB[plot.crop].icon : '🌱';
+                const cropName = ItemsDB[plot.crop] ? (lang==='en' ? ItemsDB[plot.crop].name_en : ItemsDB[plot.crop].name) : '';
                 if (!plot.water) { 
-                    c = `<div class="plot-soil">${cropIcon}</div><div class="text-sm">${t('garden.dry')}</div>`; 
+                    c = `<div class="plot-soil">${cropIcon}</div><div class="text-sm">${cropName||t('garden.dry')}</div>`; 
                     b = `<button class="craft-btn" onclick="Game.farmAction(${idx})">${t('garden.water')}</button>`; 
                 }
                 else if (Date.now() < plot.plantedAt + needed) { 
-                    c = `<div class="plot-soil" style="color:#888">${cropIcon}</div><div class="text-sm">${t('garden.growing')}</div>`; 
-                    b = `<button class="craft-btn" disabled>${t('garden.wait')}</button>`; 
+                    c = `<div class="plot-soil" style="color:#888">${cropIcon}</div><div class="text-sm">${cropName||t('garden.growing')}</div>`; 
+                    b = `<button class="craft-btn" disabled>${t('garden.wait')}</button>`;
+                    if (hasCustomPlant) b += ` <button class="craft-btn" style="background:#8b4a3a;margin-top:3px;font-size:0.7rem;" onclick="GardenSystem.uprootGardenPlot(${idx})">🪴 ${t('garden.uproot')}</button>`;
                 }
                 else { 
-                    c = `<div class="plot-soil" style="color:#4caf50">${cropIcon}</div><div class="text-sm">${t('garden.grown')}</div>`; 
-                    b = `<button class="craft-btn" onclick="Game.farmAction(${idx})">${t('garden.harvest')}</button>`; 
+                    c = `<div class="plot-soil" style="color:#4caf50">${cropIcon}</div><div class="text-sm">${cropName||t('garden.grown')}</div>`; 
+                    b = `<button class="craft-btn" onclick="Game.farmAction(${idx})">${t('garden.harvest')}</button>`;
+                    if (hasCustomPlant) b += ` <button class="craft-btn" style="background:#8b4a3a;margin-top:3px;font-size:0.7rem;" onclick="GardenSystem.uprootGardenPlot(${idx})">🪴 ${t('garden.uproot')}</button>`;
                 }
             }
             el.innerHTML += `<div class="garden-plot">${c}<div style="margin-top:auto">${b}</div></div>`;
@@ -1993,6 +2014,77 @@ const GardenSystem = {
             if (f.strawBonus === undefined) f.strawBonus = false;
         });
         this._syncFieldLocks();
+    },
+
+    // ── ZÁHONY — databáze plantovatelných rostlin ────────────────────────────
+    GARDEN_PLANTS_DB: {
+        // cropType: 'herb'
+        herb_red:    { cropType:'herb',      item:'herb_red',    seed:'seeds_herb',      icon:'🌺', name:'Krvavý květ',    name_en:'Bloodwort',     yield:2 },
+        chamomile:   { cropType:'herb',      item:'chamomile',   seed:'seeds_yellow',    icon:'🌼', name:'Heřmánek',       name_en:'Chamomile',     yield:2 },
+        herb_blue:   { cropType:'herb',      item:'herb_blue',   seed:'seeds_blue',      icon:'💜', name:'Levandule',      name_en:'Lavender',      yield:2 },
+        mint:        { cropType:'herb',      item:'mint',        seed:'seeds_mint',      icon:'🌿', name:'Máta',           name_en:'Mint',          yield:2 },
+        thyme:       { cropType:'herb',      item:'thyme',       seed:'seeds_thyme',     icon:'🌿', name:'Tymián',         name_en:'Thyme',         yield:2 },
+        st_johns_wort:{ cropType:'herb',     item:'st_johns_wort',seed:'seeds_herb',     icon:'🌻', name:'Třezalka',       name_en:"St. John's Wort",yield:2 },
+        sage:        { cropType:'herb',      item:'sage',        seed:'seeds_sage',      icon:'🌿', name:'Šalvěj',         name_en:'Sage',          yield:2 },
+        fennel:      { cropType:'herb',      item:'fennel',      seed:'seeds_fennel',    icon:'🌿', name:'Fenykl',         name_en:'Fennel',        yield:2 },
+        wormwood:    { cropType:'herb',      item:'wormwood',    seed:'seeds_wormwood',  icon:'🌿', name:'Pelyněk',        name_en:'Wormwood',      yield:2 },
+        hyssop:      { cropType:'herb',      item:'hyssop',      seed:'seeds_hyssop',    icon:'🌿', name:'Yzop',           name_en:'Hyssop',        yield:2 },
+        yarrow:      { cropType:'herb',      item:'yarrow',      seed:'seeds_yarrow',    icon:'🌿', name:'Řebříček',       name_en:'Yarrow',        yield:2 },
+        // cropType: 'vegetable'
+        carrot:      { cropType:'vegetable', item:'carrot',      seed:'seeds_vegetable', icon:'🥕', name:'Mrkev',          name_en:'Carrot',        yield:3 },
+        onion:       { cropType:'vegetable', item:'onion',       seed:'seeds_vegetable', icon:'🧅', name:'Cibule',         name_en:'Onion',         yield:3 },
+        leek:        { cropType:'vegetable', item:'leek',        seed:'seeds_leek',      icon:'🌿', name:'Pór',            name_en:'Leek',          yield:3 },
+        cabbage:     { cropType:'vegetable', item:'cabbage',     seed:'seeds_cabbage',   icon:'🥬', name:'Zelí',           name_en:'Cabbage',       yield:3 },
+        radish:      { cropType:'vegetable', item:'radish',      seed:'seeds_radish',    icon:'🌱', name:'Ředkev',         name_en:'Radish',        yield:3 },
+        turnip:      { cropType:'vegetable', item:'turnip',      seed:'seeds_turnip',    icon:'🟣', name:'Řepa',           name_en:'Turnip',        yield:3 },
+        garlic:      { cropType:'vegetable', item:'garlic',      seed:'seeds_garlic',    icon:'🧄', name:'Česnek',         name_en:'Garlic',        yield:3 },
+        // cropType: 'special'
+        mandrake:    { cropType:'special',   item:'mandrake',    seed:'seeds_mandrake',  icon:'🌿', name:'Mandragora',     name_en:'Mandrake',      yield:1 },
+        belladonna:  { cropType:'special',   item:'belladonna',  seed:'seeds_belladonna',icon:'🫐', name:'Rulík zlomocný', name_en:'Belladonna',    yield:1 },
+        poppy:       { cropType:'special',   item:'poppy',       seed:'seeds_poppy',     icon:'🌸', name:'Mák',            name_en:'Poppy',         yield:2 },
+        nettle:      { cropType:'special',   item:'nettle',      seed:'seeds_nettle',    icon:'🌿', name:'Kopřiva',        name_en:'Nettle',        yield:3 },
+    },
+
+    // Zasadit konkrétní plodinu (tech_hortus_conclusus)
+    plantGardenPlot: function(idx, plantKey) {
+        const plot = GameState.garden[idx];
+        if (!plot || plot.locked) return;
+        if (plot.state !== 1) { UI.notify('⚠️ Nejdříve zúrodni záhon.', true); return; }
+        const plant = this.GARDEN_PLANTS_DB[plantKey];
+        if (!plant) return;
+        if (plant.cropType !== plot.cropType) {
+            UI.notify('⚠️ Tento záhon je pro ' + (plot.cropType === 'herb' ? 'byliny' : plot.cropType === 'vegetable' ? 'zeleninu' : 'speciály') + '.', true);
+            return;
+        }
+        if (!(GameState.inventory[plant.seed] > 0)) {
+            const seedName = typeof ItemsDB !== 'undefined' && ItemsDB[plant.seed] ? ItemsDB[plant.seed].name : plant.seed;
+            UI.notify('⚠️ Chybí: ' + seedName, true);
+            return;
+        }
+        Game.removeItem(plant.seed, 1);
+        plot.state = 2;
+        plot.crop = plant.item;
+        plot.plantedAt = Date.now();
+        plot.water = false;
+        Game.save();
+        GardenSystem.renderGarden();
+        UI.notify('🌱 ' + plant.name + ' zasazen/a.');
+    },
+
+    // Vykořenit plodinu (vrátí 1 semínko)
+    uprootGardenPlot: function(idx) {
+        const plot = GameState.garden[idx];
+        if (!plot || plot.locked) return;
+        if (plot.state === 0) { UI.notify('⚠️ Záhon je prázdný.', true); return; }
+        const plant = plot.crop ? Object.values(this.GARDEN_PLANTS_DB).find(p => p.item === plot.crop) : null;
+        if (plant) Game.addItem(plant.seed, 1);
+        plot.state = 0;
+        plot.crop = null;
+        plot.water = false;
+        plot.plantedAt = 0;
+        Game.save();
+        GardenSystem.renderGarden();
+        UI.notify('🪴 Záhon vykořeněn.');
     },
 
     // Délka jedné fáze v ms (3 reálné dny)
