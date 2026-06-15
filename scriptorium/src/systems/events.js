@@ -108,14 +108,15 @@ const EventsSystem = {
     ],
     
     lastCheck: 0,
-    actionCount: 0,
     ACTION_THRESHOLD: 50,
 
     // ── Volá se z Game loop při každé akci hráče ─────────────────────────────
     onAction: function() {
-        this.actionCount++;
-        if (this.actionCount >= this.ACTION_THRESHOLD) {
-            this.actionCount = 0;
+        if (!GameState.events) GameState.events = {};
+        // actionCount persistovaný v GameState
+        GameState.events.actionCount = (GameState.events.actionCount || 0) + 1;
+        if (GameState.events.actionCount >= this.ACTION_THRESHOLD) {
+            GameState.events.actionCount = 0;
             this.checkRandomEvents();
         }
     },
@@ -123,15 +124,33 @@ const EventsSystem = {
     // ── Náhodné eventy (akce-based, max 1/24h) ────────────────────────────────
     checkRandomEvents: function() {
         if (!GameState.events) GameState.events = {};
+        if (!GameState.events.triggered) GameState.events.triggered = {};
         const now = Date.now();
         const last = GameState.events.lastRandomEvent || 0;
         if (now - last < 24 * 3600000) return; // max 1 za 24h
 
+        // Walledbooks return check
+        if (GameState.eventData && GameState.eventData.walledBooks) {
+            const data = GameState.eventData.walledBooks;
+            if (Date.now() >= data.returnTime) {
+                Game.addItem('paper', Math.floor(data.paper * 0.8));
+                Game.addItem('research', Math.floor(data.research * 0.8));
+                Game.addItem('common_codex', Math.floor(data.common_codex * 0.8));
+                Game.addItem('luxury_codex', Math.floor(data.luxury_codex * 0.8));
+                Game.addItem('vellum_codex', Math.floor(data.vellum_codex * 0.8));
+                delete GameState.eventData.walledBooks;
+                UI.notifyPanel(t("events.swedish_siege.wall_return"), 'system');
+                EventsSystem._addKronika(t("events.swedish_siege.wall_return"));
+                Game.save();
+            }
+        }
+
         for (let event of this.events) {
-            if (!event.canTrigger) continue;
+            // canTrigger persistovaný v GameState.events.triggered
+            if (GameState.events.triggered[event.id]) continue;
             if (event.trigger()) {
                 this.showEvent(event);
-                event.canTrigger = false;
+                GameState.events.triggered[event.id] = true;
                 GameState.events.lastRandomEvent = now;
                 Game.save();
                 break;
@@ -203,7 +222,7 @@ const EventsSystem = {
         }
     },
 
-        applyAutoEffect: function(event) {
+    applyAutoEffect: function(event) {
         if (!event.effect) return;
         event.effect();
         if (event.notifyKey) {
@@ -214,38 +233,12 @@ const EventsSystem = {
         }
     },
 
-    // ── Starý checkEvents zachován pro zpětnou kompatibilitu ─────────────────
+    // ── checkEvents — zachován pro zpětnou kompatibilitu, volá nové funkce ──
     checkEvents: function() {
-        if(Date.now() - this.lastCheck < 60 * 60 * 1000) return;
+        if (Date.now() - this.lastCheck < 60 * 60 * 1000) return;
         this.lastCheck = Date.now();
-
         this.checkCalendarEvents();
-
-        for(let event of this.events) {
-            if(!event.canTrigger) continue;
-            if(event.trigger()) {
-                this.showEvent(event);
-                event.canTrigger = false;
-                break;
-            }
-        }
-        
-        if(GameState.eventData && GameState.eventData.walledBooks) {
-            const data = GameState.eventData.walledBooks;
-            if(Date.now() >= data.returnTime) {
-                Game.addItem('paper', Math.floor(data.paper * 0.8));
-                Game.addItem('research', Math.floor(data.research * 0.8));
-                Game.addItem('common_codex', Math.floor(data.common_codex * 0.8));
-                Game.addItem('luxury_codex', Math.floor(data.luxury_codex * 0.8));
-                Game.addItem('vellum_codex', Math.floor(data.vellum_codex * 0.8));
-                delete GameState.eventData.walledBooks;
-                
-                // Dynamický překlad notifikace
-                UI.notifyPanel(t("events.swedish_siege.wall_return"), 'system');
-                EventsSystem._addKronika(t("events.swedish_siege.wall_return"));
-                Game.save();
-            }
-        }
+        // walledBooks + random eventy přesunuto do checkRandomEvents
     },
     
     // ── KALENDÁŘNÍ EVENTY ────────────────────────────────────────────────────
@@ -291,7 +284,10 @@ const EventsSystem = {
                     labelKey: 'events.cal_walpurgis.pray_btn',
                     descKey:  'events.cal_walpurgis.pray_desc',
                     action: () => {
-                        Game.addItem('vigor_point', 10);
+                        if (typeof VigorSystem !== 'undefined') {
+                            GameState.satiety = Math.min(VigorSystem.MAX_SATIETY, (GameState.satiety || 0) + 10);
+                            VigorSystem.renderPill();
+                        }
                         UI.notifyPanel(t('events.cal_walpurgis.pray_notif'), 'system');
                         EventsSystem._addKronika(t('events.cal_walpurgis.pray_notif'));
                         return t('events.cal_walpurgis.pray_res');
@@ -425,8 +421,9 @@ const EventsSystem = {
             notifyKey: 'events.cal_new_year.notify',
             choices: [],
             effect: () => {
-                // Reset canTrigger všech náhodných eventů
+                // Reset canTrigger všech náhodných eventů (in-memory + persistovaný)
                 EventsSystem.events.forEach(e => { e.canTrigger = true; });
+                if (GameState.events) GameState.events.triggered = {};
                 if (!GameState.flags) GameState.flags = {};
                 GameState.flags.christmasDay = false;
                 Game.save();

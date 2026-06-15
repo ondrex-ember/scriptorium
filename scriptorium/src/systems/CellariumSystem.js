@@ -418,21 +418,22 @@ const CellariumSystem = {
   },
 
   applyDrinkEffect: function(itemId) {
+    const lang = (GameState.settings && GameState.settings.language) || 'cs';
+    const panel = (typeof NotificationSystem !== 'undefined' && NotificationSystem.panel)
+      ? (msg) => NotificationSystem.panel(msg, 'info')
+      : (msg) => UI.notify(msg, false);
+
     if (itemId === 'beer') {
-      // Pivo: zažene hlad, ale otupí mysl (vigor dolů)
-      if (GameState.hunger) {
-        GameState.hunger.duration = (GameState.hunger.duration || 0) + 7200000; // +2h
-        GameState.hunger.fed = true;
-      }
-      if (GameState.vigor) {
-        GameState.vigor.current = Math.max(0, GameState.vigor.current - 10);
-      }
-      UI.notify('🍺 Lupulin — hlad zažehnán, mysl trochu zakalena.', false);
+      // Vigor API: +5 sytost, +10 únava (definováno v VigorSystem.FOOD_SATIETY/FOOD_FATIGUE)
+      if (typeof VigorSystem !== 'undefined') VigorSystem.eat('beer');
+      panel(lang === 'en'
+        ? '🍺 Lupulin — thirst quenched, mind dulled.'
+        : '🍺 Lupulin — hlad zažehnán, mysl trochu zakalena.');
+
     } else if (itemId === 'wine') {
-      // Víno: in vino veritas — drobný crafting boost, ale vigor dolů
-      if (GameState.vigor) {
-        GameState.vigor.current = Math.max(0, GameState.vigor.current - 15);
-      }
+      // Vigor API: +3 sytost, +8 únava
+      if (typeof VigorSystem !== 'undefined') VigorSystem.eat('wine');
+      // Craft boost zachován
       if (GameState.athanor) {
         const expiresAt = Date.now() + 1800000; // 30 min
         GameState.athanor.activeEffects = GameState.athanor.activeEffects.filter(e => e.type !== 'craft_boost');
@@ -444,7 +445,9 @@ const CellariumSystem = {
           expiresAt
         });
       }
-      UI.notify('🍷 In vino veritas — ruka písaře se uvolnila.', false);
+      panel(lang === 'en'
+        ? "🍷 In vino veritas — the scribe's hand loosened."
+        : '🍷 In vino veritas — ruka písaře se uvolnila.');
     }
   },
 

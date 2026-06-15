@@ -288,8 +288,11 @@ const ScriptoriumCat = {
         this._updateSprite();
     },
 
-    // ── Interakce: 1. klik → útěk, 2. klik do 8s → pohlazení ─────────────
+    // ── Interakce: 1. klik → útěk, 2. klik → meow, 3. klik → vrní + vigor ─
     _fleeUntil: 0,
+    _clickCount: 0,
+    _lastClick: 0,
+    _CLICK_RESET_MS: 10000,  // reset counteru po 10s bez kliku
 
     _onCatClick: function() {
         const lang = (GameState.settings && GameState.settings.language) || 'cs';
@@ -303,16 +306,24 @@ const ScriptoriumCat = {
             return;
         }
 
-        const trusting = (c.affection || 0) >= 70 && Math.random() < 0.5; // vysoká přízeň → občas neuteče
-        const inFleeWindow = now < this._fleeUntil;
+        // Reset counteru po 10s bez kliku
+        if (now - this._lastClick > this._CLICK_RESET_MS) {
+            this._clickCount = 0;
+        }
+        this._lastClick = now;
+        this._clickCount++;
 
-        if (!inFleeWindow && !trusting) {
-            // 1. klik → uteče jinam v rámci tabu
-            this._fleeUntil = now + 8000;
+        if (this._clickCount === 1) {
+            // Klik 1 → útěk
             this._flee();
+
+        } else if (this._clickCount === 2) {
+            // Klik 2 → meow
+            this._meowAndToast(name, lang);
+
         } else {
-            // 2. klik (nebo důvěřivá kočka) → pohlazení
-            this._fleeUntil = 0;
+            // Klik 3+ → vrní + vigor (1× denně)
+            this._clickCount = 0;
             c.affection = Math.min(100, (c.affection || 0) + 3);
             const today = new Date().setHours(0, 0, 0, 0);
             const petDay = new Date(c.lastPet || 0).setHours(0, 0, 0, 0);
@@ -681,8 +692,8 @@ Object.assign(ScriptoriumCat, {
 
     _addVigor: function(n) {
         try {
-            if (typeof VigorSystem === 'undefined' || !GameState.vigor) return;
-            GameState.vigor.current = Math.min(VigorSystem.MAX_VIGOR, GameState.vigor.current + n);
+            if (typeof VigorSystem === 'undefined') return;
+            GameState.satiety = Math.min(VigorSystem.MAX_SATIETY, (GameState.satiety || 0) + n);
             VigorSystem.renderMiniDisplay();
         } catch (e) { /* no-op */ }
     },

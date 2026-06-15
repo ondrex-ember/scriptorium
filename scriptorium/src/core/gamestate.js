@@ -7,7 +7,7 @@ const ActionsDB = [
     { id: 'foraging',     cat: 'scavenge', name: 'Sběr potravy',     name_en: 'Forage',             icon: '🧺',  desc: 'Houby/Bobule',     desc_en: 'Mushrooms / Berries',yield: 1, req: 'basket' },
     { id: 'wetlands',     cat: 'scavenge', name: 'Průzkum mokřadu',  name_en: 'Search the wetlands',icon: '🐸',  desc: 'Žáby/Slimáci',    desc_en: 'Frogs / Snails',     yield: 1, req: 'stone_knife' },
     { id: 'resin_harvest',cat: 'scavenge', name: 'Sběr pryskyřice',  name_en: 'Harvest resin',      icon: '🌲',  desc: 'Pryskyřice/Med',   desc_en: 'Resin / Honey',      yield: 1, req: 'stone_knife' },
-    { id: 'well_water',   cat: 'scavenge', name: 'Jít pro vodu',        name_en: 'Draw water',          icon: '🚰',  desc: 'Ze studny',           desc_en: 'From the well',       yield: 1, req: 'well_built' },
+    { id: 'well_water',   cat: 'scavenge', name: 'Jít pro vodu',        name_en: 'Draw water',          icon: '🚰',  desc: 'Ze studny',           desc_en: 'From the well',       yield: 1 },
     { id: 'grass_gather', cat: 'scavenge', name: 'Posečení trávy',      name_en: 'Mow grass',           icon: '🌿',  desc: 'Tráva na seno',       desc_en: 'Grass for hay',       yield: 1, req: [{item:'stone_scythe', mult:0.7}, {item:'iron_scythe', mult:1.2}] },
     { id: 'wood_harvest', cat: 'scavenge', name: 'Těžba dřeva',         name_en: 'Harvest wood',        icon: '🪓',  desc: 'Kulatina/Větve',      desc_en: 'Logs / Branches',     yield: 1, req: [{item:'stone_axe', mult:0.7}, {item:'iron_axe', mult:1.2}] },
     { id: 'worms_dig',    cat: 'scavenge', name: 'Kopání červů',        name_en: 'Dig for worms',       icon: '🪱',  desc: 'Krmivo pro kapry',    desc_en: 'Feed for carp',       yield: 1, req: [{item:'stone_spade', mult:0.7}, {item:'iron_spade', mult:1.2}] },
@@ -47,8 +47,8 @@ const GameState = {
     quietHoursStart: 22,
     quietHoursEnd: 6
      },
-    candleStart: 0, 
-    hunger: { fed: true, lastMeal: Date.now(), duration: 24 * 60 * 60 * 1000 }, // 24h do hladu
+    candleStart: 0,
+    // hunger odstraněn — nahrazen VigorSystem (GameState.satiety + GameState.fatigue)
     garden: [
         // Fáze 1: 4x herb (2 odemčené, 2 za tech_garden_expand)
         { state: 0, water: false, crop: null, plantedAt: 0, cropType: 'herb' },

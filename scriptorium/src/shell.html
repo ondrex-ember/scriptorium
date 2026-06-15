@@ -957,14 +957,13 @@
                 z-index: 9999;
                 display: flex !important;
                 background: transparent;
-                padding: 4px 8px;
-                flex-wrap: nowrap;
+                padding: 2px 4px;
+                flex-wrap: wrap;
                 gap: 5px;
                 align-items: center;
                 justify-content: center;
                 width: 100%;
-                padding: 2px 4px;
-                overflow: visible;
+                overflow: hidden;
             }
 
             header {
@@ -974,7 +973,7 @@
             }
 
             main#main-content {
-                padding-top: calc(40px + 20px) !important;
+                padding-top: 70px !important;
             }
 
             .header-content {
@@ -2216,8 +2215,6 @@
                         </span>
                     </div>
                     <span id="lunar-display" title="Lunární fáze" style="font-size:0.85rem; cursor:default;">🌕</span>
-                    <span class="separator">•</span>
-                    <span id="hunger-display" data-i18n-title="header.hunger">🍖</span>
                     <span class="separator">•</span>
                     <div id="vigor-mini"></div>
                     <span class="separator">•</span>

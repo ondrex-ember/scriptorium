@@ -985,11 +985,11 @@ const AthanorSystem = {
     const now = Date.now();
     switch (effect.type) {
       case 'vigor_restore':
-        if (!GameState.vigor) break;
-        GameState.vigor.current = Math.min(
-          GameState.vigor.max,
-          GameState.vigor.current + effect.value
+        GameState.satiety = Math.min(
+          (typeof VigorSystem !== 'undefined' ? VigorSystem.MAX_SATIETY : 100),
+          (GameState.satiety || 0) + effect.value
         );
+        if (typeof VigorSystem !== 'undefined') VigorSystem.renderPill();
         break;
       case 'hunger_extend':
         if (!GameState.hunger) break;
@@ -1331,7 +1331,7 @@ const AthanorSystem = {
           .athanor-grid{grid-template-columns:1fr!important}
           .athanor-ing-mobile{max-height:220px!important}
         }
-      </style>
+      <\/style>
     `;
   },
 

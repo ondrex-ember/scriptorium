@@ -9,6 +9,7 @@
 const DecaySystem = {
 
     DAY_MS: 24 * 60 * 60 * 1000,
+    MICE_CAP: 30,   // max myší populace (30 myší = ×1.75 decay mult)
 
     // ── Sazby kažení (podíl/den) — single source of truth ────────────────
     // mice:true → položka podléhá myšímu multiplikátoru
