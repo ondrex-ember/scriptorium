@@ -1727,6 +1727,7 @@ const Game = {
     },
 
     scavenge: function(type) {
+        if (typeof VigorSystem !== 'undefined' && !VigorSystem.canAct()) { UI.notify(t('game.vigor.exhausted'), true); return; }
         // Vigor — Fatigue z akce (scavenge vždy dostupné, jen malý cost)
         if (typeof VigorSystem !== 'undefined') VigorSystem.onScavenge(type);
 
@@ -2392,6 +2393,7 @@ const Game = {
 
         // Vigor check — těžké recepty vyžadují Vigor >= 25, lehké >= 10
         if (typeof VigorSystem !== 'undefined') {
+            if (!VigorSystem.canAct()) { UI.notify(t('game.vigor.exhausted'), true); return; }
             const heavyItems = ['vellum','codex_luxury','illuminated_page','vellum_codex','printing_type','ink_gallic'];
             const isHeavy = heavyItems.includes(r.output);
             const isLight = ['paper','ink','candle','tinderbox','quill','tallow_candle'].includes(r.output);
@@ -2517,6 +2519,7 @@ const Game = {
     },
     study: function(id) {
         const tech = TechTree.find(x => x.id === id);
+        if (typeof VigorSystem !== 'undefined' && !VigorSystem.canResearch()) { UI.notify(t('game.vigor.researchBlock'), true); return; }
         if((GameState.inventory['research'] || 0) < tech.cost) { UI.notify(t('game.notEnoughResearch'), true); return; }
         
         // Check if requires other tech
