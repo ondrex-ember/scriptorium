@@ -2552,8 +2552,9 @@ const Game = {
                 const _rdb = typeof RecipesDB !== 'undefined' ? RecipesDB.find(x => x.id === rid) : null;
                 const _rout = _rdb ? _rdb.output : rid;
                 const _ri = ItemsDB && ItemsDB[_rout] ? ItemsDB[_rout] : null;
-                const _rn = _ri ? _ri.name : rid;
-                const _rne = _ri ? (_ri.name_en || _ri.name) : rid;
+                if (!_ri) return; // přeskočit — recipe bez položky v ItemsDB (UI prvky, systémové recepty)
+                const _rn = _ri.name;
+                const _rne = _ri.name_en || _ri.name;
                 Game.addKronikaEntry('important', `📋 Nová receptura: ${_rn}`, `📋 New recipe: ${_rne}`, `📋 Nova formula: ${_rn}`);
             }
         });

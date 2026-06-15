@@ -1251,6 +1251,18 @@ const STRINGS_cs = {
         heinrichAlready: '(Varhany již vlastníš)',
     },
 
+    invFilter: {
+        all:     'Vše',
+        mat:     '🌾 Suroviny',
+        tool:    '🔨 Nástroje',
+        lore:    '📜 Písemnosti',
+        animal:  '🐄 Zvířata',
+        food:    '🍖 Jídlo',
+        alchemy: '⚗️ Alchymie',
+        stone:   '🪨 Kamenné',
+        iron:    '⚒️ Železné',
+        fire:    '🔥 Oheň',
+    },
     craftFilter: {
         all: 'Vše',
         stone: '🪨 Kamenné',

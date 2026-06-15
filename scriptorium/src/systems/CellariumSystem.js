@@ -739,11 +739,11 @@ const CellariumSystem = {
       h += `
         <button onclick="CellariumSystem.switchEntity('${e.id}')"
                 class="filter-btn${isCur ? ' active' : ''}"
-                style="flex:1; min-width:90px; position:relative; padding-bottom:6px;">
+                style="flex: 1 1 calc(33% - 6px); min-width:0; position:relative; padding-bottom:6px;">
           <div style="display:flex; align-items:center; justify-content:center; gap:4px;">
             ${e.icon} ${name} ${openDot}
           </div>
-          <div style="font-size:0.6rem; opacity:0.6; margin-top:2px; white-space:nowrap;">${hours}</div>
+          <div style="font-size:0.6rem; opacity:0.6; margin-top:2px;">${hours}</div>
         </button>
       `;
     });

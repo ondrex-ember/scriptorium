@@ -2289,7 +2289,7 @@
             <div><strong id="fireplace-title-overlay">Vyhaslý Krb</strong>
                 <div id="fireplace-desc-overlay" class="text-sm">Je tu zima.</div>
             </div>
-            <button id="btn-ignite-overlay" class="craft-btn" onclick="Game.igniteFireplace()">ROZEŽEHNOUT</button>
+            <button id="btn-ignite-overlay" class="craft-btn" onclick="Game.igniteFireplace()" data-i18n="fireplace.kindle">ROZEŽEHNOUT</button>
         </div>
 
         <div id="notification-area"></div>
@@ -2318,7 +2318,7 @@
                         <div><strong id="fireplace-title">Vyhaslý Krb</strong>
                             <div id="fireplace-desc" class="text-sm">Je tu zima.</div>
                         </div>
-                        <button id="btn-ignite" class="craft-btn" onclick="Game.igniteFireplace()">ROZEŽEHNOUT</button>
+                        <button id="btn-ignite" class="craft-btn" onclick="Game.igniteFireplace()" data-i18n="fireplace.kindle">ROZEŽEHNOUT</button>
                     </div>
 
                     <div id="card-light-source" class="card" style="opacity: 0.5;">
@@ -2539,25 +2539,25 @@
                 <div id="inv-filter-bar" class="filter-bar"
                     style="margin-top:10px; margin-bottom:15px; display:none; flex-wrap: wrap; gap: 5px;">
                     <button id="inv-filter-all" class="filter-btn active"
-                        onclick="UI.filterInventory('all', this)">Vše</button>
+                        onclick="UI.filterInventory('all', this)" data-i18n="invFilter.all">Vše</button>
                     <button id="inv-filter-mat" class="filter-btn"
-                        onclick="UI.filterInventory('mat', this)">🌾 Suroviny</button>
+                        onclick="UI.filterInventory('mat', this)" data-i18n="invFilter.mat">🌾 Suroviny</button>
                     <button id="inv-filter-tool" class="filter-btn"
-                        onclick="UI.filterInventory('tool', this)">🔨 Nástroje</button>
+                        onclick="UI.filterInventory('tool', this)" data-i18n="invFilter.tool">🔨 Nástroje</button>
                     <button id="inv-filter-lore" class="filter-btn"
-                        onclick="UI.filterInventory('lore', this)">📜 Písemnosti</button>
+                        onclick="UI.filterInventory('lore', this)" data-i18n="invFilter.lore">📜 Písemnosti</button>
                     <button id="inv-filter-animal" class="filter-btn"
-                        onclick="UI.filterInventory('animal', this)">🐄 Zvířata</button>
+                        onclick="UI.filterInventory('animal', this)" data-i18n="invFilter.animal">🐄 Zvířata</button>
                     <button id="inv-filter-food" class="filter-btn" style="display:none;"
-                        onclick="UI.filterInventory('food', this)">🍖 Jídlo</button>
+                        onclick="UI.filterInventory('food', this)" data-i18n="invFilter.food">🍖 Jídlo</button>
                     <button id="inv-filter-alchemy" class="filter-btn" style="display:none;"
-                        onclick="UI.filterInventory('alchemy', this)">⚗️ Alchymie</button>
+                        onclick="UI.filterInventory('alchemy', this)" data-i18n="invFilter.alchemy">⚗️ Alchymie</button>
                     <button id="inv-filter-stone" class="filter-btn" style="display:none;"
-                        onclick="UI.filterInventory('stone', this)">🪨 Kamenné</button>
+                        onclick="UI.filterInventory('stone', this)" data-i18n="invFilter.stone">🪨 Kamenné</button>
                     <button id="inv-filter-iron" class="filter-btn" style="display:none;"
-                        onclick="UI.filterInventory('iron', this)">⚒️ Železné</button>
+                        onclick="UI.filterInventory('iron', this)" data-i18n="invFilter.iron">⚒️ Železné</button>
                     <button id="inv-filter-fire" class="filter-btn" style="display:none;"
-                        onclick="UI.filterInventory('fire', this)">🔥 Oheň</button>
+                        onclick="UI.filterInventory('fire', this)" data-i18n="invFilter.fire">🔥 Oheň</button>
                 </div>
                 <div id="inventory-grid" style="margin-top:15px;"></div>
             </div>
@@ -2575,15 +2575,14 @@
                     <div class="filter-bar"
                         style="margin-top:10px; margin-bottom:15px; display: flex; flex-wrap: wrap; gap: 5px;">
                         <button id="lore-tab-research" class="filter-btn active"
-                            onclick="UI.switchLoreTab('research', this)">Research</button>
+                            onclick="UI.switchLoreTab('research', this)" data-i18n="lore.tabResearch">Research</button>
                         <button id="lore-tab-codex" class="filter-btn"
-                            onclick="UI.switchLoreTab('codex', this)">Codex</button>
+                            onclick="UI.switchLoreTab('codex', this)" data-i18n="lore.tabCodex">Codex</button>
                         <button id="lore-tab-notebooks" class="filter-btn"
-                            onclick="UI.switchLoreTab('notebooks', this)">📓 Zápisníky</button>
+                            onclick="UI.switchLoreTab('notebooks', this)" data-i18n="lore.tabNotebooks">📓 Zápisníky</button>
                         <button id="lore-tab-achievements" class="filter-btn"
-                            onclick="UI.switchLoreTab('achievements', this)">Achievementy</button>
-                        <button id="lore-tab-iching" class="filter-btn" onclick="UI.switchLoreTab('iching', this)">☯️
-                            Věštění</button>
+                            onclick="UI.switchLoreTab('achievements', this)" data-i18n="lore.tabAchievements">Achievementy</button>
+                        <button id="lore-tab-iching" class="filter-btn" onclick="UI.switchLoreTab('iching', this)" data-i18n="lore.tabIching">☯️ Věštění</button>
                         <button id="lore-tab-calendarium" class="filter-btn"
                             onclick="UI.switchLoreTab('calendarium', this)">📅 Calendarium</button>
                         <button id="lore-tab-persona" class="filter-btn"
