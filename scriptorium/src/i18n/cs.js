@@ -12,7 +12,14 @@ const STRINGS_cs = {
         full: 'Krb je už plný!', fuelAdded: 'Přiloženo do ohně.',
         notEnough: 'Nedostatek: {item}.',
         foculusTab: 'Ohniště', foculusLocked: 'Prostuduj Meteorologica pro správu paliva v krbu.',
-        statusLabel: 'Stav ohně:'
+        statusLabel: 'Stav ohně:',
+        burnNow: 'vyhasíná', burnSoon: 'brzy vyhasne',
+        burnToday: 'vyhasne dnes {part}', burnTomorrow: 'vyhasne zítra {part}',
+        partMorning: 'ráno', partAfternoon: 'odpoledne', partEvening: 'večer', partNight: 'v noci',
+        dashTitle: 'Stav pracovny', dashWeather: 'Počasí', dashWeatherNA: '—', dashEnviron: 'Prostředí',
+        dashStav: 'Stav', dashTime: 'Čas & Kalendář', dashForecast: 'Předpověď',
+        dashNotes: 'Zápisky', dashCoins: 'Groše', dashRank: 'Rank', dashTech: 'Techy', dashKronika: 'Poslední kronika',
+        dashTimeLabel: 'Čas', dashDate: 'Datum', dashMoon: 'Luna', dashHora: 'Hora'
     },
     light: {
         none: 'Není světlo', noneDesc: 'Tma halí knihy.',

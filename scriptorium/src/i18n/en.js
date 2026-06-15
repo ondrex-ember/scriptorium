@@ -13,7 +13,14 @@ const STRINGS_en = {
         full: 'The hearth is full!', fuelAdded: 'Fuel added.',
         notEnough: 'Not enough {item}.',
         foculusTab: 'Foculus', foculusLocked: "Study Meteorologica to manage the hearth's fuel.",
-        statusLabel: 'Fire status:'
+        statusLabel: 'Fire status:',
+        burnNow: 'dying out', burnSoon: 'burning out soon',
+        burnToday: 'burns out today {part}', burnTomorrow: 'burns out tomorrow {part}',
+        partMorning: 'in the morning', partAfternoon: 'in the afternoon', partEvening: 'in the evening', partNight: 'at night',
+        dashTitle: 'Workshop status', dashWeather: 'Weather', dashWeatherNA: '—', dashEnviron: 'Environment',
+        dashStav: 'Status', dashTime: 'Time & Calendar', dashForecast: 'Forecast',
+        dashNotes: 'Notes', dashCoins: 'Coins', dashRank: 'Rank', dashTech: 'Techs', dashKronika: 'Latest chronicle',
+        dashTimeLabel: 'Time', dashDate: 'Date', dashMoon: 'Moon', dashHora: 'Hour'
     },
     light: {
         none: 'No Light', noneDesc: 'Darkness claimeth this place.',

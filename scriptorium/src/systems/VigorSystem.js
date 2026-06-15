@@ -836,6 +836,12 @@ const VigorSystem = {
         this.renderPill();
     },
 
+    // Po akcích z Vigor bloku obnov pohledy, kde se zobrazuje (Persona i Foculus dashboard).
+    refreshViews: function() {
+        if (typeof PersonaSystem !== 'undefined' && PersonaSystem.render) PersonaSystem.render();
+        if (typeof FireplaceSystem !== 'undefined' && FireplaceSystem.render) FireplaceSystem.render();
+    },
+
     // renderFullDisplay — volá PersonaSystem pro Vigor blok
     renderFullDisplay: function() {
         const satiety = Math.round(GameState.satiety || 0);
@@ -856,7 +862,7 @@ const VigorSystem = {
             ? `<div id="vigor-nona-status" style="margin-top:8px;font-size:0.7rem;color:var(--accent-gold);opacity:0.8;">😴 ${lang === 'en' ? `Resting... ${nonaRemainSFd}s` : `Odpočíváš... ${nonaRemainSFd}s`}<div style="height:3px;background:rgba(197,160,89,0.15);border-radius:2px;margin-top:4px;"><div style="height:3px;background:var(--accent-gold);border-radius:2px;width:${Math.round((1-nonaRemainSFd/60)*100)}%;"></div></div></div>`
             : nonaUsedTodayFd
             ? `<div style="font-size:0.7rem;opacity:0.5;margin-top:6px;">${lang === 'en' ? 'Nona rest used today.' : 'Dnes již odpočinut.'}</div>`
-            : `<button onclick="VigorSystem.restNona();PersonaSystem.render();" style="margin-top:8px;width:100%;padding:4px 8px;border-radius:6px;border:1px solid var(--accent-gold);background:rgba(197,160,89,0.15);color:var(--accent-gold);cursor:pointer;font-size:0.75rem;">
+            : `<button onclick="VigorSystem.restNona();VigorSystem.refreshViews();" style="margin-top:8px;width:100%;padding:4px 8px;border-radius:6px;border:1px solid var(--accent-gold);background:rgba(197,160,89,0.15);color:var(--accent-gold);cursor:pointer;font-size:0.75rem;">
                 😴 ${lang === 'en' ? 'Nona rest (-20 Fatigue, 1×/day)' : 'Odpočinek při Nóně (-20 Únava, 1×/den)'}
                </button>`;
 
@@ -869,7 +875,7 @@ const VigorSystem = {
         const meditBtnFd = meditActiveFd
             ? `<div style="margin-top:6px;font-size:0.7rem;color:var(--accent-gold);opacity:0.8;">🧘 ${lang === 'en' ? 'Meditating...' : 'Meditace probíhá...'}</div>`
             : meditAvailFd
-            ? `<button onclick="VigorSystem.meditate();PersonaSystem.render();" style="margin-top:6px;width:100%;padding:4px 8px;border-radius:6px;border:1px solid var(--accent-gold);background:rgba(197,160,89,0.15);color:var(--accent-gold);cursor:pointer;font-size:0.75rem;">
+            ? `<button onclick="VigorSystem.meditate();VigorSystem.refreshViews();" style="margin-top:6px;width:100%;padding:4px 8px;border-radius:6px;border:1px solid var(--accent-gold);background:rgba(197,160,89,0.15);color:var(--accent-gold);cursor:pointer;font-size:0.75rem;">
                 🧘 ${lang === 'en' ? 'Meditate (-50 Fatigue, 1×/12h)' : 'Meditace (-50 Únava, 1×/12h)'}
                </button>`
             : `<div style="font-size:0.7rem;opacity:0.5;margin-top:4px;">🧘 ${lang === 'en' ? `Meditation in ~${meditRemainHFd}h` : `Meditace za ~${meditRemainHFd}h`}</div>`;
@@ -895,7 +901,7 @@ const VigorSystem = {
                     ${availableFood.map(id => {
                         const item = (typeof ItemsDB !== 'undefined' && ItemsDB[id]) || {};
                         const iname = lang === 'en' ? (item.name_en || id) : (item.name || id);
-                        return `<button style="${btnStyle}" onclick="Game.eat('${id}');PersonaSystem.render();">
+                        return `<button style="${btnStyle}" onclick="Game.eat('${id}');VigorSystem.refreshViews();">
                             ${item.icon || '🍖'} ${iname} <span style="opacity:0.5;">(${inv[id]})</span>
                         </button>`;
                     }).join('')}
@@ -912,7 +918,7 @@ const VigorSystem = {
                         const item = (typeof ItemsDB !== 'undefined' && ItemsDB[id]) || {};
                         const iname = lang === 'en' ? (item.name_en || id) : (item.name || id);
                         const fn = (id === 'water') ? `Game.drink('${id}')` : `Game.eat('${id}')`;
-                        return `<button style="${btnStyle}" onclick="${fn};PersonaSystem.render();">
+                        return `<button style="${btnStyle}" onclick="${fn};VigorSystem.refreshViews();">
                             ${item.icon || '💧'} ${iname} <span style="opacity:0.5;">(${inv[id]})</span>
                         </button>`;
                     }).join('')}
