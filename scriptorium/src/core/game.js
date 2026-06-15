@@ -415,22 +415,11 @@ const Game = {
             if (typeof CalendarSystem !== 'undefined') CalendarSystem.checkCalendarEvents();
         }, 500);
         
-        document.body.addEventListener('click', () => { 
-            if (!audioSys) { 
-                audioSys = new AudioSystem(); 
-                audioSys.start(); 
-            }
-            
-            // Auto-start fire if lit (after F5 refresh)
-            if (GameState.flags.fireplaceLit && !audioSys.isPlaying) {
-                audioSys.startFireLoop(true);
-            }
+        document.body.addEventListener('click', () => {
+            if (!audioSys) audioSys = new AudioSystem();
+            audioSys.start(); // resume + fire + music handled in _startAfterResume()
 
-            // Restore music settings to AudioSystem
-            audioSys.setMusicEnabled(GameState.settings.musicEnabled !== false);
-            audioSys.setMusicVolume((GameState.settings.musicVolume ?? 0.5) * 100);
-
-            // Sync music UI controls
+            // Sync music UI controls (DOM — nepotřebuje čekat na audio resume)
             const musicChk = document.getElementById('music-enabled-checkbox');
             if (musicChk) musicChk.checked = (GameState.settings.musicEnabled !== false);
             const musicSlider = document.getElementById('music-volume-slider');

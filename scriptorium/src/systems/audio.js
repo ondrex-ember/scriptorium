@@ -790,6 +790,12 @@ class AudioSystem {
             const tier = this.getUnlockedMusicTier();
             this.switchMusicTier(tier);
         }
+
+        // Restore music settings from GameState
+        if (typeof GameState !== 'undefined' && GameState.settings) {
+            this.setMusicEnabled(GameState.settings.musicEnabled !== false);
+            this.setMusicVolume((GameState.settings.musicVolume ?? 0.5) * 100);
+        }
     }
 
     // ═══════════════════════════════════════════════════════════
