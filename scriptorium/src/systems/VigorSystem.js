@@ -24,6 +24,7 @@ const VigorSystem = {
     // Vigor thresholdy
     VIGOR_THRESHOLD_HEAVY: 25,     // těžký craft, research
     VIGOR_THRESHOLD_LIGHT: 10,     // lehký craft
+    VIGOR_THRESHOLD_RESEARCH: 20,  // výzkum (study)
 
     // Fatigue náklady akcí
     FATIGUE_COSTS: {
@@ -293,6 +294,15 @@ const VigorSystem = {
 
     canLight: function() {
         return this.getVigor() >= this.VIGOR_THRESHOLD_LIGHT;
+    },
+
+    canResearch: function() {
+        return this.getVigor() >= this.VIGOR_THRESHOLD_RESEARCH;
+    },
+
+    // Spodní práh: při Vigor 0 (vyčerpán) není možná žádná akce.
+    canAct: function() {
+        return this.getVigor() > 0;
     },
 
     // ── Jídlo ────────────────────────────────────────────────────────────────
