@@ -317,7 +317,7 @@ const CellariumSystem = {
       { itemId: 'stamina_tonic', basePrice: 8 },
       { itemId: 'beer',          basePrice: 2 },
       { itemId: 'wine',          basePrice: 7 },
-      { itemId: 'seeds_nettle',  basePrice: 45 }, // konopí — vzácné, drahé
+      { itemId: 'seeds_cannabis', basePrice: 45 }, // konopí seté — vzácné, drahé
     ],
     shop: [
       { itemId: 'chalk',         basePrice: 2 },

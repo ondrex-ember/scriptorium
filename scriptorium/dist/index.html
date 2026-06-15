@@ -5184,6 +5184,7 @@ const ItemsDB = {
     "seeds_belladonna":{ name:"Semínka rulíku",      name_en:"Belladonna Seeds",       icon:"🌾", type:"mat",         desc:"Jedovatá. Zacházet opatrně.",                       desc_en:"Poisonous. Handle with care." },
     "seeds_poppy":     { name:"Semínka máku",        name_en:"Poppy Seeds",            icon:"🌾", type:"mat",         desc:"Mák. Léčivý i jedlý.",                              desc_en:"Poppy. Medicinal and edible." },
     "seeds_nettle":    { name:"Semínka kopřivy",     name_en:"Nettle Seeds",           icon:"🌱", type:"mat",         desc:"Kopřiva. Roste všude, ale v zahradě lépe.",         desc_en:"Nettle. Grows anywhere, better in a garden." },
+    "seeds_cannabis":  { name:"Semínka konopí setého", name_en:"Hemp Seeds",            icon:"🌱", type:"mat",         desc:"Cannabis sativa. Konopí seté — pěstováno v Čechách od nepaměti na vlákno, olej i semena.", desc_en:"Cannabis sativa. Hemp — cultivated in Bohemia since ancient times for fibre, oil and seed." },
 
     // NOTEBOOKS
     "tabula":      { name:"Tabula (Vosková destička)",       name_en:"Tabula (Wax Tablet)",        icon:"📋", type:"tool", desc:"Dočasné poznámky.",  desc_en:"Temporary notes." },
@@ -5289,6 +5290,7 @@ const ItemsDB = {
     "belladonna":     { name:"Rulík zlomocný",    name_en:"Belladonna",      icon:"🫐", type:"special",     desc:"Atropa belladonna. Jed i lék. Lékárníci jej míchali v malých dávkách. Nebezpečná rostlina.", desc_en:"Atropa belladonna. Poison and medicine alike. Apothecaries used it in small doses. Dangerous." },
     "poppy":          { name:"Mák",               name_en:"Poppy",           icon:"🌸", type:"special",     desc:"Papaver somniferum. Hildegarda znala jeho moc. Tišil bolest, navozoval spánek. Cenný i drahý.", desc_en:"Papaver somniferum. Hildegard knew its power. Eased pain, brought sleep. Valued and costly." },
     "nettle":         { name:"Kopřiva",           name_en:"Nettle",          icon:"🌿", type:"special",     desc:"Urtica dioica. Vlákno, jídlo i lék. Klášterní zahrady ji pěstovaly záměrně — na látku i odvar.", desc_en:"Urtica dioica. Fibre, food and medicine. Monastery gardens cultivated it deliberately." },
+    "cannabis":       { name:"Konopí seté",        name_en:"Hemp",            icon:"🌿", type:"mat",         desc:"Cannabis sativa. Pěstováno v Čechách od středověku — vlákno na lana a plátno, semena na olej i jídlo.", desc_en:"Cannabis sativa. Cultivated in Bohemia since the Middle Ages — fibre for rope and cloth, seeds for oil and food." },
 
     // ATHANOR — výsledné produkty
     "ink_carbon":          { name:"Sazový inkoust",    name_en:"Carbon Ink",          icon:"🖤", type:"lore",    desc:"Černý inkoust ze sazí. Levný a trvanlivý.",          desc_en:"Black ink from soot. Cheap and durable." },
@@ -13237,7 +13239,7 @@ const CellariumSystem = {
       { itemId: 'stamina_tonic', basePrice: 8 },
       { itemId: 'beer',          basePrice: 2 },
       { itemId: 'wine',          basePrice: 7 },
-      { itemId: 'seeds_nettle',  basePrice: 45 }, // konopí — vzácné, drahé
+      { itemId: 'seeds_cannabis', basePrice: 45 }, // konopí seté — vzácné, drahé
     ],
     shop: [
       { itemId: 'chalk',         basePrice: 2 },
@@ -17321,6 +17323,7 @@ const GardenSystem = {
         belladonna:  { cropType:'special',   item:'belladonna',  seed:'seeds_belladonna',icon:'🫐', name:'Rulík zlomocný', name_en:'Belladonna',    yield:1 },
         poppy:       { cropType:'special',   item:'poppy',       seed:'seeds_poppy',     icon:'🌸', name:'Mák',            name_en:'Poppy',         yield:2 },
         nettle:      { cropType:'special',   item:'nettle',      seed:'seeds_nettle',    icon:'🌿', name:'Kopřiva',        name_en:'Nettle',        yield:3 },
+        cannabis:    { cropType:'special',   item:'cannabis',    seed:'seeds_cannabis',  icon:'🌿', name:'Konopí seté',    name_en:'Hemp',          yield:3 },
     },
 
     // Zasadit konkrétní plodinu (tech_hortus_conclusus)

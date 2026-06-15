@@ -2043,6 +2043,7 @@ const GardenSystem = {
         belladonna:  { cropType:'special',   item:'belladonna',  seed:'seeds_belladonna',icon:'🫐', name:'Rulík zlomocný', name_en:'Belladonna',    yield:1 },
         poppy:       { cropType:'special',   item:'poppy',       seed:'seeds_poppy',     icon:'🌸', name:'Mák',            name_en:'Poppy',         yield:2 },
         nettle:      { cropType:'special',   item:'nettle',      seed:'seeds_nettle',    icon:'🌿', name:'Kopřiva',        name_en:'Nettle',        yield:3 },
+        cannabis:    { cropType:'special',   item:'cannabis',    seed:'seeds_cannabis',  icon:'🌿', name:'Konopí seté',    name_en:'Hemp',          yield:3 },
     },
 
     // Zasadit konkrétní plodinu (tech_hortus_conclusus)
