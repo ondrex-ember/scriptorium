@@ -11387,6 +11387,13 @@ class AudioSystem {
         if (this.isPlaying) return;
         
         this.isPlaying = true;
+
+        // Defensive: obnova fireGain pokud chybí (nemělo by nastat, ale pro jistotu)
+        if (!this.fireGain) {
+            this.fireGain = this.audioContext.createGain();
+            this.fireGain.gain.value = 0;
+            this.fireGain.connect(this.masterGain);
+        }
         
         // Fade in fire gain
         this.fireGain.gain.cancelScheduledValues(this.audioContext.currentTime);
@@ -11438,8 +11445,7 @@ class AudioSystem {
             clearInterval(this.crackleInterval);
             this.crackleInterval = null;
         }
-        
-        this.fireGain = null;
+        // fireGain node zůstává v grafu — jen ztlumený na 0 (viz setTargetAtTime výše)
     }
     
     // ═══════════════════════════════════════════════════════════
@@ -17985,7 +17991,7 @@ const ScriptoriumCat = {
             }
             this._setState('meow');
             setTimeout(() => this._setState('idle'), 2000);
-            try { new Audio('/sounds/cat-purr.mp3').play(); } catch(e) {}
+            try { new Audio('/sounds/cat-purr.mp3').play().catch(() => {}); } catch(e) {}
             const msgs = lang === 'en'
                 ? [`${name} lets you stroke her. She purrs deeply.${vigorMsg}`, `${name} rubs against your hand.${vigorMsg}`]
                 : [`${name} se nechala pohladit. Hluboce přede.${vigorMsg}`, `${name} se otírá o tvou ruku.${vigorMsg}`];
@@ -18010,7 +18016,7 @@ const ScriptoriumCat = {
     _meowAndToast: function(name, lang) {
         this._setState('meow');
         setTimeout(() => this._setState('idle'), 2000);
-        try { new Audio('/sounds/meow.mp3').play(); } catch(e) {}
+        try { new Audio('/sounds/meow.mp3').play().catch(() => {}); } catch(e) {}
         const msgs = lang === 'en'
             ? [`${name} says: Meow!`, `${name} purrs contentedly.`, `${name} blinks slowly at you.`]
             : [`${name} říká: Mňau!`, `${name} spokojeně přede.`, `${name} na tebe pomalu mrkne.`];

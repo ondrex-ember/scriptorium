@@ -938,6 +938,13 @@ class AudioSystem {
         if (this.isPlaying) return;
         
         this.isPlaying = true;
+
+        // Defensive: obnova fireGain pokud chybí (nemělo by nastat, ale pro jistotu)
+        if (!this.fireGain) {
+            this.fireGain = this.audioContext.createGain();
+            this.fireGain.gain.value = 0;
+            this.fireGain.connect(this.masterGain);
+        }
         
         // Fade in fire gain
         this.fireGain.gain.cancelScheduledValues(this.audioContext.currentTime);
@@ -989,8 +996,7 @@ class AudioSystem {
             clearInterval(this.crackleInterval);
             this.crackleInterval = null;
         }
-        
-        this.fireGain = null;
+        // fireGain node zůstává v grafu — jen ztlumený na 0 (viz setTargetAtTime výše)
     }
     
     // ═══════════════════════════════════════════════════════════
