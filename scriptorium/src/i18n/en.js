@@ -159,6 +159,7 @@ const STRINGS_en = {
         rareFind: '⭐ Rare find: Netolický\'s bitter legacy!',
         vigor: {
             exhausted:    '😵 The scribe is utterly exhausted. Find food before continuing.',
+            researchBlock: '⚠️ Research requires Vigor ≥ 20. Eat something first.',
             deficiens:    '⚠️ Vigor deficiens. Only light tasks available.',
             insufficient: '😔 Not enough strength for this task.',
             tooTiredHeavy:'😵 Too exhausted for this task. Eat something first. (Vigor < 25)',
