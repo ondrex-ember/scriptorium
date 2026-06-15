@@ -12196,13 +12196,15 @@ const VigorSystem = {
             meta.nonaUsed = today;
             meta.nonaStart = 0;
             const lang = (GameState.settings && GameState.settings.language) || 'cs';
+            const vigorAfter = this.getVigor();
             const msg = lang === 'en'
-                ? `😴 Nona rest complete. Fatigue -20. Vigor: ${this.getVigor()}.`
-                : `😴 Odpočinek při Nóně dokončen. Únava -20. Vigor: ${this.getVigor()}.`;
+                ? `😴 Nona rest complete. Fatigue −20. Vigor: ${vigorAfter}%.`
+                : `😴 Odpočinek při Nóně dokončen. Únava −20. Vigor: ${vigorAfter}%.`;
             if (typeof UI !== 'undefined') {
                 if (UI.notify) UI.notify(msg);
                 if (UI.notifyPanel) UI.notifyPanel(msg, 'system');
             }
+            if (typeof PersonaSystem !== 'undefined') PersonaSystem.render();
         }
 
         // ── Timer check: Meditace (180s) ─────────────────────────────────────
@@ -12337,10 +12339,64 @@ const VigorSystem = {
             if (UI.notify) UI.notify(msg);
         }
         this.renderPill();
+        if (typeof PersonaSystem !== 'undefined') PersonaSystem.render();
+        if (typeof Game !== 'undefined' && Game.save) Game.save();
+
+        // Sekundový interval — živý odpočet + auto-dokončení
+        if (this._nonaInterval) clearInterval(this._nonaInterval);
+        this._nonaInterval = setInterval(() => {
+            const meta = GameState.vigorMeta;
+            if (!meta) { clearInterval(this._nonaInterval); return; }
+            if (meta.nonaStart === 0) {
+                clearInterval(this._nonaInterval); this._nonaInterval = null;
+                if (typeof PersonaSystem !== 'undefined') PersonaSystem.render();
+                return;
+            }
+            const remaining = Math.max(0, this.NONA_DURATION - (Date.now() - meta.nonaStart));
+            if (remaining === 0) {
+                clearInterval(this._nonaInterval); this._nonaInterval = null;
+                VigorSystem._completeNona();
+                return;
+            }
+            // Živý update countdown elementu bez full re-renderu
+            const el = document.getElementById('vigor-nona-status');
+            if (el) {
+                const pct = Math.round((1 - remaining / this.NONA_DURATION) * 100);
+                el.innerHTML = `😴 ${lang === 'en' ? `Resting... ${Math.ceil(remaining/1000)}s` : `Odpočíváš... ${Math.ceil(remaining/1000)}s`}
+                    <div style="height:3px;background:rgba(197,160,89,0.15);border-radius:2px;margin-top:4px;">
+                        <div style="height:3px;background:var(--accent-gold);border-radius:2px;width:${pct}%;transition:width 1s;"></div>
+                    </div>`;
+            }
+        }, 1000);
+    },
+
+    // ── Dokončení Nona odpočinku ──────────────────────────────────────────────
+    _completeNona: function() {
+        const meta = GameState.vigorMeta;
+        if (!meta || meta.nonaStart === 0) return; // guard proti double-fire
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+
+        // Aplikuj efekt
+        const vigorBefore = this.getVigor();
+        GameState.fatigue = Math.max(0, (GameState.fatigue || 0) - 20);
+        const today = new Date().toISOString().slice(0, 10);
+        meta.nonaUsed  = today;
+        meta.nonaStart = 0;
+        const vigorAfter = this.getVigor();
+
+        // Toast + Tidings
+        const msg = lang === 'en'
+            ? `😴 Nona rest complete. Fatigue −20. Vigor: ${vigorBefore}% → ${vigorAfter}%.`
+            : `😴 Odpočinek při Nóně dokončen. Únava −20. Vigor: ${vigorBefore}% → ${vigorAfter}%.`;
+        if (typeof UI !== 'undefined') {
+            if (UI.notify) UI.notify(msg);
+            if (UI.notifyPanel) UI.notifyPanel(msg, 'system');
+        }
+        this.renderPill();
+        if (typeof PersonaSystem !== 'undefined') PersonaSystem.render();
         if (typeof Game !== 'undefined' && Game.save) Game.save();
     },
 
-    // ── Meditace (1× za 12h, trvá 3 min real time) ──────────────────────────
     MEDITATE_DURATION: 180000,  // 3 min v ms
     NONA_DURATION:     60000,   // 60s v ms
 
@@ -12770,7 +12826,7 @@ const VigorSystem = {
         const nonaRemainSFd = nonaActiveFd ? Math.max(0, Math.ceil((60000 - (Date.now() - metaFd.nonaStart)) / 1000)) : 0;
         const nonaUsedTodayFd = metaFd.nonaUsed === today && !nonaActiveFd;
         const nonaBtn = nonaActiveFd
-            ? `<div style="margin-top:8px;font-size:0.7rem;color:var(--accent-gold);opacity:0.8;">😴 ${lang === 'en' ? `Resting... ${nonaRemainSFd}s` : `Odpočíváš... ${nonaRemainSFd}s`}<div style="height:3px;background:rgba(197,160,89,0.15);border-radius:2px;margin-top:4px;"><div style="height:3px;background:var(--accent-gold);border-radius:2px;width:${Math.round((1-nonaRemainSFd/60)*100)}%;"></div></div></div>`
+            ? `<div id="vigor-nona-status" style="margin-top:8px;font-size:0.7rem;color:var(--accent-gold);opacity:0.8;">😴 ${lang === 'en' ? `Resting... ${nonaRemainSFd}s` : `Odpočíváš... ${nonaRemainSFd}s`}<div style="height:3px;background:rgba(197,160,89,0.15);border-radius:2px;margin-top:4px;"><div style="height:3px;background:var(--accent-gold);border-radius:2px;width:${Math.round((1-nonaRemainSFd/60)*100)}%;"></div></div></div>`
             : nonaUsedTodayFd
             ? `<div style="font-size:0.7rem;opacity:0.5;margin-top:6px;">${lang === 'en' ? 'Nona rest used today.' : 'Dnes již odpočinut.'}</div>`
             : `<button onclick="VigorSystem.restNona();PersonaSystem.render();" style="margin-top:8px;width:100%;padding:4px 8px;border-radius:6px;border:1px solid var(--accent-gold);background:rgba(197,160,89,0.15);color:var(--accent-gold);cursor:pointer;font-size:0.75rem;">
