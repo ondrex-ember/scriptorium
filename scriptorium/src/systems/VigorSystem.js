@@ -544,6 +544,7 @@ const VigorSystem = {
             </div>
             <div id="vigor-meditate-timer" style="color:#c5a059;font-family:serif;font-size:2rem;margin-top:16px;letter-spacing:4px;">3:00</div>
             <div style="color:#7F77DD;font-family:serif;font-size:0.75rem;letter-spacing:3px;margin-top:8px;opacity:0.8;">LECTIO ET MEDITATIO</div>
+            <div id="vigor-meditate-gain" style="display:none;text-align:center;margin-top:12px;padding:10px 20px;border:1px solid rgba(175,169,236,0.25);border-radius:8px;background:rgba(83,74,183,0.1);"></div>
             <div style="max-width:300px;margin-top:20px;text-align:center;line-height:1.8;border-top:1px solid rgba(197,160,89,0.15);padding-top:16px;">
                 <div style="color:rgba(197,160,89,0.5);font-size:0.6rem;letter-spacing:2px;margin-bottom:10px;">✦ NOTE BY ONDREX ✦</div>
                 <div style="color:#c5a059;font-family:serif;font-size:0.85rem;font-style:italic;opacity:0.9;">
@@ -556,21 +557,83 @@ const VigorSystem = {
                     Pone machinam et intuere, in hortum animae vel mundi. Libera mentem et oculos.
                 </div>
             </div>
-            <button onclick="VigorSystem.cancelMeditation()" style="margin-top:20px;background:transparent;border:1px solid rgba(197,160,89,0.2);color:rgba(197,160,89,0.45);padding:6px 20px;border-radius:6px;cursor:pointer;font-size:0.68rem;font-style:italic;">
+            <button id="vigor-meditate-btn" onclick="VigorSystem.cancelMeditation()" style="margin-top:20px;background:transparent;border:1px solid rgba(197,160,89,0.2);color:rgba(197,160,89,0.45);padding:6px 20px;border-radius:6px;cursor:pointer;font-size:0.68rem;font-style:italic;">
                 ${lang === 'en' ? 'Interrupt meditation (no effect)' : 'Přerušit meditaci (efekt se ztratí)'}
             </button>
         `;
         document.body.appendChild(overlay);
-        // Timer display update každou sekundu
+        // Timer tick — každou sekundu
         this._meditateInterval = setInterval(() => {
             const meta = GameState.vigorMeta;
-            if (!meta || meta.meditateStart === 0) { clearInterval(this._meditateInterval); return; }
+            if (!meta) { clearInterval(this._meditateInterval); return; }
+            // Dokončeno externě (_tick) — jen zavři interval
+            if (meta.meditateStart === 0) { clearInterval(this._meditateInterval); this._meditateInterval = null; return; }
             const remaining = Math.max(0, this.MEDITATE_DURATION - (Date.now() - meta.meditateStart));
+            if (remaining === 0) {
+                clearInterval(this._meditateInterval);
+                this._meditateInterval = null;
+                VigorSystem._completeMeditation();
+                return;
+            }
             const m = Math.floor(remaining / 60000);
             const s = Math.floor((remaining % 60000) / 1000);
             const timerEl = document.getElementById('vigor-meditate-timer');
             if (timerEl) timerEl.textContent = m + ':' + String(s).padStart(2, '0');
         }, 1000);
+    },
+
+    // ── Dokončení meditace — efekt + overlay update ───────────────────────────
+    _completeMeditation: function() {
+        const meta = GameState.vigorMeta;
+        if (!meta) return;
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+
+        // Aplikuj efekt
+        const vigorBefore = this.getVigor();
+        GameState.fatigue = Math.max(0, (GameState.fatigue || 0) - 50);
+        meta.meditateStart = 0;
+        meta.meditateUsed = Date.now();
+        const vigorAfter = this.getVigor();
+
+        // Timer → ✓
+        const timerEl = document.getElementById('vigor-meditate-timer');
+        if (timerEl) {
+            timerEl.textContent = lang === 'en' ? '✓ Complete' : '✓ Dokončeno';
+            timerEl.style.fontSize = '1.3rem';
+            timerEl.style.color = '#AFA9EC';
+            timerEl.style.letterSpacing = '3px';
+        }
+
+        // Gain info
+        const gainEl = document.getElementById('vigor-meditate-gain');
+        if (gainEl) {
+            gainEl.style.display = 'block';
+            gainEl.innerHTML = `
+                <div style="color:#c5a059;font-size:1rem;margin-bottom:4px;">⚡ Vigor: ${vigorBefore}% → <strong style="color:#AFA9EC;">${vigorAfter}%</strong></div>
+                <div style="color:#7F77DD;font-size:0.72rem;opacity:0.8;">${lang === 'en' ? '💤 Fatigue −50' : '💤 Únava −50'}</div>
+            `;
+        }
+
+        // Tlačítko → Zavřít
+        const btnEl = document.getElementById('vigor-meditate-btn');
+        if (btnEl) {
+            btnEl.textContent = lang === 'en' ? 'Close ✓' : 'Zavřít ✓';
+            btnEl.style.borderColor = 'rgba(175,169,236,0.5)';
+            btnEl.style.color = '#AFA9EC';
+            btnEl.style.fontStyle = 'normal';
+            btnEl.onclick = function() { VigorSystem._closeMeditationOverlay(); PersonaSystem && PersonaSystem.render(); };
+        }
+
+        // Notify
+        const msg = lang === 'en'
+            ? `🧘 Lectio et meditatio complete. Fatigue −50. Vigor: ${vigorAfter}%.`
+            : `🧘 Lectio et meditatio dokončena. Únava −50. Vigor: ${vigorAfter}%.`;
+        if (typeof UI !== 'undefined') {
+            if (UI.notify) UI.notify(msg);
+            if (UI.notifyPanel) UI.notifyPanel(msg, 'system');
+        }
+        if (typeof PersonaSystem !== 'undefined') PersonaSystem.render();
+        if (typeof Game !== 'undefined' && Game.save) Game.save();
     },
 
     _closeMeditationOverlay: function() {
