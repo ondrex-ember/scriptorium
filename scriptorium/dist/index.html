@@ -12082,12 +12082,20 @@ const VigorSystem = {
                 lastNonRest: Date.now(),
                 warnedLow:   false,
                 nonaUsed:    '',   // datum posledního odpočinku při Nóně (YYYY-MM-DD)
-                meditateUsed: 0,   // timestamp posledního použití meditace
+                meditateUsed: 0,   // timestamp posledního použití meditace (cooldown)
+                nonaStart:    0,   // timestamp začátku odpočinku Nona (0 = nečeká)
+                meditateStart: 0,  // timestamp začátku meditace (0 = nečeká)
             };
         }
         // Migrace — přidat meditateUsed pokud chybí
         if (typeof GameState.vigorMeta.meditateUsed === 'undefined') {
             GameState.vigorMeta.meditateUsed = 0;
+        }
+        if (typeof GameState.vigorMeta.nonaStart === 'undefined') {
+            GameState.vigorMeta.nonaStart = 0;
+        }
+        if (typeof GameState.vigorMeta.meditateStart === 'undefined') {
+            GameState.vigorMeta.meditateStart = 0;
         }
 
         this._applyOfflineDelta();
@@ -12180,6 +12188,40 @@ const VigorSystem = {
         GameState.fatigue = Math.max(0, (GameState.fatigue || 0) - fatRecovery);
 
         meta.lastTick = now;
+
+        // ── Timer check: Nona odpočinek (60s) ────────────────────────────────
+        if (meta.nonaStart > 0 && now - meta.nonaStart >= 60000) {
+            GameState.fatigue = Math.max(0, (GameState.fatigue || 0) - 20);
+            const today = new Date().toISOString().slice(0, 10);
+            meta.nonaUsed = today;
+            meta.nonaStart = 0;
+            const lang = (GameState.settings && GameState.settings.language) || 'cs';
+            const msg = lang === 'en'
+                ? `😴 Nona rest complete. Fatigue -20. Vigor: ${this.getVigor()}.`
+                : `😴 Odpočinek při Nóně dokončen. Únava -20. Vigor: ${this.getVigor()}.`;
+            if (typeof UI !== 'undefined') {
+                if (UI.notify) UI.notify(msg);
+                if (UI.notifyPanel) UI.notifyPanel(msg, 'system');
+            }
+        }
+
+        // ── Timer check: Meditace (180s) ─────────────────────────────────────
+        if (meta.meditateStart > 0 && now - meta.meditateStart >= 180000) {
+            GameState.fatigue = Math.max(0, (GameState.fatigue || 0) - 50);
+            meta.meditateUsed = now;
+            meta.meditateStart = 0;
+            this._closeMeditationOverlay();
+            const lang = (GameState.settings && GameState.settings.language) || 'cs';
+            const msg = lang === 'en'
+                ? `🧘 Lectio et meditatio complete. Fatigue -50. Vigor: ${this.getVigor()}.`
+                : `🧘 Lectio et meditatio dokončena. Únava -50. Vigor: ${this.getVigor()}.`;
+            if (typeof UI !== 'undefined') {
+                if (UI.notify) UI.notify(msg);
+                if (UI.notifyPanel) UI.notifyPanel(msg, 'system');
+            }
+            if (typeof PersonaSystem !== 'undefined') PersonaSystem.render();
+        }
+
         this._checkThresholds();
         this.renderPill();
         if (typeof Game !== 'undefined' && Game.save) Game.save();
@@ -12275,29 +12317,40 @@ const VigorSystem = {
                 UI.notify(lang === 'en' ? '⚠️ You have already rested today.' : '⚠️ Dnes jsi již odpočíval.', true);
             return;
         }
+        if (GameState.vigorMeta.nonaStart > 0) {
+            if (typeof UI !== 'undefined' && UI.notify)
+                UI.notify(lang === 'en' ? '😴 Already resting...' : '😴 Již odpočíváš...', true);
+            return;
+        }
+        if ((GameState.vigorMeta.meditateStart || 0) > 0) {
+            if (typeof UI !== 'undefined' && UI.notify)
+                UI.notify(lang === 'en' ? '🧘 Complete meditation first.' : '🧘 Nejprve dokonči meditaci.', true);
+            return;
+        }
 
-        GameState.fatigue = Math.max(0, (GameState.fatigue || 0) - 20);
-        GameState.vigorMeta.nonaUsed = today;
-
+        // Spustit timer (60s real time)
+        GameState.vigorMeta.nonaStart = Date.now();
         const msg = lang === 'en'
-            ? `😴 Nona rest. Fatigue -20. Vigor: ${this.getVigor()}.`
-            : `😴 Odpočinek při Nóně. Únava -20. Vigor: ${this.getVigor()}.`;
+            ? '😴 Nona rest started. Rest for 60 seconds...'
+            : '😴 Odpočinek začal. Odpočívej 60 sekund...';
         if (typeof UI !== 'undefined') {
             if (UI.notify) UI.notify(msg);
-            if (UI.notifyPanel) UI.notifyPanel(msg, 'system');
         }
         this.renderPill();
         if (typeof Game !== 'undefined' && Game.save) Game.save();
     },
 
-    // ── Meditace (1× za 12h) ─────────────────────────────────────────────────
+    // ── Meditace (1× za 12h, trvá 3 min real time) ──────────────────────────
+    MEDITATE_DURATION: 180000,  // 3 min v ms
+    NONA_DURATION:     60000,   // 60s v ms
+
     meditate: function() {
         const lang = (GameState.settings && GameState.settings.language) || 'cs';
         const meta = GameState.vigorMeta;
         if (!meta) return;
 
         const now = Date.now();
-        const cooldown = 12 * 3600000; // 12h v ms
+        const cooldown = 12 * 3600000;
         const elapsed = now - (meta.meditateUsed || 0);
 
         if (elapsed < cooldown) {
@@ -12308,20 +12361,123 @@ const VigorSystem = {
             if (typeof UI !== 'undefined' && UI.notify) UI.notify(msg, true);
             return;
         }
-
-        GameState.fatigue = Math.max(0, (GameState.fatigue || 0) - 50);
-        meta.meditateUsed = now;
-
-        const msg = lang === 'en'
-            ? `🧘 Lectio et meditatio. Fatigue -50. Vigor: ${this.getVigor()}.`
-            : `🧘 Lectio et meditatio. Únava -50. Vigor: ${this.getVigor()}.`;
-        if (typeof UI !== 'undefined') {
-            if (UI.notify) UI.notify(msg);
-            if (UI.notifyPanel) UI.notifyPanel(msg, 'system');
+        if (meta.meditateStart > 0) {
+            if (typeof UI !== 'undefined' && UI.notify)
+                UI.notify(lang === 'en' ? '🧘 Already meditating...' : '🧘 Již meditujete...', true);
+            return;
         }
+        if ((meta.nonaStart || 0) > 0) {
+            if (typeof UI !== 'undefined' && UI.notify)
+                UI.notify(lang === 'en' ? '😴 Complete rest first.' : '😴 Nejprve dokonči odpočinek.', true);
+            return;
+        }
+
+        // Spustit timer + zobrazit overlay
+        meta.meditateStart = now;
+        this._openMeditationOverlay();
         this.renderPill();
         if (typeof Game !== 'undefined' && Game.save) Game.save();
     },
+
+    // ── Mandala overlay ───────────────────────────────────────────────────────
+    _openMeditationOverlay: function() {
+        if (document.getElementById('vigor-meditation-overlay')) return;
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        const overlay = document.createElement('div');
+        overlay.id = 'vigor-meditation-overlay';
+        overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(5,4,20,0.92);z-index:99999;display:flex;flex-direction:column;align-items:center;justify-content:center;';
+        overlay.innerHTML = `
+            <div id="vigor-meditate-mandala" style="width:280px;height:280px;position:relative;">
+                <svg width="280" height="280" viewBox="0 0 680 680" style="width:100%;height:100%;">
+                    <defs>
+                        <style>
+                            .vm-r1{animation:vmR 12s linear infinite;transform-origin:340px 340px}
+                            .vm-r2{animation:vmL 18s linear infinite;transform-origin:340px 340px}
+                            .vm-pulse{animation:vmP 3s ease-in-out infinite;transform-origin:340px 340px}
+                            .vm-glyph{animation:vmG 6s ease-in-out infinite}
+                            .vm-pfill{animation:vmFill ${this.MEDITATE_DURATION/1000}s linear forwards;stroke-dasharray:1256;stroke-dashoffset:1256}
+                            @keyframes vmR{to{transform:rotate(360deg)}}
+                            @keyframes vmL{to{transform:rotate(-360deg)}}
+                            @keyframes vmP{0%,100%{opacity:0.5;transform:scale(0.97)}50%{opacity:1;transform:scale(1.03)}}
+                            @keyframes vmG{0%,100%{opacity:0.25}50%{opacity:0.7}}
+                            @keyframes vmFill{to{stroke-dashoffset:0}}
+                        <\/style>
+                    </defs>
+                    <rect width="680" height="680" fill="#0a0a14"/>
+                    <circle cx="340" cy="340" r="200" fill="none" stroke="#c5a059" stroke-width="0.8" opacity="0.15"/>
+                    <circle cx="340" cy="340" r="200" fill="none" stroke="#c5a059" stroke-width="2.5" class="vm-pfill" stroke-linecap="round" transform="rotate(-90 340 340)"/>
+                    <g class="vm-r1">
+                        <polygon points="340,140 524,273 455,490 225,490 156,273" fill="none" stroke="#534AB7" stroke-width="1" opacity="0.7"/>
+                        <circle cx="340" cy="140" r="4" fill="#AFA9EC" opacity="0.9"/>
+                        <circle cx="524" cy="273" r="4" fill="#AFA9EC" opacity="0.9"/>
+                        <circle cx="455" cy="490" r="4" fill="#AFA9EC" opacity="0.9"/>
+                        <circle cx="225" cy="490" r="4" fill="#AFA9EC" opacity="0.9"/>
+                        <circle cx="156" cy="273" r="4" fill="#AFA9EC" opacity="0.9"/>
+                    </g>
+                    <g class="vm-r2">
+                        <polygon points="340,220 425,283 393,380 287,380 255,283" fill="none" stroke="#7F77DD" stroke-width="1" opacity="0.6"/>
+                        <text x="340" y="216" text-anchor="middle" font-size="11" fill="#c5a059" class="vm-glyph">☿</text>
+                        <text x="429" y="287" text-anchor="middle" font-size="11" fill="#c5a059" class="vm-glyph">♄</text>
+                        <text x="397" y="388" text-anchor="middle" font-size="11" fill="#c5a059" class="vm-glyph">♃</text>
+                        <text x="283" y="388" text-anchor="middle" font-size="11" fill="#c5a059" class="vm-glyph">♂</text>
+                        <text x="251" y="287" text-anchor="middle" font-size="11" fill="#c5a059" class="vm-glyph">♀</text>
+                    </g>
+                    <circle cx="340" cy="340" r="130" fill="none" stroke="#534AB7" stroke-width="1" class="vm-pulse" opacity="0.4"/>
+                    <circle cx="340" cy="340" r="90" fill="#0d0b1e" stroke="#534AB7" stroke-width="1"/>
+                    <ellipse cx="340" cy="340" rx="38" ry="22" fill="none" stroke="#c5a059" stroke-width="1" class="vm-pulse"/>
+                    <circle cx="340" cy="340" r="14" fill="#0d0b1e" stroke="#7F77DD" stroke-width="1"/>
+                    <circle cx="340" cy="340" r="6" fill="#534AB7"/>
+                    <circle cx="344" cy="337" r="2" fill="#AFA9EC" opacity="0.8"/>
+                </svg>
+            </div>
+            <div id="vigor-meditate-timer" style="color:#c5a059;font-family:serif;font-size:2rem;margin-top:16px;letter-spacing:4px;">3:00</div>
+            <div style="color:#7F77DD;font-family:serif;font-size:0.75rem;letter-spacing:3px;margin-top:8px;opacity:0.8;">LECTIO ET MEDITATIO</div>
+            <div style="max-width:300px;margin-top:20px;text-align:center;line-height:1.8;border-top:1px solid rgba(197,160,89,0.15);padding-top:16px;">
+                <div style="color:rgba(197,160,89,0.5);font-size:0.6rem;letter-spacing:2px;margin-bottom:10px;">✦ NOTE BY ONDREX ✦</div>
+                <div style="color:#c5a059;font-family:serif;font-size:0.85rem;font-style:italic;opacity:0.9;">
+                    Tak odlož stroj a dívej se ven, do zahrady duše či světa. Uvolni mysl a oči.
+                </div>
+                <div style="color:#AFA9EC;font-family:serif;font-size:0.78rem;font-style:italic;margin-top:8px;opacity:0.7;">
+                    Set down the machine and look outward, into the garden of the soul or of the world. Free your mind and eyes.
+                </div>
+                <div style="color:#7F77DD;font-family:serif;font-size:0.72rem;font-style:italic;margin-top:8px;opacity:0.55;">
+                    Pone machinam et intuere, in hortum animae vel mundi. Libera mentem et oculos.
+                </div>
+            </div>
+            <button onclick="VigorSystem.cancelMeditation()" style="margin-top:20px;background:transparent;border:1px solid rgba(197,160,89,0.2);color:rgba(197,160,89,0.45);padding:6px 20px;border-radius:6px;cursor:pointer;font-size:0.68rem;font-style:italic;">
+                ${lang === 'en' ? 'Interrupt meditation (no effect)' : 'Přerušit meditaci (efekt se ztratí)'}
+            </button>
+        `;
+        document.body.appendChild(overlay);
+        // Timer display update každou sekundu
+        this._meditateInterval = setInterval(() => {
+            const meta = GameState.vigorMeta;
+            if (!meta || meta.meditateStart === 0) { clearInterval(this._meditateInterval); return; }
+            const remaining = Math.max(0, this.MEDITATE_DURATION - (Date.now() - meta.meditateStart));
+            const m = Math.floor(remaining / 60000);
+            const s = Math.floor((remaining % 60000) / 1000);
+            const timerEl = document.getElementById('vigor-meditate-timer');
+            if (timerEl) timerEl.textContent = m + ':' + String(s).padStart(2, '0');
+        }, 1000);
+    },
+
+    _closeMeditationOverlay: function() {
+        if (this._meditateInterval) { clearInterval(this._meditateInterval); this._meditateInterval = null; }
+        const overlay = document.getElementById('vigor-meditation-overlay');
+        if (overlay) overlay.remove();
+    },
+
+    cancelMeditation: function() {
+        if (!GameState.vigorMeta) return;
+        GameState.vigorMeta.meditateStart = 0;
+        this._closeMeditationOverlay();
+        this.renderPill();
+        if (typeof Game !== 'undefined' && Game.save) Game.save();
+    },
+
+    // ── Audio stub pro budoucí meditační melodii ──────────────────────────────
+    startMeditationAudio: function() { /* placeholder — implementovat v audio.js */ },
+    stopMeditationAudio:  function() { /* placeholder — implementovat v audio.js */ },
 
 
     _checkThresholds: function() {
@@ -12398,19 +12554,28 @@ const VigorSystem = {
             : (lang === 'en' ? 'Well rested' : 'Odpočatý');
 
         const today = new Date().toISOString().slice(0, 10);
-        const nonaAvail = !GameState.vigorMeta || GameState.vigorMeta.nonaUsed !== today;
-        const nonaBtn = nonaAvail
-            ? `<button onclick="VigorSystem.restNona()" style="margin-top:8px;width:100%;padding:4px 8px;border-radius:6px;border:1px solid var(--accent-gold);background:rgba(197,160,89,0.15);color:var(--accent-gold);cursor:pointer;font-size:0.75rem;">
+        const meta12 = GameState.vigorMeta || {};
+        const nonaAvail = !meta12.nonaUsed || meta12.nonaUsed !== today;
+        const nonaActive = (meta12.nonaStart || 0) > 0;
+        const nonaRemainS = nonaActive ? Math.max(0, Math.ceil((60000 - (Date.now() - meta12.nonaStart)) / 1000)) : 0;
+        const nonaUsedToday = meta12.nonaUsed === today && !nonaActive;
+        const nonaBtn = nonaActive
+            ? `<div style="margin-top:8px;font-size:0.7rem;color:var(--accent-gold);opacity:0.8;">😴 ${lang === 'en' ? `Resting... ${nonaRemainS}s` : `Odpočíváš... ${nonaRemainS}s`}<div style="height:3px;background:rgba(197,160,89,0.15);border-radius:2px;margin-top:4px;"><div style="height:3px;background:var(--accent-gold);border-radius:2px;width:${Math.round((1-nonaRemainS/60)*100)}%;transition:width 1s;"></div></div></div>`
+            : nonaUsedToday
+            ? `<div style="font-size:0.7rem;opacity:0.5;margin-top:6px;">${lang === 'en' ? 'Nona rest used today.' : 'Dnes již odpočinut.'}</div>`
+            : `<button onclick="VigorSystem.restNona()" style="margin-top:8px;width:100%;padding:4px 8px;border-radius:6px;border:1px solid var(--accent-gold);background:rgba(197,160,89,0.15);color:var(--accent-gold);cursor:pointer;font-size:0.75rem;">
                 😴 ${lang === 'en' ? 'Nona rest (-20 Fatigue, 1×/day)' : 'Odpočinek při Nóně (-20 Únava, 1×/den)'}
-               </button>`
-            : `<div style="font-size:0.7rem;opacity:0.5;margin-top:6px;">${lang === 'en' ? 'Nona rest used today.' : 'Dnes již odpočinut.'}</div>`;
+               </button>`;
 
         const now12 = Date.now();
         const meditCooldown = 12 * 3600000;
-        const meditElapsed = now12 - (GameState.vigorMeta ? (GameState.vigorMeta.meditateUsed || 0) : 0);
+        const meditElapsed = now12 - (meta12.meditateUsed || 0);
         const meditAvail = meditElapsed >= meditCooldown;
+        const meditActive = (meta12.meditateStart || 0) > 0;
         const meditRemainH = meditAvail ? 0 : Math.ceil((meditCooldown - meditElapsed) / 3600000);
-        const meditBtn = meditAvail
+        const meditBtn = meditActive
+            ? `<div style="margin-top:6px;font-size:0.7rem;color:var(--accent-gold);opacity:0.8;">🧘 ${lang === 'en' ? 'Meditating...' : 'Meditace probíhá...'}</div>`
+            : meditAvail
             ? `<button onclick="VigorSystem.meditate()" style="margin-top:6px;width:100%;padding:4px 8px;border-radius:6px;border:1px solid var(--accent-gold);background:rgba(197,160,89,0.15);color:var(--accent-gold);cursor:pointer;font-size:0.75rem;">
                 🧘 ${lang === 'en' ? 'Meditate (-50 Fatigue, 1×/12h)' : 'Meditace (-50 Únava, 1×/12h)'}
                </button>`
@@ -12452,19 +12617,27 @@ const VigorSystem = {
             : (lang === 'en' ? 'Well rested' : 'Odpočatý');
 
         const today = new Date().toISOString().slice(0, 10);
-        const nonaAvail = !GameState.vigorMeta || GameState.vigorMeta.nonaUsed !== today;
-        const nonaBtn = nonaAvail
-            ? `<button onclick="VigorSystem.restNona();PersonaSystem.render();" style="margin-top:8px;width:100%;padding:4px 8px;border-radius:6px;border:1px solid var(--accent-gold);background:rgba(197,160,89,0.15);color:var(--accent-gold);cursor:pointer;font-size:0.75rem;">
+        const metaFd = GameState.vigorMeta || {};
+        const nonaActiveFd = (metaFd.nonaStart || 0) > 0;
+        const nonaRemainSFd = nonaActiveFd ? Math.max(0, Math.ceil((60000 - (Date.now() - metaFd.nonaStart)) / 1000)) : 0;
+        const nonaUsedTodayFd = metaFd.nonaUsed === today && !nonaActiveFd;
+        const nonaBtn = nonaActiveFd
+            ? `<div style="margin-top:8px;font-size:0.7rem;color:var(--accent-gold);opacity:0.8;">😴 ${lang === 'en' ? `Resting... ${nonaRemainSFd}s` : `Odpočíváš... ${nonaRemainSFd}s`}<div style="height:3px;background:rgba(197,160,89,0.15);border-radius:2px;margin-top:4px;"><div style="height:3px;background:var(--accent-gold);border-radius:2px;width:${Math.round((1-nonaRemainSFd/60)*100)}%;"></div></div></div>`
+            : nonaUsedTodayFd
+            ? `<div style="font-size:0.7rem;opacity:0.5;margin-top:6px;">${lang === 'en' ? 'Nona rest used today.' : 'Dnes již odpočinut.'}</div>`
+            : `<button onclick="VigorSystem.restNona();PersonaSystem.render();" style="margin-top:8px;width:100%;padding:4px 8px;border-radius:6px;border:1px solid var(--accent-gold);background:rgba(197,160,89,0.15);color:var(--accent-gold);cursor:pointer;font-size:0.75rem;">
                 😴 ${lang === 'en' ? 'Nona rest (-20 Fatigue, 1×/day)' : 'Odpočinek při Nóně (-20 Únava, 1×/den)'}
-               </button>`
-            : `<div style="font-size:0.7rem;opacity:0.5;margin-top:6px;">${lang === 'en' ? 'Nona rest used today.' : 'Dnes již odpočinut.'}</div>`;
+               </button>`;
 
         const now12fd = Date.now();
         const meditCooldownFd = 12 * 3600000;
-        const meditElapsedFd = now12fd - (GameState.vigorMeta ? (GameState.vigorMeta.meditateUsed || 0) : 0);
+        const meditElapsedFd = now12fd - (metaFd.meditateUsed || 0);
         const meditAvailFd = meditElapsedFd >= meditCooldownFd;
+        const meditActiveFd = (metaFd.meditateStart || 0) > 0;
         const meditRemainHFd = meditAvailFd ? 0 : Math.ceil((meditCooldownFd - meditElapsedFd) / 3600000);
-        const meditBtnFd = meditAvailFd
+        const meditBtnFd = meditActiveFd
+            ? `<div style="margin-top:6px;font-size:0.7rem;color:var(--accent-gold);opacity:0.8;">🧘 ${lang === 'en' ? 'Meditating...' : 'Meditace probíhá...'}</div>`
+            : meditAvailFd
             ? `<button onclick="VigorSystem.meditate();PersonaSystem.render();" style="margin-top:6px;width:100%;padding:4px 8px;border-radius:6px;border:1px solid var(--accent-gold);background:rgba(197,160,89,0.15);color:var(--accent-gold);cursor:pointer;font-size:0.75rem;">
                 🧘 ${lang === 'en' ? 'Meditate (-50 Fatigue, 1×/12h)' : 'Meditace (-50 Únava, 1×/12h)'}
                </button>`
