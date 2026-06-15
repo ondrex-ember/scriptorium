@@ -770,14 +770,18 @@ class AudioSystem {
     
     start() {
         if (this.isPlaying) return;
-        
-        // Resume pro prohlížeče (autoplay policy)
+
+        // Resume pro prohlížeče (autoplay policy) — async, čekáme na .then()
         if (this.audioContext.state === 'suspended') {
-            this.audioContext.resume();
+            this.audioContext.resume().then(() => this._startAfterResume());
+        } else {
+            this._startAfterResume();
         }
-        
+    }
+
+    _startAfterResume() {
         // Pokud je krb rozžehnutý, spustit zvuk
-        if (typeof GameState !== 'undefined' && GameState.flags.fireplaceLit && !this.fireGain) {
+        if (typeof GameState !== 'undefined' && GameState.flags.fireplaceLit) {
             this.startFireLoop(true);
         }
 
