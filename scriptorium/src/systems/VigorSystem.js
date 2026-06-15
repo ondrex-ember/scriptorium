@@ -410,51 +410,126 @@ const VigorSystem = {
     _openMeditationOverlay: function() {
         if (document.getElementById('vigor-meditation-overlay')) return;
         const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        const dur  = this.MEDITATE_DURATION / 1000; // 180s
         const overlay = document.createElement('div');
         overlay.id = 'vigor-meditation-overlay';
         overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(5,4,20,0.92);z-index:99999;display:flex;flex-direction:column;align-items:center;justify-content:center;';
         overlay.innerHTML = `
             <div id="vigor-meditate-mandala" style="width:280px;height:280px;position:relative;">
-                <svg width="280" height="280" viewBox="0 0 680 680" style="width:100%;height:100%;">
-                    <defs>
-                        <style>
-                            .vm-r1{animation:vmR 12s linear infinite;transform-origin:340px 340px}
-                            .vm-r2{animation:vmL 18s linear infinite;transform-origin:340px 340px}
-                            .vm-pulse{animation:vmP 3s ease-in-out infinite;transform-origin:340px 340px}
-                            .vm-glyph{animation:vmG 6s ease-in-out infinite}
-                            .vm-pfill{animation:vmFill ${this.MEDITATE_DURATION/1000}s linear forwards;stroke-dasharray:1256;stroke-dashoffset:1256}
-                            @keyframes vmR{to{transform:rotate(360deg)}}
-                            @keyframes vmL{to{transform:rotate(-360deg)}}
-                            @keyframes vmP{0%,100%{opacity:0.5;transform:scale(0.97)}50%{opacity:1;transform:scale(1.03)}}
-                            @keyframes vmG{0%,100%{opacity:0.25}50%{opacity:0.7}}
-                            @keyframes vmFill{to{stroke-dashoffset:0}}
-                        <\/style>
-                    </defs>
-                    <rect width="680" height="680" fill="#0a0a14"/>
-                    <circle cx="340" cy="340" r="200" fill="none" stroke="#c5a059" stroke-width="0.8" opacity="0.15"/>
-                    <circle cx="340" cy="340" r="200" fill="none" stroke="#c5a059" stroke-width="2.5" class="vm-pfill" stroke-linecap="round" transform="rotate(-90 340 340)"/>
-                    <g class="vm-r1">
-                        <polygon points="340,140 524,273 455,490 225,490 156,273" fill="none" stroke="#534AB7" stroke-width="1" opacity="0.7"/>
-                        <circle cx="340" cy="140" r="4" fill="#AFA9EC" opacity="0.9"/>
-                        <circle cx="524" cy="273" r="4" fill="#AFA9EC" opacity="0.9"/>
-                        <circle cx="455" cy="490" r="4" fill="#AFA9EC" opacity="0.9"/>
-                        <circle cx="225" cy="490" r="4" fill="#AFA9EC" opacity="0.9"/>
-                        <circle cx="156" cy="273" r="4" fill="#AFA9EC" opacity="0.9"/>
+                <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%">
+                    <rect width="200" height="200" fill="#040410"/>
+
+                    <!-- Progress ring: r=94, obvod=591 — plní se přes ${dur}s -->
+                    <circle cx="100" cy="100" r="94" fill="none" stroke="rgba(197,160,89,0.12)" stroke-width="1.5"/>
+                    <circle cx="100" cy="100" r="94" fill="none" stroke="rgba(197,160,89,0.85)" stroke-width="2.5"
+                        stroke-dasharray="591" stroke-dashoffset="591" stroke-linecap="round"
+                        transform="rotate(-90 100 100)">
+                        <animate attributeName="stroke-dashoffset" from="591" to="0" dur="${dur}s" fill="freeze"/>
+                    </circle>
+
+                    <!-- L1: Hexagram (2s → 42s) -->
+                    <polygon points="100,14 183,57 183,143 100,186 17,143 17,57"
+                        fill="none" stroke="rgba(201,168,76,.65)" stroke-width="1"
+                        stroke-dasharray="520" stroke-dashoffset="520">
+                        <animate attributeName="stroke-dashoffset" from="520" to="0" dur="40s" begin="2s" fill="freeze"/>
+                    </polygon>
+                    <polygon points="100,186 183,143 17,143" fill="none" stroke="rgba(201,168,76,.38)" stroke-width=".8"
+                        stroke-dasharray="340" stroke-dashoffset="340">
+                        <animate attributeName="stroke-dashoffset" from="340" to="0" dur="20s" begin="22s" fill="freeze"/>
+                    </polygon>
+                    <polygon points="100,14 183,57 17,57" fill="none" stroke="rgba(201,168,76,.38)" stroke-width=".8"
+                        stroke-dasharray="340" stroke-dashoffset="340">
+                        <animate attributeName="stroke-dashoffset" from="340" to="0" dur="20s" begin="32s" fill="freeze"/>
+                    </polygon>
+
+                    <!-- L2: Pentagon (55s → 95s) -->
+                    <polygon points="100,22 170,74 144,156 56,156 30,74"
+                        fill="none" stroke="rgba(139,111,255,.6)" stroke-width=".9"
+                        stroke-dasharray="380" stroke-dashoffset="380">
+                        <animate attributeName="stroke-dashoffset" from="380" to="0" dur="40s" begin="55s" fill="freeze"/>
+                    </polygon>
+
+                    <!-- Pentagram lines (80s → 140s, 12s každá) -->
+                    <line x1="100" y1="22"  x2="144" y2="156" stroke="rgba(139,111,255,.38)" stroke-width=".7" stroke-dasharray="145" stroke-dashoffset="145">
+                        <animate attributeName="stroke-dashoffset" from="145" to="0" dur="12s" begin="80s" fill="freeze"/>
+                    </line>
+                    <line x1="100" y1="22"  x2="56"  y2="156" stroke="rgba(139,111,255,.38)" stroke-width=".7" stroke-dasharray="145" stroke-dashoffset="145">
+                        <animate attributeName="stroke-dashoffset" from="145" to="0" dur="12s" begin="92s" fill="freeze"/>
+                    </line>
+                    <line x1="170" y1="74"  x2="56"  y2="156" stroke="rgba(139,111,255,.38)" stroke-width=".7" stroke-dasharray="145" stroke-dashoffset="145">
+                        <animate attributeName="stroke-dashoffset" from="145" to="0" dur="12s" begin="104s" fill="freeze"/>
+                    </line>
+                    <line x1="170" y1="74"  x2="30"  y2="74"  stroke="rgba(139,111,255,.38)" stroke-width=".7" stroke-dasharray="145" stroke-dashoffset="145">
+                        <animate attributeName="stroke-dashoffset" from="145" to="0" dur="12s" begin="116s" fill="freeze"/>
+                    </line>
+                    <line x1="144" y1="156" x2="30"  y2="74"  stroke="rgba(139,111,255,.38)" stroke-width=".7" stroke-dasharray="145" stroke-dashoffset="145">
+                        <animate attributeName="stroke-dashoffset" from="145" to="0" dur="12s" begin="128s" fill="freeze"/>
+                    </line>
+
+                    <!-- L3: Vnitřní kruhy (120s, 140s) -->
+                    <circle cx="100" cy="100" r="40" fill="none" stroke="rgba(201,168,76,.35)" stroke-width=".7"
+                        stroke-dasharray="252" stroke-dashoffset="252">
+                        <animate attributeName="stroke-dashoffset" from="252" to="0" dur="22s" begin="120s" fill="freeze"/>
+                    </circle>
+                    <circle cx="100" cy="100" r="20" fill="none" stroke="rgba(139,111,255,.45)" stroke-width=".7"
+                        stroke-dasharray="126" stroke-dashoffset="126">
+                        <animate attributeName="stroke-dashoffset" from="126" to="0" dur="18s" begin="140s" fill="freeze"/>
+                    </circle>
+
+                    <!-- Rotující body na kardinálních osách (60s, 30s otáčení) -->
+                    <g opacity="0">
+                        <animate attributeName="opacity" from="0" to="1" dur="4s" begin="60s" fill="freeze"/>
+                        <g>
+                            <animateTransform attributeName="transform" type="rotate" from="0 100 100" to="360 100 100" dur="30s" begin="60s" repeatCount="indefinite"/>
+                            <circle cx="100" cy="8"   r="3"   fill="rgba(201,168,76,.7)"/>
+                            <circle cx="192" cy="100" r="2.5" fill="rgba(139,111,255,.6)"/>
+                            <circle cx="100" cy="192" r="3"   fill="rgba(201,168,76,.7)"/>
+                            <circle cx="8"   cy="100" r="2.5" fill="rgba(139,111,255,.6)"/>
+                        </g>
                     </g>
-                    <g class="vm-r2">
-                        <polygon points="340,220 425,283 393,380 287,380 255,283" fill="none" stroke="#7F77DD" stroke-width="1" opacity="0.6"/>
-                        <text x="340" y="216" text-anchor="middle" font-size="11" fill="#c5a059" class="vm-glyph">☿</text>
-                        <text x="429" y="287" text-anchor="middle" font-size="11" fill="#c5a059" class="vm-glyph">♄</text>
-                        <text x="397" y="388" text-anchor="middle" font-size="11" fill="#c5a059" class="vm-glyph">♃</text>
-                        <text x="283" y="388" text-anchor="middle" font-size="11" fill="#c5a059" class="vm-glyph">♂</text>
-                        <text x="251" y="287" text-anchor="middle" font-size="11" fill="#c5a059" class="vm-glyph">♀</text>
+
+                    <!-- Planetární glyfé na orbitě r=62 (☉ 110s, ☽ 115s, ☿ 120s) -->
+                    <g opacity="0">
+                        <animate attributeName="opacity" from="0" to="1" dur="5s" begin="110s" fill="freeze"/>
+                        <g>
+                            <animateTransform attributeName="transform" type="rotate" from="0 100 100" to="360 100 100" dur="60s" begin="110s" repeatCount="indefinite"/>
+                            <g transform="translate(100,38)">
+                                <circle r="7" fill="rgba(8,8,20,.9)" stroke="rgba(201,168,76,.8)" stroke-width=".9"/>
+                                <text font-size="8" fill="rgba(201,168,76,.95)" text-anchor="middle" dominant-baseline="central" font-family="serif">☉</text>
+                            </g>
+                        </g>
                     </g>
-                    <circle cx="340" cy="340" r="130" fill="none" stroke="#534AB7" stroke-width="1" class="vm-pulse" opacity="0.4"/>
-                    <circle cx="340" cy="340" r="90" fill="#0d0b1e" stroke="#534AB7" stroke-width="1"/>
-                    <ellipse cx="340" cy="340" rx="38" ry="22" fill="none" stroke="#c5a059" stroke-width="1" class="vm-pulse"/>
-                    <circle cx="340" cy="340" r="14" fill="#0d0b1e" stroke="#7F77DD" stroke-width="1"/>
-                    <circle cx="340" cy="340" r="6" fill="#534AB7"/>
-                    <circle cx="344" cy="337" r="2" fill="#AFA9EC" opacity="0.8"/>
+                    <g opacity="0">
+                        <animate attributeName="opacity" from="0" to="1" dur="5s" begin="115s" fill="freeze"/>
+                        <g>
+                            <animateTransform attributeName="transform" type="rotate" from="120 100 100" to="480 100 100" dur="60s" begin="115s" repeatCount="indefinite"/>
+                            <g transform="translate(100,38)">
+                                <circle r="6.5" fill="rgba(8,8,20,.9)" stroke="rgba(139,111,255,.8)" stroke-width=".9"/>
+                                <text font-size="8" fill="rgba(139,111,255,.95)" text-anchor="middle" dominant-baseline="central" font-family="serif">☽</text>
+                            </g>
+                        </g>
+                    </g>
+                    <g opacity="0">
+                        <animate attributeName="opacity" from="0" to="1" dur="5s" begin="120s" fill="freeze"/>
+                        <g>
+                            <animateTransform attributeName="transform" type="rotate" from="240 100 100" to="600 100 100" dur="60s" begin="120s" repeatCount="indefinite"/>
+                            <g transform="translate(100,38)">
+                                <circle r="6" fill="rgba(8,8,20,.9)" stroke="rgba(69,162,158,.8)" stroke-width=".9"/>
+                                <text font-size="8" fill="rgba(69,162,158,.95)" text-anchor="middle" dominant-baseline="central" font-family="serif">☿</text>
+                            </g>
+                        </g>
+                    </g>
+
+                    <!-- Střed (155s) -->
+                    <circle cx="100" cy="100" r="5" fill="rgba(139,111,255,.9)" opacity="0">
+                        <animate attributeName="opacity" from="0" to="1" dur="5s" begin="155s" fill="freeze"/>
+                    </circle>
+                    <circle cx="100" cy="100" r="2.5" fill="#040408" opacity="0">
+                        <animate attributeName="opacity" from="0" to="1" dur="5s" begin="155s" fill="freeze"/>
+                    </circle>
+                    <circle cx="103" cy="97" r="1.2" fill="rgba(255,255,255,.7)" opacity="0">
+                        <animate attributeName="opacity" from="0" to="1" dur="5s" begin="155s" fill="freeze"/>
+                    </circle>
                 </svg>
             </div>
             <div id="vigor-meditate-timer" style="color:#c5a059;font-family:serif;font-size:2rem;margin-top:16px;letter-spacing:4px;">3:00</div>
