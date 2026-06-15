@@ -2383,6 +2383,7 @@
                                 <button class="filter-btn" onclick="FireplaceSystem.addFuel('log')" id="btn-fuel-log" style="flex:1;">+ Poleno</button>
                             </div>
                         </div>
+                        <div id="foculus-tea" style="display:none; margin-top:12px;"></div>
                         <div id="foculus-dashboard" style="display:none; margin-top:12px;"></div>
                     </div>
                 </div>
@@ -5110,6 +5111,7 @@ const ItemsDB = {
     "hoe":             { name:"Motyka",              name_en:"Hoe",                    icon:"⚒️", type:"tool",        desc:"K farmě.",                                         desc_en:"For the garden." },
     "fishing_rod":     { name:"Udice",               name_en:"Fishing Rod",            icon:"🎣", type:"tool",        desc:"Na ryby.",                                         desc_en:"For fishing." },
     "cooking_pot":     { name:"Hrnec",               name_en:"Cooking Pot",            icon:"🫕", type:"tool",        desc:"Na vaření.",                                       desc_en:"For cooking." },
+    "tea_kettle":      { name:"Konvička",            name_en:"Kettle",                 icon:"🫖", type:"tool",        desc:"Hliněná konvička na čaj. Pověsí se nad oheň.",     desc_en:"A clay kettle for tea. Hung over the fire." },
     "basket":          { name:"Koš",                 name_en:"Basket",                 icon:"🧺", type:"tool",        desc:"Na sběr.",                                         desc_en:"For foraging." },
 
     "repair_kit":      { name:"Opravná sada",        name_en:"Repair Kit",             icon:"🔧", type:"tool",        desc:"Na opravu studny.",                                desc_en:"For repairing the well.", cat:"tool" },
@@ -5537,6 +5539,7 @@ const RecipesDB = [
     // COOKING TOOLS
     { id: "fishing_rod", output: "fishing_rod", qty: 1, req: { "stick": 2, "rope": 1, "bone": 1 }, cat: "stone", locked: true },
     { id: "cooking_pot", output: "cooking_pot", qty: 1, req: { "rock": 3, "water": 1 }, cat: "craft", locked: true },
+    { id: "tea_kettle", output: "tea_kettle", qty: 1, req: { "clay": 3, "water": 1 }, cat: "craft", locked: true },
     { id: "basket", output: "basket", qty: 1, req: { "fiber": 5, "stick": 2 }, cat: "craft", locked: true },
 
     // LACTARIA — zpracování mléka (tech_lactaria)
@@ -6629,7 +6632,7 @@ const TechTree = [
     { id:"tech_cooking_1",       name:"Vaření",                    name_en:"Cooking",                    cost:4,  desc:"Odemkne: Hrnec, pečení",                       desc_en:"Unlocks: Cooking pot, roasting",        unlocks:["cooking_pot","cooked_meat","cooked_fish","bread"] },
     { id:"tech_fishing",         name:"Rybolov",                   name_en:"Fishing",                    cost:3,  desc:"Odemkne: Udice",                               desc_en:"Unlocks: Fishing rod",                  unlocks:["fishing_rod"] },
     { id:"tech_foraging",        name:"Sběr Potravy",              name_en:"Foraging",                   cost:3,  desc:"Odemkne: Koš, houby",                          desc_en:"Unlocks: Basket, mushrooms",            unlocks:["basket"] },
-    { id:"tech_cooking_2",       name:"Pokročilé Vaření",          name_en:"Advanced Cooking",           cost:5,  desc:"Odemkne: Guláš, polévky",                      desc_en:"Unlocks: Stew, pottages",               unlocks:["stew","mushroom_soup","berry_pie"], requires:["tech_cooking_1"] },
+    { id:"tech_cooking_2",       name:"Pokročilé Vaření",          name_en:"Advanced Cooking",           cost:5,  desc:"Odemkne: Guláš, polévky",                      desc_en:"Unlocks: Stew, pottages",               unlocks:["stew","mushroom_soup","berry_pie","tea_kettle"], requires:["tech_cooking_1"] },
 
     // TIER 2 - horticulture
     { id:"tech_garden_expand",   name:"Rozšíření Zahrady",         name_en:"Garden Expansion",           cost:4,  desc:"Odemkne: 4 políčka zahrady.",                  desc_en:"Unlocks: 4 garden plots.",              unlocks:[] },
@@ -15125,6 +15128,16 @@ const FireplaceSystem = {
         'charcoal': 8 * 60 * 60 * 1000 // Dřevěné uhlí: +8 hodin
     },
 
+    // ── Čajový rituál (Foculus) ──────────────────────────────────────────
+    TEA_BREW_MS: 43 * 1000, // 43 s reálného času
+    // Priorita bylin → výsledný čaj (mata nemá recept, vynechána)
+    TEA_HERBS: [
+        { herb: 'chamomile',     tea: 'herbal_tea' },
+        { herb: 'thyme',         tea: 'herbal_tea' },
+        { herb: 'linden_blossom', tea: 'linden_tea' }
+    ],
+    _teaInterval: null,
+
     hasMeteorologica: function() {
         return !!(GameState.researchedTechs && GameState.researchedTechs.includes('tech_meteorologica'));
     },
@@ -15339,6 +15352,114 @@ const FireplaceSystem = {
         return h;
     },
 
+    // ── Čajový rituál: stavový automat idle → brewing(43s) → ready → idle ──
+    _ensureTeaState: function() {
+        if (!GameState.fire) this._ensureState();
+        if (!GameState.fire.tea) GameState.fire.tea = { state: 'idle', start: 0, teaId: '' };
+    },
+
+    _teaHerb: function() {
+        for (const e of this.TEA_HERBS) {
+            if ((GameState.inventory[e.herb] || 0) > 0) return e;
+        }
+        return null;
+    },
+
+    // Dokončí vaření, pokud uplynul čas. Vrací true při dokončení.
+    _checkTeaDone: function() {
+        if (!GameState.fire || !GameState.fire.tea) return false;
+        const tea = GameState.fire.tea;
+        if (tea.state === 'brewing' && (Date.now() - tea.start) >= this.TEA_BREW_MS) {
+            Game.addItem(tea.teaId || 'herbal_tea', 1);
+            tea.state = 'ready';
+            Game.save();
+            return true;
+        }
+        return false;
+    },
+
+    _ensureTeaInterval: function() {
+        if (this._teaInterval) return;
+        if (!GameState.fire || !GameState.fire.tea || GameState.fire.tea.state !== 'brewing') return;
+        this._teaInterval = setInterval(() => {
+            if (!GameState.fire || !GameState.fire.tea || GameState.fire.tea.state !== 'brewing') {
+                clearInterval(this._teaInterval); this._teaInterval = null; return;
+            }
+            const done = this._checkTeaDone();
+            this.render();
+            if (done) { clearInterval(this._teaInterval); this._teaInterval = null; }
+        }, 1000);
+    },
+
+    brewTea: function() {
+        this._ensureState(); this._ensureTeaState();
+        const tea = GameState.fire.tea;
+        if (tea.state !== 'idle') return;
+        if ((GameState.inventory['tea_kettle'] || 0) <= 0) { UI.notify(t('fireplace.teaNeedKettle'), true); return; }
+        if (!GameState.fire.active) { UI.notify(t('fireplace.teaNeedFire'), true); return; }
+        const herb = this._teaHerb();
+        if (!herb) { UI.notify(t('fireplace.teaNeedHerb'), true); return; }
+        if ((GameState.inventory['water'] || 0) <= 0) { UI.notify(t('fireplace.teaNeedWater'), true); return; }
+
+        Game.removeItem(herb.herb, 1);
+        Game.removeItem('water', 1);
+        GameState.fire.tea = { state: 'brewing', start: Date.now(), teaId: herb.tea };
+        Game.save();
+        this.render();
+        this._ensureTeaInterval();
+    },
+
+    drinkTea: function() {
+        this._ensureTeaState();
+        const tea = GameState.fire.tea;
+        if (tea.state !== 'ready') return;
+        const teaId = tea.teaId || 'herbal_tea';
+        GameState.fire.tea = { state: 'idle', start: 0, teaId: '' };
+        if ((GameState.inventory[teaId] || 0) > 0 && typeof Game.eat === 'function') {
+            Game.eat(teaId); // aplikuje efekt + odebere 1 + renderAll
+        } else {
+            Game.save();
+        }
+        this.render();
+    },
+
+    _renderTea: function() {
+        this._ensureTeaState();
+        const tea = GameState.fire.tea;
+        const card = `background:rgba(0,0,0,0.05);padding:14px;border-radius:10px;border-left:3px solid var(--accent-gold);margin-bottom:12px;`;
+        let h = `<div style="${card}"><h4 style="margin:0 0 10px 0;color:var(--ink-primary);">🍵 ${t('fireplace.teaTitle')}</h4>`;
+
+        if ((GameState.inventory['tea_kettle'] || 0) <= 0) {
+            h += `<div style="font-size:0.8rem;opacity:0.6;">🫖 ${t('fireplace.teaNeedKettle')}</div></div>`;
+            return h;
+        }
+
+        const btn = (label, onclick, disabled) =>
+            `<button onclick="${onclick}" ${disabled ? 'disabled' : ''} style="width:100%;padding:8px;border-radius:6px;border:1px solid var(--accent-gold);background:${disabled ? 'rgba(197,160,89,0.07)' : 'rgba(197,160,89,0.15)'};color:var(--accent-gold);cursor:${disabled ? 'default' : 'pointer'};font-size:0.85rem;opacity:${disabled ? '0.5' : '1'};">${label}</button>`;
+
+        if (tea.state === 'brewing') {
+            const remain = Math.max(0, Math.ceil((this.TEA_BREW_MS - (Date.now() - tea.start)) / 1000));
+            h += `<div style="text-align:center;font-size:1.8rem;">♨️</div>`;
+            h += `<div style="text-align:center;font-size:0.85rem;color:var(--accent-gold);margin-top:4px;">${t('fireplace.teaBrewing').replace('{s}', remain)}</div>`;
+        } else if (tea.state === 'ready') {
+            h += btn('🍵 ' + t('fireplace.teaDrink'), 'FireplaceSystem.drinkTea()', false);
+        } else {
+            const fireOk = !!GameState.fire.active;
+            const herb = this._teaHerb();
+            const water = (GameState.inventory['water'] || 0) > 0;
+            let hint = '';
+            if (!fireOk) hint = t('fireplace.teaNeedFire');
+            else if (!herb) hint = t('fireplace.teaNeedHerb');
+            else if (!water) hint = t('fireplace.teaNeedWater');
+            const can = fireOk && herb && water;
+            h += btn('🫖 ' + t('fireplace.teaBrew'), 'FireplaceSystem.brewTea()', !can);
+            if (hint) h += `<div style="font-size:0.72rem;opacity:0.55;margin-top:6px;text-align:center;">${hint}</div>`;
+        }
+
+        h += `</div>`;
+        return h;
+    },
+
     // Volá se z Game.checkEnvironment() — synchronizuje stav po ignite/dieOut
     render: function() {
         this._ensureState();
@@ -15420,6 +15541,15 @@ const FireplaceSystem = {
         if (dash) {
             dash.innerHTML = this._renderDashboard();
             dash.style.display = 'block';
+        }
+
+        const teaEl = document.getElementById('foculus-tea');
+        if (teaEl) {
+            this._ensureTeaState();
+            this._checkTeaDone();
+            teaEl.innerHTML = this._renderTea();
+            teaEl.style.display = 'block';
+            this._ensureTeaInterval();
         }
     }
 };
@@ -26726,7 +26856,9 @@ const STRINGS_cs = {
         dashTitle: 'Stav pracovny', dashWeather: 'Počasí', dashWeatherNA: '—', dashEnviron: 'Prostředí',
         dashStav: 'Stav', dashTime: 'Čas & Kalendář', dashForecast: 'Předpověď',
         dashNotes: 'Zápisky', dashCoins: 'Groše', dashRank: 'Rank', dashTech: 'Techy', dashKronika: 'Poslední kronika',
-        dashTimeLabel: 'Čas', dashDate: 'Datum', dashMoon: 'Luna', dashHora: 'Hora'
+        dashTimeLabel: 'Čas', dashDate: 'Datum', dashMoon: 'Luna', dashHora: 'Hora',
+        teaTitle: 'Čaj', teaBrew: 'Uvařit čaj', teaDrink: 'PÍT ČAJ', teaBrewing: 'Vaří se… {s} s',
+        teaNeedKettle: 'Potřebuješ Konvičku (vyrob v Craftu)', teaNeedFire: 'Rozdělej oheň', teaNeedHerb: 'Chybí bylina (heřmánek, tymián, lípa)', teaNeedWater: 'Chybí voda'
     },
     light: {
         none: 'Není světlo', noneDesc: 'Tma halí knihy.',
@@ -28374,7 +28506,9 @@ const STRINGS_en = {
         dashTitle: 'Workshop status', dashWeather: 'Weather', dashWeatherNA: '—', dashEnviron: 'Environment',
         dashStav: 'Status', dashTime: 'Time & Calendar', dashForecast: 'Forecast',
         dashNotes: 'Notes', dashCoins: 'Coins', dashRank: 'Rank', dashTech: 'Techs', dashKronika: 'Latest chronicle',
-        dashTimeLabel: 'Time', dashDate: 'Date', dashMoon: 'Moon', dashHora: 'Hour'
+        dashTimeLabel: 'Time', dashDate: 'Date', dashMoon: 'Moon', dashHora: 'Hour',
+        teaTitle: 'Tea', teaBrew: 'Brew tea', teaDrink: 'DRINK TEA', teaBrewing: 'Brewing… {s} s',
+        teaNeedKettle: 'You need a Kettle (craft it)', teaNeedFire: 'Light the fire', teaNeedHerb: 'No herb (chamomile, thyme, linden)', teaNeedWater: 'No water'
     },
     light: {
         none: 'No Light', noneDesc: 'Darkness claimeth this place.',

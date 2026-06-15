@@ -19,7 +19,9 @@ const STRINGS_cs = {
         dashTitle: 'Stav pracovny', dashWeather: 'Počasí', dashWeatherNA: '—', dashEnviron: 'Prostředí',
         dashStav: 'Stav', dashTime: 'Čas & Kalendář', dashForecast: 'Předpověď',
         dashNotes: 'Zápisky', dashCoins: 'Groše', dashRank: 'Rank', dashTech: 'Techy', dashKronika: 'Poslední kronika',
-        dashTimeLabel: 'Čas', dashDate: 'Datum', dashMoon: 'Luna', dashHora: 'Hora'
+        dashTimeLabel: 'Čas', dashDate: 'Datum', dashMoon: 'Luna', dashHora: 'Hora',
+        teaTitle: 'Čaj', teaBrew: 'Uvařit čaj', teaDrink: 'PÍT ČAJ', teaBrewing: 'Vaří se… {s} s',
+        teaNeedKettle: 'Potřebuješ Konvičku (vyrob v Craftu)', teaNeedFire: 'Rozdělej oheň', teaNeedHerb: 'Chybí bylina (heřmánek, tymián, lípa)', teaNeedWater: 'Chybí voda'
     },
     light: {
         none: 'Není světlo', noneDesc: 'Tma halí knihy.',

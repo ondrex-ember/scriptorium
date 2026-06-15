@@ -91,6 +91,16 @@ const FireplaceSystem = {
         'charcoal': 8 * 60 * 60 * 1000 // Dřevěné uhlí: +8 hodin
     },
 
+    // ── Čajový rituál (Foculus) ──────────────────────────────────────────
+    TEA_BREW_MS: 43 * 1000, // 43 s reálného času
+    // Priorita bylin → výsledný čaj (mata nemá recept, vynechána)
+    TEA_HERBS: [
+        { herb: 'chamomile',     tea: 'herbal_tea' },
+        { herb: 'thyme',         tea: 'herbal_tea' },
+        { herb: 'linden_blossom', tea: 'linden_tea' }
+    ],
+    _teaInterval: null,
+
     hasMeteorologica: function() {
         return !!(GameState.researchedTechs && GameState.researchedTechs.includes('tech_meteorologica'));
     },
@@ -305,6 +315,114 @@ const FireplaceSystem = {
         return h;
     },
 
+    // ── Čajový rituál: stavový automat idle → brewing(43s) → ready → idle ──
+    _ensureTeaState: function() {
+        if (!GameState.fire) this._ensureState();
+        if (!GameState.fire.tea) GameState.fire.tea = { state: 'idle', start: 0, teaId: '' };
+    },
+
+    _teaHerb: function() {
+        for (const e of this.TEA_HERBS) {
+            if ((GameState.inventory[e.herb] || 0) > 0) return e;
+        }
+        return null;
+    },
+
+    // Dokončí vaření, pokud uplynul čas. Vrací true při dokončení.
+    _checkTeaDone: function() {
+        if (!GameState.fire || !GameState.fire.tea) return false;
+        const tea = GameState.fire.tea;
+        if (tea.state === 'brewing' && (Date.now() - tea.start) >= this.TEA_BREW_MS) {
+            Game.addItem(tea.teaId || 'herbal_tea', 1);
+            tea.state = 'ready';
+            Game.save();
+            return true;
+        }
+        return false;
+    },
+
+    _ensureTeaInterval: function() {
+        if (this._teaInterval) return;
+        if (!GameState.fire || !GameState.fire.tea || GameState.fire.tea.state !== 'brewing') return;
+        this._teaInterval = setInterval(() => {
+            if (!GameState.fire || !GameState.fire.tea || GameState.fire.tea.state !== 'brewing') {
+                clearInterval(this._teaInterval); this._teaInterval = null; return;
+            }
+            const done = this._checkTeaDone();
+            this.render();
+            if (done) { clearInterval(this._teaInterval); this._teaInterval = null; }
+        }, 1000);
+    },
+
+    brewTea: function() {
+        this._ensureState(); this._ensureTeaState();
+        const tea = GameState.fire.tea;
+        if (tea.state !== 'idle') return;
+        if ((GameState.inventory['tea_kettle'] || 0) <= 0) { UI.notify(t('fireplace.teaNeedKettle'), true); return; }
+        if (!GameState.fire.active) { UI.notify(t('fireplace.teaNeedFire'), true); return; }
+        const herb = this._teaHerb();
+        if (!herb) { UI.notify(t('fireplace.teaNeedHerb'), true); return; }
+        if ((GameState.inventory['water'] || 0) <= 0) { UI.notify(t('fireplace.teaNeedWater'), true); return; }
+
+        Game.removeItem(herb.herb, 1);
+        Game.removeItem('water', 1);
+        GameState.fire.tea = { state: 'brewing', start: Date.now(), teaId: herb.tea };
+        Game.save();
+        this.render();
+        this._ensureTeaInterval();
+    },
+
+    drinkTea: function() {
+        this._ensureTeaState();
+        const tea = GameState.fire.tea;
+        if (tea.state !== 'ready') return;
+        const teaId = tea.teaId || 'herbal_tea';
+        GameState.fire.tea = { state: 'idle', start: 0, teaId: '' };
+        if ((GameState.inventory[teaId] || 0) > 0 && typeof Game.eat === 'function') {
+            Game.eat(teaId); // aplikuje efekt + odebere 1 + renderAll
+        } else {
+            Game.save();
+        }
+        this.render();
+    },
+
+    _renderTea: function() {
+        this._ensureTeaState();
+        const tea = GameState.fire.tea;
+        const card = `background:rgba(0,0,0,0.05);padding:14px;border-radius:10px;border-left:3px solid var(--accent-gold);margin-bottom:12px;`;
+        let h = `<div style="${card}"><h4 style="margin:0 0 10px 0;color:var(--ink-primary);">🍵 ${t('fireplace.teaTitle')}</h4>`;
+
+        if ((GameState.inventory['tea_kettle'] || 0) <= 0) {
+            h += `<div style="font-size:0.8rem;opacity:0.6;">🫖 ${t('fireplace.teaNeedKettle')}</div></div>`;
+            return h;
+        }
+
+        const btn = (label, onclick, disabled) =>
+            `<button onclick="${onclick}" ${disabled ? 'disabled' : ''} style="width:100%;padding:8px;border-radius:6px;border:1px solid var(--accent-gold);background:${disabled ? 'rgba(197,160,89,0.07)' : 'rgba(197,160,89,0.15)'};color:var(--accent-gold);cursor:${disabled ? 'default' : 'pointer'};font-size:0.85rem;opacity:${disabled ? '0.5' : '1'};">${label}</button>`;
+
+        if (tea.state === 'brewing') {
+            const remain = Math.max(0, Math.ceil((this.TEA_BREW_MS - (Date.now() - tea.start)) / 1000));
+            h += `<div style="text-align:center;font-size:1.8rem;">♨️</div>`;
+            h += `<div style="text-align:center;font-size:0.85rem;color:var(--accent-gold);margin-top:4px;">${t('fireplace.teaBrewing').replace('{s}', remain)}</div>`;
+        } else if (tea.state === 'ready') {
+            h += btn('🍵 ' + t('fireplace.teaDrink'), 'FireplaceSystem.drinkTea()', false);
+        } else {
+            const fireOk = !!GameState.fire.active;
+            const herb = this._teaHerb();
+            const water = (GameState.inventory['water'] || 0) > 0;
+            let hint = '';
+            if (!fireOk) hint = t('fireplace.teaNeedFire');
+            else if (!herb) hint = t('fireplace.teaNeedHerb');
+            else if (!water) hint = t('fireplace.teaNeedWater');
+            const can = fireOk && herb && water;
+            h += btn('🫖 ' + t('fireplace.teaBrew'), 'FireplaceSystem.brewTea()', !can);
+            if (hint) h += `<div style="font-size:0.72rem;opacity:0.55;margin-top:6px;text-align:center;">${hint}</div>`;
+        }
+
+        h += `</div>`;
+        return h;
+    },
+
     // Volá se z Game.checkEnvironment() — synchronizuje stav po ignite/dieOut
     render: function() {
         this._ensureState();
@@ -386,6 +504,15 @@ const FireplaceSystem = {
         if (dash) {
             dash.innerHTML = this._renderDashboard();
             dash.style.display = 'block';
+        }
+
+        const teaEl = document.getElementById('foculus-tea');
+        if (teaEl) {
+            this._ensureTeaState();
+            this._checkTeaDone();
+            teaEl.innerHTML = this._renderTea();
+            teaEl.style.display = 'block';
+            this._ensureTeaInterval();
         }
     }
 };

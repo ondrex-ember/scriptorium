@@ -20,7 +20,9 @@ const STRINGS_en = {
         dashTitle: 'Workshop status', dashWeather: 'Weather', dashWeatherNA: '—', dashEnviron: 'Environment',
         dashStav: 'Status', dashTime: 'Time & Calendar', dashForecast: 'Forecast',
         dashNotes: 'Notes', dashCoins: 'Coins', dashRank: 'Rank', dashTech: 'Techs', dashKronika: 'Latest chronicle',
-        dashTimeLabel: 'Time', dashDate: 'Date', dashMoon: 'Moon', dashHora: 'Hour'
+        dashTimeLabel: 'Time', dashDate: 'Date', dashMoon: 'Moon', dashHora: 'Hour',
+        teaTitle: 'Tea', teaBrew: 'Brew tea', teaDrink: 'DRINK TEA', teaBrewing: 'Brewing… {s} s',
+        teaNeedKettle: 'You need a Kettle (craft it)', teaNeedFire: 'Light the fire', teaNeedHerb: 'No herb (chamomile, thyme, linden)', teaNeedWater: 'No water'
     },
     light: {
         none: 'No Light', noneDesc: 'Darkness claimeth this place.',

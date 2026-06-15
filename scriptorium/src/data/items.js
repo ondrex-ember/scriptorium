@@ -26,6 +26,7 @@ const ItemsDB = {
     "hoe":             { name:"Motyka",              name_en:"Hoe",                    icon:"⚒️", type:"tool",        desc:"K farmě.",                                         desc_en:"For the garden." },
     "fishing_rod":     { name:"Udice",               name_en:"Fishing Rod",            icon:"🎣", type:"tool",        desc:"Na ryby.",                                         desc_en:"For fishing." },
     "cooking_pot":     { name:"Hrnec",               name_en:"Cooking Pot",            icon:"🫕", type:"tool",        desc:"Na vaření.",                                       desc_en:"For cooking." },
+    "tea_kettle":      { name:"Konvička",            name_en:"Kettle",                 icon:"🫖", type:"tool",        desc:"Hliněná konvička na čaj. Pověsí se nad oheň.",     desc_en:"A clay kettle for tea. Hung over the fire." },
     "basket":          { name:"Koš",                 name_en:"Basket",                 icon:"🧺", type:"tool",        desc:"Na sběr.",                                         desc_en:"For foraging." },
 
     "repair_kit":      { name:"Opravná sada",        name_en:"Repair Kit",             icon:"🔧", type:"tool",        desc:"Na opravu studny.",                                desc_en:"For repairing the well.", cat:"tool" },

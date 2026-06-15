@@ -9,7 +9,7 @@ const TechTree = [
     { id:"tech_cooking_1",       name:"Vaření",                    name_en:"Cooking",                    cost:4,  desc:"Odemkne: Hrnec, pečení",                       desc_en:"Unlocks: Cooking pot, roasting",        unlocks:["cooking_pot","cooked_meat","cooked_fish","bread"] },
     { id:"tech_fishing",         name:"Rybolov",                   name_en:"Fishing",                    cost:3,  desc:"Odemkne: Udice",                               desc_en:"Unlocks: Fishing rod",                  unlocks:["fishing_rod"] },
     { id:"tech_foraging",        name:"Sběr Potravy",              name_en:"Foraging",                   cost:3,  desc:"Odemkne: Koš, houby",                          desc_en:"Unlocks: Basket, mushrooms",            unlocks:["basket"] },
-    { id:"tech_cooking_2",       name:"Pokročilé Vaření",          name_en:"Advanced Cooking",           cost:5,  desc:"Odemkne: Guláš, polévky",                      desc_en:"Unlocks: Stew, pottages",               unlocks:["stew","mushroom_soup","berry_pie"], requires:["tech_cooking_1"] },
+    { id:"tech_cooking_2",       name:"Pokročilé Vaření",          name_en:"Advanced Cooking",           cost:5,  desc:"Odemkne: Guláš, polévky",                      desc_en:"Unlocks: Stew, pottages",               unlocks:["stew","mushroom_soup","berry_pie","tea_kettle"], requires:["tech_cooking_1"] },
 
     // TIER 2 - horticulture
     { id:"tech_garden_expand",   name:"Rozšíření Zahrady",         name_en:"Garden Expansion",           cost:4,  desc:"Odemkne: 4 políčka zahrady.",                  desc_en:"Unlocks: 4 garden plots.",              unlocks:[] },

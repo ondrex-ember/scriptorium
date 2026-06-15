@@ -20,6 +20,7 @@ const RecipesDB = [
     // COOKING TOOLS
     { id: "fishing_rod", output: "fishing_rod", qty: 1, req: { "stick": 2, "rope": 1, "bone": 1 }, cat: "stone", locked: true },
     { id: "cooking_pot", output: "cooking_pot", qty: 1, req: { "rock": 3, "water": 1 }, cat: "craft", locked: true },
+    { id: "tea_kettle", output: "tea_kettle", qty: 1, req: { "clay": 3, "water": 1 }, cat: "craft", locked: true },
     { id: "basket", output: "basket", qty: 1, req: { "fiber": 5, "stick": 2 }, cat: "craft", locked: true },
 
     // LACTARIA — zpracování mléka (tech_lactaria)
