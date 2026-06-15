@@ -175,6 +175,7 @@ const STRINGS_cs = {
         rareFind: '⭐ Vzácný nález: Netolického pozůstalost!',
         vigor: {
             exhausted:    '😵 Písař je zcela vyčerpán. Nejdříve se najez.',
+            researchBlock: '⚠️ Na výzkum potřebuješ Vigor ≥ 20. Nejdříve se najez.',
             deficiens:    '⚠️ Vigor deficiens. Dostupné jen lehké akce.',
             insufficient: '😔 Na tuto práci nemáš dost sil.',
             tooTiredHeavy:'😵 Na tuto práci jsi příliš vyčerpán. Najez se. (Vigor < 25)',
