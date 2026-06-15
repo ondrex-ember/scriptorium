@@ -2566,6 +2566,18 @@ const Game = {
         
         const _slang = (GameState.settings && GameState.settings.language) || 'cs';
         UI.notifyPanel(`📜 ${t('game.crafted')} ${_slang==='en'?(tech.name_en||tech.name):tech.name}`, 'system');
+
+        // Vigor: research stojí fatigue + hlad dle obtížnosti techu
+        if (typeof VigorSystem !== 'undefined') {
+            const fatigueCost = tech.cost <= 6
+                ? tech.cost * 0.5
+                : Math.min(tech.cost * 0.7, 30);
+            const satietyCost = tech.cost * 0.4;
+            VigorSystem.addFatigue(fatigueCost);
+            GameState.satiety = Math.max(0, (GameState.satiety || 80) - satietyCost);
+            VigorSystem.renderPill();
+        }
+
         Game.save(); UI.renderAll(); Game.checkEnvironment();
         Game.checkAchievements();
 
