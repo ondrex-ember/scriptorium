@@ -445,8 +445,8 @@ const VigorSystem = {
                     <!-- L2: Pentagon (55s → 95s) -->
                     <polygon points="100,22 170,74 144,156 56,156 30,74"
                         fill="none" stroke="rgba(139,111,255,.6)" stroke-width=".9"
-                        stroke-dasharray="380" stroke-dashoffset="380">
-                        <animate attributeName="stroke-dashoffset" from="380" to="0" dur="40s" begin="55s" fill="freeze"/>
+                        stroke-dasharray="440" stroke-dashoffset="440">
+                        <animate attributeName="stroke-dashoffset" from="440" to="0" dur="40s" begin="55s" fill="freeze"/>
                     </polygon>
 
                     <!-- Pentagram lines (80s → 140s, 12s každá) -->
@@ -516,6 +516,16 @@ const VigorSystem = {
                             <g transform="translate(100,38)">
                                 <circle r="6" fill="rgba(8,8,20,.9)" stroke="rgba(69,162,158,.8)" stroke-width=".9"/>
                                 <text font-size="8" fill="rgba(69,162,158,.95)" text-anchor="middle" dominant-baseline="central" font-family="serif">☿</text>
+                            </g>
+                        </g>
+                    </g>
+                    <g opacity="0">
+                        <animate attributeName="opacity" from="0" to="1" dur="5s" begin="125s" fill="freeze"/>
+                        <g>
+                            <animateTransform attributeName="transform" type="rotate" from="270 100 100" to="630 100 100" dur="60s" begin="125s" repeatCount="indefinite"/>
+                            <g transform="translate(100,38)">
+                                <circle r="6.5" fill="rgba(8,8,20,.9)" stroke="rgba(197,160,89,.7)" stroke-width=".9"/>
+                                <text font-size="8" fill="rgba(197,160,89,.9)" text-anchor="middle" dominant-baseline="central" font-family="serif">♄</text>
                             </g>
                         </g>
                     </g>
