@@ -2605,6 +2605,18 @@ const Game = {
         Game.save();
         UI.renderAll();
     },
+
+    // Pití vody (water = mat type, proto vlastní funkce)
+    drink: function(itemId) {
+        const drinkable = ['water', 'spring_water'];
+        if (!drinkable.includes(itemId)) { UI.notify(t('game.notFood'), true); return; }
+        if (!(GameState.inventory[itemId] > 0)) { UI.notify(t('game.noFood'), true); return; }
+        this.removeItem(itemId, 1);
+        if (typeof VigorSystem !== 'undefined') VigorSystem.eat(itemId);
+        Game.save();
+        UI.renderAll();
+    },
+
     checkDailyReward: function() {
         const now = Date.now();
         const today = new Date(now).setHours(0, 0, 0, 0);

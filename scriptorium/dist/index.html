@@ -5095,6 +5095,7 @@ const ItemsDB = {
     "bark":            { name:"Kůra",                name_en:"Bark",                   icon:"🍂", type:"mat",         desc:"Kůra stromu.",                                     desc_en:"Tree bark." },
     "charcoal":        { name:"Uhel",                name_en:"Charcoal",               icon:"⚫", type:"mat",         desc:"Spálené dřevo.",                                   desc_en:"Burned wood." },
     "water":           { name:"Voda",                name_en:"Water",                  icon:"💧", type:"mat",         desc:"Čistá voda.",                                      desc_en:"Clean water." },
+    "spring_water":    { name:"Pramenitá voda",      name_en:"Spring Water",           icon:"🫧", type:"food",        desc:"Čistá pramenitá voda. Osvěžuje tělo a snižuje únavu.", desc_en:"Pure spring water. Refreshes the body and eases fatigue." },
     "herb_red":        { name:"Krvavý květ",         name_en:"Bloodwort",              icon:"🌺", type:"mat",         desc:"Bylina.",                                          desc_en:"A red healing herb." },
     "fat":             { name:"Tuk",                 name_en:"Fat",                    icon:"🥩", type:"mat",         desc:"Zvířecí tuk.",                                     desc_en:"Animal fat." },
     "meat":            { name:"Maso",                name_en:"Meat",                   icon:"🍖", type:"mat",         desc:"Surové maso.",                                     desc_en:"Raw meat." },
@@ -12054,12 +12055,16 @@ const VigorSystem = {
     MAX_FATIGUE: 100,
 
     // Pasivní Satiety drain per hodina
-    SATIETY_DRAIN_PER_HOUR: 0.5,   // 100→0 za ~8.3 dne
+    SATIETY_DRAIN_PER_HOUR: 0.5,   // 100→0 za ~8.3 dne (ve dne)
+    SATIETY_DRAIN_NIGHT: 0.1,      // 21–7h: téměř žádný hlad při spánku
 
     // Fatigue recovery per hodina (záporné = klesá)
-    FATIGUE_RECOVERY_DAY:   2,     // 6–18h: -2/h
-    FATIGUE_RECOVERY_NIGHT: 3,     // 18–6h: -3/h
-    FATIGUE_RECOVERY_HORA:  4,     // Completorium/Vigilie: -4/h
+    FATIGUE_RECOVERY_DAY:   4,     // 7–21h: -4/h
+    FATIGUE_RECOVERY_NIGHT: 8,     // 21–7h: -8/h (spánek)
+    FATIGUE_RECOVERY_HORA:  10,    // Completorium/Vigilie: -10/h
+
+    // Noční spánek: 8h+ neaktivity → plný reset únavy
+    SLEEP_HOURS_FOR_FULL_REST: 8,
 
     // Vigor thresholdy
     VIGOR_THRESHOLD_HEAVY: 25,     // těžký craft, research
@@ -12100,6 +12105,7 @@ const VigorSystem = {
         cooked_fish:    20,
         porridge:       18,
         bread:          20,
+        berry_pie:      20,
         cooked_meat:    25,
         stew:           35,
         cheese:         12,
@@ -12112,6 +12118,9 @@ const VigorSystem = {
         acorn_brew:     3,
         chicory_drink:  3,
         linden_tea:     8,
+        // Voda
+        water:          3,
+        spring_water:   5,
     },
 
     // Fatigue z jídla (záporné = snižuje únavu)
@@ -12123,6 +12132,9 @@ const VigorSystem = {
         linden_tea:     -8,
         beer:           10,
         wine:           8,
+        // Voda
+        water:          -5,
+        spring_water:   -15,
     },
 
     // ── Init ──────────────────────────────────────────────────────────────────
@@ -12142,7 +12154,12 @@ const VigorSystem = {
                 lastNonRest: Date.now(),
                 warnedLow:   false,
                 nonaUsed:    '',   // datum posledního odpočinku při Nóně (YYYY-MM-DD)
+                meditateUsed: 0,   // timestamp posledního použití meditace
             };
+        }
+        // Migrace — přidat meditateUsed pokud chybí
+        if (typeof GameState.vigorMeta.meditateUsed === 'undefined') {
+            GameState.vigorMeta.meditateUsed = 0;
         }
 
         this._applyOfflineDelta();
@@ -12162,6 +12179,10 @@ const VigorSystem = {
     },
 
     // ── Offline delta při load ────────────────────────────────────────────────
+    _isNightHour: function(h) {
+        return h >= 21 || h < 7;
+    },
+
     _applyOfflineDelta: function() {
         if (!GameState.vigorMeta) return;
         const now = Date.now();
@@ -12169,14 +12190,32 @@ const VigorSystem = {
         const hoursElapsed = elapsed / 3600000;
         if (hoursElapsed < 0.016) return; // < 1 minuta — přeskočit
 
-        // Satiety drain
-        const satDrain = hoursElapsed * this.SATIETY_DRAIN_PER_HOUR;
-        GameState.satiety = Math.max(0, (GameState.satiety || 80) - satDrain);
+        // Detekce nočního spánku: 8h+ neaktivity a čas byl v nočním okně
+        const startHour = new Date(GameState.vigorMeta.lastTick || now).getHours();
+        const endHour   = new Date(now).getHours();
+        const couldBeSleep = hoursElapsed >= this.SLEEP_HOURS_FOR_FULL_REST
+            && (this._isNightHour(startHour) || this._isNightHour(endHour));
 
-        // Fatigue recovery — průměr dne/noci pro offline
-        const avgRecovery = (this.FATIGUE_RECOVERY_DAY + this.FATIGUE_RECOVERY_NIGHT) / 2;
-        const fatRecovery = hoursElapsed * avgRecovery;
-        GameState.fatigue = Math.max(0, (GameState.fatigue || 0) - fatRecovery);
+        if (couldBeSleep) {
+            // Noční spánek → plný reset únavy, minimální hlad
+            GameState.fatigue = 0;
+            const nightDrain = hoursElapsed * this.SATIETY_DRAIN_NIGHT;
+            GameState.satiety = Math.max(0, (GameState.satiety || 80) - nightDrain);
+        } else {
+            // Normální offline delta
+            // Satiety drain — dle denní doby (aproximace středem intervalu)
+            const midHour = new Date((GameState.vigorMeta.lastTick || now) + elapsed / 2).getHours();
+            const drain = this._isNightHour(midHour)
+                ? this.SATIETY_DRAIN_NIGHT
+                : this.SATIETY_DRAIN_PER_HOUR;
+            const satDrain = hoursElapsed * drain;
+            GameState.satiety = Math.max(0, (GameState.satiety || 80) - satDrain);
+
+            // Fatigue recovery — průměr dne/noci pro offline
+            const avgRecovery = (this.FATIGUE_RECOVERY_DAY + this.FATIGUE_RECOVERY_NIGHT) / 2;
+            const fatRecovery = hoursElapsed * avgRecovery;
+            GameState.fatigue = Math.max(0, (GameState.fatigue || 0) - fatRecovery);
+        }
 
         GameState.vigorMeta.lastTick = now;
     },
@@ -12193,14 +12232,15 @@ const VigorSystem = {
         const elapsed = (now - meta.lastTick) / 3600000; // v hodinách
         if (elapsed < 0.01) return;
 
-        // Satiety drain
-        const satDrain = elapsed * this.SATIETY_DRAIN_PER_HOUR;
+        // Satiety drain — v noci minimální
+        const hour = new Date().getHours();
+        const isNight = this._isNightHour(hour);
+        const drainRate = isNight ? this.SATIETY_DRAIN_NIGHT : this.SATIETY_DRAIN_PER_HOUR;
+        const satDrain = elapsed * drainRate;
         GameState.satiety = Math.max(0, (GameState.satiety || 80) - satDrain);
 
         // Fatigue recovery dle denní doby
-        const hour = new Date().getHours();
-        let recovery = this.FATIGUE_RECOVERY_DAY;
-        if (hour < 6 || hour >= 18) recovery = this.FATIGUE_RECOVERY_NIGHT;
+        let recovery = isNight ? this.FATIGUE_RECOVERY_NIGHT : this.FATIGUE_RECOVERY_DAY;
         // Kanonické hodiny bonus
         if (hour === 21 || hour === 22 || hour === 0 || hour === 1 || hour === 2) {
             recovery = this.FATIGUE_RECOVERY_HORA;
@@ -12322,7 +12362,40 @@ const VigorSystem = {
         if (typeof Game !== 'undefined' && Game.save) Game.save();
     },
 
-    // ── Threshold warnings ────────────────────────────────────────────────────
+    // ── Meditace (1× za 12h) ─────────────────────────────────────────────────
+    meditate: function() {
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        const meta = GameState.vigorMeta;
+        if (!meta) return;
+
+        const now = Date.now();
+        const cooldown = 12 * 3600000; // 12h v ms
+        const elapsed = now - (meta.meditateUsed || 0);
+
+        if (elapsed < cooldown) {
+            const remainH = Math.ceil((cooldown - elapsed) / 3600000);
+            const msg = lang === 'en'
+                ? `🧘 Meditation available in ~${remainH}h.`
+                : `🧘 Meditace dostupná za ~${remainH}h.`;
+            if (typeof UI !== 'undefined' && UI.notify) UI.notify(msg, true);
+            return;
+        }
+
+        GameState.fatigue = Math.max(0, (GameState.fatigue || 0) - 50);
+        meta.meditateUsed = now;
+
+        const msg = lang === 'en'
+            ? `🧘 Lectio et meditatio. Fatigue -50. Vigor: ${this.getVigor()}.`
+            : `🧘 Lectio et meditatio. Únava -50. Vigor: ${this.getVigor()}.`;
+        if (typeof UI !== 'undefined') {
+            if (UI.notify) UI.notify(msg);
+            if (UI.notifyPanel) UI.notifyPanel(msg, 'system');
+        }
+        this.renderPill();
+        if (typeof Game !== 'undefined' && Game.save) Game.save();
+    },
+
+
     _checkThresholds: function() {
         const vigor = this.getVigor();
         const lang  = (GameState.settings && GameState.settings.language) || 'cs';
@@ -12404,6 +12477,17 @@ const VigorSystem = {
                </button>`
             : `<div style="font-size:0.7rem;opacity:0.5;margin-top:6px;">${lang === 'en' ? 'Nona rest used today.' : 'Dnes již odpočinut.'}</div>`;
 
+        const now12 = Date.now();
+        const meditCooldown = 12 * 3600000;
+        const meditElapsed = now12 - (GameState.vigorMeta ? (GameState.vigorMeta.meditateUsed || 0) : 0);
+        const meditAvail = meditElapsed >= meditCooldown;
+        const meditRemainH = meditAvail ? 0 : Math.ceil((meditCooldown - meditElapsed) / 3600000);
+        const meditBtn = meditAvail
+            ? `<button onclick="VigorSystem.meditate()" style="margin-top:6px;width:100%;padding:4px 8px;border-radius:6px;border:1px solid var(--accent-gold);background:rgba(197,160,89,0.15);color:var(--accent-gold);cursor:pointer;font-size:0.75rem;">
+                🧘 ${lang === 'en' ? 'Meditate (-50 Fatigue, 1×/12h)' : 'Meditace (-50 Únava, 1×/12h)'}
+               </button>`
+            : `<div style="font-size:0.7rem;opacity:0.5;margin-top:4px;">🧘 ${lang === 'en' ? `Meditation in ~${meditRemainH}h` : `Meditace za ~${meditRemainH}h`}</div>`;
+
         panel.innerHTML = `
             <div class="pp-row">
                 <span class="pp-label">🍎 ${lang === 'en' ? 'Satiety' : 'Sytost'}</span>
@@ -12419,6 +12503,7 @@ const VigorSystem = {
             </div>
             <div style="font-size:0.7rem;opacity:0.6;margin-top:4px;">${recovText}</div>
             ${nonaBtn}
+            ${meditBtn}
         `;
     },
 
@@ -12441,10 +12526,67 @@ const VigorSystem = {
         const today = new Date().toISOString().slice(0, 10);
         const nonaAvail = !GameState.vigorMeta || GameState.vigorMeta.nonaUsed !== today;
         const nonaBtn = nonaAvail
-            ? `<button onclick="VigorSystem.restNona()" style="margin-top:8px;width:100%;padding:4px 8px;border-radius:6px;border:1px solid var(--accent-gold);background:rgba(197,160,89,0.15);color:var(--accent-gold);cursor:pointer;font-size:0.75rem;">
+            ? `<button onclick="VigorSystem.restNona();PersonaSystem.render();" style="margin-top:8px;width:100%;padding:4px 8px;border-radius:6px;border:1px solid var(--accent-gold);background:rgba(197,160,89,0.15);color:var(--accent-gold);cursor:pointer;font-size:0.75rem;">
                 😴 ${lang === 'en' ? 'Nona rest (-20 Fatigue, 1×/day)' : 'Odpočinek při Nóně (-20 Únava, 1×/den)'}
                </button>`
             : `<div style="font-size:0.7rem;opacity:0.5;margin-top:6px;">${lang === 'en' ? 'Nona rest used today.' : 'Dnes již odpočinut.'}</div>`;
+
+        const now12fd = Date.now();
+        const meditCooldownFd = 12 * 3600000;
+        const meditElapsedFd = now12fd - (GameState.vigorMeta ? (GameState.vigorMeta.meditateUsed || 0) : 0);
+        const meditAvailFd = meditElapsedFd >= meditCooldownFd;
+        const meditRemainHFd = meditAvailFd ? 0 : Math.ceil((meditCooldownFd - meditElapsedFd) / 3600000);
+        const meditBtnFd = meditAvailFd
+            ? `<button onclick="VigorSystem.meditate();PersonaSystem.render();" style="margin-top:6px;width:100%;padding:4px 8px;border-radius:6px;border:1px solid var(--accent-gold);background:rgba(197,160,89,0.15);color:var(--accent-gold);cursor:pointer;font-size:0.75rem;">
+                🧘 ${lang === 'en' ? 'Meditate (-50 Fatigue, 1×/12h)' : 'Meditace (-50 Únava, 1×/12h)'}
+               </button>`
+            : `<div style="font-size:0.7rem;opacity:0.5;margin-top:4px;">🧘 ${lang === 'en' ? `Meditation in ~${meditRemainHFd}h` : `Meditace za ~${meditRemainHFd}h`}</div>`;
+
+        // Jídlo & pití z inventáře
+        const FOOD_ITEMS = ['bread','berry_pie','stew','cooked_fish','cooked_meat','porridge',
+                            'cheese','egg','honey','berries','mushroom',
+                            'herbal_tea','linden_tea','chicory_drink','acorn_brew',
+                            'beer','wine','spring_water'];
+        const DRINK_ITEMS = ['water','spring_water'];
+
+        const inv = GameState.inventory || {};
+        const availableFood = FOOD_ITEMS.filter(id => inv[id] > 0 && id !== 'spring_water');
+        const availableDrink = [...new Set([...DRINK_ITEMS, 'spring_water'])].filter(id => inv[id] > 0);
+
+        const btnStyle = `padding:4px 8px;border-radius:5px;border:1px solid rgba(197,160,89,0.4);background:rgba(197,160,89,0.1);color:var(--ink-primary);cursor:pointer;font-size:0.72rem;white-space:nowrap;`;
+
+        let foodBtns = '';
+        if (availableFood.length > 0) {
+            foodBtns = `<div style="margin-top:10px;">
+                <div style="font-size:0.7rem;opacity:0.55;margin-bottom:4px;text-transform:uppercase;letter-spacing:0.05em;">${lang === 'en' ? 'Eat' : 'Jíst'}</div>
+                <div style="display:flex;flex-wrap:wrap;gap:4px;">
+                    ${availableFood.map(id => {
+                        const item = (typeof ItemsDB !== 'undefined' && ItemsDB[id]) || {};
+                        const iname = lang === 'en' ? (item.name_en || id) : (item.name || id);
+                        return `<button style="${btnStyle}" onclick="Game.eat('${id}');PersonaSystem.render();">
+                            ${item.icon || '🍖'} ${iname} <span style="opacity:0.5;">(${inv[id]})</span>
+                        </button>`;
+                    }).join('')}
+                </div>
+            </div>`;
+        }
+
+        let drinkBtns = '';
+        if (availableDrink.length > 0) {
+            drinkBtns = `<div style="margin-top:8px;">
+                <div style="font-size:0.7rem;opacity:0.55;margin-bottom:4px;text-transform:uppercase;letter-spacing:0.05em;">${lang === 'en' ? 'Drink' : 'Pít'}</div>
+                <div style="display:flex;flex-wrap:wrap;gap:4px;">
+                    ${availableDrink.map(id => {
+                        const item = (typeof ItemsDB !== 'undefined' && ItemsDB[id]) || {};
+                        const iname = lang === 'en' ? (item.name_en || id) : (item.name || id);
+                        const fn = (id === 'water') ? `Game.drink('${id}')` : `Game.eat('${id}')`;
+                        return `<button style="${btnStyle}" onclick="${fn};PersonaSystem.render();">
+                            ${item.icon || '💧'} ${iname} <span style="opacity:0.5;">(${inv[id]})</span>
+                        </button>`;
+                    }).join('')}
+                </div>
+            </div>`;
+        }
 
         return `
         <div style="background:rgba(0,0,0,0.05);padding:16px;border-radius:10px;border-left:3px solid var(--accent-gold);margin-bottom:12px;">
@@ -12463,6 +12605,9 @@ const VigorSystem = {
             </div>
             <div style="font-size:0.8rem;opacity:0.6;margin-top:6px;">${recovText}</div>
             ${nonaBtn}
+            ${meditBtnFd}
+            ${foodBtns}
+            ${drinkBtns}
         </div>`;
     },
 };
@@ -18552,6 +18697,8 @@ const PersonaSystem = {
         let h = `<div class="filter-bar" style="margin-bottom:16px;display:flex;gap:6px;flex-wrap:wrap;">
             <button id="persona-tab-persona" class="filter-btn ${this._activeTab==='persona'?'active':''}"
                 onclick="PersonaSystem.switchTab('persona',this)">🧑 ${lang==='en'?'Persona':'Persona'}</button>
+            <button id="persona-tab-vigor" class="filter-btn ${this._activeTab==='vigor'?'active':''}"
+                onclick="PersonaSystem.switchTab('vigor',this)">⚡ Vigor</button>
             <button id="persona-tab-stats" class="filter-btn ${this._activeTab==='stats'?'active':''}"
                 onclick="PersonaSystem.switchTab('stats',this)">📊 ${lang==='en'?'Statistics':'Statistiky'}</button>
             <button id="persona-tab-influentia" class="filter-btn ${this._activeTab==='influentia'?'active':''}"
@@ -18561,6 +18708,7 @@ const PersonaSystem = {
         </div>`;
 
         h += `<div id="persona-subtab-persona"  style="${this._activeTab==='persona'?'':'display:none'}">` + this._renderPersona(lang) + `</div>`;
+        h += `<div id="persona-subtab-vigor"    style="${this._activeTab==='vigor'?'':'display:none'}">` + this._renderVigor(lang) + `</div>`;
         h += `<div id="persona-subtab-stats"    style="${this._activeTab==='stats'?'':'display:none'}">` + this._renderStats(lang) + `</div>`;
         h += `<div id="persona-subtab-influentia" style="${this._activeTab==='influentia'?'':'display:none'}">` + this._renderInfluentia(lang) + `</div>`;
         h += `<div id="persona-subtab-felis" style="${this._activeTab==='felis'?'':'display:none'}">` + this._renderFelis(lang) + `</div>`;
@@ -18572,7 +18720,7 @@ const PersonaSystem = {
         this._activeTab = tab;
         document.querySelectorAll('#lore-persona-content .filter-btn').forEach(b => b.classList.remove('active'));
         if (btn) btn.classList.add('active');
-        ['persona','stats','influentia','felis'].forEach(t => {
+        ['persona','vigor','stats','influentia','felis'].forEach(t => {
             const d = document.getElementById('persona-subtab-' + t);
             if (d) d.style.display = t === tab ? '' : 'none';
         });
@@ -18669,6 +18817,12 @@ const PersonaSystem = {
         </div>`;
     },
 
+    // ── Vigor tab ─────────────────────────────────────────────────────────────
+    _renderVigor: function(lang) {
+        if (typeof VigorSystem === 'undefined') return '<p>VigorSystem not loaded.</p>';
+        return VigorSystem.renderFullDisplay();
+    },
+
     // ── Sekce 2: Statistiky ──────────────────────────────────────────────────
     _renderStats: function(lang) {
         const stats = (GameState.achievements && GameState.achievements.stats) || {};
@@ -18703,11 +18857,6 @@ const PersonaSystem = {
         h += stat('📅', lang==='en'?'Total logins':'Celkem přihlášení', totalLogins);
         h += stat('⏳', lang==='en'?'Days in monastery':'Dní v klášteře', Math.max(totalLogins-1,0));
         h += `</div>`;
-
-        // Vigor
-        if (typeof VigorSystem !== 'undefined') {
-            h += `<div style="margin-top:8px;">` + VigorSystem.renderFullDisplay() + `</div>`;
-        }
 
         // Záloha save
         h += `<div style="margin-top:20px;padding:14px;background:rgba(0,0,0,0.04);border-radius:8px;border:1px solid rgba(197,160,89,0.2);">
@@ -33106,6 +33255,18 @@ const Game = {
         Game.save();
         UI.renderAll();
     },
+
+    // Pití vody (water = mat type, proto vlastní funkce)
+    drink: function(itemId) {
+        const drinkable = ['water', 'spring_water'];
+        if (!drinkable.includes(itemId)) { UI.notify(t('game.notFood'), true); return; }
+        if (!(GameState.inventory[itemId] > 0)) { UI.notify(t('game.noFood'), true); return; }
+        this.removeItem(itemId, 1);
+        if (typeof VigorSystem !== 'undefined') VigorSystem.eat(itemId);
+        Game.save();
+        UI.renderAll();
+    },
+
     checkDailyReward: function() {
         const now = Date.now();
         const today = new Date(now).setHours(0, 0, 0, 0);

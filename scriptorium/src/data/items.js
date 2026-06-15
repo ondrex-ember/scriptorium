@@ -8,6 +8,7 @@ const ItemsDB = {
     "bark":            { name:"Kůra",                name_en:"Bark",                   icon:"🍂", type:"mat",         desc:"Kůra stromu.",                                     desc_en:"Tree bark." },
     "charcoal":        { name:"Uhel",                name_en:"Charcoal",               icon:"⚫", type:"mat",         desc:"Spálené dřevo.",                                   desc_en:"Burned wood." },
     "water":           { name:"Voda",                name_en:"Water",                  icon:"💧", type:"mat",         desc:"Čistá voda.",                                      desc_en:"Clean water." },
+    "spring_water":    { name:"Pramenitá voda",      name_en:"Spring Water",           icon:"🫧", type:"food",        desc:"Čistá pramenitá voda. Osvěžuje tělo a snižuje únavu.", desc_en:"Pure spring water. Refreshes the body and eases fatigue." },
     "herb_red":        { name:"Krvavý květ",         name_en:"Bloodwort",              icon:"🌺", type:"mat",         desc:"Bylina.",                                          desc_en:"A red healing herb." },
     "fat":             { name:"Tuk",                 name_en:"Fat",                    icon:"🥩", type:"mat",         desc:"Zvířecí tuk.",                                     desc_en:"Animal fat." },
     "meat":            { name:"Maso",                name_en:"Meat",                   icon:"🍖", type:"mat",         desc:"Surové maso.",                                     desc_en:"Raw meat." },

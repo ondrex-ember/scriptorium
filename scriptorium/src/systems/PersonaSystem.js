@@ -172,6 +172,8 @@ const PersonaSystem = {
         let h = `<div class="filter-bar" style="margin-bottom:16px;display:flex;gap:6px;flex-wrap:wrap;">
             <button id="persona-tab-persona" class="filter-btn ${this._activeTab==='persona'?'active':''}"
                 onclick="PersonaSystem.switchTab('persona',this)">🧑 ${lang==='en'?'Persona':'Persona'}</button>
+            <button id="persona-tab-vigor" class="filter-btn ${this._activeTab==='vigor'?'active':''}"
+                onclick="PersonaSystem.switchTab('vigor',this)">⚡ Vigor</button>
             <button id="persona-tab-stats" class="filter-btn ${this._activeTab==='stats'?'active':''}"
                 onclick="PersonaSystem.switchTab('stats',this)">📊 ${lang==='en'?'Statistics':'Statistiky'}</button>
             <button id="persona-tab-influentia" class="filter-btn ${this._activeTab==='influentia'?'active':''}"
@@ -181,6 +183,7 @@ const PersonaSystem = {
         </div>`;
 
         h += `<div id="persona-subtab-persona"  style="${this._activeTab==='persona'?'':'display:none'}">` + this._renderPersona(lang) + `</div>`;
+        h += `<div id="persona-subtab-vigor"    style="${this._activeTab==='vigor'?'':'display:none'}">` + this._renderVigor(lang) + `</div>`;
         h += `<div id="persona-subtab-stats"    style="${this._activeTab==='stats'?'':'display:none'}">` + this._renderStats(lang) + `</div>`;
         h += `<div id="persona-subtab-influentia" style="${this._activeTab==='influentia'?'':'display:none'}">` + this._renderInfluentia(lang) + `</div>`;
         h += `<div id="persona-subtab-felis" style="${this._activeTab==='felis'?'':'display:none'}">` + this._renderFelis(lang) + `</div>`;
@@ -192,7 +195,7 @@ const PersonaSystem = {
         this._activeTab = tab;
         document.querySelectorAll('#lore-persona-content .filter-btn').forEach(b => b.classList.remove('active'));
         if (btn) btn.classList.add('active');
-        ['persona','stats','influentia','felis'].forEach(t => {
+        ['persona','vigor','stats','influentia','felis'].forEach(t => {
             const d = document.getElementById('persona-subtab-' + t);
             if (d) d.style.display = t === tab ? '' : 'none';
         });
@@ -289,6 +292,12 @@ const PersonaSystem = {
         </div>`;
     },
 
+    // ── Vigor tab ─────────────────────────────────────────────────────────────
+    _renderVigor: function(lang) {
+        if (typeof VigorSystem === 'undefined') return '<p>VigorSystem not loaded.</p>';
+        return VigorSystem.renderFullDisplay();
+    },
+
     // ── Sekce 2: Statistiky ──────────────────────────────────────────────────
     _renderStats: function(lang) {
         const stats = (GameState.achievements && GameState.achievements.stats) || {};
@@ -323,11 +332,6 @@ const PersonaSystem = {
         h += stat('📅', lang==='en'?'Total logins':'Celkem přihlášení', totalLogins);
         h += stat('⏳', lang==='en'?'Days in monastery':'Dní v klášteře', Math.max(totalLogins-1,0));
         h += `</div>`;
-
-        // Vigor
-        if (typeof VigorSystem !== 'undefined') {
-            h += `<div style="margin-top:8px;">` + VigorSystem.renderFullDisplay() + `</div>`;
-        }
 
         // Záloha save
         h += `<div style="margin-top:20px;padding:14px;background:rgba(0,0,0,0.04);border-radius:8px;border:1px solid rgba(197,160,89,0.2);">
