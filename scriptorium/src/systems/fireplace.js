@@ -333,8 +333,8 @@ const FireplaceSystem = {
         if (!GameState.fire || !GameState.fire.tea) return false;
         const tea = GameState.fire.tea;
         if (tea.state === 'brewing' && (Date.now() - tea.start) >= this.TEA_BREW_MS) {
+            tea.state = 'ready';            // flip PŘED addItem — addItem re-rendruje a re-entrantně volá _checkTeaDone
             Game.addItem(tea.teaId || 'herbal_tea', 1);
-            tea.state = 'ready';
             Game.save();
             return true;
         }
