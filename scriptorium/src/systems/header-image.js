@@ -95,8 +95,9 @@ const HeaderImageSystem = {
             : null;
         const condition = this.getWeatherCondition(weatherCode);
 
-        // Snow → force winter season
-        if (weatherCode >= 71 && weatherCode <= 86) {
+        // Snow → force winter season (WMO 71–77 = snow, 85–86 = snow showers)
+        // Excludes 80–82 (rain showers) and 83–84 (rain+snow mix) which are NOT snow
+        if ((weatherCode >= 71 && weatherCode <= 77) || weatherCode === 85 || weatherCode === 86) {
             season = 'winter';
         }
 
