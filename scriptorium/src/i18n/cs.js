@@ -277,11 +277,6 @@ const STRINGS_cs = {
         wellFrozen: '❄️ Studna zamrzla — vodu nelze nabrat.',
         wellNeedStone: 'Nejprve vyzdi studnu kamenem.',
         wellBlessed: '✨ Studna byla posvěcena — svěcená voda, téměř bezúdržbová.',
-        vigor: {
-            exhausted: '⚠️ Vigor exhaustus! Cibus necesse est.',
-            deficiens: '⚠️ Vigor deficiens — najez se.',
-            insufficient: '❌ Nedostatek vigoru pro tuto akci.'
-        },
         done: "Hotovo!",
         interrupted: "Přerušeno.",
         scavengeResult: "{msg} +{total} ks.",

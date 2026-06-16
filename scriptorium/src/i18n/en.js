@@ -249,11 +249,6 @@ const STRINGS_en = {
         wellClouding: 'The well water is beginning to cloud. It will need cleaning soon.',
         wellClogged: 'The well is clogged. Clean it before the water runs out.',
         wellFrozen: '❄️ The well has frozen — water cannot be drawn.',
-        vigor: {
-            exhausted: '⚠️ Vigor exhaustus! You must eat.',
-            deficiens: '⚠️ Vigor is failing — consume food.',
-            insufficient: '❌ Insufficient vigor for this action.'
-        },
         done: "Done!",
         interrupted: "Interrupted.",
         scavengeResult: "{msg} +{total} pcs.",
