@@ -13751,7 +13751,10 @@ const CellariumSystem = {
     const sellLabel = lang === 'en' ? 'SELL' : 'PRODEJ';
     const TAVERN_ITEMS = ['bread','cooked_meat','cooked_fish','stew','mushroom_soup',
                           'berry_pie','honey','water','potion_heal','stamina_tonic',
-                          'sleep_potion','candle'];
+                          'sleep_potion','candle',
+                          'egg','milk','chicken_meat','mutton',
+                          'apple','pear','plum','cherry',
+                          'beer','wine'];
     const sellable = Object.keys(this.BASE_PRICES).filter(id => {
       if ((GameState.inventory[id] || 0) === 0) return false;
       if (entity === 'tavern') return TAVERN_ITEMS.includes(id);
@@ -14399,6 +14402,7 @@ const CellariumSystem = {
 
 
 };
+
 // ═══ src/systems/DecaySystem.js ═══
 // ═══════════════════════════════════════════════════════════════════════════
 // DECAY SYSTEM v1 (B2 — simplified)
