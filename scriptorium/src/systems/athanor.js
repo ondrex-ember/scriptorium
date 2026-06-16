@@ -644,6 +644,24 @@ const AthanorDB = {
       result: { id: 'stamina_tonic', qty: 1 },
       name: 'Posca Dulcis', name_lat: 'Posca Dulcis', icon: '🥛', effect: null,
       lore: 'Obilný vývar oslazen medem. Posca — nápoj římských legionářů v klášterní podobě.'
+    },
+
+    // ── Tier 4: Calcinatio — Žíhání (popel) ──
+    'charcoal+charcoal:calcinatio': {
+      result: { id: 'ash', qty: 5 },
+      name: 'Calcinatio Carbonis',
+      name_lat: 'Calcinatio Carbonis',
+      icon: '🌫️',
+      effect: null,
+      lore: 'Dvě uhlí žíhaná v Athanoru vydají čistý popel. Ignis omnia purgat — oheň vše čistí.'
+    },
+    'charcoal+stick:calcinatio': {
+      result: { id: 'ash', qty: 3 },
+      name: 'Calcinatio Ligni',
+      name_lat: 'Calcinatio Ligni',
+      icon: '🌫️',
+      effect: null,
+      lore: 'Uhlí a větev v žáru Athanoru. Méně čisté než dvojí uhlí, ale dostupnější surovina.'
     }
   },
 
