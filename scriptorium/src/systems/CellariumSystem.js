@@ -667,6 +667,55 @@ const CellariumSystem = {
     `;
   },
 
+  // ── Benedikt — dynamické motto ──────────────────────────────────────────
+  _benediktMotto: function() {
+    const lang = (GameState.settings && GameState.settings.language) || 'cs';
+    const grose = this.getGrose();
+    const ds = (typeof DecaySystem !== 'undefined') ? DecaySystem : null;
+    const stock = ds ? ds.totalStock() : 0;
+    const cap   = ds ? ds.totalCapacity() : 1000;
+    const pct   = cap > 0 ? Math.round(stock / cap * 100) : 0;
+    const tavernOpen = this.isEntityOpen('tavern');
+
+    if (grose === 0)      return t('cellarium.mottoEmpty');
+    if (grose < 10)       return t('cellarium.mottoPoor');
+    if (!tavernOpen)      return t('cellarium.mottoShuttered');
+    if (pct > 90)         return t('cellarium.mottoFull');
+    if (grose > 200)      return t('cellarium.mottoRich');
+    return t('cellarium.motto');
+  },
+
+  // ── Benedikt — stats panel ───────────────────────────────────────────────
+  _benediktStats: function() {
+    const lang = (GameState.settings && GameState.settings.language) || 'cs';
+    const ds = (typeof DecaySystem !== 'undefined') ? DecaySystem : null;
+    const stock = ds ? ds.totalStock() : 0;
+    const cap   = ds ? ds.totalCapacity() : 1000;
+    const pct   = cap > 0 ? Math.round(stock / cap * 100) : 0;
+    const capColor = pct > 90 ? '#c0392b' : pct > 70 ? '#e67e22' : '#5a9a5a';
+
+    const hasLR = GameState.researchedTechs && GameState.researchedTechs.includes('tech_liber_rationum');
+    const txs = (GameState.treasury && GameState.treasury.transactions) || [];
+    const totalSold = hasLR
+      ? txs.filter(t => t.type === 'sell').reduce((s, t) => s + (t.total || 0), 0)
+      : null;
+
+    const tavernOpen = this.isEntityOpen('tavern');
+    const tavernTxt = tavernOpen
+      ? `<span style="color:#5a9a5a;">● ${lang==='en'?'open':'otevřeno'}</span>`
+      : `<span style="color:#c0392b;">● ${lang==='en'?'closed':'zavřeno'}</span>`;
+
+    let h = `<div style="display:flex;gap:16px;flex-wrap:wrap;font-size:0.78rem;opacity:0.8;
+                         padding:8px 12px;background:rgba(0,0,0,0.04);border-radius:6px;margin-bottom:14px;">`;
+    if (totalSold !== null) {
+      h += `<span>📊 ${lang==='en'?'Sold':'Prodáno'}: <strong>${totalSold} g</strong></span>`;
+    }
+    h += `<span>🌾 ${lang==='en'?'Stores':'Zásoby'}: <strong style="color:${capColor};">${pct}%</strong></span>`;
+    h += `<span>🍺 ${lang==='en'?'Tavern':'Hospoda'}: ${tavernTxt}</span>`;
+    h += `</div>`;
+    return h;
+  },
+
   renderCellariumContent: function() {
     const lang = (GameState.settings && GameState.settings.language) || 'cs';
     const hasNum = this.hasNumismatica();
@@ -683,7 +732,7 @@ const CellariumSystem = {
           <div style="font-weight:bold; font-size:1rem;">${t('cellarium.benedict')}</div>
           <div style="font-size:0.8rem; opacity:0.65; font-style:italic;">${t('cellarium.benedictRole')}</div>
           <div style="font-size:0.8rem; opacity:0.6; margin-top:4px;">
-            ${t('cellarium.motto')}
+            ${this._benediktMotto()}
           </div>
         </div>
         <div style="text-align:center; min-width:70px;">
@@ -693,6 +742,8 @@ const CellariumSystem = {
         </div>
       </div>
     `;
+
+    h += this._benediktStats();
 
     if (!hasNum) {
       // Numismatica ještě neodemknuta
