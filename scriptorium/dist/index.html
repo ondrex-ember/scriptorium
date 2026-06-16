@@ -5679,7 +5679,9 @@ const RecipesDB = [
     { id: "glue", output: "glue", qty: 1, req: { "bone": 2, "water": 1 }, cat: "craft", locked: true,
       desc: "Kostní klíh — kosti se hodiny vyvařují, dokud nevznikne hustá želatina.", desc_en: "Bone glue — bones boiled for hours into a thick gelatin." },
     { id: "potion_heal", output: "potion_heal", qty: 1, req: { "herb_red": 1, "fat": 1, "pestle": 0 }, cat: "alchemy", locked: true },
-    { id: "ash", output: "ash", qty: 2, req: { "charcoal": 1 }, cat: "alchemy_ing", locked: true },
+    { id: "ash", output: "ash", qty: 2, req: { "charcoal": 1 }, cat: "alchemy", locked: true },
+    { id: "ash_from_sticks", output: "ash", qty: 1, req: { "stick": 4 }, cat: "alchemy", locked: true, desc: "Spálené větve. Pomalé, ale bez uhlí.", desc_en: "Burned branches. Slow, but no charcoal needed." },
+    { id: "ash_from_log", output: "ash", qty: 3, req: { "log": 1 }, cat: "alchemy", locked: true, desc: "Kulatina dá více popele.", desc_en: "A log yields more ash." },
     { id: "compost", output: "compost", qty: 2, req: { "fiber": 3, "bone": 1, "water": 1 }, cat: "craft", locked: true },
     
     // ALCHEMY - pokročilá
@@ -5691,7 +5693,7 @@ const RecipesDB = [
     // ========== v7.5 NEW RECIPES - Historical Realities ==========
     
     // VELLUM CHAIN (Pergamen výroba - historicky přesná)
-    { id: "ash_water", output: "ash_water", qty: 1, req: { "ash": 2, "water": 3 }, cat: "craft", desc: "Louh na namáčení kůže. Historicky 3-4 dny.", desc_en: "Lye for soaking hides. Historically 3-4 days." },
+    { id: "ash_water", output: "ash_water", qty: 1, req: { "ash": 2, "water": 3 }, cat: "craft", locked: true, desc: "Louh na namáčení kůže. Historicky 3-4 dny.", desc_en: "Lye for soaking hides. Historically 3-4 days." },
     { id: "soaked_hide", output: "soaked_hide", qty: 1, req: { "hide": 2, "ash_water": 1 }, cat: "craft", locked: true, desc: "Kůže loužená 3 dny.", desc_en: "Hide soaked for 3 days." },
     { id: "stretched_hide", output: "stretched_hide", qty: 1, req: { "soaked_hide": 1, "rope": 2 }, cat: "craft", locked: true, desc: "Napnuto v rámu.", desc_en: "Stretched on a frame." },
     { id: "pumice", output: "pumice", qty: 1, req: { "rock": 3 }, cat: "craft", locked: true, desc: "Sopečný kámen - leští.", desc_en: "Volcanic stone - for smoothing." },
@@ -5909,6 +5911,7 @@ const RecipesDB = [
       desc:"Bednářská dílna. Výroba sudů pro export vína. Odemkne řemeslo bednáře.",
       desc_en:"Cooperage workshop. Craft barrels for wine export. Unlocks the cooper's craft." },
 ];
+
 // ═══ src/data/lore.js ═══
 const LoreDB = {
     // TOOLS
@@ -6644,7 +6647,8 @@ const TechTree = [
     { id:"tech_composting",      name:"Kompostování",              name_en:"Composting",                 cost:3,  desc:"Odemkne: Kompost",                             desc_en:"Unlocks: Compost",                      unlocks:["compost"] },
 
     // TIER 3 - alchemy
-    { id:"tech_alchemy_2",       name:"Alchymie Úrovně 2",         name_en:"Alchemy Level 2",            cost:5,  desc:"Odemkne: Protijed, popel",                     desc_en:"Unlocks: Antidote, ash",                unlocks:["antidote","ash"], requires:["tech_alchemy_1"] },
+    { id:"tech_alchemy_2",       name:"Alchymie Úrovně 2",         name_en:"Alchemy Level 2",            cost:5,  desc:"Odemkne: Protijed, popel",                     desc_en:"Unlocks: Antidote, ash",                unlocks:["antidote","ash","ash_from_sticks","ash_from_log"], requires:["tech_alchemy_1"] },
+    { id:"tech_calcinatio",     name:"Calcinatio — Žíhání",        name_en:"Calcinatio — Calcination",   cost:6,  desc:"Žíhání v silném ohni spaluje těkavé složky a zanechává čistou zemi. Základní alchymistická operace pro práci s popelem a minerály.", desc_en:"Calcination in intense fire burns off volatile parts, leaving pure earth. Fundamental for ash and mineral work.", unlocks:[], requires:["tech_alchemy_3"] },
     { id:"tech_alchemy_3",       name:"Alchymie Úrovně 3",         name_en:"Alchemy Level 3",            cost:6,  desc:"Odemkne: Tonikum, olej",                       desc_en:"Unlocks: Tonic, preservation oil",      unlocks:["stamina_tonic","preservation_oil"], requires:["tech_alchemy_2"] },
     { id:"tech_alchemy_4",       name:"Mistrovská Alchymie",       name_en:"Master Alchemy",             cost:8,  desc:"Odemkne: Lektvar spánku",                      desc_en:"Unlocks: Sleep draught",                unlocks:["sleep_potion"], requires:["tech_alchemy_3"] },
 
@@ -6690,7 +6694,7 @@ const TechTree = [
     { id:"tech_ars_chronicae",    name:"Ars Chronicae",              name_en:"Ars Chronicae",              cost:6,  desc:"Kosmas psal Kroniku Čechů na sklonku života (†1125). Dalimil veršoval česky (1314). Hájek lhal okouzlující latinou (1541). Prostudoval jsi umění svědectví — nyní zapiš vlastní příběh. Odemkne: Kroniku.", desc_en:"Cosmas wrote his Chronicle of Bohemia on his deathbed (†1125). Dalimil versified in Czech (1314). Hájek spun enchanting lies in Latin (1541). Thou hast studied the art of witness — now write thine own story. Unlocks: The Chronicle.", unlocks:[], requires:["tech_commonplace","tech_monastery_wisdom"] },
 
     // VELLUM
-    { id:"tech_vellum_prep",      name:"Příprava Pergamenu",       name_en:"Vellum Preparation",         cost:5,  desc:"Loužení kůže ve vápenné lázni. Historicky 3–4 dny.", desc_en:"Soaking hide in lime water. Historically 3–4 days.", unlocks:["soaked_hide","stretched_hide"], requires:[] },
+    { id:"tech_vellum_prep",      name:"Příprava Pergamenu",       name_en:"Vellum Preparation",         cost:5,  desc:"Loužení kůže ve vápenné lázni. Historicky 3–4 dny.", desc_en:"Soaking hide in lime water. Historically 3–4 days.", unlocks:["soaked_hide","stretched_hide","ash_water"], requires:[] },
     { id:"tech_tanning",          name:"Koželužství",               name_en:"Tanning",                    cost:6,  desc:"Třísloviny z duběnek zpevní kůži. Základ každého skriptoria.", desc_en:"Gall nut tannins harden the hide. The foundation of every scriptorium.", unlocks:["tanned_leather","bellows","scrinium_case","water_pouch","ink_pouch"], requires:["tech_vellum_prep"] },
     { id:"tech_bookbinding",      name:"Vazba Knih",                name_en:"Book Binding",               cost:8,  desc:"Kožená vazba, deska a pouzdra. Z volných listů se stává kodex.", desc_en:"Leather binding, boards and cases. Loose leaves become a codex.", unlocks:["book_binding","book_cover","quill_case","scribes_belt","cushion"], requires:["tech_tanning"] },
     { id:"tech_vellum_mastery",   name:"Mistrovství Pergamenu",    name_en:"Vellum Mastery",             cost:7,  desc:"Leštění pemzou, bělení křídou. 1 kodex = kůže 3 ovcí. Jak Olomoucký misál (1488).", desc_en:"Smoothing with pumice, whitening with chalk. 1 codex = 3 sheepskins. As the Olomouc Missal (1488).", unlocks:["vellum","pumice"], requires:["tech_vellum_prep"] },
@@ -6904,6 +6908,7 @@ const TechTree = [
       unlocks:[], requires:["tech_de_re_rustica","tech_vinohrad"] },
 
 ];
+
 // ═══ src/core/gamestate.js ═══
 const ActionsDB = [
     { id: 'basic',        cat: 'scavenge', name: 'Průzkum okolí',    name_en: 'Scour the grounds',  icon: '🖐',  desc: 'Suroviny',         desc_en: 'Raw materials',      yield: 1 },
@@ -15166,9 +15171,11 @@ const FireplaceSystem = {
             GameState.fire = {
                 active: GameState.flags.fireplaceLit || false,
                 fuelMs: GameState.flags.fireplaceLit ? (6 * 60 * 60 * 1000) : 0, // Pro staré savy: dostanou 6h do začátku
-                lastUpdate: Date.now()
+                lastUpdate: Date.now(),
+                lastSweep: 0
             };
         }
+        if (GameState.fire.lastSweep === undefined) GameState.fire.lastSweep = 0;
     },
 
     addFuel: function(itemId) {
@@ -15479,6 +15486,45 @@ const FireplaceSystem = {
         return h;
     },
 
+    // ── Sweep / Vymést — 1×/24h po prvním zapálení ──────────────────────────
+    SWEEP_MS: 24 * 60 * 60 * 1000,
+    SWEEP_ASH: 4,
+
+    sweepAsh: function() {
+        this._ensureState();
+        const fire = GameState.fire;
+        const now = Date.now();
+        if (!fire.lastSweep && !fire.active && fire.fuelMs === 0) {
+            UI.notify(t('fireplace.sweepNeedFire'), true); return;
+        }
+        if ((now - (fire.lastSweep || 0)) < this.SWEEP_MS) {
+            UI.notify(t('fireplace.sweepCooldown'), true); return;
+        }
+        fire.lastSweep = now;
+        Game.addItem('ash', this.SWEEP_ASH);
+        Game.save();
+        this.render();
+        UI.notify(t('fireplace.sweepDone').replace('{n}', this.SWEEP_ASH));
+    },
+
+    _renderSweep: function() {
+        this._ensureState();
+        const fire = GameState.fire;
+        const now = Date.now();
+        const sinceLastSweep = now - (fire.lastSweep || 0);
+        const ready = sinceLastSweep >= this.SWEEP_MS;
+        const card = `background:rgba(0,0,0,0.05);padding:14px;border-radius:10px;border-left:3px solid var(--accent-gold);margin-bottom:12px;`;
+        let h = `<div style="${card}">`;
+        if (ready) {
+            h += `<button onclick="FireplaceSystem.sweepAsh()" style="width:100%;padding:8px;border-radius:6px;border:1px solid var(--accent-gold);background:rgba(197,160,89,0.15);color:var(--accent-gold);cursor:pointer;font-size:0.85rem;">🧹 ${t('fireplace.sweepReady')}</button>`;
+        } else {
+            const remainH = Math.ceil((this.SWEEP_MS - sinceLastSweep) / 3600000);
+            h += `<button disabled style="width:100%;padding:8px;border-radius:6px;border:1px solid var(--accent-gold);background:rgba(197,160,89,0.07);color:var(--accent-gold);cursor:default;font-size:0.85rem;opacity:0.5;">🧹 ${t('fireplace.sweepWait').replace('{h}', remainH)}</button>`;
+        }
+        h += `</div>`;
+        return h;
+    },
+
     // Volá se z Game.checkEnvironment() — synchronizuje stav po ignite/dieOut
     render: function() {
         this._ensureState();
@@ -15566,7 +15612,7 @@ const FireplaceSystem = {
         if (teaEl) {
             this._ensureTeaState();
             this._checkTeaDone();
-            teaEl.innerHTML = this._renderTea();
+            teaEl.innerHTML = this._renderTea() + this._renderSweep();
             teaEl.style.display = 'block';
             this._ensureTeaInterval();
         }
@@ -21665,6 +21711,24 @@ const AthanorDB = {
       result: { id: 'stamina_tonic', qty: 1 },
       name: 'Posca Dulcis', name_lat: 'Posca Dulcis', icon: '🥛', effect: null,
       lore: 'Obilný vývar oslazen medem. Posca — nápoj římských legionářů v klášterní podobě.'
+    },
+
+    // ── Tier 4: Calcinatio — Žíhání (popel) ──
+    'charcoal+charcoal:calcinatio': {
+      result: { id: 'ash', qty: 5 },
+      name: 'Calcinatio Carbonis',
+      name_lat: 'Calcinatio Carbonis',
+      icon: '🌫️',
+      effect: null,
+      lore: 'Dvě uhlí žíhaná v Athanoru vydají čistý popel. Ignis omnia purgat — oheň vše čistí.'
+    },
+    'charcoal+stick:calcinatio': {
+      result: { id: 'ash', qty: 3 },
+      name: 'Calcinatio Ligni',
+      name_lat: 'Calcinatio Ligni',
+      icon: '🌫️',
+      effect: null,
+      lore: 'Uhlí a větev v žáru Athanoru. Méně čisté než dvojí uhlí, ale dostupnější surovina.'
     }
   },
 
@@ -22739,6 +22803,7 @@ const AthanorSystem = {
     if (el && el.style.display !== 'none') AthanorSystem.render('home-athanor-content');
   }
 };
+
 // ═══ src/systems/GamesSystem.js ═══
 // ═══════════════════════════════════════════════════════════════════════════════
 // GAMES SYSTEM — Aula Ludi
@@ -27478,7 +27543,9 @@ const STRINGS_cs = {
         dashNotes: 'Zápisky', dashCoins: 'Groše', dashRank: 'Rank', dashTech: 'Techy', dashKronika: 'Poslední kronika',
         dashTimeLabel: 'Čas', dashDate: 'Datum', dashMoon: 'Luna', dashHora: 'Hora',
         teaTitle: 'Čaj', teaBrew: 'Uvařit čaj', teaDrink: 'PÍT ČAJ', teaBrewing: 'Vaří se… {s} s',
-        teaNeedKettle: 'Potřebuješ Konvičku (vyrob v Craftu)', teaNeedFire: 'Rozdělej oheň', teaNeedHerb: 'Chybí bylina (heřmánek, tymián, lípa)', teaNeedWater: 'Chybí voda'
+        teaNeedKettle: 'Potřebuješ Konvičku (vyrob v Craftu)', teaNeedFire: 'Rozdělej oheň', teaNeedHerb: 'Chybí bylina (heřmánek, tymián, lípa)', teaNeedWater: 'Chybí voda',
+        sweepReady: '🧹 Vymést popelník (+4 popel)', sweepWait: '🧹 Vymést — za {h} h',
+        sweepDone: 'Vymeteno. +{n} popel.', sweepNeedFire: 'Nejdříve zapal krb.', sweepCooldown: 'Popelník byl vymetán nedávno.'
     },
     light: {
         none: 'Není světlo', noneDesc: 'Tma halí knihy.',
@@ -29117,6 +29184,7 @@ const STRINGS_cs = {
         },
     },
 };
+
 // ═══ src/i18n/en.js ═══
 // Scriptorium i18n — English (Olde)
 // Základ: STRINGS_cs. Chybějící klíče → fallback na CS automaticky.
@@ -29142,7 +29210,9 @@ const STRINGS_en = {
         dashNotes: 'Notes', dashCoins: 'Coins', dashRank: 'Rank', dashTech: 'Techs', dashKronika: 'Latest chronicle',
         dashTimeLabel: 'Time', dashDate: 'Date', dashMoon: 'Moon', dashHora: 'Hour',
         teaTitle: 'Tea', teaBrew: 'Brew tea', teaDrink: 'DRINK TEA', teaBrewing: 'Brewing… {s} s',
-        teaNeedKettle: 'You need a Kettle (craft it)', teaNeedFire: 'Light the fire', teaNeedHerb: 'No herb (chamomile, thyme, linden)', teaNeedWater: 'No water'
+        teaNeedKettle: 'You need a Kettle (craft it)', teaNeedFire: 'Light the fire', teaNeedHerb: 'No herb (chamomile, thyme, linden)', teaNeedWater: 'No water',
+        sweepReady: '🧹 Sweep the hearth (+4 ash)', sweepWait: '🧹 Sweep — in {h} h',
+        sweepDone: 'Swept. +{n} ash.', sweepNeedFire: 'Light the fire first.', sweepCooldown: 'The hearth was swept recently.'
     },
     light: {
         none: 'No Light', noneDesc: 'Darkness claimeth this place.',
@@ -31793,6 +31863,7 @@ In every scriptorium lurks Titivillus. His task is not to tempt to sin — other
         },
     },
 };
+
 // ═══ src/i18n/strings.js ═══
 // Scriptorium i18n — STRINGS assembler + t() helper
 // Přidání jazyka: 1) xx.js, 2) přidat do STRINGS, 3) přidat do build.js
