@@ -15281,7 +15281,7 @@ const FireplaceSystem = {
 
         // ── Sekce Stav (zápisky / groše / rank / techy / poslední kronika) ──
         let stav = `<div style="${card}"><h4 style="margin:0 0 10px 0;color:var(--ink-primary);">📊 ${t('fireplace.dashStav')}</h4>`;
-        const notes = (GameState.achievements && GameState.achievements.stats && GameState.achievements.stats.researchCount) || 0;
+        const notes = (GameState.inventory && GameState.inventory['research']) || 0;
         stav += `<div style="${row}"><span>📜 ${t('fireplace.dashNotes')}</span><strong>${notes}</strong></div>`;
         const grose = (typeof CellariumSystem !== 'undefined' && CellariumSystem.getGrose) ? CellariumSystem.getGrose() : ((GameState.treasury && GameState.treasury.grose) || 0);
         stav += `<div style="${row}"><span>🪙 ${t('fireplace.dashCoins')}</span><strong>${grose}</strong></div>`;
