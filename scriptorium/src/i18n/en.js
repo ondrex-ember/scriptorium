@@ -24,7 +24,7 @@ const STRINGS_en = {
         teaTitle: 'Tea', teaBrew: 'Brew tea', teaDrink: 'DRINK TEA', teaBrewing: 'Brewing… {s} s',
         teaNeedKettle: 'You need a Kettle (craft it)', teaNeedFire: 'Light the fire', teaNeedHerb: 'No herb (chamomile, thyme, linden)', teaNeedWater: 'No water',
         sweepReady: '🧹 Sweep the hearth (+4 ash)', sweepWait: '🧹 Sweep — in {h} h',
-        sweepDone: 'Swept. +{n} ash.', sweepNeedFire: 'Light the fire first.', sweepCooldown: 'The hearth was swept recently.'
+        sweepDone: 'Swept. +{n} ash, +4 soot.', sweepNeedFire: 'Light the fire first.', sweepCooldown: 'The hearth was swept recently.'
     },
     light: {
         none: 'No Light', noneDesc: 'Darkness claimeth this place.',
