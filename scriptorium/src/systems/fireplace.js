@@ -110,9 +110,11 @@ const FireplaceSystem = {
             GameState.fire = {
                 active: GameState.flags.fireplaceLit || false,
                 fuelMs: GameState.flags.fireplaceLit ? (6 * 60 * 60 * 1000) : 0, // Pro staré savy: dostanou 6h do začátku
-                lastUpdate: Date.now()
+                lastUpdate: Date.now(),
+                lastSweep: 0
             };
         }
+        if (GameState.fire.lastSweep === undefined) GameState.fire.lastSweep = 0;
     },
 
     addFuel: function(itemId) {
@@ -423,6 +425,45 @@ const FireplaceSystem = {
         return h;
     },
 
+    // ── Sweep / Vymést — 1×/24h po prvním zapálení ──────────────────────────
+    SWEEP_MS: 24 * 60 * 60 * 1000,
+    SWEEP_ASH: 4,
+
+    sweepAsh: function() {
+        this._ensureState();
+        const fire = GameState.fire;
+        const now = Date.now();
+        if (!fire.lastSweep && !fire.active && fire.fuelMs === 0) {
+            UI.notify(t('fireplace.sweepNeedFire'), true); return;
+        }
+        if ((now - (fire.lastSweep || 0)) < this.SWEEP_MS) {
+            UI.notify(t('fireplace.sweepCooldown'), true); return;
+        }
+        fire.lastSweep = now;
+        Game.addItem('ash', this.SWEEP_ASH);
+        Game.save();
+        this.render();
+        UI.notify(t('fireplace.sweepDone').replace('{n}', this.SWEEP_ASH));
+    },
+
+    _renderSweep: function() {
+        this._ensureState();
+        const fire = GameState.fire;
+        const now = Date.now();
+        const sinceLastSweep = now - (fire.lastSweep || 0);
+        const ready = sinceLastSweep >= this.SWEEP_MS;
+        const card = `background:rgba(0,0,0,0.05);padding:14px;border-radius:10px;border-left:3px solid var(--accent-gold);margin-bottom:12px;`;
+        let h = `<div style="${card}">`;
+        if (ready) {
+            h += `<button onclick="FireplaceSystem.sweepAsh()" style="width:100%;padding:8px;border-radius:6px;border:1px solid var(--accent-gold);background:rgba(197,160,89,0.15);color:var(--accent-gold);cursor:pointer;font-size:0.85rem;">🧹 ${t('fireplace.sweepReady')}</button>`;
+        } else {
+            const remainH = Math.ceil((this.SWEEP_MS - sinceLastSweep) / 3600000);
+            h += `<button disabled style="width:100%;padding:8px;border-radius:6px;border:1px solid var(--accent-gold);background:rgba(197,160,89,0.07);color:var(--accent-gold);cursor:default;font-size:0.85rem;opacity:0.5;">🧹 ${t('fireplace.sweepWait').replace('{h}', remainH)}</button>`;
+        }
+        h += `</div>`;
+        return h;
+    },
+
     // Volá se z Game.checkEnvironment() — synchronizuje stav po ignite/dieOut
     render: function() {
         this._ensureState();
@@ -510,7 +551,7 @@ const FireplaceSystem = {
         if (teaEl) {
             this._ensureTeaState();
             this._checkTeaDone();
-            teaEl.innerHTML = this._renderTea();
+            teaEl.innerHTML = this._renderTea() + this._renderSweep();
             teaEl.style.display = 'block';
             this._ensureTeaInterval();
         }
