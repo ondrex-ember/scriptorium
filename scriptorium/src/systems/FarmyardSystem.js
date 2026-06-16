@@ -636,6 +636,13 @@ const FarmyardSystem = {
                 html += '<div>🥚 ' + t('farmyard.eggs') + ': <strong>' + (eggReady ? t('farmyard.ready')+' ('+eggYield+')' : Math.ceil(((h.lastEggAt||0)+28800000-now)/3600000)+'h') + '</strong></div>';
                 html += '<div>🪶 ' + t('farmyard.feathers') + ': <strong>' + (feathReady ? t('farmyard.ready') : Math.ceil(((h.lastFeatherAt||0)+86400000-now)/3600000)+'h') + '</strong></div>';
                 html += moodAvgHen < 50 ? '<div style="color:#c0392b;font-size:0.75rem;">⚠️ ' + (lang==='en'?'Low mood — eggs reduced':'Nízká nálada — méně vajec') + '</div>' : '<div></div>';
+                // Krmení + slug bonus
+                const fedAgo = h.lastFedAt ? Math.floor((now - h.lastFedAt) / 3600000) : null;
+                const fedTxt = fedAgo === null ? (lang==='en'?'Never':'Nikdy') : fedAgo < 1 ? (lang==='en'?'< 1h ago':'před < 1h') : (lang==='en'?'~'+fedAgo+'h ago':'před ~'+fedAgo+'h');
+                html += '<div style="grid-column:1/3;">🌾 ' + (lang==='en'?'Last fed':'Krmeno') + ': <strong>' + fedTxt + '</strong></div>';
+                const slugActive = h.slugFedAt && (now - h.slugFedAt) < 28800000;
+                const slugRemH = slugActive ? Math.ceil((h.slugFedAt + 28800000 - now) / 3600000) : 0;
+                html += '<div style="color:' + (slugActive?'#4a7c59':'inherit') + ';">🐌 ' + t('farmyard.slugBonus') + ': <strong>' + (slugActive ? (lang==='en'?'+25% eggs ('+slugRemH+'h)':'+25% vajec ('+slugRemH+'h)') : '—') + '</strong></div>';
                 html += '</div>';
                 if (hensCount > 0) {
                     html += '<div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px;">';
@@ -661,6 +668,9 @@ const FarmyardSystem = {
                 html += '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;">';
                 html += '<button class="craft-btn" onclick="FarmyardSystem.collectHenhouse()" ' + (hensCount>0?'':'disabled') + '>🥚 ' + t('farmyard.collect') + '</button>';
                 html += '<button class="craft-btn" onclick="FarmyardSystem.feedHenhouse()" ' + (hensCount>0?'':'disabled') + ' style="background:#4a7c59;">🌾 ' + t('farmyard.feed') + '</button>';
+                var slugNeeded = hensCount * 2;
+                var hasSlug = (GameState.inventory['slug'] || 0) >= slugNeeded;
+                html += '<button class="craft-btn" onclick="FarmyardSystem.feedHenhouseSlug()" ' + (hensCount>0&&hasSlug?'':'disabled') + ' style="background:#5a7c3a;" title="' + slugNeeded + '× ' + (lang==='en'?'slug':'slimák') + '">🐌 ' + t('farmyard.feedSlug') + '</button>';
                 var canCleanHen = Date.now() - (GameState.henhouse.lastCleanMs||0) >= 86400000;
                 var cleanQtyHen = Math.max(1,Math.ceil(hensCount/3));
                 html += '<button class="craft-btn" onclick="FarmyardSystem.cleanPen(\'kurnik\')" style="background:rgba(90,154,90,0.85);">' + (canCleanHen ? '🧹 '+t('farmyard.clean')+' (💩 +'+cleanQtyHen+')' : '🧹 '+t('farmyard.cleanTomorrow')) + '</button>';
@@ -936,7 +946,8 @@ const FarmyardSystem = {
         if (now >= (h.lastEggAt || 0) + EGG_INTERVAL) {
             const moodAvg = h.hens.reduce((s, a) => s + ((typeof a === 'object' && a.mood) || 80), 0) / h.hens.length;
             const moodMult = this.MOOD_MULT(moodAvg);
-            const mult = (h.rooster ? 1.2 : 1.0) * moodMult;
+            const slugBonus = (h.slugFedAt && (now - h.slugFedAt) < 28800000) ? 1.25 : 1.0;
+            const mult = (h.rooster ? 1.2 : 1.0) * moodMult * slugBonus;
             const eggs = Math.floor(h.hens.length * mult);
             if (eggs > 0) { Game.addItem('egg', eggs); h.lastEggAt = now; collected = true; }
         }
@@ -953,6 +964,7 @@ const FarmyardSystem = {
         if (!h.built || h.hens.length === 0) return;
         const chickFeed = h.nesting && h.nesting.state === 'growing' ? Math.ceil(h.nesting.chicks / 2) : 0;
         const totalFeed = h.hens.length + chickFeed;
+        // Priorita: seeds_herb → seeds_vegetable
         const feedItem = (GameState.inventory['seeds_herb'] || 0) >= totalFeed ? 'seeds_herb' : 'seeds_vegetable';
         if ((GameState.inventory[feedItem] || 0) < totalFeed) { UI.notify(t('game.needFeedHen') + ' (' + totalFeed + ')', true); return; }
         Game.removeItem(feedItem, totalFeed);
@@ -961,6 +973,22 @@ const FarmyardSystem = {
         if (Array.isArray(hens)) hens.forEach(a => { if (typeof a === 'object') a.mood = Math.min(100, (a.mood || 80) + 10); });
         Game.save(); FarmyardSystem.renderFarmyard();
         UI.notify('🌾 ' + t('game.henFed'));
+    },
+
+    feedHenhouseSlug: function() {
+        const h = GameState.henhouse;
+        if (!h.built || h.hens.length === 0) return;
+        const needed = h.hens.length * 2;
+        if ((GameState.inventory['slug'] || 0) < needed) {
+            UI.notify(t('farmyard.needSlug') + ' (' + needed + ')', true); return;
+        }
+        Game.removeItem('slug', needed);
+        h.lastFedAt = Date.now();
+        h.slugFedAt = Date.now();
+        const hens = h.hens;
+        if (Array.isArray(hens)) hens.forEach(a => { if (typeof a === 'object') a.mood = Math.min(100, (a.mood || 80) + 20); });
+        Game.save(); FarmyardSystem.renderFarmyard();
+        UI.notify('🐌 ' + t('farmyard.slugFed'));
     },
 
     // ═══════════════════════════════════════════════════════════════════════
