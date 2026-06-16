@@ -18527,6 +18527,8 @@ const FarmyardSystem = {
             html += this.renderAnimalPen('pigsty');
         } else if (tab === 'staj' && GameState.researchedTechs && GameState.researchedTechs.includes('tech_stabulum')) {
             html += this.renderAnimalPen('stable');
+        } else if (tab === 'oslarna') {
+            html += this.renderDonkeyStall();
         } else if (tab !== 'studna') {
             html += this._renderDvurLocked(tab);
         }
