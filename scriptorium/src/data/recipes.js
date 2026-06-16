@@ -160,7 +160,9 @@ const RecipesDB = [
     { id: "glue", output: "glue", qty: 1, req: { "bone": 2, "water": 1 }, cat: "craft", locked: true,
       desc: "Kostní klíh — kosti se hodiny vyvařují, dokud nevznikne hustá želatina.", desc_en: "Bone glue — bones boiled for hours into a thick gelatin." },
     { id: "potion_heal", output: "potion_heal", qty: 1, req: { "herb_red": 1, "fat": 1, "pestle": 0 }, cat: "alchemy", locked: true },
-    { id: "ash", output: "ash", qty: 2, req: { "charcoal": 1 }, cat: "alchemy_ing", locked: true },
+    { id: "ash", output: "ash", qty: 2, req: { "charcoal": 1 }, cat: "alchemy", locked: true },
+    { id: "ash_from_sticks", output: "ash", qty: 1, req: { "stick": 4 }, cat: "alchemy", locked: true, desc: "Spálené větve. Pomalé, ale bez uhlí.", desc_en: "Burned branches. Slow, but no charcoal needed." },
+    { id: "ash_from_log", output: "ash", qty: 3, req: { "log": 1 }, cat: "alchemy", locked: true, desc: "Kulatina dá více popele.", desc_en: "A log yields more ash." },
     { id: "compost", output: "compost", qty: 2, req: { "fiber": 3, "bone": 1, "water": 1 }, cat: "craft", locked: true },
     
     // ALCHEMY - pokročilá
@@ -172,7 +174,7 @@ const RecipesDB = [
     // ========== v7.5 NEW RECIPES - Historical Realities ==========
     
     // VELLUM CHAIN (Pergamen výroba - historicky přesná)
-    { id: "ash_water", output: "ash_water", qty: 1, req: { "ash": 2, "water": 3 }, cat: "craft", desc: "Louh na namáčení kůže. Historicky 3-4 dny.", desc_en: "Lye for soaking hides. Historically 3-4 days." },
+    { id: "ash_water", output: "ash_water", qty: 1, req: { "ash": 2, "water": 3 }, cat: "craft", locked: true, desc: "Louh na namáčení kůže. Historicky 3-4 dny.", desc_en: "Lye for soaking hides. Historically 3-4 days." },
     { id: "soaked_hide", output: "soaked_hide", qty: 1, req: { "hide": 2, "ash_water": 1 }, cat: "craft", locked: true, desc: "Kůže loužená 3 dny.", desc_en: "Hide soaked for 3 days." },
     { id: "stretched_hide", output: "stretched_hide", qty: 1, req: { "soaked_hide": 1, "rope": 2 }, cat: "craft", locked: true, desc: "Napnuto v rámu.", desc_en: "Stretched on a frame." },
     { id: "pumice", output: "pumice", qty: 1, req: { "rock": 3 }, cat: "craft", locked: true, desc: "Sopečný kámen - leští.", desc_en: "Volcanic stone - for smoothing." },
