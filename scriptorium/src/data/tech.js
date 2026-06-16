@@ -187,6 +187,12 @@ const TechTree = [
       desc_en:"In the Middle Ages a horse was property like a carriage with a coat of arms. Draught power for fields and market roads — but it eats oats, needs a farrier and a stable of cut stone. Unlocks: the Stable in the Farmyard.",
       unlocks:[], requires:["tech_de_re_rustica"] },
 
+    { id:"tech_asinus",          name:"Asinus — Osel",                   name_en:"Asinus — The Donkey",
+      cost:11,
+      desc:"Osel byl ve středověkém klášteře nejspolehlivějším pomocníkem: mlýn, studna, pole. Nevybíravý co žere, nikdy nestávkuje — většinou. Odemkne: Oslárna, osel Ouško a bonus výnosu na Poli.",
+      desc_en:"The donkey was the medieval monastery's most reliable helper: mill, well, fields. Undemanding in diet, never strikes — mostly. Unlocks: the Donkey Stall, Ouško the donkey, and a field yield bonus.",
+      unlocks:[], requires:["tech_de_re_rustica"] },
+
     { id:"tech_lactaria",        name:"Lactaria — Zpracování mléka",     name_en:"Lactaria — Dairy Craft",
       cost:15,
       desc:"Mléko vydrží den, máslo týdny, sýr měsíce. Klášterní mlékárna proměňuje pomíjivé v trvanlivé. Při stloukání másla zbude podmáslí — nic nepřijde nazmar. Odemkne: Máselnice, recepty Smetana a Máslo.",

@@ -53,6 +53,7 @@ const JS_MAIN = [
     'src/systems/well.js',
     'src/systems/fireplace.js',
     'src/systems/GardenSystem.js',
+    'src/systems/FarmyardSystem.js',
     'src/systems/ScriptoriumCat.js',
     'src/systems/PersonaSystem.js',
     'src/systems/SecretsSystem.js',

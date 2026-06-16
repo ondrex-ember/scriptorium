@@ -17,14 +17,17 @@ const FarmyardSystem = {
     ANIMAL_CFG: {
         rabbitry: { itemId: 'rabbit', cap: 6,
             build: { plank: 10, stick: 5, rope: 2 },
-            breedMs: 7 * DAY_MS },
+            breedMs: 7 * 24 * 60 * 60 * 1000 },
         goatpen:  { itemId: 'goat', cap: 3,
             build: { plank: 12, rock: 8, rope: 3 },
             milkMs: 12 * 60 * 60 * 1000 },
         pigsty:   { itemId: 'piglet', cap: 3,
             build: { cut_stone: 15, plank: 10 },
-            growMs: 60 * DAY_MS,
-            acornBoostMs: 5 * DAY_MS },
+            growMs: 60 * 24 * 60 * 60 * 1000,
+            acornBoostMs: 5 * 24 * 60 * 60 * 1000 },
+        stable: { itemId: 'horse', cap: 4,
+            build: { cut_stone: 20, plank: 15, rope: 6 },
+            milkMs: 0 },   // koně: tažná síla, žádná produkce v1
         donkeyStall: { itemId: 'donkey', cap: 2,
             build: { plank: 10, rock: 8, rope: 3 },
             fieldBonus: 0.15 },   // +15% pole yield
@@ -54,6 +57,7 @@ const FarmyardSystem = {
         if (!GameState.goatpen)     GameState.goatpen     = { built: false, animals: [] };
         if (!GameState.pigsty)      GameState.pigsty      = { built: false, animals: [] };
         if (!GameState.donkeyStall) GameState.donkeyStall = { built: false, animals: [], lastCleanMs: 0 };
+        if (!GameState.stable)      GameState.stable      = { built: false, animals: [], lastCleanMs: 0 };
         if (!GameState.loanMale)    GameState.loanMale    = {};  // {type, returnsAt}
     },
 
@@ -114,7 +118,8 @@ const FarmyardSystem = {
     // ── UKLIDIT ───────────────────────────────────────────────────────────
     cleanPen: function(pen) {
         this._ensureAnimals();
-        const st = GameState[pen] || GameState[pen === 'kurnik' ? 'henhouse' : pen === 'ovcin' ? 'sheepfold' : pen];
+        const penKey = pen === 'kurnik' ? 'henhouse' : pen === 'ovcin' ? 'sheepfold' : pen;
+        const st = GameState[penKey] || GameState[pen];
         const now = Date.now();
 
         // cooldown 24h
@@ -141,7 +146,7 @@ const FarmyardSystem = {
 
         if (typeof UI !== 'undefined' && UI.notify) UI.notify('💩 ' + t('farmyard.cleanDone').replace('{n}', n));
         if (typeof Game !== 'undefined' && Game.save) Game.save();
-        if (typeof GardenSystem !== 'undefined') GardenSystem.renderFarmyard();
+        this.renderFarmyard();
     },
 
     // ── Výpůjčka samce ────────────────────────────────────────────────────
@@ -194,7 +199,7 @@ const FarmyardSystem = {
         GameState.donkeyStall.built = true;
         if (typeof UI !== 'undefined') UI.notify('🏗️ ' + t('farmyard.donkeyStallBuilt'));
         if (typeof Game !== 'undefined') Game.save();
-        if (typeof GardenSystem !== 'undefined') GardenSystem.renderFarmyard();
+        this.renderFarmyard();
     },
 
     placeDonkey: function() {
@@ -211,7 +216,7 @@ const FarmyardSystem = {
         st.animals.push(a);
         if (typeof UI !== 'undefined') UI.notify('🫏 ' + t('farmyard.donkeyPlaced'));
         if (typeof Game !== 'undefined') Game.save();
-        if (typeof GardenSystem !== 'undefined') GardenSystem.renderFarmyard();
+        this.renderFarmyard();
     },
 
     renameDonkey: function(idx) {
@@ -222,7 +227,7 @@ const FarmyardSystem = {
         if (newName && newName.trim()) {
             a.name = newName.trim();
             if (typeof Game !== 'undefined') Game.save();
-            if (typeof GardenSystem !== 'undefined') GardenSystem.renderFarmyard();
+            this.renderFarmyard();
         }
     },
 
@@ -331,7 +336,7 @@ const FarmyardSystem = {
         GameState[pen].built = true;
         if (typeof UI !== 'undefined') UI.notify('🏗️ ' + t('dvur.built_' + pen));
         if (typeof Game !== 'undefined') Game.save();
-        if (typeof GardenSystem !== 'undefined') GardenSystem.renderFarmyard();
+        this.renderFarmyard();
     },
 
     placeAnimal: function(pen) {
@@ -342,13 +347,13 @@ const FarmyardSystem = {
         if (st.animals.length >= cfg.cap) { if (typeof UI !== 'undefined') UI.notify(t('dvur.penFull'), true); return; }
         if ((GameState.inventory[cfg.itemId] || 0) < 1) { if (typeof UI !== 'undefined') UI.notify(t('dvur.noAnimal'), true); return; }
         GameState.inventory[cfg.itemId] -= 1;
-        const sex = (pen === 'rabbitry') ? (st.animals.length % 2 === 0 ? 'f' : 'm') : 'f';
+        const sex = (pen === 'rabbitry') ? (st.animals.length % 2 === 0 ? 'f' : 'm') : (pen === 'stable') ? (st.animals.filter(a=>a.sex==='m').length === 0 ? 'f' : 'f') : 'f';
         const a = { sex, mood:80, mature:true, bornAt:Date.now(), lastCleaned:0 };
         if (pen === 'goatpen') a.lastMilk = Date.now();
         st.animals.push(a);
         if (typeof UI !== 'undefined') UI.notify(t('dvur.placed_' + pen));
         if (typeof Game !== 'undefined') Game.save();
-        if (typeof GardenSystem !== 'undefined') GardenSystem.renderFarmyard();
+        this.renderFarmyard();
     },
 
     _rabbitBreedCheck: function() {
@@ -385,7 +390,7 @@ const FarmyardSystem = {
         GameState.inventory['rabbit_pelt'] = (GameState.inventory['rabbit_pelt'] || 0) + 1;
         if (typeof UI !== 'undefined') UI.notify('🍖 ' + t('dvur.rabbitSlaughtered'));
         if (typeof Game !== 'undefined') Game.save();
-        if (typeof GardenSystem !== 'undefined') GardenSystem.renderFarmyard();
+        this.renderFarmyard();
     },
 
     collectGoatMilk: function() {
@@ -407,7 +412,7 @@ const FarmyardSystem = {
             GameState.inventory['goat_milk'] = (GameState.inventory['goat_milk'] || 0) + milk;
             if (typeof UI !== 'undefined') UI.notify('🥛 ' + t('dvur.goatMilked').replace('{n}', milk));
             if (typeof Game !== 'undefined') Game.save();
-            if (typeof GardenSystem !== 'undefined') GardenSystem.renderFarmyard();
+            this.renderFarmyard();
         } else {
             if (typeof UI !== 'undefined') UI.notify(t('dvur.goatNotReady'), true);
         }
@@ -422,7 +427,7 @@ const FarmyardSystem = {
         a.placedAt = (a.placedAt || a.bornAt || Date.now()) - cfg.acornBoostMs;
         if (typeof UI !== 'undefined') UI.notify('🌰 ' + t('dvur.acornFed'));
         if (typeof Game !== 'undefined') Game.save();
-        if (typeof GardenSystem !== 'undefined') GardenSystem.renderFarmyard();
+        this.renderFarmyard();
     },
 
     slaughterPig: function(idx) {
@@ -437,7 +442,7 @@ const FarmyardSystem = {
         if (typeof UI !== 'undefined') UI.notify('🔪 ' + t('dvur.pigSlaughtered'));
         if (typeof Game !== 'undefined' && Game.addKronikaEntry) Game.addKronikaEntry('important', '🐖 Zabijačka! Klášterní spižírna se naplnila masem, sádlem a špekem.', '🐖 Pig slaughter! The monastery larder filled with meat, lard and cured meat.', '🐖 Porcus mactatus est.');
         if (typeof Game !== 'undefined') Game.save();
-        if (typeof GardenSystem !== 'undefined') GardenSystem.renderFarmyard();
+        this.renderFarmyard();
     },
 
     // ── Render animal pen (generic) ───────────────────────────────────────
@@ -490,52 +495,86 @@ const FarmyardSystem = {
             h += `</div>`;
         }
 
-        // Actions
+        // ── Actions per pen ──────────────────────────────────────────────
+        var _selfAct = this;
         if (pen === 'rabbitry' && st.animals.length) {
-            const males = st.animals.filter(a => a.sex === 'm').length;
-            const females = st.animals.filter(a => a.sex === 'f' && a.mature).length;
-            if (males >= 1 && females >= 1 && st.animals.length < cfg.cap && !this._penHungry('rabbitry')) {
-                h += `<div style="font-size:0.78rem; opacity:0.7; margin-bottom:8px;">💕 ${t('dvur.breeding')}</div>`;
+            var malesR  = st.animals.filter(function(a){ return a.sex==='m' && a.mature!==false; }).length;
+            var femalesR = st.animals.filter(function(a){ return a.sex==='f' && a.mature!==false; }).length;
+            var kidsR   = st.animals.filter(function(a){ return a.mature===false; }).length;
+            h += '<div style="font-size:0.8rem;margin-bottom:8px;">♂ '+malesR+' · ♀ '+femalesR+(kidsR?' · 🐣 '+kidsR:'')+'</div>';
+            if (malesR>=1 && femalesR>=1 && st.animals.length < cfg.cap && !this._penHungry('rabbitry')) {
+                h += '<div style="font-size:0.78rem;opacity:0.7;margin-bottom:8px;">💕 ' + t('dvur.breeding') + '</div>';
             }
-            h += `<button class="craft-btn" onclick="FarmyardSystem.slaughterRabbit()">🔪 ${t('dvur.slaughterRabbit')}</button>`;
+            var matureRabs = st.animals.filter(function(a){ return a.mature!==false; }).length;
+            var canCleanR = Date.now() - (st.lastCleanMs||0) >= 86400000;
+            var cleanQR = Math.max(1,Math.ceil(st.animals.length/3));
+            h += '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px;">';
+            h += '<button class="craft-btn" onclick="FarmyardSystem.slaughterRabbit()" ' + (matureRabs>0?'':'disabled') + '>🔪 ' + t('dvur.slaughterRabbit') + '</button>';
+            h += '<button class="craft-btn" onclick="FarmyardSystem.cleanPen(\'rabbitry\')" style="background:rgba(90,154,90,0.85);">' + (canCleanR?'🧹 '+t('farmyard.clean')+' (💩 +'+cleanQR+')':'🧹 '+t('farmyard.cleanTomorrow')) + '</button>';
+            h += '</div>';
         }
 
         if (pen === 'goatpen' && st.animals.length) {
-            const now = Date.now();
-            const ready = st.animals.filter(a => a.mature !== false && now - (a.lastMilk || a.bornAt) >= cfg.milkMs).length;
-            h += `<button class="craft-btn" onclick="FarmyardSystem.collectGoatMilk()" ${ready ? '' : 'disabled'}>🥛 ${t('dvur.milkGoats')} (${ready})</button>`;
+            var now2 = Date.now();
+            var moodGS = st.animals.reduce(function(s,a){ return s+(a.mood||80); },0);
+            var moodGAvg = Math.round(moodGS/st.animals.length);
+            var moodGMul = this.MOOD_MULT(moodGAvg);
+            var _billyActive = this.loanMaleActive('billy_goat');
+            var _billyH = _billyActive ? this.loanMaleRemainingH() : 0;
+            var readyG = st.animals.filter(function(a){ return a.mature!==false && now2-(a.lastMilk||a.bornAt)>=cfg.milkMs; }).length;
+            var milkYieldG = Math.floor(readyG * moodGMul);
+            h += '<div style="font-size:0.8rem;margin-bottom:8px;">🐐 '+this.MOOD_ICON(moodGAvg)+' '+moodGAvg+'/100 · 🐐♂ <strong style="color:'+(_billyActive?'#5a9a5a':'#c0392b')+';">' + (_billyActive?'✓ '+_billyH+'h':(lang==='en'?'No loan':'Výpůjčka')) + '</strong></div>';
+            var canCleanG = Date.now() - (st.lastCleanMs||0) >= 86400000;
+            var cleanQG = Math.max(1,Math.ceil(st.animals.length/2));
+            h += '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px;">';
+            h += '<button class="craft-btn" onclick="FarmyardSystem.collectGoatMilk()" ' + (readyG?'':'disabled') + '>🥛 ' + t('dvur.milkGoats') + ' ('+readyG+' → '+milkYieldG+')</button>';
+            h += '<button class="craft-btn" onclick="FarmyardSystem.cleanPen(\'goatpen\')" style="background:rgba(90,154,90,0.85);">' + (canCleanG?'🧹 '+t('farmyard.clean')+' (💩 +'+cleanQG+')':'🧹 '+t('farmyard.cleanTomorrow')) + '</button>';
+            h += '</div>';
         }
 
         if (pen === 'pigsty' && st.animals.length) {
-            h += `<div style="display:flex; flex-direction:column; gap:6px; margin-top:6px;">`;
-            st.animals.forEach((a, i) => {
-                const mature = this._pigMature(a);
-                const pct = Math.min(100, Math.round((Date.now() - (a.placedAt || a.bornAt || Date.now())) / cfg.growMs * 100));
-                h += `<div style="padding:8px 10px; background:rgba(0,0,0,0.04); border-radius:6px; display:flex; align-items:center; gap:8px;">
-                    <span style="font-size:1.2rem;">${mature ? '🐖' : '🐷'}</span>
-                    <div style="flex:1;">
-                        <div style="font-size:0.78rem;">${mature ? t('dvur.pigMature') : t('dvur.pigGrowing') + ' ' + pct + '%'}</div>
-                        <div style="height:5px; background:rgba(0,0,0,0.1); border-radius:3px; margin-top:3px;">
-                            <div style="height:100%; width:${pct}%; background:var(--accent-gold); border-radius:3px;"></div>
-                        </div>
-                    </div>
-                    ${mature
-                        ? `<button class="craft-btn" style="padding:4px 8px; font-size:0.72rem;" onclick="FarmyardSystem.slaughterPig(${i})">🔪 ${t('dvur.slaughterPig')}</button>`
-                        : `<button class="craft-btn" style="padding:4px 8px; font-size:0.72rem;" onclick="FarmyardSystem.feedAcorn(${i})" ${(GameState.inventory['acorn']||0)?'':'disabled'}>🌰 ${t('dvur.feedAcorn')}</button>`}
-                </div>`;
+            var _boarActive = this.loanMaleActive('boar');
+            var _boarH = _boarActive ? this.loanMaleRemainingH() : 0;
+            h += '<div style="font-size:0.8rem;margin-bottom:8px;">🐖♂ <strong style="color:'+(_boarActive?'#5a9a5a':'#c0392b')+';">' + (_boarActive?'✓ '+_boarH+'h':(lang==='en'?'No loan':'Výpůjčka')) + '</strong></div>';
+            h += '<div style="display:flex;flex-direction:column;gap:6px;margin-bottom:8px;">';
+            st.animals.forEach(function(a, i) {
+                var mature = _selfAct._pigMature(a);
+                var pct = Math.min(100, Math.round((Date.now()-(a.placedAt||a.bornAt||Date.now()))/_selfAct.ANIMAL_CFG.pigsty.growMs*100));
+                h += '<div style="padding:8px 10px;background:rgba(0,0,0,0.04);border-radius:6px;display:flex;align-items:center;gap:8px;">';
+                h += '<span style="font-size:1.2rem;">' + (mature?'🐖':'🐷') + '</span>';
+                h += '<div style="flex:1;"><div style="font-size:0.78rem;">' + (mature?t('dvur.pigMature'):t('dvur.pigGrowing')+' '+pct+'%') + '</div>';
+                h += '<div style="height:5px;background:rgba(0,0,0,0.1);border-radius:3px;margin-top:3px;"><div style="height:100%;width:'+pct+'%;background:var(--accent-gold);border-radius:3px;"></div></div></div>';
+                if (mature) {
+                    h += '<button class="craft-btn" style="padding:4px 8px;font-size:0.72rem;" onclick="FarmyardSystem.slaughterPig('+i+')">🔪 '+t('dvur.slaughterPig')+'</button>';
+                } else {
+                    h += '<button class="craft-btn" style="padding:4px 8px;font-size:0.72rem;" onclick="FarmyardSystem.feedAcorn('+i+')" '+(GameState.inventory['acorn']>0?'':'disabled')+'>🌰 '+t('dvur.feedAcorn')+'</button>';
+                }
+                h += '</div>';
             });
-            h += `</div>`;
+            h += '</div>';
+            var canCleanP = Date.now() - (st.lastCleanMs||0) >= 86400000;
+            var cleanQP = Math.max(1, st.animals.length);
+            h += '<button class="craft-btn" onclick="FarmyardSystem.cleanPen(\'pigsty\')" style="background:rgba(90,154,90,0.85);">' + (canCleanP?'🧹 '+t('farmyard.clean')+' (💩 +'+cleanQP+')':'🧹 '+t('farmyard.cleanTomorrow')) + '</button>';
         }
 
-        // UKLIDIT (všechny peny)
-        const canClean = Date.now() - (st.lastCleanMs || 0) >= this.DAY_MS;
-        if (st.animals.length) {
-            h += `<button class="craft-btn" style="margin-top:10px; background:rgba(90,154,90,0.85);" onclick="FarmyardSystem.cleanPen('${pen}')" ${canClean ? '' : 'disabled'}>
-                🧹 ${t('farmyard.clean')} ${canClean ? `(💩 +${Math.max(1,Math.min(3,Math.ceil(st.animals.length/2)))})` : `(${t('farmyard.cleanTomorrow')})`}
-            </button>`;
+        if (pen === 'stable' && st.animals.length) {
+            h += '<div style="display:flex;flex-direction:column;gap:6px;margin-bottom:10px;">';
+            st.animals.forEach(function(a) {
+                _selfAct._ensureAnimalFields(a);
+                var mi = _selfAct.MOOD_ICON(a.mood);
+                var sx = a.sex==='m'?(lang==='en'?'♂ Stallion':'♂ Hřebec'):(lang==='en'?'♀ Mare':'♀ Klisna');
+                h += '<div style="padding:6px 10px;background:rgba(0,0,0,0.04);border-radius:6px;display:flex;align-items:center;gap:8px;font-size:0.8rem;"><span style="font-size:1.3rem;">🐎</span><div style="flex:1;"><strong>'+(a.name||sx)+'</strong> <span style="opacity:0.6;">'+mi+' '+a.mood+'/100</span></div></div>';
+            });
+            h += '</div>';
+            var hasMale = st.animals.some(function(a){ return a.sex==='m'; });
+            var hasFemale = st.animals.some(function(a){ return a.sex==='f'; });
+            if (hasMale && hasFemale) h += '<div style="font-size:0.78rem;color:#5a9a5a;margin-bottom:8px;">🐎 ' + (lang==='en'?'Foal possible — breeding (v2)':'Hříbě možné — odchov (v2)') + '</div>';
+            var canCleanS = Date.now() - (st.lastCleanMs||0) >= 86400000;
+            var cleanQS = Math.max(1, st.animals.length);
+            h += '<button class="craft-btn" onclick="FarmyardSystem.cleanPen(\'stable\')" style="background:rgba(90,154,90,0.85);">' + (canCleanS?'🧹 '+t('farmyard.clean')+' (💩 +'+cleanQS+')':'🧹 '+t('farmyard.cleanTomorrow')) + '</button>';
         }
 
-        h += `</div>`;
+        h += '</div>';
         return h;
     },
 
@@ -580,36 +619,57 @@ const FarmyardSystem = {
                 html += `<p class="text-sm" style="opacity:0.7; margin-bottom:10px;">${t('farmyard.hennhouseBuildDesc')}</p>`;
                 html += `<div style="font-size:0.8rem; opacity:0.7; font-style:italic;">🏗️ ${t('dvur.buildInCellarium')}</div>`;
             } else {
-                const hensCount = (h.hens||[]).length;
-                html += `<div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:12px; font-size:0.82rem;">`;
-                html += `<div>🐔 ${t('farmyard.hens')}: <strong>${hensCount}/10</strong></div>`;
-                html += `<div>🐓 ${t('farmyard.rooster')}: <strong>${h.rooster ? '✓' : '✗'}</strong></div>`;
-                const eggReady  = now >= (h.lastEggAt||0) + 28800000;
-                const feathReady = now >= (h.lastFeatherAt||0) + 86400000;
-                html += `<div>🥚 ${t('farmyard.eggs')}: <strong>${eggReady ? t('farmyard.ready') : Math.ceil(((h.lastEggAt||0)+28800000-now)/3600000)+'h'}</strong></div>`;
-                html += `<div>🪶 ${t('farmyard.feathers')}: <strong>${feathReady ? t('farmyard.ready') : Math.ceil(((h.lastFeatherAt||0)+86400000-now)/3600000)+'h'}</strong></div>`;
-                html += `</div>`;
-                html += `<div style="display:flex; gap:6px; flex-wrap:wrap; margin-bottom:10px;">`;
-                if (!h.rooster) {
-                    const hasR = (GameState.inventory['rooster']||0) > 0;
-                    html += `<button class="craft-btn" onclick="Game.addHen('rooster')" ${hasR?'':'disabled'} style="font-size:0.75rem;">🐓 ${t('farmyard.addRooster')}</button>`;
+                const hens = h.hens || [];
+                const hensCount = hens.length;
+                hens.forEach(function(a) { if (typeof a==='object') { if (a.mood===undefined) a.mood=80; if (a.sex===undefined) a.sex='f'; if (a.lastCleaned===undefined) a.lastCleaned=0; }});
+                var moodSumH = 0; hens.forEach(function(a){ moodSumH += typeof a==='object' ? (a.mood||80) : 80; });
+                var moodAvgHen = hensCount ? Math.round(moodSumH/hensCount) : 80;
+                var moodMultHen = this.MOOD_MULT(moodAvgHen);
+                var moodIconHen = this.MOOD_ICON(moodAvgHen);
+                var eggReady   = now >= (h.lastEggAt||0) + 28800000;
+                var feathReady = now >= (h.lastFeatherAt||0) + 86400000;
+                var eggYield   = Math.floor(hensCount * (h.rooster?1.2:1.0) * moodMultHen);
+                html += '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:12px;font-size:0.82rem;">';
+                html += '<div>🐔 ' + t('farmyard.hens') + ': <strong>' + hensCount + '/10</strong></div>';
+                html += '<div>🐓 ' + t('farmyard.rooster') + ': <strong>' + (h.rooster?'✓':'✗') + '</strong></div>';
+                html += '<div>' + moodIconHen + ' ' + (lang==='en'?'Mood':'Nálada') + ': <strong>' + moodAvgHen + '/100</strong></div>';
+                html += '<div>🥚 ' + t('farmyard.eggs') + ': <strong>' + (eggReady ? t('farmyard.ready')+' ('+eggYield+')' : Math.ceil(((h.lastEggAt||0)+28800000-now)/3600000)+'h') + '</strong></div>';
+                html += '<div>🪶 ' + t('farmyard.feathers') + ': <strong>' + (feathReady ? t('farmyard.ready') : Math.ceil(((h.lastFeatherAt||0)+86400000-now)/3600000)+'h') + '</strong></div>';
+                html += moodAvgHen < 50 ? '<div style="color:#c0392b;font-size:0.75rem;">⚠️ ' + (lang==='en'?'Low mood — eggs reduced':'Nízká nálada — méně vajec') + '</div>' : '<div></div>';
+                html += '</div>';
+                if (hensCount > 0) {
+                    html += '<div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px;">';
+                    var _self = this;
+                    hens.forEach(function(a) {
+                        var mi = _self.MOOD_ICON(typeof a==='object'?(a.mood||80):80);
+                        var ic = typeof a==='object' && a.type==='hen_black'?'🐓':typeof a==='object'&&a.type==='hen_colored'?'🐣':'🐔';
+                        html += '<span style="font-size:1rem;cursor:default;" title="'+mi+'">' + ic + mi + '</span>';
+                    });
+                    html += '</div>';
                 }
-                ['hen_white','hen_black','hen_colored'].forEach(type => {
-                    const has = (GameState.inventory[type]||0) > 0;
-                    const icon = type==='hen_white'?'🐔':type==='hen_black'?'🐓':'🐣';
-                    html += `<button class="craft-btn" onclick="Game.addHen('${type}')" ${has&&hensCount<10?'':'disabled'} style="font-size:0.75rem; white-space:normal; word-break:break-word;">${icon} ${iName(type)}</button>`;
+                html += '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;">';
+                if (!h.rooster) {
+                    var hasR = (GameState.inventory['rooster']||0) > 0;
+                    html += '<button class="craft-btn" onclick="FarmyardSystem.addHen(\'rooster\')" ' + (hasR?'':'disabled') + ' style="font-size:0.75rem;">🐓 ' + t('farmyard.addRooster') + '</button>';
+                }
+                ['hen_white','hen_black','hen_colored'].forEach(function(type) {
+                    var has = (GameState.inventory[type]||0) > 0;
+                    var icon2 = type==='hen_white'?'🐔':type==='hen_black'?'🐓':'🐣';
+                    html += '<button class="craft-btn" onclick="FarmyardSystem.addHen(\''+type+'\')" ' + (has&&hensCount<10?'':'disabled') + ' style="font-size:0.75rem;">' + icon2 + ' ' + iName(type) + '</button>';
                 });
-                html += `</div>`;
-                html += `<div style="display:flex; gap:6px; flex-wrap:wrap; margin-bottom:10px;">`;
-                html += `<button class="craft-btn" onclick="Game.collectHenhouse()" ${hensCount>0?'':'disabled'}>🥚 ${t('farmyard.collect')}</button>`;
-                html += `<button class="craft-btn" onclick="Game.feedHenhouse()" \${hensCount>0?'':'disabled'} style="background:#4a7c59;">🌾 \${t('farmyard.feed')}</button>`;
-                html += `<button class="craft-btn" onclick="FarmyardSystem.cleanPen('kurnik')" style="background:rgba(90,154,90,0.85);">\${Date.now()-(GameState.henhouse.lastCleanMs||0)>=86400000 ? '🧹 '+t('farmyard.clean')+' (💩 +'+Math.max(1,Math.ceil(((GameState.henhouse.hens||[]).length)/3))+')' : '🧹 '+t('farmyard.cleanTomorrow')}</button>`;
-                html += `</div>`;
+                html += '</div>';
+                html += '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;">';
+                html += '<button class="craft-btn" onclick="FarmyardSystem.collectHenhouse()" ' + (hensCount>0?'':'disabled') + '>🥚 ' + t('farmyard.collect') + '</button>';
+                html += '<button class="craft-btn" onclick="FarmyardSystem.feedHenhouse()" ' + (hensCount>0?'':'disabled') + ' style="background:#4a7c59;">🌾 ' + t('farmyard.feed') + '</button>';
+                var canCleanHen = Date.now() - (GameState.henhouse.lastCleanMs||0) >= 86400000;
+                var cleanQtyHen = Math.max(1,Math.ceil(hensCount/3));
+                html += '<button class="craft-btn" onclick="FarmyardSystem.cleanPen(\'kurnik\')" style="background:rgba(90,154,90,0.85);">' + (canCleanHen ? '🧹 '+t('farmyard.clean')+' (💩 +'+cleanQtyHen+')' : '🧹 '+t('farmyard.cleanTomorrow')) + '</button>';
+                html += '</div>';
                 html += `<div style="margin-top:10px; padding:10px; background:rgba(0,0,0,0.06); border-radius:8px;">`;
                 html += `<strong style="font-size:0.85rem;">🥚 ${t('farmyard.nesting')}</strong><br>`;
                 if (!h.nesting) {
                     const canNest = h.rooster && hensCount > 0;
-                    html += `<button class="craft-btn" onclick="Game.startNesting()" ${canNest?'':'disabled'} style="margin-top:6px; font-size:0.78rem;">${t('farmyard.startNesting')}</button>`;
+                    html += `<button class="craft-btn" onclick="FarmyardSystem.startNesting()" ${canNest?'':'disabled'} style="margin-top:6px; font-size:0.78rem;">${t('farmyard.startNesting')}</button>`;
                 } else if (h.nesting.state === 'nesting') {
                     const left = Math.max(0, Math.ceil((h.nesting.hatchAt - now)/3600000));
                     html += `<p class="text-sm" style="margin:6px 0;">🐣 ${t('farmyard.nestingProgress')} — ${left}h</p>`;
@@ -619,8 +679,8 @@ const FarmyardSystem = {
                 }
                 if ((h.chickPool||0) > 0) {
                     html += `<div style="margin-top:8px; font-size:0.82rem;">🐓 ${t('farmyard.chickPool')}: <strong>${h.chickPool}</strong>
-                        <button class="craft-btn" onclick="Game.slaughterChick(1)" style="margin-left:8px; font-size:0.72rem; background:#8b4a3a;">🍗 x1</button>
-                        <button class="craft-btn" onclick="Game.slaughterChick(${h.chickPool})" style="margin-left:4px; font-size:0.72rem; background:#8b4a3a;">🍗 ${lang==='en'?'All':'Vše'}</button></div>`;
+                        <button class="craft-btn" onclick="FarmyardSystem.slaughterChick(1)" style="margin-left:8px; font-size:0.72rem; background:#8b4a3a;">🍗 x1</button>
+                        <button class="craft-btn" onclick="FarmyardSystem.slaughterChick(${h.chickPool})" style="margin-left:4px; font-size:0.72rem; background:#8b4a3a;">🍗 ${lang==='en'?'All':'Vše'}</button></div>`;
                 }
                 html += `</div>`;
             }
@@ -636,27 +696,55 @@ const FarmyardSystem = {
                 html += `<p class="text-sm" style="opacity:0.7; margin-bottom:10px;">${t('farmyard.sheepfoldBuildDesc')}</p>`;
                 html += `<div style="font-size:0.8rem; opacity:0.7; font-style:italic;">🏗️ ${t('dvur.buildInCellarium')}</div>`;
             } else {
-                html += `<div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:12px; font-size:0.82rem;">`;
-                html += `<div>🐑 ${t('farmyard.sheep')}: <strong>${s.sheep||0}/6</strong></div>`;
-                const milkReady = now >= (s.lastMilkAt||0) + 43200000;
-                const woolReady = now >= (s.lastWoolAt||0) + 172800000;
-                html += `<div>🥛 ${t('farmyard.milk')}: <strong>${milkReady ? t('farmyard.ready') : Math.ceil(((s.lastMilkAt||0)+43200000-now)/3600000)+'h'}</strong></div>`;
-                html += `<div>🧶 ${t('farmyard.wool')}: <strong>${woolReady ? t('farmyard.ready') : Math.ceil(((s.lastWoolAt||0)+172800000-now)/3600000)+'h'}</strong></div>`;
-                html += `</div>`;
-                html += `<div style="display:flex; gap:6px; flex-wrap:wrap; margin-bottom:10px;">`;
-                const hasSheepItem = (GameState.inventory['sheep']||0) > 0;
-                html += `<button class="craft-btn" onclick="Game.addSheep()" ${hasSheepItem&&(s.sheep||0)<6?'':'disabled'}>🐑 ${t('farmyard.addSheep')}</button>`;
-                html += `<button class="craft-btn" onclick="Game.collectSheepfold()" ${(s.sheep||0)>0?'':'disabled'}>🥛 ${t('farmyard.collect')}</button>`;
-                html += `<button class="craft-btn" onclick="Game.feedSheepfold()" ${(s.sheep||0)>0?'':'disabled'} style="background:#4a7c59;">🌿 ${t('farmyard.feed')}</button>`;
-                if ((s.sheep||0) > 0) {
-                    html += `<button class="craft-btn" onclick="Game.slaughterSheep()" style="background:#8b4a3a; font-size:0.78rem;">🥩 ${t('farmyard.slaughterSheep')}</button>`;
+                var sheepObjs = s.sheepObjs || [];
+                var sheepCount = s.sheep || 0;
+                while (sheepObjs.length < sheepCount) sheepObjs.push({sex:'f',mood:80,bornAt:Date.now(),lastCleaned:0});
+                if (!s.sheepObjs) s.sheepObjs = sheepObjs;
+                var moodSumSh = 0; sheepObjs.slice(0,sheepCount).forEach(function(a){moodSumSh+=(a.mood||80);});
+                var moodAvgSh = sheepCount ? Math.round(moodSumSh/sheepCount) : 80;
+                var moodMultSh = this.MOOD_MULT(moodAvgSh);
+                var moodIconSh = this.MOOD_ICON(moodAvgSh);
+                var _month = new Date().getMonth();
+                var _milkSeason = _month >= 2 && _month <= 10;
+                var milkReady = _milkSeason && now >= (s.lastMilkAt||0) + 43200000;
+                var woolReady = now >= (s.lastWoolAt||0) + 172800000;
+                var milkYield = Math.floor(sheepCount * moodMultSh);
+                var woolYield  = Math.floor(sheepCount * moodMultSh);
+                var _ramActive = this.loanMaleActive('ram');
+                var _ramH = _ramActive ? this.loanMaleRemainingH() : 0;
+                html += '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:12px;font-size:0.82rem;">';
+                html += '<div>🐑 ' + t('farmyard.sheep') + ': <strong>' + sheepCount + '/6</strong></div>';
+                html += '<div>' + moodIconSh + ' ' + (lang==='en'?'Mood':'Nálada') + ': <strong>' + moodAvgSh + '/100</strong></div>';
+                html += '<div>🐏 ' + (lang==='en'?'Ram':'Beran') + ': <strong style="color:' + (_ramActive?'#5a9a5a':'#c0392b') + ';">' + (_ramActive ? '✓ ' + _ramH + 'h' : (lang==='en'?'No loan':'Výpůjčka')) + '</strong></div>';
+                html += '<div>🥛 ' + t('farmyard.milk') + ': <strong>' + (milkReady ? t('farmyard.ready')+'('+milkYield+')' : !_milkSeason ? (lang==='en'?'Winter':'Zima') : Math.ceil(((s.lastMilkAt||0)+43200000-now)/3600000)+'h') + '</strong></div>';
+                html += '<div>🧶 ' + t('farmyard.wool') + ': <strong>' + (woolReady ? t('farmyard.ready')+'('+woolYield+')' : Math.ceil(((s.lastWoolAt||0)+172800000-now)/3600000)+'h') + '</strong></div>';
+                html += '<div></div>';
+                html += '</div>';
+                if (sheepCount > 0) {
+                    html += '<div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px;">';
+                    sheepObjs.slice(0,sheepCount).forEach(function(a) {
+                        var mi = this.MOOD_ICON(a.mood||80);
+                        html += '<span style="font-size:1rem;cursor:default;" title="♀ '+mi+' '+(a.mood||80)+'/100">🐑'+mi+'</span>';
+                    }.bind(this));
+                    if (_ramActive) html += '<span style="font-size:1rem;" title="'+(lang==="en"?"Ram on loan":"Beran na výpůjčku")+'">🐏⏱</span>';
+                    html += '</div>';
                 }
-                html += `</div>`;
+                html += '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;">';
+                var hasSheepItem = (GameState.inventory['sheep']||0) > 0;
+                html += '<button class="craft-btn" onclick="FarmyardSystem.addSheep()" ' + (hasSheepItem&&sheepCount<6?'':'disabled') + '>🐑 ' + t('farmyard.addSheep') + '</button>';
+                html += '<button class="craft-btn" onclick="FarmyardSystem.collectSheepfold()" ' + (sheepCount>0?'':'disabled') + '>🥛🧶 ' + t('farmyard.collect') + '</button>';
+                html += '<button class="craft-btn" onclick="FarmyardSystem.feedSheepfold()" ' + (sheepCount>0?'':'disabled') + ' style="background:#4a7c59;">🌿 ' + t('farmyard.feed') + '</button>';
+                var canCleanSh = Date.now() - (GameState.sheepfold.lastCleanMs||0) >= 86400000;
+                var cleanQtySh = Math.max(1,Math.ceil(sheepCount/2));
+                if (sheepCount > 0) html += '<button class="craft-btn" onclick="FarmyardSystem.cleanPen(\'ovcin\')" style="background:rgba(90,154,90,0.85);">' + (canCleanSh ? '🧹 '+t('farmyard.clean')+' (💩 +'+cleanQtySh+')' : '🧹 '+t('farmyard.cleanTomorrow')) + '</button>';
+                if (sheepCount > 0) html += '<button class="craft-btn" onclick="FarmyardSystem.slaughterSheep()" style="background:#8b4a3a;font-size:0.78rem;">🥩 ' + t('farmyard.slaughterSheep') + '</button>';
+                html += '</div>';
                 html += `<div style="margin-top:10px; padding:10px; background:rgba(0,0,0,0.06); border-radius:8px;">`;
                 html += `<strong style="font-size:0.85rem;">🐑 ${t('farmyard.breeding')}</strong><br>`;
                 if (!s.breeding) {
-                    const canBreed = (s.sheep||0) >= 2;
-                    html += `<button class="craft-btn" onclick="Game.startBreeding()" ${canBreed?'':'disabled'} style="margin-top:6px; font-size:0.78rem;">${t('farmyard.startBreeding')}</button>`;
+                    var canBreed = sheepCount >= 2 && _ramActive;
+                    var breedLabel = !_ramActive ? (lang==='en'?'Needs ram (Cellarium)':'Potřeba berana (Cellarium)') : t('farmyard.startBreeding');
+                    html += '<button class="craft-btn" onclick="FarmyardSystem.startBreeding()" ' + (canBreed?'':'disabled') + ' style="margin-top:6px;font-size:0.78rem;">' + breedLabel + '</button>';
                 } else if (s.breeding.state === 'gestating') {
                     const left = Math.max(0, Math.ceil((s.breeding.bornAt - now)/3600000));
                     html += `<p class="text-sm" style="margin:6px 0;">🤰 ${t('farmyard.gestating')} — ${left}h</p>`;
@@ -666,8 +754,8 @@ const FarmyardSystem = {
                 }
                 if ((s.lambPool||0) > 0) {
                     html += `<div style="margin-top:8px; font-size:0.82rem;">🐑 ${t('farmyard.lambPool')}: <strong>${s.lambPool}</strong>
-                        <button class="craft-btn" onclick="Game.slaughterLamb(1)" style="margin-left:8px; font-size:0.72rem; background:#8b4a3a;">🥩 x1</button>
-                        <button class="craft-btn" onclick="Game.slaughterLamb(${s.lambPool})" style="margin-left:4px; font-size:0.72rem; background:#8b4a3a;">🥩 ${lang==='en'?'All':'Vše'}</button></div>`;
+                        <button class="craft-btn" onclick="FarmyardSystem.slaughterLamb(1)" style="margin-left:8px; font-size:0.72rem; background:#8b4a3a;">🥩 x1</button>
+                        <button class="craft-btn" onclick="FarmyardSystem.slaughterLamb(${s.lambPool})" style="margin-left:4px; font-size:0.72rem; background:#8b4a3a;">🥩 ${lang==='en'?'All':'Vše'}</button></div>`;
                 }
                 html += `</div>`;
             }
@@ -781,7 +869,7 @@ const FarmyardSystem = {
         if ((GameState.inventory['rope'] || 0) < 3)   { UI.notify(t('game.needRope')  + ' (3)',  true); return; }
         Game.removeItem('rock', 15); Game.removeItem('stick', 10); Game.removeItem('rope', 3);
         h.built = true;
-        Game.save(); UI.renderFarmyard();
+        Game.save(); FarmyardSystem.renderFarmyard();
         UI.notify('🐔 ' + t('game.hennhouseBuilt'));
     },
 
@@ -801,7 +889,7 @@ const FarmyardSystem = {
             const mood = 80;
             h.hens.push({ type, sex, mood, addedAt: Date.now(), lastCleaned: 0 });
         }
-        Game.save(); UI.renderFarmyard();
+        Game.save(); FarmyardSystem.renderFarmyard();
         UI.notify('🐔 ' + t('game.henAdded'));
     },
 
@@ -811,7 +899,7 @@ const FarmyardSystem = {
         if (h.nesting) { UI.notify(t('game.nestingActive'), true); return; }
         const now = Date.now();
         h.nesting = { state: 'nesting', startedAt: now, hatchAt: now + 86400000 };
-        Game.save(); UI.renderFarmyard();
+        Game.save(); FarmyardSystem.renderFarmyard();
         UI.notify('🥚 ' + t('game.nestingStarted'));
     },
 
@@ -822,7 +910,7 @@ const FarmyardSystem = {
         h.chickPool -= qty;
         Game.addItem('chicken_meat', qty);
         Game.addItem('feather_hen', qty * 2);
-        Game.save(); UI.renderFarmyard();
+        Game.save(); FarmyardSystem.renderFarmyard();
         UI.notify('🍗 ' + t('game.slaughtered').replace('{qty}', qty));
     },
 
@@ -832,7 +920,7 @@ const FarmyardSystem = {
         h.hens.splice(idx, 1);
         Game.addItem('chicken_meat', 2);
         Game.addItem('feather_hen', 3);
-        Game.save(); UI.renderFarmyard();
+        Game.save(); FarmyardSystem.renderFarmyard();
         UI.notify('🍗 ' + t('game.henSlaughtered'));
     },
 
@@ -854,7 +942,7 @@ const FarmyardSystem = {
             Game.addItem('feather_hen', h.hens.length);
             h.lastFeatherAt = now; collected = true;
         }
-        if (collected) { Game.save(); UI.renderFarmyard(); UI.notify('🥚 ' + t('game.hennouseCollected')); }
+        if (collected) { Game.save(); FarmyardSystem.renderFarmyard(); UI.notify('🥚 ' + t('game.hennouseCollected')); }
         else UI.notify(t('game.hiveNotReady'), true);
     },
 
@@ -869,7 +957,7 @@ const FarmyardSystem = {
         h.lastFedAt = Date.now();
         const hens = h.hens;
         if (Array.isArray(hens)) hens.forEach(a => { if (typeof a === 'object') a.mood = Math.min(100, (a.mood || 80) + 10); });
-        Game.save(); UI.renderFarmyard();
+        Game.save(); FarmyardSystem.renderFarmyard();
         UI.notify('🌾 ' + t('game.henFed'));
     },
 
@@ -886,7 +974,7 @@ const FarmyardSystem = {
         if ((GameState.inventory['rope'] || 0) < 5)   { UI.notify(t('game.needRope')  + ' (5)',  true); return; }
         Game.removeItem('rock', 20); Game.removeItem('stick', 15); Game.removeItem('rope', 5);
         s.built = true;
-        Game.save(); UI.renderFarmyard();
+        Game.save(); FarmyardSystem.renderFarmyard();
         UI.notify('🐑 ' + t('game.sheepfoldBuilt'));
     },
 
@@ -899,7 +987,7 @@ const FarmyardSystem = {
         s.sheep++;
         if (!Array.isArray(s.sheepObjs)) s.sheepObjs = [];
         s.sheepObjs.push({ sex: 'f', mood: 80, bornAt: Date.now(), lastCleaned: 0 });
-        Game.save(); UI.renderFarmyard();
+        Game.save(); FarmyardSystem.renderFarmyard();
         UI.notify('🐑 ' + t('game.sheepAdded'));
     },
 
@@ -911,7 +999,7 @@ const FarmyardSystem = {
         if (!this.loanMaleActive('ram')) { UI.notify(t('farmyard.needRam'), true); return; }
         const now = Date.now();
         s.breeding = { state: 'gestating', startedAt: now, bornAt: now + 172800000 };
-        Game.save(); UI.renderFarmyard();
+        Game.save(); FarmyardSystem.renderFarmyard();
         UI.notify('🐑 ' + t('game.breedingStarted'));
     },
 
@@ -922,7 +1010,7 @@ const FarmyardSystem = {
         s.lambPool -= qty;
         Game.addItem('mutton', qty * 2);
         Game.addItem('lamb_hide', qty);
-        Game.save(); UI.renderFarmyard();
+        Game.save(); FarmyardSystem.renderFarmyard();
         UI.notify('🥩 ' + t('game.lambSlaughtered').replace('{qty}', qty));
     },
 
@@ -933,7 +1021,7 @@ const FarmyardSystem = {
         if (Array.isArray(s.sheepObjs) && s.sheepObjs.length) s.sheepObjs.pop();
         Game.addItem('mutton', 3);
         Game.addItem('raw_hide', 1);
-        Game.save(); UI.renderFarmyard();
+        Game.save(); FarmyardSystem.renderFarmyard();
         UI.notify('🥩 ' + t('game.sheepSlaughtered'));
     },
 
@@ -960,7 +1048,7 @@ const FarmyardSystem = {
             if (woolQty > 0) { Game.addItem('wool', woolQty); }
             s.lastWoolAt = now; collected = true;
         }
-        if (collected) { Game.save(); UI.renderFarmyard(); UI.notify('🐑 ' + t('game.sheepCollected')); }
+        if (collected) { Game.save(); FarmyardSystem.renderFarmyard(); UI.notify('🐑 ' + t('game.sheepCollected')); }
         else UI.notify(t('game.hiveNotReady'), true);
     },
 
@@ -976,7 +1064,7 @@ const FarmyardSystem = {
         Game.removeItem('water', waterNeeded);
         s.lastFedAt = Date.now();
         if (Array.isArray(s.sheepObjs)) s.sheepObjs.forEach(a => { a.mood = Math.min(100, (a.mood || 80) + 10); });
-        Game.save(); UI.renderFarmyard();
+        Game.save(); FarmyardSystem.renderFarmyard();
         UI.notify('🌿 ' + t('game.sheepFed'));
     },
 

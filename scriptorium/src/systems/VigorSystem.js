@@ -699,6 +699,7 @@ const VigorSystem = {
             if (UI.notifyPanel) UI.notifyPanel(msg, 'system');
         }
         if (typeof PersonaSystem !== 'undefined') PersonaSystem.render();
+        this.renderPill();
         if (typeof Game !== 'undefined' && Game.save) Game.save();
     },
 

@@ -497,6 +497,8 @@ const Game = {
                     if (typeof GardenSystem !== 'undefined') GardenSystem.checkVineaGrowth();
                     // Felis Monastica — denní tick (self-guarded 24h)
                     if (typeof ScriptoriumCat !== 'undefined' && ScriptoriumCat.dailyTick) ScriptoriumCat.dailyTick();
+                    // FarmyardSystem — mood tick (self-guarded 24h)
+                    if (typeof FarmyardSystem !== 'undefined' && FarmyardSystem.moodTick) FarmyardSystem.moodTick();
                     // Myší populace — denní tick spawn/mortality/scraps (self-guarded 24h)
                     if (typeof ScriptoriumCat !== 'undefined' && ScriptoriumCat.miceTick) ScriptoriumCat.miceTick();
                     // Decay — denní kažení zásob (self-guarded 24h, gate tech_inventarium)
@@ -1477,254 +1479,43 @@ const Game = {
     // GALLINARIUM (Kurník) — herní logika
     // ═══════════════════════════════════════════════════════════════════════════
 
-    buildHenhouse: function() {
-        const h = GameState.henhouse;
-        if (h.built) return;
-        if ((GameState.inventory['rock'] || 0) < 15)  { UI.notify(t('game.needStone') + ' (15)', true); return; }
-        if ((GameState.inventory['stick'] || 0) < 10) { UI.notify(t('game.needWood')  + ' (10)', true); return; }
-        if ((GameState.inventory['rope'] || 0) < 3)   { UI.notify(t('game.needRope')  + ' (3)',  true); return; }
-        this.removeItem('rock', 15);
-        this.removeItem('stick', 10);
-        this.removeItem('rope', 3);
-        h.built = true;
-        Game.save(); UI.renderFarmyard();
-        UI.notify('🐔 ' + t('game.hennhouseBuilt'));
-    },
+    buildHenhouse: function(...args) { if (typeof FarmyardSystem !== 'undefined') FarmyardSystem.buildHenhouse(...args); },
 
-    addHen: function(type) {
-        const h = GameState.henhouse;
-        if (!h.built) return;
-        if (type === 'rooster') {
-            if (h.rooster) { UI.notify(t('game.roosterAlready'), true); return; }
-            if (!(GameState.inventory['rooster'] > 0)) { UI.notify(t('game.needRooster'), true); return; }
-            this.removeItem('rooster', 1);
-            h.rooster = true;
-        } else {
-            if (h.hens.length >= 10) { UI.notify(t('game.hennsFull'), true); return; }
-            if (!(GameState.inventory[type] > 0)) { UI.notify(t('game.needHen'), true); return; }
-            this.removeItem(type, 1);
-            h.hens.push({ type, addedAt: Date.now() });
-        }
-        Game.save(); UI.renderFarmyard();
-        UI.notify('🐔 ' + t('game.henAdded'));
-    },
+    addHen: function(...args) { if (typeof FarmyardSystem !== 'undefined') FarmyardSystem.addHen(...args); },
 
-    startNesting: function() {
-        const h = GameState.henhouse;
-        if (!h.built || !h.rooster || h.hens.length === 0) { UI.notify(t('game.nestingReq'), true); return; }
-        if (h.nesting) { UI.notify(t('game.nestingActive'), true); return; }
-        const now = Date.now();
-        h.nesting = {
-            state: 'nesting',
-            startedAt: now,
-            hatchAt: now + 86400000,  // 24h líhnutí
-        };
-        Game.save(); UI.renderFarmyard();
-        UI.notify('🥚 ' + t('game.nestingStarted'));
-    },
+    startNesting: function(...args) { if (typeof FarmyardSystem !== 'undefined') FarmyardSystem.startNesting(...args); },
 
-    slaughterChick: function(qty) {
-        const h = GameState.henhouse;
-        qty = Math.min(qty, h.chickPool);
-        if (qty <= 0) { UI.notify(t('game.noChicks'), true); return; }
-        h.chickPool -= qty;
-        this.addItem('chicken_meat', qty);
-        this.addItem('feather_hen', qty * 2);
-        Game.save(); UI.renderFarmyard();
-        UI.notify('🍗 ' + t('game.slaughtered').replace('{qty}', qty));
-    },
+    slaughterChick: function(...args) { if (typeof FarmyardSystem !== 'undefined') FarmyardSystem.slaughterChick(...args); },
 
-    slaughterHen: function(idx) {
-        const h = GameState.henhouse;
-        if (!h.hens[idx]) return;
-        h.hens.splice(idx, 1);
-        this.addItem('chicken_meat', 2);
-        this.addItem('feather_hen', 3);
-        Game.save(); UI.renderFarmyard();
-        UI.notify('🍗 ' + t('game.henSlaughtered'));
-    },
+    slaughterHen: function(...args) { if (typeof FarmyardSystem !== 'undefined') FarmyardSystem.slaughterHen(...args); },
 
-    collectHenhouse: function() {
-        const h = GameState.henhouse;
-        if (!h.built || h.hens.length === 0) return;
-        const now = Date.now();
-        const EGG_INTERVAL   = 8  * 3600000;
-        const FEATH_INTERVAL = 24 * 3600000;
-        let collected = false;
-        if (now >= h.lastEggAt + EGG_INTERVAL) {
-            const mult = h.rooster ? 1.2 : 1.0;
-            const eggs = Math.floor(h.hens.length * mult);
-            if (eggs > 0) { this.addItem('egg', eggs); h.lastEggAt = now; collected = true; }
-        }
-        if (now >= h.lastFeatherAt + FEATH_INTERVAL) {
-            this.addItem('feather_hen', h.hens.length);
-            h.lastFeatherAt = now; collected = true;
-        }
-        if (collected) { Game.save(); UI.renderFarmyard(); UI.notify('🥚 ' + t('game.hennouseCollected')); }
-        else UI.notify(t('game.hiveNotReady'), true);
-    },
+    collectHenhouse: function(...args) { if (typeof FarmyardSystem !== 'undefined') FarmyardSystem.collectHenhouse(...args); },
 
-    feedHenhouse: function() {
-        const h = GameState.henhouse;
-        if (!h.built || h.hens.length === 0) return;
-        const chickFeed = h.nesting && h.nesting.state === 'growing' ? Math.ceil(h.nesting.chicks / 2) : 0;
-        const totalFeed = h.hens.length + chickFeed;
-        const feedItem = (GameState.inventory['seeds_herb'] || 0) >= totalFeed ? 'seeds_herb' : 'seeds_vegetable';
-        if ((GameState.inventory[feedItem] || 0) < totalFeed) { UI.notify(t('game.needFeedHen') + ' (' + totalFeed + ')', true); return; }
-        this.removeItem(feedItem, totalFeed);
-        h.lastFedAt = Date.now();
-        Game.save(); UI.renderFarmyard();
-        UI.notify('🌾 ' + t('game.henFed'));
-    },
+    feedHenhouse: function(...args) { if (typeof FarmyardSystem !== 'undefined') FarmyardSystem.feedHenhouse(...args); },
 
     // ═══════════════════════════════════════════════════════════════════════════
     // OVILE (Chlév) — herní logika
     // ═══════════════════════════════════════════════════════════════════════════
 
-    buildSheepfold: function() {
-        const s = GameState.sheepfold;
-        if (s.built) return;
-        if (!GameState.researchedTechs.includes('tech_de_re_rustica')) { UI.notify(t('game.needDeReRustica'), true); return; }
-        if ((GameState.inventory['rock'] || 0) < 20)  { UI.notify(t('game.needStone') + ' (20)', true); return; }
-        if ((GameState.inventory['stick'] || 0) < 15) { UI.notify(t('game.needWood')  + ' (15)', true); return; }
-        if ((GameState.inventory['rope'] || 0) < 5)   { UI.notify(t('game.needRope')  + ' (5)',  true); return; }
-        this.removeItem('rock', 20);
-        this.removeItem('stick', 15);
-        this.removeItem('rope', 5);
-        s.built = true;
-        Game.save(); UI.renderFarmyard();
-        UI.notify('🐑 ' + t('game.sheepfoldBuilt'));
-    },
+    buildSheepfold: function(...args) { if (typeof FarmyardSystem !== 'undefined') FarmyardSystem.buildSheepfold(...args); },
 
-    addSheep: function() {
-        const s = GameState.sheepfold;
-        if (!s.built) return;
-        if (s.sheep >= 6) { UI.notify(t('game.sheepFull'), true); return; }
-        if (!(GameState.inventory['sheep'] > 0)) { UI.notify(t('game.needSheep'), true); return; }
-        this.removeItem('sheep', 1);
-        s.sheep++;
-        Game.save(); UI.renderFarmyard();
-        UI.notify('🐑 ' + t('game.sheepAdded'));
-    },
+    addSheep: function(...args) { if (typeof FarmyardSystem !== 'undefined') FarmyardSystem.addSheep(...args); },
 
-    startBreeding: function() {
-        const s = GameState.sheepfold;
-        if (!s.built || s.sheep < 2) { UI.notify(t('game.breedingReq'), true); return; }
-        if (s.breeding) { UI.notify(t('game.breedingActive'), true); return; }
-        const now = Date.now();
-        s.breeding = {
-            state: 'gestating',
-            startedAt: now,
-            bornAt: now + 172800000,  // 48h gestace
-        };
-        Game.save(); UI.renderFarmyard();
-        UI.notify('🐑 ' + t('game.breedingStarted'));
-    },
+    startBreeding: function(...args) { if (typeof FarmyardSystem !== 'undefined') FarmyardSystem.startBreeding(...args); },
 
-    slaughterLamb: function(qty) {
-        const s = GameState.sheepfold;
-        qty = Math.min(qty, s.lambPool);
-        if (qty <= 0) { UI.notify(t('game.noLambs'), true); return; }
-        s.lambPool -= qty;
-        this.addItem('mutton', qty * 2);
-        this.addItem('lamb_hide', qty);
-        Game.save(); UI.renderFarmyard();
-        UI.notify('🥩 ' + t('game.lambSlaughtered').replace('{qty}', qty));
-    },
+    slaughterLamb: function(...args) { if (typeof FarmyardSystem !== 'undefined') FarmyardSystem.slaughterLamb(...args); },
 
-    slaughterSheep: function() {
-        const s = GameState.sheepfold;
-        if (s.sheep <= 0) return;
-        s.sheep--;
-        this.addItem('mutton', 3);
-        this.addItem('raw_hide', 1);
-        Game.save(); UI.renderFarmyard();
-        UI.notify('🥩 ' + t('game.sheepSlaughtered'));
-    },
+    slaughterSheep: function(...args) { if (typeof FarmyardSystem !== 'undefined') FarmyardSystem.slaughterSheep(...args); },
 
-    collectSheepfold: function() {
-        const s = GameState.sheepfold;
-        if (!s.built || s.sheep === 0) return;
-        const now = Date.now();
-        const MILK_INTERVAL = 12 * 3600000;
-        const WOOL_INTERVAL = 48 * 3600000;
-        let collected = false;
-        if (now >= s.lastMilkAt + MILK_INTERVAL) {
-            this.addItem('milk', s.sheep);
-            s.lastMilkAt = now; collected = true;
-        }
-        if (now >= s.lastWoolAt + WOOL_INTERVAL) {
-            this.addItem('wool', s.sheep);
-            s.lastWoolAt = now; collected = true;
-        }
-        if (collected) { Game.save(); UI.renderFarmyard(); UI.notify('🐑 ' + t('game.sheepCollected')); }
-        else UI.notify(t('game.hiveNotReady'), true);
-    },
+    collectSheepfold: function(...args) { if (typeof FarmyardSystem !== 'undefined') FarmyardSystem.collectSheepfold(...args); },
 
-    feedSheepfold: function() {
-        const s = GameState.sheepfold;
-        if (!s.built || s.sheep === 0) return;
-        const lambFeed = s.breeding && s.breeding.state === 'growing' ? 1 : 0; // jehně potřebuje 1 trávu (polovina dospělé 2)
-        const fiberNeeded = s.sheep * 2 + lambFeed;
-        const waterNeeded = s.sheep + (lambFeed > 0 ? 1 : 0);
-        if ((GameState.inventory['fiber'] || 0) < fiberNeeded) { UI.notify(t('game.needFeedSheep') + ' (' + fiberNeeded + ')', true); return; }
-        if ((GameState.inventory['water'] || 0) < waterNeeded) { UI.notify(t('game.needWater'), true); return; }
-        this.removeItem('fiber', fiberNeeded);
-        this.removeItem('water', waterNeeded);
-        s.lastFedAt = Date.now();
-        s.lastWateredAt = Date.now();
-        Game.save(); UI.renderFarmyard();
-        UI.notify('🌿 ' + t('game.sheepFed'));
-    },
+    feedSheepfold: function(...args) { if (typeof FarmyardSystem !== 'undefined') FarmyardSystem.feedSheepfold(...args); },
 
     // ═══════════════════════════════════════════════════════════════════════════
     // FARMYARD PRODUCTION TICK — volán každou minutu
     // ═══════════════════════════════════════════════════════════════════════════
 
-    checkFarmyardProduction: function() {
-        const now = Date.now();
-        let changed = false;
-
-        // Kurník — líhnutí a dorůstání
-        const h = GameState.henhouse;
-        if (h && h.nesting) {
-            if (h.nesting.state === 'nesting' && now >= h.nesting.hatchAt) {
-                // Vylíhnutí: 2–4 kuřata
-                const count = 2 + Math.floor(Math.random() * 3);
-                h.nesting.state   = 'growing';
-                h.nesting.chicks  = count;
-                h.nesting.hatchedAt = now;
-                h.nesting.grownAt   = now + 172800000; // 48h dorůstání
-                changed = true;
-            }
-            if (h.nesting.state === 'growing' && now >= h.nesting.grownAt) {
-                // Dorůstání hotovo → pool
-                const space = 10 - h.chickPool;
-                h.chickPool += Math.min(h.nesting.chicks, space);
-                h.nesting = null;
-                changed = true;
-            }
-        }
-
-        // Chlév — gestace a dorůstání
-        const s = GameState.sheepfold;
-        if (s && s.breeding) {
-            if (s.breeding.state === 'gestating' && now >= s.breeding.bornAt) {
-                s.breeding.state  = 'growing';
-                s.breeding.lambAt = now;
-                s.breeding.grownAt = now + 172800000; // 48h dorůstání
-                changed = true;
-            }
-            if (s.breeding.state === 'growing' && now >= s.breeding.grownAt) {
-                const space = 6 - s.lambPool;
-                if (space > 0) { s.lambPool++; }
-                s.breeding = null;
-                changed = true;
-            }
-        }
-
-        if (changed) Game.save();
-    },
+    checkFarmyardProduction: function(...args) { if (typeof FarmyardSystem !== 'undefined') FarmyardSystem.checkFarmyardProduction(...args); },
 
     scavenge: function(type) {
         if (typeof VigorSystem !== 'undefined' && !VigorSystem.canAct()) { UI.notify(t('game.vigor.exhausted'), true); return; }

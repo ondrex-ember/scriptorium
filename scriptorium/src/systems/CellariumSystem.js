@@ -343,6 +343,7 @@ const CellariumSystem = {
       { itemId: 'goat',          basePrice: 44,  req_tech: 'tech_caprile' },
       { itemId: 'piglet',        basePrice: 40,  req_tech: 'tech_suile' },
       { itemId: 'horse',         basePrice: 250, req_tech: 'tech_stabulum' },
+      { itemId: 'donkey',        basePrice: 55,  req_tech: 'tech_asinus' },
       { itemId: 'queen_bee',     basePrice: 40 },
       // Semena stromů — drahá
       { itemId: 'seed_apple',    basePrice: 8  },
@@ -1331,12 +1332,13 @@ const CellariumSystem = {
       ];
       let dvurInner = '';
       penDefs.forEach(d => {
-        if (typeof GardenSystem === 'undefined') return;
-        GardenSystem._ensureAnimals();
-        const cfg = GardenSystem.ANIMAL_CFG[d.pen];
+        if (typeof FarmyardSystem === 'undefined') return;
+        FarmyardSystem._ensureAnimals();
+        const cfg = FarmyardSystem.ANIMAL_CFG[d.pen];
+        if (!cfg) return;   // stable nebo neznámý pen
         const built = GameState[d.pen] && GameState[d.pen].built;
         const hasT = GameState.researchedTechs && GameState.researchedTechs.includes(d.tech);
-        const can = hasT && !built && GardenSystem._animalCanBuild(cfg.build);
+        const can = hasT && !built && FarmyardSystem._animalCanBuild(cfg.build);
         const costStr = Object.entries(cfg.build).map(([id, n]) => {
           const it = ItemsDB[id];
           const have = GameState.inventory[id] || 0;
@@ -1349,7 +1351,7 @@ const CellariumSystem = {
             ? `<div style="font-size:0.78rem; color:#5a9a5a;">✅ ${lang==='en' ? 'Built' : 'Postaveno'}</div>`
             : !hasT
               ? `<div style="font-size:0.74rem; opacity:0.6;">🔒 ${t('dvur.lockedPrefix')} ${(typeof tName === 'function') ? tName(d.tech) : d.tech}</div>`
-              : costStr + `<button onclick="CellariumSystem.buildPen('${d.pen}')" class="craft-btn" style="font-size:0.78rem; margin-top:6px;" ${can ? '' : 'disabled'}>🏗️ ${lang==='en' ? 'Build' : 'Postavit'}</button>`}
+              : costStr + `<button onclick="FarmyardSystem.buildAnimalPen('${d.pen}')" class="craft-btn" style="font-size:0.78rem; margin-top:6px;" ${can ? '' : 'disabled'}>🏗️ ${lang==='en' ? 'Build' : 'Postavit'}</button>`}
         </div>`;
       });
 

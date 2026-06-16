@@ -372,6 +372,7 @@ const ItemsDB = {
     "acorn":          { name:"Žalud",             name_en:"Acorn",            icon:"🌰", type:"mat", desc:"Dubový žalud. Prasata po nich rostou jako z vody.", desc_en:"An oak acorn. Pigs fatten on them remarkably." },
     "churn":          { name:"Máselnice",         name_en:"Butter Churn",     icon:"🛢️", type:"tool", desc:"Dřevěná máselnice. Hodiny stloukání promění smetanu v máslo — a zbude podmáslí.", desc_en:"A wooden churn. Hours of churning turn cream into butter — leaving buttermilk behind." },
     "mousetrap":      { name:"Pastička na myši",  name_en:"Mousetrap",        icon:"🪤", type:"tool", desc:"Dřevěná past s pružinou. Chytí myš denně — než se rozbije.", desc_en:"A wooden spring trap. Catches a mouse a day — until it breaks." },
+    "manure":         { name:"Hnůj",               name_en:"Manure",           icon:"💩", type:"mat", desc:"Hnůj z klášterního dvora. Surovina pro výrobu kompostu. Každý úklid výběhu přidá 1–3 kusy.", desc_en:"Dung from the farmyard. Raw material for compost. Every pen clean-up adds 1–3 pieces." },
 
     // ── BUDOUCÍ ZVÍŘATA (easter eggs — jen definice, mechanika přijde později) ─
     "cow":            { name:"Kráva",             name_en:"Cow",              icon:"🐄", type:"animal", desc:"Kráva: vellum z telete pro nejvzácnější kodexy, máslo, sýr. Velké kláštery jich měly desítky.", desc_en:"Cow: calf vellum for the rarest codices, butter, cheese. Great monasteries kept dozens." },
