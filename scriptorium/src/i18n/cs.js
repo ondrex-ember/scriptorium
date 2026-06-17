@@ -1292,10 +1292,9 @@ const STRINGS_cs = {
     dvur: {
         dashTitle: 'Stav hospodářství',
         tab_kurnik: 'Kurník',
-        tab_ovcin: 'Ovčín',
-        tab_kralikarna: 'Králíkárna',
-        tab_kozi: 'Kozí chlívek',
-        tab_chlev: 'Chlév',
+        tab_kosar: 'Košár',
+        tab_kotce: 'Kotce',
+        tab_chlevy: 'Chlévy',
         tab_mastal: 'Maštal',
         tab_studna: 'Studna',
         catFed: 'sytá, odpočívá',
