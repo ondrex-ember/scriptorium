@@ -2299,6 +2299,8 @@ According to Theophilus, the organ is an instrument worthy of God, but its const
         noBonus: 'none',
         needRam: 'You need a ram for breeding — arrange a loan in the Cellarium (Village Contact).',
         built_donkeyStall: 'Donkey stall built.',
+        title_donkeyStall: 'Donkey Stall (Asinus)',
+        buildDesc_donkeyStall: 'A shelter for the donkey. Powers the well, hauls to the fields, grants +15% field yield.',
         lockedPrefix: 'Requires research:',
         mice_label: 'Mice',
         mice_scraps: 'Scraps eaten/day',
