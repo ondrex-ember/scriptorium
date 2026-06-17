@@ -609,8 +609,7 @@ const FarmyardSystem = {
         { id: 'kralikarna', icon: '🐇', tech: 'tech_cuniculi' },
         { id: 'kozi',       icon: '🐐', tech: 'tech_caprile' },
         { id: 'chlev',      icon: '🐖', tech: 'tech_suile' },
-        { id: 'staj',       icon: '🐎', tech: 'tech_stabulum' },
-        { id: 'oslarna',    icon: '🫏', tech: 'tech_asinus' },
+        { id: 'mastal',     icon: '🐎', tech: 'tech_stabulum' },
         { id: 'studna',     icon: '🚰', tech: null },
     ],
 
@@ -798,10 +797,8 @@ const FarmyardSystem = {
             html += this.renderAnimalPen('goatpen');
         } else if (tab === 'chlev' && GameState.researchedTechs && GameState.researchedTechs.includes('tech_suile')) {
             html += this.renderAnimalPen('pigsty');
-        } else if (tab === 'staj' && GameState.researchedTechs && GameState.researchedTechs.includes('tech_stabulum')) {
-            html += this.renderAnimalPen('stable');
-        } else if (tab === 'oslarna') {
-            html += this.renderDonkeyStall();
+        } else if (tab === 'mastal' && GameState.researchedTechs && GameState.researchedTechs.includes('tech_stabulum')) {
+            html += this._renderMastal();
         } else if (tab !== 'studna') {
             html += this._renderDvurLocked(tab);
         }
@@ -878,6 +875,28 @@ const FarmyardSystem = {
         }
 
         h += `</div>`;
+        return h;
+    },
+
+    _renderMastal: function() {
+        var h = '';
+        var lang = (GameState.settings && GameState.settings.language) || 'cs';
+        var hasAsinus = GameState.researchedTechs && GameState.researchedTechs.includes('tech_asinus');
+
+        // Konírna
+        h += '<div style="font-size:0.72rem;font-weight:bold;letter-spacing:0.06em;text-transform:uppercase;opacity:0.55;margin-bottom:8px;">🐎 ' + (lang==='en'?'Stable (Konírna)':'Konírna (Stabulum)') + '</div>';
+        h += this.renderAnimalPen('stable');
+
+        // Oslárna — jen s tech_asinus
+        h += '<div style="margin-top:16px;">';
+        h += '<div style="font-size:0.72rem;font-weight:bold;letter-spacing:0.06em;text-transform:uppercase;opacity:0.55;margin-bottom:8px;">🫏 ' + (lang==='en'?'Donkey Stall (Oslárna)':'Oslárna (Asinus)') + '</div>';
+        if (hasAsinus) {
+            h += this.renderDonkeyStall();
+        } else {
+            var techNm = typeof tName === 'function' ? tName('tech_asinus') : 'tech_asinus';
+            h += '<div style="padding:12px;opacity:0.6;font-size:0.85rem;">🔒 ' + t('dvur.lockedPrefix') + ' ' + techNm + '</div>';
+        }
+        h += '</div>';
         return h;
     },
 
