@@ -1362,6 +1362,7 @@ const STRINGS_cs = {
         horseLabel: 'Kůň',
         noBonus: 'žádný',
         needRam: 'Pro odchov potřebuješ berana — sjednej výpůjčku v Cellariu (Kontakt se Vsí).',
+        built_donkeyStall: 'Oslárna postavena.',
         lockedPrefix: 'Vyžaduje výzkum:',
         mice_label: 'Myší',
         mice_scraps: 'Zbytky sežrány/den',
