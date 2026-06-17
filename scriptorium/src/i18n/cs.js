@@ -1363,6 +1363,8 @@ const STRINGS_cs = {
         noBonus: 'žádný',
         needRam: 'Pro odchov potřebuješ berana — sjednej výpůjčku v Cellariu (Kontakt se Vsí).',
         built_donkeyStall: 'Oslárna postavena.',
+        title_donkeyStall: 'Oslárna (Asinus)',
+        buildDesc_donkeyStall: 'Přístřešek pro osla. Osel pohání studnu, vleče na pole a přináší +15% výnosu.',
         lockedPrefix: 'Vyžaduje výzkum:',
         mice_label: 'Myší',
         mice_scraps: 'Zbytky sežrány/den',
