@@ -118,7 +118,7 @@ const FarmyardSystem = {
     // ── UKLIDIT ───────────────────────────────────────────────────────────
     cleanPen: function(pen) {
         this._ensureAnimals();
-        const penKey = pen === 'kurnik' ? 'henhouse' : pen === 'ovcin' ? 'sheepfold' : pen;
+        const penKey = pen === 'kurnik' ? 'henhouse' : pen === 'kosar' ? 'sheepfold' : pen;
         const st = GameState[penKey] || GameState[pen];
         const now = Date.now();
 
@@ -604,13 +604,12 @@ const FarmyardSystem = {
     _dvurTab: 'kurnik',
 
     DVUR_TABS: [
-        { id: 'kurnik',     icon: '🐔', tech: null },
-        { id: 'ovcin',      icon: '🐑', tech: null },
-        { id: 'kralikarna', icon: '🐇', tech: 'tech_cuniculi' },
-        { id: 'kozi',       icon: '🐐', tech: 'tech_caprile' },
-        { id: 'chlev',      icon: '🐖', tech: 'tech_suile' },
-        { id: 'mastal',     icon: '🐎', tech: 'tech_stabulum' },
-        { id: 'studna',     icon: '🚰', tech: null },
+        { id: 'kurnik',  icon: '🐔', tech: null },
+        { id: 'kosar',   icon: '🐑', tech: null },
+        { id: 'kotce',   icon: '🐇', tech: 'tech_cuniculi' },
+        { id: 'chlevy',  icon: '🏚️', tech: null },
+        { id: 'mastal',  icon: '🐎', tech: 'tech_stabulum' },
+        { id: 'studna',  icon: '🚰', tech: null },
     ],
 
     switchDvurTab: function(tab) {
@@ -716,7 +715,7 @@ const FarmyardSystem = {
                 html += `</div>`;
             }
             html += `</div>`;
-        } else if (tab === 'ovcin') {
+        } else if (tab === 'kosar') {
             // OVILE
             const hasTech = GameState.researchedTechs && GameState.researchedTechs.includes('tech_de_re_rustica');
             html += `<div style="padding:16px; background:rgba(197,160,89,0.06); border-radius:10px; border-left:4px solid ${hasTech?'var(--accent-gold)':'rgba(0,0,0,0.2)'};">`;
@@ -767,7 +766,7 @@ const FarmyardSystem = {
                 html += '<button class="craft-btn" onclick="FarmyardSystem.feedSheepfold()" ' + (sheepCount>0?'':'disabled') + ' style="background:#4a7c59;">🌿 ' + t('farmyard.feed') + '</button>';
                 var canCleanSh = Date.now() - (GameState.sheepfold.lastCleanMs||0) >= 86400000;
                 var cleanQtySh = Math.max(1,Math.ceil(sheepCount/2));
-                if (sheepCount > 0) html += '<button class="craft-btn" onclick="FarmyardSystem.cleanPen(\'ovcin\')" style="background:rgba(90,154,90,0.85);">' + (canCleanSh ? '🧹 '+t('farmyard.clean')+' (💩 +'+cleanQtySh+')' : '🧹 '+t('farmyard.cleanTomorrow')) + '</button>';
+                if (sheepCount > 0) html += '<button class="craft-btn" onclick="FarmyardSystem.cleanPen(\'kosar\')" style="background:rgba(90,154,90,0.85);">' + (canCleanSh ? '🧹 '+t('farmyard.clean')+' (💩 +'+cleanQtySh+')' : '🧹 '+t('farmyard.cleanTomorrow')) + '</button>';
                 if (sheepCount > 0) html += '<button class="craft-btn" onclick="FarmyardSystem.slaughterSheep()" style="background:#8b4a3a;font-size:0.78rem;">🥩 ' + t('farmyard.slaughterSheep') + '</button>';
                 html += '</div>';
                 html += `<div style="margin-top:10px; padding:10px; background:rgba(0,0,0,0.06); border-radius:8px;">`;
@@ -791,12 +790,10 @@ const FarmyardSystem = {
                 html += `</div>`;
             }
             html += `</div>`;
-        } else if (tab === 'kralikarna' && GameState.researchedTechs && GameState.researchedTechs.includes('tech_cuniculi')) {
+        } else if (tab === 'kotce' && GameState.researchedTechs && GameState.researchedTechs.includes('tech_cuniculi')) {
             html += this.renderAnimalPen('rabbitry');
-        } else if (tab === 'kozi' && GameState.researchedTechs && GameState.researchedTechs.includes('tech_caprile')) {
-            html += this.renderAnimalPen('goatpen');
-        } else if (tab === 'chlev' && GameState.researchedTechs && GameState.researchedTechs.includes('tech_suile')) {
-            html += this.renderAnimalPen('pigsty');
+        } else if (tab === 'chlevy') {
+            html += this._renderChlevy();
         } else if (tab === 'mastal' && GameState.researchedTechs && GameState.researchedTechs.includes('tech_stabulum')) {
             html += this._renderMastal();
         } else if (tab !== 'studna') {
@@ -897,6 +894,41 @@ const FarmyardSystem = {
             h += '<div style="padding:12px;opacity:0.6;font-size:0.85rem;">🔒 ' + t('dvur.lockedPrefix') + ' ' + techNm + '</div>';
         }
         h += '</div>';
+        return h;
+    },
+
+    _renderChlevy: function() {
+        var h = '';
+        var lang = (GameState.settings && GameState.settings.language) || 'cs';
+        var hasCaprile = GameState.researchedTechs && GameState.researchedTechs.includes('tech_caprile');
+        var hasSuile   = GameState.researchedTechs && GameState.researchedTechs.includes('tech_suile');
+
+        // Kozín
+        h += '<div style="font-size:0.72rem;font-weight:bold;letter-spacing:0.06em;text-transform:uppercase;opacity:0.55;margin-bottom:8px;">🐐 ' + (lang==='en' ? 'Goat Pen (Caprile)' : 'Kozín (Caprile)') + '</div>';
+        if (hasCaprile) {
+            h += this.renderAnimalPen('goatpen');
+        } else {
+            var techNm1 = typeof tName === 'function' ? tName('tech_caprile') : 'tech_caprile';
+            h += '<div style="padding:12px;opacity:0.6;font-size:0.85rem;">🔒 ' + t('dvur.lockedPrefix') + ' ' + techNm1 + '</div>';
+        }
+
+        // Vepřín
+        h += '<div style="margin-top:16px;">';
+        h += '<div style="font-size:0.72rem;font-weight:bold;letter-spacing:0.06em;text-transform:uppercase;opacity:0.55;margin-bottom:8px;">🐖 ' + (lang==='en' ? 'Piggery (Suile)' : 'Vepřín (Suile)') + '</div>';
+        if (hasSuile) {
+            h += this.renderAnimalPen('pigsty');
+        } else {
+            var techNm2 = typeof tName === 'function' ? tName('tech_suile') : 'tech_suile';
+            h += '<div style="padding:12px;opacity:0.6;font-size:0.85rem;">🔒 ' + t('dvur.lockedPrefix') + ' ' + techNm2 + '</div>';
+        }
+        h += '</div>';
+
+        // Kravín — coming soon
+        h += '<div style="margin-top:16px;">';
+        h += '<div style="font-size:0.72rem;font-weight:bold;letter-spacing:0.06em;text-transform:uppercase;opacity:0.55;margin-bottom:8px;">🐄 ' + (lang==='en' ? 'Cow Byre (Lactaria)' : 'Kravín (Lactaria)') + '</div>';
+        h += '<div style="padding:12px;opacity:0.5;font-size:0.85rem;font-style:italic;">⏳ ' + t('dvur.comingSoon') + '</div>';
+        h += '</div>';
+
         return h;
     },
 
