@@ -2298,6 +2298,7 @@ According to Theophilus, the organ is an instrument worthy of God, but its const
         horseLabel: 'Horse',
         noBonus: 'none',
         needRam: 'You need a ram for breeding — arrange a loan in the Cellarium (Village Contact).',
+        built_donkeyStall: 'Donkey stall built.',
         lockedPrefix: 'Requires research:',
         mice_label: 'Mice',
         mice_scraps: 'Scraps eaten/day',
