@@ -2228,10 +2228,9 @@ According to Theophilus, the organ is an instrument worthy of God, but its const
     dvur: {
         dashTitle: 'Farmyard status',
         tab_kurnik: 'Henhouse',
-        tab_ovcin: 'Sheepfold',
-        tab_kralikarna: 'Rabbit Hutch',
-        tab_kozi: 'Goat Pen',
-        tab_chlev: 'Pigsty',
+        tab_kosar: 'Sheepfold',
+        tab_kotce: 'Hutches',
+        tab_chlevy: 'The Byres',
         tab_mastal: 'Stable',
         tab_studna: 'Well',
         catFed: 'fed, resting',
