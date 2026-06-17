@@ -986,15 +986,41 @@ const FarmyardSystem = {
         if (!h.built || h.hens.length === 0) return;
         const chickFeed = h.nesting && h.nesting.state === 'growing' ? Math.ceil(h.nesting.chicks / 2) : 0;
         const totalFeed = h.hens.length + chickFeed;
-        // Priorita: seeds_herb → seeds_vegetable
-        const feedItem = (GameState.inventory['seeds_herb'] || 0) >= totalFeed ? 'seeds_herb' : 'seeds_vegetable';
-        if ((GameState.inventory[feedItem] || 0) < totalFeed) { UI.notify(t('game.needFeedHen') + ' (' + totalFeed + ')', true); return; }
-        Game.removeItem(feedItem, totalFeed);
-        h.lastFedAt = Date.now();
-        const hens = h.hens;
-        if (Array.isArray(hens)) hens.forEach(a => { if (typeof a === 'object') a.mood = Math.min(100, (a.mood || 80) + 10); });
-        Game.save(); FarmyardSystem.renderFarmyard();
-        UI.notify('🌾 ' + t('game.henFed'));
+        const inv = GameState.inventory;
+
+        // Priorita krmiva: zrní (plná porce, mood +10)
+        // Nouzové: semínka — 4 semínka = 1 porce pro 1 slepici (mood +2)
+        const GRAINS = ['grain','oats','barley','millet','rye_grain','wheat_grain'];
+        let grainItem = null, grainHave = 0;
+        GRAINS.forEach(function(g) { const n = inv[g]||0; if (n > grainHave) { grainHave = n; grainItem = g; }});
+
+        if (grainItem && grainHave >= totalFeed) {
+            // Plné krmení zrním
+            Game.removeItem(grainItem, totalFeed);
+            h.lastFedAt = Date.now();
+            if (Array.isArray(h.hens)) h.hens.forEach(function(a) { if (typeof a === 'object') a.mood = Math.min(100, (a.mood||80) + 10); });
+            Game.save(); FarmyardSystem.renderFarmyard();
+            UI.notify('🌾 ' + t('game.henFed'));
+            return;
+        }
+
+        // Nouzové krmení semínky (4 semínka = 1/4 porce pro 1 slepici, mood +2)
+        const SEEDS = ['seeds_herb','seeds_vegetable'];
+        let seedItem = null, seedHave = 0;
+        SEEDS.forEach(function(s) { const n = inv[s]||0; if (n > seedHave) { seedHave = n; seedItem = s; }});
+        const seedNeeded = totalFeed * 4;
+        if (seedItem && seedHave >= seedNeeded) {
+            Game.removeItem(seedItem, seedNeeded);
+            h.lastFedAt = Date.now();
+            if (Array.isArray(h.hens)) h.hens.forEach(function(a) { if (typeof a === 'object') a.mood = Math.min(100, (a.mood||80) + 2); });
+            Game.save(); FarmyardSystem.renderFarmyard();
+            UI.notify('🌱 ' + t('game.henFedSeeds') + ' (1/4)');
+            return;
+        }
+
+        // Nic k dispozici
+        const needed = grainItem ? totalFeed + 'x ' + (typeof iName==='function'?iName(grainItem):grainItem) : totalFeed * 4 + 'x ' + t('game.seeds');
+        UI.notify(t('game.needFeedHen') + ' (' + needed + ')', true);
     },
 
     feedHenhouseSlug: function() {
