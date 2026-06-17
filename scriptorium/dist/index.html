@@ -14334,10 +14334,11 @@ const CellariumSystem = {
 
       // Dvůr — zvířecí stavby (stav v GameState.<pen>.built, staví GardenSystem)
       const penDefs = [
-        { pen: 'rabbitry', icon: '🐇', tech: 'tech_cuniculi' },
-        { pen: 'goatpen',  icon: '🐐', tech: 'tech_caprile' },
-        { pen: 'pigsty',   icon: '🐖', tech: 'tech_suile' },
-        { pen: 'stable',   icon: '🐎', tech: 'tech_stabulum' },
+        { pen: 'rabbitry',    icon: '🐇', tech: 'tech_cuniculi' },
+        { pen: 'goatpen',     icon: '🐐', tech: 'tech_caprile' },
+        { pen: 'pigsty',      icon: '🐖', tech: 'tech_suile' },
+        { pen: 'stable',      icon: '🐎', tech: 'tech_stabulum' },
+        { pen: 'donkeyStall', icon: '🫏', tech: 'tech_asinus' },
       ];
       let dvurInner = '';
       penDefs.forEach(d => {
@@ -28971,6 +28972,7 @@ const STRINGS_cs = {
         horseLabel: 'Kůň',
         noBonus: 'žádný',
         needRam: 'Pro odchov potřebuješ berana — sjednej výpůjčku v Cellariu (Kontakt se Vsí).',
+        built_donkeyStall: 'Oslárna postavena.',
         lockedPrefix: 'Vyžaduje výzkum:',
         mice_label: 'Myší',
         mice_scraps: 'Zbytky sežrány/den',
@@ -31579,6 +31581,7 @@ According to Theophilus, the organ is an instrument worthy of God, but its const
         horseLabel: 'Horse',
         noBonus: 'none',
         needRam: 'You need a ram for breeding — arrange a loan in the Cellarium (Village Contact).',
+        built_donkeyStall: 'Donkey stall built.',
         lockedPrefix: 'Requires research:',
         mice_label: 'Mice',
         mice_scraps: 'Scraps eaten/day',
