@@ -1379,10 +1379,11 @@ const CellariumSystem = {
 
       // Dvůr — zvířecí stavby (stav v GameState.<pen>.built, staví GardenSystem)
       const penDefs = [
-        { pen: 'rabbitry', icon: '🐇', tech: 'tech_cuniculi' },
-        { pen: 'goatpen',  icon: '🐐', tech: 'tech_caprile' },
-        { pen: 'pigsty',   icon: '🐖', tech: 'tech_suile' },
-        { pen: 'stable',   icon: '🐎', tech: 'tech_stabulum' },
+        { pen: 'rabbitry',    icon: '🐇', tech: 'tech_cuniculi' },
+        { pen: 'goatpen',     icon: '🐐', tech: 'tech_caprile' },
+        { pen: 'pigsty',      icon: '🐖', tech: 'tech_suile' },
+        { pen: 'stable',      icon: '🐎', tech: 'tech_stabulum' },
+        { pen: 'donkeyStall', icon: '🫏', tech: 'tech_asinus' },
       ];
       let dvurInner = '';
       penDefs.forEach(d => {
