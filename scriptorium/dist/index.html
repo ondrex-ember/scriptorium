@@ -17882,7 +17882,7 @@ const FarmyardSystem = {
 
     // ── Animal config ─────────────────────────────────────────────────────
     ANIMAL_CFG: {
-        rabbitry: { itemId: 'rabbit', cap: 6,
+        rabbitry: { itemId: ['rabbit_m','rabbit_f'], cap: 6,
             build: { plank: 10, stick: 5, rope: 2 },
             breedMs: 7 * 24 * 60 * 60 * 1000 },
         goatpen:  { itemId: 'goat', cap: 3,
@@ -18206,15 +18206,25 @@ const FarmyardSystem = {
         this.renderFarmyard();
     },
 
-    placeAnimal: function(pen) {
+    // Sex ze suffixu itemId: rabbit_m→m, rabbit_f→f, jinak default
+    _sexFromItem: function(itemId, pen) {
+        if (itemId && itemId.endsWith('_m')) return 'm';
+        if (itemId && itemId.endsWith('_f')) return 'f';
+        if (pen === 'stable') return 'f';  // klisna default
+        return 'f';
+    },
+
+    placeAnimal: function(pen, itemId) {
         this._ensureAnimals();
         const cfg = this.ANIMAL_CFG[pen];
         const st = GameState[pen];
         if (!cfg || !st.built) return;
         if (st.animals.length >= cfg.cap) { if (typeof UI !== 'undefined') UI.notify(t('dvur.penFull'), true); return; }
-        if ((GameState.inventory[cfg.itemId] || 0) < 1) { if (typeof UI !== 'undefined') UI.notify(t('dvur.noAnimal'), true); return; }
-        GameState.inventory[cfg.itemId] -= 1;
-        const sex = (pen === 'rabbitry') ? (st.animals.length % 2 === 0 ? 'f' : 'm') : (pen === 'stable') ? (st.animals.filter(a=>a.sex==='m').length === 0 ? 'f' : 'f') : 'f';
+        // itemId může být string nebo přijít z parametru (pohlavní varianty)
+        const useItemId = itemId || (Array.isArray(cfg.itemId) ? cfg.itemId[0] : cfg.itemId);
+        if ((GameState.inventory[useItemId] || 0) < 1) { if (typeof UI !== 'undefined') UI.notify(t('dvur.noAnimal'), true); return; }
+        GameState.inventory[useItemId] -= 1;
+        const sex = this._sexFromItem(useItemId, pen);
         const a = { sex, mood:80, mature:true, bornAt:Date.now(), lastCleaned:0 };
         if (pen === 'goatpen') a.lastMilk = Date.now();
         st.animals.push(a);
@@ -18338,11 +18348,23 @@ const FarmyardSystem = {
             h += `<div style="font-size:0.78rem; color:#c0392b; margin-bottom:8px;">⚠️ ${t('dvur.penHungry')}</div>`;
         }
 
-        const haveItem = GameState.inventory[cfg.itemId] || 0;
-        h += `<button class="craft-btn" style="margin-bottom:10px;" onclick="FarmyardSystem.placeAnimal('${pen}')"
-            ${haveItem > 0 && st.animals.length < cfg.cap ? '' : 'disabled'}>➕ ${t('dvur.place_' + pen)} (${t('dvur.have')}: ${haveItem})</button>`;
-        if (haveItem === 0 && st.animals.length < cfg.cap) {
-            h += `<div style="font-size:0.74rem; opacity:0.6; font-style:italic; margin-bottom:10px;">${t('dvur.buyAtMarket')}</div>`;
+        if (Array.isArray(cfg.itemId)) {
+            // Pohlavní varianty — zobrazit tlačítko pro každý itemId
+            let anyAvail = false;
+            h += '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;">';
+            cfg.itemId.forEach(function(iid) {
+                var haveI = GameState.inventory[iid] || 0;
+                var nm = typeof iName === 'function' ? iName(iid) : iid;
+                var canAdd = haveI > 0 && st.animals.length < cfg.cap;
+                if (haveI > 0) anyAvail = true;
+                h += '<button class="craft-btn" style="margin-bottom:4px;" onclick="FarmyardSystem.placeAnimal(\'' + pen + '\',\'' + iid + '\')" ' + (canAdd?'':'disabled') + '>➕ ' + nm + ' (' + (typeof t==='function'?t('dvur.have'):'máš') + ': ' + haveI + ')</button>';
+            });
+            h += '</div>';
+            if (!anyAvail && st.animals.length < cfg.cap) h += '<div style="font-size:0.74rem;opacity:0.6;font-style:italic;margin-bottom:10px;">' + t('dvur.buyAtMarket') + '</div>';
+        } else {
+            var haveItem = GameState.inventory[cfg.itemId] || 0;
+            h += '<button class="craft-btn" style="margin-bottom:10px;" onclick="FarmyardSystem.placeAnimal(\'' + pen + '\')" ' + (haveItem>0&&st.animals.length<cfg.cap?'':'disabled') + '>➕ ' + t('dvur.place_' + pen) + ' (' + t('dvur.have') + ': ' + haveItem + ')</button>';
+            if (haveItem === 0 && st.animals.length < cfg.cap) h += '<div style="font-size:0.74rem;opacity:0.6;font-style:italic;margin-bottom:10px;">' + t('dvur.buyAtMarket') + '</div>';
         }
 
         // Animals list with mood
