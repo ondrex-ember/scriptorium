@@ -16,13 +16,13 @@ const ScriptoriumCat = {
     RELOCATE_MAX_MS: 8 * 60 * 1000,   // 8 min
 
     SPRITES: {
-        idle:      { file: 'Cat-2-Idle.png',       frames: 10, fps: 8 },
-        walk:      { file: 'Cat-2-Walk.png',       frames: 8,  fps: 10 },
-        sitting:   { file: 'Cat-2-Sitting.png',    frames: 1,  fps: 1 },
-        sleeping:  { file: 'Cat-2-Sleeping1.png',  frames: 1,  fps: 1 },
-        laying:    { file: 'Cat-2-Laying.png',     frames: 8,  fps: 6 },
-        meow:      { file: 'Cat-2-Meow.png',       frames: 4,  fps: 8 },
-        stretching:{ file: 'Cat-2-Stretching.png', frames: 13, fps: 8 },
+        idle: { file: 'Cat-2-Idle.png', frames: 10, fps: 8 },
+        walk: { file: 'Cat-2-Walk.png', frames: 8, fps: 10 },
+        sitting: { file: 'Cat-2-Sitting.png', frames: 1, fps: 1 },
+        sleeping: { file: 'Cat-2-Sleeping1.png', frames: 1, fps: 1 },
+        laying: { file: 'Cat-2-Laying.png', frames: 8, fps: 6 },
+        meow: { file: 'Cat-2-Meow.png', frames: 4, fps: 8 },
+        stretching: { file: 'Cat-2-Stretching.png', frames: 13, fps: 8 },
     },
 
     // ── State ─────────────────────────────────────────────────────────────
@@ -40,7 +40,7 @@ const ScriptoriumCat = {
     _relocating: false,
 
     // ── Init ──────────────────────────────────────────────────────────────
-    init: function() {
+    init: function () {
         if (this._initialized) return;
         this._initialized = true;
 
@@ -54,29 +54,29 @@ const ScriptoriumCat = {
     },
 
     // ── Subtab helpers ────────────────────────────────────────────────────
-    _allTabs: function() {
+    _allTabs: function () {
         const screen = document.getElementById('screen-garden');
         if (!screen) return [];
         return Array.from(screen.querySelectorAll('div[id^="garden-tab-"]'));
     },
 
-    _pickRandomTab: function(excludeId) {
+    _pickRandomTab: function (excludeId) {
         const tabs = this._allTabs().filter(t => t.id !== excludeId);
         if (!tabs.length) return null;
         return tabs[Math.floor(Math.random() * tabs.length)].id;
     },
 
-    _activeTabEl: function() {
+    _activeTabEl: function () {
         // Viditelný subtab (display !== 'none')
         return this._allTabs().find(t => t.style.display !== 'none') || null;
     },
 
-    _isCatTabActive: function() {
+    _isCatTabActive: function () {
         const active = this._activeTabEl();
         return !!(active && this.currentTab && active.id === this.currentTab);
     },
 
-    _createEl: function() {
+    _createEl: function () {
         if (document.getElementById('scriptorium-cat')) return;
 
         const el = document.createElement('div');
@@ -121,7 +121,7 @@ const ScriptoriumCat = {
     },
 
     // ── Sprite rendering ──────────────────────────────────────────────────
-    _updateSprite: function() {
+    _updateSprite: function () {
         if (!this.el) return;
         const s = this.SPRITES[this.state] || this.SPRITES.idle;
         const frameX = this.currentFrame * this.FRAME_SIZE * this.SCALE;
@@ -130,7 +130,7 @@ const ScriptoriumCat = {
         this.el.style.transform = this.facingLeft ? 'scaleX(-1)' : 'scaleX(1)';
     },
 
-    _startFrameLoop: function() {
+    _startFrameLoop: function () {
         const tick = () => {
             const s = this.SPRITES[this.state] || this.SPRITES.idle;
             const delay = 1000 / s.fps;
@@ -144,7 +144,7 @@ const ScriptoriumCat = {
     },
 
     // ── Mini-pohyby v rámci subtabu ───────────────────────────────────────
-    _scheduleMove: function() {
+    _scheduleMove: function () {
         const delay = 45000 + Math.random() * 45000; // 45–90s
         this.moveTimer = setTimeout(() => {
             this._moveTo();
@@ -152,7 +152,7 @@ const ScriptoriumCat = {
         }, delay);
     },
 
-    _moveTo: function() {
+    _moveTo: function () {
         // Pohybuj se jen pokud je kočka právě vidět (její subtab je aktivní)
         if (this._relocating || !this._isCatTabActive()) return;
         const screen = document.getElementById('screen-garden');
@@ -168,21 +168,21 @@ const ScriptoriumCat = {
         this._setState('walk');
         if (this.el) {
             this.el.style.left = pos.x + 'px';
-            this.el.style.top  = pos.y + 'px';
+            this.el.style.top = pos.y + 'px';
         }
 
         setTimeout(() => {
             this._setState('idle');
             setTimeout(() => {
                 const r = Math.random();
-                if (r < 0.4)      this._setState('sitting');
+                if (r < 0.4) this._setState('sitting');
                 else if (r < 0.7) this._setState('laying');
             }, 5000);
         }, 3000);
     },
 
     // Náhodná pozice v rámci daného subtab elementu (souřadnice vůči screen-garden)
-    _randomPosInTab: function(tabEl) {
+    _randomPosInTab: function (tabEl) {
         const screen = document.getElementById('screen-garden');
         if (!screen || !tabEl) return null;
 
@@ -190,17 +190,17 @@ const ScriptoriumCat = {
         const tabRect = tabEl.getBoundingClientRect();
         if (tabRect.width < 20 || tabRect.height < 20) return null;
 
-        const offTop  = tabRect.top  - screenRect.top  + screen.scrollTop;
+        const offTop = tabRect.top - screenRect.top + screen.scrollTop;
         const offLeft = tabRect.left - screenRect.left;
         const size = this.FRAME_SIZE * this.SCALE;
 
-        const x = offLeft + 10 + Math.random() * Math.max(10, tabRect.width  - size - 20);
-        const y = offTop  + 10 + Math.random() * Math.max(10, tabRect.height - size - 10);
+        const x = offLeft + 10 + Math.random() * Math.max(10, tabRect.width - size - 20);
+        const y = offTop + 10 + Math.random() * Math.max(10, tabRect.height - size - 10);
         return { x: x, y: y };
     },
 
     // ── Stěhování mezi subtaby ────────────────────────────────────────────
-    _scheduleRelocate: function() {
+    _scheduleRelocate: function () {
         const delay = this.RELOCATE_MIN_MS + Math.random() * (this.RELOCATE_MAX_MS - this.RELOCATE_MIN_MS);
         this.relocateTimer = setTimeout(() => {
             this._relocate();
@@ -208,7 +208,7 @@ const ScriptoriumCat = {
         }, delay);
     },
 
-    _relocate: function() {
+    _relocate: function () {
         const newTab = this._pickRandomTab(this.currentTab);
         if (!newTab) return;
 
@@ -236,7 +236,7 @@ const ScriptoriumCat = {
     },
 
     // Usadí kočku na náhodné pozici v jejím (možná skrytém) subtabu — bez animace
-    _settleInCurrentTab: function() {
+    _settleInCurrentTab: function () {
         const tabEl = document.getElementById(this.currentTab);
         const pos = this._randomPosInTab(tabEl);
         if (pos && this.el) {
@@ -244,7 +244,7 @@ const ScriptoriumCat = {
             this.posX = pos.x;
             this.posY = pos.y;
             this.el.style.left = pos.x + 'px';
-            this.el.style.top  = pos.y + 'px';
+            this.el.style.top = pos.y + 'px';
             // force reflow, pak vrátit transition pro budoucí walk
             void this.el.offsetWidth;
             this.el.style.transition = 'left 2.5s ease-in-out, top 2.5s ease-in-out';
@@ -252,7 +252,7 @@ const ScriptoriumCat = {
     },
 
     // ── Reakce na přepnutí garden subtabu ─────────────────────────────────
-    onTabSwitch: function() {
+    onTabSwitch: function () {
         if (!this._initialized || !this.el || this._relocating) return;
 
         // Single source of truth: pokud je kočka u ohně, v zahradě není
@@ -278,7 +278,7 @@ const ScriptoriumCat = {
         }
     },
 
-    _setState: function(state) {
+    _setState: function (state) {
         if (!this.SPRITES[state]) return;
         const hour = new Date().getHours();
         // V noci → sleeping
@@ -294,7 +294,7 @@ const ScriptoriumCat = {
     _lastClick: 0,
     _CLICK_RESET_MS: 10000,  // reset counteru po 10s bez kliku
 
-    _onCatClick: function() {
+    _onCatClick: function () {
         const lang = (GameState.settings && GameState.settings.language) || 'cs';
         const c = (typeof this._ensureCatState === 'function') ? this._ensureCatState() : (GameState.cat || {});
         const name = c.name || 'Bezejmenný myšilov';
@@ -335,7 +335,7 @@ const ScriptoriumCat = {
             }
             this._setState('meow');
             setTimeout(() => this._setState('idle'), 2000);
-            try { new Audio('/sounds/cat-purr.mp3').play().catch(() => {}); } catch(e) {}
+            try { if (!window.AudioSystem?.isMuted) new Audio('/sounds/cat-purr.mp3').play().catch(() => { }); } catch (e) { }
             const msgs = lang === 'en'
                 ? [`${name} lets you stroke her. She purrs deeply.${vigorMsg}`, `${name} rubs against your hand.${vigorMsg}`]
                 : [`${name} se nechala pohladit. Hluboce přede.${vigorMsg}`, `${name} se otírá o tvou ruku.${vigorMsg}`];
@@ -344,7 +344,7 @@ const ScriptoriumCat = {
         }
     },
 
-    _flee: function() {
+    _flee: function () {
         const tabEl = this._activeTabEl && this._activeTabEl();
         const pos = tabEl && this._randomPosInTab ? this._randomPosInTab(tabEl) : null;
         this._setState('walk');
@@ -357,10 +357,10 @@ const ScriptoriumCat = {
         setTimeout(() => this._setState('idle'), 2600);
     },
 
-    _meowAndToast: function(name, lang) {
+    _meowAndToast: function (name, lang) {
         this._setState('meow');
         setTimeout(() => this._setState('idle'), 2000);
-        try { new Audio('/sounds/meow.mp3').play().catch(() => {}); } catch(e) {}
+        try { if (!window.AudioSystem?.isMuted) new Audio('/sounds/meow.mp3').play().catch(() => { }); } catch (e) { }
         const msgs = lang === 'en'
             ? [`${name} says: Meow!`, `${name} purrs contentedly.`, `${name} blinks slowly at you.`]
             : [`${name} říká: Mňau!`, `${name} spokojeně přede.`, `${name} na tebe pomalu mrkne.`];
@@ -369,21 +369,21 @@ const ScriptoriumCat = {
     },
 
     // ── Zobrazit/skrýt (vstup/odchod ze Zahrady) ──────────────────────────
-    show: function() {
+    show: function () {
         if (!this._initialized) { this.init(); this.onTabSwitch(); return; }
         if (!this.moveTimer) this._scheduleMove();
         if (!this.relocateTimer) this._scheduleRelocate();
         this.onTabSwitch();
     },
 
-    hide: function() {
+    hide: function () {
         if (this.el) this.el.style.display = 'none';
-        if (this.moveTimer)     { clearTimeout(this.moveTimer);     this.moveTimer = null; }
+        if (this.moveTimer) { clearTimeout(this.moveTimer); this.moveTimer = null; }
         if (this.relocateTimer) { clearTimeout(this.relocateTimer); this.relocateTimer = null; }
     },
 
     // ── Přejmenovat ───────────────────────────────────────────────────────
-    rename: function(newName) {
+    rename: function (newName) {
         if (!newName || !newName.trim()) return;
         if (!GameState.cat) GameState.cat = {};
         GameState.cat.name = newName.trim();
@@ -401,22 +401,22 @@ Object.assign(ScriptoriumCat, {
 
     // Co kočka žere: { satiety, affection }
     FEED_TABLE: {
-        cream:        { satiety: 30, affection: 15 },
-        fish:         { satiety: 25, affection: 12 },
-        carp:         { satiety: 25, affection: 12 },
-        meat:         { satiety: 25, affection: 8  },
-        cured_meat:   { satiety: 20, affection: 10 },
-        cooked_fish:  { satiety: 20, affection: 10 },
-        cooked_meat:  { satiety: 20, affection: 8  },
-        chicken_meat: { satiety: 20, affection: 8  },
-        mouse:        { satiety: 20, affection: 5  },
-        milk:         { satiety: 15, affection: 8  },
-        goat_milk:    { satiety: 15, affection: 8  },
-        cheese:       { satiety: 15, affection: 6  },
-        lard:         { satiety: 15, affection: 4  },
-        buttermilk:   { satiety: 12, affection: 6  },
-        butter:       { satiety: 10, affection: 8  },
-        fat:          { satiety: 10, affection: 3  },
+        cream: { satiety: 30, affection: 15 },
+        fish: { satiety: 25, affection: 12 },
+        carp: { satiety: 25, affection: 12 },
+        meat: { satiety: 25, affection: 8 },
+        cured_meat: { satiety: 20, affection: 10 },
+        cooked_fish: { satiety: 20, affection: 10 },
+        cooked_meat: { satiety: 20, affection: 8 },
+        chicken_meat: { satiety: 20, affection: 8 },
+        mouse: { satiety: 20, affection: 5 },
+        milk: { satiety: 15, affection: 8 },
+        goat_milk: { satiety: 15, affection: 8 },
+        cheese: { satiety: 15, affection: 6 },
+        lard: { satiety: 15, affection: 4 },
+        buttermilk: { satiety: 12, affection: 6 },
+        butter: { satiety: 10, affection: 8 },
+        fat: { satiety: 10, affection: 3 },
     },
 
     // Potraviny, které hladová kočka krade ze zásob
@@ -424,31 +424,31 @@ Object.assign(ScriptoriumCat, {
 
     DAY_MS: 24 * 60 * 60 * 1000,
 
-    hasFelisTech: function() {
+    hasFelisTech: function () {
         return !!(GameState.researchedTechs && GameState.researchedTechs.includes('tech_cura_felium'));
     },
 
-    _ensureCatState: function() {
+    _ensureCatState: function () {
         if (!GameState.cat) GameState.cat = {};
         const c = GameState.cat;
-        if (c.name === undefined)      c.name = 'Bezejmenný myšilov';
-        if (c.satiety === undefined)   c.satiety = 50;
+        if (c.name === undefined) c.name = 'Bezejmenný myšilov';
+        if (c.satiety === undefined) c.satiety = 50;
         if (c.affection === undefined) c.affection = 20;
-        if (c.caught === undefined)    c.caught = 0;
-        if (!Array.isArray(c.stolen))  c.stolen = [];
-        if (!c.bornAt)                 c.bornAt = Date.now();
-        if (c.lastPet === undefined)   c.lastPet = 0;
-        if (c.lastTick === undefined)  c.lastTick = 0;
+        if (c.caught === undefined) c.caught = 0;
+        if (!Array.isArray(c.stolen)) c.stolen = [];
+        if (!c.bornAt) c.bornAt = Date.now();
+        if (c.lastPet === undefined) c.lastPet = 0;
+        if (c.lastTick === undefined) c.lastTick = 0;
         if (!GameState.mice) GameState.mice = { count: 3, lastTick: 0 };
         return c;
     },
 
-    _lang: function() {
+    _lang: function () {
         return (GameState.settings && GameState.settings.language) || 'cs';
     },
 
     // ── Denní tick (volán z game.js intervalu, self-guarded) ─────────────
-    dailyTick: function() {
+    dailyTick: function () {
         if (!this.hasFelisTech()) return;
         const c = this._ensureCatState();
         const now = Date.now();
@@ -523,17 +523,17 @@ Object.assign(ScriptoriumCat, {
     },
 
     // Fuzzy popis myší populace (přesné číslo hra neukazuje)
-    miceFuzzy: function() {
+    miceFuzzy: function () {
         const n = (GameState.mice && GameState.mice.count) || 0;
         const lang = this._lang();
-        if (n <= 1)  return lang === 'en' ? 'The cloister is quiet. No scurrying to be heard.' : 'V klášteře je ticho. Žádný šramot.';
-        if (n <= 6)  return lang === 'en' ? 'A faint scurrying in the walls at night...' : 'V noci je za zdmi slyšet slabý šramot...';
+        if (n <= 1) return lang === 'en' ? 'The cloister is quiet. No scurrying to be heard.' : 'V klášteře je ticho. Žádný šramot.';
+        if (n <= 6) return lang === 'en' ? 'A faint scurrying in the walls at night...' : 'V noci je za zdmi slyšet slabý šramot...';
         if (n <= 15) return lang === 'en' ? 'Mice have been seen near the granary. The cellarius frowns.' : 'U sýpky byly vidět myši. Cellarius se mračí.';
         return lang === 'en' ? 'A mouse paradise! Droppings in the flour, holes in the sacks.' : 'Myší ráj! Trus v mouce, díry v pytlích.';
     },
 
     // ── Krmení ────────────────────────────────────────────────────────────
-    feed: function(itemId) {
+    feed: function (itemId) {
         if (!this.hasFelisTech()) return false;
         const entry = this.FEED_TABLE[itemId];
         if (!entry) return false;
@@ -564,7 +564,7 @@ Object.assign(ScriptoriumCat, {
     },
 
     // ── Titul dle přízně a úlovků ─────────────────────────────────────────
-    getTitle: function() {
+    getTitle: function () {
         const c = this._ensureCatState();
         const lang = this._lang();
         if (c.affection >= 80 && c.caught >= 50) return 'Custos Penarii';
@@ -575,7 +575,7 @@ Object.assign(ScriptoriumCat, {
 
     // ── Vigor helper ──────────────────────────────────────────────────────
     // ── Warmth systém ─────────────────────────────────────────────────────
-    warmthTick: function() {
+    warmthTick: function () {
         const c = this._ensureCatState ? this._ensureCatState() : (GameState.cat || {});
         if (typeof c.warmth !== 'number') { c.warmth = 50; }
         if (!c.location) c.location = 'garden';
@@ -614,7 +614,7 @@ Object.assign(ScriptoriumCat, {
 
     _foculusLeaving: false,
 
-    _foculusLeave: function() {
+    _foculusLeave: function () {
         if (this._foculusLeaving) return;
         this._foculusLeaving = true;
         if (GameState.cat) GameState.cat.warmth = 60;
@@ -639,14 +639,14 @@ Object.assign(ScriptoriumCat, {
     },
 
     // ── Cat Pill ──────────────────────────────────────────────────────────
-    _warmthEmoji: function(warmth) {
+    _warmthEmoji: function (warmth) {
         if (warmth >= 80) return '🔥';
         if (warmth >= 50) return '😺';
         if (warmth >= 25) return '🐱';
         return '🥶';
     },
 
-    syncCatPill: function() {
+    syncCatPill: function () {
         const pill = document.getElementById('cat-pill');
         if (!pill) return;
         const hasTech = GameState.researchedTechs && GameState.researchedTechs.includes('tech_cura_felium');
@@ -665,32 +665,32 @@ Object.assign(ScriptoriumCat, {
         if (bar) bar.style.width = warmth + '%';
     },
 
-    renderCatPillDetail: function() {
+    renderCatPillDetail: function () {
         const panel = document.getElementById('pill-panel-body');
         if (!panel) return;
         const c = this._ensureCatState ? this._ensureCatState() : (GameState.cat || {});
         const lang = this._lang ? this._lang() : 'cs';
         const warmth = typeof c.warmth === 'number' ? c.warmth : 50;
         const warmthLabel = lang === 'en'
-            ? ['Freezing','Cold','Comfortable','Warm','Very warm','Roasting']
-            : ['Zmrzlá','Zima','Pohoda','Teplo','Velmi teplo','Úplně rozpálená'];
+            ? ['Freezing', 'Cold', 'Comfortable', 'Warm', 'Very warm', 'Roasting']
+            : ['Zmrzlá', 'Zima', 'Pohoda', 'Teplo', 'Velmi teplo', 'Úplně rozpálená'];
         const wi = Math.min(5, Math.floor(warmth / 20));
         panel.innerHTML = `
             <div style="font-weight:bold; margin-bottom:6px;">🐈 ${c.name || 'Felis'}</div>
             <div style="font-size:0.8rem; margin-bottom:4px;">
-                ${lang==='en'?'Warmth':'Teplo'}: ${this._warmthEmoji(warmth)} ${warmthLabel[wi]} (${warmth}/100)
+                ${lang === 'en' ? 'Warmth' : 'Teplo'}: ${this._warmthEmoji(warmth)} ${warmthLabel[wi]} (${warmth}/100)
             </div>
             <div style="height:5px; background:rgba(0,0,0,0.15); border-radius:3px; margin-bottom:8px;">
-                <div style="height:100%; width:${warmth}%; background:${warmth>=80?'#ef4444':warmth>=40?'#ffbd40':'#60a5fa'}; border-radius:3px; transition:width 0.5s;"></div>
+                <div style="height:100%; width:${warmth}%; background:${warmth >= 80 ? '#ef4444' : warmth >= 40 ? '#ffbd40' : '#60a5fa'}; border-radius:3px; transition:width 0.5s;"></div>
             </div>
             <div style="font-size:0.78rem; opacity:0.75;">
-                ${lang==='en'?'Affection':'Přízeň'}: ${'❤️'.repeat(Math.round((c.affection||0)/20))} (${c.affection||0}/100)<br>
-                ${lang==='en'?'Mice caught':'Myší chyceno'}: ${c.caught||0}
+                ${lang === 'en' ? 'Affection' : 'Přízeň'}: ${'❤️'.repeat(Math.round((c.affection || 0) / 20))} (${c.affection || 0}/100)<br>
+                ${lang === 'en' ? 'Mice caught' : 'Myší chyceno'}: ${c.caught || 0}
             </div>
         `;
     },
 
-    _addVigor: function(n) {
+    _addVigor: function (n) {
         try {
             if (typeof VigorSystem === 'undefined') return;
             GameState.satiety = Math.min(VigorSystem.MAX_SATIETY, (GameState.satiety || 0) + n);
@@ -711,11 +711,11 @@ Object.assign(ScriptoriumCat, {
     foculusPosX: 10,
     _foculusInitialized: false,
 
-    _foculusFrameSize: function() {
+    _foculusFrameSize: function () {
         return this.FRAME_SIZE * this.FOCULUS_SCALE;
     },
 
-    _foculusUpdateSprite: function() {
+    _foculusUpdateSprite: function () {
         const el = document.getElementById('cat-by-fire');
         if (!el) return;
         const s = this.SPRITES[this.foculusState] || this.SPRITES.idle;
@@ -726,14 +726,14 @@ Object.assign(ScriptoriumCat, {
         el.style.transform = this.foculusFacingLeft ? 'scaleX(-1)' : 'scaleX(1)';
     },
 
-    _foculusSetState: function(state) {
+    _foculusSetState: function (state) {
         if (!this.SPRITES[state]) return;
         this.foculusState = state;
         this.foculusFrame = 0;
         this._foculusUpdateSprite();
     },
 
-    _foculusStartFrameLoop: function() {
+    _foculusStartFrameLoop: function () {
         if (this.foculusFrameTimer) return;
         const tick = () => {
             const el = document.getElementById('cat-by-fire');
@@ -749,7 +749,7 @@ Object.assign(ScriptoriumCat, {
         tick();
     },
 
-    _foculusScheduleMove: function() {
+    _foculusScheduleMove: function () {
         if (this.foculusMoveTimer) return;
         const delay = 8000 + Math.random() * 12000; // 8-20s
         this.foculusMoveTimer = setTimeout(() => {
@@ -759,7 +759,7 @@ Object.assign(ScriptoriumCat, {
         }, delay);
     },
 
-    _foculusMove: function() {
+    _foculusMove: function () {
         const el = document.getElementById('cat-by-fire');
         const lane = document.getElementById('cat-lane-top');
         if (!el || !lane || el.style.display === 'none') return;
@@ -777,20 +777,20 @@ Object.assign(ScriptoriumCat, {
 
         setTimeout(() => {
             const r = Math.random();
-            if (r < 0.4)      this._foculusSetState('laying');
+            if (r < 0.4) this._foculusSetState('laying');
             else if (r < 0.7) this._foculusSetState('sitting');
-            else              this._foculusSetState('idle');
+            else this._foculusSetState('idle');
         }, 2500);
     },
 
-    renderFoculusVisit: function() {
+    renderFoculusVisit: function () {
         const lane = document.getElementById('cat-lane-top');
         let el = document.getElementById('cat-by-fire');
 
         const catLoc = (GameState.cat && GameState.cat.location) || 'garden';
         if (!lane || !GameState.flags || !GameState.flags.fireplaceLit || this._foculusLeaving || catLoc !== 'fire') {
             if (el && !this._foculusLeaving) el.style.display = 'none';
-            if (this.foculusMoveTimer)  { clearTimeout(this.foculusMoveTimer);  this.foculusMoveTimer = null; }
+            if (this.foculusMoveTimer) { clearTimeout(this.foculusMoveTimer); this.foculusMoveTimer = null; }
             if (this.foculusFrameTimer) { clearTimeout(this.foculusFrameTimer); this.foculusFrameTimer = null; }
             return;
         }
@@ -833,7 +833,7 @@ Object.assign(ScriptoriumCat, {
 
     // Denní tick myší populace — volán z game.js, self-guarded (24h)
     // Odděleno od dailyTick — funguje bez tech_cura_felium
-    miceTick: function() {
+    miceTick: function () {
         if (!GameState.mice) GameState.mice = { count: 3, lastTick: 0 };
         const m = GameState.mice;
         const now = Date.now();

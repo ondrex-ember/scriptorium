@@ -759,9 +759,10 @@
             width: 340px;
             max-width: calc(100vw - 32px);
             z-index: 500;
-            box-shadow: 0 4px 16px rgba(0,0,0,0.35);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
         }
-        #card-fireplace-overlay > div {
+
+        #card-fireplace-overlay>div {
             min-width: 0;
         }
 
@@ -774,21 +775,31 @@
         }
 
         @media (max-width: 750px) and (min-width: 401px) {
-            #card-fireplace-overlay { top: 105px; }
+            #card-fireplace-overlay {
+                top: 105px;
+            }
         }
 
         /* ═══ FLOATING GAIN — "+N" feedback nad recipe card ════════════════ */
         @keyframes float-up-fade {
-            0%   { opacity: 1; transform: translateY(0) scale(1); }
-            100% { opacity: 0; transform: translateY(-40px) scale(1.15); }
+            0% {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+
+            100% {
+                opacity: 0;
+                transform: translateY(-40px) scale(1.15);
+            }
         }
+
         .floating-gain {
             position: absolute;
             pointer-events: none;
             font-weight: bold;
             font-size: 0.95rem;
             color: var(--accent-gold, #c5a059);
-            text-shadow: 0 1px 2px rgba(0,0,0,0.4);
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
             animation: float-up-fade 1.2s ease-out forwards;
             z-index: 600;
         }
@@ -915,6 +926,7 @@
         }
 
         @media (max-width: 750px) {
+
             /* Dlouhé texty v tlačítkách nesmí přetékat (BUILD HENHOUSE...) */
             .craft-btn {
                 white-space: normal;
@@ -923,6 +935,7 @@
                 line-height: 1.3;
                 font-size: 0.78rem;
             }
+
             .header-content {
                 flex-direction: column;
                 align-items: center;
@@ -2201,7 +2214,8 @@
                         style="font-size:1.4rem; letter-spacing:2px; font-family:'Cinzel Decorative'; font-weight:700; color:#d4b883; text-shadow: 2px 2px 4px #000;">
                         SCRIPTORIUM
                     </span>
-                    <span id="settings-btn" onclick="UI.switchScreen('settings')" data-i18n-title="header.settings">⚙️</span>
+                    <span id="settings-btn" onclick="UI.switchScreen('settings')"
+                        data-i18n-title="header.settings">⚙️</span>
                 </div>
 
                 <div class="status-bar">
@@ -2256,8 +2270,10 @@
                     </div>
                     <div class="hpill" id="cat-pill" onclick="pillToggle('cat')" style="display:none;">
                         <span id="cat-pill-label">🐈</span>
-                        <span class="hpill-val" style="display:block; width:30px; height:4px; background:rgba(0,0,0,0.15); border-radius:2px; padding:0; overflow:hidden;">
-                            <span id="cat-pill-warmth-bar" style="display:block; height:100%; width:50%; background:#ffbd40; border-radius:2px; transition:width 0.5s;"></span>
+                        <span class="hpill-val"
+                            style="display:block; width:30px; height:4px; background:rgba(0,0,0,0.15); border-radius:2px; padding:0; overflow:hidden;">
+                            <span id="cat-pill-warmth-bar"
+                                style="display:block; height:100%; width:50%; background:#ffbd40; border-radius:2px; transition:width 0.5s;"></span>
                         </span>
                     </div>
                     <div class="hpill" id="pill-notif" onclick="NotificationSystem.togglePanel()">
@@ -2282,11 +2298,13 @@
         </header>
 
         <div id="card-fireplace-overlay" class="card ui-frozen" style="display:none;">
-            <img id="fireplace-visual-overlay" src="/img/hearth_base_dead.png" alt="" style="width:64px;height:64px;object-fit:cover;border-radius:6px;border:1px solid var(--ink-secondary, #6b5d4f);flex-shrink:0;">
+            <img id="fireplace-visual-overlay" src="/img/hearth_base_dead.png" alt=""
+                style="width:64px;height:64px;object-fit:cover;border-radius:6px;border:1px solid var(--ink-secondary, #6b5d4f);flex-shrink:0;">
             <div><strong id="fireplace-title-overlay">Vyhaslý Krb</strong>
                 <div id="fireplace-desc-overlay" class="text-sm">Je tu zima.</div>
             </div>
-            <button id="btn-ignite-overlay" class="craft-btn" onclick="Game.igniteFireplace()" data-i18n="fireplace.kindle">ROZEŽEHNOUT</button>
+            <button id="btn-ignite-overlay" class="craft-btn" onclick="Game.igniteFireplace()"
+                data-i18n="fireplace.kindle">ROZEŽEHNOUT</button>
         </div>
 
         <div id="notification-area"></div>
@@ -2311,11 +2329,13 @@
                 <div id="home-main-content">
 
                     <div id="card-fireplace" class="card ui-frozen">
-                        <img id="fireplace-visual" src="/img/hearth_base_dead.png" alt="" style="width:64px;height:64px;object-fit:cover;border-radius:6px;border:1px solid var(--ink-secondary, #6b5d4f);flex-shrink:0;">
+                        <img id="fireplace-visual" src="/img/hearth_base_dead.png" alt=""
+                            style="width:64px;height:64px;object-fit:cover;border-radius:6px;border:1px solid var(--ink-secondary, #6b5d4f);flex-shrink:0;">
                         <div><strong id="fireplace-title">Vyhaslý Krb</strong>
                             <div id="fireplace-desc" class="text-sm">Je tu zima.</div>
                         </div>
-                        <button id="btn-ignite" class="craft-btn" onclick="Game.igniteFireplace()" data-i18n="fireplace.kindle">ROZEŽEHNOUT</button>
+                        <button id="btn-ignite" class="craft-btn" onclick="Game.igniteFireplace()"
+                            data-i18n="fireplace.kindle">ROZEŽEHNOUT</button>
                     </div>
 
                     <div id="card-light-source" class="card" style="opacity: 0.5;">
@@ -2361,26 +2381,38 @@
                 <div id="home-cellarium-content" style="display:none;"></div>
                 <div id="home-athanor-content" style="display:none;"></div>
                 <div id="home-foculus-content" style="display:none;">
-                    <div id="foculus-locked" style="text-align:center; padding:30px; opacity:0.6; border:1px dashed rgba(197,160,89,0.3); border-radius:8px;">
+                    <div id="foculus-locked"
+                        style="text-align:center; padding:30px; opacity:0.6; border:1px dashed rgba(197,160,89,0.3); border-radius:8px;">
                         <div style="font-size:2rem; margin-bottom:10px;">🔒</div>
                         <div style="font-style:italic; font-size:0.9rem;" data-i18n="fireplace.foculusLocked"></div>
                     </div>
                     <div id="foculus-unlocked" style="display:none; position:relative;">
                         <div style="position:relative; width:300px; max-width:100%; margin:0 auto 14px;">
-                            <div id="fireplace-visual-foculus" style="display:block; width:300px; height:320px; max-width:100%; background-image:url('/img/hearth_base_dead.png'); background-size:100% 100%; background-repeat:no-repeat; border-radius:8px; border:1px solid var(--ink-secondary, #6b5d4f); image-rendering:pixelated;"></div>
-                            <div id="cat-lane-top" style="position:absolute; bottom:0; left:0; right:0; height:100px;"></div>
-                        </div>
-                        <div id="fireplace-fuel-panel" style="display:none; padding:12px; border:1px solid var(--ink-secondary); border-radius:8px;">
-                            <div style="display:flex; justify-content:space-between; font-size:0.9rem; margin-bottom:8px;">
-                                <strong id="fireplace-status-text" style="color:var(--ink-secondary);"></strong>
-                                <span id="fireplace-time-left" style="font-weight:bold; color:var(--accent-gold);">0h 0m</span>
+                            <div id="fireplace-visual-foculus"
+                                style="display:block; width:300px; height:320px; max-width:100%; background-image:url('/img/hearth_base_dead.png'); background-size:100% 100%; background-repeat:no-repeat; border-radius:8px; border:1px solid var(--ink-secondary, #6b5d4f); image-rendering:pixelated;">
                             </div>
-                            <div style="height:8px; background:rgba(0,0,0,0.2); border-radius:4px; overflow:hidden; margin-bottom:14px; border:1px solid rgba(197,160,89,0.3);">
-                                <div id="fireplace-fuel-bar" style="height:100%; width:0%; background:#ffbd40; transition:width 0.5s, background-color 0.5s;"></div>
+                            <div id="cat-lane-top" style="position:absolute; bottom:0; left:0; right:0; height:100px;">
+                            </div>
+                        </div>
+                        <div id="fireplace-fuel-panel"
+                            style="display:none; padding:12px; border:1px solid var(--ink-secondary); border-radius:8px;">
+                            <div
+                                style="display:flex; justify-content:space-between; font-size:0.9rem; margin-bottom:8px;">
+                                <strong id="fireplace-status-text" style="color:var(--ink-secondary);"></strong>
+                                <span id="fireplace-time-left" style="font-weight:bold; color:var(--accent-gold);">0h
+                                    0m</span>
+                            </div>
+                            <div
+                                style="height:8px; background:rgba(0,0,0,0.2); border-radius:4px; overflow:hidden; margin-bottom:14px; border:1px solid rgba(197,160,89,0.3);">
+                                <div id="fireplace-fuel-bar"
+                                    style="height:100%; width:0%; background:#ffbd40; transition:width 0.5s, background-color 0.5s;">
+                                </div>
                             </div>
                             <div style="display:flex; gap:8px;">
-                                <button class="filter-btn" onclick="FireplaceSystem.addFuel('stick')" id="btn-fuel-stick" style="flex:1;">+ Větev</button>
-                                <button class="filter-btn" onclick="FireplaceSystem.addFuel('log')" id="btn-fuel-log" style="flex:1;">+ Poleno</button>
+                                <button class="filter-btn" onclick="FireplaceSystem.addFuel('stick')"
+                                    id="btn-fuel-stick" style="flex:1;">+ Větev</button>
+                                <button class="filter-btn" onclick="FireplaceSystem.addFuel('log')" id="btn-fuel-log"
+                                    style="flex:1;">+ Poleno</button>
                             </div>
                         </div>
                         <div id="foculus-tea" style="display:none; margin-top:12px;"></div>
@@ -2392,10 +2424,10 @@
             <div id="screen-garden" class="screen" style="position:relative; max-width:100%; overflow-x:hidden;">
                 <h2 data-i18n="garden.title">Zahrada</h2>
                 <div class="filter-bar" style="margin-top:10px; margin-bottom:15px; flex-wrap: wrap; gap: 5px;">
-                    <button id="garden-tab-btn-dvur" class="filter-btn active" onclick="UI.switchGardenTab('dvur', this)"
-                        data-i18n="garden.tabDvur">🐄 Dvůr</button>
-                    <button id="garden-tab-btn-zahony" class="filter-btn"
-                        onclick="UI.switchGardenTab('zahony', this)" data-i18n="garden.tabZahony">🌱 Záhony</button>
+                    <button id="garden-tab-btn-dvur" class="filter-btn active"
+                        onclick="UI.switchGardenTab('dvur', this)" data-i18n="garden.tabDvur">🐄 Dvůr</button>
+                    <button id="garden-tab-btn-zahony" class="filter-btn" onclick="UI.switchGardenTab('zahony', this)"
+                        data-i18n="garden.tabZahony">🌱 Záhony</button>
                     <button id="garden-tab-btn-sad" class="filter-btn" onclick="UI.switchGardenTab('sad', this)"
                         data-i18n="garden.tabSad">🌳 Sad</button>
                     <button id="garden-tab-btn-apiarium" class="filter-btn"
@@ -2405,8 +2437,9 @@
                         data-i18n="garden.tabPiscina">🐟 Piscina</button>
                     <button id="garden-tab-btn-pole" class="filter-btn" onclick="UI.switchGardenTab('pole', this)"
                         data-i18n="garden.tabPole">🌾 Pole</button>
-                    <button id="garden-tab-btn-vinohrad" class="filter-btn" onclick="UI.switchGardenTab('vinohrad', this)"
-                        data-i18n="garden.tabVinohrad">🍇 Vinohrad</button>
+                    <button id="garden-tab-btn-vinohrad" class="filter-btn"
+                        onclick="UI.switchGardenTab('vinohrad', this)" data-i18n="garden.tabVinohrad">🍇
+                        Vinohrad</button>
                 </div>
 
                 <div id="garden-tab-zahony" style="display:none;">
@@ -2433,7 +2466,8 @@
                         <h3 data-i18n="wellUI.title">🚰 Správa Studny</h3>
 
                         <div id="well-not-built" style="display: none;">
-                            <p data-i18n="wellUI.notBuiltCellarium">Studnu postavíš v Cellarium → Budovy (sekce Dvůr).</p>
+                            <p data-i18n="wellUI.notBuiltCellarium">Studnu postavíš v Cellarium → Budovy (sekce Dvůr).
+                            </p>
                         </div>
 
                         <div id="well-built" style="display: none;">
@@ -2450,28 +2484,37 @@
 
                             <!-- Purity bar -->
                             <div style="margin-bottom: 12px;">
-                                <div style="display:flex; justify-content:space-between; font-size:0.85rem; margin-bottom:4px;">
+                                <div
+                                    style="display:flex; justify-content:space-between; font-size:0.85rem; margin-bottom:4px;">
                                     <strong data-i18n="wellUI.purity">Kvalita vody:</strong>
                                     <span id="well-purity-text">100 %</span>
                                 </div>
-                                <div style="height:10px; background:rgba(0,0,0,0.25); border-radius:5px; overflow:hidden;">
-                                    <div id="well-purity-bar" style="height:100%; width:100%; background:#4ade80; transition:width .3s;"></div>
+                                <div
+                                    style="height:10px; background:rgba(0,0,0,0.25); border-radius:5px; overflow:hidden;">
+                                    <div id="well-purity-bar"
+                                        style="height:100%; width:100%; background:#4ade80; transition:width .3s;">
+                                    </div>
                                 </div>
                             </div>
 
                             <!-- Water level bar -->
                             <div style="margin-bottom: 12px;">
-                                <div style="display:flex; justify-content:space-between; font-size:0.85rem; margin-bottom:4px;">
+                                <div
+                                    style="display:flex; justify-content:space-between; font-size:0.85rem; margin-bottom:4px;">
                                     <strong data-i18n="wellUI.waterLevel">Hladina:</strong>
                                     <span id="well-waterlevel-text">100 %</span>
                                 </div>
-                                <div style="height:10px; background:rgba(0,0,0,0.25); border-radius:5px; overflow:hidden;">
-                                    <div id="well-waterlevel-bar" style="height:100%; width:100%; background:#5a8dc7; transition:width .3s;"></div>
+                                <div
+                                    style="height:10px; background:rgba(0,0,0,0.25); border-radius:5px; overflow:hidden;">
+                                    <div id="well-waterlevel-bar"
+                                        style="height:100%; width:100%; background:#5a8dc7; transition:width .3s;">
+                                    </div>
                                 </div>
                             </div>
 
                             <!-- Frozen indicator (hidden unless frozen) -->
-                            <div id="well-frozen" style="display:none; margin-bottom:12px; padding:6px 10px; background:rgba(90,141,199,0.15); border-left:3px solid #5a8dc7; border-radius:4px; font-size:0.85rem; color:#5a8dc7;">
+                            <div id="well-frozen"
+                                style="display:none; margin-bottom:12px; padding:6px 10px; background:rgba(90,141,199,0.15); border-left:3px solid #5a8dc7; border-radius:4px; font-size:0.85rem; color:#5a8dc7;">
                                 ❄️ <span data-i18n="wellUI.frozen">Zamrzlá</span>
                             </div>
 
@@ -2479,7 +2522,8 @@
                             <div id="well-consumers" style="margin-bottom:8px; font-size:0.82rem; opacity:0.85;"></div>
 
                             <!-- Extra report info (výnos, grace, počítadla, předpověď) -->
-                            <div id="well-extra" style="margin-bottom:15px; font-size:0.82rem; opacity:0.85; line-height:1.7;"></div>
+                            <div id="well-extra"
+                                style="margin-bottom:15px; font-size:0.82rem; opacity:0.85; line-height:1.7;"></div>
 
                             <div style="display: flex; gap: 10px; flex-wrap: wrap;">
                                 <button onclick="WellSystem.cleanWell()" id="btn-clean-well" class="craft-btn"
@@ -2509,26 +2553,27 @@
                 <h2>Dílna</h2>
                 <div class="filter-bar"
                     style="margin-top:10px; margin-bottom:15px; display: flex; flex-wrap: wrap; gap: 5px;">
-                    <button id="craft-filter-all" class="filter-btn active"
-                        onclick="UI.filterCrafting('all', this)" data-i18n="craftFilter.all">Vše</button>
-                    <button id="craft-filter-stone" class="filter-btn"
-                        onclick="UI.filterCrafting('stone', this)" data-i18n="craftFilter.stone">🪨 Kamenné</button>
-                    <button id="craft-filter-iron" class="filter-btn"
-                        onclick="UI.filterCrafting('iron', this)" data-i18n="craftFilter.iron">⚒️ Železné</button>
-                    <button id="craft-filter-craft" class="filter-btn"
-                        onclick="UI.filterCrafting('craft', this)" data-i18n="craftFilter.craft">🪵 Řemeslo</button>
-                    <button id="craft-filter-fire" class="filter-btn"
-                        onclick="UI.filterCrafting('fire', this)" data-i18n="craftFilter.fire">🕯️ Oheň</button>
+                    <button id="craft-filter-all" class="filter-btn active" onclick="UI.filterCrafting('all', this)"
+                        data-i18n="craftFilter.all">Vše</button>
+                    <button id="craft-filter-stone" class="filter-btn" onclick="UI.filterCrafting('stone', this)"
+                        data-i18n="craftFilter.stone">🪨 Kamenné</button>
+                    <button id="craft-filter-iron" class="filter-btn" onclick="UI.filterCrafting('iron', this)"
+                        data-i18n="craftFilter.iron">⚒️ Železné</button>
+                    <button id="craft-filter-craft" class="filter-btn" onclick="UI.filterCrafting('craft', this)"
+                        data-i18n="craftFilter.craft">🪵 Řemeslo</button>
+                    <button id="craft-filter-fire" class="filter-btn" onclick="UI.filterCrafting('fire', this)"
+                        data-i18n="craftFilter.fire">🕯️ Oheň</button>
                     <button id="craft-filter-parchment" class="filter-btn"
-                        onclick="UI.filterCrafting('parchment', this)" data-i18n="craftFilter.parchment">📜 Pergamen</button>
-                    <button id="craft-filter-codex" class="filter-btn"
-                        onclick="UI.filterCrafting('codex', this)" data-i18n="craftFilter.codex">📖 Kodex</button>
-                    <button id="craft-filter-food" class="filter-btn"
-                        onclick="UI.filterCrafting('food', this)" data-i18n="craftFilter.food">🍖 Jídlo</button>
-                    <button id="craft-filter-alchemy" class="filter-btn"
-                        onclick="UI.filterCrafting('alchemy', this)" data-i18n="craftFilter.alchemy">⚗️ Alchymie</button>
-                    <button id="craft-filter-lore" class="filter-btn"
-                        onclick="UI.filterCrafting('lore', this)" data-i18n="craftFilter.lore">🎲 Vědění</button>
+                        onclick="UI.filterCrafting('parchment', this)" data-i18n="craftFilter.parchment">📜
+                        Pergamen</button>
+                    <button id="craft-filter-codex" class="filter-btn" onclick="UI.filterCrafting('codex', this)"
+                        data-i18n="craftFilter.codex">📖 Kodex</button>
+                    <button id="craft-filter-food" class="filter-btn" onclick="UI.filterCrafting('food', this)"
+                        data-i18n="craftFilter.food">🍖 Jídlo</button>
+                    <button id="craft-filter-alchemy" class="filter-btn" onclick="UI.filterCrafting('alchemy', this)"
+                        data-i18n="craftFilter.alchemy">⚗️ Alchymie</button>
+                    <button id="craft-filter-lore" class="filter-btn" onclick="UI.filterCrafting('lore', this)"
+                        data-i18n="craftFilter.lore">🎲 Vědění</button>
                 </div>
                 <div id="crafting-list"></div>
             </div>
@@ -2537,16 +2582,16 @@
                 <h2>Zásoby</h2>
                 <div id="inv-filter-bar" class="filter-bar"
                     style="margin-top:10px; margin-bottom:15px; display:none; flex-wrap: wrap; gap: 5px;">
-                    <button id="inv-filter-all" class="filter-btn active"
-                        onclick="UI.filterInventory('all', this)" data-i18n="invFilter.all">Vše</button>
-                    <button id="inv-filter-mat" class="filter-btn"
-                        onclick="UI.filterInventory('mat', this)" data-i18n="invFilter.mat">🌾 Suroviny</button>
-                    <button id="inv-filter-tool" class="filter-btn"
-                        onclick="UI.filterInventory('tool', this)" data-i18n="invFilter.tool">🔨 Nástroje</button>
-                    <button id="inv-filter-lore" class="filter-btn"
-                        onclick="UI.filterInventory('lore', this)" data-i18n="invFilter.lore">📜 Písemnosti</button>
-                    <button id="inv-filter-animal" class="filter-btn"
-                        onclick="UI.filterInventory('animal', this)" data-i18n="invFilter.animal">🐄 Zvířata</button>
+                    <button id="inv-filter-all" class="filter-btn active" onclick="UI.filterInventory('all', this)"
+                        data-i18n="invFilter.all">Vše</button>
+                    <button id="inv-filter-mat" class="filter-btn" onclick="UI.filterInventory('mat', this)"
+                        data-i18n="invFilter.mat">🌾 Suroviny</button>
+                    <button id="inv-filter-tool" class="filter-btn" onclick="UI.filterInventory('tool', this)"
+                        data-i18n="invFilter.tool">🔨 Nástroje</button>
+                    <button id="inv-filter-lore" class="filter-btn" onclick="UI.filterInventory('lore', this)"
+                        data-i18n="invFilter.lore">📜 Písemnosti</button>
+                    <button id="inv-filter-animal" class="filter-btn" onclick="UI.filterInventory('animal', this)"
+                        data-i18n="invFilter.animal">🐄 Zvířata</button>
                     <button id="inv-filter-food" class="filter-btn" style="display:none;"
                         onclick="UI.filterInventory('food', this)" data-i18n="invFilter.food">🍖 Jídlo</button>
                     <button id="inv-filter-alchemy" class="filter-btn" style="display:none;"
@@ -2575,17 +2620,19 @@
                         style="margin-top:10px; margin-bottom:15px; display: flex; flex-wrap: wrap; gap: 5px;">
                         <button id="lore-tab-research" class="filter-btn active"
                             onclick="UI.switchLoreTab('research', this)" data-i18n="lore.tabResearch">Research</button>
-                        <button id="lore-tab-codex" class="filter-btn"
-                            onclick="UI.switchLoreTab('codex', this)" data-i18n="lore.tabCodex">Codex</button>
-                        <button id="lore-tab-notebooks" class="filter-btn"
-                            onclick="UI.switchLoreTab('notebooks', this)" data-i18n="lore.tabNotebooks">📓 Zápisníky</button>
+                        <button id="lore-tab-codex" class="filter-btn" onclick="UI.switchLoreTab('codex', this)"
+                            data-i18n="lore.tabCodex">Codex</button>
+                        <button id="lore-tab-notebooks" class="filter-btn" onclick="UI.switchLoreTab('notebooks', this)"
+                            data-i18n="lore.tabNotebooks">📓 Zápisníky</button>
                         <button id="lore-tab-achievements" class="filter-btn"
-                            onclick="UI.switchLoreTab('achievements', this)" data-i18n="lore.tabAchievements">Achievementy</button>
-                        <button id="lore-tab-iching" class="filter-btn" onclick="UI.switchLoreTab('iching', this)" data-i18n="lore.tabIching">☯️ Věštění</button>
+                            onclick="UI.switchLoreTab('achievements', this)"
+                            data-i18n="lore.tabAchievements">Achievementy</button>
+                        <button id="lore-tab-iching" class="filter-btn" onclick="UI.switchLoreTab('iching', this)"
+                            data-i18n="lore.tabIching">☯️ Věštění</button>
                         <button id="lore-tab-calendarium" class="filter-btn"
                             onclick="UI.switchLoreTab('calendarium', this)">📅 Calendarium</button>
-                        <button id="lore-tab-persona" class="filter-btn"
-                            onclick="UI.switchLoreTab('persona', this)">🧑 Persona</button>
+                        <button id="lore-tab-persona" class="filter-btn" onclick="UI.switchLoreTab('persona', this)">🧑
+                            Persona</button>
                     </div>
                     <div id="lore-research-content" style="margin-top:20px;"></div>
                     <div id="lore-codex-content" style="margin-top:20px; display:none;"></div>
@@ -3062,8 +3109,8 @@
                 if (id === 'weather') {
                     var wc = (typeof WeatherSystem !== 'undefined') ? WeatherSystem.cache : null;
                     if (wc) {
-                        var days = ['Ne','Po','Út','St','Čt','Pá','So'];
-                        var months = ['led','úno','bře','dub','kvě','čvn','čvc','srp','zář','říj','lis','pro'];
+                        var days = ['Ne', 'Po', 'Út', 'St', 'Čt', 'Pá', 'So'];
+                        var months = ['led', 'úno', 'bře', 'dub', 'kvě', 'čvn', 'čvc', 'srp', 'zář', 'říj', 'lis', 'pro'];
                         var curTemp = Math.round(wc.current.temperature_2m);
                         var curWind = wc.current.wind_speed_10m ? Math.round(wc.current.wind_speed_10m) + ' km/h' : '';
                         var curEmoji = WeatherSystem.getWeatherEmoji(wc.current.weather_code);
