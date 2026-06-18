@@ -66,12 +66,13 @@ const ChroniconSystem = {
             return;
         }
 
-        // Abbot message → toast (jen jednou)
+        // Abbot message → toast + kanál zpráv (jen jednou)
         if (snap.abbot && snap.abbot.message) {
             const toastKey = 'chronicon_abbot_' + snap.generated;
             if (!localStorage.getItem(toastKey)) {
                 if (typeof NotificationSystem !== 'undefined') {
                     NotificationSystem.toast('✝️ ' + snap.abbot.message, 'warn');
+                    NotificationSystem.panel('✝️ ' + snap.abbot.message, 'chronicon');
                 }
                 localStorage.setItem(toastKey, '1');
             }
