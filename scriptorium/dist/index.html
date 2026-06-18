@@ -8979,8 +8979,9 @@ const NotificationSystem = {
     // ─── Ikony kategorií ────────────────────────────────────────────────────
     _catIcon: function(cat) {
         const map = {
-            sklad:   '📦', dvur: '🐄', athanor: '⚗️',
-            obchod:  '💰', udalost: '📜', system: '🔔',
+            sklad:     '📦', dvur: '🐄', athanor: '⚗️',
+            obchod:    '💰', udalost: '📜', system: '🔔',
+            chronicon: '🕊️',
         };
         return map[cat] || '🔔';
     },
@@ -8989,7 +8990,7 @@ const NotificationSystem = {
         const key = 'notifications.cat_' + cat;
         const val = (typeof t === 'function') ? t(key) : null;
         if (val && val !== key) return val;
-        const fallback = { sklad: 'sklad', dvur: 'dvůr', athanor: 'athanor', obchod: 'obchod', udalost: 'událost', system: 'systém', postup: 'postup' };
+        const fallback = { sklad: 'sklad', dvur: 'dvůr', athanor: 'athanor', obchod: 'obchod', udalost: 'událost', system: 'systém', postup: 'postup', chronicon: 'zprávy světa' };
         return fallback[cat] || cat;
     },
 
@@ -9438,6 +9439,147 @@ const NotificationSystem = {
         document.head.appendChild(style);
     },
 };
+// ═══ src/systems/ChroniconSystem.js ═══
+// ============================================
+//  ChroniconSystem
+//  Fetchuje chronicon_snapshot.json z GitHubu.
+//  Injectuje chronicle záznamy do NotificationSystem
+//  jako kategorii 'chronicon'.
+//  Read-only — nikdy nepíše do GameState.
+// ============================================
+
+const ChroniconSystem = {
+
+    URL:       'https://raw.githubusercontent.com/ondrex-ember/chronicon/main/data/chronicon_snapshot.json',
+    CACHE_KEY: 'scriptorium_chronicon_v2',
+    SEEN_KEY:  'scriptorium_chronicon_seen',
+    TTL:       6 * 60 * 60 * 1000,   // 6 hodin v ms
+
+    _snap: null,
+
+    init: function() {
+        const cached = ChroniconSystem._loadCache();
+        if (cached) {
+            ChroniconSystem._snap = cached;
+            ChroniconSystem._apply(cached);
+        }
+        // Vždy zkus fetch — pokud je cache čerstvá, server odpoví rychle z CDN
+        ChroniconSystem._fetch();
+    },
+
+    // ─── Fetch ──────────────────────────────────────────────────────────────
+
+    _fetch: function() {
+        const cacheRaw = localStorage.getItem(ChroniconSystem.CACHE_KEY);
+        if (cacheRaw) {
+            try {
+                const c = JSON.parse(cacheRaw);
+                if (c._fetched && (Date.now() - c._fetched) < ChroniconSystem.TTL) {
+                    return; // Cache je čerstvá, nefetchuj
+                }
+            } catch(e) {}
+        }
+
+        fetch(ChroniconSystem.URL)
+            .then(function(r) {
+                if (!r.ok) throw new Error('HTTP ' + r.status);
+                return r.json();
+            })
+            .then(function(snap) {
+                snap._fetched = Date.now();
+                localStorage.setItem(ChroniconSystem.CACHE_KEY, JSON.stringify(snap));
+                ChroniconSystem._snap = snap;
+                ChroniconSystem._apply(snap);
+            })
+            .catch(function(err) {
+                // Tiché selhání — hra funguje bez CHRONICONu
+                console.warn('[CHRONICON] Fetch selhal:', err.message);
+            });
+    },
+
+    // ─── Apply snapshot ─────────────────────────────────────────────────────
+
+    _apply: function(snap) {
+        if (!snap || !snap.chronicle) return;
+
+        // Kontrola valid_until
+        if (snap.valid_until && new Date(snap.valid_until) < new Date()) {
+            console.warn('[CHRONICON] Snapshot expiroval.');
+            return;
+        }
+
+        // Abbot message → toast (jen jednou)
+        if (snap.abbot && snap.abbot.message) {
+            const toastKey = 'chronicon_abbot_' + snap.generated;
+            if (!localStorage.getItem(toastKey)) {
+                if (typeof NotificationSystem !== 'undefined') {
+                    NotificationSystem.toast('✝️ ' + snap.abbot.message, 'warn');
+                }
+                localStorage.setItem(toastKey, '1');
+            }
+        }
+
+        // Chronicle záznamy → NotificationSystem.panel()
+        const seen = ChroniconSystem._loadSeen();
+        let added  = 0;
+
+        // Záznamy jsou od nejnovějšího — injectujeme od nejstaršího
+        const entries = [...snap.chronicle].reverse();
+
+        entries.forEach(function(entry) {
+            const id = ChroniconSystem._entryId(entry);
+            if (seen[id]) return; // Už viděno
+
+            if (typeof NotificationSystem !== 'undefined') {
+                const icon = entry.icon ? entry.icon + ' ' : '';
+                NotificationSystem.panel(icon + entry.text, 'chronicon');
+            }
+
+            seen[id] = 1;
+            added++;
+        });
+
+        if (added > 0) {
+            ChroniconSystem._saveSeen(seen);
+        }
+    },
+
+    // ─── Cache helpers ───────────────────────────────────────────────────────
+
+    _loadCache: function() {
+        try {
+            const raw = localStorage.getItem(ChroniconSystem.CACHE_KEY);
+            if (!raw) return null;
+            return JSON.parse(raw);
+        } catch(e) { return null; }
+    },
+
+    _loadSeen: function() {
+        try {
+            const raw = localStorage.getItem(ChroniconSystem.SEEN_KEY);
+            return raw ? JSON.parse(raw) : {};
+        } catch(e) { return {}; }
+    },
+
+    _saveSeen: function(seen) {
+        // Udržuj max 500 seen ID — ořež nejstarší pokud přesáhne
+        const keys = Object.keys(seen);
+        if (keys.length > 500) {
+            const trimmed = {};
+            keys.slice(-400).forEach(function(k) { trimmed[k] = 1; });
+            localStorage.setItem(ChroniconSystem.SEEN_KEY, JSON.stringify(trimmed));
+        } else {
+            localStorage.setItem(ChroniconSystem.SEEN_KEY, JSON.stringify(seen));
+        }
+    },
+
+    _entryId: function(entry) {
+        // Unikátní ID ze source + tick + prvních 20 znaků textu
+        return (entry.source || '') + '_' + (entry.tick || 0) + '_' + (entry.text || '').substring(0, 20);
+    },
+
+};
+
 // ═══ src/systems/events.js ═══
 const EventsSystem = {
     events: [
@@ -32402,11 +32544,11 @@ const LangSystem = {
 // ═══ src/core/game.js ═══
 const Game = {
     _scavenging: false,
-    init: function () {
+    init: function() {
         Game.load();
 
         // --- INJEKCE CSS PRO HINT BTN-IGNITE ---
-        (function () {
+        (function() {
             const style = document.createElement('style');
             style.textContent = [
                 '#btn-ignite.btn-ignite--hint, #btn-ignite-overlay.btn-ignite--hint {',
@@ -32499,7 +32641,7 @@ const Game = {
         if (!GameState.kronikaDailyBuffer.date) GameState.kronikaDailyBuffer.date = _todayStr;
 
         // --- 1. ZÁPISNÍKY (Přidání do hlavního savu) ---
-        if (!GameState.notebooks) {
+        if(!GameState.notebooks) {
             GameState.notebooks = {
                 migrated: false,
                 tabula: [],
@@ -32512,7 +32654,7 @@ const Game = {
         GameState.notebooks.tabula = []; // Vosková destička se smaže vždy po probuzení
 
         // --- 2. I-CHING (Sjednocení dat) ---
-        if (!GameState.iching) {
+        if(!GameState.iching) {
             GameState.iching = {
                 lastCast: 0,
                 effect: null,
@@ -32522,7 +32664,7 @@ const Game = {
         if (!GameState.flags.fireplaceLit && (GameState.inventory['tinderbox'] || 0) <= 0) {
             GameState.inventory['tinderbox'] = 1;
         }
-
+        
         // Migrace hunger → Vigor systém v2
         if (GameState.hunger && typeof GameState.satiety === 'undefined') {
             GameState.satiety = GameState.hunger.fed ? 70 : 20;
@@ -32530,44 +32672,44 @@ const Game = {
         if (GameState.hunger) delete GameState.hunger;
         if (typeof GameState.satiety === 'undefined') GameState.satiety = 80;
         if (typeof GameState.fatigue === 'undefined') GameState.fatigue = 0;
-
+        
         // Migrace zahrady na novou strukturu (14 slotů)
         // Starý save (≤4 sloty) → doplnit na novou strukturu
         const _gardenTarget = [
-            { cropType: 'herb' }, { cropType: 'herb' },
-            { cropType: 'herb', locked: true }, { cropType: 'herb', locked: true },
-            { cropType: 'vegetable', locked: true }, { cropType: 'vegetable', locked: true },
-            { cropType: 'vegetable', locked: true }, { cropType: 'vegetable', locked: true },
-            { cropType: 'special', locked: true }, { cropType: 'special', locked: true },
-            { cropType: 'vegetable', locked: true }, { cropType: 'vegetable', locked: true },
-            { cropType: 'vegetable', locked: true }, { cropType: 'vegetable', locked: true },
+            {cropType:'herb'}, {cropType:'herb'},
+            {cropType:'herb',locked:true}, {cropType:'herb',locked:true},
+            {cropType:'vegetable',locked:true}, {cropType:'vegetable',locked:true},
+            {cropType:'vegetable',locked:true}, {cropType:'vegetable',locked:true},
+            {cropType:'special',locked:true}, {cropType:'special',locked:true},
+            {cropType:'vegetable',locked:true}, {cropType:'vegetable',locked:true},
+            {cropType:'vegetable',locked:true}, {cropType:'vegetable',locked:true},
         ];
         while (GameState.garden.length < _gardenTarget.length) {
             const tpl = _gardenTarget[GameState.garden.length];
-            GameState.garden.push({ state: 0, water: false, crop: null, plantedAt: 0, cropType: tpl.cropType, locked: !!tpl.locked });
+            GameState.garden.push({ state:0, water:false, crop:null, plantedAt:0, cropType:tpl.cropType, locked:!!tpl.locked });
         }
-
+        
         // Add cropType to existing plots if missing
         GameState.garden.forEach((plot, idx) => {
-            if (!plot.cropType) {
-                if (idx === 0 || idx === 1) plot.cropType = 'herb';
-                else if (idx === 2) plot.cropType = 'vegetable';
-                else if (idx === 3) plot.cropType = 'special';
-                else if (idx === 4 || idx === 5) plot.cropType = 'herb';
+            if(!plot.cropType) {
+                if(idx === 0 || idx === 1) plot.cropType = 'herb';
+                else if(idx === 2) plot.cropType = 'vegetable';
+                else if(idx === 3) plot.cropType = 'special';
+                else if(idx === 4 || idx === 5) plot.cropType = 'herb';
                 else plot.cropType = 'vegetable';
             }
-            if (plot.locked === undefined) {
+            if(plot.locked === undefined) {
                 plot.locked = (idx >= 2);
             }
         });
-
+        
         // Initialize discoveredLore if not present
-        if (!GameState.discoveredLore) {
+        if(!GameState.discoveredLore) {
             GameState.discoveredLore = [];
         }
-
+        
         // Initialize dailyRewards if not present
-        if (!GameState.dailyRewards) {
+        if(!GameState.dailyRewards) {
             GameState.dailyRewards = {
                 lastLogin: 0,
                 streak: 0,
@@ -32575,9 +32717,9 @@ const Game = {
                 totalLogins: 0
             };
         }
-
+        
         // Initialize achievements if not present
-        if (!GameState.achievements) {
+        if(!GameState.achievements) {
             GameState.achievements = {
                 unlocked: [],
                 stats: {
@@ -32587,18 +32729,18 @@ const Game = {
                     harvests: 0,
                     researchCount: 0,
                     totalResearchGained: 0,
-
+                    
                     // Survival
                     fireplaceCount: 0,
                     daysWithFire: 0,
                     daysWithoutHunger: 0,
                     mealsEaten: 0,
                     candlesLit: 0,
-
+                    
                     // Actions
                     actionsCompleted: 0,
                     actionsFailed: 0,
-
+                    
                     // Games
                     memoryGamesWon: 0,
                     urGamesWon: 0,
@@ -32607,15 +32749,15 @@ const Game = {
                     freecellGamesWon: 0,
                     rithmoGamesWon: 0,
                     totalGamesPlayed: 0,
-
+                    
                     // Spiritual
                     hoursAttended: 0,
                     ichingCasts: 0,
-
+                    
                     // Well
                     wellUses: 0,
                     wellCleans: 0,
-
+                    
                     // Max Values
                     maxInventoryItems: 0,
                     maxResearchHeld: 0,
@@ -32623,9 +32765,9 @@ const Game = {
                 }
             };
         }
-
+        
         // Migration for old saves
-        if (GameState.achievements && !GameState.achievements.stats.totalGamesPlayed) {
+        if(GameState.achievements && !GameState.achievements.stats.totalGamesPlayed) {
             Object.assign(GameState.achievements.stats, {
                 totalResearchGained: GameState.achievements.stats.researchCount || 0,
                 mealsEaten: 0,
@@ -32648,9 +32790,9 @@ const Game = {
                 longestStreak: GameState.dailyRewards?.streak || 0
             });
         }
-
+        
         // Initialize library if not present
-        if (!GameState.library) {
+        if(!GameState.library) {
             GameState.library = {
                 startDate: Date.now(),
                 unlockedBooks: [],
@@ -32662,102 +32804,102 @@ const Game = {
                 }
             };
         }
-        // Initialize well if not present (přesun do WellSystem._ensureState)
-        WellSystem._ensureState();
+		// Initialize well if not present (přesun do WellSystem._ensureState)
+		WellSystem._ensureState();
 
-        // Initialize storage buildings
-        if (!GameState.storage) {
-            GameState.storage = { almarium: { built: false }, cella: { built: false }, horreum: { built: false } };
-        }
+		// Initialize storage buildings
+		if (!GameState.storage) {
+			GameState.storage = { almarium: { built: false }, cella: { built: false }, horreum: { built: false } };
+		}
 
-        // Initialize feeding system
-        if (!GameState.feeding) GameState.feeding = {};
+		// Initialize feeding system
+		if (!GameState.feeding) GameState.feeding = {};
 
-        // Initialize tool uses tracking
-        if (!GameState.toolUses) GameState.toolUses = {};
+		// Initialize tool uses tracking
+		if (!GameState.toolUses) GameState.toolUses = {};
 
-        // Migrate guard — doplnit chybějící unlocks ze všech již odemčených techů
-        if (typeof TechTree !== 'undefined' && GameState.researchedTechs) {
-            GameState.researchedTechs.forEach(techId => {
-                const tech = TechTree.find(t => t.id === techId);
-                if (!tech || !tech.unlocks) return;
-                tech.unlocks.forEach(rid => {
-                    if (!GameState.unlockedRecipes.includes(rid)) {
-                        GameState.unlockedRecipes.push(rid);
-                    }
-                });
-            });
-        }
+		// Migrate guard — doplnit chybějící unlocks ze všech již odemčených techů
+		if (typeof TechTree !== 'undefined' && GameState.researchedTechs) {
+			GameState.researchedTechs.forEach(techId => {
+				const tech = TechTree.find(t => t.id === techId);
+				if (!tech || !tech.unlocks) return;
+				tech.unlocks.forEach(rid => {
+					if (!GameState.unlockedRecipes.includes(rid)) {
+						GameState.unlockedRecipes.push(rid);
+					}
+				});
+			});
+		}
 
-        // Initialize henhouse (Gallinarium)
-        if (!GameState.henhouse) {
-            GameState.henhouse = {
-                built: false,
-                hens: [],
-                rooster: false,
-                nesting: null,
-                chickPool: 0,
-                lastEggAt: 0,
-                lastFeatherAt: 0,
-                lastFedAt: 0
-            };
-        }
+		// Initialize henhouse (Gallinarium)
+		if(!GameState.henhouse) {
+			GameState.henhouse = {
+				built: false,
+				hens: [],
+				rooster: false,
+				nesting: null,
+				chickPool: 0,
+				lastEggAt: 0,
+				lastFeatherAt: 0,
+				lastFedAt: 0
+			};
+		}
 
-        // Initialize sheepfold (Ovile)
-        if (!GameState.sheepfold) {
-            GameState.sheepfold = {
-                built: false,
-                sheep: 0,
-                breeding: null,
-                lambPool: 0,
-                lastMilkAt: 0,
-                lastWoolAt: 0,
-                lastFedAt: 0,
-                lastWateredAt: 0
-            };
-        }
+		// Initialize sheepfold (Ovile)
+		if(!GameState.sheepfold) {
+			GameState.sheepfold = {
+				built: false,
+				sheep: 0,
+				breeding: null,
+				lambPool: 0,
+				lastMilkAt: 0,
+				lastWoolAt: 0,
+				lastFedAt: 0,
+				lastWateredAt: 0
+			};
+		}
 
-        // Initialize piscina (Rybník)
-        if (!GameState.piscina) {
-            GameState.piscina = {
-                tier: 0,
-                fry: 0,
-                youngCarp: 0,
-                carp: 0,
-                lastFedAt: 0,
-                fryAddedAt: 0,
-                youngAddedAt: 0,
-                lastFryProductionAt: 0,
-                pendingFry: 0,
-            };
-        }
-
+		// Initialize piscina (Rybník)
+		if(!GameState.piscina) {
+			GameState.piscina = {
+				tier: 0,
+				fry: 0,
+				youngCarp: 0,
+				carp: 0,
+				lastFedAt: 0,
+				fryAddedAt: 0,
+				youngAddedAt: 0,
+				lastFryProductionAt: 0,
+				pendingFry: 0,
+			};
+		}
+        
         // Initialize theme settings if not present
-        if (!GameState.settings.theme) {
+        if(!GameState.settings.theme) {
             GameState.settings.theme = 'default';
         }
-        if (GameState.settings.autoTheme === undefined) {
+        if(GameState.settings.autoTheme === undefined) {
             GameState.settings.autoTheme = false;
         }
-
+        
         // Fire volume default (v7.9)
-        if (GameState.settings.fireVolume === undefined) {
+        if(GameState.settings.fireVolume === undefined) {
             GameState.settings.fireVolume = 0.5;  // 50% default
         }
 
         // Music defaults (v8.x)
-        if (GameState.settings.musicEnabled === undefined) {
+        if(GameState.settings.musicEnabled === undefined) {
             GameState.settings.musicEnabled = true;
         }
-        if (GameState.settings.musicVolume === undefined) {
+        if(GameState.settings.musicVolume === undefined) {
             GameState.settings.musicVolume = 0.5;
         }
 
         // Language default + URL param detection (i18n)
-        if (!GameState.settings.language) {
+        if(!GameState.settings.language) {
             GameState.settings.language = 'cs';
         }
-        if (GameState.settings.langChosen === undefined) {
+        if(GameState.settings.langChosen === undefined) {
             // Starý save = hráč hrál v CZ, považujeme za zvoleno
             GameState.settings.langChosen = !GameState.flags.firstVisit;
         }
@@ -32768,26 +32910,26 @@ const Game = {
             GameState.settings.langChosen = true;
         }
         LangSystem.apply(GameState.settings.language);
-        document.querySelectorAll('[data-i18n]').forEach(el => {
-            if (el) el.innerHTML = t(el.getAttribute('data-i18n'));
+	document.querySelectorAll('[data-i18n]').forEach(el => {
+            if(el) el.innerHTML = t(el.getAttribute('data-i18n'));
         });
         document.querySelectorAll('[data-i18n-title]').forEach(el => {
-            if (el) el.title = t(el.getAttribute('data-i18n-title'));
+            if(el) el.title = t(el.getAttribute('data-i18n-title'));
         });
-
+        
         // Initialize weather system FIRST (needed by auto-theme)
         WeatherSystem.init();
-
+        
         // Initialize theme system (may depend on weather)
         ThemeSystem.init();
         HeaderImageSystem.init();
-
+        
         // Initialize notebook system
         NotebookSystem.init();
-
+        
         // v7.5: Initialize Canonical Hours system
         CanonicalHours.init();
-
+        
         // v8.0: Initialize new systems BEFORE renderAll (GameState must be ready)
         RankSystem.init();
         VigorSystem.init();
@@ -32796,19 +32938,20 @@ const Game = {
         SecretsSystem.init();
         AthanorSystem.init();
         NotificationSystem.init();
-
+        ChroniconSystem.init();
+        
         // NOW render UI (after theme is set and all systems initialized)
-        UI.renderAll();
+        UI.renderAll(); 
         Game.checkEnvironment();
-
+        
         VigorSystem.renderMiniDisplay();
 
         // Consent banner – musí být až po načtení UI
         ConsentManager.init();
-
+        
         // Update time display AFTER UI is rendered
         TimeSys.update();
-
+        
         // Check daily reward AFTER UI render (only from 2nd session onwards)
         setTimeout(() => {
             if (!GameState.flags.firstVisit) {
@@ -32816,7 +32959,7 @@ const Game = {
             }
             if (typeof CalendarSystem !== 'undefined') CalendarSystem.checkCalendarEvents();
         }, 500);
-
+        
         document.body.addEventListener('click', () => {
             if (!audioSys) audioSys = new AudioSystem();
             audioSys.start(); // resume + fire + music handled in _startAfterResume()
@@ -32827,7 +32970,7 @@ const Game = {
             const musicSlider = document.getElementById('music-volume-slider');
             if (musicSlider) musicSlider.value = Math.round((GameState.settings.musicVolume ?? 0.5) * 100);
         }, { once: true });
-
+        
         // ========== NEW: Hour chime event listeners ==========
         const hourChimeBasic = document.getElementById('hour-chime-basic');
         if (hourChimeBasic) {
@@ -32836,14 +32979,14 @@ const Game = {
                 Game.save();
             });
         }
-
+        
         document.querySelectorAll('input[name="chimeMode"]').forEach(radio => {
             radio.addEventListener('change', (e) => {
                 GameState.settings.hourChimeMode = e.target.value;
                 Game.save();
             });
         });
-
+        
         const chimeSound = document.getElementById('chime-sound');
         if (chimeSound) {
             chimeSound.addEventListener('change', (e) => {
@@ -32851,7 +32994,7 @@ const Game = {
                 Game.save();
             });
         }
-
+        
         const quietEnabled = document.getElementById('quiet-hours-enabled');
         if (quietEnabled) {
             quietEnabled.addEventListener('change', (e) => {
@@ -32859,7 +33002,7 @@ const Game = {
                 Game.save();
             });
         }
-
+        
         const quietStart = document.getElementById('quiet-hours-start');
         if (quietStart) {
             quietStart.addEventListener('change', (e) => {
@@ -32867,7 +33010,7 @@ const Game = {
                 Game.save();
             });
         }
-
+        
         const quietEnd = document.getElementById('quiet-hours-end');
         if (quietEnd) {
             quietEnd.addEventListener('change', (e) => {
@@ -32875,12 +33018,12 @@ const Game = {
                 Game.save();
             });
         }
-
+        
         // Time update with error protection
         let _tickCounter = 0;
-        setInterval(() => {
+        setInterval(() => { 
             try {
-                TimeSys.update();
+                TimeSys.update(); 
                 if (typeof FireplaceSystem !== 'undefined') FireplaceSystem.tick();
                 if (typeof ScriptoriumCat !== 'undefined') ScriptoriumCat.warmthTick();
                 Game.checkEnvironment();
@@ -32910,20 +33053,20 @@ const Game = {
                     Game.checkFarmyardProduction();
                     Game.checkPiscinaGrowth();
                 }
-            } catch (e) {
+            } catch(e) {
                 console.error('Time update error:', e);
             }
         }, 1000);
-
+		
     },
-    save: function () { try { GameState.lastSeen = Date.now(); localStorage.setItem('scriptorium_save_v6_4', JSON.stringify(GameState)); } catch (e) { } },
-    load: function () {
+    save: function() { try { GameState.lastSeen = Date.now(); localStorage.setItem('scriptorium_save_v6_4', JSON.stringify(GameState)); } catch(e){} },
+    load: function() {
         try {
             const data = localStorage.getItem('scriptorium_save_v6_4');
             if (!data) return;
-
+            
             const loadedState = JSON.parse(data);
-
+            
             // Deep merge instead of Object.assign
             function deepMerge(target, source) {
                 for (let key in source) {
@@ -32935,23 +33078,23 @@ const Game = {
                     }
                 }
             }
-
+            
             deepMerge(GameState, loadedState);
             console.log('✅ Save loaded successfully!');
 
             // Sync: retroaktivně doplnit unlocks z hotových techů (řeší unlocks přidané po researchi)
             this.syncTechUnlocks();
-
-        } catch (e) {
+            
+        } catch(e) {
             console.error('❌ Load error:', e);
         }
     },
-
-
-    resetSave: function () { if (confirm(t('game.confirmReset'))) { try { localStorage.removeItem('scriptorium_save_v6_4'); } catch (e) { } location.reload(); } },
+    
+    
+    resetSave: function() { if(confirm(t('game.confirmReset'))) { try { localStorage.removeItem('scriptorium_save_v6_4'); } 	catch(e){} location.reload(); } },
 
     // Retroaktivní sync: každý researchnutý tech musí mít své unlocks v unlockedRecipes
-    syncTechUnlocks: function () {
+    syncTechUnlocks: function() {
         if (!GameState.researchedTechs || typeof TechTree === 'undefined') return;
         if (!GameState.unlockedRecipes) GameState.unlockedRecipes = [];
         let added = 0;
@@ -32968,35 +33111,32 @@ const Game = {
         if (added) console.log(`🔧 syncTechUnlocks: doplněno ${added} chybějících unlocků.`);
     },
 
-    setVolume: function (val) { if (audioSys) audioSys.setVolume(val); },
-    setFireVolume: function (val) {
+    setVolume: function(val) { if(audioSys) audioSys.setVolume(val); },
+    setFireVolume: function(val) { 
         const volume = parseInt(val) / 100;
         GameState.settings.fireVolume = volume;
-        if (audioSys) audioSys.setFireVolume(volume);
+        if(audioSys) audioSys.setFireVolume(volume);
         this.save();
     },
-    setMusicEnabled: function (enabled) {
+    setMusicEnabled: function(enabled) {
         GameState.settings.musicEnabled = enabled;
-        if (audioSys) audioSys.setMusicEnabled(enabled);
+        if(audioSys) audioSys.setMusicEnabled(enabled);
         this.save();
     },
-    toggleSound: function () {
-        if (audioSys) audioSys.toggleMute();
-    },
-    setMusicVolume: function (val) {
+    setMusicVolume: function(val) {
         const volume = parseInt(val) / 100;
         GameState.settings.musicVolume = volume;
-        if (audioSys) audioSys.setMusicVolume(val);
+        if(audioSys) audioSys.setMusicVolume(val);
         this.save();
     },
-    setMusicTier: function (tier) {
+    setMusicTier: function(tier) {
         tier = parseInt(tier);
         GameState.settings.musicTier = tier;
-        if (audioSys) audioSys.switchMusicTier(tier);
+        if(audioSys) audioSys.switchMusicTier(tier);
         this.save();
     },
-    setTheme: function (themeName) {
-        if (themeName === 'auto') {
+    setTheme: function(themeName) {
+        if(themeName === 'auto') {
             GameState.settings.autoTheme = true;
             ThemeSystem.updateAutoTheme();
         } else {
@@ -33004,13 +33144,13 @@ const Game = {
             ThemeSystem.applyTheme(themeName);
         }
     },
-    setLanguage: function (lang) {
+	setLanguage: function(lang) {
         if (lang !== 'cs' && lang !== 'en') return;
         const prev = GameState.settings.language || 'cs';
         GameState.settings.language = lang;
         LangSystem.apply(lang);
         Game.checkEnvironment(); // Refresh fireplace/light strings
-
+        
         // MAGICKÝ TRIK PRO STATICKÉ HTML
         document.querySelectorAll('[data-i18n]').forEach(el => {
             el.innerHTML = t(el.getAttribute('data-i18n'));
@@ -33024,19 +33164,19 @@ const Game = {
         Game.save();
         UI.renderAll(); // <--- TOTO PŘIDAT!
     },
-    setDuration: function (min, btn) {
+    setDuration: function(min, btn) {
         GameState.selectedDuration = min;
         document.querySelectorAll('.time-btn').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
         UI.renderActions();
     },
-    igniteFireplace: function () {
+    igniteFireplace: function() {
         if (!GameState.inventory['tinderbox']) { UI.notify(t('game.noTinderbox'), true); return; }
         this.removeItem('tinderbox', 1);
         const isFirstTime = !GameState.achievements?.stats?.fireplaceCount;
         GameState.flags.fireplaceLit = true;
         GameState.flags.forceDark = false;
-        if (GameState.achievements) GameState.achievements.stats.fireplaceCount++;
+        if(GameState.achievements) GameState.achievements.stats.fireplaceCount++;
         if (typeof FireplaceSystem !== 'undefined') {
             if (!GameState.fire) GameState.fire = { active: false, fuelMs: 0, lastUpdate: Date.now() };
             GameState.fire.active = true;
@@ -33044,34 +33184,34 @@ const Game = {
             GameState.fire.lastUpdate = Date.now();
         }
         UI.notifyPanel(t('game.fireKindled'), 'system');
-        if (!audioSys) { try { audioSys = new AudioSystem(); audioSys.start(); } catch (e) { } }
-        if (audioSys) audioSys.startFireLoop(false);
+        if (!audioSys) { try { audioSys = new AudioSystem(); audioSys.start(); } catch(e) {} }
+        if(audioSys) audioSys.startFireLoop(false);
         Analytics.fireplaceIgnited(isFirstTime);
         Game.save(); Game.checkEnvironment();
     },
-    lightSource: function (type) {
+    lightSource: function(type) {
         if (!GameState.flags.fireplaceLit) { UI.notify(t('game.needFire'), true); return; }
         let item = (type === 'candle') ? 'candle' : 'primitive_torch';
         if (!GameState.inventory[item]) { UI.notify(t('game.missingItem').replace('{item}', ItemsDB[item].name), true); return; }
-
-        if (type === 'candle') {
-            GameState.flags.torchLit = false;
-            GameState.flags.candleLit = true;
+        
+        if (type === 'candle') { 
+            GameState.flags.torchLit = false; 
+            GameState.flags.candleLit = true; 
             GameState.candleStart = Date.now();
-
+            
             // Track candles lit
-            if (GameState.achievements) {
+            if(GameState.achievements) {
                 GameState.achievements.stats.candlesLit++;
             }
         }
         else { GameState.flags.candleLit = false; GameState.flags.torchLit = true; }
-
+        
         this.removeItem(item, 1);
         UI.notify(t('game.itemIgnited').replace('{item}', ItemsDB[item].name));
         Game.save(); Game.checkEnvironment();
     },
     // ── Ztracené klíče — modal ───────────────────────────────────────────────
-    showLostKeyModal: function (keyId) {
+    showLostKeyModal: function(keyId) {
         const lang = (GameState.settings && GameState.settings.language) || 'cs';
         const cs = lang === 'en';
         const item = typeof ItemsDB !== 'undefined' ? ItemsDB[keyId] : null;
@@ -33102,26 +33242,26 @@ const Game = {
                 + '<br><br>' + (cs ? 'In stock' : 'Na skladě') + ': <strong>' + qty + '</strong>'
                 + (!hasResearch ? '<br><small style="color:#c0392b;">⚠️ ' + (cs ? 'Need ' + researchCost + ' notes' : 'Potřeba ' + researchCost + ' zápisků') + '</small>' : ''),
             choices: alreadyExplored ? [
-                { label: cs ? 'Close' : 'Zavřít', type: 'default', effect: function () { } }
+                { label: cs ? 'Close' : 'Zavřít', type: 'default', effect: function() {} }
             ] : [
                 {
                     label: examineLabel,
                     type: examineDisabled ? 'default' : 'primary',
-                    effect: examineDisabled ? function () { UI.notify(cs ? '⚠️ Not enough notes.' : '⚠️ Nedostatek zápisků.', true); } : function () {
+                    effect: examineDisabled ? function() { UI.notify(cs ? '⚠️ Not enough notes.' : '⚠️ Nedostatek zápisků.', true); } : function() {
                         Game.removeItem('research', researchCost);
                         GameState.flags[exploredFlag] = true;
                         Game._applyLostKeyEffect(keyId, cs);
                         Game.save();
                     }
                 },
-                { label: cs ? '🗃️ Keep' : '🗃️ Uchovat', type: 'default', effect: function () { } }
+                { label: cs ? '🗃️ Keep' : '🗃️ Uchovat', type: 'default', effect: function() {} }
             ]
         });
     },
 
-    _applyLostKeyEffect: function (keyId, cs) {
+    _applyLostKeyEffect: function(keyId, cs) {
         // Klíče 4× — odemknou folia epistola/fausto/palimpsest/titivillus postupně
-        const key4Folios = ['folio_epistola', 'folio_fausto', 'folio_palimpsest', 'folio_titivillus'];
+        const key4Folios = ['folio_epistola','folio_fausto','folio_palimpsest','folio_titivillus'];
 
         if (keyId === 'lost_key_1') {
             // Athanor
@@ -33165,7 +33305,7 @@ const Game = {
     },
 
     // ── Svazek sušených bylin — modal ────────────────────────────────────────
-    showDriedHerbsModal: function () {
+    showDriedHerbsModal: function() {
         const lang = (GameState.settings && GameState.settings.language) || 'cs';
         const cs = lang === 'en';
         const qty = GameState.inventory['dried_herbs_bundle'] || 0;
@@ -33179,26 +33319,26 @@ const Game = {
                 {
                     label: cs ? '🌿 Unbundle (random herbs)' : '🌿 Rozbalit (náhodné byliny)',
                     type: 'primary',
-                    effect: function () {
+                    effect: function() {
                         if ((GameState.inventory['dried_herbs_bundle'] || 0) < 1) return;
                         Game.removeItem('dried_herbs_bundle', 1);
                         // Náhodný výběr 2-3 bylin
-                        const herbPool = ['chamomile', 'thyme', 'mint', 'st_johns_wort', 'linden_blossom', 'sage', 'yarrow', 'hyssop'];
+                        const herbPool = ['chamomile','thyme','mint','st_johns_wort','linden_blossom','sage','yarrow','hyssop'];
                         const count = Math.random() < 0.5 ? 3 : 2;
                         const shuffled = herbPool.sort(() => Math.random() - 0.5).slice(0, count);
                         shuffled.forEach(h => Game.addItem(h, 1));
-                        const names = shuffled.map(h => typeof ItemsDB !== 'undefined' && ItemsDB[h] ? (cs ? (ItemsDB[h].name_en || ItemsDB[h].name) : ItemsDB[h].name) : h).join(', ');
+                        const names = shuffled.map(h => typeof ItemsDB !== 'undefined' && ItemsDB[h] ? (cs ? (ItemsDB[h].name_en||ItemsDB[h].name) : ItemsDB[h].name) : h).join(', ');
                         UI.notify('🌿 ' + (cs ? 'Found: ' : 'Nalezeno: ') + names);
                         Game.save();
                     }
                 },
-                { label: cs ? '🗃️ Keep' : '🗃️ Uchovat', type: 'default', effect: function () { } }
+                { label: cs ? '🗃️ Keep' : '🗃️ Uchovat', type: 'default', effect: function() {} }
             ]
         });
     },
 
     // ── Váček s konopím — modal ───────────────────────────────────────────────
-    showHempPouchModal: function () {
+    showHempPouchModal: function() {
         const lang = (GameState.settings && GameState.settings.language) || 'cs';
         const cs = lang === 'en';
         const qty = GameState.inventory['hemp_pouch'] || 0;
@@ -33212,7 +33352,7 @@ const Game = {
                 {
                     label: cs ? '👝 Open (+seeds_nettle +fiber)' : '👝 Otevřít (+semínka kopřivy +vlákno)',
                     type: 'primary',
-                    effect: function () {
+                    effect: function() {
                         if ((GameState.inventory['hemp_pouch'] || 0) < 1) return;
                         Game.removeItem('hemp_pouch', 1);
                         Game.addItem('seeds_nettle', 2);
@@ -33221,13 +33361,13 @@ const Game = {
                         Game.save();
                     }
                 },
-                { label: cs ? '🗃️ Keep' : '🗃️ Uchovat', type: 'default', effect: function () { } }
+                { label: cs ? '🗃️ Keep' : '🗃️ Uchovat', type: 'default', effect: function() {} }
             ]
         });
     },
 
     // ── Záhadný kořen — modal ────────────────────────────────────────────────
-    showMysteriousBulbModal: function () {
+    showMysteriousBulbModal: function() {
         const lang = (GameState.settings && GameState.settings.language) || 'cs';
         const cs = lang === 'en';
         const qty = GameState.inventory['mysterious_bulb'] || 0;
@@ -33244,7 +33384,7 @@ const Game = {
                 {
                     label: cs ? '🌱 Plant in special plot' : '🌱 Zasadit do special záhonu',
                     type: hasHortus ? 'primary' : 'default',
-                    effect: function () {
+                    effect: function() {
                         if (!hasHortus) { UI.notify(cs ? '⚠️ Requires Hortus Conclusus.' : '⚠️ Vyžaduje Hortus Conclusus.', true); return; }
                         if ((GameState.inventory['mysterious_bulb'] || 0) < 1) return;
                         // Najít volný special záhon (state=1)
@@ -33257,19 +33397,19 @@ const Game = {
                         plot.crop = special;
                         plot.plantedAt = Date.now();
                         plot.water = false;
-                        const sName = typeof ItemsDB !== 'undefined' && ItemsDB[special] ? (cs ? (ItemsDB[special].name_en || ItemsDB[special].name) : ItemsDB[special].name) : special;
+                        const sName = typeof ItemsDB !== 'undefined' && ItemsDB[special] ? (cs ? (ItemsDB[special].name_en||ItemsDB[special].name) : ItemsDB[special].name) : special;
                         UI.notify('🌱 ' + (cs ? 'Planted: ' : 'Zasazeno: ') + sName + (cs ? ' (maybe...)' : ' (možná...)'));
                         Game.save();
                         if (typeof GardenSystem !== 'undefined') GardenSystem.renderGarden();
                     }
                 },
-                { label: cs ? '🗃️ Keep' : '🗃️ Uchovat', type: 'default', effect: function () { } }
+                { label: cs ? '🗃️ Keep' : '🗃️ Uchovat', type: 'default', effect: function() {} }
             ]
         });
     },
 
     // ── Pečetní vosk — modal ─────────────────────────────────────────────────
-    showWaxSealModal: function () {
+    showWaxSealModal: function() {
         const lang = (GameState.settings && GameState.settings.language) || 'cs';
         const cs = lang === 'en';
         const qty = GameState.inventory['wax_seal'] || 0;
@@ -33283,7 +33423,7 @@ const Game = {
                 {
                     label: cs ? '🕯️ Remelt (+1 beeswax)' : '🕯️ Přetavit (+1 včelí vosk)',
                     type: 'primary',
-                    effect: function () {
+                    effect: function() {
                         if ((GameState.inventory['wax_seal'] || 0) < 1) return;
                         Game.removeItem('wax_seal', 1);
                         Game.addItem('beeswax', 1);
@@ -33294,14 +33434,14 @@ const Game = {
                 {
                     label: cs ? '🗃️ Keep' : '🗃️ Uchovat',
                     type: 'default',
-                    effect: function () { }
+                    effect: function() {}
                 }
             ]
         });
     },
 
     // ── Útržek pergamenu — modal ─────────────────────────────────────────────
-    showTornPageModal: function () {
+    showTornPageModal: function() {
         const lang = (GameState.settings && GameState.settings.language) || 'cs';
         const cs = lang === 'en';
         const qty = GameState.inventory['torn_page'] || 0;
@@ -33315,7 +33455,7 @@ const Game = {
                 {
                     label: cs ? '📖 Study (+5 notes)' : '📖 Prostudovat (+5 zápisků)',
                     type: 'primary',
-                    effect: function () {
+                    effect: function() {
                         if ((GameState.inventory['torn_page'] || 0) < 1) return;
                         Game.removeItem('torn_page', 1);
                         Game.addItem('research', 5);
@@ -33326,14 +33466,14 @@ const Game = {
                 {
                     label: cs ? '🗃️ Keep' : '🗃️ Uchovat',
                     type: 'default',
-                    effect: function () { }
+                    effect: function() {}
                 }
             ]
         });
     },
 
     // ── Staré mince — modal při nalezení nebo kliknutí ─────────────────────
-    showCoinModal: function (itemId, value) {
+    showCoinModal: function(itemId, value) {
         const lang = (GameState.settings && GameState.settings.language) || 'cs';
         const cs = lang === 'en';
         const item = typeof ItemsDB !== 'undefined' ? ItemsDB[itemId] : null;
@@ -33348,7 +33488,7 @@ const Game = {
                 {
                     label: cs ? '💰 Sell to Giacomo (+' + value + ' gr.)' : '💰 Prodat Giacomovi (+' + value + ' gr.)',
                     type: 'primary',
-                    effect: function () {
+                    effect: function() {
                         if ((GameState.inventory[itemId] || 0) < 1) return;
                         Game.removeItem(itemId, 1);
                         Game.addItem('grosze', value);
@@ -33359,14 +33499,14 @@ const Game = {
                 {
                     label: cs ? '🗃️ Keep' : '🗃️ Uchovat',
                     type: 'default',
-                    effect: function () { }
+                    effect: function() {}
                 }
             ]
         });
     },
 
     // ── Netolického pozůstalost — modal při nalezení nebo kliknutí ──────────
-    showNetolickyModal: function () {
+    showNetolickyModal: function() {
         const lang = (GameState.settings && GameState.settings.language) || 'cs';
         const cs = lang === 'en';
         // Pokud hráč nemá item v inventáři, modal se nespustí
@@ -33380,7 +33520,7 @@ const Game = {
                 {
                     label: cs ? '📖 Study (+30 notes, unlock 7 scrolls)' : '📖 Prostudovat (+30 zápisků, 7 svitků)',
                     type: 'primary',
-                    effect: function () {
+                    effect: function() {
                         Game.removeItem('netolicky_legacy', 1);
                         Game.addItem('research', 30);
                         if (typeof SecretsSystem !== 'undefined') SecretsSystem.unlockNetolickyFolios();
@@ -33391,7 +33531,7 @@ const Game = {
                 {
                     label: cs ? '💰 Sell to Giacomo (+50 groschen)' : '💰 Prodat Giacomovi (+50 grošů)',
                     type: 'default',
-                    effect: function () {
+                    effect: function() {
                         Game.removeItem('netolicky_legacy', 1);
                         Game.addItem('grosze', 50);
                         UI.notify(cs ? '💰 Giacomo paid 50 groschen for the document.' : '💰 Giacomo zaplatil 50 grošů za dokument.');
@@ -33401,16 +33541,16 @@ const Game = {
                 {
                     label: cs ? '🗃️ Keep for now' : '🗃️ Zatím uchovat',
                     type: 'default',
-                    effect: function () { }
+                    effect: function() {}
                 }
             ]
         });
     },
 
-    farmAction: function (plotIdx) {
+    farmAction: function(plotIdx) {
         const plot = GameState.garden[plotIdx];
-        if (plot.locked) { UI.notify(t('game.plotLocked'), true); return; }
-
+        if(plot.locked) { UI.notify(t('game.plotLocked'), true); return; }
+        
         if (plot.state === 0) {
             if (!(GameState.inventory['hoe'] > 0)) { UI.notify(t('game.needHoe'), true); return; }
             const fertItem = (GameState.inventory['compost'] > 0) ? 'compost' : 'bonemeal';
@@ -33431,13 +33571,13 @@ const Game = {
             // Seed pool dle cropType — využít GARDEN_PLANTS_DB pokud dostupné
             let seedsNeeded = '';
             if (plot.cropType === 'herb') {
-                const herbSeeds = ['seeds_herb', 'seeds_yellow', 'seeds_blue', 'seeds_mint', 'seeds_thyme', 'seeds_sage', 'seeds_fennel', 'seeds_wormwood', 'seeds_hyssop', 'seeds_yarrow'];
+                const herbSeeds = ['seeds_herb','seeds_yellow','seeds_blue','seeds_mint','seeds_thyme','seeds_sage','seeds_fennel','seeds_wormwood','seeds_hyssop','seeds_yarrow'];
                 seedsNeeded = herbSeeds.find(s => (GameState.inventory[s] || 0) > 0) || 'seeds_herb';
             } else if (plot.cropType === 'vegetable') {
-                const vegSeeds = ['seeds_vegetable', 'seeds_leek', 'seeds_cabbage', 'seeds_radish', 'seeds_turnip', 'seeds_garlic'];
+                const vegSeeds = ['seeds_vegetable','seeds_leek','seeds_cabbage','seeds_radish','seeds_turnip','seeds_garlic'];
                 seedsNeeded = vegSeeds.find(s => (GameState.inventory[s] || 0) > 0) || 'seeds_vegetable';
             } else if (plot.cropType === 'special') {
-                const specSeeds = ['seeds_mandrake', 'seeds_belladonna', 'seeds_poppy', 'seeds_nettle', 'seeds_hops', 'seeds_herb'];
+                const specSeeds = ['seeds_mandrake','seeds_belladonna','seeds_poppy','seeds_nettle','seeds_hops','seeds_herb'];
                 seedsNeeded = specSeeds.find(s => (GameState.inventory[s] || 0) > 0) || '';
             }
 
@@ -33456,7 +33596,7 @@ const Game = {
                     plot.crop = plantDef.item;
                 } else {
                     // Fallback pro seeds_vegetable (náhodná zelenina)
-                    const veggies = ['carrot', 'onion', 'leek', 'cabbage', 'radish', 'turnip'];
+                    const veggies = ['carrot','onion','leek','cabbage','radish','turnip'];
                     plot.crop = veggies[Math.floor(Math.random() * veggies.length)];
                 }
             } else {
@@ -33480,21 +33620,21 @@ const Game = {
         } else if (plot.state === 2 && plot.water) {
             // Calculate growth time with tech bonuses
             let growthSpeed = CONFIG.GROWTH_SPEED;
-            if (GameState.researchedTechs.includes('tech_advanced_farming')) {
+            if(GameState.researchedTechs.includes('tech_advanced_farming')) {
                 growthSpeed *= 2.0; // +100% faster growth (24h → 12h)
             }
             const needed = CONFIG.BASE_GROWTH_TIME / growthSpeed;
-
+            
             if (Date.now() > plot.plantedAt + needed) {
-                plot.state = 0; plot.water = false;
+                plot.state = 0; plot.water = false; 
                 const harvestCrop = plot.crop;
-                plot.crop = null;
-
+                plot.crop = null; 
+                
                 // Track harvest stat
-                if (GameState.achievements) {
+                if(GameState.achievements) {
                     GameState.achievements.stats.harvests++;
                 }
-
+                
                 // Harvest yields — via GARDEN_PLANTS_DB
                 const _gp = typeof GardenSystem !== 'undefined'
                     ? Object.values(GardenSystem.GARDEN_PLANTS_DB).find(p => p.item === harvestCrop)
@@ -33503,17 +33643,17 @@ const Game = {
                     this.addItem(harvestCrop, _gp.yield);
                     // Šance vrátit semínko (30%)
                     if (Math.random() < 0.3) this.addItem(_gp.seed, 1);
-                } else if (harvestCrop === 'hops') {
+                } else if(harvestCrop === 'hops') {
                     this.addItem('hops', 2);
-                    if (Math.random() > 0.6) this.addItem('seeds_hops', 1);
-                } else if (['carrot', 'onion', 'potato'].includes(harvestCrop)) {
+                    if(Math.random() > 0.6) this.addItem('seeds_hops', 1);
+                } else if(['carrot','onion','potato'].includes(harvestCrop)) {
                     this.addItem(harvestCrop, 3);
-                    if (Math.random() > 0.5) this.addItem('seeds_vegetable', 1);
+                    if(Math.random() > 0.5) this.addItem('seeds_vegetable', 1);
                 } else if (harvestCrop) {
                     // fallback pro neznámé plodiny
                     this.addItem(harvestCrop, 2);
                 }
-
+                
                 Game.checkAchievements();
             } else UI.notify(t('game.growing'), true);
         }
@@ -33524,14 +33664,14 @@ const Game = {
     // SAD (Pomarium) — herní logika
     // ═══════════════════════════════════════════════════════════════════════════
 
-    plantTree: function (slotIdx, seedId) {
+    plantTree: function(slotIdx, seedId) {
         if (!GameState.orchard) return;
         if (!seedId) { UI.notify(t('game.noSeedSelected'), true); return; }
         if (!(GameState.inventory[seedId] > 0)) { UI.notify(t('game.noSeeds'), true); return; }
         const slot = GameState.orchard[slotIdx];
         if (slot.state !== 'empty') { UI.notify(t('game.slotOccupied'), true); return; }
         this.removeItem(seedId, 1);
-        slot.state = 'growing';
+        slot.state    = 'growing';
         slot.treeType = seedId;
         slot.plantedAt = Date.now();
         slot.lastHarvestAt = 0;
@@ -33540,7 +33680,7 @@ const Game = {
         UI.notify('🌱 ' + t('game.treePlanted'));
     },
 
-    harvestTree: function (slotIdx) {
+    harvestTree: function(slotIdx) {
         if (!GameState.orchard) return;
         const slot = GameState.orchard[slotIdx];
         if (slot.state !== 'mature') return;
@@ -33564,17 +33704,17 @@ const Game = {
         UI.notify('🍎 ' + t('game.treeHarvested').replace('{qty}', qty));
     },
 
-    fellTree: function (slotIdx) { return GardenSystem.fellTree(slotIdx); },
+    fellTree: function(slotIdx) { return GardenSystem.fellTree(slotIdx); },
 
     // ═══════════════════════════════════════════════════════════════════════════
     // APIARIUM (Včelín) — herní logika
     // ═══════════════════════════════════════════════════════════════════════════
 
     // ── Pomocná: vrátí sezónu dle reálného měsíce ─────────────────────────────
-    _getApiarySeason: function () {
+    _getApiarySeason: function() {
         const m = new Date().getMonth() + 1; // 1–12
-        if (m >= 3 && m <= 5) return 'spring';
-        if (m >= 6 && m <= 8) return 'summer';
+        if (m >= 3 && m <= 5)  return 'spring';
+        if (m >= 6 && m <= 8)  return 'summer';
         if (m >= 9 && m <= 11) return 'autumn';
         return 'winter';
     },
@@ -33586,48 +33726,48 @@ const Game = {
         'Kunhuta', 'Radoslava', 'Doubravka', 'Přibyslava', 'Miloslava'
     ],
 
-    _randomQueenName: function () {
+    _randomQueenName: function() {
         return this._queenNames[Math.floor(Math.random() * this._queenNames.length)];
     },
 
-    buildHive: function (slotIdx) {
+    buildHive: function(slotIdx) {
         if (!GameState.apiary) return;
         const hive = GameState.apiary[slotIdx];
         if (hive.built) return;
         if ((GameState.inventory['stick'] || 0) < 10) { UI.notify(t('game.needWood'), true); return; }
-        if ((GameState.inventory['rope'] || 0) < 5) { UI.notify(t('game.needRope'), true); return; }
+        if ((GameState.inventory['rope']  || 0) < 5)  { UI.notify(t('game.needRope'), true); return; }
         this.removeItem('stick', 10);
         this.removeItem('rope', 5);
-        hive.built = true;
-        hive.hasQueen = false;
-        hive.queenName = null;
-        hive.queenStrength = 0;   // 1–5 hvězd, nastaví se při usazení matky
-        hive.strength = 0;   // 1–10 síla včelstva
-        hive.varroaRisk = false;
-        hive.lastCollectAt = 0;
+        hive.built          = true;
+        hive.hasQueen       = false;
+        hive.queenName      = null;
+        hive.queenStrength  = 0;   // 1–5 hvězd, nastaví se při usazení matky
+        hive.strength       = 0;   // 1–10 síla včelstva
+        hive.varroaRisk     = false;
+        hive.lastCollectAt  = 0;
         Game.save();
         UI.renderApiary();
         UI.notify('🪹 ' + t('game.hiveBuilt'));
     },
 
-    addQueen: function (slotIdx) {
+    addQueen: function(slotIdx) {
         if (!GameState.apiary) return;
         const hive = GameState.apiary[slotIdx];
         if (!hive.built || hive.hasQueen) return;
         if (!(GameState.inventory['queen_bee'] > 0)) { UI.notify(t('game.needQueen'), true); return; }
         this.removeItem('queen_bee', 1);
-        hive.hasQueen = true;
-        hive.queenName = this._randomQueenName();
+        hive.hasQueen      = true;
+        hive.queenName     = this._randomQueenName();
         hive.queenStrength = Math.floor(Math.random() * 3) + 2; // 2–4 hvězdy (náhoda)
-        hive.strength = 3; // začíná na střední síle
-        hive.varroaRisk = false;
+        hive.strength      = 3; // začíná na střední síle
+        hive.varroaRisk    = false;
         hive.lastCollectAt = Date.now();
         Game.save();
         UI.renderApiary();
         UI.notify('🐝 ' + t('game.queenAdded') + ' — ' + hive.queenName);
     },
 
-    collectHive: function (slotIdx) {
+    collectHive: function(slotIdx) {
         if (!GameState.apiary) return;
         const hive = GameState.apiary[slotIdx];
         if (!hive.built || !hive.hasQueen) return;
@@ -33651,10 +33791,10 @@ const Game = {
 
         // Produkce dle sezóny a síly včelstva
         const strengthMod = (hive.strength || 3) / 5; // 0.2–2.0
-        const honeyBase = { spring: 1, summer: 3, autumn: 1 };
-        const waxBase = { spring: 1, summer: 1, autumn: 2 };
-        const honeyYield = Math.max(1, Math.round(honeyBase[season] * strengthMod));
-        const waxYield = Math.max(1, Math.round(waxBase[season] * strengthMod));
+        const honeyBase   = { spring: 1, summer: 3, autumn: 1 };
+        const waxBase     = { spring: 1, summer: 1, autumn: 2 };
+        const honeyYield  = Math.max(1, Math.round(honeyBase[season] * strengthMod));
+        const waxYield    = Math.max(1, Math.round(waxBase[season] * strengthMod));
 
         this.addItem('honey', honeyYield);
         this.addItem('beeswax', waxYield);
@@ -33662,7 +33802,7 @@ const Game = {
         // Pyl bonus — jen léto, jen pokud kvetou záhony nebo sad
         if (season === 'summer') {
             const hasFlowers = GameState.garden && GameState.garden.some(p => p.state === 2 && p.water);
-            const hasTrees = GameState.orchard && GameState.orchard.some(s => s.state === 'mature');
+            const hasTrees   = GameState.orchard && GameState.orchard.some(s => s.state === 'mature');
             if (hasFlowers || hasTrees) this.addItem('pollen', 1);
         }
 
@@ -33672,9 +33812,9 @@ const Game = {
         // Rojivá nálada — pokud je síla max a sklizeň přichází pozdě (2× lhůta)
         if (hive.strength >= 9 && now > hive.lastCollectAt + (hours * 2 * 3600000)) {
             // Matka odletěla
-            hive.hasQueen = false;
+            hive.hasQueen  = false;
             hive.queenName = null;
-            hive.strength = 0;
+            hive.strength  = 0;
             Game.save();
             UI.renderApiary();
             UI.notify('🐝 ' + t('game.hiveRojivy'));
@@ -33688,7 +33828,7 @@ const Game = {
     },
 
     // ── Zimní přikrmení ────────────────────────────────────────────────────────
-    feedHive: function (slotIdx) {
+    feedHive: function(slotIdx) {
         if (!GameState.apiary) return;
         const hive = GameState.apiary[slotIdx];
         if (!hive.built || !hive.hasQueen) return;
@@ -33704,21 +33844,21 @@ const Game = {
     },
 
     // ── Léčba Varroa ──────────────────────────────────────────────────────────
-    treatVarroa: function (slotIdx) {
+    treatVarroa: function(slotIdx) {
         if (!GameState.apiary) return;
         const hive = GameState.apiary[slotIdx];
         if (!hive.built || !hive.hasQueen || !hive.varroaRisk) return;
         if ((GameState.inventory['thyme'] || 0) < 1) { UI.notify(t('game.hiveNeedThyme'), true); return; }
         this.removeItem('thyme', 1);
         hive.varroaRisk = false;
-        hive.strength = Math.max(1, (hive.strength || 3) - 1); // léčba stojí trochu síly
+        hive.strength   = Math.max(1, (hive.strength || 3) - 1); // léčba stojí trochu síly
         Game.save();
         UI.renderApiary();
         UI.notify('🌿 ' + t('game.hiveTreated'));
     },
 
     // ── Zimní check (volá se 1× denně nebo při otevření Apiary) ───────────────
-    checkApiaryWinter: function () {
+    checkApiaryWinter: function() {
         if (!GameState.apiary) return;
         const season = this._getApiarySeason();
         if (season !== 'winter') return;
@@ -33727,9 +33867,9 @@ const Game = {
             if (!hive.built || !hive.hasQueen) return;
             // Pokud síla <= 0 → včelstvo uhynulo
             if ((hive.strength || 0) <= 0) {
-                hive.hasQueen = false;
+                hive.hasQueen  = false;
                 hive.queenName = null;
-                hive.strength = 0;
+                hive.strength  = 0;
                 changed = true;
                 UI.notify('💀 ' + t('game.hiveDied'));
             }
@@ -33738,12 +33878,12 @@ const Game = {
     },
 
     // ── Náhodný Varroa event (volá se z EventsSystem nebo manuálně) ──────────
-    triggerVarroa: function (slotIdx) {
+    triggerVarroa: function(slotIdx) {
         if (!GameState.apiary) return;
         const hive = GameState.apiary[slotIdx];
         if (!hive.built || !hive.hasQueen || hive.varroaRisk) return;
         hive.varroaRisk = true;
-        hive.strength = Math.max(1, (hive.strength || 3) - 2);
+        hive.strength   = Math.max(1, (hive.strength || 3) - 2);
         Game.save();
         UI.renderApiary();
         UI.notify('⚠️ ' + t('game.hiveVarroa'));
@@ -33753,7 +33893,7 @@ const Game = {
     // PISCINA (Rybník) — herní logika
     // ═══════════════════════════════════════════════════════════════════════════
 
-    buildPiscina: function (tier) {
+    buildPiscina: function(tier) {
         const p = GameState.piscina;
         if (!GameState.researchedTechs.includes('tech_piscina')) { UI.notify(t('game.needDePiscibus'), true); return; }
         const costs = {
@@ -33764,9 +33904,9 @@ const Game = {
         if (p.tier >= tier) { UI.notify(t('game.piscinaAlready'), true); return; }
         if (tier !== p.tier + 1) { UI.notify(t('game.piscinaTierOrder'), true); return; }
         const cost = costs[tier];
-        if ((GameState.inventory['rock'] || 0) < cost.rock) { UI.notify(t('game.needStone') + ` (${cost.rock})`, true); return; }
-        if ((GameState.inventory['stick'] || 0) < cost.stick) { UI.notify(t('game.needWood') + ` (${cost.stick})`, true); return; }
-        if (cost.rope && (GameState.inventory['rope'] || 0) < cost.rope) { UI.notify(t('game.needRope') + ` (${cost.rope})`, true); return; }
+        if ((GameState.inventory['rock']||0) < cost.rock)  { UI.notify(t('game.needStone') + ` (${cost.rock})`, true); return; }
+        if ((GameState.inventory['stick']||0) < cost.stick){ UI.notify(t('game.needWood')  + ` (${cost.stick})`, true); return; }
+        if (cost.rope && (GameState.inventory['rope']||0) < cost.rope){ UI.notify(t('game.needRope') + ` (${cost.rope})`, true); return; }
         this.removeItem('rock', cost.rock);
         this.removeItem('stick', cost.stick);
         if (cost.rope) this.removeItem('rope', cost.rope);
@@ -33775,10 +33915,10 @@ const Game = {
         UI.notify('🐟 ' + t('game.piscinaBuilt').replace('{tier}', tier));
     },
 
-    addFry: function (qty) {
+    addFry: function(qty) {
         const p = GameState.piscina;
         if (p.tier < 1) { UI.notify(t('game.needPiscina1'), true); return; }
-        if ((GameState.inventory['fry'] || 0) < qty) { UI.notify(t('game.noFry'), true); return; }
+        if ((GameState.inventory['fry']||0) < qty) { UI.notify(t('game.noFry'), true); return; }
         this.removeItem('fry', qty);
         p.fry += qty;
         p.fryAddedAt = p.fryAddedAt || Date.now();
@@ -33786,31 +33926,31 @@ const Game = {
         UI.notify('🫧 ' + t('game.fryAdded').replace('{qty}', qty));
     },
 
-    feedPiscina: function () {
+    feedPiscina: function() {
         const p = GameState.piscina;
         if (p.tier < 1) return;
         const feedNeeded = p.fry + p.youngCarp + p.carp;
         if (feedNeeded === 0) { UI.notify(t('game.piscinaEmpty'), true); return; }
-        if ((GameState.inventory['fiber'] || 0) < feedNeeded) { UI.notify(t('game.needFeedFish') + ` (${feedNeeded})`, true); return; }
+        if ((GameState.inventory['fiber']||0) < feedNeeded) { UI.notify(t('game.needFeedFish') + ` (${feedNeeded})`, true); return; }
         this.removeItem('fiber', feedNeeded);
         p.lastFedAt = Date.now();
         Game.save(); UI.renderPiscina();
         UI.notify('🌿 ' + t('game.piscinaFed'));
     },
 
-    transferFry: function () {
+    transferFry: function() {
         const p = GameState.piscina;
-        if (!p || (p.pendingFry || 0) <= 0) { UI.notify(t('game.noFryPending'), true); return; }
+        if (!p || (p.pendingFry||0) <= 0) { UI.notify(t('game.noFryPending'), true); return; }
         if (p.tier < 1) { UI.notify(t('game.needPiscina1'), true); return; }
         const qty = p.pendingFry;
-        p.fry = (p.fry || 0) + qty;
+        p.fry = (p.fry||0) + qty;
         p.pendingFry = 0;
         if (!p.fryAddedAt || p.fryAddedAt === 0) p.fryAddedAt = Date.now();
         Game.save(); UI.renderPiscina();
         UI.notify('🫧 ' + t('game.fryTransferred').replace('{qty}', qty));
     },
 
-    harvestCarp: function (qty) {
+    harvestCarp: function(qty) {
         const p = GameState.piscina;
         qty = Math.min(qty, p.carp);
         if (qty <= 0) { UI.notify(t('game.noCarp'), true); return; }
@@ -33820,11 +33960,11 @@ const Game = {
         UI.notify('🐠 ' + t('game.carpHarvested').replace('{qty}', qty));
     },
 
-    checkPiscinaGrowth: function () {
+    checkPiscinaGrowth: function() {
         const p = GameState.piscina;
         if (!p || p.tier < 1) return;
         const now = Date.now();
-        const WEEK = 7 * 24 * 3600000;
+        const WEEK  = 7  * 24 * 3600000;
         const WEEKS2 = 14 * 24 * 3600000;
         let changed = false;
 
@@ -33859,7 +33999,7 @@ const Game = {
         if (changed) { Game.save(); }
     },
 
-    checkOrchardGrowth: function () {
+    checkOrchardGrowth: function() {
         if (!GameState.orchard) return;
         const GROW_HOURS = {
             seed_apple: 48, seed_pear: 48, seed_plum: 36, seed_cherry: 36,
@@ -33884,63 +34024,63 @@ const Game = {
     // GALLINARIUM (Kurník) — herní logika
     // ═══════════════════════════════════════════════════════════════════════════
 
-    buildHenhouse: function (...args) { if (typeof FarmyardSystem !== 'undefined') FarmyardSystem.buildHenhouse(...args); },
+    buildHenhouse: function(...args) { if (typeof FarmyardSystem !== 'undefined') FarmyardSystem.buildHenhouse(...args); },
 
-    addHen: function (...args) { if (typeof FarmyardSystem !== 'undefined') FarmyardSystem.addHen(...args); },
+    addHen: function(...args) { if (typeof FarmyardSystem !== 'undefined') FarmyardSystem.addHen(...args); },
 
-    startNesting: function (...args) { if (typeof FarmyardSystem !== 'undefined') FarmyardSystem.startNesting(...args); },
+    startNesting: function(...args) { if (typeof FarmyardSystem !== 'undefined') FarmyardSystem.startNesting(...args); },
 
-    slaughterChick: function (...args) { if (typeof FarmyardSystem !== 'undefined') FarmyardSystem.slaughterChick(...args); },
+    slaughterChick: function(...args) { if (typeof FarmyardSystem !== 'undefined') FarmyardSystem.slaughterChick(...args); },
 
-    slaughterHen: function (...args) { if (typeof FarmyardSystem !== 'undefined') FarmyardSystem.slaughterHen(...args); },
+    slaughterHen: function(...args) { if (typeof FarmyardSystem !== 'undefined') FarmyardSystem.slaughterHen(...args); },
 
-    collectHenhouse: function (...args) { if (typeof FarmyardSystem !== 'undefined') FarmyardSystem.collectHenhouse(...args); },
+    collectHenhouse: function(...args) { if (typeof FarmyardSystem !== 'undefined') FarmyardSystem.collectHenhouse(...args); },
 
-    feedHenhouse: function (...args) { if (typeof FarmyardSystem !== 'undefined') FarmyardSystem.feedHenhouse(...args); },
+    feedHenhouse: function(...args) { if (typeof FarmyardSystem !== 'undefined') FarmyardSystem.feedHenhouse(...args); },
 
     // ═══════════════════════════════════════════════════════════════════════════
     // OVILE (Chlév) — herní logika
     // ═══════════════════════════════════════════════════════════════════════════
 
-    buildSheepfold: function (...args) { if (typeof FarmyardSystem !== 'undefined') FarmyardSystem.buildSheepfold(...args); },
+    buildSheepfold: function(...args) { if (typeof FarmyardSystem !== 'undefined') FarmyardSystem.buildSheepfold(...args); },
 
-    addSheep: function (...args) { if (typeof FarmyardSystem !== 'undefined') FarmyardSystem.addSheep(...args); },
+    addSheep: function(...args) { if (typeof FarmyardSystem !== 'undefined') FarmyardSystem.addSheep(...args); },
 
-    startBreeding: function (...args) { if (typeof FarmyardSystem !== 'undefined') FarmyardSystem.startBreeding(...args); },
+    startBreeding: function(...args) { if (typeof FarmyardSystem !== 'undefined') FarmyardSystem.startBreeding(...args); },
 
-    slaughterLamb: function (...args) { if (typeof FarmyardSystem !== 'undefined') FarmyardSystem.slaughterLamb(...args); },
+    slaughterLamb: function(...args) { if (typeof FarmyardSystem !== 'undefined') FarmyardSystem.slaughterLamb(...args); },
 
-    slaughterSheep: function (...args) { if (typeof FarmyardSystem !== 'undefined') FarmyardSystem.slaughterSheep(...args); },
+    slaughterSheep: function(...args) { if (typeof FarmyardSystem !== 'undefined') FarmyardSystem.slaughterSheep(...args); },
 
-    collectSheepfold: function (...args) { if (typeof FarmyardSystem !== 'undefined') FarmyardSystem.collectSheepfold(...args); },
+    collectSheepfold: function(...args) { if (typeof FarmyardSystem !== 'undefined') FarmyardSystem.collectSheepfold(...args); },
 
-    feedSheepfold: function (...args) { if (typeof FarmyardSystem !== 'undefined') FarmyardSystem.feedSheepfold(...args); },
+    feedSheepfold: function(...args) { if (typeof FarmyardSystem !== 'undefined') FarmyardSystem.feedSheepfold(...args); },
 
     // ═══════════════════════════════════════════════════════════════════════════
     // FARMYARD PRODUCTION TICK — volán každou minutu
     // ═══════════════════════════════════════════════════════════════════════════
 
-    checkFarmyardProduction: function (...args) { if (typeof FarmyardSystem !== 'undefined') FarmyardSystem.checkFarmyardProduction(...args); },
+    checkFarmyardProduction: function(...args) { if (typeof FarmyardSystem !== 'undefined') FarmyardSystem.checkFarmyardProduction(...args); },
 
-    scavenge: function (type) {
+    scavenge: function(type) {
         if (typeof VigorSystem !== 'undefined' && !VigorSystem.canAct()) { UI.notify(t('game.vigor.exhausted'), true); return; }
         // Vigor — Fatigue z akce (scavenge vždy dostupné, jen malý cost)
         if (typeof VigorSystem !== 'undefined') VigorSystem.onScavenge(type);
 
-        // === SPECIAL HANDLING FOR WELL === (PŘIDAT NA ZAČÁTEK)
-        if (type === 'well_water') {
-            // Check if well exists
-            if (!GameState.well.built) {
-                UI.notify(t('game.needWell'), true);
-                return;
-            }
-
-            // Draw water with pot (default) or bucket
-            const hasBucket = GameState.inventory.bucket && GameState.inventory.bucket > 0;
-            WellSystem.drawWater(hasBucket);
-            return;
-        }
-        // === END WELL HANDLING ===
+	    // === SPECIAL HANDLING FOR WELL === (PŘIDAT NA ZAČÁTEK)
+		if (type === 'well_water') {
+			// Check if well exists
+			if (!GameState.well.built) {
+				UI.notify(t('game.needWell'), true);
+				return;
+			}
+			
+			// Draw water with pot (default) or bucket
+			const hasBucket = GameState.inventory.bucket && GameState.inventory.bucket > 0;
+			WellSystem.drawWater(hasBucket);
+			return;
+		}
+    // === END WELL HANDLING ===
 
         // === MINE ACTIONS (collectMode) ===
         const _mineAction = ActionsDB.find(a => a.id === type && a.collectMode);
@@ -34032,7 +34172,7 @@ const Game = {
                 }
             }
         }
-
+        
         // ── snapshot pro quick scavenge ──
         Game._scavenging = true;
         const _qbefore = {};
@@ -34047,160 +34187,160 @@ const Game = {
             if (now >= GameState.activeAction.endTime) { count = Math.round(multiplier * _toolMult); msg = t('game.done'); }
             else { const ratio = elapsed / totalDur; count = Math.floor(multiplier * ratio * _toolMult); msg = t('game.interrupted'); }
             GameState.activeAction = null;
-
+            
             // Track action completion
-            if (GameState.achievements) {
+            if(GameState.achievements) {
                 GameState.achievements.stats.actionsCompleted++;
             }
-
+            
             Game._scavenging = true;
             const _invBefore = {};
             for (const k of Object.keys(GameState.inventory)) _invBefore[k] = GameState.inventory[k] || 0;
             let total = 0;
-            for (let i = 0; i < count; i++) {
+            for(let i=0; i<count; i++) {
                 let r = Math.random();
-                if (type === 'hunt') {
-                    this.addItem('fat', 1);
-                    this.addItem('meat', 1);
+                if (type === 'hunt') { 
+                    this.addItem('fat', 1); 
+                    this.addItem('meat', 1); 
                     if (r > 0.4) this.addItem('bone', 1);
                     if (r > 0.7) this.addItem('leather', 1); // 30% chance
                     // v7.5: NEW DROPS
                     if (r > 0.5) this.addItem('hide', 1); // 50% chance - for vellum
                     if (r > 0.7) this.addItem('feather', 1); // 30% chance - for quill
                 }
-                else if (type === 'nature') {
-                    if (r < 0.08) this.addItem('herb_red', 1);
-                    else if (r < 0.12) this.addItem('herb_yellow', 1);
-                    else if (r < 0.16) this.addItem('herb_blue', 1);
-                    else if (r < 0.2) this.addItem('mint', 1);
-                    else if (r < 0.5) this.addItem('fiber', 2);
-                    else if (r < 0.7) this.addItem('water', 1);
-                    else if (r < 0.8) this.addItem('seeds_herb', 1);
-                    else if (r < 0.9) this.addItem('seeds_yellow', 1);
-                    else if (r < 0.95) this.addItem('seeds_blue', 1);
-                    else this.addItem('seeds_mint', 1);
-
+                else if (type === 'nature') { 
+                    if(r<0.08) this.addItem('herb_red',1);
+                    else if(r<0.12) this.addItem('herb_yellow',1);
+                    else if(r<0.16) this.addItem('herb_blue',1);
+                    else if(r<0.2) this.addItem('mint',1);
+                    else if(r<0.5) this.addItem('fiber',2);
+                    else if(r<0.7) this.addItem('water',1);
+                    else if(r<0.8) this.addItem('seeds_herb',1);
+                    else if(r<0.9) this.addItem('seeds_yellow',1);
+                    else if(r<0.95) this.addItem('seeds_blue',1);
+                    else this.addItem('seeds_mint',1);
+                    
                     // v7.5: NEW DROP - gall_nut for gallic ink
-                    if (Math.random() < 0.06) this.addItem('gall_nut', 1); // 6% chance
+                    if(Math.random() < 0.06) this.addItem('gall_nut', 1); // 6% chance
                     // Athanor: byliny
-                    if (Math.random() < 0.08) this.addItem('chamomile', 1);
-                    if (Math.random() < 0.05) this.addItem('st_johns_wort', 1);
-                    if (Math.random() < 0.04) this.addItem('thyme', 1);
-                    if (Math.random() < 0.03) this.addItem('seeds_thyme', 1);
-                    if (Math.random() < 0.02) this.addItem('hops', 1);
-                    if (Math.random() < 0.01) this.addItem('seeds_hops', 1);
+                    if(Math.random() < 0.08) this.addItem('chamomile', 1);
+                    if(Math.random() < 0.05) this.addItem('st_johns_wort', 1);
+                    if(Math.random() < 0.04) this.addItem('thyme', 1);
+                    if(Math.random() < 0.03) this.addItem('seeds_thyme', 1);
+                    if(Math.random() < 0.02) this.addItem('hops', 1);
+                    if(Math.random() < 0.01) this.addItem('seeds_hops', 1);
                     // v8.x: Nové byliny — šalvěj, fenykl, pelyněk, yzop, řebříček
-                    if (Math.random() < 0.03) this.addItem('sage', 1);
-                    if (Math.random() < 0.02) this.addItem('fennel', 1);
-                    if (Math.random() < 0.03) this.addItem('wormwood', 1);
-                    if (Math.random() < 0.04) this.addItem('yarrow', 1);
-                    if (Math.random() < 0.02) this.addItem('hyssop', 1);
+                    if(Math.random() < 0.03) this.addItem('sage', 1);
+                    if(Math.random() < 0.02) this.addItem('fennel', 1);
+                    if(Math.random() < 0.03) this.addItem('wormwood', 1);
+                    if(Math.random() < 0.04) this.addItem('yarrow', 1);
+                    if(Math.random() < 0.02) this.addItem('hyssop', 1);
                     // Semena nových bylin — vzácnější
-                    if (Math.random() < 0.015) this.addItem('seeds_sage', 1);
-                    if (Math.random() < 0.010) this.addItem('seeds_wormwood', 1);
-                    if (Math.random() < 0.020) this.addItem('seeds_yarrow', 1);
+                    if(Math.random() < 0.015) this.addItem('seeds_sage', 1);
+                    if(Math.random() < 0.010) this.addItem('seeds_wormwood', 1);
+                    if(Math.random() < 0.020) this.addItem('seeds_yarrow', 1);
                     // Rare drop - Netolického pozůstalost (0.1% chance)
-                    if (Math.random() < 0.001) {
+                    if(Math.random() < 0.001) {
                         this.addItem('netolicky_legacy', 1);
                         UI.notifyPanel('📜 ' + (typeof t === 'function' ? t('game.rareFind') : 'Vzácný nález!'), 'system');
-                        setTimeout(function () { Game.showNetolickyModal(); }, 300);
+                        setTimeout(function() { Game.showNetolickyModal(); }, 300);
                     }
                     // v8.x: Sad & Apiarium drops
-                    if (Math.random() < 0.04) this.addItem('pollen', 1);          // 4% — pyl z luk
-                    if (Math.random() < 0.03) this.addItem('linden_blossom', 1);  // 3% — lipový květ
+                    if(Math.random() < 0.04) this.addItem('pollen', 1);          // 4% — pyl z luk
+                    if(Math.random() < 0.03) this.addItem('linden_blossom', 1);  // 3% — lipový květ
                     // Semena stromů — vzácné nálezy při sběru v přírodě
                     const treeSeedRoll = Math.random();
-                    if (treeSeedRoll < 0.015) this.addItem('seed_apple', 1);
-                    else if (treeSeedRoll < 0.025) this.addItem('seed_pear', 1);
-                    else if (treeSeedRoll < 0.034) this.addItem('seed_plum', 1);
-                    else if (treeSeedRoll < 0.040) this.addItem('seed_cherry', 1);
-                    else if (treeSeedRoll < 0.043) this.addItem('seed_rowan', 1);
+                    if(treeSeedRoll < 0.015)      this.addItem('seed_apple', 1);
+                    else if(treeSeedRoll < 0.025) this.addItem('seed_pear', 1);
+                    else if(treeSeedRoll < 0.034) this.addItem('seed_plum', 1);
+                    else if(treeSeedRoll < 0.040) this.addItem('seed_cherry', 1);
+                    else if(treeSeedRoll < 0.043) this.addItem('seed_rowan', 1);
                 }
                 else if (type === 'basic') {
-                    this.addItem((r < 0.5 ? 'rock' : 'stick'), 1);
-                    if (Math.random() < 0.05) this.addItem('carbon_black', 1);
-                    if (Math.random() < 0.04) this.addItem('ochre', 1);
-                    if (Math.random() < 0.10) this.addItem('chalk', 1);
+                    this.addItem((r<0.5?'rock':'stick'), 1);
+                    if(Math.random() < 0.05) this.addItem('carbon_black', 1);
+                    if(Math.random() < 0.04) this.addItem('ochre', 1);
+                    if(Math.random() < 0.10) this.addItem('chalk', 1);
                     // Iron ore — vzácný nález (3%) po odemčení kovařiny
-                    if (Math.random() < 0.03 && GameState.researchedTechs && GameState.researchedTechs.includes('tech_kovarina')) {
+                    if(Math.random() < 0.03 && GameState.researchedTechs && GameState.researchedTechs.includes('tech_kovarina')) {
                         this.addItem('iron_ore', 1);
                     }
                 }
                 else if (type === 'bark') { this.addItem('bark', 2); }
-                else if (type === 'fishing') { this.addItem('fish', r < 0.3 ? 2 : 1); if (r > 0.8) this.addItem('water', 1); }
-                else if (type === 'foraging') {
-                    if (r < 0.25) this.addItem('mushroom', 2);
-                    else if (r < 0.45) this.addItem('berries', 2);
-                    else if (r < 0.55) this.addItem('mushroom_poison', 1);
-                    else if (r < 0.7) this.addItem('roots', 1);
-                    else if (r < 0.8) this.addItem('seeds_vegetable', 1);
-                    else if (r < 0.9) this.addItem('nightshade', 1);
+                else if (type === 'fishing') { this.addItem('fish', r<0.3?2:1); if(r>0.8) this.addItem('water', 1); }
+                else if (type === 'foraging') { 
+                    if(r<0.25) this.addItem('mushroom', 2);
+                    else if(r<0.45) this.addItem('berries', 2);
+                    else if(r<0.55) this.addItem('mushroom_poison', 1);
+                    else if(r<0.7) this.addItem('roots', 1);
+                    else if(r<0.8) this.addItem('seeds_vegetable', 1);
+                    else if(r<0.9) this.addItem('nightshade', 1);
                     else this.addItem('fiber', 1);
-                    if (Math.random() < 0.02) this.addItem('viticis_baco', 1);
+                    if(Math.random() < 0.02) this.addItem('viticis_baco', 1);
                     // v8.x: Zelenina a koření při sběru potravy
-                    if (Math.random() < 0.05) this.addItem('garlic', 1);
-                    if (Math.random() < 0.04) this.addItem('leek', 1);
-                    if (Math.random() < 0.04) this.addItem('nettle', 1);
-                    if (Math.random() < 0.03) this.addItem('seeds_garlic', 1);
-                    if (Math.random() < 0.02) this.addItem('seeds_nettle', 1);
+                    if(Math.random() < 0.05) this.addItem('garlic', 1);
+                    if(Math.random() < 0.04) this.addItem('leek', 1);
+                    if(Math.random() < 0.04) this.addItem('nettle', 1);
+                    if(Math.random() < 0.03) this.addItem('seeds_garlic', 1);
+                    if(Math.random() < 0.02) this.addItem('seeds_nettle', 1);
                     // Žaludy — podzimní nález
-                    if (Math.random() < 0.12) this.addItem('acorn', 1);
+                    if(Math.random() < 0.12) this.addItem('acorn', 1);
                 }
                 else if (type === 'wetlands') {
-                    if (r < 0.4) this.addItem('frog', 1);
-                    else if (r < 0.7) this.addItem('slug', 2);
-                    else if (r < 0.85) this.addItem('water', 2);
+                    if(r<0.4) this.addItem('frog', 1);
+                    else if(r<0.7) this.addItem('slug', 2);
+                    else if(r<0.85) this.addItem('water', 2);
                     else this.addItem('fiber', 1);
                     // v8.x: plůdek — vzácný nález v mokřadu
-                    if (Math.random() < 0.08) this.addItem('fry', 1);
+                    if(Math.random() < 0.08) this.addItem('fry', 1);
                 }
                 else if (type === 'resin_harvest') {
-                    if (r < 0.5) this.addItem('resin', 1);
-                    else if (r < 0.7) this.addItem('honey', 1);
+                    if(r<0.5) this.addItem('resin', 1);
+                    else if(r<0.7) this.addItem('honey', 1);
                     else this.addItem('bark', 1);
-                    if (Math.random() < 0.20) this.addItem('beeswax', 1);
-                    if (Math.random() < 0.05) this.addItem('linden_blossom', 1);
-                    if (Math.random() < 0.03) this.addItem('pollen', 1);
-                    if (Math.random() < 0.03) this.addItem('viticis_baco', 1);
+                    if(Math.random() < 0.20) this.addItem('beeswax', 1);
+                    if(Math.random() < 0.05) this.addItem('linden_blossom', 1);
+                    if(Math.random() < 0.03) this.addItem('pollen', 1);
+                    if(Math.random() < 0.03) this.addItem('viticis_baco', 1);
                 }
                 else if (type === 'grass_gather') {
                     this.addItem('grass', Math.random() < 0.5 ? 3 : 2);
-                    if (Math.random() < 0.30) this.addItem('linden_blossom', 1);
-                    if (Math.random() < 0.20) this.addItem('chamomile', 1);
-                    if (Math.random() < 0.10) this.addItem('thyme', 1);
-                    if (Math.random() < 0.08) this.addItem('yarrow', 1);
-                    if (Math.random() < 0.05) this.addItem('wormwood', 1);
-                    if (Math.random() < 0.04) this.addItem('sage', 1);
+                    if(Math.random() < 0.30) this.addItem('linden_blossom', 1);
+                    if(Math.random() < 0.20) this.addItem('chamomile', 1);
+                    if(Math.random() < 0.10) this.addItem('thyme', 1);
+                    if(Math.random() < 0.08) this.addItem('yarrow', 1);
+                    if(Math.random() < 0.05) this.addItem('wormwood', 1);
+                    if(Math.random() < 0.04) this.addItem('sage', 1);
                 }
                 else if (type === 'wood_harvest') {
                     this.addItem('log', Math.random() < 0.4 ? 2 : 1);
-                    if (Math.random() < 0.60) this.addItem('stick', 2);
-                    if (Math.random() < 0.20) this.addItem('bark', 1);
-                    if (Math.random() < 0.10) this.addItem('resin', 1);
-                    if (Math.random() < 0.05) this.addItem('charcoal', 1);
+                    if(Math.random() < 0.60) this.addItem('stick', 2);
+                    if(Math.random() < 0.20) this.addItem('bark', 1);
+                    if(Math.random() < 0.10) this.addItem('resin', 1);
+                    if(Math.random() < 0.05) this.addItem('charcoal', 1);
                 }
                 else if (type === 'worms_dig') {
                     this.addItem('worms', Math.random() < 0.5 ? 3 : 2);
-                    if (Math.random() < 0.40) this.addItem('rock', 1);
-                    if (Math.random() < 0.20) this.addItem('clay', 1);
-                    if (Math.random() < 0.10) this.addItem('seeds_herb', 1);
+                    if(Math.random() < 0.40) this.addItem('rock', 1);
+                    if(Math.random() < 0.20) this.addItem('clay', 1);
+                    if(Math.random() < 0.10) this.addItem('seeds_herb', 1);
                 }
                 else if (type === 'dig_clay') {
                     this.addItem('clay', Math.random() < 0.5 ? 3 : 2);
-                    if (Math.random() < 0.30) this.addItem('rock', 1);
-                    if (Math.random() < 0.10) this.addItem('worms', 1);
+                    if(Math.random() < 0.30) this.addItem('rock', 1);
+                    if(Math.random() < 0.10) this.addItem('worms', 1);
                 }
                 else if (type === 'yard_cleanup') {
                     this.addItem('scraps', Math.random() < 0.5 ? 2 : 1);
-                    if (Math.random() < 0.40) this.addItem('feather_hen', 1);
-                    if (Math.random() < 0.30) this.addItem('wool', 1);
-                    if (Math.random() < 0.20) this.addItem('egg', 1);
-                    if (Math.random() < 0.10) this.addItem('pollen', 1);
-                    if (Math.random() < 0.05) this.addItem('bone', 1);
+                    if(Math.random() < 0.40) this.addItem('feather_hen', 1);
+                    if(Math.random() < 0.30) this.addItem('wool', 1);
+                    if(Math.random() < 0.20) this.addItem('egg', 1);
+                    if(Math.random() < 0.10) this.addItem('pollen', 1);
+                    if(Math.random() < 0.05) this.addItem('bone', 1);
                     // 0.5% — náhodný lostItem
-                    if (Math.random() < 0.005) {
+                    if(Math.random() < 0.005) {
                         const lostPool = Object.entries(ItemsDB).filter(([id, i]) => i.lostItem).map(([id]) => id);
-                        if (lostPool.length > 0) {
+                        if(lostPool.length > 0) {
                             const found = lostPool[Math.floor(Math.random() * lostPool.length)];
                             this.addItem(found, 1);
                             UI.notify('🔍 ' + (iName ? iName(found) : found) + '!');
@@ -34210,14 +34350,14 @@ const Game = {
                 else if (type === 'quarry_stone') {
                     const qty = Math.random() < 0.4 ? 6 : (Math.random() < 0.6 ? 4 : 3);
                     this.addItem('rock', Math.round(qty * _toolMult));
-                    if (Math.random() < 0.15) this.addItem('cut_stone', 1);
-                    if (Math.random() < 0.05) this.addItem('clay', 1);
+                    if(Math.random() < 0.15) this.addItem('cut_stone', 1);
+                    if(Math.random() < 0.05) this.addItem('clay', 1);
                 }
                 else if (type === 'mine_iron_ore') {
                     const qty = Math.random() < 0.4 ? 3 : (Math.random() < 0.6 ? 2 : 1);
                     this.addItem('iron_ore', Math.round(qty * _toolMult));
-                    if (Math.random() < 0.20) this.addItem('charcoal', 1);
-                    if (Math.random() < 0.05) this.addItem('rock', 2);
+                    if(Math.random() < 0.20) this.addItem('charcoal', 1);
+                    if(Math.random() < 0.05) this.addItem('rock', 2);
                 }
                 total++;
             }
@@ -34258,31 +34398,31 @@ const Game = {
         }
         if (GameState.activeAction && (type === 'basic' || type === 'nature')) {
             let r = Math.random();
-            if (type === 'nature') {
-                if (r < 0.08) this.addItem('herb_red', 1);
-                else if (r < 0.12) this.addItem('herb_yellow', 1);
-                else if (r < 0.16) this.addItem('herb_blue', 1);
-                else if (r < 0.2) this.addItem('mint', 1);
-                else if (r < 0.5) this.addItem('fiber', 2);
-                else if (r < 0.7) this.addItem('water', 1);
-                else if (r < 0.8) this.addItem('seeds_herb', 1);
-                else if (r < 0.9) this.addItem('seeds_yellow', 1);
-                else if (r < 0.95) this.addItem('seeds_blue', 1);
-                else this.addItem('seeds_mint', 1);
-
+            if (type === 'nature') { 
+                if(r<0.08) this.addItem('herb_red',1);
+                else if(r<0.12) this.addItem('herb_yellow',1);
+                else if(r<0.16) this.addItem('herb_blue',1);
+                else if(r<0.2) this.addItem('mint',1);
+                else if(r<0.5) this.addItem('fiber',2);
+                else if(r<0.7) this.addItem('water',1);
+                else if(r<0.8) this.addItem('seeds_herb',1);
+                else if(r<0.9) this.addItem('seeds_yellow',1);
+                else if(r<0.95) this.addItem('seeds_blue',1);
+                else this.addItem('seeds_mint',1);
+                
                 // v7.5: NEW DROP - gall_nut for gallic ink
-                if (Math.random() < 0.06) this.addItem('gall_nut', 1); // 6% chance
-
+                if(Math.random() < 0.06) this.addItem('gall_nut', 1); // 6% chance
+                
                 // Rare drop - Netolického pozůstalost (0.1% chance)
-                if (Math.random() < 0.001) {
+                if(Math.random() < 0.001) {
                     this.addItem('netolicky_legacy', 1);
                     UI.notifyPanel('📜 ' + (typeof t === 'function' ? t('game.rareFind') : 'Vzácný nález!'), 'system');
-                    setTimeout(function () { Game.showNetolickyModal(); }, 300);
+                    setTimeout(function() { Game.showNetolickyModal(); }, 300);
                 }
             }
-            else if (type === 'basic') {
-                this.addItem((r < 0.5 ? 'rock' : 'stick'), 1);
-                if (Math.random() < 0.10) this.addItem('chalk', 1);
+            else if (type === 'basic') { 
+                this.addItem((r<0.5?'rock':'stick'), 1); 
+                if(Math.random() < 0.10) this.addItem('chalk', 1);
             }
             // ── notifyAccum: quick scavenge ──
             {
@@ -34298,7 +34438,7 @@ const Game = {
             Game.save(); UI.renderAll(); return;
         }
         if (GameState.activeAction) { UI.notify(t('game.busy'), true); return; }
-
+        
         const durationMin = action.collectMode ? 5 : GameState.selectedDuration;
         if (durationMin === 0) {
             // ── snapshot pro single scavenge ──
@@ -34306,128 +34446,128 @@ const Game = {
             const _s0before = {};
             for (const k of Object.keys(GameState.inventory)) _s0before[k] = GameState.inventory[k] || 0;
             let r = Math.random();
-            if (type === 'hunt') {
-                this.addItem('fat', 1);
-                this.addItem('meat', 1);
+            if (type === 'hunt') { 
+                this.addItem('fat', 1); 
+                this.addItem('meat', 1); 
                 if (r > 0.4) this.addItem('bone', 1);
                 if (r > 0.7) this.addItem('leather', 1); // 30% chance
                 // v7.5: NEW DROPS
                 if (r > 0.5) this.addItem('hide', 1); // 50% chance
                 if (r > 0.7) this.addItem('feather', 1); // 30% chance
             }
-            else if (type === 'nature') {
-                if (r < 0.08) this.addItem('herb_red', 1);
-                else if (r < 0.12) this.addItem('herb_yellow', 1);
-                else if (r < 0.16) this.addItem('herb_blue', 1);
-                else if (r < 0.2) this.addItem('mint', 1);
-                else if (r < 0.5) this.addItem('fiber', 2);
-                else if (r < 0.7) this.addItem('water', 1);
-                else if (r < 0.8) this.addItem('seeds_herb', 1);
-                else if (r < 0.9) this.addItem('seeds_yellow', 1);
-                else if (r < 0.95) this.addItem('seeds_blue', 1);
-                else this.addItem('seeds_mint', 1);
-
+            else if (type === 'nature') { 
+                if(r<0.08) this.addItem('herb_red',1);
+                else if(r<0.12) this.addItem('herb_yellow',1);
+                else if(r<0.16) this.addItem('herb_blue',1);
+                else if(r<0.2) this.addItem('mint',1);
+                else if(r<0.5) this.addItem('fiber',2);
+                else if(r<0.7) this.addItem('water',1);
+                else if(r<0.8) this.addItem('seeds_herb',1);
+                else if(r<0.9) this.addItem('seeds_yellow',1);
+                else if(r<0.95) this.addItem('seeds_blue',1);
+                else this.addItem('seeds_mint',1);
+                
                 // v7.5: NEW DROP - gall_nut for gallic ink
-                if (Math.random() < 0.06) this.addItem('gall_nut', 1); // 6% chance
+                if(Math.random() < 0.06) this.addItem('gall_nut', 1); // 6% chance
                 // Athanor: byliny
-                if (Math.random() < 0.08) this.addItem('chamomile', 1);
-                if (Math.random() < 0.05) this.addItem('st_johns_wort', 1);
-                if (Math.random() < 0.04) this.addItem('thyme', 1);
-                if (Math.random() < 0.03) this.addItem('seeds_thyme', 1);
-                if (Math.random() < 0.02) this.addItem('hops', 1);
-                if (Math.random() < 0.01) this.addItem('seeds_hops', 1);
+                if(Math.random() < 0.08) this.addItem('chamomile', 1);
+                if(Math.random() < 0.05) this.addItem('st_johns_wort', 1);
+                if(Math.random() < 0.04) this.addItem('thyme', 1);
+                if(Math.random() < 0.03) this.addItem('seeds_thyme', 1);
+                if(Math.random() < 0.02) this.addItem('hops', 1);
+                if(Math.random() < 0.01) this.addItem('seeds_hops', 1);
                 // v8.x: Nové byliny
-                if (Math.random() < 0.03) this.addItem('sage', 1);
-                if (Math.random() < 0.02) this.addItem('fennel', 1);
-                if (Math.random() < 0.03) this.addItem('wormwood', 1);
-                if (Math.random() < 0.04) this.addItem('yarrow', 1);
-                if (Math.random() < 0.02) this.addItem('hyssop', 1);
-                if (Math.random() < 0.015) this.addItem('seeds_sage', 1);
-                if (Math.random() < 0.010) this.addItem('seeds_wormwood', 1);
-                if (Math.random() < 0.020) this.addItem('seeds_yarrow', 1);
+                if(Math.random() < 0.03) this.addItem('sage', 1);
+                if(Math.random() < 0.02) this.addItem('fennel', 1);
+                if(Math.random() < 0.03) this.addItem('wormwood', 1);
+                if(Math.random() < 0.04) this.addItem('yarrow', 1);
+                if(Math.random() < 0.02) this.addItem('hyssop', 1);
+                if(Math.random() < 0.015) this.addItem('seeds_sage', 1);
+                if(Math.random() < 0.010) this.addItem('seeds_wormwood', 1);
+                if(Math.random() < 0.020) this.addItem('seeds_yarrow', 1);
                 // Rare drop - Netolického pozůstalost (0.1% chance)
-                if (Math.random() < 0.001) {
+                if(Math.random() < 0.001) {
                     this.addItem('netolicky_legacy', 1);
                     UI.notifyPanel('📜 ' + (typeof t === 'function' ? t('game.rareFind') : 'Vzácný nález!'), 'system');
-                    setTimeout(function () { Game.showNetolickyModal(); }, 300);
+                    setTimeout(function() { Game.showNetolickyModal(); }, 300);
                 }
             }
             else if (type === 'basic') {
-                this.addItem((r < 0.5 ? 'rock' : 'stick'), 1);
-                if (Math.random() < 0.05) this.addItem('carbon_black', 1);
-                if (Math.random() < 0.04) this.addItem('ochre', 1);
-                if (Math.random() < 0.10) this.addItem('chalk', 1); // Křídová pánev — lokálně dostupná
+                this.addItem((r<0.5?'rock':'stick'), 1);
+                if(Math.random() < 0.05) this.addItem('carbon_black', 1);
+                if(Math.random() < 0.04) this.addItem('ochre', 1);
+                if(Math.random() < 0.10) this.addItem('chalk', 1); // Křídová pánev — lokálně dostupná
             }
             else if (type === 'bark') { this.addItem('bark', 2); }
-            else if (type === 'fishing') { this.addItem('fish', r < 0.3 ? 2 : 1); if (r > 0.8) this.addItem('water', 1); }
-            else if (type === 'foraging') {
-                if (r < 0.25) this.addItem('mushroom', 2);
-                else if (r < 0.45) this.addItem('berries', 2);
-                else if (r < 0.55) this.addItem('mushroom_poison', 1);
-                else if (r < 0.7) this.addItem('roots', 1);
-                else if (r < 0.8) this.addItem('seeds_vegetable', 1);
-                else if (r < 0.9) this.addItem('nightshade', 1);
+            else if (type === 'fishing') { this.addItem('fish', r<0.3?2:1); if(r>0.8) this.addItem('water', 1); }
+            else if (type === 'foraging') { 
+                if(r<0.25) this.addItem('mushroom', 2);
+                else if(r<0.45) this.addItem('berries', 2);
+                else if(r<0.55) this.addItem('mushroom_poison', 1);
+                else if(r<0.7) this.addItem('roots', 1);
+                else if(r<0.8) this.addItem('seeds_vegetable', 1);
+                else if(r<0.9) this.addItem('nightshade', 1);
                 else this.addItem('fiber', 1);
-                if (Math.random() < 0.02) this.addItem('viticis_baco', 1);
+                if(Math.random() < 0.02) this.addItem('viticis_baco', 1);
                 // v8.x: Zelenina a koření
-                if (Math.random() < 0.05) this.addItem('garlic', 1);
-                if (Math.random() < 0.04) this.addItem('leek', 1);
-                if (Math.random() < 0.04) this.addItem('nettle', 1);
-                if (Math.random() < 0.03) this.addItem('seeds_garlic', 1);
-                if (Math.random() < 0.02) this.addItem('seeds_nettle', 1);
+                if(Math.random() < 0.05) this.addItem('garlic', 1);
+                if(Math.random() < 0.04) this.addItem('leek', 1);
+                if(Math.random() < 0.04) this.addItem('nettle', 1);
+                if(Math.random() < 0.03) this.addItem('seeds_garlic', 1);
+                if(Math.random() < 0.02) this.addItem('seeds_nettle', 1);
                 // Žaludy
-                if (Math.random() < 0.12) this.addItem('acorn', 1);
+                if(Math.random() < 0.12) this.addItem('acorn', 1);
             }
             else if (type === 'wetlands') {
-                if (r < 0.4) this.addItem('frog', 1);
-                else if (r < 0.7) this.addItem('slug', 2);
-                else if (r < 0.85) this.addItem('water', 2);
+                if(r<0.4) this.addItem('frog', 1);
+                else if(r<0.7) this.addItem('slug', 2);
+                else if(r<0.85) this.addItem('water', 2);
                 else this.addItem('fiber', 1);
             }
             else if (type === 'resin_harvest') {
-                if (r < 0.5) this.addItem('resin', 1);
-                else if (r < 0.7) this.addItem('honey', 1);
+                if(r<0.5) this.addItem('resin', 1);
+                else if(r<0.7) this.addItem('honey', 1);
                 else this.addItem('bark', 1);
-                if (Math.random() < 0.15) this.addItem('beeswax', 1);
-                if (Math.random() < 0.03) this.addItem('viticis_baco', 1);
+                if(Math.random() < 0.15) this.addItem('beeswax', 1);
+                if(Math.random() < 0.03) this.addItem('viticis_baco', 1);
             }
             else if (type === 'grass_gather') {
                 this.addItem('grass', Math.random() < 0.5 ? 3 : 2);
-                if (Math.random() < 0.30) this.addItem('linden_blossom', 1);
-                if (Math.random() < 0.20) this.addItem('chamomile', 1);
-                if (Math.random() < 0.10) this.addItem('thyme', 1);
-                if (Math.random() < 0.08) this.addItem('yarrow', 1);
-                if (Math.random() < 0.05) this.addItem('wormwood', 1);
-                if (Math.random() < 0.04) this.addItem('sage', 1);
+                if(Math.random() < 0.30) this.addItem('linden_blossom', 1);
+                if(Math.random() < 0.20) this.addItem('chamomile', 1);
+                if(Math.random() < 0.10) this.addItem('thyme', 1);
+                if(Math.random() < 0.08) this.addItem('yarrow', 1);
+                if(Math.random() < 0.05) this.addItem('wormwood', 1);
+                if(Math.random() < 0.04) this.addItem('sage', 1);
             }
             else if (type === 'wood_harvest') {
                 this.addItem('log', Math.random() < 0.4 ? 2 : 1);
-                if (Math.random() < 0.60) this.addItem('stick', 2);
-                if (Math.random() < 0.20) this.addItem('bark', 1);
-                if (Math.random() < 0.10) this.addItem('resin', 1);
-                if (Math.random() < 0.05) this.addItem('charcoal', 1);
+                if(Math.random() < 0.60) this.addItem('stick', 2);
+                if(Math.random() < 0.20) this.addItem('bark', 1);
+                if(Math.random() < 0.10) this.addItem('resin', 1);
+                if(Math.random() < 0.05) this.addItem('charcoal', 1);
             }
             else if (type === 'worms_dig') {
                 this.addItem('worms', Math.random() < 0.5 ? 3 : 2);
-                if (Math.random() < 0.40) this.addItem('rock', 1);
-                if (Math.random() < 0.20) this.addItem('clay', 1);
-                if (Math.random() < 0.10) this.addItem('seeds_herb', 1);
+                if(Math.random() < 0.40) this.addItem('rock', 1);
+                if(Math.random() < 0.20) this.addItem('clay', 1);
+                if(Math.random() < 0.10) this.addItem('seeds_herb', 1);
             }
             else if (type === 'dig_clay') {
                 this.addItem('clay', Math.random() < 0.5 ? 3 : 2);
-                if (Math.random() < 0.30) this.addItem('rock', 1);
-                if (Math.random() < 0.10) this.addItem('worms', 1);
+                if(Math.random() < 0.30) this.addItem('rock', 1);
+                if(Math.random() < 0.10) this.addItem('worms', 1);
             }
             else if (type === 'yard_cleanup') {
                 this.addItem('scraps', Math.random() < 0.5 ? 2 : 1);
-                if (Math.random() < 0.40) this.addItem('feather_hen', 1);
-                if (Math.random() < 0.30) this.addItem('wool', 1);
-                if (Math.random() < 0.20) this.addItem('egg', 1);
-                if (Math.random() < 0.10) this.addItem('pollen', 1);
-                if (Math.random() < 0.05) this.addItem('bone', 1);
-                if (Math.random() < 0.005) {
+                if(Math.random() < 0.40) this.addItem('feather_hen', 1);
+                if(Math.random() < 0.30) this.addItem('wool', 1);
+                if(Math.random() < 0.20) this.addItem('egg', 1);
+                if(Math.random() < 0.10) this.addItem('pollen', 1);
+                if(Math.random() < 0.05) this.addItem('bone', 1);
+                if(Math.random() < 0.005) {
                     const lostPool = Object.entries(ItemsDB).filter(([id, i]) => i.lostItem).map(([id]) => id);
-                    if (lostPool.length > 0) {
+                    if(lostPool.length > 0) {
                         const found = lostPool[Math.floor(Math.random() * lostPool.length)];
                         this.addItem(found, 1);
                         UI.notify('🔍 ' + (iName ? iName(found) : found) + '!');
@@ -34463,7 +34603,7 @@ const Game = {
             Game.save(); UI.renderActions();
         }
     },
-    checkEnvironment: function () {
+    checkEnvironment: function() {
         if (typeof FireplaceSystem !== 'undefined') FireplaceSystem.render();
         const container = document.getElementById('game-container');
         const fpCard = document.getElementById('card-fireplace');
@@ -34500,7 +34640,7 @@ const Game = {
         const isDark = GameState.flags.forceDark || (!TimeSys.isDaytime() && !GameState.flags.fireplaceLit && !GameState.flags.candleLit && !GameState.flags.torchLit);
         if (isDark) container.classList.add('mode-frozen');
         else container.classList.remove('mode-frozen');
-
+        
         const lightCard = document.getElementById('card-light-source');
         const navLore = document.getElementById('nav-lore');
         const loreOverlay = document.getElementById('lore-overlay');
@@ -34508,37 +34648,37 @@ const Game = {
         const btnCandle = document.getElementById('btn-light-candle');
         const btnTorch = document.getElementById('btn-light-torch');
         const lightDesc = document.getElementById('light-desc'); // Přidáno pro popisek
-
+        
         lightCard.classList.remove('candle-active', 'torch-active');
         navLore.classList.remove('nav-candle-active', 'nav-torch-active');
         lightCard.style.opacity = GameState.flags.fireplaceLit ? "1" : "0.5";
-
+        
         if (GameState.flags.candleLit) {
-            document.getElementById('light-icon').innerText = "🕯️";
+            document.getElementById('light-icon').innerText = "🕯️"; 
             document.getElementById('light-title').innerText = t('light.candle');
             if (lightDesc) lightDesc.innerText = t('light.candleDesc'); // Aktualizace popisku
-            navLore.classList.add('nav-candle-active');
+            navLore.classList.add('nav-candle-active'); 
             btnCandle.style.display = 'none'; btnTorch.style.display = 'inline-block';
             loreOverlay.style.display = 'none'; loreWrap.classList.remove('lore-darkness');
         } else if (GameState.flags.torchLit) {
-            document.getElementById('light-icon').innerText = "🔥";
+            document.getElementById('light-icon').innerText = "🔥"; 
             document.getElementById('light-title').innerText = t('light.torch');
             if (lightDesc) lightDesc.innerText = t('light.torchDesc'); // Aktualizace popisku
-            navLore.classList.add('nav-torch-active');
+            navLore.classList.add('nav-torch-active'); 
             btnTorch.style.display = 'none'; btnCandle.style.display = 'inline-block';
             loreOverlay.style.display = 'none'; loreWrap.classList.remove('lore-darkness');
         } else {
-            document.getElementById('light-icon').innerText = "🌑";
+            document.getElementById('light-icon').innerText = "🌑"; 
             document.getElementById('light-title').innerText = t('light.none');
             if (lightDesc) lightDesc.innerText = t('light.noneDesc'); // Aktualizace popisku
-            const hasC = (GameState.inventory['candle'] || 0) > 0;
+            const hasC = (GameState.inventory['candle'] || 0) > 0; 
             const hasT = (GameState.inventory['primitive_torch'] || 0) > 0;
             btnCandle.style.display = (GameState.flags.fireplaceLit && hasC) ? 'inline-block' : 'none';
             btnTorch.style.display = (GameState.flags.fireplaceLit && hasT) ? 'inline-block' : 'none';
             loreOverlay.style.display = 'block'; loreWrap.classList.add('lore-darkness');
         }
         btnCandle.disabled = !GameState.flags.fireplaceLit; btnTorch.disabled = !GameState.flags.fireplaceLit;
-        UI.renderActions();
+        UI.renderActions(); 
         // Tech backpack filter visibility
         const filterBar = document.getElementById('inv-filter-bar');
         if (filterBar) {
@@ -34549,50 +34689,50 @@ const Game = {
             }
         }
     },
-    addItem: function (id, qty) {
+    addItem: function(id, qty) {
         const isFirstTime = !GameState.inventory[id] || GameState.inventory[id] === 0;
-
-        if (!GameState.inventory[id]) GameState.inventory[id] = 0;
-        GameState.inventory[id] += qty;
-
+        
+        if(!GameState.inventory[id]) GameState.inventory[id] = 0;
+        GameState.inventory[id] += qty; 
+        
         // Stats tracking
-        if (GameState.achievements) {
+        if(GameState.achievements) {
             GameState.achievements.stats.itemsCrafted += qty;
-            if (id === 'research') {
+            if(id === 'research') {
                 GameState.achievements.stats.researchCount += qty;
             }
         }
-
+        
         // Discovery mechanika
-        if (isFirstTime && LoreDB[id] && !GameState.discoveredLore.includes(id)) {
+        if(isFirstTime && LoreDB[id] && !GameState.discoveredLore.includes(id)) {
             GameState.discoveredLore.push(id);
-            if (GameState.achievements) GameState.achievements.stats.itemsDiscovered++;
+            if(GameState.achievements) GameState.achievements.stats.itemsDiscovered++;
             UI.notifyPanel(t('game.newCodexEntry'), 'system');
             Game.addKronikaEntry('important', '📜 Nový zápis v Codexu.', '📜 New entry in the Codex.', '📜 Nova inscriptio in Codice.');
             setTimeout(() => UI.notify(t('game.itemAdded').replace('{qty}', qty).replace('{item}', iName(id))), 500);
         } else {
             if (!Game._scavenging) UI.notify(t('game.itemAdded').replace('{qty}', qty).replace('{item}', iName(id)));
         }
-
+        
         if (!Game._scavenging) { Game.save(); Game.checkEnvironment(); UI.renderAll(); }
         Game.checkAchievements();
     },
-    removeItem: function (id, qty) {
-        if (GameState.inventory[id] >= qty) {
-            GameState.inventory[id] -= qty; if (GameState.inventory[id] <= 0) delete GameState.inventory[id];
+    removeItem: function(id, qty) {
+        if(GameState.inventory[id] >= qty) {
+            GameState.inventory[id] -= qty; if(GameState.inventory[id] <= 0) delete GameState.inventory[id];
             Game.save(); Game.checkEnvironment(); UI.renderAll(); return true;
         } return false;
     },
-    craft: function (id) {
+    craft: function(id) {
         const r = RecipesDB.find(x => x.id === id);
-        if (!GameState.flags.fireplaceLit && !r.blind) { UI.notify(t('game.frozenHands'), true); return; }
+        if(!GameState.flags.fireplaceLit && !r.blind) { UI.notify(t('game.frozenHands'), true); return; }
 
         // Vigor check — těžké recepty vyžadují Vigor >= 25, lehké >= 10
         if (typeof VigorSystem !== 'undefined') {
             if (!VigorSystem.canAct()) { UI.notify(t('game.vigor.exhausted'), true); return; }
-            const heavyItems = ['vellum', 'codex_luxury', 'illuminated_page', 'vellum_codex', 'printing_type', 'ink_gallic'];
+            const heavyItems = ['vellum','codex_luxury','illuminated_page','vellum_codex','printing_type','ink_gallic'];
             const isHeavy = heavyItems.includes(r.output);
-            const isLight = ['paper', 'ink', 'candle', 'tinderbox', 'quill', 'tallow_candle'].includes(r.output);
+            const isLight = ['paper','ink','candle','tinderbox','quill','tallow_candle'].includes(r.output);
             if (isHeavy && !VigorSystem.canHeavy()) {
                 const lang = (GameState.settings && GameState.settings.language) || 'cs';
                 UI.notify(lang === 'en'
@@ -34621,18 +34761,18 @@ const Game = {
             }
         }
 
-        for (let [item, amt] of Object.entries(r.req)) {
-            if (amt > 0 && (!GameState.inventory[item] || GameState.inventory[item] < amt)) { UI.notify(t('game.missingMats'), true); return; }
-            if (amt === 0 && !GameState.inventory[item]) { UI.notify(`${t('game.required2')} ${iName(item)}`, true); return; }
+        for(let [item, amt] of Object.entries(r.req)) {
+            if(amt > 0 && (!GameState.inventory[item] || GameState.inventory[item] < amt)) { UI.notify(t('game.missingMats'), true); return; }
+            if(amt === 0 && !GameState.inventory[item]) { UI.notify(`${t('game.required2')} ${iName(item)}`, true); return; }
         }
-        for (let [item, amt] of Object.entries(r.req)) if (amt > 0) this.removeItem(item, amt);
+        for(let [item, amt] of Object.entries(r.req)) if(amt > 0) this.removeItem(item, amt);
 
         // Init toolUses pro nový nástroj
         if (outItem && outItem.maxUses) {
             if (!GameState.toolUses) GameState.toolUses = {};
             GameState.toolUses[r.output] = outItem.maxUses;
         }
-
+        
         // ========== NEW: Apply canonical hours crafting buff ==========
         let craftQty = r.qty;
         if (typeof CanonicalHours !== 'undefined') {
@@ -34644,7 +34784,7 @@ const Game = {
                 }
             }
         }
-
+        
         // ── KRONIKA: denní craft buffer ──
         if (!GameState.kronikaCraftBuffer) GameState.kronikaCraftBuffer = { date: '', crafts: {} };
         const _todayCraft = new Date().toISOString().slice(0, 10);
@@ -34713,21 +34853,21 @@ const Game = {
         Game.save();
         UI.renderAll();
     },
-    study: function (id) {
+    study: function(id) {
         const tech = TechTree.find(x => x.id === id);
         if (typeof VigorSystem !== 'undefined' && !VigorSystem.canResearch()) { UI.notify(t('game.vigor.researchBlock'), true); return; }
-        if ((GameState.inventory['research'] || 0) < tech.cost) { UI.notify(t('game.notEnoughResearch'), true); return; }
-
+        if((GameState.inventory['research'] || 0) < tech.cost) { UI.notify(t('game.notEnoughResearch'), true); return; }
+        
         // Check if requires other tech
-        if (tech.requires) {
+        if(tech.requires) {
             const missing = tech.requires.find(req => !GameState.researchedTechs.includes(req));
-            if (missing) {
+            if(missing) {
                 const reqTech = TechTree.find(x => x.id === missing);
-                UI.notify(`${t('game.techRequired')} ${reqTech.name}`, true);
+                UI.notify(`${t('game.techRequired')} ${reqTech.name}`, true); 
                 return;
             }
         }
-
+        
         this.removeItem('research', tech.cost); GameState.researchedTechs.push(id);
         Game.addKronikaEntry('important',
             `Poznáno: ${tech.name}`,
@@ -34735,7 +34875,7 @@ const Game = {
             `Cognitum: ${tech.name}`
         );
         tech.unlocks.forEach(rid => {
-            if (!GameState.unlockedRecipes.includes(rid)) {
+            if(!GameState.unlockedRecipes.includes(rid)) {
                 GameState.unlockedRecipes.push(rid);
                 const _rdb = typeof RecipesDB !== 'undefined' ? RecipesDB.find(x => x.id === rid) : null;
                 const _rout = _rdb ? _rdb.output : rid;
@@ -34747,24 +34887,24 @@ const Game = {
             }
         });
         Analytics.techUnlocked(id, tech.name, tech.cost);
-
+        
         // Special unlocks
-        if (id === 'tech_garden_expand') {
+        if(id === 'tech_garden_expand') {
             // Odemkne herb sloty 2-3
-            if (GameState.garden[2]) GameState.garden[2].locked = false;
-            if (GameState.garden[3]) GameState.garden[3].locked = false;
+            if(GameState.garden[2]) GameState.garden[2].locked = false;
+            if(GameState.garden[3]) GameState.garden[3].locked = false;
         }
-        if (id === 'tech_horticulture') {
+        if(id === 'tech_horticulture') {
             // Odemkne 4x vegetable + 2x special (sloty 4-9)
-            for (let i = 4; i <= 9; i++) { if (GameState.garden[i]) GameState.garden[i].locked = false; }
+            for(let i = 4; i <= 9; i++) { if(GameState.garden[i]) GameState.garden[i].locked = false; }
         }
-        if (id === 'tech_advanced_farming') {
+        if(id === 'tech_advanced_farming') {
             // Odemkne 4x vegetable navíc (sloty 10-13)
-            for (let i = 10; i <= 13; i++) { if (GameState.garden[i]) GameState.garden[i].locked = false; }
+            for(let i = 10; i <= 13; i++) { if(GameState.garden[i]) GameState.garden[i].locked = false; }
         }
-
+        
         const _slang = (GameState.settings && GameState.settings.language) || 'cs';
-        UI.notifyPanel(`📜 ${t('game.crafted')} ${_slang === 'en' ? (tech.name_en || tech.name) : tech.name}`, 'system');
+        UI.notifyPanel(`📜 ${t('game.crafted')} ${_slang==='en'?(tech.name_en||tech.name):tech.name}`, 'system');
 
         // Vigor: research stojí fatigue + hlad dle obtížnosti techu
         if (typeof VigorSystem !== 'undefined') {
@@ -34786,10 +34926,10 @@ const Game = {
             setTimeout(() => UI.showFontSpecimenModal(tech.name, spec), 600);
         }
     },
-    eat: function (foodId) {
+    eat: function(foodId) {
         const item = ItemsDB[foodId];
-        if (!item || item.type !== 'food') { UI.notify(t('game.notFood'), true); return; }
-        if (!(GameState.inventory[foodId] > 0)) { UI.notify(t('game.noFood'), true); return; }
+        if(!item || item.type !== 'food') { UI.notify(t('game.notFood'), true); return; }
+        if(!(GameState.inventory[foodId] > 0)) { UI.notify(t('game.noFood'), true); return; }
 
         this.removeItem(foodId, 1);
 
@@ -34799,7 +34939,7 @@ const Game = {
         }
 
         // Track meals eaten
-        if (GameState.achievements && GameState.achievements.stats) {
+        if(GameState.achievements && GameState.achievements.stats) {
             GameState.achievements.stats.mealsEaten = (GameState.achievements.stats.mealsEaten || 0) + 1;
         }
 
@@ -34808,7 +34948,7 @@ const Game = {
     },
 
     // Pití vody (water = mat type, proto vlastní funkce)
-    drink: function (itemId) {
+    drink: function(itemId) {
         const drinkable = ['water', 'spring_water'];
         if (!drinkable.includes(itemId)) { UI.notify(t('game.notFood'), true); return; }
         if (!(GameState.inventory[itemId] > 0)) { UI.notify(t('game.noFood'), true); return; }
@@ -34818,35 +34958,35 @@ const Game = {
         UI.renderAll();
     },
 
-    checkDailyReward: function () {
+    checkDailyReward: function() {
         const now = Date.now();
         const today = new Date(now).setHours(0, 0, 0, 0);
         const lastLoginDay = new Date(GameState.dailyRewards.lastLogin).setHours(0, 0, 0, 0);
         const daysSinceLastLogin = Math.floor((today - lastLoginDay) / (24 * 60 * 60 * 1000));
-
+        
         // Skip if already claimed today
         const lastClaimDay = new Date(GameState.dailyRewards.lastBonusClaimed).setHours(0, 0, 0, 0);
         if (today === lastClaimDay) {
             return; // Already claimed today
         }
-
+        
         // Update login tracking
         GameState.dailyRewards.lastLogin = now;
         GameState.dailyRewards.totalLogins++;
-
+        
         // Daily stats tracking
-        if (GameState.achievements) {
-            if (GameState.flags.fireplaceLit) {
+        if(GameState.achievements) {
+            if(GameState.flags.fireplaceLit) {
                 GameState.achievements.stats.daysWithFire++;
             }
             // Vigor v2: "fed" = Vigor >= 25
-            if (typeof VigorSystem !== 'undefined' && VigorSystem.getVigor() >= 25) {
+            if(typeof VigorSystem !== 'undefined' && VigorSystem.getVigor() >= 25) {
                 GameState.achievements.stats.daysWithoutHunger++;
             } else {
                 GameState.achievements.stats.daysWithoutHunger = 0;
             }
         }
-
+        
         // Update streak
         if (daysSinceLastLogin === 1) {
             // Consecutive day
@@ -34858,7 +34998,7 @@ const Game = {
             // First ever login
             GameState.dailyRewards.streak = 1;
         }
-
+        
         // ── DAILY REWARD SYSTEM v2 ───────────────────────────────────────────────
         const streak = GameState.dailyRewards.streak;
         const lang = (GameState.settings && GameState.settings.language) || 'cs';
@@ -34868,61 +35008,61 @@ const Game = {
 
         // Milníky — override cyklu
         if (streak === 100) {
-            rewards.push({ item: 'research', qty: 10 }, { item: 'vellum', qty: 1 });
-            bonusText = lang === 'en' ? '+10 Research + Vellum (100 days!) — "The Chronicler writes your name. Not as a visitor — as a brother."'
-                : '+10 Zápisků + Pergamen (100 dní!) — "Kronikář zapíše tvé jméno. Ne jako hosta — jako bratra."';
+            rewards.push({item:'research', qty:10}, {item:'vellum', qty:1});
+            bonusText = lang==='en' ? '+10 Research + Vellum (100 days!) — "The Chronicler writes your name. Not as a visitor — as a brother."'
+                                    : '+10 Zápisků + Pergamen (100 dní!) — "Kronikář zapíše tvé jméno. Ne jako hosta — jako bratra."';
             streakBonus = true;
         } else if (streak === 60) {
-            const pool = ['lapis_lazuli', 'cinnabar'];
+            const pool = ['lapis_lazuli','cinnabar'];
             const rare = pool[Math.floor(Math.random() * pool.length)];
-            rewards.push({ item: 'research', qty: 5 }, { item: rare, qty: 1 });
-            bonusText = lang === 'en' ? '+5 Research + rare find (60 days!) — "The Elder Scribe comes with a small pouch."'
-                : '+5 Zápisků + vzácná surovina (60 dní!) — "Starý Písař přichází s váčkem."';
+            rewards.push({item:'research', qty:5}, {item:rare, qty:1});
+            bonusText = lang==='en' ? '+5 Research + rare find (60 days!) — "The Elder Scribe comes with a small pouch."'
+                                    : '+5 Zápisků + vzácná surovina (60 dní!) — "Starý Písař přichází s váčkem."';
             streakBonus = true;
         } else if (streak === 30) {
-            rewards.push({ item: 'research', qty: 5 }, { item: 'candle', qty: 1 });
-            bonusText = lang === 'en' ? '+5 Research + Candle (30 days!) — "The Abbot has taken notice."'
-                : '+5 Zápisků + Svíčka (30 dní!) — "Měsíc věrnosti. Opat si tě všiml."';
+            rewards.push({item:'research', qty:5}, {item:'candle', qty:1});
+            bonusText = lang==='en' ? '+5 Research + Candle (30 days!) — "The Abbot has taken notice."'
+                                    : '+5 Zápisků + Svíčka (30 dní!) — "Měsíc věrnosti. Opat si tě všiml."';
             streakBonus = true;
         } else if (streak === 14) {
-            rewards.push({ item: 'research', qty: 2 }, { item: 'paper', qty: 1 }, { item: 'candle', qty: 1 });
-            bonusText = lang === 'en' ? '+2 Research + Paper + Candle (14 days!) — "The manuscript takes shape."'
-                : '+2 Zápisky + Papír + Svíčka (14 dní!) — "Rukopis se začíná rýsovat."';
+            rewards.push({item:'research', qty:2}, {item:'paper', qty:1}, {item:'candle', qty:1});
+            bonusText = lang==='en' ? '+2 Research + Paper + Candle (14 days!) — "The manuscript takes shape."'
+                                    : '+2 Zápisky + Papír + Svíčka (14 dní!) — "Rukopis se začíná rýsovat."';
             streakBonus = true;
         } else {
             // Cyklus dní 1–7 (opakuje se mezi milníky)
             const cycleDay = ((streak - 1) % 7) + 1;
             if (cycleDay === 1) {
-                bonusText = lang === 'en' ? '"First day in the cycle. Be silent and observe."'
-                    : '"Mlč a pozoruj. Dnes pero odpočívá."';
+                bonusText = lang==='en' ? '"First day in the cycle. Be silent and observe."'
+                                        : '"Mlč a pozoruj. Dnes pero odpočívá."';
             } else if (cycleDay === 2) {
-                rewards.push({ item: 'paper', qty: 1 });
-                bonusText = lang === 'en' ? '+1 Paper — "You found a sheet behind the altar."'
-                    : '+1 Papír — "Nalezl jsi arch za oltářem."';
+                rewards.push({item:'paper', qty:1});
+                bonusText = lang==='en' ? '+1 Paper — "You found a sheet behind the altar."'
+                                        : '+1 Papír — "Nalezl jsi arch za oltářem."';
             } else if (cycleDay === 3) {
-                if (Math.random() < 0.5) { rewards.push({ item: 'paper', qty: 1 }); bonusText = lang === 'en' ? '+1 Paper' : '+1 Papír'; }
-                else { rewards.push({ item: 'ink', qty: 1 }); bonusText = lang === 'en' ? '+1 Ink' : '+1 Inkoust'; }
-                bonusText += lang === 'en' ? ' — "The Elder Scribe left something on the lectern."'
-                    : ' — "Starý Písař něco nechal na pulpitu."';
+                if (Math.random() < 0.5) { rewards.push({item:'paper', qty:1}); bonusText = lang==='en'?'+1 Paper':'+1 Papír'; }
+                else { rewards.push({item:'ink', qty:1}); bonusText = lang==='en'?'+1 Ink':'+1 Inkoust'; }
+                bonusText += lang==='en' ? ' — "The Elder Scribe left something on the lectern."'
+                                         : ' — "Starý Písař něco nechal na pulpitu."';
             } else if (cycleDay === 4) {
-                rewards.push({ item: 'research', qty: 1 });
-                bonusText = lang === 'en' ? '+1 Research — "A quiet hour for study."'
-                    : '+1 Zápisek — "Tichá hodina ke studiu."';
+                rewards.push({item:'research', qty:1});
+                bonusText = lang==='en' ? '+1 Research — "A quiet hour for study."'
+                                        : '+1 Zápisek — "Tichá hodina ke studiu."';
             } else if (cycleDay === 5) {
-                rewards.push({ item: 'paper', qty: 1 });
-                bonusText = lang === 'en' ? '+1 Paper — "The papermaker was generous."'
-                    : '+1 Papír — "Papírník byl štědrý."';
+                rewards.push({item:'paper', qty:1});
+                bonusText = lang==='en' ? '+1 Paper — "The papermaker was generous."'
+                                        : '+1 Papír — "Papírník byl štědrý."';
             } else if (cycleDay === 6) {
                 const r = Math.random();
-                if (r < 0.34) { rewards.push({ item: 'paper', qty: 1 }); bonusText = lang === 'en' ? '+1 Paper' : '+1 Papír'; }
-                else if (r < 0.67) { rewards.push({ item: 'ink', qty: 1 }); bonusText = lang === 'en' ? '+1 Ink' : '+1 Inkoust'; }
-                else { rewards.push({ item: 'research', qty: 1 }); bonusText = lang === 'en' ? '+1 Research' : '+1 Zápisek'; }
-                bonusText += lang === 'en' ? ' — "A good day at the desk."'
-                    : ' — "Dobrý den u pultu."';
+                if (r < 0.34) { rewards.push({item:'paper', qty:1}); bonusText = lang==='en'?'+1 Paper':'+1 Papír'; }
+                else if (r < 0.67) { rewards.push({item:'ink', qty:1}); bonusText = lang==='en'?'+1 Ink':'+1 Inkoust'; }
+                else { rewards.push({item:'research', qty:1}); bonusText = lang==='en'?'+1 Research':'+1 Zápisek'; }
+                bonusText += lang==='en' ? ' — "A good day at the desk."'
+                                         : ' — "Dobrý den u pultu."';
             } else { // cycleDay === 7
-                rewards.push({ item: 'research', qty: 1 }, { item: 'paper', qty: 1 });
-                bonusText = lang === 'en' ? '+1 Research +1 Paper — "A week of faithful work."'
-                    : '+1 Zápisek +1 Papír — "Týden věrné práce."';
+                rewards.push({item:'research', qty:1}, {item:'paper', qty:1});
+                bonusText = lang==='en' ? '+1 Research +1 Paper — "A week of faithful work."'
+                                        : '+1 Zápisek +1 Papír — "Týden věrné práce."';
             }
         }
 
@@ -34935,55 +35075,55 @@ const Game = {
             if (qty > 0) this.addItem(r.item, qty);
         });
         GameState.dailyRewards.lastBonusClaimed = now;
-
+        
         // Get daily fact
         const factIndex = GameState.dailyRewards.totalLogins % DailyFactsDB.length;
         const factObj = DailyFactsDB[factIndex];
-
+        
         // Support CS/EN structure
         const currentLang = (GameState.settings && GameState.settings.language) || 'cs';
-        const fact = (typeof factObj === 'object')
+        const fact = (typeof factObj === 'object') 
             ? (currentLang === 'en' ? factObj.en : factObj.cs)
             : factObj; // Fallback pro starý formát (plain string)
-
+        
         // Show modal
         UI.showDailyRewardModal(bonusText, GameState.dailyRewards.streak, fact, streakBonus);
         // Panel záznam — persistent reference
         if (typeof NotificationSystem !== 'undefined') {
             const _dlang = (GameState.settings && GameState.settings.language) || 'cs';
-            NotificationSystem.panel('🎁 ' + (_dlang === 'en' ? 'Daily reward: ' : 'Denní odměna: ') + bonusText + ' · streak: ' + GameState.dailyRewards.streak, 'system');
+            NotificationSystem.panel('🎁 ' + (_dlang==='en' ? 'Daily reward: ' : 'Denní odměna: ') + bonusText + ' · streak: ' + GameState.dailyRewards.streak, 'system');
         }
         UI.updateStreak();
         Analytics.dailyRewardClaimed(GameState.dailyRewards.streak);
         Analytics.sessionStart(GameState.dailyRewards.totalLogins, daysSinceLastLogin);
-
+        
         Game.save();
         Game.checkAchievements();
         Game.checkAnimalFeeding();
     },
-    checkAchievements: function () {
-        if (!GameState.achievements) return;
-
+    checkAchievements: function() {
+        if(!GameState.achievements) return;
+        
         let newUnlocks = [];
-
+        
         AchievementsDB.forEach(ach => {
             // Skip if already unlocked
-            if (GameState.achievements.unlocked.includes(ach.id)) return;
-
+            if(GameState.achievements.unlocked.includes(ach.id)) return;
+            
             // Check condition
-            if (ach.condition()) {
+            if(ach.condition()) {
                 GameState.achievements.unlocked.push(ach.id);
                 newUnlocks.push(ach);
-
+                
                 // Grant reward
-                if (ach.reward.research) {
+                if(ach.reward.research) {
                     this.addItem('research', ach.reward.research);
                 }
             }
         });
-
+        
         // Show notifications — přeskočit při prvním spuštění (jazyk ještě není zvolen)
-        if (newUnlocks.length > 0 && !GameState.flags.firstVisit) {
+        if(newUnlocks.length > 0 && !GameState.flags.firstVisit) {
             newUnlocks.forEach(ach => {
                 setTimeout(() => {
                     const _alang = (GameState.settings && GameState.settings.language) || 'cs';
@@ -34993,381 +35133,381 @@ const Game = {
                     Game.addKronikaEntry('important', `🏆 Dosaženo: ${ach.name}`, `🏆 Achievement: ${_an}`, `🏆 Factum est: ${ach.name}`);
                 }, 300);
             });
-
+            
             Game.save();
             UI.renderAll();
         }
-
+        
         // Check Library Easter Eggs
-        if (typeof LibraryHelpers !== 'undefined') {
+        if(typeof LibraryHelpers !== 'undefined') {
             LibraryHelpers.checkEasterEggs();
         }
     },
+	
+	// === WELL SYSTEM === (PŘIDAT před poslední } objektu Game)
 
-    // === WELL SYSTEM === (PŘIDAT před poslední } objektu Game)
+	// ─── KRMNÝ SYSTÉM ──────────────────────────────────────────────────────────
+	checkAnimalFeeding: function() {
+		const lang = (GameState.settings && GameState.settings.language) || 'cs';
+		const now = Date.now();
+		if (!GameState.feeding) GameState.feeding = {};
+		// Krmení aktivuje až Horreum (sýpka skladuje krmivo) — do té doby se zvířata pasou sama
+		if (!(GameState.storage && GameState.storage.horreum && GameState.storage.horreum.built)) return;
+		const animals = [
+			{ key: 'henhouse',  built: GameState.henhouse && GameState.henhouse.built && GameState.henhouse.hens && GameState.henhouse.hens.length > 0, feed: 'grain', feedAmt: 1, name: lang==='en'?'Hens':'Slepice' },
+			{ key: 'sheepfold', built: GameState.sheepfold && GameState.sheepfold.built && GameState.sheepfold.sheep && GameState.sheepfold.sheep.length > 0, feed: 'hay', feedAmt: 1, name: lang==='en'?'Sheep':'Ovce' },
+			{ key: 'piscina',   built: GameState.piscina && GameState.piscina.tier > 0, feed: 'worms', feedAmt: 1, name: lang==='en'?'Fish':'Ryby' },
+			{ key: 'rabbitry',  built: GameState.rabbitry && GameState.rabbitry.built && GameState.rabbitry.animals && GameState.rabbitry.animals.length > 0, feed: 'scraps', fallback: 'hay', feedAmt: 1, name: lang==='en'?'Rabbits':'Králíci' },
+			{ key: 'goatpen',   built: GameState.goatpen && GameState.goatpen.built && GameState.goatpen.animals && GameState.goatpen.animals.length > 0, feed: 'hay', fallback: 'scraps', feedAmt: 1, name: lang==='en'?'Goats':'Kozy' },
+			{ key: 'pigsty',    built: GameState.pigsty && GameState.pigsty.built && GameState.pigsty.animals && GameState.pigsty.animals.length > 0, feed: 'scraps', fallback: 'grain', feedAmt: 2, name: lang==='en'?'Pigs':'Prasata' },
+		];
+		animals.forEach(a => {
+			if (!a.built) return;
+			if (!GameState.feeding[a.key]) GameState.feeding[a.key] = { lastFed: now, hunger: 0 };
+			const hoursSinceFed = (now - GameState.feeding[a.key].lastFed) / 3600000;
+			if (hoursSinceFed >= 24) {
+				// Zkus primární krmivo, pak fallback
+				const primaryHave = GameState.inventory[a.feed] || 0;
+				const fallbackHave = a.fallback ? (GameState.inventory[a.fallback] || 0) : 0;
+				const useFeed = primaryHave >= a.feedAmt ? a.feed : (a.fallback && fallbackHave >= a.feedAmt ? a.fallback : null);
+				if (useFeed) {
+					Game.removeItem(useFeed, a.feedAmt);
+					GameState.feeding[a.key].lastFed = now;
+					GameState.feeding[a.key].hunger = 0;
+					UI.notify(lang==='en' ? a.name+' fed automatically.' : a.name+' nakrmeny automaticky.');
+				} else {
+					GameState.feeding[a.key].hunger = Math.min(3, (GameState.feeding[a.key].hunger || 0) + 1);
+					const penalty = GameState.feeding[a.key].hunger >= 3 ? 75 : GameState.feeding[a.key].hunger >= 2 ? 50 : 25;
+					UI.notify((lang==='en' ? a.name+' hungry! Production -' : a.name+' hladovi! Produkce -')+penalty+'%', true);
+					Game.addKronikaEntry('warning', a.name+' hladovi — chybi '+a.feed+'.', a.name+' hungry — no '+a.feed+'.', a.name+' esuriunt.');
+				}
+			}
+		});
+		Game.save();
+	},
 
-    // ─── KRMNÝ SYSTÉM ──────────────────────────────────────────────────────────
-    checkAnimalFeeding: function () {
-        const lang = (GameState.settings && GameState.settings.language) || 'cs';
-        const now = Date.now();
-        if (!GameState.feeding) GameState.feeding = {};
-        // Krmení aktivuje až Horreum (sýpka skladuje krmivo) — do té doby se zvířata pasou sama
-        if (!(GameState.storage && GameState.storage.horreum && GameState.storage.horreum.built)) return;
-        const animals = [
-            { key: 'henhouse', built: GameState.henhouse && GameState.henhouse.built && GameState.henhouse.hens && GameState.henhouse.hens.length > 0, feed: 'grain', feedAmt: 1, name: lang === 'en' ? 'Hens' : 'Slepice' },
-            { key: 'sheepfold', built: GameState.sheepfold && GameState.sheepfold.built && GameState.sheepfold.sheep && GameState.sheepfold.sheep.length > 0, feed: 'hay', feedAmt: 1, name: lang === 'en' ? 'Sheep' : 'Ovce' },
-            { key: 'piscina', built: GameState.piscina && GameState.piscina.tier > 0, feed: 'worms', feedAmt: 1, name: lang === 'en' ? 'Fish' : 'Ryby' },
-            { key: 'rabbitry', built: GameState.rabbitry && GameState.rabbitry.built && GameState.rabbitry.animals && GameState.rabbitry.animals.length > 0, feed: 'scraps', fallback: 'hay', feedAmt: 1, name: lang === 'en' ? 'Rabbits' : 'Králíci' },
-            { key: 'goatpen', built: GameState.goatpen && GameState.goatpen.built && GameState.goatpen.animals && GameState.goatpen.animals.length > 0, feed: 'hay', fallback: 'scraps', feedAmt: 1, name: lang === 'en' ? 'Goats' : 'Kozy' },
-            { key: 'pigsty', built: GameState.pigsty && GameState.pigsty.built && GameState.pigsty.animals && GameState.pigsty.animals.length > 0, feed: 'scraps', fallback: 'grain', feedAmt: 2, name: lang === 'en' ? 'Pigs' : 'Prasata' },
-        ];
-        animals.forEach(a => {
-            if (!a.built) return;
-            if (!GameState.feeding[a.key]) GameState.feeding[a.key] = { lastFed: now, hunger: 0 };
-            const hoursSinceFed = (now - GameState.feeding[a.key].lastFed) / 3600000;
-            if (hoursSinceFed >= 24) {
-                // Zkus primární krmivo, pak fallback
-                const primaryHave = GameState.inventory[a.feed] || 0;
-                const fallbackHave = a.fallback ? (GameState.inventory[a.fallback] || 0) : 0;
-                const useFeed = primaryHave >= a.feedAmt ? a.feed : (a.fallback && fallbackHave >= a.feedAmt ? a.fallback : null);
-                if (useFeed) {
-                    Game.removeItem(useFeed, a.feedAmt);
-                    GameState.feeding[a.key].lastFed = now;
-                    GameState.feeding[a.key].hunger = 0;
-                    UI.notify(lang === 'en' ? a.name + ' fed automatically.' : a.name + ' nakrmeny automaticky.');
-                } else {
-                    GameState.feeding[a.key].hunger = Math.min(3, (GameState.feeding[a.key].hunger || 0) + 1);
-                    const penalty = GameState.feeding[a.key].hunger >= 3 ? 75 : GameState.feeding[a.key].hunger >= 2 ? 50 : 25;
-                    UI.notify((lang === 'en' ? a.name + ' hungry! Production -' : a.name + ' hladovi! Produkce -') + penalty + '%', true);
-                    Game.addKronikaEntry('warning', a.name + ' hladovi — chybi ' + a.feed + '.', a.name + ' hungry — no ' + a.feed + '.', a.name + ' esuriunt.');
-                }
-            }
-        });
-        Game.save();
-    },
+	// ─── TOOL USES SYSTÉM ──────────────────────────────────────────────────────
+	useToolCharge: function(itemId) {
+		const item = ItemsDB[itemId];
+		if (!item || !item.maxUses) return; // Nástroj bez maxUses — nespotřebovává se (pestle atd.)
 
-    // ─── TOOL USES SYSTÉM ──────────────────────────────────────────────────────
-    useToolCharge: function (itemId) {
-        const item = ItemsDB[itemId];
-        if (!item || !item.maxUses) return; // Nástroj bez maxUses — nespotřebovává se (pestle atd.)
+		if (!GameState.toolUses) GameState.toolUses = {};
+		if (GameState.toolUses[itemId] === undefined) {
+			GameState.toolUses[itemId] = item.maxUses;
+		}
 
-        if (!GameState.toolUses) GameState.toolUses = {};
-        if (GameState.toolUses[itemId] === undefined) {
-            GameState.toolUses[itemId] = item.maxUses;
-        }
+		GameState.toolUses[itemId]--;
+		const remaining = GameState.toolUses[itemId];
+		const lang = (GameState.settings && GameState.settings.language) || 'cs';
+		const name = (typeof iName === 'function') ? iName(itemId) : itemId;
 
-        GameState.toolUses[itemId]--;
-        const remaining = GameState.toolUses[itemId];
-        const lang = (GameState.settings && GameState.settings.language) || 'cs';
-        const name = (typeof iName === 'function') ? iName(itemId) : itemId;
+		if (remaining <= 0) {
+			// Nástroj se opotřeboval
+			const wornId = 'worn_' + itemId; // worn_iron_axe atd.
+			if (itemId.startsWith('worn_') && item.tier === 'iron') {
+				// Worn iron po 3 použitích → nenávratně zničen
+				this.removeItem(itemId, 1);
+				delete GameState.toolUses[itemId];
+				UI.notify((lang==='en' ? '💀 ' + name + ' destroyed beyond repair.' : '💀 ' + name + ' — nenávratně zničena.'), true);
+				if (typeof NotificationSystem !== 'undefined') {
+					NotificationSystem.panel((lang==='en' ? '💀 ' + name + ' destroyed. Craft new tools.' : '💀 ' + name + ' zničena. Vykov nové nástroje.'), 'warning');
+				}
+			} else if (item.tier === 'iron' && ItemsDB[wornId]) {
+				// Iron → degradace na worn
+				this.removeItem(itemId, 1);
+				this.addItem(wornId, 1);
+				delete GameState.toolUses[itemId];
+				UI.notify((lang==='en' ? name + ' worn out — repair it.' : name + ' se opotřebovala — oprav ji.'), true);
+				if (typeof NotificationSystem !== 'undefined') {
+					NotificationSystem.panel((lang==='en' ? '🔧 ' + name + ' worn out. Needs repair.' : '🔧 ' + name + ' opotřebována. Potřebuje opravu.'), 'system');
+				}
+			} else {
+				// Stone → smazat
+				this.removeItem(itemId, 1);
+				delete GameState.toolUses[itemId];
+				UI.notify((lang==='en' ? name + ' broke.' : name + ' se zlomila.'), true);
+			}
+		} else if (remaining > 0) {
+			if (itemId.startsWith('worn_') && item.tier === 'iron') {
+				// Worn nástroj — varování při každém použití
+				UI.notify((lang==='en'
+					? '⚠️ ' + name + ': ' + remaining + ' use(s) before destruction!'
+					: '⚠️ ' + name + ': ještě ' + remaining + '× než se zničí!'), true);
+				if (typeof NotificationSystem !== 'undefined') {
+					NotificationSystem.panel((lang==='en'
+						? '⚠️ ' + name + ': ' + remaining + ' use(s) left — repair or replace!'
+						: '⚠️ ' + name + ': zbývají ' + remaining + ' použití — oprav nebo vykov nové!'), 'warning');
+				}
+			} else if (remaining === 3) {
+				// Varování před koncem pro normální nástroje
+				UI.notify((lang==='en' ? '⚠️ ' + name + ': ' + remaining + ' uses left.' : '⚠️ ' + name + ': zbývají ' + remaining + ' použití.'));
+			}
+		}
+	},
 
-        if (remaining <= 0) {
-            // Nástroj se opotřeboval
-            const wornId = 'worn_' + itemId; // worn_iron_axe atd.
-            if (itemId.startsWith('worn_') && item.tier === 'iron') {
-                // Worn iron po 3 použitích → nenávratně zničen
-                this.removeItem(itemId, 1);
-                delete GameState.toolUses[itemId];
-                UI.notify((lang === 'en' ? '💀 ' + name + ' destroyed beyond repair.' : '💀 ' + name + ' — nenávratně zničena.'), true);
-                if (typeof NotificationSystem !== 'undefined') {
-                    NotificationSystem.panel((lang === 'en' ? '💀 ' + name + ' destroyed. Craft new tools.' : '💀 ' + name + ' zničena. Vykov nové nástroje.'), 'warning');
-                }
-            } else if (item.tier === 'iron' && ItemsDB[wornId]) {
-                // Iron → degradace na worn
-                this.removeItem(itemId, 1);
-                this.addItem(wornId, 1);
-                delete GameState.toolUses[itemId];
-                UI.notify((lang === 'en' ? name + ' worn out — repair it.' : name + ' se opotřebovala — oprav ji.'), true);
-                if (typeof NotificationSystem !== 'undefined') {
-                    NotificationSystem.panel((lang === 'en' ? '🔧 ' + name + ' worn out. Needs repair.' : '🔧 ' + name + ' opotřebována. Potřebuje opravu.'), 'system');
-                }
-            } else {
-                // Stone → smazat
-                this.removeItem(itemId, 1);
-                delete GameState.toolUses[itemId];
-                UI.notify((lang === 'en' ? name + ' broke.' : name + ' se zlomila.'), true);
-            }
-        } else if (remaining > 0) {
-            if (itemId.startsWith('worn_') && item.tier === 'iron') {
-                // Worn nástroj — varování při každém použití
-                UI.notify((lang === 'en'
-                    ? '⚠️ ' + name + ': ' + remaining + ' use(s) before destruction!'
-                    : '⚠️ ' + name + ': ještě ' + remaining + '× než se zničí!'), true);
-                if (typeof NotificationSystem !== 'undefined') {
-                    NotificationSystem.panel((lang === 'en'
-                        ? '⚠️ ' + name + ': ' + remaining + ' use(s) left — repair or replace!'
-                        : '⚠️ ' + name + ': zbývají ' + remaining + ' použití — oprav nebo vykov nové!'), 'warning');
-                }
-            } else if (remaining === 3) {
-                // Varování před koncem pro normální nástroje
-                UI.notify((lang === 'en' ? '⚠️ ' + name + ': ' + remaining + ' uses left.' : '⚠️ ' + name + ': zbývají ' + remaining + ' použití.'));
-            }
-        }
-    },
+	feedAnimals: function(animalKey) {
+		const lang = (GameState.settings && GameState.settings.language) || 'cs';
+		const feedMap = { henhouse: 'grain', sheepfold: 'hay', piscina: 'worms' };
+		const nameMap = { henhouse: lang==='en'?'Hens':'Slepice', sheepfold: lang==='en'?'Sheep':'Ovce', piscina: lang==='en'?'Fish':'Ryby' };
+		const feed = feedMap[animalKey];
+		if (!feed) return;
+		if ((GameState.inventory[feed] || 0) < 1) {
+			UI.notify(lang==='en' ? 'No '+feed+' in stores.' : 'V zasobách neni '+feed+'.', true); return;
+		}
+		Game.removeItem(feed, 1);
+		if (!GameState.feeding) GameState.feeding = {};
+		if (!GameState.feeding[animalKey]) GameState.feeding[animalKey] = {};
+		GameState.feeding[animalKey].lastFed = Date.now();
+		GameState.feeding[animalKey].hunger = 0;
+		UI.notify((lang==='en'?nameMap[animalKey]+' fed.':nameMap[animalKey]+' nakrmeny.'));
+		Game.save();
+	},
 
-    feedAnimals: function (animalKey) {
-        const lang = (GameState.settings && GameState.settings.language) || 'cs';
-        const feedMap = { henhouse: 'grain', sheepfold: 'hay', piscina: 'worms' };
-        const nameMap = { henhouse: lang === 'en' ? 'Hens' : 'Slepice', sheepfold: lang === 'en' ? 'Sheep' : 'Ovce', piscina: lang === 'en' ? 'Fish' : 'Ryby' };
-        const feed = feedMap[animalKey];
-        if (!feed) return;
-        if ((GameState.inventory[feed] || 0) < 1) {
-            UI.notify(lang === 'en' ? 'No ' + feed + ' in stores.' : 'V zasobách neni ' + feed + '.', true); return;
-        }
-        Game.removeItem(feed, 1);
-        if (!GameState.feeding) GameState.feeding = {};
-        if (!GameState.feeding[animalKey]) GameState.feeding[animalKey] = {};
-        GameState.feeding[animalKey].lastFed = Date.now();
-        GameState.feeding[animalKey].hunger = 0;
-        UI.notify((lang === 'en' ? nameMap[animalKey] + ' fed.' : nameMap[animalKey] + ' nakrmeny.'));
-        Game.save();
-    },
+	buildStorage: function(type) {
+		const lang = (GameState.settings && GameState.settings.language) || 'cs';
+		if (!GameState.storage) GameState.storage = { almarium: {built:false}, cella: {built:false}, horreum: {built:false}, fabrica: {built:false}, sulci: {built:false}, humno: {built:false} };
+		if (!GameState.storage.fabrica)           GameState.storage.fabrica           = {built:false};
+		if (!GameState.storage.sulci)             GameState.storage.sulci             = {built:false};
+		if (!GameState.storage.humno)             GameState.storage.humno             = {built:false};
+		if (!GameState.storage.vinea)             GameState.storage.vinea             = {built:false};
+		if (!GameState.storage.prelum)            GameState.storage.prelum            = {built:false};
+		if (!GameState.storage.cella_fermentaria) GameState.storage.cella_fermentaria = {built:false};
+		if (!GameState.storage.foudres)           GameState.storage.foudres           = {built:false};
+		if (!GameState.storage.cellarium_vini)    GameState.storage.cellarium_vini    = {built:false};
+		if (!GameState.storage.uvarium)           GameState.storage.uvarium           = {built:false};
+		if (!GameState.storage.prelum_olei)       GameState.storage.prelum_olei       = {built:false};
+		if (!GameState.storage.transactions) GameState.storage.transactions = [];
+		// Prereq checks — storage buildings
+		if (type === 'cella' && !GameState.storage.almarium.built) {
+			UI.notify(lang==='en' ? 'Build Almarium first.' : 'Nejprve postav Almarium.', true); return;
+		}
+		if (type === 'horreum' && !GameState.storage.cella.built) {
+			UI.notify(lang==='en' ? 'Build Cella first.' : 'Nejprve postav Cellu.', true); return;
+		}
+		// Prereq checks — Vinohrad buildings
+		if (type === 'vinea' && !(GameState.researchedTechs && GameState.researchedTechs.includes('tech_vinohrad'))) {
+			UI.notify(lang==='en' ? 'Research Vinea first.' : 'Nejprve prozkoumej tech Vinea.', true); return;
+		}
+		if (type === 'prelum' && !GameState.storage.vinea.built) {
+			UI.notify(lang==='en' ? 'Build Vinea first.' : 'Nejprve postav Vinohrad (Vinea).', true); return;
+		}
+		if (type === 'cella_fermentaria' && !GameState.storage.prelum.built) {
+			UI.notify(lang==='en' ? 'Build Prelum first.' : 'Nejprve postav Prelum (Lis).', true); return;
+		}
+		if (type === 'foudres' && !GameState.storage.cella_fermentaria.built) {
+			UI.notify(lang==='en' ? 'Build Cella fermentaria first.' : 'Nejprve postav Cella fermentaria.', true); return;
+		}
+		if (type === 'cellarium_vini' && !GameState.storage.foudres.built) {
+			UI.notify(lang==='en' ? 'Build Foudres first.' : 'Nejprve postav Foudres.', true); return;
+		}
+		if (type === 'uvarium' && !GameState.storage.foudres.built) {
+			UI.notify(lang==='en' ? 'Build Foudres first.' : 'Nejprve postav Foudres.', true); return;
+		}
+		if (type === 'prelum_olei' && !(GameState.storage.sulci && GameState.storage.sulci.built)) {
+			UI.notify(lang==='en' ? 'Build Sulci first.' : 'Nejprve postav Brázdy (Sulci).', true); return;
+		}
+		if (GameState.storage[type] && GameState.storage[type].built) {
+			UI.notify(lang==='en' ? 'Already built.' : 'Jiz postaveno.', true); return;
+		}
+		const costs = {
+			almarium:          { plank: 6,  rope: 3,  leather: 2 },
+			cella:             { cut_stone: 12, rope: 5, chalk: 4 },
+			horreum:           { cut_stone: 20, plank: 10, glue: 4, rope: 6 },
+			fabrica:           { rock: 30,  plank: 15, charcoal: 10, anvil: 1 },
+			sulci:             { plank: 8,  rope: 4,  stick: 10 },
+			humno:             { cut_stone: 8, plank: 6, rope: 3 },
+			vinea:             { plank: 12, rope: 6,  rock: 6 },
+			prelum:            { plank: 8,  rope: 4,  rock: 6,  iron_ingot: 2 },
+			cella_fermentaria: { plank: 10, rock: 8,  rope: 3,  clay: 4 },
+			foudres:           { plank: 15, rope: 6,  iron_ingot: 3 },
+			cellarium_vini:    { cut_stone: 10, plank: 6, rope: 4 },
+			uvarium:           { plank: 8,  rock: 4,  rope: 3 },
+			prelum_olei:       { plank: 10, rope: 4,  rock: 4,  iron_ingot: 1 },
+		};
+		const cost = costs[type];
+		if (!cost) return;
+		for (const [item, amt] of Object.entries(cost)) {
+			if ((GameState.inventory[item] || 0) < amt) {
+				const itemName = (typeof iName === 'function') ? iName(item) : item;
+				UI.notify((lang==='en'?'Not enough: ':'Nedostatek: ')+itemName+' x'+amt, true); return;
+			}
+		}
+		for (const [item, amt] of Object.entries(cost)) { this.removeItem(item, amt); }
+		GameState.storage[type].built = true;
+		Game.save();
+		const names = {
+			almarium: 'Almarium', cella: 'Cella', horreum: 'Horreum',
+			fabrica: 'Fabrica', sulci: 'Sulci', humno: 'Humno',
+			vinea: 'Vinea', prelum: 'Prelum', cella_fermentaria: 'Cella fermentaria',
+			foudres: 'Foudres', cellarium_vini: 'Cellarium Vini',
+			uvarium: 'Uvarium', prelum_olei: 'Prelum Olei',
+		};
+		const n = names[type] || type;
+		UI.notifyPanel('🏗️ ' + (lang==='en' ? n+' built.' : n+' postaveno.'), 'system');
+		Game.addKronikaEntry('important', n+' postaveno.', n+' built.', n+' aedificatum est.');
+		// Discovery: tech_prelum_olei při stavbě Sulci
+		if (type === 'sulci' && !(GameState.researchedTechs && GameState.researchedTechs.includes('tech_prelum_olei'))) {
+			const techObj = typeof TechTree !== 'undefined' ? TechTree.find(x => x.id === 'tech_prelum_olei') : null;
+			if (techObj) {
+				// Jen odemknout jako dostupný k výzkumu — ne přidat rovnou
+				NotificationSystem.panel('📜 ' + (lang==='en'
+					? 'The furrows reveal a new possibility — an oil press for linseed.'
+					: 'Brázdy odhalily novou možnost — lisovna pro lněný olej.'), 'system');
+			}
+		}
+		// re-render Buildings tabu po stavbě
+		if (typeof CellariumSystem !== 'undefined') {
+			if (!GameState.ui) GameState.ui = {};
+			GameState.ui.cellariumEntity = 'buildings';
+			const _cel = document.getElementById('cellarium-content');
+			if (_cel) _cel.outerHTML = CellariumSystem.renderCellariumContent();
+		}
+	},
 
-    buildStorage: function (type) {
-        const lang = (GameState.settings && GameState.settings.language) || 'cs';
-        if (!GameState.storage) GameState.storage = { almarium: { built: false }, cella: { built: false }, horreum: { built: false }, fabrica: { built: false }, sulci: { built: false }, humno: { built: false } };
-        if (!GameState.storage.fabrica) GameState.storage.fabrica = { built: false };
-        if (!GameState.storage.sulci) GameState.storage.sulci = { built: false };
-        if (!GameState.storage.humno) GameState.storage.humno = { built: false };
-        if (!GameState.storage.vinea) GameState.storage.vinea = { built: false };
-        if (!GameState.storage.prelum) GameState.storage.prelum = { built: false };
-        if (!GameState.storage.cella_fermentaria) GameState.storage.cella_fermentaria = { built: false };
-        if (!GameState.storage.foudres) GameState.storage.foudres = { built: false };
-        if (!GameState.storage.cellarium_vini) GameState.storage.cellarium_vini = { built: false };
-        if (!GameState.storage.uvarium) GameState.storage.uvarium = { built: false };
-        if (!GameState.storage.prelum_olei) GameState.storage.prelum_olei = { built: false };
-        if (!GameState.storage.transactions) GameState.storage.transactions = [];
-        // Prereq checks — storage buildings
-        if (type === 'cella' && !GameState.storage.almarium.built) {
-            UI.notify(lang === 'en' ? 'Build Almarium first.' : 'Nejprve postav Almarium.', true); return;
-        }
-        if (type === 'horreum' && !GameState.storage.cella.built) {
-            UI.notify(lang === 'en' ? 'Build Cella first.' : 'Nejprve postav Cellu.', true); return;
-        }
-        // Prereq checks — Vinohrad buildings
-        if (type === 'vinea' && !(GameState.researchedTechs && GameState.researchedTechs.includes('tech_vinohrad'))) {
-            UI.notify(lang === 'en' ? 'Research Vinea first.' : 'Nejprve prozkoumej tech Vinea.', true); return;
-        }
-        if (type === 'prelum' && !GameState.storage.vinea.built) {
-            UI.notify(lang === 'en' ? 'Build Vinea first.' : 'Nejprve postav Vinohrad (Vinea).', true); return;
-        }
-        if (type === 'cella_fermentaria' && !GameState.storage.prelum.built) {
-            UI.notify(lang === 'en' ? 'Build Prelum first.' : 'Nejprve postav Prelum (Lis).', true); return;
-        }
-        if (type === 'foudres' && !GameState.storage.cella_fermentaria.built) {
-            UI.notify(lang === 'en' ? 'Build Cella fermentaria first.' : 'Nejprve postav Cella fermentaria.', true); return;
-        }
-        if (type === 'cellarium_vini' && !GameState.storage.foudres.built) {
-            UI.notify(lang === 'en' ? 'Build Foudres first.' : 'Nejprve postav Foudres.', true); return;
-        }
-        if (type === 'uvarium' && !GameState.storage.foudres.built) {
-            UI.notify(lang === 'en' ? 'Build Foudres first.' : 'Nejprve postav Foudres.', true); return;
-        }
-        if (type === 'prelum_olei' && !(GameState.storage.sulci && GameState.storage.sulci.built)) {
-            UI.notify(lang === 'en' ? 'Build Sulci first.' : 'Nejprve postav Brázdy (Sulci).', true); return;
-        }
-        if (GameState.storage[type] && GameState.storage[type].built) {
-            UI.notify(lang === 'en' ? 'Already built.' : 'Jiz postaveno.', true); return;
-        }
-        const costs = {
-            almarium: { plank: 6, rope: 3, leather: 2 },
-            cella: { cut_stone: 12, rope: 5, chalk: 4 },
-            horreum: { cut_stone: 20, plank: 10, glue: 4, rope: 6 },
-            fabrica: { rock: 30, plank: 15, charcoal: 10, anvil: 1 },
-            sulci: { plank: 8, rope: 4, stick: 10 },
-            humno: { cut_stone: 8, plank: 6, rope: 3 },
-            vinea: { plank: 12, rope: 6, rock: 6 },
-            prelum: { plank: 8, rope: 4, rock: 6, iron_ingot: 2 },
-            cella_fermentaria: { plank: 10, rock: 8, rope: 3, clay: 4 },
-            foudres: { plank: 15, rope: 6, iron_ingot: 3 },
-            cellarium_vini: { cut_stone: 10, plank: 6, rope: 4 },
-            uvarium: { plank: 8, rock: 4, rope: 3 },
-            prelum_olei: { plank: 10, rope: 4, rock: 4, iron_ingot: 1 },
-        };
-        const cost = costs[type];
-        if (!cost) return;
-        for (const [item, amt] of Object.entries(cost)) {
-            if ((GameState.inventory[item] || 0) < amt) {
-                const itemName = (typeof iName === 'function') ? iName(item) : item;
-                UI.notify((lang === 'en' ? 'Not enough: ' : 'Nedostatek: ') + itemName + ' x' + amt, true); return;
-            }
-        }
-        for (const [item, amt] of Object.entries(cost)) { this.removeItem(item, amt); }
-        GameState.storage[type].built = true;
-        Game.save();
-        const names = {
-            almarium: 'Almarium', cella: 'Cella', horreum: 'Horreum',
-            fabrica: 'Fabrica', sulci: 'Sulci', humno: 'Humno',
-            vinea: 'Vinea', prelum: 'Prelum', cella_fermentaria: 'Cella fermentaria',
-            foudres: 'Foudres', cellarium_vini: 'Cellarium Vini',
-            uvarium: 'Uvarium', prelum_olei: 'Prelum Olei',
-        };
-        const n = names[type] || type;
-        UI.notifyPanel('🏗️ ' + (lang === 'en' ? n + ' built.' : n + ' postaveno.'), 'system');
-        Game.addKronikaEntry('important', n + ' postaveno.', n + ' built.', n + ' aedificatum est.');
-        // Discovery: tech_prelum_olei při stavbě Sulci
-        if (type === 'sulci' && !(GameState.researchedTechs && GameState.researchedTechs.includes('tech_prelum_olei'))) {
-            const techObj = typeof TechTree !== 'undefined' ? TechTree.find(x => x.id === 'tech_prelum_olei') : null;
-            if (techObj) {
-                // Jen odemknout jako dostupný k výzkumu — ne přidat rovnou
-                NotificationSystem.panel('📜 ' + (lang === 'en'
-                    ? 'The furrows reveal a new possibility — an oil press for linseed.'
-                    : 'Brázdy odhalily novou možnost — lisovna pro lněný olej.'), 'system');
-            }
-        }
-        // re-render Buildings tabu po stavbě
-        if (typeof CellariumSystem !== 'undefined') {
-            if (!GameState.ui) GameState.ui = {};
-            GameState.ui.cellariumEntity = 'buildings';
-            const _cel = document.getElementById('cellarium-content');
-            if (_cel) _cel.outerHTML = CellariumSystem.renderCellariumContent();
-        }
-    },
+	checkCalendarium: function() {
+		// Spustit jen 1× za den
+		if (!GameState.flags) GameState.flags = {};
+		const today = new Date().toISOString().slice(0,10);
+		if (GameState.flags.calendarChecked === today) return;
+		GameState.flags.calendarChecked = today;
 
-    checkCalendarium: function () {
-        // Spustit jen 1× za den
-        if (!GameState.flags) GameState.flags = {};
-        const today = new Date().toISOString().slice(0, 10);
-        if (GameState.flags.calendarChecked === today) return;
-        GameState.flags.calendarChecked = today;
+		const hasCalendarium = (GameState.inventory['perpetuum_calendarium'] > 0);
+		if (!hasCalendarium) return;
 
-        const hasCalendarium = (GameState.inventory['perpetuum_calendarium'] > 0);
-        if (!hasCalendarium) return;
+		const now = new Date();
+		const month = now.getMonth() + 1; // 1-12
+		const day = now.getDate();
+		const lang = (GameState.settings && GameState.settings.language) || 'cs';
 
-        const now = new Date();
-        const month = now.getMonth() + 1; // 1-12
-        const day = now.getDate();
-        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+		// Leden — upozornění na obnovení
+		if (month === 1) {
+			if (!GameState.flags.calendarRenewedThisYear) {
+				const msg = lang === 'en'
+					? '📅 A new year hath begun. Craft a new Perpetuum Calendarium!'
+					: '📅 Nový rok začal. Vyroб nový Perpetuum Calendarium!';
+				UI.notifyPanel(msg, 'warning');
+				// Nezničí, jen upozorní — hráč musí craft ručně
+			}
+		} else {
+			GameState.flags.calendarRenewedThisYear = false;
+		}
 
-        // Leden — upozornění na obnovení
-        if (month === 1) {
-            if (!GameState.flags.calendarRenewedThisYear) {
-                const msg = lang === 'en'
-                    ? '📅 A new year hath begun. Craft a new Perpetuum Calendarium!'
-                    : '📅 Nový rok začal. Vyroб nový Perpetuum Calendarium!';
-                UI.notifyPanel(msg, 'warning');
-                // Nezničí, jen upozorní — hráč musí craft ručně
-            }
-        } else {
-            GameState.flags.calendarRenewedThisYear = false;
-        }
+		// Prosinec — varování před expirací
+		if (month === 12) {
+			const warnings = [
+				{ day: 1,  key: 'month' },
+				{ day: 17, key: 'twoWeeks' },
+				{ day: 24, key: 'week' },
+				{ day: 31, key: 'expire' },
+			];
+			const warn = warnings.find(w => w.day === day);
+			if (warn && !GameState.flags[`calWarn_${warn.key}_${now.getFullYear()}`]) {
+				GameState.flags[`calWarn_${warn.key}_${now.getFullYear()}`] = true;
+				const msgs = {
+					cs: { month:'📅 Calendarium vyprší za měsíc. Připrav zásoby!', twoWeeks:'📅 Calendarium vyprší za 14 dní.', week:'📅 Calendarium vyprší za týden!', expire:'📅 Calendarium dnes vyprší. Vyroб nový v lednu!' },
+					en: { month:'📅 Calendarium expires in one month. Prepare supplies!', twoWeeks:'📅 Calendarium expires in 14 days.', week:'📅 Calendarium expires in one week!', expire:'📅 Calendarium expires today. Craft a new one in January!' },
+				};
+				UI.notifyPanel((msgs[lang] || msgs.cs)[warn.key], 'warning');
+				Game.save();
+			}
+		}
+	},
 
-        // Prosinec — varování před expirací
-        if (month === 12) {
-            const warnings = [
-                { day: 1, key: 'month' },
-                { day: 17, key: 'twoWeeks' },
-                { day: 24, key: 'week' },
-                { day: 31, key: 'expire' },
-            ];
-            const warn = warnings.find(w => w.day === day);
-            if (warn && !GameState.flags[`calWarn_${warn.key}_${now.getFullYear()}`]) {
-                GameState.flags[`calWarn_${warn.key}_${now.getFullYear()}`] = true;
-                const msgs = {
-                    cs: { month: '📅 Calendarium vyprší za měsíc. Připrav zásoby!', twoWeeks: '📅 Calendarium vyprší za 14 dní.', week: '📅 Calendarium vyprší za týden!', expire: '📅 Calendarium dnes vyprší. Vyroб nový v lednu!' },
-                    en: { month: '📅 Calendarium expires in one month. Prepare supplies!', twoWeeks: '📅 Calendarium expires in 14 days.', week: '📅 Calendarium expires in one week!', expire: '📅 Calendarium expires today. Craft a new one in January!' },
-                };
-                UI.notifyPanel((msgs[lang] || msgs.cs)[warn.key], 'warning');
-                Game.save();
-            }
-        }
-    },
+	// === BACKUP SYSTEM === (přidat před konec Game objektu)
 
-    // === BACKUP SYSTEM === (přidat před konec Game objektu)
+	exportSave: function() {
+		try {
+			const saveData = JSON.stringify(GameState, null, 2); // Pretty print
+			const blob = new Blob([saveData], { type: 'application/json' });
+			const url = URL.createObjectURL(blob);
+			
+			// Generate filename with timestamp
+			const now = new Date();
+			const timestamp = now.toISOString().slice(0, 19).replace(/:/g, '-');
+			const filename = `scriptorium_save_${timestamp}.json`;
+			
+			// Create download link
+			const a = document.createElement('a');
+			a.href = url;
+			a.download = filename;
+			document.body.appendChild(a);
+			a.click();
+			document.body.removeChild(a);
+			URL.revokeObjectURL(url);
+			
+			UI.notify(t('game.saveExportedFile').replace('{file}', filename));
+		} catch(e) {
+			UI.notify(t('game.saveExportFail'), true);
+			console.error('Export error:', e);
+		}
+	},
 
-    exportSave: function () {
-        try {
-            const saveData = JSON.stringify(GameState, null, 2); // Pretty print
-            const blob = new Blob([saveData], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
+	importSave: function(file) {
+		if (!file) {
+			UI.notify(t('game.saveNoFile'), true);
+			return;
+		}
+		
+		const reader = new FileReader();
+		
+		reader.onload = function(e) {
+			try {
+				const importedData = JSON.parse(e.target.result);
+				
+				// Validation - check if it looks like valid save
+				if (!importedData.inventory || !importedData.flags) {
+					UI.notify(t('game.saveImportFail'), true);
+					return;
+				}
+				
+				// Confirm before overwriting
+				if (!confirm(t('game.overwriteSave'))) {
+					UI.notify(t('game.saveImportCancelled'));
+					return;
+				}
+				
+				// Import data
+				Object.assign(GameState, importedData);
+				
+				// Save to localStorage
+				Game.save();
+				
+				UI.notify(t('game.successImport'));
+				
+				// Auto-refresh after 2 seconds
+				setTimeout(() => location.reload(), 2000);
+				
+			} catch(e) {
+				UI.notify(t('game.errorImport'), true);
+				console.error('Import error:', e);
+			}
+		};
+		
+		reader.onerror = function() {
+			UI.notify(t('game.errorRead'), true);
+		};
+		
+		reader.readAsText(file);
+	},
 
-            // Generate filename with timestamp
-            const now = new Date();
-            const timestamp = now.toISOString().slice(0, 19).replace(/:/g, '-');
-            const filename = `scriptorium_save_${timestamp}.json`;
-
-            // Create download link
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = filename;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-
-            UI.notify(t('game.saveExportedFile').replace('{file}', filename));
-        } catch (e) {
-            UI.notify(t('game.saveExportFail'), true);
-            console.error('Export error:', e);
-        }
-    },
-
-    importSave: function (file) {
-        if (!file) {
-            UI.notify(t('game.saveNoFile'), true);
-            return;
-        }
-
-        const reader = new FileReader();
-
-        reader.onload = function (e) {
-            try {
-                const importedData = JSON.parse(e.target.result);
-
-                // Validation - check if it looks like valid save
-                if (!importedData.inventory || !importedData.flags) {
-                    UI.notify(t('game.saveImportFail'), true);
-                    return;
-                }
-
-                // Confirm before overwriting
-                if (!confirm(t('game.overwriteSave'))) {
-                    UI.notify(t('game.saveImportCancelled'));
-                    return;
-                }
-
-                // Import data
-                Object.assign(GameState, importedData);
-
-                // Save to localStorage
-                Game.save();
-
-                UI.notify(t('game.successImport'));
-
-                // Auto-refresh after 2 seconds
-                setTimeout(() => location.reload(), 2000);
-
-            } catch (e) {
-                UI.notify(t('game.errorImport'), true);
-                console.error('Import error:', e);
-            }
-        };
-
-        reader.onerror = function () {
-            UI.notify(t('game.errorRead'), true);
-        };
-
-        reader.readAsText(file);
-    },
-
-    triggerImport: function () {
-        // Create hidden file input
-        const input = document.createElement('input');
-        input.type = 'file';
-        input.accept = '.json';
-
-        input.onchange = function (e) {
-            const file = e.target.files[0];
-            if (file) {
-                Game.importSave(file);
-            }
-        };
-
-        input.click();
-    },
+	triggerImport: function() {
+		// Create hidden file input
+		const input = document.createElement('input');
+		input.type = 'file';
+		input.accept = '.json';
+		
+		input.onchange = function(e) {
+			const file = e.target.files[0];
+			if (file) {
+				Game.importSave(file);
+			}
+		};
+		
+		input.click();
+	},
 
     // ─── KRONIKA ─────────────────────────────────────────────────────
-    kronikaCraftFlushBuffer: function () {
+    kronikaCraftFlushBuffer: function() {
         if (!GameState.kronikaCraftBuffer) return;
         const buf = GameState.kronikaCraftBuffer;
         if (!buf.date || Object.keys(buf.crafts).length === 0) return;
@@ -35385,7 +35525,7 @@ const Game = {
         GameState.kronikaCraftBuffer = { date: buf.date, crafts: {} };
     },
 
-    kronikaFlushBuffer: function () {
+    kronikaFlushBuffer: function() {
         if (!GameState.kronikaDailyBuffer) GameState.kronikaDailyBuffer = { date: '', gains: {} };
         const buf = GameState.kronikaDailyBuffer;
         if (!buf.date || Object.keys(buf.gains).length === 0) return;
@@ -35406,14 +35546,14 @@ const Game = {
         GameState.kronikaDailyBuffer = { date: buf.date, gains: {} };
     },
 
-    addKronikaEntry: function (type, cs, en, la) {
+    addKronikaEntry: function(type, cs, en, la) {
         if (!GameState.kronika) GameState.kronika = [];
         GameState.kronika.push({
-            ts: Date.now(),
+            ts:   Date.now(),
             type: type,
-            cs: cs,
-            en: en,
-            la: la
+            cs:   cs,
+            en:   en,
+            la:   la
         });
         if (GameState.kronika.length > 500) {
             GameState.kronika = GameState.kronika.slice(-500);

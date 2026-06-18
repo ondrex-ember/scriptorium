@@ -131,8 +131,9 @@ const NotificationSystem = {
     // ─── Ikony kategorií ────────────────────────────────────────────────────
     _catIcon: function(cat) {
         const map = {
-            sklad:   '📦', dvur: '🐄', athanor: '⚗️',
-            obchod:  '💰', udalost: '📜', system: '🔔',
+            sklad:     '📦', dvur: '🐄', athanor: '⚗️',
+            obchod:    '💰', udalost: '📜', system: '🔔',
+            chronicon: '🕊️',
         };
         return map[cat] || '🔔';
     },
@@ -141,7 +142,7 @@ const NotificationSystem = {
         const key = 'notifications.cat_' + cat;
         const val = (typeof t === 'function') ? t(key) : null;
         if (val && val !== key) return val;
-        const fallback = { sklad: 'sklad', dvur: 'dvůr', athanor: 'athanor', obchod: 'obchod', udalost: 'událost', system: 'systém', postup: 'postup' };
+        const fallback = { sklad: 'sklad', dvur: 'dvůr', athanor: 'athanor', obchod: 'obchod', udalost: 'událost', system: 'systém', postup: 'postup', chronicon: 'zprávy světa' };
         return fallback[cat] || cat;
     },
 
