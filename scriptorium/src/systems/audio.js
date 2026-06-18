@@ -911,11 +911,22 @@ class AudioSystem {
     toggleMute() {
         this.isMuted = !this.isMuted;
 
-        this.masterGain.gain.cancelScheduledValues(this.audioContext.currentTime);
+        const now = this.audioContext.currentTime;
+
         if (this.isMuted) {
-            this.masterGain.gain.setTargetAtTime(0, this.audioContext.currentTime, 0.1);
+            this.masterGain.gain.cancelScheduledValues(now);
+            this.masterGain.gain.setValueAtTime(0, now);
+            if (this.fireGain) {
+                this.fireGain.gain.cancelScheduledValues(now);
+                this.fireGain.gain.setValueAtTime(0, now);
+            }
         } else {
-            this.masterGain.gain.setTargetAtTime(this.volume, this.audioContext.currentTime, 0.1);
+            this.masterGain.gain.cancelScheduledValues(now);
+            this.masterGain.gain.setValueAtTime(this.volume, now);
+            if (this.fireGain) {
+                this.fireGain.gain.cancelScheduledValues(now);
+                this.fireGain.gain.setValueAtTime(this.fireVolume, now);
+            }
         }
 
         if (typeof GameState !== 'undefined' && GameState.settings) {
