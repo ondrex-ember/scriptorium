@@ -311,7 +311,7 @@ const STRINGS_cs = {
         aboutLink: 'O hře & Credits →'
     },
     about: {
-        version: 'Verze:', date: 'Datum:', dateVal: '20. dubna 2026', author: 'Autor:',
+        version: 'Verze:', date: 'Datum:', dateVal: '10. června 2026', author: 'Autor:',
         aboutTitle: 'O hře',
         aboutText: 'Středověká idle hra o kopírování rukopisů, výrobě papíru a studiu v klášterním skriptoriu. Kombinuje survival mechaniky (oheň, světlo, hlad) s craftingem, zahradničením a postupným odemykáním technologií. Historicky podložená hra zasazená do roku 1465 v Olomouci.',
         r791: 'Nástroje — kamenné a železné s opotřebením, degradací a opravou',
