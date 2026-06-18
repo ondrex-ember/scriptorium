@@ -38,122 +38,122 @@ const AthanorDB = {
   ingredients: [
     {
       id: 'water',
-      name: 'Voda',             name_lat: 'Aqua',
-      rarity: 'common',         source: 'existing',
-      color: '#6fa8dc',         icon: '💧',
-      thermal: -2,              moisture: 4,
+      name: 'Voda', name_lat: 'Aqua',
+      rarity: 'common', source: 'existing',
+      color: '#6fa8dc', icon: '💧',
+      thermal: -2, moisture: 4,
       lore: 'Základ všeho. Aqua vitae i aqua mortis.'
     },
     {
       id: 'gum_arabic',
-      name: 'Guma arabská',     name_lat: 'Gummi Arabicum',
-      rarity: 'uncommon',       source: 'existing',
-      color: '#c9a96e',         icon: '🫙',
-      thermal: 0,               moisture: 1,
+      name: 'Guma arabská', name_lat: 'Gummi Arabicum',
+      rarity: 'uncommon', source: 'existing',
+      color: '#c9a96e', icon: '🫙',
+      thermal: 0, moisture: 1,
       lore: 'Prysk z akácie. Váže pigment k pergamenu.'
     },
     {
       id: 'gall_nut',
-      name: 'Duběnka',          name_lat: 'Galla',
-      rarity: 'uncommon',       source: 'existing',
-      color: '#8b6914',         icon: '🌰',
-      thermal: -1,              moisture: -2,
+      name: 'Duběnka', name_lat: 'Galla',
+      rarity: 'uncommon', source: 'existing',
+      color: '#8b6914', icon: '🌰',
+      thermal: -1, moisture: -2,
       lore: 'Hálka na dubovém listu. Základ ferrogalického inkoustu.'
     },
     {
       id: 'chalk',
-      name: 'Křída',            name_lat: 'Creta',
-      rarity: 'common',         source: 'existing',
-      color: '#f0f0e8',         icon: '🪨',
-      thermal: 0,               moisture: -1,
+      name: 'Křída', name_lat: 'Creta',
+      rarity: 'common', source: 'existing',
+      color: '#f0f0e8', icon: '🪨',
+      thermal: 0, moisture: -1,
       lore: 'Běloba pro iluminátory. Základ základů.'
     },
     {
       id: 'honey',
-      name: 'Med',              name_lat: 'Mel',
-      rarity: 'common',         source: 'existing',
-      color: '#f0c040',         icon: '🍯',
-      thermal: 2,               moisture: 2,
+      name: 'Med', name_lat: 'Mel',
+      rarity: 'common', source: 'existing',
+      color: '#f0c040', icon: '🍯',
+      thermal: 2, moisture: 2,
       lore: 'Klášterní med. Sladí i váže. Hildegarda ho chválila.'
     },
     {
       id: 'carbon_black',
-      name: 'Saze',             name_lat: 'Carbo Niger',
-      rarity: 'common',         source: 'foraging',
-      color: '#1a1a1a',         icon: '🖤',
-      thermal: 4,               moisture: -3,
+      name: 'Saze', name_lat: 'Carbo Niger',
+      rarity: 'common', source: 'foraging',
+      color: '#1a1a1a', icon: '🖤',
+      thermal: 4, moisture: -3,
       lore: 'Saze z krbu nebo loučí. Nejstarší černý pigment světa.',
       dropNote: 'Sbírej u krbu nebo z pochodně.'
     },
     {
       id: 'ochre',
-      name: 'Okr',              name_lat: 'Ochra',
-      rarity: 'common',         source: 'foraging',
-      color: '#cc7722',         icon: '🟤',
-      thermal: 1,               moisture: -2,
+      name: 'Okr', name_lat: 'Ochra',
+      rarity: 'common', source: 'foraging',
+      color: '#cc7722', icon: '🟤',
+      thermal: 1, moisture: -2,
       lore: 'Žlutohnědá zemina bohatá na oxid železitý. Používána od pravěku.',
       dropNote: 'Nalézáš v jílovitých místech při průzkumu.'
     },
     {
       id: 'cinnabar',
-      name: 'Rumělka',          name_lat: 'Cinnabaris',
-      rarity: 'uncommon',       source: 'trade',
-      color: '#c0392b',         icon: '🔴',
-      thermal: 2,               moisture: -2,
+      name: 'Rumělka', name_lat: 'Cinnabaris',
+      rarity: 'uncommon', source: 'trade',
+      color: '#c0392b', icon: '🔴',
+      thermal: 2, moisture: -2,
       lore: 'Sulfid rtuťnatý. Zářivě červená, ale jedovatá. Rubrikátoři si olizovali štětce — a přicházeli o zuby.',
       dropNote: 'Nakoupíš u Starého Písaře.'
     },
     {
       id: 'lapis_lazuli',
-      name: 'Lapis lazuli',     name_lat: 'Lapis Lazuli',
-      rarity: 'rare',           source: 'trade',
-      color: '#1f4e91',         icon: '💎',
-      thermal: -1,              moisture: 0,
+      name: 'Lapis lazuli', name_lat: 'Lapis Lazuli',
+      rarity: 'rare', source: 'trade',
+      color: '#1f4e91', icon: '💎',
+      thermal: -1, moisture: 0,
       lore: 'Dražší než zlato. Dovážen z Afghánistánu. Barva Panny Marie. Jeptišky z Dalheim měly z něj modré zuby.',
       dropNote: 'Vzácné zboží — Starý Písař ho má jen občas.'
     },
     {
       id: 'verdigris',
-      name: 'Měděnka',          name_lat: 'Viride Aeris',
-      rarity: 'uncommon',       source: 'craft',
-      color: '#2ecc71',         icon: '🟢',
-      thermal: -1,              moisture: 1,
+      name: 'Měděnka', name_lat: 'Viride Aeris',
+      rarity: 'uncommon', source: 'craft',
+      color: '#2ecc71', icon: '🟢',
+      thermal: -1, moisture: 1,
       lore: 'Zelenomodrá patina na mědi. Vzniká působením octa na měděný plech.',
       dropNote: 'Vyrobit: měděný plech + ocet.'
     },
     {
       id: 'egg_tempera',
-      name: 'Vaječná tempera',  name_lat: 'Temperum Ovi',
-      rarity: 'common',         source: 'craft',
-      color: '#f5deb3',         icon: '🥚',
-      thermal: 0,               moisture: 1,
+      name: 'Vaječná tempera', name_lat: 'Temperum Ovi',
+      rarity: 'common', source: 'craft',
+      color: '#f5deb3', icon: '🥚',
+      thermal: 0, moisture: 1,
       lore: 'Žloutek rozmíchaný s trochou vína. Nejstarší pojivo pigmentů v Evropě.',
       dropNote: 'Vyrobit: vejce + víno.'
     },
     {
       id: 'chamomile',
-      name: 'Heřmánek',         name_lat: 'Chamomilla',
-      rarity: 'common',         source: 'foraging',
-      color: '#f0e68c',         icon: '🌼',
-      thermal: -1,              moisture: 1,
+      name: 'Heřmánek', name_lat: 'Chamomilla',
+      rarity: 'common', source: 'foraging',
+      color: '#f0e68c', icon: '🌼',
+      thermal: -1, moisture: 1,
       lore: 'Matka bylinek. Hildegarda z Bingenu ji doporučovala na žaludeční potíže i smutek duše.',
       dropNote: 'Roste na loukách při průzkumu.'
     },
     {
       id: 'st_johns_wort',
-      name: 'Třezalka',         name_lat: 'Hypericum',
-      rarity: 'common',         source: 'foraging',
-      color: '#ffd700',         icon: '🌻',
-      thermal: 2,               moisture: -2,
+      name: 'Třezalka', name_lat: 'Hypericum',
+      rarity: 'common', source: 'foraging',
+      color: '#ffd700', icon: '🌻',
+      thermal: 2, moisture: -2,
       lore: 'Bylina svatého Jana. Červený olej z jejích květů léčil rány i melancholii.',
       dropNote: 'Kvete v létě, sbírej při průzkumu.'
     },
     {
       id: 'beeswax',
-      name: 'Včelí vosk',       name_lat: 'Cera Alba',
-      rarity: 'uncommon',       source: 'foraging',
-      color: '#f5c842',         icon: '🕯️',
-      thermal: 1,               moisture: -1,
+      name: 'Včelí vosk', name_lat: 'Cera Alba',
+      rarity: 'uncommon', source: 'foraging',
+      color: '#f5c842', icon: '🕯️',
+      thermal: 1, moisture: -1,
       lore: 'Čistý vosk z klášterního úlu. Pojivo masti i materiál pro pečetění listin.',
       dropNote: 'Nalézáš při průzkumu v blízkosti lesa.'
     },
@@ -161,108 +161,116 @@ const AthanorDB = {
     // ── NOVÁ VLNA — z Alchemix (historicky věrné) ──
     {
       id: 'vitriol',
-      name: 'Zelená skalice',   name_lat: 'Vitriolum Viride',
-      rarity: 'uncommon',       source: 'trade',
-      color: '#2d6e3e',         icon: '🧪',
-      thermal: 3,               moisture: -3,
+      name: 'Zelená skalice', name_lat: 'Vitriolum Viride',
+      rarity: 'uncommon', source: 'trade',
+      color: '#2d6e3e', icon: '🧪',
+      thermal: 3, moisture: -3,
       lore: 'Síran železnatý. Klíčová složka ferrogalického inkoustu — bez ní není pravý skriptorský inkoust.',
       dropNote: 'Nakoupíš u Starého Písaře nebo Giacoma.'
     },
     {
       id: 'alum',
-      name: 'Kamenec',          name_lat: 'Alumen',
-      rarity: 'uncommon',       source: 'trade',
-      color: '#d4e8f0',         icon: '💠',
-      thermal: -2,              moisture: -4,
+      name: 'Kamenec', name_lat: 'Alumen',
+      rarity: 'uncommon', source: 'trade',
+      color: '#d4e8f0', icon: '💠',
+      thermal: -2, moisture: -4,
       lore: 'Síran hlinito-draselný. Fixátor barviv, konzervant pergamenu. Bez kamence by každý rukopis splaskl.',
       dropNote: 'Dostupný u obchodníků na trhu.'
     },
     {
       id: 'vinegar',
-      name: 'Ocet',             name_lat: 'Acetum',
-      rarity: 'common',         source: 'existing',
-      color: '#d4c97a',         icon: '🍶',
-      thermal: -1,              moisture: 2,
+      name: 'Ocet', name_lat: 'Acetum',
+      rarity: 'common', source: 'existing',
+      color: '#d4c97a', icon: '🍶',
+      thermal: -1, moisture: 2,
       lore: 'Kyselý přítel alchymisty. Rozpouští, čistí, fixuje. Ocet s mědí dává měděnku.',
       dropNote: 'Běžná kuchyňská surovina.'
     },
     {
       id: 'wine',
-      name: 'Víno',             name_lat: 'Vinum',
-      rarity: 'common',         source: 'existing',
-      color: '#8b2252',         icon: '🍷',
-      thermal: 2,               moisture: 2,
+      name: 'Víno', name_lat: 'Vinum',
+      rarity: 'common', source: 'existing',
+      color: '#8b2252', icon: '🍷',
+      thermal: 2, moisture: 2,
       lore: 'Dar révy. Pojivo vaječné tempery, základ tinktur, útěcha písaře po dlouhém dni.',
       dropNote: 'Z klášterního sklepa nebo od hospodského.'
     },
     {
       id: 'rose',
-      name: 'Růže',             name_lat: 'Rosa',
-      rarity: 'uncommon',       source: 'foraging',
-      color: '#e8748a',         icon: '🌹',
-      thermal: -1,              moisture: 2,
+      name: 'Růže', name_lat: 'Rosa',
+      rarity: 'uncommon', source: 'foraging',
+      color: '#e8748a', icon: '🌹',
+      thermal: -1, moisture: 2,
       lore: 'Klášterní zahrada bez růže je jako rukopis bez iluminace. Aqua Rosarum léčí i duši.',
       dropNote: 'Sbírej v klášterní zahradě nebo při průzkumu.'
     },
     {
       id: 'linseed_oil',
-      name: 'Lněný olej',       name_lat: 'Oleum Lini',
-      rarity: 'uncommon',       source: 'trade',
-      color: '#c8a84b',         icon: '🫗',
-      thermal: 2,               moisture: 2,
+      name: 'Lněný olej', name_lat: 'Oleum Lini',
+      rarity: 'uncommon', source: 'trade',
+      color: '#c8a84b', icon: '🫗',
+      thermal: 2, moisture: 2,
       lore: 'Schnoucí olej ze lnu. Základ laků na pergamen i fermeže. Bez něj by iluminace nesvítily.',
       dropNote: 'Dostupný u obchodníka nebo na trhu.'
     },
     {
       id: 'sulfur',
-      name: 'Síra',             name_lat: 'Sulphur',
-      rarity: 'uncommon',       source: 'trade',
-      color: '#e8d44a',         icon: '🟡',
-      thermal: 3,               moisture: -3,
+      name: 'Síra', name_lat: 'Sulphur',
+      rarity: 'uncommon', source: 'trade',
+      color: '#e8d44a', icon: '🟡',
+      thermal: 3, moisture: -3,
       lore: 'Prima Materia alchymie. Hoří modře, páchne peklem. Bez síry není transmutace.',
       dropNote: 'Nakoupíš u Starého Písaře nebo Giacoma.'
     },
     {
       id: 'pine_resin',
-      name: 'Pryskyřice',       name_lat: 'Resina Pini',
-      rarity: 'common',         source: 'foraging',
-      color: '#c8892a',         icon: '🌲',
-      thermal: 2,               moisture: -2,
+      name: 'Pryskyřice', name_lat: 'Resina Pini',
+      rarity: 'common', source: 'foraging',
+      color: '#c8892a', icon: '🌲',
+      thermal: 2, moisture: -2,
       lore: 'Vonná pryskyřice z borovic. Základ laků, pečetního vosku i kadidla. Voní jako les po dešti.',
       dropNote: 'Sbírej při průzkumu v lese.'
     },
     {
       id: 'sandarak',
-      name: 'Sandarak',         name_lat: 'Sandaraca',
-      rarity: 'uncommon',       source: 'trade',
-      color: '#d4a870',         icon: '🫙',
-      thermal: 2,               moisture: -2,
+      name: 'Sandarak', name_lat: 'Sandaraca',
+      rarity: 'uncommon', source: 'trade',
+      color: '#d4a870', icon: '🫙',
+      thermal: 2, moisture: -2,
       lore: 'Pryskyřice berberskéhocypřiše. Základ průzračného laku Vernix — chrání pergamen před vlhkostí.',
       dropNote: 'Vzácné zboží od Giacoma Foscariho.'
     },
     {
       id: 'oak_bark',
-      name: 'Dubová kůra',      name_lat: 'Cortex Quercus',
-      rarity: 'common',         source: 'foraging',
-      color: '#6b4a2a',         icon: '🌳',
-      thermal: 0,               moisture: -2,
+      name: 'Dubová kůra', name_lat: 'Cortex Quercus',
+      rarity: 'common', source: 'foraging',
+      color: '#6b4a2a', icon: '🌳',
+      thermal: 0, moisture: -2,
       lore: 'Třísloviny z dubové kůry. Slouží k vydělávání kůže i jako základ taninu pro fixaci barviv.',
       dropNote: 'Sbírej při průzkumu v lese.'
     },
-    { id: 'grain', name: 'Obilí', name_lat: 'Granum', rarity: 'common', source: 'existing',
+    {
+      id: 'grain', name: 'Obilí', name_lat: 'Granum', rarity: 'common', source: 'existing',
       color: '#d4a820', icon: '🌾', thermal: 1, moisture: 2,
-      lore: 'Základ chleba i piva. Kláštery pěstovaly obilí od nepaměti.' },
-    { id: 'hops', name: 'Chmel', name_lat: 'Humulus', rarity: 'uncommon', source: 'existing',
+      lore: 'Základ chleba i piva. Kláštery pěstovaly obilí od nepaměti.'
+    },
+    {
+      id: 'hops', name: 'Chmel', name_lat: 'Humulus', rarity: 'uncommon', source: 'existing',
       color: '#7aad4a', icon: '🌿', thermal: -1, moisture: 1,
       lore: 'Hildegarda jako první popsala chmel jako konzervantu piva. Hořkost, vůně, zdraví.',
-      dropNote: 'Sbírej při průzkumu nebo nakup na Trhu.' },
-    { id: 'thyme', name: 'Tymián', name_lat: 'Thymus', rarity: 'common', source: 'existing',
+      dropNote: 'Sbírej při průzkumu nebo nakup na Trhu.'
+    },
+    {
+      id: 'thyme', name: 'Tymián', name_lat: 'Thymus', rarity: 'common', source: 'existing',
       color: '#8ab87a', icon: '🌿', thermal: 1, moisture: 0,
       lore: 'Odvání Varroa z úlů. Hildegarda ho znala jako bylinu síly a odvahy.',
-      dropNote: 'Sbírej při průzkumu nebo pěstuj v zahradě.' },
-    { id: 'wort', name: 'Mladina', name_lat: 'Mustum Cerevisiae', rarity: 'uncommon', source: 'crafted',
+      dropNote: 'Sbírej při průzkumu nebo pěstuj v zahradě.'
+    },
+    {
+      id: 'wort', name: 'Mladina', name_lat: 'Mustum Cerevisiae', rarity: 'uncommon', source: 'crafted',
       color: '#c8a84b', icon: '🫗', thermal: 2, moisture: 2,
-      lore: 'Zlatavá tekutina z povařeného obilí. Základ každého piva. Vzniká jen v Athanoru.' }
+      lore: 'Zlatavá tekutina z povařeného obilí. Základ každého piva. Vzniká jen v Athanoru.'
+    }
   ],
 
   // ----------------------------------------------------------
@@ -274,45 +282,45 @@ const AthanorDB = {
   processes: [
     {
       id: 'trituratio',
-      name: 'Trituratio',       name_cs: 'Drcení',
+      name: 'Trituratio', name_cs: 'Drcení',
       icon: '🔨',
-      thermal_mod: 0,           moisture_mod: -1,
+      thermal_mod: 0, moisture_mod: -1,
       duration_ms: 8000,
       unlock: null,
       desc: 'Drcení v třecí misce. Rozmělní pevné složky, vysušuje.'
     },
     {
       id: 'coctio',
-      name: 'Coctio',           name_cs: 'Vaření',
+      name: 'Coctio', name_cs: 'Vaření',
       icon: '🔥',
-      thermal_mod: 3,           moisture_mod: -2,
+      thermal_mod: 3, moisture_mod: -2,
       duration_ms: 15000,
       unlock: null,
       desc: 'Vaření nad Athanorem. Přidává teplo, odpařuje vlhkost.'
     },
     {
       id: 'maceratio',
-      name: 'Maceratio',        name_cs: 'Louhování',
+      name: 'Maceratio', name_cs: 'Louhování',
       icon: '💧',
-      thermal_mod: -2,          moisture_mod: 3,
+      thermal_mod: -2, moisture_mod: 3,
       duration_ms: 20000,
       unlock: null,
       desc: 'Pomalé louhování v chladné vodě. Jemné, vlhčí.'
     },
     {
       id: 'destillatio',
-      name: 'Destillatio',      name_cs: 'Destilace',
+      name: 'Destillatio', name_cs: 'Destilace',
       icon: '🌡️',
-      thermal_mod: 1,           moisture_mod: 1,
+      thermal_mod: 1, moisture_mod: 1,
       duration_ms: 25000,
       unlock: 'tech_destillatio',
       desc: 'Destilace přes alembik. Vyžaduje pokročilé vybavení.'
     },
     {
       id: 'calcinatio',
-      name: 'Calcinatio',       name_cs: 'Žíhání',
+      name: 'Calcinatio', name_cs: 'Žíhání',
       icon: '⚡',
-      thermal_mod: 5,           moisture_mod: -4,
+      thermal_mod: 5, moisture_mod: -4,
       duration_ms: 30000,
       unlock: 'tech_calcinatio',
       desc: 'Žíhání v silném ohni. Extrémní teplo, ničí vlhkost.'
@@ -817,10 +825,10 @@ const AthanorSystem = {
       };
     } else {
       // Migrace starších save — přidej nová pole pokud chybí
-      if (!GameState.athanor.slots)         GameState.athanor.slots = [];
+      if (!GameState.athanor.slots) GameState.athanor.slots = [];
       if (!GameState.athanor.activeProcess) GameState.athanor.activeProcess = 'coctio';
-      if (!GameState.athanor.brewing)       GameState.athanor.brewing = null;
-      if (!GameState.athanor.discovered)    GameState.athanor.discovered = [];
+      if (!GameState.athanor.brewing) GameState.athanor.brewing = null;
+      if (!GameState.athanor.discovered) GameState.athanor.discovered = [];
       if (!('lastResult' in GameState.athanor)) GameState.athanor.lastResult = null;
     }
     setInterval(() => AthanorSystem.tick(), 2000);
@@ -1099,28 +1107,28 @@ const AthanorSystem = {
   // ── LUNAR + CANONICAL HELPERS ────────────────────────────
   getLunarPhase() {
     const now = new Date();
-    const jd = 367*now.getFullYear()
-      - Math.floor(7*(now.getFullYear()+Math.floor((now.getMonth()+10)/12))/4)
-      + Math.floor(275*(now.getMonth()+1)/9)
+    const jd = 367 * now.getFullYear()
+      - Math.floor(7 * (now.getFullYear() + Math.floor((now.getMonth() + 10) / 12)) / 4)
+      + Math.floor(275 * (now.getMonth() + 1) / 9)
       + now.getDate() + 1721013.5;
     const p = ((jd - 2451550.1) / 29.53058867) % 1;
     const phase = p < 0 ? p + 1 : p;
-    if (phase < 0.03 || phase > 0.97) return { name:'Nov', icon:'🌑', bonus:'nigredo', label:'Nov — Nigredo +20%' };
-    if (phase < 0.47) return { name:'Dorůstá', icon:'🌔', bonus:null, label:'Dorůstající měsíc' };
-    if (phase < 0.53) return { name:'Úplněk', icon:'🌕', bonus:'rubedo', label:'Úplněk — Rubedo +20%' };
-    return { name:'Ubývá', icon:'🌖', bonus:null, label:'Ubývající měsíc' };
+    if (phase < 0.03 || phase > 0.97) return { name: 'Nov', icon: '🌑', bonus: 'nigredo', label: 'Nov — Nigredo +20%' };
+    if (phase < 0.47) return { name: 'Dorůstá', icon: '🌔', bonus: null, label: 'Dorůstající měsíc' };
+    if (phase < 0.53) return { name: 'Úplněk', icon: '🌕', bonus: 'rubedo', label: 'Úplněk — Rubedo +20%' };
+    return { name: 'Ubývá', icon: '🌖', bonus: null, label: 'Ubývající měsíc' };
   },
 
   getCanonicalHour() {
     const h = new Date().getHours();
-    if (h >= 3  && h < 6)  return { name:'Laudes',       icon:'🌅', bonus:'quality', label:'Laudes — +10% kvalita' };
-    if (h >= 6  && h < 9)  return { name:'Prima',        icon:'🌄', bonus:null,      label:'Prima' };
-    if (h >= 9  && h < 12) return { name:'Tertia',       icon:'☀️', bonus:null,      label:'Tertia' };
-    if (h >= 12 && h < 15) return { name:'Sexta',        icon:'🌞', bonus:null,      label:'Sexta' };
-    if (h >= 15 && h < 18) return { name:'Nona',         icon:'🌤️', bonus:null,      label:'Nona' };
-    if (h >= 18 && h < 21) return { name:'Vesper',       icon:'🌆', bonus:null,      label:'Vesper' };
-    if (h >= 21 && h < 24) return { name:'Completorium', icon:'🌙', bonus:null,      label:'Completorium' };
-    return { name:'Vigilia', icon:'⭐', bonus:null, label:'Vigilia noctis' };
+    if (h >= 3 && h < 6) return { name: 'Laudes', icon: '🌅', bonus: 'quality', label: 'Laudes — +10% kvalita' };
+    if (h >= 6 && h < 9) return { name: 'Prima', icon: '🌄', bonus: null, label: 'Prima' };
+    if (h >= 9 && h < 12) return { name: 'Tertia', icon: '☀️', bonus: null, label: 'Tertia' };
+    if (h >= 12 && h < 15) return { name: 'Sexta', icon: '🌞', bonus: null, label: 'Sexta' };
+    if (h >= 15 && h < 18) return { name: 'Nona', icon: '🌤️', bonus: null, label: 'Nona' };
+    if (h >= 18 && h < 21) return { name: 'Vesper', icon: '🌆', bonus: null, label: 'Vesper' };
+    if (h >= 21 && h < 24) return { name: 'Completorium', icon: '🌙', bonus: null, label: 'Completorium' };
+    return { name: 'Vigilia', icon: '⭐', bonus: null, label: 'Vigilia noctis' };
   },
 
   buildStatsBar(lunar, canonical, state) {
@@ -1136,8 +1144,8 @@ const AthanorSystem = {
     const tc = thermal > 2 ? '#e8501a' : thermal < -2 ? '#3a9ad9' : '#c9a96e';
     const mc = moisture > 2 ? '#3a9ad9' : moisture < -2 ? '#c8961e' : '#c9a96e';
     const bonusText = lunar.bonus === 'nigredo' ? 'Nov: Nigredo +20%'
-                    : lunar.bonus === 'rubedo' ? 'Úplněk: Rubedo +20%'
-                    : canonical.bonus === 'quality' ? 'Laudes: +10% kvalita' : '';
+      : lunar.bonus === 'rubedo' ? 'Úplněk: Rubedo +20%'
+        : canonical.bonus === 'quality' ? 'Laudes: +10% kvalita' : '';
     return `<div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center;
       padding:7px 12px;margin-bottom:14px;
       background:rgba(0,0,0,0.12);border-radius:8px;
@@ -1147,9 +1155,9 @@ const AthanorSystem = {
       <span style="opacity:0.3;">·</span>
       <span title="${canonical.label}">${canonical.icon} ${canonical.name}</span>
       <span style="opacity:0.3;">·</span>
-      <span style="color:${tc};" title="Teplo">🌡️ ${thermal>0?'+':''}${thermal}</span>
+      <span style="color:${tc};" title="Teplo">🌡️ ${thermal > 0 ? '+' : ''}${thermal}</span>
       <span style="opacity:0.3;">·</span>
-      <span style="color:${mc};" title="Vlhkost">💧 ${moisture>0?'+':''}${moisture}</span>
+      <span style="color:${mc};" title="Vlhkost">💧 ${moisture > 0 ? '+' : ''}${moisture}</span>
       ${bonusText ? `<span style="opacity:0.3;">·</span><span style="font-size:0.65rem;">✨ ${bonusText}</span>` : ''}
     </div>`;
   },
@@ -1163,8 +1171,8 @@ const AthanorSystem = {
       pct = Math.min(100, Math.floor(((now - b.startedAt) / b.duration) * 100));
       si = pct < 33 ? 0 : pct < 66 ? 1 : 2;
     }
-    const liqColors = ['#1a0f05','#d4cfc8','#8b1a1a'];
-    const glowColors = ['rgba(80,40,10,0.5)','rgba(220,210,190,0.4)','rgba(180,40,40,0.6)'];
+    const liqColors = ['#1a0f05', '#d4cfc8', '#8b1a1a'];
+    const glowColors = ['rgba(80,40,10,0.5)', 'rgba(220,210,190,0.4)', 'rgba(180,40,40,0.6)'];
     const liq = isBrewing ? liqColors[si] : '#2a1a0a';
     const glow = isBrewing ? glowColors[si] : 'transparent';
     const bubbles = isBrewing ? `
@@ -1206,12 +1214,12 @@ const AthanorSystem = {
 
   // Kategorie pro filtr ingrediencí
   _ingCategories: {
-    all:      null,
-    herbs:    ['chamomile','st_johns_wort','thyme','hops'],
-    pigments: ['lapis_lazuli','ochre','cinnabar','carbon_black','malachite','egg_tempera','linseed_oil'],
-    liquids:  ['water','wine','mercury','turpentine'],
-    minerals: ['sulfur','chalk','gum_arabic','alum','pumice','oak_bark','gall_nut'],
-    brewing:  ['grain','hops','wort','honey','thyme'],
+    all: null,
+    herbs: ['chamomile', 'st_johns_wort', 'thyme', 'hops'],
+    pigments: ['lapis_lazuli', 'ochre', 'cinnabar', 'carbon_black', 'malachite', 'egg_tempera', 'linseed_oil'],
+    liquids: ['water', 'wine', 'mercury', 'turpentine'],
+    minerals: ['sulfur', 'chalk', 'gum_arabic', 'alum', 'pumice', 'oak_bark', 'gall_nut'],
+    brewing: ['grain', 'hops', 'wort', 'honey', 'thyme'],
   },
 
   _activeIngFilter: 'all',
@@ -1236,12 +1244,12 @@ const AthanorSystem = {
 
   buildIngFilterBar() {
     const filters = [
-      { id: 'all',      label: 'Vše' },
-      { id: 'herbs',    label: '🌿 Byliny' },
+      { id: 'all', label: 'Vše' },
+      { id: 'herbs', label: '🌿 Byliny' },
       { id: 'pigments', label: '🎨 Pigmenty' },
-      { id: 'liquids',  label: '💧 Tekutiny' },
+      { id: 'liquids', label: '💧 Tekutiny' },
       { id: 'minerals', label: '🪨 Minerály' },
-      { id: 'brewing',  label: '🍺 Pivovar' },
+      { id: 'brewing', label: '🍺 Pivovar' },
     ];
     const active = AthanorSystem._activeIngFilter || 'all';
     return `<div style="display:flex;flex-wrap:wrap;gap:3px;margin-bottom:6px;">
@@ -1249,8 +1257,8 @@ const AthanorSystem = {
         data-cat="${f.id}"
         onclick="AthanorSystem.setIngFilter('${f.id}')"
         style="font-size:0.62rem;padding:2px 7px;border:1px solid rgba(0,0,0,0.15);border-radius:4px;cursor:pointer;
-          background:${f.id===active?'rgba(200,160,60,0.25)':'rgba(0,0,0,0.04)'};
-          color:${f.id===active?'var(--accent-gold)':'var(--ink-primary)'};
+          background:${f.id === active ? 'rgba(200,160,60,0.25)' : 'rgba(0,0,0,0.04)'};
+          color:${f.id === active ? 'var(--accent-gold)' : 'var(--ink-primary)'};
           font-family:'Crimson Text';">
         ${f.label}
       </button>`).join('')}
@@ -1271,16 +1279,16 @@ const AthanorSystem = {
         const canAdd = !isBrewing && available > 0 && state.slots.length < 3;
         return `<div style="display:flex;align-items:center;gap:6px;padding:5px 6px;border-radius:5px;
           border:1px solid ${canAdd ? 'rgba(200,160,60,0.3)' : 'transparent'};
-          background:${have===0?'transparent':canAdd?'rgba(200,160,60,0.04)':'rgba(0,0,0,0.03)'};
-          opacity:${have===0?'0.3':'1'};cursor:${canAdd?'pointer':'default'};"
+          background:${have === 0 ? 'transparent' : canAdd ? 'rgba(200,160,60,0.04)' : 'rgba(0,0,0,0.03)'};
+          opacity:${have === 0 ? '0.3' : '1'};cursor:${canAdd ? 'pointer' : 'default'};"
           ${canAdd ? `onclick="AthanorSystem.addToSlot('${ing.id}')"` : ''}
-          title="${ing.lore||''}">
+          title="${ing.lore || ''}">
           <span style="font-size:0.9rem;">${ing.icon}</span>
           <div style="flex:1;min-width:0;">
             <div style="font-size:0.74rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${ing.name}</div>
             <div style="font-size:0.6rem;font-style:italic;opacity:0.5;">${ing.name_lat}</div>
           </div>
-          <div style="font-size:0.75rem;font-weight:600;color:${have>0?'var(--accent-gold)':'#aaa'};">${available}</div>
+          <div style="font-size:0.75rem;font-weight:600;color:${have > 0 ? 'var(--accent-gold)' : '#aaa'};">${available}</div>
         </div>`;
       }).join('');
   },
@@ -1393,7 +1401,7 @@ const AthanorSystem = {
   buildProcessBtn(process, state) {
     const isActive = state.activeProcess === process.id;
     const isBrewing = !!state.brewing;
-    const isLocked = process.unlock && !(GameState.tech && GameState.tech[process.unlock]);
+    const isLocked = process.unlock && !(GameState.researchedTechs && GameState.researchedTechs.includes(process.unlock));
 
     return `
       <button
@@ -1457,7 +1465,7 @@ const AthanorSystem = {
 
     const remaining = Math.max(0, Math.ceil((b.expiresAt - now) / 1000));
 
-    const stageIcons = ['🌑','🌕','🔴'];
+    const stageIcons = ['🌑', '🌕', '🔴'];
     return `
       <div style="
         width:100%;
