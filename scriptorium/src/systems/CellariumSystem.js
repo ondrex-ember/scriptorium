@@ -260,6 +260,16 @@ const CellariumSystem = {
   },
 
   // Výpočet ceny s náhodným offsetem (seed per den+entita pro konzistenci v rámci dne)
+  // Saturační pásma — kolik kusů hráč dnes prodal entity
+  _saturationMult: function(itemId, entity) {
+    this._resetStockIfNewDay();
+    const sold = (GameState.shopStock.dailySold[this._stockKey(entity, itemId)] || 0);
+    if (sold <= 5)  return 1.00;
+    if (sold <= 15) return 0.80;
+    if (sold <= 30) return 0.60;
+    return 0.45;
+  },
+
   calcPrice: function(itemId, entity) {
     const base = this.BASE_PRICES[itemId];
     if (!base) return null;
@@ -270,7 +280,8 @@ const CellariumSystem = {
     const seed  = today.getFullYear() * 10000 + (today.getMonth()+1) * 100 + today.getDate();
     const pseudoRand = ((seed * 9301 + entity.charCodeAt(0) * 49297 + itemId.charCodeAt(0) * 233) % 1000) / 1000;
     const offset = 0.85 + pseudoRand * 0.30; // 0.85–1.15
-    return Math.max(1, Math.round(base * coeff * offset));
+    const satMult = this._saturationMult(itemId, entity);
+    return Math.max(1, Math.round(base * coeff * offset * satMult));
   },
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -293,6 +304,10 @@ const CellariumSystem = {
     const total = price * qty;
     Game.removeItem(itemId, qty);
     this.addGrose(total);
+    // Saturace — zaznamenat prodané množství
+    this._resetStockIfNewDay();
+    const soldKey = this._stockKey(entity, itemId);
+    GameState.shopStock.dailySold[soldKey] = (GameState.shopStock.dailySold[soldKey] || 0) + qty;
     this.recordTransaction('sell', itemId, qty, price, entity);
     GameState.economy.tradesTotal++;
     if (GameState.economy.tradesTotal === 1) {
@@ -392,13 +407,16 @@ const CellariumSystem = {
   _stockKey: function(entity, itemId) { return entity + ':' + itemId; },
 
   _resetStockIfNewDay: function() {
-    if (!GameState.shopStock) GameState.shopStock = { date: '', used: {} };
+    if (!GameState.shopStock) GameState.shopStock = { date: '', used: {}, dailySold: {} };
     const today = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
     if (GameState.shopStock.date !== today) {
       GameState.shopStock.date = today;
-      GameState.shopStock.used = {};
+      GameState.shopStock.used     = {};
+      GameState.shopStock.dailySold = {};
       // TODO: Chronicon stock_boost/shortage signal — napojit až Chronicon live
     }
+    // Migrace starých savů bez dailySold
+    if (!GameState.shopStock.dailySold) GameState.shopStock.dailySold = {};
   },
 
   _getStockRemaining: function(entity, itemId) {
@@ -935,6 +953,10 @@ const CellariumSystem = {
         const item  = ItemsDB[id];
         const icon  = (item && item.icon) ? item.icon : '📦';
         const name  = (typeof iName === 'function') ? iName(id) : (item ? item.name : id);
+        // Saturační indikátor
+        const satMult  = this._saturationMult(id, entity);
+        const satIcon  = satMult >= 1.0 ? '' : satMult >= 0.80 ? ' 🔻' : satMult >= 0.60 ? ' 🔻🔻' : ' 🔻🔻🔻';
+        const satColor = satMult >= 1.0 ? 'inherit' : satMult >= 0.80 ? '#e67e22' : '#c0392b';
         h += `
           <div style="padding:7px 10px; background:rgba(197,160,89,0.06);
                       border-radius:6px; border:1px solid rgba(197,160,89,0.2);
@@ -942,7 +964,7 @@ const CellariumSystem = {
             <span style="font-size:1.2rem; min-width:24px; text-align:center;">${icon}</span>
             <div style="flex:1; min-width:0;">
               <div style="font-weight:bold; font-size:0.8rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${name}</div>
-              <div style="font-size:0.7rem; opacity:0.65;">${lang==='en'?'Have':'Máš'}: ${have} · ${price} 💰</div>
+              <div style="font-size:0.7rem; opacity:0.65;">${lang==='en'?'Have':'Máš'}: ${have} · <span style="color:${satColor};">${price} 💰${satIcon}</span></div>
             </div>
             <div style="display:flex; gap:3px; flex-shrink:0;">
               <button onclick="CellariumSystem.sellItem('${id}',1,'${entity}')"
