@@ -35823,7 +35823,6 @@ const UI = {
         }
     },
 
-<<<<<<< HEAD
     renderActions: function () {
         const lang = (GameState.settings && GameState.settings.language) || 'cs';
         const _hAct = JSON.stringify(GameState.inventory) + lang + (GameState.activeAction ? GameState.activeAction.id + GameState.activeAction.endTime : '') + (GameState.flags.fireplaceLit ? '1' : '0') + (GameState.activeAction ? Math.floor(Date.now() / 1000) : '');
@@ -35853,36 +35852,6 @@ const UI = {
                     } else {
                         if (!(GameState.inventory[act.req] > 0)) return;
                     }
-=======
-renderActions: function() {
-    const _hAct = JSON.stringify(GameState.inventory) + lang + (GameState.activeAction ? GameState.activeAction.id + GameState.activeAction.endTime : '') + (GameState.flags.fireplaceLit?'1':'0') + (GameState.activeAction ? Math.floor(Date.now()/1000) : '');
-    if (_hAct === this._hashActions) return;
-    this._hashActions = _hAct;
-    const el = document.getElementById('workspace-actions');
-    const lang = (GameState.settings && GameState.settings.language) || 'cs';
-    let newHTML = "";
-    ActionsDB.filter(act => act.cat !== 'mine').forEach(act => {
-        // === SPECIAL HANDLING FOR WELL (MUST BE FIRST!) ===
-        if (act.id === 'well_water') {
-            const hasWell = GameState.well && GameState.well.built;
-            if (!hasWell) return; // Skip if no well
-            
-            const hasPot = GameState.inventory.cooking_pot && GameState.inventory.cooking_pot > 0;
-            const hasBucket = GameState.inventory.bucket && GameState.inventory.bucket > 0;
-            
-            if (!hasPot && !hasBucket) return; // Skip if no container
-            
-            // Well action passes checks - continue to render it below
-        } else {
-            // NORMAL REQUIREMENT CHECK - ONLY FOR NON-WELL ACTIONS
-            if (act.req) {
-                if (Array.isArray(act.req)) {
-                    // Pole req — zobrazit pokud hráč má alespoň jeden nástroj
-                    const hasAny = act.req.some(r => GameState.inventory[r.item] > 0);
-                    if (!hasAny) return;
-                } else {
-                    if (!(GameState.inventory[act.req] > 0)) return;
->>>>>>> 86b5cfcc2a21fc7875651d126590cf071ec57487
                 }
             }
             // === END WELL HANDLING ===
@@ -37444,7 +37413,7 @@ renderActions: function() {
         // 3. Aplikovat překlad na UI
         LangSystem.apply(lang);
         this._hashActions = null; // invalidate scavenge cache — force re-render in new lang
-        this.renderActions();
+        if (document.getElementById('workspace-actions')) this.renderAll();
 
         // 4. Aktualizovat consent banner text na správný jazyk
         const L = STRINGS[lang] || STRINGS.cs;
@@ -37697,16 +37666,9 @@ renderActions: function() {
 
 };
 
-<<<<<<< HEAD
 // ===============================================
 // NOTEBOOK SYSTEM - LOCAL ONLY (NO CLOUD)
 // ===============================================
-=======
-	// ===============================================
-	// NOTEBOOK SYSTEM - LOCAL ONLY (NO CLOUD)
-	// ===============================================
-
->>>>>>> 86b5cfcc2a21fc7875651d126590cf071ec57487
 // ═══ src/systems/iching.js ═══
 const IChing = {
 	  
