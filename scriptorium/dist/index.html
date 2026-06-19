@@ -35841,6 +35841,17 @@ const UI = {
 
                 if (!hasPot && !hasBucket) return; // Skip if no container
 
+                // Timed mode — well nepodporuje časované scavenge
+                if (GameState.selectedDuration > 0) {
+                    const msg = lang === 'en' ? 'Instant only — well cannot be timed' : 'Jen okamžitě — studna nepodporuje časovaný sběr';
+                    newHTML += `<div class="action-card" style="opacity:0.5;">
+                        <div class="action-header"><span class="action-icon">🚰</span>
+                        <div class="action-info"><div class="action-name">${lang==='en'?'Draw water':'Jít pro vodu'}</div>
+                        <div class="action-desc" style="font-style:italic;">${msg}</div></div></div>
+                        <button class="craft-btn" disabled>⏱️ ${lang==='en'?'Instant only':'Jen okamžitě'}</button></div>`;
+                    return;
+                }
+
                 // Well action passes checks - continue to render it below
             } else {
                 // NORMAL REQUIREMENT CHECK - ONLY FOR NON-WELL ACTIONS
