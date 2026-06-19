@@ -314,78 +314,106 @@ const CellariumSystem = {
 
   ENTITY_SHOP: {
     tavern: [
-      { itemId: 'stamina_tonic', basePrice: 8 },
-      { itemId: 'beer',          basePrice: 2 },
-      { itemId: 'wine',          basePrice: 7 },
-      { itemId: 'seeds_cannabis', basePrice: 45 }, // konopí seté — vzácné, drahé
+      { itemId: 'stamina_tonic',  basePrice: 8,   dailyStock: 3  },
+      { itemId: 'beer',           basePrice: 2,   dailyStock: 20 },
+      { itemId: 'wine',           basePrice: 7,   dailyStock: 8  },
+      { itemId: 'seeds_cannabis', basePrice: 45,  dailyStock: 1  }, // konopí seté — vzácné
     ],
     shop: [
-      { itemId: 'chalk',         basePrice: 2 },
-      { itemId: 'wine',          basePrice: 4 },
-      { itemId: 'seeds_thyme',   basePrice: 6 },  // tymián — Varroa léčba
-      { itemId: 'seeds_herb',      basePrice: 6  },
-      { itemId: 'seeds_vegetable', basePrice: 6  },
-      { itemId: 'seeds_yellow',    basePrice: 8  }, // heřmánek
-      { itemId: 'seeds_blue',      basePrice: 8  }, // levandule
-      { itemId: 'seeds_mint',      basePrice: 8  },
-      { itemId: 'seeds_sage',      basePrice: 10 },
-      { itemId: 'seeds_fennel',    basePrice: 10 },
+      { itemId: 'chalk',           basePrice: 2,  dailyStock: 30 },
+      { itemId: 'wine',            basePrice: 4,  dailyStock: 5  },
+      { itemId: 'seeds_thyme',     basePrice: 6,  dailyStock: 5  }, // tymián — Varroa léčba
+      { itemId: 'seeds_herb',      basePrice: 6,  dailyStock: 10 },
+      { itemId: 'seeds_vegetable', basePrice: 6,  dailyStock: 10 },
+      { itemId: 'seeds_yellow',    basePrice: 8,  dailyStock: 3  }, // heřmánek
+      { itemId: 'seeds_blue',      basePrice: 8,  dailyStock: 3  }, // levandule
+      { itemId: 'seeds_mint',      basePrice: 8,  dailyStock: 3  },
+      { itemId: 'seeds_sage',      basePrice: 10, dailyStock: 3  },
+      { itemId: 'seeds_fennel',    basePrice: 10, dailyStock: 3  },
     ],
     market: [
-      { itemId: 'paper',         basePrice: 3 },
+      { itemId: 'paper',         basePrice: 3,   dailyStock: 25 },
       // Zvířata
-      { itemId: 'hen_white',     basePrice: 15 },
-      { itemId: 'hen_black',     basePrice: 18 },
-      { itemId: 'hen_colored',   basePrice: 25 },
-      { itemId: 'rooster',       basePrice: 20 },
-      { itemId: 'sheep',         basePrice: 35 },
-      { itemId: 'rabbit_m',      basePrice: 18,  req_tech: 'tech_cuniculi' },
-      { itemId: 'rabbit_f',      basePrice: 24,  req_tech: 'tech_cuniculi' },
-      { itemId: 'goat',          basePrice: 44,  req_tech: 'tech_caprile' },
-      { itemId: 'piglet',        basePrice: 40,  req_tech: 'tech_suile' },
-      { itemId: 'horse',         basePrice: 250, req_tech: 'tech_stabulum' },
-      { itemId: 'donkey',        basePrice: 55,  req_tech: 'tech_asinus' },
-      { itemId: 'queen_bee',     basePrice: 40 },
+      { itemId: 'hen_white',     basePrice: 15,  dailyStock: 3  },
+      { itemId: 'hen_black',     basePrice: 18,  dailyStock: 2  },
+      { itemId: 'hen_colored',   basePrice: 25,  dailyStock: 1  },
+      { itemId: 'rooster',       basePrice: 20,  dailyStock: 2  },
+      { itemId: 'sheep',         basePrice: 35,  dailyStock: 2  },
+      { itemId: 'rabbit_m',      basePrice: 18,  dailyStock: 2,  req_tech: 'tech_cuniculi' },
+      { itemId: 'rabbit_f',      basePrice: 24,  dailyStock: 2,  req_tech: 'tech_cuniculi' },
+      { itemId: 'goat',          basePrice: 44,  dailyStock: 1,  req_tech: 'tech_caprile' },
+      { itemId: 'piglet',        basePrice: 40,  dailyStock: 1,  req_tech: 'tech_suile' },
+      { itemId: 'horse',         basePrice: 250, dailyStock: 1,  req_tech: 'tech_stabulum' },
+      { itemId: 'donkey',        basePrice: 55,  dailyStock: 1,  req_tech: 'tech_asinus' },
+      { itemId: 'queen_bee',     basePrice: 40,  dailyStock: 1  },
       // Semena stromů — drahá
-      { itemId: 'seed_apple',    basePrice: 8  },
-      { itemId: 'seed_pear',     basePrice: 8  },
-      { itemId: 'seed_plum',     basePrice: 7  },
-      { itemId: 'seed_cherry',   basePrice: 9  },
-      { itemId: 'seed_walnut',   basePrice: 15 },
-      { itemId: 'seed_mulberry', basePrice: 12 },
-      { itemId: 'seed_quince',   basePrice: 10 },
-      { itemId: 'seed_sorb',     basePrice: 18 },
-      { itemId: 'seed_rowan',    basePrice: 8  },
-      { itemId: 'seed_linden',   basePrice: 14 },
+      { itemId: 'seed_apple',    basePrice: 8,   dailyStock: 3  },
+      { itemId: 'seed_pear',     basePrice: 8,   dailyStock: 3  },
+      { itemId: 'seed_plum',     basePrice: 7,   dailyStock: 3  },
+      { itemId: 'seed_cherry',   basePrice: 9,   dailyStock: 3  },
+      { itemId: 'seed_walnut',   basePrice: 15,  dailyStock: 2  },
+      { itemId: 'seed_mulberry', basePrice: 12,  dailyStock: 2  },
+      { itemId: 'seed_quince',   basePrice: 10,  dailyStock: 2  },
+      { itemId: 'seed_sorb',     basePrice: 18,  dailyStock: 2  },
+      { itemId: 'seed_rowan',    basePrice: 8,   dailyStock: 3  },
+      { itemId: 'seed_linden',   basePrice: 14,  dailyStock: 2  },
       // Rybník
-      { itemId: 'fry',           basePrice: 5  },
+      { itemId: 'fry',           basePrice: 5,   dailyStock: 5  },
       // Zelenina
-      { itemId: 'carrot',        basePrice: 4  },
-      { itemId: 'onion',         basePrice: 4  },
-      { itemId: 'leek',          basePrice: 6  },
-      { itemId: 'cabbage',       basePrice: 4  },
-      { itemId: 'garlic',        basePrice: 8  },
+      { itemId: 'carrot',        basePrice: 4,   dailyStock: 30 },
+      { itemId: 'onion',         basePrice: 4,   dailyStock: 30 },
+      { itemId: 'leek',          basePrice: 6,   dailyStock: 20 },
+      { itemId: 'cabbage',       basePrice: 4,   dailyStock: 30 },
+      { itemId: 'garlic',        basePrice: 8,   dailyStock: 15 },
       // Semena zeleniny
-      { itemId: 'seeds_leek',    basePrice: 10 },
-      { itemId: 'seeds_cabbage', basePrice: 8  },
-      { itemId: 'seeds_garlic',  basePrice: 12 },
-      { itemId: 'seeds_radish',  basePrice: 6  },
-      { itemId: 'seeds_turnip',  basePrice: 6  },
+      { itemId: 'seeds_leek',    basePrice: 10,  dailyStock: 5  },
+      { itemId: 'seeds_cabbage', basePrice: 8,   dailyStock: 5  },
+      { itemId: 'seeds_garlic',  basePrice: 12,  dailyStock: 5  },
+      { itemId: 'seeds_radish',  basePrice: 6,   dailyStock: 5  },
+      { itemId: 'seeds_turnip',  basePrice: 6,   dailyStock: 5  },
       // Pivovar suroviny
-      { itemId: 'grain',         basePrice: 4  },  // obilí — základ piva
-      { itemId: 'hops',          basePrice: 18 },  // chmel — vzácnější
+      { itemId: 'grain',         basePrice: 4,   dailyStock: 80 }, // obilí — bulk komodita
+      { itemId: 'hops',          basePrice: 18,  dailyStock: 15 }, // chmel — vzácnější
       // Kovářství (vyžaduje tech_kovarina)
-      { itemId: 'stone_pickaxe', basePrice: 30 },
-      { itemId: 'iron_ore',      basePrice: 15,  req_tech: 'tech_kovarina' },
-      { itemId: 'anvil',         basePrice: 250, req_tech: 'tech_kovarina' },
-      { itemId: 'iron_axe',      basePrice: 65,  req_tech: 'tech_kovarina' },
-      { itemId: 'iron_spade',    basePrice: 55,  req_tech: 'tech_kovarina' },
-      { itemId: 'iron_scythe',   basePrice: 70,  req_tech: 'tech_kovarina' },
-      { itemId: 'iron_sickle',   basePrice: 50,  req_tech: 'tech_kovarina' },
-      { itemId: 'iron_flail',    basePrice: 60,  req_tech: 'tech_kovarina' },
-      { itemId: 'iron_shovel',   basePrice: 55,  req_tech: 'tech_kovarina' },
-      { itemId: 'iron_saw',      basePrice: 65,  req_tech: 'tech_kovarina' },
+      { itemId: 'stone_pickaxe', basePrice: 30,  dailyStock: 5  },
+      { itemId: 'iron_ore',      basePrice: 15,  dailyStock: 10, req_tech: 'tech_kovarina' },
+      { itemId: 'anvil',         basePrice: 250, dailyStock: 1,  req_tech: 'tech_kovarina' },
+      { itemId: 'iron_axe',      basePrice: 65,  dailyStock: 2,  req_tech: 'tech_kovarina' },
+      { itemId: 'iron_spade',    basePrice: 55,  dailyStock: 2,  req_tech: 'tech_kovarina' },
+      { itemId: 'iron_scythe',   basePrice: 70,  dailyStock: 2,  req_tech: 'tech_kovarina' },
+      { itemId: 'iron_sickle',   basePrice: 50,  dailyStock: 2,  req_tech: 'tech_kovarina' },
+      { itemId: 'iron_flail',    basePrice: 60,  dailyStock: 2,  req_tech: 'tech_kovarina' },
+      { itemId: 'iron_shovel',   basePrice: 55,  dailyStock: 2,  req_tech: 'tech_kovarina' },
+      { itemId: 'iron_saw',      basePrice: 65,  dailyStock: 2,  req_tech: 'tech_kovarina' },
     ],
+  },
+
+  // ── Daily Stock helpers ────────────────────────────────────────────────────
+  _stockKey: function(entity, itemId) { return entity + ':' + itemId; },
+
+  _resetStockIfNewDay: function() {
+    if (!GameState.shopStock) GameState.shopStock = { date: '', used: {} };
+    const today = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
+    if (GameState.shopStock.date !== today) {
+      GameState.shopStock.date = today;
+      GameState.shopStock.used = {};
+      // TODO: Chronicon stock_boost/shortage signal — napojit až Chronicon live
+    }
+  },
+
+  _getStockRemaining: function(entity, itemId) {
+    this._resetStockIfNewDay();
+    const shopList = this.ENTITY_SHOP[entity];
+    if (!shopList) return 999;
+    const entry = shopList.find(s => s.itemId === itemId);
+    if (!entry || entry.dailyStock === undefined) return 999; // bez limitu
+    const used = GameState.shopStock.used[this._stockKey(entity, itemId)] || 0;
+    return Math.max(0, entry.dailyStock - used);
+  },
+
+  _useStock: function(entity, itemId) {
+    const key = this._stockKey(entity, itemId);
+    GameState.shopStock.used[key] = (GameState.shopStock.used[key] || 0) + 1;
   },
 
   buyItem: function(entity, itemId) {
@@ -402,12 +430,19 @@ const CellariumSystem = {
       UI.notify(t('game.techRequired') || '❌ Vyžaduje výzkum.', true);
       return;
     }
+    // Denní sklad — check
+    if (this._getStockRemaining(entity, itemId) <= 0) {
+      const lang = (GameState.settings && GameState.settings.language) || 'cs';
+      UI.notify(lang === 'en' ? '📦 Sold out for today. Come back tomorrow.' : '📦 Vyprodáno na dnes. Přijď zítra.', true);
+      return;
+    }
     const price = this.calcBuyPrice(itemId, entity, shopEntry.basePrice);
     if (this.getGrose() < price) {
       UI.notify(t('cellarium.noGrose'), true);
       return;
     }
     this.spendGrose(price);
+    this._useStock(entity, itemId);
     Game.addItem(itemId, 1);
     this.recordTransaction('buy', itemId, 1, price, entity);
     // Aplikuj efekt nápoje (pivo/víno)
@@ -474,25 +509,37 @@ const CellariumSystem = {
       !entry.req_tech || (GameState.researchedTechs && GameState.researchedTechs.includes(entry.req_tech))
     );
     const buyLabel = lang === 'en' ? 'BUY' : 'NÁKUP';
+    this._resetStockIfNewDay();
     const cards = shopList.map(entry => {
       const item = ItemsDB[entry.itemId];
       const icon = (item && item.icon) ? item.icon : '📦';
       const name = (typeof iName === 'function') ? iName(entry.itemId) : (item ? item.name : entry.itemId);
       const price = this.calcBuyPrice(entry.itemId, entity, entry.basePrice);
+      const remaining = this._getStockRemaining(entity, entry.itemId);
+      const hasStock = remaining > 0;
       const canAfford = this.getGrose() >= price;
+      const canBuy = canAfford && hasStock;
+      const stockLabel = entry.dailyStock !== undefined
+        ? `<span style="opacity:0.5; font-size:0.7rem; margin-left:4px;">${remaining}/${entry.dailyStock}</span>`
+        : '';
+      const soldOut = !hasStock
+        ? `<div style="font-size:0.7rem; color:#f44336; margin-top:2px;">${lang === 'en' ? '📦 Sold out' : '📦 Vyprodáno'}</div>`
+        : '';
       return `
         <div style="padding:8px 10px; background:rgba(197,160,89,0.06);
                     border-radius:6px; border:1px solid rgba(197,160,89,0.2);
-                    display:flex; align-items:center; gap:8px;">
+                    display:flex; align-items:center; gap:8px;
+                    opacity:${hasStock ? 1 : 0.55};">
           <span style="font-size:1.4rem; min-width:28px; text-align:center;">${icon}</span>
           <div style="flex:1; min-width:0;">
-            <div style="font-weight:bold; font-size:0.82rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${name}</div>
+            <div style="font-weight:bold; font-size:0.82rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${name}${stockLabel}</div>
             <div style="font-size:0.72rem; opacity:0.65;">${price} 💰</div>
+            ${soldOut}
           </div>
           <button onclick="CellariumSystem.buyItem('${entity}','${entry.itemId}')"
                   class="craft-btn"
                   style="padding:3px 10px; font-size:0.75rem; flex-shrink:0;"
-                  ${canAfford ? '' : 'disabled'}>
+                  ${canBuy ? '' : 'disabled'}>
             ${lang === 'en' ? 'Buy' : 'Koupit'}
           </button>
         </div>

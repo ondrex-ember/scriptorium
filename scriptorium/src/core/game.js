@@ -506,6 +506,8 @@ const Game = {
                     if (typeof DecaySystem !== 'undefined' && DecaySystem.dailyTick) DecaySystem.dailyTick();
                     // Studna — časová degradace (self-guarded 24h, grace 5 dní)
                     if (typeof WellSystem !== 'undefined' && WellSystem.dailyTick) WellSystem.dailyTick();
+                    // Terrain — regen únavy krajiny (self-guarded 10 min)
+                    if (typeof TerrainSystem !== 'undefined') TerrainSystem.tick();
                     Game.checkFarmyardProduction();
                     Game.checkPiscinaGrowth();
                 }
@@ -1897,6 +1899,8 @@ const Game = {
         
         const durationMin = action.collectMode ? 5 : GameState.selectedDuration;
         if (durationMin === 0) {
+            // Únava krajiny — instant klik
+            if (typeof TerrainSystem !== 'undefined') TerrainSystem.onScavenge(0);
             // ── snapshot pro single scavenge ──
             Game._scavenging = true;
             const _s0before = {};
@@ -2033,9 +2037,33 @@ const Game = {
             // ── notifyAccum: single scavenge ──
             {
                 const _s0gains = {};
+                const _terrainMult = (typeof TerrainSystem !== 'undefined') ? TerrainSystem.getMult() : 1.0;
+                const _prevTier = (GameState.terrain && GameState.terrain.lastToastTier) || 0;
                 for (const k of Object.keys(GameState.inventory)) {
                     const diff = (GameState.inventory[k] || 0) - (_s0before[k] || 0);
-                    if (diff > 0) _s0gains[k] = diff;
+                    if (diff > 0) {
+                        // Aplikovat terrain mult — min 1 aby hráč vždy něco dostal
+                        const reduced = _terrainMult >= 1.0 ? diff : Math.max(1, Math.round(diff * _terrainMult));
+                        const remove = diff - reduced;
+                        if (remove > 0) Game.removeItem(k, remove);
+                        if (reduced > 0) _s0gains[k] = reduced;
+                    }
+                }
+                // Toast POUZE při přechodu tieru (ne každý klik)
+                if (typeof TerrainSystem !== 'undefined' && _terrainMult < 1.0) {
+                    const lang = (GameState.settings && GameState.settings.language) || 'cs';
+                    const currTier = _terrainMult <= 0.25 ? 2 : 1;
+                    if (currTier > _prevTier) {
+                        const msg = currTier === 2
+                            ? (lang === 'en' ? '🪨 Terrain exhausted — yields at 25%' : '🪨 Krajina vyčerpaná — výnosy jen 25%')
+                            : (lang === 'en' ? '🍂 Terrain tired — yields at 50%' : '🍂 Krajina unavená — výnosy 50%');
+                        UI.notify(msg, true);
+                        if (GameState.terrain) GameState.terrain.lastToastTier = currTier;
+                    }
+                }
+                // Reset tier při zotavení (regen sníží fatigue)
+                if (typeof TerrainSystem !== 'undefined' && _terrainMult >= 1.0 && _prevTier > 0) {
+                    if (GameState.terrain) GameState.terrain.lastToastTier = 0;
                 }
                 if (Object.keys(_s0gains).length > 0) UI.notifyAccum(_s0gains);
             }
@@ -2043,8 +2071,13 @@ const Game = {
             if (_usedToolId) Game.useToolCharge(_usedToolId);
             Game.save(); UI.renderAll(); return;
         } else {
-            // TIMED scavenge — původní tabulka výnosů dle délky
-            let multiplier = durationMin === 1 ? 8 : (durationMin === 5 ? 30 : 50);
+            // TIMED scavenge — tabulka výnosů dle délky
+            let multiplier = durationMin === 1  ? 8
+                           : durationMin === 5  ? 30
+                           : durationMin === 10 ? 50
+                           : durationMin === 20 ? 90
+                           : durationMin === 30 ? 120
+                           : 8;
 
             // Apply tool multiplier
             if (_toolMult !== 1.0) multiplier = Math.round(multiplier * _toolMult);
@@ -2053,6 +2086,12 @@ const Game = {
             if (typeof CanonicalHours !== 'undefined') {
                 const foragingMult = CanonicalHours.getForagingMultiplier();
                 multiplier = Math.floor(multiplier * foragingMult);
+            }
+
+            // Apply terrain mult — timed výpravy jsou šetrnější na krajinu
+            if (typeof TerrainSystem !== 'undefined') {
+                multiplier = Math.max(1, Math.floor(multiplier * TerrainSystem.getMult()));
+                TerrainSystem.onScavenge(durationMin);
             }
 
             GameState.activeAction = { id: type, startTime: Date.now(), endTime: Date.now() + (durationMin * 60 * 1000), multiplier: multiplier };
@@ -2221,6 +2260,18 @@ const Game = {
             if(amt > 0 && (!GameState.inventory[item] || GameState.inventory[item] < amt)) { UI.notify(t('game.missingMats'), true); return; }
             if(amt === 0 && !GameState.inventory[item]) { UI.notify(`${t('game.required2')} ${iName(item)}`, true); return; }
         }
+
+        // ── RESEARCH: Vigor gate (před odebráním surovin) ───────────────────
+        if (r.output === 'research') {
+            if (typeof VigorSystem !== 'undefined' && !VigorSystem.canResearch()) {
+                const lang = (GameState.settings && GameState.settings.language) || 'cs';
+                UI.notify(lang === 'en'
+                    ? '😵 Too tired to write. Eat something or rest first. (Vigor < 20)'
+                    : '😵 Příliš unaven na psaní. Nejdříve se najedz nebo odpočiň. (Vigor < 20)', true);
+                return;
+            }
+        }
+
         for(let [item, amt] of Object.entries(r.req)) if(amt > 0) this.removeItem(item, amt);
 
         // Init toolUses pro nový nástroj
@@ -2238,6 +2289,24 @@ const Game = {
                 if (Math.random() < (mult - 1.0)) {
                     craftQty += 1;
                 }
+            }
+        }
+
+        // ── RESEARCH: diminishing returns ────────────────────────────────────
+        if (r.output === 'research') {
+            if (!GameState.researchHour) GameState.researchHour = { count: 0, hourStart: 0 };
+            const now = Date.now();
+            const HOUR_MS = 60 * 60 * 1000;
+            if (now - GameState.researchHour.hourStart >= HOUR_MS) {
+                GameState.researchHour.count = 0;
+                GameState.researchHour.hourStart = now;
+            }
+            GameState.researchHour.count += craftQty;
+            const cnt = GameState.researchHour.count;
+            if (cnt > 20) {
+                craftQty = Math.max(1, Math.round(craftQty * 0.25));
+            } else if (cnt > 10) {
+                craftQty = Math.max(1, Math.round(craftQty * 0.5));
             }
         }
         

@@ -60,17 +60,18 @@ const TerrainSystem = {
         if (now - last < this.REGEN_INTERVAL) return; // self-guard 10 min
         GameState.terrain.fatigue = Math.max(0, (GameState.terrain.fatigue || 0) - this.REGEN_AMOUNT);
         GameState.terrain.lastRegen = now;
+        // Reset toast tier při zotavení na odpočatou úroveň
+        if (GameState.terrain.fatigue <= this.FATIGUE_RESTED && GameState.terrain.lastToastTier > 0) {
+            GameState.terrain.lastToastTier = 0;
+        }
     },
 
     // ── UI indikátor pro scavenge sekci ───────────────────────────────────────
-    // Vrací HTML string — prázdný pokud fatigue = 0
+    // Vždy zobrazen — hráč vždy vidí stav krajiny
     renderIndicator: function() {
-        if (!GameState.terrain) return '';
+        if (!GameState.terrain) this.init();
         const f = GameState.terrain.fatigue || 0;
-        if (f === 0) return '';
-
-        const lang = (typeof GameState !== 'undefined' && GameState.settings && GameState.settings.lang) || 'cs';
-        const mult = this.getMult();
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
 
         let icon, labelCS, labelEN, color;
         if (f <= this.FATIGUE_RESTED) {
@@ -88,16 +89,35 @@ const TerrainSystem = {
         }
 
         const label = lang === 'en' ? labelEN : labelCS;
-        const pct = Math.round((f / 100) * 100);
+        const barPct = Math.round((f / 100) * 100);
+
+        // Regen info — kolik minut do zotavení na FATIGUE_RESTED
+        let regenInfo = '';
+        if (f > this.FATIGUE_RESTED) {
+            const fatigueToRegen = f - this.FATIGUE_RESTED;
+            const minsNeeded = Math.ceil(fatigueToRegen / this.REGEN_AMOUNT) * 10;
+            const hNeeded = Math.floor(minsNeeded / 60);
+            const mLeft = minsNeeded % 60;
+            const timeStr = hNeeded > 0
+                ? (lang === 'en' ? `~${hNeeded}h ${mLeft}m` : `~${hNeeded}h ${mLeft}min`)
+                : (lang === 'en' ? `~${mLeft}m` : `~${mLeft}min`);
+            regenInfo = lang === 'en'
+                ? ` · recovers in ${timeStr}`
+                : ` · zotaví se za ${timeStr}`;
+        }
 
         return `<div id="terrain-indicator" style="
-            display:flex; align-items:center; gap:8px;
-            padding:6px 10px; margin-bottom:8px;
-            background:rgba(0,0,0,0.15); border-radius:6px;
+            padding:8px 10px; margin-bottom:10px;
+            background:rgba(0,0,0,0.12); border-radius:6px;
             border-left:3px solid ${color}; font-size:0.82rem;">
-            <span>${icon}</span>
-            <span style="color:${color}; flex:1;">${label}</span>
-            <span style="opacity:0.6; font-size:0.75rem;">${pct}/100</span>
+            <div style="display:flex; align-items:center; gap:8px; margin-bottom:5px;">
+                <span>${icon}</span>
+                <span style="color:${color}; flex:1;">${label}${regenInfo}</span>
+                <span style="opacity:0.5; font-size:0.75rem;">${f}/100</span>
+            </div>
+            <div style="background:rgba(0,0,0,0.2); border-radius:3px; height:4px; overflow:hidden;">
+                <div style="width:${barPct}%; height:100%; background:${color}; border-radius:3px; transition:width 0.3s;"></div>
+            </div>
         </div>`;
     },
 

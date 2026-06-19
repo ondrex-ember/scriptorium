@@ -2368,6 +2368,8 @@
                             <button class="time-btn" onclick="Game.setDuration(1, this)">1 min</button>
                             <button class="time-btn" onclick="Game.setDuration(5, this)">5 min</button>
                             <button class="time-btn" onclick="Game.setDuration(10, this)">10 min</button>
+                            <button class="time-btn" onclick="Game.setDuration(20, this)">20 min</button>
+                            <button class="time-btn" onclick="Game.setDuration(30, this)">30 min</button>
                         </div>
                         <hr style="border:0; border-top:1px solid var(--ink-secondary); margin:20px 0; opacity:0.3;">
                         <div id="workspace-actions"></div>
@@ -7114,6 +7116,9 @@ const GameState = {
     ],
     activeAction: null,
     selectedDuration: 0,
+    terrain: { fatigue: 0, lastRegen: 0, lastToastTier: 0 }, // TerrainSystem — únava krajiny
+    researchHour: { count: 0, hourStart: 0 }, // Research diminishing returns
+    shopStock: { date: '', used: {} },          // Denní sklady entit (reset o půlnoci)
     discoveredLore: [], // Track discovered lore entries
     dailyRewards: {
         lastLogin: 0,
@@ -13596,78 +13601,106 @@ const CellariumSystem = {
 
   ENTITY_SHOP: {
     tavern: [
-      { itemId: 'stamina_tonic', basePrice: 8 },
-      { itemId: 'beer',          basePrice: 2 },
-      { itemId: 'wine',          basePrice: 7 },
-      { itemId: 'seeds_cannabis', basePrice: 45 }, // konopí seté — vzácné, drahé
+      { itemId: 'stamina_tonic',  basePrice: 8,   dailyStock: 3  },
+      { itemId: 'beer',           basePrice: 2,   dailyStock: 20 },
+      { itemId: 'wine',           basePrice: 7,   dailyStock: 8  },
+      { itemId: 'seeds_cannabis', basePrice: 45,  dailyStock: 1  }, // konopí seté — vzácné
     ],
     shop: [
-      { itemId: 'chalk',         basePrice: 2 },
-      { itemId: 'wine',          basePrice: 4 },
-      { itemId: 'seeds_thyme',   basePrice: 6 },  // tymián — Varroa léčba
-      { itemId: 'seeds_herb',      basePrice: 6  },
-      { itemId: 'seeds_vegetable', basePrice: 6  },
-      { itemId: 'seeds_yellow',    basePrice: 8  }, // heřmánek
-      { itemId: 'seeds_blue',      basePrice: 8  }, // levandule
-      { itemId: 'seeds_mint',      basePrice: 8  },
-      { itemId: 'seeds_sage',      basePrice: 10 },
-      { itemId: 'seeds_fennel',    basePrice: 10 },
+      { itemId: 'chalk',           basePrice: 2,  dailyStock: 30 },
+      { itemId: 'wine',            basePrice: 4,  dailyStock: 5  },
+      { itemId: 'seeds_thyme',     basePrice: 6,  dailyStock: 5  }, // tymián — Varroa léčba
+      { itemId: 'seeds_herb',      basePrice: 6,  dailyStock: 10 },
+      { itemId: 'seeds_vegetable', basePrice: 6,  dailyStock: 10 },
+      { itemId: 'seeds_yellow',    basePrice: 8,  dailyStock: 3  }, // heřmánek
+      { itemId: 'seeds_blue',      basePrice: 8,  dailyStock: 3  }, // levandule
+      { itemId: 'seeds_mint',      basePrice: 8,  dailyStock: 3  },
+      { itemId: 'seeds_sage',      basePrice: 10, dailyStock: 3  },
+      { itemId: 'seeds_fennel',    basePrice: 10, dailyStock: 3  },
     ],
     market: [
-      { itemId: 'paper',         basePrice: 3 },
+      { itemId: 'paper',         basePrice: 3,   dailyStock: 25 },
       // Zvířata
-      { itemId: 'hen_white',     basePrice: 15 },
-      { itemId: 'hen_black',     basePrice: 18 },
-      { itemId: 'hen_colored',   basePrice: 25 },
-      { itemId: 'rooster',       basePrice: 20 },
-      { itemId: 'sheep',         basePrice: 35 },
-      { itemId: 'rabbit_m',      basePrice: 18,  req_tech: 'tech_cuniculi' },
-      { itemId: 'rabbit_f',      basePrice: 24,  req_tech: 'tech_cuniculi' },
-      { itemId: 'goat',          basePrice: 44,  req_tech: 'tech_caprile' },
-      { itemId: 'piglet',        basePrice: 40,  req_tech: 'tech_suile' },
-      { itemId: 'horse',         basePrice: 250, req_tech: 'tech_stabulum' },
-      { itemId: 'donkey',        basePrice: 55,  req_tech: 'tech_asinus' },
-      { itemId: 'queen_bee',     basePrice: 40 },
+      { itemId: 'hen_white',     basePrice: 15,  dailyStock: 3  },
+      { itemId: 'hen_black',     basePrice: 18,  dailyStock: 2  },
+      { itemId: 'hen_colored',   basePrice: 25,  dailyStock: 1  },
+      { itemId: 'rooster',       basePrice: 20,  dailyStock: 2  },
+      { itemId: 'sheep',         basePrice: 35,  dailyStock: 2  },
+      { itemId: 'rabbit_m',      basePrice: 18,  dailyStock: 2,  req_tech: 'tech_cuniculi' },
+      { itemId: 'rabbit_f',      basePrice: 24,  dailyStock: 2,  req_tech: 'tech_cuniculi' },
+      { itemId: 'goat',          basePrice: 44,  dailyStock: 1,  req_tech: 'tech_caprile' },
+      { itemId: 'piglet',        basePrice: 40,  dailyStock: 1,  req_tech: 'tech_suile' },
+      { itemId: 'horse',         basePrice: 250, dailyStock: 1,  req_tech: 'tech_stabulum' },
+      { itemId: 'donkey',        basePrice: 55,  dailyStock: 1,  req_tech: 'tech_asinus' },
+      { itemId: 'queen_bee',     basePrice: 40,  dailyStock: 1  },
       // Semena stromů — drahá
-      { itemId: 'seed_apple',    basePrice: 8  },
-      { itemId: 'seed_pear',     basePrice: 8  },
-      { itemId: 'seed_plum',     basePrice: 7  },
-      { itemId: 'seed_cherry',   basePrice: 9  },
-      { itemId: 'seed_walnut',   basePrice: 15 },
-      { itemId: 'seed_mulberry', basePrice: 12 },
-      { itemId: 'seed_quince',   basePrice: 10 },
-      { itemId: 'seed_sorb',     basePrice: 18 },
-      { itemId: 'seed_rowan',    basePrice: 8  },
-      { itemId: 'seed_linden',   basePrice: 14 },
+      { itemId: 'seed_apple',    basePrice: 8,   dailyStock: 3  },
+      { itemId: 'seed_pear',     basePrice: 8,   dailyStock: 3  },
+      { itemId: 'seed_plum',     basePrice: 7,   dailyStock: 3  },
+      { itemId: 'seed_cherry',   basePrice: 9,   dailyStock: 3  },
+      { itemId: 'seed_walnut',   basePrice: 15,  dailyStock: 2  },
+      { itemId: 'seed_mulberry', basePrice: 12,  dailyStock: 2  },
+      { itemId: 'seed_quince',   basePrice: 10,  dailyStock: 2  },
+      { itemId: 'seed_sorb',     basePrice: 18,  dailyStock: 2  },
+      { itemId: 'seed_rowan',    basePrice: 8,   dailyStock: 3  },
+      { itemId: 'seed_linden',   basePrice: 14,  dailyStock: 2  },
       // Rybník
-      { itemId: 'fry',           basePrice: 5  },
+      { itemId: 'fry',           basePrice: 5,   dailyStock: 5  },
       // Zelenina
-      { itemId: 'carrot',        basePrice: 4  },
-      { itemId: 'onion',         basePrice: 4  },
-      { itemId: 'leek',          basePrice: 6  },
-      { itemId: 'cabbage',       basePrice: 4  },
-      { itemId: 'garlic',        basePrice: 8  },
+      { itemId: 'carrot',        basePrice: 4,   dailyStock: 30 },
+      { itemId: 'onion',         basePrice: 4,   dailyStock: 30 },
+      { itemId: 'leek',          basePrice: 6,   dailyStock: 20 },
+      { itemId: 'cabbage',       basePrice: 4,   dailyStock: 30 },
+      { itemId: 'garlic',        basePrice: 8,   dailyStock: 15 },
       // Semena zeleniny
-      { itemId: 'seeds_leek',    basePrice: 10 },
-      { itemId: 'seeds_cabbage', basePrice: 8  },
-      { itemId: 'seeds_garlic',  basePrice: 12 },
-      { itemId: 'seeds_radish',  basePrice: 6  },
-      { itemId: 'seeds_turnip',  basePrice: 6  },
+      { itemId: 'seeds_leek',    basePrice: 10,  dailyStock: 5  },
+      { itemId: 'seeds_cabbage', basePrice: 8,   dailyStock: 5  },
+      { itemId: 'seeds_garlic',  basePrice: 12,  dailyStock: 5  },
+      { itemId: 'seeds_radish',  basePrice: 6,   dailyStock: 5  },
+      { itemId: 'seeds_turnip',  basePrice: 6,   dailyStock: 5  },
       // Pivovar suroviny
-      { itemId: 'grain',         basePrice: 4  },  // obilí — základ piva
-      { itemId: 'hops',          basePrice: 18 },  // chmel — vzácnější
+      { itemId: 'grain',         basePrice: 4,   dailyStock: 80 }, // obilí — bulk komodita
+      { itemId: 'hops',          basePrice: 18,  dailyStock: 15 }, // chmel — vzácnější
       // Kovářství (vyžaduje tech_kovarina)
-      { itemId: 'stone_pickaxe', basePrice: 30 },
-      { itemId: 'iron_ore',      basePrice: 15,  req_tech: 'tech_kovarina' },
-      { itemId: 'anvil',         basePrice: 250, req_tech: 'tech_kovarina' },
-      { itemId: 'iron_axe',      basePrice: 65,  req_tech: 'tech_kovarina' },
-      { itemId: 'iron_spade',    basePrice: 55,  req_tech: 'tech_kovarina' },
-      { itemId: 'iron_scythe',   basePrice: 70,  req_tech: 'tech_kovarina' },
-      { itemId: 'iron_sickle',   basePrice: 50,  req_tech: 'tech_kovarina' },
-      { itemId: 'iron_flail',    basePrice: 60,  req_tech: 'tech_kovarina' },
-      { itemId: 'iron_shovel',   basePrice: 55,  req_tech: 'tech_kovarina' },
-      { itemId: 'iron_saw',      basePrice: 65,  req_tech: 'tech_kovarina' },
+      { itemId: 'stone_pickaxe', basePrice: 30,  dailyStock: 5  },
+      { itemId: 'iron_ore',      basePrice: 15,  dailyStock: 10, req_tech: 'tech_kovarina' },
+      { itemId: 'anvil',         basePrice: 250, dailyStock: 1,  req_tech: 'tech_kovarina' },
+      { itemId: 'iron_axe',      basePrice: 65,  dailyStock: 2,  req_tech: 'tech_kovarina' },
+      { itemId: 'iron_spade',    basePrice: 55,  dailyStock: 2,  req_tech: 'tech_kovarina' },
+      { itemId: 'iron_scythe',   basePrice: 70,  dailyStock: 2,  req_tech: 'tech_kovarina' },
+      { itemId: 'iron_sickle',   basePrice: 50,  dailyStock: 2,  req_tech: 'tech_kovarina' },
+      { itemId: 'iron_flail',    basePrice: 60,  dailyStock: 2,  req_tech: 'tech_kovarina' },
+      { itemId: 'iron_shovel',   basePrice: 55,  dailyStock: 2,  req_tech: 'tech_kovarina' },
+      { itemId: 'iron_saw',      basePrice: 65,  dailyStock: 2,  req_tech: 'tech_kovarina' },
     ],
+  },
+
+  // ── Daily Stock helpers ────────────────────────────────────────────────────
+  _stockKey: function(entity, itemId) { return entity + ':' + itemId; },
+
+  _resetStockIfNewDay: function() {
+    if (!GameState.shopStock) GameState.shopStock = { date: '', used: {} };
+    const today = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
+    if (GameState.shopStock.date !== today) {
+      GameState.shopStock.date = today;
+      GameState.shopStock.used = {};
+      // TODO: Chronicon stock_boost/shortage signal — napojit až Chronicon live
+    }
+  },
+
+  _getStockRemaining: function(entity, itemId) {
+    this._resetStockIfNewDay();
+    const shopList = this.ENTITY_SHOP[entity];
+    if (!shopList) return 999;
+    const entry = shopList.find(s => s.itemId === itemId);
+    if (!entry || entry.dailyStock === undefined) return 999; // bez limitu
+    const used = GameState.shopStock.used[this._stockKey(entity, itemId)] || 0;
+    return Math.max(0, entry.dailyStock - used);
+  },
+
+  _useStock: function(entity, itemId) {
+    const key = this._stockKey(entity, itemId);
+    GameState.shopStock.used[key] = (GameState.shopStock.used[key] || 0) + 1;
   },
 
   buyItem: function(entity, itemId) {
@@ -13684,12 +13717,19 @@ const CellariumSystem = {
       UI.notify(t('game.techRequired') || '❌ Vyžaduje výzkum.', true);
       return;
     }
+    // Denní sklad — check
+    if (this._getStockRemaining(entity, itemId) <= 0) {
+      const lang = (GameState.settings && GameState.settings.language) || 'cs';
+      UI.notify(lang === 'en' ? '📦 Sold out for today. Come back tomorrow.' : '📦 Vyprodáno na dnes. Přijď zítra.', true);
+      return;
+    }
     const price = this.calcBuyPrice(itemId, entity, shopEntry.basePrice);
     if (this.getGrose() < price) {
       UI.notify(t('cellarium.noGrose'), true);
       return;
     }
     this.spendGrose(price);
+    this._useStock(entity, itemId);
     Game.addItem(itemId, 1);
     this.recordTransaction('buy', itemId, 1, price, entity);
     // Aplikuj efekt nápoje (pivo/víno)
@@ -13756,25 +13796,37 @@ const CellariumSystem = {
       !entry.req_tech || (GameState.researchedTechs && GameState.researchedTechs.includes(entry.req_tech))
     );
     const buyLabel = lang === 'en' ? 'BUY' : 'NÁKUP';
+    this._resetStockIfNewDay();
     const cards = shopList.map(entry => {
       const item = ItemsDB[entry.itemId];
       const icon = (item && item.icon) ? item.icon : '📦';
       const name = (typeof iName === 'function') ? iName(entry.itemId) : (item ? item.name : entry.itemId);
       const price = this.calcBuyPrice(entry.itemId, entity, entry.basePrice);
+      const remaining = this._getStockRemaining(entity, entry.itemId);
+      const hasStock = remaining > 0;
       const canAfford = this.getGrose() >= price;
+      const canBuy = canAfford && hasStock;
+      const stockLabel = entry.dailyStock !== undefined
+        ? `<span style="opacity:0.5; font-size:0.7rem; margin-left:4px;">${remaining}/${entry.dailyStock}</span>`
+        : '';
+      const soldOut = !hasStock
+        ? `<div style="font-size:0.7rem; color:#f44336; margin-top:2px;">${lang === 'en' ? '📦 Sold out' : '📦 Vyprodáno'}</div>`
+        : '';
       return `
         <div style="padding:8px 10px; background:rgba(197,160,89,0.06);
                     border-radius:6px; border:1px solid rgba(197,160,89,0.2);
-                    display:flex; align-items:center; gap:8px;">
+                    display:flex; align-items:center; gap:8px;
+                    opacity:${hasStock ? 1 : 0.55};">
           <span style="font-size:1.4rem; min-width:28px; text-align:center;">${icon}</span>
           <div style="flex:1; min-width:0;">
-            <div style="font-weight:bold; font-size:0.82rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${name}</div>
+            <div style="font-weight:bold; font-size:0.82rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${name}${stockLabel}</div>
             <div style="font-size:0.72rem; opacity:0.65;">${price} 💰</div>
+            ${soldOut}
           </div>
           <button onclick="CellariumSystem.buyItem('${entity}','${entry.itemId}')"
                   class="craft-btn"
                   style="padding:3px 10px; font-size:0.75rem; flex-shrink:0;"
-                  ${canAfford ? '' : 'disabled'}>
+                  ${canBuy ? '' : 'disabled'}>
             ${lang === 'en' ? 'Buy' : 'Koupit'}
           </button>
         </div>
@@ -14784,7 +14836,6 @@ const CellariumSystem = {
 
 
 };
-
 // ═══ src/systems/DecaySystem.js ═══
 // ═══════════════════════════════════════════════════════════════════════════
 // DECAY SYSTEM v1 (B2 — simplified)
@@ -15443,6 +15494,131 @@ const WellSystem = {
 
         return stats[level] || defaultStats;
     }
+};
+// ═══ src/systems/terrain.js ═══
+// ═══════════════════════════════════════════════════════════════════════════════
+// TERRAIN SYSTEM — Únava krajiny
+// Krajina má své limity. Intenzivní sběr ji vyčerpá, odpočinek ji obnoví.
+// Timed výpravy jsou šetrnější než opakované instant kliky.
+// ═══════════════════════════════════════════════════════════════════════════════
+
+const TerrainSystem = {
+
+    // ── Thresholds ────────────────────────────────────────────────────────────
+    FATIGUE_RESTED:  20,   // 0–20  → plný výnos (1.0×)
+    FATIGUE_TIRED:   50,   // 21–50 → poloviční výnos (0.5×)
+                           // 51+   → čtvrtinový výnos (0.25×)
+
+    // Fatigue dopad per akce
+    FATIGUE_INSTANT: 2,    // každý instant klik
+    FATIGUE_TIMED: {       // timed výpravy — šetrnější na krajinu
+        1:  1,
+        5:  3,
+        10: 5,
+        20: 8,
+        30: 12,
+    },
+
+    // Regen: −5 fatigue každých 10 minut reálného času
+    REGEN_AMOUNT:   5,
+    REGEN_INTERVAL: 10 * 60 * 1000,
+
+    // ── Init ──────────────────────────────────────────────────────────────────
+    init: function() {
+        if (!GameState.terrain) {
+            GameState.terrain = { fatigue: 0, lastRegen: 0 };
+        }
+        if (typeof GameState.terrain.fatigue !== 'number') GameState.terrain.fatigue = 0;
+        if (typeof GameState.terrain.lastRegen !== 'number') GameState.terrain.lastRegen = Date.now();
+    },
+
+    // ── Výpočet multiplikátoru výnosu ─────────────────────────────────────────
+    getMult: function() {
+        const f = (GameState.terrain && GameState.terrain.fatigue) || 0;
+        if (f <= this.FATIGUE_RESTED) return 1.0;
+        if (f <= this.FATIGUE_TIRED)  return 0.5;
+        return 0.25;
+    },
+
+    // ── Dopad scavenge na únavu krajiny ───────────────────────────────────────
+    // durationMin: 0 = instant, 1/5/10/20/30 = timed
+    onScavenge: function(durationMin) {
+        if (!GameState.terrain) this.init();
+        const add = durationMin === 0
+            ? this.FATIGUE_INSTANT
+            : (this.FATIGUE_TIMED[durationMin] || this.FATIGUE_INSTANT);
+        GameState.terrain.fatigue = Math.min(100, (GameState.terrain.fatigue || 0) + add);
+    },
+
+    // ── Tick — regen (voláno z minutového game loop) ──────────────────────────
+    tick: function() {
+        if (!GameState.terrain) this.init();
+        const now = Date.now();
+        const last = GameState.terrain.lastRegen || 0;
+        if (now - last < this.REGEN_INTERVAL) return; // self-guard 10 min
+        GameState.terrain.fatigue = Math.max(0, (GameState.terrain.fatigue || 0) - this.REGEN_AMOUNT);
+        GameState.terrain.lastRegen = now;
+        // Reset toast tier při zotavení na odpočatou úroveň
+        if (GameState.terrain.fatigue <= this.FATIGUE_RESTED && GameState.terrain.lastToastTier > 0) {
+            GameState.terrain.lastToastTier = 0;
+        }
+    },
+
+    // ── UI indikátor pro scavenge sekci ───────────────────────────────────────
+    // Vždy zobrazen — hráč vždy vidí stav krajiny
+    renderIndicator: function() {
+        if (!GameState.terrain) this.init();
+        const f = GameState.terrain.fatigue || 0;
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+
+        let icon, labelCS, labelEN, color;
+        if (f <= this.FATIGUE_RESTED) {
+            icon = '🌿'; color = '#4caf50';
+            labelCS = 'Krajina odpočatá';
+            labelEN = 'Terrain rested';
+        } else if (f <= this.FATIGUE_TIRED) {
+            icon = '🍂'; color = '#ff9800';
+            labelCS = 'Krajina unavená — výnos 50%';
+            labelEN = 'Terrain tired — yield 50%';
+        } else {
+            icon = '🪨'; color = '#f44336';
+            labelCS = 'Krajina vyčerpaná — výnos 25%';
+            labelEN = 'Terrain exhausted — yield 25%';
+        }
+
+        const label = lang === 'en' ? labelEN : labelCS;
+        const barPct = Math.round((f / 100) * 100);
+
+        // Regen info — kolik minut do zotavení na FATIGUE_RESTED
+        let regenInfo = '';
+        if (f > this.FATIGUE_RESTED) {
+            const fatigueToRegen = f - this.FATIGUE_RESTED;
+            const minsNeeded = Math.ceil(fatigueToRegen / this.REGEN_AMOUNT) * 10;
+            const hNeeded = Math.floor(minsNeeded / 60);
+            const mLeft = minsNeeded % 60;
+            const timeStr = hNeeded > 0
+                ? (lang === 'en' ? `~${hNeeded}h ${mLeft}m` : `~${hNeeded}h ${mLeft}min`)
+                : (lang === 'en' ? `~${mLeft}m` : `~${mLeft}min`);
+            regenInfo = lang === 'en'
+                ? ` · recovers in ${timeStr}`
+                : ` · zotaví se za ${timeStr}`;
+        }
+
+        return `<div id="terrain-indicator" style="
+            padding:8px 10px; margin-bottom:10px;
+            background:rgba(0,0,0,0.12); border-radius:6px;
+            border-left:3px solid ${color}; font-size:0.82rem;">
+            <div style="display:flex; align-items:center; gap:8px; margin-bottom:5px;">
+                <span>${icon}</span>
+                <span style="color:${color}; flex:1;">${label}${regenInfo}</span>
+                <span style="opacity:0.5; font-size:0.75rem;">${f}/100</span>
+            </div>
+            <div style="background:rgba(0,0,0,0.2); border-radius:3px; height:4px; overflow:hidden;">
+                <div style="width:${barPct}%; height:100%; background:${color}; border-radius:3px; transition:width 0.3s;"></div>
+            </div>
+        </div>`;
+    },
+
 };
 // ═══ src/systems/fireplace.js ═══
 // ═══════════════════════════════════════════════════════════════════════════
@@ -33057,6 +33233,8 @@ const Game = {
                     if (typeof DecaySystem !== 'undefined' && DecaySystem.dailyTick) DecaySystem.dailyTick();
                     // Studna — časová degradace (self-guarded 24h, grace 5 dní)
                     if (typeof WellSystem !== 'undefined' && WellSystem.dailyTick) WellSystem.dailyTick();
+                    // Terrain — regen únavy krajiny (self-guarded 10 min)
+                    if (typeof TerrainSystem !== 'undefined') TerrainSystem.tick();
                     Game.checkFarmyardProduction();
                     Game.checkPiscinaGrowth();
                 }
@@ -34448,6 +34626,8 @@ const Game = {
         
         const durationMin = action.collectMode ? 5 : GameState.selectedDuration;
         if (durationMin === 0) {
+            // Únava krajiny — instant klik
+            if (typeof TerrainSystem !== 'undefined') TerrainSystem.onScavenge(0);
             // ── snapshot pro single scavenge ──
             Game._scavenging = true;
             const _s0before = {};
@@ -34584,9 +34764,33 @@ const Game = {
             // ── notifyAccum: single scavenge ──
             {
                 const _s0gains = {};
+                const _terrainMult = (typeof TerrainSystem !== 'undefined') ? TerrainSystem.getMult() : 1.0;
+                const _prevTier = (GameState.terrain && GameState.terrain.lastToastTier) || 0;
                 for (const k of Object.keys(GameState.inventory)) {
                     const diff = (GameState.inventory[k] || 0) - (_s0before[k] || 0);
-                    if (diff > 0) _s0gains[k] = diff;
+                    if (diff > 0) {
+                        // Aplikovat terrain mult — min 1 aby hráč vždy něco dostal
+                        const reduced = _terrainMult >= 1.0 ? diff : Math.max(1, Math.round(diff * _terrainMult));
+                        const remove = diff - reduced;
+                        if (remove > 0) Game.removeItem(k, remove);
+                        if (reduced > 0) _s0gains[k] = reduced;
+                    }
+                }
+                // Toast POUZE při přechodu tieru (ne každý klik)
+                if (typeof TerrainSystem !== 'undefined' && _terrainMult < 1.0) {
+                    const lang = (GameState.settings && GameState.settings.language) || 'cs';
+                    const currTier = _terrainMult <= 0.25 ? 2 : 1;
+                    if (currTier > _prevTier) {
+                        const msg = currTier === 2
+                            ? (lang === 'en' ? '🪨 Terrain exhausted — yields at 25%' : '🪨 Krajina vyčerpaná — výnosy jen 25%')
+                            : (lang === 'en' ? '🍂 Terrain tired — yields at 50%' : '🍂 Krajina unavená — výnosy 50%');
+                        UI.notify(msg, true);
+                        if (GameState.terrain) GameState.terrain.lastToastTier = currTier;
+                    }
+                }
+                // Reset tier při zotavení (regen sníží fatigue)
+                if (typeof TerrainSystem !== 'undefined' && _terrainMult >= 1.0 && _prevTier > 0) {
+                    if (GameState.terrain) GameState.terrain.lastToastTier = 0;
                 }
                 if (Object.keys(_s0gains).length > 0) UI.notifyAccum(_s0gains);
             }
@@ -34594,8 +34798,13 @@ const Game = {
             if (_usedToolId) Game.useToolCharge(_usedToolId);
             Game.save(); UI.renderAll(); return;
         } else {
-            // TIMED scavenge — původní tabulka výnosů dle délky
-            let multiplier = durationMin === 1 ? 8 : (durationMin === 5 ? 30 : 50);
+            // TIMED scavenge — tabulka výnosů dle délky
+            let multiplier = durationMin === 1  ? 8
+                           : durationMin === 5  ? 30
+                           : durationMin === 10 ? 50
+                           : durationMin === 20 ? 90
+                           : durationMin === 30 ? 120
+                           : 8;
 
             // Apply tool multiplier
             if (_toolMult !== 1.0) multiplier = Math.round(multiplier * _toolMult);
@@ -34604,6 +34813,12 @@ const Game = {
             if (typeof CanonicalHours !== 'undefined') {
                 const foragingMult = CanonicalHours.getForagingMultiplier();
                 multiplier = Math.floor(multiplier * foragingMult);
+            }
+
+            // Apply terrain mult — timed výpravy jsou šetrnější na krajinu
+            if (typeof TerrainSystem !== 'undefined') {
+                multiplier = Math.max(1, Math.floor(multiplier * TerrainSystem.getMult()));
+                TerrainSystem.onScavenge(durationMin);
             }
 
             GameState.activeAction = { id: type, startTime: Date.now(), endTime: Date.now() + (durationMin * 60 * 1000), multiplier: multiplier };
@@ -34772,6 +34987,18 @@ const Game = {
             if(amt > 0 && (!GameState.inventory[item] || GameState.inventory[item] < amt)) { UI.notify(t('game.missingMats'), true); return; }
             if(amt === 0 && !GameState.inventory[item]) { UI.notify(`${t('game.required2')} ${iName(item)}`, true); return; }
         }
+
+        // ── RESEARCH: Vigor gate (před odebráním surovin) ───────────────────
+        if (r.output === 'research') {
+            if (typeof VigorSystem !== 'undefined' && !VigorSystem.canResearch()) {
+                const lang = (GameState.settings && GameState.settings.language) || 'cs';
+                UI.notify(lang === 'en'
+                    ? '😵 Too tired to write. Eat something or rest first. (Vigor < 20)'
+                    : '😵 Příliš unaven na psaní. Nejdříve se najedz nebo odpočiň. (Vigor < 20)', true);
+                return;
+            }
+        }
+
         for(let [item, amt] of Object.entries(r.req)) if(amt > 0) this.removeItem(item, amt);
 
         // Init toolUses pro nový nástroj
@@ -34789,6 +35016,24 @@ const Game = {
                 if (Math.random() < (mult - 1.0)) {
                     craftQty += 1;
                 }
+            }
+        }
+
+        // ── RESEARCH: diminishing returns ────────────────────────────────────
+        if (r.output === 'research') {
+            if (!GameState.researchHour) GameState.researchHour = { count: 0, hourStart: 0 };
+            const now = Date.now();
+            const HOUR_MS = 60 * 60 * 1000;
+            if (now - GameState.researchHour.hourStart >= HOUR_MS) {
+                GameState.researchHour.count = 0;
+                GameState.researchHour.hourStart = now;
+            }
+            GameState.researchHour.count += craftQty;
+            const cnt = GameState.researchHour.count;
+            if (cnt > 20) {
+                craftQty = Math.max(1, Math.round(craftQty * 0.25));
+            } else if (cnt > 10) {
+                craftQty = Math.max(1, Math.round(craftQty * 0.5));
             }
         }
         
@@ -35830,6 +36075,8 @@ const UI = {
         this._hashActions = _hAct;
         const el = document.getElementById('workspace-actions');
         let newHTML = "";
+        // Terrain indicator — zobrazit pokud fatigue > 0
+        if (typeof TerrainSystem !== 'undefined') newHTML += TerrainSystem.renderIndicator();
         ActionsDB.filter(act => act.cat !== 'mine').forEach(act => {
             // === SPECIAL HANDLING FOR WELL (MUST BE FIRST!) ===
             if (act.id === 'well_water') {
@@ -36045,7 +36292,32 @@ const UI = {
             const blindClass = r.blind ? " blind-recipe" : "";
             const owned = GameState.inventory[r.output] || 0;
             const ownedStr = owned > 0 ? ` <span style="opacity:0.6; font-size:0.85em;">(${lang === 'en' ? 'have' : 'máš'}: ${owned})</span>` : '';
-            return `<div class="card${blindClass}" data-recipe-id="${r.id}" style="opacity:${can ? 1 : 0.6}; position:relative;"><div class="item-icon">${prod.icon}</div><div style="flex:1"><strong>${iName(r.output)}${blindIcon}${ownedStr}</strong><div class="text-sm">${reqStr.slice(0, -2)}</div></div><button class="craft-btn" onclick="Game.craft('${r.id}')" ${can ? '' : 'disabled'}>${r.id.startsWith('repair_') ? t('craft.repair') : t('craft.btn')}</button></div>`;
+
+            // Research efficiency indicator
+            let researchBadge = '';
+            if (r.output === 'research') {
+                const rh = GameState.researchHour || { count: 0 };
+                const cnt = rh.count || 0;
+                let effPct, effColor, effLabel;
+                if (cnt <= 10) {
+                    effPct = 100; effColor = '#4caf50';
+                    effLabel = lang === 'en' ? 'Efficiency: 100%' : 'Efektivita: 100%';
+                } else if (cnt <= 20) {
+                    effPct = 50; effColor = '#ff9800';
+                    effLabel = lang === 'en' ? 'Efficiency: 50% (tired mind)' : 'Efektivita: 50% (unavená mysl)';
+                } else {
+                    effPct = 25; effColor = '#f44336';
+                    effLabel = lang === 'en' ? 'Efficiency: 25% (exhausted)' : 'Efektivita: 25% (vyčerpán)';
+                }
+                // Vigor warning
+                const vigorOk = typeof VigorSystem === 'undefined' || VigorSystem.canResearch();
+                const vigorBadge = !vigorOk
+                    ? `<div style="color:#f44336; font-size:0.75rem; margin-top:3px;">⚠️ ${lang === 'en' ? 'Vigor too low to write' : 'Vigor příliš nízký na psaní'}</div>`
+                    : '';
+                researchBadge = `<div style="margin-top:4px; font-size:0.75rem; color:${effColor};">✍️ ${effLabel} (${cnt}/hod)</div>${vigorBadge}`;
+            }
+
+            return `<div class="card${blindClass}" data-recipe-id="${r.id}" style="opacity:${can ? 1 : 0.6}; position:relative;"><div class="item-icon">${prod.icon}</div><div style="flex:1"><strong>${iName(r.output)}${blindIcon}${ownedStr}</strong><div class="text-sm">${reqStr.slice(0, -2)}</div>${researchBadge}</div><button class="craft-btn" onclick="Game.craft('${r.id}')" ${can ? '' : 'disabled'}>${r.id.startsWith('repair_') ? t('craft.repair') : t('craft.btn')}</button></div>`;
         };
 
         const visible = RecipesDB.filter(r => {

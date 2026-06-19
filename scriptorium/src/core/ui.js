@@ -259,6 +259,8 @@ const UI = {
         this._hashActions = _hAct;
         const el = document.getElementById('workspace-actions');
         let newHTML = "";
+        // Terrain indicator — zobrazit pokud fatigue > 0
+        if (typeof TerrainSystem !== 'undefined') newHTML += TerrainSystem.renderIndicator();
         ActionsDB.filter(act => act.cat !== 'mine').forEach(act => {
             // === SPECIAL HANDLING FOR WELL (MUST BE FIRST!) ===
             if (act.id === 'well_water') {
@@ -474,7 +476,32 @@ const UI = {
             const blindClass = r.blind ? " blind-recipe" : "";
             const owned = GameState.inventory[r.output] || 0;
             const ownedStr = owned > 0 ? ` <span style="opacity:0.6; font-size:0.85em;">(${lang === 'en' ? 'have' : 'máš'}: ${owned})</span>` : '';
-            return `<div class="card${blindClass}" data-recipe-id="${r.id}" style="opacity:${can ? 1 : 0.6}; position:relative;"><div class="item-icon">${prod.icon}</div><div style="flex:1"><strong>${iName(r.output)}${blindIcon}${ownedStr}</strong><div class="text-sm">${reqStr.slice(0, -2)}</div></div><button class="craft-btn" onclick="Game.craft('${r.id}')" ${can ? '' : 'disabled'}>${r.id.startsWith('repair_') ? t('craft.repair') : t('craft.btn')}</button></div>`;
+
+            // Research efficiency indicator
+            let researchBadge = '';
+            if (r.output === 'research') {
+                const rh = GameState.researchHour || { count: 0 };
+                const cnt = rh.count || 0;
+                let effPct, effColor, effLabel;
+                if (cnt <= 10) {
+                    effPct = 100; effColor = '#4caf50';
+                    effLabel = lang === 'en' ? 'Efficiency: 100%' : 'Efektivita: 100%';
+                } else if (cnt <= 20) {
+                    effPct = 50; effColor = '#ff9800';
+                    effLabel = lang === 'en' ? 'Efficiency: 50% (tired mind)' : 'Efektivita: 50% (unavená mysl)';
+                } else {
+                    effPct = 25; effColor = '#f44336';
+                    effLabel = lang === 'en' ? 'Efficiency: 25% (exhausted)' : 'Efektivita: 25% (vyčerpán)';
+                }
+                // Vigor warning
+                const vigorOk = typeof VigorSystem === 'undefined' || VigorSystem.canResearch();
+                const vigorBadge = !vigorOk
+                    ? `<div style="color:#f44336; font-size:0.75rem; margin-top:3px;">⚠️ ${lang === 'en' ? 'Vigor too low to write' : 'Vigor příliš nízký na psaní'}</div>`
+                    : '';
+                researchBadge = `<div style="margin-top:4px; font-size:0.75rem; color:${effColor};">✍️ ${effLabel} (${cnt}/hod)</div>${vigorBadge}`;
+            }
+
+            return `<div class="card${blindClass}" data-recipe-id="${r.id}" style="opacity:${can ? 1 : 0.6}; position:relative;"><div class="item-icon">${prod.icon}</div><div style="flex:1"><strong>${iName(r.output)}${blindIcon}${ownedStr}</strong><div class="text-sm">${reqStr.slice(0, -2)}</div>${researchBadge}</div><button class="craft-btn" onclick="Game.craft('${r.id}')" ${can ? '' : 'disabled'}>${r.id.startsWith('repair_') ? t('craft.repair') : t('craft.btn')}</button></div>`;
         };
 
         const visible = RecipesDB.filter(r => {
