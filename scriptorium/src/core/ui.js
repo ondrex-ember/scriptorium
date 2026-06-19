@@ -251,7 +251,7 @@ showItemModal: function(id) {
     },
 
 renderActions: function() {
-    const _hAct = JSON.stringify(GameState.inventory) + (GameState.activeAction ? GameState.activeAction.id + GameState.activeAction.endTime : '') + (GameState.flags.fireplaceLit?'1':'0') + (GameState.activeAction ? Math.floor(Date.now()/1000) : '');
+    const _hAct = JSON.stringify(GameState.inventory) + lang + (GameState.activeAction ? GameState.activeAction.id + GameState.activeAction.endTime : '') + (GameState.flags.fireplaceLit?'1':'0') + (GameState.activeAction ? Math.floor(Date.now()/1000) : '');
     if (_hAct === this._hashActions) return;
     this._hashActions = _hAct;
     const el = document.getElementById('workspace-actions');
@@ -1839,6 +1839,8 @@ renderRecords: function() {
 
         // 3. Aplikovat překlad na UI
         LangSystem.apply(lang);
+        this._hashActions = null; // invalidate scavenge cache — force re-render in new lang
+        this.renderActions();
 
         // 4. Aktualizovat consent banner text na správný jazyk
         const L = STRINGS[lang] || STRINGS.cs;
