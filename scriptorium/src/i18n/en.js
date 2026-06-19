@@ -364,6 +364,16 @@ const STRINGS_en = {
         prev: '← Previous',
         next: 'Next →',
         pageOf: 'Page {cur} of {total}',
+        filterAll:       'All',
+        filterLocal:     'Local',
+        filterChronicon: '☩ Chronicon',
+        chroniconSrc: {
+            local_events:       'Local rumours',
+            distant_events:     'From afar',
+            monastery_internal: 'Monastery',
+            engine:             'World',
+            gm:                 'From the Abbot',
+        },
     },
 
     library_lore: {

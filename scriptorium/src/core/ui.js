@@ -2027,7 +2027,8 @@ const UI = {
     },
 
     // ─── KRONIKA ─────────────────────────────────────────────────────
-    _kronikaPage: 0,
+    _kronikaPage:   0,
+    _kronikaFilter: 'all',  // 'all' | 'local' | 'chronicon'
 
     renderKronika: function (page) {
         const el = document.getElementById('library-kronika-content');
@@ -2050,7 +2051,14 @@ const UI = {
         const PER_PAGE = 20;
         const lang = GameState.kronikaSavedLang || 'cs';
         if (page !== undefined) UI._kronikaPage = page;
-        const entries = [...GameState.kronika].reverse();
+
+        // Filtrování
+        const allEntries = [...GameState.kronika].reverse();
+        const entries = UI._kronikaFilter === 'chronicon'
+            ? allEntries.filter(e => e.type === 'chronicon')
+            : UI._kronikaFilter === 'local'
+                ? allEntries.filter(e => e.type !== 'chronicon')
+                : allEntries;
         const total = Math.max(1, Math.ceil(entries.length / PER_PAGE));
         if (UI._kronikaPage >= total) UI._kronikaPage = total - 1;
         if (UI._kronikaPage < 0) UI._kronikaPage = 0;
@@ -2087,10 +2095,39 @@ const UI = {
                 ${t('kronika.lang' + l.charAt(0).toUpperCase() + l.slice(1))}
             </button>`).join('');
 
+        const CHRONICON_SOURCE_LABEL = {
+            local_events:       t('kronika.chroniconSrc.local_events'),
+            distant_events:     t('kronika.chroniconSrc.distant_events'),
+            monastery_internal: t('kronika.chroniconSrc.monastery_internal'),
+            engine:             t('kronika.chroniconSrc.engine'),
+            gm:                 t('kronika.chroniconSrc.gm'),
+        };
+
         const entriesHtml = slice.length === 0
             ? `<p style="color:var(--ink-secondary); font-style:italic;">${t('kronika.empty')}</p>`
             : slice.map(e => {
-                const isImportant = e.type === 'important';
+                const isImportant  = e.type === 'important';
+                const isChronicon  = e.type === 'chronicon';
+
+                if (isChronicon) {
+                    const srcLabel = CHRONICON_SOURCE_LABEL[e.source] || '☩';
+                    const icon     = e.icon ? e.icon + ' ' : '☩ ';
+                    return `<div style="
+                        display:flex; gap:12px; align-items:baseline;
+                        padding:8px 0 8px 8px;
+                        border-bottom:1px solid var(--border-color, #e8dcc8);
+                        border-left:3px solid var(--accent-gold, #c8a96e);
+                        margin-left:-8px;
+                        opacity:0.92;">
+                        <span style="font-size:0.78rem; color:var(--accent-gold,#c8a96e); white-space:nowrap; min-width:90px;">
+                            ☩ ${srcLabel}
+                        </span>
+                        <span style="flex:1;">
+                            <span style="font-size:0.82rem; color:var(--ink-secondary); margin-right:4px;">${icon}</span>${getText(e, lang)}
+                        </span>
+                    </div>`;
+                }
+
                 return `<div style="
                     display:flex; gap:12px; align-items:baseline;
                     padding:8px 0;
@@ -2121,11 +2158,24 @@ const UI = {
                 </button>
             </div>` : '';
 
+        const filterBtns = ['all', 'local', 'chronicon'].map(f => {
+            const labels = { all: t('kronika.filterAll'), local: t('kronika.filterLocal'), chronicon: t('kronika.filterChronicon') };
+            const active = UI._kronikaFilter === f;
+            return `<button onclick="UI._kronikaFilter='${f}'; UI.renderKronika(0);"
+                style="padding:4px 10px; border-radius:4px; cursor:pointer; font-size:0.8rem;
+                       background:${active ? 'var(--btn-active, #5a3e1b)' : 'transparent'};
+                       color:${active ? '#fff' : 'var(--ink-secondary)'};
+                       border:1px solid var(--border-color, #c9b48a);">
+                ${labels[f]}
+            </button>`;
+        }).join('');
+
         el.innerHTML = `
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; flex-wrap:wrap; gap:8px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; flex-wrap:wrap; gap:8px;">
                 <h3 style="margin:0; font-family:var(--font-display,'Cinzel');">📖 ${t('kronika.title')}</h3>
                 <div style="display:flex; gap:6px;">${langBtns}</div>
             </div>
+            <div style="display:flex; gap:6px; margin-bottom:12px;">${filterBtns}</div>
             <div>${entriesHtml}</div>
             ${paginationHtml}
         `;

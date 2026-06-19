@@ -9525,7 +9525,7 @@ const ChroniconSystem = {
             }
         }
 
-        // Chronicle záznamy → NotificationSystem.panel()
+        // Chronicle záznamy → NotificationSystem.panel() + GameState.kronika
         const seen = ChroniconSystem._loadSeen();
         let added  = 0;
 
@@ -9536,10 +9536,16 @@ const ChroniconSystem = {
             ? GameState.settings.language
             : 'cs';
 
+        // Syntetický timestamp základ: snap.generated odpovídá nejvyššímu tick číslu
+        const snapTs    = snap.generated ? Date.parse(snap.generated) : Date.now();
+        const maxTick   = snap.time && snap.time.total_tick != null ? snap.time.total_tick : 0;
+        const TICK_MS   = 6 * 60 * 60 * 1000; // 6h per tick
+
         entries.forEach(function(entry) {
             const id = ChroniconSystem._entryId(entry);
             if (seen[id]) return; // Už viděno
 
+            // Panel notifikace
             if (typeof NotificationSystem !== 'undefined') {
                 const icon = entry.icon ? entry.icon + ' ' : '';
                 const text = (lang === 'en' && entry.text_en)
@@ -9547,6 +9553,9 @@ const ChroniconSystem = {
                     : (entry.text_cs || entry.text);
                 NotificationSystem.panel(icon + text, 'chronicon');
             }
+
+            // Inject do GameState.kronika
+            ChroniconSystem._injectToKronika(entry, snapTs, maxTick);
 
             seen[id] = 1;
             added++;
@@ -9584,6 +9593,28 @@ const ChroniconSystem = {
         } else {
             localStorage.setItem(ChroniconSystem.SEEN_KEY, JSON.stringify(seen));
         }
+    },
+
+    // ─── Inject do Kroniky ───────────────────────────────────────────────────
+
+    _injectToKronika: function(entry, snapTs, maxTick) {
+        if (typeof GameState === 'undefined') return;
+        if (!GameState.kronika) GameState.kronika = [];
+
+        // Syntetický timestamp: snap.generated = maxTick, každý tick = 6h zpět
+        const tickDelta = maxTick - (entry.tick || 0);
+        const ts        = snapTs - tickDelta * 6 * 60 * 60 * 1000;
+
+        GameState.kronika.push({
+            ts:     ts,
+            cs:     entry.text_cs || entry.text || '',
+            en:     entry.text_en || entry.text || '',
+            la:     null,
+            type:   'chronicon',
+            source: entry.source || 'chronicon',
+            icon:   entry.icon   || '☩',
+            season: entry.season || null,
+        });
     },
 
     _entryId: function(entry) {
@@ -28612,6 +28643,16 @@ const STRINGS_cs = {
         prev: '← Předchozí',
         next: 'Další →',
         pageOf: 'Strana {cur} z {total}',
+        filterAll:       'Vše',
+        filterLocal:     'Lokální',
+        filterChronicon: '☩ Chronicon',
+        chroniconSrc: {
+            local_events:       'Místní drby',
+            distant_events:     'Z dálky',
+            monastery_internal: 'Klášter',
+            engine:             'Svět',
+            gm:                 'Od opata',
+        },
     },
 
     library_lore: {
@@ -29891,7 +29932,6 @@ const STRINGS_cs = {
         },
     },
 };
-
 // ═══ src/i18n/en.js ═══
 // Scriptorium i18n — English (Olde)
 // Základ: STRINGS_cs. Chybějící klíče → fallback na CS automaticky.
@@ -30259,6 +30299,16 @@ const STRINGS_en = {
         prev: '← Previous',
         next: 'Next →',
         pageOf: 'Page {cur} of {total}',
+        filterAll:       'All',
+        filterLocal:     'Local',
+        filterChronicon: '☩ Chronicon',
+        chroniconSrc: {
+            local_events:       'Local rumours',
+            distant_events:     'From afar',
+            monastery_internal: 'Monastery',
+            engine:             'World',
+            gm:                 'From the Abbot',
+        },
     },
 
     library_lore: {
@@ -32579,7 +32629,6 @@ In every scriptorium lurks Titivillus. His task is not to tempt to sin — other
         },
     },
 };
-
 // ═══ src/i18n/strings.js ═══
 // Scriptorium i18n — STRINGS assembler + t() helper
 // Přidání jazyka: 1) xx.js, 2) přidat do STRINGS, 3) přidat do build.js
@@ -37843,7 +37892,8 @@ const UI = {
     },
 
     // ─── KRONIKA ─────────────────────────────────────────────────────
-    _kronikaPage: 0,
+    _kronikaPage:   0,
+    _kronikaFilter: 'all',  // 'all' | 'local' | 'chronicon'
 
     renderKronika: function (page) {
         const el = document.getElementById('library-kronika-content');
@@ -37866,7 +37916,14 @@ const UI = {
         const PER_PAGE = 20;
         const lang = GameState.kronikaSavedLang || 'cs';
         if (page !== undefined) UI._kronikaPage = page;
-        const entries = [...GameState.kronika].reverse();
+
+        // Filtrování
+        const allEntries = [...GameState.kronika].reverse();
+        const entries = UI._kronikaFilter === 'chronicon'
+            ? allEntries.filter(e => e.type === 'chronicon')
+            : UI._kronikaFilter === 'local'
+                ? allEntries.filter(e => e.type !== 'chronicon')
+                : allEntries;
         const total = Math.max(1, Math.ceil(entries.length / PER_PAGE));
         if (UI._kronikaPage >= total) UI._kronikaPage = total - 1;
         if (UI._kronikaPage < 0) UI._kronikaPage = 0;
@@ -37903,10 +37960,39 @@ const UI = {
                 ${t('kronika.lang' + l.charAt(0).toUpperCase() + l.slice(1))}
             </button>`).join('');
 
+        const CHRONICON_SOURCE_LABEL = {
+            local_events:       t('kronika.chroniconSrc.local_events'),
+            distant_events:     t('kronika.chroniconSrc.distant_events'),
+            monastery_internal: t('kronika.chroniconSrc.monastery_internal'),
+            engine:             t('kronika.chroniconSrc.engine'),
+            gm:                 t('kronika.chroniconSrc.gm'),
+        };
+
         const entriesHtml = slice.length === 0
             ? `<p style="color:var(--ink-secondary); font-style:italic;">${t('kronika.empty')}</p>`
             : slice.map(e => {
-                const isImportant = e.type === 'important';
+                const isImportant  = e.type === 'important';
+                const isChronicon  = e.type === 'chronicon';
+
+                if (isChronicon) {
+                    const srcLabel = CHRONICON_SOURCE_LABEL[e.source] || '☩';
+                    const icon     = e.icon ? e.icon + ' ' : '☩ ';
+                    return `<div style="
+                        display:flex; gap:12px; align-items:baseline;
+                        padding:8px 0 8px 8px;
+                        border-bottom:1px solid var(--border-color, #e8dcc8);
+                        border-left:3px solid var(--accent-gold, #c8a96e);
+                        margin-left:-8px;
+                        opacity:0.92;">
+                        <span style="font-size:0.78rem; color:var(--accent-gold,#c8a96e); white-space:nowrap; min-width:90px;">
+                            ☩ ${srcLabel}
+                        </span>
+                        <span style="flex:1;">
+                            <span style="font-size:0.82rem; color:var(--ink-secondary); margin-right:4px;">${icon}</span>${getText(e, lang)}
+                        </span>
+                    </div>`;
+                }
+
                 return `<div style="
                     display:flex; gap:12px; align-items:baseline;
                     padding:8px 0;
@@ -37937,11 +38023,24 @@ const UI = {
                 </button>
             </div>` : '';
 
+        const filterBtns = ['all', 'local', 'chronicon'].map(f => {
+            const labels = { all: t('kronika.filterAll'), local: t('kronika.filterLocal'), chronicon: t('kronika.filterChronicon') };
+            const active = UI._kronikaFilter === f;
+            return `<button onclick="UI._kronikaFilter='${f}'; UI.renderKronika(0);"
+                style="padding:4px 10px; border-radius:4px; cursor:pointer; font-size:0.8rem;
+                       background:${active ? 'var(--btn-active, #5a3e1b)' : 'transparent'};
+                       color:${active ? '#fff' : 'var(--ink-secondary)'};
+                       border:1px solid var(--border-color, #c9b48a);">
+                ${labels[f]}
+            </button>`;
+        }).join('');
+
         el.innerHTML = `
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; flex-wrap:wrap; gap:8px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; flex-wrap:wrap; gap:8px;">
                 <h3 style="margin:0; font-family:var(--font-display,'Cinzel');">📖 ${t('kronika.title')}</h3>
                 <div style="display:flex; gap:6px;">${langBtns}</div>
             </div>
+            <div style="display:flex; gap:6px; margin-bottom:12px;">${filterBtns}</div>
             <div>${entriesHtml}</div>
             ${paginationHtml}
         `;

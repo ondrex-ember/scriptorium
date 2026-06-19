@@ -392,6 +392,16 @@ const STRINGS_cs = {
         prev: '← Předchozí',
         next: 'Další →',
         pageOf: 'Strana {cur} z {total}',
+        filterAll:       'Vše',
+        filterLocal:     'Lokální',
+        filterChronicon: '☩ Chronicon',
+        chroniconSrc: {
+            local_events:       'Místní drby',
+            distant_events:     'Z dálky',
+            monastery_internal: 'Klášter',
+            engine:             'Svět',
+            gm:                 'Od opata',
+        },
     },
 
     library_lore: {

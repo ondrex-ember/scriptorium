@@ -78,7 +78,7 @@ const ChroniconSystem = {
             }
         }
 
-        // Chronicle záznamy → NotificationSystem.panel()
+        // Chronicle záznamy → NotificationSystem.panel() + GameState.kronika
         const seen = ChroniconSystem._loadSeen();
         let added  = 0;
 
@@ -89,10 +89,16 @@ const ChroniconSystem = {
             ? GameState.settings.language
             : 'cs';
 
+        // Syntetický timestamp základ: snap.generated odpovídá nejvyššímu tick číslu
+        const snapTs    = snap.generated ? Date.parse(snap.generated) : Date.now();
+        const maxTick   = snap.time && snap.time.total_tick != null ? snap.time.total_tick : 0;
+        const TICK_MS   = 6 * 60 * 60 * 1000; // 6h per tick
+
         entries.forEach(function(entry) {
             const id = ChroniconSystem._entryId(entry);
             if (seen[id]) return; // Už viděno
 
+            // Panel notifikace
             if (typeof NotificationSystem !== 'undefined') {
                 const icon = entry.icon ? entry.icon + ' ' : '';
                 const text = (lang === 'en' && entry.text_en)
@@ -100,6 +106,9 @@ const ChroniconSystem = {
                     : (entry.text_cs || entry.text);
                 NotificationSystem.panel(icon + text, 'chronicon');
             }
+
+            // Inject do GameState.kronika
+            ChroniconSystem._injectToKronika(entry, snapTs, maxTick);
 
             seen[id] = 1;
             added++;
@@ -137,6 +146,28 @@ const ChroniconSystem = {
         } else {
             localStorage.setItem(ChroniconSystem.SEEN_KEY, JSON.stringify(seen));
         }
+    },
+
+    // ─── Inject do Kroniky ───────────────────────────────────────────────────
+
+    _injectToKronika: function(entry, snapTs, maxTick) {
+        if (typeof GameState === 'undefined') return;
+        if (!GameState.kronika) GameState.kronika = [];
+
+        // Syntetický timestamp: snap.generated = maxTick, každý tick = 6h zpět
+        const tickDelta = maxTick - (entry.tick || 0);
+        const ts        = snapTs - tickDelta * 6 * 60 * 60 * 1000;
+
+        GameState.kronika.push({
+            ts:     ts,
+            cs:     entry.text_cs || entry.text || '',
+            en:     entry.text_en || entry.text || '',
+            la:     null,
+            type:   'chronicon',
+            source: entry.source || 'chronicon',
+            icon:   entry.icon   || '☩',
+            season: entry.season || null,
+        });
     },
 
     _entryId: function(entry) {
