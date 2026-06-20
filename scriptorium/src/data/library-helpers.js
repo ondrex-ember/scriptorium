@@ -399,8 +399,9 @@ const LibraryHelpers = {
             const currentLang = (typeof GameState !== 'undefined' && GameState.settings && GameState.settings.language) || 'cs';
             const dict = currentLang === 'en' ? STRINGS_en : STRINGS_cs;
             
-            // Robustní fallback: STRINGS_en → STRINGS_cs → LibraryDB
+            // Robustní fallback: STRINGS_en → book._en pole → STRINGS_cs → LibraryDB
             const bookTitle = dict.library_lore?.books?.[randomBook.id]?.title || 
+                             (currentLang === 'en' && randomBook.title_en) ||
                              STRINGS_cs.library_lore?.books?.[randomBook.id]?.title || 
                              randomBook.title;
             

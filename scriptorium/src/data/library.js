@@ -1454,6 +1454,7 @@ Charles IV had the treatise translated into Czech. In 15th-century Bohemia, Cres
             unlockDay: 89,
             icon: '🐭',
             author: 'Albertus Magnus (Albert Veliký)',
+            author_en: 'Albertus Magnus',
             year: 'cca 1258–1262',
             content: `**Muž, který se ptal proč**
 
@@ -1563,6 +1564,7 @@ The Prague groschen was, at the time of writing, one of the most stable currenci
             unlocksTech: ['tech_vinohrad'],
             icon: '🍇',
             author: 'Olomoucký klášterní archiv',
+            author_en: 'Olomouc Monastery Archive',
             year: 1423,
             content: `**O povaze révy a jejím množení**
 

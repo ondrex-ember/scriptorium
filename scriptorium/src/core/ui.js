@@ -1128,11 +1128,13 @@ const UI = {
                     const currentLang = (typeof GameState !== 'undefined' && GameState.settings && GameState.settings.language) || 'cs';
                     const dict = currentLang === 'en' ? STRINGS_en : STRINGS_cs;
 
-                    // Robustní fallback: STRINGS_en → STRINGS_cs → LibraryDB
+                    // Robustní fallback: STRINGS_en → book._en pole → STRINGS_cs → LibraryDB
                     const bookTitle = dict.library_lore?.books?.[book.id]?.title ||
+                        (currentLang === 'en' && book.title_en) ||
                         STRINGS_cs.library_lore?.books?.[book.id]?.title ||
                         book.title;
                     const bookAuthor = dict.library_lore?.books?.[book.id]?.author ||
+                        (currentLang === 'en' && book.author_en) ||
                         STRINGS_cs.library_lore?.books?.[book.id]?.author ||
                         book.author;
 
@@ -1202,14 +1204,17 @@ const UI = {
         const currentLang = (typeof GameState !== 'undefined' && GameState.settings && GameState.settings.language) || 'cs';
         const dict = currentLang === 'en' ? STRINGS_en : STRINGS_cs;
 
-        // Robustní fallback: STRINGS_en → STRINGS_cs → LibraryDB
+        // Robustní fallback: STRINGS_en → book._en pole → STRINGS_cs → LibraryDB
         const bookTitle = dict.library_lore?.books?.[book.id]?.title ||
+            (currentLang === 'en' && book.title_en) ||
             STRINGS_cs.library_lore?.books?.[book.id]?.title ||
             book.title;
         const bookAuthor = dict.library_lore?.books?.[book.id]?.author ||
+            (currentLang === 'en' && book.author_en) ||
             STRINGS_cs.library_lore?.books?.[book.id]?.author ||
             book.author;
         const bookContent = dict.library_lore?.books?.[book.id]?.content ||
+            (currentLang === 'en' && book.content_en) ||
             STRINGS_cs.library_lore?.books?.[book.id]?.content ||
             book.content;
 
