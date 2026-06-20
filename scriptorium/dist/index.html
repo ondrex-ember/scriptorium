@@ -36042,9 +36042,11 @@ const UI = {
         if (_hAct === this._hashActions) return;
         this._hashActions = _hAct;
         const el = document.getElementById('workspace-actions');
-        let newHTML = "";
-        // Terrain indicator — zobrazit pokud fatigue > 0
-        if (typeof TerrainSystem !== 'undefined') newHTML += TerrainSystem.renderIndicator();
+        // Karty se sbírají do bloků dle systému, který je ovlivňuje (Krajina/Studna/Hospodářství),
+        // aby hráč viděl, na co se který ukazatel únavy vztahuje — místo jedné nerozlišené mřížky.
+        let terrainCards = '';
+        let wellCards = '';
+        let otherCards = '';
         ActionsDB.filter(act => act.cat !== 'mine').forEach(act => {
             // === SPECIAL HANDLING FOR WELL (MUST BE FIRST!) ===
             if (act.id === 'well_water') {
@@ -36059,7 +36061,7 @@ const UI = {
                 // Timed mode — well nepodporuje časované scavenge
                 if (GameState.selectedDuration > 0) {
                     const msg = lang === 'en' ? 'Instant only — well cannot be timed' : 'Jen okamžitě — studna nepodporuje časovaný sběr';
-                    newHTML += `<div class="action-card" style="opacity:0.5;">
+                    wellCards += `<div class="action-card" style="opacity:0.5;">
                         <div class="action-header"><span class="action-icon">🚰</span>
                         <div class="action-info"><div class="action-name">${lang==='en'?'Draw water':'Jít pro vodu'}</div>
                         <div class="action-desc" style="font-style:italic;">${msg}</div></div></div>
@@ -36121,8 +36123,32 @@ const UI = {
                 btnText += ` (${GameState.selectedDuration}m)`;
             }
 
-            newHTML += `<div class="card"><div class="item-icon">${act.icon}</div><div><strong>${actName}</strong><div class="text-sm">${infoText}</div></div><button class="${btnClass}" onclick="Game.scavenge('${act.id}')" ${btnDisabled}>${btnText}</button></div>`;
+            const cardHtml = `<div class="card"><div class="item-icon">${act.icon}</div><div><strong>${actName}</strong><div class="text-sm">${infoText}</div></div><button class="${btnClass}" onclick="Game.scavenge('${act.id}')" ${btnDisabled}>${btnText}</button></div>`;
+
+            if (act.id === 'well_water') {
+                wellCards += cardHtml;
+            } else if (typeof TerrainSystem !== 'undefined' && TerrainSystem.isTerrainAction(act.id)) {
+                terrainCards += cardHtml;
+            } else {
+                otherCards += cardHtml;
+            }
         });
+
+        const groupTitleStyle = 'font-size:0.72rem;font-weight:bold;letter-spacing:0.06em;text-transform:uppercase;opacity:0.55;margin:14px 0 8px 0;';
+        let newHTML = '';
+        if (terrainCards) {
+            newHTML += `<div style="${groupTitleStyle}">🌲 ${lang==='en'?'Terrain':'Krajina'}</div>`;
+            if (typeof TerrainSystem !== 'undefined') newHTML += TerrainSystem.renderIndicator();
+            newHTML += terrainCards;
+        }
+        if (wellCards) {
+            newHTML += `<div style="${groupTitleStyle}">🚰 ${lang==='en'?'Well':'Studna'}</div>`;
+            newHTML += wellCards;
+        }
+        if (otherCards) {
+            newHTML += `<div style="${groupTitleStyle}">🏡 ${lang==='en'?'Household':'Hospodářství'}</div>`;
+            newHTML += otherCards;
+        }
 
         if (el.innerHTML !== newHTML) el.innerHTML = newHTML;
     },
