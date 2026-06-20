@@ -11598,7 +11598,9 @@ class AudioSystem {
         }
 
         this.volume = normalizedVolume;
-        this.masterGain.gain.setTargetAtTime(this.volume, this.audioContext.currentTime, 0.1);
+        if (!this.isMuted) {
+            this.masterGain.gain.setTargetAtTime(this.volume, this.audioContext.currentTime, 0.1);
+        }
 
         // Save pokud existuje Game objekt
         if (typeof Game !== 'undefined' && typeof Game.save === 'function') {
@@ -11708,12 +11710,14 @@ class AudioSystem {
             this.fireGain.gain.setTargetAtTime(this.fireVolume, this.audioContext.currentTime, 0.5);
         }
 
-        // Fade in master gain
+        // Fade in master gain (respect mute state)
         this.masterGain.gain.cancelScheduledValues(this.audioContext.currentTime);
-        if (instant) {
-            this.masterGain.gain.setValueAtTime(this.volume, this.audioContext.currentTime);
-        } else {
-            this.masterGain.gain.setTargetAtTime(this.volume, this.audioContext.currentTime, 0.5);
+        if (!this.isMuted) {
+            if (instant) {
+                this.masterGain.gain.setValueAtTime(this.volume, this.audioContext.currentTime);
+            } else {
+                this.masterGain.gain.setTargetAtTime(this.volume, this.audioContext.currentTime, 0.5);
+            }
         }
 
         // Spuštění vrstev zvuku
