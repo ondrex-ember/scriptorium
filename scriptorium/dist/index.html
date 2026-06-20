@@ -33383,6 +33383,9 @@ const Game = {
         if(audioSys) audioSys.setMusicEnabled(enabled);
         this.save();
     },
+    toggleSound: function() {
+        if(audioSys) audioSys.toggleMute();
+    },
     setMusicVolume: function(val) {
         const volume = parseInt(val) / 100;
         GameState.settings.musicVolume = volume;
