@@ -1902,8 +1902,8 @@ const Game = {
         
         const durationMin = action.collectMode ? 5 : GameState.selectedDuration;
         if (durationMin === 0) {
-            // Únava krajiny — instant klik
-            if (typeof TerrainSystem !== 'undefined') TerrainSystem.onScavenge(0);
+            // Únava krajiny — instant klik (jen terénní akce)
+            if (typeof TerrainSystem !== 'undefined' && TerrainSystem.isTerrainAction(type)) TerrainSystem.onScavenge(0);
             // ── snapshot pro single scavenge ──
             Game._scavenging = true;
             const _s0before = {};
@@ -2040,7 +2040,7 @@ const Game = {
             // ── notifyAccum: single scavenge ──
             {
                 const _s0gains = {};
-                const _terrainMult = (typeof TerrainSystem !== 'undefined') ? TerrainSystem.getMult() : 1.0;
+                const _terrainMult = (typeof TerrainSystem !== 'undefined' && TerrainSystem.isTerrainAction(type)) ? TerrainSystem.getMult() : 1.0;
                 const _prevTier = (GameState.terrain && GameState.terrain.lastToastTier) || 0;
                 for (const k of Object.keys(GameState.inventory)) {
                     const diff = (GameState.inventory[k] || 0) - (_s0before[k] || 0);
@@ -2091,8 +2091,8 @@ const Game = {
                 multiplier = Math.floor(multiplier * foragingMult);
             }
 
-            // Apply terrain mult — timed výpravy jsou šetrnější na krajinu
-            if (typeof TerrainSystem !== 'undefined') {
+            // Apply terrain mult — timed výpravy jsou šetrnější na krajinu (jen terénní akce)
+            if (typeof TerrainSystem !== 'undefined' && TerrainSystem.isTerrainAction(type)) {
                 multiplier = Math.max(1, Math.floor(multiplier * TerrainSystem.getMult()));
                 TerrainSystem.onScavenge(durationMin);
             }

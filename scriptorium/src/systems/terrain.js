@@ -6,6 +6,17 @@
 
 const TerrainSystem = {
 
+    // ── Akce ovlivněné únavou krajiny (whitelist) ──────────────────────────────
+    // Vše mimo tento seznam = bez terrain efektu (workshop/dvůr/studna akce)
+    TERRAIN_ACTIONS: [
+        'hunt', 'bark', 'fishing', 'wetlands', 'resin_harvest',
+        'worms_dig', 'dig_clay', 'foraging', 'grass_gather', 'wood_harvest',
+    ],
+
+    isTerrainAction: function(type) {
+        return this.TERRAIN_ACTIONS.includes(type);
+    },
+
     // ── Thresholds ────────────────────────────────────────────────────────────
     FATIGUE_RESTED:  20,   // 0–20  → plný výnos (1.0×)
     FATIGUE_TIRED:   50,   // 21–50 → poloviční výnos (0.5×)
@@ -21,8 +32,8 @@ const TerrainSystem = {
         30: 12,
     },
 
-    // Regen: −5 fatigue každých 10 minut reálného času
-    REGEN_AMOUNT:   5,
+    // Regen: −10 fatigue každých 10 minut reálného času (zrychleno 2×)
+    REGEN_AMOUNT:   10,
     REGEN_INTERVAL: 10 * 60 * 1000,
 
     // ── Init ──────────────────────────────────────────────────────────────────
