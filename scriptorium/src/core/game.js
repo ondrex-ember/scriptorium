@@ -394,7 +394,14 @@ const Game = {
         SecretsSystem.init();
         AthanorSystem.init();
         NotificationSystem.init();
-        ChroniconSystem.init();
+        // ChroniconSystem startuje fetch jen pokud je jazyk už definitivně
+        // zvolen (vracející se hráč). Pro nového hráče se spustí až po
+        // kliknutí v jazykovém pickeru (viz UI.pickLanguage) — jinak by
+        // fetch mohl doběhnout dřív/později než volba jazyka a vznikl by
+        // nedeterministický mix CS/EN textů v kanálu zpráv.
+        if (GameState.settings.langChosen) {
+            ChroniconSystem.init();
+        }
         
         // NOW render UI (after theme is set and all systems initialized)
         UI.renderAll(); 

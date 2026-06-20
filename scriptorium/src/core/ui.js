@@ -1877,6 +1877,11 @@ const UI = {
         GameState.settings.language = lang;
         GameState.settings.langChosen = true;
 
+        // 2b. Jazyk je teď definitivní — bezpečné spustit CHRONICON fetch
+        if (typeof ChroniconSystem !== 'undefined') {
+            ChroniconSystem.init();
+        }
+
         // 3. Aplikovat překlad na UI
         LangSystem.apply(lang);
         this._hashActions = null; // invalidate scavenge cache — force re-render in new lang
