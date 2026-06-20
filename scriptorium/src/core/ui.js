@@ -1150,7 +1150,7 @@ const UI = {
                             </button>
                         </div>
                     `;
-                } else {
+                } else if (book.unlockDay > 0) {
                     const daysToUnlock = book.unlockDay - Math.floor(
                         (Date.now() - GameState.library.startDate) / (24 * 60 * 60 * 1000)
                     );
@@ -1172,6 +1172,10 @@ const UI = {
                         </div>
                     `;
                 }
+                // else: book.unlockDay <= 0 → secret/hidden book (e.g. book_faust_secret),
+                // unlocks only via a hidden Easter egg condition, never by day count.
+                // Intentionally renders nothing here until GameState.library.unlockedBooks
+                // contains it — showing a "🔒 ??? unlocks in -N days" card was the bug.
             });
 
             h += `</div>`;
