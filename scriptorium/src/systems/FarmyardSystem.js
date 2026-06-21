@@ -152,10 +152,6 @@ const FarmyardSystem = {
     // ── Výpůjčka samce ────────────────────────────────────────────────────
     // Voláno z CellariumSystem "Kontakt se Vsí"
     borrowMale: function(type, costG) {
-        if ((GameState.inventory['groše'] || 0) < costG && (GameState.inventory['grose'] || GameState.grose || 0) < costG) {
-            if (typeof UI !== 'undefined' && UI.notify) UI.notify(t('farmyard.borrowNoGold'), true);
-            return false;
-        }
         if (!GameState.loanMale) GameState.loanMale = {};
         if (GameState.loanMale.type && Date.now() < GameState.loanMale.returnsAt) {
             if (typeof UI !== 'undefined' && UI.notify) UI.notify(t('farmyard.borrowActive'), true);
@@ -169,6 +165,14 @@ const FarmyardSystem = {
         }
         GameState.loanMale = { type, returnsAt: Date.now() + 3 * this.DAY_MS, cost: costG };
         if (typeof UI !== 'undefined' && UI.notify) UI.notify('🐏 ' + t('farmyard.borrowDone_' + type));
+        if (typeof Game !== 'undefined' && Game.addKronikaEntry) {
+            const _dest = { ram: ['Ovile', 'Ovile'], billy_goat: ['Caprile', 'Caprile'], boar: ['Suile', 'Suile'] }[type] || ['', ''];
+            Game.addKronikaEntry('important',
+                '🐑 Forum Pecuarium: ' + t('farmyard.borrowDone_' + type) + ' Zamiř do ' + _dest[0] + ' a začni s plemenitbou, dokud výpůjčka trvá (3 dny).',
+                '🐑 Forum Pecuarium: ' + t('farmyard.borrowDone_' + type) + ' Head to the ' + _dest[1] + ' and start breeding while the loan lasts (3 days).',
+                '🐑 Forum Pecuarium: animal mutuo acceptum.'
+            );
+        }
         if (typeof Game !== 'undefined' && Game.save) Game.save();
         return true;
     },

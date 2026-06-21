@@ -15322,9 +15322,50 @@ const SaeculumSystem = {
         </div>
       `;
     } else {
+      h += this.renderForumPecuarium();
       h += this.renderEntityTabs();
     }
 
+    h += `</div>`;
+    return h;
+  },
+
+  // ── Forum Pecuarium — výpůjčky plemenných samců ze vsi ─────────────────
+  LOAN_TYPES: [
+    { type: 'ram',        icon: '🐏', label: 'Beran', label_en: 'Ram',         pen: 'sheepfold', penLabel: 'Ovile',   cost: 15 },
+    { type: 'billy_goat', icon: '🐐', label: 'Kozel', label_en: 'Billy goat',  pen: 'goatpen',    penLabel: 'Caprile', cost: 15 },
+    { type: 'boar',       icon: '🐗', label: 'Kanec', label_en: 'Boar',        pen: 'pigsty',     penLabel: 'Suile',   cost: 15 },
+  ],
+
+  renderForumPecuarium: function() {
+    const lang = (GameState.settings && GameState.settings.language) || 'cs';
+    const loan = GameState.loanMale;
+    const active = loan && Date.now() < loan.returnsAt;
+
+    let h = `<div style="padding:14px; margin-bottom:16px; background:rgba(0,0,0,0.03);
+                         border-radius:8px; border-left:3px solid var(--accent-gold);">`;
+    h += `<h4 style="margin:0 0 10px 0; font-size:0.92rem;">🐏 Forum Pecuarium</h4>`;
+
+    if (active) {
+      const ty = this.LOAN_TYPES.find(x => x.type === loan.type);
+      const remH = (typeof FarmyardSystem !== 'undefined') ? FarmyardSystem.loanMaleRemainingH() : 0;
+      h += `<div style="font-size:0.85rem;">
+              ${ty ? ty.icon : '🐾'} ${lang==='en' ? (ty?ty.label_en:loan.type) : (ty?ty.label:loan.type)}
+              — ${lang==='en' ? 'returns in' : 'vrátí se za'} <strong>${remH}h</strong>
+              ${ty ? `<div style="font-size:0.75rem;opacity:0.6;margin-top:4px;">${lang==='en'?'Visit the':'Zamiř do'} ${ty.penLabel}.</div>` : ''}
+            </div>`;
+    } else {
+      h += `<div style="display:flex;gap:8px;flex-wrap:wrap;">`;
+      this.LOAN_TYPES.forEach(ty => {
+        const penBuilt = !!(GameState[ty.pen] && GameState[ty.pen].built);
+        const name = lang === 'en' ? ty.label_en : ty.label;
+        h += `<button class="craft-btn" onclick="FarmyardSystem.borrowMale('${ty.type}', ${ty.cost}) && SaeculumSystem.switchEntity(GameState.ui.saeculumEntity || 'tavern');" ${penBuilt ? '' : 'disabled'}
+                style="flex:1 1 calc(33% - 8px); min-width:0;">
+                ${ty.icon} ${name} (${ty.cost}g)
+              </button>`;
+      });
+      h += `</div>`;
+    }
     h += `</div>`;
     return h;
   },
@@ -15372,7 +15413,6 @@ const SaeculumSystem = {
   },
 
 };
-
 // ═══ src/systems/DecaySystem.js ═══
 // ═══════════════════════════════════════════════════════════════════════════
 // DECAY SYSTEM v1 (B2 — simplified)
@@ -19450,10 +19490,6 @@ const FarmyardSystem = {
     // ── Výpůjčka samce ────────────────────────────────────────────────────
     // Voláno z CellariumSystem "Kontakt se Vsí"
     borrowMale: function(type, costG) {
-        if ((GameState.inventory['groše'] || 0) < costG && (GameState.inventory['grose'] || GameState.grose || 0) < costG) {
-            if (typeof UI !== 'undefined' && UI.notify) UI.notify(t('farmyard.borrowNoGold'), true);
-            return false;
-        }
         if (!GameState.loanMale) GameState.loanMale = {};
         if (GameState.loanMale.type && Date.now() < GameState.loanMale.returnsAt) {
             if (typeof UI !== 'undefined' && UI.notify) UI.notify(t('farmyard.borrowActive'), true);
@@ -19467,6 +19503,14 @@ const FarmyardSystem = {
         }
         GameState.loanMale = { type, returnsAt: Date.now() + 3 * this.DAY_MS, cost: costG };
         if (typeof UI !== 'undefined' && UI.notify) UI.notify('🐏 ' + t('farmyard.borrowDone_' + type));
+        if (typeof Game !== 'undefined' && Game.addKronikaEntry) {
+            const _dest = { ram: ['Ovile', 'Ovile'], billy_goat: ['Caprile', 'Caprile'], boar: ['Suile', 'Suile'] }[type] || ['', ''];
+            Game.addKronikaEntry('important',
+                '🐑 Forum Pecuarium: ' + t('farmyard.borrowDone_' + type) + ' Zamiř do ' + _dest[0] + ' a začni s plemenitbou, dokud výpůjčka trvá (3 dny).',
+                '🐑 Forum Pecuarium: ' + t('farmyard.borrowDone_' + type) + ' Head to the ' + _dest[1] + ' and start breeding while the loan lasts (3 days).',
+                '🐑 Forum Pecuarium: animal mutuo acceptum.'
+            );
+        }
         if (typeof Game !== 'undefined' && Game.save) Game.save();
         return true;
     },
@@ -20534,7 +20578,6 @@ const FarmyardSystem = {
 
 
 };
-
 // ═══ src/systems/ScriptoriumCat.js ═══
 // ═══════════════════════════════════════════════════════════════════════════
 // SCRIPTORIUM CAT — Felis Monastica
@@ -30523,7 +30566,7 @@ const STRINGS_cs = {
         mineBonusDesc: '(koně urychlují těžbu)',
         horseLabel: 'Kůň',
         noBonus: 'žádný',
-        needRam: 'Pro odchov potřebuješ berana — sjednej výpůjčku v Cellariu (Kontakt se Vsí).',
+        needRam: 'Pro odchov potřebuješ berana — sjednej výpůjčku v Saeculu (Forum Pecuarium).',
         built_donkeyStall: 'Oslárna postavena.',
         title_donkeyStall: 'Oslárna (Asinus)',
         buildDesc_donkeyStall: 'Přístřešek pro osla. Osel pohání studnu, vleče na pole a přináší +15% výnosu.',
@@ -30607,7 +30650,10 @@ const STRINGS_cs = {
         donkeyStubborn: '{name} dnes odmítl pracovat.',
         borrowNoGold: 'Na výpůjčku nemáte dost grošů.',
         borrowActive: 'Výpůjčka právě probíhá.',
-        needRam: 'Pro odchov potřebuješ berana — sjednej výpůjčku v Cellariu.',
+        borrowDone_ram: 'Beran dorazil ze vsi.',
+        borrowDone_billy_goat: 'Kozel dorazil ze vsi.',
+        borrowDone_boar: 'Kanec dorazil ze vsi.',
+        needRam: 'Pro odchov potřebuješ berana — sjednej výpůjčku v Saeculu.',
         feedSlug: 'Nakrmit slimáky', slugFed: '🐌 Slepice se napásly na slimácích. +25% vajec po dobu 8h.',
         slugBonus: 'Slug bonus', needSlug: 'Chybí slimáci (2× na slepici)',
     },
@@ -33014,7 +33060,7 @@ According to Theophilus, the organ is an instrument worthy of God, but its const
         mineBonusDesc: '(horses speed up mining)',
         horseLabel: 'Horse',
         noBonus: 'none',
-        needRam: 'You need a ram for breeding — arrange a loan in the Cellarium (Village Contact).',
+        needRam: 'You need a ram for breeding — arrange a loan in the Saeculum (Forum Pecuarium).',
         built_donkeyStall: 'Donkey stall built.',
         title_donkeyStall: 'Donkey Stall (Asinus)',
         buildDesc_donkeyStall: 'A shelter for the donkey. Powers the well, hauls to the fields, grants +15% field yield.',
@@ -33098,7 +33144,10 @@ According to Theophilus, the organ is an instrument worthy of God, but its const
         donkeyStubborn: '{name} refused to work today.',
         borrowNoGold: 'Not enough groschen for the loan.',
         borrowActive: 'A loan is already in progress.',
-        needRam: 'You need a ram for breeding — arrange a loan in the Cellarium.',
+        borrowDone_ram: 'A ram has arrived from the village.',
+        borrowDone_billy_goat: 'A billy goat has arrived from the village.',
+        borrowDone_boar: 'A boar has arrived from the village.',
+        needRam: 'You need a ram for breeding — arrange a loan in the Saeculum.',
         feedSlug: 'Feed slugs', slugFed: '🐌 Hens feasted on slugs. +25% eggs for 8h.',
         slugBonus: 'Slug bonus', needSlug: 'Not enough slugs (2× per hen)',
     },
