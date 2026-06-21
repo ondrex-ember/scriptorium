@@ -213,6 +213,62 @@ const ItemsDB = {
         name: "Velký klíč č.3", name_en: "Large Key #3", icon: "🔑", type: "key", lostItem: true,
         desc: "Těžký kovaný klíč od nějakých velkých dveří. Třeba ho prozkoumat.", desc_en: "A heavy forged key to some large door. Worth examining."
     },
+    "lost_scroll_1": {
+        name: "Vybledlý svitek č.1", name_en: "Faded Scroll #1", icon: "📜", type: "lore", lostItem: true,
+        desc: "Starý svitek popsaný vybledlým inkoustem. Třeba ho prozkoumat.", desc_en: "An old scroll covered in faded ink. Worth examining."
+    },
+    "lost_scroll_2": {
+        name: "Vybledlý svitek č.2", name_en: "Faded Scroll #2", icon: "📜", type: "lore", lostItem: true,
+        desc: "Starý svitek popsaný vybledlým inkoustem. Třeba ho prozkoumat.", desc_en: "An old scroll covered in faded ink. Worth examining."
+    },
+    "flask_cut": {
+        name: "Broušený flakonek", name_en: "Cut Glass Flask", icon: "🫙", type: "misc", lostItem: true,
+        desc: "Malý broušený flakonek z českého skla. Na voňavku nebo lektvar.", desc_en: "A small cut glass flask from Bohemian crystal. For perfume or potion."
+    },
+    "clasp_hunter": {
+        name: "Lovecká spona", name_en: "Hunter's Clasp", icon: "🔩", type: "misc", lostItem: true,
+        desc: "Bronzová spona ve tvaru jelena. Patřila lovci nebo rytíři.", desc_en: "Bronze clasp in the shape of a stag. Belonged to a hunter or knight."
+    },
+    "clasp_monk": {
+        name: "Mnišská spona", name_en: "Monk's Clasp", icon: "🔩", type: "misc", lostItem: true,
+        desc: "Jednoduchá železná spona. Sepínala hábit staletí.", desc_en: "A simple iron clasp. It fastened habits for centuries."
+    },
+    "clasp_silver": {
+        name: "Stříbrná spona", name_en: "Silver Clasp", icon: "🔩", type: "misc", lostItem: true,
+        desc: "Stříbrná filigránová spona. Kdo ji ztratil, hledá ji dodnes.", desc_en: "Silver filigree clasp. Whoever lost it is still looking."
+    },
+    "clasp_leather": {
+        name: "Kožená spona", name_en: "Leather Clasp", icon: "🔩", type: "misc", lostItem: true,
+        desc: "Vyřezávaná kožená spona. Řemeslná práce sedláře.", desc_en: "Carved leather clasp. The craftwork of a saddler."
+    },
+    "clasp_bronze": {
+        name: "Bronzová spona", name_en: "Bronze Clasp", icon: "🔩", type: "misc", lostItem: true,
+        desc: "Pozlacená bronzová spona s rytinou. Starší než klášter sám.", desc_en: "Gilded bronze clasp with engraving. Older than the monastery itself."
+    },
+    "pipe_large": {
+        name: "Dýmka", name_en: "Pipe", icon: "🪵", type: "misc", lostItem: true,
+        desc: "Velká dřevěná dýmka. Tabák do Čech teprve přijde — ale trocha sušeného konopí z váčku poslouží stejně dobře.", desc_en: "A large wooden pipe. Tobacco has yet to reach Bohemia — but a little dried hemp from a pouch serves just as well."
+    },
+    "pipe_small": {
+        name: "Kapesní dýmka", name_en: "Pocket Pipe", icon: "🪵", type: "misc", lostItem: true,
+        desc: "Malá kapesní dýmka. Vhodná na cestu — a pro tajnou chvilku klidu, má-li člověk po ruce váček konopí.", desc_en: "A small pocket pipe. Good for travel — and for a secret moment of peace, if one has a hemp pouch at hand."
+    },
+    "rosarium": {
+        name: "Růženec", name_en: "Rosary", icon: "📿", type: "misc", lostItem: true,
+        desc: "Dřevěný růženec ze dřeva ze Svaté země. Sto padesát zrn, sto padesát Ave Maria.", desc_en: "Wooden rosary from Holy Land timber. One hundred and fifty beads, one hundred and fifty Ave Marias."
+    },
+    "pilgrim_badge": {
+        name: "Poutní odznak", name_en: "Pilgrim Badge", icon: "⭐", type: "misc", lostItem: true,
+        desc: "Olověný odznak poutníka. Z Compostely, Říma nebo snad z Jeruzaléma?", desc_en: "A lead pilgrim badge. From Compostela, Rome, or perhaps Jerusalem?"
+    },
+    "sundial_pocket": {
+        name: "Kapesní sluneční hodiny", name_en: "Pocket Sundial", icon: "☀️", type: "misc", lostItem: true,
+        desc: "Mosazné kapesní hodiny na slunce. Bez slunce k ničemu. A přesto vzácné.", desc_en: "Brass pocket sundial. Useless without sun. And yet precious."
+    },
+    "inkwell_small": {
+        name: "Malý kalamář", name_en: "Small Inkwell", icon: "🖊️", type: "misc", lostItem: true,
+        desc: "Malý kalamář z hliněné glazury. Písař ho postrádá.", desc_en: "A small glazed clay inkwell. A scribe is missing it."
+    },
     "old_coin_1": {
         name: "Měděná mince", name_en: "Copper Coin", icon: "🪙", type: "currency", lostItem: true,
         desc: "Stará měděná mince nalezená při úklidu dvora. Kdo ji ztratil? Dávno to bylo.", desc_en: "An old copper coin found while cleaning the yard. Who dropped it? Long ago, that."

@@ -687,8 +687,9 @@ const Game = {
         const qty = GameState.inventory[keyId] || 0;
         const researchCost = 7;
         const hasResearch = (GameState.inventory['research'] || 0) >= researchCost;
+        const isScroll = keyId.indexOf('lost_scroll_') === 0;
 
-        // Zjistit jestli klíč byl už prozkoumán
+        // Zjistit jestli klíč/svitek byl už prozkoumán
         if (!GameState.flags) GameState.flags = {};
         const exploredFlag = 'key_explored_' + keyId;
         const alreadyExplored = !!GameState.flags[exploredFlag];
@@ -699,14 +700,18 @@ const Game = {
         const examineDisabled = !hasResearch;
 
         NotificationSystem.modal({
-            icon: '🗝️',
+            icon: isScroll ? '📜' : '🗝️',
             title: name,
             text: alreadyExplored
                 ? (cs ? '<em>Already examined. Its purpose is known.</em>' : '<em>Již prozkoumán. Jeho účel je znám.</em>')
                 + '<br><br>' + (cs ? 'In stock' : 'Na skladě') + ': <strong>' + qty + '</strong>'
-                : (cs
-                    ? '<em>An old rusty key. Where does it fit? You will need to examine it carefully — that takes time and knowledge.</em>'
-                    : '<em>Starý rezavý klíč. Kam pasuje? Bude třeba ho pečlivě prozkoumat — to chce čas a zápisky.</em>')
+                : (isScroll
+                    ? (cs
+                        ? '<em>An old scroll covered in faded ink. What was written here before time erased the words? You will need to examine it carefully — that takes time and knowledge.</em>'
+                        : '<em>Starý svitek popsaný vybledlým inkoustem. Co tu stálo psáno, než ho čas smazal? Bude třeba ho pečlivě prozkoumat — to chce čas a zápisky.</em>')
+                    : (cs
+                        ? '<em>An old rusty key. Where does it fit? You will need to examine it carefully — that takes time and knowledge.</em>'
+                        : '<em>Starý rezavý klíč. Kam pasuje? Bude třeba ho pečlivě prozkoumat — to chce čas a zápisky.</em>'))
                 + '<br><br>' + (cs ? 'In stock' : 'Na skladě') + ': <strong>' + qty + '</strong>'
                 + (!hasResearch ? '<br><small style="color:#c0392b;">⚠️ ' + (cs ? 'Need ' + researchCost + ' notes' : 'Potřeba ' + researchCost + ' zápisků') + '</small>' : ''),
             choices: alreadyExplored ? [
@@ -718,7 +723,11 @@ const Game = {
                     effect: examineDisabled ? function() { UI.notify(cs ? '⚠️ Not enough notes.' : '⚠️ Nedostatek zápisků.', true); } : function() {
                         Game.removeItem('research', researchCost);
                         GameState.flags[exploredFlag] = true;
-                        Game._applyLostKeyEffect(keyId, cs);
+                        if (isScroll) {
+                            Game._applyLostScrollEffect(keyId, cs);
+                        } else {
+                            Game._applyLostKeyEffect(keyId, cs);
+                        }
                         Game.save();
                     }
                 },
@@ -752,9 +761,15 @@ const Game = {
                 UI.notify(cs ? '🗝️ The Scrinium is already unlocked.' : '🗝️ Scrinium je již odemčeno.');
             }
         } else if (keyId === 'lost_key_3') {
-            // Unknown
-            UI.notify(cs ? '🗝️ The key was tried on every lock... it fits nowhere. For now.' : '🗝️ Klíč byl vyzkoušen na každém zámku... nikde nepasuje. Zatím.');
-            UI.notifyPanel(cs ? '🗝️ Lost Key #3: mystery remains.' : '🗝️ Klíč č.3: záhada trvá.', 'system');
+            // Stopa ke Starym sklepum — flag pro budouci system "Sklepni prostory" (Propadla podlaha event chain)
+            if (!GameState.secrets) GameState.secrets = {};
+            if (!GameState.secrets.oldCellarsHinted) {
+                GameState.secrets.oldCellarsHinted = true;
+                UI.notify(cs ? '🗝️ The key fits no door you know — but you sense something deeper in the cellars. The way there is still walled off.' : '🗝️ Klíč nepasuje do žádných dveří, co znáš — ale tušíš, že někde hlouběji ve sklepích čeká zapomenutý prostor. Cesta tam je zatím zazděná.');
+                UI.notifyPanel(cs ? '🗝️ Lost Key #3: something stirs beneath the cellars.' : '🗝️ Klíč č.3: něco se probouzí pod sklepy.', 'system');
+            } else {
+                UI.notify(cs ? '🗝️ You already sense what waits beneath the cellars.' : '🗝️ Už tušíš, co čeká pod sklepy.');
+            }
         } else if (keyId === 'lost_key_4') {
             // Odemknout první nenalezené folio ze sady
             if (!GameState.scrinium) GameState.scrinium = { activeSubtab: 'tajne_spisy', folios: {} };
@@ -803,6 +818,50 @@ const Game = {
                 UI.notify(cs ? '🔑 The I-Ching is already known to you.' : '🔑 I-Ching už znáš.');
             }
         }
+    },
+
+    // ── Ztracené svitky — odhalí náhodnou neobjevenou kombinaci Athanoru ──────
+    _applyLostScrollEffect: function(scrollId, cs) {
+        if (!GameState.secrets) GameState.secrets = {};
+        if (!GameState.athanor) GameState.athanor = { discovered: [] };
+        if (!GameState.athanor.discovered) GameState.athanor.discovered = [];
+
+        const athanorOpen = !!GameState.secrets.laboratoryUnlocked;
+        if (!athanorOpen) {
+            UI.notify(cs
+                ? '📜 The scroll is covered in strange marks and formulas — without a furnace to perform them, they make no sense. Find the Athanor first.'
+                : '📜 Svitek je popsán podivnými značkami a formulemi — bez pece, která by je provedla, nedávají smysl. Najdi nejdřív Athanor.');
+            UI.notifyPanel(cs ? '📜 An old scroll, unreadable for now.' : '📜 Starý svitek, zatím nečitelný.', 'system');
+            return;
+        }
+
+        const allKeys = (typeof AthanorDB !== 'undefined' && AthanorDB.combinations) ? Object.keys(AthanorDB.combinations) : [];
+        const undiscovered = allKeys.filter(k => !GameState.athanor.discovered.includes(k));
+
+        if (undiscovered.length === 0) {
+            UI.notify(cs
+                ? '📜 The scroll holds a recipe you already know by heart. The Athanor has no more secrets for you.'
+                : '📜 Svitek obsahuje recept, který už znáš zpaměti. Athanor pro tebe nemá další tajemství.');
+            return;
+        }
+
+        const pickKey = undiscovered[Math.floor(Math.random() * undiscovered.length)];
+        GameState.athanor.discovered.push(pickKey);
+
+        const combo = AthanorDB.combinations[pickKey];
+        const parts = pickKey.split(':');
+        const procId = parts[1];
+        const ingIds = parts[0].split('+');
+        const ingNames = ingIds.map(function(id) {
+            const ing = AthanorDB.ingredients.find(function(i) { return i.id === id; });
+            return ing ? ing.name_lat : id;
+        });
+        const proc = AthanorDB.processes.find(function(p) { return p.id === procId; });
+
+        UI.notify(cs
+            ? '📜 The scroll reveals an old recipe: ' + combo.name_lat + '. Ingredients: ' + ingNames.join(' + ') + '. Process: ' + (proc ? proc.name : procId) + '.'
+            : '📜 Svitek odhaluje starý recept: ' + combo.name + ' (' + combo.name_lat + '). Ingredience: ' + ingNames.join(' + ') + '. Proces: ' + (proc ? proc.name_cs : procId) + '.');
+        UI.notifyPanel(cs ? '📜 An old scroll revealed an Athanor recipe.' : '📜 Starý svitek odhalil recept Athanoru.', 'system');
     },
 
     // ── Svazek sušených bylin — modal ────────────────────────────────────────
