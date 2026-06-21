@@ -450,6 +450,7 @@ const ItemsDB = {
     // ── KRMNÉ SUROVINY ────────────────────────────────────────────────────────
     "hay": { name: "Seno", name_en: "Hay", icon: "🌾", type: "mat", desc: "Sušená tráva. Základní krmivo pro ovce, kozy a koně.", desc_en: "Dried grass. Basic fodder for sheep, goats and horses." },
     "grain": { name: "Zrní", name_en: "Grain", icon: "🌾", type: "mat", desc: "Pšenice nebo ječmen. Krmivo pro slepice a prasata. Základ piva.", desc_en: "Wheat or barley. Feed for hens and pigs. The basis of ale." },
+    "feed_meal": { name: "Šrot", name_en: "Feed Meal", icon: "🟤", type: "mat", desc: "Drcené zrno z pole. Vydatné krmivo pro dobytek.", desc_en: "Crushed grain from the fields. Hearty feed for livestock." },
     "worms": { name: "Červi", name_en: "Worms", icon: "🪱", type: "mat", desc: "Žížaly ze zahrady. Krmivo pro kapry.", desc_en: "Earthworms from the garden. Feed for carp." },
     "acorns": { name: "Žaludy", name_en: "Acorns", icon: "🌰", type: "mat", desc: "Lesní plody z dubu. Krmivo pro prasata. Sbírají se na podzim.", desc_en: "Oak fruits from the forest. Pig fodder. Gathered in autumn." },
     "leaves": { name: "Listí", name_en: "Leaves", icon: "🍃", type: "mat", desc: "Čerstvé listí stromů. Oblíbená pochutina koz.", desc_en: "Fresh tree leaves. A favourite treat for goats." },

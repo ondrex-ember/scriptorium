@@ -5589,6 +5589,7 @@ const ItemsDB = {
     // ── KRMNÉ SUROVINY ────────────────────────────────────────────────────────
     "hay": { name: "Seno", name_en: "Hay", icon: "🌾", type: "mat", desc: "Sušená tráva. Základní krmivo pro ovce, kozy a koně.", desc_en: "Dried grass. Basic fodder for sheep, goats and horses." },
     "grain": { name: "Zrní", name_en: "Grain", icon: "🌾", type: "mat", desc: "Pšenice nebo ječmen. Krmivo pro slepice a prasata. Základ piva.", desc_en: "Wheat or barley. Feed for hens and pigs. The basis of ale." },
+    "feed_meal": { name: "Šrot", name_en: "Feed Meal", icon: "🟤", type: "mat", desc: "Drcené zrno z pole. Vydatné krmivo pro dobytek.", desc_en: "Crushed grain from the fields. Hearty feed for livestock." },
     "worms": { name: "Červi", name_en: "Worms", icon: "🪱", type: "mat", desc: "Žížaly ze zahrady. Krmivo pro kapry.", desc_en: "Earthworms from the garden. Feed for carp." },
     "acorns": { name: "Žaludy", name_en: "Acorns", icon: "🌰", type: "mat", desc: "Lesní plody z dubu. Krmivo pro prasata. Sbírají se na podzim.", desc_en: "Oak fruits from the forest. Pig fodder. Gathered in autumn." },
     "leaves": { name: "Listí", name_en: "Leaves", icon: "🍃", type: "mat", desc: "Čerstvé listí stromů. Oblíbená pochutina koz.", desc_en: "Fresh tree leaves. A favourite treat for goats." },
@@ -5846,6 +5847,32 @@ const RecipesDB = [
       desc: "Cikorka. Únava -12.", desc_en: "Chicory coffee. Fatigue -12." },
     { id: "linden_tea",     output: "linden_tea",     qty: 1, req: { "linden_blossom": 1, "water": 1, "cooking_pot": 0 }, cat: "food", locked: true,
       desc: "Lipový čaj. Únava -8, Sytost +8.", desc_en: "Linden tea. Fatigue -8, Satiety +8." },
+    // Šrot — krmivo z polního zrní (4:2, libovolný druh)
+    { id: "feed_meal_rye",    output: "feed_meal", qty: 2, req: { "rye_grain": 4 },  cat: "craft", locked: true,
+      desc: "Šrot ze žita. Krmivo pro dobytek.", desc_en: "Feed meal from rye. Livestock feed." },
+    { id: "feed_meal_wheat",  output: "feed_meal", qty: 2, req: { "wheat_grain": 4 }, cat: "craft", locked: true,
+      desc: "Šrot z pšenice. Krmivo pro dobytek.", desc_en: "Feed meal from wheat. Livestock feed." },
+    { id: "feed_meal_barley", output: "feed_meal", qty: 2, req: { "barley": 4 },     cat: "craft", locked: true,
+      desc: "Šrot z ječmene. Krmivo pro dobytek.", desc_en: "Feed meal from barley. Livestock feed." },
+    { id: "feed_meal_oats",   output: "feed_meal", qty: 2, req: { "oats": 4 },       cat: "craft", locked: true,
+      desc: "Šrot z ovsa. Krmivo pro dobytek.", desc_en: "Feed meal from oats. Livestock feed." },
+    { id: "feed_meal_millet", output: "feed_meal", qty: 2, req: { "millet": 4 },     cat: "craft", locked: true,
+      desc: "Šrot z prosa. Krmivo pro dobytek.", desc_en: "Feed meal from millet. Livestock feed." },
+    { id: "feed_meal_peas",   output: "feed_meal", qty: 2, req: { "peas": 4 },       cat: "craft", locked: true,
+      desc: "Šrot z hrachu. Krmivo pro dobytek.", desc_en: "Feed meal from peas. Livestock feed." },
+    // Osivo ze zrní — část úrody stranou jako příští setba (1:1)
+    { id: "rye_to_seed",    output: "seeds_rye",    qty: 1, req: { "rye_grain": 1 },  cat: "craft", locked: true,
+      desc: "Vybraná zrna žita ponechaná na osivo.", desc_en: "Selected rye grains set aside as seed." },
+    { id: "wheat_to_seed",  output: "seeds_wheat",  qty: 1, req: { "wheat_grain": 1 }, cat: "craft", locked: true,
+      desc: "Vybraná zrna pšenice ponechaná na osivo.", desc_en: "Selected wheat grains set aside as seed." },
+    { id: "barley_to_seed", output: "seeds_barley", qty: 1, req: { "barley": 1 },     cat: "craft", locked: true,
+      desc: "Vybraná zrna ječmene ponechaná na osivo.", desc_en: "Selected barley grains set aside as seed." },
+    { id: "oats_to_seed",   output: "seeds_oats",   qty: 1, req: { "oats": 1 },       cat: "craft", locked: true,
+      desc: "Vybraná zrna ovsa ponechaná na osivo.", desc_en: "Selected oat grains set aside as seed." },
+    { id: "millet_to_seed", output: "seeds_millet", qty: 1, req: { "millet": 1 },     cat: "craft", locked: true,
+      desc: "Vybraná zrna prosa ponechaná na osivo.", desc_en: "Selected millet grains set aside as seed." },
+    { id: "peas_to_seed",   output: "seeds_peas",   qty: 1, req: { "peas": 1 },       cat: "craft", locked: true,
+      desc: "Vybrané zrna hrachu ponechaná na osivo.", desc_en: "Selected pea grains set aside as seed." },
     
     // ALCHEMY - základní
     { id: "candle", output: "candle", qty: 1, req: { "fat": 1, "rope": 1 }, cat: "fire", locked: true }, 
@@ -6920,7 +6947,7 @@ const TechTree = [
     cost: 15,
     desc: "Columellův spis o zemědělství. Mniši jej opisovali od 8. století — v něm se skrývalo vše o ovcích, kravách a obilí. Odemkne: Chlév (Ovile) — chov ovcí pro vlnu, mléko a pergamen.",
     desc_en: "Columella's treatise on agriculture. Monks copied it from the 8th century onward — within lay everything about sheep, cattle and grain. Unlocks: Sheepfold (Ovile) — raising sheep for wool, milk and vellum.",
-    unlocks: ["sulci"], requires: ["tech_garden_expand"]
+    unlocks: ["sulci", "feed_meal_rye", "feed_meal_wheat", "feed_meal_barley", "feed_meal_oats", "feed_meal_millet", "feed_meal_peas", "rye_to_seed", "wheat_to_seed", "barley_to_seed", "oats_to_seed", "millet_to_seed", "peas_to_seed"], requires: ["tech_garden_expand"]
   },
 
   // VČELÍN (Apiarium) — odemkne záložku Apiarium v Zahradě
@@ -18524,18 +18551,23 @@ const GardenSystem = {
         this.renderFieldTab();
     },
 
+    // Počet semen potřebných k osetí celého pole (na rozdíl od záhonu, kde stačí 1)
+    FIELD_SEED_COST: 30,
+
     sowField: function(idx, cropKey) {
         this._initFields();
         const field = GameState.fields[idx];
         const crop = this.CROPS_DB[cropKey];
         if (!field || field.locked || field.state !== 'ploughed' || !crop) return;
         // Kontrola semen
-        if (!(GameState.inventory[crop.seeds] > 0)) {
+        const seedCost = this.FIELD_SEED_COST;
+        if (!(GameState.inventory[crop.seeds] >= seedCost)) {
             const seedName = typeof ItemsDB !== 'undefined' && ItemsDB[crop.seeds] ? ItemsDB[crop.seeds].name : crop.seeds;
-            if (typeof UI !== 'undefined') UI.notify('⚠️ Chybí: ' + seedName, true);
+            const have = GameState.inventory[crop.seeds] || 0;
+            if (typeof UI !== 'undefined') UI.notify('⚠️ Chybí: ' + seedName + ' (' + have + '/' + seedCost + ')', true);
             return;
         }
-        Game.removeItem(crop.seeds, 1);
+        Game.removeItem(crop.seeds, seedCost);
         field.state   = 'growing';
         field.crop    = cropKey;
         field.phase   = 0;

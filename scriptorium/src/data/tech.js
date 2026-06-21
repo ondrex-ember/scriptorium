@@ -122,7 +122,7 @@ const TechTree = [
     cost: 15,
     desc: "Columellův spis o zemědělství. Mniši jej opisovali od 8. století — v něm se skrývalo vše o ovcích, kravách a obilí. Odemkne: Chlév (Ovile) — chov ovcí pro vlnu, mléko a pergamen.",
     desc_en: "Columella's treatise on agriculture. Monks copied it from the 8th century onward — within lay everything about sheep, cattle and grain. Unlocks: Sheepfold (Ovile) — raising sheep for wool, milk and vellum.",
-    unlocks: ["sulci"], requires: ["tech_garden_expand"]
+    unlocks: ["sulci", "feed_meal_rye", "feed_meal_wheat", "feed_meal_barley", "feed_meal_oats", "feed_meal_millet", "feed_meal_peas", "rye_to_seed", "wheat_to_seed", "barley_to_seed", "oats_to_seed", "millet_to_seed", "peas_to_seed"], requires: ["tech_garden_expand"]
   },
 
   // VČELÍN (Apiarium) — odemkne záložku Apiarium v Zahradě

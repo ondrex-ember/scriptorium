@@ -2146,18 +2146,23 @@ const GardenSystem = {
         this.renderFieldTab();
     },
 
+    // Počet semen potřebných k osetí celého pole (na rozdíl od záhonu, kde stačí 1)
+    FIELD_SEED_COST: 30,
+
     sowField: function(idx, cropKey) {
         this._initFields();
         const field = GameState.fields[idx];
         const crop = this.CROPS_DB[cropKey];
         if (!field || field.locked || field.state !== 'ploughed' || !crop) return;
         // Kontrola semen
-        if (!(GameState.inventory[crop.seeds] > 0)) {
+        const seedCost = this.FIELD_SEED_COST;
+        if (!(GameState.inventory[crop.seeds] >= seedCost)) {
             const seedName = typeof ItemsDB !== 'undefined' && ItemsDB[crop.seeds] ? ItemsDB[crop.seeds].name : crop.seeds;
-            if (typeof UI !== 'undefined') UI.notify('⚠️ Chybí: ' + seedName, true);
+            const have = GameState.inventory[crop.seeds] || 0;
+            if (typeof UI !== 'undefined') UI.notify('⚠️ Chybí: ' + seedName + ' (' + have + '/' + seedCost + ')', true);
             return;
         }
-        Game.removeItem(crop.seeds, 1);
+        Game.removeItem(crop.seeds, seedCost);
         field.state   = 'growing';
         field.crop    = cropKey;
         field.phase   = 0;
