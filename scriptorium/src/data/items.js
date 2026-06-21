@@ -455,6 +455,17 @@ const ItemsDB = {
     "vinum_baci": { name: "Vinum Baci", name_en: "Vinum Baci", icon: "🍷", type: "food", hunger: 4, desc: "Tmavě rubínové víno z Baga. Silné barvivo, vhodné ke scelování. Lidové víno jižní Moravy.", desc_en: "Dark ruby wine from Baco Noir. Strong colourant, good for blending. A southern Moravian folk wine." },
     "raisins": { name: "Hrozinky", name_en: "Raisins", icon: "🍇", type: "food", hunger: 3, desc: "Sušené hrozny z Uvaria. Trvanlivé, sladké. Vhodné do jídla nebo na prodej.", desc_en: "Dried grapes from the Uvarium. Long-lasting and sweet. Good for food or trade." },
     "linseed_oil": { name: "Lněný olej", name_en: "Linseed Oil", icon: "🫙", type: "mat", desc: "Olej lisovaný z lněného semene. Pojivo pro inkoust a pigmenty. Propojuje Pole se Skriptoriem.", desc_en: "Oil pressed from linseed. Binder for ink and pigments. Links the Field to the Scriptorium." },
+
+    // ── VINOHRAD (Vinea) — zpracování (hrozny + mošt) ──────────────────────────
+    "grapes_belina": { name: "Hrozny Běliny", name_en: "Heunisch Grapes", icon: "🍇", type: "food", hunger: 2, desc: "Čerstvé hrozny z Běliny. Jíst syrové, nebo nalisovat v Prelu.", desc_en: "Fresh Heunisch grapes. Eat raw, or press at the Prelum." },
+    "grapes_klevner": { name: "Hrozny Klevneru", name_en: "Klevner Grapes", icon: "🍇", type: "food", hunger: 2, desc: "Čerstvé hrozny z Klevneru. Jíst syrové, nebo nalisovat v Prelu.", desc_en: "Fresh Klevner grapes. Eat raw, or press at the Prelum." },
+    "grapes_frankovka": { name: "Hrozny Frankovky", name_en: "Frankovka Grapes", icon: "🍇", type: "food", hunger: 2, desc: "Čerstvé hrozny z Frankovky. Jíst syrové, nebo nalisovat v Prelu.", desc_en: "Fresh Frankovka grapes. Eat raw, or press at the Prelum." },
+    "grapes_tramin": { name: "Hrozny Tramínu", name_en: "Traminer Grapes", icon: "🍇", type: "food", hunger: 2, desc: "Čerstvé hrozny z Tramínu. Jíst syrové, nebo nalisovat v Prelu.", desc_en: "Fresh Traminer grapes. Eat raw, or press at the Prelum." },
+    "grapes_modry_janek": { name: "Hrozny Modrého Janka", name_en: "Modrý Janek Grapes", icon: "🍇", type: "food", hunger: 2, desc: "Čerstvé hrozny z Modrého Janka. Jíst syrové, nebo nalisovat v Prelu.", desc_en: "Fresh Modrý Janek grapes. Eat raw, or press at the Prelum." },
+    "grapes_baco": { name: "Hrozny Baga", name_en: "Baco Noir Grapes", icon: "🍇", type: "food", hunger: 2, desc: "Čerstvé hrozny z Baco Noir. Jíst syrové, nebo nalisovat v Prelu.", desc_en: "Fresh Baco Noir grapes. Eat raw, or press at the Prelum." },
+    "mustum_klevner": { name: "Mošt z Klevneru", name_en: "Klevner Must", icon: "🍶", type: "mat", desc: "Nalisovaný mošt z Klevneru. Čeká na fermentaci v Cella fermentaria.", desc_en: "Pressed must from Klevner. Awaits fermentation at the Cella fermentaria." },
+    "mustum_frankovka": { name: "Mošt z Frankovky", name_en: "Frankovka Must", icon: "🍶", type: "mat", desc: "Nalisovaný mošt z Frankovky. Čeká na fermentaci v Cella fermentaria.", desc_en: "Pressed must from Frankovka. Awaits fermentation at the Cella fermentaria." },
+    "mustum_tramin": { name: "Mošt z Tramínu", name_en: "Traminer Must", icon: "🍶", type: "mat", desc: "Nalisovaný mošt z Tramínu. Čeká na fermentaci v Cella fermentaria.", desc_en: "Pressed must from Traminer. Awaits fermentation at the Cella fermentaria." },
 };
 // Oprava BUG #2 — semena stromů chybějící v ItemsDB (Trh nákup)
 // (vloženo před uzavírací }; — merge do objektu před buildem)

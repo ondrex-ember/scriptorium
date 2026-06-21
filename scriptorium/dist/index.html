@@ -5594,6 +5594,17 @@ const ItemsDB = {
     "vinum_baci": { name: "Vinum Baci", name_en: "Vinum Baci", icon: "🍷", type: "food", hunger: 4, desc: "Tmavě rubínové víno z Baga. Silné barvivo, vhodné ke scelování. Lidové víno jižní Moravy.", desc_en: "Dark ruby wine from Baco Noir. Strong colourant, good for blending. A southern Moravian folk wine." },
     "raisins": { name: "Hrozinky", name_en: "Raisins", icon: "🍇", type: "food", hunger: 3, desc: "Sušené hrozny z Uvaria. Trvanlivé, sladké. Vhodné do jídla nebo na prodej.", desc_en: "Dried grapes from the Uvarium. Long-lasting and sweet. Good for food or trade." },
     "linseed_oil": { name: "Lněný olej", name_en: "Linseed Oil", icon: "🫙", type: "mat", desc: "Olej lisovaný z lněného semene. Pojivo pro inkoust a pigmenty. Propojuje Pole se Skriptoriem.", desc_en: "Oil pressed from linseed. Binder for ink and pigments. Links the Field to the Scriptorium." },
+
+    // ── VINOHRAD (Vinea) — zpracování (hrozny + mošt) ──────────────────────────
+    "grapes_belina": { name: "Hrozny Běliny", name_en: "Heunisch Grapes", icon: "🍇", type: "food", hunger: 2, desc: "Čerstvé hrozny z Běliny. Jíst syrové, nebo nalisovat v Prelu.", desc_en: "Fresh Heunisch grapes. Eat raw, or press at the Prelum." },
+    "grapes_klevner": { name: "Hrozny Klevneru", name_en: "Klevner Grapes", icon: "🍇", type: "food", hunger: 2, desc: "Čerstvé hrozny z Klevneru. Jíst syrové, nebo nalisovat v Prelu.", desc_en: "Fresh Klevner grapes. Eat raw, or press at the Prelum." },
+    "grapes_frankovka": { name: "Hrozny Frankovky", name_en: "Frankovka Grapes", icon: "🍇", type: "food", hunger: 2, desc: "Čerstvé hrozny z Frankovky. Jíst syrové, nebo nalisovat v Prelu.", desc_en: "Fresh Frankovka grapes. Eat raw, or press at the Prelum." },
+    "grapes_tramin": { name: "Hrozny Tramínu", name_en: "Traminer Grapes", icon: "🍇", type: "food", hunger: 2, desc: "Čerstvé hrozny z Tramínu. Jíst syrové, nebo nalisovat v Prelu.", desc_en: "Fresh Traminer grapes. Eat raw, or press at the Prelum." },
+    "grapes_modry_janek": { name: "Hrozny Modrého Janka", name_en: "Modrý Janek Grapes", icon: "🍇", type: "food", hunger: 2, desc: "Čerstvé hrozny z Modrého Janka. Jíst syrové, nebo nalisovat v Prelu.", desc_en: "Fresh Modrý Janek grapes. Eat raw, or press at the Prelum." },
+    "grapes_baco": { name: "Hrozny Baga", name_en: "Baco Noir Grapes", icon: "🍇", type: "food", hunger: 2, desc: "Čerstvé hrozny z Baco Noir. Jíst syrové, nebo nalisovat v Prelu.", desc_en: "Fresh Baco Noir grapes. Eat raw, or press at the Prelum." },
+    "mustum_klevner": { name: "Mošt z Klevneru", name_en: "Klevner Must", icon: "🍶", type: "mat", desc: "Nalisovaný mošt z Klevneru. Čeká na fermentaci v Cella fermentaria.", desc_en: "Pressed must from Klevner. Awaits fermentation at the Cella fermentaria." },
+    "mustum_frankovka": { name: "Mošt z Frankovky", name_en: "Frankovka Must", icon: "🍶", type: "mat", desc: "Nalisovaný mošt z Frankovky. Čeká na fermentaci v Cella fermentaria.", desc_en: "Pressed must from Frankovka. Awaits fermentation at the Cella fermentaria." },
+    "mustum_tramin": { name: "Mošt z Tramínu", name_en: "Traminer Must", icon: "🍶", type: "mat", desc: "Nalisovaný mošt z Tramínu. Čeká na fermentaci v Cella fermentaria.", desc_en: "Pressed must from Traminer. Awaits fermentation at the Cella fermentaria." },
 };
 // Oprava BUG #2 — semena stromů chybějící v ItemsDB (Trh nákup)
 // (vloženo před uzavírací }; — merge do objektu před buildem)
@@ -17972,22 +17983,8 @@ const GardenSystem = {
         let qty = 2;
         if (slot.pruned) qty += 1;
 
-        // Počasí: sucho → pryk (jen Bělina), jinak primary output
-        let outputId = variety.outputPrimary;
-        if (variety.id === 'belina') {
-            let droughtDays = 0;
-            try {
-                if (typeof WeatherSystem !== 'undefined' && WeatherSystem.countDryDays) {
-                    droughtDays = WeatherSystem.countDryDays(6).dry;  // 7denní okno: dnes + 6 dní zpět
-                }
-            } catch(e) {}
-            // Hráč mohl přepsat výběrem v UI
-            if (slot.harvestChoice) {
-                outputId = slot.harvestChoice;
-            } else {
-                outputId = droughtDays >= 5 ? 'pryk' : 'mustum';
-            }
-        }
+        // Sklizeň dává vždy syrové hrozny — zpracování (lis/fermentace) řeší Prelum/Cella fermentaria
+        const outputId = 'grapes_' + variety.id;
 
         Game.addItem(outputId, qty);
         const itemName = (typeof iName === 'function') ? iName(outputId) : outputId;
@@ -17999,8 +17996,193 @@ const GardenSystem = {
         );
 
         // Slot → dormant (réva přežije zimu)
-        slot.state         = 'dormant';
-        slot.harvestChoice = null;
+        slot.state = 'dormant';
+        Game.save();
+        this.renderVinohrad();
+    },
+
+    // ── LIS (Prelum) — hrozny → víno / mošt ─────────────────────────────────
+    pressGrapes: function(varietyId) {
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        if (!(GameState.storage && GameState.storage.prelum && GameState.storage.prelum.built)) {
+            UI.notify(lang==='en' ? 'Build Prelum first.' : 'Nejprve postav Prelum.', true); return;
+        }
+        const variety = this.VINEA_DB[varietyId];
+        if (!variety) return;
+        const grapesId = 'grapes_' + varietyId;
+        const qty = GameState.inventory[grapesId] || 0;
+        if (qty <= 0) {
+            UI.notify(lang==='en' ? 'No grapes to press.' : 'Žádné hrozny k lisování.', true); return;
+        }
+
+        // 3 lehčí odrůdy → rovnou hotové víno (Bělina dle sucha mustum/pryk)
+        // 3 těžší odrůdy → mustum_<odrůda>, čeká na fermentaci v Cella fermentaria
+        let outputId;
+        if (varietyId === 'belina') {
+            let droughtDays = 0;
+            try {
+                if (typeof WeatherSystem !== 'undefined' && WeatherSystem.countDryDays) {
+                    droughtDays = WeatherSystem.countDryDays(6).dry;  // 7denní okno: dnes + 6 dní zpět
+                }
+            } catch(e) {}
+            outputId = droughtDays >= 5 ? 'pryk' : 'mustum';
+        } else if (varietyId === 'baco') {
+            outputId = 'vinum_baci';
+        } else if (varietyId === 'modry_janek') {
+            outputId = 'vinum_obscurum';
+        } else if (varietyId === 'klevner') {
+            outputId = 'mustum_klevner';
+        } else if (varietyId === 'frankovka') {
+            outputId = 'mustum_frankovka';
+        } else if (varietyId === 'tramin') {
+            outputId = 'mustum_tramin';
+        } else {
+            return;
+        }
+
+        Game.removeItem(grapesId, qty);
+        Game.addItem(outputId, qty);
+        const itemName = (typeof iName === 'function') ? iName(outputId) : outputId;
+        UI.notify('🍷 ' + (lang==='en'?'Pressed: ':'Nalisováno: ') + itemName + ' ×' + qty);
+        Game.addKronikaEntry('important',
+            '🍷 Prelum: nalisováno ' + (typeof iName==='function'?iName(outputId):outputId) + ' ×' + qty + '.',
+            '🍷 Prelum: pressed ' + outputId + ' ×' + qty + '.',
+            '🍷 Prelum: pressum ' + outputId + ' ×' + qty + '.'
+        );
+        Game.save();
+        this.renderVinohrad();
+    },
+
+    // ── FERMENTACE (Cella fermentaria) — mošt → víno ────────────────────────
+    fermentMustum: function(varietyId) {
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        if (!(GameState.storage && GameState.storage.cella_fermentaria && GameState.storage.cella_fermentaria.built)) {
+            UI.notify(lang==='en' ? 'Build Cella fermentaria first.' : 'Nejprve postav Cella fermentaria.', true); return;
+        }
+        const mustumId = 'mustum_' + varietyId;
+        const qty = GameState.inventory[mustumId] || 0;
+        if (qty <= 0) {
+            UI.notify(lang==='en' ? 'No must to ferment.' : 'Žádný mošt k fermentaci.', true); return;
+        }
+
+        // Frankovka → Vinum Rubrum, Klevner a Tramín → Vinum (generické, beze stopy odrůdy)
+        let outputId;
+        if (varietyId === 'frankovka') outputId = 'vinum_rubrum';
+        else if (varietyId === 'klevner' || varietyId === 'tramin') outputId = 'vinum';
+        else return;
+
+        Game.removeItem(mustumId, qty);
+        Game.addItem(outputId, qty);
+        const itemName = (typeof iName === 'function') ? iName(outputId) : outputId;
+        UI.notify('⚗️ ' + (lang==='en'?'Fermented: ':'Zfermentováno: ') + itemName + ' ×' + qty);
+        Game.addKronikaEntry('important',
+            '⚗️ Cella fermentaria: zfermentováno ' + (typeof iName==='function'?iName(outputId):outputId) + ' ×' + qty + '.',
+            '⚗️ Cella fermentaria: fermented ' + outputId + ' ×' + qty + '.',
+            '⚗️ Cella fermentaria: fermentatum ' + outputId + ' ×' + qty + '.'
+        );
+        Game.save();
+        this.renderVinohrad();
+    },
+
+    // ── FOUDRES — zrání vína (1 běžící sud, 14 dní) ─────────────────────────
+    startAging: function(amount) {
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        if (!(GameState.storage && GameState.storage.foudres && GameState.storage.foudres.built)) {
+            UI.notify(lang==='en' ? 'Build Foudres first.' : 'Nejprve postav Foudres.', true); return;
+        }
+        if (GameState.foudresBarrel) {
+            UI.notify(lang==='en' ? 'A barrel is already aging.' : 'Sud už zraje.', true); return;
+        }
+        amount = parseInt(amount, 10) || 0;
+        const have = GameState.inventory['vinum'] || 0;
+        if (amount <= 0 || amount > have) {
+            UI.notify(lang==='en' ? 'Not enough vinum.' : 'Nedostatek vinum.', true); return;
+        }
+        Game.removeItem('vinum', amount);
+        GameState.foudresBarrel = {
+            amount: amount,
+            startedAt: Date.now(),
+            readyAt: Date.now() + 14 * 86400000,   // 14 herních dní zrání
+        };
+        UI.notify('🛢️ ' + (lang==='en'?'Barrel started aging.':'Sud uložen ke zrání.'));
+        Game.addKronikaEntry('important',
+            '🛢️ Foudres: uloženo ' + amount + '× vinum ke zrání.',
+            '🛢️ Foudres: ' + amount + '× vinum placed to age.',
+            '🛢️ Foudres: ' + amount + '× vinum ad maturationem positum.'
+        );
+        Game.save();
+        this.renderVinohrad();
+    },
+
+    collectAging: function() {
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        const barrel = GameState.foudresBarrel;
+        if (!barrel) return;
+        if (Date.now() < barrel.readyAt) {
+            UI.notify(lang==='en' ? 'Not ready yet.' : 'Ještě nezraje.', true); return;
+        }
+        Game.addItem('vinum_praeclarum', barrel.amount);
+        const itemName = (typeof iName === 'function') ? iName('vinum_praeclarum') : 'vinum_praeclarum';
+        UI.notify('🏺 ' + (lang==='en'?'Collected: ':'Vyzvednuto: ') + itemName + ' ×' + barrel.amount);
+        Game.addKronikaEntry('important',
+            '🏺 Foudres: vyzdviženo ' + itemName + ' ×' + barrel.amount + '.',
+            '🏺 Foudres: collected ' + itemName + ' ×' + barrel.amount + '.',
+            '🏺 Foudres: collectum ' + itemName + ' ×' + barrel.amount + '.'
+        );
+        GameState.foudresBarrel = null;
+        Game.save();
+        this.renderVinohrad();
+    },
+
+    // ── UVARIUM — sušení hroznů (1 běžící dávka, 5 dní) ─────────────────────
+    startDrying: function(varietyId) {
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        if (!(GameState.storage && GameState.storage.uvarium && GameState.storage.uvarium.built)) {
+            UI.notify(lang==='en' ? 'Build Uvarium first.' : 'Nejprve postav Uvarium.', true); return;
+        }
+        if (GameState.uvariumDrying) {
+            UI.notify(lang==='en' ? 'Grapes are already drying.' : 'Hrozny už schnou.', true); return;
+        }
+        const variety = this.VINEA_DB[varietyId];
+        if (!variety) return;
+        const grapesId = 'grapes_' + varietyId;
+        const qty = GameState.inventory[grapesId] || 0;
+        if (qty <= 0) {
+            UI.notify(lang==='en' ? 'No grapes to dry.' : 'Žádné hrozny k sušení.', true); return;
+        }
+        Game.removeItem(grapesId, qty);
+        GameState.uvariumDrying = {
+            varietyId: varietyId,
+            amount: qty,
+            startedAt: Date.now(),
+            readyAt: Date.now() + 5 * 86400000,   // 5 herních dní sušení
+        };
+        UI.notify('☀️ ' + (lang==='en'?'Grapes set to dry.':'Hrozny uloženy k sušení.'));
+        Game.addKronikaEntry('important',
+            '☀️ Uvarium: uloženo ' + qty + '× hroznů k sušení.',
+            '☀️ Uvarium: ' + qty + '× grapes set to dry.',
+            '☀️ Uvarium: ' + qty + '× uvae ad siccandum positae.'
+        );
+        Game.save();
+        this.renderVinohrad();
+    },
+
+    collectDrying: function() {
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        const drying = GameState.uvariumDrying;
+        if (!drying) return;
+        if (Date.now() < drying.readyAt) {
+            UI.notify(lang==='en' ? 'Not dry yet.' : 'Ještě neuschly.', true); return;
+        }
+        Game.addItem('raisins', drying.amount);
+        const itemName = (typeof iName === 'function') ? iName('raisins') : 'raisins';
+        UI.notify('🍇 ' + (lang==='en'?'Collected: ':'Vyzvednuto: ') + itemName + ' ×' + drying.amount);
+        Game.addKronikaEntry('important',
+            '🍇 Uvarium: vyzdviženo ' + itemName + ' ×' + drying.amount + '.',
+            '🍇 Uvarium: collected ' + itemName + ' ×' + drying.amount + '.',
+            '🍇 Uvarium: collectum ' + itemName + ' ×' + drying.amount + '.'
+        );
+        GameState.uvariumDrying = null;
         Game.save();
         this.renderVinohrad();
     },
@@ -18431,6 +18613,116 @@ const GardenSystem = {
             html += `<div class="garden-plot">${content}<div style="margin-top:auto">${btn}</div></div>`;
         });
         html += '</div>';
+
+        // ── ZPRACOVÁNÍ — Prelum / Cella fermentaria / Foudres / Uvarium ────
+        const storage = GameState.storage || {};
+        const placeholder = (icon, title_cs, title_en, need_cs, need_en) => `
+            <div style="background:rgba(197,160,89,0.08); border:1px solid rgba(197,160,89,0.3); border-radius:10px; padding:16px; margin-bottom:10px;">
+                <div style="font-size:1.6rem; margin-bottom:6px;">${icon}</div>
+                <h4 style="margin:0 0 6px 0; font-size:0.92rem;">${lang==='en'?title_en:title_cs}</h4>
+                <div style="font-size:0.78rem; padding:6px 10px; background:rgba(197,160,89,0.1); border-radius:6px; border-left:3px solid var(--accent-gold); font-style:italic; opacity:0.85;">
+                    🏗️ ${lang==='en'?need_en:need_cs}
+                </div>
+            </div>`;
+
+        html += `<div class="section-title" style="margin-top:18px;">🍷 ${lang==='en'?'Processing':'Zpracování'}</div>`;
+
+        // PRELUM
+        if (storage.prelum && storage.prelum.built) {
+            const opts = Object.values(this.VINEA_DB).map(v => {
+                const have = GameState.inventory['grapes_' + v.id] || 0;
+                return `<option value="${v.id}" ${have>0?'':'disabled'}>${lang==='en'?v.name_en:v.name} (${have})</option>`;
+            }).join('');
+            html += `<div class="garden-plot" style="margin-bottom:10px;">
+                <div style="font-size:1.2rem;">🍷</div>
+                <div class="text-sm" style="font-weight:600;">${lang==='en'?'Prelum — Press':'Prelum — Lis'}</div>
+                <select id="prelum-sel" style="font-size:0.72rem;padding:2px;width:100%;margin:4px 0;">${opts}</select>
+                <button class="craft-btn" onclick="GardenSystem.pressGrapes(document.getElementById('prelum-sel').value)">🍷 ${lang==='en'?'Press':'Lisovat'}</button>
+            </div>`;
+        } else {
+            html += placeholder('🍷', 'Prelum (Lis)', 'Prelum (Press)',
+                '<strong>Další krok:</strong> Postav Prelum v Cellarium → Budovy.',
+                '<strong>Next:</strong> Build Prelum in Cellarium → Buildings.');
+        }
+
+        // CELLA FERMENTARIA
+        if (storage.cella_fermentaria && storage.cella_fermentaria.built) {
+            const fermentable = ['klevner', 'frankovka', 'tramin'];
+            const opts = fermentable.map(id => {
+                const v = this.VINEA_DB[id];
+                const have = GameState.inventory['mustum_' + id] || 0;
+                return `<option value="${id}" ${have>0?'':'disabled'}>${lang==='en'?v.name_en:v.name} (${have})</option>`;
+            }).join('');
+            html += `<div class="garden-plot" style="margin-bottom:10px;">
+                <div style="font-size:1.2rem;">⚗️</div>
+                <div class="text-sm" style="font-weight:600;">${lang==='en'?'Cella fermentaria — Ferment':'Cella fermentaria — Fermentace'}</div>
+                <select id="cella-sel" style="font-size:0.72rem;padding:2px;width:100%;margin:4px 0;">${opts}</select>
+                <button class="craft-btn" onclick="GardenSystem.fermentMustum(document.getElementById('cella-sel').value)">⚗️ ${lang==='en'?'Ferment':'Fermentovat'}</button>
+            </div>`;
+        } else {
+            html += placeholder('⚗️', 'Cella fermentaria', 'Cella fermentaria',
+                '<strong>Další krok:</strong> Postav Cella fermentaria v Cellarium → Budovy.',
+                '<strong>Next:</strong> Build Cella fermentaria in Cellarium → Buildings.');
+        }
+
+        // FOUDRES
+        if (storage.foudres && storage.foudres.built) {
+            const barrel = GameState.foudresBarrel;
+            if (barrel) {
+                const daysLeft = Math.max(0, Math.ceil((barrel.readyAt - Date.now()) / 86400000));
+                const ready = Date.now() >= barrel.readyAt;
+                html += `<div class="garden-plot" style="margin-bottom:10px;">
+                    <div style="font-size:1.2rem;">🛢️</div>
+                    <div class="text-sm" style="font-weight:600;">${lang==='en'?'Foudres — Barrel':'Foudres — Sud'}</div>
+                    <div style="font-size:0.78rem; opacity:0.75;">Vinum ×${barrel.amount} — ${ready?(lang==='en'?'ready!':'hotovo!'):(daysLeft+'d')}</div>
+                    <button class="craft-btn" onclick="GardenSystem.collectAging()" ${ready?'':'disabled'} style="background:${ready?'#4a7c59':'#888'};">🏺 ${lang==='en'?'Collect':'Vyzvednout'}</button>
+                </div>`;
+            } else {
+                const have = GameState.inventory['vinum'] || 0;
+                html += `<div class="garden-plot" style="margin-bottom:10px;">
+                    <div style="font-size:1.2rem;">🛢️</div>
+                    <div class="text-sm" style="font-weight:600;">${lang==='en'?'Foudres — Barrel':'Foudres — Sud'}</div>
+                    <div style="font-size:0.72rem; opacity:0.6;">${lang==='en'?'Vinum available':'Vinum k dispozici'}: ${have}</div>
+                    <input type="number" id="foudres-amount" min="1" max="${have}" placeholder="${lang==='en'?'amount':'množství'}" style="font-size:0.72rem;padding:3px;width:100%;margin:4px 0;">
+                    <button class="craft-btn" onclick="GardenSystem.startAging(document.getElementById('foudres-amount').value)" ${have>0?'':'disabled'}>🛢️ ${lang==='en'?'Barrel (14d)':'Uložit (14d)'}</button>
+                </div>`;
+            }
+        } else {
+            html += placeholder('🛢️', 'Foudres (Sudy)', 'Foudres (Barrels)',
+                '<strong>Další krok:</strong> Postav Foudres v Cellarium → Budovy.',
+                '<strong>Next:</strong> Build Foudres in Cellarium → Buildings.');
+        }
+
+        // UVARIUM
+        if (storage.uvarium && storage.uvarium.built) {
+            const drying = GameState.uvariumDrying;
+            if (drying) {
+                const v = this.VINEA_DB[drying.varietyId];
+                const daysLeft = Math.max(0, Math.ceil((drying.readyAt - Date.now()) / 86400000));
+                const ready = Date.now() >= drying.readyAt;
+                html += `<div class="garden-plot" style="margin-bottom:10px;">
+                    <div style="font-size:1.2rem;">☀️</div>
+                    <div class="text-sm" style="font-weight:600;">${lang==='en'?'Uvarium — Drying':'Uvarium — Sušárna'}</div>
+                    <div style="font-size:0.78rem; opacity:0.75;">${v?(lang==='en'?v.name_en:v.name):''} ×${drying.amount} — ${ready?(lang==='en'?'ready!':'hotovo!'):(daysLeft+'d')}</div>
+                    <button class="craft-btn" onclick="GardenSystem.collectDrying()" ${ready?'':'disabled'} style="background:${ready?'#4a7c59':'#888'};">🍇 ${lang==='en'?'Collect':'Vyzvednout'}</button>
+                </div>`;
+            } else {
+                const opts = Object.values(this.VINEA_DB).map(v => {
+                    const have = GameState.inventory['grapes_' + v.id] || 0;
+                    return `<option value="${v.id}" ${have>0?'':'disabled'}>${lang==='en'?v.name_en:v.name} (${have})</option>`;
+                }).join('');
+                html += `<div class="garden-plot" style="margin-bottom:10px;">
+                    <div style="font-size:1.2rem;">☀️</div>
+                    <div class="text-sm" style="font-weight:600;">${lang==='en'?'Uvarium — Drying':'Uvarium — Sušárna'}</div>
+                    <select id="uvarium-sel" style="font-size:0.72rem;padding:2px;width:100%;margin:4px 0;">${opts}</select>
+                    <button class="craft-btn" onclick="GardenSystem.startDrying(document.getElementById('uvarium-sel').value)">☀️ ${lang==='en'?'Dry (5d)':'Sušit (5d)'}</button>
+                </div>`;
+            }
+        } else {
+            html += placeholder('☀️', 'Uvarium (Sušárna)', 'Uvarium (Drying House)',
+                '<strong>Další krok:</strong> Postav Uvarium v Cellarium → Budovy (vyžaduje tech Uvarium).',
+                '<strong>Next:</strong> Build Uvarium in Cellarium → Buildings (requires Uvarium tech).');
+        }
 
         el.innerHTML = html;
     },
