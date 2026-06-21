@@ -27,9 +27,9 @@ const AchievementsDB = [
     {
         id: "encyclopedist",
         name: "Encyklopedista",             name_en: "Encyclopaedist",
-        desc: "Objevil všech 64 položek!",  desc_en: "Discover all 64 items!",
+        desc: "Objevil všech 107 položek!",  desc_en: "Discover all 107 items!",
         icon: "🎓", category: "Discovery",
-        condition: () => GameState.discoveredLore.length >= 64,
+        condition: () => GameState.discoveredLore.length >= 107,
         reward: { research: 5 }
     },
 
@@ -151,6 +151,161 @@ const AchievementsDB = [
         desc: "100 přihlášení celkem",      desc_en: "100 total logins",
         icon: "🏆", category: "Dedication",
         condition: () => GameState.dailyRewards.totalLogins >= 100,
+        reward: { research: 5 }
+    },
+
+    // VINOHRAD
+    {
+        id: "first_grapes",
+        name: "První réva",         name_en: "First Vines",
+        desc: "Sklízej svůj první hrozen",  desc_en: "Harvest thy first grape",
+        icon: "🍇", category: "Vinohrad",
+        condition: () => GameState.discoveredLore.some(id => ['grapes_belina','grapes_klevner','grapes_frankovka','grapes_tramin','grapes_modry_janek','grapes_baco'].includes(id)),
+        reward: { research: 2 }
+    },
+    {
+        id: "first_press",
+        name: "Mošt teče",          name_en: "First Press",
+        desc: "Vylisuj první mošt nebo Pryk", desc_en: "Press thy first must or Pryk",
+        icon: "🍶", category: "Vinohrad",
+        condition: () => GameState.discoveredLore.includes('mustum') || GameState.discoveredLore.includes('pryk'),
+        reward: { research: 2 }
+    },
+    {
+        id: "vinum_praeclarum",
+        name: "Vinum Praeclarum",   name_en: "The Bishop's Wine",
+        desc: "Uvař první Vinum Praeclarum pro biskupský stůl", desc_en: "Brew thy first Vinum Praeclarum for the bishop's table",
+        icon: "🏺", category: "Vinohrad",
+        condition: () => GameState.discoveredLore.includes('vinum_praeclarum'),
+        reward: { research: 5 }
+    },
+    {
+        id: "five_wines",
+        name: "Pět odstínů révy",   name_en: "Five Shades of the Vine",
+        desc: "Vyrob všech pět druhů vína", desc_en: "Produce all five kinds of wine",
+        icon: "🍷", category: "Vinohrad",
+        condition: () => ['vinum','vinum_rubrum','vinum_praeclarum','vinum_obscurum','vinum_baci'].every(id => GameState.discoveredLore.includes(id)),
+        reward: { research: 6 }
+    },
+
+    // POLE
+    {
+        id: "first_field_harvest",
+        name: "Žeň",                name_en: "The Harvest",
+        desc: "Sklízej první úrodu z Pole", desc_en: "Reap thy first harvest from the Field",
+        icon: "🌾", category: "Pole",
+        condition: () => GameState.discoveredLore.some(id => ['rye_grain','wheat_grain','barley','oats','millet','peas','flax_fiber'].includes(id)),
+        reward: { research: 2 }
+    },
+    {
+        id: "three_field_farmer",
+        name: "Trojpolní hospodář",  name_en: "Three-Field Farmer",
+        desc: "Odemkni trojpolní systém hospodaření", desc_en: "Unlock the three-field crop rotation system",
+        icon: "🟫", category: "Pole",
+        condition: () => GameState.researchedTechs.includes('tech_crop_rotation'),
+        reward: { research: 3 }
+    },
+    {
+        id: "seven_crops",
+        name: "Všech sedm",         name_en: "All Seven",
+        desc: "Sklízej všech sedm plodin Pole aspoň jednou", desc_en: "Harvest all seven Field crops at least once",
+        icon: "🌿", category: "Pole",
+        condition: () => ['rye_grain','wheat_grain','barley','oats','millet','peas','flax_fiber'].every(id => GameState.discoveredLore.includes(id)),
+        reward: { research: 5 }
+    },
+
+    // DVŮR
+    {
+        id: "first_lamb",
+        name: "První jehně",        name_en: "First Lamb",
+        desc: "Tvé stádo přivedlo na svět první jehně", desc_en: "Thy flock has brought forth its first lamb",
+        icon: "🐑", category: "Dvůr",
+        condition: () => (GameState.achievements.stats.lambsBorn || 0) >= 1,
+        reward: { research: 2 }
+    },
+    {
+        id: "first_chick",
+        name: "První kuře",         name_en: "First Chick",
+        desc: "Z kurníku se vylíhlo první kuře", desc_en: "The first chick has hatched in the henhouse",
+        icon: "🐣", category: "Dvůr",
+        condition: () => (GameState.achievements.stats.chicksHatched || 0) >= 1,
+        reward: { research: 2 }
+    },
+    {
+        id: "shepherd",
+        name: "Pastýř",             name_en: "Shepherd",
+        desc: "Tvé stádo dosáhlo pěti ovcí", desc_en: "Thy flock has reached five sheep",
+        icon: "🐏", category: "Dvůr",
+        condition: () => GameState.sheepfold && GameState.sheepfold.sheep >= 5,
+        reward: { research: 3 }
+    },
+
+    // ATHANOR
+    {
+        id: "great_key",
+        name: "Velký klíč",         name_en: "The Great Key",
+        desc: "Odemkni přístup do Athanoru skrze nalezenou šifru", desc_en: "Unlock access to the Athanor through the discovered cipher",
+        icon: "🔑", category: "Athanor",
+        condition: () => GameState.secrets && GameState.secrets.laboratoryUnlocked === true,
+        reward: { research: 5 }
+    },
+    {
+        id: "first_transmutation",
+        name: "První transmutace",  name_en: "First Transmutation",
+        desc: "Odhal svou první kombinaci v Athanoru", desc_en: "Discover thy first combination in the Athanor",
+        icon: "⚗️", category: "Athanor",
+        condition: () => GameState.athanor && GameState.athanor.discovered && GameState.athanor.discovered.length >= 1,
+        reward: { research: 3 }
+    },
+    {
+        id: "athanor_master",
+        name: "Mistr Athanoru",     name_en: "Master of the Athanor",
+        desc: "Odhal všechny kombinace v Athanoru", desc_en: "Discover every combination in the Athanor",
+        icon: "📖", category: "Athanor",
+        condition: () => GameState.athanor && GameState.athanor.discovered && typeof AthanorDB !== 'undefined' && GameState.athanor.discovered.length >= Object.keys(AthanorDB.combinations).length,
+        reward: { research: 10 }
+    },
+
+    // SCRINIUM
+    {
+        id: "secret_writings",
+        name: "Tajné spisy",        name_en: "Secret Writings",
+        desc: "Nalezni všechna folia z Tajných spisů", desc_en: "Find all folios of the Secret Writings",
+        icon: "📜", category: "Scrinium",
+        condition: () => {
+            if (!GameState.scrinium || !GameState.scrinium.folios) return false;
+            const ids = ['folio_epistola','folio_fausto','folio_palimpsest','folio_titivillus'];
+            return ids.every(id => GameState.scrinium.folios[id] && GameState.scrinium.folios[id].found);
+        },
+        reward: { research: 5 }
+    },
+    {
+        id: "arcanum_reader",
+        name: "Do hlubin Arcana",    name_en: "Into the Arcanum",
+        desc: "Rozluštěn první folio až na vrstvu Arcanum", desc_en: "Decipher thy first folio down to its Arcanum layer",
+        icon: "🔐", category: "Scrinium",
+        condition: () => {
+            if (!GameState.scrinium || !GameState.scrinium.folios) return false;
+            return Object.values(GameState.scrinium.folios).some(f => f.layer === 3);
+        },
+        reward: { research: 4 }
+    },
+
+    // CELLARIUM
+    {
+        id: "first_trade",
+        name: "První obchod",       name_en: "First Trade",
+        desc: "Uzavři svůj první obchod v Cellariu", desc_en: "Complete thy first trade in the Cellarium",
+        icon: "🏛️", category: "Cellarium",
+        condition: () => GameState.economy && GameState.economy.tradesTotal >= 1,
+        reward: { research: 2 }
+    },
+    {
+        id: "merchant",
+        name: "Kupec",              name_en: "Merchant",
+        desc: "Dokonči 100 obchodů v Cellariu", desc_en: "Complete 100 trades in the Cellarium",
+        icon: "💰", category: "Cellarium",
+        condition: () => GameState.economy && GameState.economy.tradesTotal >= 100,
         reward: { research: 5 }
     }
 ];

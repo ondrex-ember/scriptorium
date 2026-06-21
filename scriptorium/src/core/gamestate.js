@@ -88,7 +88,9 @@ const GameState = {
             harvests: 0,
             daysWithFire: 0,
             daysWithoutHunger: 0,
-            researchCount: 0
+            researchCount: 0,
+            lambsBorn: 0,
+            chicksHatched: 0
         }
     },
     kronika: [],

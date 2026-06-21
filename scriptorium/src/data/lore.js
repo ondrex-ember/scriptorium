@@ -706,5 +706,179 @@ const LoreDB = {
         category_en: "Lore",
         text: `Monopol na tisk. Král nebo biskup udělil výsadní právo tisknout určité knihy.\n\nMelantrich měl privilegium na české bible. Díky tomu zbohatl.\n\nPřivilegium = moc. Kdo ovládá tisk, ovládá myšlenky.\n\n"Gutenberg zemřel chudý. Fust zemřel bohatý. Privilegium rozhodlo" - historie`,
         text_en: `A monopoly on printing. A king or bishop granted the exclusive right to print certain books.\n\nMelantrich held the privilege for Czech bibles. Through this, he grew wealthy.\n\nPrivilege = power. He who controls the press controls thought.\n\n"Gutenberg died poor. Fust died rich. Privilege decided" - history`
+    },
+
+    // VINOHRAD - Hrozny
+    "grapes_belina": {
+        title: "Hrozny Běliny (Bělina bílá)",
+        title_en: "Heunisch Grapes (White Bělina)",
+        category: "Vinohrad",
+        category_en: "Vineyard",
+        text: `Nejstarší réva v kraji. Bělina rodí hojně, ale skromně - kyselá, řídká, nenáročná.\n\nAmpelografové ji znají jako prapředka půlky evropských odrůd. Z její lísky vzešlo víc vinic, než si kdo pamatuje.\n\n"Kdo seje Bělinu, neoslaví, ale nehladoví" - vinařská moudrost`,
+        text_en: `The oldest vine in the land. Heunisch bears generously, yet modestly - sour, thin, undemanding.\n\nAmpelographers know it as the ancestor of half of Europe's varieties. More vineyards sprang from its stock than anyone now remembers.\n\n"He who sows Heunisch shall not feast, but shall not starve" - vintner's wisdom`
+    },
+    "grapes_klevner": {
+        title: "Hrozny Klevneru",
+        title_en: "Klevner Grapes",
+        category: "Vinohrad",
+        category_en: "Vineyard",
+        text: `Klevner je jméno, kterým kraj značí ušlechtilejší révu - jemnější slupku, sladší šťávu.\n\nPřichází z rakouských a moravských vinic, kde se pěstuje pro panské stoly.\n\n"Klevner nezraje pro chudé, ale chudý ho stejně sklízí" - sklepmistrovo pozorování`,
+        text_en: `Klevner is the name the land gives to a nobler vine - finer skin, sweeter juice.\n\nIt comes from Austrian and Moravian vineyards, grown for the tables of the gentry.\n\n"Klevner ripens not for the poor, yet the poor harvest it all the same" - a cellar-master's observation`
+    },
+    "grapes_frankovka": {
+        title: "Hrozny Frankovky",
+        title_en: "Frankovka Grapes",
+        category: "Vinohrad",
+        category_en: "Vineyard",
+        text: `Tmavá réva, sytá barvou. Říká se, že její jméno nese vzpomínku na franské kupce, kteří odlišovali "franské" víno od uherského.\n\nFrankovka dává temnější mošt, jiný odběratel než víno bílé.\n\n"Frankovka barví ruce i pověst" - sklepní přísloví`,
+        text_en: `A dark vine, deep in colour. Legend holds its name recalls Frankish merchants, who marked "Frankish" wine apart from Hungarian.\n\nFrankovka yields a darker must, drawing a different buyer than the white wine.\n\n"Frankovka stains both the hands and the reputation" - cellar proverb`
+    },
+    "grapes_tramin": {
+        title: "Hrozny Tramínu",
+        title_en: "Traminer Grapes",
+        category: "Vinohrad",
+        category_en: "Vineyard",
+        text: `Vůně dřív, než chuť. Tramín voní kořením a růží, prozradí se na hony daleko od lisu.\n\nJméno nese po horské vsi, odkud kdysi přišla první réva. Nejvzácnější a nejnáročnější odrůda na svahu.\n\n"Tramín se nedá ukrást potichu - prozradí ho vůně" - vinařské varování`,
+        text_en: `Scent before taste. The Traminer smells of spice and rose, betraying itself far from the press.\n\nIts name recalls a mountain village whence the first vine once came. The rarest and most demanding variety upon the slope.\n\n"One cannot steal Traminer quietly - its scent betrays it" - a vintner's warning`
+    },
+    "grapes_modry_janek": {
+        title: "Hrozny Modrého Janka",
+        title_en: "Modrý Janek Grapes",
+        category: "Vinohrad",
+        category_en: "Vineyard",
+        text: `Málokdo ji pěstuje schválně. Modrý Janek roste na okrajích vinic, kde se nic jiného neujme - nízký výnos, ale svéhlavá houževnatost.\n\nMístní kuriozita, o které se vypráví víc, než kolik se jí skutečně sklidí.\n\n"Co Janek dá, dá málo, ale dá to jistě" - úsloví z kraje`,
+        text_en: `Few cultivate it on purpose. Modrý Janek grows at the edges of vineyards, where nothing else will take hold - low yield, but stubborn endurance.\n\nA local curiosity, spoken of more often than it is actually harvested.\n\n"What Janek gives, he gives little, but he gives it surely" - a saying of the region`
+    },
+    "grapes_baco": {
+        title: "Hrozny Baga",
+        title_en: "Baco Noir Grapes",
+        category: "Vinohrad",
+        category_en: "Vineyard",
+        text: `Tmavě rubínová réva neznámého původu, rostoucí divoce na lesních mezích jižní Moravy. Nikdo neví, kdo ji sem přinesl.\n\nSilné barvivo, oblíbená u lidu pro scelování slabších vín.\n\n"Co roste samo, patří všem" - selské pořekadlo`,
+        text_en: `A dark ruby vine of uncertain origin, growing wild at the forest edges of southern Moravia. None can say who brought it here.\n\nA strong colourant, favoured among the common folk for blending weaker wines.\n\n"What grows on its own belongs to all" - a peasant saying`
+    },
+
+    // VINOHRAD - Zpracování
+    "mustum": {
+        title: "Mustum (Čerstvý mošt)",
+        title_en: "Mustum (Fresh Must)",
+        category: "Vinohrad",
+        category_en: "Vineyard",
+        text: `Sladká šťáva přímo z lisu, ještě bez ducha vína. Kvasinky na slupkách čekají jen na teplo a čas.\n\nMošt se kazí rychle - do tří dnů buď zkvasí, nebo zatuchne.\n\n"Mošt je víno, které ještě nezhřešilo" - sklepní žert`,
+        text_en: `Sweet juice straight from the press, not yet possessed by the spirit of wine. The yeasts upon the skins wait only for warmth and time.\n\nMust spoils quickly - within three days it either ferments or turns sour.\n\n"Must is wine that hath not yet sinned" - a cellar jest`
+    },
+    "pryk": {
+        title: "Pryk (Kyselé mladé víno)",
+        title_en: "Pryk (Sour Young Wine)",
+        category: "Vinohrad",
+        category_en: "Vineyard",
+        text: `Nedozrálé víno z Běliny, vylisované dřív, než hrozen dozrál do sladkosti. Kyselé, levné, vydatné.\n\nKonvrši ho pijí denně - ředí se vodou, zahání žízeň při práci na poli.\n\n"Pryk nehřeje srdce, ale chladí hrdlo" - konvršské přísloví`,
+        text_en: `Unripe wine from the Heunisch grape, pressed before the fruit ripened into sweetness. Sour, cheap, plentiful.\n\nLay brothers drink it daily - watered down, it quenches thirst through field labour.\n\n"Pryk warms not the heart, but cools the throat" - a lay brother's proverb`
+    },
+    "vinum": {
+        title: "Vinum (Klášterní bílé víno)",
+        title_en: "Vinum (Monastic White Wine)",
+        category: "Vinohrad",
+        category_en: "Vineyard",
+        text: `Hotové víno z Cella fermentaria - zfermentovaný mošt Klevneru či Tramínu, čisté a klidné.\n\nPodává se při mši i u stolu opata. Žádné víno, žádná liturgie.\n\n"In vino veritas" - antické úsloví, klášterem dávno přijaté za vlastní`,
+        text_en: `Finished wine from the Cella fermentaria - fermented must of Klevner or Traminer, clean and settled.\n\nServed at mass and at the abbot's table alike. No wine, no liturgy.\n\n"In vino veritas" - an ancient saying, long since claimed by the monastery as its own`
+    },
+    "vinum_rubrum": {
+        title: "Vinum Rubrum (Červené víno)",
+        title_en: "Vinum Rubrum (Red Wine)",
+        category: "Vinohrad",
+        category_en: "Vineyard",
+        text: `Z Frankovky, temnější barvou i náladou. Jiný odběratel hledá víno červené než víno bílé.\n\nNěkteří tvrdí, že barví zuby kazatelů stejně ochotně jako rty hříšníků.\n\n"Červené víno nelže o tom, kde bylo" - hostinský postřeh`,
+        text_en: `From the Frankovka grape, darker in colour and mood alike. A different buyer seeks red wine than white.\n\nSome claim it stains the teeth of preachers as readily as the lips of sinners.\n\n"Red wine never lies about where it has been" - an innkeeper's observation`
+    },
+    "vinum_praeclarum": {
+        title: "Vinum Praeclarum (Vzácné biskupské víno)",
+        title_en: "Vinum Praeclarum (The Bishop's Rare Wine)",
+        category: "Vinohrad",
+        category_en: "Vineyard",
+        text: `Z Tramínu, zrálo čtrnáct dní v dubovém sudu Foudres, dokud nezískalo jantarovou barvu. Nejdražší víno v klášteře.\n\nProdá se jen jednou za čas - a jen tomu, kdo zaplatí, co stojí.\n\n"Toto víno nepiješ. Toto víno přijímáš" - biskupský komorník`,
+        text_en: `From the Traminer grape, aged fourteen days in an oaken Foudres barrel until it took on its amber hue. The costliest wine in the monastery.\n\nIt sells but rarely - and only to one who pays its true worth.\n\n"This wine thou dost not drink. This wine thou dost receive" - a bishop's chamberlain`
+    },
+    "vinum_obscurum": {
+        title: "Vinum Obscurum (Temné víno)",
+        title_en: "Vinum Obscurum (Dark Wine)",
+        category: "Vinohrad",
+        category_en: "Vineyard",
+        text: `Z Modrého Janka, nízký výnos, znojemská kuriozita. Tmavé jako noc bez měsíce.\n\nAlchymisté si ho cení jinak než hostinští - prý prospívá Athanoru, jako by v sobě neslo trochu noci samé.\n\n"Co je temné, není vždy zlé - jen neprobádané" - athanorská poznámka`,
+        text_en: `From the Modrý Janek grape, low yield, a Znojmo curiosity. Dark as a night without moon.\n\nAlchemists value it differently than innkeepers do - it is said to favour the Athanor, as though it carried within it a measure of night itself.\n\n"What is dark is not always evil - only unexplored" - an athanor's marginal note`
+    },
+    "vinum_baci": {
+        title: "Vinum Baci (Tmavě rubínové víno)",
+        title_en: "Vinum Baci (Dark Ruby Wine)",
+        category: "Vinohrad",
+        category_en: "Vineyard",
+        text: `Z divoké révy Baga. Silné barvivo, slabší charakter - hodí se spíš ke scelování než k samostatnému pití.\n\nLidové víno jižní Moravy, podávané tam, kde se na chuť tolik nehledí.\n\n"Ne každé víno musí být chvályhodné - stačí, že je víno" - selská útěcha`,
+        text_en: `From the wild Baco grape. A strong colourant, a weaker character - better suited to blending than to drinking alone.\n\nA folk wine of southern Moravia, poured where taste matters little.\n\n"Not every wine need be praiseworthy - it suffices that it is wine" - a peasant's consolation`
+    },
+
+    // POLE - Obilí a plodiny
+    "rye_grain": {
+        title: "Žito",
+        title_en: "Rye",
+        category: "Pole",
+        category_en: "Field",
+        text: `Ozimé žito snese mráz, chudou půdu i nepřízeň. Chléb z žita je tmavý, hutný, ale nikdy neselže.\n\nKde pšenice umrzne, žito přežije. Selský chléb je vždy žitný.\n\n"Žito neoslní, ale nasytí" - selské pořekadlo`,
+        text_en: `Winter rye endures frost, poor soil, and hardship alike. Rye bread is dark, dense, but never fails.\n\nWhere wheat freezes, rye survives. The peasant's bread is rye, always.\n\n"Rye dazzles not, but it fills the belly" - a peasant saying`
+    },
+    "wheat_grain": {
+        title: "Pšenice",
+        title_en: "Wheat",
+        category: "Pole",
+        category_en: "Field",
+        text: `Jarní pšenice dává bílý, jemný chléb - na panský stůl, ne na selský.\n\nNáročnější na půdu i počasí než žito, ale odměňuje chuť i pověst pekaře.\n\n"Bílý chléb je modlitba k lepší úrodě" - klášterní rčení`,
+        text_en: `Spring wheat yields a white, fine bread - fit for the lord's table, not the peasant's.\n\nMore demanding of soil and weather than rye, but it rewards both taste and the baker's reputation.\n\n"White bread is a prayer for a better harvest" - a monastic saying`
+    },
+    "barley": {
+        title: "Ječmen",
+        title_en: "Barley",
+        category: "Pole",
+        category_en: "Field",
+        text: `Ječmen krmí lidi, dobytek i pivovar. Bez ječmene není sladu, bez sladu není piva.\n\nKlášterní pivovary ho pěstují přednostně - tekutý chléb postních dnů.\n\n"Kdo seje ječmen, seje i radost" - pivovarské heslo`,
+        text_en: `Barley feeds people, livestock, and the brewhouse alike. No barley, no malt; no malt, no ale.\n\nMonastic breweries cultivate it above all - the liquid bread of fasting days.\n\n"He who sows barley sows joy as well" - a brewer's motto`
+    },
+    "oats": {
+        title: "Oves",
+        title_en: "Oats",
+        category: "Pole",
+        category_en: "Field",
+        text: `Oves je kůň mezi obilím - silný, nenáročný, určený spíš pro zvíře než pro člověka.\n\nKonírny ho spotřebují víc než stodoly. Bez ovsa žádná jízda, žádný posel.\n\n"Kůň bez ovsa je jen těžké břemeno" - štolbovo varování`,
+        text_en: `Oats are the horse among grains - sturdy, undemanding, fit more for the beast than the man.\n\nStables consume more of it than barns do. No oats, no riding, no messenger.\n\n"A horse without oats is but a heavy burden" - a stable-hand's warning`
+    },
+    "millet": {
+        title: "Proso",
+        title_en: "Millet",
+        category: "Pole",
+        category_en: "Field",
+        text: `Drobné zlaté zrnko, staré jako samo zemědělství. Proso roste rychle a snese sucho lépe než cokoli jiného na poli.\n\nKaše z prosa sytí chudé i nemocné - lehká na žaludek, těžká na práci sklizně.\n\n"Proso je zrno trpělivosti" - kuchařské přísloví`,
+        text_en: `A tiny golden grain, as old as agriculture itself. Millet grows swiftly and withstands drought better than anything else in the field.\n\nMillet porridge feeds the poor and the sick alike - light upon the stomach, heavy in the labour of harvest.\n\n"Millet is the grain of patience" - a kitchen proverb`
+    },
+    "peas": {
+        title: "Hrách",
+        title_en: "Peas",
+        category: "Pole",
+        category_en: "Field",
+        text: `Luštěnina, ne obilí, ale stejně cenná. Hrách sytí, kde maso chybí - a o postních dnech chybí často.\n\nKořeny obohacují půdu, kterou po sobě zanechávají pro příští setbu.\n\n"Kdo má hrách, nemá hlad - jen plyny" - selský humor`,
+        text_en: `A legume, not a grain, yet equally prized. Peas fill the belly where meat is lacking - and on fasting days, it often is.\n\nTheir roots enrich the soil they leave behind for the next sowing.\n\n"He who hath peas hath no hunger - only wind" - peasant humour`
+    },
+    "flax_fiber": {
+        title: "Len (Lněné vlákno)",
+        title_en: "Flax (Linen Fibre)",
+        category: "Pole",
+        category_en: "Field",
+        text: `Modře kvetoucí pole skrývá dvojí dar - vlákno pro plátno, semeno pro olej.\n\nMoknutí, mačkání, předení - len vyžaduje víc rukou než kterákoli jiná plodina.\n\n"Len odměňuje trpělivost, ne sílu" - tkadlecovo ponaučení`,
+        text_en: `A field of blue blossoms hides a double gift - fibre for linen, seed for oil.\n\nRetting, breaking, spinning - flax demands more hands than any other crop.\n\n"Flax rewards patience, not strength" - a weaver's lesson`
+    },
+    "straw": {
+        title: "Sláma",
+        title_en: "Straw",
+        category: "Pole",
+        category_en: "Field",
+        text: `Co zbude po mlácení, nepřijde nazmar. Sláma stele dobytku, kryje střechy, hřeje v zimě jako podestýlka.\n\nChudý sedlák spí na slámě stejně jako jeho dobytek - rozdíl je jen ve střeše nad hlavou.\n\n"Sláma je chudoba, která ještě hřeje" - selské rčení`,
+        text_en: `What remains after threshing is never wasted. Straw beds the livestock, thatches the roof, warms as bedding through winter.\n\nThe poor peasant sleeps upon straw just as his cattle do - the only difference is the roof above his head.\n\n"Straw is poverty that still keeps warm" - a peasant saying`
     }
 };

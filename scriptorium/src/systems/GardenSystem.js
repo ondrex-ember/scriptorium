@@ -628,7 +628,9 @@ const GardenSystem = {
             if (h.nesting.state === 'growing' && now >= h.nesting.grownAt) {
                 // Dorůstání hotovo → pool
                 const space = 10 - h.chickPool;
-                h.chickPool += Math.min(h.nesting.chicks, space);
+                const gained = Math.min(h.nesting.chicks, space);
+                h.chickPool += gained;
+                if (GameState.achievements && gained > 0) GameState.achievements.stats.chicksHatched += gained;
                 h.nesting = null;
                 changed = true;
             }
@@ -645,7 +647,10 @@ const GardenSystem = {
             }
             if (s.breeding.state === 'growing' && now >= s.breeding.grownAt) {
                 const space = 6 - s.lambPool;
-                if (space > 0) { s.lambPool++; }
+                if (space > 0) {
+                    s.lambPool++;
+                    if (GameState.achievements) GameState.achievements.stats.lambsBorn++;
+                }
                 s.breeding = null;
                 changed = true;
             }
