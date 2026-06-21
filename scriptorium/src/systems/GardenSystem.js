@@ -628,9 +628,7 @@ const GardenSystem = {
             if (h.nesting.state === 'growing' && now >= h.nesting.grownAt) {
                 // Dorůstání hotovo → pool
                 const space = 10 - h.chickPool;
-                const gained = Math.min(h.nesting.chicks, space);
-                h.chickPool += gained;
-                if (GameState.achievements && gained > 0) GameState.achievements.stats.chicksHatched += gained;
+                h.chickPool += Math.min(h.nesting.chicks, space);
                 h.nesting = null;
                 changed = true;
             }
@@ -647,10 +645,7 @@ const GardenSystem = {
             }
             if (s.breeding.state === 'growing' && now >= s.breeding.grownAt) {
                 const space = 6 - s.lambPool;
-                if (space > 0) {
-                    s.lambPool++;
-                    if (GameState.achievements) GameState.achievements.stats.lambsBorn++;
-                }
+                if (space > 0) { s.lambPool++; }
                 s.breeding = null;
                 changed = true;
             }
@@ -660,37 +655,7 @@ const GardenSystem = {
     },
 
     // ════════════════════════════════════════════════════════════════════════
-	// ─── KRMNÝ SYSTÉM ──────────────────────────────────────────────────────────
-	checkAnimalFeeding: function() {
-		const lang = (GameState.settings && GameState.settings.language) || 'cs';
-		const now = Date.now();
-		if (!GameState.feeding) GameState.feeding = {};
-		const animals = [
-			{ key: 'henhouse',  built: GameState.henhouse && GameState.henhouse.built && GameState.henhouse.hens && GameState.henhouse.hens.length > 0, feed: 'grain', feedAmt: 1, name: lang==='en'?'Hens':'Slepice' },
-			{ key: 'sheepfold', built: GameState.sheepfold && GameState.sheepfold.built && GameState.sheepfold.sheep && GameState.sheepfold.sheep.length > 0, feed: 'hay', feedAmt: 1, name: lang==='en'?'Sheep':'Ovce' },
-			{ key: 'piscina',   built: GameState.piscina && GameState.piscina.tier > 0, feed: 'worms', feedAmt: 1, name: lang==='en'?'Fish':'Ryby' },
-		];
-		animals.forEach(a => {
-			if (!a.built) return;
-			if (!GameState.feeding[a.key]) GameState.feeding[a.key] = { lastFed: now, hunger: 0 };
-			const hoursSinceFed = (now - GameState.feeding[a.key].lastFed) / 3600000;
-			if (hoursSinceFed >= 24) {
-				const have = GameState.inventory[a.feed] || 0;
-				if (have >= a.feedAmt) {
-					Game.removeItem(a.feed, a.feedAmt);
-					GameState.feeding[a.key].lastFed = now;
-					GameState.feeding[a.key].hunger = 0;
-					UI.notify(lang==='en' ? a.name+' fed automatically.' : a.name+' nakrmeny automaticky.');
-				} else {
-					GameState.feeding[a.key].hunger = Math.min(3, (GameState.feeding[a.key].hunger || 0) + 1);
-					const penalty = GameState.feeding[a.key].hunger >= 3 ? 75 : GameState.feeding[a.key].hunger >= 2 ? 50 : 25;
-					UI.notify((lang==='en' ? a.name+' hungry! Production -' : a.name+' hladovi! Produkce -')+penalty+'%', true);
-					Game.addKronikaEntry('warning', a.name+' hladovi — chybi '+a.feed+'.', a.name+' hungry — no '+a.feed+'.', a.name+' esuriunt.');
-				}
-			}
-		});
-		Game.save();
-	},
+	// (Krmný systém žije v core/game.js — Game.checkAnimalFeeding())
 
 	// ─── TOOL USES SYSTÉM ──────────────────────────────────────────────────────
 	useToolCharge: function(itemId) {

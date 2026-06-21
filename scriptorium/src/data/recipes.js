@@ -171,6 +171,8 @@ const RecipesDB = [
       desc: "Šrot z prosa. Krmivo pro dobytek.", desc_en: "Feed meal from millet. Livestock feed." },
     { id: "feed_meal_peas",   output: "feed_meal", qty: 2, req: { "peas": 4 },       cat: "craft", locked: true,
       desc: "Šrot z hrachu. Krmivo pro dobytek.", desc_en: "Feed meal from peas. Livestock feed." },
+    { id: "feed_meal_scraps", output: "feed_meal", qty: 2, req: { "scraps": 3 },     cat: "craft", locked: true,
+      desc: "Šrot ze zbytků. Levnější, ale stejně vydatné krmivo.", desc_en: "Feed meal from scraps. Cheaper, but just as hearty a feed." },
     // Osivo ze zrní — část úrody stranou jako příští setba (1:1)
     { id: "rye_to_seed",    output: "seeds_rye",    qty: 1, req: { "rye_grain": 1 },  cat: "craft", locked: true,
       desc: "Vybraná zrna žita ponechaná na osivo.", desc_en: "Selected rye grains set aside as seed." },

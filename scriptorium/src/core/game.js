@@ -2797,22 +2797,20 @@ const Game = {
 		// Krmení aktivuje až Horreum (sýpka skladuje krmivo) — do té doby se zvířata pasou sama
 		if (!(GameState.storage && GameState.storage.horreum && GameState.storage.horreum.built)) return;
 		const animals = [
-			{ key: 'henhouse',  built: GameState.henhouse && GameState.henhouse.built && GameState.henhouse.hens && GameState.henhouse.hens.length > 0, feed: 'grain', feedAmt: 1, name: lang==='en'?'Hens':'Slepice' },
-			{ key: 'sheepfold', built: GameState.sheepfold && GameState.sheepfold.built && GameState.sheepfold.sheep && GameState.sheepfold.sheep.length > 0, feed: 'hay', feedAmt: 1, name: lang==='en'?'Sheep':'Ovce' },
-			{ key: 'piscina',   built: GameState.piscina && GameState.piscina.tier > 0, feed: 'worms', feedAmt: 1, name: lang==='en'?'Fish':'Ryby' },
-			{ key: 'rabbitry',  built: GameState.rabbitry && GameState.rabbitry.built && GameState.rabbitry.animals && GameState.rabbitry.animals.length > 0, feed: 'scraps', fallback: 'hay', feedAmt: 1, name: lang==='en'?'Rabbits':'Králíci' },
-			{ key: 'goatpen',   built: GameState.goatpen && GameState.goatpen.built && GameState.goatpen.animals && GameState.goatpen.animals.length > 0, feed: 'hay', fallback: 'scraps', feedAmt: 1, name: lang==='en'?'Goats':'Kozy' },
-			{ key: 'pigsty',    built: GameState.pigsty && GameState.pigsty.built && GameState.pigsty.animals && GameState.pigsty.animals.length > 0, feed: 'scraps', fallback: 'grain', feedAmt: 2, name: lang==='en'?'Pigs':'Prasata' },
+			{ key: 'henhouse',  built: GameState.henhouse && GameState.henhouse.built && GameState.henhouse.hens && GameState.henhouse.hens.length > 0, feedChain: ['grain', 'feed_meal'], feedAmt: 1, name: lang==='en'?'Hens':'Slepice' },
+			{ key: 'sheepfold', built: GameState.sheepfold && GameState.sheepfold.built && GameState.sheepfold.sheep && GameState.sheepfold.sheep.length > 0, feedChain: ['hay', 'feed_meal'], feedAmt: 1, name: lang==='en'?'Sheep':'Ovce' },
+			{ key: 'piscina',   built: GameState.piscina && GameState.piscina.tier > 0, feedChain: ['worms'], feedAmt: 1, name: lang==='en'?'Fish':'Ryby' },
+			{ key: 'rabbitry',  built: GameState.rabbitry && GameState.rabbitry.built && GameState.rabbitry.animals && GameState.rabbitry.animals.length > 0, feedChain: ['scraps', 'hay'], feedAmt: 1, name: lang==='en'?'Rabbits':'Králíci' },
+			{ key: 'goatpen',   built: GameState.goatpen && GameState.goatpen.built && GameState.goatpen.animals && GameState.goatpen.animals.length > 0, feedChain: ['hay', 'scraps', 'feed_meal'], feedAmt: 1, name: lang==='en'?'Goats':'Kozy' },
+			{ key: 'pigsty',    built: GameState.pigsty && GameState.pigsty.built && GameState.pigsty.animals && GameState.pigsty.animals.length > 0, feedChain: ['scraps', 'feed_meal', 'grain', 'hay'], feedAmt: 2, name: lang==='en'?'Pigs':'Prasata' },
 		];
 		animals.forEach(a => {
 			if (!a.built) return;
 			if (!GameState.feeding[a.key]) GameState.feeding[a.key] = { lastFed: now, hunger: 0 };
 			const hoursSinceFed = (now - GameState.feeding[a.key].lastFed) / 3600000;
 			if (hoursSinceFed >= 24) {
-				// Zkus primární krmivo, pak fallback
-				const primaryHave = GameState.inventory[a.feed] || 0;
-				const fallbackHave = a.fallback ? (GameState.inventory[a.fallback] || 0) : 0;
-				const useFeed = primaryHave >= a.feedAmt ? a.feed : (a.fallback && fallbackHave >= a.feedAmt ? a.fallback : null);
+				// Vyzkoušej krmiva v pořadí preference — první dostupné se spotřebuje
+				const useFeed = a.feedChain.find(f => (GameState.inventory[f] || 0) >= a.feedAmt);
 				if (useFeed) {
 					Game.removeItem(useFeed, a.feedAmt);
 					GameState.feeding[a.key].lastFed = now;
@@ -2822,7 +2820,7 @@ const Game = {
 					GameState.feeding[a.key].hunger = Math.min(3, (GameState.feeding[a.key].hunger || 0) + 1);
 					const penalty = GameState.feeding[a.key].hunger >= 3 ? 75 : GameState.feeding[a.key].hunger >= 2 ? 50 : 25;
 					UI.notify((lang==='en' ? a.name+' hungry! Production -' : a.name+' hladovi! Produkce -')+penalty+'%', true);
-					Game.addKronikaEntry('warning', a.name+' hladovi — chybi '+a.feed+'.', a.name+' hungry — no '+a.feed+'.', a.name+' esuriunt.');
+					Game.addKronikaEntry('warning', a.name+' hladovi — chybi '+a.feedChain[0]+'.', a.name+' hungry — no '+a.feedChain[0]+'.', a.name+' esuriunt.');
 				}
 			}
 		});
