@@ -1871,6 +1871,14 @@ const Game = {
                     if(Math.random() < 0.08) this.addItem('yarrow', 1);
                     if(Math.random() < 0.05) this.addItem('wormwood', 1);
                     if(Math.random() < 0.04) this.addItem('sage', 1);
+                    // Divoke obili mezi travou
+                    if(Math.random() < 0.04) this.addItem('seeds_rye', 1);
+                    if(Math.random() < 0.03) this.addItem('seeds_wheat', 1);
+                    if(Math.random() < 0.03) this.addItem('seeds_barley', 1);
+                    if(Math.random() < 0.03) this.addItem('seeds_oats', 1);
+                    if(Math.random() < 0.02) this.addItem('seeds_millet', 1);
+                    if(Math.random() < 0.02) this.addItem('seeds_peas', 1);
+                    if(Math.random() < 0.015) this.addItem('seeds_flax', 1);
                 }
                 else if (type === 'wood_harvest') {
                     this.addItem('log', Math.random() < 0.4 ? 2 : 1);
@@ -2101,6 +2109,14 @@ const Game = {
                 if(Math.random() < 0.08) this.addItem('yarrow', 1);
                 if(Math.random() < 0.05) this.addItem('wormwood', 1);
                 if(Math.random() < 0.04) this.addItem('sage', 1);
+                // Divoke obili mezi travou
+                if(Math.random() < 0.04) this.addItem('seeds_rye', 1);
+                if(Math.random() < 0.03) this.addItem('seeds_wheat', 1);
+                if(Math.random() < 0.03) this.addItem('seeds_barley', 1);
+                if(Math.random() < 0.03) this.addItem('seeds_oats', 1);
+                if(Math.random() < 0.02) this.addItem('seeds_millet', 1);
+                if(Math.random() < 0.02) this.addItem('seeds_peas', 1);
+                if(Math.random() < 0.015) this.addItem('seeds_flax', 1);
             }
             else if (type === 'wood_harvest') {
                 this.addItem('log', Math.random() < 0.4 ? 2 : 1);

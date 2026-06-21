@@ -2107,7 +2107,8 @@ const GardenSystem = {
                 const progressPct = Math.min(100, Math.round((1 - remaining/phaseMs)*100));
 
                 content = `<div class="plot-soil" style="color:${phaseIdx>=2?'#4caf50':'#888'}">${cropIcon}</div>
-                           <div class="text-sm">${phaseNames[phaseIdx]}</div>
+                           <div class="text-sm" style="font-weight:bold;">${crop ? (lang==='en'?crop.name_en:crop.name) : '?'}</div>
+                           <div class="text-sm" style="opacity:0.7;">${phaseNames[phaseIdx]}</div>
                            <div style="height:3px;background:rgba(0,0,0,0.1);border-radius:2px;margin:3px 0;">
                              <div style="height:100%;width:${progressPct}%;background:var(--accent-gold);border-radius:2px;"></div>
                            </div>
@@ -2150,7 +2151,13 @@ const GardenSystem = {
         const field = GameState.fields[idx];
         const crop = this.CROPS_DB[cropKey];
         if (!field || field.locked || field.state !== 'ploughed' || !crop) return;
-        // Zkontrolovat semena (TODO: přidat seeds items)
+        // Kontrola semen
+        if (!(GameState.inventory[crop.seeds] > 0)) {
+            const seedName = typeof ItemsDB !== 'undefined' && ItemsDB[crop.seeds] ? ItemsDB[crop.seeds].name : crop.seeds;
+            if (typeof UI !== 'undefined') UI.notify('⚠️ Chybí: ' + seedName, true);
+            return;
+        }
+        Game.removeItem(crop.seeds, 1);
         field.state   = 'growing';
         field.crop    = cropKey;
         field.phase   = 0;

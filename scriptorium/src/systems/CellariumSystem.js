@@ -347,6 +347,7 @@ const CellariumSystem = {
       { itemId: 'seeds_mint',      basePrice: 8,  dailyStock: 3  },
       { itemId: 'seeds_sage',      basePrice: 10, dailyStock: 3  },
       { itemId: 'seeds_fennel',    basePrice: 10, dailyStock: 3  },
+      { itemId: 'seeds_flax',      basePrice: 9,  dailyStock: 10 },
     ],
     market: [
       { itemId: 'paper',         basePrice: 3,   dailyStock: 25 },
@@ -391,6 +392,13 @@ const CellariumSystem = {
       // Pivovar suroviny
       { itemId: 'grain',         basePrice: 4,   dailyStock: 80 }, // obilí — bulk komodita
       { itemId: 'hops',          basePrice: 18,  dailyStock: 15 }, // chmel — vzácnější
+      // Osivo pro pole
+      { itemId: 'seeds_rye',     basePrice: 5,   dailyStock: 40 },
+      { itemId: 'seeds_wheat',   basePrice: 6,   dailyStock: 30 },
+      { itemId: 'seeds_barley',  basePrice: 5,   dailyStock: 30 },
+      { itemId: 'seeds_oats',    basePrice: 4,   dailyStock: 30 },
+      { itemId: 'seeds_millet',  basePrice: 6,   dailyStock: 20 },
+      { itemId: 'seeds_peas',    basePrice: 5,   dailyStock: 25 },
       // Kovářství (vyžaduje tech_kovarina)
       { itemId: 'stone_pickaxe', basePrice: 30,  dailyStock: 5  },
       { itemId: 'iron_ore',      basePrice: 15,  dailyStock: 10, req_tech: 'tech_kovarina' },
