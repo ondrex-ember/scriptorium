@@ -101,6 +101,15 @@ const FireplaceSystem = {
     ],
     _teaInterval: null,
 
+    // ── Kávovinový rituál (Foculus) — žaludovka/cikorka, odděleně od čaje ──
+    COFFEE_BREW_MS: 43 * 1000, // 43 s reálného času — stejně jako čaj
+    // Priorita pražených surovin → výsledná kávovina
+    COFFEE_HERBS: [
+        { herb: 'acorn_roasted',   tea: 'acorn_brew' },
+        { herb: 'chicory_roasted', tea: 'chicory_drink' }
+    ],
+    _coffeeInterval: null,
+
     hasMeteorologica: function() {
         return !!(GameState.researchedTechs && GameState.researchedTechs.includes('tech_meteorologica'));
     },
@@ -388,6 +397,77 @@ const FireplaceSystem = {
         this.render();
     },
 
+    // ── Kávovinový rituál: stavový automat idle → brewing(43s) → ready → idle ──
+    _ensureCoffeeState: function() {
+        if (!GameState.fire) this._ensureState();
+        if (!GameState.fire.coffee) GameState.fire.coffee = { state: 'idle', start: 0, teaId: '' };
+    },
+
+    _coffeeHerb: function() {
+        for (const e of this.COFFEE_HERBS) {
+            if ((GameState.inventory[e.herb] || 0) > 0) return e;
+        }
+        return null;
+    },
+
+    // Dokončí vaření, pokud uplynul čas. Vrací true při dokončení.
+    _checkCoffeeDone: function() {
+        if (!GameState.fire || !GameState.fire.coffee) return false;
+        const coffee = GameState.fire.coffee;
+        if (coffee.state === 'brewing' && (Date.now() - coffee.start) >= this.COFFEE_BREW_MS) {
+            coffee.state = 'ready';          // flip PŘED addItem — addItem re-rendruje a re-entrantně volá _checkCoffeeDone
+            Game.addItem(coffee.teaId || 'acorn_brew', 1);
+            Game.save();
+            return true;
+        }
+        return false;
+    },
+
+    _ensureCoffeeInterval: function() {
+        if (this._coffeeInterval) return;
+        if (!GameState.fire || !GameState.fire.coffee || GameState.fire.coffee.state !== 'brewing') return;
+        this._coffeeInterval = setInterval(() => {
+            if (!GameState.fire || !GameState.fire.coffee || GameState.fire.coffee.state !== 'brewing') {
+                clearInterval(this._coffeeInterval); this._coffeeInterval = null; return;
+            }
+            const done = this._checkCoffeeDone();
+            this.render();
+            if (done) { clearInterval(this._coffeeInterval); this._coffeeInterval = null; }
+        }, 1000);
+    },
+
+    brewCoffee: function() {
+        this._ensureState(); this._ensureCoffeeState();
+        const coffee = GameState.fire.coffee;
+        if (coffee.state !== 'idle') return;
+        if ((GameState.inventory['tea_kettle'] || 0) <= 0) { UI.notify(t('fireplace.coffeeNeedKettle'), true); return; }
+        if (!GameState.fire.active) { UI.notify(t('fireplace.coffeeNeedFire'), true); return; }
+        const herb = this._coffeeHerb();
+        if (!herb) { UI.notify(t('fireplace.coffeeNeedHerb'), true); return; }
+        if ((GameState.inventory['water'] || 0) <= 0) { UI.notify(t('fireplace.coffeeNeedWater'), true); return; }
+
+        Game.removeItem(herb.herb, 1);
+        Game.removeItem('water', 1);
+        GameState.fire.coffee = { state: 'brewing', start: Date.now(), teaId: herb.tea };
+        Game.save();
+        this.render();
+        this._ensureCoffeeInterval();
+    },
+
+    drinkCoffee: function() {
+        this._ensureCoffeeState();
+        const coffee = GameState.fire.coffee;
+        if (coffee.state !== 'ready') return;
+        const teaId = coffee.teaId || 'acorn_brew';
+        GameState.fire.coffee = { state: 'idle', start: 0, teaId: '' };
+        if ((GameState.inventory[teaId] || 0) > 0 && typeof Game.eat === 'function') {
+            Game.eat(teaId); // aplikuje efekt + odebere 1 + renderAll
+        } else {
+            Game.save();
+        }
+        this.render();
+    },
+
     _renderTea: function() {
         this._ensureTeaState();
         const tea = GameState.fire.tea;
@@ -418,6 +498,43 @@ const FireplaceSystem = {
             else if (!water) hint = t('fireplace.teaNeedWater');
             const can = fireOk && herb && water;
             h += btn('🫖 ' + t('fireplace.teaBrew'), 'FireplaceSystem.brewTea()', !can);
+            if (hint) h += `<div style="font-size:0.72rem;opacity:0.55;margin-top:6px;text-align:center;">${hint}</div>`;
+        }
+
+        h += `</div>`;
+        return h;
+    },
+
+    _renderCoffee: function() {
+        this._ensureCoffeeState();
+        const coffee = GameState.fire.coffee;
+        const card = `background:rgba(0,0,0,0.05);padding:14px;border-radius:10px;border-left:3px solid var(--accent-gold);margin-bottom:12px;`;
+        let h = `<div style="${card}"><h4 style="margin:0 0 10px 0;color:var(--ink-primary);">☕ ${t('fireplace.coffeeTitle')}</h4>`;
+
+        if ((GameState.inventory['tea_kettle'] || 0) <= 0) {
+            h += `<div style="font-size:0.8rem;opacity:0.6;">🫖 ${t('fireplace.coffeeNeedKettle')}</div></div>`;
+            return h;
+        }
+
+        const btn = (label, onclick, disabled) =>
+            `<button onclick="${onclick}" ${disabled ? 'disabled' : ''} style="width:100%;padding:8px;border-radius:6px;border:1px solid var(--accent-gold);background:${disabled ? 'rgba(197,160,89,0.07)' : 'rgba(197,160,89,0.15)'};color:var(--accent-gold);cursor:${disabled ? 'default' : 'pointer'};font-size:0.85rem;opacity:${disabled ? '0.5' : '1'};">${label}</button>`;
+
+        if (coffee.state === 'brewing') {
+            const remain = Math.max(0, Math.ceil((this.COFFEE_BREW_MS - (Date.now() - coffee.start)) / 1000));
+            h += `<div style="text-align:center;font-size:1.8rem;">♨️</div>`;
+            h += `<div style="text-align:center;font-size:0.85rem;color:var(--accent-gold);margin-top:4px;">${t('fireplace.coffeeBrewing').replace('{s}', remain)}</div>`;
+        } else if (coffee.state === 'ready') {
+            h += btn('☕ ' + t('fireplace.coffeeDrink'), 'FireplaceSystem.drinkCoffee()', false);
+        } else {
+            const fireOk = !!GameState.fire.active;
+            const herb = this._coffeeHerb();
+            const water = (GameState.inventory['water'] || 0) > 0;
+            let hint = '';
+            if (!fireOk) hint = t('fireplace.coffeeNeedFire');
+            else if (!herb) hint = t('fireplace.coffeeNeedHerb');
+            else if (!water) hint = t('fireplace.coffeeNeedWater');
+            const can = fireOk && herb && water;
+            h += btn('🫖 ' + t('fireplace.coffeeBrew'), 'FireplaceSystem.brewCoffee()', !can);
             if (hint) h += `<div style="font-size:0.72rem;opacity:0.55;margin-top:6px;text-align:center;">${hint}</div>`;
         }
 
@@ -552,9 +669,12 @@ const FireplaceSystem = {
         if (teaEl) {
             this._ensureTeaState();
             this._checkTeaDone();
-            teaEl.innerHTML = this._renderTea() + this._renderSweep();
+            this._ensureCoffeeState();
+            this._checkCoffeeDone();
+            teaEl.innerHTML = this._renderTea() + this._renderCoffee() + this._renderSweep();
             teaEl.style.display = 'block';
             this._ensureTeaInterval();
+            this._ensureCoffeeInterval();
         }
     }
 };

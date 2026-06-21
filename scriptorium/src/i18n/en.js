@@ -23,6 +23,8 @@ const STRINGS_en = {
         dashTimeLabel: 'Time', dashDate: 'Date', dashMoon: 'Moon', dashHora: 'Hour',
         teaTitle: 'Tea', teaBrew: 'Brew tea', teaDrink: 'DRINK TEA', teaBrewing: 'Brewing… {s} s',
         teaNeedKettle: 'You need a Kettle (craft it)', teaNeedFire: 'Light the fire', teaNeedHerb: 'No herb (chamomile, thyme, linden)', teaNeedWater: 'No water',
+        coffeeTitle: 'Coffee Substitute — Acorn Brew & Chicory Coffee', coffeeBrew: 'Brew coffee substitute', coffeeDrink: 'DRINK COFFEE SUBSTITUTE', coffeeBrewing: 'Brewing… {s} s',
+        coffeeNeedKettle: 'You need a Kettle (craft it)', coffeeNeedFire: 'Light the fire', coffeeNeedHerb: 'No roasted ingredient (acorn, chicory)', coffeeNeedWater: 'No water',
         sweepReady: '🧹 Sweep the hearth (+4 ash)', sweepWait: '🧹 Sweep — in {h} h',
         sweepDone: 'Swept. +{n} ash, +4 soot.', sweepNeedFire: 'Light the fire first.', sweepCooldown: 'The hearth was swept recently.'
     },

@@ -5386,7 +5386,9 @@ const ItemsDB = {
     "potion_hunger_remedy": { name: "Hojivá mast", name_en: "Healing Salve", icon: "🕯️", type: "potion", desc: "Zpomalí hlad o 4 hodiny.", desc_en: "Slows hunger by 4 hours." },
     "herbal_tea": { name: "Bylinný čaj", name_en: "Herbal Tea", icon: "🍵", type: "food", desc: "Heřmánek, tymián nebo máta s vodou. Uklidní tělo a sníží únavu.", desc_en: "Chamomile, thyme or mint with water. Calms the body and eases fatigue." },
     "acorn_brew": { name: "Žaludovka", name_en: "Acorn Brew", icon: "☕", type: "food", desc: "Náhražka kávy ze žaludů. Hořká, ale zahřeje a pročistí hlavu.", desc_en: "A coffee substitute from acorns. Bitter, but warming and clearing." },
-    "chicory_drink": { name: "Čekankový nápoj", name_en: "Chicory Drink", icon: "🥤", type: "food", desc: "Z kořene čekanky vařeného s vodou. Starobylý klášterní lék na únavu.", desc_en: "From chicory root boiled with water. An ancient monastic remedy for fatigue." },
+    "chicory_drink": { name: "Cikorka", name_en: "Chicory Coffee", icon: "🥤", type: "food", desc: "Z pražené a mleté čekanky vařené s vodou. Starobylý klášterní lék na únavu.", desc_en: "From roasted, ground chicory root boiled with water. An ancient monastic remedy for fatigue." },
+    "acorn_roasted": { name: "Pražený žalud", name_en: "Roasted Acorn", icon: "🌰", type: "mat", desc: "Pražené a mleté žaludy. Připraveno k vaření Žaludovky.", desc_en: "Roasted, ground acorns. Ready for brewing into Acorn Brew." },
+    "chicory_roasted": { name: "Pražená čekanka", name_en: "Roasted Chicory", icon: "🪴", type: "mat", desc: "Pražený a mletý kořen čekanky. Připraveno k vaření Cikorky.", desc_en: "Roasted, ground chicory root. Ready for brewing into Chicory Coffee." },
     "linden_tea": { name: "Lipový čaj", name_en: "Linden Tea", icon: "🍵", type: "food", desc: "Sušený lipový květ s horkou vodou. Uklidňující, lehce sytící.", desc_en: "Dried linden blossom with hot water. Calming, mildly nourishing." },
     "beer": { name: "Pivo", name_en: "Beer", icon: "🍺", type: "food", desc: "Otupí mysl, ale zažene hlad. Únava +10 — pozor!", desc_en: "Dulls the mind but wards off hunger. Fatigue +10 — beware!" },
     "wine": { name: "Víno", name_en: "Wine", icon: "🍷", type: "food", desc: "In vino veritas. Crafting ×1.1 / 30 min. Vigor -15.", desc_en: "In vino veritas. Crafting ×1.1 / 30 min. Vigor -15." },
@@ -5759,10 +5761,14 @@ const RecipesDB = [
       desc: "Heřmánkový čaj. Únava -15.", desc_en: "Chamomile tea. Fatigue -15." },
     { id: "herbal_tea_alt", output: "herbal_tea",     qty: 1, req: { "thyme": 1, "water": 1, "cooking_pot": 0 }, cat: "food", locked: true,
       desc: "Tymiánový čaj. Únava -15.", desc_en: "Thyme tea. Fatigue -15." },
-    { id: "acorn_brew",     output: "acorn_brew",     qty: 1, req: { "acorn": 2, "water": 1, "cooking_pot": 0 }, cat: "food", locked: true,
+    { id: "acorn_roasted",  output: "acorn_roasted",  qty: 1, req: { "acorn": 2, "cooking_pot": 0 }, cat: "food", locked: true,
+      desc: "Pražené a mleté žaludy. Příprava na Žaludovku.", desc_en: "Roasted, ground acorns. Preparation for Acorn Brew." },
+    { id: "chicory_roasted", output: "chicory_roasted", qty: 1, req: { "roots": 2, "cooking_pot": 0 }, cat: "food", locked: true,
+      desc: "Pražená a mletá čekanka. Příprava na Cikorku.", desc_en: "Roasted, ground chicory root. Preparation for Chicory Coffee." },
+    { id: "acorn_brew",     output: "acorn_brew",     qty: 1, req: { "acorn_roasted": 1, "water": 1, "cooking_pot": 0 }, cat: "food", locked: true,
       desc: "Žaludovka. Únava -10.", desc_en: "Acorn brew. Fatigue -10." },
-    { id: "chicory_drink",  output: "chicory_drink",  qty: 1, req: { "roots": 2, "water": 1, "cooking_pot": 0 }, cat: "food", locked: true,
-      desc: "Čekankový nápoj. Únava -12.", desc_en: "Chicory drink. Fatigue -12." },
+    { id: "chicory_drink",  output: "chicory_drink",  qty: 1, req: { "chicory_roasted": 1, "water": 1, "cooking_pot": 0 }, cat: "food", locked: true,
+      desc: "Cikorka. Únava -12.", desc_en: "Chicory coffee. Fatigue -12." },
     { id: "linden_tea",     output: "linden_tea",     qty: 1, req: { "linden_blossom": 1, "water": 1, "cooking_pot": 0 }, cat: "food", locked: true,
       desc: "Lipový čaj. Únava -8, Sytost +8.", desc_en: "Linden tea. Fatigue -8, Satiety +8." },
     
@@ -6003,7 +6009,6 @@ const RecipesDB = [
       desc:"Bednářská dílna. Výroba sudů pro export vína. Odemkne řemeslo bednáře.",
       desc_en:"Cooperage workshop. Craft barrels for wine export. Unlocks the cooper's craft." },
 ];
-
 // ═══ src/data/lore.js ═══
 const LoreDB = {
     // TOOLS
@@ -6727,7 +6732,7 @@ const TechTree = [
   { id: "tech_cooking_1", name: "Vaření", name_en: "Cooking", cost: 4, desc: "Odemkne: Hrnec, pečení", desc_en: "Unlocks: Cooking pot, roasting", unlocks: ["cooking_pot", "cooked_meat", "cooked_fish", "bread"] },
   { id: "tech_fishing", name: "Rybolov", name_en: "Fishing", cost: 3, desc: "Odemkne: Udice", desc_en: "Unlocks: Fishing rod", unlocks: ["fishing_rod"] },
   { id: "tech_foraging", name: "Sběr Potravy", name_en: "Foraging", cost: 3, desc: "Odemkne: Koš, houby", desc_en: "Unlocks: Basket, mushrooms", unlocks: ["basket"] },
-  { id: "tech_cooking_2", name: "Pokročilé Vaření", name_en: "Advanced Cooking", cost: 5, desc: "Odemkne: Guláš, polévky", desc_en: "Unlocks: Stew, pottages", unlocks: ["stew", "mushroom_soup", "berry_pie", "tea_kettle"], requires: ["tech_cooking_1"] },
+  { id: "tech_cooking_2", name: "Pokročilé Vaření", name_en: "Advanced Cooking", cost: 5, desc: "Odemkne: Guláš, polévky", desc_en: "Unlocks: Stew, pottages", unlocks: ["stew", "mushroom_soup", "berry_pie", "tea_kettle", "herbal_tea", "herbal_tea_alt", "acorn_brew", "chicory_drink", "linden_tea", "acorn_roasted", "chicory_roasted"], requires: ["tech_cooking_1"] },
 
   // TIER 2 - horticulture
   { id: "tech_garden_expand", name: "Rozšíření Zahrady", name_en: "Garden Expansion", cost: 4, desc: "Odemkne: 4 políčka zahrady.", desc_en: "Unlocks: 4 garden plots.", unlocks: [] },
@@ -15806,6 +15811,15 @@ const FireplaceSystem = {
     ],
     _teaInterval: null,
 
+    // ── Kávovinový rituál (Foculus) — žaludovka/cikorka, odděleně od čaje ──
+    COFFEE_BREW_MS: 43 * 1000, // 43 s reálného času — stejně jako čaj
+    // Priorita pražených surovin → výsledná kávovina
+    COFFEE_HERBS: [
+        { herb: 'acorn_roasted',   tea: 'acorn_brew' },
+        { herb: 'chicory_roasted', tea: 'chicory_drink' }
+    ],
+    _coffeeInterval: null,
+
     hasMeteorologica: function() {
         return !!(GameState.researchedTechs && GameState.researchedTechs.includes('tech_meteorologica'));
     },
@@ -16093,6 +16107,77 @@ const FireplaceSystem = {
         this.render();
     },
 
+    // ── Kávovinový rituál: stavový automat idle → brewing(43s) → ready → idle ──
+    _ensureCoffeeState: function() {
+        if (!GameState.fire) this._ensureState();
+        if (!GameState.fire.coffee) GameState.fire.coffee = { state: 'idle', start: 0, teaId: '' };
+    },
+
+    _coffeeHerb: function() {
+        for (const e of this.COFFEE_HERBS) {
+            if ((GameState.inventory[e.herb] || 0) > 0) return e;
+        }
+        return null;
+    },
+
+    // Dokončí vaření, pokud uplynul čas. Vrací true při dokončení.
+    _checkCoffeeDone: function() {
+        if (!GameState.fire || !GameState.fire.coffee) return false;
+        const coffee = GameState.fire.coffee;
+        if (coffee.state === 'brewing' && (Date.now() - coffee.start) >= this.COFFEE_BREW_MS) {
+            coffee.state = 'ready';          // flip PŘED addItem — addItem re-rendruje a re-entrantně volá _checkCoffeeDone
+            Game.addItem(coffee.teaId || 'acorn_brew', 1);
+            Game.save();
+            return true;
+        }
+        return false;
+    },
+
+    _ensureCoffeeInterval: function() {
+        if (this._coffeeInterval) return;
+        if (!GameState.fire || !GameState.fire.coffee || GameState.fire.coffee.state !== 'brewing') return;
+        this._coffeeInterval = setInterval(() => {
+            if (!GameState.fire || !GameState.fire.coffee || GameState.fire.coffee.state !== 'brewing') {
+                clearInterval(this._coffeeInterval); this._coffeeInterval = null; return;
+            }
+            const done = this._checkCoffeeDone();
+            this.render();
+            if (done) { clearInterval(this._coffeeInterval); this._coffeeInterval = null; }
+        }, 1000);
+    },
+
+    brewCoffee: function() {
+        this._ensureState(); this._ensureCoffeeState();
+        const coffee = GameState.fire.coffee;
+        if (coffee.state !== 'idle') return;
+        if ((GameState.inventory['tea_kettle'] || 0) <= 0) { UI.notify(t('fireplace.coffeeNeedKettle'), true); return; }
+        if (!GameState.fire.active) { UI.notify(t('fireplace.coffeeNeedFire'), true); return; }
+        const herb = this._coffeeHerb();
+        if (!herb) { UI.notify(t('fireplace.coffeeNeedHerb'), true); return; }
+        if ((GameState.inventory['water'] || 0) <= 0) { UI.notify(t('fireplace.coffeeNeedWater'), true); return; }
+
+        Game.removeItem(herb.herb, 1);
+        Game.removeItem('water', 1);
+        GameState.fire.coffee = { state: 'brewing', start: Date.now(), teaId: herb.tea };
+        Game.save();
+        this.render();
+        this._ensureCoffeeInterval();
+    },
+
+    drinkCoffee: function() {
+        this._ensureCoffeeState();
+        const coffee = GameState.fire.coffee;
+        if (coffee.state !== 'ready') return;
+        const teaId = coffee.teaId || 'acorn_brew';
+        GameState.fire.coffee = { state: 'idle', start: 0, teaId: '' };
+        if ((GameState.inventory[teaId] || 0) > 0 && typeof Game.eat === 'function') {
+            Game.eat(teaId); // aplikuje efekt + odebere 1 + renderAll
+        } else {
+            Game.save();
+        }
+        this.render();
+    },
+
     _renderTea: function() {
         this._ensureTeaState();
         const tea = GameState.fire.tea;
@@ -16123,6 +16208,43 @@ const FireplaceSystem = {
             else if (!water) hint = t('fireplace.teaNeedWater');
             const can = fireOk && herb && water;
             h += btn('🫖 ' + t('fireplace.teaBrew'), 'FireplaceSystem.brewTea()', !can);
+            if (hint) h += `<div style="font-size:0.72rem;opacity:0.55;margin-top:6px;text-align:center;">${hint}</div>`;
+        }
+
+        h += `</div>`;
+        return h;
+    },
+
+    _renderCoffee: function() {
+        this._ensureCoffeeState();
+        const coffee = GameState.fire.coffee;
+        const card = `background:rgba(0,0,0,0.05);padding:14px;border-radius:10px;border-left:3px solid var(--accent-gold);margin-bottom:12px;`;
+        let h = `<div style="${card}"><h4 style="margin:0 0 10px 0;color:var(--ink-primary);">☕ ${t('fireplace.coffeeTitle')}</h4>`;
+
+        if ((GameState.inventory['tea_kettle'] || 0) <= 0) {
+            h += `<div style="font-size:0.8rem;opacity:0.6;">🫖 ${t('fireplace.coffeeNeedKettle')}</div></div>`;
+            return h;
+        }
+
+        const btn = (label, onclick, disabled) =>
+            `<button onclick="${onclick}" ${disabled ? 'disabled' : ''} style="width:100%;padding:8px;border-radius:6px;border:1px solid var(--accent-gold);background:${disabled ? 'rgba(197,160,89,0.07)' : 'rgba(197,160,89,0.15)'};color:var(--accent-gold);cursor:${disabled ? 'default' : 'pointer'};font-size:0.85rem;opacity:${disabled ? '0.5' : '1'};">${label}</button>`;
+
+        if (coffee.state === 'brewing') {
+            const remain = Math.max(0, Math.ceil((this.COFFEE_BREW_MS - (Date.now() - coffee.start)) / 1000));
+            h += `<div style="text-align:center;font-size:1.8rem;">♨️</div>`;
+            h += `<div style="text-align:center;font-size:0.85rem;color:var(--accent-gold);margin-top:4px;">${t('fireplace.coffeeBrewing').replace('{s}', remain)}</div>`;
+        } else if (coffee.state === 'ready') {
+            h += btn('☕ ' + t('fireplace.coffeeDrink'), 'FireplaceSystem.drinkCoffee()', false);
+        } else {
+            const fireOk = !!GameState.fire.active;
+            const herb = this._coffeeHerb();
+            const water = (GameState.inventory['water'] || 0) > 0;
+            let hint = '';
+            if (!fireOk) hint = t('fireplace.coffeeNeedFire');
+            else if (!herb) hint = t('fireplace.coffeeNeedHerb');
+            else if (!water) hint = t('fireplace.coffeeNeedWater');
+            const can = fireOk && herb && water;
+            h += btn('🫖 ' + t('fireplace.coffeeBrew'), 'FireplaceSystem.brewCoffee()', !can);
             if (hint) h += `<div style="font-size:0.72rem;opacity:0.55;margin-top:6px;text-align:center;">${hint}</div>`;
         }
 
@@ -16257,13 +16379,15 @@ const FireplaceSystem = {
         if (teaEl) {
             this._ensureTeaState();
             this._checkTeaDone();
-            teaEl.innerHTML = this._renderTea() + this._renderSweep();
+            this._ensureCoffeeState();
+            this._checkCoffeeDone();
+            teaEl.innerHTML = this._renderTea() + this._renderCoffee() + this._renderSweep();
             teaEl.style.display = 'block';
             this._ensureTeaInterval();
+            this._ensureCoffeeInterval();
         }
     }
 };
-
 // ═══ src/systems/GardenSystem.js ═══
 // ═══════════════════════════════════════════════════════════════════════════
 // GardenSystem — Zahrada, Dvůr, Sad, Apiarium, Piscina, Studna
@@ -28605,6 +28729,8 @@ const STRINGS_cs = {
         dashTimeLabel: 'Čas', dashDate: 'Datum', dashMoon: 'Luna', dashHora: 'Hora',
         teaTitle: 'Čaj', teaBrew: 'Uvařit čaj', teaDrink: 'PÍT ČAJ', teaBrewing: 'Vaří se… {s} s',
         teaNeedKettle: 'Potřebuješ Konvičku (vyrob v Craftu)', teaNeedFire: 'Rozdělej oheň', teaNeedHerb: 'Chybí bylina (heřmánek, tymián, lípa)', teaNeedWater: 'Chybí voda',
+        coffeeTitle: 'Kávovina — Žaludovka & Cikorka', coffeeBrew: 'Uvařit kávovinu', coffeeDrink: 'PÍT KÁVOVINU', coffeeBrewing: 'Vaří se… {s} s',
+        coffeeNeedKettle: 'Potřebuješ Konvičku (vyrob v Craftu)', coffeeNeedFire: 'Rozdělej oheň', coffeeNeedHerb: 'Chybí pražená surovina (žalud, čekanka)', coffeeNeedWater: 'Chybí voda',
         sweepReady: '🧹 Vymést popelník (+4 popel)', sweepWait: '🧹 Vymést — za {h} h',
         sweepDone: 'Vymeteno. +{n} popel, +4 saze.', sweepNeedFire: 'Nejdříve zapal krb.', sweepCooldown: 'Popelník byl vymetán nedávno.'
     },
@@ -30290,6 +30416,8 @@ const STRINGS_en = {
         dashTimeLabel: 'Time', dashDate: 'Date', dashMoon: 'Moon', dashHora: 'Hour',
         teaTitle: 'Tea', teaBrew: 'Brew tea', teaDrink: 'DRINK TEA', teaBrewing: 'Brewing… {s} s',
         teaNeedKettle: 'You need a Kettle (craft it)', teaNeedFire: 'Light the fire', teaNeedHerb: 'No herb (chamomile, thyme, linden)', teaNeedWater: 'No water',
+        coffeeTitle: 'Coffee Substitute — Acorn Brew & Chicory Coffee', coffeeBrew: 'Brew coffee substitute', coffeeDrink: 'DRINK COFFEE SUBSTITUTE', coffeeBrewing: 'Brewing… {s} s',
+        coffeeNeedKettle: 'You need a Kettle (craft it)', coffeeNeedFire: 'Light the fire', coffeeNeedHerb: 'No roasted ingredient (acorn, chicory)', coffeeNeedWater: 'No water',
         sweepReady: '🧹 Sweep the hearth (+4 ash)', sweepWait: '🧹 Sweep — in {h} h',
         sweepDone: 'Swept. +{n} ash, +4 soot.', sweepNeedFire: 'Light the fire first.', sweepCooldown: 'The hearth was swept recently.'
     },

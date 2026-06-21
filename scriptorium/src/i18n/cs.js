@@ -22,6 +22,8 @@ const STRINGS_cs = {
         dashTimeLabel: 'Čas', dashDate: 'Datum', dashMoon: 'Luna', dashHora: 'Hora',
         teaTitle: 'Čaj', teaBrew: 'Uvařit čaj', teaDrink: 'PÍT ČAJ', teaBrewing: 'Vaří se… {s} s',
         teaNeedKettle: 'Potřebuješ Konvičku (vyrob v Craftu)', teaNeedFire: 'Rozdělej oheň', teaNeedHerb: 'Chybí bylina (heřmánek, tymián, lípa)', teaNeedWater: 'Chybí voda',
+        coffeeTitle: 'Kávovina — Žaludovka & Cikorka', coffeeBrew: 'Uvařit kávovinu', coffeeDrink: 'PÍT KÁVOVINU', coffeeBrewing: 'Vaří se… {s} s',
+        coffeeNeedKettle: 'Potřebuješ Konvičku (vyrob v Craftu)', coffeeNeedFire: 'Rozdělej oheň', coffeeNeedHerb: 'Chybí pražená surovina (žalud, čekanka)', coffeeNeedWater: 'Chybí voda',
         sweepReady: '🧹 Vymést popelník (+4 popel)', sweepWait: '🧹 Vymést — za {h} h',
         sweepDone: 'Vymeteno. +{n} popel, +4 saze.', sweepNeedFire: 'Nejdříve zapal krb.', sweepCooldown: 'Popelník byl vymetán nedávno.'
     },
