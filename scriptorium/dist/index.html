@@ -2322,6 +2322,8 @@
                         <span data-i18n="screens.home"></span></button>
                     <button id="home-tab-cellarium" class="filter-btn" onclick="UI.switchHomeTab('cellarium', this)">🏛️
                         Cellarium</button>
+                    <button id="home-tab-saeculum" class="filter-btn" onclick="UI.switchHomeTab('saeculum', this)">🏘️
+                        Saeculum</button>
                     <button id="home-tab-athanor" class="filter-btn" onclick="UI.switchHomeTab('athanor', this)">🔬
                         Athanor</button>
                     <button id="home-tab-foculus" class="filter-btn" onclick="UI.switchHomeTab('foculus', this)">🔥
@@ -2383,6 +2385,7 @@
                 </div><!-- end home-main-content -->
 
                 <div id="home-cellarium-content" style="display:none;"></div>
+                <div id="home-saeculum-content" style="display:none;"></div>
                 <div id="home-athanor-content" style="display:none;"></div>
                 <div id="home-foculus-content" style="display:none;">
                     <div id="foculus-locked"
@@ -14312,7 +14315,7 @@ const CellariumSystem = {
                   class="craft-btn" style="flex:1;">
             ${t('cellarium.giacomoBtnClose')}
           </button>
-          <button onclick="document.getElementById('giacomo-modal').remove(); UI.switchScreen('home', document.getElementById('nav-home')); UI.switchHomeTab('cellarium', document.getElementById('home-tab-cellarium')); CellariumSystem.switchEntity('market');"
+          <button onclick="document.getElementById('giacomo-modal').remove(); UI.switchScreen('home', document.getElementById('nav-home')); UI.switchHomeTab('saeculum', document.getElementById('home-tab-saeculum')); SaeculumSystem.switchEntity('market');"
                   class="craft-btn" style="flex:1;background:var(--accent-gold);color:var(--bg-parchment);">
             ${t('cellarium.giacomoBtnVisit')}
           </button>
@@ -14420,26 +14423,29 @@ const CellariumSystem = {
     `;
   },
 
-  // ── Benedikt — dynamické motto ──────────────────────────────────────────
-  _benediktMotto: function() {
-    const lang = (GameState.settings && GameState.settings.language) || 'cs';
+  // ── Benedikt — dynamické motto (cellarium = sklad/zásoby, saeculum = hospoda) ──
+  _benediktMotto: function(context) {
+    context = context || 'cellarium';
     const grose = this.getGrose();
     const ds = (typeof DecaySystem !== 'undefined') ? DecaySystem : null;
     const stock = ds ? ds.totalStock() : 0;
     const cap   = ds ? ds.totalCapacity() : 1000;
     const pct   = cap > 0 ? Math.round(stock / cap * 100) : 0;
-    const tavernOpen = this.isEntityOpen('tavern');
 
     if (grose === 0)      return t('cellarium.mottoEmpty');
     if (grose < 10)       return t('cellarium.mottoPoor');
-    if (!tavernOpen)      return t('cellarium.mottoShuttered');
-    if (pct > 90)         return t('cellarium.mottoFull');
+    if (context === 'saeculum') {
+      if (!this.isEntityOpen('tavern')) return t('cellarium.mottoShuttered');
+    } else {
+      if (pct > 90)       return t('cellarium.mottoFull');
+    }
     if (grose > 200)      return t('cellarium.mottoRich');
     return t('cellarium.motto');
   },
 
-  // ── Benedikt — stats panel ───────────────────────────────────────────────
-  _benediktStats: function() {
+  // ── Benedikt — stats panel (cellarium = sklad/zásoby, saeculum = hospoda) ──
+  _benediktStats: function(context) {
+    context = context || 'cellarium';
     const lang = (GameState.settings && GameState.settings.language) || 'cs';
     const ds = (typeof DecaySystem !== 'undefined') ? DecaySystem : null;
     const stock = ds ? ds.totalStock() : 0;
@@ -14453,18 +14459,20 @@ const CellariumSystem = {
       ? txs.filter(t => t.type === 'sell').reduce((s, t) => s + (t.total || 0), 0)
       : null;
 
-    const tavernOpen = this.isEntityOpen('tavern');
-    const tavernTxt = tavernOpen
-      ? `<span style="color:#5a9a5a;">● ${lang==='en'?'open':'otevřeno'}</span>`
-      : `<span style="color:#c0392b;">● ${lang==='en'?'closed':'zavřeno'}</span>`;
-
     let h = `<div style="display:flex;gap:16px;flex-wrap:wrap;font-size:0.78rem;opacity:0.8;
                          padding:8px 12px;background:rgba(0,0,0,0.04);border-radius:6px;margin-bottom:14px;">`;
     if (totalSold !== null) {
       h += `<span>📊 ${lang==='en'?'Sold':'Prodáno'}: <strong>${totalSold} g</strong></span>`;
     }
-    h += `<span>🌾 ${lang==='en'?'Stores':'Zásoby'}: <strong style="color:${capColor};">${pct}%</strong></span>`;
-    h += `<span>🍺 ${lang==='en'?'Tavern':'Hospoda'}: ${tavernTxt}</span>`;
+    if (context === 'saeculum') {
+      const tavernOpen = this.isEntityOpen('tavern');
+      const tavernTxt = tavernOpen
+        ? `<span style="color:#5a9a5a;">● ${lang==='en'?'open':'otevřeno'}</span>`
+        : `<span style="color:#c0392b;">● ${lang==='en'?'closed':'zavřeno'}</span>`;
+      h += `<span>🍺 ${lang==='en'?'Tavern':'Hospoda'}: ${tavernTxt}</span>`;
+    } else {
+      h += `<span>🌾 ${lang==='en'?'Stores':'Zásoby'}: <strong style="color:${capColor};">${pct}%</strong></span>`;
+    }
     h += `</div>`;
     return h;
   },
@@ -14524,16 +14532,13 @@ const CellariumSystem = {
     const hasLR  = GameState.researchedTechs && GameState.researchedTechs.includes('tech_liber_rationum');
 
     const entities = [
-      { id: 'tavern',          icon: '🍺', label: 'Hospoda',       label_en: 'Tavern'        },
-      { id: 'shop',            icon: '🏪', label: 'Obchod',        label_en: 'Shop'          },
-      { id: 'market',          icon: '⛺', label: 'Trh',           label_en: 'Market'        },
       ...(hasInv ? [{ id: 'inventarium',    icon: '📦', label: 'Inventarium',   label_en: 'Inventarium'   }] : []),
       ...(hasLR  ? [{ id: 'liber_rationum', icon: '📒', label: 'Liber Rationum',label_en: 'Liber Rationum'}] : []),
       { id: 'buildings', icon: '🏗️', label: 'Budovy', label_en: 'Buildings' },
     ];
     const lang = (GameState.settings && GameState.settings.language) || 'cs';
     if (!GameState.ui) GameState.ui = {};
-    const active = GameState.ui.cellariumEntity || 'tavern';
+    const active = GameState.ui.cellariumEntity || 'buildings';
 
     // Tab buttons
     let h = `<div style="display:flex; gap:6px; margin-bottom:16px; flex-wrap:wrap;">`;
@@ -15258,6 +15263,116 @@ const CellariumSystem = {
 
 
 };
+// ═══ src/systems/SaeculumSystem.js ═══
+// ═══════════════════════════════════════════════════════════════════════════════
+// SAECULUM SYSTEM v1.0 — Kontakt s venkem
+// Hospoda / Obchod / Trh — vyňato z Cellaria, vlastní subtab Pracovny
+// Cenový engine (BASE_PRICES, calcPrice, sellItem, buyItem) zůstává v CellariumSystem —
+// Saeculum je tenká prezentační vrstva, co do něj volá.
+// ═══════════════════════════════════════════════════════════════════════════════
+
+const SaeculumSystem = {
+
+  renderSaeculumTab: function() {
+    // Stejná brána jako Cellarium — Hospoda/Obchod/Trh se jen přesunuly, neodemykají se nově
+    if (!CellariumSystem.hasCellarium()) {
+      return CellariumSystem.renderLockedScreen();
+    }
+    return this.renderSaeculumContent();
+  },
+
+  renderSaeculumContent: function() {
+    const lang = (GameState.settings && GameState.settings.language) || 'cs';
+    const hasNum = CellariumSystem.hasNumismatica();
+
+    let h = `<div id="saeculum-content" style="padding:10px;">`;
+
+    // ── Hlavička: Benedikt + pokladna (sdílený s Cellariem, jen jiný kontext) ──
+    h += `
+      <div style="display:flex; align-items:center; gap:15px; margin-bottom:20px;
+                  padding:15px; background:rgba(197,160,89,0.07);
+                  border-radius:10px; border-left:4px solid var(--accent-gold);">
+        <div style="font-size:2.5rem;">🧾</div>
+        <div style="flex:1;">
+          <div style="font-weight:bold; font-size:1rem;">${t('cellarium.benedict')}</div>
+          <div style="font-size:0.8rem; opacity:0.65; font-style:italic;">${t('cellarium.benedictRole')}</div>
+          <div style="font-size:0.8rem; opacity:0.6; margin-top:4px;">
+            ${CellariumSystem._benediktMotto('saeculum')}
+          </div>
+        </div>
+        <div style="text-align:center; min-width:70px;">
+          <div style="font-size:1.8rem;">💰</div>
+          <div style="font-weight:bold; font-size:1.3rem;" id="cellarium-grose-count">${CellariumSystem.getGrose()}</div>
+          <div style="font-size:0.7rem; opacity:0.6;">${t('cellarium.grose')}</div>
+        </div>
+      </div>
+    `;
+
+    h += CellariumSystem._benediktStats('saeculum');
+
+    if (!hasNum) {
+      h += `
+        <div style="text-align:center; padding:30px; opacity:0.6;
+                    border:1px dashed rgba(197,160,89,0.3); border-radius:8px;">
+          <div style="font-size:2rem; margin-bottom:10px;">📜</div>
+          <div style="font-style:italic; font-size:0.9rem;">
+            Benedikt vítá tvou návštěvu, ale obchod zatím stojí.<br>
+            Odemkni <strong>Numismatica — Věda o Groších</strong> pro plný přístup.
+          </div>
+        </div>
+      `;
+    } else {
+      h += this.renderEntityTabs();
+    }
+
+    h += `</div>`;
+    return h;
+  },
+
+  renderEntityTabs: function() {
+    const entities = [
+      { id: 'tavern', icon: '🍺', label: 'Hospoda', label_en: 'Tavern' },
+      { id: 'shop',   icon: '🏪', label: 'Obchod',  label_en: 'Shop'   },
+      { id: 'market', icon: '⛺', label: 'Trh',      label_en: 'Market' },
+    ];
+    const lang = (GameState.settings && GameState.settings.language) || 'cs';
+    if (!GameState.ui) GameState.ui = {};
+    const active = GameState.ui.saeculumEntity || 'tavern';
+
+    let h = `<div style="display:flex; gap:6px; margin-bottom:16px; flex-wrap:wrap;">`;
+    entities.forEach(e => {
+      const open   = CellariumSystem.isEntityOpen(e.id);
+      const isCur  = e.id === active;
+      const name   = lang === 'en' ? e.label_en : e.label;
+      const hours  = lang === 'en' ? CellariumSystem.entityHoursLabel_en(e.id) : CellariumSystem.entityHoursLabel(e.id);
+      const openDot = `<span style="color:${open ? '#5a9' : '#c55'}; font-size:0.55rem;">●</span>`;
+      h += `
+        <button onclick="SaeculumSystem.switchEntity('${e.id}')"
+                class="filter-btn${isCur ? ' active' : ''}"
+                style="flex: 1 1 calc(33% - 6px); min-width:0; position:relative; padding-bottom:6px;">
+          <div style="display:flex; align-items:center; justify-content:center; gap:4px;">
+            ${e.icon} ${name} ${openDot}
+          </div>
+          <div style="font-size:0.6rem; opacity:0.6; margin-top:2px;">${hours}</div>
+        </button>
+      `;
+    });
+    h += `</div>`;
+
+    h += CellariumSystem.renderEntityPanel(active);
+    return h;
+  },
+
+  switchEntity: function(entityId) {
+    if (!GameState.ui) GameState.ui = {};
+    GameState.ui.saeculumEntity = entityId;
+    const el = document.getElementById('saeculum-content');
+    if (el) el.outerHTML = this.renderSaeculumContent();
+    else this.renderSaeculumTab();
+  },
+
+};
+
 // ═══ src/systems/DecaySystem.js ═══
 // ═══════════════════════════════════════════════════════════════════════════
 // DECAY SYSTEM v1 (B2 — simplified)
@@ -37530,12 +37645,15 @@ const UI = {
         document.getElementById('home-athanor-content').style.display = tab === 'athanor' ? 'block' : 'none';
         const celEl = document.getElementById('home-cellarium-content');
         if (celEl) celEl.style.display = tab === 'cellarium' ? 'block' : 'none';
+        const saecEl = document.getElementById('home-saeculum-content');
+        if (saecEl) saecEl.style.display = tab === 'saeculum' ? 'block' : 'none';
         const focEl = document.getElementById('home-foculus-content');
         if (focEl) focEl.style.display = tab === 'foculus' ? 'block' : 'none';
         document.querySelectorAll('#screen-home .filter-btn').forEach(b => b.classList.remove('active'));
         if (btn) btn.classList.add('active');
         if (tab === 'athanor') AthanorSystem.render('home-athanor-content');
         if (tab === 'cellarium' && celEl) celEl.innerHTML = CellariumSystem.renderCellariumTab();
+        if (tab === 'saeculum' && saecEl && typeof SaeculumSystem !== 'undefined') saecEl.innerHTML = SaeculumSystem.renderSaeculumTab();
         if (tab === 'foculus' && typeof FireplaceSystem !== 'undefined') FireplaceSystem.render();
         // Reset sub-tab to scavenge when switching back to main
         if (tab === 'main') this.switchHomeSubTab('scavenge', document.getElementById('home-sub-scavenge'));

@@ -50,6 +50,7 @@ const JS_MAIN = [
     'src/systems/audio.js',
     'src/systems/VigorSystem.js',
     'src/systems/CellariumSystem.js',
+    'src/systems/SaeculumSystem.js',
     'src/systems/DecaySystem.js',
     'src/systems/well.js',
     'src/systems/terrain.js',        // TerrainSystem — únava krajiny

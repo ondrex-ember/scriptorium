@@ -635,7 +635,7 @@ const CellariumSystem = {
                   class="craft-btn" style="flex:1;">
             ${t('cellarium.giacomoBtnClose')}
           </button>
-          <button onclick="document.getElementById('giacomo-modal').remove(); UI.switchScreen('home', document.getElementById('nav-home')); UI.switchHomeTab('cellarium', document.getElementById('home-tab-cellarium')); CellariumSystem.switchEntity('market');"
+          <button onclick="document.getElementById('giacomo-modal').remove(); UI.switchScreen('home', document.getElementById('nav-home')); UI.switchHomeTab('saeculum', document.getElementById('home-tab-saeculum')); SaeculumSystem.switchEntity('market');"
                   class="craft-btn" style="flex:1;background:var(--accent-gold);color:var(--bg-parchment);">
             ${t('cellarium.giacomoBtnVisit')}
           </button>
@@ -743,26 +743,29 @@ const CellariumSystem = {
     `;
   },
 
-  // ── Benedikt — dynamické motto ──────────────────────────────────────────
-  _benediktMotto: function() {
-    const lang = (GameState.settings && GameState.settings.language) || 'cs';
+  // ── Benedikt — dynamické motto (cellarium = sklad/zásoby, saeculum = hospoda) ──
+  _benediktMotto: function(context) {
+    context = context || 'cellarium';
     const grose = this.getGrose();
     const ds = (typeof DecaySystem !== 'undefined') ? DecaySystem : null;
     const stock = ds ? ds.totalStock() : 0;
     const cap   = ds ? ds.totalCapacity() : 1000;
     const pct   = cap > 0 ? Math.round(stock / cap * 100) : 0;
-    const tavernOpen = this.isEntityOpen('tavern');
 
     if (grose === 0)      return t('cellarium.mottoEmpty');
     if (grose < 10)       return t('cellarium.mottoPoor');
-    if (!tavernOpen)      return t('cellarium.mottoShuttered');
-    if (pct > 90)         return t('cellarium.mottoFull');
+    if (context === 'saeculum') {
+      if (!this.isEntityOpen('tavern')) return t('cellarium.mottoShuttered');
+    } else {
+      if (pct > 90)       return t('cellarium.mottoFull');
+    }
     if (grose > 200)      return t('cellarium.mottoRich');
     return t('cellarium.motto');
   },
 
-  // ── Benedikt — stats panel ───────────────────────────────────────────────
-  _benediktStats: function() {
+  // ── Benedikt — stats panel (cellarium = sklad/zásoby, saeculum = hospoda) ──
+  _benediktStats: function(context) {
+    context = context || 'cellarium';
     const lang = (GameState.settings && GameState.settings.language) || 'cs';
     const ds = (typeof DecaySystem !== 'undefined') ? DecaySystem : null;
     const stock = ds ? ds.totalStock() : 0;
@@ -776,18 +779,20 @@ const CellariumSystem = {
       ? txs.filter(t => t.type === 'sell').reduce((s, t) => s + (t.total || 0), 0)
       : null;
 
-    const tavernOpen = this.isEntityOpen('tavern');
-    const tavernTxt = tavernOpen
-      ? `<span style="color:#5a9a5a;">● ${lang==='en'?'open':'otevřeno'}</span>`
-      : `<span style="color:#c0392b;">● ${lang==='en'?'closed':'zavřeno'}</span>`;
-
     let h = `<div style="display:flex;gap:16px;flex-wrap:wrap;font-size:0.78rem;opacity:0.8;
                          padding:8px 12px;background:rgba(0,0,0,0.04);border-radius:6px;margin-bottom:14px;">`;
     if (totalSold !== null) {
       h += `<span>📊 ${lang==='en'?'Sold':'Prodáno'}: <strong>${totalSold} g</strong></span>`;
     }
-    h += `<span>🌾 ${lang==='en'?'Stores':'Zásoby'}: <strong style="color:${capColor};">${pct}%</strong></span>`;
-    h += `<span>🍺 ${lang==='en'?'Tavern':'Hospoda'}: ${tavernTxt}</span>`;
+    if (context === 'saeculum') {
+      const tavernOpen = this.isEntityOpen('tavern');
+      const tavernTxt = tavernOpen
+        ? `<span style="color:#5a9a5a;">● ${lang==='en'?'open':'otevřeno'}</span>`
+        : `<span style="color:#c0392b;">● ${lang==='en'?'closed':'zavřeno'}</span>`;
+      h += `<span>🍺 ${lang==='en'?'Tavern':'Hospoda'}: ${tavernTxt}</span>`;
+    } else {
+      h += `<span>🌾 ${lang==='en'?'Stores':'Zásoby'}: <strong style="color:${capColor};">${pct}%</strong></span>`;
+    }
     h += `</div>`;
     return h;
   },
@@ -847,16 +852,13 @@ const CellariumSystem = {
     const hasLR  = GameState.researchedTechs && GameState.researchedTechs.includes('tech_liber_rationum');
 
     const entities = [
-      { id: 'tavern',          icon: '🍺', label: 'Hospoda',       label_en: 'Tavern'        },
-      { id: 'shop',            icon: '🏪', label: 'Obchod',        label_en: 'Shop'          },
-      { id: 'market',          icon: '⛺', label: 'Trh',           label_en: 'Market'        },
       ...(hasInv ? [{ id: 'inventarium',    icon: '📦', label: 'Inventarium',   label_en: 'Inventarium'   }] : []),
       ...(hasLR  ? [{ id: 'liber_rationum', icon: '📒', label: 'Liber Rationum',label_en: 'Liber Rationum'}] : []),
       { id: 'buildings', icon: '🏗️', label: 'Budovy', label_en: 'Buildings' },
     ];
     const lang = (GameState.settings && GameState.settings.language) || 'cs';
     if (!GameState.ui) GameState.ui = {};
-    const active = GameState.ui.cellariumEntity || 'tavern';
+    const active = GameState.ui.cellariumEntity || 'buildings';
 
     // Tab buttons
     let h = `<div style="display:flex; gap:6px; margin-bottom:16px; flex-wrap:wrap;">`;
