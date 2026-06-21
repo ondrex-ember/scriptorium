@@ -385,6 +385,8 @@ const UI = {
             alchemy: ['alchemy', 'potion', 'alchemy_ing'],
             lore: ['lore'],
             animal: ['animal'],
+            key: ['key'],
+            currency: ['currency'],
         };
 
         const renderItem = (id, qty) => {
@@ -422,7 +424,7 @@ const UI = {
             });
         } else {
             // Vše — akční items (food/potion) nahoru, pak sekce podle kategorií
-            const catOrder = ['food', 'tool', 'mat', 'alchemy', 'lore', 'animal'];
+            const catOrder = ['food', 'tool', 'mat', 'alchemy', 'lore', 'animal', 'key', 'currency'];
             const catLabels = {
                 food: lang === 'en' ? '🍖 Food & Drink' : '🍖 Jídlo & Nápoje',
                 tool: lang === 'en' ? '🔨 Tools' : '🔨 Nástroje',
@@ -430,6 +432,8 @@ const UI = {
                 alchemy: lang === 'en' ? '⚗️ Alchemy' : '⚗️ Alchymie & Lektvary',
                 lore: lang === 'en' ? '📜 Knowledge' : '📜 Písemnosti & Hry',
                 animal: lang === 'en' ? '🐄 Animals' : '🐄 Zvířata & Produkty',
+                key: lang === 'en' ? '🗝️ Keys' : '🗝️ Klíče',
+                currency: lang === 'en' ? '🪙 Coins' : '🪙 Mince',
             };
             // Skupiny typů per sekce
             const sectionTypes = {
@@ -439,6 +443,8 @@ const UI = {
                 alchemy: ['alchemy', 'potion', 'alchemy_ing'],
                 lore: ['lore'],
                 animal: ['animal'],
+                key: ['key'],
+                currency: ['currency'],
             };
 
             catOrder.forEach(cat => {
@@ -451,6 +457,17 @@ const UI = {
                 el.innerHTML += `<div style="grid-column:1/-1; margin:12px 0 6px; padding:4px 0; border-bottom:1px solid rgba(197,160,89,0.35);"><span style="font-size:0.72rem; font-weight:bold; letter-spacing:0.08em; text-transform:uppercase; color:var(--accent-gold); opacity:0.85;">${catLabels[cat]}</span></div>`;
                 group.forEach(([id, qty]) => { el.innerHTML += renderItem(id, qty); });
             });
+
+            // Záchranná síť — cokoliv s type, co není v žádné sekci výše, ať nikdy tiše nezmizí
+            const knownTypes = Object.values(sectionTypes).flat();
+            const leftover = allItems.filter(([id]) => {
+                const item = ItemsDB[id];
+                return item && !knownTypes.includes(item.type);
+            });
+            if (leftover.length > 0) {
+                el.innerHTML += `<div style="grid-column:1/-1; margin:12px 0 6px; padding:4px 0; border-bottom:1px solid rgba(197,160,89,0.35);"><span style="font-size:0.72rem; font-weight:bold; letter-spacing:0.08em; text-transform:uppercase; color:var(--accent-gold); opacity:0.85;">${lang === 'en' ? '📦 Other' : '📦 Ostatní'}</span></div>`;
+                leftover.forEach(([id, qty]) => { el.innerHTML += renderItem(id, qty); });
+            }
         }
         this._updateInvFilterBar();
     },
