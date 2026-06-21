@@ -90,11 +90,6 @@ const TimeSys = {
             LibraryHelpers.checkLibraryUnlocks();
         }
         
-        // ========== NEW: Update header background ==========
-        if (typeof HeaderBG !== 'undefined') {
-            HeaderBG.update();
-        }
-        
         // ========== NEW: Check canonical hours ==========
         if (typeof CanonicalHours !== 'undefined') {
             CanonicalHours.checkCurrentHour();
@@ -112,98 +107,5 @@ const TimeSys = {
         if (typeof UI !== 'undefined' && typeof UI.renderActions === 'function') {
             UI.renderActions();
         }
-    }
-};
-
-// ========== HEADER BACKGROUND SYSTEM ==========
-// Dynamic seasonal and weather-based header images
-
-const HeaderBG = {
-    basePath: '/header/',
-    
-    // Image mappings (season_weather format)
-    images: {
-        // Seasonal bases (clear weather)
-        spring_clear: 'spring.jpg',
-        summer_clear: 'summer.jpg',
-        autumn_clear: 'autumn.jpg',
-        winter_clear: 'winter.jpg',
-        
-        // Weather variants (Phase 1: Spring only)
-        spring_rain: 'spring-rain.jpg',
-        spring_storm: 'spring-storm.jpg',
-        
-        // TODO Phase 2: Add remaining 6 images
-        // summer_rain: 'summer-rain.jpg',
-        // summer_storm: 'summer-storm.jpg',
-        // autumn_rain: 'autumn-rain.jpg',
-        // autumn_storm: 'autumn-storm.jpg',
-        // winter_snow: 'winter-snow.jpg',
-        // winter_storm: 'winter-storm.jpg',
-        
-        // Fallback
-        fallback: 'base-universal.jpg'
-    },
-    
-    currentKey: null,
-    
-    init: function() {
-        this.update();
-    },
-    
-    update: function() {
-        const season = this.getSeason();
-        const weather = this.getWeather();
-        const key = `${season}_${weather}`;
-        
-        // Skip if no change (performance optimization)
-        if (key === this.currentKey) return;
-        this.currentKey = key;
-        
-        // Fallback chain: try exact match → seasonal base → universal
-        const imageFile = this.images[key] 
-                       || this.images[`${season}_clear`] 
-                       || this.images.fallback;
-        
-        const imagePath = this.basePath + imageFile;
-        
-        // Update background layer
-        const layer = document.querySelector('.header-bg-layer');
-        if (layer) {
-            // Update only the image URL, keep the gradient overlay
-            layer.style.backgroundImage = `
-                linear-gradient(to top, rgba(0,0,0,0.6) 0%, transparent 60%),
-                url('${imagePath}')
-            `;
-        }
-    },
-    
-    getSeason: function() {
-        const now = new Date();
-        const m = now.getMonth() + 1; // 1-12
-        const d = now.getDate();
-        // Astronomické dělení roku
-        if (m === 3 && d >= 20 || m === 4 || m === 5 || m === 6 && d < 21) return 'spring';
-        if (m === 6 && d >= 21 || m === 7 || m === 8 || m === 9 && d < 23) return 'summer';
-        if (m === 9 && d >= 23 || m === 10 || m === 11 || m === 12 && d < 21) return 'autumn';
-        return 'winter';
-    },
-    
-    getWeather: function() {
-        // Integrate with WeatherSystem (if available)
-        if (typeof WeatherSystem === 'undefined' || !WeatherSystem.cache || !WeatherSystem.cache.current) {
-            return 'clear'; // Default when API not available
-        }
-        
-        const code = WeatherSystem.cache.current.weather_code;
-        
-        // WMO Weather interpretation codes
-        // Reference: https://open-meteo.com/en/docs
-        if (code === undefined || code <= 3) return 'clear';      // 0-3 = Clear/partly cloudy
-        if (code >= 61 && code <= 65) return 'rain';             // 61-65 = Rain
-        if (code >= 71 && code <= 77) return 'snow';             // 71-77 = Snow
-        if (code >= 80) return 'storm';                          // 80+ = Storms/showers
-        
-        return 'clear'; // Fallback
     }
 };
