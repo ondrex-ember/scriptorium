@@ -548,7 +548,7 @@ const IChing = {
     if (!container) return;
     
     const hasBook = GameState.inventory.iching_book > 0;
-    const hasTech = GameState.researchedTechs.includes('tech_iching');
+    const hasTech = GameState.researchedTechs.includes('tech_iching') || (GameState.secrets && GameState.secrets.ichingUnlocked);
     
     // Build HTML
     let html = `<h2>${t('library.iching_title')}</h2>`;

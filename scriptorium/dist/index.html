@@ -5340,6 +5340,18 @@ const ItemsDB = {
         name: "Rezavý klíč č.5", name_en: "Rusty Key #5", icon: "🗝️", type: "key", lostItem: true,
         desc: "Starý rezavý klíč. Neznámý původ. Třeba ho prozkoumat. Hlubší záhada čeká.", desc_en: "An old rusty key. Unknown origin. Worth examining. A deeper mystery awaits."
     },
+    "key_large_1": {
+        name: "Velký klíč č.1", name_en: "Large Key #1", icon: "🔑", type: "key", lostItem: true,
+        desc: "Těžký kovaný klíč od nějakých velkých dveří. Třeba ho prozkoumat.", desc_en: "A heavy forged key to some large door. Worth examining."
+    },
+    "key_large_2": {
+        name: "Velký klíč č.2", name_en: "Large Key #2", icon: "🔑", type: "key", lostItem: true,
+        desc: "Těžký kovaný klíč od nějakých velkých dveří. Třeba ho prozkoumat.", desc_en: "A heavy forged key to some large door. Worth examining."
+    },
+    "key_large_3": {
+        name: "Velký klíč č.3", name_en: "Large Key #3", icon: "🔑", type: "key", lostItem: true,
+        desc: "Těžký kovaný klíč od nějakých velkých dveří. Třeba ho prozkoumat.", desc_en: "A heavy forged key to some large door. Worth examining."
+    },
     "old_coin_1": {
         name: "Měděná mince", name_en: "Copper Coin", icon: "🪙", type: "currency", lostItem: true,
         desc: "Stará měděná mince nalezená při úklidu dvora. Kdo ji ztratil? Dávno to bylo.", desc_en: "An old copper coin found while cleaning the yard. Who dropped it? Long ago, that."
@@ -13427,10 +13439,12 @@ const CellariumSystem = {
     const day  = now.getDay(); // 0=Ne, 1=Po ... 6=So
 
     if (entity === 'tavern') {
+      if (GameState.secrets && GameState.secrets.tavernAlwaysOpen) return true;
       // 14:00–23:59 nebo 00:00–01:59
       return hour >= 14 || hour < 2;
     }
     if (entity === 'shop') {
+      if (GameState.secrets && GameState.secrets.shopAlwaysOpen) return true;
       // Po–Pá, 09–17
       return day >= 1 && day <= 5 && hour >= 9 && hour < 17;
     }
@@ -33874,6 +33888,39 @@ const Game = {
             // Deep unknown
             UI.notify(cs ? '🗝️ The key hums faintly when held. It fits somewhere... but where?' : '🗝️ Klíč slabě vibruje v ruce. Někam pasuje... ale kam?');
             UI.notifyPanel(cs ? '🗝️ Lost Key #5: something stirs.' : '🗝️ Klíč č.5: něco se probouzí.', 'system');
+        } else if (keyId === 'key_large_1') {
+            // Hospoda — trvale otevřená
+            if (!GameState.secrets) GameState.secrets = {};
+            if (!GameState.secrets.tavernAlwaysOpen) {
+                GameState.secrets.tavernAlwaysOpen = true;
+                UI.notify(cs ? '🍺 The key fits the Tavern door. It is now open day and night.' : '🍺 Klíč pasuje do dveří Hospody. Je odteď otevřená dnem i nocí.');
+                UI.notifyPanel(cs ? '🔑 Large Key #1 unlocked the Tavern, always.' : '🔑 Velký klíč č.1 trvale odemkl Hospodu.', 'system');
+            } else {
+                UI.notify(cs ? '🔑 The Tavern is already open day and night.' : '🔑 Hospoda už je otevřená dnem i nocí.');
+            }
+        } else if (keyId === 'key_large_2') {
+            // Obchod — trvale otevřený
+            if (!GameState.secrets) GameState.secrets = {};
+            if (!GameState.secrets.shopAlwaysOpen) {
+                GameState.secrets.shopAlwaysOpen = true;
+                UI.notify(cs ? '🏪 The key fits the Shop door. It is now open every day.' : '🏪 Klíč pasuje do dveří Obchodu. Je odteď otevřený každý den.');
+                UI.notifyPanel(cs ? '🔑 Large Key #2 unlocked the Shop, always.' : '🔑 Velký klíč č.2 trvale odemkl Obchod.', 'system');
+            } else {
+                UI.notify(cs ? '🔑 The Shop is already open every day.' : '🔑 Obchod už je otevřený každý den.');
+            }
+        } else if (keyId === 'key_large_3') {
+            // I-Ching — alternativní odemčení bez tech_iching i bez craftované knihy
+            if (!GameState.secrets) GameState.secrets = {};
+            const hasTech = GameState.researchedTechs && GameState.researchedTechs.includes('tech_iching');
+            const hasBook = (GameState.inventory['iching_book'] || 0) > 0;
+            if (!hasTech && !GameState.secrets.ichingUnlocked) {
+                GameState.secrets.ichingUnlocked = true;
+                if (!hasBook) Game.addItem('iching_book', 1);
+                UI.notify(cs ? '☯️ The key opens a hidden chamber. The I-Ching is revealed.' : '☯️ Klíč otevírá skrytou komnatu. I-Ching je odhalen.');
+                UI.notifyPanel(cs ? '🔑 Large Key #3 unlocked the I-Ching.' : '🔑 Velký klíč č.3 odemkl I-Ching.', 'system');
+            } else {
+                UI.notify(cs ? '🔑 The I-Ching is already known to you.' : '🔑 I-Ching už znáš.');
+            }
         }
     },
 
@@ -36372,7 +36419,7 @@ const UI = {
             if (typeof Game !== 'undefined' && Game.showWaxSealModal) Game.showWaxSealModal();
             return;
         }
-        if (['lost_key_1', 'lost_key_2', 'lost_key_3', 'lost_key_4', 'lost_key_5'].includes(id)) {
+        if (['lost_key_1', 'lost_key_2', 'lost_key_3', 'lost_key_4', 'lost_key_5', 'key_large_1', 'key_large_2', 'key_large_3'].includes(id)) {
             if (typeof Game !== 'undefined' && Game.showLostKeyModal) Game.showLostKeyModal(id);
             return;
         }
@@ -36594,7 +36641,7 @@ const UI = {
         const renderItem = (id, qty) => {
             const item = ItemsDB[id];
             if (!item) return '';
-            const _isRareModal = (id === 'netolicky_legacy') || id === 'old_coin_1' || id === 'old_coin_2' || id === 'old_coin_3' || id === 'torn_page' || id === 'wax_seal' || ['lost_key_1', 'lost_key_2', 'lost_key_3', 'lost_key_4', 'lost_key_5'].includes(id) || ['dried_herbs_bundle', 'hemp_pouch', 'mysterious_bulb'].includes(id);
+            const _isRareModal = (id === 'netolicky_legacy') || id === 'old_coin_1' || id === 'old_coin_2' || id === 'old_coin_3' || id === 'torn_page' || id === 'wax_seal' || ['lost_key_1', 'lost_key_2', 'lost_key_3', 'lost_key_4', 'lost_key_5', 'key_large_1', 'key_large_2', 'key_large_3'].includes(id) || ['dried_herbs_bundle', 'hemp_pouch', 'mysterious_bulb'].includes(id);
             const _click = (_hasMateria || _isRareModal) ? `onclick="UI.showItemModal('${id}')" style="cursor:pointer;"` : '';
             let actionBtn = '';
             if (item.type === 'food') {
@@ -38981,7 +39028,7 @@ const IChing = {
     if (!container) return;
     
     const hasBook = GameState.inventory.iching_book > 0;
-    const hasTech = GameState.researchedTechs.includes('tech_iching');
+    const hasTech = GameState.researchedTechs.includes('tech_iching') || (GameState.secrets && GameState.secrets.ichingUnlocked);
     
     // Build HTML
     let html = `<h2>${t('library.iching_title')}</h2>`;

@@ -86,10 +86,12 @@ const CellariumSystem = {
     const day  = now.getDay(); // 0=Ne, 1=Po ... 6=So
 
     if (entity === 'tavern') {
+      if (GameState.secrets && GameState.secrets.tavernAlwaysOpen) return true;
       // 14:00–23:59 nebo 00:00–01:59
       return hour >= 14 || hour < 2;
     }
     if (entity === 'shop') {
+      if (GameState.secrets && GameState.secrets.shopAlwaysOpen) return true;
       // Po–Pá, 09–17
       return day >= 1 && day <= 5 && hour >= 9 && hour < 17;
     }

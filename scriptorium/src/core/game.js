@@ -769,6 +769,39 @@ const Game = {
             // Deep unknown
             UI.notify(cs ? '🗝️ The key hums faintly when held. It fits somewhere... but where?' : '🗝️ Klíč slabě vibruje v ruce. Někam pasuje... ale kam?');
             UI.notifyPanel(cs ? '🗝️ Lost Key #5: something stirs.' : '🗝️ Klíč č.5: něco se probouzí.', 'system');
+        } else if (keyId === 'key_large_1') {
+            // Hospoda — trvale otevřená
+            if (!GameState.secrets) GameState.secrets = {};
+            if (!GameState.secrets.tavernAlwaysOpen) {
+                GameState.secrets.tavernAlwaysOpen = true;
+                UI.notify(cs ? '🍺 The key fits the Tavern door. It is now open day and night.' : '🍺 Klíč pasuje do dveří Hospody. Je odteď otevřená dnem i nocí.');
+                UI.notifyPanel(cs ? '🔑 Large Key #1 unlocked the Tavern, always.' : '🔑 Velký klíč č.1 trvale odemkl Hospodu.', 'system');
+            } else {
+                UI.notify(cs ? '🔑 The Tavern is already open day and night.' : '🔑 Hospoda už je otevřená dnem i nocí.');
+            }
+        } else if (keyId === 'key_large_2') {
+            // Obchod — trvale otevřený
+            if (!GameState.secrets) GameState.secrets = {};
+            if (!GameState.secrets.shopAlwaysOpen) {
+                GameState.secrets.shopAlwaysOpen = true;
+                UI.notify(cs ? '🏪 The key fits the Shop door. It is now open every day.' : '🏪 Klíč pasuje do dveří Obchodu. Je odteď otevřený každý den.');
+                UI.notifyPanel(cs ? '🔑 Large Key #2 unlocked the Shop, always.' : '🔑 Velký klíč č.2 trvale odemkl Obchod.', 'system');
+            } else {
+                UI.notify(cs ? '🔑 The Shop is already open every day.' : '🔑 Obchod už je otevřený každý den.');
+            }
+        } else if (keyId === 'key_large_3') {
+            // I-Ching — alternativní odemčení bez tech_iching i bez craftované knihy
+            if (!GameState.secrets) GameState.secrets = {};
+            const hasTech = GameState.researchedTechs && GameState.researchedTechs.includes('tech_iching');
+            const hasBook = (GameState.inventory['iching_book'] || 0) > 0;
+            if (!hasTech && !GameState.secrets.ichingUnlocked) {
+                GameState.secrets.ichingUnlocked = true;
+                if (!hasBook) Game.addItem('iching_book', 1);
+                UI.notify(cs ? '☯️ The key opens a hidden chamber. The I-Ching is revealed.' : '☯️ Klíč otevírá skrytou komnatu. I-Ching je odhalen.');
+                UI.notifyPanel(cs ? '🔑 Large Key #3 unlocked the I-Ching.' : '🔑 Velký klíč č.3 odemkl I-Ching.', 'system');
+            } else {
+                UI.notify(cs ? '🔑 The I-Ching is already known to you.' : '🔑 I-Ching už znáš.');
+            }
         }
     },
 

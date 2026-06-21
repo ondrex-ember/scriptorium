@@ -201,6 +201,18 @@ const ItemsDB = {
         name: "Rezavý klíč č.5", name_en: "Rusty Key #5", icon: "🗝️", type: "key", lostItem: true,
         desc: "Starý rezavý klíč. Neznámý původ. Třeba ho prozkoumat. Hlubší záhada čeká.", desc_en: "An old rusty key. Unknown origin. Worth examining. A deeper mystery awaits."
     },
+    "key_large_1": {
+        name: "Velký klíč č.1", name_en: "Large Key #1", icon: "🔑", type: "key", lostItem: true,
+        desc: "Těžký kovaný klíč od nějakých velkých dveří. Třeba ho prozkoumat.", desc_en: "A heavy forged key to some large door. Worth examining."
+    },
+    "key_large_2": {
+        name: "Velký klíč č.2", name_en: "Large Key #2", icon: "🔑", type: "key", lostItem: true,
+        desc: "Těžký kovaný klíč od nějakých velkých dveří. Třeba ho prozkoumat.", desc_en: "A heavy forged key to some large door. Worth examining."
+    },
+    "key_large_3": {
+        name: "Velký klíč č.3", name_en: "Large Key #3", icon: "🔑", type: "key", lostItem: true,
+        desc: "Těžký kovaný klíč od nějakých velkých dveří. Třeba ho prozkoumat.", desc_en: "A heavy forged key to some large door. Worth examining."
+    },
     "old_coin_1": {
         name: "Měděná mince", name_en: "Copper Coin", icon: "🪙", type: "currency", lostItem: true,
         desc: "Stará měděná mince nalezená při úklidu dvora. Kdo ji ztratil? Dávno to bylo.", desc_en: "An old copper coin found while cleaning the yard. Who dropped it? Long ago, that."
