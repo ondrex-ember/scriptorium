@@ -71,6 +71,7 @@ const GameState = {
     activeAction: null,
     selectedDuration: 0,
     terrain: { fatigue: 0, lastRegen: 0, lastToastTier: 0 }, // TerrainSystem — únava krajiny
+    incense: { activeItem: null, timerRemaining: 0, maxTimer: 0, fatiguePerSec: 0 }, // IncenseSystem — kadidlo
     researchHour: { count: 0, hourStart: 0 }, // Research diminishing returns
     shopStock: { date: '', used: {} },          // Denní sklady entit (reset o půlnoci)
     discoveredLore: [], // Track discovered lore entries

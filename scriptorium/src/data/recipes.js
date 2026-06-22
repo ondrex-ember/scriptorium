@@ -424,3 +424,10 @@ const RecipesDB = [
       desc:"Bednářská dílna. Výroba sudů pro export vína. Odemkne řemeslo bednáře.",
       desc_en:"Cooperage workshop. Craft barrels for wine export. Unlocks the cooper's craft." },
 ];
+// ── KADIDLO (Thuribulum) ─────────────────────────────────────────────────
+RecipesDB.push(
+    { id: "incense_spruce",   output: "incense_spruce",   qty: 1, req: { "resin_spruce": 1, "charcoal": 1 }, cat: "fire", locked: true, desc: "Smrková pryskyřice + uhlí = primitivní kadidlo.", desc_en: "Spruce resin + charcoal = basic incense." },
+    { id: "incense_pine",     output: "incense_pine",     qty: 1, req: { "resin_pine": 1,   "charcoal": 1 }, cat: "fire", locked: true, desc: "Borová pryskyřice + uhlí = vonné kadidlo.", desc_en: "Pine resin + charcoal = fragrant incense." },
+    { id: "incense_styrax",   output: "incense_styrax",   qty: 1, req: { "resin_styrax": 1, "charcoal": 1 }, cat: "fire", locked: true, desc: "Styrax + uhlí = byzantské kadidlo.", desc_en: "Styrax + charcoal = Byzantine incense." },
+    { id: "incense_olibanum", output: "incense_olibanum", qty: 1, req: { "resin_olibanum": 1, "charcoal": 1 }, cat: "fire", locked: true, desc: "Olibanum + uhlí = posvátné kadidlo.", desc_en: "Olibanum + charcoal = sacred incense." }
+);

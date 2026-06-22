@@ -547,3 +547,17 @@ const ItemsDB = {
 };
 // Oprava BUG #2 — semena stromů chybějící v ItemsDB (Trh nákup)
 // (vloženo před uzavírací }; — merge do objektu před buildem)
+// ── KADIDLO (Thuribulum) ─────────────────────────────────────────────────
+// Přidáno jako Object.assign — bezpečný merge bez zásahu do stávajícího kódu
+Object.assign(ItemsDB, {
+    // Suroviny — pryskyřice
+    "resin_spruce": { name: "Smrková pryskyřice", name_en: "Spruce Resin", icon: "🌲", type: "mat", desc: "Obyčejná smrková smůla nasbíraná v lese. Základ nejjednodušší kadidelné směsi.", desc_en: "Common spruce pitch from the forest. The basis of the simplest incense blend." },
+    "resin_pine": { name: "Borová pryskyřice", name_en: "Pine Resin", icon: "🌲", type: "mat", desc: "Lepkavá pryskyřice borového stromu. Dioscorides stromy Pitys a Peuce chválil pro jejich stahující vlastnosti.", desc_en: "Sticky pine resin. Dioscorides praised the Pitys and Peuce trees for their astringent properties." },
+    "resin_styrax": { name: "Styrax", name_en: "Styrax", icon: "🏺", type: "mat", desc: "Vzácná pryskyřice styraxového stromu dovážená z Levanty. Hojně využívaná v klášterních vykuřovadlech.", desc_en: "Rare resin of the styrax tree, imported from the Levant. Widely used in monastic incenses." },
+    "resin_olibanum": { name: "Olibanum", name_en: "Olibanum", icon: "✨", type: "mat", desc: "Pravé arabské kadidlo (Libanon Thus). Jak píše Dioscorides: dobré kadidlo je bílé, uvnitř mastné a hoří rovným plamenem.", desc_en: "True Arabian frankincense (Libanon Thus). As Dioscorides writes: good frankincense is white, oily within, and burns with a straight flame." },
+    // Hotová kadidla (consumable)
+    "incense_spruce": { name: "Smrkové kadidlo", name_en: "Spruce Incense", icon: "💨", type: "consumable", desc: "Hrouda smrčí smůly a uhlíku. Slabě vonící, ale dostupná útěcha pro únaveného písaře. Hoří 10 sekund.", desc_en: "A lump of spruce pitch and charcoal. Faint-scented but accessible comfort for a weary scribe. Burns for 10 seconds." },
+    "incense_pine": { name: "Borové kadidlo", name_en: "Pine Incense", icon: "💨", type: "consumable", desc: "Voní hlubokým lesem a pryskyřicí. Při hoření tiší únavu těla i mysli. Hoří 15 sekund.", desc_en: "Smells of deep forest and resin. Soothes the fatigue of body and mind while burning. Burns for 15 seconds." },
+    "incense_styrax": { name: "Styraxové kadidlo", name_en: "Styrax Incense", icon: "💨", type: "consumable", desc: "Sladce a těžce vonící kadidlo pro jasnou mysl. Oblíbené v byzantských klášterech. Hoří 22 sekund.", desc_en: "Sweet and heavy-scented incense for a clear mind. Favoured in Byzantine monasteries. Burns for 22 seconds." },
+    "incense_olibanum": { name: "Olibanum", name_en: "Olibanum Incense", icon: "💨", type: "consumable", desc: "Posvátný dým arabského kadidla. Kouř stoupá k nebi jako modlitba. Očišťuje tělo i ducha. Hoří 30 sekund.", desc_en: "Sacred smoke of Arabian frankincense. The smoke rises heavenward like a prayer. Purifies body and spirit. Burns for 30 seconds." },
+});

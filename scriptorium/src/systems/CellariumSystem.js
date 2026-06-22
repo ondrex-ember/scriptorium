@@ -348,6 +348,8 @@ const CellariumSystem = {
       { itemId: 'seeds_sage',      basePrice: 10, dailyStock: 3  },
       { itemId: 'seeds_fennel',    basePrice: 10, dailyStock: 3  },
       { itemId: 'seeds_flax',      basePrice: 9,  dailyStock: 10 },
+      // Kadidlo — dovozní pryskyřice (Thuribulum)
+      { itemId: 'resin_styrax',    basePrice: 18, dailyStock: 2,  req_tech: 'tech_thuribulum' },
     ],
     market: [
       { itemId: 'paper',         basePrice: 3,   dailyStock: 25 },
@@ -410,6 +412,8 @@ const CellariumSystem = {
       { itemId: 'iron_flail',    basePrice: 60,  dailyStock: 2,  req_tech: 'tech_kovarina' },
       { itemId: 'iron_shovel',   basePrice: 55,  dailyStock: 2,  req_tech: 'tech_kovarina' },
       { itemId: 'iron_saw',      basePrice: 65,  dailyStock: 2,  req_tech: 'tech_kovarina' },
+      // Kadidlo — vzácné arabské olibanum přes Giacoma (Thuribulum)
+      { itemId: 'resin_olibanum',  basePrice: 45, dailyStock: 1,  req_tech: 'tech_thuribulum' },
     ],
   },
 

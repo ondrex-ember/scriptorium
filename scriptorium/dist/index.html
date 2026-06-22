@@ -2423,6 +2423,7 @@
                             </div>
                         </div>
                         <div id="foculus-tea" style="display:none; margin-top:12px;"></div>
+                        <div id="foculus-incense" style="display:none; margin-top:12px;"></div>
                         <div id="foculus-dashboard" style="display:none; margin-top:12px;"></div>
                     </div>
                 </div>
@@ -5689,6 +5690,20 @@ const ItemsDB = {
 };
 // Oprava BUG #2 — semena stromů chybějící v ItemsDB (Trh nákup)
 // (vloženo před uzavírací }; — merge do objektu před buildem)
+// ── KADIDLO (Thuribulum) ─────────────────────────────────────────────────
+// Přidáno jako Object.assign — bezpečný merge bez zásahu do stávajícího kódu
+Object.assign(ItemsDB, {
+    // Suroviny — pryskyřice
+    "resin_spruce": { name: "Smrková pryskyřice", name_en: "Spruce Resin", icon: "🌲", type: "mat", desc: "Obyčejná smrková smůla nasbíraná v lese. Základ nejjednodušší kadidelné směsi.", desc_en: "Common spruce pitch from the forest. The basis of the simplest incense blend." },
+    "resin_pine": { name: "Borová pryskyřice", name_en: "Pine Resin", icon: "🌲", type: "mat", desc: "Lepkavá pryskyřice borového stromu. Dioscorides stromy Pitys a Peuce chválil pro jejich stahující vlastnosti.", desc_en: "Sticky pine resin. Dioscorides praised the Pitys and Peuce trees for their astringent properties." },
+    "resin_styrax": { name: "Styrax", name_en: "Styrax", icon: "🏺", type: "mat", desc: "Vzácná pryskyřice styraxového stromu dovážená z Levanty. Hojně využívaná v klášterních vykuřovadlech.", desc_en: "Rare resin of the styrax tree, imported from the Levant. Widely used in monastic incenses." },
+    "resin_olibanum": { name: "Olibanum", name_en: "Olibanum", icon: "✨", type: "mat", desc: "Pravé arabské kadidlo (Libanon Thus). Jak píše Dioscorides: dobré kadidlo je bílé, uvnitř mastné a hoří rovným plamenem.", desc_en: "True Arabian frankincense (Libanon Thus). As Dioscorides writes: good frankincense is white, oily within, and burns with a straight flame." },
+    // Hotová kadidla (consumable)
+    "incense_spruce": { name: "Smrkové kadidlo", name_en: "Spruce Incense", icon: "💨", type: "consumable", desc: "Hrouda smrčí smůly a uhlíku. Slabě vonící, ale dostupná útěcha pro únaveného písaře. Hoří 10 sekund.", desc_en: "A lump of spruce pitch and charcoal. Faint-scented but accessible comfort for a weary scribe. Burns for 10 seconds." },
+    "incense_pine": { name: "Borové kadidlo", name_en: "Pine Incense", icon: "💨", type: "consumable", desc: "Voní hlubokým lesem a pryskyřicí. Při hoření tiší únavu těla i mysli. Hoří 15 sekund.", desc_en: "Smells of deep forest and resin. Soothes the fatigue of body and mind while burning. Burns for 15 seconds." },
+    "incense_styrax": { name: "Styraxové kadidlo", name_en: "Styrax Incense", icon: "💨", type: "consumable", desc: "Sladce a těžce vonící kadidlo pro jasnou mysl. Oblíbené v byzantských klášterech. Hoří 22 sekund.", desc_en: "Sweet and heavy-scented incense for a clear mind. Favoured in Byzantine monasteries. Burns for 22 seconds." },
+    "incense_olibanum": { name: "Olibanum", name_en: "Olibanum Incense", icon: "💨", type: "consumable", desc: "Posvátný dým arabského kadidla. Kouř stoupá k nebi jako modlitba. Očišťuje tělo i ducha. Hoří 30 sekund.", desc_en: "Sacred smoke of Arabian frankincense. The smoke rises heavenward like a prayer. Purifies body and spirit. Burns for 30 seconds." },
+});
 // ═══ src/data/recipes.js ═══
 const RecipesDB = [
     // BASIC TOOLS
@@ -6116,6 +6131,13 @@ const RecipesDB = [
       desc:"Bednářská dílna. Výroba sudů pro export vína. Odemkne řemeslo bednáře.",
       desc_en:"Cooperage workshop. Craft barrels for wine export. Unlocks the cooper's craft." },
 ];
+// ── KADIDLO (Thuribulum) ─────────────────────────────────────────────────
+RecipesDB.push(
+    { id: "incense_spruce",   output: "incense_spruce",   qty: 1, req: { "resin_spruce": 1, "charcoal": 1 }, cat: "fire", locked: true, desc: "Smrková pryskyřice + uhlí = primitivní kadidlo.", desc_en: "Spruce resin + charcoal = basic incense." },
+    { id: "incense_pine",     output: "incense_pine",     qty: 1, req: { "resin_pine": 1,   "charcoal": 1 }, cat: "fire", locked: true, desc: "Borová pryskyřice + uhlí = vonné kadidlo.", desc_en: "Pine resin + charcoal = fragrant incense." },
+    { id: "incense_styrax",   output: "incense_styrax",   qty: 1, req: { "resin_styrax": 1, "charcoal": 1 }, cat: "fire", locked: true, desc: "Styrax + uhlí = byzantské kadidlo.", desc_en: "Styrax + charcoal = Byzantine incense." },
+    { id: "incense_olibanum", output: "incense_olibanum", qty: 1, req: { "resin_olibanum": 1, "charcoal": 1 }, cat: "fire", locked: true, desc: "Olibanum + uhlí = posvátné kadidlo.", desc_en: "Olibanum + charcoal = sacred incense." }
+);
 // ═══ src/data/lore.js ═══
 const LoreDB = {
     // TOOLS
@@ -7343,6 +7365,17 @@ const TechTree = [
   },
 
 ];
+// ── KADIDLO (Thuribulum) ─────────────────────────────────────────────────
+TechTree.push({
+    id: "tech_thuribulum",
+    name: "Thuribulum — Umění vykuřování",
+    name_en: "Thuribulum — Art of Incense",
+    cost: 12,
+    desc: "Antická medicína i mnišská liturgie znají sílu dýmu. Dioscorides psal o pryskyřicích Pitys a Peuce i o pravém Olibanu z Arábie. Odemkne: výrobu a pálení kadidla v Ohništi pro regeneraci Vigoru.",
+    desc_en: "Ancient medicine and monastic liturgy alike know the power of smoke. Dioscorides wrote of Pitys and Peuce resins and of true Olibanum from Arabia. Unlocks: crafting and burning incense at the Hearth for Vigor regeneration.",
+    unlocks: ["incense_spruce", "incense_pine", "incense_styrax", "incense_olibanum"],
+    requires: ["tech_meteorologica"]
+});
 // ═══ src/core/gamestate.js ═══
 const ActionsDB = [
     { id: 'basic',        cat: 'scavenge', name: 'Průzkum okolí',    name_en: 'Scour the grounds',  icon: '🖐',  desc: 'Suroviny',         desc_en: 'Raw materials',      yield: 1 },
@@ -7417,6 +7450,7 @@ const GameState = {
     activeAction: null,
     selectedDuration: 0,
     terrain: { fatigue: 0, lastRegen: 0, lastToastTier: 0 }, // TerrainSystem — únava krajiny
+    incense: { activeItem: null, timerRemaining: 0, maxTimer: 0, fatiguePerSec: 0 }, // IncenseSystem — kadidlo
     researchHour: { count: 0, hourStart: 0 }, // Research diminishing returns
     shopStock: { date: '', used: {} },          // Denní sklady entit (reset o půlnoci)
     discoveredLore: [], // Track discovered lore entries
@@ -14047,6 +14081,8 @@ const CellariumSystem = {
       { itemId: 'seeds_sage',      basePrice: 10, dailyStock: 3  },
       { itemId: 'seeds_fennel',    basePrice: 10, dailyStock: 3  },
       { itemId: 'seeds_flax',      basePrice: 9,  dailyStock: 10 },
+      // Kadidlo — dovozní pryskyřice (Thuribulum)
+      { itemId: 'resin_styrax',    basePrice: 18, dailyStock: 2,  req_tech: 'tech_thuribulum' },
     ],
     market: [
       { itemId: 'paper',         basePrice: 3,   dailyStock: 25 },
@@ -14109,6 +14145,8 @@ const CellariumSystem = {
       { itemId: 'iron_flail',    basePrice: 60,  dailyStock: 2,  req_tech: 'tech_kovarina' },
       { itemId: 'iron_shovel',   basePrice: 55,  dailyStock: 2,  req_tech: 'tech_kovarina' },
       { itemId: 'iron_saw',      basePrice: 65,  dailyStock: 2,  req_tech: 'tech_kovarina' },
+      // Kadidlo — vzácné arabské olibanum přes Giacoma (Thuribulum)
+      { itemId: 'resin_olibanum',  basePrice: 45, dailyStock: 1,  req_tech: 'tech_thuribulum' },
     ],
   },
 
@@ -16906,8 +16944,169 @@ const FireplaceSystem = {
             this._ensureTeaInterval();
             this._ensureCoffeeInterval();
         }
+        // Kadidlo (Thuribulum)
+        if (typeof IncenseSystem !== 'undefined') IncenseSystem.render();
     }
 };
+// ═══ src/systems/IncenseSystem.js ═══
+// IncenseSystem.js — Thuribulum (Kadidlo)
+// Pálení kadidla v Ohništi (Foculus) → pasivní snížení únavy po dobu hoření
+// Vzor: fireplace.js _teaInterval / _coffeeInterval
+
+const IncenseSystem = {
+
+    // Konfigurace kadidel: trvání (s) + fatigue snížení za sekundu
+    CONFIG: {
+        "incense_spruce":   { duration: 10, fatiguePerSec: 0.8 },
+        "incense_pine":     { duration: 15, fatiguePerSec: 0.8 },
+        "incense_styrax":   { duration: 22, fatiguePerSec: 1.0 },
+        "incense_olibanum": { duration: 30, fatiguePerSec: 1.2 }
+    },
+
+    _interval: null,
+
+    // ── Init (voláno při load/save) ──────────────────────────────────────────
+    init: function() {
+        if (!GameState.incense) {
+            GameState.incense = { activeItem: null, timerRemaining: 0, maxTimer: 0, fatiguePerSec: 0 };
+        }
+        // Obnov interval pokud kadidlo stále hoří (po reloadu stránky)
+        if (GameState.incense.timerRemaining > 0) {
+            this._ensureInterval();
+        }
+    },
+
+    // ── Zapálit kadidlo ──────────────────────────────────────────────────────
+    ignite: function(itemId) {
+        if (!GameState.incense) this.init();
+        if (GameState.incense.timerRemaining > 0) {
+            if (typeof UI !== 'undefined' && UI.notify) UI.notify(t('fireplace.incenseBurning').replace('{name}', this._itemName(GameState.incense.activeItem)).replace('{s}', Math.ceil(GameState.incense.timerRemaining)));
+            return;
+        }
+        const cfg = this.CONFIG[itemId];
+        if (!cfg) return;
+        if ((GameState.inventory[itemId] || 0) <= 0) {
+            if (typeof UI !== 'undefined' && UI.notify) UI.notify(t('fireplace.incenseEmpty'));
+            return;
+        }
+        // Spotřebovat kadidlo
+        GameState.inventory[itemId] = Math.max(0, (GameState.inventory[itemId] || 0) - 1);
+
+        // Nastavit stav
+        GameState.incense.activeItem    = itemId;
+        GameState.incense.timerRemaining = cfg.duration;
+        GameState.incense.maxTimer       = cfg.duration;
+        GameState.incense.fatiguePerSec  = cfg.fatiguePerSec;
+
+        this._ensureInterval();
+        this.render();
+        if (typeof Game !== 'undefined' && Game.saveGame) Game.saveGame();
+    },
+
+    // ── Uhasit kadidlo předčasně ─────────────────────────────────────────────
+    extinguish: function() {
+        if (!GameState.incense || GameState.incense.timerRemaining <= 0) return;
+        this._clearInterval();
+        GameState.incense.activeItem    = null;
+        GameState.incense.timerRemaining = 0;
+        GameState.incense.fatiguePerSec  = 0;
+        if (typeof UI !== 'undefined' && UI.notify) UI.notify(t('fireplace.incenseExtinguished'));
+        this.render();
+        if (typeof Game !== 'undefined' && Game.saveGame) Game.saveGame();
+    },
+
+    // ── Sekundový interval (tick) ────────────────────────────────────────────
+    _ensureInterval: function() {
+        if (this._interval) return;
+        this._interval = setInterval(() => { this._tick(); }, 1000);
+    },
+
+    _clearInterval: function() {
+        if (this._interval) { clearInterval(this._interval); this._interval = null; }
+    },
+
+    _tick: function() {
+        if (!GameState.incense || GameState.incense.timerRemaining <= 0) {
+            this._clearInterval();
+            return;
+        }
+        GameState.incense.timerRemaining -= 1;
+
+        // Vigor efekt: snížit únavu
+        if (typeof VigorSystem !== 'undefined') {
+            GameState.fatigue = Math.max(0, (GameState.fatigue || 0) - GameState.incense.fatiguePerSec);
+        }
+
+        if (GameState.incense.timerRemaining <= 0) {
+            // Dohořelo
+            GameState.incense.activeItem    = null;
+            GameState.incense.timerRemaining = 0;
+            GameState.incense.fatiguePerSec  = 0;
+            this._clearInterval();
+            if (typeof UI !== 'undefined' && UI.notify) UI.notify(t('fireplace.incenseBurnedOut'));
+            if (typeof Game !== 'undefined' && Game.saveGame) Game.saveGame();
+        }
+
+        this.render();
+    },
+
+    // ── Render sekce v Fokusu ────────────────────────────────────────────────
+    render: function() {
+        const el = document.getElementById('foculus-incense');
+        if (!el) return;
+
+        // Tech gate
+        const techUnlocked = GameState.research && GameState.research['tech_thuribulum'];
+        if (!techUnlocked) {
+            el.innerHTML = '<div style="opacity:0.5; font-style:italic; font-size:0.85rem;">' + t('fireplace.incenseLocked') + '</div>';
+            el.style.display = 'block';
+            return;
+        }
+
+        const inc = GameState.incense;
+        let html = '<div style="margin-top:4px;"><strong>' + t('fireplace.incenseTitle') + '</strong></div>';
+
+        if (inc && inc.timerRemaining > 0) {
+            // Kadidlo hoří — zobraz progress bar + tlačítko Uhasit
+            const pct = Math.round((inc.timerRemaining / inc.maxTimer) * 100);
+            const name = this._itemName(inc.activeItem);
+            html += '<div style="margin-top:6px; font-size:0.9rem;">💨 ' + name + ' — ' + Math.ceil(inc.timerRemaining) + ' s</div>';
+            html += '<div style="height:8px; background:rgba(0,0,0,0.2); border-radius:4px; overflow:hidden; margin:6px 0; border:1px solid rgba(197,160,89,0.3);">';
+            html += '<div style="width:' + pct + '%; height:100%; background:#c8a96e; transition:width 1s linear;"></div></div>';
+            html += '<button class="filter-btn" onclick="IncenseSystem.extinguish()" style="font-size:0.8rem;">' + t('fireplace.incenseExtinguish') + '</button>';
+        } else {
+            // Kadidlo nehoří — zobraz dostupná kadidla
+            const order = ["incense_spruce", "incense_pine", "incense_styrax", "incense_olibanum"];
+            let hasAny = false;
+            order.forEach(function(itemId) {
+                const qty = GameState.inventory[itemId] || 0;
+                if (qty > 0) {
+                    hasAny = true;
+                    const iName = IncenseSystem._itemName(itemId);
+                    const icon = (ItemsDB[itemId] && ItemsDB[itemId].icon) ? ItemsDB[itemId].icon : '💨';
+                    html += '<div style="display:flex; justify-content:space-between; align-items:center; margin-top:5px; font-size:0.88rem;">';
+                    html += '<span>' + icon + ' ' + iName + ' <span style="color:var(--accent-gold);">×' + qty + '</span></span>';
+                    html += '<button class="filter-btn" onclick="IncenseSystem.ignite(\'' + itemId + '\')" style="font-size:0.78rem; padding:3px 8px;">' + t('fireplace.incenseBurn') + '</button>';
+                    html += '</div>';
+                }
+            });
+            if (!hasAny) {
+                html += '<div style="opacity:0.55; font-size:0.85rem; font-style:italic; margin-top:5px;">' + t('fireplace.incenseEmpty') + '</div>';
+            }
+        }
+
+        el.innerHTML = html;
+        el.style.display = 'block';
+    },
+
+    // ── Helper: jméno itemu dle jazyka ──────────────────────────────────────
+    _itemName: function(itemId) {
+        if (!itemId || !ItemsDB[itemId]) return itemId || '';
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        return lang === 'en' ? (ItemsDB[itemId].name_en || ItemsDB[itemId].name) : ItemsDB[itemId].name;
+    }
+};
+
 // ═══ src/systems/GardenSystem.js ═══
 // ═══════════════════════════════════════════════════════════════════════════
 // GardenSystem — Zahrada, Dvůr, Sad, Apiarium, Piscina, Studna
@@ -29237,7 +29436,15 @@ const STRINGS_cs = {
         coffeeTitle: 'Kávovina — Žaludovka & Cikorka', coffeeBrew: 'Uvařit kávovinu', coffeeDrink: 'PÍT KÁVOVINU', coffeeBrewing: 'Vaří se… {s} s',
         coffeeNeedKettle: 'Potřebuješ Konvičku (vyrob v Craftu)', coffeeNeedFire: 'Rozdělej oheň', coffeeNeedHerb: 'Chybí pražená surovina (žalud, čekanka)', coffeeNeedWater: 'Chybí voda',
         sweepReady: '🧹 Vymést popelník (+4 popel)', sweepWait: '🧹 Vymést — za {h} h',
-        sweepDone: 'Vymeteno. +{n} popel, +4 saze.', sweepNeedFire: 'Nejdříve zapal krb.', sweepCooldown: 'Popelník byl vymetán nedávno.'
+        sweepDone: 'Vymeteno. +{n} popel, +4 saze.', sweepNeedFire: 'Nejdříve zapal krb.', sweepCooldown: 'Popelník byl vymetán nedávno.',
+        incenseTitle: 'Kadidlo (Thuribulum)',
+        incenseBurn: 'Zapálit',
+        incenseExtinguish: 'Uhasit',
+        incenseBurnedOut: 'Kadidlo dohořelo. Vůně se rozplynula.',
+        incenseExtinguished: 'Kadidlo bylo předčasně uhašeno.',
+        incenseEmpty: 'Nemáš v zásobě žádné kadidlo.',
+        incenseBurning: 'Hoří: {name} ({s} s)',
+        incenseLocked: 'Prostuduj Thuribulum pro pálení kadidla.'
     },
     light: {
         none: 'Není světlo', noneDesc: 'Tma halí knihy.',
@@ -30927,7 +31134,15 @@ const STRINGS_en = {
         coffeeTitle: 'Coffee Substitute — Acorn Brew & Chicory Coffee', coffeeBrew: 'Brew coffee substitute', coffeeDrink: 'DRINK COFFEE SUBSTITUTE', coffeeBrewing: 'Brewing… {s} s',
         coffeeNeedKettle: 'You need a Kettle (craft it)', coffeeNeedFire: 'Light the fire', coffeeNeedHerb: 'No roasted ingredient (acorn, chicory)', coffeeNeedWater: 'No water',
         sweepReady: '🧹 Sweep the hearth (+4 ash)', sweepWait: '🧹 Sweep — in {h} h',
-        sweepDone: 'Swept. +{n} ash, +4 soot.', sweepNeedFire: 'Light the fire first.', sweepCooldown: 'The hearth was swept recently.'
+        sweepDone: 'Swept. +{n} ash, +4 soot.', sweepNeedFire: 'Light the fire first.', sweepCooldown: 'The hearth was swept recently.',
+        incenseTitle: 'Incense (Thuribulum)',
+        incenseBurn: 'Ignite',
+        incenseExtinguish: 'Extinguish',
+        incenseBurnedOut: 'The incense has burned out. The fragrance fades.',
+        incenseExtinguished: 'The incense was extinguished early.',
+        incenseEmpty: 'You have no incense in stock.',
+        incenseBurning: 'Burning: {name} ({s} s)',
+        incenseLocked: 'Study Thuribulum to burn incense.'
     },
     light: {
         none: 'No Light', noneDesc: 'Darkness claimeth this place.',
@@ -34005,6 +34220,7 @@ const Game = {
         // v8.0: Initialize new systems BEFORE renderAll (GameState must be ready)
         RankSystem.init();
         VigorSystem.init();
+        if (typeof IncenseSystem !== 'undefined') IncenseSystem.init();
         CellariumSystem.init();
         PersonaSystem.init();
         SecretsSystem.init();
@@ -35478,6 +35694,9 @@ const Game = {
                     if(Math.random() < 0.05) this.addItem('linden_blossom', 1);
                     if(Math.random() < 0.03) this.addItem('pollen', 1);
                     if(Math.random() < 0.03) this.addItem('viticis_baco', 1);
+                    // Kadidlo: smrková a borová pryskyřice
+                    if(Math.random() < 0.40) this.addItem('resin_spruce', 1);
+                    if(Math.random() < 0.25) this.addItem('resin_pine', 1);
                 }
                 else if (type === 'grass_gather') {
                     this.addItem('grass', Math.random() < 0.5 ? 3 : 2);
@@ -35716,6 +35935,9 @@ const Game = {
                 else this.addItem('bark', 1);
                 if(Math.random() < 0.15) this.addItem('beeswax', 1);
                 if(Math.random() < 0.03) this.addItem('viticis_baco', 1);
+                // Kadidlo: smrková a borová pryskyřice
+                if(Math.random() < 0.40) this.addItem('resin_spruce', 1);
+                if(Math.random() < 0.25) this.addItem('resin_pine', 1);
             }
             else if (type === 'grass_gather') {
                 this.addItem('grass', Math.random() < 0.5 ? 3 : 2);

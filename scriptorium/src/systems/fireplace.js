@@ -676,5 +676,7 @@ const FireplaceSystem = {
             this._ensureTeaInterval();
             this._ensureCoffeeInterval();
         }
+        // Kadidlo (Thuribulum)
+        if (typeof IncenseSystem !== 'undefined') IncenseSystem.render();
     }
 };

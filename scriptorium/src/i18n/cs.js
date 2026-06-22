@@ -25,7 +25,15 @@ const STRINGS_cs = {
         coffeeTitle: 'Kávovina — Žaludovka & Cikorka', coffeeBrew: 'Uvařit kávovinu', coffeeDrink: 'PÍT KÁVOVINU', coffeeBrewing: 'Vaří se… {s} s',
         coffeeNeedKettle: 'Potřebuješ Konvičku (vyrob v Craftu)', coffeeNeedFire: 'Rozdělej oheň', coffeeNeedHerb: 'Chybí pražená surovina (žalud, čekanka)', coffeeNeedWater: 'Chybí voda',
         sweepReady: '🧹 Vymést popelník (+4 popel)', sweepWait: '🧹 Vymést — za {h} h',
-        sweepDone: 'Vymeteno. +{n} popel, +4 saze.', sweepNeedFire: 'Nejdříve zapal krb.', sweepCooldown: 'Popelník byl vymetán nedávno.'
+        sweepDone: 'Vymeteno. +{n} popel, +4 saze.', sweepNeedFire: 'Nejdříve zapal krb.', sweepCooldown: 'Popelník byl vymetán nedávno.',
+        incenseTitle: 'Kadidlo (Thuribulum)',
+        incenseBurn: 'Zapálit',
+        incenseExtinguish: 'Uhasit',
+        incenseBurnedOut: 'Kadidlo dohořelo. Vůně se rozplynula.',
+        incenseExtinguished: 'Kadidlo bylo předčasně uhašeno.',
+        incenseEmpty: 'Nemáš v zásobě žádné kadidlo.',
+        incenseBurning: 'Hoří: {name} ({s} s)',
+        incenseLocked: 'Prostuduj Thuribulum pro pálení kadidla.'
     },
     light: {
         none: 'Není světlo', noneDesc: 'Tma halí knihy.',

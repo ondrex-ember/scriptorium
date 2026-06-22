@@ -339,3 +339,14 @@ const TechTree = [
   },
 
 ];
+// ── KADIDLO (Thuribulum) ─────────────────────────────────────────────────
+TechTree.push({
+    id: "tech_thuribulum",
+    name: "Thuribulum — Umění vykuřování",
+    name_en: "Thuribulum — Art of Incense",
+    cost: 12,
+    desc: "Antická medicína i mnišská liturgie znají sílu dýmu. Dioscorides psal o pryskyřicích Pitys a Peuce i o pravém Olibanu z Arábie. Odemkne: výrobu a pálení kadidla v Ohništi pro regeneraci Vigoru.",
+    desc_en: "Ancient medicine and monastic liturgy alike know the power of smoke. Dioscorides wrote of Pitys and Peuce resins and of true Olibanum from Arabia. Unlocks: crafting and burning incense at the Hearth for Vigor regeneration.",
+    unlocks: ["incense_spruce", "incense_pine", "incense_styrax", "incense_olibanum"],
+    requires: ["tech_meteorologica"]
+});

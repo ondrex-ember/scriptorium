@@ -26,7 +26,15 @@ const STRINGS_en = {
         coffeeTitle: 'Coffee Substitute — Acorn Brew & Chicory Coffee', coffeeBrew: 'Brew coffee substitute', coffeeDrink: 'DRINK COFFEE SUBSTITUTE', coffeeBrewing: 'Brewing… {s} s',
         coffeeNeedKettle: 'You need a Kettle (craft it)', coffeeNeedFire: 'Light the fire', coffeeNeedHerb: 'No roasted ingredient (acorn, chicory)', coffeeNeedWater: 'No water',
         sweepReady: '🧹 Sweep the hearth (+4 ash)', sweepWait: '🧹 Sweep — in {h} h',
-        sweepDone: 'Swept. +{n} ash, +4 soot.', sweepNeedFire: 'Light the fire first.', sweepCooldown: 'The hearth was swept recently.'
+        sweepDone: 'Swept. +{n} ash, +4 soot.', sweepNeedFire: 'Light the fire first.', sweepCooldown: 'The hearth was swept recently.',
+        incenseTitle: 'Incense (Thuribulum)',
+        incenseBurn: 'Ignite',
+        incenseExtinguish: 'Extinguish',
+        incenseBurnedOut: 'The incense has burned out. The fragrance fades.',
+        incenseExtinguished: 'The incense was extinguished early.',
+        incenseEmpty: 'You have no incense in stock.',
+        incenseBurning: 'Burning: {name} ({s} s)',
+        incenseLocked: 'Study Thuribulum to burn incense.'
     },
     light: {
         none: 'No Light', noneDesc: 'Darkness claimeth this place.',

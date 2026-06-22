@@ -389,6 +389,7 @@ const Game = {
         // v8.0: Initialize new systems BEFORE renderAll (GameState must be ready)
         RankSystem.init();
         VigorSystem.init();
+        if (typeof IncenseSystem !== 'undefined') IncenseSystem.init();
         CellariumSystem.init();
         PersonaSystem.init();
         SecretsSystem.init();
@@ -1862,6 +1863,9 @@ const Game = {
                     if(Math.random() < 0.05) this.addItem('linden_blossom', 1);
                     if(Math.random() < 0.03) this.addItem('pollen', 1);
                     if(Math.random() < 0.03) this.addItem('viticis_baco', 1);
+                    // Kadidlo: smrková a borová pryskyřice
+                    if(Math.random() < 0.40) this.addItem('resin_spruce', 1);
+                    if(Math.random() < 0.25) this.addItem('resin_pine', 1);
                 }
                 else if (type === 'grass_gather') {
                     this.addItem('grass', Math.random() < 0.5 ? 3 : 2);
@@ -2100,6 +2104,9 @@ const Game = {
                 else this.addItem('bark', 1);
                 if(Math.random() < 0.15) this.addItem('beeswax', 1);
                 if(Math.random() < 0.03) this.addItem('viticis_baco', 1);
+                // Kadidlo: smrková a borová pryskyřice
+                if(Math.random() < 0.40) this.addItem('resin_spruce', 1);
+                if(Math.random() < 0.25) this.addItem('resin_pine', 1);
             }
             else if (type === 'grass_gather') {
                 this.addItem('grass', Math.random() < 0.5 ? 3 : 2);
