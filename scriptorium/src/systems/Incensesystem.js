@@ -105,7 +105,7 @@ const IncenseSystem = {
         if (!el) return;
 
         // Tech gate
-        const techUnlocked = GameState.research && GameState.research['tech_thuribulum'];
+        const techUnlocked = GameState.researchedTechs && GameState.researchedTechs.includes('tech_thuribulum');
         if (!techUnlocked) {
             el.innerHTML = '<div style="opacity:0.5; font-style:italic; font-size:0.85rem;">' + t('fireplace.incenseLocked') + '</div>';
             el.style.display = 'block';
