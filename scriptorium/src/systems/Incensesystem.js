@@ -1,4 +1,4 @@
-// IncenseSystem.js — Thuribulum (Kadidlo)
+// IncenseSystem.js — Thuribulum (Kadidlo1)
 // Pálení kadidla v Ohništi (Foculus) → pasivní snížení únavy po dobu hoření
 // Vzor: fireplace.js _teaInterval / _coffeeInterval
 
