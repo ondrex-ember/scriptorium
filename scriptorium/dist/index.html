@@ -17017,7 +17017,7 @@ const FireplaceSystem = {
     }
 };
 // ═══ src/systems/IncenseSystem.js ═══
-// IncenseSystem.js — Thuribulum (Kadidlo)
+// IncenseSystem.js — Thuribulum (Kadidlo1)
 // Pálení kadidla v Ohništi (Foculus) → pasivní snížení únavy po dobu hoření
 // Vzor: fireplace.js _teaInterval / _coffeeInterval
 
@@ -17174,6 +17174,7 @@ const IncenseSystem = {
         return lang === 'en' ? (ItemsDB[itemId].name_en || ItemsDB[itemId].name) : ItemsDB[itemId].name;
     }
 };
+
 // ═══ src/systems/GardenSystem.js ═══
 // ═══════════════════════════════════════════════════════════════════════════
 // GardenSystem — Zahrada, Dvůr, Sad, Apiarium, Piscina, Studna
@@ -37628,7 +37629,7 @@ const UI = {
 
     renderActions: function () {
         const lang = (GameState.settings && GameState.settings.language) || 'cs';
-        const _hAct = JSON.stringify(GameState.inventory) + lang + (GameState.activeAction ? GameState.activeAction.id + GameState.activeAction.endTime : '') + (GameState.flags.fireplaceLit ? '1' : '0') + (GameState.activeAction ? Math.floor(Date.now() / 1000) : '');
+        const _hAct = JSON.stringify(GameState.inventory) + lang + 'd:' + (GameState.selectedDuration ?? 0) + (GameState.activeAction ? GameState.activeAction.id + GameState.activeAction.endTime : '') + (GameState.flags.fireplaceLit ? '1' : '0') + (GameState.activeAction ? Math.floor(Date.now() / 1000) : '');
         if (_hAct === this._hashActions) return;
         this._hashActions = _hAct;
         const el = document.getElementById('workspace-actions');
@@ -39620,6 +39621,7 @@ const UI = {
 // ===============================================
 // NOTEBOOK SYSTEM - LOCAL ONLY (NO CLOUD)
 // ===============================================
+
 // ═══ src/systems/iching.js ═══
 const IChing = {
 	  
