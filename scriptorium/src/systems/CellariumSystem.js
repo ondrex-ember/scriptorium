@@ -128,11 +128,16 @@ const CellariumSystem = {
     paper:          2,
     ink:            2,
     ink_gallic:     5,
-    vellum:        12,
-    common_codex:   8,
-    luxury_codex:  20,
-    vellum_codex:  45,
+    vellum:        20,
+    common_codex:  35,
+    luxury_codex:  75,
+    vellum_codex: 150,
     research:       3,
+    // Rukopisy — craftované knihy (tier 1→4)
+    adversaria:    18,
+    vademecum:     45,
+    florilegium:   70,
+    enchiridion:  110,
     // Jídlo
     bread:          1,
     cooked_meat:    3,
@@ -233,6 +238,7 @@ const CellariumSystem = {
   ITEM_CAT: {
     paper: 'lore', ink: 'lore', ink_gallic: 'lore', vellum: 'lore',
     common_codex: 'lore', luxury_codex: 'lore', vellum_codex: 'lore', research: 'lore',
+    adversaria: 'lore', vademecum: 'lore', florilegium: 'lore', enchiridion: 'lore',
     bread: 'food', cooked_meat: 'food', cooked_fish: 'food', stew: 'food',
     mushroom_soup: 'food', berry_pie: 'food', honey: 'food',
     fiber: 'mat', bark: 'mat', hide: 'mat', leather: 'mat', bone: 'mat',
@@ -283,7 +289,8 @@ const CellariumSystem = {
     const pseudoRand = ((seed * 9301 + entity.charCodeAt(0) * 49297 + itemId.charCodeAt(0) * 233) % 1000) / 1000;
     const offset = 0.85 + pseudoRand * 0.30; // 0.85–1.15
     const satMult = this._saturationMult(itemId, entity);
-    return Math.max(1, Math.round(base * coeff * offset * satMult));
+    const roleMult = (typeof RankSystem !== 'undefined') ? RankSystem.getActiveBonus('market_price') : 1.0;
+    return Math.max(1, Math.round(base * coeff * offset * satMult * roleMult));
   },
 
   // ═══════════════════════════════════════════════════════════════════════════

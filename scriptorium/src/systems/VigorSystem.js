@@ -839,6 +839,10 @@ const VigorSystem = {
             <div style="font-size:0.7rem;opacity:0.6;margin-top:4px;">${recovText}</div>
             ${nonaBtn}
             ${meditBtn}
+            <div style="border-top:1px solid rgba(197,160,89,0.15);margin-top:8px;padding-top:6px;font-size:0.7rem;opacity:0.65;display:flex;justify-content:space-between;">
+                <span>${(typeof RankSystem !== 'undefined' && GameState.rank) ? (RankSystem.getCurrentSecularRank().icon + ' ' + RankSystem.getRankNameShort(GameState.rank.secular)) : '–'}</span>
+                <span style="font-style:italic;">${GameState.persona && GameState.persona.role ? '⚒️ ' + GameState.persona.role : (lang === 'en' ? 'no role' : 'bez role')}</span>
+            </div>
         `;
     },
 

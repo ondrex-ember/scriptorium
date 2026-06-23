@@ -52,6 +52,12 @@ const PersonaSystem = {
         if (!GameState.persona.influence) GameState.persona.influence = { benedikt: 0, giacomo: 0, abbot: 0 };
         if (!GameState.persona.milestones) GameState.persona.milestones = [];
         if (!GameState.persona.professions) GameState.persona.professions = [];
+        // Migrace v2 — rozšířená influence + role
+        if (GameState.persona.influence.village  === undefined) GameState.persona.influence.village  = 0;
+        if (GameState.persona.influence.church   === undefined) GameState.persona.influence.church   = 0;
+        if (GameState.persona.influence.scholars === undefined) GameState.persona.influence.scholars = 0;
+        if (GameState.persona.influenceLastDecay === undefined) GameState.persona.influenceLastDecay = Date.now();
+        if (GameState.persona.role               === undefined) GameState.persona.role               = null;
 
         // Zkontrolovat zda zobrazit origin modal
         this.checkOriginModal();
@@ -178,6 +184,8 @@ const PersonaSystem = {
                 onclick="PersonaSystem.switchTab('stats',this)">📊 ${lang==='en'?'Statistics':'Statistiky'}</button>
             <button id="persona-tab-influentia" class="filter-btn ${this._activeTab==='influentia'?'active':''}"
                 onclick="PersonaSystem.switchTab('influentia',this)">🤝 ${lang==='en'?'Influentia':'Influentia'}</button>
+            <button id="persona-tab-professio" class="filter-btn ${this._activeTab==='professio'?'active':''}"
+                onclick="PersonaSystem.switchTab('professio',this)">⚒️ ${lang==='en'?'Professio':'Professio'}</button>
             <button id="persona-tab-felis" class="filter-btn ${this._activeTab==='felis'?'active':''}"
                 onclick="PersonaSystem.switchTab('felis',this)">🐈‍⬛ Felis</button>
         </div>`;
@@ -186,6 +194,7 @@ const PersonaSystem = {
         h += `<div id="persona-subtab-vigor"    style="${this._activeTab==='vigor'?'':'display:none'}">` + this._renderVigor(lang) + `</div>`;
         h += `<div id="persona-subtab-stats"    style="${this._activeTab==='stats'?'':'display:none'}">` + this._renderStats(lang) + `</div>`;
         h += `<div id="persona-subtab-influentia" style="${this._activeTab==='influentia'?'':'display:none'}">` + this._renderInfluentia(lang) + `</div>`;
+        h += `<div id="persona-subtab-professio" style="${this._activeTab==='professio'?'':'display:none'}">` + this._renderProfessio(lang) + `</div>`;
         h += `<div id="persona-subtab-felis" style="${this._activeTab==='felis'?'':'display:none'}">` + this._renderFelis(lang) + `</div>`;
 
         el.innerHTML = h;
@@ -195,7 +204,7 @@ const PersonaSystem = {
         this._activeTab = tab;
         document.querySelectorAll('#lore-persona-content .filter-btn').forEach(b => b.classList.remove('active'));
         if (btn) btn.classList.add('active');
-        ['persona','vigor','stats','influentia','felis'].forEach(t => {
+        ['persona','vigor','stats','influentia','professio','felis'].forEach(t => {
             const d = document.getElementById('persona-subtab-' + t);
             if (d) d.style.display = t === tab ? '' : 'none';
         });
@@ -289,6 +298,76 @@ const PersonaSystem = {
         <div style="margin-top:16px;">
             <div style="font-size:0.75rem;font-weight:bold;letter-spacing:0.06em;text-transform:uppercase;opacity:0.6;margin-bottom:8px;">📜 ${lang==='en'?'Cursus Vitae':'Cursus Vitae'}</div>
             ${timelineHtml}
+        </div>
+        ${this._renderNextRankProgress(lang)}`;
+    },
+
+    // ── Progress k příštímu ranku ────────────────────────────────────────────
+    _renderNextRankProgress: function(lang) {
+        if (typeof RankSystem === 'undefined') return '';
+        const currentTier = RankSystem.getSecularRankTier();
+        const nextRank = RankSystem.secular[currentTier]; // tier je 1-based, pole 0-based
+        if (!nextRank) {
+            return `<div style="margin-top:14px;padding:10px 12px;background:rgba(197,160,89,0.08);border-left:3px solid var(--accent-gold);border-radius:4px;font-size:0.82rem;opacity:0.75;font-style:italic;">
+                ${lang==='en'?'Maximum secular rank reached.':'Nejvyšší světský rank dosažen.'}
+            </div>`;
+        }
+
+        const rc = GameState.achievements?.stats?.researchCount || 0;
+        const techs = GameState.researchedTechs || [];
+        const inv = GameState.inventory || {};
+        const nid = nextRank.id;
+
+        // Sestavit checklist podmínek pro každý rank
+        const checks = [];
+        if (nid === 'librarius') {
+            checks.push({ label: lang==='en'?`Research ${rc}/5`:`Research ${rc}/5`, done: rc >= 5 });
+        } else if (nid === 'antiquarius') {
+            checks.push({ label: lang==='en'?`Research ${rc}/15`:`Research ${rc}/15`, done: rc >= 15 });
+            checks.push({ label: lang==='en'?`Technologies ${techs.length}/2`:`Technologie ${techs.length}/2`, done: techs.length >= 2 });
+        } else if (nid === 'rubricator') {
+            const hasIllum = techs.includes('tech_illumination');
+            const hasInk = (inv['gallic_ink'] || 0) > 0;
+            checks.push({ label: lang==='en'?'Tech: Illumination':'Tech: Iluminace', done: hasIllum });
+            checks.push({ label: lang==='en'?'Gallic ink in inventory':'Gallic ink na skladě', done: hasInk });
+        } else if (nid === 'illuminator') {
+            const hasIllum = techs.includes('tech_illumination');
+            const hasVellum = (inv['vellum_codex'] || 0) > 0;
+            checks.push({ label: lang==='en'?'Tech: Illumination':'Tech: Iluminace', done: hasIllum });
+            checks.push({ label: lang==='en'?'Vellum codex in inventory':'Vellum codex na skladě', done: hasVellum });
+            checks.push({ label: lang==='en'?`Research ${rc}/25`:`Research ${rc}/25`, done: rc >= 25 });
+        } else if (nid === 'stationarius') {
+            const hasSeal = (inv['bishop_seal'] || 0) > 0;
+            checks.push({ label: lang==='en'?'Bishop seal in inventory':'Bishop seal na skladě', done: hasSeal });
+            checks.push({ label: lang==='en'?`Research ${rc}/40`:`Research ${rc}/40`, done: rc >= 40 });
+        }
+
+        if (!checks.length) return '';
+
+        const doneCnt = checks.filter(c => c.done).length;
+        const pct = Math.round((doneCnt / checks.length) * 100);
+        const nextName = RankSystem.getRankName ? RankSystem.getRankName(nid) : nid;
+        const nextIcon = nextRank.icon || '📜';
+
+        const checkRows = checks.map(c => `
+            <div style="display:flex;align-items:center;gap:8px;font-size:0.8rem;padding:3px 0;">
+                <span style="color:${c.done ? '#5a9a5a' : 'rgba(0,0,0,0.3)'};">${c.done ? '✓' : '○'}</span>
+                <span style="opacity:${c.done ? '1' : '0.55'};">${c.label}</span>
+            </div>`).join('');
+
+        return `<div style="margin-top:14px;padding:12px;background:rgba(197,160,89,0.06);border:1px solid rgba(197,160,89,0.2);border-radius:8px;">
+            <div style="font-size:0.75rem;font-weight:bold;letter-spacing:0.06em;text-transform:uppercase;opacity:0.6;margin-bottom:8px;">
+                ${lang==='en'?'Path to next rank':'Cesta k příštímu ranku'}: ${nextIcon} ${nextName}
+            </div>
+            ${checkRows}
+            <div style="margin-top:10px;">
+                <div style="display:flex;justify-content:space-between;font-size:0.75rem;opacity:0.6;margin-bottom:4px;">
+                    <span>${lang==='en'?'Progress':'Postup'}</span><span>${pct} %</span>
+                </div>
+                <div style="height:6px;background:rgba(0,0,0,0.1);border-radius:3px;overflow:hidden;">
+                    <div style="height:100%;width:${pct}%;background:${pct >= 100 ? '#5a9a5a' : 'var(--accent-gold)'};border-radius:3px;transition:width 0.5s;"></div>
+                </div>
+            </div>
         </div>`;
     },
 
@@ -345,47 +424,199 @@ const PersonaSystem = {
 
     // ── Sekce 3: Influentia ──────────────────────────────────────────────────
     _renderInfluentia: function(lang) {
-        const inf = (GameState.persona && GameState.persona.influence) || { benedikt:0, giacomo:0, abbot:0 };
+        const inf = (GameState.persona && GameState.persona.influence) || {};
 
-        const bar = (icon, name, value, desc) => {
-            const pct = Math.min(100, Math.round(value));
+        const bar = (icon, name, value, desc, locked) => {
+            const pct = Math.min(100, Math.round(value || 0));
             const color = pct >= 75 ? '#5a9a5a' : pct >= 40 ? 'var(--accent-gold)' : 'var(--ink-secondary)';
-            return `<div style="margin-bottom:16px;padding:12px;background:var(--bg-card);border:1px solid rgba(197,160,89,0.2);border-radius:8px;">
+            const opacity = locked ? 'opacity:0.42;' : '';
+            const lockBadge = locked
+                ? `<span style="font-size:0.72rem;opacity:0.6;font-style:italic;">${lang==='en'?'unlock via activity':'odemkne aktivitou'}</span>`
+                : `<strong style="color:${color};">${pct}/100</strong>`;
+            return `<div style="margin-bottom:12px;padding:12px;background:var(--bg-card);border:1px solid rgba(197,160,89,0.2);border-radius:8px;${opacity}">
                 <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
-                    <span style="font-size:1.4rem;">${icon}</span>
+                    <span style="font-size:1.3rem;">${icon}</span>
                     <div style="flex:1;">
-                        <div style="font-weight:bold;font-size:0.9rem;">${name}</div>
-                        <div style="font-size:0.75rem;opacity:0.65;font-style:italic;">${desc}</div>
+                        <div style="font-weight:bold;font-size:0.88rem;">${name}</div>
+                        <div style="font-size:0.74rem;opacity:0.65;font-style:italic;">${desc}</div>
                     </div>
-                    <strong style="color:${color};">${pct}/100</strong>
+                    ${lockBadge}
                 </div>
-                <div style="height:6px;background:rgba(0,0,0,0.1);border-radius:3px;">
+                <div style="height:5px;background:rgba(0,0,0,0.1);border-radius:3px;">
                     <div style="height:100%;width:${pct}%;background:${color};border-radius:3px;transition:width 0.4s;"></div>
                 </div>
             </div>`;
         };
 
-        let h = bar('🏠', lang==='en'?'Benedikt of Litomyšl (Cellarius)':'Benedikt z Litomyšle (Cellarius)',
+        let h = `<div style="font-size:0.75rem;font-weight:bold;letter-spacing:0.06em;text-transform:uppercase;opacity:0.55;margin-bottom:10px;">${lang==='en'?'NPC relations':'Vztahy s NPC'}</div>`;
+
+        h += bar('🏠', lang==='en'?'Benedikt of Litomyšl':'Benedikt z Litomyšle',
             inf.benedikt,
-            lang==='en'?'Master of the cellar and trade. High influence → better prices in Hospoda.':'Správce sklepa a obchodu. Vysoký vliv → lepší ceny v Hospodě.');
-        h += bar('⚓', lang==='en'?'Giacomo Foscari (Mercator)':'Giacomo Foscari (Mercator)',
+            lang==='en'?'Cellarius — high influence → better prices in Hospoda.':'Cellarius — vysoký vliv → lepší ceny v Hospodě.', false);
+        h += bar('⚓', lang==='en'?'Giacomo Foscari':'Giacomo Foscari',
             inf.giacomo,
-            lang==='en'?'Venetian merchant. High influence → rare goods and special orders.':'Benátský obchodník. Vysoký vliv → vzácné zboží a speciální zakázky.');
+            lang==='en'?'Venetian merchant — high influence → rare goods, special orders.':'Benátský obchodník — vysoký vliv → vzácné zboží, speciální zakázky.', false);
         h += bar('✝️', lang==='en'?'The Abbot':'Opat',
             inf.abbot,
-            lang==='en'?'Father of the monastery. High influence → Scrinium access and rank advancement.':'Otec kláštera. Vysoký vliv → přístup do Scrinia a postup v ranku.');
+            lang==='en'?'Father of the monastery — Scrinium access, rank advancement.':'Otec kláštera — přístup do Scrinia, postup v ranku.', false);
 
-        h += `<div style="margin-top:16px;padding:12px;background:rgba(197,160,89,0.06);border-radius:8px;border-left:3px solid rgba(197,160,89,0.3);">
-            <div style="font-size:0.75rem;font-weight:bold;letter-spacing:0.06em;text-transform:uppercase;opacity:0.6;margin-bottom:8px;">⚒️ ${lang==='en'?'Professions':'Professio'}</div>
-            <div style="font-size:0.82rem;opacity:0.6;font-style:italic;">
-                ${lang==='en'?'Professions unlock through activity. Coming in a future update.':'Profese se odemykají aktivitou. Přijde v budoucí aktualizaci.'}
-            </div>
+        h += `<div style="font-size:0.75rem;font-weight:bold;letter-spacing:0.06em;text-transform:uppercase;opacity:0.55;margin:14px 0 10px;">${lang==='en'?'Faction relations':'Vztahy s frakcemi'}</div>`;
+
+        h += bar('🌾', lang==='en'?'Village':'Vesnice',
+            inf.village || 0,
+            lang==='en'?'Saeculum / Kontakt se Vsí — unlocks village events and supply chains.':'Saeculum / Kontakt se Vsí — odemkne vesnicové eventy a dodávky.', (inf.village || 0) === 0);
+        h += bar('⛪', lang==='en'?'Church':'Církev',
+            inf.church || 0,
+            lang==='en'?'Inquisition severity, bishop commissions, liturgical events.':'Závažnost inkvizice, biskupské zakázky, liturgické eventy.', (inf.church || 0) === 0);
+        h += bar('📖', lang==='en'?'Scholars':'Učenci',
+            inf.scholars || 0,
+            lang==='en'?'Prvotisk customers, Library bonuses, manuscript reputation.':'Zákazníci Prvotisku, bonusy Knihovny, reputace rukopisů.', (inf.scholars || 0) === 0);
+
+        h += `<div style="margin-top:14px;font-size:0.75rem;opacity:0.5;font-style:italic;">
+            ${lang==='en'?'Influence decays −1 per week without related activity.':'Vliv klesá −1 týdně bez příslušné aktivity.'}
         </div>`;
 
         return h;
     },
 
-    // ── Sekce 4: Felis Monastica — kočičí char sheet ─────────────────────────
+    // ── Sekce 5: Professio — role a specializace ─────────────────────────────
+    _renderProfessio: function(lang) {
+        const p = GameState.persona;
+        const currentRank = (GameState.rank && GameState.rank.secular) || 'laicus';
+        const rankTier = (typeof RankSystem !== 'undefined') ? RankSystem.getSecularRankTier() : 1;
+        const activeRole = p ? p.role : null;
+
+        const ROLES = [
+            {
+                id: 'scriptor',
+                icon: '📜',
+                nameCs: 'Scriptor', nameEn: 'Scriptor',
+                descCs: 'Mistr pera. Rychlost výroby +15 %, chyby −20 %.',
+                descEn: 'Master of the quill. Craft speed +15%, errors −20%.',
+                endgameCs: '→ endgame: Prvotisk', endgameEn: '→ endgame: Prvotisk',
+                reqTier: 3,
+            },
+            {
+                id: 'illuminator',
+                icon: '🎨',
+                nameCs: 'Illuminator', nameEn: 'Illuminator',
+                descCs: 'Malíř iniciál. Cena rukopisů +25 %, bonus na lapis lazuli.',
+                descEn: 'Painter of initials. Manuscript price +25%, lapis lazuli bonus.',
+                endgameCs: '→ endgame: Žaltář', endgameEn: '→ endgame: Psalter',
+                reqTier: 4,
+            },
+            {
+                id: 'athanorista',
+                icon: '🔥',
+                nameCs: 'Athanorista', nameEn: 'Athanorista',
+                descCs: 'Alchymista. Úspěch Athanoru +20 %, bonus na Nigredo.',
+                descEn: 'Alchemist. Athanor success +20%, Nigredo bonus.',
+                endgameCs: '→ endgame: Magnum Opus', endgameEn: '→ endgame: Magnum Opus',
+                reqTier: 3,
+            },
+            {
+                id: 'celerarius',
+                icon: '🍺',
+                nameCs: 'Celerarius', nameEn: 'Celerarius',
+                descCs: 'Hospodář. Tržní ceny lepší, NPC rep +5 za obchod.',
+                descEn: 'Cellarer. Better market prices, NPC rep +5 per deal.',
+                endgameCs: '→ endgame: Pivovar', endgameEn: '→ endgame: Brewery',
+                reqTier: 3,
+            },
+            {
+                id: 'zahradnik',
+                icon: '🌿',
+                nameCs: 'Zahradník', nameEn: 'Herbalist',
+                descCs: 'Správce zahrady. Výnos bylin +20 %, Vigor food bonus.',
+                descEn: 'Garden keeper. Herb yield +20%, Vigor food bonus.',
+                endgameCs: '→ endgame: Apiarium', endgameEn: '→ endgame: Apiary',
+                reqTier: 3,
+            },
+        ];
+
+        const canChoose = rankTier >= 3 && !activeRole;
+        const alreadyChosen = !!activeRole;
+
+        let h = '';
+
+        if (rankTier < 3) {
+            h += `<div style="padding:20px;text-align:center;opacity:0.65;">
+                <div style="font-size:2rem;margin-bottom:8px;">⚒️</div>
+                <div style="font-size:0.88rem;font-style:italic;">${lang==='en'?'Reach rank Antiquarius to choose a Professio.':'Dosáhni ranku Antiquarius pro volbu Professio.'}</div>
+            </div>`;
+            return h;
+        }
+
+        if (canChoose) {
+            h += `<div style="padding:10px 12px;background:rgba(197,160,89,0.1);border-left:3px solid var(--accent-gold);border-radius:4px;font-size:0.82rem;margin-bottom:14px;">
+                <strong>${lang==='en'?'Choose your path — this decision shapes your endgame.':'Zvol svou cestu — toto rozhodnutí formuje endgame.'}</strong><br>
+                <span style="opacity:0.7;">${lang==='en'?'Cannot be changed later.':'Nelze změnit zpětně.'}</span>
+            </div>`;
+        }
+
+        if (alreadyChosen) {
+            h += `<div style="padding:8px 12px;background:rgba(90,154,90,0.1);border-left:3px solid #5a9a5a;border-radius:4px;font-size:0.8rem;margin-bottom:14px;opacity:0.85;">
+                ${lang==='en'?'Professio chosen. Your path is set.':'Professio zvolena. Tvá cesta je určena.'}
+            </div>`;
+        }
+
+        h += `<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">`;
+
+        ROLES.forEach(role => {
+            const isActive = activeRole === role.id;
+            const isLocked = rankTier < role.reqTier && !isActive;
+            const name = lang === 'en' ? role.nameEn : role.nameCs;
+            const desc = lang === 'en' ? role.descEn : role.descCs;
+            const endgame = lang === 'en' ? role.endgameEn : role.endgameCs;
+
+            const borderStyle = isActive
+                ? 'border:2px solid var(--accent-gold);background:rgba(197,160,89,0.1);'
+                : 'border:1px solid rgba(197,160,89,0.2);background:var(--bg-card);';
+            const opacityStyle = (!isActive && alreadyChosen) || isLocked ? 'opacity:0.45;' : '';
+
+            const chooseBtn = canChoose && !isLocked
+                ? `<button class="craft-btn" style="margin-top:8px;font-size:0.75rem;width:100%;"
+                      onclick="PersonaSystem.chooseRole('${role.id}')">${lang==='en'?'Choose':'Zvolit'}</button>`
+                : '';
+
+            h += `<div style="padding:10px;border-radius:8px;${borderStyle}${opacityStyle}">
+                <div style="font-size:1.2rem;margin-bottom:4px;">${role.icon}</div>
+                <div style="font-weight:bold;font-size:0.88rem;">${name}${isActive ? ' ✓' : ''}</div>
+                <div style="font-size:0.76rem;opacity:0.75;margin-top:3px;">${desc}</div>
+                <div style="font-size:0.72rem;opacity:0.55;margin-top:4px;font-style:italic;">${endgame}</div>
+                ${chooseBtn}
+            </div>`;
+        });
+
+        h += `</div>`;
+        return h;
+    },
+
+    chooseRole: function(roleId) {
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        if (!GameState.persona) return;
+        if (GameState.persona.role) return; // nelze změnit
+        const rankTier = (typeof RankSystem !== 'undefined') ? RankSystem.getSecularRankTier() : 1;
+        if (rankTier < 3) return;
+
+        const ROLE_NAMES = { scriptor:'Scriptor', illuminator:'Illuminator', athanorista:'Athanorista', celerarius:'Celerarius', zahradnik: lang==='en'?'Herbalist':'Zahradník' };
+        const name = ROLE_NAMES[roleId] || roleId;
+        if (!confirm(lang==='en'?`Choose Professio: ${name}? This cannot be undone.`:`Zvolit Professio: ${name}? Toto nelze vrátit.`)) return;
+
+        GameState.persona.role = roleId;
+        Game.save();
+
+        if (typeof NotificationSystem !== 'undefined') {
+            NotificationSystem.panel('⚒️ ' + (lang==='en'?`Professio: ${name}`:`Professio: ${name}`), 'system');
+        }
+        PersonaSystem.addMilestone('role_' + roleId,
+            `Zvolena Professio: ${name}`,
+            `Professio chosen: ${name}`
+        );
+        this.render();
+    },
+
+    // ── Sekce 6: Felis Monastica — kočičí char sheet ─────────────────────────
     _renderFelis: function(lang) {
         const hasTech = !!(GameState.researchedTechs && GameState.researchedTechs.includes('tech_cura_felium'));
 
@@ -556,12 +787,38 @@ const PersonaSystem = {
         Game.save();
     },
 
-    // Upravit vliv NPC
+    // Upravit vliv NPC / frakce (volat z ostatních systémů)
+    // Příklady: PersonaSystem.addInfluence('giacomo', 5)
+    //           PersonaSystem.addInfluence('village', 3)
+    //           PersonaSystem.addInfluence('church', -10)
     addInfluence: function(npc, amount) {
         if (!GameState.persona || !GameState.persona.influence) return;
         if (!(npc in GameState.persona.influence)) return;
         GameState.persona.influence[npc] = Math.max(0, Math.min(100, (GameState.persona.influence[npc]||0) + amount));
         Game.save();
+    },
+
+    // Decay influence — volat z game.js daily tick
+    // Každých 7 reálných dní odečte -1 od každé osy influence
+    // Osy s hodnotou 0 se nemění (nevznikají záporné)
+    tickDecay: function() {
+        if (!GameState.persona || !GameState.persona.influence) return;
+        const DECAY_INTERVAL = 7 * 24 * 3600000; // 7 dní v ms
+        const now = Date.now();
+        const last = GameState.persona.influenceLastDecay || 0;
+        if (now - last < DECAY_INTERVAL) return; // ještě není čas
+
+        const inf = GameState.persona.influence;
+        const keys = ['benedikt','giacomo','abbot','village','church','scholars'];
+        let changed = false;
+        keys.forEach(k => {
+            if ((inf[k] || 0) > 0) {
+                inf[k] = Math.max(0, (inf[k] || 0) - 1);
+                changed = true;
+            }
+        });
+        GameState.persona.influenceLastDecay = now;
+        if (changed) Game.save();
     },
 
 };

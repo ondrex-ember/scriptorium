@@ -514,6 +514,8 @@ const Game = {
                     if (typeof DecaySystem !== 'undefined' && DecaySystem.dailyTick) DecaySystem.dailyTick();
                     // Studna — časová degradace (self-guarded 24h, grace 5 dní)
                     if (typeof WellSystem !== 'undefined' && WellSystem.dailyTick) WellSystem.dailyTick();
+                    // Persona — influence decay (self-guarded 7 dní)
+                    if (typeof PersonaSystem !== 'undefined' && PersonaSystem.tickDecay) PersonaSystem.tickDecay();
                     // Terrain — regen únavy krajiny (self-guarded 10 min)
                     if (typeof TerrainSystem !== 'undefined') TerrainSystem.tick();
                     Game.checkFarmyardProduction();
@@ -1200,19 +1202,21 @@ const Game = {
                 const _gp = typeof GardenSystem !== 'undefined'
                     ? Object.values(GardenSystem.GARDEN_PLANTS_DB).find(p => p.item === harvestCrop)
                     : null;
+                // Role Zahradník: herb_yield bonus (1.20 = +20%)
+                const _yieldMult = (typeof RankSystem !== 'undefined') ? RankSystem.getActiveBonus('herb_yield') : 1.0;
                 if (_gp) {
-                    this.addItem(harvestCrop, _gp.yield);
+                    this.addItem(harvestCrop, Math.max(1, Math.round(_gp.yield * _yieldMult)));
                     // Šance vrátit semínko (30%)
                     if (Math.random() < 0.3) this.addItem(_gp.seed, 1);
                 } else if(harvestCrop === 'hops') {
-                    this.addItem('hops', 2);
+                    this.addItem('hops', Math.max(1, Math.round(2 * _yieldMult)));
                     if(Math.random() > 0.6) this.addItem('seeds_hops', 1);
                 } else if(['carrot','onion','potato'].includes(harvestCrop)) {
-                    this.addItem(harvestCrop, 3);
+                    this.addItem(harvestCrop, Math.max(1, Math.round(3 * _yieldMult)));
                     if(Math.random() > 0.5) this.addItem('seeds_vegetable', 1);
                 } else if (harvestCrop) {
                     // fallback pro neznámé plodiny
-                    this.addItem(harvestCrop, 2);
+                    this.addItem(harvestCrop, Math.max(1, Math.round(2 * _yieldMult)));
                 }
                 
                 Game.checkAchievements();

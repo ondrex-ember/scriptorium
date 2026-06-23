@@ -117,8 +117,13 @@ const GameState = {
             benedikt: 0,
             giacomo:  0,
             abbot:    0,
+            village:  0,        // Vesnice — Saeculum / Kontakt se Vsí
+            church:   0,        // Církev — inkvizice severity, bishop zakázky
+            scholars: 0,        // Učenci — Prvotisk zákazníci, Knihovna bonusy
         },
-        professions: [],        // odemčené profese
+        influenceLastDecay: 0,  // timestamp posledního decay ticku
+        role: null,             // aktivní role: 'scriptor'|'illuminator'|'athanorista'|'celerarius'|'zahradnik'
+        professions: [],        // odemčené profese (legacy, zachováno pro migraci)
     },
     cat: {
         name: 'Bezejmenný myšilov',

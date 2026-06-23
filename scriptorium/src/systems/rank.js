@@ -247,5 +247,57 @@ const RankSystem = {
         // Zkontrolovat možný postup
         this.checkSecularProgress();
         console.log('[RankSystem] OK – rank:', GameState.rank.secular);
+    },
+
+    // ── Bonus helper — voláno z ostatních systémů ────────────────────────────
+    // Vrátí multiplikátor pro daný typ bonusu (1.0 = žádný bonus).
+    // Kombinuje: Role bonus + pasivní Rank tier bonus.
+    // Použití: RankSystem.getActiveBonus('craft_speed') → 1.15
+    getActiveBonus: function(type) {
+        const role = (GameState.persona && GameState.persona.role) || null;
+        const tier = this.getSecularRankTier(); // 1–6
+
+        // Pasivní rank tier bonus: každý tier nad 1 přidá +2% (max +10% na tier 6)
+        const rankPassive = 1 + ((tier - 1) * 0.02);
+
+        switch (type) {
+            // ── Scriptor ──
+            case 'craft_speed':
+                return role === 'scriptor' ? 1.15 * rankPassive : rankPassive;
+            case 'craft_errors':
+                // <1 = redukce chyb; 0.80 = −20%
+                return role === 'scriptor' ? 0.80 : 1.0;
+
+            // ── Illuminator ──
+            case 'manuscript_price':
+                return role === 'illuminator' ? 1.25 * rankPassive : rankPassive;
+
+            // ── Athanorista ──
+            case 'athanor_success':
+                return role === 'athanorista' ? 1.20 * rankPassive : rankPassive;
+            case 'nigredo_bonus':
+                return role === 'athanorista' ? 1.15 : 1.0;
+
+            // ── Celerarius ──
+            case 'market_price':
+                // >1 = prodávám dráž; 1.10 = +10% výkupní cena
+                return role === 'celerarius' ? 1.10 * rankPassive : rankPassive;
+            case 'npc_rep_gain':
+                // flat bonus k NPC rep za každý obchod
+                return role === 'celerarius' ? 5 : 0;
+
+            // ── Zahradník ──
+            case 'herb_yield':
+                return role === 'zahradnik' ? 1.20 * rankPassive : rankPassive;
+            case 'vigor_food':
+                return role === 'zahradnik' ? 1.10 : 1.0;
+
+            // ── Generický rank bonus (použij kde není specifická role) ──
+            case 'rank_passive':
+                return rankPassive;
+
+            default:
+                return 1.0;
+        }
     }
 };

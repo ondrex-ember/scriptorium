@@ -113,10 +113,10 @@ const ItemsDB = {
 
     // NOTEBOOKS
     "tabula": { name: "Tabula (Vosková destička)", name_en: "Tabula (Wax Tablet)", icon: "📋", type: "tool", desc: "Dočasné poznámky.", desc_en: "Temporary notes." },
-    "adversaria": { name: "Adversaria (Pracovní sešit)", name_en: "Adversaria (Workbook)", icon: "📔", type: "tool", desc: "Trvalé poznámky.", desc_en: "Permanent notes." },
-    "vademecum": { name: "Vademecum (Jdi se mnou)", name_en: "Vademecum (Go With Me)", icon: "📘", type: "tool", desc: "Kapesní příručka.", desc_en: "A pocket handbook." },
-    "florilegium": { name: "Florilegium (Sbírka květů)", name_en: "Florilegium (Flower Book)", icon: "🌸", type: "tool", desc: "Sbírka mouder.", desc_en: "A collection of wisdom." },
-    "enchiridion": { name: "Enchiridion (Mistrovský manuál)", name_en: "Enchiridion (Master Manual)", icon: "📖", type: "tool", desc: "Ultimate systém.", desc_en: "The ultimate system." },
+    "adversaria": { name: "Adversaria (Pracovní sešit)", name_en: "Adversaria (Workbook)", icon: "📔", type: "lore", desc: "Trvalé poznámky.", desc_en: "Permanent notes." },
+    "vademecum": { name: "Vademecum (Jdi se mnou)", name_en: "Vademecum (Go With Me)", icon: "📘", type: "lore", desc: "Kapesní příručka.", desc_en: "A pocket handbook." },
+    "florilegium": { name: "Florilegium (Sbírka květů)", name_en: "Florilegium (Flower Book)", icon: "🌸", type: "lore", desc: "Sbírka mouder.", desc_en: "A collection of wisdom." },
+    "enchiridion": { name: "Enchiridion (Mistrovský manuál)", name_en: "Enchiridion (Master Manual)", icon: "📖", type: "lore", desc: "Ultimate systém.", desc_en: "The ultimate system." },
 
     // I-CHING
     "iching_book": { name: "I-Ching (Kniha Proměn)", name_en: "I-Ching (Book of Changes)", icon: "☯️", type: "lore", cat: "lore", desc: "Starověký čínský text věštění. Hoď mince a poznej svůj osud.", desc_en: "Ancient Chinese divination. Cast coins and know thy fate." },

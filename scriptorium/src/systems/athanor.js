@@ -768,7 +768,10 @@ const CombinationEngine = {
     const vigor = GameState.vigor ? GameState.vigor.current : 100;
     const roll = Math.floor(Math.random() * 20) + 1;
     // Při vigor < 30 je roll penalizován (horší šance)
-    const effectiveRoll = vigor < 30 ? roll - 3 : roll;
+    const vigorMod = vigor < 30 ? -3 : 0;
+    // Role Athanorista: bonus +3 k rollu (getActiveBonus vrátí 1.20 → 0.20 * 15 = 3)
+    const roleMod = (typeof RankSystem !== 'undefined') ? Math.round((RankSystem.getActiveBonus('athanor_success') - 1.0) * 15) : 0;
+    const effectiveRoll = roll + vigorMod + roleMod;
 
     // Zkontroluj failures
     for (const f of AthanorDB.failures) {
