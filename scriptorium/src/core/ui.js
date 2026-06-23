@@ -254,7 +254,7 @@ const UI = {
 
     renderActions: function () {
         const lang = (GameState.settings && GameState.settings.language) || 'cs';
-        const _hAct = JSON.stringify(GameState.inventory) + lang + (GameState.activeAction ? GameState.activeAction.id + GameState.activeAction.endTime : '') + (GameState.flags.fireplaceLit ? '1' : '0') + (GameState.activeAction ? Math.floor(Date.now() / 1000) : '');
+        const _hAct = JSON.stringify(GameState.inventory) + lang + (GameState.selectedDuration || 0) + (GameState.activeAction ? GameState.activeAction.id + GameState.activeAction.endTime : '') + (GameState.flags.fireplaceLit ? '1' : '0') + (GameState.activeAction ? Math.floor(Date.now() / 1000) : '');
         if (_hAct === this._hashActions) return;
         this._hashActions = _hAct;
         const el = document.getElementById('workspace-actions');
