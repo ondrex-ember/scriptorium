@@ -34684,41 +34684,95 @@ const Game = {
                 console.error('Time update error:', e);
             }
         }, 1000);
+
+        // beforeunload — emergency save on tab/browser close (desktop)
+        window.addEventListener('beforeunload', function() {
+            Game.save();
+        });
 		
     },
-    save: function() { try { GameState.lastSeen = Date.now(); localStorage.setItem('scriptorium_save_v6_4', JSON.stringify(GameState)); } catch(e){} },
+    // === IndexedDB helpers (dual-write backup) ===
+    _idbOpen: function() {
+        return new Promise((resolve, reject) => {
+            if (!window.indexedDB) { reject('IDB not supported'); return; }
+            const req = indexedDB.open('ScriptoriumDB', 1);
+            req.onupgradeneeded = function(e) {
+                e.target.result.createObjectStore('saves', { keyPath: 'key' });
+            };
+            req.onsuccess = e => resolve(e.target.result);
+            req.onerror = e => reject(e.target.error);
+        });
+    },
+    _idbSave: function(data) {
+        Game._idbOpen().then(db => {
+            const tx = db.transaction('saves', 'readwrite');
+            tx.objectStore('saves').put({ key: 'main', data: data, ts: Date.now() });
+        }).catch(e => console.warn('IDB save failed:', e));
+    },
+    _idbLoad: function() {
+        return Game._idbOpen().then(db => {
+            return new Promise((resolve, reject) => {
+                const req = db.transaction('saves', 'readonly').objectStore('saves').get('main');
+                req.onsuccess = e => resolve(e.target.result || null);
+                req.onerror = e => reject(e.target.error);
+            });
+        });
+    },
+    _idbClear: function() {
+        Game._idbOpen().then(db => {
+            db.transaction('saves', 'readwrite').objectStore('saves').delete('main');
+        }).catch(e => console.warn('IDB clear failed:', e));
+    },
+
+    save: function() { try { GameState.lastSeen = Date.now(); const _sd = JSON.stringify(GameState); localStorage.setItem('scriptorium_save_v6_4', _sd); Game._idbSave(_sd); } catch(e){} },
     load: function() {
-        try {
-            const data = localStorage.getItem('scriptorium_save_v6_4');
-            if (!data) return;
-            
-            const loadedState = JSON.parse(data);
-            
-            // Deep merge instead of Object.assign
-            function deepMerge(target, source) {
-                for (let key in source) {
-                    if (source[key] && typeof source[key] === 'object' && !Array.isArray(source[key])) {
-                        target[key] = target[key] || {};
-                        deepMerge(target[key], source[key]);
-                    } else {
-                        target[key] = source[key];
-                    }
+        function deepMerge(target, source) {
+            for (let key in source) {
+                if (source[key] && typeof source[key] === 'object' && !Array.isArray(source[key])) {
+                    target[key] = target[key] || {};
+                    deepMerge(target[key], source[key]);
+                } else {
+                    target[key] = source[key];
                 }
             }
-            
-            deepMerge(GameState, loadedState);
-            console.log('✅ Save loaded successfully!');
-
-            // Sync: retroaktivně doplnit unlocks z hotových techů (řeší unlocks přidané po researchi)
-            this.syncTechUnlocks();
-            
-        } catch(e) {
-            console.error('❌ Load error:', e);
         }
+        function applyData(rawData, source) {
+            try {
+                const loadedState = typeof rawData === 'string' ? JSON.parse(rawData) : rawData;
+                deepMerge(GameState, loadedState);
+                console.log('✅ Save loaded from ' + source);
+                Game.syncTechUnlocks();
+            } catch(e) {
+                console.error('❌ Load error (' + source + '):', e);
+            }
+        }
+
+        // Try IDB first (newer/more reliable on mobile), fall back to localStorage
+        Game._idbLoad().then(idbRecord => {
+            const lsData = localStorage.getItem('scriptorium_save_v6_4');
+            const lsTs = (() => { try { return JSON.parse(lsData || '{}').lastSeen || 0; } catch(e) { return 0; } })();
+            const idbTs = idbRecord ? (idbRecord.ts || 0) : 0;
+
+            if (idbRecord && idbTs >= lsTs) {
+                applyData(idbRecord.data, 'IndexedDB');
+            } else if (lsData) {
+                applyData(lsData, 'localStorage');
+            } else {
+                console.log('ℹ️ No save found.');
+            }
+        }).catch(() => {
+            // IDB unavailable — fall back to localStorage only
+            try {
+                const data = localStorage.getItem('scriptorium_save_v6_4');
+                if (data) applyData(data, 'localStorage (IDB unavailable)');
+            } catch(e) {
+                console.error('❌ Load error (localStorage fallback):', e);
+            }
+        });
     },
     
     
-    resetSave: function() { if(confirm(t('game.confirmReset'))) { try { localStorage.removeItem('scriptorium_save_v6_4'); } 	catch(e){} location.reload(); } },
+    resetSave: function() { if(confirm(t('game.confirmReset'))) { try { localStorage.removeItem('scriptorium_save_v6_4'); Game._idbClear(); } catch(e){} location.reload(); } },
 
     // Retroaktivní sync: každý researchnutý tech musí mít své unlocks v unlockedRecipes
     syncTechUnlocks: function() {
@@ -37372,6 +37426,7 @@ const Game = {
     },
 
 };
+
 // ═══ src/core/ui.js ═══
 const UI = {
     currentInvFilter: 'all',
