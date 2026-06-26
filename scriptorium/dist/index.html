@@ -34736,39 +34736,40 @@ const Game = {
                 }
             }
         }
-        function applyData(rawData, source) {
-            try {
-                const loadedState = typeof rawData === 'string' ? JSON.parse(rawData) : rawData;
+
+        // STEP 1 — synchronous localStorage load (identical behaviour to pre-IDB)
+        let lsTs = 0;
+        try {
+            const data = localStorage.getItem('scriptorium_save_v6_4');
+            if (data) {
+                const loadedState = JSON.parse(data);
                 deepMerge(GameState, loadedState);
-                console.log('✅ Save loaded from ' + source);
-                Game.syncTechUnlocks();
-            } catch(e) {
-                console.error('❌ Load error (' + source + '):', e);
+                lsTs = loadedState.lastSeen || 0;
+                console.log('✅ Save loaded from localStorage');
+                this.syncTechUnlocks();
             }
+        } catch(e) {
+            console.error('❌ Load error (localStorage):', e);
         }
 
-        // Try IDB first (newer/more reliable on mobile), fall back to localStorage
+        // STEP 2 — async IDB check: if IDB has newer save, patch GameState + re-render
         Game._idbLoad().then(idbRecord => {
-            const lsData = localStorage.getItem('scriptorium_save_v6_4');
-            const lsTs = (() => { try { return JSON.parse(lsData || '{}').lastSeen || 0; } catch(e) { return 0; } })();
-            const idbTs = idbRecord ? (idbRecord.ts || 0) : 0;
-
-            if (idbRecord && idbTs >= lsTs) {
-                applyData(idbRecord.data, 'IndexedDB');
-            } else if (lsData) {
-                applyData(lsData, 'localStorage');
-            } else {
-                console.log('ℹ️ No save found.');
+            if (!idbRecord) return;
+            const idbTs = idbRecord.ts || 0;
+            if (idbTs > lsTs) {
+                try {
+                    const idbState = typeof idbRecord.data === 'string' ? JSON.parse(idbRecord.data) : idbRecord.data;
+                    deepMerge(GameState, idbState);
+                    // Sync IDB back to localStorage for next load
+                    localStorage.setItem('scriptorium_save_v6_4', typeof idbRecord.data === 'string' ? idbRecord.data : JSON.stringify(idbRecord.data));
+                    Game.syncTechUnlocks();
+                    if (typeof UI !== 'undefined' && UI.renderAll) UI.renderAll();
+                    console.log('✅ IDB save was newer — patched GameState and re-rendered');
+                } catch(e) {
+                    console.error('❌ IDB patch error:', e);
+                }
             }
-        }).catch(() => {
-            // IDB unavailable — fall back to localStorage only
-            try {
-                const data = localStorage.getItem('scriptorium_save_v6_4');
-                if (data) applyData(data, 'localStorage (IDB unavailable)');
-            } catch(e) {
-                console.error('❌ Load error (localStorage fallback):', e);
-            }
-        });
+        }).catch(e => console.warn('IDB load skipped:', e));
     },
     
     
@@ -37426,7 +37427,6 @@ const Game = {
     },
 
 };
-
 // ═══ src/core/ui.js ═══
 const UI = {
     currentInvFilter: 'all',
