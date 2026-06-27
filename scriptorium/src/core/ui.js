@@ -396,9 +396,9 @@ const UI = {
             const _click = (_hasMateria || _isRareModal) ? `onclick="UI.showItemModal('${id}')" style="cursor:pointer;"` : '';
             let actionBtn = '';
             if (item.type === 'food') {
-                actionBtn = `<button class="craft-btn" onclick="Game.eat('${id}')" style="margin-left:auto;">${t('game.eat')}</button>`;
+                actionBtn = `<button class="craft-btn" onclick="event.stopPropagation();Game.eat('${id}')" style="margin-left:auto;">${t('game.eat')}</button>`;
             } else if (item.type === 'potion' || item.type === 'alchemy') {
-                actionBtn = `<button class="craft-btn" onclick="Game.eat('${id}')" style="margin-left:auto;">${t('game.eat')}</button>`;
+                actionBtn = `<button class="craft-btn" onclick="event.stopPropagation();Game.eat('${id}')" style="margin-left:auto;">${t('game.eat')}</button>`;
             }
             return `<div class="card" ${_click}><div class="item-icon">${item.icon}</div><div><strong>${iName(id)}</strong> x${qty}<div class="text-sm">${iDesc(id)}</div></div>${actionBtn}</div>`;
         };
