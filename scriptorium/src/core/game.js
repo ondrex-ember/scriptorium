@@ -520,6 +520,15 @@ const Game = {
                     if (typeof TerrainSystem !== 'undefined') TerrainSystem.tick();
                     Game.checkFarmyardProduction();
                     Game.checkPiscinaGrowth();
+                    // Save info — refresh "Poslední uložení" v Settings
+                    const _saveEl = document.getElementById('save-last-time');
+                    if (_saveEl && Game._saveHint.lastSaveTime > 0) {
+                        const _minAgo = Math.floor((Date.now() - Game._saveHint.lastSaveTime) / 60000);
+                        const _lang = (GameState.settings && GameState.settings.language) || 'cs';
+                        _saveEl.textContent = _minAgo === 0
+                            ? (_lang === 'en' ? 'just now' : 'právě teď')
+                            : (_lang === 'en' ? `${_minAgo} min ago` : `před ${_minAgo} min`);
+                    }
                 }
             } catch(e) {
                 console.error('Time update error:', e);
@@ -565,7 +574,58 @@ const Game = {
         }).catch(e => console.warn('IDB clear failed:', e));
     },
 
-    save: function() { try { GameState.lastSeen = Date.now(); const _sd = JSON.stringify(GameState); localStorage.setItem('scriptorium_save_v6_4', _sd); Game._idbSave(_sd); } catch(e){} },
+    // ── Save hint systém (ephemeral — nepersistuje, reset při každém page load) ──
+    _saveHint: { actions: 0, lastSaveTime: 0, lastHintTime: 0 },
+
+    _checkSaveHint: function() {
+        const h = Game._saveHint;
+        const now = Date.now();
+        const HINT_COOLDOWN = 10 * 60 * 1000;   // min. 10 min mezi hinty
+        const ACTION_WARN   = 50;                 // žlutý hint
+        const ACTION_URGENT = 100;                // oranžový hint
+        const TIME_WARN_MS  = 30 * 60 * 1000;    // 30 min bez uložení
+
+        if (now - h.lastHintTime < HINT_COOLDOWN) return;
+
+        const timeSinceSave = h.lastSaveTime > 0 ? now - h.lastSaveTime : 0;
+        const urgent = h.actions >= ACTION_URGENT || timeSinceSave >= TIME_WARN_MS;
+        const warn   = h.actions >= ACTION_WARN;
+
+        if (!urgent && !warn) return;
+
+        h.lastHintTime = now;
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        const minAgo = h.lastSaveTime > 0 ? Math.floor(timeSinceSave / 60000) : null;
+        const timeStr = minAgo !== null
+            ? (lang === 'en' ? `${minAgo} min ago` : `před ${minAgo} min`)
+            : (lang === 'en' ? 'not yet saved' : 'zatím neuloženo');
+
+        const msg = urgent
+            ? (lang === 'en' ? `⚠️ Unsaved progress! Last save: ${timeStr}` : `⚠️ Neuložený postup! Poslední uložení: ${timeStr}`)
+            : (lang === 'en' ? `💾 Remember to save! Last save: ${timeStr}` : `💾 Nezapomeň uložit! Poslední uložení: ${timeStr}`);
+
+        if (typeof NotificationSystem !== 'undefined' && NotificationSystem.panel) {
+            NotificationSystem.panel(msg, urgent ? 'warning' : 'system');
+        }
+    },
+
+    save: function() {
+        try {
+            GameState.lastSeen = Date.now();
+            const _sd = JSON.stringify(GameState);
+            localStorage.setItem('scriptorium_save_v6_4', _sd);
+            Game._idbSave(_sd);
+            // Reset save hint counter
+            Game._saveHint.actions = 0;
+            Game._saveHint.lastSaveTime = Date.now();
+            // Update Settings UI
+            const _el = document.getElementById('save-last-time');
+            if (_el) {
+                const lang = (GameState.settings && GameState.settings.language) || 'cs';
+                _el.textContent = lang === 'en' ? 'just now' : 'právě teď';
+            }
+        } catch(e) {}
+    },
     load: function() {
         function deepMerge(target, source) {
             for (let key in source) {
@@ -1686,6 +1746,9 @@ const Game = {
         if (typeof VigorSystem !== 'undefined' && !VigorSystem.canAct()) { UI.notify(t('game.vigor.exhausted'), true); return; }
         // Vigor — Fatigue z akce (scavenge vždy dostupné, jen malý cost)
         if (typeof VigorSystem !== 'undefined') VigorSystem.onScavenge(type);
+        // Save hint tracking
+        Game._saveHint.actions++;
+        Game._checkSaveHint();
 
 	    // === SPECIAL HANDLING FOR WELL === (PŘIDAT NA ZAČÁTEK)
 		if (type === 'well_water') {
@@ -2156,6 +2219,8 @@ const Game = {
                 else if(r<0.7) this.addItem('slug', 2);
                 else if(r<0.85) this.addItem('water', 2);
                 else this.addItem('fiber', 1);
+                // v8.x: plůdek — vzácný nález v mokřadu
+                if(Math.random() < 0.08) this.addItem('fry', 1);
             }
             else if (type === 'resin_harvest') {
                 if(r<0.5) this.addItem('resin', 1);
@@ -2406,6 +2471,10 @@ const Game = {
         const r = RecipesDB.find(x => x.id === id);
         if(!GameState.flags.fireplaceLit && !r.blind) { UI.notify(t('game.frozenHands'), true); return; }
 
+        // Save hint tracking
+        Game._saveHint.actions++;
+        Game._checkSaveHint();
+
         // Vigor check — těžké recepty vyžadují Vigor >= 25, lehké >= 10
         if (typeof VigorSystem !== 'undefined') {
             if (!VigorSystem.canAct()) { UI.notify(t('game.vigor.exhausted'), true); return; }
@@ -2566,6 +2635,9 @@ const Game = {
         const tech = TechTree.find(x => x.id === id);
         if (typeof VigorSystem !== 'undefined' && !VigorSystem.canResearch()) { UI.notify(t('game.vigor.researchBlock'), true); return; }
         if((GameState.inventory['research'] || 0) < tech.cost) { UI.notify(t('game.notEnoughResearch'), true); return; }
+        // Save hint tracking (research = important action)
+        Game._saveHint.actions += 5;
+        Game._checkSaveHint();
         
         // Check if requires other tech
         if(tech.requires) {
