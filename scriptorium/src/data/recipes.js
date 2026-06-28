@@ -12,7 +12,7 @@ const RecipesDB = [
     { id: "bonemeal", output: "bonemeal", qty: 3, req: { "bone": 1, "pestle": 0 }, cat: "craft" },
     
     // LORE SYSTEM
-    { id: "pulp", output: "pulp", qty: 1, req: { "bark": 2, "water": 1, "pestle": 0 }, cat: "parchment" },
+    { id: "pulp", output: "pulp", qty: 1, req: { "rags": 2, "water": 1, "pestle": 0 }, cat: "parchment" },
     { id: "paper", output: "paper", qty: 1, req: { "pulp": 2 }, cat: "parchment" },
     { id: "ink", output: "ink", qty: 1, req: { "charcoal": 1, "water": 1, "pestle": 0 }, cat: "parchment" },
     { id: "research", output: "research", qty: 1, req: { "paper": 1, "ink": 1 }, cat: "lore" },

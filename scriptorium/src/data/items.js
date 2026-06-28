@@ -6,6 +6,7 @@ const ItemsDB = {
     "stick": { name: "Větev", name_en: "Branch", icon: "🪵", type: "mat", desc: "Dřevo.", desc_en: "A length of wood." },
     "fiber": { name: "Tráva", name_en: "Grass", icon: "🌾", type: "mat", desc: "Vlákna.", desc_en: "Plant fibres." },
     "bark": { name: "Kůra", name_en: "Bark", icon: "🍂", type: "mat", desc: "Kůra stromu.", desc_en: "Tree bark." },
+    "rags": { name: "Staré hadry", name_en: "Rags", icon: "🧻", type: "mat", desc: "Opotřebené kousky plátna a lnu. Základ hadrového papíru.", desc_en: "Worn scraps of linen and cloth. The basis of rag paper." },
     "charcoal": { name: "Uhel", name_en: "Charcoal", icon: "⚫", type: "mat", desc: "Spálené dřevo.", desc_en: "Burned wood." },
     "water": { name: "Voda", name_en: "Water", icon: "💧", type: "mat", desc: "Čistá voda.", desc_en: "Clean water." },
     "spring_water": { name: "Pramenitá voda", name_en: "Spring Water", icon: "🫧", type: "food", desc: "Čistá pramenitá voda. Osvěžuje tělo a snižuje únavu.", desc_en: "Pure spring water. Refreshes the body and eases fatigue." },
@@ -32,8 +33,8 @@ const ItemsDB = {
     "repair_kit": { name: "Opravná sada", name_en: "Repair Kit", icon: "🔧", type: "tool", desc: "Na opravu studny.", desc_en: "For repairing the well.", cat: "tool" },
 
     // LORE
-    "pulp": { name: "Dřevná drť", name_en: "Wood Pulp", icon: "🌫️", type: "mat", desc: "Základ papíru.", desc_en: "The base of paper." },
-    "paper": { name: "Papír", name_en: "Paper", icon: "📄", type: "lore", desc: "K psaní.", desc_en: "For writing." },
+    "pulp": { name: "Hadrovina", name_en: "Rag Pulp", icon: "🌫️", type: "mat", desc: "Rozmělněná lněná vlákna ve vodě. Základ hadrového papíru.", desc_en: "Macerated linen fibres in water. The base of rag paper." },
+    "paper": { name: "Hadrový papír", name_en: "Rag Paper", icon: "📄", type: "lore", desc: "Lisovaná hadrovina. Středověký papír z lněných vláken, ne ze dřeva.", desc_en: "Pressed rag pulp. Medieval paper made from linen fibres, not wood." },
     "ink": { name: "Inkoust", name_en: "Ink", icon: "✒️", type: "lore", desc: "Černý.", desc_en: "Black ink." },
     "research": { name: "Zápisky", name_en: "Notes", icon: "📜", type: "lore", desc: "Vědění.", desc_en: "Accumulated knowledge." },
 

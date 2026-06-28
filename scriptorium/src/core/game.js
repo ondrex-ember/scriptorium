@@ -1917,6 +1917,8 @@ const Game = {
                     
                     // v7.5: NEW DROP - gall_nut for gallic ink
                     if(Math.random() < 0.06) this.addItem('gall_nut', 1); // 6% chance
+                    // hadry — základ hadrového papíru
+                    if(Math.random() < 0.35) this.addItem('rags', 1);
                     // Athanor: byliny
                     if(Math.random() < 0.08) this.addItem('chamomile', 1);
                     if(Math.random() < 0.05) this.addItem('st_johns_wort', 1);
@@ -1956,6 +1958,7 @@ const Game = {
                     if(Math.random() < 0.05) this.addItem('carbon_black', 1);
                     if(Math.random() < 0.04) this.addItem('ochre', 1);
                     if(Math.random() < 0.10) this.addItem('chalk', 1);
+                    if(Math.random() < 0.35) this.addItem('rags', 1);
                     // Iron ore — vzácný nález (3%) po odemčení kovařiny
                     if(Math.random() < 0.03 && GameState.researchedTechs && GameState.researchedTechs.includes('tech_kovarina')) {
                         this.addItem('iron_ore', 1);
@@ -2043,6 +2046,8 @@ const Game = {
                     if(Math.random() < 0.20) this.addItem('egg', 1);
                     if(Math.random() < 0.10) this.addItem('pollen', 1);
                     if(Math.random() < 0.05) this.addItem('bone', 1);
+                    this.addItem('rags', 1);                             // staré hadry z hospodářství
+                    if(Math.random() < 0.35) this.addItem('rags', 1);   // bonus
                     // 0.5% — náhodný lostItem
                     if(Math.random() < 0.005) {
                         const lostPool = Object.entries(ItemsDB).filter(([id, i]) => i.lostItem).map(([id]) => id);
@@ -2118,6 +2123,8 @@ const Game = {
                 
                 // v7.5: NEW DROP - gall_nut for gallic ink
                 if(Math.random() < 0.06) this.addItem('gall_nut', 1); // 6% chance
+                // hadry — základ hadrového papíru
+                if(Math.random() < 0.35) this.addItem('rags', 1);
                 
                 // Rare drop - Netolického pozůstalost (0.1% chance)
                 if(Math.random() < 0.001) {
@@ -2129,6 +2136,7 @@ const Game = {
             else if (type === 'basic') { 
                 this.addItem((r<0.5?'rock':'stick'), 1); 
                 if(Math.random() < 0.10) this.addItem('chalk', 1);
+                if(Math.random() < 0.35) this.addItem('rags', 1);
             }
             // ── notifyAccum: quick scavenge ──
             {
@@ -2177,6 +2185,8 @@ const Game = {
                 
                 // v7.5: NEW DROP - gall_nut for gallic ink
                 if(Math.random() < 0.06) this.addItem('gall_nut', 1); // 6% chance
+                // hadry — základ hadrového papíru
+                if(Math.random() < 0.35) this.addItem('rags', 1);
                 // Athanor: byliny
                 if(Math.random() < 0.08) this.addItem('chamomile', 1);
                 if(Math.random() < 0.05) this.addItem('st_johns_wort', 1);
@@ -2205,6 +2215,7 @@ const Game = {
                 if(Math.random() < 0.05) this.addItem('carbon_black', 1);
                 if(Math.random() < 0.04) this.addItem('ochre', 1);
                 if(Math.random() < 0.10) this.addItem('chalk', 1); // Křídová pánev — lokálně dostupná
+                if(Math.random() < 0.35) this.addItem('rags', 1);
             }
             else if (type === 'bark') { this.addItem('bark', 2); }
             else if (type === 'fishing') { this.addItem('fish', r<0.3?2:1); if(r>0.8) this.addItem('water', 1); }
@@ -2286,6 +2297,8 @@ const Game = {
                 if(Math.random() < 0.20) this.addItem('egg', 1);
                 if(Math.random() < 0.10) this.addItem('pollen', 1);
                 if(Math.random() < 0.05) this.addItem('bone', 1);
+                this.addItem('rags', 1);                             // staré hadry z hospodářství
+                if(Math.random() < 0.35) this.addItem('rags', 1);   // bonus
                 if(Math.random() < 0.005) {
                     const lostPool = Object.entries(ItemsDB).filter(([id, i]) => i.lostItem).map(([id]) => id);
                     if(lostPool.length > 0) {
