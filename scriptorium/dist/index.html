@@ -7291,6 +7291,30 @@ const TechTree = [
   },
 
   {
+    id: "tech_fodina", name: "Fodina — Umění Těžby", name_en: "Fodina — Art of Mining",
+    cost: 25,
+    desc: "Těžba železné rudy si žádá více než jen krumpáč — vyžaduje znalost žil, výdřevy štol a horního práva. S tímto věděním může klášter požádat opata o právo otevřít důl. Odemkne: akce Těžba rudy (s krumpáčem).",
+    desc_en: "Mining iron ore demands more than a pickaxe — it requires knowledge of veins, shaft timbering and mining law. With this knowledge the monastery may petition the Abbot to open a mine. Unlocks: Mine Iron Ore action (with pickaxe).",
+    unlocks: ["fodina"], requires: ["tech_kovarina"]
+  },
+
+  {
+    id: "tech_fornax", name: "Fornax Ferraria — Tavba Železa", name_en: "Fornax Ferraria — Smelting Iron",
+    cost: 35,
+    desc: "Tavení rudy v peci s měchy dosahuje teploty, při které hlušina odtéká a čisté železo zůstává. Saští hutníci přinesli toto tajemství do Čech ve 13. století. S tímto věděním lze požádat opata o stavbu hutě. Odemkne: Fornax Ferraria, výroba ingotů.",
+    desc_en: "Smelting ore in a bellows furnace reaches temperatures at which slag flows away and pure iron remains. Saxon smelters brought this knowledge to Bohemia in the 13th century. With this knowledge the monastery may petition the Abbot to build a furnace. Unlocks: Fornax Ferraria, iron ingot crafting.",
+    unlocks: ["fornax_ferraria"], requires: ["tech_fodina"]
+  },
+
+  {
+    id: "tech_malleatura", name: "Malleatura — Hamernické Řemeslo", name_en: "Malleatura — The Hammer Craft",
+    cost: 45,
+    desc: "Vodní hamr buší na žhavou lupu tak dlouho, dokud struska nevyteče a nevznikne pevný ingot vyšší čistoty. Tento upgrade Fornaxu výrazně zvýší výtěžnost tavení. Odemkne: upgrade Malleatura (vyšší výtěžnost ingotů).",
+    desc_en: "The water hammer pounds the hot bloom until slag is expelled and a purer ingot remains. This upgrade to the Fornax significantly increases smelting yield. Unlocks: Malleatura upgrade (higher ingot yield).",
+    unlocks: ["malleatura"], requires: ["tech_fornax"]
+  },
+
+  {
     id: "tech_horticulture", name: "Horticultura — Zahradní umění", name_en: "Horticultura — Art of the Garden",
     cost: 10,
     desc: "Klášterní zahradník byl vzdělán v bylinářství, pěstování i závlaze. Odemkne: kamenné nástroje (sekerka, rýč, kosa, srp, cep, lopata), vědro, konev, sud.",
@@ -31543,7 +31567,7 @@ const STRINGS_cs = {
             submit_btn: 'Zaslat žádost opatovi',
             pending: '⏳ Žádost odeslána {date}. Opat odpoví {responseDate}.',
             approved: '✅ Opat schválil právo těžby. Fodina může být otevřena.',
-            denied_tech: '❌ Opat zamítl: Klášter dosud neprokázal znalost kovářského řemesla.',
+            denied_tech: '❌ Opat zamítl: Klášter dosud nezískal vědomosti o umění těžby. Prostuduj: Fodina — Umění Těžby.',
             denied_fabrica: '❌ Opat zamítl: Nemáte kde vytěžené železo zpracovat. Postavte nejprve Fabricu.',
             denied_groats: '❌ Opat zamítl: Klášter nemá prostředky na horní poplatek panovníkovi (50 grošů).',
             denied_pickaxe: '❌ Opat zamítl: Bez nářadí nelze důl otevřít. Opatřete krumpáč.',
@@ -31558,7 +31582,7 @@ const STRINGS_cs = {
             submit_btn: 'Zaslat žádost opatovi',
             pending: '⏳ Žádost odeslána {date}. Opat odpoví {responseDate}.',
             approved: '✅ Opat schválil stavbu Fornax Ferraria. Huť může být postavena.',
-            denied_tech: '❌ Opat zamítl: Klášter dosud neprokázal znalost kovářského řemesla.',
+            denied_tech: '❌ Opat zamítl: Klášter dosud nezískal vědomosti o tavbě železa. Prostuduj: Fornax Ferraria — Tavba Železa.',
             denied_fodina: '❌ Opat zamítl: Nejprve musí být otevřen důl (Fodina).',
             denied_groats: '❌ Opat zamítl: Klášter nemá dostatek prostředků (80 grošů).',
             denied_charcoal: '❌ Opat zamítl: Bez zásob dřevěného uhlí nelze huť provozovat (15 ks).',
@@ -34172,7 +34196,7 @@ In every scriptorium lurks Titivillus. His task is not to tempt to sin — other
             submit_btn: 'Submit petition to the Abbot',
             pending: '⏳ Petition submitted {date}. The Abbot will reply by {responseDate}.',
             approved: '✅ The Abbot has granted mining rights. The Fodina may be opened.',
-            denied_tech: '❌ Abbot denied: The monastery has not yet demonstrated knowledge of the blacksmith\'s craft.',
+            denied_tech: '❌ Abbot denied: The monastery has not yet acquired knowledge of mining. Research: Fodina — Art of Mining.',
             denied_fabrica: '❌ Abbot denied: You have no place to work the ore. Build the Fabrica first.',
             denied_groats: '❌ Abbot denied: The monastery lacks funds for the royal mining toll (50 groats).',
             denied_pickaxe: '❌ Abbot denied: No tools to open a mine. Obtain a pickaxe first.',
@@ -34187,7 +34211,7 @@ In every scriptorium lurks Titivillus. His task is not to tempt to sin — other
             submit_btn: 'Submit petition to the Abbot',
             pending: '⏳ Petition submitted {date}. The Abbot will reply by {responseDate}.',
             approved: '✅ The Abbot has approved the Fornax Ferraria. The furnace may be built.',
-            denied_tech: '❌ Abbot denied: The monastery has not yet demonstrated knowledge of the blacksmith\'s craft.',
+            denied_tech: '❌ Abbot denied: The monastery has not yet acquired knowledge of iron smelting. Research: Fornax Ferraria — Smelting Iron.',
             denied_fodina: '❌ Abbot denied: A mine (Fodina) must be opened first.',
             denied_groats: '❌ Abbot denied: The monastery lacks sufficient funds (80 groats).',
             denied_charcoal: '❌ Abbot denied: No charcoal stores to run a furnace (15 required).',
@@ -37725,7 +37749,7 @@ const Game = {
 
         // Validace podmínek — pro fodinu
         if (type === 'fodina') {
-            if (!(GameState.researchedTechs && GameState.researchedTechs.includes('tech_kovarina'))) {
+            if (!(GameState.researchedTechs && GameState.researchedTechs.includes('tech_fodina'))) {
                 UI.notify(t('abbotPetition.fodina.denied_tech'), true); return;
             }
             if (!(GameState.storage && GameState.storage.fabrica && GameState.storage.fabrica.built)) {
@@ -37743,7 +37767,7 @@ const Game = {
 
         // Validace podmínek — pro fornax
         if (type === 'fornax') {
-            if (!(GameState.researchedTechs && GameState.researchedTechs.includes('tech_kovarina'))) {
+            if (!(GameState.researchedTechs && GameState.researchedTechs.includes('tech_fornax'))) {
                 UI.notify(t('abbotPetition.fornax.denied_tech'), true); return;
             }
             if (!(GameState.abbotPetition.fodina && GameState.abbotPetition.fodina.status === 'approved')) {
@@ -37800,7 +37824,7 @@ const Game = {
             let deniedKey = null;
 
             if (type === 'fodina') {
-                if (!(GameState.researchedTechs && GameState.researchedTechs.includes('tech_kovarina'))) deniedKey = 'denied_tech';
+                if (!(GameState.researchedTechs && GameState.researchedTechs.includes('tech_fodina'))) deniedKey = 'denied_tech';
                 else if (!(GameState.storage && GameState.storage.fabrica && GameState.storage.fabrica.built)) deniedKey = 'denied_fabrica';
                 else if ((typeof CellariumSystem !== 'undefined' ? CellariumSystem.getGrose() : 0) < 50) deniedKey = 'denied_groats';
                 else {
@@ -37811,7 +37835,7 @@ const Game = {
             }
 
             if (type === 'fornax') {
-                if (!(GameState.researchedTechs && GameState.researchedTechs.includes('tech_kovarina'))) deniedKey = 'denied_tech';
+                if (!(GameState.researchedTechs && GameState.researchedTechs.includes('tech_fornax'))) deniedKey = 'denied_tech';
                 else if (!(GameState.abbotPetition.fodina && GameState.abbotPetition.fodina.status === 'approved')) deniedKey = 'denied_fodina';
                 else if ((typeof CellariumSystem !== 'undefined' ? CellariumSystem.getGrose() : 0) < 80) deniedKey = 'denied_groats';
                 else if ((GameState.inventory['charcoal'] || 0) < 15) deniedKey = 'denied_charcoal';

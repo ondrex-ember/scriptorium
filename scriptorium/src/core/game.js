@@ -3378,7 +3378,7 @@ const Game = {
 
         // Validace podmínek — pro fodinu
         if (type === 'fodina') {
-            if (!(GameState.researchedTechs && GameState.researchedTechs.includes('tech_kovarina'))) {
+            if (!(GameState.researchedTechs && GameState.researchedTechs.includes('tech_fodina'))) {
                 UI.notify(t('abbotPetition.fodina.denied_tech'), true); return;
             }
             if (!(GameState.storage && GameState.storage.fabrica && GameState.storage.fabrica.built)) {
@@ -3396,7 +3396,7 @@ const Game = {
 
         // Validace podmínek — pro fornax
         if (type === 'fornax') {
-            if (!(GameState.researchedTechs && GameState.researchedTechs.includes('tech_kovarina'))) {
+            if (!(GameState.researchedTechs && GameState.researchedTechs.includes('tech_fornax'))) {
                 UI.notify(t('abbotPetition.fornax.denied_tech'), true); return;
             }
             if (!(GameState.abbotPetition.fodina && GameState.abbotPetition.fodina.status === 'approved')) {
@@ -3453,7 +3453,7 @@ const Game = {
             let deniedKey = null;
 
             if (type === 'fodina') {
-                if (!(GameState.researchedTechs && GameState.researchedTechs.includes('tech_kovarina'))) deniedKey = 'denied_tech';
+                if (!(GameState.researchedTechs && GameState.researchedTechs.includes('tech_fodina'))) deniedKey = 'denied_tech';
                 else if (!(GameState.storage && GameState.storage.fabrica && GameState.storage.fabrica.built)) deniedKey = 'denied_fabrica';
                 else if ((typeof CellariumSystem !== 'undefined' ? CellariumSystem.getGrose() : 0) < 50) deniedKey = 'denied_groats';
                 else {
@@ -3464,7 +3464,7 @@ const Game = {
             }
 
             if (type === 'fornax') {
-                if (!(GameState.researchedTechs && GameState.researchedTechs.includes('tech_kovarina'))) deniedKey = 'denied_tech';
+                if (!(GameState.researchedTechs && GameState.researchedTechs.includes('tech_fornax'))) deniedKey = 'denied_tech';
                 else if (!(GameState.abbotPetition.fodina && GameState.abbotPetition.fodina.status === 'approved')) deniedKey = 'denied_fodina';
                 else if ((typeof CellariumSystem !== 'undefined' ? CellariumSystem.getGrose() : 0) < 80) deniedKey = 'denied_groats';
                 else if ((GameState.inventory['charcoal'] || 0) < 15) deniedKey = 'denied_charcoal';

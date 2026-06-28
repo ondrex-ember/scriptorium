@@ -257,6 +257,30 @@ const TechTree = [
   },
 
   {
+    id: "tech_fodina", name: "Fodina — Umění Těžby", name_en: "Fodina — Art of Mining",
+    cost: 25,
+    desc: "Těžba železné rudy si žádá více než jen krumpáč — vyžaduje znalost žil, výdřevy štol a horního práva. S tímto věděním může klášter požádat opata o právo otevřít důl. Odemkne: akce Těžba rudy (s krumpáčem).",
+    desc_en: "Mining iron ore demands more than a pickaxe — it requires knowledge of veins, shaft timbering and mining law. With this knowledge the monastery may petition the Abbot to open a mine. Unlocks: Mine Iron Ore action (with pickaxe).",
+    unlocks: ["fodina"], requires: ["tech_kovarina"]
+  },
+
+  {
+    id: "tech_fornax", name: "Fornax Ferraria — Tavba Železa", name_en: "Fornax Ferraria — Smelting Iron",
+    cost: 35,
+    desc: "Tavení rudy v peci s měchy dosahuje teploty, při které hlušina odtéká a čisté železo zůstává. Saští hutníci přinesli toto tajemství do Čech ve 13. století. S tímto věděním lze požádat opata o stavbu hutě. Odemkne: Fornax Ferraria, výroba ingotů.",
+    desc_en: "Smelting ore in a bellows furnace reaches temperatures at which slag flows away and pure iron remains. Saxon smelters brought this knowledge to Bohemia in the 13th century. With this knowledge the monastery may petition the Abbot to build a furnace. Unlocks: Fornax Ferraria, iron ingot crafting.",
+    unlocks: ["fornax_ferraria"], requires: ["tech_fodina"]
+  },
+
+  {
+    id: "tech_malleatura", name: "Malleatura — Hamernické Řemeslo", name_en: "Malleatura — The Hammer Craft",
+    cost: 45,
+    desc: "Vodní hamr buší na žhavou lupu tak dlouho, dokud struska nevyteče a nevznikne pevný ingot vyšší čistoty. Tento upgrade Fornaxu výrazně zvýší výtěžnost tavení. Odemkne: upgrade Malleatura (vyšší výtěžnost ingotů).",
+    desc_en: "The water hammer pounds the hot bloom until slag is expelled and a purer ingot remains. This upgrade to the Fornax significantly increases smelting yield. Unlocks: Malleatura upgrade (higher ingot yield).",
+    unlocks: ["malleatura"], requires: ["tech_fornax"]
+  },
+
+  {
     id: "tech_horticulture", name: "Horticultura — Zahradní umění", name_en: "Horticultura — Art of the Garden",
     cost: 10,
     desc: "Klášterní zahradník byl vzdělán v bylinářství, pěstování i závlaze. Odemkne: kamenné nástroje (sekerka, rýč, kosa, srp, cep, lopata), vědro, konev, sud.",
