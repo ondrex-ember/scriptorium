@@ -554,9 +554,10 @@ const UI = {
             return true;
         });
 
+        let _html = '';
         if (this.currentFilter !== 'all') {
             // Jednoduchý seznam bez nadpisů
-            visible.forEach(r => { el.innerHTML += renderRecipe(r); });
+            visible.forEach(r => { _html += renderRecipe(r); });
         } else {
             // Seskupení podle kategorií s nadpisy
             const catOrder = ['stone', 'iron', 'craft', 'fire', 'parchment', 'codex', 'food', 'alchemy', 'lore'];
@@ -574,10 +575,11 @@ const UI = {
             catOrder.forEach(cat => {
                 const group = visible.filter(r => r.cat === cat);
                 if (group.length === 0) return;
-                el.innerHTML += `<div style="grid-column:1/-1; margin:12px 0 6px; padding:4px 0; border-bottom:1px solid rgba(197,160,89,0.35);"><span style="font-size:0.72rem; font-weight:bold; letter-spacing:0.08em; text-transform:uppercase; color:var(--accent-gold); opacity:0.85;">${catLabels[cat]}</span></div>`;
-                group.forEach(r => { el.innerHTML += renderRecipe(r); });
+                _html += `<div style="grid-column:1/-1; margin:12px 0 6px; padding:4px 0; border-bottom:1px solid rgba(197,160,89,0.35);"><span style="font-size:0.72rem; font-weight:bold; letter-spacing:0.08em; text-transform:uppercase; color:var(--accent-gold); opacity:0.85;">${catLabels[cat]}</span></div>`;
+                group.forEach(r => { _html += renderRecipe(r); });
             });
         }
+        el.innerHTML = _html;
     },
 
     spawnFloatingGain: function (recipeId, qty) {
