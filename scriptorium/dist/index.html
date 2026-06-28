@@ -2379,6 +2379,7 @@
 
                     <!-- MINE content -->
                     <div id="home-mine-content" style="display:none;">
+                        <div id="fodina-petition-panel"></div>
                         <div id="mine-actions"></div>
                     </div>
 
@@ -5637,6 +5638,10 @@ const ItemsDB = {
     "iron_ingot": { name: "Železný ingot", name_en: "Iron Ingot", icon: "⚙️", type: "mat", desc: "Odlitý prut železa. Základ kovářského řemesla.", desc_en: "Cast iron bar. The foundation of the blacksmith's craft." },
     "anvil": { maxStack: 1, name: "Kovadlina", name_en: "Anvil", icon: "⚒️", type: "mat", desc: "Těžká železná kovadlina. Nutná pro stavbu kovárny.", desc_en: "Heavy iron anvil. Required to build the smithy." },
 
+    // ── HUTNÍ STAVBY ─────────────────────────────────────────────────────────
+    "fodina": { maxStack: 1, name: "Fodina (Důl)", name_en: "Fodina (Mine)", icon: "⛏️", type: "building", desc: "Klášterní důl na železnou rudu. Vyžaduje souhlas opata a horní privilegium.", desc_en: "Monastic iron ore mine. Requires the abbot's consent and mining rights." },
+    "fornax_ferraria": { maxStack: 1, name: "Fornax Ferraria (Huť)", name_en: "Fornax Ferraria (Smelting Furnace)", icon: "🔥", type: "building", desc: "Tavicí pec s měchy. Přetaví železnou rudu na ingoty. Vyžaduje souhlas opata.", desc_en: "Smelting furnace with bellows. Converts iron ore into ingots. Requires the abbot's consent." },
+
     // ── OPOTŘEBENÉ ŽELEZNÉ NÁSTROJE ──────────────────────────────────────────
     "worn_iron_axe": { maxUses: 3, name: "Otupená sekerka", name_en: "Worn Iron Axe", icon: "🪓", type: "tool", tier: "iron", desc: "Otupené železné ostří. Opravit v Kovárně.", desc_en: "Blunted iron blade. Repair at the Smithy." },
     "worn_iron_spade": { maxUses: 3, name: "Tupý rýč", name_en: "Worn Iron Spade", icon: "⛏️", type: "tool", tier: "iron", desc: "Ohnutý železný rýč. Opravit v Kovárně.", desc_en: "Bent iron spade. Repair at the Smithy." },
@@ -7519,7 +7524,11 @@ const GameState = {
         warmth: 50,         // 0–100, tepelný komfort (roste u ohně, klesá venku)
         location: 'garden', // 'garden' | 'fire' — kde kočka právě je
     },
-    mice: { count: 3, lastTick: 0 }   // klášterní myší populace
+    mice: { count: 3, lastTick: 0 },   // klášterní myší populace
+    abbotPetition: {
+        fodina: { status: 'none', submittedAt: null, deniedReason: null, inspectionPending: false },
+        fornax: { status: 'none', submittedAt: null, deniedReason: null, inspectionPending: false },
+    },
 };
 // ═══ src/data/achievements.js ═══
 const AchievementsDB = [
@@ -15163,6 +15172,17 @@ const CellariumSystem = {
         req_tech: hasKov, req_build: true, req_label: null,
       },
       {
+        id: 'fornax_ferraria', icon: '🔥',
+        name: 'Fornax Ferraria (Huť)', name_en: 'Fornax Ferraria (Smelting Furnace)',
+        desc: 'Tavicí pec s měchy. Přetaví železnou rudu na ingoty. Vyžaduje souhlas opata.',
+        desc_en: 'Smelting furnace with bellows. Converts iron ore into ingots. Requires Abbot consent.',
+        cost: { rock: 40, cut_stone: 15, clay: 20, plank: 20, charcoal: 15 },
+        req_tech: hasKov,
+        req_build: GameState.abbotPetition && GameState.abbotPetition.fornax && GameState.abbotPetition.fornax.status === 'approved',
+        req_label: lang === 'en' ? 'Requires: Abbot approval (petition) + Fodina open' : 'Nutné: Souhlas opata (žádost) + Fodina otevřena',
+        petition_type: 'fornax',
+      },
+      {
         id: 'sulci', icon: '🪠',
         name: 'Sulci — Brázdy', name_en: 'Sulci — Furrows',
         desc: 'Vydlabané brázdy a dřevěný pluh. Bez brázd pole neorat. Odemkne subtab Pole.',
@@ -15279,6 +15299,18 @@ const CellariumSystem = {
         </div>
         ${!built ? `<div style="font-size:0.73rem; opacity:0.7; margin-bottom:6px; display:flex; flex-wrap:wrap; gap:6px;">${costStr}</div>` : ''}
         ${b.req_label && !built ? `<div style="font-size:0.73rem; color:#e67e22; margin-bottom:6px;">⚠️ ${b.req_label}</div>` : ''}
+        ${b.petition_type && !built ? (() => {
+          const pet = GameState.abbotPetition && GameState.abbotPetition[b.petition_type];
+          const pStatus = pet ? pet.status : 'none';
+          if (pStatus === 'none') {
+            return `<button class="craft-btn" style="font-size:0.78rem; margin-bottom:6px;" onclick="Game.submitAbbotPetition('${b.petition_type}'); if(typeof CellariumSystem !== 'undefined') CellariumSystem.switchEntity('buildings');">📜 ${t('abbotPetition.' + b.petition_type + '.submit_btn')}</button>`;
+          } else if (pStatus === 'pending') {
+            const sd = pet.submittedAt ? new Date(pet.submittedAt).toLocaleDateString(lang==='cs'?'cs-CZ':'en-GB') : '?';
+            const rd = pet.submittedAt ? new Date(pet.submittedAt + 86400000).toLocaleDateString(lang==='cs'?'cs-CZ':'en-GB') : '?';
+            return `<div style="font-size:0.78rem; opacity:0.7; font-style:italic;">⏳ ${t('abbotPetition.' + b.petition_type + '.pending').replace('{date}', sd).replace('{responseDate}', rd)}</div>`;
+          }
+          return '';
+        })() : ''}
         ${canBuild ? `<button onclick="Game.buildStorage('${b.id}')" class="craft-btn" style="font-size:0.78rem;">🏗️ ${lang==='en' ? 'Build' : 'Postavit'}</button>` : ''}
         ${built ? `<div style="font-size:0.78rem; color:#5a9a5a; font-style:italic;">✅ ${lang==='en' ? 'Built' : 'Postaveno'}</div>` : ''}
         ${locked ? `<div style="font-size:0.78rem; opacity:0.5; font-style:italic;">🔒 ${lang==='en' ? 'Research required' : 'Vyžaduje výzkum'}</div>` : ''}
@@ -31505,8 +31537,40 @@ const STRINGS_cs = {
             ignore_res: 'Uložil jsi ji bezpečně. Možná se k ní vrátíš.',
         },
     },
+    abbotPetition: {
+        fodina: {
+            title: 'Žádost o právo těžby',
+            submit_btn: 'Zaslat žádost opatovi',
+            pending: '⏳ Žádost odeslána {date}. Opat odpoví {responseDate}.',
+            approved: '✅ Opat schválil právo těžby. Fodina může být otevřena.',
+            denied_tech: '❌ Opat zamítl: Klášter dosud neprokázal znalost kovářského řemesla.',
+            denied_fabrica: '❌ Opat zamítl: Nemáte kde vytěžené železo zpracovat. Postavte nejprve Fabricu.',
+            denied_groats: '❌ Opat zamítl: Klášter nemá prostředky na horní poplatek panovníkovi (50 grošů).',
+            denied_pickaxe: '❌ Opat zamítl: Bez nářadí nelze důl otevřít. Opatřete krumpáč.',
+            kronika_submit: 'Odeslána žádost opatovi o právo těžby (Fodina). Odpověď očekávána {responseDate}.',
+            kronika_approved: 'Opat schválil otevření dolu (Fodina). Horní privilegium uděleno.',
+            kronika_denied: 'Opat zamítl žádost o Fodinu. Důvod: {reason}',
+            inspect_hint: 'Opat přislíbil inspekční návštěvu v nejbližších dnech.',
+            locked_hint: 'Chceš-li těžit železnou rudu, potřebuješ souhlas opata s otevřením dolu.',
+        },
+        fornax: {
+            title: 'Žádost o stavbu hutě',
+            submit_btn: 'Zaslat žádost opatovi',
+            pending: '⏳ Žádost odeslána {date}. Opat odpoví {responseDate}.',
+            approved: '✅ Opat schválil stavbu Fornax Ferraria. Huť může být postavena.',
+            denied_tech: '❌ Opat zamítl: Klášter dosud neprokázal znalost kovářského řemesla.',
+            denied_fodina: '❌ Opat zamítl: Nejprve musí být otevřen důl (Fodina).',
+            denied_groats: '❌ Opat zamítl: Klášter nemá dostatek prostředků (80 grošů).',
+            denied_charcoal: '❌ Opat zamítl: Bez zásob dřevěného uhlí nelze huť provozovat (15 ks).',
+            kronika_submit: 'Odeslána žádost opatovi o stavbu hutě (Fornax Ferraria). Odpověď očekávána {responseDate}.',
+            kronika_approved: 'Opat schválil stavbu Fornax Ferraria. Tavení rudy může začít.',
+            kronika_denied: 'Opat zamítl žádost o Fornax Ferraria. Důvod: {reason}',
+            inspect_hint: 'Opat přislíbil inspekční návštěvu po dokončení stavby.',
+            locked_hint: 'Tavení rudy vyžaduje souhlas opata ke stavbě hutě.',
+            build_cost: 'Stavba: 40 kamene, 15 tesaného kamene, 20 hlíny, 20 fošen, 15 dřevěného uhlí.',
+        },
+    },
 };
-
 // ═══ src/i18n/en.js ═══
 // Scriptorium i18n — English (Olde)
 // Základ: STRINGS_cs. Chybějící klíče → fallback na CS automaticky.
@@ -34102,8 +34166,40 @@ In every scriptorium lurks Titivillus. His task is not to tempt to sin — other
             ignore_res: 'Thou hast stored it safely. Perhaps thou shalt return to it.',
         },
     },
+    abbotPetition: {
+        fodina: {
+            title: 'Request for Mining Rights',
+            submit_btn: 'Submit petition to the Abbot',
+            pending: '⏳ Petition submitted {date}. The Abbot will reply by {responseDate}.',
+            approved: '✅ The Abbot has granted mining rights. The Fodina may be opened.',
+            denied_tech: '❌ Abbot denied: The monastery has not yet demonstrated knowledge of the blacksmith\'s craft.',
+            denied_fabrica: '❌ Abbot denied: You have no place to work the ore. Build the Fabrica first.',
+            denied_groats: '❌ Abbot denied: The monastery lacks funds for the royal mining toll (50 groats).',
+            denied_pickaxe: '❌ Abbot denied: No tools to open a mine. Obtain a pickaxe first.',
+            kronika_submit: 'Petition submitted to the Abbot for mining rights (Fodina). Reply expected by {responseDate}.',
+            kronika_approved: 'The Abbot granted the opening of the mine (Fodina). Mining privilege awarded.',
+            kronika_denied: 'The Abbot denied the petition for the Fodina. Reason: {reason}',
+            inspect_hint: 'The Abbot has promised an inspection visit in the coming days.',
+            locked_hint: 'To mine iron ore, you need the Abbot\'s consent to open a mine.',
+        },
+        fornax: {
+            title: 'Request to Build a Smelting Furnace',
+            submit_btn: 'Submit petition to the Abbot',
+            pending: '⏳ Petition submitted {date}. The Abbot will reply by {responseDate}.',
+            approved: '✅ The Abbot has approved the Fornax Ferraria. The furnace may be built.',
+            denied_tech: '❌ Abbot denied: The monastery has not yet demonstrated knowledge of the blacksmith\'s craft.',
+            denied_fodina: '❌ Abbot denied: A mine (Fodina) must be opened first.',
+            denied_groats: '❌ Abbot denied: The monastery lacks sufficient funds (80 groats).',
+            denied_charcoal: '❌ Abbot denied: No charcoal stores to run a furnace (15 required).',
+            kronika_submit: 'Petition submitted to the Abbot for the Fornax Ferraria. Reply expected by {responseDate}.',
+            kronika_approved: 'The Abbot approved the Fornax Ferraria. Ore smelting may begin.',
+            kronika_denied: 'The Abbot denied the petition for the Fornax Ferraria. Reason: {reason}',
+            inspect_hint: 'The Abbot has promised an inspection visit once the furnace is complete.',
+            locked_hint: 'Smelting ore requires the Abbot\'s consent to build a furnace.',
+            build_cost: 'Build cost: 40 rock, 15 cut stone, 20 clay, 20 planks, 15 charcoal.',
+        },
+    },
 };
-
 // ═══ src/i18n/strings.js ═══
 // Scriptorium i18n — STRINGS assembler + t() helper
 // Přidání jazyka: 1) xx.js, 2) přidat do STRINGS, 3) přidat do build.js
@@ -34521,6 +34617,18 @@ const Game = {
 
 		// Initialize feeding system
 		if (!GameState.feeding) GameState.feeding = {};
+
+		// Migrace abbotPetition (nové savy + staré savy)
+		if (!GameState.abbotPetition) {
+			GameState.abbotPetition = {
+				fodina: { status: 'none', submittedAt: null, deniedReason: null, inspectionPending: false },
+				fornax: { status: 'none', submittedAt: null, deniedReason: null, inspectionPending: false },
+			};
+		}
+		if (!GameState.abbotPetition.fodina) GameState.abbotPetition.fodina = { status: 'none', submittedAt: null, deniedReason: null, inspectionPending: false };
+		if (!GameState.abbotPetition.fornax) GameState.abbotPetition.fornax = { status: 'none', submittedAt: null, deniedReason: null, inspectionPending: false };
+		// Vyhodnotit čekající žádosti po načtení
+		Game.checkAbbotPetitions();
 
 		// Initialize tool uses tracking
 		if (!GameState.toolUses) GameState.toolUses = {};
@@ -36748,6 +36856,15 @@ const Game = {
             }
         }
 
+        // Gate: iron_ingot vyžaduje Fornax Ferraria
+        if (r.id === 'iron_ingot') {
+            if (!(GameState.storage && GameState.storage.fornax_ferraria && GameState.storage.fornax_ferraria.built)) {
+                const _gl = (GameState.settings && GameState.settings.language) || 'cs';
+                UI.notify(_gl === 'en' ? '❌ Requires Fornax Ferraria (smelting furnace).' : '❌ Vyžaduje Fornax Ferraria (tavicí pec).', true);
+                return;
+            }
+        }
+
         // maxStack check — iron nástroje max 1 ks
         const outItem = ItemsDB[r.output];
         if (outItem && outItem.maxStack) {
@@ -37306,6 +37423,8 @@ const Game = {
 		if (!GameState.storage.cellarium_vini)    GameState.storage.cellarium_vini    = {built:false};
 		if (!GameState.storage.uvarium)           GameState.storage.uvarium           = {built:false};
 		if (!GameState.storage.prelum_olei)       GameState.storage.prelum_olei       = {built:false};
+		if (!GameState.storage.fodina)             GameState.storage.fodina             = {built:false};
+		if (!GameState.storage.fornax_ferraria)    GameState.storage.fornax_ferraria    = {built:false};
 		if (!GameState.storage.transactions) GameState.storage.transactions = [];
 		// Prereq checks — storage buildings
 		if (type === 'cella' && !GameState.storage.almarium.built) {
@@ -37336,6 +37455,11 @@ const Game = {
 		if (type === 'prelum_olei' && !(GameState.storage.sulci && GameState.storage.sulci.built)) {
 			UI.notify(lang==='en' ? 'Build Sulci first.' : 'Nejprve postav Brázdy (Sulci).', true); return;
 		}
+		if (type === 'fornax_ferraria') {
+			if (!(GameState.abbotPetition && GameState.abbotPetition.fornax && GameState.abbotPetition.fornax.status === 'approved')) {
+				UI.notify(lang==='en' ? '❌ Abbot approval required. Submit a petition first.' : '❌ Vyžaduje souhlas opata. Nejprve zašli žádost.', true); return;
+			}
+		}
 		if (GameState.storage[type] && GameState.storage[type].built) {
 			UI.notify(lang==='en' ? 'Already built.' : 'Jiz postaveno.', true); return;
 		}
@@ -37353,6 +37477,7 @@ const Game = {
 			cellarium_vini:    { cut_stone: 10, plank: 6, rope: 4 },
 			uvarium:           { plank: 8,  rock: 4,  rope: 3 },
 			prelum_olei:       { plank: 10, rope: 4,  rock: 4,  iron_ingot: 1 },
+			fornax_ferraria:   { rock: 40, cut_stone: 15, clay: 20, plank: 20, charcoal: 15 },
 		};
 		const cost = costs[type];
 		if (!cost) return;
@@ -37371,6 +37496,7 @@ const Game = {
 			vinea: 'Vinea', prelum: 'Prelum', cella_fermentaria: 'Cella fermentaria',
 			foudres: 'Foudres', cellarium_vini: 'Cellarium Vini',
 			uvarium: 'Uvarium', prelum_olei: 'Prelum Olei',
+			fornax_ferraria: 'Fornax Ferraria',
 		};
 		const n = names[type] || type;
 		UI.notifyPanel('🏗️ ' + (lang==='en' ? n+' built.' : n+' postaveno.'), 'system');
@@ -37576,6 +37702,151 @@ const Game = {
         GameState.kronikaDailyBuffer = { date: buf.date, gains: {} };
     },
 
+    // ── ABBOT PETITION SYSTEM ────────────────────────────────────────────────
+
+    submitAbbotPetition: function(type) {
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        const cs = lang === 'cs';
+        if (!GameState.abbotPetition) GameState.abbotPetition = {};
+        if (!GameState.abbotPetition[type]) {
+            GameState.abbotPetition[type] = { status: 'none', submittedAt: null, deniedReason: null, inspectionPending: false };
+        }
+        const pet = GameState.abbotPetition[type];
+
+        // Již odesláno nebo schváleno
+        if (pet.status === 'pending') {
+            UI.notify(cs ? '⏳ Žádost již byla odeslána. Čekej na odpověď opata.' : '⏳ Petition already submitted. Await the Abbot\'s reply.', true);
+            return;
+        }
+        if (pet.status === 'approved') {
+            UI.notify(cs ? '✅ Opat již schválil tuto žádost.' : '✅ The Abbot has already approved this petition.', true);
+            return;
+        }
+
+        // Validace podmínek — pro fodinu
+        if (type === 'fodina') {
+            if (!(GameState.researchedTechs && GameState.researchedTechs.includes('tech_kovarina'))) {
+                UI.notify(t('abbotPetition.fodina.denied_tech'), true); return;
+            }
+            if (!(GameState.storage && GameState.storage.fabrica && GameState.storage.fabrica.built)) {
+                UI.notify(t('abbotPetition.fodina.denied_fabrica'), true); return;
+            }
+            if ((typeof CellariumSystem !== 'undefined' ? CellariumSystem.getGrose() : 0) < 50) {
+                UI.notify(t('abbotPetition.fodina.denied_groats'), true); return;
+            }
+            const hasPickaxe = (GameState.inventory['iron_pickaxe'] > 0) || (GameState.inventory['stone_pickaxe'] > 0)
+                || (GameState.inventory['worn_iron_pickaxe'] > 0);
+            if (!hasPickaxe) {
+                UI.notify(t('abbotPetition.fodina.denied_pickaxe'), true); return;
+            }
+        }
+
+        // Validace podmínek — pro fornax
+        if (type === 'fornax') {
+            if (!(GameState.researchedTechs && GameState.researchedTechs.includes('tech_kovarina'))) {
+                UI.notify(t('abbotPetition.fornax.denied_tech'), true); return;
+            }
+            if (!(GameState.abbotPetition.fodina && GameState.abbotPetition.fodina.status === 'approved')) {
+                UI.notify(t('abbotPetition.fornax.denied_fodina'), true); return;
+            }
+            if ((typeof CellariumSystem !== 'undefined' ? CellariumSystem.getGrose() : 0) < 80) {
+                UI.notify(t('abbotPetition.fornax.denied_groats'), true); return;
+            }
+            if ((GameState.inventory['charcoal'] || 0) < 15) {
+                UI.notify(t('abbotPetition.fornax.denied_charcoal'), true); return;
+            }
+        }
+
+        // Vše OK — odeslat žádost
+        pet.status = 'pending';
+        pet.submittedAt = Date.now();
+        pet.deniedReason = null;
+
+        const submitDate = new Date().toLocaleDateString(cs ? 'cs-CZ' : 'en-GB');
+        const responseDate = new Date(Date.now() + 86400000).toLocaleDateString(cs ? 'cs-CZ' : 'en-GB');
+
+        const kronikaCs = t('abbotPetition.' + type + '.kronika_submit')
+            .replace('{responseDate}', responseDate);
+        const kronikaEn = (lang === 'en' ? t('abbotPetition.' + type + '.kronika_submit') : '')
+            .replace('{responseDate}', responseDate);
+
+        UI.notifyPanel('📜 ' + (cs
+            ? 'Žádost odeslána opatovi. Odpověď očekávána ' + responseDate + '.'
+            : 'Petition submitted to the Abbot. Reply expected by ' + responseDate + '.'), 'system');
+
+        Game.addKronikaEntry('important',
+            kronikaCs,
+            'Petition submitted. Reply expected by ' + responseDate + '.',
+            'Petitio ad abbatem missa. Responsum ' + responseDate + ' exspectatur.'
+        );
+
+        Game.save();
+        if (typeof UI !== 'undefined' && UI.renderAll) UI.renderAll();
+    },
+
+    checkAbbotPetitions: function() {
+        if (!GameState.abbotPetition) return;
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        const cs = lang === 'cs';
+        const now = Date.now();
+        const DAY_MS = 86400000;
+
+        ['fodina', 'fornax'].forEach(type => {
+            const pet = GameState.abbotPetition[type];
+            if (!pet || pet.status !== 'pending') return;
+            if (now - pet.submittedAt < DAY_MS) return;
+
+            // 24h uplynulo — vyhodnotit
+            let deniedKey = null;
+
+            if (type === 'fodina') {
+                if (!(GameState.researchedTechs && GameState.researchedTechs.includes('tech_kovarina'))) deniedKey = 'denied_tech';
+                else if (!(GameState.storage && GameState.storage.fabrica && GameState.storage.fabrica.built)) deniedKey = 'denied_fabrica';
+                else if ((typeof CellariumSystem !== 'undefined' ? CellariumSystem.getGrose() : 0) < 50) deniedKey = 'denied_groats';
+                else {
+                    const hasPickaxe = (GameState.inventory['iron_pickaxe'] > 0) || (GameState.inventory['stone_pickaxe'] > 0)
+                        || (GameState.inventory['worn_iron_pickaxe'] > 0);
+                    if (!hasPickaxe) deniedKey = 'denied_pickaxe';
+                }
+            }
+
+            if (type === 'fornax') {
+                if (!(GameState.researchedTechs && GameState.researchedTechs.includes('tech_kovarina'))) deniedKey = 'denied_tech';
+                else if (!(GameState.abbotPetition.fodina && GameState.abbotPetition.fodina.status === 'approved')) deniedKey = 'denied_fodina';
+                else if ((typeof CellariumSystem !== 'undefined' ? CellariumSystem.getGrose() : 0) < 80) deniedKey = 'denied_groats';
+                else if ((GameState.inventory['charcoal'] || 0) < 15) deniedKey = 'denied_charcoal';
+            }
+
+            if (deniedKey) {
+                // Zamítnout
+                pet.status = 'denied';
+                pet.deniedReason = deniedKey;
+                const reason = t('abbotPetition.' + type + '.' + deniedKey);
+                UI.notifyPanel('❌ ' + (cs ? 'Opat zamítl žádost.' : 'The Abbot denied the petition.') + ' ' + reason, 'warning');
+                Game.addKronikaEntry('important',
+                    t('abbotPetition.' + type + '.kronika_denied').replace('{reason}', reason),
+                    'The Abbot denied the petition. Reason: ' + reason,
+                    'Abbas petitionem negavit.'
+                );
+                // Reset na none — hráč může zkusit znovu
+                setTimeout(() => { pet.status = 'none'; pet.submittedAt = null; Game.save(); }, 3000);
+            } else {
+                // Schválit
+                pet.status = 'approved';
+                pet.inspectionPending = true;
+                UI.notifyPanel('✅ ' + t('abbotPetition.' + type + '.approved'), 'success');
+                UI.notifyPanel('🔍 ' + t('abbotPetition.' + type + '.inspect_hint'), 'info');
+                Game.addKronikaEntry('important',
+                    t('abbotPetition.' + type + '.kronika_approved'),
+                    type === 'fodina' ? 'The Abbot granted mining rights (Fodina).' : 'The Abbot approved the Fornax Ferraria.',
+                    'Abbas petitionem approbavit.'
+                );
+            }
+            Game.save();
+            if (typeof UI !== 'undefined' && UI.renderAll) UI.renderAll();
+        });
+    },
+
     addKronikaEntry: function(type, cs, en, la) {
         if (!GameState.kronika) GameState.kronika = [];
         GameState.kronika.push({
@@ -37591,7 +37862,6 @@ const Game = {
     },
 
 };
-
 // ═══ src/core/ui.js ═══
 const UI = {
     currentInvFilter: 'all',
@@ -38508,7 +38778,7 @@ const UI = {
         if (mine) mine.style.display = tab === 'mine' ? 'block' : 'none';
         document.querySelectorAll('#home-main-content .filter-btn').forEach(b => b.classList.remove('active'));
         if (btn) btn.classList.add('active');
-        if (tab === 'mine') this.renderMineActions();
+        if (tab === 'mine') { this.renderFodinaPetitionPanel(); this.renderMineActions(); }
     },
 
     renderMineActions: function () {
@@ -38551,6 +38821,46 @@ const UI = {
         });
         if (!h) h = `<div style="padding:20px;opacity:0.6;text-align:center">${lang === 'en' ? '🔒 Requires a pickaxe.' : '🔒 Vyžaduje krumpáč.'}</div>`;
         el.innerHTML = h;
+    },
+
+    renderFodinaPetitionPanel: function () {
+        const el = document.getElementById('fodina-petition-panel');
+        if (!el) return;
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        const cs = lang === 'cs';
+        const pet = GameState.abbotPetition && GameState.abbotPetition.fodina;
+        const fodinaBuilt = GameState.storage && GameState.storage.fodina && GameState.storage.fodina.built;
+
+        // Fodina postavena — panel skrýt
+        if (fodinaBuilt) { el.innerHTML = ''; return; }
+
+        let html = '';
+        const boxStyle = 'padding:14px; margin-bottom:12px; background:rgba(197,160,89,0.07); border:1px solid rgba(197,160,89,0.3); border-radius:8px; border-left:4px solid var(--accent-gold);';
+
+        if (!pet || pet.status === 'none') {
+            html = `<div style="${boxStyle}">
+                <div style="font-weight:bold; margin-bottom:6px;">⛏️ ${cs ? 'Fodina — Klášterní důl' : 'Fodina — Monastic Mine'}</div>
+                <div style="font-size:0.82rem; opacity:0.8; margin-bottom:10px;">${t('abbotPetition.fodina.locked_hint')}</div>
+                <button class="craft-btn" onclick="Game.submitAbbotPetition('fodina'); UI.renderFodinaPetitionPanel(); UI.renderMineActions();">
+                    📜 ${t('abbotPetition.fodina.submit_btn')}
+                </button>
+            </div>`;
+        } else if (pet.status === 'pending') {
+            const submitDate = pet.submittedAt ? new Date(pet.submittedAt).toLocaleDateString(cs ? 'cs-CZ' : 'en-GB') : '?';
+            const responseDate = pet.submittedAt ? new Date(pet.submittedAt + 86400000).toLocaleDateString(cs ? 'cs-CZ' : 'en-GB') : '?';
+            const pendingText = t('abbotPetition.fodina.pending').replace('{date}', submitDate).replace('{responseDate}', responseDate);
+            html = `<div style="${boxStyle}">
+                <div style="font-weight:bold; margin-bottom:6px;">⛏️ ${cs ? 'Fodina — Klášterní důl' : 'Fodina — Monastic Mine'}</div>
+                <div style="font-size:0.82rem; opacity:0.8;">${pendingText}</div>
+            </div>`;
+        } else if (pet.status === 'approved') {
+            html = `<div style="${boxStyle} border-left-color:#5a9a5a;">
+                <div style="font-weight:bold; margin-bottom:6px; color:#5a9a5a;">✅ ${cs ? 'Fodina schválena' : 'Fodina Approved'}</div>
+                <div style="font-size:0.82rem; opacity:0.8; margin-bottom:10px;">${t('abbotPetition.fodina.approved')}</div>
+            </div>`;
+        }
+
+        el.innerHTML = html;
     },
 
     renderLibraryNews: function () {
@@ -39841,7 +40151,6 @@ const UI = {
 // ===============================================
 // NOTEBOOK SYSTEM - LOCAL ONLY (NO CLOUD)
 // ===============================================
-
 // ═══ src/systems/iching.js ═══
 const IChing = {
 	  

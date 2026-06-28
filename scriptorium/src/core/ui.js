@@ -913,7 +913,7 @@ const UI = {
         if (mine) mine.style.display = tab === 'mine' ? 'block' : 'none';
         document.querySelectorAll('#home-main-content .filter-btn').forEach(b => b.classList.remove('active'));
         if (btn) btn.classList.add('active');
-        if (tab === 'mine') this.renderMineActions();
+        if (tab === 'mine') { this.renderFodinaPetitionPanel(); this.renderMineActions(); }
     },
 
     renderMineActions: function () {
@@ -956,6 +956,46 @@ const UI = {
         });
         if (!h) h = `<div style="padding:20px;opacity:0.6;text-align:center">${lang === 'en' ? '🔒 Requires a pickaxe.' : '🔒 Vyžaduje krumpáč.'}</div>`;
         el.innerHTML = h;
+    },
+
+    renderFodinaPetitionPanel: function () {
+        const el = document.getElementById('fodina-petition-panel');
+        if (!el) return;
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        const cs = lang === 'cs';
+        const pet = GameState.abbotPetition && GameState.abbotPetition.fodina;
+        const fodinaBuilt = GameState.storage && GameState.storage.fodina && GameState.storage.fodina.built;
+
+        // Fodina postavena — panel skrýt
+        if (fodinaBuilt) { el.innerHTML = ''; return; }
+
+        let html = '';
+        const boxStyle = 'padding:14px; margin-bottom:12px; background:rgba(197,160,89,0.07); border:1px solid rgba(197,160,89,0.3); border-radius:8px; border-left:4px solid var(--accent-gold);';
+
+        if (!pet || pet.status === 'none') {
+            html = `<div style="${boxStyle}">
+                <div style="font-weight:bold; margin-bottom:6px;">⛏️ ${cs ? 'Fodina — Klášterní důl' : 'Fodina — Monastic Mine'}</div>
+                <div style="font-size:0.82rem; opacity:0.8; margin-bottom:10px;">${t('abbotPetition.fodina.locked_hint')}</div>
+                <button class="craft-btn" onclick="Game.submitAbbotPetition('fodina'); UI.renderFodinaPetitionPanel(); UI.renderMineActions();">
+                    📜 ${t('abbotPetition.fodina.submit_btn')}
+                </button>
+            </div>`;
+        } else if (pet.status === 'pending') {
+            const submitDate = pet.submittedAt ? new Date(pet.submittedAt).toLocaleDateString(cs ? 'cs-CZ' : 'en-GB') : '?';
+            const responseDate = pet.submittedAt ? new Date(pet.submittedAt + 86400000).toLocaleDateString(cs ? 'cs-CZ' : 'en-GB') : '?';
+            const pendingText = t('abbotPetition.fodina.pending').replace('{date}', submitDate).replace('{responseDate}', responseDate);
+            html = `<div style="${boxStyle}">
+                <div style="font-weight:bold; margin-bottom:6px;">⛏️ ${cs ? 'Fodina — Klášterní důl' : 'Fodina — Monastic Mine'}</div>
+                <div style="font-size:0.82rem; opacity:0.8;">${pendingText}</div>
+            </div>`;
+        } else if (pet.status === 'approved') {
+            html = `<div style="${boxStyle} border-left-color:#5a9a5a;">
+                <div style="font-weight:bold; margin-bottom:6px; color:#5a9a5a;">✅ ${cs ? 'Fodina schválena' : 'Fodina Approved'}</div>
+                <div style="font-size:0.82rem; opacity:0.8; margin-bottom:10px;">${t('abbotPetition.fodina.approved')}</div>
+            </div>`;
+        }
+
+        el.innerHTML = html;
     },
 
     renderLibraryNews: function () {

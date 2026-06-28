@@ -1311,6 +1311,17 @@ const CellariumSystem = {
         req_tech: hasKov, req_build: true, req_label: null,
       },
       {
+        id: 'fornax_ferraria', icon: '🔥',
+        name: 'Fornax Ferraria (Huť)', name_en: 'Fornax Ferraria (Smelting Furnace)',
+        desc: 'Tavicí pec s měchy. Přetaví železnou rudu na ingoty. Vyžaduje souhlas opata.',
+        desc_en: 'Smelting furnace with bellows. Converts iron ore into ingots. Requires Abbot consent.',
+        cost: { rock: 40, cut_stone: 15, clay: 20, plank: 20, charcoal: 15 },
+        req_tech: hasKov,
+        req_build: GameState.abbotPetition && GameState.abbotPetition.fornax && GameState.abbotPetition.fornax.status === 'approved',
+        req_label: lang === 'en' ? 'Requires: Abbot approval (petition) + Fodina open' : 'Nutné: Souhlas opata (žádost) + Fodina otevřena',
+        petition_type: 'fornax',
+      },
+      {
         id: 'sulci', icon: '🪠',
         name: 'Sulci — Brázdy', name_en: 'Sulci — Furrows',
         desc: 'Vydlabané brázdy a dřevěný pluh. Bez brázd pole neorat. Odemkne subtab Pole.',
@@ -1427,6 +1438,18 @@ const CellariumSystem = {
         </div>
         ${!built ? `<div style="font-size:0.73rem; opacity:0.7; margin-bottom:6px; display:flex; flex-wrap:wrap; gap:6px;">${costStr}</div>` : ''}
         ${b.req_label && !built ? `<div style="font-size:0.73rem; color:#e67e22; margin-bottom:6px;">⚠️ ${b.req_label}</div>` : ''}
+        ${b.petition_type && !built ? (() => {
+          const pet = GameState.abbotPetition && GameState.abbotPetition[b.petition_type];
+          const pStatus = pet ? pet.status : 'none';
+          if (pStatus === 'none') {
+            return `<button class="craft-btn" style="font-size:0.78rem; margin-bottom:6px;" onclick="Game.submitAbbotPetition('${b.petition_type}'); if(typeof CellariumSystem !== 'undefined') CellariumSystem.switchEntity('buildings');">📜 ${t('abbotPetition.' + b.petition_type + '.submit_btn')}</button>`;
+          } else if (pStatus === 'pending') {
+            const sd = pet.submittedAt ? new Date(pet.submittedAt).toLocaleDateString(lang==='cs'?'cs-CZ':'en-GB') : '?';
+            const rd = pet.submittedAt ? new Date(pet.submittedAt + 86400000).toLocaleDateString(lang==='cs'?'cs-CZ':'en-GB') : '?';
+            return `<div style="font-size:0.78rem; opacity:0.7; font-style:italic;">⏳ ${t('abbotPetition.' + b.petition_type + '.pending').replace('{date}', sd).replace('{responseDate}', rd)}</div>`;
+          }
+          return '';
+        })() : ''}
         ${canBuild ? `<button onclick="Game.buildStorage('${b.id}')" class="craft-btn" style="font-size:0.78rem;">🏗️ ${lang==='en' ? 'Build' : 'Postavit'}</button>` : ''}
         ${built ? `<div style="font-size:0.78rem; color:#5a9a5a; font-style:italic;">✅ ${lang==='en' ? 'Built' : 'Postaveno'}</div>` : ''}
         ${locked ? `<div style="font-size:0.78rem; opacity:0.5; font-style:italic;">🔒 ${lang==='en' ? 'Research required' : 'Vyžaduje výzkum'}</div>` : ''}

@@ -137,5 +137,9 @@ const GameState = {
         warmth: 50,         // 0–100, tepelný komfort (roste u ohně, klesá venku)
         location: 'garden', // 'garden' | 'fire' — kde kočka právě je
     },
-    mice: { count: 3, lastTick: 0 }   // klášterní myší populace
+    mice: { count: 3, lastTick: 0 },   // klášterní myší populace
+    abbotPetition: {
+        fodina: { status: 'none', submittedAt: null, deniedReason: null, inspectionPending: false },
+        fornax: { status: 'none', submittedAt: null, deniedReason: null, inspectionPending: false },
+    },
 };

@@ -491,6 +491,10 @@ const ItemsDB = {
     "iron_ingot": { name: "Železný ingot", name_en: "Iron Ingot", icon: "⚙️", type: "mat", desc: "Odlitý prut železa. Základ kovářského řemesla.", desc_en: "Cast iron bar. The foundation of the blacksmith's craft." },
     "anvil": { maxStack: 1, name: "Kovadlina", name_en: "Anvil", icon: "⚒️", type: "mat", desc: "Těžká železná kovadlina. Nutná pro stavbu kovárny.", desc_en: "Heavy iron anvil. Required to build the smithy." },
 
+    // ── HUTNÍ STAVBY ─────────────────────────────────────────────────────────
+    "fodina": { maxStack: 1, name: "Fodina (Důl)", name_en: "Fodina (Mine)", icon: "⛏️", type: "building", desc: "Klášterní důl na železnou rudu. Vyžaduje souhlas opata a horní privilegium.", desc_en: "Monastic iron ore mine. Requires the abbot's consent and mining rights." },
+    "fornax_ferraria": { maxStack: 1, name: "Fornax Ferraria (Huť)", name_en: "Fornax Ferraria (Smelting Furnace)", icon: "🔥", type: "building", desc: "Tavicí pec s měchy. Přetaví železnou rudu na ingoty. Vyžaduje souhlas opata.", desc_en: "Smelting furnace with bellows. Converts iron ore into ingots. Requires the abbot's consent." },
+
     // ── OPOTŘEBENÉ ŽELEZNÉ NÁSTROJE ──────────────────────────────────────────
     "worn_iron_axe": { maxUses: 3, name: "Otupená sekerka", name_en: "Worn Iron Axe", icon: "🪓", type: "tool", tier: "iron", desc: "Otupené železné ostří. Opravit v Kovárně.", desc_en: "Blunted iron blade. Repair at the Smithy." },
     "worn_iron_spade": { maxUses: 3, name: "Tupý rýč", name_en: "Worn Iron Spade", icon: "⛏️", type: "tool", tier: "iron", desc: "Ohnutý železný rýč. Opravit v Kovárně.", desc_en: "Bent iron spade. Repair at the Smithy." },
