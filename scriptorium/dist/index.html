@@ -10006,7 +10006,7 @@ const ChroniconSystem = {
                     ? 'chronicon_distant'
                     : (src === 'local_events'
                         ? 'chronicon_local'
-                        : (src === 'monastery_internal' || src === 'engine' || src === 'gm'
+                        : (src === 'monastery_internal' || src === 'engine' || src === 'gm' || src === 'weather'
                             ? 'chronicon_monastery'
                             : 'chronicon'));
                 NotificationSystem.panel(icon + text, cat);
