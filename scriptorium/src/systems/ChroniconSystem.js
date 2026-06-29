@@ -14,6 +14,7 @@ const ChroniconSystem = {
     TTL:       6 * 60 * 60 * 1000,   // 6 hodin v ms
 
     _snap: null,
+    MAX_PER_LOAD: 4,   // Max nových záznamů zobrazených při jednom načtení
 
     init: function() {
         const cached = ChroniconSystem._loadCache();
@@ -55,16 +56,6 @@ const ChroniconSystem = {
             });
     },
 
-    // ─── Reálná sezóna hráče (podle systémového data) ───────────────────────
-
-    _realSeason: function() {
-        const m = new Date().getMonth(); // 0=leden … 11=prosinec
-        if (m <= 1 || m === 11) return 'zima';
-        if (m <= 4)             return 'jaro';
-        if (m <= 7)             return 'léto';
-        return 'podzim';
-    },
-
     // ─── Apply snapshot ─────────────────────────────────────────────────────
 
     _apply: function(snap) {
@@ -104,17 +95,15 @@ const ChroniconSystem = {
         const maxTick   = snap.time && snap.time.total_tick != null ? snap.time.total_tick : 0;
         const TICK_MS   = 6 * 60 * 60 * 1000; // 6h per tick
 
-        const currentSeason = ChroniconSystem._realSeason();
-
         entries.forEach(function(entry) {
             const id = ChroniconSystem._entryId(entry);
             if (seen[id]) return; // Už viděno
 
-            // Sezónní filtr: display_seasons = pole povolených sezón (null/chybí = vždy)
-            if (Array.isArray(entry.display_seasons) && entry.display_seasons.length > 0) {
-                if (entry.display_seasons.indexOf(currentSeason) === -1) {
-                    return; // Špatná sezóna — přeskočit
-                }
+            // Cap: zobraz max MAX_PER_LOAD nových záznamů najednou.
+            // Přeskočené starší záznamy se označí jako viděné — nehromadí se.
+            if (added >= ChroniconSystem.MAX_PER_LOAD) {
+                seen[id] = 1;
+                return;
             }
 
             // Panel notifikace
