@@ -112,7 +112,16 @@ const ChroniconSystem = {
                 const text = (lang === 'en' && entry.text_en)
                     ? entry.text_en
                     : (entry.text_cs || entry.text);
-                NotificationSystem.panel(icon + text, 'chronicon');
+                // Mapovat source na subkategorii pro správný label v panelu
+                const src = entry.source || '';
+                const cat = src === 'distant_events'
+                    ? 'chronicon_distant'
+                    : (src === 'local_events'
+                        ? 'chronicon_local'
+                        : (src === 'monastery_internal' || src === 'engine' || src === 'gm'
+                            ? 'chronicon_monastery'
+                            : 'chronicon'));
+                NotificationSystem.panel(icon + text, cat);
             }
 
             // Inject do GameState.kronika
@@ -179,8 +188,9 @@ const ChroniconSystem = {
     },
 
     _entryId: function(entry) {
-        // Unikátní ID ze source + tick + prvních 20 znaků textu
-        return (entry.source || '') + '_' + (entry.tick || 0) + '_' + (entry.text || '').substring(0, 20);
+        // Stabilní ID nezávislé na textu — EN/CS verze téže zprávy = stejné ID
+        if (entry.id) return String(entry.id);
+        return (entry.source || '') + '_' + (entry.tick || 0);
     },
 
 };

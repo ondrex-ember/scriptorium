@@ -133,7 +133,10 @@ const NotificationSystem = {
         const map = {
             sklad:     '📦', dvur: '🐄', athanor: '⚗️',
             obchod:    '💰', udalost: '📜', system: '🔔',
-            chronicon: '🕊️',
+            chronicon:            '🕊️',
+            chronicon_distant:    '🕊️',
+            chronicon_local:      '🗣️',
+            chronicon_monastery:  '✝️',
         };
         return map[cat] || '🔔';
     },
@@ -142,6 +145,10 @@ const NotificationSystem = {
         const key = 'notifications.cat_' + cat;
         const val = (typeof t === 'function') ? t(key) : null;
         if (val && val !== key) return val;
+        // Chronicon subkategorie — využít chroniconSrc překlady (cs.js / en.js)
+        if (cat === 'chronicon_distant')   return (typeof t === 'function') ? t('kronika.chroniconSrc.distant_events')    : 'z dálky';
+        if (cat === 'chronicon_local')     return (typeof t === 'function') ? t('kronika.chroniconSrc.local_events')      : 'místní drby';
+        if (cat === 'chronicon_monastery') return (typeof t === 'function') ? t('kronika.chroniconSrc.monastery_internal') : 'klášter';
         const fallback = { sklad: 'sklad', dvur: 'dvůr', athanor: 'athanor', obchod: 'obchod', udalost: 'událost', system: 'systém', postup: 'postup', chronicon: 'zprávy světa' };
         return fallback[cat] || cat;
     },

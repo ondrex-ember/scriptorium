@@ -9420,7 +9420,10 @@ const NotificationSystem = {
         const map = {
             sklad:     '📦', dvur: '🐄', athanor: '⚗️',
             obchod:    '💰', udalost: '📜', system: '🔔',
-            chronicon: '🕊️',
+            chronicon:            '🕊️',
+            chronicon_distant:    '🕊️',
+            chronicon_local:      '🗣️',
+            chronicon_monastery:  '✝️',
         };
         return map[cat] || '🔔';
     },
@@ -9429,6 +9432,10 @@ const NotificationSystem = {
         const key = 'notifications.cat_' + cat;
         const val = (typeof t === 'function') ? t(key) : null;
         if (val && val !== key) return val;
+        // Chronicon subkategorie — využít chroniconSrc překlady (cs.js / en.js)
+        if (cat === 'chronicon_distant')   return (typeof t === 'function') ? t('kronika.chroniconSrc.distant_events')    : 'z dálky';
+        if (cat === 'chronicon_local')     return (typeof t === 'function') ? t('kronika.chroniconSrc.local_events')      : 'místní drby';
+        if (cat === 'chronicon_monastery') return (typeof t === 'function') ? t('kronika.chroniconSrc.monastery_internal') : 'klášter';
         const fallback = { sklad: 'sklad', dvur: 'dvůr', athanor: 'athanor', obchod: 'obchod', udalost: 'událost', system: 'systém', postup: 'postup', chronicon: 'zprávy světa' };
         return fallback[cat] || cat;
     },
@@ -9993,7 +10000,16 @@ const ChroniconSystem = {
                 const text = (lang === 'en' && entry.text_en)
                     ? entry.text_en
                     : (entry.text_cs || entry.text);
-                NotificationSystem.panel(icon + text, 'chronicon');
+                // Mapovat source na subkategorii pro správný label v panelu
+                const src = entry.source || '';
+                const cat = src === 'distant_events'
+                    ? 'chronicon_distant'
+                    : (src === 'local_events'
+                        ? 'chronicon_local'
+                        : (src === 'monastery_internal' || src === 'engine' || src === 'gm'
+                            ? 'chronicon_monastery'
+                            : 'chronicon'));
+                NotificationSystem.panel(icon + text, cat);
             }
 
             // Inject do GameState.kronika
@@ -10060,12 +10076,12 @@ const ChroniconSystem = {
     },
 
     _entryId: function(entry) {
-        // Unikátní ID ze source + tick + prvních 20 znaků textu
-        return (entry.source || '') + '_' + (entry.tick || 0) + '_' + (entry.text || '').substring(0, 20);
+        // Stabilní ID nezávislé na textu — EN/CS verze téže zprávy = stejné ID
+        if (entry.id) return String(entry.id);
+        return (entry.source || '') + '_' + (entry.tick || 0);
     },
 
 };
-
 // ═══ src/systems/events.js ═══
 const EventsSystem = {
     events: [
