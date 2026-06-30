@@ -16408,6 +16408,19 @@ const WellSystem = {
             UI.notify(t('game.wellCollapsed'), true);
             if (panel) panel('🪣 ' + t('game.wellCollapsed'), 'error');
         }
+        // BUGFIX: dailyTick mění condition/purity potichu na pozadí — bez tohoto
+        // zůstává zobrazený stav (např. "Fouled") zaseklý v DOM, dokud hráč
+        // nevyvolá jiný render trigger. Pokud je právě na home tabu, překresli
+        // rovnou; jinak označ dirty, ať se dotáhne při přepnutí.
+        if (beforeCond !== w.condition || beforeP !== w.purity) {
+            if (typeof UI !== 'undefined') {
+                if (UI.currentScreen === 'home' && UI.renderWell) {
+                    UI.renderWell();
+                } else if (UI._dirty) {
+                    UI._dirty.home = true;
+                }
+            }
+        }
     },
 
     // Mráz — zima (měsíc 12–2) + aktuální teplota < 0. Blessed ignoruje.
@@ -16497,6 +16510,7 @@ const WellSystem = {
         return stats[level] || defaultStats;
     }
 };
+
 // ═══ src/systems/terrain.js ═══
 // ═══════════════════════════════════════════════════════════════════════════════
 // TERRAIN SYSTEM — Únava krajiny
