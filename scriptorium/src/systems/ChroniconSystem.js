@@ -67,15 +67,49 @@ const ChroniconSystem = {
             return;
         }
 
-        // Abbot message → toast + kanál zpráv (jen jednou)
+        // Abbot message → toast + kanál zpráv + Kronika (jen při nové/změněné zprávě)
         if (snap.abbot && snap.abbot.message) {
-            const toastKey = 'chronicon_abbot_' + snap.generated;
-            if (!localStorage.getItem(toastKey)) {
+            const lastKey = 'scriptorium_chronicon_abbot_last';
+            const lastMsg = localStorage.getItem(lastKey);
+            if (lastMsg !== snap.abbot.message) {
                 if (typeof NotificationSystem !== 'undefined') {
                     NotificationSystem.toast('✝️ ' + snap.abbot.message, 'warn');
                     NotificationSystem.panel('✝️ ' + snap.abbot.message, 'chronicon');
                 }
-                localStorage.setItem(toastKey, '1');
+                if (typeof GameState !== 'undefined') {
+                    if (!GameState.kronika) GameState.kronika = [];
+                    GameState.kronika.push({
+                        ts:     Date.now(),
+                        cs:     snap.abbot.message,
+                        en:     snap.abbot.message,
+                        la:     null,
+                        type:   'chronicon_abbot',
+                        source: 'abbot',
+                        icon:   '✝️',
+                        season: null,
+                    });
+                }
+                localStorage.setItem(lastKey, snap.abbot.message);
+            }
+        }
+
+        // CHRONICON unlockFlag → GameState.flags (obecný most, defenzivní —
+        // no-op dokud CHRONICON strana pole unlockFlag nezačne posílat)
+        if (snap.unlockFlag && typeof GameState !== 'undefined') {
+            if (!GameState.flags) GameState.flags = {};
+            if (!GameState.flags[snap.unlockFlag]) {
+                GameState.flags[snap.unlockFlag] = true;
+                if (!GameState.kronika) GameState.kronika = [];
+                GameState.kronika.push({
+                    ts:     Date.now(),
+                    cs:     'Zvěst přinesla novou možnost.',
+                    en:     'A rumor has brought a new possibility.',
+                    la:     null,
+                    type:   'chronicon_unlock',
+                    source: 'chronicon',
+                    icon:   '🕊️',
+                    season: null,
+                });
             }
         }
 
