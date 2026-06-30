@@ -200,6 +200,14 @@ const TechTree = [
   },
 
   {
+    id: "tech_armentum", name: "Armentum — Chov skotu", name_en: "Armentum — Cattle Husbandry",
+    cost: 14,
+    desc: "Kráva dává pětkrát víc mléka než koza, ale žere víc a stojí víc. Velké kláštery chovaly desítky kusů — na mléko, máslo, sýr i vellum z telecí kůže. Odemkne: Kravín na Dvoře.",
+    desc_en: "A cow gives five times the milk of a goat, but eats more and costs more. Great monasteries kept dozens of head — for milk, butter, cheese and vellum from calfskin. Unlocks: the Cow Byre in the Farmyard.",
+    unlocks: [], requires: ["tech_caprile"]
+  },
+
+  {
     id: "tech_suile", name: "Suile — Chov prasat", name_en: "Suile — Pig Keeping",
     cost: 18,
     desc: "Prase — živá spižírna kláštera. Na podzim žaludy v lese, v zimě zabijačka: sádlo, špek, maso. Vyžaduje pevný chlév a pevné nervy. Odemkne: Chlév na Dvoře.",

@@ -21,6 +21,9 @@ const FarmyardSystem = {
         goatpen:  { itemId: 'goat', cap: 3,
             build: { plank: 12, rock: 8, rope: 3 },
             milkMs: 12 * 60 * 60 * 1000 },
+        cowbyre:  { itemId: 'cow', cap: 3,
+            build: { cut_stone: 50, plank: 30, rope: 15 },
+            milkMs: 12 * 60 * 60 * 1000 },
         pigsty:   { itemId: 'piglet', cap: 3,
             build: { cut_stone: 15, plank: 10 },
             growMs: 60 * 24 * 60 * 60 * 1000,
@@ -49,12 +52,13 @@ const FarmyardSystem = {
     },
 
     // Všechna zvířata ve všech výbězích pro mood tick
-    ALL_PENS: ['rabbitry','goatpen','pigsty','donkeyStall'],
+    ALL_PENS: ['rabbitry','goatpen','pigsty','donkeyStall','cowbyre'],
 
     // ── Lazy init ─────────────────────────────────────────────────────────
     _ensureAnimals: function() {
         if (!GameState.rabbitry)    GameState.rabbitry    = { built: false, animals: [], lastBreed: 0 };
         if (!GameState.goatpen)     GameState.goatpen     = { built: false, animals: [] };
+        if (!GameState.cowbyre)     GameState.cowbyre     = { built: false, animals: [] };
         if (!GameState.pigsty)      GameState.pigsty      = { built: false, animals: [] };
         if (!GameState.donkeyStall) GameState.donkeyStall = { built: false, animals: [], lastCleanMs: 0 };
         if (!GameState.stable)      GameState.stable      = { built: false, animals: [], lastCleanMs: 0 };
@@ -432,6 +436,30 @@ const FarmyardSystem = {
         }
     },
 
+    collectCowMilk: function() {
+        const st = GameState.cowbyre, cfg = this.ANIMAL_CFG.cowbyre;
+        if (!st || !st.built) return;
+        if (this._penHungry('cowbyre')) { if (typeof UI !== 'undefined') UI.notify(t('dvur.cowsHungry'), true); return; }
+        const now = Date.now();
+        let milk = 0;
+        st.animals.forEach(a => {
+            this._ensureAnimalFields(a);
+            const moodMult = this.MOOD_MULT(a.mood);
+            if (now - (a.lastMilk || a.bornAt) >= cfg.milkMs) {
+                if (Math.random() < moodMult) { milk += 4 + Math.floor(Math.random() * 3); } // 4-6
+                a.lastMilk = now;
+            }
+        });
+        if (milk) {
+            GameState.inventory['cow_milk'] = (GameState.inventory['cow_milk'] || 0) + milk;
+            if (typeof UI !== 'undefined') UI.notify('🥛 ' + t('dvur.cowMilked').replace('{n}', milk));
+            if (typeof Game !== 'undefined') Game.save();
+            this.renderFarmyard();
+        } else {
+            if (typeof UI !== 'undefined') UI.notify(t('dvur.cowNotReady'), true);
+        }
+    },
+
     feedAcorn: function(idx) {
         const st = GameState.pigsty, cfg = this.ANIMAL_CFG.pigsty;
         const a = st.animals[idx];
@@ -466,7 +494,7 @@ const FarmyardSystem = {
         if (!cfg) return '';
         const st = GameState[pen];
         const lang = (GameState.settings && GameState.settings.language) || 'cs';
-        const icons = { rabbitry:'🐇', goatpen:'🐐', pigsty:'🐖' };
+        const icons = { rabbitry:'🐇', goatpen:'🐐', pigsty:'🐖', cowbyre:'🐄' };
         let h = `<div style="padding:16px; background:rgba(197,160,89,0.06); border-radius:10px; border-left:4px solid var(--accent-gold);">`;
         h += `<h3 style="margin:0 0 12px 0; font-size:1rem;">${icons[pen] || '🐾'} ${t('dvur.title_' + pen)}</h3>`;
 
@@ -555,6 +583,20 @@ const FarmyardSystem = {
             h += '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px;">';
             h += '<button class="craft-btn" onclick="FarmyardSystem.collectGoatMilk()" ' + (readyG?'':'disabled') + '>🥛 ' + t('dvur.milkGoats') + ' ('+readyG+' → '+milkYieldG+')</button>';
             h += '<button class="craft-btn" onclick="FarmyardSystem.cleanPen(\'goatpen\')" style="background:rgba(90,154,90,0.85);">' + (canCleanG?'🧹 '+t('farmyard.clean')+' (💩 +'+cleanQG+')':'🧹 '+t('farmyard.cleanTomorrow')) + '</button>';
+            h += '</div>';
+        }
+
+        if (pen === 'cowbyre' && st.animals.length) {
+            var now3 = Date.now();
+            var moodCS = st.animals.reduce(function(s,a){ return s+(a.mood||80); },0);
+            var moodCAvg = Math.round(moodCS/st.animals.length);
+            var readyC = st.animals.filter(function(a){ return a.mature!==false && now3-(a.lastMilk||a.bornAt)>=cfg.milkMs; }).length;
+            h += '<div style="font-size:0.8rem;margin-bottom:8px;">🐄 '+this.MOOD_ICON(moodCAvg)+' '+moodCAvg+'/100</div>';
+            var canCleanC = Date.now() - (st.lastCleanMs||0) >= 86400000;
+            var cleanQC = Math.max(1,Math.ceil(st.animals.length/2));
+            h += '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px;">';
+            h += '<button class="craft-btn" onclick="FarmyardSystem.collectCowMilk()" ' + (readyC?'':'disabled') + '>🥛 ' + t('dvur.milkCow') + ' ('+readyC+')</button>';
+            h += '<button class="craft-btn" onclick="FarmyardSystem.cleanPen(\'cowbyre\')" style="background:rgba(90,154,90,0.85);">' + (canCleanC?'🧹 '+t('farmyard.clean')+' (💩 +'+cleanQC+')':'🧹 '+t('farmyard.cleanTomorrow')) + '</button>';
             h += '</div>';
         }
 
@@ -906,6 +948,7 @@ const FarmyardSystem = {
         var lang = (GameState.settings && GameState.settings.language) || 'cs';
         var hasCaprile = GameState.researchedTechs && GameState.researchedTechs.includes('tech_caprile');
         var hasSuile   = GameState.researchedTechs && GameState.researchedTechs.includes('tech_suile');
+        var hasArmentum = GameState.researchedTechs && GameState.researchedTechs.includes('tech_armentum');
 
         // Kozín
         h += '<div style="font-size:0.72rem;font-weight:bold;letter-spacing:0.06em;text-transform:uppercase;opacity:0.55;margin-bottom:8px;">🐐 ' + (lang==='en' ? 'Goat Pen (Caprile)' : 'Kozín (Caprile)') + '</div>';
@@ -927,10 +970,15 @@ const FarmyardSystem = {
         }
         h += '</div>';
 
-        // Kravín — coming soon
+        // Kravín
         h += '<div style="margin-top:16px;">';
-        h += '<div style="font-size:0.72rem;font-weight:bold;letter-spacing:0.06em;text-transform:uppercase;opacity:0.55;margin-bottom:8px;">🐄 ' + (lang==='en' ? 'Cow Byre (Lactaria)' : 'Kravín (Lactaria)') + '</div>';
-        h += '<div style="padding:12px;opacity:0.5;font-size:0.85rem;font-style:italic;">⏳ ' + t('dvur.comingSoon') + '</div>';
+        h += '<div style="font-size:0.72rem;font-weight:bold;letter-spacing:0.06em;text-transform:uppercase;opacity:0.55;margin-bottom:8px;">🐄 ' + (lang==='en' ? 'Cow Byre (Armentum)' : 'Kravín (Armentum)') + '</div>';
+        if (hasArmentum) {
+            h += this.renderAnimalPen('cowbyre');
+        } else {
+            var techNm3 = typeof tName === 'function' ? tName('tech_armentum') : 'tech_armentum';
+            h += '<div style="padding:12px;opacity:0.6;font-size:0.85rem;">🔒 ' + t('dvur.lockedPrefix') + ' ' + techNm3 + '</div>';
+        }
         h += '</div>';
 
         return h;

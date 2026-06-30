@@ -1497,6 +1497,7 @@ const CellariumSystem = {
       const penDefs = [
         { pen: 'rabbitry',    icon: '🐇', tech: 'tech_cuniculi' },
         { pen: 'goatpen',     icon: '🐐', tech: 'tech_caprile' },
+        { pen: 'cowbyre',     icon: '🐄', tech: 'tech_armentum' },
         { pen: 'pigsty',      icon: '🐖', tech: 'tech_suile' },
         { pen: 'stable',      icon: '🐎', tech: 'tech_stabulum' },
         { pen: 'donkeyStall', icon: '🫏', tech: 'tech_asinus' },

@@ -5607,6 +5607,7 @@ const ItemsDB = {
     // ── PRODUKTY NOVÝCH ZVÍŘAT (easter eggs — zvířata teprve přijdou) ────────
     "goat_hide": { name: "Kozí kůže", name_en: "Goat Hide", icon: "🐐", type: "mat", desc: "Kozí kůže poskytuje nejkvalitnější pergamen — tenký, pevný, málo mastný. Italské kláštery ho znaly jako standard.", desc_en: "Goat hide yields the finest parchment — thin, strong, little grease. Italian monasteries knew it as the standard." },
     "goat_milk": { name: "Kozí mléko", name_en: "Goat Milk", icon: "🥛", type: "mat", desc: "Kozí mléko a syrovátka. Součást klášterní lékárny. Podávalo se nemocným bratrům.", desc_en: "Goat milk and whey. Part of the monastic infirmary. Served to ailing brothers." },
+    "cow_milk": { name: "Kravské mléko", name_en: "Cow Milk", icon: "🥛", type: "mat", desc: "Husté kravské mléko z klášterního chléva. Základ másla i sýra.", desc_en: "Rich cow's milk from the monastery byre. The base of butter and cheese." },
     "lard": { name: "Sádlo", name_en: "Lard", icon: "🫙", type: "mat", desc: "Vepřové sádlo. Konzervant, mazivo i palivo do lamp.", desc_en: "Pig lard. Preservative, lubricant and lamp fuel." },
     "cured_meat": { name: "Uzené maso", name_en: "Cured Meat", icon: "🥩", type: "mat", desc: "Nasolené a uzené vepřové. Vydrží celou zimu. Zásobování konvršů a čeledi.", desc_en: "Salted and smoked pork. Lasts all winter. Provisions for lay brothers and servants." },
     "quill_premium": { name: "Brk holubí", name_en: "Pigeon Quill", icon: "🪶", type: "mat", desc: "Holubí brk. Jemnější než husí, vhodný pro drobné písmo a iluminace.", desc_en: "Pigeon quill. Finer than goose feather, suited for small script and illumination." },
@@ -7232,6 +7233,14 @@ const TechTree = [
     desc: "Koza — kráva chudých. Nenáročná, mléko dává i v zimě, spase i to, co ovce odmítne. Odemkne: Kozí chlívek na Dvoře.",
     desc_en: "The goat — the poor man's cow. Undemanding, gives milk even in winter, grazes what sheep refuse. Unlocks: the Goat Pen in the Farmyard.",
     unlocks: [], requires: ["tech_de_re_rustica"]
+  },
+
+  {
+    id: "tech_armentum", name: "Armentum — Chov skotu", name_en: "Armentum — Cattle Husbandry",
+    cost: 14,
+    desc: "Kráva dává pětkrát víc mléka než koza, ale žere víc a stojí víc. Velké kláštery chovaly desítky kusů — na mléko, máslo, sýr i vellum z telecí kůže. Odemkne: Kravín na Dvoře.",
+    desc_en: "A cow gives five times the milk of a goat, but eats more and costs more. Great monasteries kept dozens of head — for milk, butter, cheese and vellum from calfskin. Unlocks: the Cow Byre in the Farmyard.",
+    unlocks: [], requires: ["tech_caprile"]
   },
 
   {
@@ -15389,6 +15398,7 @@ const CellariumSystem = {
       const penDefs = [
         { pen: 'rabbitry',    icon: '🐇', tech: 'tech_cuniculi' },
         { pen: 'goatpen',     icon: '🐐', tech: 'tech_caprile' },
+        { pen: 'cowbyre',     icon: '🐄', tech: 'tech_armentum' },
         { pen: 'pigsty',      icon: '🐖', tech: 'tech_suile' },
         { pen: 'stable',      icon: '🐎', tech: 'tech_stabulum' },
         { pen: 'donkeyStall', icon: '🫏', tech: 'tech_asinus' },
@@ -19766,6 +19776,9 @@ const FarmyardSystem = {
         goatpen:  { itemId: 'goat', cap: 3,
             build: { plank: 12, rock: 8, rope: 3 },
             milkMs: 12 * 60 * 60 * 1000 },
+        cowbyre:  { itemId: 'cow', cap: 3,
+            build: { cut_stone: 50, plank: 30, rope: 15 },
+            milkMs: 12 * 60 * 60 * 1000 },
         pigsty:   { itemId: 'piglet', cap: 3,
             build: { cut_stone: 15, plank: 10 },
             growMs: 60 * 24 * 60 * 60 * 1000,
@@ -19794,12 +19807,13 @@ const FarmyardSystem = {
     },
 
     // Všechna zvířata ve všech výbězích pro mood tick
-    ALL_PENS: ['rabbitry','goatpen','pigsty','donkeyStall'],
+    ALL_PENS: ['rabbitry','goatpen','pigsty','donkeyStall','cowbyre'],
 
     // ── Lazy init ─────────────────────────────────────────────────────────
     _ensureAnimals: function() {
         if (!GameState.rabbitry)    GameState.rabbitry    = { built: false, animals: [], lastBreed: 0 };
         if (!GameState.goatpen)     GameState.goatpen     = { built: false, animals: [] };
+        if (!GameState.cowbyre)     GameState.cowbyre     = { built: false, animals: [] };
         if (!GameState.pigsty)      GameState.pigsty      = { built: false, animals: [] };
         if (!GameState.donkeyStall) GameState.donkeyStall = { built: false, animals: [], lastCleanMs: 0 };
         if (!GameState.stable)      GameState.stable      = { built: false, animals: [], lastCleanMs: 0 };
@@ -20177,6 +20191,30 @@ const FarmyardSystem = {
         }
     },
 
+    collectCowMilk: function() {
+        const st = GameState.cowbyre, cfg = this.ANIMAL_CFG.cowbyre;
+        if (!st || !st.built) return;
+        if (this._penHungry('cowbyre')) { if (typeof UI !== 'undefined') UI.notify(t('dvur.cowsHungry'), true); return; }
+        const now = Date.now();
+        let milk = 0;
+        st.animals.forEach(a => {
+            this._ensureAnimalFields(a);
+            const moodMult = this.MOOD_MULT(a.mood);
+            if (now - (a.lastMilk || a.bornAt) >= cfg.milkMs) {
+                if (Math.random() < moodMult) { milk += 4 + Math.floor(Math.random() * 3); } // 4-6
+                a.lastMilk = now;
+            }
+        });
+        if (milk) {
+            GameState.inventory['cow_milk'] = (GameState.inventory['cow_milk'] || 0) + milk;
+            if (typeof UI !== 'undefined') UI.notify('🥛 ' + t('dvur.cowMilked').replace('{n}', milk));
+            if (typeof Game !== 'undefined') Game.save();
+            this.renderFarmyard();
+        } else {
+            if (typeof UI !== 'undefined') UI.notify(t('dvur.cowNotReady'), true);
+        }
+    },
+
     feedAcorn: function(idx) {
         const st = GameState.pigsty, cfg = this.ANIMAL_CFG.pigsty;
         const a = st.animals[idx];
@@ -20211,7 +20249,7 @@ const FarmyardSystem = {
         if (!cfg) return '';
         const st = GameState[pen];
         const lang = (GameState.settings && GameState.settings.language) || 'cs';
-        const icons = { rabbitry:'🐇', goatpen:'🐐', pigsty:'🐖' };
+        const icons = { rabbitry:'🐇', goatpen:'🐐', pigsty:'🐖', cowbyre:'🐄' };
         let h = `<div style="padding:16px; background:rgba(197,160,89,0.06); border-radius:10px; border-left:4px solid var(--accent-gold);">`;
         h += `<h3 style="margin:0 0 12px 0; font-size:1rem;">${icons[pen] || '🐾'} ${t('dvur.title_' + pen)}</h3>`;
 
@@ -20300,6 +20338,20 @@ const FarmyardSystem = {
             h += '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px;">';
             h += '<button class="craft-btn" onclick="FarmyardSystem.collectGoatMilk()" ' + (readyG?'':'disabled') + '>🥛 ' + t('dvur.milkGoats') + ' ('+readyG+' → '+milkYieldG+')</button>';
             h += '<button class="craft-btn" onclick="FarmyardSystem.cleanPen(\'goatpen\')" style="background:rgba(90,154,90,0.85);">' + (canCleanG?'🧹 '+t('farmyard.clean')+' (💩 +'+cleanQG+')':'🧹 '+t('farmyard.cleanTomorrow')) + '</button>';
+            h += '</div>';
+        }
+
+        if (pen === 'cowbyre' && st.animals.length) {
+            var now3 = Date.now();
+            var moodCS = st.animals.reduce(function(s,a){ return s+(a.mood||80); },0);
+            var moodCAvg = Math.round(moodCS/st.animals.length);
+            var readyC = st.animals.filter(function(a){ return a.mature!==false && now3-(a.lastMilk||a.bornAt)>=cfg.milkMs; }).length;
+            h += '<div style="font-size:0.8rem;margin-bottom:8px;">🐄 '+this.MOOD_ICON(moodCAvg)+' '+moodCAvg+'/100</div>';
+            var canCleanC = Date.now() - (st.lastCleanMs||0) >= 86400000;
+            var cleanQC = Math.max(1,Math.ceil(st.animals.length/2));
+            h += '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px;">';
+            h += '<button class="craft-btn" onclick="FarmyardSystem.collectCowMilk()" ' + (readyC?'':'disabled') + '>🥛 ' + t('dvur.milkCow') + ' ('+readyC+')</button>';
+            h += '<button class="craft-btn" onclick="FarmyardSystem.cleanPen(\'cowbyre\')" style="background:rgba(90,154,90,0.85);">' + (canCleanC?'🧹 '+t('farmyard.clean')+' (💩 +'+cleanQC+')':'🧹 '+t('farmyard.cleanTomorrow')) + '</button>';
             h += '</div>';
         }
 
@@ -20651,6 +20703,7 @@ const FarmyardSystem = {
         var lang = (GameState.settings && GameState.settings.language) || 'cs';
         var hasCaprile = GameState.researchedTechs && GameState.researchedTechs.includes('tech_caprile');
         var hasSuile   = GameState.researchedTechs && GameState.researchedTechs.includes('tech_suile');
+        var hasArmentum = GameState.researchedTechs && GameState.researchedTechs.includes('tech_armentum');
 
         // Kozín
         h += '<div style="font-size:0.72rem;font-weight:bold;letter-spacing:0.06em;text-transform:uppercase;opacity:0.55;margin-bottom:8px;">🐐 ' + (lang==='en' ? 'Goat Pen (Caprile)' : 'Kozín (Caprile)') + '</div>';
@@ -20672,10 +20725,15 @@ const FarmyardSystem = {
         }
         h += '</div>';
 
-        // Kravín — coming soon
+        // Kravín
         h += '<div style="margin-top:16px;">';
-        h += '<div style="font-size:0.72rem;font-weight:bold;letter-spacing:0.06em;text-transform:uppercase;opacity:0.55;margin-bottom:8px;">🐄 ' + (lang==='en' ? 'Cow Byre (Lactaria)' : 'Kravín (Lactaria)') + '</div>';
-        h += '<div style="padding:12px;opacity:0.5;font-size:0.85rem;font-style:italic;">⏳ ' + t('dvur.comingSoon') + '</div>';
+        h += '<div style="font-size:0.72rem;font-weight:bold;letter-spacing:0.06em;text-transform:uppercase;opacity:0.55;margin-bottom:8px;">🐄 ' + (lang==='en' ? 'Cow Byre (Armentum)' : 'Kravín (Armentum)') + '</div>';
+        if (hasArmentum) {
+            h += this.renderAnimalPen('cowbyre');
+        } else {
+            var techNm3 = typeof tName === 'function' ? tName('tech_armentum') : 'tech_armentum';
+            h += '<div style="padding:12px;opacity:0.6;font-size:0.85rem;">🔒 ' + t('dvur.lockedPrefix') + ' ' + techNm3 + '</div>';
+        }
         h += '</div>';
 
         return h;
@@ -31204,9 +31262,11 @@ const STRINGS_cs = {
         have: 'máš',
         title_rabbitry: 'Cuniculi (Králíkárna)',
         title_goatpen: 'Caprile (Kozí chlívek)',
+        title_cowbyre: 'Armentum (Kravín)',
         title_pigsty: 'Suile (Chlév)',
         buildDesc_rabbitry: 'Dřevěná králíkárna. Dva králíci stačí — o zbytek se postarají sami.',
         buildDesc_goatpen: 'Chlívek pro kozy. Mléko i v zimě, kůže na pergamen.',
+        buildDesc_cowbyre: 'Kamenný kravín. Kráva dává mnohem víc mléka než koza, ale stojí víc a žere víc.',
         buildDesc_pigsty: 'Pevný chlév z tesaného kamene. Sele doroste za dva měsíce — pak přijde zabijačka.',
         title_stable: 'Stabulum (Stáj)',
         buildDesc_stable: 'Kamenná stáj pro koně. Klášter ho potřebuje pro vzdálené trhy i reprezentaci.',
@@ -31214,15 +31274,19 @@ const STRINGS_cs = {
         placed_stable: '🐎 Kůň ustájen ve stáji.',
         build_rabbitry: 'Postavit králíkárnu',
         build_goatpen: 'Postavit kozí chlívek',
+        build_cowbyre: 'Postavit kravín',
         build_pigsty: 'Postavit chlév',
         built_rabbitry: 'Králíkárna postavena.',
         built_goatpen: 'Kozí chlívek postaven.',
+        built_cowbyre: 'Kravín postaven.',
         built_pigsty: 'Chlév postaven.',
         place_rabbitry: 'Umístit králíka',
         place_goatpen: 'Umístit kozu',
+        place_cowbyre: 'Umístit krávu',
         place_pigsty: 'Umístit sele',
         placed_rabbitry: '🐇 Králík usazen v králíkárně.',
         placed_goatpen: '🐐 Koza ve chlívku.',
+        placed_cowbyre: '🐄 Kráva v kravíně.',
         placed_pigsty: '🐷 Sele v chlévě. Krm ho žaludy!',
         breeding: 'Pár králíků se má k světu — čekej přírůstky.',
         rabbitBorn: 'V králíkárně přibylo mládě!',
@@ -31231,6 +31295,9 @@ const STRINGS_cs = {
         milkGoats: 'Podojit kozy',
         goatMilked: 'Nadojeno {n}× kozí mléko.',
         goatNotReady: 'Kozy ještě nejsou připravené k dojení.',
+        milkCow: 'Podojit krávy',
+        cowMilked: 'Nadojeno {n}× kravské mléko.',
+        cowNotReady: 'Krávy ještě nejsou připravené k dojení.',
         feedAcorn: 'Žalud',
         noAcorn: 'Nemáš žaludy. K mání na Trhu.',
         acornFed: 'Prase spokojeně chroupe. Růst se urychlil o 5 dní.',
@@ -31241,6 +31308,7 @@ const STRINGS_cs = {
         buildInCellarium: 'Stavbu zadej v Cellariu → Budovy (sekce Dvůr).',
         penHungry: 'Zvířata hladoví! Produkce stojí — doplň krmivo (Horreum krmí automaticky).',
         goatsHungry: 'Kozy hladoví a mléko nedají. Doplň seno.',
+        cowsHungry: 'Krávy hladoví a mléko nedají. Doplň seno.',
         feedStock: 'Krmivo',
         feedHay: 'seno',
         feedGrain: 'zrní',
@@ -33756,9 +33824,11 @@ According to Theophilus, the organ is an instrument worthy of God, but its const
         have: 'have',
         title_rabbitry: 'Cuniculi (Rabbit Hutch)',
         title_goatpen: 'Caprile (Goat Pen)',
+        title_cowbyre: 'Armentum (Cow Byre)',
         title_pigsty: 'Suile (Pigsty)',
         buildDesc_rabbitry: 'A wooden rabbit hutch. Two rabbits suffice — they handle the rest themselves.',
         buildDesc_goatpen: 'A pen for goats. Milk even in winter, hides for parchment.',
+        buildDesc_cowbyre: 'A stone cow byre. A cow gives far more milk than a goat, but costs more and eats more.',
         buildDesc_pigsty: 'A sturdy sty of cut stone. A piglet matures in two months — then comes the slaughter.',
         title_stable: 'Stabulum (Stable)',
         buildDesc_stable: 'A stone stable for horses. The monastery needs it for distant markets and representation.',
@@ -33766,15 +33836,19 @@ According to Theophilus, the organ is an instrument worthy of God, but its const
         placed_stable: '🐎 Horse stabled.',
         build_rabbitry: 'Build rabbit hutch',
         build_goatpen: 'Build goat pen',
+        build_cowbyre: 'Build cow byre',
         build_pigsty: 'Build pigsty',
         built_rabbitry: 'Rabbit hutch built.',
         built_goatpen: 'Goat pen built.',
+        built_cowbyre: 'Cow byre built.',
         built_pigsty: 'Pigsty built.',
         place_rabbitry: 'Place rabbit',
         place_goatpen: 'Place goat',
+        place_cowbyre: 'Place cow',
         place_pigsty: 'Place piglet',
         placed_rabbitry: '🐇 Rabbit settled in the hutch.',
         placed_goatpen: '🐐 Goat in the pen.',
+        placed_cowbyre: '🐄 Cow in the byre.',
         placed_pigsty: '🐷 Piglet in the sty. Feed it acorns!',
         breeding: 'A pair of rabbits is getting along — expect newcomers.',
         rabbitBorn: 'A kit was born in the hutch!',
@@ -33783,6 +33857,9 @@ According to Theophilus, the organ is an instrument worthy of God, but its const
         milkGoats: 'Milk the goats',
         goatMilked: 'Collected {n}× goat milk.',
         goatNotReady: 'The goats are not ready for milking yet.',
+        milkCow: 'Milk the cows',
+        cowMilked: 'Collected {n}× cow milk.',
+        cowNotReady: 'The cows are not ready for milking yet.',
         feedAcorn: 'Acorn',
         noAcorn: 'No acorns. Available at the Market.',
         acornFed: 'The pig munches happily. Growth sped up by 5 days.',
@@ -33793,6 +33870,7 @@ According to Theophilus, the organ is an instrument worthy of God, but its const
         buildInCellarium: 'Order construction in the Cellarium → Buildings (Farmyard section).',
         penHungry: 'The animals are hungry! Production halted — restock feed (the Horreum feeds automatically).',
         goatsHungry: 'The goats are hungry and give no milk. Restock hay.',
+        cowsHungry: 'The cows are hungry and give no milk. Restock hay.',
         feedStock: 'Feed',
         feedHay: 'hay',
         feedGrain: 'grain',
