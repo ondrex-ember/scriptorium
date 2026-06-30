@@ -4361,6 +4361,46 @@ This knowledge shaped monastic architecture. The cella — a cool, vaulted cella
 **GAME EFFECT:** Reading this treatise unlocks the *Cella* tech — the construction of a cold cellar. Organic stores (eggs, milk, herbs, fish) last 2–3 times longer in the Cella than without it.`
         },
         {
+            id: 'book_palladius_caseus',
+            title: 'Opus Agriculturae: O sýření mléka',
+            title_en: 'Opus Agriculturae: On the Curdling of Milk',
+            category: 'innovation',
+            unlockDay: 67,
+            icon: '🧀',
+            author: 'Palladius Rutilius Taurus Aemilianus',
+            year: 'cca 4. stol. n. l.',
+            content: `**Praktik, ne teoretik**
+
+Zatímco Columella psal o hospodářství jako filozof, Palladius psal jako muž, který si od rána do večera špiní ruce. Jeho Opus Agriculturae je rozdělené podle měsíců v roce — co dělat v lednu, co v červenci. Žádné velké úvahy o důstojnosti rolnické práce, jen suchý, přesný návod. Středověcí opati ho milovali přesně pro tuhle stručnost: kniha, kterou si bratr cellarius mohl otevřít ráno a hned vědět, co má dělat.
+
+**Tři cesty k téže hroudě**
+
+Palladius věnuje sýření mléka samostatnou kapitolu a popisuje to, co praxe znala odjakživa — existuje víc než jeden způsob, jak mléko srazit. Nejjistější je slez z útrob neodstaveného mláděte, vysušený a nastrouhaný do vlažného mléka. Kdo mládě nemá nebo ho nechce obětovat, sáhne po bylině — výluh ze svízelu syřišťového funguje podobně, jen pomaleji a méně jistě. A nakonec — pro toho, kdo nemá ani jedno — stačí čas a teplo. Mléko samo zkysne, oddělí se syrovátka od tvarohu, a z tvarohu vznikne sýr bez jediné kapky syřidla.
+
+*"Co příroda sama promění, k tomu netřeba ruky řezníkovy. Ale co příroda sama nedokáže rychle, tomu pomoz slezem nebo bylinou — podle toho, co máš po ruce."*
+
+**Klášterní variace**
+
+Palladius nepíše o Olomouci ani o Moravě — psal o římském panství o tisíc let dřív. Ale jeho metoda cestovala s mnišskými řády po celé Evropě, a každý kraj si ji ohnul po svém. V Čechách se traduje, že nejprostší cesta — kyselé srážení bez syřidla — dala vzniknout drobným, ostře vonícím sýrečkům, které se daly udělat i tam, kde na mladé jehně nebylo ani pomyšlení. Říká se, že podobně vznikaly i v okolí Olomouce.
+
+**HERNÍ EFEKT:** Přečtením tohoto spisu odemkneš tech *Caseus* — sýření mléka. Slez z jehněte, výluh ze svízelu, nebo jen čas a teplo: tři cesty k sýru podle toho, co máš zrovna po ruce.`,
+            content_en: `**A Practitioner, Not a Theorist**
+
+While Columella wrote about husbandry as a philosopher, Palladius wrote as a man who got his hands dirty from morning to night. His Opus Agriculturae is arranged by the months of the year — what to do in January, what in July. No grand reflections on the dignity of peasant labour, just dry, precise instruction. Medieval abbots loved it for exactly this brevity: a book the cellarer brother could open in the morning and immediately know what to do.
+
+**Three Paths to the Same Wheel**
+
+Palladius devotes a chapter of its own to curdling milk, describing what practice had always known — there is more than one way to set milk. The surest is rennet from the stomach of an unweaned kid, dried and grated into warm milk. He who has no kid, or will not sacrifice one, reaches for an herb — an extract of lady's bedstraw works similarly, only slower and less certain. And finally — for one who has neither — time and warmth suffice. The milk sours on its own, the whey separates from the curd, and from the curd a cheese is born without a drop of rennet.
+
+*"What nature transforms of herself needs no butcher's hand. But what nature cannot do quickly, help along with rennet or herb — whichever lies to hand."*
+
+**Monastic Variations**
+
+Palladius wrote nothing of Olomouc or Moravia — he wrote of a Roman estate a thousand years earlier. But his method travelled with the monastic orders across Europe, and every region bent it to its own use. In Bohemia it is said that the simplest path — souring without rennet — gave rise to small, sharply scented curd cheeses, made even where no young lamb was to be had. Something similar, the story goes, arose around Olomouc as well.
+
+**GAME EFFECT:** Reading this treatise unlocks the *Caseus* tech — curdling milk. A lamb's rennet, an extract of bedstraw, or simply time and warmth: three paths to cheese, depending on what lies to hand.`
+        },
+        {
             id: 'book_crescenzi',
             title: 'Liber Ruralium Commodorum: Řád pole a dvora',
             title_en: 'Liber Ruralium Commodorum: The Order of Field and Farmyard',
@@ -5614,6 +5654,22 @@ const ItemsDB = {
     "pigeon_dung": { name: "Holubí trus", name_en: "Pigeon Dung", icon: "💩", type: "mat", desc: "Vysoce koncentrované hnojivo. Klášterní zahradníci ho sbírali z holubníku pro zahradu.", desc_en: "Highly concentrated fertiliser. Monastic gardeners collected it from the dovecote for the garden." },
     "butter": { name: "Máslo", name_en: "Butter", icon: "🧈", type: "mat", desc: "Čerstvé máslo z kravského mléka. Postní výjimka u nemocných.", desc_en: "Fresh butter from cow's milk. A Lenten exception for the sick." },
     "cheese": { name: "Sýr", name_en: "Cheese", icon: "🧀", type: "mat", desc: "Tvrdý klášterní sýr. Trvanlivý, výživný. Prodávaný na trzích.", desc_en: "Hard monastic cheese. Long-lasting, nutritious. Sold at markets." },
+    "salt": { name: "Sůl", name_en: "Salt", icon: "🧂", type: "mat", desc: "Drahá obchodní komodita ze solných stezek. Bez ní se sýr nezasolí a brzy zkazí.", desc_en: "A costly trade good from the salt roads. Without it cheese cannot be salted and soon spoils." },
+    "rennet": { name: "Syřidlo", name_en: "Rennet", icon: "🫙", type: "mat", desc: "Sráží mléko pro výrobu sýra. Ze slezu mláděte nebo z bylin.", desc_en: "Curdles milk for cheesemaking. From a kid's stomach or from herbs." },
+    "galium": { name: "Svízel syřišťový", name_en: "Lady's Bedstraw", icon: "🌼", type: "mat", desc: "Žlutě kvetoucí bylina. Výluh sráží mléko — chudší alternativa ke slezu.", desc_en: "A yellow-flowering herb. Its extract curdles milk — a poor man's rennet." },
+
+    // ── CASEUS — sýry (4 typy × fáze zrání) ───────────────────────────────────
+    "goat_cheese_fresh":   { name: "Kozí sýr (čerstvý)",  name_en: "Goat Cheese (Fresh)",  icon: "🧀", type: "mat", desc: "Čerstvý kozí sýr. Měkký, rychle se zkazí.", desc_en: "Fresh goat cheese. Soft, spoils quickly." },
+    "goat_cheese_mature":  { name: "Kozí sýr (zralý)",    name_en: "Goat Cheese (Mature)", icon: "🧀", type: "mat", desc: "Vyzrálý kozí sýr. Pevnější, výraznější chuť.", desc_en: "Matured goat cheese. Firmer, sharper flavour." },
+    "goat_cheese_aged":    { name: "Kozí sýr (starý)",    name_en: "Goat Cheese (Aged)",   icon: "🧀", type: "mat", desc: "Dlouho zrálý kozí sýr. Vzácný, vysoce ceněný.", desc_en: "Long-aged goat cheese. Rare, highly prized." },
+    "sheep_cheese_fresh":  { name: "Ovčí sýr (čerstvý)",  name_en: "Sheep Cheese (Fresh)",  icon: "🧀", type: "mat", desc: "Čerstvý ovčí sýr. Měkký, rychle se zkazí.", desc_en: "Fresh sheep cheese. Soft, spoils quickly." },
+    "sheep_cheese_mature": { name: "Ovčí sýr (zralý)",    name_en: "Sheep Cheese (Mature)", icon: "🧀", type: "mat", desc: "Vyzrálý ovčí sýr. Pevnější, výraznější chuť.", desc_en: "Matured sheep cheese. Firmer, sharper flavour." },
+    "sheep_cheese_aged":   { name: "Ovčí sýr (starý)",    name_en: "Sheep Cheese (Aged)",   icon: "🧀", type: "mat", desc: "Dlouho zrálý ovčí sýr. Vzácný, vysoce ceněný.", desc_en: "Long-aged sheep cheese. Rare, highly prized." },
+    "cow_cheese_fresh":    { name: "Kravský sýr (čerstvý)",  name_en: "Cow Cheese (Fresh)",  icon: "🧀", type: "mat", desc: "Čerstvý kravský sýr. Měkký, rychle se zkazí.", desc_en: "Fresh cow cheese. Soft, spoils quickly." },
+    "cow_cheese_mature":   { name: "Kravský sýr (zralý)",    name_en: "Cow Cheese (Mature)", icon: "🧀", type: "mat", desc: "Vyzrálý kravský sýr. Pevnější, výraznější chuť.", desc_en: "Matured cow cheese. Firmer, sharper flavour." },
+    "cow_cheese_aged":     { name: "Kravský sýr (starý)",    name_en: "Cow Cheese (Aged)",   icon: "🧀", type: "mat", desc: "Dlouho zrálý kravský sýr. Vzácný, vysoce ceněný.", desc_en: "Long-aged cow cheese. Rare, highly prized." },
+    "syrecky_fresh":       { name: "Syrečky (čerstvé)",   name_en: "Curd Cheese (Fresh)",  icon: "🧀", type: "mat", desc: "Čerstvé syrečky z kysaného tvarohu. Olomoucká specialita — bez syřidla.", desc_en: "Fresh curd cheese from soured curds. An Olomouc speciality — no rennet needed." },
+    "syrecky_mature":      { name: "Syrečky (zralé)",     name_en: "Curd Cheese (Mature)", icon: "🧀", type: "mat", desc: "Vyzrálé syrečky. Pronikavá vůně, výrazná chuť.", desc_en: "Matured curd cheese. Pungent aroma, sharp flavour." },
     "cream": { name: "Smetana", name_en: "Cream", icon: "🥛", type: "mat", desc: "Hustá smetana sebraná z mléka. Vzácnost klášterní kuchyně — a slabost každé kočky.", desc_en: "Thick cream skimmed from milk. A rarity of the monastic kitchen — and every cat's weakness." },
     "buttermilk": { name: "Podmáslí", name_en: "Buttermilk", icon: "🥛", type: "mat", desc: "Kyselé podmáslí, zbytek po stloukání másla. Osvěžující nápoj čeledi.", desc_en: "Sour buttermilk, left over from churning butter. A refreshing drink for the servants." },
     "mouse": { name: "Myš", name_en: "Mouse", icon: "🐭", type: "mat", desc: "Klášterní myš. Žere zrní i pergamen. Kočka ji občas přinese jako dar.", desc_en: "A monastery mouse. Eats grain and parchment alike. The cat sometimes brings one as a gift." },
@@ -5625,6 +5681,7 @@ const ItemsDB = {
     "piglet": { name: "Sele", name_en: "Piglet", icon: "🐖", type: "animal", desc: "Mladé prase. Za pár měsíců živá spižírna — krm ho žaludy.", desc_en: "A young pig. In a few months a living larder — feed it acorns." },
     "acorn": { name: "Žalud", name_en: "Acorn", icon: "🌰", type: "mat", desc: "Dubový žalud. Prasata po nich rostou jako z vody.", desc_en: "An oak acorn. Pigs fatten on them remarkably." },
     "churn": { name: "Máselnice", name_en: "Butter Churn", icon: "🛢️", type: "tool", desc: "Dřevěná máselnice. Hodiny stloukání promění smetanu v máslo — a zbude podmáslí.", desc_en: "A wooden churn. Hours of churning turn cream into butter — leaving buttermilk behind." },
+    "cheese_mold": { name: "Sýrařská forma", name_en: "Cheese Mold", icon: "🧺", type: "tool", desc: "Proutěný košík s plátnem. Odděluje syrovátku od tvarohu a dává sýru tvar.", desc_en: "A wicker basket lined with cloth. Separates whey from curd and shapes the cheese." },
     "mousetrap": { name: "Pastička na myši", name_en: "Mousetrap", icon: "🪤", type: "tool", desc: "Dřevěná past s pružinou. Chytí myš denně — než se rozbije.", desc_en: "A wooden spring trap. Catches a mouse a day — until it breaks." },
     "manure": { name: "Hnůj", name_en: "Manure", icon: "💩", type: "mat", desc: "Hnůj z klášterního dvora. Surovina pro výrobu kompostu. Každý úklid výběhu přidá 1–3 kusy.", desc_en: "Dung from the farmyard. Raw material for compost. Every pen clean-up adds 1–3 pieces." },
 
@@ -5745,6 +5802,14 @@ const RecipesDB = [
     { id: "churn",  output: "churn",  qty: 1, req: { "plank": 5, "rope": 2 },               cat: "craft", locked: true },
     { id: "cream",  output: "cream",  qty: 1, req: { "goat_milk": 2 },                      cat: "food",  locked: true },
     { id: "butter", output: "butter", qty: 1, req: { "milk": 3, "churn": 0 },               cat: "food",  locked: true, byproduct: { id: "buttermilk", qty: 1 } },
+
+    // CASEUS — sýrařství (tech_caseus, viz krok 2e)
+    { id: "rennet_galium", output: "rennet", qty: 1, req: { "galium": 3 },                  cat: "food",  locked: true },
+    { id: "cheese_mold",   output: "cheese_mold", qty: 1, req: { "plank": 3, "fiber": 4 },   cat: "craft", locked: true },
+    { id: "goat_cheese",   output: "goat_cheese_fresh",  qty: 1, req: { "goat_milk": 4, "rennet": 1, "cheese_mold": 0 }, cat: "food", locked: true },
+    { id: "sheep_cheese",  output: "sheep_cheese_fresh", qty: 1, req: { "milk": 4, "rennet": 1, "cheese_mold": 0 },       cat: "food", locked: true },
+    { id: "cow_cheese",    output: "cow_cheese_fresh",   qty: 1, req: { "cow_milk": 4, "rennet": 1, "cheese_mold": 0 },   cat: "food", locked: true },
+    { id: "syrecky",       output: "syrecky_fresh",      qty: 1, req: { "milk": 3, "cheese_mold": 0 },                    cat: "food", locked: true },
     
     // NEW RECIPES - Mini-games & Notebooks
     { id: "playing_cards", output: "playing_cards", qty: 1, req: { "paper": 5, "ink": 1 }, cat: "lore", locked: true },
@@ -7273,6 +7338,14 @@ const TechTree = [
     desc: "Mléko vydrží den, máslo týdny, sýr měsíce. Klášterní mlékárna proměňuje pomíjivé v trvanlivé. Při stloukání másla zbude podmáslí — nic nepřijde nazmar. Odemkne: Máselnice, recepty Smetana a Máslo.",
     desc_en: "Milk keeps a day, butter for weeks, cheese for months. The monastic dairy turns the perishable into the lasting. Churning butter leaves buttermilk — nothing goes to waste. Unlocks: the Churn, Cream and Butter recipes.",
     unlocks: ["churn", "cream", "butter"], requires: ["tech_caprile"]
+  },
+
+  {
+    id: "tech_caseus", name: "Caseus — Sýření mléka", name_en: "Caseus — Cheesemaking",
+    cost: 20,
+    desc: "Mléko samo zkysne, ale syřidlo dělá z tvarohu sýr. Slez z jehněte, výluh ze svízelu, nebo jen čas a teplo — tři cesty k téže hroudě. Odemkne: Syřidlo, čtyři druhy sýra.",
+    desc_en: "Milk sours on its own, but rennet turns curd into cheese. A lamb's stomach, an extract of bedstraw, or simply time and warmth — three paths to the same wheel. Unlocks: Rennet, four kinds of cheese.",
+    unlocks: ["rennet_galium", "cheese_mold", "goat_cheese", "sheep_cheese", "cow_cheese", "syrecky"], requires: ["tech_lactaria"]
   },
 
   {
@@ -14047,6 +14120,18 @@ const CellariumSystem = {
     mushroom_soup:  3,
     berry_pie:      3,
     honey:          4,
+    // Caseus — sýry (3 typy × fáze + syrečky)
+    goat_cheese_fresh:    9,
+    goat_cheese_mature:   14,
+    goat_cheese_aged:     22,
+    sheep_cheese_fresh:   10,
+    sheep_cheese_mature:  16,
+    sheep_cheese_aged:    24,
+    cow_cheese_fresh:     8,
+    cow_cheese_mature:    13,
+    cow_cheese_aged:      20,
+    syrecky_fresh:        5,
+    syrecky_mature:       9,
     // Suroviny
     fiber:          1,
     bark:           1,
@@ -14246,6 +14331,7 @@ const CellariumSystem = {
     ],
     shop: [
       { itemId: 'chalk',           basePrice: 2,  dailyStock: 30 },
+      { itemId: 'salt',            basePrice: 12, dailyStock: 2  },
       { itemId: 'wine',            basePrice: 4,  dailyStock: 5  },
       { itemId: 'seeds_thyme',     basePrice: 6,  dailyStock: 5  }, // tymián — Varroa léčba
       { itemId: 'seeds_herb',      basePrice: 6,  dailyStock: 10 },
@@ -14261,6 +14347,7 @@ const CellariumSystem = {
     ],
     market: [
       { itemId: 'paper',         basePrice: 3,   dailyStock: 25 },
+      { itemId: 'salt',          basePrice: 9,   dailyStock: 20 },
       // Zvířata
       { itemId: 'hen_white',     basePrice: 15,  dailyStock: 3  },
       { itemId: 'hen_black',     basePrice: 18,  dailyStock: 2  },
@@ -15874,6 +15961,88 @@ const DecaySystem = {
         return t('decay.miceMany');
     },
 };
+// ═══ src/systems/CheeseSystem.js ═══
+// ═══════════════════════════════════════════════════════════════════════════
+// CHEESE SYSTEM v1 — Caseus
+// Per-instance zrání sýra. Gate: tech_caseus.
+// Model: instance v GameState.cheeseInstances, přechod fáze přesune
+//        1 kus mezi inventářovými sloty (_fresh → _mature → _aged).
+// Mature: 4-5 dní, Aged: dalších 8-10 dní (celkem 12-15 dní od výroby).
+// ═══════════════════════════════════════════════════════════════════════════
+
+const CheeseSystem = {
+
+    DAY_MS: 24 * 60 * 60 * 1000,
+
+    // ── Definice typů — base itemId (bez _fresh/_mature/_aged přípony) ────
+    CHEESE_TYPES: {
+        goat_cheese:  { matureDays: 4, agedDays: 12 },
+        sheep_cheese: { matureDays: 5, agedDays: 14 },
+        cow_cheese:   { matureDays: 5, agedDays: 15 },
+        syrecky:      { matureDays: 2, agedDays: null },  // bez aged fáze
+    },
+
+    isActive: function() {
+        return !!(GameState.researchedTechs && GameState.researchedTechs.includes('tech_caseus'));
+    },
+
+    _ensureState: function() {
+        if (!GameState.cheeseInstances) GameState.cheeseInstances = [];
+        return GameState.cheeseInstances;
+    },
+
+    // Voláno z recipe craft hooku při výrobě nového sýra
+    registerInstance: function(baseType) {
+        const list = this._ensureState();
+        list.push({ baseType: baseType, createdAt: Date.now(), phase: 'fresh' });
+    },
+
+    // ── Denní tick (self-guarded, volán z game.js tick batch) ──────────────
+    dailyTick: function() {
+        if (!this.isActive()) return;
+        if (!GameState.cheeseTick) GameState.cheeseTick = { lastTick: 0 };
+        const now = Date.now();
+        if (now - (GameState.cheeseTick.lastTick || 0) < this.DAY_MS) return;
+        GameState.cheeseTick.lastTick = now;
+
+        const list = this._ensureState();
+        let advanced = 0;
+        list.forEach(inst => {
+            const def = this.CHEESE_TYPES[inst.baseType];
+            if (!def) return;
+            const ageMs = now - inst.createdAt;
+            if (inst.phase === 'fresh' && ageMs >= def.matureDays * this.DAY_MS) {
+                this._advance(inst, 'mature');
+                advanced++;
+            } else if (inst.phase === 'mature' && def.agedDays && ageMs >= def.agedDays * this.DAY_MS) {
+                this._advance(inst, 'aged');
+                advanced++;
+            }
+        });
+
+        if (advanced > 0) {
+            if (typeof NotificationSystem !== 'undefined' && NotificationSystem.panel) {
+                const lang = (GameState.settings && GameState.settings.language) || 'cs';
+                NotificationSystem.panel('🧀 ' + (lang === 'en'
+                    ? advanced + '× cheese matured further.'
+                    : advanced + '× sýr dozrál do další fáze.'), 'info');
+            }
+            if (typeof Game !== 'undefined') Game.save();
+        }
+    },
+
+    // Přesune 1 kus mezi inventářovými sloty a aktualizuje instanci
+    _advance: function(inst, newPhase) {
+        const oldId = inst.baseType + '_' + inst.phase;
+        const newId = inst.baseType + '_' + newPhase;
+        if ((GameState.inventory[oldId] || 0) > 0) {
+            GameState.inventory[oldId] -= 1;
+            GameState.inventory[newId] = (GameState.inventory[newId] || 0) + 1;
+        }
+        inst.phase = newPhase;
+    },
+};
+
 // ═══ src/systems/well.js ═══
 // ═══════════════════════════════════════════════════════════════════════════
 // WELL SYSTEM (Puteus)
@@ -20946,6 +21115,7 @@ const FarmyardSystem = {
         s.lambPool -= qty;
         Game.addItem('mutton', qty * 2);
         Game.addItem('lamb_hide', qty);
+        Game.addItem('rennet', qty);
         Game.save(); FarmyardSystem.renderFarmyard();
         UI.notify('🥩 ' + t('game.lambSlaughtered').replace('{qty}', qty));
     },
@@ -20957,6 +21127,7 @@ const FarmyardSystem = {
         if (Array.isArray(s.sheepObjs) && s.sheepObjs.length) s.sheepObjs.pop();
         Game.addItem('mutton', 3);
         Game.addItem('raw_hide', 1);
+        if (Math.random() < 0.5) Game.addItem('rennet', 1);
         Game.save(); FarmyardSystem.renderFarmyard();
         UI.notify('🥩 ' + t('game.sheepSlaughtered'));
     },
@@ -34980,6 +35151,8 @@ const Game = {
                     if (typeof ScriptoriumCat !== 'undefined' && ScriptoriumCat.miceTick) ScriptoriumCat.miceTick();
                     // Decay — denní kažení zásob (self-guarded 24h, gate tech_inventarium)
                     if (typeof DecaySystem !== 'undefined' && DecaySystem.dailyTick) DecaySystem.dailyTick();
+                    // Caseus — denní zrání sýra (self-guarded 24h, gate tech_caseus)
+                    if (typeof CheeseSystem !== 'undefined' && CheeseSystem.dailyTick) CheeseSystem.dailyTick();
                     // Studna — časová degradace (self-guarded 24h, grace 5 dní)
                     if (typeof WellSystem !== 'undefined' && WellSystem.dailyTick) WellSystem.dailyTick();
                     // Persona — influence decay (self-guarded 7 dní)
@@ -36435,6 +36608,7 @@ const Game = {
                     if(Math.random() < 0.05) this.addItem('garlic', 1);
                     if(Math.random() < 0.04) this.addItem('leek', 1);
                     if(Math.random() < 0.04) this.addItem('nettle', 1);
+                    if(Math.random() < 0.04) this.addItem('galium', 1);
                     if(Math.random() < 0.03) this.addItem('seeds_garlic', 1);
                     if(Math.random() < 0.02) this.addItem('seeds_nettle', 1);
                     // Žaludy — podzimní nález
@@ -36688,6 +36862,7 @@ const Game = {
                 if(Math.random() < 0.05) this.addItem('garlic', 1);
                 if(Math.random() < 0.04) this.addItem('leek', 1);
                 if(Math.random() < 0.04) this.addItem('nettle', 1);
+                if(Math.random() < 0.04) this.addItem('galium', 1);
                 if(Math.random() < 0.03) this.addItem('seeds_garlic', 1);
                 if(Math.random() < 0.02) this.addItem('seeds_nettle', 1);
                 // Žaludy
@@ -37080,6 +37255,13 @@ const Game = {
         if (r.byproduct && r.byproduct.id) {
             this.addItem(r.byproduct.id, r.byproduct.qty || 1);
             UI.notify('➕ ' + ((typeof iName === 'function') ? iName(r.byproduct.id) : r.byproduct.id) + ' ×' + (r.byproduct.qty || 1));
+        }
+        // Caseus — registrace per-instance zrání pro nově vyrobený sýr
+        if (typeof CheeseSystem !== 'undefined') {
+            const _cheeseBase = { goat_cheese: 'goat_cheese', sheep_cheese: 'sheep_cheese', cow_cheese: 'cow_cheese', syrecky: 'syrecky' }[r.id];
+            if (_cheeseBase) {
+                for (let _ci = 0; _ci < craftQty; _ci++) CheeseSystem.registerInstance(_cheeseBase);
+            }
         }
         // Analytics – zaznamenej craft
         const craftedItem = ItemsDB[r.output];

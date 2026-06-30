@@ -28,6 +28,14 @@ const RecipesDB = [
     { id: "churn",  output: "churn",  qty: 1, req: { "plank": 5, "rope": 2 },               cat: "craft", locked: true },
     { id: "cream",  output: "cream",  qty: 1, req: { "goat_milk": 2 },                      cat: "food",  locked: true },
     { id: "butter", output: "butter", qty: 1, req: { "milk": 3, "churn": 0 },               cat: "food",  locked: true, byproduct: { id: "buttermilk", qty: 1 } },
+
+    // CASEUS — sýrařství (tech_caseus, viz krok 2e)
+    { id: "rennet_galium", output: "rennet", qty: 1, req: { "galium": 3 },                  cat: "food",  locked: true },
+    { id: "cheese_mold",   output: "cheese_mold", qty: 1, req: { "plank": 3, "fiber": 4 },   cat: "craft", locked: true },
+    { id: "goat_cheese",   output: "goat_cheese_fresh",  qty: 1, req: { "goat_milk": 4, "rennet": 1, "cheese_mold": 0 }, cat: "food", locked: true },
+    { id: "sheep_cheese",  output: "sheep_cheese_fresh", qty: 1, req: { "milk": 4, "rennet": 1, "cheese_mold": 0 },       cat: "food", locked: true },
+    { id: "cow_cheese",    output: "cow_cheese_fresh",   qty: 1, req: { "cow_milk": 4, "rennet": 1, "cheese_mold": 0 },   cat: "food", locked: true },
+    { id: "syrecky",       output: "syrecky_fresh",      qty: 1, req: { "milk": 3, "cheese_mold": 0 },                    cat: "food", locked: true },
     
     // NEW RECIPES - Mini-games & Notebooks
     { id: "playing_cards", output: "playing_cards", qty: 1, req: { "paper": 5, "ink": 1 }, cat: "lore", locked: true },

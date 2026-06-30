@@ -52,6 +52,7 @@ const JS_MAIN = [
     'src/systems/CellariumSystem.js',
     'src/systems/SaeculumSystem.js',
     'src/systems/DecaySystem.js',
+    'src/systems/CheeseSystem.js',
     'src/systems/well.js',
     'src/systems/terrain.js',        // TerrainSystem — únava krajiny
     'src/systems/fireplace.js',

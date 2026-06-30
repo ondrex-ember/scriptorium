@@ -1393,6 +1393,46 @@ This knowledge shaped monastic architecture. The cella — a cool, vaulted cella
 **GAME EFFECT:** Reading this treatise unlocks the *Cella* tech — the construction of a cold cellar. Organic stores (eggs, milk, herbs, fish) last 2–3 times longer in the Cella than without it.`
         },
         {
+            id: 'book_palladius_caseus',
+            title: 'Opus Agriculturae: O sýření mléka',
+            title_en: 'Opus Agriculturae: On the Curdling of Milk',
+            category: 'innovation',
+            unlockDay: 67,
+            icon: '🧀',
+            author: 'Palladius Rutilius Taurus Aemilianus',
+            year: 'cca 4. stol. n. l.',
+            content: `**Praktik, ne teoretik**
+
+Zatímco Columella psal o hospodářství jako filozof, Palladius psal jako muž, který si od rána do večera špiní ruce. Jeho Opus Agriculturae je rozdělené podle měsíců v roce — co dělat v lednu, co v červenci. Žádné velké úvahy o důstojnosti rolnické práce, jen suchý, přesný návod. Středověcí opati ho milovali přesně pro tuhle stručnost: kniha, kterou si bratr cellarius mohl otevřít ráno a hned vědět, co má dělat.
+
+**Tři cesty k téže hroudě**
+
+Palladius věnuje sýření mléka samostatnou kapitolu a popisuje to, co praxe znala odjakživa — existuje víc než jeden způsob, jak mléko srazit. Nejjistější je slez z útrob neodstaveného mláděte, vysušený a nastrouhaný do vlažného mléka. Kdo mládě nemá nebo ho nechce obětovat, sáhne po bylině — výluh ze svízelu syřišťového funguje podobně, jen pomaleji a méně jistě. A nakonec — pro toho, kdo nemá ani jedno — stačí čas a teplo. Mléko samo zkysne, oddělí se syrovátka od tvarohu, a z tvarohu vznikne sýr bez jediné kapky syřidla.
+
+*"Co příroda sama promění, k tomu netřeba ruky řezníkovy. Ale co příroda sama nedokáže rychle, tomu pomoz slezem nebo bylinou — podle toho, co máš po ruce."*
+
+**Klášterní variace**
+
+Palladius nepíše o Olomouci ani o Moravě — psal o římském panství o tisíc let dřív. Ale jeho metoda cestovala s mnišskými řády po celé Evropě, a každý kraj si ji ohnul po svém. V Čechách se traduje, že nejprostší cesta — kyselé srážení bez syřidla — dala vzniknout drobným, ostře vonícím sýrečkům, které se daly udělat i tam, kde na mladé jehně nebylo ani pomyšlení. Říká se, že podobně vznikaly i v okolí Olomouce.
+
+**HERNÍ EFEKT:** Přečtením tohoto spisu odemkneš tech *Caseus* — sýření mléka. Slez z jehněte, výluh ze svízelu, nebo jen čas a teplo: tři cesty k sýru podle toho, co máš zrovna po ruce.`,
+            content_en: `**A Practitioner, Not a Theorist**
+
+While Columella wrote about husbandry as a philosopher, Palladius wrote as a man who got his hands dirty from morning to night. His Opus Agriculturae is arranged by the months of the year — what to do in January, what in July. No grand reflections on the dignity of peasant labour, just dry, precise instruction. Medieval abbots loved it for exactly this brevity: a book the cellarer brother could open in the morning and immediately know what to do.
+
+**Three Paths to the Same Wheel**
+
+Palladius devotes a chapter of its own to curdling milk, describing what practice had always known — there is more than one way to set milk. The surest is rennet from the stomach of an unweaned kid, dried and grated into warm milk. He who has no kid, or will not sacrifice one, reaches for an herb — an extract of lady's bedstraw works similarly, only slower and less certain. And finally — for one who has neither — time and warmth suffice. The milk sours on its own, the whey separates from the curd, and from the curd a cheese is born without a drop of rennet.
+
+*"What nature transforms of herself needs no butcher's hand. But what nature cannot do quickly, help along with rennet or herb — whichever lies to hand."*
+
+**Monastic Variations**
+
+Palladius wrote nothing of Olomouc or Moravia — he wrote of a Roman estate a thousand years earlier. But his method travelled with the monastic orders across Europe, and every region bent it to its own use. In Bohemia it is said that the simplest path — souring without rennet — gave rise to small, sharply scented curd cheeses, made even where no young lamb was to be had. Something similar, the story goes, arose around Olomouc as well.
+
+**GAME EFFECT:** Reading this treatise unlocks the *Caseus* tech — curdling milk. A lamb's rennet, an extract of bedstraw, or simply time and warmth: three paths to cheese, depending on what lies to hand.`
+        },
+        {
             id: 'book_crescenzi',
             title: 'Liber Ruralium Commodorum: Řád pole a dvora',
             title_en: 'Liber Ruralium Commodorum: The Order of Field and Farmyard',

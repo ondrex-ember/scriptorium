@@ -240,6 +240,14 @@ const TechTree = [
   },
 
   {
+    id: "tech_caseus", name: "Caseus — Sýření mléka", name_en: "Caseus — Cheesemaking",
+    cost: 20,
+    desc: "Mléko samo zkysne, ale syřidlo dělá z tvarohu sýr. Slez z jehněte, výluh ze svízelu, nebo jen čas a teplo — tři cesty k téže hroudě. Odemkne: Syřidlo, čtyři druhy sýra.",
+    desc_en: "Milk sours on its own, but rennet turns curd into cheese. A lamb's stomach, an extract of bedstraw, or simply time and warmth — three paths to the same wheel. Unlocks: Rennet, four kinds of cheese.",
+    unlocks: ["rennet_galium", "cheese_mold", "goat_cheese", "sheep_cheese", "cow_cheese", "syrecky"], requires: ["tech_lactaria"]
+  },
+
+  {
     id: "tech_inventarium", name: "Inventarium — Soupis Zásob", name_en: "Inventarium — Inventory of Stores",
     cost: 8,
     desc: "Klášterní cellarius vedl přesný soupis každého pytle mouky a každého sudu piva. Bez inventáře se zásoby ztrácejí samy od sebe. Odemkne: subtab Inventarium v Cellariu — přehled zásob. POZOR: Kdo vede soupis, vidí i ztráty. Od této chvíle se zásoby kazí — mléko kysne, maso plesniví, myši žerou zrní. Připrav se na hospodaření se zásobami.",

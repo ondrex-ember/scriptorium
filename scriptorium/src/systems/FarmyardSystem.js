@@ -1191,6 +1191,7 @@ const FarmyardSystem = {
         s.lambPool -= qty;
         Game.addItem('mutton', qty * 2);
         Game.addItem('lamb_hide', qty);
+        Game.addItem('rennet', qty);
         Game.save(); FarmyardSystem.renderFarmyard();
         UI.notify('🥩 ' + t('game.lambSlaughtered').replace('{qty}', qty));
     },
@@ -1202,6 +1203,7 @@ const FarmyardSystem = {
         if (Array.isArray(s.sheepObjs) && s.sheepObjs.length) s.sheepObjs.pop();
         Game.addItem('mutton', 3);
         Game.addItem('raw_hide', 1);
+        if (Math.random() < 0.5) Game.addItem('rennet', 1);
         Game.save(); FarmyardSystem.renderFarmyard();
         UI.notify('🥩 ' + t('game.sheepSlaughtered'));
     },

@@ -524,6 +524,8 @@ const Game = {
                     if (typeof ScriptoriumCat !== 'undefined' && ScriptoriumCat.miceTick) ScriptoriumCat.miceTick();
                     // Decay — denní kažení zásob (self-guarded 24h, gate tech_inventarium)
                     if (typeof DecaySystem !== 'undefined' && DecaySystem.dailyTick) DecaySystem.dailyTick();
+                    // Caseus — denní zrání sýra (self-guarded 24h, gate tech_caseus)
+                    if (typeof CheeseSystem !== 'undefined' && CheeseSystem.dailyTick) CheeseSystem.dailyTick();
                     // Studna — časová degradace (self-guarded 24h, grace 5 dní)
                     if (typeof WellSystem !== 'undefined' && WellSystem.dailyTick) WellSystem.dailyTick();
                     // Persona — influence decay (self-guarded 7 dní)
@@ -1979,6 +1981,7 @@ const Game = {
                     if(Math.random() < 0.05) this.addItem('garlic', 1);
                     if(Math.random() < 0.04) this.addItem('leek', 1);
                     if(Math.random() < 0.04) this.addItem('nettle', 1);
+                    if(Math.random() < 0.04) this.addItem('galium', 1);
                     if(Math.random() < 0.03) this.addItem('seeds_garlic', 1);
                     if(Math.random() < 0.02) this.addItem('seeds_nettle', 1);
                     // Žaludy — podzimní nález
@@ -2232,6 +2235,7 @@ const Game = {
                 if(Math.random() < 0.05) this.addItem('garlic', 1);
                 if(Math.random() < 0.04) this.addItem('leek', 1);
                 if(Math.random() < 0.04) this.addItem('nettle', 1);
+                if(Math.random() < 0.04) this.addItem('galium', 1);
                 if(Math.random() < 0.03) this.addItem('seeds_garlic', 1);
                 if(Math.random() < 0.02) this.addItem('seeds_nettle', 1);
                 // Žaludy
@@ -2624,6 +2628,13 @@ const Game = {
         if (r.byproduct && r.byproduct.id) {
             this.addItem(r.byproduct.id, r.byproduct.qty || 1);
             UI.notify('➕ ' + ((typeof iName === 'function') ? iName(r.byproduct.id) : r.byproduct.id) + ' ×' + (r.byproduct.qty || 1));
+        }
+        // Caseus — registrace per-instance zrání pro nově vyrobený sýr
+        if (typeof CheeseSystem !== 'undefined') {
+            const _cheeseBase = { goat_cheese: 'goat_cheese', sheep_cheese: 'sheep_cheese', cow_cheese: 'cow_cheese', syrecky: 'syrecky' }[r.id];
+            if (_cheeseBase) {
+                for (let _ci = 0; _ci < craftQty; _ci++) CheeseSystem.registerInstance(_cheeseBase);
+            }
         }
         // Analytics – zaznamenej craft
         const craftedItem = ItemsDB[r.output];

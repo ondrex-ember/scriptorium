@@ -146,6 +146,18 @@ const CellariumSystem = {
     mushroom_soup:  3,
     berry_pie:      3,
     honey:          4,
+    // Caseus — sýry (3 typy × fáze + syrečky)
+    goat_cheese_fresh:    9,
+    goat_cheese_mature:   14,
+    goat_cheese_aged:     22,
+    sheep_cheese_fresh:   10,
+    sheep_cheese_mature:  16,
+    sheep_cheese_aged:    24,
+    cow_cheese_fresh:     8,
+    cow_cheese_mature:    13,
+    cow_cheese_aged:      20,
+    syrecky_fresh:        5,
+    syrecky_mature:       9,
     // Suroviny
     fiber:          1,
     bark:           1,
@@ -345,6 +357,7 @@ const CellariumSystem = {
     ],
     shop: [
       { itemId: 'chalk',           basePrice: 2,  dailyStock: 30 },
+      { itemId: 'salt',            basePrice: 12, dailyStock: 2  },
       { itemId: 'wine',            basePrice: 4,  dailyStock: 5  },
       { itemId: 'seeds_thyme',     basePrice: 6,  dailyStock: 5  }, // tymián — Varroa léčba
       { itemId: 'seeds_herb',      basePrice: 6,  dailyStock: 10 },
@@ -360,6 +373,7 @@ const CellariumSystem = {
     ],
     market: [
       { itemId: 'paper',         basePrice: 3,   dailyStock: 25 },
+      { itemId: 'salt',          basePrice: 9,   dailyStock: 20 },
       // Zvířata
       { itemId: 'hen_white',     basePrice: 15,  dailyStock: 3  },
       { itemId: 'hen_black',     basePrice: 18,  dailyStock: 2  },
