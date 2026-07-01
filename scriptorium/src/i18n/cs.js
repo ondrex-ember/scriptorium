@@ -103,6 +103,8 @@ const STRINGS_cs = {
         theme: '🎨 Téma',
         themeClassic: 'Klasické Pergamen',
         themeDark: 'Temný Mód 🌙',
+        themeNight: 'Noční Mód 🌑',
+        themeSunlight: 'Sluneční Mód ☀️',
         themeSpring: 'Jaro 🌸',
         themeSummer: 'Léto ☀️',
         themeAutumn: 'Podzim 🍂',
