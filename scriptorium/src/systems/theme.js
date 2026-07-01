@@ -2,6 +2,8 @@ const ThemeSystem = {
     themes: {
         'default': 'Klasické Pergamen',
         'dark': 'Temný Mód',
+        'night': 'Noční Mód',
+        'sunlight': 'Sluneční Mód',
         'spring': 'Jaro',
         'summer': 'Léto',
         'autumn': 'Podzim',
@@ -11,7 +13,7 @@ const ThemeSystem = {
     
     applyTheme: function(themeName, silent = false) {
         // Remove all theme classes
-        document.body.classList.remove('theme-dark', 'theme-spring', 'theme-summer', 'theme-autumn', 'theme-winter');
+        document.body.classList.remove('theme-dark', 'theme-night', 'theme-sunlight', 'theme-spring', 'theme-summer', 'theme-autumn', 'theme-winter');
         
         // Apply new theme
         if(themeName !== 'default' && themeName !== 'auto') {
@@ -29,6 +31,8 @@ const ThemeSystem = {
             const themeNames = {
                 'default': 'Klasické Pergamen',
                 'dark': 'Temný Mód 🌙',
+                'night': 'Noční Mód 🌑',
+                'sunlight': 'Sluneční Mód ☀️',
                 'spring': 'Jaro 🌸',
                 'summer': 'Léto ☀️',
                 'autumn': 'Podzim 🍂',
