@@ -10,7 +10,7 @@
 //
 // TIP: Statické soubory (obrázky, CNAME, ikony) patří do public/
 
-const fs   = require('fs');
+const fs = require('fs');
 const path = require('path');
 
 const BASE = __dirname;
@@ -34,6 +34,7 @@ const JS_MAIN = [
     'src/data/achievements.js',     // AchievementsDB
     'src/data/daily-facts.js',      // DailyFactsDB
     'src/data/scrinium.js',         // ScriniumDB
+    'src/data/letters.js',          // LettersDB
 
     // Systémy
     'src/systems/theme.js',         // ThemeSystem
@@ -61,6 +62,7 @@ const JS_MAIN = [
     'src/systems/FarmyardSystem.js',
     'src/systems/ScriptoriumCat.js',
     'src/systems/PersonaSystem.js',
+    'src/systems/PortaSystem.js',
     'src/systems/SecretsSystem.js',
     'src/systems/athanor.js',
     'src/systems/GamesSystem.js',
@@ -91,7 +93,7 @@ const JS_MAIN = [
 
     // Astro - iching, calendar
     'src/systems/iching.js',
-    'src/systems/calendar.js', 
+    'src/systems/calendar.js',
 
 ];
 
@@ -158,7 +160,7 @@ function build() {
         jsBootstrap += readFile(file);
     }
 
-    if (!shell.includes('/* BUILD:JS_MAIN */'))      throw new Error('Placeholder JS_MAIN chybí v shell.html!');
+    if (!shell.includes('/* BUILD:JS_MAIN */')) throw new Error('Placeholder JS_MAIN chybí v shell.html!');
     if (!shell.includes('/* BUILD:JS_BOOTSTRAP */')) throw new Error('Placeholder JS_BOOTSTRAP chybí v shell.html!');
 
     let output = shell
