@@ -90,6 +90,8 @@ const STRINGS_en = {
         theme: '🎨 Theme',
         themeClassic: 'Classic Parchment',
         themeDark: 'Dark Mode 🌙',
+        themeNight: 'Night Mode 🌑',
+        themeSunlight: 'Sunlight Mode ☀️',
         themeSpring: 'Spring 🌸',
         themeSummer: 'Summer ☀️',
         themeAutumn: 'Autumn 🍂',
