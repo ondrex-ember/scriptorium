@@ -554,44 +554,59 @@ const VigorSystem = {
                         </g>
                     </g>
 
-                    <!-- Planetární glyfé na orbitě r=62 (☉ 110s, ☽ 115s, ☿ 120s) -->
+                    <!-- Planetární glyfé — 5 planet, různé orbity, nástup od 40s -->
+                    <!-- ☉ Slunce — orbit r=62, nástup 40s, rychlost 55s -->
                     <g opacity="0">
-                        <animate attributeName="opacity" from="0" to="1" dur="5s" begin="110s" fill="freeze"/>
+                        <animate attributeName="opacity" from="0" to="1" dur="5s" begin="40s" fill="freeze"/>
                         <g>
-                            <animateTransform attributeName="transform" type="rotate" from="0 100 100" to="360 100 100" dur="60s" begin="110s" repeatCount="indefinite"/>
+                            <animateTransform attributeName="transform" type="rotate" from="0 100 100" to="360 100 100" dur="55s" begin="40s" repeatCount="indefinite"/>
                             <g transform="translate(100,38)">
                                 <circle r="7" fill="rgba(8,8,20,.9)" stroke="rgba(201,168,76,.8)" stroke-width=".9"/>
                                 <text font-size="8" fill="rgba(201,168,76,.95)" text-anchor="middle" dominant-baseline="central" font-family="serif">☉</text>
                             </g>
                         </g>
                     </g>
+                    <!-- ☽ Měsíc — orbit r=52 (vnitřní), nástup 48s, rychlost 42s -->
                     <g opacity="0">
-                        <animate attributeName="opacity" from="0" to="1" dur="5s" begin="115s" fill="freeze"/>
+                        <animate attributeName="opacity" from="0" to="1" dur="5s" begin="48s" fill="freeze"/>
                         <g>
-                            <animateTransform attributeName="transform" type="rotate" from="120 100 100" to="480 100 100" dur="60s" begin="115s" repeatCount="indefinite"/>
-                            <g transform="translate(100,38)">
-                                <circle r="6.5" fill="rgba(8,8,20,.9)" stroke="rgba(139,111,255,.8)" stroke-width=".9"/>
+                            <animateTransform attributeName="transform" type="rotate" from="72 100 100" to="432 100 100" dur="42s" begin="48s" repeatCount="indefinite"/>
+                            <g transform="translate(100,48)">
+                                <circle r="6.5" fill="rgba(8,8,20,.9)" stroke="rgba(139,111,255,.85)" stroke-width=".9"/>
                                 <text font-size="8" fill="rgba(139,111,255,.95)" text-anchor="middle" dominant-baseline="central" font-family="serif">☽</text>
                             </g>
                         </g>
                     </g>
+                    <!-- ☿ Merkur — orbit r=70 (vnější), nástup 56s, rychlost 68s -->
                     <g opacity="0">
-                        <animate attributeName="opacity" from="0" to="1" dur="5s" begin="120s" fill="freeze"/>
+                        <animate attributeName="opacity" from="0" to="1" dur="5s" begin="56s" fill="freeze"/>
                         <g>
-                            <animateTransform attributeName="transform" type="rotate" from="240 100 100" to="600 100 100" dur="60s" begin="120s" repeatCount="indefinite"/>
-                            <g transform="translate(100,38)">
-                                <circle r="6" fill="rgba(8,8,20,.9)" stroke="rgba(69,162,158,.8)" stroke-width=".9"/>
+                            <animateTransform attributeName="transform" type="rotate" from="144 100 100" to="504 100 100" dur="68s" begin="56s" repeatCount="indefinite"/>
+                            <g transform="translate(100,30)">
+                                <circle r="6" fill="rgba(8,8,20,.9)" stroke="rgba(69,162,158,.85)" stroke-width=".9"/>
                                 <text font-size="8" fill="rgba(69,162,158,.95)" text-anchor="middle" dominant-baseline="central" font-family="serif">☿</text>
                             </g>
                         </g>
                     </g>
+                    <!-- ♄ Saturn — orbit r=57 (střední), nástup 64s, rychlost 80s -->
                     <g opacity="0">
-                        <animate attributeName="opacity" from="0" to="1" dur="5s" begin="125s" fill="freeze"/>
+                        <animate attributeName="opacity" from="0" to="1" dur="5s" begin="64s" fill="freeze"/>
                         <g>
-                            <animateTransform attributeName="transform" type="rotate" from="270 100 100" to="630 100 100" dur="60s" begin="125s" repeatCount="indefinite"/>
-                            <g transform="translate(100,38)">
-                                <circle r="6.5" fill="rgba(8,8,20,.9)" stroke="rgba(197,160,89,.7)" stroke-width=".9"/>
-                                <text font-size="8" fill="rgba(197,160,89,.9)" text-anchor="middle" dominant-baseline="central" font-family="serif">♄</text>
+                            <animateTransform attributeName="transform" type="rotate" from="216 100 100" to="576 100 100" dur="80s" begin="64s" repeatCount="indefinite"/>
+                            <g transform="translate(100,43)">
+                                <circle r="6.5" fill="rgba(8,8,20,.9)" stroke="rgba(197,160,89,.9)" stroke-width=".9"/>
+                                <text font-size="8" fill="rgba(197,160,89,.95)" text-anchor="middle" dominant-baseline="central" font-family="serif">♄</text>
+                            </g>
+                        </g>
+                    </g>
+                    <!-- ♃ Jupiter — orbit r=65 (vnější střední), nástup 72s, rychlost 72s -->
+                    <g opacity="0">
+                        <animate attributeName="opacity" from="0" to="1" dur="5s" begin="72s" fill="freeze"/>
+                        <g>
+                            <animateTransform attributeName="transform" type="rotate" from="288 100 100" to="648 100 100" dur="72s" begin="72s" repeatCount="indefinite"/>
+                            <g transform="translate(100,35)">
+                                <circle r="7" fill="rgba(8,8,20,.9)" stroke="rgba(220,130,80,.85)" stroke-width=".9"/>
+                                <text font-size="8" fill="rgba(220,130,80,.95)" text-anchor="middle" dominant-baseline="central" font-family="serif">♃</text>
                             </g>
                         </g>
                     </g>
