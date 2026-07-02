@@ -69,9 +69,10 @@ const ChroniconSystem = {
 
         // Abbot message → toast + kanál zpráv + Kronika (jen při nové/změněné zprávě)
         if (snap.abbot && snap.abbot.message) {
+            const msgId   = snap.abbot.message_id || snap.abbot.message;
             const lastKey = 'scriptorium_chronicon_abbot_last';
             const lastMsg = localStorage.getItem(lastKey);
-            if (lastMsg !== snap.abbot.message) {
+            if (lastMsg !== msgId) {
                 if (typeof NotificationSystem !== 'undefined') {
                     NotificationSystem.toast('✝️ ' + snap.abbot.message, 'warn');
                     NotificationSystem.panel('✝️ ' + snap.abbot.message, 'chronicon');
@@ -89,7 +90,7 @@ const ChroniconSystem = {
                         season: null,
                     });
                 }
-                localStorage.setItem(lastKey, snap.abbot.message);
+                localStorage.setItem(lastKey, msgId);
             }
         }
 
