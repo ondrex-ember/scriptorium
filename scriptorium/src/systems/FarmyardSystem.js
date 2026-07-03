@@ -574,6 +574,21 @@ const FarmyardSystem = {
         this.renderFarmyard();
     },
 
+    slaughterCow: function (idx) {
+        const st = GameState.cowbyre;
+        const a = st.animals[idx];
+        if (!a) return;
+        st.animals.splice(idx, 1);
+        const inv = GameState.inventory;
+        inv['beef'] = (inv['beef'] || 0) + 5;
+        inv['cured_beef'] = (inv['cured_beef'] || 0) + 2;
+        inv['raw_hide'] = (inv['raw_hide'] || 0) + 2;
+        if (typeof UI !== 'undefined') UI.notify('🔪 ' + t('dvur.cowSlaughtered'));
+        if (typeof Game !== 'undefined' && Game.addKronikaEntry) Game.addKronikaEntry('important', '🐄 Zabijačka! Klášterní spižírna se naplnila hovězím masem.', '🐄 Cattle slaughter! The monastery larder filled with beef.', '🐄 Bos mactatus est.');
+        if (typeof Game !== 'undefined') Game.save();
+        this.renderFarmyard();
+    },
+
     // ── Render animal pen (generic) ───────────────────────────────────────
     renderAnimalPen: function (pen) {
         this._ensureAnimals();
@@ -683,6 +698,7 @@ const FarmyardSystem = {
             var cleanQC = Math.max(1, Math.ceil(st.animals.length / 2));
             h += '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px;">';
             h += '<button class="craft-btn" onclick="FarmyardSystem.collectCowMilk()" ' + (readyC ? '' : 'disabled') + '>🥛 ' + t('dvur.milkCow') + ' (' + readyC + ')</button>';
+            h += '<button class="craft-btn" onclick="FarmyardSystem.slaughterCow(' + (st.animals.length - 1) + ')" style="background:#8b4a3a;">🔪 ' + t('dvur.slaughterCow') + '</button>';
             h += '<button class="craft-btn" onclick="FarmyardSystem.cleanPen(\'cowbyre\')" style="background:rgba(90,154,90,0.85);">' + (canCleanC ? '🧹 ' + t('farmyard.clean') + ' (💩 +' + cleanQC + ')' : '🧹 ' + t('farmyard.cleanTomorrow')) + '</button>';
             h += '</div>';
         }

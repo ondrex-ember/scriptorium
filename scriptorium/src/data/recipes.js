@@ -146,9 +146,17 @@ const RecipesDB = [
     
     // COOKING RECIPES (vyžadují krb + pot)
     { id: "cooked_meat", output: "cooked_meat", qty: 1, req: { "meat": 1, "cooking_pot": 0 }, cat: "food", locked: true },
+    { id: "cooked_beef", output: "cooked_beef", qty: 1, req: { "beef": 1, "cooking_pot": 0 }, cat: "food", locked: true },
+    { id: "cooked_mutton", output: "cooked_mutton", qty: 1, req: { "mutton": 1, "cooking_pot": 0 }, cat: "food", locked: true },
+    { id: "cooked_chicken", output: "cooked_chicken", qty: 1, req: { "chicken_meat": 1, "cooking_pot": 0 }, cat: "food", locked: true },
+    { id: "cooked_rabbit", output: "cooked_rabbit", qty: 1, req: { "rabbit_meat": 1, "cooking_pot": 0 }, cat: "food", locked: true },
+    { id: "roast_beef", output: "roast_beef", qty: 1, req: { "cooked_beef": 1, "onion": 1, "cooking_pot": 0 }, cat: "food", locked: true },
+    { id: "braised_beef", output: "braised_beef", qty: 1, req: { "cooked_beef": 1, "carrot": 1, "cooking_pot": 0 }, cat: "food", locked: true },
+    { id: "roast_rabbit_dish", output: "roast_rabbit_dish", qty: 1, req: { "cooked_rabbit": 1, "carrot": 1, "cabbage": 1, "cooking_pot": 0 }, cat: "food", locked: true },
     { id: "cooked_fish", output: "cooked_fish", qty: 1, req: { "fish": 1, "cooking_pot": 0 }, cat: "food", locked: true },
-    { id: "stew", output: "stew", qty: 1, req: { "meat": 1, "carrot": 1, "potato": 1, "water": 1, "cooking_pot": 0 }, cat: "food", locked: true },
+    { id: "stew", output: "stew", qty: 1, req: { "meat": 1, "carrot": 1, "turnip": 1, "water": 1, "cooking_pot": 0 }, cat: "food", locked: true },
     { id: "mushroom_soup", output: "mushroom_soup", qty: 1, req: { "mushroom": 2, "onion": 1, "water": 1, "cooking_pot": 0 }, cat: "food", locked: true },
+    { id: "smazenice", output: "smazenice", qty: 1, req: { "mushroom": 3, "onion": 1, "egg": 2, "cooking_pot": 0 }, cat: "food", locked: true },
     { id: "bread", output: "bread", qty: 2, req: { "fiber": 3, "water": 1, "cooking_pot": 0 }, cat: "food", locked: true },
     { id: "berry_pie",      output: "berry_pie",      qty: 1, req: { "berries": 3, "honey": 1, "cooking_pot": 0 }, cat: "food", locked: true },
     // Bylinné nápoje — snižují Únavu, bez Athanoru

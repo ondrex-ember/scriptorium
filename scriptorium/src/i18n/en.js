@@ -151,7 +151,7 @@ const STRINGS_en = {
         '👿 "Est mihi causa mali..." Thy blunder, his gain.'
     ],
     game: {
-        eat: 'Eat', required: '(Required)',
+        eat: 'Eat', drink: 'Drink', required: '(Required)',
         techDone: 'DONE', techStudy: 'Study', techRequired: 'Required:',
         noTinderbox: 'Thou hast no tinderbox!',
         fireKindled: 'The hearth is kindled.',
@@ -2196,6 +2196,8 @@ According to Theophilus, the organ is an instrument worthy of God, but its const
         pigMature: 'Mature — ready for slaughter',
         slaughterPig: 'Slaughter',
         pigSlaughtered: 'Pig slaughter! +4 meat, +3 lard, +2 cured meat.',
+        slaughterCow: 'Slaughter cow',
+        cowSlaughtered: 'Cattle slaughter! +5 beef, +2 cured beef, +2 hide.',
         buildInCellarium: 'Order construction in the Cellarium → Buildings (Farmyard section).',
         penHungry: 'The animals are hungry! Production halted — restock feed (the Horreum feeds automatically).',
         goatsHungry: 'The goats are hungry and give no milk. Restock hay.',

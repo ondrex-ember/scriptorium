@@ -5237,7 +5237,7 @@ const ItemsDB = {
     "spring_water": { name: "Pramenitá voda", name_en: "Spring Water", icon: "🫧", type: "food", desc: "Čistá pramenitá voda. Osvěžuje tělo a snižuje únavu.", desc_en: "Pure spring water. Refreshes the body and eases fatigue." },
     "herb_red": { name: "Krvavý květ", name_en: "Bloodwort", icon: "🌺", type: "mat", desc: "Bylina.", desc_en: "A red healing herb." },
     "fat": { name: "Tuk", name_en: "Fat", icon: "🥩", type: "mat", desc: "Zvířecí tuk.", desc_en: "Animal fat." },
-    "meat": { name: "Maso", name_en: "Meat", icon: "🍖", type: "mat", desc: "Surové maso.", desc_en: "Raw meat." },
+    "meat": { name: "Maso", name_en: "Meat", icon: "🍖", type: "food_raw", desc: "Surové maso.", desc_en: "Raw meat." },
     "bone": { name: "Kost", name_en: "Bone", icon: "☠️", type: "mat", desc: "Tvrdá kost.", desc_en: "Hard bone." },
     "leather": { name: "Kůže", name_en: "Leather", icon: "🦌", type: "mat", desc: "Ze zvířat.", desc_en: "Cured animal hide." },
 
@@ -5279,14 +5279,14 @@ const ItemsDB = {
     "frog": { name: "Žába", name_en: "Frog", icon: "🐸", type: "alchemy_ing", desc: "Z mokřadu.", desc_en: "From the wetlands." },
     "slug": { name: "Slimák", name_en: "Slug", icon: "🐌", type: "alchemy_ing", desc: "Sliz.", desc_en: "Slimy creature." },
     "resin": { name: "Pryskyřice", name_en: "Resin", icon: "💧", type: "alchemy_ing", desc: "Ze stromů.", desc_en: "Tree resin." },
-    "honey": { name: "Med", name_en: "Honey", icon: "🍯", type: "alchemy_ing", desc: "Včelí med.", desc_en: "Bee honey." },
+    "honey": { name: "Med", name_en: "Honey", icon: "🍯", type: "food", desc: "Včelí med.", desc_en: "Bee honey." },
     "mushroom_poison": { name: "Muchotrávka", name_en: "Death Cap", icon: "🍄", type: "alchemy_ing", desc: "Jedovatá houba.", desc_en: "A poisonous mushroom." },
     "roots": { name: "Kořeny", name_en: "Roots", icon: "🪴", type: "alchemy_ing", desc: "Hluboké kořeny.", desc_en: "Deep roots." },
     "nightshade": { name: "Rulík", name_en: "Nightshade", icon: "🖤", type: "alchemy_ing", desc: "Jedovatý, léčivý.", desc_en: "Deadly yet medicinal." },
 
     // FOOD RAW
     "fish": { name: "Ryba", name_en: "Fish", icon: "🐟", type: "food_raw", desc: "Čerstvá ryba.", desc_en: "Fresh fish." },
-    "mushroom": { name: "Houby", name_en: "Mushrooms", icon: "🍄", type: "food_raw", desc: "Jedlé houby.", desc_en: "Edible mushrooms." },
+    "mushroom": { name: "Houby", name_en: "Mushrooms", icon: "🍄", type: "food", desc: "Jedlé houby.", desc_en: "Edible mushrooms." },
     "carrot": { name: "Mrkev", name_en: "Carrot", icon: "🥕", type: "food_raw", desc: "Ze zahrady.", desc_en: "From the garden." },
     "onion": { name: "Cibule", name_en: "Onion", icon: "🧅", type: "food_raw", desc: "Ze zahrady.", desc_en: "From the garden." },
     "leek": { name: "Pór", name_en: "Leek", icon: "🌿", type: "food_raw", desc: "Allium porrum. Klášterní zahrada ze Sankt Gallenu. Základ polévky.", desc_en: "Allium porrum. From the St Gallen monastery plan. Soup staple." },
@@ -5299,9 +5299,17 @@ const ItemsDB = {
 
     // COOKED FOOD
     "cooked_meat": { name: "Pečené maso", name_en: "Roasted Meat", icon: "🍗", type: "food", hunger: 6, desc: "Sytí 6h.", desc_en: "Fills for 6h." },
+    "cooked_beef": { name: "Pečené hovězí", name_en: "Roasted Beef", icon: "🍗", type: "food", desc: "Hovězí upečené na ohni.", desc_en: "Beef roasted over the fire." },
+    "cooked_mutton": { name: "Pečené skopové", name_en: "Roasted Mutton", icon: "🍗", type: "food", desc: "Skopové upečené na ohni.", desc_en: "Mutton roasted over the fire." },
+    "cooked_chicken": { name: "Pečené kuře", name_en: "Roasted Chicken", icon: "🍗", type: "food", desc: "Kuře upečené na ohni.", desc_en: "Chicken roasted over the fire." },
+    "cooked_rabbit": { name: "Pečený králík", name_en: "Roasted Rabbit", icon: "🍗", type: "food", desc: "Králík upečený na ohni.", desc_en: "Rabbit roasted over the fire." },
+    "roast_beef": { name: "Hovězí pečeně", name_en: "Beef Roast", icon: "🍽️", type: "food", desc: "Pečené hovězí s cibulí. Klášterní hostina.", desc_en: "Roasted beef with onion. A monastic feast." },
+    "braised_beef": { name: "Dušené hovězí", name_en: "Braised Beef", icon: "🍽️", type: "food", desc: "Hovězí dušené s mrkví.", desc_en: "Beef braised with carrot." },
+    "roast_rabbit_dish": { name: "Pečený králík s zeleninou", name_en: "Roast Rabbit with Vegetables", icon: "🍽️", type: "food", desc: "Králík pečený s mrkví a zelím.", desc_en: "Rabbit roasted with carrot and cabbage." },
     "cooked_fish": { name: "Pečená ryba", name_en: "Roasted Fish", icon: "🐠", type: "food", hunger: 4, desc: "Sytí 4h.", desc_en: "Fills for 4h." },
     "stew": { name: "Guláš", name_en: "Stew", icon: "🍲", type: "food", hunger: 12, desc: "Sytí 12h.", desc_en: "Fills for 12h." },
     "mushroom_soup": { name: "Houbová polévka", name_en: "Mushroom Pottage", icon: "🥣", type: "food", hunger: 8, desc: "Sytí 8h.", desc_en: "Fills for 8h." },
+    "smazenice": { name: "Smaženice", name_en: "Fried Mushroom Scramble", icon: "🍳", type: "food", hunger: 9, desc: "Houby smažené s vejci a cibulí. Sytí 9h.", desc_en: "Mushrooms fried with eggs and onion. Fills for 9h." },
     "bread": { name: "Chléb", name_en: "Bread", icon: "🍞", type: "food", hunger: 10, desc: "Sytí 10h.", desc_en: "Fills for 10h." },
     "berry_pie": { name: "Borůvkový koláč", name_en: "Berry Tart", icon: "🥧", type: "food", hunger: 8, desc: "Sytí 8h.", desc_en: "Fills for 8h." },
 
@@ -5623,7 +5631,7 @@ const ItemsDB = {
     "sheep": { name: "Ovce", name_en: "Sheep", icon: "🐑", type: "animal", desc: "Ovce produkuje vlnu, mléko a kůži.", desc_en: "Sheep produces wool, milk and hide." },
 
     // ── Produkty zvířat ────────────────────────────────────────────────────
-    "egg": { name: "Vejce", name_en: "Egg", icon: "🥚", type: "mat", desc: "Čerstvé vejce ze slepice. Jídlo i pigment.", desc_en: "Fresh egg from the hen. Food and pigment." },
+    "egg": { name: "Vejce", name_en: "Egg", icon: "🥚", type: "food", desc: "Čerstvé vejce ze slepice. Jídlo i pigment.", desc_en: "Fresh egg from the hen. Food and pigment." },
     "milk": { name: "Mléko", name_en: "Milk", icon: "🥛", type: "mat", desc: "Čerstvé mléko od ovce.", desc_en: "Fresh milk from the sheep." },
     "wool": { name: "Vlna", name_en: "Wool", icon: "🧶", type: "mat", desc: "Střižená vlna. Na přízi, tkaní i šití.", desc_en: "Shorn wool. For spinning, weaving and sewing." },
     "raw_hide": { name: "Surová kůže", name_en: "Raw Hide", icon: "🐑", type: "mat", desc: "Neupravená zvířecí kůže. Nutno vyčinit.", desc_en: "Untreated animal hide. Must be cured." },
@@ -5640,8 +5648,8 @@ const ItemsDB = {
     // ═══════════════════════════════════════════════════════════════════════════
     "chick": { name: "Kuře", name_en: "Chick", icon: "🐣", type: "animal", desc: "Mladé kuře. Dorůstá v kurníku.", desc_en: "Young chick. Growing in the henhouse." },
     "lamb": { name: "Jehně", name_en: "Lamb", icon: "🐑", type: "animal", desc: "Mladé jehně. Dorůstá v chlévu.", desc_en: "Young lamb. Growing in the sheepfold." },
-    "chicken_meat": { name: "Kuřecí maso", name_en: "Chicken Meat", icon: "🍗", type: "food", hunger: 5, desc: "Čerstvé kuřecí. Sytí 5h.", desc_en: "Fresh chicken. Fills for 5h." },
-    "mutton": { name: "Skopové maso", name_en: "Mutton", icon: "🥩", type: "food", hunger: 7, desc: "Skopové z chléva. Sytí 7h.", desc_en: "Mutton from the fold. Fills for 7h." },
+    "chicken_meat": { name: "Kuřecí maso", name_en: "Chicken Meat", icon: "🍗", type: "food_raw", hunger: 5, desc: "Čerstvé kuřecí. Uvař před jídlem.", desc_en: "Fresh chicken. Cook before eating." },
+    "mutton": { name: "Skopové maso", name_en: "Mutton", icon: "🥩", type: "food_raw", hunger: 7, desc: "Skopové z chléva. Uvař před jídlem.", desc_en: "Mutton from the fold. Cook before eating." },
     "lamb_hide": { name: "Jehněčí kůže", name_en: "Lamb Hide", icon: "🦌", type: "mat", desc: "Jemná kůže jehněte. Kvalitnější pergamen.", desc_en: "Fine lamb skin. Superior vellum quality." },
 
     // ═══════════════════════════════════════════════════════════════════════════
@@ -5688,33 +5696,35 @@ const ItemsDB = {
     "goat_milk": { name: "Kozí mléko", name_en: "Goat Milk", icon: "🥛", type: "mat", desc: "Kozí mléko a syrovátka. Součást klášterní lékárny. Podávalo se nemocným bratrům.", desc_en: "Goat milk and whey. Part of the monastic infirmary. Served to ailing brothers." },
     "cow_milk": { name: "Kravské mléko", name_en: "Cow Milk", icon: "🥛", type: "mat", desc: "Husté kravské mléko z klášterního chléva. Základ másla i sýra.", desc_en: "Rich cow's milk from the monastery byre. The base of butter and cheese." },
     "lard": { name: "Sádlo", name_en: "Lard", icon: "🫙", type: "mat", desc: "Vepřové sádlo. Konzervant, mazivo i palivo do lamp.", desc_en: "Pig lard. Preservative, lubricant and lamp fuel." },
-    "cured_meat": { name: "Uzené maso", name_en: "Cured Meat", icon: "🥩", type: "mat", desc: "Nasolené a uzené vepřové. Vydrží celou zimu. Zásobování konvršů a čeledi.", desc_en: "Salted and smoked pork. Lasts all winter. Provisions for lay brothers and servants." },
+    "cured_meat": { name: "Uzené maso", name_en: "Cured Meat", icon: "🥩", type: "food", desc: "Nasolené a uzené vepřové. Vydrží celou zimu. Zásobování konvršů a čeledi.", desc_en: "Salted and smoked pork. Lasts all winter. Provisions for lay brothers and servants." },
+    "beef": { name: "Hovězí maso", name_en: "Beef", icon: "🍖", type: "food_raw", desc: "Syrové hovězí z kravína. Uvař nebo usuš před jídlem.", desc_en: "Raw beef from the byre. Cook or cure before eating." },
+    "cured_beef": { name: "Uzené hovězí", name_en: "Cured Beef", icon: "🥩", type: "food", desc: "Nasolené a uzené hovězí. Vydrží celou zimu.", desc_en: "Salted and smoked beef. Lasts all winter." },
     "quill_premium": { name: "Brk holubí", name_en: "Pigeon Quill", icon: "🪶", type: "mat", desc: "Holubí brk. Jemnější než husí, vhodný pro drobné písmo a iluminace.", desc_en: "Pigeon quill. Finer than goose feather, suited for small script and illumination." },
     "pigeon_dung": { name: "Holubí trus", name_en: "Pigeon Dung", icon: "💩", type: "mat", desc: "Vysoce koncentrované hnojivo. Klášterní zahradníci ho sbírali z holubníku pro zahradu.", desc_en: "Highly concentrated fertiliser. Monastic gardeners collected it from the dovecote for the garden." },
     "butter": { name: "Máslo", name_en: "Butter", icon: "🧈", type: "mat", desc: "Čerstvé máslo z kravského mléka. Postní výjimka u nemocných.", desc_en: "Fresh butter from cow's milk. A Lenten exception for the sick." },
-    "cheese": { name: "Sýr", name_en: "Cheese", icon: "🧀", type: "mat", desc: "Tvrdý klášterní sýr. Trvanlivý, výživný. Prodávaný na trzích.", desc_en: "Hard monastic cheese. Long-lasting, nutritious. Sold at markets." },
+    "cheese": { name: "Sýr", name_en: "Cheese", icon: "🧀", type: "food", desc: "Tvrdý klášterní sýr. Trvanlivý, výživný. Prodávaný na trzích.", desc_en: "Hard monastic cheese. Long-lasting, nutritious. Sold at markets." },
     "salt": { name: "Sůl", name_en: "Salt", icon: "🧂", type: "mat", desc: "Drahá obchodní komodita ze solných stezek. Bez ní se sýr nezasolí a brzy zkazí.", desc_en: "A costly trade good from the salt roads. Without it cheese cannot be salted and soon spoils." },
     "rennet": { name: "Syřidlo", name_en: "Rennet", icon: "🫙", type: "mat", desc: "Sráží mléko pro výrobu sýra. Ze slezu mláděte nebo z bylin.", desc_en: "Curdles milk for cheesemaking. From a kid's stomach or from herbs." },
     "galium": { name: "Svízel syřišťový", name_en: "Lady's Bedstraw", icon: "🌼", type: "mat", desc: "Žlutě kvetoucí bylina. Výluh sráží mléko — chudší alternativa ke slezu.", desc_en: "A yellow-flowering herb. Its extract curdles milk — a poor man's rennet." },
 
     // ── CASEUS — sýry (4 typy × fáze zrání) ───────────────────────────────────
-    "goat_cheese_fresh": { name: "Kozí sýr (čerstvý)", name_en: "Goat Cheese (Fresh)", icon: "🧀", type: "mat", desc: "Čerstvý kozí sýr. Měkký, rychle se zkazí.", desc_en: "Fresh goat cheese. Soft, spoils quickly." },
-    "goat_cheese_mature": { name: "Kozí sýr (zralý)", name_en: "Goat Cheese (Mature)", icon: "🧀", type: "mat", desc: "Vyzrálý kozí sýr. Pevnější, výraznější chuť.", desc_en: "Matured goat cheese. Firmer, sharper flavour." },
-    "goat_cheese_aged": { name: "Kozí sýr (starý)", name_en: "Goat Cheese (Aged)", icon: "🧀", type: "mat", desc: "Dlouho zrálý kozí sýr. Vzácný, vysoce ceněný.", desc_en: "Long-aged goat cheese. Rare, highly prized." },
-    "sheep_cheese_fresh": { name: "Ovčí sýr (čerstvý)", name_en: "Sheep Cheese (Fresh)", icon: "🧀", type: "mat", desc: "Čerstvý ovčí sýr. Měkký, rychle se zkazí.", desc_en: "Fresh sheep cheese. Soft, spoils quickly." },
-    "sheep_cheese_mature": { name: "Ovčí sýr (zralý)", name_en: "Sheep Cheese (Mature)", icon: "🧀", type: "mat", desc: "Vyzrálý ovčí sýr. Pevnější, výraznější chuť.", desc_en: "Matured sheep cheese. Firmer, sharper flavour." },
-    "sheep_cheese_aged": { name: "Ovčí sýr (starý)", name_en: "Sheep Cheese (Aged)", icon: "🧀", type: "mat", desc: "Dlouho zrálý ovčí sýr. Vzácný, vysoce ceněný.", desc_en: "Long-aged sheep cheese. Rare, highly prized." },
-    "cow_cheese_fresh": { name: "Kravský sýr (čerstvý)", name_en: "Cow Cheese (Fresh)", icon: "🧀", type: "mat", desc: "Čerstvý kravský sýr. Měkký, rychle se zkazí.", desc_en: "Fresh cow cheese. Soft, spoils quickly." },
-    "cow_cheese_mature": { name: "Kravský sýr (zralý)", name_en: "Cow Cheese (Mature)", icon: "🧀", type: "mat", desc: "Vyzrálý kravský sýr. Pevnější, výraznější chuť.", desc_en: "Matured cow cheese. Firmer, sharper flavour." },
-    "cow_cheese_aged": { name: "Kravský sýr (starý)", name_en: "Cow Cheese (Aged)", icon: "🧀", type: "mat", desc: "Dlouho zrálý kravský sýr. Vzácný, vysoce ceněný.", desc_en: "Long-aged cow cheese. Rare, highly prized." },
-    "syrecky_fresh": { name: "Syrečky (čerstvé)", name_en: "Curd Cheese (Fresh)", icon: "🧀", type: "mat", desc: "Čerstvé syrečky z kysaného tvarohu. Olomoucká specialita — bez syřidla.", desc_en: "Fresh curd cheese from soured curds. An Olomouc speciality — no rennet needed." },
-    "syrecky_mature": { name: "Syrečky (zralé)", name_en: "Curd Cheese (Mature)", icon: "🧀", type: "mat", desc: "Vyzrálé syrečky. Pronikavá vůně, výrazná chuť.", desc_en: "Matured curd cheese. Pungent aroma, sharp flavour." },
+    "goat_cheese_fresh": { name: "Kozí sýr (čerstvý)", name_en: "Goat Cheese (Fresh)", icon: "🧀", type: "food", desc: "Čerstvý kozí sýr. Měkký, rychle se zkazí.", desc_en: "Fresh goat cheese. Soft, spoils quickly." },
+    "goat_cheese_mature": { name: "Kozí sýr (zralý)", name_en: "Goat Cheese (Mature)", icon: "🧀", type: "food", desc: "Vyzrálý kozí sýr. Pevnější, výraznější chuť.", desc_en: "Matured goat cheese. Firmer, sharper flavour." },
+    "goat_cheese_aged": { name: "Kozí sýr (starý)", name_en: "Goat Cheese (Aged)", icon: "🧀", type: "food", desc: "Dlouho zrálý kozí sýr. Vzácný, vysoce ceněný.", desc_en: "Long-aged goat cheese. Rare, highly prized." },
+    "sheep_cheese_fresh": { name: "Ovčí sýr (čerstvý)", name_en: "Sheep Cheese (Fresh)", icon: "🧀", type: "food", desc: "Čerstvý ovčí sýr. Měkký, rychle se zkazí.", desc_en: "Fresh sheep cheese. Soft, spoils quickly." },
+    "sheep_cheese_mature": { name: "Ovčí sýr (zralý)", name_en: "Sheep Cheese (Mature)", icon: "🧀", type: "food", desc: "Vyzrálý ovčí sýr. Pevnější, výraznější chuť.", desc_en: "Matured sheep cheese. Firmer, sharper flavour." },
+    "sheep_cheese_aged": { name: "Ovčí sýr (starý)", name_en: "Sheep Cheese (Aged)", icon: "🧀", type: "food", desc: "Dlouho zrálý ovčí sýr. Vzácný, vysoce ceněný.", desc_en: "Long-aged sheep cheese. Rare, highly prized." },
+    "cow_cheese_fresh": { name: "Kravský sýr (čerstvý)", name_en: "Cow Cheese (Fresh)", icon: "🧀", type: "food", desc: "Čerstvý kravský sýr. Měkký, rychle se zkazí.", desc_en: "Fresh cow cheese. Soft, spoils quickly." },
+    "cow_cheese_mature": { name: "Kravský sýr (zralý)", name_en: "Cow Cheese (Mature)", icon: "🧀", type: "food", desc: "Vyzrálý kravský sýr. Pevnější, výraznější chuť.", desc_en: "Matured cow cheese. Firmer, sharper flavour." },
+    "cow_cheese_aged": { name: "Kravský sýr (starý)", name_en: "Cow Cheese (Aged)", icon: "🧀", type: "food", desc: "Dlouho zrálý kravský sýr. Vzácný, vysoce ceněný.", desc_en: "Long-aged cow cheese. Rare, highly prized." },
+    "syrecky_fresh": { name: "Syrečky (čerstvé)", name_en: "Curd Cheese (Fresh)", icon: "🧀", type: "food", desc: "Čerstvé syrečky z kysaného tvarohu. Olomoucká specialita — bez syřidla.", desc_en: "Fresh curd cheese from soured curds. An Olomouc speciality — no rennet needed." },
+    "syrecky_mature": { name: "Syrečky (zralé)", name_en: "Curd Cheese (Mature)", icon: "🧀", type: "food", desc: "Vyzrálé syrečky. Pronikavá vůně, výrazná chuť.", desc_en: "Matured curd cheese. Pungent aroma, sharp flavour." },
     "cream": { name: "Smetana", name_en: "Cream", icon: "🥛", type: "mat", desc: "Hustá smetana sebraná z mléka. Vzácnost klášterní kuchyně — a slabost každé kočky.", desc_en: "Thick cream skimmed from milk. A rarity of the monastic kitchen — and every cat's weakness." },
     "buttermilk": { name: "Podmáslí", name_en: "Buttermilk", icon: "🥛", type: "mat", desc: "Kyselé podmáslí, zbytek po stloukání másla. Osvěžující nápoj čeledi.", desc_en: "Sour buttermilk, left over from churning butter. A refreshing drink for the servants." },
     "mouse": { name: "Myš", name_en: "Mouse", icon: "🐭", type: "mat", desc: "Klášterní myš. Žere zrní i pergamen. Kočka ji občas přinese jako dar.", desc_en: "A monastery mouse. Eats grain and parchment alike. The cat sometimes brings one as a gift." },
     "rabbit_m": { name: "Králík ♂", name_en: "Rabbit ♂", icon: "🐇", type: "animal", desc: "Samec. V králíkárně se postará o přírůstky.", desc_en: "Male. Will take care of the offspring in the hutch." },
     "rabbit_f": { name: "Králice ♀", name_en: "Rabbit ♀", icon: "🐇", type: "animal", desc: "Samice. Rodí mláďata každých 7 dní.", desc_en: "Female. Bears kits every 7 days." },
-    "rabbit_meat": { name: "Králičí maso", name_en: "Rabbit Meat", icon: "🍖", type: "mat", desc: "Jemné maso z králíkárny. Klášterní kuchyně ho cení.", desc_en: "Tender meat from the hutch. Prized by the monastic kitchen." },
+    "rabbit_meat": { name: "Králičí maso", name_en: "Rabbit Meat", icon: "🍖", type: "food_raw", desc: "Jemné maso z králíkárny. Klášterní kuchyně ho cení.", desc_en: "Tender meat from the hutch. Prized by the monastic kitchen." },
     "rabbit_pelt": { name: "Králičí kožka", name_en: "Rabbit Pelt", icon: "🦊", type: "mat", desc: "Měkká kožka. Na podšívky rukavic a lemování kapucí.", desc_en: "A soft pelt. For glove linings and hood trims.", },
     "goat": { name: "Koza", name_en: "Goat", icon: "🐐", type: "animal", desc: "Kráva chudých. Mléko dává i v zimě a spase, co ovce odmítne.", desc_en: "The poor man's cow. Gives milk even in winter and grazes what sheep refuse." },
     "piglet": { name: "Sele", name_en: "Piglet", icon: "🐖", type: "animal", desc: "Mladé prase. Za pár měsíců živá spižírna — krm ho žaludy.", desc_en: "A young pig. In a few months a living larder — feed it acorns." },
@@ -5810,7 +5820,6 @@ Object.assign(ItemsDB, {
     "incense_styrax": { name: "Styraxové kadidlo", name_en: "Styrax Incense", icon: "💨", type: "consumable", desc: "Sladce a těžce vonící kadidlo pro jasnou mysl. Oblíbené v byzantských klášterech. Hoří 22 sekund.", desc_en: "Sweet and heavy-scented incense for a clear mind. Favoured in Byzantine monasteries. Burns for 22 seconds." },
     "incense_olibanum": { name: "Olibanum", name_en: "Olibanum Incense", icon: "💨", type: "consumable", desc: "Posvátný dým arabského kadidla. Kouř stoupá k nebi jako modlitba. Očišťuje tělo i ducha. Hoří 30 sekund.", desc_en: "Sacred smoke of Arabian frankincense. The smoke rises heavenward like a prayer. Purifies body and spirit. Burns for 30 seconds." },
 });
-
 // ═══ src/data/recipes.js ═══
 const RecipesDB = [
     // BASIC TOOLS
@@ -5960,9 +5969,17 @@ const RecipesDB = [
     
     // COOKING RECIPES (vyžadují krb + pot)
     { id: "cooked_meat", output: "cooked_meat", qty: 1, req: { "meat": 1, "cooking_pot": 0 }, cat: "food", locked: true },
+    { id: "cooked_beef", output: "cooked_beef", qty: 1, req: { "beef": 1, "cooking_pot": 0 }, cat: "food", locked: true },
+    { id: "cooked_mutton", output: "cooked_mutton", qty: 1, req: { "mutton": 1, "cooking_pot": 0 }, cat: "food", locked: true },
+    { id: "cooked_chicken", output: "cooked_chicken", qty: 1, req: { "chicken_meat": 1, "cooking_pot": 0 }, cat: "food", locked: true },
+    { id: "cooked_rabbit", output: "cooked_rabbit", qty: 1, req: { "rabbit_meat": 1, "cooking_pot": 0 }, cat: "food", locked: true },
+    { id: "roast_beef", output: "roast_beef", qty: 1, req: { "cooked_beef": 1, "onion": 1, "cooking_pot": 0 }, cat: "food", locked: true },
+    { id: "braised_beef", output: "braised_beef", qty: 1, req: { "cooked_beef": 1, "carrot": 1, "cooking_pot": 0 }, cat: "food", locked: true },
+    { id: "roast_rabbit_dish", output: "roast_rabbit_dish", qty: 1, req: { "cooked_rabbit": 1, "carrot": 1, "cabbage": 1, "cooking_pot": 0 }, cat: "food", locked: true },
     { id: "cooked_fish", output: "cooked_fish", qty: 1, req: { "fish": 1, "cooking_pot": 0 }, cat: "food", locked: true },
-    { id: "stew", output: "stew", qty: 1, req: { "meat": 1, "carrot": 1, "potato": 1, "water": 1, "cooking_pot": 0 }, cat: "food", locked: true },
+    { id: "stew", output: "stew", qty: 1, req: { "meat": 1, "carrot": 1, "turnip": 1, "water": 1, "cooking_pot": 0 }, cat: "food", locked: true },
     { id: "mushroom_soup", output: "mushroom_soup", qty: 1, req: { "mushroom": 2, "onion": 1, "water": 1, "cooking_pot": 0 }, cat: "food", locked: true },
+    { id: "smazenice", output: "smazenice", qty: 1, req: { "mushroom": 3, "onion": 1, "egg": 2, "cooking_pot": 0 }, cat: "food", locked: true },
     { id: "bread", output: "bread", qty: 2, req: { "fiber": 3, "water": 1, "cooking_pot": 0 }, cat: "food", locked: true },
     { id: "berry_pie",      output: "berry_pie",      qty: 1, req: { "berries": 3, "honey": 1, "cooking_pot": 0 }, cat: "food", locked: true },
     // Bylinné nápoje — snižují Únavu, bez Athanoru
@@ -6256,7 +6273,6 @@ RecipesDB.push(
     { id: "incense_styrax",   output: "incense_styrax",   qty: 1, req: { "resin_styrax": 1, "charcoal": 1 }, cat: "fire", locked: true, desc: "Styrax + uhlí = byzantské kadidlo.", desc_en: "Styrax + charcoal = Byzantine incense." },
     { id: "incense_olibanum", output: "incense_olibanum", qty: 1, req: { "resin_olibanum": 1, "charcoal": 1 }, cat: "fire", locked: true, desc: "Olibanum + uhlí = posvátné kadidlo.", desc_en: "Olibanum + charcoal = sacred incense." }
 );
-
 // ═══ src/data/lore.js ═══
 const LoreDB = {
     // TOOLS
@@ -13324,6 +13340,36 @@ const VigorSystem = {
         honey:          8,
         beer:           5,
         wine:           3,
+        // Maso a drůbež z Dvora (syrové meat/beef/mutton/chicken_meat/rabbit_meat = food_raw, nejedí se přímo)
+        cured_meat:     30,
+        cured_beef:     30,
+        cooked_beef:    28,
+        cooked_mutton:  25,
+        cooked_chicken: 25,
+        cooked_rabbit:  25,
+        roast_beef:     32,
+        braised_beef:   32,
+        roast_rabbit_dish: 30,
+        mushroom_soup:  30,
+        smazenice:      28,
+        // Víno a hrozny
+        mustum:         5,
+        pryk:           5,
+        vinum:          6,
+        vinum_rubrum:   6,
+        vinum_obscurum: 6,
+        vinum_baci:     6,
+        vinum_praeclarum: 8,
+        raisins:        6,
+        grapes_belina:      3,
+        grapes_klevner:     3,
+        grapes_frankovka:   3,
+        grapes_tramin:      3,
+        grapes_modry_janek: 3,
+        grapes_baco:        3,
+        // Klášterní pivo
+        prima_cervisia: 8,
+        cervisia_nigra: 10,
         // Bylinné nápoje
         herbal_tea:     5,
         hildegard_tisane: 8,
@@ -13345,6 +13391,18 @@ const VigorSystem = {
         linden_tea:     -8,
         beer:           10,
         wine:           8,
+        cured_meat:     5,
+        cured_beef:     5,
+        mushroom_soup: -5,
+        smazenice:      2,
+        pryk:           5,
+        vinum:          7,
+        vinum_rubrum:   7,
+        vinum_obscurum: 7,
+        vinum_baci:     7,
+        vinum_praeclarum: 7,
+        prima_cervisia: 8,
+        cervisia_nigra: 6,
         // Voda
         water:          -5,
         spring_water:   -15,
@@ -14236,7 +14294,6 @@ const VigorSystem = {
         </div>`;
     },
 };
-
 // ═══ src/systems/CellariumSystem.js ═══
 // ═══════════════════════════════════════════════════════════════════════════════
 // CELLARIUM SYSTEM v8.1 — Economy & Barter
@@ -20778,6 +20835,21 @@ const FarmyardSystem = {
         this.renderFarmyard();
     },
 
+    slaughterCow: function (idx) {
+        const st = GameState.cowbyre;
+        const a = st.animals[idx];
+        if (!a) return;
+        st.animals.splice(idx, 1);
+        const inv = GameState.inventory;
+        inv['beef'] = (inv['beef'] || 0) + 5;
+        inv['cured_beef'] = (inv['cured_beef'] || 0) + 2;
+        inv['raw_hide'] = (inv['raw_hide'] || 0) + 2;
+        if (typeof UI !== 'undefined') UI.notify('🔪 ' + t('dvur.cowSlaughtered'));
+        if (typeof Game !== 'undefined' && Game.addKronikaEntry) Game.addKronikaEntry('important', '🐄 Zabijačka! Klášterní spižírna se naplnila hovězím masem.', '🐄 Cattle slaughter! The monastery larder filled with beef.', '🐄 Bos mactatus est.');
+        if (typeof Game !== 'undefined') Game.save();
+        this.renderFarmyard();
+    },
+
     // ── Render animal pen (generic) ───────────────────────────────────────
     renderAnimalPen: function (pen) {
         this._ensureAnimals();
@@ -20887,6 +20959,7 @@ const FarmyardSystem = {
             var cleanQC = Math.max(1, Math.ceil(st.animals.length / 2));
             h += '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px;">';
             h += '<button class="craft-btn" onclick="FarmyardSystem.collectCowMilk()" ' + (readyC ? '' : 'disabled') + '>🥛 ' + t('dvur.milkCow') + ' (' + readyC + ')</button>';
+            h += '<button class="craft-btn" onclick="FarmyardSystem.slaughterCow(' + (st.animals.length - 1) + ')" style="background:#8b4a3a;">🔪 ' + t('dvur.slaughterCow') + '</button>';
             h += '<button class="craft-btn" onclick="FarmyardSystem.cleanPen(\'cowbyre\')" style="background:rgba(90,154,90,0.85);">' + (canCleanC ? '🧹 ' + t('farmyard.clean') + ' (💩 +' + cleanQC + ')' : '🧹 ' + t('farmyard.cleanTomorrow')) + '</button>';
             h += '</div>';
         }
@@ -30808,7 +30881,7 @@ const STRINGS_cs = {
         '👿 "Est mihi causa mali..." Chyba tvá, zisk jeho.'
     ],
     game: {
-        eat: 'Sníst', required: '(Nutné)',
+        eat: 'Sníst', drink: 'Napít', required: '(Nutné)',
         techDone: 'HOTOVO', techStudy: 'Studovat', techRequired: 'Nutné:',
         noTinderbox: 'Nemáš Troud!',
         fireKindled: 'Krb rozežehnut.',
@@ -32030,6 +32103,8 @@ const STRINGS_cs = {
         pigMature: 'Dospělé — připraveno na zabijačku',
         slaughterPig: 'Zabijačka',
         pigSlaughtered: 'Zabijačka! +4 maso, +3 sádlo, +2 uzené.',
+        slaughterCow: 'Porazit krávu',
+        cowSlaughtered: 'Zabijačka! +5 hovězí, +2 uzené hovězí, +2 kůže.',
         buildInCellarium: 'Stavbu zadej v Cellariu → Budovy (sekce Dvůr).',
         penHungry: 'Zvířata hladoví! Produkce stojí — doplň krmivo (Horreum krmí automaticky).',
         goatsHungry: 'Kozy hladoví a mléko nedají. Doplň seno.',
@@ -32429,7 +32504,6 @@ const STRINGS_cs = {
         },
     },
 };
-
 // ═══ src/i18n/en.js ═══
 // Scriptorium i18n — English (Olde)
 // Základ: STRINGS_cs. Chybějící klíče → fallback na CS automaticky.
@@ -32584,7 +32658,7 @@ const STRINGS_en = {
         '👿 "Est mihi causa mali..." Thy blunder, his gain.'
     ],
     game: {
-        eat: 'Eat', required: '(Required)',
+        eat: 'Eat', drink: 'Drink', required: '(Required)',
         techDone: 'DONE', techStudy: 'Study', techRequired: 'Required:',
         noTinderbox: 'Thou hast no tinderbox!',
         fireKindled: 'The hearth is kindled.',
@@ -34629,6 +34703,8 @@ According to Theophilus, the organ is an instrument worthy of God, but its const
         pigMature: 'Mature — ready for slaughter',
         slaughterPig: 'Slaughter',
         pigSlaughtered: 'Pig slaughter! +4 meat, +3 lard, +2 cured meat.',
+        slaughterCow: 'Slaughter cow',
+        cowSlaughtered: 'Cattle slaughter! +5 beef, +2 cured beef, +2 hide.',
         buildInCellarium: 'Order construction in the Cellarium → Buildings (Farmyard section).',
         penHungry: 'The animals are hungry! Production halted — restock feed (the Horreum feeds automatically).',
         goatsHungry: 'The goats are hungry and give no milk. Restock hay.',
@@ -35105,7 +35181,6 @@ In every scriptorium lurks Titivillus. His task is not to tempt to sin — other
         },
     },
 };
-
 // ═══ src/i18n/strings.js ═══
 // Scriptorium i18n — STRINGS assembler + t() helper
 // Přidání jazyka: 1) xx.js, 2) přidat do STRINGS, 3) přidat do build.js
@@ -39191,7 +39266,9 @@ const UI = {
             const _isRareModal = (id === 'netolicky_legacy') || id === 'old_coin_1' || id === 'old_coin_2' || id === 'old_coin_3' || id === 'torn_page' || id === 'wax_seal' || ['lost_key_1', 'lost_key_2', 'lost_key_3', 'lost_key_4', 'lost_key_5', 'key_large_1', 'key_large_2', 'key_large_3', 'lost_scroll_1', 'lost_scroll_2'].includes(id) || ['dried_herbs_bundle', 'hemp_pouch', 'mysterious_bulb'].includes(id);
             const _click = (_hasMateria || _isRareModal) ? `onclick="UI.showItemModal('${id}')" style="cursor:pointer;"` : '';
             let actionBtn = '';
-            if (item.type === 'food') {
+            if (id === 'water' || id === 'spring_water') {
+                actionBtn = `<button class="craft-btn" onclick="event.stopPropagation();Game.drink('${id}')" style="margin-left:auto;">${t('game.drink')}</button>`;
+            } else if (item.type === 'food') {
                 actionBtn = `<button class="craft-btn" onclick="event.stopPropagation();Game.eat('${id}')" style="margin-left:auto;">${t('game.eat')}</button>`;
             } else if (item.type === 'potion' || item.type === 'alchemy') {
                 actionBtn = `<button class="craft-btn" onclick="event.stopPropagation();Game.eat('${id}')" style="margin-left:auto;">${t('game.eat')}</button>`;

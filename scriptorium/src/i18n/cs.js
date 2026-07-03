@@ -167,7 +167,7 @@ const STRINGS_cs = {
         '👿 "Est mihi causa mali..." Chyba tvá, zisk jeho.'
     ],
     game: {
-        eat: 'Sníst', required: '(Nutné)',
+        eat: 'Sníst', drink: 'Napít', required: '(Nutné)',
         techDone: 'HOTOVO', techStudy: 'Studovat', techRequired: 'Nutné:',
         noTinderbox: 'Nemáš Troud!',
         fireKindled: 'Krb rozežehnut.',
@@ -1389,6 +1389,8 @@ const STRINGS_cs = {
         pigMature: 'Dospělé — připraveno na zabijačku',
         slaughterPig: 'Zabijačka',
         pigSlaughtered: 'Zabijačka! +4 maso, +3 sádlo, +2 uzené.',
+        slaughterCow: 'Porazit krávu',
+        cowSlaughtered: 'Zabijačka! +5 hovězí, +2 uzené hovězí, +2 kůže.',
         buildInCellarium: 'Stavbu zadej v Cellariu → Budovy (sekce Dvůr).',
         penHungry: 'Zvířata hladoví! Produkce stojí — doplň krmivo (Horreum krmí automaticky).',
         goatsHungry: 'Kozy hladoví a mléko nedají. Doplň seno.',
