@@ -8313,7 +8313,7 @@ const DailyFactsDB = [
     }
 ];
 // ═══ src/data/scrinium.js ═══
-﻿// ═══════════════════════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════════════════
 // SCRINIUM ABBATIS — Data
 // Soukromá knihovna opata. Přístup pouze pro zasvěcené.
 // Struktura: ScriniumDB.subtabs + ScriniumDB.folios
@@ -8448,9 +8448,170 @@ const ScriniumDB = {
             },
         },
 
+        // ══════════════════════════════════════════════════
+        // KRONIKY — 7 folií (Netolického pozůstalost)
+        // ══════════════════════════════════════════════════
+
+        {
+            id: 'folio_netolicky_01',
+            subtab: 'kroniky',
+            icon: '📜',
+            physicalForm: 'scroll',
+            titleKey: 'scrinium.folios.netolicky_01.title',
+            lectio: { textKey: 'scrinium.folios.netolicky_01.lectio', cost: null },
+            glossa: { textKey: 'scrinium.folios.netolicky_01.glossa', cost: { item: 'candle', amount: 3 } },
+            arcanum: { textKey: 'scrinium.folios.netolicky_01.arcanum', cost: { item: 'candle', amount: 4 } },
+        },
+        {
+            id: 'folio_netolicky_02',
+            subtab: 'kroniky',
+            icon: '📃',
+            physicalForm: 'leaf',
+            titleKey: 'scrinium.folios.netolicky_02.title',
+            lectio: { textKey: 'scrinium.folios.netolicky_02.lectio', cost: null },
+            glossa: { textKey: 'scrinium.folios.netolicky_02.glossa', cost: { item: 'candle', amount: 3 } },
+            arcanum: { textKey: 'scrinium.folios.netolicky_02.arcanum', cost: { item: 'candle', amount: 4 } },
+        },
+        {
+            id: 'folio_netolicky_03',
+            subtab: 'kroniky',
+            icon: '📃',
+            physicalForm: 'leaf',
+            titleKey: 'scrinium.folios.netolicky_03.title',
+            lectio: { textKey: 'scrinium.folios.netolicky_03.lectio', cost: null },
+            glossa: { textKey: 'scrinium.folios.netolicky_03.glossa', cost: { item: 'candle', amount: 3 } },
+            arcanum: { textKey: 'scrinium.folios.netolicky_03.arcanum', cost: { item: 'candle', amount: 4 } },
+        },
+        {
+            id: 'folio_netolicky_04',
+            subtab: 'kroniky',
+            icon: '📋',
+            physicalForm: 'leaf',
+            titleKey: 'scrinium.folios.netolicky_04.title',
+            lectio: { textKey: 'scrinium.folios.netolicky_04.lectio', cost: null },
+            glossa: { textKey: 'scrinium.folios.netolicky_04.glossa', cost: { item: 'candle', amount: 3 } },
+            arcanum: { textKey: 'scrinium.folios.netolicky_04.arcanum', cost: { item: 'candle', amount: 4 } },
+        },
+        // ── 5. Receptura inkoustu — jediné folio s mechanickou odměnou ──
+        {
+            id: 'folio_netolicky_05',
+            subtab: 'kroniky',
+            icon: '📖',
+            physicalForm: 'codex',
+            titleKey: 'scrinium.folios.netolicky_05.title',
+            lectio: { textKey: 'scrinium.folios.netolicky_05.lectio', cost: null },
+            glossa: { textKey: 'scrinium.folios.netolicky_05.glossa', cost: { item: 'candle', amount: 3 } },
+            arcanum: {
+                textKey: 'scrinium.folios.netolicky_05.arcanum',
+                cost: { item: 'ink_gallic', amount: 2 },
+                reward: {
+                    type: 'recipe_unlock',
+                    recipeId: 'ink_netolicky',
+                    notifyKey: 'scrinium.folios.netolicky_05.reward_notify',
+                },
+            },
+        },
+        {
+            id: 'folio_netolicky_06',
+            subtab: 'kroniky',
+            icon: '📜',
+            physicalForm: 'scroll',
+            titleKey: 'scrinium.folios.netolicky_06.title',
+            lectio: { textKey: 'scrinium.folios.netolicky_06.lectio', cost: null },
+            glossa: { textKey: 'scrinium.folios.netolicky_06.glossa', cost: { item: 'candle', amount: 3 } },
+            arcanum: { textKey: 'scrinium.folios.netolicky_06.arcanum', cost: { item: 'candle', amount: 4 } },
+        },
+        {
+            id: 'folio_netolicky_07',
+            subtab: 'kroniky',
+            icon: '📕',
+            physicalForm: 'codex',
+            titleKey: 'scrinium.folios.netolicky_07.title',
+            lectio: { textKey: 'scrinium.folios.netolicky_07.lectio', cost: null },
+            glossa: { textKey: 'scrinium.folios.netolicky_07.glossa', cost: { item: 'candle', amount: 3 } },
+            arcanum: { textKey: 'scrinium.folios.netolicky_07.arcanum', cost: { item: 'candle', amount: 5 } },
+        },
+
+        // ══════════════════════════════════════════════════
+        // HERBÁŘ — 5 folií
+        // ══════════════════════════════════════════════════
+
+        // ── 1. De Signatura Rerum — narativní, žádný mechanický reward ──
+        {
+            id: 'folio_signatura',
+            subtab: 'herbar',
+            icon: '📃',
+            physicalForm: 'leaf',
+            titleKey: 'scrinium.folios.signatura.title',
+            lectio: { textKey: 'scrinium.folios.signatura.lectio', cost: null },
+            glossa: { textKey: 'scrinium.folios.signatura.glossa', cost: { item: 'candle', amount: 3 } },
+            arcanum: {
+                textKey: 'scrinium.folios.signatura.arcanum',
+                cost: { item: 'candle', amount: 4 },
+                reward: {
+                    type: 'ui_flag',
+                    flag: 'signatura_awareness',
+                    notifyKey: 'scrinium.folios.signatura.reward_notify',
+                },
+            },
+        },
+        // ── 2. Hildegardis de Herbis — recipe_unlock: nový nápoj ──
+        {
+            id: 'folio_hildegardis',
+            subtab: 'herbar',
+            icon: '📖',
+            physicalForm: 'codex',
+            titleKey: 'scrinium.folios.hildegardis.title',
+            lectio: { textKey: 'scrinium.folios.hildegardis.lectio', cost: null },
+            glossa: { textKey: 'scrinium.folios.hildegardis.glossa', cost: { item: 'candle', amount: 3 } },
+            arcanum: {
+                textKey: 'scrinium.folios.hildegardis.arcanum',
+                cost: { item: 'candle', amount: 4 },
+                reward: {
+                    type: 'recipe_unlock',
+                    recipeId: 'hildegard_tisane',
+                    notifyKey: 'scrinium.folios.hildegardis.reward_notify',
+                },
+            },
+        },
+        // ── 3. Miasma et Odor Malus — narativní / foreshadowing B6 ──
+        {
+            id: 'folio_miasma',
+            subtab: 'herbar',
+            icon: '📜',
+            physicalForm: 'scroll',
+            titleKey: 'scrinium.folios.miasma.title',
+            lectio: { textKey: 'scrinium.folios.miasma.lectio', cost: null },
+            glossa: { textKey: 'scrinium.folios.miasma.glossa', cost: { item: 'candle', amount: 3 } },
+            arcanum: { textKey: 'scrinium.folios.miasma.arcanum', cost: { item: 'candle', amount: 4 } },
+        },
+        // ── 4. Mandragora Vociferans — narativní, žádná mechanika ──
+        {
+            id: 'folio_mandragora',
+            subtab: 'herbar',
+            icon: '📃',
+            physicalForm: 'leaf',
+            titleKey: 'scrinium.folios.mandragora.title',
+            lectio: { textKey: 'scrinium.folios.mandragora.lectio', cost: null },
+            glossa: { textKey: 'scrinium.folios.mandragora.glossa', cost: { item: 'candle', amount: 3 } },
+            arcanum: { textKey: 'scrinium.folios.mandragora.arcanum', cost: { item: 'candle', amount: 4 } },
+        },
+        // ── 5. Theriaca Universalis — narativní breadcrumb → Athanor (žádný item) ──
+        {
+            id: 'folio_theriaca',
+            subtab: 'herbar',
+            icon: '📕',
+            physicalForm: 'codex',
+            titleKey: 'scrinium.folios.theriaca.title',
+            lectio: { textKey: 'scrinium.folios.theriaca.lectio', cost: null },
+            glossa: { textKey: 'scrinium.folios.theriaca.glossa', cost: { item: 'candle', amount: 3 } },
+            arcanum: { textKey: 'scrinium.folios.theriaca.arcanum', cost: { item: 'candle', amount: 5 } },
+        },
+
     ], // konec folios[]
 
 }; // konec ScriniumDB
+
 // ═══ src/data/letters.js ═══
 
 // ═══ src/systems/theme.js ═══
