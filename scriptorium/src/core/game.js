@@ -869,8 +869,8 @@ const Game = {
     },
 
     _applyLostKeyEffect: function(keyId, cs) {
-        // Klíče 4× — odemknou folia epistola/fausto/palimpsest/titivillus postupně
-        const key4Folios = ['folio_epistola','folio_fausto','folio_palimpsest','folio_titivillus'];
+        // Klíče 4× — odemknou postupně všechna folia Scrinia (dynamicky, roste s obsahem)
+        const key4Folios = (typeof ScriniumDB !== 'undefined') ? ScriniumDB.folios.map(f => f.id) : ['folio_epistola','folio_fausto','folio_palimpsest','folio_titivillus'];
 
         if (keyId === 'lost_key_1') {
             // Athanor
