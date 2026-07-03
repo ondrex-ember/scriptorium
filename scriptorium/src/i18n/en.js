@@ -2446,6 +2446,40 @@ In every scriptorium lurks Titivillus. His task is not to tempt to sin — other
                 reward_notify: "👁️ Titivillus's warning: thou shalt now see when errors threaten thy manuscripts.",
             },
 
+            // ── Herbarium ────────────────────────────────────────────────────
+            signatura: {
+                title: 'De Signatura Rerum',
+                lectio: '*A loose leaf, its edges smoothed by frequent handling.*\n\n"Deus omnem herbam signavit forma sua." — God hath marked every herb with its own likeness.\n\nA list of plants and their shapes follows.',
+                glossa: '*Study reveals logic, not superstition.*\n\nThe walnut resembleth the brain — it healeth the head. The lungwort beareth spotted leaves like lungs — it healeth the cough. The bean is shaped as a kidney — it healeth the kidney.\n\nThe doctrine holds: God inscribed upon every plant a sign of its healing purpose. One need only learn to read it.',
+                arcanum: '*In the margin, in small script:*\n\n"He who seeketh signs shall find them everywhere — even where none exist. Take heed, brother. The signature showeth a path, not a certainty."\n\n*From this hour thou shalt perceive a subtle hint of each herb\'s healing purpose in thy garden.*',
+                reward_notify: "🌿 The Doctrine of Signatures understood. The herbs now reveal more.",
+            },
+            hildegardis: {
+                title: 'Hildegardis de Herbis',
+                lectio: '*A codex, plainly bound but carefully kept. On the first page, a name: Hildegardis.*\n\n"Physica — on the nature of various created things." Written by a nun of Bingen, more than three hundred years past.',
+                glossa: '*The text explains why these very herbs belong in a monastery garden.*\n\nChamomile — "mother of herbs," calmeth body and mind alike. Thyme — purifieth the air, healeth wounds, driveth pests from the hives. Hildegard recommended them together, steeped and sweetened with honey.\n\n"What groweth near the cloister is oft a remedy for what troubleth the cloister most."',
+                arcanum: '*The final page bears a recipe, written in another hand — perhaps a scribe, centuries later:*\n\n"Chamomile and thyme, in equal part. Pour boiling water upon them. Sweeten with honey. Drink at dusk."\n\n*Recipe unlocked: Hildegard\'s Tisane.*',
+                reward_notify: "🍵 New recipe unlocked: Hildegard's Tisane.",
+            },
+            miasma: {
+                title: 'Miasma et Odor Malus',
+                lectio: '*A scroll, its edges stained with wax — perhaps protective, perhaps accidental.*\n\n"De aere corrupto." On corrupted air. Author unknown; the time of its writing uncertain — perhaps after the great plague.',
+                glossa: '*The text describes a theory believed and doubted in equal measure.*\n\nDisease, it is said, cometh not from touch but from the air — from marshes, from the unburied dead, from foul odor. Protection: scented vinegars, herbs held to the nose, a beaked mask filled with dried flowers.\n\n"Where it stinketh, tarry not. Where it is sweet, thou mayest dwell."',
+                arcanum: '*In the margin, another hand, unsettlingly specific:*\n\n"I have seen it myself. A scribe who labored in darkness and hunger fell ill sooner than those who had light and bread. Perhaps \'tis the air. Perhaps something else. Who knoweth what the body shall yet reveal, before its turn cometh?"',
+            },
+            mandragora: {
+                title: 'Mandragora Vociferans',
+                lectio: '*A loose leaf, the ink smeared in places — perhaps from sweat, perhaps from fear.*\n\n"De radice clamante." On the shrieking root. A warning upon the first line: Read not at midnight.',
+                glossa: '*The text describes the ritual of gathering, step by step.*\n\nA moonless night. No iron — only ivory or bone. A rope tied to the root, its other end about the neck of a starved dog. The gatherer\'s ears sealed with wax. Meat cast just beyond reach, that the dog might tear the root free in its stead.\n\nThe root is said to shriek. The dog payeth with its life. The gatherer surviveth — if all was done aright.',
+                arcanum: '*On the reverse of the leaf, a soberer note, as though penned by another — less superstitious — hand:*\n\n"The root is poisonous, that much is certain truth. The shriek, perhaps not. But who would test whether the curse is merely a tale kept alive by merchants wishing to hold their price?"\n\n*Perhaps the garden itself shall reveal what it hideth — none can know beforehand what shall grow from an unknown seed.*',
+            },
+            theriaca: {
+                title: 'Theriaca Universalis',
+                lectio: '*A codex, heavy, bound in leather. On the first page, the crest of an unknown apothecary.*\n\n"Theriaca — a remedy against all poisons." King Mithridates, it is said, consumed poisons in small doses to build his resistance. Whence the name: Mithridatium.',
+                glossa: "*The recipe is long — perhaps the longest thou hast ever seen.*\n\nSixty-four ingredients. Viper's flesh, opium, myrrh, honey, and many more whose names are now forgotten. Twelve years to mature. A price — higher than gold of equal weight.\n\n\"He who possesseth Theriac possesseth peace of mind. He knoweth that whatever poison may come, he holdeth a weapon against it.\"",
+                arcanum: '*On the final page, a note almost illegible:*\n\n"I have heard that the abbot of an old monastery to the south possessed a furnace that could hasten what nature doeth slowly. Perhaps it could accomplish this too. Perhaps. I have never seen it with mine own eyes — only heard it told."\n\n*The Athanor may yet hide more than it seemeth.*',
+            },
+
             // ── Netolický's Legacy ──────────────────────────────────────────
             netolicky_01: {
                 title: 'The Privilege of Ferdinand (1527)',
