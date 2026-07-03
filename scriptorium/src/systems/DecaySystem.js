@@ -34,7 +34,11 @@ const DecaySystem = {
         cured_meat:   { rate: 0.01, mice: true },
         lard:         { rate: 0.01 },
         rye_grain:    { rate: 0.005, mice: true },
+        rye_grain_1:  { rate: 0.005, mice: true },
+        rye_grain_2:  { rate: 0.005, mice: true },
         wheat_grain:  { rate: 0.005, mice: true },
+        wheat_grain_1: { rate: 0.005, mice: true },
+        wheat_grain_2: { rate: 0.005, mice: true },
         barley:       { rate: 0.005, mice: true },
         oats:         { rate: 0.005, mice: true },
         millet:       { rate: 0.005, mice: true },
@@ -109,7 +113,7 @@ const DecaySystem = {
 
         // Spawn ∝ zásoby jídla/zrní; podzim+zima ×1.5 (myši táhnou do tepla)
         let foodStock = 0;
-        const MICE_FOOD = ['rye_grain', 'wheat_grain', 'barley', 'oats', 'millet', 'peas', 'grain', 'bread', 'cheese', 'cured_meat'];
+        const MICE_FOOD = ['rye_grain', 'rye_grain_1', 'rye_grain_2', 'wheat_grain', 'wheat_grain_1', 'wheat_grain_2', 'barley', 'oats', 'millet', 'peas', 'grain', 'bread', 'cheese', 'cured_meat'];
         MICE_FOOD.forEach(id => { foodStock += (GameState.inventory[id] || 0); });
         let spawn = Math.min(4, Math.floor(foodStock / 25) + 1);
         const month = new Date().getMonth();           // 0=led

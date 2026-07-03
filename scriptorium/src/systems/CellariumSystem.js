@@ -140,11 +140,15 @@ const CellariumSystem = {
     enchiridion:  110,
     // Jídlo
     bread:          1,
+    bread_fine:     2,
+    bread_fine_1:   4,
     cooked_meat:    3,
     cooked_fish:    2,
     stew:           4,
     mushroom_soup:  3,
     berry_pie:      3,
+    berry_pie_fine:   5,
+    berry_pie_fine_1: 8,
     honey:          4,
     // Caseus — sýry (3 typy × fáze + syrečky)
     goat_cheese_fresh:    9,
@@ -251,8 +255,8 @@ const CellariumSystem = {
     paper: 'lore', ink: 'lore', ink_gallic: 'lore', vellum: 'lore',
     common_codex: 'lore', luxury_codex: 'lore', vellum_codex: 'lore', research: 'lore',
     adversaria: 'lore', vademecum: 'lore', florilegium: 'lore', enchiridion: 'lore',
-    bread: 'food', cooked_meat: 'food', cooked_fish: 'food', stew: 'food',
-    mushroom_soup: 'food', berry_pie: 'food', honey: 'food',
+    bread: 'food', bread_fine: 'food', bread_fine_1: 'food', cooked_meat: 'food', cooked_fish: 'food', stew: 'food',
+    mushroom_soup: 'food', berry_pie: 'food', berry_pie_fine: 'food', berry_pie_fine_1: 'food', honey: 'food',
     fiber: 'mat', bark: 'mat', hide: 'mat', leather: 'mat', bone: 'mat',
     feather: 'mat', resin: 'mat', charcoal: 'mat',
     herb_red: 'mat', herb_yellow: 'mat', herb_blue: 'mat', roots: 'mat',
@@ -413,7 +417,8 @@ const CellariumSystem = {
       { itemId: 'seeds_radish',  basePrice: 6,   dailyStock: 5  },
       { itemId: 'seeds_turnip',  basePrice: 6,   dailyStock: 5  },
       // Pivovar suroviny
-      { itemId: 'grain',         basePrice: 4,   dailyStock: 80 }, // obilí — bulk komodita
+      { itemId: 'grain',         basePrice: 4,   dailyStock: 15 }, // obilí — bulk komodita, sníženo (systém kvality zrna, anti-grind)
+      { itemId: 'flour_2',       basePrice: 9,   dailyStock: 4 },  // mouka 2. třídy — vyplatí se vypěstovat vlastní přes mlýn, ne kupovat
       { itemId: 'hops',          basePrice: 18,  dailyStock: 15 }, // chmel — vzácnější
       // Osivo pro pole
       { itemId: 'seeds_rye',     basePrice: 5,   dailyStock: 40 },

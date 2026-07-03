@@ -1247,7 +1247,7 @@ const FarmyardSystem = {
 
         // Priorita krmiva: zrní (plná porce, mood +10)
         // Nouzové: semínka — 4 semínka = 1 porce pro 1 slepici (mood +2)
-        const GRAINS = ['grain', 'oats', 'barley', 'millet', 'rye_grain', 'wheat_grain'];
+        const GRAINS = ['grain', 'oats', 'barley', 'millet', 'rye_grain', 'rye_grain_1', 'rye_grain_2', 'wheat_grain', 'wheat_grain_1', 'wheat_grain_2'];
         let grainItem = null, grainHave = 0;
         GRAINS.forEach(function (g) { const n = inv[g] || 0; if (n > grainHave) { grainHave = n; grainItem = g; } });
 

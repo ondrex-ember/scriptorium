@@ -2167,20 +2167,39 @@ const GardenSystem = {
         const techs = GameState.researchedTechs || [];
         const hasRotation = techs.includes('tech_crop_rotation');
         const hasHumno   = GameState.storage && GameState.storage.humno && GameState.storage.humno.built;
+        const isRye = field.crop === 'rye';
+        const isWheat = field.crop === 'wheat';
 
         // Výpočet výnosu
         let yieldAmt = crop.yield;
         if (hasRotation) yieldAmt = Math.round(yieldAmt * 1.25);
 
-        // Sucho penalizace
+        // Sucho penalizace (žito je vůči suchu odolné — neuplatňuje se)
+        let dryDays = 0, wetDays = 0;
         try {
             if (typeof WeatherSystem !== 'undefined' && WeatherSystem.countDryDays) {
-                const dryDays = WeatherSystem.countDryDays(3).dry;  // okno: dnes + 3 dny zpět = 4 dny
-                if (dryDays >= 3) yieldAmt = Math.max(1, Math.round(yieldAmt * 0.8));  // shoda s indikátorem
+                dryDays = WeatherSystem.countDryDays(3).dry;  // okno: dnes + 3 dny zpět = 4 dny
+                if (dryDays >= 3 && !isRye) yieldAmt = Math.max(1, Math.round(yieldAmt * 0.8));  // shoda s indikátorem
+            }
+            if (typeof WeatherSystem !== 'undefined' && WeatherSystem.countWetDays) {
+                wetDays = WeatherSystem.countWetDays(3).wet;
             }
         } catch(e) {}
 
-        Game.addItem(crop.id, yieldAmt);
+        // Kvalita zrna — jen pšenice a žito (systém kvality zrna, mill-implementation-plan.md)
+        let outputId = crop.id;
+        if (isWheat || isRye) {
+            let chance1 = 70;                                  // základ 70 % 1. třída
+            if (!hasHumno) chance1 -= 15;                       // bez sýpky degraduje
+            if (hasRotation) chance1 += 10;                     // rotace = lepší hospodaření
+            if (isWheat && dryDays >= 3) chance1 -= 25;          // pšenice trpí suchem
+            if (isRye && wetDays >= 3) chance1 -= 25;            // žito trpí vlhkem (paličkovice)
+            chance1 = Math.max(5, Math.min(95, chance1));
+            const grade = (Math.random() * 100 < chance1) ? 1 : 2;
+            outputId = crop.id + '_' + grade;
+        }
+
+        Game.addItem(outputId, yieldAmt);
 
         // Sláma
         const strawAmt = hasHumno ? crop.strawYield * 2 : Math.min(1, crop.strawYield);
@@ -2195,8 +2214,9 @@ const GardenSystem = {
 
         const lang = (GameState.settings && GameState.settings.language) || 'cs';
         const cropName = lang === 'en' ? crop.name_en : crop.name;
-        if (typeof UI !== 'undefined') UI.notify(`🌾 ${lang==='en'?'Harvested':'Sklizeno'}: ${cropName} ×${yieldAmt}`);
-        Game.addKronikaEntry('important', `🌾 Sklizeno: ${cropName} ×${yieldAmt}`, `🌾 Harvested: ${cropName} ×${yieldAmt}`, `🌾 Messis: ${cropName} ×${yieldAmt}`);
+        const outName = (typeof ItemsDB !== 'undefined' && ItemsDB[outputId]) ? (lang === 'en' ? ItemsDB[outputId].name_en : ItemsDB[outputId].name) : cropName;
+        if (typeof UI !== 'undefined') UI.notify(`🌾 ${lang==='en'?'Harvested':'Sklizeno'}: ${outName} ×${yieldAmt}`);
+        Game.addKronikaEntry('important', `🌾 Sklizeno: ${outName} ×${yieldAmt}`, `🌾 Harvested: ${outName} ×${yieldAmt}`, `🌾 Messis: ${outName} ×${yieldAmt}`);
         Game.save();
         this.renderFieldTab();
     },

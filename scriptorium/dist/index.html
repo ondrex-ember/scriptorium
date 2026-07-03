@@ -5311,7 +5311,11 @@ const ItemsDB = {
     "mushroom_soup": { name: "Houbová polévka", name_en: "Mushroom Pottage", icon: "🥣", type: "food", hunger: 8, desc: "Sytí 8h.", desc_en: "Fills for 8h." },
     "smazenice": { name: "Smaženice", name_en: "Fried Mushroom Scramble", icon: "🍳", type: "food", hunger: 9, desc: "Houby smažené s vejci a cibulí. Sytí 9h.", desc_en: "Mushrooms fried with eggs and onion. Fills for 9h." },
     "bread": { name: "Chléb", name_en: "Bread", icon: "🍞", type: "food", hunger: 10, desc: "Sytí 10h.", desc_en: "Fills for 10h." },
+    "bread_fine": { name: "Bílý chléb", name_en: "Fine Bread", icon: "🍞", type: "food", desc: "Chléb z mleté mouky 2. třídy. Sytější a chutnější než obyčejný chléb.", desc_en: "Bread from grade-2 flour. Heartier and finer than common bread." },
+    "bread_fine_1": { name: "Bílý chléb (prvotřídní)", name_en: "Fine Bread (Grade 1)", icon: "🍞", type: "food", desc: "Chléb z prvotřídní mouky vlastního pole. Nejlepší chléb v klášteře.", desc_en: "Bread from grade-1 flour off your own field. The finest bread in the monastery." },
     "berry_pie": { name: "Borůvkový koláč", name_en: "Berry Tart", icon: "🥧", type: "food", hunger: 8, desc: "Sytí 8h.", desc_en: "Fills for 8h." },
+    "berry_pie_fine": { name: "Borůvkový koláč (moučný)", name_en: "Fine Berry Tart", icon: "🥧", type: "food", desc: "Koláč s pravým těstem z mouky 2. třídy. Lepší než prostý koláč.", desc_en: "A tart with proper dough from grade-2 flour. Finer than the plain version." },
+    "berry_pie_fine_1": { name: "Borůvkový koláč (prvotřídní)", name_en: "Fine Berry Tart (Grade 1)", icon: "🥧", type: "food", desc: "Koláč z prvotřídní mouky vlastního pole. Top koláč kláštera.", desc_en: "A tart from grade-1 flour off your own field. The monastery's finest pastry." },
 
     // HERBS & SEEDS
     "herb_yellow": { name: "Heřmánek", name_en: "Chamomile", icon: "🌼", type: "mat", desc: "Uklidňující bylina.", desc_en: "A calming herb." },
@@ -5764,6 +5768,10 @@ const ItemsDB = {
     // ── POLE (Ager) — plodiny ─────────────────────────────────────────────────
     "rye_grain": { name: "Žitné zrno", name_en: "Rye Grain", icon: "🌾", type: "mat", desc: "Ozimé žito. Základ klášterského chleba a kaše. Krmivo pro dobytek.", desc_en: "Winter rye. The basis of monastic bread and porridge. Livestock fodder." },
     "wheat_grain": { name: "Pšeničné zrno", name_en: "Wheat Grain", icon: "🌾", type: "mat", desc: "Pšenice jarní. Kvalitnější mouka než žitná. Lepší chléb a oplatky.", desc_en: "Spring wheat. Finer flour than rye. Better bread and wafers." },
+    "rye_grain_1": { name: "Žitné zrno (1. třída)", name_en: "Rye Grain (Grade 1)", icon: "🌾", type: "mat", desc: "Prvotřídní žito z vlastního pole. Nejlepší mouka.", desc_en: "Prime rye from your own field. The finest flour." },
+    "rye_grain_2": { name: "Žitné zrno (2. třída)", name_en: "Rye Grain (Grade 2)", icon: "🌾", type: "mat", desc: "Žito horší kvality — vlhko či paličkovice. Postačí na krmivo i mouku.", desc_en: "Lower-grade rye — dampness or ergot risk. Fine for feed or coarser flour." },
+    "wheat_grain_1": { name: "Pšeničné zrno (1. třída)", name_en: "Wheat Grain (Grade 1)", icon: "🌾", type: "mat", desc: "Prvotřídní pšenice z vlastního pole. Nejlepší mouka.", desc_en: "Prime wheat from your own field. The finest flour." },
+    "wheat_grain_2": { name: "Pšeničné zrno (2. třída)", name_en: "Wheat Grain (Grade 2)", icon: "🌾", type: "mat", desc: "Pšenice horší kvality — sucho a chvostky. Postačí na krmivo i mouku.", desc_en: "Lower-grade wheat — drought and screenings. Fine for feed or coarser flour." },
     "barley": { name: "Ječmen", name_en: "Barley", icon: "🌾", type: "mat", desc: "Dvouřadý ječmen. Základ každého klášterního piva. Bez ječmene není pivovar.", desc_en: "Two-row barley. The basis of every monastic ale. Without barley, no brewery." },
     "oats": { name: "Oves", name_en: "Oats", icon: "🌾", type: "mat", desc: "Oves setý. Krmivo pro koně a osla. Bez ovsa tažný dobytek ztrácí sílu.", desc_en: "Common oats. Feed for horses and donkeys. Without oats, draught animals lose strength." },
     "millet": { name: "Proso", name_en: "Millet", icon: "🌾", type: "mat", desc: "Proso seté. Rychlá kaše, krmivo pro drůbež. Odolné i v suchu.", desc_en: "Common millet. Quick porridge, poultry feed. Resilient even in drought." },
@@ -5771,6 +5779,8 @@ const ItemsDB = {
     "flax_fiber": { name: "Lněná vlákna", name_en: "Flax Fibre", icon: "🧵", type: "mat", desc: "Stonky lnu po rosení a tření. Základ pro tkaní plátna a výrobu provazů.", desc_en: "Flax stalks after retting and breaking. The basis for weaving linen and making rope." },
     "straw": { name: "Sláma", name_en: "Straw", icon: "🌿", type: "mat", desc: "Posklizňová sláma. Podestýlka pro zvířata, střešní krytina, krmivo pro skot.", desc_en: "Post-harvest straw. Bedding for animals, thatching material, fodder for cattle." },
     "flour": { name: "Mouka", name_en: "Flour", icon: "⚪", type: "mat", desc: "Mletá pšeničná nebo žitná mouka. Základ pro chléb, oplatky a kaši.", desc_en: "Ground wheat or rye flour. The basis for bread, wafers and porridge." },
+    "flour_1": { name: "Mouka (1. třída)", name_en: "Flour (Grade 1)", icon: "⚪", type: "mat", desc: "Semleta z prvotřídního zrní vlastního pole. Nejlepší chléb a koláče.", desc_en: "Milled from prime grain off your own field. The finest bread and pastries." },
+    "flour_2": { name: "Mouka (2. třída)", name_en: "Flour (Grade 2)", icon: "⚪", type: "mat", desc: "Běžná mouka — z horšího zrní nebo koupená. Postačí na denní chléb.", desc_en: "Common flour — lower-grade or bought. Fine for everyday bread." },
     "grain_feed": { name: "Zrní (krmivo)", name_en: "Grain Feed", icon: "🌾", type: "mat", desc: "Směs zrní pro drůbež a prasata. Udržuje zdraví zvířat.", desc_en: "Grain mix for poultry and pigs. Maintains animal health." },
     "goose_quill": { name: "Husí pero", name_en: "Goose Quill", icon: "🪶", type: "tool", desc: "Nejlepší pero pro písaře. Tvrdší a pružnější než slepičí. Husy pro skriptorium.", desc_en: "The finest quill for scribes. Harder and more flexible than a hen's feather. Geese for the scriptorium." },
 
@@ -5981,7 +5991,11 @@ const RecipesDB = [
     { id: "mushroom_soup", output: "mushroom_soup", qty: 1, req: { "mushroom": 2, "onion": 1, "water": 1, "cooking_pot": 0 }, cat: "food", locked: true },
     { id: "smazenice", output: "smazenice", qty: 1, req: { "mushroom": 3, "onion": 1, "egg": 2, "cooking_pot": 0 }, cat: "food", locked: true },
     { id: "bread", output: "bread", qty: 2, req: { "fiber": 3, "water": 1, "cooking_pot": 0 }, cat: "food", locked: true },
+    { id: "bread_fine", output: "bread_fine", qty: 2, req: { "flour_2": 3, "water": 1, "cooking_pot": 0 }, cat: "food", locked: true },
+    { id: "bread_fine_1", output: "bread_fine_1", qty: 2, req: { "flour_1": 3, "water": 1, "cooking_pot": 0 }, cat: "food", locked: true },
     { id: "berry_pie",      output: "berry_pie",      qty: 1, req: { "berries": 3, "honey": 1, "cooking_pot": 0 }, cat: "food", locked: true },
+    { id: "berry_pie_fine",   output: "berry_pie_fine",   qty: 1, req: { "flour_2": 2, "berries": 3, "honey": 1, "cooking_pot": 0 }, cat: "food", locked: true },
+    { id: "berry_pie_fine_1", output: "berry_pie_fine_1", qty: 1, req: { "flour_1": 2, "berries": 3, "honey": 1, "cooking_pot": 0 }, cat: "food", locked: true },
     // Bylinné nápoje — snižují Únavu, bez Athanoru
     { id: "herbal_tea",     output: "herbal_tea",     qty: 1, req: { "chamomile": 1, "water": 1, "cooking_pot": 0 }, cat: "food", locked: true,
       desc: "Heřmánkový čaj. Únava -15.", desc_en: "Chamomile tea. Fatigue -15." },
@@ -6002,8 +6016,16 @@ const RecipesDB = [
     // Šrot — krmivo z polního zrní (4:2, libovolný druh)
     { id: "feed_meal_rye",    output: "feed_meal", qty: 2, req: { "rye_grain": 4 },  cat: "craft", locked: true,
       desc: "Šrot ze žita. Krmivo pro dobytek.", desc_en: "Feed meal from rye. Livestock feed." },
+    { id: "feed_meal_rye_1",  output: "feed_meal", qty: 2, req: { "rye_grain_1": 4 }, cat: "craft", locked: true,
+      desc: "Šrot z prvotřídního žita. Krmivo pro dobytek.", desc_en: "Feed meal from grade-1 rye. Livestock feed." },
+    { id: "feed_meal_rye_2",  output: "feed_meal", qty: 2, req: { "rye_grain_2": 4 }, cat: "craft", locked: true,
+      desc: "Šrot ze žita 2. třídy. Krmivo pro dobytek.", desc_en: "Feed meal from grade-2 rye. Livestock feed." },
     { id: "feed_meal_wheat",  output: "feed_meal", qty: 2, req: { "wheat_grain": 4 }, cat: "craft", locked: true,
       desc: "Šrot z pšenice. Krmivo pro dobytek.", desc_en: "Feed meal from wheat. Livestock feed." },
+    { id: "feed_meal_wheat_1", output: "feed_meal", qty: 2, req: { "wheat_grain_1": 4 }, cat: "craft", locked: true,
+      desc: "Šrot z prvotřídní pšenice. Krmivo pro dobytek.", desc_en: "Feed meal from grade-1 wheat. Livestock feed." },
+    { id: "feed_meal_wheat_2", output: "feed_meal", qty: 2, req: { "wheat_grain_2": 4 }, cat: "craft", locked: true,
+      desc: "Šrot z pšenice 2. třídy. Krmivo pro dobytek.", desc_en: "Feed meal from grade-2 wheat. Livestock feed." },
     { id: "feed_meal_barley", output: "feed_meal", qty: 2, req: { "barley": 4 },     cat: "craft", locked: true,
       desc: "Šrot z ječmene. Krmivo pro dobytek.", desc_en: "Feed meal from barley. Livestock feed." },
     { id: "feed_meal_oats",   output: "feed_meal", qty: 2, req: { "oats": 4 },       cat: "craft", locked: true,
@@ -6017,8 +6039,16 @@ const RecipesDB = [
     // Osivo ze zrní — část úrody stranou jako příští setba (1:1)
     { id: "rye_to_seed",    output: "seeds_rye",    qty: 1, req: { "rye_grain": 1 },  cat: "craft", locked: true,
       desc: "Vybraná zrna žita ponechaná na osivo.", desc_en: "Selected rye grains set aside as seed." },
+    { id: "rye_to_seed_1",  output: "seeds_rye",    qty: 1, req: { "rye_grain_1": 1 }, cat: "craft", locked: true,
+      desc: "Vybraná zrna prvotřídního žita ponechaná na osivo.", desc_en: "Selected grade-1 rye grains set aside as seed." },
+    { id: "rye_to_seed_2",  output: "seeds_rye",    qty: 1, req: { "rye_grain_2": 1 }, cat: "craft", locked: true,
+      desc: "Vybraná zrna žita 2. třídy ponechaná na osivo.", desc_en: "Selected grade-2 rye grains set aside as seed." },
     { id: "wheat_to_seed",  output: "seeds_wheat",  qty: 1, req: { "wheat_grain": 1 }, cat: "craft", locked: true,
       desc: "Vybraná zrna pšenice ponechaná na osivo.", desc_en: "Selected wheat grains set aside as seed." },
+    { id: "wheat_to_seed_1", output: "seeds_wheat",  qty: 1, req: { "wheat_grain_1": 1 }, cat: "craft", locked: true,
+      desc: "Vybraná zrna prvotřídní pšenice ponechaná na osivo.", desc_en: "Selected grade-1 wheat grains set aside as seed." },
+    { id: "wheat_to_seed_2", output: "seeds_wheat",  qty: 1, req: { "wheat_grain_2": 1 }, cat: "craft", locked: true,
+      desc: "Vybraná zrna pšenice 2. třídy ponechaná na osivo.", desc_en: "Selected grade-2 wheat grains set aside as seed." },
     { id: "barley_to_seed", output: "seeds_barley", qty: 1, req: { "barley": 1 },     cat: "craft", locked: true,
       desc: "Vybraná zrna ječmene ponechaná na osivo.", desc_en: "Selected barley grains set aside as seed." },
     { id: "oats_to_seed",   output: "seeds_oats",   qty: 1, req: { "oats": 1 },       cat: "craft", locked: true,
@@ -8928,6 +8958,24 @@ const WeatherSystem = {
             for (let i = start; i <= end; i++) {
                 out.total++;
                 if ((ps[i] || 0) < 0.1) out.dry++;
+            }
+        } catch (e) {}
+        return out;
+    },
+
+    // Počet vlhkých dní (≥ 1.0 mm) v okně [dnes−daysBack … dnes] včetně.
+    // Vzor identický s countDryDays, jen invertovaný práh — pro riziko paličkovice u žita.
+    countWetDays: function(daysBack = 3) {
+        const out = { wet: 0, total: 0 };
+        try {
+            const ps = this.cache && this.cache.daily && this.cache.daily.precipitation_sum;
+            if (!Array.isArray(ps) || !ps.length) return out;
+            const todayIdx = this.getDailyIndex(0);
+            const start = Math.max(0, todayIdx - daysBack);
+            const end = Math.min(ps.length - 1, todayIdx);
+            for (let i = start; i <= end; i++) {
+                out.total++;
+                if ((ps[i] || 0) >= 1.0) out.wet++;
             }
         } catch (e) {}
         return out;
@@ -13332,7 +13380,11 @@ const VigorSystem = {
         cooked_fish:    20,
         porridge:       18,
         bread:          20,
+        bread_fine:     28,
+        bread_fine_1:   35,
         berry_pie:      20,
+        berry_pie_fine:   28,
+        berry_pie_fine_1: 35,
         cooked_meat:    25,
         stew:           35,
         cheese:         12,
@@ -14437,11 +14489,15 @@ const CellariumSystem = {
     enchiridion:  110,
     // Jídlo
     bread:          1,
+    bread_fine:     2,
+    bread_fine_1:   4,
     cooked_meat:    3,
     cooked_fish:    2,
     stew:           4,
     mushroom_soup:  3,
     berry_pie:      3,
+    berry_pie_fine:   5,
+    berry_pie_fine_1: 8,
     honey:          4,
     // Caseus — sýry (3 typy × fáze + syrečky)
     goat_cheese_fresh:    9,
@@ -14548,8 +14604,8 @@ const CellariumSystem = {
     paper: 'lore', ink: 'lore', ink_gallic: 'lore', vellum: 'lore',
     common_codex: 'lore', luxury_codex: 'lore', vellum_codex: 'lore', research: 'lore',
     adversaria: 'lore', vademecum: 'lore', florilegium: 'lore', enchiridion: 'lore',
-    bread: 'food', cooked_meat: 'food', cooked_fish: 'food', stew: 'food',
-    mushroom_soup: 'food', berry_pie: 'food', honey: 'food',
+    bread: 'food', bread_fine: 'food', bread_fine_1: 'food', cooked_meat: 'food', cooked_fish: 'food', stew: 'food',
+    mushroom_soup: 'food', berry_pie: 'food', berry_pie_fine: 'food', berry_pie_fine_1: 'food', honey: 'food',
     fiber: 'mat', bark: 'mat', hide: 'mat', leather: 'mat', bone: 'mat',
     feather: 'mat', resin: 'mat', charcoal: 'mat',
     herb_red: 'mat', herb_yellow: 'mat', herb_blue: 'mat', roots: 'mat',
@@ -14710,7 +14766,8 @@ const CellariumSystem = {
       { itemId: 'seeds_radish',  basePrice: 6,   dailyStock: 5  },
       { itemId: 'seeds_turnip',  basePrice: 6,   dailyStock: 5  },
       // Pivovar suroviny
-      { itemId: 'grain',         basePrice: 4,   dailyStock: 80 }, // obilí — bulk komodita
+      { itemId: 'grain',         basePrice: 4,   dailyStock: 15 }, // obilí — bulk komodita, sníženo (systém kvality zrna, anti-grind)
+      { itemId: 'flour_2',       basePrice: 9,   dailyStock: 4 },  // mouka 2. třídy — vyplatí se vypěstovat vlastní přes mlýn, ne kupovat
       { itemId: 'hops',          basePrice: 18,  dailyStock: 15 }, // chmel — vzácnější
       // Osivo pro pole
       { itemId: 'seeds_rye',     basePrice: 5,   dailyStock: 40 },
@@ -15989,6 +16046,7 @@ const SaeculumSystem = {
       `;
     } else {
       h += this.renderForumPecuarium();
+      h += this.renderMola();
       h += this.renderEntityTabs();
     }
 
@@ -16008,9 +16066,10 @@ const SaeculumSystem = {
     const loan = GameState.loanMale;
     const active = loan && Date.now() < loan.returnsAt;
 
-    let h = `<div style="padding:14px; margin-bottom:16px; background:rgba(0,0,0,0.03);
+    let h = `<details open style="margin-bottom:16px; background:rgba(0,0,0,0.03);
                          border-radius:8px; border-left:3px solid var(--accent-gold);">`;
-    h += `<h4 style="margin:0 0 10px 0; font-size:0.92rem;">🐏 Forum Pecuarium</h4>`;
+    h += `<summary style="cursor:pointer; padding:14px 14px 0; font-size:0.92rem; font-weight:bold; list-style:none; user-select:none;">🐏 Forum Pecuarium <span style="float:right; opacity:0.5; font-weight:normal;">▾</span></summary>`;
+    h += `<div style="padding:10px 14px 14px;">`;
 
     if (active) {
       const ty = this.LOAN_TYPES.find(x => x.type === loan.type);
@@ -16032,8 +16091,103 @@ const SaeculumSystem = {
       });
       h += `</div>`;
     }
-    h += `</div>`;
+    h += `</div></details>`;
     return h;
+  },
+
+  // ── Mola — mlýn, mele zrní na mouku ─────────────────────────────────────
+  MOLA_INPUTS: [
+    { id: 'wheat_grain_1', outputId: 'flour_1', icon: '🌾', label: 'Pšenice (1. tř.)', label_en: 'Wheat (Grade 1)' },
+    { id: 'rye_grain_1',   outputId: 'flour_1', icon: '🌾', label: 'Žito (1. tř.)',     label_en: 'Rye (Grade 1)' },
+    { id: 'wheat_grain_2', outputId: 'flour_2', icon: '🌾', label: 'Pšenice (2. tř.)', label_en: 'Wheat (Grade 2)' },
+    { id: 'rye_grain_2',   outputId: 'flour_2', icon: '🌾', label: 'Žito (2. tř.)',     label_en: 'Rye (Grade 2)' },
+    { id: 'grain',         outputId: 'flour_2', icon: '🌾', label: 'Zrní (tržní)',      label_en: 'Grain (market)' },
+  ],
+  MOLA_COST: 3,
+  MOLA_MS: 4 * 60 * 60 * 1000,
+
+  renderMola: function() {
+    const lang = (GameState.settings && GameState.settings.language) || 'cs';
+    const order = GameState.millOrder;
+    const active = order && Date.now() < order.returnsAt;
+
+    let h = `<details open style="margin-bottom:16px; background:rgba(0,0,0,0.03);
+                         border-radius:8px; border-left:3px solid var(--accent-gold);">`;
+    h += `<summary style="cursor:pointer; padding:14px 14px 0; font-size:0.92rem; font-weight:bold; list-style:none; user-select:none;">⚙️ ${t('saeculum.mola')} <span style="float:right; opacity:0.5; font-weight:normal;">▾</span></summary>`;
+    h += `<div style="padding:10px 14px 14px;">`;
+
+    if (active) {
+      const remH = this.millRemainingH();
+      const outItem = (typeof ItemsDB !== 'undefined') ? ItemsDB[order.outputId] : null;
+      const outName = outItem ? (lang === 'en' ? outItem.name_en : outItem.name) : order.outputId;
+      h += `<div style="font-size:0.85rem;">⚙️ ${t('saeculum.milling')}: ${order.qty}× ${outName}`;
+      if (remH > 0) {
+        h += ` — ${t('saeculum.readyIn')} <strong>${remH}h</strong></div>`;
+      } else {
+        h += `</div><button class="craft-btn" onclick="SaeculumSystem.collectFromMill()" style="margin-top:8px;">📦 ${t('saeculum.millCollect')}</button>`;
+      }
+    } else {
+      h += `<div style="display:flex;flex-direction:column;gap:6px;">`;
+      this.MOLA_INPUTS.forEach(inp => {
+        const have = GameState.inventory[inp.id] || 0;
+        const name = lang === 'en' ? inp.label_en : inp.label;
+        h += `<button class="craft-btn" onclick="SaeculumSystem.sendToMill('${inp.id}')" ${have > 0 ? '' : 'disabled'}
+                style="text-align:left;">
+                ${inp.icon} ${name} (${have}) → ${t('saeculum.millTo')}
+              </button>`;
+      });
+      h += `</div>`;
+      h += `<div style="font-size:0.72rem;opacity:0.6;margin-top:6px;">${t('saeculum.millCostNote')}</div>`;
+    }
+    h += `</div></details>`;
+    return h;
+  },
+
+  sendToMill: function(inputId) {
+    if (GameState.millOrder && Date.now() < GameState.millOrder.returnsAt) {
+      if (typeof UI !== 'undefined') UI.notify(t('saeculum.millActive'), true);
+      return false;
+    }
+    const have = GameState.inventory[inputId] || 0;
+    if (have <= 0) return false;
+    const inp = this.MOLA_INPUTS.find(x => x.id === inputId);
+    if (!inp) return false;
+    if (typeof CellariumSystem !== 'undefined' && CellariumSystem.getGrose) {
+      if (CellariumSystem.getGrose() < this.MOLA_COST) {
+        if (typeof UI !== 'undefined') UI.notify(t('saeculum.millNoGold'), true);
+        return false;
+      }
+      CellariumSystem.addGrose(-this.MOLA_COST);
+    }
+    Game.removeItem(inputId, have);
+    GameState.millOrder = { inputId, outputId: inp.outputId, qty: have, returnsAt: Date.now() + this.MOLA_MS };
+    if (typeof UI !== 'undefined') UI.notify('⚙️ ' + t('saeculum.millSent'));
+    if (typeof Game !== 'undefined' && Game.addKronikaEntry) {
+      Game.addKronikaEntry('important',
+        '⚙️ Zrní odvezeno na mlýn. Vrátí se za 4 hodiny jako mouka.',
+        '⚙️ Grain sent to the mill. Returns as flour in 4 hours.',
+        '⚙️ Granum ad molam missum est.');
+    }
+    if (typeof Game !== 'undefined' && Game.save) Game.save();
+    this.switchEntity(GameState.ui.saeculumEntity || 'tavern');
+    return true;
+  },
+
+  collectFromMill: function() {
+    const order = GameState.millOrder;
+    if (!order || Date.now() < order.returnsAt) return false;
+    Game.addItem(order.outputId, order.qty);
+    GameState.millOrder = null;
+    if (typeof UI !== 'undefined') UI.notify('⚙️ ' + t('saeculum.millCollected'));
+    if (typeof Game !== 'undefined' && Game.save) Game.save();
+    this.switchEntity(GameState.ui.saeculumEntity || 'tavern');
+    return true;
+  },
+
+  millRemainingH: function() {
+    const o = GameState.millOrder;
+    if (!o || Date.now() >= o.returnsAt) return 0;
+    return Math.ceil((o.returnsAt - Date.now()) / (60 * 60 * 1000));
   },
 
   renderEntityTabs: function() {
@@ -16116,7 +16270,11 @@ const DecaySystem = {
         cured_meat:   { rate: 0.01, mice: true },
         lard:         { rate: 0.01 },
         rye_grain:    { rate: 0.005, mice: true },
+        rye_grain_1:  { rate: 0.005, mice: true },
+        rye_grain_2:  { rate: 0.005, mice: true },
         wheat_grain:  { rate: 0.005, mice: true },
+        wheat_grain_1: { rate: 0.005, mice: true },
+        wheat_grain_2: { rate: 0.005, mice: true },
         barley:       { rate: 0.005, mice: true },
         oats:         { rate: 0.005, mice: true },
         millet:       { rate: 0.005, mice: true },
@@ -16191,7 +16349,7 @@ const DecaySystem = {
 
         // Spawn ∝ zásoby jídla/zrní; podzim+zima ×1.5 (myši táhnou do tepla)
         let foodStock = 0;
-        const MICE_FOOD = ['rye_grain', 'wheat_grain', 'barley', 'oats', 'millet', 'peas', 'grain', 'bread', 'cheese', 'cured_meat'];
+        const MICE_FOOD = ['rye_grain', 'rye_grain_1', 'rye_grain_2', 'wheat_grain', 'wheat_grain_1', 'wheat_grain_2', 'barley', 'oats', 'millet', 'peas', 'grain', 'bread', 'cheese', 'cured_meat'];
         MICE_FOOD.forEach(id => { foodStock += (GameState.inventory[id] || 0); });
         let spawn = Math.min(4, Math.floor(foodStock / 25) + 1);
         const month = new Date().getMonth();           // 0=led
@@ -19982,20 +20140,39 @@ const GardenSystem = {
         const techs = GameState.researchedTechs || [];
         const hasRotation = techs.includes('tech_crop_rotation');
         const hasHumno   = GameState.storage && GameState.storage.humno && GameState.storage.humno.built;
+        const isRye = field.crop === 'rye';
+        const isWheat = field.crop === 'wheat';
 
         // Výpočet výnosu
         let yieldAmt = crop.yield;
         if (hasRotation) yieldAmt = Math.round(yieldAmt * 1.25);
 
-        // Sucho penalizace
+        // Sucho penalizace (žito je vůči suchu odolné — neuplatňuje se)
+        let dryDays = 0, wetDays = 0;
         try {
             if (typeof WeatherSystem !== 'undefined' && WeatherSystem.countDryDays) {
-                const dryDays = WeatherSystem.countDryDays(3).dry;  // okno: dnes + 3 dny zpět = 4 dny
-                if (dryDays >= 3) yieldAmt = Math.max(1, Math.round(yieldAmt * 0.8));  // shoda s indikátorem
+                dryDays = WeatherSystem.countDryDays(3).dry;  // okno: dnes + 3 dny zpět = 4 dny
+                if (dryDays >= 3 && !isRye) yieldAmt = Math.max(1, Math.round(yieldAmt * 0.8));  // shoda s indikátorem
+            }
+            if (typeof WeatherSystem !== 'undefined' && WeatherSystem.countWetDays) {
+                wetDays = WeatherSystem.countWetDays(3).wet;
             }
         } catch(e) {}
 
-        Game.addItem(crop.id, yieldAmt);
+        // Kvalita zrna — jen pšenice a žito (systém kvality zrna, mill-implementation-plan.md)
+        let outputId = crop.id;
+        if (isWheat || isRye) {
+            let chance1 = 70;                                  // základ 70 % 1. třída
+            if (!hasHumno) chance1 -= 15;                       // bez sýpky degraduje
+            if (hasRotation) chance1 += 10;                     // rotace = lepší hospodaření
+            if (isWheat && dryDays >= 3) chance1 -= 25;          // pšenice trpí suchem
+            if (isRye && wetDays >= 3) chance1 -= 25;            // žito trpí vlhkem (paličkovice)
+            chance1 = Math.max(5, Math.min(95, chance1));
+            const grade = (Math.random() * 100 < chance1) ? 1 : 2;
+            outputId = crop.id + '_' + grade;
+        }
+
+        Game.addItem(outputId, yieldAmt);
 
         // Sláma
         const strawAmt = hasHumno ? crop.strawYield * 2 : Math.min(1, crop.strawYield);
@@ -20010,8 +20187,9 @@ const GardenSystem = {
 
         const lang = (GameState.settings && GameState.settings.language) || 'cs';
         const cropName = lang === 'en' ? crop.name_en : crop.name;
-        if (typeof UI !== 'undefined') UI.notify(`🌾 ${lang==='en'?'Harvested':'Sklizeno'}: ${cropName} ×${yieldAmt}`);
-        Game.addKronikaEntry('important', `🌾 Sklizeno: ${cropName} ×${yieldAmt}`, `🌾 Harvested: ${cropName} ×${yieldAmt}`, `🌾 Messis: ${cropName} ×${yieldAmt}`);
+        const outName = (typeof ItemsDB !== 'undefined' && ItemsDB[outputId]) ? (lang === 'en' ? ItemsDB[outputId].name_en : ItemsDB[outputId].name) : cropName;
+        if (typeof UI !== 'undefined') UI.notify(`🌾 ${lang==='en'?'Harvested':'Sklizeno'}: ${outName} ×${yieldAmt}`);
+        Game.addKronikaEntry('important', `🌾 Sklizeno: ${outName} ×${yieldAmt}`, `🌾 Harvested: ${outName} ×${yieldAmt}`, `🌾 Messis: ${outName} ×${yieldAmt}`);
         Game.save();
         this.renderFieldTab();
     },
@@ -21508,7 +21686,7 @@ const FarmyardSystem = {
 
         // Priorita krmiva: zrní (plná porce, mood +10)
         // Nouzové: semínka — 4 semínka = 1 porce pro 1 slepici (mood +2)
-        const GRAINS = ['grain', 'oats', 'barley', 'millet', 'rye_grain', 'wheat_grain'];
+        const GRAINS = ['grain', 'oats', 'barley', 'millet', 'rye_grain', 'rye_grain_1', 'rye_grain_2', 'wheat_grain', 'wheat_grain_1', 'wheat_grain_2'];
         let grainItem = null, grainHave = 0;
         GRAINS.forEach(function (g) { const n = inv[g] || 0; if (n > grainHave) { grainHave = n; grainItem = g; } });
 
@@ -32163,6 +32341,18 @@ const STRINGS_cs = {
         stolenCount: 'Ukradeno ze zásob',
         shameHall: 'Síň hanby',
     },
+    saeculum: {
+        mola: 'Mola (Mlýn)',
+        millActive: 'Mlýn už mele — počkej, až bude hotovo.',
+        millNoGold: 'Nemáš dost grošů na cestu k mlynáři.',
+        millSent: 'Zrní odvezeno na mlýn. Vrátí se za 4 hodiny jako mouka.',
+        millCollected: 'Mouka vyzvednuta z mlýna.',
+        millCollect: 'Vyzvednout',
+        milling: 'Mele se',
+        readyIn: 'hotovo za',
+        millCostNote: '4 hodiny, 3 groše za cestu',
+        millTo: 'mlít',
+    },
     farmyard: {
         gallinarium: 'Gallinarium (Kurník)',
         ovile: 'Ovile (Chlév)',
@@ -34763,6 +34953,18 @@ According to Theophilus, the organ is an instrument worthy of God, but its const
         stolenCount: 'Stolen from stores',
         shameHall: 'Hall of shame',
     },
+    saeculum: {
+        mola: 'Mola (Mill)',
+        millActive: 'The mill is already grinding — wait until it is done.',
+        millNoGold: 'Not enough groats for the trip to the miller.',
+        millSent: 'Grain sent to the mill. Returns as flour in 4 hours.',
+        millCollected: 'Flour collected from the mill.',
+        millCollect: 'Collect',
+        milling: 'Milling',
+        readyIn: 'ready in',
+        millCostNote: '4 hours, 3 groats per trip',
+        millTo: 'mill',
+    },
     farmyard: {
         gallinarium: 'Gallinarium (Henhouse)',
         ovile: 'Ovile (Sheepfold)',
@@ -35456,6 +35658,16 @@ const Game = {
         if (GameState.hunger) delete GameState.hunger;
         if (typeof GameState.satiety === 'undefined') GameState.satiety = 80;
         if (typeof GameState.fatigue === 'undefined') GameState.fatigue = 0;
+
+        // Migrace wheat_grain/rye_grain → _2 varianta (systém kvality zrna)
+        if (GameState.inventory['wheat_grain']) {
+            GameState.inventory['wheat_grain_2'] = (GameState.inventory['wheat_grain_2'] || 0) + GameState.inventory['wheat_grain'];
+            delete GameState.inventory['wheat_grain'];
+        }
+        if (GameState.inventory['rye_grain']) {
+            GameState.inventory['rye_grain_2'] = (GameState.inventory['rye_grain_2'] || 0) + GameState.inventory['rye_grain'];
+            delete GameState.inventory['rye_grain'];
+        }
         
         // Migrace zahrady na novou strukturu (14 slotů)
         // Starý save (≤4 sloty) → doplnit na novou strukturu
@@ -38867,7 +39079,6 @@ const Game = {
     },
 
 };
-
 // ═══ src/core/ui.js ═══
 const UI = {
     currentInvFilter: 'all',

@@ -87,7 +87,11 @@ const ItemsDB = {
     "mushroom_soup": { name: "Houbová polévka", name_en: "Mushroom Pottage", icon: "🥣", type: "food", hunger: 8, desc: "Sytí 8h.", desc_en: "Fills for 8h." },
     "smazenice": { name: "Smaženice", name_en: "Fried Mushroom Scramble", icon: "🍳", type: "food", hunger: 9, desc: "Houby smažené s vejci a cibulí. Sytí 9h.", desc_en: "Mushrooms fried with eggs and onion. Fills for 9h." },
     "bread": { name: "Chléb", name_en: "Bread", icon: "🍞", type: "food", hunger: 10, desc: "Sytí 10h.", desc_en: "Fills for 10h." },
+    "bread_fine": { name: "Bílý chléb", name_en: "Fine Bread", icon: "🍞", type: "food", desc: "Chléb z mleté mouky 2. třídy. Sytější a chutnější než obyčejný chléb.", desc_en: "Bread from grade-2 flour. Heartier and finer than common bread." },
+    "bread_fine_1": { name: "Bílý chléb (prvotřídní)", name_en: "Fine Bread (Grade 1)", icon: "🍞", type: "food", desc: "Chléb z prvotřídní mouky vlastního pole. Nejlepší chléb v klášteře.", desc_en: "Bread from grade-1 flour off your own field. The finest bread in the monastery." },
     "berry_pie": { name: "Borůvkový koláč", name_en: "Berry Tart", icon: "🥧", type: "food", hunger: 8, desc: "Sytí 8h.", desc_en: "Fills for 8h." },
+    "berry_pie_fine": { name: "Borůvkový koláč (moučný)", name_en: "Fine Berry Tart", icon: "🥧", type: "food", desc: "Koláč s pravým těstem z mouky 2. třídy. Lepší než prostý koláč.", desc_en: "A tart with proper dough from grade-2 flour. Finer than the plain version." },
+    "berry_pie_fine_1": { name: "Borůvkový koláč (prvotřídní)", name_en: "Fine Berry Tart (Grade 1)", icon: "🥧", type: "food", desc: "Koláč z prvotřídní mouky vlastního pole. Top koláč kláštera.", desc_en: "A tart from grade-1 flour off your own field. The monastery's finest pastry." },
 
     // HERBS & SEEDS
     "herb_yellow": { name: "Heřmánek", name_en: "Chamomile", icon: "🌼", type: "mat", desc: "Uklidňující bylina.", desc_en: "A calming herb." },
@@ -540,6 +544,10 @@ const ItemsDB = {
     // ── POLE (Ager) — plodiny ─────────────────────────────────────────────────
     "rye_grain": { name: "Žitné zrno", name_en: "Rye Grain", icon: "🌾", type: "mat", desc: "Ozimé žito. Základ klášterského chleba a kaše. Krmivo pro dobytek.", desc_en: "Winter rye. The basis of monastic bread and porridge. Livestock fodder." },
     "wheat_grain": { name: "Pšeničné zrno", name_en: "Wheat Grain", icon: "🌾", type: "mat", desc: "Pšenice jarní. Kvalitnější mouka než žitná. Lepší chléb a oplatky.", desc_en: "Spring wheat. Finer flour than rye. Better bread and wafers." },
+    "rye_grain_1": { name: "Žitné zrno (1. třída)", name_en: "Rye Grain (Grade 1)", icon: "🌾", type: "mat", desc: "Prvotřídní žito z vlastního pole. Nejlepší mouka.", desc_en: "Prime rye from your own field. The finest flour." },
+    "rye_grain_2": { name: "Žitné zrno (2. třída)", name_en: "Rye Grain (Grade 2)", icon: "🌾", type: "mat", desc: "Žito horší kvality — vlhko či paličkovice. Postačí na krmivo i mouku.", desc_en: "Lower-grade rye — dampness or ergot risk. Fine for feed or coarser flour." },
+    "wheat_grain_1": { name: "Pšeničné zrno (1. třída)", name_en: "Wheat Grain (Grade 1)", icon: "🌾", type: "mat", desc: "Prvotřídní pšenice z vlastního pole. Nejlepší mouka.", desc_en: "Prime wheat from your own field. The finest flour." },
+    "wheat_grain_2": { name: "Pšeničné zrno (2. třída)", name_en: "Wheat Grain (Grade 2)", icon: "🌾", type: "mat", desc: "Pšenice horší kvality — sucho a chvostky. Postačí na krmivo i mouku.", desc_en: "Lower-grade wheat — drought and screenings. Fine for feed or coarser flour." },
     "barley": { name: "Ječmen", name_en: "Barley", icon: "🌾", type: "mat", desc: "Dvouřadý ječmen. Základ každého klášterního piva. Bez ječmene není pivovar.", desc_en: "Two-row barley. The basis of every monastic ale. Without barley, no brewery." },
     "oats": { name: "Oves", name_en: "Oats", icon: "🌾", type: "mat", desc: "Oves setý. Krmivo pro koně a osla. Bez ovsa tažný dobytek ztrácí sílu.", desc_en: "Common oats. Feed for horses and donkeys. Without oats, draught animals lose strength." },
     "millet": { name: "Proso", name_en: "Millet", icon: "🌾", type: "mat", desc: "Proso seté. Rychlá kaše, krmivo pro drůbež. Odolné i v suchu.", desc_en: "Common millet. Quick porridge, poultry feed. Resilient even in drought." },
@@ -547,6 +555,8 @@ const ItemsDB = {
     "flax_fiber": { name: "Lněná vlákna", name_en: "Flax Fibre", icon: "🧵", type: "mat", desc: "Stonky lnu po rosení a tření. Základ pro tkaní plátna a výrobu provazů.", desc_en: "Flax stalks after retting and breaking. The basis for weaving linen and making rope." },
     "straw": { name: "Sláma", name_en: "Straw", icon: "🌿", type: "mat", desc: "Posklizňová sláma. Podestýlka pro zvířata, střešní krytina, krmivo pro skot.", desc_en: "Post-harvest straw. Bedding for animals, thatching material, fodder for cattle." },
     "flour": { name: "Mouka", name_en: "Flour", icon: "⚪", type: "mat", desc: "Mletá pšeničná nebo žitná mouka. Základ pro chléb, oplatky a kaši.", desc_en: "Ground wheat or rye flour. The basis for bread, wafers and porridge." },
+    "flour_1": { name: "Mouka (1. třída)", name_en: "Flour (Grade 1)", icon: "⚪", type: "mat", desc: "Semleta z prvotřídního zrní vlastního pole. Nejlepší chléb a koláče.", desc_en: "Milled from prime grain off your own field. The finest bread and pastries." },
+    "flour_2": { name: "Mouka (2. třída)", name_en: "Flour (Grade 2)", icon: "⚪", type: "mat", desc: "Běžná mouka — z horšího zrní nebo koupená. Postačí na denní chléb.", desc_en: "Common flour — lower-grade or bought. Fine for everyday bread." },
     "grain_feed": { name: "Zrní (krmivo)", name_en: "Grain Feed", icon: "🌾", type: "mat", desc: "Směs zrní pro drůbež a prasata. Udržuje zdraví zvířat.", desc_en: "Grain mix for poultry and pigs. Maintains animal health." },
     "goose_quill": { name: "Husí pero", name_en: "Goose Quill", icon: "🪶", type: "tool", desc: "Nejlepší pero pro písaře. Tvrdší a pružnější než slepičí. Husy pro skriptorium.", desc_en: "The finest quill for scribes. Harder and more flexible than a hen's feather. Geese for the scriptorium." },
 

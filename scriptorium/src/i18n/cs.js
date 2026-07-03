@@ -1449,6 +1449,18 @@ const STRINGS_cs = {
         stolenCount: 'Ukradeno ze zásob',
         shameHall: 'Síň hanby',
     },
+    saeculum: {
+        mola: 'Mola (Mlýn)',
+        millActive: 'Mlýn už mele — počkej, až bude hotovo.',
+        millNoGold: 'Nemáš dost grošů na cestu k mlynáři.',
+        millSent: 'Zrní odvezeno na mlýn. Vrátí se za 4 hodiny jako mouka.',
+        millCollected: 'Mouka vyzvednuta z mlýna.',
+        millCollect: 'Vyzvednout',
+        milling: 'Mele se',
+        readyIn: 'hotovo za',
+        millCostNote: '4 hodiny, 3 groše za cestu',
+        millTo: 'mlít',
+    },
     farmyard: {
         gallinarium: 'Gallinarium (Kurník)',
         ovile: 'Ovile (Chlév)',

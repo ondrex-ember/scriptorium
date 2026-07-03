@@ -2256,6 +2256,18 @@ According to Theophilus, the organ is an instrument worthy of God, but its const
         stolenCount: 'Stolen from stores',
         shameHall: 'Hall of shame',
     },
+    saeculum: {
+        mola: 'Mola (Mill)',
+        millActive: 'The mill is already grinding — wait until it is done.',
+        millNoGold: 'Not enough groats for the trip to the miller.',
+        millSent: 'Grain sent to the mill. Returns as flour in 4 hours.',
+        millCollected: 'Flour collected from the mill.',
+        millCollect: 'Collect',
+        milling: 'Milling',
+        readyIn: 'ready in',
+        millCostNote: '4 hours, 3 groats per trip',
+        millTo: 'mill',
+    },
     farmyard: {
         gallinarium: 'Gallinarium (Henhouse)',
         ovile: 'Ovile (Sheepfold)',

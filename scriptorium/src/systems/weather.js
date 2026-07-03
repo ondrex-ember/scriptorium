@@ -151,6 +151,24 @@ const WeatherSystem = {
         return out;
     },
 
+    // Počet vlhkých dní (≥ 1.0 mm) v okně [dnes−daysBack … dnes] včetně.
+    // Vzor identický s countDryDays, jen invertovaný práh — pro riziko paličkovice u žita.
+    countWetDays: function(daysBack = 3) {
+        const out = { wet: 0, total: 0 };
+        try {
+            const ps = this.cache && this.cache.daily && this.cache.daily.precipitation_sum;
+            if (!Array.isArray(ps) || !ps.length) return out;
+            const todayIdx = this.getDailyIndex(0);
+            const start = Math.max(0, todayIdx - daysBack);
+            const end = Math.min(ps.length - 1, todayIdx);
+            for (let i = start; i <= end; i++) {
+                out.total++;
+                if ((ps[i] || 0) >= 1.0) out.wet++;
+            }
+        } catch (e) {}
+        return out;
+    },
+
     init: function() {
         // Try to load from cache first (instant display)
         try {

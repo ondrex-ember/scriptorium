@@ -57,6 +57,7 @@ const SaeculumSystem = {
       `;
     } else {
       h += this.renderForumPecuarium();
+      h += this.renderMola();
       h += this.renderEntityTabs();
     }
 
@@ -76,9 +77,10 @@ const SaeculumSystem = {
     const loan = GameState.loanMale;
     const active = loan && Date.now() < loan.returnsAt;
 
-    let h = `<div style="padding:14px; margin-bottom:16px; background:rgba(0,0,0,0.03);
+    let h = `<details open style="margin-bottom:16px; background:rgba(0,0,0,0.03);
                          border-radius:8px; border-left:3px solid var(--accent-gold);">`;
-    h += `<h4 style="margin:0 0 10px 0; font-size:0.92rem;">🐏 Forum Pecuarium</h4>`;
+    h += `<summary style="cursor:pointer; padding:14px 14px 0; font-size:0.92rem; font-weight:bold; list-style:none; user-select:none;">🐏 Forum Pecuarium <span style="float:right; opacity:0.5; font-weight:normal;">▾</span></summary>`;
+    h += `<div style="padding:10px 14px 14px;">`;
 
     if (active) {
       const ty = this.LOAN_TYPES.find(x => x.type === loan.type);
@@ -100,8 +102,103 @@ const SaeculumSystem = {
       });
       h += `</div>`;
     }
-    h += `</div>`;
+    h += `</div></details>`;
     return h;
+  },
+
+  // ── Mola — mlýn, mele zrní na mouku ─────────────────────────────────────
+  MOLA_INPUTS: [
+    { id: 'wheat_grain_1', outputId: 'flour_1', icon: '🌾', label: 'Pšenice (1. tř.)', label_en: 'Wheat (Grade 1)' },
+    { id: 'rye_grain_1',   outputId: 'flour_1', icon: '🌾', label: 'Žito (1. tř.)',     label_en: 'Rye (Grade 1)' },
+    { id: 'wheat_grain_2', outputId: 'flour_2', icon: '🌾', label: 'Pšenice (2. tř.)', label_en: 'Wheat (Grade 2)' },
+    { id: 'rye_grain_2',   outputId: 'flour_2', icon: '🌾', label: 'Žito (2. tř.)',     label_en: 'Rye (Grade 2)' },
+    { id: 'grain',         outputId: 'flour_2', icon: '🌾', label: 'Zrní (tržní)',      label_en: 'Grain (market)' },
+  ],
+  MOLA_COST: 3,
+  MOLA_MS: 4 * 60 * 60 * 1000,
+
+  renderMola: function() {
+    const lang = (GameState.settings && GameState.settings.language) || 'cs';
+    const order = GameState.millOrder;
+    const active = order && Date.now() < order.returnsAt;
+
+    let h = `<details open style="margin-bottom:16px; background:rgba(0,0,0,0.03);
+                         border-radius:8px; border-left:3px solid var(--accent-gold);">`;
+    h += `<summary style="cursor:pointer; padding:14px 14px 0; font-size:0.92rem; font-weight:bold; list-style:none; user-select:none;">⚙️ ${t('saeculum.mola')} <span style="float:right; opacity:0.5; font-weight:normal;">▾</span></summary>`;
+    h += `<div style="padding:10px 14px 14px;">`;
+
+    if (active) {
+      const remH = this.millRemainingH();
+      const outItem = (typeof ItemsDB !== 'undefined') ? ItemsDB[order.outputId] : null;
+      const outName = outItem ? (lang === 'en' ? outItem.name_en : outItem.name) : order.outputId;
+      h += `<div style="font-size:0.85rem;">⚙️ ${t('saeculum.milling')}: ${order.qty}× ${outName}`;
+      if (remH > 0) {
+        h += ` — ${t('saeculum.readyIn')} <strong>${remH}h</strong></div>`;
+      } else {
+        h += `</div><button class="craft-btn" onclick="SaeculumSystem.collectFromMill()" style="margin-top:8px;">📦 ${t('saeculum.millCollect')}</button>`;
+      }
+    } else {
+      h += `<div style="display:flex;flex-direction:column;gap:6px;">`;
+      this.MOLA_INPUTS.forEach(inp => {
+        const have = GameState.inventory[inp.id] || 0;
+        const name = lang === 'en' ? inp.label_en : inp.label;
+        h += `<button class="craft-btn" onclick="SaeculumSystem.sendToMill('${inp.id}')" ${have > 0 ? '' : 'disabled'}
+                style="text-align:left;">
+                ${inp.icon} ${name} (${have}) → ${t('saeculum.millTo')}
+              </button>`;
+      });
+      h += `</div>`;
+      h += `<div style="font-size:0.72rem;opacity:0.6;margin-top:6px;">${t('saeculum.millCostNote')}</div>`;
+    }
+    h += `</div></details>`;
+    return h;
+  },
+
+  sendToMill: function(inputId) {
+    if (GameState.millOrder && Date.now() < GameState.millOrder.returnsAt) {
+      if (typeof UI !== 'undefined') UI.notify(t('saeculum.millActive'), true);
+      return false;
+    }
+    const have = GameState.inventory[inputId] || 0;
+    if (have <= 0) return false;
+    const inp = this.MOLA_INPUTS.find(x => x.id === inputId);
+    if (!inp) return false;
+    if (typeof CellariumSystem !== 'undefined' && CellariumSystem.getGrose) {
+      if (CellariumSystem.getGrose() < this.MOLA_COST) {
+        if (typeof UI !== 'undefined') UI.notify(t('saeculum.millNoGold'), true);
+        return false;
+      }
+      CellariumSystem.addGrose(-this.MOLA_COST);
+    }
+    Game.removeItem(inputId, have);
+    GameState.millOrder = { inputId, outputId: inp.outputId, qty: have, returnsAt: Date.now() + this.MOLA_MS };
+    if (typeof UI !== 'undefined') UI.notify('⚙️ ' + t('saeculum.millSent'));
+    if (typeof Game !== 'undefined' && Game.addKronikaEntry) {
+      Game.addKronikaEntry('important',
+        '⚙️ Zrní odvezeno na mlýn. Vrátí se za 4 hodiny jako mouka.',
+        '⚙️ Grain sent to the mill. Returns as flour in 4 hours.',
+        '⚙️ Granum ad molam missum est.');
+    }
+    if (typeof Game !== 'undefined' && Game.save) Game.save();
+    this.switchEntity(GameState.ui.saeculumEntity || 'tavern');
+    return true;
+  },
+
+  collectFromMill: function() {
+    const order = GameState.millOrder;
+    if (!order || Date.now() < order.returnsAt) return false;
+    Game.addItem(order.outputId, order.qty);
+    GameState.millOrder = null;
+    if (typeof UI !== 'undefined') UI.notify('⚙️ ' + t('saeculum.millCollected'));
+    if (typeof Game !== 'undefined' && Game.save) Game.save();
+    this.switchEntity(GameState.ui.saeculumEntity || 'tavern');
+    return true;
+  },
+
+  millRemainingH: function() {
+    const o = GameState.millOrder;
+    if (!o || Date.now() >= o.returnsAt) return 0;
+    return Math.ceil((o.returnsAt - Date.now()) / (60 * 60 * 1000));
   },
 
   renderEntityTabs: function() {

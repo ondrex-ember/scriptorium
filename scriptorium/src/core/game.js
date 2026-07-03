@@ -128,6 +128,16 @@ const Game = {
         if (GameState.hunger) delete GameState.hunger;
         if (typeof GameState.satiety === 'undefined') GameState.satiety = 80;
         if (typeof GameState.fatigue === 'undefined') GameState.fatigue = 0;
+
+        // Migrace wheat_grain/rye_grain → _2 varianta (systém kvality zrna)
+        if (GameState.inventory['wheat_grain']) {
+            GameState.inventory['wheat_grain_2'] = (GameState.inventory['wheat_grain_2'] || 0) + GameState.inventory['wheat_grain'];
+            delete GameState.inventory['wheat_grain'];
+        }
+        if (GameState.inventory['rye_grain']) {
+            GameState.inventory['rye_grain_2'] = (GameState.inventory['rye_grain_2'] || 0) + GameState.inventory['rye_grain'];
+            delete GameState.inventory['rye_grain'];
+        }
         
         // Migrace zahrady na novou strukturu (14 slotů)
         // Starý save (≤4 sloty) → doplnit na novou strukturu
