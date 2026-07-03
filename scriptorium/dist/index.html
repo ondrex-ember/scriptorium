@@ -5970,6 +5970,8 @@ const RecipesDB = [
       desc: "Heřmánkový čaj. Únava -15.", desc_en: "Chamomile tea. Fatigue -15." },
     { id: "herbal_tea_alt", output: "herbal_tea",     qty: 1, req: { "thyme": 1, "water": 1, "cooking_pot": 0 }, cat: "food", locked: true,
       desc: "Tymiánový čaj. Únava -15.", desc_en: "Thyme tea. Fatigue -15." },
+    { id: "hildegard_tisane", output: "hildegard_tisane", qty: 1, req: { "chamomile": 1, "thyme": 1, "honey": 1, "water": 1, "cooking_pot": 0 }, cat: "food", locked: true,
+      desc: "Hildegardin recept. Únava -20.", desc_en: "Hildegard's recipe. Fatigue -20." },
     { id: "acorn_roasted",  output: "acorn_roasted",  qty: 1, req: { "acorn": 2, "cooking_pot": 0 }, cat: "food", locked: true,
       desc: "Pražené a mleté žaludy. Příprava na Žaludovku.", desc_en: "Roasted, ground acorns. Preparation for Acorn Brew." },
     { id: "chicory_roasted", output: "chicory_roasted", qty: 1, req: { "roots": 2, "cooking_pot": 0 }, cat: "food", locked: true,
@@ -6041,6 +6043,7 @@ const RecipesDB = [
     { id: "iron_sulfate", output: "iron_sulfate", qty: 1, req: { "rock": 2, "ash": 1, "water": 1 }, cat: "parchment", locked: true, desc: "Vitriol. Chemická reakce.", desc_en: "Vitriol. Chemical reaction." },
     { id: "gum_arabic", output: "gum_arabic", qty: 1, req: { "resin": 2, "water": 1 }, cat: "parchment", locked: true, desc: "Pojidlo z akácie.", desc_en: "Binder from acacia." },
     { id: "ink_gallic", output: "ink_gallic", qty: 2, req: { "gall_nut": 2, "iron_sulfate": 1, "gum_arabic": 1, "pestle": 0 }, cat: "parchment", locked: true, desc: "Permanentní. Po 80 letech černá→hnědá.", desc_en: "Permanent. After 80 years black→brown." },
+    { id: "ink_netolicky", output: "ink_gallic", qty: 3, req: { "gall_nut": 2, "iron_sulfate": 1, "gum_arabic": 1, "ash": 1, "pestle": 0 }, cat: "parchment", locked: true, desc: "Netolického vlastní receptura — méně duběnek, víc sazí. Vydá o třetinu víc.", desc_en: "Netolický's own formula — fewer galls, more soot. A third more yield." },
     
     // ADVANCED CODEX TYPES
     { id: "common_codex", output: "common_codex", qty: 1, req: { "paper": 10, "ink": 3 }, cat: "codex", locked: true, desc: "Běžný tisk. 'Nižší typografie' (Voit).", desc_en: "Common print. 'Lower typography' (Voit)." },
@@ -6253,6 +6256,7 @@ RecipesDB.push(
     { id: "incense_styrax",   output: "incense_styrax",   qty: 1, req: { "resin_styrax": 1, "charcoal": 1 }, cat: "fire", locked: true, desc: "Styrax + uhlí = byzantské kadidlo.", desc_en: "Styrax + charcoal = Byzantine incense." },
     { id: "incense_olibanum", output: "incense_olibanum", qty: 1, req: { "resin_olibanum": 1, "charcoal": 1 }, cat: "fire", locked: true, desc: "Olibanum + uhlí = posvátné kadidlo.", desc_en: "Olibanum + charcoal = sacred incense." }
 );
+
 // ═══ src/data/lore.js ═══
 const LoreDB = {
     // TOOLS
