@@ -71,6 +71,7 @@ const VigorSystem = {
         wine:           3,
         // Bylinné nápoje
         herbal_tea:     5,
+        hildegard_tisane: 8,
         acorn_brew:     3,
         chicory_drink:  3,
         linden_tea:     8,
@@ -83,6 +84,7 @@ const VigorSystem = {
     FOOD_FATIGUE: {
         stew:           -10,
         herbal_tea:     -15,
+        hildegard_tisane: -20,
         acorn_brew:     -10,
         chicory_drink:  -12,
         linden_tea:     -8,
@@ -913,7 +915,7 @@ const VigorSystem = {
         // Jídlo & pití z inventáře
         const FOOD_ITEMS = ['bread','berry_pie','stew','cooked_fish','cooked_meat','porridge',
                             'cheese','egg','honey','berries','mushroom',
-                            'herbal_tea','linden_tea','chicory_drink','acorn_brew',
+                            'herbal_tea','hildegard_tisane','linden_tea','chicory_drink','acorn_brew',
                             'beer','wine','spring_water'];
         const DRINK_ITEMS = ['water','spring_water'];
 
