@@ -58,6 +58,7 @@ const SaeculumSystem = {
     } else {
       h += this.renderForumPecuarium();
       h += this.renderMola();
+      h += this.renderConversi();
       h += this.renderEntityTabs();
     }
 
@@ -207,6 +208,60 @@ const SaeculumSystem = {
     const o = GameState.millOrder;
     if (!o || Date.now() >= o.returnsAt) return 0;
     return Math.ceil((o.returnsAt - Date.now()) / (60 * 60 * 1000));
+  },
+
+  // ── CONVERSI — holý skelet (jméno + slot, bez úkolů zatím) ──────────────
+  renderConversi: function() {
+    const lang = (GameState.settings && GameState.settings.language) || 'cs';
+    if (!GameState.ui) GameState.ui = {};
+    const conversiOpen = GameState.ui.saeculumConversiOpen !== false;
+    const cap = (typeof Game !== 'undefined' && Game.conversiCapacity) ? Game.conversiCapacity() : 0;
+    const list = GameState.conversi || [];
+
+    let h = `<details ${conversiOpen ? 'open' : ''} ontoggle="GameState.ui.saeculumConversiOpen = this.open; Game.save();" style="margin-bottom:16px; background:rgba(0,0,0,0.03);
+                         border-radius:8px; border-left:3px solid var(--accent-gold);">`;
+    h += `<summary style="cursor:pointer; padding:10px 14px; font-size:0.92rem; font-weight:bold; list-style:none; user-select:none; display:flex; align-items:center; justify-content:space-between; gap:6px;">
+            <span>✝️ ${lang==='en'?'Conversi':'Conversi'}</span><span style="opacity:0.5; font-weight:normal;">▾</span>
+          </summary>`;
+    h += `<div style="padding:10px 14px 14px;">`;
+
+    if (cap === 0) {
+      h += `<div style="font-size:0.8rem; opacity:0.6; font-style:italic;">${lang==='en'?'No dormitory built yet — see Old Cellars in the Cellarium.':'Zatím žádný dormitář — viz Staré sklepy v Cellariu.'}</div>`;
+    } else {
+      h += `<div style="font-size:0.85rem; margin-bottom:8px;">${lang==='en'?'Beds':'Lůžka'}: <strong>${list.length} / ${cap}</strong></div>`;
+      const fatigue = (typeof GameState.conversiFatigue === 'number') ? GameState.conversiFatigue : 0;
+      const fatigueColor = fatigue >= 80 ? '#c0392b' : fatigue >= 50 ? '#e67e22' : '#5a9a5a';
+      if (list.length) {
+        h += `<div style="margin-bottom:8px;">
+                <div style="display:flex; justify-content:space-between; font-size:0.72rem; opacity:0.7; margin-bottom:2px;">
+                  <span>${lang==='en'?'Fatigue':'Únava'}</span><span>${fatigue}%</span>
+                </div>
+                <div style="background:rgba(0,0,0,0.1); border-radius:4px; height:6px;">
+                  <div style="width:${fatigue}%; background:${fatigueColor}; height:6px; border-radius:4px;"></div>
+                </div>
+              </div>`;
+      }
+      const atOfficium = (typeof Game !== 'undefined' && Game.isOfficiumHours) ? Game.isOfficiumHours() : false;
+      if (list.length && atOfficium) {
+        h += `<div style="font-size:0.75rem; opacity:0.7; font-style:italic; margin-bottom:8px;">🕯️ ${lang==='en'?'At Officium (6:00–9:00) — unavailable for chores.':'Na Officiu (6:00–9:00) — nedostupní pro úkoly.'}</div>`;
+      } else if (list.length && fatigue >= 80) {
+        h += `<div style="font-size:0.75rem; opacity:0.7; font-style:italic; margin-bottom:8px;">😴 ${lang==='en'?'Too tired for chores — let them rest.':'Příliš unavení na úkoly — nechej je odpočinout.'}</div>`;
+      }
+      if (list.length) {
+        h += `<div style="display:flex; flex-direction:column; gap:4px; margin-bottom:10px;">`;
+        list.forEach(k => {
+          h += `<div style="font-size:0.82rem; padding:6px 8px; background:rgba(255,255,255,0.4); border-radius:6px;">✝️ ${k.name}</div>`;
+        });
+        h += `</div>`;
+      }
+      if (list.length < cap) {
+        h += `<button class="craft-btn" onclick="Game.hireKonvrs()">🤝 ${lang==='en'?'Hire a lay brother (10g)':'Najmout konvrše (10g)'}</button>`;
+      } else {
+        h += `<div style="font-size:0.75rem; opacity:0.6; font-style:italic;">${lang==='en'?'No free beds.':'Žádné volné lůžko.'}</div>`;
+      }
+    }
+    h += `</div></details>`;
+    return h;
   },
 
   renderEntityTabs: function() {

@@ -294,6 +294,9 @@ const Game = {
 		// Vyhodnotit čekající žádosti po načtení
 		Game.checkAbbotPetitions();
 
+		// CONVERSI — holý skelet (jméno + slot, bez úkolů zatím)
+		if (!GameState.conversi) GameState.conversi = [];
+
 		// Initialize tool uses tracking
 		if (!GameState.toolUses) GameState.toolUses = {};
 
@@ -537,6 +540,8 @@ const Game = {
                     if (typeof DecaySystem !== 'undefined' && DecaySystem.dailyTick) DecaySystem.dailyTick();
                     // Caseus — denní zrání sýra (self-guarded 24h, gate tech_caseus)
                     if (typeof CheeseSystem !== 'undefined' && CheeseSystem.dailyTick) CheeseSystem.dailyTick();
+                    // Conversi — automatické úklidové úkoly (self-guarded 24h přes cleanPen)
+                    if (typeof Game !== 'undefined' && Game.checkConversiChores) Game.checkConversiChores();
                     // Studna — časová degradace (self-guarded 24h, grace 5 dní)
                     if (typeof WellSystem !== 'undefined' && WellSystem.dailyTick) WellSystem.dailyTick();
                     // Persona — influence decay (self-guarded 7 dní)
@@ -3609,6 +3614,109 @@ const Game = {
             Game.save();
             if (typeof UI !== 'undefined' && UI.renderAll) UI.renderAll();
         });
+    },
+
+    // ── CONVERSI — holý skelet (jméno + slot) ───────────────────────────────
+    KONVRS_NAMES: ['Jakub', 'Matěj', 'Ondřej', 'Šimon', 'Tomáš', 'Vojtěch', 'Blažej', 'Havel', 'Prokop', 'Bartoloměj', 'Jiljí', 'Řehoř', 'Vít', 'Bonifác', 'Kliment'],
+
+    conversiCapacity: function() {
+        const s = GameState.storage || {};
+        if (s.domus_conversorum_ii && s.domus_conversorum_ii.built) return 5;
+        if (s.domus_conversorum_i  && s.domus_conversorum_i.built)  return 2;
+        return 0;
+    },
+
+    hireKonvrs: function() {
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        if (!GameState.conversi) GameState.conversi = [];
+        const cap = this.conversiCapacity();
+        if (cap === 0) {
+            UI.notify(lang==='en' ? 'Build Domus Conversorum first.' : 'Nejprve postav Domus Conversorum.', true); return;
+        }
+        if (GameState.conversi.length >= cap) {
+            UI.notify(lang==='en' ? 'No free beds in the Domus.' : 'V Domu není volné lůžko.', true); return;
+        }
+        const monasticOk = ['frater', 'armarius', 'prior'].includes(GameState.rank && GameState.rank.monastic);
+        if (!monasticOk) {
+            UI.notify(lang==='en' ? 'Requires the rank of Frater or higher.' : 'Vyžaduje hodnost Frater nebo vyšší.', true); return;
+        }
+        const village = (GameState.persona && GameState.persona.influence && GameState.persona.influence.village) || 0;
+        if (village < 15) {
+            UI.notify(lang==='en' ? 'Not enough standing with the village.' : 'Nedostatečná vážnost u vesnice.', true); return;
+        }
+        if ((typeof CellariumSystem !== 'undefined' ? CellariumSystem.getGrose() : 0) < 10) {
+            UI.notify(lang==='en' ? 'Not enough groats.' : 'Nedostatek grošů.', true); return;
+        }
+
+        GameState.persona.influence.village -= 15;
+        CellariumSystem.addGrose(-10);
+
+        const usedNames = GameState.conversi.map(k => k.name);
+        const available = this.KONVRS_NAMES.filter(n => !usedNames.includes(n));
+        const pool = available.length ? available : this.KONVRS_NAMES;
+        const name = pool[Math.floor(Math.random() * pool.length)];
+
+        const konvrs = { id: 'konvrs_' + Date.now(), name, hiredAt: Date.now() };
+        GameState.conversi.push(konvrs);
+
+        UI.notifyPanel('✝️ ' + (lang==='en' ? name+' has joined as a lay brother.' : name+' se připojil jako konvrš.'), 'success');
+        Game.addKronikaEntry('important',
+            '✝️ ' + name + ' se připojil ke klášteru jako konvrš.',
+            '✝️ ' + name + ' has joined the monastery as a lay brother.',
+            '✝️ ' + name + ' conversus factus est.'
+        );
+        Game.save();
+        if (typeof SaeculumSystem !== 'undefined') SaeculumSystem.switchEntity(GameState.ui.saeculumEntity || 'tavern');
+    },
+
+    // Officium — konvrši nedostupní mezi Laudes (6:00) a Prima (9:00), reálný čas
+    isOfficiumHours: function() {
+        const h = new Date().getHours();
+        return h >= 6 && h < 9;
+    },
+
+    checkConversiChores: function() {
+        if (!GameState.conversi || GameState.conversi.length === 0) return;
+        if (typeof GameState.conversiFatigue !== 'number') GameState.conversiFatigue = 0;
+
+        // Odpočinek na Officiu — jednou za 24h, -10 únavy
+        if (this.isOfficiumHours()) {
+            const lastRest = GameState.conversiLastRest || 0;
+            if (Date.now() - lastRest >= 24 * 60 * 60 * 1000) {
+                GameState.conversiFatigue = Math.max(0, GameState.conversiFatigue - 10);
+                GameState.conversiLastRest = Date.now();
+                Game.save();
+            }
+            return; // na Officiu, nedostupní pro úkoly
+        }
+
+        if (GameState.conversiFatigue >= 80) return; // příliš unavení na práci
+
+        if (typeof FarmyardSystem === 'undefined') return;
+        // Mapování: (argument pro cleanPen) → (klíč v GameState, kde se hlídá .built)
+        const pens = [
+            { arg: 'kurnik',      state: 'henhouse' },
+            { arg: 'kosar',       state: 'sheepfold' },
+            { arg: 'cowbyre',     state: 'cowbyre' },
+            { arg: 'pigsty',      state: 'pigsty' },
+            { arg: 'goatpen',     state: 'goatpen' },
+            { arg: 'rabbitry',    state: 'rabbitry' },
+            { arg: 'stable',      state: 'stable' },
+            { arg: 'donkeyStall', state: 'donkeyStall' },
+        ];
+        let cleanedAny = false;
+        pens.forEach(p => {
+            const st = GameState[p.state];
+            if (st && st.built) {
+                const before = st.lastCleanMs || 0;
+                FarmyardSystem.cleanPen(p.arg);
+                if ((st.lastCleanMs || 0) > before) cleanedAny = true;
+            }
+        });
+        if (cleanedAny) {
+            GameState.conversiFatigue = Math.min(100, GameState.conversiFatigue + 15);
+            Game.save();
+        }
     },
 
     addKronikaEntry: function(type, cs, en, la) {
