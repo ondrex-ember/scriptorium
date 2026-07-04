@@ -78,7 +78,8 @@ const DecaySystem = {
         if (s.almarium && s.almarium.built) cap += 200;
         if (s.cella    && s.cella.built)    cap += 600;
         if (s.horreum  && s.horreum.built)  cap += 1600;
-        return cap;       // max 3400
+        if (s.old_cellars && s.old_cellars.built) cap += 500;
+        return cap;       // max 3900
     },
 
     // Typy nepočítané do kapacity (nástroje na zdi, zvířata ve chlévě, knihy v knihovně)

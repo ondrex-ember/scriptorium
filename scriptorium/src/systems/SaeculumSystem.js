@@ -77,9 +77,13 @@ const SaeculumSystem = {
     const loan = GameState.loanMale;
     const active = loan && Date.now() < loan.returnsAt;
 
-    let h = `<details open style="margin-bottom:16px; background:rgba(0,0,0,0.03);
+    if (!GameState.ui) GameState.ui = {};
+    const forumOpen = GameState.ui.saeculumForumOpen !== false;
+    let h = `<details ${forumOpen ? 'open' : ''} ontoggle="GameState.ui.saeculumForumOpen = this.open; Game.save();" style="margin-bottom:16px; background:rgba(0,0,0,0.03);
                          border-radius:8px; border-left:3px solid var(--accent-gold);">`;
-    h += `<summary style="cursor:pointer; padding:14px 14px 0; font-size:0.92rem; font-weight:bold; list-style:none; user-select:none;">🐏 Forum Pecuarium <span style="float:right; opacity:0.5; font-weight:normal;">▾</span></summary>`;
+    h += `<summary style="cursor:pointer; padding:10px 14px; font-size:0.92rem; font-weight:bold; list-style:none; user-select:none; display:flex; align-items:center; justify-content:space-between; gap:6px;">
+            <span>🐏 Forum Pecuarium</span><span style="opacity:0.5; font-weight:normal;">▾</span>
+          </summary>`;
     h += `<div style="padding:10px 14px 14px;">`;
 
     if (active) {
@@ -96,7 +100,7 @@ const SaeculumSystem = {
         const penBuilt = !!(GameState[ty.pen] && GameState[ty.pen].built);
         const name = lang === 'en' ? ty.label_en : ty.label;
         h += `<button class="craft-btn" onclick="FarmyardSystem.borrowMale('${ty.type}', ${ty.cost}) && SaeculumSystem.switchEntity(GameState.ui.saeculumEntity || 'tavern');" ${penBuilt ? '' : 'disabled'}
-                style="flex:1 1 calc(33% - 8px); min-width:0;">
+                style="flex:1 1 calc(33% - 8px); min-width:0; white-space:normal; word-break:break-word; line-height:1.25;">
                 ${ty.icon} ${name} (${ty.cost}g)
               </button>`;
       });
@@ -122,9 +126,13 @@ const SaeculumSystem = {
     const order = GameState.millOrder;
     const active = order && Date.now() < order.returnsAt;
 
-    let h = `<details open style="margin-bottom:16px; background:rgba(0,0,0,0.03);
+    if (!GameState.ui) GameState.ui = {};
+    const molaOpen = GameState.ui.saeculumMolaOpen !== false;
+    let h = `<details ${molaOpen ? 'open' : ''} ontoggle="GameState.ui.saeculumMolaOpen = this.open; Game.save();" style="margin-bottom:16px; background:rgba(0,0,0,0.03);
                          border-radius:8px; border-left:3px solid var(--accent-gold);">`;
-    h += `<summary style="cursor:pointer; padding:14px 14px 0; font-size:0.92rem; font-weight:bold; list-style:none; user-select:none;">⚙️ ${t('saeculum.mola')} <span style="float:right; opacity:0.5; font-weight:normal;">▾</span></summary>`;
+    h += `<summary style="cursor:pointer; padding:10px 14px; font-size:0.92rem; font-weight:bold; list-style:none; user-select:none; display:flex; align-items:center; justify-content:space-between; gap:6px;">
+            <span>⚙️ ${t('saeculum.mola')}</span><span style="opacity:0.5; font-weight:normal;">▾</span>
+          </summary>`;
     h += `<div style="padding:10px 14px 14px;">`;
 
     if (active) {
@@ -143,7 +151,7 @@ const SaeculumSystem = {
         const have = GameState.inventory[inp.id] || 0;
         const name = lang === 'en' ? inp.label_en : inp.label;
         h += `<button class="craft-btn" onclick="SaeculumSystem.sendToMill('${inp.id}')" ${have > 0 ? '' : 'disabled'}
-                style="text-align:left;">
+                style="text-align:left; white-space:normal; word-break:break-word; line-height:1.25; width:100%;">
                 ${inp.icon} ${name} (${have}) → ${t('saeculum.millTo')}
               </button>`;
       });
@@ -220,7 +228,7 @@ const SaeculumSystem = {
       const openDot = `<span style="color:${open ? '#5a9' : '#c55'}; font-size:0.55rem;">●</span>`;
       h += `
         <button onclick="SaeculumSystem.switchEntity('${e.id}')"
-                class="filter-btn${isCur ? ' active' : ''}"
+                class="filter-btn entity-tab-btn${isCur ? ' active' : ''}"
                 style="flex: 1 1 calc(33% - 6px); min-width:0; position:relative; padding-bottom:6px;">
           <div style="display:flex; align-items:center; justify-content:center; gap:4px;">
             ${e.icon} ${name} ${openDot}

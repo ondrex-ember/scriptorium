@@ -28,9 +28,10 @@ const UI = {
         if (name === 'garden') this.renderGarden();
         if (name === 'inv') this._updateInvFilterBar();
         if (name === 'library') {
-            // Aktivovat výchozí tab Knihy
-            const defaultBtn = document.querySelector('#screen-library .filter-btn');
-            this.switchLibraryTab('books', defaultBtn);
+            // Respektovat poslední otevřený subtab (stejný vzor jako cellariumEntity/saeculumEntity)
+            const lastTab = (GameState.ui && GameState.ui.libraryTab) || 'books';
+            const btn = document.getElementById('lib-tab-' + lastTab);
+            this.switchLibraryTab(lastTab, btn);
         }
         if (name === 'settings') {
             const themeSelector = document.getElementById('theme-selector');
@@ -860,6 +861,9 @@ const UI = {
     },
 
     switchLibraryTab: function (tab, btn) {
+        if (!GameState.ui) GameState.ui = {};
+        GameState.ui.libraryTab = tab;
+
         // Hide all library tabs
         const tabs = ['books', 'games', 'news', 'scrinium', 'kronika'];
         tabs.forEach(t => {

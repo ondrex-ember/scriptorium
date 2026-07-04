@@ -290,6 +290,7 @@ const Game = {
 		}
 		if (!GameState.abbotPetition.fodina) GameState.abbotPetition.fodina = { status: 'none', submittedAt: null, deniedReason: null, inspectionPending: false };
 		if (!GameState.abbotPetition.fornax) GameState.abbotPetition.fornax = { status: 'none', submittedAt: null, deniedReason: null, inspectionPending: false };
+		if (!GameState.abbotPetition.domus_ii) GameState.abbotPetition.domus_ii = { status: 'none', submittedAt: null, deniedReason: null, inspectionPending: false };
 		// Vyhodnotit čekající žádosti po načtení
 		Game.checkAbbotPetitions();
 
@@ -3112,6 +3113,9 @@ const Game = {
 		if (!GameState.storage.prelum_olei)       GameState.storage.prelum_olei       = {built:false};
 		if (!GameState.storage.fodina)             GameState.storage.fodina             = {built:false};
 		if (!GameState.storage.fornax_ferraria)    GameState.storage.fornax_ferraria    = {built:false};
+		if (!GameState.storage.old_cellars)        GameState.storage.old_cellars        = {built:false};
+		if (!GameState.storage.domus_conversorum_i) GameState.storage.domus_conversorum_i = {built:false};
+		if (!GameState.storage.domus_conversorum_ii) GameState.storage.domus_conversorum_ii = {built:false};
 		if (!GameState.storage.transactions) GameState.storage.transactions = [];
 		// Prereq checks — storage buildings
 		if (type === 'cella' && !GameState.storage.almarium.built) {
@@ -3147,6 +3151,20 @@ const Game = {
 				UI.notify(lang==='en' ? '❌ Abbot approval required. Submit a petition first.' : '❌ Vyžaduje souhlas opata. Nejprve zašli žádost.', true); return;
 			}
 		}
+		if (type === 'old_cellars') {
+			const unlocked = (GameState.researchedTechs && GameState.researchedTechs.includes('tech_conventual_spaces')) || GameState.oldCellarsFound;
+			if (!unlocked) {
+				UI.notify(lang==='en' ? 'The old vaults have not yet been found.' : 'Staré klenby ještě nebyly objeveny.', true); return;
+			}
+		}
+		if (type === 'domus_conversorum_i' && !(GameState.storage.old_cellars && GameState.storage.old_cellars.built)) {
+			UI.notify(lang==='en' ? 'Clear the Old Cellars first.' : 'Nejprve vyklidit Staré sklepy.', true); return;
+		}
+		if (type === 'domus_conversorum_ii') {
+			if (!(GameState.abbotPetition && GameState.abbotPetition.domus_ii && GameState.abbotPetition.domus_ii.status === 'approved')) {
+				UI.notify(lang==='en' ? '❌ Abbot approval required. Submit a petition first.' : '❌ Vyžaduje souhlas opata. Nejprve zašli žádost.', true); return;
+			}
+		}
 		if (GameState.storage[type] && GameState.storage[type].built) {
 			UI.notify(lang==='en' ? 'Already built.' : 'Jiz postaveno.', true); return;
 		}
@@ -3165,9 +3183,22 @@ const Game = {
 			uvarium:           { plank: 8,  rock: 4,  rope: 3 },
 			prelum_olei:       { plank: 10, rope: 4,  rock: 4,  iron_ingot: 1 },
 			fornax_ferraria:   { rock: 40, cut_stone: 15, clay: 20, plank: 20, charcoal: 15 },
+			old_cellars:       { cut_stone: 15, plank: 10, rope: 5 },
+			domus_conversorum_i: { cut_stone: 40, plank: 25, rope: 10 },
+			domus_conversorum_ii: { cut_stone: 150, plank: 90, rope: 35 },
+		};
+		// Volitelný groše náklad navíc k materiálu — dnes jen Domus Conversorum I/II.
+		// Cokoliv chybí v costsGrose má groseNeeded=0, tedy nulový dopad na stávající budovy.
+		const costsGrose = {
+			domus_conversorum_i: 25,
+			domus_conversorum_ii: 50,
 		};
 		const cost = costs[type];
 		if (!cost) return;
+		const groseNeeded = costsGrose[type] || 0;
+		if (groseNeeded > 0 && (typeof CellariumSystem !== 'undefined' ? CellariumSystem.getGrose() : 0) < groseNeeded) {
+			UI.notify((lang==='en'?'Not enough groats: ':'Nedostatek grošů: ')+groseNeeded, true); return;
+		}
 		for (const [item, amt] of Object.entries(cost)) {
 			if ((GameState.inventory[item] || 0) < amt) {
 				const itemName = (typeof iName === 'function') ? iName(item) : item;
@@ -3175,6 +3206,7 @@ const Game = {
 			}
 		}
 		for (const [item, amt] of Object.entries(cost)) { this.removeItem(item, amt); }
+		if (groseNeeded > 0 && typeof CellariumSystem !== 'undefined') CellariumSystem.addGrose(-groseNeeded);
 		GameState.storage[type].built = true;
 		Game.save();
 		const names = {
@@ -3184,6 +3216,9 @@ const Game = {
 			foudres: 'Foudres', cellarium_vini: 'Cellarium Vini',
 			uvarium: 'Uvarium', prelum_olei: 'Prelum Olei',
 			fornax_ferraria: 'Fornax Ferraria',
+			old_cellars: 'Staré sklepy',
+			domus_conversorum_i: 'Domus Conversorum I',
+			domus_conversorum_ii: 'Domus Conversorum II',
 		};
 		const n = names[type] || type;
 		UI.notifyPanel('🏗️ ' + (lang==='en' ? n+' built.' : n+' postaveno.'), 'system');
@@ -3391,6 +3426,36 @@ const Game = {
 
     // ── ABBOT PETITION SYSTEM ────────────────────────────────────────────────
 
+    // Vrací null pokud všechny podmínky splněny, jinak klíč zamítnutí (denied_*)
+    _checkDomusIIConditions: function() {
+        if (!(GameState.storage && GameState.storage.domus_conversorum_i && GameState.storage.domus_conversorum_i.built)) {
+            return 'denied_phase2';
+        }
+        const influence = (GameState.persona && GameState.persona.influence && GameState.persona.influence.abbot) || 0;
+        if (influence < 40) return 'denied_influence';
+
+        let foodTotal = 0;
+        for (const [id, qty] of Object.entries(GameState.inventory || {})) {
+            const item = (typeof ItemsDB !== 'undefined') ? ItemsDB[id] : null;
+            if (item && item.type === 'food' && typeof qty === 'number') foodTotal += qty;
+        }
+        if (foodTotal < 50) return 'denied_food';
+
+        const grose = (typeof CellariumSystem !== 'undefined') ? CellariumSystem.getGrose() : 0;
+        const txs = (GameState.treasury && GameState.treasury.transactions) || [];
+        const ledgerBalance = txs.filter(t => t.type === 'sell').reduce((s, t) => s + t.total, 0)
+                             - txs.filter(t => t.type === 'buy').reduce((s, t) => s + t.total, 0);
+        if (grose < 100 && ledgerBalance <= 0) return 'denied_economy';
+
+        const drinkIds = ['vinum', 'vinum_rubrum', 'vinum_obscurum', 'vinum_baci', 'vinum_praeclarum', 'prima_cervisia', 'cervisia_nigra', 'honey'];
+        const hasDrink = drinkIds.some(id => (GameState.inventory[id] || 0) > 0);
+        if (!hasDrink) return 'denied_drink';
+
+        if (!(GameState.rank && GameState.rank.monastic === 'prior')) return 'denied_rank';
+
+        return null;
+    },
+
     submitAbbotPetition: function(type) {
         const lang = (GameState.settings && GameState.settings.language) || 'cs';
         const cs = lang === 'cs';
@@ -3444,6 +3509,14 @@ const Game = {
             }
         }
 
+        // Validace podmínek — pro Domus Conversorum II
+        if (type === 'domus_ii') {
+            const deniedKey = this._checkDomusIIConditions();
+            if (deniedKey) {
+                UI.notify(t('abbotPetition.domus_ii.' + deniedKey), true); return;
+            }
+        }
+
         // Vše OK — odeslat žádost
         pet.status = 'pending';
         pet.submittedAt = Date.now();
@@ -3478,7 +3551,7 @@ const Game = {
         const now = Date.now();
         const DAY_MS = 86400000;
 
-        ['fodina', 'fornax'].forEach(type => {
+        ['fodina', 'fornax', 'domus_ii'].forEach(type => {
             const pet = GameState.abbotPetition[type];
             if (!pet || pet.status !== 'pending') return;
             if (now - pet.submittedAt < DAY_MS) return;
@@ -3502,6 +3575,10 @@ const Game = {
                 else if (!(GameState.abbotPetition.fodina && GameState.abbotPetition.fodina.status === 'approved')) deniedKey = 'denied_fodina';
                 else if ((typeof CellariumSystem !== 'undefined' ? CellariumSystem.getGrose() : 0) < 80) deniedKey = 'denied_groats';
                 else if ((GameState.inventory['charcoal'] || 0) < 15) deniedKey = 'denied_charcoal';
+            }
+
+            if (type === 'domus_ii') {
+                deniedKey = this._checkDomusIIConditions();
             }
 
             if (deniedKey) {

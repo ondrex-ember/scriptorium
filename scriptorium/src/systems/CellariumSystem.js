@@ -880,10 +880,12 @@ const CellariumSystem = {
   renderEntityTabs: function() {
     const hasInv = GameState.researchedTechs && GameState.researchedTechs.includes('tech_inventarium');
     const hasLR  = GameState.researchedTechs && GameState.researchedTechs.includes('tech_liber_rationum');
+    const hasOldCellars = (GameState.researchedTechs && GameState.researchedTechs.includes('tech_conventual_spaces')) || GameState.oldCellarsFound;
 
     const entities = [
       ...(hasInv ? [{ id: 'inventarium',    icon: '📦', label: 'Inventarium',   label_en: 'Inventarium'   }] : []),
       ...(hasLR  ? [{ id: 'liber_rationum', icon: '📒', label: 'Liber Rationum',label_en: 'Liber Rationum'}] : []),
+      ...(hasOldCellars ? [{ id: 'old_cellars', icon: '🕯️', label: 'Staré sklepy', label_en: 'Old Cellars' }] : []),
       { id: 'buildings', icon: '🏗️', label: 'Budovy', label_en: 'Buildings' },
     ];
     const lang = (GameState.settings && GameState.settings.language) || 'cs';
@@ -901,7 +903,7 @@ const CellariumSystem = {
         ${open ? '●' : '●'}</span>`;
       h += `
         <button onclick="CellariumSystem.switchEntity('${e.id}')"
-                class="filter-btn${isCur ? ' active' : ''}"
+                class="filter-btn entity-tab-btn${isCur ? ' active' : ''}"
                 style="flex: 1 1 calc(33% - 6px); min-width:0; position:relative; padding-bottom:6px;">
           <div style="display:flex; align-items:center; justify-content:center; gap:4px;">
             ${e.icon} ${name} ${openDot}
@@ -929,6 +931,7 @@ const CellariumSystem = {
     // Speciální chlívky — nemají hodiny ani nákup/prodej
     if (entity === 'inventarium')    return this.renderInventarium();
     if (entity === 'liber_rationum') return this.renderLiberRationum();
+    if (entity === 'old_cellars')    return this.renderOldCellars();
     if (entity === 'buildings')      return this.renderBuildings();
 
     const open = this.isEntityOpen(entity);
@@ -1034,6 +1037,77 @@ const CellariumSystem = {
   // ════════════════════════════════════════════════════════════════════
   // INVENTARIUM — přehled zásob s decay varováními
   // ════════════════════════════════════════════════════════════════════
+  renderOldCellars: function() {
+    const lang = (GameState.settings && GameState.settings.language) || 'cs';
+    const storage = GameState.storage || {};
+    const phase1Built = storage.old_cellars && storage.old_cellars.built;
+
+    const title = lang === 'en' ? 'Old Cellars' : 'Staré sklepy';
+    const intro = lang === 'en'
+      ? 'Forgotten vaults beneath the monastery, discovered by chance or by design. What lies here waits to be reclaimed.'
+      : 'Zapomenuté klenby pod klášterem, objevené náhodou nebo záměrem. Co tu leží, čeká na znovuzískání.';
+
+    let h = `<div style="padding:15px; background:rgba(0,0,0,0.03); border-radius:8px; border-left:3px solid var(--accent-gold);">`;
+    h += `<div style="font-size:0.75rem; font-weight:bold; letter-spacing:0.08em; text-transform:uppercase; color:var(--accent-gold); margin-bottom:6px;">${title}</div>`;
+    h += `<div style="font-size:0.8rem; opacity:0.75; margin-bottom:14px; font-style:italic;">${intro}</div>`;
+
+    // Fáze 1 — Čistý sklep
+    const cost1 = { cut_stone: 15, plank: 10, rope: 5 };
+    const costStr1 = Object.entries(cost1).map(([k,v]) => `${v}× ${(typeof iName==='function')?iName(k):k}`).join(', ');
+    h += `<div style="padding:12px; margin-bottom:10px; background:rgba(255,255,255,0.4); border-radius:6px;">`;
+    h += `<div style="font-weight:bold; margin-bottom:4px;">${lang==='en'?'Phase 1 — Cleared Cellar':'Fáze 1 — Čistý sklep'}</div>`;
+    h += `<div style="font-size:0.8rem; opacity:0.75; margin-bottom:8px;">${lang==='en'?'Clears the rubble and shores up the old vault. Adds 500 units of storage capacity.':'Vyklidí suť a podepře staré klenutí. Přidá 500 jednotek skladové kapacity.'}</div>`;
+    if (phase1Built) {
+      h += `<div style="color:#5a9; font-size:0.85rem;">✅ ${lang==='en'?'Complete':'Dokončeno'}</div>`;
+    } else {
+      h += `<div style="font-size:0.75rem; opacity:0.6; margin-bottom:6px;">${costStr1}</div>`;
+      h += `<button class="craft-btn" onclick="Game.buildStorage('old_cellars')">🏗️ ${lang==='en'?'Clear the cellar':'Vyklidit sklep'}</button>`;
+    }
+    h += `</div>`;
+
+    // Fáze 2 — Domus Conversorum I (funkční)
+    const phase2Built = storage.domus_conversorum_i && storage.domus_conversorum_i.built;
+    const cost2 = { cut_stone: 40, plank: 25, rope: 10 };
+    const costStr2 = Object.entries(cost2).map(([k,v]) => `${v}× ${(typeof iName==='function')?iName(k):k}`).join(', ') + ` + 25g`;
+    h += `<div style="padding:12px; margin-bottom:10px; background:${phase1Built ? 'rgba(255,255,255,0.4)' : 'rgba(0,0,0,0.02)'}; border-radius:6px; opacity:${phase1Built ? '1' : '0.4'};">`;
+    h += `<div style="font-weight:bold; margin-bottom:4px;">${phase1Built ? '' : '🔒 '}${lang==='en'?'Phase 2 — Domus Conversorum I':'Fáze 2 — Domus Conversorum I'}</div>`;
+    h += `<div style="font-size:0.8rem; opacity:0.75; margin-bottom:8px;">${lang==='en'?'Dormitory for lay brothers (2 slots).':'Dormitář pro konvrše (2 sloty).'}</div>`;
+    if (phase2Built) {
+      h += `<div style="color:#5a9; font-size:0.85rem;">✅ ${lang==='en'?'Complete':'Dokončeno'}</div>`;
+    } else if (phase1Built) {
+      h += `<div style="font-size:0.75rem; opacity:0.6; margin-bottom:6px;">${costStr2}</div>`;
+      h += `<button class="craft-btn" onclick="Game.buildStorage('domus_conversorum_i')">🏗️ ${lang==='en'?'Build':'Postavit'}</button>`;
+    } else {
+      h += `<div style="font-size:0.72rem; opacity:0.6; font-style:italic;">${lang==='en'?'Requires Phase 1 first.':'Nutná nejprve Fáze 1.'}</div>`;
+    }
+    h += `</div>`;
+    // Fáze 3 — Domus Conversorum II (petice opatovi)
+    const phase3Built = storage.domus_conversorum_ii && storage.domus_conversorum_ii.built;
+    const petition = (GameState.abbotPetition && GameState.abbotPetition.domus_ii) || { status: 'none' };
+    const cost3 = { cut_stone: 150, plank: 90, rope: 35 };
+    const costStr3 = Object.entries(cost3).map(([k,v]) => `${v}× ${(typeof iName==='function')?iName(k):k}`).join(', ') + ` + 50g`;
+    h += `<div style="padding:12px; background:${phase2Built ? 'rgba(255,255,255,0.4)' : 'rgba(0,0,0,0.02)'}; border-radius:6px; opacity:${phase2Built ? '1' : '0.4'};">`;
+    h += `<div style="font-weight:bold; margin-bottom:4px;">${phase2Built ? '' : '🔒 '}${lang==='en'?'Phase 3 — Domus Conversorum II':'Fáze 3 — Domus Conversorum II'}</div>`;
+    h += `<div style="font-size:0.8rem; opacity:0.75; margin-bottom:8px;">${lang==='en'?"Expanded dormitory (5 slots). Requires the Abbot's approval.":'Rozšířený dormitář (5 slotů). Vyžaduje souhlas opata.'}</div>`;
+    if (phase3Built) {
+      h += `<div style="color:#5a9; font-size:0.85rem;">✅ ${lang==='en'?'Complete':'Dokončeno'}</div>`;
+    } else if (!phase2Built) {
+      h += `<div style="font-size:0.72rem; opacity:0.6; font-style:italic;">${lang==='en'?'Requires Phase 2 first.':'Nutná nejprve Fáze 2.'}</div>`;
+    } else if (petition.status === 'pending') {
+      const remH = Math.max(0, Math.ceil((petition.submittedAt + 86400000 - Date.now()) / 3600000));
+      h += `<div style="font-size:0.8rem;">⏳ ${lang==='en'?'Awaiting the Abbot\'s reply —':'Čeká na odpověď opata —'} <strong>${remH}h</strong></div>`;
+    } else if (petition.status === 'approved') {
+      h += `<div style="font-size:0.75rem; opacity:0.6; margin-bottom:6px;">${costStr3}</div>`;
+      h += `<button class="craft-btn" onclick="Game.buildStorage('domus_conversorum_ii')">🏗️ ${lang==='en'?'Build':'Postavit'}</button>`;
+    } else {
+      h += `<button class="craft-btn" onclick="Game.submitAbbotPetition('domus_ii'); CellariumSystem.switchEntity('old_cellars');">📜 ${t('abbotPetition.domus_ii.submit_btn')}</button>`;
+    }
+    h += `</div>`;
+
+    h += `</div>`;
+    return h;
+  },
+
   renderInventarium: function() {
     const lang = (GameState.settings && GameState.settings.language) || 'cs';
     const inv = GameState.inventory || {};
@@ -1050,6 +1124,7 @@ const CellariumSystem = {
     if (s.almarium && s.almarium.built) { cap += 200;  storParts.push('Almarium (+200j)'); }
     if (s.cella    && s.cella.built)    { cap += 600;  storParts.push('Cella (+600j)'); }
     if (s.horreum  && s.horreum.built)  { cap += 1600; storParts.push('Horreum (+1600j)'); }
+    if (s.old_cellars && s.old_cellars.built) { cap += 500; storParts.push(lang === 'en' ? 'Old Cellars (+500u)' : 'Staré sklepy (+500j)'); }
     const storName = storParts.join(' · ');
     const totalItems = (ds ? ds.totalStock() : Object.values(inv).reduce((sum, v) => sum + (typeof v === 'number' && v > 0 ? v : 0), 0));
     const capPct = Math.min(100, Math.round(totalItems / cap * 100));
@@ -1480,7 +1555,8 @@ const CellariumSystem = {
     const almCap  = (storage.almarium && storage.almarium.built) ? 200 : 0;
     const celCap  = (storage.cella    && storage.cella.built)    ? 600 : 0;
     const horCap  = (storage.horreum  && storage.horreum.built)  ? 1600 : 0;
-    const totalCap = baseCap + almCap + celCap + horCap;
+    const oldCellCap = (storage.old_cellars && storage.old_cellars.built) ? 500 : 0;
+    const totalCap = baseCap + almCap + celCap + horCap + oldCellCap;
     const capLabel = lang === 'en'
       ? `Current capacity: <strong>${totalCap} units</strong>`
       : `Aktuální kapacita: <strong>${totalCap} j</strong>`;

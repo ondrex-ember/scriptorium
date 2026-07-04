@@ -1228,6 +1228,18 @@
             border-color: var(--accent-gold);
         }
 
+        /* Doplňkové zalomení pro entity-tab tlačítka v gridu (Cellarium/Saeculum subtaby) —
+           .filter-btn samo má white-space:nowrap pro scrollovací filter-bar, tady potřebujeme opak. */
+        .entity-tab-btn {
+            white-space: normal !important;
+            font-size: 0.68rem !important;
+            line-height: 1.15;
+            word-break: break-word;
+        }
+        @media (max-width: 420px) {
+            .entity-tab-btn { font-size: 0.6rem !important; padding: 4px 4px !important; }
+        }
+
         nav {
             height: calc(60px + env(safe-area-inset-bottom));
             background: var(--leather-dark);

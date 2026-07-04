@@ -1228,6 +1228,18 @@
             border-color: var(--accent-gold);
         }
 
+        /* Doplňkové zalomení pro entity-tab tlačítka v gridu (Cellarium/Saeculum subtaby) —
+           .filter-btn samo má white-space:nowrap pro scrollovací filter-bar, tady potřebujeme opak. */
+        .entity-tab-btn {
+            white-space: normal !important;
+            font-size: 0.68rem !important;
+            line-height: 1.15;
+            word-break: break-word;
+        }
+        @media (max-width: 420px) {
+            .entity-tab-btn { font-size: 0.6rem !important; padding: 4px 4px !important; }
+        }
+
         nav {
             height: calc(60px + env(safe-area-inset-bottom));
             background: var(--leather-dark);
@@ -7283,6 +7295,7 @@ const TechTree = [
   // ECONOMY
   { id: "tech_commercium", name: "Commercium — Stezky Kupců", name_en: "Commercium — Merchant Routes", cost: 6, desc: "Klášter není ostrovem. Za hradbami prochází svět — a s ním i ti, kdo nesou zboží z daleké Benátky, z Říma, z Levanty. Nauč se rozpoznat příchod kupce, otevři bránu a naslouchej. Někdy přiveze surovinu, jindy příběh — a oboje má svou cenu.", desc_en: "The monastery is no island. Beyond its walls the world passes by — and with it those who carry goods from distant Venice, from Rome, from the Levant. Learn to recognise the merchant's arrival, open the gate and listen. Sometimes he brings a raw material, sometimes a story — and both have their price.", unlocks: [], requires: [] },
   { id: "tech_cellarium_rd2", name: "Cellarium — Řád Sklepa", name_en: "Cellarium — Order of the Cellar", cost: 8, desc: "Každý klášter má své srdce v kapli, ale své střevo ve sklepě. Cellarius není jen správce sudů a pytlů — je to muž, který ví, co klášter potřebuje, co může prodat a za kolik. Bez něj jsi jen mnichem s plnýma rukama a prázdnou kapsou.", desc_en: "Every monastery has its heart in the chapel, but its belly in the cellar. The Cellarius is no mere keeper of barrels and sacks — he is the man who knows what the monastery needs, what it can sell, and for how much. Without him thou art but a monk with full hands and an empty purse.", unlocks: [], requires: ["tech_commercium"] },
+  { id: "tech_conventual_spaces", name: "Konventní prostory — Ztracená Sklepení", name_en: "Conventual Spaces — The Lost Vaults", cost: 10, desc: "Nyní, když je ve sklepě řád, opat nařizuje systematický průzkum jeho nejzazších koutů. Staré plány kláštera hovoří o klenbách, které dnešní bratři nikdy nespatřili — zazděné, zapomenuté, čekající. Odemyká: Staré sklepy v Cellariu.", desc_en: "Now that order reigns in the cellar, the abbot orders a systematic search of its farthest corners. Old plans of the monastery speak of vaults today's brothers have never seen — walled up, forgotten, waiting. Unlocks: Old Cellars in the Cellarium.", unlocks: [], requires: ["tech_cellarium_rd2"] },
   { id: "tech_numismatica", name: "Numismatica — Věda o Groších", name_en: "Numismatica — The Science of Groschen", cost: 10, desc: "Pražský groš je malý, ale těžký. Nese na sobě korunu, lva i latinský nápis — a v pravých rukou otevírá více dveří než modlitba. Nauč se počítat, nakupovat, prodávat. Hospoda, obchod, trh — každé místo má svůj rytmus a svou cenu.", desc_en: "The Prague groschen is small, but heavy. It bears a crown, a lion and a Latin inscription — and in the right hands it opens more doors than prayer. Learn to count, to buy, to sell. The tavern, the shop, the market — each place has its own rhythm and its own price.", unlocks: [], requires: ["tech_cellarium_rd2"] },
 
   // MUSIC SYSTEM
@@ -10579,6 +10592,51 @@ const EventsSystem = {
                         UI.notifyPanel(t("events.hidden_incunabula.ignore_notif"), 'system');
                         EventsSystem._addKronika(t("events.hidden_incunabula.ignore_notif"));
                         return t("events.hidden_incunabula.ignore_res");
+                    }
+                }
+            ],
+            canTrigger: true
+        },
+        {
+            id: 'discovered_old_vaults',
+            titleKey: 'events.discovered_old_vaults.title',
+            textKey: 'events.discovered_old_vaults.text',
+            trigger: () => {
+                if (typeof CellariumSystem === 'undefined' || !CellariumSystem.hasCellarium()) return false;
+                const storages = ['almarium','cella','cella_fermentaria','cellarium_vini','fabrica','fodina','fornax_ferraria','foudres','horreum','humno','prelum','prelum_olei','sulci','uvarium'];
+                const allBuilt = storages.every(id => GameState.storage && GameState.storage[id] && GameState.storage[id].built);
+                if (!allBuilt) return false;
+                if (GameState.oldCellarsFound) return false;
+                return Math.random() < 0.02;
+            },
+            choices: [
+                {
+                    labelKey: "events.discovered_old_vaults.explore_btn",
+                    descKey: "events.discovered_old_vaults.explore_desc",
+                    action: () => {
+                        GameState.oldCellarsFound = true;
+                        UI.notifyPanel(t("events.discovered_old_vaults.explore_notif"), 'system');
+                        EventsSystem._addKronika(t("events.discovered_old_vaults.explore_notif"));
+                        return t("events.discovered_old_vaults.explore_res");
+                    }
+                },
+                {
+                    labelKey: "events.discovered_old_vaults.wall_btn",
+                    descKey: "events.discovered_old_vaults.wall_desc",
+                    action: () => {
+                        UI.notifyPanel(t("events.discovered_old_vaults.wall_notif"), 'system');
+                        EventsSystem._addKronika(t("events.discovered_old_vaults.wall_notif"));
+                        return t("events.discovered_old_vaults.wall_res");
+                    }
+                },
+                {
+                    labelKey: "events.discovered_old_vaults.wait_btn",
+                    descKey: "events.discovered_old_vaults.wait_desc",
+                    action: () => {
+                        GameState.events.triggered['discovered_old_vaults'] = false;
+                        UI.notifyPanel(t("events.discovered_old_vaults.wait_notif"), 'system');
+                        EventsSystem._addKronika(t("events.discovered_old_vaults.wait_notif"));
+                        return t("events.discovered_old_vaults.wait_res");
                     }
                 }
             ],
@@ -15229,10 +15287,12 @@ const CellariumSystem = {
   renderEntityTabs: function() {
     const hasInv = GameState.researchedTechs && GameState.researchedTechs.includes('tech_inventarium');
     const hasLR  = GameState.researchedTechs && GameState.researchedTechs.includes('tech_liber_rationum');
+    const hasOldCellars = (GameState.researchedTechs && GameState.researchedTechs.includes('tech_conventual_spaces')) || GameState.oldCellarsFound;
 
     const entities = [
       ...(hasInv ? [{ id: 'inventarium',    icon: '📦', label: 'Inventarium',   label_en: 'Inventarium'   }] : []),
       ...(hasLR  ? [{ id: 'liber_rationum', icon: '📒', label: 'Liber Rationum',label_en: 'Liber Rationum'}] : []),
+      ...(hasOldCellars ? [{ id: 'old_cellars', icon: '🕯️', label: 'Staré sklepy', label_en: 'Old Cellars' }] : []),
       { id: 'buildings', icon: '🏗️', label: 'Budovy', label_en: 'Buildings' },
     ];
     const lang = (GameState.settings && GameState.settings.language) || 'cs';
@@ -15250,7 +15310,7 @@ const CellariumSystem = {
         ${open ? '●' : '●'}</span>`;
       h += `
         <button onclick="CellariumSystem.switchEntity('${e.id}')"
-                class="filter-btn${isCur ? ' active' : ''}"
+                class="filter-btn entity-tab-btn${isCur ? ' active' : ''}"
                 style="flex: 1 1 calc(33% - 6px); min-width:0; position:relative; padding-bottom:6px;">
           <div style="display:flex; align-items:center; justify-content:center; gap:4px;">
             ${e.icon} ${name} ${openDot}
@@ -15278,6 +15338,7 @@ const CellariumSystem = {
     // Speciální chlívky — nemají hodiny ani nákup/prodej
     if (entity === 'inventarium')    return this.renderInventarium();
     if (entity === 'liber_rationum') return this.renderLiberRationum();
+    if (entity === 'old_cellars')    return this.renderOldCellars();
     if (entity === 'buildings')      return this.renderBuildings();
 
     const open = this.isEntityOpen(entity);
@@ -15383,6 +15444,77 @@ const CellariumSystem = {
   // ════════════════════════════════════════════════════════════════════
   // INVENTARIUM — přehled zásob s decay varováními
   // ════════════════════════════════════════════════════════════════════
+  renderOldCellars: function() {
+    const lang = (GameState.settings && GameState.settings.language) || 'cs';
+    const storage = GameState.storage || {};
+    const phase1Built = storage.old_cellars && storage.old_cellars.built;
+
+    const title = lang === 'en' ? 'Old Cellars' : 'Staré sklepy';
+    const intro = lang === 'en'
+      ? 'Forgotten vaults beneath the monastery, discovered by chance or by design. What lies here waits to be reclaimed.'
+      : 'Zapomenuté klenby pod klášterem, objevené náhodou nebo záměrem. Co tu leží, čeká na znovuzískání.';
+
+    let h = `<div style="padding:15px; background:rgba(0,0,0,0.03); border-radius:8px; border-left:3px solid var(--accent-gold);">`;
+    h += `<div style="font-size:0.75rem; font-weight:bold; letter-spacing:0.08em; text-transform:uppercase; color:var(--accent-gold); margin-bottom:6px;">${title}</div>`;
+    h += `<div style="font-size:0.8rem; opacity:0.75; margin-bottom:14px; font-style:italic;">${intro}</div>`;
+
+    // Fáze 1 — Čistý sklep
+    const cost1 = { cut_stone: 15, plank: 10, rope: 5 };
+    const costStr1 = Object.entries(cost1).map(([k,v]) => `${v}× ${(typeof iName==='function')?iName(k):k}`).join(', ');
+    h += `<div style="padding:12px; margin-bottom:10px; background:rgba(255,255,255,0.4); border-radius:6px;">`;
+    h += `<div style="font-weight:bold; margin-bottom:4px;">${lang==='en'?'Phase 1 — Cleared Cellar':'Fáze 1 — Čistý sklep'}</div>`;
+    h += `<div style="font-size:0.8rem; opacity:0.75; margin-bottom:8px;">${lang==='en'?'Clears the rubble and shores up the old vault. Adds 500 units of storage capacity.':'Vyklidí suť a podepře staré klenutí. Přidá 500 jednotek skladové kapacity.'}</div>`;
+    if (phase1Built) {
+      h += `<div style="color:#5a9; font-size:0.85rem;">✅ ${lang==='en'?'Complete':'Dokončeno'}</div>`;
+    } else {
+      h += `<div style="font-size:0.75rem; opacity:0.6; margin-bottom:6px;">${costStr1}</div>`;
+      h += `<button class="craft-btn" onclick="Game.buildStorage('old_cellars')">🏗️ ${lang==='en'?'Clear the cellar':'Vyklidit sklep'}</button>`;
+    }
+    h += `</div>`;
+
+    // Fáze 2 — Domus Conversorum I (funkční)
+    const phase2Built = storage.domus_conversorum_i && storage.domus_conversorum_i.built;
+    const cost2 = { cut_stone: 40, plank: 25, rope: 10 };
+    const costStr2 = Object.entries(cost2).map(([k,v]) => `${v}× ${(typeof iName==='function')?iName(k):k}`).join(', ') + ` + 25g`;
+    h += `<div style="padding:12px; margin-bottom:10px; background:${phase1Built ? 'rgba(255,255,255,0.4)' : 'rgba(0,0,0,0.02)'}; border-radius:6px; opacity:${phase1Built ? '1' : '0.4'};">`;
+    h += `<div style="font-weight:bold; margin-bottom:4px;">${phase1Built ? '' : '🔒 '}${lang==='en'?'Phase 2 — Domus Conversorum I':'Fáze 2 — Domus Conversorum I'}</div>`;
+    h += `<div style="font-size:0.8rem; opacity:0.75; margin-bottom:8px;">${lang==='en'?'Dormitory for lay brothers (2 slots).':'Dormitář pro konvrše (2 sloty).'}</div>`;
+    if (phase2Built) {
+      h += `<div style="color:#5a9; font-size:0.85rem;">✅ ${lang==='en'?'Complete':'Dokončeno'}</div>`;
+    } else if (phase1Built) {
+      h += `<div style="font-size:0.75rem; opacity:0.6; margin-bottom:6px;">${costStr2}</div>`;
+      h += `<button class="craft-btn" onclick="Game.buildStorage('domus_conversorum_i')">🏗️ ${lang==='en'?'Build':'Postavit'}</button>`;
+    } else {
+      h += `<div style="font-size:0.72rem; opacity:0.6; font-style:italic;">${lang==='en'?'Requires Phase 1 first.':'Nutná nejprve Fáze 1.'}</div>`;
+    }
+    h += `</div>`;
+    // Fáze 3 — Domus Conversorum II (petice opatovi)
+    const phase3Built = storage.domus_conversorum_ii && storage.domus_conversorum_ii.built;
+    const petition = (GameState.abbotPetition && GameState.abbotPetition.domus_ii) || { status: 'none' };
+    const cost3 = { cut_stone: 150, plank: 90, rope: 35 };
+    const costStr3 = Object.entries(cost3).map(([k,v]) => `${v}× ${(typeof iName==='function')?iName(k):k}`).join(', ') + ` + 50g`;
+    h += `<div style="padding:12px; background:${phase2Built ? 'rgba(255,255,255,0.4)' : 'rgba(0,0,0,0.02)'}; border-radius:6px; opacity:${phase2Built ? '1' : '0.4'};">`;
+    h += `<div style="font-weight:bold; margin-bottom:4px;">${phase2Built ? '' : '🔒 '}${lang==='en'?'Phase 3 — Domus Conversorum II':'Fáze 3 — Domus Conversorum II'}</div>`;
+    h += `<div style="font-size:0.8rem; opacity:0.75; margin-bottom:8px;">${lang==='en'?"Expanded dormitory (5 slots). Requires the Abbot's approval.":'Rozšířený dormitář (5 slotů). Vyžaduje souhlas opata.'}</div>`;
+    if (phase3Built) {
+      h += `<div style="color:#5a9; font-size:0.85rem;">✅ ${lang==='en'?'Complete':'Dokončeno'}</div>`;
+    } else if (!phase2Built) {
+      h += `<div style="font-size:0.72rem; opacity:0.6; font-style:italic;">${lang==='en'?'Requires Phase 2 first.':'Nutná nejprve Fáze 2.'}</div>`;
+    } else if (petition.status === 'pending') {
+      const remH = Math.max(0, Math.ceil((petition.submittedAt + 86400000 - Date.now()) / 3600000));
+      h += `<div style="font-size:0.8rem;">⏳ ${lang==='en'?'Awaiting the Abbot\'s reply —':'Čeká na odpověď opata —'} <strong>${remH}h</strong></div>`;
+    } else if (petition.status === 'approved') {
+      h += `<div style="font-size:0.75rem; opacity:0.6; margin-bottom:6px;">${costStr3}</div>`;
+      h += `<button class="craft-btn" onclick="Game.buildStorage('domus_conversorum_ii')">🏗️ ${lang==='en'?'Build':'Postavit'}</button>`;
+    } else {
+      h += `<button class="craft-btn" onclick="Game.submitAbbotPetition('domus_ii'); CellariumSystem.switchEntity('old_cellars');">📜 ${t('abbotPetition.domus_ii.submit_btn')}</button>`;
+    }
+    h += `</div>`;
+
+    h += `</div>`;
+    return h;
+  },
+
   renderInventarium: function() {
     const lang = (GameState.settings && GameState.settings.language) || 'cs';
     const inv = GameState.inventory || {};
@@ -15399,6 +15531,7 @@ const CellariumSystem = {
     if (s.almarium && s.almarium.built) { cap += 200;  storParts.push('Almarium (+200j)'); }
     if (s.cella    && s.cella.built)    { cap += 600;  storParts.push('Cella (+600j)'); }
     if (s.horreum  && s.horreum.built)  { cap += 1600; storParts.push('Horreum (+1600j)'); }
+    if (s.old_cellars && s.old_cellars.built) { cap += 500; storParts.push(lang === 'en' ? 'Old Cellars (+500u)' : 'Staré sklepy (+500j)'); }
     const storName = storParts.join(' · ');
     const totalItems = (ds ? ds.totalStock() : Object.values(inv).reduce((sum, v) => sum + (typeof v === 'number' && v > 0 ? v : 0), 0));
     const capPct = Math.min(100, Math.round(totalItems / cap * 100));
@@ -15829,7 +15962,8 @@ const CellariumSystem = {
     const almCap  = (storage.almarium && storage.almarium.built) ? 200 : 0;
     const celCap  = (storage.cella    && storage.cella.built)    ? 600 : 0;
     const horCap  = (storage.horreum  && storage.horreum.built)  ? 1600 : 0;
-    const totalCap = baseCap + almCap + celCap + horCap;
+    const oldCellCap = (storage.old_cellars && storage.old_cellars.built) ? 500 : 0;
+    const totalCap = baseCap + almCap + celCap + horCap + oldCellCap;
     const capLabel = lang === 'en'
       ? `Current capacity: <strong>${totalCap} units</strong>`
       : `Aktuální kapacita: <strong>${totalCap} j</strong>`;
@@ -16066,9 +16200,13 @@ const SaeculumSystem = {
     const loan = GameState.loanMale;
     const active = loan && Date.now() < loan.returnsAt;
 
-    let h = `<details open style="margin-bottom:16px; background:rgba(0,0,0,0.03);
+    if (!GameState.ui) GameState.ui = {};
+    const forumOpen = GameState.ui.saeculumForumOpen !== false;
+    let h = `<details ${forumOpen ? 'open' : ''} ontoggle="GameState.ui.saeculumForumOpen = this.open; Game.save();" style="margin-bottom:16px; background:rgba(0,0,0,0.03);
                          border-radius:8px; border-left:3px solid var(--accent-gold);">`;
-    h += `<summary style="cursor:pointer; padding:14px 14px 0; font-size:0.92rem; font-weight:bold; list-style:none; user-select:none;">🐏 Forum Pecuarium <span style="float:right; opacity:0.5; font-weight:normal;">▾</span></summary>`;
+    h += `<summary style="cursor:pointer; padding:10px 14px; font-size:0.92rem; font-weight:bold; list-style:none; user-select:none; display:flex; align-items:center; justify-content:space-between; gap:6px;">
+            <span>🐏 Forum Pecuarium</span><span style="opacity:0.5; font-weight:normal;">▾</span>
+          </summary>`;
     h += `<div style="padding:10px 14px 14px;">`;
 
     if (active) {
@@ -16085,7 +16223,7 @@ const SaeculumSystem = {
         const penBuilt = !!(GameState[ty.pen] && GameState[ty.pen].built);
         const name = lang === 'en' ? ty.label_en : ty.label;
         h += `<button class="craft-btn" onclick="FarmyardSystem.borrowMale('${ty.type}', ${ty.cost}) && SaeculumSystem.switchEntity(GameState.ui.saeculumEntity || 'tavern');" ${penBuilt ? '' : 'disabled'}
-                style="flex:1 1 calc(33% - 8px); min-width:0;">
+                style="flex:1 1 calc(33% - 8px); min-width:0; white-space:normal; word-break:break-word; line-height:1.25;">
                 ${ty.icon} ${name} (${ty.cost}g)
               </button>`;
       });
@@ -16111,9 +16249,13 @@ const SaeculumSystem = {
     const order = GameState.millOrder;
     const active = order && Date.now() < order.returnsAt;
 
-    let h = `<details open style="margin-bottom:16px; background:rgba(0,0,0,0.03);
+    if (!GameState.ui) GameState.ui = {};
+    const molaOpen = GameState.ui.saeculumMolaOpen !== false;
+    let h = `<details ${molaOpen ? 'open' : ''} ontoggle="GameState.ui.saeculumMolaOpen = this.open; Game.save();" style="margin-bottom:16px; background:rgba(0,0,0,0.03);
                          border-radius:8px; border-left:3px solid var(--accent-gold);">`;
-    h += `<summary style="cursor:pointer; padding:14px 14px 0; font-size:0.92rem; font-weight:bold; list-style:none; user-select:none;">⚙️ ${t('saeculum.mola')} <span style="float:right; opacity:0.5; font-weight:normal;">▾</span></summary>`;
+    h += `<summary style="cursor:pointer; padding:10px 14px; font-size:0.92rem; font-weight:bold; list-style:none; user-select:none; display:flex; align-items:center; justify-content:space-between; gap:6px;">
+            <span>⚙️ ${t('saeculum.mola')}</span><span style="opacity:0.5; font-weight:normal;">▾</span>
+          </summary>`;
     h += `<div style="padding:10px 14px 14px;">`;
 
     if (active) {
@@ -16132,7 +16274,7 @@ const SaeculumSystem = {
         const have = GameState.inventory[inp.id] || 0;
         const name = lang === 'en' ? inp.label_en : inp.label;
         h += `<button class="craft-btn" onclick="SaeculumSystem.sendToMill('${inp.id}')" ${have > 0 ? '' : 'disabled'}
-                style="text-align:left;">
+                style="text-align:left; white-space:normal; word-break:break-word; line-height:1.25; width:100%;">
                 ${inp.icon} ${name} (${have}) → ${t('saeculum.millTo')}
               </button>`;
       });
@@ -16209,7 +16351,7 @@ const SaeculumSystem = {
       const openDot = `<span style="color:${open ? '#5a9' : '#c55'}; font-size:0.55rem;">●</span>`;
       h += `
         <button onclick="SaeculumSystem.switchEntity('${e.id}')"
-                class="filter-btn${isCur ? ' active' : ''}"
+                class="filter-btn entity-tab-btn${isCur ? ' active' : ''}"
                 style="flex: 1 1 calc(33% - 6px); min-width:0; position:relative; padding-bottom:6px;">
           <div style="display:flex; align-items:center; justify-content:center; gap:4px;">
             ${e.icon} ${name} ${openDot}
@@ -16314,7 +16456,8 @@ const DecaySystem = {
         if (s.almarium && s.almarium.built) cap += 200;
         if (s.cella    && s.cella.built)    cap += 600;
         if (s.horreum  && s.horreum.built)  cap += 1600;
-        return cap;       // max 3400
+        if (s.old_cellars && s.old_cellars.built) cap += 500;
+        return cap;       // max 3900
     },
 
     // Typy nepočítané do kapacity (nástroje na zdi, zvířata ve chlévě, knihy v knihovně)
@@ -32659,6 +32802,22 @@ const STRINGS_cs = {
             ignore_notif: '📦 Kniha čeká na lepší časy.',
             ignore_res: 'Uložil jsi ji bezpečně. Možná se k ní vrátíš.',
         },
+        discovered_old_vaults: {
+            title: 'Propadlá podlaha',
+            text: 'Při přenášení zásob prasklo dřevo pod nohama bratra sklepníka. Pod podlahou — zapomenuté klenby. Staré zdivo, tma, pach vlhka. Někdo tu byl před námi.',
+            explore_btn: 'Prozkoumat',
+            explore_desc: 'Vzít lucernu a sestoupit dolů.',
+            explore_notif: '🕯️ Objeveny Staré sklepy pod klášterem.',
+            explore_res: 'Klenby vedou hlouběji, než jsi čekal. Bude třeba je vyčistit a opravit — ale prostor je tu.',
+            wall_btn: 'Zazdít',
+            wall_desc: 'Bezpečnější nechat spát, co spí.',
+            wall_notif: '🧱 Otvor byl znovu zazděn.',
+            wall_res: 'Bratr sklepník přikývl. "Co je pod zemí, ať tam zůstane." Díra je zazděná.',
+            wait_btn: 'Počkat',
+            wait_desc: 'Napřed to promyslet, vrátit se později.',
+            wait_notif: '⏳ Rozhodnutí odloženo.',
+            wait_res: 'Necháváš díru zakrytou prkny. K rozhodnutí se můžeš vrátit jindy.',
+        },
     },
     abbotPetition: {
         fodina: {
@@ -32691,6 +32850,22 @@ const STRINGS_cs = {
             inspect_hint: 'Opat přislíbil inspekční návštěvu po dokončení stavby.',
             locked_hint: 'Tavení rudy vyžaduje souhlas opata ke stavbě hutě.',
             build_cost: 'Stavba: 40 kamene, 15 tesaného kamene, 20 hlíny, 20 fošen, 15 dřevěného uhlí.',
+        },
+        domus_ii: {
+            title: 'Žádost o rozšíření Domu Konvršů',
+            submit_btn: 'Zaslat žádost opatovi',
+            pending: '⏳ Žádost odeslána {date}. Opat odpoví {responseDate}.',
+            approved: '✅ Opat schválil rozšíření na Domus Conversorum II. Stavba může začít.',
+            denied_phase2: '❌ Opat zamítl: Nejprve musí být dokončena Fáze 2 (Domus Conversorum I).',
+            denied_influence: '❌ Opat zamítl: Klášter dosud nezískal dostatečnou důvěru opata.',
+            denied_food: '❌ Opat zamítl: Zásoby jídla jsou příliš skromné na rozšíření komunity.',
+            denied_economy: '❌ Opat zamítl: Klášter nemá dostatek prostředků ani stabilní příjem.',
+            denied_drink: '❌ Opat zamítl: Klášter musí prokázat prosperitu — víno, pivo nebo med v zásobách.',
+            denied_rank: '❌ Opat zamítl: Žádost o tak zásadní rozšíření může podat jen Prior.',
+            kronika_submit: 'Odeslána žádost opatovi o rozšíření Domu Konvršů. Odpověď očekávána {responseDate}.',
+            kronika_approved: 'Opat schválil rozšíření na Domus Conversorum II.',
+            kronika_denied: 'Opat zamítl žádost o rozšíření Domu Konvršů. Důvod: {reason}',
+            inspect_hint: 'Opat přislíbil inspekční návštěvu po dokončení stavby.',
         },
     },
 };
@@ -35348,6 +35523,22 @@ In every scriptorium lurks Titivillus. His task is not to tempt to sin — other
             ignore_notif: '📦 The book awaiteth better times.',
             ignore_res: 'Thou hast stored it safely. Perhaps thou shalt return to it.',
         },
+        discovered_old_vaults: {
+            title: 'The Collapsed Floor',
+            text: 'While moving stores, the timber gave way beneath the cellarer\'s feet. Beneath the floor — forgotten vaults. Old masonry, darkness, the smell of damp. Someone was here before us.',
+            explore_btn: 'Explore',
+            explore_desc: 'Take a lantern and descend.',
+            explore_notif: '🕯️ Old Cellars discovered beneath the monastery.',
+            explore_res: 'The vaults run deeper than thou expected. They will need clearing and repair — but the space is there.',
+            wall_btn: 'Wall it up',
+            wall_desc: 'Safer to let sleeping things lie.',
+            wall_notif: '🧱 The opening was walled up again.',
+            wall_res: 'The cellarer nodded. "What lies beneath, let it remain." The hole is sealed.',
+            wait_btn: 'Wait',
+            wait_desc: 'Think it over first, return to it later.',
+            wait_notif: '⏳ The decision is postponed.',
+            wait_res: 'Thou leavest the hole covered with planks. Thou mayest return to this decision another time.',
+        },
     },
     abbotPetition: {
         fodina: {
@@ -35380,6 +35571,22 @@ In every scriptorium lurks Titivillus. His task is not to tempt to sin — other
             inspect_hint: 'The Abbot has promised an inspection visit once the furnace is complete.',
             locked_hint: 'Smelting ore requires the Abbot\'s consent to build a furnace.',
             build_cost: 'Build cost: 40 rock, 15 cut stone, 20 clay, 20 planks, 15 charcoal.',
+        },
+        domus_ii: {
+            title: 'Request to Expand the House of Lay Brothers',
+            submit_btn: 'Submit petition to the Abbot',
+            pending: '⏳ Petition submitted {date}. The Abbot will reply by {responseDate}.',
+            approved: '✅ The Abbot has approved the expansion to Domus Conversorum II. Construction may begin.',
+            denied_phase2: '❌ Abbot denied: Phase 2 (Domus Conversorum I) must be completed first.',
+            denied_influence: '❌ Abbot denied: The monastery has not yet earned enough of the Abbot\'s trust.',
+            denied_food: '❌ Abbot denied: Food stores are too modest to support a larger community.',
+            denied_economy: '❌ Abbot denied: The monastery lacks sufficient funds or a stable income.',
+            denied_drink: '❌ Abbot denied: The monastery must show its prosperity — wine, ale or honey in store.',
+            denied_rank: '❌ Abbot denied: Only a Prior may petition for so great an expansion.',
+            kronika_submit: 'Petition submitted to the Abbot to expand the House of Lay Brothers. Reply expected by {responseDate}.',
+            kronika_approved: 'The Abbot approved the expansion to Domus Conversorum II.',
+            kronika_denied: 'The Abbot denied the petition to expand the House of Lay Brothers. Reason: {reason}',
+            inspect_hint: 'The Abbot has promised an inspection visit once the building is complete.',
         },
     },
 };
@@ -35820,6 +36027,7 @@ const Game = {
 		}
 		if (!GameState.abbotPetition.fodina) GameState.abbotPetition.fodina = { status: 'none', submittedAt: null, deniedReason: null, inspectionPending: false };
 		if (!GameState.abbotPetition.fornax) GameState.abbotPetition.fornax = { status: 'none', submittedAt: null, deniedReason: null, inspectionPending: false };
+		if (!GameState.abbotPetition.domus_ii) GameState.abbotPetition.domus_ii = { status: 'none', submittedAt: null, deniedReason: null, inspectionPending: false };
 		// Vyhodnotit čekající žádosti po načtení
 		Game.checkAbbotPetitions();
 
@@ -38642,6 +38850,9 @@ const Game = {
 		if (!GameState.storage.prelum_olei)       GameState.storage.prelum_olei       = {built:false};
 		if (!GameState.storage.fodina)             GameState.storage.fodina             = {built:false};
 		if (!GameState.storage.fornax_ferraria)    GameState.storage.fornax_ferraria    = {built:false};
+		if (!GameState.storage.old_cellars)        GameState.storage.old_cellars        = {built:false};
+		if (!GameState.storage.domus_conversorum_i) GameState.storage.domus_conversorum_i = {built:false};
+		if (!GameState.storage.domus_conversorum_ii) GameState.storage.domus_conversorum_ii = {built:false};
 		if (!GameState.storage.transactions) GameState.storage.transactions = [];
 		// Prereq checks — storage buildings
 		if (type === 'cella' && !GameState.storage.almarium.built) {
@@ -38677,6 +38888,20 @@ const Game = {
 				UI.notify(lang==='en' ? '❌ Abbot approval required. Submit a petition first.' : '❌ Vyžaduje souhlas opata. Nejprve zašli žádost.', true); return;
 			}
 		}
+		if (type === 'old_cellars') {
+			const unlocked = (GameState.researchedTechs && GameState.researchedTechs.includes('tech_conventual_spaces')) || GameState.oldCellarsFound;
+			if (!unlocked) {
+				UI.notify(lang==='en' ? 'The old vaults have not yet been found.' : 'Staré klenby ještě nebyly objeveny.', true); return;
+			}
+		}
+		if (type === 'domus_conversorum_i' && !(GameState.storage.old_cellars && GameState.storage.old_cellars.built)) {
+			UI.notify(lang==='en' ? 'Clear the Old Cellars first.' : 'Nejprve vyklidit Staré sklepy.', true); return;
+		}
+		if (type === 'domus_conversorum_ii') {
+			if (!(GameState.abbotPetition && GameState.abbotPetition.domus_ii && GameState.abbotPetition.domus_ii.status === 'approved')) {
+				UI.notify(lang==='en' ? '❌ Abbot approval required. Submit a petition first.' : '❌ Vyžaduje souhlas opata. Nejprve zašli žádost.', true); return;
+			}
+		}
 		if (GameState.storage[type] && GameState.storage[type].built) {
 			UI.notify(lang==='en' ? 'Already built.' : 'Jiz postaveno.', true); return;
 		}
@@ -38695,9 +38920,22 @@ const Game = {
 			uvarium:           { plank: 8,  rock: 4,  rope: 3 },
 			prelum_olei:       { plank: 10, rope: 4,  rock: 4,  iron_ingot: 1 },
 			fornax_ferraria:   { rock: 40, cut_stone: 15, clay: 20, plank: 20, charcoal: 15 },
+			old_cellars:       { cut_stone: 15, plank: 10, rope: 5 },
+			domus_conversorum_i: { cut_stone: 40, plank: 25, rope: 10 },
+			domus_conversorum_ii: { cut_stone: 150, plank: 90, rope: 35 },
+		};
+		// Volitelný groše náklad navíc k materiálu — dnes jen Domus Conversorum I/II.
+		// Cokoliv chybí v costsGrose má groseNeeded=0, tedy nulový dopad na stávající budovy.
+		const costsGrose = {
+			domus_conversorum_i: 25,
+			domus_conversorum_ii: 50,
 		};
 		const cost = costs[type];
 		if (!cost) return;
+		const groseNeeded = costsGrose[type] || 0;
+		if (groseNeeded > 0 && (typeof CellariumSystem !== 'undefined' ? CellariumSystem.getGrose() : 0) < groseNeeded) {
+			UI.notify((lang==='en'?'Not enough groats: ':'Nedostatek grošů: ')+groseNeeded, true); return;
+		}
 		for (const [item, amt] of Object.entries(cost)) {
 			if ((GameState.inventory[item] || 0) < amt) {
 				const itemName = (typeof iName === 'function') ? iName(item) : item;
@@ -38705,6 +38943,7 @@ const Game = {
 			}
 		}
 		for (const [item, amt] of Object.entries(cost)) { this.removeItem(item, amt); }
+		if (groseNeeded > 0 && typeof CellariumSystem !== 'undefined') CellariumSystem.addGrose(-groseNeeded);
 		GameState.storage[type].built = true;
 		Game.save();
 		const names = {
@@ -38714,6 +38953,9 @@ const Game = {
 			foudres: 'Foudres', cellarium_vini: 'Cellarium Vini',
 			uvarium: 'Uvarium', prelum_olei: 'Prelum Olei',
 			fornax_ferraria: 'Fornax Ferraria',
+			old_cellars: 'Staré sklepy',
+			domus_conversorum_i: 'Domus Conversorum I',
+			domus_conversorum_ii: 'Domus Conversorum II',
 		};
 		const n = names[type] || type;
 		UI.notifyPanel('🏗️ ' + (lang==='en' ? n+' built.' : n+' postaveno.'), 'system');
@@ -38921,6 +39163,36 @@ const Game = {
 
     // ── ABBOT PETITION SYSTEM ────────────────────────────────────────────────
 
+    // Vrací null pokud všechny podmínky splněny, jinak klíč zamítnutí (denied_*)
+    _checkDomusIIConditions: function() {
+        if (!(GameState.storage && GameState.storage.domus_conversorum_i && GameState.storage.domus_conversorum_i.built)) {
+            return 'denied_phase2';
+        }
+        const influence = (GameState.persona && GameState.persona.influence && GameState.persona.influence.abbot) || 0;
+        if (influence < 40) return 'denied_influence';
+
+        let foodTotal = 0;
+        for (const [id, qty] of Object.entries(GameState.inventory || {})) {
+            const item = (typeof ItemsDB !== 'undefined') ? ItemsDB[id] : null;
+            if (item && item.type === 'food' && typeof qty === 'number') foodTotal += qty;
+        }
+        if (foodTotal < 50) return 'denied_food';
+
+        const grose = (typeof CellariumSystem !== 'undefined') ? CellariumSystem.getGrose() : 0;
+        const txs = (GameState.treasury && GameState.treasury.transactions) || [];
+        const ledgerBalance = txs.filter(t => t.type === 'sell').reduce((s, t) => s + t.total, 0)
+                             - txs.filter(t => t.type === 'buy').reduce((s, t) => s + t.total, 0);
+        if (grose < 100 && ledgerBalance <= 0) return 'denied_economy';
+
+        const drinkIds = ['vinum', 'vinum_rubrum', 'vinum_obscurum', 'vinum_baci', 'vinum_praeclarum', 'prima_cervisia', 'cervisia_nigra', 'honey'];
+        const hasDrink = drinkIds.some(id => (GameState.inventory[id] || 0) > 0);
+        if (!hasDrink) return 'denied_drink';
+
+        if (!(GameState.rank && GameState.rank.monastic === 'prior')) return 'denied_rank';
+
+        return null;
+    },
+
     submitAbbotPetition: function(type) {
         const lang = (GameState.settings && GameState.settings.language) || 'cs';
         const cs = lang === 'cs';
@@ -38974,6 +39246,14 @@ const Game = {
             }
         }
 
+        // Validace podmínek — pro Domus Conversorum II
+        if (type === 'domus_ii') {
+            const deniedKey = this._checkDomusIIConditions();
+            if (deniedKey) {
+                UI.notify(t('abbotPetition.domus_ii.' + deniedKey), true); return;
+            }
+        }
+
         // Vše OK — odeslat žádost
         pet.status = 'pending';
         pet.submittedAt = Date.now();
@@ -39008,7 +39288,7 @@ const Game = {
         const now = Date.now();
         const DAY_MS = 86400000;
 
-        ['fodina', 'fornax'].forEach(type => {
+        ['fodina', 'fornax', 'domus_ii'].forEach(type => {
             const pet = GameState.abbotPetition[type];
             if (!pet || pet.status !== 'pending') return;
             if (now - pet.submittedAt < DAY_MS) return;
@@ -39032,6 +39312,10 @@ const Game = {
                 else if (!(GameState.abbotPetition.fodina && GameState.abbotPetition.fodina.status === 'approved')) deniedKey = 'denied_fodina';
                 else if ((typeof CellariumSystem !== 'undefined' ? CellariumSystem.getGrose() : 0) < 80) deniedKey = 'denied_groats';
                 else if ((GameState.inventory['charcoal'] || 0) < 15) deniedKey = 'denied_charcoal';
+            }
+
+            if (type === 'domus_ii') {
+                deniedKey = this._checkDomusIIConditions();
             }
 
             if (deniedKey) {
@@ -39110,9 +39394,10 @@ const UI = {
         if (name === 'garden') this.renderGarden();
         if (name === 'inv') this._updateInvFilterBar();
         if (name === 'library') {
-            // Aktivovat výchozí tab Knihy
-            const defaultBtn = document.querySelector('#screen-library .filter-btn');
-            this.switchLibraryTab('books', defaultBtn);
+            // Respektovat poslední otevřený subtab (stejný vzor jako cellariumEntity/saeculumEntity)
+            const lastTab = (GameState.ui && GameState.ui.libraryTab) || 'books';
+            const btn = document.getElementById('lib-tab-' + lastTab);
+            this.switchLibraryTab(lastTab, btn);
         }
         if (name === 'settings') {
             const themeSelector = document.getElementById('theme-selector');
@@ -39942,6 +40227,9 @@ const UI = {
     },
 
     switchLibraryTab: function (tab, btn) {
+        if (!GameState.ui) GameState.ui = {};
+        GameState.ui.libraryTab = tab;
+
         // Hide all library tabs
         const tabs = ['books', 'games', 'news', 'scrinium', 'kronika'];
         tabs.forEach(t => {

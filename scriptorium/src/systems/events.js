@@ -104,6 +104,51 @@ const EventsSystem = {
                 }
             ],
             canTrigger: true
+        },
+        {
+            id: 'discovered_old_vaults',
+            titleKey: 'events.discovered_old_vaults.title',
+            textKey: 'events.discovered_old_vaults.text',
+            trigger: () => {
+                if (typeof CellariumSystem === 'undefined' || !CellariumSystem.hasCellarium()) return false;
+                const storages = ['almarium','cella','cella_fermentaria','cellarium_vini','fabrica','fodina','fornax_ferraria','foudres','horreum','humno','prelum','prelum_olei','sulci','uvarium'];
+                const allBuilt = storages.every(id => GameState.storage && GameState.storage[id] && GameState.storage[id].built);
+                if (!allBuilt) return false;
+                if (GameState.oldCellarsFound) return false;
+                return Math.random() < 0.02;
+            },
+            choices: [
+                {
+                    labelKey: "events.discovered_old_vaults.explore_btn",
+                    descKey: "events.discovered_old_vaults.explore_desc",
+                    action: () => {
+                        GameState.oldCellarsFound = true;
+                        UI.notifyPanel(t("events.discovered_old_vaults.explore_notif"), 'system');
+                        EventsSystem._addKronika(t("events.discovered_old_vaults.explore_notif"));
+                        return t("events.discovered_old_vaults.explore_res");
+                    }
+                },
+                {
+                    labelKey: "events.discovered_old_vaults.wall_btn",
+                    descKey: "events.discovered_old_vaults.wall_desc",
+                    action: () => {
+                        UI.notifyPanel(t("events.discovered_old_vaults.wall_notif"), 'system');
+                        EventsSystem._addKronika(t("events.discovered_old_vaults.wall_notif"));
+                        return t("events.discovered_old_vaults.wall_res");
+                    }
+                },
+                {
+                    labelKey: "events.discovered_old_vaults.wait_btn",
+                    descKey: "events.discovered_old_vaults.wait_desc",
+                    action: () => {
+                        GameState.events.triggered['discovered_old_vaults'] = false;
+                        UI.notifyPanel(t("events.discovered_old_vaults.wait_notif"), 'system');
+                        EventsSystem._addKronika(t("events.discovered_old_vaults.wait_notif"));
+                        return t("events.discovered_old_vaults.wait_res");
+                    }
+                }
+            ],
+            canTrigger: true
         }
     ],
     
