@@ -2426,6 +2426,7 @@
 
                     <!-- MINE content -->
                     <div id="home-mine-content" style="display:none;">
+                        <div id="mine-yield-info"></div>
                         <div id="fodina-petition-panel"></div>
                         <div id="mine-actions"></div>
                     </div>
@@ -32600,6 +32601,9 @@ const STRINGS_cs = {
         borrowDone_billy_goat: 'Kozel dorazil ze vsi.',
         borrowDone_boar: 'Kanec dorazil ze vsi.',
         needRam: 'Pro odchov potřebuješ berana — sjednej výpůjčku v Saeculu.',
+        loanActive_ram: 'Beran vypůjčen',
+        loanActive_billy_goat: 'Kozel vypůjčen',
+        loanActive_boar: 'Kanec vypůjčen',
         feedSlug: 'Nakrmit slimáky', slugFed: '🐌 Slepice se napásly na slimácích. +25% vajec po dobu 8h.',
         slugBonus: 'Slug bonus', needSlug: 'Chybí slimáci (2× na slepici)',
     },
@@ -35244,6 +35248,9 @@ According to Theophilus, the organ is an instrument worthy of God, but its const
         borrowDone_billy_goat: 'A billy goat has arrived from the village.',
         borrowDone_boar: 'A boar has arrived from the village.',
         needRam: 'You need a ram for breeding — arrange a loan in the Saeculum.',
+        loanActive_ram: 'Ram on loan',
+        loanActive_billy_goat: 'Billy goat on loan',
+        loanActive_boar: 'Boar on loan',
         feedSlug: 'Feed slugs', slugFed: '🐌 Hens feasted on slugs. +25% eggs for 8h.',
         slugBonus: 'Slug bonus', needSlug: 'Not enough slugs (2× per hen)',
     },
@@ -37603,7 +37610,7 @@ const Game = {
                 const _invBefore = {};
                 for (const k of Object.keys(GameState.inventory)) _invBefore[k] = GameState.inventory[k] || 0;
                 if (type === 'quarry_stone') {
-                    const qty = Math.random() < 0.4 ? 6 : (Math.random() < 0.6 ? 4 : 3);
+                    const qty = 20 + Math.floor(Math.random() * 11);
                     this.addItem('rock', Math.round(qty * _mMultC));
                     if (Math.random() < 0.15) this.addItem('cut_stone', 1);
                     if (Math.random() < 0.05) this.addItem('clay', 1);
@@ -37764,7 +37771,7 @@ const Game = {
                     else if(treeSeedRoll < 0.043) this.addItem('seed_rowan', 1);
                 }
                 else if (type === 'basic') {
-                    this.addItem((r<0.5?'rock':'stick'), 1);
+                    this.addItem((r<0.4?'rock':'stick'), 1);
                     if(Math.random() < 0.05) this.addItem('carbon_black', 1);
                     if(Math.random() < 0.04) this.addItem('ochre', 1);
                     if(Math.random() < 0.10) this.addItem('chalk', 1);
@@ -40450,7 +40457,22 @@ const UI = {
         if (mine) mine.style.display = tab === 'mine' ? 'block' : 'none';
         document.querySelectorAll('#home-main-content .filter-btn').forEach(b => b.classList.remove('active'));
         if (btn) btn.classList.add('active');
-        if (tab === 'mine') { this.renderFodinaPetitionPanel(); this.renderMineActions(); }
+        if (tab === 'mine') { this.renderMineYieldInfo(); this.renderFodinaPetitionPanel(); this.renderMineActions(); }
+    },
+
+    renderMineYieldInfo: function () {
+        const el = document.getElementById('mine-yield-info');
+        if (!el) return;
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        const cs = lang === 'cs';
+        const boxStyle = 'padding:14px; margin-bottom:12px; background:rgba(197,160,89,0.07); border:1px solid rgba(197,160,89,0.3); border-radius:8px; border-left:4px solid var(--accent-gold);';
+        el.innerHTML = `<div style="${boxStyle}">
+            <div style="font-weight:bold; margin-bottom:6px;">⛏️ ${cs ? 'Výtěžnost těžby (5 min cyklus)' : 'Mining yield (5 min cycle)'}</div>
+            <div style="font-size:0.82rem; opacity:0.85; line-height:1.5;">
+                🪨 ${cs ? 'Kámen' : 'Stone'}: 14–21 (${cs ? 'kamenný krumpáč' : 'stone pickaxe'}) / 24–36 (${cs ? 'železný krumpáč' : 'iron pickaxe'}) ${cs ? '+ šance na tesaný kámen, jíl' : '+ chance of cut stone, clay'}<br>
+                ⛏️ ${cs ? 'Železná ruda' : 'Iron ore'}: 1–2 (${cs ? 'kamenný krumpáč' : 'stone pickaxe'}) / 1–4 (${cs ? 'železný krumpáč' : 'iron pickaxe'}) ${cs ? '+ šance na uhlí' : '+ chance of charcoal'}
+            </div>
+        </div>`;
     },
 
     renderMineActions: function () {

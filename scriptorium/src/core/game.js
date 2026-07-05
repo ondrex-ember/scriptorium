@@ -1811,7 +1811,7 @@ const Game = {
                 const _invBefore = {};
                 for (const k of Object.keys(GameState.inventory)) _invBefore[k] = GameState.inventory[k] || 0;
                 if (type === 'quarry_stone') {
-                    const qty = Math.random() < 0.4 ? 6 : (Math.random() < 0.6 ? 4 : 3);
+                    const qty = 20 + Math.floor(Math.random() * 11);
                     this.addItem('rock', Math.round(qty * _mMultC));
                     if (Math.random() < 0.15) this.addItem('cut_stone', 1);
                     if (Math.random() < 0.05) this.addItem('clay', 1);
@@ -1972,7 +1972,7 @@ const Game = {
                     else if(treeSeedRoll < 0.043) this.addItem('seed_rowan', 1);
                 }
                 else if (type === 'basic') {
-                    this.addItem((r<0.5?'rock':'stick'), 1);
+                    this.addItem((r<0.4?'rock':'stick'), 1);
                     if(Math.random() < 0.05) this.addItem('carbon_black', 1);
                     if(Math.random() < 0.04) this.addItem('ochre', 1);
                     if(Math.random() < 0.10) this.addItem('chalk', 1);

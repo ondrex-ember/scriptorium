@@ -921,7 +921,22 @@ const UI = {
         if (mine) mine.style.display = tab === 'mine' ? 'block' : 'none';
         document.querySelectorAll('#home-main-content .filter-btn').forEach(b => b.classList.remove('active'));
         if (btn) btn.classList.add('active');
-        if (tab === 'mine') { this.renderFodinaPetitionPanel(); this.renderMineActions(); }
+        if (tab === 'mine') { this.renderMineYieldInfo(); this.renderFodinaPetitionPanel(); this.renderMineActions(); }
+    },
+
+    renderMineYieldInfo: function () {
+        const el = document.getElementById('mine-yield-info');
+        if (!el) return;
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        const cs = lang === 'cs';
+        const boxStyle = 'padding:14px; margin-bottom:12px; background:rgba(197,160,89,0.07); border:1px solid rgba(197,160,89,0.3); border-radius:8px; border-left:4px solid var(--accent-gold);';
+        el.innerHTML = `<div style="${boxStyle}">
+            <div style="font-weight:bold; margin-bottom:6px;">⛏️ ${cs ? 'Výtěžnost těžby (5 min cyklus)' : 'Mining yield (5 min cycle)'}</div>
+            <div style="font-size:0.82rem; opacity:0.85; line-height:1.5;">
+                🪨 ${cs ? 'Kámen' : 'Stone'}: 14–21 (${cs ? 'kamenný krumpáč' : 'stone pickaxe'}) / 24–36 (${cs ? 'železný krumpáč' : 'iron pickaxe'}) ${cs ? '+ šance na tesaný kámen, jíl' : '+ chance of cut stone, clay'}<br>
+                ⛏️ ${cs ? 'Železná ruda' : 'Iron ore'}: 1–2 (${cs ? 'kamenný krumpáč' : 'stone pickaxe'}) / 1–4 (${cs ? 'železný krumpáč' : 'iron pickaxe'}) ${cs ? '+ šance na uhlí' : '+ chance of charcoal'}
+            </div>
+        </div>`;
     },
 
     renderMineActions: function () {
