@@ -40086,6 +40086,47 @@ const UI = {
             return `<div class="card${blindClass}" data-recipe-id="${r.id}" style="opacity:${can ? 1 : 0.6}; position:relative;"><div class="item-icon">${prod.icon}</div><div style="flex:1"><strong>${iName(r.output)}${blindIcon}${ownedStr}</strong><div class="text-sm">${reqStr.slice(0, -2)}</div>${researchBadge}</div><button class="craft-btn" onclick="Game.craft('${r.id}')" ${can ? '' : 'disabled'}>${r.id.startsWith('repair_') ? t('craft.repair') : t('craft.btn')}</button></div>`;
         };
 
+        // Seskupení receptů se stejným výstupem (a stejnou kategorií) do jedné
+        // "rodiny" — např. Šrot z různých obilovin. RecipesDB se nemění,
+        // jde jen o zobrazení. Rodina s 1 receptem = beze změny chování.
+        const groupByOutput = (arr) => {
+            const map = new Map();
+            arr.forEach(r => {
+                const key = r.output + '|' + r.cat;
+                if (!map.has(key)) map.set(key, []);
+                map.get(key).push(r);
+            });
+            return Array.from(map.values());
+        };
+
+        const renderRecipeFamily = (fam) => {
+            if (fam.length === 1) return renderRecipe(fam[0]);
+            const prod = ItemsDB[fam[0].output];
+            const owned = GameState.inventory[fam[0].output] || 0;
+            const ownedStr = owned > 0 ? ` <span style="opacity:0.6; font-size:0.85em;">(${lang === 'en' ? 'have' : 'máš'}: ${owned})</span>` : '';
+            const orLabel = lang === 'en' ? 'OR' : 'NEBO';
+
+            let bestId = null;
+            const lines = fam.map(r => {
+                let can = true; let reqStr = '';
+                for (let [id, amt] of Object.entries(r.req)) {
+                    const has = GameState.inventory[id] || 0;
+                    const missing = (amt > 0 && has < amt) || (amt === 0 && !has);
+                    if (missing) can = false;
+                    reqStr += `<span class="${missing ? 'text-danger' : ''}">${amt === 0 ? t('game.required') : amt + 'x'} ${iName(id)}</span>, `;
+                }
+                reqStr = reqStr.slice(0, -2);
+                if (r.qty && r.qty !== 1) reqStr += ` <span style="opacity:0.55;">→ ${r.qty}×</span>`;
+                if (can && bestId === null) bestId = r.id;
+                return `<div class="text-sm" style="${can ? '' : 'opacity:0.6;'}">${reqStr}</div>`;
+            });
+            const anyCan = bestId !== null;
+            if (!anyCan) bestId = fam[0].id; // cíl pro disabled tlačítko
+
+            const reqBlock = lines.join(`<div class="text-sm" style="opacity:0.5; margin:2px 0;">${orLabel}</div>`);
+            return `<div class="card" data-recipe-id="${bestId}" style="opacity:${anyCan ? 1 : 0.6}; position:relative;"><div class="item-icon">${prod.icon}</div><div style="flex:1"><strong>${iName(fam[0].output)}${ownedStr}</strong>${reqBlock}</div><button class="craft-btn" onclick="Game.craft('${bestId}')" ${anyCan ? '' : 'disabled'}>${t('craft.btn')}</button></div>`;
+        };
+
         const visible = RecipesDB.filter(r => {
             if (r.cat === 'alchemy_ing') return false;
             if (r.locked && !GameState.unlockedRecipes.includes(r.id)) return false;
@@ -40096,7 +40137,7 @@ const UI = {
         let _html = '';
         if (this.currentFilter !== 'all') {
             // Jednoduchý seznam bez nadpisů
-            visible.forEach(r => { _html += renderRecipe(r); });
+            groupByOutput(visible).forEach(fam => { _html += renderRecipeFamily(fam); });
         } else {
             // Seskupení podle kategorií s nadpisy
             const catOrder = ['stone', 'iron', 'craft', 'fire', 'parchment', 'codex', 'food', 'alchemy', 'lore'];
@@ -40112,10 +40153,10 @@ const UI = {
                 lore: lang === 'en' ? '🎲 Knowledge' : '🎲 Vědění & Hry',
             };
             catOrder.forEach(cat => {
-                const group = visible.filter(r => r.cat === cat);
-                if (group.length === 0) return;
+                const catRecipes = visible.filter(r => r.cat === cat);
+                if (catRecipes.length === 0) return;
                 _html += `<div style="grid-column:1/-1; margin:12px 0 6px; padding:4px 0; border-bottom:1px solid rgba(197,160,89,0.35);"><span style="font-size:0.72rem; font-weight:bold; letter-spacing:0.08em; text-transform:uppercase; color:var(--accent-gold); opacity:0.85;">${catLabels[cat]}</span></div>`;
-                group.forEach(r => { _html += renderRecipe(r); });
+                groupByOutput(catRecipes).forEach(fam => { _html += renderRecipeFamily(fam); });
             });
         }
         el.innerHTML = _html;
