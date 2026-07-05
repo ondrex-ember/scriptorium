@@ -2791,11 +2791,19 @@ const Game = {
 
     // Pití vody (water = mat type, proto vlastní funkce)
     drink: function(itemId) {
-        const drinkable = ['water', 'spring_water'];
+        const drinkable = ['water', 'spring_water', 'holy_water'];
         if (!drinkable.includes(itemId)) { UI.notify(t('game.notFood'), true); return; }
         if (!(GameState.inventory[itemId] > 0)) { UI.notify(t('game.noFood'), true); return; }
         this.removeItem(itemId, 1);
         if (typeof VigorSystem !== 'undefined') VigorSystem.eat(itemId);
+        // Nekvalitní voda (2. třída/venkovní) — malá šance na nevolnost
+        if (itemId === 'water' && Math.random() < 0.007) {
+            GameState.satiety = Math.max(0, (GameState.satiety || 0) - 15);
+            if (typeof VigorSystem !== 'undefined') {
+                GameState.fatigue = Math.min(VigorSystem.MAX_FATIGUE, (GameState.fatigue || 0) + 15);
+            }
+            UI.notify(t('game.waterSickness'), true);
+        }
         Game.save();
         UI.renderAll();
     },

@@ -396,7 +396,7 @@ const UI = {
             const _isRareModal = (id === 'netolicky_legacy') || id === 'old_coin_1' || id === 'old_coin_2' || id === 'old_coin_3' || id === 'torn_page' || id === 'wax_seal' || ['lost_key_1', 'lost_key_2', 'lost_key_3', 'lost_key_4', 'lost_key_5', 'key_large_1', 'key_large_2', 'key_large_3', 'lost_scroll_1', 'lost_scroll_2'].includes(id) || ['dried_herbs_bundle', 'hemp_pouch', 'mysterious_bulb'].includes(id);
             const _click = (_hasMateria || _isRareModal) ? `onclick="UI.showItemModal('${id}')" style="cursor:pointer;"` : '';
             let actionBtn = '';
-            if (id === 'water' || id === 'spring_water') {
+            if (id === 'water' || id === 'spring_water' || id === 'holy_water') {
                 actionBtn = `<button class="craft-btn" onclick="event.stopPropagation();Game.drink('${id}')" style="margin-left:auto;">${t('game.drink')}</button>`;
             } else if (item.type === 'food') {
                 actionBtn = `<button class="craft-btn" onclick="event.stopPropagation();Game.eat('${id}')" style="margin-left:auto;">${t('game.eat')}</button>`;

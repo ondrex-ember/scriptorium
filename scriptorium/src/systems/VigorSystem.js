@@ -112,6 +112,7 @@ const VigorSystem = {
         // Voda
         water:          3,
         spring_water:   5,
+        holy_water:     8,
     },
 
     // Fatigue z jídla (záporné = snižuje únavu)
@@ -139,6 +140,7 @@ const VigorSystem = {
         // Voda
         water:          -5,
         spring_water:   -15,
+        holy_water:     -20,
     },
 
     // ── Init ──────────────────────────────────────────────────────────────────
@@ -963,7 +965,7 @@ const VigorSystem = {
                             'cheese','egg','honey','berries','mushroom',
                             'herbal_tea','hildegard_tisane','linden_tea','chicory_drink','acorn_brew',
                             'beer','wine','spring_water'];
-        const DRINK_ITEMS = ['water','spring_water'];
+        const DRINK_ITEMS = ['water','spring_water','holy_water'];
 
         const inv = GameState.inventory || {};
         const availableFood = FOOD_ITEMS.filter(id => inv[id] > 0 && id !== 'spring_water');

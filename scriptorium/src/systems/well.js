@@ -103,8 +103,9 @@ const WellSystem = {
             Game.addItem("holy_water", 1);
             UI.notify(t('game.wellHolyWater'));
         } else {
-            Game.addItem("water", waterAmount);
-            const msg = t('game.waterDrawn').replace('{amt}', waterAmount)
+            const drawnId = murky ? "water" : "spring_water";
+            Game.addItem(drawnId, waterAmount);
+            const msg = t('game.waterDrawn').replace('{amt}', waterAmount).replace('{item}', iName(drawnId))
                 + (murky ? ' ⚠️ ' + t('game.wellMurky') : '');
             UI.notify(msg);
         }
