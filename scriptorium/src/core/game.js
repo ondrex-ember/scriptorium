@@ -1979,6 +1979,12 @@ const Game = {
                     else if(treeSeedRoll < 0.034) this.addItem('seed_plum', 1);
                     else if(treeSeedRoll < 0.040) this.addItem('seed_cherry', 1);
                     else if(treeSeedRoll < 0.043) this.addItem('seed_rowan', 1);
+                    // Plané ovoce a šípky — podzim (Cultus Herbarum)
+                    if(Math.random() < 0.06) this.addItem('rosehip', 1);
+                    if(Math.random() < 0.05) this.addItem('wild_fruit', 1);
+                    if(Math.random() < 0.04) this.addItem('cornel_cherry', 1);
+                    if(Math.random() < 0.03) this.addItem('sloe', 1);
+                    if(Math.random() < 0.03) this.addItem('bracket_fungus', 1);
                 }
                 else if (type === 'basic') {
                     this.addItem((r<0.4?'rock':'stick'), 1);
@@ -2021,6 +2027,12 @@ const Game = {
                     if(Math.random() < 0.04) this.addItem('dandelion', 1);
                     if(Math.random() < 0.05) this.addItem('burdock_root', 1);
                     if(Math.random() < 0.05) this.addItem('couch_grass', 1);
+                    // Bukvice — podzim, spolu se žaludy
+                    if(Math.random() < 0.08) this.addItem('beechnut', 1);
+                    // Vzácnější houby (Cultus Herbarum)
+                    if(Math.random() < 0.03) this.addItem('morel', 1);
+                    if(Math.random() < 0.04) this.addItem('saffron_milk_cap', 1);
+                    if(Math.random() < 0.03) this.addItem('porcini', 1);
                 }
                 else if (type === 'wetlands') {
                     if(r<0.4) this.addItem('frog', 1);
@@ -2251,6 +2263,12 @@ const Game = {
                     UI.notifyPanel('📜 ' + (typeof t === 'function' ? t('game.rareFind') : 'Vzácný nález!'), 'system');
                     setTimeout(function() { Game.showNetolickyModal(); }, 300);
                 }
+                // Plané ovoce a šípky — podzim (Cultus Herbarum)
+                if(Math.random() < 0.06) this.addItem('rosehip', 1);
+                if(Math.random() < 0.05) this.addItem('wild_fruit', 1);
+                if(Math.random() < 0.04) this.addItem('cornel_cherry', 1);
+                if(Math.random() < 0.03) this.addItem('sloe', 1);
+                if(Math.random() < 0.03) this.addItem('bracket_fungus', 1);
             }
             else if (type === 'basic') {
                 this.addItem((r<0.5?'rock':'stick'), 1);
@@ -2289,6 +2307,12 @@ const Game = {
                 if(Math.random() < 0.04) this.addItem('dandelion', 1);
                 if(Math.random() < 0.05) this.addItem('burdock_root', 1);
                 if(Math.random() < 0.05) this.addItem('couch_grass', 1);
+                // Bukvice — podzim, spolu se žaludy
+                if(Math.random() < 0.08) this.addItem('beechnut', 1);
+                // Vzácnější houby (Cultus Herbarum)
+                if(Math.random() < 0.03) this.addItem('morel', 1);
+                if(Math.random() < 0.04) this.addItem('saffron_milk_cap', 1);
+                if(Math.random() < 0.03) this.addItem('porcini', 1);
             }
             else if (type === 'wetlands') {
                 if(r<0.4) this.addItem('frog', 1);

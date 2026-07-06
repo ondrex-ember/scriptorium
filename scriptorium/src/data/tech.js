@@ -17,7 +17,7 @@ const TechTree = [
   { id: "tech_cultus_herbarum", name: "Cultus Herbarum", name_en: "Cultus Herbarum", cost: 10,
     desc: "Lidová znalost divokých bylin, kořenů a hub — z klášterního herbáře. Rychleji se odemyká přečtením knihy v Knihovně.",
     desc_en: "Folk knowledge of wild herbs, roots and mushrooms — from the monastery's herbal manuscript. Unlocks faster by reading the book in the Library.",
-    unlocks: ["spring_herb_porridge", "burdock_root_baked", "couch_grass_flour", "cattail_root_flour"], requires: ["tech_de_re_rustica"] },
+    unlocks: ["spring_herb_porridge", "burdock_root_baked", "couch_grass_flour", "cattail_root_flour", "rosehip_sauce", "famine_bread", "dried_wild_fruit", "sloe_jam", "morel_stuffed", "pickled_mushrooms"], requires: ["tech_de_re_rustica"] },
 
   // TIER 2 - horticulture
   { id: "tech_garden_expand", name: "Rozšíření Zahrady", name_en: "Garden Expansion", cost: 4, desc: "Odemkne: 4 políčka zahrady.", desc_en: "Unlocks: 4 garden plots.", unlocks: [] },
