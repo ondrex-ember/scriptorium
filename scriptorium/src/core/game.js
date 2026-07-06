@@ -3617,9 +3617,8 @@ const Game = {
         pet.submittedAt = Date.now();
         pet.deniedReason = null;
 
-        const _toGameDate = (ts) => { const d = new Date(ts); return new Date(1465, d.getMonth(), d.getDate()); };
-        const submitDate = _toGameDate(Date.now()).toLocaleDateString(cs ? 'cs-CZ' : 'en-GB');
-        const responseDate = _toGameDate(Date.now() + 86400000).toLocaleDateString(cs ? 'cs-CZ' : 'en-GB');
+        const submitDate = new Date().toLocaleDateString(cs ? 'cs-CZ' : 'en-GB');
+        const responseDate = new Date(Date.now() + 86400000).toLocaleDateString(cs ? 'cs-CZ' : 'en-GB');
 
         const kronikaCs = t('abbotPetition.' + type + '.kronika_submit')
             .replace('{responseDate}', responseDate);
@@ -3739,18 +3738,57 @@ const Game = {
             UI.notify(lang==='en' ? 'Not enough groats.' : 'Nedostatek grošů.', true); return;
         }
 
+        // Nábor z rosteru (ConversiRosterDB); fallback na KONVRS_NAMES, pokud roster nedostupný.
+        // Náklady se strhávají až PO výběru kandidáta — odmítnutí (tenze) je zdarma.
+        let rosterId = null, name, hireQuote = '';
+        const rosterOk = (typeof ConversiRosterDB !== 'undefined') && Object.keys(ConversiRosterDB).length > 0;
+        if (rosterOk) {
+            const hiredIds = GameState.conversi.map(k => k.rosterId).filter(Boolean);
+            const availIds = Object.keys(ConversiRosterDB).filter(rid => !hiredIds.includes(rid));
+            const poolIds = availIds.length ? availIds : Object.keys(ConversiRosterDB);
+            rosterId = poolIds[Math.floor(Math.random() * poolIds.length)];
+            const rec = ConversiRosterDB[rosterId];
+            name = rec.name;
+
+            // Tenze s někým už najatým → kandidát odmítne (deterministicky), bez nákladů
+            if (typeof ConversiBondsDB !== 'undefined') {
+                const enemyBond = ConversiBondsDB.find(bd => bd.type === 'tension' &&
+                    ((bd.a === rosterId && hiredIds.includes(bd.b)) ||
+                     (bd.b === rosterId && hiredIds.includes(bd.a))));
+                if (enemyBond) {
+                    const enemyId = (enemyBond.a === rosterId) ? enemyBond.b : enemyBond.a;
+                    const enemyName = (ConversiRosterDB[enemyId] && ConversiRosterDB[enemyId].name) || '?';
+                    const rq = rec.quotes && rec.quotes.refuse;
+                    const refuseQuote = rq ? (lang === 'en' ? rq.en : rq.cs) : '';
+                    UI.notifyPanel('🚫 ' + (lang==='en'
+                        ? name + ' refuses to join while ' + enemyName + ' lives here.'
+                        : name + ' odmítá vstoupit, dokud tu žije ' + enemyName + '.')
+                        + (refuseQuote ? ' „' + refuseQuote + '“' : ''), 'warning');
+                    Game.addKronikaEntry('minor',
+                        '🚫 ' + name + ' odmítl vstoupit do kláštera — nevychází s bratrem jménem ' + enemyName + '.',
+                        '🚫 ' + name + ' refused to join the monastery — he does not get along with brother ' + enemyName + '.',
+                        '🚫 ' + name + ' intrare recusavit.'
+                    );
+                    return;
+                }
+            }
+
+            const hq = rec.quotes && rec.quotes.hire;
+            if (hq) hireQuote = (lang === 'en' ? hq.en : hq.cs);
+        } else {
+            const usedNames = GameState.conversi.map(k => k.name);
+            const available = this.KONVRS_NAMES.filter(n => !usedNames.includes(n));
+            const pool = available.length ? available : this.KONVRS_NAMES;
+            name = pool[Math.floor(Math.random() * pool.length)];
+        }
+
         GameState.persona.influence.village -= 15;
         CellariumSystem.addGrose(-10);
 
-        const usedNames = GameState.conversi.map(k => k.name);
-        const available = this.KONVRS_NAMES.filter(n => !usedNames.includes(n));
-        const pool = available.length ? available : this.KONVRS_NAMES;
-        const name = pool[Math.floor(Math.random() * pool.length)];
-
-        const konvrs = { id: 'konvrs_' + Date.now(), name, hiredAt: Date.now() };
+        const konvrs = { id: 'konvrs_' + Date.now(), rosterId, name, hiredAt: Date.now(), fatigue: 0 };
         GameState.conversi.push(konvrs);
 
-        UI.notifyPanel('✝️ ' + (lang==='en' ? name+' has joined as a lay brother.' : name+' se připojil jako konvrš.'), 'success');
+        UI.notifyPanel('✝️ ' + (lang==='en' ? name+' has joined as a lay brother.' : name+' se připojil jako konvrš.') + (hireQuote ? ' „' + hireQuote + '“' : ''), 'success');
         Game.addKronikaEntry('important',
             '✝️ ' + name + ' se připojil ke klášteru jako konvrš.',
             '✝️ ' + name + ' has joined the monastery as a lay brother.',
@@ -3768,20 +3806,37 @@ const Game = {
 
     checkConversiChores: function() {
         if (!GameState.conversi || GameState.conversi.length === 0) return;
-        if (typeof GameState.conversiFatigue !== 'number') GameState.conversiFatigue = 0;
 
-        // Odpočinek na Officiu — jednou za 24h, -10 únavy
+        // Migrace: sdílená conversiFatigue → per-konvrš fatigue (varianta A: rozdat hodnotu)
+        const legacyFatigue = (typeof GameState.conversiFatigue === 'number') ? GameState.conversiFatigue : 0;
+        GameState.conversi.forEach(k => {
+            if (typeof k.fatigue !== 'number') k.fatigue = legacyFatigue;
+            // Migrace: starý save bez rosterId → dohledat podle jména; mimo roster = null (běží dál bez hlášek)
+            if (k.rosterId === undefined && typeof ConversiRosterDB !== 'undefined') {
+                const rid = Object.keys(ConversiRosterDB).find(r => ConversiRosterDB[r].name === k.name);
+                k.rosterId = rid || null;
+            }
+        });
+        if (typeof GameState.conversiFatigue === 'number') delete GameState.conversiFatigue;
+
+        // Odpočinek na Officiu — jednou za 24h, -10 únavy každému
         if (this.isOfficiumHours()) {
             const lastRest = GameState.conversiLastRest || 0;
             if (Date.now() - lastRest >= 24 * 60 * 60 * 1000) {
-                GameState.conversiFatigue = Math.max(0, GameState.conversiFatigue - 10);
+                GameState.conversi.forEach(k => {
+                    k.fatigue = Math.max(0, k.fatigue - 10);
+                });
                 GameState.conversiLastRest = Date.now();
                 Game.save();
             }
             return; // na Officiu, nedostupní pro úkoly
         }
 
-        if (GameState.conversiFatigue >= 80) return; // příliš unavení na práci
+        // Práci dělá nejméně unavený dostupný konvrš (fatigue < 80)
+        const worker = GameState.conversi
+            .filter(k => k.fatigue < 80)
+            .sort((a, b) => a.fatigue - b.fatigue)[0];
+        if (!worker) return; // všichni příliš unavení
 
         if (typeof FarmyardSystem === 'undefined') return;
         // Mapování: (argument pro cleanPen) → (klíč v GameState, kde se hlídá .built)
@@ -3796,18 +3851,16 @@ const Game = {
             { arg: 'donkeyStall', state: 'donkeyStall' },
         ];
         let cleanedAny = false;
-        const dayMs = FarmyardSystem.DAY_MS || (24 * 60 * 60 * 1000);
-        const now = Date.now();
         pens.forEach(p => {
             const st = GameState[p.state];
-            if (st && st.built && (now - (st.lastCleanMs || 0)) >= dayMs) {
+            if (st && st.built) {
                 const before = st.lastCleanMs || 0;
                 FarmyardSystem.cleanPen(p.arg);
                 if ((st.lastCleanMs || 0) > before) cleanedAny = true;
             }
         });
         if (cleanedAny) {
-            GameState.conversiFatigue = Math.min(100, GameState.conversiFatigue + 15);
+            worker.fatigue = Math.min(100, worker.fatigue + 15);
             Game.save();
         }
     },

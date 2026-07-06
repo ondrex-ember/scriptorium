@@ -36,6 +36,7 @@ const JS_MAIN = [
     'src/data/daily-facts.js',      // DailyFactsDB
     'src/data/scrinium.js',         // ScriniumDB
     'src/data/letters.js',          // LettersDB
+    'src/data/conversi.js',         // ConversiRosterDB, ConversiTraitsDB, ConversiBondsDB
 
     // Systémy
     'src/systems/theme.js',         // ThemeSystem
