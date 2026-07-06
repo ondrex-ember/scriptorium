@@ -67,6 +67,9 @@ const VigorSystem = {
         berry_pie_fine:   28,
         berry_pie_fine_1: 35,
         cooked_meat:    25,
+        crayfish_boiled: 18,
+        snails_black_sauce: 20,
+        frog_legs_fried: 20,
         stew:           35,
         cheese:         12,
         egg:            10,
@@ -266,6 +269,9 @@ const VigorSystem = {
         GameState.fatigue = Math.max(0, (GameState.fatigue || 0) - fatRecovery);
 
         meta.lastTick = now;
+
+        // Valetudo — průběžný tik aktivních neduhů (stejné elapsed, převedeno zpět na ms)
+        if (typeof HealthSystem !== 'undefined') HealthSystem.tickAll(elapsed * 3600000);
 
         // ── Timer check: Nona odpočinek (60s) ────────────────────────────────
         if (meta.nonaStart > 0 && now - meta.nonaStart >= 60000) {
