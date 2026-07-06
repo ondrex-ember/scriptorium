@@ -211,6 +211,83 @@ const SaeculumSystem = {
   },
 
   // ── CONVERSI — holý skelet (jméno + slot, bez úkolů zatím) ──────────────
+  // Detail konvrše — sheet přes existující NotificationSystem.modal (žádná nová infrastruktura)
+  showConversiDetail: function(id) {
+    if (typeof NotificationSystem === 'undefined') return;
+    const lang = (GameState.settings && GameState.settings.language) || 'cs';
+    const k = (GameState.conversi || []).find(x => x.id === id);
+    if (!k) return;
+    const rec = (k.rosterId && typeof ConversiRosterDB !== 'undefined') ? ConversiRosterDB[k.rosterId] : null;
+    const icon = (rec && rec.icon) ? rec.icon : '✝️';
+    const origin = rec ? (lang === 'en' ? rec.origin_en : rec.origin_cs) : '';
+    const mood = (typeof k.mood === 'number') ? k.mood : 60;
+    const loyalty = (typeof k.loyalty === 'number') ? k.loyalty : 30;
+    const fat = (typeof k.fatigue === 'number') ? k.fatigue : 0;
+
+    const bar = (label, val, color) => `
+      <div style="margin-bottom:7px;">
+        <div style="display:flex; justify-content:space-between; font-size:0.72rem; opacity:0.75; margin-bottom:2px;">
+          <span>${label}</span><span>${val}%</span>
+        </div>
+        <div style="background:rgba(0,0,0,0.12); border-radius:3px; height:5px;">
+          <div style="width:${val}%; background:${color}; height:5px; border-radius:3px;"></div>
+        </div>
+      </div>`;
+    const moodColor = mood >= 65 ? '#5a9a5a' : mood >= 40 ? '#e67e22' : '#c0392b';
+    const loyColor  = loyalty >= 70 ? '#5a9a5a' : loyalty >= 40 ? '#e67e22' : '#c0392b';
+    const fatColor  = fat <= 40 ? '#5a9a5a' : fat <= 70 ? '#e67e22' : '#c0392b';
+
+    let html = '';
+    if (origin) html += `<div style="font-style:italic; font-size:0.8rem; opacity:0.8; margin-bottom:10px; line-height:1.4;">${origin}</div>`;
+    html += bar((lang==='en'?'😊 Mood':'😊 Nálada'), mood, moodColor);
+    html += bar((lang==='en'?'🤝 Loyalty':'🤝 Věrnost'), loyalty, loyColor);
+    html += bar((lang==='en'?'😴 Fatigue':'😴 Únava'), fat, fatColor);
+
+    // Kontrakt
+    const owed = (typeof k.wageOwed === 'number') ? k.wageOwed : 0;
+    const nextW = GameState.conversiNextWage ? Math.max(0, Math.ceil((GameState.conversiNextWage - Date.now()) / (24*60*60*1000))) : null;
+    html += `<div style="font-size:0.72rem; font-weight:bold; opacity:0.75; margin:10px 0 4px;">${lang==='en'?'Contract':'Kontrakt'}</div>`;
+    html += `<div style="font-size:0.76rem; margin-bottom:3px;">💰 ${lang==='en'?'Wage: 2 groats/week':'Mzda: 2 groše/týden'}${nextW !== null ? (lang==='en' ? ' · payday in '+nextW+'d' : ' · výplata za '+nextW+' d') : ''}</div>`;
+    if (owed > 0) html += `<div style="font-size:0.76rem; margin-bottom:3px; color:#c0392b;">💸 ${lang==='en'?'Owed':'Dluh'}: ${owed} g</div>`;
+    if (k.penanceUntil && k.penanceUntil > Date.now()) {
+        const pd = Math.ceil((k.penanceUntil - Date.now()) / (24*60*60*1000));
+        html += `<div style="font-size:0.76rem; margin-bottom:3px;">⚖️ ${lang==='en' ? 'Penance: '+pd+' day(s) remaining — does not work' : 'Pokání: zbývá '+pd+' d — nepracuje'}</div>`;
+    }
+
+    if (rec && rec.traits && rec.traits.length && typeof ConversiTraitsDB !== 'undefined') {
+      html += `<div style="font-size:0.72rem; font-weight:bold; opacity:0.75; margin:10px 0 4px;">${lang==='en'?'Traits':'Vlastnosti'}</div>`;
+      rec.traits.forEach(tid => {
+        const td = ConversiTraitsDB[tid];
+        if (!td) return;
+        html += `<div style="font-size:0.76rem; margin-bottom:3px;">${td.icon} <strong>${lang==='en'?td.name_en:td.name}</strong> — ${lang==='en'?td.desc_en:td.desc}</div>`;
+      });
+    }
+
+    if (k.rosterId && typeof ConversiBondsDB !== 'undefined') {
+      const hiredIds = GameState.conversi.map(x => x.rosterId).filter(Boolean);
+      const bonds = ConversiBondsDB.filter(bd => bd.a === k.rosterId || bd.b === k.rosterId);
+      if (bonds.length) {
+        html += `<div style="font-size:0.72rem; font-weight:bold; opacity:0.75; margin:10px 0 4px;">${lang==='en'?'Bonds':'Vazby'}</div>`;
+        bonds.forEach(bd => {
+          const otherId = (bd.a === k.rosterId) ? bd.b : bd.a;
+          const otherRec = ConversiRosterDB[otherId];
+          const otherName = otherRec ? otherRec.name : '?';
+          const inCrew = hiredIds.includes(otherId);
+          const mark = bd.type === 'affinity' ? '🟢' : '🔴';
+          const here = inCrew ? (lang==='en'?'✓ in the monastery':'✓ v klášteře') : (lang==='en'?'✗ not here':'✗ není zde');
+          html += `<div style="font-size:0.76rem; margin-bottom:5px; line-height:1.35;">${mark} <strong>${otherName}</strong> <span style="opacity:0.6; font-size:0.68rem;">(${here})</span><br><span style="opacity:0.75;">${lang==='en'?bd.desc_en:bd.desc_cs}</span></div>`;
+        });
+      }
+    }
+
+    NotificationSystem.modal({
+      icon: icon,
+      title: k.name,
+      text: html,
+      choices: [{ label: (lang==='en'?'Close':'Zavřít') }]
+    });
+  },
+
   renderConversi: function() {
     const lang = (GameState.settings && GameState.settings.language) || 'cs';
     if (!GameState.ui) GameState.ui = {};
@@ -229,6 +306,10 @@ const SaeculumSystem = {
       h += `<div style="font-size:0.8rem; opacity:0.6; font-style:italic;">${lang==='en'?'No dormitory built yet — see Old Cellars in the Cellarium.':'Zatím žádný dormitář — viz Staré sklepy v Cellariu.'}</div>`;
     } else {
       h += `<div style="font-size:0.85rem; margin-bottom:8px;">${lang==='en'?'Beds':'Lůžka'}: <strong>${list.length} / ${cap}</strong></div>`;
+      if (list.length && GameState.conversiNextWage) {
+        const daysToWage = Math.max(0, Math.ceil((GameState.conversiNextWage - Date.now()) / (24*60*60*1000)));
+        h += `<div style="font-size:0.72rem; opacity:0.65; margin-bottom:8px;">💰 ${lang==='en' ? 'Wage: 2 g/brother · payday in '+daysToWage+'d' : 'Mzda: 2 g/konvrš · výplata za '+daysToWage+' d'}</div>`;
+      }
       const atOfficium = (typeof Game !== 'undefined' && Game.isOfficiumHours) ? Game.isOfficiumHours() : false;
       const allTired = list.length > 0 && list.every(k => (typeof k.fatigue === 'number' ? k.fatigue : 0) >= 80);
       if (list.length && atOfficium) {
@@ -244,15 +325,25 @@ const SaeculumSystem = {
           const rec = (k.rosterId && typeof ConversiRosterDB !== 'undefined') ? ConversiRosterDB[k.rosterId] : null;
           const kIcon = (rec && rec.icon) ? rec.icon : '✝️';
           const kOrigin = rec ? (lang === 'en' ? rec.origin_en : rec.origin_cs) : '';
-          h += `<div style="font-size:0.82rem; padding:6px 8px; background:rgba(255,255,255,0.4); border-radius:6px;">
+          let traitBadges = '';
+          if (rec && rec.traits && typeof ConversiTraitsDB !== 'undefined') {
+            traitBadges = rec.traits.map(tid => {
+              const td = ConversiTraitsDB[tid];
+              if (!td) return '';
+              const tName = lang === 'en' ? td.name_en : td.name;
+              const tDesc = lang === 'en' ? td.desc_en : td.desc;
+              return `<span title="${tDesc}" style="font-size:0.66rem; background:rgba(197,160,89,0.18); border:1px solid rgba(197,160,89,0.35); border-radius:4px; padding:1px 5px; margin-left:6px; cursor:default;">${td.icon} ${tName}</span>`;
+            }).join('');
+          }
+          h += `<div onclick="SaeculumSystem.showConversiDetail('${k.id}')" style="font-size:0.82rem; padding:6px 8px; background:rgba(255,255,255,0.4); border-radius:6px; cursor:pointer;">
                   <div style="display:flex; justify-content:space-between; align-items:center;">
-                    <span>${kIcon} ${k.name}</span>
-                    <span style="font-size:0.68rem; opacity:0.7;">${lang==='en'?'Fatigue':'Únava'} ${kf}%</span>
+                    <span>${kIcon} ${k.name}${traitBadges}${(k.wageOwed > 0) ? `<span style="font-size:0.66rem; background:rgba(192,57,43,0.15); border:1px solid rgba(192,57,43,0.4); border-radius:4px; padding:1px 5px; margin-left:6px; color:#c0392b;">💸 ${k.wageOwed}g</span>` : ''}${(k.penanceUntil && k.penanceUntil > Date.now()) ? `<span style="font-size:0.66rem; background:rgba(80,80,140,0.12); border:1px solid rgba(80,80,140,0.35); border-radius:4px; padding:1px 5px; margin-left:6px;">⚖️ ${lang==='en'?'Penance':'Pokání'} ${Math.ceil((k.penanceUntil - Date.now())/(24*60*60*1000))}d</span>` : ''}</span>
+                    <span style="font-size:0.68rem; opacity:0.7;">${(typeof k.mood === 'number') ? ((k.mood >= 65 ? '😊' : k.mood >= 40 ? '😐' : '😞') + ' ' + k.mood + '% · ') : ''}${lang==='en'?'Fatigue':'Únava'} ${kf}%</span>
                   </div>
                   <div style="background:rgba(0,0,0,0.1); border-radius:3px; height:4px; margin-top:4px;">
                     <div style="width:${kf}%; background:${kfColor}; height:4px; border-radius:3px;"></div>
                   </div>
-                  ${kOrigin ? `<div style="font-size:0.68rem; opacity:0.6; margin-top:4px; font-style:italic; line-height:1.35;">${kOrigin}</div>` : ''}
+                  ${kOrigin ? `<div style="font-size:0.68rem; opacity:0.6; margin-top:4px; font-style:italic; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${kOrigin}</div>` : ''}
                 </div>`;
         });
         h += `</div>`;

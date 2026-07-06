@@ -3804,6 +3804,98 @@ const Game = {
         return h >= 6 && h < 9;
     },
 
+    // Traity konvrše z rosteru (fallback prázdné pole)
+    _konvrsTraits: function(k) {
+        if (!k || !k.rosterId || typeof ConversiRosterDB === 'undefined') return [];
+        const rec = ConversiRosterDB[k.rosterId];
+        return (rec && rec.traits) ? rec.traits : [];
+    },
+
+    // Kapitula — týdenní shromáždění konvršů: konflikt (tenze) / bonus (svornost) / ticho
+    _runKapitula: function() {
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        const list = GameState.conversi || [];
+        const hiredIds = list.map(k => k.rosterId).filter(Boolean);
+
+        // Aktivní tenze: oba z páru najatí
+        let conflict = null;
+        if (typeof ConversiBondsDB !== 'undefined') {
+            const bond = ConversiBondsDB.find(bd => bd.type === 'tension' && hiredIds.includes(bd.a) && hiredIds.includes(bd.b));
+            if (bond) {
+                const ka = list.find(k => k.rosterId === bond.a);
+                const kb = list.find(k => k.rosterId === bond.b);
+                if (ka && kb) conflict = { bond, ka, kb };
+            }
+        }
+
+        if (conflict) {
+            const { bond, ka, kb } = conflict;
+            // Viník = nižší loajalita; druhý = poškozený
+            const victim = (ka.loyalty <= kb.loyalty) ? ka : kb;
+            const other  = (victim === ka) ? kb : ka;
+            const bondText = lang === 'en' ? bond.desc_en : bond.desc_cs;
+            const rerender = () => { if (typeof SaeculumSystem !== 'undefined') SaeculumSystem.switchEntity(GameState.ui.saeculumEntity || 'tavern'); };
+            NotificationSystem.modal({
+                icon: '⚖️',
+                title: (lang==='en' ? 'Chapter — a dispute among the brothers' : 'Kapitula — spor mezi bratry'),
+                text: `<div style="font-size:0.82rem; line-height:1.45;"><strong>${ka.name}</strong> × <strong>${kb.name}</strong><br><span style="opacity:0.75; font-style:italic;">${bondText}</span><br><br>${lang==='en'?'The chapter awaits your judgement.':'Kapitula čeká na tvůj soud.'}</div>`,
+                choices: [
+                    { label: (lang==='en'?'🕊️ Reconcile them':'🕊️ Rozsoudit smírně'), effect: () => {
+                        ka.mood = Math.min(100, ka.mood + 5);
+                        kb.mood = Math.min(100, kb.mood + 5);
+                        Game.addKronikaEntry('minor',
+                            '⚖️ Kapitula: spor mezi bratry ' + ka.name + ' a ' + kb.name + ' urovnán smírem.',
+                            '⚖️ Chapter: the dispute between ' + ka.name + ' and ' + kb.name + ' was settled peacefully.',
+                            '⚖️ Capitulum: lis composita est.');
+                        Game.save(); rerender();
+                    }},
+                    { label: (lang==='en'?'⚖️ Impose penance on '+victim.name:'⚖️ Uložit Pokání — '+victim.name), type: 'danger', effect: () => {
+                        victim.penanceUntil = Date.now() + 2 * 24 * 60 * 60 * 1000;
+                        victim.loyalty = Math.max(0, victim.loyalty - 5);
+                        other.mood = Math.min(100, other.mood + 8);
+                        UI.notifyPanel('⚖️ ' + (lang==='en' ? victim.name+' was given two days of penance.' : victim.name+' dostal dva dny Pokání.'), 'warning');
+                        Game.addKronikaEntry('important',
+                            '⚖️ Kapitula: bratr ' + victim.name + ' dostal dva dny Pokání za spor s bratrem jménem ' + other.name + '.',
+                            '⚖️ Chapter: brother ' + victim.name + ' received two days of penance over the dispute with brother ' + other.name + '.',
+                            '⚖️ Capitulum: ' + victim.name + ' poenitentiam accepit.');
+                        Game.save(); rerender();
+                    }},
+                    { label: (lang==='en'?'🤐 Let it be':'🤐 Nechat být'), effect: () => {
+                        ka.mood = Math.max(0, ka.mood - 5);
+                        kb.mood = Math.max(0, kb.mood - 5);
+                        Game.addKronikaEntry('minor',
+                            '⚖️ Kapitula: spor mezi bratry zůstal nevyřešen. Hnisá dál.',
+                            '⚖️ Chapter: the dispute among the brothers remains unresolved. It festers on.',
+                            '⚖️ Capitulum: lis manet.');
+                        Game.save(); rerender();
+                    }}
+                ]
+            });
+            return;
+        }
+
+        // Bez konfliktu: svorná parta (průměrný mood ≥ 65) → bonus
+        const avgMood = list.reduce((s, k) => s + (k.mood || 60), 0) / list.length;
+        if (avgMood >= 65) {
+            list.forEach(k => {
+                k.fatigue = Math.max(0, k.fatigue - 5);
+                k.mood = Math.min(100, k.mood + 3);
+            });
+            if (typeof UI !== 'undefined' && UI.notifyPanel) {
+                UI.notifyPanel('⚖️ ' + (lang==='en' ? 'The chapter passed in peace and concord. The brothers work with lighter hearts.' : 'Kapitula proběhla v pokoji a svornosti. Bratři pracují s lehčím srdcem.'), 'success');
+            }
+            Game.addKronikaEntry('minor',
+                '⚖️ Kapitula proběhla v pokoji a svornosti.',
+                '⚖️ The chapter passed in peace and concord.',
+                '⚖️ Capitulum in pace actum est.');
+        } else {
+            Game.addKronikaEntry('minor',
+                '⚖️ Kapitula proběhla bez zvláštních událostí.',
+                '⚖️ The chapter passed without notable events.',
+                '⚖️ Capitulum sine eventu.');
+        }
+    },
+
     checkConversiChores: function() {
         if (!GameState.conversi || GameState.conversi.length === 0) return;
 
@@ -3811,6 +3903,8 @@ const Game = {
         const legacyFatigue = (typeof GameState.conversiFatigue === 'number') ? GameState.conversiFatigue : 0;
         GameState.conversi.forEach(k => {
             if (typeof k.fatigue !== 'number') k.fatigue = legacyFatigue;
+            if (typeof k.mood !== 'number') k.mood = 60;
+            if (typeof k.loyalty !== 'number') k.loyalty = 30;
             // Migrace: starý save bez rosterId → dohledat podle jména; mimo roster = null (běží dál bez hlášek)
             if (k.rosterId === undefined && typeof ConversiRosterDB !== 'undefined') {
                 const rid = Object.keys(ConversiRosterDB).find(r => ConversiRosterDB[r].name === k.name);
@@ -3819,12 +3913,83 @@ const Game = {
         });
         if (typeof GameState.conversiFatigue === 'number') delete GameState.conversiFatigue;
 
-        // Odpočinek na Officiu — jednou za 24h, -10 únavy každému
+        // ── Mzda: 2 groše/konvrš, výplatní den 1×/7 reálných dní ──
+        const WEEK = 7 * 24 * 60 * 60 * 1000;
+        if (!GameState.conversiNextWage) GameState.conversiNextWage = Date.now() + WEEK; // první výplata za týden, žádný zpětný dluh
+        if (Date.now() >= GameState.conversiNextWage && GameState.conversi.length > 0) {
+            const lang = (GameState.settings && GameState.settings.language) || 'cs';
+            const leavers = [];
+            GameState.conversi.forEach(k => {
+                if (typeof k.wageOwed !== 'number') k.wageOwed = 0;
+                const due = 2 + k.wageOwed;
+                const grose = (typeof CellariumSystem !== 'undefined') ? CellariumSystem.getGrose() : 0;
+                if (grose >= due) {
+                    CellariumSystem.addGrose(-due);
+                    if (k.wageOwed > 0) k.loyalty = Math.min(100, k.loyalty + 2); // splacený dluh = usmíření
+                    k.wageOwed = 0;
+                } else {
+                    k.wageOwed += 2;
+                    k.loyalty = Math.max(0, k.loyalty - 5);
+                    k.mood = Math.max(0, k.mood - 5);
+                    if (k.loyalty <= 0) leavers.push(k);
+                }
+            });
+            leavers.forEach(k => {
+                GameState.conversi = GameState.conversi.filter(x => x.id !== k.id);
+                if (typeof UI !== 'undefined' && UI.notifyPanel) {
+                    UI.notifyPanel('🚪 ' + (lang==='en'
+                        ? k.name + ' has left the monastery — unpaid and forgotten.'
+                        : k.name + ' opustil klášter — neplacen a zapomenut.'), 'warning');
+                }
+                Game.addKronikaEntry('important',
+                    '🚪 ' + k.name + ' opustil klášter. Mzda zůstala nevyplacena příliš dlouho.',
+                    '🚪 ' + k.name + ' left the monastery. His wages went unpaid too long.',
+                    '🚪 ' + k.name + ' monasterium reliquit.'
+                );
+            });
+            GameState.conversiNextWage = Date.now() + WEEK;
+            Game.save();
+        }
+
+        // ── Kapitula: týdenní shromáždění (první za ~3,5 dne — střídá se s výplatou) ──
+        if (!GameState.conversiNextKapitula) GameState.conversiNextKapitula = Date.now() + Math.round(WEEK / 2);
+        if (Date.now() >= GameState.conversiNextKapitula && GameState.conversi.length > 0) {
+            GameState.conversiNextKapitula = Date.now() + WEEK;
+            this._runKapitula();
+            Game.save();
+        }
+
+        // Odpočinek na Officiu — jednou za 24h; základ -10
+        // Traity: trpelivy = sobě -15; chrapoun v partě = OSTATNÍ jen -7 (soused chrápe)
         if (this.isOfficiumHours()) {
             const lastRest = GameState.conversiLastRest || 0;
             if (Date.now() - lastRest >= 24 * 60 * 60 * 1000) {
+                const snorerPresent = GameState.conversi.some(k => this._konvrsTraits(k).includes('chrapoun'));
+                const hiredIds = GameState.conversi.map(k => k.rosterId).filter(Boolean);
                 GameState.conversi.forEach(k => {
-                    k.fatigue = Math.max(0, k.fatigue - 10);
+                    const tr = this._konvrsTraits(k);
+                    let rest = 10;
+                    if (tr.includes('trpelivy')) rest = 15;
+                    if (snorerPresent && !tr.includes('chrapoun')) rest = Math.min(rest, 7);
+                    k.fatigue = Math.max(0, k.fatigue - rest);
+
+                    // Mood: vazby mezi najatými (afinita +3, tenze -3); bez vazeb drift +2 k 60
+                    let moodDelta = 0, hasBond = false;
+                    if (k.rosterId && typeof ConversiBondsDB !== 'undefined') {
+                        ConversiBondsDB.forEach(bd => {
+                            const other = (bd.a === k.rosterId) ? bd.b : (bd.b === k.rosterId ? bd.a : null);
+                            if (other && hiredIds.includes(other)) {
+                                hasBond = true;
+                                moodDelta += (bd.type === 'affinity') ? 3 : -3;
+                            }
+                        });
+                    }
+                    if (!hasBond && k.mood < 60) moodDelta += 2;
+                    k.mood = Math.max(0, Math.min(100, (k.mood || 60) + moodDelta));
+                    if (tr.includes('mrzout')) k.mood = Math.min(k.mood, 70);
+
+                    // Loyalty: +1/den služby, zbožný +2
+                    k.loyalty = Math.min(100, (k.loyalty || 30) + (tr.includes('zbozny') ? 2 : 1));
                 });
                 GameState.conversiLastRest = Date.now();
                 Game.save();
@@ -3832,11 +3997,13 @@ const Game = {
             return; // na Officiu, nedostupní pro úkoly
         }
 
-        // Práci dělá nejméně unavený dostupný konvrš (fatigue < 80)
+        // Práci dělá nejméně unavený dostupný konvrš (strop 80; pilny 90; mood < 30 nebo Pokání = nepracuje)
         const worker = GameState.conversi
-            .filter(k => k.fatigue < 80)
+            .filter(k => k.fatigue < (this._konvrsTraits(k).includes('pilny') ? 90 : 80)
+                      && (typeof k.mood !== 'number' || k.mood >= 30)
+                      && !(k.penanceUntil && k.penanceUntil > Date.now()))
             .sort((a, b) => a.fatigue - b.fatigue)[0];
-        if (!worker) return; // všichni příliš unavení
+        if (!worker) return; // všichni unavení, bez nálady, nebo v Pokání
 
         if (typeof FarmyardSystem === 'undefined') return;
         // Mapování: (argument pro cleanPen) → (klíč v GameState, kde se hlídá .built)
@@ -3851,16 +4018,20 @@ const Game = {
             { arg: 'donkeyStall', state: 'donkeyStall' },
         ];
         let cleanedAny = false;
+        const DAY = 24 * 60 * 60 * 1000;
         pens.forEach(p => {
             const st = GameState[p.state];
             if (st && st.built) {
+                // Pojistka: chlév v cooldownu přeskočit tiše — cleanPen by toastoval "uklidíte až zítra"
+                if (Date.now() - (st.lastCleanMs || 0) < DAY) return;
                 const before = st.lastCleanMs || 0;
                 FarmyardSystem.cleanPen(p.arg);
                 if ((st.lastCleanMs || 0) > before) cleanedAny = true;
             }
         });
         if (cleanedAny) {
-            worker.fatigue = Math.min(100, worker.fatigue + 15);
+            const workGain = this._konvrsTraits(worker).includes('silak') ? 10 : 15;
+            worker.fatigue = Math.min(100, worker.fatigue + workGain);
             Game.save();
         }
     },
