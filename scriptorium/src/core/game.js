@@ -1779,6 +1779,7 @@ const Game = {
         // Save hint tracking
         Game._saveHint.actions++;
         Game._checkSaveHint();
+        if (typeof EventsSystem !== 'undefined') EventsSystem.onAction();
 
 	    // === SPECIAL HANDLING FOR WELL === (PŘIDAT NA ZAČÁTEK)
 		if (type === 'well_water') {
@@ -2519,6 +2520,7 @@ const Game = {
         // Save hint tracking
         Game._saveHint.actions++;
         Game._checkSaveHint();
+        if (typeof EventsSystem !== 'undefined') EventsSystem.onAction();
 
         // Vigor check — těžké recepty vyžadují Vigor >= 25, lehké >= 10
         if (typeof VigorSystem !== 'undefined') {

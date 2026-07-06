@@ -279,12 +279,26 @@ const NotificationSystem = {
             </button>
         `).join('');
 
+        // Banner (ilustrace + titulek přes gradient) — jen když opts.image je vyplněný.
+        // Bez obrázku zůstává dnešní vzhled (ikona + titulek nad textem).
+        const bannerBlock = opts.image
+            ? `<div class="ns-modal-banner" style="background-image:url('${opts.image}')">
+                   <div class="ns-modal-banner-title">${opts.title || ''}</div>
+               </div>`
+            : '';
+        const headerBlock = opts.image
+            ? ''
+            : `${opts.icon ? `<span class="ns-modal-icon">${opts.icon}</span>` : ''}
+               <div class="ns-modal-title">${opts.title || ''}</div>`;
+
         overlay.innerHTML = `
-            <div class="ns-modal" role="dialog" aria-modal="true">
-                ${opts.icon ? `<span class="ns-modal-icon">${opts.icon}</span>` : ''}
-                <div class="ns-modal-title">${opts.title || ''}</div>
-                <div class="ns-modal-body">${opts.text || ''}</div>
-                <div class="ns-modal-footer">${choices}</div>
+            <div class="ns-modal${opts.image ? ' ns-modal--banner' : ''}" role="dialog" aria-modal="true">
+                ${bannerBlock}
+                <div class="ns-modal-content">
+                    ${headerBlock}
+                    <div class="ns-modal-body">${opts.text || ''}</div>
+                    <div class="ns-modal-footer">${choices}</div>
+                </div>
             </div>
         `;
 
@@ -524,11 +538,37 @@ const NotificationSystem = {
     border-radius: 4px;
     max-width: 420px;
     width: 100%;
-    padding: 32px 28px 24px;
     box-shadow: 0 8px 40px rgba(0,0,0,0.6);
     font-family: var(--font-body, 'Crimson Text', serif);
     animation: nsFadeIn 0.25s ease;
     text-align: center;
+    overflow: hidden;
+}
+.ns-modal-content {
+    padding: 32px 28px 24px;
+}
+.ns-modal--banner .ns-modal-content {
+    padding-top: 20px;
+}
+.ns-modal-banner {
+    position: relative;
+    width: 100%;
+    height: 180px;
+    background-size: cover;
+    background-position: center;
+}
+.ns-modal-banner-title {
+    position: absolute;
+    left: 0; right: 0; bottom: 0;
+    padding: 40px 18px 14px;
+    background: linear-gradient(to top, rgba(0,0,0,0.88), rgba(0,0,0,0));
+    font-family: var(--font-display, 'Cinzel', serif);
+    font-size: 1.15rem;
+    font-weight: bold;
+    color: var(--accent-gold, #f0d98f);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    text-align: left;
 }
 .ns-modal-icon {
     font-size: 3.2rem;

@@ -171,10 +171,8 @@ const EventsSystem = {
         if (!GameState.events) GameState.events = {};
         if (!GameState.events.triggered) GameState.events.triggered = {};
         const now = Date.now();
-        const last = GameState.events.lastRandomEvent || 0;
-        if (now - last < 24 * 3600000) return; // max 1 za 24h
 
-        // Walledbooks return check
+        // Walledbooks return check — naplánovaný návrat, nezávislý na 24h pojistce níže
         if (GameState.eventData && GameState.eventData.walledBooks) {
             const data = GameState.eventData.walledBooks;
             if (Date.now() >= data.returnTime) {
@@ -189,6 +187,9 @@ const EventsSystem = {
                 Game.save();
             }
         }
+
+        const last = GameState.events.lastRandomEvent || 0;
+        if (now - last < 24 * 3600000) return; // max 1 nový event za 24h
 
         for (let event of this.events) {
             // canTrigger persistovaný v GameState.events.triggered
@@ -478,51 +479,35 @@ const EventsSystem = {
     ], // konec calendarEvents
 
     showEvent: function(event) {
-        const modal = document.createElement('div');
-        modal.style.cssText = `
-            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            background: #f5f5dc; border: 3px solid #8b4513; border-radius: 10px;
-            padding: 20px; max-width: 500px; z-index: 10000; box-shadow: 0 4px 20px rgba(0,0,0,0.5);
-        `;
-        
-        // Dynamické načtení textů přes t()
-        let html = `<h3 style="margin-top:0;">${t(event.titleKey)}</h3>`;
-        html += `<p style="white-space: pre-wrap;">${t(event.textKey)}</p>`;
-        html += `<div style="margin-top:20px;">`;
-        
-        for(let choice of event.choices) {
-            html += `<button class="game-btn" style="display:block; width:100%; margin-bottom:10px; text-align:left;" data-choice="${event.choices.indexOf(choice)}">
-                ${t(choice.labelKey)}<br>
-                <small style="opacity:0.7;">${t(choice.descKey)}</small>
-            </button>`;
-        }
-        
-        html += `</div>`;
-        modal.innerHTML = html;
-        
-        const backdrop = document.createElement('div');
-        backdrop.style.cssText = `position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); z-index: 9999;`;
-        
-        document.body.appendChild(backdrop);
-        document.body.appendChild(modal);
-        
-        modal.querySelectorAll('button').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const choiceIdx = parseInt(e.currentTarget.dataset.choice);
-                const choice = event.choices[choiceIdx];
+        if (typeof NotificationSystem === 'undefined' || !NotificationSystem.modal) return;
+
+        const choices = (event.choices || []).map(choice => ({
+            label: `${t(choice.labelKey)}<br><small style="opacity:0.7; font-weight:normal; text-transform:none; letter-spacing:0;">${t(choice.descKey)}</small>`,
+            type: 'default',
+            effect: () => {
                 const result = choice.action();
                 Game.save();
-
-                modal.innerHTML = `<h3 style="margin-top:0;">${t('events.ui.result')}</h3>
-                <p style="white-space: pre-wrap;">${result}</p>
-                <button class="game-btn" id="event-close-btn">${t('events.ui.close')}</button>`;
-
-                document.getElementById('event-close-btn').addEventListener('click', () => {
-                    modal.remove();
-                    if (backdrop && backdrop.parentElement) backdrop.remove();
-                    if (typeof UI !== 'undefined' && typeof UI.renderAll === 'function') UI.renderAll();
+                NotificationSystem.modal({
+                    title: t('events.ui.result'),
+                    image: event.image || null,
+                    text: result,
+                    choices: [{
+                        label: t('events.ui.close'),
+                        type: 'primary',
+                        effect: () => {
+                            if (typeof UI !== 'undefined' && typeof UI.renderAll === 'function') UI.renderAll();
+                        }
+                    }]
                 });
-            });
+            }
+        }));
+
+        NotificationSystem.modal({
+            icon: event.icon || '📜',
+            image: event.image || null,
+            title: t(event.titleKey),
+            text: t(event.textKey),
+            choices: choices
         });
     }
 };
