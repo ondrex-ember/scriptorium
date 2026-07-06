@@ -221,7 +221,7 @@ const PersonaSystem = {
 
         // Portrét
         const portraitHtml = p.portrait
-            ? `<img src="${p.portrait}" style="width:96px;height:96px;object-fit:cover;border-radius:6px;border:2px solid var(--accent-gold);">`
+            ? `<img src="${p.portrait}" style="width:96px;height:96px;object-fit:cover;border-radius:6px;border:2px solid var(--accent-gold);background:var(--bg-parchment);">`
             : `<div style="width:96px;height:96px;border:2px dashed rgba(197,160,89,0.4);border-radius:6px;display:flex;align-items:center;justify-content:center;font-family:monospace;font-size:0.6rem;line-height:1.2;white-space:pre;opacity:0.6;">  ___\n /   \\\n| o o |\n|  &gt;  |\n \\___/</div>`;
 
         // Datum narození
@@ -302,7 +302,32 @@ const PersonaSystem = {
             <div style="font-size:0.75rem;font-weight:bold;letter-spacing:0.06em;text-transform:uppercase;opacity:0.6;margin-bottom:8px;">📜 ${lang==='en'?'Cursus Vitae':'Cursus Vitae'}</div>
             ${timelineHtml}
         </div>
-        ${this._renderNextRankProgress(lang)}`;
+        ${this._renderNextRankProgress(lang)}
+        ${this._renderMonasticPath(lang)}`;
+    },
+
+    // ── Cursus Monasticus — klášterní dráha (odděleně od světské) ───────────
+    _renderMonasticPath: function(lang) {
+        const monasticId = GameState.rank && GameState.rank.monastic;
+        if (!monasticId) {
+            return `<div style="margin-top:14px;padding:10px 12px;background:rgba(197,160,89,0.06);border-left:3px solid var(--accent-gold);border-radius:4px;font-size:0.82rem;opacity:0.65;font-style:italic;">
+                ${lang==='en'?'Not yet on the monastic path.':'Zatím mimo klášterní dráhu.'}
+            </div>`;
+        }
+        const rankDef = (typeof RankSystem !== 'undefined' && RankSystem.monastic) ? RankSystem.monastic.find(r => r.id === monasticId) : null;
+        const icon = rankDef ? rankDef.icon : '✝️';
+        const name = (typeof RankSystem !== 'undefined' && RankSystem.getRankName) ? RankSystem.getRankName(monasticId) : monasticId;
+        const desc = (typeof RankSystem !== 'undefined' && RankSystem.getRankDesc) ? RankSystem.getRankDesc(monasticId) : '';
+        return `<div style="margin-top:16px;">
+            <div style="font-size:0.75rem;font-weight:bold;letter-spacing:0.06em;text-transform:uppercase;opacity:0.6;margin-bottom:8px;">✝️ Cursus Monasticus</div>
+            <div style="padding:12px;background:rgba(197,160,89,0.06);border:1px solid rgba(197,160,89,0.2);border-radius:8px;">
+                <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
+                    <span style="font-size:1.3rem;">${icon}</span>
+                    <strong style="font-size:0.9rem;">${name}</strong>
+                </div>
+                <div style="font-size:0.8rem;opacity:0.75;font-style:italic;">${desc}</div>
+            </div>
+        </div>`;
     },
 
     // ── Progress k příštímu ranku ────────────────────────────────────────────
@@ -806,11 +831,73 @@ const PersonaSystem = {
         if (!file) return;
         const reader = new FileReader();
         reader.onload = (e) => {
-            GameState.persona.portrait = e.target.result;
-            Game.save();
-            this.render();
+            this._processPortraitInk(e.target.result, (inkDataUrl) => {
+                GameState.persona.portrait = inkDataUrl;
+                Game.save();
+                this.render();
+            });
         };
         reader.readAsDataURL(file);
+    },
+
+    // Převede nahranou fotku na "dřevoryt" — dvoubarevný práh (pergamen/inkoust)
+    // + zrno + dřevěný rám. Osvědčený algoritmus z dřívější session, obnoveno.
+    _processPortraitInk: function(sourceDataUrl, callback) {
+        const img = new Image();
+        img.onload = function() {
+            const SIZE = 128;
+            const canvas = document.createElement('canvas');
+            canvas.width = SIZE; canvas.height = SIZE;
+            const ctx = canvas.getContext('2d');
+
+            // Oříznout na čtverec ze středu
+            const size = Math.min(img.width, img.height);
+            const sx = (img.width - size) / 2;
+            const sy = (img.height - size) / 2;
+            ctx.drawImage(img, sx, sy, size, size, 0, 0, SIZE, SIZE);
+
+            const imageData = ctx.getImageData(0, 0, SIZE, SIZE);
+            const data = imageData.data;
+
+            const PARCHMENT_R = 235, PARCHMENT_G = 215, PARCHMENT_B = 175;
+            const INK_R = 28, INK_G = 18, INK_B = 10;
+            const threshold = 128;
+
+            for (let i = 0; i < data.length; i += 4) {
+                const lum = 0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2];
+                const noise = (Math.random() - 0.5) * 40;
+                const val = lum + noise;
+                if (val > threshold) {
+                    data[i] = PARCHMENT_R; data[i + 1] = PARCHMENT_G; data[i + 2] = PARCHMENT_B;
+                } else {
+                    const grain = Math.floor(Math.random() * 15);
+                    data[i] = INK_R + grain; data[i + 1] = INK_G + grain; data[i + 2] = INK_B + grain;
+                }
+                data[i + 3] = 255;
+            }
+            ctx.putImageData(imageData, 0, 0);
+
+            // Zestárlý pergamenový nádech
+            ctx.fillStyle = 'rgba(139, 90, 30, 0.08)';
+            ctx.fillRect(0, 0, SIZE, SIZE);
+
+            // Dřevěný rám
+            ctx.strokeStyle = 'rgba(60, 30, 10, 0.95)';
+            ctx.lineWidth = 8;
+            ctx.strokeRect(0, 0, SIZE, SIZE);
+            ctx.strokeStyle = 'rgba(139, 90, 30, 0.7)';
+            ctx.lineWidth = 2;
+            ctx.strokeRect(10, 10, SIZE - 20, SIZE - 20);
+
+            // Rohové značky (charakteristické pro středověké dřevoryty)
+            ctx.fillStyle = 'rgba(60, 30, 10, 0.9)';
+            [[0, 0], [SIZE - 10, 0], [0, SIZE - 10], [SIZE - 10, SIZE - 10]].forEach(([cx, cy]) => {
+                ctx.fillRect(cx, cy, 10, 10);
+            });
+
+            callback(canvas.toDataURL('image/png'));
+        };
+        img.src = sourceDataUrl;
     },
 
     removePortrait: function() {

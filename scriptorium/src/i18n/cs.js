@@ -1524,6 +1524,17 @@ const STRINGS_cs = {
         expired: '{name} odeznělo.',
     },
 
+    // ── PORTA (korespondence) ────────────────────────────────────────────────
+    porta: {
+        title: 'Porta',
+        intro: 'Holubí pošta klášteru — zprávy z okolí i z dálky.',
+        empty: 'Žádné nové dopisy.',
+        open: 'Otevřít',
+        archive: 'Archiv',
+        locked: 'Holubník ještě nestojí. Porta čeká na rozhodnutí opata.',
+        cannotAfford: 'Na tuto volbu nemáš dost prostředků.',
+    },
+
     // ── SCRINIUM ABBATIS ─────────────────────────────────────────────────────
     scrinium: {
         title: 'Scrinium Abbatis',

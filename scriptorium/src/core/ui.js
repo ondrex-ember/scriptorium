@@ -125,6 +125,10 @@ const UI = {
         }
     },
     renderAll: function () {
+        // Porta — odhalit tlačítko v navigaci, jakmile GameState.flags.porta_active naskočí (Chronicon most)
+        const _portaBtn = document.getElementById('lore-tab-porta');
+        if (_portaBtn) _portaBtn.style.display = (GameState.flags && GameState.flags.porta_active) ? '' : 'none';
+
         const s = this.currentScreen || 'home';
         if (s === 'home') {
             this.renderActions();
@@ -896,6 +900,7 @@ const UI = {
         const _lichEl = document.getElementById('lore-iching-content'); if (_lichEl) _lichEl.style.display = 'none';
         const _lcalEl = document.getElementById('lore-calendarium-content'); if (_lcalEl) _lcalEl.style.display = 'none';
         const _lperEl = document.getElementById('lore-persona-content'); if (_lperEl) _lperEl.style.display = 'none';
+        const _lportEl = document.getElementById('lore-porta-content'); if (_lportEl) _lportEl.style.display = 'none';
 
         // Remove active class from all buttons
         document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
@@ -921,6 +926,8 @@ const UI = {
             if (_lcalEl) { _lcalEl.style.display = 'block'; CalendarSystem.render(); }
         } else if (tab === 'persona') {
             if (_lperEl) { _lperEl.style.display = 'block'; if (typeof PersonaSystem !== 'undefined') PersonaSystem.render(); }
+        } else if (tab === 'porta') {
+            if (_lportEl) { _lportEl.style.display = 'block'; if (typeof PortaSystem !== 'undefined') PortaSystem.render(); }
         }
     },
 

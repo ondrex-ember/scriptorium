@@ -2329,6 +2329,16 @@ According to Theophilus, the organ is an instrument worthy of God, but its const
         cured: '{name} cured.',
         expired: '{name} has passed.',
     },
+    // ── PORTA (correspondence) ───────────────────────────────────────────────
+    porta: {
+        title: 'Porta',
+        intro: 'The monastery\'s pigeon post — news from near and far.',
+        empty: 'No new letters.',
+        open: 'Open',
+        archive: 'Archive',
+        locked: 'The dovecote does not yet stand. Porta awaits the Abbot\'s decision.',
+        cannotAfford: 'You lack the means for this choice.',
+    },
     // ── SCRINIUM ABBATIS ─────────────────────────────────────────────────────
     scrinium: {
         title: 'Scrinium Abbatis',

@@ -3617,8 +3617,9 @@ const Game = {
         pet.submittedAt = Date.now();
         pet.deniedReason = null;
 
-        const submitDate = new Date().toLocaleDateString(cs ? 'cs-CZ' : 'en-GB');
-        const responseDate = new Date(Date.now() + 86400000).toLocaleDateString(cs ? 'cs-CZ' : 'en-GB');
+        const _toGameDate = (ts) => { const d = new Date(ts); return new Date(1465, d.getMonth(), d.getDate()); };
+        const submitDate = _toGameDate(Date.now()).toLocaleDateString(cs ? 'cs-CZ' : 'en-GB');
+        const responseDate = _toGameDate(Date.now() + 86400000).toLocaleDateString(cs ? 'cs-CZ' : 'en-GB');
 
         const kronikaCs = t('abbotPetition.' + type + '.kronika_submit')
             .replace('{responseDate}', responseDate);
@@ -3795,9 +3796,11 @@ const Game = {
             { arg: 'donkeyStall', state: 'donkeyStall' },
         ];
         let cleanedAny = false;
+        const dayMs = FarmyardSystem.DAY_MS || (24 * 60 * 60 * 1000);
+        const now = Date.now();
         pens.forEach(p => {
             const st = GameState[p.state];
-            if (st && st.built) {
+            if (st && st.built && (now - (st.lastCleanMs || 0)) >= dayMs) {
                 const before = st.lastCleanMs || 0;
                 FarmyardSystem.cleanPen(p.arg);
                 if ((st.lastCleanMs || 0) > before) cleanedAny = true;

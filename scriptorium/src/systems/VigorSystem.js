@@ -902,6 +902,12 @@ const VigorSystem = {
                </button>`
             : `<div style="font-size:0.7rem;opacity:0.5;margin-top:4px;">🧘 ${lang === 'en' ? `Meditation in ~${meditRemainH}h` : `Meditace za ~${meditRemainH}h`}</div>`;
 
+        const activeHealthIds = (GameState.health && GameState.health.active) ? Object.keys(GameState.health.active) : [];
+        const healthText = activeHealthIds.length === 0
+            ? (lang === 'en' ? 'Healthy' : 'Zdráv/a')
+            : activeHealthIds.map(id => (HealthConditionsDB[id] ? (lang === 'en' ? HealthConditionsDB[id].name_en : HealthConditionsDB[id].name) : id)).join(', ');
+        const healthColor = activeHealthIds.length === 0 ? 'var(--accent-gold)' : '#c0392b';
+
         panel.innerHTML = `
             <div class="pp-row">
                 <span class="pp-label">🍎 ${lang === 'en' ? 'Satiety' : 'Sytost'}</span>
@@ -910,6 +916,10 @@ const VigorSystem = {
             <div class="pp-row">
                 <span class="pp-label">💤 ${lang === 'en' ? 'Fatigue' : 'Únava'}</span>
                 <span class="pp-val">${fatigue}/100</span>
+            </div>
+            <div class="pp-row">
+                <span class="pp-label">🩺 ${lang === 'en' ? 'Health' : 'Zdraví'}</span>
+                <span class="pp-val" style="color:${healthColor};">${healthText}</span>
             </div>
             <div class="pp-row" style="border-top:1px solid rgba(197,160,89,0.2);margin-top:4px;padding-top:4px;">
                 <span class="pp-label">⚡ Vigor</span>

@@ -1538,8 +1538,9 @@ const CellariumSystem = {
           if (pStatus === 'none') {
             return `<button class="craft-btn" style="font-size:0.78rem; margin-bottom:6px;" onclick="Game.submitAbbotPetition('${b.petition_type}'); if(typeof CellariumSystem !== 'undefined') CellariumSystem.switchEntity('buildings');">📜 ${t('abbotPetition.' + b.petition_type + '.submit_btn')}</button>`;
           } else if (pStatus === 'pending') {
-            const sd = pet.submittedAt ? new Date(pet.submittedAt).toLocaleDateString(lang==='cs'?'cs-CZ':'en-GB') : '?';
-            const rd = pet.submittedAt ? new Date(pet.submittedAt + 86400000).toLocaleDateString(lang==='cs'?'cs-CZ':'en-GB') : '?';
+            const _toGameDate = (ts) => { const d = new Date(ts); return new Date(1465, d.getMonth(), d.getDate()); };
+            const sd = pet.submittedAt ? _toGameDate(pet.submittedAt).toLocaleDateString(lang==='cs'?'cs-CZ':'en-GB') : '?';
+            const rd = pet.submittedAt ? _toGameDate(pet.submittedAt + 86400000).toLocaleDateString(lang==='cs'?'cs-CZ':'en-GB') : '?';
             return `<div style="font-size:0.78rem; opacity:0.7; font-style:italic;">⏳ ${t('abbotPetition.' + b.petition_type + '.pending').replace('{date}', sd).replace('{responseDate}', rd)}</div>`;
           }
           return '';

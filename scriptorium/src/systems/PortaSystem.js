@@ -27,8 +27,17 @@ const PortaSystem = {
     },
 
     render: function () {
-        const el = document.getElementById('home-porta-content');
+        const el = document.getElementById('lore-porta-content');
         if (!el) return;
+
+        if (!(GameState.flags && GameState.flags.porta_active)) {
+            el.innerHTML = `<div style="padding:16px; background:rgba(197,160,89,0.06); border-radius:10px; border-left:4px solid var(--accent-gold); text-align:center; opacity:0.7;">
+                <div style="font-size:2rem; margin-bottom:8px;">🕊️</div>
+                <div style="font-size:0.85rem; font-style:italic;">${t('porta.locked')}</div>
+            </div>`;
+            return;
+        }
+
         this._ensureState();
         const lang = (GameState.settings && GameState.settings.language) || 'cs';
         const queue = this.getQueue();
@@ -67,46 +76,32 @@ const PortaSystem = {
     },
 
     openLetter: function (letterId) {
-        if (typeof LettersDB === 'undefined') return;
+        if (typeof LettersDB === 'undefined' || typeof NotificationSystem === 'undefined' || !NotificationSystem.modal) return;
         const letter = LettersDB.find(l => l.id === letterId);
         if (!letter) return;
 
-        const modal = document.createElement('div');
-        modal.style.cssText = `
-            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            background: #f5f5dc; border: 3px solid #8b4513; border-radius: 10px;
-            padding: 20px; max-width: 500px; z-index: 10000; box-shadow: 0 4px 20px rgba(0,0,0,0.5);
-        `;
-
-        let html = `<h3 style="margin-top:0;">${t(letter.titleKey)}</h3>`;
-        html += `<p style="white-space: pre-wrap;">${t(letter.textKey)}</p>`;
-        html += `<div style="margin-top:20px;">`;
-
-        letter.choices.forEach((choice, idx) => {
+        const choices = (letter.choices || []).map(choice => {
             const afford = (typeof choice.canAfford === 'function') ? choice.canAfford() : true;
-            html += `<button class="game-btn" style="display:block; width:100%; margin-bottom:10px; text-align:left;" data-choice="${idx}" ${afford ? '' : 'disabled'}>
-                ${t(choice.labelKey)}
-            </button>`;
+            return {
+                label: afford ? t(choice.labelKey) : `<span style="opacity:0.5;">${t(choice.labelKey)}</span>`,
+                type: 'default',
+                effect: () => {
+                    if (!afford) {
+                        if (typeof UI !== 'undefined') UI.notify(t('porta.cannotAfford'), true);
+                        return;
+                    }
+                    PortaSystem._resolveLetter(letter, choice);
+                    PortaSystem.render();
+                }
+            };
         });
 
-        html += `</div>`;
-        modal.innerHTML = html;
-
-        const backdrop = document.createElement('div');
-        backdrop.style.cssText = `position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); z-index: 9999;`;
-
-        document.body.appendChild(backdrop);
-        document.body.appendChild(modal);
-
-        modal.querySelectorAll('button:not([disabled])').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const choiceIdx = parseInt(e.currentTarget.dataset.choice);
-                const choice = letter.choices[choiceIdx];
-                PortaSystem._resolveLetter(letter, choice);
-                modal.remove();
-                if (backdrop && backdrop.parentElement) backdrop.remove();
-                PortaSystem.render();
-            });
+        NotificationSystem.modal({
+            icon: letter.seal === 'abbot' ? '✝️' : letter.seal === 'village' ? '🌾' : '🕊️',
+            image: letter.image || null,
+            title: t(letter.titleKey),
+            text: t(letter.textKey),
+            choices: choices
         });
     },
 
