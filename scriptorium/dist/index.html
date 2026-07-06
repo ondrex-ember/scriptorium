@@ -5342,6 +5342,9 @@ const ItemsDB = {
     "herb_red": { name: "Krvavý květ", name_en: "Bloodwort", icon: "🌺", type: "mat", desc: "Bylina.", desc_en: "A red healing herb." },
     "fat": { name: "Tuk", name_en: "Fat", icon: "🥩", type: "mat", desc: "Zvířecí tuk.", desc_en: "Animal fat." },
     "meat": { name: "Maso", name_en: "Meat", icon: "🍖", type: "food_raw", desc: "Surové maso.", desc_en: "Raw meat." },
+    "crayfish": { name: "Raci", name_en: "Crayfish", icon: "🦞", type: "food_raw", desc: "Sladkovodní raci z mokřadu.", desc_en: "Freshwater crayfish from the wetlands." },
+    "snail": { name: "Hlemýždi", name_en: "Snails", icon: "🐌", type: "food_raw", desc: "Hlemýždi s ulitou. Jiní tvorové než slimák.", desc_en: "Shelled snails. A different creature from the slug." },
+    "frog_legs": { name: "Žabí stehýnka", name_en: "Frog Legs", icon: "🍗", type: "food_raw", desc: "Stažená stehýnka ze žáby.", desc_en: "Skinned frog legs." },
     "bone": { name: "Kost", name_en: "Bone", icon: "☠️", type: "mat", desc: "Tvrdá kost.", desc_en: "Hard bone." },
     "leather": { name: "Kůže", name_en: "Leather", icon: "🦌", type: "mat", desc: "Ze zvířat.", desc_en: "Cured animal hide." },
 
@@ -5403,6 +5406,9 @@ const ItemsDB = {
 
     // COOKED FOOD
     "cooked_meat": { name: "Pečené maso", name_en: "Roasted Meat", icon: "🍗", type: "food", hunger: 6, desc: "Sytí 6h.", desc_en: "Fills for 6h." },
+    "crayfish_boiled": { name: "Raci vaření v pivu", name_en: "Crayfish Boiled in Beer", icon: "🦞", type: "food", desc: "Raci uvaření v pivu. Oblíbené mezi prostým lidem.", desc_en: "Crayfish boiled in beer. A favourite among common folk." },
+    "snails_black_sauce": { name: "Hlemýždi v černé omáčce", name_en: "Snails in Black Sauce", icon: "🐌", type: "food", desc: "Hlemýždi v omáčce zahuštěné chlebem a medem.", desc_en: "Snails in a sauce thickened with bread and honey." },
+    "frog_legs_fried": { name: "Žabí stehýnka na česneku", name_en: "Fried Frog Legs with Garlic", icon: "🍗", type: "food", desc: "Stehýnka osmažená na sádle s česnekem.", desc_en: "Legs fried in lard with garlic." },
     "cooked_beef": { name: "Pečené hovězí", name_en: "Roasted Beef", icon: "🍗", type: "food", desc: "Hovězí upečené na ohni.", desc_en: "Beef roasted over the fire." },
     "cooked_mutton": { name: "Pečené skopové", name_en: "Roasted Mutton", icon: "🍗", type: "food", desc: "Skopové upečené na ohni.", desc_en: "Mutton roasted over the fire." },
     "cooked_chicken": { name: "Pečené kuře", name_en: "Roasted Chicken", icon: "🍗", type: "food", desc: "Kuře upečené na ohni.", desc_en: "Chicken roasted over the fire." },
@@ -6091,6 +6097,10 @@ const RecipesDB = [
     { id: "braised_beef", output: "braised_beef", qty: 1, req: { "cooked_beef": 1, "carrot": 1, "cooking_pot": 0 }, cat: "food", locked: true },
     { id: "roast_rabbit_dish", output: "roast_rabbit_dish", qty: 1, req: { "cooked_rabbit": 1, "carrot": 1, "cabbage": 1, "cooking_pot": 0 }, cat: "food", locked: true },
     { id: "cooked_fish", output: "cooked_fish", qty: 1, req: { "fish": 1, "cooking_pot": 0 }, cat: "food", locked: true },
+    { id: "crayfish_boiled", output: "crayfish_boiled", qty: 1, req: { "crayfish": 3, "beer": 1, "cooking_pot": 0 }, cat: "food", locked: true, desc: "Raci vaření v pivu s kmínem.", desc_en: "Crayfish boiled in beer with caraway." },
+    { id: "snails_black_sauce", output: "snails_black_sauce", qty: 1, req: { "snail": 4, "bread": 1, "honey": 1, "fat": 1, "cooking_pot": 0 }, cat: "food", locked: true, desc: "Hlemýždi v omáčce zahuštěné chlebem.", desc_en: "Snails in a bread-thickened sauce." },
+    { id: "frog_legs_prep", output: "frog_legs", qty: 1, req: { "frog": 1 }, cat: "food", locked: true, desc: "Stažení a příprava žabích stehýnek.", desc_en: "Skinning and preparing frog legs." },
+    { id: "frog_legs_fried", output: "frog_legs_fried", qty: 1, req: { "frog_legs": 2, "fat": 1, "garlic": 1, "cooking_pot": 0 }, cat: "food", locked: true, desc: "Stehýnka osmažená na sádle s česnekem.", desc_en: "Legs fried in lard with garlic." },
     { id: "stew", output: "stew", qty: 1, req: { "meat": 1, "carrot": 1, "turnip": 1, "water": 1, "cooking_pot": 0 }, cat: "food", locked: true },
     { id: "mushroom_soup", output: "mushroom_soup", qty: 1, req: { "mushroom": 2, "onion": 1, "water": 1, "cooking_pot": 0 }, cat: "food", locked: true },
     { id: "smazenice", output: "smazenice", qty: 1, req: { "mushroom": 3, "onion": 1, "egg": 2, "cooking_pot": 0 }, cat: "food", locked: true },
