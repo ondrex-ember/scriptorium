@@ -4,6 +4,7 @@ const EventsSystem = {
             id: 'pellinga_swedish_siege',
             titleKey: 'events.swedish_siege.title',
             textKey: 'events.swedish_siege.text',
+            image: '/events/pellinga_swedish_siege.jpg',
             trigger: () => {
                 const totalBooks = (GameState.inventory['paper'] || 0) + 
                                   (GameState.inventory['research'] || 0) + 
