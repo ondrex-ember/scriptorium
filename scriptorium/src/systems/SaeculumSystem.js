@@ -56,9 +56,6 @@ const SaeculumSystem = {
         </div>
       `;
     } else {
-      h += this.renderForumPecuarium();
-      h += this.renderMola();
-      h += this.renderConversi();
       h += this.renderEntityTabs();
     }
 
@@ -359,36 +356,104 @@ const SaeculumSystem = {
   },
 
   renderEntityTabs: function() {
+    const trade = ['tavern', 'shop', 'market'];
     const entities = [
-      { id: 'tavern', icon: '🍺', label: 'Hospoda', label_en: 'Tavern' },
-      { id: 'shop',   icon: '🏪', label: 'Obchod',  label_en: 'Shop'   },
-      { id: 'market', icon: '⛺', label: 'Trh',      label_en: 'Market' },
+      { id: 'tavern',   icon: '🍺', label: 'Hospoda',         label_en: 'Tavern' },
+      { id: 'shop',     icon: '🏪', label: 'Obchod',          label_en: 'Shop'   },
+      { id: 'market',   icon: '⛺', label: 'Trh',             label_en: 'Market' },
+      { id: 'forum',    icon: '🐏', label: 'Forum Pecuarium', label_en: 'Forum Pecuarium' },
+      { id: 'mola',     icon: '⚙️', label: 'Mola',            label_en: 'Mola' },
+      { id: 'conversi', icon: '✝️', label: 'Conversi',        label_en: 'Conversi' },
+      { id: 'regula',   icon: '🕯️', label: 'Regula',          label_en: 'Regula' },
     ];
     const lang = (GameState.settings && GameState.settings.language) || 'cs';
     if (!GameState.ui) GameState.ui = {};
-    const active = GameState.ui.saeculumEntity || 'tavern';
+    let active = GameState.ui.saeculumEntity || 'tavern';
+    if (!entities.some(e => e.id === active)) active = 'tavern';
 
     let h = `<div style="display:flex; gap:6px; margin-bottom:16px; flex-wrap:wrap;">`;
     entities.forEach(e => {
-      const open   = CellariumSystem.isEntityOpen(e.id);
-      const isCur  = e.id === active;
-      const name   = lang === 'en' ? e.label_en : e.label;
-      const hours  = lang === 'en' ? CellariumSystem.entityHoursLabel_en(e.id) : CellariumSystem.entityHoursLabel(e.id);
-      const openDot = `<span style="color:${open ? '#5a9' : '#c55'}; font-size:0.55rem;">●</span>`;
+      const isTrade = trade.includes(e.id);
+      const isCur   = e.id === active;
+      const name    = lang === 'en' ? e.label_en : e.label;
+      let sub = '', dot = '';
+      if (isTrade) {
+        const open = CellariumSystem.isEntityOpen(e.id);
+        dot = ` <span style="color:${open ? '#5a9' : '#c55'}; font-size:0.55rem;">●</span>`;
+        sub = lang === 'en' ? CellariumSystem.entityHoursLabel_en(e.id) : CellariumSystem.entityHoursLabel(e.id);
+      }
       h += `
         <button onclick="SaeculumSystem.switchEntity('${e.id}')"
                 class="filter-btn entity-tab-btn${isCur ? ' active' : ''}"
-                style="flex: 1 1 calc(33% - 6px); min-width:0; position:relative; padding-bottom:6px;">
+                style="flex: 1 1 calc(25% - 6px); min-width:110px; position:relative; padding-bottom:6px;">
           <div style="display:flex; align-items:center; justify-content:center; gap:4px;">
-            ${e.icon} ${name} ${openDot}
+            ${e.icon} ${name}${dot}
           </div>
-          <div style="font-size:0.6rem; opacity:0.6; margin-top:2px;">${hours}</div>
+          ${sub ? `<div style="font-size:0.6rem; opacity:0.6; margin-top:2px;">${sub}</div>` : ''}
         </button>
       `;
     });
     h += `</div>`;
 
-    h += CellariumSystem.renderEntityPanel(active);
+    if (trade.includes(active))      h += CellariumSystem.renderEntityPanel(active);
+    else if (active === 'forum')     h += this.renderForumPecuarium();
+    else if (active === 'mola')      h += this.renderMola();
+    else if (active === 'conversi')  h += this.renderConversi();
+    else if (active === 'regula')    h += this.renderRegula();
+    return h;
+  },
+
+  // Regula — denní režim konvršů + refektář
+  renderRegula: function() {
+    const lang = (GameState.settings && GameState.settings.language) || 'cs';
+    const block = (typeof Game !== 'undefined' && Game.conversiDayBlock) ? Game.conversiDayBlock() : 'work';
+    const list = GameState.conversi || [];
+
+    const blocks = [
+      { id: 'officium', icon: '🕯️', time: '6:00–9:00',   cs: 'Officium — ranní modlitba',   en: 'Officium — morning prayer' },
+      { id: 'work',     icon: '⚒️', time: '9:00–12:00',  cs: 'Práce',                        en: 'Work' },
+      { id: 'lunch',    icon: '🍲', time: '12:00–13:00', cs: 'Oběd v refektáři',             en: 'Refectory meal' },
+      { id: 'work2',    icon: '⚒️', time: '13:00–18:00', cs: 'Práce',                        en: 'Work' },
+      { id: 'vespers',  icon: '🙏', time: '18:00–19:00', cs: 'Nešpory',                      en: 'Vespers' },
+      { id: 'work3',    icon: '⚒️', time: '19:00–22:00', cs: 'Práce',                        en: 'Work' },
+      { id: 'night',    icon: '🌙', time: '22:00–5:00',  cs: 'Spánek',                       en: 'Sleep' },
+    ];
+    const isActive = (b) => (b.id === block) || (b.id.startsWith('work') && block === 'work');
+
+    let h = `<div style="margin-bottom:16px; background:rgba(0,0,0,0.03); border-radius:8px; border-left:3px solid var(--accent-gold); padding:12px 14px;">`;
+    h += `<div style="font-weight:bold; font-size:0.92rem; margin-bottom:10px;">🕯️ ${lang==='en'?'Regula — the daily rule':'Regula — denní řád'}</div>`;
+
+    if (!list.length) {
+      h += `<div style="font-size:0.8rem; opacity:0.6; font-style:italic;">${lang==='en'?'No lay brothers yet — the rule awaits them.':'Zatím žádní konvrši — řád na ně čeká.'}</div>`;
+      h += `</div>`;
+      return h;
+    }
+
+    // Rozvrh dne
+    blocks.forEach(b => {
+      const cur = isActive(b);
+      h += `<div style="display:flex; gap:10px; align-items:center; padding:4px 8px; border-radius:5px; font-size:0.8rem; ${cur ? 'background:rgba(197,160,89,0.15); font-weight:bold;' : 'opacity:0.65;'}">
+              <span style="min-width:88px;">${b.time}</span>
+              <span>${b.icon} ${lang==='en'?b.en:b.cs}</span>
+              ${cur ? `<span style="margin-left:auto; font-size:0.68rem; opacity:0.8;">◀ ${lang==='en'?'now':'nyní'}</span>` : ''}
+            </div>`;
+    });
+
+    // Refektář info
+    h += `<div style="font-size:0.72rem; font-weight:bold; opacity:0.75; margin:12px 0 4px;">🍲 ${lang==='en'?'Refectory':'Refektář'}</div>`;
+    h += `<div style="font-size:0.72rem; opacity:0.65; margin-bottom:6px;">${lang==='en'
+        ? 'One portion of plain fare per brother per day. Feasts (pies, roasts) are never touched.'
+        : 'Jedna porce prosté stravy na bratra denně. Sváteční jídlo (koláče, pečeně) refektář nebere.'}</div>`;
+    const log = GameState.conversiMealLog;
+    if (log) {
+      const when = new Date(log.ts).toLocaleDateString(lang==='en'?'en-GB':'cs-CZ');
+      if (log.fed.length)   h += `<div style="font-size:0.76rem; margin-bottom:2px;">✅ ${when} — ${lang==='en'?'fed':'nasyceni'}: ${log.fed.join(', ')}</div>`;
+      if (log.unfed.length) h += `<div style="font-size:0.76rem; color:#c0392b;">⚠️ ${when} — ${lang==='en'?'hungry':'hladoví'}: ${log.unfed.join(', ')}</div>`;
+    } else {
+      h += `<div style="font-size:0.76rem; opacity:0.6; font-style:italic;">${lang==='en'?'No meal served yet.':'Zatím se nevařilo.'}</div>`;
+    }
+
+    h += `</div>`;
     return h;
   },
 

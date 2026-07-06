@@ -3804,6 +3804,56 @@ const Game = {
         return h >= 6 && h < 9;
     },
 
+    // Denní režim (Regula): blok dne podle reálného času
+    conversiDayBlock: function() {
+        const h = new Date().getHours();
+        if (h >= 6 && h < 9)   return 'officium'; // modlitba
+        if (h >= 12 && h < 13) return 'lunch';    // oběd v refektáři
+        if (h >= 18 && h < 19) return 'vespers';  // nešpory
+        if (h >= 22 || h < 5)  return 'night';    // spánek
+        return 'work';
+    },
+
+    // Refektář: prostá strava, priorita od nejlevnější; luxus (koláče, pečeně) se NIKDY nebere
+    REFECTORY_FOODS: ['spring_herb_porridge', 'famine_bread', 'burdock_root_baked', 'berries', 'mushroom', 'bread', 'mushroom_soup', 'cooked_fish', 'cooked_meat', 'stew'],
+
+    _runRefectory: function() {
+        const lastMeal = GameState.conversiLastMeal || 0;
+        if (Date.now() - lastMeal < 24 * 60 * 60 * 1000) return;
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        const inv = GameState.inventory || {};
+        const fed = [], unfed = [];
+        GameState.conversi.forEach(k => {
+            const foodId = this.REFECTORY_FOODS.find(f => (inv[f] || 0) > 0);
+            if (foodId) {
+                inv[foodId] -= 1;
+                k.fatigue = Math.max(0, k.fatigue - 10);
+                k.mood = Math.min(100, k.mood + 3);
+                fed.push(k.name);
+            } else {
+                k.mood = Math.max(0, k.mood - 8);
+                k.loyalty = Math.max(0, k.loyalty - 2);
+                unfed.push(k.name);
+            }
+        });
+        GameState.conversiMealLog = { ts: Date.now(), fed: fed, unfed: unfed };
+        GameState.conversiLastMeal = Date.now();
+        if (typeof UI !== 'undefined' && UI.notifyPanel) {
+            if (unfed.length === 0) {
+                UI.notifyPanel('🍲 ' + (lang==='en' ? 'The refectory served all the brothers.' : 'Refektář nasytil všechny bratry.'), 'success');
+            } else {
+                UI.notifyPanel('🍲 ' + (lang==='en'
+                    ? 'The refectory is short of food — hungry: ' + unfed.join(', ')
+                    : 'V refektáři nebylo dost jídla — hladoví: ' + unfed.join(', ')), 'warning');
+            }
+        }
+        Game.addKronikaEntry('minor',
+            unfed.length === 0 ? '🍲 Refektář: všichni bratři nasyceni.' : '🍲 Refektář: nedostatek jídla, hladoví — ' + unfed.join(', ') + '.',
+            unfed.length === 0 ? '🍲 Refectory: all brothers fed.' : '🍲 Refectory: food shortage, hungry — ' + unfed.join(', ') + '.',
+            unfed.length === 0 ? '🍲 Refectorium: omnes saturati.' : '🍲 Refectorium: fames.');
+        Game.save();
+    },
+
     // Traity konvrše z rosteru (fallback prázdné pole)
     _konvrsTraits: function(k) {
         if (!k || !k.rosterId || typeof ConversiRosterDB === 'undefined') return [];
@@ -3959,9 +4009,11 @@ const Game = {
             Game.save();
         }
 
-        // Odpočinek na Officiu — jednou za 24h; základ -10
-        // Traity: trpelivy = sobě -15; chrapoun v partě = OSTATNÍ jen -7 (soused chrápe)
-        if (this.isOfficiumHours()) {
+        // ── Denní režim (Regula) ──
+        const dayBlock = this.conversiDayBlock();
+
+        // Officium (6–9): odpočinek + denní mood/loyalty tick — jednou za 24h
+        if (dayBlock === 'officium') {
             const lastRest = GameState.conversiLastRest || 0;
             if (Date.now() - lastRest >= 24 * 60 * 60 * 1000) {
                 const snorerPresent = GameState.conversi.some(k => this._konvrsTraits(k).includes('chrapoun'));
@@ -3996,6 +4048,28 @@ const Game = {
             }
             return; // na Officiu, nedostupní pro úkoly
         }
+
+        // Oběd (12–13): refektář — jídlo z klášterních zásob, jednou za 24h
+        if (dayBlock === 'lunch') {
+            this._runRefectory();
+            return; // u oběda, nedostupní pro úkoly
+        }
+
+        // Nešpory (18–19): večerní modlitba — loyalty +1, jednou za 24h
+        if (dayBlock === 'vespers') {
+            const lastVespers = GameState.conversiLastVespers || 0;
+            if (Date.now() - lastVespers >= 24 * 60 * 60 * 1000) {
+                GameState.conversi.forEach(k => {
+                    k.loyalty = Math.min(100, (k.loyalty || 30) + 1);
+                });
+                GameState.conversiLastVespers = Date.now();
+                Game.save();
+            }
+            return; // na nešporách, nedostupní pro úkoly
+        }
+
+        // Noc (22–5): spánek
+        if (dayBlock === 'night') return;
 
         // Práci dělá nejméně unavený dostupný konvrš (strop 80; pilny 90; mood < 30 nebo Pokání = nepracuje)
         const worker = GameState.conversi
