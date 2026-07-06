@@ -1666,6 +1666,94 @@ The Znojmo winemakers' guild was founded on 3 November 1486. Horenské právo, t
 
 *"Qui vitam vitis non curat, nec vinum meretur."*
 He who does not tend the life of the vine does not deserve the wine.`
+        },
+        {
+            id: 'libro_de_arte_coquinaria',
+            title: 'Libro de Arte Coquinaria',
+            category: 'coquina',
+            unlockDay: 44,
+            unlockResearch: 45,
+            unlocksTech: ['tech_ars_coquinaria'],
+            icon: '🦞',
+            author: 'Martino de Rossi',
+            author_en: 'Martino de Rossi',
+            year: 1465,
+            content: `**Mistr, který vařil pro patriarchy**
+
+Do kláštera dorazil svazek, o kterém se šeptá po celé Itálii. Jeho autor, Martino de Rossi, vaří pro patriarchu z Aquileje a pro nejvyšší římskou šlechtu — a jako první kuchař v paměti lidstva se rozhodl své umění zapsat vlastním jménem, ne jako anonymní sbírku receptů. Učenci mu už dnes říkají první "hvězdný kuchař" Evropy.
+
+*"Chi cucina con arte, nutre non solo il corpo, ma anche l'onore della casa."*
+Kdo vaří s uměním, sytí nejen tělo, ale i čest domu.
+
+**Co je v knize**
+
+Martino nepohrdá ničím, co dá řeka, mokřad nebo les. Raci, vaření celí ve slabém pivu s kmínem, dokud nezčervenají. Hlemýždi, vytažení z ulit dřívkem, omytí v octové vodě, dušení v omáčce zahuštěné chlebem. Žabí stehýnka, stažená a osmažená na sádle s česnekem — pokrm, který šlechta jí stejně dychtivě jako prostý lid, jen z jiného nádobí.
+
+**Osud knihy**
+
+Zvláštní je, jak se tahle kniha bude šířit dál. Humanista jménem Bartolomeo Sacchi, zvaný Platina, si Martinovo dílo za pár let vypůjčí — a beze slova o původu ho vydá tiskem jako *De honesta voluptate et valetudine*. Bude to první vytištěná kuchařka v dějinách. Někteří říkají, že spravedlnost dohnala i tiskaře: kdo krade cizí recepty, ať aspoň nakrmí celou Evropu.
+
+**HERNÍ EFEKT:** Přečtením této knihy odemkneš tech *Ars Coquinaria* — umění vařit raky, hlemýždě a žabí stehýnka. Bez ní se tech dá vyzkoumat i normálně, ale kniha ti ho dá dřív a levněji.`,
+            content_en: `**The Master Who Cooked for Patriarchs**
+
+A volume arrived at the monastery that all of Italy whispers about. Its author, Martino de Rossi, cooks for the Patriarch of Aquileia and for the highest Roman nobility — and as the first cook within living memory, he chose to set his art down under his own name, not as an anonymous collection of recipes. Scholars already call him Europe's first "celebrity chef."
+
+*"Chi cucina con arte, nutre non solo il corpo, ma anche l'onore della casa."*
+Whoever cooks with art nourishes not only the body, but the honour of the house.
+
+**What the Book Contains**
+
+Martino scorns nothing the river, the marsh, or the forest provides. Crayfish, boiled whole in weak beer with caraway until they redden. Snails, drawn from their shells with a small stick, washed in vinegar water, stewed in a sauce thickened with bread. Frog legs, skinned and fried in lard with garlic — a dish nobility eats as eagerly as common folk, only from finer dishware.
+
+**The Book's Fate**
+
+It is strange how this book will spread further. A humanist named Bartolomeo Sacchi, called Platina, will borrow Martino's work within a few years — and publish it in print, without a word of its origin, as *De honesta voluptate et valetudine*. It will be the first printed cookbook in history. Some say justice caught up with the printer too: whoever steals another's recipes had better feed all of Europe in return.
+
+**GAME EFFECT:** Reading this book unlocks the *Ars Coquinaria* tech — the art of preparing crayfish, snails, and frog legs. It can also be researched normally without the book, but the book grants it sooner and cheaper.`
+        },
+        {
+            id: 'herbarium_populare',
+            title: 'Herbarium Populare',
+            category: 'coquina',
+            unlockDay: 38,
+            unlockResearch: 35,
+            unlocksTech: ['tech_cultus_herbarum'],
+            icon: '🌿',
+            author: 'Neznámý bratr, klášterní herbář',
+            author_en: 'An unknown brother, monastery herbarium',
+            year: 1464,
+            content: `**Kniha bez jména**
+
+Nikdo neví, kdo tenhle svazek sepsal. Žádný erb na deskách, žádné jméno v kolofonu — jen desetiletí sbíraná moudrost venkovských žen a klášterních zahradníků, zapsaná bratrem, kterému na slávě evidentně nezáleželo. Je to sbírka toho, co roste samo, bez setí, bez péče — a přesto sytí, když obilí nestačí.
+
+*"Quod terra sponte dat, sapiens non spernit."*
+Co země dává sama od sebe, moudrý nepohrdá.
+
+**Co se v ní píše**
+
+Kopřiva a bršlice kozí noha, spařené a nasekané do jarní kaše s kroupami. Kořen lopuchu, vykopaný na podzim, pečený v popelu, když obilí došlo. Šípky, namočené přes noc a rozvařené na jíchu, zahuštěnou starým chlebem místo drahého koření. Smrže, ty nejvzácnější z jarních hub, plněné bylinkami a pečené v hliněné nádobě.
+
+**Ozvěna budoucnosti**
+
+Zvláštní je, jak podobné recepty — slovo od slova — se o šedesát let později objeví tištěné pod jménem Bavora Rodovského z Hustiřan. Možná opsal stejný pramen. Možná se lidová moudrost prostě nikdy neztratí, jen čeká, až ji někdo znovu zapíše.
+
+**HERNÍ EFEKT:** Přečtením této knihy odemkneš tech *Cultus Herbarum* — základ pro budoucí zpracování divokých bylin, kořenů a hub. Recepty samotné přibudou postupně, jak bude klášter svou znalost rozšiřovat.`,
+            content_en: `**A Book Without a Name**
+
+No one knows who wrote this volume. No coat of arms on the cover, no name in the colophon — only decades of wisdom gathered from country women and monastery gardeners, set down by a brother who plainly cared nothing for fame. It is a collection of what grows on its own, without sowing, without tending — and yet feeds when the grain runs short.
+
+*"Quod terra sponte dat, sapiens non spernit."*
+What the earth gives freely, the wise man does not scorn.
+
+**What It Contains**
+
+Nettle and ground elder, scalded and chopped into a spring porridge with groats. Burdock root, dug in autumn, baked in ashes when the grain has run out. Rosehips, soaked overnight and boiled down into a sauce, thickened with stale bread in place of costly spice. Morels, the rarest of spring mushrooms, stuffed with herbs and baked in a clay dish.
+
+**An Echo of the Future**
+
+It is strange how similar recipes — word for word — will appear in print sixty years hence, under the name of Bavor Rodovský z Hustiřan. Perhaps he copied the same source. Or perhaps folk wisdom is never truly lost — it only waits for someone to set it down again.
+
+**GAME EFFECT:** Reading this book unlocks the *Cultus Herbarum* tech — the foundation for future preparation of wild herbs, roots, and mushrooms. The recipes themselves will arrive gradually, as the monastery's knowledge grows.`
         }
     ],
 

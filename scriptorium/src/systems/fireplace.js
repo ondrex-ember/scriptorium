@@ -227,6 +227,17 @@ const FireplaceSystem = {
             h += VigorSystem.renderFullDisplay();
         }
 
+        // ── Sekce Valetudo (rychlý přehled aktivních neduhů, jen když nějaké jsou) ──
+        const activeHealth = (GameState.health && GameState.health.active) || {};
+        const healthIds = Object.keys(activeHealth);
+        if (healthIds.length > 0 && typeof HealthConditionsDB !== 'undefined') {
+            const icons = healthIds.map(id => (HealthConditionsDB[id] ? HealthConditionsDB[id].icon : '')).join(' ');
+            h += `<div style="${card}"><div style="${row}; margin-bottom:0;">
+                <span>${icons} ${lang==='en' ? `${healthIds.length} active ailment(s)` : `${healthIds.length} aktivní neduh(y)`}</span>
+                <span style="opacity:0.6; font-size:0.85rem;">→ Persona</span>
+            </div></div>`;
+        }
+
         // ── Sekce Stav (zápisky / groše / rank / techy / poslední kronika) ──
         let stav = `<div style="${card}"><h4 style="margin:0 0 10px 0;color:var(--ink-primary);">📊 ${t('fireplace.dashStav')}</h4>`;
         const notes = (GameState.inventory && GameState.inventory['research']) || 0;

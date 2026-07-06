@@ -479,6 +479,17 @@ const UI = {
         if (btn) { document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active')); btn.classList.add('active'); }
         this.renderCrafting();
     },
+    toggleCraftCategory: function (cat) {
+        if (!GameState.uiPrefs) GameState.uiPrefs = { craftCollapsed: {} };
+        if (!GameState.uiPrefs.craftCollapsed) GameState.uiPrefs.craftCollapsed = {};
+        const collapsed = !GameState.uiPrefs.craftCollapsed[cat];
+        GameState.uiPrefs.craftCollapsed[cat] = collapsed;
+        const body = document.getElementById('craft-cat-body-' + cat);
+        if (body) body.style.display = collapsed ? 'none' : 'contents';
+        const chevron = document.getElementById('craft-cat-chevron-' + cat);
+        if (chevron) chevron.style.transform = collapsed ? 'rotate(0deg)' : 'rotate(90deg)';
+        if (typeof Game !== 'undefined' && Game.save) Game.save();
+    },
     filterInventory: function (cat, btn) {
         this.currentInvFilter = cat;
         const container = document.getElementById('inv-filter-bar');
@@ -625,8 +636,14 @@ const UI = {
             catOrder.forEach(cat => {
                 const catRecipes = visible.filter(r => r.cat === cat);
                 if (catRecipes.length === 0) return;
-                _html += `<div style="grid-column:1/-1; margin:12px 0 6px; padding:4px 0; border-bottom:1px solid rgba(197,160,89,0.35);"><span style="font-size:0.72rem; font-weight:bold; letter-spacing:0.08em; text-transform:uppercase; color:var(--accent-gold); opacity:0.85;">${catLabels[cat]}</span></div>`;
+                const collapsed = !!(GameState.uiPrefs && GameState.uiPrefs.craftCollapsed && GameState.uiPrefs.craftCollapsed[cat]);
+                _html += `<div style="grid-column:1/-1; margin:12px 0 6px; padding:4px 0; border-bottom:1px solid rgba(197,160,89,0.35); cursor:pointer; display:flex; align-items:center; gap:6px;" onclick="UI.toggleCraftCategory('${cat}')">
+                    <span id="craft-cat-chevron-${cat}" style="font-size:0.65rem; display:inline-block; transition:transform 0.15s; transform:rotate(${collapsed ? 0 : 90}deg);">▶</span>
+                    <span style="font-size:0.72rem; font-weight:bold; letter-spacing:0.08em; text-transform:uppercase; color:var(--accent-gold); opacity:0.85;">${catLabels[cat]}</span>
+                </div>`;
+                _html += `<div id="craft-cat-body-${cat}" style="display:${collapsed ? 'none' : 'contents'};">`;
                 groupByOutput(catRecipes).forEach(fam => { _html += renderRecipeFamily(fam); });
+                _html += `</div>`;
             });
         }
         el.innerHTML = _html;

@@ -292,6 +292,8 @@ const LibraryHelpers = {
                     );
                 }
             });
+            // Recepty odemčené novým techem ať se objeví hned, ne až po dalším loadu
+            if (typeof Game !== 'undefined' && Game.syncTechUnlocks) Game.syncTechUnlocks();
             // Re-render aktivního garden tabu pokud je Vinohrad otevřen
             if (typeof GardenSystem !== 'undefined' && GardenSystem._activeTab === 'vinohrad') {
                 GardenSystem.renderVinohrad();

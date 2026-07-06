@@ -100,6 +100,7 @@ const GameState = {
     kronikaCraftBuffer: { date: '', crafts: {} },
     craftedItems: {},
     health: { active: {} },  // Valetudo — aktivní neduhy { id: {startedAt, expiresAt} }
+    uiPrefs: { craftCollapsed: {} },  // UI stav — sbalené/rozbalené sekce (přežije reload)
     notifications: [],  // NotificationSystem — persistentní panel zpráv
     toolUses: {},       // Zbývající použití nástrojů { itemId: remainingUses }
     persona: {

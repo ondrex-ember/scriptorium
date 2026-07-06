@@ -2011,6 +2011,9 @@ const Game = {
                     if(Math.random() < 0.02) this.addItem('seeds_nettle', 1);
                     // Žaludy — podzimní nález
                     if(Math.random() < 0.12) this.addItem('acorn', 1);
+                    // Hlemýždi — vyšší šance po dešti
+                    const _snailWet = (typeof WeatherSystem !== 'undefined') ? WeatherSystem.countWetDays(3) : { wet: 0 };
+                    if(Math.random() < (_snailWet.wet >= 2 ? 0.15 : 0.05)) this.addItem('snail', 1);
                 }
                 else if (type === 'wetlands') {
                     if(r<0.4) this.addItem('frog', 1);
@@ -2019,6 +2022,8 @@ const Game = {
                     else this.addItem('fiber', 1);
                     // v8.x: plůdek — vzácný nález v mokřadu
                     if(Math.random() < 0.08) this.addItem('fry', 1);
+                    // Raci — vzácnější nález v mokřadu
+                    if(Math.random() < 0.15) this.addItem('crayfish', 1);
                 }
                 else if (type === 'resin_harvest') {
                     if(r<0.5) this.addItem('resin', 1);
@@ -2265,6 +2270,9 @@ const Game = {
                 if(Math.random() < 0.02) this.addItem('seeds_nettle', 1);
                 // Žaludy
                 if(Math.random() < 0.12) this.addItem('acorn', 1);
+                // Hlemýždi — vyšší šance po dešti
+                const _snailWet2 = (typeof WeatherSystem !== 'undefined') ? WeatherSystem.countWetDays(3) : { wet: 0 };
+                if(Math.random() < (_snailWet2.wet >= 2 ? 0.15 : 0.05)) this.addItem('snail', 1);
             }
             else if (type === 'wetlands') {
                 if(r<0.4) this.addItem('frog', 1);
@@ -2273,6 +2281,8 @@ const Game = {
                 else this.addItem('fiber', 1);
                 // v8.x: plůdek — vzácný nález v mokřadu
                 if(Math.random() < 0.08) this.addItem('fry', 1);
+                // Raci — vzácnější nález v mokřadu
+                if(Math.random() < 0.15) this.addItem('crayfish', 1);
             }
             else if (type === 'resin_harvest') {
                 if(r<0.5) this.addItem('resin', 1);

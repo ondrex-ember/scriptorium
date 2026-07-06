@@ -180,6 +180,8 @@ const PersonaSystem = {
                 onclick="PersonaSystem.switchTab('persona',this)">🧑 ${lang==='en'?'Persona':'Persona'}</button>
             <button id="persona-tab-vigor" class="filter-btn ${this._activeTab==='vigor'?'active':''}"
                 onclick="PersonaSystem.switchTab('vigor',this)">⚡ Vigor</button>
+            <button id="persona-tab-valetudo" class="filter-btn ${this._activeTab==='valetudo'?'active':''}"
+                onclick="PersonaSystem.switchTab('valetudo',this)">🩺 Valetudo</button>
             <button id="persona-tab-stats" class="filter-btn ${this._activeTab==='stats'?'active':''}"
                 onclick="PersonaSystem.switchTab('stats',this)">📊 ${lang==='en'?'Statistics':'Statistiky'}</button>
             <button id="persona-tab-influentia" class="filter-btn ${this._activeTab==='influentia'?'active':''}"
@@ -192,6 +194,7 @@ const PersonaSystem = {
 
         h += `<div id="persona-subtab-persona"  style="${this._activeTab==='persona'?'':'display:none'}">` + this._renderPersona(lang) + `</div>`;
         h += `<div id="persona-subtab-vigor"    style="${this._activeTab==='vigor'?'':'display:none'}">` + this._renderVigor(lang) + `</div>`;
+        h += `<div id="persona-subtab-valetudo" style="${this._activeTab==='valetudo'?'':'display:none'}">` + this._renderValetudo(lang) + `</div>`;
         h += `<div id="persona-subtab-stats"    style="${this._activeTab==='stats'?'':'display:none'}">` + this._renderStats(lang) + `</div>`;
         h += `<div id="persona-subtab-influentia" style="${this._activeTab==='influentia'?'':'display:none'}">` + this._renderInfluentia(lang) + `</div>`;
         h += `<div id="persona-subtab-professio" style="${this._activeTab==='professio'?'':'display:none'}">` + this._renderProfessio(lang) + `</div>`;
@@ -204,7 +207,7 @@ const PersonaSystem = {
         this._activeTab = tab;
         document.querySelectorAll('#lore-persona-content .filter-btn').forEach(b => b.classList.remove('active'));
         if (btn) btn.classList.add('active');
-        ['persona','vigor','stats','influentia','professio','felis'].forEach(t => {
+        ['persona','vigor','valetudo','stats','influentia','professio','felis'].forEach(t => {
             const d = document.getElementById('persona-subtab-' + t);
             if (d) d.style.display = t === tab ? '' : 'none';
         });
@@ -375,6 +378,43 @@ const PersonaSystem = {
     _renderVigor: function(lang) {
         if (typeof VigorSystem === 'undefined') return '<p>VigorSystem not loaded.</p>';
         return VigorSystem.renderFullDisplay();
+    },
+
+    // ── Valetudo tab (Health System) ─────────────────────────────────────────
+    _renderValetudo: function(lang) {
+        const active = (GameState.health && GameState.health.active) || {};
+        const ids = Object.keys(active);
+
+        if (ids.length === 0) {
+            return `<div style="text-align:center;padding:24px 12px;opacity:0.7;">
+                <div style="font-size:2.4rem;margin-bottom:8px;">💚</div>
+                <div>${lang==='en' ? 'Healthy. No ailments.' : 'Zdráv. Žádné neduhy.'}</div>
+            </div>`;
+        }
+
+        const now = Date.now();
+        const cards = ids.map(id => {
+            const def = (typeof HealthConditionsDB !== 'undefined') ? HealthConditionsDB[id] : null;
+            if (!def) return '';
+            const inst = active[id];
+            const name = lang === 'en' ? def.name_en : def.name;
+            const desc = lang === 'en' ? def.desc_en : def.desc;
+            const hoursLeft = Math.max(0, Math.round((inst.expiresAt - now) / 3600000));
+            const cureNames = (def.cures || []).map(cid => (typeof iName === 'function' ? iName(cid) : cid)).join(' / ');
+            const cureLine = cureNames
+                ? `<div style="font-size:0.78rem;opacity:0.7;margin-top:4px;">${lang==='en'?'Cured by':'Léčí'}: ${cureNames}</div>`
+                : `<div style="font-size:0.78rem;opacity:0.5;margin-top:4px;font-style:italic;">${lang==='en'?'No cure — will pass naturally':'Bez léku — jen doběhne'}</div>`;
+            return `<div style="padding:12px 14px;margin-bottom:10px;background:rgba(197,160,89,0.08);border-left:3px solid var(--accent-gold);border-radius:6px;">
+                <div style="display:flex;justify-content:space-between;align-items:baseline;">
+                    <strong>${def.icon} ${name}</strong>
+                    <span style="font-size:0.8rem;opacity:0.7;">${lang==='en'?`${hoursLeft}h left`:`zbývá ${hoursLeft}h`}</span>
+                </div>
+                <div style="font-size:0.85rem;opacity:0.8;margin-top:4px;">${desc}</div>
+                ${cureLine}
+            </div>`;
+        }).join('');
+
+        return `<div>${cards}</div>`;
     },
 
     // ── Sekce 2: Statistiky ──────────────────────────────────────────────────

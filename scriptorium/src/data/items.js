@@ -15,6 +15,9 @@ const ItemsDB = {
     "herb_red": { name: "Krvavý květ", name_en: "Bloodwort", icon: "🌺", type: "mat", desc: "Bylina.", desc_en: "A red healing herb." },
     "fat": { name: "Tuk", name_en: "Fat", icon: "🥩", type: "mat", desc: "Zvířecí tuk.", desc_en: "Animal fat." },
     "meat": { name: "Maso", name_en: "Meat", icon: "🍖", type: "food_raw", desc: "Surové maso.", desc_en: "Raw meat." },
+    "crayfish": { name: "Raci", name_en: "Crayfish", icon: "🦞", type: "food_raw", desc: "Sladkovodní raci z mokřadu.", desc_en: "Freshwater crayfish from the wetlands." },
+    "snail": { name: "Hlemýždi", name_en: "Snails", icon: "🐌", type: "food_raw", desc: "Hlemýždi s ulitou. Jiní tvorové než slimák.", desc_en: "Shelled snails. A different creature from the slug." },
+    "frog_legs": { name: "Žabí stehýnka", name_en: "Frog Legs", icon: "🍗", type: "food_raw", desc: "Stažená stehýnka ze žáby.", desc_en: "Skinned frog legs." },
     "bone": { name: "Kost", name_en: "Bone", icon: "☠️", type: "mat", desc: "Tvrdá kost.", desc_en: "Hard bone." },
     "leather": { name: "Kůže", name_en: "Leather", icon: "🦌", type: "mat", desc: "Ze zvířat.", desc_en: "Cured animal hide." },
 
@@ -76,6 +79,9 @@ const ItemsDB = {
 
     // COOKED FOOD
     "cooked_meat": { name: "Pečené maso", name_en: "Roasted Meat", icon: "🍗", type: "food", hunger: 6, desc: "Sytí 6h.", desc_en: "Fills for 6h." },
+    "crayfish_boiled": { name: "Raci vaření v pivu", name_en: "Crayfish Boiled in Beer", icon: "🦞", type: "food", desc: "Raci uvaření v pivu. Oblíbené mezi prostým lidem.", desc_en: "Crayfish boiled in beer. A favourite among common folk." },
+    "snails_black_sauce": { name: "Hlemýždi v černé omáčce", name_en: "Snails in Black Sauce", icon: "🐌", type: "food", desc: "Hlemýždi v omáčce zahuštěné chlebem a medem.", desc_en: "Snails in a sauce thickened with bread and honey." },
+    "frog_legs_fried": { name: "Žabí stehýnka na česneku", name_en: "Fried Frog Legs with Garlic", icon: "🍗", type: "food", desc: "Stehýnka osmažená na sádle s česnekem.", desc_en: "Legs fried in lard with garlic." },
     "cooked_beef": { name: "Pečené hovězí", name_en: "Roasted Beef", icon: "🍗", type: "food", desc: "Hovězí upečené na ohni.", desc_en: "Beef roasted over the fire." },
     "cooked_mutton": { name: "Pečené skopové", name_en: "Roasted Mutton", icon: "🍗", type: "food", desc: "Skopové upečené na ohni.", desc_en: "Mutton roasted over the fire." },
     "cooked_chicken": { name: "Pečené kuře", name_en: "Roasted Chicken", icon: "🍗", type: "food", desc: "Kuře upečené na ohni.", desc_en: "Chicken roasted over the fire." },

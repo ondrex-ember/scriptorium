@@ -10,6 +10,14 @@ const TechTree = [
   { id: "tech_fishing", name: "Rybolov", name_en: "Fishing", cost: 3, desc: "Odemkne: Udice", desc_en: "Unlocks: Fishing rod", unlocks: ["fishing_rod"] },
   { id: "tech_foraging", name: "Sběr Potravy", name_en: "Foraging", cost: 3, desc: "Odemkne: Koš, houby", desc_en: "Unlocks: Basket, mushrooms", unlocks: ["basket"] },
   { id: "tech_cooking_2", name: "Pokročilé Vaření", name_en: "Advanced Cooking", cost: 5, desc: "Odemkne: Guláš, polévky", desc_en: "Unlocks: Stew, pottages", unlocks: ["stew", "mushroom_soup", "berry_pie", "tea_kettle", "herbal_tea", "herbal_tea_alt", "acorn_brew", "chicory_drink", "linden_tea", "acorn_roasted", "chicory_roasted"], requires: ["tech_cooking_1"] },
+  { id: "tech_ars_coquinaria", name: "Ars Coquinaria", name_en: "Ars Coquinaria", cost: 8,
+    desc: "Umění vařit raky, hlemýždě a žabí stehýnka podle italského mistra Martina de Rossi. Rychleji se odemyká přečtením jeho knihy v Knihovně.",
+    desc_en: "The art of preparing crayfish, snails, and frog legs after the Italian master Martino de Rossi. Unlocks faster by reading his book in the Library.",
+    unlocks: ["crayfish_boiled", "snails_black_sauce", "frog_legs_prep", "frog_legs_fried"], requires: ["tech_cooking_2"] },
+  { id: "tech_cultus_herbarum", name: "Cultus Herbarum", name_en: "Cultus Herbarum", cost: 10,
+    desc: "Lidová znalost divokých bylin, kořenů a hub — z klášterního herbáře. Rychleji se odemyká přečtením knihy v Knihovně.",
+    desc_en: "Folk knowledge of wild herbs, roots and mushrooms — from the monastery's herbal manuscript. Unlocks faster by reading the book in the Library.",
+    unlocks: [], requires: ["tech_de_re_rustica"] },
 
   // TIER 2 - horticulture
   { id: "tech_garden_expand", name: "Rozšíření Zahrady", name_en: "Garden Expansion", cost: 4, desc: "Odemkne: 4 políčka zahrady.", desc_en: "Unlocks: 4 garden plots.", unlocks: [] },
