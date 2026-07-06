@@ -2014,6 +2014,13 @@ const Game = {
                     // Hlemýždi — vyšší šance po dešti
                     const _snailWet = (typeof WeatherSystem !== 'undefined') ? WeatherSystem.countWetDays(3) : { wet: 0 };
                     if(Math.random() < (_snailWet.wet >= 2 ? 0.15 : 0.05)) this.addItem('snail', 1);
+                    // Divoké byliny a kořeny (Cultus Herbarum)
+                    if(Math.random() < 0.06) this.addItem('ground_elder', 1);
+                    if(Math.random() < 0.05) this.addItem('goosefoot', 1);
+                    if(Math.random() < 0.05) this.addItem('sorrel', 1);
+                    if(Math.random() < 0.04) this.addItem('dandelion', 1);
+                    if(Math.random() < 0.05) this.addItem('burdock_root', 1);
+                    if(Math.random() < 0.05) this.addItem('couch_grass', 1);
                 }
                 else if (type === 'wetlands') {
                     if(r<0.4) this.addItem('frog', 1);
@@ -2024,6 +2031,8 @@ const Game = {
                     if(Math.random() < 0.08) this.addItem('fry', 1);
                     // Raci — vzácnější nález v mokřadu
                     if(Math.random() < 0.15) this.addItem('crayfish', 1);
+                    // Orobinec — kořen z mokřadu
+                    if(Math.random() < 0.06) this.addItem('cattail_root', 1);
                 }
                 else if (type === 'resin_harvest') {
                     if(r<0.5) this.addItem('resin', 1);
@@ -2273,6 +2282,13 @@ const Game = {
                 // Hlemýždi — vyšší šance po dešti
                 const _snailWet2 = (typeof WeatherSystem !== 'undefined') ? WeatherSystem.countWetDays(3) : { wet: 0 };
                 if(Math.random() < (_snailWet2.wet >= 2 ? 0.15 : 0.05)) this.addItem('snail', 1);
+                // Divoké byliny a kořeny (Cultus Herbarum)
+                if(Math.random() < 0.06) this.addItem('ground_elder', 1);
+                if(Math.random() < 0.05) this.addItem('goosefoot', 1);
+                if(Math.random() < 0.05) this.addItem('sorrel', 1);
+                if(Math.random() < 0.04) this.addItem('dandelion', 1);
+                if(Math.random() < 0.05) this.addItem('burdock_root', 1);
+                if(Math.random() < 0.05) this.addItem('couch_grass', 1);
             }
             else if (type === 'wetlands') {
                 if(r<0.4) this.addItem('frog', 1);
@@ -2283,6 +2299,8 @@ const Game = {
                 if(Math.random() < 0.08) this.addItem('fry', 1);
                 // Raci — vzácnější nález v mokřadu
                 if(Math.random() < 0.15) this.addItem('crayfish', 1);
+                // Orobinec — kořen z mokřadu
+                if(Math.random() < 0.06) this.addItem('cattail_root', 1);
             }
             else if (type === 'resin_harvest') {
                 if(r<0.5) this.addItem('resin', 1);

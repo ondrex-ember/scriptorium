@@ -56,6 +56,8 @@ const VigorSystem = {
     FOOD_SATIETY: {
         berries:        5,
         mushroom:       8,
+        spring_herb_porridge: 15,
+        burdock_root_baked: 10,
         roots:          5,
         fish:           15,
         cooked_fish:    20,
