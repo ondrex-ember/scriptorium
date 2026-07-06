@@ -2568,6 +2568,16 @@ const Game = {
             if(amt === 0 && !GameState.inventory[item]) { UI.notify(`${t('game.required2')} ${iName(item)}`, true); return; }
         }
 
+        // Alternativní nástroj (vlastníš-li kterýkoliv z uvedených) — stejný vzor jako Mine/Scavenge
+        let _foundTool = null;
+        if (r.toolReq) {
+            _foundTool = r.toolReq.find(tr => (GameState.inventory[tr.item] > 0) || (GameState.inventory['worn_' + tr.item] > 0));
+            if (!_foundTool) {
+                UI.notify(`${t('game.needTool')} ${r.toolReq.map(tr => iName(tr.item)).join(' / ')}`, true);
+                return;
+            }
+        }
+
         // ── RESEARCH: Vigor gate (před odebráním surovin) ───────────────────
         if (r.output === 'research') {
             if (typeof VigorSystem !== 'undefined' && !VigorSystem.canResearch()) {
@@ -2580,6 +2590,7 @@ const Game = {
         }
 
         for(let [item, amt] of Object.entries(r.req)) if(amt > 0) this.removeItem(item, amt);
+        if (_foundTool) this.useToolCharge(_foundTool.item);
 
         // Init toolUses pro nový nástroj
         if (outItem && outItem.maxUses) {

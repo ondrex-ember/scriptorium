@@ -167,7 +167,7 @@ const STRINGS_cs = {
         '👿 "Est mihi causa mali..." Chyba tvá, zisk jeho.'
     ],
     game: {
-        eat: 'Sníst', drink: 'Napít', required: '(Nutné)',
+        eat: 'Sníst', drink: 'Napít', required: '(Nutné)', needTool: 'Chybí nástroj:',
         techDone: 'HOTOVO', techStudy: 'Studovat', techRequired: 'Nutné:',
         noTinderbox: 'Nemáš Troud!',
         fireKindled: 'Krb rozežehnut.',

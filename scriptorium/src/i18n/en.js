@@ -151,7 +151,7 @@ const STRINGS_en = {
         '👿 "Est mihi causa mali..." Thy blunder, his gain.'
     ],
     game: {
-        eat: 'Eat', drink: 'Drink', required: '(Required)',
+        eat: 'Eat', drink: 'Drink', required: '(Required)', needTool: 'Missing tool:',
         techDone: 'DONE', techStudy: 'Study', techRequired: 'Required:',
         noTinderbox: 'Thou hast no tinderbox!',
         fireKindled: 'The hearth is kindled.',

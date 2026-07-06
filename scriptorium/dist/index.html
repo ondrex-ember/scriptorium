@@ -6211,6 +6211,8 @@ const RecipesDB = [
     // ── STAVEBNÍ MATERIÁLY (tech_carpentaria) ───────────────────────────────
     { id: "plank", output: "plank", qty: 2, req: { stick: 5 }, cat: "craft", locked: true,
       desc: "Otesané fošny z větví. Základ každé dřevěné stavby.", desc_en: "Hewn planks from branches. The foundation of every wooden structure." },
+    { id: "plank_from_log", output: "plank", qty: 7, req: { log: 1 }, toolReq: [{item:"stone_saw"},{item:"iron_saw"}], cat: "craft", locked: true,
+      desc: "Fošny nařezané z kulatiny pilou.", desc_en: "Planks sawn from a log with a saw." },
 
     { id: "cut_stone", output: "cut_stone", qty: 1, req: { rock: 4 }, cat: "craft", locked: true,
       desc: "Opracovaný kvádr. Klášterní tesař ho vytesá dlátem a palicí.", desc_en: "A dressed block. The monastic carpenter shapes it with chisel and mallet." },
@@ -6240,7 +6242,7 @@ const RecipesDB = [
       desc:"Kamenná hlava upevněná na násadě. Těžba rudy.", desc_en:"Stone head fixed to a haft. Ore mining." },
     { id:"stone_shovel", output:"stone_shovel", qty:1, req:{stick:2, rock:2, rope:1}, cat:"stone", locked:true,
       desc:"Plochý kámen jako lopata.", desc_en:"Flat stone as a shovel." },
-    { id:"stone_saw",    output:"stone_saw",    qty:1, req:{stick:2, flint:2, rope:1}, cat:"stone", locked:true,
+    { id:"stone_saw",    output:"stone_saw",    qty:1, req:{stick:2, flint:2, cut_stone:3, rope:2}, cat:"stone", locked:true,
       desc:"Pila z křemenných úštěpků.", desc_en:"Saw of flint chips." },
 
     // ── DŘEVĚNÉ NÁSTROJE ─────────────────────────────────────────────────────
@@ -7346,7 +7348,7 @@ const TechTree = [
     cost: 8,
     desc: "Klášterní tesař byl nepostradatelný. Sekera, dláto a pila — z větví dělal fošny, z kamene tesané kvádry. Bez tesaře nestojí ani studna, ani sýpka, ani sklep. Odemkne: Fošna (plank) a Tesaný kámen (cut_stone).",
     desc_en: "The monastic carpenter was indispensable. Axe, chisel, and saw — from branches he made planks, from stone he cut blocks. Without the carpenter, neither well nor granary nor cellar stands. Unlocks: Plank and Cut Stone.",
-    unlocks: ["plank", "cut_stone", "log", "stone_saw"], requires: ["tech_writing_basics"]
+    unlocks: ["plank", "plank_from_log", "cut_stone", "log", "stone_saw"], requires: ["tech_writing_basics"]
   },
 
   {
@@ -31261,7 +31263,7 @@ const STRINGS_cs = {
         '👿 "Est mihi causa mali..." Chyba tvá, zisk jeho.'
     ],
     game: {
-        eat: 'Sníst', drink: 'Napít', required: '(Nutné)',
+        eat: 'Sníst', drink: 'Napít', required: '(Nutné)', needTool: 'Chybí nástroj:',
         techDone: 'HOTOVO', techStudy: 'Studovat', techRequired: 'Nutné:',
         noTinderbox: 'Nemáš Troud!',
         fireKindled: 'Krb rozežehnut.',
@@ -33086,7 +33088,7 @@ const STRINGS_en = {
         '👿 "Est mihi causa mali..." Thy blunder, his gain.'
     ],
     game: {
-        eat: 'Eat', drink: 'Drink', required: '(Required)',
+        eat: 'Eat', drink: 'Drink', required: '(Required)', needTool: 'Missing tool:',
         techDone: 'DONE', techStudy: 'Study', techRequired: 'Required:',
         noTinderbox: 'Thou hast no tinderbox!',
         fireKindled: 'The hearth is kindled.',
@@ -38372,6 +38374,16 @@ const Game = {
             if(amt === 0 && !GameState.inventory[item]) { UI.notify(`${t('game.required2')} ${iName(item)}`, true); return; }
         }
 
+        // Alternativní nástroj (vlastníš-li kterýkoliv z uvedených) — stejný vzor jako Mine/Scavenge
+        let _foundTool = null;
+        if (r.toolReq) {
+            _foundTool = r.toolReq.find(tr => (GameState.inventory[tr.item] > 0) || (GameState.inventory['worn_' + tr.item] > 0));
+            if (!_foundTool) {
+                UI.notify(`${t('game.needTool')} ${r.toolReq.map(tr => iName(tr.item)).join(' / ')}`, true);
+                return;
+            }
+        }
+
         // ── RESEARCH: Vigor gate (před odebráním surovin) ───────────────────
         if (r.output === 'research') {
             if (typeof VigorSystem !== 'undefined' && !VigorSystem.canResearch()) {
@@ -38384,6 +38396,7 @@ const Game = {
         }
 
         for(let [item, amt] of Object.entries(r.req)) if(amt > 0) this.removeItem(item, amt);
+        if (_foundTool) this.useToolCharge(_foundTool.item);
 
         // Init toolUses pro nový nástroj
         if (outItem && outItem.maxUses) {
@@ -40129,6 +40142,12 @@ const UI = {
                     reqStr += `<span class="${missing ? 'text-danger' : ''}">${amt === 0 ? t('game.required') : amt + 'x'} ${iName(id)}</span>, `;
                 }
                 reqStr = reqStr.slice(0, -2);
+                if (r.toolReq) {
+                    const hasTool = r.toolReq.some(tr => (GameState.inventory[tr.item] > 0) || (GameState.inventory['worn_' + tr.item] > 0));
+                    if (!hasTool) can = false;
+                    const toolNames = r.toolReq.map(tr => iName(tr.item)).join('/');
+                    reqStr += ` <span class="${hasTool ? '' : 'text-danger'}">+ 🔧 ${toolNames}</span>`;
+                }
                 if (r.qty && r.qty !== 1) reqStr += ` <span style="opacity:0.55;">→ ${r.qty}×</span>`;
                 if (can && bestId === null) bestId = r.id;
                 return `<span style="${can ? '' : 'opacity:0.6;'}">${reqStr}</span>`;

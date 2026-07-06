@@ -580,6 +580,12 @@ const UI = {
                     reqStr += `<span class="${missing ? 'text-danger' : ''}">${amt === 0 ? t('game.required') : amt + 'x'} ${iName(id)}</span>, `;
                 }
                 reqStr = reqStr.slice(0, -2);
+                if (r.toolReq) {
+                    const hasTool = r.toolReq.some(tr => (GameState.inventory[tr.item] > 0) || (GameState.inventory['worn_' + tr.item] > 0));
+                    if (!hasTool) can = false;
+                    const toolNames = r.toolReq.map(tr => iName(tr.item)).join('/');
+                    reqStr += ` <span class="${hasTool ? '' : 'text-danger'}">+ 🔧 ${toolNames}</span>`;
+                }
                 if (r.qty && r.qty !== 1) reqStr += ` <span style="opacity:0.55;">→ ${r.qty}×</span>`;
                 if (can && bestId === null) bestId = r.id;
                 return `<span style="${can ? '' : 'opacity:0.6;'}">${reqStr}</span>`;

@@ -364,6 +364,8 @@ const RecipesDB = [
     // ── STAVEBNÍ MATERIÁLY (tech_carpentaria) ───────────────────────────────
     { id: "plank", output: "plank", qty: 2, req: { stick: 5 }, cat: "craft", locked: true,
       desc: "Otesané fošny z větví. Základ každé dřevěné stavby.", desc_en: "Hewn planks from branches. The foundation of every wooden structure." },
+    { id: "plank_from_log", output: "plank", qty: 7, req: { log: 1 }, toolReq: [{item:"stone_saw"},{item:"iron_saw"}], cat: "craft", locked: true,
+      desc: "Fošny nařezané z kulatiny pilou.", desc_en: "Planks sawn from a log with a saw." },
 
     { id: "cut_stone", output: "cut_stone", qty: 1, req: { rock: 4 }, cat: "craft", locked: true,
       desc: "Opracovaný kvádr. Klášterní tesař ho vytesá dlátem a palicí.", desc_en: "A dressed block. The monastic carpenter shapes it with chisel and mallet." },
@@ -393,7 +395,7 @@ const RecipesDB = [
       desc:"Kamenná hlava upevněná na násadě. Těžba rudy.", desc_en:"Stone head fixed to a haft. Ore mining." },
     { id:"stone_shovel", output:"stone_shovel", qty:1, req:{stick:2, rock:2, rope:1}, cat:"stone", locked:true,
       desc:"Plochý kámen jako lopata.", desc_en:"Flat stone as a shovel." },
-    { id:"stone_saw",    output:"stone_saw",    qty:1, req:{stick:2, flint:2, rope:1}, cat:"stone", locked:true,
+    { id:"stone_saw",    output:"stone_saw",    qty:1, req:{stick:2, flint:2, cut_stone:3, rope:2}, cat:"stone", locked:true,
       desc:"Pila z křemenných úštěpků.", desc_en:"Saw of flint chips." },
 
     // ── DŘEVĚNÉ NÁSTROJE ─────────────────────────────────────────────────────
