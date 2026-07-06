@@ -2188,7 +2188,7 @@ const Game = {
                 }
             }
             else if (type === 'basic') { 
-                this.addItem((r<0.5?'rock':'stick'), 1); 
+                this.addItem((r<0.4?'rock':'stick'), 1); 
                 if(Math.random() < 0.10) this.addItem('chalk', 1);
                 if(Math.random() < 0.35) this.addItem('rags', 1);
             }
@@ -2271,7 +2271,7 @@ const Game = {
                 if(Math.random() < 0.03) this.addItem('bracket_fungus', 1);
             }
             else if (type === 'basic') {
-                this.addItem((r<0.5?'rock':'stick'), 1);
+                this.addItem((r<0.4?'rock':'stick'), 1);
                 if(Math.random() < 0.05) this.addItem('carbon_black', 1);
                 if(Math.random() < 0.04) this.addItem('ochre', 1);
                 if(Math.random() < 0.10) this.addItem('chalk', 1); // Křídová pánev — lokálně dostupná
