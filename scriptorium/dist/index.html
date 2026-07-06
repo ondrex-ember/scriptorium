@@ -7700,6 +7700,8 @@ const GameState = {
     kronikaDailyBuffer: { date: '', gains: {} },
     kronikaCraftBuffer: { date: '', crafts: {} },
     craftedItems: {},
+    health: { active: {} },  // Valetudo — aktivní neduhy { id: {startedAt, expiresAt} }
+    uiPrefs: { craftCollapsed: {} },  // UI stav — sbalené/rozbalené sekce (přežije reload)
     notifications: [],  // NotificationSystem — persistentní panel zpráv
     toolUses: {},       // Zbývající použití nástrojů { itemId: remainingUses }
     persona: {
@@ -17587,6 +17589,17 @@ const FireplaceSystem = {
             h += VigorSystem.renderFullDisplay();
         }
 
+        // ── Sekce Valetudo (rychlý přehled aktivních neduhů, jen když nějaké jsou) ──
+        const activeHealth = (GameState.health && GameState.health.active) || {};
+        const healthIds = Object.keys(activeHealth);
+        if (healthIds.length > 0 && typeof HealthConditionsDB !== 'undefined') {
+            const icons = healthIds.map(id => (HealthConditionsDB[id] ? HealthConditionsDB[id].icon : '')).join(' ');
+            h += `<div style="${card}"><div style="${row}; margin-bottom:0;">
+                <span>${icons} ${lang==='en' ? `${healthIds.length} active ailment(s)` : `${healthIds.length} aktivní neduh(y)`}</span>
+                <span style="opacity:0.6; font-size:0.85rem;">→ Persona</span>
+            </div></div>`;
+        }
+
         // ── Sekce Stav (zápisky / groše / rank / techy / poslední kronika) ──
         let stav = `<div style="${card}"><h4 style="margin:0 0 10px 0;color:var(--ink-primary);">📊 ${t('fireplace.dashStav')}</h4>`;
         const notes = (GameState.inventory && GameState.inventory['research']) || 0;
@@ -23169,6 +23182,8 @@ const PersonaSystem = {
                 onclick="PersonaSystem.switchTab('persona',this)">🧑 ${lang==='en'?'Persona':'Persona'}</button>
             <button id="persona-tab-vigor" class="filter-btn ${this._activeTab==='vigor'?'active':''}"
                 onclick="PersonaSystem.switchTab('vigor',this)">⚡ Vigor</button>
+            <button id="persona-tab-valetudo" class="filter-btn ${this._activeTab==='valetudo'?'active':''}"
+                onclick="PersonaSystem.switchTab('valetudo',this)">🩺 Valetudo</button>
             <button id="persona-tab-stats" class="filter-btn ${this._activeTab==='stats'?'active':''}"
                 onclick="PersonaSystem.switchTab('stats',this)">📊 ${lang==='en'?'Statistics':'Statistiky'}</button>
             <button id="persona-tab-influentia" class="filter-btn ${this._activeTab==='influentia'?'active':''}"
@@ -23181,6 +23196,7 @@ const PersonaSystem = {
 
         h += `<div id="persona-subtab-persona"  style="${this._activeTab==='persona'?'':'display:none'}">` + this._renderPersona(lang) + `</div>`;
         h += `<div id="persona-subtab-vigor"    style="${this._activeTab==='vigor'?'':'display:none'}">` + this._renderVigor(lang) + `</div>`;
+        h += `<div id="persona-subtab-valetudo" style="${this._activeTab==='valetudo'?'':'display:none'}">` + this._renderValetudo(lang) + `</div>`;
         h += `<div id="persona-subtab-stats"    style="${this._activeTab==='stats'?'':'display:none'}">` + this._renderStats(lang) + `</div>`;
         h += `<div id="persona-subtab-influentia" style="${this._activeTab==='influentia'?'':'display:none'}">` + this._renderInfluentia(lang) + `</div>`;
         h += `<div id="persona-subtab-professio" style="${this._activeTab==='professio'?'':'display:none'}">` + this._renderProfessio(lang) + `</div>`;
@@ -23193,7 +23209,7 @@ const PersonaSystem = {
         this._activeTab = tab;
         document.querySelectorAll('#lore-persona-content .filter-btn').forEach(b => b.classList.remove('active'));
         if (btn) btn.classList.add('active');
-        ['persona','vigor','stats','influentia','professio','felis'].forEach(t => {
+        ['persona','vigor','valetudo','stats','influentia','professio','felis'].forEach(t => {
             const d = document.getElementById('persona-subtab-' + t);
             if (d) d.style.display = t === tab ? '' : 'none';
         });
@@ -23364,6 +23380,43 @@ const PersonaSystem = {
     _renderVigor: function(lang) {
         if (typeof VigorSystem === 'undefined') return '<p>VigorSystem not loaded.</p>';
         return VigorSystem.renderFullDisplay();
+    },
+
+    // ── Valetudo tab (Health System) ─────────────────────────────────────────
+    _renderValetudo: function(lang) {
+        const active = (GameState.health && GameState.health.active) || {};
+        const ids = Object.keys(active);
+
+        if (ids.length === 0) {
+            return `<div style="text-align:center;padding:24px 12px;opacity:0.7;">
+                <div style="font-size:2.4rem;margin-bottom:8px;">💚</div>
+                <div>${lang==='en' ? 'Healthy. No ailments.' : 'Zdráv. Žádné neduhy.'}</div>
+            </div>`;
+        }
+
+        const now = Date.now();
+        const cards = ids.map(id => {
+            const def = (typeof HealthConditionsDB !== 'undefined') ? HealthConditionsDB[id] : null;
+            if (!def) return '';
+            const inst = active[id];
+            const name = lang === 'en' ? def.name_en : def.name;
+            const desc = lang === 'en' ? def.desc_en : def.desc;
+            const hoursLeft = Math.max(0, Math.round((inst.expiresAt - now) / 3600000));
+            const cureNames = (def.cures || []).map(cid => (typeof iName === 'function' ? iName(cid) : cid)).join(' / ');
+            const cureLine = cureNames
+                ? `<div style="font-size:0.78rem;opacity:0.7;margin-top:4px;">${lang==='en'?'Cured by':'Léčí'}: ${cureNames}</div>`
+                : `<div style="font-size:0.78rem;opacity:0.5;margin-top:4px;font-style:italic;">${lang==='en'?'No cure — will pass naturally':'Bez léku — jen doběhne'}</div>`;
+            return `<div style="padding:12px 14px;margin-bottom:10px;background:rgba(197,160,89,0.08);border-left:3px solid var(--accent-gold);border-radius:6px;">
+                <div style="display:flex;justify-content:space-between;align-items:baseline;">
+                    <strong>${def.icon} ${name}</strong>
+                    <span style="font-size:0.8rem;opacity:0.7;">${lang==='en'?`${hoursLeft}h left`:`zbývá ${hoursLeft}h`}</span>
+                </div>
+                <div style="font-size:0.85rem;opacity:0.8;margin-top:4px;">${desc}</div>
+                ${cureLine}
+            </div>`;
+        }).join('');
+
+        return `<div>${cards}</div>`;
     },
 
     // ── Sekce 2: Statistiky ──────────────────────────────────────────────────
@@ -40068,6 +40121,17 @@ const UI = {
         if (btn) { document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active')); btn.classList.add('active'); }
         this.renderCrafting();
     },
+    toggleCraftCategory: function (cat) {
+        if (!GameState.uiPrefs) GameState.uiPrefs = { craftCollapsed: {} };
+        if (!GameState.uiPrefs.craftCollapsed) GameState.uiPrefs.craftCollapsed = {};
+        const collapsed = !GameState.uiPrefs.craftCollapsed[cat];
+        GameState.uiPrefs.craftCollapsed[cat] = collapsed;
+        const body = document.getElementById('craft-cat-body-' + cat);
+        if (body) body.style.display = collapsed ? 'none' : 'contents';
+        const chevron = document.getElementById('craft-cat-chevron-' + cat);
+        if (chevron) chevron.style.transform = collapsed ? 'rotate(0deg)' : 'rotate(90deg)';
+        if (typeof Game !== 'undefined' && Game.save) Game.save();
+    },
     filterInventory: function (cat, btn) {
         this.currentInvFilter = cat;
         const container = document.getElementById('inv-filter-bar');
@@ -40214,8 +40278,14 @@ const UI = {
             catOrder.forEach(cat => {
                 const catRecipes = visible.filter(r => r.cat === cat);
                 if (catRecipes.length === 0) return;
-                _html += `<div style="grid-column:1/-1; margin:12px 0 6px; padding:4px 0; border-bottom:1px solid rgba(197,160,89,0.35);"><span style="font-size:0.72rem; font-weight:bold; letter-spacing:0.08em; text-transform:uppercase; color:var(--accent-gold); opacity:0.85;">${catLabels[cat]}</span></div>`;
+                const collapsed = !!(GameState.uiPrefs && GameState.uiPrefs.craftCollapsed && GameState.uiPrefs.craftCollapsed[cat]);
+                _html += `<div style="grid-column:1/-1; margin:12px 0 6px; padding:4px 0; border-bottom:1px solid rgba(197,160,89,0.35); cursor:pointer; display:flex; align-items:center; gap:6px;" onclick="UI.toggleCraftCategory('${cat}')">
+                    <span id="craft-cat-chevron-${cat}" style="font-size:0.65rem; display:inline-block; transition:transform 0.15s; transform:rotate(${collapsed ? 0 : 90}deg);">▶</span>
+                    <span style="font-size:0.72rem; font-weight:bold; letter-spacing:0.08em; text-transform:uppercase; color:var(--accent-gold); opacity:0.85;">${catLabels[cat]}</span>
+                </div>`;
+                _html += `<div id="craft-cat-body-${cat}" style="display:${collapsed ? 'none' : 'contents'};">`;
                 groupByOutput(catRecipes).forEach(fam => { _html += renderRecipeFamily(fam); });
+                _html += `</div>`;
             });
         }
         el.innerHTML = _html;
