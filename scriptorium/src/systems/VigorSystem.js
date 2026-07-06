@@ -267,6 +267,9 @@ const VigorSystem = {
 
         meta.lastTick = now;
 
+        // Valetudo — průběžný tik aktivních neduhů (stejné elapsed, převedeno zpět na ms)
+        if (typeof HealthSystem !== 'undefined') HealthSystem.tickAll(elapsed * 3600000);
+
         // ── Timer check: Nona odpočinek (60s) ────────────────────────────────
         if (meta.nonaStart > 0 && now - meta.nonaStart >= 60000) {
             GameState.fatigue = Math.max(0, (GameState.fatigue || 0) - 20);

@@ -2324,6 +2324,11 @@ According to Theophilus, the organ is an instrument worthy of God, but its const
         feedSlug: 'Feed slugs', slugFed: '🐌 Hens feasted on slugs. +25% eggs for 8h.',
         slugBonus: 'Slug bonus', needSlug: 'Not enough slugs (2× per hen)',
     },
+    // ── VALETUDO (Health System) ────────────────────────────────────────────
+    health: {
+        cured: '{name} cured.',
+        expired: '{name} has passed.',
+    },
     // ── SCRINIUM ABBATIS ─────────────────────────────────────────────────────
     scrinium: {
         title: 'Scrinium Abbatis',

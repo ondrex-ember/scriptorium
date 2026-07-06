@@ -1518,6 +1518,12 @@ const STRINGS_cs = {
         slugBonus: 'Slug bonus', needSlug: 'Chybí slimáci (2× na slepici)',
     },
 
+    // ── VALETUDO (Health System) ────────────────────────────────────────────
+    health: {
+        cured: '{name} vyléčeno.',
+        expired: '{name} odeznělo.',
+    },
+
     // ── SCRINIUM ABBATIS ─────────────────────────────────────────────────────
     scrinium: {
         title: 'Scrinium Abbatis',

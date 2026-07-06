@@ -28,6 +28,7 @@ const JS_MAIN = [
     'src/data/library-helpers.js',  // EasterEggsDB, ScribeNPC, LibraryHelpers
     'src/data/items.js',            // ItemsDB
     'src/data/recipes.js',          // RecipesDB
+    'src/data/health.js',           // HealthConditionsDB (Valetudo)
     'src/data/lore.js',             // LoreDB
     'src/data/tech.js',             // TechTree
     'src/core/gamestate.js',        // ActionsDB, GameState
@@ -50,6 +51,7 @@ const JS_MAIN = [
     'src/systems/notebook.js',      // NotebookSystem
     'src/systems/audio.js',
     'src/systems/VigorSystem.js',
+    'src/systems/HealthSystem.js',  // Valetudo — neduhy, napojeno na VigorSystem._tick()
     'src/systems/CellariumSystem.js',
     'src/systems/SaeculumSystem.js',
     'src/systems/DecaySystem.js',

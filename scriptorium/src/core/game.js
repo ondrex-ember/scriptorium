@@ -1781,6 +1781,14 @@ const Game = {
         Game._checkSaveHint();
         if (typeof EventsSystem !== 'undefined') EventsSystem.onAction();
 
+        // Valetudo — riziko nachlazení při mokrém počasí (venkovní akce)
+        if (typeof HealthSystem !== 'undefined' && typeof WeatherSystem !== 'undefined' && !HealthSystem.isActive('cold')) {
+            const wetCheck = WeatherSystem.countWetDays(3);
+            if (wetCheck.wet >= 2 && Math.random() < 0.015) {
+                HealthSystem.addCondition('cold');
+            }
+        }
+
 	    // === SPECIAL HANDLING FOR WELL === (PŘIDAT NA ZAČÁTEK)
 		if (type === 'well_water') {
 			// Check if well exists
@@ -2783,14 +2791,27 @@ const Game = {
     },
     eat: function(foodId) {
         const item = ItemsDB[foodId];
-        if(!item || item.type !== 'food') { UI.notify(t('game.notFood'), true); return; }
+        const _potionCures = ['antidote', 'potion_heal', 'sleep_potion', 'stamina_tonic'];
+        const _isPotionCure = _potionCures.includes(foodId);
+        if(!item || (item.type !== 'food' && !_isPotionCure)) { UI.notify(t('game.notFood'), true); return; }
         if(!(GameState.inventory[foodId] > 0)) { UI.notify(t('game.noFood'), true); return; }
 
         this.removeItem(foodId, 1);
 
-        // Vigor systém v2 — VigorSystem.eat() zpracuje Satiety + Fatigue
-        if (typeof VigorSystem !== 'undefined') {
+        // Vigor systém v2 — VigorSystem.eat() zpracuje Satiety + Fatigue (jen skutečné 'food' položky)
+        if (item.type === 'food' && typeof VigorSystem !== 'undefined') {
             VigorSystem.eat(foodId);
+        }
+
+        // Valetudo — pokud item léčí aktivní neduh, vyléčit; jinak (u lektvarů) baseline efekt
+        if (typeof HealthSystem !== 'undefined') {
+            const _cured = HealthSystem.cureWith(foodId);
+            if (!_cured && _isPotionCure) {
+                if (foodId === 'antidote') HealthSystem._applyDelta(5, 0);
+                else if (foodId === 'potion_heal') HealthSystem._applyDelta(0, -10);
+                else if (foodId === 'sleep_potion') HealthSystem._applyDelta(0, -20);
+                else if (foodId === 'stamina_tonic') HealthSystem._applyDelta(5, -15);
+            }
         }
 
         // Track meals eaten
@@ -2809,13 +2830,9 @@ const Game = {
         if (!(GameState.inventory[itemId] > 0)) { UI.notify(t('game.noFood'), true); return; }
         this.removeItem(itemId, 1);
         if (typeof VigorSystem !== 'undefined') VigorSystem.eat(itemId);
-        // Nekvalitní voda (2. třída/venkovní) — malá šance na nevolnost
-        if (itemId === 'water' && Math.random() < 0.007) {
-            GameState.satiety = Math.max(0, (GameState.satiety || 0) - 15);
-            if (typeof VigorSystem !== 'undefined') {
-                GameState.fatigue = Math.min(VigorSystem.MAX_FATIGUE, (GameState.fatigue || 0) + 15);
-            }
-            UI.notify(t('game.waterSickness'), true);
+        // Nekvalitní voda (2. třída/venkovní) — malá šance na nevolnost (Valetudo)
+        if (itemId === 'water' && typeof HealthSystem !== 'undefined' && !HealthSystem.isActive('water_sickness') && Math.random() < 0.007) {
+            HealthSystem.addCondition('water_sickness');
         }
         Game.save();
         UI.renderAll();

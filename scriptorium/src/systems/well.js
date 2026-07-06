@@ -116,6 +116,14 @@ const WellSystem = {
         Game.checkCalendarium();
         GameState.well.lastUse = Date.now();
 
+        // Valetudo — komáří štípance z kriticky kalné studny, jen v létě (astronomicky)
+        if (typeof HealthSystem !== 'undefined' && GameState.well.purity < 30) {
+            const _now = new Date();
+            const _m = _now.getMonth() + 1, _d = _now.getDate();
+            const _isSummer = (_m === 6 && _d >= 21) || _m === 7 || _m === 8 || (_m === 9 && _d < 23);
+            if (_isSummer && Math.random() < 0.01) HealthSystem.addCondition('mosquito_bites');
+        }
+
         // Track well uses
         if (GameState.achievements) {
             GameState.achievements.stats.wellUses++;

@@ -99,6 +99,7 @@ const GameState = {
     kronikaDailyBuffer: { date: '', gains: {} },
     kronikaCraftBuffer: { date: '', crafts: {} },
     craftedItems: {},
+    health: { active: {} },  // Valetudo — aktivní neduhy { id: {startedAt, expiresAt} }
     notifications: [],  // NotificationSystem — persistentní panel zpráv
     toolUses: {},       // Zbývající použití nástrojů { itemId: remainingUses }
     persona: {

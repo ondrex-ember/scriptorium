@@ -6319,6 +6319,43 @@ RecipesDB.push(
     { id: "incense_styrax",   output: "incense_styrax",   qty: 1, req: { "resin_styrax": 1, "charcoal": 1 }, cat: "fire", locked: true, desc: "Styrax + uhlí = byzantské kadidlo.", desc_en: "Styrax + charcoal = Byzantine incense." },
     { id: "incense_olibanum", output: "incense_olibanum", qty: 1, req: { "resin_olibanum": 1, "charcoal": 1 }, cat: "fire", locked: true, desc: "Olibanum + uhlí = posvátné kadidlo.", desc_en: "Olibanum + charcoal = sacred incense." }
 );
+// ═══ src/data/health.js ═══
+// ═══════════════════════════════════════════════════════════════════════════
+// HEALTH CONDITIONS DB (Valetudo)
+// Vzor jako ItemsDB — objekt klíčovaný podle id.
+// Viz health-system-reference.md v0.2 pro plný popis modelu.
+// ═══════════════════════════════════════════════════════════════════════════
+
+const HealthConditionsDB = {
+    "water_sickness": {
+        name: "Nevolnost z vody", name_en: "Water Sickness", icon: "🤢",
+        desc: "Něco s tou vodou nebylo v pořádku.",
+        desc_en: "Something about that water was not right.",
+        durationHours: 36,
+        onApply: { satiety: -15, fatigue: 15 },
+        tickHour: { satiety: -1 },
+        cures: ["antidote"],
+    },
+    "cold": {
+        name: "Nachlazení", name_en: "Cold", icon: "🤧",
+        desc: "Zima a mokro se podepsaly na těle.",
+        desc_en: "Cold and damp have taken their toll.",
+        durationHours: 72,
+        onApply: { satiety: -10, fatigue: 15 },
+        tickHour: { fatigue: 2 },
+        cures: ["potion_heal", "herbal_tea", "hildegard_tisane", "linden_tea", "sleep_potion"],
+    },
+    "mosquito_bites": {
+        name: "Komáří štípance", name_en: "Mosquito Bites", icon: "🦟",
+        desc: "Komáři z kalné vody tě štípali celou noc.",
+        desc_en: "Mosquitoes from the murky water bit you all night.",
+        durationHours: 24,
+        onApply: { fatigue: 10 },
+        tickHour: { fatigue: 1 },
+        cures: [],
+    },
+};
+
 // ═══ src/data/lore.js ═══
 const LoreDB = {
     // TOOLS
@@ -7700,6 +7737,7 @@ const GameState = {
     kronikaDailyBuffer: { date: '', gains: {} },
     kronikaCraftBuffer: { date: '', crafts: {} },
     craftedItems: {},
+    health: { active: {} },  // Valetudo — aktivní neduhy { id: {startedAt, expiresAt} }
     notifications: [],  // NotificationSystem — persistentní panel zpráv
     toolUses: {},       // Zbývající použití nástrojů { itemId: remainingUses }
     persona: {
@@ -13674,6 +13712,9 @@ const VigorSystem = {
 
         meta.lastTick = now;
 
+        // Valetudo — průběžný tik aktivních neduhů (stejné elapsed, převedeno zpět na ms)
+        if (typeof HealthSystem !== 'undefined') HealthSystem.tickAll(elapsed * 3600000);
+
         // ── Timer check: Nona odpočinek (60s) ────────────────────────────────
         if (meta.nonaStart > 0 && now - meta.nonaStart >= 60000) {
             GameState.fatigue = Math.max(0, (GameState.fatigue || 0) - 20);
@@ -14436,6 +14477,100 @@ const VigorSystem = {
         </div>`;
     },
 };
+// ═══ src/systems/HealthSystem.js ═══
+// ═══════════════════════════════════════════════════════════════════════════
+// HEALTH SYSTEM (Valetudo)
+// Varianta B — úvodní zásah + průběžný tik/hod + přirozené vypršení + léčba.
+// Viz health-system-reference.md v0.2.
+// ═══════════════════════════════════════════════════════════════════════════
+
+const HealthSystem = {
+
+    isActive: function(id) {
+        return !!(GameState.health && GameState.health.active && GameState.health.active[id]);
+    },
+
+    _applyDelta: function(satietyDelta, fatigueDelta) {
+        if (typeof VigorSystem === 'undefined') return;
+        if (typeof satietyDelta === 'number' && satietyDelta !== 0) {
+            GameState.satiety = Math.max(0, Math.min(VigorSystem.MAX_SATIETY, (GameState.satiety || 0) + satietyDelta));
+        }
+        if (typeof fatigueDelta === 'number' && fatigueDelta !== 0) {
+            GameState.fatigue = Math.max(0, Math.min(VigorSystem.MAX_FATIGUE, (GameState.fatigue || 0) + fatigueDelta));
+        }
+    },
+
+    addCondition: function(id) {
+        if (!GameState.health) GameState.health = { active: {} };
+        if (!GameState.health.active) GameState.health.active = {};
+        const def = HealthConditionsDB[id];
+        if (!def) return;
+        const now = Date.now();
+
+        if (this.isActive(id)) {
+            // Už aktivní — prodloužit na plné trvání znovu, ne duplicitně stackovat úvodní zásah
+            GameState.health.active[id].expiresAt = now + def.durationHours * 3600000;
+            return;
+        }
+
+        GameState.health.active[id] = { startedAt: now, expiresAt: now + def.durationHours * 3600000 };
+
+        if (def.onApply) this._applyDelta(def.onApply.satiety, def.onApply.fatigue);
+
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        const msg = lang === 'en' ? (def.desc_en || def.name_en) : (def.desc || def.name);
+        if (typeof UI !== 'undefined' && UI.notifyPanel) UI.notifyPanel(msg, 'system');
+        if (typeof Game !== 'undefined' && Game.addKronikaEntry) {
+            Game.addKronikaEntry('important', `${def.name}: ${def.desc}`, `${def.name_en}: ${def.desc_en}`, '');
+        }
+        if (typeof VigorSystem !== 'undefined' && VigorSystem.renderPill) VigorSystem.renderPill();
+    },
+
+    removeCondition: function(id, cured) {
+        if (!GameState.health || !GameState.health.active || !GameState.health.active[id]) return;
+        const def = HealthConditionsDB[id];
+        delete GameState.health.active[id];
+        if (def && typeof UI !== 'undefined' && UI.notifyPanel) {
+            const lang = (GameState.settings && GameState.settings.language) || 'cs';
+            const name = lang === 'en' ? def.name_en : def.name;
+            const key = cured ? 'health.cured' : 'health.expired';
+            const msg = (typeof t === 'function' ? t(key) : (cured ? '{name} cured.' : '{name} expired.')).replace('{name}', name);
+            UI.notifyPanel(msg, 'system');
+        }
+    },
+
+    // Volat z VigorSystem._tick() se stejným 'elapsed' (ms), co se používá pro Satiety/Fatigue drain.
+    tickAll: function(elapsedMs) {
+        if (!GameState.health || !GameState.health.active) return;
+        const now = Date.now();
+        for (const id of Object.keys(GameState.health.active)) {
+            const inst = GameState.health.active[id];
+            const def = HealthConditionsDB[id];
+            if (!def || !inst) { delete GameState.health.active[id]; continue; }
+            if (now >= inst.expiresAt) { this.removeCondition(id, false); continue; }
+            if (def.tickHour) {
+                const hours = elapsedMs / 3600000;
+                const sDelta = typeof def.tickHour.satiety === 'number' ? def.tickHour.satiety * hours : 0;
+                const fDelta = typeof def.tickHour.fatigue === 'number' ? def.tickHour.fatigue * hours : 0;
+                this._applyDelta(sDelta, fDelta);
+            }
+        }
+    },
+
+    // Zkusí najít aktivní neduh, který daný item léčí, a odstraní ho. Vrací true, pokud něco vyléčil.
+    cureWith: function(itemId) {
+        if (!GameState.health || !GameState.health.active) return false;
+        for (const id of Object.keys(GameState.health.active)) {
+            const def = HealthConditionsDB[id];
+            if (def && def.cures && def.cures.includes(itemId)) {
+                this.removeCondition(id, true);
+                return true;
+            }
+        }
+        return false;
+    },
+};
+
 // ═══ src/systems/CellariumSystem.js ═══
 // ═══════════════════════════════════════════════════════════════════════════════
 // CELLARIUM SYSTEM v8.1 — Economy & Barter
@@ -16872,6 +17007,14 @@ const WellSystem = {
         GameState.well.level_water = Math.max(0, (GameState.well.level_water || 0) - this.DRAW_COST);
         Game.checkCalendarium();
         GameState.well.lastUse = Date.now();
+
+        // Valetudo — komáří štípance z kriticky kalné studny, jen v létě (astronomicky)
+        if (typeof HealthSystem !== 'undefined' && GameState.well.purity < 30) {
+            const _now = new Date();
+            const _m = _now.getMonth() + 1, _d = _now.getDate();
+            const _isSummer = (_m === 6 && _d >= 21) || _m === 7 || _m === 8 || (_m === 9 && _d < 23);
+            if (_isSummer && Math.random() < 0.01) HealthSystem.addCondition('mosquito_bites');
+        }
 
         // Track well uses
         if (GameState.achievements) {
@@ -32640,6 +32783,12 @@ const STRINGS_cs = {
         slugBonus: 'Slug bonus', needSlug: 'Chybí slimáci (2× na slepici)',
     },
 
+    // ── VALETUDO (Health System) ────────────────────────────────────────────
+    health: {
+        cured: '{name} vyléčeno.',
+        expired: '{name} odeznělo.',
+    },
+
     // ── SCRINIUM ABBATIS ─────────────────────────────────────────────────────
     scrinium: {
         title: 'Scrinium Abbatis',
@@ -35287,6 +35436,11 @@ According to Theophilus, the organ is an instrument worthy of God, but its const
         feedSlug: 'Feed slugs', slugFed: '🐌 Hens feasted on slugs. +25% eggs for 8h.',
         slugBonus: 'Slug bonus', needSlug: 'Not enough slugs (2× per hen)',
     },
+    // ── VALETUDO (Health System) ────────────────────────────────────────────
+    health: {
+        cured: '{name} cured.',
+        expired: '{name} has passed.',
+    },
     // ── SCRINIUM ABBATIS ─────────────────────────────────────────────────────
     scrinium: {
         title: 'Scrinium Abbatis',
@@ -37613,6 +37767,14 @@ const Game = {
         Game._checkSaveHint();
         if (typeof EventsSystem !== 'undefined') EventsSystem.onAction();
 
+        // Valetudo — riziko nachlazení při mokrém počasí (venkovní akce)
+        if (typeof HealthSystem !== 'undefined' && typeof WeatherSystem !== 'undefined' && !HealthSystem.isActive('cold')) {
+            const wetCheck = WeatherSystem.countWetDays(3);
+            if (wetCheck.wet >= 2 && Math.random() < 0.015) {
+                HealthSystem.addCondition('cold');
+            }
+        }
+
 	    // === SPECIAL HANDLING FOR WELL === (PŘIDAT NA ZAČÁTEK)
 		if (type === 'well_water') {
 			// Check if well exists
@@ -38615,14 +38777,27 @@ const Game = {
     },
     eat: function(foodId) {
         const item = ItemsDB[foodId];
-        if(!item || item.type !== 'food') { UI.notify(t('game.notFood'), true); return; }
+        const _potionCures = ['antidote', 'potion_heal', 'sleep_potion', 'stamina_tonic'];
+        const _isPotionCure = _potionCures.includes(foodId);
+        if(!item || (item.type !== 'food' && !_isPotionCure)) { UI.notify(t('game.notFood'), true); return; }
         if(!(GameState.inventory[foodId] > 0)) { UI.notify(t('game.noFood'), true); return; }
 
         this.removeItem(foodId, 1);
 
-        // Vigor systém v2 — VigorSystem.eat() zpracuje Satiety + Fatigue
-        if (typeof VigorSystem !== 'undefined') {
+        // Vigor systém v2 — VigorSystem.eat() zpracuje Satiety + Fatigue (jen skutečné 'food' položky)
+        if (item.type === 'food' && typeof VigorSystem !== 'undefined') {
             VigorSystem.eat(foodId);
+        }
+
+        // Valetudo — pokud item léčí aktivní neduh, vyléčit; jinak (u lektvarů) baseline efekt
+        if (typeof HealthSystem !== 'undefined') {
+            const _cured = HealthSystem.cureWith(foodId);
+            if (!_cured && _isPotionCure) {
+                if (foodId === 'antidote') HealthSystem._applyDelta(5, 0);
+                else if (foodId === 'potion_heal') HealthSystem._applyDelta(0, -10);
+                else if (foodId === 'sleep_potion') HealthSystem._applyDelta(0, -20);
+                else if (foodId === 'stamina_tonic') HealthSystem._applyDelta(5, -15);
+            }
         }
 
         // Track meals eaten
@@ -38641,13 +38816,9 @@ const Game = {
         if (!(GameState.inventory[itemId] > 0)) { UI.notify(t('game.noFood'), true); return; }
         this.removeItem(itemId, 1);
         if (typeof VigorSystem !== 'undefined') VigorSystem.eat(itemId);
-        // Nekvalitní voda (2. třída/venkovní) — malá šance na nevolnost
-        if (itemId === 'water' && Math.random() < 0.007) {
-            GameState.satiety = Math.max(0, (GameState.satiety || 0) - 15);
-            if (typeof VigorSystem !== 'undefined') {
-                GameState.fatigue = Math.min(VigorSystem.MAX_FATIGUE, (GameState.fatigue || 0) + 15);
-            }
-            UI.notify(t('game.waterSickness'), true);
+        // Nekvalitní voda (2. třída/venkovní) — malá šance na nevolnost (Valetudo)
+        if (itemId === 'water' && typeof HealthSystem !== 'undefined' && !HealthSystem.isActive('water_sickness') && Math.random() < 0.007) {
+            HealthSystem.addCondition('water_sickness');
         }
         Game.save();
         UI.renderAll();
