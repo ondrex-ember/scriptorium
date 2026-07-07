@@ -15741,6 +15741,18 @@ const CellariumSystem = {
     return 0.45;
   },
 
+  // CH-2: Postní dny (Chronicon fast flag) — ryby žádané, maso leží
+  FAST_FISH: ['cooked_fish', 'carp'],
+  FAST_MEAT: ['cooked_meat', 'chicken_meat', 'mutton'],
+
+  _fastMult: function(itemId) {
+    const snap = (typeof ChroniconSystem !== 'undefined') ? ChroniconSystem._snap : null;
+    if (!snap || !snap.fast || !snap.fast.active) return 1.0;
+    if (this.FAST_FISH.includes(itemId)) return 1.5;
+    if (this.FAST_MEAT.includes(itemId)) return 0.5;
+    return 1.0;
+  },
+
   calcPrice: function(itemId, entity) {
     const base = this.BASE_PRICES[itemId];
     if (!base) return null;
@@ -15753,7 +15765,8 @@ const CellariumSystem = {
     const offset = 0.85 + pseudoRand * 0.30; // 0.85–1.15
     const satMult = this._saturationMult(itemId, entity);
     const roleMult = (typeof RankSystem !== 'undefined') ? RankSystem.getActiveBonus('market_price') : 1.0;
-    return Math.max(1, Math.round(base * coeff * offset * satMult * roleMult));
+    const fastMult = this._fastMult(itemId);
+    return Math.max(1, Math.round(base * coeff * offset * satMult * roleMult * fastMult));
   },
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -16297,6 +16310,12 @@ const CellariumSystem = {
         ? `<span style="color:#5a9a5a;">● ${lang==='en'?'open':'otevřeno'}</span>`
         : `<span style="color:#c0392b;">● ${lang==='en'?'closed':'zavřeno'}</span>`;
       h += `<span>🍺 ${lang==='en'?'Tavern':'Hospoda'}: ${tavernTxt}</span>`;
+      // CH-2: postní den — indikátor
+      const _fsnap = (typeof ChroniconSystem !== 'undefined') ? ChroniconSystem._snap : null;
+      if (_fsnap && _fsnap.fast && _fsnap.fast.active) {
+        const fn = (lang === 'en' ? (_fsnap.fast.name_en || _fsnap.fast.name_cs) : _fsnap.fast.name_cs) || '';
+        h += `<span>🐟 ${lang==='en'?'Fast day':'Postní den'}${fn ? ' ('+fn+')' : ''} — ${lang==='en'?'fish in demand, meat lies':'ryby žádané, maso leží'}</span>`;
+      }
     } else {
       h += `<span>🌾 ${lang==='en'?'Stores':'Zásoby'}: <strong style="color:${capColor};">${pct}%</strong></span>`;
     }
