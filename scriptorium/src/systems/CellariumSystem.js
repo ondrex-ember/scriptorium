@@ -809,6 +809,36 @@ const CellariumSystem = {
   },
 
   // ── Benedikt — stats panel (cellarium = sklad/zásoby, saeculum = hospoda) ──
+  // VITREA V5: rozpad vybavení (informační modal — obchod se děje u Skláře/na trhu)
+  showVitreaDetail: function() {
+    if (typeof NotificationSystem === 'undefined') return;
+    const lang = (GameState.settings && GameState.settings.language) || 'cs';
+    const inv = GameState.inventory || {};
+    const row = (id) => {
+      const n = inv[id] || 0;
+      const nm = (typeof iName === 'function') ? iName(id) : id;
+      return `<div style="display:flex; justify-content:space-between; font-size:0.78rem; margin-bottom:2px; ${n === 0 ? 'opacity:0.45;' : ''}"><span>${nm}</span><strong>${n}</strong></div>`;
+    };
+    let html = `<div style="font-size:0.72rem; font-weight:bold; opacity:0.75; margin-bottom:4px;">🍽️ ${lang==='en'?'Tableware':'Stolní nádobí'}</div>`;
+    ['glass_goblet','glass_tankard','glass_jug','glass_bowl','glass_pitcher','wooden_bowl'].forEach(id => html += row(id));
+    html += `<div style="font-size:0.72rem; font-weight:bold; opacity:0.75; margin:8px 0 4px;">⚗️ ${lang==='en'?'Laboratory':'Laboratoř'}</div>`;
+    ['alembic','glass_flask','glass_stopper'].forEach(id => html += row(id));
+    html += `<div style="font-size:0.72rem; font-weight:bold; opacity:0.75; margin:8px 0 4px;">🏺 ${lang==='en'?'Other':'Ostatní'}</div>`;
+    ['window_roundel','glass_vase','glass_mirror','paternoster_beads','fly_trap_glass'].forEach(id => html += row(id));
+    const lb = GameState.vitreaLastBroken;
+    if (lb) {
+      const nm = (typeof iName === 'function') ? iName(lb.id) : lb.id;
+      const when = new Date(lb.ts).toLocaleDateString(lang==='en'?'en-GB':'cs-CZ');
+      html += `<div style="font-size:0.72rem; opacity:0.6; font-style:italic; margin-top:10px;">💥 ${lang==='en'?'Last broken':'Naposled rozbito'}: ${nm} (${when})</div>`;
+    }
+    NotificationSystem.modal({
+      icon: '🍶',
+      title: lang==='en' ? 'Monastery equipment' : 'Klášterní vybavení',
+      text: html,
+      choices: [{ label: (lang==='en'?'Close':'Zavřít') }]
+    });
+  },
+
   _benediktStats: function(context) {
     context = context || 'cellarium';
     const lang = (GameState.settings && GameState.settings.language) || 'cs';
@@ -837,6 +867,16 @@ const CellariumSystem = {
       h += `<span>🍺 ${lang==='en'?'Tavern':'Hospoda'}: ${tavernTxt}</span>`;
     } else {
       h += `<span>🌾 ${lang==='en'?'Stores':'Zásoby'}: <strong style="color:${capColor};">${pct}%</strong></span>`;
+    }
+    // VITREA V5: agregát vybavení (stolní kapacita vs. bratři) — klik = rozpad
+    if (GameState.vitreaGranted) {
+      const TG = ['glass_goblet','glass_tankard','glass_jug','glass_bowl','glass_pitcher'];
+      const glassCap = TG.reduce((s, id) => s + (GameState.inventory[id] || 0), 0);
+      const woodCap = GameState.inventory['wooden_bowl'] || 0;
+      const need = Math.max(1, (GameState.conversi || []).length);
+      const vPct = Math.min(100, Math.round((glassCap + woodCap) / need * 100));
+      const vColor = vPct >= 100 ? '#5a9a5a' : vPct >= 50 ? '#e67e22' : '#c0392b';
+      h += `<span style="cursor:pointer;" onclick="CellariumSystem.showVitreaDetail()" title="${lang==='en'?'Click for breakdown':'Klik pro rozpad'}">🍶 ${lang==='en'?'Equipment':'Vybavení'}: <strong style="color:${vColor};">${vPct}%</strong></span>`;
     }
     h += `</div>`;
     return h;

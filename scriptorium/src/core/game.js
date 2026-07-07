@@ -3670,6 +3670,7 @@ const Game = {
         if (!owned.length) { Game.save(); return; }
         const victim = owned[Math.floor(Math.random() * owned.length)];
         this.removeItem(victim, 1);
+        GameState.vitreaLastBroken = { id: victim, ts: Date.now() };
         const itemName = (typeof iName === 'function') ? iName(victim) : victim;
         const blameJilji = jilji && Math.random() < 0.5;
         if (typeof UI !== 'undefined' && UI.notifyPanel) {
