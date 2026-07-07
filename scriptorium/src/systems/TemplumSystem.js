@@ -85,6 +85,11 @@ const TemplumSystem = {
         if (!massReady) {
             h += `<div style="font-size:0.7rem; margin-top:5px; opacity:0.7;">⏳ ${lang==='en'?'next mass in':'příští mše za'} ${Math.ceil((nextMass - now) / (24*3600000))} d</div>`;
         } else {
+            const _fs = (typeof ChroniconSystem !== 'undefined' && ChroniconSystem._snap && ChroniconSystem._snap.feast && ChroniconSystem._snap.feast.active) ? ChroniconSystem._snap.feast : null;
+            if (_fs) {
+                const fName = (lang === 'en' ? (_fs.name_en || _fs.name_cs) : _fs.name_cs) || '';
+                h += `<div style="font-size:0.68rem; color:var(--accent-gold); font-weight:bold; margin-top:4px;">🎉 ${lang==='en'?'Feast of':'Svátek'} ${fName} — ${lang==='en'?'mass counts double!':'mše dvojnásob!'}</div>`;
+            }
             h += reqRow((inv['candle'] || 0) >= 2, `2× ${lang==='en'?'candle':'svíce'} (${inv['candle'] || 0})`);
             h += reqRow(wineOk, `1× ${lang==='en'?'wine':'víno'} (${(inv['vinum'] || 0) + (inv['wine'] || 0)})`);
             h += reqRow(!!bestIncense, `1× ${incName}`);

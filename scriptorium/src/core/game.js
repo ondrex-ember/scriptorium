@@ -3825,7 +3825,14 @@ const Game = {
         let eccl = 5 + (this.MASS_INCENSE_TIER[incenseId] || 0);
         let vill = 3;
         if (degraded) { eccl = Math.max(1, Math.floor(eccl / 2)); vill = Math.max(1, Math.floor(vill / 2)); }
-        // TODO Chronicon: svátkový násobič (feast flag ze snapshotu) aplikovat ZDE
+        // Svátkový násobič (Chronicon feast flag) — PO degradaci; defenzivní no-op bez snapshotu
+        let feastName = null;
+        const _snap = (typeof ChroniconSystem !== 'undefined') ? ChroniconSystem._snap : null;
+        if (_snap && _snap.feast && _snap.feast.active) {
+            feastName = (lang === 'en' ? (_snap.feast.name_en || _snap.feast.name_cs) : _snap.feast.name_cs) || null;
+            eccl *= 2;
+            vill *= 2;
+        }
 
         if (typeof PersonaSystem !== 'undefined' && PersonaSystem.addInfluence) {
             PersonaSystem.addInfluence('church', eccl);
@@ -3836,13 +3843,14 @@ const Game = {
         Game.save();
 
         if (typeof UI !== 'undefined' && UI.notifyPanel) {
+            const feastPart = feastName ? (lang==='en' ? ' Feast of ' + feastName + ' — twofold grace!' : ' Svátek ' + feastName + ' — dvojnásobná milost!') : '';
             UI.notifyPanel('⛪ ' + (degraded
                 ? (lang==='en' ? 'Mass held in gloom and dust. Ecclesia +'+eccl+', village +'+vill+'.' : 'Mše v šeru a prachu. Ecclesia +'+eccl+', vesnice +'+vill+'.')
-                : (lang==='en' ? 'Mass held. Ecclesia +'+eccl+', village +'+vill+'.' : 'Mše odsloužena. Ecclesia +'+eccl+', vesnice +'+vill+'.')), degraded ? 'warning' : 'success');
+                : (lang==='en' ? 'Mass held. Ecclesia +'+eccl+', village +'+vill+'.' : 'Mše odsloužena. Ecclesia +'+eccl+', vesnice +'+vill+'.')) + feastPart, degraded ? 'warning' : 'success');
         }
         Game.addKronikaEntry('important',
-            degraded ? '⛪ Mše sloužena v šeru a prachu — kostel volá po péči.' : '⛪ Mše slavnostně odsloužena. Kraj naslouchal.',
-            degraded ? '⛪ Mass held in gloom and dust — the church calls for care.' : '⛪ Mass solemnly celebrated. The countryside listened.',
+            feastName ? '⛪ Mše o svátku ' + feastName + ' — kostel praskal ve švech.' : (degraded ? '⛪ Mše sloužena v šeru a prachu — kostel volá po péči.' : '⛪ Mše slavnostně odsloužena. Kraj naslouchal.'),
+            feastName ? '⛪ Mass on the feast of ' + feastName + ' — the church was full to bursting.' : (degraded ? '⛪ Mass held in gloom and dust — the church calls for care.' : '⛪ Mass solemnly celebrated. The countryside listened.'),
             '⛪ Missa celebrata est.');
         const el = document.getElementById('home-templum-content');
         if (el && typeof TemplumSystem !== 'undefined') el.innerHTML = TemplumSystem.renderTemplumTab();
