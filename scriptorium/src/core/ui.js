@@ -998,12 +998,16 @@ const UI = {
         if (saecEl) saecEl.style.display = tab === 'saeculum' ? 'block' : 'none';
         const focEl = document.getElementById('home-foculus-content');
         if (focEl) focEl.style.display = tab === 'foculus' ? 'block' : 'none';
+        const tmplEl = document.getElementById('home-templum-content');
+        if (tmplEl) tmplEl.style.display = tab === 'templum' ? 'block' : 'none';
         document.querySelectorAll('#screen-home .filter-btn').forEach(b => b.classList.remove('active'));
         if (btn) btn.classList.add('active');
+        if (typeof TemplumSystem !== 'undefined') TemplumSystem.updateTabVisibility();
         if (tab === 'athanor') AthanorSystem.render('home-athanor-content');
         if (tab === 'cellarium' && celEl) celEl.innerHTML = CellariumSystem.renderCellariumTab();
         if (tab === 'saeculum' && saecEl && typeof SaeculumSystem !== 'undefined') saecEl.innerHTML = SaeculumSystem.renderSaeculumTab();
         if (tab === 'foculus' && typeof FireplaceSystem !== 'undefined') FireplaceSystem.render();
+        if (tab === 'templum' && tmplEl && typeof TemplumSystem !== 'undefined') tmplEl.innerHTML = TemplumSystem.renderTemplumTab();
         // Reset sub-tab to scavenge when switching back to main
         if (tab === 'main') this.switchHomeSubTab('scavenge', document.getElementById('home-sub-scavenge'));
     },

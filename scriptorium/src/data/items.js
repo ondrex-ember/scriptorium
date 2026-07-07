@@ -521,6 +521,8 @@ const ItemsDB = {
     "alembic": { name: "Alembik", name_en: "Alembic", icon: "⚗️", type: "tool", desc: "Destilační nádoba z čirého skla. Bez alembiku není destilace.", desc_en: "A distillation vessel of clear glass. No alembic, no distillation." },
     "glass_mirror": { name: "Zrcadlo", name_en: "Glass Mirror", icon: "🪞", type: "tool", desc: "Broušené zrcadlo — vzácnost hodná biskupského stolu.", desc_en: "A polished mirror — a rarity fit for a bishop's table." },
 
+    "hostia": { name: "Hostie", name_en: "Host Wafers", icon: "🫓", type: "mat", desc: "Nekvašené oplatky z pšeničné mouky. Pečené v kleštích s vyrytým beránkem.", desc_en: "Unleavened wafers of wheat flour. Baked in irons engraved with the Lamb." },
+
     // ── PRODUKTY NOVÝCH ZVÍŘAT (easter eggs — zvířata teprve přijdou) ────────
     "goat_hide": { name: "Kozí kůže", name_en: "Goat Hide", icon: "🐐", type: "mat", desc: "Kozí kůže poskytuje nejkvalitnější pergamen — tenký, pevný, málo mastný. Italské kláštery ho znaly jako standard.", desc_en: "Goat hide yields the finest parchment — thin, strong, little grease. Italian monasteries knew it as the standard." },
     "goat_milk": { name: "Kozí mléko", name_en: "Goat Milk", icon: "🥛", type: "mat", desc: "Kozí mléko a syrovátka. Součást klášterní lékárny. Podávalo se nemocným bratrům.", desc_en: "Goat milk and whey. Part of the monastic infirmary. Served to ailing brothers." },

@@ -2375,6 +2375,8 @@
                         Athanor</button>
                     <button id="home-tab-foculus" class="filter-btn" onclick="UI.switchHomeTab('foculus', this)">🔥
                         <span data-i18n="fireplace.foculusTab"></span></button>
+                    <button id="home-tab-templum" class="filter-btn" style="display:none;" onclick="UI.switchHomeTab('templum', this)">🕍
+                        Templum</button>
                 </div>
 
                 <div id="home-main-content">
@@ -2435,6 +2437,7 @@
 
                 <div id="home-cellarium-content" style="display:none;"></div>
                 <div id="home-saeculum-content" style="display:none;"></div>
+                <div id="home-templum-content" style="display:none;"></div>
                 <div id="home-athanor-content" style="display:none;"></div>
                 <div id="home-foculus-content" style="display:none;">
                     <div id="foculus-locked"
@@ -5850,6 +5853,8 @@ const ItemsDB = {
     "alembic": { name: "Alembik", name_en: "Alembic", icon: "⚗️", type: "tool", desc: "Destilační nádoba z čirého skla. Bez alembiku není destilace.", desc_en: "A distillation vessel of clear glass. No alembic, no distillation." },
     "glass_mirror": { name: "Zrcadlo", name_en: "Glass Mirror", icon: "🪞", type: "tool", desc: "Broušené zrcadlo — vzácnost hodná biskupského stolu.", desc_en: "A polished mirror — a rarity fit for a bishop's table." },
 
+    "hostia": { name: "Hostie", name_en: "Host Wafers", icon: "🫓", type: "mat", desc: "Nekvašené oplatky z pšeničné mouky. Pečené v kleštích s vyrytým beránkem.", desc_en: "Unleavened wafers of wheat flour. Baked in irons engraved with the Lamb." },
+
     // ── PRODUKTY NOVÝCH ZVÍŘAT (easter eggs — zvířata teprve přijdou) ────────
     "goat_hide": { name: "Kozí kůže", name_en: "Goat Hide", icon: "🐐", type: "mat", desc: "Kozí kůže poskytuje nejkvalitnější pergamen — tenký, pevný, málo mastný. Italské kláštery ho znaly jako standard.", desc_en: "Goat hide yields the finest parchment — thin, strong, little grease. Italian monasteries knew it as the standard." },
     "goat_milk": { name: "Kozí mléko", name_en: "Goat Milk", icon: "🥛", type: "mat", desc: "Kozí mléko a syrovátka. Součást klášterní lékárny. Podávalo se nemocným bratrům.", desc_en: "Goat milk and whey. Part of the monastic infirmary. Served to ailing brothers." },
@@ -6013,6 +6018,7 @@ const RecipesDB = [
 
     // LACTARIA — zpracování mléka (tech_lactaria)
     { id: "wooden_bowl", output: "wooden_bowl", qty: 2, req: { "plank": 1 },                cat: "craft", locked: true },
+    { id: "hostia",      output: "hostia",      qty: 5, req: { "flour_2": 1, "water": 1 },  cat: "craft", locked: true },
     { id: "mousetrap", output: "mousetrap", qty: 1, req: { "plank": 2, "rope": 1 },          cat: "craft", locked: true },
     { id: "churn",  output: "churn",  qty: 1, req: { "plank": 5, "rope": 2 },               cat: "craft", locked: true },
     { id: "cream",  output: "cream",  qty: 1, req: { "goat_milk": 2 },                      cat: "food",  locked: true },
@@ -7492,7 +7498,7 @@ const TechTree = [
   { id: "tech_codex_vellum", name: "Pergamenové Kodexy", name_en: "Vellum Codices", cost: 12, desc: "Na pergamenu. Jak 20 z 420 výtisků Olomouckého misálu. Věčné, ale drahé.", desc_en: "On vellum. Like 20 of the 420 copies of the Olomouc Missal. Eternal, but costly.", unlocks: ["vellum_codex"], requires: ["tech_vellum_mastery", "tech_codex_luxury"] },
 
   // CANONICAL HOURS
-  { id: "tech_canonical_hours", name: "Kanonické Hodiny", name_en: "Canonical Hours", cost: 10, desc: "Benediktinský denní řád: Vigilie, Laudes, Prima, Sexta, Nona, Vesperae, Completorium. Odemkne systém časových buffů.", desc_en: "The Benedictine daily order: Vigils, Lauds, Prime, Sext, None, Vespers, Compline. Unlocks time-based buffs.", unlocks: ["book_of_hours"], requires: ["tech_monastery_wisdom", "tech_codex_luxury"] },
+  { id: "tech_canonical_hours", name: "Kanonické Hodiny", name_en: "Canonical Hours", cost: 10, desc: "Benediktinský denní řád: Vigilie, Laudes, Prima, Sexta, Nona, Vesperae, Completorium. Odemkne systém časových buffů.", desc_en: "The Benedictine daily order: Vigils, Lauds, Prime, Sext, None, Vespers, Compline. Unlocks time-based buffs.", unlocks: ["book_of_hours", "hostia"], requires: ["tech_monastery_wisdom", "tech_codex_luxury"] },
 
   // CELLARIUM
   { id: "tech_cellarium", name: "Celerář — Skladník Kláštera", name_en: "Cellarer — Monastic Steward", cost: 8, desc: "Bratr Celerář každé ráno přiděloval práci a inventář. Automatická organizace zásob.", desc_en: "The Brother Cellarer assigned work and inventory each morning. Automatic supply organisation.", unlocks: [], requires: ["tech_monastery_wisdom"] },
@@ -9218,6 +9224,8 @@ const ConversiBondsDB = [
 
 const ContactsDB = {
     syrar: {
+        confession: "Přiznává, že do tvarohu přilévá syrovátku a míru dorovnává palcem.",
+        confession_en: "He confesses to thinning the curd with whey and topping the measure with his thumb.",
         name: 'Sýrař', name_en: 'Cheesemaker', icon: '🧀',
         primaryAxis: 'village',
         secondaryAxis: null,
@@ -9229,6 +9237,8 @@ const ContactsDB = {
         desc_en: 'The village cheesemaker. Buys monastery cheese better than the market.'
     },
     mlynar: {
+        confession: "Sype si z každého pytle o hrst víc, než mlynáři náleží.",
+        confession_en: "From every sack he takes a handful more than a miller's due.",
         name: 'Mlynář', name_en: 'Miller', icon: '🌾',
         primaryAxis: 'village',
         secondaryAxis: { axis: 'church', weight: 0.2 },   // mlýnský desátek
@@ -9244,6 +9254,8 @@ const ContactsDB = {
         desc_en: 'The miller by the river. He tithes to the church and trades with everyone.'
     },
     vinar: {
+        confession: "Křtil víno vodou — prý jen to pro formany, ne to mešní.",
+        confession_en: "He has watered his wine — only the carters' cut, he swears, never the mass wine.",
         name: 'Vinař', name_en: 'Winemaker', icon: '🍷',
         primaryAxis: 'village',
         secondaryAxis: { axis: 'church', weight: 0.2 },   // mešní víno
@@ -9253,6 +9265,8 @@ const ContactsDB = {
         desc_en: 'A winemaker from the southern slopes. He supplies mass wine even to the bishopric.'
     },
     kovar: {
+        confession: "Klel při kování tak, že se vesnice žehnala. A v neděli rozdělal výheň.",
+        confession_en: "He cursed at the anvil till the village crossed itself. And lit the forge on a Sunday.",
         name: 'Kovář', name_en: 'Blacksmith', icon: '🔨',
         primaryAxis: 'village',
         secondaryAxis: null,
@@ -9262,6 +9276,8 @@ const ContactsDB = {
         desc_en: 'The village blacksmith. Buys surplus ore, sells tools.'
     },
     tkadlec: {
+        confession: "Do dobré příze přimíchává horší a mlčí o tom.",
+        confession_en: "He blends poorer thread into the good yarn and keeps quiet about it.",
         name: 'Tkadlec', name_en: 'Weaver', icon: '🧵',
         primaryAxis: 'village',
         secondaryAxis: { axis: 'church', weight: 0.2 },   // roucha/paramenta
@@ -9271,15 +9287,20 @@ const ContactsDB = {
         desc_en: 'A weaver from below the castle. He takes wool and weaves vestments even for the church.'
     },
     voskar: {
+        confession: "Nastavuje včelí vosk lojem a prodává ho kostelům jako čistý.",
+        confession_en: "He stretches beeswax with tallow and sells it to churches as pure.",
         name: 'Voskař', name_en: 'Wax Chandler', icon: '🕯️',
         primaryAxis: 'church',
         secondaryAxis: null,
         unlockTech: 'tech_candle',            // existuje (Apiarium/svíce)
         sellBonus: { items: { beeswax: null } }, // K4: null = cena z BASE_PRICES (trh)
+        buyOffer: { items: { candle: { price: 4, stock: 5 } } }, // schváleno: prodej svící (trh vykupuje za 2; vlastní výroba fat+rope nejlevnější — Voskař = pohodlí)
         desc: 'Voskař u kostela. Surový vosk z Apiária vykoupí líp než kdokoliv.',
         desc_en: 'The wax chandler by the church. He pays better for raw beeswax than anyone.'
     },
     lovec: {
+        confession: "Vzal zajíce na panském. Dva. Možná tři, nepočítal.",
+        confession_en: "He took a hare on the lord's land. Two. Maybe three — he wasn't counting.",
         name: 'Lovec', name_en: 'Hunter', icon: '🏹',
         primaryAxis: 'village',
         secondaryAxis: null,
@@ -9291,6 +9312,8 @@ const ContactsDB = {
         desc_en: 'A hunter of small game. The big game belongs to the lords — he knows it best.'
     },
     sklar: {
+        confession: "Prodal popraskané kusy jako dobré a závidí benátským jejich zrcadla.",
+        confession_en: "He sold cracked pieces as sound, and envies the Venetians their mirrors.",
         name: 'Sklář', name_en: 'Glassmaker', icon: '🔮',
         primaryAxis: 'scholars',
         secondaryAxis: null,
@@ -17775,6 +17798,142 @@ const SaeculumSystem = {
     else this.renderSaeculumTab();
   },
 
+};
+// ═══ src/systems/TemplumSystem.js ═══
+// ─────────────────────────────────────────────────────────────
+// TemplumSystem — kostelní větev (MRD templum-reference.md)
+// T1: skeleton — gate (mnišský rank frater+) + kostra pilířů.
+// Žádná mechanika; pilíře (Úklid/Mše/Zpověď/Dary) = další sprinty.
+// ─────────────────────────────────────────────────────────────
+
+const TemplumSystem = {
+
+    // Gate: mnišská dráha od bratra výš (Cursus Monasticus)
+    isUnlocked: function() {
+        const m = GameState.rank && GameState.rank.monastic;
+        return ['frater', 'armarius', 'prior'].includes(m);
+    },
+
+    // Zobrazit/skrýt top-level tab dle gate (volá se z existujícího tick call-site + při přepínání tabů)
+    updateTabVisibility: function() {
+        const btn = document.getElementById('home-tab-templum');
+        if (!btn) return;
+        const show = this.isUnlocked();
+        const cur = btn.style.display !== 'none';
+        if (show !== cur) btn.style.display = show ? '' : 'none';
+    },
+
+    renderTemplumTab: function() {
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        if (!this.isUnlocked()) {
+            return `<div style="text-align:center; padding:30px; opacity:0.6;
+                        border:1px dashed rgba(197,160,89,0.3); border-radius:8px;">
+                      <div style="font-size:2rem; margin-bottom:10px;">🕍</div>
+                      <div style="font-style:italic; font-size:0.9rem;">
+                        ${lang==='en' ? 'The church opens only to a brother of the order.' : 'Kostel se otevírá jen bratru řádu.'}
+                      </div>
+                    </div>`;
+        }
+
+        let h = `<div style="padding:10px;">`;
+        h += `
+          <div style="display:flex; align-items:center; gap:15px; margin-bottom:20px;
+                      padding:15px; background:rgba(197,160,89,0.07);
+                      border-radius:10px; border-left:4px solid var(--accent-gold);">
+            <div style="font-size:2.5rem;">🕍</div>
+            <div style="flex:1;">
+              <div style="font-weight:bold; font-size:1rem;">Templum</div>
+              <div style="font-size:0.8rem; opacity:0.65; font-style:italic;">${lang==='en'?'The monastery church':'Klášterní kostel'}</div>
+              <div style="font-size:0.8rem; opacity:0.6; margin-top:4px;">
+                ${lang==='en' ? '"Domus mea domus orationis vocabitur." The church stands quiet — its life will come piece by piece.' : '„Domus mea domus orationis vocabitur." Kostel stojí ztichlý — jeho život přijde kus po kuse.'}
+              </div>
+            </div>
+          </div>`;
+
+        // Pilíř Úklid (T2) — živý stav; ostatní pilíře zamčené (sprinty T3–T5)
+        const t = GameState.templum || {};
+        const now = Date.now();
+        const lit = (t.litUntil || 0) > now;
+        const clean = (t.cleanUntil || 0) > now;
+        const litTxt = lit
+            ? `🕯️ ${lang==='en'?'candles burning':'svíce hoří'} (${Math.ceil(((t.litUntil) - now) / 3600000)} h)`
+            : `🌑 ${lang==='en'?'dark — no candles in store':'zhasnuto — chybí svíce v zásobě'}`;
+        const cleanTxt = clean
+            ? `🧹 ${lang==='en'?'clean':'uklizeno'} (${Math.ceil(((t.cleanUntil) - now) / 3600000)} h)${t.lastCleaner ? ` · ${t.lastCleaner}` : ''}`
+            : `🕸️ ${lang==='en'?'dusty — no brother available':'zaprášeno — žádný bratr neměl kdy'}`;
+
+        // Pilíř Mše (T3) — checklist surovin + tlačítko, cooldown 7 d
+        const inv = GameState.inventory || {};
+        const nextMass = t.nextMass || 0;
+        const massReady = nextMass <= now;
+        const bestIncense = ['incense_olibanum','incense_styrax','incense_pine','incense_spruce'].find(id => (inv[id] || 0) > 0);
+        const wineOk = (inv['vinum'] || 0) > 0 || (inv['wine'] || 0) > 0;
+        const reqRow = (ok, label) => `<div style="font-size:0.7rem; margin-top:2px; ${ok ? 'opacity:0.75;' : 'color:#c0392b;'}">${ok ? '✓' : '✗'} ${label}</div>`;
+        const allOk = (inv['candle'] || 0) >= 2 && wineOk && !!bestIncense && (inv['hostia'] || 0) >= 3;
+        const incName = bestIncense ? ((typeof iName === 'function') ? iName(bestIncense) : bestIncense) : (lang==='en'?'incense':'kadidlo');
+
+        h += `<div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(180px, 1fr)); gap:8px;">`;
+        h += `<div style="padding:12px; background:rgba(255,255,255,0.4); border:1px solid rgba(197,160,89,0.25); border-radius:8px;">
+                <div style="font-size:1.5rem; margin-bottom:4px;">🕯️</div>
+                <div style="font-weight:bold; font-size:0.82rem;">${lang==='en'?'Church upkeep':'Úklid kostela'}</div>
+                <div style="font-size:0.7rem; margin-top:5px; ${lit ? '' : 'color:#c0392b;'}">${litTxt}</div>
+                <div style="font-size:0.7rem; margin-top:2px; ${clean ? '' : 'color:#c0392b;'}">${cleanTxt}</div>
+                <div style="font-size:0.62rem; opacity:0.55; font-style:italic; margin-top:5px;">${lang==='en'?'1 candle/day · a lay brother cleans daily':'1 svíce/den · konvrš uklízí denně'}</div>
+              </div>`;
+
+        h += `<div style="padding:12px; background:rgba(255,255,255,0.4); border:1px solid rgba(197,160,89,0.25); border-radius:8px;">
+                <div style="font-size:1.5rem; margin-bottom:4px;">⛪</div>
+                <div style="font-weight:bold; font-size:0.82rem;">${lang==='en'?'Mass':'Mše'}</div>`;
+        if (!massReady) {
+            h += `<div style="font-size:0.7rem; margin-top:5px; opacity:0.7;">⏳ ${lang==='en'?'next mass in':'příští mše za'} ${Math.ceil((nextMass - now) / (24*3600000))} d</div>`;
+        } else {
+            h += reqRow((inv['candle'] || 0) >= 2, `2× ${lang==='en'?'candle':'svíce'} (${inv['candle'] || 0})`);
+            h += reqRow(wineOk, `1× ${lang==='en'?'wine':'víno'} (${(inv['vinum'] || 0) + (inv['wine'] || 0)})`);
+            h += reqRow(!!bestIncense, `1× ${incName}`);
+            h += reqRow((inv['hostia'] || 0) >= 3, `3× ${lang==='en'?'host wafers':'hostie'} (${inv['hostia'] || 0})`);
+            if (!lit || !clean) h += `<div style="font-size:0.64rem; color:#e67e22; margin-top:4px;">⚠️ ${lang==='en'?'dark/dusty church — mass will be halved':'zhaslý/zaprášený kostel — mše bude poloviční'}</div>`;
+            h += `<button class="craft-btn" style="margin-top:6px;" ${allOk ? '' : 'disabled'} onclick="Game.serveMass()">⛪ ${lang==='en'?'Hold mass':'Sloužit mši'}</button>`;
+        }
+        h += `<div style="font-size:0.62rem; opacity:0.55; font-style:italic; margin-top:5px;">${lang==='en'?'weekly · better incense, greater grace':'týdně · lepší kadidlo, větší milost'}</div>
+              </div>`;
+
+        // Pilíř Zpověď (T4) — odpočet + poslední záznam
+        const nextConf = t.nextConfession || 0;
+        const confDays = Math.max(0, Math.ceil((nextConf - now) / (24*3600000)));
+        const lc = t.lastConfession;
+        const lcChoiceTxt = lc ? (lc.choice === 'strict' ? (lang==='en'?'strict penance':'přísné pokání')
+                              : lc.choice === 'lenient' ? (lang==='en'?'leniency':'shovívavost')
+                              : (lang==='en'?'turned away':'odmítnut')) : null;
+        h += `<div style="padding:12px; background:rgba(255,255,255,0.4); border:1px solid rgba(197,160,89,0.25); border-radius:8px;">
+                <div style="font-size:1.5rem; margin-bottom:4px;">🙏</div>
+                <div style="font-weight:bold; font-size:0.82rem;">${lang==='en'?'Confession':'Zpověď'}</div>
+                <div style="font-size:0.7rem; margin-top:5px; opacity:0.75;">⏳ ${lang==='en'?'next penitent in':'další zpovědník za'} ${confDays} d</div>
+                ${lc ? `<div style="font-size:0.7rem; margin-top:2px; opacity:0.65;">${lang==='en'?'last':'naposled'}: ${lc.name} — ${lcChoiceTxt}</div>` : ''}
+                <div style="font-size:0.62rem; opacity:0.55; font-style:italic; margin-top:5px;">${lang==='en'?'the countryside comes to confess · your word weighs':'kraj se přichází vyznat · tvé slovo má váhu'}</div>
+              </div>`;
+
+        // Pilíř Dary (T5) — páteříky/vosk → Ecclesia
+        const beadsN = inv['paternoster_beads'] || 0;
+        const waxN = inv['beeswax'] || 0;
+        const ld = t.lastDonation;
+        h += `<div style="padding:12px; background:rgba(255,255,255,0.4); border:1px solid rgba(197,160,89,0.25); border-radius:8px;">
+                <div style="font-size:1.5rem; margin-bottom:4px;">📿</div>
+                <div style="font-weight:bold; font-size:0.82rem;">${lang==='en'?'Offerings':'Dary'}</div>
+                <div style="display:flex; align-items:center; gap:6px; font-size:0.7rem; margin-top:5px;">
+                  <span style="flex:1;">📿 ${lang==='en'?'Paternoster beads':'Páteříky'} (${beadsN}) → +5</span>
+                  <button class="craft-btn" style="padding:2px 8px; font-size:0.66rem;" ${beadsN >= 1 ? '' : 'disabled'} onclick="Game.templumDonate('paternoster_beads')">${lang==='en'?'Offer':'Darovat'}</button>
+                </div>
+                <div style="display:flex; align-items:center; gap:6px; font-size:0.7rem; margin-top:3px;">
+                  <span style="flex:1;">🐝 5× ${lang==='en'?'beeswax':'vosk'} (${waxN}) → +2</span>
+                  <button class="craft-btn" style="padding:2px 8px; font-size:0.66rem;" ${waxN >= 5 ? '' : 'disabled'} onclick="Game.templumDonate('beeswax')">${lang==='en'?'Offer':'Darovat'}</button>
+                </div>
+                ${ld ? `<div style="font-size:0.66rem; opacity:0.6; margin-top:4px;">${lang==='en'?'last offering':'poslední dar'}: ${(typeof iName==='function')?iName(ld.id):ld.id}</div>` : ''}
+                <div style="font-size:0.62rem; opacity:0.55; font-style:italic; margin-top:5px;">${lang==='en'?'Ecclesia remembers the giving hand':'Ecclesia si pamatuje štědrou ruku'}</div>
+              </div>`;
+
+        h += `</div></div>`;
+        return h;
+    },
 };
 // ═══ src/systems/DecaySystem.js ═══
 // ═══════════════════════════════════════════════════════════════════════════
@@ -37922,6 +38081,12 @@ const Game = {
                     if (typeof DecaySystem !== 'undefined' && DecaySystem.dailyTick) DecaySystem.dailyTick();
                     // Vitrea — startovní pool (jednorázově) + denní opotřebení vybavení (self-guarded 24h)
                     if (typeof Game !== 'undefined' && Game.vitreaGrantStartPool) { Game.vitreaGrantStartPool(); Game.vitreaWearTick(); }
+                    // Templum — viditelnost tabu dle mnišského ranku (levný DOM check)
+                    if (typeof TemplumSystem !== 'undefined' && TemplumSystem.updateTabVisibility) TemplumSystem.updateTabVisibility();
+                    // Templum — denní chod kostela (self-guarded 24h, gate frater+)
+                    if (typeof Game !== 'undefined' && Game.templumDailyTick) Game.templumDailyTick();
+                    // Templum — týdenní zpověď (self-guarded, gate frater+)
+                    if (typeof Game !== 'undefined' && Game.templumConfessionTick) Game.templumConfessionTick();
                     // Caseus — denní zrání sýra (self-guarded 24h, gate tech_caseus)
                     if (typeof CheeseSystem !== 'undefined' && CheeseSystem.dailyTick) CheeseSystem.dailyTick();
                     // Conversi — automatické úklidové úkoly (self-guarded 24h přes cleanPen)
@@ -41067,6 +41232,193 @@ const Game = {
         Game.save();
     },
 
+    // ── TEMPLUM T5: Dary — páteříky/vosk → Ecclesia (bez cooldownu; decay reguluje sám) ──
+    TEMPLUM_DONATIONS: {
+        paternoster_beads: { qty: 1, influence: 5 },
+        beeswax:           { qty: 5, influence: 2 },
+        // TODO: relikvie — item přijde s vizitací / Porta biskupským řetězem
+    },
+
+    templumDonate: function(itemId) {
+        if (typeof TemplumSystem === 'undefined' || !TemplumSystem.isUnlocked()) return;
+        const d = this.TEMPLUM_DONATIONS[itemId];
+        if (!d) return;
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        if ((GameState.inventory[itemId] || 0) < d.qty) { UI.notify('⚠️ Non habes sufficiens!', true); return; }
+        this.removeItem(itemId, d.qty);
+        if (typeof PersonaSystem !== 'undefined' && PersonaSystem.addInfluence) {
+            PersonaSystem.addInfluence('church', d.influence);
+        }
+        if (!GameState.templum) GameState.templum = {};
+        const itemName = (typeof iName === 'function') ? iName(itemId) : itemId;
+        GameState.templum.lastDonation = { id: itemId, ts: Date.now() };
+        Game.save();
+        UI.notify('📿 ' + (lang==='en'
+            ? 'Offering accepted: ' + itemName + ' — Ecclesia +' + d.influence + '.'
+            : 'Dar přijat: ' + itemName + ' — Ecclesia +' + d.influence + '.'));
+        Game.addKronikaEntry('minor',
+            '📿 Kostelu darováno: ' + itemName + '.',
+            '📿 Offered to the church: ' + itemName + '.',
+            '📿 Donum ecclesiae oblatum est.');
+        const el = document.getElementById('home-templum-content');
+        if (el && typeof TemplumSystem !== 'undefined') el.innerHTML = TemplumSystem.renderTemplumTab();
+    },
+
+    // ── TEMPLUM T4: Zpověď — 1×/7 d, náhodný ODEMČENÝ Clientela kontakt; osy se perou ──
+    templumConfessionTick: function() {
+        if (typeof TemplumSystem === 'undefined' || !TemplumSystem.isUnlocked()) return;
+        if (typeof ContactsDB === 'undefined' || typeof NotificationSystem === 'undefined') return;
+        if (!GameState.templum) GameState.templum = {};
+        const t = GameState.templum;
+        const WEEK = 7 * 24 * 60 * 60 * 1000;
+        if (!t.nextConfession) { t.nextConfession = Date.now() + Math.round(WEEK * 0.75); Game.save(); return; } // offset ~5 d proti výplatě/Kapitule
+        if (Date.now() < t.nextConfession) return;
+
+        const researched = GameState.researchedTechs || [];
+        const readBooks = (GameState.library && GameState.library.readBooks) || [];
+        const unlocked = Object.keys(ContactsDB).filter(id => {
+            const c = ContactsDB[id];
+            return (!c.unlockTech || researched.includes(c.unlockTech))
+                && (!c.unlockBook || readBooks.includes(c.unlockBook));
+        });
+        t.nextConfession = Date.now() + WEEK;
+        if (!unlocked.length) { Game.save(); return; } // nikdo se nezná — zpověď odpadá
+
+        const id = unlocked[Math.floor(Math.random() * unlocked.length)];
+        const c = ContactsDB[id];
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        const cName = lang === 'en' ? c.name_en : c.name;
+        const sin = lang === 'en' ? (c.confession_en || '') : (c.confession || '');
+        Game.save();
+
+        const rerender = () => {
+            const el = document.getElementById('home-templum-content');
+            if (el && typeof TemplumSystem !== 'undefined') el.innerHTML = TemplumSystem.renderTemplumTab();
+        };
+        const record = (choice) => { t.lastConfession = { id: id, name: cName, choice: choice, ts: Date.now() }; };
+
+        NotificationSystem.modal({
+            icon: '🙏',
+            title: (lang==='en' ? 'Confession — ' : 'Zpověď — ') + cName,
+            text: `<div style="font-size:0.82rem; line-height:1.45;">${c.icon} <span style="font-style:italic; opacity:0.85;">${sin}</span><br><br>${lang==='en'?'He kneels and waits for your word.':'Klečí a čeká na tvé slovo.'}</div>`,
+            choices: [
+                { label: (lang==='en'?'⚖️ Strict penance':'⚖️ Přísné pokání'), type: 'danger', effect: () => {
+                    if (typeof PersonaSystem !== 'undefined') PersonaSystem.addInfluence('church', 3);
+                    if (typeof SaeculumSystem !== 'undefined') SaeculumSystem.addContactRelation(id, -3);
+                    record('strict');
+                    Game.addKronikaEntry('minor',
+                        '🙏 Zpověď: ' + cName + ' dostal přísné pokání. Církev to ocení, on méně.',
+                        '🙏 Confession: ' + cName + ' received strict penance. The Church approves; he does not.',
+                        '🙏 Poenitentia severa imposita est.');
+                    Game.save(); rerender();
+                }},
+                { label: (lang==='en'?'🕊️ Leniency':'🕊️ Shovívavost'), effect: () => {
+                    if (typeof SaeculumSystem !== 'undefined') SaeculumSystem.addContactRelation(id, 3);
+                    if (typeof PersonaSystem !== 'undefined') PersonaSystem.addInfluence('church', 1);
+                    record('lenient');
+                    Game.addKronikaEntry('minor',
+                        '🙏 Zpověď: ' + cName + ' odešel s lehkým pokáním a lehčím srdcem.',
+                        '🙏 Confession: ' + cName + ' left with a light penance and a lighter heart.',
+                        '🙏 Misericordia praevaluit.');
+                    Game.save(); rerender();
+                }},
+                { label: (lang==='en'?'🚪 Turn him away':'🚪 Odmítnout'), effect: () => {
+                    record('refused');
+                    Game.addKronikaEntry('minor',
+                        '🙏 Zpověď: ' + cName + ' odešel nevyslyšen.',
+                        '🙏 Confession: ' + cName + ' left unheard.',
+                        '🙏 Confessio recusata est.');
+                    Game.save(); rerender();
+                }}
+            ]
+        });
+    },
+
+    // ── TEMPLUM T3: Mše — týdenní, spotřebuje 2 svíce + víno + kadidlo + 3 hostie → vliv ──
+    MASS_INCENSE_TIER: { incense_spruce: 0, incense_pine: 1, incense_styrax: 2, incense_olibanum: 3 },
+
+    serveMass: function() {
+        if (typeof TemplumSystem === 'undefined' || !TemplumSystem.isUnlocked()) return;
+        if (!GameState.templum) GameState.templum = {};
+        const t = GameState.templum;
+        const now = Date.now();
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        if ((t.nextMass || 0) > now) return;
+        const inv = GameState.inventory;
+
+        if ((inv['candle'] || 0) < 2) { UI.notify('⚠️ ' + (lang==='en'?'Mass needs 2 candles.':'Mše potřebuje 2 svíce.'), true); return; }
+        const wineId = (inv['vinum'] || 0) > 0 ? 'vinum' : ((inv['wine'] || 0) > 0 ? 'wine' : null);
+        if (!wineId) { UI.notify('⚠️ ' + (lang==='en'?'Mass needs wine.':'Mše potřebuje víno.'), true); return; }
+        // Nejlepší dostupné kadidlo — mši náleží to nejlepší (historicky věrné, tier bonus funguje)
+        const incenseId = ['incense_olibanum','incense_styrax','incense_pine','incense_spruce'].find(id => (inv[id] || 0) > 0);
+        if (!incenseId) { UI.notify('⚠️ ' + (lang==='en'?'Mass needs incense.':'Mše potřebuje kadidlo.'), true); return; }
+        if ((inv['hostia'] || 0) < 3) { UI.notify('⚠️ ' + (lang==='en'?'Mass needs 3 host wafers.':'Mše potřebuje 3 hostie.'), true); return; }
+
+        this.removeItem('candle', 2);
+        this.removeItem(wineId, 1);
+        this.removeItem(incenseId, 1);
+        this.removeItem('hostia', 3);
+
+        // Stav kostela (T2 payoff): zhasnuto nebo zaprášeno → poloviční efekt
+        const lit = (t.litUntil || 0) > now;
+        const clean = (t.cleanUntil || 0) > now;
+        const degraded = !lit || !clean;
+        let eccl = 5 + (this.MASS_INCENSE_TIER[incenseId] || 0);
+        let vill = 3;
+        if (degraded) { eccl = Math.max(1, Math.floor(eccl / 2)); vill = Math.max(1, Math.floor(vill / 2)); }
+        // TODO Chronicon: svátkový násobič (feast flag ze snapshotu) aplikovat ZDE
+
+        if (typeof PersonaSystem !== 'undefined' && PersonaSystem.addInfluence) {
+            PersonaSystem.addInfluence('church', eccl);
+            PersonaSystem.addInfluence('village', vill);
+        }
+        t.nextMass = now + 7 * 24 * 60 * 60 * 1000;
+        t.lastMass = { ts: now, incense: incenseId, degraded: degraded };
+        Game.save();
+
+        if (typeof UI !== 'undefined' && UI.notifyPanel) {
+            UI.notifyPanel('⛪ ' + (degraded
+                ? (lang==='en' ? 'Mass held in gloom and dust. Ecclesia +'+eccl+', village +'+vill+'.' : 'Mše v šeru a prachu. Ecclesia +'+eccl+', vesnice +'+vill+'.')
+                : (lang==='en' ? 'Mass held. Ecclesia +'+eccl+', village +'+vill+'.' : 'Mše odsloužena. Ecclesia +'+eccl+', vesnice +'+vill+'.')), degraded ? 'warning' : 'success');
+        }
+        Game.addKronikaEntry('important',
+            degraded ? '⛪ Mše sloužena v šeru a prachu — kostel volá po péči.' : '⛪ Mše slavnostně odsloužena. Kraj naslouchal.',
+            degraded ? '⛪ Mass held in gloom and dust — the church calls for care.' : '⛪ Mass solemnly celebrated. The countryside listened.',
+            '⛪ Missa celebrata est.');
+        const el = document.getElementById('home-templum-content');
+        if (el && typeof TemplumSystem !== 'undefined') el.innerHTML = TemplumSystem.renderTemplumTab();
+    },
+
+    // ── TEMPLUM T2: denní chod kostela — svíce (1/den) + úklid konvršem (self-guarded 24h) ──
+    templumDailyTick: function() {
+        if (typeof TemplumSystem === 'undefined' || !TemplumSystem.isUnlocked()) return;
+        if (!GameState.templum) GameState.templum = {};
+        const t = GameState.templum;
+        const now = Date.now();
+        const DAY = 24 * 60 * 60 * 1000;
+        if (now - (t.lastTick || 0) < DAY) return;
+        t.lastTick = now;
+
+        // Svíce: kostel spotřebuje 1 svíci denně (Voskařova smyčka); bez svíce zhasnuto
+        if ((GameState.inventory['candle'] || 0) > 0) {
+            this.removeItem('candle', 1);
+            t.litUntil = now + DAY;
+        }
+
+        // Úklid: dostupný konvrš (stejné filtry jako práce) — +5 únavy, čisto na 48 h
+        const cleaner = (GameState.conversi || [])
+            .filter(k => k.fatigue < (this._konvrsTraits(k).includes('pilny') ? 90 : 80)
+                      && (typeof k.mood !== 'number' || k.mood >= 30)
+                      && !(k.penanceUntil && k.penanceUntil > now))
+            .sort((a, b) => a.fatigue - b.fatigue)[0];
+        if (cleaner) {
+            cleaner.fatigue = Math.min(100, cleaner.fatigue + 5);
+            t.cleanUntil = now + 48 * 60 * 60 * 1000;
+            t.lastCleaner = cleaner.name;
+        }
+        Game.save();
+    },
+
     // ── L3b: Oka na drobnou zvěř (Lovec řetěz). Paralelní k noži — aktivní lov (tuk gate) NEDOTČEN. ──
     SNARE_MS: 12 * 60 * 60 * 1000,
     SNARE_BREAK_CHANCE: 0.4,
@@ -42622,12 +42974,16 @@ const UI = {
         if (saecEl) saecEl.style.display = tab === 'saeculum' ? 'block' : 'none';
         const focEl = document.getElementById('home-foculus-content');
         if (focEl) focEl.style.display = tab === 'foculus' ? 'block' : 'none';
+        const tmplEl = document.getElementById('home-templum-content');
+        if (tmplEl) tmplEl.style.display = tab === 'templum' ? 'block' : 'none';
         document.querySelectorAll('#screen-home .filter-btn').forEach(b => b.classList.remove('active'));
         if (btn) btn.classList.add('active');
+        if (typeof TemplumSystem !== 'undefined') TemplumSystem.updateTabVisibility();
         if (tab === 'athanor') AthanorSystem.render('home-athanor-content');
         if (tab === 'cellarium' && celEl) celEl.innerHTML = CellariumSystem.renderCellariumTab();
         if (tab === 'saeculum' && saecEl && typeof SaeculumSystem !== 'undefined') saecEl.innerHTML = SaeculumSystem.renderSaeculumTab();
         if (tab === 'foculus' && typeof FireplaceSystem !== 'undefined') FireplaceSystem.render();
+        if (tab === 'templum' && tmplEl && typeof TemplumSystem !== 'undefined') tmplEl.innerHTML = TemplumSystem.renderTemplumTab();
         // Reset sub-tab to scavenge when switching back to main
         if (tab === 'main') this.switchHomeSubTab('scavenge', document.getElementById('home-sub-scavenge'));
     },

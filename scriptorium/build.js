@@ -56,6 +56,7 @@ const JS_MAIN = [
     'src/systems/HealthSystem.js',  // Valetudo — neduhy, napojeno na VigorSystem._tick()
     'src/systems/CellariumSystem.js',
     'src/systems/SaeculumSystem.js',
+    'src/systems/TemplumSystem.js',  // Templum (kostelní větev, T1 skeleton)
     'src/systems/DecaySystem.js',
     'src/systems/CheeseSystem.js',
     'src/systems/well.js',

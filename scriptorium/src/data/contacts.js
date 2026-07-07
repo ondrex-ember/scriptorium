@@ -12,6 +12,8 @@
 
 const ContactsDB = {
     syrar: {
+        confession: "Přiznává, že do tvarohu přilévá syrovátku a míru dorovnává palcem.",
+        confession_en: "He confesses to thinning the curd with whey and topping the measure with his thumb.",
         name: 'Sýrař', name_en: 'Cheesemaker', icon: '🧀',
         primaryAxis: 'village',
         secondaryAxis: null,
@@ -23,6 +25,8 @@ const ContactsDB = {
         desc_en: 'The village cheesemaker. Buys monastery cheese better than the market.'
     },
     mlynar: {
+        confession: "Sype si z každého pytle o hrst víc, než mlynáři náleží.",
+        confession_en: "From every sack he takes a handful more than a miller's due.",
         name: 'Mlynář', name_en: 'Miller', icon: '🌾',
         primaryAxis: 'village',
         secondaryAxis: { axis: 'church', weight: 0.2 },   // mlýnský desátek
@@ -38,6 +42,8 @@ const ContactsDB = {
         desc_en: 'The miller by the river. He tithes to the church and trades with everyone.'
     },
     vinar: {
+        confession: "Křtil víno vodou — prý jen to pro formany, ne to mešní.",
+        confession_en: "He has watered his wine — only the carters' cut, he swears, never the mass wine.",
         name: 'Vinař', name_en: 'Winemaker', icon: '🍷',
         primaryAxis: 'village',
         secondaryAxis: { axis: 'church', weight: 0.2 },   // mešní víno
@@ -47,6 +53,8 @@ const ContactsDB = {
         desc_en: 'A winemaker from the southern slopes. He supplies mass wine even to the bishopric.'
     },
     kovar: {
+        confession: "Klel při kování tak, že se vesnice žehnala. A v neděli rozdělal výheň.",
+        confession_en: "He cursed at the anvil till the village crossed itself. And lit the forge on a Sunday.",
         name: 'Kovář', name_en: 'Blacksmith', icon: '🔨',
         primaryAxis: 'village',
         secondaryAxis: null,
@@ -56,6 +64,8 @@ const ContactsDB = {
         desc_en: 'The village blacksmith. Buys surplus ore, sells tools.'
     },
     tkadlec: {
+        confession: "Do dobré příze přimíchává horší a mlčí o tom.",
+        confession_en: "He blends poorer thread into the good yarn and keeps quiet about it.",
         name: 'Tkadlec', name_en: 'Weaver', icon: '🧵',
         primaryAxis: 'village',
         secondaryAxis: { axis: 'church', weight: 0.2 },   // roucha/paramenta
@@ -65,15 +75,20 @@ const ContactsDB = {
         desc_en: 'A weaver from below the castle. He takes wool and weaves vestments even for the church.'
     },
     voskar: {
+        confession: "Nastavuje včelí vosk lojem a prodává ho kostelům jako čistý.",
+        confession_en: "He stretches beeswax with tallow and sells it to churches as pure.",
         name: 'Voskař', name_en: 'Wax Chandler', icon: '🕯️',
         primaryAxis: 'church',
         secondaryAxis: null,
         unlockTech: 'tech_candle',            // existuje (Apiarium/svíce)
         sellBonus: { items: { beeswax: null } }, // K4: null = cena z BASE_PRICES (trh)
+        buyOffer: { items: { candle: { price: 4, stock: 5 } } }, // schváleno: prodej svící (trh vykupuje za 2; vlastní výroba fat+rope nejlevnější — Voskař = pohodlí)
         desc: 'Voskař u kostela. Surový vosk z Apiária vykoupí líp než kdokoliv.',
         desc_en: 'The wax chandler by the church. He pays better for raw beeswax than anyone.'
     },
     lovec: {
+        confession: "Vzal zajíce na panském. Dva. Možná tři, nepočítal.",
+        confession_en: "He took a hare on the lord's land. Two. Maybe three — he wasn't counting.",
         name: 'Lovec', name_en: 'Hunter', icon: '🏹',
         primaryAxis: 'village',
         secondaryAxis: null,
@@ -85,6 +100,8 @@ const ContactsDB = {
         desc_en: 'A hunter of small game. The big game belongs to the lords — he knows it best.'
     },
     sklar: {
+        confession: "Prodal popraskané kusy jako dobré a závidí benátským jejich zrcadla.",
+        confession_en: "He sold cracked pieces as sound, and envies the Venetians their mirrors.",
         name: 'Sklář', name_en: 'Glassmaker', icon: '🔮',
         primaryAxis: 'scholars',
         secondaryAxis: null,

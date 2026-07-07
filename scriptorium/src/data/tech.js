@@ -92,7 +92,7 @@ const TechTree = [
   { id: "tech_codex_vellum", name: "Pergamenové Kodexy", name_en: "Vellum Codices", cost: 12, desc: "Na pergamenu. Jak 20 z 420 výtisků Olomouckého misálu. Věčné, ale drahé.", desc_en: "On vellum. Like 20 of the 420 copies of the Olomouc Missal. Eternal, but costly.", unlocks: ["vellum_codex"], requires: ["tech_vellum_mastery", "tech_codex_luxury"] },
 
   // CANONICAL HOURS
-  { id: "tech_canonical_hours", name: "Kanonické Hodiny", name_en: "Canonical Hours", cost: 10, desc: "Benediktinský denní řád: Vigilie, Laudes, Prima, Sexta, Nona, Vesperae, Completorium. Odemkne systém časových buffů.", desc_en: "The Benedictine daily order: Vigils, Lauds, Prime, Sext, None, Vespers, Compline. Unlocks time-based buffs.", unlocks: ["book_of_hours"], requires: ["tech_monastery_wisdom", "tech_codex_luxury"] },
+  { id: "tech_canonical_hours", name: "Kanonické Hodiny", name_en: "Canonical Hours", cost: 10, desc: "Benediktinský denní řád: Vigilie, Laudes, Prima, Sexta, Nona, Vesperae, Completorium. Odemkne systém časových buffů.", desc_en: "The Benedictine daily order: Vigils, Lauds, Prime, Sext, None, Vespers, Compline. Unlocks time-based buffs.", unlocks: ["book_of_hours", "hostia"], requires: ["tech_monastery_wisdom", "tech_codex_luxury"] },
 
   // CELLARIUM
   { id: "tech_cellarium", name: "Celerář — Skladník Kláštera", name_en: "Cellarer — Monastic Steward", cost: 8, desc: "Bratr Celerář každé ráno přiděloval práci a inventář. Automatická organizace zásob.", desc_en: "The Brother Cellarer assigned work and inventory each morning. Automatic supply organisation.", unlocks: [], requires: ["tech_monastery_wisdom"] },

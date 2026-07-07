@@ -540,6 +540,12 @@ const Game = {
                     if (typeof DecaySystem !== 'undefined' && DecaySystem.dailyTick) DecaySystem.dailyTick();
                     // Vitrea — startovní pool (jednorázově) + denní opotřebení vybavení (self-guarded 24h)
                     if (typeof Game !== 'undefined' && Game.vitreaGrantStartPool) { Game.vitreaGrantStartPool(); Game.vitreaWearTick(); }
+                    // Templum — viditelnost tabu dle mnišského ranku (levný DOM check)
+                    if (typeof TemplumSystem !== 'undefined' && TemplumSystem.updateTabVisibility) TemplumSystem.updateTabVisibility();
+                    // Templum — denní chod kostela (self-guarded 24h, gate frater+)
+                    if (typeof Game !== 'undefined' && Game.templumDailyTick) Game.templumDailyTick();
+                    // Templum — týdenní zpověď (self-guarded, gate frater+)
+                    if (typeof Game !== 'undefined' && Game.templumConfessionTick) Game.templumConfessionTick();
                     // Caseus — denní zrání sýra (self-guarded 24h, gate tech_caseus)
                     if (typeof CheeseSystem !== 'undefined' && CheeseSystem.dailyTick) CheeseSystem.dailyTick();
                     // Conversi — automatické úklidové úkoly (self-guarded 24h přes cleanPen)
@@ -3682,6 +3688,193 @@ const Game = {
             '💥 Rozbil se kus vybavení: ' + itemName + (blameJilji ? '. Jiljí u toho byl. Samozřejmě.' : '.'),
             '💥 A piece of equipment broke: ' + itemName + (blameJilji ? '. Jiljí was there. Of course.' : '.'),
             '💥 Vas fractum est.');
+        Game.save();
+    },
+
+    // ── TEMPLUM T5: Dary — páteříky/vosk → Ecclesia (bez cooldownu; decay reguluje sám) ──
+    TEMPLUM_DONATIONS: {
+        paternoster_beads: { qty: 1, influence: 5 },
+        beeswax:           { qty: 5, influence: 2 },
+        // TODO: relikvie — item přijde s vizitací / Porta biskupským řetězem
+    },
+
+    templumDonate: function(itemId) {
+        if (typeof TemplumSystem === 'undefined' || !TemplumSystem.isUnlocked()) return;
+        const d = this.TEMPLUM_DONATIONS[itemId];
+        if (!d) return;
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        if ((GameState.inventory[itemId] || 0) < d.qty) { UI.notify('⚠️ Non habes sufficiens!', true); return; }
+        this.removeItem(itemId, d.qty);
+        if (typeof PersonaSystem !== 'undefined' && PersonaSystem.addInfluence) {
+            PersonaSystem.addInfluence('church', d.influence);
+        }
+        if (!GameState.templum) GameState.templum = {};
+        const itemName = (typeof iName === 'function') ? iName(itemId) : itemId;
+        GameState.templum.lastDonation = { id: itemId, ts: Date.now() };
+        Game.save();
+        UI.notify('📿 ' + (lang==='en'
+            ? 'Offering accepted: ' + itemName + ' — Ecclesia +' + d.influence + '.'
+            : 'Dar přijat: ' + itemName + ' — Ecclesia +' + d.influence + '.'));
+        Game.addKronikaEntry('minor',
+            '📿 Kostelu darováno: ' + itemName + '.',
+            '📿 Offered to the church: ' + itemName + '.',
+            '📿 Donum ecclesiae oblatum est.');
+        const el = document.getElementById('home-templum-content');
+        if (el && typeof TemplumSystem !== 'undefined') el.innerHTML = TemplumSystem.renderTemplumTab();
+    },
+
+    // ── TEMPLUM T4: Zpověď — 1×/7 d, náhodný ODEMČENÝ Clientela kontakt; osy se perou ──
+    templumConfessionTick: function() {
+        if (typeof TemplumSystem === 'undefined' || !TemplumSystem.isUnlocked()) return;
+        if (typeof ContactsDB === 'undefined' || typeof NotificationSystem === 'undefined') return;
+        if (!GameState.templum) GameState.templum = {};
+        const t = GameState.templum;
+        const WEEK = 7 * 24 * 60 * 60 * 1000;
+        if (!t.nextConfession) { t.nextConfession = Date.now() + Math.round(WEEK * 0.75); Game.save(); return; } // offset ~5 d proti výplatě/Kapitule
+        if (Date.now() < t.nextConfession) return;
+
+        const researched = GameState.researchedTechs || [];
+        const readBooks = (GameState.library && GameState.library.readBooks) || [];
+        const unlocked = Object.keys(ContactsDB).filter(id => {
+            const c = ContactsDB[id];
+            return (!c.unlockTech || researched.includes(c.unlockTech))
+                && (!c.unlockBook || readBooks.includes(c.unlockBook));
+        });
+        t.nextConfession = Date.now() + WEEK;
+        if (!unlocked.length) { Game.save(); return; } // nikdo se nezná — zpověď odpadá
+
+        const id = unlocked[Math.floor(Math.random() * unlocked.length)];
+        const c = ContactsDB[id];
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        const cName = lang === 'en' ? c.name_en : c.name;
+        const sin = lang === 'en' ? (c.confession_en || '') : (c.confession || '');
+        Game.save();
+
+        const rerender = () => {
+            const el = document.getElementById('home-templum-content');
+            if (el && typeof TemplumSystem !== 'undefined') el.innerHTML = TemplumSystem.renderTemplumTab();
+        };
+        const record = (choice) => { t.lastConfession = { id: id, name: cName, choice: choice, ts: Date.now() }; };
+
+        NotificationSystem.modal({
+            icon: '🙏',
+            title: (lang==='en' ? 'Confession — ' : 'Zpověď — ') + cName,
+            text: `<div style="font-size:0.82rem; line-height:1.45;">${c.icon} <span style="font-style:italic; opacity:0.85;">${sin}</span><br><br>${lang==='en'?'He kneels and waits for your word.':'Klečí a čeká na tvé slovo.'}</div>`,
+            choices: [
+                { label: (lang==='en'?'⚖️ Strict penance':'⚖️ Přísné pokání'), type: 'danger', effect: () => {
+                    if (typeof PersonaSystem !== 'undefined') PersonaSystem.addInfluence('church', 3);
+                    if (typeof SaeculumSystem !== 'undefined') SaeculumSystem.addContactRelation(id, -3);
+                    record('strict');
+                    Game.addKronikaEntry('minor',
+                        '🙏 Zpověď: ' + cName + ' dostal přísné pokání. Církev to ocení, on méně.',
+                        '🙏 Confession: ' + cName + ' received strict penance. The Church approves; he does not.',
+                        '🙏 Poenitentia severa imposita est.');
+                    Game.save(); rerender();
+                }},
+                { label: (lang==='en'?'🕊️ Leniency':'🕊️ Shovívavost'), effect: () => {
+                    if (typeof SaeculumSystem !== 'undefined') SaeculumSystem.addContactRelation(id, 3);
+                    if (typeof PersonaSystem !== 'undefined') PersonaSystem.addInfluence('church', 1);
+                    record('lenient');
+                    Game.addKronikaEntry('minor',
+                        '🙏 Zpověď: ' + cName + ' odešel s lehkým pokáním a lehčím srdcem.',
+                        '🙏 Confession: ' + cName + ' left with a light penance and a lighter heart.',
+                        '🙏 Misericordia praevaluit.');
+                    Game.save(); rerender();
+                }},
+                { label: (lang==='en'?'🚪 Turn him away':'🚪 Odmítnout'), effect: () => {
+                    record('refused');
+                    Game.addKronikaEntry('minor',
+                        '🙏 Zpověď: ' + cName + ' odešel nevyslyšen.',
+                        '🙏 Confession: ' + cName + ' left unheard.',
+                        '🙏 Confessio recusata est.');
+                    Game.save(); rerender();
+                }}
+            ]
+        });
+    },
+
+    // ── TEMPLUM T3: Mše — týdenní, spotřebuje 2 svíce + víno + kadidlo + 3 hostie → vliv ──
+    MASS_INCENSE_TIER: { incense_spruce: 0, incense_pine: 1, incense_styrax: 2, incense_olibanum: 3 },
+
+    serveMass: function() {
+        if (typeof TemplumSystem === 'undefined' || !TemplumSystem.isUnlocked()) return;
+        if (!GameState.templum) GameState.templum = {};
+        const t = GameState.templum;
+        const now = Date.now();
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        if ((t.nextMass || 0) > now) return;
+        const inv = GameState.inventory;
+
+        if ((inv['candle'] || 0) < 2) { UI.notify('⚠️ ' + (lang==='en'?'Mass needs 2 candles.':'Mše potřebuje 2 svíce.'), true); return; }
+        const wineId = (inv['vinum'] || 0) > 0 ? 'vinum' : ((inv['wine'] || 0) > 0 ? 'wine' : null);
+        if (!wineId) { UI.notify('⚠️ ' + (lang==='en'?'Mass needs wine.':'Mše potřebuje víno.'), true); return; }
+        // Nejlepší dostupné kadidlo — mši náleží to nejlepší (historicky věrné, tier bonus funguje)
+        const incenseId = ['incense_olibanum','incense_styrax','incense_pine','incense_spruce'].find(id => (inv[id] || 0) > 0);
+        if (!incenseId) { UI.notify('⚠️ ' + (lang==='en'?'Mass needs incense.':'Mše potřebuje kadidlo.'), true); return; }
+        if ((inv['hostia'] || 0) < 3) { UI.notify('⚠️ ' + (lang==='en'?'Mass needs 3 host wafers.':'Mše potřebuje 3 hostie.'), true); return; }
+
+        this.removeItem('candle', 2);
+        this.removeItem(wineId, 1);
+        this.removeItem(incenseId, 1);
+        this.removeItem('hostia', 3);
+
+        // Stav kostela (T2 payoff): zhasnuto nebo zaprášeno → poloviční efekt
+        const lit = (t.litUntil || 0) > now;
+        const clean = (t.cleanUntil || 0) > now;
+        const degraded = !lit || !clean;
+        let eccl = 5 + (this.MASS_INCENSE_TIER[incenseId] || 0);
+        let vill = 3;
+        if (degraded) { eccl = Math.max(1, Math.floor(eccl / 2)); vill = Math.max(1, Math.floor(vill / 2)); }
+        // TODO Chronicon: svátkový násobič (feast flag ze snapshotu) aplikovat ZDE
+
+        if (typeof PersonaSystem !== 'undefined' && PersonaSystem.addInfluence) {
+            PersonaSystem.addInfluence('church', eccl);
+            PersonaSystem.addInfluence('village', vill);
+        }
+        t.nextMass = now + 7 * 24 * 60 * 60 * 1000;
+        t.lastMass = { ts: now, incense: incenseId, degraded: degraded };
+        Game.save();
+
+        if (typeof UI !== 'undefined' && UI.notifyPanel) {
+            UI.notifyPanel('⛪ ' + (degraded
+                ? (lang==='en' ? 'Mass held in gloom and dust. Ecclesia +'+eccl+', village +'+vill+'.' : 'Mše v šeru a prachu. Ecclesia +'+eccl+', vesnice +'+vill+'.')
+                : (lang==='en' ? 'Mass held. Ecclesia +'+eccl+', village +'+vill+'.' : 'Mše odsloužena. Ecclesia +'+eccl+', vesnice +'+vill+'.')), degraded ? 'warning' : 'success');
+        }
+        Game.addKronikaEntry('important',
+            degraded ? '⛪ Mše sloužena v šeru a prachu — kostel volá po péči.' : '⛪ Mše slavnostně odsloužena. Kraj naslouchal.',
+            degraded ? '⛪ Mass held in gloom and dust — the church calls for care.' : '⛪ Mass solemnly celebrated. The countryside listened.',
+            '⛪ Missa celebrata est.');
+        const el = document.getElementById('home-templum-content');
+        if (el && typeof TemplumSystem !== 'undefined') el.innerHTML = TemplumSystem.renderTemplumTab();
+    },
+
+    // ── TEMPLUM T2: denní chod kostela — svíce (1/den) + úklid konvršem (self-guarded 24h) ──
+    templumDailyTick: function() {
+        if (typeof TemplumSystem === 'undefined' || !TemplumSystem.isUnlocked()) return;
+        if (!GameState.templum) GameState.templum = {};
+        const t = GameState.templum;
+        const now = Date.now();
+        const DAY = 24 * 60 * 60 * 1000;
+        if (now - (t.lastTick || 0) < DAY) return;
+        t.lastTick = now;
+
+        // Svíce: kostel spotřebuje 1 svíci denně (Voskařova smyčka); bez svíce zhasnuto
+        if ((GameState.inventory['candle'] || 0) > 0) {
+            this.removeItem('candle', 1);
+            t.litUntil = now + DAY;
+        }
+
+        // Úklid: dostupný konvrš (stejné filtry jako práce) — +5 únavy, čisto na 48 h
+        const cleaner = (GameState.conversi || [])
+            .filter(k => k.fatigue < (this._konvrsTraits(k).includes('pilny') ? 90 : 80)
+                      && (typeof k.mood !== 'number' || k.mood >= 30)
+                      && !(k.penanceUntil && k.penanceUntil > now))
+            .sort((a, b) => a.fatigue - b.fatigue)[0];
+        if (cleaner) {
+            cleaner.fatigue = Math.min(100, cleaner.fatigue + 5);
+            t.cleanUntil = now + 48 * 60 * 60 * 1000;
+            t.lastCleaner = cleaner.name;
+        }
         Game.save();
     },
 
