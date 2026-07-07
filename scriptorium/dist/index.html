@@ -9085,7 +9085,7 @@ const LettersDB = [
     onExpire: function () { GameState.flags.bishopMissal = 'ignored'; },
     choices: [
       { label_cs: '📜 Přijmout zakázku', label_en: '📜 Accept the commission',
-        effect: function () { GameState.flags.bishopMissal = 'accepted'; },
+        effect: function () { GameState.flags.bishopMissal = 'accepted'; GameState.flags.bishopMissalAcceptedAt = Date.now(); },
         notify_cs: 'Slíbil jsi biskupovi misál. Kancelář odpoví — a bude to čteno nahlas. (řetěz pokračuje)',
         notify_en: 'You promised the bishop a missal. The chancery will reply — and it will be read aloud. (the chain continues)' },
       { label_cs: '🙏 Pokorně odmítnout', label_en: '🙏 Humbly decline',
@@ -9095,6 +9095,118 @@ const LettersDB = [
         },
         notify_cs: 'Odmítl jsi. Kancelář mlčí — biskupové ale nezapomínají. (Ecclesia −1)',
         notify_en: 'You declined. The chancery is silent — but bishops do not forget. (Ecclesia −1)' }
+    ]
+  },
+
+  // ═══ P2: BISKUPSKÝ ŘETĚZ (pokračování L6) — flags.bishopMissal řídí větvení ═══
+
+  // ── L7 — Zadání: podmínky misálu (accepted + 3 dny) ──
+  {
+    id: 'l7_biskup_zadani',
+    seal: 'abbot',
+    title_cs: 'Podmínky biskupské kanceláře',
+    title_en: 'Terms from the Bishop\'s Chancery',
+    text_cs: '„Bratře, Jeho Milost přijímá tvůj slib. Žádá misál v podobě luxusního kodexu — pergamen čistý, iniciály zlacené, vazba pevná. Lhůta: tři týdny ode dneška. Odměna: sto dvacet grošů z biskupské pokladny. Kancelář počítá dny pečlivěji než modlitby. — Kancelář biskupství olomouckého"',
+    text_en: '"Brother, His Grace accepts your promise. He requires the missal as a luxury codex — clean parchment, gilded initials, firm binding. Term: three weeks from today. Reward: one hundred and twenty groschen from the episcopal treasury. The chancery counts days more carefully than prayers. — Chancery of the Bishopric of Olomouc"',
+    trigger: function () {
+      if (GameState.flags.bishopMissal !== 'accepted') return false;
+      const t0 = GameState.flags.bishopMissalAcceptedAt
+        || (((GameState.letters && GameState.letters.archive) || []).find(e => e.id === 'l6_biskup_misal' || e.id === 'l10_biskup_druha_sance') || {}).ts;
+      return !!t0 && (Date.now() - t0) >= 3 * 24 * 60 * 60 * 1000;
+    },
+    choices: [
+      { label_cs: '📜 Přijímám podmínky', label_en: '📜 I accept the terms',
+        effect: function () {
+          GameState.flags.bishopMissal = 'commissioned';
+          GameState.flags.bishopMissalDeadline = Date.now() + 21 * 24 * 60 * 60 * 1000;
+        },
+        notify_cs: 'Zakázka běží: luxusní kodex pro biskupa, 21 dní. Kancelář počítá.',
+        notify_en: 'The commission runs: a luxury codex for the bishop, 21 days. The chancery is counting.' }
+    ]
+  },
+
+  // ── L8 — Odevzdání (commissioned + kodex v ruce + před lhůtou) ──
+  {
+    id: 'l8_biskup_odevzdani',
+    seal: 'abbot',
+    title_cs: 'Posel kanceláře čeká na misál',
+    title_en: 'The Chancery\'s Messenger Awaits the Missal',
+    text_cs: '„Bratře, posel Jeho Milosti stojí u brány a doslechl se, že dílo je hotovo. Vydáš-li misál nyní, odměna sto dvaceti grošů bude vyplacena na místě. — Kancelář biskupství olomouckého"',
+    text_en: '"Brother, His Grace\'s messenger stands at the gate, having heard the work is finished. Hand over the missal now and the reward of one hundred and twenty groschen will be paid on the spot. — Chancery of the Bishopric of Olomouc"',
+    trigger: function () {
+      return GameState.flags.bishopMissal === 'commissioned'
+        && (GameState.inventory['luxury_codex'] || 0) >= 1
+        && Date.now() < (GameState.flags.bishopMissalDeadline || 0);
+    },
+    choices: [
+      { label_cs: '📜 Odevzdat misál (−1 luxusní kodex)', label_en: '📜 Hand over the missal (−1 luxury codex)',
+        effect: function () {
+          if ((GameState.inventory['luxury_codex'] || 0) < 1) {
+            if (typeof UI !== 'undefined') UI.notify('⚠️ Kodex mezitím zmizel z polic.', true);
+            return;
+          }
+          Game.removeItem('luxury_codex', 1);
+          if (typeof CellariumSystem !== 'undefined' && CellariumSystem.addGrose) CellariumSystem.addGrose(120);
+          if (typeof PersonaSystem !== 'undefined' && PersonaSystem.addInfluence) PersonaSystem.addInfluence('church', 8);
+          GameState.flags.bishopMissal = 'delivered';
+        },
+        notify_cs: 'Misál předán poslu. +120 grošů, Ecclesia +8. Biskup si zapamatuje jméno kláštera.',
+        notify_en: 'The missal is handed to the messenger. +120 groschen, Ecclesia +8. The bishop will remember the monastery\'s name.' }
+    ]
+  },
+
+  // ── L9 — Zmeškaná lhůta (commissioned + po deadline) ──
+  {
+    id: 'l9_biskup_zmeskani',
+    seal: 'abbot',
+    title_cs: 'Chladný list kanceláře',
+    title_en: 'A Cold Letter from the Chancery',
+    text_cs: '„Bratře, lhůta minula a misál nepřišel. Jeho Milost slova nekomentuje — pouze si je zapisuje. Katedrála si opis pořídí jinde. — Kancelář biskupství olomouckého"',
+    text_en: '"Brother, the term has passed and no missal has come. His Grace makes no comment on words — he merely writes them down. The cathedral will have its copy made elsewhere. — Chancery of the Bishopric of Olomouc"',
+    trigger: function () {
+      return GameState.flags.bishopMissal === 'commissioned'
+        && (GameState.flags.bishopMissalDeadline || 0) > 0
+        && Date.now() > GameState.flags.bishopMissalDeadline;
+    },
+    choices: [
+      { label_cs: '🕯️ Sklopit hlavu', label_en: '🕯️ Bow the head',
+        effect: function () {
+          GameState.flags.bishopMissal = 'failed';
+          if (typeof PersonaSystem !== 'undefined' && PersonaSystem.addInfluence) PersonaSystem.addInfluence('church', -3);
+        },
+        notify_cs: 'Slib nesplněn. Kancelář mlčí, ale pamatuje. (Ecclesia −3)',
+        notify_en: 'A promise unkept. The chancery is silent, but it remembers. (Ecclesia −3)' }
+    ]
+  },
+
+  // ── L10 — Druhá šance (declined/ignored + 14 dní) ──
+  {
+    id: 'l10_biskup_druha_sance',
+    seal: 'abbot',
+    title_cs: 'Kancelář píše podruhé',
+    title_en: 'The Chancery Writes a Second Time',
+    text_cs: '„Bratře, Jeho Milost se táže podruhé — a biskupové se dvakrát táží zřídka. Misál pro katedrální oltář: ano, či ne? Tentokrát postačí jedno slovo. — Kancelář biskupství olomouckého"',
+    text_en: '"Brother, His Grace asks a second time — and bishops seldom ask twice. The missal for the cathedral altar: yes, or no? This time a single word will suffice. — Chancery of the Bishopric of Olomouc"',
+    trigger: function () {
+      if (!['declined', 'ignored'].includes(GameState.flags.bishopMissal)) return false;
+      const a = ((GameState.letters && GameState.letters.archive) || []).find(e => e.id === 'l6_biskup_misal');
+      return !!a && (Date.now() - a.ts) >= 14 * 24 * 60 * 60 * 1000;
+    },
+    choices: [
+      { label_cs: '📜 Ano — přijímám', label_en: '📜 Yes — I accept',
+        effect: function () {
+          GameState.flags.bishopMissal = 'accepted';
+          GameState.flags.bishopMissalAcceptedAt = Date.now();
+        },
+        notify_cs: 'Slíbil jsi biskupovi misál. Podmínky přijdou po poslu.',
+        notify_en: 'You promised the bishop a missal. Terms will follow by messenger.' },
+      { label_cs: '🚪 Ne — podruhé a naposledy', label_en: '🚪 No — a second and final time',
+        effect: function () {
+          GameState.flags.bishopMissal = 'refused_final';
+          if (typeof PersonaSystem !== 'undefined' && PersonaSystem.addInfluence) PersonaSystem.addInfluence('church', -2);
+        },
+        notify_cs: 'Odmítl jsi podruhé. Biskupové se dvakrát táží zřídka — a potřetí nikdy. (Ecclesia −2)',
+        notify_en: 'You refused a second time. Bishops seldom ask twice — and never a third. (Ecclesia −2)' }
     ]
   },
 
