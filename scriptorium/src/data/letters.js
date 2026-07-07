@@ -343,10 +343,17 @@ const LettersDB = [
         : '"Brother, His Grace the Bishop of Olomouc will visit your house in seven days. The chancery does not recall what has passed — His Grace remembers it himself. Let the house bear witness to its order better than promises have. — Chancery of the Bishopric of Olomouc"';
     },
     trigger: function () {
-      if (GameState.flags.visitatioAt || GameState.flags.visitatioDone) return false;
-      if (!['delivered', 'failed', 'refused_final'].includes(GameState.flags.bishopMissal)) return false;
+      if (GameState.flags.visitatioAt) return false;
       const m = GameState.rank && GameState.rank.monastic;
       if (!['armarius', 'prior'].includes(m)) return false;
+      // V3-B: GM mimořádná vizitace (Chronicon unlock_flag "visitatio_force") — přeskočí misál i odstup
+      if (GameState.flags.visitatio_force === true) return true;
+      if (!['delivered', 'failed', 'refused_final'].includes(GameState.flags.bishopMissal)) return false;
+      // V3-A: opakování — další vizitace nejdřív 60 dní po poslední
+      if (GameState.flags.visitatioDone) {
+        return (Date.now() - GameState.flags.visitatioDone) >= 60 * 24 * 60 * 60 * 1000;
+      }
+      // první vizitace: 10 dní od uzavření misálového řetězu
       const arch = (GameState.letters && GameState.letters.archive) || [];
       const closer = arch.filter(e => ['l8_biskup_odevzdani', 'l9_biskup_zmeskani', 'l10_biskup_druha_sance'].includes(e.id))
                          .sort((a, b) => b.ts - a.ts)[0];
@@ -354,7 +361,10 @@ const LettersDB = [
     },
     choices: [
       { label_cs: '🔔 Připravíme dům', label_en: '🔔 We shall prepare the house',
-        effect: function () { GameState.flags.visitatioAt = Date.now() + 7 * 24 * 60 * 60 * 1000; },
+        effect: function () {
+          GameState.flags.visitatioAt = Date.now() + 7 * 24 * 60 * 60 * 1000;
+          if (GameState.flags.visitatio_force) GameState.flags.visitatio_force = false; // GM flag spotřebován
+        },
         notify_cs: 'Vizitace za 7 dní. Kostel ať svítí, mše ať zní, zásoby ať jsou plné.',
         notify_en: 'Visitation in 7 days. Let the church be lit, the mass be sung, the stores be full.' }
     ]

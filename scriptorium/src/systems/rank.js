@@ -169,6 +169,42 @@ const RankSystem = {
         return true;
     },
 
+    // R1: mnišský postup — motor zrcadlící checkSecularProgress (podmínky žebříčku
+    // byly definované, ale nikdo je nevyhodnocoval; enterMonasticPath řešil jen vstup)
+    checkMonasticProgress: function() {
+        const cur = GameState.rank && GameState.rank.monastic;
+        if (!cur) return false; // není na mnišské dráze
+        const idx = this.monastic.findIndex(r => r.id === cur);
+        const nextRank = this.monastic[idx + 1];
+        if (!nextRank) return false;
+        if (!nextRank.unlockCondition || !nextRank.unlockCondition.check()) return false;
+        this.promoteMonastic(nextRank.id);
+        return true;
+    },
+
+    promoteMonastic: function(rankId) {
+        if (!GameState.rank) this._initRankState();
+        const oldRank = GameState.rank.monastic;
+        GameState.rank.monastic = rankId;
+        GameState.rank.rankHistory = GameState.rank.rankHistory || [];
+        GameState.rank.rankHistory.push({ type: 'promotion', from: oldRank, to: rankId, ts: Date.now() });
+
+        const rank = this.monastic.find(r => r.id === rankId);
+        if (rank) {
+            const rankName = this.getRankName(rankId);
+            const toast = this.getRankToast(rankId);
+            UI.notify(`⬆️ ${rank.icon} ${rankName}! ${toast}`);
+        }
+        if (typeof Game !== 'undefined' && Game.addKronikaEntry) {
+            Game.addKronikaEntry('important',
+                '⬆️ Mnišský postup: ' + this.getRankName(rankId) + '.',
+                '⬆️ Monastic advancement: ' + this.getRankName(rankId) + '.',
+                '⬆️ Gradus monasticus ascensus est.');
+        }
+        if (typeof Analytics !== 'undefined' && Analytics.rankPromoted) Analytics.rankPromoted(oldRank, rankId, 'monastic');
+        Game.save();
+    },
+
     // MODIFIED: Use t() for rank name and toast
     promoteSecular: function(rankId) {
         if (!GameState.rank) this._initRankState();
@@ -244,8 +280,9 @@ const RankSystem = {
         // Migrace starých savů – přidat chybějící pole
         if (GameState.rank.canonicalStreak === undefined) GameState.rank.canonicalStreak = 0;
         if (!GameState.rank.rankHistory) GameState.rank.rankHistory = [];
-        // Zkontrolovat možný postup
+        // Zkontrolovat možný postup (obě dráhy)
         this.checkSecularProgress();
+        this.checkMonasticProgress();
         console.log('[RankSystem] OK – rank:', GameState.rank.secular);
     },
 

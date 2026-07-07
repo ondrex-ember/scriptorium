@@ -548,6 +548,10 @@ const Game = {
                     if (typeof Game !== 'undefined' && Game.templumConfessionTick) Game.templumConfessionTick();
                     // Visitatio — biskupská vizitace (guard na flags.visitatioAt)
                     if (typeof Game !== 'undefined' && Game.visitatioTick) Game.visitatioTick();
+                    // Rank — mnišský postup (pure čtení podmínek, levné)
+                    if (typeof RankSystem !== 'undefined' && RankSystem.checkMonasticProgress) RankSystem.checkMonasticProgress();
+                    // Templum — poutníci (self-guarded 7 d, gate frater+ a canonical hours)
+                    if (typeof Game !== 'undefined' && Game.pilgrimTick) Game.pilgrimTick();
                     // Caseus — denní zrání sýra (self-guarded 24h, gate tech_caseus)
                     if (typeof CheeseSystem !== 'undefined' && CheeseSystem.dailyTick) CheeseSystem.dailyTick();
                     // Conversi — automatické úklidové úkoly (self-guarded 24h přes cleanPen)
@@ -3693,6 +3697,59 @@ const Game = {
         Game.save();
     },
 
+    // ── TEMPLUM T6-V1: Poutníci — týdenní šance návštěvy; relikvie = magnet (MRD templum/visitatio) ──
+    pilgrimTick: function() {
+        if (typeof TemplumSystem === 'undefined' || !TemplumSystem.isUnlocked()) return;
+        if (!(GameState.researchedTechs || []).includes('tech_canonical_hours')) return;
+        if (!GameState.templum) GameState.templum = {};
+        const t = GameState.templum;
+        if (!t.lastMass) return; // mrtvý kostel poutníky nemá
+        const WEEK = 7 * 24 * 60 * 60 * 1000;
+        if (!t.nextPilgrims) { t.nextPilgrims = Date.now() + Math.round(WEEK * 0.375); Game.save(); return; } // offset ~2,6 d
+        if (Date.now() < t.nextPilgrims) return;
+        t.nextPilgrims = Date.now() + WEEK;
+
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        const hasRelic = (GameState.inventory['reliquia'] || 0) >= 1;
+        const snap = (typeof ChroniconSystem !== 'undefined') ? ChroniconSystem._snap : null;
+        const feast = !!(snap && snap.feast && snap.feast.active);
+        const chance = Math.min(0.7, 0.4 + (hasRelic ? 0.2 : 0) + (feast ? 0.1 : 0));
+        if (Math.random() >= chance) { Game.save(); return; } // ticho — žádný spam
+
+        const infl = (GameState.persona && GameState.persona.influence) || {};
+        const grose = 3 + Math.floor(Math.random() * 6) + Math.floor((infl.church || 0) / 10);
+        if (typeof CellariumSystem !== 'undefined' && CellariumSystem.addGrose) CellariumSystem.addGrose(grose);
+        if (typeof PersonaSystem !== 'undefined' && PersonaSystem.addInfluence) PersonaSystem.addInfluence('village', 1);
+        t.lastPilgrims = { ts: Date.now(), grose: grose };
+        // T6-V2: poutní cesty = přenašeči — 10% šance nachlazení (existující nemoc, žádný nový obsah)
+        let caughtCold = false;
+        if (typeof HealthSystem !== 'undefined' && HealthSystem.addCondition && Math.random() < 0.10) {
+            HealthSystem.addCondition('cold');
+            caughtCold = true;
+        }
+        Game.save();
+
+        const flavors = [
+            ['🚶 Poutníci z kraje se zastavili u kostela. Ofěra: ' + grose + ' grošů.', '🚶 Pilgrims from the countryside stopped at the church. Offering: ' + grose + ' groschen.'],
+            ['🚶 Skupinka poutníků klečela u oltáře do soumraku. V misce zůstalo ' + grose + ' grošů.', '🚶 A band of pilgrims knelt at the altar till dusk. ' + grose + ' groschen remained in the bowl.'],
+            ['🚶 Poutníci prosili o požehnání na cestu' + (hasRelic ? ' — a chtěli spatřit relikvii' : '') + '. Ofěra ' + grose + ' grošů.', '🚶 Pilgrims asked a blessing for the road' + (hasRelic ? ' — and wished to see the relic' : '') + '. Offering of ' + grose + ' groschen.'],
+        ];
+        const f = flavors[Math.floor(Math.random() * flavors.length)];
+        const coldNote = caughtCold ? (lang === 'en' ? ' One of the pilgrims coughed through the whole mass.' : ' Jeden z poutníků kašlal celou mši.') : '';
+        if (typeof UI !== 'undefined' && UI.notifyPanel) UI.notifyPanel((lang === 'en' ? f[1] : f[0]) + coldNote, 'success');
+        Game.addKronikaEntry('minor', f[0] + (caughtCold ? ' Jeden z poutníků kašlal celou mši.' : ''), f[1] + (caughtCold ? ' One of the pilgrims coughed through the whole mass.' : ''), '🚶 Peregrini venerunt.');
+
+        // T6-V2: poutní cesty přenášejí — 10% šance nachlazení (ofěra přišla tak jako tak; riziko = cena otevřených dveří)
+        if (typeof HealthSystem !== 'undefined' && HealthSystem.addCondition && Math.random() < 0.10) {
+            if (typeof UI !== 'undefined' && UI.notifyPanel) {
+                UI.notifyPanel(lang === 'en'
+                    ? '🤧 One of the pilgrims coughed through the whole mass…'
+                    : '🤧 Jeden z poutníků kašlal celou mši…', 'warning');
+            }
+            HealthSystem.addCondition('cold');
+        }
+    },
+
     // ── VISITATIO V1: biskupská vizitace — checklist z žitých systémů (MRD visitatio-reference.md) ──
     visitatioTick: function() {
         const at = GameState.flags && GameState.flags.visitatioAt;
@@ -3724,9 +3781,16 @@ const Game = {
         const band = score >= 7 ? 'laudatio' : score >= 3 ? 'neutrum' : 'correctio';
         let victim = null;
         if (band === 'laudatio') {
-            this.addItem('reliquia', 1);
-            if (typeof PersonaSystem !== 'undefined') PersonaSystem.addInfluence('church', 10);
+            // V3-A: relikvie jen při prvním Laudatiu; opakované = Ecclesia +12 místo ní
+            const hasRelic = (GameState.inventory['reliquia'] || 0) >= 1;
+            if (hasRelic) {
+                if (typeof PersonaSystem !== 'undefined') PersonaSystem.addInfluence('church', 12);
+            } else {
+                this.addItem('reliquia', 1);
+                if (typeof PersonaSystem !== 'undefined') PersonaSystem.addInfluence('church', 10);
+            }
             GameState.flags.visitatioLaudatio = true;
+            if (GameState.rank) GameState.rank.priorNomination = true; // MRD 6.5: biskupova chvála = jmenovací akt (Prior)
         } else if (band === 'neutrum') {
             if (typeof PersonaSystem !== 'undefined') PersonaSystem.addInfluence('church', 3);
         } else {
@@ -3740,6 +3804,11 @@ const Game = {
         }
         GameState.flags.visitatioAt = null;
         GameState.flags.visitatioDone = now;
+        // V3-A: re-arm ohlašovacího dopisu (PortaSystem readIds je jinak navždy) — archiv historii vizitací kumuluje
+        if (GameState.letters && GameState.letters.readIds) {
+            delete GameState.letters.readIds['l11_visitatio_ohlaseni'];
+            if (GameState.letters.firstSeen) delete GameState.letters.firstSeen['l11_visitatio_ohlaseni'];
+        }
         Game.save();
 
         // Kronika
@@ -3904,6 +3973,8 @@ const Game = {
         const clean = (t.cleanUntil || 0) > now;
         const degraded = !lit || !clean;
         let eccl = 5 + (this.MASS_INCENSE_TIER[incenseId] || 0);
+        // Visitatio V2: vystavená relikvie — mše nese větší milost (základ, PŘED degradací i svátkem)
+        if ((GameState.inventory['reliquia'] || 0) >= 1) eccl += 1;
         let vill = 3;
         if (degraded) { eccl = Math.max(1, Math.floor(eccl / 2)); vill = Math.max(1, Math.floor(vill / 2)); }
         // Svátkový násobič (Chronicon feast flag) — PO degradaci; defenzivní no-op bez snapshotu
@@ -3921,6 +3992,11 @@ const Game = {
         }
         t.nextMass = now + 7 * 24 * 60 * 60 * 1000;
         t.lastMass = { ts: now, incense: incenseId, degraded: degraded };
+        // R1: odsloužená mše = držený kanonický rytmus (frater vyžaduje streak ≥ 7)
+        if (GameState.rank) {
+            GameState.rank.canonicalStreak = (GameState.rank.canonicalStreak || 0) + 1;
+            if (typeof RankSystem !== 'undefined' && RankSystem.checkMonasticProgress) RankSystem.checkMonasticProgress();
+        }
         Game.save();
 
         if (typeof UI !== 'undefined' && UI.notifyPanel) {

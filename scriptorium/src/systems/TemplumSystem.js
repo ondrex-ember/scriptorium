@@ -51,6 +51,7 @@ const TemplumSystem = {
               <div style="font-size:0.8rem; opacity:0.6; margin-top:4px;">
                 ${lang==='en' ? '"Domus mea domus orationis vocabitur." The church stands quiet — its life will come piece by piece.' : '„Domus mea domus orationis vocabitur." Kostel stojí ztichlý — jeho život přijde kus po kuse.'}
               </div>
+              ${(GameState.inventory['reliquia'] || 0) >= 1 ? `<div style="font-size:0.78rem; color:var(--accent-gold); margin-top:4px;">✨ ${lang==='en' ? 'A relic is enshrined — the mass bears greater grace.' : 'Relikvie vystavena — mše nese větší milost.'}</div>` : ''}
             </div>
           </div>`;
 
@@ -100,6 +101,7 @@ const TemplumSystem = {
             h += reqRow(wineOk, `1× ${lang==='en'?'wine':'víno'} (${(inv['vinum'] || 0) + (inv['wine'] || 0)})`);
             h += reqRow(!!bestIncense, `1× ${incName}`);
             h += reqRow((inv['hostia'] || 0) >= 3, `3× ${lang==='en'?'host wafers':'hostie'} (${inv['hostia'] || 0})`);
+            if ((inv['reliquia'] || 0) >= 1) h += `<div style="font-size:0.7rem; margin-top:2px; color:var(--accent-gold);">✨ ${lang==='en'?'relic':'relikvie'} +1</div>`;
             if (!lit || !clean) h += `<div style="font-size:0.64rem; color:#e67e22; margin-top:4px;">⚠️ ${lang==='en'?'dark/dusty church — mass will be halved':'zhaslý/zaprášený kostel — mše bude poloviční'}</div>`;
             h += `<button class="craft-btn" style="margin-top:6px;" ${allOk ? '' : 'disabled'} onclick="Game.serveMass()">⛪ ${lang==='en'?'Hold mass':'Sloužit mši'}</button>`;
         }
@@ -138,6 +140,18 @@ const TemplumSystem = {
                 </div>
                 ${ld ? `<div style="font-size:0.66rem; opacity:0.6; margin-top:4px;">${lang==='en'?'last offering':'poslední dar'}: ${(typeof iName==='function')?iName(ld.id):ld.id}</div>` : ''}
                 <div style="font-size:0.62rem; opacity:0.55; font-style:italic; margin-top:5px;">${lang==='en'?'Ecclesia remembers the giving hand':'Ecclesia si pamatuje štědrou ruku'}</div>
+              </div>`;
+
+        // Pilíř Poutníci (T6-V1)
+        const lp = t.lastPilgrims;
+        h += `<div style="padding:12px; background:rgba(255,255,255,0.4); border:1px solid rgba(197,160,89,0.25); border-radius:8px;">
+                <div style="font-size:1.5rem; margin-bottom:4px;">🚶</div>
+                <div style="font-weight:bold; font-size:0.82rem;">${lang==='en'?'Pilgrims':'Poutníci'}</div>
+                <div style="font-size:0.7rem; margin-top:5px; opacity:0.75;">${lp
+                    ? (lang==='en' ? 'last pilgrimage: ' + lp.grose + ' groschen offering' : 'poslední pouť: ' + lp.grose + ' grošů ofěry')
+                    : (lang==='en' ? 'the countryside is quiet for now' : 'kraj zatím mlčí')}</div>
+                ${(inv['reliquia'] || 0) >= 1 ? `<div style="font-size:0.68rem; color:var(--accent-gold); margin-top:2px;">✨ ${lang==='en'?'the relic draws them':'relikvie je přitahuje'}</div>` : `<div style="font-size:0.66rem; opacity:0.55; margin-top:2px;">${lang==='en'?'a relic would draw more':'relikvie by přitáhla víc'}</div>`}
+                <div style="font-size:0.62rem; opacity:0.55; font-style:italic; margin-top:5px;">${lang==='en'?'weekly · a living church draws the road':'týdně · živý kostel přitahuje cestu'}</div>
               </div>`;
 
         h += `</div></div>`;
