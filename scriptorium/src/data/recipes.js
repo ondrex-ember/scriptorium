@@ -340,6 +340,8 @@ const RecipesDB = [
     // Výroba kůže (dokončení řetězce: hide → soaked → stretched → leather)
     { id: "tanned_leather", output: "leather", qty: 1, req: { stretched_hide: 2, gall_nut: 2 }, cat: "craft", locked: true,
       desc: "Vydělená kůže. Třísloviny z duběnek zpevní vlákna.", desc_en: "Tanned leather. Gall nut tannins harden the fibres." },
+    { id: "tanned_leather_bark", output: "leather", qty: 1, req: { stretched_hide: 2, tanbark: 3 }, cat: "craft", locked: true,
+      desc: "Vydělená kůže tříslem ze stoupy. Hrubší lázeň, stejný výsledek — a duběnky zbudou na inkoust.", desc_en: "Leather tanned with stamp-mill bark. A coarser bath, the same result — and the galls are spared for ink." },
 
     // Měchy — dual use: oheň + varhany + Athanor upgrade
     { id: "bellows", output: "bellows", qty: 1, req: { leather: 4, stick: 3, rope: 2 }, cat: "craft", locked: true,

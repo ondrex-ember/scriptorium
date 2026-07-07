@@ -323,4 +323,41 @@ const LettersDB = [
     ]
   },
 
+  // ═══ VISITATIO V1: ohlašovací dopis (MRD visitatio-reference.md) ═══
+  {
+    id: 'l11_visitatio_ohlaseni',
+    seal: 'abbot',
+    urgent: true,
+    title_cs: 'Ohlášení vizitace',
+    title_en: 'Notice of Visitation',
+    get text_cs() {
+      const warm = GameState.flags.bishopMissal === 'delivered';
+      return warm
+        ? '„Bratře, Jeho Milost biskup olomoucký zamýšlí navštívit váš dům, o němž slyšel dobré — i misál na katedrálním oltáři mluví ve váš prospěch. Za sedm dní stane u vaší brány. Ať dům svědčí o svém řádu. — Kancelář biskupství olomouckého"'
+        : '„Bratře, Jeho Milost biskup olomoucký navštíví váš dům za sedm dní. Kancelář nepřipomíná, co bylo — Jeho Milost si to pamatuje sama. Ať dům svědčí o svém řádu lépe než dosavadní sliby. — Kancelář biskupství olomouckého"';
+    },
+    get text_en() {
+      const warm = GameState.flags.bishopMissal === 'delivered';
+      return warm
+        ? '"Brother, His Grace the Bishop of Olomouc intends to visit your house, of which he has heard good things — the missal on the cathedral altar speaks in your favour too. In seven days he will stand at your gate. Let the house bear witness to its order. — Chancery of the Bishopric of Olomouc"'
+        : '"Brother, His Grace the Bishop of Olomouc will visit your house in seven days. The chancery does not recall what has passed — His Grace remembers it himself. Let the house bear witness to its order better than promises have. — Chancery of the Bishopric of Olomouc"';
+    },
+    trigger: function () {
+      if (GameState.flags.visitatioAt || GameState.flags.visitatioDone) return false;
+      if (!['delivered', 'failed', 'refused_final'].includes(GameState.flags.bishopMissal)) return false;
+      const m = GameState.rank && GameState.rank.monastic;
+      if (!['armarius', 'prior'].includes(m)) return false;
+      const arch = (GameState.letters && GameState.letters.archive) || [];
+      const closer = arch.filter(e => ['l8_biskup_odevzdani', 'l9_biskup_zmeskani', 'l10_biskup_druha_sance'].includes(e.id))
+                         .sort((a, b) => b.ts - a.ts)[0];
+      return !!closer && (Date.now() - closer.ts) >= 10 * 24 * 60 * 60 * 1000;
+    },
+    choices: [
+      { label_cs: '🔔 Připravíme dům', label_en: '🔔 We shall prepare the house',
+        effect: function () { GameState.flags.visitatioAt = Date.now() + 7 * 24 * 60 * 60 * 1000; },
+        notify_cs: 'Vizitace za 7 dní. Kostel ať svítí, mše ať zní, zásoby ať jsou plné.',
+        notify_en: 'Visitation in 7 days. Let the church be lit, the mass be sung, the stores be full.' }
+    ]
+  },
+
 ];

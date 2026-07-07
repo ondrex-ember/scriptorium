@@ -118,6 +118,9 @@ const SaeculumSystem = {
     // M-V: vodní PILA (Obchod nit 1, payoff dopisu L5) — mult 7, prémiová cena, gate tech+vztah
     { id: 'log', outputId: 'plank', mult: 7, cost: 5, unlockTech: 'tech_carpentaria', minRelation: 10,
       icon: '🪵', label: 'Klády (pila: 1 → 7 fošen)', label_en: 'Logs (sawmill: 1 → 7 planks)' },
+    // M-V2: STOUPA — kůra → tříslo (koželužský bulk; duběnky zůstávají pro inkoust)
+    { id: 'bark', outputId: 'tanbark', mult: 2, cost: 4, unlockTech: 'tech_tanning', minRelation: 15,
+      icon: '🟤', label: 'Kůra (stoupa: 1 → 2 třísla)', label_en: 'Bark (stamp mill: 1 → 2 tanbark)' },
   ],
   MOLA_COST: 3,
   MOLA_MS: 4 * 60 * 60 * 1000,

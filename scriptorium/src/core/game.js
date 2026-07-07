@@ -546,6 +546,8 @@ const Game = {
                     if (typeof Game !== 'undefined' && Game.templumDailyTick) Game.templumDailyTick();
                     // Templum — týdenní zpověď (self-guarded, gate frater+)
                     if (typeof Game !== 'undefined' && Game.templumConfessionTick) Game.templumConfessionTick();
+                    // Visitatio — biskupská vizitace (guard na flags.visitatioAt)
+                    if (typeof Game !== 'undefined' && Game.visitatioTick) Game.visitatioTick();
                     // Caseus — denní zrání sýra (self-guarded 24h, gate tech_caseus)
                     if (typeof CheeseSystem !== 'undefined' && CheeseSystem.dailyTick) CheeseSystem.dailyTick();
                     // Conversi — automatické úklidové úkoly (self-guarded 24h přes cleanPen)
@@ -3689,6 +3691,85 @@ const Game = {
             '💥 A piece of equipment broke: ' + itemName + (blameJilji ? '. Jiljí was there. Of course.' : '.'),
             '💥 Vas fractum est.');
         Game.save();
+    },
+
+    // ── VISITATIO V1: biskupská vizitace — checklist z žitých systémů (MRD visitatio-reference.md) ──
+    visitatioTick: function() {
+        const at = GameState.flags && GameState.flags.visitatioAt;
+        if (!at || Date.now() < at) return;
+        if (typeof NotificationSystem === 'undefined' || !NotificationSystem.modal) return;
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        const now = Date.now();
+        const t = GameState.templum || {};
+        const inv = GameState.inventory || {};
+        const infl = (GameState.persona && GameState.persona.influence) || {};
+
+        // Checklist (MRD sekce 3)
+        const rows = [];
+        const item = (ok, pts, cs, en) => { rows.push({ ok: ok, pts: ok ? pts : 0, cs: cs, en: en }); return ok ? pts : 0; };
+        let score = 0;
+        score += item((t.litUntil || 0) > now, 1, 'Kostel svítí', 'Church is lit');
+        score += item((t.cleanUntil || 0) > now, 1, 'Kostel čistý', 'Church is clean');
+        score += item(!!(t.lastMass && now - t.lastMass.ts < 8 * 24 * 3600000), 2, 'Mše slouženy pravidelně', 'Mass held regularly');
+        score += item((infl.church || 0) >= 40, 2, 'Ecclesia vliv ≥ 40', 'Ecclesia influence ≥ 40');
+        const hasIncense = ['incense_olibanum','incense_styrax','incense_pine','incense_spruce'].some(id => (inv[id] || 0) > 0);
+        score += item((inv['candle'] || 0) >= 2 && ((inv['vinum'] || 0) + (inv['wine'] || 0)) >= 1 && hasIncense && (inv['hostia'] || 0) >= 3, 1, 'Zásoba na mši skladem', 'Mass supplies in store');
+        score += item(!!t.lastConfession, 1, 'Zpovědní služba běží', 'Confession service kept');
+        const mis = GameState.flags.bishopMissal;
+        const misPts = mis === 'delivered' ? 2 : mis === 'failed' ? -2 : mis === 'refused_final' ? -1 : 0;
+        rows.push({ ok: misPts > 0, pts: misPts, cs: 'Misálová pověst', en: 'Missal reputation' });
+        score += misPts;
+
+        // Pásma
+        const band = score >= 7 ? 'laudatio' : score >= 3 ? 'neutrum' : 'correctio';
+        let victim = null;
+        if (band === 'laudatio') {
+            this.addItem('reliquia', 1);
+            if (typeof PersonaSystem !== 'undefined') PersonaSystem.addInfluence('church', 10);
+            GameState.flags.visitatioLaudatio = true;
+        } else if (band === 'neutrum') {
+            if (typeof PersonaSystem !== 'undefined') PersonaSystem.addInfluence('church', 3);
+        } else {
+            if (typeof PersonaSystem !== 'undefined') PersonaSystem.addInfluence('church', -5);
+            // Jednotlivec, ne plošný trest: biskup jmenuje jednoho „nedbalého" bratra (MRD 6.6)
+            const pool = (GameState.conversi || []).filter(k => !(k.penanceUntil && k.penanceUntil > now));
+            if (pool.length) {
+                victim = pool[Math.floor(Math.random() * pool.length)];
+                victim.penanceUntil = now + 2 * 24 * 3600000;
+            }
+        }
+        GameState.flags.visitatioAt = null;
+        GameState.flags.visitatioDone = now;
+        Game.save();
+
+        // Kronika
+        const kCs = band === 'laudatio' ? '✨ Vizitace: Jeho Milost chválila dům a darovala relikvii. Laudatio!'
+                 : band === 'neutrum' ? '🔔 Vizitace: Jeho Milost přikývla. „Příště více," pravila kancelář.'
+                 : '⚖️ Vizitace: napomenutí domu.' + (victim ? ' Bratr ' + victim.name + ' jmenován nedbalým — dva dny pokání.' : '');
+        const kEn = band === 'laudatio' ? '✨ Visitation: His Grace praised the house and bestowed a relic. Laudatio!'
+                 : band === 'neutrum' ? '🔔 Visitation: His Grace nodded. "More, next time," said the chancery.'
+                 : '⚖️ Visitation: the house admonished.' + (victim ? ' Brother ' + victim.name + ' named negligent — two days of penance.' : '');
+        Game.addKronikaEntry('important', kCs, kEn, '✝️ Visitatio canonica peracta est.');
+
+        // Modal s rozpisem — hráč vidí, ZA CO
+        let html = rows.map(r => `<div style="display:flex; justify-content:space-between; font-size:0.78rem; ${r.ok ? '' : 'color:#c0392b;'}"><span>${r.ok ? '✓' : '✗'} ${lang==='en'?r.en:r.cs}</span><strong>${r.pts > 0 ? '+' + r.pts : r.pts}</strong></div>`).join('');
+        html += `<div style="border-top:1px solid rgba(0,0,0,0.15); margin-top:6px; padding-top:6px; display:flex; justify-content:space-between; font-size:0.82rem; font-weight:bold;"><span>${lang==='en'?'Total':'Celkem'}</span><span>${score} b</span></div>`;
+        const verdictCs = band === 'laudatio' ? '✨ LAUDATIO — relikvie darována, Ecclesia +10.'
+                       : band === 'neutrum' ? '🔔 Zdvořilé přikývnutí. Ecclesia +3.'
+                       : '⚖️ CORRECTIO — Ecclesia −5.' + (victim ? ' Bratr ' + victim.name + ': 2 dny pokání.' : '');
+        const verdictEn = band === 'laudatio' ? '✨ LAUDATIO — a relic bestowed, Ecclesia +10.'
+                       : band === 'neutrum' ? '🔔 A courteous nod. Ecclesia +3.'
+                       : '⚖️ CORRECTIO — Ecclesia −5.' + (victim ? ' Brother ' + victim.name + ': 2 days of penance.' : '');
+        html += `<div style="margin-top:8px; font-size:0.82rem;">${lang==='en'?verdictEn:verdictCs}</div>`;
+        NotificationSystem.modal({
+            icon: '✝️',
+            title: lang==='en' ? 'The Bishop\'s Visitation' : 'Biskupská vizitace',
+            text: html,
+            choices: [{ label: lang==='en' ? '🙏 So be it' : '🙏 Staň se', effect: () => {
+                const el = document.getElementById('home-templum-content');
+                if (el && typeof TemplumSystem !== 'undefined') el.innerHTML = TemplumSystem.renderTemplumTab();
+            } }]
+        });
     },
 
     // ── TEMPLUM T5: Dary — páteříky/vosk → Ecclesia (bez cooldownu; decay reguluje sám) ──

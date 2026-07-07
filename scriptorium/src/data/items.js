@@ -522,6 +522,8 @@ const ItemsDB = {
     "glass_mirror": { name: "Zrcadlo", name_en: "Glass Mirror", icon: "🪞", type: "tool", desc: "Broušené zrcadlo — vzácnost hodná biskupského stolu.", desc_en: "A polished mirror — a rarity fit for a bishop's table." },
 
     "hostia": { name: "Hostie", name_en: "Host Wafers", icon: "🫓", type: "mat", desc: "Nekvašené oplatky z pšeničné mouky. Pečené v kleštích s vyrytým beránkem.", desc_en: "Unleavened wafers of wheat flour. Baked in irons engraved with the Lamb." },
+    "tanbark": { name: "Tříslo", name_en: "Tanbark", icon: "🟤", type: "mat", desc: "Dubová kůra drcená ve stoupě. Třísloviny pro koželužnu — hrubší než duběnky, ale je jí dost.", desc_en: "Oak bark crushed in a stamp mill. Tannins for the tannery — coarser than oak galls, but plentiful." },
+    "reliquia": { name: "Relikvie", name_en: "Relic", icon: "✨", type: "tool", desc: "Ostatek světce v pozlaceném relikviáři — dar Jeho Milosti za vzorný dům. Nelze koupit ani prodat.", desc_en: "A saint's relic in a gilded reliquary — a gift of His Grace for an exemplary house. Cannot be bought or sold." },
 
     // ── PRODUKTY NOVÝCH ZVÍŘAT (easter eggs — zvířata teprve přijdou) ────────
     "goat_hide": { name: "Kozí kůže", name_en: "Goat Hide", icon: "🐐", type: "mat", desc: "Kozí kůže poskytuje nejkvalitnější pergamen — tenký, pevný, málo mastný. Italské kláštery ho znaly jako standard.", desc_en: "Goat hide yields the finest parchment — thin, strong, little grease. Italian monasteries knew it as the standard." },

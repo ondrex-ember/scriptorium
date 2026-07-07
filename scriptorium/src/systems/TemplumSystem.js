@@ -34,6 +34,12 @@ const TemplumSystem = {
         }
 
         let h = `<div style="padding:10px;">`;
+        // Visitatio V1: odpočet přípravy — viditelná zkouška, ne překvapení
+        const _vAt = GameState.flags && GameState.flags.visitatioAt;
+        if (_vAt && _vAt > Date.now()) {
+            const vD = Math.ceil((_vAt - Date.now()) / (24*3600000));
+            h += `<div style="padding:8px 12px; margin-bottom:10px; background:rgba(192,57,43,0.08); border-left:4px solid #c0392b; border-radius:6px; font-size:0.8rem; font-weight:bold;">🔔 ${lang==='en' ? 'Visitation in ' + vD + ' d — let the church be lit, the mass be sung, the stores be full.' : 'Vizitace za ' + vD + ' d — kostel ať svítí, mše ať zní, zásoby ať jsou plné.'}</div>`;
+        }
         h += `
           <div style="display:flex; align-items:center; gap:15px; margin-bottom:20px;
                       padding:15px; background:rgba(197,160,89,0.07);
