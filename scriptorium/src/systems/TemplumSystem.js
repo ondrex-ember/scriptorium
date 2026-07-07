@@ -51,6 +51,9 @@ const TemplumSystem = {
               <div style="font-size:0.8rem; opacity:0.6; margin-top:4px;">
                 ${lang==='en' ? '"Domus mea domus orationis vocabitur." The church stands quiet — its life will come piece by piece.' : '„Domus mea domus orationis vocabitur." Kostel stojí ztichlý — jeho život přijde kus po kuse.'}
               </div>
+              ${(typeof Game !== 'undefined' && Game.isOfficiumHours && Game.isOfficiumHours())
+                ? `<div style="font-size:0.75rem; color:var(--accent-gold); margin-top:4px;">🔔 ${lang==='en'?'Bells call to Officium.':'Zvony volají k Officiu.'}</div>`
+                : ''}
               ${(GameState.inventory['reliquia'] || 0) >= 1 ? `<div style="font-size:0.78rem; color:var(--accent-gold); margin-top:4px;">✨ ${lang==='en' ? 'A relic is enshrined — the mass bears greater grace.' : 'Relikvie vystavena — mše nese větší milost.'}</div>` : ''}
             </div>
           </div>`;
