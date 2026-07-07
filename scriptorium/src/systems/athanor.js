@@ -878,6 +878,18 @@ const AthanorSystem = {
       return;
     }
 
+    // VITREA V3: destilace vyžaduje alembik (nástroj) + 1 baňku (spotřební) za běh
+    if (state.activeProcess === 'destillatio') {
+      if ((GameState.inventory['alembic'] || 0) <= 0) {
+        UI.notify('⚗️ Destilace vyžaduje alembik. Sklář ho dodá.', true);
+        return;
+      }
+      if ((GameState.inventory['glass_flask'] || 0) <= 0) {
+        UI.notify('⚗️ Destilace vyžaduje baňku (spotřebuje se).', true);
+        return;
+      }
+    }
+
     // Zkontroluj inventář
     const counts = {};
     slots.forEach(id => { counts[id] = (counts[id] || 0) + 1; });
@@ -893,6 +905,8 @@ const AthanorSystem = {
     for (const [id, qty] of Object.entries(counts)) {
       Game.removeItem(id, qty);
     }
+    // VITREA V3: destilace spotřebuje 1 baňku
+    if (state.activeProcess === 'destillatio') Game.removeItem('glass_flask', 1);
 
     const process = AthanorDB.processes.find(p => p.id === state.activeProcess);
     const duration = process ? process.duration_ms : 10000;
@@ -917,6 +931,15 @@ const AthanorSystem = {
     const { slots, processId } = state.brewing;
     state.brewing = null;
     state.slots = [];
+
+    // VITREA V3: po destilaci 10% šance, že alembik praskne (náhrada u Skláře)
+    if (processId === 'destillatio' && (GameState.inventory['alembic'] || 0) > 0 && Math.random() < 0.10) {
+      Game.removeItem('alembic', 1);
+      if (typeof UI !== 'undefined' && UI.notifyPanel) {
+        UI.notifyPanel('💥 Alembik žárem praskl. Sklář má náhradní — za groše.', 'warning');
+      }
+      Game.addKronikaEntry('minor', '💥 Alembik praskl při destilaci.', '💥 The alembic cracked during distillation.', '💥 Alembicum fractum est.');
+    }
 
     const result = CombinationEngine.evaluate(slots, processId);
 
@@ -1404,7 +1427,10 @@ const AthanorSystem = {
   buildProcessBtn(process, state) {
     const isActive = state.activeProcess === process.id;
     const isBrewing = !!state.brewing;
-    const isLocked = process.unlock && !(GameState.researchedTechs && GameState.researchedTechs.includes(process.unlock));
+    const techLocked = process.unlock && !(GameState.researchedTechs && GameState.researchedTechs.includes(process.unlock));
+    const needAlembic = process.id === 'destillatio' && !techLocked && (GameState.inventory['alembic'] || 0) <= 0;
+    const isLocked = techLocked || needAlembic;
+    const lockHint = techLocked ? ' [Zamčeno]' : needAlembic ? ' [Vyžaduje alembik]' : '';
 
     return `
       <button
@@ -1420,7 +1446,7 @@ const AthanorSystem = {
           font-family:inherit;
           opacity:${isLocked ? '0.5' : '1'};
         "
-        title="${process.desc}${isLocked ? ' [Zamčeno]' : ''}"
+        title="${process.desc}${lockHint}"
         ${isLocked || isBrewing ? 'disabled' : ''}
       >${process.icon} ${process.name_cs}${isLocked ? ' 🔒' : ''}</button>
     `;

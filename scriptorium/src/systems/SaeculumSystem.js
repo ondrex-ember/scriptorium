@@ -498,6 +498,8 @@ const SaeculumSystem = {
     const c = ContactsDB[contactId];
     const offer = c && c.buyOffer && c.buyOffer.items && c.buyOffer.items[itemId];
     if (!offer) return;
+    // Exkluzivní nabídka: gate na vztah (MRD bod 8)
+    if (offer.minRelation && ((GameState.contactRelation || {})[contactId] || 0) < offer.minRelation) return;
     const soldToday = this._contactSoldToday(contactId, itemId);
     const left = Math.max(0, offer.stock - soldToday);
     qty = Math.max(0, Math.min(left, qty | 0));
@@ -513,6 +515,44 @@ const SaeculumSystem = {
     const lang = (GameState.settings && GameState.settings.language) || 'cs';
     const itemName = (typeof iName === 'function') ? iName(itemId) : itemId;
     UI.notify('🛒 ' + itemName + ' ×' + qty + ' → -' + total + ' g');
+    this.switchEntity('clientela');
+  },
+
+  // V4/S2: Zakázky u kontaktu (Sklář) — 1 slot, 48 h, 50 % záloha, doplatek při vyzvednutí, +2 vztah
+  GLASS_ORDER_MS: 48 * 60 * 60 * 1000,
+
+  orderFromContact: function(contactId, orderKey) {
+    if (typeof ContactsDB === 'undefined') return;
+    const c = ContactsDB[contactId];
+    const ord = c && c.glassOrders && c.glassOrders[orderKey];
+    if (!ord) return;
+    if (GameState.glassOrder && !GameState.glassOrder.collected) { UI.notify('⚠️ Zakázka už běží — jedna najednou.', true); return; }
+    const rel = (GameState.contactRelation || {})[contactId] || 0;
+    if (ord.minRelation && rel < ord.minRelation) return;
+    const deposit = Math.ceil(ord.price / 2);
+    if (CellariumSystem.getGrose() < deposit) { UI.notify('⚠️ Non habes sufficiens! Záloha ' + deposit + ' g.', true); return; }
+    CellariumSystem.addGrose(-deposit);
+    GameState.glassOrder = { contactId: contactId, itemId: ord.itemId, price: ord.price, deposit: deposit, readyAt: Date.now() + this.GLASS_ORDER_MS };
+    Game.save();
+    const itemName = (typeof iName === 'function') ? iName(ord.itemId) : ord.itemId;
+    UI.notify('🔮 Zakázka přijata: ' + itemName + '. Hotovo za 48 h. Záloha ' + deposit + ' g.');
+    this.switchEntity('clientela');
+  },
+
+  collectGlassOrder: function() {
+    const o = GameState.glassOrder;
+    if (!o || Date.now() < o.readyAt) return;
+    const rest = o.price - o.deposit;
+    if (CellariumSystem.getGrose() < rest) { UI.notify('⚠️ Doplatek ' + rest + ' g. Zakázka trpělivě čeká.', true); return; }
+    CellariumSystem.addGrose(-rest);
+    Game.addItem(o.itemId, 1);
+    CellariumSystem.recordTransaction('buy', o.itemId, 1, o.price, o.contactId);
+    this.addContactRelation(o.contactId, 2);
+    const itemName = (typeof iName === 'function') ? iName(o.itemId) : o.itemId;
+    GameState.glassOrder = null;
+    Game.save();
+    UI.notify('🔮 Zakázka vyzvednuta: ' + itemName + '.');
+    Game.addKronikaEntry('minor', '🔮 Sklář dodal zakázku: ' + itemName + '.', '🔮 The glassmaker delivered a commission: ' + itemName + '.', '🔮 Opus vitreum traditum est.');
     this.switchEntity('clientela');
   },
 
@@ -534,7 +574,8 @@ const SaeculumSystem = {
     h += `<div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(150px, 1fr)); gap:8px;">`;
     Object.keys(ContactsDB).forEach(id => {
       const c = ContactsDB[id];
-      const unlocked = !c.unlockTech || researched.includes(c.unlockTech);
+      const unlocked = (!c.unlockTech || researched.includes(c.unlockTech))
+                    && (!c.unlockBook || (GameState.library && GameState.library.readBooks && GameState.library.readBooks.includes(c.unlockBook)));
       const r = Math.min(100, Math.round(rel[id] || 0));
       if (unlocked) {
         const rColor = r >= 75 ? '#5a9a5a' : r >= 40 ? 'var(--accent-gold)' : 'var(--ink-secondary)';
@@ -600,8 +641,14 @@ const SaeculumSystem = {
     if (offerItems && Object.keys(offerItems).length) {
       Object.keys(offerItems).forEach(itemId => {
         const o = offerItems[itemId];
-        const left = Math.max(0, o.stock - this._contactSoldToday(id, itemId));
         const itemName = (typeof iName === 'function') ? iName(itemId) : itemId;
+        if (o.minRelation && r < o.minRelation) {
+          h += `<div style="display:flex; align-items:center; gap:6px; font-size:0.78rem; margin-bottom:6px; opacity:0.5;">
+                  <span style="flex:1;">🔒 ${itemName} <span style="opacity:0.7; font-style:italic;">(${lang==='en'?'from relation':'od vztahu'} ${o.minRelation})</span></span>
+                </div>`;
+          return;
+        }
+        const left = Math.max(0, o.stock - this._contactSoldToday(id, itemId));
         const grose = CellariumSystem.getGrose();
         h += `<div style="display:flex; align-items:center; gap:6px; font-size:0.78rem; margin-bottom:6px;">
                 <span style="flex:1;">${itemName} <span style="opacity:0.6;">(${o.price} g/${lang==='en'?'pc':'ks'} · ${lang==='en'?'stock':'skladem'} ${left})</span></span>
@@ -640,6 +687,38 @@ const SaeculumSystem = {
     h += `</div>`;
 
     h += `</div>`; // konec sloupců
+
+    // 🔮 Zakázky (V4/S2) — jen kontakt s glassOrders
+    if (c.glassOrders && Object.keys(c.glassOrders).length) {
+      h += `<div style="margin-top:14px;"><div style="font-size:0.7rem; font-weight:bold; letter-spacing:0.08em; text-transform:uppercase; color:var(--accent-gold); margin-bottom:8px; padding-bottom:4px; border-bottom:2px solid var(--accent-gold);">🔮 ${lang==='en'?'COMMISSIONS':'ZAKÁZKY'} <span style="opacity:0.6; font-weight:normal; text-transform:none;">(48 h · ${lang==='en'?'50 % deposit':'50 % záloha'})</span></div>`;
+      const o = GameState.glassOrder;
+      if (o) {
+        const remH = Math.max(0, Math.ceil((o.readyAt - Date.now()) / 3600000));
+        const oName = (typeof iName === 'function') ? iName(o.itemId) : o.itemId;
+        if (remH > 0) {
+          h += `<div style="font-size:0.78rem;">⏳ ${lang==='en'?'In work':'V práci'}: ${oName} — ${lang==='en'?'ready in':'hotovo za'} <strong>${remH} h</strong></div>`;
+        } else {
+          const rest = o.price - o.deposit;
+          h += `<div style="font-size:0.78rem; margin-bottom:6px;">✅ ${oName} ${lang==='en'?'is ready':'je hotov'} — ${lang==='en'?'balance due':'doplatek'} ${rest} g</div>
+                <button class="craft-btn" onclick="SaeculumSystem.collectGlassOrder()">📦 ${lang==='en'?'Collect':'Vyzvednout'}</button>`;
+        }
+      } else {
+        Object.keys(c.glassOrders).forEach(key => {
+          const ord = c.glassOrders[key];
+          const itemName = (typeof iName === 'function') ? iName(ord.itemId) : ord.itemId;
+          if (ord.minRelation && r < ord.minRelation) {
+            h += `<div style="font-size:0.78rem; margin-bottom:5px; opacity:0.5;">🔒 ${itemName} <span style="opacity:0.7; font-style:italic;">(${lang==='en'?'from relation':'od vztahu'} ${ord.minRelation})</span></div>`;
+            return;
+          }
+          const deposit = Math.ceil(ord.price / 2);
+          h += `<div style="display:flex; align-items:center; gap:6px; font-size:0.78rem; margin-bottom:5px;">
+                  <span style="flex:1;">${itemName} <span style="opacity:0.6;">(${ord.price} g · ${lang==='en'?'deposit':'záloha'} ${deposit} g)</span></span>
+                  <button class="craft-btn" style="padding:2px 8px; font-size:0.7rem;" ${CellariumSystem.getGrose() >= deposit ? '' : 'disabled'} onclick="SaeculumSystem.orderFromContact('${id}','${key}')">${lang==='en'?'Order':'Objednat'}</button>
+                </div>`;
+        });
+      }
+      h += `</div>`;
+    }
 
     // Mola blok — Mlynář od tier 3 (integrace, mechanika sendToMill/collectFromMill beze změny)
     if (id === 'mlynar') {
@@ -693,6 +772,12 @@ const SaeculumSystem = {
     h += `<div style="font-size:0.72rem; opacity:0.65; margin-bottom:6px;">${lang==='en'
         ? 'One portion of plain fare per brother per day. Feasts (pies, roasts) are never touched.'
         : 'Jedna porce prosté stravy na bratra denně. Sváteční jídlo (koláče, pečeně) refektář nebere.'}</div>`;
+    // V2: nádobí — kapacita vs. počet bratrů
+    const _TG = ['glass_goblet','glass_tankard','glass_jug','glass_bowl','glass_pitcher'];
+    const _glassCap = _TG.reduce((s, id) => s + (GameState.inventory[id] || 0), 0);
+    const _woodCap = GameState.inventory['wooden_bowl'] || 0;
+    const _short = Math.max(0, list.length - _glassCap - _woodCap);
+    h += `<div style="font-size:0.76rem; margin-bottom:6px; ${_short > 0 ? 'color:#c0392b;' : ''}">🍽️ ${lang==='en'?'Dishes':'Nádobí'}: ${lang==='en'?'glass':'sklo'} ${_glassCap} · ${lang==='en'?'wood':'dřevo'} ${_woodCap}${_short > 0 ? ` · ${lang==='en'?'short for':'chybí pro'} ${_short}` : ''}</div>`;
     const log = GameState.conversiMealLog;
     if (log) {
       const when = new Date(log.ts).toLocaleDateString(lang==='en'?'en-GB':'cs-CZ');

@@ -14,7 +14,7 @@ const ItemsDB = {
     "holy_water": { name: "Svěcená voda", name_en: "Holy Water", icon: "✨", type: "food", desc: "Posvěcená voda z požehnané studny. Nejčistší, jakou lze získat.", desc_en: "Blessed water from a consecrated well. The purest water obtainable." },
     "herb_red": { name: "Krvavý květ", name_en: "Bloodwort", icon: "🌺", type: "mat", desc: "Bylina.", desc_en: "A red healing herb." },
     "fat": { name: "Tuk", name_en: "Fat", icon: "🥩", type: "mat", desc: "Zvířecí tuk.", desc_en: "Animal fat." },
-    "meat": { name: "Maso", name_en: "Meat", icon: "🍖", type: "food_raw", desc: "Surové maso.", desc_en: "Raw meat." },
+    "meat": { name: "Divoké maso", name_en: "Wild Game Meat", icon: "🍖", type: "food_raw", desc: "Syrové maso z ulovené zvěře. K vaření, ne k prodeji na trhu.", desc_en: "Raw meat from hunted game. For cooking, not for the market stall." },
     "crayfish": { name: "Raci", name_en: "Crayfish", icon: "🦞", type: "food_raw", desc: "Sladkovodní raci z mokřadu.", desc_en: "Freshwater crayfish from the wetlands." },
     "snail": { name: "Hlemýždi", name_en: "Snails", icon: "🐌", type: "food_raw", desc: "Hlemýždi s ulitou. Jiní tvorové než slimák.", desc_en: "Shelled snails. A different creature from the slug." },
     "frog_legs": { name: "Žabí stehýnka", name_en: "Frog Legs", icon: "🍗", type: "food_raw", desc: "Stažená stehýnka ze žáby.", desc_en: "Skinned frog legs." },
@@ -502,6 +502,24 @@ const ItemsDB = {
     "acorns": { name: "Žaludy", name_en: "Acorns", icon: "🌰", type: "mat", desc: "Lesní plody z dubu. Krmivo pro prasata. Sbírají se na podzim.", desc_en: "Oak fruits from the forest. Pig fodder. Gathered in autumn." },
     "leaves": { name: "Listí", name_en: "Leaves", icon: "🍃", type: "mat", desc: "Čerstvé listí stromů. Oblíbená pochutina koz.", desc_en: "Fresh tree leaves. A favourite treat for goats." },
     "scraps": { name: "Zbytky", name_en: "Scraps", icon: "🍖", type: "mat", desc: "Kuchyňské zbytky. Prasata sní vše.", desc_en: "Kitchen scraps. Pigs eat everything." },
+    "snare": { name: "Oko na drobnou zvěř", name_en: "Small Game Snare", icon: "🪤", type: "tool", desc: "Drátěné oko od Lovce. Na plchy, veverky a ptáky — velká zvěř patří pánům.", desc_en: "A wire snare from the Hunter. For dormice, squirrels and birds — big game belongs to the lords." },
+    "caught_small_game": { name: "Ulovená drobná zvěř", name_en: "Caught Small Game", icon: "🐿️", type: "mat", desc: "Úlovek z oka. Prodej Lovci vcelku, nebo zpracuj nožem na maso, tuk a zbytky.", desc_en: "A snare catch. Sell whole to the Hunter, or dress it with a knife for meat, fat and scraps." },
+
+    // ── VITREA: klášterní vybavení (MRD vitrea-equipment-reference.md) ──
+    "wooden_bowl": { name: "Dřevěná miska", name_en: "Wooden Bowl", icon: "🥣", type: "tool", desc: "Řezaná z fošny. Nerozbitná. Základ klášterního stolu — sklo je luxus.", desc_en: "Carved from a plank. Unbreakable. The staple of the monastic table — glass is a luxury." },
+    "glass_stopper": { name: "Špunty", name_en: "Glass Stoppers", icon: "🔘", type: "tool", desc: "Skleněné zátky na láhve a baňky.", desc_en: "Glass stoppers for bottles and flasks." },
+    "glass_flask": { name: "Baňka", name_en: "Glass Flask", icon: "⚗️", type: "tool", desc: "Laboratorní sklo pro Athanor. Křehké — praská žárem.", desc_en: "Laboratory glass for the Athanor. Fragile — heat cracks it." },
+    "fly_trap_glass": { name: "Mucholapka", name_en: "Glass Fly Trap", icon: "🫙", type: "tool", desc: "Skleněná past na mouchy se sladkou návnadou. Doložený kus středověké domácnosti.", desc_en: "A glass fly trap with sweet bait. A documented piece of the medieval household." },
+    "glass_goblet": { name: "Číše", name_en: "Glass Goblet", icon: "🥂", type: "tool", desc: "Skleněná číše na víno. Stolní nádobí lepších dnů.", desc_en: "A glass goblet for wine. Tableware for better days." },
+    "glass_tankard": { name: "Půllitr", name_en: "Glass Tankard", icon: "🍺", type: "tool", desc: "Silnostěnný skleněný půllitr. Stolní nádobí.", desc_en: "A thick-walled glass tankard. Tableware." },
+    "glass_jug": { name: "Džbán", name_en: "Glass Jug", icon: "🏺", type: "tool", desc: "Džbán na vodu i víno. Stolní nádobí.", desc_en: "A jug for water and wine. Tableware." },
+    "glass_bowl": { name: "Mísa", name_en: "Glass Bowl", icon: "🫕", type: "tool", desc: "Skleněná mísa. Stolní nádobí.", desc_en: "A glass bowl. Tableware." },
+    "glass_pitcher": { name: "Konvice", name_en: "Glass Pitcher", icon: "🫖", type: "tool", desc: "Konvice se skleněným tělem. Stolní nádobí.", desc_en: "A pitcher with a glass body. Tableware." },
+    "glass_vase": { name: "Váza", name_en: "Glass Vase", icon: "🏵️", type: "tool", desc: "Ozdobná váza. Krása má v klášteře své místo.", desc_en: "A decorative vase. Beauty has its place in a monastery." },
+    "window_roundel": { name: "Okenní terčík", name_en: "Window Roundel", icon: "🟡", type: "tool", desc: "Kulatý terčík do olova okenní výplně. Světlo dovnitř, zima ven.", desc_en: "A round pane set in lead. Light in, cold out." },
+    "paternoster_beads": { name: "Páteříky", name_en: "Paternoster Beads", icon: "📿", type: "tool", desc: "Skleněné růžencové korálky. Sklářská pýcha českých hutí.", desc_en: "Glass rosary beads. The pride of Bohemian glassworks." },
+    "alembic": { name: "Alembik", name_en: "Alembic", icon: "⚗️", type: "tool", desc: "Destilační nádoba z čirého skla. Bez alembiku není destilace.", desc_en: "A distillation vessel of clear glass. No alembic, no distillation." },
+    "glass_mirror": { name: "Zrcadlo", name_en: "Glass Mirror", icon: "🪞", type: "tool", desc: "Broušené zrcadlo — vzácnost hodná biskupského stolu.", desc_en: "A polished mirror — a rarity fit for a bishop's table." },
 
     // ── PRODUKTY NOVÝCH ZVÍŘAT (easter eggs — zvířata teprve přijdou) ────────
     "goat_hide": { name: "Kozí kůže", name_en: "Goat Hide", icon: "🐐", type: "mat", desc: "Kozí kůže poskytuje nejkvalitnější pergamen — tenký, pevný, málo mastný. Italské kláštery ho znaly jako standard.", desc_en: "Goat hide yields the finest parchment — thin, strong, little grease. Italian monasteries knew it as the standard." },

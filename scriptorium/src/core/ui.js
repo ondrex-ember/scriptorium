@@ -371,6 +371,29 @@ const UI = {
             newHTML += otherCards;
         }
 
+        // ── Oka na drobnou zvěř (L3b, Lovec řetěz) — blok jen když hráč oka má/líčí/má úlovky ──
+        const snareInv = GameState.inventory['snare'] || 0;
+        const caughtInv = GameState.inventory['caught_small_game'] || 0;
+        const traps = GameState.snareTraps || [];
+        if (snareInv > 0 || caughtInv > 0 || traps.length > 0) {
+            const now = Date.now();
+            const readyCnt = traps.filter(s => now >= s.readyAt).length;
+            newHTML += `<div style="${groupTitleStyle}">🪤 ${lang==='en'?'Snares':'Oka'}</div>`;
+            let trapLines = '';
+            traps.forEach(s => {
+                const remH = Math.max(0, Math.ceil((s.readyAt - now) / 3600000));
+                trapLines += `<div class="text-sm">${now >= s.readyAt ? '✅ ' + (lang==='en'?'catch ready':'úlovek čeká') : '⏳ ' + remH + ' h'}</div>`;
+            });
+            newHTML += `<div class="card"><div class="item-icon">🪤</div><div><strong>${lang==='en'?'Set snares':'Nalíčená oka'} (${traps.length}/3)</strong>${trapLines || `<div class="text-sm">${lang==='en'?'None set.':'Žádné nalíčeno.'}</div>`}</div><div style="display:flex;flex-direction:column;gap:4px;">
+                <button class="action-btn" onclick="Game.setSnare()" ${snareInv > 0 && traps.length < 3 ? '' : 'disabled'}>${lang==='en'?'Set':'Nalíčit'} (${snareInv})</button>
+                <button class="action-btn" onclick="Game.collectSnares()" ${readyCnt > 0 ? '' : 'disabled'}>${lang==='en'?'Collect':'Sebrat'} (${readyCnt})</button>
+            </div></div>`;
+            if (caughtInv > 0) {
+                const hasKnife = (GameState.inventory['stone_knife'] || 0) > 0;
+                newHTML += `<div class="card"><div class="item-icon">🐿️</div><div><strong>${lang==='en'?'Caught small game':'Ulovená drobná zvěř'} (${caughtInv})</strong><div class="text-sm">${lang==='en'?'Dress with a knife: wild meat + fat + scraps (bone by chance). Or sell whole to the Hunter.':'Zpracuj nožem: divoké maso + tuk + zbytky (kost s šancí). Nebo prodej vcelku Lovci.'}</div></div><button class="action-btn" onclick="Game.processCaughtGame()" ${hasKnife ? '' : 'disabled'}>🔪 ${lang==='en'?'Dress ×1':'Zpracovat ×1'}</button></div>`;
+            }
+        }
+
         if (el.innerHTML !== newHTML) el.innerHTML = newHTML;
     },
 

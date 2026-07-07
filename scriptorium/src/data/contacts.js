@@ -78,7 +78,9 @@ const ContactsDB = {
         primaryAxis: 'village',
         secondaryAxis: null,
         unlockTech: 'tech_de_animalibus',     // NÁVRH (znalost zvěře) — TBD potvrdit, alternativa: scavenge hunt flag
-        sellBonus: {},
+        sellBonus: { items: { meat: 2, hide: null, leather: null, caught_small_game: 3 } }, // L2: Divoké maso exkluzivně (mimo trh), kůže z BASE_PRICES; fat/bone záměrně mimo (craft užití)
+        // L3a: exkluzivní nabídka — oko až od vztahu ≥ 25 (MRD bod 8 mechanismus)
+        buyOffer: { items: { snare: { price: 5, stock: 3, minRelation: 25 } } },
         desc: 'Lovec drobné zvěře. Velká zvěř patří pánům — on to ví nejlíp.',
         desc_en: 'A hunter of small game. The big game belongs to the lords — he knows it best.'
     },
@@ -87,7 +89,23 @@ const ContactsDB = {
         primaryAxis: 'scholars',
         secondaryAxis: null,
         unlockTech: 'tech_czech_glass',       // existuje
-        sellBonus: {},                        // Sklář hlavně PRODÁVÁ (lab. sklo, spotřební) — nákupní kanál, viz MRD 1.6b TODO
+        unlockBook: 'book_czech_glass',       // dvojitý gate (schváleno 7.7.): tech = umíš, kniha = víš o hutích
+        sellBonus: {},                        // Sklář jen prodává — výkup nemá
+        // V4 — nabídka: běžné kusy denně; speciality přes ZAKÁZKY (glassOrders níže)
+        buyOffer: { items: { glass_stopper: { price: 3,  stock: 5 },
+                             glass_flask:   { price: 6,  stock: 3 },
+                             glass_goblet:  { price: 8,  stock: 2 },
+                             glass_tankard: { price: 8,  stock: 2 },
+                             glass_jug:     { price: 9,  stock: 2 },
+                             glass_bowl:    { price: 10, stock: 2 },
+                             glass_pitcher: { price: 12, stock: 1 },
+                             fly_trap_glass:{ price: 7,  stock: 1 } } },
+        // V4/S2 — zakázky: 48 h, 50 % záloha, vztahové gaty, +2 vztah za dokončení
+        glassOrders: { vaza:     { itemId: 'glass_vase',        price: 14, minRelation: 0  },
+                       tercik:   { itemId: 'window_roundel',    price: 15, minRelation: 0  },
+                       alembik:  { itemId: 'alembic',           price: 25, minRelation: 25 },
+                       pateriky: { itemId: 'paternoster_beads', price: 18, minRelation: 30 },
+                       zrcadlo:  { itemId: 'glass_mirror',      price: 40, minRelation: 50 } },
         desc: 'Sklář z hutě v lesích. Alembiky a křivule pro učené — křehké zboží, stálý odbyt.',
         desc_en: 'A glassmaker from a forest works. Alembics and retorts for the learned — fragile goods, steady trade.'
     }

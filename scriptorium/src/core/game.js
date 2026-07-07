@@ -538,6 +538,8 @@ const Game = {
                     if (typeof ScriptoriumCat !== 'undefined' && ScriptoriumCat.miceTick) ScriptoriumCat.miceTick();
                     // Decay — denní kažení zásob (self-guarded 24h, gate tech_inventarium)
                     if (typeof DecaySystem !== 'undefined' && DecaySystem.dailyTick) DecaySystem.dailyTick();
+                    // Vitrea — startovní pool (jednorázově) + denní opotřebení vybavení (self-guarded 24h)
+                    if (typeof Game !== 'undefined' && Game.vitreaGrantStartPool) { Game.vitreaGrantStartPool(); Game.vitreaWearTick(); }
                     // Caseus — denní zrání sýra (self-guarded 24h, gate tech_caseus)
                     if (typeof CheeseSystem !== 'undefined' && CheeseSystem.dailyTick) CheeseSystem.dailyTick();
                     // Conversi — automatické úklidové úkoly (self-guarded 24h přes cleanPen)
@@ -3639,6 +3641,99 @@ const Game = {
         if (typeof UI !== 'undefined' && UI.renderAll) UI.renderAll();
     },
 
+    // ── VITREA V1: startovní pool + denní opotřebení (MRD vitrea-equipment-reference.md) ──
+    VITREA_BREAKABLE: ['glass_stopper','glass_flask','fly_trap_glass','glass_goblet','glass_tankard','glass_jug','glass_bowl','glass_pitcher','glass_vase','window_roundel','paternoster_beads','alembic','glass_mirror'],
+
+    vitreaGrantStartPool: function() {
+        if (GameState.vitreaGranted) return;
+        GameState.vitreaGranted = true;
+        // Klášter začíná s vybavením (~18 ks); alembik záměrně NE — hard gate přes Skláře
+        this.addItem('glass_bowl', 3);
+        this.addItem('glass_jug', 3);
+        this.addItem('glass_goblet', 4);
+        this.addItem('glass_pitcher', 1);
+        this.addItem('glass_stopper', 5);
+        this.addItem('glass_flask', 2);
+        Game.save();
+    },
+
+    vitreaWearTick: function() {
+        const last = GameState.vitreaLastWear || 0;
+        if (Date.now() - last < 24 * 60 * 60 * 1000) return;
+        GameState.vitreaLastWear = Date.now();
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        const conversiCnt = (GameState.conversi || []).length;
+        const jilji = (GameState.conversi || []).some(k => k.rosterId === 'k_jilji');
+        const chance = Math.min(0.35, 0.05 + 0.02 * conversiCnt + (jilji ? 0.05 : 0));
+        if (Math.random() >= chance) { Game.save(); return; }
+        const owned = this.VITREA_BREAKABLE.filter(id => (GameState.inventory[id] || 0) > 0);
+        if (!owned.length) { Game.save(); return; }
+        const victim = owned[Math.floor(Math.random() * owned.length)];
+        this.removeItem(victim, 1);
+        const itemName = (typeof iName === 'function') ? iName(victim) : victim;
+        const blameJilji = jilji && Math.random() < 0.5;
+        if (typeof UI !== 'undefined' && UI.notifyPanel) {
+            UI.notifyPanel('💥 ' + (lang==='en'
+                ? itemName + ' broke' + (blameJilji ? ' — Jiljí swears it slipped by itself.' : '.')
+                : itemName + ' se rozbil' + (blameJilji ? ' — Jiljí přísahá, že to vyklouzlo samo.' : '.')), 'warning');
+        }
+        Game.addKronikaEntry('minor',
+            '💥 Rozbil se kus vybavení: ' + itemName + (blameJilji ? '. Jiljí u toho byl. Samozřejmě.' : '.'),
+            '💥 A piece of equipment broke: ' + itemName + (blameJilji ? '. Jiljí was there. Of course.' : '.'),
+            '💥 Vas fractum est.');
+        Game.save();
+    },
+
+    // ── L3b: Oka na drobnou zvěř (Lovec řetěz). Paralelní k noži — aktivní lov (tuk gate) NEDOTČEN. ──
+    SNARE_MS: 12 * 60 * 60 * 1000,
+    SNARE_BREAK_CHANCE: 0.4,
+
+    setSnare: function() {
+        if ((GameState.inventory['snare'] || 0) <= 0) { UI.notify('⚠️ Nemáš žádné oko.', true); return; }
+        if (!GameState.snareTraps) GameState.snareTraps = [];
+        if (GameState.snareTraps.length >= 3) { UI.notify('⚠️ Víc než 3 oka najednou nelíčíš.', true); return; }
+        this.removeItem('snare', 1);
+        GameState.snareTraps.push({ readyAt: Date.now() + this.SNARE_MS });
+        Game.save();
+        UI.notify('🪤 Oko nalíčeno. Vrať se za 12 hodin.');
+        UI.renderScavengeActions();
+    },
+
+    collectSnares: function() {
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        if (!GameState.snareTraps) GameState.snareTraps = [];
+        const now = Date.now();
+        const ready = GameState.snareTraps.filter(s => now >= s.readyAt);
+        if (!ready.length) return;
+        GameState.snareTraps = GameState.snareTraps.filter(s => now < s.readyAt);
+        let caught = 0, returned = 0, broken = 0;
+        ready.forEach(() => {
+            caught++;
+            this.addItem('caught_small_game', 1);
+            if (Math.random() < this.SNARE_BREAK_CHANCE) broken++;
+            else { returned++; this.addItem('snare', 1); }
+        });
+        Game.save();
+        UI.notify('🐿️ ' + (lang==='en'
+            ? 'Snares: ' + caught + ' catch(es), ' + broken + ' snare(s) broken.'
+            : 'Oka: úlovky ' + caught + ', zničená oka ' + broken + '.'));
+        UI.renderScavengeActions();
+    },
+
+    processCaughtGame: function() {
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        if ((GameState.inventory['caught_small_game'] || 0) <= 0) return;
+        if ((GameState.inventory['stone_knife'] || 0) <= 0) { UI.notify('⚠️ ' + (lang==='en'?'You need a knife.':'Potřebuješ nůž.'), true); return; }
+        this.removeItem('caught_small_game', 1);
+        this.addItem('meat', 1);      // Divoké maso
+        this.addItem('fat', 1);
+        this.addItem('scraps', 1);    // zbytky — krmivo (B3 vazba)
+        if (Math.random() < 0.5) this.addItem('bone', 1);
+        Game.save();
+        UI.notify('🔪 ' + (lang==='en' ? 'Dressed: wild meat, fat, scraps.' : 'Zpracováno: divoké maso, tuk, zbytky.'));
+        UI.renderScavengeActions();
+    },
+
     checkAbbotPetitions: function() {
         if (!GameState.abbotPetition) return;
         const lang = (GameState.settings && GameState.settings.language) || 'cs';
@@ -3822,13 +3917,30 @@ const Game = {
         if (Date.now() - lastMeal < 24 * 60 * 60 * 1000) return;
         const lang = (GameState.settings && GameState.settings.language) || 'cs';
         const inv = GameState.inventory || {};
+        // V2: nádobí = kapacita (nespotřebovává se). Sklo/keramika = plný efekt, dřevo = základ, bez nádobí = minimum.
+        const TABLE_GLASS = ['glass_goblet','glass_tankard','glass_jug','glass_bowl','glass_pitcher'];
+        const glassCap = TABLE_GLASS.reduce((s, id) => s + (inv[id] || 0), 0);
+        const woodCap  = inv['wooden_bowl'] || 0;
         const fed = [], unfed = [];
+        const dish = { glass: 0, wood: 0, none: 0 };
+        let servedIdx = 0;
         GameState.conversi.forEach(k => {
             const foodId = this.REFECTORY_FOODS.find(f => (inv[f] || 0) > 0);
             if (foodId) {
                 inv[foodId] -= 1;
-                k.fatigue = Math.max(0, k.fatigue - 10);
-                k.mood = Math.min(100, k.mood + 3);
+                if (servedIdx < glassCap) {
+                    k.fatigue = Math.max(0, k.fatigue - 10);
+                    k.mood = Math.min(100, k.mood + 3);
+                    dish.glass++;
+                } else if (servedIdx < glassCap + woodCap) {
+                    k.fatigue = Math.max(0, k.fatigue - 5);
+                    k.mood = Math.min(100, k.mood + 2);
+                    dish.wood++;
+                } else {
+                    k.fatigue = Math.max(0, k.fatigue - 3);
+                    dish.none++;
+                }
+                servedIdx++;
                 fed.push(k.name);
             } else {
                 k.mood = Math.max(0, k.mood - 8);
@@ -3836,11 +3948,12 @@ const Game = {
                 unfed.push(k.name);
             }
         });
-        GameState.conversiMealLog = { ts: Date.now(), fed: fed, unfed: unfed };
+        GameState.conversiMealLog = { ts: Date.now(), fed: fed, unfed: unfed, dish: dish };
         GameState.conversiLastMeal = Date.now();
         if (typeof UI !== 'undefined' && UI.notifyPanel) {
             if (unfed.length === 0) {
-                UI.notifyPanel('🍲 ' + (lang==='en' ? 'The refectory served all the brothers.' : 'Refektář nasytil všechny bratry.'), 'success');
+                const handNote = dish.none > 0 ? (lang==='en' ? ' Some ate from their hands — dishes are short.' : ' Část jedla z ruky — nádobí nestačí.') : '';
+                UI.notifyPanel('🍲 ' + (lang==='en' ? 'The refectory served all the brothers.' : 'Refektář nasytil všechny bratry.') + handNote, dish.none > 0 ? 'warning' : 'success');
             } else {
                 UI.notifyPanel('🍲 ' + (lang==='en'
                     ? 'The refectory is short of food — hungry: ' + unfed.join(', ')

@@ -149,7 +149,7 @@ const TechTree = [
     cost: 8,
     desc: "Klášterní tesař byl nepostradatelný. Sekera, dláto a pila — z větví dělal fošny, z kamene tesané kvádry. Bez tesaře nestojí ani studna, ani sýpka, ani sklep. Odemkne: Fošna (plank) a Tesaný kámen (cut_stone).",
     desc_en: "The monastic carpenter was indispensable. Axe, chisel, and saw — from branches he made planks, from stone he cut blocks. Without the carpenter, neither well nor granary nor cellar stands. Unlocks: Plank and Cut Stone.",
-    unlocks: ["plank", "plank_from_log", "cut_stone", "log", "stone_saw"], requires: ["tech_writing_basics"]
+    unlocks: ["plank", "plank_from_log", "cut_stone", "log", "stone_saw", "wooden_bowl"], requires: ["tech_writing_basics"]
   },
 
   {

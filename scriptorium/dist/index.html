@@ -5343,7 +5343,7 @@ const ItemsDB = {
     "holy_water": { name: "Svěcená voda", name_en: "Holy Water", icon: "✨", type: "food", desc: "Posvěcená voda z požehnané studny. Nejčistší, jakou lze získat.", desc_en: "Blessed water from a consecrated well. The purest water obtainable." },
     "herb_red": { name: "Krvavý květ", name_en: "Bloodwort", icon: "🌺", type: "mat", desc: "Bylina.", desc_en: "A red healing herb." },
     "fat": { name: "Tuk", name_en: "Fat", icon: "🥩", type: "mat", desc: "Zvířecí tuk.", desc_en: "Animal fat." },
-    "meat": { name: "Maso", name_en: "Meat", icon: "🍖", type: "food_raw", desc: "Surové maso.", desc_en: "Raw meat." },
+    "meat": { name: "Divoké maso", name_en: "Wild Game Meat", icon: "🍖", type: "food_raw", desc: "Syrové maso z ulovené zvěře. K vaření, ne k prodeji na trhu.", desc_en: "Raw meat from hunted game. For cooking, not for the market stall." },
     "crayfish": { name: "Raci", name_en: "Crayfish", icon: "🦞", type: "food_raw", desc: "Sladkovodní raci z mokřadu.", desc_en: "Freshwater crayfish from the wetlands." },
     "snail": { name: "Hlemýždi", name_en: "Snails", icon: "🐌", type: "food_raw", desc: "Hlemýždi s ulitou. Jiní tvorové než slimák.", desc_en: "Shelled snails. A different creature from the slug." },
     "frog_legs": { name: "Žabí stehýnka", name_en: "Frog Legs", icon: "🍗", type: "food_raw", desc: "Stažená stehýnka ze žáby.", desc_en: "Skinned frog legs." },
@@ -5831,6 +5831,24 @@ const ItemsDB = {
     "acorns": { name: "Žaludy", name_en: "Acorns", icon: "🌰", type: "mat", desc: "Lesní plody z dubu. Krmivo pro prasata. Sbírají se na podzim.", desc_en: "Oak fruits from the forest. Pig fodder. Gathered in autumn." },
     "leaves": { name: "Listí", name_en: "Leaves", icon: "🍃", type: "mat", desc: "Čerstvé listí stromů. Oblíbená pochutina koz.", desc_en: "Fresh tree leaves. A favourite treat for goats." },
     "scraps": { name: "Zbytky", name_en: "Scraps", icon: "🍖", type: "mat", desc: "Kuchyňské zbytky. Prasata sní vše.", desc_en: "Kitchen scraps. Pigs eat everything." },
+    "snare": { name: "Oko na drobnou zvěř", name_en: "Small Game Snare", icon: "🪤", type: "tool", desc: "Drátěné oko od Lovce. Na plchy, veverky a ptáky — velká zvěř patří pánům.", desc_en: "A wire snare from the Hunter. For dormice, squirrels and birds — big game belongs to the lords." },
+    "caught_small_game": { name: "Ulovená drobná zvěř", name_en: "Caught Small Game", icon: "🐿️", type: "mat", desc: "Úlovek z oka. Prodej Lovci vcelku, nebo zpracuj nožem na maso, tuk a zbytky.", desc_en: "A snare catch. Sell whole to the Hunter, or dress it with a knife for meat, fat and scraps." },
+
+    // ── VITREA: klášterní vybavení (MRD vitrea-equipment-reference.md) ──
+    "wooden_bowl": { name: "Dřevěná miska", name_en: "Wooden Bowl", icon: "🥣", type: "tool", desc: "Řezaná z fošny. Nerozbitná. Základ klášterního stolu — sklo je luxus.", desc_en: "Carved from a plank. Unbreakable. The staple of the monastic table — glass is a luxury." },
+    "glass_stopper": { name: "Špunty", name_en: "Glass Stoppers", icon: "🔘", type: "tool", desc: "Skleněné zátky na láhve a baňky.", desc_en: "Glass stoppers for bottles and flasks." },
+    "glass_flask": { name: "Baňka", name_en: "Glass Flask", icon: "⚗️", type: "tool", desc: "Laboratorní sklo pro Athanor. Křehké — praská žárem.", desc_en: "Laboratory glass for the Athanor. Fragile — heat cracks it." },
+    "fly_trap_glass": { name: "Mucholapka", name_en: "Glass Fly Trap", icon: "🫙", type: "tool", desc: "Skleněná past na mouchy se sladkou návnadou. Doložený kus středověké domácnosti.", desc_en: "A glass fly trap with sweet bait. A documented piece of the medieval household." },
+    "glass_goblet": { name: "Číše", name_en: "Glass Goblet", icon: "🥂", type: "tool", desc: "Skleněná číše na víno. Stolní nádobí lepších dnů.", desc_en: "A glass goblet for wine. Tableware for better days." },
+    "glass_tankard": { name: "Půllitr", name_en: "Glass Tankard", icon: "🍺", type: "tool", desc: "Silnostěnný skleněný půllitr. Stolní nádobí.", desc_en: "A thick-walled glass tankard. Tableware." },
+    "glass_jug": { name: "Džbán", name_en: "Glass Jug", icon: "🏺", type: "tool", desc: "Džbán na vodu i víno. Stolní nádobí.", desc_en: "A jug for water and wine. Tableware." },
+    "glass_bowl": { name: "Mísa", name_en: "Glass Bowl", icon: "🫕", type: "tool", desc: "Skleněná mísa. Stolní nádobí.", desc_en: "A glass bowl. Tableware." },
+    "glass_pitcher": { name: "Konvice", name_en: "Glass Pitcher", icon: "🫖", type: "tool", desc: "Konvice se skleněným tělem. Stolní nádobí.", desc_en: "A pitcher with a glass body. Tableware." },
+    "glass_vase": { name: "Váza", name_en: "Glass Vase", icon: "🏵️", type: "tool", desc: "Ozdobná váza. Krása má v klášteře své místo.", desc_en: "A decorative vase. Beauty has its place in a monastery." },
+    "window_roundel": { name: "Okenní terčík", name_en: "Window Roundel", icon: "🟡", type: "tool", desc: "Kulatý terčík do olova okenní výplně. Světlo dovnitř, zima ven.", desc_en: "A round pane set in lead. Light in, cold out." },
+    "paternoster_beads": { name: "Páteříky", name_en: "Paternoster Beads", icon: "📿", type: "tool", desc: "Skleněné růžencové korálky. Sklářská pýcha českých hutí.", desc_en: "Glass rosary beads. The pride of Bohemian glassworks." },
+    "alembic": { name: "Alembik", name_en: "Alembic", icon: "⚗️", type: "tool", desc: "Destilační nádoba z čirého skla. Bez alembiku není destilace.", desc_en: "A distillation vessel of clear glass. No alembic, no distillation." },
+    "glass_mirror": { name: "Zrcadlo", name_en: "Glass Mirror", icon: "🪞", type: "tool", desc: "Broušené zrcadlo — vzácnost hodná biskupského stolu.", desc_en: "A polished mirror — a rarity fit for a bishop's table." },
 
     // ── PRODUKTY NOVÝCH ZVÍŘAT (easter eggs — zvířata teprve přijdou) ────────
     "goat_hide": { name: "Kozí kůže", name_en: "Goat Hide", icon: "🐐", type: "mat", desc: "Kozí kůže poskytuje nejkvalitnější pergamen — tenký, pevný, málo mastný. Italské kláštery ho znaly jako standard.", desc_en: "Goat hide yields the finest parchment — thin, strong, little grease. Italian monasteries knew it as the standard." },
@@ -5994,6 +6012,7 @@ const RecipesDB = [
     { id: "basket", output: "basket", qty: 1, req: { "fiber": 5, "stick": 2 }, cat: "craft", locked: true },
 
     // LACTARIA — zpracování mléka (tech_lactaria)
+    { id: "wooden_bowl", output: "wooden_bowl", qty: 2, req: { "plank": 1 },                cat: "craft", locked: true },
     { id: "mousetrap", output: "mousetrap", qty: 1, req: { "plank": 2, "rope": 1 },          cat: "craft", locked: true },
     { id: "churn",  output: "churn",  qty: 1, req: { "plank": 5, "rope": 2 },               cat: "craft", locked: true },
     { id: "cream",  output: "cream",  qty: 1, req: { "goat_milk": 2 },                      cat: "food",  locked: true },
@@ -7530,7 +7549,7 @@ const TechTree = [
     cost: 8,
     desc: "Klášterní tesař byl nepostradatelný. Sekera, dláto a pila — z větví dělal fošny, z kamene tesané kvádry. Bez tesaře nestojí ani studna, ani sýpka, ani sklep. Odemkne: Fošna (plank) a Tesaný kámen (cut_stone).",
     desc_en: "The monastic carpenter was indispensable. Axe, chisel, and saw — from branches he made planks, from stone he cut blocks. Without the carpenter, neither well nor granary nor cellar stands. Unlocks: Plank and Cut Stone.",
-    unlocks: ["plank", "plank_from_log", "cut_stone", "log", "stone_saw"], requires: ["tech_writing_basics"]
+    unlocks: ["plank", "plank_from_log", "cut_stone", "log", "stone_saw", "wooden_bowl"], requires: ["tech_writing_basics"]
   },
 
   {
@@ -9265,7 +9284,9 @@ const ContactsDB = {
         primaryAxis: 'village',
         secondaryAxis: null,
         unlockTech: 'tech_de_animalibus',     // NÁVRH (znalost zvěře) — TBD potvrdit, alternativa: scavenge hunt flag
-        sellBonus: {},
+        sellBonus: { items: { meat: 2, hide: null, leather: null, caught_small_game: 3 } }, // L2: Divoké maso exkluzivně (mimo trh), kůže z BASE_PRICES; fat/bone záměrně mimo (craft užití)
+        // L3a: exkluzivní nabídka — oko až od vztahu ≥ 25 (MRD bod 8 mechanismus)
+        buyOffer: { items: { snare: { price: 5, stock: 3, minRelation: 25 } } },
         desc: 'Lovec drobné zvěře. Velká zvěř patří pánům — on to ví nejlíp.',
         desc_en: 'A hunter of small game. The big game belongs to the lords — he knows it best.'
     },
@@ -9274,7 +9295,23 @@ const ContactsDB = {
         primaryAxis: 'scholars',
         secondaryAxis: null,
         unlockTech: 'tech_czech_glass',       // existuje
-        sellBonus: {},                        // Sklář hlavně PRODÁVÁ (lab. sklo, spotřební) — nákupní kanál, viz MRD 1.6b TODO
+        unlockBook: 'book_czech_glass',       // dvojitý gate (schváleno 7.7.): tech = umíš, kniha = víš o hutích
+        sellBonus: {},                        // Sklář jen prodává — výkup nemá
+        // V4 — nabídka: běžné kusy denně; speciality přes ZAKÁZKY (glassOrders níže)
+        buyOffer: { items: { glass_stopper: { price: 3,  stock: 5 },
+                             glass_flask:   { price: 6,  stock: 3 },
+                             glass_goblet:  { price: 8,  stock: 2 },
+                             glass_tankard: { price: 8,  stock: 2 },
+                             glass_jug:     { price: 9,  stock: 2 },
+                             glass_bowl:    { price: 10, stock: 2 },
+                             glass_pitcher: { price: 12, stock: 1 },
+                             fly_trap_glass:{ price: 7,  stock: 1 } } },
+        // V4/S2 — zakázky: 48 h, 50 % záloha, vztahové gaty, +2 vztah za dokončení
+        glassOrders: { vaza:     { itemId: 'glass_vase',        price: 14, minRelation: 0  },
+                       tercik:   { itemId: 'window_roundel',    price: 15, minRelation: 0  },
+                       alembik:  { itemId: 'alembic',           price: 25, minRelation: 25 },
+                       pateriky: { itemId: 'paternoster_beads', price: 18, minRelation: 30 },
+                       zrcadlo:  { itemId: 'glass_mirror',      price: 40, minRelation: 50 } },
         desc: 'Sklář z hutě v lesích. Alembiky a křivule pro učené — křehké zboží, stálý odbyt.',
         desc_en: 'A glassmaker from a forest works. Alembics and retorts for the learned — fragile goods, steady trade.'
     }
@@ -17397,6 +17434,8 @@ const SaeculumSystem = {
     const c = ContactsDB[contactId];
     const offer = c && c.buyOffer && c.buyOffer.items && c.buyOffer.items[itemId];
     if (!offer) return;
+    // Exkluzivní nabídka: gate na vztah (MRD bod 8)
+    if (offer.minRelation && ((GameState.contactRelation || {})[contactId] || 0) < offer.minRelation) return;
     const soldToday = this._contactSoldToday(contactId, itemId);
     const left = Math.max(0, offer.stock - soldToday);
     qty = Math.max(0, Math.min(left, qty | 0));
@@ -17412,6 +17451,44 @@ const SaeculumSystem = {
     const lang = (GameState.settings && GameState.settings.language) || 'cs';
     const itemName = (typeof iName === 'function') ? iName(itemId) : itemId;
     UI.notify('🛒 ' + itemName + ' ×' + qty + ' → -' + total + ' g');
+    this.switchEntity('clientela');
+  },
+
+  // V4/S2: Zakázky u kontaktu (Sklář) — 1 slot, 48 h, 50 % záloha, doplatek při vyzvednutí, +2 vztah
+  GLASS_ORDER_MS: 48 * 60 * 60 * 1000,
+
+  orderFromContact: function(contactId, orderKey) {
+    if (typeof ContactsDB === 'undefined') return;
+    const c = ContactsDB[contactId];
+    const ord = c && c.glassOrders && c.glassOrders[orderKey];
+    if (!ord) return;
+    if (GameState.glassOrder && !GameState.glassOrder.collected) { UI.notify('⚠️ Zakázka už běží — jedna najednou.', true); return; }
+    const rel = (GameState.contactRelation || {})[contactId] || 0;
+    if (ord.minRelation && rel < ord.minRelation) return;
+    const deposit = Math.ceil(ord.price / 2);
+    if (CellariumSystem.getGrose() < deposit) { UI.notify('⚠️ Non habes sufficiens! Záloha ' + deposit + ' g.', true); return; }
+    CellariumSystem.addGrose(-deposit);
+    GameState.glassOrder = { contactId: contactId, itemId: ord.itemId, price: ord.price, deposit: deposit, readyAt: Date.now() + this.GLASS_ORDER_MS };
+    Game.save();
+    const itemName = (typeof iName === 'function') ? iName(ord.itemId) : ord.itemId;
+    UI.notify('🔮 Zakázka přijata: ' + itemName + '. Hotovo za 48 h. Záloha ' + deposit + ' g.');
+    this.switchEntity('clientela');
+  },
+
+  collectGlassOrder: function() {
+    const o = GameState.glassOrder;
+    if (!o || Date.now() < o.readyAt) return;
+    const rest = o.price - o.deposit;
+    if (CellariumSystem.getGrose() < rest) { UI.notify('⚠️ Doplatek ' + rest + ' g. Zakázka trpělivě čeká.', true); return; }
+    CellariumSystem.addGrose(-rest);
+    Game.addItem(o.itemId, 1);
+    CellariumSystem.recordTransaction('buy', o.itemId, 1, o.price, o.contactId);
+    this.addContactRelation(o.contactId, 2);
+    const itemName = (typeof iName === 'function') ? iName(o.itemId) : o.itemId;
+    GameState.glassOrder = null;
+    Game.save();
+    UI.notify('🔮 Zakázka vyzvednuta: ' + itemName + '.');
+    Game.addKronikaEntry('minor', '🔮 Sklář dodal zakázku: ' + itemName + '.', '🔮 The glassmaker delivered a commission: ' + itemName + '.', '🔮 Opus vitreum traditum est.');
     this.switchEntity('clientela');
   },
 
@@ -17433,7 +17510,8 @@ const SaeculumSystem = {
     h += `<div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(150px, 1fr)); gap:8px;">`;
     Object.keys(ContactsDB).forEach(id => {
       const c = ContactsDB[id];
-      const unlocked = !c.unlockTech || researched.includes(c.unlockTech);
+      const unlocked = (!c.unlockTech || researched.includes(c.unlockTech))
+                    && (!c.unlockBook || (GameState.library && GameState.library.readBooks && GameState.library.readBooks.includes(c.unlockBook)));
       const r = Math.min(100, Math.round(rel[id] || 0));
       if (unlocked) {
         const rColor = r >= 75 ? '#5a9a5a' : r >= 40 ? 'var(--accent-gold)' : 'var(--ink-secondary)';
@@ -17499,8 +17577,14 @@ const SaeculumSystem = {
     if (offerItems && Object.keys(offerItems).length) {
       Object.keys(offerItems).forEach(itemId => {
         const o = offerItems[itemId];
-        const left = Math.max(0, o.stock - this._contactSoldToday(id, itemId));
         const itemName = (typeof iName === 'function') ? iName(itemId) : itemId;
+        if (o.minRelation && r < o.minRelation) {
+          h += `<div style="display:flex; align-items:center; gap:6px; font-size:0.78rem; margin-bottom:6px; opacity:0.5;">
+                  <span style="flex:1;">🔒 ${itemName} <span style="opacity:0.7; font-style:italic;">(${lang==='en'?'from relation':'od vztahu'} ${o.minRelation})</span></span>
+                </div>`;
+          return;
+        }
+        const left = Math.max(0, o.stock - this._contactSoldToday(id, itemId));
         const grose = CellariumSystem.getGrose();
         h += `<div style="display:flex; align-items:center; gap:6px; font-size:0.78rem; margin-bottom:6px;">
                 <span style="flex:1;">${itemName} <span style="opacity:0.6;">(${o.price} g/${lang==='en'?'pc':'ks'} · ${lang==='en'?'stock':'skladem'} ${left})</span></span>
@@ -17539,6 +17623,38 @@ const SaeculumSystem = {
     h += `</div>`;
 
     h += `</div>`; // konec sloupců
+
+    // 🔮 Zakázky (V4/S2) — jen kontakt s glassOrders
+    if (c.glassOrders && Object.keys(c.glassOrders).length) {
+      h += `<div style="margin-top:14px;"><div style="font-size:0.7rem; font-weight:bold; letter-spacing:0.08em; text-transform:uppercase; color:var(--accent-gold); margin-bottom:8px; padding-bottom:4px; border-bottom:2px solid var(--accent-gold);">🔮 ${lang==='en'?'COMMISSIONS':'ZAKÁZKY'} <span style="opacity:0.6; font-weight:normal; text-transform:none;">(48 h · ${lang==='en'?'50 % deposit':'50 % záloha'})</span></div>`;
+      const o = GameState.glassOrder;
+      if (o) {
+        const remH = Math.max(0, Math.ceil((o.readyAt - Date.now()) / 3600000));
+        const oName = (typeof iName === 'function') ? iName(o.itemId) : o.itemId;
+        if (remH > 0) {
+          h += `<div style="font-size:0.78rem;">⏳ ${lang==='en'?'In work':'V práci'}: ${oName} — ${lang==='en'?'ready in':'hotovo za'} <strong>${remH} h</strong></div>`;
+        } else {
+          const rest = o.price - o.deposit;
+          h += `<div style="font-size:0.78rem; margin-bottom:6px;">✅ ${oName} ${lang==='en'?'is ready':'je hotov'} — ${lang==='en'?'balance due':'doplatek'} ${rest} g</div>
+                <button class="craft-btn" onclick="SaeculumSystem.collectGlassOrder()">📦 ${lang==='en'?'Collect':'Vyzvednout'}</button>`;
+        }
+      } else {
+        Object.keys(c.glassOrders).forEach(key => {
+          const ord = c.glassOrders[key];
+          const itemName = (typeof iName === 'function') ? iName(ord.itemId) : ord.itemId;
+          if (ord.minRelation && r < ord.minRelation) {
+            h += `<div style="font-size:0.78rem; margin-bottom:5px; opacity:0.5;">🔒 ${itemName} <span style="opacity:0.7; font-style:italic;">(${lang==='en'?'from relation':'od vztahu'} ${ord.minRelation})</span></div>`;
+            return;
+          }
+          const deposit = Math.ceil(ord.price / 2);
+          h += `<div style="display:flex; align-items:center; gap:6px; font-size:0.78rem; margin-bottom:5px;">
+                  <span style="flex:1;">${itemName} <span style="opacity:0.6;">(${ord.price} g · ${lang==='en'?'deposit':'záloha'} ${deposit} g)</span></span>
+                  <button class="craft-btn" style="padding:2px 8px; font-size:0.7rem;" ${CellariumSystem.getGrose() >= deposit ? '' : 'disabled'} onclick="SaeculumSystem.orderFromContact('${id}','${key}')">${lang==='en'?'Order':'Objednat'}</button>
+                </div>`;
+        });
+      }
+      h += `</div>`;
+    }
 
     // Mola blok — Mlynář od tier 3 (integrace, mechanika sendToMill/collectFromMill beze změny)
     if (id === 'mlynar') {
@@ -17592,6 +17708,12 @@ const SaeculumSystem = {
     h += `<div style="font-size:0.72rem; opacity:0.65; margin-bottom:6px;">${lang==='en'
         ? 'One portion of plain fare per brother per day. Feasts (pies, roasts) are never touched.'
         : 'Jedna porce prosté stravy na bratra denně. Sváteční jídlo (koláče, pečeně) refektář nebere.'}</div>`;
+    // V2: nádobí — kapacita vs. počet bratrů
+    const _TG = ['glass_goblet','glass_tankard','glass_jug','glass_bowl','glass_pitcher'];
+    const _glassCap = _TG.reduce((s, id) => s + (GameState.inventory[id] || 0), 0);
+    const _woodCap = GameState.inventory['wooden_bowl'] || 0;
+    const _short = Math.max(0, list.length - _glassCap - _woodCap);
+    h += `<div style="font-size:0.76rem; margin-bottom:6px; ${_short > 0 ? 'color:#c0392b;' : ''}">🍽️ ${lang==='en'?'Dishes':'Nádobí'}: ${lang==='en'?'glass':'sklo'} ${_glassCap} · ${lang==='en'?'wood':'dřevo'} ${_woodCap}${_short > 0 ? ` · ${lang==='en'?'short for':'chybí pro'} ${_short}` : ''}</div>`;
     const log = GameState.conversiMealLog;
     if (log) {
       const when = new Date(log.ts).toLocaleDateString(lang==='en'?'en-GB':'cs-CZ');
@@ -24707,7 +24829,8 @@ const PersonaSystem = {
             let lockedCount = 0;
             Object.keys(ContactsDB).forEach(id => {
                 const c = ContactsDB[id];
-                const unlocked = !c.unlockTech || researched.includes(c.unlockTech);
+                const unlocked = (!c.unlockTech || researched.includes(c.unlockTech))
+                              && (!c.unlockBook || (GameState.library && GameState.library.readBooks && GameState.library.readBooks.includes(c.unlockBook)));
                 if (!unlocked) { lockedCount++; return; }
                 const r = Math.min(100, Math.round(rel[id] || 0));
                 const rColor = r >= 75 ? '#5a9a5a' : r >= 40 ? 'var(--accent-gold)' : 'var(--ink-secondary)';
@@ -26864,6 +26987,18 @@ const AthanorSystem = {
       return;
     }
 
+    // VITREA V3: destilace vyžaduje alembik (nástroj) + 1 baňku (spotřební) za běh
+    if (state.activeProcess === 'destillatio') {
+      if ((GameState.inventory['alembic'] || 0) <= 0) {
+        UI.notify('⚗️ Destilace vyžaduje alembik. Sklář ho dodá.', true);
+        return;
+      }
+      if ((GameState.inventory['glass_flask'] || 0) <= 0) {
+        UI.notify('⚗️ Destilace vyžaduje baňku (spotřebuje se).', true);
+        return;
+      }
+    }
+
     // Zkontroluj inventář
     const counts = {};
     slots.forEach(id => { counts[id] = (counts[id] || 0) + 1; });
@@ -26879,6 +27014,8 @@ const AthanorSystem = {
     for (const [id, qty] of Object.entries(counts)) {
       Game.removeItem(id, qty);
     }
+    // VITREA V3: destilace spotřebuje 1 baňku
+    if (state.activeProcess === 'destillatio') Game.removeItem('glass_flask', 1);
 
     const process = AthanorDB.processes.find(p => p.id === state.activeProcess);
     const duration = process ? process.duration_ms : 10000;
@@ -26903,6 +27040,15 @@ const AthanorSystem = {
     const { slots, processId } = state.brewing;
     state.brewing = null;
     state.slots = [];
+
+    // VITREA V3: po destilaci 10% šance, že alembik praskne (náhrada u Skláře)
+    if (processId === 'destillatio' && (GameState.inventory['alembic'] || 0) > 0 && Math.random() < 0.10) {
+      Game.removeItem('alembic', 1);
+      if (typeof UI !== 'undefined' && UI.notifyPanel) {
+        UI.notifyPanel('💥 Alembik žárem praskl. Sklář má náhradní — za groše.', 'warning');
+      }
+      Game.addKronikaEntry('minor', '💥 Alembik praskl při destilaci.', '💥 The alembic cracked during distillation.', '💥 Alembicum fractum est.');
+    }
 
     const result = CombinationEngine.evaluate(slots, processId);
 
@@ -27390,7 +27536,10 @@ const AthanorSystem = {
   buildProcessBtn(process, state) {
     const isActive = state.activeProcess === process.id;
     const isBrewing = !!state.brewing;
-    const isLocked = process.unlock && !(GameState.researchedTechs && GameState.researchedTechs.includes(process.unlock));
+    const techLocked = process.unlock && !(GameState.researchedTechs && GameState.researchedTechs.includes(process.unlock));
+    const needAlembic = process.id === 'destillatio' && !techLocked && (GameState.inventory['alembic'] || 0) <= 0;
+    const isLocked = techLocked || needAlembic;
+    const lockHint = techLocked ? ' [Zamčeno]' : needAlembic ? ' [Vyžaduje alembik]' : '';
 
     return `
       <button
@@ -27406,7 +27555,7 @@ const AthanorSystem = {
           font-family:inherit;
           opacity:${isLocked ? '0.5' : '1'};
         "
-        title="${process.desc}${isLocked ? ' [Zamčeno]' : ''}"
+        title="${process.desc}${lockHint}"
         ${isLocked || isBrewing ? 'disabled' : ''}
       >${process.icon} ${process.name_cs}${isLocked ? ' 🔒' : ''}</button>
     `;
@@ -37731,6 +37880,8 @@ const Game = {
                     if (typeof ScriptoriumCat !== 'undefined' && ScriptoriumCat.miceTick) ScriptoriumCat.miceTick();
                     // Decay — denní kažení zásob (self-guarded 24h, gate tech_inventarium)
                     if (typeof DecaySystem !== 'undefined' && DecaySystem.dailyTick) DecaySystem.dailyTick();
+                    // Vitrea — startovní pool (jednorázově) + denní opotřebení vybavení (self-guarded 24h)
+                    if (typeof Game !== 'undefined' && Game.vitreaGrantStartPool) { Game.vitreaGrantStartPool(); Game.vitreaWearTick(); }
                     // Caseus — denní zrání sýra (self-guarded 24h, gate tech_caseus)
                     if (typeof CheeseSystem !== 'undefined' && CheeseSystem.dailyTick) CheeseSystem.dailyTick();
                     // Conversi — automatické úklidové úkoly (self-guarded 24h přes cleanPen)
@@ -40832,6 +40983,99 @@ const Game = {
         if (typeof UI !== 'undefined' && UI.renderAll) UI.renderAll();
     },
 
+    // ── VITREA V1: startovní pool + denní opotřebení (MRD vitrea-equipment-reference.md) ──
+    VITREA_BREAKABLE: ['glass_stopper','glass_flask','fly_trap_glass','glass_goblet','glass_tankard','glass_jug','glass_bowl','glass_pitcher','glass_vase','window_roundel','paternoster_beads','alembic','glass_mirror'],
+
+    vitreaGrantStartPool: function() {
+        if (GameState.vitreaGranted) return;
+        GameState.vitreaGranted = true;
+        // Klášter začíná s vybavením (~18 ks); alembik záměrně NE — hard gate přes Skláře
+        this.addItem('glass_bowl', 3);
+        this.addItem('glass_jug', 3);
+        this.addItem('glass_goblet', 4);
+        this.addItem('glass_pitcher', 1);
+        this.addItem('glass_stopper', 5);
+        this.addItem('glass_flask', 2);
+        Game.save();
+    },
+
+    vitreaWearTick: function() {
+        const last = GameState.vitreaLastWear || 0;
+        if (Date.now() - last < 24 * 60 * 60 * 1000) return;
+        GameState.vitreaLastWear = Date.now();
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        const conversiCnt = (GameState.conversi || []).length;
+        const jilji = (GameState.conversi || []).some(k => k.rosterId === 'k_jilji');
+        const chance = Math.min(0.35, 0.05 + 0.02 * conversiCnt + (jilji ? 0.05 : 0));
+        if (Math.random() >= chance) { Game.save(); return; }
+        const owned = this.VITREA_BREAKABLE.filter(id => (GameState.inventory[id] || 0) > 0);
+        if (!owned.length) { Game.save(); return; }
+        const victim = owned[Math.floor(Math.random() * owned.length)];
+        this.removeItem(victim, 1);
+        const itemName = (typeof iName === 'function') ? iName(victim) : victim;
+        const blameJilji = jilji && Math.random() < 0.5;
+        if (typeof UI !== 'undefined' && UI.notifyPanel) {
+            UI.notifyPanel('💥 ' + (lang==='en'
+                ? itemName + ' broke' + (blameJilji ? ' — Jiljí swears it slipped by itself.' : '.')
+                : itemName + ' se rozbil' + (blameJilji ? ' — Jiljí přísahá, že to vyklouzlo samo.' : '.')), 'warning');
+        }
+        Game.addKronikaEntry('minor',
+            '💥 Rozbil se kus vybavení: ' + itemName + (blameJilji ? '. Jiljí u toho byl. Samozřejmě.' : '.'),
+            '💥 A piece of equipment broke: ' + itemName + (blameJilji ? '. Jiljí was there. Of course.' : '.'),
+            '💥 Vas fractum est.');
+        Game.save();
+    },
+
+    // ── L3b: Oka na drobnou zvěř (Lovec řetěz). Paralelní k noži — aktivní lov (tuk gate) NEDOTČEN. ──
+    SNARE_MS: 12 * 60 * 60 * 1000,
+    SNARE_BREAK_CHANCE: 0.4,
+
+    setSnare: function() {
+        if ((GameState.inventory['snare'] || 0) <= 0) { UI.notify('⚠️ Nemáš žádné oko.', true); return; }
+        if (!GameState.snareTraps) GameState.snareTraps = [];
+        if (GameState.snareTraps.length >= 3) { UI.notify('⚠️ Víc než 3 oka najednou nelíčíš.', true); return; }
+        this.removeItem('snare', 1);
+        GameState.snareTraps.push({ readyAt: Date.now() + this.SNARE_MS });
+        Game.save();
+        UI.notify('🪤 Oko nalíčeno. Vrať se za 12 hodin.');
+        UI.renderScavengeActions();
+    },
+
+    collectSnares: function() {
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        if (!GameState.snareTraps) GameState.snareTraps = [];
+        const now = Date.now();
+        const ready = GameState.snareTraps.filter(s => now >= s.readyAt);
+        if (!ready.length) return;
+        GameState.snareTraps = GameState.snareTraps.filter(s => now < s.readyAt);
+        let caught = 0, returned = 0, broken = 0;
+        ready.forEach(() => {
+            caught++;
+            this.addItem('caught_small_game', 1);
+            if (Math.random() < this.SNARE_BREAK_CHANCE) broken++;
+            else { returned++; this.addItem('snare', 1); }
+        });
+        Game.save();
+        UI.notify('🐿️ ' + (lang==='en'
+            ? 'Snares: ' + caught + ' catch(es), ' + broken + ' snare(s) broken.'
+            : 'Oka: úlovky ' + caught + ', zničená oka ' + broken + '.'));
+        UI.renderScavengeActions();
+    },
+
+    processCaughtGame: function() {
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        if ((GameState.inventory['caught_small_game'] || 0) <= 0) return;
+        if ((GameState.inventory['stone_knife'] || 0) <= 0) { UI.notify('⚠️ ' + (lang==='en'?'You need a knife.':'Potřebuješ nůž.'), true); return; }
+        this.removeItem('caught_small_game', 1);
+        this.addItem('meat', 1);      // Divoké maso
+        this.addItem('fat', 1);
+        this.addItem('scraps', 1);    // zbytky — krmivo (B3 vazba)
+        if (Math.random() < 0.5) this.addItem('bone', 1);
+        Game.save();
+        UI.notify('🔪 ' + (lang==='en' ? 'Dressed: wild meat, fat, scraps.' : 'Zpracováno: divoké maso, tuk, zbytky.'));
+        UI.renderScavengeActions();
+    },
+
     checkAbbotPetitions: function() {
         if (!GameState.abbotPetition) return;
         const lang = (GameState.settings && GameState.settings.language) || 'cs';
@@ -41015,13 +41259,30 @@ const Game = {
         if (Date.now() - lastMeal < 24 * 60 * 60 * 1000) return;
         const lang = (GameState.settings && GameState.settings.language) || 'cs';
         const inv = GameState.inventory || {};
+        // V2: nádobí = kapacita (nespotřebovává se). Sklo/keramika = plný efekt, dřevo = základ, bez nádobí = minimum.
+        const TABLE_GLASS = ['glass_goblet','glass_tankard','glass_jug','glass_bowl','glass_pitcher'];
+        const glassCap = TABLE_GLASS.reduce((s, id) => s + (inv[id] || 0), 0);
+        const woodCap  = inv['wooden_bowl'] || 0;
         const fed = [], unfed = [];
+        const dish = { glass: 0, wood: 0, none: 0 };
+        let servedIdx = 0;
         GameState.conversi.forEach(k => {
             const foodId = this.REFECTORY_FOODS.find(f => (inv[f] || 0) > 0);
             if (foodId) {
                 inv[foodId] -= 1;
-                k.fatigue = Math.max(0, k.fatigue - 10);
-                k.mood = Math.min(100, k.mood + 3);
+                if (servedIdx < glassCap) {
+                    k.fatigue = Math.max(0, k.fatigue - 10);
+                    k.mood = Math.min(100, k.mood + 3);
+                    dish.glass++;
+                } else if (servedIdx < glassCap + woodCap) {
+                    k.fatigue = Math.max(0, k.fatigue - 5);
+                    k.mood = Math.min(100, k.mood + 2);
+                    dish.wood++;
+                } else {
+                    k.fatigue = Math.max(0, k.fatigue - 3);
+                    dish.none++;
+                }
+                servedIdx++;
                 fed.push(k.name);
             } else {
                 k.mood = Math.max(0, k.mood - 8);
@@ -41029,11 +41290,12 @@ const Game = {
                 unfed.push(k.name);
             }
         });
-        GameState.conversiMealLog = { ts: Date.now(), fed: fed, unfed: unfed };
+        GameState.conversiMealLog = { ts: Date.now(), fed: fed, unfed: unfed, dish: dish };
         GameState.conversiLastMeal = Date.now();
         if (typeof UI !== 'undefined' && UI.notifyPanel) {
             if (unfed.length === 0) {
-                UI.notifyPanel('🍲 ' + (lang==='en' ? 'The refectory served all the brothers.' : 'Refektář nasytil všechny bratry.'), 'success');
+                const handNote = dish.none > 0 ? (lang==='en' ? ' Some ate from their hands — dishes are short.' : ' Část jedla z ruky — nádobí nestačí.') : '';
+                UI.notifyPanel('🍲 ' + (lang==='en' ? 'The refectory served all the brothers.' : 'Refektář nasytil všechny bratry.') + handNote, dish.none > 0 ? 'warning' : 'success');
             } else {
                 UI.notifyPanel('🍲 ' + (lang==='en'
                     ? 'The refectory is short of food — hungry: ' + unfed.join(', ')
@@ -41690,6 +41952,29 @@ const UI = {
         if (otherCards) {
             newHTML += `<div style="${groupTitleStyle}">🏡 ${lang==='en'?'Household':'Hospodářství'}</div>`;
             newHTML += otherCards;
+        }
+
+        // ── Oka na drobnou zvěř (L3b, Lovec řetěz) — blok jen když hráč oka má/líčí/má úlovky ──
+        const snareInv = GameState.inventory['snare'] || 0;
+        const caughtInv = GameState.inventory['caught_small_game'] || 0;
+        const traps = GameState.snareTraps || [];
+        if (snareInv > 0 || caughtInv > 0 || traps.length > 0) {
+            const now = Date.now();
+            const readyCnt = traps.filter(s => now >= s.readyAt).length;
+            newHTML += `<div style="${groupTitleStyle}">🪤 ${lang==='en'?'Snares':'Oka'}</div>`;
+            let trapLines = '';
+            traps.forEach(s => {
+                const remH = Math.max(0, Math.ceil((s.readyAt - now) / 3600000));
+                trapLines += `<div class="text-sm">${now >= s.readyAt ? '✅ ' + (lang==='en'?'catch ready':'úlovek čeká') : '⏳ ' + remH + ' h'}</div>`;
+            });
+            newHTML += `<div class="card"><div class="item-icon">🪤</div><div><strong>${lang==='en'?'Set snares':'Nalíčená oka'} (${traps.length}/3)</strong>${trapLines || `<div class="text-sm">${lang==='en'?'None set.':'Žádné nalíčeno.'}</div>`}</div><div style="display:flex;flex-direction:column;gap:4px;">
+                <button class="action-btn" onclick="Game.setSnare()" ${snareInv > 0 && traps.length < 3 ? '' : 'disabled'}>${lang==='en'?'Set':'Nalíčit'} (${snareInv})</button>
+                <button class="action-btn" onclick="Game.collectSnares()" ${readyCnt > 0 ? '' : 'disabled'}>${lang==='en'?'Collect':'Sebrat'} (${readyCnt})</button>
+            </div></div>`;
+            if (caughtInv > 0) {
+                const hasKnife = (GameState.inventory['stone_knife'] || 0) > 0;
+                newHTML += `<div class="card"><div class="item-icon">🐿️</div><div><strong>${lang==='en'?'Caught small game':'Ulovená drobná zvěř'} (${caughtInv})</strong><div class="text-sm">${lang==='en'?'Dress with a knife: wild meat + fat + scraps (bone by chance). Or sell whole to the Hunter.':'Zpracuj nožem: divoké maso + tuk + zbytky (kost s šancí). Nebo prodej vcelku Lovci.'}</div></div><button class="action-btn" onclick="Game.processCaughtGame()" ${hasKnife ? '' : 'disabled'}>🔪 ${lang==='en'?'Dress ×1':'Zpracovat ×1'}</button></div>`;
+            }
         }
 
         if (el.innerHTML !== newHTML) el.innerHTML = newHTML;

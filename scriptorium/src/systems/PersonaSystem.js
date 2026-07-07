@@ -546,7 +546,8 @@ const PersonaSystem = {
             let lockedCount = 0;
             Object.keys(ContactsDB).forEach(id => {
                 const c = ContactsDB[id];
-                const unlocked = !c.unlockTech || researched.includes(c.unlockTech);
+                const unlocked = (!c.unlockTech || researched.includes(c.unlockTech))
+                              && (!c.unlockBook || (GameState.library && GameState.library.readBooks && GameState.library.readBooks.includes(c.unlockBook)));
                 if (!unlocked) { lockedCount++; return; }
                 const r = Math.min(100, Math.round(rel[id] || 0));
                 const rColor = r >= 75 ? '#5a9a5a' : r >= 40 ? 'var(--accent-gold)' : 'var(--ink-secondary)';
