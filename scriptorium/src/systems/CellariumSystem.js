@@ -221,6 +221,18 @@ const CellariumSystem = {
     pollen:         3,
     linden_blossom: 3,
     beeswax:        6,
+    // Sýry (Lactaria/Caseus — prodej: Hospoda + Trh + Sýrař; Obchod vyloučen)
+    goat_cheese_fresh:   4,
+    goat_cheese_mature:  8,
+    goat_cheese_aged:   15,
+    sheep_cheese_fresh:  5,
+    sheep_cheese_mature: 9,
+    sheep_cheese_aged:  17,
+    cow_cheese_fresh:    5,
+    cow_cheese_mature:  10,
+    cow_cheese_aged:    18,
+    syrecky_fresh:       3,
+    syrecky_mature:      6,
     // Semena (prodej přebytku — cca polovina nákupní ceny)
     seed_apple:     4,
     seed_pear:      4,
@@ -257,6 +269,9 @@ const CellariumSystem = {
     adversaria: 'lore', vademecum: 'lore', florilegium: 'lore', enchiridion: 'lore',
     bread: 'food', bread_fine: 'food', bread_fine_1: 'food', cooked_meat: 'food', cooked_fish: 'food', stew: 'food',
     mushroom_soup: 'food', berry_pie: 'food', berry_pie_fine: 'food', berry_pie_fine_1: 'food', honey: 'food',
+    goat_cheese_fresh: 'food', goat_cheese_mature: 'food', goat_cheese_aged: 'food',
+    sheep_cheese_fresh: 'food', sheep_cheese_mature: 'food', sheep_cheese_aged: 'food',
+    cow_cheese_fresh: 'food', cow_cheese_mature: 'food', cow_cheese_aged: 'food', syrecky_fresh: 'food', syrecky_mature: 'food',
     fiber: 'mat', bark: 'mat', hide: 'mat', leather: 'mat', bone: 'mat',
     feather: 'mat', resin: 'mat', charcoal: 'mat',
     herb_red: 'mat', herb_yellow: 'mat', herb_blue: 'mat', roots: 'mat',
@@ -963,10 +978,18 @@ const CellariumSystem = {
                           'sleep_potion','candle',
                           'egg','milk','chicken_meat','mutton',
                           'apple','pear','plum','cherry',
-                          'beer','wine'];
+                          'beer','wine',
+                          'goat_cheese_fresh','goat_cheese_mature','goat_cheese_aged',
+                          'sheep_cheese_fresh','sheep_cheese_mature','sheep_cheese_aged',
+                          'cow_cheese_fresh','cow_cheese_mature','cow_cheese_aged','syrecky_fresh','syrecky_mature'];
+    // Obchod (kupecký krám) tyto položky nevykupuje — potraviny patří do krčmy a na trh
+    const SHOP_EXCLUDED_ITEMS = ['goat_cheese_fresh','goat_cheese_mature','goat_cheese_aged',
+                          'sheep_cheese_fresh','sheep_cheese_mature','sheep_cheese_aged',
+                          'cow_cheese_fresh','cow_cheese_mature','cow_cheese_aged','syrecky_fresh','syrecky_mature'];
     const sellable = Object.keys(this.BASE_PRICES).filter(id => {
       if ((GameState.inventory[id] || 0) === 0) return false;
       if (entity === 'tavern') return TAVERN_ITEMS.includes(id);
+      if (entity === 'shop' && SHOP_EXCLUDED_ITEMS.includes(id)) return false;
       return true;
     });
 

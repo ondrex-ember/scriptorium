@@ -16,7 +16,9 @@ const ContactsDB = {
         primaryAxis: 'village',
         secondaryAxis: null,
         unlockTech: 'tech_caseus',            // existuje (Lactaria II řetězec)
-        sellBonus: { /* K4: sýry — cheese item ID doplní Lactaria II implementace */ },
+        sellBonus: { items: { goat_cheese_fresh: null, goat_cheese_mature: null, goat_cheese_aged: null,
+                              sheep_cheese_fresh: null, sheep_cheese_mature: null, sheep_cheese_aged: null,
+                              cow_cheese_fresh: null, cow_cheese_mature: null, cow_cheese_aged: null, syrecky_fresh: null, syrecky_mature: null } }, // K4b: null = BASE_PRICES
         desc: 'Vesnický sýrař. Vykoupí klášterní sýr lépe než trh.',
         desc_en: 'The village cheesemaker. Buys monastery cheese better than the market.'
     },
