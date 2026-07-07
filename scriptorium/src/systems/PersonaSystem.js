@@ -537,6 +537,34 @@ const PersonaSystem = {
             inf.scholars || 0,
             lang==='en'?'Prvotisk customers, Library bonuses, manuscript reputation.':'Zákazníci Prvotisku, bonusy Knihovny, reputace rukopisů.', (inf.scholars || 0) === 0);
 
+        // Clientela — jen promítnutí souhrnu; ovládání a jednání probíhá v Saeculum → Clientela
+        const clientelaTier = (typeof RankSystem !== 'undefined' && RankSystem.getSecularRankTier) ? RankSystem.getSecularRankTier() : 1;
+        if (clientelaTier >= 3 && typeof ContactsDB !== 'undefined') {
+            const rel = GameState.contactRelation || {};
+            const researched = GameState.researchedTechs || [];
+            h += `<div style="font-size:0.75rem;font-weight:bold;letter-spacing:0.06em;text-transform:uppercase;opacity:0.55;margin:14px 0 10px;">${lang==='en'?'Clientela — contacts':'Clientela — kontakty'}</div>`;
+            let lockedCount = 0;
+            Object.keys(ContactsDB).forEach(id => {
+                const c = ContactsDB[id];
+                const unlocked = !c.unlockTech || researched.includes(c.unlockTech);
+                if (!unlocked) { lockedCount++; return; }
+                const r = Math.min(100, Math.round(rel[id] || 0));
+                const rColor = r >= 75 ? '#5a9a5a' : r >= 40 ? 'var(--accent-gold)' : 'var(--ink-secondary)';
+                h += `<div style="display:flex;align-items:center;gap:8px;padding:6px 10px;margin-bottom:5px;background:var(--bg-card);border:1px solid rgba(197,160,89,0.15);border-radius:6px;">
+                    <span style="font-size:1.05rem;">${c.icon}</span>
+                    <span style="font-size:0.8rem;flex:0 0 110px;">${lang==='en'?c.name_en:c.name}</span>
+                    <div style="flex:1;height:4px;background:rgba(0,0,0,0.1);border-radius:2px;">
+                        <div style="height:100%;width:${r}%;background:${rColor};border-radius:2px;"></div>
+                    </div>
+                    <span style="font-size:0.7rem;opacity:0.65;min-width:42px;text-align:right;">${r}/100</span>
+                </div>`;
+            });
+            if (lockedCount > 0) {
+                h += `<div style="font-size:0.72rem;opacity:0.5;font-style:italic;margin-bottom:4px;">🔒 ${lang==='en' ? lockedCount+' more contact(s) await research.' : 'Dalších '+lockedCount+' kontaktů čeká na odemčení výzkumem.'}</div>`;
+            }
+            h += `<div style="font-size:0.72rem;opacity:0.5;font-style:italic;">${lang==='en'?'Dealings take place in Saeculum → Clientela.':'Jednání probíhá v Saeculum → Clientela.'}</div>`;
+        }
+
         h += `<div style="margin-top:14px;font-size:0.75rem;opacity:0.5;font-style:italic;">
             ${lang==='en'?'Influence decays −1 per week without related activity.':'Vliv klesá −1 týdně bez příslušné aktivity.'}
         </div>`;
@@ -944,6 +972,15 @@ const PersonaSystem = {
                 changed = true;
             }
         });
+        // Clientela: vztahy s kontakty chladnou stejným rytmem (-1/týden)
+        if (typeof ContactsDB !== 'undefined' && GameState.contactRelation) {
+            Object.keys(GameState.contactRelation).forEach(cid => {
+                if ((GameState.contactRelation[cid] || 0) > 0) {
+                    GameState.contactRelation[cid] = Math.max(0, GameState.contactRelation[cid] - 1);
+                    changed = true;
+                }
+            });
+        }
         GameState.persona.influenceLastDecay = now;
         if (changed) Game.save();
     },

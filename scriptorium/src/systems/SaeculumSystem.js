@@ -366,6 +366,11 @@ const SaeculumSystem = {
       { id: 'conversi', icon: '✝️', label: 'Conversi',        label_en: 'Conversi' },
       { id: 'regula',   icon: '🕯️', label: 'Regula',          label_en: 'Regula' },
     ];
+    // Clientela: gated na secular antiquarius (tier 3) — pod tier 3 tab neexistuje
+    const rankTier = (typeof RankSystem !== 'undefined' && RankSystem.getSecularRankTier) ? RankSystem.getSecularRankTier() : 1;
+    if (rankTier >= 3 && typeof ContactsDB !== 'undefined') {
+      entities.push({ id: 'clientela', icon: '🤝', label: 'Clientela', label_en: 'Clientela' });
+    }
     const lang = (GameState.settings && GameState.settings.language) || 'cs';
     if (!GameState.ui) GameState.ui = {};
     let active = GameState.ui.saeculumEntity || 'tavern';
@@ -400,7 +405,160 @@ const SaeculumSystem = {
     else if (active === 'mola')      h += this.renderMola();
     else if (active === 'conversi')  h += this.renderConversi();
     else if (active === 'regula')    h += this.renderRegula();
+    else if (active === 'clientela') h += this.renderClientela();
     return h;
+  },
+
+  // Clientela — hub satelitních kontaktů (MRD 1.2b); K2 = zobrazení, relation/obchod = K3/K4
+  // K3: vztah roste/klesá přes addContactRelation; růst se propaguje do osy (0.3×),
+  // slabá ozvěna (0.2× z propagace) jen kde je v ContactsDB. Pokles se NEpropaguje.
+  addContactRelation: function(id, amt) {
+    if (typeof ContactsDB === 'undefined' || !ContactsDB[id] || !amt) return;
+    if (!GameState.contactRelation) GameState.contactRelation = {};
+    const cur = GameState.contactRelation[id] || 0;
+    GameState.contactRelation[id] = Math.max(0, Math.min(100, cur + amt));
+    if (amt > 0 && typeof PersonaSystem !== 'undefined' && PersonaSystem.addInfluence) {
+      const c = ContactsDB[id];
+      const primary = Math.max(1, Math.round(amt * 0.3));
+      PersonaSystem.addInfluence(c.primaryAxis, primary);
+      if (c.secondaryAxis) {
+        const echo = Math.max(1, Math.round(primary * c.secondaryAxis.weight));
+        PersonaSystem.addInfluence(c.secondaryAxis.axis, echo);
+      }
+    }
+    Game.save();
+  },
+
+  // K4: prodej kontaktu — cena z calcPrice('market') × vztahový násobič (1.10 při 0 → 1.35 při 100).
+  // Bez saturace a otevíracích hodin (osobní vztah, malé objemy). +1 vztah za prodejní AKCI (ne kus).
+  contactPriceMult: function(contactId) {
+    const r = Math.min(100, (GameState.contactRelation || {})[contactId] || 0);
+    return 1.10 + (r / 100) * 0.25;
+  },
+
+  sellToContact: function(contactId, itemId, qty) {
+    if (typeof ContactsDB === 'undefined' || typeof CellariumSystem === 'undefined') return;
+    const c = ContactsDB[contactId];
+    const items = c && c.sellBonus && c.sellBonus.items;
+    if (!items || !(itemId in items)) return;
+    const have = GameState.inventory[itemId] || 0;
+    if (qty === 'all') qty = have;
+    qty = Math.max(0, Math.min(have, qty | 0));
+    if (qty <= 0) { UI.notify('⚠️ Non habes sufficiens!', true); return; }
+    // Základ: BASE_PRICES přes calcPrice('market'); není-li item na trhu, kontaktní base cena (exkluzivní odbyt)
+    const basePrice = CellariumSystem.calcPrice(itemId, 'market') || items[itemId];
+    if (!basePrice) return;
+    const price = Math.max(1, Math.round(basePrice * this.contactPriceMult(contactId)));
+    const total = price * qty;
+    Game.removeItem(itemId, qty);
+    CellariumSystem.addGrose(total);
+    CellariumSystem.recordTransaction('sell', itemId, qty, price, contactId);
+    GameState.economy.tradesTotal++;
+    this.addContactRelation(contactId, 1);
+    Game.save();
+    const lang = (GameState.settings && GameState.settings.language) || 'cs';
+    const itemName = (typeof iName === 'function') ? iName(itemId) : itemId;
+    const cName = lang === 'en' ? c.name_en : c.name;
+    UI.notify('🤝 ' + itemName + ' ×' + qty + ' → ' + total + ' g · ' + cName);
+    this.showContactDetail(contactId); // refresh modalu (replace, ne stack)
+    this.switchEntity(GameState.ui.saeculumEntity || 'clientela'); // refresh hubu pod modalem
+  },
+
+  renderClientela: function() {
+    const lang = (GameState.settings && GameState.settings.language) || 'cs';
+    const rel = GameState.contactRelation || {};
+    const researched = GameState.researchedTechs || [];
+
+    let h = `<div style="margin-bottom:16px; background:rgba(0,0,0,0.03); border-radius:8px; border-left:3px solid var(--accent-gold); padding:12px 14px;">`;
+    h += `<div style="font-weight:bold; font-size:0.92rem; margin-bottom:4px;">🤝 ${lang==='en'?'Clientela — contacts beyond the walls':'Clientela — kontakty za zdmi kláštera'}</div>`;
+    h += `<div style="font-size:0.72rem; opacity:0.65; margin-bottom:12px;">${lang==='en'
+        ? 'Craftsmen and traders of the region. Good relations open better prices than the market.'
+        : 'Řemeslníci a obchodníci kraje. Dobré vztahy otevřou lepší ceny než trh.'}</div>`;
+
+    h += `<div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(150px, 1fr)); gap:8px;">`;
+    Object.keys(ContactsDB).forEach(id => {
+      const c = ContactsDB[id];
+      const unlocked = !c.unlockTech || researched.includes(c.unlockTech);
+      const r = Math.min(100, Math.round(rel[id] || 0));
+      if (unlocked) {
+        const rColor = r >= 75 ? '#5a9a5a' : r >= 40 ? 'var(--accent-gold)' : 'var(--ink-secondary)';
+        h += `<div onclick="SaeculumSystem.showContactDetail('${id}')" style="padding:10px; background:rgba(255,255,255,0.4); border:1px solid rgba(197,160,89,0.25); border-radius:8px; cursor:pointer;">
+                <div style="font-size:1.5rem; margin-bottom:4px;">${c.icon}</div>
+                <div style="font-weight:bold; font-size:0.8rem;">${lang==='en'?c.name_en:c.name}</div>
+                <div style="display:flex; justify-content:space-between; font-size:0.62rem; opacity:0.6; margin:4px 0 2px;">
+                  <span>${lang==='en'?'Relation':'Vztah'}</span><span>${r}/100</span>
+                </div>
+                <div style="background:rgba(0,0,0,0.1); border-radius:3px; height:4px;">
+                  <div style="width:${r}%; background:${rColor}; height:4px; border-radius:3px;"></div>
+                </div>
+              </div>`;
+      } else {
+        h += `<div style="padding:10px; background:rgba(0,0,0,0.04); border:1px dashed rgba(197,160,89,0.25); border-radius:8px; opacity:0.5;">
+                <div style="font-size:1.5rem; margin-bottom:4px; filter:grayscale(1);">🔒</div>
+                <div style="font-weight:bold; font-size:0.8rem;">???</div>
+                <div style="font-size:0.62rem; opacity:0.7; font-style:italic; margin-top:4px;">${lang==='en'?'Unlocks through research':'Odemkne se výzkumem'}</div>
+              </div>`;
+      }
+    });
+    h += `</div></div>`;
+    return h;
+  },
+
+  showContactDetail: function(id) {
+    if (typeof NotificationSystem === 'undefined' || typeof ContactsDB === 'undefined') return;
+    const lang = (GameState.settings && GameState.settings.language) || 'cs';
+    const c = ContactsDB[id];
+    if (!c) return;
+    const r = Math.min(100, Math.round((GameState.contactRelation || {})[id] || 0));
+    const rColor = r >= 75 ? '#5a9a5a' : r >= 40 ? 'var(--accent-gold)' : '#8a8a8a';
+    const axisName = (a) => a === 'village' ? (lang==='en'?'Saeculum (village)':'Saeculum (vesnice)')
+                    : a === 'church' ? (lang==='en'?'Ecclesia (church)':'Ecclesia (církev)')
+                    : (lang==='en'?'Schola (scholars)':'Schola (učenci)');
+
+    let html = `<div style="font-style:italic; font-size:0.8rem; opacity:0.8; margin-bottom:10px; line-height:1.4;">${lang==='en'?c.desc_en:c.desc}</div>`;
+    html += `<div style="margin-bottom:7px;">
+        <div style="display:flex; justify-content:space-between; font-size:0.72rem; opacity:0.75; margin-bottom:2px;">
+          <span>🤝 ${lang==='en'?'Relation':'Vztah'}</span><span>${r}/100</span>
+        </div>
+        <div style="background:rgba(0,0,0,0.12); border-radius:3px; height:5px;">
+          <div style="width:${r}%; background:${rColor}; height:5px; border-radius:3px;"></div>
+        </div>
+      </div>`;
+    html += `<div style="font-size:0.76rem; margin-bottom:3px;">🏛️ ${lang==='en'?'Sphere':'Sféra'}: ${axisName(c.primaryAxis)}</div>`;
+    if (c.secondaryAxis) html += `<div style="font-size:0.76rem; margin-bottom:3px; opacity:0.7;">↳ ${lang==='en'?'faint echo into':'slabá ozvěna do'} ${axisName(c.secondaryAxis.axis)}</div>`;
+
+    // Výkup (K4) — jen pokud má kontakt sellBonus items
+    const sbItems = c.sellBonus && c.sellBonus.items;
+    if (sbItems && Object.keys(sbItems).length && typeof CellariumSystem !== 'undefined') {
+      html += `<div style="font-size:0.72rem; font-weight:bold; opacity:0.75; margin:10px 0 4px;">💰 ${lang==='en'?'Buying from you':'Výkup'} <span style="opacity:0.6; font-weight:normal;">(+${Math.round((this.contactPriceMult(id)-1)*100)} % ${lang==='en'?'over market':'nad trh'})</span></div>`;
+      let anyStock = false;
+      Object.keys(sbItems).forEach(itemId => {
+        const have = GameState.inventory[itemId] || 0;
+        if (have <= 0) return;
+        anyStock = true;
+        const basePrice = CellariumSystem.calcPrice(itemId, 'market') || sbItems[itemId] || 0;
+        const price = Math.max(1, Math.round(basePrice * this.contactPriceMult(id)));
+        const itemName = (typeof iName === 'function') ? iName(itemId) : itemId;
+        html += `<div style="display:flex; align-items:center; gap:6px; font-size:0.76rem; margin-bottom:5px;">
+            <span style="flex:1;">${itemName} <span style="opacity:0.6;">(${lang==='en'?'have':'máš'} ${have} · ${price} g/${lang==='en'?'pc':'ks'})</span></span>
+            <button class="craft-btn" style="padding:2px 8px; font-size:0.7rem;" onclick="SaeculumSystem.sellToContact('${id}','${itemId}',1)">×1</button>
+            <button class="craft-btn" style="padding:2px 8px; font-size:0.7rem;" onclick="SaeculumSystem.sellToContact('${id}','${itemId}',5)">×5</button>
+            <button class="craft-btn" style="padding:2px 8px; font-size:0.7rem;" onclick="SaeculumSystem.sellToContact('${id}','${itemId}','all')">${lang==='en'?'all':'vše'}</button>
+          </div>`;
+      });
+      if (!anyStock) html += `<div style="font-size:0.74rem; opacity:0.55; font-style:italic;">${lang==='en'?'You have nothing he would buy right now.':'Nemáš teď nic, co by vykoupil.'}</div>`;
+    }
+
+    html += `<div style="font-size:0.72rem; opacity:0.55; font-style:italic; margin-top:10px;">${lang==='en'
+        ? 'Trade ties will form with time — deal with him and the relation will grow.'
+        : 'Obchodní vazby se teprve utvoří — jednej s ním a vztah poroste.'}</div>`;
+
+    NotificationSystem.modal({
+      icon: c.icon,
+      title: lang==='en' ? c.name_en : c.name,
+      text: html,
+      choices: [{ label: (lang==='en'?'Close':'Zavřít') }]
+    });
   },
 
   // Regula — denní režim konvršů + refektář
