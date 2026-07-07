@@ -26,8 +26,14 @@ const ContactsDB = {
         name: 'Mlynář', name_en: 'Miller', icon: '🌾',
         primaryAxis: 'village',
         secondaryAxis: { axis: 'church', weight: 0.2 },   // mlýnský desátek
-        unlockTech: null,                     // TBD: Mola je feature bez vlastního tech — kandidát unlockFlag po zprovoznění Mola vazby
-        sellBonus: {},
+        unlockTech: null,                     // dostupný hned s hubem (Mola/mouka = raná hra)
+        // M1 — výkup z polí (mouku NEvykupuje, tu mele sám); zrní mimo BASE_PRICES = exkluzivní kanál
+        sellBonus: { items: { grain: 2, rye_grain_2: 3, wheat_grain_2: 3, rye_grain_1: 5, wheat_grain_1: 5,
+                              barley: 2, oats: 2, millet: 2, peas: 2 } },
+        // M2 — nabídka (prodává hráči): zrní a mouka, denní stock
+        buyOffer: { items: { grain:   { price: 4,  stock: 10 },
+                             flour_2: { price: 9,  stock: 5 },
+                             flour_1: { price: 16, stock: 2 } } },
         desc: 'Mlynář od řeky. Desátek odvádí kostelu, obchody dělá s každým.',
         desc_en: 'The miller by the river. He tithes to the church and trades with everyone.'
     },
@@ -53,8 +59,8 @@ const ContactsDB = {
         name: 'Tkadlec', name_en: 'Weaver', icon: '🧵',
         primaryAxis: 'village',
         secondaryAxis: { axis: 'church', weight: 0.2 },   // roucha/paramenta
-        unlockTech: 'tech_lanificium',        // SCHVÁLEN, ale tech + wool item zatím NEEXISTUJÍ (MRD 1.4b) — kontakt zůstane zamčený do jejich vzniku
-        sellBonus: { /* K4: wool */ },
+        unlockTech: 'tech_de_re_rustica',     // stříhání vlny žije pod Ovile (tech_lanificium zrušen — mechanika už existovala)
+        sellBonus: { items: { wool: null } }, // K4: null = cena z BASE_PRICES (wool: 5)
         desc: 'Tkadlec z podhradí. Vlnu bere, roucha tká i pro kostel.',
         desc_en: 'A weaver from below the castle. He takes wool and weaves vestments even for the church.'
     },

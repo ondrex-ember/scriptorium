@@ -120,10 +120,6 @@ const SaeculumSystem = {
   MOLA_MS: 4 * 60 * 60 * 1000,
 
   renderMola: function() {
-    const lang = (GameState.settings && GameState.settings.language) || 'cs';
-    const order = GameState.millOrder;
-    const active = order && Date.now() < order.returnsAt;
-
     if (!GameState.ui) GameState.ui = {};
     const molaOpen = GameState.ui.saeculumMolaOpen !== false;
     let h = `<details ${molaOpen ? 'open' : ''} ontoggle="GameState.ui.saeculumMolaOpen = this.open; Game.save();" style="margin-bottom:16px; background:rgba(0,0,0,0.03);
@@ -132,6 +128,17 @@ const SaeculumSystem = {
             <span>⚙️ ${t('saeculum.mola')}</span><span style="opacity:0.5; font-weight:normal;">▾</span>
           </summary>`;
     h += `<div style="padding:10px 14px 14px;">`;
+    h += this.renderMolaInner();
+    h += `</div></details>`;
+    return h;
+  },
+
+  // Tělo Mola bloku — sdílené: vlastní tab (tier <3) i Mlynářův panel (tier ≥3). Mechanika beze změny.
+  renderMolaInner: function() {
+    const lang = (GameState.settings && GameState.settings.language) || 'cs';
+    const order = GameState.millOrder;
+    const active = order && Date.now() < order.returnsAt;
+    let h = '';
 
     if (active) {
       const remH = this.millRemainingH();
@@ -156,7 +163,6 @@ const SaeculumSystem = {
       h += `</div>`;
       h += `<div style="font-size:0.72rem;opacity:0.6;margin-top:6px;">${t('saeculum.millCostNote')}</div>`;
     }
-    h += `</div></details>`;
     return h;
   },
 
@@ -357,17 +363,20 @@ const SaeculumSystem = {
 
   renderEntityTabs: function() {
     const trade = ['tavern', 'shop', 'market'];
+    const rankTier = (typeof RankSystem !== 'undefined' && RankSystem.getSecularRankTier) ? RankSystem.getSecularRankTier() : 1;
     const entities = [
       { id: 'tavern',   icon: '🍺', label: 'Hospoda',         label_en: 'Tavern' },
       { id: 'shop',     icon: '🏪', label: 'Obchod',          label_en: 'Shop'   },
       { id: 'market',   icon: '⛺', label: 'Trh',             label_en: 'Market' },
       { id: 'forum',    icon: '🐏', label: 'Forum Pecuarium', label_en: 'Forum Pecuarium' },
-      { id: 'mola',     icon: '⚙️', label: 'Mola',            label_en: 'Mola' },
       { id: 'conversi', icon: '✝️', label: 'Conversi',        label_en: 'Conversi' },
       { id: 'regula',   icon: '🕯️', label: 'Regula',          label_en: 'Regula' },
     ];
+    // Mola: pod tier 3 vlastní tab; od tier 3 žije uvnitř Mlynářova panelu (Clientela) — pročištění bez regrese
+    if (rankTier < 3) {
+      entities.splice(4, 0, { id: 'mola', icon: '⚙️', label: 'Mola', label_en: 'Mola' });
+    }
     // Clientela: gated na secular antiquarius (tier 3) — pod tier 3 tab neexistuje
-    const rankTier = (typeof RankSystem !== 'undefined' && RankSystem.getSecularRankTier) ? RankSystem.getSecularRankTier() : 1;
     if (rankTier >= 3 && typeof ContactsDB !== 'undefined') {
       entities.push({ id: 'clientela', icon: '🤝', label: 'Clientela', label_en: 'Clientela' });
     }
@@ -460,12 +469,59 @@ const SaeculumSystem = {
     const itemName = (typeof iName === 'function') ? iName(itemId) : itemId;
     const cName = lang === 'en' ? c.name_en : c.name;
     UI.notify('🤝 ' + itemName + ' ×' + qty + ' → ' + total + ' g · ' + cName);
-    this.showContactDetail(contactId); // refresh modalu (replace, ne stack)
-    this.switchEntity(GameState.ui.saeculumEntity || 'clientela'); // refresh hubu pod modalem
+    this.switchEntity('clientela'); // refresh panelu (modal zrušen)
+  },
+
+  // GUI: panel místo modalu (schváleno) — klik na dlaždici otevře obchodní panel uvnitř tabu
+  openContact: function(id) {
+    if (!GameState.ui) GameState.ui = {};
+    GameState.ui.clientelaContact = id;
+    this.switchEntity('clientela');
+  },
+
+  closeContact: function() {
+    if (GameState.ui) GameState.ui.clientelaContact = null;
+    this.switchEntity('clientela');
+  },
+
+  // M2: nákup od kontaktu — denní stock, vztah +1/nákupní akce
+  _contactSoldToday: function(contactId, itemId) {
+    const dayKey = new Date().toDateString();
+    if (!GameState.contactShopSold || GameState.contactShopSold.day !== dayKey) {
+      GameState.contactShopSold = { day: dayKey, sold: {} };
+    }
+    return GameState.contactShopSold.sold[contactId + ':' + itemId] || 0;
+  },
+
+  buyFromContact: function(contactId, itemId, qty) {
+    if (typeof ContactsDB === 'undefined' || typeof CellariumSystem === 'undefined') return;
+    const c = ContactsDB[contactId];
+    const offer = c && c.buyOffer && c.buyOffer.items && c.buyOffer.items[itemId];
+    if (!offer) return;
+    const soldToday = this._contactSoldToday(contactId, itemId);
+    const left = Math.max(0, offer.stock - soldToday);
+    qty = Math.max(0, Math.min(left, qty | 0));
+    if (qty <= 0) { UI.notify('⚠️ ' + (((GameState.settings||{}).language)==='en' ? 'Sold out today.' : 'Dnes vyprodáno.'), true); return; }
+    const total = offer.price * qty;
+    if (CellariumSystem.getGrose() < total) { UI.notify('⚠️ Non habes sufficiens!', true); return; }
+    CellariumSystem.addGrose(-total);
+    Game.addItem(itemId, qty);
+    GameState.contactShopSold.sold[contactId + ':' + itemId] = soldToday + qty;
+    CellariumSystem.recordTransaction('buy', itemId, qty, offer.price, contactId);
+    this.addContactRelation(contactId, 1);
+    Game.save();
+    const lang = (GameState.settings && GameState.settings.language) || 'cs';
+    const itemName = (typeof iName === 'function') ? iName(itemId) : itemId;
+    UI.notify('🛒 ' + itemName + ' ×' + qty + ' → -' + total + ' g');
+    this.switchEntity('clientela');
   },
 
   renderClientela: function() {
     const lang = (GameState.settings && GameState.settings.language) || 'cs';
+    const activeContact = GameState.ui && GameState.ui.clientelaContact;
+    if (activeContact && typeof ContactsDB !== 'undefined' && ContactsDB[activeContact]) {
+      return this.renderContactPanel(activeContact);
+    }
     const rel = GameState.contactRelation || {};
     const researched = GameState.researchedTechs || [];
 
@@ -482,7 +538,7 @@ const SaeculumSystem = {
       const r = Math.min(100, Math.round(rel[id] || 0));
       if (unlocked) {
         const rColor = r >= 75 ? '#5a9a5a' : r >= 40 ? 'var(--accent-gold)' : 'var(--ink-secondary)';
-        h += `<div onclick="SaeculumSystem.showContactDetail('${id}')" style="padding:10px; background:rgba(255,255,255,0.4); border:1px solid rgba(197,160,89,0.25); border-radius:8px; cursor:pointer;">
+        h += `<div onclick="SaeculumSystem.openContact('${id}')" style="padding:10px; background:rgba(255,255,255,0.4); border:1px solid rgba(197,160,89,0.25); border-radius:8px; cursor:pointer;">
                 <div style="font-size:1.5rem; margin-bottom:4px;">${c.icon}</div>
                 <div style="font-weight:bold; font-size:0.8rem;">${lang==='en'?c.name_en:c.name}</div>
                 <div style="display:flex; justify-content:space-between; font-size:0.62rem; opacity:0.6; margin:4px 0 2px;">
@@ -504,33 +560,64 @@ const SaeculumSystem = {
     return h;
   },
 
-  showContactDetail: function(id) {
-    if (typeof NotificationSystem === 'undefined' || typeof ContactsDB === 'undefined') return;
+  // Obchodní panel kontaktu: hlavička + Nabídka | Výkup (+ Mola blok u Mlynáře od tier 3)
+  renderContactPanel: function(id) {
     const lang = (GameState.settings && GameState.settings.language) || 'cs';
     const c = ContactsDB[id];
-    if (!c) return;
     const r = Math.min(100, Math.round((GameState.contactRelation || {})[id] || 0));
     const rColor = r >= 75 ? '#5a9a5a' : r >= 40 ? 'var(--accent-gold)' : '#8a8a8a';
     const axisName = (a) => a === 'village' ? (lang==='en'?'Saeculum (village)':'Saeculum (vesnice)')
                     : a === 'church' ? (lang==='en'?'Ecclesia (church)':'Ecclesia (církev)')
                     : (lang==='en'?'Schola (scholars)':'Schola (učenci)');
 
-    let html = `<div style="font-style:italic; font-size:0.8rem; opacity:0.8; margin-bottom:10px; line-height:1.4;">${lang==='en'?c.desc_en:c.desc}</div>`;
-    html += `<div style="margin-bottom:7px;">
-        <div style="display:flex; justify-content:space-between; font-size:0.72rem; opacity:0.75; margin-bottom:2px;">
-          <span>🤝 ${lang==='en'?'Relation':'Vztah'}</span><span>${r}/100</span>
-        </div>
-        <div style="background:rgba(0,0,0,0.12); border-radius:3px; height:5px;">
-          <div style="width:${r}%; background:${rColor}; height:5px; border-radius:3px;"></div>
-        </div>
-      </div>`;
-    html += `<div style="font-size:0.76rem; margin-bottom:3px;">🏛️ ${lang==='en'?'Sphere':'Sféra'}: ${axisName(c.primaryAxis)}</div>`;
-    if (c.secondaryAxis) html += `<div style="font-size:0.76rem; margin-bottom:3px; opacity:0.7;">↳ ${lang==='en'?'faint echo into':'slabá ozvěna do'} ${axisName(c.secondaryAxis.axis)}</div>`;
+    let h = `<div style="margin-bottom:16px; background:rgba(0,0,0,0.03); border-radius:8px; border-left:3px solid var(--accent-gold); padding:12px 14px;">`;
+    h += `<button class="craft-btn" onclick="SaeculumSystem.closeContact()" style="margin-bottom:10px; font-size:0.74rem;">← ${lang==='en'?'Back to contacts':'Zpět na kontakty'}</button>`;
 
-    // Výkup (K4) — jen pokud má kontakt sellBonus items
+    // Hlavička
+    h += `<div style="display:flex; gap:12px; align-items:flex-start; margin-bottom:10px;">
+            <div style="font-size:2.2rem;">${c.icon}</div>
+            <div style="flex:1;">
+              <div style="font-weight:bold; font-size:1rem;">${lang==='en'?c.name_en:c.name}</div>
+              <div style="font-size:0.76rem; opacity:0.75; font-style:italic; margin:2px 0 6px;">${lang==='en'?c.desc_en:c.desc}</div>
+              <div style="font-size:0.7rem; opacity:0.6;">🏛️ ${axisName(c.primaryAxis)}${c.secondaryAxis ? ` · ↳ ${lang==='en'?'echo':'ozvěna'}: ${axisName(c.secondaryAxis.axis)}` : ''}</div>
+            </div>
+            <div style="min-width:130px;">
+              <div style="display:flex; justify-content:space-between; font-size:0.68rem; opacity:0.7; margin-bottom:2px;">
+                <span>🤝 ${lang==='en'?'Relation':'Vztah'}</span><span>${r}/100</span>
+              </div>
+              <div style="background:rgba(0,0,0,0.12); border-radius:3px; height:5px;">
+                <div style="width:${r}%; background:${rColor}; height:5px; border-radius:3px;"></div>
+              </div>
+            </div>
+          </div>`;
+
+    // Dva sloupce: Nabídka | Výkup
+    h += `<div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:14px; align-items:start;">`;
+
+    // 🛒 Nabídka (kontakt prodává hráči)
+    h += `<div><div style="font-size:0.7rem; font-weight:bold; letter-spacing:0.08em; text-transform:uppercase; color:var(--accent-gold); margin-bottom:8px; padding-bottom:4px; border-bottom:2px solid var(--accent-gold);">🛒 ${lang==='en'?'HIS OFFER':'NABÍDKA'}</div>`;
+    const offerItems = c.buyOffer && c.buyOffer.items;
+    if (offerItems && Object.keys(offerItems).length) {
+      Object.keys(offerItems).forEach(itemId => {
+        const o = offerItems[itemId];
+        const left = Math.max(0, o.stock - this._contactSoldToday(id, itemId));
+        const itemName = (typeof iName === 'function') ? iName(itemId) : itemId;
+        const grose = CellariumSystem.getGrose();
+        h += `<div style="display:flex; align-items:center; gap:6px; font-size:0.78rem; margin-bottom:6px;">
+                <span style="flex:1;">${itemName} <span style="opacity:0.6;">(${o.price} g/${lang==='en'?'pc':'ks'} · ${lang==='en'?'stock':'skladem'} ${left})</span></span>
+                <button class="craft-btn" style="padding:2px 8px; font-size:0.7rem;" ${left>0 && grose>=o.price ? '' : 'disabled'} onclick="SaeculumSystem.buyFromContact('${id}','${itemId}',1)">×1</button>
+                <button class="craft-btn" style="padding:2px 8px; font-size:0.7rem;" ${left>=5 && grose>=o.price*5 ? '' : 'disabled'} onclick="SaeculumSystem.buyFromContact('${id}','${itemId}',5)">×5</button>
+              </div>`;
+      });
+    } else {
+      h += `<div style="font-size:0.74rem; opacity:0.55; font-style:italic;">${lang==='en'?'Nothing on offer right now.':'Zatím nic nenabízí.'}</div>`;
+    }
+    h += `</div>`;
+
+    // 💰 Výkup (hráč prodává kontaktu)
+    h += `<div><div style="font-size:0.7rem; font-weight:bold; letter-spacing:0.08em; text-transform:uppercase; color:var(--accent-gold); margin-bottom:8px; padding-bottom:4px; border-bottom:2px solid var(--accent-gold);">💰 ${lang==='en'?'BUYING FROM YOU':'VÝKUP'} <span style="opacity:0.6; font-weight:normal; text-transform:none;">(+${Math.round((this.contactPriceMult(id)-1)*100)} % ${lang==='en'?'over market':'nad trh'})</span></div>`;
     const sbItems = c.sellBonus && c.sellBonus.items;
-    if (sbItems && Object.keys(sbItems).length && typeof CellariumSystem !== 'undefined') {
-      html += `<div style="font-size:0.72rem; font-weight:bold; opacity:0.75; margin:10px 0 4px;">💰 ${lang==='en'?'Buying from you':'Výkup'} <span style="opacity:0.6; font-weight:normal;">(+${Math.round((this.contactPriceMult(id)-1)*100)} % ${lang==='en'?'over market':'nad trh'})</span></div>`;
+    if (sbItems && Object.keys(sbItems).length) {
       let anyStock = false;
       Object.keys(sbItems).forEach(itemId => {
         const have = GameState.inventory[itemId] || 0;
@@ -539,26 +626,30 @@ const SaeculumSystem = {
         const basePrice = CellariumSystem.calcPrice(itemId, 'market') || sbItems[itemId] || 0;
         const price = Math.max(1, Math.round(basePrice * this.contactPriceMult(id)));
         const itemName = (typeof iName === 'function') ? iName(itemId) : itemId;
-        html += `<div style="display:flex; align-items:center; gap:6px; font-size:0.76rem; margin-bottom:5px;">
-            <span style="flex:1;">${itemName} <span style="opacity:0.6;">(${lang==='en'?'have':'máš'} ${have} · ${price} g/${lang==='en'?'pc':'ks'})</span></span>
-            <button class="craft-btn" style="padding:2px 8px; font-size:0.7rem;" onclick="SaeculumSystem.sellToContact('${id}','${itemId}',1)">×1</button>
-            <button class="craft-btn" style="padding:2px 8px; font-size:0.7rem;" onclick="SaeculumSystem.sellToContact('${id}','${itemId}',5)">×5</button>
-            <button class="craft-btn" style="padding:2px 8px; font-size:0.7rem;" onclick="SaeculumSystem.sellToContact('${id}','${itemId}','all')">${lang==='en'?'all':'vše'}</button>
-          </div>`;
+        h += `<div style="display:flex; align-items:center; gap:6px; font-size:0.78rem; margin-bottom:6px;">
+                <span style="flex:1;">${itemName} <span style="opacity:0.6;">(${lang==='en'?'have':'máš'} ${have} · ${price} g/${lang==='en'?'pc':'ks'})</span></span>
+                <button class="craft-btn" style="padding:2px 8px; font-size:0.7rem;" onclick="SaeculumSystem.sellToContact('${id}','${itemId}',1)">×1</button>
+                <button class="craft-btn" style="padding:2px 8px; font-size:0.7rem;" onclick="SaeculumSystem.sellToContact('${id}','${itemId}',5)">×5</button>
+                <button class="craft-btn" style="padding:2px 8px; font-size:0.7rem;" onclick="SaeculumSystem.sellToContact('${id}','${itemId}','all')">${lang==='en'?'all':'vše'}</button>
+              </div>`;
       });
-      if (!anyStock) html += `<div style="font-size:0.74rem; opacity:0.55; font-style:italic;">${lang==='en'?'You have nothing he would buy right now.':'Nemáš teď nic, co by vykoupil.'}</div>`;
+      if (!anyStock) h += `<div style="font-size:0.74rem; opacity:0.55; font-style:italic;">${lang==='en'?'You have nothing he would buy right now.':'Nemáš teď nic, co by vykoupil.'}</div>`;
+    } else {
+      h += `<div style="font-size:0.74rem; opacity:0.55; font-style:italic;">${lang==='en'?'He buys nothing at the moment.':'Zatím nic nevykupuje.'}</div>`;
+    }
+    h += `</div>`;
+
+    h += `</div>`; // konec sloupců
+
+    // Mola blok — Mlynář od tier 3 (integrace, mechanika sendToMill/collectFromMill beze změny)
+    if (id === 'mlynar') {
+      h += `<div style="margin-top:14px;"><div style="font-size:0.7rem; font-weight:bold; letter-spacing:0.08em; text-transform:uppercase; color:var(--accent-gold); margin-bottom:8px; padding-bottom:4px; border-bottom:2px solid var(--accent-gold);">⚙️ ${t('saeculum.mola')}</div>`;
+      h += this.renderMolaInner();
+      h += `</div>`;
     }
 
-    html += `<div style="font-size:0.72rem; opacity:0.55; font-style:italic; margin-top:10px;">${lang==='en'
-        ? 'Trade ties will form with time — deal with him and the relation will grow.'
-        : 'Obchodní vazby se teprve utvoří — jednej s ním a vztah poroste.'}</div>`;
-
-    NotificationSystem.modal({
-      icon: c.icon,
-      title: lang==='en' ? c.name_en : c.name,
-      text: html,
-      choices: [{ label: (lang==='en'?'Close':'Zavřít') }]
-    });
+    h += `</div>`;
+    return h;
   },
 
   // Regula — denní režim konvršů + refektář
