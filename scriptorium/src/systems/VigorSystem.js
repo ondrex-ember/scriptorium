@@ -371,7 +371,10 @@ const VigorSystem = {
 
     // ── Jídlo ────────────────────────────────────────────────────────────────
     eat: function(foodId) {
-        const satGain   = this.FOOD_SATIETY[foodId] || 10;
+        let satGain = this.FOOD_SATIETY[foodId] || 10;
+        // Professio: Zahradník (vigor_food) — jídlo sytí víc
+        const roleMult = (typeof RankSystem !== 'undefined') ? RankSystem.getActiveBonus('vigor_food') : 1.0;
+        satGain = Math.round(satGain * roleMult);
         const fatChange = this.FOOD_FATIGUE[foodId] || 0;
         const lang = (GameState.settings && GameState.settings.language) || 'cs';
 

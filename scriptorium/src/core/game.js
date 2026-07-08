@@ -552,6 +552,8 @@ const Game = {
                     if (typeof Game !== 'undefined' && Game.visitatioTick) Game.visitatioTick();
                     // Rank — mnišský postup (pure čtení podmínek, levné)
                     if (typeof RankSystem !== 'undefined' && RankSystem.checkMonasticProgress) RankSystem.checkMonasticProgress();
+                    // Rank — světský postup (stejný vzor, dřív jen na boot)
+                    if (typeof RankSystem !== 'undefined' && RankSystem.checkSecularProgress) RankSystem.checkSecularProgress();
                     // Templum — poutníci (self-guarded 7 d, gate frater+ a canonical hours)
                     if (typeof Game !== 'undefined' && Game.pilgrimTick) Game.pilgrimTick();
                     // Caseus — denní zrání sýra (self-guarded 24h, gate tech_caseus)
@@ -2689,6 +2691,11 @@ const Game = {
                 }
             }
         }
+        // Professio: Scriptor (craft_speed) — stejný vzor, samostatná šance navíc
+        if (typeof RankSystem !== 'undefined') {
+            const roleMult = RankSystem.getActiveBonus('craft_speed');
+            if (roleMult > 1.0 && Math.random() < (roleMult - 1.0)) craftQty += 1;
+        }
 
         // ── RESEARCH: diminishing returns ────────────────────────────────────
         if (r.output === 'research') {
@@ -2753,11 +2760,12 @@ const Game = {
 
         // 👿 TITIVILLUS – démon překlepů
         // Sbírá chyby z lore itemů (papír, inkoust, zápisky)
-        // Vyšší šance v noci bez světla
+        // Vyšší šance v noci bez světla; Professio Scriptor (craft_errors) sanci snižuje
         if (['paper', 'ink', 'research'].includes(r.output)) {
             const isNight = !TimeSys.isDaytime();
             const noLight = !GameState.flags.candleLit && !GameState.flags.torchLit;
-            const chance = (isNight && noLight) ? 0.08 : 0.03;
+            const roleErrMult = (typeof RankSystem !== 'undefined') ? RankSystem.getActiveBonus('craft_errors') : 1.0;
+            const chance = ((isNight && noLight) ? 0.08 : 0.03) * roleErrMult;
             if (Math.random() < chance) {
                 this.removeItem(r.output, r.qty); // ukradne výstup
                 Analytics.titivillusStruck(r.output, isNight && noLight);

@@ -772,11 +772,14 @@ const CombinationEngine = {
     // Role Athanorista: bonus +3 k rollu (getActiveBonus vrátí 1.20 → 0.20 * 15 = 3)
     const roleMod = (typeof RankSystem !== 'undefined') ? Math.round((RankSystem.getActiveBonus('athanor_success') - 1.0) * 15) : 0;
     const effectiveRoll = roll + vigorMod + roleMod;
+    // Role Athanorista: nigredo_bonus — extra ochrana proti Corruptio (Nigredo selhání)
+    const nigredoMod = (typeof RankSystem !== 'undefined') ? Math.round((RankSystem.getActiveBonus('nigredo_bonus') - 1.0) * 15) : 0;
+    const corruptionRoll = effectiveRoll + nigredoMod;
 
     // Zkontroluj failures
     for (const f of AthanorDB.failures) {
       if (f.id === 'CORRUPTIO') {
-        if (f.condition(thermal, moisture, effectiveRoll)) {
+        if (f.condition(thermal, moisture, corruptionRoll)) {
           return { success: false, failure: f };
         }
       } else {

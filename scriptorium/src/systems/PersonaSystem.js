@@ -310,6 +310,13 @@ const PersonaSystem = {
     _renderMonasticPath: function(lang) {
         const monasticId = GameState.rank && GameState.rank.monastic;
         if (!monasticId) {
+            const tier = (typeof RankSystem !== 'undefined') ? RankSystem.getSecularRankTier() : 1;
+            if (tier >= 3) {
+                return `<div style="margin-top:14px;padding:10px 12px;background:rgba(197,160,89,0.06);border-left:3px solid var(--accent-gold);border-radius:4px;font-size:0.82rem;">
+                    <div style="opacity:0.75;margin-bottom:8px;font-style:italic;">${lang==='en'?'The monastery would accept you.':'Klášter by tě přijal.'}</div>
+                    <button class="craft-btn" style="width:100%;" onclick="RankSystem.enterMonasticPath(); PersonaSystem.render();">${t('rank.monasticEntry')}</button>
+                </div>`;
+            }
             return `<div style="margin-top:14px;padding:10px 12px;background:rgba(197,160,89,0.06);border-left:3px solid var(--accent-gold);border-radius:4px;font-size:0.82rem;opacity:0.65;font-style:italic;">
                 ${lang==='en'?'Not yet on the monastic path.':'Zatím mimo klášterní dráhu.'}
             </div>`;

@@ -333,8 +333,13 @@ const CellariumSystem = {
     const offset = 0.85 + pseudoRand * 0.30; // 0.85–1.15
     const satMult = this._saturationMult(itemId, entity);
     const roleMult = (typeof RankSystem !== 'undefined') ? RankSystem.getActiveBonus('market_price') : 1.0;
+    // Professio: Illuminator (manuscript_price) — striktně jen role illuminator, žádný fallback pro ostatní
+    const isIlluminator = (GameState.persona && GameState.persona.role === 'illuminator');
+    const manuscriptMult = (cat === 'lore' && isIlluminator && typeof RankSystem !== 'undefined') ? RankSystem.getActiveBonus('manuscript_price') : 1.0;
     const fastMult = this._fastMult(itemId);
-    return Math.max(1, Math.round(base * coeff * offset * satMult * roleMult * fastMult));
+    // Reputace — jen Hospoda (osobní vztah s Benediktem); Trh/Obchod = čistě nabídka/poptávka (satMult)
+    const repMult = (entity === 'tavern') ? (1.10 + ((GameState.persona?.influence?.benedikt || 0) / 100) * 0.25) : 1.0;
+    return Math.max(1, Math.round(base * coeff * offset * satMult * roleMult * manuscriptMult * fastMult * repMult));
   },
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -363,6 +368,14 @@ const CellariumSystem = {
     GameState.shopStock.dailySold[soldKey] = (GameState.shopStock.dailySold[soldKey] || 0) + qty;
     this.recordTransaction('sell', itemId, qty, price, entity);
     GameState.economy.tradesTotal++;
+    // Reputace — obchod zvyšuje vztah k entitě (+1 základ + Celerarius bonus navrch)
+    if (typeof PersonaSystem !== 'undefined' && PersonaSystem.addInfluence) {
+        const repAxis = entity === 'tavern' ? 'benedikt' : entity === 'market' ? 'giacomo' : entity === 'shop' ? 'village' : null;
+        if (repAxis) {
+            const roleBonus = (typeof RankSystem !== 'undefined') ? RankSystem.getActiveBonus('npc_rep_gain') : 0;
+            PersonaSystem.addInfluence(repAxis, 1 + roleBonus);
+        }
+    }
     if (GameState.economy.tradesTotal === 1) {
         Game.addKronikaEntry('important', '🏛️ První obchod uzavřen v Cellariu.', '🏛️ First trade completed in the Cellarium.', '🏛️ Primum commercium in Cellario factum est.');
     }
@@ -534,6 +547,14 @@ const CellariumSystem = {
     // Aplikuj efekt nápoje (pivo/víno)
     CellariumSystem.applyDrinkEffect(itemId);
     GameState.economy.tradesTotal++;
+    // Reputace — nákup taky zvyšuje vztah k entitě (stejný vzor jako sellItem)
+    if (typeof PersonaSystem !== 'undefined' && PersonaSystem.addInfluence) {
+        const repAxis = entity === 'tavern' ? 'benedikt' : entity === 'market' ? 'giacomo' : entity === 'shop' ? 'village' : null;
+        if (repAxis) {
+            const roleBonus = (typeof RankSystem !== 'undefined') ? RankSystem.getActiveBonus('npc_rep_gain') : 0;
+            PersonaSystem.addInfluence(repAxis, 1 + roleBonus);
+        }
+    }
     Game.save();
     const itemName = (typeof iName === 'function') ? iName(itemId) : itemId;
     UI.notify(t('cellarium.boughtNotify').replace('{qty}', 1).replace('{item}', itemName).replace('{total}', price));
