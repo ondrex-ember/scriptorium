@@ -5861,6 +5861,10 @@ const ItemsDB = {
     "glass_vase": { name: "Váza", name_en: "Glass Vase", icon: "🏵️", type: "tool", desc: "Ozdobná váza. Krása má v klášteře své místo.", desc_en: "A decorative vase. Beauty has its place in a monastery." },
     "window_roundel": { name: "Okenní terčík", name_en: "Window Roundel", icon: "🟡", type: "tool", desc: "Kulatý terčík do olova okenní výplně. Světlo dovnitř, zima ven.", desc_en: "A round pane set in lead. Light in, cold out." },
     "paternoster_beads": { name: "Páteříky", name_en: "Paternoster Beads", icon: "📿", type: "tool", desc: "Skleněné růžencové korálky. Sklářská pýcha českých hutí.", desc_en: "Glass rosary beads. The pride of Bohemian glassworks." },
+    "roucho_bile": { name: "Roucho — bílé", name_en: "Vestment — White", icon: "🤍", type: "tool", desc: "Pro vánoční a velikonoční dobu. Trvanlivé — nespotřebovává se.", desc_en: "For Christmastide and Eastertide. Durable — not consumed." },
+    "roucho_fialove": { name: "Roucho — fialové", name_en: "Vestment — Purple", icon: "💜", type: "tool", desc: "Pro advent a půst. Trvanlivé — nespotřebovává se.", desc_en: "For Advent and Lent. Durable — not consumed." },
+    "roucho_zelene": { name: "Roucho — zelené", name_en: "Vestment — Green", icon: "💚", type: "tool", desc: "Pro liturgické mezidobí. Trvanlivé — nespotřebovává se.", desc_en: "For Ordinary Time. Durable — not consumed." },
+    "roucho_cervene": { name: "Roucho — červené", name_en: "Vestment — Red", icon: "❤️", type: "tool", desc: "Pro Letnice a svátky mučedníků. Trvanlivé — nespotřebovává se.", desc_en: "For Pentecost and martyrs' feasts. Durable — not consumed." },
     "alembic": { name: "Alembik", name_en: "Alembic", icon: "⚗️", type: "tool", desc: "Destilační nádoba z čirého skla. Bez alembiku není destilace.", desc_en: "A distillation vessel of clear glass. No alembic, no distillation." },
     "glass_mirror": { name: "Zrcadlo", name_en: "Glass Mirror", icon: "🪞", type: "tool", desc: "Broušené zrcadlo — vzácnost hodná biskupského stolu.", desc_en: "A polished mirror — a rarity fit for a bishop's table." },
 
@@ -16184,6 +16188,11 @@ const CellariumSystem = {
       { itemId: 'seeds_flax',      basePrice: 9,  dailyStock: 10 },
       // Kadidlo — dovozní pryskyřice (Thuribulum)
       { itemId: 'resin_styrax',    basePrice: 18, dailyStock: 2,  req_tech: 'tech_thuribulum' },
+      // Liturgická roucha — trvanlivá, vestment-sezóna (endgame-branches-reference.md)
+      { itemId: 'roucho_bile',     basePrice: 15, dailyStock: 1,  req_tech: 'tech_canonical_hours' },
+      { itemId: 'roucho_fialove',  basePrice: 15, dailyStock: 1,  req_tech: 'tech_canonical_hours' },
+      { itemId: 'roucho_zelene',   basePrice: 15, dailyStock: 1,  req_tech: 'tech_canonical_hours' },
+      { itemId: 'roucho_cervene',  basePrice: 18, dailyStock: 1,  req_tech: 'tech_canonical_hours' },
     ],
     market: [
       { itemId: 'paper',         basePrice: 3,   dailyStock: 25 },
@@ -18590,6 +18599,44 @@ const TemplumSystem = {
             </div>
           </div>`;
 
+        // Fabrica Ecclesiae — 4 stavební úrovně (endgame-branches-reference.md sekce 4.2)
+        {
+            const t0 = GameState.templum || {};
+            const tier = t0.fabricaTier || 0;
+            const cond = t0.condition != null ? t0.condition : 100;
+            const cur = Game.FABRICA_TIERS[tier];
+            const next = Game.FABRICA_TIERS[tier + 1];
+            const curName = lang==='en' ? cur.name_en : cur.name;
+            const condColor = cond >= 70 ? '#5a9a5a' : cond >= 40 ? 'var(--accent-gold)' : '#c0392b';
+            h += `<div style="padding:12px 15px; margin-bottom:16px; background:rgba(197,160,89,0.05); border:1px solid rgba(197,160,89,0.25); border-radius:8px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+                    <div style="font-weight:bold; font-size:0.9rem;">🏛️ Fabrica Ecclesiae — ${curName}</div>
+                    <button class="craft-btn" style="font-size:0.7rem; padding:3px 10px;" onclick="Game.repairFabrica()">🔧 ${lang==='en'?'Repair (20g)':'Opravit (20g)'}</button>
+                </div>
+                <div style="display:flex; justify-content:space-between; font-size:0.7rem; opacity:0.65; margin-bottom:3px;">
+                    <span>${lang==='en'?'Structural condition':'Strukturální stav'}</span><span>${Math.round(cond)} %</span>
+                </div>
+                <div style="height:6px; background:rgba(0,0,0,0.1); border-radius:3px; overflow:hidden; margin-bottom:8px;">
+                    <div style="height:100%; width:${cond}%; background:${condColor}; border-radius:3px;"></div>
+                </div>`;
+            if (next) {
+                const nextName = lang==='en' ? next.name_en : next.name;
+                const req = next.req || {};
+                const eccl = (GameState.persona && GameState.persona.influence && GameState.persona.influence.church) || 0;
+                const zbozn = (GameState.persona && GameState.persona.zboznost) || 0;
+                const rows = [];
+                if (req.condition) rows.push([cond >= req.condition, (lang==='en'?'Condition':'Stav')+' ≥'+req.condition+'% ('+Math.round(cond)+')']);
+                if (req.ecclesia)  rows.push([eccl >= req.ecclesia,  'Ecclesia ≥'+req.ecclesia+' ('+Math.round(eccl)+')']);
+                if (req.zboznost)  rows.push([zbozn >= req.zboznost, (lang==='en'?'Piety':'Zbožnost')+' ≥'+req.zboznost+' ('+Math.round(zbozn)+')']);
+                const met = rows.every(r => r[0]);
+                h += rows.map(r => `<div style="font-size:0.68rem; ${r[0]?'opacity:0.7;':'color:#c0392b;'}">${r[0]?'✓':'✗'} ${r[1]}</div>`).join('');
+                h += `<button class="craft-btn" style="margin-top:8px; width:100%;" ${met && CellariumSystem.getGrose() >= next.cost ? '' : 'disabled'} onclick="Game.upgradeFabrica()">⬆️ ${lang==='en'?'Raise to':'Povýšit na'} ${nextName} (${next.cost}g)</button>`;
+            } else {
+                h += `<div style="font-size:0.75rem; opacity:0.6; font-style:italic;">${lang==='en'?'Highest tier reached.':'Nejvyšší úroveň dosažena.'}</div>`;
+            }
+            h += `</div>`;
+        }
+
         // Pilíř Úklid (T2) — živý stav; ostatní pilíře zamčené (sprinty T3–T5)
         const t = GameState.templum || {};
         const now = Date.now();
@@ -18636,6 +18683,14 @@ const TemplumSystem = {
             h += reqRow(wineOk, `1× ${lang==='en'?'wine':'víno'} (${(inv['vinum'] || 0) + (inv['wine'] || 0)})`);
             h += reqRow(!!bestIncense, `1× ${incName}`);
             h += reqRow((inv['hostia'] || 0) >= 3, `3× ${lang==='en'?'host wafers':'hostie'} (${inv['hostia'] || 0})`);
+            {
+                const VESTMENT_BY_COLOR = { white: 'roucho_bile', purple: 'roucho_fialove', green: 'roucho_zelene', red: 'roucho_cervene' };
+                const colorNames = { white: lang==='en'?'white':'bílá', purple: lang==='en'?'purple':'fialová', green: lang==='en'?'green':'zelená', red: lang==='en'?'red':'červená' };
+                const litColor = (typeof CalendarSystem !== 'undefined' && CalendarSystem.getLiturgicalColor) ? CalendarSystem.getLiturgicalColor(new Date()) : null;
+                const vId = litColor ? VESTMENT_BY_COLOR[litColor] : null;
+                const hasV = vId ? (inv[vId] || 0) >= 1 : true;
+                if (litColor) h += reqRow(hasV, (lang==='en'?'vestment: ':'roucho: ') + colorNames[litColor]);
+            }
             if ((inv['reliquia'] || 0) >= 1) h += `<div style="font-size:0.7rem; margin-top:2px; color:var(--accent-gold);">✨ ${lang==='en'?'relic':'relikvie'} +1</div>`;
             if (!lit || !clean) h += `<div style="font-size:0.64rem; color:#e67e22; margin-top:4px;">⚠️ ${lang==='en'?'dark/dusty church — mass will be halved':'zhaslý/zaprášený kostel — mše bude poloviční'}</div>`;
             h += `<button class="craft-btn" style="margin-top:6px;" ${allOk ? '' : 'disabled'} onclick="Game.serveMass()">⛪ ${lang==='en'?'Hold mass':'Sloužit mši'}</button>`;
@@ -42475,11 +42530,17 @@ const Game = {
         const lit = (t.litUntil || 0) > now;
         const clean = (t.cleanUntil || 0) > now;
         const degraded = !lit || !clean;
+        // Vestment-sezóna: liturgická barva musí sedět, jinak stejná penalizace jako degraded
+        const VESTMENT_BY_COLOR = { white: 'roucho_bile', purple: 'roucho_fialove', green: 'roucho_zelene', red: 'roucho_cervene' };
+        const liturgicalColor = (typeof CalendarSystem !== 'undefined' && CalendarSystem.getLiturgicalColor) ? CalendarSystem.getLiturgicalColor(new Date()) : null;
+        const vestmentId = liturgicalColor ? VESTMENT_BY_COLOR[liturgicalColor] : null;
+        const wrongVestment = vestmentId ? (inv[vestmentId] || 0) < 1 : false;
         let eccl = 5 + (this.MASS_INCENSE_TIER[incenseId] || 0);
         // Visitatio V2: vystavená relikvie — mše nese větší milost (základ, PŘED degradací i svátkem)
         if ((GameState.inventory['reliquia'] || 0) >= 1) eccl += 1;
         let vill = 3;
         if (degraded) { eccl = Math.max(1, Math.floor(eccl / 2)); vill = Math.max(1, Math.floor(vill / 2)); }
+        if (wrongVestment) { eccl = Math.max(1, Math.floor(eccl / 2)); vill = Math.max(1, Math.floor(vill / 2)); }
         // Svátkový násobič (Chronicon feast flag) — PO degradaci; defenzivní no-op bez snapshotu
         let feastName = null;
         const _snap = (typeof ChroniconSystem !== 'undefined') ? ChroniconSystem._snap : null;
@@ -42506,9 +42567,10 @@ const Game = {
 
         if (typeof UI !== 'undefined' && UI.notifyPanel) {
             const feastPart = feastName ? (lang==='en' ? ' Feast of ' + feastName + ' — twofold grace!' : ' Svátek ' + feastName + ' — dvojnásobná milost!') : '';
+            const vestmentPart = wrongVestment ? (lang==='en' ? ' Wrong vestment colour — impact reduced.' : ' Špatná barva roucha — dopad snížen.') : '';
             UI.notifyPanel('⛪ ' + (degraded
                 ? (lang==='en' ? 'Mass held in gloom and dust. Ecclesia +'+eccl+', village +'+vill+'.' : 'Mše v šeru a prachu. Ecclesia +'+eccl+', vesnice +'+vill+'.')
-                : (lang==='en' ? 'Mass held. Ecclesia +'+eccl+', village +'+vill+'.' : 'Mše odsloužena. Ecclesia +'+eccl+', vesnice +'+vill+'.')) + feastPart, degraded ? 'warning' : 'success');
+                : (lang==='en' ? 'Mass held. Ecclesia +'+eccl+', village +'+vill+'.' : 'Mše odsloužena. Ecclesia +'+eccl+', vesnice +'+vill+'.')) + feastPart + vestmentPart, (degraded || wrongVestment) ? 'warning' : 'success');
         }
         Game.addKronikaEntry('important',
             feastName ? '⛪ Mše o svátku ' + feastName + ' — kostel praskal ve švech.' : (degraded ? '⛪ Mše sloužena v šeru a prachu — kostel volá po péči.' : '⛪ Mše slavnostně odsloužena. Kraj naslouchal.'),
@@ -42518,7 +42580,62 @@ const Game = {
         if (el && typeof TemplumSystem !== 'undefined') el.innerHTML = TemplumSystem.renderTemplumTab();
     },
 
-    // ── TEMPLUM T2: denní chod kostela — svíce (1/den) + úklid konvršem (self-guarded 24h) ──
+    // ── TEMPLUM Fabrica Ecclesiae — 4 stavební úrovně (endgame-branches-reference.md sekce 4.2) ──
+    FABRICA_TIERS: [
+        { name: 'Kaple',     name_en: 'Chapel',    cost: 0,   req: null, decayMult: 1.00, repairEff: 1.00 },
+        { name: 'Kostel',    name_en: 'Church',    cost: 150, req: { ecclesia: 15, condition: 60 }, decayMult: 1.10, repairEff: 1.10 },
+        { name: 'Chrám',     name_en: 'Temple',    cost: 400, req: { ecclesia: 35, zboznost: 25, condition: 70 }, decayMult: 1.20, repairEff: 1.25 },
+        { name: 'Katedrála', name_en: 'Cathedral', cost: 900, req: { ecclesia: 60, zboznost: 50, condition: 80 }, decayMult: 1.35, repairEff: 1.40 },
+    ],
+
+    fabricaMeetsRequirements: function(req) {
+        if (!req) return true;
+        const p = GameState.persona || {};
+        const cond = (GameState.templum && GameState.templum.condition != null) ? GameState.templum.condition : 100;
+        if (req.condition && cond < req.condition) return false;
+        if (req.ecclesia && ((p.influence && p.influence.church) || 0) < req.ecclesia) return false;
+        if (req.zboznost && (p.zboznost || 0) < req.zboznost) return false;
+        return true;
+    },
+
+    upgradeFabrica: function() {
+        if (typeof CellariumSystem === 'undefined') return;
+        if (!GameState.templum) GameState.templum = {};
+        const t = GameState.templum;
+        const tier = t.fabricaTier || 0;
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        if (tier >= this.FABRICA_TIERS.length - 1) return;
+        const next = this.FABRICA_TIERS[tier + 1];
+        if (!this.fabricaMeetsRequirements(next.req)) { UI.notify('⚠️ ' + (lang==='en'?'Requirements not met.':'Podmínky nesplněny.'), true); return; }
+        if (CellariumSystem.getGrose() < next.cost) { UI.notify('⚠️ ' + (lang==='en'?'Not enough groschen.':'Nedostatek grošů.'), true); return; }
+        CellariumSystem.spendGrose(next.cost);
+        t.fabricaTier = tier + 1;
+        const name = lang==='en' ? next.name_en : next.name;
+        Game.save();
+        UI.notifyPanel('🏛️ ' + (lang==='en'?'The church rises: ':'Kostel roste: ') + name + '.', 'success');
+        Game.addKronikaEntry('important',
+            '🏛️ Fabrica: kostel povýšen na ' + name + '.',
+            '🏛️ Fabrica: the church raised to ' + name + '.',
+            '🏛️ Fabrica ecclesiae aucta est.');
+        const el2 = document.getElementById('home-templum-content');
+        if (el2 && typeof TemplumSystem !== 'undefined') el2.innerHTML = TemplumSystem.renderTemplumTab();
+    },
+
+    repairFabrica: function() {
+        if (typeof CellariumSystem === 'undefined') return;
+        if (!GameState.templum) GameState.templum = {};
+        const t = GameState.templum;
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        const cost = 20;
+        if (CellariumSystem.getGrose() < cost) { UI.notify('⚠️ ' + (lang==='en'?'Not enough groschen.':'Nedostatek grošů.'), true); return; }
+        CellariumSystem.spendGrose(cost);
+        const tierDef = this.FABRICA_TIERS[t.fabricaTier || 0];
+        t.condition = Math.min(100, (t.condition != null ? t.condition : 100) + 15 * tierDef.repairEff);
+        Game.save();
+        UI.notify('🔧 ' + (lang==='en'?'Repairs made.':'Opraveno.'));
+        const el3 = document.getElementById('home-templum-content');
+        if (el3 && typeof TemplumSystem !== 'undefined') el3.innerHTML = TemplumSystem.renderTemplumTab();
+    },
     templumDailyTick: function() {
         if (typeof TemplumSystem === 'undefined' || !TemplumSystem.isUnlocked()) return;
         if (!GameState.templum) GameState.templum = {};
@@ -42548,6 +42665,9 @@ const Game = {
             t.cleanUntil = now + 48 * 60 * 60 * 1000;
             t.lastCleaner = cleaner.name;
         }
+        // Fabrica: strukturální stav budovy pomalu chátrá, rychleji u vyšších úrovní
+        const fTier = this.FABRICA_TIERS[t.fabricaTier || 0];
+        t.condition = Math.max(0, (t.condition != null ? t.condition : 100) - 0.3 * fTier.decayMult);
         Game.save();
     },
 
@@ -46463,6 +46583,24 @@ const CalendarSystem = {
         const month = Math.floor((h + l - 7 * m + 114) / 31);
         const day = ((h + l - 7 * m + 114) % 31) + 1;
         return { month, day };
+    },
+
+    // Liturgická barva pro daný den — endgame-branches-reference.md, vestment-sezóna
+    // fialová: advent + půst · bílá: vánoční + velikonoční doba · červená: letnice · zelená: jinak
+    getLiturgicalColor: function (date) {
+        const y = date.getFullYear();
+        const easter = this.getEaster(y);
+        const easterDate = new Date(y, easter.month - 1, easter.day);
+        const ashDate = new Date(easterDate); ashDate.setDate(easterDate.getDate() - 46);
+        const pentecostDate = new Date(easterDate); pentecostDate.setDate(easterDate.getDate() + 49);
+        const d = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+
+        if (d.getMonth() === 11 && d.getDate() <= 24) return 'purple'; // advent
+        if ((d.getMonth() === 11 && d.getDate() >= 25) || (d.getMonth() === 0 && d.getDate() <= 5)) return 'white'; // vánoční doba
+        if (d >= ashDate && d < easterDate) return 'purple'; // půst
+        if (d >= easterDate && d < pentecostDate) return 'white'; // velikonoční doba
+        if (d.getTime() === pentecostDate.getTime()) return 'red'; // letnice
+        return 'green'; // mezidobí
     },
 
     // ── Sváteční databáze (fixní + pohyblivé) ────────────────────────────────

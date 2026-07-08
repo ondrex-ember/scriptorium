@@ -58,6 +58,44 @@ const TemplumSystem = {
             </div>
           </div>`;
 
+        // Fabrica Ecclesiae — 4 stavební úrovně (endgame-branches-reference.md sekce 4.2)
+        {
+            const t0 = GameState.templum || {};
+            const tier = t0.fabricaTier || 0;
+            const cond = t0.condition != null ? t0.condition : 100;
+            const cur = Game.FABRICA_TIERS[tier];
+            const next = Game.FABRICA_TIERS[tier + 1];
+            const curName = lang==='en' ? cur.name_en : cur.name;
+            const condColor = cond >= 70 ? '#5a9a5a' : cond >= 40 ? 'var(--accent-gold)' : '#c0392b';
+            h += `<div style="padding:12px 15px; margin-bottom:16px; background:rgba(197,160,89,0.05); border:1px solid rgba(197,160,89,0.25); border-radius:8px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+                    <div style="font-weight:bold; font-size:0.9rem;">🏛️ Fabrica Ecclesiae — ${curName}</div>
+                    <button class="craft-btn" style="font-size:0.7rem; padding:3px 10px;" onclick="Game.repairFabrica()">🔧 ${lang==='en'?'Repair (20g)':'Opravit (20g)'}</button>
+                </div>
+                <div style="display:flex; justify-content:space-between; font-size:0.7rem; opacity:0.65; margin-bottom:3px;">
+                    <span>${lang==='en'?'Structural condition':'Strukturální stav'}</span><span>${Math.round(cond)} %</span>
+                </div>
+                <div style="height:6px; background:rgba(0,0,0,0.1); border-radius:3px; overflow:hidden; margin-bottom:8px;">
+                    <div style="height:100%; width:${cond}%; background:${condColor}; border-radius:3px;"></div>
+                </div>`;
+            if (next) {
+                const nextName = lang==='en' ? next.name_en : next.name;
+                const req = next.req || {};
+                const eccl = (GameState.persona && GameState.persona.influence && GameState.persona.influence.church) || 0;
+                const zbozn = (GameState.persona && GameState.persona.zboznost) || 0;
+                const rows = [];
+                if (req.condition) rows.push([cond >= req.condition, (lang==='en'?'Condition':'Stav')+' ≥'+req.condition+'% ('+Math.round(cond)+')']);
+                if (req.ecclesia)  rows.push([eccl >= req.ecclesia,  'Ecclesia ≥'+req.ecclesia+' ('+Math.round(eccl)+')']);
+                if (req.zboznost)  rows.push([zbozn >= req.zboznost, (lang==='en'?'Piety':'Zbožnost')+' ≥'+req.zboznost+' ('+Math.round(zbozn)+')']);
+                const met = rows.every(r => r[0]);
+                h += rows.map(r => `<div style="font-size:0.68rem; ${r[0]?'opacity:0.7;':'color:#c0392b;'}">${r[0]?'✓':'✗'} ${r[1]}</div>`).join('');
+                h += `<button class="craft-btn" style="margin-top:8px; width:100%;" ${met && CellariumSystem.getGrose() >= next.cost ? '' : 'disabled'} onclick="Game.upgradeFabrica()">⬆️ ${lang==='en'?'Raise to':'Povýšit na'} ${nextName} (${next.cost}g)</button>`;
+            } else {
+                h += `<div style="font-size:0.75rem; opacity:0.6; font-style:italic;">${lang==='en'?'Highest tier reached.':'Nejvyšší úroveň dosažena.'}</div>`;
+            }
+            h += `</div>`;
+        }
+
         // Pilíř Úklid (T2) — živý stav; ostatní pilíře zamčené (sprinty T3–T5)
         const t = GameState.templum || {};
         const now = Date.now();
@@ -104,6 +142,14 @@ const TemplumSystem = {
             h += reqRow(wineOk, `1× ${lang==='en'?'wine':'víno'} (${(inv['vinum'] || 0) + (inv['wine'] || 0)})`);
             h += reqRow(!!bestIncense, `1× ${incName}`);
             h += reqRow((inv['hostia'] || 0) >= 3, `3× ${lang==='en'?'host wafers':'hostie'} (${inv['hostia'] || 0})`);
+            {
+                const VESTMENT_BY_COLOR = { white: 'roucho_bile', purple: 'roucho_fialove', green: 'roucho_zelene', red: 'roucho_cervene' };
+                const colorNames = { white: lang==='en'?'white':'bílá', purple: lang==='en'?'purple':'fialová', green: lang==='en'?'green':'zelená', red: lang==='en'?'red':'červená' };
+                const litColor = (typeof CalendarSystem !== 'undefined' && CalendarSystem.getLiturgicalColor) ? CalendarSystem.getLiturgicalColor(new Date()) : null;
+                const vId = litColor ? VESTMENT_BY_COLOR[litColor] : null;
+                const hasV = vId ? (inv[vId] || 0) >= 1 : true;
+                if (litColor) h += reqRow(hasV, (lang==='en'?'vestment: ':'roucho: ') + colorNames[litColor]);
+            }
             if ((inv['reliquia'] || 0) >= 1) h += `<div style="font-size:0.7rem; margin-top:2px; color:var(--accent-gold);">✨ ${lang==='en'?'relic':'relikvie'} +1</div>`;
             if (!lit || !clean) h += `<div style="font-size:0.64rem; color:#e67e22; margin-top:4px;">⚠️ ${lang==='en'?'dark/dusty church — mass will be halved':'zhaslý/zaprášený kostel — mše bude poloviční'}</div>`;
             h += `<button class="craft-btn" style="margin-top:6px;" ${allOk ? '' : 'disabled'} onclick="Game.serveMass()">⛪ ${lang==='en'?'Hold mass':'Sloužit mši'}</button>`;

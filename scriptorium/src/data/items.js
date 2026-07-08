@@ -529,6 +529,10 @@ const ItemsDB = {
     "glass_vase": { name: "Váza", name_en: "Glass Vase", icon: "🏵️", type: "tool", desc: "Ozdobná váza. Krása má v klášteře své místo.", desc_en: "A decorative vase. Beauty has its place in a monastery." },
     "window_roundel": { name: "Okenní terčík", name_en: "Window Roundel", icon: "🟡", type: "tool", desc: "Kulatý terčík do olova okenní výplně. Světlo dovnitř, zima ven.", desc_en: "A round pane set in lead. Light in, cold out." },
     "paternoster_beads": { name: "Páteříky", name_en: "Paternoster Beads", icon: "📿", type: "tool", desc: "Skleněné růžencové korálky. Sklářská pýcha českých hutí.", desc_en: "Glass rosary beads. The pride of Bohemian glassworks." },
+    "roucho_bile": { name: "Roucho — bílé", name_en: "Vestment — White", icon: "🤍", type: "tool", desc: "Pro vánoční a velikonoční dobu. Trvanlivé — nespotřebovává se.", desc_en: "For Christmastide and Eastertide. Durable — not consumed." },
+    "roucho_fialove": { name: "Roucho — fialové", name_en: "Vestment — Purple", icon: "💜", type: "tool", desc: "Pro advent a půst. Trvanlivé — nespotřebovává se.", desc_en: "For Advent and Lent. Durable — not consumed." },
+    "roucho_zelene": { name: "Roucho — zelené", name_en: "Vestment — Green", icon: "💚", type: "tool", desc: "Pro liturgické mezidobí. Trvanlivé — nespotřebovává se.", desc_en: "For Ordinary Time. Durable — not consumed." },
+    "roucho_cervene": { name: "Roucho — červené", name_en: "Vestment — Red", icon: "❤️", type: "tool", desc: "Pro Letnice a svátky mučedníků. Trvanlivé — nespotřebovává se.", desc_en: "For Pentecost and martyrs' feasts. Durable — not consumed." },
     "alembic": { name: "Alembik", name_en: "Alembic", icon: "⚗️", type: "tool", desc: "Destilační nádoba z čirého skla. Bez alembiku není destilace.", desc_en: "A distillation vessel of clear glass. No alembic, no distillation." },
     "glass_mirror": { name: "Zrcadlo", name_en: "Glass Mirror", icon: "🪞", type: "tool", desc: "Broušené zrcadlo — vzácnost hodná biskupského stolu.", desc_en: "A polished mirror — a rarity fit for a bishop's table." },
 

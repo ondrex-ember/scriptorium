@@ -420,6 +420,11 @@ const CellariumSystem = {
       { itemId: 'seeds_flax',      basePrice: 9,  dailyStock: 10 },
       // Kadidlo — dovozní pryskyřice (Thuribulum)
       { itemId: 'resin_styrax',    basePrice: 18, dailyStock: 2,  req_tech: 'tech_thuribulum' },
+      // Liturgická roucha — trvanlivá, vestment-sezóna (endgame-branches-reference.md)
+      { itemId: 'roucho_bile',     basePrice: 15, dailyStock: 1,  req_tech: 'tech_canonical_hours' },
+      { itemId: 'roucho_fialove',  basePrice: 15, dailyStock: 1,  req_tech: 'tech_canonical_hours' },
+      { itemId: 'roucho_zelene',   basePrice: 15, dailyStock: 1,  req_tech: 'tech_canonical_hours' },
+      { itemId: 'roucho_cervene',  basePrice: 18, dailyStock: 1,  req_tech: 'tech_canonical_hours' },
     ],
     market: [
       { itemId: 'paper',         basePrice: 3,   dailyStock: 25 },

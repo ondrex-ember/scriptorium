@@ -167,6 +167,24 @@ const CalendarSystem = {
         return { month, day };
     },
 
+    // Liturgická barva pro daný den — endgame-branches-reference.md, vestment-sezóna
+    // fialová: advent + půst · bílá: vánoční + velikonoční doba · červená: letnice · zelená: jinak
+    getLiturgicalColor: function (date) {
+        const y = date.getFullYear();
+        const easter = this.getEaster(y);
+        const easterDate = new Date(y, easter.month - 1, easter.day);
+        const ashDate = new Date(easterDate); ashDate.setDate(easterDate.getDate() - 46);
+        const pentecostDate = new Date(easterDate); pentecostDate.setDate(easterDate.getDate() + 49);
+        const d = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+
+        if (d.getMonth() === 11 && d.getDate() <= 24) return 'purple'; // advent
+        if ((d.getMonth() === 11 && d.getDate() >= 25) || (d.getMonth() === 0 && d.getDate() <= 5)) return 'white'; // vánoční doba
+        if (d >= ashDate && d < easterDate) return 'purple'; // půst
+        if (d >= easterDate && d < pentecostDate) return 'white'; // velikonoční doba
+        if (d.getTime() === pentecostDate.getTime()) return 'red'; // letnice
+        return 'green'; // mezidobí
+    },
+
     // ── Sváteční databáze (fixní + pohyblivé) ────────────────────────────────
     getFeastsForMonth: function (month, year) {
         const feasts = [];

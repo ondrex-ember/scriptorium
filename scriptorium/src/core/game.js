@@ -3998,11 +3998,17 @@ const Game = {
         const lit = (t.litUntil || 0) > now;
         const clean = (t.cleanUntil || 0) > now;
         const degraded = !lit || !clean;
+        // Vestment-sezóna: liturgická barva musí sedět, jinak stejná penalizace jako degraded
+        const VESTMENT_BY_COLOR = { white: 'roucho_bile', purple: 'roucho_fialove', green: 'roucho_zelene', red: 'roucho_cervene' };
+        const liturgicalColor = (typeof CalendarSystem !== 'undefined' && CalendarSystem.getLiturgicalColor) ? CalendarSystem.getLiturgicalColor(new Date()) : null;
+        const vestmentId = liturgicalColor ? VESTMENT_BY_COLOR[liturgicalColor] : null;
+        const wrongVestment = vestmentId ? (inv[vestmentId] || 0) < 1 : false;
         let eccl = 5 + (this.MASS_INCENSE_TIER[incenseId] || 0);
         // Visitatio V2: vystavená relikvie — mše nese větší milost (základ, PŘED degradací i svátkem)
         if ((GameState.inventory['reliquia'] || 0) >= 1) eccl += 1;
         let vill = 3;
         if (degraded) { eccl = Math.max(1, Math.floor(eccl / 2)); vill = Math.max(1, Math.floor(vill / 2)); }
+        if (wrongVestment) { eccl = Math.max(1, Math.floor(eccl / 2)); vill = Math.max(1, Math.floor(vill / 2)); }
         // Svátkový násobič (Chronicon feast flag) — PO degradaci; defenzivní no-op bez snapshotu
         let feastName = null;
         const _snap = (typeof ChroniconSystem !== 'undefined') ? ChroniconSystem._snap : null;
@@ -4029,9 +4035,10 @@ const Game = {
 
         if (typeof UI !== 'undefined' && UI.notifyPanel) {
             const feastPart = feastName ? (lang==='en' ? ' Feast of ' + feastName + ' — twofold grace!' : ' Svátek ' + feastName + ' — dvojnásobná milost!') : '';
+            const vestmentPart = wrongVestment ? (lang==='en' ? ' Wrong vestment colour — impact reduced.' : ' Špatná barva roucha — dopad snížen.') : '';
             UI.notifyPanel('⛪ ' + (degraded
                 ? (lang==='en' ? 'Mass held in gloom and dust. Ecclesia +'+eccl+', village +'+vill+'.' : 'Mše v šeru a prachu. Ecclesia +'+eccl+', vesnice +'+vill+'.')
-                : (lang==='en' ? 'Mass held. Ecclesia +'+eccl+', village +'+vill+'.' : 'Mše odsloužena. Ecclesia +'+eccl+', vesnice +'+vill+'.')) + feastPart, degraded ? 'warning' : 'success');
+                : (lang==='en' ? 'Mass held. Ecclesia +'+eccl+', village +'+vill+'.' : 'Mše odsloužena. Ecclesia +'+eccl+', vesnice +'+vill+'.')) + feastPart + vestmentPart, (degraded || wrongVestment) ? 'warning' : 'success');
         }
         Game.addKronikaEntry('important',
             feastName ? '⛪ Mše o svátku ' + feastName + ' — kostel praskal ve švech.' : (degraded ? '⛪ Mše sloužena v šeru a prachu — kostel volá po péči.' : '⛪ Mše slavnostně odsloužena. Kraj naslouchal.'),
@@ -4041,7 +4048,62 @@ const Game = {
         if (el && typeof TemplumSystem !== 'undefined') el.innerHTML = TemplumSystem.renderTemplumTab();
     },
 
-    // ── TEMPLUM T2: denní chod kostela — svíce (1/den) + úklid konvršem (self-guarded 24h) ──
+    // ── TEMPLUM Fabrica Ecclesiae — 4 stavební úrovně (endgame-branches-reference.md sekce 4.2) ──
+    FABRICA_TIERS: [
+        { name: 'Kaple',     name_en: 'Chapel',    cost: 0,   req: null, decayMult: 1.00, repairEff: 1.00 },
+        { name: 'Kostel',    name_en: 'Church',    cost: 150, req: { ecclesia: 15, condition: 60 }, decayMult: 1.10, repairEff: 1.10 },
+        { name: 'Chrám',     name_en: 'Temple',    cost: 400, req: { ecclesia: 35, zboznost: 25, condition: 70 }, decayMult: 1.20, repairEff: 1.25 },
+        { name: 'Katedrála', name_en: 'Cathedral', cost: 900, req: { ecclesia: 60, zboznost: 50, condition: 80 }, decayMult: 1.35, repairEff: 1.40 },
+    ],
+
+    fabricaMeetsRequirements: function(req) {
+        if (!req) return true;
+        const p = GameState.persona || {};
+        const cond = (GameState.templum && GameState.templum.condition != null) ? GameState.templum.condition : 100;
+        if (req.condition && cond < req.condition) return false;
+        if (req.ecclesia && ((p.influence && p.influence.church) || 0) < req.ecclesia) return false;
+        if (req.zboznost && (p.zboznost || 0) < req.zboznost) return false;
+        return true;
+    },
+
+    upgradeFabrica: function() {
+        if (typeof CellariumSystem === 'undefined') return;
+        if (!GameState.templum) GameState.templum = {};
+        const t = GameState.templum;
+        const tier = t.fabricaTier || 0;
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        if (tier >= this.FABRICA_TIERS.length - 1) return;
+        const next = this.FABRICA_TIERS[tier + 1];
+        if (!this.fabricaMeetsRequirements(next.req)) { UI.notify('⚠️ ' + (lang==='en'?'Requirements not met.':'Podmínky nesplněny.'), true); return; }
+        if (CellariumSystem.getGrose() < next.cost) { UI.notify('⚠️ ' + (lang==='en'?'Not enough groschen.':'Nedostatek grošů.'), true); return; }
+        CellariumSystem.spendGrose(next.cost);
+        t.fabricaTier = tier + 1;
+        const name = lang==='en' ? next.name_en : next.name;
+        Game.save();
+        UI.notifyPanel('🏛️ ' + (lang==='en'?'The church rises: ':'Kostel roste: ') + name + '.', 'success');
+        Game.addKronikaEntry('important',
+            '🏛️ Fabrica: kostel povýšen na ' + name + '.',
+            '🏛️ Fabrica: the church raised to ' + name + '.',
+            '🏛️ Fabrica ecclesiae aucta est.');
+        const el2 = document.getElementById('home-templum-content');
+        if (el2 && typeof TemplumSystem !== 'undefined') el2.innerHTML = TemplumSystem.renderTemplumTab();
+    },
+
+    repairFabrica: function() {
+        if (typeof CellariumSystem === 'undefined') return;
+        if (!GameState.templum) GameState.templum = {};
+        const t = GameState.templum;
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        const cost = 20;
+        if (CellariumSystem.getGrose() < cost) { UI.notify('⚠️ ' + (lang==='en'?'Not enough groschen.':'Nedostatek grošů.'), true); return; }
+        CellariumSystem.spendGrose(cost);
+        const tierDef = this.FABRICA_TIERS[t.fabricaTier || 0];
+        t.condition = Math.min(100, (t.condition != null ? t.condition : 100) + 15 * tierDef.repairEff);
+        Game.save();
+        UI.notify('🔧 ' + (lang==='en'?'Repairs made.':'Opraveno.'));
+        const el3 = document.getElementById('home-templum-content');
+        if (el3 && typeof TemplumSystem !== 'undefined') el3.innerHTML = TemplumSystem.renderTemplumTab();
+    },
     templumDailyTick: function() {
         if (typeof TemplumSystem === 'undefined' || !TemplumSystem.isUnlocked()) return;
         if (!GameState.templum) GameState.templum = {};
@@ -4071,6 +4133,9 @@ const Game = {
             t.cleanUntil = now + 48 * 60 * 60 * 1000;
             t.lastCleaner = cleaner.name;
         }
+        // Fabrica: strukturální stav budovy pomalu chátrá, rychleji u vyšších úrovní
+        const fTier = this.FABRICA_TIERS[t.fabricaTier || 0];
+        t.condition = Math.max(0, (t.condition != null ? t.condition : 100) - 0.3 * fTier.decayMult);
         Game.save();
     },
 
