@@ -321,6 +321,12 @@ const CellariumSystem = {
     return 1.0;
   },
 
+  // Reputace → cenový multiplikátor (jen Hospoda; Trh/Obchod = čistě nabídka/poptávka)
+  _repMult: function(entity) {
+    if (entity !== 'tavern') return 1.0;
+    return 1.10 + ((GameState.persona?.influence?.benedikt || 0) / 100) * 0.25;
+  },
+
   calcPrice: function(itemId, entity) {
     const base = this.BASE_PRICES[itemId];
     if (!base) return null;
@@ -337,8 +343,7 @@ const CellariumSystem = {
     const isIlluminator = (GameState.persona && GameState.persona.role === 'illuminator');
     const manuscriptMult = (cat === 'lore' && isIlluminator && typeof RankSystem !== 'undefined') ? RankSystem.getActiveBonus('manuscript_price') : 1.0;
     const fastMult = this._fastMult(itemId);
-    // Reputace — jen Hospoda (osobní vztah s Benediktem); Trh/Obchod = čistě nabídka/poptávka (satMult)
-    const repMult = (entity === 'tavern') ? (1.10 + ((GameState.persona?.influence?.benedikt || 0) / 100) * 0.25) : 1.0;
+    const repMult = this._repMult(entity);
     return Math.max(1, Math.round(base * coeff * offset * satMult * roleMult * manuscriptMult * fastMult * repMult));
   },
 
@@ -1049,6 +1054,25 @@ const CellariumSystem = {
       `;
       h += `</div>`;
       return h;
+    }
+
+    // ── Reputace — info pruh (živé číslo, stejný zdroj jako calcPrice) ──────
+    if (entity === 'tavern') {
+      const rel = (GameState.persona && GameState.persona.influence && GameState.persona.influence.benedikt) || 0;
+      const pct = Math.round((this._repMult('tavern') - 1) * 100);
+      h += `<div style="font-size:0.78rem;opacity:0.75;margin-bottom:10px;padding:6px 10px;background:rgba(197,160,89,0.08);border-radius:6px;">
+        🏠 Benedikt: ${rel}/100 → ${lang==='en'?'prices':'ceny'} ${pct>=0?'+':''}${pct}%
+      </div>`;
+    } else if (entity === 'shop') {
+      const rel = (GameState.persona && GameState.persona.influence && GameState.persona.influence.village) || 0;
+      h += `<div style="font-size:0.78rem;opacity:0.75;margin-bottom:10px;padding:6px 10px;background:rgba(197,160,89,0.08);border-radius:6px;">
+        🌾 ${lang==='en'?'Village':'Vesnice'}: ${rel}/100
+      </div>`;
+    } else if (entity === 'market') {
+      const rel = (GameState.persona && GameState.persona.influence && GameState.persona.influence.giacomo) || 0;
+      h += `<div style="font-size:0.78rem;opacity:0.75;margin-bottom:10px;padding:6px 10px;background:rgba(197,160,89,0.08);border-radius:6px;">
+        ⚓ Giacomo: ${rel}/100
+      </div>`;
     }
 
     // ── Dvousloupcový layout: NÁKUP | PRODEJ ───────────────────────────────

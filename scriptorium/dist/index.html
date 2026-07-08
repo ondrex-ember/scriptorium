@@ -14880,7 +14880,10 @@ const VigorSystem = {
 
     // ── Jídlo ────────────────────────────────────────────────────────────────
     eat: function(foodId) {
-        const satGain   = this.FOOD_SATIETY[foodId] || 10;
+        let satGain = this.FOOD_SATIETY[foodId] || 10;
+        // Professio: Zahradník (vigor_food) — jídlo sytí víc
+        const roleMult = (typeof RankSystem !== 'undefined') ? RankSystem.getActiveBonus('vigor_food') : 1.0;
+        satGain = Math.round(satGain * roleMult);
         const fatChange = this.FOOD_FATIGUE[foodId] || 0;
         const lang = (GameState.settings && GameState.settings.language) || 'cs';
 
@@ -15980,6 +15983,12 @@ const CellariumSystem = {
     return 1.0;
   },
 
+  // Reputace → cenový multiplikátor (jen Hospoda; Trh/Obchod = čistě nabídka/poptávka)
+  _repMult: function(entity) {
+    if (entity !== 'tavern') return 1.0;
+    return 1.10 + ((GameState.persona?.influence?.benedikt || 0) / 100) * 0.25;
+  },
+
   calcPrice: function(itemId, entity) {
     const base = this.BASE_PRICES[itemId];
     if (!base) return null;
@@ -15992,8 +16001,12 @@ const CellariumSystem = {
     const offset = 0.85 + pseudoRand * 0.30; // 0.85–1.15
     const satMult = this._saturationMult(itemId, entity);
     const roleMult = (typeof RankSystem !== 'undefined') ? RankSystem.getActiveBonus('market_price') : 1.0;
+    // Professio: Illuminator (manuscript_price) — striktně jen role illuminator, žádný fallback pro ostatní
+    const isIlluminator = (GameState.persona && GameState.persona.role === 'illuminator');
+    const manuscriptMult = (cat === 'lore' && isIlluminator && typeof RankSystem !== 'undefined') ? RankSystem.getActiveBonus('manuscript_price') : 1.0;
     const fastMult = this._fastMult(itemId);
-    return Math.max(1, Math.round(base * coeff * offset * satMult * roleMult * fastMult));
+    const repMult = this._repMult(entity);
+    return Math.max(1, Math.round(base * coeff * offset * satMult * roleMult * manuscriptMult * fastMult * repMult));
   },
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -16022,6 +16035,14 @@ const CellariumSystem = {
     GameState.shopStock.dailySold[soldKey] = (GameState.shopStock.dailySold[soldKey] || 0) + qty;
     this.recordTransaction('sell', itemId, qty, price, entity);
     GameState.economy.tradesTotal++;
+    // Reputace — obchod zvyšuje vztah k entitě (+1 základ + Celerarius bonus navrch)
+    if (typeof PersonaSystem !== 'undefined' && PersonaSystem.addInfluence) {
+        const repAxis = entity === 'tavern' ? 'benedikt' : entity === 'market' ? 'giacomo' : entity === 'shop' ? 'village' : null;
+        if (repAxis) {
+            const roleBonus = (typeof RankSystem !== 'undefined') ? RankSystem.getActiveBonus('npc_rep_gain') : 0;
+            PersonaSystem.addInfluence(repAxis, 1 + roleBonus);
+        }
+    }
     if (GameState.economy.tradesTotal === 1) {
         Game.addKronikaEntry('important', '🏛️ První obchod uzavřen v Cellariu.', '🏛️ First trade completed in the Cellarium.', '🏛️ Primum commercium in Cellario factum est.');
     }
@@ -16193,6 +16214,14 @@ const CellariumSystem = {
     // Aplikuj efekt nápoje (pivo/víno)
     CellariumSystem.applyDrinkEffect(itemId);
     GameState.economy.tradesTotal++;
+    // Reputace — nákup taky zvyšuje vztah k entitě (stejný vzor jako sellItem)
+    if (typeof PersonaSystem !== 'undefined' && PersonaSystem.addInfluence) {
+        const repAxis = entity === 'tavern' ? 'benedikt' : entity === 'market' ? 'giacomo' : entity === 'shop' ? 'village' : null;
+        if (repAxis) {
+            const roleBonus = (typeof RankSystem !== 'undefined') ? RankSystem.getActiveBonus('npc_rep_gain') : 0;
+            PersonaSystem.addInfluence(repAxis, 1 + roleBonus);
+        }
+    }
     Game.save();
     const itemName = (typeof iName === 'function') ? iName(itemId) : itemId;
     UI.notify(t('cellarium.boughtNotify').replace('{qty}', 1).replace('{item}', itemName).replace('{total}', price));
@@ -16687,6 +16716,25 @@ const CellariumSystem = {
       `;
       h += `</div>`;
       return h;
+    }
+
+    // ── Reputace — info pruh (živé číslo, stejný zdroj jako calcPrice) ──────
+    if (entity === 'tavern') {
+      const rel = (GameState.persona && GameState.persona.influence && GameState.persona.influence.benedikt) || 0;
+      const pct = Math.round((this._repMult('tavern') - 1) * 100);
+      h += `<div style="font-size:0.78rem;opacity:0.75;margin-bottom:10px;padding:6px 10px;background:rgba(197,160,89,0.08);border-radius:6px;">
+        🏠 Benedikt: ${rel}/100 → ${lang==='en'?'prices':'ceny'} ${pct>=0?'+':''}${pct}%
+      </div>`;
+    } else if (entity === 'shop') {
+      const rel = (GameState.persona && GameState.persona.influence && GameState.persona.influence.village) || 0;
+      h += `<div style="font-size:0.78rem;opacity:0.75;margin-bottom:10px;padding:6px 10px;background:rgba(197,160,89,0.08);border-radius:6px;">
+        🌾 ${lang==='en'?'Village':'Vesnice'}: ${rel}/100
+      </div>`;
+    } else if (entity === 'market') {
+      const rel = (GameState.persona && GameState.persona.influence && GameState.persona.influence.giacomo) || 0;
+      h += `<div style="font-size:0.78rem;opacity:0.75;margin-bottom:10px;padding:6px 10px;background:rgba(197,160,89,0.08);border-radius:6px;">
+        ⚓ Giacomo: ${rel}/100
+      </div>`;
     }
 
     // ── Dvousloupcový layout: NÁKUP | PRODEJ ───────────────────────────────
@@ -22753,6 +22801,73 @@ const GardenSystem = {
         el.innerHTML = html;
     },
 
+    // ── Přehled produkce Zahrady + Dvora — jeden komplet modal (vzor: Vitrea) ──
+    showZahradaDetail: function() {
+        if (typeof NotificationSystem === 'undefined') return;
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        const inv = GameState.inventory || {};
+        const row = (id) => {
+            const n = inv[id] || 0;
+            const nm = (typeof iName === 'function') ? iName(id) : id;
+            return `<div style="display:flex; justify-content:space-between; font-size:0.78rem; margin-bottom:2px; ${n === 0 ? 'opacity:0.45;' : ''}"><span>${nm}</span><strong>${n}</strong></div>`;
+        };
+        const header = (icon, label) => `<div style="font-size:0.72rem; font-weight:bold; opacity:0.75; margin:8px 0 4px;">${icon} ${label}</div>`;
+
+        let html = '';
+
+        // Záhony — dynamicky z GARDEN_PLANTS_DB
+        html += header('🌱', lang==='en'?'Beds':'Záhony');
+        Object.values(this.GARDEN_PLANTS_DB).forEach(p => html += row(p.item));
+
+        // Sad
+        html += header('🌳', lang==='en'?'Orchard':'Sad');
+        ['apple','pear','plum','cherry','walnut','mulberry','quince','sorb','rowan','linden_fruit','linden_blossom'].forEach(id => html += row(id));
+
+        // Apiarium
+        html += header('🐝', 'Apiarium');
+        ['honey','beeswax','pollen'].forEach(id => html += row(id));
+
+        // Piscina
+        html += header('🐟', 'Piscina');
+        ['fish','fry','carp'].forEach(id => html += row(id));
+
+        // Pole — dynamicky z CROPS_DB
+        html += header('🌾', lang==='en'?'Field':'Pole');
+        Object.values(this.CROPS_DB).forEach(c => html += row(c.id));
+
+        // Vinohrad — dynamicky z VINEA_DB outputs
+        html += header('🍇', lang==='en'?'Vineyard':'Vinohrad');
+        const vinOutputs = new Set();
+        Object.values(this.VINEA_DB).forEach(v => (v.outputs || []).forEach(o => vinOutputs.add(o)));
+        Array.from(vinOutputs).forEach(id => html += row(id));
+
+        // Dvůr — zvířecí produkty
+        html += header('🐔', lang==='en'?'Poultry':'Drůbež');
+        ['egg','feather_hen','chicken_meat'].forEach(id => html += row(id));
+
+        html += header('🐑', lang==='en'?'Sheep/Goats':'Ovce/Kozy');
+        ['wool','mutton','raw_hide','lamb_hide','goat_milk'].forEach(id => html += row(id));
+
+        html += header('🐷', lang==='en'?'Pigs':'Prasata');
+        ['lard','cured_meat'].forEach(id => html += row(id));
+
+        html += header('🐰', lang==='en'?'Rabbits':'Králíci');
+        ['rabbit_meat','rabbit_pelt'].forEach(id => html += row(id));
+
+        html += header('🕊️', lang==='en'?'Dovecote':'Holubník');
+        ['pigeon_dung'].forEach(id => html += row(id));
+
+        html += header('🌾', lang==='en'?'Feed & Manure':'Krmivo a hnůj');
+        ['hay','grain','manure'].forEach(id => html += row(id));
+
+        NotificationSystem.modal({
+            icon: '🌿',
+            title: lang==='en' ? 'Monastery produce' : 'Klášterní produkce',
+            text: html,
+            choices: [{ label: (lang==='en'?'Close':'Zavřít') }]
+        });
+    },
+
 };
 // ═══ src/systems/FarmyardSystem.js ═══
 // ═══════════════════════════════════════════════════════════════════════════
@@ -23737,7 +23852,8 @@ const FarmyardSystem = {
         const miceN = (GameState.mice && GameState.mice.count) || 0;
         const lang = (GameState.settings && GameState.settings.language) || 'cs';
 
-        let h = `<div style="margin-bottom:14px; padding:10px 12px; background:rgba(197,160,89,0.07); border:1px solid rgba(197,160,89,0.25); border-radius:8px; display:flex; flex-direction:column; gap:5px;">`;
+        let h = `<div style="position:relative; margin-bottom:14px; padding:10px 12px; background:rgba(197,160,89,0.07); border:1px solid rgba(197,160,89,0.25); border-radius:8px; display:flex; flex-direction:column; gap:5px;">`;
+        h += `<span style="position:absolute; top:10px; right:12px; font-size:0.72rem; cursor:pointer; opacity:0.75;" onclick="GardenSystem.showZahradaDetail()">📦 ${lang==='en'?'Overview':'Přehled'}</span>`;
         h += `<div style="font-size:0.68rem; font-weight:bold; letter-spacing:0.08em; text-transform:uppercase; opacity:0.55;">${t('dvur.dashTitle')}</div>`;
 
         const miceTxt = ds ? ds.miceFuzzyShort() : (typeof ScriptoriumCat !== 'undefined' && ScriptoriumCat.miceFuzzy ? ScriptoriumCat.miceFuzzy() : '');
@@ -25402,6 +25518,13 @@ const PersonaSystem = {
     _renderMonasticPath: function(lang) {
         const monasticId = GameState.rank && GameState.rank.monastic;
         if (!monasticId) {
+            const tier = (typeof RankSystem !== 'undefined') ? RankSystem.getSecularRankTier() : 1;
+            if (tier >= 3) {
+                return `<div style="margin-top:14px;padding:10px 12px;background:rgba(197,160,89,0.06);border-left:3px solid var(--accent-gold);border-radius:4px;font-size:0.82rem;">
+                    <div style="opacity:0.75;margin-bottom:8px;font-style:italic;">${lang==='en'?'The monastery would accept you.':'Klášter by tě přijal.'}</div>
+                    <button class="craft-btn" style="width:100%;" onclick="RankSystem.enterMonasticPath(); PersonaSystem.render();">${t('rank.monasticEntry')}</button>
+                </div>`;
+            }
             return `<div style="margin-top:14px;padding:10px 12px;background:rgba(197,160,89,0.06);border-left:3px solid var(--accent-gold);border-radius:4px;font-size:0.82rem;opacity:0.65;font-style:italic;">
                 ${lang==='en'?'Not yet on the monastic path.':'Zatím mimo klášterní dráhu.'}
             </div>`;
@@ -27733,11 +27856,14 @@ const CombinationEngine = {
     // Role Athanorista: bonus +3 k rollu (getActiveBonus vrátí 1.20 → 0.20 * 15 = 3)
     const roleMod = (typeof RankSystem !== 'undefined') ? Math.round((RankSystem.getActiveBonus('athanor_success') - 1.0) * 15) : 0;
     const effectiveRoll = roll + vigorMod + roleMod;
+    // Role Athanorista: nigredo_bonus — extra ochrana proti Corruptio (Nigredo selhání)
+    const nigredoMod = (typeof RankSystem !== 'undefined') ? Math.round((RankSystem.getActiveBonus('nigredo_bonus') - 1.0) * 15) : 0;
+    const corruptionRoll = effectiveRoll + nigredoMod;
 
     // Zkontroluj failures
     for (const f of AthanorDB.failures) {
       if (f.id === 'CORRUPTIO') {
-        if (f.condition(thermal, moisture, effectiveRoll)) {
+        if (f.condition(thermal, moisture, corruptionRoll)) {
           return { success: false, failure: f };
         }
       } else {
@@ -38746,6 +38872,8 @@ const Game = {
                     if (typeof Game !== 'undefined' && Game.visitatioTick) Game.visitatioTick();
                     // Rank — mnišský postup (pure čtení podmínek, levné)
                     if (typeof RankSystem !== 'undefined' && RankSystem.checkMonasticProgress) RankSystem.checkMonasticProgress();
+                    // Rank — světský postup (stejný vzor, dřív jen na boot)
+                    if (typeof RankSystem !== 'undefined' && RankSystem.checkSecularProgress) RankSystem.checkSecularProgress();
                     // Templum — poutníci (self-guarded 7 d, gate frater+ a canonical hours)
                     if (typeof Game !== 'undefined' && Game.pilgrimTick) Game.pilgrimTick();
                     // Caseus — denní zrání sýra (self-guarded 24h, gate tech_caseus)
@@ -40883,6 +41011,11 @@ const Game = {
                 }
             }
         }
+        // Professio: Scriptor (craft_speed) — stejný vzor, samostatná šance navíc
+        if (typeof RankSystem !== 'undefined') {
+            const roleMult = RankSystem.getActiveBonus('craft_speed');
+            if (roleMult > 1.0 && Math.random() < (roleMult - 1.0)) craftQty += 1;
+        }
 
         // ── RESEARCH: diminishing returns ────────────────────────────────────
         if (r.output === 'research') {
@@ -40947,11 +41080,12 @@ const Game = {
 
         // 👿 TITIVILLUS – démon překlepů
         // Sbírá chyby z lore itemů (papír, inkoust, zápisky)
-        // Vyšší šance v noci bez světla
+        // Vyšší šance v noci bez světla; Professio Scriptor (craft_errors) sanci snižuje
         if (['paper', 'ink', 'research'].includes(r.output)) {
             const isNight = !TimeSys.isDaytime();
             const noLight = !GameState.flags.candleLit && !GameState.flags.torchLit;
-            const chance = (isNight && noLight) ? 0.08 : 0.03;
+            const roleErrMult = (typeof RankSystem !== 'undefined') ? RankSystem.getActiveBonus('craft_errors') : 1.0;
+            const chance = ((isNight && noLight) ? 0.08 : 0.03) * roleErrMult;
             if (Math.random() < chance) {
                 this.removeItem(r.output, r.qty); // ukradne výstup
                 Analytics.titivillusStruck(r.output, isNight && noLight);

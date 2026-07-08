@@ -2462,4 +2462,71 @@ const GardenSystem = {
         el.innerHTML = html;
     },
 
+    // ── Přehled produkce Zahrady + Dvora — jeden komplet modal (vzor: Vitrea) ──
+    showZahradaDetail: function() {
+        if (typeof NotificationSystem === 'undefined') return;
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        const inv = GameState.inventory || {};
+        const row = (id) => {
+            const n = inv[id] || 0;
+            const nm = (typeof iName === 'function') ? iName(id) : id;
+            return `<div style="display:flex; justify-content:space-between; font-size:0.78rem; margin-bottom:2px; ${n === 0 ? 'opacity:0.45;' : ''}"><span>${nm}</span><strong>${n}</strong></div>`;
+        };
+        const header = (icon, label) => `<div style="font-size:0.72rem; font-weight:bold; opacity:0.75; margin:8px 0 4px;">${icon} ${label}</div>`;
+
+        let html = '';
+
+        // Záhony — dynamicky z GARDEN_PLANTS_DB
+        html += header('🌱', lang==='en'?'Beds':'Záhony');
+        Object.values(this.GARDEN_PLANTS_DB).forEach(p => html += row(p.item));
+
+        // Sad
+        html += header('🌳', lang==='en'?'Orchard':'Sad');
+        ['apple','pear','plum','cherry','walnut','mulberry','quince','sorb','rowan','linden_fruit','linden_blossom'].forEach(id => html += row(id));
+
+        // Apiarium
+        html += header('🐝', 'Apiarium');
+        ['honey','beeswax','pollen'].forEach(id => html += row(id));
+
+        // Piscina
+        html += header('🐟', 'Piscina');
+        ['fish','fry','carp'].forEach(id => html += row(id));
+
+        // Pole — dynamicky z CROPS_DB
+        html += header('🌾', lang==='en'?'Field':'Pole');
+        Object.values(this.CROPS_DB).forEach(c => html += row(c.id));
+
+        // Vinohrad — dynamicky z VINEA_DB outputs
+        html += header('🍇', lang==='en'?'Vineyard':'Vinohrad');
+        const vinOutputs = new Set();
+        Object.values(this.VINEA_DB).forEach(v => (v.outputs || []).forEach(o => vinOutputs.add(o)));
+        Array.from(vinOutputs).forEach(id => html += row(id));
+
+        // Dvůr — zvířecí produkty
+        html += header('🐔', lang==='en'?'Poultry':'Drůbež');
+        ['egg','feather_hen','chicken_meat'].forEach(id => html += row(id));
+
+        html += header('🐑', lang==='en'?'Sheep/Goats':'Ovce/Kozy');
+        ['wool','mutton','raw_hide','lamb_hide','goat_milk'].forEach(id => html += row(id));
+
+        html += header('🐷', lang==='en'?'Pigs':'Prasata');
+        ['lard','cured_meat'].forEach(id => html += row(id));
+
+        html += header('🐰', lang==='en'?'Rabbits':'Králíci');
+        ['rabbit_meat','rabbit_pelt'].forEach(id => html += row(id));
+
+        html += header('🕊️', lang==='en'?'Dovecote':'Holubník');
+        ['pigeon_dung'].forEach(id => html += row(id));
+
+        html += header('🌾', lang==='en'?'Feed & Manure':'Krmivo a hnůj');
+        ['hay','grain','manure'].forEach(id => html += row(id));
+
+        NotificationSystem.modal({
+            icon: '🌿',
+            title: lang==='en' ? 'Monastery produce' : 'Klášterní produkce',
+            text: html,
+            choices: [{ label: (lang==='en'?'Close':'Zavřít') }]
+        });
+    },
+
 };

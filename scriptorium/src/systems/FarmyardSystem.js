@@ -980,7 +980,8 @@ const FarmyardSystem = {
         const miceN = (GameState.mice && GameState.mice.count) || 0;
         const lang = (GameState.settings && GameState.settings.language) || 'cs';
 
-        let h = `<div style="margin-bottom:14px; padding:10px 12px; background:rgba(197,160,89,0.07); border:1px solid rgba(197,160,89,0.25); border-radius:8px; display:flex; flex-direction:column; gap:5px;">`;
+        let h = `<div style="position:relative; margin-bottom:14px; padding:10px 12px; background:rgba(197,160,89,0.07); border:1px solid rgba(197,160,89,0.25); border-radius:8px; display:flex; flex-direction:column; gap:5px;">`;
+        h += `<span style="position:absolute; top:10px; right:12px; font-size:0.72rem; cursor:pointer; opacity:0.75;" onclick="GardenSystem.showZahradaDetail()">📦 ${lang==='en'?'Overview':'Přehled'}</span>`;
         h += `<div style="font-size:0.68rem; font-weight:bold; letter-spacing:0.08em; text-transform:uppercase; opacity:0.55;">${t('dvur.dashTitle')}</div>`;
 
         const miceTxt = ds ? ds.miceFuzzyShort() : (typeof ScriptoriumCat !== 'undefined' && ScriptoriumCat.miceFuzzy ? ScriptoriumCat.miceFuzzy() : '');
