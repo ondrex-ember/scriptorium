@@ -1146,7 +1146,7 @@ const AthanorSystem = {
   },
 
   getCanonicalHour() {
-    const h = new Date().getHours();
+    const h = (typeof TimeSys !== 'undefined') ? TimeSys.gameHour() : new Date().getHours();
     if (h >= 3 && h < 6) return { name: 'Laudes', icon: '🌅', bonus: 'quality', label: 'Laudes — +10% kvalita' };
     if (h >= 6 && h < 9) return { name: 'Prima', icon: '🌄', bonus: null, label: 'Prima' };
     if (h >= 9 && h < 12) return { name: 'Tertia', icon: '☀️', bonus: null, label: 'Tertia' };

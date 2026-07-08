@@ -1676,7 +1676,7 @@ According to Theophilus, the organ is an instrument worthy of God, but its const
         rubricator_desc: 'Thou dost add red headings and initials. The red pigment is poisonous. Do not lick the brush.',
         rubricator_lore: 'In early printed books there remain empty squares to this day — there should have been an initial, but the owner paid not the rubricator.',
         rubricator_toast: 'Rubricator — the red is thine. Remember what befell Nicholas of Cluny.',
-        rubricator_requirement: 'Tech illumination + gallic_ink',
+        rubricator_requirement: 'Tech illumination + ink_gallic',
 
         // ===== TIER 5: ILLUMINATOR =====
         illuminator_name: 'Illuminator',

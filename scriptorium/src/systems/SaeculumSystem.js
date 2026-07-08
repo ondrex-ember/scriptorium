@@ -424,7 +424,11 @@ const SaeculumSystem = {
     h += `<div style="font-weight:bold; font-size:0.92rem; margin-bottom:4px;">✝️ ${lang==='en'?'Conversi':'Conversi'}</div>`;
 
     if (cap === 0) {
-      h += `<div style="font-size:0.8rem; opacity:0.6; font-style:italic;">${lang==='en'?'No dormitory built yet — see Old Cellars in the Cellarium.':'Zatím žádný dormitář — viz Staré sklepy v Cellariu.'}</div>`;
+      const hasOldCellarsAccess = (GameState.researchedTechs && GameState.researchedTechs.includes('tech_conventual_spaces')) || GameState.oldCellarsFound;
+      const dormHint = hasOldCellarsAccess
+        ? (lang==='en' ? 'No dormitory built yet — build it in Old Cellars (Cellarium).' : 'Zatím žádný dormitář — postav ho ve Starých sklepech (Cellarium).')
+        : (lang==='en' ? 'No dormitory built yet. First find the Old Cellars — research it (Conventual Spaces) or stumble upon it by chance.' : 'Zatím žádný dormitář. Nejprve objev Staré sklepy — buď výzkumem (Konventní prostory), nebo náhodným nálezem.');
+      h += `<div style="font-size:0.8rem; opacity:0.6; font-style:italic;">${dormHint}</div>`;
     } else {
       h += `<div style="font-size:0.85rem; margin-bottom:8px;">${lang==='en'?'Beds':'Lůžka'}: <strong>${list.length} / ${cap}</strong></div>`;
       if (list.length && GameState.conversiNextWage) {

@@ -1014,6 +1014,20 @@ const FarmyardSystem = {
                 const low = (hayPens && Math.floor((GameState.inventory['hay'] || 0) / hayPens) < 3) || (grainPens && Math.floor((GameState.inventory['grain'] || 0) / grainPens) < 3);
                 h += `<div style="font-size:0.8rem; ${low ? 'color:#c0392b;' : ''}">🌾 ${t('dvur.feedStock')}: ${parts.join(' \u00b7 ')}</div>`;
             }
+
+            // Poslední (auto)krmení — přehled bez nutnosti otevírat každý chlév zvlášť
+            if (GameState.feeding) {
+                const feedNames = { henhouse: lang==='en'?'Hens':'Slepice', sheepfold: lang==='en'?'Sheep':'Ovce', piscina: lang==='en'?'Fish':'Ryby', rabbitry: lang==='en'?'Rabbits':'Králíci', goatpen: lang==='en'?'Goats':'Kozy', pigsty: lang==='en'?'Pigs':'Prasata' };
+                const fedKeys = Object.keys(GameState.feeding).filter(k => GameState.feeding[k] && GameState.feeding[k].lastFed);
+                if (fedKeys.length) {
+                    fedKeys.sort((a, b) => GameState.feeding[b].lastFed - GameState.feeding[a].lastFed);
+                    const lastKey = fedKeys[0];
+                    const hAgo = Math.max(0, Math.floor((Date.now() - GameState.feeding[lastKey].lastFed) / 3600000));
+                    const anyHungry = fedKeys.some(k => (GameState.feeding[k].hunger || 0) > 0);
+                    const label = feedNames[lastKey] || lastKey;
+                    h += `<div style="font-size:0.76rem; ${anyHungry ? 'color:#c0392b;' : 'opacity:0.7;'}">🌾 ${lang==='en'?'Last fed':'Naposledy krmeno'}: ${label} · ${lang==='en' ? hAgo+'h ago' : 'před '+hAgo+'h'}${anyHungry ? (lang==='en' ? ' — some hungry!' : ' — někteří hladoví!') : ''}</div>`;
+                }
+            }
         }
 
         if (GameState.loanMale && GameState.loanMale.type && Date.now() < GameState.loanMale.returnsAt) {

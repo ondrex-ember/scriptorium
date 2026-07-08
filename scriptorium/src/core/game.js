@@ -433,6 +433,8 @@ const Game = {
         // NOW render UI (after theme is set and all systems initialized)
         UI.renderAll(); 
         Game.checkEnvironment();
+        // Templum — viditelnost tabu hned při loadu (dřív jen po kliku na jiný tab / až 60s tick)
+        if (typeof TemplumSystem !== 'undefined' && TemplumSystem.updateTabVisibility) TemplumSystem.updateTabVisibility();
         
         VigorSystem.renderMiniDisplay();
 
@@ -3121,10 +3123,20 @@ const Game = {
 					GameState.feeding[a.key].lastFed = now;
 					GameState.feeding[a.key].hunger = 0;
 					UI.notify(lang==='en' ? a.name+' fed automatically.' : a.name+' nakrmeny automaticky.');
+					if (typeof NotificationSystem !== 'undefined' && NotificationSystem.panel) {
+						NotificationSystem.panel('🌾 ' + (lang==='en' ? a.name+' fed automatically ('+useFeed+').' : a.name+' automaticky nakrmeny ('+useFeed+').'), 'system');
+					}
+					Game.addKronikaEntry('minor',
+						'🌾 ' + a.name + ' automaticky nakrmeny (' + useFeed + ').',
+						'🌾 ' + a.name + ' fed automatically (' + useFeed + ').',
+						'🌾 Animalia pasta sunt.');
 				} else {
 					GameState.feeding[a.key].hunger = Math.min(3, (GameState.feeding[a.key].hunger || 0) + 1);
 					const penalty = GameState.feeding[a.key].hunger >= 3 ? 75 : GameState.feeding[a.key].hunger >= 2 ? 50 : 25;
 					UI.notify((lang==='en' ? a.name+' hungry! Production -' : a.name+' hladovi! Produkce -')+penalty+'%', true);
+					if (typeof NotificationSystem !== 'undefined' && NotificationSystem.panel) {
+						NotificationSystem.panel('⚠️ ' + (lang==='en' ? a.name+' hungry — no '+a.feedChain[0]+'. Production -'+penalty+'%.' : a.name+' hladoví — chybí '+a.feedChain[0]+'. Produkce -'+penalty+'%.'), 'warning');
+					}
 					Game.addKronikaEntry('warning', a.name+' hladovi — chybi '+a.feedChain[0]+'.', a.name+' hungry — no '+a.feedChain[0]+'.', a.name+' esuriunt.');
 				}
 			}
@@ -4373,13 +4385,13 @@ const Game = {
 
     // Officium — konvrši nedostupní mezi Laudes (6:00) a Prima (9:00), reálný čas
     isOfficiumHours: function() {
-        const h = new Date().getHours();
+        const h = (typeof TimeSys !== 'undefined') ? TimeSys.gameHour() : new Date().getHours();
         return h >= 6 && h < 9;
     },
 
-    // Denní režim (Regula): blok dne podle reálného času
+    // Denní režim (Regula): blok dne podle Europe/Prague (ne lokální čas zařízení hráče)
     conversiDayBlock: function() {
-        const h = new Date().getHours();
+        const h = (typeof TimeSys !== 'undefined') ? TimeSys.gameHour() : new Date().getHours();
         if (h >= 6 && h < 9)   return 'officium'; // modlitba
         if (h >= 12 && h < 13) return 'lunch';    // oběd v refektáři
         if (h >= 18 && h < 19) return 'vespers';  // nešpory

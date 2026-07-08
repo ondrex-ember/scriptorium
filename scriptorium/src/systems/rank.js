@@ -38,7 +38,7 @@ const RankSystem = {
             icon: '🔴',
             unlockCondition: {
                 check: () => (GameState.researchedTechs || []).includes('tech_illumination')
-                          && (GameState.inventory['gallic_ink'] || 0) > 0
+                          && (GameState.inventory['ink_gallic'] || 0) > 0
             },
             unlocks: { features: ['illumination_basic'] }
         },

@@ -1881,8 +1881,8 @@ const UI = {
             // Special item requirements (check requirement text for keywords)
             const desc = requirementText.toLowerCase();
 
-            if (desc.includes('gallic_ink')) {
-                const hasItem = (GameState.inventory['gallic_ink'] || 0) > 0;
+            if (desc.includes('ink_gallic')) {
+                const hasItem = (GameState.inventory['ink_gallic'] || 0) > 0;
                 if (!hasItem) {
                     h += `<div>🖋️ Gallic Ink: <span style="color: var(--accent-wax);">${t('rank.needCreate')}</span></div>`;
                 } else {

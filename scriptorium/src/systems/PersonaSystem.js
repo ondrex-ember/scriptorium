@@ -355,7 +355,7 @@ const PersonaSystem = {
             checks.push({ label: lang==='en'?`Technologies ${techs.length}/2`:`Technologie ${techs.length}/2`, done: techs.length >= 2 });
         } else if (nid === 'rubricator') {
             const hasIllum = techs.includes('tech_illumination');
-            const hasInk = (inv['gallic_ink'] || 0) > 0;
+            const hasInk = (inv['ink_gallic'] || 0) > 0;
             checks.push({ label: lang==='en'?'Tech: Illumination':'Tech: Iluminace', done: hasIllum });
             checks.push({ label: lang==='en'?'Gallic ink in inventory':'Gallic ink na skladě', done: hasInk });
         } else if (nid === 'illuminator') {

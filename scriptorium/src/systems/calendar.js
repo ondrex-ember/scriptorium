@@ -453,7 +453,7 @@ const CalendarSystem = {
 
         // Martyrologium — ranní čtení při Primě
         if (typeof CanonicalHours !== 'undefined' || true) {
-            const hour = new Date().getHours();
+            const hour = (typeof TimeSys !== 'undefined') ? TimeSys.gameHour() : new Date().getHours();
             if (hour >= 6 && hour <= 8 && !GameState.flags['martyrologyRead_' + today]) {
                 GameState.flags['martyrologyRead_' + today] = true;
                 this.readMartyrologyForTomorrow();

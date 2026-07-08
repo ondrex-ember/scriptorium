@@ -108,10 +108,7 @@ const CanonicalHours = {
     checkCurrentHour: function() {
         if (!this.enabled) return;
         
-        const now = new Date();
-        const hours = now.getHours();
-        const minutes = now.getMinutes();
-        const currentTime = hours + (minutes / 60);  // e.g. 6:30 = 6.5
+        const currentTime = (typeof TimeSys !== 'undefined') ? TimeSys.gameHour(true) : (new Date().getHours() + new Date().getMinutes() / 60);  // e.g. 6:30 = 6.5, Prague-anchored
         
         // Find which canonical hour we're in
         let activeHour = null;

@@ -10185,6 +10185,36 @@ const HeaderImageSystem = {
 
 // ═══ src/systems/time.js ═══
 const TimeSys = {
+    // Jednotný "herní čas" — vždy Europe/Prague, bez ohledu na časové pásmo zařízení hráče.
+    // Používat pro VŠECHNY herní mechaniky vázané na hodinu (Regula, Conversi, kanonické hodiny,
+    // trh, Athanor bonus, martyrologium). Kosmetika (téma, header, denní fáze) zůstává na lokálním čase.
+    gameHour: function(withMinutes) {
+        const now = new Date();
+        try {
+            const parts = new Intl.DateTimeFormat('en-GB', {
+                timeZone: 'Europe/Prague', hour: '2-digit', minute: '2-digit', hour12: false
+            }).formatToParts(now);
+            const h = parseInt(parts.find(p => p.type === 'hour').value, 10);
+            const m = parseInt(parts.find(p => p.type === 'minute').value, 10);
+            return withMinutes ? (h + m / 60) : h;
+        } catch (e) {
+            // Fallback (Intl nedostupné) — lokální čas zařízení, lepší než pád
+            return withMinutes ? (now.getHours() + now.getMinutes() / 60) : now.getHours();
+        }
+    },
+
+    // Den v týdnu (0=Ne...6=So) podle Europe/Prague — pro otvírací dobu (Cellarium)
+    gameWeekday: function() {
+        const now = new Date();
+        try {
+            const wd = new Intl.DateTimeFormat('en-GB', { timeZone: 'Europe/Prague', weekday: 'short' }).format(now);
+            const map = { Sun: 0, Mon: 1, Tue: 2, Wed: 3, Thu: 4, Fri: 5, Sat: 6 };
+            return map[wd] !== undefined ? map[wd] : now.getDay();
+        } catch (e) {
+            return now.getDay();
+        }
+    },
+
     getPhase: function() {
         const now = new Date();
         const h = now.getHours() + (now.getMinutes() / 60);
@@ -10287,7 +10317,7 @@ const TimeSys = {
         const seconds = now.getSeconds();
         
         if (minutes === 0 && seconds === 0 && typeof CanonicalHours !== 'undefined') {
-            CanonicalHours.playHourChime(now.getHours());
+            CanonicalHours.playHourChime(TimeSys.gameHour());
         }
         
         if (typeof UI !== 'undefined' && typeof UI.renderActions === 'function') {
@@ -10406,10 +10436,7 @@ const CanonicalHours = {
     checkCurrentHour: function() {
         if (!this.enabled) return;
         
-        const now = new Date();
-        const hours = now.getHours();
-        const minutes = now.getMinutes();
-        const currentTime = hours + (minutes / 60);  // e.g. 6:30 = 6.5
+        const currentTime = (typeof TimeSys !== 'undefined') ? TimeSys.gameHour(true) : (new Date().getHours() + new Date().getMinutes() / 60);  // e.g. 6:30 = 6.5, Prague-anchored
         
         // Find which canonical hour we're in
         let activeHour = null;
@@ -12127,7 +12154,7 @@ const RankSystem = {
             icon: '🔴',
             unlockCondition: {
                 check: () => (GameState.researchedTechs || []).includes('tech_illumination')
-                          && (GameState.inventory['gallic_ink'] || 0) > 0
+                          && (GameState.inventory['ink_gallic'] || 0) > 0
             },
             unlocks: { features: ['illumination_basic'] }
         },
@@ -15714,8 +15741,8 @@ const CellariumSystem = {
 
   isEntityOpen: function(entity) {
     const now  = new Date();
-    const hour = now.getHours();
-    const day  = now.getDay(); // 0=Ne, 1=Po ... 6=So
+    const hour = (typeof TimeSys !== 'undefined') ? TimeSys.gameHour() : now.getHours();
+    const day  = (typeof TimeSys !== 'undefined') ? TimeSys.gameWeekday() : now.getDay(); // 0=Ne, 1=Po ... 6=So
 
     if (entity === 'tavern') {
       if (GameState.secrets && GameState.secrets.tavernAlwaysOpen) return true;
@@ -17855,7 +17882,11 @@ const SaeculumSystem = {
     h += `<div style="font-weight:bold; font-size:0.92rem; margin-bottom:4px;">✝️ ${lang==='en'?'Conversi':'Conversi'}</div>`;
 
     if (cap === 0) {
-      h += `<div style="font-size:0.8rem; opacity:0.6; font-style:italic;">${lang==='en'?'No dormitory built yet — see Old Cellars in the Cellarium.':'Zatím žádný dormitář — viz Staré sklepy v Cellariu.'}</div>`;
+      const hasOldCellarsAccess = (GameState.researchedTechs && GameState.researchedTechs.includes('tech_conventual_spaces')) || GameState.oldCellarsFound;
+      const dormHint = hasOldCellarsAccess
+        ? (lang==='en' ? 'No dormitory built yet — build it in Old Cellars (Cellarium).' : 'Zatím žádný dormitář — postav ho ve Starých sklepech (Cellarium).')
+        : (lang==='en' ? 'No dormitory built yet. First find the Old Cellars — research it (Conventual Spaces) or stumble upon it by chance.' : 'Zatím žádný dormitář. Nejprve objev Staré sklepy — buď výzkumem (Konventní prostory), nebo náhodným nálezem.');
+      h += `<div style="font-size:0.8rem; opacity:0.6; font-style:italic;">${dormHint}</div>`;
     } else {
       h += `<div style="font-size:0.85rem; margin-bottom:8px;">${lang==='en'?'Beds':'Lůžka'}: <strong>${list.length} / ${cap}</strong></div>`;
       if (list.length && GameState.conversiNextWage) {
@@ -23740,6 +23771,20 @@ const FarmyardSystem = {
                 const low = (hayPens && Math.floor((GameState.inventory['hay'] || 0) / hayPens) < 3) || (grainPens && Math.floor((GameState.inventory['grain'] || 0) / grainPens) < 3);
                 h += `<div style="font-size:0.8rem; ${low ? 'color:#c0392b;' : ''}">🌾 ${t('dvur.feedStock')}: ${parts.join(' \u00b7 ')}</div>`;
             }
+
+            // Poslední (auto)krmení — přehled bez nutnosti otevírat každý chlév zvlášť
+            if (GameState.feeding) {
+                const feedNames = { henhouse: lang==='en'?'Hens':'Slepice', sheepfold: lang==='en'?'Sheep':'Ovce', piscina: lang==='en'?'Fish':'Ryby', rabbitry: lang==='en'?'Rabbits':'Králíci', goatpen: lang==='en'?'Goats':'Kozy', pigsty: lang==='en'?'Pigs':'Prasata' };
+                const fedKeys = Object.keys(GameState.feeding).filter(k => GameState.feeding[k] && GameState.feeding[k].lastFed);
+                if (fedKeys.length) {
+                    fedKeys.sort((a, b) => GameState.feeding[b].lastFed - GameState.feeding[a].lastFed);
+                    const lastKey = fedKeys[0];
+                    const hAgo = Math.max(0, Math.floor((Date.now() - GameState.feeding[lastKey].lastFed) / 3600000));
+                    const anyHungry = fedKeys.some(k => (GameState.feeding[k].hunger || 0) > 0);
+                    const label = feedNames[lastKey] || lastKey;
+                    h += `<div style="font-size:0.76rem; ${anyHungry ? 'color:#c0392b;' : 'opacity:0.7;'}">🌾 ${lang==='en'?'Last fed':'Naposledy krmeno'}: ${label} · ${lang==='en' ? hAgo+'h ago' : 'před '+hAgo+'h'}${anyHungry ? (lang==='en' ? ' — some hungry!' : ' — někteří hladoví!') : ''}</div>`;
+                }
+            }
         }
 
         if (GameState.loanMale && GameState.loanMale.type && Date.now() < GameState.loanMale.returnsAt) {
@@ -25402,7 +25447,7 @@ const PersonaSystem = {
             checks.push({ label: lang==='en'?`Technologies ${techs.length}/2`:`Technologie ${techs.length}/2`, done: techs.length >= 2 });
         } else if (nid === 'rubricator') {
             const hasIllum = techs.includes('tech_illumination');
-            const hasInk = (inv['gallic_ink'] || 0) > 0;
+            const hasInk = (inv['ink_gallic'] || 0) > 0;
             checks.push({ label: lang==='en'?'Tech: Illumination':'Tech: Iluminace', done: hasIllum });
             checks.push({ label: lang==='en'?'Gallic ink in inventory':'Gallic ink na skladě', done: hasInk });
         } else if (nid === 'illuminator') {
@@ -28062,7 +28107,7 @@ const AthanorSystem = {
   },
 
   getCanonicalHour() {
-    const h = new Date().getHours();
+    const h = (typeof TimeSys !== 'undefined') ? TimeSys.gameHour() : new Date().getHours();
     if (h >= 3 && h < 6) return { name: 'Laudes', icon: '🌅', bonus: 'quality', label: 'Laudes — +10% kvalita' };
     if (h >= 6 && h < 9) return { name: 'Prima', icon: '🌄', bonus: null, label: 'Prima' };
     if (h >= 9 && h < 12) return { name: 'Tertia', icon: '☀️', bonus: null, label: 'Tertia' };
@@ -34271,7 +34316,7 @@ const STRINGS_cs = {
         rubricator_desc: 'Přidáváš červené nadpisy a iniciály. Rudá barva je jedovatá. Neoliž štětec.',
         rubricator_lore: 'V prvotiscích jsou dodnes prázdné čtverečky – tam měla být iniciála, ale majitel nezaplatil rubrikátora.',
         rubricator_toast: 'Rubricator – červená je tvoje. Pamatuj, co se stalo Mikuláši z Cluny.',
-        rubricator_requirement: 'Tech iluminace + gallic_ink',
+        rubricator_requirement: 'Tech iluminace + ink_gallic',
 
         // ===== TIER 5: ILLUMINATOR =====
         illuminator_name: 'Iluminátor',
@@ -36941,7 +36986,7 @@ According to Theophilus, the organ is an instrument worthy of God, but its const
         rubricator_desc: 'Thou dost add red headings and initials. The red pigment is poisonous. Do not lick the brush.',
         rubricator_lore: 'In early printed books there remain empty squares to this day — there should have been an initial, but the owner paid not the rubricator.',
         rubricator_toast: 'Rubricator — the red is thine. Remember what befell Nicholas of Cluny.',
-        rubricator_requirement: 'Tech illumination + gallic_ink',
+        rubricator_requirement: 'Tech illumination + ink_gallic',
 
         // ===== TIER 5: ILLUMINATOR =====
         illuminator_name: 'Illuminator',
@@ -38582,6 +38627,8 @@ const Game = {
         // NOW render UI (after theme is set and all systems initialized)
         UI.renderAll(); 
         Game.checkEnvironment();
+        // Templum — viditelnost tabu hned při loadu (dřív jen po kliku na jiný tab / až 60s tick)
+        if (typeof TemplumSystem !== 'undefined' && TemplumSystem.updateTabVisibility) TemplumSystem.updateTabVisibility();
         
         VigorSystem.renderMiniDisplay();
 
@@ -41270,10 +41317,20 @@ const Game = {
 					GameState.feeding[a.key].lastFed = now;
 					GameState.feeding[a.key].hunger = 0;
 					UI.notify(lang==='en' ? a.name+' fed automatically.' : a.name+' nakrmeny automaticky.');
+					if (typeof NotificationSystem !== 'undefined' && NotificationSystem.panel) {
+						NotificationSystem.panel('🌾 ' + (lang==='en' ? a.name+' fed automatically ('+useFeed+').' : a.name+' automaticky nakrmeny ('+useFeed+').'), 'system');
+					}
+					Game.addKronikaEntry('minor',
+						'🌾 ' + a.name + ' automaticky nakrmeny (' + useFeed + ').',
+						'🌾 ' + a.name + ' fed automatically (' + useFeed + ').',
+						'🌾 Animalia pasta sunt.');
 				} else {
 					GameState.feeding[a.key].hunger = Math.min(3, (GameState.feeding[a.key].hunger || 0) + 1);
 					const penalty = GameState.feeding[a.key].hunger >= 3 ? 75 : GameState.feeding[a.key].hunger >= 2 ? 50 : 25;
 					UI.notify((lang==='en' ? a.name+' hungry! Production -' : a.name+' hladovi! Produkce -')+penalty+'%', true);
+					if (typeof NotificationSystem !== 'undefined' && NotificationSystem.panel) {
+						NotificationSystem.panel('⚠️ ' + (lang==='en' ? a.name+' hungry — no '+a.feedChain[0]+'. Production -'+penalty+'%.' : a.name+' hladoví — chybí '+a.feedChain[0]+'. Produkce -'+penalty+'%.'), 'warning');
+					}
 					Game.addKronikaEntry('warning', a.name+' hladovi — chybi '+a.feedChain[0]+'.', a.name+' hungry — no '+a.feedChain[0]+'.', a.name+' esuriunt.');
 				}
 			}
@@ -42522,13 +42579,13 @@ const Game = {
 
     // Officium — konvrši nedostupní mezi Laudes (6:00) a Prima (9:00), reálný čas
     isOfficiumHours: function() {
-        const h = new Date().getHours();
+        const h = (typeof TimeSys !== 'undefined') ? TimeSys.gameHour() : new Date().getHours();
         return h >= 6 && h < 9;
     },
 
-    // Denní režim (Regula): blok dne podle reálného času
+    // Denní režim (Regula): blok dne podle Europe/Prague (ne lokální čas zařízení hráče)
     conversiDayBlock: function() {
-        const h = new Date().getHours();
+        const h = (typeof TimeSys !== 'undefined') ? TimeSys.gameHour() : new Date().getHours();
         if (h >= 6 && h < 9)   return 'officium'; // modlitba
         if (h >= 12 && h < 13) return 'lunch';    // oběd v refektáři
         if (h >= 18 && h < 19) return 'vespers';  // nešpory
@@ -44752,8 +44809,8 @@ const UI = {
             // Special item requirements (check requirement text for keywords)
             const desc = requirementText.toLowerCase();
 
-            if (desc.includes('gallic_ink')) {
-                const hasItem = (GameState.inventory['gallic_ink'] || 0) > 0;
+            if (desc.includes('ink_gallic')) {
+                const hasItem = (GameState.inventory['ink_gallic'] || 0) > 0;
                 if (!hasItem) {
                     h += `<div>🖋️ Gallic Ink: <span style="color: var(--accent-wax);">${t('rank.needCreate')}</span></div>`;
                 } else {
@@ -46394,7 +46451,7 @@ const CalendarSystem = {
 
         // Martyrologium — ranní čtení při Primě
         if (typeof CanonicalHours !== 'undefined' || true) {
-            const hour = new Date().getHours();
+            const hour = (typeof TimeSys !== 'undefined') ? TimeSys.gameHour() : new Date().getHours();
             if (hour >= 6 && hour <= 8 && !GameState.flags['martyrologyRead_' + today]) {
                 GameState.flags['martyrologyRead_' + today] = true;
                 this.readMartyrologyForTomorrow();

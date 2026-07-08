@@ -864,7 +864,7 @@ const STRINGS_cs = {
         rubricator_desc: 'Přidáváš červené nadpisy a iniciály. Rudá barva je jedovatá. Neoliž štětec.',
         rubricator_lore: 'V prvotiscích jsou dodnes prázdné čtverečky – tam měla být iniciála, ale majitel nezaplatil rubrikátora.',
         rubricator_toast: 'Rubricator – červená je tvoje. Pamatuj, co se stalo Mikuláši z Cluny.',
-        rubricator_requirement: 'Tech iluminace + gallic_ink',
+        rubricator_requirement: 'Tech iluminace + ink_gallic',
 
         // ===== TIER 5: ILLUMINATOR =====
         illuminator_name: 'Iluminátor',

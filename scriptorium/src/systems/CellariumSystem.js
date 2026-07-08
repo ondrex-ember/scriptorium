@@ -82,8 +82,8 @@ const CellariumSystem = {
 
   isEntityOpen: function(entity) {
     const now  = new Date();
-    const hour = now.getHours();
-    const day  = now.getDay(); // 0=Ne, 1=Po ... 6=So
+    const hour = (typeof TimeSys !== 'undefined') ? TimeSys.gameHour() : now.getHours();
+    const day  = (typeof TimeSys !== 'undefined') ? TimeSys.gameWeekday() : now.getDay(); // 0=Ne, 1=Po ... 6=So
 
     if (entity === 'tavern') {
       if (GameState.secrets && GameState.secrets.tavernAlwaysOpen) return true;

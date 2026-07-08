@@ -1,4 +1,34 @@
 const TimeSys = {
+    // Jednotný "herní čas" — vždy Europe/Prague, bez ohledu na časové pásmo zařízení hráče.
+    // Používat pro VŠECHNY herní mechaniky vázané na hodinu (Regula, Conversi, kanonické hodiny,
+    // trh, Athanor bonus, martyrologium). Kosmetika (téma, header, denní fáze) zůstává na lokálním čase.
+    gameHour: function(withMinutes) {
+        const now = new Date();
+        try {
+            const parts = new Intl.DateTimeFormat('en-GB', {
+                timeZone: 'Europe/Prague', hour: '2-digit', minute: '2-digit', hour12: false
+            }).formatToParts(now);
+            const h = parseInt(parts.find(p => p.type === 'hour').value, 10);
+            const m = parseInt(parts.find(p => p.type === 'minute').value, 10);
+            return withMinutes ? (h + m / 60) : h;
+        } catch (e) {
+            // Fallback (Intl nedostupné) — lokální čas zařízení, lepší než pád
+            return withMinutes ? (now.getHours() + now.getMinutes() / 60) : now.getHours();
+        }
+    },
+
+    // Den v týdnu (0=Ne...6=So) podle Europe/Prague — pro otvírací dobu (Cellarium)
+    gameWeekday: function() {
+        const now = new Date();
+        try {
+            const wd = new Intl.DateTimeFormat('en-GB', { timeZone: 'Europe/Prague', weekday: 'short' }).format(now);
+            const map = { Sun: 0, Mon: 1, Tue: 2, Wed: 3, Thu: 4, Fri: 5, Sat: 6 };
+            return map[wd] !== undefined ? map[wd] : now.getDay();
+        } catch (e) {
+            return now.getDay();
+        }
+    },
+
     getPhase: function() {
         const now = new Date();
         const h = now.getHours() + (now.getMinutes() / 60);
@@ -101,7 +131,7 @@ const TimeSys = {
         const seconds = now.getSeconds();
         
         if (minutes === 0 && seconds === 0 && typeof CanonicalHours !== 'undefined') {
-            CanonicalHours.playHourChime(now.getHours());
+            CanonicalHours.playHourChime(TimeSys.gameHour());
         }
         
         if (typeof UI !== 'undefined' && typeof UI.renderActions === 'function') {
