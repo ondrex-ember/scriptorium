@@ -689,6 +689,12 @@ const CellariumSystem = {
     this.checkHeinrichEvent();
   },
 
+  // Giacomo je "v přístavu" jen 3 dny po příjezdu — jinak je jeho buyOffer (Clientela) nedostupný
+  GIACOMO_PRESENCE_MS: 3 * 24 * 60 * 60 * 1000,
+  isGiacomoPresent: function() {
+    return (Date.now() - (GameState.economy.lastGiacomoVisit || 0)) < this.GIACOMO_PRESENCE_MS;
+  },
+
   showGiacomoArrival: function() {
     // Show modal
     let existing = document.getElementById('giacomo-modal');

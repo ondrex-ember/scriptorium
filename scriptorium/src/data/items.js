@@ -40,6 +40,7 @@ const ItemsDB = {
     // LORE
     "pulp": { name: "Hadrovina", name_en: "Rag Pulp", icon: "🌫️", type: "mat", desc: "Rozmělněná lněná vlákna ve vodě. Základ hadrového papíru.", desc_en: "Macerated linen fibres in water. The base of rag paper." },
     "paper": { name: "Hadrový papír", name_en: "Rag Paper", icon: "📄", type: "lore", desc: "Lisovaná hadrovina. Středověký papír z lněných vláken, ne ze dřeva.", desc_en: "Pressed rag pulp. Medieval paper made from linen fibres, not wood." },
+    "paper_fine": { name: "Benátský papír", name_en: "Venetian Paper", icon: "📃", type: "lore", desc: "Jemnější a bělejší než hadrový papír z domácí výroby. Giacomo ho vozí z Benátek.", desc_en: "Finer and whiter than home-pressed rag paper. Giacomo brings it from Venice." },
     "ink": { name: "Inkoust", name_en: "Ink", icon: "✒️", type: "lore", desc: "Černý.", desc_en: "Black ink." },
     "research": { name: "Zápisky", name_en: "Notes", icon: "📜", type: "lore", desc: "Vědění.", desc_en: "Accumulated knowledge." },
 
@@ -548,6 +549,15 @@ const ItemsDB = {
     "butter": { name: "Máslo", name_en: "Butter", icon: "🧈", type: "mat", desc: "Čerstvé máslo z kravského mléka. Postní výjimka u nemocných.", desc_en: "Fresh butter from cow's milk. A Lenten exception for the sick." },
     "cheese": { name: "Sýr", name_en: "Cheese", icon: "🧀", type: "food", desc: "Tvrdý klášterní sýr. Trvanlivý, výživný. Prodávaný na trzích.", desc_en: "Hard monastic cheese. Long-lasting, nutritious. Sold at markets." },
     "salt": { name: "Sůl", name_en: "Salt", icon: "🧂", type: "mat", desc: "Drahá obchodní komodita ze solných stezek. Bez ní se sýr nezasolí a brzy zkazí.", desc_en: "A costly trade good from the salt roads. Without it cheese cannot be salted and soon spoils." },
+
+    // GIACOMO IMPORT — koření a hedvábí, viz ContactsDB.giacomo.buyOffer
+    "pepr_cerny": { name: "Černý pepř", name_en: "Black Pepper", icon: "⚫", type: "mat", desc: "Král koření. Tvoří většinu obchodu s Orientem — platí se jím i daně.", desc_en: "The king of spices. Makes up most of the trade with the Orient — even taxes are paid in it." },
+    "zazvor": { name: "Zázvor", name_en: "Ginger", icon: "🫚", type: "mat", desc: "Druhé nejoblíbenější koření po pepři. Z Indie a Číny, sušený i v cukru.", desc_en: "The second most popular spice after pepper. From India and China, dried or preserved in sugar." },
+    "hrebicek": { name: "Hřebíček", name_en: "Clove", icon: "🟤", type: "mat", desc: "Sušená poupata z Ostrovů koření. Silná vůně, tiší bolest zubů.", desc_en: "Dried buds from the Spice Islands. Strong scent, eases toothache." },
+    "skorice": { name: "Skořice", name_en: "Cinnamon", icon: "🟫", type: "mat", desc: "Ve skutečnosti čínská kasie — drsnější a ostřejší než pravá cejlonská skořice.", desc_en: "In truth Chinese cassia — coarser and sharper than true Ceylon cinnamon." },
+    "safran": { name: "Šafrán", name_en: "Saffron", icon: "🟡", type: "mat", desc: "Nejdražší koření světa. Na půl kila je třeba 75 000 květů. Zlatá barva na panském stole.", desc_en: "The world's most expensive spice. Half a kilo needs 75,000 flowers. A golden colour for the lord's table." },
+    "hedvabi": { name: "Hedvábí", name_en: "Silk", icon: "🧣", type: "mat", desc: "Vzácná tkanina z Východu. Giacomo ji sežene, i když sám neví odkud přesně.", desc_en: "A rare fabric from the East. Giacomo procures it, though even he isn't quite sure where from." },
+
     "rennet": { name: "Syřidlo", name_en: "Rennet", icon: "🫙", type: "mat", desc: "Sráží mléko pro výrobu sýra. Ze slezu mláděte nebo z bylin.", desc_en: "Curdles milk for cheesemaking. From a kid's stomach or from herbs." },
     "galium": { name: "Svízel syřišťový", name_en: "Lady's Bedstraw", icon: "🌼", type: "mat", desc: "Žlutě kvetoucí bylina. Výluh sráží mléko — chudší alternativa ke slezu.", desc_en: "A yellow-flowering herb. Its extract curdles milk — a poor man's rennet." },
 

@@ -125,5 +125,26 @@ const ContactsDB = {
                        zrcadlo:  { itemId: 'glass_mirror',      price: 40, minRelation: 50 } },
         desc: 'Sklář z hutě v lesích. Alembiky a křivule pro učené — křehké zboží, stálý odbyt.',
         desc_en: 'A glassmaker from a forest works. Alembics and retorts for the learned — fragile goods, steady trade.'
+    },
+    giacomo: {
+        confession: "Prodává janovské zboží jako benátské a benátské jako janovské — podle toho, kdo se ptá.",
+        confession_en: "He sells Genoese goods as Venetian, and Venetian as Genoese — whichever the buyer prefers.",
+        name: 'Giacomo Foscari', name_en: 'Giacomo Foscari', icon: '⚓',
+        primaryAxis: 'scholars',
+        secondaryAxis: null,
+        unlockTech: null,                     // dostupný hned, jako dnes (persona.influence.giacomo)
+        sellBonus: {},                        // Giacomo jen prodává — výkup řeší jinde (vinum bonus zůstává legacy mechanika)
+        // Přítomen jen v okně po příjezdu (CellariumSystem.isGiacomoPresent) — gate v buyFromContact
+        buyOffer: { items: {
+            paper_fine: { price: 6,  stock: 3, minRelation: 20 },
+            pepr_cerny: { price: 6,  stock: 3, minRelation: 20 },
+            zazvor:     { price: 6,  stock: 3, minRelation: 20 },
+            hrebicek:   { price: 12, stock: 2, minRelation: 25 },
+            skorice:    { price: 10, stock: 2, minRelation: 25 },
+            hedvabi:    { price: 15, stock: 2, minRelation: 30 },
+            safran:     { price: 28, stock: 1, minRelation: 35 },
+        } },
+        desc: 'Benátský obchodník. Přiváží, co jinde nekoupíš — ale jen když je jeho loď v přístavu.',
+        desc_en: 'A Venetian merchant. He brings what you cannot buy elsewhere — but only while his ship is in port.'
     }
 };

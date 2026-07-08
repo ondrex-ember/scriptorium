@@ -614,6 +614,12 @@ const SaeculumSystem = {
     const c = ContactsDB[contactId];
     const offer = c && c.buyOffer && c.buyOffer.items && c.buyOffer.items[itemId];
     if (!offer) return;
+    // Giacomo je jen 3 dny "v přístavu" po příjezdu — mimo okno nelze nakoupit
+    if (contactId === 'giacomo' && !CellariumSystem.isGiacomoPresent()) {
+      const lang = (GameState.settings && GameState.settings.language) || 'cs';
+      UI.notify(lang==='en' ? "Giacomo's ship is at sea — return after he arrives." : 'Giacomova loď je na moři — vrať se po jeho příjezdu.', true);
+      return;
+    }
     // Exkluzivní nabídka: gate na vztah (MRD bod 8)
     if (offer.minRelation && ((GameState.contactRelation || {})[contactId] || 0) < offer.minRelation) return;
     const soldToday = this._contactSoldToday(contactId, itemId);

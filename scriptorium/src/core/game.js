@@ -4252,6 +4252,8 @@ const Game = {
             k.awayTask = taskId;
             k.awayUntil = Date.now() + cfg.durationMs;
             UI.notifyPanel('🚶 ' + (lang==='en' ? k.name+' left for '+taskId+'.' : k.name+' odešel na úkol: '+taskId+'.'), 'system');
+        } else if (this.conversiDayBlock() !== 'work') {
+            UI.notify(lang==='en' ? 'Assigned — he\'ll begin work at the next work block.' : 'Přiřazeno — konvrš se pustí do práce až v dalším pracovním bloku.', false);
         }
         Game.save();
         if (typeof SaeculumSystem !== 'undefined') SaeculumSystem.switchEntity('conversi');
