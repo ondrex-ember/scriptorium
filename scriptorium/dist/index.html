@@ -5784,6 +5784,16 @@ const ItemsDB = {
     // ── Produkty zahrady / včelína ─────────────────────────────────────────
     "pollen": { name: "Pyl", name_en: "Pollen", icon: "🌼", type: "mat", desc: "Včelí pyl. Léčivý a vzácný.", desc_en: "Bee pollen. Medicinal and rare." },
     "linden_blossom": { name: "Lipový květ", name_en: "Linden Blossom", icon: "🌸", type: "mat", desc: "Sušený lipový květ. Do čaje i léčiv.", desc_en: "Dried linden blossom. For tea and remedies." },
+    "apple": { name: "Jablko", name_en: "Apple", icon: "🍎", type: "food_raw", desc: "Ze sadu. Skladuje se do jara.", desc_en: "From the orchard. Keeps until spring." },
+    "pear": { name: "Hruška", name_en: "Pear", icon: "🍐", type: "food_raw", desc: "Ze sadu. Šťavnatá, ale rychle měkne.", desc_en: "From the orchard. Juicy but softens quickly." },
+    "plum": { name: "Švestka", name_en: "Plum", icon: "🫐", type: "food_raw", desc: "Ze sadu. Na povidla i pálenku.", desc_en: "From the orchard. For jam and brandy." },
+    "cherry": { name: "Třešeň", name_en: "Cherry", icon: "🍒", type: "food_raw", desc: "Ze sadu. Sladká letní úroda.", desc_en: "From the orchard. Sweet summer harvest." },
+    "walnut": { name: "Vlašský ořech", name_en: "Walnut", icon: "🥜", type: "food_raw", desc: "Ze sadu. Vydrží celou zimu ve skořápce.", desc_en: "From the orchard. Keeps all winter in its shell." },
+    "mulberry": { name: "Moruše", name_en: "Mulberry", icon: "🫐", type: "food_raw", desc: "Ze sadu. Barví prsty i pergamen.", desc_en: "From the orchard. Stains fingers and parchment alike." },
+    "quince": { name: "Kdoule", name_en: "Quince", icon: "🍋", type: "food_raw", desc: "Ze sadu. Tvrdá, voňavá, na marmeládu.", desc_en: "From the orchard. Hard, fragrant, for marmalade." },
+    "sorb": { name: "Oskeruše", name_en: "Sorb Apple", icon: "🟤", type: "food_raw", desc: "Ze sadu. Trpká, dozrává až po prvních mrazech.", desc_en: "From the orchard. Tart, ripens only after first frost." },
+    "rowan": { name: "Jeřabina", name_en: "Rowan Berry", icon: "🔴", type: "food_raw", desc: "Ze sadu. Hořká syrová, sladší po zpracování.", desc_en: "From the orchard. Bitter raw, sweeter when processed." },
+    "linden_fruit": { name: "Lipový plod", name_en: "Linden Fruit", icon: "🌸", type: "food_raw", desc: "Ze sadu. Drobná nažka lípy, spíš léčivá než k jídlu.", desc_en: "From the orchard. A tiny linden nutlet, more medicinal than edible." },
     "grass": { name: "Tráva", name_en: "Grass", icon: "🌿", type: "mat", desc: "Posečená čerstvá tráva. Suší se na seno.", desc_en: "Cut fresh grass. Dried to make hay." },
     "queen_bee": { name: "Včelí matka", name_en: "Queen Bee", icon: "🐝", type: "animal", desc: "Včelí matka. Nutná pro stavbu úlu.", desc_en: "Queen bee. Required to establish a hive." },
 
@@ -6235,6 +6245,44 @@ const RecipesDB = [
       desc: "Vybraná zrna prosa ponechaná na osivo.", desc_en: "Selected millet grains set aside as seed." },
     { id: "peas_to_seed",   output: "seeds_peas",   qty: 1, req: { "peas": 1 },       cat: "craft", locked: true,
       desc: "Vybrané zrna hrachu ponechaná na osivo.", desc_en: "Selected pea grains set aside as seed." },
+
+    // Zelenina → semínka (nůž)
+    { id: "carrot_to_seed", output: "seeds_vegetable", qty: 1, req: { "carrot": 1 }, toolReq: [{item:"stone_knife"}], cat: "craft",
+      desc: "Nožem vyříznutá jádra mrkve ponechaná na osivo.", desc_en: "Carrot seeds cut out with a knife, set aside for sowing." },
+    { id: "onion_to_seed", output: "seeds_vegetable", qty: 1, req: { "onion": 1 }, toolReq: [{item:"stone_knife"}], cat: "craft",
+      desc: "Nožem vyříznutá semínka cibule ponechaná na osivo.", desc_en: "Onion seeds cut out with a knife, set aside for sowing." },
+    { id: "leek_to_seed", output: "seeds_leek", qty: 1, req: { "leek": 1 }, toolReq: [{item:"stone_knife"}], cat: "craft",
+      desc: "Nožem vyříznutá semínka pórku ponechaná na osivo.", desc_en: "Leek seeds cut out with a knife, set aside for sowing." },
+    { id: "cabbage_to_seed", output: "seeds_cabbage", qty: 1, req: { "cabbage": 1 }, toolReq: [{item:"stone_knife"}], cat: "craft",
+      desc: "Nožem vyříznutá semínka zelí ponechaná na osivo.", desc_en: "Cabbage seeds cut out with a knife, set aside for sowing." },
+    { id: "radish_to_seed", output: "seeds_radish", qty: 1, req: { "radish": 1 }, toolReq: [{item:"stone_knife"}], cat: "craft",
+      desc: "Nožem vyříznutá semínka ředkve ponechaná na osivo.", desc_en: "Radish seeds cut out with a knife, set aside for sowing." },
+    { id: "turnip_to_seed", output: "seeds_turnip", qty: 1, req: { "turnip": 1 }, toolReq: [{item:"stone_knife"}], cat: "craft",
+      desc: "Nožem vyříznutá semínka řepy ponechaná na osivo.", desc_en: "Turnip seeds cut out with a knife, set aside for sowing." },
+    { id: "garlic_to_seed", output: "seeds_garlic", qty: 1, req: { "garlic": 1 }, toolReq: [{item:"stone_knife"}], cat: "craft",
+      desc: "Nožem rozebraný stroužek česneku ponechaný na osivo.", desc_en: "Garlic clove separated with a knife, set aside for sowing." },
+
+    // Ovoce → semínka (nůž)
+    { id: "apple_to_seed", output: "seed_apple", qty: 1, req: { "apple": 1 }, toolReq: [{item:"stone_knife"}], cat: "craft",
+      desc: "Nožem vyříznutá jádra jablka ponechaná na osivo.", desc_en: "Apple seeds cut out with a knife, set aside for sowing." },
+    { id: "pear_to_seed", output: "seed_pear", qty: 1, req: { "pear": 1 }, toolReq: [{item:"stone_knife"}], cat: "craft",
+      desc: "Nožem vyříznutá jádra hrušky ponechaná na osivo.", desc_en: "Pear seeds cut out with a knife, set aside for sowing." },
+    { id: "plum_to_seed", output: "seed_plum", qty: 1, req: { "plum": 1 }, toolReq: [{item:"stone_knife"}], cat: "craft",
+      desc: "Nožem vyňatá peckovina švestky ponechaná na osivo.", desc_en: "Plum stone cut out with a knife, set aside for sowing." },
+    { id: "cherry_to_seed", output: "seed_cherry", qty: 1, req: { "cherry": 1 }, toolReq: [{item:"stone_knife"}], cat: "craft",
+      desc: "Nožem vyňatá peckovina třešně ponechaná na osivo.", desc_en: "Cherry stone cut out with a knife, set aside for sowing." },
+    { id: "walnut_to_seed", output: "seed_walnut", qty: 1, req: { "walnut": 1 }, toolReq: [{item:"stone_knife"}], cat: "craft",
+      desc: "Nožem rozlousknutý ořech ponechaný na osivo.", desc_en: "Walnut cracked open with a knife, set aside for sowing." },
+    { id: "mulberry_to_seed", output: "seed_mulberry", qty: 1, req: { "mulberry": 1 }, toolReq: [{item:"stone_knife"}], cat: "craft",
+      desc: "Nožem vyloupaná semínka moruše ponechaná na osivo.", desc_en: "Mulberry seeds picked out with a knife, set aside for sowing." },
+    { id: "quince_to_seed", output: "seed_quince", qty: 1, req: { "quince": 1 }, toolReq: [{item:"stone_knife"}], cat: "craft",
+      desc: "Nožem vyříznutá jádra kdoule ponechaná na osivo.", desc_en: "Quince seeds cut out with a knife, set aside for sowing." },
+    { id: "sorb_to_seed", output: "seed_sorb", qty: 1, req: { "sorb": 1 }, toolReq: [{item:"stone_knife"}], cat: "craft",
+      desc: "Nožem vyňatá semínka oskeruše ponechaná na osivo.", desc_en: "Sorb apple seeds cut out with a knife, set aside for sowing." },
+    { id: "rowan_to_seed", output: "seed_rowan", qty: 1, req: { "rowan": 1 }, toolReq: [{item:"stone_knife"}], cat: "craft",
+      desc: "Nožem vyňatá semínka jeřabiny ponechaná na osivo.", desc_en: "Rowan berry seeds cut out with a knife, set aside for sowing." },
+    { id: "linden_fruit_to_seed", output: "seed_linden", qty: 1, req: { "linden_fruit": 1 }, toolReq: [{item:"stone_knife"}], cat: "craft",
+      desc: "Nožem oddělená nažka lípy ponechaná na osivo.", desc_en: "Linden nutlet separated with a knife, set aside for sowing." },
     
     // ALCHEMY - základní
     { id: "candle", output: "candle", qty: 1, req: { "fat": 1, "rope": 1 }, cat: "fire", locked: true }, 
@@ -21226,6 +21274,7 @@ const GardenSystem = {
         const lang = (GameState.settings && GameState.settings.language) || 'cs';
 
         let html = `<p class="text-sm" style="margin-bottom:12px; opacity:0.75;">${t('garden.piscinaDesc')}</p>`;
+        html += this._zahradaStatsBar(lang);
 
         // ── TŘECÍ RYBNÍK (Tier 1) ── 1/7 výšky
         const t1locked = p.tier < 1;
@@ -21495,6 +21544,7 @@ const GardenSystem = {
         };
 
         let html = `<p class="text-sm" style="margin-bottom:15px; opacity:0.75;">${t('garden.orchardDesc')}</p>`;
+        html += this._zahradaStatsBar((typeof UI !== 'undefined' && UI.lang && UI.lang()==='en')?'en':'cs');
         html += `<div class="garden-grid">`;
 
         GameState.orchard.forEach((slot, idx) => {
@@ -21595,11 +21645,8 @@ const GardenSystem = {
         // Zimní check
         if (Game.checkApiaryWinter) Game.checkApiaryWinter();
 
-        let html = `
-            <div style="display:flex; align-items:center; gap:10px; margin-bottom:12px;">
-                <p class="text-sm" style="flex:1; opacity:0.75; margin:0;">${t('garden.apiaryDesc')}</p>
-                <span style="font-size:0.8rem; opacity:0.6; font-style:italic;">${seasonLabel[season] || ''}</span>
-            </div>`;
+        let html = `<p class="text-sm" style="margin-bottom:12px; opacity:0.75;">${t('garden.apiaryDesc')}</p>`;
+        html += this._zahradaStatsBar((typeof UI !== 'undefined' && UI.lang && UI.lang()==='en')?'en':'cs', [seasonLabel[season] || '']);
         html += `<div class="garden-grid">`;
 
         GameState.apiary.forEach((hive, idx) => {
@@ -21746,6 +21793,8 @@ const GardenSystem = {
         
         const hasCustomPlant = GameState.researchedTechs.includes('tech_hortus_conclusus');
         const lang = (typeof UI !== 'undefined' && UI.lang) ? UI.lang() : 'cs';
+
+        el.innerHTML = this._zahradaStatsBar(lang);
 
         GameState.garden.forEach((plot, idx) => {
             let c = "", b = "", typeLabel = "";
@@ -22382,19 +22431,17 @@ const GardenSystem = {
 
         let html = '';
 
-        // Sucho indikátor
-        if (droughtDays > 0) {
-            const color = droughtPenalty ? '#c0392b' : '#e67e22';
-            const msg = droughtPenalty
+        // Sucho indikátor — jako override generického textu počasí (detailnější, s dopadem na výnos)
+        const droughtMsg = droughtDays > 0
+            ? (droughtPenalty
                 ? (lang==='en' ? `⚠️ Drought! ${droughtDays} dry days — yield -20%` : `⚠️ Sucho! ${droughtDays} suchých dní — výnos -20%`)
-                : (lang==='en' ? `☀️ ${droughtDays} dry days` : `☀️ ${droughtDays} suchých dní`);
-            html += `<div style="margin-bottom:12px; padding:8px 12px; background:rgba(197,160,89,0.1); border-radius:6px; border-left:3px solid ${color}; font-size:0.82rem; color:${color};">${msg}</div>`;
-        }
-
-        // Trojpolní info
-        if (hasRotation) {
-            html += `<div style="margin-bottom:10px; padding:6px 12px; background:rgba(90,154,90,0.1); border-radius:6px; font-size:0.78rem; color:#5a9a5a;">✅ ${lang==='en' ? 'Three-field system: +25% yield' : 'Trojpolní systém: +25% výnos'}</div>`;
-        }
+                : (lang==='en' ? `☀️ ${droughtDays} dry days` : `☀️ ${droughtDays} suchých dní`))
+            : null;
+        // Trojpolní info — jako extra položka ve stejném baru
+        const trojpolniMsg = hasRotation
+            ? (lang==='en' ? '✅ Three-field system: +25% yield' : '✅ Trojpolní systém: +25% výnos')
+            : null;
+        html += this._zahradaStatsBar(lang, [trojpolniMsg], droughtMsg);
 
         // Sloty
         html += '<div class="garden-grid" style="margin-bottom:16px;">';
@@ -22659,6 +22706,7 @@ const GardenSystem = {
         let html = `<div style="margin-bottom:12px; font-size:0.85rem; opacity:0.75; font-style:italic;">
             ${lang==='en' ? 'Six vine plots. Plant, prune, harvest within the window.' : 'Šest záhonů révy. Zasadit, prořezat, sklidit v okně.'}
         </div>`;
+        html += this._zahradaStatsBar(lang);
 
         html += '<div class="garden-grid" style="margin-bottom:16px;">';
         GameState.vinea.forEach((slot, idx) => {
@@ -22821,6 +22869,32 @@ const GardenSystem = {
         }
 
         el.innerHTML = html;
+    },
+
+    // ── Sjednocený stat bar (počasí + odkaz na Přehled) — pro všech 6 podtabů ──
+    // extras: pole extra <span> textů (specifické pro podtab, např. sezóna/trojpolní)
+    // weatherOverride: nahradí generický text počasí detailnější zprávou (např. sucho -20% výnos)
+    _zahradaStatsBar: function(lang, extras, weatherOverride) {
+        let weatherTxt = weatherOverride;
+        if (!weatherTxt) {
+            let dryDays = 0, wetDays = 0;
+            try {
+                if (typeof WeatherSystem !== 'undefined') {
+                    dryDays = WeatherSystem.countDryDays ? WeatherSystem.countDryDays(3).dry : 0;
+                    wetDays = WeatherSystem.countWetDays ? WeatherSystem.countWetDays(3).wet : 0;
+                }
+            } catch(e) {}
+            if (dryDays >= 3) weatherTxt = lang==='en' ? `⚠️ Drought — ${dryDays} dry days` : `⚠️ Sucho — ${dryDays} suchých dní`;
+            else if (wetDays >= 3) weatherTxt = lang==='en' ? `🌧️ Wet — ${wetDays} rainy days` : `🌧️ Vlhko — ${wetDays} deštivých dní`;
+            else weatherTxt = lang==='en' ? '🌤️ Favorable weather' : '🌤️ Příznivé počasí';
+        }
+        const items = [`<span>${weatherTxt}</span>`];
+        (extras || []).filter(Boolean).forEach(e => items.push(`<span>${e}</span>`));
+        items.push(`<span style="cursor:pointer;margin-left:auto;" onclick="GardenSystem.showZahradaDetail()">📦 ${lang==='en'?'Overview':'Přehled'}</span>`);
+
+        return `<div style="display:flex;gap:16px;flex-wrap:wrap;align-items:center;font-size:0.78rem;opacity:0.8;padding:8px 12px;background:rgba(0,0,0,0.04);border-radius:6px;margin-bottom:14px;">
+            ${items.join('')}
+        </div>`;
     },
 
     // ── Přehled produkce Zahrady + Dvora — jeden komplet modal (vzor: Vitrea) ──

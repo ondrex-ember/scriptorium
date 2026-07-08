@@ -1236,12 +1236,8 @@ const GardenSystem = {
         // Zimní check
         if (Game.checkApiaryWinter) Game.checkApiaryWinter();
 
-        let html = `
-            <div style="display:flex; align-items:center; gap:10px; margin-bottom:12px;">
-                <p class="text-sm" style="flex:1; opacity:0.75; margin:0;">${t('garden.apiaryDesc')}</p>
-                <span style="font-size:0.8rem; opacity:0.6; font-style:italic;">${seasonLabel[season] || ''}</span>
-            </div>`;
-        html += this._zahradaStatsBar((typeof UI !== 'undefined' && UI.lang && UI.lang()==='en')?'en':'cs');
+        let html = `<p class="text-sm" style="margin-bottom:12px; opacity:0.75;">${t('garden.apiaryDesc')}</p>`;
+        html += this._zahradaStatsBar((typeof UI !== 'undefined' && UI.lang && UI.lang()==='en')?'en':'cs', [seasonLabel[season] || '']);
         html += `<div class="garden-grid">`;
 
         GameState.apiary.forEach((hive, idx) => {
@@ -2025,21 +2021,18 @@ const GardenSystem = {
         const phaseIcons = ['🟫','🌱','🌿','🌾'];
 
         let html = '';
-        html += this._zahradaStatsBar(lang);
 
-        // Sucho indikátor
-        if (droughtDays > 0) {
-            const color = droughtPenalty ? '#c0392b' : '#e67e22';
-            const msg = droughtPenalty
+        // Sucho indikátor — jako override generického textu počasí (detailnější, s dopadem na výnos)
+        const droughtMsg = droughtDays > 0
+            ? (droughtPenalty
                 ? (lang==='en' ? `⚠️ Drought! ${droughtDays} dry days — yield -20%` : `⚠️ Sucho! ${droughtDays} suchých dní — výnos -20%`)
-                : (lang==='en' ? `☀️ ${droughtDays} dry days` : `☀️ ${droughtDays} suchých dní`);
-            html += `<div style="margin-bottom:12px; padding:8px 12px; background:rgba(197,160,89,0.1); border-radius:6px; border-left:3px solid ${color}; font-size:0.82rem; color:${color};">${msg}</div>`;
-        }
-
-        // Trojpolní info
-        if (hasRotation) {
-            html += `<div style="margin-bottom:10px; padding:6px 12px; background:rgba(90,154,90,0.1); border-radius:6px; font-size:0.78rem; color:#5a9a5a;">✅ ${lang==='en' ? 'Three-field system: +25% yield' : 'Trojpolní systém: +25% výnos'}</div>`;
-        }
+                : (lang==='en' ? `☀️ ${droughtDays} dry days` : `☀️ ${droughtDays} suchých dní`))
+            : null;
+        // Trojpolní info — jako extra položka ve stejném baru
+        const trojpolniMsg = hasRotation
+            ? (lang==='en' ? '✅ Three-field system: +25% yield' : '✅ Trojpolní systém: +25% výnos')
+            : null;
+        html += this._zahradaStatsBar(lang, [trojpolniMsg], droughtMsg);
 
         // Sloty
         html += '<div class="garden-grid" style="margin-bottom:16px;">';
@@ -2470,22 +2463,28 @@ const GardenSystem = {
     },
 
     // ── Sjednocený stat bar (počasí + odkaz na Přehled) — pro všech 6 podtabů ──
-    _zahradaStatsBar: function(lang) {
-        let dryDays = 0, wetDays = 0;
-        try {
-            if (typeof WeatherSystem !== 'undefined') {
-                dryDays = WeatherSystem.countDryDays ? WeatherSystem.countDryDays(3).dry : 0;
-                wetDays = WeatherSystem.countWetDays ? WeatherSystem.countWetDays(3).wet : 0;
-            }
-        } catch(e) {}
-        let weatherTxt;
-        if (dryDays >= 3) weatherTxt = lang==='en' ? `⚠️ Drought — ${dryDays} dry days` : `⚠️ Sucho — ${dryDays} suchých dní`;
-        else if (wetDays >= 3) weatherTxt = lang==='en' ? `🌧️ Wet — ${wetDays} rainy days` : `🌧️ Vlhko — ${wetDays} deštivých dní`;
-        else weatherTxt = lang==='en' ? '🌤️ Favorable weather' : '🌤️ Příznivé počasí';
+    // extras: pole extra <span> textů (specifické pro podtab, např. sezóna/trojpolní)
+    // weatherOverride: nahradí generický text počasí detailnější zprávou (např. sucho -20% výnos)
+    _zahradaStatsBar: function(lang, extras, weatherOverride) {
+        let weatherTxt = weatherOverride;
+        if (!weatherTxt) {
+            let dryDays = 0, wetDays = 0;
+            try {
+                if (typeof WeatherSystem !== 'undefined') {
+                    dryDays = WeatherSystem.countDryDays ? WeatherSystem.countDryDays(3).dry : 0;
+                    wetDays = WeatherSystem.countWetDays ? WeatherSystem.countWetDays(3).wet : 0;
+                }
+            } catch(e) {}
+            if (dryDays >= 3) weatherTxt = lang==='en' ? `⚠️ Drought — ${dryDays} dry days` : `⚠️ Sucho — ${dryDays} suchých dní`;
+            else if (wetDays >= 3) weatherTxt = lang==='en' ? `🌧️ Wet — ${wetDays} rainy days` : `🌧️ Vlhko — ${wetDays} deštivých dní`;
+            else weatherTxt = lang==='en' ? '🌤️ Favorable weather' : '🌤️ Příznivé počasí';
+        }
+        const items = [`<span>${weatherTxt}</span>`];
+        (extras || []).filter(Boolean).forEach(e => items.push(`<span>${e}</span>`));
+        items.push(`<span style="cursor:pointer;margin-left:auto;" onclick="GardenSystem.showZahradaDetail()">📦 ${lang==='en'?'Overview':'Přehled'}</span>`);
 
         return `<div style="display:flex;gap:16px;flex-wrap:wrap;align-items:center;font-size:0.78rem;opacity:0.8;padding:8px 12px;background:rgba(0,0,0,0.04);border-radius:6px;margin-bottom:14px;">
-            <span>${weatherTxt}</span>
-            <span style="cursor:pointer;margin-left:auto;" onclick="GardenSystem.showZahradaDetail()">📦 ${lang==='en'?'Overview':'Přehled'}</span>
+            ${items.join('')}
         </div>`;
     },
 
