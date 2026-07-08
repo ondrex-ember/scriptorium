@@ -805,6 +805,11 @@ const CellariumSystem = {
     if ((GameState.inventory['organ'] || 0) > 0) return;
     this.spendGrose(600);
     Game.addItem('organ', 1);
+    // Furnishing → osa (endgame-branches-reference.md, Fabrica sekce 4.2)
+    if (typeof PersonaSystem !== 'undefined' && PersonaSystem.addInfluence) {
+      PersonaSystem.addInfluence('village', 5);
+      PersonaSystem.addInfluence('church', 5);
+    }
     document.getElementById('heinrich-modal').remove();
     const lang = (GameState.settings && GameState.settings.language) || 'cs';
     UI.notify(lang === 'en' ? '🎹 Organ acquired from Heinrich Traxdorf!' : '🎹 Varhany zakoupeny od Heinricha Traxdorfa!');
@@ -878,7 +883,8 @@ const CellariumSystem = {
     const lb = GameState.vitreaLastBroken;
     if (lb) {
       const nm = (typeof iName === 'function') ? iName(lb.id) : lb.id;
-      const when = new Date(lb.ts).toLocaleDateString(lang==='en'?'en-GB':'cs-CZ');
+      const _toGameDate = (ts) => { const d = new Date(ts); return new Date(1465, d.getMonth(), d.getDate()); };
+      const when = _toGameDate(lb.ts).toLocaleDateString(lang==='en'?'en-GB':'cs-CZ');
       html += `<div style="font-size:0.72rem; opacity:0.6; font-style:italic; margin-top:10px;">💥 ${lang==='en'?'Last broken':'Naposled rozbito'}: ${nm} (${when})</div>`;
     }
     NotificationSystem.modal({

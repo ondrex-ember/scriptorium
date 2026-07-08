@@ -556,6 +556,8 @@ const Game = {
                     if (typeof RankSystem !== 'undefined' && RankSystem.checkSecularProgress) RankSystem.checkSecularProgress();
                     // Templum — poutníci (self-guarded 7 d, gate frater+ a canonical hours)
                     if (typeof Game !== 'undefined' && Game.pilgrimTick) Game.pilgrimTick();
+                    // Probošt — životní události farních rodin (self-guarded 7 d, gate rank.probost)
+                    if (typeof Game !== 'undefined' && Game.parishEventTick) Game.parishEventTick();
                     // Caseus — denní zrání sýra (self-guarded 24h, gate tech_caseus)
                     if (typeof CheeseSystem !== 'undefined' && CheeseSystem.dailyTick) CheeseSystem.dailyTick();
                     // Conversi — automatické úklidové úkoly (self-guarded 24h přes cleanPen)
@@ -3648,13 +3650,25 @@ const Game = {
             }
         }
 
+        // Validace podmínek — pro Probošta (endgame-branches-reference.md sekce 4.3)
+        if (type === 'probost') {
+            const fTier = (GameState.templum && GameState.templum.fabricaTier) || 0;
+            if (fTier < 1) {
+                UI.notify(t('abbotPetition.probost.denied_fabrica'), true); return;
+            }
+            if (!['armarius', 'prior'].includes(GameState.rank && GameState.rank.monastic)) {
+                UI.notify(t('abbotPetition.probost.denied_rank'), true); return;
+            }
+        }
+
         // Vše OK — odeslat žádost
         pet.status = 'pending';
         pet.submittedAt = Date.now();
         pet.deniedReason = null;
 
-        const submitDate = new Date().toLocaleDateString(cs ? 'cs-CZ' : 'en-GB');
-        const responseDate = new Date(Date.now() + 86400000).toLocaleDateString(cs ? 'cs-CZ' : 'en-GB');
+        const _toGameDate = (ts) => { const d = new Date(ts); return new Date(1465, d.getMonth(), d.getDate()); };
+        const submitDate = _toGameDate(Date.now()).toLocaleDateString(cs ? 'cs-CZ' : 'en-GB');
+        const responseDate = _toGameDate(Date.now() + 86400000).toLocaleDateString(cs ? 'cs-CZ' : 'en-GB');
 
         const kronikaCs = t('abbotPetition.' + type + '.kronika_submit')
             .replace('{responseDate}', responseDate);
@@ -3770,6 +3784,68 @@ const Game = {
             }
             HealthSystem.addCondition('cold');
         }
+    },
+
+    // ── TEMPLUM Probošt: životní události farních rodin (endgame-branches-reference.md sekce 4.3) ──
+    PARISH_SURNAMES: ['Novák', 'Dvořák', 'Král', 'Procházka', 'Sedlák', 'Novotný', 'Malý', 'Kovář', 'Krejčí'],
+
+    parishEventTick: function() {
+        if (!(GameState.rank && GameState.rank.probost)) return;
+        if (!GameState.templum) GameState.templum = {};
+        const t = GameState.templum;
+        const WEEK = 7 * 24 * 60 * 60 * 1000;
+        if (!t.nextParishEvent) { t.nextParishEvent = Date.now() + Math.round(WEEK * 0.5); Game.save(); return; }
+        if (Date.now() < t.nextParishEvent) return;
+        t.nextParishEvent = Date.now() + WEEK;
+        if (Math.random() >= 0.5) { Game.save(); return; } // ne každý týden — tichý farní klid
+
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        const types = ['baptism', 'wedding', 'funeral'];
+        const type = types[Math.floor(Math.random() * types.length)];
+        const surname = this.PARISH_SURNAMES[Math.floor(Math.random() * this.PARISH_SURNAMES.length)];
+        const titleMap = { baptism: ['Křest', 'Baptism'], wedding: ['Svatba', 'Wedding'], funeral: ['Pohřeb', 'Funeral'] };
+        const descMap = {
+            baptism: ['Rodina ' + surname + ' žádá o křest dítěte.', 'The ' + surname + ' family asks for a christening.'],
+            wedding: ['Rodina ' + surname + ' žádá o oddání.', 'The ' + surname + ' family asks to be wed.'],
+            funeral: ['Rodina ' + surname + ' žádá o pohřeb.', 'The ' + surname + ' family asks for a funeral rite.'],
+        };
+        Game.save();
+
+        const rerender = () => {
+            const el = document.getElementById('home-templum-content');
+            if (el && typeof TemplumSystem !== 'undefined') el.innerHTML = TemplumSystem.renderTemplumTab();
+        };
+
+        NotificationSystem.modal({
+            icon: type === 'baptism' ? '👶' : type === 'wedding' ? '💍' : '⚰️',
+            title: (lang === 'en' ? titleMap[type][1] : titleMap[type][0]) + ' — ' + surname,
+            text: `<div style="font-size:0.82rem; line-height:1.45;">${lang==='en' ? descMap[type][1] : descMap[type][0]}</div>`,
+            choices: [
+                { label: (lang==='en'?'✝️ Officiate':'✝️ Vykonat obřad'), effect: () => {
+                    if (typeof PersonaSystem !== 'undefined' && PersonaSystem.addZboznost) PersonaSystem.addZboznost(1);
+                    if (typeof PersonaSystem !== 'undefined' && PersonaSystem.addInfluence) {
+                        PersonaSystem.addInfluence('church', 2);
+                        PersonaSystem.addInfluence('village', 2);
+                    }
+                    if (type === 'wedding' && typeof CellariumSystem !== 'undefined' && CellariumSystem.addGrose) {
+                        CellariumSystem.addGrose(5 + Math.floor(Math.random() * 10));
+                    }
+                    Game.addKronikaEntry('minor',
+                        '✝️ ' + titleMap[type][0] + ': rodina ' + surname + ' — obřad vykonán.',
+                        '✝️ ' + titleMap[type][1] + ': the ' + surname + ' family — rite performed.',
+                        '✝️ Ritus peractus est.');
+                    Game.save(); rerender();
+                }},
+                { label: (lang==='en'?'🚪 Decline':'🚪 Odmítnout'), effect: () => {
+                    if (typeof PersonaSystem !== 'undefined' && PersonaSystem.addInfluence) PersonaSystem.addInfluence('village', -2);
+                    Game.addKronikaEntry('minor',
+                        '🚪 ' + titleMap[type][0] + ': rodina ' + surname + ' odmítnuta.',
+                        '🚪 ' + titleMap[type][1] + ': the ' + surname + ' family turned away.',
+                        '🚪 Petitio recusata est.');
+                    Game.save(); rerender();
+                }}
+            ]
+        });
     },
 
     // ── VISITATIO V1: biskupská vizitace — checklist z žitých systémů (MRD visitatio-reference.md) ──
@@ -4051,7 +4127,7 @@ const Game = {
     // ── TEMPLUM Fabrica Ecclesiae — 4 stavební úrovně (endgame-branches-reference.md sekce 4.2) ──
     FABRICA_TIERS: [
         { name: 'Kaple',     name_en: 'Chapel',    cost: 0,   req: null, decayMult: 1.00, repairEff: 1.00 },
-        { name: 'Kostel',    name_en: 'Church',    cost: 150, req: { ecclesia: 15, condition: 60 }, decayMult: 1.10, repairEff: 1.10 },
+        { name: 'Kostel',    name_en: 'Church',    cost: 150, req: { ecclesia: 15, condition: 60, organ: true }, decayMult: 1.10, repairEff: 1.10 },
         { name: 'Chrám',     name_en: 'Temple',    cost: 400, req: { ecclesia: 35, zboznost: 25, condition: 70 }, decayMult: 1.20, repairEff: 1.25 },
         { name: 'Katedrála', name_en: 'Cathedral', cost: 900, req: { ecclesia: 60, zboznost: 50, condition: 80 }, decayMult: 1.35, repairEff: 1.40 },
     ],
@@ -4063,6 +4139,7 @@ const Game = {
         if (req.condition && cond < req.condition) return false;
         if (req.ecclesia && ((p.influence && p.influence.church) || 0) < req.ecclesia) return false;
         if (req.zboznost && (p.zboznost || 0) < req.zboznost) return false;
+        if (req.organ && (GameState.inventory['organ'] || 0) < 1) return false;
         return true;
     },
 
@@ -4196,7 +4273,7 @@ const Game = {
         const now = Date.now();
         const DAY_MS = 86400000;
 
-        ['fodina', 'fornax', 'domus_ii'].forEach(type => {
+        ['fodina', 'fornax', 'domus_ii', 'probost'].forEach(type => {
             const pet = GameState.abbotPetition[type];
             if (!pet || pet.status !== 'pending') return;
             if (now - pet.submittedAt < DAY_MS) return;
@@ -4226,6 +4303,12 @@ const Game = {
                 deniedKey = this._checkDomusIIConditions();
             }
 
+            if (type === 'probost') {
+                const fTier = (GameState.templum && GameState.templum.fabricaTier) || 0;
+                if (fTier < 1) deniedKey = 'denied_fabrica';
+                else if (!['armarius', 'prior'].includes(GameState.rank && GameState.rank.monastic)) deniedKey = 'denied_rank';
+            }
+
             if (deniedKey) {
                 // Zamítnout
                 pet.status = 'denied';
@@ -4243,6 +4326,10 @@ const Game = {
                 // Schválit
                 pet.status = 'approved';
                 pet.inspectionPending = true;
+                if (type === 'probost') {
+                    if (!GameState.rank) GameState.rank = {};
+                    GameState.rank.probost = true;
+                }
                 UI.notifyPanel('✅ ' + t('abbotPetition.' + type + '.approved'), 'success');
                 UI.notifyPanel('🔍 ' + t('abbotPetition.' + type + '.inspect_hint'), 'info');
                 Game.addKronikaEntry('important',

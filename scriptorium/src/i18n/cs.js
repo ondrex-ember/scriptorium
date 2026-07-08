@@ -1853,5 +1853,18 @@ const STRINGS_cs = {
             kronika_denied: 'Opat zamítl žádost o rozšíření Domu Konvršů. Důvod: {reason}',
             inspect_hint: 'Opat přislíbil inspekční návštěvu po dokončení stavby.',
         },
+        probost: {
+            title: 'Žádost o úřad probošta',
+            submit_btn: 'Zaslat žádost opatovi',
+            pending: '⏳ Žádost odeslána {date}. Opat odpoví {responseDate}.',
+            approved: '✅ Opat potvrdil úřad probošta. Farnost je ti svěřena.',
+            denied_fabrica: '❌ Opat zamítl: Kostel musí nejprve dosáhnout úrovně Kostel (Fabrica Ecclesiae).',
+            denied_rank: '❌ Opat zamítl: Úřad probošta smí žádat jen bratr v hodnosti armarius nebo výše.',
+            kronika_submit: 'Odeslána žádost opatovi o úřad probošta. Odpověď očekávána {responseDate}.',
+            kronika_approved: 'Opat potvrdil úřad probošta. Farnost svěřena do péče kláštera.',
+            kronika_denied: 'Opat zamítl žádost o úřad probošta. Důvod: {reason}',
+            inspect_hint: 'Opat přislíbil, že farnost brzy navštíví.',
+            locked_hint: 'Chceš-li spravovat farnost, potřebuješ souhlas opata s úřadem probošta.',
+        },
     },
 };

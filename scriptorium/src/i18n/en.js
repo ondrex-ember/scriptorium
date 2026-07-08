@@ -2735,5 +2735,18 @@ In every scriptorium lurks Titivillus. His task is not to tempt to sin — other
             kronika_denied: 'The Abbot denied the petition to expand the House of Lay Brothers. Reason: {reason}',
             inspect_hint: 'The Abbot has promised an inspection visit once the building is complete.',
         },
+        probost: {
+            title: 'Request for the Office of Provost',
+            submit_btn: 'Submit petition to the Abbot',
+            pending: '⏳ Petition submitted {date}. The Abbot will reply by {responseDate}.',
+            approved: '✅ The Abbot has confirmed the office of Provost. The parish is entrusted to you.',
+            denied_fabrica: '❌ Abbot denied: The church must first reach the tier of Church (Fabrica Ecclesiae).',
+            denied_rank: '❌ Abbot denied: Only a brother of rank Armarius or higher may petition for the office of Provost.',
+            kronika_submit: 'Petition submitted to the Abbot for the office of Provost. Reply expected by {responseDate}.',
+            kronika_approved: 'The Abbot confirmed the office of Provost. The parish entrusted to the monastery\'s care.',
+            kronika_denied: 'The Abbot denied the petition for the office of Provost. Reason: {reason}',
+            inspect_hint: 'The Abbot has promised to visit the parish soon.',
+            locked_hint: 'To administer a parish, you need the Abbot\'s consent to the office of Provost.',
+        },
     },
 };

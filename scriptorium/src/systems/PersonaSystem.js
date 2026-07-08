@@ -250,7 +250,7 @@ const PersonaSystem = {
         const validHistory = rankHistory.filter(r => r.rank && r.timestamp && r.timestamp > 1000000);
         const timelineHtml = validHistory.length > 0
             ? validHistory.map(r => `<div style="font-size:0.78rem;padding:4px 0;border-bottom:1px solid rgba(0,0,0,0.05);">
-                <span style="opacity:0.5;">${new Date(r.timestamp).toLocaleDateString()}</span>
+                <span style="opacity:0.5;">${new Date(1465, new Date(r.timestamp).getMonth(), new Date(r.timestamp).getDate()).toLocaleDateString()}</span>
                 &nbsp;→&nbsp;<strong>${r.rank}</strong>
               </div>`).join('')
             : `<div style="font-size:0.82rem;padding:4px 0;border-bottom:1px solid rgba(0,0,0,0.05);">

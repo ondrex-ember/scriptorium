@@ -87,6 +87,7 @@ const TemplumSystem = {
                 if (req.condition) rows.push([cond >= req.condition, (lang==='en'?'Condition':'Stav')+' ≥'+req.condition+'% ('+Math.round(cond)+')']);
                 if (req.ecclesia)  rows.push([eccl >= req.ecclesia,  'Ecclesia ≥'+req.ecclesia+' ('+Math.round(eccl)+')']);
                 if (req.zboznost)  rows.push([zbozn >= req.zboznost, (lang==='en'?'Piety':'Zbožnost')+' ≥'+req.zboznost+' ('+Math.round(zbozn)+')']);
+                if (req.organ)     rows.push([(GameState.inventory['organ']||0) >= 1, lang==='en'?'Organ in the church':'Varhany v kostele']);
                 const met = rows.every(r => r[0]);
                 h += rows.map(r => `<div style="font-size:0.68rem; ${r[0]?'opacity:0.7;':'color:#c0392b;'}">${r[0]?'✓':'✗'} ${r[1]}</div>`).join('');
                 h += `<button class="craft-btn" style="margin-top:8px; width:100%;" ${met && CellariumSystem.getGrose() >= next.cost ? '' : 'disabled'} onclick="Game.upgradeFabrica()">⬆️ ${lang==='en'?'Raise to':'Povýšit na'} ${nextName} (${next.cost}g)</button>`;
@@ -94,6 +95,30 @@ const TemplumSystem = {
                 h += `<div style="font-size:0.75rem; opacity:0.6; font-style:italic;">${lang==='en'?'Highest tier reached.':'Nejvyšší úroveň dosažena.'}</div>`;
             }
             h += `</div>`;
+        }
+
+        // Probošt — petice k opatovi, gate Fabrica tier≥1 + armarius+ (endgame-branches-reference.md sekce 4.3)
+        {
+            const fTier0 = (GameState.templum && GameState.templum.fabricaTier) || 0;
+            const mRank0 = GameState.rank && GameState.rank.monastic;
+            const isProbost = !!(GameState.rank && GameState.rank.probost);
+            const pet = GameState.abbotPetition && GameState.abbotPetition.probost;
+            if (fTier0 >= 1 && ['armarius','prior'].includes(mRank0)) {
+                if (isProbost) {
+                    h += `<div style="padding:10px 15px; margin-bottom:16px; background:rgba(90,154,90,0.08); border-left:3px solid #5a9a5a; border-radius:6px; font-size:0.8rem;">
+                        ✝️ ${lang==='en'?'You serve as Provost — the parish is entrusted to you.':'Sloužíš jako Probošt — farnost je ti svěřena.'}
+                    </div>`;
+                } else if (pet && pet.status === 'pending') {
+                    h += `<div style="padding:10px 15px; margin-bottom:16px; background:rgba(197,160,89,0.06); border-left:3px solid var(--accent-gold); border-radius:6px; font-size:0.8rem;">
+                        ⏳ ${lang==='en'?'Petition awaits the Abbot\'s reply.':'Žádost čeká na odpověď opata.'}
+                    </div>`;
+                } else {
+                    h += `<div style="padding:10px 15px; margin-bottom:16px; background:rgba(197,160,89,0.06); border-left:3px solid var(--accent-gold); border-radius:6px; font-size:0.8rem;">
+                        <div style="margin-bottom:6px;">✝️ ${lang==='en'?'The parish could be entrusted to you.':'Farnost by ti mohla být svěřena.'}</div>
+                        <button class="craft-btn" onclick="Game.submitAbbotPetition('probost')">📜 ${lang==='en'?'Petition the Abbot':'Zažádat opata'}</button>
+                    </div>`;
+                }
+            }
         }
 
         // Pilíř Úklid (T2) — živý stav; ostatní pilíře zamčené (sprinty T3–T5)

@@ -1102,8 +1102,9 @@ const UI = {
                 </button>
             </div>`;
         } else if (pet.status === 'pending') {
-            const submitDate = pet.submittedAt ? new Date(pet.submittedAt).toLocaleDateString(cs ? 'cs-CZ' : 'en-GB') : '?';
-            const responseDate = pet.submittedAt ? new Date(pet.submittedAt + 86400000).toLocaleDateString(cs ? 'cs-CZ' : 'en-GB') : '?';
+            const _toGameDate = (ts) => { const d = new Date(ts); return new Date(1465, d.getMonth(), d.getDate()); };
+            const submitDate = pet.submittedAt ? _toGameDate(pet.submittedAt).toLocaleDateString(cs ? 'cs-CZ' : 'en-GB') : '?';
+            const responseDate = pet.submittedAt ? _toGameDate(pet.submittedAt + 86400000).toLocaleDateString(cs ? 'cs-CZ' : 'en-GB') : '?';
             const pendingText = t('abbotPetition.fodina.pending').replace('{date}', submitDate).replace('{responseDate}', responseDate);
             html = `<div style="${boxStyle}">
                 <div style="font-weight:bold; margin-bottom:6px;">⛏️ ${cs ? 'Fodina — Klášterní důl' : 'Fodina — Monastic Mine'}</div>

@@ -895,7 +895,8 @@ const SaeculumSystem = {
     h += `<div style="font-size:0.76rem; margin-bottom:6px; ${_short > 0 ? 'color:#c0392b;' : ''}">🍽️ ${lang==='en'?'Dishes':'Nádobí'}: ${lang==='en'?'glass':'sklo'} ${_glassCap} · ${lang==='en'?'wood':'dřevo'} ${_woodCap}${_short > 0 ? ` · ${lang==='en'?'short for':'chybí pro'} ${_short}` : ''}</div>`;
     const log = GameState.conversiMealLog;
     if (log) {
-      const when = new Date(log.ts).toLocaleDateString(lang==='en'?'en-GB':'cs-CZ');
+      const _toGameDate = (ts) => { const d = new Date(ts); return new Date(1465, d.getMonth(), d.getDate()); };
+      const when = _toGameDate(log.ts).toLocaleDateString(lang==='en'?'en-GB':'cs-CZ');
       if (log.fed.length)   h += `<div style="font-size:0.76rem; margin-bottom:2px;">✅ ${when} — ${lang==='en'?'fed':'nasyceni'}: ${log.fed.join(', ')}</div>`;
       if (log.unfed.length) h += `<div style="font-size:0.76rem; color:#c0392b;">⚠️ ${when} — ${lang==='en'?'hungry':'hladoví'}: ${log.unfed.join(', ')}</div>`;
     } else {
