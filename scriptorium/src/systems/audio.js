@@ -891,6 +891,27 @@ class AudioSystem {
         }
     }
 
+    // Varhany v Templu (endgame-branches-reference.md, Fabrica furnishing) — ztiší
+    // aktuální hudbu, zahraje krátkou sólovou sekvenci, pak vrátí předchozí tier.
+    // Reuse SacralCathedralGenerative.playOrgan() — žádná nová syntéza.
+    playOrganSolo() {
+        if (this._organSoloActive) return;
+        this._organSoloActive = true;
+        const previousTier = this.musicTier;
+        this.switchMusicTier(0);
+
+        const organVoice = new SacralCathedralGenerative(this.audioContext, this.musicGain);
+        const notes = [220.00, 261.63, 329.63, 392.00]; // A3–C4–E4–G4, prostý vzestupný akord
+        const spacing = 1600; // ms mezi tóny — varhany mají dlouhý dozvuk, nepřekrývat
+        notes.forEach((freq, i) => setTimeout(() => organVoice.playOrgan(freq), i * spacing));
+
+        const totalMs = notes.length * spacing + 5000; // + doznění poslední noty (dur až ~6 s)
+        setTimeout(() => {
+            this._organSoloActive = false;
+            this.switchMusicTier(previousTier);
+        }, totalMs);
+    }
+
     setVolume(val) {
         // val = 0-100 (slider value)
         const normalizedVolume = val / 100;

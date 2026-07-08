@@ -13845,6 +13845,27 @@ class AudioSystem {
         }
     }
 
+    // Varhany v Templu (endgame-branches-reference.md, Fabrica furnishing) — ztiší
+    // aktuální hudbu, zahraje krátkou sólovou sekvenci, pak vrátí předchozí tier.
+    // Reuse SacralCathedralGenerative.playOrgan() — žádná nová syntéza.
+    playOrganSolo() {
+        if (this._organSoloActive) return;
+        this._organSoloActive = true;
+        const previousTier = this.musicTier;
+        this.switchMusicTier(0);
+
+        const organVoice = new SacralCathedralGenerative(this.audioContext, this.musicGain);
+        const notes = [220.00, 261.63, 329.63, 392.00]; // A3–C4–E4–G4, prostý vzestupný akord
+        const spacing = 1600; // ms mezi tóny — varhany mají dlouhý dozvuk, nepřekrývat
+        notes.forEach((freq, i) => setTimeout(() => organVoice.playOrgan(freq), i * spacing));
+
+        const totalMs = notes.length * spacing + 5000; // + doznění poslední noty (dur až ~6 s)
+        setTimeout(() => {
+            this._organSoloActive = false;
+            this.switchMusicTier(previousTier);
+        }, totalMs);
+    }
+
     setVolume(val) {
         // val = 0-100 (slider value)
         const normalizedVolume = val / 100;
@@ -18626,6 +18647,20 @@ const TemplumSystem = {
                 <div style="height:6px; background:rgba(0,0,0,0.1); border-radius:3px; overflow:hidden; margin-bottom:8px;">
                     <div style="height:100%; width:${cond}%; background:${condColor}; border-radius:3px;"></div>
                 </div>`;
+            if ((GameState.inventory['organ'] || 0) >= 1) {
+                const pipeMults = [0.5, 0.7, 0.9, 1.0, 0.9, 0.7, 0.5];
+                const pipes = pipeMults.map((m, i) => {
+                    const x = 8 + i * 18, h = 45 * m, y = 55 - h, delay = (i * 0.15).toFixed(2);
+                    return `<rect x="${x}" y="${y}" width="12" height="${h}" rx="2" fill="var(--accent-gold)" opacity="0.55">
+                        <animate attributeName="opacity" values="0.55;0.95;0.55" dur="2.4s" begin="${delay}s" repeatCount="indefinite"/>
+                    </rect>`;
+                }).join('');
+                h += `<div style="margin-bottom:10px; cursor:pointer;" title="${lang==='en'?'Play the organ':'Zahrát na varhany'}"
+                        onclick="if(typeof audioSys!=='undefined' && audioSys) audioSys.playOrganSolo();">
+                    <svg viewBox="0 0 140 60" style="width:140px; height:60px; display:block; margin:0 auto;">${pipes}</svg>
+                    <div style="text-align:center; font-size:0.68rem; opacity:0.55; font-style:italic;">🎹 ${lang==='en'?'click to play':'klikni pro hru'}</div>
+                </div>`;
+            }
             if (next) {
                 const nextName = lang==='en' ? next.name_en : next.name;
                 const req = next.req || {};
