@@ -13847,8 +13847,10 @@ class AudioSystem {
 
     // Varhany v Templu (endgame-branches-reference.md, Fabrica furnishing) — hráč
     // klika na jednotlivé píšťaly, každá hraje svůj tón. Hudba se ztiší při prvním
-    // kliku, po ~6 s nečinnosti se vrátí předchozí tier. Reuse
-    // SacralCathedralGenerative.playOrgan() — žádná nová syntéza.
+    // kliku, po ~6 s nečinnosti se vrátí předchozí tier. Vlastní krátká syntéza —
+    // NE recyklovaný SacralCathedralGenerative.playOrgan() (ten má 4-6s dozvuk,
+    // navržený pro řídké ambientní podbarvení, ne rychlé klikání — při klikání
+    // po sobě se ozvěny navrství a splynou v nekončící hukot).
     ORGAN_IDLE_MS = 6000;
 
     playOrganNote(freq) {
@@ -13862,9 +13864,8 @@ class AudioSystem {
             this._organSoloGain = this.audioContext.createGain();
             this._organSoloGain.gain.value = this.musicVolume || 0.5;
             this._organSoloGain.connect(this.masterGain);
-            this._organVoice = new SacralCathedralGenerative(this.audioContext, this._organSoloGain);
         }
-        this._organVoice.playOrgan(freq);
+        this._playOrganKeyTone(freq, this._organSoloGain);
 
         clearTimeout(this._organIdleTimer);
         this._organIdleTimer = setTimeout(() => {
@@ -13872,6 +13873,28 @@ class AudioSystem {
             try { this._organSoloGain.disconnect(); } catch (e) { }
             this.switchMusicTier(this._organPrevTier);
         }, this.ORGAN_IDLE_MS);
+    }
+
+    // Krátký responzivní tón (~0.9 s) — stejná barva jako ambient varhany
+    // (3 mixované harmonické, lowpass), ale bez dlouhého dozvuku.
+    _playOrganKeyTone(freq, destGain) {
+        const t = this.audioContext.currentTime;
+        const dur = 0.9;
+        const gain = this.audioContext.createGain();
+        gain.gain.setValueAtTime(0, t);
+        gain.gain.linearRampToValueAtTime(0.28, t + 0.03);
+        gain.gain.setValueAtTime(0.28, t + dur - 0.25);
+        gain.gain.linearRampToValueAtTime(0.0001, t + dur);
+        [0.5, 1, 2].forEach(mult => {
+            const osc = this.audioContext.createOscillator();
+            osc.type = mult === 1 ? 'square' : 'sine';
+            osc.frequency.value = freq * mult;
+            const filter = this.audioContext.createBiquadFilter();
+            filter.type = 'lowpass'; filter.frequency.value = 1200;
+            osc.connect(filter); filter.connect(gain);
+            osc.start(t); osc.stop(t + dur);
+        });
+        gain.connect(destGain);
     }
 
     setVolume(val) {
