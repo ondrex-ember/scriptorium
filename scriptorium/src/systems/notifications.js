@@ -271,6 +271,8 @@ const NotificationSystem = {
         const overlay = document.createElement('div');
         overlay.id = 'ns-modal-overlay';
         overlay.className = 'ns-modal-overlay';
+        // Klik na tmavé pozadí (ne na samotný modal box) = zavřít
+        overlay.onclick = (e) => { if (e.target === overlay) NotificationSystem.closeModal(); };
 
         const choices = (opts.choices || []).map((c, i) => `
             <button class="ns-modal-btn ns-modal-btn--${c.type || 'default'}"
@@ -312,6 +314,13 @@ const NotificationSystem = {
     _modalChoices: [],
     _modalOnClose: null,
 
+    // Zavření kliknutím mimo modal — stejný cleanup jako volba, bez efektu
+    closeModal: function() {
+        const overlay = document.getElementById('ns-modal-overlay');
+        if (overlay) overlay.remove();
+        if (this._modalOnClose) this._modalOnClose();
+    },
+
     _modalChoice: function(idx) {
         const choice = this._modalChoices[idx];
         const overlay = document.getElementById('ns-modal-overlay');
@@ -319,6 +328,7 @@ const NotificationSystem = {
         if (this._modalOnClose) this._modalOnClose();
         if (choice && typeof choice.effect === 'function') choice.effect();
     },
+
 
     // ════════════════════════════════════════════════════════════════════════
     // KRONIKA — automatický zápis s kategorií
@@ -538,6 +548,9 @@ const NotificationSystem = {
     border-radius: 4px;
     max-width: 420px;
     width: 100%;
+    max-height: min(85vh, 640px);
+    display: flex;
+    flex-direction: column;
     box-shadow: 0 8px 40px rgba(0,0,0,0.6);
     font-family: var(--font-body, 'Crimson Text', serif);
     animation: nsFadeIn 0.25s ease;
@@ -546,6 +559,11 @@ const NotificationSystem = {
 }
 .ns-modal-content {
     padding: 32px 28px 24px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    flex: 1;
+    min-height: 0;
 }
 .ns-modal--banner .ns-modal-content {
     padding-top: 20px;
@@ -590,6 +608,9 @@ const NotificationSystem = {
     line-height: 1.65;
     white-space: pre-line;
     margin-bottom: 20px;
+    overflow-y: auto;
+    flex: 1;
+    min-height: 0;
 }
 .ns-modal-footer {
     display: flex;
@@ -597,6 +618,7 @@ const NotificationSystem = {
     justify-content: center;
     flex-wrap: wrap;
     margin-top: 4px;
+    flex-shrink: 0;
 }
 .ns-modal-btn {
     font-family: var(--font-body, 'Crimson Text', serif);
