@@ -13845,32 +13845,33 @@ class AudioSystem {
         }
     }
 
-    // Varhany v Templu (endgame-branches-reference.md, Fabrica furnishing) — ztiší
-    // aktuální hudbu, zahraje krátkou sólovou sekvenci, pak vrátí předchozí tier.
-    // Reuse SacralCathedralGenerative.playOrgan() — žádná nová syntéza.
-    playOrganSolo() {
-        if (this._organSoloActive) return;
-        this._organSoloActive = true;
-        const previousTier = this.musicTier;
-        this.switchMusicTier(0);
+    // Varhany v Templu (endgame-branches-reference.md, Fabrica furnishing) — hráč
+    // klika na jednotlivé píšťaly, každá hraje svůj tón. Hudba se ztiší při prvním
+    // kliku, po ~6 s nečinnosti se vrátí předchozí tier. Reuse
+    // SacralCathedralGenerative.playOrgan() — žádná nová syntéza.
+    ORGAN_IDLE_MS = 6000;
 
-        // Vlastní gain uzel na plnou hlasitost — switchMusicTier(0) ztlumil musicGain na 0,
-        // napojení na něj by varhany vygenerovalo, ale nikdy neslyšně (fader na nule).
-        const soloGain = this.audioContext.createGain();
-        soloGain.gain.value = this.musicVolume || 0.5;
-        soloGain.connect(this.masterGain);
+    playOrganNote(freq) {
+        if (!freq) return;
+        if (!this._organSoloActive) {
+            this._organSoloActive = true;
+            this._organPrevTier = this.musicTier;
+            this.switchMusicTier(0);
+            // Vlastní gain uzel na plnou hlasitost — switchMusicTier(0) ztlumil
+            // musicGain na 0, napojení na něj by vygenerovalo zvuk neslyšně.
+            this._organSoloGain = this.audioContext.createGain();
+            this._organSoloGain.gain.value = this.musicVolume || 0.5;
+            this._organSoloGain.connect(this.masterGain);
+            this._organVoice = new SacralCathedralGenerative(this.audioContext, this._organSoloGain);
+        }
+        this._organVoice.playOrgan(freq);
 
-        const organVoice = new SacralCathedralGenerative(this.audioContext, soloGain);
-        const notes = [220.00, 261.63, 329.63, 392.00]; // A3–C4–E4–G4, prostý vzestupný akord
-        const spacing = 1600; // ms mezi tóny — varhany mají dlouhý dozvuk, nepřekrývat
-        notes.forEach((freq, i) => setTimeout(() => organVoice.playOrgan(freq), i * spacing));
-
-        const totalMs = notes.length * spacing + 5000; // + doznění poslední noty (dur až ~6 s)
-        setTimeout(() => {
+        clearTimeout(this._organIdleTimer);
+        this._organIdleTimer = setTimeout(() => {
             this._organSoloActive = false;
-            try { soloGain.disconnect(); } catch (e) { }
-            this.switchMusicTier(previousTier);
-        }, totalMs);
+            try { this._organSoloGain.disconnect(); } catch (e) { }
+            this.switchMusicTier(this._organPrevTier);
+        }, this.ORGAN_IDLE_MS);
     }
 
     setVolume(val) {
@@ -18656,16 +18657,17 @@ const TemplumSystem = {
                 </div>`;
             if ((GameState.inventory['organ'] || 0) >= 1) {
                 const pipeMults = [0.5, 0.7, 0.9, 1.0, 0.9, 0.7, 0.5];
+                const pipeNotes = [261.63, 293.66, 329.63, 349.23, 392.00, 440.00, 493.88]; // C4–B4
                 const pipes = pipeMults.map((m, i) => {
-                    const x = 8 + i * 18, h = 45 * m, y = 55 - h, delay = (i * 0.15).toFixed(2);
-                    return `<rect x="${x}" y="${y}" width="12" height="${h}" rx="2" fill="var(--accent-gold)" opacity="0.55">
+                    const x = 8 + i * 18, h = 45 * m, y = 55 - h, delay = (i * 0.15).toFixed(2), freq = pipeNotes[i];
+                    return `<rect x="${x}" y="${y}" width="12" height="${h}" rx="2" fill="var(--accent-gold)" opacity="0.55"
+                        style="cursor:pointer;" onclick="if(typeof audioSys!=='undefined' && audioSys) audioSys.playOrganNote(${freq});">
                         <animate attributeName="opacity" values="0.55;0.95;0.55" dur="2.4s" begin="${delay}s" repeatCount="indefinite"/>
                     </rect>`;
                 }).join('');
-                h += `<div style="margin-bottom:10px; cursor:pointer;" title="${lang==='en'?'Play the organ':'Zahrát na varhany'}"
-                        onclick="if(typeof audioSys!=='undefined' && audioSys) audioSys.playOrganSolo();">
+                h += `<div style="margin-bottom:10px;" title="${lang==='en'?'Click a pipe to play':'Klikni na píšťalu'}">
                     <svg viewBox="0 0 140 60" style="width:140px; height:60px; display:block; margin:0 auto;">${pipes}</svg>
-                    <div style="text-align:center; font-size:0.68rem; opacity:0.55; font-style:italic;">🎹 ${lang==='en'?'click to play':'klikni pro hru'}</div>
+                    <div style="text-align:center; font-size:0.68rem; opacity:0.55; font-style:italic;">🎹 ${lang==='en'?'click a pipe to play':'klikej na píšťaly'}</div>
                 </div>`;
             }
             if (next) {

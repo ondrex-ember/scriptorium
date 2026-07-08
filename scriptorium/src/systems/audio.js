@@ -891,32 +891,33 @@ class AudioSystem {
         }
     }
 
-    // Varhany v Templu (endgame-branches-reference.md, Fabrica furnishing) — ztiší
-    // aktuální hudbu, zahraje krátkou sólovou sekvenci, pak vrátí předchozí tier.
-    // Reuse SacralCathedralGenerative.playOrgan() — žádná nová syntéza.
-    playOrganSolo() {
-        if (this._organSoloActive) return;
-        this._organSoloActive = true;
-        const previousTier = this.musicTier;
-        this.switchMusicTier(0);
+    // Varhany v Templu (endgame-branches-reference.md, Fabrica furnishing) — hráč
+    // klika na jednotlivé píšťaly, každá hraje svůj tón. Hudba se ztiší při prvním
+    // kliku, po ~6 s nečinnosti se vrátí předchozí tier. Reuse
+    // SacralCathedralGenerative.playOrgan() — žádná nová syntéza.
+    ORGAN_IDLE_MS = 6000;
 
-        // Vlastní gain uzel na plnou hlasitost — switchMusicTier(0) ztlumil musicGain na 0,
-        // napojení na něj by varhany vygenerovalo, ale nikdy neslyšně (fader na nule).
-        const soloGain = this.audioContext.createGain();
-        soloGain.gain.value = this.musicVolume || 0.5;
-        soloGain.connect(this.masterGain);
+    playOrganNote(freq) {
+        if (!freq) return;
+        if (!this._organSoloActive) {
+            this._organSoloActive = true;
+            this._organPrevTier = this.musicTier;
+            this.switchMusicTier(0);
+            // Vlastní gain uzel na plnou hlasitost — switchMusicTier(0) ztlumil
+            // musicGain na 0, napojení na něj by vygenerovalo zvuk neslyšně.
+            this._organSoloGain = this.audioContext.createGain();
+            this._organSoloGain.gain.value = this.musicVolume || 0.5;
+            this._organSoloGain.connect(this.masterGain);
+            this._organVoice = new SacralCathedralGenerative(this.audioContext, this._organSoloGain);
+        }
+        this._organVoice.playOrgan(freq);
 
-        const organVoice = new SacralCathedralGenerative(this.audioContext, soloGain);
-        const notes = [220.00, 261.63, 329.63, 392.00]; // A3–C4–E4–G4, prostý vzestupný akord
-        const spacing = 1600; // ms mezi tóny — varhany mají dlouhý dozvuk, nepřekrývat
-        notes.forEach((freq, i) => setTimeout(() => organVoice.playOrgan(freq), i * spacing));
-
-        const totalMs = notes.length * spacing + 5000; // + doznění poslední noty (dur až ~6 s)
-        setTimeout(() => {
+        clearTimeout(this._organIdleTimer);
+        this._organIdleTimer = setTimeout(() => {
             this._organSoloActive = false;
-            try { soloGain.disconnect(); } catch (e) { }
-            this.switchMusicTier(previousTier);
-        }, totalMs);
+            try { this._organSoloGain.disconnect(); } catch (e) { }
+            this.switchMusicTier(this._organPrevTier);
+        }, this.ORGAN_IDLE_MS);
     }
 
     setVolume(val) {

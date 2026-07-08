@@ -80,16 +80,17 @@ const TemplumSystem = {
                 </div>`;
             if ((GameState.inventory['organ'] || 0) >= 1) {
                 const pipeMults = [0.5, 0.7, 0.9, 1.0, 0.9, 0.7, 0.5];
+                const pipeNotes = [261.63, 293.66, 329.63, 349.23, 392.00, 440.00, 493.88]; // C4–B4
                 const pipes = pipeMults.map((m, i) => {
-                    const x = 8 + i * 18, h = 45 * m, y = 55 - h, delay = (i * 0.15).toFixed(2);
-                    return `<rect x="${x}" y="${y}" width="12" height="${h}" rx="2" fill="var(--accent-gold)" opacity="0.55">
+                    const x = 8 + i * 18, h = 45 * m, y = 55 - h, delay = (i * 0.15).toFixed(2), freq = pipeNotes[i];
+                    return `<rect x="${x}" y="${y}" width="12" height="${h}" rx="2" fill="var(--accent-gold)" opacity="0.55"
+                        style="cursor:pointer;" onclick="if(typeof audioSys!=='undefined' && audioSys) audioSys.playOrganNote(${freq});">
                         <animate attributeName="opacity" values="0.55;0.95;0.55" dur="2.4s" begin="${delay}s" repeatCount="indefinite"/>
                     </rect>`;
                 }).join('');
-                h += `<div style="margin-bottom:10px; cursor:pointer;" title="${lang==='en'?'Play the organ':'Zahrát na varhany'}"
-                        onclick="if(typeof audioSys!=='undefined' && audioSys) audioSys.playOrganSolo();">
+                h += `<div style="margin-bottom:10px;" title="${lang==='en'?'Click a pipe to play':'Klikni na píšťalu'}">
                     <svg viewBox="0 0 140 60" style="width:140px; height:60px; display:block; margin:0 auto;">${pipes}</svg>
-                    <div style="text-align:center; font-size:0.68rem; opacity:0.55; font-style:italic;">🎹 ${lang==='en'?'click to play':'klikni pro hru'}</div>
+                    <div style="text-align:center; font-size:0.68rem; opacity:0.55; font-style:italic;">🎹 ${lang==='en'?'click a pipe to play':'klikej na píšťaly'}</div>
                 </div>`;
             }
             if (next) {
