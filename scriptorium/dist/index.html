@@ -13854,7 +13854,13 @@ class AudioSystem {
         const previousTier = this.musicTier;
         this.switchMusicTier(0);
 
-        const organVoice = new SacralCathedralGenerative(this.audioContext, this.musicGain);
+        // Vlastní gain uzel na plnou hlasitost — switchMusicTier(0) ztlumil musicGain na 0,
+        // napojení na něj by varhany vygenerovalo, ale nikdy neslyšně (fader na nule).
+        const soloGain = this.audioContext.createGain();
+        soloGain.gain.value = this.musicVolume || 0.5;
+        soloGain.connect(this.masterGain);
+
+        const organVoice = new SacralCathedralGenerative(this.audioContext, soloGain);
         const notes = [220.00, 261.63, 329.63, 392.00]; // A3–C4–E4–G4, prostý vzestupný akord
         const spacing = 1600; // ms mezi tóny — varhany mají dlouhý dozvuk, nepřekrývat
         notes.forEach((freq, i) => setTimeout(() => organVoice.playOrgan(freq), i * spacing));
@@ -13862,6 +13868,7 @@ class AudioSystem {
         const totalMs = notes.length * spacing + 5000; // + doznění poslední noty (dur až ~6 s)
         setTimeout(() => {
             this._organSoloActive = false;
+            try { soloGain.disconnect(); } catch (e) { }
             this.switchMusicTier(previousTier);
         }, totalMs);
     }
