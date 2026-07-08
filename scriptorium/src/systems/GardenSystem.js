@@ -865,6 +865,7 @@ const GardenSystem = {
         const lang = (GameState.settings && GameState.settings.language) || 'cs';
 
         let html = `<p class="text-sm" style="margin-bottom:12px; opacity:0.75;">${t('garden.piscinaDesc')}</p>`;
+        html += this._zahradaStatsBar(lang);
 
         // ── TŘECÍ RYBNÍK (Tier 1) ── 1/7 výšky
         const t1locked = p.tier < 1;
@@ -1134,6 +1135,7 @@ const GardenSystem = {
         };
 
         let html = `<p class="text-sm" style="margin-bottom:15px; opacity:0.75;">${t('garden.orchardDesc')}</p>`;
+        html += this._zahradaStatsBar((typeof UI !== 'undefined' && UI.lang && UI.lang()==='en')?'en':'cs');
         html += `<div class="garden-grid">`;
 
         GameState.orchard.forEach((slot, idx) => {
@@ -1239,6 +1241,7 @@ const GardenSystem = {
                 <p class="text-sm" style="flex:1; opacity:0.75; margin:0;">${t('garden.apiaryDesc')}</p>
                 <span style="font-size:0.8rem; opacity:0.6; font-style:italic;">${seasonLabel[season] || ''}</span>
             </div>`;
+        html += this._zahradaStatsBar((typeof UI !== 'undefined' && UI.lang && UI.lang()==='en')?'en':'cs');
         html += `<div class="garden-grid">`;
 
         GameState.apiary.forEach((hive, idx) => {
@@ -1385,6 +1388,8 @@ const GardenSystem = {
         
         const hasCustomPlant = GameState.researchedTechs.includes('tech_hortus_conclusus');
         const lang = (typeof UI !== 'undefined' && UI.lang) ? UI.lang() : 'cs';
+
+        el.innerHTML = this._zahradaStatsBar(lang);
 
         GameState.garden.forEach((plot, idx) => {
             let c = "", b = "", typeLabel = "";
@@ -2020,6 +2025,7 @@ const GardenSystem = {
         const phaseIcons = ['🟫','🌱','🌿','🌾'];
 
         let html = '';
+        html += this._zahradaStatsBar(lang);
 
         // Sucho indikátor
         if (droughtDays > 0) {
@@ -2298,6 +2304,7 @@ const GardenSystem = {
         let html = `<div style="margin-bottom:12px; font-size:0.85rem; opacity:0.75; font-style:italic;">
             ${lang==='en' ? 'Six vine plots. Plant, prune, harvest within the window.' : 'Šest záhonů révy. Zasadit, prořezat, sklidit v okně.'}
         </div>`;
+        html += this._zahradaStatsBar(lang);
 
         html += '<div class="garden-grid" style="margin-bottom:16px;">';
         GameState.vinea.forEach((slot, idx) => {
@@ -2460,6 +2467,26 @@ const GardenSystem = {
         }
 
         el.innerHTML = html;
+    },
+
+    // ── Sjednocený stat bar (počasí + odkaz na Přehled) — pro všech 6 podtabů ──
+    _zahradaStatsBar: function(lang) {
+        let dryDays = 0, wetDays = 0;
+        try {
+            if (typeof WeatherSystem !== 'undefined') {
+                dryDays = WeatherSystem.countDryDays ? WeatherSystem.countDryDays(3).dry : 0;
+                wetDays = WeatherSystem.countWetDays ? WeatherSystem.countWetDays(3).wet : 0;
+            }
+        } catch(e) {}
+        let weatherTxt;
+        if (dryDays >= 3) weatherTxt = lang==='en' ? `⚠️ Drought — ${dryDays} dry days` : `⚠️ Sucho — ${dryDays} suchých dní`;
+        else if (wetDays >= 3) weatherTxt = lang==='en' ? `🌧️ Wet — ${wetDays} rainy days` : `🌧️ Vlhko — ${wetDays} deštivých dní`;
+        else weatherTxt = lang==='en' ? '🌤️ Favorable weather' : '🌤️ Příznivé počasí';
+
+        return `<div style="display:flex;gap:16px;flex-wrap:wrap;align-items:center;font-size:0.78rem;opacity:0.8;padding:8px 12px;background:rgba(0,0,0,0.04);border-radius:6px;margin-bottom:14px;">
+            <span>${weatherTxt}</span>
+            <span style="cursor:pointer;margin-left:auto;" onclick="GardenSystem.showZahradaDetail()">📦 ${lang==='en'?'Overview':'Přehled'}</span>
+        </div>`;
     },
 
     // ── Přehled produkce Zahrady + Dvora — jeden komplet modal (vzor: Vitrea) ──
