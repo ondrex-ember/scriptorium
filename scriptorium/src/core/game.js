@@ -556,6 +556,8 @@ const Game = {
                     if (typeof CheeseSystem !== 'undefined' && CheeseSystem.dailyTick) CheeseSystem.dailyTick();
                     // Conversi — automatické úklidové úkoly (self-guarded 24h přes cleanPen)
                     if (typeof Game !== 'undefined' && Game.checkConversiChores) Game.checkConversiChores();
+                    // Conversi — návraty ze Scavenge/Dolů (riziko + výnos)
+                    if (typeof Game !== 'undefined' && Game.checkConversiReturns) Game.checkConversiReturns();
                     // Studna — časová degradace (self-guarded 24h, grace 5 dní)
                     if (typeof WellSystem !== 'undefined' && WellSystem.dailyTick) WellSystem.dailyTick();
                     // Persona — influence decay (self-guarded 7 dní)
@@ -4029,11 +4031,14 @@ const Game = {
             t.litUntil = now + DAY;
         }
 
-        // Úklid: dostupný konvrš (stejné filtry jako práce) — +5 únavy, čisto na 48 h
+        // Úklid: dostupný konvrš PŘIŘAZENÝ na Kostel (M1: přiřazení nahrazuje "kdo je volný") — +5 únavy, čisto na 48 h
         const cleaner = (GameState.conversi || [])
-            .filter(k => k.fatigue < (this._konvrsTraits(k).includes('pilny') ? 90 : 80)
+            .filter(k => k.task === 'kostel'
+                      && k.fatigue < (this._konvrsTraits(k).includes('pilny') ? 90 : 80)
                       && (typeof k.mood !== 'number' || k.mood >= 30)
-                      && !(k.penanceUntil && k.penanceUntil > now))
+                      && !(k.penanceUntil && k.penanceUntil > now)
+                      && !(k.injuredUntil && k.injuredUntil > now)
+                      && !(k.awayUntil && k.awayUntil > now))
             .sort((a, b) => a.fatigue - b.fatigue)[0];
         if (cleaner) {
             cleaner.fatigue = Math.min(100, cleaner.fatigue + 5);
@@ -4168,6 +4173,120 @@ const Game = {
         if (s.domus_conversorum_ii && s.domus_conversorum_ii.built) return 5;
         if (s.domus_conversorum_i  && s.domus_conversorum_i.built)  return 2;
         return 0;
+    },
+
+    // ── CONVERSI — přiřazování úkolů (M1) ───────────────────────────────────
+    CONVERSI_TASKS: {
+        dvur:     { icon: '🏚️', away: false },
+        scavenge: { icon: '🌾', away: true,  durationMs: 8  * 60 * 60 * 1000, riskPct: 12 },
+        doly:     { icon: '⛏️', away: true,  durationMs: 20 * 60 * 60 * 1000, riskPct: 20 },
+        kostel:   { icon: '🕍', away: false },
+    },
+    CONVERSI_TASK_SLOTS: 2,
+
+    // Vrací {locked, reasonKey} — reasonKey pro i18n hint na dlaždici
+    conversiTaskGate: function(taskId) {
+        if (taskId === 'doly') {
+            if (!(GameState.researchedTechs && GameState.researchedTechs.includes('tech_fodina'))) {
+                return { locked: true, reasonKey: 'gate_fodina_tech' };
+            }
+            if (!(GameState.abbotPetition && GameState.abbotPetition.fodina && GameState.abbotPetition.fodina.status === 'approved')) {
+                return { locked: true, reasonKey: 'gate_fodina_approval' };
+            }
+            return { locked: false };
+        }
+        if (taskId === 'kostel') {
+            if (!(typeof TemplumSystem !== 'undefined' && TemplumSystem.isUnlocked())) {
+                return { locked: true, reasonKey: 'gate_frater' };
+            }
+            return { locked: false };
+        }
+        return { locked: false }; // dvur, scavenge — bez gate
+    },
+
+    conversiTaskCount: function(taskId, excludeId) {
+        return (GameState.conversi || []).filter(k => k.task === taskId && k.id !== excludeId).length;
+    },
+
+    // Přiřadí konvrše na úkol; taskId === null odebere z fronty. Validuje gate + sloty.
+    assignConversiTask: function(konvrsId, taskId) {
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        const k = (GameState.conversi || []).find(x => x.id === konvrsId);
+        if (!k) return;
+        if (k.awayUntil && k.awayUntil > Date.now()) {
+            UI.notify(lang==='en' ? 'He is away — wait for his return.' : 'Je pryč — počkej na návrat.', true); return;
+        }
+        if (taskId === null) { k.task = null; Game.save(); if (typeof SaeculumSystem !== 'undefined') SaeculumSystem.switchEntity('conversi'); return; }
+
+        const gate = this.conversiTaskGate(taskId);
+        if (gate.locked) {
+            UI.notify(lang==='en' ? 'This task is not open yet.' : 'Tento úkol ještě není otevřený.', true); return;
+        }
+        if (this.conversiTaskCount(taskId, k.id) >= this.CONVERSI_TASK_SLOTS) {
+            UI.notify(lang==='en' ? 'No free slot for this task.' : 'Žádný volný slot na tento úkol.', true); return;
+        }
+
+        k.task = taskId;
+        const cfg = this.CONVERSI_TASKS[taskId];
+        if (cfg && cfg.away) {
+            k.awayTask = taskId;
+            k.awayUntil = Date.now() + cfg.durationMs;
+            UI.notifyPanel('🚶 ' + (lang==='en' ? k.name+' left for '+taskId+'.' : k.name+' odešel na úkol: '+taskId+'.'), 'system');
+        }
+        Game.save();
+        if (typeof SaeculumSystem !== 'undefined') SaeculumSystem.switchEntity('conversi');
+    },
+
+    // Vyřeší návraty z Scavenge/Dolů — riziko, výnos, hláška. Volat z periodického ticku.
+    CONVERSI_SCAVENGE_LOOT: ['mushroom', 'berries', 'thyme', 'st_johns_wort', 'wood', 'clay'],
+    checkConversiReturns: function() {
+        if (!GameState.conversi || !GameState.conversi.length) return;
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        const now = Date.now();
+        GameState.conversi.forEach(k => {
+            if (!k.awayUntil || k.awayUntil > now) return;
+            const taskId = k.awayTask;
+            const cfg = this.CONVERSI_TASKS[taskId];
+            k.awayUntil = null;
+            k.awayTask = null;
+            k.task = null; // po návratu čeká na nové přiřazení
+
+            const rec = (k.rosterId && typeof ConversiRosterDB !== 'undefined') ? ConversiRosterDB[k.rosterId] : null;
+            const roll = Math.random() * 100;
+            const risky = cfg && roll < cfg.riskPct;
+
+            let yieldTxt = '';
+            if (taskId === 'doly') {
+                if (risky) {
+                    k.injuredUntil = now + 24 * 60 * 60 * 1000;
+                    k.fatigue = Math.min(100, k.fatigue + 20);
+                    UI.notifyPanel('⚠️ ' + (lang==='en' ? k.name+' was hurt in the mine. Resting 24h.' : k.name+' se zranil v dole. Odpočívá 24h.'), 'warning');
+                    Game.addKronikaEntry('minor', '⚠️ '+k.name+' se zranil v dole.', '⚠️ '+k.name+' was hurt in the mine.', '⚠️ '+k.name+' in fodina vulneratus est.');
+                } else {
+                    const qty = 2 + Math.floor(Math.random() * 3);
+                    this.addItem('iron_ore', qty);
+                    k.fatigue = Math.min(100, k.fatigue + 15);
+                    yieldTxt = qty + '× iron_ore';
+                    UI.notifyPanel('⛏️ ' + (lang==='en' ? k.name+' returned from the mine with '+yieldTxt+'.' : k.name+' se vrátil z dolu s '+yieldTxt+'.'), 'success');
+                    Game.addKronikaEntry('minor', '⛏️ '+k.name+' přinesl z dolu '+yieldTxt+'.', '⛏️ '+k.name+' brought '+yieldTxt+' from the mine.', '⛏️ '+k.name+' e fodina rediit.');
+                }
+            } else if (taskId === 'scavenge') {
+                if (risky) {
+                    const lost = Math.min(3, Math.floor(Math.random() * 3) + 1);
+                    UI.notifyPanel('🏴 ' + (lang==='en' ? 'Robbers took '+k.name+"'s haul on the road." : 'Lapkové oloupili '+k.name+' na cestě.'), 'warning');
+                    Game.addKronikaEntry('minor', '🏴 Lapkové oloupili '+k.name+' na zpáteční cestě.', '🏴 Robbers waylaid '+k.name+' on the road home.', '🏴 Latrones '+k.name+' spoliaverunt.');
+                } else {
+                    const itemId = this.CONVERSI_SCAVENGE_LOOT[Math.floor(Math.random() * this.CONVERSI_SCAVENGE_LOOT.length)];
+                    const qty = 1 + Math.floor(Math.random() * 3);
+                    this.addItem(itemId, qty);
+                    k.fatigue = Math.min(100, k.fatigue + 10);
+                    yieldTxt = qty + '× ' + itemId;
+                    UI.notifyPanel('🌾 ' + (lang==='en' ? k.name+' returned from scavenging with '+yieldTxt+'.' : k.name+' se vrátil ze scavenge s '+yieldTxt+'.'), 'success');
+                    Game.addKronikaEntry('minor', '🌾 '+k.name+' přinesl ze scavenge '+yieldTxt+'.', '🌾 '+k.name+' brought '+yieldTxt+' from scavenging.', '🌾 '+k.name+' rediit.');
+                }
+            }
+        });
+        Game.save();
     },
 
     hireKonvrs: function() {
@@ -4543,13 +4662,16 @@ const Game = {
         // Noc (22–5): spánek
         if (dayBlock === 'night') return;
 
-        // Práci dělá nejméně unavený dostupný konvrš (strop 80; pilny 90; mood < 30 nebo Pokání = nepracuje)
+        // Práci dělá nejméně unavený dostupný konvrš PŘIŘAZENÝ na Dvůr (M1: přiřazení nahrazuje "kdo je volný")
         const worker = GameState.conversi
-            .filter(k => k.fatigue < (this._konvrsTraits(k).includes('pilny') ? 90 : 80)
+            .filter(k => k.task === 'dvur'
+                      && k.fatigue < (this._konvrsTraits(k).includes('pilny') ? 90 : 80)
                       && (typeof k.mood !== 'number' || k.mood >= 30)
-                      && !(k.penanceUntil && k.penanceUntil > Date.now()))
+                      && !(k.penanceUntil && k.penanceUntil > Date.now())
+                      && !(k.injuredUntil && k.injuredUntil > Date.now())
+                      && !(k.awayUntil && k.awayUntil > Date.now()))
             .sort((a, b) => a.fatigue - b.fatigue)[0];
-        if (!worker) return; // všichni unavení, bez nálady, nebo v Pokání
+        if (!worker) return; // nikdo nepřiřazený na Dvůr, všichni unavení, bez nálady, nebo v Pokání
 
         if (typeof FarmyardSystem === 'undefined') return;
         // Mapování: (argument pro cleanPen) → (klíč v GameState, kde se hlídá .built)
