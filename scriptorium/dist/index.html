@@ -5330,6 +5330,7 @@ const ScriptoriumLibraryModule = {
 
 console.log('📚 Library Module loaded successfully!');
 // ═══ src/data/items.js ═══
+<<<<<<< HEAD
 const ItemsDB = {
     // BASIC MATERIALS
     "tinderbox": { name: "Troud", name_en: "Tinderbox", icon: "🔥", type: "tool", tier: "fire", desc: "Sada na oheň.", desc_en: "A fire-starting kit." },
@@ -6532,6 +6533,1210 @@ RecipesDB.push(
     { id: "incense_pine",     output: "incense_pine",     qty: 1, req: { "resin_pine": 1,   "charcoal": 1 }, cat: "fire", locked: true, desc: "Borová pryskyřice + uhlí = vonné kadidlo.", desc_en: "Pine resin + charcoal = fragrant incense." },
     { id: "incense_styrax",   output: "incense_styrax",   qty: 1, req: { "resin_styrax": 1, "charcoal": 1 }, cat: "fire", locked: true, desc: "Styrax + uhlí = byzantské kadidlo.", desc_en: "Styrax + charcoal = Byzantine incense." },
     { id: "incense_olibanum", output: "incense_olibanum", qty: 1, req: { "resin_olibanum": 1, "charcoal": 1 }, cat: "fire", locked: true, desc: "Olibanum + uhlí = posvátné kadidlo.", desc_en: "Olibanum + charcoal = sacred incense." }
+=======
+const ItemsDB = {
+    // BASIC MATERIALS
+    "tinderbox": { name: "Troud", name_en: "Tinderbox", icon: "🔥", type: "tool", tier: "fire", desc: "Sada na oheň.", desc_en: "A fire-starting kit." },
+    "rock": { name: "Kámen", name_en: "Stone", icon: "🪨", type: "mat", desc: "Tvrdý.", desc_en: "Hard stone." },
+    "clay": { name: "Hlína", name_en: "Clay", icon: "🟤", type: "mat", desc: "Jílovitá hlína z břehu potoka. Vhodná pro hrnčířství a stavbu.", desc_en: "Clay from a streambank. Good for pottery and construction." },
+    "wicker": { name: "Proutí", name_en: "Wicker", icon: "🧺", type: "mat", desc: "Ohebné vrbové pruty z mokřadu. Na pletení košů i konstrukcí.", desc_en: "Pliant willow withies from the wetlands. For weaving baskets and structures." },
+    "stick": { name: "Větev", name_en: "Branch", icon: "🪵", type: "mat", desc: "Dřevo.", desc_en: "A length of wood." },
+    "fiber": { name: "Tráva", name_en: "Grass", icon: "🌾", type: "mat", desc: "Vlákna.", desc_en: "Plant fibres." },
+    "bark": { name: "Kůra", name_en: "Bark", icon: "🍂", type: "mat", desc: "Kůra stromu.", desc_en: "Tree bark." },
+    "rags": { name: "Staré hadry", name_en: "Rags", icon: "🧻", type: "mat", desc: "Opotřebené kousky plátna a lnu. Základ hadrového papíru.", desc_en: "Worn scraps of linen and cloth. The basis of rag paper." },
+    "charcoal": { name: "Uhel", name_en: "Charcoal", icon: "⚫", type: "mat", desc: "Spálené dřevo.", desc_en: "Burned wood." },
+    "water": { name: "Voda", name_en: "Water", icon: "💧", type: "food", desc: "Voda ze studny nebo z přírody. Ne vždy čistá.", desc_en: "Water from a well or the wild. Not always clean." },
+    "spring_water": { name: "Pramenitá voda", name_en: "Spring Water", icon: "🫧", type: "food", desc: "Čistá pramenitá voda. Osvěžuje tělo a snižuje únavu.", desc_en: "Pure spring water. Refreshes the body and eases fatigue." },
+    "holy_water": { name: "Svěcená voda", name_en: "Holy Water", icon: "✨", type: "food", desc: "Posvěcená voda z požehnané studny. Nejčistší, jakou lze získat.", desc_en: "Blessed water from a consecrated well. The purest water obtainable." },
+    "herb_red": { name: "Krvavý květ", name_en: "Bloodwort", icon: "🌺", type: "mat", desc: "Bylina.", desc_en: "A red healing herb." },
+    "fat": { name: "Tuk", name_en: "Fat", icon: "🥩", type: "mat", desc: "Zvířecí tuk.", desc_en: "Animal fat." },
+    "meat": { name: "Divoké maso", name_en: "Wild Game Meat", icon: "🍖", type: "food_raw", desc: "Syrové maso z ulovené zvěře. K vaření, ne k prodeji na trhu.", desc_en: "Raw meat from hunted game. For cooking, not for the market stall." },
+    "crayfish": { name: "Raci", name_en: "Crayfish", icon: "🦞", type: "food_raw", desc: "Sladkovodní raci z mokřadu.", desc_en: "Freshwater crayfish from the wetlands." },
+    "snail": { name: "Hlemýždi", name_en: "Snails", icon: "🐌", type: "food_raw", desc: "Hlemýždi s ulitou. Jiní tvorové než slimák.", desc_en: "Shelled snails. A different creature from the slug." },
+    "frog_legs": { name: "Žabí stehýnka", name_en: "Frog Legs", icon: "🍗", type: "food_raw", desc: "Stažená stehýnka ze žáby.", desc_en: "Skinned frog legs." },
+    "bone": { name: "Kost", name_en: "Bone", icon: "☠️", type: "mat", desc: "Tvrdá kost.", desc_en: "Hard bone." },
+    "leather": { name: "Kůže", name_en: "Leather", icon: "🦌", type: "mat", desc: "Ze zvířat.", desc_en: "Cured animal hide." },
+
+    // TOOLS
+    "sharp_stone": { name: "Úštěpek", name_en: "Flint Shard", icon: "🔪", type: "tool", desc: "Základní ostří.", desc_en: "A crude cutting edge." },
+    "stone_knife": { name: "Nůž", name_en: "Stone Knife", icon: "🗡️", type: "tool", desc: "Nástroj k lovu.", desc_en: "A hunting tool." },
+    "pestle": { name: "Hmoždíř", name_en: "Mortar & Pestle", icon: "🥣", type: "tool", desc: "Na drcení.", desc_en: "For grinding." },
+    "flint": { name: "Křesadlo", name_en: "Flint", icon: "🔥", type: "tool", tier: "fire", desc: "Na oheň.", desc_en: "For striking fire." },
+    "primitive_torch": { name: "Louč", name_en: "Torch", icon: "🪵", type: "tool", tier: "fire", desc: "Špinavé světlo.", desc_en: "Crude light." },
+    "candle": { name: "Svíčka", name_en: "Candle", icon: "🕯️", type: "tool", tier: "fire", desc: "24h světla.", desc_en: "24 hours of light." },
+    "rope": { name: "Provaz", name_en: "Rope", icon: "➰", type: "mat", desc: "Pevný spoj.", desc_en: "Strong binding." },
+    "hoe": { name: "Motyka", name_en: "Hoe", icon: "⚒️", type: "tool", desc: "K farmě.", desc_en: "For the garden." },
+    "fishing_rod": { name: "Udice", name_en: "Fishing Rod", icon: "🎣", type: "tool", desc: "Na ryby.", desc_en: "For fishing." },
+    "cooking_pot": { name: "Hrnec", name_en: "Cooking Pot", icon: "🫕", type: "tool", desc: "Na vaření.", desc_en: "For cooking." },
+    "tea_kettle": { name: "Konvička", name_en: "Kettle", icon: "🫖", type: "tool", desc: "Hliněná konvička na čaj. Pověsí se nad oheň.", desc_en: "A clay kettle for tea. Hung over the fire." },
+    "basket": { name: "Koš", name_en: "Basket", icon: "🧺", type: "tool", desc: "Na sběr.", desc_en: "For foraging." },
+
+    "repair_kit": { name: "Opravná sada", name_en: "Repair Kit", icon: "🔧", type: "tool", desc: "Na opravu studny.", desc_en: "For repairing the well.", cat: "tool" },
+
+    // LORE
+    "pulp": { name: "Hadrovina", name_en: "Rag Pulp", icon: "🌫️", type: "mat", desc: "Rozmělněná lněná vlákna ve vodě. Základ hadrového papíru.", desc_en: "Macerated linen fibres in water. The base of rag paper." },
+    "paper": { name: "Hadrový papír", name_en: "Rag Paper", icon: "📄", type: "lore", desc: "Lisovaná hadrovina. Středověký papír z lněných vláken, ne ze dřeva.", desc_en: "Pressed rag pulp. Medieval paper made from linen fibres, not wood." },
+    "ink": { name: "Inkoust", name_en: "Ink", icon: "✒️", type: "lore", desc: "Černý.", desc_en: "Black ink." },
+    "research": { name: "Zápisky", name_en: "Notes", icon: "📜", type: "lore", desc: "Vědění.", desc_en: "Accumulated knowledge." },
+
+    // ALCHEMY
+    "bonemeal": { name: "Hnojivo", name_en: "Bonemeal", icon: "🦴", type: "mat", desc: "Z kostí.", desc_en: "Ground bone fertilizer." },
+    "seeds_herb": { name: "Semínka", name_en: "Seeds", icon: "🌱", type: "mat", desc: "Rostliny.", desc_en: "Plant seeds." },
+    "potion_heal": { name: "Mast", name_en: "Healing Salve", icon: "🧪", type: "alchemy", desc: "Léčí.", desc_en: "Heals wounds." },
+    "antidote": { name: "Protijed", name_en: "Antidote", icon: "💚", type: "alchemy", desc: "Proti jedu.", desc_en: "Against poison." },
+    "stamina_tonic": { name: "Tonikum síly", name_en: "Stamina Tonic", icon: "⚡", type: "alchemy", desc: "Energie.", desc_en: "Restores energy." },
+    "preservation_oil": { name: "Konzervační olej", name_en: "Preservation Oil", icon: "🫙", type: "alchemy", desc: "Uchovává.", desc_en: "Preserves food and materials." },
+    "sleep_potion": { name: "Lektvar spánku", name_en: "Sleep Draught", icon: "😴", type: "alchemy", desc: "Hluboký spánek.", desc_en: "Brings deep sleep." },
+    "compost": { name: "Kompost", name_en: "Compost", icon: "♻️", type: "mat", desc: "Lepší hnojivo.", desc_en: "Richer fertilizer." },
+    "purification_powder": { name: "Čisticí prášek", name_en: "Purification Powder", icon: "✨", type: "alchemy", desc: "Odstraňuje nečistoty z vody.", desc_en: "Removes impurities from water.", cat: "alchemy" },
+    "ash": { name: "Popel", name_en: "Ash", icon: "🌫️", type: "alchemy_ing", desc: "Z ohně.", desc_en: "From the fire." },
+
+    // ALCHEMY INGREDIENTS
+    "frog": { name: "Žába", name_en: "Frog", icon: "🐸", type: "alchemy_ing", desc: "Z mokřadu.", desc_en: "From the wetlands." },
+    "slug": { name: "Slimák", name_en: "Slug", icon: "🐌", type: "alchemy_ing", desc: "Sliz.", desc_en: "Slimy creature." },
+    "resin": { name: "Pryskyřice", name_en: "Resin", icon: "💧", type: "alchemy_ing", desc: "Ze stromů.", desc_en: "Tree resin." },
+    "honey": { name: "Med", name_en: "Honey", icon: "🍯", type: "food", desc: "Včelí med.", desc_en: "Bee honey." },
+    "mushroom_poison": { name: "Muchotrávka", name_en: "Death Cap", icon: "🍄", type: "alchemy_ing", desc: "Jedovatá houba.", desc_en: "A poisonous mushroom." },
+    "roots": { name: "Kořeny", name_en: "Roots", icon: "🪴", type: "alchemy_ing", desc: "Hluboké kořeny.", desc_en: "Deep roots." },
+    "nightshade": { name: "Rulík", name_en: "Nightshade", icon: "🖤", type: "alchemy_ing", desc: "Jedovatý, léčivý.", desc_en: "Deadly yet medicinal." },
+
+    // FOOD RAW
+    "fish": { name: "Ryba", name_en: "Fish", icon: "🐟", type: "food_raw", desc: "Čerstvá ryba.", desc_en: "Fresh fish." },
+    "mushroom": { name: "Houby", name_en: "Mushrooms", icon: "🍄", type: "food", desc: "Jedlé houby.", desc_en: "Edible mushrooms." },
+    "carrot": { name: "Mrkev", name_en: "Carrot", icon: "🥕", type: "food_raw", desc: "Ze zahrady.", desc_en: "From the garden." },
+    "onion": { name: "Cibule", name_en: "Onion", icon: "🧅", type: "food_raw", desc: "Ze zahrady.", desc_en: "From the garden." },
+    "leek": { name: "Pór", name_en: "Leek", icon: "🌿", type: "food_raw", desc: "Allium porrum. Klášterní zahrada ze Sankt Gallenu. Základ polévky.", desc_en: "Allium porrum. From the St Gallen monastery plan. Soup staple." },
+    "cabbage": { name: "Zelí", name_en: "Cabbage", icon: "🥬", type: "food_raw", desc: "Brassica oleracea. Základ středověké stravy v Čechách. Kvas i vaření.", desc_en: "Brassica oleracea. Staple of medieval Czech diet. Fermented and cooked." },
+    "radish": { name: "Ředkev", name_en: "Radish", icon: "🌱", type: "food_raw", desc: "Raphanus sativus. Capitulare de villis, 812. Jedla se syrová i vařená.", desc_en: "Raphanus sativus. Capitulare de villis, 812. Eaten raw and cooked." },
+    "turnip": { name: "Řepa", name_en: "Turnip", icon: "🟣", type: "food_raw", desc: "Beta vulgaris. Zimní zásoby kláštera. Vydrží v sklepě celou zimu.", desc_en: "Beta vulgaris. Monastery winter stores. Keeps in the cellar all winter." },
+    "garlic": { name: "Česnek", name_en: "Garlic", icon: "🧄", type: "food_raw", desc: "Allium sativum. Lék i koření. Hildegarda: teplý a suchý, zahání nemoci.", desc_en: "Allium sativum. Medicine and spice. Hildegard: warm and dry, drives off sickness." },
+    "ground_elder": { name: "Bršlice kozí noha", name_en: "Ground Elder", icon: "🌿", type: "food_raw", desc: "Aegopodium podagraria. Dnes plevel, ve středověku hlavní jarní zelenina.", desc_en: "Aegopodium podagraria. A weed today, a staple spring green in the Middle Ages." },
+    "goosefoot": { name: "Lebeda", name_en: "Goosefoot", icon: "🌿", type: "food_raw", desc: "Chenopodium album. Rostla kolem obydlí, listy bohaté na bílkoviny.", desc_en: "Chenopodium album. Grew around dwellings, leaves rich in protein." },
+    "sorrel": { name: "Šťovík", name_en: "Sorrel", icon: "🌿", type: "food_raw", desc: "Rumex acetosa. Kyselá chuť tam, kde chyběl citron i ocet.", desc_en: "Rumex acetosa. A sour bite where lemon and vinegar were scarce." },
+    "dandelion": { name: "Pampeliška", name_en: "Dandelion", icon: "🌼", type: "food_raw", desc: "Taraxacum. Jarní očistná bylina, i s ptačincem žabincem.", desc_en: "Taraxacum. A spring cleansing herb, alongside chickweed." },
+    "burdock_root": { name: "Kořen lopuchu", name_en: "Burdock Root", icon: "🥕", type: "food_raw", desc: "Arctium lappa. Hladové jídlo — kořen pečený v popelu.", desc_en: "Arctium lappa. Famine food — root baked in ashes." },
+    "couch_grass": { name: "Pýr plazivý", name_en: "Couch Grass", icon: "🌾", type: "food_raw", desc: "Elymus repens. Oddenky plné škrobu, mlely se na mouku.", desc_en: "Elymus repens. Starch-rich rhizomes, ground into flour." },
+    "cattail_root": { name: "Kořen orobince", name_en: "Cattail Root", icon: "🌾", type: "food_raw", desc: "Typha. Rostl kolem rybníků, oddenky bohaté na škrob.", desc_en: "Typha. Grew around ponds, starch-rich rhizomes." },
+    "potato": { name: "Brambora", name_en: "Potato", icon: "🥔", type: "food_raw", desc: "Ze zahrady.", desc_en: "From the garden." },
+    "berries": { name: "Bobule", name_en: "Berries", icon: "🫐", type: "food", hunger: 2, desc: "Lesní plody. Lze jíst syrové — zasytí na 2h.", desc_en: "Forest berries. Edible raw — fills for 2h." },
+    "rosehip": { name: "Šípky", name_en: "Rosehips", icon: "🔴", type: "food_raw", desc: "Fructus rosae. Hlavní zdroj vitamínů na zimu.", desc_en: "Fructus rosae. The main source of winter vitamins." },
+    "beechnut": { name: "Bukvice", name_en: "Beechnuts", icon: "🌰", type: "food_raw", desc: "Fagus sylvatica. Z bukvic se lisoval i jedlý olej.", desc_en: "Fagus sylvatica. Beechnuts were also pressed for edible oil." },
+    "wild_fruit": { name: "Planá jablka a hrušky", name_en: "Wild Apples and Pears", icon: "🍏", type: "food_raw", desc: "Pláňata. Tvrdá a trpká, syrová se nedala jíst.", desc_en: "Wild fruit. Hard and bitter, inedible raw." },
+    "cornel_cherry": { name: "Dřínky", name_en: "Cornel Cherries", icon: "🍒", type: "food_raw", desc: "Cornus mas. Kyselé plody dřínu obecného.", desc_en: "Cornus mas. Tart fruit of the cornelian cherry." },
+    "sloe": { name: "Trnky", name_en: "Sloes", icon: "🫐", type: "food_raw", desc: "Prunus spinosa. Po prvním mrazu ztrácí svíravou trpkost.", desc_en: "Prunus spinosa. The first frost takes away their sharp bitterness." },
+    "morel": { name: "Smrže", name_en: "Morels", icon: "🍄", type: "food_raw", desc: "Vzácná a ceněná jarní houba.", desc_en: "A rare and prized spring mushroom." },
+    "saffron_milk_cap": { name: "Ryzce", name_en: "Saffron Milk Caps", icon: "🍊", type: "food_raw", desc: "Nakládají se do slaného nálevu — vydrží celou zimu.", desc_en: "Preserved in brine — they keep all winter." },
+    "porcini": { name: "Hřiby", name_en: "Porcini", icon: "🍄", type: "food_raw", desc: "Nejceněnější houba lesa.", desc_en: "The most prized mushroom of the forest." },
+    "bracket_fungus": { name: "Choroš sírový", name_en: "Chicken of the Woods", icon: "🍊", type: "food_raw", desc: "Roste na stromech, ne na zemi. Struktura podobná kuřecímu masu.", desc_en: "Grows on trees, not the ground. Texture similar to chicken." },
+
+    // COOKED FOOD
+    "cooked_meat": { name: "Pečené maso", name_en: "Roasted Meat", icon: "🍗", type: "food", hunger: 6, desc: "Sytí 6h.", desc_en: "Fills for 6h." },
+    "crayfish_boiled": { name: "Raci vaření v pivu", name_en: "Crayfish Boiled in Beer", icon: "🦞", type: "food", desc: "Raci uvaření v pivu. Oblíbené mezi prostým lidem.", desc_en: "Crayfish boiled in beer. A favourite among common folk." },
+    "snails_black_sauce": { name: "Hlemýždi v černé omáčce", name_en: "Snails in Black Sauce", icon: "🐌", type: "food", desc: "Hlemýždi v omáčce zahuštěné chlebem a medem.", desc_en: "Snails in a sauce thickened with bread and honey." },
+    "frog_legs_fried": { name: "Žabí stehýnka na česneku", name_en: "Fried Frog Legs with Garlic", icon: "🍗", type: "food", desc: "Stehýnka osmažená na sádle s česnekem.", desc_en: "Legs fried in lard with garlic." },
+    "cooked_beef": { name: "Pečené hovězí", name_en: "Roasted Beef", icon: "🍗", type: "food", desc: "Hovězí upečené na ohni.", desc_en: "Beef roasted over the fire." },
+    "cooked_mutton": { name: "Pečené skopové", name_en: "Roasted Mutton", icon: "🍗", type: "food", desc: "Skopové upečené na ohni.", desc_en: "Mutton roasted over the fire." },
+    "cooked_chicken": { name: "Pečené kuře", name_en: "Roasted Chicken", icon: "🍗", type: "food", desc: "Kuře upečené na ohni.", desc_en: "Chicken roasted over the fire." },
+    "cooked_rabbit": { name: "Pečený králík", name_en: "Roasted Rabbit", icon: "🍗", type: "food", desc: "Králík upečený na ohni.", desc_en: "Rabbit roasted over the fire." },
+    "roast_beef": { name: "Hovězí pečeně", name_en: "Beef Roast", icon: "🍽️", type: "food", desc: "Pečené hovězí s cibulí. Klášterní hostina.", desc_en: "Roasted beef with onion. A monastic feast." },
+    "braised_beef": { name: "Dušené hovězí", name_en: "Braised Beef", icon: "🍽️", type: "food", desc: "Hovězí dušené s mrkví.", desc_en: "Beef braised with carrot." },
+    "roast_rabbit_dish": { name: "Pečený králík s zeleninou", name_en: "Roast Rabbit with Vegetables", icon: "🍽️", type: "food", desc: "Králík pečený s mrkví a zelím.", desc_en: "Rabbit roasted with carrot and cabbage." },
+    "cooked_fish": { name: "Pečená ryba", name_en: "Roasted Fish", icon: "🐠", type: "food", hunger: 4, desc: "Sytí 4h.", desc_en: "Fills for 4h." },
+    "stew": { name: "Guláš", name_en: "Stew", icon: "🍲", type: "food", hunger: 12, desc: "Sytí 12h.", desc_en: "Fills for 12h." },
+    "mushroom_soup": { name: "Houbová polévka", name_en: "Mushroom Pottage", icon: "🥣", type: "food", hunger: 8, desc: "Sytí 8h.", desc_en: "Fills for 8h." },
+    "spring_herb_porridge": { name: "Jarní bylinková kaše", name_en: "Spring Herb Porridge", icon: "🥣", type: "food", desc: "Kopřiva, bršlice a lebeda v ovesné kaši. Chudé jaro, plný hrnec.", desc_en: "Nettle, ground elder and goosefoot in oat porridge. A lean spring, a full pot." },
+    "couch_grass_flour": { name: "Pýrová mouka", name_en: "Couch Grass Flour", icon: "🌾", type: "mat", desc: "Umleté oddenky pýru. Hladový chléb, když obilí došlo.", desc_en: "Ground couch grass rhizomes. Famine bread when the grain runs out." },
+    "burdock_root_baked": { name: "Pečený kořen lopuchu", name_en: "Baked Burdock Root", icon: "🥕", type: "food", desc: "Upečený v popelu ohně. Nasládlá, zemitá chuť.", desc_en: "Baked in the ashes of the fire. A sweetish, earthy taste." },
+    "rosehip_sauce": { name: "Šípková jícha", name_en: "Rosehip Sauce", icon: "🍲", type: "food", desc: "Šípky rozvařené a zahuštěné chlebem.", desc_en: "Rosehips stewed down and thickened with bread." },
+    "famine_bread": { name: "Hladový chléb", name_en: "Famine Bread", icon: "🍞", type: "food", desc: "Žaludy a bukvice, louhované a umleté na mouku. Jídlo krajní nouze.", desc_en: "Acorns and beechnuts, leached and ground into flour. Food of last resort." },
+    "dried_wild_fruit": { name: "Křížaly", name_en: "Dried Wild Fruit", icon: "🍏", type: "food", desc: "Planá jablka a dřínky sušené na peci.", desc_en: "Wild apples and cornel cherries dried by the oven." },
+    "sloe_jam": { name: "Trnková povidla", name_en: "Sloe Jam", icon: "🍇", type: "food", desc: "Bez cukru — jen dlouhé vaření a trpělivost.", desc_en: "No sugar — just long boiling and patience." },
+    "morel_stuffed": { name: "Plněné smrže", name_en: "Stuffed Morels", icon: "🍄", type: "food", desc: "Smrže plněné bylinkami, pečené v hliněné nádobě.", desc_en: "Morels stuffed with herbs, baked in a clay dish." },
+    "pickled_mushrooms": { name: "Naložené houby", name_en: "Pickled Mushrooms", icon: "🍄", type: "food", desc: "Ryzce a hřiby v slaném nálevu. Vydrží celou zimu.", desc_en: "Saffron milk caps and porcini in brine. Keeps all winter." },
+    "smazenice": { name: "Smaženice", name_en: "Fried Mushroom Scramble", icon: "🍳", type: "food", hunger: 9, desc: "Houby smažené s vejci a cibulí. Sytí 9h.", desc_en: "Mushrooms fried with eggs and onion. Fills for 9h." },
+    "bread": { name: "Chléb", name_en: "Bread", icon: "🍞", type: "food", hunger: 10, desc: "Sytí 10h.", desc_en: "Fills for 10h." },
+    "bread_fine": { name: "Bílý chléb", name_en: "Fine Bread", icon: "🍞", type: "food", desc: "Chléb z mleté mouky 2. třídy. Sytější a chutnější než obyčejný chléb.", desc_en: "Bread from grade-2 flour. Heartier and finer than common bread." },
+    "bread_fine_1": { name: "Bílý chléb (prvotřídní)", name_en: "Fine Bread (Grade 1)", icon: "🍞", type: "food", desc: "Chléb z prvotřídní mouky vlastního pole. Nejlepší chléb v klášteře.", desc_en: "Bread from grade-1 flour off your own field. The finest bread in the monastery." },
+    "berry_pie": { name: "Borůvkový koláč", name_en: "Berry Tart", icon: "🥧", type: "food", hunger: 8, desc: "Sytí 8h.", desc_en: "Fills for 8h." },
+    "berry_pie_fine": { name: "Borůvkový koláč (moučný)", name_en: "Fine Berry Tart", icon: "🥧", type: "food", desc: "Koláč s pravým těstem z mouky 2. třídy. Lepší než prostý koláč.", desc_en: "A tart with proper dough from grade-2 flour. Finer than the plain version." },
+    "berry_pie_fine_1": { name: "Borůvkový koláč (prvotřídní)", name_en: "Fine Berry Tart (Grade 1)", icon: "🥧", type: "food", desc: "Koláč z prvotřídní mouky vlastního pole. Top koláč kláštera.", desc_en: "A tart from grade-1 flour off your own field. The monastery's finest pastry." },
+
+    // HERBS & SEEDS
+    "herb_yellow": { name: "Heřmánek", name_en: "Chamomile", icon: "🌼", type: "mat", desc: "Uklidňující bylina.", desc_en: "A calming herb." },
+    "herb_blue": { name: "Levandule", name_en: "Lavender", icon: "💜", type: "mat", desc: "Na spaní.", desc_en: "For sleep." },
+    "mint": { name: "Máta", name_en: "Mint", icon: "🌿", type: "mat", desc: "Osvěžující.", desc_en: "Refreshing." },
+    "seeds_vegetable": { name: "Semínka zeleniny", name_en: "Vegetable Seeds", icon: "🌱", type: "mat", desc: "Zelenina.", desc_en: "Vegetable seeds." },
+    "seeds_yellow": { name: "Semínka heřmánku", name_en: "Chamomile Seeds", icon: "🌾", type: "mat", desc: "Žlutá bylina.", desc_en: "Yellow herb seeds." },
+    "seeds_blue": { name: "Semínka levandule", name_en: "Lavender Seeds", icon: "🌾", type: "mat", desc: "Modrá bylina.", desc_en: "Blue herb seeds." },
+    "seeds_mint": { name: "Semínka máty", name_en: "Mint Seeds", icon: "🌾", type: "mat", desc: "Máta.", desc_en: "Mint seeds." },
+    "seeds_thyme": { name: "Semínka tymiánu", name_en: "Thyme Seeds", icon: "🌾", type: "mat", desc: "Tymián. Léčí Varroa, koření jídla.", desc_en: "Thyme. Treats Varroa, seasons food." },
+    "seeds_sage": { name: "Semínka šalvěje", name_en: "Sage Seeds", icon: "🌾", type: "mat", desc: "Šalvěj. Salvia — zachraňuje.", desc_en: "Sage. Salvia — it saves." },
+    "seeds_fennel": { name: "Semínka fenyklu", name_en: "Fennel Seeds", icon: "🌾", type: "mat", desc: "Fenykl. Na trávení.", desc_en: "Fennel. For digestion." },
+    "seeds_wormwood": { name: "Semínka pelynku", name_en: "Wormwood Seeds", icon: "🌾", type: "mat", desc: "Pelyněk. Hořký jako pokání.", desc_en: "Wormwood. Bitter as penance." },
+    "seeds_hyssop": { name: "Semínka yzopu", name_en: "Hyssop Seeds", icon: "🌾", type: "mat", desc: "Yzop. Benediktinská bylina.", desc_en: "Hyssop. A Benedictine herb." },
+    "seeds_yarrow": { name: "Semínka řebříčku", name_en: "Yarrow Seeds", icon: "🌾", type: "mat", desc: "Řebříček. Hojení ran.", desc_en: "Yarrow. Wound healing." },
+    "seeds_leek": { name: "Semínka póru", name_en: "Leek Seeds", icon: "🌱", type: "mat", desc: "Pór. Ze záhonů sv. Gallenských.", desc_en: "Leek. From the St Gallen beds." },
+    "seeds_cabbage": { name: "Semínka zelí", name_en: "Cabbage Seeds", icon: "🌱", type: "mat", desc: "Zelí. Základ stravy.", desc_en: "Cabbage. Diet staple." },
+    "seeds_radish": { name: "Semínka ředkve", name_en: "Radish Seeds", icon: "🌱", type: "mat", desc: "Ředkev. Rychle klíčí.", desc_en: "Radish. Sprouts quickly." },
+    "seeds_turnip": { name: "Semínka řepy", name_en: "Turnip Seeds", icon: "🌱", type: "mat", desc: "Řepa. Na zimu.", desc_en: "Turnip. For winter." },
+    "seeds_garlic": { name: "Stroužky česneku", name_en: "Garlic Cloves", icon: "🧄", type: "mat", desc: "Česnek. Sází se stroužky, ne semeny.", desc_en: "Garlic. Planted as cloves, not seeds." },
+    "seeds_rye": { name: "Osivo žita", name_en: "Rye Seed", icon: "🌾", type: "mat", desc: "Osivo žita. Ozimá plodina pro pole.", desc_en: "Rye seed. A winter crop for the fields." },
+    "seeds_wheat": { name: "Osivo pšenice", name_en: "Wheat Seed", icon: "🌾", type: "mat", desc: "Osivo pšenice. Jarní plodina pro pole.", desc_en: "Wheat seed. A spring crop for the fields." },
+    "seeds_barley": { name: "Osivo ječmene", name_en: "Barley Seed", icon: "🌾", type: "mat", desc: "Osivo ječmene. Pro pole, i pro pivovar.", desc_en: "Barley seed. For the fields — and the brewery." },
+    "seeds_oats": { name: "Osivo ovsa", name_en: "Oat Seed", icon: "🌾", type: "mat", desc: "Osivo ovsa. Krmivo pro koně a dobytek.", desc_en: "Oat seed. Feed for horses and livestock." },
+    "seeds_millet": { name: "Osivo prosa", name_en: "Millet Seed", icon: "🌾", type: "mat", desc: "Osivo prosa. Nenáročná plodina pro pole.", desc_en: "Millet seed. An undemanding field crop." },
+    "seeds_peas": { name: "Osivo hrachu", name_en: "Pea Seed", icon: "🌱", type: "mat", desc: "Osivo hrachu. Luštěnina pro pole.", desc_en: "Pea seed. A legume for the fields." },
+    "seeds_flax": { name: "Osivo lnu", name_en: "Flax Seed", icon: "🌱", type: "mat", desc: "Osivo lnu. Přadná plodina, vzácnější.", desc_en: "Flax seed. A fibre crop, rarer to find." },
+    "seeds_mandrake": { name: "Semínka mandragory", name_en: "Mandrake Seeds", icon: "🌾", type: "mat", desc: "Vzácná. Opatřit není snadné.", desc_en: "Rare. Not easy to obtain." },
+    "seeds_belladonna": { name: "Semínka rulíku", name_en: "Belladonna Seeds", icon: "🌾", type: "mat", desc: "Jedovatá. Zacházet opatrně.", desc_en: "Poisonous. Handle with care." },
+    "seeds_poppy": { name: "Semínka máku", name_en: "Poppy Seeds", icon: "🌾", type: "mat", desc: "Mák. Léčivý i jedlý.", desc_en: "Poppy. Medicinal and edible." },
+    "seeds_nettle": { name: "Semínka kopřivy", name_en: "Nettle Seeds", icon: "🌱", type: "mat", desc: "Kopřiva. Roste všude, ale v zahradě lépe.", desc_en: "Nettle. Grows anywhere, better in a garden." },
+    "seeds_cannabis": { name: "Semínka konopí setého", name_en: "Hemp Seeds", icon: "🌱", type: "mat", desc: "Cannabis sativa. Konopí seté — pěstováno v Čechách od nepaměti na vlákno, olej i semena.", desc_en: "Cannabis sativa. Hemp — cultivated in Bohemia since ancient times for fibre, oil and seed." },
+
+    // NOTEBOOKS
+    "tabula": { name: "Tabula (Vosková destička)", name_en: "Tabula (Wax Tablet)", icon: "📋", type: "tool", desc: "Dočasné poznámky.", desc_en: "Temporary notes." },
+    "adversaria": { name: "Adversaria (Pracovní sešit)", name_en: "Adversaria (Workbook)", icon: "📔", type: "lore", desc: "Trvalé poznámky.", desc_en: "Permanent notes." },
+    "vademecum": { name: "Vademecum (Jdi se mnou)", name_en: "Vademecum (Go With Me)", icon: "📘", type: "lore", desc: "Kapesní příručka.", desc_en: "A pocket handbook." },
+    "florilegium": { name: "Florilegium (Sbírka květů)", name_en: "Florilegium (Flower Book)", icon: "🌸", type: "lore", desc: "Sbírka mouder.", desc_en: "A collection of wisdom." },
+    "enchiridion": { name: "Enchiridion (Mistrovský manuál)", name_en: "Enchiridion (Master Manual)", icon: "📖", type: "lore", desc: "Ultimate systém.", desc_en: "The ultimate system." },
+
+    // I-CHING
+    "iching_book": { name: "I-Ching (Kniha Proměn)", name_en: "I-Ching (Book of Changes)", icon: "☯️", type: "lore", cat: "lore", desc: "Starověký čínský text věštění. Hoď mince a poznej svůj osud.", desc_en: "Ancient Chinese divination. Cast coins and know thy fate." },
+
+    // VELLUM CHAIN
+    "hide": { name: "Kůže", name_en: "Raw Hide", icon: "🦌", type: "mat", desc: "Surová kůže ze zvěře.", desc_en: "Raw hide from game." },
+    "pumice": { name: "Pemza", name_en: "Pumice", icon: "🪨", type: "mat", desc: "Sopečný kámen na leštění.", desc_en: "Volcanic stone for smoothing." },
+    "chalk": { name: "Křída", name_en: "Chalk", icon: "⚪", type: "mat", desc: "Bělení pergamenu.", desc_en: "For whitening vellum." },
+    "ash_water": { name: "Louh", name_en: "Lye Water", icon: "💧", type: "mat", desc: "Voda s popelem - na namáčení kůže.", desc_en: "Ash water for soaking hide." },
+    "soaked_hide": { name: "Namáčená kůže", name_en: "Soaked Hide", icon: "🦌", type: "mat", desc: "Kůže po 3denním loužení.", desc_en: "Hide after three days in lye." },
+    "stretched_hide": { name: "Napnutá kůže", name_en: "Stretched Hide", icon: "🦌", type: "mat", desc: "V rámu, sušená.", desc_en: "Stretched on a frame to dry." },
+    "vellum": { name: "Pergamen", name_en: "Vellum", icon: "📜", type: "lore", desc: "Vyšší kvalita než papír. Věčný.", desc_en: "Finer than paper. Eternal." },
+
+    // QUILL
+    "feather": { name: "Husí pero", name_en: "Goose Feather", icon: "🪶", type: "mat", desc: "Z křídla husy.", desc_en: "From a goose wing." },
+    "quill": { maxUses: 10, name: "Brko", name_en: "Quill", icon: "🪶", type: "tool", desc: "10x použití. +2 ink/craft.", desc_en: "10 uses. +2 ink per craft." },
+
+    // GALLIC INK
+    "gall_nut": { name: "Duběnka", name_en: "Oak Gall", icon: "🫘", type: "alchemy_ing", desc: "Hálka na dubu. Obsahuje tanin.", desc_en: "Oak gall. Contains tannin." },
+    "iron_sulfate": { name: "Síran železnatý", name_en: "Iron Vitriol", icon: "⚗️", type: "alchemy_ing", desc: "Vitriol. Z chemické reakce.", desc_en: "Vitriol. From chemical reaction." },
+    "gum_arabic": { name: "Arabská guma", name_en: "Gum Arabic", icon: "💧", type: "alchemy_ing", desc: "Ze stromů akácie. Pojidlo.", desc_en: "From acacia trees. A binder." },
+    "ink_gallic": { name: "Železitoduběnkový inkoust", name_en: "Iron Gall Ink", icon: "✒️", type: "lore", desc: "Permanentní. Prožírá pergamen po 80 letech.", desc_en: "Permanent. Eats through vellum after 80 years." },
+
+    // PRINTING PRESS
+    "lead_alloy": { name: "Olověná slitina", name_en: "Lead Alloy", icon: "⚗️", type: "mat", desc: "Základ tiskových liter.", desc_en: "Base for printing type." },
+    "printing_type": { name: "Tiskové litery", name_en: "Printing Type", icon: "🔤", type: "tool", desc: "100x použití. Pak worn_type.", desc_en: "100 uses. Then worn_type." },
+    "worn_type": { name: "Opotřebované litery", name_en: "Worn Type", icon: "🔤", type: "mat", desc: "Prodávaly se jako kovový odpad.", desc_en: "Sold as scrap metal." },
+
+    // CODEX TYPES
+    "common_codex": { name: "Běžný kodex", name_en: "Common Codex", icon: "📘", type: "lore", desc: "Papírový tisk. 1 research.", desc_en: "Paper print. 1 research." },
+    "luxury_codex": { name: "Luxusní kodex", name_en: "Luxury Codex", icon: "📕", type: "lore", desc: "S illuminací. 5 research.", desc_en: "Illuminated. 5 research." },
+    "vellum_codex": { name: "Pergamenový kodex", name_en: "Vellum Codex", icon: "📜", type: "lore", desc: "Na pergamenu. 10 research.", desc_en: "On vellum. 10 research." },
+
+    // CANONICAL HOURS & PRIVILEGIUM
+    "book_of_hours": { name: "Horologium (Kniha hodin)", name_en: "Book of Hours", icon: "🕰️", type: "lore", desc: "Odemkne kanonické hodiny.", desc_en: "Unlocks the canonical hours system." },
+    "perpetuum_calendarium": { maxStack: 1, name: "Perpetuum Calendarium", name_en: "Perpetuum Calendarium", icon: "📅", type: "lore", desc: "Klášterní kalendář na jeden rok. Ukazuje svátky, lunární cykly a doby postů. Obnovit v lednu.", desc_en: "Monastic calendar for one year. Shows feasts, lunar cycles and fasting periods. Renew in January." },
+    "bishop_seal": { name: "Biskupská pečeť", name_en: "Bishop's Seal", icon: "💍", type: "lore", desc: "Souhlas biskupa k tisku.", desc_en: "The bishop's approval to print." },
+    "printing_privilege": { name: "Tiskařské privilegium", name_en: "Printing Privilege", icon: "📜", type: "lore", desc: "Monopol na tisk. Endgame.", desc_en: "A monopoly on printing. Endgame." },
+
+    // GAMES
+    "playing_cards": { name: "Herní karty", name_en: "Playing Cards", icon: "🎴", type: "tool", desc: "Odemkne memory game.", desc_en: "Unlocks the memory game." },
+    "ur_board": { name: "Královská Deska z Uru", name_en: "Royal Game of Ur", icon: "🎲", type: "tool", cat: "tool", desc: "Nejstarší desková hra (2600 př.n.l.).", desc_en: "The oldest known board game (2600 BC)." },
+    "primero_deck": { name: "Primero Balíček", name_en: "Primero Deck", icon: "🃏", type: "tool", cat: "tool", desc: "Předchůdce pokeru.", desc_en: "Ancestor of poker." },
+    "karnoffel_deck": { name: "Karnöffel Balíček", name_en: "Karnöffel Deck", icon: "🎴", type: "tool", cat: "tool", desc: "Nejstarší trumfová hra. 1426.", desc_en: "Oldest trump card game. 1426." },
+    "french_deck": { name: "Francouzský Balíček", name_en: "French Deck", icon: "🂡", type: "tool", cat: "tool", desc: "52 karet se čtyřmi barvami.", desc_en: "52 cards in four suits." },
+    "rithmomachia_board": { name: "Rithmomachia Deska", name_en: "Rithmomachia Board", icon: "🔢", type: "tool", cat: "tool", desc: "Bitva čísel — na univerzitách.", desc_en: "Battle of Numbers — taught at universities." },
+
+    // EASTER EGG
+    "netolicky_legacy": { name: "Netolického pozůstalost", name_en: "Netolický's Legacy", icon: "📜", type: "lore", desc: "Starý dokument z tiskárny.", desc_en: "An old document from the print shop." },
+
+    // ── ZTRACENÉ PŘEDMĚTY (lostPool — yard_cleanup) ───────────────────────────
+    "torn_page": {
+        name: "Útržek pergamenu", name_en: "Torn Page", icon: "📄", type: "lore", lostItem: true,
+        desc: "Potrhaný list s nečitelným textem. Místy čitelné latinské slabiky. Kdo to psal?", desc_en: "A torn leaf with barely legible text. Fragments of Latin visible. Who wrote this?"
+    },
+    "wax_seal": {
+        name: "Pečetní vosk", name_en: "Wax Seal", icon: "🔴", type: "mat", lostItem: true,
+        desc: "Stará pečeť odlomená od dopisu. Heraldický znak — ale čí? Vosk lze přetavit.", desc_en: "An old seal broken from a letter. A heraldic device — but whose? The wax can be remelted."
+    },
+    "dried_herbs_bundle": {
+        name: "Svazek sušených bylin", name_en: "Dried Herbs Bundle", icon: "🌿", type: "mat", lostItem: true,
+        desc: "Svazek sušených bylin svázaný provázkem. Někdo je tu zapomněl. Voní heřmánkem a mátohou.", desc_en: "A bundle of dried herbs tied with twine. Someone left it behind. Smells of chamomile and mint."
+    },
+    "hemp_pouch": {
+        name: "Váček s konopím", name_en: "Hemp Pouch", icon: "👝", type: "mat", lostItem: true,
+        desc: "Malý plátěný váček. Uvnitř semínka konopí a trocha vlákna. Staré, ale použitelné.", desc_en: "A small linen pouch. Inside: hemp seeds and some fibre. Old but usable."
+    },
+    "mysterious_bulb": {
+        name: "Záhadný kořen", name_en: "Mysterious Bulb", icon: "🧅", type: "mat", lostItem: true,
+        desc: "Cibulovitý kořen neznámého původu. Mohl by to být cokoliv. Jen zahrada odhalí pravdu.", desc_en: "A bulbous root of unknown origin. Could be anything. Only the garden will reveal the truth."
+    },
+    "lost_key_1": {
+        name: "Rezavý klíč č.1", name_en: "Rusty Key #1", icon: "🗝️", type: "key", lostItem: true,
+        desc: "Starý rezavý klíč. Neznámý původ. Třeba ho prozkoumat.", desc_en: "An old rusty key. Unknown origin. Worth examining."
+    },
+    "lost_key_2": {
+        name: "Rezavý klíč č.2", name_en: "Rusty Key #2", icon: "🗝️", type: "key", lostItem: true,
+        desc: "Starý rezavý klíč. Neznámý původ. Třeba ho prozkoumat.", desc_en: "An old rusty key. Unknown origin. Worth examining."
+    },
+    "lost_key_3": {
+        name: "Rezavý klíč č.3", name_en: "Rusty Key #3", icon: "🗝️", type: "key", lostItem: true,
+        desc: "Starý rezavý klíč. Neznámý původ. Třeba ho prozkoumat.", desc_en: "An old rusty key. Unknown origin. Worth examining."
+    },
+    "lost_key_4": {
+        name: "Rezavý klíč č.4", name_en: "Rusty Key #4", icon: "🗝️", type: "key", lostItem: true, maxStack: 4,
+        desc: "Starý rezavý klíč. Neznámý původ. Třeba ho prozkoumat. Může být nalezen vícekrát.", desc_en: "An old rusty key. Unknown origin. Worth examining. Can be found multiple times."
+    },
+    "lost_key_5": {
+        name: "Rezavý klíč č.5", name_en: "Rusty Key #5", icon: "🗝️", type: "key", lostItem: true,
+        desc: "Starý rezavý klíč. Neznámý původ. Třeba ho prozkoumat. Hlubší záhada čeká.", desc_en: "An old rusty key. Unknown origin. Worth examining. A deeper mystery awaits."
+    },
+    "key_large_1": {
+        name: "Velký klíč č.1", name_en: "Large Key #1", icon: "🔑", type: "key", lostItem: true,
+        desc: "Těžký kovaný klíč od nějakých velkých dveří. Třeba ho prozkoumat.", desc_en: "A heavy forged key to some large door. Worth examining."
+    },
+    "key_large_2": {
+        name: "Velký klíč č.2", name_en: "Large Key #2", icon: "🔑", type: "key", lostItem: true,
+        desc: "Těžký kovaný klíč od nějakých velkých dveří. Třeba ho prozkoumat.", desc_en: "A heavy forged key to some large door. Worth examining."
+    },
+    "key_large_3": {
+        name: "Velký klíč č.3", name_en: "Large Key #3", icon: "🔑", type: "key", lostItem: true,
+        desc: "Těžký kovaný klíč od nějakých velkých dveří. Třeba ho prozkoumat.", desc_en: "A heavy forged key to some large door. Worth examining."
+    },
+    "lost_scroll_1": {
+        name: "Vybledlý svitek č.1", name_en: "Faded Scroll #1", icon: "📜", type: "lore", lostItem: true,
+        desc: "Starý svitek popsaný vybledlým inkoustem. Třeba ho prozkoumat.", desc_en: "An old scroll covered in faded ink. Worth examining."
+    },
+    "lost_scroll_2": {
+        name: "Vybledlý svitek č.2", name_en: "Faded Scroll #2", icon: "📜", type: "lore", lostItem: true,
+        desc: "Starý svitek popsaný vybledlým inkoustem. Třeba ho prozkoumat.", desc_en: "An old scroll covered in faded ink. Worth examining."
+    },
+    "flask_cut": {
+        name: "Broušený flakonek", name_en: "Cut Glass Flask", icon: "🫙", type: "misc", lostItem: true,
+        desc: "Malý broušený flakonek z českého skla. Na voňavku nebo lektvar.", desc_en: "A small cut glass flask from Bohemian crystal. For perfume or potion."
+    },
+    "clasp_hunter": {
+        name: "Lovecká spona", name_en: "Hunter's Clasp", icon: "🔩", type: "misc", lostItem: true,
+        desc: "Bronzová spona ve tvaru jelena. Patřila lovci nebo rytíři.", desc_en: "Bronze clasp in the shape of a stag. Belonged to a hunter or knight."
+    },
+    "clasp_monk": {
+        name: "Mnišská spona", name_en: "Monk's Clasp", icon: "🔩", type: "misc", lostItem: true,
+        desc: "Jednoduchá železná spona. Sepínala hábit staletí.", desc_en: "A simple iron clasp. It fastened habits for centuries."
+    },
+    "clasp_silver": {
+        name: "Stříbrná spona", name_en: "Silver Clasp", icon: "🔩", type: "misc", lostItem: true,
+        desc: "Stříbrná filigránová spona. Kdo ji ztratil, hledá ji dodnes.", desc_en: "Silver filigree clasp. Whoever lost it is still looking."
+    },
+    "clasp_leather": {
+        name: "Kožená spona", name_en: "Leather Clasp", icon: "🔩", type: "misc", lostItem: true,
+        desc: "Vyřezávaná kožená spona. Řemeslná práce sedláře.", desc_en: "Carved leather clasp. The craftwork of a saddler."
+    },
+    "clasp_bronze": {
+        name: "Bronzová spona", name_en: "Bronze Clasp", icon: "🔩", type: "misc", lostItem: true,
+        desc: "Pozlacená bronzová spona s rytinou. Starší než klášter sám.", desc_en: "Gilded bronze clasp with engraving. Older than the monastery itself."
+    },
+    "pipe_large": {
+        name: "Dýmka", name_en: "Pipe", icon: "🪵", type: "misc", lostItem: true,
+        desc: "Velká dřevěná dýmka. Tabák do Čech teprve přijde — ale trocha sušeného konopí z váčku poslouží stejně dobře.", desc_en: "A large wooden pipe. Tobacco has yet to reach Bohemia — but a little dried hemp from a pouch serves just as well."
+    },
+    "pipe_small": {
+        name: "Kapesní dýmka", name_en: "Pocket Pipe", icon: "🪵", type: "misc", lostItem: true,
+        desc: "Malá kapesní dýmka. Vhodná na cestu — a pro tajnou chvilku klidu, má-li člověk po ruce váček konopí.", desc_en: "A small pocket pipe. Good for travel — and for a secret moment of peace, if one has a hemp pouch at hand."
+    },
+    "rosarium": {
+        name: "Růženec", name_en: "Rosary", icon: "📿", type: "misc", lostItem: true,
+        desc: "Dřevěný růženec ze dřeva ze Svaté země. Sto padesát zrn, sto padesát Ave Maria.", desc_en: "Wooden rosary from Holy Land timber. One hundred and fifty beads, one hundred and fifty Ave Marias."
+    },
+    "pilgrim_badge": {
+        name: "Poutní odznak", name_en: "Pilgrim Badge", icon: "⭐", type: "misc", lostItem: true,
+        desc: "Olověný odznak poutníka. Z Compostely, Říma nebo snad z Jeruzaléma?", desc_en: "A lead pilgrim badge. From Compostela, Rome, or perhaps Jerusalem?"
+    },
+    "sundial_pocket": {
+        name: "Kapesní sluneční hodiny", name_en: "Pocket Sundial", icon: "☀️", type: "misc", lostItem: true,
+        desc: "Mosazné kapesní hodiny na slunce. Bez slunce k ničemu. A přesto vzácné.", desc_en: "Brass pocket sundial. Useless without sun. And yet precious."
+    },
+    "inkwell_small": {
+        name: "Malý kalamář", name_en: "Small Inkwell", icon: "🖊️", type: "misc", lostItem: true,
+        desc: "Malý kalamář z hliněné glazury. Písař ho postrádá.", desc_en: "A small glazed clay inkwell. A scribe is missing it."
+    },
+    "old_coin_1": {
+        name: "Měděná mince", name_en: "Copper Coin", icon: "🪙", type: "currency", lostItem: true,
+        desc: "Stará měděná mince nalezená při úklidu dvora. Kdo ji ztratil? Dávno to bylo.", desc_en: "An old copper coin found while cleaning the yard. Who dropped it? Long ago, that."
+    },
+    "old_coin_2": {
+        name: "Stříbrná mince", name_en: "Silver Coin", icon: "🪙", type: "currency", lostItem: true,
+        desc: "Stříbrný groš, trochu otlučený. Nese znak českého království. Vzácnější nález.", desc_en: "A silver groschen, slightly worn. Bears the Bohemian crown mark. A rarer find."
+    },
+    "old_coin_3": {
+        name: "Zlatá mince", name_en: "Gold Coin", icon: "🏅", type: "currency", lostItem: true,
+        desc: "Zlatý dukát. V klášterním dvoře? Někdo ho tady musel ztratit za velmi podivných okolností.", desc_en: "A gold ducat. In the monastery yard? Someone must have dropped it under very peculiar circumstances."
+    },
+
+    // ATHANOR — ingredience (nové suroviny)
+    "carbon_black": { name: "Saze", name_en: "Carbon Black", icon: "🖤", type: "alchemy_ing", desc: "Saze z krbu. Nejstarší černý pigment.", desc_en: "Soot from the hearth. The oldest black pigment." },
+    "ochre": { name: "Okr", name_en: "Ochre", icon: "🟤", type: "alchemy_ing", desc: "Žlutohnědá zemina. Pigment od pravěku.", desc_en: "Yellow-brown earth. A pigment since prehistory." },
+    "cinnabar": { name: "Rumělka", name_en: "Cinnabar", icon: "🔴", type: "alchemy_ing", desc: "Sulfid rtuťnatý. Krásně červený, ale jedovatý.", desc_en: "Mercuric sulfide. Beautiful red, but poisonous." },
+    "lapis_lazuli": { name: "Lapis lazuli", name_en: "Lapis Lazuli", icon: "💎", type: "alchemy_ing", desc: "Dražší než zlato. Barva roucha Panny Marie.", desc_en: "More precious than gold. The colour of the Virgin's robe." },
+    "verdigris": { name: "Měděnka", name_en: "Verdigris", icon: "🟢", type: "alchemy_ing", desc: "Zelená patina mědi. Časem koroduje pergamen.", desc_en: "Green copper patina. Corrodes vellum over time." },
+    "egg_tempera": { name: "Vaječná tempera", name_en: "Egg Tempera", icon: "🥚", type: "alchemy_ing", desc: "Žloutek s vínem. Nejstarší pojivo pigmentů.", desc_en: "Egg yolk with wine. The oldest pigment binder." },
+    "chamomile": { name: "Heřmánek", name_en: "Chamomile", icon: "🌼", type: "herb", desc: "Matka bylinek. Hildegarda ho doporučovala.", desc_en: "Mother of herbs. Hildegard recommended it." },
+    "st_johns_wort": { name: "Třezalka", name_en: "St. John's Wort", icon: "🌻", type: "herb", desc: "Bylina sv. Jana. Léčí rány i melancholii.", desc_en: "Herb of St. John. Heals wounds and melancholy." },
+    "thyme": { name: "Tymián", name_en: "Thyme", icon: "🌿", type: "herb", desc: "Odvání Varroa z úlů. Hildegarda jej znala dobře.", desc_en: "Drives Varroa from hives. Hildegard knew it well." },
+    "sage": { name: "Šalvěj", name_en: "Sage", icon: "🌿", type: "herb", desc: "Salvia officinalis. Kapitulář Karla Velikého. Čistí vzduch i mysl.", desc_en: "Salvia officinalis. Capitulare de villis. Purifies air and mind." },
+    "fennel": { name: "Fenykl", name_en: "Fennel", icon: "🌿", type: "herb", desc: "Foeniculum vulgare. Dobrý na trávení, Hildegarda jej doporučovala.", desc_en: "Foeniculum vulgare. Good for digestion, praised by Hildegard." },
+    "wormwood": { name: "Pelyněk", name_en: "Wormwood", icon: "🌿", type: "herb", desc: "Artemisia absinthium. Bylina všech bylin. Chrání před morem.", desc_en: "Artemisia absinthium. Herb of herbs. Wards off pestilence." },
+    "hyssop": { name: "Yzop", name_en: "Hyssop", icon: "🌿", type: "herb", desc: "Hyssopus officinalis. Benediktinský klášter bez yzopu? Nemyslitelné.", desc_en: "Hyssopus officinalis. A Benedictine monastery without hyssop? Unthinkable." },
+    "yarrow": { name: "Řebříček", name_en: "Yarrow", icon: "🌿", type: "herb", desc: "Achillea millefolium. Hojí rány. Místní česká bylina, v Čechách od nepaměti.", desc_en: "Achillea millefolium. Heals wounds. A native Czech herb, grown here since time immemorial." },
+    "beeswax": { name: "Včelí vosk", name_en: "Beeswax", icon: "🕯️", type: "mat", desc: "Z klášterního úlu. Pojivo masti i pečetidlo.", desc_en: "From the monastery hive. Salve binder and sealant." },
+    "mandrake": { name: "Mandragora", name_en: "Mandrake", icon: "🌿", type: "special", desc: "Mandragora officinarum. Kapitulář Karla Velikého. Kořen ve tvaru člověka — křičí při vytrhnutí. Pro silné lektvary.", desc_en: "Mandragora officinarum. Root shaped like a man — screams when pulled. For powerful potions." },
+    "belladonna": { name: "Rulík zlomocný", name_en: "Belladonna", icon: "🫐", type: "special", desc: "Atropa belladonna. Jed i lék. Lékárníci jej míchali v malých dávkách. Nebezpečná rostlina.", desc_en: "Atropa belladonna. Poison and medicine alike. Apothecaries used it in small doses. Dangerous." },
+    "poppy": { name: "Mák", name_en: "Poppy", icon: "🌸", type: "special", desc: "Papaver somniferum. Hildegarda znala jeho moc. Tišil bolest, navozoval spánek. Cenný i drahý.", desc_en: "Papaver somniferum. Hildegard knew its power. Eased pain, brought sleep. Valued and costly." },
+    "nettle": { name: "Kopřiva", name_en: "Nettle", icon: "🌿", type: "special", desc: "Urtica dioica. Vlákno, jídlo i lék. Klášterní zahrady ji pěstovaly záměrně — na látku i odvar.", desc_en: "Urtica dioica. Fibre, food and medicine. Monastery gardens cultivated it deliberately." },
+    "cannabis": { name: "Konopí seté", name_en: "Hemp", icon: "🌿", type: "mat", desc: "Cannabis sativa. Pěstováno v Čechách od středověku — vlákno na lana a plátno, semena na olej i jídlo.", desc_en: "Cannabis sativa. Cultivated in Bohemia since the Middle Ages — fibre for rope and cloth, seeds for oil and food." },
+
+    // ATHANOR — výsledné produkty
+    "ink_carbon": { name: "Sazový inkoust", name_en: "Carbon Ink", icon: "🖤", type: "lore", desc: "Černý inkoust ze sazí. Levný a trvanlivý.", desc_en: "Black ink from soot. Cheap and durable." },
+    "ink_red": { name: "Červený inkoust", name_en: "Red Ink", icon: "🔴", type: "lore", desc: "Rumělkový inkoust pro rubriky a iniciály.", desc_en: "Cinnabar ink for rubrics and initials." },
+    "pigment_yellow": { name: "Žlutý pigment", name_en: "Yellow Pigment", icon: "🟡", type: "lore", desc: "Okrový pigment v tempera. Pro iluminace.", desc_en: "Ochre pigment in tempera. For illuminations." },
+    "pigment_green": { name: "Zelený pigment", name_en: "Green Pigment", icon: "🟢", type: "lore", desc: "Měděnka v tempera. Časem koroduje pergamen.", desc_en: "Verdigris in tempera. Corrodes vellum over time." },
+    "pigment_blue": { name: "Ultramarín", name_en: "Ultramarine", icon: "💙", type: "lore", desc: "Z lapis lazuli. Dražší než zlato.", desc_en: "From lapis lazuli. More precious than gold." },
+    "potion_vigor_minor": { name: "Heřmánkový odvar", name_en: "Chamomile Draught", icon: "🌼", type: "potion", desc: "Obnoví síly. Vigor +20.", desc_en: "Restores strength. Vigor +20." },
+    "potion_craft_boost": { name: "Třezalkový lektvar", name_en: "St. John's Tincture", icon: "🌻", type: "potion", desc: "Crafting ×1.5 po dobu 1 hodiny.", desc_en: "Crafting ×1.5 for 1 hour." },
+    "potion_hunger_remedy": { name: "Hojivá mast", name_en: "Healing Salve", icon: "🕯️", type: "potion", desc: "Zpomalí hlad o 4 hodiny.", desc_en: "Slows hunger by 4 hours." },
+    "herbal_tea": { name: "Bylinný čaj", name_en: "Herbal Tea", icon: "🍵", type: "food", desc: "Heřmánek, tymián nebo máta s vodou. Uklidní tělo a sníží únavu.", desc_en: "Chamomile, thyme or mint with water. Calms the body and eases fatigue." },
+    "hildegard_tisane": { name: "Hildegardin odvar", name_en: "Hildegard's Tisane", icon: "🍵", type: "food", desc: "Heřmánek a tymián slazené medem, podle receptu Hildegardy z Bingenu. Účinnější než prostý bylinný čaj.", desc_en: "Chamomile and thyme sweetened with honey, after Hildegard of Bingen's recipe. More potent than plain herbal tea." },
+    "acorn_brew": { name: "Žaludovka", name_en: "Acorn Brew", icon: "☕", type: "food", desc: "Náhražka kávy ze žaludů. Hořká, ale zahřeje a pročistí hlavu.", desc_en: "A coffee substitute from acorns. Bitter, but warming and clearing." },
+    "chicory_drink": { name: "Cikorka", name_en: "Chicory Coffee", icon: "🥤", type: "food", desc: "Z pražené a mleté čekanky vařené s vodou. Starobylý klášterní lék na únavu.", desc_en: "From roasted, ground chicory root boiled with water. An ancient monastic remedy for fatigue." },
+    "acorn_roasted": { name: "Pražený žalud", name_en: "Roasted Acorn", icon: "🌰", type: "mat", desc: "Pražené a mleté žaludy. Připraveno k vaření Žaludovky.", desc_en: "Roasted, ground acorns. Ready for brewing into Acorn Brew." },
+    "chicory_roasted": { name: "Pražená čekanka", name_en: "Roasted Chicory", icon: "🪴", type: "mat", desc: "Pražený a mletý kořen čekanky. Připraveno k vaření Cikorky.", desc_en: "Roasted, ground chicory root. Ready for brewing into Chicory Coffee." },
+    "linden_tea": { name: "Lipový čaj", name_en: "Linden Tea", icon: "🍵", type: "food", desc: "Sušený lipový květ s horkou vodou. Uklidňující, lehce sytící.", desc_en: "Dried linden blossom with hot water. Calming, mildly nourishing." },
+    "beer": { name: "Pivo", name_en: "Beer", icon: "🍺", type: "food", desc: "Otupí mysl, ale zažene hlad. Únava +10 — pozor!", desc_en: "Dulls the mind but wards off hunger. Fatigue +10 — beware!" },
+    "wine": { name: "Víno", name_en: "Wine", icon: "🍷", type: "food", desc: "In vino veritas. Crafting ×1.1 / 30 min. Vigor -15.", desc_en: "In vino veritas. Crafting ×1.1 / 30 min. Vigor -15." },
+    "varnish": { name: "Vernix", name_en: "Varnish", icon: "✨", type: "lore", desc: "Průzračný lak na pergamen. Chrání iluminace.", desc_en: "Clear varnish for parchment. Protects illuminations." },
+    "salve_hands": { name: "Mast na prsty", name_en: "Hand Salve", icon: "🌻", type: "potion", desc: "Léčí písařská záda. Crafting ×1.25 / 30 min.", desc_en: "Heals scribe hands. Crafting ×1.25 / 30 min." },
+
+    // NOVÉ HRÁČSKÉ DESKY (sprint v8.x)
+    "senet_board": { name: "Senet", name_en: "Senet Board", icon: "𓂀", type: "tool", cat: "tool", desc: "Egyptská hra faraonů. 3100 př.n.l.", desc_en: "Egyptian game of the pharaohs. 3100 BC." },
+    "backgammon_board": { name: "Tables (Vrhcáby)", name_en: "Tables Board", icon: "🎯", type: "tool", cat: "tool", desc: "Hra kamenů a kostek. Předchůdce vrhcábů.", desc_en: "Game of stones and dice. Ancestor of backgammon." },
+    "draughts_board": { name: "Dáma", name_en: "Draughts Board", icon: "⚫", type: "tool", cat: "tool", desc: "Hra dam a pánů. Jednoduchá, hluboká.", desc_en: "Game of ladies and lords. Simple yet deep." },
+    "hnefatafl_board": { name: "Hnefatafl", name_en: "Hnefatafl Board", icon: "♟️", type: "tool", cat: "tool", desc: "Královská hra Vikingů. Král prchá, útočníci loví.", desc_en: "Royal Viking game. The king flees, warriors hunt." },
+
+    // ═══════════════════════════════════════════════════════════════════════════
+    // MUSIC SYSTEM (v8.x) — Hudební nástroje a notace
+    // ═══════════════════════════════════════════════════════════════════════════
+    "sheet_music": { name: "Notový zápis", name_en: "Sheet Music", icon: "🎼", type: "lore", desc: "Pergamen s neumatickou notací. Základ gregoriánského chorálu.", desc_en: "Parchment with neume notation. The foundation of Gregorian chant." },
+    "organ": { name: "Varhany", name_en: "Organ", icon: "🎹", type: "tool", cat: "tool", desc: "Hydraulické varhany podle Theophila Presbytera. Hlas Boží.", desc_en: "Hydraulic organ after Theophilus Presbyter. The voice of God." },
+
+    // ═══════════════════════════════════════════════════════════════════════════
+    // LEATHER SYSTEM (v8.x) — Kožené výrobky skriptoria
+    // ═══════════════════════════════════════════════════════════════════════════
+    "glue": { name: "Klej", name_en: "Glue", icon: "🫧", type: "mat", desc: "Kostní klej. Váže dřevo i pergamen.", desc_en: "Bone glue. Bonds wood and parchment." },
+    "plank": { name: "Fošna", name_en: "Plank", icon: "🪵", type: "mat", desc: "Otesaná dřevěná deska. Základ každé stavby.", desc_en: "A hewn wooden board. The foundation of every building." },
+    "cut_stone": { name: "Tesaný kámen", name_en: "Cut Stone", icon: "🧱", type: "mat", desc: "Kámen opracovaný dlátem. Pevný základ sklepa i sýpky.", desc_en: "Stone shaped by chisel. The firm foundation of cellar and granary." },
+
+    // ── KAMENNÉ NÁSTROJE (tech_horticulture + tech_carpentaria) ────────────────
+    "stone_axe": { maxUses: 10, name: "Kamenná sekerka", name_en: "Stone Axe", icon: "🪓", type: "tool", tier: "stone", desc: "Kamenné ostří na dřevěné násadě. Odemkne těžbu dřeva.", desc_en: "Stone blade on a wooden haft. Unlocks wood harvesting." },
+    "stone_spade": { maxUses: 10, name: "Kamenný rýč", name_en: "Stone Spade", icon: "⛏️", type: "tool", tier: "stone", desc: "Plochý kámen na násadě. Kopání červů a přesazování.", desc_en: "Flat stone on a haft. Digging worms and transplanting." },
+    "stone_scythe": { maxUses: 10, name: "Kamenná kosa", name_en: "Stone Scythe", icon: "⚔️", type: "tool", tier: "stone", desc: "Kamenné ostří. Sečení trávy na seno.", desc_en: "Stone blade. Cuts grass for hay." },
+    "stone_sickle": { maxUses: 10, name: "Kamenný srp", name_en: "Stone Sickle", icon: "🌾", type: "tool", tier: "stone", desc: "Malé kamenné ostří. Žeň bylin a obilí.", desc_en: "Small stone blade. Harvesting herbs and grain." },
+    "stone_flail": { maxUses: 10, name: "Kamenný cep", name_en: "Stone Flail", icon: "🪵", type: "tool", tier: "stone", desc: "Dřevěný cep s kamenným závažím. Mlácení obilí.", desc_en: "Wooden flail with stone weight. Threshing grain." },
+    "wooden_flail": { maxUses: 15, name: "Dřevěný cep", name_en: "Wooden Flail", icon: "🪵", type: "tool", tier: "wood", desc: "Prostý dřevěný cep. Nejjednodušší mlácení obilí.", desc_en: "Simple wooden flail. The most basic threshing tool." },
+    "stone_pickaxe": { maxUses: 10, name: "Kamenný krumpáč", name_en: "Stone Pickaxe", icon: "⛏️", type: "tool", tier: "stone", desc: "Kamenná hlava na násadě. Těžba rudy a bourání kamene.", desc_en: "Stone head on a haft. Ore mining and stone breaking." },
+    "stone_shovel": { name: "Kamenná lopata", name_en: "Stone Shovel", icon: "🪛", type: "tool", tier: "stone", desc: "Plochý kámen jako lopata. Přesun půdy a hnoje.", desc_en: "Flat stone as shovel. Moving soil and manure." },
+    "stone_saw": { maxUses: 10, name: "Kamenná pila", name_en: "Stone Saw", icon: "🪚", type: "tool", tier: "stone", desc: "Pila z křemenných úštěpků. Hrubé opracování dřeva.", desc_en: "Saw of flint chips. Rough wood working." },
+
+    // ── DŘEVĚNÉ NÁSTROJE (jen jedna verze) ──────────────────────────────────
+    "bucket": { name: "Vědro", name_en: "Bucket", icon: "🪣", type: "tool", desc: "Dřevěné vědro. Přenáší vodu ze studny.", desc_en: "Wooden bucket. Carries water from the well." },
+    "watering_can": { name: "Konev", name_en: "Watering Can", icon: "🚿", type: "tool", desc: "Konev na zalévání zahrady.", desc_en: "Watering can for the garden." },
+    "barrel_tool": { name: "Sud", name_en: "Barrel", icon: "🛢️", type: "tool", desc: "Dřevěný sud. Skladování piva, vína a vody.", desc_en: "Wooden barrel. Storage for ale, wine and water." },
+
+    // ── KOVOVÉ NÁSTROJE (tech_kovarina — po kovárně) ─────────────────────────
+    "iron_axe": { maxUses: 20, maxStack: 1, name: "Železná sekerka", name_en: "Iron Axe", icon: "🪓", type: "tool", tier: "iron", desc: "Železné ostří. Rychlejší těžba dřeva, více kulatiny.", desc_en: "Iron blade. Faster wood harvesting, more logs." },
+    "iron_spade": { maxUses: 20, maxStack: 1, name: "Železný rýč", name_en: "Iron Spade", icon: "⛏️", type: "tool", tier: "iron", desc: "Železný rýč. Více červů, hlubší kopání.", desc_en: "Iron spade. More worms, deeper digging." },
+    "iron_scythe": { maxUses: 20, maxStack: 1, name: "Železná kosa", name_en: "Iron Scythe", icon: "⚔️", type: "tool", tier: "iron", desc: "Ostrá železná kosa. Více trávy za méně akcí.", desc_en: "Sharp iron scythe. More grass per action." },
+    "iron_sickle": { maxUses: 20, maxStack: 1, name: "Železný srp", name_en: "Iron Sickle", icon: "🌾", type: "tool", tier: "iron", desc: "Železný srp. Přesná žeň obilí a bylin.", desc_en: "Iron sickle. Precise harvesting of grain and herbs." },
+    "iron_flail": { maxUses: 20, maxStack: 1, name: "Železný cep", name_en: "Iron Flail", icon: "🪵", type: "tool", tier: "iron", desc: "Železné závaží. Efektivnější mlácení obilí.", desc_en: "Iron weight. More efficient threshing." },
+    "iron_shovel": { maxUses: 20, maxStack: 1, name: "Železná lopata", name_en: "Iron Shovel", icon: "🪛", type: "tool", tier: "iron", desc: "Železná lopata. Rychlý přesun půdy a hnoje.", desc_en: "Iron shovel. Fast movement of soil and manure." },
+    "iron_saw": { maxUses: 20, maxStack: 1, name: "Železná pila", name_en: "Iron Saw", icon: "🪚", type: "tool", tier: "iron", desc: "Železná pila. Přesné zpracování kulatiny na fošny.", desc_en: "Iron saw. Precise processing of logs into planks." },
+    "iron_pickaxe": { maxUses: 20, maxStack: 1, name: "Železný krumpáč", name_en: "Iron Pickaxe", icon: "⛏️", type: "tool", tier: "iron", desc: "Těžká železná hlava. Efektivní těžba rudy a bourání.", desc_en: "Heavy iron head. Efficient ore mining and demolition." },
+    "iron_tongs": { maxUses: 30, maxStack: 1, name: "Železné kleště", name_en: "Iron Tongs", icon: "🔧", type: "tool", tier: "iron", desc: "Kovářské kleště. Nutné pro opravy železa v Kovárně.", desc_en: "Blacksmith tongs. Required for iron repairs at the Smithy." },
+    "log": { name: "Kulatina", name_en: "Log", icon: "🪵", type: "mat", desc: "Kmen pokáceného stromu. Základ tesařství.", desc_en: "Felled tree trunk. The foundation of carpentry." },
+    "bellows": { name: "Měchy", name_en: "Bellows", icon: "💨", type: "tool", cat: "tool", desc: "Kožené měchy. Rozdmýchají oheň i varhanní píšťaly.", desc_en: "Leather bellows. Fan the fire and the organ pipes alike." },
+    "book_binding": { name: "Vazba knih", name_en: "Book Binding", icon: "📚", type: "mat", desc: "Kožená vazba drží složky pohromadě. Bez ní jsou jen listy.", desc_en: "Leather binding holds the quires. Without it, just loose leaves." },
+    "quill_case": { name: "Pouzdro na pera", name_en: "Quill Case", icon: "🖊️", type: "tool", cat: "tool", desc: "Kožené pouzdro chrání husí brka před zlomením.", desc_en: "Leather case protects quills from snapping." },
+    "scribes_belt": { name: "Opasek písaře", name_en: "Scribe's Belt", icon: "🪢", type: "tool", cat: "tool", desc: "Na opasku visí nůž, brousek a pouzdro na pero.", desc_en: "Knife, whetstone and quill case hang from it. The scribe's kit." },
+    "book_cover": { name: "Kožená deska", name_en: "Book Cover", icon: "📖", type: "mat", desc: "Dřevěná deska potažená kůží. Chrání kodex po staletí.", desc_en: "Wooden board covered in leather. Protects the codex for centuries." },
+    "cushion": { name: "Kožené sedátko", name_en: "Leather Cushion", icon: "🪑", type: "tool", cat: "tool", desc: "Mniši seděli 6 hodin denně. Sedátko nebylo luxus — nutnost.", desc_en: "Monks sat 6 hours daily. A cushion was necessity, not luxury." },
+    "scrinium_case": { name: "Transportní pouzdro", name_en: "Scrinium Case", icon: "🧳", type: "tool", cat: "tool", desc: "Kožené pouzdro na přepravu cenných kodexů.", desc_en: "Leather case for transporting precious codices." },
+    "water_pouch": { name: "Kožený měšec", name_en: "Water Pouch", icon: "🫗", type: "tool", cat: "tool", desc: "Kožený měšec na vodu. Mniši nosili pití při práci.", desc_en: "Leather pouch for water. Monks carried drink during work." },
+    "ink_pouch": { name: "Váček na inkoust", name_en: "Ink Pouch", icon: "🫙", type: "mat", desc: "Kožený váček na suchý inkoust a práškové pigmenty.", desc_en: "Leather pouch for dry ink and powdered pigments." },
+    // ═══════════════════════════════════════════════════════════════════════════
+    // DVŮR — Nakupitelná zvířata (Trh)
+    // ═══════════════════════════════════════════════════════════════════════════
+    "hen_white": { name: "Slepice bílá", name_en: "White Hen", icon: "🐔", type: "animal", desc: "Bílá slepice. Nosí vejce každých 8h.", desc_en: "White hen. Lays eggs every 8h." },
+    "hen_black": { name: "Slepice černá", name_en: "Black Hen", icon: "🐓", type: "animal", desc: "Černá slepice. Nosí vejce každých 8h.", desc_en: "Black hen. Lays eggs every 8h." },
+    "hen_colored": { name: "Slepice pestrá", name_en: "Coloured Hen", icon: "🦚", type: "animal", desc: "Pestrá slepice. Dává více peří.", desc_en: "Colourful hen. Produces more feathers." },
+    "rooster": { name: "Kohout", name_en: "Rooster", icon: "🐓", type: "animal", desc: "Kohout zvyšuje snůšku vajec o 20%.", desc_en: "Rooster increases egg yield by 20%." },
+    "sheep": { name: "Ovce", name_en: "Sheep", icon: "🐑", type: "animal", desc: "Ovce produkuje vlnu, mléko a kůži.", desc_en: "Sheep produces wool, milk and hide." },
+
+    // ── Produkty zvířat ────────────────────────────────────────────────────
+    "egg": { name: "Vejce", name_en: "Egg", icon: "🥚", type: "food", desc: "Čerstvé vejce ze slepice. Jídlo i pigment.", desc_en: "Fresh egg from the hen. Food and pigment." },
+    "milk": { name: "Mléko", name_en: "Milk", icon: "🥛", type: "mat", desc: "Čerstvé mléko od ovce.", desc_en: "Fresh milk from the sheep." },
+    "wool": { name: "Vlna", name_en: "Wool", icon: "🧶", type: "mat", desc: "Střižená vlna. Na přízi, tkaní i šití.", desc_en: "Shorn wool. For spinning, weaving and sewing." },
+    "raw_hide": { name: "Surová kůže", name_en: "Raw Hide", icon: "🐑", type: "mat", desc: "Neupravená zvířecí kůže. Nutno vyčinit.", desc_en: "Untreated animal hide. Must be cured." },
+    "feather_hen": { name: "Peří", name_en: "Hen Feather", icon: "🪶", type: "mat", desc: "Husté peří. Na polštáře i brky.", desc_en: "Thick feathers. For pillows and quills." },
+
+    // ── Produkty zahrady / včelína ─────────────────────────────────────────
+    "pollen": { name: "Pyl", name_en: "Pollen", icon: "🌼", type: "mat", desc: "Včelí pyl. Léčivý a vzácný.", desc_en: "Bee pollen. Medicinal and rare." },
+    "linden_blossom": { name: "Lipový květ", name_en: "Linden Blossom", icon: "🌸", type: "mat", desc: "Sušený lipový květ. Do čaje i léčiv.", desc_en: "Dried linden blossom. For tea and remedies." },
+    "apple": { name: "Jablko", name_en: "Apple", icon: "🍎", type: "food_raw", desc: "Ze sadu. Skladuje se do jara.", desc_en: "From the orchard. Keeps until spring." },
+    "pear": { name: "Hruška", name_en: "Pear", icon: "🍐", type: "food_raw", desc: "Ze sadu. Šťavnatá, ale rychle měkne.", desc_en: "From the orchard. Juicy but softens quickly." },
+    "plum": { name: "Švestka", name_en: "Plum", icon: "🟣", type: "food_raw", desc: "Ze sadu. Na povidla i pálenku.", desc_en: "From the orchard. For jam and brandy." },
+    "cherry": { name: "Třešeň", name_en: "Cherry", icon: "🍒", type: "food_raw", desc: "Ze sadu. Sladká letní úroda.", desc_en: "From the orchard. Sweet summer harvest." },
+    "walnut": { name: "Vlašský ořech", name_en: "Walnut", icon: "🌰", type: "food_raw", desc: "Ze sadu. Vydrží celou zimu ve skořápce.", desc_en: "From the orchard. Keeps all winter in its shell." },
+    "mulberry": { name: "Moruše", name_en: "Mulberry", icon: "🫐", type: "food_raw", desc: "Ze sadu. Barví prsty i pergamen.", desc_en: "From the orchard. Stains fingers and parchment alike." },
+    "quince": { name: "Kdoule", name_en: "Quince", icon: "🟡", type: "food_raw", desc: "Ze sadu. Tvrdá, voňavá, na marmeládu.", desc_en: "From the orchard. Hard, fragrant, for marmalade." },
+    "sorb": { name: "Oskeruše", name_en: "Sorb Apple", icon: "🔴", type: "food_raw", desc: "Ze sadu. Trpká, dozrává až po prvních mrazech.", desc_en: "From the orchard. Tart, ripens only after first frost." },
+    "rowan": { name: "Jeřabina", name_en: "Rowan Berry", icon: "🟠", type: "food_raw", desc: "Ze sadu. Hořká syrová, sladší po zpracování.", desc_en: "From the orchard. Bitter raw, sweeter when processed." },
+    "linden_fruit": { name: "Lipový plod", name_en: "Linden Fruit", icon: "🟤", type: "food_raw", desc: "Ze sadu. Drobná nažka lípy, spíš léčivá než k jídlu.", desc_en: "From the orchard. A tiny linden nutlet, more medicinal than edible." },
+    "grass": { name: "Tráva", name_en: "Grass", icon: "🌿", type: "mat", desc: "Posečená čerstvá tráva. Suší se na seno.", desc_en: "Cut fresh grass. Dried to make hay." },
+    "queen_bee": { name: "Včelí matka", name_en: "Queen Bee", icon: "🐝", type: "animal", desc: "Včelí matka. Nutná pro stavbu úlu.", desc_en: "Queen bee. Required to establish a hive." },
+
+    // ═══════════════════════════════════════════════════════════════════════════
+    // DVŮR — Gallinarium & Ovile mláďata + maso (v8.x)
+    // ═══════════════════════════════════════════════════════════════════════════
+    "chick": { name: "Kuře", name_en: "Chick", icon: "🐣", type: "animal", desc: "Mladé kuře. Dorůstá v kurníku.", desc_en: "Young chick. Growing in the henhouse." },
+    "lamb": { name: "Jehně", name_en: "Lamb", icon: "🐑", type: "animal", desc: "Mladé jehně. Dorůstá v chlévu.", desc_en: "Young lamb. Growing in the sheepfold." },
+    "chicken_meat": { name: "Kuřecí maso", name_en: "Chicken Meat", icon: "🍗", type: "food_raw", hunger: 5, desc: "Čerstvé kuřecí. Uvař před jídlem.", desc_en: "Fresh chicken. Cook before eating." },
+    "mutton": { name: "Skopové maso", name_en: "Mutton", icon: "🥩", type: "food_raw", hunger: 7, desc: "Skopové z chléva. Uvař před jídlem.", desc_en: "Mutton from the fold. Cook before eating." },
+    "lamb_hide": { name: "Jehněčí kůže", name_en: "Lamb Hide", icon: "🦌", type: "mat", desc: "Jemná kůže jehněte. Kvalitnější pergamen.", desc_en: "Fine lamb skin. Superior vellum quality." },
+
+    // ═══════════════════════════════════════════════════════════════════════════
+    // PISCINA (Rybník) — v8.x
+    // ═══════════════════════════════════════════════════════════════════════════
+    "fry": { name: "Plůdek (potěr)", name_en: "Fish Fry", icon: "🫧", type: "mat", desc: "Malý rybí potěr. Vyrůstá v rybníce.", desc_en: "Tiny fish fry. Grows in the pond." },
+    "carp_young": { name: "Kapr (nedospělý)", name_en: "Young Carp", icon: "🐟", type: "mat", desc: "Nedospělý kapr z výtažníku. Potřebuje čas.", desc_en: "Young carp from the rearing pond. Needs time." },
+    "carp": { name: "Kapr tržní", name_en: "Market Carp", icon: "🐠", type: "food_raw", desc: "Dospělý kapr. Prodej nebo vaření.", desc_en: "Adult carp. For sale or cooking." },
+
+    // ═══════════════════════════════════════════════════════════════════════════
+    // PIVOVAR (Cervisiaria) — v9.x
+    // ═══════════════════════════════════════════════════════════════════════════
+    "hops": { name: "Chmel", name_en: "Hops", icon: "🌿", type: "mat", desc: "Aromatická rostlina. Dodává pivu hořkost a vůni.", desc_en: "Aromatic plant. Gives beer bitterness and aroma." },
+    "seeds_hops": { name: "Semínka chmele", name_en: "Hop Seeds", icon: "🌾", type: "mat", desc: "Chmel lze pěstovat v zahradě. Vzácné semínko.", desc_en: "Hops can be grown in the garden. Rare seeds." },
+    "wort": { name: "Mladina", name_en: "Wort", icon: "🫗", type: "mat", desc: "Fermentovaná obilná mladina. Základ každého piva.", desc_en: "Fermented grain wort. The base of every beer." },
+    "prima_cervisia": { name: "Prima Cervisia", name_en: "Prima Cervisia", icon: "🍺", type: "food", hunger: 6, desc: "Klášterní pivo světlé. Sytí a posiluje komunitu.", desc_en: "Light monastery ale. Nourishes and strengthens the community." },
+    "cervisia_nigra": { name: "Cervisia Nigra", name_en: "Cervisia Nigra", icon: "🍺", type: "food", hunger: 8, desc: "Klášterní pivo tmavé. Vzácnější, chutnější.", desc_en: "Dark monastery ale. Rarer and more flavourful." },
+
+    // ═══════════════════════════════════════════════════════════════════════════
+    // SAD — Semena stromů (Trh)
+    // ═══════════════════════════════════════════════════════════════════════════
+    "seed_apple": { name: "Sazenice jabloně", name_en: "Apple Sapling", icon: "🍎", type: "mat", desc: "Sází se do sadu. Plodí za 48h.", desc_en: "Plant in the orchard. Bears fruit after 48h." },
+    "seed_pear": { name: "Sazenice hrušně", name_en: "Pear Sapling", icon: "🍐", type: "mat", desc: "Sází se do sadu. Plodí za 48h.", desc_en: "Plant in the orchard. Bears fruit after 48h." },
+    "seed_plum": { name: "Sazenice švestky", name_en: "Plum Sapling", icon: "🫐", type: "mat", desc: "Sází se do sadu. Plodí za 36h.", desc_en: "Plant in the orchard. Bears fruit after 36h." },
+    "seed_cherry": { name: "Sazenice třešně", name_en: "Cherry Sapling", icon: "🍒", type: "mat", desc: "Sází se do sadu. Plodí za 36h.", desc_en: "Plant in the orchard. Bears fruit after 36h." },
+    "seed_walnut": { name: "Sazenice ořešáku", name_en: "Walnut Sapling", icon: "🥜", type: "mat", desc: "Sází se do sadu. Plodí za 72h.", desc_en: "Plant in the orchard. Bears fruit after 72h." },
+    "seed_mulberry": { name: "Sazenice morušovníku", name_en: "Mulberry Sapling", icon: "🍇", type: "mat", desc: "Sází se do sadu. Plodí za 48h.", desc_en: "Plant in the orchard. Bears fruit after 48h." },
+    "seed_quince": { name: "Sazenice kdouloně", name_en: "Quince Sapling", icon: "🍋", type: "mat", desc: "Sází se do sadu. Plodí za 60h.", desc_en: "Plant in the orchard. Bears fruit after 60h." },
+    "seed_sorb": { name: "Sazenice jeřábu", name_en: "Sorb Sapling", icon: "🟤", type: "mat", desc: "Sází se do sadu. Plodí za 72h.", desc_en: "Plant in the orchard. Bears fruit after 72h." },
+    "seed_rowan": { name: "Sazenice jeřábu pt.", name_en: "Rowan Sapling", icon: "🔴", type: "mat", desc: "Sází se do sadu. Plodí za 48h.", desc_en: "Plant in the orchard. Bears fruit after 48h." },
+    "seed_linden": { name: "Sazenice lípy", name_en: "Linden Sapling", icon: "🌸", type: "mat", desc: "Sází se do sadu. Plodí za 60h.", desc_en: "Plant in the orchard. Bears fruit after 60h." },
+
+    // ── KRMNÉ SUROVINY ────────────────────────────────────────────────────────
+    "hay": { name: "Seno", name_en: "Hay", icon: "🌾", type: "mat", desc: "Sušená tráva. Základní krmivo pro ovce, kozy a koně.", desc_en: "Dried grass. Basic fodder for sheep, goats and horses." },
+    "grain": { name: "Zrní", name_en: "Grain", icon: "🌾", type: "mat", desc: "Pšenice nebo ječmen. Krmivo pro slepice a prasata. Základ piva.", desc_en: "Wheat or barley. Feed for hens and pigs. The basis of ale." },
+    "feed_meal": { name: "Šrot", name_en: "Feed Meal", icon: "🟤", type: "mat", desc: "Drcené zrno z pole. Vydatné krmivo pro dobytek.", desc_en: "Crushed grain from the fields. Hearty feed for livestock." },
+    "worms": { name: "Červi", name_en: "Worms", icon: "🪱", type: "mat", desc: "Žížaly ze zahrady. Krmivo pro kapry.", desc_en: "Earthworms from the garden. Feed for carp." },
+    "acorns": { name: "Žaludy", name_en: "Acorns", icon: "🌰", type: "mat", desc: "Lesní plody z dubu. Krmivo pro prasata. Sbírají se na podzim.", desc_en: "Oak fruits from the forest. Pig fodder. Gathered in autumn." },
+    "leaves": { name: "Listí", name_en: "Leaves", icon: "🍃", type: "mat", desc: "Čerstvé listí stromů. Oblíbená pochutina koz.", desc_en: "Fresh tree leaves. A favourite treat for goats." },
+    "scraps": { name: "Zbytky", name_en: "Scraps", icon: "🍖", type: "mat", desc: "Kuchyňské zbytky. Prasata sní vše.", desc_en: "Kitchen scraps. Pigs eat everything." },
+    "snare": { name: "Oko na drobnou zvěř", name_en: "Small Game Snare", icon: "🪤", type: "tool", desc: "Drátěné oko od Lovce. Na plchy, veverky a ptáky — velká zvěř patří pánům.", desc_en: "A wire snare from the Hunter. For dormice, squirrels and birds — big game belongs to the lords." },
+    "caught_small_game": { name: "Ulovená drobná zvěř", name_en: "Caught Small Game", icon: "🐿️", type: "mat", desc: "Úlovek z oka. Prodej Lovci vcelku, nebo zpracuj nožem na maso, tuk a zbytky.", desc_en: "A snare catch. Sell whole to the Hunter, or dress it with a knife for meat, fat and scraps." },
+
+    // ── VITREA: klášterní vybavení (MRD vitrea-equipment-reference.md) ──
+    "wooden_bowl": { name: "Dřevěná miska", name_en: "Wooden Bowl", icon: "🥣", type: "tool", desc: "Řezaná z fošny. Nerozbitná. Základ klášterního stolu — sklo je luxus.", desc_en: "Carved from a plank. Unbreakable. The staple of the monastic table — glass is a luxury." },
+    "glass_stopper": { name: "Špunty", name_en: "Glass Stoppers", icon: "🔘", type: "tool", desc: "Skleněné zátky na láhve a baňky.", desc_en: "Glass stoppers for bottles and flasks." },
+    "glass_flask": { name: "Baňka", name_en: "Glass Flask", icon: "⚗️", type: "tool", desc: "Laboratorní sklo pro Athanor. Křehké — praská žárem.", desc_en: "Laboratory glass for the Athanor. Fragile — heat cracks it." },
+    "fly_trap_glass": { name: "Mucholapka", name_en: "Glass Fly Trap", icon: "🫙", type: "tool", desc: "Skleněná past na mouchy se sladkou návnadou. Doložený kus středověké domácnosti.", desc_en: "A glass fly trap with sweet bait. A documented piece of the medieval household." },
+    "glass_goblet": { name: "Číše", name_en: "Glass Goblet", icon: "🥂", type: "tool", desc: "Skleněná číše na víno. Stolní nádobí lepších dnů.", desc_en: "A glass goblet for wine. Tableware for better days." },
+    "glass_tankard": { name: "Půllitr", name_en: "Glass Tankard", icon: "🍺", type: "tool", desc: "Silnostěnný skleněný půllitr. Stolní nádobí.", desc_en: "A thick-walled glass tankard. Tableware." },
+    "glass_jug": { name: "Džbán", name_en: "Glass Jug", icon: "🏺", type: "tool", desc: "Džbán na vodu i víno. Stolní nádobí.", desc_en: "A jug for water and wine. Tableware." },
+    "glass_bowl": { name: "Mísa", name_en: "Glass Bowl", icon: "🫕", type: "tool", desc: "Skleněná mísa. Stolní nádobí.", desc_en: "A glass bowl. Tableware." },
+    "glass_pitcher": { name: "Konvice", name_en: "Glass Pitcher", icon: "🫖", type: "tool", desc: "Konvice se skleněným tělem. Stolní nádobí.", desc_en: "A pitcher with a glass body. Tableware." },
+    "glass_vase": { name: "Váza", name_en: "Glass Vase", icon: "🏵️", type: "tool", desc: "Ozdobná váza. Krása má v klášteře své místo.", desc_en: "A decorative vase. Beauty has its place in a monastery." },
+    "window_roundel": { name: "Okenní terčík", name_en: "Window Roundel", icon: "🟡", type: "tool", desc: "Kulatý terčík do olova okenní výplně. Světlo dovnitř, zima ven.", desc_en: "A round pane set in lead. Light in, cold out." },
+    "paternoster_beads": { name: "Páteříky", name_en: "Paternoster Beads", icon: "📿", type: "tool", desc: "Skleněné růžencové korálky. Sklářská pýcha českých hutí.", desc_en: "Glass rosary beads. The pride of Bohemian glassworks." },
+    "alembic": { name: "Alembik", name_en: "Alembic", icon: "⚗️", type: "tool", desc: "Destilační nádoba z čirého skla. Bez alembiku není destilace.", desc_en: "A distillation vessel of clear glass. No alembic, no distillation." },
+    "glass_mirror": { name: "Zrcadlo", name_en: "Glass Mirror", icon: "🪞", type: "tool", desc: "Broušené zrcadlo — vzácnost hodná biskupského stolu.", desc_en: "A polished mirror — a rarity fit for a bishop's table." },
+
+    "hostia": { name: "Hostie", name_en: "Host Wafers", icon: "🫓", type: "mat", desc: "Nekvašené oplatky z pšeničné mouky. Pečené v kleštích s vyrytým beránkem.", desc_en: "Unleavened wafers of wheat flour. Baked in irons engraved with the Lamb." },
+    "tanbark": { name: "Tříslo", name_en: "Tanbark", icon: "🟤", type: "mat", desc: "Dubová kůra drcená ve stoupě. Třísloviny pro koželužnu — hrubší než duběnky, ale je jí dost.", desc_en: "Oak bark crushed in a stamp mill. Tannins for the tannery — coarser than oak galls, but plentiful." },
+    "reliquia": { name: "Relikvie", name_en: "Relic", icon: "✨", type: "tool", desc: "Ostatek světce v pozlaceném relikviáři — dar Jeho Milosti za vzorný dům. Nelze koupit ani prodat.", desc_en: "A saint's relic in a gilded reliquary — a gift of His Grace for an exemplary house. Cannot be bought or sold." },
+
+    // ── PRODUKTY NOVÝCH ZVÍŘAT (easter eggs — zvířata teprve přijdou) ────────
+    "goat_hide": { name: "Kozí kůže", name_en: "Goat Hide", icon: "🐐", type: "mat", desc: "Kozí kůže poskytuje nejkvalitnější pergamen — tenký, pevný, málo mastný. Italské kláštery ho znaly jako standard.", desc_en: "Goat hide yields the finest parchment — thin, strong, little grease. Italian monasteries knew it as the standard." },
+    "goat_milk": { name: "Kozí mléko", name_en: "Goat Milk", icon: "🥛", type: "mat", desc: "Kozí mléko a syrovátka. Součást klášterní lékárny. Podávalo se nemocným bratrům.", desc_en: "Goat milk and whey. Part of the monastic infirmary. Served to ailing brothers." },
+    "cow_milk": { name: "Kravské mléko", name_en: "Cow Milk", icon: "🥛", type: "mat", desc: "Husté kravské mléko z klášterního chléva. Základ másla i sýra.", desc_en: "Rich cow's milk from the monastery byre. The base of butter and cheese." },
+    "lard": { name: "Sádlo", name_en: "Lard", icon: "🫙", type: "mat", desc: "Vepřové sádlo. Konzervant, mazivo i palivo do lamp.", desc_en: "Pig lard. Preservative, lubricant and lamp fuel." },
+    "cured_meat": { name: "Uzené maso", name_en: "Cured Meat", icon: "🥩", type: "food", desc: "Nasolené a uzené vepřové. Vydrží celou zimu. Zásobování konvršů a čeledi.", desc_en: "Salted and smoked pork. Lasts all winter. Provisions for lay brothers and servants." },
+    "beef": { name: "Hovězí maso", name_en: "Beef", icon: "🍖", type: "food_raw", desc: "Syrové hovězí z kravína. Uvař nebo usuš před jídlem.", desc_en: "Raw beef from the byre. Cook or cure before eating." },
+    "cured_beef": { name: "Uzené hovězí", name_en: "Cured Beef", icon: "🥩", type: "food", desc: "Nasolené a uzené hovězí. Vydrží celou zimu.", desc_en: "Salted and smoked beef. Lasts all winter." },
+    "quill_premium": { name: "Brk holubí", name_en: "Pigeon Quill", icon: "🪶", type: "mat", desc: "Holubí brk. Jemnější než husí, vhodný pro drobné písmo a iluminace.", desc_en: "Pigeon quill. Finer than goose feather, suited for small script and illumination." },
+    "pigeon_dung": { name: "Holubí trus", name_en: "Pigeon Dung", icon: "💩", type: "mat", desc: "Vysoce koncentrované hnojivo. Klášterní zahradníci ho sbírali z holubníku pro zahradu.", desc_en: "Highly concentrated fertiliser. Monastic gardeners collected it from the dovecote for the garden." },
+    "butter": { name: "Máslo", name_en: "Butter", icon: "🧈", type: "mat", desc: "Čerstvé máslo z kravského mléka. Postní výjimka u nemocných.", desc_en: "Fresh butter from cow's milk. A Lenten exception for the sick." },
+    "cheese": { name: "Sýr", name_en: "Cheese", icon: "🧀", type: "food", desc: "Tvrdý klášterní sýr. Trvanlivý, výživný. Prodávaný na trzích.", desc_en: "Hard monastic cheese. Long-lasting, nutritious. Sold at markets." },
+    "salt": { name: "Sůl", name_en: "Salt", icon: "🧂", type: "mat", desc: "Drahá obchodní komodita ze solných stezek. Bez ní se sýr nezasolí a brzy zkazí.", desc_en: "A costly trade good from the salt roads. Without it cheese cannot be salted and soon spoils." },
+    "rennet": { name: "Syřidlo", name_en: "Rennet", icon: "🫙", type: "mat", desc: "Sráží mléko pro výrobu sýra. Ze slezu mláděte nebo z bylin.", desc_en: "Curdles milk for cheesemaking. From a kid's stomach or from herbs." },
+    "galium": { name: "Svízel syřišťový", name_en: "Lady's Bedstraw", icon: "🌼", type: "mat", desc: "Žlutě kvetoucí bylina. Výluh sráží mléko — chudší alternativa ke slezu.", desc_en: "A yellow-flowering herb. Its extract curdles milk — a poor man's rennet." },
+
+    // ── CASEUS — sýry (4 typy × fáze zrání) ───────────────────────────────────
+    "goat_cheese_fresh": { name: "Kozí sýr (čerstvý)", name_en: "Goat Cheese (Fresh)", icon: "🧀", type: "food", desc: "Čerstvý kozí sýr. Měkký, rychle se zkazí.", desc_en: "Fresh goat cheese. Soft, spoils quickly." },
+    "goat_cheese_mature": { name: "Kozí sýr (zralý)", name_en: "Goat Cheese (Mature)", icon: "🧀", type: "food", desc: "Vyzrálý kozí sýr. Pevnější, výraznější chuť.", desc_en: "Matured goat cheese. Firmer, sharper flavour." },
+    "goat_cheese_aged": { name: "Kozí sýr (starý)", name_en: "Goat Cheese (Aged)", icon: "🧀", type: "food", desc: "Dlouho zrálý kozí sýr. Vzácný, vysoce ceněný.", desc_en: "Long-aged goat cheese. Rare, highly prized." },
+    "sheep_cheese_fresh": { name: "Ovčí sýr (čerstvý)", name_en: "Sheep Cheese (Fresh)", icon: "🧀", type: "food", desc: "Čerstvý ovčí sýr. Měkký, rychle se zkazí.", desc_en: "Fresh sheep cheese. Soft, spoils quickly." },
+    "sheep_cheese_mature": { name: "Ovčí sýr (zralý)", name_en: "Sheep Cheese (Mature)", icon: "🧀", type: "food", desc: "Vyzrálý ovčí sýr. Pevnější, výraznější chuť.", desc_en: "Matured sheep cheese. Firmer, sharper flavour." },
+    "sheep_cheese_aged": { name: "Ovčí sýr (starý)", name_en: "Sheep Cheese (Aged)", icon: "🧀", type: "food", desc: "Dlouho zrálý ovčí sýr. Vzácný, vysoce ceněný.", desc_en: "Long-aged sheep cheese. Rare, highly prized." },
+    "cow_cheese_fresh": { name: "Kravský sýr (čerstvý)", name_en: "Cow Cheese (Fresh)", icon: "🧀", type: "food", desc: "Čerstvý kravský sýr. Měkký, rychle se zkazí.", desc_en: "Fresh cow cheese. Soft, spoils quickly." },
+    "cow_cheese_mature": { name: "Kravský sýr (zralý)", name_en: "Cow Cheese (Mature)", icon: "🧀", type: "food", desc: "Vyzrálý kravský sýr. Pevnější, výraznější chuť.", desc_en: "Matured cow cheese. Firmer, sharper flavour." },
+    "cow_cheese_aged": { name: "Kravský sýr (starý)", name_en: "Cow Cheese (Aged)", icon: "🧀", type: "food", desc: "Dlouho zrálý kravský sýr. Vzácný, vysoce ceněný.", desc_en: "Long-aged cow cheese. Rare, highly prized." },
+    "syrecky_fresh": { name: "Syrečky (čerstvé)", name_en: "Curd Cheese (Fresh)", icon: "🧀", type: "food", desc: "Čerstvé syrečky z kysaného tvarohu. Olomoucká specialita — bez syřidla.", desc_en: "Fresh curd cheese from soured curds. An Olomouc speciality — no rennet needed." },
+    "syrecky_mature": { name: "Syrečky (zralé)", name_en: "Curd Cheese (Mature)", icon: "🧀", type: "food", desc: "Vyzrálé syrečky. Pronikavá vůně, výrazná chuť.", desc_en: "Matured curd cheese. Pungent aroma, sharp flavour." },
+    "cream": { name: "Smetana", name_en: "Cream", icon: "🥛", type: "mat", desc: "Hustá smetana sebraná z mléka. Vzácnost klášterní kuchyně — a slabost každé kočky.", desc_en: "Thick cream skimmed from milk. A rarity of the monastic kitchen — and every cat's weakness." },
+    "buttermilk": { name: "Podmáslí", name_en: "Buttermilk", icon: "🥛", type: "mat", desc: "Kyselé podmáslí, zbytek po stloukání másla. Osvěžující nápoj čeledi.", desc_en: "Sour buttermilk, left over from churning butter. A refreshing drink for the servants." },
+    "mouse": { name: "Myš", name_en: "Mouse", icon: "🐭", type: "mat", desc: "Klášterní myš. Žere zrní i pergamen. Kočka ji občas přinese jako dar.", desc_en: "A monastery mouse. Eats grain and parchment alike. The cat sometimes brings one as a gift." },
+    "rabbit_m": { name: "Králík ♂", name_en: "Rabbit ♂", icon: "🐇", type: "animal", desc: "Samec. V králíkárně se postará o přírůstky.", desc_en: "Male. Will take care of the offspring in the hutch." },
+    "rabbit_f": { name: "Králice ♀", name_en: "Rabbit ♀", icon: "🐇", type: "animal", desc: "Samice. Rodí mláďata každých 7 dní.", desc_en: "Female. Bears kits every 7 days." },
+    "rabbit_meat": { name: "Králičí maso", name_en: "Rabbit Meat", icon: "🍖", type: "food_raw", desc: "Jemné maso z králíkárny. Klášterní kuchyně ho cení.", desc_en: "Tender meat from the hutch. Prized by the monastic kitchen." },
+    "rabbit_pelt": { name: "Králičí kožka", name_en: "Rabbit Pelt", icon: "🦊", type: "mat", desc: "Měkká kožka. Na podšívky rukavic a lemování kapucí.", desc_en: "A soft pelt. For glove linings and hood trims.", },
+    "goat": { name: "Koza", name_en: "Goat", icon: "🐐", type: "animal", desc: "Kráva chudých. Mléko dává i v zimě a spase, co ovce odmítne.", desc_en: "The poor man's cow. Gives milk even in winter and grazes what sheep refuse." },
+    "piglet": { name: "Sele", name_en: "Piglet", icon: "🐖", type: "animal", desc: "Mladé prase. Za pár měsíců živá spižírna — krm ho žaludy.", desc_en: "A young pig. In a few months a living larder — feed it acorns." },
+    "acorn": { name: "Žalud", name_en: "Acorn", icon: "🌰", type: "mat", desc: "Dubový žalud. Prasata po nich rostou jako z vody.", desc_en: "An oak acorn. Pigs fatten on them remarkably." },
+    "churn": { name: "Máselnice", name_en: "Butter Churn", icon: "🛢️", type: "tool", desc: "Dřevěná máselnice. Hodiny stloukání promění smetanu v máslo — a zbude podmáslí.", desc_en: "A wooden churn. Hours of churning turn cream into butter — leaving buttermilk behind." },
+    "cheese_mold": { name: "Sýrařská forma", name_en: "Cheese Mold", icon: "🧺", type: "tool", desc: "Proutěný košík s plátnem. Odděluje syrovátku od tvarohu a dává sýru tvar.", desc_en: "A wicker basket lined with cloth. Separates whey from curd and shapes the cheese." },
+    "mousetrap": { name: "Pastička na myši", name_en: "Mousetrap", icon: "🪤", type: "tool", desc: "Dřevěná past s pružinou. Chytí myš denně — než se rozbije.", desc_en: "A wooden spring trap. Catches a mouse a day — until it breaks." },
+    "manure": { name: "Hnůj", name_en: "Manure", icon: "💩", type: "mat", desc: "Hnůj z klášterního dvora. Surovina pro výrobu kompostu. Každý úklid výběhu přidá 1–3 kusy.", desc_en: "Dung from the farmyard. Raw material for compost. Every pen clean-up adds 1–3 pieces." },
+
+    // ── BUDOUCÍ ZVÍŘATA (easter eggs — jen definice, mechanika přijde později) ─
+    "cow": { name: "Kráva", name_en: "Cow", icon: "🐄", type: "animal", desc: "Kráva: vellum z telete pro nejvzácnější kodexy, máslo, sýr. Velké kláštery jich měly desítky.", desc_en: "Cow: calf vellum for the rarest codices, butter, cheese. Great monasteries kept dozens." },
+    "donkey": { name: "Osel", name_en: "Donkey", icon: "🫏", type: "animal", desc: "Osel: vozí obilí ze sýpky do mlýna, pohání studnu. Levný, nenáročný, psychicky zdatný pro monotónní práci.", desc_en: "Donkey: carries grain from granary to mill, powers the well. Cheap, undemanding, mentally suited for monotonous work." },
+    "horse": { name: "Kůň", name_en: "Horse", icon: "🐴", type: "animal", desc: "Kůň: koňský potah ujede 30–40 km za den. Otevírá vzdálené trhy. Klášter ho potřebuje pro reprezentaci i vojenskou povinnost.", desc_en: "Horse: a horse-drawn cart covers 30–40 km a day. Opens distant markets. The monastery needs him for representation and military obligation." },
+    "mule": { name: "Mula", name_en: "Mule", icon: "🐴", type: "animal", desc: "Mula: církevní limuzína. Opati jezdili na bílých mulách jako symbol pokory i statusu. Horské stezky, solné cesty.", desc_en: "Mule: the ecclesiastical limousine. Abbots rode white mules as a symbol of humility and status. Mountain paths, salt roads." },
+    "pigeon": { name: "Holub", name_en: "Pigeon", icon: "🕊️", type: "animal", desc: "Holub: holubník jako zdroj čerstvého masa pro vzácné hosty, brků pro iluminátory a hnojiva pro zahradu.", desc_en: "Pigeon: the dovecote as a source of fresh meat for honoured guests, quills for illuminators, and dung for the garden." },
+    "pig": { name: "Prase", name_en: "Pig", icon: "🐷", type: "animal", desc: "Prase: přes léto na žaludění v lese, na zimu poraženo. Sádlo a uzené maso pro konvrše a čeleď. Mniši vepřové příliš nejedli.", desc_en: "Pig: summer grazing on acorns in the forest, slaughtered for winter. Lard and cured meat for lay brothers and servants. Monks ate little pork themselves." },
+    // ── ŽELEZNÁ RUDA + INGOT ────────────────────────────────────────────────
+    "iron_ore": { name: "Železná ruda", name_en: "Iron Ore", icon: "🪨", type: "mat", desc: "Surová železná ruda. Taví se s uhlím na ingot.", desc_en: "Raw iron ore. Smelted with charcoal into an ingot." },
+    "iron_ingot": { name: "Železný ingot", name_en: "Iron Ingot", icon: "⚙️", type: "mat", desc: "Odlitý prut železa. Základ kovářského řemesla.", desc_en: "Cast iron bar. The foundation of the blacksmith's craft." },
+    "anvil": { maxStack: 1, name: "Kovadlina", name_en: "Anvil", icon: "⚒️", type: "mat", desc: "Těžká železná kovadlina. Nutná pro stavbu kovárny.", desc_en: "Heavy iron anvil. Required to build the smithy." },
+
+    // ── HUTNÍ STAVBY ─────────────────────────────────────────────────────────
+    "fodina": { maxStack: 1, name: "Fodina (Důl)", name_en: "Fodina (Mine)", icon: "⛏️", type: "building", desc: "Klášterní důl na železnou rudu. Vyžaduje souhlas opata a horní privilegium.", desc_en: "Monastic iron ore mine. Requires the abbot's consent and mining rights." },
+    "fornax_ferraria": { maxStack: 1, name: "Fornax Ferraria (Huť)", name_en: "Fornax Ferraria (Smelting Furnace)", icon: "🔥", type: "building", desc: "Tavicí pec s měchy. Přetaví železnou rudu na ingoty. Vyžaduje souhlas opata.", desc_en: "Smelting furnace with bellows. Converts iron ore into ingots. Requires the abbot's consent." },
+
+    // ── OPOTŘEBENÉ ŽELEZNÉ NÁSTROJE ──────────────────────────────────────────
+    "worn_iron_axe": { maxUses: 3, name: "Otupená sekerka", name_en: "Worn Iron Axe", icon: "🪓", type: "tool", tier: "iron", desc: "Otupené železné ostří. Opravit v Kovárně.", desc_en: "Blunted iron blade. Repair at the Smithy." },
+    "worn_iron_spade": { maxUses: 3, name: "Tupý rýč", name_en: "Worn Iron Spade", icon: "⛏️", type: "tool", tier: "iron", desc: "Ohnutý železný rýč. Opravit v Kovárně.", desc_en: "Bent iron spade. Repair at the Smithy." },
+    "worn_iron_scythe": { maxUses: 3, name: "Tupá kosa", name_en: "Worn Iron Scythe", icon: "⚔️", type: "tool", tier: "iron", desc: "Otupenná železná kosa. Opravit v Kovárně.", desc_en: "Blunted iron scythe. Repair at the Smithy." },
+    "worn_iron_sickle": { maxUses: 3, name: "Tupý srp", name_en: "Worn Iron Sickle", icon: "🌾", type: "tool", tier: "iron", desc: "Otupenný železný srp. Opravit v Kovárně.", desc_en: "Blunted iron sickle. Repair at the Smithy." },
+    "worn_iron_flail": { maxUses: 3, name: "Uvolněný cep", name_en: "Worn Iron Flail", icon: "🪵", type: "tool", tier: "iron", desc: "Uvolněné závaží. Opravit v Kovárně.", desc_en: "Loose weight. Repair at the Smithy." },
+    "worn_iron_shovel": { maxUses: 3, name: "Ohnutá lopata", name_en: "Worn Iron Shovel", icon: "🪛", type: "tool", tier: "iron", desc: "Ohnutá železná lopata. Opravit v Kovárně.", desc_en: "Bent iron shovel. Repair at the Smithy." },
+    "worn_iron_saw": { maxUses: 3, name: "Tupá pila", name_en: "Worn Iron Saw", icon: "🪚", type: "tool", tier: "iron", desc: "Otupenné zuby pily. Opravit v Kovárně.", desc_en: "Blunted saw teeth. Repair at the Smithy." },
+    "worn_iron_pickaxe": { maxUses: 3, name: "Otupený krumpáč", name_en: "Worn Iron Pickaxe", icon: "⛏️", type: "tool", tier: "iron", desc: "Otupená železná hlava. Opravit v Kovárně.", desc_en: "Blunted iron head. Repair at the Smithy." },
+    "worn_iron_tongs": { maxUses: 3, name: "Opotřebené kleště", name_en: "Worn Iron Tongs", icon: "🔧", type: "tool", tier: "iron", desc: "Kleště na hranici životnosti. Přetavit nebo zahodit.", desc_en: "Tongs past their limit. Smelt or discard." },
+
+    // ── POLE (Ager) — plodiny ─────────────────────────────────────────────────
+    "rye_grain": { name: "Žitné zrno", name_en: "Rye Grain", icon: "🌾", type: "mat", desc: "Ozimé žito. Základ klášterského chleba a kaše. Krmivo pro dobytek.", desc_en: "Winter rye. The basis of monastic bread and porridge. Livestock fodder." },
+    "wheat_grain": { name: "Pšeničné zrno", name_en: "Wheat Grain", icon: "🌾", type: "mat", desc: "Pšenice jarní. Kvalitnější mouka než žitná. Lepší chléb a oplatky.", desc_en: "Spring wheat. Finer flour than rye. Better bread and wafers." },
+    "rye_grain_1": { name: "Žitné zrno (1. třída)", name_en: "Rye Grain (Grade 1)", icon: "🌾", type: "mat", desc: "Prvotřídní žito z vlastního pole. Nejlepší mouka.", desc_en: "Prime rye from your own field. The finest flour." },
+    "rye_grain_2": { name: "Žitné zrno (2. třída)", name_en: "Rye Grain (Grade 2)", icon: "🌾", type: "mat", desc: "Žito horší kvality — vlhko či paličkovice. Postačí na krmivo i mouku.", desc_en: "Lower-grade rye — dampness or ergot risk. Fine for feed or coarser flour." },
+    "wheat_grain_1": { name: "Pšeničné zrno (1. třída)", name_en: "Wheat Grain (Grade 1)", icon: "🌾", type: "mat", desc: "Prvotřídní pšenice z vlastního pole. Nejlepší mouka.", desc_en: "Prime wheat from your own field. The finest flour." },
+    "wheat_grain_2": { name: "Pšeničné zrno (2. třída)", name_en: "Wheat Grain (Grade 2)", icon: "🌾", type: "mat", desc: "Pšenice horší kvality — sucho a chvostky. Postačí na krmivo i mouku.", desc_en: "Lower-grade wheat — drought and screenings. Fine for feed or coarser flour." },
+    "barley": { name: "Ječmen", name_en: "Barley", icon: "🌾", type: "mat", desc: "Dvouřadý ječmen. Základ každého klášterního piva. Bez ječmene není pivovar.", desc_en: "Two-row barley. The basis of every monastic ale. Without barley, no brewery." },
+    "oats": { name: "Oves", name_en: "Oats", icon: "🌾", type: "mat", desc: "Oves setý. Krmivo pro koně a osla. Bez ovsa tažný dobytek ztrácí sílu.", desc_en: "Common oats. Feed for horses and donkeys. Without oats, draught animals lose strength." },
+    "millet": { name: "Proso", name_en: "Millet", icon: "🌾", type: "mat", desc: "Proso seté. Rychlá kaše, krmivo pro drůbež. Odolné i v suchu.", desc_en: "Common millet. Quick porridge, poultry feed. Resilient even in drought." },
+    "peas": { name: "Hrách", name_en: "Peas", icon: "🫛", type: "mat", desc: "Polní hrách. Polévka, krmivo, obohacuje půdu dusíkem.", desc_en: "Field peas. Soup, fodder, enriches soil with nitrogen." },
+    "flax_fiber": { name: "Lněná vlákna", name_en: "Flax Fibre", icon: "🧵", type: "mat", desc: "Stonky lnu po rosení a tření. Základ pro tkaní plátna a výrobu provazů.", desc_en: "Flax stalks after retting and breaking. The basis for weaving linen and making rope." },
+    "straw": { name: "Sláma", name_en: "Straw", icon: "🌿", type: "mat", desc: "Posklizňová sláma. Podestýlka pro zvířata, střešní krytina, krmivo pro skot.", desc_en: "Post-harvest straw. Bedding for animals, thatching material, fodder for cattle." },
+    "flour": { name: "Mouka", name_en: "Flour", icon: "⚪", type: "mat", desc: "Mletá pšeničná nebo žitná mouka. Základ pro chléb, oplatky a kaši.", desc_en: "Ground wheat or rye flour. The basis for bread, wafers and porridge." },
+    "flour_1": { name: "Mouka (1. třída)", name_en: "Flour (Grade 1)", icon: "⚪", type: "mat", desc: "Semleta z prvotřídního zrní vlastního pole. Nejlepší chléb a koláče.", desc_en: "Milled from prime grain off your own field. The finest bread and pastries." },
+    "flour_2": { name: "Mouka (2. třída)", name_en: "Flour (Grade 2)", icon: "⚪", type: "mat", desc: "Běžná mouka — z horšího zrní nebo koupená. Postačí na denní chléb.", desc_en: "Common flour — lower-grade or bought. Fine for everyday bread." },
+    "grain_feed": { name: "Zrní (krmivo)", name_en: "Grain Feed", icon: "🌾", type: "mat", desc: "Směs zrní pro drůbež a prasata. Udržuje zdraví zvířat.", desc_en: "Grain mix for poultry and pigs. Maintains animal health." },
+    "goose_quill": { name: "Husí pero", name_en: "Goose Quill", icon: "🪶", type: "tool", desc: "Nejlepší pero pro písaře. Tvrdší a pružnější než slepičí. Husy pro skriptorium.", desc_en: "The finest quill for scribes. Harder and more flexible than a hen's feather. Geese for the scriptorium." },
+
+    // ── VINOHRAD (Vinea) — řízky ──────────────────────────────────────────────
+    "viticis_belina": { name: "Řízek Běliny", name_en: "Heunisch Cutting", icon: "🌿", type: "mat", desc: "Řízek Běliny (Heunisch). Nejstarší moravská odrůda. Zasadit do Vinohradu.", desc_en: "Heunisch cutting. The oldest Moravian variety. Plant in the Vineyard." },
+    "viticis_klevner": { name: "Řízek Klevneru", name_en: "Klevner Cutting", icon: "🌿", type: "mat", desc: "Řízek Klevneru (Rulandské bílé). Burgundská odrůda z doby Karla IV. Zasadit do Vinohradu.", desc_en: "Klevner (Burgundy white) cutting. A Burgundian variety since Charles IV. Plant in the Vineyard." },
+    "viticis_frankovka": { name: "Řízek Frankovky", name_en: "Frankovka Cutting", icon: "🌿", type: "mat", desc: "Řízek Frankovky. Nejrozšířenější modrá odrůda na Moravě. Zasadit do Vinohradu.", desc_en: "Frankovka cutting. The most widespread blue variety in Moravia. Plant in the Vineyard." },
+    "viticis_tramin": { name: "Řízek Tramínu", name_en: "Traminer Cutting", icon: "🌿", type: "mat", desc: "Řízek Tramínu červeného. Vzácný. Získat jen z vlastní révy nebo od cizince.", desc_en: "Red Traminer cutting. Rare. Obtain only from your own vine or a stranger." },
+    "viticis_modry_janek": { name: "Řízek Modrého Janka", name_en: "Modrý Janek Cutting", icon: "🌿", type: "mat", desc: "Řízek Modrého Janka. Mutace Veltlínského zeleného, znojemská rarita. Zasadit do Vinohradu.", desc_en: "Modrý Janek cutting. A mutation of Grüner Veltliner, a Znojmo rarity. Plant in the Vineyard." },
+
+    // ── VINOHRAD (Vinea) — výstupy ────────────────────────────────────────────
+    "mustum": { name: "Mustum", name_en: "Mustum", icon: "🍇", type: "food", hunger: 4, desc: "Čerstvý hroznový mošt. Rychle se kazí. Prodat nebo fermentovat.", desc_en: "Fresh grape must. Spoils quickly. Sell or ferment." },
+    "pryk": { name: "Pryk", name_en: "Pryk", icon: "🍶", type: "food", hunger: 3, desc: "Nedozrálé víno z Běliny. Kyselé, levné, oblíbené u konvršů.", desc_en: "Unripe wine from Heunisch. Sour, cheap, popular with lay brothers." },
+    "vinum": { name: "Vinum", name_en: "Vinum", icon: "🍷", type: "food", hunger: 5, desc: "Klášterní bílé víno z Klevneru. In vino veritas.", desc_en: "Monastic white wine from Klevner. In vino veritas." },
+    "vinum_rubrum": { name: "Vinum Rubrum", name_en: "Vinum Rubrum", icon: "🍷", type: "food", hunger: 5, desc: "Červené víno z Frankovky. Temnější barva, jiný odběratel než bílé.", desc_en: "Red wine from Frankovka. Darker colour, different buyer than white." },
+    "vinum_praeclarum": { name: "Vinum Praeclarum", name_en: "Vinum Praeclarum", icon: "🏺", type: "food", hunger: 6, desc: "Vzácné bílé víno z Tramínu. Nejdražší víno v klášteře. Pro biskupský stůl.", desc_en: "Rare white wine from Traminer. The costliest wine in the monastery. For the bishop's table." },
+    "vinum_obscurum": { name: "Vinum Obscurum", name_en: "Vinum Obscurum", icon: "🫙", type: "food", hunger: 4, desc: "Tmavé víno z Modrého Janka. Nízký výnos, znojemská kuriozita. Bonus v Athanoru.", desc_en: "Dark wine from Modrý Janek. Low yield, a Znojmo curiosity. Bonus in the Athanor." },
+    "viticis_baco": { name: "Řízek Baga", name_en: "Baco Noir Cutting", icon: "🌿", type: "mat", desc: "Řízek Baco Noir (Bago). Odolný hybrid, divoce rostoucí. Vzácný nález při sběru.", desc_en: "Baco Noir (Bago) cutting. A resilient hybrid, found growing wild. A rare find." },
+    "vinum_baci": { name: "Vinum Baci", name_en: "Vinum Baci", icon: "🍷", type: "food", hunger: 4, desc: "Tmavě rubínové víno z Baga. Silné barvivo, vhodné ke scelování. Lidové víno jižní Moravy.", desc_en: "Dark ruby wine from Baco Noir. Strong colourant, good for blending. A southern Moravian folk wine." },
+    "raisins": { name: "Hrozinky", name_en: "Raisins", icon: "🍇", type: "food", hunger: 3, desc: "Sušené hrozny z Uvaria. Trvanlivé, sladké. Vhodné do jídla nebo na prodej.", desc_en: "Dried grapes from the Uvarium. Long-lasting and sweet. Good for food or trade." },
+    "linseed_oil": { name: "Lněný olej", name_en: "Linseed Oil", icon: "🫙", type: "mat", desc: "Olej lisovaný z lněného semene. Pojivo pro inkoust a pigmenty. Propojuje Pole se Skriptoriem.", desc_en: "Oil pressed from linseed. Binder for ink and pigments. Links the Field to the Scriptorium." },
+
+    // ── VINOHRAD (Vinea) — zpracování (hrozny + mošt) ──────────────────────────
+    "grapes_belina": { name: "Hrozny Běliny", name_en: "Heunisch Grapes", icon: "🍇", type: "food", hunger: 2, desc: "Čerstvé hrozny z Běliny. Jíst syrové, nebo nalisovat v Prelu.", desc_en: "Fresh Heunisch grapes. Eat raw, or press at the Prelum." },
+    "grapes_klevner": { name: "Hrozny Klevneru", name_en: "Klevner Grapes", icon: "🍇", type: "food", hunger: 2, desc: "Čerstvé hrozny z Klevneru. Jíst syrové, nebo nalisovat v Prelu.", desc_en: "Fresh Klevner grapes. Eat raw, or press at the Prelum." },
+    "grapes_frankovka": { name: "Hrozny Frankovky", name_en: "Frankovka Grapes", icon: "🍇", type: "food", hunger: 2, desc: "Čerstvé hrozny z Frankovky. Jíst syrové, nebo nalisovat v Prelu.", desc_en: "Fresh Frankovka grapes. Eat raw, or press at the Prelum." },
+    "grapes_tramin": { name: "Hrozny Tramínu", name_en: "Traminer Grapes", icon: "🍇", type: "food", hunger: 2, desc: "Čerstvé hrozny z Tramínu. Jíst syrové, nebo nalisovat v Prelu.", desc_en: "Fresh Traminer grapes. Eat raw, or press at the Prelum." },
+    "grapes_modry_janek": { name: "Hrozny Modrého Janka", name_en: "Modrý Janek Grapes", icon: "🍇", type: "food", hunger: 2, desc: "Čerstvé hrozny z Modrého Janka. Jíst syrové, nebo nalisovat v Prelu.", desc_en: "Fresh Modrý Janek grapes. Eat raw, or press at the Prelum." },
+    "grapes_baco": { name: "Hrozny Baga", name_en: "Baco Noir Grapes", icon: "🍇", type: "food", hunger: 2, desc: "Čerstvé hrozny z Baco Noir. Jíst syrové, nebo nalisovat v Prelu.", desc_en: "Fresh Baco Noir grapes. Eat raw, or press at the Prelum." },
+    "mustum_klevner": { name: "Mošt z Klevneru", name_en: "Klevner Must", icon: "🍶", type: "mat", desc: "Nalisovaný mošt z Klevneru. Čeká na fermentaci v Cella fermentaria.", desc_en: "Pressed must from Klevner. Awaits fermentation at the Cella fermentaria." },
+    "mustum_frankovka": { name: "Mošt z Frankovky", name_en: "Frankovka Must", icon: "🍶", type: "mat", desc: "Nalisovaný mošt z Frankovky. Čeká na fermentaci v Cella fermentaria.", desc_en: "Pressed must from Frankovka. Awaits fermentation at the Cella fermentaria." },
+    "mustum_tramin": { name: "Mošt z Tramínu", name_en: "Traminer Must", icon: "🍶", type: "mat", desc: "Nalisovaný mošt z Tramínu. Čeká na fermentaci v Cella fermentaria.", desc_en: "Pressed must from Traminer. Awaits fermentation at the Cella fermentaria." },
+};
+// Oprava BUG #2 — semena stromů chybějící v ItemsDB (Trh nákup)
+// (vloženo před uzavírací }; — merge do objektu před buildem)
+// ── KADIDLO (Thuribulum) ─────────────────────────────────────────────────
+// Přidáno jako Object.assign — bezpečný merge bez zásahu do stávajícího kódu
+Object.assign(ItemsDB, {
+    // Suroviny — pryskyřice
+    "resin_spruce": { name: "Smrková pryskyřice", name_en: "Spruce Resin", icon: "🌲", type: "mat", desc: "Obyčejná smrková smůla nasbíraná v lese. Základ nejjednodušší kadidelné směsi.", desc_en: "Common spruce pitch from the forest. The basis of the simplest incense blend." },
+    "resin_pine": { name: "Borová pryskyřice", name_en: "Pine Resin", icon: "🌲", type: "mat", desc: "Lepkavá pryskyřice borového stromu. Dioscorides stromy Pitys a Peuce chválil pro jejich stahující vlastnosti.", desc_en: "Sticky pine resin. Dioscorides praised the Pitys and Peuce trees for their astringent properties." },
+    "resin_styrax": { name: "Styrax", name_en: "Styrax", icon: "🏺", type: "mat", desc: "Vzácná pryskyřice styraxového stromu dovážená z Levanty. Hojně využívaná v klášterních vykuřovadlech.", desc_en: "Rare resin of the styrax tree, imported from the Levant. Widely used in monastic incenses." },
+    "resin_olibanum": { name: "Olibanum", name_en: "Olibanum", icon: "✨", type: "mat", desc: "Pravé arabské kadidlo (Libanon Thus). Jak píše Dioscorides: dobré kadidlo je bílé, uvnitř mastné a hoří rovným plamenem.", desc_en: "True Arabian frankincense (Libanon Thus). As Dioscorides writes: good frankincense is white, oily within, and burns with a straight flame." },
+    // Hotová kadidla (consumable)
+    "incense_spruce": { name: "Smrkové kadidlo", name_en: "Spruce Incense", icon: "💨", type: "consumable", desc: "Hrouda smrčí smůly a uhlíku. Slabě vonící, ale dostupná útěcha pro únaveného písaře. Hoří 10 sekund.", desc_en: "A lump of spruce pitch and charcoal. Faint-scented but accessible comfort for a weary scribe. Burns for 10 seconds." },
+    "incense_pine": { name: "Borové kadidlo", name_en: "Pine Incense", icon: "💨", type: "consumable", desc: "Voní hlubokým lesem a pryskyřicí. Při hoření tiší únavu těla i mysli. Hoří 15 sekund.", desc_en: "Smells of deep forest and resin. Soothes the fatigue of body and mind while burning. Burns for 15 seconds." },
+    "incense_styrax": { name: "Styraxové kadidlo", name_en: "Styrax Incense", icon: "💨", type: "consumable", desc: "Sladce a těžce vonící kadidlo pro jasnou mysl. Oblíbené v byzantských klášterech. Hoří 22 sekund.", desc_en: "Sweet and heavy-scented incense for a clear mind. Favoured in Byzantine monasteries. Burns for 22 seconds." },
+    "incense_olibanum": { name: "Olibanum", name_en: "Olibanum Incense", icon: "💨", type: "consumable", desc: "Posvátný dým arabského kadidla. Kouř stoupá k nebi jako modlitba. Očišťuje tělo i ducha. Hoří 30 sekund.", desc_en: "Sacred smoke of Arabian frankincense. The smoke rises heavenward like a prayer. Purifies body and spirit. Burns for 30 seconds." },
+});
+// ═══ src/data/recipes.js ═══
+const RecipesDB = [
+    // BASIC TOOLS
+    { id: "sharp_stone", output: "sharp_stone", qty: 1, req: { "rock": 2 }, cat: "stone" },
+    { id: "rope", output: "rope", qty: 1, req: { "fiber": 3 }, cat: "craft" },
+    { id: "stone_knife", output: "stone_knife", qty: 1, req: { "sharp_stone": 1, "stick": 1, "rope": 1 }, cat: "stone" },
+    { id: "charcoal", output: "charcoal", qty: 2, req: { "stick": 2 }, cat: "fire" },
+    { id: "pestle", output: "pestle", qty: 1, req: { "rock": 2, "sharp_stone": 1 }, cat: "stone" },
+    { id: "flint", output: "flint", qty: 1, req: { "rock": 2 }, cat: "stone" },
+    { id: "primitive_torch", output: "primitive_torch", qty: 1, req: { "stick": 1, "fat": 1 }, cat: "fire", blind: true },
+    { id: "tinderbox", output: "tinderbox", qty: 1, req: { "bark": 1, "fiber": 1 }, cat: "fire", blind: true },
+    { id: "hoe", output: "hoe", qty: 1, req: { "sharp_stone": 1, "stick": 2, "rope": 1 }, cat: "stone" },
+    { id: "bonemeal", output: "bonemeal", qty: 3, req: { "bone": 1, "pestle": 0 }, cat: "craft" },
+    
+    // LORE SYSTEM
+    { id: "pulp", output: "pulp", qty: 1, req: { "rags": 2, "water": 1, "pestle": 0 }, cat: "parchment" },
+    { id: "paper", output: "paper", qty: 1, req: { "pulp": 2 }, cat: "parchment" },
+    { id: "ink", output: "ink", qty: 1, req: { "charcoal": 1, "water": 1, "pestle": 0 }, cat: "parchment" },
+    { id: "research", output: "research", qty: 1, req: { "paper": 1, "ink": 1 }, cat: "lore" },
+    
+    // COOKING TOOLS
+    { id: "fishing_rod", output: "fishing_rod", qty: 1, req: { "stick": 2, "rope": 1, "bone": 1 }, cat: "stone", locked: true },
+    { id: "cooking_pot", output: "cooking_pot", qty: 1, req: { "rock": 3, "water": 1 }, cat: "craft", locked: true },
+    { id: "tea_kettle", output: "tea_kettle", qty: 1, req: { "clay": 3, "water": 1 }, cat: "craft", locked: true },
+    { id: "basket", output: "basket", qty: 1, req: { "fiber": 5, "stick": 2 }, cat: "craft", locked: true },
+
+    // LACTARIA — zpracování mléka (tech_lactaria)
+    { id: "wooden_bowl", output: "wooden_bowl", qty: 2, req: { "plank": 1 },                cat: "craft", locked: true },
+    { id: "hostia",      output: "hostia",      qty: 5, req: { "flour_2": 1, "water": 1 },  cat: "craft", locked: true },
+    { id: "mousetrap", output: "mousetrap", qty: 1, req: { "plank": 2, "rope": 1 },          cat: "craft", locked: true },
+    { id: "churn",  output: "churn",  qty: 1, req: { "plank": 5, "rope": 2 },               cat: "craft", locked: true },
+    { id: "cream",  output: "cream",  qty: 1, req: { "goat_milk": 2 },                      cat: "food",  locked: true },
+    { id: "butter", output: "butter", qty: 1, req: { "milk": 3, "churn": 0 },               cat: "food",  locked: true, byproduct: { id: "buttermilk", qty: 1 } },
+
+    // CASEUS — sýrařství (tech_caseus, viz krok 2e)
+    { id: "rennet_galium", output: "rennet", qty: 1, req: { "galium": 3 },                  cat: "food",  locked: true },
+    { id: "cheese_mold",   output: "cheese_mold", qty: 1, req: { "plank": 3, "fiber": 4 },   cat: "craft", locked: true },
+    { id: "goat_cheese",   output: "goat_cheese_fresh",  qty: 1, req: { "goat_milk": 4, "rennet": 1, "cheese_mold": 0 }, cat: "food", locked: true },
+    { id: "sheep_cheese",  output: "sheep_cheese_fresh", qty: 1, req: { "milk": 4, "rennet": 1, "cheese_mold": 0 },       cat: "food", locked: true },
+    { id: "cow_cheese",    output: "cow_cheese_fresh",   qty: 1, req: { "cow_milk": 4, "rennet": 1, "cheese_mold": 0 },   cat: "food", locked: true },
+    { id: "syrecky",       output: "syrecky_fresh",      qty: 1, req: { "milk": 3, "cheese_mold": 0 },                    cat: "food", locked: true },
+    
+    // NEW RECIPES - Mini-games & Notebooks
+    { id: "playing_cards", output: "playing_cards", qty: 1, req: { "paper": 5, "ink": 1 }, cat: "lore", locked: true },
+	{
+	  id: "recipe_iching_book",
+	  output: "iching_book",
+	  qty: 1,
+	  req: {
+		paper: 32,  // 2x 64 hexagramů (polovina každého listu)
+		ink: 15,
+		herb_blue: 3,  // Levandule pro koncentraci
+		herb_yellow: 3, // Heřmánek pro moudrost
+		charcoal: 5
+	  },
+	  cat: "lore",
+	  locked: true,
+	  desc: "Kniha šedesáti čtyř proměn. Odhaluje skrytý řád vesmíru."
+	},
+	
+	// PŘIDAT na konec pole RecipesDB (před poslední ]):
+
+	{
+		id: "repair_kit",
+		output: "repair_kit",
+		qty: 1,
+		req: { stick: 5, rope: 2, rock: 3 },
+		cat: "craft",
+		locked: true, // Unlock: tech_well_maintenance
+		desc: "Sada na opravu studny.", desc_en: "Kit for well repairs."
+	},
+
+	{
+		id: "purification_powder",
+		output: "purification_powder",
+		qty: 1,
+		req: { ash: 2, charcoal: 1, herb_blue: 1, pestle: 0 },
+		cat: "alchemy",
+		locked: true, // Unlock: tech_well_maintenance
+		desc: "Vyčistí znečištěnou studnu.", desc_en: "Purifies a contaminated well."
+	},
+	{
+    id: "rithmomachia_board",
+    output: "rithmomachia_board",
+    qty: 1,
+    req: { 
+        paper: 64,          // 8×8 board
+        ink: 20,            // čísla
+        preservation_oil: 3,
+        bone: 24,           // bílé kameny
+        charcoal: 24        // černé kameny
+    },
+    cat: "lore",
+    locked: true,
+    desc: "Hra filozofů - Pythagorejská matematika v bitvě.", desc_en: "The Philosophers' Game - Pythagorean mathematics in battle."
+	},
+	{
+    id: "primero_deck",
+    output: "primero_deck",
+    qty: 1,
+    req: { paper: 40, ink: 10, preservation_oil: 2 },
+    cat: "lore",
+    locked: true,
+    desc: "Španělský balíček pro Primero.", desc_en: "Spanish deck for Primero."
+	},
+
+	{
+		id: "karnoffel_deck",
+		output: "karnoffel_deck",
+		qty: 1,
+		req: { paper: 48, ink: 12, charcoal: 5 },
+		cat: "lore",
+		locked: true,
+		desc: "Německý trumfový balíček.", desc_en: "German trump deck."
+	},
+
+	{
+		id: "french_deck",
+		output: "french_deck",
+		qty: 1,
+		req: { paper: 52, ink: 15, preservation_oil: 3, herb_blue: 2 },
+		cat: "lore",
+		locked: true,
+		desc: "Francouzský balíček 52 karet.", desc_en: "French deck of 52 cards."
+	},
+	
+	{
+    id: "ur_board",
+    output: "ur_board",
+    qty: 1,
+    req: { 
+        paper: 20,      // herní plán
+        ink: 5,         // políčka
+        resin: 2,       // lakování desky
+        bone: 7,        // kostěné žetony
+        rock: 4         // 4 pyramidové kostky
+    },
+    cat: "lore",
+    locked: true,
+    desc: "Nejstarší desková hra světa - 2600 př.n.l.", desc_en: "The world's oldest board game - 2600 BC."
+	},
+    
+    // NOTEBOOKS (5 types - progressive)
+    { id: "tabula", output: "tabula", qty: 1, req: { "stick": 2, "fat": 1, "charcoal": 1 }, cat: "lore", locked: true },
+    { id: "adversaria", output: "adversaria", qty: 1, req: { "paper": 5, "ink": 2, "rope": 1 }, cat: "codex", locked: true },
+    { id: "vademecum", output: "vademecum", qty: 1, req: { "leather": 1, "paper": 10, "ink": 3 }, cat: "codex", locked: true },
+    { id: "florilegium", output: "florilegium", qty: 1, req: { "leather": 2, "paper": 15, "ink": 5, "herb_yellow": 3 }, cat: "codex", locked: true },
+    { id: "enchiridion", output: "enchiridion", qty: 1, req: { "leather": 3, "paper": 20, "ink": 8, "preservation_oil": 1 }, cat: "codex", locked: true },
+    
+    // COOKING RECIPES (vyžadují krb + pot)
+    { id: "cooked_meat", output: "cooked_meat", qty: 1, req: { "meat": 1, "cooking_pot": 0 }, cat: "food", locked: true },
+    { id: "cooked_beef", output: "cooked_beef", qty: 1, req: { "beef": 1, "cooking_pot": 0 }, cat: "food", locked: true },
+    { id: "cooked_mutton", output: "cooked_mutton", qty: 1, req: { "mutton": 1, "cooking_pot": 0 }, cat: "food", locked: true },
+    { id: "cooked_chicken", output: "cooked_chicken", qty: 1, req: { "chicken_meat": 1, "cooking_pot": 0 }, cat: "food", locked: true },
+    { id: "cooked_rabbit", output: "cooked_rabbit", qty: 1, req: { "rabbit_meat": 1, "cooking_pot": 0 }, cat: "food", locked: true },
+    { id: "roast_beef", output: "roast_beef", qty: 1, req: { "cooked_beef": 1, "onion": 1, "cooking_pot": 0 }, cat: "food", locked: true },
+    { id: "braised_beef", output: "braised_beef", qty: 1, req: { "cooked_beef": 1, "carrot": 1, "cooking_pot": 0 }, cat: "food", locked: true },
+    { id: "roast_rabbit_dish", output: "roast_rabbit_dish", qty: 1, req: { "cooked_rabbit": 1, "carrot": 1, "cabbage": 1, "cooking_pot": 0 }, cat: "food", locked: true },
+    { id: "cooked_fish", output: "cooked_fish", qty: 1, req: { "fish": 1, "cooking_pot": 0 }, cat: "food", locked: true },
+    { id: "crayfish_boiled", output: "crayfish_boiled", qty: 1, req: { "crayfish": 3, "beer": 1, "cooking_pot": 0 }, cat: "food", locked: true, desc: "Raci vaření v pivu s kmínem.", desc_en: "Crayfish boiled in beer with caraway." },
+    { id: "snails_black_sauce", output: "snails_black_sauce", qty: 1, req: { "snail": 4, "bread": 1, "honey": 1, "fat": 1, "cooking_pot": 0 }, cat: "food", locked: true, desc: "Hlemýždi v omáčce zahuštěné chlebem.", desc_en: "Snails in a bread-thickened sauce." },
+    { id: "frog_legs_prep", output: "frog_legs", qty: 1, req: { "frog": 1 }, cat: "food", locked: true, desc: "Stažení a příprava žabích stehýnek.", desc_en: "Skinning and preparing frog legs." },
+    { id: "frog_legs_fried", output: "frog_legs_fried", qty: 1, req: { "frog_legs": 2, "fat": 1, "garlic": 1, "cooking_pot": 0 }, cat: "food", locked: true, desc: "Stehýnka osmažená na sádle s česnekem.", desc_en: "Legs fried in lard with garlic." },
+    { id: "stew", output: "stew", qty: 1, req: { "meat": 1, "carrot": 1, "turnip": 1, "water": 1, "cooking_pot": 0 }, cat: "food", locked: true },
+    { id: "mushroom_soup", output: "mushroom_soup", qty: 1, req: { "mushroom": 2, "onion": 1, "water": 1, "cooking_pot": 0 }, cat: "food", locked: true },
+    { id: "spring_herb_porridge", output: "spring_herb_porridge", qty: 1, req: { "nettle": 1, "ground_elder": 1, "goosefoot": 1, "oats": 1, "cooking_pot": 0 }, cat: "food", locked: true, desc: "Jarní bylinková kaše.", desc_en: "Spring herb porridge." },
+    { id: "burdock_root_baked", output: "burdock_root_baked", qty: 1, req: { "burdock_root": 2 }, cat: "food", locked: true, desc: "Upečeno přímo v popelu, žádný hrnec netřeba.", desc_en: "Baked directly in the ashes, no pot needed." },
+    { id: "couch_grass_flour", output: "couch_grass_flour", qty: 1, req: { "couch_grass": 3 }, cat: "food", locked: true, desc: "Umleto v hmoždíři.", desc_en: "Ground in a mortar." },
+    { id: "cattail_root_flour", output: "couch_grass_flour", qty: 1, req: { "cattail_root": 3 }, cat: "food", locked: true, desc: "Umleto v hmoždíři.", desc_en: "Ground in a mortar." },
+    { id: "rosehip_sauce", output: "rosehip_sauce", qty: 1, req: { "rosehip": 3, "bread": 1, "cooking_pot": 0 }, cat: "food", locked: true, desc: "Šípková jícha.", desc_en: "Rosehip sauce." },
+    { id: "famine_bread", output: "famine_bread", qty: 1, req: { "acorn": 2, "beechnut": 2, "pestle": 0 }, cat: "food", locked: true, desc: "Hladový chléb ze žaludů a bukvic.", desc_en: "Famine bread from acorns and beechnuts." },
+    { id: "dried_wild_fruit", output: "dried_wild_fruit", qty: 1, req: { "wild_fruit": 2, "cornel_cherry": 1 }, cat: "food", locked: true, desc: "Křížaly sušené na peci.", desc_en: "Dried fruit by the oven." },
+    { id: "sloe_jam", output: "sloe_jam", qty: 1, req: { "sloe": 3, "cooking_pot": 0 }, cat: "food", locked: true, desc: "Trnková povidla, bez cukru, dlouhé vaření.", desc_en: "Sloe jam, no sugar, long boiling." },
+    { id: "morel_stuffed", output: "morel_stuffed", qty: 1, req: { "morel": 3, "bread": 1, "garlic": 1, "fat": 1, "cooking_pot": 0 }, cat: "food", locked: true, desc: "Plněné smrže.", desc_en: "Stuffed morels." },
+    { id: "pickled_mushrooms", output: "pickled_mushrooms", qty: 1, req: { "saffron_milk_cap": 2, "porcini": 1, "barrel_tool": 0 }, cat: "food", locked: true, desc: "Naložené houby v slaném nálevu.", desc_en: "Pickled mushrooms in brine." },
+    { id: "smazenice", output: "smazenice", qty: 1, req: { "mushroom": 3, "onion": 1, "egg": 2, "cooking_pot": 0 }, cat: "food", locked: true },
+    { id: "bread", output: "bread", qty: 2, req: { "fiber": 3, "water": 1, "cooking_pot": 0 }, cat: "food", locked: true },
+    { id: "bread_fine", output: "bread_fine", qty: 2, req: { "flour_2": 3, "water": 1, "cooking_pot": 0 }, cat: "food", locked: true },
+    { id: "bread_fine_1", output: "bread_fine_1", qty: 2, req: { "flour_1": 3, "water": 1, "cooking_pot": 0 }, cat: "food", locked: true },
+    { id: "berry_pie",      output: "berry_pie",      qty: 1, req: { "berries": 3, "honey": 1, "cooking_pot": 0 }, cat: "food", locked: true },
+    { id: "berry_pie_fine",   output: "berry_pie_fine",   qty: 1, req: { "flour_2": 2, "berries": 3, "honey": 1, "cooking_pot": 0 }, cat: "food", locked: true },
+    { id: "berry_pie_fine_1", output: "berry_pie_fine_1", qty: 1, req: { "flour_1": 2, "berries": 3, "honey": 1, "cooking_pot": 0 }, cat: "food", locked: true },
+    // Bylinné nápoje — snižují Únavu, bez Athanoru
+    { id: "herbal_tea",     output: "herbal_tea",     qty: 1, req: { "chamomile": 1, "water": 1, "cooking_pot": 0 }, cat: "food", locked: true,
+      desc: "Heřmánkový čaj. Únava -15.", desc_en: "Chamomile tea. Fatigue -15." },
+    { id: "herbal_tea_alt", output: "herbal_tea",     qty: 1, req: { "thyme": 1, "water": 1, "cooking_pot": 0 }, cat: "food", locked: true,
+      desc: "Tymiánový čaj. Únava -15.", desc_en: "Thyme tea. Fatigue -15." },
+    { id: "hildegard_tisane", output: "hildegard_tisane", qty: 1, req: { "chamomile": 1, "thyme": 1, "honey": 1, "water": 1, "cooking_pot": 0 }, cat: "food", locked: true,
+      desc: "Hildegardin recept. Únava -20.", desc_en: "Hildegard's recipe. Fatigue -20." },
+    { id: "acorn_roasted",  output: "acorn_roasted",  qty: 1, req: { "acorn": 2, "cooking_pot": 0 }, cat: "food", locked: true,
+      desc: "Pražené a mleté žaludy. Příprava na Žaludovku.", desc_en: "Roasted, ground acorns. Preparation for Acorn Brew." },
+    { id: "chicory_roasted", output: "chicory_roasted", qty: 1, req: { "roots": 2, "cooking_pot": 0 }, cat: "food", locked: true,
+      desc: "Pražená a mletá čekanka. Příprava na Cikorku.", desc_en: "Roasted, ground chicory root. Preparation for Chicory Coffee." },
+    { id: "acorn_brew",     output: "acorn_brew",     qty: 1, req: { "acorn_roasted": 1, "water": 1, "cooking_pot": 0 }, cat: "food", locked: true,
+      desc: "Žaludovka. Únava -10.", desc_en: "Acorn brew. Fatigue -10." },
+    { id: "chicory_drink",  output: "chicory_drink",  qty: 1, req: { "chicory_roasted": 1, "water": 1, "cooking_pot": 0 }, cat: "food", locked: true,
+      desc: "Cikorka. Únava -12.", desc_en: "Chicory coffee. Fatigue -12." },
+    { id: "linden_tea",     output: "linden_tea",     qty: 1, req: { "linden_blossom": 1, "water": 1, "cooking_pot": 0 }, cat: "food", locked: true,
+      desc: "Lipový čaj. Únava -8, Sytost +8.", desc_en: "Linden tea. Fatigue -8, Satiety +8." },
+    // Šrot — krmivo z polního zrní (4:2, libovolný druh)
+    { id: "feed_meal_rye",    output: "feed_meal", qty: 2, req: { "rye_grain": 4 },  cat: "craft", locked: true,
+      desc: "Šrot ze žita. Krmivo pro dobytek.", desc_en: "Feed meal from rye. Livestock feed." },
+    { id: "feed_meal_rye_1",  output: "feed_meal", qty: 2, req: { "rye_grain_1": 4 }, cat: "craft", locked: true,
+      desc: "Šrot z prvotřídního žita. Krmivo pro dobytek.", desc_en: "Feed meal from grade-1 rye. Livestock feed." },
+    { id: "feed_meal_rye_2",  output: "feed_meal", qty: 2, req: { "rye_grain_2": 4 }, cat: "craft", locked: true,
+      desc: "Šrot ze žita 2. třídy. Krmivo pro dobytek.", desc_en: "Feed meal from grade-2 rye. Livestock feed." },
+    { id: "feed_meal_wheat",  output: "feed_meal", qty: 2, req: { "wheat_grain": 4 }, cat: "craft", locked: true,
+      desc: "Šrot z pšenice. Krmivo pro dobytek.", desc_en: "Feed meal from wheat. Livestock feed." },
+    { id: "feed_meal_wheat_1", output: "feed_meal", qty: 2, req: { "wheat_grain_1": 4 }, cat: "craft", locked: true,
+      desc: "Šrot z prvotřídní pšenice. Krmivo pro dobytek.", desc_en: "Feed meal from grade-1 wheat. Livestock feed." },
+    { id: "feed_meal_wheat_2", output: "feed_meal", qty: 2, req: { "wheat_grain_2": 4 }, cat: "craft", locked: true,
+      desc: "Šrot z pšenice 2. třídy. Krmivo pro dobytek.", desc_en: "Feed meal from grade-2 wheat. Livestock feed." },
+    { id: "feed_meal_barley", output: "feed_meal", qty: 2, req: { "barley": 4 },     cat: "craft", locked: true,
+      desc: "Šrot z ječmene. Krmivo pro dobytek.", desc_en: "Feed meal from barley. Livestock feed." },
+    { id: "feed_meal_oats",   output: "feed_meal", qty: 2, req: { "oats": 4 },       cat: "craft", locked: true,
+      desc: "Šrot z ovsa. Krmivo pro dobytek.", desc_en: "Feed meal from oats. Livestock feed." },
+    { id: "feed_meal_millet", output: "feed_meal", qty: 2, req: { "millet": 4 },     cat: "craft", locked: true,
+      desc: "Šrot z prosa. Krmivo pro dobytek.", desc_en: "Feed meal from millet. Livestock feed." },
+    { id: "feed_meal_peas",   output: "feed_meal", qty: 2, req: { "peas": 4 },       cat: "craft", locked: true,
+      desc: "Šrot z hrachu. Krmivo pro dobytek.", desc_en: "Feed meal from peas. Livestock feed." },
+    { id: "feed_meal_scraps", output: "feed_meal", qty: 2, req: { "scraps": 3 },     cat: "craft", locked: true,
+      desc: "Šrot ze zbytků. Levnější, ale stejně vydatné krmivo.", desc_en: "Feed meal from scraps. Cheaper, but just as hearty a feed." },
+    // Osivo ze zrní — část úrody stranou jako příští setba (1:1)
+    { id: "rye_to_seed",    output: "seeds_rye",    qty: 1, req: { "rye_grain": 1 },  cat: "craft", locked: true,
+      desc: "Vybraná zrna žita ponechaná na osivo.", desc_en: "Selected rye grains set aside as seed." },
+    { id: "rye_to_seed_1",  output: "seeds_rye",    qty: 1, req: { "rye_grain_1": 1 }, cat: "craft", locked: true,
+      desc: "Vybraná zrna prvotřídního žita ponechaná na osivo.", desc_en: "Selected grade-1 rye grains set aside as seed." },
+    { id: "rye_to_seed_2",  output: "seeds_rye",    qty: 1, req: { "rye_grain_2": 1 }, cat: "craft", locked: true,
+      desc: "Vybraná zrna žita 2. třídy ponechaná na osivo.", desc_en: "Selected grade-2 rye grains set aside as seed." },
+    { id: "wheat_to_seed",  output: "seeds_wheat",  qty: 1, req: { "wheat_grain": 1 }, cat: "craft", locked: true,
+      desc: "Vybraná zrna pšenice ponechaná na osivo.", desc_en: "Selected wheat grains set aside as seed." },
+    { id: "wheat_to_seed_1", output: "seeds_wheat",  qty: 1, req: { "wheat_grain_1": 1 }, cat: "craft", locked: true,
+      desc: "Vybraná zrna prvotřídní pšenice ponechaná na osivo.", desc_en: "Selected grade-1 wheat grains set aside as seed." },
+    { id: "wheat_to_seed_2", output: "seeds_wheat",  qty: 1, req: { "wheat_grain_2": 1 }, cat: "craft", locked: true,
+      desc: "Vybraná zrna pšenice 2. třídy ponechaná na osivo.", desc_en: "Selected grade-2 wheat grains set aside as seed." },
+    { id: "barley_to_seed", output: "seeds_barley", qty: 1, req: { "barley": 1 },     cat: "craft", locked: true,
+      desc: "Vybraná zrna ječmene ponechaná na osivo.", desc_en: "Selected barley grains set aside as seed." },
+    { id: "oats_to_seed",   output: "seeds_oats",   qty: 1, req: { "oats": 1 },       cat: "craft", locked: true,
+      desc: "Vybraná zrna ovsa ponechaná na osivo.", desc_en: "Selected oat grains set aside as seed." },
+    { id: "millet_to_seed", output: "seeds_millet", qty: 1, req: { "millet": 1 },     cat: "craft", locked: true,
+      desc: "Vybraná zrna prosa ponechaná na osivo.", desc_en: "Selected millet grains set aside as seed." },
+    { id: "peas_to_seed",   output: "seeds_peas",   qty: 1, req: { "peas": 1 },       cat: "craft", locked: true,
+      desc: "Vybrané zrna hrachu ponechaná na osivo.", desc_en: "Selected pea grains set aside as seed." },
+
+    // Zelenina → semínka (nůž)
+    { id: "carrot_to_seed", output: "seeds_vegetable", qty: 1, req: { "carrot": 1 }, toolReq: [{item:"stone_knife"}], cat: "craft",
+      desc: "Nožem vyříznutá jádra mrkve ponechaná na osivo.", desc_en: "Carrot seeds cut out with a knife, set aside for sowing." },
+    { id: "onion_to_seed", output: "seeds_vegetable", qty: 1, req: { "onion": 1 }, toolReq: [{item:"stone_knife"}], cat: "craft",
+      desc: "Nožem vyříznutá semínka cibule ponechaná na osivo.", desc_en: "Onion seeds cut out with a knife, set aside for sowing." },
+    { id: "leek_to_seed", output: "seeds_leek", qty: 1, req: { "leek": 1 }, toolReq: [{item:"stone_knife"}], cat: "craft",
+      desc: "Nožem vyříznutá semínka pórku ponechaná na osivo.", desc_en: "Leek seeds cut out with a knife, set aside for sowing." },
+    { id: "cabbage_to_seed", output: "seeds_cabbage", qty: 1, req: { "cabbage": 1 }, toolReq: [{item:"stone_knife"}], cat: "craft",
+      desc: "Nožem vyříznutá semínka zelí ponechaná na osivo.", desc_en: "Cabbage seeds cut out with a knife, set aside for sowing." },
+    { id: "radish_to_seed", output: "seeds_radish", qty: 1, req: { "radish": 1 }, toolReq: [{item:"stone_knife"}], cat: "craft",
+      desc: "Nožem vyříznutá semínka ředkve ponechaná na osivo.", desc_en: "Radish seeds cut out with a knife, set aside for sowing." },
+    { id: "turnip_to_seed", output: "seeds_turnip", qty: 1, req: { "turnip": 1 }, toolReq: [{item:"stone_knife"}], cat: "craft",
+      desc: "Nožem vyříznutá semínka řepy ponechaná na osivo.", desc_en: "Turnip seeds cut out with a knife, set aside for sowing." },
+    { id: "garlic_to_seed", output: "seeds_garlic", qty: 1, req: { "garlic": 1 }, toolReq: [{item:"stone_knife"}], cat: "craft",
+      desc: "Nožem rozebraný stroužek česneku ponechaný na osivo.", desc_en: "Garlic clove separated with a knife, set aside for sowing." },
+
+    // Ovoce → semínka (nůž)
+    { id: "apple_to_seed", output: "seed_apple", qty: 1, req: { "apple": 1 }, toolReq: [{item:"stone_knife"}], cat: "craft",
+      desc: "Nožem vyříznutá jádra jablka ponechaná na osivo.", desc_en: "Apple seeds cut out with a knife, set aside for sowing." },
+    { id: "pear_to_seed", output: "seed_pear", qty: 1, req: { "pear": 1 }, toolReq: [{item:"stone_knife"}], cat: "craft",
+      desc: "Nožem vyříznutá jádra hrušky ponechaná na osivo.", desc_en: "Pear seeds cut out with a knife, set aside for sowing." },
+    { id: "plum_to_seed", output: "seed_plum", qty: 1, req: { "plum": 1 }, toolReq: [{item:"stone_knife"}], cat: "craft",
+      desc: "Nožem vyňatá peckovina švestky ponechaná na osivo.", desc_en: "Plum stone cut out with a knife, set aside for sowing." },
+    { id: "cherry_to_seed", output: "seed_cherry", qty: 1, req: { "cherry": 1 }, toolReq: [{item:"stone_knife"}], cat: "craft",
+      desc: "Nožem vyňatá peckovina třešně ponechaná na osivo.", desc_en: "Cherry stone cut out with a knife, set aside for sowing." },
+    { id: "walnut_to_seed", output: "seed_walnut", qty: 1, req: { "walnut": 1 }, toolReq: [{item:"stone_knife"}], cat: "craft",
+      desc: "Nožem rozlousknutý ořech ponechaný na osivo.", desc_en: "Walnut cracked open with a knife, set aside for sowing." },
+    { id: "mulberry_to_seed", output: "seed_mulberry", qty: 1, req: { "mulberry": 1 }, toolReq: [{item:"stone_knife"}], cat: "craft",
+      desc: "Nožem vyloupaná semínka moruše ponechaná na osivo.", desc_en: "Mulberry seeds picked out with a knife, set aside for sowing." },
+    { id: "quince_to_seed", output: "seed_quince", qty: 1, req: { "quince": 1 }, toolReq: [{item:"stone_knife"}], cat: "craft",
+      desc: "Nožem vyříznutá jádra kdoule ponechaná na osivo.", desc_en: "Quince seeds cut out with a knife, set aside for sowing." },
+    { id: "sorb_to_seed", output: "seed_sorb", qty: 1, req: { "sorb": 1 }, toolReq: [{item:"stone_knife"}], cat: "craft",
+      desc: "Nožem vyňatá semínka oskeruše ponechaná na osivo.", desc_en: "Sorb apple seeds cut out with a knife, set aside for sowing." },
+    { id: "rowan_to_seed", output: "seed_rowan", qty: 1, req: { "rowan": 1 }, toolReq: [{item:"stone_knife"}], cat: "craft",
+      desc: "Nožem vyňatá semínka jeřabiny ponechaná na osivo.", desc_en: "Rowan berry seeds cut out with a knife, set aside for sowing." },
+    { id: "linden_fruit_to_seed", output: "seed_linden", qty: 1, req: { "linden_fruit": 1 }, toolReq: [{item:"stone_knife"}], cat: "craft",
+      desc: "Nožem oddělená nažka lípy ponechaná na osivo.", desc_en: "Linden nutlet separated with a knife, set aside for sowing." },
+    
+    // ALCHEMY - základní
+    { id: "candle", output: "candle", qty: 1, req: { "fat": 1, "rope": 1 }, cat: "fire", locked: true }, 
+    { id: "glue", output: "glue", qty: 1, req: { "bone": 2, "water": 1 }, cat: "craft", locked: true,
+      desc: "Kostní klíh — kosti se hodiny vyvařují, dokud nevznikne hustá želatina.", desc_en: "Bone glue — bones boiled for hours into a thick gelatin." },
+    { id: "potion_heal", output: "potion_heal", qty: 1, req: { "herb_red": 1, "fat": 1, "pestle": 0 }, cat: "alchemy", locked: true },
+    { id: "ash", output: "ash", qty: 1, req: { "charcoal": 4 }, cat: "alchemy", locked: true },
+    { id: "ash_from_sticks", output: "ash", qty: 1, req: { "stick": 4 }, cat: "alchemy", locked: true, desc: "Spálené větve. Pomalé, ale bez uhlí.", desc_en: "Burned branches. Slow, but no charcoal needed." },
+    { id: "ash_from_log", output: "ash", qty: 2, req: { "log": 1 }, cat: "alchemy", locked: true, desc: "Kulatina dá více popele.", desc_en: "A log yields more ash." },
+    { id: "compost", output: "compost", qty: 2, req: { "fiber": 3, "bone": 1, "water": 1 }, cat: "craft", locked: true },
+    
+    // ALCHEMY - pokročilá
+    { id: "antidote", output: "antidote", qty: 1, req: { "nightshade": 1, "honey": 1, "ash": 1, "pestle": 0 }, cat: "alchemy", locked: true },
+    { id: "stamina_tonic", output: "stamina_tonic", qty: 1, req: { "herb_yellow": 1, "honey": 1, "roots": 1, "pestle": 0 }, cat: "alchemy", locked: true },
+    { id: "preservation_oil", output: "preservation_oil", qty: 1, req: { "resin": 2, "ash": 1, "herb_blue": 1, "pestle": 0 }, cat: "alchemy", locked: true },
+    { id: "sleep_potion", output: "sleep_potion", qty: 1, req: { "herb_blue": 2, "mushroom_poison": 1, "honey": 1, "pestle": 0 }, cat: "alchemy", locked: true },
+    
+    // ========== v7.5 NEW RECIPES - Historical Realities ==========
+    
+    // VELLUM CHAIN (Pergamen výroba - historicky přesná)
+    { id: "ash_water", output: "ash_water", qty: 1, req: { "ash": 2, "water": 3 }, cat: "craft", locked: true, desc: "Louh na namáčení kůže. Historicky 3-4 dny.", desc_en: "Lye for soaking hides. Historically 3-4 days." },
+    { id: "soaked_hide", output: "soaked_hide", qty: 1, req: { "hide": 2, "ash_water": 1 }, cat: "craft", locked: true, desc: "Kůže loužená 3 dny.", desc_en: "Hide soaked for 3 days." },
+    { id: "stretched_hide", output: "stretched_hide", qty: 1, req: { "soaked_hide": 1, "rope": 2 }, cat: "craft", locked: true, desc: "Napnuto v rámu.", desc_en: "Stretched on a frame." },
+    { id: "pumice", output: "pumice", qty: 1, req: { "rock": 3 }, cat: "craft", locked: true, desc: "Sopečný kámen - leští.", desc_en: "Volcanic stone - for smoothing." },
+    { id: "vellum", output: "vellum", qty: 1, req: { "stretched_hide": 1, "pumice": 0, "chalk": 1 }, cat: "parchment", locked: true, desc: "Konečný pergamen. 1 kodex = kůže 3 ovcí.", desc_en: "Finished parchment. 1 codex = 3 sheep hides." },
+    
+    // QUILL (Husí brko)
+    { id: "quill", output: "quill", qty: 1, req: { "feather": 1, "stone_knife": 0 }, cat: "parchment", locked: true, desc: "Řez pod úhlem. 10x použití.", desc_en: "Cut at an angle. 10 uses." },
+    
+    // GALLIC INK (Železitoduběnkový inkoust - 15. století standard)
+    { id: "iron_sulfate", output: "iron_sulfate", qty: 1, req: { "rock": 2, "ash": 1, "water": 1 }, cat: "parchment", locked: true, desc: "Vitriol. Chemická reakce.", desc_en: "Vitriol. Chemical reaction." },
+    { id: "gum_arabic", output: "gum_arabic", qty: 1, req: { "resin": 2, "water": 1 }, cat: "parchment", locked: true, desc: "Pojidlo z akácie.", desc_en: "Binder from acacia." },
+    { id: "ink_gallic", output: "ink_gallic", qty: 2, req: { "gall_nut": 2, "iron_sulfate": 1, "gum_arabic": 1, "pestle": 0 }, cat: "parchment", locked: true, desc: "Permanentní. Po 80 letech černá→hnědá.", desc_en: "Permanent. After 80 years black→brown." },
+    { id: "ink_netolicky", output: "ink_gallic", qty: 3, req: { "gall_nut": 2, "iron_sulfate": 1, "gum_arabic": 1, "ash": 1, "pestle": 0 }, cat: "parchment", locked: true, desc: "Netolického vlastní receptura — méně duběnek, víc sazí. Vydá o třetinu víc.", desc_en: "Netolický's own formula — fewer galls, more soot. A third more yield." },
+    
+    // ADVANCED CODEX TYPES
+    { id: "common_codex", output: "common_codex", qty: 1, req: { "paper": 10, "ink": 3 }, cat: "codex", locked: true, desc: "Běžný tisk. 'Nižší typografie' (Voit).", desc_en: "Common print. 'Lower typography' (Voit)." },
+    { id: "luxury_codex", output: "luxury_codex", qty: 1, req: { "paper": 20, "ink_gallic": 5, "preservation_oil": 1 }, cat: "codex", locked: true, desc: "'Vyšší typografie' s kvalitním inkoustem.", desc_en: "'Higher typography' with quality ink." },
+    { id: "vellum_codex", output: "vellum_codex", qty: 1, req: { "vellum": 3, "ink_gallic": 8, "preservation_oil": 2 }, cat: "codex", locked: true, desc: "Pergamenový. Jak Olomoucký misál (1488) - pouze 20 z 420 výtisků.", desc_en: "On vellum. Like the Olomouc Missal (1488) - only 20 of 420 copies." },
+    
+    // PRINTING PRESS SYSTEM
+    { id: "lead_alloy", output: "lead_alloy", qty: 1, req: { "rock": 5, "charcoal": 3, "water": 1 }, cat: "craft", locked: true, desc: "Tavení kamene na olovo.", desc_en: "Smelting stone into lead." },
+    { id: "printing_type", output: "printing_type", qty: 100, req: { "lead_alloy": 5, "pestle": 0 }, cat: "codex", locked: true, desc: "100 použití. Pak worn_type. Historicky se prodávaly za kovový odpad.", desc_en: "100 uses. Then worn_type. Historically sold as scrap metal." },
+    
+    // CANONICAL HOURS UNLOCK
+    { id: "book_of_hours", output: "book_of_hours", qty: 1, req: { "luxury_codex": 1, "herb_blue": 5, "herb_yellow": 5 }, cat: "codex", locked: true, desc: "Horologium. Odemkne 8 denních buffů dle benediktinského řádu.", desc_en: "Horologium. Unlocks 8 daily buffs according to Benedictine order." },
+    { id: "perpetuum_calendarium", output: "perpetuum_calendarium", qty: 1, req: { "paper": 3, "ink": 2, "vellum": 1 }, cat: "codex", locked: true, desc: "Klášterní kalendář. Odemkne záložku Calendarium ve Skriptoriu. Nutno obnovit v lednu.", desc_en: "Monastic calendar. Unlocks the Calendarium tab in the Scriptorium. Must be renewed in January." },
+    
+    // PRIVILEGIUM QUESTLINE
+    { id: "bishop_seal", output: "bishop_seal", qty: 1, req: { "vellum_codex": 10, "luxury_codex": 20 }, cat: "codex", locked: true, desc: "Daruj biskupovi 10 pergamenových + 20 luxusních kodexů.", desc_en: "Gift the bishop 10 vellum + 20 luxury codices." },
+    { id: "printing_privilege", output: "printing_privilege", qty: 1, req: { "bishop_seal": 1, "research": 100 }, cat: "codex", locked: true, desc: "Monopol. Endgame.", desc_en: "Monopoly. Endgame." },
+
+    // ═══════════════════════════════════════════════════════════════════════════
+    // NOVÉ HERNÍ DESKY (sprint v8.x)
+    // chalk není craftitelný — kupuje se v Cellariu (Obchod, 2 groše / 3 křída)
+    // ═══════════════════════════════════════════════════════════════════════════
+    {
+        id: "senet_board",
+        output: "senet_board",
+        qty: 1,
+        req: { stick: 2, bone: 2, ink: 1 },
+        cat: "lore",
+        locked: true,
+        desc: "Egyptská hra faraonů — 30 polí, 5 kamenů, 4 hůlky-kostky.", desc_en: "Egyptian game of pharaohs — 30 squares, 5 stones, 4 stick-dice."
+    },
+    {
+        id: "backgammon_board",
+        output: "backgammon_board",
+        qty: 1,
+        req: { stick: 3, leather: 2, bone: 2 },
+        cat: "lore",
+        locked: true,
+        desc: "Vrhcáby — deska z kůže, kameny z kostí, dvě kostky.", desc_en: "Tables — leather board, bone stones, two dice."
+    },
+    {
+        id: "draughts_board",
+        output: "draughts_board",
+        qty: 1,
+        req: { stick: 3, charcoal: 1, chalk: 1 },
+        cat: "lore",
+        locked: true,
+        desc: "Dáma — střídavá pole z uhlí a křídy, 24 kamenů.", desc_en: "Draughts — alternating charcoal and chalk squares, 24 stones."
+    },
+    {
+        id: "hnefatafl_board",
+        output: "hnefatafl_board",
+        qty: 1,
+        req: { stick: 4, bone: 3, vellum: 1 },
+        cat: "lore",
+        locked: true,
+        desc: "Hnefatafl — asymetrická hra. Král a 12 obránců vs. 24 útočníků.", desc_en: "Hnefatafl — asymmetric game. King and 12 defenders vs. 24 attackers."
+    },
+
+    // ═══════════════════════════════════════════════════════════════════════════
+    // LEATHER SYSTEM (v8.x) — Koželužství a kožené výrobky skriptoria
+    // ═══════════════════════════════════════════════════════════════════════════
+
+    // Výroba kůže (dokončení řetězce: hide → soaked → stretched → leather)
+    { id: "tanned_leather", output: "leather", qty: 1, req: { stretched_hide: 2, gall_nut: 2 }, cat: "craft", locked: true,
+      desc: "Vydělená kůže. Třísloviny z duběnek zpevní vlákna.", desc_en: "Tanned leather. Gall nut tannins harden the fibres." },
+    { id: "tanned_leather_bark", output: "leather", qty: 1, req: { stretched_hide: 2, tanbark: 3 }, cat: "craft", locked: true,
+      desc: "Vydělená kůže tříslem ze stoupy. Hrubší lázeň, stejný výsledek — a duběnky zbudou na inkoust.", desc_en: "Leather tanned with stamp-mill bark. A coarser bath, the same result — and the galls are spared for ink." },
+
+    // Měchy — dual use: oheň + varhany + Athanor upgrade
+    { id: "bellows", output: "bellows", qty: 1, req: { leather: 4, stick: 3, rope: 2 }, cat: "craft", locked: true,
+      desc: "Kožené měchy. Rozdmýchají oheň i varhanní píšťaly.", desc_en: "Leather bellows. Fan the fire and the organ pipes alike." },
+
+    // Vazba knih — základ pro luxury/vellum codex
+    { id: "book_binding", output: "book_binding", qty: 1, req: { leather: 2, stick: 3, glue: 1 }, cat: "craft", locked: true,
+      desc: "Kožená vazba drží složky pohromadě. Bez ní jsou jen volné listy.", desc_en: "Leather binding holds the quires together. Without it, just loose leaves." },
+
+    // Pouzdro na pera
+    { id: "quill_case", output: "quill_case", qty: 1, req: { leather: 1, rope: 1 }, cat: "craft", locked: true,
+      desc: "Kožené pouzdro chrání husí brka před zlomením.", desc_en: "Leather case protects quills from snapping." },
+
+    // Opasek písaře — buff later
+    { id: "scribes_belt", output: "scribes_belt", qty: 1, req: { leather: 2, rope: 1 }, cat: "craft", locked: true,
+      desc: "Na opasku visí nůž, brousek a pouzdro na pero. Písařova výbava.", desc_en: "Knife, whetstone and quill case hang from it. The scribe's kit." },
+
+    // Kožená deska — pro luxury codex
+    { id: "book_cover", output: "book_cover", qty: 1, req: { leather: 3, stick: 5 }, cat: "craft", locked: true,
+      desc: "Dřevěná deska potažená kůží. Chrání kodex po staletí.", desc_en: "Wooden board covered in leather. Protects the codex for centuries." },
+
+    // Kožené sedátko — komfort buff later
+    { id: "cushion", output: "cushion", qty: 1, req: { leather: 2, fiber: 3 }, cat: "craft", locked: true,
+      desc: "Mniši seděli 6 hodin denně. Sedátko nebylo luxus — bylo nutnost.", desc_en: "Monks sat 6 hours daily. A cushion was not luxury — it was necessity." },
+
+    // Transportní pouzdro — pro export/trade later
+    { id: "scrinium_case", output: "scrinium_case", qty: 1, req: { leather: 4, rope: 2 }, cat: "craft", locked: true,
+      desc: "Kožené pouzdro na přepravu cenných kodexů. Cestovní skriptorium.", desc_en: "Leather case for transporting precious codices. A travelling scriptorium." },
+
+    // Kožený měšec na vodu
+    { id: "water_pouch", output: "water_pouch", qty: 1, req: { leather: 1, rope: 1 }, cat: "craft", locked: true,
+      desc: "Kožený měšec. Mniši nosili pití při práci v skriptoriu.", desc_en: "Leather pouch. Monks carried drink during work in the scriptorium." },
+
+    // Váček na inkoust/pigmenty
+    { id: "ink_pouch", output: "ink_pouch", qty: 1, req: { leather: 1, rope: 1 }, cat: "craft", locked: true,
+      desc: "Kožený váček na suchý inkoust a práškové pigmenty.", desc_en: "Leather pouch for dry ink and powdered pigments." },
+
+    // ── STAVEBNÍ MATERIÁLY (tech_carpentaria) ───────────────────────────────
+    { id: "plank", output: "plank", qty: 2, req: { stick: 5 }, cat: "craft", locked: true,
+      desc: "Otesané fošny z větví. Základ každé dřevěné stavby.", desc_en: "Hewn planks from branches. The foundation of every wooden structure." },
+    { id: "plank_from_log", output: "plank", qty: 7, req: { log: 1 }, toolReq: [{item:"stone_saw"},{item:"iron_saw"}], cat: "craft", locked: true,
+      desc: "Fošny nařezané z kulatiny pilou.", desc_en: "Planks sawn from a log with a saw." },
+
+    { id: "cut_stone", output: "cut_stone", qty: 1, req: { rock: 4 }, cat: "craft", locked: true,
+      desc: "Opracovaný kvádr. Klášterní tesař ho vytesá dlátem a palicí.", desc_en: "A dressed block. The monastic carpenter shapes it with chisel and mallet." },
+
+    // ── KRMNÉ SUROVINY (tech_horreum) ────────────────────────────────────────
+    { id: "hay", output: "hay", qty: 2, req: { grass: 5 }, cat: "craft", locked: true,
+      desc: "Posečená a sušená tráva. Základní krmivo pro ovce a kozy.", 
+      desc_en: "Cut and dried grass. Basic fodder for sheep and goats." },
+
+
+
+
+    // ── KAMENNÉ NÁSTROJE (tech_horticulture + tech_carpentaria) ─────────────
+    { id:"stone_axe",    output:"stone_axe",    qty:1, req:{stick:2, rock:3, rope:1}, cat:"stone", locked:true,
+      desc:"Kamenné ostří na dřevené násadě.", desc_en:"Stone blade on a wooden haft." },
+    { id:"stone_spade",  output:"stone_spade",  qty:1, req:{stick:2, rock:2, rope:1}, cat:"stone", locked:true,
+      desc:"Plochý kámen na násadě.", desc_en:"Flat stone on a haft." },
+    { id:"stone_scythe", output:"stone_scythe", qty:1, req:{stick:3, rock:3, rope:2}, cat:"stone", locked:true,
+      desc:"Kamenné ostří na dlouhé násadě.", desc_en:"Stone blade on a long haft." },
+    { id:"stone_sickle", output:"stone_sickle", qty:1, req:{stick:1, rock:2, rope:1}, cat:"stone", locked:true,
+      desc:"Malé kamenné ostří. Žeň bylin.", desc_en:"Small stone blade. For harvesting herbs." },
+    { id:"stone_flail",  output:"stone_flail",  qty:1, req:{stick:3, rope:2, rock:1}, cat:"stone", locked:true,
+      desc:"Dřevěný cep s kamenným závažím.", desc_en:"Wooden flail with stone weight." },
+    { id:"wooden_flail", output:"wooden_flail", qty:1, req:{stick:3, rope:2}, cat:"stone", locked:true,
+      desc:"Prostý dřevěný cep. Základní mlácení obilí.", desc_en:"Simple wooden flail. Basic threshing tool." },
+    { id:"stone_pickaxe",output:"stone_pickaxe",qty:1, req:{stick:2, rock:4, rope:2}, cat:"stone", locked:true,
+      desc:"Kamenná hlava upevněná na násadě. Těžba rudy.", desc_en:"Stone head fixed to a haft. Ore mining." },
+    { id:"stone_shovel", output:"stone_shovel", qty:1, req:{stick:2, rock:2, rope:1}, cat:"stone", locked:true,
+      desc:"Plochý kámen jako lopata.", desc_en:"Flat stone as a shovel." },
+    { id:"stone_saw",    output:"stone_saw",    qty:1, req:{stick:2, flint:2, cut_stone:3, rope:2}, cat:"stone", locked:true,
+      desc:"Pila z křemenných úštěpků.", desc_en:"Saw of flint chips." },
+
+    // ── DŘEVĚNÉ NÁSTROJE ─────────────────────────────────────────────────────
+    { id:"bucket",       output:"bucket",       qty:1, req:{plank:3, rope:2},          cat:"craft", locked:true,
+      desc:"Dřevěné vědro na vodu.", desc_en:"Wooden bucket for water." },
+    { id:"watering_can", output:"watering_can", qty:1, req:{plank:2, rope:2, leather:1}, cat:"craft", locked:true,
+      desc:"Konev na zalévání zahrady.", desc_en:"Watering can for the garden." },
+    { id:"barrel_tool",  output:"barrel_tool",  qty:1, req:{plank:6, rope:3},           cat:"craft", locked:true,
+      desc:"Dřevěný sud na pivo, víno a vodu.", desc_en:"Wooden barrel for ale, wine and water." },
+
+    // ── ŽELEZNÝ VÝROBNÍ ŘETĚZEC ─────────────────────────────────────────────
+    { id:"iron_ingot", output:"iron_ingot", qty:1, req:{iron_ore:3, charcoal:2}, cat:"mat", locked:true,
+      desc:"Tavení rudy s uhlím. Základ kovářství.", desc_en:"Smelting ore with charcoal. Foundation of smithcraft." },
+
+    // ── KOVOVÉ NÁSTROJE (tech_kovarina, max 1 ks) ────────────────────────────
+    { id:"iron_axe",    output:"iron_axe",    qty:1, req:{iron_ingot:2, plank:1, rope:1, leather:1}, cat:"iron", locked:true, maxStack:1,
+      desc:"Masivní sekera. 2 ingoty na hlavu, kůže na opich.", desc_en:"Heavy axe. 2 ingots for the head, leather grip." },
+    { id:"iron_spade",  output:"iron_spade",  qty:1, req:{iron_ingot:1, plank:2, rope:1},            cat:"iron", locked:true, maxStack:1,
+      desc:"Železná čepel. 2 prkna: násada a opěrka nohy.", desc_en:"Iron blade. 2 planks: shaft and foot rest." },
+    { id:"iron_scythe", output:"iron_scythe", qty:1, req:{iron_ingot:2, stick:3, rope:2, leather:1}, cat:"iron", locked:true, maxStack:1,
+      desc:"Dlouhá zahnutá čepel. Historicky 3dílná rukojeť.", desc_en:"Long curved blade. Historically 3-piece handle." },
+    { id:"iron_sickle", output:"iron_sickle", qty:1, req:{iron_ingot:1, stick:1, rope:1, leather:1}, cat:"iron", locked:true, maxStack:1,
+      desc:"Zahnutá čepel, krátká rukojeť, kůže na opich.", desc_en:"Curved blade, short handle, leather wrapping." },
+    { id:"iron_flail",  output:"iron_flail",  qty:1, req:{iron_ingot:1, stick:3, rope:2, leather:1}, cat:"iron", locked:true, maxStack:1,
+      desc:"Železné závaží, 3dílná rukojeť, provazový kloub.", desc_en:"Iron weight, 3-piece handle, rope joint." },
+    { id:"iron_shovel", output:"iron_shovel", qty:1, req:{iron_ingot:1, plank:2, rope:1},            cat:"iron", locked:true, maxStack:1,
+      desc:"Širší čepel než rýč. 2 prkna na pevnou násadu.", desc_en:"Wider blade than spade. 2 planks for a firm shaft." },
+    { id:"iron_saw",    output:"iron_saw",    qty:1, req:{iron_ingot:2, plank:1, leather:1},         cat:"iron", locked:true, maxStack:1,
+      desc:"Pilový list s mnoha zuby. 2 ingoty, dřevěný rám.", desc_en:"Saw blade with many teeth. 2 ingots, wooden frame." },
+    { id:"iron_pickaxe",output:"iron_pickaxe",qty:1, req:{iron_ingot:2, stick:2, rope:1, leather:1}, cat:"iron", locked:true, maxStack:1,
+      desc:"Těžká dvojitá hlava. 2 ingoty, dvojnásada.", desc_en:"Heavy double head. 2 ingots, double-hafted." },
+    { id:"iron_tongs",  output:"iron_tongs",  qty:1, req:{iron_ingot:1, leather:1},                  cat:"iron", locked:true, maxStack:1,
+      desc:"Kovářské kleště. Nezbytné pro opravy v Kovárně.", desc_en:"Blacksmith tongs. Essential for repairs at the Smithy." },
+
+    // ── OPRAVA OPOTŘEBENÝCH NÁSTROJŮ (Fabrica — vyžaduje iron_tongs) ─────────
+    { id:"repair_iron_axe",    output:"iron_axe",    qty:1, req:{worn_iron_axe:1,     iron_tongs:1}, cat:"iron", locked:true, desc:"Překování a nabroušení sekerky.", desc_en:"Reforge and sharpen the axe." },
+    { id:"repair_iron_spade",  output:"iron_spade",  qty:1, req:{worn_iron_spade:1,   iron_tongs:1}, cat:"iron", locked:true, desc:"Vyrovnání a oprava rýče.", desc_en:"Straighten and repair the spade." },
+    { id:"repair_iron_scythe", output:"iron_scythe", qty:1, req:{worn_iron_scythe:1,  iron_tongs:1}, cat:"iron", locked:true, desc:"Nabroušení kosy na bruse.", desc_en:"Sharpen the scythe on the grindstone." },
+    { id:"repair_iron_sickle", output:"iron_sickle", qty:1, req:{worn_iron_sickle:1,  iron_tongs:1}, cat:"iron", locked:true, desc:"Nabroušení a překování srpu.", desc_en:"Sharpen and reforge the sickle." },
+    { id:"repair_iron_flail",  output:"iron_flail",  qty:1, req:{worn_iron_flail:1,   iron_tongs:1}, cat:"iron", locked:true, desc:"Utažení závaží, nové spojení.", desc_en:"Tighten the weight, new joint." },
+    { id:"repair_iron_shovel", output:"iron_shovel", qty:1, req:{worn_iron_shovel:1,  iron_tongs:1}, cat:"iron", locked:true, desc:"Narovnání čepele lopaty.", desc_en:"Straighten the shovel blade." },
+    { id:"repair_iron_saw",     output:"iron_saw",     qty:1, req:{worn_iron_saw:1,     iron_tongs:1}, cat:"iron", locked:true, desc:"Přebroušení zubů pily.", desc_en:"Re-sharpen the saw teeth." },
+    { id:"repair_iron_pickaxe", output:"iron_pickaxe", qty:1, req:{worn_iron_pickaxe:1, iron_tongs:1}, cat:"iron", locked:true, desc:"Překování hrotu krumpáče.", desc_en:"Reforge the pickaxe head." },
+
+    // ── VINOHRAD — stavby ─────────────────────────────────────────────────────
+    { id:"prelum",            output:"prelum",            qty:1,
+      req:{plank:8, rope:4, rock:6, iron_ingot:2},
+      cat:"building", locked:true, maxStack:1,
+      desc:"Vinný lis. Dřevěný rám, kamenná podlaha, železné šrouby. Odemkne zpracování hroznů.",
+      desc_en:"Wine press. Wooden frame, stone floor, iron screws. Unlocks grape processing." },
+
+    { id:"cella_fermentaria", output:"cella_fermentaria", qty:1,
+      req:{plank:10, rock:8, rope:3, clay:4},
+      cat:"building", locked:true, maxStack:1,
+      desc:"Fermentační sklep. Hliněné nádoby, kamenné zdivo, chlad. Odemkne výrobu Vinum a Vinum Rubrum.",
+      desc_en:"Fermentation cellar. Clay vessels, stone masonry, cool air. Unlocks Vinum and Vinum Rubrum." },
+
+    { id:"foudres",           output:"foudres",           qty:1,
+      req:{plank:15, rope:6, iron_ingot:3},
+      cat:"building", locked:true, maxStack:1,
+      desc:"Velké dubové sudy. Víno zrající v sudu získá jantarovou barvu. Odemkne Vinum Praeclarum.",
+      desc_en:"Large oak barrels. Wine aged in the barrel gains amber colour. Unlocks Vinum Praeclarum." },
+
+    { id:"bedna_dilna",       output:"bedna_dilna",       qty:1,
+      req:{plank:12, iron_ingot:4, rope:5, leather:2},
+      cat:"building", locked:true, maxStack:1,
+      desc:"Bednářská dílna. Výroba sudů pro export vína. Odemkne řemeslo bednáře.",
+      desc_en:"Cooperage workshop. Craft barrels for wine export. Unlocks the cooper's craft." },
+];
+// ── KADIDLO (Thuribulum) ─────────────────────────────────────────────────
+RecipesDB.push(
+    { id: "incense_spruce",   output: "incense_spruce",   qty: 1, req: { "resin_spruce": 1, "charcoal": 1 }, cat: "fire", locked: true, desc: "Smrková pryskyřice + uhlí = primitivní kadidlo.", desc_en: "Spruce resin + charcoal = basic incense." },
+    { id: "incense_pine",     output: "incense_pine",     qty: 1, req: { "resin_pine": 1,   "charcoal": 1 }, cat: "fire", locked: true, desc: "Borová pryskyřice + uhlí = vonné kadidlo.", desc_en: "Pine resin + charcoal = fragrant incense." },
+    { id: "incense_styrax",   output: "incense_styrax",   qty: 1, req: { "resin_styrax": 1, "charcoal": 1 }, cat: "fire", locked: true, desc: "Styrax + uhlí = byzantské kadidlo.", desc_en: "Styrax + charcoal = Byzantine incense." },
+    { id: "incense_olibanum", output: "incense_olibanum", qty: 1, req: { "resin_olibanum": 1, "charcoal": 1 }, cat: "fire", locked: true, desc: "Olibanum + uhlí = posvátné kadidlo.", desc_en: "Olibanum + charcoal = sacred incense." }
+>>>>>>> 8d81998c5b43de25655231c217ad7594842e1158
 );
 // ═══ src/data/health.js ═══
 // ═══════════════════════════════════════════════════════════════════════════
