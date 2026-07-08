@@ -3880,6 +3880,8 @@ const Game = {
         if (typeof PersonaSystem !== 'undefined' && PersonaSystem.addInfluence) {
             PersonaSystem.addInfluence('church', d.influence);
         }
+        // Zbožnost — Avaritia/štědrost (endgame-branches-reference.md sekce 9)
+        if (typeof PersonaSystem !== 'undefined' && PersonaSystem.addZboznost) PersonaSystem.addZboznost(1);
         if (!GameState.templum) GameState.templum = {};
         const itemName = (typeof iName === 'function') ? iName(itemId) : itemId;
         GameState.templum.lastDonation = { id: itemId, ts: Date.now() };
@@ -3935,6 +3937,7 @@ const Game = {
             choices: [
                 { label: (lang==='en'?'⚖️ Strict penance':'⚖️ Přísné pokání'), type: 'danger', effect: () => {
                     if (typeof PersonaSystem !== 'undefined') PersonaSystem.addInfluence('church', 3);
+                    if (typeof PersonaSystem !== 'undefined' && PersonaSystem.addZboznost) PersonaSystem.addZboznost(2);
                     if (typeof SaeculumSystem !== 'undefined') SaeculumSystem.addContactRelation(id, -3);
                     record('strict');
                     Game.addKronikaEntry('minor',
@@ -3955,6 +3958,7 @@ const Game = {
                 }},
                 { label: (lang==='en'?'🚪 Turn him away':'🚪 Odmítnout'), effect: () => {
                     record('refused');
+                    if (typeof PersonaSystem !== 'undefined' && PersonaSystem.addZboznost) PersonaSystem.addZboznost(-1);
                     Game.addKronikaEntry('minor',
                         '🙏 Zpověď: ' + cName + ' odešel nevyslyšen.',
                         '🙏 Confession: ' + cName + ' left unheard.',
@@ -4012,6 +4016,8 @@ const Game = {
             PersonaSystem.addInfluence('church', eccl);
             PersonaSystem.addInfluence('village', vill);
         }
+        // Zbožnost — osobní kotva (endgame-branches-reference.md sekce 9, Superbia/pravidelnost)
+        if (typeof PersonaSystem !== 'undefined' && PersonaSystem.addZboznost) PersonaSystem.addZboznost(1);
         t.nextMass = now + 7 * 24 * 60 * 60 * 1000;
         t.lastMass = { ts: now, incense: incenseId, degraded: degraded };
         // R1: odsloužená mše = držený kanonický rytmus (frater vyžaduje streak ≥ 7)
@@ -4506,6 +4512,7 @@ const Game = {
                     { label: (lang==='en'?'🕊️ Reconcile them':'🕊️ Rozsoudit smírně'), effect: () => {
                         ka.mood = Math.min(100, ka.mood + 5);
                         kb.mood = Math.min(100, kb.mood + 5);
+                        if (typeof PersonaSystem !== 'undefined' && PersonaSystem.addZboznost) PersonaSystem.addZboznost(1);
                         Game.addKronikaEntry('minor',
                             '⚖️ Kapitula: spor mezi bratry ' + ka.name + ' a ' + kb.name + ' urovnán smírem.',
                             '⚖️ Chapter: the dispute between ' + ka.name + ' and ' + kb.name + ' was settled peacefully.',

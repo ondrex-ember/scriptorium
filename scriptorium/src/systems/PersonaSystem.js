@@ -544,6 +544,11 @@ const PersonaSystem = {
             inf.scholars || 0,
             lang==='en'?'Prvotisk customers, Library bonuses, manuscript reputation.':'Zákazníci Prvotisku, bonusy Knihovny, reputace rukopisů.', (inf.scholars || 0) === 0);
 
+        h += `<div style="font-size:0.75rem;font-weight:bold;letter-spacing:0.06em;text-transform:uppercase;opacity:0.55;margin:14px 0 10px;">${lang==='en'?'Inner life':'Vnitřní život'}</div>`;
+        h += bar('🙏', lang==='en'?'Piety':'Zbožnost',
+            (GameState.persona && GameState.persona.zboznost) || 0,
+            lang==='en'?'Personal, inward — distinct from Church (institutional). Grows through Mass, confession, quiet endurance.':'Osobní, vnitřní — odlišné od Církve (institucionální). Roste mší, zpovědí, tichou vytrvalostí.', false);
+
         // Clientela — jen promítnutí souhrnu; ovládání a jednání probíhá v Saeculum → Clientela
         const clientelaTier = (typeof RankSystem !== 'undefined' && RankSystem.getSecularRankTier) ? RankSystem.getSecularRankTier() : 1;
         if (clientelaTier >= 3 && typeof ContactsDB !== 'undefined') {
@@ -961,6 +966,14 @@ const PersonaSystem = {
         Game.save();
     },
 
+    // Zbožnost — osobní/vnitřní stav mnicha (Cassianových osm myšlenek, endgame-branches-reference.md sekce 9)
+    // Odlišné od addInfluence('church',...) — Ecclesia je institucionální, Zbožnost je osobní
+    addZboznost: function(amount) {
+        if (!GameState.persona) return;
+        GameState.persona.zboznost = Math.max(0, Math.min(100, (GameState.persona.zboznost||0) + amount));
+        Game.save();
+    },
+
     // Decay influence — volat z game.js daily tick
     // Každých 7 reálných dní odečte -1 od každé osy influence
     // Osy s hodnotou 0 se nemění (nevznikají záporné)
@@ -988,6 +1001,10 @@ const PersonaSystem = {
                     changed = true;
                 }
             });
+        }
+        // Acedia (endgame-branches-reference.md sekce 9) — nízký Vigor beze změny celý týden = eroze Zbožnosti
+        if (typeof VigorSystem !== 'undefined' && VigorSystem.getVigorPct && VigorSystem.getVigorPct() < 30) {
+            this.addZboznost(-2);
         }
         GameState.persona.influenceLastDecay = now;
         if (changed) Game.save();

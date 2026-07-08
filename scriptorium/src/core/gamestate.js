@@ -124,6 +124,7 @@ const GameState = {
             scholars: 0,        // Učenci — Prvotisk zákazníci, Knihovna bonusy
         },
         influenceLastDecay: 0,  // timestamp posledního decay ticku
+        zboznost: 0,            // 0–100, osobní/vnitřní stav — odlišné od Ecclesia (institucionální)
         role: null,             // aktivní role: 'scriptor'|'illuminator'|'athanorista'|'celerarius'|'zahradnik'
         professions: [],        // odemčené profese (legacy, zachováno pro migraci)
     },
