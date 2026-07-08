@@ -5372,6 +5372,7 @@ const ItemsDB = {
     // LORE
     "pulp": { name: "Hadrovina", name_en: "Rag Pulp", icon: "🌫️", type: "mat", desc: "Rozmělněná lněná vlákna ve vodě. Základ hadrového papíru.", desc_en: "Macerated linen fibres in water. The base of rag paper." },
     "paper": { name: "Hadrový papír", name_en: "Rag Paper", icon: "📄", type: "lore", desc: "Lisovaná hadrovina. Středověký papír z lněných vláken, ne ze dřeva.", desc_en: "Pressed rag pulp. Medieval paper made from linen fibres, not wood." },
+    "paper_fine": { name: "Benátský papír", name_en: "Venetian Paper", icon: "📃", type: "lore", desc: "Jemnější a bělejší než hadrový papír z domácí výroby. Giacomo ho vozí z Benátek.", desc_en: "Finer and whiter than home-pressed rag paper. Giacomo brings it from Venice." },
     "ink": { name: "Inkoust", name_en: "Ink", icon: "✒️", type: "lore", desc: "Černý.", desc_en: "Black ink." },
     "research": { name: "Zápisky", name_en: "Notes", icon: "📜", type: "lore", desc: "Vědění.", desc_en: "Accumulated knowledge." },
 
@@ -5880,6 +5881,15 @@ const ItemsDB = {
     "butter": { name: "Máslo", name_en: "Butter", icon: "🧈", type: "mat", desc: "Čerstvé máslo z kravského mléka. Postní výjimka u nemocných.", desc_en: "Fresh butter from cow's milk. A Lenten exception for the sick." },
     "cheese": { name: "Sýr", name_en: "Cheese", icon: "🧀", type: "food", desc: "Tvrdý klášterní sýr. Trvanlivý, výživný. Prodávaný na trzích.", desc_en: "Hard monastic cheese. Long-lasting, nutritious. Sold at markets." },
     "salt": { name: "Sůl", name_en: "Salt", icon: "🧂", type: "mat", desc: "Drahá obchodní komodita ze solných stezek. Bez ní se sýr nezasolí a brzy zkazí.", desc_en: "A costly trade good from the salt roads. Without it cheese cannot be salted and soon spoils." },
+
+    // GIACOMO IMPORT — koření a hedvábí, viz ContactsDB.giacomo.buyOffer
+    "pepr_cerny": { name: "Černý pepř", name_en: "Black Pepper", icon: "⚫", type: "mat", desc: "Král koření. Tvoří většinu obchodu s Orientem — platí se jím i daně.", desc_en: "The king of spices. Makes up most of the trade with the Orient — even taxes are paid in it." },
+    "zazvor": { name: "Zázvor", name_en: "Ginger", icon: "🫚", type: "mat", desc: "Druhé nejoblíbenější koření po pepři. Z Indie a Číny, sušený i v cukru.", desc_en: "The second most popular spice after pepper. From India and China, dried or preserved in sugar." },
+    "hrebicek": { name: "Hřebíček", name_en: "Clove", icon: "🟤", type: "mat", desc: "Sušená poupata z Ostrovů koření. Silná vůně, tiší bolest zubů.", desc_en: "Dried buds from the Spice Islands. Strong scent, eases toothache." },
+    "skorice": { name: "Skořice", name_en: "Cinnamon", icon: "🟫", type: "mat", desc: "Ve skutečnosti čínská kasie — drsnější a ostřejší než pravá cejlonská skořice.", desc_en: "In truth Chinese cassia — coarser and sharper than true Ceylon cinnamon." },
+    "safran": { name: "Šafrán", name_en: "Saffron", icon: "🟡", type: "mat", desc: "Nejdražší koření světa. Na půl kila je třeba 75 000 květů. Zlatá barva na panském stole.", desc_en: "The world's most expensive spice. Half a kilo needs 75,000 flowers. A golden colour for the lord's table." },
+    "hedvabi": { name: "Hedvábí", name_en: "Silk", icon: "🧣", type: "mat", desc: "Vzácná tkanina z Východu. Giacomo ji sežene, i když sám neví odkud přesně.", desc_en: "A rare fabric from the East. Giacomo procures it, though even he isn't quite sure where from." },
+
     "rennet": { name: "Syřidlo", name_en: "Rennet", icon: "🫙", type: "mat", desc: "Sráží mléko pro výrobu sýra. Ze slezu mláděte nebo z bylin.", desc_en: "Curdles milk for cheesemaking. From a kid's stomach or from herbs." },
     "galium": { name: "Svízel syřišťový", name_en: "Lady's Bedstraw", icon: "🌼", type: "mat", desc: "Žlutě kvetoucí bylina. Výluh sráží mléko — chudší alternativa ke slezu.", desc_en: "A yellow-flowering herb. Its extract curdles milk — a poor man's rennet." },
 
@@ -9761,6 +9771,27 @@ const ContactsDB = {
                        zrcadlo:  { itemId: 'glass_mirror',      price: 40, minRelation: 50 } },
         desc: 'Sklář z hutě v lesích. Alembiky a křivule pro učené — křehké zboží, stálý odbyt.',
         desc_en: 'A glassmaker from a forest works. Alembics and retorts for the learned — fragile goods, steady trade.'
+    },
+    giacomo: {
+        confession: "Prodává janovské zboží jako benátské a benátské jako janovské — podle toho, kdo se ptá.",
+        confession_en: "He sells Genoese goods as Venetian, and Venetian as Genoese — whichever the buyer prefers.",
+        name: 'Giacomo Foscari', name_en: 'Giacomo Foscari', icon: '⚓',
+        primaryAxis: 'scholars',
+        secondaryAxis: null,
+        unlockTech: null,                     // dostupný hned, jako dnes (persona.influence.giacomo)
+        sellBonus: {},                        // Giacomo jen prodává — výkup řeší jinde (vinum bonus zůstává legacy mechanika)
+        // Přítomen jen v okně po příjezdu (CellariumSystem.isGiacomoPresent) — gate v buyFromContact
+        buyOffer: { items: {
+            paper_fine: { price: 6,  stock: 3, minRelation: 20 },
+            pepr_cerny: { price: 6,  stock: 3, minRelation: 20 },
+            zazvor:     { price: 6,  stock: 3, minRelation: 20 },
+            hrebicek:   { price: 12, stock: 2, minRelation: 25 },
+            skorice:    { price: 10, stock: 2, minRelation: 25 },
+            hedvabi:    { price: 15, stock: 2, minRelation: 30 },
+            safran:     { price: 28, stock: 1, minRelation: 35 },
+        } },
+        desc: 'Benátský obchodník. Přiváží, co jinde nekoupíš — ale jen když je jeho loď v přístavu.',
+        desc_en: 'A Venetian merchant. He brings what you cannot buy elsewhere — but only while his ship is in port.'
     }
 };
 // ═══ src/systems/theme.js ═══
@@ -16421,6 +16452,12 @@ const CellariumSystem = {
     this.checkHeinrichEvent();
   },
 
+  // Giacomo je "v přístavu" jen 3 dny po příjezdu — jinak je jeho buyOffer (Clientela) nedostupný
+  GIACOMO_PRESENCE_MS: 3 * 24 * 60 * 60 * 1000,
+  isGiacomoPresent: function() {
+    return (Date.now() - (GameState.economy.lastGiacomoVisit || 0)) < this.GIACOMO_PRESENCE_MS;
+  },
+
   showGiacomoArrival: function() {
     // Show modal
     let existing = document.getElementById('giacomo-modal');
@@ -18190,6 +18227,12 @@ const SaeculumSystem = {
     const c = ContactsDB[contactId];
     const offer = c && c.buyOffer && c.buyOffer.items && c.buyOffer.items[itemId];
     if (!offer) return;
+    // Giacomo je jen 3 dny "v přístavu" po příjezdu — mimo okno nelze nakoupit
+    if (contactId === 'giacomo' && !CellariumSystem.isGiacomoPresent()) {
+      const lang = (GameState.settings && GameState.settings.language) || 'cs';
+      UI.notify(lang==='en' ? "Giacomo's ship is at sea — return after he arrives." : 'Giacomova loď je na moři — vrať se po jeho příjezdu.', true);
+      return;
+    }
     // Exkluzivní nabídka: gate na vztah (MRD bod 8)
     if (offer.minRelation && ((GameState.contactRelation || {})[contactId] || 0) < offer.minRelation) return;
     const soldToday = this._contactSoldToday(contactId, itemId);
@@ -42668,6 +42711,8 @@ const Game = {
             k.awayTask = taskId;
             k.awayUntil = Date.now() + cfg.durationMs;
             UI.notifyPanel('🚶 ' + (lang==='en' ? k.name+' left for '+taskId+'.' : k.name+' odešel na úkol: '+taskId+'.'), 'system');
+        } else if (this.conversiDayBlock() !== 'work') {
+            UI.notify(lang==='en' ? 'Assigned — he\'ll begin work at the next work block.' : 'Přiřazeno — konvrš se pustí do práce až v dalším pracovním bloku.', false);
         }
         Game.save();
         if (typeof SaeculumSystem !== 'undefined') SaeculumSystem.switchEntity('conversi');
