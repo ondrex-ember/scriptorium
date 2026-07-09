@@ -44,6 +44,11 @@ const HealthSystem = {
             Game.addKronikaEntry('important', `${def.name}: ${def.desc}`, `${def.name_en}: ${def.desc_en}`, '');
         }
         if (typeof VigorSystem !== 'undefined' && VigorSystem.renderPill) VigorSystem.renderPill();
+
+        // Organický trigger pro Athanor Tier I (MRD: athanor-tiers)
+        if (typeof SecretsSystem !== 'undefined' && SecretsSystem.checkOrganicAthanorUnlock) {
+            SecretsSystem.checkOrganicAthanorUnlock();
+        }
     },
 
     removeCondition: function(id, cured) {
