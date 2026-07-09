@@ -259,7 +259,7 @@ const UI = {
 
     renderActions: function () {
         const lang = (GameState.settings && GameState.settings.language) || 'cs';
-        const _hAct = JSON.stringify(GameState.inventory) + lang + 'd:' + (GameState.selectedDuration ?? 0) + (GameState.activeAction ? GameState.activeAction.id + GameState.activeAction.endTime : '') + (GameState.flags.fireplaceLit ? '1' : '0') + (GameState.activeAction ? Math.floor(Date.now() / 1000) : '');
+        const _hAct = JSON.stringify(GameState.inventory) + lang + 'd:' + (GameState.selectedDuration ?? 0) + (GameState.activeAction ? GameState.activeAction.id + GameState.activeAction.endTime : '') + (GameState.flags.fireplaceLit ? '1' : '0') + (GameState.activeAction ? Math.floor(Date.now() / 1000) : '') + (GameState.scavengeCooldownUntil ? 'cd:' + Math.floor(Date.now() / 1000) : '');
         if (_hAct === this._hashActions) return;
         this._hashActions = _hAct;
         const el = document.getElementById('workspace-actions');
@@ -342,6 +342,15 @@ const UI = {
                 }
             } else if (GameState.selectedDuration > 0) {
                 btnText += ` (${GameState.selectedDuration}m)`;
+            }
+
+            // Anti-grind cooldown (viz Game.scavenge) — blokuje jen SPOUŠTĚNÍ nových
+            // akcí, nikdy sběr už běžícího timeru (activeAction pro tento act.id).
+            const _scavRunning = GameState.activeAction && GameState.activeAction.id === act.id;
+            if (!_scavRunning && GameState.scavengeCooldownUntil && Date.now() < GameState.scavengeCooldownUntil) {
+                const remS = Math.ceil((GameState.scavengeCooldownUntil - Date.now()) / 1000);
+                btnDisabled = "disabled";
+                infoText = lang==='en' ? `Resting — ${remS}s` : `Odpočíváš — ${remS}s`;
             }
 
             const cardHtml = `<div class="card"><div class="item-icon">${act.icon}</div><div><strong>${actName}</strong><div class="text-sm">${infoText}</div></div><button class="${btnClass}" onclick="Game.scavenge('${act.id}')" ${btnDisabled}>${btnText}</button></div>`;
@@ -1075,6 +1084,16 @@ const UI = {
             } else {
                 btnText = lang === 'en' ? '⛏️ Mine' : '⛏️ Těžit';
             }
+
+            // Anti-grind cooldown (viz Game.scavenge) — blokuje jen spouštění nové
+            // akce, ne sběr už běžícího timeru.
+            const _mineRunning = GameState.activeAction && GameState.activeAction.id === act.id;
+            if (!_mineRunning && GameState.scavengeCooldownUntil && Date.now() < GameState.scavengeCooldownUntil) {
+                const remS = Math.ceil((GameState.scavengeCooldownUntil - Date.now()) / 1000);
+                btnDisabled = 'disabled';
+                infoText = lang==='en' ? `Resting — ${remS}s` : `Odpočíváš — ${remS}s`;
+            }
+
             h += `<div class="card"><div class="item-icon">${act.icon}</div><div><strong>${actName}</strong><div class="text-sm">${infoText}</div></div><button class="${btnClass}" onclick="Game.scavenge('${act.id}')" ${btnDisabled}>${btnText}</button></div>`;
         });
         if (!h) h = `<div style="padding:20px;opacity:0.6;text-align:center">${lang === 'en' ? '🔒 Requires a pickaxe.' : '🔒 Vyžaduje krumpáč.'}</div>`;
