@@ -419,8 +419,9 @@ const SaeculumSystem = {
       const bg = isCur ? '#8a3324' : takenBy ? 'rgba(0,0,0,0.04)' : 'rgba(197,160,89,0.15)';
       const fg = isCur ? '#fcf5e5' : 'inherit';
       const opac = takenBy && !isCur ? '0.55' : '1';
-      const hint = takenBy && !isCur ? takenBy.name : (lang === 'en' ? spec.name_en : spec.name);
-      h += `<div onclick="Game.assignBrotherTab('${b.id}', ${isCur ? 'null' : `'${tabId}'`})" style="cursor:pointer; opacity:${opac}; padding:6px 10px; border-radius:6px; background:${bg}; color:${fg}; font-size:0.74rem; text-align:center;">
+      const specName = lang === 'en' ? spec.name_en : spec.name;
+      const hint = takenBy && !isCur ? specName + ' (' + takenBy.name + ')' : specName;
+      h += `<div onclick="${takenBy && !isCur ? '' : `Game.assignBrotherTab('${b.id}', ${isCur ? 'null' : `'${tabId}'`})`}" style="cursor:${takenBy && !isCur ? 'default' : 'pointer'}; opacity:${opac}; padding:6px 10px; border-radius:6px; background:${bg}; color:${fg}; font-size:0.74rem; text-align:center;">
               <div>${spec.icon}</div>
               <div style="font-size:0.6rem; opacity:0.85;">${hint}</div>
             </div>`;
