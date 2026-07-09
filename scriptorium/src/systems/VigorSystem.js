@@ -829,6 +829,11 @@ const VigorSystem = {
             meta.warnedLow = false;
             meta.warnedExhausted = false;
         }
+
+        // Organický trigger pro Athanor Tier I (MRD: athanor-tiers)
+        if (typeof SecretsSystem !== 'undefined' && SecretsSystem.checkOrganicAthanorUnlock) {
+            SecretsSystem.checkOrganicAthanorUnlock();
+        }
     },
 
     // ── Recovery time estimate ────────────────────────────────────────────────
