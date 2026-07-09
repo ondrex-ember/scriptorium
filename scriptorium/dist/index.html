@@ -44275,7 +44275,9 @@ const Game = {
             }
         }
 
-        // ── Sad (L1): přiřazený konvrš sklízí dozrálé stromy, self-guarded 24h ──
+        // ── Sad (L1): přiřazený konvrš sklízí dozrálé stromy, self-guarded 24h.
+        //    Přiřazený bratr (specializace "Zahradník", stejný tab jako Záhony)
+        //    dělá totéž sám i bez konvrše; s konvršem násobí jeho výnos. ──
         const orchardKeeper = GameState.conversi
             .filter(k => k.task === 'sad'
                       && k.fatigue < (this._konvrsTraits(k).includes('pilny') ? 90 : 80)
@@ -44284,11 +44286,14 @@ const Game = {
                       && !(k.injuredUntil && k.injuredUntil > Date.now())
                       && !(k.awayUntil && k.awayUntil > Date.now()))
             .sort((a, b) => a.fatigue - b.fatigue)[0];
-        if (orchardKeeper && GameState.orchard) {
+        const orchardBrother = (GameState.dormitorium && GameState.dormitorium.brothers || [])
+            .find(b => b.assignedTab === 'sad');
+        if ((orchardKeeper || orchardBrother) && GameState.orchard) {
             if (!GameState.conversiOrchardLastTick) GameState.conversiOrchardLastTick = 0;
             if (Date.now() - GameState.conversiOrchardLastTick >= DAY) {
                 GameState.conversiOrchardLastTick = Date.now();
                 let didHarvest = false;
+                const brotherMult = orchardBrother ? this.dormitoriumBrotherMult(orchardBrother, 'sad') : 1.0;
 
                 const TREE_DATA = {
                     seed_apple:    { harvestHours: 24 }, seed_pear:     { harvestHours: 24 },
@@ -44312,7 +44317,8 @@ const Game = {
 
                     const fruit = TREE_FRUITS[slot.treeType];
                     if (!fruit) return;
-                    const qty = (slot.treeType === 'seed_walnut' || slot.treeType === 'seed_sorb') ? 2 : 3;
+                    const baseQty = (slot.treeType === 'seed_walnut' || slot.treeType === 'seed_sorb') ? 2 : 3;
+                    const qty = Math.max(1, Math.round(baseQty * brotherMult));
                     this.addItem(fruit, qty);
                     if (slot.treeType === 'seed_linden') this.addItem('linden_blossom', 1);
                     this.addItem('pollen', 1);
@@ -44321,15 +44327,23 @@ const Game = {
                 });
 
                 if (didHarvest) {
-                    const workGain = this._konvrsTraits(orchardKeeper).includes('silak') ? 10 : 15;
-                    orchardKeeper.fatigue = Math.min(100, orchardKeeper.fatigue + workGain);
+                    if (orchardKeeper) {
+                        const workGain = this._konvrsTraits(orchardKeeper).includes('silak') ? 10 : 15;
+                        orchardKeeper.fatigue = Math.min(100, orchardKeeper.fatigue + workGain);
+                    }
+                    if (orchardBrother) {
+                        this.dormitoriumAddXp(orchardBrother, 'sad');
+                        orchardBrother.fatigue = Math.min(100, (orchardBrother.fatigue || 0) + 10);
+                    }
                     Game.save();
                 }
             }
         }
 
         // ── Apiarium (L1): přiřazený konvrš sklízí med/vosk, přikrmuje v zimě
-        //    a léčí Varroa — self-guarded 24h ──
+        //    a léčí Varroa — self-guarded 24h. Přiřazený bratr (specializace
+        //    "Včelař") dělá totéž sám i bez konvrše; s konvršem násobí výnos
+        //    sklizně (Varroa léčba a zimní přikrmení jsou binární, bez bonusu). ──
         const beekeeper = GameState.conversi
             .filter(k => k.task === 'apiarium'
                       && k.fatigue < (this._konvrsTraits(k).includes('pilny') ? 90 : 80)
@@ -44338,13 +44352,16 @@ const Game = {
                       && !(k.injuredUntil && k.injuredUntil > Date.now())
                       && !(k.awayUntil && k.awayUntil > Date.now()))
             .sort((a, b) => a.fatigue - b.fatigue)[0];
-        if (beekeeper && GameState.apiary && typeof GardenSystem !== 'undefined') {
+        const apiaryBrother = (GameState.dormitorium && GameState.dormitorium.brothers || [])
+            .find(b => b.assignedTab === 'apiarium');
+        if ((beekeeper || apiaryBrother) && GameState.apiary && typeof GardenSystem !== 'undefined') {
             if (!GameState.conversiApiaryLastTick) GameState.conversiApiaryLastTick = 0;
             if (Date.now() - GameState.conversiApiaryLastTick >= DAY) {
                 GameState.conversiApiaryLastTick = Date.now();
                 let didWork = false;
                 const season = GardenSystem._getApiarySeason();
                 const now = Date.now();
+                const brotherMult = apiaryBrother ? this.dormitoriumBrotherMult(apiaryBrother, 'apiarium') : 1.0;
 
                 GameState.apiary.forEach(hive => {
                     if (!hive.built || !hive.hasQueen) return;
@@ -44378,8 +44395,8 @@ const Game = {
                     const strengthMod = (hive.strength || 3) / 5;
                     const honeyBase = { spring: 1, summer: 3, autumn: 1 };
                     const waxBase   = { spring: 1, summer: 1, autumn: 2 };
-                    this.addItem('honey', Math.max(1, Math.round(honeyBase[season] * strengthMod)));
-                    this.addItem('beeswax', Math.max(1, Math.round(waxBase[season] * strengthMod)));
+                    this.addItem('honey', Math.max(1, Math.round(honeyBase[season] * strengthMod * brotherMult)));
+                    this.addItem('beeswax', Math.max(1, Math.round(waxBase[season] * strengthMod * brotherMult)));
 
                     if (season === 'summer') {
                         const hasFlowers = GameState.garden && GameState.garden.some(p => p.state === 2 && p.water);
@@ -44403,15 +44420,23 @@ const Game = {
                 });
 
                 if (didWork) {
-                    const workGain = this._konvrsTraits(beekeeper).includes('silak') ? 10 : 15;
-                    beekeeper.fatigue = Math.min(100, beekeeper.fatigue + workGain);
+                    if (beekeeper) {
+                        const workGain = this._konvrsTraits(beekeeper).includes('silak') ? 10 : 15;
+                        beekeeper.fatigue = Math.min(100, beekeeper.fatigue + workGain);
+                    }
+                    if (apiaryBrother) {
+                        this.dormitoriumAddXp(apiaryBrother, 'apiarium');
+                        apiaryBrother.fatigue = Math.min(100, (apiaryBrother.fatigue || 0) + 10);
+                    }
                     Game.save();
                 }
             }
         }
 
         // ── Piscina (L1): přiřazený konvrš krmí ryby, přesouvá čekající plůdek
-        //    a sklízí dospělé kapry — self-guarded 24h ──
+        //    a sklízí dospělé kapry — self-guarded 24h. Přiřazený bratr
+        //    (specializace "Rybář") dělá totéž sám i bez konvrše; s konvršem
+        //    násobí sklizený počet kaprů (krmení/přesun plůdku beze změny). ──
         const fisherman = GameState.conversi
             .filter(k => k.task === 'piscina'
                       && k.fatigue < (this._konvrsTraits(k).includes('pilny') ? 90 : 80)
@@ -44420,12 +44445,15 @@ const Game = {
                       && !(k.injuredUntil && k.injuredUntil > Date.now())
                       && !(k.awayUntil && k.awayUntil > Date.now()))
             .sort((a, b) => a.fatigue - b.fatigue)[0];
-        if (fisherman && GameState.piscina && GameState.piscina.tier >= 1) {
+        const piscinaBrother = (GameState.dormitorium && GameState.dormitorium.brothers || [])
+            .find(b => b.assignedTab === 'piscina');
+        if ((fisherman || piscinaBrother) && GameState.piscina && GameState.piscina.tier >= 1) {
             if (!GameState.conversiPiscinaLastTick) GameState.conversiPiscinaLastTick = 0;
             if (Date.now() - GameState.conversiPiscinaLastTick >= DAY) {
                 GameState.conversiPiscinaLastTick = Date.now();
                 const p = GameState.piscina;
                 let didWork = false;
+                const brotherMult = piscinaBrother ? this.dormitoriumBrotherMult(piscinaBrother, 'piscina') : 1.0;
 
                 // Krmení — spotřebuje fiber podle počtu ryb všech stupňů
                 const feedNeeded = (p.fry || 0) + (p.youngCarp || 0) + (p.carp || 0);
@@ -44443,17 +44471,23 @@ const Game = {
                     didWork = true;
                 }
 
-                // Sklizeň všech dospělých kaprů
+                // Sklizeň všech dospělých kaprů — bratr násobí ulovené množství
                 if ((p.carp || 0) > 0) {
-                    const qty = p.carp;
+                    const qty = Math.max(p.carp, Math.round(p.carp * brotherMult));
                     p.carp = 0;
                     this.addItem('carp', qty);
                     didWork = true;
                 }
 
                 if (didWork) {
-                    const workGain = this._konvrsTraits(fisherman).includes('silak') ? 10 : 15;
-                    fisherman.fatigue = Math.min(100, fisherman.fatigue + workGain);
+                    if (fisherman) {
+                        const workGain = this._konvrsTraits(fisherman).includes('silak') ? 10 : 15;
+                        fisherman.fatigue = Math.min(100, fisherman.fatigue + workGain);
+                    }
+                    if (piscinaBrother) {
+                        this.dormitoriumAddXp(piscinaBrother, 'piscina');
+                        piscinaBrother.fatigue = Math.min(100, (piscinaBrother.fatigue || 0) + 10);
+                    }
                     Game.save();
                 }
             }
@@ -44462,7 +44496,11 @@ const Game = {
         // ── Pole (L1): přiřazený konvrš zalévá rostoucí pole a sklízí dozrálá,
         //    self-guarded 24h. Volá přímo GardenSystem.waterField/harvestField —
         //    výpočet výnosu (počasí, kvalita zrna, sláma) je tam příliš složitý
-        //    na bezpečné duplikování zvlášť. ──
+        //    na bezpečné duplikování zvlášť. Přiřazený bratr (specializace
+        //    "Rolník") dělá totéž sám i bez konvrše; s konvršem násobí výnos —
+        //    protože harvestField() píše výsledek přímo do inventáře, bonus se
+        //    dopočítává porovnáním stavu inventáře před/po sklizni (snapshot-diff),
+        //    ne úpravou cizí funkce. ──
         const plowman = GameState.conversi
             .filter(k => k.task === 'pole'
                       && k.fatigue < (this._konvrsTraits(k).includes('pilny') ? 90 : 80)
@@ -44471,13 +44509,16 @@ const Game = {
                       && !(k.injuredUntil && k.injuredUntil > Date.now())
                       && !(k.awayUntil && k.awayUntil > Date.now()))
             .sort((a, b) => a.fatigue - b.fatigue)[0];
-        if (plowman && GameState.fields && typeof GardenSystem !== 'undefined') {
+        const fieldBrother = (GameState.dormitorium && GameState.dormitorium.brothers || [])
+            .find(b => b.assignedTab === 'pole');
+        if ((plowman || fieldBrother) && GameState.fields && typeof GardenSystem !== 'undefined') {
             if (!GameState.conversiFieldLastTick) GameState.conversiFieldLastTick = 0;
             if (Date.now() - GameState.conversiFieldLastTick >= DAY) {
                 GameState.conversiFieldLastTick = Date.now();
                 let didWork = false;
                 const techs = GameState.researchedTechs || [];
                 const waterCost = techs.includes('tech_field_irrigation') ? 1 : 2;
+                const brotherMult = fieldBrother ? this.dormitoriumBrotherMult(fieldBrother, 'pole') : 1.0;
 
                 GameState.fields.forEach((field, idx) => {
                     if (field.locked || field.state !== 'growing') return;
@@ -44490,14 +44531,30 @@ const Game = {
                         return;
                     }
                     if (field.phase >= 3) {
+                        const before = Object.assign({}, GameState.inventory);
                         GardenSystem.harvestField(idx);
                         didWork = true;
+                        if (brotherMult > 1.0) {
+                            Object.keys(GameState.inventory).forEach(itemId => {
+                                const gained = (GameState.inventory[itemId] || 0) - (before[itemId] || 0);
+                                if (gained > 0) {
+                                    const bonus = Math.round(gained * (brotherMult - 1.0));
+                                    if (bonus > 0) this.addItem(itemId, bonus);
+                                }
+                            });
+                        }
                     }
                 });
 
                 if (didWork) {
-                    const workGain = this._konvrsTraits(plowman).includes('silak') ? 10 : 15;
-                    plowman.fatigue = Math.min(100, plowman.fatigue + workGain);
+                    if (plowman) {
+                        const workGain = this._konvrsTraits(plowman).includes('silak') ? 10 : 15;
+                        plowman.fatigue = Math.min(100, plowman.fatigue + workGain);
+                    }
+                    if (fieldBrother) {
+                        this.dormitoriumAddXp(fieldBrother, 'pole');
+                        fieldBrother.fatigue = Math.min(100, (fieldBrother.fatigue || 0) + 10);
+                    }
                     Game.save();
                 }
             }
@@ -44507,7 +44564,10 @@ const Game = {
         //    specialista, na rozdíl od hráče gate neplatí) a sklízí dozrálou révu,
         //    self-guarded 24h. Zalévání a sklizeň volají GardenSystem.waterVine/
         //    harvestVine přímo; prořez má vlastní logiku, protože pruneVine()
-        //    má hardcoded sezónní gate (březen–duben), který se zde záměrně obchází. ──
+        //    má hardcoded sezónní gate (březen–duben), který se zde záměrně obchází.
+        //    Přiřazený bratr (specializace "Vinař") dělá totéž sám i bez konvrše;
+        //    s konvršem násobí výnos sklizně (snapshot-diff na harvestVine,
+        //    stejně jako u Pole — prořez/cuttings beze změny). ──
         const vintner = GameState.conversi
             .filter(k => k.task === 'vinohrad'
                       && k.fatigue < (this._konvrsTraits(k).includes('pilny') ? 90 : 80)
@@ -44516,13 +44576,16 @@ const Game = {
                       && !(k.injuredUntil && k.injuredUntil > Date.now())
                       && !(k.awayUntil && k.awayUntil > Date.now()))
             .sort((a, b) => a.fatigue - b.fatigue)[0];
-        if (vintner && GameState.vinea && typeof GardenSystem !== 'undefined') {
+        const vineaBrother = (GameState.dormitorium && GameState.dormitorium.brothers || [])
+            .find(b => b.assignedTab === 'vinohrad');
+        if ((vintner || vineaBrother) && GameState.vinea && typeof GardenSystem !== 'undefined') {
             if (!GameState.conversiVineaLastTick) GameState.conversiVineaLastTick = 0;
             if (Date.now() - GameState.conversiVineaLastTick >= DAY) {
                 GameState.conversiVineaLastTick = Date.now();
                 let didWork = false;
                 const techs = GameState.researchedTechs || [];
                 const waterCost = techs.includes('tech_field_irrigation') ? 1 : 2;
+                const brotherMult = vineaBrother ? this.dormitoriumBrotherMult(vineaBrother, 'vinohrad') : 1.0;
 
                 GameState.vinea.forEach((slot, idx) => {
                     if (!slot || slot.state === 'empty' || slot.state === 'dormant') return;
@@ -44547,14 +44610,30 @@ const Game = {
 
                     // Sklizeň dozrálé révy
                     if (slot.state === 'ripe') {
+                        const before = Object.assign({}, GameState.inventory);
                         GardenSystem.harvestVine(idx);
                         didWork = true;
+                        if (brotherMult > 1.0) {
+                            Object.keys(GameState.inventory).forEach(itemId => {
+                                const gained = (GameState.inventory[itemId] || 0) - (before[itemId] || 0);
+                                if (gained > 0) {
+                                    const bonus = Math.round(gained * (brotherMult - 1.0));
+                                    if (bonus > 0) this.addItem(itemId, bonus);
+                                }
+                            });
+                        }
                     }
                 });
 
                 if (didWork) {
-                    const workGain = this._konvrsTraits(vintner).includes('silak') ? 10 : 15;
-                    vintner.fatigue = Math.min(100, vintner.fatigue + workGain);
+                    if (vintner) {
+                        const workGain = this._konvrsTraits(vintner).includes('silak') ? 10 : 15;
+                        vintner.fatigue = Math.min(100, vintner.fatigue + workGain);
+                    }
+                    if (vineaBrother) {
+                        this.dormitoriumAddXp(vineaBrother, 'vinohrad');
+                        vineaBrother.fatigue = Math.min(100, (vineaBrother.fatigue || 0) + 10);
+                    }
                     Game.save();
                 }
             }
