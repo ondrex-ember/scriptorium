@@ -28688,6 +28688,7 @@ const AthanorSystem = {
 
   buildAlembicSvg(state) {
     const isBrewing = !!state.brewing;
+    const isDestilling = isBrewing && state.brewing.processId === 'destillatio';
     const now = Date.now();
     let pct = 0, si = 0;
     if (isBrewing) {
@@ -28719,6 +28720,23 @@ const AthanorSystem = {
       <path d="M46,148 Q54,136 58,148 Q62,136 70,148" fill="rgba(240,140,0,0.5)" stroke="none">
         <animate attributeName="d" values="M46,148 Q54,136 58,148 Q62,136 70,148;M46,148 Q52,132 58,146 Q64,134 70,148;M46,148 Q54,136 58,148 Q62,136 70,148" dur="0.5s" repeatCount="indefinite"/>
       </path>` : '';
+    // Destillatio: pára stoupající podél hubice trubice (M68,65 → Q95,54 → 115,44)
+    const steam = isDestilling ? `
+      <circle cx="82" cy="60" r="2.5" fill="rgba(255,255,255,0.35)">
+        <animate attributeName="cy" values="60;42;60" dur="1.8s" repeatCount="indefinite"/>
+        <animate attributeName="cx" values="82;86;82" dur="1.8s" repeatCount="indefinite"/>
+        <animate attributeName="opacity" values="0;0.55;0" dur="1.8s" repeatCount="indefinite"/>
+      </circle>
+      <circle cx="97" cy="51" r="2" fill="rgba(255,255,255,0.3)">
+        <animate attributeName="cy" values="51;34;51" dur="1.5s" repeatCount="indefinite" begin="0.4s"/>
+        <animate attributeName="cx" values="97;101;97" dur="1.5s" repeatCount="indefinite" begin="0.4s"/>
+        <animate attributeName="opacity" values="0;0.5;0" dur="1.5s" repeatCount="indefinite" begin="0.4s"/>
+      </circle>
+      <circle cx="108" cy="46" r="1.6" fill="rgba(255,255,255,0.3)">
+        <animate attributeName="cy" values="46;30;46" dur="1.6s" repeatCount="indefinite" begin="0.9s"/>
+        <animate attributeName="cx" values="108;112;108" dur="1.6s" repeatCount="indefinite" begin="0.9s"/>
+        <animate attributeName="opacity" values="0;0.45;0" dur="1.6s" repeatCount="indefinite" begin="0.9s"/>
+      </circle>` : '';
     return `<svg viewBox="0 0 120 155" width="120" height="155" xmlns="http://www.w3.org/2000/svg"
       style="filter:drop-shadow(0 0 14px ${glow});display:block;margin:0 auto;">
       <ellipse cx="58" cy="100" rx="44" ry="38" fill="${liq}" stroke="#5c3d1a" stroke-width="2"/>
@@ -28728,6 +28746,7 @@ const AthanorSystem = {
       <path d="M68 65 Q95 54 115 44" fill="none" stroke="${liq}" stroke-width="1.5" stroke-linecap="round" opacity="0.6"/>
       <ellipse cx="58" cy="57" rx="13" ry="5" fill="rgba(92,61,26,0.6)" stroke="#5c3d1a" stroke-width="1.5"/>
       ${bubbles}
+      ${steam}
       ${isBrewing && pct > 50 ? `<circle cx="116" cy="43" r="3" fill="${liq}" opacity="0.8">
         <animate attributeName="r" values="3;4;3" dur="2s" repeatCount="indefinite"/>
       </circle>` : ''}
@@ -29179,8 +29198,28 @@ const AthanorSystem = {
       display:flex;align-items:center;justify-content:center;
       z-index:9999;
       padding:20px;
+      animation:athanorResultOverlayIn 0.25s ease-out;
     `;
+    const boxAnim = !isSuccess ? 'athanorResultShake 0.4s ease-out'
+      : (result.isCritical ? 'athanorResultCriticalIn 0.5s cubic-bezier(0.34,1.56,0.64,1)'
+                            : 'athanorResultBoxIn 0.35s cubic-bezier(0.34,1.56,0.64,1)');
     modal.innerHTML = `
+      <style>
+        @keyframes athanorResultOverlayIn { from{opacity:0} to{opacity:1} }
+        @keyframes athanorResultBoxIn { from{opacity:0;transform:scale(0.9)} to{opacity:1;transform:scale(1)} }
+        @keyframes athanorResultCriticalIn {
+          0%{opacity:0;transform:scale(0.85);filter:drop-shadow(0 0 0 rgba(232,196,74,0))}
+          60%{opacity:1;transform:scale(1.04);filter:drop-shadow(0 0 22px rgba(232,196,74,0.7))}
+          100%{opacity:1;transform:scale(1);filter:drop-shadow(0 0 10px rgba(232,196,74,0.35))}
+        }
+        @keyframes athanorResultShake {
+          0%{opacity:0;transform:scale(0.95) translateX(0)}
+          25%{opacity:1;transform:scale(1) translateX(-6px)}
+          50%{transform:scale(1) translateX(5px)}
+          75%{transform:scale(1) translateX(-3px)}
+          100%{transform:scale(1) translateX(0)}
+        }
+      <\/style>
       <div style="
         background:${bgColor};
         border:2px solid ${borderColor};
@@ -29192,6 +29231,7 @@ const AthanorSystem = {
         box-shadow:0 8px 40px rgba(0,0,0,0.6);
         position:relative;
         color:#e8d5a3;
+        animation:${boxAnim};
       ">
         ${successBody}
         <div style="display:flex;gap:10px;margin-top:18px;justify-content:center;">
@@ -40728,6 +40768,7 @@ const Game = {
                     if(Math.random() < 0.35) this.addItem('rags', 1);
                     // Athanor: byliny
                     if(Math.random() < 0.08) this.addItem('chamomile', 1);
+                    if(Math.random() < 0.08) this.addItem('plantain', 1);
                     if(Math.random() < 0.05) this.addItem('st_johns_wort', 1);
                     if(Math.random() < 0.04) this.addItem('thyme', 1);
                     if(Math.random() < 0.03) this.addItem('seeds_thyme', 1);
@@ -40846,6 +40887,7 @@ const Game = {
                     if(Math.random() < 0.08) this.addItem('yarrow', 1);
                     if(Math.random() < 0.05) this.addItem('wormwood', 1);
                     if(Math.random() < 0.04) this.addItem('sage', 1);
+                    if(Math.random() < 0.02) this.addItem('plantain', 1);
                     // Divoke obili mezi travou
                     if(Math.random() < 0.04) this.addItem('seeds_rye', 1);
                     if(Math.random() < 0.03) this.addItem('seeds_wheat', 1);
@@ -41023,6 +41065,7 @@ const Game = {
                 if(Math.random() < 0.35) this.addItem('rags', 1);
                 // Athanor: byliny
                 if(Math.random() < 0.08) this.addItem('chamomile', 1);
+                if(Math.random() < 0.08) this.addItem('plantain', 1);
                 if(Math.random() < 0.05) this.addItem('st_johns_wort', 1);
                 if(Math.random() < 0.04) this.addItem('thyme', 1);
                 if(Math.random() < 0.03) this.addItem('seeds_thyme', 1);
@@ -41124,6 +41167,7 @@ const Game = {
                 if(Math.random() < 0.08) this.addItem('yarrow', 1);
                 if(Math.random() < 0.05) this.addItem('wormwood', 1);
                 if(Math.random() < 0.04) this.addItem('sage', 1);
+                if(Math.random() < 0.02) this.addItem('plantain', 1);
                 // Divoke obili mezi travou
                 if(Math.random() < 0.04) this.addItem('seeds_rye', 1);
                 if(Math.random() < 0.03) this.addItem('seeds_wheat', 1);
@@ -43658,6 +43702,7 @@ const Game = {
     },
 
 };
+
 // ═══ src/core/ui.js ═══
 const UI = {
     currentInvFilter: 'all',
