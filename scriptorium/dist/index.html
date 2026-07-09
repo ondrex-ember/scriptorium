@@ -43201,6 +43201,7 @@ const Game = {
         sad:      { icon: '🍎', away: false },
         apiarium: { icon: '🐝', away: false },
         piscina:  { icon: '🐟', away: false },
+        pole:     { icon: '🌾', away: false },
         scavenge: { icon: '🌾', away: true,  durationMs: 8  * 60 * 60 * 1000, riskPct: 12 },
         doly:     { icon: '⛏️', away: true,  durationMs: 20 * 60 * 60 * 1000, riskPct: 20 },
         kostel:   { icon: '🕍', away: false },
@@ -43975,6 +43976,50 @@ const Game = {
                 if (didWork) {
                     const workGain = this._konvrsTraits(fisherman).includes('silak') ? 10 : 15;
                     fisherman.fatigue = Math.min(100, fisherman.fatigue + workGain);
+                    Game.save();
+                }
+            }
+        }
+
+        // ── Pole (L1): přiřazený konvrš zalévá rostoucí pole a sklízí dozrálá,
+        //    self-guarded 24h. Volá přímo GardenSystem.waterField/harvestField —
+        //    výpočet výnosu (počasí, kvalita zrna, sláma) je tam příliš složitý
+        //    na bezpečné duplikování zvlášť. ──
+        const plowman = GameState.conversi
+            .filter(k => k.task === 'pole'
+                      && k.fatigue < (this._konvrsTraits(k).includes('pilny') ? 90 : 80)
+                      && (typeof k.mood !== 'number' || k.mood >= 30)
+                      && !(k.penanceUntil && k.penanceUntil > Date.now())
+                      && !(k.injuredUntil && k.injuredUntil > Date.now())
+                      && !(k.awayUntil && k.awayUntil > Date.now()))
+            .sort((a, b) => a.fatigue - b.fatigue)[0];
+        if (plowman && GameState.fields && typeof GardenSystem !== 'undefined') {
+            if (!GameState.conversiFieldLastTick) GameState.conversiFieldLastTick = 0;
+            if (Date.now() - GameState.conversiFieldLastTick >= DAY) {
+                GameState.conversiFieldLastTick = Date.now();
+                let didWork = false;
+                const techs = GameState.researchedTechs || [];
+                const waterCost = techs.includes('tech_field_irrigation') ? 1 : 2;
+
+                GameState.fields.forEach((field, idx) => {
+                    if (field.locked || field.state !== 'growing') return;
+
+                    if (!field.watered) {
+                        if ((GameState.inventory['water'] || 0) >= waterCost) {
+                            GardenSystem.waterField(idx);
+                            didWork = true;
+                        }
+                        return;
+                    }
+                    if (field.phase >= 3) {
+                        GardenSystem.harvestField(idx);
+                        didWork = true;
+                    }
+                });
+
+                if (didWork) {
+                    const workGain = this._konvrsTraits(plowman).includes('silak') ? 10 : 15;
+                    plowman.fatigue = Math.min(100, plowman.fatigue + workGain);
                     Game.save();
                 }
             }
