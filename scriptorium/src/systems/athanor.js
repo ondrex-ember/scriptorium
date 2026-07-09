@@ -1693,8 +1693,28 @@ const AthanorSystem = {
       display:flex;align-items:center;justify-content:center;
       z-index:9999;
       padding:20px;
+      animation:athanorResultOverlayIn 0.25s ease-out;
     `;
+    const boxAnim = !isSuccess ? 'athanorResultShake 0.4s ease-out'
+      : (result.isCritical ? 'athanorResultCriticalIn 0.5s cubic-bezier(0.34,1.56,0.64,1)'
+                            : 'athanorResultBoxIn 0.35s cubic-bezier(0.34,1.56,0.64,1)');
     modal.innerHTML = `
+      <style>
+        @keyframes athanorResultOverlayIn { from{opacity:0} to{opacity:1} }
+        @keyframes athanorResultBoxIn { from{opacity:0;transform:scale(0.9)} to{opacity:1;transform:scale(1)} }
+        @keyframes athanorResultCriticalIn {
+          0%{opacity:0;transform:scale(0.85);filter:drop-shadow(0 0 0 rgba(232,196,74,0))}
+          60%{opacity:1;transform:scale(1.04);filter:drop-shadow(0 0 22px rgba(232,196,74,0.7))}
+          100%{opacity:1;transform:scale(1);filter:drop-shadow(0 0 10px rgba(232,196,74,0.35))}
+        }
+        @keyframes athanorResultShake {
+          0%{opacity:0;transform:scale(0.95) translateX(0)}
+          25%{opacity:1;transform:scale(1) translateX(-6px)}
+          50%{transform:scale(1) translateX(5px)}
+          75%{transform:scale(1) translateX(-3px)}
+          100%{transform:scale(1) translateX(0)}
+        }
+      <\/style>
       <div style="
         background:${bgColor};
         border:2px solid ${borderColor};
@@ -1706,6 +1726,7 @@ const AthanorSystem = {
         box-shadow:0 8px 40px rgba(0,0,0,0.6);
         position:relative;
         color:#e8d5a3;
+        animation:${boxAnim};
       ">
         ${successBody}
         <div style="display:flex;gap:10px;margin-top:18px;justify-content:center;">
