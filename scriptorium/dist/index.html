@@ -39181,6 +39181,10 @@ const Game = {
 		// CONVERSI — holý skelet (jméno + slot, bez úkolů zatím)
 		if (!GameState.conversi) GameState.conversi = [];
 
+		// DORMITORIUM — bratři (mniši/skriptoři, manažerská vrstva nad Conversi)
+		if (!GameState.dormitorium) GameState.dormitorium = { brothers: [] };
+		if (!GameState.dormitorium.brothers) GameState.dormitorium.brothers = [];
+
 		// Initialize tool uses tracking
 		if (!GameState.toolUses) GameState.toolUses = {};
 
@@ -42137,6 +42141,9 @@ const Game = {
 		if (!GameState.storage.old_cellars)        GameState.storage.old_cellars        = {built:false};
 		if (!GameState.storage.domus_conversorum_i) GameState.storage.domus_conversorum_i = {built:false};
 		if (!GameState.storage.domus_conversorum_ii) GameState.storage.domus_conversorum_ii = {built:false};
+		if (!GameState.storage.dormitorium_i)   GameState.storage.dormitorium_i   = {built:false};
+		if (!GameState.storage.dormitorium_ii)  GameState.storage.dormitorium_ii  = {built:false};
+		if (!GameState.storage.dormitorium_iii) GameState.storage.dormitorium_iii = {built:false};
 		if (!GameState.storage.transactions) GameState.storage.transactions = [];
 		// Prereq checks — storage buildings
 		if (type === 'cella' && !GameState.storage.almarium.built) {
@@ -42178,6 +42185,12 @@ const Game = {
 				UI.notify(lang==='en' ? 'The old vaults have not yet been found.' : 'Staré klenby ještě nebyly objeveny.', true); return;
 			}
 		}
+		if (type === 'dormitorium_ii' && !(GameState.storage.dormitorium_i && GameState.storage.dormitorium_i.built)) {
+			UI.notify(lang==='en' ? 'Build Dormitorium I first.' : 'Nejprve postav Dormitorium I.', true); return;
+		}
+		if (type === 'dormitorium_iii' && !(GameState.storage.dormitorium_ii && GameState.storage.dormitorium_ii.built)) {
+			UI.notify(lang==='en' ? 'Build Dormitorium II first.' : 'Nejprve postav Dormitorium II.', true); return;
+		}
 		if (type === 'domus_conversorum_i' && !(GameState.storage.old_cellars && GameState.storage.old_cellars.built)) {
 			UI.notify(lang==='en' ? 'Clear the Old Cellars first.' : 'Nejprve vyklidit Staré sklepy.', true); return;
 		}
@@ -42207,12 +42220,18 @@ const Game = {
 			old_cellars:       { cut_stone: 15, plank: 10, rope: 5 },
 			domus_conversorum_i: { cut_stone: 40, plank: 25, rope: 10 },
 			domus_conversorum_ii: { cut_stone: 150, plank: 90, rope: 35 },
+			dormitorium_i:   { cut_stone: 30, plank: 20, rope: 8 },
+			dormitorium_ii:  { cut_stone: 90,  plank: 60, rope: 25, iron_ingot: 2 },
+			dormitorium_iii: { cut_stone: 200, plank: 130, rope: 50, iron_ingot: 6, glass_stopper: 4 },
 		};
 		// Volitelný groše náklad navíc k materiálu — dnes jen Domus Conversorum I/II.
 		// Cokoliv chybí v costsGrose má groseNeeded=0, tedy nulový dopad na stávající budovy.
 		const costsGrose = {
 			domus_conversorum_i: 25,
 			domus_conversorum_ii: 50,
+			dormitorium_i: 15,
+			dormitorium_ii: 35,
+			dormitorium_iii: 70,
 		};
 		const cost = costs[type];
 		if (!cost) return;
@@ -42240,6 +42259,9 @@ const Game = {
 			old_cellars: 'Staré sklepy',
 			domus_conversorum_i: 'Domus Conversorum I',
 			domus_conversorum_ii: 'Domus Conversorum II',
+			dormitorium_i: 'Dormitorium I',
+			dormitorium_ii: 'Dormitorium II',
+			dormitorium_iii: 'Dormitorium III',
 		};
 		const n = names[type] || type;
 		UI.notifyPanel('🏗️ ' + (lang==='en' ? n+' built.' : n+' postaveno.'), 'system');
@@ -43241,6 +43263,15 @@ const Game = {
         return 0;
     },
 
+    // ── DORMITORIUM — kapacita bratrů (mniši/skriptoři, manažerská vrstva) ──
+    dormitoriumCapacity: function() {
+        const s = GameState.storage || {};
+        if (s.dormitorium_iii && s.dormitorium_iii.built) return 10;
+        if (s.dormitorium_ii  && s.dormitorium_ii.built)  return 6;
+        if (s.dormitorium_i   && s.dormitorium_i.built)   return 3;
+        return 0;
+    },
+
     // ── CONVERSI — přiřazování úkolů (M1) ───────────────────────────────────
     CONVERSI_TASKS: {
         dvur:     { icon: '🏚️', away: false },
@@ -43443,6 +43474,62 @@ const Game = {
         );
         Game.save();
         if (typeof SaeculumSystem !== 'undefined') SaeculumSystem.switchEntity(GameState.ui.saeculumEntity || 'tavern');
+    },
+
+    // ── DORMITORIUM — najmutí bratra (mnicha/skriptora, manažerská vrstva) ──
+    // Bez rank/vztah gate (na rozdíl od Conversi) — jen kapacita budovy + groše.
+    // Alternativní bezplatná cesta (poutník-event) je plánovaná jako samostatný krok.
+    hireBrother: function() {
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        if (!GameState.dormitorium) GameState.dormitorium = { brothers: [] };
+        if (!GameState.dormitorium.brothers) GameState.dormitorium.brothers = [];
+        const cap = this.dormitoriumCapacity();
+        if (cap === 0) {
+            UI.notify(lang==='en' ? 'Build Dormitorium first.' : 'Nejprve postav Dormitorium.', true); return;
+        }
+        if (GameState.dormitorium.brothers.length >= cap) {
+            UI.notify(lang==='en' ? 'No free beds in the Dormitorium.' : 'V Dormitoriu není volné lůžko.', true); return;
+        }
+        const HIRE_COST = 30;
+        if ((typeof CellariumSystem !== 'undefined' ? CellariumSystem.getGrose() : 0) < HIRE_COST) {
+            UI.notify(lang==='en' ? 'Not enough groats.' : 'Nedostatek grošů.', true); return;
+        }
+
+        // Nábor z rosteru (DormitoriumRosterDB) — fallback na obecné jméno, pokud roster nedostupný
+        let rosterId = null, name, hireQuote = '';
+        const rosterOk = (typeof DormitoriumRosterDB !== 'undefined') && Object.keys(DormitoriumRosterDB).length > 0;
+        if (rosterOk) {
+            const hiredIds = GameState.dormitorium.brothers.map(b => b.rosterId).filter(Boolean);
+            const availIds = Object.keys(DormitoriumRosterDB).filter(rid => !hiredIds.includes(rid));
+            const poolIds = availIds.length ? availIds : Object.keys(DormitoriumRosterDB);
+            rosterId = poolIds[Math.floor(Math.random() * poolIds.length)];
+            const rec = DormitoriumRosterDB[rosterId];
+            name = rec.name;
+            const hq = rec.quotes && rec.quotes.hire;
+            if (hq) hireQuote = (lang === 'en' ? hq.en : hq.cs);
+        } else {
+            name = lang === 'en' ? 'Brother' : 'Bratr';
+        }
+
+        CellariumSystem.addGrose(-HIRE_COST);
+
+        const brother = {
+            id: 'brother_' + Date.now(),
+            rosterId, name,
+            hiredAt: Date.now(),
+            assignedTab: null,   // kam je přiřazen — určuje specializaci (DormitoriumSpecializationDB)
+            xp: {},              // { tabId: number } — nastřádané XP per specializace, přeřazením neztrácí
+            fatigue: 0,
+        };
+        GameState.dormitorium.brothers.push(brother);
+
+        UI.notifyPanel('📿 ' + (lang==='en' ? name+' has joined as a brother.' : name+' se připojil jako bratr.') + (hireQuote ? ' „' + hireQuote + '“' : ''), 'success');
+        Game.addKronikaEntry('important',
+            '📿 ' + name + ' se připojil ke klášteru jako bratr Dormitoria.',
+            '📿 ' + name + ' has joined the monastery as a brother of the Dormitorium.',
+            '📿 ' + name + ' frater factus est.'
+        );
+        Game.save();
     },
 
     // Officium — konvrši nedostupní mezi Laudes (6:00) a Prima (9:00), reálný čas
