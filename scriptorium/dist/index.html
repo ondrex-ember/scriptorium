@@ -6511,7 +6511,7 @@ const RecipesDB = [
       desc:"Dřevěný sud na pivo, víno a vodu.", desc_en:"Wooden barrel for ale, wine and water." },
 
     // ── ŽELEZNÝ VÝROBNÍ ŘETĚZEC ─────────────────────────────────────────────
-    { id:"iron_ingot", output:"iron_ingot", qty:1, req:{iron_ore:3, charcoal:2}, cat:"mat", locked:true,
+    { id:"iron_ingot", output:"iron_ingot", qty:1, req:{iron_ore:3, charcoal:2}, cat:"iron", locked:true,
       desc:"Tavení rudy s uhlím. Základ kovářství.", desc_en:"Smelting ore with charcoal. Foundation of smithcraft." },
 
     // ── KOVOVÉ NÁSTROJE (tech_kovarina, max 1 ks) ────────────────────────────
@@ -6576,7 +6576,6 @@ RecipesDB.push(
     { id: "incense_styrax",   output: "incense_styrax",   qty: 1, req: { "resin_styrax": 1, "charcoal": 1 }, cat: "fire", locked: true, desc: "Styrax + uhlí = byzantské kadidlo.", desc_en: "Styrax + charcoal = Byzantine incense." },
     { id: "incense_olibanum", output: "incense_olibanum", qty: 1, req: { "resin_olibanum": 1, "charcoal": 1 }, cat: "fire", locked: true, desc: "Olibanum + uhlí = posvátné kadidlo.", desc_en: "Olibanum + charcoal = sacred incense." }
 );
-
 // ═══ src/data/health.js ═══
 // ═══════════════════════════════════════════════════════════════════════════
 // HEALTH CONDITIONS DB (Valetudo)
@@ -45555,17 +45554,19 @@ const UI = {
             groupByOutput(visible).forEach(fam => { _html += renderRecipeFamily(fam); });
         } else {
             // Seskupení podle kategorií s nadpisy
-            const catOrder = ['stone', 'iron', 'craft', 'fire', 'parchment', 'codex', 'food', 'alchemy', 'lore'];
+            const catOrder = ['stone', 'iron', 'craft', 'building', 'fire', 'parchment', 'codex', 'food', 'alchemy', 'lore', 'mat'];
             const catLabels = {
                 stone: lang === 'en' ? '🪨 Stone Tools' : '🪨 Kamenné nástroje',
                 iron: lang === 'en' ? '⚒️ Iron Tools' : '⚒️ Železné nástroje',
                 craft: lang === 'en' ? '🪵 Crafting' : '🪵 Řemeslo',
+                building: lang === 'en' ? '🏗️ Buildings' : '🏗️ Stavby',
                 fire: lang === 'en' ? '🕯️ Fire & Light' : '🕯️ Oheň & Světlo',
                 parchment: lang === 'en' ? '📜 Parchment' : '📜 Pergamen & Inkoust',
                 codex: lang === 'en' ? '📖 Codex' : '📖 Kodex & Tisk',
                 food: lang === 'en' ? '🍖 Food' : '🍖 Jídlo',
                 alchemy: lang === 'en' ? '⚗️ Alchemy' : '⚗️ Alchymie',
                 lore: lang === 'en' ? '🎲 Knowledge' : '🎲 Vědění & Hry',
+                mat: lang === 'en' ? '📦 Materials' : '📦 Materiály',
             };
             catOrder.forEach(cat => {
                 const catRecipes = visible.filter(r => r.cat === cat);

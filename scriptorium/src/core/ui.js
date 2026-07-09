@@ -648,17 +648,19 @@ const UI = {
             groupByOutput(visible).forEach(fam => { _html += renderRecipeFamily(fam); });
         } else {
             // Seskupení podle kategorií s nadpisy
-            const catOrder = ['stone', 'iron', 'craft', 'fire', 'parchment', 'codex', 'food', 'alchemy', 'lore'];
+            const catOrder = ['stone', 'iron', 'craft', 'building', 'fire', 'parchment', 'codex', 'food', 'alchemy', 'lore', 'mat'];
             const catLabels = {
                 stone: lang === 'en' ? '🪨 Stone Tools' : '🪨 Kamenné nástroje',
                 iron: lang === 'en' ? '⚒️ Iron Tools' : '⚒️ Železné nástroje',
                 craft: lang === 'en' ? '🪵 Crafting' : '🪵 Řemeslo',
+                building: lang === 'en' ? '🏗️ Buildings' : '🏗️ Stavby',
                 fire: lang === 'en' ? '🕯️ Fire & Light' : '🕯️ Oheň & Světlo',
                 parchment: lang === 'en' ? '📜 Parchment' : '📜 Pergamen & Inkoust',
                 codex: lang === 'en' ? '📖 Codex' : '📖 Kodex & Tisk',
                 food: lang === 'en' ? '🍖 Food' : '🍖 Jídlo',
                 alchemy: lang === 'en' ? '⚗️ Alchemy' : '⚗️ Alchymie',
                 lore: lang === 'en' ? '🎲 Knowledge' : '🎲 Vědění & Hry',
+                mat: lang === 'en' ? '📦 Materials' : '📦 Materiály',
             };
             catOrder.forEach(cat => {
                 const catRecipes = visible.filter(r => r.cat === cat);

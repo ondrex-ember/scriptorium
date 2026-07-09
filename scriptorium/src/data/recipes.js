@@ -489,7 +489,7 @@ const RecipesDB = [
       desc:"Dřevěný sud na pivo, víno a vodu.", desc_en:"Wooden barrel for ale, wine and water." },
 
     // ── ŽELEZNÝ VÝROBNÍ ŘETĚZEC ─────────────────────────────────────────────
-    { id:"iron_ingot", output:"iron_ingot", qty:1, req:{iron_ore:3, charcoal:2}, cat:"mat", locked:true,
+    { id:"iron_ingot", output:"iron_ingot", qty:1, req:{iron_ore:3, charcoal:2}, cat:"iron", locked:true,
       desc:"Tavení rudy s uhlím. Základ kovářství.", desc_en:"Smelting ore with charcoal. Foundation of smithcraft." },
 
     // ── KOVOVÉ NÁSTROJE (tech_kovarina, max 1 ks) ────────────────────────────
