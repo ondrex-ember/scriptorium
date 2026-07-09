@@ -1,5 +1,20 @@
 const Game = {
     _scavenging: false,
+
+    // Tematické rozdělení lostItem nálezů (viz ItemsDB, lostItem:true) mezi
+    // scavenge akce — každá skupina padá jen ze svého tematicky odpovídajícího
+    // typu, místo jednoho universálního poolu. yard_cleanup si ponechává
+    // přístup ke VŠEM 30 položkám (obecný úklid), ale se sníženou šancí.
+    LOST_ITEM_POOLS: {
+        basic: ['lost_key_1','lost_key_2','lost_key_3','lost_key_4','lost_key_5',
+                'key_large_1','key_large_2','key_large_3',
+                'lost_scroll_1','lost_scroll_2',
+                'old_coin_1','old_coin_2','old_coin_3'],
+        nature: ['flask_cut','clasp_hunter','clasp_monk','clasp_silver','clasp_leather','clasp_bronze',
+                  'pipe_large','pipe_small','rosarium','pilgrim_badge','sundial_pocket','inkwell_small'],
+        foraging: ['torn_page','wax_seal','dried_herbs_bundle','hemp_pouch','mysterious_bulb'],
+    },
+
     init: function() {
         Game.load();
 
@@ -2037,6 +2052,13 @@ const Game = {
                         UI.notifyPanel('📜 ' + (typeof t === 'function' ? t('game.rareFind') : 'Vzácný nález!'), 'system');
                         setTimeout(function() { Game.showNetolickyModal(); }, 300);
                     }
+                    // 0.16% — spony/dýmky/drobnosti (viz LOST_ITEM_POOLS.nature)
+                    if(Math.random() < 0.0016) {
+                        const pool = this.LOST_ITEM_POOLS.nature;
+                        const found = pool[Math.floor(Math.random() * pool.length)];
+                        this.addItem(found, 1);
+                        UI.notify('🔍 ' + (iName ? iName(found) : found) + '!');
+                    }
                     // v8.x: Sad & Apiarium drops
                     if(Math.random() < 0.04) this.addItem('pollen', 1);          // 4% — pyl z luk
                     if(Math.random() < 0.03) this.addItem('linden_blossom', 1);  // 3% — lipový květ
@@ -2063,6 +2085,13 @@ const Game = {
                     // Iron ore — vzácný nález (3%) po odemčení kovařiny
                     if(Math.random() < 0.03 && GameState.researchedTechs && GameState.researchedTechs.includes('tech_kovarina')) {
                         this.addItem('iron_ore', 1);
+                    }
+                    // 0.17% — klíče/svitky/mince (viz LOST_ITEM_POOLS.basic)
+                    if(Math.random() < 0.0017) {
+                        const pool = this.LOST_ITEM_POOLS.basic;
+                        const found = pool[Math.floor(Math.random() * pool.length)];
+                        this.addItem(found, 1);
+                        UI.notify('🔍 ' + (iName ? iName(found) : found) + '!');
                     }
                 }
                 else if (type === 'bark') { this.addItem('bark', 2); }
@@ -2101,6 +2130,13 @@ const Game = {
                     if(Math.random() < 0.03) this.addItem('morel', 1);
                     if(Math.random() < 0.04) this.addItem('saffron_milk_cap', 1);
                     if(Math.random() < 0.03) this.addItem('porcini', 1);
+                    // 0.07% — útržky, pečeť, byliny/váček zapomenuté v přírodě (viz LOST_ITEM_POOLS.foraging)
+                    if(Math.random() < 0.0007) {
+                        const pool = this.LOST_ITEM_POOLS.foraging;
+                        const found = pool[Math.floor(Math.random() * pool.length)];
+                        this.addItem(found, 1);
+                        UI.notify('🔍 ' + (iName ? iName(found) : found) + '!');
+                    }
                 }
                 else if (type === 'wetlands') {
                     if(r<0.4) this.addItem('frog', 1);
@@ -2171,8 +2207,9 @@ const Game = {
                     if(Math.random() < 0.05) this.addItem('bone', 1);
                     this.addItem('rags', 1);                             // staré hadry z hospodářství
                     if(Math.random() < 0.35) this.addItem('rags', 1);   // bonus
-                    // 0.5% — náhodný lostItem
-                    if(Math.random() < 0.005) {
+                    // 0.2% — náhodný lostItem z CELÉHO poolu (obecný úklid, snížené
+                    // z 0.5% při rozdělení dalších skupin do basic/nature/foraging)
+                    if(Math.random() < 0.002) {
                         const lostPool = Object.entries(ItemsDB).filter(([id, i]) => i.lostItem).map(([id]) => id);
                         if(lostPool.length > 0) {
                             const found = lostPool[Math.floor(Math.random() * lostPool.length)];
@@ -2255,11 +2292,23 @@ const Game = {
                     UI.notifyPanel('📜 ' + (typeof t === 'function' ? t('game.rareFind') : 'Vzácný nález!'), 'system');
                     setTimeout(function() { Game.showNetolickyModal(); }, 300);
                 }
+                if(Math.random() < 0.0016) {
+                    const pool = this.LOST_ITEM_POOLS.nature;
+                    const found = pool[Math.floor(Math.random() * pool.length)];
+                    this.addItem(found, 1);
+                    UI.notify('🔍 ' + (iName ? iName(found) : found) + '!');
+                }
             }
             else if (type === 'basic') { 
                 this.addItem((r<0.4?'rock':'stick'), 1); 
                 if(Math.random() < 0.10) this.addItem('chalk', 1);
                 if(Math.random() < 0.35) this.addItem('rags', 1);
+                if(Math.random() < 0.0017) {
+                    const pool = this.LOST_ITEM_POOLS.basic;
+                    const found = pool[Math.floor(Math.random() * pool.length)];
+                    this.addItem(found, 1);
+                    UI.notify('🔍 ' + (iName ? iName(found) : found) + '!');
+                }
             }
             // ── notifyAccum: quick scavenge ──
             {
@@ -2333,6 +2382,12 @@ const Game = {
                     UI.notifyPanel('📜 ' + (typeof t === 'function' ? t('game.rareFind') : 'Vzácný nález!'), 'system');
                     setTimeout(function() { Game.showNetolickyModal(); }, 300);
                 }
+                if(Math.random() < 0.0016) {
+                    const pool = this.LOST_ITEM_POOLS.nature;
+                    const found = pool[Math.floor(Math.random() * pool.length)];
+                    this.addItem(found, 1);
+                    UI.notify('🔍 ' + (iName ? iName(found) : found) + '!');
+                }
                 // Plané ovoce a šípky — podzim (Cultus Herbarum)
                 if(Math.random() < 0.06) this.addItem('rosehip', 1);
                 if(Math.random() < 0.05) this.addItem('wild_fruit', 1);
@@ -2346,6 +2401,12 @@ const Game = {
                 if(Math.random() < 0.04) this.addItem('ochre', 1);
                 if(Math.random() < 0.10) this.addItem('chalk', 1); // Křídová pánev — lokálně dostupná
                 if(Math.random() < 0.35) this.addItem('rags', 1);
+                if(Math.random() < 0.0017) {
+                    const pool = this.LOST_ITEM_POOLS.basic;
+                    const found = pool[Math.floor(Math.random() * pool.length)];
+                    this.addItem(found, 1);
+                    UI.notify('🔍 ' + (iName ? iName(found) : found) + '!');
+                }
             }
             else if (type === 'bark') { this.addItem('bark', 2); }
             else if (type === 'fishing') { this.addItem('fish', r<0.3?2:1); if(r>0.8) this.addItem('water', 1); }
@@ -2383,6 +2444,12 @@ const Game = {
                 if(Math.random() < 0.03) this.addItem('morel', 1);
                 if(Math.random() < 0.04) this.addItem('saffron_milk_cap', 1);
                 if(Math.random() < 0.03) this.addItem('porcini', 1);
+                if(Math.random() < 0.0007) {
+                    const pool = this.LOST_ITEM_POOLS.foraging;
+                    const found = pool[Math.floor(Math.random() * pool.length)];
+                    this.addItem(found, 1);
+                    UI.notify('🔍 ' + (iName ? iName(found) : found) + '!');
+                }
             }
             else if (type === 'wetlands') {
                 if(r<0.4) this.addItem('frog', 1);
@@ -2451,7 +2518,8 @@ const Game = {
                 if(Math.random() < 0.05) this.addItem('bone', 1);
                 this.addItem('rags', 1);                             // staré hadry z hospodářství
                 if(Math.random() < 0.35) this.addItem('rags', 1);   // bonus
-                if(Math.random() < 0.005) {
+                // 0.2% — viz vysvětlení u instant varianty výše
+                if(Math.random() < 0.002) {
                     const lostPool = Object.entries(ItemsDB).filter(([id, i]) => i.lostItem).map(([id]) => id);
                     if(lostPool.length > 0) {
                         const found = lostPool[Math.floor(Math.random() * lostPool.length)];

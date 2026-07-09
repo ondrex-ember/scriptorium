@@ -1406,40 +1406,57 @@ const CellariumSystem = {
         decayHtml = `<span style="font-size:0.65rem; color:${warn ? '#c0392b' : '#a0722d'}; margin-left:4px;">
           ${warn ? '⚠️ ' : ''}−${pct}%/${lang === 'en' ? 'day' : 'den'}
         </span>`;
-        rows.push({ id, qty, icon, name, decayHtml, sortKey: pct });
+        rows.push({ id, qty, icon, name, decayHtml, sortKey: pct, cat: itemCat });
       } else {
         decayHtml = `<span style="font-size:0.65rem; opacity:0.4; margin-left:4px;">∞</span>`;
-        rows.push({ id, qty, icon, name, decayHtml, sortKey: -1 });
+        rows.push({ id, qty, icon, name, decayHtml, sortKey: -1, cat: itemCat });
       }
     }
 
     // Seřadit: nejrychleji se kazící nahoře
     rows.sort((a, b) => b.sortKey - a.sortKey);
 
+    const renderRow = (r) => `<div style="padding:7px 10px; background:rgba(197,160,89,0.06); border-radius:6px;
+                      border:1px solid rgba(197,160,89,${r.sortKey >= 20 ? '0.5' : '0.15'});
+                      display:flex; align-items:center; gap:8px;">
+      <span style="font-size:1.2rem; min-width:24px;">${r.icon}</span>
+      <div style="flex:1;">
+        <span style="font-weight:bold; font-size:0.85rem;">${r.name}</span>
+        ${r.decayHtml}
+      </div>
+      <span style="font-weight:bold; font-size:0.9rem; color:var(--accent-gold);">×${r.qty}</span>
+      <span style="display:flex; gap:3px;">
+        <button onclick="CellariumSystem.discardItem('${r.id}',1)" class="craft-btn" style="padding:3px 6px; font-size:0.65rem;">×1</button>
+        <button onclick="CellariumSystem.discardItem('${r.id}',5)" class="craft-btn" style="padding:3px 6px; font-size:0.65rem;" ${r.qty < 5 ? 'disabled' : ''}>×5</button>
+        <button onclick="CellariumSystem.discardItem('${r.id}',10)" class="craft-btn" style="padding:3px 6px; font-size:0.65rem;" ${r.qty < 10 ? 'disabled' : ''}>×10</button>
+        <button onclick="CellariumSystem.discardItem('${r.id}','all')" class="craft-btn" style="padding:3px 6px; font-size:0.65rem; background:#8a3324; color:#fff;">${t('decay.discardAll')}</button>
+      </span>
+    </div>`;
+
     if (rows.length === 0) {
       h += `<div style="text-align:center; padding:20px; opacity:0.5; font-style:italic; font-size:0.85rem;">
         ${lang === 'en' ? 'Stores are empty.' : 'Zásoby jsou prázdné.'}
       </div>`;
+    } else if (hasRegistrum && activeCat === 'all') {
+      // Registrum Cellarii + pohled "Vše" — seskupit pod sbalovací nadpisy
+      // kategorií, stejný vzor jako UI.toggleCraftCategory() v Craft panelu.
+      const catOrderInv = ['mat', 'tool', 'food', 'lore', 'animal', 'alchemy', 'other'];
+      catOrderInv.forEach(cat => {
+        const catRows = rows.filter(r => r.cat === cat);
+        if (catRows.length === 0) return;
+        const lbl = CAT_LABELS[cat];
+        const collapsed = !!(GameState.uiPrefs && GameState.uiPrefs.invCollapsed && GameState.uiPrefs.invCollapsed[cat]);
+        h += `<div style="margin:12px 0 6px; padding:4px 0; border-bottom:1px solid rgba(197,160,89,0.35); cursor:pointer; display:flex; align-items:center; gap:6px;" onclick="CellariumSystem.toggleInventariumCategory('${cat}')">
+          <span id="inv-cat-chevron-${cat}" style="font-size:0.65rem; display:inline-block; transition:transform 0.15s; transform:rotate(${collapsed ? 0 : 90}deg);">▶</span>
+          <span style="font-size:0.72rem; font-weight:bold; letter-spacing:0.08em; text-transform:uppercase; color:var(--accent-gold); opacity:0.85;">${lbl.icon} ${lang==='en' ? lbl.en : lbl.cs} (${catRows.length})</span>
+        </div>`;
+        h += `<div id="inv-cat-body-${cat}" style="display:${collapsed ? 'none' : 'flex'}; flex-direction:column; gap:5px;">`;
+        catRows.forEach(r => { h += renderRow(r); });
+        h += `</div>`;
+      });
     } else {
       h += `<div style="display:flex; flex-direction:column; gap:5px;">`;
-      rows.forEach(r => {
-        h += `<div style="padding:7px 10px; background:rgba(197,160,89,0.06); border-radius:6px;
-                          border:1px solid rgba(197,160,89,${r.sortKey >= 20 ? '0.5' : '0.15'});
-                          display:flex; align-items:center; gap:8px;">
-          <span style="font-size:1.2rem; min-width:24px;">${r.icon}</span>
-          <div style="flex:1;">
-            <span style="font-weight:bold; font-size:0.85rem;">${r.name}</span>
-            ${r.decayHtml}
-          </div>
-          <span style="font-weight:bold; font-size:0.9rem; color:var(--accent-gold);">×${r.qty}</span>
-          <span style="display:flex; gap:3px;">
-            <button onclick="CellariumSystem.discardItem('${r.id}',1)" class="craft-btn" style="padding:3px 6px; font-size:0.65rem;">×1</button>
-            <button onclick="CellariumSystem.discardItem('${r.id}',5)" class="craft-btn" style="padding:3px 6px; font-size:0.65rem;" ${r.qty < 5 ? 'disabled' : ''}>×5</button>
-            <button onclick="CellariumSystem.discardItem('${r.id}',10)" class="craft-btn" style="padding:3px 6px; font-size:0.65rem;" ${r.qty < 10 ? 'disabled' : ''}>×10</button>
-            <button onclick="CellariumSystem.discardItem('${r.id}','all')" class="craft-btn" style="padding:3px 6px; font-size:0.65rem; background:#8a3324; color:#fff;">${t('decay.discardAll')}</button>
-          </span>
-        </div>`;
-      });
+      rows.forEach(r => { h += renderRow(r); });
       h += `</div>`;
     }
 
@@ -1456,6 +1473,20 @@ const CellariumSystem = {
   },
 
   // ── Zahodit předmět ze zásob ──────────────────────────────────────────
+  // Sbalovací kategorie v pohledu "Vše" Inventaria — stejný vzor jako
+  // UI.toggleCraftCategory() v Craft panelu, vlastní klíč/prefix ať nekoliduje.
+  toggleInventariumCategory: function(cat) {
+    if (!GameState.uiPrefs) GameState.uiPrefs = {};
+    if (!GameState.uiPrefs.invCollapsed) GameState.uiPrefs.invCollapsed = {};
+    const collapsed = !GameState.uiPrefs.invCollapsed[cat];
+    GameState.uiPrefs.invCollapsed[cat] = collapsed;
+    const body = document.getElementById('inv-cat-body-' + cat);
+    if (body) body.style.display = collapsed ? 'none' : 'flex';
+    const chevron = document.getElementById('inv-cat-chevron-' + cat);
+    if (chevron) chevron.style.transform = collapsed ? 'rotate(0deg)' : 'rotate(90deg)';
+    if (typeof Game !== 'undefined' && Game.save) Game.save();
+  },
+
   discardItem: function(id, qty) {
     const inv = GameState.inventory || {};
     const have = inv[id] || 0;

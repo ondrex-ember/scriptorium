@@ -17396,40 +17396,57 @@ const CellariumSystem = {
         decayHtml = `<span style="font-size:0.65rem; color:${warn ? '#c0392b' : '#a0722d'}; margin-left:4px;">
           ${warn ? '⚠️ ' : ''}−${pct}%/${lang === 'en' ? 'day' : 'den'}
         </span>`;
-        rows.push({ id, qty, icon, name, decayHtml, sortKey: pct });
+        rows.push({ id, qty, icon, name, decayHtml, sortKey: pct, cat: itemCat });
       } else {
         decayHtml = `<span style="font-size:0.65rem; opacity:0.4; margin-left:4px;">∞</span>`;
-        rows.push({ id, qty, icon, name, decayHtml, sortKey: -1 });
+        rows.push({ id, qty, icon, name, decayHtml, sortKey: -1, cat: itemCat });
       }
     }
 
     // Seřadit: nejrychleji se kazící nahoře
     rows.sort((a, b) => b.sortKey - a.sortKey);
 
+    const renderRow = (r) => `<div style="padding:7px 10px; background:rgba(197,160,89,0.06); border-radius:6px;
+                      border:1px solid rgba(197,160,89,${r.sortKey >= 20 ? '0.5' : '0.15'});
+                      display:flex; align-items:center; gap:8px;">
+      <span style="font-size:1.2rem; min-width:24px;">${r.icon}</span>
+      <div style="flex:1;">
+        <span style="font-weight:bold; font-size:0.85rem;">${r.name}</span>
+        ${r.decayHtml}
+      </div>
+      <span style="font-weight:bold; font-size:0.9rem; color:var(--accent-gold);">×${r.qty}</span>
+      <span style="display:flex; gap:3px;">
+        <button onclick="CellariumSystem.discardItem('${r.id}',1)" class="craft-btn" style="padding:3px 6px; font-size:0.65rem;">×1</button>
+        <button onclick="CellariumSystem.discardItem('${r.id}',5)" class="craft-btn" style="padding:3px 6px; font-size:0.65rem;" ${r.qty < 5 ? 'disabled' : ''}>×5</button>
+        <button onclick="CellariumSystem.discardItem('${r.id}',10)" class="craft-btn" style="padding:3px 6px; font-size:0.65rem;" ${r.qty < 10 ? 'disabled' : ''}>×10</button>
+        <button onclick="CellariumSystem.discardItem('${r.id}','all')" class="craft-btn" style="padding:3px 6px; font-size:0.65rem; background:#8a3324; color:#fff;">${t('decay.discardAll')}</button>
+      </span>
+    </div>`;
+
     if (rows.length === 0) {
       h += `<div style="text-align:center; padding:20px; opacity:0.5; font-style:italic; font-size:0.85rem;">
         ${lang === 'en' ? 'Stores are empty.' : 'Zásoby jsou prázdné.'}
       </div>`;
+    } else if (hasRegistrum && activeCat === 'all') {
+      // Registrum Cellarii + pohled "Vše" — seskupit pod sbalovací nadpisy
+      // kategorií, stejný vzor jako UI.toggleCraftCategory() v Craft panelu.
+      const catOrderInv = ['mat', 'tool', 'food', 'lore', 'animal', 'alchemy', 'other'];
+      catOrderInv.forEach(cat => {
+        const catRows = rows.filter(r => r.cat === cat);
+        if (catRows.length === 0) return;
+        const lbl = CAT_LABELS[cat];
+        const collapsed = !!(GameState.uiPrefs && GameState.uiPrefs.invCollapsed && GameState.uiPrefs.invCollapsed[cat]);
+        h += `<div style="margin:12px 0 6px; padding:4px 0; border-bottom:1px solid rgba(197,160,89,0.35); cursor:pointer; display:flex; align-items:center; gap:6px;" onclick="CellariumSystem.toggleInventariumCategory('${cat}')">
+          <span id="inv-cat-chevron-${cat}" style="font-size:0.65rem; display:inline-block; transition:transform 0.15s; transform:rotate(${collapsed ? 0 : 90}deg);">▶</span>
+          <span style="font-size:0.72rem; font-weight:bold; letter-spacing:0.08em; text-transform:uppercase; color:var(--accent-gold); opacity:0.85;">${lbl.icon} ${lang==='en' ? lbl.en : lbl.cs} (${catRows.length})</span>
+        </div>`;
+        h += `<div id="inv-cat-body-${cat}" style="display:${collapsed ? 'none' : 'flex'}; flex-direction:column; gap:5px;">`;
+        catRows.forEach(r => { h += renderRow(r); });
+        h += `</div>`;
+      });
     } else {
       h += `<div style="display:flex; flex-direction:column; gap:5px;">`;
-      rows.forEach(r => {
-        h += `<div style="padding:7px 10px; background:rgba(197,160,89,0.06); border-radius:6px;
-                          border:1px solid rgba(197,160,89,${r.sortKey >= 20 ? '0.5' : '0.15'});
-                          display:flex; align-items:center; gap:8px;">
-          <span style="font-size:1.2rem; min-width:24px;">${r.icon}</span>
-          <div style="flex:1;">
-            <span style="font-weight:bold; font-size:0.85rem;">${r.name}</span>
-            ${r.decayHtml}
-          </div>
-          <span style="font-weight:bold; font-size:0.9rem; color:var(--accent-gold);">×${r.qty}</span>
-          <span style="display:flex; gap:3px;">
-            <button onclick="CellariumSystem.discardItem('${r.id}',1)" class="craft-btn" style="padding:3px 6px; font-size:0.65rem;">×1</button>
-            <button onclick="CellariumSystem.discardItem('${r.id}',5)" class="craft-btn" style="padding:3px 6px; font-size:0.65rem;" ${r.qty < 5 ? 'disabled' : ''}>×5</button>
-            <button onclick="CellariumSystem.discardItem('${r.id}',10)" class="craft-btn" style="padding:3px 6px; font-size:0.65rem;" ${r.qty < 10 ? 'disabled' : ''}>×10</button>
-            <button onclick="CellariumSystem.discardItem('${r.id}','all')" class="craft-btn" style="padding:3px 6px; font-size:0.65rem; background:#8a3324; color:#fff;">${t('decay.discardAll')}</button>
-          </span>
-        </div>`;
-      });
+      rows.forEach(r => { h += renderRow(r); });
       h += `</div>`;
     }
 
@@ -17446,6 +17463,20 @@ const CellariumSystem = {
   },
 
   // ── Zahodit předmět ze zásob ──────────────────────────────────────────
+  // Sbalovací kategorie v pohledu "Vše" Inventaria — stejný vzor jako
+  // UI.toggleCraftCategory() v Craft panelu, vlastní klíč/prefix ať nekoliduje.
+  toggleInventariumCategory: function(cat) {
+    if (!GameState.uiPrefs) GameState.uiPrefs = {};
+    if (!GameState.uiPrefs.invCollapsed) GameState.uiPrefs.invCollapsed = {};
+    const collapsed = !GameState.uiPrefs.invCollapsed[cat];
+    GameState.uiPrefs.invCollapsed[cat] = collapsed;
+    const body = document.getElementById('inv-cat-body-' + cat);
+    if (body) body.style.display = collapsed ? 'none' : 'flex';
+    const chevron = document.getElementById('inv-cat-chevron-' + cat);
+    if (chevron) chevron.style.transform = collapsed ? 'rotate(0deg)' : 'rotate(90deg)';
+    if (typeof Game !== 'undefined' && Game.save) Game.save();
+  },
+
   discardItem: function(id, qty) {
     const inv = GameState.inventory || {};
     const have = inv[id] || 0;
@@ -27323,6 +27354,25 @@ const SecretsSystem = {
     UI.notifyPanel('📜 Nalezen zápisek ve Scrinium Abbatis: ' + folioTitle, 'system');
   },
 
+  // Přímé odemčení konkrétního folia dle ID — volané z lost_key_4 (core/game.js).
+  // Na rozdíl od checkFolioDiscovery() nevyžaduje shodu s konkrétní knihou —
+  // klíč "sedne" na první nenalezené folio ze sady, bez ohledu na to, co hráč
+  // dosud přečetl. Sdílí stejný vzor zápisu do GameState.scrinium.folios.
+  unlockFolioById: function(folioId) {
+    if (!GameState.scrinium) GameState.scrinium = { activeSubtab: 'tajne_spisy', folios: {} };
+    if (!GameState.scrinium.folios[folioId]) GameState.scrinium.folios[folioId] = { found: false, layer: 0 };
+    if (GameState.scrinium.folios[folioId].found) return; // už nalezeno, nic dělat
+
+    GameState.scrinium.folios[folioId].found = true;
+    Game.save();
+
+    const folio = (typeof ScriniumDB !== 'undefined')
+      ? ScriniumDB.folios.find(function(f) { return f.id === folioId; })
+      : null;
+    const folioTitle = folio ? t(folio.titleKey) : folioId;
+    UI.notifyPanel('📜 Nalezen zápisek ve Scrinium Abbatis: ' + folioTitle, 'system');
+  },
+
   // ═══════════════════════════════════════════════════════════════════════════
   // DEV TOOLS
   // ═══════════════════════════════════════════════════════════════════════════
@@ -27915,7 +27965,6 @@ const SecretsSystem = {
   }
 
 };
-
 // ═══ src/systems/athanor.js ═══
 // ============================================================
 //  ATHANOR — Alchymistická laboratoř v2.0
@@ -39280,6 +39329,21 @@ const LangSystem = {
 // ═══ src/core/game.js ═══
 const Game = {
     _scavenging: false,
+
+    // Tematické rozdělení lostItem nálezů (viz ItemsDB, lostItem:true) mezi
+    // scavenge akce — každá skupina padá jen ze svého tematicky odpovídajícího
+    // typu, místo jednoho universálního poolu. yard_cleanup si ponechává
+    // přístup ke VŠEM 30 položkám (obecný úklid), ale se sníženou šancí.
+    LOST_ITEM_POOLS: {
+        basic: ['lost_key_1','lost_key_2','lost_key_3','lost_key_4','lost_key_5',
+                'key_large_1','key_large_2','key_large_3',
+                'lost_scroll_1','lost_scroll_2',
+                'old_coin_1','old_coin_2','old_coin_3'],
+        nature: ['flask_cut','clasp_hunter','clasp_monk','clasp_silver','clasp_leather','clasp_bronze',
+                  'pipe_large','pipe_small','rosarium','pilgrim_badge','sundial_pocket','inkwell_small'],
+        foraging: ['torn_page','wax_seal','dried_herbs_bundle','hemp_pouch','mysterious_bulb'],
+    },
+
     init: function() {
         Game.load();
 
@@ -41317,6 +41381,13 @@ const Game = {
                         UI.notifyPanel('📜 ' + (typeof t === 'function' ? t('game.rareFind') : 'Vzácný nález!'), 'system');
                         setTimeout(function() { Game.showNetolickyModal(); }, 300);
                     }
+                    // 0.16% — spony/dýmky/drobnosti (viz LOST_ITEM_POOLS.nature)
+                    if(Math.random() < 0.0016) {
+                        const pool = this.LOST_ITEM_POOLS.nature;
+                        const found = pool[Math.floor(Math.random() * pool.length)];
+                        this.addItem(found, 1);
+                        UI.notify('🔍 ' + (iName ? iName(found) : found) + '!');
+                    }
                     // v8.x: Sad & Apiarium drops
                     if(Math.random() < 0.04) this.addItem('pollen', 1);          // 4% — pyl z luk
                     if(Math.random() < 0.03) this.addItem('linden_blossom', 1);  // 3% — lipový květ
@@ -41343,6 +41414,13 @@ const Game = {
                     // Iron ore — vzácný nález (3%) po odemčení kovařiny
                     if(Math.random() < 0.03 && GameState.researchedTechs && GameState.researchedTechs.includes('tech_kovarina')) {
                         this.addItem('iron_ore', 1);
+                    }
+                    // 0.17% — klíče/svitky/mince (viz LOST_ITEM_POOLS.basic)
+                    if(Math.random() < 0.0017) {
+                        const pool = this.LOST_ITEM_POOLS.basic;
+                        const found = pool[Math.floor(Math.random() * pool.length)];
+                        this.addItem(found, 1);
+                        UI.notify('🔍 ' + (iName ? iName(found) : found) + '!');
                     }
                 }
                 else if (type === 'bark') { this.addItem('bark', 2); }
@@ -41381,6 +41459,13 @@ const Game = {
                     if(Math.random() < 0.03) this.addItem('morel', 1);
                     if(Math.random() < 0.04) this.addItem('saffron_milk_cap', 1);
                     if(Math.random() < 0.03) this.addItem('porcini', 1);
+                    // 0.07% — útržky, pečeť, byliny/váček zapomenuté v přírodě (viz LOST_ITEM_POOLS.foraging)
+                    if(Math.random() < 0.0007) {
+                        const pool = this.LOST_ITEM_POOLS.foraging;
+                        const found = pool[Math.floor(Math.random() * pool.length)];
+                        this.addItem(found, 1);
+                        UI.notify('🔍 ' + (iName ? iName(found) : found) + '!');
+                    }
                 }
                 else if (type === 'wetlands') {
                     if(r<0.4) this.addItem('frog', 1);
@@ -41451,8 +41536,9 @@ const Game = {
                     if(Math.random() < 0.05) this.addItem('bone', 1);
                     this.addItem('rags', 1);                             // staré hadry z hospodářství
                     if(Math.random() < 0.35) this.addItem('rags', 1);   // bonus
-                    // 0.5% — náhodný lostItem
-                    if(Math.random() < 0.005) {
+                    // 0.2% — náhodný lostItem z CELÉHO poolu (obecný úklid, snížené
+                    // z 0.5% při rozdělení dalších skupin do basic/nature/foraging)
+                    if(Math.random() < 0.002) {
                         const lostPool = Object.entries(ItemsDB).filter(([id, i]) => i.lostItem).map(([id]) => id);
                         if(lostPool.length > 0) {
                             const found = lostPool[Math.floor(Math.random() * lostPool.length)];
@@ -41535,11 +41621,23 @@ const Game = {
                     UI.notifyPanel('📜 ' + (typeof t === 'function' ? t('game.rareFind') : 'Vzácný nález!'), 'system');
                     setTimeout(function() { Game.showNetolickyModal(); }, 300);
                 }
+                if(Math.random() < 0.0016) {
+                    const pool = this.LOST_ITEM_POOLS.nature;
+                    const found = pool[Math.floor(Math.random() * pool.length)];
+                    this.addItem(found, 1);
+                    UI.notify('🔍 ' + (iName ? iName(found) : found) + '!');
+                }
             }
             else if (type === 'basic') { 
                 this.addItem((r<0.4?'rock':'stick'), 1); 
                 if(Math.random() < 0.10) this.addItem('chalk', 1);
                 if(Math.random() < 0.35) this.addItem('rags', 1);
+                if(Math.random() < 0.0017) {
+                    const pool = this.LOST_ITEM_POOLS.basic;
+                    const found = pool[Math.floor(Math.random() * pool.length)];
+                    this.addItem(found, 1);
+                    UI.notify('🔍 ' + (iName ? iName(found) : found) + '!');
+                }
             }
             // ── notifyAccum: quick scavenge ──
             {
@@ -41613,6 +41711,12 @@ const Game = {
                     UI.notifyPanel('📜 ' + (typeof t === 'function' ? t('game.rareFind') : 'Vzácný nález!'), 'system');
                     setTimeout(function() { Game.showNetolickyModal(); }, 300);
                 }
+                if(Math.random() < 0.0016) {
+                    const pool = this.LOST_ITEM_POOLS.nature;
+                    const found = pool[Math.floor(Math.random() * pool.length)];
+                    this.addItem(found, 1);
+                    UI.notify('🔍 ' + (iName ? iName(found) : found) + '!');
+                }
                 // Plané ovoce a šípky — podzim (Cultus Herbarum)
                 if(Math.random() < 0.06) this.addItem('rosehip', 1);
                 if(Math.random() < 0.05) this.addItem('wild_fruit', 1);
@@ -41626,6 +41730,12 @@ const Game = {
                 if(Math.random() < 0.04) this.addItem('ochre', 1);
                 if(Math.random() < 0.10) this.addItem('chalk', 1); // Křídová pánev — lokálně dostupná
                 if(Math.random() < 0.35) this.addItem('rags', 1);
+                if(Math.random() < 0.0017) {
+                    const pool = this.LOST_ITEM_POOLS.basic;
+                    const found = pool[Math.floor(Math.random() * pool.length)];
+                    this.addItem(found, 1);
+                    UI.notify('🔍 ' + (iName ? iName(found) : found) + '!');
+                }
             }
             else if (type === 'bark') { this.addItem('bark', 2); }
             else if (type === 'fishing') { this.addItem('fish', r<0.3?2:1); if(r>0.8) this.addItem('water', 1); }
@@ -41663,6 +41773,12 @@ const Game = {
                 if(Math.random() < 0.03) this.addItem('morel', 1);
                 if(Math.random() < 0.04) this.addItem('saffron_milk_cap', 1);
                 if(Math.random() < 0.03) this.addItem('porcini', 1);
+                if(Math.random() < 0.0007) {
+                    const pool = this.LOST_ITEM_POOLS.foraging;
+                    const found = pool[Math.floor(Math.random() * pool.length)];
+                    this.addItem(found, 1);
+                    UI.notify('🔍 ' + (iName ? iName(found) : found) + '!');
+                }
             }
             else if (type === 'wetlands') {
                 if(r<0.4) this.addItem('frog', 1);
@@ -41731,7 +41847,8 @@ const Game = {
                 if(Math.random() < 0.05) this.addItem('bone', 1);
                 this.addItem('rags', 1);                             // staré hadry z hospodářství
                 if(Math.random() < 0.35) this.addItem('rags', 1);   // bonus
-                if(Math.random() < 0.005) {
+                // 0.2% — viz vysvětlení u instant varianty výše
+                if(Math.random() < 0.002) {
                     const lostPool = Object.entries(ItemsDB).filter(([id, i]) => i.lostItem).map(([id]) => id);
                     if(lostPool.length > 0) {
                         const found = lostPool[Math.floor(Math.random() * lostPool.length)];
@@ -44999,8 +45116,21 @@ const UI = {
                     return item && types.includes(item.type);
                 });
                 if (group.length === 0) return;
-                el.innerHTML += `<div style="grid-column:1/-1; margin:12px 0 6px; padding:4px 0; border-bottom:1px solid rgba(197,160,89,0.35);"><span style="font-size:0.72rem; font-weight:bold; letter-spacing:0.08em; text-transform:uppercase; color:var(--accent-gold); opacity:0.85;">${catLabels[cat]}</span></div>`;
-                group.forEach(([id, qty]) => { el.innerHTML += renderItem(id, qty); });
+                const collapsed = !!(GameState.uiPrefs && GameState.uiPrefs.invCollapsed && GameState.uiPrefs.invCollapsed[cat]);
+                // Sestavit CELÝ blok (nadpis + body + karty) do jednoho stringu před
+                // jediným innerHTML += — postupné += by neuzavřený <div id="penum-cat-body-*">
+                // samo uzavřelo při každém re-parse a karty by skončily MIMO container
+                // (ověřeno: prohlížeč automaticky doplní chybějící uzavírací tag při
+                // každém innerHTML += voláním, takže otevřený tag "přežije" jen do
+                // konce TOHOTO volání, ne mezi několika voláními).
+                let sectionHtml = `<div style="grid-column:1/-1; margin:12px 0 6px; padding:4px 0; border-bottom:1px solid rgba(197,160,89,0.35); cursor:pointer; display:flex; align-items:center; gap:6px;" onclick="UI.toggleInventoryCategory('${cat}')">
+                    <span id="penum-cat-chevron-${cat}" style="font-size:0.65rem; display:inline-block; transition:transform 0.15s; transform:rotate(${collapsed ? 0 : 90}deg);">▶</span>
+                    <span style="font-size:0.72rem; font-weight:bold; letter-spacing:0.08em; text-transform:uppercase; color:var(--accent-gold); opacity:0.85;">${catLabels[cat]}</span>
+                </div>`;
+                sectionHtml += `<div id="penum-cat-body-${cat}" style="display:${collapsed ? 'none' : 'contents'};">`;
+                group.forEach(([id, qty]) => { sectionHtml += renderItem(id, qty); });
+                sectionHtml += `</div>`;
+                el.innerHTML += sectionHtml;
             });
 
             // Záchranná síť — cokoliv s type, co není v žádné sekci výše, ať nikdy tiše nezmizí
@@ -45010,8 +45140,15 @@ const UI = {
                 return item && !knownTypes.includes(item.type);
             });
             if (leftover.length > 0) {
-                el.innerHTML += `<div style="grid-column:1/-1; margin:12px 0 6px; padding:4px 0; border-bottom:1px solid rgba(197,160,89,0.35);"><span style="font-size:0.72rem; font-weight:bold; letter-spacing:0.08em; text-transform:uppercase; color:var(--accent-gold); opacity:0.85;">${lang === 'en' ? '📦 Other' : '📦 Ostatní'}</span></div>`;
-                leftover.forEach(([id, qty]) => { el.innerHTML += renderItem(id, qty); });
+                const collapsedOther = !!(GameState.uiPrefs && GameState.uiPrefs.invCollapsed && GameState.uiPrefs.invCollapsed['other']);
+                let otherHtml = `<div style="grid-column:1/-1; margin:12px 0 6px; padding:4px 0; border-bottom:1px solid rgba(197,160,89,0.35); cursor:pointer; display:flex; align-items:center; gap:6px;" onclick="UI.toggleInventoryCategory('other')">
+                    <span id="penum-cat-chevron-other" style="font-size:0.65rem; display:inline-block; transition:transform 0.15s; transform:rotate(${collapsedOther ? 0 : 90}deg);">▶</span>
+                    <span style="font-size:0.72rem; font-weight:bold; letter-spacing:0.08em; text-transform:uppercase; color:var(--accent-gold); opacity:0.85;">${lang === 'en' ? '📦 Other' : '📦 Ostatní'}</span>
+                </div>`;
+                otherHtml += `<div id="penum-cat-body-other" style="display:${collapsedOther ? 'none' : 'contents'};">`;
+                leftover.forEach(([id, qty]) => { otherHtml += renderItem(id, qty); });
+                otherHtml += `</div>`;
+                el.innerHTML += otherHtml;
             }
         }
         this._updateInvFilterBar();
@@ -45029,6 +45166,19 @@ const UI = {
         const body = document.getElementById('craft-cat-body-' + cat);
         if (body) body.style.display = collapsed ? 'none' : 'contents';
         const chevron = document.getElementById('craft-cat-chevron-' + cat);
+        if (chevron) chevron.style.transform = collapsed ? 'rotate(0deg)' : 'rotate(90deg)';
+        if (typeof Game !== 'undefined' && Game.save) Game.save();
+    },
+    // Sbalovací kategorie v pohledu "Vše" tabu Zásoby/Penum (renderInventory) —
+    // stejný vzor jako toggleCraftCategory, vlastní klíč ať nekoliduje.
+    toggleInventoryCategory: function (cat) {
+        if (!GameState.uiPrefs) GameState.uiPrefs = {};
+        if (!GameState.uiPrefs.invCollapsed) GameState.uiPrefs.invCollapsed = {};
+        const collapsed = !GameState.uiPrefs.invCollapsed[cat];
+        GameState.uiPrefs.invCollapsed[cat] = collapsed;
+        const body = document.getElementById('penum-cat-body-' + cat);
+        if (body) body.style.display = collapsed ? 'none' : 'contents';
+        const chevron = document.getElementById('penum-cat-chevron-' + cat);
         if (chevron) chevron.style.transform = collapsed ? 'rotate(0deg)' : 'rotate(90deg)';
         if (typeof Game !== 'undefined' && Game.save) Game.save();
     },

@@ -156,6 +156,25 @@ const SecretsSystem = {
     UI.notifyPanel('📜 Nalezen zápisek ve Scrinium Abbatis: ' + folioTitle, 'system');
   },
 
+  // Přímé odemčení konkrétního folia dle ID — volané z lost_key_4 (core/game.js).
+  // Na rozdíl od checkFolioDiscovery() nevyžaduje shodu s konkrétní knihou —
+  // klíč "sedne" na první nenalezené folio ze sady, bez ohledu na to, co hráč
+  // dosud přečetl. Sdílí stejný vzor zápisu do GameState.scrinium.folios.
+  unlockFolioById: function(folioId) {
+    if (!GameState.scrinium) GameState.scrinium = { activeSubtab: 'tajne_spisy', folios: {} };
+    if (!GameState.scrinium.folios[folioId]) GameState.scrinium.folios[folioId] = { found: false, layer: 0 };
+    if (GameState.scrinium.folios[folioId].found) return; // už nalezeno, nic dělat
+
+    GameState.scrinium.folios[folioId].found = true;
+    Game.save();
+
+    const folio = (typeof ScriniumDB !== 'undefined')
+      ? ScriniumDB.folios.find(function(f) { return f.id === folioId; })
+      : null;
+    const folioTitle = folio ? t(folio.titleKey) : folioId;
+    UI.notifyPanel('📜 Nalezen zápisek ve Scrinium Abbatis: ' + folioTitle, 'system');
+  },
+
   // ═══════════════════════════════════════════════════════════════════════════
   // DEV TOOLS
   // ═══════════════════════════════════════════════════════════════════════════

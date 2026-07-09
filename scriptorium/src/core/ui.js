@@ -503,8 +503,21 @@ const UI = {
                     return item && types.includes(item.type);
                 });
                 if (group.length === 0) return;
-                el.innerHTML += `<div style="grid-column:1/-1; margin:12px 0 6px; padding:4px 0; border-bottom:1px solid rgba(197,160,89,0.35);"><span style="font-size:0.72rem; font-weight:bold; letter-spacing:0.08em; text-transform:uppercase; color:var(--accent-gold); opacity:0.85;">${catLabels[cat]}</span></div>`;
-                group.forEach(([id, qty]) => { el.innerHTML += renderItem(id, qty); });
+                const collapsed = !!(GameState.uiPrefs && GameState.uiPrefs.invCollapsed && GameState.uiPrefs.invCollapsed[cat]);
+                // Sestavit CELÝ blok (nadpis + body + karty) do jednoho stringu před
+                // jediným innerHTML += — postupné += by neuzavřený <div id="penum-cat-body-*">
+                // samo uzavřelo při každém re-parse a karty by skončily MIMO container
+                // (ověřeno: prohlížeč automaticky doplní chybějící uzavírací tag při
+                // každém innerHTML += voláním, takže otevřený tag "přežije" jen do
+                // konce TOHOTO volání, ne mezi několika voláními).
+                let sectionHtml = `<div style="grid-column:1/-1; margin:12px 0 6px; padding:4px 0; border-bottom:1px solid rgba(197,160,89,0.35); cursor:pointer; display:flex; align-items:center; gap:6px;" onclick="UI.toggleInventoryCategory('${cat}')">
+                    <span id="penum-cat-chevron-${cat}" style="font-size:0.65rem; display:inline-block; transition:transform 0.15s; transform:rotate(${collapsed ? 0 : 90}deg);">▶</span>
+                    <span style="font-size:0.72rem; font-weight:bold; letter-spacing:0.08em; text-transform:uppercase; color:var(--accent-gold); opacity:0.85;">${catLabels[cat]}</span>
+                </div>`;
+                sectionHtml += `<div id="penum-cat-body-${cat}" style="display:${collapsed ? 'none' : 'contents'};">`;
+                group.forEach(([id, qty]) => { sectionHtml += renderItem(id, qty); });
+                sectionHtml += `</div>`;
+                el.innerHTML += sectionHtml;
             });
 
             // Záchranná síť — cokoliv s type, co není v žádné sekci výše, ať nikdy tiše nezmizí
@@ -514,8 +527,15 @@ const UI = {
                 return item && !knownTypes.includes(item.type);
             });
             if (leftover.length > 0) {
-                el.innerHTML += `<div style="grid-column:1/-1; margin:12px 0 6px; padding:4px 0; border-bottom:1px solid rgba(197,160,89,0.35);"><span style="font-size:0.72rem; font-weight:bold; letter-spacing:0.08em; text-transform:uppercase; color:var(--accent-gold); opacity:0.85;">${lang === 'en' ? '📦 Other' : '📦 Ostatní'}</span></div>`;
-                leftover.forEach(([id, qty]) => { el.innerHTML += renderItem(id, qty); });
+                const collapsedOther = !!(GameState.uiPrefs && GameState.uiPrefs.invCollapsed && GameState.uiPrefs.invCollapsed['other']);
+                let otherHtml = `<div style="grid-column:1/-1; margin:12px 0 6px; padding:4px 0; border-bottom:1px solid rgba(197,160,89,0.35); cursor:pointer; display:flex; align-items:center; gap:6px;" onclick="UI.toggleInventoryCategory('other')">
+                    <span id="penum-cat-chevron-other" style="font-size:0.65rem; display:inline-block; transition:transform 0.15s; transform:rotate(${collapsedOther ? 0 : 90}deg);">▶</span>
+                    <span style="font-size:0.72rem; font-weight:bold; letter-spacing:0.08em; text-transform:uppercase; color:var(--accent-gold); opacity:0.85;">${lang === 'en' ? '📦 Other' : '📦 Ostatní'}</span>
+                </div>`;
+                otherHtml += `<div id="penum-cat-body-other" style="display:${collapsedOther ? 'none' : 'contents'};">`;
+                leftover.forEach(([id, qty]) => { otherHtml += renderItem(id, qty); });
+                otherHtml += `</div>`;
+                el.innerHTML += otherHtml;
             }
         }
         this._updateInvFilterBar();
@@ -533,6 +553,19 @@ const UI = {
         const body = document.getElementById('craft-cat-body-' + cat);
         if (body) body.style.display = collapsed ? 'none' : 'contents';
         const chevron = document.getElementById('craft-cat-chevron-' + cat);
+        if (chevron) chevron.style.transform = collapsed ? 'rotate(0deg)' : 'rotate(90deg)';
+        if (typeof Game !== 'undefined' && Game.save) Game.save();
+    },
+    // Sbalovací kategorie v pohledu "Vše" tabu Zásoby/Penum (renderInventory) —
+    // stejný vzor jako toggleCraftCategory, vlastní klíč ať nekoliduje.
+    toggleInventoryCategory: function (cat) {
+        if (!GameState.uiPrefs) GameState.uiPrefs = {};
+        if (!GameState.uiPrefs.invCollapsed) GameState.uiPrefs.invCollapsed = {};
+        const collapsed = !GameState.uiPrefs.invCollapsed[cat];
+        GameState.uiPrefs.invCollapsed[cat] = collapsed;
+        const body = document.getElementById('penum-cat-body-' + cat);
+        if (body) body.style.display = collapsed ? 'none' : 'contents';
+        const chevron = document.getElementById('penum-cat-chevron-' + cat);
         if (chevron) chevron.style.transform = collapsed ? 'rotate(0deg)' : 'rotate(90deg)';
         if (typeof Game !== 'undefined' && Game.save) Game.save();
     },
