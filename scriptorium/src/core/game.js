@@ -4388,6 +4388,33 @@ const Game = {
         return 0;
     },
 
+    // ── DORMITORIUM — XP/úroveň specializace (odvozená z assignedTab) ──
+    // +1 XP za každý úspěšný 24h tick práce v přiřazeném tabu (viz jednotlivé
+    // brotherTick* funkce). XP se váže na konkrétní tab a přeřazením se
+    // neztrácí — bratr si "pamatuje" zkušenost v každé roli zvlášť.
+    DORMITORIUM_XP_THRESHOLDS: [0, 15, 50, 120], // index = level-1 (1-4)
+    DORMITORIUM_LEVEL_MULT:    [1.0, 1.10, 1.20, 1.30],
+
+    dormitoriumBrotherLevel: function(brother, tabId) {
+        const xp = (brother.xp && brother.xp[tabId]) || 0;
+        const th = this.DORMITORIUM_XP_THRESHOLDS;
+        let level = 1;
+        for (let i = th.length - 1; i >= 0; i--) {
+            if (xp >= th[i]) { level = i + 1; break; }
+        }
+        return level;
+    },
+
+    dormitoriumBrotherMult: function(brother, tabId) {
+        const level = this.dormitoriumBrotherLevel(brother, tabId);
+        return this.DORMITORIUM_LEVEL_MULT[level - 1];
+    },
+
+    dormitoriumAddXp: function(brother, tabId) {
+        if (!brother.xp) brother.xp = {};
+        brother.xp[tabId] = (brother.xp[tabId] || 0) + 1;
+    },
+
     // ── CONVERSI — přiřazování úkolů (M1) ───────────────────────────────────
     CONVERSI_TASKS: {
         dvur:     { icon: '🏚️', away: false },
@@ -5019,7 +5046,10 @@ const Game = {
             }
         }
 
-        // ── Záhony (L1): přiřazený konvrš zalévá a sklízí, self-guarded 24h ──
+        // ── Záhony (L1): přiřazený konvrš zalévá a sklízí, self-guarded 24h.
+        //    Přiřazený bratr (Dormitorium) dělá totéž SÁM i bez konvrše;
+        //    pokud je konvrš přítomen zároveň, bratr násobí jeho výnos podle
+        //    své úrovně specializace "Zahradník" (viz dormitoriumBrotherMult). ──
         const gardener = GameState.conversi
             .filter(k => k.task === 'zahony'
                       && k.fatigue < (this._konvrsTraits(k).includes('pilny') ? 90 : 80)
@@ -5028,7 +5058,9 @@ const Game = {
                       && !(k.injuredUntil && k.injuredUntil > Date.now())
                       && !(k.awayUntil && k.awayUntil > Date.now()))
             .sort((a, b) => a.fatigue - b.fatigue)[0];
-        if (gardener && GameState.garden) {
+        const gardenBrother = (GameState.dormitorium && GameState.dormitorium.brothers || [])
+            .find(b => b.assignedTab === 'zahony');
+        if ((gardener || gardenBrother) && GameState.garden) {
             if (!GameState.conversiGardenLastTick) GameState.conversiGardenLastTick = 0;
             if (Date.now() - GameState.conversiGardenLastTick >= DAY) {
                 GameState.conversiGardenLastTick = Date.now();
@@ -5037,6 +5069,7 @@ const Game = {
                 let growthSpeed = CONFIG.GROWTH_SPEED;
                 if (GameState.researchedTechs.includes('tech_advanced_farming')) growthSpeed *= 2.0;
                 const needed = CONFIG.BASE_GROWTH_TIME / growthSpeed;
+                const brotherMult = gardenBrother ? this.dormitoriumBrotherMult(gardenBrother, 'zahony') : 1.0;
 
                 GameState.garden.forEach(plot => {
                     if (plot.locked || plot.state !== 2) return;
@@ -5062,24 +5095,31 @@ const Game = {
                             ? Object.values(GardenSystem.GARDEN_PLANTS_DB).find(p => p.item === harvestCrop)
                             : null;
                         const _yieldMult = (typeof RankSystem !== 'undefined') ? RankSystem.getActiveBonus('herb_yield') : 1.0;
+                        const totalMult = _yieldMult * brotherMult;
                         if (_gp) {
-                            this.addItem(harvestCrop, Math.max(1, Math.round(_gp.yield * _yieldMult)));
+                            this.addItem(harvestCrop, Math.max(1, Math.round(_gp.yield * totalMult)));
                             if (Math.random() < 0.3) this.addItem(_gp.seed, 1);
                         } else if (harvestCrop === 'hops') {
-                            this.addItem('hops', Math.max(1, Math.round(2 * _yieldMult)));
+                            this.addItem('hops', Math.max(1, Math.round(2 * totalMult)));
                             if (Math.random() > 0.6) this.addItem('seeds_hops', 1);
                         } else if (['carrot', 'onion', 'potato'].includes(harvestCrop)) {
-                            this.addItem(harvestCrop, Math.max(1, Math.round(3 * _yieldMult)));
+                            this.addItem(harvestCrop, Math.max(1, Math.round(3 * totalMult)));
                             if (Math.random() > 0.5) this.addItem('seeds_vegetable', 1);
                         } else if (harvestCrop) {
-                            this.addItem(harvestCrop, Math.max(1, Math.round(2 * _yieldMult)));
+                            this.addItem(harvestCrop, Math.max(1, Math.round(2 * totalMult)));
                         }
                     }
                 });
 
                 if (didWork) {
-                    const workGain = this._konvrsTraits(gardener).includes('silak') ? 10 : 15;
-                    gardener.fatigue = Math.min(100, gardener.fatigue + workGain);
+                    if (gardener) {
+                        const workGain = this._konvrsTraits(gardener).includes('silak') ? 10 : 15;
+                        gardener.fatigue = Math.min(100, gardener.fatigue + workGain);
+                    }
+                    if (gardenBrother) {
+                        this.dormitoriumAddXp(gardenBrother, 'zahony');
+                        gardenBrother.fatigue = Math.min(100, (gardenBrother.fatigue || 0) + 10);
+                    }
                     Game.checkAchievements();
                     Game.save();
                 }
