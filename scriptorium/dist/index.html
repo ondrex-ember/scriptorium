@@ -43746,36 +43746,74 @@ const Game = {
                       && !(k.injuredUntil && k.injuredUntil > Date.now())
                       && !(k.awayUntil && k.awayUntil > Date.now()))
             .sort((a, b) => a.fatigue - b.fatigue)[0];
-        if (!worker) return; // nikdo nepřiřazený na Dvůr, všichni unavení, bez nálady, nebo v Pokání
+        // POZOR: dřív zde bylo `if (!worker) return;`, což při absenci konvrše na
+        // Dvoru zablokovalo ÚPLNĚ VŠECHNY následující sekce (Záhony, Sad, Apiarium,
+        // Piscina, Pole, Vinohrad) — každá z nich má svůj vlastní worker-filtr, takže
+        // na tomhle `return` nezávisí. Opraveno na `if (worker) { ... }`, aby zbytek
+        // funkce běžel bez ohledu na obsazenost Dvora.
+        if (worker) {
+            if (typeof FarmyardSystem === 'undefined') return;
+            // Mapování: (argument pro cleanPen) → (klíč v GameState, kde se hlídá .built)
+            const pens = [
+                { arg: 'kurnik',      state: 'henhouse' },
+                { arg: 'kosar',       state: 'sheepfold' },
+                { arg: 'cowbyre',     state: 'cowbyre' },
+                { arg: 'pigsty',      state: 'pigsty' },
+                { arg: 'goatpen',     state: 'goatpen' },
+                { arg: 'rabbitry',    state: 'rabbitry' },
+                { arg: 'stable',      state: 'stable' },
+                { arg: 'donkeyStall', state: 'donkeyStall' },
+            ];
+            let cleanedAny = false;
+            const DAY = 24 * 60 * 60 * 1000;
+            pens.forEach(p => {
+                const st = GameState[p.state];
+                if (st && st.built) {
+                    // Pojistka: chlév v cooldownu přeskočit tiše — cleanPen by toastoval "uklidíte až zítra"
+                    if (Date.now() - (st.lastCleanMs || 0) < DAY) return;
+                    const before = st.lastCleanMs || 0;
+                    FarmyardSystem.cleanPen(p.arg);
+                    if ((st.lastCleanMs || 0) > before) cleanedAny = true;
+                }
+            });
 
-        if (typeof FarmyardSystem === 'undefined') return;
-        // Mapování: (argument pro cleanPen) → (klíč v GameState, kde se hlídá .built)
-        const pens = [
-            { arg: 'kurnik',      state: 'henhouse' },
-            { arg: 'kosar',       state: 'sheepfold' },
-            { arg: 'cowbyre',     state: 'cowbyre' },
-            { arg: 'pigsty',      state: 'pigsty' },
-            { arg: 'goatpen',     state: 'goatpen' },
-            { arg: 'rabbitry',    state: 'rabbitry' },
-            { arg: 'stable',      state: 'stable' },
-            { arg: 'donkeyStall', state: 'donkeyStall' },
-        ];
-        let cleanedAny = false;
-        const DAY = 24 * 60 * 60 * 1000;
-        pens.forEach(p => {
-            const st = GameState[p.state];
-            if (st && st.built) {
-                // Pojistka: chlév v cooldownu přeskočit tiše — cleanPen by toastoval "uklidíte až zítra"
-                if (Date.now() - (st.lastCleanMs || 0) < DAY) return;
-                const before = st.lastCleanMs || 0;
-                FarmyardSystem.cleanPen(p.arg);
-                if ((st.lastCleanMs || 0) > before) cleanedAny = true;
+            // Krmení — jen dokud NENÍ Horreum (pak přebírá Game.checkAnimalFeeding()
+            // automaticky, nezávisle na konvrši, aby se krmivo nespotřebovávalo 2×)
+            let fedAny = false;
+            const hasHorreum = GameState.storage && GameState.storage.horreum && GameState.storage.horreum.built;
+            if (!hasHorreum) {
+                const lang = (GameState.settings && GameState.settings.language) || 'cs';
+                if (!GameState.feeding) GameState.feeding = {};
+                const animals = [
+                    { key: 'henhouse',  built: GameState.henhouse && GameState.henhouse.built && GameState.henhouse.hens && GameState.henhouse.hens.length > 0, feedChain: ['grain', 'feed_meal'], feedAmt: 1, name: lang==='en'?'Hens':'Slepice' },
+                    { key: 'sheepfold', built: GameState.sheepfold && GameState.sheepfold.built && GameState.sheepfold.sheep && GameState.sheepfold.sheep.length > 0, feedChain: ['hay', 'feed_meal'], feedAmt: 1, name: lang==='en'?'Sheep':'Ovce' },
+                    { key: 'rabbitry',  built: GameState.rabbitry && GameState.rabbitry.built && GameState.rabbitry.animals && GameState.rabbitry.animals.length > 0, feedChain: ['scraps', 'hay'], feedAmt: 1, name: lang==='en'?'Rabbits':'Králíci' },
+                    { key: 'goatpen',   built: GameState.goatpen && GameState.goatpen.built && GameState.goatpen.animals && GameState.goatpen.animals.length > 0, feedChain: ['hay', 'scraps', 'feed_meal'], feedAmt: 1, name: lang==='en'?'Goats':'Kozy' },
+                    { key: 'cowbyre',   built: GameState.cowbyre && GameState.cowbyre.built && GameState.cowbyre.animals && GameState.cowbyre.animals.length > 0, feedChain: ['hay', 'feed_meal'], feedAmt: 1, name: lang==='en'?'Cattle':'Skot' },
+                    { key: 'pigsty',    built: GameState.pigsty && GameState.pigsty.built && GameState.pigsty.animals && GameState.pigsty.animals.length > 0, feedChain: ['scraps', 'feed_meal', 'grain', 'hay'], feedAmt: 2, name: lang==='en'?'Pigs':'Prasata' },
+                ];
+                animals.forEach(a => {
+                    if (!a.built) return;
+                    if (!GameState.feeding[a.key]) GameState.feeding[a.key] = { lastFed: Date.now(), hunger: 0 };
+                    const hoursSinceFed = (Date.now() - GameState.feeding[a.key].lastFed) / 3600000;
+                    if (hoursSinceFed < 24) return;
+                    const useFeed = a.feedChain.find(f => (GameState.inventory[f] || 0) >= a.feedAmt);
+                    if (useFeed) {
+                        this.removeItem(useFeed, a.feedAmt);
+                        GameState.feeding[a.key].lastFed = Date.now();
+                        GameState.feeding[a.key].hunger = 0;
+                        fedAny = true;
+                    } else {
+                        GameState.feeding[a.key].hunger = Math.min(3, (GameState.feeding[a.key].hunger || 0) + 1);
+                    }
+                });
             }
-        });
-        if (cleanedAny) {
-            const workGain = this._konvrsTraits(worker).includes('silak') ? 10 : 15;
-            worker.fatigue = Math.min(100, worker.fatigue + workGain);
-            Game.save();
+
+            if (cleanedAny || fedAny) {
+                const workGain = this._konvrsTraits(worker).includes('silak') ? 10 : 15;
+                worker.fatigue = Math.min(100, worker.fatigue + workGain);
+                Game.save();
+            }
         }
 
         // ── Záhony (L1): přiřazený konvrš zalévá a sklízí, self-guarded 24h ──
