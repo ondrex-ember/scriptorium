@@ -6276,6 +6276,32 @@ const RecipesDB = [
     { id: "garlic_to_seed", output: "seeds_garlic", qty: 1, req: { "garlic": 1 }, toolReq: [{item:"stone_knife"}], cat: "craft",
       desc: "Nožem rozebraný stroužek česneku ponechaný na osivo.", desc_en: "Garlic clove separated with a knife, set aside for sowing." },
 
+    // Byliny → semínka (nůž)
+    { id: "herb_red_to_seed", output: "seeds_herb", qty: 1, req: { "herb_red": 1 }, toolReq: [{item:"stone_knife"}], cat: "craft",
+      desc: "Nožem vyloupaná semínka krvavého květu ponechaná na osivo.", desc_en: "Bloodwort seeds picked out with a knife, set aside for sowing." },
+    { id: "chamomile_to_seed", output: "seeds_yellow", qty: 1, req: { "chamomile": 1 }, toolReq: [{item:"stone_knife"}], cat: "craft",
+      desc: "Nožem vyloupaná semínka heřmánku ponechaná na osivo.", desc_en: "Chamomile seeds picked out with a knife, set aside for sowing." },
+    { id: "herb_blue_to_seed", output: "seeds_blue", qty: 1, req: { "herb_blue": 1 }, toolReq: [{item:"stone_knife"}], cat: "craft",
+      desc: "Nožem vyloupaná semínka levandule ponechaná na osivo.", desc_en: "Lavender seeds picked out with a knife, set aside for sowing." },
+    { id: "mint_to_seed", output: "seeds_mint", qty: 1, req: { "mint": 1 }, toolReq: [{item:"stone_knife"}], cat: "craft",
+      desc: "Nožem vyloupaná semínka máty ponechaná na osivo.", desc_en: "Mint seeds picked out with a knife, set aside for sowing." },
+    { id: "thyme_to_seed", output: "seeds_thyme", qty: 1, req: { "thyme": 1 }, toolReq: [{item:"stone_knife"}], cat: "craft",
+      desc: "Nožem vyloupaná semínka tymiánu ponechaná na osivo.", desc_en: "Thyme seeds picked out with a knife, set aside for sowing." },
+    { id: "st_johns_wort_to_seed", output: "seeds_herb", qty: 1, req: { "st_johns_wort": 1 }, toolReq: [{item:"stone_knife"}], cat: "craft",
+      desc: "Nožem vyloupaná semínka třezalky ponechaná na osivo.", desc_en: "St. John's Wort seeds picked out with a knife, set aside for sowing." },
+    { id: "sage_to_seed", output: "seeds_sage", qty: 1, req: { "sage": 1 }, toolReq: [{item:"stone_knife"}], cat: "craft",
+      desc: "Nožem vyloupaná semínka šalvěje ponechaná na osivo.", desc_en: "Sage seeds picked out with a knife, set aside for sowing." },
+    { id: "fennel_to_seed", output: "seeds_fennel", qty: 1, req: { "fennel": 1 }, toolReq: [{item:"stone_knife"}], cat: "craft",
+      desc: "Nožem vyloupaná semínka fenyklu ponechaná na osivo.", desc_en: "Fennel seeds picked out with a knife, set aside for sowing." },
+    { id: "wormwood_to_seed", output: "seeds_wormwood", qty: 1, req: { "wormwood": 1 }, toolReq: [{item:"stone_knife"}], cat: "craft",
+      desc: "Nožem vyloupaná semínka pelynku ponechaná na osivo.", desc_en: "Wormwood seeds picked out with a knife, set aside for sowing." },
+    { id: "hyssop_to_seed", output: "seeds_hyssop", qty: 1, req: { "hyssop": 1 }, toolReq: [{item:"stone_knife"}], cat: "craft",
+      desc: "Nožem vyloupaná semínka yzopu ponechaná na osivo.", desc_en: "Hyssop seeds picked out with a knife, set aside for sowing." },
+    { id: "yarrow_to_seed", output: "seeds_yarrow", qty: 1, req: { "yarrow": 1 }, toolReq: [{item:"stone_knife"}], cat: "craft",
+      desc: "Nožem vyloupaná semínka řebříčku ponechaná na osivo.", desc_en: "Yarrow seeds picked out with a knife, set aside for sowing." },
+    { id: "plantain_to_seed", output: "seeds_plantain", qty: 1, req: { "plantain": 1 }, toolReq: [{item:"stone_knife"}], cat: "craft",
+      desc: "Nožem vyloupaná semínka jitrocele ponechaná na osivo.", desc_en: "Plantain seeds picked out with a knife, set aside for sowing." },
+
     // Ovoce → semínka (nůž)
     { id: "apple_to_seed", output: "seed_apple", qty: 1, req: { "apple": 1 }, toolReq: [{item:"stone_knife"}], cat: "craft",
       desc: "Nožem vyříznutá jádra jablka ponechaná na osivo.", desc_en: "Apple seeds cut out with a knife, set aside for sowing." },
@@ -6547,6 +6573,7 @@ RecipesDB.push(
     { id: "incense_styrax",   output: "incense_styrax",   qty: 1, req: { "resin_styrax": 1, "charcoal": 1 }, cat: "fire", locked: true, desc: "Styrax + uhlí = byzantské kadidlo.", desc_en: "Styrax + charcoal = Byzantine incense." },
     { id: "incense_olibanum", output: "incense_olibanum", qty: 1, req: { "resin_olibanum": 1, "charcoal": 1 }, cat: "fire", locked: true, desc: "Olibanum + uhlí = posvátné kadidlo.", desc_en: "Olibanum + charcoal = sacred incense." }
 );
+
 // ═══ src/data/health.js ═══
 // ═══════════════════════════════════════════════════════════════════════════
 // HEALTH CONDITIONS DB (Valetudo)
@@ -16241,6 +16268,7 @@ const CellariumSystem = {
       { itemId: 'salt',            basePrice: 12, dailyStock: 2  },
       { itemId: 'wine',            basePrice: 4,  dailyStock: 5  },
       { itemId: 'seeds_thyme',     basePrice: 6,  dailyStock: 5  }, // tymián — Varroa léčba
+      { itemId: 'seeds_plantain',  basePrice: 5,  dailyStock: 5  }, // jitrocel — hojivá bylina
       { itemId: 'seeds_herb',      basePrice: 6,  dailyStock: 10 },
       { itemId: 'seeds_vegetable', basePrice: 6,  dailyStock: 10 },
       { itemId: 'seeds_yellow',    basePrice: 8,  dailyStock: 3  }, // heřmánek
@@ -16251,6 +16279,8 @@ const CellariumSystem = {
       { itemId: 'seeds_flax',      basePrice: 9,  dailyStock: 10 },
       // Kadidlo — dovozní pryskyřice (Thuribulum)
       { itemId: 'resin_styrax',    basePrice: 18, dailyStock: 2,  req_tech: 'tech_thuribulum' },
+      // Alembik — destilační nádoba, dostupná v Obchodě od Destillatio (MRD: athanor-tiers)
+      { itemId: 'alembic',         basePrice: 30, dailyStock: 1,  req_tech: 'tech_destillatio' },
       // Liturgická roucha — trvanlivá, vestment-sezóna (endgame-branches-reference.md)
       { itemId: 'roucho_bile',     basePrice: 15, dailyStock: 1,  req_tech: 'tech_canonical_hours' },
       { itemId: 'roucho_fialove',  basePrice: 15, dailyStock: 1,  req_tech: 'tech_canonical_hours' },
@@ -17689,6 +17719,7 @@ const CellariumSystem = {
 
 
 };
+
 // ═══ src/systems/SaeculumSystem.js ═══
 // ═══════════════════════════════════════════════════════════════════════════════
 // SAECULUM SYSTEM v1.0 — Kontakt s venkem
@@ -26785,6 +26816,43 @@ const SecretsSystem = {
     this.checkLaboratoryUnlock();
   },
 
+  // Organický trigger (MRD: athanor-tiers) — první zranění/nemoc/kritický
+  // Vigor + jitrocel v inventáři odemkne Athanor Tier I. Volat z VigorSystem
+  // po každém přepočtu Vigoru a z HealthSystem.addCondition().
+  checkOrganicAthanorUnlock: function() {
+    if (!GameState.secrets || GameState.secrets.laboratoryUnlocked) return false;
+    if (!(GameState.inventory && GameState.inventory['plantain'] > 0)) return false;
+
+    const lowVigor = (typeof VigorSystem !== 'undefined' && VigorSystem.getVigor() < 30);
+    const hasCondition = !!(GameState.health && GameState.health.active &&
+      Object.keys(GameState.health.active).length > 0);
+    if (!lowVigor && !hasCondition) return false;
+
+    GameState.secrets.laboratoryUnlocked = true;
+    Game.save();
+
+    const lang = (GameState.settings && GameState.settings.language) || 'cs';
+    this.showAthanorModal(lang === 'en' ? {
+      heading: '🌿 The mortar in the cellar',
+      hint: '“Wounds ache, and prayer alone does not close them.”',
+      bodyHtml: `Beneath the kitchen lies a dusty mortar.<br>
+          Perhaps it is time to take God's gifts<br>
+          <strong>into your own hands.</strong>`,
+      btnLabel: 'Deo gratias'
+    } : {
+      heading: '🌿 Hmoždíř ve sklepení',
+      hint: '„Rány bolí a modlitby k jejich zacelení nestačí.“',
+      bodyHtml: `Ve sklepení pod kuchyní leží zaprášený hmoždíř.<br>
+          Možná je čas vzít Boží dary<br>
+          <strong>do vlastních rukou.</strong>`,
+      btnLabel: 'Deo gratias'
+    });
+    if (typeof UI !== 'undefined' && UI.notifyPanel) {
+      UI.notifyPanel('🧪 ' + (lang === 'en' ? 'The Athanor is now accessible.' : 'Athanor je nyní přístupný.'), 'system');
+    }
+    return true;
+  },
+
   // ═══════════════════════════════════════════════════════════════════════════
   // FOLIO DISCOVERY — mapování knih na folia
   // Volá se z LibraryHelpers.readBook() po každém přečtení knihy
@@ -27125,9 +27193,17 @@ const SecretsSystem = {
   },
 
   // ── Athanor discovery modal ───────────────────────────────────────────────
-  showAthanorModal: function() {
+  showAthanorModal: function(opts) {
     const existing = document.getElementById('athanor-discovery-modal');
     if (existing) existing.remove();
+
+    const o = opts || {};
+    const heading = o.heading || '🔥 Ignis perpetuus ardet';
+    const hint = o.hint || '„Věčný oheň hoří.“';
+    const bodyHtml = o.bodyHtml || `V Pracovně jsou zamčené dveře,<br>
+          které jsi dosud nemohl otevřít.<br>
+          <strong>Nyní znáš slovo. Nyní vejdeš.</strong>`;
+    const btnLabel = o.btnLabel || 'Deo gratias';
 
     const modal = document.createElement('div');
     modal.id = 'athanor-discovery-modal';
@@ -27186,21 +27262,19 @@ const SecretsSystem = {
           Athanor Secretus
         </div>
         <h2 style="font-size:1.5rem; margin-bottom:16px; color:var(--ink-primary,#2c1810);">
-          🔥 Ignis perpetuus ardet
+          ${heading}
         </h2>
 
         <!-- Hint -->
         <p style="
           font-style:italic; line-height:1.7; opacity:0.8;
           margin-bottom:8px; font-size:1.05rem;">
-          „Věčný oheň hoří."
+          ${hint}
         </p>
         <p style="
           line-height:1.6; font-size:0.95rem; opacity:0.7;
           margin-bottom:28px;">
-          V Pracovně jsou zamčené dveře,<br>
-          které jsi dosud nemohl otevřít.<br>
-          <strong>Nyní znáš slovo. Nyní vejdeš.</strong>
+          ${bodyHtml}
         </p>
 
         <!-- Tlačítko -->
@@ -27211,7 +27285,7 @@ const SecretsSystem = {
             padding:10px 28px; cursor:pointer;
             font-family:'Crimson Text'; font-size:1.05rem;
             letter-spacing:0.03em;">
-          Deo gratias
+          ${btnLabel}
         </button>
       </div>`;
 
@@ -27403,6 +27477,7 @@ const SecretsSystem = {
   }
 
 };
+
 // ═══ src/systems/athanor.js ═══
 // ============================================================
 //  ATHANOR — Alchymistická laboratoř v2.0
@@ -27553,6 +27628,15 @@ const AthanorDB = {
       thermal: 2, moisture: -2,
       lore: 'Bylina svatého Jana. Červený olej z jejích květů léčil rány i melancholii.',
       dropNote: 'Kvete v létě, sbírej při průzkumu.'
+    },
+    {
+      id: 'plantain',
+      name: 'Jitrocel', name_lat: 'Plantago Major',
+      rarity: 'common', source: 'foraging',
+      color: '#6b8e4e', icon: '🌿',
+      thermal: -1, moisture: -1,
+      lore: 'Poutníkova bylina. Roste u každé cesty — přiložený list zastaví krvácení, odvar tiší kašel.',
+      dropNote: 'Roste u cest a mezí, sbírej při průzkumu.'
     },
     {
       id: 'beeswax',
@@ -29182,6 +29266,7 @@ const AthanorSystem = {
     if (el && el.style.display !== 'none') AthanorSystem.render('home-athanor-content');
   }
 };
+
 // ═══ src/systems/GamesSystem.js ═══
 // ═══════════════════════════════════════════════════════════════════════════════
 // GAMES SYSTEM — Aula Ludi
