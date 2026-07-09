@@ -43199,6 +43199,7 @@ const Game = {
         dvur:     { icon: '🏚️', away: false },
         zahony:   { icon: '🌿', away: false },
         sad:      { icon: '🍎', away: false },
+        apiarium: { icon: '🐝', away: false },
         scavenge: { icon: '🌾', away: true,  durationMs: 8  * 60 * 60 * 1000, riskPct: 12 },
         doly:     { icon: '⛏️', away: true,  durationMs: 20 * 60 * 60 * 1000, riskPct: 20 },
         kostel:   { icon: '🕍', away: false },
@@ -43842,6 +43843,88 @@ const Game = {
                 if (didHarvest) {
                     const workGain = this._konvrsTraits(orchardKeeper).includes('silak') ? 10 : 15;
                     orchardKeeper.fatigue = Math.min(100, orchardKeeper.fatigue + workGain);
+                    Game.save();
+                }
+            }
+        }
+
+        // ── Apiarium (L1): přiřazený konvrš sklízí med/vosk, přikrmuje v zimě
+        //    a léčí Varroa — self-guarded 24h ──
+        const beekeeper = GameState.conversi
+            .filter(k => k.task === 'apiarium'
+                      && k.fatigue < (this._konvrsTraits(k).includes('pilny') ? 90 : 80)
+                      && (typeof k.mood !== 'number' || k.mood >= 30)
+                      && !(k.penanceUntil && k.penanceUntil > Date.now())
+                      && !(k.injuredUntil && k.injuredUntil > Date.now())
+                      && !(k.awayUntil && k.awayUntil > Date.now()))
+            .sort((a, b) => a.fatigue - b.fatigue)[0];
+        if (beekeeper && GameState.apiary && typeof GardenSystem !== 'undefined') {
+            if (!GameState.conversiApiaryLastTick) GameState.conversiApiaryLastTick = 0;
+            if (Date.now() - GameState.conversiApiaryLastTick >= DAY) {
+                GameState.conversiApiaryLastTick = Date.now();
+                let didWork = false;
+                const season = GardenSystem._getApiarySeason();
+                const now = Date.now();
+
+                GameState.apiary.forEach(hive => {
+                    if (!hive.built || !hive.hasQueen) return;
+
+                    // Léčba Varroa má přednost — riziko hrozí kdykoliv v roce
+                    if (hive.varroaRisk) {
+                        if ((GameState.inventory['thyme'] || 0) > 0) {
+                            this.removeItem('thyme', 1);
+                            hive.varroaRisk = false;
+                            hive.strength = Math.max(1, (hive.strength || 3) - 1);
+                            didWork = true;
+                        }
+                        return;
+                    }
+
+                    if (season === 'winter') {
+                        // Zimní přikrmení — jen pokud síla není už na maximu
+                        if (hive.strength < 10 && (GameState.inventory['honey'] || 0) > 0) {
+                            this.removeItem('honey', 1);
+                            hive.strength = Math.min(10, (hive.strength || 3) + 1);
+                            didWork = true;
+                        }
+                        return;
+                    }
+
+                    // Sklizeň — stejná gate logika jako ruční collectHive
+                    const COLLECT_HOURS = { spring: 16, summer: 8, autumn: 20 };
+                    const hours = COLLECT_HOURS[season] || 12;
+                    if (now < hive.lastCollectAt + (hours * 3600000)) return;
+
+                    const strengthMod = (hive.strength || 3) / 5;
+                    const honeyBase = { spring: 1, summer: 3, autumn: 1 };
+                    const waxBase   = { spring: 1, summer: 1, autumn: 2 };
+                    this.addItem('honey', Math.max(1, Math.round(honeyBase[season] * strengthMod)));
+                    this.addItem('beeswax', Math.max(1, Math.round(waxBase[season] * strengthMod)));
+
+                    if (season === 'summer') {
+                        const hasFlowers = GameState.garden && GameState.garden.some(p => p.state === 2 && p.water);
+                        const hasTrees   = GameState.orchard && GameState.orchard.some(s => s.state === 'mature');
+                        if (hasFlowers || hasTrees) this.addItem('pollen', 1);
+                    }
+
+                    hive.strength = Math.min(10, (hive.strength || 3) + 1);
+
+                    // Rojivá nálada — stejné riziko jako u ruční sklizně, konvrš ho ale
+                    // díky pravidelné 24h péči prakticky nikdy nedovolí nastat
+                    if (hive.strength >= 9 && now > hive.lastCollectAt + (hours * 2 * 3600000)) {
+                        hive.hasQueen = false;
+                        hive.queenName = null;
+                        hive.strength = 0;
+                        didWork = true;
+                        return;
+                    }
+                    hive.lastCollectAt = now;
+                    didWork = true;
+                });
+
+                if (didWork) {
+                    const workGain = this._konvrsTraits(beekeeper).includes('silak') ? 10 : 15;
+                    beekeeper.fatigue = Math.min(100, beekeeper.fatigue + workGain);
                     Game.save();
                 }
             }
