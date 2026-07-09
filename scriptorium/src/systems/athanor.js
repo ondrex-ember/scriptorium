@@ -149,6 +149,15 @@ const AthanorDB = {
       dropNote: 'Kvete v létě, sbírej při průzkumu.'
     },
     {
+      id: 'plantain',
+      name: 'Jitrocel', name_lat: 'Plantago Major',
+      rarity: 'common', source: 'foraging',
+      color: '#6b8e4e', icon: '🌿',
+      thermal: -1, moisture: -1,
+      lore: 'Poutníkova bylina. Roste u každé cesty — přiložený list zastaví krvácení, odvar tiší kašel.',
+      dropNote: 'Roste u cest a mezí, sbírej při průzkumu.'
+    },
+    {
       id: 'beeswax',
       name: 'Včelí vosk', name_lat: 'Cera Alba',
       rarity: 'uncommon', source: 'foraging',
