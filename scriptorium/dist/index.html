@@ -43209,6 +43209,7 @@ const Game = {
         apiarium: { icon: '🐝', away: false },
         piscina:  { icon: '🐟', away: false },
         pole:     { icon: '🌾', away: false },
+        vinohrad: { icon: '🍇', away: false },
         scavenge: { icon: '🌾', away: true,  durationMs: 8  * 60 * 60 * 1000, riskPct: 12 },
         doly:     { icon: '⛏️', away: true,  durationMs: 20 * 60 * 60 * 1000, riskPct: 20 },
         kostel:   { icon: '🕍', away: false },
@@ -44027,6 +44028,63 @@ const Game = {
                 if (didWork) {
                     const workGain = this._konvrsTraits(plowman).includes('silak') ? 10 : 15;
                     plowman.fatigue = Math.min(100, plowman.fatigue + workGain);
+                    Game.save();
+                }
+            }
+        }
+
+        // ── Vinohrad (L1): přiřazený konvrš zalévá, prořezává (i mimo sezónu —
+        //    specialista, na rozdíl od hráče gate neplatí) a sklízí dozrálou révu,
+        //    self-guarded 24h. Zalévání a sklizeň volají GardenSystem.waterVine/
+        //    harvestVine přímo; prořez má vlastní logiku, protože pruneVine()
+        //    má hardcoded sezónní gate (březen–duben), který se zde záměrně obchází. ──
+        const vintner = GameState.conversi
+            .filter(k => k.task === 'vinohrad'
+                      && k.fatigue < (this._konvrsTraits(k).includes('pilny') ? 90 : 80)
+                      && (typeof k.mood !== 'number' || k.mood >= 30)
+                      && !(k.penanceUntil && k.penanceUntil > Date.now())
+                      && !(k.injuredUntil && k.injuredUntil > Date.now())
+                      && !(k.awayUntil && k.awayUntil > Date.now()))
+            .sort((a, b) => a.fatigue - b.fatigue)[0];
+        if (vintner && GameState.vinea && typeof GardenSystem !== 'undefined') {
+            if (!GameState.conversiVineaLastTick) GameState.conversiVineaLastTick = 0;
+            if (Date.now() - GameState.conversiVineaLastTick >= DAY) {
+                GameState.conversiVineaLastTick = Date.now();
+                let didWork = false;
+                const techs = GameState.researchedTechs || [];
+                const waterCost = techs.includes('tech_field_irrigation') ? 1 : 2;
+
+                GameState.vinea.forEach((slot, idx) => {
+                    if (!slot || slot.state === 'empty' || slot.state === 'dormant') return;
+
+                    // Prořez — konvrš specialista obchází sezónní gate (na rozdíl od hráče)
+                    if (!slot.pruned && (slot.state === 'planted' || slot.state === 'growing')) {
+                        const variety = slot.variety ? GardenSystem.VINEA_DB[slot.variety] : null;
+                        if (variety) {
+                            slot.pruned = true;
+                            const cuttings = Math.random() < 0.5 ? 2 : 1;
+                            slot.cuttingsAvailable = cuttings;
+                            this.addItem(variety.viticis, cuttings);
+                            didWork = true;
+                        }
+                    }
+
+                    // Zalévání — mimo dormant/empty, jen pokud je voda na skladě
+                    if ((GameState.inventory['water'] || 0) >= waterCost) {
+                        GardenSystem.waterVine(idx);
+                        didWork = true;
+                    }
+
+                    // Sklizeň dozrálé révy
+                    if (slot.state === 'ripe') {
+                        GardenSystem.harvestVine(idx);
+                        didWork = true;
+                    }
+                });
+
+                if (didWork) {
+                    const workGain = this._konvrsTraits(vintner).includes('silak') ? 10 : 15;
+                    vintner.fatigue = Math.min(100, vintner.fatigue + workGain);
                     Game.save();
                 }
             }
