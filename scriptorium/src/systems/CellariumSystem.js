@@ -327,7 +327,7 @@ const CellariumSystem = {
     return 1.10 + ((GameState.persona?.influence?.benedikt || 0) / 100) * 0.25;
   },
 
-  calcPrice: function(itemId, entity) {
+  calcPrice: function(itemId, entity, skipSaturation) {
     const base = this.BASE_PRICES[itemId];
     if (!base) return null;
     const cat   = this.ITEM_CAT[itemId] || 'mat';
@@ -337,7 +337,7 @@ const CellariumSystem = {
     const seed  = today.getFullYear() * 10000 + (today.getMonth()+1) * 100 + today.getDate();
     const pseudoRand = ((seed * 9301 + entity.charCodeAt(0) * 49297 + itemId.charCodeAt(0) * 233) % 1000) / 1000;
     const offset = 0.85 + pseudoRand * 0.30; // 0.85–1.15
-    const satMult = this._saturationMult(itemId, entity);
+    const satMult = skipSaturation ? 1.0 : this._saturationMult(itemId, entity);
     const roleMult = (typeof RankSystem !== 'undefined') ? RankSystem.getActiveBonus('market_price') : 1.0;
     // Professio: Illuminator (manuscript_price) — striktně jen role illuminator, žádný fallback pro ostatní
     const isIlluminator = (GameState.persona && GameState.persona.role === 'illuminator');
@@ -362,16 +362,36 @@ const CellariumSystem = {
       UI.notify('⚠️ Non habes sufficiens!', true);
       return;
     }
-    const price = this.calcPrice(itemId, entity);
-    if (!price) return;
-    const total = price * qty;
+    // Cena BEZ saturačního multiplikátoru — ten se aplikuje postupně níže,
+    // aby velký jednorázový prodej (tlačítko "Vše") správně degradoval cenu
+    // uprostřed transakce, ne jen podle stavu PŘED prodejem (viz calcPrice).
+    const baseNoSat = this.calcPrice(itemId, entity, true);
+    if (!baseNoSat) return;
+
+    this._resetStockIfNewDay();
+    const soldKey = this._stockKey(entity, itemId);
+    let sold = GameState.shopStock.dailySold[soldKey] || 0;
+    const SAT_THRESHOLDS = [5, 15, 30];
+    const SAT_MULTS = [1.00, 0.80, 0.60, 0.45];
+
+    let total = 0, remaining = qty, guard = 0;
+    while (remaining > 0 && guard < 10000) {
+      guard++;
+      let tierIdx = SAT_THRESHOLDS.findIndex(th => sold < th);
+      if (tierIdx === -1) tierIdx = SAT_THRESHOLDS.length;
+      const tierCap = tierIdx < SAT_THRESHOLDS.length ? SAT_THRESHOLDS[tierIdx] : Infinity;
+      const canSellInTier = tierCap === Infinity ? remaining : Math.min(remaining, tierCap - sold);
+      const tierPrice = Math.max(1, Math.round(baseNoSat * SAT_MULTS[tierIdx]));
+      total += tierPrice * canSellInTier;
+      sold += canSellInTier;
+      remaining -= canSellInTier;
+    }
+
     Game.removeItem(itemId, qty);
     this.addGrose(total);
     // Saturace — zaznamenat prodané množství
-    this._resetStockIfNewDay();
-    const soldKey = this._stockKey(entity, itemId);
-    GameState.shopStock.dailySold[soldKey] = (GameState.shopStock.dailySold[soldKey] || 0) + qty;
-    this.recordTransaction('sell', itemId, qty, price, entity);
+    GameState.shopStock.dailySold[soldKey] = sold;
+    this.recordTransaction('sell', itemId, qty, Math.round(total / qty), entity);
     GameState.economy.tradesTotal++;
     // Reputace — obchod zvyšuje vztah k entitě (+1 základ + Celerarius bonus navrch)
     if (typeof PersonaSystem !== 'undefined' && PersonaSystem.addInfluence) {
@@ -1260,6 +1280,29 @@ const CellariumSystem = {
     const inv = GameState.inventory || {};
     const ds = (typeof DecaySystem !== 'undefined') ? DecaySystem : null;
 
+    // Registrum Cellarii (tech_backpack_ii) — kategorický filtr zásob.
+    // Mapování ItemsDB.type → kategorie filtru; cokoliv sem nespadne se
+    // zobrazí v "Ostatní" (fallback pro budoucí položky bez jasného typu).
+    const hasRegistrum = GameState.researchedTechs && GameState.researchedTechs.includes('tech_backpack_ii');
+    const CAT_MAP = {
+      mat: 'mat', tool: 'tool', food: 'food', food_raw: 'food',
+      lore: 'lore', animal: 'animal',
+      alchemy: 'alchemy', alchemy_ing: 'alchemy', potion: 'alchemy',
+      herb: 'mat',
+    };
+    const CAT_LABELS = {
+      all:     { icon: '📦', cs: 'Vše',      en: 'All' },
+      mat:     { icon: '🧵', cs: 'Suroviny', en: 'Materials' },
+      tool:    { icon: '🔧', cs: 'Nástroje', en: 'Tools' },
+      food:    { icon: '🍞', cs: 'Jídlo',    en: 'Food' },
+      lore:    { icon: '📖', cs: 'Vědění',   en: 'Lore' },
+      animal:  { icon: '🐐', cs: 'Zvířata',  en: 'Animals' },
+      alchemy: { icon: '⚗️', cs: 'Alchymie', en: 'Alchemy' },
+      other:   { icon: '🗝️', cs: 'Ostatní',  en: 'Miscellaneous' },
+    };
+    if (!GameState.ui) GameState.ui = {};
+    const activeCat = GameState.ui.inventariumFilter || 'all';
+
     const title = lang === 'en' ? 'Inventarium — Inventory of Stores' : 'Inventarium — Soupis Zásob';
     const capLabel = lang === 'en' ? 'Capacity' : 'Kapacita';
     const storageLabel = lang === 'en' ? 'Storage' : 'Sklad';
@@ -1294,6 +1337,39 @@ const CellariumSystem = {
       ${overflow ? `<div style="font-size:0.72rem; color:#c0392b; margin-top:6px;">⚠️ ${t('decay.overflowWarn')}</div>` : ''}
     </div>`;
 
+    // Registrum Cellarii — kategorický filtr (tech_backpack_ii)
+    if (hasRegistrum) {
+      const counts = { all: 0 };
+      Object.entries(inv).forEach(([id, qty]) => {
+        if (typeof qty !== 'number' || qty <= 0) return;
+        const item = ItemsDB[id];
+        const cat = (item && CAT_MAP[item.type]) || 'other';
+        counts.all++;
+        counts[cat] = (counts[cat] || 0) + 1;
+      });
+      h += `<div style="display:flex; flex-wrap:wrap; gap:5px; margin-bottom:12px;">`;
+      Object.keys(CAT_LABELS).forEach(cat => {
+        const n = counts[cat] || 0;
+        if (cat !== 'all' && n === 0) return; // skrýt prázdné kategorie
+        const lbl = CAT_LABELS[cat];
+        const isActive = activeCat === cat;
+        h += `<button onclick="GameState.ui.inventariumFilter='${cat}'; CellariumSystem.switchEntity('inventarium');"
+          style="padding:5px 10px; border-radius:6px; font-size:0.75rem; cursor:pointer;
+                 background:${isActive ? '#8a3324' : 'rgba(197,160,89,0.12)'};
+                 color:${isActive ? '#fcf5e5' : 'inherit'};
+                 border:1px solid ${isActive ? '#8a3324' : 'rgba(197,160,89,0.3)'};">
+          ${lbl.icon} ${lang==='en' ? lbl.en : lbl.cs} <span style="opacity:0.7;">(${n})</span>
+        </button>`;
+      });
+      h += `</div>`;
+    } else {
+      h += `<div style="margin-bottom:12px; padding:8px 10px; background:rgba(0,0,0,0.03); border-radius:6px; font-size:0.75rem; opacity:0.65; font-style:italic;">
+        ${lang==='en'
+          ? '📜 Study <strong>Registrum Cellarii</strong> to filter stores by category.'
+          : '📜 Prostuduj <strong>Registrum Cellarii</strong> pro filtrování zásob podle kategorií.'}
+      </div>`;
+    }
+
     // Myší vliv (fuzzy)
     if (ds) {
       h += `<div style="margin-bottom:12px; padding:8px 10px; background:rgba(0,0,0,0.04); border-radius:6px; font-size:0.78rem; font-style:italic; opacity:0.8;">
@@ -1317,6 +1393,10 @@ const CellariumSystem = {
       const item = ItemsDB[id];
       const icon = (item && item.icon) ? item.icon : '📦';
       const name = (typeof iName === 'function') ? iName(id) : (item ? item.name : id);
+
+      // Kategorie (jen pokud je Registrum odemčen — jinak filtr neexistuje a vše se vypíše)
+      const itemCat = (item && CAT_MAP[item.type]) || 'other';
+      if (hasRegistrum && activeCat !== 'all' && itemCat !== activeCat) continue;
 
       let decayHtml = '';
       let rate = ds ? ds.effectiveRate(id) : null;

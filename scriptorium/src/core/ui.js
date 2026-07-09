@@ -449,7 +449,17 @@ const UI = {
 
         const filter = this.currentInvFilter || 'all';
 
-        if (filter !== 'all') {
+        if (filter === 'other') {
+            // Ostatní — stejná logika jako záchranná síť v pohledu "Vše" (níže),
+            // jen jako samostatný filtr: cokoliv s type, které nepokrývá žádná
+            // ze skupin filterGroups výše (misc, special, consumable, building, ...).
+            const knownTypes = Object.values(filterGroups).flat();
+            allItems.forEach(([id, qty]) => {
+                const item = ItemsDB[id];
+                if (!item || knownTypes.includes(item.type)) return;
+                el.innerHTML += renderItem(id, qty);
+            });
+        } else if (filter !== 'all') {
             // Filtrovaný pohled — jen odpovídající typy
             const tierFilters = ['stone', 'iron', 'wood', 'fire'];
             const allowed = filterGroups[filter] || [filter];
