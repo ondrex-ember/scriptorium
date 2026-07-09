@@ -87,6 +87,43 @@ const SecretsSystem = {
     this.checkLaboratoryUnlock();
   },
 
+  // Organický trigger (MRD: athanor-tiers) — první zranění/nemoc/kritický
+  // Vigor + jitrocel v inventáři odemkne Athanor Tier I. Volat z VigorSystem
+  // po každém přepočtu Vigoru a z HealthSystem.addCondition().
+  checkOrganicAthanorUnlock: function() {
+    if (!GameState.secrets || GameState.secrets.laboratoryUnlocked) return false;
+    if (!(GameState.inventory && GameState.inventory['plantain'] > 0)) return false;
+
+    const lowVigor = (typeof VigorSystem !== 'undefined' && VigorSystem.getVigor() < 30);
+    const hasCondition = !!(GameState.health && GameState.health.active &&
+      Object.keys(GameState.health.active).length > 0);
+    if (!lowVigor && !hasCondition) return false;
+
+    GameState.secrets.laboratoryUnlocked = true;
+    Game.save();
+
+    const lang = (GameState.settings && GameState.settings.language) || 'cs';
+    this.showAthanorModal(lang === 'en' ? {
+      heading: '🌿 The mortar in the cellar',
+      hint: '“Wounds ache, and prayer alone does not close them.”',
+      bodyHtml: `Beneath the kitchen lies a dusty mortar.<br>
+          Perhaps it is time to take God's gifts<br>
+          <strong>into your own hands.</strong>`,
+      btnLabel: 'Deo gratias'
+    } : {
+      heading: '🌿 Hmoždíř ve sklepení',
+      hint: '„Rány bolí a modlitby k jejich zacelení nestačí.“',
+      bodyHtml: `Ve sklepení pod kuchyní leží zaprášený hmoždíř.<br>
+          Možná je čas vzít Boží dary<br>
+          <strong>do vlastních rukou.</strong>`,
+      btnLabel: 'Deo gratias'
+    });
+    if (typeof UI !== 'undefined' && UI.notifyPanel) {
+      UI.notifyPanel('🧪 ' + (lang === 'en' ? 'The Athanor is now accessible.' : 'Athanor je nyní přístupný.'), 'system');
+    }
+    return true;
+  },
+
   // ═══════════════════════════════════════════════════════════════════════════
   // FOLIO DISCOVERY — mapování knih na folia
   // Volá se z LibraryHelpers.readBook() po každém přečtení knihy
@@ -427,9 +464,17 @@ const SecretsSystem = {
   },
 
   // ── Athanor discovery modal ───────────────────────────────────────────────
-  showAthanorModal: function() {
+  showAthanorModal: function(opts) {
     const existing = document.getElementById('athanor-discovery-modal');
     if (existing) existing.remove();
+
+    const o = opts || {};
+    const heading = o.heading || '🔥 Ignis perpetuus ardet';
+    const hint = o.hint || '„Věčný oheň hoří.“';
+    const bodyHtml = o.bodyHtml || `V Pracovně jsou zamčené dveře,<br>
+          které jsi dosud nemohl otevřít.<br>
+          <strong>Nyní znáš slovo. Nyní vejdeš.</strong>`;
+    const btnLabel = o.btnLabel || 'Deo gratias';
 
     const modal = document.createElement('div');
     modal.id = 'athanor-discovery-modal';
@@ -488,21 +533,19 @@ const SecretsSystem = {
           Athanor Secretus
         </div>
         <h2 style="font-size:1.5rem; margin-bottom:16px; color:var(--ink-primary,#2c1810);">
-          🔥 Ignis perpetuus ardet
+          ${heading}
         </h2>
 
         <!-- Hint -->
         <p style="
           font-style:italic; line-height:1.7; opacity:0.8;
           margin-bottom:8px; font-size:1.05rem;">
-          „Věčný oheň hoří."
+          ${hint}
         </p>
         <p style="
           line-height:1.6; font-size:0.95rem; opacity:0.7;
           margin-bottom:28px;">
-          V Pracovně jsou zamčené dveře,<br>
-          které jsi dosud nemohl otevřít.<br>
-          <strong>Nyní znáš slovo. Nyní vejdeš.</strong>
+          ${bodyHtml}
         </p>
 
         <!-- Tlačítko -->
@@ -513,7 +556,7 @@ const SecretsSystem = {
             padding:10px 28px; cursor:pointer;
             font-family:'Crimson Text'; font-size:1.05rem;
             letter-spacing:0.03em;">
-          Deo gratias
+          ${btnLabel}
         </button>
       </div>`;
 
