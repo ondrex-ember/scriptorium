@@ -28972,6 +28972,16 @@ const AthanorSystem = {
     const bonusText = lunar.bonus === 'nigredo' ? 'Nov: Nigredo +20%'
       : lunar.bonus === 'rubedo' ? 'Úplněk: Rubedo +20%'
         : canonical.bonus === 'quality' ? 'Laudes: +10% kvalita' : '';
+    // Dormitorium "kukaň" — přiřazený bratr (specializace Alchymista)
+    const athanorBrother = (GameState.dormitorium && GameState.dormitorium.brothers || [])
+      .find(b => b.assignedTab === 'athanor');
+    let brotherText = '';
+    if (athanorBrother) {
+      const rec = (athanorBrother.rosterId && typeof DormitoriumRosterDB !== 'undefined') ? DormitoriumRosterDB[athanorBrother.rosterId] : null;
+      const bIcon = (rec && rec.icon) ? rec.icon : '📿';
+      const level = (typeof Game !== 'undefined' && Game.dormitoriumBrotherLevel) ? Game.dormitoriumBrotherLevel(athanorBrother, 'athanor') : 1;
+      brotherText = `${bIcon} ${athanorBrother.name} · Lv${level}`;
+    }
     return `<div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center;
       padding:7px 12px;margin-bottom:14px;
       background:rgba(0,0,0,0.12);border-radius:8px;
@@ -28985,6 +28995,7 @@ const AthanorSystem = {
       <span style="opacity:0.3;">·</span>
       <span style="color:${mc};" title="Vlhkost">💧 ${moisture > 0 ? '+' : ''}${moisture}</span>
       ${bonusText ? `<span style="opacity:0.3;">·</span><span style="font-size:0.65rem;">✨ ${bonusText}</span>` : ''}
+      ${brotherText ? `<span style="opacity:0.3;">·</span><span style="font-size:0.65rem;" title="Řídí">${brotherText}</span>` : ''}
     </div>`;
   },
 
