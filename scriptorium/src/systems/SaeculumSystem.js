@@ -387,7 +387,7 @@ const SaeculumSystem = {
         const taken = Game.conversiTaskCount(taskId, k.id);
         const isCur = k.task === taskId;
         const full = !isCur && taken >= Game.CONVERSI_TASK_SLOTS;
-        const label = ({dvur: lang==='en'?'Farmyard':'Dvůr', scavenge:'Scavenge', doly: lang==='en'?'Mine':'Doly', kostel: lang==='en'?'Church':'Kostel'})[taskId];
+        const label = ({dvur: lang==='en'?'Farmyard':'Dvůr', zahony: lang==='en'?'Garden':'Záhony', scavenge:'Scavenge', doly: lang==='en'?'Mine':'Doly', kostel: lang==='en'?'Church':'Kostel'})[taskId];
         let hint = '';
         if (gate.locked) {
           hint = gate.reasonKey === 'gate_fodina_tech' ? (lang==='en'?'needs tech: Fodina':'chybí tech: Fodina')
