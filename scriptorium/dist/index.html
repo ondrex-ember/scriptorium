@@ -44638,6 +44638,73 @@ const Game = {
                 }
             }
         }
+
+        // ── Athanor (L1, Dormitorium MRD Fáze 1): přiřazený bratr (specializace
+        //    "Alchymista") sám vybírá ingredience a vaří, self-guarded 24h.
+        //    Žádný Conversi task pro Athanor neexistuje — čistě bratrovská role.
+        //    Heuristika výběru: bratr vaří POUZE již objevené kombinace
+        //    (state.discovered[]), aby neplýtval vzácné suroviny na neznámé
+        //    pokusy. Pokud žádnou známou kombinaci nemá po ruce, nedělá nic. ──
+        const athanorBrother = (GameState.dormitorium && GameState.dormitorium.brothers || [])
+            .find(b => b.assignedTab === 'athanor');
+        if (athanorBrother && GameState.athanor && typeof AthanorDB !== 'undefined' && typeof CombinationEngine !== 'undefined') {
+            if (!GameState.conversiAthanorLastTick) GameState.conversiAthanorLastTick = 0;
+            if (Date.now() - GameState.conversiAthanorLastTick >= DAY) {
+                GameState.conversiAthanorLastTick = Date.now();
+                const state = GameState.athanor;
+
+                // Bratr nezasahuje do hráčova právě probíhajícího vaření
+                if (!state.brewing && state.discovered && state.discovered.length > 0) {
+                    // Najdi první objevenou kombinaci, na kterou má bratr suroviny
+                    let chosen = null;
+                    for (const key of state.discovered) {
+                        const sepIdx = key.lastIndexOf(':');
+                        if (sepIdx < 0) continue;
+                        const ingPart = key.slice(0, sepIdx);
+                        const processId = key.slice(sepIdx + 1);
+                        const slotIds = ingPart.split('+');
+
+                        const counts = {};
+                        slotIds.forEach(id => { counts[id] = (counts[id] || 0) + 1; });
+                        const hasAll = Object.entries(counts).every(([id, qty]) => (GameState.inventory[id] || 0) >= qty);
+                        if (hasAll) { chosen = { slotIds, processId }; break; }
+                    }
+
+                    if (chosen) {
+                        // Destilace vyžaduje alembik + baňku, stejně jako u hráče
+                        const needsVitrea = chosen.processId === 'destillatio';
+                        const hasAlembic = (GameState.inventory['alembic'] || 0) > 0;
+                        const hasFlask = (GameState.inventory['glass_flask'] || 0) > 0;
+                        if (!needsVitrea || (hasAlembic && hasFlask)) {
+                            chosen.slotIds.forEach(id => this.removeItem(id, 1));
+                            if (needsVitrea) this.removeItem('glass_flask', 1);
+
+                            const result = CombinationEngine.evaluate(chosen.slotIds, chosen.processId);
+                            if (result.success) {
+                                const { combo, isCritical } = result;
+                                const qty = combo.result.qty + (isCritical ? 1 : 0);
+                                this.addItem(combo.result.id, qty);
+                                if (combo.effect && typeof AthanorSystem !== 'undefined' && AthanorSystem.applyEffect) {
+                                    AthanorSystem.applyEffect(combo.effect, combo.name);
+                                }
+                            }
+                            // Selhání u již objevené kombinace je vzácné (roll-based),
+                            // ale možné — žádná zvláštní obsluha potřeba, suroviny
+                            // se prostě spotřebovaly bez výsledku, stejně jako hráči.
+
+                            this.dormitoriumAddXp(athanorBrother, 'athanor');
+                            athanorBrother.fatigue = Math.min(100, (athanorBrother.fatigue || 0) + 10);
+                            Game.save();
+
+                            // Pokud má hráč zrovna otevřený Athanor tab, obnov zobrazení
+                            if (typeof AthanorSystem !== 'undefined' && AthanorSystem.refreshIfOpen) {
+                                AthanorSystem.refreshIfOpen();
+                            }
+                        }
+                    }
+                }
+            }
+        }
     },
 
     addKronikaEntry: function(type, cs, en, la) {
