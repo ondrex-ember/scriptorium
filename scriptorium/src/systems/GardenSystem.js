@@ -1597,12 +1597,14 @@ const GardenSystem = {
                 windowEnd: 0,             // timestamp konce sklizňového okna
                 pruned: false,            // byl proveden jarní řez? (+výnos bonus)
                 cuttingsAvailable: 0,     // počet dostupných řízků po jarním řezu
+                lastWateredAt: 0,         // timestamp poslední zálivky (sucho-kompenzace při sklizni)
             }));
         }
         // Migrace — přidat nová pole pokud chybí
         GameState.vinea.forEach(slot => {
             if (slot.cuttingsAvailable === undefined) slot.cuttingsAvailable = 0;
             if (slot.pruned === undefined) slot.pruned = false;
+            if (slot.lastWateredAt === undefined) slot.lastWateredAt = 0;
         });
     },
 
@@ -1634,6 +1636,7 @@ const GardenSystem = {
         slot.windowEnd = now + ((variety.ripeDays + variety.windowDays) * DAY_MS);
         slot.pruned    = false;
         slot.cuttingsAvailable = 0;
+        slot.lastWateredAt = 0;
         Game.save();
         this.renderVinohrad();
         UI.notify('🌿 ' + (lang==='en' ? variety.name_en : variety.name) + (lang==='en' ? ' planted.' : ' zasazena.'));
@@ -1673,9 +1676,27 @@ const GardenSystem = {
         slot.windowEnd = 0;
         slot.pruned    = false;
         slot.cuttingsAvailable = 0;
+        slot.lastWateredAt = 0;
         Game.save();
         this.renderVinohrad();
         UI.notify('🪴 ' + (lang==='en' ? 'Vine uprooted.' : 'Réva vykořeněna.'));
+    },
+
+    waterVine: function(idx) {
+        this._initVinea();
+        const slot = GameState.vinea[idx];
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        if (!slot || (slot.state !== 'planted' && slot.state !== 'growing' && slot.state !== 'ripe')) return;
+        const techs = GameState.researchedTechs || [];
+        const waterCost = techs.includes('tech_field_irrigation') ? 1 : 2;
+        if ((GameState.inventory['water'] || 0) < waterCost) {
+            UI.notify(lang==='en' ? 'Not enough water.' : 'Nedostatek vody!', true); return;
+        }
+        Game.removeItem('water', waterCost);
+        slot.lastWateredAt = Date.now();
+        Game.save();
+        this.renderVinohrad();
+        UI.notify('💧 ' + (lang==='en' ? 'Watered.' : 'Zalito.'));
     },
 
     harvestVine: function(idx) {
@@ -1689,6 +1710,23 @@ const GardenSystem = {
         // Výnos: base 2, +1 za prořez
         let qty = 2;
         if (slot.pruned) qty += 1;
+
+        // Sucho/zálivka — poslední 4 dny (stejné okno jako Pole: countDryDays(3))
+        let isDry = false, wasWatered = false;
+        try {
+            if (typeof WeatherSystem !== 'undefined' && WeatherSystem.countDryDays) {
+                isDry = WeatherSystem.countDryDays(3).dry >= 3;
+            }
+        } catch(e) {}
+        wasWatered = (Date.now() - (slot.lastWateredAt || 0)) <= 4 * 24 * 3600000;
+
+        let wateringMult = 1.0;
+        if (isDry && !wasWatered) wateringMult = 0.5;       // sucho, nezaléváno — minimální výnos
+        else if (isDry && wasWatered) wateringMult = 1.0;   // sucho, ale zaléváno — kompenzováno
+        else if (!isDry && wasWatered) wateringMult = 2.0;  // není sucho, přesto zaléváno — bonus
+        // !isDry && !wasWatered → 1.0 (výchozí, beze změny)
+
+        qty = Math.max(1, Math.round(qty * wateringMult));
 
         // Sklizeň dává vždy syrové hrozny — zpracování (lis/fermentace) řeší Prelum/Cella fermentaria
         const outputId = 'grapes_' + variety.id;
@@ -2327,13 +2365,15 @@ const GardenSystem = {
                 const elapsed = (Date.now() - slot.plantedAt) / 86400000;
                 const pct = Math.min(100, Math.round(elapsed / daysTotal * 100));
                 const daysLeft = Math.max(0, Math.ceil(daysTotal - elapsed));
+                const recentlyWatered = (Date.now() - (slot.lastWateredAt || 0)) <= 4 * 24 * 3600000;
                 content = `<div style="font-size:1.2rem;">${variety ? variety.icon : '🍇'}</div>
                            <div class="text-sm">${variety ? (lang==='en'?variety.name_en:variety.name) : ''}</div>
                            <div style="height:3px;background:rgba(0,0,0,0.1);border-radius:2px;margin:3px 0;">
                              <div style="height:100%;width:${pct}%;background:var(--accent-gold);border-radius:2px;"></div>
                            </div>
-                           <div style="font-size:0.68rem;opacity:0.6;">${daysLeft}d</div>`;
+                           <div style="font-size:0.68rem;opacity:0.6;">${daysLeft}d ${recentlyWatered ? '💧' : ''}</div>`;
                 btn = `<button class="craft-btn" onclick="GardenSystem.pruneVine(${idx})" ${slot.pruned?'disabled':''}>✂️ ${lang==='en'?'Prune':'Prořezat'}${slot.pruned?' ✓':''}</button>
+                       <button class="craft-btn" onclick="GardenSystem.waterVine(${idx})" style="font-size:0.72rem; margin-top:3px;">💧 ${lang==='en'?'Water':'Zalít'}</button>
                        <button class="craft-btn" onclick="GardenSystem.uprootVine(${idx})" style="background:#8b4a3a; font-size:0.72rem; margin-top:3px;">🪴 ${lang==='en'?'Uproot':'Vykořenit'}</button>`;
             } else if (slot.state === 'ripe') {
                 content = `<div style="font-size:1.4rem;">🍇</div>
