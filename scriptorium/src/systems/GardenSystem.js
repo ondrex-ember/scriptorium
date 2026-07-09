@@ -1465,12 +1465,14 @@ const GardenSystem = {
                 phase: 0,          // 0-3 (orba/klíčení/růst/zrání)
                 phaseStart: 0,     // timestamp začátku fáze
                 watered: false,
+                wateredPhases: 0,  // kolik fází bylo zalitých v aktuálním cyklu (0-3, sucho-kompenzace)
                 strawBonus: false, // má Humno?
             }));
         }
         // Migrace
         GameState.fields.forEach(f => {
             if (f.strawBonus === undefined) f.strawBonus = false;
+            if (f.wateredPhases === undefined) f.wateredPhases = 0;
         });
         this._syncFieldLocks();
     },
@@ -2138,6 +2140,7 @@ const GardenSystem = {
         field.phase   = 0;
         field.phaseStart = Date.now();
         field.watered = false;
+        field.wateredPhases = 0;
         Game.save();
         this.renderFieldTab();
     },
@@ -2175,11 +2178,13 @@ const GardenSystem = {
         if (hasRotation) yieldAmt = Math.round(yieldAmt * 1.25);
 
         // Sucho penalizace (žito je vůči suchu odolné — neuplatňuje se)
+        // Zalévání ve všech 3 fázích cyklu kompenzuje sucho, jako by pršelo
+        const fullyIrrigated = (field.wateredPhases || 0) >= 3;
         let dryDays = 0, wetDays = 0;
         try {
             if (typeof WeatherSystem !== 'undefined' && WeatherSystem.countDryDays) {
                 dryDays = WeatherSystem.countDryDays(3).dry;  // okno: dnes + 3 dny zpět = 4 dny
-                if (dryDays >= 3 && !isRye) yieldAmt = Math.max(1, Math.round(yieldAmt * 0.8));  // shoda s indikátorem
+                if (dryDays >= 3 && !isRye && !fullyIrrigated) yieldAmt = Math.max(1, Math.round(yieldAmt * 0.8));  // shoda s indikátorem
             }
             if (typeof WeatherSystem !== 'undefined' && WeatherSystem.countWetDays) {
                 wetDays = WeatherSystem.countWetDays(3).wet;
@@ -2192,7 +2197,7 @@ const GardenSystem = {
             let chance1 = 70;                                  // základ 70 % 1. třída
             if (!hasHumno) chance1 -= 15;                       // bez sýpky degraduje
             if (hasRotation) chance1 += 10;                     // rotace = lepší hospodaření
-            if (isWheat && dryDays >= 3) chance1 -= 25;          // pšenice trpí suchem
+            if (isWheat && dryDays >= 3 && !fullyIrrigated) chance1 -= 25;  // pšenice trpí suchem (kompenzováno zaléváním)
             if (isRye && wetDays >= 3) chance1 -= 25;            // žito trpí vlhkem (paličkovice)
             chance1 = Math.max(5, Math.min(95, chance1));
             const grade = (Math.random() * 100 < chance1) ? 1 : 2;
@@ -2211,6 +2216,7 @@ const GardenSystem = {
         field.phase   = 0;
         field.phaseStart = 0;
         field.watered = false;
+        field.wateredPhases = 0;
 
         const lang = (GameState.settings && GameState.settings.language) || 'cs';
         const cropName = lang === 'en' ? crop.name_en : crop.name;
@@ -2233,6 +2239,7 @@ const GardenSystem = {
             if (now >= phaseEnd) {
                 field.phase++;
                 field.phaseStart = now;
+                if (field.watered) field.wateredPhases = (field.wateredPhases || 0) + 1;
                 field.watered = false; // nová fáze = nová závlaha
                 changed = true;
             }
