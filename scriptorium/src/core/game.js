@@ -4675,6 +4675,26 @@ const Game = {
         Game.save();
     },
 
+    // Přiřadí bratra na tab (max 1 bratr per tab — je to manažer sekce, ne
+    // řadový pracovník). tabId === null odebere z přiřazení.
+    assignBrotherTab: function(brotherId, tabId) {
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        const b = (GameState.dormitorium && GameState.dormitorium.brothers || []).find(x => x.id === brotherId);
+        if (!b) return;
+        if (tabId === null) { b.assignedTab = null; Game.save(); return; }
+
+        const taken = GameState.dormitorium.brothers.find(x => x.assignedTab === tabId && x.id !== b.id);
+        if (taken) {
+            UI.notify(lang==='en' ? taken.name+' already manages this section.' : taken.name+' už tuto sekci řídí.', true); return;
+        }
+
+        b.assignedTab = tabId;
+        Game.save();
+        const spec = (typeof DormitoriumSpecializationDB !== 'undefined') ? DormitoriumSpecializationDB[tabId] : null;
+        const specName = spec ? (lang==='en' ? spec.name_en : spec.name) : tabId;
+        UI.notifyPanel('📿 ' + (lang==='en' ? b.name+' now oversees: '+specName : b.name+' nyní řídí: '+specName), 'system');
+    },
+
     // Officium — konvrši nedostupní mezi Laudes (6:00) a Prima (9:00), reálný čas
     isOfficiumHours: function() {
         const h = (typeof TimeSys !== 'undefined') ? TimeSys.gameHour() : new Date().getHours();
