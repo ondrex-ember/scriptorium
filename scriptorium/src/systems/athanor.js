@@ -1202,7 +1202,10 @@ const AthanorSystem = {
 
   buildAlembicSvg(state) {
     const isBrewing = !!state.brewing;
-    const isDestilling = isBrewing && state.brewing.processId === 'destillatio';
+    const procId = isBrewing ? state.brewing.processId : null;
+    const isDestilling = procId === 'destillatio';
+    const isCalcining = procId === 'calcinatio';
+    const isGrinding = procId === 'trituratio';
     const now = Date.now();
     let pct = 0, si = 0;
     if (isBrewing) {
@@ -1213,8 +1216,10 @@ const AthanorSystem = {
     const liqColors = ['#1a0f05', '#d4cfc8', '#8b1a1a'];
     const glowColors = ['rgba(80,40,10,0.5)', 'rgba(220,210,190,0.4)', 'rgba(180,40,40,0.6)'];
     const liq = isBrewing ? liqColors[si] : '#2a1a0a';
-    const glow = isBrewing ? glowColors[si] : 'transparent';
-    const bubbles = isBrewing ? `
+    // Calcinatio: intenzivnější žár než ostatní procesy
+    const glow = isCalcining ? 'rgba(255,120,20,0.75)' : (isBrewing ? glowColors[si] : 'transparent');
+    // Trituratio (suché drcení) nemá bublající kapalinu — potlačit bubbles
+    const bubbles = (isBrewing && !isGrinding) ? `
       <circle cx="54" cy="88" r="3" fill="rgba(255,255,255,0.15)">
         <animate attributeName="cy" values="88;58;88" dur="2.1s" repeatCount="indefinite"/>
         <animate attributeName="opacity" values="0.6;0;0.6" dur="2.1s" repeatCount="indefinite"/>
@@ -1227,7 +1232,7 @@ const AthanorSystem = {
         <animate attributeName="cy" values="92;68;92" dur="2.5s" repeatCount="indefinite"/>
         <animate attributeName="opacity" values="0.4;0;0.4" dur="2.5s" repeatCount="indefinite"/>
       </circle>` : '';
-    const flame = isBrewing ? `
+    const flame = (isBrewing && !isGrinding) ? `
       <path d="M42,148 Q50,132 58,148 Q66,132 74,148" fill="rgba(200,80,0,0.5)" stroke="none">
         <animate attributeName="d" values="M42,148 Q50,132 58,148 Q66,132 74,148;M42,148 Q48,128 58,146 Q68,130 74,148;M42,148 Q50,132 58,148 Q66,132 74,148" dur="0.7s" repeatCount="indefinite"/>
       </path>
@@ -1251,6 +1256,37 @@ const AthanorSystem = {
         <animate attributeName="cx" values="108;112;108" dur="1.6s" repeatCount="indefinite" begin="0.9s"/>
         <animate attributeName="opacity" values="0;0.45;0" dur="1.6s" repeatCount="indefinite" begin="0.9s"/>
       </circle>` : '';
+    // Calcinatio: jiskry vylétávající z ohně (žíhání v silném ohni)
+    const sparks = isCalcining ? `
+      <circle cx="50" cy="140" r="1.4" fill="#ffb347">
+        <animate attributeName="cy" values="140;110;140" dur="0.9s" repeatCount="indefinite"/>
+        <animate attributeName="cx" values="50;44;50" dur="0.9s" repeatCount="indefinite"/>
+        <animate attributeName="opacity" values="0;1;0" dur="0.9s" repeatCount="indefinite"/>
+      </circle>
+      <circle cx="60" cy="142" r="1.1" fill="#ffd280">
+        <animate attributeName="cy" values="142;105;142" dur="1.1s" repeatCount="indefinite" begin="0.3s"/>
+        <animate attributeName="cx" values="60;66;60" dur="1.1s" repeatCount="indefinite" begin="0.3s"/>
+        <animate attributeName="opacity" values="0;1;0" dur="1.1s" repeatCount="indefinite" begin="0.3s"/>
+      </circle>
+      <circle cx="68" cy="139" r="1.2" fill="#ff9f40">
+        <animate attributeName="cy" values="139;115;139" dur="0.75s" repeatCount="indefinite" begin="0.6s"/>
+        <animate attributeName="cx" values="68;72;68" dur="0.75s" repeatCount="indefinite" begin="0.6s"/>
+        <animate attributeName="opacity" values="0;1;0" dur="0.75s" repeatCount="indefinite" begin="0.6s"/>
+      </circle>` : '';
+    // Trituratio: prach poletující kolem baňky při drcení (suchý mechanický proces)
+    const dust = isGrinding ? `
+      <circle cx="40" cy="95" r="1.5" fill="rgba(200,180,140,0.5)">
+        <animate attributeName="cy" values="95;85;95" dur="0.6s" repeatCount="indefinite"/>
+        <animate attributeName="opacity" values="0.5;0.1;0.5" dur="0.6s" repeatCount="indefinite"/>
+      </circle>
+      <circle cx="76" cy="90" r="1.3" fill="rgba(200,180,140,0.45)">
+        <animate attributeName="cy" values="90;78;90" dur="0.7s" repeatCount="indefinite" begin="0.2s"/>
+        <animate attributeName="opacity" values="0.45;0.1;0.45" dur="0.7s" repeatCount="indefinite" begin="0.2s"/>
+      </circle>
+      <circle cx="58" cy="70" r="1.6" fill="rgba(200,180,140,0.4)">
+        <animate attributeName="cy" values="70;60;70" dur="0.55s" repeatCount="indefinite" begin="0.35s"/>
+        <animate attributeName="opacity" values="0.4;0.05;0.4" dur="0.55s" repeatCount="indefinite" begin="0.35s"/>
+      </circle>` : '';
     return `<svg viewBox="0 0 120 155" width="120" height="155" xmlns="http://www.w3.org/2000/svg"
       style="filter:drop-shadow(0 0 14px ${glow});display:block;margin:0 auto;">
       <ellipse cx="58" cy="100" rx="44" ry="38" fill="${liq}" stroke="#5c3d1a" stroke-width="2"/>
@@ -1261,10 +1297,12 @@ const AthanorSystem = {
       <ellipse cx="58" cy="57" rx="13" ry="5" fill="rgba(92,61,26,0.6)" stroke="#5c3d1a" stroke-width="1.5"/>
       ${bubbles}
       ${steam}
+      ${dust}
       ${isBrewing && pct > 50 ? `<circle cx="116" cy="43" r="3" fill="${liq}" opacity="0.8">
         <animate attributeName="r" values="3;4;3" dur="2s" repeatCount="indefinite"/>
       </circle>` : ''}
       ${flame}
+      ${sparks}
       <rect x="18" y="140" width="80" height="6" rx="3" fill="rgba(92,61,26,0.4)" stroke="#5c3d1a" stroke-width="1"/>
     </svg>`;
   },
