@@ -1344,6 +1344,7 @@ const UI = {
 
     renderLibrary: function () {
         const el = document.getElementById('library-books-content');
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
 
         // Check unlocks
         if (typeof LibraryHelpers !== 'undefined') {
@@ -1354,11 +1355,35 @@ const UI = {
         const total = typeof LibraryDB !== 'undefined' ? LibraryDB.books.length : 0;
         const read = GameState.library ? GameState.library.readBooks.length : 0;
 
+        // Skryté knihy (easter eggy z EasterEggsDB.achievements, unlockDay:0)
+        // nejdou odemknout časem — zobrazit vysvětlení, dokud hráč nemá vše.
+        let hiddenBookHints = '';
+        if (unlocked < total) {
+            const hasFaust = GameState.achievements && GameState.achievements.unlocked && GameState.achievements.unlocked.includes('faust_pact');
+            const hasCodexGigas = GameState.achievements && GameState.achievements.unlocked && GameState.achievements.unlocked.includes('codex_gigas_summon');
+            const hints = [];
+            if (!hasFaust) hints.push(lang === 'en'
+                ? 'Hold exactly <strong>666 research</strong> at once.'
+                : 'Nasbírej a drž přesně <strong>666 výzkumu</strong> najednou.');
+            if (!hasCodexGigas) hints.push(lang === 'en'
+                ? 'Play between <strong>midnight and 3 AM</strong> real time with <strong>1000+ research</strong>.'
+                : 'Hraj mezi <strong>půlnocí a 3:00</strong> reálného času s <strong>1000+ výzkumu</strong>.');
+            if (hints.length) {
+                hiddenBookHints = `<div style="text-align:center;margin-bottom:15px;padding:8px 12px;background:rgba(0,0,0,0.03);border-radius:6px;font-size:0.78rem;opacity:0.75;font-style:italic;">
+                    ${lang === 'en'
+                        ? 'A few books are not unlocked by time, but by unusual conditions:'
+                        : 'Několik knih se neodemyká časem, ale neobvyklými podmínkami:'}
+                    <br>${hints.join('<br>')}
+                </div>`;
+            }
+        }
+
         let h = `
             <div style="text-align:center;margin-bottom:15px;border:1px solid var(--accent-gold);padding:10px;">
                 📚 ${t('library_lore.lib_title')}: <strong>${unlocked}/${total}</strong> ${t('library_lore.lib_unlocked')} | 
                 📖 ${t('library_lore.lib_read')}: <strong>${read}/${total}</strong>
             </div>
+            ${hiddenBookHints}
             
             <div style="margin-bottom:20px;padding:15px;background:var(--bg-card);border:1px solid var(--border-color);border-radius:5px;">
                 <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
