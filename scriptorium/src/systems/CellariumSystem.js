@@ -410,6 +410,7 @@ const CellariumSystem = {
       { itemId: 'salt',            basePrice: 12, dailyStock: 2  },
       { itemId: 'wine',            basePrice: 4,  dailyStock: 5  },
       { itemId: 'seeds_thyme',     basePrice: 6,  dailyStock: 5  }, // tymián — Varroa léčba
+      { itemId: 'seeds_plantain',  basePrice: 5,  dailyStock: 5  }, // jitrocel — hojivá bylina
       { itemId: 'seeds_herb',      basePrice: 6,  dailyStock: 10 },
       { itemId: 'seeds_vegetable', basePrice: 6,  dailyStock: 10 },
       { itemId: 'seeds_yellow',    basePrice: 8,  dailyStock: 3  }, // heřmánek
@@ -420,6 +421,8 @@ const CellariumSystem = {
       { itemId: 'seeds_flax',      basePrice: 9,  dailyStock: 10 },
       // Kadidlo — dovozní pryskyřice (Thuribulum)
       { itemId: 'resin_styrax',    basePrice: 18, dailyStock: 2,  req_tech: 'tech_thuribulum' },
+      // Alembik — destilační nádoba, dostupná v Obchodě od Destillatio (MRD: athanor-tiers)
+      { itemId: 'alembic',         basePrice: 30, dailyStock: 1,  req_tech: 'tech_destillatio' },
       // Liturgická roucha — trvanlivá, vestment-sezóna (endgame-branches-reference.md)
       { itemId: 'roucho_bile',     basePrice: 15, dailyStock: 1,  req_tech: 'tech_canonical_hours' },
       { itemId: 'roucho_fialove',  basePrice: 15, dailyStock: 1,  req_tech: 'tech_canonical_hours' },
