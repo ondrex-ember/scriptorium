@@ -865,9 +865,7 @@ const GardenSystem = {
         const lang = (GameState.settings && GameState.settings.language) || 'cs';
 
         let html = `<p class="text-sm" style="margin-bottom:12px; opacity:0.75;">${t('garden.piscinaDesc')}</p>`;
-        html += this._zahradaStatsBar(lang);
-
-        // ── TŘECÍ RYBNÍK (Tier 1) ── 1/7 výšky
+        html += this._zahradaStatsBar(lang, [this._brotherBadge('piscina', lang)]);
         const t1locked = p.tier < 1;
         html += `<div style="
             margin-bottom:10px; border-radius:10px; overflow:hidden;
@@ -1135,7 +1133,7 @@ const GardenSystem = {
         };
 
         let html = `<p class="text-sm" style="margin-bottom:15px; opacity:0.75;">${t('garden.orchardDesc')}</p>`;
-        html += this._zahradaStatsBar((typeof UI !== 'undefined' && UI.lang && UI.lang()==='en')?'en':'cs');
+        html += this._zahradaStatsBar((typeof UI !== 'undefined' && UI.lang && UI.lang()==='en')?'en':'cs', [this._brotherBadge('sad', (typeof UI !== 'undefined' && UI.lang && UI.lang()==='en')?'en':'cs')]);
         html += `<div class="garden-grid">`;
 
         GameState.orchard.forEach((slot, idx) => {
@@ -1237,7 +1235,7 @@ const GardenSystem = {
         if (Game.checkApiaryWinter) Game.checkApiaryWinter();
 
         let html = `<p class="text-sm" style="margin-bottom:12px; opacity:0.75;">${t('garden.apiaryDesc')}</p>`;
-        html += this._zahradaStatsBar((typeof UI !== 'undefined' && UI.lang && UI.lang()==='en')?'en':'cs', [seasonLabel[season] || '']);
+        html += this._zahradaStatsBar((typeof UI !== 'undefined' && UI.lang && UI.lang()==='en')?'en':'cs', [seasonLabel[season] || '', this._brotherBadge('apiarium', (typeof UI !== 'undefined' && UI.lang && UI.lang()==='en')?'en':'cs')]);
         html += `<div class="garden-grid">`;
 
         GameState.apiary.forEach((hive, idx) => {
@@ -1385,7 +1383,7 @@ const GardenSystem = {
         const hasCustomPlant = GameState.researchedTechs.includes('tech_hortus_conclusus');
         const lang = (typeof UI !== 'undefined' && UI.lang) ? UI.lang() : 'cs';
 
-        el.innerHTML = this._zahradaStatsBar(lang);
+        el.innerHTML = this._zahradaStatsBar(lang, [this._brotherBadge('zahony', lang)]);
 
         GameState.garden.forEach((plot, idx) => {
             let c = "", b = "", typeLabel = "";
@@ -2073,7 +2071,7 @@ const GardenSystem = {
         const trojpolniMsg = hasRotation
             ? (lang==='en' ? '✅ Three-field system: +25% yield' : '✅ Trojpolní systém: +25% výnos')
             : null;
-        html += this._zahradaStatsBar(lang, [trojpolniMsg], droughtMsg);
+        html += this._zahradaStatsBar(lang, [trojpolniMsg, this._brotherBadge('pole', lang)], droughtMsg);
 
         // Sloty
         html += '<div class="garden-grid" style="margin-bottom:16px;">';
@@ -2343,7 +2341,7 @@ const GardenSystem = {
         let html = `<div style="margin-bottom:12px; font-size:0.85rem; opacity:0.75; font-style:italic;">
             ${lang==='en' ? 'Six vine plots. Plant, prune, harvest within the window.' : 'Šest záhonů révy. Zasadit, prořezat, sklidit v okně.'}
         </div>`;
-        html += this._zahradaStatsBar(lang);
+        html += this._zahradaStatsBar(lang, [this._brotherBadge('vinohrad', lang)]);
 
         html += '<div class="garden-grid" style="margin-bottom:16px;">';
         GameState.vinea.forEach((slot, idx) => {
@@ -2513,6 +2511,17 @@ const GardenSystem = {
     // ── Sjednocený stat bar (počasí + odkaz na Přehled) — pro všech 6 podtabů ──
     // extras: pole extra <span> textů (specifické pro podtab, např. sezóna/trojpolní)
     // weatherOverride: nahradí generický text počasí detailnější zprávou (např. sucho -20% výnos)
+    // ── Dormitorium "kukaň" — indikátor přiřazeného bratra v tabu ──
+    _brotherBadge: function(tabId, lang) {
+        const b = (GameState.dormitorium && GameState.dormitorium.brothers || [])
+            .find(x => x.assignedTab === tabId);
+        if (!b) return null;
+        const rec = (b.rosterId && typeof DormitoriumRosterDB !== 'undefined') ? DormitoriumRosterDB[b.rosterId] : null;
+        const icon = (rec && rec.icon) ? rec.icon : '📿';
+        const level = (typeof Game !== 'undefined' && Game.dormitoriumBrotherLevel) ? Game.dormitoriumBrotherLevel(b, tabId) : 1;
+        return `<span title="${lang==='en'?'Overseen by':'Řídí'}: ${b.name}" style="cursor:default;">${icon} ${b.name} · Lv${level}</span>`;
+    },
+
     _zahradaStatsBar: function(lang, extras, weatherOverride) {
         let weatherTxt = weatherOverride;
         if (!weatherTxt) {
