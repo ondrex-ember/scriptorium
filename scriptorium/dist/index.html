@@ -43196,6 +43196,7 @@ const Game = {
     // ── CONVERSI — přiřazování úkolů (M1) ───────────────────────────────────
     CONVERSI_TASKS: {
         dvur:     { icon: '🏚️', away: false },
+        zahony:   { icon: '🌿', away: false },
         scavenge: { icon: '🌾', away: true,  durationMs: 8  * 60 * 60 * 1000, riskPct: 12 },
         doly:     { icon: '⛏️', away: true,  durationMs: 20 * 60 * 60 * 1000, riskPct: 20 },
         kostel:   { icon: '🕍', away: false },
@@ -43722,6 +43723,73 @@ const Game = {
             const workGain = this._konvrsTraits(worker).includes('silak') ? 10 : 15;
             worker.fatigue = Math.min(100, worker.fatigue + workGain);
             Game.save();
+        }
+
+        // ── Záhony (L1): přiřazený konvrš zalévá a sklízí, self-guarded 24h ──
+        const gardener = GameState.conversi
+            .filter(k => k.task === 'zahony'
+                      && k.fatigue < (this._konvrsTraits(k).includes('pilny') ? 90 : 80)
+                      && (typeof k.mood !== 'number' || k.mood >= 30)
+                      && !(k.penanceUntil && k.penanceUntil > Date.now())
+                      && !(k.injuredUntil && k.injuredUntil > Date.now())
+                      && !(k.awayUntil && k.awayUntil > Date.now()))
+            .sort((a, b) => a.fatigue - b.fatigue)[0];
+        if (gardener && GameState.garden) {
+            if (!GameState.conversiGardenLastTick) GameState.conversiGardenLastTick = 0;
+            if (Date.now() - GameState.conversiGardenLastTick >= DAY) {
+                GameState.conversiGardenLastTick = Date.now();
+                let didWork = false;
+
+                let growthSpeed = CONFIG.GROWTH_SPEED;
+                if (GameState.researchedTechs.includes('tech_advanced_farming')) growthSpeed *= 2.0;
+                const needed = CONFIG.BASE_GROWTH_TIME / growthSpeed;
+
+                GameState.garden.forEach(plot => {
+                    if (plot.locked || plot.state !== 2) return;
+
+                    // Zalít, pokud suché a je voda na skladě
+                    if (!plot.water) {
+                        if ((GameState.inventory['water'] || 0) > 0) {
+                            this.removeItem('water', 1);
+                            plot.water = true;
+                            didWork = true;
+                        }
+                        return;
+                    }
+
+                    // Sklidit, pokud dozrálo — stejná logika výnosu jako farmAction, záhon zůstane prázdný
+                    if (Date.now() > plot.plantedAt + needed) {
+                        const harvestCrop = plot.crop;
+                        plot.state = 0; plot.water = false; plot.crop = null;
+                        didWork = true;
+
+                        if (GameState.achievements) GameState.achievements.stats.harvests++;
+                        const _gp = (typeof GardenSystem !== 'undefined')
+                            ? Object.values(GardenSystem.GARDEN_PLANTS_DB).find(p => p.item === harvestCrop)
+                            : null;
+                        const _yieldMult = (typeof RankSystem !== 'undefined') ? RankSystem.getActiveBonus('herb_yield') : 1.0;
+                        if (_gp) {
+                            this.addItem(harvestCrop, Math.max(1, Math.round(_gp.yield * _yieldMult)));
+                            if (Math.random() < 0.3) this.addItem(_gp.seed, 1);
+                        } else if (harvestCrop === 'hops') {
+                            this.addItem('hops', Math.max(1, Math.round(2 * _yieldMult)));
+                            if (Math.random() > 0.6) this.addItem('seeds_hops', 1);
+                        } else if (['carrot', 'onion', 'potato'].includes(harvestCrop)) {
+                            this.addItem(harvestCrop, Math.max(1, Math.round(3 * _yieldMult)));
+                            if (Math.random() > 0.5) this.addItem('seeds_vegetable', 1);
+                        } else if (harvestCrop) {
+                            this.addItem(harvestCrop, Math.max(1, Math.round(2 * _yieldMult)));
+                        }
+                    }
+                });
+
+                if (didWork) {
+                    const workGain = this._konvrsTraits(gardener).includes('silak') ? 10 : 15;
+                    gardener.fatigue = Math.min(100, gardener.fatigue + workGain);
+                    Game.checkAchievements();
+                    Game.save();
+                }
+            }
         }
     },
 
