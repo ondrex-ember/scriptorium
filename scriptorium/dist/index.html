@@ -17788,6 +17788,42 @@ const CellariumSystem = {
       // Studna — progresivní karta (patří k Dvoru, vedle kurníku/ovčína)
       dvurInner += this._renderWellBuilding(lang);
 
+      // Dormitorium — bratři (Dormitorium MRD), 3 sekvenční tiery, bez tech gate
+      // (jen materiál + groše — sekvence I→II→III vynucena v Game.buildStorage).
+      const dormTiers = [
+        { id: 'dormitorium_i',   icon: '📿', label: lang==='en'?'Dormitorium I':'Dormitorium I',
+          desc: lang==='en'?'Cells for 3 brothers.':'Cely pro 3 bratry.',
+          cost: { cut_stone: 30, plank: 20, rope: 8 }, grose: 15, reqPrev: null },
+        { id: 'dormitorium_ii',  icon: '📿', label: lang==='en'?'Dormitorium II':'Dormitorium II',
+          desc: lang==='en'?'Expanded — 6 brothers.':'Rozšířeno — 6 bratrů.',
+          cost: { cut_stone: 90, plank: 60, rope: 25, iron_ingot: 2 }, grose: 35, reqPrev: 'dormitorium_i' },
+        { id: 'dormitorium_iii', icon: '📿', label: lang==='en'?'Dormitorium III':'Dormitorium III',
+          desc: lang==='en'?'Full wing — 10 brothers.':'Celé křídlo — 10 bratrů.',
+          cost: { cut_stone: 200, plank: 130, rope: 50, iron_ingot: 6, glass_stopper: 4 }, grose: 70, reqPrev: 'dormitorium_ii' },
+      ];
+      let dormInner = '';
+      dormTiers.forEach(d => {
+        const built = storage[d.id] && storage[d.id].built;
+        const prevOk = !d.reqPrev || (storage[d.reqPrev] && storage[d.reqPrev].built);
+        const hasGrose = (typeof CellariumSystem !== 'undefined' ? CellariumSystem.getGrose() : 0) >= d.grose;
+        const hasItems = Object.entries(d.cost).every(([id, n]) => (GameState.inventory[id]||0) >= n);
+        const can = prevOk && !built && hasGrose && hasItems;
+        const costStr = Object.entries(d.cost).map(([id, n]) => {
+          const it = ItemsDB[id];
+          const have = GameState.inventory[id] || 0;
+          return `<div style="font-size:0.72rem; ${have >= n ? '' : 'color:#c0392b;'}">${it ? it.icon : '📦'} ${(typeof iName === 'function') ? iName(id) : id} ×${n} <span style="opacity:0.6;">(${lang==='en'?'has':'máš'}: ${have})</span></div>`;
+        }).join('') + `<div style="font-size:0.72rem; ${hasGrose ? '' : 'color:#c0392b;'}">💰 ${d.grose}g</div>`;
+        dormInner += `<div style="padding:10px; background:rgba(197,160,89,0.05); border-radius:8px; border:1px solid rgba(197,160,89,0.18);">
+          <div style="font-weight:bold; font-size:0.88rem; margin-bottom:4px;">${d.icon} ${d.label}</div>
+          <div style="font-size:0.75rem; opacity:0.7; margin-bottom:6px;">${d.desc}</div>
+          ${built
+            ? `<div style="font-size:0.78rem; color:#5a9a5a;">✅ ${lang==='en' ? 'Built' : 'Postaveno'}</div>`
+            : !prevOk
+              ? `<div style="font-size:0.74rem; opacity:0.6;">🔒 ${lang==='en' ? 'Requires: ' + (dormTiers.find(x=>x.id===d.reqPrev)||{}).label : 'Nutné: ' + (dormTiers.find(x=>x.id===d.reqPrev)||{}).label}</div>`
+              : costStr + `<button onclick="Game.buildStorage('${d.id}')" class="craft-btn" style="font-size:0.78rem; margin-top:6px;" ${can ? '' : 'disabled'}>🏗️ ${lang==='en' ? 'Build' : 'Postavit'}</button>`}
+        </div>`;
+      });
+
       // Sekce pod sebou (full-width), karty uvnitř v responsivním gridu
       const grid = (inner) => `<div style="display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:8px; align-items:start;">${inner}</div>`;
       h += `<div style="display:flex; flex-direction:column; gap:12px;">`;
@@ -17795,6 +17831,7 @@ const CellariumSystem = {
       h += section('⚒️', lang==='en' ? 'Workshops' : 'Dílny', grid(workInner));
       h += section('🐄', lang==='en' ? 'Farmyard' : 'Dvůr', grid(dvurInner));
       h += section('🍇', lang==='en' ? 'Winery' : 'Vinohrad', grid(wineInner));
+      h += section('📿', lang==='en' ? 'Dormitorium' : 'Dormitorium', grid(dormInner));
       h += `</div>`;
     }
 
@@ -17848,7 +17885,6 @@ const CellariumSystem = {
 
 
 };
-
 // ═══ src/systems/SaeculumSystem.js ═══
 // ═══════════════════════════════════════════════════════════════════════════════
 // SAECULUM SYSTEM v1.0 — Kontakt s venkem
