@@ -1202,6 +1202,7 @@ const AthanorSystem = {
 
   buildAlembicSvg(state) {
     const isBrewing = !!state.brewing;
+    const isDestilling = isBrewing && state.brewing.processId === 'destillatio';
     const now = Date.now();
     let pct = 0, si = 0;
     if (isBrewing) {
@@ -1233,6 +1234,23 @@ const AthanorSystem = {
       <path d="M46,148 Q54,136 58,148 Q62,136 70,148" fill="rgba(240,140,0,0.5)" stroke="none">
         <animate attributeName="d" values="M46,148 Q54,136 58,148 Q62,136 70,148;M46,148 Q52,132 58,146 Q64,134 70,148;M46,148 Q54,136 58,148 Q62,136 70,148" dur="0.5s" repeatCount="indefinite"/>
       </path>` : '';
+    // Destillatio: pára stoupající podél hubice trubice (M68,65 → Q95,54 → 115,44)
+    const steam = isDestilling ? `
+      <circle cx="82" cy="60" r="2.5" fill="rgba(255,255,255,0.35)">
+        <animate attributeName="cy" values="60;42;60" dur="1.8s" repeatCount="indefinite"/>
+        <animate attributeName="cx" values="82;86;82" dur="1.8s" repeatCount="indefinite"/>
+        <animate attributeName="opacity" values="0;0.55;0" dur="1.8s" repeatCount="indefinite"/>
+      </circle>
+      <circle cx="97" cy="51" r="2" fill="rgba(255,255,255,0.3)">
+        <animate attributeName="cy" values="51;34;51" dur="1.5s" repeatCount="indefinite" begin="0.4s"/>
+        <animate attributeName="cx" values="97;101;97" dur="1.5s" repeatCount="indefinite" begin="0.4s"/>
+        <animate attributeName="opacity" values="0;0.5;0" dur="1.5s" repeatCount="indefinite" begin="0.4s"/>
+      </circle>
+      <circle cx="108" cy="46" r="1.6" fill="rgba(255,255,255,0.3)">
+        <animate attributeName="cy" values="46;30;46" dur="1.6s" repeatCount="indefinite" begin="0.9s"/>
+        <animate attributeName="cx" values="108;112;108" dur="1.6s" repeatCount="indefinite" begin="0.9s"/>
+        <animate attributeName="opacity" values="0;0.45;0" dur="1.6s" repeatCount="indefinite" begin="0.9s"/>
+      </circle>` : '';
     return `<svg viewBox="0 0 120 155" width="120" height="155" xmlns="http://www.w3.org/2000/svg"
       style="filter:drop-shadow(0 0 14px ${glow});display:block;margin:0 auto;">
       <ellipse cx="58" cy="100" rx="44" ry="38" fill="${liq}" stroke="#5c3d1a" stroke-width="2"/>
@@ -1242,6 +1260,7 @@ const AthanorSystem = {
       <path d="M68 65 Q95 54 115 44" fill="none" stroke="${liq}" stroke-width="1.5" stroke-linecap="round" opacity="0.6"/>
       <ellipse cx="58" cy="57" rx="13" ry="5" fill="rgba(92,61,26,0.6)" stroke="#5c3d1a" stroke-width="1.5"/>
       ${bubbles}
+      ${steam}
       ${isBrewing && pct > 50 ? `<circle cx="116" cy="43" r="3" fill="${liq}" opacity="0.8">
         <animate attributeName="r" values="3;4;3" dur="2s" repeatCount="indefinite"/>
       </circle>` : ''}
