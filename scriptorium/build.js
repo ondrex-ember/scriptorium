@@ -37,6 +37,7 @@ const JS_MAIN = [
     'src/data/scrinium.js',         // ScriniumDB
     'src/data/letters.js',          // LettersDB
     'src/data/conversi.js',         // ConversiRosterDB, ConversiTraitsDB, ConversiBondsDB
+    'src/data/dormitorium.js',      // DormitoriumRosterDB, DormitoriumSpecializationDB
     'src/data/contacts.js',         // ContactsDB (Clientela)
 
     // Systémy
