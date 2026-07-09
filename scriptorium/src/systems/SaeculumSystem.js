@@ -313,6 +313,123 @@ const SaeculumSystem = {
     this.switchEntity('conversi');
   },
 
+  selectBrother: function(id) {
+    if (!GameState.ui) GameState.ui = {};
+    GameState.ui.brotherSelected = (GameState.ui.brotherSelected === id) ? null : id;
+    this.switchEntity('dormitorium');
+  },
+
+  // ── DORMITORIUM — bratři (mniši/skriptoři), manažerská vrstva nad Conversi ──
+  // Tabů, které mohou být přiřazeny: klíče DormitoriumSpecializationDB.
+  renderDormitorium: function() {
+    const lang = (GameState.settings && GameState.settings.language) || 'cs';
+    if (!GameState.ui) GameState.ui = {};
+    const cap = (typeof Game !== 'undefined' && Game.dormitoriumCapacity) ? Game.dormitoriumCapacity() : 0;
+    const list = (GameState.dormitorium && GameState.dormitorium.brothers) || [];
+    const selected = GameState.ui.brotherSelected;
+
+    let h = `<div style="margin-bottom:16px; background:rgba(0,0,0,0.03); border-radius:8px; border-left:3px solid var(--accent-gold); padding:12px 14px;">`;
+    h += `<div style="font-weight:bold; font-size:0.92rem; margin-bottom:4px;">📿 ${lang==='en'?'Dormitorium':'Dormitorium'}</div>`;
+
+    if (cap === 0) {
+      h += `<div style="font-size:0.8rem; opacity:0.6; font-style:italic;">${lang==='en'
+        ? 'No Dormitorium built yet — build it in Cellarium → Buildings.'
+        : 'Zatím žádné Dormitorium — postav ho v Cellarium → Budovy.'}</div>`;
+    } else {
+      h += `<div style="font-size:0.85rem; margin-bottom:8px;">${lang==='en'?'Beds':'Lůžka'}: <strong>${list.length} / ${cap}</strong></div>`;
+
+      if (list.length) {
+        h += `<div style="display:flex; flex-wrap:wrap; gap:6px; margin-bottom:10px;">`;
+        list.forEach(b => {
+          const rec = (b.rosterId && typeof DormitoriumRosterDB !== 'undefined') ? DormitoriumRosterDB[b.rosterId] : null;
+          const bIcon = (rec && rec.icon) ? rec.icon : '📿';
+          const isActive = b.id === selected;
+          const spec = b.assignedTab && typeof DormitoriumSpecializationDB !== 'undefined' ? DormitoriumSpecializationDB[b.assignedTab] : null;
+          const specIcon = spec ? spec.icon : '';
+          h += `<div onclick="SaeculumSystem.selectBrother('${b.id}')" style="display:flex; align-items:center; gap:6px; padding:6px 10px; background:${isActive ? 'rgba(197,160,89,0.22)' : 'rgba(255,255,255,0.4)'}; border:${isActive ? '2px solid var(--accent-wax)' : '1px solid rgba(197,160,89,0.4)'}; border-radius:8px; cursor:pointer;">
+                  <span style="font-size:1rem;">${bIcon}</span>
+                  <span style="font-size:0.72rem; font-weight:bold;">${b.name}</span>
+                  ${specIcon ? `<span style="font-size:0.7rem;">${specIcon}</span>` : `<span style="width:6px; height:6px; border-radius:50%; background:#7f8fa6;"></span>`}
+                </div>`;
+        });
+        h += `</div>`;
+      }
+
+      if (list.length < cap) {
+        h += `<button class="craft-btn" onclick="Game.hireBrother()">📿 ${lang==='en'?'Hire a brother (30g)':'Najmout bratra (30g)'}</button>`;
+      } else {
+        h += `<div style="font-size:0.75rem; opacity:0.6; font-style:italic;">${lang==='en'?'No free beds.':'Žádné volné lůžko.'}</div>`;
+      }
+
+      if (selected) {
+        const b = list.find(x => x.id === selected);
+        if (b) h += this.renderDormitoriumDetail(b);
+      }
+    }
+    h += `</div>`;
+    return h;
+  },
+
+  renderDormitoriumDetail: function(b) {
+    const lang = (GameState.settings && GameState.settings.language) || 'cs';
+    const rec = (b.rosterId && typeof DormitoriumRosterDB !== 'undefined') ? DormitoriumRosterDB[b.rosterId] : null;
+    const icon = (rec && rec.icon) ? rec.icon : '📿';
+    const origin = rec ? (lang === 'en' ? rec.origin_en : rec.origin_cs) : '';
+    const fat = (typeof b.fatigue === 'number') ? b.fatigue : 0;
+    const fatColor = fat <= 40 ? '#5a9a5a' : fat <= 70 ? '#e67e22' : '#c0392b';
+
+    let h = `<div style="background:rgba(255,255,255,0.45); border-radius:8px; padding:12px 14px; margin-top:4px;">`;
+    h += `<div style="display:flex; gap:10px; align-items:flex-start; margin-bottom:8px;">
+            <div style="font-size:1.8rem;">${icon}</div>
+            <div style="flex:1;"><div style="font-weight:bold; font-size:0.95rem;">${b.name}</div>
+            ${origin ? `<div style="font-style:italic; font-size:0.74rem; opacity:0.75; margin-top:2px; line-height:1.35;">${origin}</div>` : ''}</div>
+          </div>`;
+
+    h += `<div style="margin-bottom:7px;">
+        <div style="display:flex; justify-content:space-between; font-size:0.72rem; opacity:0.75; margin-bottom:2px;">
+          <span>😴 ${lang==='en'?'Fatigue':'Únava'}</span><span>${fat}%</span>
+        </div>
+        <div style="background:rgba(0,0,0,0.12); border-radius:3px; height:5px;">
+          <div style="width:${fat}%; background:${fatColor}; height:5px; border-radius:3px;"></div>
+        </div>
+      </div>`;
+
+    // Aktuální specializace + úroveň (pokud přiřazen)
+    if (b.assignedTab && typeof DormitoriumSpecializationDB !== 'undefined') {
+      const spec = DormitoriumSpecializationDB[b.assignedTab];
+      const specName = spec ? (lang==='en' ? spec.name_en : spec.name) : b.assignedTab;
+      const level = (typeof Game !== 'undefined' && Game.dormitoriumBrotherLevel) ? Game.dormitoriumBrotherLevel(b, b.assignedTab) : 1;
+      const xp = (b.xp && b.xp[b.assignedTab]) || 0;
+      const mult = (typeof Game !== 'undefined' && Game.dormitoriumBrotherMult) ? Game.dormitoriumBrotherMult(b, b.assignedTab) : 1.0;
+      h += `<div style="font-size:0.78rem; margin:8px 0; padding:8px 10px; background:rgba(197,160,89,0.1); border-radius:6px;">
+              ${spec ? spec.icon : ''} <strong>${specName}</strong> — ${lang==='en'?'level':'úroveň'} ${level}/4
+              <span style="opacity:0.65;"> (${xp} XP, ×${mult.toFixed(2)} ${lang==='en'?'yield':'výnos'})</span>
+            </div>`;
+    }
+
+    // Přiřazení na sekci
+    h += `<div style="border-top:1px solid rgba(197,160,89,0.3); margin-top:8px; padding-top:8px;">`;
+    h += `<div style="font-size:0.7rem; font-weight:bold; opacity:0.7; margin-bottom:6px; text-transform:uppercase; letter-spacing:0.06em;">${lang==='en'?'Assign to':'Přiřadit na'}</div>`;
+    h += `<div style="display:flex; gap:6px; flex-wrap:wrap;">`;
+    const specKeys = (typeof DormitoriumSpecializationDB !== 'undefined') ? Object.keys(DormitoriumSpecializationDB) : [];
+    specKeys.forEach(tabId => {
+      const spec = DormitoriumSpecializationDB[tabId];
+      const isCur = b.assignedTab === tabId;
+      const takenBy = (GameState.dormitorium.brothers || []).find(x => x.assignedTab === tabId && x.id !== b.id);
+      const bg = isCur ? '#8a3324' : takenBy ? 'rgba(0,0,0,0.04)' : 'rgba(197,160,89,0.15)';
+      const fg = isCur ? '#fcf5e5' : 'inherit';
+      const opac = takenBy && !isCur ? '0.55' : '1';
+      const hint = takenBy && !isCur ? takenBy.name : (lang === 'en' ? spec.name_en : spec.name);
+      h += `<div onclick="Game.assignBrotherTab('${b.id}', ${isCur ? 'null' : `'${tabId}'`})" style="cursor:pointer; opacity:${opac}; padding:6px 10px; border-radius:6px; background:${bg}; color:${fg}; font-size:0.74rem; text-align:center;">
+              <div>${spec.icon}</div>
+              <div style="font-size:0.6rem; opacity:0.85;">${hint}</div>
+            </div>`;
+    });
+    h += `</div></div>`;
+    h += `</div>`;
+    return h;
+  },
+
   // Detail konvrše — inline panel (konvence: modal = info, panel = akce; tady jde o obojí)
   renderConversiDetail: function(k) {
     const lang = (GameState.settings && GameState.settings.language) || 'cs';
@@ -486,6 +603,7 @@ const SaeculumSystem = {
       { id: 'market',   icon: '⛺', label: 'Trh',             label_en: 'Market' },
       { id: 'forum',    icon: '🐏', label: 'Forum Pecuarium', label_en: 'Forum Pecuarium' },
       { id: 'conversi', icon: '✝️', label: 'Conversi',        label_en: 'Conversi' },
+      { id: 'dormitorium', icon: '📿', label: 'Dormitorium',  label_en: 'Dormitorium' },
       { id: 'regula',   icon: '🕯️', label: 'Regula',          label_en: 'Regula' },
     ];
     // Mola: pod tier 3 vlastní tab; od tier 3 žije uvnitř Mlynářova panelu (Clientela) — pročištění bez regrese
@@ -529,6 +647,7 @@ const SaeculumSystem = {
     else if (active === 'forum')     h += this.renderForumPecuarium();
     else if (active === 'mola')      h += this.renderMola();
     else if (active === 'conversi')  h += this.renderConversi();
+    else if (active === 'dormitorium') h += this.renderDormitorium();
     else if (active === 'regula')    h += this.renderRegula();
     else if (active === 'clientela') h += this.renderClientela();
     return h;
