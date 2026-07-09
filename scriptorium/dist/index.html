@@ -43198,6 +43198,7 @@ const Game = {
     CONVERSI_TASKS: {
         dvur:     { icon: '🏚️', away: false },
         zahony:   { icon: '🌿', away: false },
+        sad:      { icon: '🍎', away: false },
         scavenge: { icon: '🌾', away: true,  durationMs: 8  * 60 * 60 * 1000, riskPct: 12 },
         doly:     { icon: '⛏️', away: true,  durationMs: 20 * 60 * 60 * 1000, riskPct: 20 },
         kostel:   { icon: '🕍', away: false },
@@ -43788,6 +43789,59 @@ const Game = {
                     const workGain = this._konvrsTraits(gardener).includes('silak') ? 10 : 15;
                     gardener.fatigue = Math.min(100, gardener.fatigue + workGain);
                     Game.checkAchievements();
+                    Game.save();
+                }
+            }
+        }
+
+        // ── Sad (L1): přiřazený konvrš sklízí dozrálé stromy, self-guarded 24h ──
+        const orchardKeeper = GameState.conversi
+            .filter(k => k.task === 'sad'
+                      && k.fatigue < (this._konvrsTraits(k).includes('pilny') ? 90 : 80)
+                      && (typeof k.mood !== 'number' || k.mood >= 30)
+                      && !(k.penanceUntil && k.penanceUntil > Date.now())
+                      && !(k.injuredUntil && k.injuredUntil > Date.now())
+                      && !(k.awayUntil && k.awayUntil > Date.now()))
+            .sort((a, b) => a.fatigue - b.fatigue)[0];
+        if (orchardKeeper && GameState.orchard) {
+            if (!GameState.conversiOrchardLastTick) GameState.conversiOrchardLastTick = 0;
+            if (Date.now() - GameState.conversiOrchardLastTick >= DAY) {
+                GameState.conversiOrchardLastTick = Date.now();
+                let didHarvest = false;
+
+                const TREE_DATA = {
+                    seed_apple:    { harvestHours: 24 }, seed_pear:     { harvestHours: 24 },
+                    seed_plum:     { harvestHours: 20 }, seed_cherry:   { harvestHours: 18 },
+                    seed_walnut:   { harvestHours: 48 }, seed_mulberry: { harvestHours: 24 },
+                    seed_quince:   { harvestHours: 36 }, seed_sorb:     { harvestHours: 48 },
+                    seed_rowan:    { harvestHours: 24 }, seed_linden:   { harvestHours: 36 },
+                };
+                const TREE_FRUITS = {
+                    seed_apple: 'apple', seed_pear: 'pear', seed_plum: 'plum',
+                    seed_cherry: 'cherry', seed_walnut: 'walnut', seed_mulberry: 'mulberry',
+                    seed_quince: 'quince', seed_sorb: 'sorb', seed_rowan: 'rowan',
+                    seed_linden: 'linden_fruit',
+                };
+
+                (GameState.orchard || []).forEach(slot => {
+                    if (slot.state !== 'mature') return;
+                    const td = TREE_DATA[slot.treeType];
+                    const fruitAt = slot.lastHarvestAt + (td ? td.harvestHours * 3600000 : 86400000);
+                    if (Date.now() < fruitAt) return; // ještě neplodí — čeká na cooldown, stejně jako u ruční sklizně
+
+                    const fruit = TREE_FRUITS[slot.treeType];
+                    if (!fruit) return;
+                    const qty = (slot.treeType === 'seed_walnut' || slot.treeType === 'seed_sorb') ? 2 : 3;
+                    this.addItem(fruit, qty);
+                    if (slot.treeType === 'seed_linden') this.addItem('linden_blossom', 1);
+                    this.addItem('pollen', 1);
+                    slot.lastHarvestAt = Date.now();
+                    didHarvest = true;
+                });
+
+                if (didHarvest) {
+                    const workGain = this._konvrsTraits(orchardKeeper).includes('silak') ? 10 : 15;
+                    orchardKeeper.fatigue = Math.min(100, orchardKeeper.fatigue + workGain);
                     Game.save();
                 }
             }
