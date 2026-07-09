@@ -1970,6 +1970,7 @@ const Game = {
                     if(Math.random() < 0.35) this.addItem('rags', 1);
                     // Athanor: byliny
                     if(Math.random() < 0.08) this.addItem('chamomile', 1);
+                    if(Math.random() < 0.08) this.addItem('plantain', 1);
                     if(Math.random() < 0.05) this.addItem('st_johns_wort', 1);
                     if(Math.random() < 0.04) this.addItem('thyme', 1);
                     if(Math.random() < 0.03) this.addItem('seeds_thyme', 1);
@@ -2088,6 +2089,7 @@ const Game = {
                     if(Math.random() < 0.08) this.addItem('yarrow', 1);
                     if(Math.random() < 0.05) this.addItem('wormwood', 1);
                     if(Math.random() < 0.04) this.addItem('sage', 1);
+                    if(Math.random() < 0.02) this.addItem('plantain', 1);
                     // Divoke obili mezi travou
                     if(Math.random() < 0.04) this.addItem('seeds_rye', 1);
                     if(Math.random() < 0.03) this.addItem('seeds_wheat', 1);
@@ -2265,6 +2267,7 @@ const Game = {
                 if(Math.random() < 0.35) this.addItem('rags', 1);
                 // Athanor: byliny
                 if(Math.random() < 0.08) this.addItem('chamomile', 1);
+                if(Math.random() < 0.08) this.addItem('plantain', 1);
                 if(Math.random() < 0.05) this.addItem('st_johns_wort', 1);
                 if(Math.random() < 0.04) this.addItem('thyme', 1);
                 if(Math.random() < 0.03) this.addItem('seeds_thyme', 1);
@@ -2366,6 +2369,7 @@ const Game = {
                 if(Math.random() < 0.08) this.addItem('yarrow', 1);
                 if(Math.random() < 0.05) this.addItem('wormwood', 1);
                 if(Math.random() < 0.04) this.addItem('sage', 1);
+                if(Math.random() < 0.02) this.addItem('plantain', 1);
                 // Divoke obili mezi travou
                 if(Math.random() < 0.04) this.addItem('seeds_rye', 1);
                 if(Math.random() < 0.03) this.addItem('seeds_wheat', 1);
