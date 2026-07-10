@@ -1314,6 +1314,7 @@ const STRINGS_cs = {
         stone:   '🪨 Kamenné',
         iron:    '⚒️ Železné',
         fire:    '🔥 Oheň',
+        other:   '🗝️ Ostatní',
     },
     craftFilter: {
         all: 'Vše',

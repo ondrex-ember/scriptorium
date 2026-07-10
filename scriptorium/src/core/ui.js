@@ -496,6 +496,8 @@ const UI = {
                 currency: ['currency'],
             };
 
+            const hasRegistrum = GameState.researchedTechs && GameState.researchedTechs.includes('tech_backpack_ii');
+
             catOrder.forEach(cat => {
                 const types = sectionTypes[cat];
                 const group = allItems.filter(([id]) => {
@@ -503,20 +505,30 @@ const UI = {
                     return item && types.includes(item.type);
                 });
                 if (group.length === 0) return;
-                const collapsed = !!(GameState.uiPrefs && GameState.uiPrefs.invCollapsed && GameState.uiPrefs.invCollapsed[cat]);
                 // Sestavit CELÝ blok (nadpis + body + karty) do jednoho stringu před
                 // jediným innerHTML += — postupné += by neuzavřený <div id="penum-cat-body-*">
                 // samo uzavřelo při každém re-parse a karty by skončily MIMO container
                 // (ověřeno: prohlížeč automaticky doplní chybějící uzavírací tag při
                 // každém innerHTML += voláním, takže otevřený tag "přežije" jen do
                 // konce TOHOTO volání, ne mezi několika voláními).
-                let sectionHtml = `<div style="grid-column:1/-1; margin:12px 0 6px; padding:4px 0; border-bottom:1px solid rgba(197,160,89,0.35); cursor:pointer; display:flex; align-items:center; gap:6px;" onclick="UI.toggleInventoryCategory('${cat}')">
-                    <span id="penum-cat-chevron-${cat}" style="font-size:0.65rem; display:inline-block; transition:transform 0.15s; transform:rotate(${collapsed ? 0 : 90}deg);">▶</span>
-                    <span style="font-size:0.72rem; font-weight:bold; letter-spacing:0.08em; text-transform:uppercase; color:var(--accent-gold); opacity:0.85;">${catLabels[cat]}</span>
-                </div>`;
-                sectionHtml += `<div id="penum-cat-body-${cat}" style="display:${collapsed ? 'none' : 'contents'};">`;
-                group.forEach(([id, qty]) => { sectionHtml += renderItem(id, qty); });
-                sectionHtml += `</div>`;
+                let sectionHtml;
+                if (hasRegistrum) {
+                    // Registrum Cellarii (tech_backpack_ii) — sbalovací nadpis
+                    const collapsed = !!(GameState.uiPrefs && GameState.uiPrefs.invCollapsed && GameState.uiPrefs.invCollapsed[cat]);
+                    sectionHtml = `<div style="grid-column:1/-1; margin:12px 0 6px; padding:4px 0; border-bottom:1px solid rgba(197,160,89,0.35); cursor:pointer; display:flex; align-items:center; gap:6px;" onclick="UI.toggleInventoryCategory('${cat}')">
+                        <span id="penum-cat-chevron-${cat}" style="font-size:0.65rem; display:inline-block; transition:transform 0.15s; transform:rotate(${collapsed ? 0 : 90}deg);">▶</span>
+                        <span style="font-size:0.72rem; font-weight:bold; letter-spacing:0.08em; text-transform:uppercase; color:var(--accent-gold); opacity:0.85;">${catLabels[cat]}</span>
+                    </div>`;
+                    sectionHtml += `<div id="penum-cat-body-${cat}" style="display:${collapsed ? 'none' : 'contents'};">`;
+                    group.forEach(([id, qty]) => { sectionHtml += renderItem(id, qty); });
+                    sectionHtml += `</div>`;
+                } else {
+                    // Bez Registrum Cellarii — statický nadpis, žádné sbalování
+                    sectionHtml = `<div style="grid-column:1/-1; margin:12px 0 6px; padding:4px 0; border-bottom:1px solid rgba(197,160,89,0.35);">
+                        <span style="font-size:0.72rem; font-weight:bold; letter-spacing:0.08em; text-transform:uppercase; color:var(--accent-gold); opacity:0.85;">${catLabels[cat]}</span>
+                    </div>`;
+                    group.forEach(([id, qty]) => { sectionHtml += renderItem(id, qty); });
+                }
                 el.innerHTML += sectionHtml;
             });
 
@@ -527,14 +539,22 @@ const UI = {
                 return item && !knownTypes.includes(item.type);
             });
             if (leftover.length > 0) {
-                const collapsedOther = !!(GameState.uiPrefs && GameState.uiPrefs.invCollapsed && GameState.uiPrefs.invCollapsed['other']);
-                let otherHtml = `<div style="grid-column:1/-1; margin:12px 0 6px; padding:4px 0; border-bottom:1px solid rgba(197,160,89,0.35); cursor:pointer; display:flex; align-items:center; gap:6px;" onclick="UI.toggleInventoryCategory('other')">
-                    <span id="penum-cat-chevron-other" style="font-size:0.65rem; display:inline-block; transition:transform 0.15s; transform:rotate(${collapsedOther ? 0 : 90}deg);">▶</span>
-                    <span style="font-size:0.72rem; font-weight:bold; letter-spacing:0.08em; text-transform:uppercase; color:var(--accent-gold); opacity:0.85;">${lang === 'en' ? '📦 Other' : '📦 Ostatní'}</span>
-                </div>`;
-                otherHtml += `<div id="penum-cat-body-other" style="display:${collapsedOther ? 'none' : 'contents'};">`;
-                leftover.forEach(([id, qty]) => { otherHtml += renderItem(id, qty); });
-                otherHtml += `</div>`;
+                let otherHtml;
+                if (hasRegistrum) {
+                    const collapsedOther = !!(GameState.uiPrefs && GameState.uiPrefs.invCollapsed && GameState.uiPrefs.invCollapsed['other']);
+                    otherHtml = `<div style="grid-column:1/-1; margin:12px 0 6px; padding:4px 0; border-bottom:1px solid rgba(197,160,89,0.35); cursor:pointer; display:flex; align-items:center; gap:6px;" onclick="UI.toggleInventoryCategory('other')">
+                        <span id="penum-cat-chevron-other" style="font-size:0.65rem; display:inline-block; transition:transform 0.15s; transform:rotate(${collapsedOther ? 0 : 90}deg);">▶</span>
+                        <span style="font-size:0.72rem; font-weight:bold; letter-spacing:0.08em; text-transform:uppercase; color:var(--accent-gold); opacity:0.85;">${lang === 'en' ? '📦 Other' : '📦 Ostatní'}</span>
+                    </div>`;
+                    otherHtml += `<div id="penum-cat-body-other" style="display:${collapsedOther ? 'none' : 'contents'};">`;
+                    leftover.forEach(([id, qty]) => { otherHtml += renderItem(id, qty); });
+                    otherHtml += `</div>`;
+                } else {
+                    otherHtml = `<div style="grid-column:1/-1; margin:12px 0 6px; padding:4px 0; border-bottom:1px solid rgba(197,160,89,0.35);">
+                        <span style="font-size:0.72rem; font-weight:bold; letter-spacing:0.08em; text-transform:uppercase; color:var(--accent-gold); opacity:0.85;">${lang === 'en' ? '📦 Other' : '📦 Ostatní'}</span>
+                    </div>`;
+                    leftover.forEach(([id, qty]) => { otherHtml += renderItem(id, qty); });
+                }
                 el.innerHTML += otherHtml;
             }
         }
@@ -583,6 +603,7 @@ const UI = {
         const techs = GameState.researchedTechs || [];
         const hasL1 = techs.includes('tech_commonplace');
         const hasL2 = techs.includes('tech_inventarium');
+        const hasL3 = techs.includes('tech_backpack_ii'); // Registrum Cellarii
 
         // Zobrazit/skrýt celý bar
         bar.style.display = hasL1 ? 'flex' : 'none';
@@ -594,6 +615,14 @@ const UI = {
             const btn = document.getElementById(id);
             if (btn) btn.style.display = hasL2 ? 'inline-flex' : 'none';
         });
+
+        // Úroveň 3 (Registrum Cellarii, tech_backpack_ii) — tlačítko "Ostatní"
+        // i sbalovací kategorie v pohledu "Vše" jsou podmíněné stejným techem.
+        const otherBtn = document.getElementById('inv-filter-other');
+        if (otherBtn) otherBtn.style.display = hasL3 ? 'inline-flex' : 'none';
+        if (!hasL3 && this.currentInvFilter === 'other') {
+            this.currentInvFilter = 'all';
+        }
     },
     renderCrafting: function () {
         const _hCraft = JSON.stringify(GameState.unlockedRecipes) + JSON.stringify(GameState.inventory) + (this.currentFilter || 'all');
