@@ -113,7 +113,7 @@ const DormitoriumRosterDB = {
 // podle nastřádaného XP v dané specializaci (viz DormitoriumSystem.js).
 const DormitoriumSpecializationDB = {
     zahony:   { name: 'Zahradník',  name_en: 'Gardener',     icon: '🌿' },
-    sad:      { name: 'Zahradník',  name_en: 'Gardener',     icon: '🍎' },
+    sad:      { name: 'Sadař',      name_en: 'Orchardist',   icon: '🍎' },
     vinohrad: { name: 'Vinař',      name_en: 'Vintner',      icon: '🍇' },
     pole:     { name: 'Rolník',     name_en: 'Husbandman',   icon: '🌾' },
     dvur:     { name: 'Chovatel',   name_en: 'Herdsman',     icon: '🐐' },
