@@ -171,7 +171,7 @@ const ItemsDB = {
     "iching_book": { name: "I-Ching (Kniha Proměn)", name_en: "I-Ching (Book of Changes)", icon: "☯️", type: "lore", cat: "lore", desc: "Starověký čínský text věštění. Hoď mince a poznej svůj osud.", desc_en: "Ancient Chinese divination. Cast coins and know thy fate." },
 
     // VELLUM CHAIN
-    "hide": { name: "Kůže", name_en: "Raw Hide", icon: "🦌", type: "mat", desc: "Surová kůže ze zvěře.", desc_en: "Raw hide from game." },
+    "hide": { name: "Surová kůže", name_en: "Raw Hide", icon: "🦌", type: "mat", desc: "Surová kůže ze zvěře.", desc_en: "Raw hide from game." },
     "pumice": { name: "Pemza", name_en: "Pumice", icon: "🪨", type: "mat", desc: "Sopečný kámen na leštění.", desc_en: "Volcanic stone for smoothing." },
     "chalk": { name: "Křída", name_en: "Chalk", icon: "⚪", type: "mat", desc: "Bělení pergamenu.", desc_en: "For whitening vellum." },
     "ash_water": { name: "Louh", name_en: "Lye Water", icon: "💧", type: "mat", desc: "Voda s popelem - na namáčení kůže.", desc_en: "Ash water for soaking hide." },

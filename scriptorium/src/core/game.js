@@ -287,6 +287,8 @@ const Game = {
         }
         // Migrace: existující save nemá readingTimer (eye_strain, monastery-decay-mrd)
         if (typeof GameState.library.readingTimer === 'undefined') GameState.library.readingTimer = null;
+        // Migrace: existující save nemá infirmaryTimer (titivillus-infirmary-mrd)
+        if (typeof GameState.infirmaryTimer === 'undefined') GameState.infirmaryTimer = null;
 		// Initialize well if not present (přesun do WellSystem._ensureState)
 		WellSystem._ensureState();
 
@@ -608,6 +610,21 @@ const Game = {
                 if (GameState.library && GameState.library.readingTimer) {
                     if (document.getElementById('library-books-content') && typeof UI !== 'undefined' && UI.renderLibrary) {
                         UI.renderLibrary();
+                    }
+                }
+
+                // Infirmerie — 24h léčebný odpočet (titivillus-infirmary-mrd).
+                // Self-guarded uvnitř checkInfirmaryTimer, jen kontroluje čas.
+                if (typeof HealthSystem !== 'undefined' && HealthSystem.checkInfirmaryTimer) {
+                    HealthSystem.checkInfirmaryTimer();
+                    // Countdown tick — re-render Valetudo, jen když je zrovna
+                    // otevřený (viditelný), levné, žádný dopad mimo tento stav.
+                    if (GameState.infirmaryTimer) {
+                        const valetudoEl = document.getElementById('persona-subtab-valetudo');
+                        if (valetudoEl && valetudoEl.style.display !== 'none'
+                            && typeof PersonaSystem !== 'undefined' && PersonaSystem.render) {
+                            PersonaSystem.render();
+                        }
                     }
                 }
 

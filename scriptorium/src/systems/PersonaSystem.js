@@ -428,6 +428,7 @@ const PersonaSystem = {
                 <div>${lang==='en' ? 'Healthy. No ailments.' : 'Zdráv. Žádné neduhy.'}</div>
             </div>`;
         } else {
+            const infTimer = GameState.infirmaryTimer;
             const cards = activeIds.map(id => {
                 const def = (typeof HealthConditionsDB !== 'undefined') ? HealthConditionsDB[id] : null;
                 if (!def) return '';
@@ -440,6 +441,25 @@ const PersonaSystem = {
                 const cureLine = cureNames
                     ? `<div style="font-size:0.78rem;opacity:0.7;margin-top:6px;">${lang==='en'?'Cured by':'Léčí'}: ${cureNames}</div>`
                     : `<div style="font-size:0.78rem;opacity:0.5;margin-top:6px;font-style:italic;">${lang==='en'?'No cure — will pass naturally':'Bez léku — jen doběhne'}</div>`;
+
+                // Infirmerie (titivillus-infirmary-mrd) — jen pro infirmaryEligible nemoci
+                let infirmaryLine = '';
+                if (def.infirmaryEligible) {
+                    if (infTimer && infTimer.conditionId === id) {
+                        const remainMs = Math.max(0, infTimer.endTime - now);
+                        const hh = String(Math.floor(remainMs / 3600000)).padStart(2, '0');
+                        const mm = String(Math.floor((remainMs % 3600000) / 60000)).padStart(2, '0');
+                        infirmaryLine = `<div style="font-size:0.75rem;margin-top:8px;padding:6px 8px;background:rgba(0,0,0,0.05);border-radius:5px;">🛏️ ${lang==='en'?'Resting in the infirmary — ':'Odpočíváš v infirmerii — '}${hh}:${mm}</div>`;
+                    } else if (infTimer) {
+                        infirmaryLine = `<div style="font-size:0.72rem;margin-top:8px;opacity:0.5;font-style:italic;">${lang==='en'?'Infirmary occupied.':'Infirmerie obsazená.'}</div>`;
+                    } else {
+                        const hasSalve = (GameState.inventory['unguentum_calidum'] || 0) > 0;
+                        infirmaryLine = `<button onclick="HealthSystem.enterInfirmary('${id}')" class="craft-btn" style="margin-top:8px; font-size:0.75rem;" ${hasSalve ? '' : 'disabled'}>
+                            🛏️ ${lang==='en'?'Go to the infirmary (1× Warming Salve, 24h)':'Do infirmerie (1× Hřejivá mast, 24h)'}
+                        </button>`;
+                    }
+                }
+
                 return `<div style="padding:12px 14px;margin-bottom:10px;background:rgba(197,160,89,0.08);border-left:3px solid var(--accent-gold);border-radius:6px;">
                     <div style="display:flex;justify-content:space-between;align-items:baseline;">
                         <strong>${def.icon} ${name}</strong>
@@ -448,6 +468,7 @@ const PersonaSystem = {
                     <div style="font-size:0.85rem;opacity:0.8;margin-top:4px;">${desc}</div>
                     ${advice ? `<div style="font-size:0.78rem;margin-top:6px;padding-top:6px;border-top:1px dashed rgba(197,160,89,0.3);"><strong>${lang==='en'?'What to do:':'Co dělat:'}</strong> ${advice}</div>` : ''}
                     ${cureLine}
+                    ${infirmaryLine}
                 </div>`;
             }).join('');
             statusHtml = `<div>${cards}</div>`;

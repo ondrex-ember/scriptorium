@@ -63,6 +63,9 @@ const HealthConditionsDB = {
         onApply: { fatigue: 10 },
         tickHour: { fatigue: 1 },
         cures: ["herbal_tea", "potion_heal", "hildegard_tisane", "unguentum_calidum"],
+        // titivillus-infirmary-mrd — žádná blokovaná akce, Infirmerie zde jen
+        // zkracuje dobu léčby (96h → 24h) výměnou za Hřejivou mast.
+        infirmaryEligible: true,
     },
     "eye_strain": {
         name: "Únava zraku", name_en: "Eye Strain", icon: "👁️",
@@ -180,5 +183,10 @@ const HealthConditionsDB = {
         onApply: { fatigue: 12 },
         tickHour: { fatigue: 0.5 },
         cures: ["potion_heal", "herbal_tea", "unguentum_calidum"],
+        // titivillus-infirmary-mrd — nemoc blokuje konkrétní craft output;
+        // infirmaryEligible: true zpřístupní tlačítko "Do infirmerie" ve
+        // Valetudo (jen nemoci s touto vlastností, ne univerzálně).
+        infirmaryEligible: true,
+        blockedRecipeOutput: "research",
     },
 };
