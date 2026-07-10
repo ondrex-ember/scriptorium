@@ -908,6 +908,23 @@ const VigorSystem = {
         const mini = document.getElementById('vigor-mini');
         if (mini) mini.setAttribute('data-vigor', vigor);
 
+        // Titivillus varování (folio_titivillus odměna, GameState.flags.titivillus_awareness) —
+        // trvale viditelný indikátor, když jsou podmínky pro krádež výstupu nebezpečné
+        // (noc + bez světla) — přesně stejná podmínka jako v Game.craftItem Titivillus checku.
+        const titivillusWarn = document.getElementById('pill-titivillus-warn');
+        if (titivillusWarn) {
+            const hasAwareness = GameState.flags && GameState.flags.titivillus_awareness;
+            const isNight = typeof TimeSys !== 'undefined' && !TimeSys.isDaytime();
+            const noLight = GameState.flags && !GameState.flags.candleLit && !GameState.flags.torchLit;
+            const isDanger = hasAwareness && isNight && noLight;
+            titivillusWarn.style.display = isDanger ? 'inline' : 'none';
+            if (isDanger) {
+                titivillusWarn.title = lang === 'en'
+                    ? 'Titivillus lurks in the dark — light a candle before writing.'
+                    : 'Titivillus číhá ve tmě — zapal svíci, než se pustíš do psaní.';
+            }
+        }
+
         // Pill panel detail (pokud otevřený)
         const panel = document.getElementById('pill-panel-body');
         if (panel && document.getElementById('pill-panel') &&
