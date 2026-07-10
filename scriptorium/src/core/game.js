@@ -2107,6 +2107,10 @@ const Game = {
                     if(Math.random() < 0.03) this.addItem('wormwood', 1);
                     if(Math.random() < 0.04) this.addItem('yarrow', 1);
                     if(Math.random() < 0.02) this.addItem('hyssop', 1);
+                    // Titivillus-infirmary-mrd — kostival, jalovec, rozmarýn (na mast proti revma/křeči)
+                    if(Math.random() < 0.03) this.addItem('comfrey', 1);
+                    if(Math.random() < 0.02) this.addItem('juniper', 1);
+                    if(Math.random() < 0.03) this.addItem('rosemary', 1);
                     // Semena nových bylin — vzácnější
                     if(Math.random() < 0.015) this.addItem('seeds_sage', 1);
                     if(Math.random() < 0.010) this.addItem('seeds_wormwood', 1);
@@ -2189,6 +2193,8 @@ const Game = {
                     if(Math.random() < 0.04) this.addItem('dandelion', 1);
                     if(Math.random() < 0.05) this.addItem('burdock_root', 1);
                     if(Math.random() < 0.05) this.addItem('couch_grass', 1);
+                    // Titivillus-infirmary-mrd — jalovec roste v lesích/na mezích
+                    if(Math.random() < 0.03) this.addItem('juniper', 1);
                     // Bukvice — podzim, spolu se žaludy
                     if(Math.random() < 0.08) this.addItem('beechnut', 1);
                     // Vzácnější houby (Cultus Herbarum)
@@ -2236,6 +2242,9 @@ const Game = {
                     if(Math.random() < 0.05) this.addItem('wormwood', 1);
                     if(Math.random() < 0.04) this.addItem('sage', 1);
                     if(Math.random() < 0.02) this.addItem('plantain', 1);
+                    // Titivillus-infirmary-mrd — kostival a rozmarýn rostou mezi trávou (jalovec je keř, viz jinde)
+                    if(Math.random() < 0.03) this.addItem('comfrey', 1);
+                    if(Math.random() < 0.02) this.addItem('rosemary', 1);
                     // Divoke obili mezi travou
                     if(Math.random() < 0.04) this.addItem('seeds_rye', 1);
                     if(Math.random() < 0.03) this.addItem('seeds_wheat', 1);
@@ -2438,6 +2447,10 @@ const Game = {
                 if(Math.random() < 0.03) this.addItem('wormwood', 1);
                 if(Math.random() < 0.04) this.addItem('yarrow', 1);
                 if(Math.random() < 0.02) this.addItem('hyssop', 1);
+                // Titivillus-infirmary-mrd — kostival, jalovec, rozmarýn
+                if(Math.random() < 0.03) this.addItem('comfrey', 1);
+                if(Math.random() < 0.02) this.addItem('juniper', 1);
+                if(Math.random() < 0.03) this.addItem('rosemary', 1);
                 if(Math.random() < 0.015) this.addItem('seeds_sage', 1);
                 if(Math.random() < 0.010) this.addItem('seeds_wormwood', 1);
                 if(Math.random() < 0.020) this.addItem('seeds_yarrow', 1);
@@ -2503,6 +2516,8 @@ const Game = {
                 if(Math.random() < 0.04) this.addItem('dandelion', 1);
                 if(Math.random() < 0.05) this.addItem('burdock_root', 1);
                 if(Math.random() < 0.05) this.addItem('couch_grass', 1);
+                // Titivillus-infirmary-mrd — jalovec
+                if(Math.random() < 0.03) this.addItem('juniper', 1);
                 // Bukvice — podzim, spolu se žaludy
                 if(Math.random() < 0.08) this.addItem('beechnut', 1);
                 // Vzácnější houby (Cultus Herbarum)
@@ -2547,6 +2562,9 @@ const Game = {
                 if(Math.random() < 0.05) this.addItem('wormwood', 1);
                 if(Math.random() < 0.04) this.addItem('sage', 1);
                 if(Math.random() < 0.02) this.addItem('plantain', 1);
+                // Titivillus-infirmary-mrd — kostival a rozmarýn
+                if(Math.random() < 0.03) this.addItem('comfrey', 1);
+                if(Math.random() < 0.02) this.addItem('rosemary', 1);
                 // Divoke obili mezi travou
                 if(Math.random() < 0.04) this.addItem('seeds_rye', 1);
                 if(Math.random() < 0.03) this.addItem('seeds_wheat', 1);
@@ -2862,6 +2880,15 @@ const Game = {
                     : '😵 Příliš unaven na psaní. Nejdříve se najedz nebo odpočiň. (Vigor < 20)', true);
                 return;
             }
+            // Křeč písařské ruky (monastery-decay-mrd) — ruka je příliš
+            // rozklepaná na psaní Zápisků, dokud nemoc nepřejde/nevyléčí se.
+            if (typeof HealthSystem !== 'undefined' && HealthSystem.isActive('writers_cramp')) {
+                const lang = (GameState.settings && GameState.settings.language) || 'cs';
+                UI.notify(lang === 'en'
+                    ? '✍️ Your hand shakes too badly to write — writer\'s cramp.'
+                    : '✍️ Ruka se ti třese příliš na psaní — křeč písařské ruky.', true);
+                return;
+            }
         }
 
         for(let [item, amt] of Object.entries(r.req)) if(amt > 0) this.removeItem(item, amt);
@@ -2964,6 +2991,13 @@ const Game = {
                 Analytics.titivillusStruck(r.output, isNight && noLight);
                 const quotes = t('titivillus');
                 UI.notify(quotes[Math.floor(Math.random() * quotes.length)], true);
+                // Křeč písařské ruky (monastery-decay-mrd) — Titivillus, když
+                // ukradne Zápisek (research) konkrétně, občas zanechá i křeč
+                // v ruce, ne jen ztrátu výstupu. Nízká šance, jen u research.
+                if (r.output === 'research' && typeof HealthSystem !== 'undefined'
+                    && !HealthSystem.isActive('writers_cramp') && Math.random() < 0.15) {
+                    HealthSystem.addCondition('writers_cramp');
+                }
                 Game.save(); UI.renderAll();
                 return;
             }

@@ -62,7 +62,7 @@ const HealthConditionsDB = {
         durationHours: 96,
         onApply: { fatigue: 10 },
         tickHour: { fatigue: 1 },
-        cures: ["herbal_tea", "potion_heal", "hildegard_tisane"],
+        cures: ["herbal_tea", "potion_heal", "hildegard_tisane", "unguentum_calidum"],
     },
     "eye_strain": {
         name: "Únava zraku", name_en: "Eye Strain", icon: "👁️",
@@ -167,5 +167,18 @@ const HealthConditionsDB = {
         onApply: { fatigue: 5 },
         tickHour: { fatigue: 1.5 },
         cures: ["sleep_potion", "linden_tea"],
+    },
+    "writers_cramp": {
+        name: "Křeč písařské ruky", name_en: "Writer's Cramp", icon: "✍️",
+        desc: "„Tři prsty píší, ale celé tělo trpí“ — staletý nářek písařů. Titivillus se raduje z každé zaťaté ruky, protože ví, že unavené prsty dělají chyby.",
+        desc_en: "\"Three fingers write, but the whole body suffers\" — the age-old lament of scribes. Titivillus delights in every cramped hand, for weary fingers make mistakes.",
+        causeShort: "Dlouhé hodiny psaní bez přestávky.",
+        causeShort_en: "Long hours of writing without a break.",
+        advice: "Ruka je příliš rozklepaná na psaní Zápisků (Research) — nedá se s ní pracovat, dokud nezmizí. Mast nebo bylinný čaj urychlí uzdravení.",
+        advice_en: "The hand shakes too badly to write Research notes — it cannot be used until this passes. Salve or herbal tea speeds recovery.",
+        durationHours: 60,
+        onApply: { fatigue: 12 },
+        tickHour: { fatigue: 0.5 },
+        cures: ["potion_heal", "herbal_tea", "unguentum_calidum"],
     },
 };
