@@ -312,6 +312,25 @@ const Game = {
 		// CONVERSI — holý skelet (jméno + slot, bez úkolů zatím)
 		if (!GameState.conversi) GameState.conversi = [];
 
+		// DORMITORIUM — bratři (mniši/skriptoři, manažerská vrstva nad Conversi)
+		if (!GameState.dormitorium) GameState.dormitorium = { brothers: [] };
+		if (!GameState.dormitorium.brothers) GameState.dormitorium.brothers = [];
+		// Migrace: bratři najatí před monk-attributes-mrd nemají traits/mood/
+		// loyalty/stress/temptation — doplnit pevnou hodnotou 40 (ne náhodnou,
+		// ať migrace nedává nespravedlivou výhodu/penalizaci oproti novým).
+		GameState.dormitorium.brothers.forEach(b => {
+			if (typeof b.mood !== 'number') b.mood = 60;
+			if (typeof b.loyalty !== 'number') b.loyalty = 30;
+			if (typeof b.stress !== 'number') b.stress = 0;
+			if (typeof b.temptation !== 'number') b.temptation = 0;
+			if (!b.traits) {
+				b.traits = {
+					piety: 40, obedience: 40, asceticism: 40, erudition: 40,
+					focus: 40, craftsmanship: 40, eloquence: 40, vigor: 40,
+				};
+			}
+		});
+
 		// Initialize tool uses tracking
 		if (!GameState.toolUses) GameState.toolUses = {};
 
@@ -3375,6 +3394,9 @@ const Game = {
 		if (!GameState.storage.old_cellars)        GameState.storage.old_cellars        = {built:false};
 		if (!GameState.storage.domus_conversorum_i) GameState.storage.domus_conversorum_i = {built:false};
 		if (!GameState.storage.domus_conversorum_ii) GameState.storage.domus_conversorum_ii = {built:false};
+		if (!GameState.storage.dormitorium_i)   GameState.storage.dormitorium_i   = {built:false};
+		if (!GameState.storage.dormitorium_ii)  GameState.storage.dormitorium_ii  = {built:false};
+		if (!GameState.storage.dormitorium_iii) GameState.storage.dormitorium_iii = {built:false};
 		if (!GameState.storage.transactions) GameState.storage.transactions = [];
 		// Prereq checks — storage buildings
 		if (type === 'cella' && !GameState.storage.almarium.built) {
@@ -3416,6 +3438,12 @@ const Game = {
 				UI.notify(lang==='en' ? 'The old vaults have not yet been found.' : 'Staré klenby ještě nebyly objeveny.', true); return;
 			}
 		}
+		if (type === 'dormitorium_ii' && !(GameState.storage.dormitorium_i && GameState.storage.dormitorium_i.built)) {
+			UI.notify(lang==='en' ? 'Build Dormitorium I first.' : 'Nejprve postav Dormitorium I.', true); return;
+		}
+		if (type === 'dormitorium_iii' && !(GameState.storage.dormitorium_ii && GameState.storage.dormitorium_ii.built)) {
+			UI.notify(lang==='en' ? 'Build Dormitorium II first.' : 'Nejprve postav Dormitorium II.', true); return;
+		}
 		if (type === 'domus_conversorum_i' && !(GameState.storage.old_cellars && GameState.storage.old_cellars.built)) {
 			UI.notify(lang==='en' ? 'Clear the Old Cellars first.' : 'Nejprve vyklidit Staré sklepy.', true); return;
 		}
@@ -3445,12 +3473,18 @@ const Game = {
 			old_cellars:       { cut_stone: 15, plank: 10, rope: 5 },
 			domus_conversorum_i: { cut_stone: 40, plank: 25, rope: 10 },
 			domus_conversorum_ii: { cut_stone: 150, plank: 90, rope: 35 },
+			dormitorium_i:   { cut_stone: 30, plank: 20, rope: 8 },
+			dormitorium_ii:  { cut_stone: 90,  plank: 60, rope: 25, iron_ingot: 2 },
+			dormitorium_iii: { cut_stone: 200, plank: 130, rope: 50, iron_ingot: 6, glass_stopper: 4 },
 		};
 		// Volitelný groše náklad navíc k materiálu — dnes jen Domus Conversorum I/II.
 		// Cokoliv chybí v costsGrose má groseNeeded=0, tedy nulový dopad na stávající budovy.
 		const costsGrose = {
 			domus_conversorum_i: 25,
 			domus_conversorum_ii: 50,
+			dormitorium_i: 15,
+			dormitorium_ii: 35,
+			dormitorium_iii: 70,
 		};
 		const cost = costs[type];
 		if (!cost) return;
@@ -3478,6 +3512,9 @@ const Game = {
 			old_cellars: 'Staré sklepy',
 			domus_conversorum_i: 'Domus Conversorum I',
 			domus_conversorum_ii: 'Domus Conversorum II',
+			dormitorium_i: 'Dormitorium I',
+			dormitorium_ii: 'Dormitorium II',
+			dormitorium_iii: 'Dormitorium III',
 		};
 		const n = names[type] || type;
 		UI.notifyPanel('🏗️ ' + (lang==='en' ? n+' built.' : n+' postaveno.'), 'system');
@@ -4479,6 +4516,173 @@ const Game = {
         return 0;
     },
 
+    // ── DORMITORIUM — kapacita bratrů (mniši/skriptoři, manažerská vrstva) ──
+    dormitoriumCapacity: function() {
+        const s = GameState.storage || {};
+        if (s.dormitorium_iii && s.dormitorium_iii.built) return 10;
+        if (s.dormitorium_ii  && s.dormitorium_ii.built)  return 6;
+        if (s.dormitorium_i   && s.dormitorium_i.built)   return 3;
+        return 0;
+    },
+
+    // ── DORMITORIUM — XP/úroveň specializace (odvozená z assignedTab) ──
+    // +1 XP za každý úspěšný 24h tick práce v přiřazeném tabu. XP se váže na
+    // konkrétní tab a přeřazením se neztrácí.
+    DORMITORIUM_XP_THRESHOLDS: [0, 15, 50, 120], // index = level-1 (1-4)
+    DORMITORIUM_LEVEL_MULT:    [1.0, 1.10, 1.20, 1.30],
+
+    dormitoriumBrotherLevel: function(brother, tabId) {
+        const xp = (brother.xp && brother.xp[tabId]) || 0;
+        const th = this.DORMITORIUM_XP_THRESHOLDS;
+        let level = 1;
+        for (let i = th.length - 1; i >= 0; i--) {
+            if (xp >= th[i]) { level = i + 1; break; }
+        }
+        return level;
+    },
+
+    dormitoriumBrotherMult: function(brother, tabId) {
+        const level = this.dormitoriumBrotherLevel(brother, tabId);
+        return this.DORMITORIUM_LEVEL_MULT[level - 1];
+    },
+
+    // Mapování tab → (primární vlastnost +2, sekundární +1) — monk-attributes-mrd.
+    // Zbožnost/Pokora/Askeze/Výřečnost prací NEROSTOU — rostou denním rytmem
+    // (Officium/Kapitula), řešeno jinde, ne zde.
+    DORMITORIUM_TAB_TRAITS: {
+        athanor:     { primary: 'erudition',     secondary: 'focus' },
+        scriptorium: { primary: 'erudition',     secondary: 'focus' },
+        zahony:      { primary: 'craftsmanship', secondary: 'vigor' },
+        sad:         { primary: 'craftsmanship', secondary: 'vigor' },
+        pole:        { primary: 'craftsmanship', secondary: 'vigor' },
+        vinohrad:    { primary: 'craftsmanship', secondary: 'vigor' },
+        apiarium:    { primary: 'craftsmanship', secondary: 'vigor' },
+        piscina:     { primary: 'craftsmanship', secondary: 'vigor' },
+        dvur:        { primary: 'vigor',         secondary: 'craftsmanship' },
+    },
+
+    dormitoriumAddXp: function(brother, tabId) {
+        if (!brother.xp) brother.xp = {};
+        brother.xp[tabId] = (brother.xp[tabId] || 0) + 1;
+
+        // Vedlejší přírůstek do traits — zatím NEnahrazuje výše uvedený
+        // xp[tabId] čítač (ten dál řídí dormitoriumBrotherLevel/Mult), jen
+        // ho doplňuje. Přepočítání levelu na traits je samostatný krok
+        // (monk-attributes-mrd, sekce 6, bod 3) — zatím neproveden.
+        const map = this.DORMITORIUM_TAB_TRAITS[tabId];
+        if (map && brother.traits) {
+            if (typeof brother.traits[map.primary] === 'number') {
+                brother.traits[map.primary] = Math.min(100, brother.traits[map.primary] + 2);
+            }
+            if (typeof brother.traits[map.secondary] === 'number') {
+                brother.traits[map.secondary] = Math.min(100, brother.traits[map.secondary] + 1);
+            }
+        }
+    },
+
+    // Přiřadí bratra na tab (max 1 bratr per tab). tabId === null odebere.
+    assignBrotherTab: function(brotherId, tabId) {
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        const b = (GameState.dormitorium && GameState.dormitorium.brothers || []).find(x => x.id === brotherId);
+        if (!b) return;
+        if (tabId === null) { b.assignedTab = null; Game.save(); return; }
+
+        const taken = GameState.dormitorium.brothers.find(x => x.assignedTab === tabId && x.id !== b.id);
+        if (taken) {
+            UI.notify(lang==='en' ? taken.name+' already manages this section.' : taken.name+' už tuto sekci řídí.', true); return;
+        }
+
+        b.assignedTab = tabId;
+        Game.save();
+        const spec = (typeof DormitoriumSpecializationDB !== 'undefined') ? DormitoriumSpecializationDB[tabId] : null;
+        const specName = spec ? (lang==='en' ? spec.name_en : spec.name) : tabId;
+        UI.notifyPanel('📿 ' + (lang==='en' ? b.name+' now oversees: '+specName : b.name+' nyní řídí: '+specName), 'system');
+    },
+
+    // ── DORMITORIUM — najmutí bratra (mnicha/skriptora) ──
+    // Bez rank/vztah gate (na rozdíl od Conversi) — jen kapacita budovy + groše.
+    hireBrother: function() {
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        if (!GameState.dormitorium) GameState.dormitorium = { brothers: [] };
+        if (!GameState.dormitorium.brothers) GameState.dormitorium.brothers = [];
+        const cap = this.dormitoriumCapacity();
+        if (cap === 0) {
+            UI.notify(lang==='en' ? 'Build Dormitorium first.' : 'Nejprve postav Dormitorium.', true); return;
+        }
+        if (GameState.dormitorium.brothers.length >= cap) {
+            UI.notify(lang==='en' ? 'No free beds in the Dormitorium.' : 'V Dormitoriu není volné lůžko.', true); return;
+        }
+        const HIRE_COST = 30;
+        if ((typeof CellariumSystem !== 'undefined' ? CellariumSystem.getGrose() : 0) < HIRE_COST) {
+            UI.notify(lang==='en' ? 'Not enough groats.' : 'Nedostatek grošů.', true); return;
+        }
+
+        let rosterId = null, name, hireQuote = '';
+        const rosterOk = (typeof DormitoriumRosterDB !== 'undefined') && Object.keys(DormitoriumRosterDB).length > 0;
+        if (rosterOk) {
+            const hiredIds = GameState.dormitorium.brothers.map(b => b.rosterId).filter(Boolean);
+            const availIds = Object.keys(DormitoriumRosterDB).filter(rid => !hiredIds.includes(rid));
+            const poolIds = availIds.length ? availIds : Object.keys(DormitoriumRosterDB);
+            rosterId = poolIds[Math.floor(Math.random() * poolIds.length)];
+            const rec = DormitoriumRosterDB[rosterId];
+            name = rec.name;
+            const hq = rec.quotes && rec.quotes.hire;
+            if (hq) hireQuote = (lang === 'en' ? hq.en : hq.cs);
+        } else {
+            name = lang === 'en' ? 'Brother' : 'Bratr';
+        }
+
+        CellariumSystem.addGrose(-HIRE_COST);
+
+        // Duchovní/intelektuální/praktické vlastnosti (monk-attributes-mrd) —
+        // start: základ 40 ± náhodná variace 15, škála 0–100.
+        const rnd = () => Math.max(0, Math.min(100, 40 + Math.round((Math.random() * 30) - 15)));
+        const brother = {
+            id: 'brother_' + Date.now(),
+            rosterId, name,
+            hiredAt: Date.now(),
+            assignedTab: null,
+            xp: {},
+            fatigue: 0,
+            mood: 60,
+            loyalty: 30,
+            stress: 0,
+            temptation: 0,
+            traits: {
+                piety: rnd(),          // Zbožnost
+                obedience: rnd(),      // Pokora/Poslušnost
+                asceticism: rnd(),     // Askeze
+                erudition: rnd(),      // Učenost
+                focus: rnd(),          // Soustředění
+                craftsmanship: rnd(),  // Řemeslná zručnost
+                eloquence: rnd(),      // Výřečnost
+                vigor: rnd(),          // Tělesná zdatnost
+            },
+        };
+        GameState.dormitorium.brothers.push(brother);
+
+        UI.notifyPanel('📿 ' + (lang==='en' ? name+' has joined as a brother.' : name+' se připojil jako bratr.') + (hireQuote ? ' „' + hireQuote + '“' : ''), 'success');
+        Game.addKronikaEntry('important',
+            '📿 ' + name + ' se připojil ke klášteru jako bratr Dormitoria.',
+            '📿 ' + name + ' has joined the monastery as a brother of the Dormitorium.',
+            '📿 ' + name + ' frater factus est.'
+        );
+        Game.save();
+    },
+
+    // Hlášení odvedené práce (Conversi/Dormitorium) — Kronika + Zprávy z
+    // kláštera + přehled za poslední tick (GameState.lastTickReport).
+    _reportWork: function(text_cs, text_en) {
+        if (!GameState.lastTickReport) GameState.lastTickReport = [];
+        GameState.lastTickReport.push({ ts: Date.now(), cs: text_cs, en: text_en });
+
+        this.addKronikaEntry('minor', text_cs, text_en, '');
+        if (typeof NotificationSystem !== 'undefined' && NotificationSystem.panel) {
+            const lang = (GameState.settings && GameState.settings.language) || 'cs';
+            NotificationSystem.panel(lang === 'en' ? text_en : text_cs, 'system');
+        }
+    },
+
     // ── CONVERSI — přiřazování úkolů (M1) ───────────────────────────────────
     CONVERSI_TASKS: {
         dvur:     { icon: '🏚️', away: false },
@@ -4486,6 +4690,8 @@ const Game = {
         sad:      { icon: '🍎', away: false },
         apiarium: { icon: '🐝', away: false },
         piscina:  { icon: '🐟', away: false },
+        pole:     { icon: '🌾', away: false },
+        vinohrad: { icon: '🍇', away: false },
         scavenge: { icon: '🌾', away: true,  durationMs: 8  * 60 * 60 * 1000, riskPct: 12 },
         doly:     { icon: '⛏️', away: true,  durationMs: 20 * 60 * 60 * 1000, riskPct: 20 },
         kostel:   { icon: '🕍', away: false },
@@ -4849,7 +5055,14 @@ const Game = {
     },
 
     checkConversiChores: function() {
-        if (!GameState.conversi || GameState.conversi.length === 0) return;
+        // POZOR: dřív zde bylo `if (!GameState.conversi || length===0) return;`,
+        // což při absenci JAKÉHOKOLIV konvrše zablokovalo i Dormitorium bratry
+        // (ti fungují nezávisle na Conversi). Nahrazeno bezpečnou inicializací.
+        if (!GameState.conversi) GameState.conversi = [];
+
+        // Přehled práce za poslední tick — vyčistit na začátku, naplní ho
+        // jednotlivé sekce (_reportWork) při odvedené práci.
+        GameState.lastTickReport = [];
 
         // Migrace: sdílená conversiFatigue → per-konvrš fatigue (varianta A: rozdat hodnotu)
         const legacyFatigue = (typeof GameState.conversiFatigue === 'number') ? GameState.conversiFatigue : 0;
@@ -4982,39 +5195,100 @@ const Game = {
                       && !(k.injuredUntil && k.injuredUntil > Date.now())
                       && !(k.awayUntil && k.awayUntil > Date.now()))
             .sort((a, b) => a.fatigue - b.fatigue)[0];
-        if (!worker) return; // nikdo nepřiřazený na Dvůr, všichni unavení, bez nálady, nebo v Pokání
+        // POZOR: dřív zde bylo `if (!worker) return;`, což při absenci konvrše
+        // na Dvoru zablokovalo ÚPLNĚ VŠECHNY následující sekce (Záhony, Sad,
+        // Apiarium, Piscina, Pole, Vinohrad, Athanor) — každá má svůj vlastní
+        // worker-filtr, takže na tomhle `return` nezávisí. Opraveno na
+        // `if (worker || dvurBrother) { ... }`, aby zbytek funkce běžel bez
+        // ohledu na obsazenost Dvora, a aby i samotný Dvůr fungoval s bratrem
+        // bez přiřazeného konvrše (stejný vzor jako ostatní taby).
+        const dvurBrother = (GameState.dormitorium && GameState.dormitorium.brothers || [])
+            .find(b => b.assignedTab === 'dvur');
+        if (worker || dvurBrother) {
+            if (typeof FarmyardSystem === 'undefined') return;
+            // Mapování: (argument pro cleanPen) → (klíč v GameState, kde se hlídá .built)
+            const pens = [
+                { arg: 'kurnik',      state: 'henhouse' },
+                { arg: 'kosar',       state: 'sheepfold' },
+                { arg: 'cowbyre',     state: 'cowbyre' },
+                { arg: 'pigsty',      state: 'pigsty' },
+                { arg: 'goatpen',     state: 'goatpen' },
+                { arg: 'rabbitry',    state: 'rabbitry' },
+                { arg: 'stable',      state: 'stable' },
+                { arg: 'donkeyStall', state: 'donkeyStall' },
+            ];
+            let cleanedAny = false;
+            const DAY = 24 * 60 * 60 * 1000;
+            pens.forEach(p => {
+                const st = GameState[p.state];
+                if (st && st.built) {
+                    // Pojistka: chlév v cooldownu přeskočit tiše — cleanPen by toastoval "uklidíte až zítra"
+                    if (Date.now() - (st.lastCleanMs || 0) < DAY) return;
+                    const before = st.lastCleanMs || 0;
+                    FarmyardSystem.cleanPen(p.arg);
+                    if ((st.lastCleanMs || 0) > before) cleanedAny = true;
+                }
+            });
 
-        if (typeof FarmyardSystem === 'undefined') return;
-        // Mapování: (argument pro cleanPen) → (klíč v GameState, kde se hlídá .built)
-        const pens = [
-            { arg: 'kurnik',      state: 'henhouse' },
-            { arg: 'kosar',       state: 'sheepfold' },
-            { arg: 'cowbyre',     state: 'cowbyre' },
-            { arg: 'pigsty',      state: 'pigsty' },
-            { arg: 'goatpen',     state: 'goatpen' },
-            { arg: 'rabbitry',    state: 'rabbitry' },
-            { arg: 'stable',      state: 'stable' },
-            { arg: 'donkeyStall', state: 'donkeyStall' },
-        ];
-        let cleanedAny = false;
-        const DAY = 24 * 60 * 60 * 1000;
-        pens.forEach(p => {
-            const st = GameState[p.state];
-            if (st && st.built) {
-                // Pojistka: chlév v cooldownu přeskočit tiše — cleanPen by toastoval "uklidíte až zítra"
-                if (Date.now() - (st.lastCleanMs || 0) < DAY) return;
-                const before = st.lastCleanMs || 0;
-                FarmyardSystem.cleanPen(p.arg);
-                if ((st.lastCleanMs || 0) > before) cleanedAny = true;
+            // Krmení — jen dokud NENÍ Horreum (pak přebírá Game.checkAnimalFeeding()
+            // automaticky, nezávisle na konvrši/bratrovi, aby se krmivo nespotřebovávalo 2×)
+            let fedAny = false;
+            const hasHorreum = GameState.storage && GameState.storage.horreum && GameState.storage.horreum.built;
+            if (!hasHorreum) {
+                const lang = (GameState.settings && GameState.settings.language) || 'cs';
+                if (!GameState.feeding) GameState.feeding = {};
+                const animals = [
+                    { key: 'henhouse',  built: GameState.henhouse && GameState.henhouse.built && GameState.henhouse.hens && GameState.henhouse.hens.length > 0, feedChain: ['grain', 'feed_meal'], feedAmt: 1, name: lang==='en'?'Hens':'Slepice' },
+                    { key: 'sheepfold', built: GameState.sheepfold && GameState.sheepfold.built && GameState.sheepfold.sheep && GameState.sheepfold.sheep.length > 0, feedChain: ['hay', 'feed_meal'], feedAmt: 1, name: lang==='en'?'Sheep':'Ovce' },
+                    { key: 'rabbitry',  built: GameState.rabbitry && GameState.rabbitry.built && GameState.rabbitry.animals && GameState.rabbitry.animals.length > 0, feedChain: ['scraps', 'hay'], feedAmt: 1, name: lang==='en'?'Rabbits':'Králíci' },
+                    { key: 'goatpen',   built: GameState.goatpen && GameState.goatpen.built && GameState.goatpen.animals && GameState.goatpen.animals.length > 0, feedChain: ['hay', 'scraps', 'feed_meal'], feedAmt: 1, name: lang==='en'?'Goats':'Kozy' },
+                    { key: 'cowbyre',   built: GameState.cowbyre && GameState.cowbyre.built && GameState.cowbyre.animals && GameState.cowbyre.animals.length > 0, feedChain: ['hay', 'feed_meal'], feedAmt: 1, name: lang==='en'?'Cattle':'Skot' },
+                    { key: 'pigsty',    built: GameState.pigsty && GameState.pigsty.built && GameState.pigsty.animals && GameState.pigsty.animals.length > 0, feedChain: ['scraps', 'feed_meal', 'grain', 'hay'], feedAmt: 2, name: lang==='en'?'Pigs':'Prasata' },
+                ];
+                animals.forEach(a => {
+                    if (!a.built) return;
+                    if (!GameState.feeding[a.key]) GameState.feeding[a.key] = { lastFed: Date.now(), hunger: 0 };
+                    const hoursSinceFed = (Date.now() - GameState.feeding[a.key].lastFed) / 3600000;
+                    if (hoursSinceFed < 24) return;
+                    const useFeed = a.feedChain.find(f => (GameState.inventory[f] || 0) >= a.feedAmt);
+                    if (useFeed) {
+                        this.removeItem(useFeed, a.feedAmt);
+                        GameState.feeding[a.key].lastFed = Date.now();
+                        GameState.feeding[a.key].hunger = 0;
+                        fedAny = true;
+                    } else {
+                        GameState.feeding[a.key].hunger = Math.min(3, (GameState.feeding[a.key].hunger || 0) + 1);
+                    }
+                });
             }
-        });
-        if (cleanedAny) {
-            const workGain = this._konvrsTraits(worker).includes('silak') ? 10 : 15;
-            worker.fatigue = Math.min(100, worker.fatigue + workGain);
-            Game.save();
+
+            if (cleanedAny || fedAny) {
+                if (worker) {
+                    const workGain = this._konvrsTraits(worker).includes('silak') ? 10 : 15;
+                    worker.fatigue = Math.min(100, worker.fatigue + workGain);
+                }
+                if (dvurBrother) {
+                    this.dormitoriumAddXp(dvurBrother, 'dvur');
+                    dvurBrother.fatigue = Math.min(100, (dvurBrother.fatigue || 0) + 10);
+                }
+                const who = dvurBrother ? dvurBrother.name : worker.name;
+                const parts_cs = [], parts_en = [];
+                if (cleanedAny) { parts_cs.push('uklidil chlévy'); parts_en.push('cleaned the pens'); }
+                if (fedAny) { parts_cs.push('nakrmil zvířata'); parts_en.push('fed the animals'); }
+                if (typeof this._reportWork === 'function') {
+                    this._reportWork(
+                        `🏚️ ${who} (Dvůr): ${parts_cs.join(', ')}.`,
+                        `🏚️ ${who} (Farmyard): ${parts_en.join(', ')}.`
+                    );
+                }
+                Game.save();
+            }
         }
 
-        // ── Záhony (L1): přiřazený konvrš zalévá a sklízí, self-guarded 24h ──
+        // ── Záhony (L1): přiřazený konvrš zalévá a sklízí, self-guarded 24h.
+        //    Přiřazený bratr (Dormitorium) dělá totéž SÁM i bez konvrše;
+        //    pokud je konvrš přítomen zároveň, bratr násobí jeho výnos podle
+        //    své úrovně specializace "Zahradník". ──
         const gardener = GameState.conversi
             .filter(k => k.task === 'zahony'
                       && k.fatigue < (this._konvrsTraits(k).includes('pilny') ? 90 : 80)
@@ -5023,7 +5297,9 @@ const Game = {
                       && !(k.injuredUntil && k.injuredUntil > Date.now())
                       && !(k.awayUntil && k.awayUntil > Date.now()))
             .sort((a, b) => a.fatigue - b.fatigue)[0];
-        if (gardener && GameState.garden) {
+        const gardenBrother = (GameState.dormitorium && GameState.dormitorium.brothers || [])
+            .find(b => b.assignedTab === 'zahony');
+        if ((gardener || gardenBrother) && GameState.garden) {
             if (!GameState.conversiGardenLastTick) GameState.conversiGardenLastTick = 0;
             if (Date.now() - GameState.conversiGardenLastTick >= DAY) {
                 GameState.conversiGardenLastTick = Date.now();
@@ -5032,6 +5308,8 @@ const Game = {
                 let growthSpeed = CONFIG.GROWTH_SPEED;
                 if (GameState.researchedTechs.includes('tech_advanced_farming')) growthSpeed *= 2.0;
                 const needed = CONFIG.BASE_GROWTH_TIME / growthSpeed;
+                const brotherMult = gardenBrother ? this.dormitoriumBrotherMult(gardenBrother, 'zahony') : 1.0;
+                const harvested = {};
 
                 GameState.garden.forEach(plot => {
                     if (plot.locked || plot.state !== 2) return;
@@ -5057,31 +5335,53 @@ const Game = {
                             ? Object.values(GardenSystem.GARDEN_PLANTS_DB).find(p => p.item === harvestCrop)
                             : null;
                         const _yieldMult = (typeof RankSystem !== 'undefined') ? RankSystem.getActiveBonus('herb_yield') : 1.0;
+                        const totalMult = _yieldMult * brotherMult;
+                        const track = (id, qty) => { harvested[id] = (harvested[id] || 0) + qty; };
                         if (_gp) {
-                            this.addItem(harvestCrop, Math.max(1, Math.round(_gp.yield * _yieldMult)));
+                            const q = Math.max(1, Math.round(_gp.yield * totalMult));
+                            this.addItem(harvestCrop, q); track(harvestCrop, q);
                             if (Math.random() < 0.3) this.addItem(_gp.seed, 1);
                         } else if (harvestCrop === 'hops') {
-                            this.addItem('hops', Math.max(1, Math.round(2 * _yieldMult)));
+                            const q = Math.max(1, Math.round(2 * totalMult));
+                            this.addItem('hops', q); track('hops', q);
                             if (Math.random() > 0.6) this.addItem('seeds_hops', 1);
                         } else if (['carrot', 'onion', 'potato'].includes(harvestCrop)) {
-                            this.addItem(harvestCrop, Math.max(1, Math.round(3 * _yieldMult)));
+                            const q = Math.max(1, Math.round(3 * totalMult));
+                            this.addItem(harvestCrop, q); track(harvestCrop, q);
                             if (Math.random() > 0.5) this.addItem('seeds_vegetable', 1);
                         } else if (harvestCrop) {
-                            this.addItem(harvestCrop, Math.max(1, Math.round(2 * _yieldMult)));
+                            const q = Math.max(1, Math.round(2 * totalMult));
+                            this.addItem(harvestCrop, q); track(harvestCrop, q);
                         }
                     }
                 });
 
                 if (didWork) {
-                    const workGain = this._konvrsTraits(gardener).includes('silak') ? 10 : 15;
-                    gardener.fatigue = Math.min(100, gardener.fatigue + workGain);
+                    if (gardener) {
+                        const workGain = this._konvrsTraits(gardener).includes('silak') ? 10 : 15;
+                        gardener.fatigue = Math.min(100, gardener.fatigue + workGain);
+                    }
+                    if (gardenBrother) {
+                        this.dormitoriumAddXp(gardenBrother, 'zahony');
+                        gardenBrother.fatigue = Math.min(100, (gardenBrother.fatigue || 0) + 10);
+                    }
+                    const who = gardenBrother ? gardenBrother.name : gardener.name;
+                    const harvestKeys = Object.keys(harvested);
+                    if (harvestKeys.length) {
+                        const listStr = harvestKeys.map(id => `${harvested[id]}× ${(typeof iName==='function')?iName(id):id}`).join(', ');
+                        this._reportWork(`🌿 ${who} (Záhony) sklidil: ${listStr}.`, `🌿 ${who} (Garden) harvested: ${listStr}.`);
+                    } else {
+                        this._reportWork(`🌿 ${who} (Záhony) zaléval.`, `🌿 ${who} (Garden) watered.`);
+                    }
                     Game.checkAchievements();
                     Game.save();
                 }
             }
         }
 
-        // ── Sad (L1): přiřazený konvrš sklízí dozrálé stromy, self-guarded 24h ──
+        // ── Sad (L1): přiřazený konvrš sklízí dozrálé stromy, self-guarded 24h.
+        //    Přiřazený bratr (specializace "Sadař") dělá totéž sám i bez
+        //    konvrše; s konvršem násobí jeho výnos. ──
         const orchardKeeper = GameState.conversi
             .filter(k => k.task === 'sad'
                       && k.fatigue < (this._konvrsTraits(k).includes('pilny') ? 90 : 80)
@@ -5090,11 +5390,15 @@ const Game = {
                       && !(k.injuredUntil && k.injuredUntil > Date.now())
                       && !(k.awayUntil && k.awayUntil > Date.now()))
             .sort((a, b) => a.fatigue - b.fatigue)[0];
-        if (orchardKeeper && GameState.orchard) {
+        const orchardBrother = (GameState.dormitorium && GameState.dormitorium.brothers || [])
+            .find(b => b.assignedTab === 'sad');
+        if ((orchardKeeper || orchardBrother) && GameState.orchard) {
             if (!GameState.conversiOrchardLastTick) GameState.conversiOrchardLastTick = 0;
             if (Date.now() - GameState.conversiOrchardLastTick >= DAY) {
                 GameState.conversiOrchardLastTick = Date.now();
                 let didHarvest = false;
+                const brotherMult = orchardBrother ? this.dormitoriumBrotherMult(orchardBrother, 'sad') : 1.0;
+                const harvested = {};
 
                 const TREE_DATA = {
                     seed_apple:    { harvestHours: 24 }, seed_pear:     { harvestHours: 24 },
@@ -5118,8 +5422,10 @@ const Game = {
 
                     const fruit = TREE_FRUITS[slot.treeType];
                     if (!fruit) return;
-                    const qty = (slot.treeType === 'seed_walnut' || slot.treeType === 'seed_sorb') ? 2 : 3;
+                    const baseQty = (slot.treeType === 'seed_walnut' || slot.treeType === 'seed_sorb') ? 2 : 3;
+                    const qty = Math.max(1, Math.round(baseQty * brotherMult));
                     this.addItem(fruit, qty);
+                    harvested[fruit] = (harvested[fruit] || 0) + qty;
                     if (slot.treeType === 'seed_linden') this.addItem('linden_blossom', 1);
                     this.addItem('pollen', 1);
                     slot.lastHarvestAt = Date.now();
@@ -5127,15 +5433,26 @@ const Game = {
                 });
 
                 if (didHarvest) {
-                    const workGain = this._konvrsTraits(orchardKeeper).includes('silak') ? 10 : 15;
-                    orchardKeeper.fatigue = Math.min(100, orchardKeeper.fatigue + workGain);
+                    if (orchardKeeper) {
+                        const workGain = this._konvrsTraits(orchardKeeper).includes('silak') ? 10 : 15;
+                        orchardKeeper.fatigue = Math.min(100, orchardKeeper.fatigue + workGain);
+                    }
+                    if (orchardBrother) {
+                        this.dormitoriumAddXp(orchardBrother, 'sad');
+                        orchardBrother.fatigue = Math.min(100, (orchardBrother.fatigue || 0) + 10);
+                    }
+                    const who = orchardBrother ? orchardBrother.name : orchardKeeper.name;
+                    const listStr = Object.keys(harvested).map(id => `${harvested[id]}× ${(typeof iName==='function')?iName(id):id}`).join(', ');
+                    this._reportWork(`🍎 ${who} (Sad) sklidil: ${listStr}.`, `🍎 ${who} (Orchard) harvested: ${listStr}.`);
                     Game.save();
                 }
             }
         }
 
         // ── Apiarium (L1): přiřazený konvrš sklízí med/vosk, přikrmuje v zimě
-        //    a léčí Varroa — self-guarded 24h ──
+        //    a léčí Varroa — self-guarded 24h. Přiřazený bratr (specializace
+        //    "Včelař") dělá totéž sám i bez konvrše; s konvršem násobí výnos
+        //    sklizně (Varroa léčba a zimní přikrmení jsou binární, bez bonusu). ──
         const beekeeper = GameState.conversi
             .filter(k => k.task === 'apiarium'
                       && k.fatigue < (this._konvrsTraits(k).includes('pilny') ? 90 : 80)
@@ -5144,13 +5461,17 @@ const Game = {
                       && !(k.injuredUntil && k.injuredUntil > Date.now())
                       && !(k.awayUntil && k.awayUntil > Date.now()))
             .sort((a, b) => a.fatigue - b.fatigue)[0];
-        if (beekeeper && GameState.apiary && typeof GardenSystem !== 'undefined') {
+        const apiaryBrother = (GameState.dormitorium && GameState.dormitorium.brothers || [])
+            .find(b => b.assignedTab === 'apiarium');
+        if ((beekeeper || apiaryBrother) && GameState.apiary && typeof GardenSystem !== 'undefined') {
             if (!GameState.conversiApiaryLastTick) GameState.conversiApiaryLastTick = 0;
             if (Date.now() - GameState.conversiApiaryLastTick >= DAY) {
                 GameState.conversiApiaryLastTick = Date.now();
                 let didWork = false;
                 const season = GardenSystem._getApiarySeason();
                 const now = Date.now();
+                const brotherMult = apiaryBrother ? this.dormitoriumBrotherMult(apiaryBrother, 'apiarium') : 1.0;
+                let honeyGained = 0, waxGained = 0, varroaTreated = 0, fedHives = 0;
 
                 GameState.apiary.forEach(hive => {
                     if (!hive.built || !hive.hasQueen) return;
@@ -5162,6 +5483,7 @@ const Game = {
                             hive.varroaRisk = false;
                             hive.strength = Math.max(1, (hive.strength || 3) - 1);
                             didWork = true;
+                            varroaTreated++;
                         }
                         return;
                     }
@@ -5172,6 +5494,7 @@ const Game = {
                             this.removeItem('honey', 1);
                             hive.strength = Math.min(10, (hive.strength || 3) + 1);
                             didWork = true;
+                            fedHives++;
                         }
                         return;
                     }
@@ -5184,8 +5507,11 @@ const Game = {
                     const strengthMod = (hive.strength || 3) / 5;
                     const honeyBase = { spring: 1, summer: 3, autumn: 1 };
                     const waxBase   = { spring: 1, summer: 1, autumn: 2 };
-                    this.addItem('honey', Math.max(1, Math.round(honeyBase[season] * strengthMod)));
-                    this.addItem('beeswax', Math.max(1, Math.round(waxBase[season] * strengthMod)));
+                    const hQty = Math.max(1, Math.round(honeyBase[season] * strengthMod * brotherMult));
+                    const wQty = Math.max(1, Math.round(waxBase[season] * strengthMod * brotherMult));
+                    this.addItem('honey', hQty);
+                    this.addItem('beeswax', wQty);
+                    honeyGained += hQty; waxGained += wQty;
 
                     if (season === 'summer') {
                         const hasFlowers = GameState.garden && GameState.garden.some(p => p.state === 2 && p.water);
@@ -5209,15 +5535,32 @@ const Game = {
                 });
 
                 if (didWork) {
-                    const workGain = this._konvrsTraits(beekeeper).includes('silak') ? 10 : 15;
-                    beekeeper.fatigue = Math.min(100, beekeeper.fatigue + workGain);
+                    if (beekeeper) {
+                        const workGain = this._konvrsTraits(beekeeper).includes('silak') ? 10 : 15;
+                        beekeeper.fatigue = Math.min(100, beekeeper.fatigue + workGain);
+                    }
+                    if (apiaryBrother) {
+                        this.dormitoriumAddXp(apiaryBrother, 'apiarium');
+                        apiaryBrother.fatigue = Math.min(100, (apiaryBrother.fatigue || 0) + 10);
+                    }
+                    const who = apiaryBrother ? apiaryBrother.name : beekeeper.name;
+                    const parts_cs = [], parts_en = [];
+                    if (honeyGained || waxGained) { parts_cs.push(`sklidil ${honeyGained}× med, ${waxGained}× vosk`); parts_en.push(`harvested ${honeyGained}× honey, ${waxGained}× wax`); }
+                    if (varroaTreated) { parts_cs.push(`ošetřil ${varroaTreated} úl(y) proti Varroa`); parts_en.push(`treated ${varroaTreated} hive(s) for Varroa`); }
+                    if (fedHives) { parts_cs.push(`přikrmil ${fedHives} úl(y)`); parts_en.push(`fed ${fedHives} hive(s)`); }
+                    this._reportWork(
+                        `🐝 ${who} (Apiarium): ${parts_cs.join(', ')}.`,
+                        `🐝 ${who} (Apiary): ${parts_en.join(', ')}.`
+                    );
                     Game.save();
                 }
             }
         }
 
         // ── Piscina (L1): přiřazený konvrš krmí ryby, přesouvá čekající plůdek
-        //    a sklízí dospělé kapry — self-guarded 24h ──
+        //    a sklízí dospělé kapry — self-guarded 24h. Přiřazený bratr
+        //    (specializace "Rybář") dělá totéž sám i bez konvrše; s konvršem
+        //    násobí sklizený počet kaprů (krmení/přesun plůdku beze změny). ──
         const fisherman = GameState.conversi
             .filter(k => k.task === 'piscina'
                       && k.fatigue < (this._konvrsTraits(k).includes('pilny') ? 90 : 80)
@@ -5226,19 +5569,23 @@ const Game = {
                       && !(k.injuredUntil && k.injuredUntil > Date.now())
                       && !(k.awayUntil && k.awayUntil > Date.now()))
             .sort((a, b) => a.fatigue - b.fatigue)[0];
-        if (fisherman && GameState.piscina && GameState.piscina.tier >= 1) {
+        const piscinaBrother = (GameState.dormitorium && GameState.dormitorium.brothers || [])
+            .find(b => b.assignedTab === 'piscina');
+        if ((fisherman || piscinaBrother) && GameState.piscina && GameState.piscina.tier >= 1) {
             if (!GameState.conversiPiscinaLastTick) GameState.conversiPiscinaLastTick = 0;
             if (Date.now() - GameState.conversiPiscinaLastTick >= DAY) {
                 GameState.conversiPiscinaLastTick = Date.now();
                 const p = GameState.piscina;
                 let didWork = false;
+                const brotherMult = piscinaBrother ? this.dormitoriumBrotherMult(piscinaBrother, 'piscina') : 1.0;
+                let didFeed = false, didTransfer = false, carpCaught = 0;
 
                 // Krmení — spotřebuje fiber podle počtu ryb všech stupňů
                 const feedNeeded = (p.fry || 0) + (p.youngCarp || 0) + (p.carp || 0);
                 if (feedNeeded > 0 && (GameState.inventory['fiber'] || 0) >= feedNeeded) {
                     this.removeItem('fiber', feedNeeded);
                     p.lastFedAt = Date.now();
-                    didWork = true;
+                    didWork = true; didFeed = true;
                 }
 
                 // Přesun čekajícího plůdku do prvního stupně
@@ -5246,20 +5593,305 @@ const Game = {
                     p.fry = (p.fry || 0) + p.pendingFry;
                     if (!p.fryAddedAt || p.fryAddedAt === 0) p.fryAddedAt = Date.now();
                     p.pendingFry = 0;
-                    didWork = true;
+                    didWork = true; didTransfer = true;
                 }
 
-                // Sklizeň všech dospělých kaprů
+                // Sklizeň všech dospělých kaprů — bratr násobí ulovené množství
                 if ((p.carp || 0) > 0) {
-                    const qty = p.carp;
+                    const qty = Math.max(p.carp, Math.round(p.carp * brotherMult));
                     p.carp = 0;
                     this.addItem('carp', qty);
-                    didWork = true;
+                    didWork = true; carpCaught = qty;
                 }
 
                 if (didWork) {
-                    const workGain = this._konvrsTraits(fisherman).includes('silak') ? 10 : 15;
-                    fisherman.fatigue = Math.min(100, fisherman.fatigue + workGain);
+                    if (fisherman) {
+                        const workGain = this._konvrsTraits(fisherman).includes('silak') ? 10 : 15;
+                        fisherman.fatigue = Math.min(100, fisherman.fatigue + workGain);
+                    }
+                    if (piscinaBrother) {
+                        this.dormitoriumAddXp(piscinaBrother, 'piscina');
+                        piscinaBrother.fatigue = Math.min(100, (piscinaBrother.fatigue || 0) + 10);
+                    }
+                    const who = piscinaBrother ? piscinaBrother.name : fisherman.name;
+                    const parts_cs = [], parts_en = [];
+                    if (didFeed) { parts_cs.push('nakrmil ryby'); parts_en.push('fed the fish'); }
+                    if (didTransfer) { parts_cs.push('přesunul plůdek'); parts_en.push('moved the fry'); }
+                    if (carpCaught) { parts_cs.push(`vylovil ${carpCaught}× kapra`); parts_en.push(`caught ${carpCaught}× carp`); }
+                    this._reportWork(
+                        `🐟 ${who} (Piscina): ${parts_cs.join(', ')}.`,
+                        `🐟 ${who} (Fishpond): ${parts_en.join(', ')}.`
+                    );
+                    Game.save();
+                }
+            }
+        }
+
+        // ── Pole (L1): přiřazený konvrš zalévá rostoucí pole a sklízí dozrálá,
+        //    self-guarded 24h. Volá přímo GardenSystem.waterField/harvestField —
+        //    výpočet výnosu (počasí, kvalita zrna, sláma) je tam příliš složitý
+        //    na bezpečné duplikování zvlášť. Přiřazený bratr (specializace
+        //    "Rolník") dělá totéž sám i bez konvrše; s konvršem násobí výnos —
+        //    bonus se dopočítává porovnáním stavu inventáře před/po sklizni. ──
+        const plowman = GameState.conversi
+            .filter(k => k.task === 'pole'
+                      && k.fatigue < (this._konvrsTraits(k).includes('pilny') ? 90 : 80)
+                      && (typeof k.mood !== 'number' || k.mood >= 30)
+                      && !(k.penanceUntil && k.penanceUntil > Date.now())
+                      && !(k.injuredUntil && k.injuredUntil > Date.now())
+                      && !(k.awayUntil && k.awayUntil > Date.now()))
+            .sort((a, b) => a.fatigue - b.fatigue)[0];
+        const fieldBrother = (GameState.dormitorium && GameState.dormitorium.brothers || [])
+            .find(b => b.assignedTab === 'pole');
+        if ((plowman || fieldBrother) && GameState.fields && typeof GardenSystem !== 'undefined') {
+            if (!GameState.conversiFieldLastTick) GameState.conversiFieldLastTick = 0;
+            if (Date.now() - GameState.conversiFieldLastTick >= DAY) {
+                GameState.conversiFieldLastTick = Date.now();
+                let didWork = false;
+                const techs = GameState.researchedTechs || [];
+                const waterCost = techs.includes('tech_field_irrigation') ? 1 : 2;
+                const brotherMult = fieldBrother ? this.dormitoriumBrotherMult(fieldBrother, 'pole') : 1.0;
+                const harvested = {};
+
+                GameState.fields.forEach((field, idx) => {
+                    if (field.locked || field.state !== 'growing') return;
+
+                    if (!field.watered) {
+                        if ((GameState.inventory['water'] || 0) >= waterCost) {
+                            GardenSystem.waterField(idx);
+                            didWork = true;
+                        }
+                        return;
+                    }
+                    if (field.phase >= 3) {
+                        const before = Object.assign({}, GameState.inventory);
+                        GardenSystem.harvestField(idx);
+                        didWork = true;
+                        Object.keys(GameState.inventory).forEach(itemId => {
+                            let gained = (GameState.inventory[itemId] || 0) - (before[itemId] || 0);
+                            if (gained <= 0) return;
+                            if (brotherMult > 1.0) {
+                                const bonus = Math.round(gained * (brotherMult - 1.0));
+                                if (bonus > 0) { this.addItem(itemId, bonus); gained += bonus; }
+                            }
+                            harvested[itemId] = (harvested[itemId] || 0) + gained;
+                        });
+                    }
+                });
+
+                if (didWork) {
+                    if (plowman) {
+                        const workGain = this._konvrsTraits(plowman).includes('silak') ? 10 : 15;
+                        plowman.fatigue = Math.min(100, plowman.fatigue + workGain);
+                    }
+                    if (fieldBrother) {
+                        this.dormitoriumAddXp(fieldBrother, 'pole');
+                        fieldBrother.fatigue = Math.min(100, (fieldBrother.fatigue || 0) + 10);
+                    }
+                    const who = fieldBrother ? fieldBrother.name : plowman.name;
+                    const harvestKeys = Object.keys(harvested);
+                    if (harvestKeys.length) {
+                        const listStr = harvestKeys.map(id => `${harvested[id]}× ${(typeof iName==='function')?iName(id):id}`).join(', ');
+                        this._reportWork(`🌾 ${who} (Pole) sklidil: ${listStr}.`, `🌾 ${who} (Field) harvested: ${listStr}.`);
+                    } else {
+                        this._reportWork(`🌾 ${who} (Pole) zaléval.`, `🌾 ${who} (Field) watered.`);
+                    }
+                    Game.save();
+                }
+            }
+        }
+
+        // ── Vinohrad (L1): přiřazený konvrš zalévá, prořezává (i mimo sezónu —
+        //    specialista, na rozdíl od hráče gate neplatí) a sklízí dozrálou révu,
+        //    self-guarded 24h. Přiřazený bratr (specializace "Vinař") dělá totéž
+        //    sám i bez konvrše; s konvršem násobí výnos sklizně (prořez/cuttings
+        //    beze změny). ──
+        const vintner = GameState.conversi
+            .filter(k => k.task === 'vinohrad'
+                      && k.fatigue < (this._konvrsTraits(k).includes('pilny') ? 90 : 80)
+                      && (typeof k.mood !== 'number' || k.mood >= 30)
+                      && !(k.penanceUntil && k.penanceUntil > Date.now())
+                      && !(k.injuredUntil && k.injuredUntil > Date.now())
+                      && !(k.awayUntil && k.awayUntil > Date.now()))
+            .sort((a, b) => a.fatigue - b.fatigue)[0];
+        const vineaBrother = (GameState.dormitorium && GameState.dormitorium.brothers || [])
+            .find(b => b.assignedTab === 'vinohrad');
+        if ((vintner || vineaBrother) && GameState.vinea && typeof GardenSystem !== 'undefined') {
+            if (!GameState.conversiVineaLastTick) GameState.conversiVineaLastTick = 0;
+            if (Date.now() - GameState.conversiVineaLastTick >= DAY) {
+                GameState.conversiVineaLastTick = Date.now();
+                let didWork = false;
+                const techs = GameState.researchedTechs || [];
+                const waterCost = techs.includes('tech_field_irrigation') ? 1 : 2;
+                const brotherMult = vineaBrother ? this.dormitoriumBrotherMult(vineaBrother, 'vinohrad') : 1.0;
+                let prunedCount = 0;
+                const harvested = {};
+
+                GameState.vinea.forEach((slot, idx) => {
+                    if (!slot || slot.state === 'empty' || slot.state === 'dormant') return;
+
+                    // Prořez — konvrš specialista obchází sezónní gate (na rozdíl od hráče)
+                    if (!slot.pruned && (slot.state === 'planted' || slot.state === 'growing')) {
+                        const variety = slot.variety ? GardenSystem.VINEA_DB[slot.variety] : null;
+                        if (variety) {
+                            slot.pruned = true;
+                            const cuttings = Math.random() < 0.5 ? 2 : 1;
+                            slot.cuttingsAvailable = cuttings;
+                            this.addItem(variety.viticis, cuttings);
+                            didWork = true;
+                            prunedCount++;
+                        }
+                    }
+
+                    // Zalévání — mimo dormant/empty, jen pokud je voda na skladě
+                    if ((GameState.inventory['water'] || 0) >= waterCost) {
+                        GardenSystem.waterVine(idx);
+                        didWork = true;
+                    }
+
+                    // Sklizeň dozrálé révy
+                    if (slot.state === 'ripe') {
+                        const before = Object.assign({}, GameState.inventory);
+                        GardenSystem.harvestVine(idx);
+                        didWork = true;
+                        Object.keys(GameState.inventory).forEach(itemId => {
+                            let gained = (GameState.inventory[itemId] || 0) - (before[itemId] || 0);
+                            if (gained <= 0) return;
+                            if (brotherMult > 1.0) {
+                                const bonus = Math.round(gained * (brotherMult - 1.0));
+                                if (bonus > 0) { this.addItem(itemId, bonus); gained += bonus; }
+                            }
+                            harvested[itemId] = (harvested[itemId] || 0) + gained;
+                        });
+                    }
+                });
+
+                if (didWork) {
+                    if (vintner) {
+                        const workGain = this._konvrsTraits(vintner).includes('silak') ? 10 : 15;
+                        vintner.fatigue = Math.min(100, vintner.fatigue + workGain);
+                    }
+                    if (vineaBrother) {
+                        this.dormitoriumAddXp(vineaBrother, 'vinohrad');
+                        vineaBrother.fatigue = Math.min(100, (vineaBrother.fatigue || 0) + 10);
+                    }
+                    const who = vineaBrother ? vineaBrother.name : vintner.name;
+                    const parts_cs = [], parts_en = [];
+                    if (prunedCount) { parts_cs.push(`prořezal ${prunedCount} keř(ů)`); parts_en.push(`pruned ${prunedCount} vine(s)`); }
+                    const harvestKeys = Object.keys(harvested);
+                    if (harvestKeys.length) {
+                        const listStr = harvestKeys.map(id => `${harvested[id]}× ${(typeof iName==='function')?iName(id):id}`).join(', ');
+                        parts_cs.push(`sklidil: ${listStr}`);
+                        parts_en.push(`harvested: ${listStr}`);
+                    }
+                    if (!parts_cs.length) { parts_cs.push('zaléval'); parts_en.push('watered'); }
+                    this._reportWork(
+                        `🍇 ${who} (Vinohrad): ${parts_cs.join(', ')}.`,
+                        `🍇 ${who} (Vineyard): ${parts_en.join(', ')}.`
+                    );
+                    Game.save();
+                }
+            }
+        }
+
+        // ── Athanor (L1, Dormitorium MRD Fáze 1): přiřazený bratr (specializace
+        //    "Alchymista") sám vybírá ingredience a vaří, self-guarded 24h.
+        //    Žádný Conversi task pro Athanor neexistuje — čistě bratrovská role.
+        //    Heuristika výběru: bratr vaří POUZE již objevené kombinace
+        //    (state.discovered[]), aby neplýtval vzácné suroviny na neznámé
+        //    pokusy. Pokud žádnou známou kombinaci nemá po ruce, nedělá nic. ──
+        const athanorBrother = (GameState.dormitorium && GameState.dormitorium.brothers || [])
+            .find(b => b.assignedTab === 'athanor');
+        if (athanorBrother && GameState.athanor && typeof AthanorDB !== 'undefined' && typeof CombinationEngine !== 'undefined') {
+            if (!GameState.conversiAthanorLastTick) GameState.conversiAthanorLastTick = 0;
+            if (Date.now() - GameState.conversiAthanorLastTick >= DAY) {
+                GameState.conversiAthanorLastTick = Date.now();
+                const state = GameState.athanor;
+
+                // Bratr nezasahuje do hráčova právě probíhajícího vaření
+                if (!state.brewing && state.discovered && state.discovered.length > 0) {
+                    // Najdi první objevenou kombinaci, na kterou má bratr suroviny
+                    let chosen = null;
+                    for (const key of state.discovered) {
+                        const sepIdx = key.lastIndexOf(':');
+                        if (sepIdx < 0) continue;
+                        const ingPart = key.slice(0, sepIdx);
+                        const processId = key.slice(sepIdx + 1);
+                        const slotIds = ingPart.split('+');
+
+                        const counts = {};
+                        slotIds.forEach(id => { counts[id] = (counts[id] || 0) + 1; });
+                        const hasAll = Object.entries(counts).every(([id, qty]) => (GameState.inventory[id] || 0) >= qty);
+                        if (hasAll) { chosen = { slotIds, processId }; break; }
+                    }
+
+                    if (chosen) {
+                        // Destilace vyžaduje alembik + baňku, stejně jako u hráče
+                        const needsVitrea = chosen.processId === 'destillatio';
+                        const hasAlembic = (GameState.inventory['alembic'] || 0) > 0;
+                        const hasFlask = (GameState.inventory['glass_flask'] || 0) > 0;
+                        if (!needsVitrea || (hasAlembic && hasFlask)) {
+                            chosen.slotIds.forEach(id => this.removeItem(id, 1));
+                            if (needsVitrea) this.removeItem('glass_flask', 1);
+
+                            const result = CombinationEngine.evaluate(chosen.slotIds, chosen.processId);
+                            if (result.success) {
+                                const { combo, isCritical } = result;
+                                const qty = combo.result.qty + (isCritical ? 1 : 0);
+                                this.addItem(combo.result.id, qty);
+                                if (combo.effect && typeof AthanorSystem !== 'undefined' && AthanorSystem.applyEffect) {
+                                    AthanorSystem.applyEffect(combo.effect, combo.name);
+                                }
+                                this._reportWork(
+                                    `⚗️ ${athanorBrother.name} (Athanor) uvařil: ${qty}× ${combo.name}${isCritical ? ' ✨' : ''}.`,
+                                    `⚗️ ${athanorBrother.name} (Athanor) brewed: ${qty}× ${combo.name}${isCritical ? ' ✨' : ''}.`
+                                );
+                            } else {
+                                this._reportWork(
+                                    `⚗️ ${athanorBrother.name} (Athanor) neuspěl při vaření — suroviny přišly vniveč.`,
+                                    `⚗️ ${athanorBrother.name} (Athanor) failed the brew — ingredients wasted.`
+                                );
+                            }
+
+                            this.dormitoriumAddXp(athanorBrother, 'athanor');
+                            athanorBrother.fatigue = Math.min(100, (athanorBrother.fatigue || 0) + 10);
+                            Game.save();
+
+                            if (typeof AthanorSystem !== 'undefined' && AthanorSystem.refreshIfOpen) {
+                                AthanorSystem.refreshIfOpen();
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        // ── Scriptorium (L1): přiřazený bratr (specializace "Skriptor") čte
+        //    za hráče odemčené, ale dosud nepřečtené knihy — jedna kniha za
+        //    24h tick, self-guarded. Scriptorium je čtenářský tab (LibraryDB),
+        //    ne výrobní — žádný Conversi task pro něj neexistuje, čistě
+        //    bratrovská role, stejně jako Athanor. ──
+        const scriptoriumBrother = (GameState.dormitorium && GameState.dormitorium.brothers || [])
+            .find(b => b.assignedTab === 'scriptorium');
+        if (scriptoriumBrother && GameState.library && typeof LibraryDB !== 'undefined' && typeof LibraryHelpers !== 'undefined') {
+            if (!GameState.conversiScriptoriumLastTick) GameState.conversiScriptoriumLastTick = 0;
+            if (Date.now() - GameState.conversiScriptoriumLastTick >= DAY) {
+                GameState.conversiScriptoriumLastTick = Date.now();
+
+                const unread = LibraryDB.books.find(b =>
+                    GameState.library.unlockedBooks.includes(b.id) &&
+                    !GameState.library.readBooks.includes(b.id)
+                );
+
+                if (unread) {
+                    LibraryHelpers.readBook(unread.id);
+                    this.dormitoriumAddXp(scriptoriumBrother, 'scriptorium');
+                    scriptoriumBrother.fatigue = Math.min(100, (scriptoriumBrother.fatigue || 0) + 10);
+                    const title = unread.title || unread.id;
+                    this._reportWork(
+                        `📜 ${scriptoriumBrother.name} (Scriptorium) přečetl: „${title}“.`,
+                        `📜 ${scriptoriumBrother.name} (Scriptorium) read: "${title}".`
+                    );
                     Game.save();
                 }
             }
