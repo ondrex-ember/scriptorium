@@ -1436,6 +1436,10 @@ const STRINGS_cs = {
         miceFew: 'V noci je za zdmi slyšet slabý šramot. Zrní mírně ubývá.',
         miceSome: 'U sýpky byly vidět myši. Zrní, chléb a sýr se kazí rychleji.',
         miceMany: 'Myší ráj! Trus v mouce, díry v pytlích. Zásoby trpí.',
+        fliesNone: 'Na Dvoře je klid. Mouchy zásoby neohrožují.',
+        fliesFew: 'Pár much bzučí kolem chlévů. Nic vážného.',
+        fliesSome: 'Mouchy se slétají k neuklizenému hnoji. Maso a sýry se kazí rychleji.',
+        fliesMany: 'Roje much nad Dvorem! Zásoby syrového masa a ryb trpí. Ukliď chlévy nebo pořiď mucholapku.',
     },
     felis: {
         locked: 'Kočka se klášterem potuluje divoká a nedůvěřivá. Prozkoumej Cura Felium, aby ses o ni mohl starat.',

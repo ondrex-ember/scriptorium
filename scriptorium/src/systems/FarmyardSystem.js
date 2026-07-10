@@ -987,6 +987,10 @@ const FarmyardSystem = {
         const miceTxt = ds ? ds.miceFuzzyShort() : (typeof ScriptoriumCat !== 'undefined' && ScriptoriumCat.miceFuzzy ? ScriptoriumCat.miceFuzzy() : '');
         h += `<div style="font-size:0.8rem;">🐭 ${miceTxt}</div>`;
 
+        // Mouchy (monastery-decay-mrd) — primární info místo, Dvůr
+        const fliesTxt = ds && ds.fliesFuzzyShort ? ds.fliesFuzzyShort() : '';
+        if (fliesTxt) h += `<div style="font-size:0.8rem;">🪰 ${fliesTxt}</div>`;
+
         if (hasCatTech) {
             const title = (typeof ScriptoriumCat !== 'undefined' && ScriptoriumCat.getTitle) ? ScriptoriumCat.getTitle() : '';
             const state = (cat.satiety !== undefined && cat.satiety < 30) ? t('dvur.catHunting') : t('dvur.catFed');

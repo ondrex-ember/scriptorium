@@ -268,17 +268,59 @@ const LibraryHelpers = {
     },
     
     // Přečtení knihy
+    // Veřejný vstupní bod — kliknutí na "Číst". Pokud je aktivní eye_strain
+    // (monastery-decay-mrd), čtení netrvá okamžitě, ale spustí 6h odpočet
+    // (GameState.library.readingTimer), po jehož vypršení teprve proběhne
+    // skutečné čtení (_doReadBook). Běží na pozadí jako timed scavenge akce —
+    // timestamp-based, přežije zavření/reload. Zatímco timer běží, žádnou
+    // jinou knihu nelze začít číst (viz UI.renderLibrary gate).
     readBook: function(bookId) {
         const book = LibraryDB.books.find(b => b.id === bookId);
         if (!book) return;
-        
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+
+        const hasEyeStrain = (typeof HealthSystem !== 'undefined') && HealthSystem.isActive('eye_strain');
+        const timer = GameState.library.readingTimer;
+
+        if (timer) {
+            if (timer.bookId !== bookId) {
+                // Jiná kniha, zatímco odpočet běží — odmítnout, ostatní jsou zamčené
+                UI.notify(lang==='en' ? 'Eyes too strained — finish the current book first.' : 'Oči jsou přepracované — nejprve dočti rozečtenou knihu.', true);
+                return;
+            }
+            if (Date.now() < timer.endTime) {
+                // Stejná kniha, odpočet ještě neskončil
+                return;
+            }
+            // Odpočet vypršel — vyzvednutí, skutečné přečtení proběhne níže
+            GameState.library.readingTimer = null;
+            LibraryHelpers._doReadBook(bookId, book, lang);
+            return;
+        }
+
+        if (hasEyeStrain && !GameState.library.readBooks.includes(bookId)) {
+            // Spustit 6h odpočet místo okamžitého čtení (jen pro NEpřečtené —
+            // opakované čtení už přečtené knihy eye_strain neomezuje)
+            GameState.library.readingTimer = { bookId, startTime: Date.now(), endTime: Date.now() + 6 * 3600000 };
+            Game.save();
+            UI.notify(lang==='en'
+                ? '🥴 Eyes too strained to read quickly — 6 hours needed.'
+                : '🥴 Oči jsou přepracované, čtení potrvá — 6 hodin.', true);
+            if (typeof UI.renderLibrary === 'function') UI.renderLibrary();
+            return;
+        }
+
+        LibraryHelpers._doReadBook(bookId, book, lang);
+    },
+
+    // Skutečné provedení čtení — původní obsah readBook(), beze změny.
+    _doReadBook: function(bookId, book, lang) {
         if (!GameState.library.readBooks.includes(bookId)) {
             GameState.library.readBooks.push(bookId);
         }
 
         // unlocksTech: odemkni technologie při prvním přečtení
         if (book.unlocksTech && Array.isArray(book.unlocksTech)) {
-            const lang = (GameState.settings && GameState.settings.language) || 'cs';
             book.unlocksTech.forEach(techId => {
                 if (!GameState.researchedTechs.includes(techId)) {
                     GameState.researchedTechs.push(techId);

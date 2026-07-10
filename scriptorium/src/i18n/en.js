@@ -2243,6 +2243,10 @@ According to Theophilus, the organ is an instrument worthy of God, but its const
         miceFew: 'A faint scurrying behind the walls at night. Grain slowly dwindles.',
         miceSome: 'Mice have been seen near the granary. Grain, bread and cheese spoil faster.',
         miceMany: 'A mouse paradise! Droppings in the flour, holes in the sacks. The stores suffer.',
+        fliesNone: 'The Farmyard is quiet. Flies pose no threat to the stores.',
+        fliesFew: 'A few flies buzz around the pens. Nothing serious.',
+        fliesSome: 'Flies gather at the uncleared manure. Meat and cheese spoil faster.',
+        fliesMany: 'Swarms of flies over the Farmyard! Raw meat and fish stores suffer. Clean the pens or get a fly trap.',
     },
     felis: {
         locked: 'The cat roams the cloister wild and wary. Research Cura Felium to care for her.',

@@ -370,6 +370,25 @@ const VigorSystem = {
     },
 
     // ── Jídlo ────────────────────────────────────────────────────────────────
+    // Maso a víno pro gout tracking (monastery-decay-mrd) — dna z přemíry
+    // hodování. Pivo záměrně vynecháno (obyčejný klášterní nápoj, ne
+    // "přemíra"). Log v GameState.goutLog[] (timestampy), viz goutWeeklyScore().
+    GOUT_MEAT_ITEMS: ['cooked_meat', 'cured_meat', 'cured_beef', 'cooked_beef',
+                       'cooked_mutton', 'cooked_chicken', 'cooked_rabbit',
+                       'roast_beef', 'braised_beef', 'roast_rabbit_dish'],
+    GOUT_WINE_ITEMS: ['wine', 'vinum', 'vinum_rubrum', 'vinum_obscurum',
+                       'vinum_baci', 'vinum_praeclarum', 'mustum'],
+
+    // Váha zkonzumovaného masa/vína za posledních 7 dní (počet položek, ne
+    // pouze počet kusů — jeden záznam = jedna konzumační akce). Používá
+    // HealthConditionsDB.gout trigger (viz data/health.js).
+    goutWeeklyScore: function() {
+        if (!GameState.goutLog) return 0;
+        const weekAgo = Date.now() - 7 * 24 * 3600000;
+        GameState.goutLog = GameState.goutLog.filter(e => e.ts >= weekAgo); // průběžný úklid starých záznamů
+        return GameState.goutLog.length;
+    },
+
     eat: function(foodId) {
         let satGain = this.FOOD_SATIETY[foodId] || 10;
         // Professio: Zahradník (vigor_food) — jídlo sytí víc
@@ -377,6 +396,30 @@ const VigorSystem = {
         satGain = Math.round(satGain * roleMult);
         const fatChange = this.FOOD_FATIGUE[foodId] || 0;
         const lang = (GameState.settings && GameState.settings.language) || 'cs';
+
+        // Gout tracking (monastery-decay-mrd) — zaznamenat konzumaci masa/vína
+        if (this.GOUT_MEAT_ITEMS.includes(foodId) || this.GOUT_WINE_ITEMS.includes(foodId)) {
+            if (!GameState.goutLog) GameState.goutLog = [];
+            GameState.goutLog.push({ ts: Date.now(), foodId });
+            // Bezpečnostní cap (po vzoru Game.addKronikaEntry) — i když se stará
+            // data čistí v goutWeeklyScore(), pojistka proti neomezenému růstu
+            // mezi voláními (např. hráč jí hodně, ale nikdy neotevře stat panel).
+            if (GameState.goutLog.length > 200) {
+                GameState.goutLog = GameState.goutLog.slice(-200);
+            }
+        }
+
+        // Oheň sv. Antonína (monastery-decay-mrd) — vzácná otrava námelem.
+        // bread recept je univerzální (fiber, ne konkrétně žito), proto jako
+        // proxy "peče se ze žita" bereme přítomnost žitného zrní ve skladu.
+        if (foodId === 'bread' && typeof HealthSystem !== 'undefined' && !HealthSystem.isActive('ergot_fire')) {
+            const hasRye = (GameState.inventory['rye_grain'] || 0) > 0
+                || (GameState.inventory['rye_grain_1'] || 0) > 0
+                || (GameState.inventory['rye_grain_2'] || 0) > 0;
+            if (hasRye && Math.random() < 0.004) {
+                HealthSystem.addCondition('ergot_fire');
+            }
+        }
 
         GameState.satiety = Math.min(this.MAX_SATIETY, (GameState.satiety || 0) + satGain);
         if (fatChange !== 0) {

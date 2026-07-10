@@ -262,7 +262,7 @@ const TechTree = [
     cost: 8,
     desc: "Klášterní cellarius vedl přesný soupis každého pytle mouky a každého sudu piva. Bez inventáře se zásoby ztrácejí samy od sebe. Odemkne: subtab Inventarium v Cellariu — přehled zásob. POZOR: Kdo vede soupis, vidí i ztráty. Od této chvíle se zásoby kazí — mléko kysne, maso plesniví, myši žerou zrní. Připrav se na hospodaření se zásobami.",
     desc_en: "The monastic cellarius kept an exact inventory of every sack of flour and every barrel of ale. Without an inventory, stores disappear of their own accord. Unlocks: Inventarium subtab in the Cellarium — stock overview. BEWARE: He who keeps the ledger also sees the losses. From now on stores decay — milk sours, meat moulds, mice eat the grain. Prepare to manage your stores.",
-    unlocks: ["mousetrap"], requires: ["tech_almarium"]
+    unlocks: ["mousetrap", "fly_trap_paper"], requires: ["tech_almarium"]
   },
 
   {

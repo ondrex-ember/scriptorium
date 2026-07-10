@@ -1377,6 +1377,14 @@ const CellariumSystem = {
       </div>`;
     }
 
+    // Mouchy (monastery-decay-mrd) — jen zmínka, pokud je dopad zesílený
+    // (fliesMult > 1.3, tedy "Some"/"Many" pásmo) — primární info je na Dvoře.
+    if (ds && ds.fliesMult && ds.fliesMult() > 1.3) {
+      h += `<div style="margin-bottom:12px; padding:8px 10px; background:rgba(0,0,0,0.04); border-radius:6px; font-size:0.78rem; font-style:italic; opacity:0.8;">
+        🪰 ${ds.fliesFuzzyShort()}
+      </div>`;
+    }
+
     // Včerejší ztráty
     const losses = (GameState.decay && GameState.decay.lastLosses) || [];
     if (losses.length) {

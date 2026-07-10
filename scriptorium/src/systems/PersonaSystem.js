@@ -415,38 +415,80 @@ const PersonaSystem = {
     // ── Valetudo tab (Health System) ─────────────────────────────────────────
     _renderValetudo: function(lang) {
         const active = (GameState.health && GameState.health.active) || {};
-        const ids = Object.keys(active);
+        const everHad = (GameState.health && GameState.health.everHad) || [];
+        const activeIds = Object.keys(active);
+        const now = Date.now();
 
-        if (ids.length === 0) {
-            return `<div style="text-align:center;padding:24px 12px;opacity:0.7;">
+        // ── Sekce A: status nahoře — "Jsi zdráv" NEBO aktivní nemoci s plným
+        // detailem (příčina, advice, cures). ──
+        let statusHtml;
+        if (activeIds.length === 0) {
+            statusHtml = `<div style="text-align:center;padding:24px 12px;opacity:0.7;">
                 <div style="font-size:2.4rem;margin-bottom:8px;">💚</div>
                 <div>${lang==='en' ? 'Healthy. No ailments.' : 'Zdráv. Žádné neduhy.'}</div>
             </div>`;
+        } else {
+            const cards = activeIds.map(id => {
+                const def = (typeof HealthConditionsDB !== 'undefined') ? HealthConditionsDB[id] : null;
+                if (!def) return '';
+                const inst = active[id];
+                const name = lang === 'en' ? def.name_en : def.name;
+                const desc = lang === 'en' ? def.desc_en : def.desc;
+                const advice = lang === 'en' ? def.advice_en : def.advice;
+                const hoursLeft = Math.max(0, Math.round((inst.expiresAt - now) / 3600000));
+                const cureNames = (def.cures || []).map(cid => (typeof iName === 'function' ? iName(cid) : cid)).join(' / ');
+                const cureLine = cureNames
+                    ? `<div style="font-size:0.78rem;opacity:0.7;margin-top:6px;">${lang==='en'?'Cured by':'Léčí'}: ${cureNames}</div>`
+                    : `<div style="font-size:0.78rem;opacity:0.5;margin-top:6px;font-style:italic;">${lang==='en'?'No cure — will pass naturally':'Bez léku — jen doběhne'}</div>`;
+                return `<div style="padding:12px 14px;margin-bottom:10px;background:rgba(197,160,89,0.08);border-left:3px solid var(--accent-gold);border-radius:6px;">
+                    <div style="display:flex;justify-content:space-between;align-items:baseline;">
+                        <strong>${def.icon} ${name}</strong>
+                        <span style="font-size:0.8rem;opacity:0.7;">${lang==='en'?`${hoursLeft}h left`:`zbývá ${hoursLeft}h`}</span>
+                    </div>
+                    <div style="font-size:0.85rem;opacity:0.8;margin-top:4px;">${desc}</div>
+                    ${advice ? `<div style="font-size:0.78rem;margin-top:6px;padding-top:6px;border-top:1px dashed rgba(197,160,89,0.3);"><strong>${lang==='en'?'What to do:':'Co dělat:'}</strong> ${advice}</div>` : ''}
+                    ${cureLine}
+                </div>`;
+            }).join('');
+            statusHtml = `<div>${cards}</div>`;
         }
 
-        const now = Date.now();
-        const cards = ids.map(id => {
-            const def = (typeof HealthConditionsDB !== 'undefined') ? HealthConditionsDB[id] : null;
-            if (!def) return '';
-            const inst = active[id];
-            const name = lang === 'en' ? def.name_en : def.name;
-            const desc = lang === 'en' ? def.desc_en : def.desc;
-            const hoursLeft = Math.max(0, Math.round((inst.expiresAt - now) / 3600000));
-            const cureNames = (def.cures || []).map(cid => (typeof iName === 'function' ? iName(cid) : cid)).join(' / ');
-            const cureLine = cureNames
-                ? `<div style="font-size:0.78rem;opacity:0.7;margin-top:4px;">${lang==='en'?'Cured by':'Léčí'}: ${cureNames}</div>`
-                : `<div style="font-size:0.78rem;opacity:0.5;margin-top:4px;font-style:italic;">${lang==='en'?'No cure — will pass naturally':'Bez léku — jen doběhne'}</div>`;
-            return `<div style="padding:12px 14px;margin-bottom:10px;background:rgba(197,160,89,0.08);border-left:3px solid var(--accent-gold);border-radius:6px;">
-                <div style="display:flex;justify-content:space-between;align-items:baseline;">
-                    <strong>${def.icon} ${name}</strong>
-                    <span style="font-size:0.8rem;opacity:0.7;">${lang==='en'?`${hoursLeft}h left`:`zbývá ${hoursLeft}h`}</span>
+        // ── Sekce B: encyklopedie dole — všech 12 nemocí. Zažité (everHad)
+        // mají plný profil, nezažité jen krátký teaser (causeShort). ──
+        let encyclopediaHtml = '';
+        if (typeof HealthConditionsDB !== 'undefined') {
+            const allIds = Object.keys(HealthConditionsDB);
+            const rows = allIds.map(id => {
+                const def = HealthConditionsDB[id];
+                const name = lang === 'en' ? def.name_en : def.name;
+                const hasExperienced = everHad.includes(id);
+                if (hasExperienced) {
+                    const desc = lang === 'en' ? def.desc_en : def.desc;
+                    const advice = lang === 'en' ? def.advice_en : def.advice;
+                    const cureNames = (def.cures || []).map(cid => (typeof iName === 'function' ? iName(cid) : cid)).join(' / ');
+                    return `<div style="padding:8px 10px;margin-bottom:6px;background:rgba(0,0,0,0.03);border-radius:5px;">
+                        <div style="font-size:0.82rem;"><strong>${def.icon} ${name}</strong></div>
+                        <div style="font-size:0.74rem;opacity:0.75;margin-top:2px;">${desc}</div>
+                        ${advice ? `<div style="font-size:0.72rem;opacity:0.65;margin-top:3px;"><em>${lang==='en'?'Advice:':'Rada:'}</em> ${advice}</div>` : ''}
+                        ${cureNames ? `<div style="font-size:0.7rem;opacity:0.55;margin-top:2px;">${lang==='en'?'Cured by':'Léčí'}: ${cureNames}</div>` : ''}
+                    </div>`;
+                } else {
+                    const causeShort = lang === 'en' ? def.causeShort_en : def.causeShort;
+                    return `<div style="padding:6px 10px;margin-bottom:6px;background:rgba(0,0,0,0.02);border-radius:5px;opacity:0.55;">
+                        <div style="font-size:0.78rem;"><strong>${def.icon} ${lang==='en'?'???':'???'}</strong></div>
+                        <div style="font-size:0.7rem;font-style:italic;margin-top:2px;">${causeShort || ''}</div>
+                    </div>`;
+                }
+            }).join('');
+            encyclopediaHtml = `<div style="margin-top:16px;">
+                <div style="font-size:0.72rem;font-weight:bold;opacity:0.7;margin-bottom:8px;text-transform:uppercase;letter-spacing:0.06em;border-top:1px solid rgba(197,160,89,0.3);padding-top:10px;">
+                    ${lang==='en'?'Compendium of Ailments':'Kompendium neduhů'} (${everHad.length}/${allIds.length})
                 </div>
-                <div style="font-size:0.85rem;opacity:0.8;margin-top:4px;">${desc}</div>
-                ${cureLine}
+                ${rows}
             </div>`;
-        }).join('');
+        }
 
-        return `<div>${cards}</div>`;
+        return statusHtml + encyclopediaHtml;
     },
 
     // ── Sekce 2: Statistiky ──────────────────────────────────────────────────

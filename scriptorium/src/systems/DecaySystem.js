@@ -13,24 +13,25 @@ const DecaySystem = {
 
     // ── Sazby kažení (podíl/den) — single source of truth ────────────────
     // mice:true → položka podléhá myšímu multiplikátoru
+    // flies:true → položka podléhá mouchovému multiplikátoru (viz fliesMult)
     DECAY_RATES: {
         milk:         { rate: 0.30 },
         goat_milk:    { rate: 0.30 },
         cream:        { rate: 0.30 },
-        meat:         { rate: 0.20 },
-        fish:         { rate: 0.20 },
-        carp:         { rate: 0.20 },
-        chicken_meat: { rate: 0.20 },
-        cooked_meat:  { rate: 0.15 },
-        cooked_fish:  { rate: 0.15 },
+        meat:         { rate: 0.20, flies: true },
+        fish:         { rate: 0.20, flies: true },
+        carp:         { rate: 0.20, flies: true },
+        chicken_meat: { rate: 0.20, flies: true },
+        cooked_meat:  { rate: 0.15, flies: true },
+        cooked_fish:  { rate: 0.15, flies: true },
         bread:        { rate: 0.10, mice: true },
-        stew:         { rate: 0.15 },
+        stew:         { rate: 0.15, flies: true },
         butter:       { rate: 0.08 },
         buttermilk:   { rate: 0.08 },
         berries:      { rate: 0.15 },
         mushroom:     { rate: 0.15 },
         egg:          { rate: 0.05 },
-        cheese:       { rate: 0.03, mice: true },
+        cheese:       { rate: 0.03, mice: true, flies: true },
         cured_meat:   { rate: 0.01, mice: true },
         lard:         { rate: 0.01 },
         rye_grain:    { rate: 0.005, mice: true },
@@ -60,6 +61,45 @@ const DecaySystem = {
     miceMult: function() {
         const n = (GameState.mice && GameState.mice.count) || 0;
         return 1 + n / 40;   // mírné: 30 myší = ×1.75
+    },
+
+    // Mouchový multiplikátor (jen pro flies:true položky, monastery-decay-mrd).
+    // Aktivní hlavně v teplém období (květen–září). Hlavní faktor: postavené
+    // Dvůr budovy + neuklizený hnůj (manure) ve skladu — vysoký stav manure
+    // znamená, že hráč dlouho needlil chlévy. Vedlejší faktor: syrové maso/
+    // ryby/sýr v inventáři (flies:true položky), menší váha.
+    FLIES_FARMYARD_BUILDINGS: ['henhouse', 'sheepfold', 'cowbyre', 'pigsty', 'goatpen', 'rabbitry', 'stable', 'donkeyStall'],
+    FLIES_MANURE_THRESHOLD: 20, // manure ve skladu, při kterém je penFactor na maximu
+    fliesMult: function() {
+        const month = new Date().getMonth() + 1; // 1–12
+        const isFlySeason = (month >= 5 && month <= 9);
+        if (!isFlySeason) return 1;
+
+        const s = GameState.storage || {};
+        let builtPens = 0;
+        this.FLIES_FARMYARD_BUILDINGS.forEach(key => {
+            if (GameState[key] && GameState[key].built) builtPens++;
+        });
+        const manureStock = (GameState.inventory && GameState.inventory['manure']) || 0;
+
+        // Budovy + neuklizený hnůj — společný hlavní faktor (0–0.6)
+        const penFactor = Math.min(1, builtPens / this.FLIES_FARMYARD_BUILDINGS.length) * 0.3;
+        const manureFactor = Math.min(1, manureStock / this.FLIES_MANURE_THRESHOLD) * 0.3;
+        // Syrové maso/ryby/sýr v inventáři — vedlejší faktor (0–0.4)
+        let rawFoodStock = 0;
+        Object.entries(this.DECAY_RATES).forEach(([id, def]) => {
+            if (def.flies) rawFoodStock += (GameState.inventory && GameState.inventory[id]) || 0;
+        });
+        const rawFoodFactor = Math.min(1, rawFoodStock / 15) * 0.4;
+
+        // Mucholapky (skleněná i papírová, funkčně stejné) — snižují výsledný
+        // faktor, cap 3 aktivní (po vzoru mousetrap v miceTick), diminishing
+        // returns na dalších kusech.
+        const traps = ((GameState.inventory && GameState.inventory['fly_trap_glass']) || 0)
+            + ((GameState.inventory && GameState.inventory['fly_trap_paper']) || 0);
+        const trapReduction = Math.min(3, traps) * 0.15; // až −0.45 s 3+ pastmi
+
+        return Math.max(1, 1 + penFactor + manureFactor + rawFoodFactor - trapReduction); // rozsah 1.0–2.0
     },
 
     // Redukce dle nejlepšího postaveného skladu
@@ -150,6 +190,7 @@ const DecaySystem = {
 
         const inv = GameState.inventory || {};
         const mMult = this.miceMult();
+        const fMult = this.fliesMult();
         const sRed = this.storageReduction();
         const oMult = this.isOverflow() ? 2 : 1;
 
@@ -159,6 +200,7 @@ const DecaySystem = {
             if (count <= 0) continue;
             let rate = def.rate * sRed * oMult;
             if (def.mice) rate *= mMult;
+            if (def.flies) rate *= fMult;
             rate = Math.min(0.9, rate);
 
             const exact = count * rate;
@@ -196,6 +238,7 @@ const DecaySystem = {
         if (!def) return null;
         let rate = def.rate * this.storageReduction() * (this.isOverflow() ? 2 : 1);
         if (def.mice) rate *= this.miceMult();
+        if (def.flies) rate *= this.fliesMult();
         return Math.min(0.9, rate);
     },
 
@@ -205,5 +248,14 @@ const DecaySystem = {
         if (n <= 6)  return t('decay.miceFew');
         if (n <= 15) return t('decay.miceSome');
         return t('decay.miceMany');
+    },
+
+    // Fuzzy text pro mouchy (monastery-decay-mrd) — na škále fliesMult (1.0–2.0)
+    fliesFuzzyShort: function() {
+        const m = this.fliesMult();
+        if (m <= 1.05) return t('decay.fliesNone');
+        if (m <= 1.4)  return t('decay.fliesFew');
+        if (m <= 1.7)  return t('decay.fliesSome');
+        return t('decay.fliesMany');
     },
 };

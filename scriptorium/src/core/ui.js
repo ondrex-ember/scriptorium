@@ -1464,6 +1464,27 @@ const UI = {
                         STRINGS_cs.library_lore?.books?.[book.id]?.author ||
                         book.author;
 
+                    // eye_strain (monastery-decay-mrd) — 6h čtecí odpočet na pozadí
+                    const readTimer = GameState.library.readingTimer;
+                    let btnLabel = isRead ? t('library_lore.btn_read_again') : t('library_lore.btn_read');
+                    let btnDisabled = '';
+                    if (readTimer) {
+                        if (readTimer.bookId === book.id) {
+                            const remainMs = Math.max(0, readTimer.endTime - Date.now());
+                            if (remainMs > 0) {
+                                const hh = String(Math.floor(remainMs / 3600000)).padStart(2, '0');
+                                const mm = String(Math.floor((remainMs % 3600000) / 60000)).padStart(2, '0');
+                                const ss = String(Math.floor((remainMs % 60000) / 1000)).padStart(2, '0');
+                                btnLabel = `🥴 ${hh}:${mm}:${ss}`;
+                            } else {
+                                btnLabel = currentLang === 'en' ? '📖 Claim' : '📖 Vyzvednout';
+                            }
+                        } else {
+                            btnLabel = currentLang === 'en' ? '🔒 Locked' : '🔒 Zamčeno';
+                            btnDisabled = 'disabled';
+                        }
+                    }
+
                     h += `
                         <div class="card" style="border-color:${isRead ? 'var(--accent-gold)' : 'var(--ink-secondary)'};">
                             <div class="item-icon" style="background:${isRead ? '#c5a059' : '#e8dec0'}">
@@ -1473,8 +1494,8 @@ const UI = {
                                 <strong>${bookTitle}</strong> ${isRead ? '✓' : ''}
                                 <div class="text-sm">${bookAuthor} (${book.year})</div>
                             </div>
-                            <button class="craft-btn" onclick="LibraryHelpers.readBook('${book.id}')">
-                                ${isRead ? t('library_lore.btn_read_again') : t('library_lore.btn_read')}
+                            <button class="craft-btn" onclick="LibraryHelpers.readBook('${book.id}')" ${btnDisabled}>
+                                ${btnLabel}
                             </button>
                         </div>
                     `;

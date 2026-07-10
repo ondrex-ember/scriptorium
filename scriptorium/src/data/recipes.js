@@ -27,6 +27,7 @@ const RecipesDB = [
     { id: "wooden_bowl", output: "wooden_bowl", qty: 2, req: { "plank": 1 },                cat: "craft", locked: true },
     { id: "hostia",      output: "hostia",      qty: 5, req: { "flour_2": 1, "water": 1 },  cat: "craft", locked: true },
     { id: "mousetrap", output: "mousetrap", qty: 1, req: { "plank": 2, "rope": 1 },          cat: "craft", locked: true },
+    { id: "fly_trap_paper", output: "fly_trap_paper", qty: 1, req: { "paper": 5, "glue": 2, "honey": 1 }, cat: "craft", locked: true },
     { id: "churn",  output: "churn",  qty: 1, req: { "plank": 5, "rope": 2 },               cat: "craft", locked: true },
     { id: "cream",  output: "cream",  qty: 1, req: { "goat_milk": 2 },                      cat: "food",  locked: true },
     { id: "butter", output: "butter", qty: 1, req: { "milk": 3, "churn": 0 },               cat: "food",  locked: true, byproduct: { id: "buttermilk", qty: 1 } },

@@ -23,9 +23,15 @@ const HealthSystem = {
     addCondition: function(id) {
         if (!GameState.health) GameState.health = { active: {} };
         if (!GameState.health.active) GameState.health.active = {};
+        if (!GameState.health.everHad) GameState.health.everHad = [];
         const def = HealthConditionsDB[id];
         if (!def) return;
         const now = Date.now();
+
+        // Trvalý záznam "kdy jsem tohle měl aspoň jednou" — pro Valetudo
+        // encyklopedii (monastery-decay-mrd), nezávislé na tom, jestli je
+        // aktuálně aktivní nebo už dávno vyléčené.
+        if (!GameState.health.everHad.includes(id)) GameState.health.everHad.push(id);
 
         if (this.isActive(id)) {
             // Už aktivní — prodloužit na plné trvání znovu, ne duplicitně stackovat úvodní zásah

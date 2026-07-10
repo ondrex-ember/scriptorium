@@ -523,6 +523,7 @@ const ItemsDB = {
     "glass_stopper": { name: "Špunty", name_en: "Glass Stoppers", icon: "🔘", type: "tool", desc: "Skleněné zátky na láhve a baňky.", desc_en: "Glass stoppers for bottles and flasks." },
     "glass_flask": { name: "Baňka", name_en: "Glass Flask", icon: "⚗️", type: "tool", desc: "Laboratorní sklo pro Athanor. Křehké — praská žárem.", desc_en: "Laboratory glass for the Athanor. Fragile — heat cracks it." },
     "fly_trap_glass": { name: "Mucholapka", name_en: "Glass Fly Trap", icon: "🫙", type: "tool", desc: "Skleněná past na mouchy se sladkou návnadou. Doložený kus středověké domácnosti.", desc_en: "A glass fly trap with sweet bait. A documented piece of the medieval household." },
+    "fly_trap_paper": { name: "Lepová mucholapka", name_en: "Paper Fly Trap", icon: "📃", type: "tool", desc: "Lepený papír s medovou návnadou. Prostší, ale funkční náhrada za sklo.", desc_en: "Glued paper with a honey lure. A simpler but functional substitute for glass." },
     "glass_goblet": { name: "Číše", name_en: "Glass Goblet", icon: "🥂", type: "tool", desc: "Skleněná číše na víno. Stolní nádobí lepších dnů.", desc_en: "A glass goblet for wine. Tableware for better days." },
     "glass_tankard": { name: "Půllitr", name_en: "Glass Tankard", icon: "🍺", type: "tool", desc: "Silnostěnný skleněný půllitr. Stolní nádobí.", desc_en: "A thick-walled glass tankard. Tableware." },
     "glass_jug": { name: "Džbán", name_en: "Glass Jug", icon: "🏺", type: "tool", desc: "Džbán na vodu i víno. Stolní nádobí.", desc_en: "A jug for water and wine. Tableware." },

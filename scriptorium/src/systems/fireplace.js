@@ -331,6 +331,10 @@ const FireplaceSystem = {
             : (typeof ScriptoriumCat !== 'undefined' && ScriptoriumCat.miceFuzzy ? ScriptoriumCat.miceFuzzy() : '');
         if (miceTxt) env += `<div style="display:flex;justify-content:space-between;"><span>🐭</span><span style="opacity:0.85;">${miceTxt}</span></div>`;
 
+        // Mouchy (monastery-decay-mrd)
+        const fliesTxt = ds && ds.fliesFuzzyShort ? ds.fliesFuzzyShort() : '';
+        if (fliesTxt) env += `<div style="display:flex;justify-content:space-between;"><span>🪰</span><span style="opacity:0.85;">${fliesTxt}</span></div>`;
+
         env += `</div>`;
         h += env;
 

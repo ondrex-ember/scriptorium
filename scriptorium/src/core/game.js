@@ -285,6 +285,8 @@ const Game = {
                 }
             };
         }
+        // Migrace: existující save nemá readingTimer (eye_strain, monastery-decay-mrd)
+        if (typeof GameState.library.readingTimer === 'undefined') GameState.library.readingTimer = null;
 		// Initialize well if not present (přesun do WellSystem._ensureState)
 		WellSystem._ensureState();
 
@@ -600,6 +602,15 @@ const Game = {
                     }
                 }
 
+                // eye_strain — 6h čtecí odpočet countdown (monastery-decay-mrd).
+                // Jen re-render, dokud timer běží a Knihovna je zrovna otevřená
+                // (element existuje) — levné, žádný dopad mimo tento stav.
+                if (GameState.library && GameState.library.readingTimer) {
+                    if (document.getElementById('library-books-content') && typeof UI !== 'undefined' && UI.renderLibrary) {
+                        UI.renderLibrary();
+                    }
+                }
+
                 // v7.5: Check canonical hours
                 CanonicalHours.checkCurrentHour();
                 // v7.5: Check events
@@ -629,6 +640,8 @@ const Game = {
                     if (typeof Game !== 'undefined' && Game.templumDailyTick) Game.templumDailyTick();
                     // Templum — týdenní zpověď (self-guarded, gate frater+)
                     if (typeof Game !== 'undefined' && Game.templumConfessionTick) Game.templumConfessionTick();
+                    // monastery-decay-mrd — denní kontrola nemocí (rheumatism/scurvy/gout/lice/scabies)
+                    if (typeof Game !== 'undefined' && Game.healthConditionsDailyTick) Game.healthConditionsDailyTick();
                     // Visitatio — biskupská vizitace (guard na flags.visitatioAt)
                     if (typeof Game !== 'undefined' && Game.visitatioTick) Game.visitatioTick();
                     // Rank — mnišský postup (pure čtení podmínek, levné)
@@ -3092,6 +3105,10 @@ const Game = {
         if (itemId === 'water' && typeof HealthSystem !== 'undefined' && !HealthSystem.isActive('water_sickness') && Math.random() < 0.007) {
             HealthSystem.addCondition('water_sickness');
         }
+        // Úplavice — vzácnější, závažnější varianta (monastery-decay-mrd)
+        if (itemId === 'water' && typeof HealthSystem !== 'undefined' && !HealthSystem.isActive('dysentery') && Math.random() < 0.002) {
+            HealthSystem.addCondition('dysentery');
+        }
         Game.save();
         UI.renderAll();
     },
@@ -4241,7 +4258,52 @@ const Game = {
         });
     },
 
-    // ── TEMPLUM T3: Mše — týdenní, spotřebuje 2 svíce + víno + kadidlo + 3 hostie → vliv ──
+    // ── monastery-decay-mrd, Vrstva 1 — denní trigger kontrola pro nemoci,
+    // které nejsou vázané na konkrétní akci (rheumatism, scurvy, gout, lice,
+    // scabies). dysentery (studna) a ergot_fire (chléb) jsou u svých akcí. ──
+    healthConditionsDailyTick: function() {
+        if (typeof HealthSystem === 'undefined') return;
+        if (!GameState.healthTick) GameState.healthTick = { lastCheck: 0 };
+        const DAY = 24 * 60 * 60 * 1000;
+        if (Date.now() - (GameState.healthTick.lastCheck || 0) < DAY) return;
+        GameState.healthTick.lastCheck = Date.now();
+
+        const month = new Date().getMonth() + 1; // 1–12
+        const isWinter = (month === 12 || month === 1 || month === 2);
+        const isLateWinter = (month === 2 || month === 3); // scurvy
+
+        // Revma z klečení — zima, mírná šance po Officiu/Kapitule
+        if (isWinter && !HealthSystem.isActive('rheumatism') && Math.random() < 0.015) {
+            HealthSystem.addCondition('rheumatism');
+        }
+
+        // Kurděje — pozdní zima, nedostatek ovoce v inventáři (méně než 3 kusy)
+        if (isLateWinter && !HealthSystem.isActive('scurvy')) {
+            const fruitStock = (GameState.inventory['berries'] || 0) + (GameState.inventory['dried_wild_fruit'] || 0)
+                + (GameState.inventory['apple'] || 0) + (GameState.inventory['pear'] || 0);
+            if (fruitStock < 3 && Math.random() < 0.03) {
+                HealthSystem.addCondition('scurvy');
+            }
+        }
+
+        // Vši/Svrab — vyšší šance, pokud je aktivní konvrš na Dvoře (kontakt
+        // s laickými pracovníky a zvířaty)
+        const hasDvurWorker = GameState.conversi && GameState.conversi.some(k => k.task === 'dvur');
+        if (hasDvurWorker) {
+            if (!HealthSystem.isActive('lice') && Math.random() < 0.01) HealthSystem.addCondition('lice');
+            if (!HealthSystem.isActive('scabies') && Math.random() < 0.008) HealthSystem.addCondition('scabies');
+        }
+
+        // Dna — přemíra masa/vína za poslední týden
+        if (!HealthSystem.isActive('gout') && typeof VigorSystem !== 'undefined' && VigorSystem.goutWeeklyScore) {
+            const score = VigorSystem.goutWeeklyScore();
+            if (score >= 8 && Math.random() < 0.05) {
+                HealthSystem.addCondition('gout');
+            }
+        }
+    },
+
+
     MASS_INCENSE_TIER: { incense_spruce: 0, incense_pine: 1, incense_styrax: 2, incense_olibanum: 3 },
 
     serveMass: function() {
