@@ -396,6 +396,21 @@ const SaeculumSystem = {
             ${origin ? `<div style="font-style:italic; font-size:0.74rem; opacity:0.75; margin-top:2px; line-height:1.35;">${origin}</div>` : ''}</div>
           </div>`;
 
+    // ── Regula — aktuální denní stav (Officium/oběd/nešpory/noc/práce), ──
+    // mění se v průběhu dne. Sdílí Game.conversiDayBlock() s Conversi —
+    // bratr respektuje stejný denní rytmus (viz checkConversiChores).
+    if (typeof Game !== 'undefined' && Game.conversiDayBlock) {
+      const dayBlock = Game.conversiDayBlock();
+      const regula = {
+        officium: { icon: '🕯️', cs: 'Na Officiu — modlí se, nedostupný', en: 'At Officium — praying, unavailable' },
+        lunch:    { icon: '🍲', cs: 'U oběda v refektáři', en: 'At lunch in the refectory' },
+        vespers:  { icon: '🕯️', cs: 'Na nešporách', en: 'At vespers' },
+        night:    { icon: '😴', cs: 'Spí', en: 'Sleeping' },
+        work:     { icon: '⚒️', cs: 'Pracuje', en: 'Working' },
+      }[dayBlock];
+      h += `<div style="font-size:0.76rem; margin:4px 0 8px; opacity:0.8;">${regula.icon} ${lang==='en'?regula.en:regula.cs}</div>`;
+    }
+
     h += `<div style="margin-bottom:7px;">
         <div style="display:flex; justify-content:space-between; font-size:0.72rem; opacity:0.75; margin-bottom:2px;">
           <span>😴 ${lang==='en'?'Fatigue':'Únava'}</span><span>${fat}%</span>
@@ -404,6 +419,65 @@ const SaeculumSystem = {
           <div style="width:${fat}%; background:${fatColor}; height:5px; border-radius:3px;"></div>
         </div>
       </div>`;
+
+    // ── Stres a Pokušení — nové dynamické metriky (monk-attributes-mrd) ──
+    const stress = (typeof b.stress === 'number') ? b.stress : 0;
+    const temptation = (typeof b.temptation === 'number') ? b.temptation : 0;
+    const stressColor = stress <= 40 ? '#5a9a5a' : stress <= 70 ? '#e67e22' : '#c0392b';
+    const temptColor = temptation <= 40 ? '#5a9a5a' : temptation <= 70 ? '#e67e22' : '#c0392b';
+    h += `<div style="margin-bottom:7px;">
+        <div style="display:flex; justify-content:space-between; font-size:0.72rem; opacity:0.75; margin-bottom:2px;">
+          <span>😰 ${lang==='en'?'Stress':'Stres'}</span><span>${stress}%</span>
+        </div>
+        <div style="background:rgba(0,0,0,0.12); border-radius:3px; height:5px;">
+          <div style="width:${stress}%; background:${stressColor}; height:5px; border-radius:3px;"></div>
+        </div>
+      </div>`;
+    h += `<div style="margin-bottom:7px;">
+        <div style="display:flex; justify-content:space-between; font-size:0.72rem; opacity:0.75; margin-bottom:2px;">
+          <span>😈 ${lang==='en'?'Temptation':'Pokušení'}</span><span>${temptation}%</span>
+        </div>
+        <div style="background:rgba(0,0,0,0.12); border-radius:3px; height:5px;">
+          <div style="width:${temptation}%; background:${temptColor}; height:5px; border-radius:3px;"></div>
+        </div>
+      </div>`;
+
+    // ── 8 duchovních/intelektuálních/praktických vlastností (monk-attributes-mrd) ──
+    if (b.traits) {
+      const TRAIT_LABELS = {
+        piety:         { icon: '🙏', cs: 'Zbožnost',           en: 'Piety' },
+        obedience:     { icon: '🤲', cs: 'Pokora',             en: 'Obedience' },
+        asceticism:    { icon: '⛓️', cs: 'Askeze',             en: 'Asceticism' },
+        erudition:     { icon: '📖', cs: 'Učenost',            en: 'Erudition' },
+        focus:         { icon: '🎯', cs: 'Soustředění',        en: 'Focus' },
+        craftsmanship: { icon: '🔨', cs: 'Řemeslná zručnost',  en: 'Craftsmanship' },
+        eloquence:     { icon: '💬', cs: 'Výřečnost',          en: 'Eloquence' },
+        vigor:         { icon: '💪', cs: 'Tělesná zdatnost',   en: 'Vigor' },
+      };
+      h += `<div style="border-top:1px solid rgba(197,160,89,0.3); margin-top:8px; padding-top:8px;">`;
+      h += `<div style="font-size:0.7rem; font-weight:bold; opacity:0.7; margin-bottom:6px; text-transform:uppercase; letter-spacing:0.06em;">${lang==='en'?'Character':'Povaha'}</div>`;
+      h += `<div style="display:grid; grid-template-columns:1fr 1fr; gap:4px 10px;">`;
+      Object.keys(TRAIT_LABELS).forEach(key => {
+        const val = b.traits[key] || 0;
+        const lbl = TRAIT_LABELS[key];
+        h += `<div style="font-size:0.68rem; display:flex; justify-content:space-between; opacity:0.8;">
+                <span>${lbl.icon} ${lang==='en'?lbl.en:lbl.cs}</span><span>${val}</span>
+              </div>`;
+      });
+      h += `</div></div>`;
+    }
+
+    // ── Flavor text — krátká, denně se měnící hláška, čistě kosmetická ──
+    if (rec && rec.quotes) {
+      const dayIdx = Math.floor(Date.now() / 86400000) + b.id.length; // mění se denně, jiné per bratr
+      const flavorPool = [rec.quotes.tired, rec.quotes.work, rec.quotes.officium].filter(Boolean);
+      if (flavorPool.length) {
+        const chosen = flavorPool[dayIdx % flavorPool.length];
+        h += `<div style="font-size:0.72rem; font-style:italic; opacity:0.65; margin-top:8px; padding-top:8px; border-top:1px dashed rgba(197,160,89,0.25);">
+                „${lang==='en' ? chosen.en : chosen.cs}“
+              </div>`;
+      }
+    }
 
     // Aktuální specializace + úroveň (pokud přiřazen)
     if (b.assignedTab && typeof DormitoriumSpecializationDB !== 'undefined') {
