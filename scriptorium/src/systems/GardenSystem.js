@@ -86,189 +86,6 @@ const GardenSystem = {
     },
 
     // ═══════════════════════════════════════════════════════════════════════════
-    // APIARIUM (Včelín) — herní logika
-    // ═══════════════════════════════════════════════════════════════════════════
-
-    // ── Pomocná: vrátí sezónu dle reálného měsíce ─────────────────────────────
-    _getApiarySeason: function() {
-        const m = new Date().getMonth() + 1; // 1–12
-        if (m >= 3 && m <= 5)  return 'spring';
-        if (m >= 6 && m <= 8)  return 'summer';
-        if (m >= 9 && m <= 11) return 'autumn';
-        return 'winter';
-    },
-
-    // ── Pomocná: pool jmen královen ───────────────────────────────────────────
-    _queenNames: [
-        'Hildegarda', 'Konstancie', 'Anežka', 'Dorota', 'Markéta',
-        'Eliška', 'Žofie', 'Ludmila', 'Blanka', 'Alžběta',
-        'Kunhuta', 'Radoslava', 'Doubravka', 'Přibyslava', 'Miloslava'
-    ],
-
-    _randomQueenName: function() {
-        return this._queenNames[Math.floor(Math.random() * this._queenNames.length)];
-    },
-
-    buildHive: function(slotIdx) {
-        if (!GameState.apiary) return;
-        const hive = GameState.apiary[slotIdx];
-        if (hive.built) return;
-        if ((GameState.inventory['stick'] || 0) < 10) { UI.notify(t('game.needWood'), true); return; }
-        if ((GameState.inventory['rope']  || 0) < 5)  { UI.notify(t('game.needRope'), true); return; }
-        Game.removeItem('stick', 10);
-        Game.removeItem('rope', 5);
-        hive.built          = true;
-        hive.hasQueen       = false;
-        hive.queenName      = null;
-        hive.queenStrength  = 0;   // 1–5 hvězd, nastaví se při usazení matky
-        hive.strength       = 0;   // 1–10 síla včelstva
-        hive.varroaRisk     = false;
-        hive.lastCollectAt  = 0;
-        Game.save();
-        GardenSystem.renderApiary();
-        UI.notify('🪹 ' + t('game.hiveBuilt'));
-    },
-
-    addQueen: function(slotIdx) {
-        if (!GameState.apiary) return;
-        const hive = GameState.apiary[slotIdx];
-        if (!hive.built || hive.hasQueen) return;
-        if (!(GameState.inventory['queen_bee'] > 0)) { UI.notify(t('game.needQueen'), true); return; }
-        Game.removeItem('queen_bee', 1);
-        hive.hasQueen      = true;
-        hive.queenName     = GardenSystem._randomQueenName();
-        hive.queenStrength = Math.floor(Math.random() * 3) + 2; // 2–4 hvězdy (náhoda)
-        hive.strength      = 3; // začíná na střední síle
-        hive.varroaRisk    = false;
-        hive.lastCollectAt = Date.now();
-        Game.save();
-        GardenSystem.renderApiary();
-        UI.notify('🐝 ' + t('game.queenAdded') + ' — ' + hive.queenName);
-    },
-
-    collectHive: function(slotIdx) {
-        if (!GameState.apiary) return;
-        const hive = GameState.apiary[slotIdx];
-        if (!hive.built || !hive.hasQueen) return;
-
-        const season = GardenSystem._getApiarySeason();
-
-        // Zima — nelze sklízet
-        if (season === 'winter') {
-            UI.notify('❄️ ' + t('game.hiveWinter'), true);
-            return;
-        }
-
-        // Časy sklizně dle sezóny
-        const COLLECT_HOURS = { spring: 16, summer: 8, autumn: 20 };
-        const hours = COLLECT_HOURS[season] || 12;
-        const now = Date.now();
-        if (now < hive.lastCollectAt + (hours * 3600000)) {
-            UI.notify(t('game.hiveNotReady'), true);
-            return;
-        }
-
-        // Produkce dle sezóny a síly včelstva
-        const strengthMod = (hive.strength || 3) / 5; // 0.2–2.0
-        const honeyBase   = { spring: 1, summer: 3, autumn: 1 };
-        const waxBase     = { spring: 1, summer: 1, autumn: 2 };
-        const honeyYield  = Math.max(1, Math.round(honeyBase[season] * strengthMod));
-        const waxYield    = Math.max(1, Math.round(waxBase[season] * strengthMod));
-
-        Game.addItem('honey', honeyYield);
-        Game.addItem('beeswax', waxYield);
-
-        // Pyl bonus — jen léto, jen pokud kvetou záhony nebo sad
-        if (season === 'summer') {
-            const hasFlowers = GameState.garden && GameState.garden.some(p => p.state === 2 && p.water);
-            const hasTrees   = GameState.orchard && GameState.orchard.some(s => s.state === 'mature');
-            if (hasFlowers || hasTrees) Game.addItem('pollen', 1);
-        }
-
-        // Síla roste po sklizni (péče o včely)
-        hive.strength = Math.min(10, (hive.strength || 3) + 1);
-
-        // Rojivá nálada — pokud je síla max a sklizeň přichází pozdě (2× lhůta)
-        if (hive.strength >= 9 && now > hive.lastCollectAt + (hours * 2 * 3600000)) {
-            // Matka odletěla
-            hive.hasQueen  = false;
-            hive.queenName = null;
-            hive.strength  = 0;
-            Game.save();
-            GardenSystem.renderApiary();
-            UI.notify('🐝 ' + t('game.hiveRojivy'));
-            return;
-        }
-
-        hive.lastCollectAt = now;
-        Game.save();
-        GardenSystem.renderApiary();
-        UI.notify('🍯 ' + t('game.hiveCollected') + ' (' + honeyYield + '× med, ' + waxYield + '× vosk)');
-    },
-
-    // ── Zimní přikrmení ────────────────────────────────────────────────────────
-    feedHive: function(slotIdx) {
-        if (!GameState.apiary) return;
-        const hive = GameState.apiary[slotIdx];
-        if (!hive.built || !hive.hasQueen) return;
-        const season = GardenSystem._getApiarySeason();
-        if (season !== 'winter') { UI.notify(t('game.hiveFeedOnlyWinter'), true); return; }
-        if ((GameState.inventory['honey'] || 0) < 1) { UI.notify(t('game.hiveNeedHoney'), true); return; }
-        Game.removeItem('honey', 1);
-        // Přikrmení zachová sílu nebo ji zvýší
-        hive.strength = Math.min(10, (hive.strength || 3) + 1);
-        Game.save();
-        GardenSystem.renderApiary();
-        UI.notify('🍯 ' + t('game.hiveFed'));
-    },
-
-    // ── Léčba Varroa ──────────────────────────────────────────────────────────
-    treatVarroa: function(slotIdx) {
-        if (!GameState.apiary) return;
-        const hive = GameState.apiary[slotIdx];
-        if (!hive.built || !hive.hasQueen || !hive.varroaRisk) return;
-        if ((GameState.inventory['thyme'] || 0) < 1) { UI.notify(t('game.hiveNeedThyme'), true); return; }
-        Game.removeItem('thyme', 1);
-        hive.varroaRisk = false;
-        hive.strength   = Math.max(1, (hive.strength || 3) - 1); // léčba stojí trochu síly
-        Game.save();
-        GardenSystem.renderApiary();
-        UI.notify('🌿 ' + t('game.hiveTreated'));
-    },
-
-    // ── Zimní check (volá se 1× denně nebo při otevření Apiary) ───────────────
-    checkApiaryWinter: function() {
-        if (!GameState.apiary) return;
-        const season = GardenSystem._getApiarySeason();
-        if (season !== 'winter') return;
-        let changed = false;
-        GameState.apiary.forEach(hive => {
-            if (!hive.built || !hive.hasQueen) return;
-            // Pokud síla <= 0 → včelstvo uhynulo
-            if ((hive.strength || 0) <= 0) {
-                hive.hasQueen  = false;
-                hive.queenName = null;
-                hive.strength  = 0;
-                changed = true;
-                UI.notify('💀 ' + t('game.hiveDied'));
-            }
-        });
-        if (changed) { Game.save(); GardenSystem.renderApiary(); }
-    },
-
-    // ── Náhodný Varroa event (volá se z EventsSystem nebo manuálně) ──────────
-    triggerVarroa: function(slotIdx) {
-        if (!GameState.apiary) return;
-        const hive = GameState.apiary[slotIdx];
-        if (!hive.built || !hive.hasQueen || hive.varroaRisk) return;
-        hive.varroaRisk = true;
-        hive.strength   = Math.max(1, (hive.strength || 3) - 2);
-        Game.save();
-        GardenSystem.renderApiary();
-        UI.notify('⚠️ ' + t('game.hiveVarroa'));
-    },
-
-    // ═══════════════════════════════════════════════════════════════════════════
     // PISCINA (Rybník) — herní logika
     // ═══════════════════════════════════════════════════════════════════════════
 
@@ -1211,18 +1028,24 @@ const GardenSystem = {
                 hasQueen: false,
                 queenName: null,
                 queenStrength: 0,
+                queenVarroaResist: 0,
+                queenWinter: 0,
                 strength: 0,
-                varroaRisk: false,
+                varroa: 0,
+                swarmMood: 0,
                 lastCollectAt: 0,
             }));
         }
 
-        // Migrace starých save — přidej chybějící pole
+        // Migrace starých save — přidej chybějící pole (varroaRisk boolean → varroa gradient)
         GameState.apiary.forEach(h => {
-            if (h.queenName     === undefined) h.queenName     = null;
-            if (h.queenStrength === undefined) h.queenStrength = 0;
-            if (h.strength      === undefined) h.strength      = h.hasQueen ? 3 : 0;
-            if (h.varroaRisk    === undefined) h.varroaRisk    = false;
+            if (h.queenName         === undefined) h.queenName         = null;
+            if (h.queenStrength     === undefined) h.queenStrength     = 0;
+            if (h.queenVarroaResist === undefined) h.queenVarroaResist = h.hasQueen ? (Math.floor(Math.random()*3)+2) : 0;
+            if (h.queenWinter       === undefined) h.queenWinter       = h.hasQueen ? (Math.floor(Math.random()*3)+2) : 0;
+            if (h.strength          === undefined) h.strength          = h.hasQueen ? 3 : 0;
+            if (h.varroa            === undefined) h.varroa            = h.varroaRisk ? 50 : 0;
+            if (h.swarmMood         === undefined) h.swarmMood         = 0;
         });
 
         const season = Game._getApiarySeason ? Game._getApiarySeason() : 'summer';
@@ -1268,19 +1091,35 @@ const GardenSystem = {
                 const queenInfo = hive.queenName
                     ? `<div style="font-size:0.72rem; opacity:0.65; font-style:italic;">
                          👑 ${hive.queenName} ${'★'.repeat(hive.queenStrength || 2)}
+                       </div>
+                       <div style="font-size:0.65rem; opacity:0.55;" title="Odolnost Varroa / Zimovatelnost">
+                         🛡️${'★'.repeat(hive.queenVarroaResist || 2)} ❄️${'★'.repeat(hive.queenWinter || 2)}
                        </div>`
                     : '';
 
-                // Varroa varování
-                const varroaWarn = hive.varroaRisk
-                    ? `<div style="font-size:0.72rem; color:#c55; margin-top:2px;">⚠️ Varroa!</div>`
+                // Varroa varování — gradient 0–100
+                const varroa = hive.varroa || 0;
+                const varroaWarn = varroa >= 70
+                    ? `<div style="font-size:0.72rem; color:#c55; margin-top:2px;">🚨 Varroa ${varroa}/100</div>`
+                    : varroa >= 40
+                    ? `<div style="font-size:0.72rem; color:#c90; margin-top:2px;">⚠️ Varroa ${varroa}/100</div>`
+                    : varroa > 0
+                    ? `<div style="font-size:0.68rem; opacity:0.5; margin-top:2px;">Varroa ${varroa}/100</div>`
+                    : '';
+
+                // Rojivá nálada — jen když je patrná
+                const swarmMood = hive.swarmMood || 0;
+                const swarmWarn = swarmMood >= 60
+                    ? `<div style="font-size:0.72rem; color:#c55; margin-top:2px;">🐝 Rojivá nálada!</div>`
+                    : swarmMood >= 30
+                    ? `<div style="font-size:0.68rem; opacity:0.55; margin-top:2px;">🐝 Neklidná</div>`
                     : '';
 
                 if (season === 'winter') {
                     // ── Zima: jen přikrmení ────────────────────────────────
                     content = `<div class="plot-soil" style="color:#7aa;">❄️</div>
                                <div class="text-sm">${t('garden.apiaryWorking')}</div>`;
-                    extra = queenInfo + varroaWarn +
+                    extra = queenInfo + varroaWarn + swarmWarn +
                         `<div style="font-size:0.72rem; margin-top:3px;">${stars}</div>`;
                     const hasHoney = (GameState.inventory['honey'] || 0) >= 1;
                     btn = `<button class="craft-btn" onclick="Game.feedHive(${idx})"
@@ -1301,11 +1140,11 @@ const GardenSystem = {
                         btn = `<button class="craft-btn" disabled style="font-size:0.72rem;">
                                 ${t('garden.apiaryWait')} ${waitH}h</button>`;
                     }
-                    extra = queenInfo + varroaWarn +
+                    extra = queenInfo + varroaWarn + swarmWarn +
                         `<div style="font-size:0.72rem; margin-top:3px; opacity:0.7;">${stars}</div>`;
 
-                    // Léčba Varroa
-                    if (hive.varroaRisk) {
+                    // Léčba Varroa — dostupná jakmile je tlak patrný
+                    if (varroa > 0) {
                         const hasThyme = (GameState.inventory['thyme'] || 0) >= 1;
                         btn += `<button class="craft-btn" onclick="Game.treatVarroa(${idx})"
                                  ${hasThyme ? '' : 'disabled'}

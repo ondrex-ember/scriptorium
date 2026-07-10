@@ -254,6 +254,7 @@ const CellariumSystem = {
     lamb_hide:      8,
     chick:          3,
     lamb:           5,
+    veteran_queen: 280,
   },
 
   // Koeficienty per entita (prodej hráče → entita)
@@ -296,6 +297,7 @@ const CellariumSystem = {
     fry: 'mat', carp_young: 'mat', carp: 'food_raw',
     chicken_meat: 'food', mutton: 'food',
     lamb_hide: 'mat', chick: 'mat', lamb: 'mat',
+    veteran_queen: 'mat',
   },
 
   // Výpočet ceny s náhodným offsetem (seed per den+entita pro konzistenci v rámci dne)
@@ -448,6 +450,8 @@ const CellariumSystem = {
       { itemId: 'roucho_fialove',  basePrice: 15, dailyStock: 1,  req_tech: 'tech_canonical_hours' },
       { itemId: 'roucho_zelene',   basePrice: 15, dailyStock: 1,  req_tech: 'tech_canonical_hours' },
       { itemId: 'roucho_cervene',  basePrice: 18, dailyStock: 1,  req_tech: 'tech_canonical_hours' },
+      // Včelař — sousedský chovatel, výhodnější cena než na Trhu (Trh: 40 groší)
+      { itemId: 'queen_bee',       basePrice: 22, dailyStock: 1,  req_tech: 'tech_liber_apium' },
     ],
     market: [
       { itemId: 'paper',         basePrice: 3,   dailyStock: 25 },

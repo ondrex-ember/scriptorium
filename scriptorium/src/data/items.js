@@ -171,7 +171,7 @@ const ItemsDB = {
     "iching_book": { name: "I-Ching (Kniha Proměn)", name_en: "I-Ching (Book of Changes)", icon: "☯️", type: "lore", cat: "lore", desc: "Starověký čínský text věštění. Hoď mince a poznej svůj osud.", desc_en: "Ancient Chinese divination. Cast coins and know thy fate." },
 
     // VELLUM CHAIN
-    "hide": { name: "Surová kůže", name_en: "Raw Hide", icon: "🦌", type: "mat", desc: "Surová kůže ze zvěře.", desc_en: "Raw hide from game." },
+    "hide": { name: "Divoká kůže", name_en: "Wild Hide", icon: "🦌", type: "mat", desc: "Nezpracovaná, neidentifikovaná kůže z lovu. Je třeba ji zpracovat na surovou kůži.", desc_en: "Unprocessed, unidentified hide from the hunt. Must be processed into raw hide." },
     "pumice": { name: "Pemza", name_en: "Pumice", icon: "🪨", type: "mat", desc: "Sopečný kámen na leštění.", desc_en: "Volcanic stone for smoothing." },
     "chalk": { name: "Křída", name_en: "Chalk", icon: "⚪", type: "mat", desc: "Bělení pergamenu.", desc_en: "For whitening vellum." },
     "ash_water": { name: "Louh", name_en: "Lye Water", icon: "💧", type: "mat", desc: "Voda s popelem - na namáčení kůže.", desc_en: "Ash water for soaking hide." },
@@ -471,6 +471,7 @@ const ItemsDB = {
     "linden_fruit": { name: "Lipový plod", name_en: "Linden Fruit", icon: "🌸", type: "food_raw", desc: "Ze sadu. Drobná nažka lípy, spíš léčivá než k jídlu.", desc_en: "From the orchard. A tiny linden nutlet, more medicinal than edible." },
     "grass": { name: "Tráva", name_en: "Grass", icon: "🌿", type: "mat", desc: "Posečená čerstvá tráva. Suší se na seno.", desc_en: "Cut fresh grass. Dried to make hay." },
     "queen_bee": { name: "Včelí matka", name_en: "Queen Bee", icon: "🐝", type: "animal", desc: "Včelí matka. Nutná pro stavbu úlu.", desc_en: "Queen bee. Required to establish a hive." },
+    "veteran_queen": { name: "Vysloužilá matka", name_en: "Veteran Queen", icon: "👑", type: "animal", desc: "Stará matka, která přežila roj i zimu. Včelaři takové platí zlatem — z jejího plodu se prý dědí síla i zimovatelnost.", desc_en: "An old queen who survived both swarming and winter. Beekeepers pay gold for one — her brood is said to inherit strength and hardiness alike." },
 
     // ═══════════════════════════════════════════════════════════════════════════
     // DVŮR — Gallinarium & Ovile mláďata + maso (v8.x)

@@ -1573,6 +1573,29 @@ const Game = {
         return this._queenNames[Math.floor(Math.random() * this._queenNames.length)];
     },
 
+    // ── Pomocná: nektarový modifikátor dle reálného počasí (WMO kód) ──────────
+    // Napojeno na WeatherSystem (Open-Meteo, Praha) — žádné vlastní počasí.
+    // Chybí-li data (offline/nenačteno), vrací neutrální 1.0 — tiché selhání.
+    _apiaryWeatherMod: function() {
+        try {
+            const code = WeatherSystem && WeatherSystem.cache && WeatherSystem.cache.current
+                ? WeatherSystem.cache.current.weather_code : null;
+            if (code === null || code === undefined) return 1.0;
+            if (code === 0)                          return 1.3;  // jasno — ideální snůška
+            if (code === 1)                           return 1.15; // skoro jasno
+            if (code === 2)                           return 1.0;  // polojasno
+            if (code === 3)                           return 0.8;  // zataženo
+            if (code >= 45 && code <= 48)              return 0.7;  // mlha
+            if (code >= 51 && code <= 57)              return 0.6;  // mrholení
+            if (code >= 61 && code <= 67)              return 0.4;  // déšť
+            if (code >= 71 && code <= 77)              return 0.2;  // sníh
+            if (code >= 80 && code <= 82)              return 0.4;  // přeháňky
+            if (code >= 85 && code <= 86)              return 0.2;  // sněžení
+            if (code >= 95 && code <= 99)              return 0.3;  // bouřka
+            return 1.0;
+        } catch(e) { return 1.0; }
+    },
+
     buildHive: function(slotIdx) {
         if (!GameState.apiary) return;
         const hive = GameState.apiary[slotIdx];
@@ -1581,13 +1604,16 @@ const Game = {
         if ((GameState.inventory['rope']  || 0) < 5)  { UI.notify(t('game.needRope'), true); return; }
         this.removeItem('stick', 10);
         this.removeItem('rope', 5);
-        hive.built          = true;
-        hive.hasQueen       = false;
-        hive.queenName      = null;
-        hive.queenStrength  = 0;   // 1–5 hvězd, nastaví se při usazení matky
-        hive.strength       = 0;   // 1–10 síla včelstva
-        hive.varroaRisk     = false;
-        hive.lastCollectAt  = 0;
+        hive.built             = true;
+        hive.hasQueen          = false;
+        hive.queenName         = null;
+        hive.queenStrength     = 0;   // produktivita medu, 2–4 hvězdy, nastaví se při usazení matky
+        hive.queenVarroaResist = 0;   // odolnost vůči Varroa, 2–4 hvězdy
+        hive.queenWinter       = 0;   // zimovatelnost, 2–4 hvězdy — ovlivňuje přežití zimy i šanci na veteránku
+        hive.strength          = 0;   // 1–10 síla včelstva
+        hive.varroa            = 0;   // 0–100 tlak Varroa, roste tiše v čase
+        hive.swarmMood         = 0;   // 0–100 rojivá nálada
+        hive.lastCollectAt     = 0;
         Game.save();
         UI.renderApiary();
         UI.notify('🪹 ' + t('game.hiveBuilt'));
@@ -1599,12 +1625,15 @@ const Game = {
         if (!hive.built || hive.hasQueen) return;
         if (!(GameState.inventory['queen_bee'] > 0)) { UI.notify(t('game.needQueen'), true); return; }
         this.removeItem('queen_bee', 1);
-        hive.hasQueen      = true;
-        hive.queenName     = this._randomQueenName();
-        hive.queenStrength = Math.floor(Math.random() * 3) + 2; // 2–4 hvězdy (náhoda)
-        hive.strength      = 3; // začíná na střední síle
-        hive.varroaRisk    = false;
-        hive.lastCollectAt = Date.now();
+        hive.hasQueen          = true;
+        hive.queenName         = this._randomQueenName();
+        hive.queenStrength     = Math.floor(Math.random() * 3) + 2; // 2–4 hvězdy (náhoda)
+        hive.queenVarroaResist = Math.floor(Math.random() * 3) + 2; // 2–4 hvězdy
+        hive.queenWinter       = Math.floor(Math.random() * 3) + 2; // 2–4 hvězdy
+        hive.strength          = 3; // začíná na střední síle
+        hive.varroa            = 0;
+        hive.swarmMood         = 0;
+        hive.lastCollectAt     = Date.now();
         Game.save();
         UI.renderApiary();
         UI.notify('🐝 ' + t('game.queenAdded') + ' — ' + hive.queenName);
@@ -1632,12 +1661,21 @@ const Game = {
             return;
         }
 
-        // Produkce dle sezóny a síly včelstva
+        // Varroa roste tiše s časem od poslední péče, odolnost matky ji tlumí
+        const elapsedH     = (now - hive.lastCollectAt) / 3600000;
+        const varroaResist = hive.queenVarroaResist || 3;
+        const varroaGrowth = Math.max(1, Math.round((elapsedH / 8) * (5 - varroaResist)));
+        hive.varroa = Math.min(100, (hive.varroa || 0) + varroaGrowth);
+        const varroaPenalty = hive.varroa >= 70 ? 0.5 : hive.varroa >= 40 ? 0.8 : 1.0;
+
+        // Produkce dle sezóny, síly včelstva, produktivity matky, počasí a stavu Varroa
         const strengthMod = (hive.strength || 3) / 5; // 0.2–2.0
+        const queenMod     = (hive.queenStrength || 3) / 3; // 0.67–1.33
+        const weatherMod   = this._apiaryWeatherMod();
         const honeyBase   = { spring: 1, summer: 3, autumn: 1 };
         const waxBase     = { spring: 1, summer: 1, autumn: 2 };
-        const honeyYield  = Math.max(1, Math.round(honeyBase[season] * strengthMod));
-        const waxYield    = Math.max(1, Math.round(waxBase[season] * strengthMod));
+        const honeyYield  = Math.max(1, Math.round(honeyBase[season] * strengthMod * queenMod * weatherMod * varroaPenalty));
+        const waxYield    = Math.max(1, Math.round(waxBase[season] * strengthMod * varroaPenalty));
 
         this.addItem('honey', honeyYield);
         this.addItem('beeswax', waxYield);
@@ -1652,15 +1690,31 @@ const Game = {
         // Síla roste po sklizni (péče o včely)
         hive.strength = Math.min(10, (hive.strength || 3) + 1);
 
-        // Rojivá nálada — pokud je síla max a sklizeň přichází pozdě (2× lhůta)
-        if (hive.strength >= 9 && now > hive.lastCollectAt + (hours * 2 * 3600000)) {
-            // Matka odletěla
+        // Rojivá nálada — přeplněný úl (síla vysoká) a pozdní návštěva ji živí,
+        // pravidelná péče ji naopak tiší. Odlet je pravděpodobnostní, ne pevný práh.
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        if (hive.strength >= 8) {
+            const late = now > hive.lastCollectAt + (hours * 1.5 * 3600000);
+            hive.swarmMood = Math.min(100, (hive.swarmMood || 0) + (late ? 15 : 5));
+        } else {
+            hive.swarmMood = Math.max(0, (hive.swarmMood || 0) - 5);
+        }
+
+        if (hive.swarmMood >= 60 && Math.random() < 0.35) {
+            // Matka odletěla s rojem — malá šance, že jde o vysloužilou matku k prodeji
+            const veteranChance = 0.08 + (hive.queenWinter || 3) * 0.04;
+            const isVeteran = Math.random() < veteranChance;
+            if (isVeteran) this.addItem('veteran_queen', 1);
             hive.hasQueen  = false;
             hive.queenName = null;
             hive.strength  = 0;
+            hive.varroa    = 0;
+            hive.swarmMood = 0;
             Game.save();
             UI.renderApiary();
-            UI.notify('🐝 ' + t('game.hiveRojivy'));
+            UI.notify(isVeteran
+                ? '👑 ' + (lang==='en' ? 'The queen survived the swarm — a veteran, worth a fortune!' : 'Matka roj přežila — vysloužilá, cenná k prodeji!')
+                : '🐝 ' + t('game.hiveRojivy'));
             return;
         }
 
@@ -1690,14 +1744,17 @@ const Game = {
     treatVarroa: function(slotIdx) {
         if (!GameState.apiary) return;
         const hive = GameState.apiary[slotIdx];
-        if (!hive.built || !hive.hasQueen || !hive.varroaRisk) return;
+        if (!hive.built || !hive.hasQueen) return;
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        if ((hive.varroa || 0) <= 0) { UI.notify(lang==='en' ? 'No Varroa pressure right now.' : 'Žádný tlak Varroa teď není.', true); return; }
         if ((GameState.inventory['thyme'] || 0) < 1) { UI.notify(t('game.hiveNeedThyme'), true); return; }
         this.removeItem('thyme', 1);
-        hive.varroaRisk = false;
-        hive.strength   = Math.max(1, (hive.strength || 3) - 1); // léčba stojí trochu síly
+        const reduction = 30 + (hive.queenVarroaResist || 3) * 5; // 40–50 dle odolnosti matky
+        hive.varroa   = Math.max(0, (hive.varroa || 0) - reduction);
+        hive.strength = Math.max(1, (hive.strength || 3) - 1); // léčba stojí trochu síly
         Game.save();
         UI.renderApiary();
-        UI.notify('🌿 ' + t('game.hiveTreated'));
+        UI.notify('🌿 ' + t('game.hiveTreated') + ' (-' + reduction + ' Varroa)');
     },
 
     // ── Zimní check (volá se 1× denně nebo při otevření Apiary) ───────────────
@@ -1705,16 +1762,25 @@ const Game = {
         if (!GameState.apiary) return;
         const season = this._getApiarySeason();
         if (season !== 'winter') return;
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
         let changed = false;
         GameState.apiary.forEach(hive => {
             if (!hive.built || !hive.hasQueen) return;
-            // Pokud síla <= 0 → včelstvo uhynulo
-            if ((hive.strength || 0) <= 0) {
+            // Úhyn: síla na nule, nebo vysoký tlak Varroa (riziko, ne jistota — zimovatelná matka pomáhá)
+            const varroaDeath = (hive.varroa || 0) >= 80 && Math.random() < (0.35 - (hive.queenWinter || 3) * 0.05);
+            if ((hive.strength || 0) <= 0 || varroaDeath) {
+                const veteranChance = 0.05 + (hive.queenWinter || 3) * 0.03;
+                const isVeteran = Math.random() < veteranChance;
+                if (isVeteran) this.addItem('veteran_queen', 1);
                 hive.hasQueen  = false;
                 hive.queenName = null;
                 hive.strength  = 0;
+                hive.varroa    = 0;
+                hive.swarmMood = 0;
                 changed = true;
-                UI.notify('💀 ' + t('game.hiveDied'));
+                UI.notify(isVeteran
+                    ? '👑 ' + (lang==='en' ? 'She did not survive the hive, but the veteran queen herself lived on!' : 'Včelstvo zimu nepřežilo, ale vysloužilá matka sama ano!')
+                    : '💀 ' + t('game.hiveDied'));
             }
         });
         if (changed) { Game.save(); UI.renderApiary(); }
@@ -1724,9 +1790,9 @@ const Game = {
     triggerVarroa: function(slotIdx) {
         if (!GameState.apiary) return;
         const hive = GameState.apiary[slotIdx];
-        if (!hive.built || !hive.hasQueen || hive.varroaRisk) return;
-        hive.varroaRisk = true;
-        hive.strength   = Math.max(1, (hive.strength || 3) - 2);
+        if (!hive.built || !hive.hasQueen) return;
+        hive.varroa   = Math.min(100, (hive.varroa || 0) + 25);
+        hive.strength = Math.max(1, (hive.strength || 3) - 2);
         Game.save();
         UI.renderApiary();
         UI.notify('⚠️ ' + t('game.hiveVarroa'));
@@ -2091,7 +2157,7 @@ const Game = {
                     if (r > 0.4) this.addItem('bone', 1);
                     if (r > 0.7) this.addItem('leather', 1); // 30% chance
                     // v7.5: NEW DROPS
-                    if (r > 0.5) this.addItem('hide', 1); // 50% chance - for vellum
+                    if (r > 0.5) this.addItem('hide', 1); // 50% chance - wild hide, needs processing into raw_hide
                     if (r > 0.7) this.addItem('feather', 1); // 30% chance - for quill
                 }
                 else if (type === 'nature') { 
@@ -5651,19 +5717,25 @@ const Game = {
             if (Date.now() - GameState.conversiApiaryLastTick >= DAY) {
                 GameState.conversiApiaryLastTick = Date.now();
                 let didWork = false;
-                const season = GardenSystem._getApiarySeason();
+                const season = this._getApiarySeason();
                 const now = Date.now();
+                const weatherMod  = this._apiaryWeatherMod();
                 const brotherMult = apiaryBrother ? this.dormitoriumBrotherMult(apiaryBrother, 'apiarium') : 1.0;
-                let honeyGained = 0, waxGained = 0, varroaTreated = 0, fedHives = 0;
+                let honeyGained = 0, waxGained = 0, varroaTreated = 0, fedHives = 0, veteranQueens = 0;
 
                 GameState.apiary.forEach(hive => {
                     if (!hive.built || !hive.hasQueen) return;
 
+                    // Varroa roste tiše s časem — konvrš ji sleduje a léčí, jakmile je vysoká
+                    const elapsedH     = (now - hive.lastCollectAt) / 3600000;
+                    const varroaResist = hive.queenVarroaResist || 3;
+                    hive.varroa = Math.min(100, (hive.varroa || 0) + Math.max(1, Math.round((elapsedH / 8) * (5 - varroaResist))));
+
                     // Léčba Varroa má přednost — riziko hrozí kdykoliv v roce
-                    if (hive.varroaRisk) {
+                    if (hive.varroa >= 40) {
                         if ((GameState.inventory['thyme'] || 0) > 0) {
                             this.removeItem('thyme', 1);
-                            hive.varroaRisk = false;
+                            hive.varroa   = Math.max(0, hive.varroa - (30 + varroaResist * 5));
                             hive.strength = Math.max(1, (hive.strength || 3) - 1);
                             didWork = true;
                             varroaTreated++;
@@ -5687,11 +5759,13 @@ const Game = {
                     const hours = COLLECT_HOURS[season] || 12;
                     if (now < hive.lastCollectAt + (hours * 3600000)) return;
 
+                    const varroaPenalty = hive.varroa >= 70 ? 0.5 : hive.varroa >= 40 ? 0.8 : 1.0;
                     const strengthMod = (hive.strength || 3) / 5;
+                    const queenMod    = (hive.queenStrength || 3) / 3;
                     const honeyBase = { spring: 1, summer: 3, autumn: 1 };
                     const waxBase   = { spring: 1, summer: 1, autumn: 2 };
-                    const hQty = Math.max(1, Math.round(honeyBase[season] * strengthMod * brotherMult));
-                    const wQty = Math.max(1, Math.round(waxBase[season] * strengthMod * brotherMult));
+                    const hQty = Math.max(1, Math.round(honeyBase[season] * strengthMod * queenMod * weatherMod * varroaPenalty * brotherMult));
+                    const wQty = Math.max(1, Math.round(waxBase[season] * strengthMod * varroaPenalty * brotherMult));
                     this.addItem('honey', hQty);
                     this.addItem('beeswax', wQty);
                     honeyGained += hQty; waxGained += wQty;
@@ -5704,12 +5778,21 @@ const Game = {
 
                     hive.strength = Math.min(10, (hive.strength || 3) + 1);
 
-                    // Rojivá nálada — stejné riziko jako u ruční sklizně, konvrš ho ale
-                    // díky pravidelné 24h péči prakticky nikdy nedovolí nastat
-                    if (hive.strength >= 9 && now > hive.lastCollectAt + (hours * 2 * 3600000)) {
-                        hive.hasQueen = false;
+                    // Rojivá nálada — konvrš díky pravidelné 24h péči nálada roste pomaleji,
+                    // ale odlet je pořád možný (pravděpodobnostně, ne pevný práh)
+                    if (hive.strength >= 8) {
+                        hive.swarmMood = Math.min(100, (hive.swarmMood || 0) + 4);
+                    } else {
+                        hive.swarmMood = Math.max(0, (hive.swarmMood || 0) - 5);
+                    }
+                    if (hive.swarmMood >= 60 && Math.random() < 0.35) {
+                        const veteranChance = 0.08 + (hive.queenWinter || 3) * 0.04;
+                        if (Math.random() < veteranChance) { this.addItem('veteran_queen', 1); veteranQueens++; }
+                        hive.hasQueen  = false;
                         hive.queenName = null;
-                        hive.strength = 0;
+                        hive.strength  = 0;
+                        hive.varroa    = 0;
+                        hive.swarmMood = 0;
                         didWork = true;
                         return;
                     }
@@ -5731,6 +5814,7 @@ const Game = {
                     if (honeyGained || waxGained) { parts_cs.push(`sklidil ${honeyGained}× med, ${waxGained}× vosk`); parts_en.push(`harvested ${honeyGained}× honey, ${waxGained}× wax`); }
                     if (varroaTreated) { parts_cs.push(`ošetřil ${varroaTreated} úl(y) proti Varroa`); parts_en.push(`treated ${varroaTreated} hive(s) for Varroa`); }
                     if (fedHives) { parts_cs.push(`přikrmil ${fedHives} úl(y)`); parts_en.push(`fed ${fedHives} hive(s)`); }
+                    if (veteranQueens) { parts_cs.push(`zachránil ${veteranQueens} vysloužilou matku z roje`); parts_en.push(`saved ${veteranQueens} veteran queen from a swarm`); }
                     this._reportWork(
                         `🐝 ${who} (Apiarium): ${parts_cs.join(', ')}.`,
                         `🐝 ${who} (Apiary): ${parts_en.join(', ')}.`
