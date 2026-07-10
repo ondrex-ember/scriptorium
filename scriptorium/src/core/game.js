@@ -315,24 +315,6 @@ const Game = {
 		// DORMITORIUM — bratři (mniši/skriptoři, manažerská vrstva nad Conversi)
 		if (!GameState.dormitorium) GameState.dormitorium = { brothers: [] };
 		if (!GameState.dormitorium.brothers) GameState.dormitorium.brothers = [];
-<<<<<<< HEAD
-		// Migrace: bratři najatí před monk-attributes-mrd nemají traits/mood/
-		// loyalty/stress/temptation — doplnit pevnou hodnotou 40 (ne náhodnou,
-		// ať migrace nedává nespravedlivou výhodu/penalizaci oproti novým).
-		GameState.dormitorium.brothers.forEach(b => {
-			if (typeof b.mood !== 'number') b.mood = 60;
-			if (typeof b.loyalty !== 'number') b.loyalty = 30;
-			if (typeof b.stress !== 'number') b.stress = 0;
-			if (typeof b.temptation !== 'number') b.temptation = 0;
-			if (!b.traits) {
-				b.traits = {
-					piety: 40, obedience: 40, asceticism: 40, erudition: 40,
-					focus: 40, craftsmanship: 40, eloquence: 40, vigor: 40,
-				};
-			}
-		});
-=======
->>>>>>> 6321135a1563a3eb67454c5697ceb313e6a300ea
 
 		// Initialize tool uses tracking
 		if (!GameState.toolUses) GameState.toolUses = {};
@@ -4549,44 +4531,9 @@ const Game = {
         return this.DORMITORIUM_LEVEL_MULT[level - 1];
     },
 
-<<<<<<< HEAD
-    // Mapování tab → (primární vlastnost +2, sekundární +1) — monk-attributes-mrd.
-    // Zbožnost/Pokora/Askeze/Výřečnost prací NEROSTOU — rostou denním rytmem
-    // (Officium/Kapitula), řešeno jinde, ne zde.
-    DORMITORIUM_TAB_TRAITS: {
-        athanor:     { primary: 'erudition',     secondary: 'focus' },
-        scriptorium: { primary: 'erudition',     secondary: 'focus' },
-        zahony:      { primary: 'craftsmanship', secondary: 'vigor' },
-        sad:         { primary: 'craftsmanship', secondary: 'vigor' },
-        pole:        { primary: 'craftsmanship', secondary: 'vigor' },
-        vinohrad:    { primary: 'craftsmanship', secondary: 'vigor' },
-        apiarium:    { primary: 'craftsmanship', secondary: 'vigor' },
-        piscina:     { primary: 'craftsmanship', secondary: 'vigor' },
-        dvur:        { primary: 'vigor',         secondary: 'craftsmanship' },
-    },
-
     dormitoriumAddXp: function(brother, tabId) {
         if (!brother.xp) brother.xp = {};
         brother.xp[tabId] = (brother.xp[tabId] || 0) + 1;
-
-        // Vedlejší přírůstek do traits — zatím NEnahrazuje výše uvedený
-        // xp[tabId] čítač (ten dál řídí dormitoriumBrotherLevel/Mult), jen
-        // ho doplňuje. Přepočítání levelu na traits je samostatný krok
-        // (monk-attributes-mrd, sekce 6, bod 3) — zatím neproveden.
-        const map = this.DORMITORIUM_TAB_TRAITS[tabId];
-        if (map && brother.traits) {
-            if (typeof brother.traits[map.primary] === 'number') {
-                brother.traits[map.primary] = Math.min(100, brother.traits[map.primary] + 2);
-            }
-            if (typeof brother.traits[map.secondary] === 'number') {
-                brother.traits[map.secondary] = Math.min(100, brother.traits[map.secondary] + 1);
-            }
-        }
-=======
-    dormitoriumAddXp: function(brother, tabId) {
-        if (!brother.xp) brother.xp = {};
-        brother.xp[tabId] = (brother.xp[tabId] || 0) + 1;
->>>>>>> 6321135a1563a3eb67454c5697ceb313e6a300ea
     },
 
     // Přiřadí bratra na tab (max 1 bratr per tab). tabId === null odebere.
@@ -4643,12 +4590,6 @@ const Game = {
 
         CellariumSystem.addGrose(-HIRE_COST);
 
-<<<<<<< HEAD
-        // Duchovní/intelektuální/praktické vlastnosti (monk-attributes-mrd) —
-        // start: základ 40 ± náhodná variace 15, škála 0–100.
-        const rnd = () => Math.max(0, Math.min(100, 40 + Math.round((Math.random() * 30) - 15)));
-=======
->>>>>>> 6321135a1563a3eb67454c5697ceb313e6a300ea
         const brother = {
             id: 'brother_' + Date.now(),
             rosterId, name,
@@ -4656,23 +4597,6 @@ const Game = {
             assignedTab: null,
             xp: {},
             fatigue: 0,
-<<<<<<< HEAD
-            mood: 60,
-            loyalty: 30,
-            stress: 0,
-            temptation: 0,
-            traits: {
-                piety: rnd(),          // Zbožnost
-                obedience: rnd(),      // Pokora/Poslušnost
-                asceticism: rnd(),     // Askeze
-                erudition: rnd(),      // Učenost
-                focus: rnd(),          // Soustředění
-                craftsmanship: rnd(),  // Řemeslná zručnost
-                eloquence: rnd(),      // Výřečnost
-                vigor: rnd(),          // Tělesná zdatnost
-            },
-=======
->>>>>>> 6321135a1563a3eb67454c5697ceb313e6a300ea
         };
         GameState.dormitorium.brothers.push(brother);
 
