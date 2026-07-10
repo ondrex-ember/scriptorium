@@ -2308,6 +2308,7 @@
                     <div class="hpill" id="pill-vigor" onclick="pillToggle('vigor')">
                         <span id="pill-vigor-icon">⚡</span>
                         <span class="hpill-val" id="pill-vigor-val">–</span>
+                        <span id="pill-titivillus-warn" style="display:none; margin-left:2px;">👿</span>
                     </div>
                     <div class="hpill" id="pill-time" onclick="pillToggle('time')">
                         <span id="pill-time-icon">🌙</span>
@@ -5425,6 +5426,7 @@ const ItemsDB = {
     "bonemeal": { name: "Hnojivo", name_en: "Bonemeal", icon: "🦴", type: "mat", desc: "Z kostí.", desc_en: "Ground bone fertilizer." },
     "seeds_herb": { name: "Semínka", name_en: "Seeds", icon: "🌱", type: "mat", desc: "Rostliny.", desc_en: "Plant seeds." },
     "potion_heal": { name: "Mast", name_en: "Healing Salve", icon: "🧪", type: "alchemy", desc: "Léčí.", desc_en: "Heals wounds." },
+    "unguentum_calidum": { name: "Hřejivá mast", name_en: "Warming Salve", icon: "🫙", type: "alchemy", desc: "Kostival, sádlo a rozmarýn. Podle galenické medicíny prohřívá a vysušuje studené vlhké šťávy — proti revma a křečím.", desc_en: "Comfrey, lard and rosemary. In Galenic medicine, warms and dries the cold, damp humours — against rheumatism and cramps." },
     "antidote": { name: "Protijed", name_en: "Antidote", icon: "💚", type: "alchemy", desc: "Proti jedu.", desc_en: "Against poison." },
     "stamina_tonic": { name: "Tonikum síly", name_en: "Stamina Tonic", icon: "⚡", type: "alchemy", desc: "Energie.", desc_en: "Restores energy." },
     "preservation_oil": { name: "Konzervační olej", name_en: "Preservation Oil", icon: "🫙", type: "alchemy", desc: "Uchovává.", desc_en: "Preserves food and materials." },
@@ -5727,6 +5729,9 @@ const ItemsDB = {
     "sage": { name: "Šalvěj", name_en: "Sage", icon: "🌿", type: "herb", desc: "Salvia officinalis. Kapitulář Karla Velikého. Čistí vzduch i mysl.", desc_en: "Salvia officinalis. Capitulare de villis. Purifies air and mind." },
     "fennel": { name: "Fenykl", name_en: "Fennel", icon: "🌿", type: "herb", desc: "Foeniculum vulgare. Dobrý na trávení, Hildegarda jej doporučovala.", desc_en: "Foeniculum vulgare. Good for digestion, praised by Hildegard." },
     "wormwood": { name: "Pelyněk", name_en: "Wormwood", icon: "🌿", type: "herb", desc: "Artemisia absinthium. Bylina všech bylin. Chrání před morem.", desc_en: "Artemisia absinthium. Herb of herbs. Wards off pestilence." },
+    "comfrey": { name: "Kostival lékařský", name_en: "Comfrey", icon: "🌿", type: "herb", desc: "Symphytum officinale. Základ středověké ortopedie — obklady na bolavé klouby a kosti.", desc_en: "Symphytum officinale. The foundation of medieval orthopaedics — poultices for aching joints and bones." },
+    "juniper": { name: "Jalovec", name_en: "Juniper", icon: "🌲", type: "herb", desc: "Juniperus communis. Silně prohřívací silice, oblíbená na revma.", desc_en: "Juniperus communis. Strongly warming resin, favoured against rheumatism." },
+    "rosemary": { name: "Rozmarýn", name_en: "Rosemary", icon: "🌿", type: "herb", desc: "Rosmarinus officinalis. Prohřívá a stimuluje krevní oběh ve ztuhlé ruce.", desc_en: "Rosmarinus officinalis. Warms and stimulates blood flow in a stiff hand." },
     "hyssop": { name: "Yzop", name_en: "Hyssop", icon: "🌿", type: "herb", desc: "Hyssopus officinalis. Benediktinský klášter bez yzopu? Nemyslitelné.", desc_en: "Hyssopus officinalis. A Benedictine monastery without hyssop? Unthinkable." },
     "yarrow": { name: "Řebříček", name_en: "Yarrow", icon: "🌿", type: "herb", desc: "Achillea millefolium. Hojí rány. Místní česká bylina, v Čechách od nepaměti.", desc_en: "Achillea millefolium. Heals wounds. A native Czech herb, grown here since time immemorial." },
     "plantain": { name: "Jitrocel", name_en: "Plantain", icon: "🌿", type: "herb", desc: "Plantago major. Poutníkova bylina — roste u každé cesty, hojí rány a odvary tiší kašel.", desc_en: "Plantago major. The wayfarer's herb — grows by every road, heals wounds, and its brew soothes coughs." },
@@ -6378,6 +6383,7 @@ const RecipesDB = [
     { id: "glue", output: "glue", qty: 1, req: { "bone": 2, "water": 1 }, cat: "craft", locked: true,
       desc: "Kostní klíh — kosti se hodiny vyvařují, dokud nevznikne hustá želatina.", desc_en: "Bone glue — bones boiled for hours into a thick gelatin." },
     { id: "potion_heal", output: "potion_heal", qty: 1, req: { "herb_red": 1, "fat": 1, "pestle": 0 }, cat: "alchemy", locked: true },
+    { id: "unguentum_calidum", output: "unguentum_calidum", qty: 1, req: { "comfrey": 2, "lard": 1, "rosemary": 1, "pestle": 0 }, cat: "alchemy", locked: true },
     { id: "ash", output: "ash", qty: 1, req: { "charcoal": 4 }, cat: "alchemy", locked: true },
     { id: "ash_from_sticks", output: "ash", qty: 1, req: { "stick": 4 }, cat: "alchemy", locked: true, desc: "Spálené větve. Pomalé, ale bez uhlí.", desc_en: "Burned branches. Slow, but no charcoal needed." },
     { id: "ash_from_log", output: "ash", qty: 2, req: { "log": 1 }, cat: "alchemy", locked: true, desc: "Kulatina dá více popele.", desc_en: "A log yields more ash." },
@@ -6687,7 +6693,7 @@ const HealthConditionsDB = {
         durationHours: 96,
         onApply: { fatigue: 10 },
         tickHour: { fatigue: 1 },
-        cures: ["herbal_tea", "potion_heal", "hildegard_tisane"],
+        cures: ["herbal_tea", "potion_heal", "hildegard_tisane", "unguentum_calidum"],
     },
     "eye_strain": {
         name: "Únava zraku", name_en: "Eye Strain", icon: "👁️",
@@ -6792,6 +6798,19 @@ const HealthConditionsDB = {
         onApply: { fatigue: 5 },
         tickHour: { fatigue: 1.5 },
         cures: ["sleep_potion", "linden_tea"],
+    },
+    "writers_cramp": {
+        name: "Křeč písařské ruky", name_en: "Writer's Cramp", icon: "✍️",
+        desc: "„Tři prsty píší, ale celé tělo trpí“ — staletý nářek písařů. Titivillus se raduje z každé zaťaté ruky, protože ví, že unavené prsty dělají chyby.",
+        desc_en: "\"Three fingers write, but the whole body suffers\" — the age-old lament of scribes. Titivillus delights in every cramped hand, for weary fingers make mistakes.",
+        causeShort: "Dlouhé hodiny psaní bez přestávky.",
+        causeShort_en: "Long hours of writing without a break.",
+        advice: "Ruka je příliš rozklepaná na psaní Zápisků (Research) — nedá se s ní pracovat, dokud nezmizí. Mast nebo bylinný čaj urychlí uzdravení.",
+        advice_en: "The hand shakes too badly to write Research notes — it cannot be used until this passes. Salve or herbal tea speeds recovery.",
+        durationHours: 60,
+        onApply: { fatigue: 12 },
+        tickHour: { fatigue: 0.5 },
+        cures: ["potion_heal", "herbal_tea", "unguentum_calidum"],
     },
 };
 // ═══ src/data/lore.js ═══
@@ -7686,7 +7705,7 @@ const TechTree = [
   { id: "tech_meteorologica", name: "Meteorologica — Živly a Oheň", name_en: "Meteorologica — Elements and Fire", cost: 20, desc: "Aristotelovo pojednání o povětří a živlech. Oheň jako horký a suchý element stoupající k nebi. Odemkne: správu paliva v krbu, subtab Ohniště.", desc_en: "Aristotle's treatise on weather and the elements. Fire as a hot, dry element rising toward heaven. Unlocks: hearth fuel management, the Foculus subtab.", unlocks: ["fireplace_fuel"], requires: ["tech_candle"] },
   { id: "tech_backpack", name: "Organizace Batohu", name_en: "Satchel Organisation", cost: 3, desc: "Odemkne: Třídění předmětů", desc_en: "Unlocks: Item sorting", unlocks: [] },
   { id: "tech_backpack_ii", name: "Registrum Cellarii — Katalog Zásob", name_en: "Registrum Cellarii — Stock Catalogue", cost: 10, desc: "Cellarius sestavil podrobný rejstřík, kde má každá věc své místo — od nástrojů po nalezené drobnosti. Odemkne: filtrování podle kategorií v Inventariu (Cellarium → Zásoby). Vše, co nemá jasné zařazení, spadne do kategorie Ostatní.", desc_en: "The cellarius compiled a detailed register where every item has its place — from tools to found trinkets. Unlocks: category filtering in the Inventarium (Cellarium → Stores). Anything without a clear place falls under Miscellaneous.", unlocks: [], requires: ["tech_backpack"] },
-  { id: "tech_alchemy_1", name: "Základy Bylinkářství", name_en: "Herbalism Basics", cost: 3, desc: "Odemkne: Hojivá mast", desc_en: "Unlocks: Healing salve", unlocks: ["potion_heal"] },
+  { id: "tech_alchemy_1", name: "Základy Bylinkářství", name_en: "Herbalism Basics", cost: 3, desc: "Odemkne: Hojivá mast, Hřejivá mast", desc_en: "Unlocks: Healing salve, Warming salve", unlocks: ["potion_heal", "unguentum_calidum"] },
 
   // TIER 2 - cooking
   { id: "tech_cooking_1", name: "Vaření", name_en: "Cooking", cost: 4, desc: "Odemkne: Hrnec, pečení", desc_en: "Unlocks: Cooking pot, roasting", unlocks: ["cooking_pot", "cooked_meat", "cooked_fish", "bread"] },
@@ -15910,6 +15929,23 @@ const VigorSystem = {
         // vigor-mini (legacy support)
         const mini = document.getElementById('vigor-mini');
         if (mini) mini.setAttribute('data-vigor', vigor);
+
+        // Titivillus varování (folio_titivillus odměna, GameState.flags.titivillus_awareness) —
+        // trvale viditelný indikátor, když jsou podmínky pro krádež výstupu nebezpečné
+        // (noc + bez světla) — přesně stejná podmínka jako v Game.craftItem Titivillus checku.
+        const titivillusWarn = document.getElementById('pill-titivillus-warn');
+        if (titivillusWarn) {
+            const hasAwareness = GameState.flags && GameState.flags.titivillus_awareness;
+            const isNight = typeof TimeSys !== 'undefined' && !TimeSys.isDaytime();
+            const noLight = GameState.flags && !GameState.flags.candleLit && !GameState.flags.torchLit;
+            const isDanger = hasAwareness && isNight && noLight;
+            titivillusWarn.style.display = isDanger ? 'inline' : 'none';
+            if (isDanger) {
+                titivillusWarn.title = lang === 'en'
+                    ? 'Titivillus lurks in the dark — light a candle before writing.'
+                    : 'Titivillus číhá ve tmě — zapal svíci, než se pustíš do psaní.';
+            }
+        }
 
         // Pill panel detail (pokud otevřený)
         const panel = document.getElementById('pill-panel-body');
@@ -41853,6 +41889,10 @@ const Game = {
                     if(Math.random() < 0.03) this.addItem('wormwood', 1);
                     if(Math.random() < 0.04) this.addItem('yarrow', 1);
                     if(Math.random() < 0.02) this.addItem('hyssop', 1);
+                    // Titivillus-infirmary-mrd — kostival, jalovec, rozmarýn (na mast proti revma/křeči)
+                    if(Math.random() < 0.03) this.addItem('comfrey', 1);
+                    if(Math.random() < 0.02) this.addItem('juniper', 1);
+                    if(Math.random() < 0.03) this.addItem('rosemary', 1);
                     // Semena nových bylin — vzácnější
                     if(Math.random() < 0.015) this.addItem('seeds_sage', 1);
                     if(Math.random() < 0.010) this.addItem('seeds_wormwood', 1);
@@ -41935,6 +41975,8 @@ const Game = {
                     if(Math.random() < 0.04) this.addItem('dandelion', 1);
                     if(Math.random() < 0.05) this.addItem('burdock_root', 1);
                     if(Math.random() < 0.05) this.addItem('couch_grass', 1);
+                    // Titivillus-infirmary-mrd — jalovec roste v lesích/na mezích
+                    if(Math.random() < 0.03) this.addItem('juniper', 1);
                     // Bukvice — podzim, spolu se žaludy
                     if(Math.random() < 0.08) this.addItem('beechnut', 1);
                     // Vzácnější houby (Cultus Herbarum)
@@ -41982,6 +42024,9 @@ const Game = {
                     if(Math.random() < 0.05) this.addItem('wormwood', 1);
                     if(Math.random() < 0.04) this.addItem('sage', 1);
                     if(Math.random() < 0.02) this.addItem('plantain', 1);
+                    // Titivillus-infirmary-mrd — kostival a rozmarýn rostou mezi trávou (jalovec je keř, viz jinde)
+                    if(Math.random() < 0.03) this.addItem('comfrey', 1);
+                    if(Math.random() < 0.02) this.addItem('rosemary', 1);
                     // Divoke obili mezi travou
                     if(Math.random() < 0.04) this.addItem('seeds_rye', 1);
                     if(Math.random() < 0.03) this.addItem('seeds_wheat', 1);
@@ -42184,6 +42229,10 @@ const Game = {
                 if(Math.random() < 0.03) this.addItem('wormwood', 1);
                 if(Math.random() < 0.04) this.addItem('yarrow', 1);
                 if(Math.random() < 0.02) this.addItem('hyssop', 1);
+                // Titivillus-infirmary-mrd — kostival, jalovec, rozmarýn
+                if(Math.random() < 0.03) this.addItem('comfrey', 1);
+                if(Math.random() < 0.02) this.addItem('juniper', 1);
+                if(Math.random() < 0.03) this.addItem('rosemary', 1);
                 if(Math.random() < 0.015) this.addItem('seeds_sage', 1);
                 if(Math.random() < 0.010) this.addItem('seeds_wormwood', 1);
                 if(Math.random() < 0.020) this.addItem('seeds_yarrow', 1);
@@ -42249,6 +42298,8 @@ const Game = {
                 if(Math.random() < 0.04) this.addItem('dandelion', 1);
                 if(Math.random() < 0.05) this.addItem('burdock_root', 1);
                 if(Math.random() < 0.05) this.addItem('couch_grass', 1);
+                // Titivillus-infirmary-mrd — jalovec
+                if(Math.random() < 0.03) this.addItem('juniper', 1);
                 // Bukvice — podzim, spolu se žaludy
                 if(Math.random() < 0.08) this.addItem('beechnut', 1);
                 // Vzácnější houby (Cultus Herbarum)
@@ -42293,6 +42344,9 @@ const Game = {
                 if(Math.random() < 0.05) this.addItem('wormwood', 1);
                 if(Math.random() < 0.04) this.addItem('sage', 1);
                 if(Math.random() < 0.02) this.addItem('plantain', 1);
+                // Titivillus-infirmary-mrd — kostival a rozmarýn
+                if(Math.random() < 0.03) this.addItem('comfrey', 1);
+                if(Math.random() < 0.02) this.addItem('rosemary', 1);
                 // Divoke obili mezi travou
                 if(Math.random() < 0.04) this.addItem('seeds_rye', 1);
                 if(Math.random() < 0.03) this.addItem('seeds_wheat', 1);
@@ -42608,6 +42662,15 @@ const Game = {
                     : '😵 Příliš unaven na psaní. Nejdříve se najedz nebo odpočiň. (Vigor < 20)', true);
                 return;
             }
+            // Křeč písařské ruky (monastery-decay-mrd) — ruka je příliš
+            // rozklepaná na psaní Zápisků, dokud nemoc nepřejde/nevyléčí se.
+            if (typeof HealthSystem !== 'undefined' && HealthSystem.isActive('writers_cramp')) {
+                const lang = (GameState.settings && GameState.settings.language) || 'cs';
+                UI.notify(lang === 'en'
+                    ? '✍️ Your hand shakes too badly to write — writer\'s cramp.'
+                    : '✍️ Ruka se ti třese příliš na psaní — křeč písařské ruky.', true);
+                return;
+            }
         }
 
         for(let [item, amt] of Object.entries(r.req)) if(amt > 0) this.removeItem(item, amt);
@@ -42710,6 +42773,13 @@ const Game = {
                 Analytics.titivillusStruck(r.output, isNight && noLight);
                 const quotes = t('titivillus');
                 UI.notify(quotes[Math.floor(Math.random() * quotes.length)], true);
+                // Křeč písařské ruky (monastery-decay-mrd) — Titivillus, když
+                // ukradne Zápisek (research) konkrétně, občas zanechá i křeč
+                // v ruce, ne jen ztrátu výstupu. Nízká šance, jen u research.
+                if (r.output === 'research' && typeof HealthSystem !== 'undefined'
+                    && !HealthSystem.isActive('writers_cramp') && Math.random() < 0.15) {
+                    HealthSystem.addCondition('writers_cramp');
+                }
                 Game.save(); UI.renderAll();
                 return;
             }
