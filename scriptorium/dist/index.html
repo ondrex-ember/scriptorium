@@ -39721,8 +39721,8 @@ const Game = {
 		if (!GameState.dormitorium) GameState.dormitorium = { brothers: [] };
 		if (!GameState.dormitorium.brothers) GameState.dormitorium.brothers = [];
 		// Migrace: bratři najatí před monk-attributes-mrd nemají traits/mood/
-		// loyalty/stress/temptation — doplnit pevnou hodnotou 40 (ne náhodnou,
-		// ať migrace nedává nespravedlivou výhodu/penalizaci oproti novým).
+		// loyalty/stress/temptation — doplnit start hodnotou 0 (konzistentně
+		// s hireBrother — všichni bratři začínají na 0, rostou jen prací).
 		GameState.dormitorium.brothers.forEach(b => {
 			if (typeof b.mood !== 'number') b.mood = 60;
 			if (typeof b.loyalty !== 'number') b.loyalty = 30;
@@ -39730,9 +39730,42 @@ const Game = {
 			if (typeof b.temptation !== 'number') b.temptation = 0;
 			if (!b.traits) {
 				b.traits = {
-					piety: 40, obedience: 40, asceticism: 40, erudition: 40,
-					focus: 40, craftsmanship: 40, eloquence: 40, vigor: 40,
+					piety: 0, obedience: 0, asceticism: 0, erudition: 0,
+					focus: 0, craftsmanship: 0, eloquence: 0, vigor: 0,
 				};
+			}
+			// Jednorázová oprava: bratři z KRÁTKÉHO mezidobí, kdy migrace
+			// nastavovala start na 40 místo 0 (způsobovalo start rovnou na
+			// úrovni 2/4 kvůli prahu 30) — pokud má bratr VŠECH 8 vlastností
+			// přesně 40 (tedy nenapracovaných, jen z té staré migrace) a
+			// zároveň neprošel XP migrací níže, vrátit na 0.
+			if (!b.traits40FixApplied) {
+				b.traits40FixApplied = true;
+				const allDefault40 = Object.values(b.traits).every(v => v === 40);
+				if (allDefault40 && !b.xpMigratedToTraits) {
+					Object.keys(b.traits).forEach(k => { b.traits[k] = 0; });
+				}
+			}
+			// Jednorázová migrace starého xp[tabId] (dormitoriumAddXp, +1/tick)
+			// na body primární vlastnosti (nový systém, +2/tick) — proveden JEN
+			// jednou (flag xpMigratedToTraits), ať se při každém načtení hry
+			// znovu nesčítá. Bezpečné i pro bratry bez xp (forEach na {} je no-op).
+			if (!b.xpMigratedToTraits) {
+				b.xpMigratedToTraits = true;
+				if (b.xp && this.DORMITORIUM_TAB_TRAITS) {
+					Object.keys(b.xp).forEach(tabId => {
+						const map = this.DORMITORIUM_TAB_TRAITS[tabId];
+						const oldXp = b.xp[tabId] || 0;
+						if (map && oldXp > 0 && (b.traits[map.primary] === 40 || b.traits[map.primary] === 0)) {
+							// Starý +1/tick → nový systém +2/tick primární, +1/tick sekundární
+							// (báze 0, ne 40 — konzistentní s opravenou startovní hodnotou)
+							b.traits[map.primary] = Math.min(100, b.traits[map.primary] + oldXp * 2);
+							if (typeof b.traits[map.secondary] === 'number') {
+								b.traits[map.secondary] = Math.min(100, b.traits[map.secondary] + oldXp);
+							}
+						}
+					});
+				}
 			}
 		});
 
@@ -43931,17 +43964,28 @@ const Game = {
     },
 
     // ── DORMITORIUM — XP/úroveň specializace (odvozená z assignedTab) ──
-    // +1 XP za každý úspěšný 24h tick práce v přiřazeném tabu. XP se váže na
-    // konkrétní tab a přeřazením se neztrácí.
-    DORMITORIUM_XP_THRESHOLDS: [0, 15, 50, 120], // index = level-1 (1-4)
+    // Úroveň se nově počítá z PRIMÁRNÍ vlastnosti pro daný tab (viz
+    // DORMITORIUM_TAB_TRAITS), ne z odděleného xp[tabId] čítače — jeden zdroj
+    // pravdy. Škála prahů zdvojnásobena oproti starému [0,15,50,120], protože
+    // primární vlastnost roste +2/tick (dormitoriumAddXp), staré XP jen +1/tick.
+    // Fallback na starý xp[tabId] systém zůstává pro jistotu, kdyby tab neměl
+    // definovanou primární vlastnost v DORMITORIUM_TAB_TRAITS.
+    DORMITORIUM_XP_THRESHOLDS: [0, 30, 100, 240], // index = level-1 (1-4), škála traits (0-100 cap ale růst neomezený zde)
     DORMITORIUM_LEVEL_MULT:    [1.0, 1.10, 1.20, 1.30],
 
     dormitoriumBrotherLevel: function(brother, tabId) {
-        const xp = (brother.xp && brother.xp[tabId]) || 0;
+        const map = this.DORMITORIUM_TAB_TRAITS[tabId];
         const th = this.DORMITORIUM_XP_THRESHOLDS;
+        let value;
+        if (map && brother.traits && typeof brother.traits[map.primary] === 'number') {
+            value = brother.traits[map.primary];
+        } else {
+            // Fallback — starý systém, pro taby bez definované primární vlastnosti
+            value = (brother.xp && brother.xp[tabId]) || 0;
+        }
         let level = 1;
         for (let i = th.length - 1; i >= 0; i--) {
-            if (xp >= th[i]) { level = i + 1; break; }
+            if (value >= th[i]) { level = i + 1; break; }
         }
         return level;
     },
@@ -43964,6 +44008,18 @@ const Game = {
         apiarium:    { primary: 'craftsmanship', secondary: 'vigor' },
         piscina:     { primary: 'craftsmanship', secondary: 'vigor' },
         dvur:        { primary: 'vigor',         secondary: 'craftsmanship' },
+    },
+
+    // Individualizace rosteru (monk-attributes-mrd, krok 5) — malý startovní
+    // náznak charakteru per postava, +10 v uvedených 2 vlastnostech při
+    // najmutí. Odvozeno z origin textů v DormitoriumRosterDB — jemný odraz
+    // povahy, ne mechanicky rozhodující rozdíl mezi postavami.
+    DORMITORIUM_ROSTER_TRAIT_BONUS: {
+        b_bonaventura: ['craftsmanship', 'asceticism'],   // Zahradník — trpělivý, mluví s rostlinami
+        b_kolumban:    ['craftsmanship', 'vigor'],         // Chovatel — pozná nemocné zvíře, věrný stádu
+        b_prokulus:    ['erudition', 'focus'],             // Skriptor — ruka se netřese, pyšný na řemeslo
+        b_teofil:      ['erudition', 'focus'],             // Alchymista — tajemný, přemýšlivý
+        b_radim:       ['erudition', 'eloquence'],         // Knihovník — nejstarší, vřelost k mladším
     },
 
     dormitoriumAddXp: function(brother, tabId) {
@@ -44040,8 +44096,8 @@ const Game = {
         CellariumSystem.addGrose(-HIRE_COST);
 
         // Duchovní/intelektuální/praktické vlastnosti (monk-attributes-mrd) —
-        // start: základ 40 ± náhodná variace 15, škála 0–100.
-        const rnd = () => Math.max(0, Math.min(100, 40 + Math.round((Math.random() * 30) - 15)));
+        // start: 0, roste jen prací (viz dormitoriumAddXp). Bez náhodné variace
+        // na startu — každý bratr začíná na úrovni 1/4 ve všech tabech.
         const brother = {
             id: 'brother_' + Date.now(),
             rosterId, name,
@@ -44054,16 +44110,30 @@ const Game = {
             stress: 0,
             temptation: 0,
             traits: {
-                piety: rnd(),          // Zbožnost
-                obedience: rnd(),      // Pokora/Poslušnost
-                asceticism: rnd(),     // Askeze
-                erudition: rnd(),      // Učenost
-                focus: rnd(),          // Soustředění
-                craftsmanship: rnd(),  // Řemeslná zručnost
-                eloquence: rnd(),      // Výřečnost
-                vigor: rnd(),          // Tělesná zdatnost
+                piety: 0,          // Zbožnost
+                obedience: 0,      // Pokora/Poslušnost
+                asceticism: 0,     // Askeze
+                erudition: 0,      // Učenost
+                focus: 0,          // Soustředění
+                craftsmanship: 0,  // Řemeslná zručnost
+                eloquence: 0,      // Výřečnost
+                vigor: 0,          // Tělesná zdatnost
             },
         };
+
+        // Individualizace rosteru (monk-attributes-mrd, krok 5) — malý
+        // startovní náznak charakteru podle postavy (+10 ve 2 vlastnostech,
+        // ne extrémní rozdíl, jen jemný odraz origin textu). Bratři mimo
+        // roster (fallback "Bratr") nedostávají žádný bonus.
+        const rosterBonus = this.DORMITORIUM_ROSTER_TRAIT_BONUS[rosterId];
+        if (rosterBonus) {
+            rosterBonus.forEach(key => {
+                if (typeof brother.traits[key] === 'number') {
+                    brother.traits[key] = Math.min(100, brother.traits[key] + 10);
+                }
+            });
+        }
+
         GameState.dormitorium.brothers.push(brother);
 
         UI.notifyPanel('📿 ' + (lang==='en' ? name+' has joined as a brother.' : name+' se připojil jako bratr.') + (hireQuote ? ' „' + hireQuote + '“' : ''), 'success');
