@@ -6021,6 +6021,7 @@ Object.assign(ItemsDB, {
     "incense_styrax": { name: "Styraxové kadidlo", name_en: "Styrax Incense", icon: "💨", type: "consumable", desc: "Sladce a těžce vonící kadidlo pro jasnou mysl. Oblíbené v byzantských klášterech. Hoří 22 sekund.", desc_en: "Sweet and heavy-scented incense for a clear mind. Favoured in Byzantine monasteries. Burns for 22 seconds." },
     "incense_olibanum": { name: "Olibanum", name_en: "Olibanum Incense", icon: "💨", type: "consumable", desc: "Posvátný dým arabského kadidla. Kouř stoupá k nebi jako modlitba. Očišťuje tělo i ducha. Hoří 30 sekund.", desc_en: "Sacred smoke of Arabian frankincense. The smoke rises heavenward like a prayer. Purifies body and spirit. Burns for 30 seconds." },
 });
+
 // ═══ src/data/recipes.js ═══
 const RecipesDB = [
     // BASIC TOOLS
@@ -9680,6 +9681,132 @@ const ConversiBondsDB = [
       desc_cs: 'Dva vypravěči z cest. Každý večer soutěž, kdo zná lepší historku — Šimon vede o délku sedmi zemí, Havel to nikdy neuzná.',
       desc_en: 'Two storytellers of the road. Every evening a contest for the better tale — \u0160imon leads by the length of seven lands, Havel will never admit it.' }
 ];
+// ═══ src/data/dormitorium.js ═══
+// ─────────────────────────────────────────────────────────────
+// DormitoriumRosterDB — autorský roster bratrů (mnichů/skriptorů)
+// Odlišné od ConversiRosterDB: bratři jsou manažerská vrstva —
+// specializace se odvozuje z přiřazení na tab a roste s časem/prací,
+// ne z pevných traitů jako u Conversi.
+// MRD: dormitorium-mrd.md
+// ─────────────────────────────────────────────────────────────
+
+const DormitoriumRosterDB = {
+    b_bonaventura: {
+        name: 'Bonaventura',
+        icon: '🌿',
+        origin_cs: 'Vstoupil do kláštera jako chlapec a od té doby nezná nic jiného než hlínu pod nehty a bylinkovou zahradu. Opat mu jednou řekl, že mluví s rostlinami víc než s bratřími. Nepopřel to.',
+        origin_en: 'He entered the monastery as a boy and has known nothing else since but soil under his nails and the herb garden. The Abbot once told him he speaks to plants more than to his brothers. He did not deny it.',
+        quotes: {
+            hire:     { cs: 'Dej mi záhon a nech mě být. Zbytek přijde sám.',
+                        en: 'Give me a bed of earth and leave me be. The rest follows on its own.' },
+            work:     { cs: 'Réva neposlouchá rozkazy, jen trpělivost.',
+                        en: 'The vine obeys no orders, only patience.' },
+            tired:    { cs: 'Únava mizí, když jsou ruce v zemi.',
+                        en: 'Fatigue fades once the hands are in the earth.' },
+            refuse:   { cs: 'Ten člověk šlape po sazenicích. Ne, díky.',
+                        en: 'That man tramples seedlings underfoot. No, thank you.' },
+            officium: { cs: 'Modlím se stejně jako pletu — v tichu a beze spěchu.',
+                        en: 'I pray the way I weed — in silence, without haste.' }
+        },
+        voice_hint: 'Klidný, věcný, mluví v obrazech ze zahrady. Nikdy nespěchá, ani v řeči.'
+    },
+
+    b_kolumban: {
+        name: 'Kolumbán',
+        icon: '🐐',
+        origin_cs: 'Pastevecký syn, který si ke klášteru zvykl rychleji než klášter na jeho pach chléva. Pozná nemocné zvíře dřív, než samo ví, že je nemocné. S lidmi je to horší.',
+        origin_en: 'A shepherd\u2019s son who grew used to the monastery faster than the monastery grew used to the smell of the byre on him. He can spot a sick animal before it knows it itself. With people, it is harder.',
+        quotes: {
+            hire:     { cs: 'Zvířata mi věří. To je víc, než mohu říct o bratřích v kapitulní síni.',
+                        en: 'The animals trust me. That is more than I can say for the brothers in the chapter house.' },
+            work:     { cs: 'Koza pozná faleš na sto kroků. Poslouchejte ji.',
+                        en: 'A goat smells falseness a hundred paces off. Listen to her.' },
+            tired:    { cs: 'Stádo nikdy neodpočívá celé najednou. Ani já.',
+                        en: 'A herd never rests all at once. Neither do I.' },
+            refuse:   { cs: 'Bil zvíře, které nekopalo. Ať jde jinam.',
+                        en: 'He struck an animal that had not kicked. Let him go elsewhere.' },
+            officium: { cs: 'Ovce bečí za úsvitu skoro jako žalm. Skoro.',
+                        en: 'The sheep bleat at dawn almost like a psalm. Almost.' }
+        },
+        voice_hint: 'Krátké věty, přirovnání ke zvířatům. Nedůvěřivý k lidem, věrný ke stádu.'
+    },
+
+    b_prokulus: {
+        name: 'Prokulus',
+        icon: '📜',
+        origin_cs: 'Ruka se mu netřese ani po deseti hodinách u pulpitu. Iluminátoři ho obdivují, opisovači závidí, opat ho půjčuje jiným klášterům jako vzácnou relikvii.',
+        origin_en: 'His hand does not shake even after ten hours at the desk. Illuminators admire him, copyists envy him, the Abbot lends him to other monasteries like a precious relic.',
+        quotes: {
+            hire:     { cs: 'Inkoust je mi bližší než víno. To už něco znamená v tomhle domě.',
+                        en: 'Ink is dearer to me than wine. That means something in this house.' },
+            work:     { cs: 'Každé písmeno je modlitba, která zůstane, i když ustanu zpívat.',
+                        en: 'Every letter is a prayer that remains after I stop singing.' },
+            tired:    { cs: 'Ruka odmítá dřív než duch. Poslouchám ruku.',
+                        en: 'The hand refuses before the spirit does. I listen to the hand.' },
+            refuse:   { cs: 'Skvrnil by mi stránky. Ne.',
+                        en: 'He would stain my pages. No.' },
+            officium: { cs: 'Znám žalmy zpaměti z toho, kolikrát jsem je přepsal.',
+                        en: 'I know the psalms by heart from copying them so many times.' }
+        },
+        voice_hint: 'Přesný, trochu pyšný na řemeslo, ale upřímně pokorný k Písmu. Mluví o písmu jako o modlitbě.'
+    },
+
+    b_teofil: {
+        name: 'Teofil',
+        icon: '⚗️',
+        origin_cs: 'Přišel z Prahy s pověstí, že uměl vyléčit koně, kterého už čtyři mastičkáři vzdali. Nikdo neví, co přesně dělá v Athanoru, a on to tak rád nechává.',
+        origin_en: 'He came from Prague with a reputation for curing a horse four healers had already given up on. No one quite knows what he does in the Athanor, and he rather likes it that way.',
+        quotes: {
+            hire:     { cs: 'Oheň a trpělivost. Zbytek jsou jen recepty.',
+                        en: 'Fire and patience. The rest is only recipes.' },
+            work:     { cs: 'Co se nepovede dnes, povede se za týden — nebo nikdy. Obojí je poučné.',
+                        en: 'What fails today may succeed in a week — or never. Both are instructive.' },
+            tired:    { cs: 'Athanor nespí. Já bohužel musím.',
+                        en: 'The Athanor never sleeps. I, alas, must.' },
+            refuse:   { cs: 'Rozlil by mi rtuť po celé laboratoři. Ne.',
+                        en: 'He would spill mercury across my whole workshop. No.' },
+            officium: { cs: 'Modlím se za správný poměr — v lučavce i v duši.',
+                        en: 'I pray for the right proportion — in the alchemy and in the soul.' }
+        },
+        voice_hint: 'Tajemný, přemýšlivý, mluví v polovičních větách jako by pořád něco počítal. Fascinovaný, ne posedlý.'
+    },
+
+    b_radim: {
+        name: 'Radim',
+        icon: '📚',
+        origin_cs: 'Nejstarší bratr v Armariu — pamatuje, kam se která kniha zatoulala, ještě než se ztratila. Řetězy na pulpitech osobně kontroluje každý týden.',
+        origin_en: 'The oldest brother in the Armarium — he remembers where a book wandered off to before it was even lost. He personally checks the chains on the lecterns every week.',
+        quotes: {
+            hire:     { cs: 'Knihy nelžou. Lidé, kteří je vracejí pozdě, ano.',
+                        en: 'Books do not lie. The people who return them late, however, do.' },
+            work:     { cs: 'Pořádek na poličce je pořádek v duši. Řekl to někdo moudřejší, ale zapomněl jsem kdo.',
+                        en: 'Order on the shelf is order in the soul. Someone wiser said that, but I forget who.' },
+            tired:    { cs: 'Oči už neslouží tak jako dřív. Paměť naštěstí ano.',
+                        en: 'The eyes no longer serve as they once did. The memory, thankfully, still does.' },
+            refuse:   { cs: 'Poškodil hřbet vzácného kodexu. Sem už nesmí.',
+                        en: 'He damaged the spine of a rare codex. He does not set foot here again.' },
+            officium: { cs: 'Znám pořadí žalmů nazpaměť — i pořadí, ve kterém je špatně zpívají.',
+                        en: 'I know the order of the psalms by heart — and the order in which they sing them wrong.' }
+        },
+        voice_hint: 'Suchý humor, mírně škrobený, ale s vřelostí ke knihám a mladším bratřím, které učí.'
+    },
+};
+
+// Specializace odvozené z přiřazení na tab — mapování tab → titul.
+// Žádné mechanické efekty zde; skutečný bonus počítá DormitoriumSystem
+// podle nastřádaného XP v dané specializaci (viz DormitoriumSystem.js).
+const DormitoriumSpecializationDB = {
+    zahony:   { name: 'Zahradník',  name_en: 'Gardener',     icon: '🌿' },
+    sad:      { name: 'Zahradník',  name_en: 'Gardener',     icon: '🍎' },
+    vinohrad: { name: 'Vinař',      name_en: 'Vintner',      icon: '🍇' },
+    pole:     { name: 'Rolník',     name_en: 'Husbandman',   icon: '🌾' },
+    dvur:     { name: 'Chovatel',   name_en: 'Herdsman',     icon: '🐐' },
+    apiarium: { name: 'Včelař',     name_en: 'Beekeeper',    icon: '🐝' },
+    piscina:  { name: 'Rybář',      name_en: 'Fisherman',    icon: '🐟' },
+    athanor:  { name: 'Alchymista', name_en: 'Alchemist',    icon: '⚗️' },
+    scriptorium: { name: 'Skriptor', name_en: 'Scriptor',    icon: '📜' },
+};
+
 // ═══ src/data/contacts.js ═══
 // ─────────────────────────────────────────────────────────────
 // ContactsDB — Clientela: satelitní kontakty kláštera
@@ -15760,6 +15887,7 @@ const VigorSystem = {
         </div>`;
     },
 };
+
 // ═══ src/systems/HealthSystem.js ═══
 // ═══════════════════════════════════════════════════════════════════════════
 // HEALTH SYSTEM (Valetudo)
@@ -18187,6 +18315,135 @@ const SaeculumSystem = {
     this.switchEntity('conversi');
   },
 
+  selectBrother: function(id) {
+    if (!GameState.ui) GameState.ui = {};
+    GameState.ui.brotherSelected = (GameState.ui.brotherSelected === id) ? null : id;
+    this.switchEntity('dormitorium');
+  },
+
+  // ── DORMITORIUM — bratři (mniši/skriptoři), manažerská vrstva nad Conversi ──
+  // Tabů, které mohou být přiřazeny: klíče DormitoriumSpecializationDB.
+  renderDormitorium: function() {
+    const lang = (GameState.settings && GameState.settings.language) || 'cs';
+    if (!GameState.ui) GameState.ui = {};
+    const cap = (typeof Game !== 'undefined' && Game.dormitoriumCapacity) ? Game.dormitoriumCapacity() : 0;
+    const list = (GameState.dormitorium && GameState.dormitorium.brothers) || [];
+    const selected = GameState.ui.brotherSelected;
+
+    let h = `<div style="margin-bottom:16px; background:rgba(0,0,0,0.03); border-radius:8px; border-left:3px solid var(--accent-gold); padding:12px 14px;">`;
+    h += `<div style="font-weight:bold; font-size:0.92rem; margin-bottom:4px;">📿 ${lang==='en'?'Dormitorium':'Dormitorium'}</div>`;
+
+    if (cap === 0) {
+      h += `<div style="font-size:0.8rem; opacity:0.6; font-style:italic;">${lang==='en'
+        ? 'No Dormitorium built yet — build it in Cellarium → Buildings.'
+        : 'Zatím žádné Dormitorium — postav ho v Cellarium → Budovy.'}</div>`;
+    } else {
+      h += `<div style="font-size:0.85rem; margin-bottom:8px;">${lang==='en'?'Beds':'Lůžka'}: <strong>${list.length} / ${cap}</strong></div>`;
+
+      // Přehled práce za poslední tick — co konvrši/bratři stihli udělat
+      const report = GameState.lastTickReport || [];
+      if (report.length) {
+        h += `<div style="margin-bottom:10px; padding:8px 10px; background:rgba(0,0,0,0.03); border-radius:6px;">`;
+        h += `<div style="font-size:0.68rem; font-weight:bold; opacity:0.65; text-transform:uppercase; letter-spacing:0.05em; margin-bottom:4px;">${lang==='en'?'Since last report':'Od posledního hlášení'}</div>`;
+        report.forEach(r => {
+          h += `<div style="font-size:0.74rem; opacity:0.85; margin-bottom:2px;">${lang==='en' ? r.en : r.cs}</div>`;
+        });
+        h += `</div>`;
+      }
+
+      if (list.length) {
+        h += `<div style="display:flex; flex-wrap:wrap; gap:6px; margin-bottom:10px;">`;
+        list.forEach(b => {
+          const rec = (b.rosterId && typeof DormitoriumRosterDB !== 'undefined') ? DormitoriumRosterDB[b.rosterId] : null;
+          const bIcon = (rec && rec.icon) ? rec.icon : '📿';
+          const isActive = b.id === selected;
+          const spec = b.assignedTab && typeof DormitoriumSpecializationDB !== 'undefined' ? DormitoriumSpecializationDB[b.assignedTab] : null;
+          const specIcon = spec ? spec.icon : '';
+          h += `<div onclick="SaeculumSystem.selectBrother('${b.id}')" style="display:flex; align-items:center; gap:6px; padding:6px 10px; background:${isActive ? 'rgba(197,160,89,0.22)' : 'rgba(255,255,255,0.4)'}; border:${isActive ? '2px solid var(--accent-wax)' : '1px solid rgba(197,160,89,0.4)'}; border-radius:8px; cursor:pointer;">
+                  <span style="font-size:1rem;">${bIcon}</span>
+                  <span style="font-size:0.72rem; font-weight:bold;">${b.name}</span>
+                  ${specIcon ? `<span style="font-size:0.7rem;">${specIcon}</span>` : `<span style="width:6px; height:6px; border-radius:50%; background:#7f8fa6;"></span>`}
+                </div>`;
+        });
+        h += `</div>`;
+      }
+
+      if (list.length < cap) {
+        h += `<button class="craft-btn" onclick="Game.hireBrother()">📿 ${lang==='en'?'Hire a brother (30g)':'Najmout bratra (30g)'}</button>`;
+      } else {
+        h += `<div style="font-size:0.75rem; opacity:0.6; font-style:italic;">${lang==='en'?'No free beds.':'Žádné volné lůžko.'}</div>`;
+      }
+
+      if (selected) {
+        const b = list.find(x => x.id === selected);
+        if (b) h += this.renderDormitoriumDetail(b);
+      }
+    }
+    h += `</div>`;
+    return h;
+  },
+
+  renderDormitoriumDetail: function(b) {
+    const lang = (GameState.settings && GameState.settings.language) || 'cs';
+    const rec = (b.rosterId && typeof DormitoriumRosterDB !== 'undefined') ? DormitoriumRosterDB[b.rosterId] : null;
+    const icon = (rec && rec.icon) ? rec.icon : '📿';
+    const origin = rec ? (lang === 'en' ? rec.origin_en : rec.origin_cs) : '';
+    const fat = (typeof b.fatigue === 'number') ? b.fatigue : 0;
+    const fatColor = fat <= 40 ? '#5a9a5a' : fat <= 70 ? '#e67e22' : '#c0392b';
+
+    let h = `<div style="background:rgba(255,255,255,0.45); border-radius:8px; padding:12px 14px; margin-top:4px;">`;
+    h += `<div style="display:flex; gap:10px; align-items:flex-start; margin-bottom:8px;">
+            <div style="font-size:1.8rem;">${icon}</div>
+            <div style="flex:1;"><div style="font-weight:bold; font-size:0.95rem;">${b.name}</div>
+            ${origin ? `<div style="font-style:italic; font-size:0.74rem; opacity:0.75; margin-top:2px; line-height:1.35;">${origin}</div>` : ''}</div>
+          </div>`;
+
+    h += `<div style="margin-bottom:7px;">
+        <div style="display:flex; justify-content:space-between; font-size:0.72rem; opacity:0.75; margin-bottom:2px;">
+          <span>😴 ${lang==='en'?'Fatigue':'Únava'}</span><span>${fat}%</span>
+        </div>
+        <div style="background:rgba(0,0,0,0.12); border-radius:3px; height:5px;">
+          <div style="width:${fat}%; background:${fatColor}; height:5px; border-radius:3px;"></div>
+        </div>
+      </div>`;
+
+    // Aktuální specializace + úroveň (pokud přiřazen)
+    if (b.assignedTab && typeof DormitoriumSpecializationDB !== 'undefined') {
+      const spec = DormitoriumSpecializationDB[b.assignedTab];
+      const specName = spec ? (lang==='en' ? spec.name_en : spec.name) : b.assignedTab;
+      const level = (typeof Game !== 'undefined' && Game.dormitoriumBrotherLevel) ? Game.dormitoriumBrotherLevel(b, b.assignedTab) : 1;
+      const xp = (b.xp && b.xp[b.assignedTab]) || 0;
+      const mult = (typeof Game !== 'undefined' && Game.dormitoriumBrotherMult) ? Game.dormitoriumBrotherMult(b, b.assignedTab) : 1.0;
+      h += `<div style="font-size:0.78rem; margin:8px 0; padding:8px 10px; background:rgba(197,160,89,0.1); border-radius:6px;">
+              ${spec ? spec.icon : ''} <strong>${specName}</strong> — ${lang==='en'?'level':'úroveň'} ${level}/4
+              <span style="opacity:0.65;"> (${xp} XP, ×${mult.toFixed(2)} ${lang==='en'?'yield':'výnos'})</span>
+            </div>`;
+    }
+
+    // Přiřazení na sekci
+    h += `<div style="border-top:1px solid rgba(197,160,89,0.3); margin-top:8px; padding-top:8px;">`;
+    h += `<div style="font-size:0.7rem; font-weight:bold; opacity:0.7; margin-bottom:6px; text-transform:uppercase; letter-spacing:0.06em;">${lang==='en'?'Assign to':'Přiřadit na'}</div>`;
+    h += `<div style="display:flex; gap:6px; flex-wrap:wrap;">`;
+    const specKeys = (typeof DormitoriumSpecializationDB !== 'undefined') ? Object.keys(DormitoriumSpecializationDB) : [];
+    specKeys.forEach(tabId => {
+      const spec = DormitoriumSpecializationDB[tabId];
+      const isCur = b.assignedTab === tabId;
+      const takenBy = (GameState.dormitorium.brothers || []).find(x => x.assignedTab === tabId && x.id !== b.id);
+      const bg = isCur ? '#8a3324' : takenBy ? 'rgba(0,0,0,0.04)' : 'rgba(197,160,89,0.15)';
+      const fg = isCur ? '#fcf5e5' : 'inherit';
+      const opac = takenBy && !isCur ? '0.55' : '1';
+      const specName = lang === 'en' ? spec.name_en : spec.name;
+      const hint = takenBy && !isCur ? specName + ' (' + takenBy.name + ')' : specName;
+      h += `<div onclick="${takenBy && !isCur ? '' : `Game.assignBrotherTab('${b.id}', ${isCur ? 'null' : `'${tabId}'`})`}" style="cursor:${takenBy && !isCur ? 'default' : 'pointer'}; opacity:${opac}; padding:6px 10px; border-radius:6px; background:${bg}; color:${fg}; font-size:0.74rem; text-align:center;">
+              <div>${spec.icon}</div>
+              <div style="font-size:0.6rem; opacity:0.85;">${hint}</div>
+            </div>`;
+    });
+    h += `</div></div>`;
+    h += `</div>`;
+    return h;
+  },
+
   // Detail konvrše — inline panel (konvence: modal = info, panel = akce; tady jde o obojí)
   renderConversiDetail: function(k) {
     const lang = (GameState.settings && GameState.settings.language) || 'cs';
@@ -18261,7 +18518,7 @@ const SaeculumSystem = {
         const taken = Game.conversiTaskCount(taskId, k.id);
         const isCur = k.task === taskId;
         const full = !isCur && taken >= Game.CONVERSI_TASK_SLOTS;
-        const label = ({dvur: lang==='en'?'Farmyard':'Dvůr', zahony: lang==='en'?'Garden':'Záhony', sad: lang==='en'?'Orchard':'Sad', apiarium: lang==='en'?'Apiary':'Apiarium', piscina: lang==='en'?'Fishpond':'Piscina', scavenge:'Scavenge', doly: lang==='en'?'Mine':'Doly', kostel: lang==='en'?'Church':'Kostel'})[taskId];
+        const label = ({dvur: lang==='en'?'Farmyard':'Dvůr', zahony: lang==='en'?'Garden':'Záhony', sad: lang==='en'?'Orchard':'Sad', apiarium: lang==='en'?'Apiary':'Apiarium', piscina: lang==='en'?'Fishpond':'Piscina', pole: lang==='en'?'Field':'Pole', vinohrad: lang==='en'?'Vineyard':'Vinohrad', scavenge:'Scavenge', doly: lang==='en'?'Mine':'Doly', kostel: lang==='en'?'Church':'Kostel'})[taskId];
         let hint = '';
         if (gate.locked) {
           hint = gate.reasonKey === 'gate_fodina_tech' ? (lang==='en'?'needs tech: Fodina':'chybí tech: Fodina')
@@ -18360,6 +18617,7 @@ const SaeculumSystem = {
       { id: 'market',   icon: '⛺', label: 'Trh',             label_en: 'Market' },
       { id: 'forum',    icon: '🐏', label: 'Forum Pecuarium', label_en: 'Forum Pecuarium' },
       { id: 'conversi', icon: '✝️', label: 'Conversi',        label_en: 'Conversi' },
+      { id: 'dormitorium', icon: '📿', label: 'Dormitorium',  label_en: 'Dormitorium' },
       { id: 'regula',   icon: '🕯️', label: 'Regula',          label_en: 'Regula' },
     ];
     // Mola: pod tier 3 vlastní tab; od tier 3 žije uvnitř Mlynářova panelu (Clientela) — pročištění bez regrese
@@ -18403,6 +18661,7 @@ const SaeculumSystem = {
     else if (active === 'forum')     h += this.renderForumPecuarium();
     else if (active === 'mola')      h += this.renderMola();
     else if (active === 'conversi')  h += this.renderConversi();
+    else if (active === 'dormitorium') h += this.renderDormitorium();
     else if (active === 'regula')    h += this.renderRegula();
     else if (active === 'clientela') h += this.renderClientela();
     return h;
@@ -18790,6 +19049,7 @@ const SaeculumSystem = {
   },
 
 };
+
 // ═══ src/systems/TemplumSystem.js ═══
 // ─────────────────────────────────────────────────────────────
 // TemplumSystem — kostelní větev (MRD templum-reference.md)
@@ -21665,9 +21925,7 @@ const GardenSystem = {
         const lang = (GameState.settings && GameState.settings.language) || 'cs';
 
         let html = `<p class="text-sm" style="margin-bottom:12px; opacity:0.75;">${t('garden.piscinaDesc')}</p>`;
-        html += this._zahradaStatsBar(lang);
-
-        // ── TŘECÍ RYBNÍK (Tier 1) ── 1/7 výšky
+        html += this._zahradaStatsBar(lang, [this._brotherBadge('piscina', lang)]);
         const t1locked = p.tier < 1;
         html += `<div style="
             margin-bottom:10px; border-radius:10px; overflow:hidden;
@@ -21935,7 +22193,7 @@ const GardenSystem = {
         };
 
         let html = `<p class="text-sm" style="margin-bottom:15px; opacity:0.75;">${t('garden.orchardDesc')}</p>`;
-        html += this._zahradaStatsBar((typeof UI !== 'undefined' && UI.lang && UI.lang()==='en')?'en':'cs');
+        html += this._zahradaStatsBar((typeof UI !== 'undefined' && UI.lang && UI.lang()==='en')?'en':'cs', [this._brotherBadge('sad', (typeof UI !== 'undefined' && UI.lang && UI.lang()==='en')?'en':'cs')]);
         html += `<div class="garden-grid">`;
 
         GameState.orchard.forEach((slot, idx) => {
@@ -22037,7 +22295,7 @@ const GardenSystem = {
         if (Game.checkApiaryWinter) Game.checkApiaryWinter();
 
         let html = `<p class="text-sm" style="margin-bottom:12px; opacity:0.75;">${t('garden.apiaryDesc')}</p>`;
-        html += this._zahradaStatsBar((typeof UI !== 'undefined' && UI.lang && UI.lang()==='en')?'en':'cs', [seasonLabel[season] || '']);
+        html += this._zahradaStatsBar((typeof UI !== 'undefined' && UI.lang && UI.lang()==='en')?'en':'cs', [seasonLabel[season] || '', this._brotherBadge('apiarium', (typeof UI !== 'undefined' && UI.lang && UI.lang()==='en')?'en':'cs')]);
         html += `<div class="garden-grid">`;
 
         GameState.apiary.forEach((hive, idx) => {
@@ -22185,7 +22443,7 @@ const GardenSystem = {
         const hasCustomPlant = GameState.researchedTechs.includes('tech_hortus_conclusus');
         const lang = (typeof UI !== 'undefined' && UI.lang) ? UI.lang() : 'cs';
 
-        el.innerHTML = this._zahradaStatsBar(lang);
+        el.innerHTML = this._zahradaStatsBar(lang, [this._brotherBadge('zahony', lang)]);
 
         GameState.garden.forEach((plot, idx) => {
             let c = "", b = "", typeLabel = "";
@@ -22265,12 +22523,14 @@ const GardenSystem = {
                 phase: 0,          // 0-3 (orba/klíčení/růst/zrání)
                 phaseStart: 0,     // timestamp začátku fáze
                 watered: false,
+                wateredPhases: 0,  // kolik fází bylo zalitých v aktuálním cyklu (0-3, sucho-kompenzace)
                 strawBonus: false, // má Humno?
             }));
         }
         // Migrace
         GameState.fields.forEach(f => {
             if (f.strawBonus === undefined) f.strawBonus = false;
+            if (f.wateredPhases === undefined) f.wateredPhases = 0;
         });
         this._syncFieldLocks();
     },
@@ -22395,12 +22655,14 @@ const GardenSystem = {
                 windowEnd: 0,             // timestamp konce sklizňového okna
                 pruned: false,            // byl proveden jarní řez? (+výnos bonus)
                 cuttingsAvailable: 0,     // počet dostupných řízků po jarním řezu
+                lastWateredAt: 0,         // timestamp poslední zálivky (sucho-kompenzace při sklizni)
             }));
         }
         // Migrace — přidat nová pole pokud chybí
         GameState.vinea.forEach(slot => {
             if (slot.cuttingsAvailable === undefined) slot.cuttingsAvailable = 0;
             if (slot.pruned === undefined) slot.pruned = false;
+            if (slot.lastWateredAt === undefined) slot.lastWateredAt = 0;
         });
     },
 
@@ -22432,6 +22694,7 @@ const GardenSystem = {
         slot.windowEnd = now + ((variety.ripeDays + variety.windowDays) * DAY_MS);
         slot.pruned    = false;
         slot.cuttingsAvailable = 0;
+        slot.lastWateredAt = 0;
         Game.save();
         this.renderVinohrad();
         UI.notify('🌿 ' + (lang==='en' ? variety.name_en : variety.name) + (lang==='en' ? ' planted.' : ' zasazena.'));
@@ -22471,9 +22734,27 @@ const GardenSystem = {
         slot.windowEnd = 0;
         slot.pruned    = false;
         slot.cuttingsAvailable = 0;
+        slot.lastWateredAt = 0;
         Game.save();
         this.renderVinohrad();
         UI.notify('🪴 ' + (lang==='en' ? 'Vine uprooted.' : 'Réva vykořeněna.'));
+    },
+
+    waterVine: function(idx) {
+        this._initVinea();
+        const slot = GameState.vinea[idx];
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        if (!slot || (slot.state !== 'planted' && slot.state !== 'growing' && slot.state !== 'ripe')) return;
+        const techs = GameState.researchedTechs || [];
+        const waterCost = techs.includes('tech_field_irrigation') ? 1 : 2;
+        if ((GameState.inventory['water'] || 0) < waterCost) {
+            UI.notify(lang==='en' ? 'Not enough water.' : 'Nedostatek vody!', true); return;
+        }
+        Game.removeItem('water', waterCost);
+        slot.lastWateredAt = Date.now();
+        Game.save();
+        this.renderVinohrad();
+        UI.notify('💧 ' + (lang==='en' ? 'Watered.' : 'Zalito.'));
     },
 
     harvestVine: function(idx) {
@@ -22487,6 +22768,23 @@ const GardenSystem = {
         // Výnos: base 2, +1 za prořez
         let qty = 2;
         if (slot.pruned) qty += 1;
+
+        // Sucho/zálivka — poslední 4 dny (stejné okno jako Pole: countDryDays(3))
+        let isDry = false, wasWatered = false;
+        try {
+            if (typeof WeatherSystem !== 'undefined' && WeatherSystem.countDryDays) {
+                isDry = WeatherSystem.countDryDays(3).dry >= 3;
+            }
+        } catch(e) {}
+        wasWatered = (Date.now() - (slot.lastWateredAt || 0)) <= 4 * 24 * 3600000;
+
+        let wateringMult = 1.0;
+        if (isDry && !wasWatered) wateringMult = 0.5;       // sucho, nezaléváno — minimální výnos
+        else if (isDry && wasWatered) wateringMult = 1.0;   // sucho, ale zaléváno — kompenzováno
+        else if (!isDry && wasWatered) wateringMult = 2.0;  // není sucho, přesto zaléváno — bonus
+        // !isDry && !wasWatered → 1.0 (výchozí, beze změny)
+
+        qty = Math.max(1, Math.round(qty * wateringMult));
 
         // Sklizeň dává vždy syrové hrozny — zpracování (lis/fermentace) řeší Prelum/Cella fermentaria
         const outputId = 'grapes_' + variety.id;
@@ -22833,7 +23131,7 @@ const GardenSystem = {
         const trojpolniMsg = hasRotation
             ? (lang==='en' ? '✅ Three-field system: +25% yield' : '✅ Trojpolní systém: +25% výnos')
             : null;
-        html += this._zahradaStatsBar(lang, [trojpolniMsg], droughtMsg);
+        html += this._zahradaStatsBar(lang, [trojpolniMsg, this._brotherBadge('pole', lang)], droughtMsg);
 
         // Sloty
         html += '<div class="garden-grid" style="margin-bottom:16px;">';
@@ -22938,6 +23236,7 @@ const GardenSystem = {
         field.phase   = 0;
         field.phaseStart = Date.now();
         field.watered = false;
+        field.wateredPhases = 0;
         Game.save();
         this.renderFieldTab();
     },
@@ -22975,11 +23274,13 @@ const GardenSystem = {
         if (hasRotation) yieldAmt = Math.round(yieldAmt * 1.25);
 
         // Sucho penalizace (žito je vůči suchu odolné — neuplatňuje se)
+        // Zalévání ve všech 3 fázích cyklu kompenzuje sucho, jako by pršelo
+        const fullyIrrigated = (field.wateredPhases || 0) >= 3;
         let dryDays = 0, wetDays = 0;
         try {
             if (typeof WeatherSystem !== 'undefined' && WeatherSystem.countDryDays) {
                 dryDays = WeatherSystem.countDryDays(3).dry;  // okno: dnes + 3 dny zpět = 4 dny
-                if (dryDays >= 3 && !isRye) yieldAmt = Math.max(1, Math.round(yieldAmt * 0.8));  // shoda s indikátorem
+                if (dryDays >= 3 && !isRye && !fullyIrrigated) yieldAmt = Math.max(1, Math.round(yieldAmt * 0.8));  // shoda s indikátorem
             }
             if (typeof WeatherSystem !== 'undefined' && WeatherSystem.countWetDays) {
                 wetDays = WeatherSystem.countWetDays(3).wet;
@@ -22992,7 +23293,7 @@ const GardenSystem = {
             let chance1 = 70;                                  // základ 70 % 1. třída
             if (!hasHumno) chance1 -= 15;                       // bez sýpky degraduje
             if (hasRotation) chance1 += 10;                     // rotace = lepší hospodaření
-            if (isWheat && dryDays >= 3) chance1 -= 25;          // pšenice trpí suchem
+            if (isWheat && dryDays >= 3 && !fullyIrrigated) chance1 -= 25;  // pšenice trpí suchem (kompenzováno zaléváním)
             if (isRye && wetDays >= 3) chance1 -= 25;            // žito trpí vlhkem (paličkovice)
             chance1 = Math.max(5, Math.min(95, chance1));
             const grade = (Math.random() * 100 < chance1) ? 1 : 2;
@@ -23011,6 +23312,7 @@ const GardenSystem = {
         field.phase   = 0;
         field.phaseStart = 0;
         field.watered = false;
+        field.wateredPhases = 0;
 
         const lang = (GameState.settings && GameState.settings.language) || 'cs';
         const cropName = lang === 'en' ? crop.name_en : crop.name;
@@ -23033,6 +23335,7 @@ const GardenSystem = {
             if (now >= phaseEnd) {
                 field.phase++;
                 field.phaseStart = now;
+                if (field.watered) field.wateredPhases = (field.wateredPhases || 0) + 1;
                 field.watered = false; // nová fáze = nová závlaha
                 changed = true;
             }
@@ -23098,7 +23401,7 @@ const GardenSystem = {
         let html = `<div style="margin-bottom:12px; font-size:0.85rem; opacity:0.75; font-style:italic;">
             ${lang==='en' ? 'Six vine plots. Plant, prune, harvest within the window.' : 'Šest záhonů révy. Zasadit, prořezat, sklidit v okně.'}
         </div>`;
-        html += this._zahradaStatsBar(lang);
+        html += this._zahradaStatsBar(lang, [this._brotherBadge('vinohrad', lang)]);
 
         html += '<div class="garden-grid" style="margin-bottom:16px;">';
         GameState.vinea.forEach((slot, idx) => {
@@ -23120,13 +23423,15 @@ const GardenSystem = {
                 const elapsed = (Date.now() - slot.plantedAt) / 86400000;
                 const pct = Math.min(100, Math.round(elapsed / daysTotal * 100));
                 const daysLeft = Math.max(0, Math.ceil(daysTotal - elapsed));
+                const recentlyWatered = (Date.now() - (slot.lastWateredAt || 0)) <= 4 * 24 * 3600000;
                 content = `<div style="font-size:1.2rem;">${variety ? variety.icon : '🍇'}</div>
                            <div class="text-sm">${variety ? (lang==='en'?variety.name_en:variety.name) : ''}</div>
                            <div style="height:3px;background:rgba(0,0,0,0.1);border-radius:2px;margin:3px 0;">
                              <div style="height:100%;width:${pct}%;background:var(--accent-gold);border-radius:2px;"></div>
                            </div>
-                           <div style="font-size:0.68rem;opacity:0.6;">${daysLeft}d</div>`;
+                           <div style="font-size:0.68rem;opacity:0.6;">${daysLeft}d ${recentlyWatered ? '💧' : ''}</div>`;
                 btn = `<button class="craft-btn" onclick="GardenSystem.pruneVine(${idx})" ${slot.pruned?'disabled':''}>✂️ ${lang==='en'?'Prune':'Prořezat'}${slot.pruned?' ✓':''}</button>
+                       <button class="craft-btn" onclick="GardenSystem.waterVine(${idx})" style="font-size:0.72rem; margin-top:3px;">💧 ${lang==='en'?'Water':'Zalít'}</button>
                        <button class="craft-btn" onclick="GardenSystem.uprootVine(${idx})" style="background:#8b4a3a; font-size:0.72rem; margin-top:3px;">🪴 ${lang==='en'?'Uproot':'Vykořenit'}</button>`;
             } else if (slot.state === 'ripe') {
                 content = `<div style="font-size:1.4rem;">🍇</div>
@@ -23266,6 +23571,17 @@ const GardenSystem = {
     // ── Sjednocený stat bar (počasí + odkaz na Přehled) — pro všech 6 podtabů ──
     // extras: pole extra <span> textů (specifické pro podtab, např. sezóna/trojpolní)
     // weatherOverride: nahradí generický text počasí detailnější zprávou (např. sucho -20% výnos)
+    // ── Dormitorium "kukaň" — indikátor přiřazeného bratra v tabu ──
+    _brotherBadge: function(tabId, lang) {
+        const b = (GameState.dormitorium && GameState.dormitorium.brothers || [])
+            .find(x => x.assignedTab === tabId);
+        if (!b) return null;
+        const rec = (b.rosterId && typeof DormitoriumRosterDB !== 'undefined') ? DormitoriumRosterDB[b.rosterId] : null;
+        const icon = (rec && rec.icon) ? rec.icon : '📿';
+        const level = (typeof Game !== 'undefined' && Game.dormitoriumBrotherLevel) ? Game.dormitoriumBrotherLevel(b, tabId) : 1;
+        return `<span title="${lang==='en'?'Overseen by':'Řídí'}: ${b.name}" style="cursor:default;">${icon} ${b.name} · Lv${level}</span>`;
+    },
+
     _zahradaStatsBar: function(lang, extras, weatherOverride) {
         let weatherTxt = weatherOverride;
         if (!weatherTxt) {
@@ -23357,6 +23673,7 @@ const GardenSystem = {
     },
 
 };
+
 // ═══ src/systems/FarmyardSystem.js ═══
 // ═══════════════════════════════════════════════════════════════════════════
 // FARMYARD SYSTEM — Dvůr v3
@@ -28835,6 +29152,16 @@ const AthanorSystem = {
     const bonusText = lunar.bonus === 'nigredo' ? 'Nov: Nigredo +20%'
       : lunar.bonus === 'rubedo' ? 'Úplněk: Rubedo +20%'
         : canonical.bonus === 'quality' ? 'Laudes: +10% kvalita' : '';
+    // Dormitorium "kukaň" — přiřazený bratr (specializace Alchymista)
+    const athanorBrother = (GameState.dormitorium && GameState.dormitorium.brothers || [])
+      .find(b => b.assignedTab === 'athanor');
+    let brotherText = '';
+    if (athanorBrother) {
+      const rec = (athanorBrother.rosterId && typeof DormitoriumRosterDB !== 'undefined') ? DormitoriumRosterDB[athanorBrother.rosterId] : null;
+      const bIcon = (rec && rec.icon) ? rec.icon : '📿';
+      const level = (typeof Game !== 'undefined' && Game.dormitoriumBrotherLevel) ? Game.dormitoriumBrotherLevel(athanorBrother, 'athanor') : 1;
+      brotherText = `${bIcon} ${athanorBrother.name} · Lv${level}`;
+    }
     return `<div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center;
       padding:7px 12px;margin-bottom:14px;
       background:rgba(0,0,0,0.12);border-radius:8px;
@@ -28848,6 +29175,7 @@ const AthanorSystem = {
       <span style="opacity:0.3;">·</span>
       <span style="color:${mc};" title="Vlhkost">💧 ${moisture > 0 ? '+' : ''}${moisture}</span>
       ${bonusText ? `<span style="opacity:0.3;">·</span><span style="font-size:0.65rem;">✨ ${bonusText}</span>` : ''}
+      ${brotherText ? `<span style="opacity:0.3;">·</span><span style="font-size:0.65rem;" title="Řídí">${brotherText}</span>` : ''}
     </div>`;
   },
 
@@ -29514,6 +29842,7 @@ const AthanorSystem = {
     if (el && el.style.display !== 'none') AthanorSystem.render('home-athanor-content');
   }
 };
+
 // ═══ src/systems/GamesSystem.js ═══
 // ═══════════════════════════════════════════════════════════════════════════════
 // GAMES SYSTEM — Aula Ludi
@@ -36101,6 +36430,7 @@ const STRINGS_cs = {
         },
     },
 };
+
 // ═══ src/i18n/en.js ═══
 // Scriptorium i18n — English (Olde)
 // Základ: STRINGS_cs. Chybějící klíče → fallback na CS automaticky.
@@ -38855,6 +39185,7 @@ In every scriptorium lurks Titivillus. His task is not to tempt to sin — other
         },
     },
 };
+
 // ═══ src/i18n/strings.js ═══
 // Scriptorium i18n — STRINGS assembler + t() helper
 // Přidání jazyka: 1) xx.js, 2) přidat do STRINGS, 3) přidat do build.js
@@ -39317,6 +39648,7 @@ const Game = {
 		// DORMITORIUM — bratři (mniši/skriptoři, manažerská vrstva nad Conversi)
 		if (!GameState.dormitorium) GameState.dormitorium = { brothers: [] };
 		if (!GameState.dormitorium.brothers) GameState.dormitorium.brothers = [];
+<<<<<<< HEAD
 		// Migrace: bratři najatí před monk-attributes-mrd nemají traits/mood/
 		// loyalty/stress/temptation — doplnit pevnou hodnotou 40 (ne náhodnou,
 		// ať migrace nedává nespravedlivou výhodu/penalizaci oproti novým).
@@ -39332,6 +39664,8 @@ const Game = {
 				};
 			}
 		});
+=======
+>>>>>>> 6321135a1563a3eb67454c5697ceb313e6a300ea
 
 		// Initialize tool uses tracking
 		if (!GameState.toolUses) GameState.toolUses = {};
@@ -43548,6 +43882,7 @@ const Game = {
         return this.DORMITORIUM_LEVEL_MULT[level - 1];
     },
 
+<<<<<<< HEAD
     // Mapování tab → (primární vlastnost +2, sekundární +1) — monk-attributes-mrd.
     // Zbožnost/Pokora/Askeze/Výřečnost prací NEROSTOU — rostou denním rytmem
     // (Officium/Kapitula), řešeno jinde, ne zde.
@@ -43580,6 +43915,11 @@ const Game = {
                 brother.traits[map.secondary] = Math.min(100, brother.traits[map.secondary] + 1);
             }
         }
+=======
+    dormitoriumAddXp: function(brother, tabId) {
+        if (!brother.xp) brother.xp = {};
+        brother.xp[tabId] = (brother.xp[tabId] || 0) + 1;
+>>>>>>> 6321135a1563a3eb67454c5697ceb313e6a300ea
     },
 
     // Přiřadí bratra na tab (max 1 bratr per tab). tabId === null odebere.
@@ -43636,9 +43976,12 @@ const Game = {
 
         CellariumSystem.addGrose(-HIRE_COST);
 
+<<<<<<< HEAD
         // Duchovní/intelektuální/praktické vlastnosti (monk-attributes-mrd) —
         // start: základ 40 ± náhodná variace 15, škála 0–100.
         const rnd = () => Math.max(0, Math.min(100, 40 + Math.round((Math.random() * 30) - 15)));
+=======
+>>>>>>> 6321135a1563a3eb67454c5697ceb313e6a300ea
         const brother = {
             id: 'brother_' + Date.now(),
             rosterId, name,
@@ -43646,6 +43989,7 @@ const Game = {
             assignedTab: null,
             xp: {},
             fatigue: 0,
+<<<<<<< HEAD
             mood: 60,
             loyalty: 30,
             stress: 0,
@@ -43660,6 +44004,8 @@ const Game = {
                 eloquence: rnd(),      // Výřečnost
                 vigor: rnd(),          // Tělesná zdatnost
             },
+=======
+>>>>>>> 6321135a1563a3eb67454c5697ceb313e6a300ea
         };
         GameState.dormitorium.brothers.push(brother);
 
@@ -44915,6 +45261,7 @@ const Game = {
     },
 
 };
+
 // ═══ src/core/ui.js ═══
 const UI = {
     currentInvFilter: 'all',
@@ -47444,6 +47791,7 @@ const UI = {
 // ===============================================
 // NOTEBOOK SYSTEM - LOCAL ONLY (NO CLOUD)
 // ===============================================
+
 // ═══ src/systems/iching.js ═══
 const IChing = {
 	  
