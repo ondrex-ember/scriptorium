@@ -5570,6 +5570,7 @@ const ItemsDB = {
     // PRINTING PRESS
     "lead_alloy": { name: "Olověná slitina", name_en: "Lead Alloy", icon: "⚗️", type: "mat", desc: "Základ tiskových liter.", desc_en: "Base for printing type." },
     "printing_type": { name: "Tiskové litery", name_en: "Printing Type", icon: "🔤", type: "tool", desc: "100x použití. Pak worn_type.", desc_en: "100 uses. Then worn_type." },
+    "font_set": { name: "Sada mohučských liter", name_en: "Mainz Type Set", icon: "🔡", type: "tool", desc: "Prémiová sada liter z původní Gutenbergovy dílny. Historická vzácnost.", desc_en: "A premium type set from Gutenberg's original workshop. A historical rarity." },
     "worn_type": { name: "Opotřebované litery", name_en: "Worn Type", icon: "🔤", type: "mat", desc: "Prodávaly se jako kovový odpad.", desc_en: "Sold as scrap metal." },
 
     // CODEX TYPES
@@ -12225,6 +12226,524 @@ const EventsSystem = {
         }
     ],
     
+    // ── Opakovatelné náhodné eventy (vlastní cooldown, ne navždy-jednou) ──────
+    repeatableEvents: [
+        // B1 — Návštěva inkvizitora
+        {
+            id: 'inq_morning_visit',
+            titleKey: 'events.inq_morning_visit.title',
+            textKey:  'events.inq_morning_visit.text',
+            cooldownDays: 14,
+            trigger: () => {
+                if (GameState.flags && GameState.flags.inquisitorComing) return true; // navázáno na Filipojakubskou noc
+                return !!(GameState.secrets && GameState.secrets.laboratoryUnlocked) && Math.random() < 0.005;
+            },
+            choices: [
+                {
+                    labelKey: 'events.inq_morning_visit.open_btn',
+                    descKey:  'events.inq_morning_visit.open_desc',
+                    action: () => {
+                        if (Math.random() < 0.7) {
+                            PersonaSystem.addInfluence('church', 5);
+                            UI.notifyPanel(t('events.inq_morning_visit.open_notif_ok'), 'system');
+                            EventsSystem._addKronika(t('events.inq_morning_visit.open_notif_ok'));
+                            return t('events.inq_morning_visit.open_res_ok');
+                        } else {
+                            if (!GameState.flags) GameState.flags = {};
+                            GameState.flags.athanorSealedUntil = Date.now() + (48 * 3600000);
+                            VigorSystem.addFatigue(20);
+                            UI.notifyPanel(t('events.inq_morning_visit.open_notif_fail'), 'warning');
+                            EventsSystem._addKronika(t('events.inq_morning_visit.open_notif_fail'));
+                            return t('events.inq_morning_visit.open_res_fail');
+                        }
+                    }
+                },
+                {
+                    labelKey: 'events.inq_morning_visit.bribe_btn',
+                    descKey:  'events.inq_morning_visit.bribe_desc',
+                    action: () => {
+                        if (CellariumSystem.getGrose() < 20) {
+                            UI.notifyPanel(t('events.inq_morning_visit.bribe_notif_poor'), 'warning');
+                            return t('events.inq_morning_visit.bribe_res_poor');
+                        }
+                        CellariumSystem.spendGrose(20);
+                        PersonaSystem.addInfluence('church', -5);
+                        UI.notifyPanel(t('events.inq_morning_visit.bribe_notif'), 'system');
+                        EventsSystem._addKronika(t('events.inq_morning_visit.bribe_notif'));
+                        return t('events.inq_morning_visit.bribe_res');
+                    }
+                },
+                {
+                    labelKey: 'events.inq_morning_visit.refuse_btn',
+                    descKey:  'events.inq_morning_visit.refuse_desc',
+                    action: () => {
+                        if (Math.random() < 0.5) {
+                            PersonaSystem.addInfluence('church', 10);
+                            UI.notifyPanel(t('events.inq_morning_visit.refuse_notif_ok'), 'system');
+                            EventsSystem._addKronika(t('events.inq_morning_visit.refuse_notif_ok'));
+                            return t('events.inq_morning_visit.refuse_res_ok');
+                        } else {
+                            PersonaSystem.addInfluence('church', -8);
+                            UI.notifyPanel(t('events.inq_morning_visit.refuse_notif_fail'), 'warning');
+                            EventsSystem._addKronika(t('events.inq_morning_visit.refuse_notif_fail'));
+                            return t('events.inq_morning_visit.refuse_res_fail');
+                        }
+                    }
+                }
+            ]
+        },
+
+        // B3 — Záhadný poutník s ingrediencí
+        {
+            id: 'athanor_pilgrim_ingredient',
+            titleKey: 'events.athanor_pilgrim_ingredient.title',
+            textKey:  'events.athanor_pilgrim_ingredient.text',
+            cooldownDays: 10,
+            trigger: () => !!(GameState.secrets && GameState.secrets.laboratoryUnlocked) && Math.random() < 0.01,
+            choices: [
+                {
+                    labelKey: 'events.athanor_pilgrim_ingredient.accept_btn',
+                    descKey:  'events.athanor_pilgrim_ingredient.accept_desc',
+                    action: () => {
+                        if (CellariumSystem.getGrose() < 5) {
+                            UI.notifyPanel(t('events.athanor_pilgrim_ingredient.accept_notif_poor'), 'warning');
+                            return t('events.athanor_pilgrim_ingredient.accept_res_poor');
+                        }
+                        CellariumSystem.spendGrose(5);
+                        const pool = ['sulfur', 'lapis_lazuli', 'mercury'];
+                        const gained = pool[Math.floor(Math.random() * pool.length)];
+                        Game.addItem(gained, 1);
+                        UI.notifyPanel(t('events.athanor_pilgrim_ingredient.accept_notif'), 'system');
+                        EventsSystem._addKronika(t('events.athanor_pilgrim_ingredient.accept_notif'));
+                        return t('events.athanor_pilgrim_ingredient.accept_res');
+                    }
+                },
+                {
+                    labelKey: 'events.athanor_pilgrim_ingredient.decline_btn',
+                    descKey:  'events.athanor_pilgrim_ingredient.decline_desc',
+                    action: () => {
+                        PersonaSystem.addInfluence('abbot', 2);
+                        UI.notifyPanel(t('events.athanor_pilgrim_ingredient.decline_notif'), 'system');
+                        EventsSystem._addKronika(t('events.athanor_pilgrim_ingredient.decline_notif'));
+                        return t('events.athanor_pilgrim_ingredient.decline_res');
+                    }
+                }
+            ]
+        },
+
+        // C1 — Kladivo na čarodějnice
+        {
+            id: 'print_malleus',
+            titleKey: 'events.print_malleus.title',
+            textKey:  'events.print_malleus.text',
+            cooldownDays: 21,
+            trigger: () => {
+                const techs = GameState.researchedTechs || [];
+                return techs.includes('tech_printing_basics') && Math.random() < 0.02;
+            },
+            choices: [
+                {
+                    labelKey: 'events.print_malleus.anon_btn',
+                    descKey:  'events.print_malleus.anon_desc',
+                    action: () => {
+                        CellariumSystem.addGrose(80);
+                        PersonaSystem.addInfluence('church', -10);
+                        if (!GameState.flags) GameState.flags = {};
+                        GameState.flags.printed_malleus = true;
+                        UI.notifyPanel(t('events.print_malleus.anon_notif'), 'system');
+                        EventsSystem._addKronika(t('events.print_malleus.anon_notif'));
+                        return t('events.print_malleus.anon_res');
+                    }
+                },
+                {
+                    labelKey: 'events.print_malleus.open_btn',
+                    descKey:  'events.print_malleus.open_desc',
+                    action: () => {
+                        CellariumSystem.addGrose(120);
+                        PersonaSystem.addInfluence('church', -25);
+                        if (!GameState.flags) GameState.flags = {};
+                        GameState.flags.printed_malleus = true;
+                        UI.notifyPanel(t('events.print_malleus.open_notif'), 'warning');
+                        EventsSystem._addKronika(t('events.print_malleus.open_notif'));
+                        return t('events.print_malleus.open_res');
+                    }
+                },
+                {
+                    labelKey: 'events.print_malleus.refuse_btn',
+                    descKey:  'events.print_malleus.refuse_desc',
+                    action: () => {
+                        PersonaSystem.addInfluence('church', 15);
+                        UI.notifyPanel(t('events.print_malleus.refuse_notif'), 'system');
+                        EventsSystem._addKronika(t('events.print_malleus.refuse_notif'));
+                        return t('events.print_malleus.refuse_res');
+                    }
+                }
+            ]
+        },
+
+        // C2 — Gutenbergovy litery na prodej
+        {
+            id: 'print_gutenberg_type',
+            titleKey: 'events.print_gutenberg_type.title',
+            textKey:  'events.print_gutenberg_type.text',
+            cooldownDays: 21,
+            trigger: () => {
+                const techs = GameState.researchedTechs || [];
+                return techs.includes('tech_printing_basics') && Math.random() < 0.01;
+            },
+            choices: [
+                {
+                    labelKey: 'events.print_gutenberg_type.buy_btn',
+                    descKey:  'events.print_gutenberg_type.buy_desc',
+                    action: () => {
+                        if (CellariumSystem.getGrose() < 200) {
+                            UI.notifyPanel(t('events.print_gutenberg_type.buy_notif_poor'), 'warning');
+                            return t('events.print_gutenberg_type.buy_res_poor');
+                        }
+                        CellariumSystem.spendGrose(200);
+                        Game.addItem('font_set', 1);
+                        UI.notifyPanel(t('events.print_gutenberg_type.buy_notif'), 'system');
+                        EventsSystem._addKronika(t('events.print_gutenberg_type.buy_notif'));
+                        return t('events.print_gutenberg_type.buy_res');
+                    }
+                },
+                {
+                    labelKey: 'events.print_gutenberg_type.haggle_btn',
+                    descKey:  'events.print_gutenberg_type.haggle_desc',
+                    action: () => {
+                        if (CellariumSystem.getGrose() < 150) {
+                            UI.notifyPanel(t('events.print_gutenberg_type.haggle_notif_poor'), 'warning');
+                            return t('events.print_gutenberg_type.haggle_res_poor');
+                        }
+                        if (Math.random() < 0.5) {
+                            CellariumSystem.spendGrose(150);
+                            Game.addItem('font_set', 1);
+                            UI.notifyPanel(t('events.print_gutenberg_type.haggle_notif_ok'), 'system');
+                            EventsSystem._addKronika(t('events.print_gutenberg_type.haggle_notif_ok'));
+                            return t('events.print_gutenberg_type.haggle_res_ok');
+                        } else {
+                            UI.notifyPanel(t('events.print_gutenberg_type.haggle_notif_fail'), 'warning');
+                            return t('events.print_gutenberg_type.haggle_res_fail');
+                        }
+                    }
+                },
+                {
+                    labelKey: 'events.print_gutenberg_type.decline_btn',
+                    descKey:  'events.print_gutenberg_type.decline_desc',
+                    action: () => {
+                        UI.notifyPanel(t('events.print_gutenberg_type.decline_notif'), 'system');
+                        return t('events.print_gutenberg_type.decline_res');
+                    }
+                }
+            ]
+        },
+
+        // D1 — Nemoc ve stádě
+        {
+            id: 'curia_sheep_disease',
+            titleKey: 'events.curia_sheep_disease.title',
+            textKey:  'events.curia_sheep_disease.text',
+            cooldownDays: 14,
+            trigger: () => !!(GameState.sheepfold && GameState.sheepfold.sheep > 0) && Math.random() < 0.03,
+            choices: [
+                {
+                    labelKey: 'events.curia_sheep_disease.thyme_btn',
+                    descKey:  'events.curia_sheep_disease.thyme_desc',
+                    action: () => {
+                        if ((GameState.inventory['thyme'] || 0) < 2) {
+                            UI.notifyPanel(t('events.curia_sheep_disease.thyme_notif_poor'), 'warning');
+                            return t('events.curia_sheep_disease.thyme_res_poor');
+                        }
+                        Game.removeItem('thyme', 2);
+                        if (Math.random() < 0.8) {
+                            UI.notifyPanel(t('events.curia_sheep_disease.thyme_notif_ok'), 'system');
+                            EventsSystem._addKronika(t('events.curia_sheep_disease.thyme_notif_ok'));
+                            return t('events.curia_sheep_disease.thyme_res_ok');
+                        } else {
+                            GameState.sheepfold.sheep = Math.max(0, GameState.sheepfold.sheep - 1);
+                            UI.notifyPanel(t('events.curia_sheep_disease.thyme_notif_fail'), 'warning');
+                            EventsSystem._addKronika(t('events.curia_sheep_disease.thyme_notif_fail'));
+                            return t('events.curia_sheep_disease.thyme_res_fail');
+                        }
+                    }
+                },
+                {
+                    labelKey: 'events.curia_sheep_disease.healer_btn',
+                    descKey:  'events.curia_sheep_disease.healer_desc',
+                    action: () => {
+                        if (CellariumSystem.getGrose() < 10) {
+                            UI.notifyPanel(t('events.curia_sheep_disease.healer_notif_poor'), 'warning');
+                            return t('events.curia_sheep_disease.healer_res_poor');
+                        }
+                        CellariumSystem.spendGrose(10);
+                        if (Math.random() < 0.95) {
+                            UI.notifyPanel(t('events.curia_sheep_disease.healer_notif'), 'system');
+                            EventsSystem._addKronika(t('events.curia_sheep_disease.healer_notif'));
+                            return t('events.curia_sheep_disease.healer_res');
+                        } else {
+                            GameState.sheepfold.sheep = Math.max(0, GameState.sheepfold.sheep - 1);
+                            UI.notifyPanel(t('events.curia_sheep_disease.healer_notif_fail'), 'warning');
+                            return t('events.curia_sheep_disease.healer_res_fail');
+                        }
+                    }
+                },
+                {
+                    labelKey: 'events.curia_sheep_disease.isolate_btn',
+                    descKey:  'events.curia_sheep_disease.isolate_desc',
+                    action: () => {
+                        const lost = Math.max(1, Math.round(GameState.sheepfold.sheep * 0.3));
+                        GameState.sheepfold.sheep = Math.max(0, GameState.sheepfold.sheep - lost);
+                        UI.notifyPanel(t('events.curia_sheep_disease.isolate_notif'), 'system');
+                        EventsSystem._addKronika(t('events.curia_sheep_disease.isolate_notif'));
+                        return t('events.curia_sheep_disease.isolate_res');
+                    }
+                }
+            ]
+        },
+
+        // D3 — Krupobití (automatický efekt, bez volby)
+        {
+            id: 'garden_hail',
+            titleKey: 'events.garden_hail.title',
+            textKey:  'events.garden_hail.text',
+            notifyKey: 'events.garden_hail.notify',
+            cooldownDays: 30,
+            trigger: () => {
+                const month = new Date().getMonth() + 1; // 1-12; léto/podzim = 6-11
+                return month >= 6 && month <= 11 && Math.random() < 0.01;
+            },
+            choices: [],
+            effect: () => {
+                if (GameState.garden) {
+                    GameState.garden.forEach(plot => { if (plot.state === 2) plot.state = 1; });
+                }
+                if (GameState.orchard) {
+                    const mature = GameState.orchard.filter(s => s.state === 'mature');
+                    const affected = mature.slice(0, Math.ceil(mature.length / 2));
+                    affected.forEach(s => { s.state = 'growing'; s.plantedAt = Date.now(); });
+                }
+                Game.save();
+            }
+        },
+
+        // E1 — Giacomo přináší zprávy
+        {
+            id: 'cellarium_giacomo_news',
+            titleKey: 'events.cellarium_giacomo_news.title',
+            textKey:  'events.cellarium_giacomo_news.text',
+            cooldownDays: 14,
+            trigger: () => {
+                const techs = GameState.researchedTechs || [];
+                return techs.includes('tech_cellarium') && Math.random() < 0.02;
+            },
+            choices: [
+                {
+                    labelKey: 'events.cellarium_giacomo_news.view_btn',
+                    descKey:  'events.cellarium_giacomo_news.view_desc',
+                    action: () => {
+                        if (CellariumSystem.getGrose() < 30) {
+                            UI.notifyPanel(t('events.cellarium_giacomo_news.view_notif_poor'), 'warning');
+                            return t('events.cellarium_giacomo_news.view_res_poor');
+                        }
+                        CellariumSystem.spendGrose(30);
+                        const pool = ['sulfur', 'lapis_lazuli', 'mercury'];
+                        const gained = pool[Math.floor(Math.random() * pool.length)];
+                        Game.addItem(gained, 1);
+                        PersonaSystem.addInfluence('giacomo', 3);
+                        UI.notifyPanel(t('events.cellarium_giacomo_news.view_notif'), 'system');
+                        EventsSystem._addKronika(t('events.cellarium_giacomo_news.view_notif'));
+                        return t('events.cellarium_giacomo_news.view_res');
+                    }
+                },
+                {
+                    labelKey: 'events.cellarium_giacomo_news.decline_btn',
+                    descKey:  'events.cellarium_giacomo_news.decline_desc',
+                    action: () => {
+                        UI.notifyPanel(t('events.cellarium_giacomo_news.decline_notif'), 'system');
+                        return t('events.cellarium_giacomo_news.decline_res');
+                    }
+                }
+            ]
+        },
+
+        // E2 — Benedikt má problém
+        {
+            id: 'cellarium_benedikt_debt',
+            titleKey: 'events.cellarium_benedikt_debt.title',
+            textKey:  'events.cellarium_benedikt_debt.text',
+            cooldownDays: 14,
+            trigger: () => {
+                const techs = GameState.researchedTechs || [];
+                return techs.includes('tech_cellarium') && Math.random() < 0.01;
+            },
+            choices: [
+                {
+                    labelKey: 'events.cellarium_benedikt_debt.lend_btn',
+                    descKey:  'events.cellarium_benedikt_debt.lend_desc',
+                    action: () => {
+                        if (CellariumSystem.getGrose() < 30) {
+                            UI.notifyPanel(t('events.cellarium_benedikt_debt.lend_notif_poor'), 'warning');
+                            return t('events.cellarium_benedikt_debt.lend_res_poor');
+                        }
+                        CellariumSystem.spendGrose(30);
+                        PersonaSystem.addInfluence('benedikt', 10);
+                        UI.notifyPanel(t('events.cellarium_benedikt_debt.lend_notif'), 'system');
+                        EventsSystem._addKronika(t('events.cellarium_benedikt_debt.lend_notif'));
+                        return t('events.cellarium_benedikt_debt.lend_res');
+                    }
+                },
+                {
+                    labelKey: 'events.cellarium_benedikt_debt.decline_btn',
+                    descKey:  'events.cellarium_benedikt_debt.decline_desc',
+                    action: () => {
+                        if (!GameState.flags) GameState.flags = {};
+                        GameState.flags.tavernClosedUntil = Date.now() + (24 * 3600000);
+                        UI.notifyPanel(t('events.cellarium_benedikt_debt.decline_notif'), 'warning');
+                        EventsSystem._addKronika(t('events.cellarium_benedikt_debt.decline_notif'));
+                        return t('events.cellarium_benedikt_debt.decline_res');
+                    }
+                }
+            ]
+        },
+
+        // E3 — Falešné groše
+        {
+            id: 'cellarium_counterfeit',
+            titleKey: 'events.cellarium_counterfeit.title',
+            textKey:  'events.cellarium_counterfeit.text',
+            cooldownDays: 14,
+            trigger: () => CellariumSystem.getGrose() > 50 && Math.random() < 0.01,
+            choices: [
+                {
+                    labelKey: 'events.cellarium_counterfeit.benedikt_btn',
+                    descKey:  'events.cellarium_counterfeit.benedikt_desc',
+                    action: () => {
+                        PersonaSystem.addInfluence('benedikt', -5);
+                        UI.notifyPanel(t('events.cellarium_counterfeit.benedikt_notif'), 'warning');
+                        EventsSystem._addKronika(t('events.cellarium_counterfeit.benedikt_notif'));
+                        return t('events.cellarium_counterfeit.benedikt_res');
+                    }
+                },
+                {
+                    labelKey: 'events.cellarium_counterfeit.giacomo_btn',
+                    descKey:  'events.cellarium_counterfeit.giacomo_desc',
+                    action: () => {
+                        PersonaSystem.addInfluence('giacomo', -5);
+                        UI.notifyPanel(t('events.cellarium_counterfeit.giacomo_notif'), 'warning');
+                        EventsSystem._addKronika(t('events.cellarium_counterfeit.giacomo_notif'));
+                        return t('events.cellarium_counterfeit.giacomo_res');
+                    }
+                },
+                {
+                    labelKey: 'events.cellarium_counterfeit.keep_btn',
+                    descKey:  'events.cellarium_counterfeit.keep_desc',
+                    action: () => {
+                        CellariumSystem.spendGrose(Math.min(3, CellariumSystem.getGrose()));
+                        UI.notifyPanel(t('events.cellarium_counterfeit.keep_notif'), 'system');
+                        EventsSystem._addKronika(t('events.cellarium_counterfeit.keep_notif'));
+                        return t('events.cellarium_counterfeit.keep_res');
+                    }
+                }
+            ]
+        },
+
+        // F1 — Opat onemocněl (automatický efekt, bez volby)
+        {
+            id: 'scrinium_abbot_ill',
+            titleKey: 'events.scrinium_abbot_ill.title',
+            textKey:  'events.scrinium_abbot_ill.text',
+            notifyKey: 'events.scrinium_abbot_ill.notify',
+            cooldownDays: 30,
+            trigger: () => !!(GameState.secrets && GameState.secrets.forbiddenUnlocked) && Math.random() < 0.01,
+            choices: [],
+            effect: () => {
+                if (!GameState.flags) GameState.flags = {};
+                GameState.flags.scriniumSealedUntil = Date.now() + (12 * 3600000);
+            }
+        },
+
+        // F2 — Tajemný host v Scriniu
+        {
+            id: 'scrinium_mysterious_guest',
+            titleKey: 'events.scrinium_mysterious_guest.title',
+            textKey:  'events.scrinium_mysterious_guest.text',
+            cooldownDays: 21,
+            trigger: () => !!(GameState.secrets && GameState.secrets.forbiddenUnlocked) && Math.random() < 0.005,
+            choices: [
+                {
+                    labelKey: 'events.scrinium_mysterious_guest.enter_btn',
+                    descKey:  'events.scrinium_mysterious_guest.enter_desc',
+                    action: () => {
+                        if (Math.random() < 0.5) {
+                            const db = (typeof ScriniumDB !== 'undefined') ? ScriniumDB.folios : [];
+                            const unfound = db.filter(f => !GameState.scrinium || !GameState.scrinium.folios[f.id] || !GameState.scrinium.folios[f.id].found);
+                            if (unfound.length > 0) {
+                                const pick = unfound[Math.floor(Math.random() * unfound.length)];
+                                SecretsSystem.unlockFolioById(pick.id);
+                            }
+                            UI.notifyPanel(t('events.scrinium_mysterious_guest.enter_notif_ok'), 'system');
+                            EventsSystem._addKronika(t('events.scrinium_mysterious_guest.enter_notif_ok'));
+                            return t('events.scrinium_mysterious_guest.enter_res_ok');
+                        } else {
+                            if (!GameState.flags) GameState.flags = {};
+                            GameState.flags.scriniumSealedUntil = Date.now() + (6 * 3600000);
+                            UI.notifyPanel(t('events.scrinium_mysterious_guest.enter_notif_fail'), 'warning');
+                            EventsSystem._addKronika(t('events.scrinium_mysterious_guest.enter_notif_fail'));
+                            return t('events.scrinium_mysterious_guest.enter_res_fail');
+                        }
+                    }
+                },
+                {
+                    labelKey: 'events.scrinium_mysterious_guest.wait_btn',
+                    descKey:  'events.scrinium_mysterious_guest.wait_desc',
+                    action: () => {
+                        if (!GameState.flags) GameState.flags = {};
+                        GameState.flags.mapyHint = true;
+                        UI.notifyPanel(t('events.scrinium_mysterious_guest.wait_notif'), 'system');
+                        EventsSystem._addKronika(t('events.scrinium_mysterious_guest.wait_notif'));
+                        return t('events.scrinium_mysterious_guest.wait_res');
+                    }
+                },
+                {
+                    labelKey: 'events.scrinium_mysterious_guest.leave_btn',
+                    descKey:  'events.scrinium_mysterious_guest.leave_desc',
+                    action: () => {
+                        EventsSystem._addKronika(t('events.scrinium_mysterious_guest.leave_kronika'));
+                        return t('events.scrinium_mysterious_guest.leave_res');
+                    }
+                }
+            ]
+        }
+    ],
+
+    // ── checkRepeatableEvents — vlastní cooldown per event, ne navždy-jednou ──
+    checkRepeatableEvents: function() {
+        if (!GameState.events) GameState.events = {};
+        if (!GameState.events.repeatable) GameState.events.repeatable = {};
+        const now = Date.now();
+
+        const last = GameState.events.lastRandomEvent || 0;
+        if (now - last < 24 * 3600000) return; // sdílená 24h pojistka s jednorázovými eventy
+
+        for (let event of this.repeatableEvents) {
+            const lastFired = GameState.events.repeatable[event.id] || 0;
+            const cooldownMs = (event.cooldownDays || 7) * 24 * 3600000;
+            if (now - lastFired < cooldownMs) continue;
+            if (event.trigger()) {
+                if (event.id === 'inq_morning_visit' && GameState.flags) GameState.flags.inquisitorComing = false;
+                if (event.choices && event.choices.length > 0) {
+                    this.showEvent(event);
+                } else {
+                    this.applyAutoEffect(event);
+                }
+                GameState.events.repeatable[event.id] = now;
+                GameState.events.lastRandomEvent = now;
+                Game.save();
+                break;
+            }
+        }
+    },
+
     lastCheck: 0,
     ACTION_THRESHOLD: 50,
 
@@ -12236,6 +12755,7 @@ const EventsSystem = {
         if (GameState.events.actionCount >= this.ACTION_THRESHOLD) {
             GameState.events.actionCount = 0;
             this.checkRandomEvents();
+            this.checkRepeatableEvents();
         }
     },
 
@@ -28164,6 +28684,17 @@ const SecretsSystem = {
     const el = document.getElementById(elementId || 'scrinium-content');
     if (!el) return;
 
+    if (GameState.flags && GameState.flags.scriniumSealedUntil && GameState.flags.scriniumSealedUntil > Date.now()) {
+      const lang = (GameState.settings && GameState.settings.language) || 'cs';
+      const hoursLeft = Math.ceil((GameState.flags.scriniumSealedUntil - Date.now()) / 3600000);
+      el.innerHTML = `<div style="padding: 40px; text-align: center;">
+        <div style="font-size:2.5rem; opacity:0.5;">🔒</div>
+        <p style="margin-top:0.5rem; font-style:italic;">${lang==='en' ? 'The Abbot holds the keys. Scrinium is closed.' : 'Klíče má opat u sebe. Scrinium je zavřeno.'}</p>
+        <p style="font-size:0.8rem; opacity:0.6; margin-top:0.3rem;">${lang==='en' ? `Reopens in ~${hoursLeft}h.` : `Otevře se za ~${hoursLeft}h.`}</p>
+      </div>`;
+      return;
+    }
+
     if (GameState.secrets && GameState.secrets.forbiddenUnlocked) {
       el.innerHTML = this.renderScriniumTab();
       return;
@@ -29290,6 +29821,17 @@ const AthanorSystem = {
 
       UI.notifyPanel(`${f.icon} ${f.title} — ${f.msg}`, 'warning');
       AthanorSystem.playBrewingFail();
+
+      // B2 — Exploze v Athanoru (2% šance při neúspěchu)
+      if (Math.random() < 0.02) {
+        if (!GameState.flags) GameState.flags = {};
+        GameState.flags.athanorSealedUntil = Date.now() + (2 * 3600000);
+        VigorSystem.addFatigue(15);
+        UI.notifyPanel(t('events.athanor_explosion.notify'), 'warning');
+        if (typeof Game !== 'undefined' && typeof Game.addKronikaEntry === 'function') {
+          Game.addKronikaEntry('important', t('events.athanor_explosion.notify'), t('events.athanor_explosion.notify'), '');
+        }
+      }
     }
 
     Game.save();
@@ -29688,6 +30230,16 @@ const AthanorSystem = {
     if (!el) return;
     if (!GameState.secrets || !GameState.secrets.laboratoryUnlocked) {
       SecretsSystem.renderAthanorScreen(containerId);
+      return;
+    }
+    if (GameState.flags && GameState.flags.athanorSealedUntil && GameState.flags.athanorSealedUntil > Date.now()) {
+      const lang = (GameState.settings && GameState.settings.language) || 'cs';
+      const hoursLeft = Math.ceil((GameState.flags.athanorSealedUntil - Date.now()) / 3600000);
+      el.innerHTML = `<div style="text-align:center; padding:2rem; opacity:0.75;">
+        <div style="font-size:2rem;">🔒</div>
+        <div style="margin-top:0.5rem;">${lang==='en' ? 'The Athanor is sealed.' : 'Athanor je zapečetěný.'}</div>
+        <div style="font-size:0.8rem; opacity:0.6; margin-top:0.3rem;">${lang==='en' ? `Reopens in ~${hoursLeft}h.` : `Otevře se za ~${hoursLeft}h.`}</div>
+      </div>`;
       return;
     }
     const state = GameState.athanor;
@@ -30158,7 +30710,6 @@ const AthanorSystem = {
     if (el && el.style.display !== 'none') AthanorSystem.render('home-athanor-content');
   }
 };
-
 // ═══ src/systems/GamesSystem.js ═══
 // ═══════════════════════════════════════════════════════════════════════════════
 // GAMES SYSTEM — Aula Ludi
@@ -36686,6 +37237,189 @@ const STRINGS_cs = {
             wait_notif: '⏳ Rozhodnutí odloženo.',
             wait_res: 'Necháváš díru zakrytou prkny. K rozhodnutí se můžeš vrátit jindy.',
         },
+
+        // ── OPAKOVATELNÉ EVENTY (kategorie B — Athanor & Inkvizice) ────────────
+        inq_morning_visit: {
+            title: 'Klepe na dveře',
+            text: 'Bratr vrátný přišel celý bledý. U brány stojí muž v černém — dominikán s pečetí inkvizičního tribunálu z Olomouce. Ptá se na podezřelé zápachy a světla v noci.',
+            open_btn: 'Otevřít a ukázat skriptorium',
+            open_desc: 'Přiznat skriptorium, Athanor skrýt.',
+            open_notif_ok: '🕊️ Inkvizitor odešel spokojen. Skriptorium je čisté.',
+            open_res_ok: 'Prohlédl regály, prolistoval pár rukopisů, přikývl. „Vše v pořádku, bratře." Odešel bez podezření.',
+            open_notif_fail: '⚠️ Inkvizitor nalezl laboratoř. Athanor zapečetěn.',
+            open_res_fail: 'Za falešnou stěnou ucítil síru. Athanor je od dnešního dne pod pečetí — na 48 hodin nikdo dovnitř.',
+            bribe_btn: 'Podplatit (20 grošů)',
+            bribe_desc: 'Groše promluví za vše.',
+            bribe_notif: '💰 Dominikán přijal dar a odešel. Bůh odpouští.',
+            bribe_res: 'Mince zmizely v jeho rukávu rychleji, než bys čekal od muže svatého řádu. Odešel bez dalších otázek.',
+            bribe_notif_poor: '⚠️ Na úplatek nemáš dost grošů.',
+            bribe_res_poor: 'Sáhl jsi do měšce — je prázdný. Inkvizitor čeká, netrpělivě.',
+            refuse_btn: 'Odmítnout vstup — klášterní právo',
+            refuse_desc: 'Klášter má imunitu před světskou mocí. Riskantní.',
+            refuse_notif_ok: '🛡️ Inkvizitor respektoval klášterní právo. Odešel.',
+            refuse_res_ok: 'Opat by byl hrdý. Dominikán si prohlédl pečeť na bráně, mlčky přikývl a otočil se k odchodu.',
+            refuse_notif_fail: '⚠️ Inkvizitor se vrátí s posilami.',
+            refuse_res_fail: 'Jeho tvář ztvrdla. „Uvidíme, co na to řekne biskup." Odešel — ale tohle nebyl konec.',
+        },
+        athanor_pilgrim_ingredient: {
+            title: 'Poutník u brány',
+            text: 'Přišel muž bez jména. Říká, že přichází z daleka — z Konstantinopole, možná ještě dál. Nabízí malý váček s neznámou látkou. „Pro toho, kdo ví, co s tím dělat," říká.',
+            accept_btn: 'Přijmout (5 grošů)',
+            accept_desc: 'Váček vypadá slibně.',
+            accept_notif: '🎒 Váček je váš. Poutník zmizel dřív, než jste se otočili.',
+            accept_res: 'Uvnitř — vzácná ingredience, jakou jsi ve zdejších krajích ještě neviděl. Kde ji sehnal, radši se neptej.',
+            accept_notif_poor: '⚠️ Na váček nemáš dost grošů.',
+            accept_res_poor: 'Sáhl jsi do měšce — poutník se jen usmál a mlčky odešel.',
+            decline_btn: 'Odmítnout',
+            decline_desc: 'Opatrnost se cení.',
+            decline_notif: '🙏 Odmítli jste. Poutník pokrčil rameny a odešel.',
+            decline_res: 'Možná zbytečná opatrnost, možná moudrost. Bratr vrátný přikývl — cizí věci od cizích lidí nikdy nekončí dobře.',
+        },
+        athanor_explosion: {
+            notify: '💥 Exploze! Athanor ochlazen, zapečetěn na 2 hodiny.',
+        },
+
+        // ── OPAKOVATELNÉ EVENTY (kategorie C — Knihtisk & Inkunábule) ──────────
+        print_malleus: {
+            title: 'Nebezpečná zakázka',
+            text: 'Přišel posel od dominikánů z Kolína. Přinášejí rukopis — Malleus Maleficarum, Kladivo na čarodějnice. Chtějí tisk. Platí dobře. Velmi dobře.',
+            anon_btn: 'Přijmout zakázku (anonymní tisk)',
+            anon_desc: 'Bez kolofonu. Nikdo se to nedozví.',
+            anon_notif: '💰 Kniha vytištěna bez kolofonu. Nikdo neví.',
+            anon_res: 'Litery pracovaly celou noc beze jména na titulní straně. Posel zaplatil a odešel spokojen. Svědomí je tišší, když nikdo nic neví.',
+            open_btn: 'Přijmout otevřeně',
+            open_desc: 'Se jménem skriptoria na titulní straně. Vyšší plat, vyšší riziko.',
+            open_notif: '⚠️ Kniha nese vaše jméno. Dominikáni jsou spokojeni. Ostatní méně.',
+            open_res: 'Tiskli jste otevřeně, hrdě, s pečetí kláštera na titulní straně. Dominikáni jsou spokojeni. O ostatních se to říct nedá.',
+            refuse_btn: 'Odmítnout',
+            refuse_desc: 'Některé zakázky nestojí za peníze.',
+            refuse_notif: '🕊️ Odmítli jste. Posel odešel chladně.',
+            refuse_res: 'Posel si vzal rukopis zpět beze slova. Kolín si najde jinou dílnu. Vaše svědomí je čisté — měšec o to lehčí.',
+        },
+        print_gutenberg_type: {
+            title: 'Pozůstalost z Mohuče',
+            text: 'Giacomo Foscari přišel s neobvyklou nabídkou. Má kontakt v Mohuči — někdo prodává sadu liter z původní Gutenbergovy dílny. Historická vzácnost. Cena tomu odpovídá.',
+            buy_btn: 'Koupit (200 grošů)',
+            buy_desc: 'Plná cena, jistá koupě.',
+            buy_notif: '🔡 Litery z Mohuče jsou vaše. Gutenbergův duch je s vámi.',
+            buy_res: 'Váček liter váží v ruce víc, než by měl. Historie samotná. Giacomo se usmál — věděl, že neodmítnete.',
+            buy_notif_poor: '⚠️ Na litery nemáš dost grošů.',
+            buy_res_poor: 'Měšec je příliš lehký. Giacomo pokrčil rameny — snad příště.',
+            haggle_btn: 'Smlouvat (150 grošů)',
+            haggle_desc: 'Riskantnější, ale levnější — pokud to vyjde.',
+            haggle_notif_ok: '🔡 Giacomo přistoupil. Litery za rozumnou cenu.',
+            haggle_res_ok: 'Po dlouhém dohadování Giacomo kývl. "Pro starého přítele." Litery jsou vaše, měšec o něco plnější, než jste čekali.',
+            haggle_notif_fail: '📦 Giacomo pokrčil rameny. Jiný zájemce byl rychlejší.',
+            haggle_res_fail: 'Vyjednávání se táhlo příliš dlouho. Mezitím kdosi jiný v Mohuči zaplatil plnou cenu. Litery jsou pryč.',
+            haggle_notif_poor: '⚠️ Na smlouvání nemáš dost grošů.',
+            haggle_res_poor: 'Měšec je příliš lehký i na smlouvání. Giacomo si nechá nabídku pro sebe.',
+            decline_btn: 'Odmítnout',
+            decline_desc: 'Litery jsou drahá záležitost.',
+            decline_notif: '📦 Nechali jste příležitost projít.',
+            decline_res: 'Giacomo litery zabalil zpět. "Škoda," řekl. "Takové věci se dvakrát nenabízí."',
+        },
+
+        // ── OPAKOVATELNÉ EVENTY (kategorie D — Dvůr & Příroda) ─────────────────
+        curia_sheep_disease: {
+            title: 'Ovce kašlou',
+            text: 'Pastýř přišel zrána s nepěknou zprávou — ovce stojí a nežerou. Oči mají zakalené, srst matnou. Zná to jako mor dobytka.',
+            thyme_btn: 'Léčit tymiánem',
+            thyme_desc: 'Osvědčený lék, ale ne vždy stačí.',
+            thyme_notif_ok: '🌿 Tymián pomohl. Ovce se uzdravily.',
+            thyme_res_ok: 'Pastýř vmíchal tymián do vody a krmiva. Za dva dny byly ovce zase na nohou, žraly a bečely jako by se nic nestalo.',
+            thyme_notif_fail: '⚠️ Příliš pozdě. Jedna ovce nepřežila.',
+            thyme_res_fail: 'Tymián pomohl většině stáda, ale jedna ovce byla už příliš slabá. Pastýř sklopil hlavu — udělal, co mohl.',
+            thyme_notif_poor: '⚠️ Nemáš dost tymiánu (potřeba 2×).',
+            thyme_res_poor: 'V zásobárně není dost tymiánu na léčbu celého stáda. Ovce budou muset počkat.',
+            healer_btn: 'Povolat léčitele (10 grošů)',
+            healer_desc: 'Drahé, ale spolehlivé.',
+            healer_notif: '💊 Léčitel přišel a pomohl. Stádo je zachráněno.',
+            healer_res: 'Léčitel z vesnice přišel s vlastními bylinami a jistou rukou. Do večera bylo celé stádo na nohou.',
+            healer_notif_fail: '⚠️ I léčitel přišel pozdě k jedné ovci.',
+            healer_res_fail: 'Léčitel udělal, co mohl, ale jedna ovce byla už za pomocí. Zbytek stáda je v pořádku.',
+            healer_notif_poor: '⚠️ Na léčitele nemáš dost grošů.',
+            healer_res_poor: 'Měšec je příliš lehký. Léčitel bez zálohy nepřijde.',
+            isolate_btn: 'Izolovat nemocné',
+            isolate_desc: 'Tvrdé řešení, ale zastaví to šíření.',
+            isolate_notif: '🐑 Nemocné ovce izolovány. Ztráty jsou, ale mor se nešíří.',
+            isolate_res: 'Pastýř oddělil nemocné kusy od zdravých. Bolestivé rozhodnutí, ale zbytek stáda je v bezpečí.',
+        },
+        garden_hail: {
+            title: 'Krupobití',
+            text: 'Přišlo bez varování. Kroupy velikosti hrášku bičovaly zahradu čtvrt hodiny. Co přežilo?',
+            notify: '🧊 Krupobití! Zahrada a sad poškozeny.',
+        },
+
+        // ── OPAKOVATELNÉ EVENTY (kategorie E — Cellarium & NPC) ────────────────
+        cellarium_giacomo_news: {
+            title: 'Giacomo má zprávy',
+            text: 'Benátčan přišel s širokým úsměvem a novým zbožím. "Z Orientu," říká tajemně. "Věci, které v Čechách nikdo nemá."',
+            view_btn: 'Prohlédnout zboží (30 grošů)',
+            view_desc: 'Vzácná surovina, ale Giacomo si za exotiku počítá.',
+            view_notif: '📦 Giacomo otevřel truhlu. Vzácná surovina je vaše.',
+            view_res: 'Truhla vonět kořením a dálkou. Uvnitř — surovina, jakou zdejší trh nezná. Giacomo si za ni řekl slušně, ale nesmlouval.',
+            view_notif_poor: '⚠️ Na Giacomovo zboží nemáš dost grošů.',
+            view_res_poor: 'Měšec je příliš lehký. Giacomo truhlu zase zavřel — "Příště, příteli."',
+            decline_btn: 'Odmítnout',
+            decline_desc: 'Ne dnes.',
+            decline_notif: '🤷 Giacomo pokrčil rameny. "Příště, příteli."',
+            decline_res: 'Giacomo si nabídku nechal pro sebe a odešel s truhlou pod paží. Snad příště.',
+        },
+        cellarium_benedikt_debt: {
+            title: 'Benedikt potřebuje pomoc',
+            text: 'Hospodský Benedikt z Litomyšle přišel osobně. Dluží groše sládkovi z Brna. Hospoda bude zavřena týden, pokud nepomůžete.',
+            lend_btn: 'Půjčit 30 grošů',
+            lend_desc: 'Benedikt je dobrý přítel kláštera.',
+            lend_notif: '🍺 Benedikt s úlevou odešel. "Nikdy nezapomenu."',
+            lend_res: 'Benedikt stiskl vaši ruku pevněji, než jste čekali. "Klášter má u mě dluh," řekl a odešel s groši k sládkovi.',
+            lend_notif_poor: '⚠️ Na půjčku nemáš dost grošů.',
+            lend_res_poor: 'Měšec je příliš lehký i na pomoc příteli. Benedikt smutně přikývl a odešel.',
+            decline_btn: 'Odmítnout',
+            decline_desc: 'Klášter není banka.',
+            decline_notif: '🍺 Benedikt pochopil. Hospoda zítra zavřena.',
+            decline_res: 'Benedikt pokrčil rameny — nebylo to poprvé, co si musel poradit sám. Hospoda zůstane zítra zavřená.',
+        },
+        cellarium_counterfeit: {
+            title: 'Falešné groše',
+            text: 'Při počítání pokladny jste našli tři groše s podezřelým leskem. Falzum. Kdo je podstrčil?',
+            benedikt_btn: 'Vrátit Benediktovi',
+            benedikt_desc: 'Podezření padá na Hospodu.',
+            benedikt_notif: '🍺 Benedikt se ohradil, ale groše přijal zpět.',
+            benedikt_res: 'Benedikt se tvářil uraženě — "Já bych klášter neošidil!" — ale groše si vzal zpět beze slova dalšího sporu.',
+            giacomo_btn: 'Vrátit Giacomovi',
+            giacomo_desc: 'Podezření padá na Trh.',
+            giacomo_notif: '📦 Giacomo se ohradil, ale groše přijal zpět.',
+            giacomo_res: 'Giacomo se zatvářil dotčeně — "Benátčan nikdy nefalšuje!" — ale groše mlčky schoval a odešel.',
+            keep_btn: 'Nechat si je a mlčet',
+            keep_desc: 'Nejjednodušší, i když ne nejčistší řešení.',
+            keep_notif: '🤐 Falešné groše skryty. Problém vyřešen po svém.',
+            keep_res: 'Falešné groše skončily zahrabané na dně truhly. Nikdo se nezeptal, nikdo se nedozvěděl. Pokladna je o pár grošů chudší.',
+        },
+
+        // ── OPAKOVATELNÉ EVENTY (kategorie F — Scrinium & Opat) ────────────────
+        scrinium_abbot_ill: {
+            title: 'Opat leží',
+            text: 'Bratr lékárník přišel s vážnou tváří. Opat má horečku. Scrinium je zamčeno — klíče má opat u sebe a nikdo jiný nesmí dovnitř.',
+            notify: '🤒 Opat onemocněl. Scrinium je zavřeno na 12 hodin.',
+        },
+        scrinium_mysterious_guest: {
+            title: 'Kdo je ten člověk?',
+            text: 'Procházeli jste klášterem a skrze pootevřené dveře Scrinia jste zahlédli cizího muže. Opat s ním hovoří potichu. Cizinec nese velký váček — a z váčku kouká roh svitku.',
+            enter_btn: 'Vstoupit a představit se',
+            enter_desc: 'Riskantní, ale zvědavost vítězí.',
+            enter_notif_ok: '📜 Cizinec je obchodník s foliemi. Ukázal, co má.',
+            enter_res_ok: 'Muž se představil jako sběratel starých rukopisů. "Mám i pro tebe něco, bratře," řekl a z váčku vytáhl zapomenutý zápisek.',
+            enter_notif_fail: '⚠️ Opat je rozzloben. Scrinium zavřeno na 6 hodin.',
+            enter_res_fail: 'Opat se otočil s pohledem, který nesnesl odmluvy. "Toto není tvá věc, bratře." Scrinium se na chvíli zamklo.',
+            wait_btn: 'Počkat a pozorovat',
+            wait_desc: 'Trpělivost může prozradit víc než otázky.',
+            wait_notif: '🗺️ Cizinec ukázal opatovi mapu. Zajímavé.',
+            wait_res: 'Z úlomků rozhovoru jste zaslechli slovo "mapa" a jméno vzdáleného města. Něco se chystá — možná stojí za to sledovat Mapy dál.',
+            leave_btn: 'Odejít a neřešit',
+            leave_desc: 'Ne všechno je vaše starost.',
+            leave_kronika: 'Záhadný cizinec navštívil opata ve Scriniu. Nikdo neví, o čem mluvili.',
+            leave_res: 'Otočili jste se a odešli po svých. Ať si opat řeší své záležitosti sám — vy máte dost práce vlastní.',
+        },
     },
     abbotPetition: {
         fodina: {
@@ -39443,6 +40177,189 @@ In every scriptorium lurks Titivillus. His task is not to tempt to sin — other
             wait_desc: 'Think it over first, return to it later.',
             wait_notif: '⏳ The decision is postponed.',
             wait_res: 'Thou leavest the hole covered with planks. Thou mayest return to this decision another time.',
+        },
+
+        // ── REPEATABLE EVENTS (Category B — Athanor & Inquisition) ─────────────
+        inq_morning_visit: {
+            title: 'A Knock at the Door',
+            text: 'The porter brother arrived pale as a sheet. A man in black stands at the gate — a Dominican bearing the seal of the Olomouc inquisitorial tribunal. He asks about suspicious smells and lights at night.',
+            open_btn: 'Open up and show the scriptorium',
+            open_desc: 'Admit to the scriptorium, hide the Athanor.',
+            open_notif_ok: '🕊️ The inquisitor left satisfied. The scriptorium is clean.',
+            open_res_ok: 'He examined the shelves, leafed through a few manuscripts, nodded. "All in order, brother." He left without suspicion.',
+            open_notif_fail: '⚠️ The inquisitor found the laboratory. The Athanor is sealed.',
+            open_res_fail: 'Behind the false wall he caught the scent of sulfur. The Athanor is sealed as of today — no one may enter for 48 hours.',
+            bribe_btn: 'Bribe him (20 groschen)',
+            bribe_desc: 'Coin speaks louder than words.',
+            bribe_notif: '💰 The Dominican accepted the gift and left. God forgives.',
+            bribe_res: 'The coins vanished up his sleeve faster than thou wouldst expect from a man of a holy order. He left without further questions.',
+            bribe_notif_poor: '⚠️ Thou hast not enough groschen for a bribe.',
+            bribe_res_poor: 'Thou reachest into the purse — it is empty. The inquisitor waits, impatiently.',
+            refuse_btn: 'Refuse entry — monastic right',
+            refuse_desc: 'The monastery holds immunity from secular power. Risky.',
+            refuse_notif_ok: '🛡️ The inquisitor respected the monastery\'s right. He left.',
+            refuse_res_ok: 'The Abbot would be proud. The Dominican studied the seal on the gate, nodded silently, and turned to leave.',
+            refuse_notif_fail: '⚠️ The inquisitor will return with reinforcements.',
+            refuse_res_fail: 'His face hardened. "We shall see what the bishop says." He left — but this was not the end.',
+        },
+        athanor_pilgrim_ingredient: {
+            title: 'A Pilgrim at the Gate',
+            text: 'A man with no name arrived. He says he comes from afar — from Constantinople, perhaps farther still. He offers a small pouch of an unknown substance. "For one who knows what to do with it," he says.',
+            accept_btn: 'Accept it (5 groschen)',
+            accept_desc: 'The pouch looks promising.',
+            accept_notif: '🎒 The pouch is thine. The pilgrim vanished before thou couldst turn around.',
+            accept_res: 'Inside — a rare ingredient the likes of which thou hast never seen in these parts. Best not to ask where he got it.',
+            accept_notif_poor: '⚠️ Thou hast not enough groschen for the pouch.',
+            accept_res_poor: 'Thou reachest into the purse — the pilgrim only smiles and walks away in silence.',
+            decline_btn: 'Decline',
+            decline_desc: 'Caution is its own reward.',
+            decline_notif: '🙏 Thou declinest. The pilgrim shrugged and left.',
+            decline_res: 'Perhaps needless caution, perhaps wisdom. The porter brother nodded — strange things from strangers never end well.',
+        },
+        athanor_explosion: {
+            notify: '💥 Explosion! The Athanor has cooled and sealed for 2 hours.',
+        },
+
+        // ── REPEATABLE EVENTS (Category C — Printing & Incunabula) ─────────────
+        print_malleus: {
+            title: 'A Dangerous Commission',
+            text: 'A messenger from the Dominicans of Cologne arrived. They bring a manuscript — the Malleus Maleficarum, the Hammer of Witches. They want it printed. They pay well. Very well.',
+            anon_btn: 'Accept the commission (anonymous printing)',
+            anon_desc: 'No colophon. No one will know.',
+            anon_notif: '💰 The book was printed without a colophon. No one knows.',
+            anon_res: 'The type worked all night without a name on the title page. The messenger paid and left satisfied. Conscience rests easier when no one knows.',
+            open_btn: 'Accept it openly',
+            open_desc: 'With the scriptorium\'s name on the title page. Higher pay, higher risk.',
+            open_notif: '⚠️ The book bears thy name. The Dominicans are pleased. Others less so.',
+            open_res: 'Thou didst print openly, proudly, with the monastery\'s seal on the title page. The Dominicans are pleased. The same cannot be said of others.',
+            refuse_btn: 'Refuse',
+            refuse_desc: 'Some commissions are not worth the money.',
+            refuse_notif: '🕊️ Thou refusedst. The messenger left coldly.',
+            refuse_res: 'The messenger took the manuscript back without a word. Cologne will find another workshop. Thy conscience is clear — thy purse the lighter for it.',
+        },
+        print_gutenberg_type: {
+            title: 'An Estate from Mainz',
+            text: 'Giacomo Foscari came with an unusual offer. He has a contact in Mainz — someone is selling a set of type from Gutenberg\'s original workshop. A historical rarity. The price matches.',
+            buy_btn: 'Buy it (200 groschen)',
+            buy_desc: 'Full price, a certain purchase.',
+            buy_notif: '🔡 The type from Mainz is thine. Gutenberg\'s spirit is with thee.',
+            buy_res: 'The pouch of type weighs more in the hand than it should. History itself. Giacomo smiled — he knew thou wouldst not refuse.',
+            buy_notif_poor: '⚠️ Thou hast not enough groschen for the type.',
+            buy_res_poor: 'The purse is too light. Giacomo shrugged — perhaps next time.',
+            haggle_btn: 'Haggle (150 groschen)',
+            haggle_desc: 'Riskier, but cheaper — if it works.',
+            haggle_notif_ok: '🔡 Giacomo agreed. The type for a fair price.',
+            haggle_res_ok: 'After lengthy bargaining, Giacomo nodded. "For an old friend." The type is thine, thy purse fuller than expected.',
+            haggle_notif_fail: '📦 Giacomo shrugged. Another buyer was faster.',
+            haggle_res_fail: 'The negotiation dragged on too long. Meanwhile someone else in Mainz paid full price. The type is gone.',
+            haggle_notif_poor: '⚠️ Thou hast not enough groschen even to haggle.',
+            haggle_res_poor: 'The purse is too light even for haggling. Giacomo keeps the offer to himself.',
+            decline_btn: 'Decline',
+            decline_desc: 'The type is a costly affair.',
+            decline_notif: '📦 Thou let the opportunity pass.',
+            decline_res: 'Giacomo packed the type back up. "A pity," he said. "Such things are not offered twice."',
+        },
+
+        // ── REPEATABLE EVENTS (Category D — Farmyard & Nature) ─────────────────
+        curia_sheep_disease: {
+            title: 'The Sheep Are Coughing',
+            text: 'The shepherd arrived at dawn with unpleasant news — the sheep stand still and will not eat. Their eyes are clouded, their wool dull. He knows this as murrain.',
+            thyme_btn: 'Treat with thyme',
+            thyme_desc: 'A tried remedy, but not always enough.',
+            thyme_notif_ok: '🌿 The thyme helped. The sheep recovered.',
+            thyme_res_ok: 'The shepherd mixed thyme into the water and feed. Within two days the sheep were on their feet again, grazing and bleating as if nothing had happened.',
+            thyme_notif_fail: '⚠️ Too late for one. A sheep did not survive.',
+            thyme_res_fail: 'The thyme helped most of the flock, but one sheep was already too weak. The shepherd bowed his head — he did what he could.',
+            thyme_notif_poor: '⚠️ Thou hast not enough thyme (2 needed).',
+            thyme_res_poor: 'There is not enough thyme in store to treat the whole flock. The sheep will have to wait.',
+            healer_btn: 'Call a healer (10 groschen)',
+            healer_desc: 'Costly, but reliable.',
+            healer_notif: '💊 The healer came and helped. The flock is saved.',
+            healer_res: 'The village healer came with her own herbs and a steady hand. By evening the whole flock was on its feet.',
+            healer_notif_fail: '⚠️ Even the healer was too late for one sheep.',
+            healer_res_fail: 'The healer did what she could, but one sheep was beyond help. The rest of the flock is well.',
+            healer_notif_poor: '⚠️ Thou hast not enough groschen for a healer.',
+            healer_res_poor: 'The purse is too light. The healer will not come without payment upfront.',
+            isolate_btn: 'Isolate the sick',
+            isolate_desc: 'A harsh solution, but it stops the spread.',
+            isolate_notif: '🐑 The sick sheep are isolated. There are losses, but the murrain does not spread.',
+            isolate_res: 'The shepherd separated the sick animals from the healthy. A painful decision, but the rest of the flock is safe.',
+        },
+        garden_hail: {
+            title: 'Hailstorm',
+            text: 'It came without warning. Pea-sized hail lashed the garden for a quarter hour. What survived?',
+            notify: '🧊 Hailstorm! The garden and orchard are damaged.',
+        },
+
+        // ── REPEATABLE EVENTS (Category E — Cellarium & NPCs) ───────────────────
+        cellarium_giacomo_news: {
+            title: 'Giacomo Has News',
+            text: 'The Venetian arrived with a broad smile and new goods. "From the Orient," he says mysteriously. "Things no one in Bohemia has."',
+            view_btn: 'Look at the goods (30 groschen)',
+            view_desc: 'A rare material, but Giacomo charges for the exotic.',
+            view_notif: '📦 Giacomo opened the chest. A rare material is thine.',
+            view_res: 'The chest smells of spice and distance. Inside — a material the local market has never known. Giacomo asked a fair price, and did not haggle.',
+            view_notif_poor: '⚠️ Thou hast not enough groschen for Giacomo\'s goods.',
+            view_res_poor: 'The purse is too light. Giacomo closed the chest again — "Next time, friend."',
+            decline_btn: 'Decline',
+            decline_desc: 'Not today.',
+            decline_notif: '🤷 Giacomo shrugged. "Next time, friend."',
+            decline_res: 'Giacomo kept the offer to himself and left with the chest under his arm. Perhaps next time.',
+        },
+        cellarium_benedikt_debt: {
+            title: 'Benedikt Needs Help',
+            text: 'Innkeeper Benedikt of Litomyšl came in person. He owes groschen to a brewer in Brno. The tavern will close for a week unless thou helpest.',
+            lend_btn: 'Lend 30 groschen',
+            lend_desc: 'Benedikt is a good friend of the monastery.',
+            lend_notif: '🍺 Benedikt left with relief. "I shall never forget this."',
+            lend_notif_poor: '⚠️ Thou hast not enough groschen to lend.',
+            lend_res: 'Benedikt gripped thy hand tighter than expected. "The monastery has my debt," he said, and left with the coin for the brewer.',
+            lend_res_poor: 'The purse is too light even to help a friend. Benedikt nodded sadly and left.',
+            decline_btn: 'Decline',
+            decline_desc: 'The monastery is not a bank.',
+            decline_notif: '🍺 Benedikt understood. The tavern closes tomorrow.',
+            decline_res: 'Benedikt shrugged — it was not the first time he had to manage alone. The tavern will remain closed tomorrow.',
+        },
+        cellarium_counterfeit: {
+            title: 'Counterfeit Groschen',
+            text: 'While counting the coffer, thou foundest three groschen with a suspicious sheen. Counterfeit. Who slipped them in?',
+            benedikt_btn: 'Return them to Benedikt',
+            benedikt_desc: 'Suspicion falls on the Tavern.',
+            benedikt_notif: '🍺 Benedikt protested, but took the coins back.',
+            benedikt_res: 'Benedikt looked offended — "I would never cheat the monastery!" — but took the coins back without further argument.',
+            giacomo_btn: 'Return them to Giacomo',
+            giacomo_desc: 'Suspicion falls on the Market.',
+            giacomo_notif: '📦 Giacomo protested, but took the coins back.',
+            giacomo_res: 'Giacomo looked hurt — "A Venetian never counterfeits!" — but silently pocketed the coins and left.',
+            keep_btn: 'Keep them and stay silent',
+            keep_desc: 'The simplest, if not the cleanest, solution.',
+            keep_notif: '🤐 The counterfeit coins are hidden. The problem solved in thine own way.',
+            keep_res: 'The counterfeit groschen ended up buried at the bottom of a chest. No one asked, no one found out. The coffer is a few groschen poorer.',
+        },
+
+        // ── REPEATABLE EVENTS (Category F — Scrinium & Abbot) ───────────────────
+        scrinium_abbot_ill: {
+            title: 'The Abbot Lies Ill',
+            text: 'The apothecary brother arrived with a grave face. The Abbot has a fever. Scrinium is locked — the Abbot keeps the keys, and no one else may enter.',
+            notify: '🤒 The Abbot has fallen ill. Scrinium is closed for 12 hours.',
+        },
+        scrinium_mysterious_guest: {
+            title: 'Who Is That Man?',
+            text: 'Walking through the monastery, thou glimpsedst a stranger through Scrinium\'s half-open door. The Abbot speaks with him quietly. The stranger carries a large pouch — and the corner of a scroll peeks out.',
+            enter_btn: 'Enter and introduce thyself',
+            enter_desc: 'Risky, but curiosity wins.',
+            enter_notif_ok: '📜 The stranger is a folio merchant. He showed thee what he has.',
+            enter_res_ok: 'The man introduced himself as a collector of old manuscripts. "I have something for thee too, brother," he said, drawing a forgotten folio from his pouch.',
+            enter_notif_fail: '⚠️ The Abbot is angered. Scrinium closed for 6 hours.',
+            enter_res_fail: 'The Abbot turned with a look that brooked no argument. "This is not thy concern, brother." Scrinium was locked for a while.',
+            wait_btn: 'Wait and observe',
+            wait_desc: 'Patience may reveal more than questions.',
+            wait_notif: '🗺️ The stranger showed the Abbot a map. Interesting.',
+            wait_res: 'From fragments of the conversation thou caughtest the word "map" and the name of a distant town. Something is brewing — perhaps the Maps are worth watching.',
+            leave_btn: 'Leave it be',
+            leave_desc: 'Not everything is thy concern.',
+            leave_kronika: 'A mysterious stranger visited the Abbot in Scrinium. No one knows what they discussed.',
+            leave_res: 'Thou turned and went about thy business. Let the Abbot manage his own affairs — thou hast enough work of thine own.',
         },
     },
     abbotPetition: {
