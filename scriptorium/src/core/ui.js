@@ -344,15 +344,6 @@ const UI = {
                 btnText += ` (${GameState.selectedDuration}m)`;
             }
 
-            // Anti-grind cooldown (viz Game.scavenge) — blokuje jen SPOUŠTĚNÍ nových
-            // akcí, nikdy sběr už běžícího timeru (activeAction pro tento act.id).
-            const _scavRunning = GameState.activeAction && GameState.activeAction.id === act.id;
-            if (!_scavRunning && GameState.scavengeCooldownUntil && Date.now() < GameState.scavengeCooldownUntil) {
-                const remS = Math.ceil((GameState.scavengeCooldownUntil - Date.now()) / 1000);
-                btnDisabled = "disabled";
-                infoText = lang==='en' ? `Resting — ${remS}s` : `Odpočíváš — ${remS}s`;
-            }
-
             const cardHtml = `<div class="card"><div class="item-icon">${act.icon}</div><div><strong>${actName}</strong><div class="text-sm">${infoText}</div></div><button class="${btnClass}" onclick="Game.scavenge('${act.id}')" ${btnDisabled}>${btnText}</button></div>`;
 
             if (act.id === 'well_water') {
@@ -377,6 +368,7 @@ const UI = {
         }
         if (otherCards) {
             newHTML += `<div style="${groupTitleStyle}">🏡 ${lang==='en'?'Household':'Hospodářství'}</div>`;
+            if (typeof CuriaSystem !== 'undefined') newHTML += CuriaSystem.renderIndicator();
             newHTML += otherCards;
         }
 
@@ -1155,15 +1147,6 @@ const UI = {
                 btnText = lang === 'en' ? '⛏️ Mine' : '⛏️ Těžit';
             } else {
                 btnText = lang === 'en' ? '⛏️ Mine' : '⛏️ Těžit';
-            }
-
-            // Anti-grind cooldown (viz Game.scavenge) — blokuje jen spouštění nové
-            // akce, ne sběr už běžícího timeru.
-            const _mineRunning = GameState.activeAction && GameState.activeAction.id === act.id;
-            if (!_mineRunning && GameState.scavengeCooldownUntil && Date.now() < GameState.scavengeCooldownUntil) {
-                const remS = Math.ceil((GameState.scavengeCooldownUntil - Date.now()) / 1000);
-                btnDisabled = 'disabled';
-                infoText = lang==='en' ? `Resting — ${remS}s` : `Odpočíváš — ${remS}s`;
             }
 
             h += `<div class="card"><div class="item-icon">${act.icon}</div><div><strong>${actName}</strong><div class="text-sm">${infoText}</div></div><button class="${btnClass}" onclick="Game.scavenge('${act.id}')" ${btnDisabled}>${btnText}</button></div>`;

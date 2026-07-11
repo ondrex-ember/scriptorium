@@ -681,6 +681,7 @@ const Game = {
                     if (typeof PersonaSystem !== 'undefined' && PersonaSystem.tickDecay) PersonaSystem.tickDecay();
                     // Terrain — regen únavy krajiny (self-guarded 10 min)
                     if (typeof TerrainSystem !== 'undefined') TerrainSystem.tick();
+                    if (typeof CuriaSystem !== 'undefined') CuriaSystem.tick();
                     Game.checkFarmyardProduction();
                     Game.checkPiscinaGrowth();
                     // Save info — refresh "Poslední uložení" v Settings
@@ -1974,38 +1975,9 @@ const Game = {
     scavenge: function(type) {
         if (typeof VigorSystem !== 'undefined' && !VigorSystem.canAct()) { UI.notify(t('game.vigor.exhausted'), true); return; }
 
-        // ── Anti-grind ochrana (viz addItem) — sleduje frekvenci scavenge akcí
-        // v posledních 10 minutách. 0–10 akcí: normální výnos. 11–25: lineárně
-        // klesající výnos až na 40 %. 26+: měkký cooldown 60s na tlačítku
-        // (žádná akce se neprovede) + výnos zůstává na stropu ~22 %. Cíl:
-        // běžné hraní beze změny, extrémní klikací grind bez tvrdého zákazu. ──
-        const lang = (GameState.settings && GameState.settings.language) || 'cs';
-        const now = Date.now();
-        const WINDOW = 10 * 60 * 1000;
-        if (!GameState.scavengeLog) GameState.scavengeLog = [];
-        GameState.scavengeLog = GameState.scavengeLog.filter(ts => now - ts < WINDOW);
-        const countInWindow = GameState.scavengeLog.length;
-
-        if (GameState.scavengeCooldownUntil && now < GameState.scavengeCooldownUntil) {
-            const remS = Math.ceil((GameState.scavengeCooldownUntil - now) / 1000);
-            UI.notify(lang==='en' ? `Resting — try again in ${remS}s.` : `Odpočíváš — zkus to za ${remS}s.`, true);
-            return;
-        }
-
-        if (countInWindow >= 25) {
-            GameState.scavengeCooldownUntil = now + 60000;
-            Game._scavengeYieldMult = 0.22;
-        } else if (countInWindow > 10) {
-            // Lineární pokles 100 % → 40 % mezi 11. a 25. akcí v okně
-            const t2 = (countInWindow - 10) / 15;
-            Game._scavengeYieldMult = 1.0 - t2 * 0.6;
-        } else {
-            Game._scavengeYieldMult = 1.0;
-        }
-        GameState.scavengeLog.push(now);
-
-        // Vigor — Fatigue z akce (scavenge vždy dostupné, jen malý cost)
-        if (typeof VigorSystem !== 'undefined') VigorSystem.onScavenge(type);
+        // Vigor — Fatigue z akce. Instant klik stojí víc než timed výprava
+        // (stejná filozofie jako TerrainSystem — grind je dražší než rozvržené hraní).
+        if (typeof VigorSystem !== 'undefined') VigorSystem.onScavenge(type, GameState.selectedDuration || 0);
         // Save hint tracking
         Game._saveHint.actions++;
         Game._checkSaveHint();
@@ -2486,6 +2458,8 @@ const Game = {
         if (durationMin === 0) {
             // Únava krajiny — instant klik (jen terénní akce)
             if (typeof TerrainSystem !== 'undefined' && TerrainSystem.isTerrainAction(type)) TerrainSystem.onScavenge(0);
+            // Únava hospodářství — oddělený pool od krajiny
+            if (typeof CuriaSystem !== 'undefined' && CuriaSystem.isCuriaAction(type)) CuriaSystem.onScavenge(0);
             // ── snapshot pro single scavenge ──
             Game._scavenging = true;
             const _s0before = {};
@@ -2698,12 +2672,15 @@ const Game = {
             {
                 const _s0gains = {};
                 const _terrainMult = (typeof TerrainSystem !== 'undefined' && TerrainSystem.isTerrainAction(type)) ? TerrainSystem.getMult() : 1.0;
+                const _curiaMult = (typeof CuriaSystem !== 'undefined' && CuriaSystem.isCuriaAction(type)) ? CuriaSystem.getMult() : 1.0;
+                const _zoneMult = Math.min(_terrainMult, _curiaMult); // vždy jen jeden < 1.0, druhý je 1.0
                 const _prevTier = (GameState.terrain && GameState.terrain.lastToastTier) || 0;
+                const _prevCuriaTier = (GameState.curia && GameState.curia.lastToastTier) || 0;
                 for (const k of Object.keys(GameState.inventory)) {
                     const diff = (GameState.inventory[k] || 0) - (_s0before[k] || 0);
                     if (diff > 0) {
-                        // Aplikovat terrain mult — min 1 aby hráč vždy něco dostal
-                        const reduced = _terrainMult >= 1.0 ? diff : Math.max(1, Math.round(diff * _terrainMult));
+                        // Aplikovat zone mult (terrain nebo curia) — min 1 aby hráč vždy něco dostal
+                        const reduced = _zoneMult >= 1.0 ? diff : Math.max(1, Math.round(diff * _zoneMult));
                         const remove = diff - reduced;
                         if (remove > 0) Game.removeItem(k, remove);
                         if (reduced > 0) _s0gains[k] = reduced;
@@ -2721,9 +2698,23 @@ const Game = {
                         if (GameState.terrain) GameState.terrain.lastToastTier = currTier;
                     }
                 }
+                if (typeof CuriaSystem !== 'undefined' && _curiaMult < 1.0) {
+                    const lang = (GameState.settings && GameState.settings.language) || 'cs';
+                    const currTier = _curiaMult <= 0.25 ? 2 : 1;
+                    if (currTier > _prevCuriaTier) {
+                        const msg = currTier === 2
+                            ? (lang === 'en' ? '🕸️ Nearby grounds exhausted — yields at 25%' : '🕸️ Blízké okolí vytěžené — výnosy jen 25%')
+                            : (lang === 'en' ? '🧹 Nearby grounds picked over — yields at 50%' : '🧹 Blízké okolí prohledané — výnosy 50%');
+                        UI.notify(msg, true);
+                        if (GameState.curia) GameState.curia.lastToastTier = currTier;
+                    }
+                }
                 // Reset tier při zotavení (regen sníží fatigue)
                 if (typeof TerrainSystem !== 'undefined' && _terrainMult >= 1.0 && _prevTier > 0) {
                     if (GameState.terrain) GameState.terrain.lastToastTier = 0;
+                }
+                if (typeof CuriaSystem !== 'undefined' && _curiaMult >= 1.0 && _prevCuriaTier > 0) {
+                    if (GameState.curia) GameState.curia.lastToastTier = 0;
                 }
                 if (Object.keys(_s0gains).length > 0) UI.notifyAccum(_s0gains);
             }
@@ -2756,6 +2747,11 @@ const Game = {
             if (typeof TerrainSystem !== 'undefined' && TerrainSystem.isTerrainAction(type)) {
                 multiplier = Math.max(1, Math.floor(multiplier * TerrainSystem.getMult()));
                 TerrainSystem.onScavenge(durationMin);
+            }
+            // Apply curia mult — totéž pro hospodářské akce, oddělený pool
+            if (typeof CuriaSystem !== 'undefined' && CuriaSystem.isCuriaAction(type)) {
+                multiplier = Math.max(1, Math.floor(multiplier * CuriaSystem.getMult()));
+                CuriaSystem.onScavenge(durationMin);
             }
 
             GameState.activeAction = { id: type, startTime: Date.now(), endTime: Date.now() + (durationMin * 60 * 1000), multiplier: multiplier };
@@ -2849,11 +2845,6 @@ const Game = {
         }
     },
     addItem: function(id, qty) {
-        // Diminishing returns při grindování scavenge (viz Game.scavenge) —
-        // multiplikátor aplikován JEN v scavenge kontextu, nikde jinde.
-        if (Game._scavenging && Game._scavengeYieldMult && Game._scavengeYieldMult < 1.0) {
-            qty = Math.max(1, Math.round(qty * Game._scavengeYieldMult));
-        }
         const isFirstTime = !GameState.inventory[id] || GameState.inventory[id] === 0;
         
         if(!GameState.inventory[id]) GameState.inventory[id] = 0;

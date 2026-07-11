@@ -328,10 +328,12 @@ const VigorSystem = {
     },
 
     // ── Scavenge hook ─────────────────────────────────────────────────────────
-    onScavenge: function(type) {
+    onScavenge: function(type, durationMin) {
         const cost = (type === 'mine' || type === 'quarry_stone' || type === 'mine_iron_ore')
             ? this.FATIGUE_COSTS.mine
-            : this.FATIGUE_COSTS.scavenge;
+            : (durationMin && durationMin > 0)
+                ? this.FATIGUE_COSTS.scavenge          // timed výprava — beze změny, už dnes výhodná
+                : this.FATIGUE_COSTS.scavenge * 3;      // instant klik — dráž, ať se timed vyplatí i na Vigoru
         this.addFatigue(cost);
     },
 
