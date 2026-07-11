@@ -1006,6 +1006,17 @@ const AthanorSystem = {
 
       UI.notifyPanel(`${f.icon} ${f.title} — ${f.msg}`, 'warning');
       AthanorSystem.playBrewingFail();
+
+      // B2 — Exploze v Athanoru (2% šance při neúspěchu)
+      if (Math.random() < 0.02) {
+        if (!GameState.flags) GameState.flags = {};
+        GameState.flags.athanorSealedUntil = Date.now() + (2 * 3600000);
+        VigorSystem.addFatigue(15);
+        UI.notifyPanel(t('events.athanor_explosion.notify'), 'warning');
+        if (typeof Game !== 'undefined' && typeof Game.addKronikaEntry === 'function') {
+          Game.addKronikaEntry('important', t('events.athanor_explosion.notify'), t('events.athanor_explosion.notify'), '');
+        }
+      }
     }
 
     Game.save();
@@ -1404,6 +1415,16 @@ const AthanorSystem = {
     if (!el) return;
     if (!GameState.secrets || !GameState.secrets.laboratoryUnlocked) {
       SecretsSystem.renderAthanorScreen(containerId);
+      return;
+    }
+    if (GameState.flags && GameState.flags.athanorSealedUntil && GameState.flags.athanorSealedUntil > Date.now()) {
+      const lang = (GameState.settings && GameState.settings.language) || 'cs';
+      const hoursLeft = Math.ceil((GameState.flags.athanorSealedUntil - Date.now()) / 3600000);
+      el.innerHTML = `<div style="text-align:center; padding:2rem; opacity:0.75;">
+        <div style="font-size:2rem;">🔒</div>
+        <div style="margin-top:0.5rem;">${lang==='en' ? 'The Athanor is sealed.' : 'Athanor je zapečetěný.'}</div>
+        <div style="font-size:0.8rem; opacity:0.6; margin-top:0.3rem;">${lang==='en' ? `Reopens in ~${hoursLeft}h.` : `Otevře se za ~${hoursLeft}h.`}</div>
+      </div>`;
       return;
     }
     const state = GameState.athanor;

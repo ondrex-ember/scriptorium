@@ -192,6 +192,7 @@ const ItemsDB = {
     // PRINTING PRESS
     "lead_alloy": { name: "Olověná slitina", name_en: "Lead Alloy", icon: "⚗️", type: "mat", desc: "Základ tiskových liter.", desc_en: "Base for printing type." },
     "printing_type": { name: "Tiskové litery", name_en: "Printing Type", icon: "🔤", type: "tool", desc: "100x použití. Pak worn_type.", desc_en: "100 uses. Then worn_type." },
+    "font_set": { name: "Sada mohučských liter", name_en: "Mainz Type Set", icon: "🔡", type: "tool", desc: "Prémiová sada liter z původní Gutenbergovy dílny. Historická vzácnost.", desc_en: "A premium type set from Gutenberg's original workshop. A historical rarity." },
     "worn_type": { name: "Opotřebované litery", name_en: "Worn Type", icon: "🔤", type: "mat", desc: "Prodávaly se jako kovový odpad.", desc_en: "Sold as scrap metal." },
 
     // CODEX TYPES

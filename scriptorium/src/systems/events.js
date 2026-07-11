@@ -153,6 +153,524 @@ const EventsSystem = {
         }
     ],
     
+    // ── Opakovatelné náhodné eventy (vlastní cooldown, ne navždy-jednou) ──────
+    repeatableEvents: [
+        // B1 — Návštěva inkvizitora
+        {
+            id: 'inq_morning_visit',
+            titleKey: 'events.inq_morning_visit.title',
+            textKey:  'events.inq_morning_visit.text',
+            cooldownDays: 14,
+            trigger: () => {
+                if (GameState.flags && GameState.flags.inquisitorComing) return true; // navázáno na Filipojakubskou noc
+                return !!(GameState.secrets && GameState.secrets.laboratoryUnlocked) && Math.random() < 0.005;
+            },
+            choices: [
+                {
+                    labelKey: 'events.inq_morning_visit.open_btn',
+                    descKey:  'events.inq_morning_visit.open_desc',
+                    action: () => {
+                        if (Math.random() < 0.7) {
+                            PersonaSystem.addInfluence('church', 5);
+                            UI.notifyPanel(t('events.inq_morning_visit.open_notif_ok'), 'system');
+                            EventsSystem._addKronika(t('events.inq_morning_visit.open_notif_ok'));
+                            return t('events.inq_morning_visit.open_res_ok');
+                        } else {
+                            if (!GameState.flags) GameState.flags = {};
+                            GameState.flags.athanorSealedUntil = Date.now() + (48 * 3600000);
+                            VigorSystem.addFatigue(20);
+                            UI.notifyPanel(t('events.inq_morning_visit.open_notif_fail'), 'warning');
+                            EventsSystem._addKronika(t('events.inq_morning_visit.open_notif_fail'));
+                            return t('events.inq_morning_visit.open_res_fail');
+                        }
+                    }
+                },
+                {
+                    labelKey: 'events.inq_morning_visit.bribe_btn',
+                    descKey:  'events.inq_morning_visit.bribe_desc',
+                    action: () => {
+                        if (CellariumSystem.getGrose() < 20) {
+                            UI.notifyPanel(t('events.inq_morning_visit.bribe_notif_poor'), 'warning');
+                            return t('events.inq_morning_visit.bribe_res_poor');
+                        }
+                        CellariumSystem.spendGrose(20);
+                        PersonaSystem.addInfluence('church', -5);
+                        UI.notifyPanel(t('events.inq_morning_visit.bribe_notif'), 'system');
+                        EventsSystem._addKronika(t('events.inq_morning_visit.bribe_notif'));
+                        return t('events.inq_morning_visit.bribe_res');
+                    }
+                },
+                {
+                    labelKey: 'events.inq_morning_visit.refuse_btn',
+                    descKey:  'events.inq_morning_visit.refuse_desc',
+                    action: () => {
+                        if (Math.random() < 0.5) {
+                            PersonaSystem.addInfluence('church', 10);
+                            UI.notifyPanel(t('events.inq_morning_visit.refuse_notif_ok'), 'system');
+                            EventsSystem._addKronika(t('events.inq_morning_visit.refuse_notif_ok'));
+                            return t('events.inq_morning_visit.refuse_res_ok');
+                        } else {
+                            PersonaSystem.addInfluence('church', -8);
+                            UI.notifyPanel(t('events.inq_morning_visit.refuse_notif_fail'), 'warning');
+                            EventsSystem._addKronika(t('events.inq_morning_visit.refuse_notif_fail'));
+                            return t('events.inq_morning_visit.refuse_res_fail');
+                        }
+                    }
+                }
+            ]
+        },
+
+        // B3 — Záhadný poutník s ingrediencí
+        {
+            id: 'athanor_pilgrim_ingredient',
+            titleKey: 'events.athanor_pilgrim_ingredient.title',
+            textKey:  'events.athanor_pilgrim_ingredient.text',
+            cooldownDays: 10,
+            trigger: () => !!(GameState.secrets && GameState.secrets.laboratoryUnlocked) && Math.random() < 0.01,
+            choices: [
+                {
+                    labelKey: 'events.athanor_pilgrim_ingredient.accept_btn',
+                    descKey:  'events.athanor_pilgrim_ingredient.accept_desc',
+                    action: () => {
+                        if (CellariumSystem.getGrose() < 5) {
+                            UI.notifyPanel(t('events.athanor_pilgrim_ingredient.accept_notif_poor'), 'warning');
+                            return t('events.athanor_pilgrim_ingredient.accept_res_poor');
+                        }
+                        CellariumSystem.spendGrose(5);
+                        const pool = ['sulfur', 'lapis_lazuli', 'mercury'];
+                        const gained = pool[Math.floor(Math.random() * pool.length)];
+                        Game.addItem(gained, 1);
+                        UI.notifyPanel(t('events.athanor_pilgrim_ingredient.accept_notif'), 'system');
+                        EventsSystem._addKronika(t('events.athanor_pilgrim_ingredient.accept_notif'));
+                        return t('events.athanor_pilgrim_ingredient.accept_res');
+                    }
+                },
+                {
+                    labelKey: 'events.athanor_pilgrim_ingredient.decline_btn',
+                    descKey:  'events.athanor_pilgrim_ingredient.decline_desc',
+                    action: () => {
+                        PersonaSystem.addInfluence('abbot', 2);
+                        UI.notifyPanel(t('events.athanor_pilgrim_ingredient.decline_notif'), 'system');
+                        EventsSystem._addKronika(t('events.athanor_pilgrim_ingredient.decline_notif'));
+                        return t('events.athanor_pilgrim_ingredient.decline_res');
+                    }
+                }
+            ]
+        },
+
+        // C1 — Kladivo na čarodějnice
+        {
+            id: 'print_malleus',
+            titleKey: 'events.print_malleus.title',
+            textKey:  'events.print_malleus.text',
+            cooldownDays: 21,
+            trigger: () => {
+                const techs = GameState.researchedTechs || [];
+                return techs.includes('tech_printing_basics') && Math.random() < 0.02;
+            },
+            choices: [
+                {
+                    labelKey: 'events.print_malleus.anon_btn',
+                    descKey:  'events.print_malleus.anon_desc',
+                    action: () => {
+                        CellariumSystem.addGrose(80);
+                        PersonaSystem.addInfluence('church', -10);
+                        if (!GameState.flags) GameState.flags = {};
+                        GameState.flags.printed_malleus = true;
+                        UI.notifyPanel(t('events.print_malleus.anon_notif'), 'system');
+                        EventsSystem._addKronika(t('events.print_malleus.anon_notif'));
+                        return t('events.print_malleus.anon_res');
+                    }
+                },
+                {
+                    labelKey: 'events.print_malleus.open_btn',
+                    descKey:  'events.print_malleus.open_desc',
+                    action: () => {
+                        CellariumSystem.addGrose(120);
+                        PersonaSystem.addInfluence('church', -25);
+                        if (!GameState.flags) GameState.flags = {};
+                        GameState.flags.printed_malleus = true;
+                        UI.notifyPanel(t('events.print_malleus.open_notif'), 'warning');
+                        EventsSystem._addKronika(t('events.print_malleus.open_notif'));
+                        return t('events.print_malleus.open_res');
+                    }
+                },
+                {
+                    labelKey: 'events.print_malleus.refuse_btn',
+                    descKey:  'events.print_malleus.refuse_desc',
+                    action: () => {
+                        PersonaSystem.addInfluence('church', 15);
+                        UI.notifyPanel(t('events.print_malleus.refuse_notif'), 'system');
+                        EventsSystem._addKronika(t('events.print_malleus.refuse_notif'));
+                        return t('events.print_malleus.refuse_res');
+                    }
+                }
+            ]
+        },
+
+        // C2 — Gutenbergovy litery na prodej
+        {
+            id: 'print_gutenberg_type',
+            titleKey: 'events.print_gutenberg_type.title',
+            textKey:  'events.print_gutenberg_type.text',
+            cooldownDays: 21,
+            trigger: () => {
+                const techs = GameState.researchedTechs || [];
+                return techs.includes('tech_printing_basics') && Math.random() < 0.01;
+            },
+            choices: [
+                {
+                    labelKey: 'events.print_gutenberg_type.buy_btn',
+                    descKey:  'events.print_gutenberg_type.buy_desc',
+                    action: () => {
+                        if (CellariumSystem.getGrose() < 200) {
+                            UI.notifyPanel(t('events.print_gutenberg_type.buy_notif_poor'), 'warning');
+                            return t('events.print_gutenberg_type.buy_res_poor');
+                        }
+                        CellariumSystem.spendGrose(200);
+                        Game.addItem('font_set', 1);
+                        UI.notifyPanel(t('events.print_gutenberg_type.buy_notif'), 'system');
+                        EventsSystem._addKronika(t('events.print_gutenberg_type.buy_notif'));
+                        return t('events.print_gutenberg_type.buy_res');
+                    }
+                },
+                {
+                    labelKey: 'events.print_gutenberg_type.haggle_btn',
+                    descKey:  'events.print_gutenberg_type.haggle_desc',
+                    action: () => {
+                        if (CellariumSystem.getGrose() < 150) {
+                            UI.notifyPanel(t('events.print_gutenberg_type.haggle_notif_poor'), 'warning');
+                            return t('events.print_gutenberg_type.haggle_res_poor');
+                        }
+                        if (Math.random() < 0.5) {
+                            CellariumSystem.spendGrose(150);
+                            Game.addItem('font_set', 1);
+                            UI.notifyPanel(t('events.print_gutenberg_type.haggle_notif_ok'), 'system');
+                            EventsSystem._addKronika(t('events.print_gutenberg_type.haggle_notif_ok'));
+                            return t('events.print_gutenberg_type.haggle_res_ok');
+                        } else {
+                            UI.notifyPanel(t('events.print_gutenberg_type.haggle_notif_fail'), 'warning');
+                            return t('events.print_gutenberg_type.haggle_res_fail');
+                        }
+                    }
+                },
+                {
+                    labelKey: 'events.print_gutenberg_type.decline_btn',
+                    descKey:  'events.print_gutenberg_type.decline_desc',
+                    action: () => {
+                        UI.notifyPanel(t('events.print_gutenberg_type.decline_notif'), 'system');
+                        return t('events.print_gutenberg_type.decline_res');
+                    }
+                }
+            ]
+        },
+
+        // D1 — Nemoc ve stádě
+        {
+            id: 'curia_sheep_disease',
+            titleKey: 'events.curia_sheep_disease.title',
+            textKey:  'events.curia_sheep_disease.text',
+            cooldownDays: 14,
+            trigger: () => !!(GameState.sheepfold && GameState.sheepfold.sheep > 0) && Math.random() < 0.03,
+            choices: [
+                {
+                    labelKey: 'events.curia_sheep_disease.thyme_btn',
+                    descKey:  'events.curia_sheep_disease.thyme_desc',
+                    action: () => {
+                        if ((GameState.inventory['thyme'] || 0) < 2) {
+                            UI.notifyPanel(t('events.curia_sheep_disease.thyme_notif_poor'), 'warning');
+                            return t('events.curia_sheep_disease.thyme_res_poor');
+                        }
+                        Game.removeItem('thyme', 2);
+                        if (Math.random() < 0.8) {
+                            UI.notifyPanel(t('events.curia_sheep_disease.thyme_notif_ok'), 'system');
+                            EventsSystem._addKronika(t('events.curia_sheep_disease.thyme_notif_ok'));
+                            return t('events.curia_sheep_disease.thyme_res_ok');
+                        } else {
+                            GameState.sheepfold.sheep = Math.max(0, GameState.sheepfold.sheep - 1);
+                            UI.notifyPanel(t('events.curia_sheep_disease.thyme_notif_fail'), 'warning');
+                            EventsSystem._addKronika(t('events.curia_sheep_disease.thyme_notif_fail'));
+                            return t('events.curia_sheep_disease.thyme_res_fail');
+                        }
+                    }
+                },
+                {
+                    labelKey: 'events.curia_sheep_disease.healer_btn',
+                    descKey:  'events.curia_sheep_disease.healer_desc',
+                    action: () => {
+                        if (CellariumSystem.getGrose() < 10) {
+                            UI.notifyPanel(t('events.curia_sheep_disease.healer_notif_poor'), 'warning');
+                            return t('events.curia_sheep_disease.healer_res_poor');
+                        }
+                        CellariumSystem.spendGrose(10);
+                        if (Math.random() < 0.95) {
+                            UI.notifyPanel(t('events.curia_sheep_disease.healer_notif'), 'system');
+                            EventsSystem._addKronika(t('events.curia_sheep_disease.healer_notif'));
+                            return t('events.curia_sheep_disease.healer_res');
+                        } else {
+                            GameState.sheepfold.sheep = Math.max(0, GameState.sheepfold.sheep - 1);
+                            UI.notifyPanel(t('events.curia_sheep_disease.healer_notif_fail'), 'warning');
+                            return t('events.curia_sheep_disease.healer_res_fail');
+                        }
+                    }
+                },
+                {
+                    labelKey: 'events.curia_sheep_disease.isolate_btn',
+                    descKey:  'events.curia_sheep_disease.isolate_desc',
+                    action: () => {
+                        const lost = Math.max(1, Math.round(GameState.sheepfold.sheep * 0.3));
+                        GameState.sheepfold.sheep = Math.max(0, GameState.sheepfold.sheep - lost);
+                        UI.notifyPanel(t('events.curia_sheep_disease.isolate_notif'), 'system');
+                        EventsSystem._addKronika(t('events.curia_sheep_disease.isolate_notif'));
+                        return t('events.curia_sheep_disease.isolate_res');
+                    }
+                }
+            ]
+        },
+
+        // D3 — Krupobití (automatický efekt, bez volby)
+        {
+            id: 'garden_hail',
+            titleKey: 'events.garden_hail.title',
+            textKey:  'events.garden_hail.text',
+            notifyKey: 'events.garden_hail.notify',
+            cooldownDays: 30,
+            trigger: () => {
+                const month = new Date().getMonth() + 1; // 1-12; léto/podzim = 6-11
+                return month >= 6 && month <= 11 && Math.random() < 0.01;
+            },
+            choices: [],
+            effect: () => {
+                if (GameState.garden) {
+                    GameState.garden.forEach(plot => { if (plot.state === 2) plot.state = 1; });
+                }
+                if (GameState.orchard) {
+                    const mature = GameState.orchard.filter(s => s.state === 'mature');
+                    const affected = mature.slice(0, Math.ceil(mature.length / 2));
+                    affected.forEach(s => { s.state = 'growing'; s.plantedAt = Date.now(); });
+                }
+                Game.save();
+            }
+        },
+
+        // E1 — Giacomo přináší zprávy
+        {
+            id: 'cellarium_giacomo_news',
+            titleKey: 'events.cellarium_giacomo_news.title',
+            textKey:  'events.cellarium_giacomo_news.text',
+            cooldownDays: 14,
+            trigger: () => {
+                const techs = GameState.researchedTechs || [];
+                return techs.includes('tech_cellarium') && Math.random() < 0.02;
+            },
+            choices: [
+                {
+                    labelKey: 'events.cellarium_giacomo_news.view_btn',
+                    descKey:  'events.cellarium_giacomo_news.view_desc',
+                    action: () => {
+                        if (CellariumSystem.getGrose() < 30) {
+                            UI.notifyPanel(t('events.cellarium_giacomo_news.view_notif_poor'), 'warning');
+                            return t('events.cellarium_giacomo_news.view_res_poor');
+                        }
+                        CellariumSystem.spendGrose(30);
+                        const pool = ['sulfur', 'lapis_lazuli', 'mercury'];
+                        const gained = pool[Math.floor(Math.random() * pool.length)];
+                        Game.addItem(gained, 1);
+                        PersonaSystem.addInfluence('giacomo', 3);
+                        UI.notifyPanel(t('events.cellarium_giacomo_news.view_notif'), 'system');
+                        EventsSystem._addKronika(t('events.cellarium_giacomo_news.view_notif'));
+                        return t('events.cellarium_giacomo_news.view_res');
+                    }
+                },
+                {
+                    labelKey: 'events.cellarium_giacomo_news.decline_btn',
+                    descKey:  'events.cellarium_giacomo_news.decline_desc',
+                    action: () => {
+                        UI.notifyPanel(t('events.cellarium_giacomo_news.decline_notif'), 'system');
+                        return t('events.cellarium_giacomo_news.decline_res');
+                    }
+                }
+            ]
+        },
+
+        // E2 — Benedikt má problém
+        {
+            id: 'cellarium_benedikt_debt',
+            titleKey: 'events.cellarium_benedikt_debt.title',
+            textKey:  'events.cellarium_benedikt_debt.text',
+            cooldownDays: 14,
+            trigger: () => {
+                const techs = GameState.researchedTechs || [];
+                return techs.includes('tech_cellarium') && Math.random() < 0.01;
+            },
+            choices: [
+                {
+                    labelKey: 'events.cellarium_benedikt_debt.lend_btn',
+                    descKey:  'events.cellarium_benedikt_debt.lend_desc',
+                    action: () => {
+                        if (CellariumSystem.getGrose() < 30) {
+                            UI.notifyPanel(t('events.cellarium_benedikt_debt.lend_notif_poor'), 'warning');
+                            return t('events.cellarium_benedikt_debt.lend_res_poor');
+                        }
+                        CellariumSystem.spendGrose(30);
+                        PersonaSystem.addInfluence('benedikt', 10);
+                        UI.notifyPanel(t('events.cellarium_benedikt_debt.lend_notif'), 'system');
+                        EventsSystem._addKronika(t('events.cellarium_benedikt_debt.lend_notif'));
+                        return t('events.cellarium_benedikt_debt.lend_res');
+                    }
+                },
+                {
+                    labelKey: 'events.cellarium_benedikt_debt.decline_btn',
+                    descKey:  'events.cellarium_benedikt_debt.decline_desc',
+                    action: () => {
+                        if (!GameState.flags) GameState.flags = {};
+                        GameState.flags.tavernClosedUntil = Date.now() + (24 * 3600000);
+                        UI.notifyPanel(t('events.cellarium_benedikt_debt.decline_notif'), 'warning');
+                        EventsSystem._addKronika(t('events.cellarium_benedikt_debt.decline_notif'));
+                        return t('events.cellarium_benedikt_debt.decline_res');
+                    }
+                }
+            ]
+        },
+
+        // E3 — Falešné groše
+        {
+            id: 'cellarium_counterfeit',
+            titleKey: 'events.cellarium_counterfeit.title',
+            textKey:  'events.cellarium_counterfeit.text',
+            cooldownDays: 14,
+            trigger: () => CellariumSystem.getGrose() > 50 && Math.random() < 0.01,
+            choices: [
+                {
+                    labelKey: 'events.cellarium_counterfeit.benedikt_btn',
+                    descKey:  'events.cellarium_counterfeit.benedikt_desc',
+                    action: () => {
+                        PersonaSystem.addInfluence('benedikt', -5);
+                        UI.notifyPanel(t('events.cellarium_counterfeit.benedikt_notif'), 'warning');
+                        EventsSystem._addKronika(t('events.cellarium_counterfeit.benedikt_notif'));
+                        return t('events.cellarium_counterfeit.benedikt_res');
+                    }
+                },
+                {
+                    labelKey: 'events.cellarium_counterfeit.giacomo_btn',
+                    descKey:  'events.cellarium_counterfeit.giacomo_desc',
+                    action: () => {
+                        PersonaSystem.addInfluence('giacomo', -5);
+                        UI.notifyPanel(t('events.cellarium_counterfeit.giacomo_notif'), 'warning');
+                        EventsSystem._addKronika(t('events.cellarium_counterfeit.giacomo_notif'));
+                        return t('events.cellarium_counterfeit.giacomo_res');
+                    }
+                },
+                {
+                    labelKey: 'events.cellarium_counterfeit.keep_btn',
+                    descKey:  'events.cellarium_counterfeit.keep_desc',
+                    action: () => {
+                        CellariumSystem.spendGrose(Math.min(3, CellariumSystem.getGrose()));
+                        UI.notifyPanel(t('events.cellarium_counterfeit.keep_notif'), 'system');
+                        EventsSystem._addKronika(t('events.cellarium_counterfeit.keep_notif'));
+                        return t('events.cellarium_counterfeit.keep_res');
+                    }
+                }
+            ]
+        },
+
+        // F1 — Opat onemocněl (automatický efekt, bez volby)
+        {
+            id: 'scrinium_abbot_ill',
+            titleKey: 'events.scrinium_abbot_ill.title',
+            textKey:  'events.scrinium_abbot_ill.text',
+            notifyKey: 'events.scrinium_abbot_ill.notify',
+            cooldownDays: 30,
+            trigger: () => !!(GameState.secrets && GameState.secrets.forbiddenUnlocked) && Math.random() < 0.01,
+            choices: [],
+            effect: () => {
+                if (!GameState.flags) GameState.flags = {};
+                GameState.flags.scriniumSealedUntil = Date.now() + (12 * 3600000);
+            }
+        },
+
+        // F2 — Tajemný host v Scriniu
+        {
+            id: 'scrinium_mysterious_guest',
+            titleKey: 'events.scrinium_mysterious_guest.title',
+            textKey:  'events.scrinium_mysterious_guest.text',
+            cooldownDays: 21,
+            trigger: () => !!(GameState.secrets && GameState.secrets.forbiddenUnlocked) && Math.random() < 0.005,
+            choices: [
+                {
+                    labelKey: 'events.scrinium_mysterious_guest.enter_btn',
+                    descKey:  'events.scrinium_mysterious_guest.enter_desc',
+                    action: () => {
+                        if (Math.random() < 0.5) {
+                            const db = (typeof ScriniumDB !== 'undefined') ? ScriniumDB.folios : [];
+                            const unfound = db.filter(f => !GameState.scrinium || !GameState.scrinium.folios[f.id] || !GameState.scrinium.folios[f.id].found);
+                            if (unfound.length > 0) {
+                                const pick = unfound[Math.floor(Math.random() * unfound.length)];
+                                SecretsSystem.unlockFolioById(pick.id);
+                            }
+                            UI.notifyPanel(t('events.scrinium_mysterious_guest.enter_notif_ok'), 'system');
+                            EventsSystem._addKronika(t('events.scrinium_mysterious_guest.enter_notif_ok'));
+                            return t('events.scrinium_mysterious_guest.enter_res_ok');
+                        } else {
+                            if (!GameState.flags) GameState.flags = {};
+                            GameState.flags.scriniumSealedUntil = Date.now() + (6 * 3600000);
+                            UI.notifyPanel(t('events.scrinium_mysterious_guest.enter_notif_fail'), 'warning');
+                            EventsSystem._addKronika(t('events.scrinium_mysterious_guest.enter_notif_fail'));
+                            return t('events.scrinium_mysterious_guest.enter_res_fail');
+                        }
+                    }
+                },
+                {
+                    labelKey: 'events.scrinium_mysterious_guest.wait_btn',
+                    descKey:  'events.scrinium_mysterious_guest.wait_desc',
+                    action: () => {
+                        if (!GameState.flags) GameState.flags = {};
+                        GameState.flags.mapyHint = true;
+                        UI.notifyPanel(t('events.scrinium_mysterious_guest.wait_notif'), 'system');
+                        EventsSystem._addKronika(t('events.scrinium_mysterious_guest.wait_notif'));
+                        return t('events.scrinium_mysterious_guest.wait_res');
+                    }
+                },
+                {
+                    labelKey: 'events.scrinium_mysterious_guest.leave_btn',
+                    descKey:  'events.scrinium_mysterious_guest.leave_desc',
+                    action: () => {
+                        EventsSystem._addKronika(t('events.scrinium_mysterious_guest.leave_kronika'));
+                        return t('events.scrinium_mysterious_guest.leave_res');
+                    }
+                }
+            ]
+        }
+    ],
+
+    // ── checkRepeatableEvents — vlastní cooldown per event, ne navždy-jednou ──
+    checkRepeatableEvents: function() {
+        if (!GameState.events) GameState.events = {};
+        if (!GameState.events.repeatable) GameState.events.repeatable = {};
+        const now = Date.now();
+
+        const last = GameState.events.lastRandomEvent || 0;
+        if (now - last < 24 * 3600000) return; // sdílená 24h pojistka s jednorázovými eventy
+
+        for (let event of this.repeatableEvents) {
+            const lastFired = GameState.events.repeatable[event.id] || 0;
+            const cooldownMs = (event.cooldownDays || 7) * 24 * 3600000;
+            if (now - lastFired < cooldownMs) continue;
+            if (event.trigger()) {
+                if (event.id === 'inq_morning_visit' && GameState.flags) GameState.flags.inquisitorComing = false;
+                if (event.choices && event.choices.length > 0) {
+                    this.showEvent(event);
+                } else {
+                    this.applyAutoEffect(event);
+                }
+                GameState.events.repeatable[event.id] = now;
+                GameState.events.lastRandomEvent = now;
+                Game.save();
+                break;
+            }
+        }
+    },
+
     lastCheck: 0,
     ACTION_THRESHOLD: 50,
 
@@ -164,6 +682,7 @@ const EventsSystem = {
         if (GameState.events.actionCount >= this.ACTION_THRESHOLD) {
             GameState.events.actionCount = 0;
             this.checkRandomEvents();
+            this.checkRepeatableEvents();
         }
     },
 

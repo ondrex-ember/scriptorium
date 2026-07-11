@@ -650,6 +650,17 @@ const SecretsSystem = {
     const el = document.getElementById(elementId || 'scrinium-content');
     if (!el) return;
 
+    if (GameState.flags && GameState.flags.scriniumSealedUntil && GameState.flags.scriniumSealedUntil > Date.now()) {
+      const lang = (GameState.settings && GameState.settings.language) || 'cs';
+      const hoursLeft = Math.ceil((GameState.flags.scriniumSealedUntil - Date.now()) / 3600000);
+      el.innerHTML = `<div style="padding: 40px; text-align: center;">
+        <div style="font-size:2.5rem; opacity:0.5;">🔒</div>
+        <p style="margin-top:0.5rem; font-style:italic;">${lang==='en' ? 'The Abbot holds the keys. Scrinium is closed.' : 'Klíče má opat u sebe. Scrinium je zavřeno.'}</p>
+        <p style="font-size:0.8rem; opacity:0.6; margin-top:0.3rem;">${lang==='en' ? `Reopens in ~${hoursLeft}h.` : `Otevře se za ~${hoursLeft}h.`}</p>
+      </div>`;
+      return;
+    }
+
     if (GameState.secrets && GameState.secrets.forbiddenUnlocked) {
       el.innerHTML = this.renderScriniumTab();
       return;
