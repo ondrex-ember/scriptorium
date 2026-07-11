@@ -22015,30 +22015,6 @@ const GardenSystem = {
         UI.notify('🌱 ' + t('game.treePlanted'));
     },
 
-    harvestTree: function(slotIdx) {
-        if (!GameState.orchard) return;
-        const slot = GameState.orchard[slotIdx];
-        if (slot.state !== 'mature') return;
-        const TREE_FRUITS = {
-            seed_apple: 'apple', seed_pear: 'pear', seed_plum: 'plum',
-            seed_cherry: 'cherry', seed_walnut: 'walnut', seed_mulberry: 'mulberry',
-            seed_quince: 'quince', seed_sorb: 'sorb', seed_rowan: 'rowan',
-            seed_linden: 'linden_fruit',
-        };
-        const fruit = TREE_FRUITS[slot.treeType];
-        if (!fruit) return;
-        const qty = (slot.treeType === 'seed_walnut' || slot.treeType === 'seed_sorb') ? 2 : 3;
-        Game.addItem(fruit, qty);
-        // Lípa dává navíc lipový květ
-        if (slot.treeType === 'seed_linden') Game.addItem('linden_blossom', 1);
-        // Pyl při každé sklizni
-        Game.addItem('pollen', 1);
-        slot.lastHarvestAt = Date.now();
-        Game.save();
-        GardenSystem.renderOrchard();
-        UI.notify('🍎 ' + t('game.treeHarvested').replace('{qty}', qty));
-    },
-
     fellTree: function(slotIdx) {
         if (!GameState.orchard) return;
         const slot = GameState.orchard[slotIdx];
@@ -29595,7 +29571,9 @@ const CombinationEngine = {
     const vigorMod = vigor < 30 ? -3 : 0;
     // Role Athanorista: bonus +3 k rollu (getActiveBonus vrátí 1.20 → 0.20 * 15 = 3)
     const roleMod = (typeof RankSystem !== 'undefined') ? Math.round((RankSystem.getActiveBonus('athanor_success') - 1.0) * 15) : 0;
-    const effectiveRoll = roll + vigorMod + roleMod;
+    // Filipojakubská noc — +30% šance úspěchu na 8h po volbě "Pracovat v Athanoru celou noc"
+    const walpurgisMod = (GameState.flags && GameState.flags.walpurgisAthanor && GameState.flags.walpurgisAthanor > Date.now()) ? 5 : 0;
+    const effectiveRoll = roll + vigorMod + roleMod + walpurgisMod;
     // Role Athanorista: nigredo_bonus — extra ochrana proti Corruptio (Nigredo selhání)
     const nigredoMod = (typeof RankSystem !== 'undefined') ? Math.round((RankSystem.getActiveBonus('nigredo_bonus') - 1.0) * 15) : 0;
     const corruptionRoll = effectiveRoll + nigredoMod;
@@ -37138,7 +37116,7 @@ const STRINGS_cs = {
             athanor_btn: 'Pracovat v Athanoru celou noc',
             athanor_desc: 'Využít magické noci. Kombinace mají +30% šanci úspěchu — ale inkvizitor může přijít ráno.',
             athanor_notif: '🔥 Pec plane. Tato noc patří ohni.',
-            athanor_res: 'Athanor hořel celou noc. Pokusy se dařily lépe než jindy. Uvidíme, zda někdo nezaregistroval světla.',
+            athanor_res: 'Athanor hořel celou noc. Pokusy v příštích 8 hodinách budou mít vyšší šanci na úspěch. Uvidíme, zda někdo nezaregistroval světla.',
             pray_btn: 'Zavřít okna a modlit se',
             pray_desc: 'Bezpečná volba. Žádné riziko.',
             pray_notif: '🙏 Modlitba ochránila skriptorium.',
@@ -40079,7 +40057,7 @@ In every scriptorium lurks Titivillus. His task is not to tempt to sin — other
             athanor_btn: 'Work in the Athanor through the night',
             athanor_desc: 'Make use of the magical night. Combinations have +30% chance of success — but the inquisitor may come in the morning.',
             athanor_notif: '🔥 The furnace blazeth. This night belongeth to fire.',
-            athanor_res: 'The Athanor burned all night long. The experiments went better than usual. We shall see if anyone noticed the lights.',
+            athanor_res: 'The Athanor burned all night long. Attempts in the next 8 hours will have a better chance of success. We shall see if anyone noticed the lights.',
             pray_btn: 'Close the shutters and pray',
             pray_desc: 'The safe choice. No risk.',
             pray_notif: '🙏 Prayer hath protected the scriptorium.',
