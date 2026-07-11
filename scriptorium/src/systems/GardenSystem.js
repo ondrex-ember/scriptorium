@@ -24,30 +24,6 @@ const GardenSystem = {
         UI.notify('🌱 ' + t('game.treePlanted'));
     },
 
-    harvestTree: function(slotIdx) {
-        if (!GameState.orchard) return;
-        const slot = GameState.orchard[slotIdx];
-        if (slot.state !== 'mature') return;
-        const TREE_FRUITS = {
-            seed_apple: 'apple', seed_pear: 'pear', seed_plum: 'plum',
-            seed_cherry: 'cherry', seed_walnut: 'walnut', seed_mulberry: 'mulberry',
-            seed_quince: 'quince', seed_sorb: 'sorb', seed_rowan: 'rowan',
-            seed_linden: 'linden_fruit',
-        };
-        const fruit = TREE_FRUITS[slot.treeType];
-        if (!fruit) return;
-        const qty = (slot.treeType === 'seed_walnut' || slot.treeType === 'seed_sorb') ? 2 : 3;
-        Game.addItem(fruit, qty);
-        // Lípa dává navíc lipový květ
-        if (slot.treeType === 'seed_linden') Game.addItem('linden_blossom', 1);
-        // Pyl při každé sklizni
-        Game.addItem('pollen', 1);
-        slot.lastHarvestAt = Date.now();
-        Game.save();
-        GardenSystem.renderOrchard();
-        UI.notify('🍎 ' + t('game.treeHarvested').replace('{qty}', qty));
-    },
-
     fellTree: function(slotIdx) {
         if (!GameState.orchard) return;
         const slot = GameState.orchard[slotIdx];

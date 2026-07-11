@@ -780,7 +780,9 @@ const CombinationEngine = {
     const vigorMod = vigor < 30 ? -3 : 0;
     // Role Athanorista: bonus +3 k rollu (getActiveBonus vrátí 1.20 → 0.20 * 15 = 3)
     const roleMod = (typeof RankSystem !== 'undefined') ? Math.round((RankSystem.getActiveBonus('athanor_success') - 1.0) * 15) : 0;
-    const effectiveRoll = roll + vigorMod + roleMod;
+    // Filipojakubská noc — +30% šance úspěchu na 8h po volbě "Pracovat v Athanoru celou noc"
+    const walpurgisMod = (GameState.flags && GameState.flags.walpurgisAthanor && GameState.flags.walpurgisAthanor > Date.now()) ? 5 : 0;
+    const effectiveRoll = roll + vigorMod + roleMod + walpurgisMod;
     // Role Athanorista: nigredo_bonus — extra ochrana proti Corruptio (Nigredo selhání)
     const nigredoMod = (typeof RankSystem !== 'undefined') ? Math.round((RankSystem.getActiveBonus('nigredo_bonus') - 1.0) * 15) : 0;
     const corruptionRoll = effectiveRoll + nigredoMod;

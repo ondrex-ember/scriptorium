@@ -1710,7 +1710,7 @@ const STRINGS_cs = {
             athanor_btn: 'Pracovat v Athanoru celou noc',
             athanor_desc: 'Využít magické noci. Kombinace mají +30% šanci úspěchu — ale inkvizitor může přijít ráno.',
             athanor_notif: '🔥 Pec plane. Tato noc patří ohni.',
-            athanor_res: 'Athanor hořel celou noc. Pokusy se dařily lépe než jindy. Uvidíme, zda někdo nezaregistroval světla.',
+            athanor_res: 'Athanor hořel celou noc. Pokusy v příštích 8 hodinách budou mít vyšší šanci na úspěch. Uvidíme, zda někdo nezaregistroval světla.',
             pray_btn: 'Zavřít okna a modlit se',
             pray_desc: 'Bezpečná volba. Žádné riziko.',
             pray_notif: '🙏 Modlitba ochránila skriptorium.',

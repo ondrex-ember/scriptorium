@@ -2592,7 +2592,7 @@ In every scriptorium lurks Titivillus. His task is not to tempt to sin — other
             athanor_btn: 'Work in the Athanor through the night',
             athanor_desc: 'Make use of the magical night. Combinations have +30% chance of success — but the inquisitor may come in the morning.',
             athanor_notif: '🔥 The furnace blazeth. This night belongeth to fire.',
-            athanor_res: 'The Athanor burned all night long. The experiments went better than usual. We shall see if anyone noticed the lights.',
+            athanor_res: 'The Athanor burned all night long. Attempts in the next 8 hours will have a better chance of success. We shall see if anyone noticed the lights.',
             pray_btn: 'Close the shutters and pray',
             pray_desc: 'The safe choice. No risk.',
             pray_notif: '🙏 Prayer hath protected the scriptorium.',
