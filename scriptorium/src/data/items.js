@@ -693,3 +693,11 @@ Object.assign(ItemsDB, {
     "incense_styrax": { name: "Styraxové kadidlo", name_en: "Styrax Incense", icon: "💨", type: "consumable", desc: "Sladce a těžce vonící kadidlo pro jasnou mysl. Oblíbené v byzantských klášterech. Hoří 22 sekund.", desc_en: "Sweet and heavy-scented incense for a clear mind. Favoured in Byzantine monasteries. Burns for 22 seconds." },
     "incense_olibanum": { name: "Olibanum", name_en: "Olibanum Incense", icon: "💨", type: "consumable", desc: "Posvátný dým arabského kadidla. Kouř stoupá k nebi jako modlitba. Očišťuje tělo i ducha. Hoří 30 sekund.", desc_en: "Sacred smoke of Arabian frankincense. The smoke rises heavenward like a prayer. Purifies body and spirit. Burns for 30 seconds." },
 });
+// ── BESTIÁŘ — nález spisu (yard_cleanup, nezávislý na Titivillus craft-checku) ──
+// Přidáno jako Object.assign — bezpečný merge bez zásahu do stávajícího kódu
+Object.assign(ItemsDB, {
+    "titivillus_spis": {
+        name: "Spis o Titivillovi", name_en: "A Note on Titivillus", icon: "📖", type: "lore",
+        desc: "Polozetlelý list se skicou rohatého tvora a varovnými verši. Někdo si dal práci to zapsat.", desc_en: "A half-decayed leaf with a sketch of a horned creature and warning verses. Someone took care to write it down."
+    },
+});

@@ -293,6 +293,36 @@ const ScriniumDB = {
             arcanum: { textKey: 'scrinium.folios.theriaca.arcanum', cost: { item: 'candle', amount: 5 } },
         },
 
+        // ══════════════════════════════════════════════════
+        // BESTIÁŘ — 1 folio (první záznam)
+        // ══════════════════════════════════════════════════
+
+        // ── 1. Tytinillus — nález přes dvě nezávislé cesty:
+        //      A) Titivillus craft-strike -> SecretsSystem.unlockFolioById (game.js)
+        //      B) nález "titivillus_spis" při Úklidu hospodářství -> modal -> Předat do Scrinia
+        //    Čistě narativní — žádný mechanický reward (List 4 jen popisuje
+        //    existující Titivillus craft-mechaniku, nic nemění).
+        {
+            id: 'folio_titivillus_bestiar',
+            subtab: 'bestiar',
+            icon: '🐐',
+            physicalForm: 'leaf',
+            titleKey: 'scrinium.folios.titivillus_bestiar.title',
+            lectio: {
+                textKey: 'scrinium.folios.titivillus_bestiar.lectio',
+                cost: null,
+                image: '/bestiary/titivillus.jpg',   // volitelné pole — jen tohle folio ho používá
+            },
+            glossa: {
+                textKey: 'scrinium.folios.titivillus_bestiar.glossa',
+                cost: { item: 'candle', amount: 3 },
+            },
+            arcanum: {
+                textKey: 'scrinium.folios.titivillus_bestiar.arcanum',
+                cost: { item: 'candle', amount: 5 },
+            },
+        },
+
     ], // konec folios[]
 
 }; // konec ScriniumDB

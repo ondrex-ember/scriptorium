@@ -379,6 +379,13 @@ const SecretsSystem = {
     for (let i = 0; i < state.layer; i++) {
       const layerKey = layers[i];
       const text = t(folio[layerKey].textKey);
+      // Volitelné pole .image na vrstvě — jen Bestiář folia ho nastavují,
+      // pro ostatních 15 folií je undefined a imgBlock zůstává prázdný.
+      const imgSrc = folio[layerKey].image || null;
+      const imgBlock = imgSrc
+        ? `<img src="${imgSrc}" alt="${title}" style="max-width:100%; border-radius:6px;
+             margin-bottom:14px; display:block;">`
+        : '';
       html += `
         <div style="margin-bottom:20px; padding:16px;
           background:rgba(0,0,0,0.03); border-radius:6px;
@@ -387,6 +394,7 @@ const SecretsSystem = {
             text-transform:uppercase; letter-spacing:0.05em; margin-bottom:8px;">
             ${layerLabels[i]}
           </div>
+          ${imgBlock}
           <div style="font-style:italic; line-height:1.7; white-space:pre-line;">
             ${text}
           </div>

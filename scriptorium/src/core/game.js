@@ -1408,6 +1408,65 @@ const Game = {
         });
     },
 
+    // ── Titivillus spis (Bestiář, Cesta B) — modal při nalezení nebo kliknutí ──
+    showTitivillusSpisModal: function() {
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        const isEn = lang === 'en';
+        NotificationSystem.modal({
+            icon: '📜',
+            title: isEn ? 'A Strange Note' : 'Podivný spis',
+            text: isEn
+                ? 'Among the clutter of the farmyard you find a half-decayed leaf. A sketch of a horned creature, a few Latin verses, a note in the margin — it looks like an old bestiary entry.'
+                : 'Mezi haraburdím při úklidu hospodářství jsi narazil na polozetlelý list. Skica rohatého tvora, latinské verše, poznámka na okraji — vypadá to na starý bestiářský zápis.',
+            choices: [
+                {
+                    label: isEn ? '📖 Open' : '📖 Otevřít',
+                    type: 'primary',
+                    effect: function() { Game.showTitivillusSpisContentModal(); }
+                },
+                {
+                    label: isEn ? '📕 Hand to Scrinium' : '📕 Předat do Scrinia',
+                    type: 'default',
+                    effect: function() {
+                        Game.removeItem('titivillus_spis', 1);
+                        if (typeof SecretsSystem !== 'undefined') SecretsSystem.unlockFolioById('folio_titivillus_bestiar');
+                        UI.notify(isEn ? '📕 Handed to the Scrinium.' : '📕 Předáno do Scrinia.');
+                        Game.save();
+                    }
+                }
+            ]
+        });
+    },
+
+    // ── Obsah spisu (List 1+2 = folio lectio) — otevřeno z showTitivillusSpisModal ──
+    showTitivillusSpisContentModal: function() {
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        const isEn = lang === 'en';
+        NotificationSystem.modal({
+            icon: '🐐',
+            title: 'Tytinillus',
+            image: '/bestiary/titivillus.jpg',
+            text: t('scrinium.folios.titivillus_bestiar.lectio'),
+            choices: [
+                {
+                    label: isEn ? '📕 Hand to Scrinium' : '📕 Předat do Scrinia',
+                    type: 'primary',
+                    effect: function() {
+                        Game.removeItem('titivillus_spis', 1);
+                        if (typeof SecretsSystem !== 'undefined') SecretsSystem.unlockFolioById('folio_titivillus_bestiar');
+                        UI.notify(isEn ? '📕 Handed to the Scrinium.' : '📕 Předáno do Scrinia.');
+                        Game.save();
+                    }
+                },
+                {
+                    label: isEn ? '🗃️ Keep in storage' : '🗃️ Uchovat ve skladu',
+                    type: 'default',
+                    effect: function() {}
+                }
+            ]
+        });
+    },
+
     farmAction: function(plotIdx) {
         const plot = GameState.garden[plotIdx];
         if(plot.locked) { UI.notify(t('game.plotLocked'), true); return; }
@@ -2711,6 +2770,17 @@ const Game = {
                         UI.notify('🔍 ' + (iName ? iName(found) : found) + '!');
                     }
                 }
+                // 👺 Cesta B (Bestiář) — nález "titivillus_spis", nezávislý na
+                // lostPool i na Titivillus craft-checku (Cesta A). Vlastní 0.2%,
+                // zablokovaný jen když už folio máš, nebo spis už držíš v inventáři.
+                {
+                    const _folioState = GameState.scrinium && GameState.scrinium.folios && GameState.scrinium.folios['folio_titivillus_bestiar'];
+                    const _alreadyHeld = (GameState.inventory['titivillus_spis'] || 0) > 0;
+                    if (!(_folioState && _folioState.found) && !_alreadyHeld && Math.random() < 0.002) {
+                        this.addItem('titivillus_spis', 1);
+                        setTimeout(function() { Game.showTitivillusSpisModal(); }, 300);
+                    }
+                }
             }
             // ── notifyAccum: single scavenge ──
             {
@@ -3107,6 +3177,10 @@ const Game = {
             if (Math.random() < chance) {
                 this.removeItem(r.output, r.qty); // ukradne výstup
                 Analytics.titivillusStruck(r.output, isNight && noLight);
+                // Cesta A (Bestiář): první setkání s Titivillem rovnou odemkne
+                // jeho záznam ve Scriniu. unlockFolioById() je idempotentní
+                // (no-op, pokud už nalezeno) — bezpečné volat při každém strike.
+                if (typeof SecretsSystem !== 'undefined') SecretsSystem.unlockFolioById('folio_titivillus_bestiar');
                 const quotes = t('titivillus');
                 UI.notify(quotes[Math.floor(Math.random() * quotes.length)], true);
                 // Křeč písařské ruky (monastery-decay-mrd) — Titivillus, když

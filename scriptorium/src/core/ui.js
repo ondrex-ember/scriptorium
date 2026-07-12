@@ -160,6 +160,10 @@ const UI = {
             if (typeof Game !== 'undefined' && Game.showNetolickyModal) Game.showNetolickyModal();
             return;
         }
+        if (id === 'titivillus_spis') {
+            if (typeof Game !== 'undefined' && Game.showTitivillusSpisModal) Game.showTitivillusSpisModal();
+            return;
+        }
         const _coinValues = { old_coin_1: 6, old_coin_2: 8, old_coin_3: 12 };
         if (_coinValues[id] !== undefined) {
             if (typeof Game !== 'undefined' && Game.showCoinModal) Game.showCoinModal(id, _coinValues[id]);
