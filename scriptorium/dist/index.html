@@ -2507,7 +2507,7 @@
                 <div id="garden-tab-zahony" style="display:none;">
                     <p id="text-garden-desc" class="text-sm" style="margin-bottom:15px;" data-i18n="garden.desc">Pěstuj
                         vzácné rostliny. Půda vyžaduje péči.</p>
-                    <div id="garden-container" class="garden-grid"></div>
+                    <div id="garden-container"></div>
                 </div>
 
                 <div id="garden-tab-sad" style="display:none;">
@@ -22384,19 +22384,6 @@ const GardenSystem = {
         else { const lang = (GameState.settings&&GameState.settings.language)||'cs'; UI.notify(lang==='en'?'🐔 Hens are still working...':'🐔 Slepice ještě pracují...', true); }
     },
 
-    feedHenhouse: function() {
-        const h = GameState.henhouse;
-        if (!h.built || h.hens.length === 0) return;
-        const chickFeed = h.nesting && h.nesting.state === 'growing' ? Math.ceil(h.nesting.chicks / 2) : 0;
-        const totalFeed = h.hens.length + chickFeed;
-        const feedItem = (GameState.inventory['seeds_herb'] || 0) >= totalFeed ? 'seeds_herb' : 'seeds_vegetable';
-        if ((GameState.inventory[feedItem] || 0) < totalFeed) { UI.notify(t('game.needFeedHen') + ' (' + totalFeed + ')', true); return; }
-        Game.removeItem(feedItem, totalFeed);
-        h.lastFedAt = Date.now();
-        Game.save(); GardenSystem.renderFarmyard();
-        UI.notify('🌾 ' + t('game.henFed'));
-    },
-
     // ═══════════════════════════════════════════════════════════════════════════
     // OVILE (Chlév) — herní logika
     // ═══════════════════════════════════════════════════════════════════════════
@@ -22480,22 +22467,6 @@ const GardenSystem = {
         }
         if (collected) { Game.save(); GardenSystem.renderFarmyard(); UI.notify('🐑 ' + t('game.sheepCollected')); }
         else UI.notify(t('game.hiveNotReady'), true);
-    },
-
-    feedSheepfold: function() {
-        const s = GameState.sheepfold;
-        if (!s.built || s.sheep === 0) return;
-        const lambFeed = s.breeding && s.breeding.state === 'growing' ? 1 : 0; // jehně potřebuje 1 trávu (polovina dospělé 2)
-        const fiberNeeded = s.sheep * 2 + lambFeed;
-        const waterNeeded = s.sheep + (lambFeed > 0 ? 1 : 0);
-        if ((GameState.inventory['fiber'] || 0) < fiberNeeded) { UI.notify(t('game.needFeedSheep') + ' (' + fiberNeeded + ')', true); return; }
-        if ((GameState.inventory['water'] || 0) < waterNeeded) { UI.notify(t('game.needWater'), true); return; }
-        Game.removeItem('fiber', fiberNeeded);
-        Game.removeItem('water', waterNeeded);
-        s.lastFedAt = Date.now();
-        s.lastWateredAt = Date.now();
-        Game.save(); GardenSystem.renderFarmyard();
-        UI.notify('🌿 ' + t('game.sheepFed'));
     },
 
     // ═══════════════════════════════════════════════════════════════════════════
@@ -22607,24 +22578,6 @@ const GardenSystem = {
 				UI.notify((lang==='en' ? '⚠️ ' + name + ': ' + remaining + ' uses left.' : '⚠️ ' + name + ': zbývají ' + remaining + ' použití.'));
 			}
 		}
-	},
-
-	feedAnimals: function(animalKey) {
-		const lang = (GameState.settings && GameState.settings.language) || 'cs';
-		const feedMap = { henhouse: 'grain', sheepfold: 'hay', piscina: 'worms' };
-		const nameMap = { henhouse: lang==='en'?'Hens':'Slepice', sheepfold: lang==='en'?'Sheep':'Ovce', piscina: lang==='en'?'Fish':'Ryby' };
-		const feed = feedMap[animalKey];
-		if (!feed) return;
-		if ((GameState.inventory[feed] || 0) < 1) {
-			UI.notify(lang==='en' ? 'No '+feed+' in stores.' : 'V zasobách neni '+feed+'.', true); return;
-		}
-		Game.removeItem(feed, 1);
-		if (!GameState.feeding) GameState.feeding = {};
-		if (!GameState.feeding[animalKey]) GameState.feeding[animalKey] = {};
-		GameState.feeding[animalKey].lastFed = Date.now();
-		GameState.feeding[animalKey].hunger = 0;
-		UI.notify((lang==='en'?nameMap[animalKey]+' fed.':nameMap[animalKey]+' nakrmeny.'));
-		Game.save();
 	},
 
 	buildStorage: function(type) {
@@ -23285,7 +23238,7 @@ const GardenSystem = {
             this.switchGardenTab(activeTab, btn);
             return;
         }
-        const el = document.getElementById('garden-container'); el.innerHTML = "";
+        const el = document.getElementById('garden-container');
         this._syncGardenLocks();
 
         // Calculate growth time with tech bonuses
@@ -23298,7 +23251,8 @@ const GardenSystem = {
         const hasCustomPlant = GameState.researchedTechs.includes('tech_hortus_conclusus');
         const lang = (typeof UI !== 'undefined' && UI.lang) ? UI.lang() : 'cs';
 
-        el.innerHTML = this._zahradaStatsBar(lang, [this._brotherBadge('zahony', lang)]);
+        let html = this._zahradaStatsBar(lang, [this._brotherBadge('zahony', lang)]);
+        html += `<div class="garden-grid">`;
 
         GameState.garden.forEach((plot, idx) => {
             let c = "", b = "", typeLabel = "";
@@ -23354,8 +23308,11 @@ const GardenSystem = {
                     if (hasCustomPlant) b += ` <button class="craft-btn" style="background:#8b4a3a;margin-top:3px;font-size:0.7rem;" onclick="GardenSystem.uprootGardenPlot(${idx})">🪴 ${t('garden.uproot')}</button>`;
                 }
             }
-            el.innerHTML += `<div class="garden-plot">${c}<div style="margin-top:auto">${b}</div></div>`;
+            html += `<div class="garden-plot">${c}<div style="margin-top:auto">${b}</div></div>`;
         });
+
+        html += `</div>`;
+        el.innerHTML = html;
     },
     // ════════════════════════════════════════════════════════════════════════
     // POLE (Ager) — polní hospodářství
@@ -24913,6 +24870,31 @@ const FarmyardSystem = {
         return !!(f && f.hunger > 0);
     },
 
+    // ── Krmná voda — užitková primárně, pramenitá jako záloha ────────────────
+    // Vrací {ok, fromWater, fromSpring} bez konzumace (dry-run), pokud consume=false.
+    _checkFeedWater: function (needed, consume) {
+        const haveWater = GameState.inventory['water'] || 0;
+        const fromWater = Math.min(needed, haveWater);
+        const remaining = needed - fromWater;
+        const haveSpring = GameState.inventory['spring_water'] || 0;
+        const fromSpring = Math.min(remaining, haveSpring);
+        const ok = (fromWater + fromSpring) >= needed;
+        if (ok && consume) {
+            if (fromWater > 0) Game.removeItem('water', fromWater);
+            if (fromSpring > 0) Game.removeItem('spring_water', fromSpring);
+        }
+        return { ok: ok, fromWater: fromWater, fromSpring: fromSpring };
+    },
+
+    // ── Krátký údaj o zdrojích vody pro popisek u tlačítka Krmit ─────────────
+    _feedWaterHint: function (needed, lang) {
+        const haveWater = GameState.inventory['water'] || 0;
+        const haveSpring = GameState.inventory['spring_water'] || 0;
+        const low = haveWater < needed;
+        const color = low ? '#c0392b' : 'inherit';
+        return `<span style="color:${color};">💧${haveWater}${haveSpring > 0 ? ' 🫧' + haveSpring : ''}</span>`;
+    },
+
     _pigMature: function (a) {
         return Date.now() - a.placedAt >= this.ANIMAL_CFG.pigsty.growMs;
     },
@@ -25142,6 +25124,12 @@ const FarmyardSystem = {
 
         h += `<div style="font-size:0.82rem; margin-bottom:10px;">${t('dvur.occupancy')}: <strong>${st.animals.length} / ${cfg.cap}</strong></div>`;
 
+        if (pen === 'rabbitry' && st.built) {
+            const fedAgoR = st.lastFedAt ? Math.floor((Date.now() - st.lastFedAt) / 3600000) : null;
+            const fedTxtR = fedAgoR === null ? (lang === 'en' ? 'Never' : 'Nikdy') : fedAgoR < 1 ? (lang === 'en' ? '< 1h ago' : 'před < 1h') : (lang === 'en' ? '~' + fedAgoR + 'h ago' : 'před ~' + fedAgoR + 'h');
+            h += `<div style="font-size:0.82rem; margin-bottom:8px;">🌿 ${lang==='en'?'Last fed':'Krmeno'}: <strong>${fedTxtR}</strong></div>`;
+        }
+
         if (this._penHungry(pen)) {
             h += `<div style="font-size:0.78rem; color:#c0392b; margin-bottom:8px;">⚠️ ${t('dvur.penHungry')}</div>`;
         }
@@ -25195,7 +25183,9 @@ const FarmyardSystem = {
             var matureRabs = st.animals.filter(function (a) { return a.mature !== false; }).length;
             var canCleanR = Date.now() - (st.lastCleanMs || 0) >= 86400000;
             var cleanQR = Math.max(1, Math.ceil(st.animals.length / 3));
+            var waterNeededR = st.animals.length;
             h += '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px;">';
+            h += '<button class="craft-btn" onclick="FarmyardSystem.feedRabbitry()" style="background:#4a7c59;">🌿 ' + t('farmyard.feed') + '<br><span style="font-size:0.68rem;">' + this._feedWaterHint(waterNeededR, lang) + '</span></button>';
             h += '<button class="craft-btn" onclick="FarmyardSystem.slaughterRabbit()" ' + (matureRabs > 0 ? '' : 'disabled') + '>🔪 ' + t('dvur.slaughterRabbit') + '</button>';
             h += '<button class="craft-btn" onclick="FarmyardSystem.cleanPen(\'rabbitry\')" style="background:rgba(90,154,90,0.85);">' + (canCleanR ? '🧹 ' + t('farmyard.clean') + ' (💩 +' + cleanQR + ')' : '🧹 ' + t('farmyard.cleanTomorrow')) + '</button>';
             h += '</div>';
@@ -25429,7 +25419,9 @@ const FarmyardSystem = {
                 html += '<div>🐏 ' + (lang === 'en' ? 'Ram' : 'Beran') + ': <strong style="color:' + (_ramActive ? '#5a9a5a' : '#c0392b') + ';">' + (_ramActive ? '✓ ' + _ramH + 'h' : (lang === 'en' ? 'No loan' : 'Výpůjčka')) + '</strong></div>';
                 html += '<div>🥛 ' + t('farmyard.milk') + ': <strong>' + (milkReady ? t('farmyard.ready') + '(' + milkYield + ')' : !_milkSeason ? (lang === 'en' ? 'Winter' : 'Zima') : Math.ceil(((s.lastMilkAt || 0) + 43200000 - now) / 3600000) + 'h') + '</strong></div>';
                 html += '<div>🧶 ' + t('farmyard.wool') + ': <strong>' + (woolReady ? t('farmyard.ready') + '(' + woolYield + ')' : Math.ceil(((s.lastWoolAt || 0) + 172800000 - now) / 3600000) + 'h') + '</strong></div>';
-                html += '<div></div>';
+                var fedAgoSh = s.lastFedAt ? Math.floor((now - s.lastFedAt) / 3600000) : null;
+                var fedTxtSh = fedAgoSh === null ? (lang === 'en' ? 'Never' : 'Nikdy') : fedAgoSh < 1 ? (lang === 'en' ? '< 1h ago' : 'před < 1h') : (lang === 'en' ? '~' + fedAgoSh + 'h ago' : 'před ~' + fedAgoSh + 'h');
+                html += '<div>🌿 ' + (lang === 'en' ? 'Last fed' : 'Krmeno') + ': <strong>' + fedTxtSh + '</strong></div>';
                 html += '</div>';
                 if (sheepCount > 0) {
                     html += '<div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px;">';
@@ -25444,7 +25436,8 @@ const FarmyardSystem = {
                 var hasSheepItem = (GameState.inventory['sheep'] || 0) > 0;
                 html += '<button class="craft-btn" onclick="FarmyardSystem.addSheep()" ' + (hasSheepItem && sheepCount < 6 ? '' : 'disabled') + '>🐑 ' + t('farmyard.addSheep') + '</button>';
                 html += '<button class="craft-btn" onclick="FarmyardSystem.collectSheepfold()" ' + (sheepCount > 0 ? '' : 'disabled') + '>🥛🧶 ' + t('farmyard.collect') + '</button>';
-                html += '<button class="craft-btn" onclick="FarmyardSystem.feedSheepfold()" ' + (sheepCount > 0 ? '' : 'disabled') + ' style="background:#4a7c59;">🌿 ' + t('farmyard.feed') + '</button>';
+                var waterNeededSh = sheepCount + (s.breeding && s.breeding.state === 'growing' ? 1 : 0);
+                html += '<button class="craft-btn" onclick="FarmyardSystem.feedSheepfold()" ' + (sheepCount > 0 ? '' : 'disabled') + ' style="background:#4a7c59;">🌿 ' + t('farmyard.feed') + '<br><span style="font-size:0.68rem;">' + this._feedWaterHint(waterNeededSh, lang) + '</span></button>';
                 var canCleanSh = Date.now() - (GameState.sheepfold.lastCleanMs || 0) >= 86400000;
                 var cleanQtySh = Math.max(1, Math.ceil(sheepCount / 2));
                 if (sheepCount > 0) html += '<button class="craft-btn" onclick="FarmyardSystem.cleanPen(\'kosar\')" style="background:rgba(90,154,90,0.85);">' + (canCleanSh ? '🧹 ' + t('farmyard.clean') + ' (💩 +' + cleanQtySh + ')' : '🧹 ' + t('farmyard.cleanTomorrow')) + '</button>';
@@ -25939,6 +25932,21 @@ const FarmyardSystem = {
         else UI.notify(t('game.hiveNotReady'), true);
     },
 
+    feedRabbitry: function () {
+        const st = GameState.rabbitry;
+        if (!st || !st.built || st.animals.length === 0) return;
+        const fiberNeeded = st.animals.length;
+        const waterNeeded = st.animals.length;
+        if ((GameState.inventory['fiber'] || 0) < fiberNeeded) { UI.notify(t('game.needFeedSheep') + ' (' + fiberNeeded + ')', true); return; }
+        if (!this._checkFeedWater(waterNeeded, false).ok) { UI.notify(t('game.needWater'), true); return; }
+        Game.removeItem('fiber', fiberNeeded);
+        this._checkFeedWater(waterNeeded, true);
+        st.lastFedAt = Date.now();
+        st.animals.forEach(a => { a.mood = Math.min(100, (a.mood || 80) + 10); });
+        Game.save(); FarmyardSystem.renderFarmyard();
+        UI.notify('🌿 ' + t('game.sheepFed'));
+    },
+
     feedSheepfold: function () {
         const s = GameState.sheepfold;
         if (!s.built || s.sheep === 0) return;
@@ -25946,9 +25954,9 @@ const FarmyardSystem = {
         const fiberNeeded = s.sheep * 2 + lambFeed;
         const waterNeeded = s.sheep + (lambFeed > 0 ? 1 : 0);
         if ((GameState.inventory['fiber'] || 0) < fiberNeeded) { UI.notify(t('game.needFeedSheep') + ' (' + fiberNeeded + ')', true); return; }
-        if ((GameState.inventory['water'] || 0) < waterNeeded) { UI.notify(t('game.needWater'), true); return; }
+        if (!this._checkFeedWater(waterNeeded, false).ok) { UI.notify(t('game.needWater'), true); return; }
         Game.removeItem('fiber', fiberNeeded);
-        Game.removeItem('water', waterNeeded);
+        this._checkFeedWater(waterNeeded, true);
         s.lastFedAt = Date.now();
         if (Array.isArray(s.sheepObjs)) s.sheepObjs.forEach(a => { a.mood = Math.min(100, (a.mood || 80) + 10); });
         Game.save(); FarmyardSystem.renderFarmyard();
@@ -28292,6 +28300,17 @@ const SecretsSystem = {
       : null;
     const folioTitle = folio ? t(folio.titleKey) : folioId;
     UI.notifyPanel('📜 Nalezen zápisek ve Scrinium Abbatis: ' + folioTitle, 'system');
+  },
+
+  // Odemkne všech 7 Netolického folií (Kroniky) — volané ze showNetolickyModal
+  // po prostudování 'netolicky_legacy' (0.1% drop z Lovu bylin).
+  unlockNetolickyFolios: function() {
+    const ids = [
+      'folio_netolicky_01', 'folio_netolicky_02', 'folio_netolicky_03',
+      'folio_netolicky_04', 'folio_netolicky_05', 'folio_netolicky_06', 'folio_netolicky_07'
+    ];
+    ids.forEach(id => this.unlockFolioById(id));
+    Game.save();
   },
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -42156,7 +42175,25 @@ const Game = {
                     // fallback pro neznámé plodiny
                     this.addItem(harvestCrop, Math.max(1, Math.round(2 * _yieldMult)));
                 }
-                
+
+                // Herbarium — threshold odemykání Scrinium folií za vzácné byliny
+                if (['mandrake', 'belladonna', 'poppy'].includes(harvestCrop)) {
+                    if (!GameState.herbarium) GameState.herbarium = { rareTotal: 0, mandrakeTotal: 0 };
+                    GameState.herbarium.rareTotal = (GameState.herbarium.rareTotal || 0) + 1;
+                    if (harvestCrop === 'mandrake') {
+                        GameState.herbarium.mandrakeTotal = (GameState.herbarium.mandrakeTotal || 0) + 1;
+                    }
+                    if (typeof SecretsSystem !== 'undefined') {
+                        const rt = GameState.herbarium.rareTotal;
+                        const mt = GameState.herbarium.mandrakeTotal;
+                        if (rt >= 1)  SecretsSystem.unlockFolioById('folio_signatura');
+                        if (rt >= 5)  SecretsSystem.unlockFolioById('folio_hildegardis');
+                        if (rt >= 15) SecretsSystem.unlockFolioById('folio_miasma');
+                        if (mt >= 3)  SecretsSystem.unlockFolioById('folio_mandragora');
+                        if (rt >= 30) SecretsSystem.unlockFolioById('folio_theriaca');
+                    }
+                }
+
                 Game.checkAchievements();
             } else UI.notify(t('game.growing'), true);
         }
@@ -44173,24 +44210,6 @@ const Game = {
 				UI.notify((lang==='en' ? '⚠️ ' + name + ': ' + remaining + ' uses left.' : '⚠️ ' + name + ': zbývají ' + remaining + ' použití.'));
 			}
 		}
-	},
-
-	feedAnimals: function(animalKey) {
-		const lang = (GameState.settings && GameState.settings.language) || 'cs';
-		const feedMap = { henhouse: 'grain', sheepfold: 'hay', piscina: 'worms' };
-		const nameMap = { henhouse: lang==='en'?'Hens':'Slepice', sheepfold: lang==='en'?'Sheep':'Ovce', piscina: lang==='en'?'Fish':'Ryby' };
-		const feed = feedMap[animalKey];
-		if (!feed) return;
-		if ((GameState.inventory[feed] || 0) < 1) {
-			UI.notify(lang==='en' ? 'No '+feed+' in stores.' : 'V zasobách neni '+feed+'.', true); return;
-		}
-		Game.removeItem(feed, 1);
-		if (!GameState.feeding) GameState.feeding = {};
-		if (!GameState.feeding[animalKey]) GameState.feeding[animalKey] = {};
-		GameState.feeding[animalKey].lastFed = Date.now();
-		GameState.feeding[animalKey].hunger = 0;
-		UI.notify((lang==='en'?nameMap[animalKey]+' fed.':nameMap[animalKey]+' nakrmeny.'));
-		Game.save();
 	},
 
 	buildStorage: function(type) {
