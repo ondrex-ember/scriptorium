@@ -382,6 +382,31 @@ const FarmyardSystem = {
         return !!(f && f.hunger > 0);
     },
 
+    // ── Krmná voda — užitková primárně, pramenitá jako záloha ────────────────
+    // Vrací {ok, fromWater, fromSpring} bez konzumace (dry-run), pokud consume=false.
+    _checkFeedWater: function (needed, consume) {
+        const haveWater = GameState.inventory['water'] || 0;
+        const fromWater = Math.min(needed, haveWater);
+        const remaining = needed - fromWater;
+        const haveSpring = GameState.inventory['spring_water'] || 0;
+        const fromSpring = Math.min(remaining, haveSpring);
+        const ok = (fromWater + fromSpring) >= needed;
+        if (ok && consume) {
+            if (fromWater > 0) Game.removeItem('water', fromWater);
+            if (fromSpring > 0) Game.removeItem('spring_water', fromSpring);
+        }
+        return { ok: ok, fromWater: fromWater, fromSpring: fromSpring };
+    },
+
+    // ── Krátký údaj o zdrojích vody pro popisek u tlačítka Krmit ─────────────
+    _feedWaterHint: function (needed, lang) {
+        const haveWater = GameState.inventory['water'] || 0;
+        const haveSpring = GameState.inventory['spring_water'] || 0;
+        const low = haveWater < needed;
+        const color = low ? '#c0392b' : 'inherit';
+        return `<span style="color:${color};">💧${haveWater}${haveSpring > 0 ? ' 🫧' + haveSpring : ''}</span>`;
+    },
+
     _pigMature: function (a) {
         return Date.now() - a.placedAt >= this.ANIMAL_CFG.pigsty.growMs;
     },
@@ -611,6 +636,12 @@ const FarmyardSystem = {
 
         h += `<div style="font-size:0.82rem; margin-bottom:10px;">${t('dvur.occupancy')}: <strong>${st.animals.length} / ${cfg.cap}</strong></div>`;
 
+        if (pen === 'rabbitry' && st.built) {
+            const fedAgoR = st.lastFedAt ? Math.floor((Date.now() - st.lastFedAt) / 3600000) : null;
+            const fedTxtR = fedAgoR === null ? (lang === 'en' ? 'Never' : 'Nikdy') : fedAgoR < 1 ? (lang === 'en' ? '< 1h ago' : 'před < 1h') : (lang === 'en' ? '~' + fedAgoR + 'h ago' : 'před ~' + fedAgoR + 'h');
+            h += `<div style="font-size:0.82rem; margin-bottom:8px;">🌿 ${lang==='en'?'Last fed':'Krmeno'}: <strong>${fedTxtR}</strong></div>`;
+        }
+
         if (this._penHungry(pen)) {
             h += `<div style="font-size:0.78rem; color:#c0392b; margin-bottom:8px;">⚠️ ${t('dvur.penHungry')}</div>`;
         }
@@ -664,7 +695,9 @@ const FarmyardSystem = {
             var matureRabs = st.animals.filter(function (a) { return a.mature !== false; }).length;
             var canCleanR = Date.now() - (st.lastCleanMs || 0) >= 86400000;
             var cleanQR = Math.max(1, Math.ceil(st.animals.length / 3));
+            var waterNeededR = st.animals.length;
             h += '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px;">';
+            h += '<button class="craft-btn" onclick="FarmyardSystem.feedRabbitry()" style="background:#4a7c59;">🌿 ' + t('farmyard.feed') + '<br><span style="font-size:0.68rem;">' + this._feedWaterHint(waterNeededR, lang) + '</span></button>';
             h += '<button class="craft-btn" onclick="FarmyardSystem.slaughterRabbit()" ' + (matureRabs > 0 ? '' : 'disabled') + '>🔪 ' + t('dvur.slaughterRabbit') + '</button>';
             h += '<button class="craft-btn" onclick="FarmyardSystem.cleanPen(\'rabbitry\')" style="background:rgba(90,154,90,0.85);">' + (canCleanR ? '🧹 ' + t('farmyard.clean') + ' (💩 +' + cleanQR + ')' : '🧹 ' + t('farmyard.cleanTomorrow')) + '</button>';
             h += '</div>';
@@ -898,7 +931,9 @@ const FarmyardSystem = {
                 html += '<div>🐏 ' + (lang === 'en' ? 'Ram' : 'Beran') + ': <strong style="color:' + (_ramActive ? '#5a9a5a' : '#c0392b') + ';">' + (_ramActive ? '✓ ' + _ramH + 'h' : (lang === 'en' ? 'No loan' : 'Výpůjčka')) + '</strong></div>';
                 html += '<div>🥛 ' + t('farmyard.milk') + ': <strong>' + (milkReady ? t('farmyard.ready') + '(' + milkYield + ')' : !_milkSeason ? (lang === 'en' ? 'Winter' : 'Zima') : Math.ceil(((s.lastMilkAt || 0) + 43200000 - now) / 3600000) + 'h') + '</strong></div>';
                 html += '<div>🧶 ' + t('farmyard.wool') + ': <strong>' + (woolReady ? t('farmyard.ready') + '(' + woolYield + ')' : Math.ceil(((s.lastWoolAt || 0) + 172800000 - now) / 3600000) + 'h') + '</strong></div>';
-                html += '<div></div>';
+                var fedAgoSh = s.lastFedAt ? Math.floor((now - s.lastFedAt) / 3600000) : null;
+                var fedTxtSh = fedAgoSh === null ? (lang === 'en' ? 'Never' : 'Nikdy') : fedAgoSh < 1 ? (lang === 'en' ? '< 1h ago' : 'před < 1h') : (lang === 'en' ? '~' + fedAgoSh + 'h ago' : 'před ~' + fedAgoSh + 'h');
+                html += '<div>🌿 ' + (lang === 'en' ? 'Last fed' : 'Krmeno') + ': <strong>' + fedTxtSh + '</strong></div>';
                 html += '</div>';
                 if (sheepCount > 0) {
                     html += '<div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px;">';
@@ -913,7 +948,8 @@ const FarmyardSystem = {
                 var hasSheepItem = (GameState.inventory['sheep'] || 0) > 0;
                 html += '<button class="craft-btn" onclick="FarmyardSystem.addSheep()" ' + (hasSheepItem && sheepCount < 6 ? '' : 'disabled') + '>🐑 ' + t('farmyard.addSheep') + '</button>';
                 html += '<button class="craft-btn" onclick="FarmyardSystem.collectSheepfold()" ' + (sheepCount > 0 ? '' : 'disabled') + '>🥛🧶 ' + t('farmyard.collect') + '</button>';
-                html += '<button class="craft-btn" onclick="FarmyardSystem.feedSheepfold()" ' + (sheepCount > 0 ? '' : 'disabled') + ' style="background:#4a7c59;">🌿 ' + t('farmyard.feed') + '</button>';
+                var waterNeededSh = sheepCount + (s.breeding && s.breeding.state === 'growing' ? 1 : 0);
+                html += '<button class="craft-btn" onclick="FarmyardSystem.feedSheepfold()" ' + (sheepCount > 0 ? '' : 'disabled') + ' style="background:#4a7c59;">🌿 ' + t('farmyard.feed') + '<br><span style="font-size:0.68rem;">' + this._feedWaterHint(waterNeededSh, lang) + '</span></button>';
                 var canCleanSh = Date.now() - (GameState.sheepfold.lastCleanMs || 0) >= 86400000;
                 var cleanQtySh = Math.max(1, Math.ceil(sheepCount / 2));
                 if (sheepCount > 0) html += '<button class="craft-btn" onclick="FarmyardSystem.cleanPen(\'kosar\')" style="background:rgba(90,154,90,0.85);">' + (canCleanSh ? '🧹 ' + t('farmyard.clean') + ' (💩 +' + cleanQtySh + ')' : '🧹 ' + t('farmyard.cleanTomorrow')) + '</button>';
@@ -1408,6 +1444,21 @@ const FarmyardSystem = {
         else UI.notify(t('game.hiveNotReady'), true);
     },
 
+    feedRabbitry: function () {
+        const st = GameState.rabbitry;
+        if (!st || !st.built || st.animals.length === 0) return;
+        const fiberNeeded = st.animals.length;
+        const waterNeeded = st.animals.length;
+        if ((GameState.inventory['fiber'] || 0) < fiberNeeded) { UI.notify(t('game.needFeedSheep') + ' (' + fiberNeeded + ')', true); return; }
+        if (!this._checkFeedWater(waterNeeded, false).ok) { UI.notify(t('game.needWater'), true); return; }
+        Game.removeItem('fiber', fiberNeeded);
+        this._checkFeedWater(waterNeeded, true);
+        st.lastFedAt = Date.now();
+        st.animals.forEach(a => { a.mood = Math.min(100, (a.mood || 80) + 10); });
+        Game.save(); FarmyardSystem.renderFarmyard();
+        UI.notify('🌿 ' + t('game.sheepFed'));
+    },
+
     feedSheepfold: function () {
         const s = GameState.sheepfold;
         if (!s.built || s.sheep === 0) return;
@@ -1415,9 +1466,9 @@ const FarmyardSystem = {
         const fiberNeeded = s.sheep * 2 + lambFeed;
         const waterNeeded = s.sheep + (lambFeed > 0 ? 1 : 0);
         if ((GameState.inventory['fiber'] || 0) < fiberNeeded) { UI.notify(t('game.needFeedSheep') + ' (' + fiberNeeded + ')', true); return; }
-        if ((GameState.inventory['water'] || 0) < waterNeeded) { UI.notify(t('game.needWater'), true); return; }
+        if (!this._checkFeedWater(waterNeeded, false).ok) { UI.notify(t('game.needWater'), true); return; }
         Game.removeItem('fiber', fiberNeeded);
-        Game.removeItem('water', waterNeeded);
+        this._checkFeedWater(waterNeeded, true);
         s.lastFedAt = Date.now();
         if (Array.isArray(s.sheepObjs)) s.sheepObjs.forEach(a => { a.mood = Math.min(100, (a.mood || 80) + 10); });
         Game.save(); FarmyardSystem.renderFarmyard();

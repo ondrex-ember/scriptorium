@@ -1497,7 +1497,25 @@ const Game = {
                     // fallback pro neznámé plodiny
                     this.addItem(harvestCrop, Math.max(1, Math.round(2 * _yieldMult)));
                 }
-                
+
+                // Herbarium — threshold odemykání Scrinium folií za vzácné byliny
+                if (['mandrake', 'belladonna', 'poppy'].includes(harvestCrop)) {
+                    if (!GameState.herbarium) GameState.herbarium = { rareTotal: 0, mandrakeTotal: 0 };
+                    GameState.herbarium.rareTotal = (GameState.herbarium.rareTotal || 0) + 1;
+                    if (harvestCrop === 'mandrake') {
+                        GameState.herbarium.mandrakeTotal = (GameState.herbarium.mandrakeTotal || 0) + 1;
+                    }
+                    if (typeof SecretsSystem !== 'undefined') {
+                        const rt = GameState.herbarium.rareTotal;
+                        const mt = GameState.herbarium.mandrakeTotal;
+                        if (rt >= 1)  SecretsSystem.unlockFolioById('folio_signatura');
+                        if (rt >= 5)  SecretsSystem.unlockFolioById('folio_hildegardis');
+                        if (rt >= 15) SecretsSystem.unlockFolioById('folio_miasma');
+                        if (mt >= 3)  SecretsSystem.unlockFolioById('folio_mandragora');
+                        if (rt >= 30) SecretsSystem.unlockFolioById('folio_theriaca');
+                    }
+                }
+
                 Game.checkAchievements();
             } else UI.notify(t('game.growing'), true);
         }
@@ -3514,24 +3532,6 @@ const Game = {
 				UI.notify((lang==='en' ? '⚠️ ' + name + ': ' + remaining + ' uses left.' : '⚠️ ' + name + ': zbývají ' + remaining + ' použití.'));
 			}
 		}
-	},
-
-	feedAnimals: function(animalKey) {
-		const lang = (GameState.settings && GameState.settings.language) || 'cs';
-		const feedMap = { henhouse: 'grain', sheepfold: 'hay', piscina: 'worms' };
-		const nameMap = { henhouse: lang==='en'?'Hens':'Slepice', sheepfold: lang==='en'?'Sheep':'Ovce', piscina: lang==='en'?'Fish':'Ryby' };
-		const feed = feedMap[animalKey];
-		if (!feed) return;
-		if ((GameState.inventory[feed] || 0) < 1) {
-			UI.notify(lang==='en' ? 'No '+feed+' in stores.' : 'V zasobách neni '+feed+'.', true); return;
-		}
-		Game.removeItem(feed, 1);
-		if (!GameState.feeding) GameState.feeding = {};
-		if (!GameState.feeding[animalKey]) GameState.feeding[animalKey] = {};
-		GameState.feeding[animalKey].lastFed = Date.now();
-		GameState.feeding[animalKey].hunger = 0;
-		UI.notify((lang==='en'?nameMap[animalKey]+' fed.':nameMap[animalKey]+' nakrmeny.'));
-		Game.save();
 	},
 
 	buildStorage: function(type) {

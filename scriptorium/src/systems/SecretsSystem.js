@@ -175,6 +175,17 @@ const SecretsSystem = {
     UI.notifyPanel('📜 Nalezen zápisek ve Scrinium Abbatis: ' + folioTitle, 'system');
   },
 
+  // Odemkne všech 7 Netolického folií (Kroniky) — volané ze showNetolickyModal
+  // po prostudování 'netolicky_legacy' (0.1% drop z Lovu bylin).
+  unlockNetolickyFolios: function() {
+    const ids = [
+      'folio_netolicky_01', 'folio_netolicky_02', 'folio_netolicky_03',
+      'folio_netolicky_04', 'folio_netolicky_05', 'folio_netolicky_06', 'folio_netolicky_07'
+    ];
+    ids.forEach(id => this.unlockFolioById(id));
+    Game.save();
+  },
+
   // ═══════════════════════════════════════════════════════════════════════════
   // DEV TOOLS
   // ═══════════════════════════════════════════════════════════════════════════
