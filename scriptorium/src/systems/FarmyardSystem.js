@@ -1056,17 +1056,29 @@ const FarmyardSystem = {
                 h += `<div style="font-size:0.8rem; ${low ? 'color:#c0392b;' : ''}">🌾 ${t('dvur.feedStock')}: ${parts.join(' \u00b7 ')}</div>`;
             }
 
-            // Poslední (auto)krmení — přehled bez nutnosti otevírat každý chlév zvlášť
-            if (GameState.feeding) {
-                const feedNames = { henhouse: lang==='en'?'Hens':'Slepice', sheepfold: lang==='en'?'Sheep':'Ovce', piscina: lang==='en'?'Fish':'Ryby', rabbitry: lang==='en'?'Rabbits':'Králíci', goatpen: lang==='en'?'Goats':'Kozy', pigsty: lang==='en'?'Pigs':'Prasata' };
-                const fedKeys = Object.keys(GameState.feeding).filter(k => GameState.feeding[k] && GameState.feeding[k].lastFed);
-                if (fedKeys.length) {
-                    fedKeys.sort((a, b) => GameState.feeding[b].lastFed - GameState.feeding[a].lastFed);
-                    const lastKey = fedKeys[0];
-                    const hAgo = Math.max(0, Math.floor((Date.now() - GameState.feeding[lastKey].lastFed) / 3600000));
-                    const anyHungry = fedKeys.some(k => (GameState.feeding[k].hunger || 0) > 0);
-                    const label = feedNames[lastKey] || lastKey;
-                    h += `<div style="font-size:0.76rem; ${anyHungry ? 'color:#c0392b;' : 'opacity:0.7;'}">🌾 ${lang==='en'?'Last fed':'Naposledy krmeno'}: ${label} · ${lang==='en' ? hAgo+'h ago' : 'před '+hAgo+'h'}${anyHungry ? (lang==='en' ? ' — some hungry!' : ' — někteří hladoví!') : ''}</div>`;
+            // Poslední krmení — přehled za všechny výběhy zvlášť, každý ze svého
+            // vlastního st.lastFedAt (stejný zdroj, jaký používá detail chlívu
+            // samotného). Dřívější verze četla GameState.feeding — oddělený
+            // auto-tick tracker, který se neaktualizoval kliknutím na Feed;
+            // proto ukazovala starý/nesouvisející záznam.
+            // Scope: jen henhouse/sheepfold/rabbitry — jediné 3 chlévy s
+            // vlastním Feed tlačítkem a lastFedAt polem. Goatpen/Byre/Stable
+            // ho nemají vůbec, vynecháno (ne "Nikdy" navždy).
+            {
+                const feedPens = [
+                    { label: lang === 'en' ? 'Hens' : 'Slepice', icon: '🌾', st: GameState.henhouse, hasAnimals: ((GameState.henhouse && GameState.henhouse.hens) || []).length > 0 },
+                    { label: lang === 'en' ? 'Sheep' : 'Ovce', icon: '🌿', st: GameState.sheepfold, hasAnimals: ((GameState.sheepfold && GameState.sheepfold.sheep) || 0) > 0 },
+                    { label: lang === 'en' ? 'Rabbits' : 'Králíci', icon: '🌿', st: GameState.rabbitry, hasAnimals: ((GameState.rabbitry && GameState.rabbitry.animals) || []).length > 0 },
+                ].filter(p => p.st && p.st.built && p.hasAnimals);
+
+                if (feedPens.length) {
+                    const parts = feedPens.map(p => {
+                        const fedAgo = p.st.lastFedAt ? Math.floor((Date.now() - p.st.lastFedAt) / 3600000) : null;
+                        const fedTxt = fedAgo === null ? (lang === 'en' ? 'Never' : 'Nikdy') : fedAgo < 1 ? (lang === 'en' ? '< 1h' : '< 1h') : ('~' + fedAgo + 'h');
+                        const hungry = fedAgo === null || fedAgo >= 24;
+                        return `<span style="${hungry ? 'color:#c0392b;' : ''}">${p.icon} ${p.label}: <strong>${fedTxt}</strong></span>`;
+                    });
+                    h += `<div style="font-size:0.76rem; opacity:0.85;">${lang === 'en' ? 'Last fed' : 'Krmeno'} — ${parts.join(' · ')}</div>`;
                 }
             }
         }
