@@ -4903,6 +4903,12 @@ const Game = {
         const levelBefore = this.dormitoriumBrotherLevel(brother, tabId);
         brother.xp[tabId] = (brother.xp[tabId] || 0) + 1;
 
+        // Stress — přepracování. Kontrola PŘED touhle prací přidanou únavou
+        // (representuje "už teď je vyčerpaný"), ne po ní.
+        if (typeof brother.fatigue === 'number' && brother.fatigue >= 70) {
+            brother.stress = Math.min(100, (brother.stress || 0) + 3);
+        }
+
         // Vedlejší přírůstek do traits — zatím NEnahrazuje výše uvedený
         // xp[tabId] čítač (ten dál řídí dormitoriumBrotherLevel/Mult), jen
         // ho doplňuje. Přepočítání levelu na traits je samostatný krok
@@ -5356,6 +5362,11 @@ const Game = {
 
         if (conflict) {
             const { bond, ka, kb } = conflict;
+            // Napětí v komunitě — i bratři v Dormitoriu ho cítí, ne jen dva
+            // konvrši v konfliktu. Malý plošný bump, nezávislý na volbě řešení.
+            (GameState.dormitorium && GameState.dormitorium.brothers || []).forEach(b => {
+                if (b.assignedTab) b.stress = Math.min(100, (b.stress || 0) + 5);
+            });
             // Viník = nižší loajalita; druhý = poškozený
             const victim = (ka.loyalty <= kb.loyalty) ? ka : kb;
             const other  = (victim === ka) ? kb : ka;
@@ -5407,6 +5418,11 @@ const Game = {
             list.forEach(k => {
                 k.fatigue = Math.max(0, k.fatigue - 5);
                 k.mood = Math.min(100, k.mood + 3);
+            });
+            // Zrcadlí úlevu i pro bratry — jediná odventilovací chvíle pro Stress,
+            // který jinak jen roste (fatigue/konflikt/ztráta parťáka).
+            (GameState.dormitorium && GameState.dormitorium.brothers || []).forEach(b => {
+                if (b.assignedTab) b.stress = Math.max(0, (b.stress || 0) - 5);
             });
             if (typeof UI !== 'undefined' && UI.notifyPanel) {
                 UI.notifyPanel('⚖️ ' + (lang==='en' ? 'The chapter passed in peace and concord. The brothers work with lighter hearts.' : 'Kapitula proběhla v pokoji a svornosti. Bratři pracují s lehčím srdcem.'), 'success');
@@ -5541,6 +5557,12 @@ const Game = {
             }
             leavers.forEach(k => {
                 GameState.conversi = GameState.conversi.filter(x => x.id !== k.id);
+                // Ztráta pracovního parťáka — bratr na stejném tabu to nese těžce.
+                if (k.task) {
+                    const partnerBrother = (GameState.dormitorium && GameState.dormitorium.brothers || [])
+                        .find(b => b.assignedTab === k.task);
+                    if (partnerBrother) partnerBrother.stress = Math.min(100, (partnerBrother.stress || 0) + 8);
+                }
                 if (typeof UI !== 'undefined' && UI.notifyPanel) {
                     UI.notifyPanel('🚪 ' + (lang==='en'
                         ? k.name + ' has left the monastery — unpaid and forgotten.'
@@ -5562,6 +5584,27 @@ const Game = {
             GameState.conversiNextKapitula = Date.now() + WEEK;
             this._runKapitula();
             Game.save();
+        }
+
+        // ── Temptation: denní drift podle Zbožnosti opata (persona.zboznost).
+        // Nízká Zbožnost v komunitě = víc pokušení pro bratry; zdravá Zbožnost
+        // ho naopak pomalu odplavuje (stejná "eroduje potichu" filozofie jako
+        // Zbožnost/Vigor jinde ve hře). Self-guard 24h, nezávislé na Kapitule/mzdě.
+        const DAY = 24 * 60 * 60 * 1000;
+        if (!GameState.dormitoriumTemptationLastTick) GameState.dormitoriumTemptationLastTick = 0;
+        if (Date.now() - GameState.dormitoriumTemptationLastTick >= DAY) {
+            GameState.dormitoriumTemptationLastTick = Date.now();
+            const brothers = (GameState.dormitorium && GameState.dormitorium.brothers) || [];
+            if (brothers.length > 0) {
+                const zboznost = (GameState.persona && typeof GameState.persona.zboznost === 'number') ? GameState.persona.zboznost : 50;
+                const delta = zboznost < 15 ? 4 : zboznost < 30 ? 2 : zboznost >= 70 ? -2 : 0;
+                if (delta !== 0) {
+                    brothers.forEach(b => {
+                        b.temptation = Math.max(0, Math.min(100, (b.temptation || 0) + delta));
+                    });
+                    Game.save();
+                }
+            }
         }
 
         // ── Denní režim (Regula) ──

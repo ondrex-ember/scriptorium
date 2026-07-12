@@ -419,7 +419,10 @@ const CellariumSystem = {
         const _slang = (GameState.settings && GameState.settings.language) || 'cs';
         NotificationSystem.panel('💰 ' + itemName + ' ×' + qty + ' → ' + total + ' g · ' + (_slang==='en' ? entity : entity), 'system');
     }
-    this.renderCellariumContent();
+    // Tavern/Shop/Market se zobrazují uvnitř Saeculum obrazovky (#saeculum-content),
+    // ne Cellarium (#cellarium-content) — refresh musí cílit tam, jinak zůstane
+    // stav zaseklý až do ručního přepnutí tabu.
+    if (typeof SaeculumSystem !== 'undefined') SaeculumSystem.switchEntity(GameState.ui.saeculumEntity || 'tavern');
   },
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -587,8 +590,6 @@ const CellariumSystem = {
     this._useStock(entity, itemId);
     Game.addItem(itemId, 1);
     this.recordTransaction('buy', itemId, 1, price, entity);
-    // Aplikuj efekt nápoje (pivo/víno)
-    CellariumSystem.applyDrinkEffect(itemId);
     GameState.economy.tradesTotal++;
     // Reputace — nákup taky zvyšuje vztah k entitě (stejný vzor jako sellItem)
     if (typeof PersonaSystem !== 'undefined' && PersonaSystem.addInfluence) {
@@ -601,9 +602,13 @@ const CellariumSystem = {
     Game.save();
     const itemName = (typeof iName === 'function') ? iName(itemId) : itemId;
     UI.notify(t('cellarium.boughtNotify').replace('{qty}', 1).replace('{item}', itemName).replace('{total}', price));
-    this.renderCellariumContent();
+    if (typeof SaeculumSystem !== 'undefined') SaeculumSystem.switchEntity(GameState.ui.saeculumEntity || 'tavern');
   },
 
+  // Speciální "chuťovka" efekt (flavor panel + u vína craft-boost) — voláno
+  // z Game.eat() PŘI SKUTEČNÉ KONZUMACI, ne při nákupu. Satiety/Fatigue už
+  // řeší Game.eat() → VigorSystem.eat() generickou cestou (beer/wine jsou
+  // type:'food'), takhle se to nezdvojuje.
   applyDrinkEffect: function(itemId) {
     const lang = (GameState.settings && GameState.settings.language) || 'cs';
     const panel = (typeof NotificationSystem !== 'undefined' && NotificationSystem.panel)
@@ -611,15 +616,11 @@ const CellariumSystem = {
       : (msg) => UI.notify(msg, false);
 
     if (itemId === 'beer') {
-      // Vigor API: +5 sytost, +10 únava (definováno v VigorSystem.FOOD_SATIETY/FOOD_FATIGUE)
-      if (typeof VigorSystem !== 'undefined') VigorSystem.eat('beer');
       panel(lang === 'en'
         ? '🍺 Lupulin — thirst quenched, mind dulled.'
         : '🍺 Lupulin — hlad zažehnán, mysl trochu zakalena.');
 
     } else if (itemId === 'wine') {
-      // Vigor API: +3 sytost, +8 únava
-      if (typeof VigorSystem !== 'undefined') VigorSystem.eat('wine');
       // Craft boost zachován
       if (GameState.athanor) {
         const expiresAt = Date.now() + 1800000; // 30 min
@@ -650,6 +651,49 @@ const CellariumSystem = {
     const pseudoRand = ((seed * 9301 + entity.charCodeAt(0) * 49297 + itemId.charCodeAt(0) * 233 + 777) % 1000) / 1000;
     const offset = 0.85 + pseudoRand * 0.30;
     return Math.max(1, Math.round(base * offset));
+  },
+
+  // Pivo/víno vypité rovnou u pultu — platí se zvlášť od BUY, žádný item
+  // do inventáře, efekt hned. Sdílí denní sklad s "koupit s sebou" (BUY),
+  // je to fyzicky tentýž sud/soudek.
+  drinkAtTavern: function(entity, itemId) {
+    if (!this.hasNumismatica()) return;
+    if (!this.isEntityOpen(entity)) {
+      UI.notify(t('cellarium.closed'), true);
+      return;
+    }
+    const shopList = this.ENTITY_SHOP[entity];
+    if (!shopList) return;
+    const shopEntry = shopList.find(s => s.itemId === itemId);
+    if (!shopEntry) return;
+    if (this._getStockRemaining(entity, itemId) <= 0) {
+      const lang = (GameState.settings && GameState.settings.language) || 'cs';
+      UI.notify(lang === 'en' ? '📦 Sold out for today. Come back tomorrow.' : '📦 Vyprodáno na dnes. Přijď zítra.', true);
+      return;
+    }
+    const price = this.calcBuyPrice(itemId, entity, shopEntry.basePrice);
+    if (this.getGrose() < price) {
+      UI.notify(t('cellarium.noGrose'), true);
+      return;
+    }
+    this.spendGrose(price);
+    this._useStock(entity, itemId);
+    this.recordTransaction('buy', itemId, 1, price, entity);
+    if (typeof VigorSystem !== 'undefined') VigorSystem.eat(itemId);
+    this.applyDrinkEffect(itemId);
+    GameState.economy.tradesTotal++;
+    if (typeof PersonaSystem !== 'undefined' && PersonaSystem.addInfluence) {
+      const repAxis = entity === 'tavern' ? 'benedikt' : entity === 'market' ? 'giacomo' : entity === 'shop' ? 'village' : null;
+      if (repAxis) {
+        const roleBonus = (typeof RankSystem !== 'undefined') ? RankSystem.getActiveBonus('npc_rep_gain') : 0;
+        PersonaSystem.addInfluence(repAxis, 1 + roleBonus);
+      }
+    }
+    Game.save();
+    const lang = (GameState.settings && GameState.settings.language) || 'cs';
+    const itemName = (typeof iName === 'function') ? iName(itemId) : itemId;
+    UI.notify(lang === 'en' ? 'Drank: ' + itemName + ' (' + price + ' g).' : 'Vypito: ' + itemName + ' (' + price + ' g).');
+    if (typeof SaeculumSystem !== 'undefined') SaeculumSystem.switchEntity(GameState.ui.saeculumEntity || 'tavern');
   },
 
   renderBuyPanel: function(entity, lang) {
@@ -692,6 +736,13 @@ const CellariumSystem = {
                   ${canBuy ? '' : 'disabled'}>
             ${lang === 'en' ? 'Buy' : 'Koupit'}
           </button>
+          ${(entity === 'tavern' && (entry.itemId === 'beer' || entry.itemId === 'wine')) ? `
+          <button onclick="CellariumSystem.drinkAtTavern('${entity}','${entry.itemId}')"
+                  class="craft-btn"
+                  style="padding:3px 10px; font-size:0.75rem; flex-shrink:0; background:#8a3324;"
+                  ${canBuy ? '' : 'disabled'}>
+            🍺 ${lang === 'en' ? 'Drink' : 'Vypít'}
+          </button>` : ''}
         </div>
       `;
     }).join('');
