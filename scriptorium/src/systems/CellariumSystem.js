@@ -257,6 +257,12 @@ const CellariumSystem = {
     veteran_queen: 280,
   },
 
+  // Plošné snížení výkupních cen (Trh/Obchod/Hospoda) — jedno místo k doladění.
+  // Neovlivňuje nákupní ceny (calcBuyPrice) — jen calcPrice (sellItem).
+  // Clientela (data/contacts.js) staví na calcPrice('market') jako základ,
+  // takže se tenhle multiplikátor propaguje i tam automaticky.
+  SELL_PRICE_MULT: 0.70,   // −30 %
+
   // Koeficienty per entita (prodej hráče → entita)
   ENTITY_COEFF: {
     tavern:  { food: 1.3, lore: 0.6, mat: 0.7, alchemy: 0.9 },
@@ -346,7 +352,7 @@ const CellariumSystem = {
     const manuscriptMult = (cat === 'lore' && isIlluminator && typeof RankSystem !== 'undefined') ? RankSystem.getActiveBonus('manuscript_price') : 1.0;
     const fastMult = this._fastMult(itemId);
     const repMult = this._repMult(entity);
-    return Math.max(1, Math.round(base * coeff * offset * satMult * roleMult * manuscriptMult * fastMult * repMult));
+    return Math.max(1, Math.round(base * coeff * offset * satMult * roleMult * manuscriptMult * fastMult * repMult * this.SELL_PRICE_MULT));
   },
 
   // ═══════════════════════════════════════════════════════════════════════════
