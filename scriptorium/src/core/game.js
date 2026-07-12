@@ -2424,6 +2424,9 @@ const Game = {
             Game.save(); UI.renderAll(); return;
         }
         if (GameState.activeAction && (type === 'basic' || type === 'nature')) {
+            // Únava hospodářství platí i tady — jinak jde o grindovací díru
+            // (timed akce běží jinde, ale RYCHLE! by jinak bylo bez postihu).
+            if (typeof CuriaSystem !== 'undefined') CuriaSystem.onScavenge(0);
             let r = Math.random();
             if (type === 'nature') { 
                 if(r<0.08) this.addItem('herb_red',1);
@@ -2466,16 +2469,20 @@ const Game = {
                     UI.notify('🔍 ' + (iName ? iName(found) : found) + '!');
                 }
             }
-            // ── notifyAccum: quick scavenge ──
-            {
-                const _qgains = {};
-                for (const k of Object.keys(GameState.inventory)) {
-                    const diff = (GameState.inventory[k] || 0) - (_qbefore[k] || 0);
-                    if (diff > 0) _qgains[k] = diff;
+            // ── Aplikovat curia mult na zisk (stejná logika jako hlavní instant cesta) ──
+            const _curiaMultQ = (typeof CuriaSystem !== 'undefined') ? CuriaSystem.getMult() : 1.0;
+            const _qgains = {};
+            for (const k of Object.keys(GameState.inventory)) {
+                const diff = (GameState.inventory[k] || 0) - (_qbefore[k] || 0);
+                if (diff > 0) {
+                    const reduced = _curiaMultQ >= 1.0 ? diff : Math.max(1, Math.round(diff * _curiaMultQ));
+                    const remove = diff - reduced;
+                    if (remove > 0) Game.removeItem(k, remove);
+                    if (reduced > 0) _qgains[k] = reduced;
                 }
-                if (Object.keys(_qgains).length > 0) UI.notifyAccum(_qgains);
-                else UI.notify(t('game.quickScavenge'));
             }
+            if (Object.keys(_qgains).length > 0) UI.notifyAccum(_qgains);
+            else UI.notify(t('game.quickScavenge'));
             Game._scavenging = false;
             Game.save(); UI.renderAll(); return;
         }
