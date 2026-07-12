@@ -3328,11 +3328,11 @@ const Game = {
         this.removeItem(itemId, 1);
         if (typeof VigorSystem !== 'undefined') VigorSystem.eat(itemId);
         // Nekvalitní voda (2. třída/venkovní) — malá šance na nevolnost (Valetudo)
-        if (itemId === 'water' && typeof HealthSystem !== 'undefined' && !HealthSystem.isActive('water_sickness') && Math.random() < 0.007) {
+        if (itemId === 'water' && typeof HealthSystem !== 'undefined' && !HealthSystem.isActive('water_sickness') && Math.random() < 0.01) {
             HealthSystem.addCondition('water_sickness');
         }
         // Úplavice — vzácnější, závažnější varianta (monastery-decay-mrd)
-        if (itemId === 'water' && typeof HealthSystem !== 'undefined' && !HealthSystem.isActive('dysentery') && Math.random() < 0.002) {
+        if (itemId === 'water' && typeof HealthSystem !== 'undefined' && !HealthSystem.isActive('dysentery') && Math.random() < 0.004) {
             HealthSystem.addCondition('dysentery');
         }
         Game.save();
@@ -4887,8 +4887,20 @@ const Game = {
         b_radim:       ['erudition', 'eloquence'],         // Knihovník — nejstarší, vřelost k mladším
     },
 
+    // Sestaví jméno pro _reportWork hlášku — když bratr i konvrš pracují
+    // spolu (combo bonus se ve výnosu už projevuje), zmíní oba; jinak jen
+    // toho, kdo tam skutečně je.
+    _workCredit: function(brother, konvrs) {
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        if (brother && konvrs) {
+            return brother.name + (lang === 'en' ? ' (with ' + konvrs.name + ')' : ' (s pomocí ' + konvrs.name + ')');
+        }
+        return brother ? brother.name : (konvrs ? konvrs.name : '');
+    },
+
     dormitoriumAddXp: function(brother, tabId) {
         if (!brother.xp) brother.xp = {};
+        const levelBefore = this.dormitoriumBrotherLevel(brother, tabId);
         brother.xp[tabId] = (brother.xp[tabId] || 0) + 1;
 
         // Vedlejší přírůstek do traits — zatím NEnahrazuje výše uvedený
@@ -4903,6 +4915,23 @@ const Game = {
             if (typeof brother.traits[map.secondary] === 'number') {
                 brother.traits[map.secondary] = Math.min(100, brother.traits[map.secondary] + 1);
             }
+        }
+
+        // Level-up hlášení — dřív se počítal a používal (Manufaktura dashboard),
+        // ale hráč se o postupu nikde aktivně nedozvěděl.
+        const levelAfter = this.dormitoriumBrotherLevel(brother, tabId);
+        if (levelAfter > levelBefore) {
+            const lang = (GameState.settings && GameState.settings.language) || 'cs';
+            const spec = (typeof DormitoriumSpecializationDB !== 'undefined') ? DormitoriumSpecializationDB[tabId] : null;
+            const specName = spec ? (lang === 'en' ? spec.name_en : spec.name) : tabId;
+            const mult = this.dormitoriumBrotherMult(brother, tabId);
+            UI.notifyPanel('📈 ' + (lang === 'en'
+                ? brother.name + ' reached level ' + levelAfter + '/4 in ' + specName + ' (×' + mult.toFixed(2) + ' yield).'
+                : brother.name + ' dosáhl úrovně ' + levelAfter + '/4 v oboru ' + specName + ' (×' + mult.toFixed(2) + ' výnos).'), 'success');
+            this.addKronikaEntry('minor',
+                '📈 ' + brother.name + ' dosáhl úrovně ' + levelAfter + '/4 (' + specName + ').',
+                '📈 ' + brother.name + ' reached level ' + levelAfter + '/4 (' + specName + ').',
+                '');
         }
     },
 
@@ -5394,6 +5423,62 @@ const Game = {
         }
     },
 
+    // ═══════════════════════════════════════════════════════════════════
+    // MANUFAKTURA — dashboard vrstva nad Dormitorium/Conversi produkcí.
+    // Nemění žádnou výnosovou logiku uvnitř checkConversiChores() —
+    // manufacturaCollect() jen dočasně odemkne 24h gate pro JEDEN tab
+    // a zavolá existující funkci beze změny. dvur nemá pole (údržba —
+    // úklid/krmení po jednotlivých chlévech, ne jednorázový sběr).
+    // athanor/scriptorium nejsou v CONVERSI_TASKS — jen bratr, bez konvrše.
+    // ═══════════════════════════════════════════════════════════════════
+    MANUFACTURA_LASTTICK_FIELD: {
+        zahony:      'conversiGardenLastTick',
+        sad:         'conversiOrchardLastTick',
+        apiarium:    'conversiApiaryLastTick',
+        piscina:     'conversiPiscinaLastTick',
+        pole:        'conversiFieldLastTick',
+        vinohrad:    'conversiVineaLastTick',
+        athanor:     'conversiAthanorLastTick',
+        scriptorium: 'conversiScriptoriumLastTick',
+    },
+
+    manufacturaCollect: function(tabKey) {
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        const field = this.MANUFACTURA_LASTTICK_FIELD[tabKey];
+        if (!field) return; // dvur — údržba, nic ke collectu
+        const DAY = 24 * 60 * 60 * 1000;
+        const last = GameState[field] || 0;
+        if (Date.now() - last < DAY) {
+            UI.notify(lang === 'en' ? '⏳ Not ready yet.' : '⏳ Ještě není připraveno.', true);
+            return;
+        }
+        GameState[field] = 0; // odemkne gate — checkConversiChores tenhle tab zpracuje beze změny
+        this.checkConversiChores();
+        Game.save();
+        if (typeof CellariumSystem !== 'undefined') CellariumSystem.switchEntity('manufaktura');
+    },
+
+    // Jen čte, nic nemění. Pro dashboard kartu jednoho tabu.
+    manufacturaStatus: function(tabKey) {
+        const DAY = 24 * 60 * 60 * 1000;
+        const field = this.MANUFACTURA_LASTTICK_FIELD[tabKey];
+        const brother = (GameState.dormitorium && GameState.dormitorium.brothers || []).find(b => b.assignedTab === tabKey);
+        const konvrs = (GameState.conversi || []).find(k => k.task === tabKey);
+        let ready = false, hoursLeft = null;
+        if (field) {
+            const elapsed = Date.now() - (GameState[field] || 0);
+            ready = elapsed >= DAY;
+            hoursLeft = ready ? 0 : Math.ceil((DAY - elapsed) / 3600000);
+        }
+        return {
+            tabKey, brother, konvrs, hasField: !!field, ready, hoursLeft,
+            level: brother ? this.dormitoriumBrotherLevel(brother, tabKey) : null,
+            mult:  brother ? this.dormitoriumBrotherMult(brother, tabKey) : null,
+            xp:    brother ? ((brother.xp && brother.xp[tabKey]) || 0) : null,
+            combo: !!(brother && konvrs),
+        };
+    },
+
     checkConversiChores: function() {
         // POZOR: dřív zde bylo `if (!GameState.conversi || length===0) return;`,
         // což při absenci JAKÉHOKOLIV konvrše zablokovalo i Dormitorium bratry
@@ -5424,6 +5509,7 @@ const Game = {
         if (Date.now() >= GameState.conversiNextWage && GameState.conversi.length > 0) {
             const lang = (GameState.settings && GameState.settings.language) || 'cs';
             const leavers = [];
+            let paidCount = 0, paidTotal = 0;
             GameState.conversi.forEach(k => {
                 if (typeof k.wageOwed !== 'number') k.wageOwed = 0;
                 const due = 2 + k.wageOwed;
@@ -5432,6 +5518,8 @@ const Game = {
                     CellariumSystem.addGrose(-due);
                     if (k.wageOwed > 0) k.loyalty = Math.min(100, k.loyalty + 2); // splacený dluh = usmíření
                     k.wageOwed = 0;
+                    paidCount++;
+                    paidTotal += due;
                 } else {
                     k.wageOwed += 2;
                     k.loyalty = Math.max(0, k.loyalty - 5);
@@ -5439,6 +5527,18 @@ const Game = {
                     if (k.loyalty <= 0) leavers.push(k);
                 }
             });
+            // Souhrnná hláška za týden — jedna zpráva, ne per-konvrš spam.
+            if (paidCount > 0) {
+                if (typeof UI !== 'undefined' && UI.notifyPanel) {
+                    UI.notifyPanel('💰 ' + (lang === 'en'
+                        ? 'Wages paid: ' + paidCount + ' lay brother(s), ' + paidTotal + ' g.'
+                        : 'Mzda vyplacena: ' + paidCount + ' konvrš(ů), ' + paidTotal + ' g.'), 'system');
+                }
+                this.addKronikaEntry('minor',
+                    '💰 Mzda vyplacena: ' + paidCount + ' konvrš(ů), ' + paidTotal + ' g.',
+                    '💰 Wages paid: ' + paidCount + ' lay brother(s), ' + paidTotal + ' g.',
+                    '');
+            }
             leavers.forEach(k => {
                 GameState.conversi = GameState.conversi.filter(x => x.id !== k.id);
                 if (typeof UI !== 'undefined' && UI.notifyPanel) {
@@ -5611,7 +5711,7 @@ const Game = {
                     this.dormitoriumAddXp(dvurBrother, 'dvur');
                     dvurBrother.fatigue = Math.min(100, (dvurBrother.fatigue || 0) + 10);
                 }
-                const who = dvurBrother ? dvurBrother.name : worker.name;
+                const who = this._workCredit(dvurBrother, worker);
                 const parts_cs = [], parts_en = [];
                 if (cleanedAny) { parts_cs.push('uklidil chlévy'); parts_en.push('cleaned the pens'); }
                 if (fedAny) { parts_cs.push('nakrmil zvířata'); parts_en.push('fed the animals'); }
@@ -5705,7 +5805,7 @@ const Game = {
                         this.dormitoriumAddXp(gardenBrother, 'zahony');
                         gardenBrother.fatigue = Math.min(100, (gardenBrother.fatigue || 0) + 10);
                     }
-                    const who = gardenBrother ? gardenBrother.name : gardener.name;
+                    const who = this._workCredit(gardenBrother, gardener);
                     const harvestKeys = Object.keys(harvested);
                     if (harvestKeys.length) {
                         const listStr = harvestKeys.map(id => `${harvested[id]}× ${(typeof iName==='function')?iName(id):id}`).join(', ');
@@ -5781,7 +5881,7 @@ const Game = {
                         this.dormitoriumAddXp(orchardBrother, 'sad');
                         orchardBrother.fatigue = Math.min(100, (orchardBrother.fatigue || 0) + 10);
                     }
-                    const who = orchardBrother ? orchardBrother.name : orchardKeeper.name;
+                    const who = this._workCredit(orchardBrother, orchardKeeper);
                     const listStr = Object.keys(harvested).map(id => `${harvested[id]}× ${(typeof iName==='function')?iName(id):id}`).join(', ');
                     this._reportWork(`🍎 ${who} (Sad) sklidil: ${listStr}.`, `🍎 ${who} (Orchard) harvested: ${listStr}.`);
                     Game.save();
@@ -5900,7 +6000,7 @@ const Game = {
                         this.dormitoriumAddXp(apiaryBrother, 'apiarium');
                         apiaryBrother.fatigue = Math.min(100, (apiaryBrother.fatigue || 0) + 10);
                     }
-                    const who = apiaryBrother ? apiaryBrother.name : beekeeper.name;
+                    const who = this._workCredit(apiaryBrother, beekeeper);
                     const parts_cs = [], parts_en = [];
                     if (honeyGained || waxGained) { parts_cs.push(`sklidil ${honeyGained}× med, ${waxGained}× vosk`); parts_en.push(`harvested ${honeyGained}× honey, ${waxGained}× wax`); }
                     if (varroaTreated) { parts_cs.push(`ošetřil ${varroaTreated} úl(y) proti Varroa`); parts_en.push(`treated ${varroaTreated} hive(s) for Varroa`); }
@@ -5971,7 +6071,7 @@ const Game = {
                         this.dormitoriumAddXp(piscinaBrother, 'piscina');
                         piscinaBrother.fatigue = Math.min(100, (piscinaBrother.fatigue || 0) + 10);
                     }
-                    const who = piscinaBrother ? piscinaBrother.name : fisherman.name;
+                    const who = this._workCredit(piscinaBrother, fisherman);
                     const parts_cs = [], parts_en = [];
                     if (didFeed) { parts_cs.push('nakrmil ryby'); parts_en.push('fed the fish'); }
                     if (didTransfer) { parts_cs.push('přesunul plůdek'); parts_en.push('moved the fry'); }
@@ -6046,7 +6146,7 @@ const Game = {
                         this.dormitoriumAddXp(fieldBrother, 'pole');
                         fieldBrother.fatigue = Math.min(100, (fieldBrother.fatigue || 0) + 10);
                     }
-                    const who = fieldBrother ? fieldBrother.name : plowman.name;
+                    const who = this._workCredit(fieldBrother, plowman);
                     const harvestKeys = Object.keys(harvested);
                     if (harvestKeys.length) {
                         const listStr = harvestKeys.map(id => `${harvested[id]}× ${(typeof iName==='function')?iName(id):id}`).join(', ');
@@ -6133,7 +6233,7 @@ const Game = {
                         this.dormitoriumAddXp(vineaBrother, 'vinohrad');
                         vineaBrother.fatigue = Math.min(100, (vineaBrother.fatigue || 0) + 10);
                     }
-                    const who = vineaBrother ? vineaBrother.name : vintner.name;
+                    const who = this._workCredit(vineaBrother, vintner);
                     const parts_cs = [], parts_en = [];
                     if (prunedCount) { parts_cs.push(`prořezal ${prunedCount} keř(ů)`); parts_en.push(`pruned ${prunedCount} vine(s)`); }
                     const harvestKeys = Object.keys(harvested);

@@ -1,9 +1,8 @@
 // ─────────────────────────────────────────────────────────────
 // ConversiRosterDB — autorský roster konvršů
 // MRD: conversi-relationship-module-reference.md
-// Krok 2: infrastruktura. Texty se plní v kroku 3 per postava,
-// napojení na hireKonvrs() až v kroku 4 (samostatné schválení).
-// Nic ve hře tento soubor zatím nečte.
+// Krok 2-4: infrastruktura + texty + napojení HOTOVO. game.js čte roster
+// při najímání (hireKonvrs), traity (_konvrsTraits) i vazby (_runKapitula).
 // ─────────────────────────────────────────────────────────────
 
 const ConversiRosterDB = {
@@ -281,8 +280,10 @@ const ConversiRosterDB = {
     }
 };
 
-// Traity — jen popisná data. Mechanické efekty NEJSOU implementované,
-// čekají na schválení sady (MRD otázka 6). Žádný kód je zatím nečte.
+// Traity — čte je game.js přes _konvrsTraits(). Zapojeno mechanicky:
+// silak, pilny, trpelivy, chrapoun, mrzout, zbozny (fatigue/rest/mood/
+// loyalty efekty napříč produkčními ticky). Zatím jen popisné (bez
+// mechaniky): upovidany, samotar, nesika, ucenec, hudebnik, bylinkar.
 const ConversiTraitsDB = {
     silak:     { name: 'Silák',      name_en: 'Strongman',   icon: '💪', desc: 'Fyzická práce ho neunaví tak snadno.',                    desc_en: 'Physical work does not tire him easily.' },
     pilny:     { name: 'Pilný',      name_en: 'Diligent',    icon: '⚒️', desc: 'Práce mu jde od ruky rychleji než ostatním.',            desc_en: 'Work flows faster in his hands than in others\u2019.' },
@@ -298,8 +299,10 @@ const ConversiTraitsDB = {
     bylinkar:  { name: 'Bylinkář',   name_en: 'Herbalist',   icon: '🌿', desc: 'Zná odvary proti únavě a neduhům.',                      desc_en: 'Knows brews against tiredness and ailments.' }
 };
 
-// Vazby — autorsky psané (MRD sekce 4). Kdo-koho-proč je dané,
-// síla se bude vyvíjet procedurálně (mechanika = krok 4+, zatím nečteno).
+// Vazby — autorsky psané (MRD sekce 4). Kdo-koho-proč je dané, síla je
+// zatím binární (jen typ, ne numerická intenzita — ta zůstává TODO).
+// Čte je game.js: hireKonvrs (varuje/odrazuje od najmutí nepřítele
+// dohromady) a _runKapitula (týdenní tenze/svornost mezi konvrši).
 const ConversiBondsDB = [
     { a: 'k_jakub',      b: 'k_vojtech', type: 'tension',
       desc_cs: 'Válka mezi nimi neskončila. Jeden stál pod kalichem, druhý proti němu — a oba to vědí, i když to nikdy neřekli nahlas.',

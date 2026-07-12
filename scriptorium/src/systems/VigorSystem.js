@@ -121,7 +121,7 @@ const VigorSystem = {
         chicory_drink:  3,
         linden_tea:     8,
         // Voda
-        water:          3,
+        water:          1,
         spring_water:   5,
         holy_water:     8,
     },
@@ -149,7 +149,7 @@ const VigorSystem = {
         prima_cervisia: 8,
         cervisia_nigra: 6,
         // Voda
-        water:          -5,
+        water:          -1,
         spring_water:   -15,
         holy_water:     -20,
     },

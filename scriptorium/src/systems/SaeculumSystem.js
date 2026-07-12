@@ -616,6 +616,75 @@ const SaeculumSystem = {
     return h;
   },
 
+  renderManufactura: function() {
+    const lang = (GameState.settings && GameState.settings.language) || 'cs';
+    // Pořadí odpovídá DormitoriumSpecializationDB; dvur navíc (údržba, bez XP tabu tam).
+    const TAB_ORDER = ['dvur', 'zahony', 'sad', 'pole', 'vinohrad', 'apiarium', 'piscina', 'athanor', 'scriptorium'];
+    // Konvrš lze přiřadit jen na tyto (athanor/scriptorium nejsou v CONVERSI_TASKS — jen bratr).
+    const CONVERSI_CAPABLE = ['dvur', 'zahony', 'sad', 'apiarium', 'piscina', 'pole', 'vinohrad'];
+
+    let h = `<div style="margin-bottom:10px; font-size:0.8rem; opacity:0.75;">
+      ${lang === 'en'
+        ? 'Overview of every workspace — who works there, how skilled they are, and what is ready to collect.'
+        : 'Přehled všech pracovišť — kdo tam pracuje, jak je zkušený, a co je připravené ke sběru.'}
+    </div>`;
+    h += `<div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(260px,1fr)); gap:10px;">`;
+
+    TAB_ORDER.forEach(tabKey => {
+      const spec = (typeof DormitoriumSpecializationDB !== 'undefined') ? DormitoriumSpecializationDB[tabKey] : null;
+      const specName = spec ? (lang === 'en' ? spec.name_en : spec.name) : tabKey;
+      const specIcon = spec ? spec.icon : '⚙️';
+      const st = (typeof Game !== 'undefined' && Game.manufacturaStatus) ? Game.manufacturaStatus(tabKey) : null;
+      if (!st) return;
+
+      h += `<div style="padding:12px; background:rgba(197,160,89,0.07); border:1px solid rgba(197,160,89,0.25); border-radius:8px;">`;
+      h += `<div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:6px;">
+              <div style="font-weight:bold; font-size:0.88rem;">${specIcon} ${specName}</div>
+              ${st.combo ? `<span title="${lang === 'en' ? 'Brother + lay brother working together' : 'Bratr a konvrš pracují spolu'}" style="font-size:0.9rem;">🤝</span>` : ''}
+            </div>`;
+
+      // Bratr
+      if (st.brother) {
+        h += `<div style="font-size:0.76rem; margin-bottom:3px;">
+                📿 <strong>${st.brother.name}</strong> — ${lang === 'en' ? 'level' : 'úroveň'} ${st.level}/4
+                <span style="opacity:0.65;"> (${st.xp} XP, ×${st.mult.toFixed(2)} ${lang === 'en' ? 'yield' : 'výnos'})</span>
+              </div>`;
+      } else {
+        h += `<div style="font-size:0.76rem; opacity:0.5; margin-bottom:3px;">📿 ${lang === 'en' ? 'no brother assigned' : 'nepřiřazen žádný bratr'}</div>`;
+      }
+
+      // Konvrš (jen na tabech, kde je to vůbec možné)
+      if (CONVERSI_CAPABLE.includes(tabKey)) {
+        if (st.konvrs) {
+          h += `<div style="font-size:0.76rem; opacity:0.85; margin-bottom:6px;">✝️ <strong>${st.konvrs.name}</strong></div>`;
+        } else {
+          h += `<div style="font-size:0.76rem; opacity:0.5; margin-bottom:6px;">✝️ ${lang === 'en' ? 'no lay brother assigned' : 'nepřiřazen žádný konvrš'}</div>`;
+        }
+      }
+
+      // Stav / Collect
+      h += `<div style="border-top:1px dashed rgba(197,160,89,0.3); margin-top:6px; padding-top:6px;">`;
+      if (!st.hasField) {
+        // Dvůr — údržba, žádný jednorázový výnos ke sběru
+        h += `<div style="font-size:0.72rem; opacity:0.65;">🧹 ${lang === 'en' ? 'Maintenance — cleans & feeds as needed, no single yield to collect.' : 'Údržba — uklízí a krmí dle potřeby, nesbírá se jednorázově.'}</div>`;
+      } else if (!st.brother && !st.konvrs) {
+        h += `<div style="font-size:0.72rem; opacity:0.5;">${lang === 'en' ? 'Nobody working here.' : 'Nikdo tu nepracuje.'}</div>`;
+      } else if (st.ready) {
+        h += `<button class="craft-btn" onclick="Game.manufacturaCollect('${tabKey}')" style="width:100%; background:#4a7c59;">
+                🧺 ${lang === 'en' ? 'Collect' : 'Sebrat'}
+              </button>`;
+      } else {
+        h += `<div style="font-size:0.72rem; opacity:0.65;">⏳ ${lang === 'en' ? 'Ready in' : 'Připraveno za'} ~${st.hoursLeft}h</div>`;
+      }
+      h += `</div>`;
+
+      h += `</div>`;
+    });
+
+    h += `</div>`;
+    return h;
+  },
+
   renderConversi: function() {
     const lang = (GameState.settings && GameState.settings.language) || 'cs';
     if (!GameState.ui) GameState.ui = {};
