@@ -259,7 +259,9 @@ const UI = {
 
     renderActions: function () {
         const lang = (GameState.settings && GameState.settings.language) || 'cs';
-        const _hAct = JSON.stringify(GameState.inventory) + lang + 'd:' + (GameState.selectedDuration ?? 0) + (GameState.activeAction ? GameState.activeAction.id + GameState.activeAction.endTime : '') + (GameState.flags.fireplaceLit ? '1' : '0') + (GameState.activeAction ? Math.floor(Date.now() / 1000) : '') + (GameState.scavengeCooldownUntil ? 'cd:' + Math.floor(Date.now() / 1000) : '');
+        const _terrainF = (GameState.terrain && GameState.terrain.fatigue) || 0;
+        const _curiaF = (GameState.curia && GameState.curia.fatigue) || 0;
+        const _hAct = JSON.stringify(GameState.inventory) + lang + 'd:' + (GameState.selectedDuration ?? 0) + (GameState.activeAction ? GameState.activeAction.id + GameState.activeAction.endTime : '') + (GameState.flags.fireplaceLit ? '1' : '0') + (GameState.activeAction ? Math.floor(Date.now() / 1000) : '') + (GameState.scavengeCooldownUntil ? 'cd:' + Math.floor(Date.now() / 1000) : '') + (_terrainF > 20 ? 'tf:' + Math.floor(Date.now() / 60000) : '') + (_curiaF > 20 ? 'cf:' + Math.floor(Date.now() / 60000) : '');
         if (_hAct === this._hashActions) return;
         this._hashActions = _hAct;
         const el = document.getElementById('workspace-actions');

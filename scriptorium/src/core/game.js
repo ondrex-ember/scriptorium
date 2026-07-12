@@ -682,6 +682,15 @@ const Game = {
                     // Terrain — regen únavy krajiny (self-guarded 10 min)
                     if (typeof TerrainSystem !== 'undefined') TerrainSystem.tick();
                     if (typeof CuriaSystem !== 'undefined') CuriaSystem.tick();
+                    // Obnova countdown zobrazení u Terrain/Curia ukazatelů (jen když je Pracovna
+                    // otevřená a regen skutečně běží — levné, žádný dopad mimo tento stav).
+                    if (document.getElementById('workspace-actions')) {
+                        const _tf = (GameState.terrain && GameState.terrain.fatigue) || 0;
+                        const _cf = (GameState.curia && GameState.curia.fatigue) || 0;
+                        if (_tf > 20 || _cf > 20) {
+                            if (typeof UI !== 'undefined' && UI.renderActions) UI.renderActions();
+                        }
+                    }
                     Game.checkFarmyardProduction();
                     Game.checkPiscinaGrowth();
                     // Save info — refresh "Poslední uložení" v Settings

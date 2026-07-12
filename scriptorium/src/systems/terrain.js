@@ -68,9 +68,11 @@ const TerrainSystem = {
         if (!GameState.terrain) this.init();
         const now = Date.now();
         const last = GameState.terrain.lastRegen || 0;
-        if (now - last < this.REGEN_INTERVAL) return; // self-guard 10 min
-        GameState.terrain.fatigue = Math.max(0, (GameState.terrain.fatigue || 0) - this.REGEN_AMOUNT);
-        GameState.terrain.lastRegen = now;
+        const elapsed = now - last;
+        if (elapsed < this.REGEN_INTERVAL) return; // self-guard 10 min
+        const steps = Math.floor(elapsed / this.REGEN_INTERVAL);
+        GameState.terrain.fatigue = Math.max(0, (GameState.terrain.fatigue || 0) - (steps * this.REGEN_AMOUNT));
+        GameState.terrain.lastRegen = last + (steps * this.REGEN_INTERVAL); // zbytek < interval se nezahodí
         // Reset toast tier při zotavení na odpočatou úroveň
         if (GameState.terrain.fatigue <= this.FATIGUE_RESTED && GameState.terrain.lastToastTier > 0) {
             GameState.terrain.lastToastTier = 0;
@@ -184,9 +186,11 @@ const CuriaSystem = {
         if (!GameState.curia) this.init();
         const now = Date.now();
         const last = GameState.curia.lastRegen || 0;
-        if (now - last < this.REGEN_INTERVAL) return;
-        GameState.curia.fatigue = Math.max(0, (GameState.curia.fatigue || 0) - this.REGEN_AMOUNT);
-        GameState.curia.lastRegen = now;
+        const elapsed = now - last;
+        if (elapsed < this.REGEN_INTERVAL) return;
+        const steps = Math.floor(elapsed / this.REGEN_INTERVAL);
+        GameState.curia.fatigue = Math.max(0, (GameState.curia.fatigue || 0) - (steps * this.REGEN_AMOUNT));
+        GameState.curia.lastRegen = last + (steps * this.REGEN_INTERVAL);
     },
 
     renderIndicator: function() {
