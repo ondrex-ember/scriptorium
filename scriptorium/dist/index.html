@@ -6071,6 +6071,14 @@ Object.assign(ItemsDB, {
     "incense_styrax": { name: "Styraxové kadidlo", name_en: "Styrax Incense", icon: "💨", type: "consumable", desc: "Sladce a těžce vonící kadidlo pro jasnou mysl. Oblíbené v byzantských klášterech. Hoří 22 sekund.", desc_en: "Sweet and heavy-scented incense for a clear mind. Favoured in Byzantine monasteries. Burns for 22 seconds." },
     "incense_olibanum": { name: "Olibanum", name_en: "Olibanum Incense", icon: "💨", type: "consumable", desc: "Posvátný dým arabského kadidla. Kouř stoupá k nebi jako modlitba. Očišťuje tělo i ducha. Hoří 30 sekund.", desc_en: "Sacred smoke of Arabian frankincense. The smoke rises heavenward like a prayer. Purifies body and spirit. Burns for 30 seconds." },
 });
+// ── BESTIÁŘ — nález spisu (yard_cleanup, nezávislý na Titivillus craft-checku) ──
+// Přidáno jako Object.assign — bezpečný merge bez zásahu do stávajícího kódu
+Object.assign(ItemsDB, {
+    "titivillus_spis": {
+        name: "Spis o Titivillovi", name_en: "A Note on Titivillus", icon: "📖", type: "lore",
+        desc: "Polozetlelý list se skicou rohatého tvora a varovnými verši. Někdo si dal práci to zapsat.", desc_en: "A half-decayed leaf with a sketch of a horned creature and warning verses. Someone took care to write it down."
+    },
+});
 // ═══ src/data/recipes.js ═══
 const RecipesDB = [
     // BASIC TOOLS
@@ -9188,10 +9196,39 @@ const ScriniumDB = {
             arcanum: { textKey: 'scrinium.folios.theriaca.arcanum', cost: { item: 'candle', amount: 5 } },
         },
 
+        // ══════════════════════════════════════════════════
+        // BESTIÁŘ — 1 folio (první záznam)
+        // ══════════════════════════════════════════════════
+
+        // ── 1. Tytinillus — nález přes dvě nezávislé cesty:
+        //      A) Titivillus craft-strike -> SecretsSystem.unlockFolioById (game.js)
+        //      B) nález "titivillus_spis" při Úklidu hospodářství -> modal -> Předat do Scrinia
+        //    Čistě narativní — žádný mechanický reward (List 4 jen popisuje
+        //    existující Titivillus craft-mechaniku, nic nemění).
+        {
+            id: 'folio_titivillus_bestiar',
+            subtab: 'bestiar',
+            icon: '🐐',
+            physicalForm: 'leaf',
+            titleKey: 'scrinium.folios.titivillus_bestiar.title',
+            lectio: {
+                textKey: 'scrinium.folios.titivillus_bestiar.lectio',
+                cost: null,
+                image: '/bestiary/titivillus.jpg',   // volitelné pole — jen tohle folio ho používá
+            },
+            glossa: {
+                textKey: 'scrinium.folios.titivillus_bestiar.glossa',
+                cost: { item: 'candle', amount: 3 },
+            },
+            arcanum: {
+                textKey: 'scrinium.folios.titivillus_bestiar.arcanum',
+                cost: { item: 'candle', amount: 5 },
+            },
+        },
+
     ], // konec folios[]
 
 }; // konec ScriniumDB
-
 // ═══ src/data/letters.js ═══
 // ═══════════════════════════════════════════════════════════════════════════
 // LettersDB — obsah Porty (P1, dávka 1: L1–L6 + 2 follow-upy).
@@ -28510,6 +28547,13 @@ const SecretsSystem = {
     for (let i = 0; i < state.layer; i++) {
       const layerKey = layers[i];
       const text = t(folio[layerKey].textKey);
+      // Volitelné pole .image na vrstvě — jen Bestiář folia ho nastavují,
+      // pro ostatních 15 folií je undefined a imgBlock zůstává prázdný.
+      const imgSrc = folio[layerKey].image || null;
+      const imgBlock = imgSrc
+        ? `<img src="${imgSrc}" alt="${title}" style="max-width:100%; border-radius:6px;
+             margin-bottom:14px; display:block;">`
+        : '';
       html += `
         <div style="margin-bottom:20px; padding:16px;
           background:rgba(0,0,0,0.03); border-radius:6px;
@@ -28518,6 +28562,7 @@ const SecretsSystem = {
             text-transform:uppercase; letter-spacing:0.05em; margin-bottom:8px;">
             ${layerLabels[i]}
           </div>
+          ${imgBlock}
           <div style="font-style:italic; line-height:1.7; white-space:pre-line;">
             ${text}
           </div>
@@ -37226,6 +37271,14 @@ const STRINGS_cs = {
                 arcanum: '*Na úplně poslední stránce, skrytá za přeloženým okrajem:*\n\n„Kdo najde tuto stránku — věz, že jsem tiskl poctivě. Co bylo mé, bylo dobré. Co přišlo po mně — to ať posoudí čas."\n\n— B. N.',
                 reward_notify: '📜 Netolického pozůstalost prostudována. Odkaz tiskaře žije dál.',
             },
+
+            // ── Bestiář ────────────────────────────────────────────────────
+            titivillus_bestiar: {
+                title: 'Tytinillus',
+                lectio: '*Německý mědiryt, 17. století. Rohatá postava s kozíma nohama nese na zádech otep knih a svitků; v pozadí dvě věže kostela. Kolem hlavy létají stuhy s latinským nápisem — nikdo ve skriptoriu ho nedokázal přeložit celý.*\n\nTITIVILLUS\nDaemon librarius, minor\n\nSídlo: každé skriptorium, kde se čte nahlas\nChování: sbírá vynechané slabiky, zkomolená slova, přeskočené řádky\nNástroj: pytel na zádech — denně naplněn tisíckrát\nÚčel: doklad viny proti písaři v den posledního soudu',
+                glossa: 'Legenda o démonovi sbírajícím chyby písařů se poprvé objevuje v kazatelských exemplech koncem 12. století. Jméno „Titivillus" se v textech ustaluje kolem roku 1285, u Jana z Walesu — ale démon sám je starší a bezejmenný putoval Evropou už dřív.\n\nPřes staletí sbíral desítky jmen: Tutivillus, Tintinillus, Titelinus, Tantillus... v Čechách se mu prý říkalo Tibini. Každý klášter, každý kostel od Anglie po Byzanc měl svou verzi téhož strachu — že i sebemenší zamumlaná slabika v hodinkách se jednou položí na misku vah.\n\nKdyž přišel knihtisk, mniši si šeptali s hořkým úsměvem: teď bude mít Titivillus žně. První tisky byly plné chyb — a démon prý neváhal ani chvíli přesedlat od pergamenu k sazbě.',
+                arcanum: 'Nejstarší vypravěči přidávali detail, který dodnes rozesměje i vážného bratra kronikáře: když se do pytle nevešly další chyby, Titivillus prý natahoval pergamen zuby. A když se roztrhl, bouchl bezmocně hlavou o zeď.\n\n*Fragmina verborum Titivillus colligit horum,\nQuaque die mille vicibus se sarcinat ille.*\n\n„Úlomky těchto slov sbírá Titivillus, a každý den si jimi tisíckrát naplní pytel."\n\nVe skriptoriu to platí doslova: kdo píše potmě, bez svíce nebo louče, riskuje že mu Titivillus ukradne práci z ruky — a někdy s sebou vezme i křeč do prstů. Zapal světlo, než se pustíš do díla.',
+            },
         },
     },
 
@@ -40166,6 +40219,14 @@ In every scriptorium lurks Titivillus. His task is not to tempt to sin — other
                 reward_notify: '📜 Netolický\'s legacy studied. The printer\'s memory endures.',
             },
 
+            // ── Bestiary ───────────────────────────────────────────────────
+            titivillus_bestiar: {
+                title: 'Tytinillus',
+                lectio: '*A German copperplate engraving, 17th century. A horned, goat-legged figure carries a bundle of books and scrolls on its back; two church towers rise in the background. Ribbons bearing a Latin inscription curl around its head — no one in the scriptorium has managed to translate it in full.*\n\nTITIVILLUS\nDaemon librarius, minor\n\nHaunts: any scriptorium where the Office is read aloud\nBehaviour: collects skipped syllables, garbled words, dropped lines\nTool: a sack on his back — filled a thousand times a day\nPurpose: evidence against the scribe on Judgment Day',
+                glossa: 'The legend of a demon collecting scribal errors first appears in preachers\' exempla at the end of the 12th century. The name "Titivillus" settles into the texts around 1285, in the writings of John of Wales — though the demon himself is older, and wandered Europe nameless before that.\n\nAcross the centuries he gathered dozens of names: Tutivillus, Tintinillus, Titelinus, Tantillus... in Bohemia he was reportedly called Tibini. Every monastery, every church from England to Byzantium held its own version of the same fear — that even the faintest mumbled syllable in the Hours would one day be placed on the scales.\n\nWhen printing arrived, monks whispered with a bitter smile: now Titivillus will have his harvest. The first printed books were full of errors — and the demon, it was said, did not hesitate a moment to switch from parchment to type.',
+                arcanum: 'The oldest tellers of the tale added a detail that still makes even a solemn chronicler smile: when no more errors would fit in the sack, Titivillus was said to stretch the parchment with his teeth. And when it tore, he struck his head helplessly against the wall.\n\n*Fragmina verborum Titivillus colligit horum,\nQuaque die mille vicibus se sarcinat ille.*\n\n"Titivillus gathers up these fragments of words, and fills his sack with them a thousand times a day."\n\nIn the scriptorium this holds literally true: write in the dark, without a candle or torch, and you risk Titivillus stealing the work from your hand — sometimes taking a cramp in your fingers along with it. Light a flame before you begin.',
+            },
+
         }, // end folios
 
     }, // end scrinium
@@ -42090,6 +42151,65 @@ const Game = {
         });
     },
 
+    // ── Titivillus spis (Bestiář, Cesta B) — modal při nalezení nebo kliknutí ──
+    showTitivillusSpisModal: function() {
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        const isEn = lang === 'en';
+        NotificationSystem.modal({
+            icon: '📜',
+            title: isEn ? 'A Strange Note' : 'Podivný spis',
+            text: isEn
+                ? 'Among the clutter of the farmyard you find a half-decayed leaf. A sketch of a horned creature, a few Latin verses, a note in the margin — it looks like an old bestiary entry.'
+                : 'Mezi haraburdím při úklidu hospodářství jsi narazil na polozetlelý list. Skica rohatého tvora, latinské verše, poznámka na okraji — vypadá to na starý bestiářský zápis.',
+            choices: [
+                {
+                    label: isEn ? '📖 Open' : '📖 Otevřít',
+                    type: 'primary',
+                    effect: function() { Game.showTitivillusSpisContentModal(); }
+                },
+                {
+                    label: isEn ? '📕 Hand to Scrinium' : '📕 Předat do Scrinia',
+                    type: 'default',
+                    effect: function() {
+                        Game.removeItem('titivillus_spis', 1);
+                        if (typeof SecretsSystem !== 'undefined') SecretsSystem.unlockFolioById('folio_titivillus_bestiar');
+                        UI.notify(isEn ? '📕 Handed to the Scrinium.' : '📕 Předáno do Scrinia.');
+                        Game.save();
+                    }
+                }
+            ]
+        });
+    },
+
+    // ── Obsah spisu (List 1+2 = folio lectio) — otevřeno z showTitivillusSpisModal ──
+    showTitivillusSpisContentModal: function() {
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        const isEn = lang === 'en';
+        NotificationSystem.modal({
+            icon: '🐐',
+            title: 'Tytinillus',
+            image: '/bestiary/titivillus.jpg',
+            text: t('scrinium.folios.titivillus_bestiar.lectio'),
+            choices: [
+                {
+                    label: isEn ? '📕 Hand to Scrinium' : '📕 Předat do Scrinia',
+                    type: 'primary',
+                    effect: function() {
+                        Game.removeItem('titivillus_spis', 1);
+                        if (typeof SecretsSystem !== 'undefined') SecretsSystem.unlockFolioById('folio_titivillus_bestiar');
+                        UI.notify(isEn ? '📕 Handed to the Scrinium.' : '📕 Předáno do Scrinia.');
+                        Game.save();
+                    }
+                },
+                {
+                    label: isEn ? '🗃️ Keep in storage' : '🗃️ Uchovat ve skladu',
+                    type: 'default',
+                    effect: function() {}
+                }
+            ]
+        });
+    },
+
     farmAction: function(plotIdx) {
         const plot = GameState.garden[plotIdx];
         if(plot.locked) { UI.notify(t('game.plotLocked'), true); return; }
@@ -43393,6 +43513,17 @@ const Game = {
                         UI.notify('🔍 ' + (iName ? iName(found) : found) + '!');
                     }
                 }
+                // 👺 Cesta B (Bestiář) — nález "titivillus_spis", nezávislý na
+                // lostPool i na Titivillus craft-checku (Cesta A). Vlastní 0.2%,
+                // zablokovaný jen když už folio máš, nebo spis už držíš v inventáři.
+                {
+                    const _folioState = GameState.scrinium && GameState.scrinium.folios && GameState.scrinium.folios['folio_titivillus_bestiar'];
+                    const _alreadyHeld = (GameState.inventory['titivillus_spis'] || 0) > 0;
+                    if (!(_folioState && _folioState.found) && !_alreadyHeld && Math.random() < 0.002) {
+                        this.addItem('titivillus_spis', 1);
+                        setTimeout(function() { Game.showTitivillusSpisModal(); }, 300);
+                    }
+                }
             }
             // ── notifyAccum: single scavenge ──
             {
@@ -43789,6 +43920,10 @@ const Game = {
             if (Math.random() < chance) {
                 this.removeItem(r.output, r.qty); // ukradne výstup
                 Analytics.titivillusStruck(r.output, isNight && noLight);
+                // Cesta A (Bestiář): první setkání s Titivillem rovnou odemkne
+                // jeho záznam ve Scriniu. unlockFolioById() je idempotentní
+                // (no-op, pokud už nalezeno) — bezpečné volat při každém strike.
+                if (typeof SecretsSystem !== 'undefined') SecretsSystem.unlockFolioById('folio_titivillus_bestiar');
                 const quotes = t('titivillus');
                 UI.notify(quotes[Math.floor(Math.random() * quotes.length)], true);
                 // Křeč písařské ruky (monastery-decay-mrd) — Titivillus, když
@@ -47040,6 +47175,10 @@ const UI = {
         // Speciální rare items — vlastní modal
         if (id === 'netolicky_legacy') {
             if (typeof Game !== 'undefined' && Game.showNetolickyModal) Game.showNetolickyModal();
+            return;
+        }
+        if (id === 'titivillus_spis') {
+            if (typeof Game !== 'undefined' && Game.showTitivillusSpisModal) Game.showTitivillusSpisModal();
             return;
         }
         const _coinValues = { old_coin_1: 6, old_coin_2: 8, old_coin_3: 12 };
