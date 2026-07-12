@@ -1082,23 +1082,31 @@ const CellariumSystem = {
     const hasInv = GameState.researchedTechs && GameState.researchedTechs.includes('tech_inventarium');
     const hasLR  = GameState.researchedTechs && GameState.researchedTechs.includes('tech_liber_rationum');
     const hasOldCellars = (GameState.researchedTechs && GameState.researchedTechs.includes('tech_conventual_spaces')) || GameState.oldCellarsFound;
+    // Manufaktura: tech + postavené Dormitorium (obojí musí platit — tech
+    // samo o sobě může být vyzkoumaný dřív, tab se ale neukáže, dokud
+    // budova fyzicky nestojí). Dormitorium NEMÁ vlastní .built pole —
+    // sleduje se přes GameState.storage.dormitorium_i/ii/iii (3 úrovně),
+    // stejný check jako v hireBrother().
+    const hasManufactura = (GameState.researchedTechs && GameState.researchedTechs.includes('tech_manufactura_overview'))
+      && typeof Game !== 'undefined' && Game.dormitoriumCapacity && Game.dormitoriumCapacity() > 0;
 
     const entities = [
       ...(hasInv ? [{ id: 'inventarium',    icon: '📦', label: 'Inventarium',   label_en: 'Inventarium'   }] : []),
       ...(hasLR  ? [{ id: 'liber_rationum', icon: '📒', label: 'Liber Rationum',label_en: 'Liber Rationum'}] : []),
       ...(hasOldCellars ? [{ id: 'old_cellars', icon: '🕯️', label: 'Staré sklepy', label_en: 'Old Cellars' }] : []),
-      { id: 'manufaktura', icon: '⚙️', label: 'Manufaktura', label_en: 'Manufactory' },
+      ...(hasManufactura ? [{ id: 'manufaktura', icon: '⚙️', label: 'Manufaktura', label_en: 'Manufactory' }] : []),
       { id: 'buildings', icon: '🏗️', label: 'Budovy', label_en: 'Buildings' },
     ];
     const lang = (GameState.settings && GameState.settings.language) || 'cs';
     if (!GameState.ui) GameState.ui = {};
     const active = GameState.ui.cellariumEntity || 'buildings';
+    const safeActive = entities.some(e => e.id === active) ? active : 'buildings';
 
     // Tab buttons
     let h = `<div style="display:flex; gap:6px; margin-bottom:16px; flex-wrap:wrap;">`;
     entities.forEach(e => {
       const open   = this.isEntityOpen(e.id);
-      const isCur  = e.id === active;
+      const isCur  = e.id === safeActive;
       const name   = lang === 'en' ? e.label_en : e.label;
       const hours  = lang === 'en' ? this.entityHoursLabel_en(e.id) : this.entityHoursLabel(e.id);
       const openDot = `<span style="color:${open ? '#5a9' : '#c55'}; font-size:0.55rem;">
@@ -1117,7 +1125,7 @@ const CellariumSystem = {
     h += `</div>`;
 
     // Entity obsah
-    h += this.renderEntityPanel(active);
+    h += this.renderEntityPanel(safeActive);
     return h;
   },
 

@@ -5675,13 +5675,13 @@ const Game = {
                 GameState.conversiLastRest = Date.now();
                 Game.save();
             }
-            return; // na Officiu, nedostupní pro úkoly
+            if (!onlyTab) return; // na Officiu, automatický tick nedostupný pro úkoly (ruční Collect smí projít)
         }
 
         // Oběd (12–13): refektář — jídlo z klášterních zásob, jednou za 24h
         if (dayBlock === 'lunch') {
             this._runRefectory();
-            return; // u oběda, nedostupní pro úkoly
+            if (!onlyTab) return; // u oběda, automatický tick nedostupný pro úkoly (ruční Collect smí projít)
         }
 
         // Nešpory (18–19): večerní modlitba — loyalty +1, jednou za 24h
@@ -5694,11 +5694,11 @@ const Game = {
                 GameState.conversiLastVespers = Date.now();
                 Game.save();
             }
-            return; // na nešporách, nedostupní pro úkoly
+            if (!onlyTab) return; // na nešporách, automatický tick nedostupný pro úkoly (ruční Collect smí projít)
         }
 
         // Noc (22–5): spánek
-        if (dayBlock === 'night') return;
+        if (dayBlock === 'night' && !onlyTab) return; // spánek — automatický tick nedostupný, ruční Collect smí projít
 
         // Práci dělá nejméně unavený dostupný konvrš PŘIŘAZENÝ na Dvůr (M1: přiřazení nahrazuje "kdo je volný")
         const worker = GameState.conversi
