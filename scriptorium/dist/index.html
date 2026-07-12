@@ -19542,6 +19542,24 @@ const SaeculumSystem = {
         ? 'Overview of every workspace — who works there, how skilled they are, and what is ready to collect.'
         : 'Přehled všech pracovišť — kdo tam pracuje, jak je zkušený, a co je připravené ke sběru.'}
     </div>`;
+
+    // ── Informační lišta: co teď dělá komunita (Officium/Oběd/Nešpory/Noc/Práce) ──
+    const DAY_BLOCK_INFO = {
+      officium: { icon: '🙏', cs: 'Officium — ranní modlitba a odpočinek. Automatický tick čeká, ruční Sběr funguje.', en: 'Officium — morning prayer and rest. The automatic tick waits; manual Collect still works.' },
+      lunch:    { icon: '🍽️', cs: 'Oběd — konvrši v refektáři. Automatický tick čeká, ruční Sběr funguje.', en: 'Lunch — lay brothers in the refectory. The automatic tick waits; manual Collect still works.' },
+      vespers:  { icon: '🕯️', cs: 'Nešpory — večerní modlitba. Automatický tick čeká, ruční Sběr funguje.', en: 'Vespers — evening prayer. The automatic tick waits; manual Collect still works.' },
+      night:    { icon: '🌙', cs: 'Noc — všichni spí. Automatický tick čeká, ruční Sběr funguje.', en: 'Night — everyone sleeps. The automatic tick waits; manual Collect still works.' },
+      work:     { icon: '⚒️', cs: 'Pracovní doba — dílny v provozu.', en: 'Working hours — workshops active.' },
+    };
+    const dayBlock = (typeof Game !== 'undefined' && Game.conversiDayBlock) ? Game.conversiDayBlock() : 'work';
+    const info = DAY_BLOCK_INFO[dayBlock] || DAY_BLOCK_INFO.work;
+    h += `<div style="display:flex; align-items:center; gap:8px; margin-bottom:14px; padding:8px 12px;
+                       background:rgba(197,160,89,0.12); border-radius:6px; border-left:3px solid var(--accent-gold);
+                       font-size:0.78rem;">
+            <span style="font-size:1.1rem;">${info.icon}</span>
+            <span>${lang === 'en' ? info.en : info.cs}</span>
+          </div>`;
+
     h += `<div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(260px,1fr)); gap:10px;">`;
 
     TAB_ORDER.forEach(tabKey => {
