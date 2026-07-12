@@ -1444,7 +1444,7 @@ const Game = {
         const isEn = lang === 'en';
         NotificationSystem.modal({
             icon: '🐐',
-            title: 'Tytinillus',
+            title: 'Titivillus',
             image: '/bestiary/titivillus.jpg',
             text: t('scrinium.folios.titivillus_bestiar.lectio'),
             choices: [
