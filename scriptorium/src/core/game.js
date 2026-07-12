@@ -3300,6 +3300,14 @@ const Game = {
             VigorSystem.eat(foodId);
         }
 
+        // Pivo/víno — speciální "chuťovka" (flavor + u vína Athanor craft-boost).
+        // Přesunuto sem z Cellarium buyItem() — dřív se spouštělo už při
+        // NÁKUPU, takže item zůstal v inventáři a efekt se aplikoval zadarmo
+        // navíc. Teď se aplikuje jen při skutečné konzumaci.
+        if ((foodId === 'beer' || foodId === 'wine') && typeof CellariumSystem !== 'undefined' && CellariumSystem.applyDrinkEffect) {
+            CellariumSystem.applyDrinkEffect(foodId);
+        }
+
         // Valetudo — pokud item léčí aktivní neduh, vyléčit; jinak (u lektvarů) baseline efekt
         if (typeof HealthSystem !== 'undefined') {
             const _cured = HealthSystem.cureWith(foodId);
@@ -5469,9 +5477,29 @@ const Game = {
             return;
         }
         GameState[field] = 0; // odemkne gate — checkConversiChores tenhle tab zpracuje beze změny
-        this.checkConversiChores();
+        this.checkConversiChores(tabKey);
         Game.save();
-        if (typeof CellariumSystem !== 'undefined') CellariumSystem.switchEntity('manufaktura');
+        // checkConversiChores(tabKey) teď zpracuje JEN tenhle jeden tab
+        // (onlyTab parametr) — ostatní ready taby zůstanou nedotčené, dokud
+        // je hráč sám nesebere. Verifikace zůstává jako pojistka (např. build
+        // chybí nebo nikdo nepracuje → LastTick zůstane na 0, nic se nestalo).
+        if (GameState[field] > 0) {
+            UI.notify(lang === 'en' ? '🧺 Collected.' : '🧺 Sebráno.', false);
+        } else {
+            UI.notify(lang === 'en'
+                ? 'ℹ️ Nothing collected — check that someone is assigned and working here.'
+                : 'ℹ️ Nic nesebráno — zkontroluj, že tam někdo je přiřazený a pracuje.', true);
+        }
+        // switchEntity() cílilo přímo na #cellarium-content, ale nad ním je
+        // v shell.html obalový #home-cellarium-content s vlastním dirty-flag
+        // systémem — bez nastavení UI._dirty.cellarium se refresh nepromítne
+        // hned (musel se počkat na nějaký JINÝ trigger, odtud dojem "funguje
+        // až na druhý klik"). Přepojeno na stejný ověřený vzor jako well.js.
+        if (typeof UI !== 'undefined') {
+            if (!UI._dirty) UI._dirty = {};
+            UI._dirty.cellarium = true;
+            UI.renderAll();
+        }
     },
 
     // Jen čte, nic nemění. Pro dashboard kartu jednoho tabu.
@@ -5495,7 +5523,10 @@ const Game = {
         };
     },
 
-    checkConversiChores: function() {
+    // onlyTab — volitelné, pro izolovaný manuální Collect (Manufaktura).
+    // Bez argumentu (automatický tick na pozadí) běží přesně jako dřív —
+    // zpracuje všech 9 tabů. S argumentem přeskočí všechny ostatní.
+    checkConversiChores: function(onlyTab) {
         // POZOR: dřív zde bylo `if (!GameState.conversi || length===0) return;`,
         // což při absenci JAKÉHOKOLIV konvrše zablokovalo i Dormitorium bratry
         // (ti fungují nezávisle na Conversi). Nahrazeno bezpečnou inicializací.
@@ -5687,7 +5718,7 @@ const Game = {
         // bez přiřazeného konvrše (stejný vzor jako ostatní taby).
         const dvurBrother = (GameState.dormitorium && GameState.dormitorium.brothers || [])
             .find(b => b.assignedTab === 'dvur');
-        if (worker || dvurBrother) {
+        if ((!onlyTab || onlyTab === 'dvur') && (worker || dvurBrother)) {
             if (typeof FarmyardSystem === 'undefined') return;
             // Mapování: (argument pro cleanPen) → (klíč v GameState, kde se hlídá .built)
             const pens = [
@@ -5782,7 +5813,7 @@ const Game = {
             .sort((a, b) => a.fatigue - b.fatigue)[0];
         const gardenBrother = (GameState.dormitorium && GameState.dormitorium.brothers || [])
             .find(b => b.assignedTab === 'zahony');
-        if ((gardener || gardenBrother) && GameState.garden) {
+        if ((!onlyTab || onlyTab === 'zahony') && (gardener || gardenBrother) && GameState.garden) {
             if (!GameState.conversiGardenLastTick) GameState.conversiGardenLastTick = 0;
             if (Date.now() - GameState.conversiGardenLastTick >= DAY) {
                 GameState.conversiGardenLastTick = Date.now();
@@ -5875,7 +5906,7 @@ const Game = {
             .sort((a, b) => a.fatigue - b.fatigue)[0];
         const orchardBrother = (GameState.dormitorium && GameState.dormitorium.brothers || [])
             .find(b => b.assignedTab === 'sad');
-        if ((orchardKeeper || orchardBrother) && GameState.orchard) {
+        if ((!onlyTab || onlyTab === 'sad') && (orchardKeeper || orchardBrother) && GameState.orchard) {
             if (!GameState.conversiOrchardLastTick) GameState.conversiOrchardLastTick = 0;
             if (Date.now() - GameState.conversiOrchardLastTick >= DAY) {
                 GameState.conversiOrchardLastTick = Date.now();
@@ -5946,7 +5977,7 @@ const Game = {
             .sort((a, b) => a.fatigue - b.fatigue)[0];
         const apiaryBrother = (GameState.dormitorium && GameState.dormitorium.brothers || [])
             .find(b => b.assignedTab === 'apiarium');
-        if ((beekeeper || apiaryBrother) && GameState.apiary && typeof GardenSystem !== 'undefined') {
+        if ((!onlyTab || onlyTab === 'apiarium') && (beekeeper || apiaryBrother) && GameState.apiary && typeof GardenSystem !== 'undefined') {
             if (!GameState.conversiApiaryLastTick) GameState.conversiApiaryLastTick = 0;
             if (Date.now() - GameState.conversiApiaryLastTick >= DAY) {
                 GameState.conversiApiaryLastTick = Date.now();
@@ -6072,7 +6103,7 @@ const Game = {
             .sort((a, b) => a.fatigue - b.fatigue)[0];
         const piscinaBrother = (GameState.dormitorium && GameState.dormitorium.brothers || [])
             .find(b => b.assignedTab === 'piscina');
-        if ((fisherman || piscinaBrother) && GameState.piscina && GameState.piscina.tier >= 1) {
+        if ((!onlyTab || onlyTab === 'piscina') && (fisherman || piscinaBrother) && GameState.piscina && GameState.piscina.tier >= 1) {
             if (!GameState.conversiPiscinaLastTick) GameState.conversiPiscinaLastTick = 0;
             if (Date.now() - GameState.conversiPiscinaLastTick >= DAY) {
                 GameState.conversiPiscinaLastTick = Date.now();
@@ -6144,7 +6175,7 @@ const Game = {
             .sort((a, b) => a.fatigue - b.fatigue)[0];
         const fieldBrother = (GameState.dormitorium && GameState.dormitorium.brothers || [])
             .find(b => b.assignedTab === 'pole');
-        if ((plowman || fieldBrother) && GameState.fields && typeof GardenSystem !== 'undefined') {
+        if ((!onlyTab || onlyTab === 'pole') && (plowman || fieldBrother) && GameState.fields && typeof GardenSystem !== 'undefined') {
             if (!GameState.conversiFieldLastTick) GameState.conversiFieldLastTick = 0;
             if (Date.now() - GameState.conversiFieldLastTick >= DAY) {
                 GameState.conversiFieldLastTick = Date.now();
@@ -6217,7 +6248,7 @@ const Game = {
             .sort((a, b) => a.fatigue - b.fatigue)[0];
         const vineaBrother = (GameState.dormitorium && GameState.dormitorium.brothers || [])
             .find(b => b.assignedTab === 'vinohrad');
-        if ((vintner || vineaBrother) && GameState.vinea && typeof GardenSystem !== 'undefined') {
+        if ((!onlyTab || onlyTab === 'vinohrad') && (vintner || vineaBrother) && GameState.vinea && typeof GardenSystem !== 'undefined') {
             if (!GameState.conversiVineaLastTick) GameState.conversiVineaLastTick = 0;
             if (Date.now() - GameState.conversiVineaLastTick >= DAY) {
                 GameState.conversiVineaLastTick = Date.now();
@@ -6303,7 +6334,7 @@ const Game = {
         //    pokusy. Pokud žádnou známou kombinaci nemá po ruce, nedělá nic. ──
         const athanorBrother = (GameState.dormitorium && GameState.dormitorium.brothers || [])
             .find(b => b.assignedTab === 'athanor');
-        if (athanorBrother && GameState.athanor && typeof AthanorDB !== 'undefined' && typeof CombinationEngine !== 'undefined') {
+        if ((!onlyTab || onlyTab === 'athanor') && athanorBrother && GameState.athanor && typeof AthanorDB !== 'undefined' && typeof CombinationEngine !== 'undefined') {
             if (!GameState.conversiAthanorLastTick) GameState.conversiAthanorLastTick = 0;
             if (Date.now() - GameState.conversiAthanorLastTick >= DAY) {
                 GameState.conversiAthanorLastTick = Date.now();
@@ -6374,7 +6405,7 @@ const Game = {
         //    bratrovská role, stejně jako Athanor. ──
         const scriptoriumBrother = (GameState.dormitorium && GameState.dormitorium.brothers || [])
             .find(b => b.assignedTab === 'scriptorium');
-        if (scriptoriumBrother && GameState.library && typeof LibraryDB !== 'undefined' && typeof LibraryHelpers !== 'undefined') {
+        if ((!onlyTab || onlyTab === 'scriptorium') && scriptoriumBrother && GameState.library && typeof LibraryDB !== 'undefined' && typeof LibraryHelpers !== 'undefined') {
             if (!GameState.conversiScriptoriumLastTick) GameState.conversiScriptoriumLastTick = 0;
             if (Date.now() - GameState.conversiScriptoriumLastTick >= DAY) {
                 GameState.conversiScriptoriumLastTick = Date.now();

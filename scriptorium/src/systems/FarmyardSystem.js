@@ -162,8 +162,12 @@ const FarmyardSystem = {
         }
         st.lastCleanMs = now;
 
-        // Mood +30 všem zvířatům
-        const animals = st.animals || st.hens || st.sheep || [];
+        // Mood +30 všem zvířatům — jen pro chlévy s polem jednotlivých zvířat.
+        // Ovčinec (sheepfold) drží jen POČET (st.sheep = číslo), ne pole —
+        // Array.isArray hlídá, aby (číslo).forEach nespadlo (bug: shazovalo
+        // celou checkConversiChores() a s ní i Zahony/Sad/atd. za Dvorem).
+        const animalsRaw = st.animals || st.hens;
+        const animals = Array.isArray(animalsRaw) ? animalsRaw : [];
         animals.forEach(a => {
             if (typeof a === 'object') {
                 this._ensureAnimalFields(a);
@@ -171,8 +175,9 @@ const FarmyardSystem = {
             }
         });
 
-        // Generovat hnůj: 1–3 ks dle počtu zvířat
-        const n = Math.max(1, Math.min(3, Math.ceil(animals.length / 2)));
+        // Generovat hnůj: 1–3 ks dle počtu zvířat (pole → .length, sheepfold → st.sheep)
+        const animalCount = Array.isArray(animalsRaw) ? animalsRaw.length : (typeof st.sheep === 'number' ? st.sheep : 0);
+        const n = Math.max(1, Math.min(3, Math.ceil(animalCount / 2)));
         const inv = GameState.inventory;
         inv['manure'] = (inv['manure'] || 0) + n;
 
