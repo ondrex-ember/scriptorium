@@ -41310,6 +41310,28 @@ const Game = {
                     }
                 }
 
+                // Terrain — regen únavy krajiny (self-guarded 10 min)
+                if (typeof TerrainSystem !== 'undefined') TerrainSystem.tick();
+                if (typeof CuriaSystem !== 'undefined') CuriaSystem.tick();
+                // Obnova countdown zobrazení u Terrain/Curia ukazatelů (jen když je Pracovna
+                // otevřená a regen skutečně běží — levné, žádný dopad mimo tento stav).
+                if (document.getElementById('workspace-actions')) {
+                    const _tf = (GameState.terrain && GameState.terrain.fatigue) || 0;
+                    const _cf = (GameState.curia && GameState.curia.fatigue) || 0;
+                    if (_tf > 20 || _cf > 20) {
+                        if (typeof UI !== 'undefined' && UI.renderActions) UI.renderActions();
+                    }
+                }
+                // Obnova countdown zobrazení u probíhající akce (scavenge i mine) —
+                // renderActions/renderMineActions se jinak volají jen po kliku,
+                // countdown by jinak zůstal zamrzlý do dalšího přepnutí tabu.
+                // MUSÍ být v sekundovém scope (ne v _tickCounter>=60 bloku),
+                // jinak se countdown hýbe jen jednou za minutu.
+                if (GameState.activeAction) {
+                    if (document.getElementById('workspace-actions') && typeof UI !== 'undefined' && UI.renderActions) UI.renderActions();
+                    if (document.getElementById('mine-actions') && typeof UI !== 'undefined' && UI.renderMineActions) UI.renderMineActions();
+                }
+
                 // v7.5: Check canonical hours
                 CanonicalHours.checkCurrentHour();
                 // v7.5: Check events
@@ -41361,18 +41383,6 @@ const Game = {
                     if (typeof WellSystem !== 'undefined' && WellSystem.dailyTick) WellSystem.dailyTick();
                     // Persona — influence decay (self-guarded 7 dní)
                     if (typeof PersonaSystem !== 'undefined' && PersonaSystem.tickDecay) PersonaSystem.tickDecay();
-                    // Terrain — regen únavy krajiny (self-guarded 10 min)
-                    if (typeof TerrainSystem !== 'undefined') TerrainSystem.tick();
-                    if (typeof CuriaSystem !== 'undefined') CuriaSystem.tick();
-                    // Obnova countdown zobrazení u Terrain/Curia ukazatelů (jen když je Pracovna
-                    // otevřená a regen skutečně běží — levné, žádný dopad mimo tento stav).
-                    if (document.getElementById('workspace-actions')) {
-                        const _tf = (GameState.terrain && GameState.terrain.fatigue) || 0;
-                        const _cf = (GameState.curia && GameState.curia.fatigue) || 0;
-                        if (_tf > 20 || _cf > 20) {
-                            if (typeof UI !== 'undefined' && UI.renderActions) UI.renderActions();
-                        }
-                    }
                     Game.checkFarmyardProduction();
                     Game.checkPiscinaGrowth();
                     // Save info — refresh "Poslední uložení" v Settings
