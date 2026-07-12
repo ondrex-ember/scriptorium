@@ -7822,6 +7822,7 @@ const TechTree = [
   { id: "tech_commercium", name: "Commercium — Stezky Kupců", name_en: "Commercium — Merchant Routes", cost: 6, desc: "Klášter není ostrovem. Za hradbami prochází svět — a s ním i ti, kdo nesou zboží z daleké Benátky, z Říma, z Levanty. Nauč se rozpoznat příchod kupce, otevři bránu a naslouchej. Někdy přiveze surovinu, jindy příběh — a oboje má svou cenu.", desc_en: "The monastery is no island. Beyond its walls the world passes by — and with it those who carry goods from distant Venice, from Rome, from the Levant. Learn to recognise the merchant's arrival, open the gate and listen. Sometimes he brings a raw material, sometimes a story — and both have their price.", unlocks: [], requires: [] },
   { id: "tech_cellarium_rd2", name: "Cellarium — Řád Sklepa", name_en: "Cellarium — Order of the Cellar", cost: 8, desc: "Každý klášter má své srdce v kapli, ale své střevo ve sklepě. Cellarius není jen správce sudů a pytlů — je to muž, který ví, co klášter potřebuje, co může prodat a za kolik. Bez něj jsi jen mnichem s plnýma rukama a prázdnou kapsou.", desc_en: "Every monastery has its heart in the chapel, but its belly in the cellar. The Cellarius is no mere keeper of barrels and sacks — he is the man who knows what the monastery needs, what it can sell, and for how much. Without him thou art but a monk with full hands and an empty purse.", unlocks: [], requires: ["tech_commercium"] },
   { id: "tech_conventual_spaces", name: "Konventní prostory — Ztracená Sklepení", name_en: "Conventual Spaces — The Lost Vaults", cost: 10, desc: "Nyní, když je ve sklepě řád, opat nařizuje systematický průzkum jeho nejzazších koutů. Staré plány kláštera hovoří o klenbách, které dnešní bratři nikdy nespatřili — zazděné, zapomenuté, čekající. Odemyká: Staré sklepy v Cellariu.", desc_en: "Now that order reigns in the cellar, the abbot orders a systematic search of its farthest corners. Old plans of the monastery speak of vaults today's brothers have never seen — walled up, forgotten, waiting. Unlocks: Old Cellars in the Cellarium.", unlocks: [], requires: ["tech_cellarium_rd2"] },
+  { id: "tech_manufactura_overview", name: "Manufaktura — Přehled Práce", name_en: "Manufactory — Workforce Overview", cost: 45, desc: "Cellarius navrhl, aby se výkazy práce ze všech dílen scházely na jednom místě — kdo kde pracuje, jak je zkušený, co čeká na sebrání — místo obcházení každé dílny zvlášť. Odemyká: Manufaktura v Cellariu (přístupná až po postavení Dormitoria).", desc_en: "The cellarer proposed that work reports from every workshop converge in one place — who works where, how skilled they are, what awaits collection — instead of checking each workshop separately. Unlocks: Manufactory in the Cellarium (accessible once the Dormitory is built).", unlocks: [], requires: ["tech_cellarium_rd2"] },
   { id: "tech_numismatica", name: "Numismatica — Věda o Groších", name_en: "Numismatica — The Science of Groschen", cost: 10, desc: "Pražský groš je malý, ale těžký. Nese na sobě korunu, lva i latinský nápis — a v pravých rukou otevírá více dveří než modlitba. Nauč se počítat, nakupovat, prodávat. Hospoda, obchod, trh — každé místo má svůj rytmus a svou cenu.", desc_en: "The Prague groschen is small, but heavy. It bears a crown, a lion and a Latin inscription — and in the right hands it opens more doors than prayer. Learn to count, to buy, to sell. The tavern, the shop, the market — each place has its own rhythm and its own price.", unlocks: [], requires: ["tech_cellarium_rd2"] },
 
   // MUSIC SYSTEM
@@ -17904,23 +17905,31 @@ const CellariumSystem = {
     const hasInv = GameState.researchedTechs && GameState.researchedTechs.includes('tech_inventarium');
     const hasLR  = GameState.researchedTechs && GameState.researchedTechs.includes('tech_liber_rationum');
     const hasOldCellars = (GameState.researchedTechs && GameState.researchedTechs.includes('tech_conventual_spaces')) || GameState.oldCellarsFound;
+    // Manufaktura: tech + postavené Dormitorium (obojí musí platit — tech
+    // samo o sobě může být vyzkoumaný dřív, tab se ale neukáže, dokud
+    // budova fyzicky nestojí). Dormitorium NEMÁ vlastní .built pole —
+    // sleduje se přes GameState.storage.dormitorium_i/ii/iii (3 úrovně),
+    // stejný check jako v hireBrother().
+    const hasManufactura = (GameState.researchedTechs && GameState.researchedTechs.includes('tech_manufactura_overview'))
+      && typeof Game !== 'undefined' && Game.dormitoriumCapacity && Game.dormitoriumCapacity() > 0;
 
     const entities = [
       ...(hasInv ? [{ id: 'inventarium',    icon: '📦', label: 'Inventarium',   label_en: 'Inventarium'   }] : []),
       ...(hasLR  ? [{ id: 'liber_rationum', icon: '📒', label: 'Liber Rationum',label_en: 'Liber Rationum'}] : []),
       ...(hasOldCellars ? [{ id: 'old_cellars', icon: '🕯️', label: 'Staré sklepy', label_en: 'Old Cellars' }] : []),
-      { id: 'manufaktura', icon: '⚙️', label: 'Manufaktura', label_en: 'Manufactory' },
+      ...(hasManufactura ? [{ id: 'manufaktura', icon: '⚙️', label: 'Manufaktura', label_en: 'Manufactory' }] : []),
       { id: 'buildings', icon: '🏗️', label: 'Budovy', label_en: 'Buildings' },
     ];
     const lang = (GameState.settings && GameState.settings.language) || 'cs';
     if (!GameState.ui) GameState.ui = {};
     const active = GameState.ui.cellariumEntity || 'buildings';
+    const safeActive = entities.some(e => e.id === active) ? active : 'buildings';
 
     // Tab buttons
     let h = `<div style="display:flex; gap:6px; margin-bottom:16px; flex-wrap:wrap;">`;
     entities.forEach(e => {
       const open   = this.isEntityOpen(e.id);
-      const isCur  = e.id === active;
+      const isCur  = e.id === safeActive;
       const name   = lang === 'en' ? e.label_en : e.label;
       const hours  = lang === 'en' ? this.entityHoursLabel_en(e.id) : this.entityHoursLabel(e.id);
       const openDot = `<span style="color:${open ? '#5a9' : '#c55'}; font-size:0.55rem;">
@@ -17939,7 +17948,7 @@ const CellariumSystem = {
     h += `</div>`;
 
     // Entity obsah
-    h += this.renderEntityPanel(active);
+    h += this.renderEntityPanel(safeActive);
     return h;
   },
 
@@ -46566,13 +46575,13 @@ const Game = {
                 GameState.conversiLastRest = Date.now();
                 Game.save();
             }
-            return; // na Officiu, nedostupní pro úkoly
+            if (!onlyTab) return; // na Officiu, automatický tick nedostupný pro úkoly (ruční Collect smí projít)
         }
 
         // Oběd (12–13): refektář — jídlo z klášterních zásob, jednou za 24h
         if (dayBlock === 'lunch') {
             this._runRefectory();
-            return; // u oběda, nedostupní pro úkoly
+            if (!onlyTab) return; // u oběda, automatický tick nedostupný pro úkoly (ruční Collect smí projít)
         }
 
         // Nešpory (18–19): večerní modlitba — loyalty +1, jednou za 24h
@@ -46585,11 +46594,11 @@ const Game = {
                 GameState.conversiLastVespers = Date.now();
                 Game.save();
             }
-            return; // na nešporách, nedostupní pro úkoly
+            if (!onlyTab) return; // na nešporách, automatický tick nedostupný pro úkoly (ruční Collect smí projít)
         }
 
         // Noc (22–5): spánek
-        if (dayBlock === 'night') return;
+        if (dayBlock === 'night' && !onlyTab) return; // spánek — automatický tick nedostupný, ruční Collect smí projít
 
         // Práci dělá nejméně unavený dostupný konvrš PŘIŘAZENÝ na Dvůr (M1: přiřazení nahrazuje "kdo je volný")
         const worker = GameState.conversi
