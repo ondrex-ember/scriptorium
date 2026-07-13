@@ -4569,6 +4569,25 @@ const Game = {
         const sin = lang === 'en' ? (c.confession_en || '') : (c.confession || '');
         Game.save();
 
+        // Osa a váha — Přísné pokání/Shovívavost teď platí/vydělávají na OSE
+        // toho konkrétního kontaktu, ne vždycky na Church. Sekundární osa
+        // (je-li) dostane poměrnou část dle její weight.
+        const axis = c.primaryAxis || 'village';
+        const secAxis = c.secondaryAxis && c.secondaryAxis.axis;
+        const secWeight = c.secondaryAxis ? c.secondaryAxis.weight : 0;
+
+        // Gated kontakty (mají minRelation práh na zboží/zakázky) riskují víc
+        // při přísném pokání — formální vztah, hůř snáší tvrdost.
+        const isGated = (c.buyOffer && Object.values(c.buyOffer.items || {}).some(o => o.minRelation))
+                     || (c.glassOrders && Object.values(c.glassOrders).some(o => o.minRelation));
+        const strictPenalty = isGated ? -5 : -3;
+        const curRelation = (GameState.contactRelation && GameState.contactRelation[id]) || 0;
+        const gateWarning = isGated
+            ? `<div style="margin-top:6px; font-size:0.72rem; color:#c0392b;">⚠️ ${lang==='en'
+                ? 'A formal relationship — harsh judgment risks more here (current relation: '+curRelation+').'
+                : 'Formální vztah — přísnost tu riskuje víc (aktuální vztah: '+curRelation+').'}</div>`
+            : '';
+
         const rerender = () => {
             const el = document.getElementById('home-templum-content');
             if (el && typeof TemplumSystem !== 'undefined') el.innerHTML = TemplumSystem.renderTemplumTab();
@@ -4581,22 +4600,28 @@ const Game = {
         NotificationSystem.modal({
             icon: '🙏',
             title: (lang==='en' ? 'Confession — ' : 'Zpověď — ') + cName,
-            text: `<div style="font-size:0.82rem; line-height:1.45;">${c.icon} <span style="font-style:italic; opacity:0.85;">${sin}</span><br><br>${lang==='en'?'He kneels and waits for your word.':'Klečí a čeká na tvé slovo.'}</div>`,
+            text: `<div style="font-size:0.82rem; line-height:1.45;">${c.icon} <span style="font-style:italic; opacity:0.85;">${sin}</span><br><br>${lang==='en'?'He kneels and waits for your word.':'Klečí a čeká na tvé slovo.'}</div>${gateWarning}`,
             choices: [
                 { label: (lang==='en'?'⚖️ Strict penance':'⚖️ Přísné pokání'), type: 'danger', effect: () => {
-                    if (typeof PersonaSystem !== 'undefined') PersonaSystem.addInfluence('church', 3);
-                    if (typeof PersonaSystem !== 'undefined' && PersonaSystem.addZboznost) PersonaSystem.addZboznost(2);
-                    if (typeof SaeculumSystem !== 'undefined') SaeculumSystem.addContactRelation(id, -3);
+                    if (typeof PersonaSystem !== 'undefined') {
+                        PersonaSystem.addInfluence(axis, 3);
+                        if (secAxis) PersonaSystem.addInfluence(secAxis, Math.round(3 * secWeight * 10) / 10);
+                        if (PersonaSystem.addZboznost) PersonaSystem.addZboznost(2);
+                    }
+                    if (typeof SaeculumSystem !== 'undefined') SaeculumSystem.addContactRelation(id, strictPenalty);
                     record('strict');
                     Game.addKronikaEntry('minor',
-                        '🙏 Zpověď: ' + cName + ' dostal přísné pokání. Církev to ocení, on méně.',
-                        '🙏 Confession: ' + cName + ' received strict penance. The Church approves; he does not.',
+                        '🙏 Zpověď: ' + cName + ' dostal přísné pokání. Bylo to k něčímu prospěchu — jemu ne.',
+                        '🙏 Confession: ' + cName + ' received strict penance. Someone benefits from it — he does not.',
                         '🙏 Poenitentia severa imposita est.');
                     Game.save(); rerender();
                 }},
                 { label: (lang==='en'?'🕊️ Leniency':'🕊️ Shovívavost'), effect: () => {
                     if (typeof SaeculumSystem !== 'undefined') SaeculumSystem.addContactRelation(id, 3);
-                    if (typeof PersonaSystem !== 'undefined') PersonaSystem.addInfluence('church', 1);
+                    if (typeof PersonaSystem !== 'undefined') {
+                        PersonaSystem.addInfluence(axis, 1);
+                        if (secAxis) PersonaSystem.addInfluence(secAxis, Math.round(1 * secWeight * 10) / 10);
+                    }
                     record('lenient');
                     Game.addKronikaEntry('minor',
                         '🙏 Zpověď: ' + cName + ' odešel s lehkým pokáním a lehčím srdcem.',
@@ -4607,9 +4632,10 @@ const Game = {
                 { label: (lang==='en'?'🚪 Turn him away':'🚪 Odmítnout'), effect: () => {
                     record('refused');
                     if (typeof PersonaSystem !== 'undefined' && PersonaSystem.addZboznost) PersonaSystem.addZboznost(-1);
+                    if (typeof SaeculumSystem !== 'undefined') SaeculumSystem.addContactRelation(id, -2);
                     Game.addKronikaEntry('minor',
-                        '🙏 Zpověď: ' + cName + ' odešel nevyslyšen.',
-                        '🙏 Confession: ' + cName + ' left unheard.',
+                        '🙏 Zpověď: ' + cName + ' odešel nevyslyšen — a nezapomene na to.',
+                        '🙏 Confession: ' + cName + ' left unheard — and will not forget it.',
                         '🙏 Confessio recusata est.');
                     Game.save(); rerender();
                 }}
@@ -5783,6 +5809,7 @@ const Game = {
         const month = new Date().getMonth() + 1;
         const isSummer = month >= 5 && month <= 9;
         const isWinter = month === 12 || month <= 2;
+        const isLateWinter = month === 2 || month === 3; // shodné s hráčovým healthConditionsDailyTick
         const lang = (GameState.settings && GameState.settings.language) || 'cs';
 
         const applyTick = (entity) => {
@@ -5829,8 +5856,12 @@ const Game = {
                     applyTick(entity);
                     const task = entity.task || entity.assignedTab;
                     const taskRisk = this.NPC_HEALTH_RISK[task] === id ? 0.02 : 0;
+                    // Svrab nemá task-vazbu (na rozdíl od Vší/dvur) — "sdílený
+                    // dormitář a nářadí" platí pro kohokoliv aktivního v poolu,
+                    // proto malá základní šance, ne jen nákaza od nuly nikdy nevznikne.
+                    const baseline = (id === 'scabies' && task) ? 0.004 : 0;
                     const contagionBonus = infected > 0 && !entity.conditions[id] ? 0.03 * infected : 0;
-                    tryInfect(entity, id, Math.min(0.25, taskRisk + contagionBonus));
+                    tryInfect(entity, id, Math.min(0.25, taskRisk + baseline + contagionBonus));
                 });
             });
         });
@@ -5857,18 +5888,33 @@ const Game = {
             tryInfect(k, 'insomnia', snorerPresent ? 0.05 : 0.015);
         });
 
-        // Dna — čistě dieta, nezávislé na úkolu, kdokoliv aktivní.
-        [...conversi, ...brothers].forEach(entity => {
-            tryInfect(entity, 'gout', 0.01);
-        });
+        // Dna — hráč to sleduje přes goutLog (jednotlivé konzumace), NPC
+        // jednotlivě nejedí — proxy: jsou-li klášterní zásoby masa/vína
+        // aktuálně bohaté, hodovalo se, riziko roste. Sdílí GOUT_*_ITEMS
+        // seznam z VigorSystem, ať to není nezávislé číslo.
+        {
+            let meatStock = 0, wineStock = 0;
+            if (typeof VigorSystem !== 'undefined') {
+                (VigorSystem.GOUT_MEAT_ITEMS || []).forEach(id => { meatStock += (GameState.inventory[id] || 0); });
+                (VigorSystem.GOUT_WINE_ITEMS || []).forEach(id => { wineStock += (GameState.inventory[id] || 0); });
+            }
+            const feasting = meatStock >= 10 && wineStock >= 5;
+            [...conversi, ...brothers].forEach(entity => {
+                tryInfect(entity, 'gout', feasting ? 0.03 : 0.005);
+            });
+        }
 
         // Sdílený zdroj (skupina B) — voda/úplavice škálují s purity studny.
         const wellPurity = (GameState.well && typeof GameState.well.purity === 'number') ? GameState.well.purity : 100;
+        const fruitStock = (GameState.inventory['berries'] || 0) + (GameState.inventory['dried_wild_fruit'] || 0)
+            + (GameState.inventory['apple'] || 0) + (GameState.inventory['pear'] || 0);
         [...conversi, ...brothers].forEach(entity => {
             const task = entity.task || entity.assignedTab;
             if (!task) return;
             const id = this.NPC_SHARED_RISK[Math.floor(Math.random() * this.NPC_SHARED_RISK.length)];
-            if (id === 'scurvy' && !isWinter) return;
+            // Kurděje: shodné okno s hráčem (pozdní zima + sklad ovoce <3 ks — sdílené
+            // zásoby, funguje 1:1 i pro NPC na rozdíl od gutu, viz níž).
+            if (id === 'scurvy' && (!isLateWinter || fruitStock >= 3)) return;
             let chance = 0.008;
             if (id === 'water_sickness' || id === 'dysentery') {
                 chance = wellPurity < 30 ? 0.02 : wellPurity < 70 ? 0.01 : 0.002;
