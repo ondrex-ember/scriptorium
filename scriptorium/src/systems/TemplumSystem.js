@@ -6,6 +6,77 @@
 
 const TemplumSystem = {
 
+    // Vytáhne posledních N záznamů daného typu ze sdíleného Templum logu.
+    _logEntries: function(type, n) {
+        const log = (GameState.templum && GameState.templum.log) || [];
+        return log.filter(e => e.type === type).slice(0, n || 5);
+    },
+
+    _timeAgo: function(ts, lang) {
+        const days = Math.floor((Date.now() - ts) / (24 * 3600000));
+        if (days <= 0) return lang === 'en' ? 'today' : 'dnes';
+        if (days === 1) return lang === 'en' ? '1 day ago' : 'včera';
+        return lang === 'en' ? days + ' days ago' : 'před ' + days + ' dny';
+    },
+
+    _confessionHistoryHtml: function(lang) {
+        const entries = this._logEntries('confession', 5);
+        if (!entries.length) return '';
+        const choiceTxt = (c) => c === 'strict' ? (lang==='en'?'strict penance':'přísné pokání')
+            : c === 'lenient' ? (lang==='en'?'leniency':'shovívavost')
+            : (lang==='en'?'turned away':'odmítnut');
+        const rows = entries.map(e => `<div style="font-size:0.68rem; opacity:0.65; margin-top:2px;">${e.name} — ${choiceTxt(e.choice)} · ${this._timeAgo(e.ts, lang)}</div>`).join('');
+        return `<div style="margin-top:4px;">${rows}</div>`;
+    },
+
+    _massHistoryHtml: function(lang) {
+        const entries = this._logEntries('mass', 5);
+        if (!entries.length) return '';
+        const rows = entries.map(e => {
+            const nm = (typeof iName === 'function') ? iName(e.incense) : e.incense;
+            const flag = e.degraded ? ' ⚠️' : (e.feastName ? ' 🎉' : '');
+            return `<div style="font-size:0.68rem; opacity:0.65; margin-top:2px;">${nm}${flag} · ${this._timeAgo(e.ts, lang)}</div>`;
+        }).join('');
+        return `<div style="margin-top:4px;">${rows}</div>`;
+    },
+
+    _donationHistoryHtml: function(lang) {
+        const entries = this._logEntries('donation', 5);
+        if (!entries.length) return '';
+        const rows = entries.map(e => {
+            const nm = (typeof iName === 'function') ? iName(e.itemId) : e.itemId;
+            return `<div style="font-size:0.68rem; opacity:0.65; margin-top:2px;">${nm} — Ecclesia +${e.influence} · ${this._timeAgo(e.ts, lang)}</div>`;
+        }).join('');
+        return `<div style="margin-top:4px;">${rows}</div>`;
+    },
+
+    _pilgrimsHistoryHtml: function(lang) {
+        const entries = this._logEntries('pilgrims', 5);
+        if (!entries.length) return '';
+        const rows = entries.map(e => `<div style="font-size:0.68rem; opacity:0.65; margin-top:2px;">${e.grose} g · ${this._timeAgo(e.ts, lang)}</div>`).join('');
+        return `<div style="margin-top:4px;">${rows}</div>`;
+    },
+
+    // Nová karta — Farní život (křest/svatba/pohřeb). Gate stejný jako
+    // Game.parishEventTick() (rank.probost), jinak by karta ukazovala
+    // funkci, co pro hráče vůbec neběží.
+    _parishCardHtml: function(lang) {
+        if (!(GameState.rank && GameState.rank.probost)) return '';
+        const entries = this._logEntries('parish', 5);
+        const iconFor = (t) => t === 'baptism' ? '👶' : t === 'wedding' ? '💍' : '⚰️';
+        const nameFor = (t) => {
+            const m = { baptism: [lang==='en'?'Baptism':'Křest'], wedding: [lang==='en'?'Wedding':'Svatba'], funeral: [lang==='en'?'Funeral':'Pohřeb'] };
+            return m[t][0];
+        };
+        const rows = entries.map(e => `<div style="font-size:0.68rem; margin-top:2px; ${e.officiated ? 'opacity:0.65;' : 'color:#c0392b;'}">${iconFor(e.eventType)} ${nameFor(e.eventType)} — ${e.surname}${e.officiated ? '' : (lang==='en'?' (declined)':' (odmítnuto)')} · ${this._timeAgo(e.ts, lang)}</div>`).join('');
+        return `<div style="padding:12px; background:rgba(255,255,255,0.4); border:1px solid rgba(197,160,89,0.25); border-radius:8px;">
+                <div style="font-size:1.5rem; margin-bottom:4px;">✝️</div>
+                <div style="font-weight:bold; font-size:0.82rem;">${lang==='en'?'Parish life':'Farní život'}</div>
+                ${entries.length ? `<div style="margin-top:4px;">${rows}</div>` : `<div style="font-size:0.7rem; margin-top:5px; opacity:0.6;">${lang==='en'?'the parish is quiet for now':'farnost zatím mlčí'}</div>`}
+                <div style="font-size:0.62rem; opacity:0.55; font-style:italic; margin-top:5px;">${lang==='en'?'weekly · baptisms, weddings, funerals of the parish':'týdně · křty, svatby, pohřby farnosti'}</div>
+              </div>`;
+    },
+
     // Gate: mnišská dráha od bratra výš (Cursus Monasticus)
     isUnlocked: function() {
         const m = GameState.rank && GameState.rank.monastic;
@@ -195,6 +266,7 @@ const TemplumSystem = {
             h += `<button class="craft-btn" style="margin-top:6px;" ${allOk ? '' : 'disabled'} onclick="Game.serveMass()">⛪ ${lang==='en'?'Hold mass':'Sloužit mši'}</button>`;
         }
         h += `<div style="font-size:0.62rem; opacity:0.55; font-style:italic; margin-top:5px;">${lang==='en'?'weekly · better incense, greater grace':'týdně · lepší kadidlo, větší milost'}</div>
+              ${this._massHistoryHtml(lang)}
               </div>`;
 
         // Pilíř Zpověď (T4) — odpočet + poslední záznam
@@ -208,7 +280,7 @@ const TemplumSystem = {
                 <div style="font-size:1.5rem; margin-bottom:4px;">🙏</div>
                 <div style="font-weight:bold; font-size:0.82rem;">${lang==='en'?'Confession':'Zpověď'}</div>
                 <div style="font-size:0.7rem; margin-top:5px; opacity:0.75;">⏳ ${lang==='en'?'next penitent in':'další zpovědník za'} ${confDays} d</div>
-                ${lc ? `<div style="font-size:0.7rem; margin-top:2px; opacity:0.65;">${lang==='en'?'last':'naposled'}: ${lc.name} — ${lcChoiceTxt}</div>` : ''}
+                ${this._confessionHistoryHtml(lang)}
                 <div style="font-size:0.62rem; opacity:0.55; font-style:italic; margin-top:5px;">${lang==='en'?'the countryside comes to confess · your word weighs':'kraj se přichází vyznat · tvé slovo má váhu'}</div>
               </div>`;
 
@@ -228,6 +300,7 @@ const TemplumSystem = {
                   <button class="craft-btn" style="padding:2px 8px; font-size:0.66rem;" ${waxN >= 5 ? '' : 'disabled'} onclick="Game.templumDonate('beeswax')">${lang==='en'?'Offer':'Darovat'}</button>
                 </div>
                 ${ld ? `<div style="font-size:0.66rem; opacity:0.6; margin-top:4px;">${lang==='en'?'last offering':'poslední dar'}: ${(typeof iName==='function')?iName(ld.id):ld.id}</div>` : ''}
+                ${this._donationHistoryHtml(lang)}
                 <div style="font-size:0.62rem; opacity:0.55; font-style:italic; margin-top:5px;">${lang==='en'?'Ecclesia remembers the giving hand':'Ecclesia si pamatuje štědrou ruku'}</div>
               </div>`;
 
@@ -239,9 +312,12 @@ const TemplumSystem = {
                 <div style="font-size:0.7rem; margin-top:5px; opacity:0.75;">${lp
                     ? (lang==='en' ? 'last pilgrimage: ' + lp.grose + ' groschen offering' : 'poslední pouť: ' + lp.grose + ' grošů ofěry')
                     : (lang==='en' ? 'the countryside is quiet for now' : 'kraj zatím mlčí')}</div>
+                ${this._pilgrimsHistoryHtml(lang)}
                 ${(inv['reliquia'] || 0) >= 1 ? `<div style="font-size:0.68rem; color:var(--accent-gold); margin-top:2px;">✨ ${lang==='en'?'the relic draws them':'relikvie je přitahuje'}</div>` : `<div style="font-size:0.66rem; opacity:0.55; margin-top:2px;">${lang==='en'?'a relic would draw more':'relikvie by přitáhla víc'}</div>`}
                 <div style="font-size:0.62rem; opacity:0.55; font-style:italic; margin-top:5px;">${lang==='en'?'weekly · a living church draws the road':'týdně · živý kostel přitahuje cestu'}</div>
               </div>`;
+
+        h += this._parishCardHtml(lang);
 
         h += `</div></div>`;
         return h;

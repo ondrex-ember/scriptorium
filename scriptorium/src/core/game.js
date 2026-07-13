@@ -4302,6 +4302,7 @@ const Game = {
         if (typeof CellariumSystem !== 'undefined' && CellariumSystem.addGrose) CellariumSystem.addGrose(grose);
         if (typeof PersonaSystem !== 'undefined' && PersonaSystem.addInfluence) PersonaSystem.addInfluence('village', 1);
         t.lastPilgrims = { ts: Date.now(), grose: grose };
+        Game._templumLog({ type: 'pilgrims', grose: grose });
         // T6-V2: poutní cesty = přenašeči — 10% šance nachlazení (existující nemoc, žádný nový obsah)
         let caughtCold = false;
         if (typeof HealthSystem !== 'undefined' && HealthSystem.addCondition && Math.random() < 0.10) {
@@ -4375,6 +4376,7 @@ const Game = {
                     if (type === 'wedding' && typeof CellariumSystem !== 'undefined' && CellariumSystem.addGrose) {
                         CellariumSystem.addGrose(5 + Math.floor(Math.random() * 10));
                     }
+                    Game._templumLog({ type: 'parish', eventType: type, surname: surname, officiated: true });
                     Game.addKronikaEntry('minor',
                         '✝️ ' + titleMap[type][0] + ': rodina ' + surname + ' — obřad vykonán.',
                         '✝️ ' + titleMap[type][1] + ': the ' + surname + ' family — rite performed.',
@@ -4383,6 +4385,7 @@ const Game = {
                 }},
                 { label: (lang==='en'?'🚪 Decline':'🚪 Odmítnout'), effect: () => {
                     if (typeof PersonaSystem !== 'undefined' && PersonaSystem.addInfluence) PersonaSystem.addInfluence('village', -2);
+                    Game._templumLog({ type: 'parish', eventType: type, surname: surname, officiated: false });
                     Game.addKronikaEntry('minor',
                         '🚪 ' + titleMap[type][0] + ': rodina ' + surname + ' odmítnuta.',
                         '🚪 ' + titleMap[type][1] + ': the ' + surname + ' family turned away.',
@@ -4506,6 +4509,7 @@ const Game = {
         if (!GameState.templum) GameState.templum = {};
         const itemName = (typeof iName === 'function') ? iName(itemId) : itemId;
         GameState.templum.lastDonation = { id: itemId, ts: Date.now() };
+        Game._templumLog({ type: 'donation', itemId: itemId, influence: d.influence });
         Game.save();
         UI.notify('📿 ' + (lang==='en'
             ? 'Offering accepted: ' + itemName + ' — Ecclesia +' + d.influence + '.'
@@ -4516,6 +4520,17 @@ const Game = {
             '📿 Donum ecclesiae oblatum est.');
         const el = document.getElementById('home-templum-content');
         if (el && typeof TemplumSystem !== 'undefined') el.innerHTML = TemplumSystem.renderTemplumTab();
+    },
+
+    // ── TEMPLUM: sdílený log pro dashboard (Confession/Mass/Offerings/
+    // Pilgrims/Parish karty si z něj filtrují vlastní typ). Max 50 záznamů,
+    // nejnovější první. Aditivní vedle stávajících t.lastX snapshotů —
+    // ty se nemění, log se jen navíc plní.
+    _templumLog: function(entry) {
+        if (!GameState.templum) GameState.templum = {};
+        if (!Array.isArray(GameState.templum.log)) GameState.templum.log = [];
+        GameState.templum.log.unshift(Object.assign({ ts: Date.now() }, entry));
+        if (GameState.templum.log.length > 50) GameState.templum.log.length = 50;
     },
 
     // ── TEMPLUM T4: Zpověď — 1×/7 d, náhodný ODEMČENÝ Clientela kontakt; osy se perou ──
@@ -4549,7 +4564,10 @@ const Game = {
             const el = document.getElementById('home-templum-content');
             if (el && typeof TemplumSystem !== 'undefined') el.innerHTML = TemplumSystem.renderTemplumTab();
         };
-        const record = (choice) => { t.lastConfession = { id: id, name: cName, choice: choice, ts: Date.now() }; };
+        const record = (choice) => {
+            t.lastConfession = { id: id, name: cName, choice: choice, ts: Date.now() };
+            Game._templumLog({ type: 'confession', name: cName, choice: choice });
+        };
 
         NotificationSystem.modal({
             icon: '🙏',
@@ -4692,6 +4710,7 @@ const Game = {
         if (typeof PersonaSystem !== 'undefined' && PersonaSystem.addZboznost) PersonaSystem.addZboznost(1);
         t.nextMass = now + 7 * 24 * 60 * 60 * 1000;
         t.lastMass = { ts: now, incense: incenseId, degraded: degraded };
+        Game._templumLog({ type: 'mass', incense: incenseId, degraded: degraded, feastName: feastName, eccl: eccl });
         // R1: odsloužená mše = držený kanonický rytmus (frater vyžaduje streak ≥ 7)
         if (GameState.rank) {
             GameState.rank.canonicalStreak = (GameState.rank.canonicalStreak || 0) + 1;
