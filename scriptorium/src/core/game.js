@@ -4379,6 +4379,11 @@ const Game = {
                     if (type === 'funeral') {
                         if (!GameState.cemetery) GameState.cemetery = { condition: 100, graves: [] };
                         GameState.cemetery.graves.push({ surname: surname, ts: Date.now() });
+                        // Bestiář: první hrob na hřbitově odemkne Kostelního grima —
+                        // legenda praví, že první pohřbený musí navždy hlídat bránu.
+                        if (GameState.cemetery.graves.length === 1 && typeof SecretsSystem !== 'undefined') {
+                            SecretsSystem.unlockFolioById('folio_grim_bestiar');
+                        }
                     }
                     Game._templumLog({ type: 'parish', eventType: type, surname: surname, officiated: true });
                     Game.addKronikaEntry('minor',
@@ -4865,6 +4870,13 @@ const Game = {
         }
         cem.condition = Math.max(0, cem.condition - 1); // pomalé zarůstání bez péče
 
+        // Bestiář: Revenanti — hřbitov dlouhodobě zanedbaný (<30 %, se hroby)
+        // odemkne legendu o neklidných mrtvých. Mirror Acedia vzoru (nízký
+        // Vigor dlouho = eroze); tady nízký condition dlouho = nález.
+        if (cem.condition < 30 && cem.graves.length > 0 && typeof SecretsSystem !== 'undefined') {
+            SecretsSystem.unlockFolioById('folio_revenanti_bestiar');
+        }
+
         Game.save();
     },
 
@@ -5043,7 +5055,11 @@ const Game = {
 
     dormitoriumBrotherMult: function(brother, tabId) {
         const level = this.dormitoriumBrotherLevel(brother, tabId);
-        return this.DORMITORIUM_LEVEL_MULT[level - 1];
+        let mult = this.DORMITORIUM_LEVEL_MULT[level - 1];
+        // Nemoc snižuje výkon přímo — mimo fatigue navíc (co ho stejně
+        // vyřadí z výběru přes existující filtry), i aktivní bratr pracuje hůř.
+        if (brother.conditions && Object.keys(brother.conditions).length > 0) mult *= 0.7;
+        return mult;
     },
 
     // Mapování tab → (primární vlastnost +2, sekundární +1) — monk-attributes-mrd.
@@ -5714,6 +5730,127 @@ const Game = {
     // onlyTab — volitelné, pro izolovaný manuální Collect (Manufaktura).
     // Bez argumentu (automatický tick na pozadí) běží přesně jako dřív —
     // zpracuje všech 9 tabů. S argumentem přeskočí všechny ostatní.
+    // ── Valetudo pro Conversi/Dormitorium ────────────────────────────────
+    // Task/tab → nemoci, na které je ta práce riziková (skupina C).
+    NPC_HEALTH_RISK: {
+        zahony: 'cold', sad: 'cold', pole: 'cold', vinohrad: 'cold',
+        apiarium: 'cold', piscina: 'cold',
+        dvur: 'lice', hrbitov: 'lice',
+        kostel: 'rheumatism',
+        athanor: 'eye_strain', scriptorium: 'eye_strain',
+    },
+    // Sdílený zdroj (skupina B) — voda/úplavice škálují s GameState.well.purity
+    // (stejný signál jako hráčova mouchová/nemocná mechanika ve WellSystem);
+    // Oheň sv. Antonína/Kurděje zůstávají plochá aproximace (žádný centrální
+    // čítač kvality žita/ovoce po ruce).
+    NPC_SHARED_RISK: ['water_sickness', 'dysentery', 'ergot_fire', 'scurvy'],
+    // Nákazlivé (skupina A) — šíří se uvnitř vlastního poolu (conversi mezi
+    // sebou / bratři mezi sebou), sdílený dormitář a nářadí.
+    NPC_CONTAGIOUS: ['scabies', 'lice'],
+
+    _npcHealthTick: function() {
+        const conversi = GameState.conversi || [];
+        const brothers = (GameState.dormitorium && GameState.dormitorium.brothers) || [];
+        const month = new Date().getMonth() + 1;
+        const isSummer = month >= 5 && month <= 9;
+        const isWinter = month === 12 || month <= 2;
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+
+        const applyTick = (entity) => {
+            if (!entity.conditions) entity.conditions = {};
+            Object.keys(entity.conditions).forEach(id => {
+                const inst = entity.conditions[id];
+                const def = HealthConditionsDB[id];
+                if (!def || !inst) { delete entity.conditions[id]; return; }
+                if (Date.now() >= inst.expiresAt) { delete entity.conditions[id]; return; }
+                // Denní tick = 24h najednou; NPC tlumeněji než hráč (0.3×),
+                // ať se nerozpadnou po jednom dni smůly.
+                if (def.tickHour && typeof def.tickHour.fatigue === 'number') {
+                    entity.fatigue = Math.min(100, (entity.fatigue || 0) + def.tickHour.fatigue * 24 * 0.3);
+                }
+                if (def.tickHour && typeof def.tickHour.satiety === 'number' && typeof entity.mood === 'number') {
+                    entity.mood = Math.max(0, entity.mood - Math.abs(def.tickHour.satiety) * 24 * 0.1);
+                }
+            });
+        };
+
+        const tryInfect = (entity, id, chance) => {
+            if (!entity.conditions) entity.conditions = {};
+            if (entity.conditions[id]) return false;
+            if (Math.random() >= chance) return false;
+            const def = HealthConditionsDB[id];
+            if (!def) return false;
+            entity.conditions[id] = { startedAt: Date.now(), expiresAt: Date.now() + def.durationHours * 3600000 };
+            if (def.onApply) {
+                if (typeof def.onApply.fatigue === 'number') entity.fatigue = Math.min(100, (entity.fatigue || 0) + def.onApply.fatigue);
+                if (typeof def.onApply.satiety === 'number' && typeof entity.mood === 'number') entity.mood = Math.max(0, entity.mood + def.onApply.satiety * 0.5);
+            }
+            const name = lang === 'en' ? def.name_en : def.name;
+            if (typeof UI !== 'undefined' && UI.notifyPanel) {
+                UI.notifyPanel('🤒 ' + entity.name + ' — ' + name + '.', 'warning');
+            }
+            return true;
+        };
+
+        [conversi, brothers].forEach(pool => {
+            // Nákaza — pokud už v poolu někdo aktivní má, ostatní mají zvýšené riziko.
+            this.NPC_CONTAGIOUS.forEach(id => {
+                const infected = pool.filter(e => e.conditions && e.conditions[id]).length;
+                pool.forEach(entity => {
+                    applyTick(entity);
+                    const task = entity.task || entity.assignedTab;
+                    const taskRisk = this.NPC_HEALTH_RISK[task] === id ? 0.02 : 0;
+                    const contagionBonus = infected > 0 && !entity.conditions[id] ? 0.03 * infected : 0;
+                    tryInfect(entity, id, Math.min(0.25, taskRisk + contagionBonus));
+                });
+            });
+        });
+
+        // Ostatní task-vázané (skupina C) — mimo nákazlivé, řešené výš
+        [...conversi, ...brothers].forEach(entity => {
+            const task = entity.task || entity.assignedTab;
+            if (!task) return;
+            const riskId = this.NPC_HEALTH_RISK[task];
+            if (riskId && !this.NPC_CONTAGIOUS.includes(riskId)) {
+                let chance = 0.02;
+                if (riskId === 'cold' && isWinter) chance = 0.04;
+                tryInfect(entity, riskId, chance);
+            }
+            if (task === 'apiarium' || task === 'piscina') {
+                if (isSummer) tryInfect(entity, 'mosquito_bites', 0.03);
+            }
+            if (task === 'scriptorium') tryInfect(entity, 'writers_cramp', 0.015);
+        });
+
+        // Nespavost — jen konvrši, zvýšená pokud je v partě 'chrapoun'.
+        const snorerPresent = conversi.some(k => this._konvrsTraits(k).includes('chrapoun'));
+        conversi.forEach(k => {
+            tryInfect(k, 'insomnia', snorerPresent ? 0.05 : 0.015);
+        });
+
+        // Dna — čistě dieta, nezávislé na úkolu, kdokoliv aktivní.
+        [...conversi, ...brothers].forEach(entity => {
+            tryInfect(entity, 'gout', 0.01);
+        });
+
+        // Sdílený zdroj (skupina B) — voda/úplavice škálují s purity studny.
+        const wellPurity = (GameState.well && typeof GameState.well.purity === 'number') ? GameState.well.purity : 100;
+        [...conversi, ...brothers].forEach(entity => {
+            const task = entity.task || entity.assignedTab;
+            if (!task) return;
+            const id = this.NPC_SHARED_RISK[Math.floor(Math.random() * this.NPC_SHARED_RISK.length)];
+            if (id === 'scurvy' && !isWinter) return;
+            let chance = 0.008;
+            if (id === 'water_sickness' || id === 'dysentery') {
+                chance = wellPurity < 30 ? 0.02 : wellPurity < 70 ? 0.01 : 0.002;
+                if (id === 'dysentery') chance *= 0.4; // těžší varianta, vzácnější
+            }
+            tryInfect(entity, id, chance);
+        });
+
+        Game.save();
+    },
+
     checkConversiChores: function(onlyTab) {
         // POZOR: dřív zde bylo `if (!GameState.conversi || length===0) return;`,
         // což při absenci JAKÉHOKOLIV konvrše zablokovalo i Dormitorium bratry
@@ -5826,8 +5963,36 @@ const Game = {
             }
         }
 
+        // ── Bestiář: Marginalie — uzavírací meta-karta. Odemkne se, jakmile
+        // jsou nalezeny všechny předchozí bestie (jediná, co nemá teologa —
+        // proto přichází poslední, ne nezávisle jako ostatní). Self-guard 24h.
+        if (!GameState.marginalieCheckLastTick) GameState.marginalieCheckLastTick = 0;
+        if (Date.now() - GameState.marginalieCheckLastTick >= DAY) {
+            GameState.marginalieCheckLastTick = Date.now();
+            const prereq = ['folio_titivillus_bestiar', 'folio_titivillus_secunda', 'folio_acedia_bestiar',
+                             'folio_belzebub_bestiar', 'folio_grim_bestiar', 'folio_revenanti_bestiar'];
+            const folios = (GameState.scrinium && GameState.scrinium.folios) || {};
+            const allFound = prereq.every(id => folios[id] && folios[id].found);
+            if (allFound && typeof SecretsSystem !== 'undefined') {
+                SecretsSystem.unlockFolioById('folio_marginalie_bestiar');
+            }
+        }
+
+        // ── Valetudo pro Conversi/Dormitorium — jeden sdílený denní tick.
+        // Mirror HealthSystem.js enginu (stejné HealthConditionsDB, stejný
+        // onApply/tickHour tvar), jen NPC verze místo GameState.satiety/fatigue.
+        // Výkonový postih: nemoc přidává fatigue navíc (přirozeně vyřadí z
+        // výběru přes existující fatigue<80/90 filtry) + dormitoriumBrotherMult
+        // má přímý ×0.7 postih (viz výš).
+        if (!GameState.npcHealthLastTick) GameState.npcHealthLastTick = 0;
+        if (Date.now() - GameState.npcHealthLastTick >= DAY && typeof HealthConditionsDB !== 'undefined') {
+            GameState.npcHealthLastTick = Date.now();
+            this._npcHealthTick();
+        }
+
         // ── Denní režim (Regula) ──
         const dayBlock = this.conversiDayBlock();
+
 
         // Officium (6–9): odpočinek + denní mood/loyalty tick — jednou za 24h
         if (dayBlock === 'officium') {

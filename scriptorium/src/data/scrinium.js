@@ -402,6 +402,76 @@ const ScriniumDB = {
             },
         },
 
+        // ── 5. Church Grim (Kostelní grim) — nález přes první hrob:
+        //      první pohřeb na hřbitově -> auto-unlock. Jediný ochranný
+        //      běs v bestiáři, ne škůdce. Bez obrázku, bez itemu.
+        {
+            id: 'folio_grim_bestiar',
+            subtab: 'bestiar',
+            icon: '🐕‍🦺',
+            physicalForm: 'leaf',
+            titleKey: 'scrinium.folios.grim_bestiar.title',
+            lectio: {
+                textKey: 'scrinium.folios.grim_bestiar.lectio',
+                cost: null,
+            },
+            glossa: {
+                textKey: 'scrinium.folios.grim_bestiar.glossa',
+                cost: { item: 'candle', amount: 3 },
+            },
+            arcanum: {
+                textKey: 'scrinium.folios.grim_bestiar.arcanum',
+                cost: { item: 'candle', amount: 5 },
+            },
+        },
+
+        // ── 6. Revenanti — nález přes zanedbaný hřbitov:
+        //      cemetery.condition <30% dlouhodobě (a alespoň 1 hrob) -> auto-unlock.
+        //      Popisuje existující cemetery.condition mechaniku, nic nemění.
+        {
+            id: 'folio_revenanti_bestiar',
+            subtab: 'bestiar',
+            icon: '🧟',
+            physicalForm: 'leaf',
+            titleKey: 'scrinium.folios.revenanti_bestiar.title',
+            lectio: {
+                textKey: 'scrinium.folios.revenanti_bestiar.lectio',
+                cost: null,
+            },
+            glossa: {
+                textKey: 'scrinium.folios.revenanti_bestiar.glossa',
+                cost: { item: 'candle', amount: 3 },
+            },
+            arcanum: {
+                textKey: 'scrinium.folios.revenanti_bestiar.arcanum',
+                cost: { item: 'candle', amount: 5 },
+            },
+        },
+
+        // ── 7. Marginalie (Běsi rozptýlení) — UZAVÍRACÍ meta-karta.
+        //      Nález: všech 6 předchozích bestií nalezeno -> auto-unlock
+        //      (checkConversiChores, self-guard 24h). Jediná bestie bez
+        //      teologa — kreslila se sama, rukou unaveného skriptora.
+        {
+            id: 'folio_marginalie_bestiar',
+            subtab: 'bestiar',
+            icon: '🐌',
+            physicalForm: 'leaf',
+            titleKey: 'scrinium.folios.marginalie_bestiar.title',
+            lectio: {
+                textKey: 'scrinium.folios.marginalie_bestiar.lectio',
+                cost: null,
+            },
+            glossa: {
+                textKey: 'scrinium.folios.marginalie_bestiar.glossa',
+                cost: { item: 'candle', amount: 3 },
+            },
+            arcanum: {
+                textKey: 'scrinium.folios.marginalie_bestiar.arcanum',
+                cost: { item: 'candle', amount: 5 },
+            },
+        },
+
     ], // konec folios[]
 
 }; // konec ScriniumDB

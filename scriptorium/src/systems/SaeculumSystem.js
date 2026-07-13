@@ -257,6 +257,7 @@ const SaeculumSystem = {
 
     let html = '';
     if (origin) html += `<div style="font-style:italic; font-size:0.8rem; opacity:0.8; margin-bottom:10px; line-height:1.4;">${origin}</div>`;
+    html += this._illnessBadgeHtml(k, lang);
     html += bar((lang==='en'?'😊 Mood':'😊 Nálada'), mood, moodColor);
     html += bar((lang==='en'?'🤝 Loyalty':'🤝 Věrnost'), loyalty, loyColor);
     html += bar((lang==='en'?'😴 Fatigue':'😴 Únava'), fat, fatColor);
@@ -360,6 +361,7 @@ const SaeculumSystem = {
           h += `<div onclick="SaeculumSystem.selectBrother('${b.id}')" style="display:flex; align-items:center; gap:6px; padding:6px 10px; background:${isActive ? 'rgba(197,160,89,0.22)' : 'rgba(255,255,255,0.4)'}; border:${isActive ? '2px solid var(--accent-wax)' : '1px solid rgba(197,160,89,0.4)'}; border-radius:8px; cursor:pointer;">
                   <span style="font-size:1rem;">${bIcon}</span>
                   <span style="font-size:0.72rem; font-weight:bold;">${b.name}</span>
+                  ${(b.conditions && Object.keys(b.conditions).length > 0) ? `<span style="font-size:0.85rem;">🤒</span>` : ''}
                   ${specIcon ? `<span style="font-size:0.7rem;">${specIcon}</span>` : `<span style="width:6px; height:6px; border-radius:50%; background:#7f8fa6;"></span>`}
                 </div>`;
         });
@@ -410,6 +412,8 @@ const SaeculumSystem = {
       }[dayBlock];
       h += `<div style="font-size:0.76rem; margin:4px 0 8px; opacity:0.8;">${regula.icon} ${lang==='en'?regula.en:regula.cs}</div>`;
     }
+
+    h += this._illnessBadgeHtml(b, lang);
 
     h += `<div style="margin-bottom:7px;">
         <div style="display:flex; justify-content:space-between; font-size:0.72rem; opacity:0.75; margin-bottom:2px;">
@@ -550,6 +554,8 @@ const SaeculumSystem = {
             ${origin ? `<div style="font-style:italic; font-size:0.74rem; opacity:0.75; margin-top:2px; line-height:1.35;">${origin}</div>` : ''}</div>
           </div>`;
 
+    h += this._illnessBadgeHtml(k, lang);
+
     h += bar((lang==='en'?'😊 Mood':'😊 Nálada'), mood, moodColor);
     h += bar((lang==='en'?'🤝 Loyalty':'🤝 Věrnost'), loyalty, loyColor);
     h += bar((lang==='en'?'😴 Fatigue':'😴 Únava'), fat, fatColor);
@@ -616,6 +622,27 @@ const SaeculumSystem = {
     return h;
   },
 
+  // Nemoc musí "řvát" — výrazný červený badge, ne tichý text.
+  _illnessBadgeHtml: function(entity, lang) {
+    if (!entity.conditions || typeof HealthConditionsDB === 'undefined') return '';
+    const ids = Object.keys(entity.conditions);
+    if (!ids.length) return '';
+    const rows = ids.map(id => {
+      const def = HealthConditionsDB[id];
+      if (!def) return '';
+      const name = lang === 'en' ? def.name_en : def.name;
+      return `<div style="display:flex; align-items:center; gap:5px;">
+                <span style="font-size:1rem;">${def.icon}</span>
+                <strong style="color:#c0392b;">${name}</strong>
+              </div>`;
+    }).join('');
+    return `<div style="background:rgba(192,57,43,0.15); border:1px solid #c0392b; border-radius:6px;
+                        padding:5px 8px; margin:3px 0 6px 0; animation:illnessPulse 2s infinite;">
+              ${rows}
+            </div>
+            <style>@keyframes illnessPulse { 0%,100% { opacity:1; } 50% { opacity:0.6; } }</style>`;
+  },
+
   renderManufactura: function() {
     const lang = (GameState.settings && GameState.settings.language) || 'cs';
     // Pořadí odpovídá DormitoriumSpecializationDB; dvur navíc (údržba, bez XP tabu tam).
@@ -667,6 +694,7 @@ const SaeculumSystem = {
                 📿 <strong>${st.brother.name}</strong> — ${lang === 'en' ? 'level' : 'úroveň'} ${st.level}/4
                 <span style="opacity:0.65;"> (${st.xp} XP, ×${st.mult.toFixed(2)} ${lang === 'en' ? 'yield' : 'výnos'})</span>
               </div>`;
+        h += this._illnessBadgeHtml(st.brother, lang);
       } else {
         h += `<div style="font-size:0.76rem; opacity:0.5; margin-bottom:3px;">📿 ${lang === 'en' ? 'no brother assigned' : 'nepřiřazen žádný bratr'}</div>`;
       }
@@ -675,6 +703,7 @@ const SaeculumSystem = {
       if (CONVERSI_CAPABLE.includes(tabKey)) {
         if (st.konvrs) {
           h += `<div style="font-size:0.76rem; opacity:0.85; margin-bottom:6px;">✝️ <strong>${st.konvrs.name}</strong></div>`;
+          h += this._illnessBadgeHtml(st.konvrs, lang);
         } else {
           h += `<div style="font-size:0.76rem; opacity:0.5; margin-bottom:6px;">✝️ ${lang === 'en' ? 'no lay brother assigned' : 'nepřiřazen žádný konvrš'}</div>`;
         }
@@ -752,6 +781,7 @@ const SaeculumSystem = {
           h += `<div onclick="SaeculumSystem.selectConversi('${k.id}')" style="display:flex; align-items:center; gap:6px; padding:6px 10px; background:${isActive ? 'rgba(197,160,89,0.22)' : 'rgba(255,255,255,0.4)'}; border:${isActive ? '2px solid var(--accent-wax)' : '1px solid rgba(197,160,89,0.4)'}; border-radius:8px; cursor:pointer;">
                   <span style="font-size:1rem;">${kIcon}</span>
                   <span style="font-size:0.72rem; font-weight:bold;">${k.name}</span>
+                  ${(k.conditions && Object.keys(k.conditions).length > 0) ? `<span style="font-size:0.85rem;">🤒</span>` : ''}
                   ${statusIcon ? `<span style="font-size:0.7rem;">${statusIcon}</span>` : `<span style="width:6px; height:6px; border-radius:50%; background:${statusDot};"></span>`}
                 </div>`;
         });
