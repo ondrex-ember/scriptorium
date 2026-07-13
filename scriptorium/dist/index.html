@@ -19600,7 +19600,7 @@ const SaeculumSystem = {
         const taken = Game.conversiTaskCount(taskId, k.id);
         const isCur = k.task === taskId;
         const full = !isCur && taken >= Game.CONVERSI_TASK_SLOTS;
-        const label = ({dvur: lang==='en'?'Farmyard':'Dvůr', zahony: lang==='en'?'Garden':'Záhony', sad: lang==='en'?'Orchard':'Sad', apiarium: lang==='en'?'Apiary':'Apiarium', piscina: lang==='en'?'Fishpond':'Piscina', pole: lang==='en'?'Field':'Pole', vinohrad: lang==='en'?'Vineyard':'Vinohrad', scavenge:'Scavenge', doly: lang==='en'?'Mine':'Doly', kostel: lang==='en'?'Church':'Kostel'})[taskId];
+        const label = ({dvur: lang==='en'?'Farmyard':'Dvůr', zahony: lang==='en'?'Garden':'Záhony', sad: lang==='en'?'Orchard':'Sad', apiarium: lang==='en'?'Apiary':'Apiarium', piscina: lang==='en'?'Fishpond':'Piscina', pole: lang==='en'?'Field':'Pole', vinohrad: lang==='en'?'Vineyard':'Vinohrad', scavenge:'Scavenge', doly: lang==='en'?'Mine':'Doly', kostel: lang==='en'?'Church':'Kostel', hrbitov: lang==='en'?'Cemetery':'Hřbitov'})[taskId];
         let hint = '';
         if (gate.locked) {
           hint = gate.reasonKey === 'gate_fodina_tech' ? (lang==='en'?'needs tech: Fodina':'chybí tech: Fodina')
@@ -19629,9 +19629,9 @@ const SaeculumSystem = {
   renderManufactura: function() {
     const lang = (GameState.settings && GameState.settings.language) || 'cs';
     // Pořadí odpovídá DormitoriumSpecializationDB; dvur navíc (údržba, bez XP tabu tam).
-    const TAB_ORDER = ['dvur', 'kostel', 'zahony', 'sad', 'pole', 'vinohrad', 'apiarium', 'piscina', 'athanor', 'scriptorium'];
+    const TAB_ORDER = ['dvur', 'kostel', 'hrbitov', 'zahony', 'sad', 'pole', 'vinohrad', 'apiarium', 'piscina', 'athanor', 'scriptorium'];
     // Konvrš lze přiřadit jen na tyto (athanor/scriptorium nejsou v CONVERSI_TASKS — jen bratr).
-    const CONVERSI_CAPABLE = ['dvur', 'kostel', 'zahony', 'sad', 'apiarium', 'piscina', 'pole', 'vinohrad'];
+    const CONVERSI_CAPABLE = ['dvur', 'kostel', 'hrbitov', 'zahony', 'sad', 'apiarium', 'piscina', 'pole', 'vinohrad'];
 
     let h = `<div style="margin-bottom:10px; font-size:0.8rem; opacity:0.75;">
       ${lang === 'en'
@@ -19696,6 +19696,8 @@ const SaeculumSystem = {
         // Dvůr — údržba, žádný jednorázový výnos ke sběru
         const maintMsg = tabKey === 'kostel'
           ? (lang === 'en' ? 'Maintenance — keeps the church clean, no single yield to collect.' : 'Údržba — udržuje kostel čistý, nesbírá se jednorázově.')
+          : tabKey === 'hrbitov'
+          ? (lang === 'en' ? 'Maintenance — keeps the graves tended, no single yield to collect.' : 'Údržba — udržuje hroby, nesbírá se jednorázově.')
           : (lang === 'en' ? 'Maintenance — cleans & feeds as needed, no single yield to collect.' : 'Údržba — uklízí a krmí dle potřeby, nesbírá se jednorázově.');
         h += `<div style="font-size:0.72rem; opacity:0.65;">🧹 ${maintMsg}</div>`;
       } else if (!st.brother && !st.konvrs) {
@@ -20316,6 +20318,41 @@ const TemplumSystem = {
         if (show !== cur) btn.style.display = show ? '' : 'none';
     },
 
+    switchEntity: function(entityId) {
+        if (!GameState.ui) GameState.ui = {};
+        GameState.ui.templumEntity = entityId;
+        const el = document.getElementById('home-templum-content');
+        if (el) el.innerHTML = this.renderTemplumTab();
+    },
+
+    _renderCemeteryPanel: function(lang) {
+        if (!GameState.cemetery) GameState.cemetery = { condition: 100, graves: [] };
+        const cem = GameState.cemetery;
+        const cond = cem.condition != null ? cem.condition : 100;
+        const condColor = cond >= 70 ? '#5a9a5a' : cond >= 40 ? 'var(--accent-gold)' : '#c0392b';
+        const condLabel = cond >= 70 ? (lang==='en'?'tended':'udržovaný') : cond >= 40 ? (lang==='en'?'neglected':'zanedbaný') : (lang==='en'?'overgrown':'zarostlý');
+
+        let h = `<div style="padding:12px 15px; margin-bottom:16px; background:rgba(197,160,89,0.05); border:1px solid rgba(197,160,89,0.25); border-radius:8px;">
+            <div style="font-weight:bold; font-size:0.9rem; margin-bottom:6px;">⚰️ ${lang==='en'?'Cemetery condition':'Stav hřbitova'} — <span style="color:${condColor};">${condLabel}</span></div>
+            <div style="height:6px; background:rgba(0,0,0,0.1); border-radius:3px; overflow:hidden; margin-bottom:6px;">
+                <div style="height:100%; width:${cond}%; background:${condColor}; border-radius:3px;"></div>
+            </div>
+            <div style="font-size:0.7rem; opacity:0.65;">${Math.round(cond)} %${cem.lastCleaner ? ' · ' + (lang==='en'?'last tended by ':'naposled udržoval ') + cem.lastCleaner : ''}</div>
+            <div style="font-size:0.62rem; opacity:0.55; font-style:italic; margin-top:5px;">${lang==='en'?'daily · a lay brother or the Sacristan keeps it clear':'denně · udržuje konvrš přiřazený na Hřbitov, nebo Kostelník'}</div>
+          </div>`;
+
+        const graves = (cem.graves || []).slice().reverse();
+        h += `<div style="padding:12px 15px; background:rgba(255,255,255,0.4); border:1px solid rgba(197,160,89,0.25); border-radius:8px;">
+            <div style="font-weight:bold; font-size:0.9rem; margin-bottom:6px;">🪦 ${lang==='en'?'Graves':'Hroby'} (${graves.length})</div>`;
+        if (!graves.length) {
+            h += `<div style="font-size:0.75rem; opacity:0.6;">${lang==='en'?'No one rests here yet.':'Zatím tu nikdo neodpočívá.'}</div>`;
+        } else {
+            h += graves.slice(0, 15).map(g => `<div style="font-size:0.72rem; opacity:0.7; margin-top:3px;">🪦 ${g.surname} · ${this._timeAgo(g.ts, lang)}</div>`).join('');
+        }
+        h += `</div>`;
+        return h;
+    },
+
     renderTemplumTab: function() {
         const lang = (GameState.settings && GameState.settings.language) || 'cs';
         if (!this.isUnlocked()) {
@@ -20352,6 +20389,19 @@ const TemplumSystem = {
               ${(GameState.inventory['reliquia'] || 0) >= 1 ? `<div style="font-size:0.78rem; color:var(--accent-gold); margin-top:4px;">✨ ${lang==='en' ? 'A relic is enshrined — the mass bears greater grace.' : 'Relikvie vystavena — mše nese větší milost.'}</div>` : ''}
             </div>
           </div>`;
+
+        // Subtab přepínač: Hlavní / Hřbitov (mirror Cellarium/Manufaktura vzoru)
+        const entity = (GameState.ui && GameState.ui.templumEntity) || 'main';
+        h += `<div style="display:flex; gap:8px; margin-bottom:16px;">
+                <button class="craft-btn" style="flex:1; ${entity==='main' ? 'background:#2c1810;' : ''}" onclick="TemplumSystem.switchEntity('main')">🕍 ${lang==='en'?'Main':'Hlavní'}</button>
+                <button class="craft-btn" style="flex:1; ${entity==='hrbitov' ? 'background:#2c1810;' : ''}" onclick="TemplumSystem.switchEntity('hrbitov')">⚰️ ${lang==='en'?'Cemetery':'Hřbitov'}</button>
+              </div>`;
+
+        if (entity === 'hrbitov') {
+            h += this._renderCemeteryPanel(lang);
+            h += `</div>`;
+            return h;
+        }
 
         // Fabrica Ecclesiae — 4 stavební úrovně (endgame-branches-reference.md sekce 4.2)
         {
@@ -45561,6 +45611,10 @@ const Game = {
                     if (type === 'wedding' && typeof CellariumSystem !== 'undefined' && CellariumSystem.addGrose) {
                         CellariumSystem.addGrose(5 + Math.floor(Math.random() * 10));
                     }
+                    if (type === 'funeral') {
+                        if (!GameState.cemetery) GameState.cemetery = { condition: 100, graves: [] };
+                        GameState.cemetery.graves.push({ surname: surname, ts: Date.now() });
+                    }
                     Game._templumLog({ type: 'parish', eventType: type, surname: surname, officiated: true });
                     Game.addKronikaEntry('minor',
                         '✝️ ' + titleMap[type][0] + ': rodina ' + surname + ' — obřad vykonán.',
@@ -46016,6 +46070,36 @@ const Game = {
         // Fabrica: strukturální stav budovy pomalu chátrá, rychleji u vyšších úrovní
         const fTier = this.FABRICA_TIERS[t.fabricaTier || 0];
         t.condition = Math.max(0, (t.condition != null ? t.condition : 100) - 0.3 * fTier.decayMult);
+
+        // Hřbitov: konvrš přiřazený na Hřbitov a/nebo bratr Kostelník dohlížející.
+        // Bratr NENÍ samostatná "hrbitov" specializace — jeden Kostelník
+        // (assignedTab === 'kostel') dohlíží na celý Templum, hřbitov nevyjímaje.
+        // Rozlišení kostel/hřbitov je jen na úrovni konvršů (fyzická práce),
+        // ne na úrovni dohlížejícího bratra.
+        if (!GameState.cemetery) GameState.cemetery = { condition: 100, graves: [] };
+        const cem = GameState.cemetery;
+        const templumBrother = (GameState.dormitorium && GameState.dormitorium.brothers || [])
+            .find(b => b.assignedTab === 'kostel');
+        const cemCleaner = (GameState.conversi || [])
+            .filter(k => k.task === 'hrbitov'
+                      && k.fatigue < (this._konvrsTraits(k).includes('pilny') ? 90 : 80)
+                      && (typeof k.mood !== 'number' || k.mood >= 30)
+                      && !(k.penanceUntil && k.penanceUntil > now)
+                      && !(k.injuredUntil && k.injuredUntil > now)
+                      && !(k.awayUntil && k.awayUntil > now))
+            .sort((a, b) => a.fatigue - b.fatigue)[0];
+        if (cemCleaner || templumBrother) {
+            const brotherMult = templumBrother ? this.dormitoriumBrotherMult(templumBrother, 'kostel') : 1.0;
+            if (cemCleaner) cemCleaner.fatigue = Math.min(100, cemCleaner.fatigue + 5);
+            if (templumBrother) {
+                this.dormitoriumAddXp(templumBrother, 'kostel');
+                templumBrother.fatigue = Math.min(100, (templumBrother.fatigue || 0) + 5);
+            }
+            cem.condition = Math.min(100, cem.condition + 5 * brotherMult);
+            cem.lastCleaner = this._workCredit(templumBrother, cemCleaner);
+        }
+        cem.condition = Math.max(0, cem.condition - 1); // pomalé zarůstání bez péče
+
         Game.save();
     },
 
@@ -46408,6 +46492,7 @@ const Game = {
         scavenge: { icon: '🌾', away: true,  durationMs: 8  * 60 * 60 * 1000, riskPct: 12 },
         doly:     { icon: '⛏️', away: true,  durationMs: 20 * 60 * 60 * 1000, riskPct: 20 },
         kostel:   { icon: '🕍', away: false },
+        hrbitov:  { icon: '⚰️', away: false },
     },
     CONVERSI_TASK_SLOTS: 2,
 
@@ -46840,7 +46925,11 @@ const Game = {
     manufacturaStatus: function(tabKey) {
         const DAY = 24 * 60 * 60 * 1000;
         const field = this.MANUFACTURA_LASTTICK_FIELD[tabKey];
-        const brother = (GameState.dormitorium && GameState.dormitorium.brothers || []).find(b => b.assignedTab === tabKey);
+        // Hřbitov nemá vlastní bratr-specializaci — dohlíží na něj stejný
+        // Kostelník jako na kostel (jeden bratr, celý Templum). XP/level se
+        // proto čte pod 'kostel', ne pod 'hrbitov'.
+        const brotherTabKey = tabKey === 'hrbitov' ? 'kostel' : tabKey;
+        const brother = (GameState.dormitorium && GameState.dormitorium.brothers || []).find(b => b.assignedTab === brotherTabKey);
         const konvrs = (GameState.conversi || []).find(k => k.task === tabKey);
         let ready = false, hoursLeft = null;
         if (field) {
@@ -46850,9 +46939,9 @@ const Game = {
         }
         return {
             tabKey, brother, konvrs, hasField: !!field, ready, hoursLeft,
-            level: brother ? this.dormitoriumBrotherLevel(brother, tabKey) : null,
-            mult:  brother ? this.dormitoriumBrotherMult(brother, tabKey) : null,
-            xp:    brother ? ((brother.xp && brother.xp[tabKey]) || 0) : null,
+            level: brother ? this.dormitoriumBrotherLevel(brother, brotherTabKey) : null,
+            mult:  brother ? this.dormitoriumBrotherMult(brother, brotherTabKey) : null,
+            xp:    brother ? ((brother.xp && brother.xp[brotherTabKey]) || 0) : null,
             combo: !!(brother && konvrs),
         };
     },
