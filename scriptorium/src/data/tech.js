@@ -7,7 +7,7 @@ const TechTree = [
   { id: "tech_alchemy_1", name: "Základy Bylinkářství", name_en: "Herbalism Basics", cost: 3, desc: "Odemkne: Hojivá mast, Hřejivá mast", desc_en: "Unlocks: Healing salve, Warming salve", unlocks: ["potion_heal", "unguentum_calidum"] },
 
   // TIER 2 - cooking
-  { id: "tech_cooking_1", name: "Vaření", name_en: "Cooking", cost: 4, desc: "Odemkne: Hrnec, pečení", desc_en: "Unlocks: Cooking pot, roasting", unlocks: ["cooking_pot", "cooked_meat", "cooked_fish", "bread"] },
+  { id: "tech_cooking_1", name: "Vaření", name_en: "Cooking", cost: 4, desc: "Odemkne: Hrnec, pečení", desc_en: "Unlocks: Cooking pot, roasting", unlocks: ["cooking_pot", "cooked_meat", "cooked_fish", "bread", "bread_fine", "bread_fine_1", "berry_pie_fine", "berry_pie_fine_1"] },
   { id: "tech_fishing", name: "Rybolov", name_en: "Fishing", cost: 3, desc: "Odemkne: Udice", desc_en: "Unlocks: Fishing rod", unlocks: ["fishing_rod"] },
   { id: "tech_foraging", name: "Sběr Potravy", name_en: "Foraging", cost: 3, desc: "Odemkne: Koš, houby", desc_en: "Unlocks: Basket, mushrooms", unlocks: ["basket"] },
   { id: "tech_cooking_2", name: "Pokročilé Vaření", name_en: "Advanced Cooking", cost: 5, desc: "Odemkne: Guláš, polévky", desc_en: "Unlocks: Stew, pottages", unlocks: ["stew", "mushroom_soup", "berry_pie", "tea_kettle", "herbal_tea", "herbal_tea_alt", "acorn_brew", "chicory_drink", "linden_tea", "acorn_roasted", "chicory_roasted"], requires: ["tech_cooking_1"] },
