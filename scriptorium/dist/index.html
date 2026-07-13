@@ -5920,6 +5920,13 @@ const ItemsDB = {
     "fry": { name: "Plůdek (potěr)", name_en: "Fish Fry", icon: "🫧", type: "mat", desc: "Malý rybí potěr. Vyrůstá v rybníce.", desc_en: "Tiny fish fry. Grows in the pond." },
     "carp_young": { name: "Kapr (nedospělý)", name_en: "Young Carp", icon: "🐟", type: "mat", desc: "Nedospělý kapr z výtažníku. Potřebuje čas.", desc_en: "Young carp from the rearing pond. Needs time." },
     "carp": { name: "Kapr tržní", name_en: "Market Carp", icon: "🐠", type: "food_raw", desc: "Dospělý kapr. Prodej nebo vaření.", desc_en: "Adult carp. For sale or cooking." },
+    "stika": { name: "Štika", name_en: "Pike", icon: "🐊", type: "food_raw", desc: "Dravá ryba. Nasazuje se do rybníka jako přirozená kontrola hejna.", desc_en: "A predatory fish. Stocked in the pond as a natural check on the shoal." },
+    "kapr_sadky_fresh": { name: "Kapr v sádkách (čerstvý)", name_en: "Carp in the Holding Tank (Fresh)", icon: "🐠", type: "food_raw", desc: "Právě vylovený kapr, ještě s bahenní pachutí. Za pár dní se pročistí.", desc_en: "Just-caught carp, still with a muddy taste. It will purify in a few days." },
+    "kapr_sadky_purified": { name: "Kapr v sádkách (pročištěný)", name_en: "Carp in the Holding Tank (Purified)", icon: "🐠", type: "food_raw", desc: "Kapr po pobytu v sádkách. Bez bahenní pachuti, vyšší cena.", desc_en: "Carp after time in the holding tank. No muddy taste, higher value." },
+    "stika_sadky_fresh": { name: "Štika v sádkách (čerstvá)", name_en: "Pike in the Holding Tank (Fresh)", icon: "🐊", type: "food_raw", desc: "Právě ulovená štika, ještě s bahenní pachutí. Za pár dní se pročistí.", desc_en: "Just-caught pike, still with a muddy taste. It will purify in a few days." },
+    "stika_sadky_purified": { name: "Štika v sádkách (pročištěná)", name_en: "Pike in the Holding Tank (Purified)", icon: "🐊", type: "food_raw", desc: "Štika po pobytu v sádkách. Bez bahenní pachuti, vyšší cena.", desc_en: "Pike after time in the holding tank. No muddy taste, higher value." },
+    "pstruh": { name: "Pstruh", name_en: "Trout", icon: "🐡", type: "food_raw", desc: "Ryba čisté vody. Vyžaduje dobrou jakost rybníka.", desc_en: "A fish of clean water. Requires good pond quality." },
+    "uhor": { name: "Úhoř", name_en: "Eel", icon: "🐍", type: "food_raw", desc: "Tučná ryba, cenná na trhu i na stole.", desc_en: "A fatty fish, valued at market and at table." },
 
     // ═══════════════════════════════════════════════════════════════════════════
     // PIVOVAR (Cervisiaria) — v9.x
@@ -8217,6 +8224,16 @@ const ActionsDB = [
       yield: 1, req: [{item:'stone_pickaxe', mult:0.7}, {item:'iron_pickaxe', mult:1.2}] },
 ];
 
+// FishDB — metadata druhů pro Piscinu (entitní model, viz GameState.piscina.fish[]).
+// kapr = nativní chov (líhne se v rybníce); ostatní se nasazují nákupem
+// (Trh/Clientela, viz Game.stockFish). isPredator připraveno pro Sprint 4 (štika).
+const FishDB = {
+    kapr:   { name: 'Kapr',   name_en: 'Carp',  icon: '🐟', native: true,  isPredator: false },
+    stika:  { name: 'Štika',  name_en: 'Pike',  icon: '🐊', native: false, isPredator: true  },
+    pstruh: { name: 'Pstruh', name_en: 'Trout', icon: '🐡', native: false, isPredator: false },
+    uhor:   { name: 'Úhoř',   name_en: 'Eel',   icon: '🐍', native: false, isPredator: false }
+};
+
 let audioSys = null;
 const GameState = {
     inventory: { "tinderbox": 1, "rock": 2, "stick": 2, "water": 5, "research": 6, "bread": 4, "fish": 3, "berry_pie": 2 },
@@ -10423,6 +10440,20 @@ const ContactsDB = {
         } },
         desc: 'Benátský obchodník. Přiváží, co jinde nekoupíš — ale jen když je jeho loď v přístavu.',
         desc_en: 'A Venetian merchant. He brings what you cannot buy elsewhere — but only while his ship is in port.'
+    },
+    rybar: {
+        confession: "Prodává ryby z cizích vod jako vlastní úlovek — nikdo se neptá, odkud přitáhl síť.",
+        confession_en: "He sells fish from other men's waters as his own catch — no one asks whose net it came from.",
+        name: 'Rybář', name_en: 'Fisherman', icon: '🎣',
+        primaryAxis: 'village',
+        secondaryAxis: null,
+        unlockTech: 'tech_piscina_administratio',
+        sellBonus: {},
+        buyOffer: { items: { stika:  { price: 15, stock: 1 },
+                             pstruh: { price: 12, stock: 2 },
+                             uhor:   { price: 18, stock: 1 } } },
+        desc: 'Rybář od říčky. Prodá i druhy, co v klášterním rybníce sám nenachováš.',
+        desc_en: 'A fisherman by the stream. He sells species you cannot breed in the monastery pond yourself.'
     },
     stationarius: {
         confession: "Prodal opsaný text jako originál — a přiúčtoval si podíl z pecia navíc, co žákovi nepřiznal.",
@@ -17554,6 +17585,9 @@ const CellariumSystem = {
       { itemId: 'seed_linden',   basePrice: 14,  dailyStock: 2  },
       // Rybník
       { itemId: 'fry',           basePrice: 5,   dailyStock: 5  },
+      { itemId: 'stika',         basePrice: 20,  dailyStock: 1,  req_tech: 'tech_piscina_administratio' },
+      { itemId: 'pstruh',        basePrice: 15,  dailyStock: 2,  req_tech: 'tech_piscina_administratio' },
+      { itemId: 'uhor',          basePrice: 22,  dailyStock: 1,  req_tech: 'tech_piscina_administratio' },
       // Zelenina
       { itemId: 'carrot',        basePrice: 4,   dailyStock: 30 },
       { itemId: 'onion',         basePrice: 4,   dailyStock: 30 },
@@ -23370,9 +23404,17 @@ const GardenSystem = {
         const WEEK  = 7  * 24 * 3600000;
         const WEEKS2 = 14 * 24 * 3600000;
         const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        const hasAdminTech = GameState.researchedTechs && GameState.researchedTechs.includes('tech_piscina_administratio');
 
         let html = `<p class="text-sm" style="margin-bottom:12px; opacity:0.75;">${t('garden.piscinaDesc')}</p>`;
-        html += this._zahradaStatsBar(lang, [this._brotherBadge('piscina', lang)]);
+        let speciesBadge = null;
+        if (hasAdminTech && typeof FishDB !== 'undefined') {
+            const rows = p.fish || [];
+            const species = new Set(rows.filter(r => r.qty > 0).map(r => r.species));
+            const total = rows.reduce((s, r) => s + r.qty, 0);
+            speciesBadge = `🐟 ${species.size} ${lang==='en'?'species':'druhů'} · ${total} ${lang==='en'?'fish':'ks'}`;
+        }
+        html += this._zahradaStatsBar(lang, [this._brotherBadge('piscina', lang), speciesBadge]);
         const t1locked = p.tier < 1;
         html += `<div style="
             margin-bottom:10px; border-radius:10px; overflow:hidden;
@@ -23554,6 +23596,91 @@ const GardenSystem = {
             html += `</div></div>`;
         }
         html += `</div>`;
+
+        // ── SPRÁVA RYBNÍKA (gate: tech_piscina_administratio) ──────────────
+        // Přehled druhů, nasazení nakoupené ryby, úlovek štiky, sádky, výlov.
+        // Nezasahuje do Tier 1/2/3 boxů výše — čistě nová sekce navíc.
+        if (hasAdminTech && typeof FishDB !== 'undefined') {
+            const fishRows = p.fish || [];
+            html += `<div style="margin-top:14px; padding:12px 14px; background:rgba(0,0,0,0.03); border-radius:8px; border-left:3px solid var(--accent-gold);">`;
+            html += `<div style="font-weight:bold; font-size:0.88rem; margin-bottom:8px;">📋 ${lang==='en'?'Pond Management':'Správa rybníka'}</div>`;
+
+            // Přehled ryb — seskupené podle druhu a stádia
+            const grouped = {};
+            fishRows.forEach(r => { if (r.qty > 0) grouped[r.species + '|' + r.stage] = (grouped[r.species + '|' + r.stage] || 0) + r.qty; });
+            const stageLabel = { fry: lang==='en'?'fry':'plůdek', young: lang==='en'?'young':'mladí', adult: lang==='en'?'adult':'dospělí' };
+            html += `<div style="font-size:0.78rem; margin-bottom:10px;">`;
+            if (Object.keys(grouped).length === 0) {
+                html += `<span style="opacity:0.6; font-style:italic;">${lang==='en'?'The pond is empty.':'Rybník je prázdný.'}</span>`;
+            } else {
+                Object.keys(grouped).forEach(key => {
+                    const [sp, stage] = key.split('|');
+                    const def = FishDB[sp] || { icon: '🐟', name: sp, name_en: sp };
+                    const spName = lang==='en' ? (def.name_en || sp) : (def.name || sp);
+                    html += `<span style="display:inline-block; margin:2px 10px 2px 0;">${def.icon} ${spName} (${stageLabel[stage] || stage}): <strong>${grouped[key]}</strong></span>`;
+                });
+            }
+            html += `</div>`;
+
+            // Nasadit nakoupenou rybu — jen nenativní druhy, co má hráč v inventáři
+            const stockable = Object.keys(FishDB).filter(sp => !FishDB[sp].native && (GameState.inventory[sp] || 0) > 0);
+            if (stockable.length) {
+                html += `<div style="font-size:0.75rem; margin-bottom:8px;">`;
+                stockable.forEach(sp => {
+                    const def = FishDB[sp];
+                    const spName = lang==='en' ? def.name_en : def.name;
+                    const have = GameState.inventory[sp] || 0;
+                    html += `<button class="craft-btn" onclick="Game.stockFish('${sp}',1)" style="font-size:0.7rem; margin:2px 4px 2px 0;">${def.icon} ${lang==='en'?'Stock':'Nasadit'} ${spName} (${have})</button>`;
+                });
+                html += `</div>`;
+            }
+
+            // Štika — samostatný úlovek (nikdy ne Konvrš, viz Sprint 4)
+            const stikaAdult = fishRows.filter(r => r.stage === 'adult' && r.species === 'stika').reduce((s, r) => s + r.qty, 0);
+            if (stikaAdult > 0) {
+                html += `<div style="font-size:0.75rem; margin-bottom:8px;">
+                    🐊 ${lang==='en'?'Pike ready':'Štika k ulovení'}: <strong>${stikaAdult}</strong>
+                    <button class="craft-btn" onclick="Game.catchPike(1)" style="font-size:0.7rem; margin-left:6px;">🎣 ${lang==='en'?'Catch 1':'Ulovit 1'}</button>
+                    <button class="craft-btn" onclick="Game.catchPike(${stikaAdult})" style="font-size:0.7rem; margin-left:4px;">${lang==='en'?'All':'Vše'} (${stikaAdult})</button>
+                </div>`;
+            }
+
+            // Sádky — přehled + přesun z rybníka
+            const kaprAdultQty = fishRows.filter(r => r.stage === 'adult' && r.species === 'kapr').reduce((s, r) => s + r.qty, 0);
+            const sadkyItems = ['kapr_sadky_fresh', 'kapr_sadky_purified', 'stika_sadky_fresh', 'stika_sadky_purified'];
+            const sadkyHave = sadkyItems.some(id => (GameState.inventory[id] || 0) > 0);
+            if (sadkyHave || kaprAdultQty > 0 || stikaAdult > 0) {
+                html += `<div style="font-size:0.75rem; margin-bottom:8px; padding-top:6px; border-top:1px solid rgba(0,0,0,0.08);">`;
+                html += `<div style="opacity:0.7; margin-bottom:4px;">🪣 ${lang==='en'?'Holding tank (sádky)':'Sádky'}</div>`;
+                sadkyItems.forEach(id => {
+                    const qty = GameState.inventory[id] || 0;
+                    if (qty > 0) html += `${(typeof iName === 'function') ? iName(id) : id}: <strong>${qty}</strong>&nbsp;&nbsp;`;
+                });
+                if (kaprAdultQty > 0) html += `<button class="craft-btn" onclick="Game.moveToSadky('kapr',${kaprAdultQty})" style="font-size:0.68rem; margin:4px 4px 0 0;">${lang==='en'?'→ Carp to tank':'→ Kapr do sádek'}</button>`;
+                if (stikaAdult > 0) html += `<button class="craft-btn" onclick="Game.moveToSadky('stika',${stikaAdult})" style="font-size:0.68rem; margin:4px 0 0;">${lang==='en'?'→ Pike to tank':'→ Štika do sádek'}</button>`;
+                html += `</div>`;
+            }
+
+            // Výlov — sezónní event (jen říjen/listopad)
+            const vylov = GameState.piscinaVylov;
+            const nowMonth = new Date().getMonth() + 1;
+            const isAutumn = (nowMonth === 10 || nowMonth === 11);
+            html += `<div style="font-size:0.75rem; padding-top:6px; border-top:1px solid rgba(0,0,0,0.08);">`;
+            if (vylov && vylov.active) {
+                if (Date.now() >= vylov.readyAt) {
+                    html += `🎣 ${lang==='en'?'The catch awaits at the dam.':'Úlovek čeká na hrázi.'} <button class="craft-btn" onclick="Game.harvestVylov()" style="font-size:0.7rem; margin-left:6px;">${lang==='en'?'Harvest the catch':'Sklidit výlov'}</button>`;
+                } else {
+                    const daysLeft = Math.max(0, Math.ceil((vylov.readyAt - Date.now()) / 86400000));
+                    html += `🚰 ${lang==='en'?'Sluices draining':'Stavidla vypouští'}... (${daysLeft}d)`;
+                }
+            } else {
+                html += `<button class="craft-btn" onclick="Game.startVylov()" ${isAutumn ? '' : 'disabled'} style="font-size:0.7rem;">🎣 ${lang==='en'?'Begin the autumn harvest':'Zahájit podzimní výlov'}</button>`;
+                if (!isAutumn) html += `<span style="opacity:0.55; margin-left:6px; font-style:italic;">${lang==='en'?'(autumn only)':'(jen na podzim)'}</span>`;
+            }
+            html += `</div>`;
+
+            html += `</div>`;
+        }
 
         el.innerHTML = html;
 
@@ -25106,7 +25233,7 @@ const GardenSystem = {
 
         // Piscina
         html += header('🐟', 'Piscina');
-        ['fish','fry','carp'].forEach(id => html += row(id));
+        ['fish','fry','carp','stika','pstruh','uhor','kapr_sadky_fresh','kapr_sadky_purified','stika_sadky_fresh','stika_sadky_purified'].forEach(id => html += row(id));
 
         // Pole — dynamicky z CROPS_DB
         html += header('🌾', lang==='en'?'Field':'Pole');
@@ -25146,7 +25273,6 @@ const GardenSystem = {
     },
 
 };
-
 // ═══ src/systems/FarmyardSystem.js ═══
 // ═══════════════════════════════════════════════════════════════════════════
 // FARMYARD SYSTEM — Dvůr v3
@@ -42216,6 +42342,9 @@ const Game = {
                     if (typeof PersonaSystem !== 'undefined' && PersonaSystem.tickDecay) PersonaSystem.tickDecay();
                     Game.checkFarmyardProduction();
                     Game.checkPiscinaGrowth();
+                    Game.checkPiscinaPredation();
+                    Game.checkSadkyAging();
+                    Game.checkVylovStatus();
                     // Save info — refresh "Poslední uložení" v Settings
                     const _saveEl = document.getElementById('save-last-time');
                     if (_saveEl && Game._saveHint.lastSaveTime > 0) {
@@ -43539,13 +43668,17 @@ const Game = {
     // *AddedAt) z fish[] — render i feedPiscina zůstávají beze změny,
     // čtou pořád stejná pole, jen teď jsou odvozená z entitního modelu.
     // Nejstarší řádek daného stádia určuje *AddedAt (nejblíž dokončení).
+    // Počítá se JEN kapr — Breeding/Rearing/Carp Pond je narativně čistě
+    // kaprový cyklus; ostatní druhy (štika/pstruh/úhoř) žijí ve fish[]
+    // vedle, ale do těchhle starých agregátů nepatří (jinak by štika
+    // navyšovala zobrazený počet kaprů).
     _piscinaSyncAggregates: function() {
         const p = GameState.piscina;
         if (!p || !p.fish) return;
         p.fish = p.fish.filter(r => r.qty > 0);
-        const sumQty = (stage) => p.fish.filter(r => r.stage === stage).reduce((s, r) => s + r.qty, 0);
+        const sumQty = (stage) => p.fish.filter(r => r.stage === stage && r.species === 'kapr').reduce((s, r) => s + r.qty, 0);
         const oldestAt = (stage) => {
-            const rows = p.fish.filter(r => r.stage === stage);
+            const rows = p.fish.filter(r => r.stage === stage && r.species === 'kapr');
             return rows.length ? Math.min(...rows.map(r => r.enteredStageAt)) : 0;
         };
         p.fry = sumQty('fry');
@@ -43553,6 +43686,22 @@ const Game = {
         p.youngCarp = sumQty('young');
         p.youngAddedAt = p.youngCarp > 0 ? oldestAt('young') : 0;
         p.carp = sumQty('adult');
+    },
+
+    // Nasadí nakoupenou/darovanou rybu (stika/pstruh/uhor) přímo do rybníka
+    // jako dospělý řádek — koupený kus je už vzrostlý, neprochází fry/young.
+    // Konzolí testovatelné hned; tlačítko v UI přijde v Sprintu 7.
+    stockFish: function(species, qty) {
+        const p = GameState.piscina;
+        if (p.tier < 3) { UI.notify(t('game.needPiscina1'), true); return; }
+        if ((GameState.inventory[species] || 0) < qty) { UI.notify(t('game.missingItem').replace('{item}', ItemsDB[species] ? ItemsDB[species].name : species), true); return; }
+        this.removeItem(species, qty);
+        p.fish = p.fish || [];
+        p.fish.push({ id: Game._piscinaNextId(), species: species, stage: 'adult', qty: qty, enteredStageAt: Date.now() });
+        Game._piscinaSyncAggregates();
+        Game.save(); UI.renderPiscina();
+        const name = (typeof iName === 'function') ? iName(species) : species;
+        UI.notify('🎣 ' + name + ' ×' + qty + ' → Piscina');
     },
 
     buildPiscina: function(tier) {
@@ -43619,7 +43768,7 @@ const Game = {
         qty = Math.min(qty, p.carp);
         if (qty <= 0) { UI.notify(t('game.noCarp'), true); return; }
         let remaining = qty;
-        const adultRows = (p.fish || []).filter(r => r.stage === 'adult' && r.qty > 0).sort((a, b) => a.enteredStageAt - b.enteredStageAt);
+        const adultRows = (p.fish || []).filter(r => r.stage === 'adult' && r.species === 'kapr' && r.qty > 0).sort((a, b) => a.enteredStageAt - b.enteredStageAt);
         for (const row of adultRows) {
             if (remaining <= 0) break;
             const take = Math.min(row.qty, remaining);
@@ -43681,6 +43830,210 @@ const Game = {
             Game._piscinaSyncAggregates();
             Game.save();
         }
+    },
+
+    // Štika — přirozená kontrola hejna (historicky doloženo, viz MRD sekce 4).
+    // Týdně sežere 1 kus na štiku, vždy nejmladší dostupný řádek nekaprodravce
+    // (young má přednost před fry — proxy za "nejslabší", bez simulace zdraví).
+    // Nikdy nesahá na dospělé/tržní kusy — štika loví jen mezi dorůstajícími.
+    checkPiscinaPredation: function() {
+        const p = GameState.piscina;
+        if (!p || !p.fish) return;
+        const stikaCount = p.fish.filter(r => r.stage === 'adult' && r.species === 'stika').reduce((s, r) => s + r.qty, 0);
+        if (stikaCount <= 0) return;
+        const now = Date.now();
+        const WEEK = 7 * 24 * 3600000;
+        if (p.lastPredationAt === undefined) p.lastPredationAt = now;
+        if (now < p.lastPredationAt + WEEK) return;
+        p.lastPredationAt = now;
+
+        let remaining = stikaCount;
+        ['young', 'fry'].forEach(stage => {
+            if (remaining <= 0) return;
+            const rows = p.fish.filter(r => r.stage === stage && r.species !== 'stika' && r.qty > 0)
+                .sort((a, b) => b.enteredStageAt - a.enteredStageAt); // nejmladší (nejnovější) nejdřív
+            for (const row of rows) {
+                if (remaining <= 0) break;
+                const take = Math.min(row.qty, remaining);
+                row.qty -= take;
+                remaining -= take;
+            }
+        });
+        Game._piscinaSyncAggregates();
+        Game.save();
+    },
+
+    // Úlovek štiky — VÝHRADNĚ hráčem/mnichem, nikdy konvršem. Konvrš přiřazený
+    // do Piscina Manufaktura sklízí jen kapra (viz oprava v auto-collect bloku
+    // níže) — tahle funkce se odtud nikdy nevolá, štika se musí lovit ručně.
+    catchPike: function(qty) {
+        const p = GameState.piscina;
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        const stikaTotal = (p.fish || []).filter(r => r.stage === 'adult' && r.species === 'stika').reduce((s, r) => s + r.qty, 0);
+        qty = Math.min(qty, stikaTotal);
+        if (qty <= 0) { UI.notify(lang === 'en' ? '❌ No pike to catch.' : '❌ Žádná štika k ulovení.', true); return; }
+        let remaining = qty;
+        const rows = (p.fish || []).filter(r => r.stage === 'adult' && r.species === 'stika' && r.qty > 0).sort((a, b) => a.enteredStageAt - b.enteredStageAt);
+        for (const row of rows) {
+            if (remaining <= 0) break;
+            const take = Math.min(row.qty, remaining);
+            row.qty -= take;
+            remaining -= take;
+        }
+        Game._piscinaSyncAggregates();
+        this.addItem('stika', qty);
+        Game.save(); UI.renderPiscina();
+        UI.notify((lang === 'en' ? '🎣 Pike caught ×' : '🎣 Ulovena štika ×') + qty);
+    },
+
+    // ═══════════════════════════════════════════════════════════════════════════
+    // SÁDKY — per-instance zrání ryb po vylovení (reuse vzoru z CheeseSystem.js:
+    // registrace instance + přesun 1 kusu mezi inventářovými sloty _fresh → _purified).
+    // Rozdíl oproti sýru: instance je qty-vážená (stejný vzor jako Piscina fish[]
+    // ze Sprintu 1), ne 1 instance na kus — víc kusů vylovených najednou sdílí
+    // řádek, dokud se něco neodliší. Volitelná alternativa k přímému harvestCarp/
+    // catchPike — hráč si vybere: rychlá sklizeň hned, nebo počkat na lepší kvalitu.
+    // Gate: tech_piscina_administratio (součást "kompletní správy", viz MRD).
+    // ═══════════════════════════════════════════════════════════════════════════
+
+    SADKY_PURIFY_DAYS: 3,
+
+    // Přesune dospělé kusy z rybníka do sádek (místo přímé sklizně do inventáře).
+    moveToSadky: function(species, qty) {
+        const p = GameState.piscina;
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        if (!GameState.researchedTechs.includes('tech_piscina_administratio')) { UI.notify(t('game.needDePiscibus'), true); return; }
+        const rows = (p.fish || []).filter(r => r.stage === 'adult' && r.species === species && r.qty > 0).sort((a, b) => a.enteredStageAt - b.enteredStageAt);
+        const total = rows.reduce((s, r) => s + r.qty, 0);
+        qty = Math.min(qty, total);
+        if (qty <= 0) { UI.notify(lang === 'en' ? '❌ Nothing to move to the holding tank.' : '❌ Nic k přesunu do sádek.', true); return; }
+        let remaining = qty;
+        for (const row of rows) {
+            if (remaining <= 0) break;
+            const take = Math.min(row.qty, remaining);
+            row.qty -= take;
+            remaining -= take;
+        }
+        Game._piscinaSyncAggregates();
+
+        if (!GameState.piscinaSadky) GameState.piscinaSadky = [];
+        GameState.piscinaSadky.push({ id: Game._piscinaNextId(), species: species, qty: qty, enteredAt: Date.now(), phase: 'fresh' });
+        this.addItem(species + '_sadky_fresh', qty);
+        Game.save(); UI.renderPiscina();
+        const name = (typeof iName === 'function') ? iName(species) : species;
+        UI.notify('🪣 ' + name + ' ×' + qty + ' → ' + (lang === 'en' ? 'holding tank' : 'sádky'));
+    },
+
+    // Denní tick (self-guarded, volaný z tick smyčky vedle checkPiscinaGrowth).
+    checkSadkyAging: function() {
+        if (!GameState.piscinaSadky || !GameState.piscinaSadky.length) return;
+        const now = Date.now();
+        const DAY = 24 * 3600000;
+        let advanced = 0;
+        GameState.piscinaSadky.forEach(inst => {
+            if (inst.phase === 'fresh' && inst.qty > 0 && now >= inst.enteredAt + Game.SADKY_PURIFY_DAYS * DAY) {
+                const oldId = inst.species + '_sadky_fresh';
+                const newId = inst.species + '_sadky_purified';
+                const moved = Math.min(GameState.inventory[oldId] || 0, inst.qty);
+                if (moved > 0) {
+                    GameState.inventory[oldId] -= moved;
+                    GameState.inventory[newId] = (GameState.inventory[newId] || 0) + moved;
+                }
+                inst.phase = 'purified';
+                advanced += moved;
+            }
+        });
+        GameState.piscinaSadky = GameState.piscinaSadky.filter(inst => inst.qty > 0);
+        if (advanced > 0) {
+            if (typeof NotificationSystem !== 'undefined' && NotificationSystem.panel) {
+                const lang = (GameState.settings && GameState.settings.language) || 'cs';
+                NotificationSystem.panel('🪣 ' + (lang === 'en'
+                    ? advanced + '× fish purified in the holding tank.'
+                    : advanced + '× ryba se pročistila v sádkách.'), 'info');
+            }
+            Game.save();
+        }
+    },
+
+    // ═══════════════════════════════════════════════════════════════════════════
+    // VÝLOV — podzimní výlov rybníka (viz MRD sekce 7). Reuse existujících vzorů:
+    // ad-hoc Date.now() timer (jako feedPiscina/checkPiscinaGrowth), Manufaktura
+    // Conversi/bratr přiřazení (jako auto-collect blok) pro bonus, ne podmínku.
+    // Gate: tech_piscina_administratio + podzimní měsíc (říjen/listopad, reálné
+    // device datum — stejný vzor jako sezónní check ve WellSystem, ne TimeSys
+    // hodina/den, protože jde o roční sezónu, ne o hodinu v rámci dne).
+    // KLÍČOVÉ: sklízí jen kapra. Štika se NEsklidí automaticky — zůstává v
+    // rybníce, dokud ji hráč sám neuloví přes catchPike().
+    // ═══════════════════════════════════════════════════════════════════════════
+
+    VYLOV_DRAIN_DAYS: 3,
+
+    startVylov: function() {
+        const p = GameState.piscina;
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        if (!GameState.researchedTechs.includes('tech_piscina_administratio')) { UI.notify(t('game.needDePiscibus'), true); return; }
+        if (p.tier < 3) { UI.notify(t('game.piscinaUpgradeFirst'), true); return; }
+        if (GameState.piscinaVylov && GameState.piscinaVylov.active) { UI.notify(t('game.busy'), true); return; }
+        const month = new Date().getMonth() + 1; // reálné device datum (sezóna, ne hodina — jiný vzor než TimeSys)
+        if (month !== 10 && month !== 11) {
+            UI.notify(lang === 'en' ? '❌ The pond can only be drained in autumn (Oct–Nov).' : '❌ Rybník lze vypustit jen na podzim (říjen–listopad).', true);
+            return;
+        }
+        const DAY = 24 * 3600000;
+        GameState.piscinaVylov = { active: true, startedAt: Date.now(), readyAt: Date.now() + Game.VYLOV_DRAIN_DAYS * DAY, notifiedReady: false };
+        Game.save(); UI.renderPiscina();
+        UI.notify(lang === 'en' ? '🚰 Sluices opened — the pond is draining.' : '🚰 Stavidla otevřena — rybník se vypouští.');
+    },
+
+    // Denní tick (volaný z tick smyčky) — jen jednorázová notifikace, jakmile
+    // vypouštění doběhne. Samotná sklizeň čeká na ruční harvestVylov().
+    checkVylovStatus: function() {
+        const v = GameState.piscinaVylov;
+        if (!v || !v.active || v.notifiedReady) return;
+        if (Date.now() >= v.readyAt) {
+            v.notifiedReady = true;
+            if (typeof NotificationSystem !== 'undefined' && NotificationSystem.panel) {
+                const lang = (GameState.settings && GameState.settings.language) || 'cs';
+                NotificationSystem.panel('🎣 ' + (lang === 'en'
+                    ? 'The pond has been drained — the catch awaits at the dam.'
+                    : 'Rybník je vypuštěn — úlovek čeká na hrázi.'), 'info');
+            }
+            Game.save();
+        }
+    },
+
+    harvestVylov: function() {
+        const p = GameState.piscina;
+        const v = GameState.piscinaVylov;
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        if (!v || !v.active) { UI.notify(t('game.busy'), true); return; }
+        if (Date.now() < v.readyAt) { UI.notify(lang === 'en' ? '⏳ The sluices are still draining.' : '⏳ Stavidla ještě vypouští.', true); return; }
+
+        // Conversi/bratr přiřazený do Piscina — bonus na výnos, ne podmínka (MRD 3a)
+        const hasHelp = (GameState.conversi || []).some(k => k.task === 'piscina')
+            || ((GameState.dormitorium && GameState.dormitorium.brothers) || []).some(b => b.assignedTab === 'piscina');
+        const mult = hasHelp ? 1.2 : 1.0;
+
+        // Kapr — VŠECHNY dospělé řádky. Štika (species !== 'kapr') se filtrem
+        // vylučuje záměrně — zůstává v rybníce, ulov je zvlášť přes catchPike().
+        const carpTotal = (p.fish || []).filter(r => r.stage === 'adult' && r.species === 'kapr').reduce((s, r) => s + r.qty, 0);
+        const carpQty = Math.round(carpTotal * mult);
+        (p.fish || []).forEach(r => { if (r.stage === 'adult' && r.species === 'kapr') r.qty = 0; });
+        if (carpQty > 0) this.addItem('carp', carpQty);
+
+        // Plevelná ryba/drobní — malý vedlejší výnos, prodá se rovnou chudině (charita, dle historického materiálu)
+        const smallFishCoin = 2 + Math.floor(Math.random() * 4);
+        if (typeof CellariumSystem !== 'undefined' && CellariumSystem.addGrose) CellariumSystem.addGrose(smallFishCoin);
+        if (typeof PersonaSystem !== 'undefined' && PersonaSystem.addInfluence) PersonaSystem.addInfluence('village', 1);
+
+        Game._piscinaSyncAggregates();
+        GameState.piscinaVylov = { active: false, startedAt: 0, readyAt: 0, notifiedReady: false };
+        Game.save(); UI.renderPiscina();
+
+        const msg = lang === 'en'
+            ? `🎣 Autumn harvest: ${carpQty}× carp brought in${hasHelp ? ' (net-haulers\' help)' : ''}. Small fish sold to the poor for ${smallFishCoin} g. Pike remain in the pond — catch them separately.`
+            : `🎣 Podzimní výlov: ${carpQty}× kapr sklizen${hasHelp ? ' (s pomocí sítětařů)' : ''}. Drobná ryba prodána chudině za ${smallFishCoin} g. Štiky zůstávají v rybníce — ulov je zvlášť.`;
+        UI.notify(msg);
     },
 
     checkOrchardGrowth: function() {
@@ -48118,11 +48471,14 @@ const Game = {
                     didWork = true; didTransfer = true;
                 }
 
-                // Sklizeň všech dospělých kaprů — bratr násobí ulovené množství
-                const carpTotal = (p.fish || []).filter(r => r.stage === 'adult').reduce((s, r) => s + r.qty, 0);
+                // Sklizeň všech dospělých kaprů — bratr násobí ulovené množství.
+                // Filtr na species:'kapr' záměrně — jiné druhy (štika a další
+                // z Trhu/Clientely) tímhle automatem NEsmí projít, jinak by se
+                // sklidily jako 'carp' bez ohledu na skutečný druh (viz Sprint 4).
+                const carpTotal = (p.fish || []).filter(r => r.stage === 'adult' && r.species === 'kapr').reduce((s, r) => s + r.qty, 0);
                 if (carpTotal > 0) {
                     const qty = Math.max(carpTotal, Math.round(carpTotal * brotherMult));
-                    (p.fish || []).forEach(r => { if (r.stage === 'adult') r.qty = 0; });
+                    (p.fish || []).forEach(r => { if (r.stage === 'adult' && r.species === 'kapr') r.qty = 0; });
                     this.addItem('carp', qty);
                     didWork = true; carpCaught = qty;
                 }
