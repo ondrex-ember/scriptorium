@@ -1981,8 +1981,8 @@ const GardenSystem = {
         const isRye = field.crop === 'rye';
         const isWheat = field.crop === 'wheat';
 
-        // Výpočet výnosu
-        let yieldAmt = crop.yield;
+        // Výpočet výnosu — crop.yield je poměr osivo:výnos (1:3 apod.), násobí se počtem zasetých semen
+        let yieldAmt = crop.yield * this.FIELD_SEED_COST;
         if (hasRotation) yieldAmt = Math.round(yieldAmt * 1.25);
 
         // Sucho penalizace (žito je vůči suchu odolné — neuplatňuje se)
