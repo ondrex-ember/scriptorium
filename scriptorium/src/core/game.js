@@ -4376,6 +4376,10 @@ const Game = {
                     if (type === 'wedding' && typeof CellariumSystem !== 'undefined' && CellariumSystem.addGrose) {
                         CellariumSystem.addGrose(5 + Math.floor(Math.random() * 10));
                     }
+                    if (type === 'funeral') {
+                        if (!GameState.cemetery) GameState.cemetery = { condition: 100, graves: [] };
+                        GameState.cemetery.graves.push({ surname: surname, ts: Date.now() });
+                    }
                     Game._templumLog({ type: 'parish', eventType: type, surname: surname, officiated: true });
                     Game.addKronikaEntry('minor',
                         '✝️ ' + titleMap[type][0] + ': rodina ' + surname + ' — obřad vykonán.',
@@ -4831,6 +4835,36 @@ const Game = {
         // Fabrica: strukturální stav budovy pomalu chátrá, rychleji u vyšších úrovní
         const fTier = this.FABRICA_TIERS[t.fabricaTier || 0];
         t.condition = Math.max(0, (t.condition != null ? t.condition : 100) - 0.3 * fTier.decayMult);
+
+        // Hřbitov: konvrš přiřazený na Hřbitov a/nebo bratr Kostelník dohlížející.
+        // Bratr NENÍ samostatná "hrbitov" specializace — jeden Kostelník
+        // (assignedTab === 'kostel') dohlíží na celý Templum, hřbitov nevyjímaje.
+        // Rozlišení kostel/hřbitov je jen na úrovni konvršů (fyzická práce),
+        // ne na úrovni dohlížejícího bratra.
+        if (!GameState.cemetery) GameState.cemetery = { condition: 100, graves: [] };
+        const cem = GameState.cemetery;
+        const templumBrother = (GameState.dormitorium && GameState.dormitorium.brothers || [])
+            .find(b => b.assignedTab === 'kostel');
+        const cemCleaner = (GameState.conversi || [])
+            .filter(k => k.task === 'hrbitov'
+                      && k.fatigue < (this._konvrsTraits(k).includes('pilny') ? 90 : 80)
+                      && (typeof k.mood !== 'number' || k.mood >= 30)
+                      && !(k.penanceUntil && k.penanceUntil > now)
+                      && !(k.injuredUntil && k.injuredUntil > now)
+                      && !(k.awayUntil && k.awayUntil > now))
+            .sort((a, b) => a.fatigue - b.fatigue)[0];
+        if (cemCleaner || templumBrother) {
+            const brotherMult = templumBrother ? this.dormitoriumBrotherMult(templumBrother, 'kostel') : 1.0;
+            if (cemCleaner) cemCleaner.fatigue = Math.min(100, cemCleaner.fatigue + 5);
+            if (templumBrother) {
+                this.dormitoriumAddXp(templumBrother, 'kostel');
+                templumBrother.fatigue = Math.min(100, (templumBrother.fatigue || 0) + 5);
+            }
+            cem.condition = Math.min(100, cem.condition + 5 * brotherMult);
+            cem.lastCleaner = this._workCredit(templumBrother, cemCleaner);
+        }
+        cem.condition = Math.max(0, cem.condition - 1); // pomalé zarůstání bez péče
+
         Game.save();
     },
 
@@ -5223,6 +5257,7 @@ const Game = {
         scavenge: { icon: '🌾', away: true,  durationMs: 8  * 60 * 60 * 1000, riskPct: 12 },
         doly:     { icon: '⛏️', away: true,  durationMs: 20 * 60 * 60 * 1000, riskPct: 20 },
         kostel:   { icon: '🕍', away: false },
+        hrbitov:  { icon: '⚰️', away: false },
     },
     CONVERSI_TASK_SLOTS: 2,
 
@@ -5655,7 +5690,11 @@ const Game = {
     manufacturaStatus: function(tabKey) {
         const DAY = 24 * 60 * 60 * 1000;
         const field = this.MANUFACTURA_LASTTICK_FIELD[tabKey];
-        const brother = (GameState.dormitorium && GameState.dormitorium.brothers || []).find(b => b.assignedTab === tabKey);
+        // Hřbitov nemá vlastní bratr-specializaci — dohlíží na něj stejný
+        // Kostelník jako na kostel (jeden bratr, celý Templum). XP/level se
+        // proto čte pod 'kostel', ne pod 'hrbitov'.
+        const brotherTabKey = tabKey === 'hrbitov' ? 'kostel' : tabKey;
+        const brother = (GameState.dormitorium && GameState.dormitorium.brothers || []).find(b => b.assignedTab === brotherTabKey);
         const konvrs = (GameState.conversi || []).find(k => k.task === tabKey);
         let ready = false, hoursLeft = null;
         if (field) {
@@ -5665,9 +5704,9 @@ const Game = {
         }
         return {
             tabKey, brother, konvrs, hasField: !!field, ready, hoursLeft,
-            level: brother ? this.dormitoriumBrotherLevel(brother, tabKey) : null,
-            mult:  brother ? this.dormitoriumBrotherMult(brother, tabKey) : null,
-            xp:    brother ? ((brother.xp && brother.xp[tabKey]) || 0) : null,
+            level: brother ? this.dormitoriumBrotherLevel(brother, brotherTabKey) : null,
+            mult:  brother ? this.dormitoriumBrotherMult(brother, brotherTabKey) : null,
+            xp:    brother ? ((brother.xp && brother.xp[brotherTabKey]) || 0) : null,
             combo: !!(brother && konvrs),
         };
     },

@@ -92,6 +92,41 @@ const TemplumSystem = {
         if (show !== cur) btn.style.display = show ? '' : 'none';
     },
 
+    switchEntity: function(entityId) {
+        if (!GameState.ui) GameState.ui = {};
+        GameState.ui.templumEntity = entityId;
+        const el = document.getElementById('home-templum-content');
+        if (el) el.innerHTML = this.renderTemplumTab();
+    },
+
+    _renderCemeteryPanel: function(lang) {
+        if (!GameState.cemetery) GameState.cemetery = { condition: 100, graves: [] };
+        const cem = GameState.cemetery;
+        const cond = cem.condition != null ? cem.condition : 100;
+        const condColor = cond >= 70 ? '#5a9a5a' : cond >= 40 ? 'var(--accent-gold)' : '#c0392b';
+        const condLabel = cond >= 70 ? (lang==='en'?'tended':'udržovaný') : cond >= 40 ? (lang==='en'?'neglected':'zanedbaný') : (lang==='en'?'overgrown':'zarostlý');
+
+        let h = `<div style="padding:12px 15px; margin-bottom:16px; background:rgba(197,160,89,0.05); border:1px solid rgba(197,160,89,0.25); border-radius:8px;">
+            <div style="font-weight:bold; font-size:0.9rem; margin-bottom:6px;">⚰️ ${lang==='en'?'Cemetery condition':'Stav hřbitova'} — <span style="color:${condColor};">${condLabel}</span></div>
+            <div style="height:6px; background:rgba(0,0,0,0.1); border-radius:3px; overflow:hidden; margin-bottom:6px;">
+                <div style="height:100%; width:${cond}%; background:${condColor}; border-radius:3px;"></div>
+            </div>
+            <div style="font-size:0.7rem; opacity:0.65;">${Math.round(cond)} %${cem.lastCleaner ? ' · ' + (lang==='en'?'last tended by ':'naposled udržoval ') + cem.lastCleaner : ''}</div>
+            <div style="font-size:0.62rem; opacity:0.55; font-style:italic; margin-top:5px;">${lang==='en'?'daily · a lay brother or the Sacristan keeps it clear':'denně · udržuje konvrš přiřazený na Hřbitov, nebo Kostelník'}</div>
+          </div>`;
+
+        const graves = (cem.graves || []).slice().reverse();
+        h += `<div style="padding:12px 15px; background:rgba(255,255,255,0.4); border:1px solid rgba(197,160,89,0.25); border-radius:8px;">
+            <div style="font-weight:bold; font-size:0.9rem; margin-bottom:6px;">🪦 ${lang==='en'?'Graves':'Hroby'} (${graves.length})</div>`;
+        if (!graves.length) {
+            h += `<div style="font-size:0.75rem; opacity:0.6;">${lang==='en'?'No one rests here yet.':'Zatím tu nikdo neodpočívá.'}</div>`;
+        } else {
+            h += graves.slice(0, 15).map(g => `<div style="font-size:0.72rem; opacity:0.7; margin-top:3px;">🪦 ${g.surname} · ${this._timeAgo(g.ts, lang)}</div>`).join('');
+        }
+        h += `</div>`;
+        return h;
+    },
+
     renderTemplumTab: function() {
         const lang = (GameState.settings && GameState.settings.language) || 'cs';
         if (!this.isUnlocked()) {
@@ -128,6 +163,19 @@ const TemplumSystem = {
               ${(GameState.inventory['reliquia'] || 0) >= 1 ? `<div style="font-size:0.78rem; color:var(--accent-gold); margin-top:4px;">✨ ${lang==='en' ? 'A relic is enshrined — the mass bears greater grace.' : 'Relikvie vystavena — mše nese větší milost.'}</div>` : ''}
             </div>
           </div>`;
+
+        // Subtab přepínač: Hlavní / Hřbitov (mirror Cellarium/Manufaktura vzoru)
+        const entity = (GameState.ui && GameState.ui.templumEntity) || 'main';
+        h += `<div style="display:flex; gap:8px; margin-bottom:16px;">
+                <button class="craft-btn" style="flex:1; ${entity==='main' ? 'background:#2c1810;' : ''}" onclick="TemplumSystem.switchEntity('main')">🕍 ${lang==='en'?'Main':'Hlavní'}</button>
+                <button class="craft-btn" style="flex:1; ${entity==='hrbitov' ? 'background:#2c1810;' : ''}" onclick="TemplumSystem.switchEntity('hrbitov')">⚰️ ${lang==='en'?'Cemetery':'Hřbitov'}</button>
+              </div>`;
+
+        if (entity === 'hrbitov') {
+            h += this._renderCemeteryPanel(lang);
+            h += `</div>`;
+            return h;
+        }
 
         // Fabrica Ecclesiae — 4 stavební úrovně (endgame-branches-reference.md sekce 4.2)
         {

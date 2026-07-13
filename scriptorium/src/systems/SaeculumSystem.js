@@ -590,7 +590,7 @@ const SaeculumSystem = {
         const taken = Game.conversiTaskCount(taskId, k.id);
         const isCur = k.task === taskId;
         const full = !isCur && taken >= Game.CONVERSI_TASK_SLOTS;
-        const label = ({dvur: lang==='en'?'Farmyard':'Dvůr', zahony: lang==='en'?'Garden':'Záhony', sad: lang==='en'?'Orchard':'Sad', apiarium: lang==='en'?'Apiary':'Apiarium', piscina: lang==='en'?'Fishpond':'Piscina', pole: lang==='en'?'Field':'Pole', vinohrad: lang==='en'?'Vineyard':'Vinohrad', scavenge:'Scavenge', doly: lang==='en'?'Mine':'Doly', kostel: lang==='en'?'Church':'Kostel'})[taskId];
+        const label = ({dvur: lang==='en'?'Farmyard':'Dvůr', zahony: lang==='en'?'Garden':'Záhony', sad: lang==='en'?'Orchard':'Sad', apiarium: lang==='en'?'Apiary':'Apiarium', piscina: lang==='en'?'Fishpond':'Piscina', pole: lang==='en'?'Field':'Pole', vinohrad: lang==='en'?'Vineyard':'Vinohrad', scavenge:'Scavenge', doly: lang==='en'?'Mine':'Doly', kostel: lang==='en'?'Church':'Kostel', hrbitov: lang==='en'?'Cemetery':'Hřbitov'})[taskId];
         let hint = '';
         if (gate.locked) {
           hint = gate.reasonKey === 'gate_fodina_tech' ? (lang==='en'?'needs tech: Fodina':'chybí tech: Fodina')
@@ -619,9 +619,9 @@ const SaeculumSystem = {
   renderManufactura: function() {
     const lang = (GameState.settings && GameState.settings.language) || 'cs';
     // Pořadí odpovídá DormitoriumSpecializationDB; dvur navíc (údržba, bez XP tabu tam).
-    const TAB_ORDER = ['dvur', 'kostel', 'zahony', 'sad', 'pole', 'vinohrad', 'apiarium', 'piscina', 'athanor', 'scriptorium'];
+    const TAB_ORDER = ['dvur', 'kostel', 'hrbitov', 'zahony', 'sad', 'pole', 'vinohrad', 'apiarium', 'piscina', 'athanor', 'scriptorium'];
     // Konvrš lze přiřadit jen na tyto (athanor/scriptorium nejsou v CONVERSI_TASKS — jen bratr).
-    const CONVERSI_CAPABLE = ['dvur', 'kostel', 'zahony', 'sad', 'apiarium', 'piscina', 'pole', 'vinohrad'];
+    const CONVERSI_CAPABLE = ['dvur', 'kostel', 'hrbitov', 'zahony', 'sad', 'apiarium', 'piscina', 'pole', 'vinohrad'];
 
     let h = `<div style="margin-bottom:10px; font-size:0.8rem; opacity:0.75;">
       ${lang === 'en'
@@ -686,6 +686,8 @@ const SaeculumSystem = {
         // Dvůr — údržba, žádný jednorázový výnos ke sběru
         const maintMsg = tabKey === 'kostel'
           ? (lang === 'en' ? 'Maintenance — keeps the church clean, no single yield to collect.' : 'Údržba — udržuje kostel čistý, nesbírá se jednorázově.')
+          : tabKey === 'hrbitov'
+          ? (lang === 'en' ? 'Maintenance — keeps the graves tended, no single yield to collect.' : 'Údržba — udržuje hroby, nesbírá se jednorázově.')
           : (lang === 'en' ? 'Maintenance — cleans & feeds as needed, no single yield to collect.' : 'Údržba — uklízí a krmí dle potřeby, nesbírá se jednorázově.');
         h += `<div style="font-size:0.72rem; opacity:0.65;">🧹 ${maintMsg}</div>`;
       } else if (!st.brother && !st.konvrs) {
