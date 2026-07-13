@@ -6086,6 +6086,13 @@ Object.assign(ItemsDB, {
         desc: "Vlhkem zvlněný list, zastrčený ve spáře proutěné stěny. Někdo si zapsal, jaké to je, když den nechce skončit.", desc_en: "A page warped with damp, wedged in the crack of a wattle wall. Someone once wrote down what it feels like when the day will not end."
     },
 });
+// ── BESTIÁŘ — nález spisu (DecaySystem loss-check, nezávislý na fliesMult erosion-checku) ──
+Object.assign(ItemsDB, {
+    "belzebub_spis": {
+        name: "Spis o Belzebubovi", name_en: "A Note on Beelzebub", icon: "🪰", type: "lore",
+        desc: "Potřísněný list nalezený mezi zkaženými zásobami. Někdo si zapsal, co znamená, když zanedbání přivolá roj.", desc_en: "A stained page found among the spoiled stores. Someone once wrote down what it means when neglect draws a swarm."
+    },
+});
 // ═══ src/data/recipes.js ═══
 const RecipesDB = [
     // BASIC TOOLS
@@ -9260,6 +9267,57 @@ const ScriniumDB = {
             },
             arcanum: {
                 textKey: 'scrinium.folios.acedia_bestiar.arcanum',
+                cost: { item: 'candle', amount: 5 },
+            },
+        },
+
+        // ── 3. Titivillus, Druhá tvář — nález přes Kapitulu:
+        //      první reálný konflikt (ConversiBondsDB tenze) -> auto-unlock.
+        //    Otevřeně stejný démon jako folio_titivillus_bestiar — jen jeho
+        //    druhá role (poslech klevet, ne opisovačské chyby). Bez obrázku
+        //    (companion karta), bez Cesty B/itemu — samotný konflikt je nález.
+        {
+            id: 'folio_titivillus_secunda',
+            subtab: 'bestiar',
+            icon: '👂',
+            physicalForm: 'leaf',
+            titleKey: 'scrinium.folios.titivillus_secunda.title',
+            lectio: {
+                textKey: 'scrinium.folios.titivillus_secunda.lectio',
+                cost: null,
+            },
+            glossa: {
+                textKey: 'scrinium.folios.titivillus_secunda.glossa',
+                cost: { item: 'candle', amount: 3 },
+            },
+            arcanum: {
+                textKey: 'scrinium.folios.titivillus_secunda.arcanum',
+                cost: { item: 'candle', amount: 5 },
+            },
+        },
+
+        // ── 4. Belzebub (Pán much) — nález přes dvě cesty:
+        //      A) fliesMult() poprvé dosáhne nejhoršího stupně (>1.7) -> auto-unlock
+        //      B) nález "belzebub_spis" při reálné ztrátě kažením (DecaySystem)
+        //    Popisuje existující fliesMult mechaniku (chlévy/hnůj/syrové maso),
+        //    nic nemění. Obrázek dodá Ondrex zvlášť (/bestiary/belzebub.jpg).
+        {
+            id: 'folio_belzebub_bestiar',
+            subtab: 'bestiar',
+            icon: '🪰',
+            physicalForm: 'leaf',
+            titleKey: 'scrinium.folios.belzebub_bestiar.title',
+            lectio: {
+                textKey: 'scrinium.folios.belzebub_bestiar.lectio',
+                cost: null,
+                image: '/bestiary/belzebub.jpg',
+            },
+            glossa: {
+                textKey: 'scrinium.folios.belzebub_bestiar.glossa',
+                cost: { item: 'candle', amount: 3 },
+            },
+            arcanum: {
+                textKey: 'scrinium.folios.belzebub_bestiar.arcanum',
                 cost: { item: 'candle', amount: 5 },
             },
         },
@@ -20606,6 +20664,12 @@ const DecaySystem = {
         const sRed = this.storageReduction();
         const oMult = this.isOverflow() ? 2 : 1;
 
+        // Bestiář — Belzebub, Cesta A: mouchy poprvé dosáhnou nejhoršího
+        // stupně ("many", fliesMult > 1.7) → auto-odemkne. Idempotentní.
+        if (fMult > 1.7 && typeof SecretsSystem !== 'undefined') {
+            SecretsSystem.unlockFolioById('folio_belzebub_bestiar');
+        }
+
         const losses = [];
         for (const [id, def] of Object.entries(this.DECAY_RATES)) {
             const count = inv[id] || 0;
@@ -20626,6 +20690,19 @@ const DecaySystem = {
 
         st.lastLosses = losses;
         if (losses.length) this._notifyLosses(losses, oMult > 1);
+
+        // Bestiář — Belzebub, Cesta B: nález mezi zkaženými zásobami, jen
+        // když si k tomu reálně kažení dnes vzalo něco (losses.length > 0).
+        if (losses.length > 0) {
+            const alreadyFolio = GameState.scrinium && GameState.scrinium.folios
+                && GameState.scrinium.folios['folio_belzebub_bestiar'] && GameState.scrinium.folios['folio_belzebub_bestiar'].found;
+            const alreadyHeld = (GameState.inventory['belzebub_spis'] || 0) > 0;
+            if (!alreadyFolio && !alreadyHeld && Math.random() < 0.06) {
+                if (typeof Game !== 'undefined' && Game.addItem) Game.addItem('belzebub_spis', 1);
+                if (typeof Game !== 'undefined' && Game.showBelzebubSpisModal) setTimeout(function () { Game.showBelzebubSpisModal(); }, 300);
+            }
+        }
+
         if (typeof Game !== 'undefined' && Game.save) Game.save();
     },
 
@@ -37529,6 +37606,20 @@ const STRINGS_cs = {
                 glossa: 'Egyptští poustevníci 4. století mu říkali daemon meridianus — démon, co nečeká na tmu jako ostatní, ale chodí ve dne, v nejparnější hodině. Jméno má z 90. žalmu: „ani nákaza, jež pustoší o poledni."\n\nEvagrius Pontský, který ho popsal první, ho nazval nejobtížnějším ze všech běsů — velitelem celého vojska pokušení. Píše: nejdřív se zdá, že slunce stojí na místě. Den má padesát hodin. Cela se zdá jako vězení, bratři jako cizinci, modlitba jako povinnost bez smyslu. Mnich se stane „utečencem" — buď usne na modlitbě, nebo uteče z cely, nebo z kláštera úplně.\n\nJan Cassianus přinesl to učení na Západ — a skrze něj zůstalo v každé řeholi dodnes, bez ohledu na to, kterou z nich klášter dodržuje.',
                 arcanum: 'Pozdější staletí z Acedie udělaly jen „lenost" — jeden ze sedmi hlavních hříchů, klidně zobrazitelný jako spáč na oslu. Ale staří otcové věděli, že je to něco jiného: ne odpočinek, ale vyprahlost. Ne lenost těla, ale únava ducha, která nejde vidět, dokud není pozdě.\n\n*Segnities robur frangit, longa ocia nervos.*\n„Lenost láme sílu, dlouhá zahálka vysušuje šlachy."\n\nV klášteře to platí přesně takhle: kdo dlouho zanedbává tělo i ducha — kdo netuší, kolik síly ještě zbývá — netuší ani, jak potichu se mu vytrácí Zbožnost. Acedia nepřijde náhle. Přijde jako únava, která se nikdy pořádně neodpočine.',
             },
+
+            titivillus_secunda: {
+                title: 'Titivillus — druhá tvář',
+                lectio: '*Stejný Titivillus, jiná lavice. Na řezbách pod sedátky v kůru (misericordiích, Anglie 14.–15. stol.) sedí mezi klevetícími ženami, ne mezi opisovači. Pytel je stejný — jen to, co do něj padá, je jiné.*\n\nTITIVILLUS (secunda facies)\nSídlo: kůr, kapitulní síň, kdekoliv se šeptá místo modlí\nChování: sbírá klevety, plané řeči, smích za zády\nNástroj: tentýž pytel — nerozlišuje původ slov, jen jejich zbytečnost\nÚčel: stejný soud, jiný svědek',
+                glossa: 'Nejstarší zmínka je starší, než by čekal i on sám — Jakub z Vitry ji zapsal už ve 20. letech 13. století: démon, co poslouchá sbor při žalmech a sbírá do pytle vynechané a spolykané slabiky. Anglický kněz Jan Slepý z Audeley o dvě stě let později varoval před těmi, co „přeskakují a přebíhají, mumlají a huhňají" — ale přidal i druhou polovinu jeho práce: klevety v lavicích, řeči za zády, smích, co nepatří do kostela.\n\nNa řezbách pod sedátky v kůru (New College Oxford, 14. stol.; St Mary the Virgin, Enville, 15. stol.) sedí přesně mezi dvěma ženami a poslouchá. Stejná postava, stejný pytel — jen jinak natočená hlava.',
+                arcanum: 'Bratři to věděli, a přesto klevetili dál. Možná právě proto: věřit, že klevety zapisuje démon, byl způsob, jak si je nechat pro sebe za odpuštění — a přece pokračovat.\n\nV klášteře to platí přesně takhle: kde dva konvrši drží proti sobě starou křivdu, stačí málo a je z toho spor na Kapitule. Kdo ví, kolik z toho slyšel Titivillus dřív, než to slyšel opat.',
+            },
+
+            belzebub_bestiar: {
+                title: 'Belzebub',
+                lectio: 'Pán much — jméno je urážka, ne titul. Původně Baal Zebul, „Pán vznešeného příbytku", bůh ctěný ve filištínském Ekronu. Izraelité mu jméno obrátili naruby: Baal Zebub, Pán much — z paláce do hnoje jedním písmenem.\n\nBELZEBUB\nSídlo: kdekoli hnije maso, kdekoli se hromadí špína\nChování: obtěžuje soustředění bzučením, láká k hříchu obžerství\nNástroj: roj — nikdy sám, vždycky mnoho\nÚčel: jedno ze sedmi knížat pekla, patron nestřídmosti (Petr Binsfeld, 1589)',
+                glossa: 'Ve 2. Knize královské (asi 850 př. n. l.) pošle izraelský král Achazjáš posly k Baal Zebubovi, bohu Ekronu, zeptat se, zda se uzdraví ze zranění. Prorok Eliáš ho za to odsoudí — a od té chvíle teologie soustavně bourá starý kult na trosky. Baal Zebul, „Pán vznešeného příbytku", se stává Baal Zebub, „Pán much" — urážka vtisknutá do jména natrvalo.\n\nVe středověkém umění se objevuje jako obrovská moucha, nebo jako naducaná postava s hmyzími křídly, korunovaná rojem. Petr Binsfeld ho roku 1589 zařadil mezi sedm knížat pekla jako patrona Obžerství (Gula) — spojení much s hnilobou a přebytkem jídla je stejně staré jako Bible.',
+                arcanum: 'Moucha bzučící kolem hlavy modlícího se mnicha nebyla jen otravný hmyz. Byl to zvěd, nebo přímo drobný démon sám, co zkouší narušit soustředění a připomenout tělu, že má hlad, dřív než duch stihne domodlit.\n\nV klášteře to platí doslova: neuklizený chlév a hnijící zásoby nejsou jen nepořádek. V teplém období přitahují roje, které zrychlují kažení všeho kolem — syrového masa, ryb, sýra. Čím víc hnoje a čím víc neuklizeno, tím víc much; čím víc much, tím rychleji hnije zbytek. Belzebub se neptá, kde začít.',
+            },
         },
     },
 
@@ -40484,6 +40575,20 @@ In every scriptorium lurks Titivillus. His task is not to tempt to sin — other
                 arcanum: 'Later centuries flattened Acedia into mere "sloth" — one of the seven deadly sins, easily pictured as a sleeper astride a donkey. But the old fathers knew it was something else: not rest, but dryness. Not laziness of the body, but a weariness of the spirit that cannot be seen until it is too late.\n\n*Segnities robur frangit, longa ocia nervos.*\n"Sloth breaks strength, long idleness withers the sinews."\n\nIn the monastery this holds exactly true: neglect the body and the spirit long enough — lose track of how much strength remains — and you will not notice how quietly your Piety drains away with it. Acedia never arrives all at once. It arrives as a tiredness that never quite rests.',
             },
 
+            titivillus_secunda: {
+                title: 'Titivillus — The Other Face',
+                lectio: '*The same Titivillus, a different pew. On the misericords carved beneath choir seats (England, 14th–15th c.) he sits among gossiping women, not among scribes. The sack is the same — only what falls into it differs.*\n\nTITIVILLUS (secunda facies)\nHaunts: the choir, the chapter house, wherever whispering replaces prayer\nBehaviour: collects gossip, idle talk, laughter behind backs\nTool: the very same sack — it does not distinguish where the words came from, only their worthlessness\nPurpose: the same judgment, a different witness',
+                glossa: 'The earliest mention is older than he himself might expect — Jacques de Vitry recorded it already in the 1220s: a demon who listens to the choir during the psalms and gathers into his sack the syllables skipped and swallowed. Two centuries later the English priest John the Blind Audeley warned against those who "over-hip and over-skip, mutter and mumble" — but added the other half of his work too: gossip in the pews, talk behind backs, laughter that has no place in church.\n\nOn the misericords (New College, Oxford, 14th c.; St Mary the Virgin, Enville, 15th c.) he sits precisely between two women, listening. Same figure, same sack — only the head turned the other way.',
+                arcanum: 'The brothers knew it, and gossiped anyway. Perhaps precisely because of it: believing a demon recorded the gossip was a way to keep confessing it for forgiveness — and keep on doing it regardless.\n\nIn the monastery this holds exactly true: where two lay brothers carry an old grudge against each other, it takes little for it to surface as a dispute at Chapter. Who knows how much of it Titivillus heard before the abbot did.',
+            },
+
+            belzebub_bestiar: {
+                title: 'Beelzebub',
+                lectio: 'Lord of the Flies — the name is an insult, not a title. Originally Baal Zebul, "Lord of the Lofty Dwelling," a god honored in Philistine Ekron. The Israelites turned the name inside out: Baal Zebub, Lord of Flies — from palace to dung heap by a single letter.\n\nBEELZEBUB\nHaunts: wherever meat rots, wherever filth gathers\nBehaviour: harasses concentration with buzzing, tempts toward the sin of gluttony\nTool: the swarm — never alone, always many\nPurpose: one of the seven princes of Hell, patron of intemperance (Peter Binsfeld, 1589)',
+                glossa: 'In the Second Book of Kings (c. 850 BCE), the Israelite king Ahaziah sends messengers to Baal Zebub, god of Ekron, to ask whether he will recover from his injury. The prophet Elijah condemns him for it — and from that moment theology steadily dismantles the old cult into ruins. Baal Zebul, "Lord of the Lofty Dwelling," becomes Baal Zebub, "Lord of Flies" — an insult stamped permanently into the name.\n\nIn medieval art he appears as a giant fly, or as a bloated figure with insect wings, crowned by a swarm. Peter Binsfeld placed him in 1589 among the seven princes of Hell as patron of Gluttony (Gula) — the link between flies, rot, and excess of food is as old as the Bible itself.',
+                arcanum: 'A fly buzzing around the head of a praying monk was never just an irritating insect. It was a scout, or perhaps a small demon in its own right, trying to break concentration and remind the body it is hungry before the spirit has finished praying.\n\nIn the monastery this holds literally true: an uncleaned pen and rotting stores are not merely untidy. In the warm season they draw swarms that speed up decay all around them — raw meat, fish, cheese. The more manure and the more neglect, the more flies; the more flies, the faster the rest rots. Beelzebub does not ask where to begin.',
+            },
+
         }, // end folios
 
     }, // end scrinium
@@ -42512,6 +42617,64 @@ const Game = {
                     effect: function() {
                         Game.removeItem('acedia_spis', 1);
                         if (typeof SecretsSystem !== 'undefined') SecretsSystem.unlockFolioById('folio_acedia_bestiar');
+                        UI.notify(isEn ? '📕 Handed to the Scrinium.' : '📕 Předáno do Scrinia.');
+                        Game.save();
+                    }
+                },
+                {
+                    label: isEn ? '🗃️ Keep in storage' : '🗃️ Uchovat ve skladu',
+                    type: 'default',
+                    effect: function() {}
+                }
+            ]
+        });
+    },
+
+    // ── Belzebub spis (Bestiář, Cesta B) — modal při nalezení nebo kliknutí ──
+    showBelzebubSpisModal: function() {
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        const isEn = lang === 'en';
+        NotificationSystem.modal({
+            icon: '🪰',
+            title: isEn ? 'Among the Spoiled Stores' : 'Mezi zkaženými zásobami',
+            text: isEn
+                ? 'Amid the rot and the buzzing you find a page, stained but legible. Someone once wrote down what it means when neglect draws a swarm.'
+                : 'Mezi hnilobou a bzučením ležel list, potřísněný, ale čitelný. Někdo si kdysi zapsal, co znamená, když zanedbání přivolá roj.',
+            choices: [
+                {
+                    label: isEn ? '📖 Open' : '📖 Otevřít',
+                    type: 'primary',
+                    effect: function() { Game.showBelzebubSpisContentModal(); }
+                },
+                {
+                    label: isEn ? '📕 Hand to Scrinium' : '📕 Předat do Scrinia',
+                    type: 'default',
+                    effect: function() {
+                        Game.removeItem('belzebub_spis', 1);
+                        if (typeof SecretsSystem !== 'undefined') SecretsSystem.unlockFolioById('folio_belzebub_bestiar');
+                        UI.notify(isEn ? '📕 Handed to the Scrinium.' : '📕 Předáno do Scrinia.');
+                        Game.save();
+                    }
+                }
+            ]
+        });
+    },
+
+    showBelzebubSpisContentModal: function() {
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        const isEn = lang === 'en';
+        NotificationSystem.modal({
+            icon: '🪰',
+            title: isEn ? 'Beelzebub' : 'Belzebub',
+            image: '/bestiary/belzebub.jpg',
+            text: t('scrinium.folios.belzebub_bestiar.lectio'),
+            choices: [
+                {
+                    label: isEn ? '📕 Hand to Scrinium' : '📕 Předat do Scrinia',
+                    type: 'primary',
+                    effect: function() {
+                        Game.removeItem('belzebub_spis', 1);
+                        if (typeof SecretsSystem !== 'undefined') SecretsSystem.unlockFolioById('folio_belzebub_bestiar');
                         UI.notify(isEn ? '📕 Handed to the Scrinium.' : '📕 Předáno do Scrinia.');
                         Game.save();
                     }
@@ -46433,6 +46596,10 @@ const Game = {
             (GameState.dormitorium && GameState.dormitorium.brothers || []).forEach(b => {
                 if (b.assignedTab) b.stress = Math.min(100, (b.stress || 0) + 5);
             });
+            // Bestiář: první reálný konflikt na Kapitule odemkne Titivillovu
+            // "druhou tvář" — týž démon, tentokrát poslouchající klevety
+            // místo opisovačských chyb. unlockFolioById je idempotentní.
+            if (typeof SecretsSystem !== 'undefined') SecretsSystem.unlockFolioById('folio_titivillus_secunda');
             // Viník = nižší loajalita; druhý = poškozený
             const victim = (ka.loyalty <= kb.loyalty) ? ka : kb;
             const other  = (victim === ka) ? kb : ka;
@@ -47672,6 +47839,10 @@ const UI = {
         }
         if (id === 'acedia_spis') {
             if (typeof Game !== 'undefined' && Game.showAcediaSpisModal) Game.showAcediaSpisModal();
+            return;
+        }
+        if (id === 'belzebub_spis') {
+            if (typeof Game !== 'undefined' && Game.showBelzebubSpisModal) Game.showBelzebubSpisModal();
             return;
         }
         const _coinValues = { old_coin_1: 6, old_coin_2: 8, old_coin_3: 12 };
