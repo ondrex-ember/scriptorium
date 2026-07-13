@@ -10370,6 +10370,27 @@ const ContactsDB = {
         } },
         desc: 'Benátský obchodník. Přiváží, co jinde nekoupíš — ale jen když je jeho loď v přístavu.',
         desc_en: 'A Venetian merchant. He brings what you cannot buy elsewhere — but only while his ship is in port.'
+    },
+    stationarius: {
+        confession: "Prodal opsaný text jako originál — a přiúčtoval si podíl z pecia navíc, co žákovi nepřiznal.",
+        confession_en: "He sold a copied text as an original — and skimmed an extra cut from the pecia fee he never disclosed to the student.",
+        name: 'Stationarius', name_en: 'Stationarius', icon: '📚',
+        primaryAxis: 'scholars',
+        secondaryAxis: null,
+        unlockTech: 'tech_writing_basics',
+        // Vlastní vstup v Knihovně (ne Clientela grid v Saeculu) — vyloučen
+        // z renderClientela() explicitně. Přítomen periodicky (mirror
+        // Giacomo, viz CellariumSystem.checkStationariusEvent) — každých
+        // 21 dní na 5 dní, ne vázáno na kalendářní sezónu.
+        sellBonus: { items: { ink: 2, vellum: 3, quill: 2, gum_arabic: 2 } },
+        buyOffer: { items: {
+            ink:        { price: 3, stock: 5 },
+            vellum:     { price: 5, stock: 5 },
+            quill:      { price: 4, stock: 3 },
+            gum_arabic: { price: 3, stock: 5 },
+        } },
+        desc: 'Univerzitní dealer knih a psacích potřeb. V Olomouci jen po jarním a podzimním knižním veletrhu.',
+        desc_en: 'A university dealer in books and writing supplies. In Olomouc only after the spring and autumn book fairs.'
     }
 };
 // ═══ src/systems/theme.js ═══
@@ -17773,6 +17794,27 @@ const CellariumSystem = {
     return (Date.now() - (GameState.economy.lastGiacomoVisit || 0)) < this.GIACOMO_PRESENCE_MS;
   },
 
+  // Stationarius — mirror Giacomo vzoru (týdenní interval + krátké okno),
+  // jen delší cyklus (knižní veletrh je vzácnější než týdenní loď).
+  // Nahrazuje dřívější kalendářní jaro/podzim — to bylo příliš pomalé
+  // (reálné měsíce čekání podle toho, kdy hraješ).
+  STATIONARIUS_INTERVAL_MS: 21 * 24 * 60 * 60 * 1000,  // každých 21 dní
+  STATIONARIUS_PRESENCE_MS: 5 * 24 * 60 * 60 * 1000,   // přítomen 5 dní
+
+  checkStationariusEvent: function() {
+    const now = Date.now();
+    if (!GameState.library) GameState.library = {};
+    if (now - (GameState.library.lastStationariusVisit || 0) >= this.STATIONARIUS_INTERVAL_MS) {
+      GameState.library.lastStationariusVisit = now;
+      Game.save();
+    }
+  },
+
+  isStationariusPresent: function() {
+    if (!GameState.library) return false;
+    return (Date.now() - (GameState.library.lastStationariusVisit || 0)) < this.STATIONARIUS_PRESENCE_MS;
+  },
+
   showGiacomoArrival: function() {
     // Show modal
     let existing = document.getElementById('giacomo-modal');
@@ -19973,6 +20015,11 @@ const SaeculumSystem = {
     const c = ContactsDB[contactId];
     const items = c && c.sellBonus && c.sellBonus.items;
     if (!items || !(itemId in items)) return;
+    if (contactId === 'stationarius' && typeof CellariumSystem !== 'undefined' && !CellariumSystem.isStationariusPresent()) {
+      const lang = (GameState.settings && GameState.settings.language) || 'cs';
+      UI.notify(lang==='en' ? 'The Stationarius travels between book fairs — he is not in Olomouc now.' : 'Stationarius cestuje mezi veletrhy — teď není v Olomouci.', true);
+      return;
+    }
     const have = GameState.inventory[itemId] || 0;
     if (qty === 'all') qty = have;
     qty = Math.max(0, Math.min(have, qty | 0));
@@ -20025,6 +20072,12 @@ const SaeculumSystem = {
     if (contactId === 'giacomo' && !CellariumSystem.isGiacomoPresent()) {
       const lang = (GameState.settings && GameState.settings.language) || 'cs';
       UI.notify(lang==='en' ? "Giacomo's ship is at sea — return after he arrives." : 'Giacomova loď je na moři — vrať se po jeho příjezdu.', true);
+      return;
+    }
+    // Stationarius je v Olomouci jen po jarním/podzimním knižním veletrhu
+    if (contactId === 'stationarius' && !CellariumSystem.isStationariusPresent()) {
+      const lang = (GameState.settings && GameState.settings.language) || 'cs';
+      UI.notify(lang==='en' ? 'The Stationarius travels between book fairs — he is not in Olomouc now.' : 'Stationarius cestuje mezi veletrhy — teď není v Olomouci.', true);
       return;
     }
     // Exkluzivní nabídka: gate na vztah (MRD bod 8)
@@ -20099,6 +20152,7 @@ const SaeculumSystem = {
 
     h += `<div style="display:flex; flex-wrap:wrap; gap:6px;">`;
     Object.keys(ContactsDB).forEach(id => {
+      if (id === 'stationarius') return; // vlastní vstup v Knihovně, ne tady
       const c = ContactsDB[id];
       const unlocked = (!c.unlockTech || researched.includes(c.unlockTech))
                     && (!c.unlockBook || (GameState.library && GameState.library.readBooks && GameState.library.readBooks.includes(c.unlockBook)));
@@ -42047,6 +42101,7 @@ const Game = {
                 if (_tickCounter >= 60) {
                     _tickCounter = 0;
                     CellariumSystem.checkGiacomoEvent();
+                    CellariumSystem.checkStationariusEvent();
                     // v8.x: Orchard growing → mature transition
                     Game.checkOrchardGrowth();
                     if (typeof GardenSystem !== 'undefined') GardenSystem.checkFieldGrowth();
@@ -49674,7 +49729,44 @@ const UI = {
                 📖 ${t('library_lore.lib_read')}: <strong>${read}/${total}</strong>
             </div>
             ${hiddenBookHints}
-            
+            `;
+
+        // Stationarius — univerzitní dealer knih/psacích potřeb. Vstup jen
+        // zde v Knihovně (ne v Saeculum Clientela gridu). Gate: tech +
+        // periodický interval (mirror Giacomo — viz checkStationariusEvent).
+        {
+            const researched = GameState.researchedTechs || [];
+            const stat = (typeof ContactsDB !== 'undefined') ? ContactsDB.stationarius : null;
+            const unlockedStat = stat && (!stat.unlockTech || researched.includes(stat.unlockTech));
+            if (unlockedStat) {
+                const present = (typeof CellariumSystem !== 'undefined') && CellariumSystem.isStationariusPresent();
+                const activeContact = GameState.ui && GameState.ui.clientelaContact;
+                let statusLine;
+                if (present) {
+                    statusLine = lang==='en' ? 'In Olomouc now — the book fair caravan has arrived.' : 'Teď v Olomouci — dorazil s knižním veletrhem.';
+                } else {
+                    const lastVisit = (GameState.library && GameState.library.lastStationariusVisit) || 0;
+                    const nextAt = lastVisit + CellariumSystem.STATIONARIUS_INTERVAL_MS;
+                    const daysLeft = Math.max(0, Math.ceil((nextAt - Date.now()) / (24*3600000)));
+                    statusLine = lang==='en'
+                        ? 'On the road between fairs — back in ' + daysLeft + ' d.'
+                        : 'Na cestě mezi veletrhy — vrací se za ' + daysLeft + ' dní.';
+                }
+                h += `<div style="margin-bottom:20px;padding:12px 14px;background:rgba(197,160,89,0.07);border:1px solid rgba(197,160,89,0.3);border-radius:6px;">
+                        <div style="display:flex;align-items:center;gap:10px;${present ? '' : 'opacity:0.6;'}">
+                          <div style="font-size:1.6rem;">${stat.icon}</div>
+                          <div style="flex:1;">
+                            <strong>${lang==='en'?stat.name_en:stat.name}</strong>
+                            <div class="text-sm" style="opacity:0.75;">${statusLine}</div>
+                          </div>
+                          ${present ? `<button class="craft-btn" onclick="SaeculumSystem.openContact('stationarius'); UI.renderLibrary();">📖 ${lang==='en'?'Meeting':'Schůzka'}</button>` : ''}
+                        </div>
+                        ${(present && activeContact === 'stationarius' && typeof SaeculumSystem !== 'undefined') ? SaeculumSystem.renderContactPanel('stationarius') : ''}
+                      </div>`;
+            }
+        }
+
+        h += `
             <div style="margin-bottom:20px;padding:15px;background:var(--bg-card);border:1px solid var(--border-color);border-radius:5px;">
                 <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
                     <div style="font-size:2rem;">🖋️</div>
