@@ -9322,6 +9322,76 @@ const ScriniumDB = {
             },
         },
 
+        // ── 5. Church Grim (Kostelní grim) — nález přes první hrob:
+        //      první pohřeb na hřbitově -> auto-unlock. Jediný ochranný
+        //      běs v bestiáři, ne škůdce. Bez obrázku, bez itemu.
+        {
+            id: 'folio_grim_bestiar',
+            subtab: 'bestiar',
+            icon: '🐕‍🦺',
+            physicalForm: 'leaf',
+            titleKey: 'scrinium.folios.grim_bestiar.title',
+            lectio: {
+                textKey: 'scrinium.folios.grim_bestiar.lectio',
+                cost: null,
+            },
+            glossa: {
+                textKey: 'scrinium.folios.grim_bestiar.glossa',
+                cost: { item: 'candle', amount: 3 },
+            },
+            arcanum: {
+                textKey: 'scrinium.folios.grim_bestiar.arcanum',
+                cost: { item: 'candle', amount: 5 },
+            },
+        },
+
+        // ── 6. Revenanti — nález přes zanedbaný hřbitov:
+        //      cemetery.condition <30% dlouhodobě (a alespoň 1 hrob) -> auto-unlock.
+        //      Popisuje existující cemetery.condition mechaniku, nic nemění.
+        {
+            id: 'folio_revenanti_bestiar',
+            subtab: 'bestiar',
+            icon: '🧟',
+            physicalForm: 'leaf',
+            titleKey: 'scrinium.folios.revenanti_bestiar.title',
+            lectio: {
+                textKey: 'scrinium.folios.revenanti_bestiar.lectio',
+                cost: null,
+            },
+            glossa: {
+                textKey: 'scrinium.folios.revenanti_bestiar.glossa',
+                cost: { item: 'candle', amount: 3 },
+            },
+            arcanum: {
+                textKey: 'scrinium.folios.revenanti_bestiar.arcanum',
+                cost: { item: 'candle', amount: 5 },
+            },
+        },
+
+        // ── 7. Marginalie (Běsi rozptýlení) — UZAVÍRACÍ meta-karta.
+        //      Nález: všech 6 předchozích bestií nalezeno -> auto-unlock
+        //      (checkConversiChores, self-guard 24h). Jediná bestie bez
+        //      teologa — kreslila se sama, rukou unaveného skriptora.
+        {
+            id: 'folio_marginalie_bestiar',
+            subtab: 'bestiar',
+            icon: '🐌',
+            physicalForm: 'leaf',
+            titleKey: 'scrinium.folios.marginalie_bestiar.title',
+            lectio: {
+                textKey: 'scrinium.folios.marginalie_bestiar.lectio',
+                cost: null,
+            },
+            glossa: {
+                textKey: 'scrinium.folios.marginalie_bestiar.glossa',
+                cost: { item: 'candle', amount: 3 },
+            },
+            arcanum: {
+                textKey: 'scrinium.folios.marginalie_bestiar.arcanum',
+                cost: { item: 'candle', amount: 5 },
+            },
+        },
+
     ], // konec folios[]
 
 }; // konec ScriniumDB
@@ -19267,6 +19337,7 @@ const SaeculumSystem = {
 
     let html = '';
     if (origin) html += `<div style="font-style:italic; font-size:0.8rem; opacity:0.8; margin-bottom:10px; line-height:1.4;">${origin}</div>`;
+    html += this._illnessBadgeHtml(k, lang);
     html += bar((lang==='en'?'😊 Mood':'😊 Nálada'), mood, moodColor);
     html += bar((lang==='en'?'🤝 Loyalty':'🤝 Věrnost'), loyalty, loyColor);
     html += bar((lang==='en'?'😴 Fatigue':'😴 Únava'), fat, fatColor);
@@ -19370,6 +19441,7 @@ const SaeculumSystem = {
           h += `<div onclick="SaeculumSystem.selectBrother('${b.id}')" style="display:flex; align-items:center; gap:6px; padding:6px 10px; background:${isActive ? 'rgba(197,160,89,0.22)' : 'rgba(255,255,255,0.4)'}; border:${isActive ? '2px solid var(--accent-wax)' : '1px solid rgba(197,160,89,0.4)'}; border-radius:8px; cursor:pointer;">
                   <span style="font-size:1rem;">${bIcon}</span>
                   <span style="font-size:0.72rem; font-weight:bold;">${b.name}</span>
+                  ${(b.conditions && Object.keys(b.conditions).length > 0) ? `<span style="font-size:0.85rem;">🤒</span>` : ''}
                   ${specIcon ? `<span style="font-size:0.7rem;">${specIcon}</span>` : `<span style="width:6px; height:6px; border-radius:50%; background:#7f8fa6;"></span>`}
                 </div>`;
         });
@@ -19420,6 +19492,8 @@ const SaeculumSystem = {
       }[dayBlock];
       h += `<div style="font-size:0.76rem; margin:4px 0 8px; opacity:0.8;">${regula.icon} ${lang==='en'?regula.en:regula.cs}</div>`;
     }
+
+    h += this._illnessBadgeHtml(b, lang);
 
     h += `<div style="margin-bottom:7px;">
         <div style="display:flex; justify-content:space-between; font-size:0.72rem; opacity:0.75; margin-bottom:2px;">
@@ -19560,6 +19634,8 @@ const SaeculumSystem = {
             ${origin ? `<div style="font-style:italic; font-size:0.74rem; opacity:0.75; margin-top:2px; line-height:1.35;">${origin}</div>` : ''}</div>
           </div>`;
 
+    h += this._illnessBadgeHtml(k, lang);
+
     h += bar((lang==='en'?'😊 Mood':'😊 Nálada'), mood, moodColor);
     h += bar((lang==='en'?'🤝 Loyalty':'🤝 Věrnost'), loyalty, loyColor);
     h += bar((lang==='en'?'😴 Fatigue':'😴 Únava'), fat, fatColor);
@@ -19626,6 +19702,27 @@ const SaeculumSystem = {
     return h;
   },
 
+  // Nemoc musí "řvát" — výrazný červený badge, ne tichý text.
+  _illnessBadgeHtml: function(entity, lang) {
+    if (!entity.conditions || typeof HealthConditionsDB === 'undefined') return '';
+    const ids = Object.keys(entity.conditions);
+    if (!ids.length) return '';
+    const rows = ids.map(id => {
+      const def = HealthConditionsDB[id];
+      if (!def) return '';
+      const name = lang === 'en' ? def.name_en : def.name;
+      return `<div style="display:flex; align-items:center; gap:5px;">
+                <span style="font-size:1rem;">${def.icon}</span>
+                <strong style="color:#c0392b;">${name}</strong>
+              </div>`;
+    }).join('');
+    return `<div style="background:rgba(192,57,43,0.15); border:1px solid #c0392b; border-radius:6px;
+                        padding:5px 8px; margin:3px 0 6px 0; animation:illnessPulse 2s infinite;">
+              ${rows}
+            </div>
+            <style>@keyframes illnessPulse { 0%,100% { opacity:1; } 50% { opacity:0.6; } }</style>`;
+  },
+
   renderManufactura: function() {
     const lang = (GameState.settings && GameState.settings.language) || 'cs';
     // Pořadí odpovídá DormitoriumSpecializationDB; dvur navíc (údržba, bez XP tabu tam).
@@ -19677,6 +19774,7 @@ const SaeculumSystem = {
                 📿 <strong>${st.brother.name}</strong> — ${lang === 'en' ? 'level' : 'úroveň'} ${st.level}/4
                 <span style="opacity:0.65;"> (${st.xp} XP, ×${st.mult.toFixed(2)} ${lang === 'en' ? 'yield' : 'výnos'})</span>
               </div>`;
+        h += this._illnessBadgeHtml(st.brother, lang);
       } else {
         h += `<div style="font-size:0.76rem; opacity:0.5; margin-bottom:3px;">📿 ${lang === 'en' ? 'no brother assigned' : 'nepřiřazen žádný bratr'}</div>`;
       }
@@ -19685,6 +19783,7 @@ const SaeculumSystem = {
       if (CONVERSI_CAPABLE.includes(tabKey)) {
         if (st.konvrs) {
           h += `<div style="font-size:0.76rem; opacity:0.85; margin-bottom:6px;">✝️ <strong>${st.konvrs.name}</strong></div>`;
+          h += this._illnessBadgeHtml(st.konvrs, lang);
         } else {
           h += `<div style="font-size:0.76rem; opacity:0.5; margin-bottom:6px;">✝️ ${lang === 'en' ? 'no lay brother assigned' : 'nepřiřazen žádný konvrš'}</div>`;
         }
@@ -19762,6 +19861,7 @@ const SaeculumSystem = {
           h += `<div onclick="SaeculumSystem.selectConversi('${k.id}')" style="display:flex; align-items:center; gap:6px; padding:6px 10px; background:${isActive ? 'rgba(197,160,89,0.22)' : 'rgba(255,255,255,0.4)'}; border:${isActive ? '2px solid var(--accent-wax)' : '1px solid rgba(197,160,89,0.4)'}; border-radius:8px; cursor:pointer;">
                   <span style="font-size:1rem;">${kIcon}</span>
                   <span style="font-size:0.72rem; font-weight:bold;">${k.name}</span>
+                  ${(k.conditions && Object.keys(k.conditions).length > 0) ? `<span style="font-size:0.85rem;">🤒</span>` : ''}
                   ${statusIcon ? `<span style="font-size:0.7rem;">${statusIcon}</span>` : `<span style="width:6px; height:6px; border-radius:50%; background:${statusDot};"></span>`}
                 </div>`;
         });
@@ -37750,6 +37850,27 @@ const STRINGS_cs = {
                 glossa: 'Ve 2. Knize královské (asi 850 př. n. l.) pošle izraelský král Achazjáš posly k Baal Zebubovi, bohu Ekronu, zeptat se, zda se uzdraví ze zranění. Prorok Eliáš ho za to odsoudí — a od té chvíle teologie soustavně bourá starý kult na trosky. Baal Zebul, „Pán vznešeného příbytku", se stává Baal Zebub, „Pán much" — urážka vtisknutá do jména natrvalo.\n\nVe středověkém umění se objevuje jako obrovská moucha, nebo jako naducaná postava s hmyzími křídly, korunovaná rojem. Petr Binsfeld ho roku 1589 zařadil mezi sedm knížat pekla jako patrona Obžerství (Gula) — spojení much s hnilobou a přebytkem jídla je stejně staré jako Bible.',
                 arcanum: 'Moucha bzučící kolem hlavy modlícího se mnicha nebyla jen otravný hmyz. Byl to zvěd, nebo přímo drobný démon sám, co zkouší narušit soustředění a připomenout tělu, že má hlad, dřív než duch stihne domodlit.\n\nV klášteře to platí doslova: neuklizený chlév a hnijící zásoby nejsou jen nepořádek. V teplém období přitahují roje, které zrychlují kažení všeho kolem — syrového masa, ryb, sýra. Čím víc hnoje a čím víc neuklizeno, tím víc much; čím víc much, tím rychleji hnije zbytek. Belzebub se neptá, kde začít.',
             },
+
+            grim_bestiar: {
+                title: 'Church Grim (Kostelní grim)',
+                lectio: 'Anglická a skandinávská legenda, přenesená do křesťanského prostředí z pohanských kořenů. Věřilo se, že první bytost pohřbená na novém hřbitově musí navždy hlídat jeho bránu před Ďáblem.\n\nCHURCH GRIM\nSídlo: hřbitovní brána, první hrob\nChování: hlídá posvátnou půdu před vykradači hrobů a zlými duchy\nNástroj: žádný — jen přítomnost, černý pes s planoucíma očima\nÚčel: ochránce, ne škůdce — jediný vlídný běs v celém bestiáři',
+                glossa: 'Aby tenhle úkol nemusel plnit lidský duch, zazdíval se do základů kostelní zdi nebo pohřbíval na kraj hřbitova zaživa černý pes — první oběť, první strážce. Jeho duch pak v noci obcházel hřbitov, viditelný jen tomu, kdo měl umřít brzy.\n\nLegenda je stará jako sám zvyk zakládat posvátnou půdu — ochrana skrze oběť, ne skrze modlitbu. Církev ji nikdy oficiálně neschválila, ale ani nezakázala; přežila v lidové víře dál, paralelně s liturgií.',
+                arcanum: 'Na rozdíl od všech ostatních běsů v tomhle bestiáři Church Grim nikoho netrestá, nesbírá chyby, neláká k hříchu. Hlídá.\n\nV klášteře to platí doslova: první hrob na hřbitově není jen první ztráta. Je to okamžik, kdy se posvátná půda skutečně stane posvátnou — má co bránit, i koho.',
+            },
+
+            revenanti_bestiar: {
+                title: 'Revenanti',
+                lectio: 'Předchůdci dnešních zombie a upírů — ale žádní romantičtí aristokraté. Tlející, naběhlé mrtvoly hříšníků, sebevrahů nebo obětí moru, které v noci vylézají z hrobů.\n\nREVENANTUS\nSídlo: zanedbaný hřbitov, hrob bez péče\nChování: bloudí vesnicí, šíří morový dech, děsí živé\nNástroj: vlastní tělo — otoky, puchýře, zápach připisovaný démonické síle\nÚčel: varování — zanedbaný hrob je otevřená brána',
+                glossa: 'Vilém z Newburghu, anglický kronikář 12. století, zaznamenal několik takových případů jako fakta, ne pověsti — mrtví, co vstávají z hrobu a obtěžují živé, dokud jejich tělo někdo nevyhrabe a nezastaví.\n\nObrana byla praktická, ne jen duchovní: tělo se exhumovalo, useklo se mu rýčem hlavou, srdce se probodlo nebo vyňalo a spálilo — což mělo vypustit nahromaděné plyny rozkladu, tehdy brané za démonickou sílu samu.',
+                arcanum: 'Za slovy o morovém dechu a naběhlých tělech je jednoduchá, doslovná pravda: hrob, o který se nikdo nestará, je hrob, který mluví. Zápach, otoky, věci vylézající ze země — to všechno má docela obyčejné vysvětlení, jenže středověký člověk vysvětlení hledal jinde.\n\nV klášteře to platí přesně takhle: zanedbaný hřbitov není jen ošklivý pohled. Je to místo, kde legenda a nedbalost splývají v jedno — a čím déle to trvá, tím hůř se to od sebe odlišuje.',
+            },
+
+            marginalie_bestiar: {
+                title: 'Marginalie (Běsi rozptýlení)',
+                lectio: 'Ne všechno v bestiáři má jméno, teologii, nebo dokonce tělo. Tohle jsou stvoření, co se rodila přímo v unavených myslích skriptorů — na okrajích pergamenu, ne v žádném traktátu.\n\nMARGINALIA (DROLERIE)\nSídlo: okraj stránky, kdykoliv pozornost opadne\nChování: vražední šneci, psohlavci, zajíci lovící psy, opice hrající na nástroje\nNástroj: brk skriptora samotného — jediný běs, co kreslí sám sebe\nÚčel: ventil, ne hřích — vizuální projev únavy, ne pokušení',
+                glossa: 'Když pozornost skriptora po hodinách opadla, jeho boj se soustředěním se vizualizoval přímo do okrajů pergamenu. Nejčastější motiv: plně ozbrojený rytíř ustupující před obřím šnekem — satira na zbabělost, nebo možná jen na to, jak nesnesitelně pomalu se práce na rukopisu vlekla.\n\nKynocefalové, Blemyové, zajíci lovící psy, opice s hudebními nástroji — žádná z těchto postav nemá teologický traktát, žádnou kázeň o nich, žádné jméno v žádném bestiáři. Rodily se přímo tady, na okraji, a nikde jinde.',
+                arcanum: 'Všech šest běsů, co jsi až dosud našel — Titivillus ve dvou tvářích, Acedia, Belzebub, Church Grim, Revenanti — mělo jméno, traktát, teologa, co je popsal. Tenhle poslední ne. Je to jediná bestie v celém bestiáři, co nikdo nevymyslel — nakreslila se sama, rukou vyčerpaného člověka.\n\nMožná to byl ten nejupřímnější záznam ze všech: ne co klášter věřil, že ho ohrožuje, ale co skutečně cítil, když už nemohl dál.',
+            },
         },
     },
 
@@ -40717,6 +40838,27 @@ In every scriptorium lurks Titivillus. His task is not to tempt to sin — other
                 lectio: 'Lord of the Flies — the name is an insult, not a title. Originally Baal Zebul, "Lord of the Lofty Dwelling," a god honored in Philistine Ekron. The Israelites turned the name inside out: Baal Zebub, Lord of Flies — from palace to dung heap by a single letter.\n\nBEELZEBUB\nHaunts: wherever meat rots, wherever filth gathers\nBehaviour: harasses concentration with buzzing, tempts toward the sin of gluttony\nTool: the swarm — never alone, always many\nPurpose: one of the seven princes of Hell, patron of intemperance (Peter Binsfeld, 1589)',
                 glossa: 'In the Second Book of Kings (c. 850 BCE), the Israelite king Ahaziah sends messengers to Baal Zebub, god of Ekron, to ask whether he will recover from his injury. The prophet Elijah condemns him for it — and from that moment theology steadily dismantles the old cult into ruins. Baal Zebul, "Lord of the Lofty Dwelling," becomes Baal Zebub, "Lord of Flies" — an insult stamped permanently into the name.\n\nIn medieval art he appears as a giant fly, or as a bloated figure with insect wings, crowned by a swarm. Peter Binsfeld placed him in 1589 among the seven princes of Hell as patron of Gluttony (Gula) — the link between flies, rot, and excess of food is as old as the Bible itself.',
                 arcanum: 'A fly buzzing around the head of a praying monk was never just an irritating insect. It was a scout, or perhaps a small demon in its own right, trying to break concentration and remind the body it is hungry before the spirit has finished praying.\n\nIn the monastery this holds literally true: an uncleaned pen and rotting stores are not merely untidy. In the warm season they draw swarms that speed up decay all around them — raw meat, fish, cheese. The more manure and the more neglect, the more flies; the more flies, the faster the rest rots. Beelzebub does not ask where to begin.',
+            },
+
+            grim_bestiar: {
+                title: 'Church Grim',
+                lectio: 'An English and Scandinavian legend, carried into Christian ground from pagan roots. It was believed that the first being buried in a new churchyard had to guard its gate against the Devil forever.\n\nCHURCH GRIM\nHaunts: the churchyard gate, the first grave\nBehaviour: guards the consecrated ground against grave robbers and evil spirits\nTool: none — only presence, a black dog with burning eyes\nPurpose: a protector, not a scourge — the only kindly demon in this whole bestiary',
+                glossa: 'So that no human soul had to carry the task, a black dog was often walled alive into the foundations of the church, or buried at the edge of the churchyard — the first victim, the first guardian. Its ghost then walked the grounds at night, visible only to those soon to die.\n\nThe legend is as old as the custom of founding consecrated ground itself — protection through sacrifice, not through prayer. The Church never officially sanctioned it, nor forbade it outright; it survived in folk belief alongside the liturgy.',
+                arcanum: 'Unlike every other demon in this bestiary, the Church Grim punishes no one, collects no errors, tempts no one toward sin. It guards.\n\nIn the monastery this holds literally true: the first grave in a churchyard is not merely the first loss. It is the moment consecrated ground truly becomes consecrated — it has something to defend, and someone.',
+            },
+
+            revenanti_bestiar: {
+                title: 'Revenants',
+                lectio: 'Forerunners of today\'s zombies and vampires — but no romantic blood-drinking aristocrats. Rotting, bloated corpses of sinners, suicides, or plague victims who climb out of their graves at night.\n\nREVENANTUS\nHaunts: a neglected churchyard, an untended grave\nBehaviour: wanders the village, spreads a plague-breath, terrifies the living\nTool: its own body — swelling, blisters, a stench attributed to demonic power\nPurpose: a warning — a neglected grave is an open gate',
+                glossa: 'William of Newburgh, a 12th-century English chronicler, recorded several such cases as fact, not rumor — the dead rising from the grave to torment the living, until someone dug up the body and stopped it.\n\nThe defense was practical as much as spiritual: the body was exhumed, its head struck off with a spade, its heart pierced or removed and burned — meant to release the trapped gases of decomposition, taken at the time for demonic force itself.',
+                arcanum: 'Behind the talk of plague-breath and swollen bodies lies a simple, literal truth: a grave no one tends is a grave that speaks. The stench, the swelling, things emerging from the ground — all of it has a perfectly ordinary explanation, except the medieval mind looked for that explanation elsewhere.\n\nIn the monastery this holds exactly true: a neglected churchyard is not merely an unpleasant sight. It is a place where legend and neglect blur into one — and the longer it goes on, the harder they are to tell apart.',
+            },
+
+            marginalie_bestiar: {
+                title: 'Marginalia (Wandering Demons)',
+                lectio: 'Not everything in this bestiary has a name, a theology, or even a body. These creatures were born directly in the tired minds of scribes — in the margins of the parchment, not in any treatise.\n\nMARGINALIA (DROLLERIES)\nHaunts: the edge of the page, whenever attention fades\nBehaviour: murderous snails, dog-headed men, hares hunting hounds, monkeys playing instruments\nTool: the scribe\'s own quill — the only demon that draws itself\nPurpose: a release valve, not a sin — a visual symptom of fatigue, not a temptation',
+                glossa: 'When a scribe\'s attention faded after hours of work, his struggle to concentrate visualized itself directly in the margins of the parchment. The most common motif: a fully armed knight retreating before a giant snail — satire on cowardice, or perhaps simply on how unbearably slowly the work on the manuscript crept along.\n\nDog-headed men, Blemmyes, hares hunting hounds, monkeys with musical instruments — none of these figures has a theological treatise, a sermon, a name in any bestiary. They were born right here, in the margin, and nowhere else.',
+                arcanum: 'All six demons found so far — Titivillus in two faces, Acedia, Beelzebub, the Church Grim, the Revenants — had a name, a treatise, a theologian who described them. This last one does not. It is the only beast in the whole bestiary that no one invented — it drew itself, by the hand of an exhausted man.\n\nPerhaps it was the most honest record of all: not what the monastery believed threatened it, but what it actually felt, when it could go no further.',
             },
 
         }, // end folios
@@ -45614,6 +45756,11 @@ const Game = {
                     if (type === 'funeral') {
                         if (!GameState.cemetery) GameState.cemetery = { condition: 100, graves: [] };
                         GameState.cemetery.graves.push({ surname: surname, ts: Date.now() });
+                        // Bestiář: první hrob na hřbitově odemkne Kostelního grima —
+                        // legenda praví, že první pohřbený musí navždy hlídat bránu.
+                        if (GameState.cemetery.graves.length === 1 && typeof SecretsSystem !== 'undefined') {
+                            SecretsSystem.unlockFolioById('folio_grim_bestiar');
+                        }
                     }
                     Game._templumLog({ type: 'parish', eventType: type, surname: surname, officiated: true });
                     Game.addKronikaEntry('minor',
@@ -46100,6 +46247,13 @@ const Game = {
         }
         cem.condition = Math.max(0, cem.condition - 1); // pomalé zarůstání bez péče
 
+        // Bestiář: Revenanti — hřbitov dlouhodobě zanedbaný (<30 %, se hroby)
+        // odemkne legendu o neklidných mrtvých. Mirror Acedia vzoru (nízký
+        // Vigor dlouho = eroze); tady nízký condition dlouho = nález.
+        if (cem.condition < 30 && cem.graves.length > 0 && typeof SecretsSystem !== 'undefined') {
+            SecretsSystem.unlockFolioById('folio_revenanti_bestiar');
+        }
+
         Game.save();
     },
 
@@ -46278,7 +46432,11 @@ const Game = {
 
     dormitoriumBrotherMult: function(brother, tabId) {
         const level = this.dormitoriumBrotherLevel(brother, tabId);
-        return this.DORMITORIUM_LEVEL_MULT[level - 1];
+        let mult = this.DORMITORIUM_LEVEL_MULT[level - 1];
+        // Nemoc snižuje výkon přímo — mimo fatigue navíc (co ho stejně
+        // vyřadí z výběru přes existující filtry), i aktivní bratr pracuje hůř.
+        if (brother.conditions && Object.keys(brother.conditions).length > 0) mult *= 0.7;
+        return mult;
     },
 
     // Mapování tab → (primární vlastnost +2, sekundární +1) — monk-attributes-mrd.
@@ -46949,6 +47107,127 @@ const Game = {
     // onlyTab — volitelné, pro izolovaný manuální Collect (Manufaktura).
     // Bez argumentu (automatický tick na pozadí) běží přesně jako dřív —
     // zpracuje všech 9 tabů. S argumentem přeskočí všechny ostatní.
+    // ── Valetudo pro Conversi/Dormitorium ────────────────────────────────
+    // Task/tab → nemoci, na které je ta práce riziková (skupina C).
+    NPC_HEALTH_RISK: {
+        zahony: 'cold', sad: 'cold', pole: 'cold', vinohrad: 'cold',
+        apiarium: 'cold', piscina: 'cold',
+        dvur: 'lice', hrbitov: 'lice',
+        kostel: 'rheumatism',
+        athanor: 'eye_strain', scriptorium: 'eye_strain',
+    },
+    // Sdílený zdroj (skupina B) — voda/úplavice škálují s GameState.well.purity
+    // (stejný signál jako hráčova mouchová/nemocná mechanika ve WellSystem);
+    // Oheň sv. Antonína/Kurděje zůstávají plochá aproximace (žádný centrální
+    // čítač kvality žita/ovoce po ruce).
+    NPC_SHARED_RISK: ['water_sickness', 'dysentery', 'ergot_fire', 'scurvy'],
+    // Nákazlivé (skupina A) — šíří se uvnitř vlastního poolu (conversi mezi
+    // sebou / bratři mezi sebou), sdílený dormitář a nářadí.
+    NPC_CONTAGIOUS: ['scabies', 'lice'],
+
+    _npcHealthTick: function() {
+        const conversi = GameState.conversi || [];
+        const brothers = (GameState.dormitorium && GameState.dormitorium.brothers) || [];
+        const month = new Date().getMonth() + 1;
+        const isSummer = month >= 5 && month <= 9;
+        const isWinter = month === 12 || month <= 2;
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+
+        const applyTick = (entity) => {
+            if (!entity.conditions) entity.conditions = {};
+            Object.keys(entity.conditions).forEach(id => {
+                const inst = entity.conditions[id];
+                const def = HealthConditionsDB[id];
+                if (!def || !inst) { delete entity.conditions[id]; return; }
+                if (Date.now() >= inst.expiresAt) { delete entity.conditions[id]; return; }
+                // Denní tick = 24h najednou; NPC tlumeněji než hráč (0.3×),
+                // ať se nerozpadnou po jednom dni smůly.
+                if (def.tickHour && typeof def.tickHour.fatigue === 'number') {
+                    entity.fatigue = Math.min(100, (entity.fatigue || 0) + def.tickHour.fatigue * 24 * 0.3);
+                }
+                if (def.tickHour && typeof def.tickHour.satiety === 'number' && typeof entity.mood === 'number') {
+                    entity.mood = Math.max(0, entity.mood - Math.abs(def.tickHour.satiety) * 24 * 0.1);
+                }
+            });
+        };
+
+        const tryInfect = (entity, id, chance) => {
+            if (!entity.conditions) entity.conditions = {};
+            if (entity.conditions[id]) return false;
+            if (Math.random() >= chance) return false;
+            const def = HealthConditionsDB[id];
+            if (!def) return false;
+            entity.conditions[id] = { startedAt: Date.now(), expiresAt: Date.now() + def.durationHours * 3600000 };
+            if (def.onApply) {
+                if (typeof def.onApply.fatigue === 'number') entity.fatigue = Math.min(100, (entity.fatigue || 0) + def.onApply.fatigue);
+                if (typeof def.onApply.satiety === 'number' && typeof entity.mood === 'number') entity.mood = Math.max(0, entity.mood + def.onApply.satiety * 0.5);
+            }
+            const name = lang === 'en' ? def.name_en : def.name;
+            if (typeof UI !== 'undefined' && UI.notifyPanel) {
+                UI.notifyPanel('🤒 ' + entity.name + ' — ' + name + '.', 'warning');
+            }
+            return true;
+        };
+
+        [conversi, brothers].forEach(pool => {
+            // Nákaza — pokud už v poolu někdo aktivní má, ostatní mají zvýšené riziko.
+            this.NPC_CONTAGIOUS.forEach(id => {
+                const infected = pool.filter(e => e.conditions && e.conditions[id]).length;
+                pool.forEach(entity => {
+                    applyTick(entity);
+                    const task = entity.task || entity.assignedTab;
+                    const taskRisk = this.NPC_HEALTH_RISK[task] === id ? 0.02 : 0;
+                    const contagionBonus = infected > 0 && !entity.conditions[id] ? 0.03 * infected : 0;
+                    tryInfect(entity, id, Math.min(0.25, taskRisk + contagionBonus));
+                });
+            });
+        });
+
+        // Ostatní task-vázané (skupina C) — mimo nákazlivé, řešené výš
+        [...conversi, ...brothers].forEach(entity => {
+            const task = entity.task || entity.assignedTab;
+            if (!task) return;
+            const riskId = this.NPC_HEALTH_RISK[task];
+            if (riskId && !this.NPC_CONTAGIOUS.includes(riskId)) {
+                let chance = 0.02;
+                if (riskId === 'cold' && isWinter) chance = 0.04;
+                tryInfect(entity, riskId, chance);
+            }
+            if (task === 'apiarium' || task === 'piscina') {
+                if (isSummer) tryInfect(entity, 'mosquito_bites', 0.03);
+            }
+            if (task === 'scriptorium') tryInfect(entity, 'writers_cramp', 0.015);
+        });
+
+        // Nespavost — jen konvrši, zvýšená pokud je v partě 'chrapoun'.
+        const snorerPresent = conversi.some(k => this._konvrsTraits(k).includes('chrapoun'));
+        conversi.forEach(k => {
+            tryInfect(k, 'insomnia', snorerPresent ? 0.05 : 0.015);
+        });
+
+        // Dna — čistě dieta, nezávislé na úkolu, kdokoliv aktivní.
+        [...conversi, ...brothers].forEach(entity => {
+            tryInfect(entity, 'gout', 0.01);
+        });
+
+        // Sdílený zdroj (skupina B) — voda/úplavice škálují s purity studny.
+        const wellPurity = (GameState.well && typeof GameState.well.purity === 'number') ? GameState.well.purity : 100;
+        [...conversi, ...brothers].forEach(entity => {
+            const task = entity.task || entity.assignedTab;
+            if (!task) return;
+            const id = this.NPC_SHARED_RISK[Math.floor(Math.random() * this.NPC_SHARED_RISK.length)];
+            if (id === 'scurvy' && !isWinter) return;
+            let chance = 0.008;
+            if (id === 'water_sickness' || id === 'dysentery') {
+                chance = wellPurity < 30 ? 0.02 : wellPurity < 70 ? 0.01 : 0.002;
+                if (id === 'dysentery') chance *= 0.4; // těžší varianta, vzácnější
+            }
+            tryInfect(entity, id, chance);
+        });
+
+        Game.save();
+    },
+
     checkConversiChores: function(onlyTab) {
         // POZOR: dřív zde bylo `if (!GameState.conversi || length===0) return;`,
         // což při absenci JAKÉHOKOLIV konvrše zablokovalo i Dormitorium bratry
@@ -47061,8 +47340,36 @@ const Game = {
             }
         }
 
+        // ── Bestiář: Marginalie — uzavírací meta-karta. Odemkne se, jakmile
+        // jsou nalezeny všechny předchozí bestie (jediná, co nemá teologa —
+        // proto přichází poslední, ne nezávisle jako ostatní). Self-guard 24h.
+        if (!GameState.marginalieCheckLastTick) GameState.marginalieCheckLastTick = 0;
+        if (Date.now() - GameState.marginalieCheckLastTick >= DAY) {
+            GameState.marginalieCheckLastTick = Date.now();
+            const prereq = ['folio_titivillus_bestiar', 'folio_titivillus_secunda', 'folio_acedia_bestiar',
+                             'folio_belzebub_bestiar', 'folio_grim_bestiar', 'folio_revenanti_bestiar'];
+            const folios = (GameState.scrinium && GameState.scrinium.folios) || {};
+            const allFound = prereq.every(id => folios[id] && folios[id].found);
+            if (allFound && typeof SecretsSystem !== 'undefined') {
+                SecretsSystem.unlockFolioById('folio_marginalie_bestiar');
+            }
+        }
+
+        // ── Valetudo pro Conversi/Dormitorium — jeden sdílený denní tick.
+        // Mirror HealthSystem.js enginu (stejné HealthConditionsDB, stejný
+        // onApply/tickHour tvar), jen NPC verze místo GameState.satiety/fatigue.
+        // Výkonový postih: nemoc přidává fatigue navíc (přirozeně vyřadí z
+        // výběru přes existující fatigue<80/90 filtry) + dormitoriumBrotherMult
+        // má přímý ×0.7 postih (viz výš).
+        if (!GameState.npcHealthLastTick) GameState.npcHealthLastTick = 0;
+        if (Date.now() - GameState.npcHealthLastTick >= DAY && typeof HealthConditionsDB !== 'undefined') {
+            GameState.npcHealthLastTick = Date.now();
+            this._npcHealthTick();
+        }
+
         // ── Denní režim (Regula) ──
         const dayBlock = this.conversiDayBlock();
+
 
         // Officium (6–9): odpočinek + denní mood/loyalty tick — jednou za 24h
         if (dayBlock === 'officium') {
