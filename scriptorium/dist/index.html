@@ -6079,6 +6079,13 @@ Object.assign(ItemsDB, {
         desc: "Polozetlelý list se skicou rohatého tvora a varovnými verši. Někdo si dal práci to zapsat.", desc_en: "A half-decayed leaf with a sketch of a horned creature and warning verses. Someone took care to write it down."
     },
 });
+// ── BESTIÁŘ — nález spisu (cleanPen, nezávislý na Acedia erosion-checku) ──
+Object.assign(ItemsDB, {
+    "acedia_spis": {
+        name: "Spis o Acedii", name_en: "A Note on Acedia", icon: "📜", type: "lore",
+        desc: "Vlhkem zvlněný list, zastrčený ve spáře proutěné stěny. Někdo si zapsal, jaké to je, když den nechce skončit.", desc_en: "A page warped with damp, wedged in the crack of a wattle wall. Someone once wrote down what it feels like when the day will not end."
+    },
+});
 // ═══ src/data/recipes.js ═══
 const RecipesDB = [
     // BASIC TOOLS
@@ -9225,6 +9232,34 @@ const ScriniumDB = {
             },
             arcanum: {
                 textKey: 'scrinium.folios.titivillus_bestiar.arcanum',
+                cost: { item: 'candle', amount: 5 },
+            },
+        },
+
+        // ── 2. Acedia (Daemon meridianus) — nález přes dvě cesty:
+        //      A) první reálný zásah Zbožnost-eroze (Vigor<30% týden) -> auto-unlock
+        //      B) nález "acedia_spis" při úklidu chlévu zanedbaného ≥3 dny,
+        //         šance roste s dalšími signály zanedbání (nízký Vigor,
+        //         zaseklé Manufaktura taby) -> modal -> Předat do Scrinia
+        //    Čistě narativní — popisuje existující Zbožnost erosion mechaniku,
+        //    nic nemění.
+        {
+            id: 'folio_acedia_bestiar',
+            subtab: 'bestiar',
+            icon: '😴',
+            physicalForm: 'leaf',
+            titleKey: 'scrinium.folios.acedia_bestiar.title',
+            lectio: {
+                textKey: 'scrinium.folios.acedia_bestiar.lectio',
+                cost: null,
+                image: '/bestiary/acedia.jpg',
+            },
+            glossa: {
+                textKey: 'scrinium.folios.acedia_bestiar.glossa',
+                cost: { item: 'candle', amount: 3 },
+            },
+            arcanum: {
+                textKey: 'scrinium.folios.acedia_bestiar.arcanum',
                 cost: { item: 'candle', amount: 5 },
             },
         },
@@ -24871,6 +24906,33 @@ const FarmyardSystem = {
         const inv = GameState.inventory;
         inv['manure'] = (inv['manure'] || 0) + n;
 
+        // Bestiář — Acedia. Nález vázaný na skutečné zanedbání: čím déle
+        // tenhle chlév ležel neuklizený a čím víc dalšího je taky
+        // zanedbáno (nízký Vigor, zaseklé Manufaktura taby), tím vyšší
+        // šance najít spis přímo ve chvíli, kdy z toho zanedbání vylézáš.
+        {
+            const neglectDays = (now - lastCleaned) / this.DAY_MS;
+            if (neglectDays >= 3) {
+                const alreadyFolio = GameState.scrinium && GameState.scrinium.folios
+                    && GameState.scrinium.folios['folio_acedia_bestiar'] && GameState.scrinium.folios['folio_acedia_bestiar'].found;
+                const alreadyHeld = (GameState.inventory['acedia_spis'] || 0) > 0;
+                if (!alreadyFolio && !alreadyHeld) {
+                    let chance = 0.03;
+                    if (typeof VigorSystem !== 'undefined' && VigorSystem.getVigorPct && VigorSystem.getVigorPct() < 30) chance += 0.05;
+                    const staleFields = ['conversiGardenLastTick', 'conversiOrchardLastTick', 'conversiApiaryLastTick',
+                                          'conversiPiscinaLastTick', 'conversiFieldLastTick', 'conversiVineaLastTick',
+                                          'conversiAthanorLastTick', 'conversiScriptoriumLastTick'];
+                    const DAY2 = 2 * this.DAY_MS;
+                    const staleCount = staleFields.filter(f => GameState[f] > 0 && (now - GameState[f]) >= DAY2).length;
+                    chance = Math.min(0.25, chance + staleCount * 0.02);
+                    if (Math.random() < chance) {
+                        if (typeof Game !== 'undefined' && Game.addItem) Game.addItem('acedia_spis', 1);
+                        if (typeof Game !== 'undefined' && Game.showAcediaSpisModal) setTimeout(function () { Game.showAcediaSpisModal(); }, 300);
+                    }
+                }
+            }
+        }
+
         if (typeof UI !== 'undefined' && UI.notify) UI.notify('💩 ' + t('farmyard.cleanDone').replace('{n}', n));
         if (typeof Game !== 'undefined' && Game.save) Game.save();
         this.renderFarmyard();
@@ -28166,6 +28228,9 @@ const PersonaSystem = {
         // Acedia (endgame-branches-reference.md sekce 9) — nízký Vigor beze změny celý týden = eroze Zbožnosti
         if (typeof VigorSystem !== 'undefined' && VigorSystem.getVigorPct && VigorSystem.getVigorPct() < 30) {
             this.addZboznost(-2);
+            // Bestiář: první reálný zásah Acedie rovnou odemkne její záznam.
+            // unlockFolioById je idempotentní (no-op, pokud už nalezeno).
+            if (typeof SecretsSystem !== 'undefined') SecretsSystem.unlockFolioById('folio_acedia_bestiar');
         }
         GameState.persona.influenceLastDecay = now;
         if (changed) Game.save();
@@ -37457,6 +37522,13 @@ const STRINGS_cs = {
                 glossa: 'Legenda o démonovi sbírajícím chyby písařů se poprvé objevuje v kazatelských exemplech koncem 12. století. Jméno „Titivillus" se v textech ustaluje kolem roku 1285, u Jana z Walesu — ale démon sám je starší a bezejmenný putoval Evropou už dřív.\n\nPřes staletí sbíral desítky jmen: Tutivillus, Tintinillus, Titelinus, Tantillus... v Čechách se mu prý říkalo Tibini. Každý klášter, každý kostel od Anglie po Byzanc měl svou verzi téhož strachu — že i sebemenší zamumlaná slabika v hodinkách se jednou položí na misku vah.\n\nKdyž přišel knihtisk, mniši si šeptali s hořkým úsměvem: teď bude mít Titivillus žně. První tisky byly plné chyb — a démon prý neváhal ani chvíli přesedlat od pergamenu k sazbě.',
                 arcanum: 'Nejstarší vypravěči přidávali detail, který dodnes rozesměje i vážného bratra kronikáře: když se do pytle nevešly další chyby, Titivillus prý natahoval pergamen zuby. A když se roztrhl, bouchl bezmocně hlavou o zeď.\n\n*Fragmina verborum Titivillus colligit horum,\nQuaque die mille vicibus se sarcinat ille.*\n\n„Úlomky těchto slov sbírá Titivillus, a každý den si jimi tisíckrát naplní pytel."\n\nVe skriptoriu to platí doslova: kdo píše potmě, bez svíce nebo louče, riskuje že mu Titivillus ukradne práci z ruky — a někdy s sebou vezme i křeč do prstů. Zapal světlo, než se pustíš do díla.',
             },
+
+            acedia_bestiar: {
+                title: 'Daemon meridianus',
+                lectio: '*Mědiryt Pietera van der Heyden podle Pietera Bruegela staršího, 1558. Postava Desidie leží mezi hlemýždi a oslem uprostřed světa vzhůru nohama — mlýn se netočí, dům se rozpadá, nikdo nic nedokončí.*\n\nDAEMON MERIDIANUS\nVocatur etiam Acedia\n\nSídlo: cela, kdykoliv slunce stojí nejvýš\nChování: čas se vleče, den má padesát hodin, všechno omrzí najednou\nNástroj: žádný — jen ticho, kde má být modlitba\nÚčel: nejnebezpečnější ze všech — velitel ostatních běsů (Evagrius)',
+                glossa: 'Egyptští poustevníci 4. století mu říkali daemon meridianus — démon, co nečeká na tmu jako ostatní, ale chodí ve dne, v nejparnější hodině. Jméno má z 90. žalmu: „ani nákaza, jež pustoší o poledni."\n\nEvagrius Pontský, který ho popsal první, ho nazval nejobtížnějším ze všech běsů — velitelem celého vojska pokušení. Píše: nejdřív se zdá, že slunce stojí na místě. Den má padesát hodin. Cela se zdá jako vězení, bratři jako cizinci, modlitba jako povinnost bez smyslu. Mnich se stane „utečencem" — buď usne na modlitbě, nebo uteče z cely, nebo z kláštera úplně.\n\nJan Cassianus přinesl to učení na Západ — a skrze něj zůstalo v každé řeholi dodnes, bez ohledu na to, kterou z nich klášter dodržuje.',
+                arcanum: 'Pozdější staletí z Acedie udělaly jen „lenost" — jeden ze sedmi hlavních hříchů, klidně zobrazitelný jako spáč na oslu. Ale staří otcové věděli, že je to něco jiného: ne odpočinek, ale vyprahlost. Ne lenost těla, ale únava ducha, která nejde vidět, dokud není pozdě.\n\n*Segnities robur frangit, longa ocia nervos.*\n„Lenost láme sílu, dlouhá zahálka vysušuje šlachy."\n\nV klášteře to platí přesně takhle: kdo dlouho zanedbává tělo i ducha — kdo netuší, kolik síly ještě zbývá — netuší ani, jak potichu se mu vytrácí Zbožnost. Acedia nepřijde náhle. Přijde jako únava, která se nikdy pořádně neodpočine.',
+            },
         },
     },
 
@@ -40405,6 +40477,13 @@ In every scriptorium lurks Titivillus. His task is not to tempt to sin — other
                 arcanum: 'The oldest tellers of the tale added a detail that still makes even a solemn chronicler smile: when no more errors would fit in the sack, Titivillus was said to stretch the parchment with his teeth. And when it tore, he struck his head helplessly against the wall.\n\n*Fragmina verborum Titivillus colligit horum,\nQuaque die mille vicibus se sarcinat ille.*\n\n"Titivillus gathers up these fragments of words, and fills his sack with them a thousand times a day."\n\nIn the scriptorium this holds literally true: write in the dark, without a candle or torch, and you risk Titivillus stealing the work from your hand — sometimes taking a cramp in your fingers along with it. Light a flame before you begin.',
             },
 
+            acedia_bestiar: {
+                title: 'Daemon meridianus',
+                lectio: '*A copperplate engraving by Pieter van der Heyden after Pieter Bruegel the Elder, 1558. The figure of Desidia lies among snails and a donkey in the middle of a world turned upside down — the mill stands still, the house crumbles, nothing is ever finished.*\n\nDAEMON MERIDIANUS\nAlso called Acedia\n\nHaunts: the cell, whenever the sun stands highest\nBehaviour: time drags, the day grows fifty hours long, everything sours at once\nTool: none — only silence where prayer should be\nPurpose: the most dangerous of all — commander of the other demons (Evagrius)',
+                glossa: 'Fourth-century Egyptian hermits called him daemon meridianus — a demon who, unlike the others, does not wait for darkness but walks by day, in the hottest hour. His name comes from Psalm 90: "nor the destruction that wastes at noonday."\n\nEvagrius Ponticus, who first described him, called him the most troublesome of all the demons — commander of the whole host of temptation. He writes: first the sun seems to stand still. The day grows fifty hours long. The cell feels like a prison, the brothers like strangers, prayer like a duty stripped of meaning. The monk becomes a "runaway" — he either falls asleep at prayer, flees his cell, or abandons the monastery altogether.\n\nJohn Cassian carried the teaching west — and through him it remained in every rule to this day, whichever one a monastery follows.',
+                arcanum: 'Later centuries flattened Acedia into mere "sloth" — one of the seven deadly sins, easily pictured as a sleeper astride a donkey. But the old fathers knew it was something else: not rest, but dryness. Not laziness of the body, but a weariness of the spirit that cannot be seen until it is too late.\n\n*Segnities robur frangit, longa ocia nervos.*\n"Sloth breaks strength, long idleness withers the sinews."\n\nIn the monastery this holds exactly true: neglect the body and the spirit long enough — lose track of how much strength remains — and you will not notice how quietly your Piety drains away with it. Acedia never arrives all at once. It arrives as a tiredness that never quite rests.',
+            },
+
         }, // end folios
 
     }, // end scrinium
@@ -42375,6 +42454,64 @@ const Game = {
                     effect: function() {
                         Game.removeItem('titivillus_spis', 1);
                         if (typeof SecretsSystem !== 'undefined') SecretsSystem.unlockFolioById('folio_titivillus_bestiar');
+                        UI.notify(isEn ? '📕 Handed to the Scrinium.' : '📕 Předáno do Scrinia.');
+                        Game.save();
+                    }
+                },
+                {
+                    label: isEn ? '🗃️ Keep in storage' : '🗃️ Uchovat ve skladu',
+                    type: 'default',
+                    effect: function() {}
+                }
+            ]
+        });
+    },
+
+    // ── Acedia spis (Bestiář, Cesta B) — modal při nalezení nebo kliknutí ──
+    showAcediaSpisModal: function() {
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        const isEn = lang === 'en';
+        NotificationSystem.modal({
+            icon: '📜',
+            title: isEn ? 'A Damp Page' : 'Vlhký list',
+            text: isEn
+                ? 'Wedged in the wattle wall, half-swollen with damp, you find a folded page you never put there. Someone once wrote down what it feels like when the day will not end.'
+                : 'Zastrčený ve spáře proutěné stěny, napůl zvlhlý, ležel list, co jsi tam nedal ty. Někdo si kdysi zapsal, jaké to je, když den nechce skončit.',
+            choices: [
+                {
+                    label: isEn ? '📖 Open' : '📖 Otevřít',
+                    type: 'primary',
+                    effect: function() { Game.showAcediaSpisContentModal(); }
+                },
+                {
+                    label: isEn ? '📕 Hand to Scrinium' : '📕 Předat do Scrinia',
+                    type: 'default',
+                    effect: function() {
+                        Game.removeItem('acedia_spis', 1);
+                        if (typeof SecretsSystem !== 'undefined') SecretsSystem.unlockFolioById('folio_acedia_bestiar');
+                        UI.notify(isEn ? '📕 Handed to the Scrinium.' : '📕 Předáno do Scrinia.');
+                        Game.save();
+                    }
+                }
+            ]
+        });
+    },
+
+    showAcediaSpisContentModal: function() {
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        const isEn = lang === 'en';
+        NotificationSystem.modal({
+            icon: '😴',
+            title: isEn ? 'Daemon Meridianus' : 'Daemon meridianus',
+            image: '/bestiary/acedia.jpg',
+            text: t('scrinium.folios.acedia_bestiar.lectio'),
+            choices: [
+                {
+                    label: isEn ? '📕 Hand to Scrinium' : '📕 Předat do Scrinia',
+                    type: 'primary',
+                    effect: function() {
+                        Game.removeItem('acedia_spis', 1);
+                        if (typeof SecretsSystem !== 'undefined') SecretsSystem.unlockFolioById('folio_acedia_bestiar');
                         UI.notify(isEn ? '📕 Handed to the Scrinium.' : '📕 Předáno do Scrinia.');
                         Game.save();
                     }
@@ -47531,6 +47668,10 @@ const UI = {
         }
         if (id === 'titivillus_spis') {
             if (typeof Game !== 'undefined' && Game.showTitivillusSpisModal) Game.showTitivillusSpisModal();
+            return;
+        }
+        if (id === 'acedia_spis') {
+            if (typeof Game !== 'undefined' && Game.showAcediaSpisModal) Game.showAcediaSpisModal();
             return;
         }
         const _coinValues = { old_coin_1: 6, old_coin_2: 8, old_coin_3: 12 };
