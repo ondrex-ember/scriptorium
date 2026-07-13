@@ -1487,6 +1487,59 @@ Charles IV had the treatise translated into Czech. In 15th-century Bohemia, Cres
 **GAME EFFECT:** Unlocks the *Horreum* tech — a large granary with a capacity of 1,600 units. It also activates the fodder mechanic: animals in the Farmyard begin to require daily feeding from the stores.`
         },
         {
+            id: 'book_columella_piscinis',
+            title: 'De Re Rustica, Kniha VIII: O rybnících a voliérách',
+            title_en: 'De Re Rustica, Book VIII: On Fishponds and Aviaries',
+            category: 'innovation',
+            unlockDay: 92,
+            icon: '🎣',
+            author: 'Lucius Iunius Moderatus Columella',
+            author_en: 'Columella',
+            year: 'cca 60–65 n.l.',
+            content: `**Muž, který psal o všem**
+
+Lucius Iunius Moderatus Columella byl římský voják a statkář z Hispánie, který v 1. století sepsal dvanáctidílné *De Re Rustica* — nejucelenější římskou encyklopedii hospodářství, jaká se dochovala. Osmá kniha mění téma od polí a vinic k tomu, čemu Římané říkali *pastio villatica* — chov na statku: drůbež, holubníky, a rybníky.
+
+**Rybník jako investice, ne rozmar**
+
+Columella nepíše o rybníku jako o okrase. Píše o něm jako o výnosné části hospodářství, srovnatelné s polem obilí — kde ho vykopat, jak velké mají být přítokové otvory, a proč obsádka musí odpovídat velikosti nádrže, ne touze hospodáře nasadit co nejvíc najednou.
+
+*"Kdo do rybníka nasadí víc, než unese, sklidí neduživé ryby a prázdnou pokladnici. Rybník, jenž je přeplněn, netučnní — hladoví."*
+
+**O výběru ryb**
+
+Columella věnuje pozornost tomu, které ryby se hodí do rybníka spolu a které ne — dravá ryba vedle plůdku znamená jistou ztrátu, pokud hospodář nezná poměr a účel. Zmiňuje i praxi, kterou pozdější staletí zdokonalí do celého systému: oddělit rybník, kde se ryba líhne, od rybníka, kde dorůstá, a od rybníka, odkud se prodává.
+
+**Moravská stopa**
+
+Opisy Columelly kolovaly klášterními knihovnami po celé Evropě jako standardní agronomická příručka — vedle Palladia a Crescenziho patřil k základní výbavě každého kláštera, který bral hospodářství vážně.
+
+*"Pole živí klášter dnes. Rybník ho živí i v den, kdy pole mlčí."*
+
+**HERNÍ EFEKT:** Odemkne výzkum *Piscina — Přehled Hejna* — druhovou evidenci rybníka, chov štiky jako přirozené kontroly hejna, a možnost ulovit konkrétní kus podle druhu místo hromadné sklizně.`,
+            content_en: `**The Man Who Wrote of Everything**
+
+Lucius Iunius Moderatus Columella was a Roman soldier and estate-owner from Hispania who, in the 1st century, composed the twelve-book *De Re Rustica* — the most complete Roman encyclopaedia of husbandry to survive. The eighth book shifts subject from fields and vineyards to what the Romans called *pastio villatica* — estate husbandry: poultry, dovecotes, and fishponds.
+
+**A Pond as Investment, Not Indulgence**
+
+Columella does not write of the fishpond as an ornament. He writes of it as a profitable part of the estate, comparable to a field of grain — where to dig it, how large the inflow openings should be, and why the stock must match the size of the basin, not the steward's wish to stock as many as possible at once.
+
+*"He who stocks a pond beyond its bearing shall reap sickly fish and an empty purse. A pond that is overcrowded does not fatten — it starves."*
+
+**On the Choice of Fish**
+
+Columella pays attention to which fish suit a pond together and which do not — a predator beside fry means certain loss, unless the steward knows the ratio and the purpose. He also mentions a practice later centuries would refine into a whole system: to separate the pond where fish hatch from the pond where they grow, and from the pond whence they are sold.
+
+**The Bohemian Connection**
+
+Copies of Columella circulated monastic libraries across Europe as a standard agronomic manual — alongside Palladius and Crescenzi, he belonged to the basic equipment of any monastery that took husbandry seriously.
+
+*"The field feeds the monastery today. The pond feeds it also on the day the field falls silent."*
+
+**GAME EFFECT:** Unlocks the research *Piscina — Overview of the Shoal* — species tracking for the pond, pike husbandry as a natural check on the shoal, and the ability to catch a specific fish by species instead of a bulk harvest.`
+        },
+        {
             id: 'book_de_animalibus',
             title: 'De Animalibus: Kniha o živé přírodě',
             title_en: 'De Animalibus: On the Nature of Animals',
