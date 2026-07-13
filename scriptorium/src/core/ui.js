@@ -168,6 +168,10 @@ const UI = {
             if (typeof Game !== 'undefined' && Game.showAcediaSpisModal) Game.showAcediaSpisModal();
             return;
         }
+        if (id === 'belzebub_spis') {
+            if (typeof Game !== 'undefined' && Game.showBelzebubSpisModal) Game.showBelzebubSpisModal();
+            return;
+        }
         const _coinValues = { old_coin_1: 6, old_coin_2: 8, old_coin_3: 12 };
         if (_coinValues[id] !== undefined) {
             if (typeof Game !== 'undefined' && Game.showCoinModal) Game.showCoinModal(id, _coinValues[id]);

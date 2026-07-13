@@ -708,3 +708,10 @@ Object.assign(ItemsDB, {
         desc: "Vlhkem zvlněný list, zastrčený ve spáře proutěné stěny. Někdo si zapsal, jaké to je, když den nechce skončit.", desc_en: "A page warped with damp, wedged in the crack of a wattle wall. Someone once wrote down what it feels like when the day will not end."
     },
 });
+// ── BESTIÁŘ — nález spisu (DecaySystem loss-check, nezávislý na fliesMult erosion-checku) ──
+Object.assign(ItemsDB, {
+    "belzebub_spis": {
+        name: "Spis o Belzebubovi", name_en: "A Note on Beelzebub", icon: "🪰", type: "lore",
+        desc: "Potřísněný list nalezený mezi zkaženými zásobami. Někdo si zapsal, co znamená, když zanedbání přivolá roj.", desc_en: "A stained page found among the spoiled stores. Someone once wrote down what it means when neglect draws a swarm."
+    },
+});

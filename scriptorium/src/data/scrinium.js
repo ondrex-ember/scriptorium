@@ -351,6 +351,57 @@ const ScriniumDB = {
             },
         },
 
+        // ── 3. Titivillus, Druhá tvář — nález přes Kapitulu:
+        //      první reálný konflikt (ConversiBondsDB tenze) -> auto-unlock.
+        //    Otevřeně stejný démon jako folio_titivillus_bestiar — jen jeho
+        //    druhá role (poslech klevet, ne opisovačské chyby). Bez obrázku
+        //    (companion karta), bez Cesty B/itemu — samotný konflikt je nález.
+        {
+            id: 'folio_titivillus_secunda',
+            subtab: 'bestiar',
+            icon: '👂',
+            physicalForm: 'leaf',
+            titleKey: 'scrinium.folios.titivillus_secunda.title',
+            lectio: {
+                textKey: 'scrinium.folios.titivillus_secunda.lectio',
+                cost: null,
+            },
+            glossa: {
+                textKey: 'scrinium.folios.titivillus_secunda.glossa',
+                cost: { item: 'candle', amount: 3 },
+            },
+            arcanum: {
+                textKey: 'scrinium.folios.titivillus_secunda.arcanum',
+                cost: { item: 'candle', amount: 5 },
+            },
+        },
+
+        // ── 4. Belzebub (Pán much) — nález přes dvě cesty:
+        //      A) fliesMult() poprvé dosáhne nejhoršího stupně (>1.7) -> auto-unlock
+        //      B) nález "belzebub_spis" při reálné ztrátě kažením (DecaySystem)
+        //    Popisuje existující fliesMult mechaniku (chlévy/hnůj/syrové maso),
+        //    nic nemění. Obrázek dodá Ondrex zvlášť (/bestiary/belzebub.jpg).
+        {
+            id: 'folio_belzebub_bestiar',
+            subtab: 'bestiar',
+            icon: '🪰',
+            physicalForm: 'leaf',
+            titleKey: 'scrinium.folios.belzebub_bestiar.title',
+            lectio: {
+                textKey: 'scrinium.folios.belzebub_bestiar.lectio',
+                cost: null,
+                image: '/bestiary/belzebub.jpg',
+            },
+            glossa: {
+                textKey: 'scrinium.folios.belzebub_bestiar.glossa',
+                cost: { item: 'candle', amount: 3 },
+            },
+            arcanum: {
+                textKey: 'scrinium.folios.belzebub_bestiar.arcanum',
+                cost: { item: 'candle', amount: 5 },
+            },
+        },
+
     ], // konec folios[]
 
 }; // konec ScriniumDB

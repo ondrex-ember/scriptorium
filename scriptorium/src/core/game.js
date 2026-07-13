@@ -1525,6 +1525,64 @@ const Game = {
         });
     },
 
+    // ── Belzebub spis (Bestiář, Cesta B) — modal při nalezení nebo kliknutí ──
+    showBelzebubSpisModal: function() {
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        const isEn = lang === 'en';
+        NotificationSystem.modal({
+            icon: '🪰',
+            title: isEn ? 'Among the Spoiled Stores' : 'Mezi zkaženými zásobami',
+            text: isEn
+                ? 'Amid the rot and the buzzing you find a page, stained but legible. Someone once wrote down what it means when neglect draws a swarm.'
+                : 'Mezi hnilobou a bzučením ležel list, potřísněný, ale čitelný. Někdo si kdysi zapsal, co znamená, když zanedbání přivolá roj.',
+            choices: [
+                {
+                    label: isEn ? '📖 Open' : '📖 Otevřít',
+                    type: 'primary',
+                    effect: function() { Game.showBelzebubSpisContentModal(); }
+                },
+                {
+                    label: isEn ? '📕 Hand to Scrinium' : '📕 Předat do Scrinia',
+                    type: 'default',
+                    effect: function() {
+                        Game.removeItem('belzebub_spis', 1);
+                        if (typeof SecretsSystem !== 'undefined') SecretsSystem.unlockFolioById('folio_belzebub_bestiar');
+                        UI.notify(isEn ? '📕 Handed to the Scrinium.' : '📕 Předáno do Scrinia.');
+                        Game.save();
+                    }
+                }
+            ]
+        });
+    },
+
+    showBelzebubSpisContentModal: function() {
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        const isEn = lang === 'en';
+        NotificationSystem.modal({
+            icon: '🪰',
+            title: isEn ? 'Beelzebub' : 'Belzebub',
+            image: '/bestiary/belzebub.jpg',
+            text: t('scrinium.folios.belzebub_bestiar.lectio'),
+            choices: [
+                {
+                    label: isEn ? '📕 Hand to Scrinium' : '📕 Předat do Scrinia',
+                    type: 'primary',
+                    effect: function() {
+                        Game.removeItem('belzebub_spis', 1);
+                        if (typeof SecretsSystem !== 'undefined') SecretsSystem.unlockFolioById('folio_belzebub_bestiar');
+                        UI.notify(isEn ? '📕 Handed to the Scrinium.' : '📕 Předáno do Scrinia.');
+                        Game.save();
+                    }
+                },
+                {
+                    label: isEn ? '🗃️ Keep in storage' : '🗃️ Uchovat ve skladu',
+                    type: 'default',
+                    effect: function() {}
+                }
+            ]
+        });
+    },
+
     farmAction: function(plotIdx) {
         const plot = GameState.garden[plotIdx];
         if(plot.locked) { UI.notify(t('game.plotLocked'), true); return; }
@@ -5433,6 +5491,10 @@ const Game = {
             (GameState.dormitorium && GameState.dormitorium.brothers || []).forEach(b => {
                 if (b.assignedTab) b.stress = Math.min(100, (b.stress || 0) + 5);
             });
+            // Bestiář: první reálný konflikt na Kapitule odemkne Titivillovu
+            // "druhou tvář" — týž démon, tentokrát poslouchající klevety
+            // místo opisovačských chyb. unlockFolioById je idempotentní.
+            if (typeof SecretsSystem !== 'undefined') SecretsSystem.unlockFolioById('folio_titivillus_secunda');
             // Viník = nižší loajalita; druhý = poškozený
             const victim = (ka.loyalty <= kb.loyalty) ? ka : kb;
             const other  = (victim === ka) ? kb : ka;

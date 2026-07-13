@@ -194,6 +194,12 @@ const DecaySystem = {
         const sRed = this.storageReduction();
         const oMult = this.isOverflow() ? 2 : 1;
 
+        // Bestiář — Belzebub, Cesta A: mouchy poprvé dosáhnou nejhoršího
+        // stupně ("many", fliesMult > 1.7) → auto-odemkne. Idempotentní.
+        if (fMult > 1.7 && typeof SecretsSystem !== 'undefined') {
+            SecretsSystem.unlockFolioById('folio_belzebub_bestiar');
+        }
+
         const losses = [];
         for (const [id, def] of Object.entries(this.DECAY_RATES)) {
             const count = inv[id] || 0;
@@ -214,6 +220,19 @@ const DecaySystem = {
 
         st.lastLosses = losses;
         if (losses.length) this._notifyLosses(losses, oMult > 1);
+
+        // Bestiář — Belzebub, Cesta B: nález mezi zkaženými zásobami, jen
+        // když si k tomu reálně kažení dnes vzalo něco (losses.length > 0).
+        if (losses.length > 0) {
+            const alreadyFolio = GameState.scrinium && GameState.scrinium.folios
+                && GameState.scrinium.folios['folio_belzebub_bestiar'] && GameState.scrinium.folios['folio_belzebub_bestiar'].found;
+            const alreadyHeld = (GameState.inventory['belzebub_spis'] || 0) > 0;
+            if (!alreadyFolio && !alreadyHeld && Math.random() < 0.06) {
+                if (typeof Game !== 'undefined' && Game.addItem) Game.addItem('belzebub_spis', 1);
+                if (typeof Game !== 'undefined' && Game.showBelzebubSpisModal) setTimeout(function () { Game.showBelzebubSpisModal(); }, 300);
+            }
+        }
+
         if (typeof Game !== 'undefined' && Game.save) Game.save();
     },
 
