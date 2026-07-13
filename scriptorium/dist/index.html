@@ -6302,26 +6302,26 @@ const RecipesDB = [
       desc: "Šrot z hrachu. Krmivo pro dobytek.", desc_en: "Feed meal from peas. Livestock feed." },
     { id: "feed_meal_scraps", output: "feed_meal", qty: 2, req: { "scraps": 3 },     cat: "craft", locked: true,
       desc: "Šrot ze zbytků. Levnější, ale stejně vydatné krmivo.", desc_en: "Feed meal from scraps. Cheaper, but just as hearty a feed." },
-    // Osivo ze zrní — část úrody stranou jako příští setba (1:1)
-    { id: "rye_to_seed",    output: "seeds_rye",    qty: 1, req: { "rye_grain": 1 },  cat: "craft", locked: true,
+    // Osivo ze zrní — část úrody stranou jako příští setba (3:1)
+    { id: "rye_to_seed",    output: "seeds_rye",    qty: 1, req: { "rye_grain": 3 },  cat: "craft", locked: true,
       desc: "Vybraná zrna žita ponechaná na osivo.", desc_en: "Selected rye grains set aside as seed." },
-    { id: "rye_to_seed_1",  output: "seeds_rye",    qty: 1, req: { "rye_grain_1": 1 }, cat: "craft", locked: true,
+    { id: "rye_to_seed_1",  output: "seeds_rye",    qty: 1, req: { "rye_grain_1": 3 }, cat: "craft", locked: true,
       desc: "Vybraná zrna prvotřídního žita ponechaná na osivo.", desc_en: "Selected grade-1 rye grains set aside as seed." },
-    { id: "rye_to_seed_2",  output: "seeds_rye",    qty: 1, req: { "rye_grain_2": 1 }, cat: "craft", locked: true,
+    { id: "rye_to_seed_2",  output: "seeds_rye",    qty: 1, req: { "rye_grain_2": 3 }, cat: "craft", locked: true,
       desc: "Vybraná zrna žita 2. třídy ponechaná na osivo.", desc_en: "Selected grade-2 rye grains set aside as seed." },
-    { id: "wheat_to_seed",  output: "seeds_wheat",  qty: 1, req: { "wheat_grain": 1 }, cat: "craft", locked: true,
+    { id: "wheat_to_seed",  output: "seeds_wheat",  qty: 1, req: { "wheat_grain": 3 }, cat: "craft", locked: true,
       desc: "Vybraná zrna pšenice ponechaná na osivo.", desc_en: "Selected wheat grains set aside as seed." },
-    { id: "wheat_to_seed_1", output: "seeds_wheat",  qty: 1, req: { "wheat_grain_1": 1 }, cat: "craft", locked: true,
+    { id: "wheat_to_seed_1", output: "seeds_wheat",  qty: 1, req: { "wheat_grain_1": 3 }, cat: "craft", locked: true,
       desc: "Vybraná zrna prvotřídní pšenice ponechaná na osivo.", desc_en: "Selected grade-1 wheat grains set aside as seed." },
-    { id: "wheat_to_seed_2", output: "seeds_wheat",  qty: 1, req: { "wheat_grain_2": 1 }, cat: "craft", locked: true,
+    { id: "wheat_to_seed_2", output: "seeds_wheat",  qty: 1, req: { "wheat_grain_2": 3 }, cat: "craft", locked: true,
       desc: "Vybraná zrna pšenice 2. třídy ponechaná na osivo.", desc_en: "Selected grade-2 wheat grains set aside as seed." },
-    { id: "barley_to_seed", output: "seeds_barley", qty: 1, req: { "barley": 1 },     cat: "craft", locked: true,
+    { id: "barley_to_seed", output: "seeds_barley", qty: 1, req: { "barley": 3 },     cat: "craft", locked: true,
       desc: "Vybraná zrna ječmene ponechaná na osivo.", desc_en: "Selected barley grains set aside as seed." },
-    { id: "oats_to_seed",   output: "seeds_oats",   qty: 1, req: { "oats": 1 },       cat: "craft", locked: true,
+    { id: "oats_to_seed",   output: "seeds_oats",   qty: 1, req: { "oats": 3 },       cat: "craft", locked: true,
       desc: "Vybraná zrna ovsa ponechaná na osivo.", desc_en: "Selected oat grains set aside as seed." },
-    { id: "millet_to_seed", output: "seeds_millet", qty: 1, req: { "millet": 1 },     cat: "craft", locked: true,
+    { id: "millet_to_seed", output: "seeds_millet", qty: 1, req: { "millet": 3 },     cat: "craft", locked: true,
       desc: "Vybraná zrna prosa ponechaná na osivo.", desc_en: "Selected millet grains set aside as seed." },
-    { id: "peas_to_seed",   output: "seeds_peas",   qty: 1, req: { "peas": 1 },       cat: "craft", locked: true,
+    { id: "peas_to_seed",   output: "seeds_peas",   qty: 1, req: { "peas": 3 },       cat: "craft", locked: true,
       desc: "Vybrané zrna hrachu ponechaná na osivo.", desc_en: "Selected pea grains set aside as seed." },
 
     // Zelenina → semínka (nůž)
@@ -6639,6 +6639,7 @@ RecipesDB.push(
     { id: "incense_styrax",   output: "incense_styrax",   qty: 1, req: { "resin_styrax": 1, "charcoal": 1 }, cat: "fire", locked: true, desc: "Styrax + uhlí = byzantské kadidlo.", desc_en: "Styrax + charcoal = Byzantine incense." },
     { id: "incense_olibanum", output: "incense_olibanum", qty: 1, req: { "resin_olibanum": 1, "charcoal": 1 }, cat: "fire", locked: true, desc: "Olibanum + uhlí = posvátné kadidlo.", desc_en: "Olibanum + charcoal = sacred incense." }
 );
+
 // ═══ src/data/health.js ═══
 // ═══════════════════════════════════════════════════════════════════════════
 // HEALTH CONDITIONS DB (Valetudo)
