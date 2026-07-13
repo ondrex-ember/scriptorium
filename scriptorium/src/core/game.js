@@ -416,6 +416,7 @@ const Game = {
 		if(!GameState.piscina) {
 			GameState.piscina = {
 				tier: 0,
+				fish: [],
 				fry: 0,
 				youngCarp: 0,
 				carp: 0,
@@ -425,6 +426,22 @@ const Game = {
 				lastFryProductionAt: 0,
 				pendingFry: 0,
 			};
+		}
+
+		// Migrace na entitní model rybníku (Piscina rework Sprint 1) —
+		// staré save nemají fish[], převedeme dosavadní počty na řádky.
+		if (GameState.piscina && !GameState.piscina.fish) {
+			GameState.piscina.fish = [];
+			const migNow = Date.now();
+			if (GameState.piscina.fry > 0) {
+				GameState.piscina.fish.push({ id: 'mig_fry', species: 'kapr', stage: 'fry', qty: GameState.piscina.fry, enteredStageAt: GameState.piscina.fryAddedAt || migNow });
+			}
+			if (GameState.piscina.youngCarp > 0) {
+				GameState.piscina.fish.push({ id: 'mig_young', species: 'kapr', stage: 'young', qty: GameState.piscina.youngCarp, enteredStageAt: GameState.piscina.youngAddedAt || migNow });
+			}
+			if (GameState.piscina.carp > 0) {
+				GameState.piscina.fish.push({ id: 'mig_adult', species: 'kapr', stage: 'adult', qty: GameState.piscina.carp, enteredStageAt: migNow });
+			}
 		}
         
         // Initialize theme settings if not present
@@ -2016,6 +2033,33 @@ const Game = {
     // PISCINA (Rybník) — herní logika
     // ═══════════════════════════════════════════════════════════════════════════
 
+    // Unikátní id pro nový řádek v GameState.piscina.fish
+    _piscinaNextId: function() {
+        const p = GameState.piscina;
+        p._fishIdSeq = (p._fishIdSeq || 0) + 1;
+        return 'f' + p._fishIdSeq;
+    },
+
+    // Přepočte staré agregátní počty (p.fry/p.youngCarp/p.carp + jejich
+    // *AddedAt) z fish[] — render i feedPiscina zůstávají beze změny,
+    // čtou pořád stejná pole, jen teď jsou odvozená z entitního modelu.
+    // Nejstarší řádek daného stádia určuje *AddedAt (nejblíž dokončení).
+    _piscinaSyncAggregates: function() {
+        const p = GameState.piscina;
+        if (!p || !p.fish) return;
+        p.fish = p.fish.filter(r => r.qty > 0);
+        const sumQty = (stage) => p.fish.filter(r => r.stage === stage).reduce((s, r) => s + r.qty, 0);
+        const oldestAt = (stage) => {
+            const rows = p.fish.filter(r => r.stage === stage);
+            return rows.length ? Math.min(...rows.map(r => r.enteredStageAt)) : 0;
+        };
+        p.fry = sumQty('fry');
+        p.fryAddedAt = p.fry > 0 ? oldestAt('fry') : 0;
+        p.youngCarp = sumQty('young');
+        p.youngAddedAt = p.youngCarp > 0 ? oldestAt('young') : 0;
+        p.carp = sumQty('adult');
+    },
+
     buildPiscina: function(tier) {
         const p = GameState.piscina;
         if (!GameState.researchedTechs.includes('tech_piscina')) { UI.notify(t('game.needDePiscibus'), true); return; }
@@ -2043,8 +2087,9 @@ const Game = {
         if (p.tier < 1) { UI.notify(t('game.needPiscina1'), true); return; }
         if ((GameState.inventory['fry']||0) < qty) { UI.notify(t('game.noFry'), true); return; }
         this.removeItem('fry', qty);
-        p.fry += qty;
-        p.fryAddedAt = p.fryAddedAt || Date.now();
+        p.fish = p.fish || [];
+        p.fish.push({ id: Game._piscinaNextId(), species: 'kapr', stage: 'fry', qty: qty, enteredStageAt: Date.now() });
+        Game._piscinaSyncAggregates();
         Game.save(); UI.renderPiscina();
         UI.notify('🫧 ' + t('game.fryAdded').replace('{qty}', qty));
     },
@@ -2066,9 +2111,10 @@ const Game = {
         if (!p || (p.pendingFry||0) <= 0) { UI.notify(t('game.noFryPending'), true); return; }
         if (p.tier < 1) { UI.notify(t('game.needPiscina1'), true); return; }
         const qty = p.pendingFry;
-        p.fry = (p.fry||0) + qty;
+        p.fish = p.fish || [];
+        p.fish.push({ id: Game._piscinaNextId(), species: 'kapr', stage: 'fry', qty: qty, enteredStageAt: Date.now() });
         p.pendingFry = 0;
-        if (!p.fryAddedAt || p.fryAddedAt === 0) p.fryAddedAt = Date.now();
+        Game._piscinaSyncAggregates();
         Game.save(); UI.renderPiscina();
         UI.notify('🫧 ' + t('game.fryTransferred').replace('{qty}', qty));
     },
@@ -2077,7 +2123,15 @@ const Game = {
         const p = GameState.piscina;
         qty = Math.min(qty, p.carp);
         if (qty <= 0) { UI.notify(t('game.noCarp'), true); return; }
-        p.carp -= qty;
+        let remaining = qty;
+        const adultRows = (p.fish || []).filter(r => r.stage === 'adult' && r.qty > 0).sort((a, b) => a.enteredStageAt - b.enteredStageAt);
+        for (const row of adultRows) {
+            if (remaining <= 0) break;
+            const take = Math.min(row.qty, remaining);
+            row.qty -= take;
+            remaining -= take;
+        }
+        Game._piscinaSyncAggregates();
         this.addItem('carp', qty);
         Game.save(); UI.renderPiscina();
         UI.notify('🐠 ' + t('game.carpHarvested').replace('{qty}', qty));
@@ -2086,31 +2140,40 @@ const Game = {
     checkPiscinaGrowth: function() {
         const p = GameState.piscina;
         if (!p || p.tier < 1) return;
+        p.fish = p.fish || [];
         const now = Date.now();
         const WEEK  = 7  * 24 * 3600000;
         const WEEKS2 = 14 * 24 * 3600000;
         let changed = false;
 
-        // Tier 1 → tier 2: plůdek po týdnu přechází do výtažníku (pokud existuje)
-        if (p.fry > 0 && p.tier >= 2 && p.fryAddedAt > 0 && now >= p.fryAddedAt + WEEK) {
-            p.youngCarp += p.fry;
-            p.fry = 0;
-            p.youngAddedAt = now;
-            p.fryAddedAt = 0;
-            changed = true;
+        // Tier 1 → tier 2: každý plůdkový řádek zraje samostatně — vlastní
+        // enteredStageAt, žádný sdílený timestamp k resetnutí cizím řádkem.
+        if (p.tier >= 2) {
+            p.fish.forEach(row => {
+                if (row.stage === 'fry' && row.qty > 0 && now >= row.enteredStageAt + WEEK) {
+                    row.stage = 'young';
+                    row.enteredStageAt = now;
+                    changed = true;
+                }
+            });
         }
 
-        // Tier 2 → tier 3: nedospělí kapři po 2 týdnech přechází do kaprového rybníka
-        if (p.youngCarp > 0 && p.tier >= 3 && p.youngAddedAt > 0 && now >= p.youngAddedAt + WEEKS2) {
-            p.carp += p.youngCarp;
-            p.youngCarp = 0;
-            p.youngAddedAt = 0;
-            changed = true;
+        // Tier 2 → tier 3: každý řádek nedospělých kapřů zraje samostatně
+        if (p.tier >= 3) {
+            p.fish.forEach(row => {
+                if (row.stage === 'young' && row.qty > 0 && now >= row.enteredStageAt + WEEKS2) {
+                    row.stage = 'adult';
+                    row.enteredStageAt = now;
+                    changed = true;
+                }
+            });
         }
 
-        // Tier 3: kaprový rybník produkuje 1 plůdek / 24h
+        // Tier 3: kaprový rybník produkuje 1 plůdek / 24h — beze změny,
+        // vztaženo k celkovému počtu dospělých, ne k jednotlivým řádkům.
         const DAY = 24 * 3600000;
-        if (p.tier >= 3 && p.carp > 0) {
+        const carpQty = p.fish.filter(r => r.stage === 'adult').reduce((s, r) => s + r.qty, 0);
+        if (p.tier >= 3 && carpQty > 0) {
             if (p.lastFryProductionAt === undefined) p.lastFryProductionAt = now;
             if (now >= p.lastFryProductionAt + DAY) {
                 p.pendingFry = (p.pendingFry || 0) + 1;
@@ -2119,7 +2182,10 @@ const Game = {
             }
         }
 
-        if (changed) { Game.save(); }
+        if (changed) {
+            Game._piscinaSyncAggregates();
+            Game.save();
+        }
     },
 
     checkOrchardGrowth: function() {
@@ -6549,21 +6615,24 @@ const Game = {
                     didWork = true; didFeed = true;
                 }
 
-                // Přesun čekajícího plůdku do prvního stupně
+                // Přesun čekajícího plůdku do prvního stupně — vlastní řádek
                 if ((p.pendingFry || 0) > 0) {
-                    p.fry = (p.fry || 0) + p.pendingFry;
-                    if (!p.fryAddedAt || p.fryAddedAt === 0) p.fryAddedAt = Date.now();
+                    p.fish = p.fish || [];
+                    p.fish.push({ id: Game._piscinaNextId(), species: 'kapr', stage: 'fry', qty: p.pendingFry, enteredStageAt: Date.now() });
                     p.pendingFry = 0;
                     didWork = true; didTransfer = true;
                 }
 
                 // Sklizeň všech dospělých kaprů — bratr násobí ulovené množství
-                if ((p.carp || 0) > 0) {
-                    const qty = Math.max(p.carp, Math.round(p.carp * brotherMult));
-                    p.carp = 0;
+                const carpTotal = (p.fish || []).filter(r => r.stage === 'adult').reduce((s, r) => s + r.qty, 0);
+                if (carpTotal > 0) {
+                    const qty = Math.max(carpTotal, Math.round(carpTotal * brotherMult));
+                    (p.fish || []).forEach(r => { if (r.stage === 'adult') r.qty = 0; });
                     this.addItem('carp', qty);
                     didWork = true; carpCaught = qty;
                 }
+
+                Game._piscinaSyncAggregates();
 
                 if (didWork) {
                     if (fisherman) {
