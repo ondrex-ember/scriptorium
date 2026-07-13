@@ -619,9 +619,9 @@ const SaeculumSystem = {
   renderManufactura: function() {
     const lang = (GameState.settings && GameState.settings.language) || 'cs';
     // Pořadí odpovídá DormitoriumSpecializationDB; dvur navíc (údržba, bez XP tabu tam).
-    const TAB_ORDER = ['dvur', 'zahony', 'sad', 'pole', 'vinohrad', 'apiarium', 'piscina', 'athanor', 'scriptorium'];
+    const TAB_ORDER = ['dvur', 'kostel', 'zahony', 'sad', 'pole', 'vinohrad', 'apiarium', 'piscina', 'athanor', 'scriptorium'];
     // Konvrš lze přiřadit jen na tyto (athanor/scriptorium nejsou v CONVERSI_TASKS — jen bratr).
-    const CONVERSI_CAPABLE = ['dvur', 'zahony', 'sad', 'apiarium', 'piscina', 'pole', 'vinohrad'];
+    const CONVERSI_CAPABLE = ['dvur', 'kostel', 'zahony', 'sad', 'apiarium', 'piscina', 'pole', 'vinohrad'];
 
     let h = `<div style="margin-bottom:10px; font-size:0.8rem; opacity:0.75;">
       ${lang === 'en'
@@ -684,7 +684,10 @@ const SaeculumSystem = {
       h += `<div style="border-top:1px dashed rgba(197,160,89,0.3); margin-top:6px; padding-top:6px;">`;
       if (!st.hasField) {
         // Dvůr — údržba, žádný jednorázový výnos ke sběru
-        h += `<div style="font-size:0.72rem; opacity:0.65;">🧹 ${lang === 'en' ? 'Maintenance — cleans & feeds as needed, no single yield to collect.' : 'Údržba — uklízí a krmí dle potřeby, nesbírá se jednorázově.'}</div>`;
+        const maintMsg = tabKey === 'kostel'
+          ? (lang === 'en' ? 'Maintenance — keeps the church clean, no single yield to collect.' : 'Údržba — udržuje kostel čistý, nesbírá se jednorázově.')
+          : (lang === 'en' ? 'Maintenance — cleans & feeds as needed, no single yield to collect.' : 'Údržba — uklízí a krmí dle potřeby, nesbírá se jednorázově.');
+        h += `<div style="font-size:0.72rem; opacity:0.65;">🧹 ${maintMsg}</div>`;
       } else if (!st.brother && !st.konvrs) {
         h += `<div style="font-size:0.72rem; opacity:0.5;">${lang === 'en' ? 'Nobody working here.' : 'Nikdo tu nepracuje.'}</div>`;
       } else if (st.ready) {

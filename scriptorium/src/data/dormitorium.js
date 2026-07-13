@@ -121,4 +121,5 @@ const DormitoriumSpecializationDB = {
     piscina:  { name: 'Rybář',      name_en: 'Fisherman',    icon: '🐟' },
     athanor:  { name: 'Alchymista', name_en: 'Alchemist',    icon: '⚗️' },
     scriptorium: { name: 'Skriptor', name_en: 'Scriptor',    icon: '📜' },
+    kostel:   { name: 'Kostelník',  name_en: 'Sacristan',    icon: '⛪' },
 };

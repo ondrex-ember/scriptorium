@@ -4805,7 +4805,11 @@ const Game = {
             t.litUntil = now + DAY;
         }
 
-        // Úklid: dostupný konvrš PŘIŘAZENÝ na Kostel (M1: přiřazení nahrazuje "kdo je volný") — +5 únavy, čisto na 48 h
+        // Úklid: konvrš PŘIŘAZENÝ na Kostel a/nebo bratr (Kostelník) dohlížející —
+        // stejný combo vzor jako Manufaktura (dormitoriumBrotherMult, _workCredit).
+        // Buď může uklízet sám; s oběma se čisto drží déle.
+        const kostelBrother = (GameState.dormitorium && GameState.dormitorium.brothers || [])
+            .find(b => b.assignedTab === 'kostel');
         const cleaner = (GameState.conversi || [])
             .filter(k => k.task === 'kostel'
                       && k.fatigue < (this._konvrsTraits(k).includes('pilny') ? 90 : 80)
@@ -4814,10 +4818,15 @@ const Game = {
                       && !(k.injuredUntil && k.injuredUntil > now)
                       && !(k.awayUntil && k.awayUntil > now))
             .sort((a, b) => a.fatigue - b.fatigue)[0];
-        if (cleaner) {
-            cleaner.fatigue = Math.min(100, cleaner.fatigue + 5);
-            t.cleanUntil = now + 48 * 60 * 60 * 1000;
-            t.lastCleaner = cleaner.name;
+        if (cleaner || kostelBrother) {
+            const brotherMult = kostelBrother ? this.dormitoriumBrotherMult(kostelBrother, 'kostel') : 1.0;
+            if (cleaner) cleaner.fatigue = Math.min(100, cleaner.fatigue + 5);
+            if (kostelBrother) {
+                this.dormitoriumAddXp(kostelBrother, 'kostel');
+                kostelBrother.fatigue = Math.min(100, (kostelBrother.fatigue || 0) + 5);
+            }
+            t.cleanUntil = now + Math.round(48 * 60 * 60 * 1000 * brotherMult);
+            t.lastCleaner = this._workCredit(kostelBrother, cleaner);
         }
         // Fabrica: strukturální stav budovy pomalu chátrá, rychleji u vyšších úrovní
         const fTier = this.FABRICA_TIERS[t.fabricaTier || 0];
@@ -5016,6 +5025,7 @@ const Game = {
         apiarium:    { primary: 'craftsmanship', secondary: 'vigor' },
         piscina:     { primary: 'craftsmanship', secondary: 'vigor' },
         dvur:        { primary: 'vigor',         secondary: 'craftsmanship' },
+        kostel:      { primary: 'piety',         secondary: 'obedience' },
     },
 
     // Individualizace rosteru (monk-attributes-mrd, krok 5) — malý startovní
