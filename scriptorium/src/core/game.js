@@ -4877,6 +4877,35 @@ const Game = {
             SecretsSystem.unlockFolioById('folio_revenanti_bestiar');
         }
 
+        // Persona influence — zanedbání se tiše propíše do vztahů, ne jen
+        // do čísla stavu. Fabrica (fyzická stavba kostela) je věc hierarchie
+        // → Church osa. Hřbitov (hroby vesnických rodin) je věc obce →
+        // Village osa. Malý denní úbytek, jen pod prahem 40 %.
+        if (typeof PersonaSystem !== 'undefined' && PersonaSystem.addInfluence) {
+            if (t.condition < 40) {
+                PersonaSystem.addInfluence('church', -0.3);
+                if (!t.neglectWarnedChurch) {
+                    t.neglectWarnedChurch = true;
+                    Game.addKronikaEntry('important',
+                        '⚠️ Sešlý kostel neujde pozornosti hierarchie. Vztah s Církví tiše klesá.',
+                        '⚠️ A dilapidated church does not escape the notice of the hierarchy. Relations with the Church are quietly slipping.', '');
+                }
+            } else {
+                t.neglectWarnedChurch = false;
+            }
+            if (cem.condition < 40) {
+                PersonaSystem.addInfluence('village', -0.3);
+                if (!GameState.cemetery.neglectWarnedVillage) {
+                    GameState.cemetery.neglectWarnedVillage = true;
+                    Game.addKronikaEntry('important',
+                        '⚠️ Zarostlý hřbitov si vesničané všimli — jsou to jejich mrtví. Vztah s Vsí tiše klesá.',
+                        '⚠️ The overgrown churchyard has not gone unnoticed by the villagers — these are their dead. Relations with the Village are quietly slipping.', '');
+                }
+            } else {
+                GameState.cemetery.neglectWarnedVillage = false;
+            }
+        }
+
         Game.save();
     },
 

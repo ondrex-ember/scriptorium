@@ -106,7 +106,13 @@ const TemplumSystem = {
         const condColor = cond >= 70 ? '#5a9a5a' : cond >= 40 ? 'var(--accent-gold)' : '#c0392b';
         const condLabel = cond >= 70 ? (lang==='en'?'tended':'udržovaný') : cond >= 40 ? (lang==='en'?'neglected':'zanedbaný') : (lang==='en'?'overgrown':'zarostlý');
 
-        let h = `<div style="padding:12px 15px; margin-bottom:16px; background:rgba(197,160,89,0.05); border:1px solid rgba(197,160,89,0.25); border-radius:8px;">
+        let h = '';
+        if (cond < 40) {
+            h += `<div style="padding:8px 12px; margin-bottom:10px; background:rgba(192,57,43,0.1); border-left:4px solid #c0392b; border-radius:6px; font-size:0.78rem; font-weight:bold;">
+                    ⚠️ ${lang==='en' ? 'The villagers notice the overgrown graves — Village relations are quietly slipping.' : 'Vesničané si všímají zarostlých hrobů — vztah s Vsí tiše klesá.'}
+                  </div>`;
+        }
+        h += `<div style="padding:12px 15px; margin-bottom:16px; background:rgba(197,160,89,0.05); border:1px solid rgba(197,160,89,0.25); border-radius:8px;">
             <div style="font-weight:bold; font-size:0.9rem; margin-bottom:6px;">⚰️ ${lang==='en'?'Cemetery condition':'Stav hřbitova'} — <span style="color:${condColor};">${condLabel}</span></div>
             <div style="height:6px; background:rgba(0,0,0,0.1); border-radius:3px; overflow:hidden; margin-bottom:6px;">
                 <div style="height:100%; width:${cond}%; background:${condColor}; border-radius:3px;"></div>
@@ -186,6 +192,11 @@ const TemplumSystem = {
             const next = Game.FABRICA_TIERS[tier + 1];
             const curName = lang==='en' ? cur.name_en : cur.name;
             const condColor = cond >= 70 ? '#5a9a5a' : cond >= 40 ? 'var(--accent-gold)' : '#c0392b';
+            if (cond < 40) {
+                h += `<div style="padding:8px 12px; margin-bottom:10px; background:rgba(192,57,43,0.1); border-left:4px solid #c0392b; border-radius:6px; font-size:0.78rem; font-weight:bold;">
+                        ⚠️ ${lang==='en' ? 'The dilapidated church does not escape the hierarchy — Church relations are quietly slipping.' : 'Sešlý kostel neujde pozornosti hierarchie — vztah s Církví tiše klesá.'}
+                      </div>`;
+            }
             h += `<div style="padding:12px 15px; margin-bottom:16px; background:rgba(197,160,89,0.05); border:1px solid rgba(197,160,89,0.25); border-radius:8px;">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
                     <div style="font-weight:bold; font-size:0.9rem;">🏛️ Fabrica Ecclesiae — ${curName}</div>
