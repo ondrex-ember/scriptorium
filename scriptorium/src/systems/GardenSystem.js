@@ -609,9 +609,17 @@ const GardenSystem = {
         const WEEK  = 7  * 24 * 3600000;
         const WEEKS2 = 14 * 24 * 3600000;
         const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        const hasAdminTech = GameState.researchedTechs && GameState.researchedTechs.includes('tech_piscina_administratio');
 
         let html = `<p class="text-sm" style="margin-bottom:12px; opacity:0.75;">${t('garden.piscinaDesc')}</p>`;
-        html += this._zahradaStatsBar(lang, [this._brotherBadge('piscina', lang)]);
+        let speciesBadge = null;
+        if (hasAdminTech && typeof FishDB !== 'undefined') {
+            const rows = p.fish || [];
+            const species = new Set(rows.filter(r => r.qty > 0).map(r => r.species));
+            const total = rows.reduce((s, r) => s + r.qty, 0);
+            speciesBadge = `🐟 ${species.size} ${lang==='en'?'species':'druhů'} · ${total} ${lang==='en'?'fish':'ks'}`;
+        }
+        html += this._zahradaStatsBar(lang, [this._brotherBadge('piscina', lang), speciesBadge]);
         const t1locked = p.tier < 1;
         html += `<div style="
             margin-bottom:10px; border-radius:10px; overflow:hidden;
@@ -793,6 +801,91 @@ const GardenSystem = {
             html += `</div></div>`;
         }
         html += `</div>`;
+
+        // ── SPRÁVA RYBNÍKA (gate: tech_piscina_administratio) ──────────────
+        // Přehled druhů, nasazení nakoupené ryby, úlovek štiky, sádky, výlov.
+        // Nezasahuje do Tier 1/2/3 boxů výše — čistě nová sekce navíc.
+        if (hasAdminTech && typeof FishDB !== 'undefined') {
+            const fishRows = p.fish || [];
+            html += `<div style="margin-top:14px; padding:12px 14px; background:rgba(0,0,0,0.03); border-radius:8px; border-left:3px solid var(--accent-gold);">`;
+            html += `<div style="font-weight:bold; font-size:0.88rem; margin-bottom:8px;">📋 ${lang==='en'?'Pond Management':'Správa rybníka'}</div>`;
+
+            // Přehled ryb — seskupené podle druhu a stádia
+            const grouped = {};
+            fishRows.forEach(r => { if (r.qty > 0) grouped[r.species + '|' + r.stage] = (grouped[r.species + '|' + r.stage] || 0) + r.qty; });
+            const stageLabel = { fry: lang==='en'?'fry':'plůdek', young: lang==='en'?'young':'mladí', adult: lang==='en'?'adult':'dospělí' };
+            html += `<div style="font-size:0.78rem; margin-bottom:10px;">`;
+            if (Object.keys(grouped).length === 0) {
+                html += `<span style="opacity:0.6; font-style:italic;">${lang==='en'?'The pond is empty.':'Rybník je prázdný.'}</span>`;
+            } else {
+                Object.keys(grouped).forEach(key => {
+                    const [sp, stage] = key.split('|');
+                    const def = FishDB[sp] || { icon: '🐟', name: sp, name_en: sp };
+                    const spName = lang==='en' ? (def.name_en || sp) : (def.name || sp);
+                    html += `<span style="display:inline-block; margin:2px 10px 2px 0;">${def.icon} ${spName} (${stageLabel[stage] || stage}): <strong>${grouped[key]}</strong></span>`;
+                });
+            }
+            html += `</div>`;
+
+            // Nasadit nakoupenou rybu — jen nenativní druhy, co má hráč v inventáři
+            const stockable = Object.keys(FishDB).filter(sp => !FishDB[sp].native && (GameState.inventory[sp] || 0) > 0);
+            if (stockable.length) {
+                html += `<div style="font-size:0.75rem; margin-bottom:8px;">`;
+                stockable.forEach(sp => {
+                    const def = FishDB[sp];
+                    const spName = lang==='en' ? def.name_en : def.name;
+                    const have = GameState.inventory[sp] || 0;
+                    html += `<button class="craft-btn" onclick="Game.stockFish('${sp}',1)" style="font-size:0.7rem; margin:2px 4px 2px 0;">${def.icon} ${lang==='en'?'Stock':'Nasadit'} ${spName} (${have})</button>`;
+                });
+                html += `</div>`;
+            }
+
+            // Štika — samostatný úlovek (nikdy ne Konvrš, viz Sprint 4)
+            const stikaAdult = fishRows.filter(r => r.stage === 'adult' && r.species === 'stika').reduce((s, r) => s + r.qty, 0);
+            if (stikaAdult > 0) {
+                html += `<div style="font-size:0.75rem; margin-bottom:8px;">
+                    🐊 ${lang==='en'?'Pike ready':'Štika k ulovení'}: <strong>${stikaAdult}</strong>
+                    <button class="craft-btn" onclick="Game.catchPike(1)" style="font-size:0.7rem; margin-left:6px;">🎣 ${lang==='en'?'Catch 1':'Ulovit 1'}</button>
+                    <button class="craft-btn" onclick="Game.catchPike(${stikaAdult})" style="font-size:0.7rem; margin-left:4px;">${lang==='en'?'All':'Vše'} (${stikaAdult})</button>
+                </div>`;
+            }
+
+            // Sádky — přehled + přesun z rybníka
+            const kaprAdultQty = fishRows.filter(r => r.stage === 'adult' && r.species === 'kapr').reduce((s, r) => s + r.qty, 0);
+            const sadkyItems = ['kapr_sadky_fresh', 'kapr_sadky_purified', 'stika_sadky_fresh', 'stika_sadky_purified'];
+            const sadkyHave = sadkyItems.some(id => (GameState.inventory[id] || 0) > 0);
+            if (sadkyHave || kaprAdultQty > 0 || stikaAdult > 0) {
+                html += `<div style="font-size:0.75rem; margin-bottom:8px; padding-top:6px; border-top:1px solid rgba(0,0,0,0.08);">`;
+                html += `<div style="opacity:0.7; margin-bottom:4px;">🪣 ${lang==='en'?'Holding tank (sádky)':'Sádky'}</div>`;
+                sadkyItems.forEach(id => {
+                    const qty = GameState.inventory[id] || 0;
+                    if (qty > 0) html += `${(typeof iName === 'function') ? iName(id) : id}: <strong>${qty}</strong>&nbsp;&nbsp;`;
+                });
+                if (kaprAdultQty > 0) html += `<button class="craft-btn" onclick="Game.moveToSadky('kapr',${kaprAdultQty})" style="font-size:0.68rem; margin:4px 4px 0 0;">${lang==='en'?'→ Carp to tank':'→ Kapr do sádek'}</button>`;
+                if (stikaAdult > 0) html += `<button class="craft-btn" onclick="Game.moveToSadky('stika',${stikaAdult})" style="font-size:0.68rem; margin:4px 0 0;">${lang==='en'?'→ Pike to tank':'→ Štika do sádek'}</button>`;
+                html += `</div>`;
+            }
+
+            // Výlov — sezónní event (jen říjen/listopad)
+            const vylov = GameState.piscinaVylov;
+            const nowMonth = new Date().getMonth() + 1;
+            const isAutumn = (nowMonth === 10 || nowMonth === 11);
+            html += `<div style="font-size:0.75rem; padding-top:6px; border-top:1px solid rgba(0,0,0,0.08);">`;
+            if (vylov && vylov.active) {
+                if (Date.now() >= vylov.readyAt) {
+                    html += `🎣 ${lang==='en'?'The catch awaits at the dam.':'Úlovek čeká na hrázi.'} <button class="craft-btn" onclick="Game.harvestVylov()" style="font-size:0.7rem; margin-left:6px;">${lang==='en'?'Harvest the catch':'Sklidit výlov'}</button>`;
+                } else {
+                    const daysLeft = Math.max(0, Math.ceil((vylov.readyAt - Date.now()) / 86400000));
+                    html += `🚰 ${lang==='en'?'Sluices draining':'Stavidla vypouští'}... (${daysLeft}d)`;
+                }
+            } else {
+                html += `<button class="craft-btn" onclick="Game.startVylov()" ${isAutumn ? '' : 'disabled'} style="font-size:0.7rem;">🎣 ${lang==='en'?'Begin the autumn harvest':'Zahájit podzimní výlov'}</button>`;
+                if (!isAutumn) html += `<span style="opacity:0.55; margin-left:6px; font-style:italic;">${lang==='en'?'(autumn only)':'(jen na podzim)'}</span>`;
+            }
+            html += `</div>`;
+
+            html += `</div>`;
+        }
 
         el.innerHTML = html;
 
@@ -2345,7 +2438,7 @@ const GardenSystem = {
 
         // Piscina
         html += header('🐟', 'Piscina');
-        ['fish','fry','carp'].forEach(id => html += row(id));
+        ['fish','fry','carp','stika','pstruh','uhor','kapr_sadky_fresh','kapr_sadky_purified','stika_sadky_fresh','stika_sadky_purified'].forEach(id => html += row(id));
 
         // Pole — dynamicky z CROPS_DB
         html += header('🌾', lang==='en'?'Field':'Pole');

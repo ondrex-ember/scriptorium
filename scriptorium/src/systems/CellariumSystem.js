@@ -491,6 +491,9 @@ const CellariumSystem = {
       { itemId: 'seed_linden',   basePrice: 14,  dailyStock: 2  },
       // Rybník
       { itemId: 'fry',           basePrice: 5,   dailyStock: 5  },
+      { itemId: 'stika',         basePrice: 20,  dailyStock: 1,  req_tech: 'tech_piscina_administratio' },
+      { itemId: 'pstruh',        basePrice: 15,  dailyStock: 2,  req_tech: 'tech_piscina_administratio' },
+      { itemId: 'uhor',          basePrice: 22,  dailyStock: 1,  req_tech: 'tech_piscina_administratio' },
       // Zelenina
       { itemId: 'carrot',        basePrice: 4,   dailyStock: 30 },
       { itemId: 'onion',         basePrice: 4,   dailyStock: 30 },

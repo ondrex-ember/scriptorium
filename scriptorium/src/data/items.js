@@ -489,6 +489,13 @@ const ItemsDB = {
     "fry": { name: "Plůdek (potěr)", name_en: "Fish Fry", icon: "🫧", type: "mat", desc: "Malý rybí potěr. Vyrůstá v rybníce.", desc_en: "Tiny fish fry. Grows in the pond." },
     "carp_young": { name: "Kapr (nedospělý)", name_en: "Young Carp", icon: "🐟", type: "mat", desc: "Nedospělý kapr z výtažníku. Potřebuje čas.", desc_en: "Young carp from the rearing pond. Needs time." },
     "carp": { name: "Kapr tržní", name_en: "Market Carp", icon: "🐠", type: "food_raw", desc: "Dospělý kapr. Prodej nebo vaření.", desc_en: "Adult carp. For sale or cooking." },
+    "stika": { name: "Štika", name_en: "Pike", icon: "🐊", type: "food_raw", desc: "Dravá ryba. Nasazuje se do rybníka jako přirozená kontrola hejna.", desc_en: "A predatory fish. Stocked in the pond as a natural check on the shoal." },
+    "kapr_sadky_fresh": { name: "Kapr v sádkách (čerstvý)", name_en: "Carp in the Holding Tank (Fresh)", icon: "🐠", type: "food_raw", desc: "Právě vylovený kapr, ještě s bahenní pachutí. Za pár dní se pročistí.", desc_en: "Just-caught carp, still with a muddy taste. It will purify in a few days." },
+    "kapr_sadky_purified": { name: "Kapr v sádkách (pročištěný)", name_en: "Carp in the Holding Tank (Purified)", icon: "🐠", type: "food_raw", desc: "Kapr po pobytu v sádkách. Bez bahenní pachuti, vyšší cena.", desc_en: "Carp after time in the holding tank. No muddy taste, higher value." },
+    "stika_sadky_fresh": { name: "Štika v sádkách (čerstvá)", name_en: "Pike in the Holding Tank (Fresh)", icon: "🐊", type: "food_raw", desc: "Právě ulovená štika, ještě s bahenní pachutí. Za pár dní se pročistí.", desc_en: "Just-caught pike, still with a muddy taste. It will purify in a few days." },
+    "stika_sadky_purified": { name: "Štika v sádkách (pročištěná)", name_en: "Pike in the Holding Tank (Purified)", icon: "🐊", type: "food_raw", desc: "Štika po pobytu v sádkách. Bez bahenní pachuti, vyšší cena.", desc_en: "Pike after time in the holding tank. No muddy taste, higher value." },
+    "pstruh": { name: "Pstruh", name_en: "Trout", icon: "🐡", type: "food_raw", desc: "Ryba čisté vody. Vyžaduje dobrou jakost rybníka.", desc_en: "A fish of clean water. Requires good pond quality." },
+    "uhor": { name: "Úhoř", name_en: "Eel", icon: "🐍", type: "food_raw", desc: "Tučná ryba, cenná na trhu i na stole.", desc_en: "A fatty fish, valued at market and at table." },
 
     // ═══════════════════════════════════════════════════════════════════════════
     // PIVOVAR (Cervisiaria) — v9.x

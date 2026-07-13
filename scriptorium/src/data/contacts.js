@@ -147,6 +147,20 @@ const ContactsDB = {
         desc: 'Benátský obchodník. Přiváží, co jinde nekoupíš — ale jen když je jeho loď v přístavu.',
         desc_en: 'A Venetian merchant. He brings what you cannot buy elsewhere — but only while his ship is in port.'
     },
+    rybar: {
+        confession: "Prodává ryby z cizích vod jako vlastní úlovek — nikdo se neptá, odkud přitáhl síť.",
+        confession_en: "He sells fish from other men's waters as his own catch — no one asks whose net it came from.",
+        name: 'Rybář', name_en: 'Fisherman', icon: '🎣',
+        primaryAxis: 'village',
+        secondaryAxis: null,
+        unlockTech: 'tech_piscina_administratio',
+        sellBonus: {},
+        buyOffer: { items: { stika:  { price: 15, stock: 1 },
+                             pstruh: { price: 12, stock: 2 },
+                             uhor:   { price: 18, stock: 1 } } },
+        desc: 'Rybář od říčky. Prodá i druhy, co v klášterním rybníce sám nenachováš.',
+        desc_en: 'A fisherman by the stream. He sells species you cannot breed in the monastery pond yourself.'
+    },
     stationarius: {
         confession: "Prodal opsaný text jako originál — a přiúčtoval si podíl z pecia navíc, co žákovi nepřiznal.",
         confession_en: "He sold a copied text as an original — and skimmed an extra cut from the pecia fee he never disclosed to the student.",

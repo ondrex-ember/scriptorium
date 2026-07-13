@@ -24,6 +24,16 @@ const ActionsDB = [
       yield: 1, req: [{item:'stone_pickaxe', mult:0.7}, {item:'iron_pickaxe', mult:1.2}] },
 ];
 
+// FishDB — metadata druhů pro Piscinu (entitní model, viz GameState.piscina.fish[]).
+// kapr = nativní chov (líhne se v rybníce); ostatní se nasazují nákupem
+// (Trh/Clientela, viz Game.stockFish). isPredator připraveno pro Sprint 4 (štika).
+const FishDB = {
+    kapr:   { name: 'Kapr',   name_en: 'Carp',  icon: '🐟', native: true,  isPredator: false },
+    stika:  { name: 'Štika',  name_en: 'Pike',  icon: '🐊', native: false, isPredator: true  },
+    pstruh: { name: 'Pstruh', name_en: 'Trout', icon: '🐡', native: false, isPredator: false },
+    uhor:   { name: 'Úhoř',   name_en: 'Eel',   icon: '🐍', native: false, isPredator: false }
+};
+
 let audioSys = null;
 const GameState = {
     inventory: { "tinderbox": 1, "rock": 2, "stick": 2, "water": 5, "research": 6, "bread": 4, "fish": 3, "berry_pie": 2 },
