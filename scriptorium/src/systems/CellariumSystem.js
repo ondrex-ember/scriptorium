@@ -784,6 +784,27 @@ const CellariumSystem = {
     return (Date.now() - (GameState.economy.lastGiacomoVisit || 0)) < this.GIACOMO_PRESENCE_MS;
   },
 
+  // Stationarius — mirror Giacomo vzoru (týdenní interval + krátké okno),
+  // jen delší cyklus (knižní veletrh je vzácnější než týdenní loď).
+  // Nahrazuje dřívější kalendářní jaro/podzim — to bylo příliš pomalé
+  // (reálné měsíce čekání podle toho, kdy hraješ).
+  STATIONARIUS_INTERVAL_MS: 21 * 24 * 60 * 60 * 1000,  // každých 21 dní
+  STATIONARIUS_PRESENCE_MS: 5 * 24 * 60 * 60 * 1000,   // přítomen 5 dní
+
+  checkStationariusEvent: function() {
+    const now = Date.now();
+    if (!GameState.library) GameState.library = {};
+    if (now - (GameState.library.lastStationariusVisit || 0) >= this.STATIONARIUS_INTERVAL_MS) {
+      GameState.library.lastStationariusVisit = now;
+      Game.save();
+    }
+  },
+
+  isStationariusPresent: function() {
+    if (!GameState.library) return false;
+    return (Date.now() - (GameState.library.lastStationariusVisit || 0)) < this.STATIONARIUS_PRESENCE_MS;
+  },
+
   showGiacomoArrival: function() {
     // Show modal
     let existing = document.getElementById('giacomo-modal');

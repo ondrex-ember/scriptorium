@@ -1410,7 +1410,44 @@ const UI = {
                 📖 ${t('library_lore.lib_read')}: <strong>${read}/${total}</strong>
             </div>
             ${hiddenBookHints}
-            
+            `;
+
+        // Stationarius — univerzitní dealer knih/psacích potřeb. Vstup jen
+        // zde v Knihovně (ne v Saeculum Clientela gridu). Gate: tech +
+        // periodický interval (mirror Giacomo — viz checkStationariusEvent).
+        {
+            const researched = GameState.researchedTechs || [];
+            const stat = (typeof ContactsDB !== 'undefined') ? ContactsDB.stationarius : null;
+            const unlockedStat = stat && (!stat.unlockTech || researched.includes(stat.unlockTech));
+            if (unlockedStat) {
+                const present = (typeof CellariumSystem !== 'undefined') && CellariumSystem.isStationariusPresent();
+                const activeContact = GameState.ui && GameState.ui.clientelaContact;
+                let statusLine;
+                if (present) {
+                    statusLine = lang==='en' ? 'In Olomouc now — the book fair caravan has arrived.' : 'Teď v Olomouci — dorazil s knižním veletrhem.';
+                } else {
+                    const lastVisit = (GameState.library && GameState.library.lastStationariusVisit) || 0;
+                    const nextAt = lastVisit + CellariumSystem.STATIONARIUS_INTERVAL_MS;
+                    const daysLeft = Math.max(0, Math.ceil((nextAt - Date.now()) / (24*3600000)));
+                    statusLine = lang==='en'
+                        ? 'On the road between fairs — back in ' + daysLeft + ' d.'
+                        : 'Na cestě mezi veletrhy — vrací se za ' + daysLeft + ' dní.';
+                }
+                h += `<div style="margin-bottom:20px;padding:12px 14px;background:rgba(197,160,89,0.07);border:1px solid rgba(197,160,89,0.3);border-radius:6px;">
+                        <div style="display:flex;align-items:center;gap:10px;${present ? '' : 'opacity:0.6;'}">
+                          <div style="font-size:1.6rem;">${stat.icon}</div>
+                          <div style="flex:1;">
+                            <strong>${lang==='en'?stat.name_en:stat.name}</strong>
+                            <div class="text-sm" style="opacity:0.75;">${statusLine}</div>
+                          </div>
+                          ${present ? `<button class="craft-btn" onclick="SaeculumSystem.openContact('stationarius'); UI.renderLibrary();">📖 ${lang==='en'?'Meeting':'Schůzka'}</button>` : ''}
+                        </div>
+                        ${(present && activeContact === 'stationarius' && typeof SaeculumSystem !== 'undefined') ? SaeculumSystem.renderContactPanel('stationarius') : ''}
+                      </div>`;
+            }
+        }
+
+        h += `
             <div style="margin-bottom:20px;padding:15px;background:var(--bg-card);border:1px solid var(--border-color);border-radius:5px;">
                 <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
                     <div style="font-size:2rem;">🖋️</div>

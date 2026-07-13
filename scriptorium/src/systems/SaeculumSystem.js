@@ -893,6 +893,11 @@ const SaeculumSystem = {
     const c = ContactsDB[contactId];
     const items = c && c.sellBonus && c.sellBonus.items;
     if (!items || !(itemId in items)) return;
+    if (contactId === 'stationarius' && typeof CellariumSystem !== 'undefined' && !CellariumSystem.isStationariusPresent()) {
+      const lang = (GameState.settings && GameState.settings.language) || 'cs';
+      UI.notify(lang==='en' ? 'The Stationarius travels between book fairs — he is not in Olomouc now.' : 'Stationarius cestuje mezi veletrhy — teď není v Olomouci.', true);
+      return;
+    }
     const have = GameState.inventory[itemId] || 0;
     if (qty === 'all') qty = have;
     qty = Math.max(0, Math.min(have, qty | 0));
@@ -945,6 +950,12 @@ const SaeculumSystem = {
     if (contactId === 'giacomo' && !CellariumSystem.isGiacomoPresent()) {
       const lang = (GameState.settings && GameState.settings.language) || 'cs';
       UI.notify(lang==='en' ? "Giacomo's ship is at sea — return after he arrives." : 'Giacomova loď je na moři — vrať se po jeho příjezdu.', true);
+      return;
+    }
+    // Stationarius je v Olomouci jen po jarním/podzimním knižním veletrhu
+    if (contactId === 'stationarius' && !CellariumSystem.isStationariusPresent()) {
+      const lang = (GameState.settings && GameState.settings.language) || 'cs';
+      UI.notify(lang==='en' ? 'The Stationarius travels between book fairs — he is not in Olomouc now.' : 'Stationarius cestuje mezi veletrhy — teď není v Olomouci.', true);
       return;
     }
     // Exkluzivní nabídka: gate na vztah (MRD bod 8)
@@ -1019,6 +1030,7 @@ const SaeculumSystem = {
 
     h += `<div style="display:flex; flex-wrap:wrap; gap:6px;">`;
     Object.keys(ContactsDB).forEach(id => {
+      if (id === 'stationarius') return; // vlastní vstup v Knihovně, ne tady
       const c = ContactsDB[id];
       const unlocked = (!c.unlockTech || researched.includes(c.unlockTech))
                     && (!c.unlockBook || (GameState.library && GameState.library.readBooks && GameState.library.readBooks.includes(c.unlockBook)));

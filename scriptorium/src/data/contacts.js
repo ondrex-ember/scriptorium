@@ -146,5 +146,26 @@ const ContactsDB = {
         } },
         desc: 'Benátský obchodník. Přiváží, co jinde nekoupíš — ale jen když je jeho loď v přístavu.',
         desc_en: 'A Venetian merchant. He brings what you cannot buy elsewhere — but only while his ship is in port.'
+    },
+    stationarius: {
+        confession: "Prodal opsaný text jako originál — a přiúčtoval si podíl z pecia navíc, co žákovi nepřiznal.",
+        confession_en: "He sold a copied text as an original — and skimmed an extra cut from the pecia fee he never disclosed to the student.",
+        name: 'Stationarius', name_en: 'Stationarius', icon: '📚',
+        primaryAxis: 'scholars',
+        secondaryAxis: null,
+        unlockTech: 'tech_writing_basics',
+        // Vlastní vstup v Knihovně (ne Clientela grid v Saeculu) — vyloučen
+        // z renderClientela() explicitně. Přítomen periodicky (mirror
+        // Giacomo, viz CellariumSystem.checkStationariusEvent) — každých
+        // 21 dní na 5 dní, ne vázáno na kalendářní sezónu.
+        sellBonus: { items: { ink: 2, vellum: 3, quill: 2, gum_arabic: 2 } },
+        buyOffer: { items: {
+            ink:        { price: 3, stock: 5 },
+            vellum:     { price: 5, stock: 5 },
+            quill:      { price: 4, stock: 3 },
+            gum_arabic: { price: 3, stock: 5 },
+        } },
+        desc: 'Univerzitní dealer knih a psacích potřeb. V Olomouci jen po jarním a podzimním knižním veletrhu.',
+        desc_en: 'A university dealer in books and writing supplies. In Olomouc only after the spring and autumn book fairs.'
     }
 };

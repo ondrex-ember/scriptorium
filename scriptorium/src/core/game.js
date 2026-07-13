@@ -659,6 +659,7 @@ const Game = {
                 if (_tickCounter >= 60) {
                     _tickCounter = 0;
                     CellariumSystem.checkGiacomoEvent();
+                    CellariumSystem.checkStationariusEvent();
                     // v8.x: Orchard growing → mature transition
                     Game.checkOrchardGrowth();
                     if (typeof GardenSystem !== 'undefined') GardenSystem.checkFieldGrowth();
