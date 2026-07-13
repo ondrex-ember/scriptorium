@@ -1068,6 +1068,9 @@ const PersonaSystem = {
         // Acedia (endgame-branches-reference.md sekce 9) — nízký Vigor beze změny celý týden = eroze Zbožnosti
         if (typeof VigorSystem !== 'undefined' && VigorSystem.getVigorPct && VigorSystem.getVigorPct() < 30) {
             this.addZboznost(-2);
+            // Bestiář: první reálný zásah Acedie rovnou odemkne její záznam.
+            // unlockFolioById je idempotentní (no-op, pokud už nalezeno).
+            if (typeof SecretsSystem !== 'undefined') SecretsSystem.unlockFolioById('folio_acedia_bestiar');
         }
         GameState.persona.influenceLastDecay = now;
         if (changed) Game.save();

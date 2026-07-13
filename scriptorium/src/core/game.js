@@ -1467,6 +1467,64 @@ const Game = {
         });
     },
 
+    // ── Acedia spis (Bestiář, Cesta B) — modal při nalezení nebo kliknutí ──
+    showAcediaSpisModal: function() {
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        const isEn = lang === 'en';
+        NotificationSystem.modal({
+            icon: '📜',
+            title: isEn ? 'A Damp Page' : 'Vlhký list',
+            text: isEn
+                ? 'Wedged in the wattle wall, half-swollen with damp, you find a folded page you never put there. Someone once wrote down what it feels like when the day will not end.'
+                : 'Zastrčený ve spáře proutěné stěny, napůl zvlhlý, ležel list, co jsi tam nedal ty. Někdo si kdysi zapsal, jaké to je, když den nechce skončit.',
+            choices: [
+                {
+                    label: isEn ? '📖 Open' : '📖 Otevřít',
+                    type: 'primary',
+                    effect: function() { Game.showAcediaSpisContentModal(); }
+                },
+                {
+                    label: isEn ? '📕 Hand to Scrinium' : '📕 Předat do Scrinia',
+                    type: 'default',
+                    effect: function() {
+                        Game.removeItem('acedia_spis', 1);
+                        if (typeof SecretsSystem !== 'undefined') SecretsSystem.unlockFolioById('folio_acedia_bestiar');
+                        UI.notify(isEn ? '📕 Handed to the Scrinium.' : '📕 Předáno do Scrinia.');
+                        Game.save();
+                    }
+                }
+            ]
+        });
+    },
+
+    showAcediaSpisContentModal: function() {
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        const isEn = lang === 'en';
+        NotificationSystem.modal({
+            icon: '😴',
+            title: isEn ? 'Daemon Meridianus' : 'Daemon meridianus',
+            image: '/bestiary/acedia.jpg',
+            text: t('scrinium.folios.acedia_bestiar.lectio'),
+            choices: [
+                {
+                    label: isEn ? '📕 Hand to Scrinium' : '📕 Předat do Scrinia',
+                    type: 'primary',
+                    effect: function() {
+                        Game.removeItem('acedia_spis', 1);
+                        if (typeof SecretsSystem !== 'undefined') SecretsSystem.unlockFolioById('folio_acedia_bestiar');
+                        UI.notify(isEn ? '📕 Handed to the Scrinium.' : '📕 Předáno do Scrinia.');
+                        Game.save();
+                    }
+                },
+                {
+                    label: isEn ? '🗃️ Keep in storage' : '🗃️ Uchovat ve skladu',
+                    type: 'default',
+                    effect: function() {}
+                }
+            ]
+        });
+    },
+
     farmAction: function(plotIdx) {
         const plot = GameState.garden[plotIdx];
         if(plot.locked) { UI.notify(t('game.plotLocked'), true); return; }

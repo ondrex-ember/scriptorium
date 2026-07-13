@@ -701,3 +701,10 @@ Object.assign(ItemsDB, {
         desc: "Polozetlelý list se skicou rohatého tvora a varovnými verši. Někdo si dal práci to zapsat.", desc_en: "A half-decayed leaf with a sketch of a horned creature and warning verses. Someone took care to write it down."
     },
 });
+// ── BESTIÁŘ — nález spisu (cleanPen, nezávislý na Acedia erosion-checku) ──
+Object.assign(ItemsDB, {
+    "acedia_spis": {
+        name: "Spis o Acedii", name_en: "A Note on Acedia", icon: "📜", type: "lore",
+        desc: "Vlhkem zvlněný list, zastrčený ve spáře proutěné stěny. Někdo si zapsal, jaké to je, když den nechce skončit.", desc_en: "A page warped with damp, wedged in the crack of a wattle wall. Someone once wrote down what it feels like when the day will not end."
+    },
+});

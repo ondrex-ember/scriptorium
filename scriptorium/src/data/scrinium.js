@@ -323,6 +323,34 @@ const ScriniumDB = {
             },
         },
 
+        // ── 2. Acedia (Daemon meridianus) — nález přes dvě cesty:
+        //      A) první reálný zásah Zbožnost-eroze (Vigor<30% týden) -> auto-unlock
+        //      B) nález "acedia_spis" při úklidu chlévu zanedbaného ≥3 dny,
+        //         šance roste s dalšími signály zanedbání (nízký Vigor,
+        //         zaseklé Manufaktura taby) -> modal -> Předat do Scrinia
+        //    Čistě narativní — popisuje existující Zbožnost erosion mechaniku,
+        //    nic nemění.
+        {
+            id: 'folio_acedia_bestiar',
+            subtab: 'bestiar',
+            icon: '😴',
+            physicalForm: 'leaf',
+            titleKey: 'scrinium.folios.acedia_bestiar.title',
+            lectio: {
+                textKey: 'scrinium.folios.acedia_bestiar.lectio',
+                cost: null,
+                image: '/bestiary/acedia.jpg',
+            },
+            glossa: {
+                textKey: 'scrinium.folios.acedia_bestiar.glossa',
+                cost: { item: 'candle', amount: 3 },
+            },
+            arcanum: {
+                textKey: 'scrinium.folios.acedia_bestiar.arcanum',
+                cost: { item: 'candle', amount: 5 },
+            },
+        },
+
     ], // konec folios[]
 
 }; // konec ScriniumDB

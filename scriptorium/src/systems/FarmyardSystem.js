@@ -181,6 +181,33 @@ const FarmyardSystem = {
         const inv = GameState.inventory;
         inv['manure'] = (inv['manure'] || 0) + n;
 
+        // Bestiář — Acedia. Nález vázaný na skutečné zanedbání: čím déle
+        // tenhle chlév ležel neuklizený a čím víc dalšího je taky
+        // zanedbáno (nízký Vigor, zaseklé Manufaktura taby), tím vyšší
+        // šance najít spis přímo ve chvíli, kdy z toho zanedbání vylézáš.
+        {
+            const neglectDays = (now - lastCleaned) / this.DAY_MS;
+            if (neglectDays >= 3) {
+                const alreadyFolio = GameState.scrinium && GameState.scrinium.folios
+                    && GameState.scrinium.folios['folio_acedia_bestiar'] && GameState.scrinium.folios['folio_acedia_bestiar'].found;
+                const alreadyHeld = (GameState.inventory['acedia_spis'] || 0) > 0;
+                if (!alreadyFolio && !alreadyHeld) {
+                    let chance = 0.03;
+                    if (typeof VigorSystem !== 'undefined' && VigorSystem.getVigorPct && VigorSystem.getVigorPct() < 30) chance += 0.05;
+                    const staleFields = ['conversiGardenLastTick', 'conversiOrchardLastTick', 'conversiApiaryLastTick',
+                                          'conversiPiscinaLastTick', 'conversiFieldLastTick', 'conversiVineaLastTick',
+                                          'conversiAthanorLastTick', 'conversiScriptoriumLastTick'];
+                    const DAY2 = 2 * this.DAY_MS;
+                    const staleCount = staleFields.filter(f => GameState[f] > 0 && (now - GameState[f]) >= DAY2).length;
+                    chance = Math.min(0.25, chance + staleCount * 0.02);
+                    if (Math.random() < chance) {
+                        if (typeof Game !== 'undefined' && Game.addItem) Game.addItem('acedia_spis', 1);
+                        if (typeof Game !== 'undefined' && Game.showAcediaSpisModal) setTimeout(function () { Game.showAcediaSpisModal(); }, 300);
+                    }
+                }
+            }
+        }
+
         if (typeof UI !== 'undefined' && UI.notify) UI.notify('💩 ' + t('farmyard.cleanDone').replace('{n}', n));
         if (typeof Game !== 'undefined' && Game.save) Game.save();
         this.renderFarmyard();
