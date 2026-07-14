@@ -52,6 +52,15 @@ const VigorSystem = {
         athanor:        12,
     },
 
+    // Syrové food_raw položky, které lze sníst přímo (bez vaření).
+    // Game.eat() proti tomuto seznamu whitelistuje food_raw položky.
+    RAW_EDIBLE_FOOD: [
+        'apple', 'pear', 'plum', 'cherry', 'mulberry', 'cornel_cherry',
+        'carrot', 'cabbage', 'radish', 'turnip',
+        'sorrel', 'dandelion', 'ground_elder', 'goosefoot',
+        'walnut',
+    ],
+
     // Satiety z jídla
     FOOD_SATIETY: {
         berries:        5,
@@ -66,6 +75,22 @@ const VigorSystem = {
         pickled_mushrooms: 10,
         roots:          5,
         fish:           15,
+        // Syrové ovoce a zelenina (RAW_EDIBLE_FOOD — jíst přímo, bez vaření)
+        apple:          4,
+        pear:           4,
+        plum:           4,
+        cherry:         5,
+        mulberry:       4,
+        cornel_cherry:  4,
+        carrot:         4,
+        cabbage:        4,
+        radish:         3,
+        turnip:         3,
+        sorrel:         3,
+        dandelion:      3,
+        ground_elder:   3,
+        goosefoot:      3,
+        walnut:         6,
         cooked_fish:    20,
         porridge:       18,
         bread:          20,
@@ -1058,7 +1083,8 @@ const VigorSystem = {
         const FOOD_ITEMS = ['bread','berry_pie','stew','cooked_fish','cooked_meat','porridge',
                             'cheese','egg','honey','berries','mushroom',
                             'herbal_tea','hildegard_tisane','linden_tea','chicory_drink','acorn_brew',
-                            'beer','wine','spring_water'];
+                            'beer','wine','spring_water',
+                            ...VigorSystem.RAW_EDIBLE_FOOD];
         const DRINK_ITEMS = ['water','spring_water','holy_water'];
 
         const inv = GameState.inventory || {};

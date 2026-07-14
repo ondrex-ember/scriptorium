@@ -440,7 +440,7 @@ const UI = {
             let actionBtn = '';
             if (id === 'water' || id === 'spring_water' || id === 'holy_water') {
                 actionBtn = `<button class="craft-btn" onclick="event.stopPropagation();Game.drink('${id}')" style="margin-left:auto;">${t('game.drink')}</button>`;
-            } else if (item.type === 'food') {
+            } else if (item.type === 'food' || (typeof VigorSystem !== 'undefined' && VigorSystem.RAW_EDIBLE_FOOD && VigorSystem.RAW_EDIBLE_FOOD.includes(id))) {
                 actionBtn = `<button class="craft-btn" onclick="event.stopPropagation();Game.eat('${id}')" style="margin-left:auto;">${t('game.eat')}</button>`;
             } else if (item.type === 'potion' || item.type === 'alchemy') {
                 actionBtn = `<button class="craft-btn" onclick="event.stopPropagation();Game.eat('${id}')" style="margin-left:auto;">${t('game.eat')}</button>`;

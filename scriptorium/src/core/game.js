@@ -3700,13 +3700,15 @@ const Game = {
         const item = ItemsDB[foodId];
         const _potionCures = ['antidote', 'potion_heal', 'sleep_potion', 'stamina_tonic'];
         const _isPotionCure = _potionCures.includes(foodId);
-        if(!item || (item.type !== 'food' && !_isPotionCure)) { UI.notify(t('game.notFood'), true); return; }
+        // Syrové ovoce/zelenina (food_raw), co lze sníst přímo — viz VigorSystem.RAW_EDIBLE_FOOD
+        const _isRawEdible = (typeof VigorSystem !== 'undefined' && VigorSystem.RAW_EDIBLE_FOOD && VigorSystem.RAW_EDIBLE_FOOD.includes(foodId));
+        if(!item || (item.type !== 'food' && !_isPotionCure && !_isRawEdible)) { UI.notify(t('game.notFood'), true); return; }
         if(!(GameState.inventory[foodId] > 0)) { UI.notify(t('game.noFood'), true); return; }
 
         this.removeItem(foodId, 1);
 
-        // Vigor systém v2 — VigorSystem.eat() zpracuje Satiety + Fatigue (jen skutečné 'food' položky)
-        if (item.type === 'food' && typeof VigorSystem !== 'undefined') {
+        // Vigor systém v2 — VigorSystem.eat() zpracuje Satiety + Fatigue ('food' i syrové jedlé položky)
+        if ((item.type === 'food' || _isRawEdible) && typeof VigorSystem !== 'undefined') {
             VigorSystem.eat(foodId);
         }
 
