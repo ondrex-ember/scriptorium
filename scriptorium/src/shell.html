@@ -3225,7 +3225,7 @@
                     }
                 } else if (id === 'progress') {
                     var res = document.getElementById('research-count');
-                    var grose = (typeof GameState !== 'undefined') ? (GameState.inventory && GameState.inventory['grose'] || 0) : 0;
+                    var grose = (typeof CellariumSystem !== 'undefined') ? CellariumSystem.getGrose() : ((typeof GameState !== 'undefined' && GameState.treasury) ? GameState.treasury.grose || 0 : 0);
                     var techCount = (typeof GameState !== 'undefined' && GameState.researchedTechs) ? GameState.researchedTechs.length : 0;
                     var techTotal = (typeof TechTree !== 'undefined') ? TechTree.length : '?';
                     var rank = (typeof GameState !== 'undefined' && GameState.rank) ? GameState.rank.secular : '–';
