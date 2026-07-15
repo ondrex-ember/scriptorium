@@ -1326,6 +1326,7 @@ Tato neuvěřitelně silná literární terapie zachránila Komenského před š
             title_en: 'Schedula Diversarum Artium: The Secrets of Crafts',
             category: 'technical',
             unlockDay: 113,
+            unlocksTech: ['tech_organum_hydraulicum'],
             icon: '🎹',
             author: 'Theophilus Presbyter',
             year: 'cca 1100–1120',
@@ -1807,6 +1808,29 @@ Nettle and ground elder, scalded and chopped into a spring porridge with groats.
 It is strange how similar recipes — word for word — will appear in print sixty years hence, under the name of Bavor Rodovský z Hustiřan. Perhaps he copied the same source. Or perhaps folk wisdom is never truly lost — it only waits for someone to set it down again.
 
 **GAME EFFECT:** Reading this book unlocks the *Cultus Herbarum* tech — the foundation for future preparation of wild herbs, roots, and mushrooms. The recipes themselves will arrive gradually, as the monastery's knowledge grows.`
+        },
+        {
+            // TODO: text/zdroj dodá Ondrex — nahradit content/content_en, případně author/year/icon
+            id: 'liber_de_recreatione',
+            title: 'Liber de Recreatione',
+            category: 'valetudo',
+            unlockDay: 160,
+            unlockResearch: 140,
+            unlocksTech: ['tech_ars_recreationis'],
+            icon: '🛌',
+            author: 'Neznámý bratr, klášterní tradice',
+            author_en: 'An unknown brother, monastic tradition',
+            year: 1465,
+            content: `**[PLACEHOLDER — čeká na dodání textu]**
+
+Tento zápis zatím nemá finální znění.
+
+**HERNÍ EFEKT:** Přečtením této knihy odemkneš tech *Ars Recreationis* — únava (Fatigue) se odbourává 2× rychleji.`,
+            content_en: `**[PLACEHOLDER — text pending]**
+
+This entry does not yet have its final wording.
+
+**GAME EFFECT:** Reading this book unlocks the *Ars Recreationis* tech — Fatigue recovers 2× faster.`
         }
     ],
 
