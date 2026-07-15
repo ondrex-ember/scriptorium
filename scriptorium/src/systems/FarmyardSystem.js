@@ -78,8 +78,59 @@ const FarmyardSystem = {
         return '😤';
     },
 
+    // ── Nálada v2 — odvozená z hladu (lastFedAt) + hygieny (lastCleanMs) ───
+    // Nahrazuje starý mutovaný a.mood. Sdílená za celý výběh (zvířata v něm
+    // se dnes stejně vždy krmí/uklízí společně). Self-healing: pokud
+    // lastFedAt/lastCleanMs chybí nebo je 0 (staré save, nebo čerstvě
+    // postavený výběh), nastaví se na "teď" — dá grace period místo
+    // okamžitého propadu na 0.
+    // Rozsah v2: rabbitry, henhouse, sheepfold, goatpen, cowbyre, pigsty.
+    // Jen hlad (0-100) — pro disabled-guard na Feed tlačítku. Self-healing
+    // stejně jako getMood.
+    getHunger: function (pen) {
+        const penKey = pen === 'kurnik' ? 'henhouse' : pen === 'kosar' ? 'sheepfold' : pen;
+        const st = GameState[penKey];
+        if (!st || !st.built) return 100;
+        const now = Date.now();
+        if (!st.lastFedAt) st.lastFedAt = now;
+        const hoursSinceFed = (now - st.lastFedAt) / 3600000;
+        return Math.max(0, Math.min(100, 100 - hoursSinceFed * (100 / 72)));
+    },
+
+    getMood: function (pen) {
+        const penKey = pen === 'kurnik' ? 'henhouse' : pen === 'kosar' ? 'sheepfold' : pen;
+        const st = GameState[penKey];
+        if (!st || !st.built) return 80;
+
+        let count, cap;
+        if (penKey === 'henhouse') {
+            count = Array.isArray(st.hens) ? st.hens.length : 0;
+            cap = 10;
+        } else if (penKey === 'sheepfold') {
+            count = typeof st.sheep === 'number' ? st.sheep : 0;
+            cap = 8;
+        } else {
+            count = Array.isArray(st.animals) ? st.animals.length : 0;
+            cap = (this.ANIMAL_CFG[penKey] && this.ANIMAL_CFG[penKey].cap) || 6;
+        }
+        if (count === 0) return 80;
+
+        const hunger = this.getHunger(penKey);
+
+        const now = Date.now();
+        if (!st.lastCleanMs) st.lastCleanMs = now;
+        const hoursSinceClean = (now - st.lastCleanMs) / 3600000;
+        const overcrowded = count > cap * 0.75;
+        const hygiene = Math.max(0, Math.min(100, 100 - hoursSinceClean * (100 / 96) - (overcrowded ? 20 : 0)));
+
+        return Math.round(hunger * 0.6 + hygiene * 0.4);
+    },
+
     // Všechna zvířata ve všech výbězích pro mood tick
     ALL_PENS: ['rabbitry', 'goatpen', 'pigsty', 'donkeyStall', 'cowbyre'],
+    // v2 mood systém (hunger+hygiene přes getMood) — tyhle výběhy už nemají
+    // pasivní decay mutující a.mood. Mimo v2: donkeyStall, stable.
+    MOOD_V2_PENS: ['rabbitry', 'henhouse', 'sheepfold', 'goatpen', 'cowbyre', 'pigsty'],
 
     // ── Lazy init ─────────────────────────────────────────────────────────
     _ensureAnimals: function () {
@@ -116,6 +167,7 @@ const FarmyardSystem = {
         GameState._farmyardMoodTick = now;
         this._ensureAnimals();
         this.ALL_PENS.forEach(pen => {
+            if (this.MOOD_V2_PENS.includes(pen)) return; // v2: nálada z getMood(), ne z pasivního decay
             const st = GameState[pen];
             if (!st || !st.built) return;
             st.animals.forEach(a => {
@@ -127,24 +179,7 @@ const FarmyardSystem = {
                 a.mood = Math.max(0, a.mood - decay);
             });
         });
-        // Kurník + Ovčín (v GardenSystem state)
-        this._moodTickLegacyPen('henhouse', 'hens');
-        this._moodTickLegacyPen('sheepfold', 'sheep');
         if (typeof Game !== 'undefined' && Game.save) Game.save();
-    },
-
-    _moodTickLegacyPen: function (penKey, arrayKey) {
-        const st = GameState[penKey];
-        if (!st || !st.built || !Array.isArray(st[arrayKey])) return;
-        const cap = arrayKey === 'hens' ? 10 : 8;
-        const overFull = st[arrayKey].length > cap * 0.75;
-        st[arrayKey].forEach(a => {
-            if (typeof a !== 'object') return;
-            this._ensureAnimalFields(a);
-            let decay = 5;
-            if (overFull) decay += 10;
-            a.mood = Math.max(0, a.mood - decay);
-        });
     },
 
     // ── UKLIDIT ───────────────────────────────────────────────────────────
@@ -162,18 +197,23 @@ const FarmyardSystem = {
         }
         st.lastCleanMs = now;
 
-        // Mood +30 všem zvířatům — jen pro chlévy s polem jednotlivých zvířat.
+        // Mood +30 všem zvířatům — jen pro chlévy MIMO v2 (donkeyStall/stable).
+        // v2 pens (rabbitry/henhouse/sheepfold/goatpen/cowbyre/pigsty) mají
+        // náladu odvozenou z lastCleanMs přes getMood() — lastCleanMs výše
+        // už je nastaven, žádná další mutace potřeba.
         // Ovčinec (sheepfold) drží jen POČET (st.sheep = číslo), ne pole —
         // Array.isArray hlídá, aby (číslo).forEach nespadlo (bug: shazovalo
         // celou checkConversiChores() a s ní i Zahony/Sad/atd. za Dvorem).
         const animalsRaw = st.animals || st.hens;
         const animals = Array.isArray(animalsRaw) ? animalsRaw : [];
-        animals.forEach(a => {
-            if (typeof a === 'object') {
-                this._ensureAnimalFields(a);
-                a.mood = Math.min(100, a.mood + 30);
-            }
-        });
+        if (!this.MOOD_V2_PENS.includes(penKey)) {
+            animals.forEach(a => {
+                if (typeof a === 'object') {
+                    this._ensureAnimalFields(a);
+                    a.mood = Math.min(100, a.mood + 30);
+                }
+            });
+        }
 
         // Generovat hnůj: 1–3 ks dle počtu zvířat (pole → .length, sheepfold → st.sheep)
         const animalCount = Array.isArray(animalsRaw) ? animalsRaw.length : (typeof st.sheep === 'number' ? st.sheep : 0);
@@ -409,9 +449,10 @@ const FarmyardSystem = {
         return Object.entries(cost).every(([id, n]) => (inv[id] || 0) >= n);
     },
 
+    // Tvrdý blok (dojení kozy/krávy, rozmnožování králíků) jen při kriticky
+    // nízké náladě. Nad tím produkci škáluje MOOD_MULT samo.
     _penHungry: function (key) {
-        const f = GameState.feeding && GameState.feeding[key];
-        return !!(f && f.hunger > 0);
+        return this.getMood(key) < 20;
     },
 
     // ── Krmná voda — užitková primárně, pramenitá jako záloha ────────────────
@@ -560,10 +601,10 @@ const FarmyardSystem = {
         if (!st || !st.built) return;
         if (this._penHungry('goatpen')) { if (typeof UI !== 'undefined') UI.notify(t('dvur.goatsHungry'), true); return; }
         const now = Date.now();
+        const moodMult = this.MOOD_MULT(this.getMood('goatpen'));
         let milk = 0;
         st.animals.forEach(a => {
             this._ensureAnimalFields(a);
-            const moodMult = this.MOOD_MULT(a.mood);
             if (now - (a.lastMilk || a.bornAt) >= cfg.milkMs) {
                 if (Math.random() < moodMult) { milk++; }
                 a.lastMilk = now;
@@ -585,10 +626,10 @@ const FarmyardSystem = {
         if (!st || !st.built) return;
         if (this._penHungry('cowbyre')) { if (typeof UI !== 'undefined') UI.notify(t('dvur.cowsHungry'), true); return; }
         const now = Date.now();
+        const moodMult = this.MOOD_MULT(this.getMood('cowbyre'));
         let milk = 0;
         st.animals.forEach(a => {
             this._ensureAnimalFields(a);
-            const moodMult = this.MOOD_MULT(a.mood);
             if (now - (a.lastMilk || a.bornAt) >= cfg.milkMs) {
                 if (Math.random() < moodMult) { milk += 4 + Math.floor(Math.random() * 3); } // 4-6
                 a.lastMilk = now;
@@ -699,16 +740,19 @@ const FarmyardSystem = {
 
         // Animals list with mood
         if (st.animals.length) {
+            const isV2Mood = this.MOOD_V2_PENS.includes(pen);
+            const penMood = isV2Mood ? this.getMood(pen) : null;
             h += `<div style="display:flex; flex-direction:column; gap:6px; margin-bottom:10px;">`;
             st.animals.forEach((a, i) => {
                 this._ensureAnimalFields(a);
-                const mIcon = this.MOOD_ICON(a.mood);
+                const moodVal = isV2Mood ? penMood : a.mood;
+                const mIcon = this.MOOD_ICON(moodVal);
                 const sexLabel = a.sex === 'm' ? (lang === 'en' ? '♂ male' : '♂ samec') : a.sex === 'f' ? (lang === 'en' ? '♀ female' : '♀ samice') : '';
                 const isKid = a.mature === false;
                 h += `<div style="padding:5px 8px; background:rgba(0,0,0,0.04); border-radius:5px; display:flex; align-items:center; gap:8px; font-size:0.78rem;">
                     <span>${icons[pen] || '🐾'}${isKid ? '🐣' : ''}</span>
                     <span style="opacity:0.7;">${sexLabel}</span>
-                    <span>${mIcon} ${a.mood}/100</span>
+                    <span>${mIcon} ${moodVal}/100</span>
                 </div>`;
             });
             h += `</div>`;
@@ -728,8 +772,9 @@ const FarmyardSystem = {
             var canCleanR = Date.now() - (st.lastCleanMs || 0) >= 86400000;
             var cleanQR = Math.max(1, Math.ceil(st.animals.length / 3));
             var waterNeededR = st.animals.length;
+            var canFeedR = this.getHunger('rabbitry') < 90;
             h += '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px;">';
-            h += '<button class="craft-btn" onclick="FarmyardSystem.feedRabbitry()" style="background:#4a7c59;">🌿 ' + t('farmyard.feed') + '<br><span style="font-size:0.68rem;">' + this._feedWaterHint(waterNeededR, lang) + '</span></button>';
+            h += '<button class="craft-btn" onclick="FarmyardSystem.feedRabbitry()" ' + (canFeedR ? '' : 'disabled') + ' style="background:#4a7c59;">🌿 ' + t('farmyard.feed') + '<br><span style="font-size:0.68rem;">' + this._feedWaterHint(waterNeededR, lang) + '</span></button>';
             h += '<button class="craft-btn" onclick="FarmyardSystem.slaughterRabbit()" ' + (matureRabs > 0 ? '' : 'disabled') + '>🔪 ' + t('dvur.slaughterRabbit') + '</button>';
             h += '<button class="craft-btn" onclick="FarmyardSystem.cleanPen(\'rabbitry\')" style="background:rgba(90,154,90,0.85);">' + (canCleanR ? '🧹 ' + t('farmyard.clean') + ' (💩 +' + cleanQR + ')' : '🧹 ' + t('farmyard.cleanTomorrow')) + '</button>';
             h += '</div>';
@@ -737,8 +782,7 @@ const FarmyardSystem = {
 
         if (pen === 'goatpen' && st.animals.length) {
             var now2 = Date.now();
-            var moodGS = st.animals.reduce(function (s, a) { return s + (a.mood || 80); }, 0);
-            var moodGAvg = Math.round(moodGS / st.animals.length);
+            var moodGAvg = this.getMood('goatpen');
             var moodGMul = this.MOOD_MULT(moodGAvg);
             var _billyActive = this.loanMaleActive('billy_goat');
             var _billyH = _billyActive ? this.loanMaleRemainingH() : 0;
@@ -755,8 +799,7 @@ const FarmyardSystem = {
 
         if (pen === 'cowbyre' && st.animals.length) {
             var now3 = Date.now();
-            var moodCS = st.animals.reduce(function (s, a) { return s + (a.mood || 80); }, 0);
-            var moodCAvg = Math.round(moodCS / st.animals.length);
+            var moodCAvg = this.getMood('cowbyre');
             var readyC = st.animals.filter(function (a) { return a.mature !== false && now3 - (a.lastMilk || a.bornAt) >= cfg.milkMs; }).length;
             h += '<div style="font-size:0.8rem;margin-bottom:8px;">🐄 ' + this.MOOD_ICON(moodCAvg) + ' ' + moodCAvg + '/100</div>';
             var canCleanC = Date.now() - (st.lastCleanMs || 0) >= 86400000;
@@ -857,8 +900,7 @@ const FarmyardSystem = {
                 const hens = h.hens || [];
                 const hensCount = hens.length;
                 hens.forEach(function (a) { if (typeof a === 'object') { if (a.mood === undefined) a.mood = 80; if (a.sex === undefined) a.sex = 'f'; if (a.lastCleaned === undefined) a.lastCleaned = 0; } });
-                var moodSumH = 0; hens.forEach(function (a) { moodSumH += typeof a === 'object' ? (a.mood || 80) : 80; });
-                var moodAvgHen = hensCount ? Math.round(moodSumH / hensCount) : 80;
+                var moodAvgHen = this.getMood('henhouse');
                 var moodMultHen = this.MOOD_MULT(moodAvgHen);
                 var moodIconHen = this.MOOD_ICON(moodAvgHen);
                 var eggReady = now >= (h.lastEggAt || 0) + 28800000;
@@ -881,11 +923,9 @@ const FarmyardSystem = {
                 html += '</div>';
                 if (hensCount > 0) {
                     html += '<div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px;">';
-                    var _self = this;
                     hens.forEach(function (a) {
-                        var mi = _self.MOOD_ICON(typeof a === 'object' ? (a.mood || 80) : 80);
                         var ic = typeof a === 'object' && a.type === 'hen_black' ? '🐓' : typeof a === 'object' && a.type === 'hen_colored' ? '🐣' : '🐔';
-                        html += '<span style="font-size:1rem;cursor:default;" title="' + mi + '">' + ic + mi + '</span>';
+                        html += '<span style="font-size:1rem;cursor:default;" title="' + moodIconHen + '">' + ic + moodIconHen + '</span>';
                     });
                     html += '</div>';
                 }
@@ -902,10 +942,11 @@ const FarmyardSystem = {
                 html += '</div>';
                 html += '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;">';
                 html += '<button class="craft-btn" onclick="FarmyardSystem.collectHenhouse()" ' + (hensCount > 0 ? '' : 'disabled') + '>🥚 ' + t('farmyard.collect') + '</button>';
-                html += '<button class="craft-btn" onclick="FarmyardSystem.feedHenhouse()" ' + (hensCount > 0 ? '' : 'disabled') + ' style="background:#4a7c59;">🌾 ' + t('farmyard.feed') + '</button>';
+                var canFeedHen = this.getHunger('henhouse') < 90;
+                html += '<button class="craft-btn" onclick="FarmyardSystem.feedHenhouse()" ' + (hensCount > 0 && canFeedHen ? '' : 'disabled') + ' style="background:#4a7c59;">🌾 ' + t('farmyard.feed') + '</button>';
                 var slugNeeded = hensCount * 2;
                 var hasSlug = (GameState.inventory['slug'] || 0) >= slugNeeded;
-                html += '<button class="craft-btn" onclick="FarmyardSystem.feedHenhouseSlug()" ' + (hensCount > 0 && hasSlug ? '' : 'disabled') + ' style="background:#5a7c3a;" title="' + slugNeeded + '× ' + (lang === 'en' ? 'slug' : 'slimák') + '">🐌 ' + t('farmyard.feedSlug') + '</button>';
+                html += '<button class="craft-btn" onclick="FarmyardSystem.feedHenhouseSlug()" ' + (hensCount > 0 && hasSlug && canFeedHen ? '' : 'disabled') + ' style="background:#5a7c3a;" title="' + slugNeeded + '× ' + (lang === 'en' ? 'slug' : 'slimák') + '">🐌 ' + t('farmyard.feedSlug') + '</button>';
                 var canCleanHen = Date.now() - (GameState.henhouse.lastCleanMs || 0) >= 86400000;
                 var cleanQtyHen = Math.max(1, Math.ceil(hensCount / 3));
                 html += '<button class="craft-btn" onclick="FarmyardSystem.cleanPen(\'kurnik\')" style="background:rgba(90,154,90,0.85);">' + (canCleanHen ? '🧹 ' + t('farmyard.clean') + ' (💩 +' + cleanQtyHen + ')' : '🧹 ' + t('farmyard.cleanTomorrow')) + '</button>';
@@ -945,8 +986,7 @@ const FarmyardSystem = {
                 var sheepCount = s.sheep || 0;
                 while (sheepObjs.length < sheepCount) sheepObjs.push({ sex: 'f', mood: 80, bornAt: Date.now(), lastCleaned: 0 });
                 if (!s.sheepObjs) s.sheepObjs = sheepObjs;
-                var moodSumSh = 0; sheepObjs.slice(0, sheepCount).forEach(function (a) { moodSumSh += (a.mood || 80); });
-                var moodAvgSh = sheepCount ? Math.round(moodSumSh / sheepCount) : 80;
+                var moodAvgSh = this.getMood('sheepfold');
                 var moodMultSh = this.MOOD_MULT(moodAvgSh);
                 var moodIconSh = this.MOOD_ICON(moodAvgSh);
                 var _month = new Date().getMonth();
@@ -969,10 +1009,9 @@ const FarmyardSystem = {
                 html += '</div>';
                 if (sheepCount > 0) {
                     html += '<div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px;">';
-                    sheepObjs.slice(0, sheepCount).forEach(function (a) {
-                        var mi = this.MOOD_ICON(a.mood || 80);
-                        html += '<span style="font-size:1rem;cursor:default;" title="♀ ' + mi + ' ' + (a.mood || 80) + '/100">🐑' + mi + '</span>';
-                    }.bind(this));
+                    sheepObjs.slice(0, sheepCount).forEach(function () {
+                        html += '<span style="font-size:1rem;cursor:default;" title="♀ ' + moodIconSh + ' ' + moodAvgSh + '/100">🐑' + moodIconSh + '</span>';
+                    });
                     if (_ramActive) html += '<span style="font-size:1rem;" title="' + (lang === "en" ? "Ram on loan" : "Beran na výpůjčku") + '">🐏⏱</span>';
                     html += '</div>';
                 }
@@ -981,7 +1020,8 @@ const FarmyardSystem = {
                 html += '<button class="craft-btn" onclick="FarmyardSystem.addSheep()" ' + (hasSheepItem && sheepCount < 6 ? '' : 'disabled') + '>🐑 ' + t('farmyard.addSheep') + '</button>';
                 html += '<button class="craft-btn" onclick="FarmyardSystem.collectSheepfold()" ' + (sheepCount > 0 ? '' : 'disabled') + '>🥛🧶 ' + t('farmyard.collect') + '</button>';
                 var waterNeededSh = sheepCount + (s.breeding && s.breeding.state === 'growing' ? 1 : 0);
-                html += '<button class="craft-btn" onclick="FarmyardSystem.feedSheepfold()" ' + (sheepCount > 0 ? '' : 'disabled') + ' style="background:#4a7c59;">🌿 ' + t('farmyard.feed') + '<br><span style="font-size:0.68rem;">' + this._feedWaterHint(waterNeededSh, lang) + '</span></button>';
+                var canFeedSh = this.getHunger('sheepfold') < 90;
+                html += '<button class="craft-btn" onclick="FarmyardSystem.feedSheepfold()" ' + (sheepCount > 0 && canFeedSh ? '' : 'disabled') + ' style="background:#4a7c59;">🌿 ' + t('farmyard.feed') + '<br><span style="font-size:0.68rem;">' + this._feedWaterHint(waterNeededSh, lang) + '</span></button>';
                 var canCleanSh = Date.now() - (GameState.sheepfold.lastCleanMs || 0) >= 86400000;
                 var cleanQtySh = Math.max(1, Math.ceil(sheepCount / 2));
                 if (sheepCount > 0) html += '<button class="craft-btn" onclick="FarmyardSystem.cleanPen(\'kosar\')" style="background:rgba(90,154,90,0.85);">' + (canCleanSh ? '🧹 ' + t('farmyard.clean') + ' (💩 +' + cleanQtySh + ')' : '🧹 ' + t('farmyard.cleanTomorrow')) + '</button>';
@@ -1322,8 +1362,7 @@ const FarmyardSystem = {
         const FEATH_INTERVAL = 24 * 3600000;
         let collected = false;
         if (now >= (h.lastEggAt || 0) + EGG_INTERVAL) {
-            const moodAvg = h.hens.reduce((s, a) => s + ((typeof a === 'object' && a.mood) || 80), 0) / h.hens.length;
-            const moodMult = this.MOOD_MULT(moodAvg);
+            const moodMult = this.MOOD_MULT(this.getMood('henhouse'));
             const slugBonus = (h.slugFedAt && (now - h.slugFedAt) < 28800000) ? 1.25 : 1.0;
             const mult = (h.rooster ? 1.2 : 1.0) * moodMult * slugBonus;
             const eggs = Math.floor(h.hens.length * mult);
@@ -1344,8 +1383,8 @@ const FarmyardSystem = {
         const totalFeed = h.hens.length + chickFeed;
         const inv = GameState.inventory;
 
-        // Priorita krmiva: zrní (plná porce, mood +10)
-        // Nouzové: semínka — 4 semínka = 1 porce pro 1 slepici (mood +2)
+        // Priorita krmiva: zrní (plná porce)
+        // Nouzové: semínka — 4 semínka = 1 porce pro 1 slepici
         const GRAINS = ['grain', 'oats', 'barley', 'millet', 'rye_grain', 'rye_grain_1', 'rye_grain_2', 'wheat_grain', 'wheat_grain_1', 'wheat_grain_2'];
         let grainItem = null, grainHave = 0;
         GRAINS.forEach(function (g) { const n = inv[g] || 0; if (n > grainHave) { grainHave = n; grainItem = g; } });
@@ -1354,13 +1393,12 @@ const FarmyardSystem = {
             // Plné krmení zrním
             Game.removeItem(grainItem, totalFeed);
             h.lastFedAt = Date.now();
-            if (Array.isArray(h.hens)) h.hens.forEach(function (a) { if (typeof a === 'object') a.mood = Math.min(100, (a.mood || 80) + 10); });
             Game.save(); FarmyardSystem.renderFarmyard();
             UI.notify('🌾 ' + t('game.henFed'));
             return;
         }
 
-        // Nouzové krmení semínky (4 semínka = 1/4 porce pro 1 slepici, mood +2)
+        // Nouzové krmení semínky (4 semínka = 1/4 porce pro 1 slepici)
         const SEEDS = ['seeds_herb', 'seeds_vegetable'];
         let seedItem = null, seedHave = 0;
         SEEDS.forEach(function (s) { const n = inv[s] || 0; if (n > seedHave) { seedHave = n; seedItem = s; } });
@@ -1368,7 +1406,6 @@ const FarmyardSystem = {
         if (seedItem && seedHave >= seedNeeded) {
             Game.removeItem(seedItem, seedNeeded);
             h.lastFedAt = Date.now();
-            if (Array.isArray(h.hens)) h.hens.forEach(function (a) { if (typeof a === 'object') a.mood = Math.min(100, (a.mood || 80) + 2); });
             Game.save(); FarmyardSystem.renderFarmyard();
             UI.notify('🌱 ' + t('game.henFedSeeds') + ' (1/4)');
             return;
@@ -1389,8 +1426,6 @@ const FarmyardSystem = {
         Game.removeItem('slug', needed);
         h.lastFedAt = Date.now();
         h.slugFedAt = Date.now();
-        const hens = h.hens;
-        if (Array.isArray(hens)) hens.forEach(a => { if (typeof a === 'object') a.mood = Math.min(100, (a.mood || 80) + 20); });
         Game.save(); FarmyardSystem.renderFarmyard();
         UI.notify('🐌 ' + t('farmyard.slugFed'));
     },
@@ -1471,9 +1506,7 @@ const FarmyardSystem = {
         const month = new Date().getMonth(); // 0-based
         const milkSeason = month >= 2 && month <= 10; // březem–říjen
         let collected = false;
-        const moodAvg = Array.isArray(s.sheepObjs) && s.sheepObjs.length
-            ? s.sheepObjs.reduce((sum, a) => sum + (a.mood || 80), 0) / s.sheepObjs.length : 80;
-        const moodMult = this.MOOD_MULT(moodAvg);
+        const moodMult = this.MOOD_MULT(this.getMood('sheepfold'));
         if (milkSeason && now >= (s.lastMilkAt || 0) + MILK_INTERVAL) {
             const milkQty = Math.floor(s.sheep * moodMult);
             if (milkQty > 0) { Game.addItem('milk', milkQty); }
@@ -1498,7 +1531,6 @@ const FarmyardSystem = {
         Game.removeItem('fiber', fiberNeeded);
         this._checkFeedWater(waterNeeded, true);
         st.lastFedAt = Date.now();
-        st.animals.forEach(a => { a.mood = Math.min(100, (a.mood || 80) + 10); });
         Game.save(); FarmyardSystem.renderFarmyard();
         UI.notify('🌿 ' + t('game.sheepFed'));
     },
@@ -1514,7 +1546,6 @@ const FarmyardSystem = {
         Game.removeItem('fiber', fiberNeeded);
         this._checkFeedWater(waterNeeded, true);
         s.lastFedAt = Date.now();
-        if (Array.isArray(s.sheepObjs)) s.sheepObjs.forEach(a => { a.mood = Math.min(100, (a.mood || 80) + 10); });
         Game.save(); FarmyardSystem.renderFarmyard();
         UI.notify('🌿 ' + t('game.sheepFed'));
     },
