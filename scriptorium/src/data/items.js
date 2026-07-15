@@ -5,7 +5,7 @@ const ItemsDB = {
     "clay": { name: "Hlína", name_en: "Clay", icon: "🟤", type: "mat", desc: "Jílovitá hlína z břehu potoka. Vhodná pro hrnčířství a stavbu.", desc_en: "Clay from a streambank. Good for pottery and construction." },
     "wicker": { name: "Proutí", name_en: "Wicker", icon: "🧺", type: "mat", desc: "Ohebné vrbové pruty z mokřadu. Na pletení košů i konstrukcí.", desc_en: "Pliant willow withies from the wetlands. For weaving baskets and structures." },
     "stick": { name: "Větev", name_en: "Branch", icon: "🪵", type: "mat", desc: "Dřevo.", desc_en: "A length of wood." },
-    "fiber": { name: "Tráva", name_en: "Grass", icon: "🌾", type: "mat", desc: "Vlákna.", desc_en: "Plant fibres." },
+    "fiber": { name: "Vlákno", name_en: "Fiber", icon: "🌾", type: "mat", desc: "Vlákna.", desc_en: "Plant fibres." },
     "bark": { name: "Kůra", name_en: "Bark", icon: "🍂", type: "mat", desc: "Kůra stromu.", desc_en: "Tree bark." },
     "rags": { name: "Staré hadry", name_en: "Rags", icon: "🧻", type: "mat", desc: "Opotřebené kousky plátna a lnu. Základ hadrového papíru.", desc_en: "Worn scraps of linen and cloth. The basis of rag paper." },
     "charcoal": { name: "Uhel", name_en: "Charcoal", icon: "⚫", type: "mat", desc: "Spálené dřevo.", desc_en: "Burned wood." },
