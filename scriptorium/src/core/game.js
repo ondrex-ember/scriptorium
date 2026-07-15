@@ -4184,8 +4184,8 @@ const Game = {
 			domus_conversorum_i: { cut_stone: 40, plank: 25, rope: 10 },
 			domus_conversorum_ii: { cut_stone: 150, plank: 90, rope: 35 },
 			dormitorium_i:   { cut_stone: 30, plank: 20, rope: 8 },
-			dormitorium_ii:  { cut_stone: 90,  plank: 60, rope: 25, iron_ingot: 2 },
-			dormitorium_iii: { cut_stone: 200, plank: 130, rope: 50, iron_ingot: 6, glass_stopper: 4 },
+			dormitorium_ii:  { cut_stone: 90,  plank: 60, rope: 25, iron_ingot: 2, glass_stopper: 6 },
+			dormitorium_iii: { cut_stone: 200, plank: 130, rope: 50, iron_ingot: 6, glass_stopper: 10, glass_tankard: 10 },
 		};
 		// Volitelný groše náklad navíc k materiálu — dnes jen Domus Conversorum I/II.
 		// Cokoliv chybí v costsGrose má groseNeeded=0, tedy nulový dopad na stávající budovy.
@@ -5532,7 +5532,7 @@ const Game = {
         const lang = (GameState.settings && GameState.settings.language) || 'cs';
         const b = (GameState.dormitorium && GameState.dormitorium.brothers || []).find(x => x.id === brotherId);
         if (!b) return;
-        if (tabId === null) { b.assignedTab = null; Game.save(); return; }
+        if (tabId === null) { b.assignedTab = null; Game.save(); if (typeof SaeculumSystem !== 'undefined') SaeculumSystem.switchEntity('dormitorium'); return; }
 
         const taken = GameState.dormitorium.brothers.find(x => x.assignedTab === tabId && x.id !== b.id);
         if (taken) {
@@ -5544,6 +5544,7 @@ const Game = {
         const spec = (typeof DormitoriumSpecializationDB !== 'undefined') ? DormitoriumSpecializationDB[tabId] : null;
         const specName = spec ? (lang==='en' ? spec.name_en : spec.name) : tabId;
         UI.notifyPanel('📿 ' + (lang==='en' ? b.name+' now oversees: '+specName : b.name+' nyní řídí: '+specName), 'system');
+        if (typeof SaeculumSystem !== 'undefined') SaeculumSystem.switchEntity('dormitorium');
     },
 
     // ── DORMITORIUM — najmutí bratra (mnicha/skriptora) ──
