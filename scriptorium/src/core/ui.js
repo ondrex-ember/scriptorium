@@ -696,6 +696,7 @@ const UI = {
             const orLabel = lang === 'en' ? 'OR' : 'NEBO';
 
             let bestId = null;
+            let bestR = null;
             const parts = fam.map(r => {
                 let can = true; let reqStr = '';
                 for (let [id, amt] of Object.entries(r.req)) {
@@ -712,14 +713,15 @@ const UI = {
                     reqStr += ` <span class="${hasTool ? '' : 'text-danger'}">+ 🔧 ${toolNames}</span>`;
                 }
                 if (r.qty && r.qty !== 1) reqStr += ` <span style="opacity:0.55;">→ ${r.qty}×</span>`;
-                if (can && bestId === null) bestId = r.id;
+                if (can && bestId === null) { bestId = r.id; bestR = r; }
                 return `<span style="${can ? '' : 'opacity:0.6;'}">${reqStr}</span>`;
             });
             const anyCan = bestId !== null;
-            if (!anyCan) bestId = fam[0].id; // cíl pro disabled tlačítko
+            if (!anyCan) { bestId = fam[0].id; bestR = fam[0]; } // cíl pro disabled tlačítko
 
             const reqBlock = `<div class="text-sm">${parts.join(` <span style="opacity:0.5;">${orLabel}</span> `)}</div>`;
-            return `<div class="card" data-recipe-id="${bestId}" style="opacity:${anyCan ? 1 : 0.6}; position:relative;"><div class="item-icon">${prod.icon}</div><div style="flex:1"><strong>${iName(fam[0].output)}${ownedStr}</strong>${reqBlock}</div><button class="craft-btn" onclick="Game.craft('${bestId}')" ${anyCan ? '' : 'disabled'}>${t('craft.btn')}</button></div>`;
+            const btnLabel = bestR && bestR.id.startsWith('repair_') ? t('craft.repair') : t('craft.btn');
+            return `<div class="card" data-recipe-id="${bestId}" style="opacity:${anyCan ? 1 : 0.6}; position:relative;"><div class="item-icon">${prod.icon}</div><div style="flex:1"><strong>${iName(fam[0].output)}${ownedStr}</strong>${reqBlock}</div><button class="craft-btn" onclick="Game.craft('${bestId}')" ${anyCan ? '' : 'disabled'}>${btnLabel}</button></div>`;
         };
 
         const visible = RecipesDB.filter(r => {
