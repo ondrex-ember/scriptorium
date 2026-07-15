@@ -2796,6 +2796,7 @@ const Game = {
                 }
                 else if (type === 'grass_gather') {
                     this.addItem('grass', Math.random() < 0.5 ? 3 : 2);
+                    this.addItem('fiber', Math.random() < 0.5 ? 3 : 2);
                     if(Math.random() < 0.30) this.addItem('linden_blossom', 1);
                     if(Math.random() < 0.20) this.addItem('chamomile', 1);
                     if(Math.random() < 0.10) this.addItem('thyme', 1);
@@ -3125,6 +3126,7 @@ const Game = {
             }
             else if (type === 'grass_gather') {
                 this.addItem('grass', Math.random() < 0.5 ? 3 : 2);
+                this.addItem('fiber', Math.random() < 0.5 ? 3 : 2);
                 if(Math.random() < 0.30) this.addItem('linden_blossom', 1);
                 if(Math.random() < 0.20) this.addItem('chamomile', 1);
                 if(Math.random() < 0.10) this.addItem('thyme', 1);
