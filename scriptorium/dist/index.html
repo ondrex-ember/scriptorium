@@ -19144,10 +19144,10 @@ const CellariumSystem = {
           cost: { cut_stone: 30, plank: 20, rope: 8 }, grose: 15, reqPrev: null },
         { id: 'dormitorium_ii',  icon: '📿', label: lang==='en'?'Dormitorium II':'Dormitorium II',
           desc: lang==='en'?'Expanded — 6 brothers.':'Rozšířeno — 6 bratrů.',
-          cost: { cut_stone: 90, plank: 60, rope: 25, iron_ingot: 2 }, grose: 35, reqPrev: 'dormitorium_i' },
+          cost: { cut_stone: 90, plank: 60, rope: 25, iron_ingot: 2, glass_stopper: 6 }, grose: 35, reqPrev: 'dormitorium_i' },
         { id: 'dormitorium_iii', icon: '📿', label: lang==='en'?'Dormitorium III':'Dormitorium III',
           desc: lang==='en'?'Full wing — 10 brothers.':'Celé křídlo — 10 bratrů.',
-          cost: { cut_stone: 200, plank: 130, rope: 50, iron_ingot: 6, glass_stopper: 4 }, grose: 70, reqPrev: 'dormitorium_ii' },
+          cost: { cut_stone: 200, plank: 130, rope: 50, iron_ingot: 6, glass_stopper: 10, glass_tankard: 10 }, grose: 70, reqPrev: 'dormitorium_ii' },
       ];
       let dormInner = '';
       dormTiers.forEach(d => {
@@ -19233,6 +19233,7 @@ const CellariumSystem = {
 
 
 };
+
 // ═══ src/systems/SaeculumSystem.js ═══
 // ═══════════════════════════════════════════════════════════════════════════════
 // SAECULUM SYSTEM v1.0 — Kontakt s venkem
