@@ -18,6 +18,20 @@ const Game = {
     init: function() {
         Game.load();
 
+        // Sync header sound icon s uloženým stavem (soundMuted) — bez tohoto
+        // ikonka lhala po restartu, dokud hráč neklikl (viz toggleMute v audio.js)
+        (function() {
+            const lang = (GameState.settings && GameState.settings.language) || 'cs';
+            const muted = !!(GameState.settings && GameState.settings.soundMuted);
+            const btnBar = document.getElementById('sound-toggle-btn');
+            if (btnBar) {
+                btnBar.textContent = muted ? '🔇' : '🔊';
+                btnBar.title = lang === 'en' ? 'Sound ON/OFF' : 'Zvuk ON/OFF';
+            }
+            const btnPill = document.getElementById('sound-toggle-pill-icon');
+            if (btnPill) btnPill.textContent = muted ? '🔇' : '🔊';
+        })();
+
         // --- INJEKCE CSS PRO HINT BTN-IGNITE ---
         (function() {
             const style = document.createElement('style');
