@@ -1402,6 +1402,7 @@ const GardenSystem = {
         const plot = GameState.garden[idx];
         if (!plot || plot.locked) return;
         if (plot.state === 0) { UI.notify('⚠️ Záhon je prázdný.', true); return; }
+        if (!confirm('Vykořenit záhon? Rostlina bude nenávratně zničena.')) return;
         const plant = plot.crop ? Object.values(this.GARDEN_PLANTS_DB).find(p => p.item === plot.crop) : null;
         if (plant) Game.addItem(plant.seed, 1);
         plot.state = 0;
@@ -1532,6 +1533,7 @@ const GardenSystem = {
         const slot = GameState.vinea[idx];
         const lang = (GameState.settings && GameState.settings.language) || 'cs';
         if (!slot || slot.state === 'empty') return;
+        if (!confirm(lang==='en' ? 'Uproot this vine? It will be permanently destroyed.' : 'Vykořenit tuto révu? Bude nenávratně zničena.')) return;
         slot.state     = 'empty';
         slot.variety   = null;
         slot.plantedAt = 0;
