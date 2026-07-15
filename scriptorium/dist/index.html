@@ -45124,9 +45124,9 @@ const Game = {
             }
         }
 
-        // maxStack check — iron nástroje max 1 ks
+        // maxStack check — iron nástroje max 1 ks (repair_ recepty vyjmuty, ty vlastnictví worn_ verze vyžadují)
         const outItem = ItemsDB[r.output];
-        if (outItem && outItem.maxStack) {
+        if (outItem && outItem.maxStack && !r.id.startsWith('repair_')) {
             const have = GameState.inventory[r.output] || 0;
             const worn = GameState.inventory['worn_' + r.output] || 0;
             if (have + worn >= outItem.maxStack) {
