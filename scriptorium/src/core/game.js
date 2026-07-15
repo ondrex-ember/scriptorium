@@ -3957,15 +3957,45 @@ const Game = {
 		// Krmení aktivuje až Horreum (sýpka skladuje krmivo) — do té doby se zvířata pasou sama
 		if (!(GameState.storage && GameState.storage.horreum && GameState.storage.horreum.built)) return;
 		const animals = [
-			{ key: 'henhouse',  built: GameState.henhouse && GameState.henhouse.built && GameState.henhouse.hens && GameState.henhouse.hens.length > 0, feedChain: ['grain', 'feed_meal'], feedAmt: 1, name: lang==='en'?'Hens':'Slepice' },
-			{ key: 'sheepfold', built: GameState.sheepfold && GameState.sheepfold.built && GameState.sheepfold.sheep && GameState.sheepfold.sheep.length > 0, feedChain: ['hay', 'feed_meal'], feedAmt: 1, name: lang==='en'?'Sheep':'Ovce' },
-			{ key: 'piscina',   built: GameState.piscina && GameState.piscina.tier > 0, feedChain: ['worms'], feedAmt: 1, name: lang==='en'?'Fish':'Ryby' },
-			{ key: 'rabbitry',  built: GameState.rabbitry && GameState.rabbitry.built && GameState.rabbitry.animals && GameState.rabbitry.animals.length > 0, feedChain: ['scraps', 'hay'], feedAmt: 1, name: lang==='en'?'Rabbits':'Králíci' },
-			{ key: 'goatpen',   built: GameState.goatpen && GameState.goatpen.built && GameState.goatpen.animals && GameState.goatpen.animals.length > 0, feedChain: ['hay', 'scraps', 'feed_meal'], feedAmt: 1, name: lang==='en'?'Goats':'Kozy' },
-			{ key: 'pigsty',    built: GameState.pigsty && GameState.pigsty.built && GameState.pigsty.animals && GameState.pigsty.animals.length > 0, feedChain: ['scraps', 'feed_meal', 'grain', 'hay'], feedAmt: 2, name: lang==='en'?'Pigs':'Prasata' },
+			{ key: 'henhouse',  built: GameState.henhouse && GameState.henhouse.built && GameState.henhouse.hens && GameState.henhouse.hens.length > 0, feedChain: ['grain', 'feed_meal'], feedAmt: 1, name: lang==='en'?'Hens':'Slepice', v2: true },
+			{ key: 'sheepfold', built: GameState.sheepfold && GameState.sheepfold.built && GameState.sheepfold.sheep && GameState.sheepfold.sheep.length > 0, feedChain: ['hay', 'feed_meal'], feedAmt: 1, name: lang==='en'?'Sheep':'Ovce', v2: true },
+			{ key: 'piscina',   built: GameState.piscina && GameState.piscina.tier > 0, feedChain: ['worms'], feedAmt: 1, name: lang==='en'?'Fish':'Ryby', v2: false },
+			{ key: 'rabbitry',  built: GameState.rabbitry && GameState.rabbitry.built && GameState.rabbitry.animals && GameState.rabbitry.animals.length > 0, feedChain: ['scraps', 'hay'], feedAmt: 1, name: lang==='en'?'Rabbits':'Králíci', v2: true },
+			{ key: 'goatpen',   built: GameState.goatpen && GameState.goatpen.built && GameState.goatpen.animals && GameState.goatpen.animals.length > 0, feedChain: ['hay', 'scraps', 'feed_meal'], feedAmt: 1, name: lang==='en'?'Goats':'Kozy', v2: true },
+			{ key: 'cowbyre',   built: GameState.cowbyre && GameState.cowbyre.built && GameState.cowbyre.animals && GameState.cowbyre.animals.length > 0, feedChain: ['hay', 'feed_meal'], feedAmt: 1, name: lang==='en'?'Cattle':'Skot', v2: true },
+			{ key: 'pigsty',    built: GameState.pigsty && GameState.pigsty.built && GameState.pigsty.animals && GameState.pigsty.animals.length > 0, feedChain: ['scraps', 'feed_meal', 'grain', 'hay'], feedAmt: 2, name: lang==='en'?'Pigs':'Prasata', v2: true },
 		];
 		animals.forEach(a => {
 			if (!a.built) return;
+
+			if (a.v2) {
+				// v2: hlad se počítá z GameState[pen].lastFedAt přes FarmyardSystem.getMood() —
+				// stejné pole jako u manuálního Feed tlačítka. Žádný samostatný hunger counter.
+				const hoursSinceFed = (now - (GameState[a.key].lastFedAt || 0)) / 3600000;
+				if (hoursSinceFed < 24) return;
+				const useFeed = a.feedChain.find(f => (GameState.inventory[f] || 0) >= a.feedAmt);
+				if (useFeed) {
+					Game.removeItem(useFeed, a.feedAmt);
+					GameState[a.key].lastFedAt = now;
+					UI.notify(lang==='en' ? a.name+' fed automatically.' : a.name+' nakrmeny automaticky.');
+					if (typeof NotificationSystem !== 'undefined' && NotificationSystem.panel) {
+						NotificationSystem.panel('🌾 ' + (lang==='en' ? a.name+' fed automatically ('+useFeed+').' : a.name+' automaticky nakrmeny ('+useFeed+').'), 'system');
+					}
+					Game.addKronikaEntry('minor',
+						'🌾 ' + a.name + ' automaticky nakrmeny (' + useFeed + ').',
+						'🌾 ' + a.name + ' fed automatically (' + useFeed + ').',
+						'🌾 Animalia pasta sunt.');
+				} else {
+					UI.notify((lang==='en' ? a.name+' hungry! No '+a.feedChain[0]+' in Horreum.' : a.name+' hladoví! Chybí '+a.feedChain[0]+' v sýpce.'), true);
+					if (typeof NotificationSystem !== 'undefined' && NotificationSystem.panel) {
+						NotificationSystem.panel('⚠️ ' + (lang==='en' ? a.name+' hungry — no '+a.feedChain[0]+'.' : a.name+' hladoví — chybí '+a.feedChain[0]+'.'), 'warning');
+					}
+					Game.addKronikaEntry('warning', a.name+' hladovi — chybi '+a.feedChain[0]+'.', a.name+' hungry — no '+a.feedChain[0]+'.', a.name+' esuriunt.');
+				}
+				return;
+			}
+
+			// mimo v2 (piscina) — beze změny, starý GameState.feeding tracker
 			if (!GameState.feeding[a.key]) GameState.feeding[a.key] = { lastFed: now, hunger: 0 };
 			const hoursSinceFed = (now - GameState.feeding[a.key].lastFed) / 3600000;
 			if (hoursSinceFed >= 24) {
@@ -6476,7 +6506,6 @@ const Game = {
             const hasHorreum = GameState.storage && GameState.storage.horreum && GameState.storage.horreum.built;
             if (!hasHorreum) {
                 const lang = (GameState.settings && GameState.settings.language) || 'cs';
-                if (!GameState.feeding) GameState.feeding = {};
                 const animals = [
                     { key: 'henhouse',  built: GameState.henhouse && GameState.henhouse.built && GameState.henhouse.hens && GameState.henhouse.hens.length > 0, feedChain: ['grain', 'feed_meal'], feedAmt: 1, name: lang==='en'?'Hens':'Slepice' },
                     { key: 'sheepfold', built: GameState.sheepfold && GameState.sheepfold.built && GameState.sheepfold.sheep && GameState.sheepfold.sheep.length > 0, feedChain: ['hay', 'feed_meal'], feedAmt: 1, name: lang==='en'?'Sheep':'Ovce' },
@@ -6487,17 +6516,14 @@ const Game = {
                 ];
                 animals.forEach(a => {
                     if (!a.built) return;
-                    if (!GameState.feeding[a.key]) GameState.feeding[a.key] = { lastFed: Date.now(), hunger: 0 };
-                    const hoursSinceFed = (Date.now() - GameState.feeding[a.key].lastFed) / 3600000;
+                    // v2: lastFedAt přímo na GameState[pen] — stejné pole jako getMood()/manuální Feed
+                    const hoursSinceFed = (Date.now() - (GameState[a.key].lastFedAt || 0)) / 3600000;
                     if (hoursSinceFed < 24) return;
                     const useFeed = a.feedChain.find(f => (GameState.inventory[f] || 0) >= a.feedAmt);
                     if (useFeed) {
                         this.removeItem(useFeed, a.feedAmt);
-                        GameState.feeding[a.key].lastFed = Date.now();
-                        GameState.feeding[a.key].hunger = 0;
+                        GameState[a.key].lastFedAt = Date.now();
                         fedAny = true;
-                    } else {
-                        GameState.feeding[a.key].hunger = Math.min(3, (GameState.feeding[a.key].hunger || 0) + 1);
                     }
                 });
             }
