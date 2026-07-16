@@ -49855,6 +49855,15 @@ const UI = {
                 // Aktuální výnos
                 rows.push('🪣 ' + t('wellUI.yieldNow') + ' <strong>' + info.yieldNow + '</strong>'
                     + ' <span style="opacity:0.6;">(' + t('wellUI.yieldBase') + ' ' + info.yieldBase + ')</span>');
+                // Vysvětlení: proč je výnos snížený (pásmo hladiny)
+                if (info.levelBandKey && info.levelBandKey !== 'levelBandFull') {
+                    const bandLabel = t('wellUI.' + info.levelBandKey);
+                    if (info.levelMod === null || typeof info.levelMod === 'undefined') {
+                        rows.push('💧 ' + t('wellUI.levelYieldInfoFixed').replace('{band}', bandLabel).replace('{amt}', info.yieldNow));
+                    } else {
+                        rows.push('💧 ' + t('wellUI.levelYieldInfo').replace('{band}', bandLabel).replace('{mod}', info.levelMod));
+                    }
+                }
                 // Grace
                 if (info.graceLeft > 0) {
                     rows.push('🛡️ ' + t('wellUI.graceLeft').replace('{n}', info.graceLeft));
