@@ -22,6 +22,13 @@ const WellSystem = {
     CLEAN_AMT:    40,                                    // purity + za vyčištění
     GRACE_DAYS:   5,                                     // dní bez degradace po čištění/stavbě
     PURITY_BANDS: { clean: 70 },                         // ≥70 clean, <70 dirty, 0 broken
+    LEVEL_YIELD_BANDS: [                                  // schody výnosu dle hladiny (nahrazuje starý plynulý vzorec)
+        { max: 0,   mod: null, fixed: 1, key: 'levelBandEmpty' },
+        { max: 29,  mod: 0.4,  key: 'levelBandLow' },
+        { max: 49,  mod: 0.6,  key: 'levelBandModerate' },
+        { max: 69,  mod: 0.8,  key: 'levelBandGood' },
+        { max: 100, mod: 1.0,  key: 'levelBandFull' }
+    ],
 
     // Init / migrace stavu studny (přesun z Game.init + purity model v2)
     _ensureState: function() {
@@ -51,6 +58,20 @@ const WellSystem = {
         if (p <= 0)  return "broken";
         if (p < 70)  return "dirty";
         return "clean";
+    },
+
+    // Stupňovitý výnos dle hladiny — jeden zdroj pravdy pro drawWater() i reportInfo().
+    // wl<=0 → fixní minimum (fixed), jinak base × mod dle pásma.
+    _levelYield: function(base, wl) {
+        const bands = this.LEVEL_YIELD_BANDS;
+        for (let i = 0; i < bands.length; i++) {
+            if (wl <= bands[i].max) {
+                const b = bands[i];
+                const amount = (b.fixed != null) ? b.fixed : Math.max(1, Math.floor(base * b.mod));
+                return { amount: amount, mod: b.mod, key: b.key };
+            }
+        }
+        return { amount: Math.max(1, base), mod: 1.0, key: 'levelBandFull' };
     },
 
     drawWater: function(useBucket = false) {
@@ -94,9 +115,9 @@ const WellSystem = {
             murky = true;
         }
 
-        // Škálování hladinou: plná = plný výnos, nízká = méně. Hladina 0 = min 1 kapka.
+        // Škálování hladinou — stupňovité pásmo (LEVEL_YIELD_BANDS), ne plynulý vzorec.
         const wl = (typeof GameState.well.level_water === 'number') ? GameState.well.level_water : 100;
-        waterAmount = Math.max(1, Math.floor(waterAmount * (0.4 + 0.6 * wl / 100)));
+        waterAmount = this._levelYield(waterAmount, wl).amount;
 
         // Special: Blessed well může dát holy water
         if (level === "blessed" && Math.random() < 0.2) {
@@ -304,7 +325,8 @@ const WellSystem = {
         if (purity < 30) base = Math.max(1, Math.floor(base * 0.4));
         else if (purity < 70) base = Math.floor(base * 0.5);
         const wl = (typeof w.level_water === 'number') ? w.level_water : 100;
-        const yieldNow = Math.max(1, Math.floor(base * (0.4 + 0.6 * wl / 100)));
+        const levelInfo = this._levelYield(base, wl);
+        const yieldNow = levelInfo.amount;
 
         // Grace — kolik dní ochrany zbývá
         const graceMs = this.GRACE_DAYS * this.DAY_MS;
@@ -321,6 +343,8 @@ const WellSystem = {
         return {
             yieldNow: yieldNow,
             yieldBase: stats.waterPerUse,
+            levelBandKey: levelInfo.key,
+            levelMod: levelInfo.mod,
             graceLeft: graceLeft,
             uses: (GameState.achievements && GameState.achievements.stats.wellUses) || 0,
             cleans: (GameState.achievements && GameState.achievements.stats.wellCleans) || 0,
