@@ -74,7 +74,14 @@ const STRINGS_en = {
         yieldBase: 'base',
         graceLeft: 'Fresh water — protected for {n} more days',
         forecast: 'Forecast (7 days): {dry} dry, {rainy} rainy',
-        statsUses: 'Drawn {uses}× · cleaned {cleans}×'
+        statsUses: 'Drawn {uses}× · cleaned {cleans}×',
+        levelBandEmpty: 'parched',
+        levelBandLow: 'low',
+        levelBandModerate: 'moderate',
+        levelBandGood: 'good',
+        levelBandFull: 'full',
+        levelYieldInfo: 'Water level: {band} → yield ×{mod}',
+        levelYieldInfoFixed: 'Water level: {band} → yield only {amt} (minimum)'
     },
     settingsUI: {
         musicTitle: '🎵 Music',
