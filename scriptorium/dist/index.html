@@ -21683,8 +21683,10 @@ const WellSystem = {
         // Aktualizovat zamrznutí (nezávisí na grace)
         w.frozen = this.isFrozen();
 
-        // Grace period po vyčištění/postavení
-        if (now - (w.lastClean || 0) < this.GRACE_DAYS * this.DAY_MS) return;
+        // Grace period po vyčištění/postavení — chrání jen purity (kvalitu),
+        // NE hladinu (level_water). Hladina se doplňuje/ubývá počasím vždy,
+        // jinak by čerpání v grace vysušilo studnu bez šance na refill.
+        const inGrace = now - (w.lastClean || 0) < this.GRACE_DAYS * this.DAY_MS;
 
         const lvl = w.level;
         // Počasí dostupné?
@@ -21698,11 +21700,18 @@ const WellSystem = {
             const rainy = dry.total - dry.dry;
             w.level_water = Math.max(0, Math.min(100,
                 w.level_water + rainy * this.RAIN_FILL - dry.dry * (this.DRY_DRAIN[lvl] || 0)));
-            const purityDrop = dry.dry * (this.DRY_MURK[lvl] || 0) + rainy * (this.RAIN_MURK[lvl] || 0);
-            this._degrade(purityDrop);
+            if (!inGrace) {
+                const purityDrop = dry.dry * (this.DRY_MURK[lvl] || 0) + rainy * (this.RAIN_MURK[lvl] || 0);
+                this._degrade(purityDrop);
+            }
         } else {
-            // Fallback: počasí nedostupné → paušální časová degradace
-            this._degrade(this.TIME_DECAY[lvl] || 0);
+            // Fallback: počasí nedostupné → malý pasivní refill hladiny (25 % RAIN_FILL/den),
+            // ať hladina bez weather dat nezůstane trvale zaseklá na 0. Purity degraduje
+            // paušálně, jen mimo grace.
+            w.level_water = Math.min(100, w.level_water + this.RAIN_FILL * 0.25);
+            if (!inGrace) {
+                this._degrade(this.TIME_DECAY[lvl] || 0);
+            }
         }
 
         Game.save();
@@ -21741,6 +21750,7 @@ const WellSystem = {
         return stats[level] || defaultStats;
     }
 };
+
 // ═══ src/systems/terrain.js ═══
 // ═══════════════════════════════════════════════════════════════════════════════
 // TERRAIN SYSTEM — Únava krajiny
