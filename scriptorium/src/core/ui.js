@@ -890,15 +890,6 @@ const UI = {
                 // Aktuální výnos
                 rows.push('🪣 ' + t('wellUI.yieldNow') + ' <strong>' + info.yieldNow + '</strong>'
                     + ' <span style="opacity:0.6;">(' + t('wellUI.yieldBase') + ' ' + info.yieldBase + ')</span>');
-                // Vysvětlení: proč je výnos snížený (pásmo hladiny)
-                if (info.levelBandKey && info.levelBandKey !== 'levelBandFull') {
-                    const bandLabel = t('wellUI.' + info.levelBandKey);
-                    if (info.levelMod === null || typeof info.levelMod === 'undefined') {
-                        rows.push('💧 ' + t('wellUI.levelYieldInfoFixed').replace('{band}', bandLabel).replace('{amt}', info.yieldNow));
-                    } else {
-                        rows.push('💧 ' + t('wellUI.levelYieldInfo').replace('{band}', bandLabel).replace('{mod}', info.levelMod));
-                    }
-                }
                 // Grace
                 if (info.graceLeft > 0) {
                     rows.push('🛡️ ' + t('wellUI.graceLeft').replace('{n}', info.graceLeft));
@@ -1143,6 +1134,36 @@ const UI = {
         const lang = (GameState.settings && GameState.settings.language) || 'cs';
         const mineActions = ActionsDB.filter(a => a.cat === 'mine');
         let h = '';
+
+        // Zjistit, jestli je vůbec co zobrazit (aspoň 1 akce s krumpáčem)
+        const anyVisible = mineActions.some(act => {
+            if (!act.req || !Array.isArray(act.req)) return true;
+            return act.req.some(r => (GameState.inventory[r.item] > 0) || (GameState.inventory['worn_' + r.item] > 0));
+        });
+
+        if (anyVisible) {
+            // ── Volič délky (2.5/5/10/20/30) — koně jen zkracují reálné čekání,
+            // výnos zůstává vázán na zvolený tier. Zobrazit obojí zřetelně.
+            const horseCount = (GameState.stable && GameState.stable.animals) ? GameState.stable.animals.length : 0;
+            const horseMult = horseCount >= 2 ? 0.5 : horseCount === 1 ? 0.75 : 1.0;
+            const tiers = [2.5, 5, 10, 20, 30];
+            const selected = GameState.selectedMineDuration || 5;
+            let tierBtns = '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px;">';
+            tiers.forEach(tier => {
+                const realMin = tier * horseMult;
+                const realStr = Number.isInteger(realMin) ? realMin : realMin.toFixed(1);
+                const label = horseMult < 1.0 ? `${tier} min <span style="opacity:0.6;font-size:0.85em;">(${realStr})</span>` : `${tier} min`;
+                const active = tier === selected ? ' active' : '';
+                tierBtns += `<button class="mine-time-btn${active}" onclick="Game.setMineDuration(${tier}, this)">${label}</button>`;
+            });
+            tierBtns += '</div>';
+            if (horseCount > 0) {
+                tierBtns += `<div style="font-size:0.72rem;opacity:0.55;margin-bottom:8px;">🐴 ${lang==='en' ? `${horseCount} horse(s) — real time in parentheses` : `${horseCount} kůň/koně — reálný čas v závorce`}</div>`;
+            }
+            h += tierBtns;
+            if (typeof MineSystem !== 'undefined') h += MineSystem.renderIndicator();
+        }
+
         mineActions.forEach(act => {
             // Req check — zobrazit jen pokud má pickaxe
             if (act.req && Array.isArray(act.req)) {
