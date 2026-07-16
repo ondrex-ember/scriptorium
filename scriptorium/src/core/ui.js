@@ -1114,18 +1114,11 @@ const UI = {
     },
 
     renderMineYieldInfo: function () {
+        // Přesné výnosové rozsahy se hráči záměrně nezobrazují (viz karty
+        // jednotlivých akcí níže — jen kategorie, žádná čísla, stejně jako Scavenge).
         const el = document.getElementById('mine-yield-info');
         if (!el) return;
-        const lang = (GameState.settings && GameState.settings.language) || 'cs';
-        const cs = lang === 'cs';
-        const boxStyle = 'padding:14px; margin-bottom:12px; background:rgba(197,160,89,0.07); border:1px solid rgba(197,160,89,0.3); border-radius:8px; border-left:4px solid var(--accent-gold);';
-        el.innerHTML = `<div style="${boxStyle}">
-            <div style="font-weight:bold; margin-bottom:6px;">⛏️ ${cs ? 'Výtěžnost těžby (5 min cyklus)' : 'Mining yield (5 min cycle)'}</div>
-            <div style="font-size:0.82rem; opacity:0.85; line-height:1.5;">
-                🪨 ${cs ? 'Kámen' : 'Stone'}: 14–21 (${cs ? 'kamenný krumpáč' : 'stone pickaxe'}) / 24–36 (${cs ? 'železný krumpáč' : 'iron pickaxe'}) ${cs ? '+ šance na tesaný kámen, jíl' : '+ chance of cut stone, clay'}<br>
-                ⛏️ ${cs ? 'Železná ruda' : 'Iron ore'}: 1–2 (${cs ? 'kamenný krumpáč' : 'stone pickaxe'}) / 1–4 (${cs ? 'železný krumpáč' : 'iron pickaxe'}) ${cs ? '+ šance na uhlí' : '+ chance of charcoal'}
-            </div>
-        </div>`;
+        el.innerHTML = '';
     },
 
     renderMineActions: function () {
@@ -1148,7 +1141,7 @@ const UI = {
             const horseMult = horseCount >= 2 ? 0.5 : horseCount === 1 ? 0.75 : 1.0;
             const tiers = [2.5, 5, 10, 20, 30];
             const selected = GameState.selectedMineDuration || 5;
-            let tierBtns = '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px;">';
+            let tierBtns = '<div class="time-selector">';
             tiers.forEach(tier => {
                 const realMin = tier * horseMult;
                 const realStr = Number.isInteger(realMin) ? realMin : realMin.toFixed(1);
