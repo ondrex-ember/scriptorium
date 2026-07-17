@@ -141,6 +141,8 @@ const ContactsDB = {
             zazvor:     { price: 6,  stock: 3, minRelation: 20 },
             hrebicek:   { price: 12, stock: 2, minRelation: 25 },
             skorice:    { price: 10, stock: 2, minRelation: 25 },
+            muskat:     { price: 14, stock: 2, minRelation: 28 },
+            muskatovy_kvet: { price: 20, stock: 1, minRelation: 32 },
             hedvabi:    { price: 15, stock: 2, minRelation: 30 },
             safran:     { price: 28, stock: 1, minRelation: 35 },
         } },
