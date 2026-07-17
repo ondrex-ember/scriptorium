@@ -162,6 +162,7 @@ const RecipesDB = [
     { id: "frog_legs_prep", output: "frog_legs", qty: 1, req: { "frog": 1 }, cat: "food", locked: true, desc: "Stažení a příprava žabích stehýnek.", desc_en: "Skinning and preparing frog legs." },
     { id: "frog_legs_fried", output: "frog_legs_fried", qty: 1, req: { "frog_legs": 2, "fat": 1, "garlic": 1, "cooking_pot": 0 }, cat: "food", locked: true, desc: "Stehýnka osmažená na sádle s česnekem.", desc_en: "Legs fried in lard with garlic." },
     { id: "stew", output: "stew", qty: 1, req: { "meat": 1, "carrot": 1, "turnip": 1, "water": 1, "cooking_pot": 0 }, cat: "food", locked: true },
+    { id: "stew_koreni", output: "stew_koreni", qty: 1, req: { "meat": 1, "carrot": 1, "turnip": 1, "water": 1, "pepr_cerny": 1, "cooking_pot": 0 }, cat: "food", locked: true, desc: "Guláš dochucený černým pepřem.", desc_en: "Stew seasoned with black pepper." },
     { id: "mushroom_soup", output: "mushroom_soup", qty: 1, req: { "mushroom": 2, "onion": 1, "water": 1, "cooking_pot": 0 }, cat: "food", locked: true },
     { id: "spring_herb_porridge", output: "spring_herb_porridge", qty: 1, req: { "nettle": 1, "ground_elder": 1, "goosefoot": 1, "oats": 1, "cooking_pot": 0 }, cat: "food", locked: true, desc: "Jarní bylinková kaše.", desc_en: "Spring herb porridge." },
     { id: "burdock_root_baked", output: "burdock_root_baked", qty: 1, req: { "burdock_root": 2 }, cat: "food", locked: true, desc: "Upečeno přímo v popelu, žádný hrnec netřeba.", desc_en: "Baked directly in the ashes, no pot needed." },
@@ -178,6 +179,7 @@ const RecipesDB = [
     { id: "bread_fine", output: "bread_fine", qty: 2, req: { "flour_2": 3, "water": 1, "cooking_pot": 0 }, cat: "food", locked: true },
     { id: "bread_fine_1", output: "bread_fine_1", qty: 2, req: { "flour_1": 3, "water": 1, "cooking_pot": 0 }, cat: "food", locked: true },
     { id: "berry_pie",      output: "berry_pie",      qty: 1, req: { "berries": 3, "honey": 1, "cooking_pot": 0 }, cat: "food", locked: true },
+    { id: "berry_pie_koreni", output: "berry_pie_koreni", qty: 1, req: { "berries": 3, "honey": 1, "skorice": 1, "cooking_pot": 0 }, cat: "food", locked: true, desc: "Koláč provoněný skořicí.", desc_en: "A tart scented with cinnamon." },
     { id: "berry_pie_fine",   output: "berry_pie_fine",   qty: 1, req: { "flour_2": 2, "berries": 3, "honey": 1, "cooking_pot": 0 }, cat: "food", locked: true },
     { id: "berry_pie_fine_1", output: "berry_pie_fine_1", qty: 1, req: { "flour_1": 2, "berries": 3, "honey": 1, "cooking_pot": 0 }, cat: "food", locked: true },
     // Bylinné nápoje — snižují Únavu, bez Athanoru
