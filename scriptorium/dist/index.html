@@ -42658,6 +42658,7 @@ const Game = {
                     Game.checkPiscinaPredation();
                     Game.checkSadkyAging();
                     Game.checkVylovStatus();
+                    Game.checkTahVyzStatus();
                     // Save info — refresh "Poslední uložení" v Settings
                     const _saveEl = document.getElementById('save-last-time');
                     if (_saveEl && Game._saveHint.lastSaveTime > 0) {
@@ -44353,6 +44354,71 @@ const Game = {
             ? `🎣 Autumn harvest: ${carpQty}× carp brought in${hasHelp ? ' (net-haulers\' help)' : ''}. Small fish sold to the poor for ${smallFishCoin} g. Pike remain in the pond — catch them separately.`
             : `🎣 Podzimní výlov: ${carpQty}× kapr sklizen${hasHelp ? ' (s pomocí sítětařů)' : ''}. Drobná ryba prodána chudině za ${smallFishCoin} g. Štiky zůstávají v rybníce — ulov je zvlášť.`;
         UI.notify(msg);
+    },
+
+    // ═══════════════════════════════════════════════════════════════════════════
+    // TAH VYZ — jarní úlovek. Vyza se neplemení v rybníce (žádný fry/young),
+    // chytá se jako dospělá na zátarasu při jarním tahu k výtěru. Zátaras
+    // vyloví jednu živou rybu do sádek jako "živou konzervu" (čerstvá zásoba
+    // masa) — žádný nový state model, jen sezónní event + inventory item,
+    // stejný vzor jako podzimní Vylov výše.
+    // ═══════════════════════════════════════════════════════════════════════════
+
+    TAH_VYZ_WAIT_DAYS: 4,
+
+    startTahVyz: function() {
+        const p = GameState.piscina;
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        if (!GameState.researchedTechs.includes('tech_piscina_expansio')) { UI.notify(t('game.needDePiscibus'), true); return; }
+        if (p.tier < 3) { UI.notify(t('game.piscinaUpgradeFirst'), true); return; }
+        if (GameState.piscinaTahVyz && GameState.piscinaTahVyz.active) { UI.notify(t('game.busy'), true); return; }
+        const month = new Date().getMonth() + 1; // reálné device datum, stejný vzor jako startVylov
+        if (month !== 3 && month !== 4) {
+            UI.notify(lang === 'en' ? '❌ The sturgeon run happens only in spring (Mar–Apr).' : '❌ Vyzí tah probíhá jen na jaře (březen–duben).', true);
+            return;
+        }
+        const DAY = 24 * 3600000;
+        GameState.piscinaTahVyz = { active: true, startedAt: Date.now(), readyAt: Date.now() + Game.TAH_VYZ_WAIT_DAYS * DAY, notifiedReady: false };
+        Game.save(); UI.renderPiscina();
+        UI.notify(lang === 'en' ? '🌊 The weir is set — waiting for the sturgeon run.' : '🌊 Zátaras nastražen — čeká se na vyzí tah.');
+    },
+
+    checkTahVyzStatus: function() {
+        const v = GameState.piscinaTahVyz;
+        if (!v || !v.active || v.notifiedReady) return;
+        if (Date.now() >= v.readyAt) {
+            v.notifiedReady = true;
+            if (typeof NotificationSystem !== 'undefined' && NotificationSystem.panel) {
+                const lang = (GameState.settings && GameState.settings.language) || 'cs';
+                NotificationSystem.panel('🌊 ' + (lang === 'en'
+                    ? 'A sturgeon is caught in the weir, alive — bring it to the holding tank.'
+                    : 'V zátarasu uvízla živá vyza — přenes ji do sádek.'), 'info');
+            }
+            Game.save();
+        }
+    },
+
+    harvestTahVyz: function() {
+        const v = GameState.piscinaTahVyz;
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        if (!v || !v.active) { UI.notify(t('game.busy'), true); return; }
+        if (Date.now() < v.readyAt) { UI.notify(lang === 'en' ? '⏳ Still waiting at the weir.' : '⏳ U zátarasu se ještě čeká.', true); return; }
+        this.addItem('vyza_sadky_fresh', 1);
+        GameState.piscinaTahVyz = { active: false, startedAt: 0, readyAt: 0, notifiedReady: false };
+        Game.save(); UI.renderPiscina();
+        UI.notify(lang === 'en' ? '🌊 Sturgeon caught alive → holding tank.' : '🌊 Vyza ulovena živá → sádky.');
+    },
+
+    // Zpracování vyzy ze sádek — kdykoliv, hráč sám určí čas (fikčně: "než přijde host").
+    harvestVyza: function() {
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        if ((GameState.inventory['vyza_sadky_fresh'] || 0) < 1) { UI.notify(lang === 'en' ? '❌ No sturgeon in the holding tank.' : '❌ Žádná vyza v sádkách.', true); return; }
+        this.removeItem('vyza_sadky_fresh', 1);
+        this.addItem('vyza_maso', 1);
+        this.addItem('vyza_jikry', 1);
+        this.addItem('klih', 2);
+        Game.save(); UI.renderPiscina();
+        UI.notify(lang === 'en' ? '🐋 Sturgeon processed: meat, roe, isinglass ×2.' : '🐋 Vyza zpracována: maso, jikry, klih ×2.');
     },
 
     checkOrchardGrowth: function() {
