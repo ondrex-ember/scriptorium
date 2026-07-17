@@ -2458,6 +2458,11 @@ const Game = {
         const p = GameState.piscina;
         const lang = (GameState.settings && GameState.settings.language) || 'cs';
         if (!GameState.researchedTechs.includes('tech_piscina_expansio')) { UI.notify(t('game.needDePiscibus'), true); return; }
+        const readBooks = (GameState.library && GameState.library.readBooks) || [];
+        if (!readBooks.includes('book_buch_der_natur')) {
+            UI.notify(lang === 'en' ? '📖 You must first read the Buch der Natur — you don\'t yet know when to expect the run.' : '📖 Nejdřív musíš přečíst Buch der Natur — nevíš, kdy tah čekat.', true);
+            return;
+        }
         if (p.tier < 3) { UI.notify(t('game.piscinaUpgradeFirst'), true); return; }
         if (GameState.piscinaTahVyz && GameState.piscinaTahVyz.active) { UI.notify(t('game.busy'), true); return; }
         const month = new Date().getMonth() + 1; // reálné device datum, stejný vzor jako startVylov
