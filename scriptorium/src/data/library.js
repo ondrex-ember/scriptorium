@@ -1831,6 +1831,103 @@ Tento zápis zatím nemá finální znění.
 This entry does not yet have its final wording.
 
 **GAME EFFECT:** Reading this book unlocks the *Ars Recreationis* tech — Fatigue recovers 2× faster.`
+        },
+        {
+            id: 'book_buch_der_natur',
+            title: 'Buch der Natur: O rybách',
+            title_en: 'Buch der Natur: On Fishes',
+            category: 'technical',
+            unlockDay: 299,
+            icon: '🐋',
+            author: 'Konrad von Megenberg',
+            year: 'cca 1350 (opisováno do 15. stol.)',
+            content: `**První přírodopis v mateřském jazyce**
+
+Konrad von Megenberg sepsal ve 14. století *Buch der Natur* — první přírodovědnou encyklopedii psanou německy, ne latinsky. Opis měl skoro každý větší klášter ve střední Evropě. Kapitola *Von den Fischen* (O rybách) popisuje i dva obry: **Huso** (vyzu) a **Sturio** (jesetera).
+
+**Obři, co táhli od moře**
+
+Megenberg zaznamenává jejich jarní tah — z moře proti proudu velkých řek, až k výtěru. V roce 1465 to znamenalo, že tyhle několikasettilové obry bylo možné potkat i na řece pod samotnou Olomoucí. Popisuje jejich obrovské rozměry a zvláštní vlastnost kůže a vnitřností — "zázračnou lepkavou moc". O jikrách píše jako o výživném pokrmu, který smí na stůl i o nejpřísnějším postu.
+
+*"Kdo rozumí rybám řeky, rozumí i tomu, co posílá moře do hlubin země."*
+
+**HERNÍ EFEKT:** Přečtením této knihy (spolu s příslušným výzkumem) odemkneš jarní **Tah vyz** v Piscině — bez znalosti, kdy obry čekat, zátaras zůstane prázdný.`,
+            content_en: `**The First Natural History in a Vernacular Tongue**
+
+Konrad von Megenberg wrote the *Buch der Natur* in the 14th century — the first natural history encyclopaedia written in German rather than Latin. Nearly every major monastery in Central Europe owned a copy. The chapter *Von den Fischen* (On Fishes) describes two giants: **Huso** (the beluga) and **Sturio** (the sturgeon).
+
+**Giants That Ran from the Sea**
+
+Megenberg records their spring migration — from the sea, upriver, to spawn. In 1465 that meant these many-hundred-kilogram giants could be met on the river even below Olomouc itself. He describes their vast size and a peculiar property of their skin and innards — a "miraculous sticking power." He writes of their roe as a nourishing dish permitted even during the strictest fast.
+
+*"He who understands the fish of the river also understands what the sea sends into the depths of the land."*
+
+**GAME EFFECT:** Reading this book (together with the matching research) unlocks the spring **Sturgeon Run** in the Piscina — without knowing when to expect the giants, the weir stays empty.`
+        },
+        {
+            id: 'book_cennini_libro_dellarte',
+            title: "Il libro dell'arte: O barvách a zlatu",
+            title_en: "Il libro dell'arte: On Colours and Gold",
+            category: 'technical',
+            unlockDay: 305,
+            icon: '🎨',
+            author: 'Cennino Cennini',
+            year: 'cca 1400',
+            content: `**Řemeslo psané pro učně**
+
+Cennino Cennini sepsal kolem roku 1400 *Il libro dell'arte* — praktickou příručku malířského a iluminátorského řemesla, psanou ne pro učence, ale pro učně. Přesně proto přežila a šířila se po celé Evropě.
+
+**Klih, co nežloutne**
+
+Cennini popisuje *colla di pesce* — rybí (vyzí) klih — jako nezbytný pro fixaci nejdražšího modrého pigmentu, lapisu lazuli, a jako podklad pod plátkové zlato. Na rozdíl od běžného kostního klihu nežloutne a netrhá jemný pergamen — malá věc, co rozhoduje, jestli iluminace vydrží staletí, nebo popraská za pár let.
+
+*"Mistře, dřív než sáhneš po zlatě, připrav si čistý klih. Zlato bez pojiva je jen prach na listu."*
+
+**HERNÍ EFEKT:** Zatím čistě lore — recepty na prémiové iluminátorské barvy s vyzím klihem čekají na budoucí rozšíření Scrinia.`,
+            content_en: `**A Craft Written for Apprentices**
+
+Cennino Cennini wrote *Il libro dell'arte* around 1400 — a practical handbook of painting and illumination, written not for scholars but for apprentices. That is precisely why it survived and spread across Europe.
+
+**The Glue That Never Yellows**
+
+Cennini describes *colla di pesce* — fish (sturgeon) glue — as essential for fixing the most expensive blue pigment, lapis lazuli, and as an underlayer for gold leaf. Unlike ordinary bone glue, it does not yellow and does not tear the fine parchment — a small thing that decides whether an illumination lasts centuries or cracks within a few years.
+
+*"Master, before thou reach for gold, prepare thy purest glue. Gold without a binder is but dust upon the leaf."*
+
+**GAME EFFECT:** Lore only for now — recipes for premium illuminator's pigments using isinglass await a future expansion of the Scrinium.`
+        },
+        {
+            id: 'book_strasburger_manuskript',
+            title: 'Strasburský rukopis: O čiření nápoje',
+            title_en: 'The Strasbourg Manuscript: On Clarifying Drink',
+            category: 'coquina',
+            unlockDay: 311,
+            icon: '🍺',
+            author: 'Neznámý cechovní mistr',
+            author_en: 'An unknown guild master',
+            year: '15. století',
+            content: `**Cechovní vědění, ne klášterní**
+
+Strasburský rukopis je nejvýznamnější německy psaný cechovní receptář 15. století, hojně opisovaný a šířený po střední Evropě. Na rozdíl od klášterních spisů nevznikl v skriptoriu, ale v dílně — a přesto skončil i v klášterních knihovnách, protože sládci a vinaři byli mniši stejně jako písaři.
+
+**Rybí měchýř na dně sudu**
+
+Rukopis popisuje, jak čistit víno a pivo pomocí rybích měchýřů — klih na sebe naváže kaly a stáhne je ke dnu, čímž vznikne křišťálově čistý nápoj místo kalného. Prostý trik, co dělá z obyčejného piva zboží hodné prodeje ve městě.
+
+*"Kalný nápoj kalí i mysl. Čistý klih, čistý mok, čistá hlava."*
+
+**HERNÍ EFEKT:** Zatím čistě lore — čiření piva vyzím klihem čeká na budoucí Pivovar (endgame větev).`,
+            content_en: `**Guild Knowledge, Not Monastic**
+
+The Strasbourg Manuscript is the most important German-language guild recipe book of the 15th century, widely copied and circulated across Central Europe. Unlike monastic treatises it did not originate in a scriptorium but in a workshop — and yet it still found its way into monastery libraries, since brewers and vintners were monks just as much as scribes were.
+
+**A Fish Bladder at the Bottom of the Barrel**
+
+The manuscript describes how to clarify wine and beer using fish bladders — the glue binds the sediment and draws it to the bottom, producing a crystal-clear drink instead of a cloudy one. A simple trick that turns ordinary beer into goods worthy of sale in town.
+
+*"A cloudy drink clouds the mind as well. Clean glue, clean brew, clear head."*
+
+**GAME EFFECT:** Lore only for now — clarifying beer with isinglass awaits the future Brewery (endgame branch).`
         }
     ],
 
