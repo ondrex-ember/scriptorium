@@ -726,6 +726,12 @@ const GardenSystem = {
 
         // ── KAPROVÝ RYBNÍK (Tier 3) ── 4/7 výšky
         const t3locked = p.tier < 3;
+        // Tier 3 je sdílená nádrž pro VŠECHNY dospělé ryby (Game.stockFish vyžaduje
+        // tier>=3 a zapisuje štiku/pstruha/úhoře do stejného p.fish pole jako kapra).
+        // p.carp (agregát jen kapra) zůstává zdrojem pro harvestCarp/fry produkci —
+        // ty jsou mechanicky čistě kaprové. Tohle jen doplňuje zobrazení o ostatní druhy.
+        const otherAdultQty = t3locked ? 0 : (p.fish||[]).filter(r => r.stage === 'adult' && r.species !== 'kapr').reduce((s, r) => s + r.qty, 0);
+        const totalAdultQty = (p.carp||0) + otherAdultQty;
         html += `<div style="
             margin-bottom:10px; border-radius:10px; overflow:hidden;
             border:2px solid ${t3locked ? 'rgba(0,0,0,0.15)' : '#1a4a5a'};
@@ -744,13 +750,13 @@ const GardenSystem = {
         } else if (t3locked) {
             html += `<div style="font-size:0.75rem; opacity:0.5; font-style:italic;">${t('garden.piscinaUpgradeFirst')}</div>`;
         } else {
-            html += `<div style="font-size:0.82rem; color:#fff;">🐠 ${t('garden.piscinaCarp')}: <strong>${p.carp||0}</strong></div>`;
+            html += `<div style="font-size:0.82rem; color:#fff;">🐠 ${t('garden.piscinaCarp')}: <strong>${p.carp||0}</strong>${otherAdultQty>0 ? ` <span style="opacity:0.75; font-size:0.85em;">+ ${otherAdultQty} ${lang==='en'?'other':'ostatní'}</span>` : ''}</div>`;
         }
         html += `</div>`;
 
-        // Kapři — plovoucí + potápěcí animace, každý individuální
-        if (!t3locked && (p.carp||0) > 0) {
-            const carpCount = Math.min(p.carp, 6);
+        // Kapři + ostatní dospělé druhy — plovoucí + potápěcí animace, čistě dekorativní
+        if (!t3locked && totalAdultQty > 0) {
+            const carpCount = Math.min(totalAdultQty, 6);
             const icons = ['🐠','🐟','🐡','🐠','🐡','🐟'];
             for (let i=0; i<carpCount; i++) {
                 const topPct  = 10 + Math.random()*70;           // 10–80% výška
