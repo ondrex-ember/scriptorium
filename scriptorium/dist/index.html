@@ -23919,6 +23919,29 @@ const GardenSystem = {
             }
             html += `</div>`;
 
+            // Vyza — jarní tah (gate: tech_piscina_expansio)
+            if (GameState.researchedTechs.includes('tech_piscina_expansio')) {
+                const tahVyz = GameState.piscinaTahVyz;
+                const isSpring = (nowMonth === 3 || nowMonth === 4);
+                const vyzaHave = GameState.inventory['vyza_sadky_fresh'] || 0;
+                html += `<div style="font-size:0.75rem; padding-top:6px; border-top:1px solid rgba(0,0,0,0.08);">`;
+                html += `<div style="opacity:0.7; margin-bottom:4px;">🐋 ${lang==='en'?'Sturgeon run':'Vyzí tah'}</div>`;
+                if (vyzaHave > 0) {
+                    html += `${lang==='en'?'Sturgeon in the tank':'Vyza v sádkách'}: <strong>${vyzaHave}</strong> <button class="craft-btn" onclick="Game.harvestVyza()" style="font-size:0.68rem; margin-left:6px;">${lang==='en'?'Process':'Zpracovat'}</button>`;
+                } else if (tahVyz && tahVyz.active) {
+                    if (Date.now() >= tahVyz.readyAt) {
+                        html += `🌊 ${lang==='en'?'A sturgeon is caught, alive.':'V zátarasu je živá vyza.'} <button class="craft-btn" onclick="Game.harvestTahVyz()" style="font-size:0.7rem; margin-left:6px;">${lang==='en'?'Bring to tank':'Přenést do sádek'}</button>`;
+                    } else {
+                        const daysLeft = Math.max(0, Math.ceil((tahVyz.readyAt - Date.now()) / 86400000));
+                        html += `🌊 ${lang==='en'?'Waiting at the weir':'Čeká se u zátarasu'}... (${daysLeft}d)`;
+                    }
+                } else {
+                    html += `<button class="craft-btn" onclick="Game.startTahVyz()" ${isSpring ? '' : 'disabled'} style="font-size:0.7rem;">🌊 ${lang==='en'?'Set the weir':'Nastražit zátaras'}</button>`;
+                    if (!isSpring) html += `<span style="opacity:0.55; margin-left:6px; font-style:italic;">${lang==='en'?'(spring only)':'(jen na jaře)'}</span>`;
+                }
+                html += `</div>`;
+            }
+
             html += `</div>`;
         }
 
