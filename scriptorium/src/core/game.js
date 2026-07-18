@@ -4943,6 +4943,7 @@ const Game = {
     TEMPLUM_DONATIONS: {
         paternoster_beads: { qty: 1, influence: 5 },
         beeswax:           { qty: 5, influence: 2 },
+        crayfish_boiled:   { qty: 1, influence: 3 },
         // TODO: relikvie — item přijde s vizitací / Porta biskupským řetězem
     },
 
