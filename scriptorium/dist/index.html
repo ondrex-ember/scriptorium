@@ -20194,6 +20194,48 @@ const SaeculumSystem = {
         });
         h += `</div>`;
       }
+
+      // Detail panel — zobrazí se po kliknutí na chip (SaeculumSystem.selectConversi)
+      if (selected) {
+        const k = list.find(x => x.id === selected);
+        if (k) {
+          const rec = (k.rosterId && typeof ConversiRosterDB !== 'undefined') ? ConversiRosterDB[k.rosterId] : null;
+          const typeLabel = k.type === 'famulus' ? (lang==='en'?'Famulus — seasonal hand':'Famulus — sezónní síla')
+                           : k.type === 'oblat'   ? (lang==='en'?'Oblate — young, still growing':'Oblát — mladý, ještě roste')
+                           : (lang==='en'?'Lay brother (Konvrš)':'Konvrš');
+          const taskName = k.task ? ((Game.CONVERSI_TASKS[k.task] || {})[lang==='en'?'name_en':'name'] || k.task) : (lang==='en'?'unassigned':'nepřiřazen');
+          const bar = (label, val, color) => `<div style="margin-top:4px;">
+                <div style="display:flex; justify-content:space-between; font-size:0.66rem; opacity:0.65;"><span>${label}</span><span>${Math.round(val)}%</span></div>
+                <div style="height:5px; background:rgba(0,0,0,0.1); border-radius:3px; overflow:hidden;"><div style="height:100%; width:${Math.max(0,Math.min(100,val))}%; background:${color};"></div></div>
+              </div>`;
+
+          h += `<div style="padding:10px 12px; margin-bottom:10px; background:rgba(255,255,255,0.5); border:1px solid rgba(197,160,89,0.3); border-radius:8px;">`;
+          h += `<div style="display:flex; justify-content:space-between; align-items:baseline;">
+                  <div style="font-weight:bold; font-size:0.85rem;">${(rec && rec.icon) || (k.type==='famulus'?'💼':k.type==='oblat'?'🌱':'✝️')} ${k.name}</div>
+                  <div style="font-size:0.68rem; opacity:0.6; font-style:italic;">${typeLabel}</div>
+                </div>`;
+          if (rec && rec.origin_cs) {
+            h += `<div style="font-size:0.68rem; opacity:0.6; font-style:italic; margin-top:3px;">${lang==='en' ? (rec.origin_en||rec.origin_cs) : rec.origin_cs}</div>`;
+          }
+          h += `<div style="font-size:0.7rem; margin-top:6px;">${lang==='en'?'Task':'Úkol'}: <strong>${taskName}</strong></div>`;
+
+          h += bar(lang==='en'?'Fatigue':'Únava', k.fatigue || 0, (k.fatigue||0) >= 80 ? '#c0392b' : 'var(--accent-gold)');
+          h += bar(lang==='en'?'Mood':'Nálada', (typeof k.mood==='number'?k.mood:60), '#5a9a5a');
+          if (k.type === 'konvrs') {
+            h += bar(lang==='en'?'Loyalty':'Loajalita', (typeof k.loyalty==='number'?k.loyalty:30), '#4a6fa5');
+            if (k.wageOwed > 0) h += `<div style="font-size:0.68rem; color:#c0392b; margin-top:4px;">⚠️ ${lang==='en'?'Wages owed: ':'Dlužná mzda: '}${k.wageOwed + 2} g</div>`;
+          }
+          if (k.type === 'oblat' && k.matureAt) {
+            const daysLeft = Math.max(0, Math.ceil((k.matureAt - Date.now()) / (24*60*60*1000)));
+            h += `<div style="font-size:0.7rem; color:var(--accent-gold); margin-top:6px;">🌱 ${lang==='en' ? 'Matures into a lay brother in '+daysLeft+' d' : 'Dozraje v konvrše za '+daysLeft+' d'}</div>`;
+          }
+          if (k.type === 'famulus') {
+            h += `<div style="font-size:0.68rem; opacity:0.6; font-style:italic; margin-top:6px;">${lang==='en'?'No lasting bond — leaves at once if unpaid.':'Bez trvalé vazby — při neplacení hned odchází.'}</div>`;
+          }
+          h += `</div>`;
+        }
+      }
+
       if (list.length < cap) {
         h += `<button class="craft-btn" onclick="Game.hireKonvrs()">🤝 ${lang==='en'?'Hire a lay brother (10g)':'Najmout konvrše (10g)'}</button>`;
         if (GameState.researchedTechs.includes('tech_magister')) {
