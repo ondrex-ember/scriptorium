@@ -3,7 +3,7 @@
 // ⚠️  DŮLEŽITÉ: Při každém deploymentu zvyš číslo verze!
 //     Jinak uživatelé dostanou starý obsah z cache.
 // ═══════════════════════════════════════════════════════
-const CACHE_NAME = 'scriptorium-v2';
+const CACHE_NAME = 'scriptorium-v3';
 
 // Soubory cachované při instalaci (precache)
 const PRECACHE_ASSETS = [
@@ -11,7 +11,9 @@ const PRECACHE_ASSETS = [
   '/index.html',
   '/manifest.json',
   '/icon-192.png',
-  '/icon-512.png'
+  '/icon-512.png',
+  '/sounds/meow.mp3',
+  '/sounds/cat-purr.mp3'
 ];
 
 // ── INSTALL ──────────────────────────────────────────────
