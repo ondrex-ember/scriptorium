@@ -20174,7 +20174,8 @@ const SaeculumSystem = {
         list.forEach(k => {
           const kf = (typeof k.fatigue === 'number') ? k.fatigue : 0;
           const rec = (k.rosterId && typeof ConversiRosterDB !== 'undefined') ? ConversiRosterDB[k.rosterId] : null;
-          const kIcon = (rec && rec.icon) ? rec.icon : '✝️';
+          const typeFallbackIcon = k.type === 'famulus' ? '💼' : k.type === 'oblat' ? '🌱' : '✝️';
+          const kIcon = (rec && rec.icon) ? rec.icon : typeFallbackIcon;
           const isActive = k.id === selected;
           const now = Date.now();
           let statusDot = '#5a9a5a'; // volný
@@ -20195,6 +20196,10 @@ const SaeculumSystem = {
       }
       if (list.length < cap) {
         h += `<button class="craft-btn" onclick="Game.hireKonvrs()">🤝 ${lang==='en'?'Hire a lay brother (10g)':'Najmout konvrše (10g)'}</button>`;
+        if (GameState.researchedTechs.includes('tech_magister')) {
+          h += `<button class="craft-btn" style="margin-top:4px;" onclick="Game.hireFamulus()">💼 ${lang==='en'?'Hire a famulus (4g/week)':'Najmout famula (4g/týden)'}</button>`;
+          h += `<button class="craft-btn" style="margin-top:4px;" onclick="Game.hireOblat()">🌱 ${lang==='en'?'Take in an oblate (5g)':'Přijmout obláta (5g)'}</button>`;
+        }
       } else {
         h += `<div style="font-size:0.75rem; opacity:0.6; font-style:italic;">${lang==='en'?'No free beds.':'Žádné volné lůžko.'}</div>`;
       }
@@ -20661,6 +20666,7 @@ const SaeculumSystem = {
   },
 
 };
+
 // ═══ src/systems/TemplumSystem.js ═══
 // ─────────────────────────────────────────────────────────────
 // TemplumSystem — kostelní větev (MRD templum-reference.md)
