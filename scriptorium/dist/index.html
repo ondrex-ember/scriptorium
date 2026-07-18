@@ -47342,6 +47342,11 @@ const Game = {
         // Úklid: konvrš PŘIŘAZENÝ na Kostel a/nebo bratr (Kostelník) dohlížející —
         // stejný combo vzor jako Manufaktura (dormitoriumBrotherMult, _workCredit).
         // Buď může uklízet sám; s oběma se čisto drží déle.
+        // TODO (příští sprint): tahle fatigue-gate podmínka je identická na
+        // 9 místech v souboru (Kostel/Hřbitov/Dvůr/Scavenge/Doly/...), ale
+        // žádné z nich neškáluje výstup podle typu konvrše (Oblát pracuje
+        // na plný výkon, viz TODO u hireOblat()). Refaktor: sdílený
+        // Game.conversiEfficiency(k) hook volaný ze všech 9 míst.
         const kostelBrother = (GameState.dormitorium && GameState.dormitorium.brothers || [])
             .find(b => b.assignedTab === 'kostel');
         const cleaner = (GameState.conversi || [])
@@ -48059,6 +48064,11 @@ const Game = {
 
     OBLAT_MATURATION_DAYS: 30,
 
+    // TODO (příští sprint): Oblát dnes pracuje na plný výkon jako konvrš —
+    // MRD "málo platný zpočátku" NENÍ implementováno. Vyžaduje refaktor
+    // sdíleného output multiplieru napříč 9 task funkcemi (viz TODO u první
+    // fatigue-gate podmínky, cleanKostel bloku). Zámerně odloženo, ne dnešní
+    // riziko — 9 bespoke zásahů do 5+ subsystémů (Kostel/Hřbitov/Dvůr/atd.).
     // Oblát — mladý, roste. Levný vstup, bez mzdy dokud nedospěje (viz wage
     // tick), po OBLAT_MATURATION_DAYS reálných dnech automaticky dozraje na
     // plnoprávného konvrše (_checkOblatMaturation, volané v denním ticku).
