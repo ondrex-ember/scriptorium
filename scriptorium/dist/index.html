@@ -28141,11 +28141,6 @@ Object.assign(ScriptoriumCat, {
     },
 });
 // ═══ src/systems/PersonaSystem.js ═══
-// ═══════════════════════════════════════════════════════════════════════════
-// PERSONA SYSTEM — Liber Personae
-// Subtab ve Scriptoriu — 3 sekce: Persona | Statistiky | Influentia
-// ═══════════════════════════════════════════════════════════════════════════
-
 const PersonaSystem = {
 
     _activeTab: 'persona',
@@ -28675,7 +28670,9 @@ const PersonaSystem = {
 
         let h = `<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:20px;">`;
         h += stat('📦', lang==='en'?'Items discovered':'Předměty objeveny', Object.keys(GameState.inventory||{}).length);
-        h += stat('⚒️', lang==='en'?'Crafts':'Výroba', stats.itemsCrafted||0);
+        const craftedTotal = GameState.craftedItems ? Object.values(GameState.craftedItems).reduce((a,b) => a+b, 0) : 0;
+        h += stat('⚒️', lang==='en'?'Crafts':'Výroba', craftedTotal);
+        h += stat('📥', lang==='en'?'Items obtained':'Získané předměty', stats.itemsCrafted||0);
         h += stat('📜', lang==='en'?'Research gained':'Research získáno', stats.researchCount||0);
         h += stat('🔬', lang==='en'?'Technologies':'Technologie', `${techCount}/${totalTechs}`);
         h += stat('📚', lang==='en'?'Books read':'Knihy přečtené', `${booksRead}/${totalBooks}`);
@@ -29220,6 +29217,7 @@ const PersonaSystem = {
     },
 
 };
+
 // ═══ src/systems/PortaSystem.js ═══
 // ═══════════════════════════════════════════════════════════════════════════
 // PortaSystem — Scriptorium
