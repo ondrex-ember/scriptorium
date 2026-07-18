@@ -5966,7 +5966,129 @@ const Game = {
         if (typeof SaeculumSystem !== 'undefined') SaeculumSystem.switchEntity(GameState.ui.saeculumEntity || 'tavern');
     },
 
-    // Officium — konvrši nedostupní mezi Laudes (6:00) a Prima (9:00), reálný čas
+    // Famulus — sezónní nájem. Bez roster/vztahové vazby, bez loajality/Kapituly,
+    // vyšší mzda (4g vs 2g konvrše), neplacení = okamžitý odchod (žádná grace).
+    hireFamulus: function() {
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        if (!GameState.conversi) GameState.conversi = [];
+        if (!GameState.researchedTechs.includes('tech_magister')) {
+            UI.notify(lang==='en' ? 'Requires a Magister conversorum.' : 'Vyžaduje Magistra conversorum.', true); return;
+        }
+        const cap = this.conversiCapacity();
+        if (cap === 0) { UI.notify(lang==='en' ? 'Build Domus Conversorum first.' : 'Nejprve postav Domus Conversorum.', true); return; }
+        if (GameState.conversi.length >= cap) { UI.notify(lang==='en' ? 'No free beds in the Domus.' : 'V Domu není volné lůžko.', true); return; }
+        const monasticOk = ['frater', 'armarius', 'prior'].includes(GameState.rank && GameState.rank.monastic);
+        if (!monasticOk) { UI.notify(lang==='en' ? 'Requires the rank of Frater or higher.' : 'Vyžaduje hodnost Frater nebo vyšší.', true); return; }
+        if ((typeof CellariumSystem !== 'undefined' ? CellariumSystem.getGrose() : 0) < 4) {
+            UI.notify(lang==='en' ? 'Not enough groats.' : 'Nedostatek grošů.', true); return;
+        }
+
+        const usedNames = GameState.conversi.map(k => k.name);
+        const available = this.KONVRS_NAMES.filter(n => !usedNames.includes(n));
+        const pool = available.length ? available : this.KONVRS_NAMES;
+        const name = pool[Math.floor(Math.random() * pool.length)];
+
+        CellariumSystem.addGrose(-4); // první týdenní mzda předplacena hned
+        const famulus = { id: 'famulus_' + Date.now(), rosterId: null, name, type: 'famulus', hiredAt: Date.now(), fatigue: 0 };
+        GameState.conversi.push(famulus);
+
+        UI.notifyPanel('💼 ' + (lang==='en' ? name+' hired as a seasonal hand.' : name+' najat jako famulus.'), 'success');
+        Game.addKronikaEntry('minor',
+            '💼 ' + name + ' najat jako famulus na sezónu.',
+            '💼 ' + name + ' hired as a seasonal hand.',
+            ''
+        );
+        Game.save();
+        if (typeof SaeculumSystem !== 'undefined') SaeculumSystem.switchEntity(GameState.ui.saeculumEntity || 'tavern');
+    },
+
+    OBLAT_MATURATION_DAYS: 30,
+
+    // Oblát — mladý, roste. Levný vstup, bez mzdy dokud nedospěje (viz wage
+    // tick), po OBLAT_MATURATION_DAYS reálných dnech automaticky dozraje na
+    // plnoprávného konvrše (_checkOblatMaturation, volané v denním ticku).
+    hireOblat: function() {
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        if (!GameState.conversi) GameState.conversi = [];
+        if (!GameState.researchedTechs.includes('tech_magister')) {
+            UI.notify(lang==='en' ? 'Requires a Magister conversorum.' : 'Vyžaduje Magistra conversorum.', true); return;
+        }
+        const cap = this.conversiCapacity();
+        if (cap === 0) { UI.notify(lang==='en' ? 'Build Domus Conversorum first.' : 'Nejprve postav Domus Conversorum.', true); return; }
+        if (GameState.conversi.length >= cap) { UI.notify(lang==='en' ? 'No free beds in the Domus.' : 'V Domu není volné lůžko.', true); return; }
+        const monasticOk = ['frater', 'armarius', 'prior'].includes(GameState.rank && GameState.rank.monastic);
+        if (!monasticOk) { UI.notify(lang==='en' ? 'Requires the rank of Frater or higher.' : 'Vyžaduje hodnost Frater nebo vyšší.', true); return; }
+        if ((typeof CellariumSystem !== 'undefined' ? CellariumSystem.getGrose() : 0) < 5) {
+            UI.notify(lang==='en' ? 'Not enough groats.' : 'Nedostatek grošů.', true); return;
+        }
+
+        let rosterId = null, name, hireQuote = '';
+        const rosterOk = (typeof ConversiRosterDB !== 'undefined') && Object.keys(ConversiRosterDB).length > 0;
+        if (rosterOk) {
+            const hiredIds = GameState.conversi.map(k => k.rosterId).filter(Boolean);
+            const availIds = Object.keys(ConversiRosterDB).filter(rid => !hiredIds.includes(rid));
+            const poolIds = availIds.length ? availIds : Object.keys(ConversiRosterDB);
+            rosterId = poolIds[Math.floor(Math.random() * poolIds.length)];
+            const rec = ConversiRosterDB[rosterId];
+            name = rec.name;
+
+            if (typeof ConversiBondsDB !== 'undefined') {
+                const enemyBond = ConversiBondsDB.find(bd => bd.type === 'tension' &&
+                    ((bd.a === rosterId && hiredIds.includes(bd.b)) ||
+                     (bd.b === rosterId && hiredIds.includes(bd.a))));
+                if (enemyBond) {
+                    const enemyId = (enemyBond.a === rosterId) ? enemyBond.b : enemyBond.a;
+                    const enemyName = (ConversiRosterDB[enemyId] && ConversiRosterDB[enemyId].name) || '?';
+                    const rq = rec.quotes && rec.quotes.refuse;
+                    const refuseQuote = rq ? (lang === 'en' ? rq.en : rq.cs) : '';
+                    UI.notifyPanel('🚫 ' + (lang==='en'
+                        ? name + ' refuses to join while ' + enemyName + ' lives here.'
+                        : name + ' odmítá vstoupit, dokud tu žije ' + enemyName + '.')
+                        + (refuseQuote ? ' „' + refuseQuote + '“' : ''), 'warning');
+                    return;
+                }
+            }
+            const hq = rec.quotes && rec.quotes.hire;
+            if (hq) hireQuote = (lang === 'en' ? hq.en : hq.cs);
+        } else {
+            const usedNames = GameState.conversi.map(k => k.name);
+            const available = this.KONVRS_NAMES.filter(n => !usedNames.includes(n));
+            const pool = available.length ? available : this.KONVRS_NAMES;
+            name = pool[Math.floor(Math.random() * pool.length)];
+        }
+
+        CellariumSystem.addGrose(-5);
+        const DAY = 24 * 60 * 60 * 1000;
+        const oblat = { id: 'oblat_' + Date.now(), rosterId, name, type: 'oblat', hiredAt: Date.now(), matureAt: Date.now() + Game.OBLAT_MATURATION_DAYS * DAY, fatigue: 0 };
+        GameState.conversi.push(oblat);
+
+        UI.notifyPanel('🌱 ' + (lang==='en' ? name+' has come as an oblate — young, still growing.' : name+' přišel jako oblát — mladý, ještě roste.') + (hireQuote ? ' „' + hireQuote + '“' : ''), 'success');
+        Game.addKronikaEntry('minor',
+            '🌱 ' + name + ' přišel do kláštera jako oblát.',
+            '🌱 ' + name + ' came to the monastery as an oblate.',
+            ''
+        );
+        Game.save();
+        if (typeof SaeculumSystem !== 'undefined') SaeculumSystem.switchEntity(GameState.ui.saeculumEntity || 'tavern');
+    },
+
+    _checkOblatMaturation: function() {
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        (GameState.conversi || []).forEach(k => {
+            if (k.type === 'oblat' && k.matureAt && Date.now() >= k.matureAt) {
+                k.type = 'konvrs';
+                delete k.matureAt;
+                if (typeof k.loyalty !== 'number') k.loyalty = 30;
+                if (typeof k.mood !== 'number') k.mood = 60;
+                UI.notifyPanel('🎓 ' + (lang==='en' ? k.name+' has grown into a full lay brother.' : k.name+' dospěl v plnoprávného konvrše.'), 'success');
+                Game.addKronikaEntry('minor',
+                    '🎓 ' + k.name + ' dospěl z obláta v konvrše.',
+                    '🎓 ' + k.name + ' grew from an oblate into a lay brother.',
+                    ''
+                );
+            }
+        });
+    },
     isOfficiumHours: function() {
         const h = (typeof TimeSys !== 'undefined') ? TimeSys.gameHour() : new Date().getHours();
         return h >= 6 && h < 9;
@@ -6075,6 +6197,26 @@ const Game = {
             // "druhou tvář" — týž démon, tentokrát poslouchající klevety
             // místo opisovačských chyb. unlockFolioById je idempotentní.
             if (typeof SecretsSystem !== 'undefined') SecretsSystem.unlockFolioById('folio_titivillus_secunda');
+
+            // Magister conversorum: spory řeší sám, bez hráčova soudu — vždy
+            // smírně (stejný účinek jako hráčova volba "Rozsoudit smírně").
+            if (GameState.researchedTechs && GameState.researchedTechs.includes('tech_magister')) {
+                const lang = (GameState.settings && GameState.settings.language) || 'cs';
+                ka.mood = Math.min(100, ka.mood + 5);
+                kb.mood = Math.min(100, kb.mood + 5);
+                if (typeof PersonaSystem !== 'undefined' && PersonaSystem.addZboznost) PersonaSystem.addZboznost(1);
+                if (typeof UI !== 'undefined' && UI.notifyPanel) {
+                    UI.notifyPanel('⚖️ ' + (lang==='en'
+                        ? 'The Magister settled a dispute between ' + ka.name + ' and ' + kb.name + '.'
+                        : 'Magister urovnal spor mezi ' + ka.name + ' a ' + kb.name + '.'), 'system');
+                }
+                Game.addKronikaEntry('minor',
+                    '⚖️ Magister conversorum urovnal spor mezi ' + ka.name + ' a ' + kb.name + '.',
+                    '⚖️ The Magister conversorum settled a dispute between ' + ka.name + ' and ' + kb.name + '.',
+                    '⚖️ Magister conversorum lis composuit.');
+                Game.save();
+                return;
+            }
             // Viník = nižší loajalita; druhý = poškozený
             const victim = (ka.loyalty <= kb.loyalty) ? ka : kb;
             const other  = (victim === ka) ? kb : ka;
@@ -6387,6 +6529,7 @@ const Game = {
             if (typeof k.fatigue !== 'number') k.fatigue = legacyFatigue;
             if (typeof k.mood !== 'number') k.mood = 60;
             if (typeof k.loyalty !== 'number') k.loyalty = 30;
+            if (!k.type) k.type = 'konvrs'; // migrace starých save — vše před hierarchií byl konvrš
             // Migrace: starý save bez rosterId → dohledat podle jména; mimo roster = null (běží dál bez hlášek)
             if (k.rosterId === undefined && typeof ConversiRosterDB !== 'undefined') {
                 const rid = Object.keys(ConversiRosterDB).find(r => ConversiRosterDB[r].name === k.name);
@@ -6394,6 +6537,7 @@ const Game = {
             }
         });
         if (typeof GameState.conversiFatigue === 'number') delete GameState.conversiFatigue;
+        Game._checkOblatMaturation();
 
         // ── Mzda: 2 groše/konvrš, výplatní den 1×/7 reálných dní ──
         const WEEK = 7 * 24 * 60 * 60 * 1000;
@@ -6403,8 +6547,10 @@ const Game = {
             const leavers = [];
             let paidCount = 0, paidTotal = 0;
             GameState.conversi.forEach(k => {
+                if (k.type === 'oblat') return; // bez mzdy, dokud nedospěje
                 if (typeof k.wageOwed !== 'number') k.wageOwed = 0;
-                const due = 2 + k.wageOwed;
+                const isFamulus = k.type === 'famulus';
+                const due = (isFamulus ? 4 : 2) + k.wageOwed;
                 const grose = (typeof CellariumSystem !== 'undefined') ? CellariumSystem.getGrose() : 0;
                 if (grose >= due) {
                     CellariumSystem.addGrose(-due);
@@ -6412,6 +6558,8 @@ const Game = {
                     k.wageOwed = 0;
                     paidCount++;
                     paidTotal += due;
+                } else if (isFamulus) {
+                    leavers.push(k); // famulus: čistě pracovní vztah, žádná shovívavost
                 } else {
                     k.wageOwed += 2;
                     k.loyalty = Math.max(0, k.loyalty - 5);
