@@ -522,7 +522,7 @@ const FarmyardSystem = {
             collected = true;
         }
         if (collected) { Game.save(); FarmyardSystem.renderFarmyard(); UI.notify('🥚 ' + t('farmyard.columbariumCollected')); }
-        else UI.notify(t('game.hiveNotReady'), true);
+        else UI.notify(t('game.penNotReady'), true);
     },
 
     // ── Level 2 — nabílení vápnem (tech_calcaria), odstraní riziko predátora ──
@@ -1437,7 +1437,7 @@ const FarmyardSystem = {
             h.lastFeatherAt = now; collected = true;
         }
         if (collected) { Game.save(); FarmyardSystem.renderFarmyard(); UI.notify('🥚 ' + t('game.hennouseCollected')); }
-        else UI.notify(t('game.hiveNotReady'), true);
+        else UI.notify(t('game.penNotReady'), true);
     },
 
     feedHenhouse: function () {
@@ -1582,7 +1582,7 @@ const FarmyardSystem = {
             s.lastWoolAt = now; collected = true;
         }
         if (collected) { Game.save(); FarmyardSystem.renderFarmyard(); UI.notify('🐑 ' + t('game.sheepCollected')); }
-        else UI.notify(t('game.hiveNotReady'), true);
+        else UI.notify(t('game.penNotReady'), true);
     },
 
     feedRabbitry: function () {
@@ -1647,6 +1647,17 @@ const FarmyardSystem = {
                 if (space > 0) s.lambPool = (s.lambPool || 0) + 1;
                 s.breeding = null; changed = true;
             }
+        }
+        if (s && s.healerPending && now >= s.healerPending.readyAt) {
+            s.healerPending = null;
+            if (Math.random() < 0.95) {
+                if (typeof UI !== 'undefined' && UI.notify) UI.notify(t('events.curia_sheep_disease.healer_notif'));
+                if (typeof EventsSystem !== 'undefined' && EventsSystem._addKronika) EventsSystem._addKronika(t('events.curia_sheep_disease.healer_notif'));
+            } else {
+                s.sheep = Math.max(0, s.sheep - 1);
+                if (typeof UI !== 'undefined' && UI.notify) UI.notify(t('events.curia_sheep_disease.healer_notif_fail'), true);
+            }
+            changed = true;
         }
         if (changed) Game.save();
     },
