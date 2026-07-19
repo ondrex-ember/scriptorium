@@ -41,6 +41,7 @@ const ItemsDB = {
     "pulp": { name: "Hadrovina", name_en: "Rag Pulp", icon: "🌫️", type: "mat", desc: "Rozmělněná lněná vlákna ve vodě. Základ hadrového papíru.", desc_en: "Macerated linen fibres in water. The base of rag paper." },
     "paper": { name: "Hadrový papír", name_en: "Rag Paper", icon: "📄", type: "lore", desc: "Lisovaná hadrovina. Středověký papír z lněných vláken, ne ze dřeva.", desc_en: "Pressed rag pulp. Medieval paper made from linen fibres, not wood." },
     "paper_fine": { name: "Benátský papír", name_en: "Venetian Paper", icon: "📃", type: "lore", desc: "Jemnější a bělejší než hadrový papír z domácí výroby. Giacomo ho vozí z Benátek.", desc_en: "Finer and whiter than home-pressed rag paper. Giacomo brings it from Venice." },
+    "bird_paper": { name: "Holubí lístek", name_en: "Pigeon Paper", icon: "🕊️", type: "lore", desc: "Charta columbina — ztenčený a odlehčený benátský papír. Unese let na nožičce holuba, ne však mnoho slov.", desc_en: "Charta columbina — thinned and lightened Venetian paper. It bears a pigeon's flight, but few words." },
     "ink": { name: "Inkoust", name_en: "Ink", icon: "✒️", type: "lore", desc: "Černý.", desc_en: "Black ink." },
     "research": { name: "Zápisky", name_en: "Notes", icon: "📜", type: "lore", desc: "Vědění.", desc_en: "Accumulated knowledge." },
 
@@ -414,7 +415,8 @@ const ItemsDB = {
     "stone_sickle": { maxUses: 10, name: "Kamenný srp", name_en: "Stone Sickle", icon: "🌾", type: "tool", tier: "stone", desc: "Malé kamenné ostří. Žeň bylin a obilí.", desc_en: "Small stone blade. Harvesting herbs and grain." },
     "stone_flail": { maxUses: 10, name: "Kamenný cep", name_en: "Stone Flail", icon: "🪵", type: "tool", tier: "stone", desc: "Dřevěný cep s kamenným závažím. Mlácení obilí.", desc_en: "Wooden flail with stone weight. Threshing grain." },
     "wooden_flail": { maxUses: 15, name: "Dřevěný cep", name_en: "Wooden Flail", icon: "🪵", type: "tool", tier: "wood", desc: "Prostý dřevěný cep. Nejjednodušší mlácení obilí.", desc_en: "Simple wooden flail. The most basic threshing tool." },
-    "stone_pickaxe": { maxUses: 10, name: "Kamenný krumpáč", name_en: "Stone Pickaxe", icon: "⛏️", type: "tool", tier: "stone", desc: "Kamenná hlava na násadě. Těžba rudy a bourání kamene.", desc_en: "Stone head on a haft. Ore mining and stone breaking." },
+    "stone_pickaxe": { maxUses: 150, name: "Kamenný krumpáč", name_en: "Stone Pickaxe", icon: "⛏️", type: "tool", tier: "stone", desc: "Kamenná hlava na násadě. Těžba rudy a bourání kamene.", desc_en: "Stone head on a haft. Ore mining and stone breaking." },
+    "palice_kamenna": { maxUses: 100, name: "Kamenná palice", name_en: "Stone Mallet", icon: "🔨", type: "tool", tier: "stone", desc: "Těžké kladivo z opracovaného kamene. Láme vápenec v lomu.", desc_en: "A heavy mallet of worked stone. Breaks limestone in the quarry." },
     "stone_shovel": { name: "Kamenná lopata", name_en: "Stone Shovel", icon: "🪛", type: "tool", tier: "stone", desc: "Plochý kámen jako lopata. Přesun půdy a hnoje.", desc_en: "Flat stone as shovel. Moving soil and manure." },
     "stone_saw": { maxUses: 10, name: "Kamenná pila", name_en: "Stone Saw", icon: "🪚", type: "tool", tier: "stone", desc: "Pila z křemenných úštěpků. Hrubé opracování dřeva.", desc_en: "Saw of flint chips. Rough wood working." },
 
@@ -431,7 +433,8 @@ const ItemsDB = {
     "iron_flail": { maxUses: 20, maxStack: 1, name: "Železný cep", name_en: "Iron Flail", icon: "🪵", type: "tool", tier: "iron", desc: "Železné závaží. Efektivnější mlácení obilí.", desc_en: "Iron weight. More efficient threshing." },
     "iron_shovel": { maxUses: 20, maxStack: 1, name: "Železná lopata", name_en: "Iron Shovel", icon: "🪛", type: "tool", tier: "iron", desc: "Železná lopata. Rychlý přesun půdy a hnoje.", desc_en: "Iron shovel. Fast movement of soil and manure." },
     "iron_saw": { maxUses: 20, maxStack: 1, name: "Železná pila", name_en: "Iron Saw", icon: "🪚", type: "tool", tier: "iron", desc: "Železná pila. Přesné zpracování kulatiny na fošny.", desc_en: "Iron saw. Precise processing of logs into planks." },
-    "iron_pickaxe": { maxUses: 20, maxStack: 1, name: "Železný krumpáč", name_en: "Iron Pickaxe", icon: "⛏️", type: "tool", tier: "iron", desc: "Těžká železná hlava. Efektivní těžba rudy a bourání.", desc_en: "Heavy iron head. Efficient ore mining and demolition." },
+    "iron_pickaxe": { maxUses: 700, maxStack: 1, name: "Železný krumpáč", name_en: "Iron Pickaxe", icon: "⛏️", type: "tool", tier: "iron", desc: "Těžká železná hlava. Efektivní těžba rudy a bourání.", desc_en: "Heavy iron head. Efficient ore mining and demolition." },
+    "palice_zelezna": { maxUses: 700, maxStack: 1, name: "Železná palice", name_en: "Iron Mallet", icon: "🔨", type: "tool", tier: "iron", desc: "Kované kladivo s železnou hlavou. Nejlepší nástroj na lámání vápence.", desc_en: "A forged mallet with an iron head. The best tool for breaking limestone." },
     "iron_tongs": { maxUses: 30, maxStack: 1, name: "Železné kleště", name_en: "Iron Tongs", icon: "🔧", type: "tool", tier: "iron", desc: "Kovářské kleště. Nutné pro opravy železa v Kovárně.", desc_en: "Blacksmith tongs. Required for iron repairs at the Smithy." },
     "log": { name: "Kulatina", name_en: "Log", icon: "🪵", type: "mat", desc: "Kmen pokáceného stromu. Základ tesařství.", desc_en: "Felled tree trunk. The foundation of carpentry." },
     "bellows": { name: "Měchy", name_en: "Bellows", icon: "💨", type: "tool", cat: "tool", desc: "Kožené měchy. Rozdmýchají oheň i varhanní píšťaly.", desc_en: "Leather bellows. Fan the fire and the organ pipes alike." },
@@ -625,6 +628,7 @@ const ItemsDB = {
     "pig": { name: "Prase", name_en: "Pig", icon: "🐷", type: "animal", desc: "Prase: přes léto na žaludění v lese, na zimu poraženo. Sádlo a uzené maso pro konvrše a čeleď. Mniši vepřové příliš nejedli.", desc_en: "Pig: summer grazing on acorns in the forest, slaughtered for winter. Lard and cured meat for lay brothers and servants. Monks ate little pork themselves." },
     // ── ŽELEZNÁ RUDA + INGOT ────────────────────────────────────────────────
     "iron_ore": { name: "Železná ruda", name_en: "Iron Ore", icon: "🪨", type: "mat", desc: "Surová železná ruda. Taví se s uhlím na ingot.", desc_en: "Raw iron ore. Smelted with charcoal into an ingot." },
+    "vapenec": { name: "Vápenec", name_en: "Limestone", icon: "⚪", type: "mat", desc: "Vylámaný vápencový kámen. Čeká na pálení ve vápenici.", desc_en: "Quarried limestone rock. Awaits burning in the lime kiln." },
     "iron_ingot": { name: "Železný ingot", name_en: "Iron Ingot", icon: "⚙️", type: "mat", desc: "Odlitý prut železa. Základ kovářského řemesla.", desc_en: "Cast iron bar. The foundation of the blacksmith's craft." },
     "anvil": { maxStack: 1, name: "Kovadlina", name_en: "Anvil", icon: "⚒️", type: "mat", desc: "Těžká železná kovadlina. Nutná pro stavbu kovárny.", desc_en: "Heavy iron anvil. Required to build the smithy." },
 
