@@ -47791,6 +47791,9 @@ const Game = {
                     GameState.columbarium.count = _cfg ? _cfg.startCount : 20;
                     GameState.columbarium.lastEggAt = Date.now();
                     GameState.columbarium.lastFeatherAt = Date.now();
+                    // PortaSystem engine gate — dopisy/pošta ožívají až s holuby
+                    if (!GameState.flags) GameState.flags = {};
+                    GameState.flags.porta_active = true;
                 }
                 UI.notifyPanel('✅ ' + t('abbotPetition.' + type + '.approved'), 'success');
                 UI.notifyPanel('🔍 ' + t('abbotPetition.' + type + '.inspect_hint'), 'info');
