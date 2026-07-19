@@ -1355,6 +1355,180 @@
             }
         }
 
+        /* ═══════════════════════════════════════════════════════════════
+           NotificationSystem — Toast | Panel (chybělo úplně, viz notifications.js)
+           z-index: header=100, panel-tab=500, modal=1000, panel=900, toast-area=10001
+           ═══════════════════════════════════════════════════════════════ */
+        .ns-toast {
+            display: inline-block;
+            background: var(--ink-primary);
+            color: var(--bg-parchment);
+            padding: 8px 16px;
+            border-radius: 4px;
+            margin-top: 5px;
+            border: 1px solid var(--accent-gold);
+            font-family: 'Cinzel Decorative';
+            font-size: 0.85rem;
+            pointer-events: auto;
+            transition: opacity 0.4s;
+        }
+        .ns-toast--error { border-color: #c0392b; }
+        .ns-toast--warn { border-color: #e0a030; }
+        .ns-toast--fade { opacity: 0; }
+
+        .ns-toast-accum {
+            display: inline-block;
+            background: var(--ink-primary);
+            color: var(--bg-parchment);
+            padding: 8px 16px;
+            border-radius: 4px;
+            margin-top: 5px;
+            border: 1px solid var(--accent-gold);
+            font-size: 0.8rem;
+            pointer-events: auto;
+        }
+        .ns-accum-item { margin-right: 10px; }
+
+        .ns-panel-tab {
+            position: fixed;
+            top: 100px;
+            right: 0;
+            background: var(--ink-primary);
+            color: var(--bg-parchment);
+            border: 1px solid var(--accent-gold);
+            border-right: none;
+            border-radius: 8px 0 0 8px;
+            padding: 8px 10px;
+            cursor: pointer;
+            z-index: 500;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            box-shadow: -2px 2px 8px rgba(0,0,0,0.3);
+        }
+        .ns-tab-icon { font-size: 1.1rem; }
+        .ns-tab-badge {
+            background: #c0392b;
+            color: #fff;
+            font-size: 0.7rem;
+            border-radius: 10px;
+            padding: 1px 6px;
+            font-weight: bold;
+        }
+
+        .ns-panel {
+            position: fixed;
+            top: 90px;
+            right: 0;
+            width: 320px;
+            max-width: 90vw;
+            max-height: 70vh;
+            background: var(--bg-parchment);
+            border: 3px solid var(--border-color);
+            border-right: none;
+            border-radius: 12px 0 0 12px;
+            box-shadow: -4px 4px 30px rgba(0, 0, 0, 0.5);
+            z-index: 900;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        .ns-panel-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--accent-gold);
+            background: rgba(197, 160, 89, 0.08);
+            flex-shrink: 0;
+        }
+        .ns-panel-title {
+            font-family: 'Cinzel Decorative';
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+        .ns-panel-close {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1.1rem;
+            opacity: 0.6;
+            color: var(--ink-primary);
+        }
+        .ns-panel-close:hover { opacity: 1; }
+        .ns-panel-body {
+            overflow-y: auto;
+            padding: 8px;
+            flex: 1;
+        }
+        .ns-panel-empty {
+            padding: 24px 12px;
+            text-align: center;
+            opacity: 0.6;
+            font-style: italic;
+            font-size: 0.85rem;
+        }
+        .ns-panel-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            padding: 8px 10px;
+            border-radius: 6px;
+            margin-bottom: 4px;
+            background: rgba(0, 0, 0, 0.03);
+            font-size: 0.8rem;
+            color: var(--ink-primary);
+        }
+        .ns-panel-item--unread {
+            background: rgba(197, 160, 89, 0.14);
+            border-left: 3px solid var(--accent-gold);
+        }
+        .ns-item-icon { font-size: 1rem; flex-shrink: 0; }
+        .ns-item-body { flex: 1; display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+        .ns-item-msg { line-height: 1.3; }
+        .ns-item-count { opacity: 0.6; font-size: 0.75rem; }
+        .ns-item-meta { opacity: 0.55; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.03em; }
+        .ns-item-close {
+            background: none;
+            border: none;
+            cursor: pointer;
+            opacity: 0.4;
+            font-size: 0.85rem;
+            flex-shrink: 0;
+            color: var(--ink-primary);
+        }
+        .ns-item-close:hover { opacity: 1; }
+        .ns-panel-footer {
+            padding: 8px 16px;
+            border-top: 1px solid rgba(197, 160, 89, 0.3);
+            text-align: center;
+            flex-shrink: 0;
+        }
+        .ns-panel-clear {
+            background: none;
+            border: 1px solid var(--accent-gold);
+            color: var(--ink-primary);
+            padding: 4px 12px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            cursor: pointer;
+        }
+        .ns-panel-clear:hover { background: rgba(197, 160, 89, 0.15); }
+
+        @media (max-width: 700px) {
+            .ns-panel {
+                width: 100vw;
+                max-width: 100vw;
+                top: auto;
+                bottom: 0;
+                right: 0;
+                border-radius: 12px 12px 0 0;
+                border: 3px solid var(--border-color);
+                max-height: 60vh;
+            }
+            .ns-panel-tab { top: auto; bottom: 90px; }
+        }
+
         .garden-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
