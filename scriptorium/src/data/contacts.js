@@ -60,6 +60,7 @@ const ContactsDB = {
         secondaryAxis: null,
         unlockTech: 'tech_kovarina',          // existuje
         sellBonus: { items: { iron_ore: 6 } },   // K4b: výkup pod nákupní cenou Obchodu (15) — přebytek rozhodne hráč
+        buyOffer: { items: { palice_zelezna: { price: 16, stock: 2 } } }, // plní starý slib "prodá nástroje" z popisku
         desc: 'Vesnický kovář. Vykoupí přebytečnou rudu, prodá nástroje.',
         desc_en: 'The village blacksmith. Buys surplus ore, sells tools.'
     },
@@ -136,7 +137,7 @@ const ContactsDB = {
         sellBonus: {},                        // Giacomo jen prodává — výkup řeší jinde (vinum bonus zůstává legacy mechanika)
         // Přítomen jen v okně po příjezdu (CellariumSystem.isGiacomoPresent) — gate v buyFromContact
         buyOffer: { items: {
-            paper_fine: { price: 6,  stock: 3, minRelation: 20 },
+            paper_fine: { price: 6,  stock: 3, minRelation: 0 },
             pepr_cerny: { price: 6,  stock: 3, minRelation: 20 },
             zazvor:     { price: 6,  stock: 3, minRelation: 20 },
             hrebicek:   { price: 12, stock: 2, minRelation: 25 },
