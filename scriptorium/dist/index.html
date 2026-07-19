@@ -18040,7 +18040,7 @@ const CellariumSystem = {
     GameState.economy.tradesTotal++;
     // Reputace — obchod zvyšuje vztah k entitě (+1 základ + Celerarius bonus navrch)
     if (typeof PersonaSystem !== 'undefined' && PersonaSystem.addInfluence) {
-        const repAxis = entity === 'tavern' ? 'benedikt' : entity === 'market' ? 'giacomo' : entity === 'shop' ? 'village' : null;
+        const repAxis = entity === 'tavern' ? 'benedikt' : entity === 'market' ? 'mercatus' : entity === 'shop' ? 'village' : null;
         if (repAxis) {
             const roleBonus = (typeof RankSystem !== 'undefined') ? RankSystem.getActiveBonus('npc_rep_gain') : 0;
             PersonaSystem.addInfluence(repAxis, 1 + roleBonus);
@@ -18236,7 +18236,7 @@ const CellariumSystem = {
     GameState.economy.tradesTotal++;
     // Reputace — nákup taky zvyšuje vztah k entitě (stejný vzor jako sellItem)
     if (typeof PersonaSystem !== 'undefined' && PersonaSystem.addInfluence) {
-        const repAxis = entity === 'tavern' ? 'benedikt' : entity === 'market' ? 'giacomo' : entity === 'shop' ? 'village' : null;
+        const repAxis = entity === 'tavern' ? 'benedikt' : entity === 'market' ? 'mercatus' : entity === 'shop' ? 'village' : null;
         if (repAxis) {
             const roleBonus = (typeof RankSystem !== 'undefined') ? RankSystem.getActiveBonus('npc_rep_gain') : 0;
             PersonaSystem.addInfluence(repAxis, 1 + roleBonus);
@@ -18326,7 +18326,7 @@ const CellariumSystem = {
     this.applyDrinkEffect(itemId);
     GameState.economy.tradesTotal++;
     if (typeof PersonaSystem !== 'undefined' && PersonaSystem.addInfluence) {
-      const repAxis = entity === 'tavern' ? 'benedikt' : entity === 'market' ? 'giacomo' : entity === 'shop' ? 'village' : null;
+      const repAxis = entity === 'tavern' ? 'benedikt' : entity === 'market' ? 'mercatus' : entity === 'shop' ? 'village' : null;
       if (repAxis) {
         const roleBonus = (typeof RankSystem !== 'undefined') ? RankSystem.getActiveBonus('npc_rep_gain') : 0;
         PersonaSystem.addInfluence(repAxis, 1 + roleBonus);
