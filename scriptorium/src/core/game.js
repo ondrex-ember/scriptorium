@@ -735,6 +735,8 @@ const Game = {
                     if (typeof CheeseSystem !== 'undefined' && CheeseSystem.dailyTick) CheeseSystem.dailyTick();
                     // Calcaria — denní zrání vápna (self-guarded 24h, gate tech_calcaria)
                     if (typeof LimeSystem !== 'undefined' && LimeSystem.dailyTick) LimeSystem.dailyTick();
+                    // Columbarium — denní riziko predátora (self-guarded 24h, jen level 1)
+                    if (typeof FarmyardSystem !== 'undefined' && FarmyardSystem.columbariumPredatorTick) FarmyardSystem.columbariumPredatorTick();
                     // Conversi — automatické úklidové úkoly (self-guarded 24h přes cleanPen)
                     if (typeof Game !== 'undefined' && Game.checkConversiChores) Game.checkConversiChores();
                     // Conversi — návraty ze Scavenge/Dolů (riziko + výnos)
@@ -3740,6 +3742,11 @@ const Game = {
             // Odemkne 4x vegetable navíc (sloty 10-13)
             for(let i = 10; i <= 13; i++) { if(GameState.garden[i]) GameState.garden[i].locked = false; }
         }
+        if(id === 'tech_porta') {
+            // Odemkne Dvůr subtab Columbarium (flag-gated, ne tech-gated přímo)
+            if (!GameState.flags) GameState.flags = {};
+            GameState.flags.columbarium_available = true;
+        }
         
         const _slang = (GameState.settings && GameState.settings.language) || 'cs';
         UI.notifyPanel(`📜 ${t('game.crafted')} ${_slang==='en'?(tech.name_en||tech.name):tech.name}`, 'system');
@@ -4167,6 +4174,7 @@ const Game = {
 		if (!GameState.storage.prelum_olei)       GameState.storage.prelum_olei       = {built:false};
 		if (!GameState.storage.fodina)             GameState.storage.fodina             = {built:false};
 		if (!GameState.storage.fornax_ferraria)    GameState.storage.fornax_ferraria    = {built:false};
+		if (!GameState.storage.vapenice)           GameState.storage.vapenice           = {built:false};
 		if (!GameState.storage.old_cellars)        GameState.storage.old_cellars        = {built:false};
 		if (!GameState.storage.domus_conversorum_i) GameState.storage.domus_conversorum_i = {built:false};
 		if (!GameState.storage.domus_conversorum_ii) GameState.storage.domus_conversorum_ii = {built:false};
@@ -4228,6 +4236,9 @@ const Game = {
 				UI.notify(lang==='en' ? '❌ Abbot approval required. Submit a petition first.' : '❌ Vyžaduje souhlas opata. Nejprve zašli žádost.', true); return;
 			}
 		}
+		if (type === 'vapenice' && !(GameState.researchedTechs && GameState.researchedTechs.includes('tech_calcaria'))) {
+			UI.notify(lang==='en' ? 'Research Calcaria first.' : 'Nejprve prozkoumej tech Calcaria.', true); return;
+		}
 		if (GameState.storage[type] && GameState.storage[type].built) {
 			UI.notify(lang==='en' ? 'Already built.' : 'Jiz postaveno.', true); return;
 		}
@@ -4246,6 +4257,7 @@ const Game = {
 			uvarium:           { plank: 8,  rock: 4,  rope: 3 },
 			prelum_olei:       { plank: 10, rope: 4,  rock: 4,  iron_ingot: 1 },
 			fornax_ferraria:   { rock: 40, cut_stone: 15, clay: 20, plank: 20, charcoal: 15 },
+			vapenice:          { plank: 15, cut_stone: 20, clay: 20 },
 			old_cellars:       { cut_stone: 15, plank: 10, rope: 5 },
 			domus_conversorum_i: { cut_stone: 40, plank: 25, rope: 10 },
 			domus_conversorum_ii: { cut_stone: 150, plank: 90, rope: 35 },
@@ -4285,6 +4297,7 @@ const Game = {
 			foudres: 'Foudres', cellarium_vini: 'Cellarium Vini',
 			uvarium: 'Uvarium', prelum_olei: 'Prelum Olei',
 			fornax_ferraria: 'Fornax Ferraria',
+			vapenice: 'Vápenice',
 			old_cellars: 'Staré sklepy',
 			domus_conversorum_i: 'Domus Conversorum I',
 			domus_conversorum_ii: 'Domus Conversorum II',
@@ -4578,6 +4591,16 @@ const Game = {
             }
             if ((GameState.inventory['charcoal'] || 0) < 15) {
                 UI.notify(t('abbotPetition.fornax.denied_charcoal'), true); return;
+            }
+        }
+
+        // Validace podmínek — pro Columbarium (Porta)
+        if (type === 'columbarium') {
+            if (!(GameState.researchedTechs && GameState.researchedTechs.includes('tech_porta'))) {
+                UI.notify(t('abbotPetition.columbarium.denied_tech'), true); return;
+            }
+            if (!(GameState.columbarium && GameState.columbarium.built)) {
+                UI.notify(t('abbotPetition.columbarium.denied_build'), true); return;
             }
         }
 
@@ -5412,6 +5435,11 @@ const Game = {
                 else if ((GameState.inventory['charcoal'] || 0) < 15) deniedKey = 'denied_charcoal';
             }
 
+            if (type === 'columbarium') {
+                if (!(GameState.researchedTechs && GameState.researchedTechs.includes('tech_porta'))) deniedKey = 'denied_tech';
+                else if (!(GameState.columbarium && GameState.columbarium.built)) deniedKey = 'denied_build';
+            }
+
             if (type === 'domus_ii') {
                 deniedKey = this._checkDomusIIConditions();
             }
@@ -5442,6 +5470,13 @@ const Game = {
                 if (type === 'probost') {
                     if (!GameState.rank) GameState.rank = {};
                     GameState.rank.probost = true;
+                }
+                if (type === 'columbarium') {
+                    if (typeof FarmyardSystem !== 'undefined') FarmyardSystem._ensureAnimals();
+                    const _cfg = (typeof FarmyardSystem !== 'undefined') ? FarmyardSystem.COLUMBARIUM_CFG : null;
+                    GameState.columbarium.count = _cfg ? _cfg.startCount : 20;
+                    GameState.columbarium.lastEggAt = Date.now();
+                    GameState.columbarium.lastFeatherAt = Date.now();
                 }
                 UI.notifyPanel('✅ ' + t('abbotPetition.' + type + '.approved'), 'success');
                 UI.notifyPanel('🔍 ' + t('abbotPetition.' + type + '.inspect_hint'), 'info');
