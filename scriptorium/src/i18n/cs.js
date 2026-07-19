@@ -195,6 +195,7 @@ const STRINGS_cs = {
         needWater: 'Vodu!',
         growing: 'Roste...',
         needWell: '❌ Nejprve musíš postavit studnu v Řemeslo!',
+        fallowCropOnly: '❌ Úhorný slot přijme jen úhorné plodiny (vikev).',
         frozenHands: 'Máš zmrzlé ruce!',
         missingMats: 'Chybí suroviny!',
         notEnoughResearch: 'Zápisky!',
