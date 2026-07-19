@@ -25199,14 +25199,22 @@ const GardenSystem = {
         if (!slot || (slot.state !== 'planted' && slot.state !== 'growing' && slot.state !== 'ripe')) return;
         const techs = GameState.researchedTechs || [];
         const waterCost = techs.includes('tech_field_irrigation') ? 1 : 2;
-        if ((GameState.inventory['water'] || 0) < waterCost) {
+
+        let source = null;
+        if ((GameState.inventory['water'] || 0) >= waterCost) source = 'water';
+        else if ((GameState.inventory['spring_water'] || 0) >= waterCost) source = 'spring_water';
+        if (!source) {
             UI.notify(lang==='en' ? 'Not enough water.' : 'Nedostatek vody!', true); return;
         }
-        Game.removeItem('water', waterCost);
+        Game.removeItem(source, waterCost);
         slot.lastWateredAt = Date.now();
         Game.save();
         this.renderVinohrad();
-        UI.notify('💧 ' + (lang==='en' ? 'Watered.' : 'Zalito.'));
+        if (source === 'spring_water') {
+            UI.notify('💧 ' + (lang==='en' ? 'Watered with spring water.' : 'Zalito pramenitou vodou.'));
+        } else {
+            UI.notify('💧 ' + (lang==='en' ? 'Watered.' : 'Zalito.'));
+        }
     },
 
     harvestVine: function(idx) {
@@ -25562,6 +25570,7 @@ const GardenSystem = {
 
         // Kapacita vody
         const water = GameState.inventory['water'] || 0;
+        const springForField = GameState.inventory['spring_water'] || 0;
         const waterCost = hasIrrigation ? 1 : 2;
 
         const now = Date.now();
@@ -25635,7 +25644,7 @@ const GardenSystem = {
                            <div style="font-size:0.68rem;opacity:0.6;">${hoursLeft}h</div>`;
 
                 if (!field.watered && phaseIdx < 3) {
-                    btn = `<button class="craft-btn" onclick="GardenSystem.waterField(${idx})" ${water>=waterCost?'':'disabled'}>💧 ${lang==='en'?'Water':'Zalít'} (${waterCost}💧)</button>`;
+                    btn = `<button class="craft-btn" onclick="GardenSystem.waterField(${idx})" ${(water>=waterCost || springForField>=waterCost)?'':'disabled'}>💧 ${lang==='en'?'Water':'Zalít'} (${waterCost}💧)</button>`;
                 } else if (phaseIdx >= 3) {
                     btn = `<button class="craft-btn" onclick="GardenSystem.harvestField(${idx})">🌾 ${lang==='en'?'Harvest':'Sklidit'}</button>`;
                 } else {
@@ -25703,13 +25712,21 @@ const GardenSystem = {
         if (!field || field.state !== 'growing') return;
         const techs = GameState.researchedTechs || [];
         const waterCost = techs.includes('tech_field_irrigation') ? 1 : 2;
-        if ((GameState.inventory['water'] || 0) < waterCost) {
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+
+        let source = null;
+        if ((GameState.inventory['water'] || 0) >= waterCost) source = 'water';
+        else if ((GameState.inventory['spring_water'] || 0) >= waterCost) source = 'spring_water';
+        if (!source) {
             if (typeof UI !== 'undefined') UI.notify('Nedostatek vody!', true);
             return;
         }
-        Game.removeItem('water', waterCost);
+        Game.removeItem(source, waterCost);
         field.watered = true;
         Game.save();
+        if (source === 'spring_water' && typeof UI !== 'undefined') {
+            UI.notify('💧 ' + (lang==='en' ? 'Watered with spring water.' : 'Zalito pramenitou vodou.'));
+        }
         this.renderFieldTab();
     },
 
@@ -25887,7 +25904,7 @@ const GardenSystem = {
                            </div>
                            <div style="font-size:0.68rem;opacity:0.6;">${daysLeft}d ${recentlyWatered ? '💧' : ''}</div>`;
                 btn = `<button class="craft-btn" onclick="GardenSystem.pruneVine(${idx})" ${slot.pruned?'disabled':''}>✂️ ${lang==='en'?'Prune':'Prořezat'}${slot.pruned?' ✓':''}</button>
-                       <button class="craft-btn" onclick="GardenSystem.waterVine(${idx})" style="font-size:0.72rem; margin-top:3px;">💧 ${lang==='en'?'Water':'Zalít'}</button>
+                       <button class="craft-btn" onclick="GardenSystem.waterVine(${idx})" style="font-size:0.72rem; margin-top:3px;" ${recentlyWatered?'disabled':''}>💧 ${lang==='en'?'Water':'Zalít'}</button>
                        <button class="craft-btn" onclick="GardenSystem.uprootVine(${idx})" style="background:#8b4a3a; font-size:0.72rem; margin-top:3px;">🪴 ${lang==='en'?'Uproot':'Vykořenit'}</button>`;
             } else if (slot.state === 'ripe') {
                 content = `<div style="font-size:1.4rem;">🍇</div>
@@ -50870,6 +50887,15 @@ const UI = {
                 // Aktuální výnos
                 rows.push('🪣 ' + t('wellUI.yieldNow') + ' <strong>' + info.yieldNow + '</strong>'
                     + ' <span style="opacity:0.6;">(' + t('wellUI.yieldBase') + ' ' + info.yieldBase + ')</span>');
+                // Vysvětlení: proč je výnos snížený (pásmo hladiny)
+                if (info.levelBandKey && info.levelBandKey !== 'levelBandFull') {
+                    const bandLabel = t('wellUI.' + info.levelBandKey);
+                    if (info.levelMod === null || typeof info.levelMod === 'undefined') {
+                        rows.push('💧 ' + t('wellUI.levelYieldInfoFixed').replace('{band}', bandLabel).replace('{amt}', info.yieldNow));
+                    } else {
+                        rows.push('💧 ' + t('wellUI.levelYieldInfo').replace('{band}', bandLabel).replace('{mod}', info.levelMod));
+                    }
+                }
                 // Grace
                 if (info.graceLeft > 0) {
                     rows.push('🛡️ ' + t('wellUI.graceLeft').replace('{n}', info.graceLeft));
