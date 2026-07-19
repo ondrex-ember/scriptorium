@@ -200,7 +200,7 @@ const TemplumSystem = {
             h += `<div style="padding:12px 15px; margin-bottom:16px; background:rgba(197,160,89,0.05); border:1px solid rgba(197,160,89,0.25); border-radius:8px;">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
                     <div style="font-weight:bold; font-size:0.9rem;">🏛️ Fabrica Ecclesiae — ${curName}</div>
-                    <button class="craft-btn" style="font-size:0.7rem; padding:3px 10px;" onclick="Game.repairFabrica()">🔧 ${lang==='en'?'Repair (20g)':'Opravit (20g)'}</button>
+                    <button class="craft-btn" style="font-size:0.7rem; padding:3px 10px;" onclick="Game.repairFabrica()" ${cond>=89?'disabled':''}>🔧 ${lang==='en'?'Repair (20g)':'Opravit (20g)'}</button>
                 </div>
                 <div style="display:flex; justify-content:space-between; font-size:0.7rem; opacity:0.65; margin-bottom:3px;">
                     <span>${lang==='en'?'Structural condition':'Strukturální stav'}</span><span>${Math.round(cond)} %</span>
