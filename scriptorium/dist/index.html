@@ -10144,7 +10144,34 @@ const LettersDB = [
     ]
   },
 
+  // ── L12 — Opat: nabídka holubího hejna (Porta) ──
+  {
+    id: 'l12_opat_holubi',
+    seal: 'abbot',
+    title_cs: 'List opatův o holubech',
+    title_en: "A Letter from the Abbot on Pigeons",
+    text_cs: '„Bratře, žiji daleko a na váš dům zajíždím jen na návštěvu — cesta je dlouhá a zprávy k vám dochází pozdě, nebo vůbec. Mám pro vás hejno holubů z výcviku v opatství, zvyklých na let domů. Postavíte-li jim věž, pošlu je — a od té chvíle budeme mluvit rychleji než kůň dokáže jet. — Opat"',
+    text_en: '"Brother, I live far away and visit your house only occasionally — the road is long, and word reaches you late, or not at all. I have a flock of pigeons, trained at the abbey, accustomed to flying home. Build them a tower, and I shall send them — and from that day we shall speak faster than any horse can ride. — The Abbot"',
+    trigger: function () {
+      if (GameState.flags && GameState.flags.porta_letter_received) return false;
+      const techCount = (GameState.researchedTechs || []).length;
+      return techCount >= 3;
+    },
+    choices: [
+      {
+        label_cs: '🕊️ Rádi je přivítáme', label_en: '🕊️ We shall gladly welcome them',
+        effect: function () {
+          if (!GameState.flags) GameState.flags = {};
+          GameState.flags.porta_letter_received = true;
+        },
+        notify_cs: 'Opatova nabídka zapsána. Studium Porta — Holubí pošty čeká na svou chvíli.',
+        notify_en: "The Abbot's offer is noted. The study of Porta — Pigeon Post awaits its time."
+      }
+    ]
+  },
+
 ];
+
 // ═══ src/data/conversi.js ═══
 // ─────────────────────────────────────────────────────────────
 // ConversiRosterDB — autorský roster konvršů
