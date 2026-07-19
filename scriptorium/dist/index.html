@@ -6537,6 +6537,8 @@ const RecipesDB = [
       desc: "Šrot z prosa. Krmivo pro dobytek.", desc_en: "Feed meal from millet. Livestock feed." },
     { id: "feed_meal_peas",   output: "feed_meal", qty: 2, req: { "peas": 4 },       cat: "craft", locked: true,
       desc: "Šrot z hrachu. Krmivo pro dobytek.", desc_en: "Feed meal from peas. Livestock feed." },
+    { id: "feed_meal_vikev",  output: "feed_meal", qty: 2, req: { "vikev": 4 },      cat: "craft", locked: true,
+      desc: "Šrot z vikve. Levné krmivo pro dobytek i holuby.", desc_en: "Feed meal from vetch. Cheap fodder for livestock and pigeons." },
     { id: "feed_meal_scraps", output: "feed_meal", qty: 2, req: { "scraps": 3 },     cat: "craft", locked: true,
       desc: "Šrot ze zbytků. Levnější, ale stejně vydatné krmivo.", desc_en: "Feed meal from scraps. Cheaper, but just as hearty a feed." },
     // Osivo ze zrní — část úrody stranou jako příští setba (3:1)
@@ -6560,6 +6562,8 @@ const RecipesDB = [
       desc: "Vybraná zrna prosa ponechaná na osivo.", desc_en: "Selected millet grains set aside as seed." },
     { id: "peas_to_seed",   output: "seeds_peas",   qty: 1, req: { "peas": 3 },       cat: "craft", locked: true,
       desc: "Vybrané zrna hrachu ponechaná na osivo.", desc_en: "Selected pea grains set aside as seed." },
+    { id: "vikev_to_seed",  output: "seeds_vikev",  qty: 1, req: { "vikev": 3 },      cat: "craft", locked: true,
+      desc: "Vybraná zrna vikve ponechaná na osivo.", desc_en: "Selected vetch grains set aside as seed." },
 
     // Zelenina → semínka (nůž)
     { id: "carrot_to_seed", output: "seeds_vegetable", qty: 1, req: { "carrot": 1 }, toolReq: [{item:"stone_knife"}], cat: "craft",
