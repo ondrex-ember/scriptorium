@@ -46,6 +46,10 @@ const PortaSystem = {
             if (!GameState.letters.firstSeen[letter.id]) {
                 GameState.letters.firstSeen[letter.id] = now;
                 changed = true;
+                if (typeof NotificationSystem !== 'undefined') {
+                    const _plang = (GameState.settings && GameState.settings.language) || 'cs';
+                    NotificationSystem.panel('🕊️ ' + (_plang === 'en' ? 'New letter in Porta' : 'Nový dopis v Portě'), 'porta');
+                }
             }
             // Phase 1: expiry — prošlé dopisy mizí (archiv: nezodpovězeno)
             if (letter.expiry_days) {
