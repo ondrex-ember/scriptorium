@@ -398,20 +398,18 @@ const EventsSystem = {
                     labelKey: 'events.curia_sheep_disease.healer_btn',
                     descKey:  'events.curia_sheep_disease.healer_desc',
                     action: () => {
-                        if (CellariumSystem.getGrose() < 10) {
+                        if (GameState.sheepfold.healerPending) {
+                            UI.notifyPanel(t('events.curia_sheep_disease.healer_notif_active'), 'warning');
+                            return t('events.curia_sheep_disease.healer_res_active');
+                        }
+                        if (CellariumSystem.getGrose() < 100) {
                             UI.notifyPanel(t('events.curia_sheep_disease.healer_notif_poor'), 'warning');
                             return t('events.curia_sheep_disease.healer_res_poor');
                         }
-                        CellariumSystem.spendGrose(10);
-                        if (Math.random() < 0.95) {
-                            UI.notifyPanel(t('events.curia_sheep_disease.healer_notif'), 'system');
-                            EventsSystem._addKronika(t('events.curia_sheep_disease.healer_notif'));
-                            return t('events.curia_sheep_disease.healer_res');
-                        } else {
-                            GameState.sheepfold.sheep = Math.max(0, GameState.sheepfold.sheep - 1);
-                            UI.notifyPanel(t('events.curia_sheep_disease.healer_notif_fail'), 'warning');
-                            return t('events.curia_sheep_disease.healer_res_fail');
-                        }
+                        CellariumSystem.spendGrose(100);
+                        GameState.sheepfold.healerPending = { readyAt: Date.now() + 86400000 };
+                        UI.notifyPanel(t('events.curia_sheep_disease.healer_notif_called'), 'system');
+                        return t('events.curia_sheep_disease.healer_res_called');
                     }
                 },
                 {
@@ -476,7 +474,7 @@ const EventsSystem = {
                         const pool = ['sulfur', 'lapis_lazuli', 'mercury'];
                         const gained = pool[Math.floor(Math.random() * pool.length)];
                         Game.addItem(gained, 1);
-                        PersonaSystem.addInfluence('giacomo', 3);
+                        SaeculumSystem.addContactRelation('giacomo', 3);
                         UI.notifyPanel(t('events.cellarium_giacomo_news.view_notif'), 'system');
                         EventsSystem._addKronika(t('events.cellarium_giacomo_news.view_notif'));
                         return t('events.cellarium_giacomo_news.view_res');
@@ -555,7 +553,7 @@ const EventsSystem = {
                     labelKey: 'events.cellarium_counterfeit.giacomo_btn',
                     descKey:  'events.cellarium_counterfeit.giacomo_desc',
                     action: () => {
-                        PersonaSystem.addInfluence('giacomo', -5);
+                        SaeculumSystem.addContactRelation('giacomo', -5);
                         UI.notifyPanel(t('events.cellarium_counterfeit.giacomo_notif'), 'warning');
                         EventsSystem._addKronika(t('events.cellarium_counterfeit.giacomo_notif'));
                         return t('events.cellarium_counterfeit.giacomo_res');
