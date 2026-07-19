@@ -8396,6 +8396,10 @@ const ActionsDB = [
       name: 'Těžba rudy', name_en: 'Mine Iron Ore',
       icon: '⛏️', desc: 'Železná ruda + vzácně: dřevěné uhlí', desc_en: 'Iron ore + rare: charcoal',
       yield: 1, req: [{item:'stone_pickaxe', mult:0.7}, {item:'iron_pickaxe', mult:1.2}] },
+    { id: 'quarry_limestone', cat: 'mine', collectMode: true,
+      name: 'Těžba vápence', name_en: 'Quarry Limestone',
+      icon: '⚪', desc: 'Vápenec — nejlepší výnos', desc_en: 'Limestone — best yield',
+      yield: 1, req: [{item:'palice_kamenna', mult:0.7}, {item:'palice_zelezna', mult:1.2}] },
 ];
 
 // FishDB — metadata druhů pro Piscinu (entitní model, viz GameState.piscina.fish[]).
@@ -8530,6 +8534,7 @@ const GameState = {
         fornax: { status: 'none', submittedAt: null, deniedReason: null, inspectionPending: false },
     },
 };
+
 // ═══ src/data/achievements.js ═══
 const AchievementsDB = [
     // DISCOVERY
