@@ -422,7 +422,7 @@ TechTree.push({
     cost: 15,
     desc: "Opat žije daleko a jezdí jen na návštěvu. Nabízí hejno holubů pro výcvik a spojení. Odemkne: budovu Porta a recept Ptačího papíru — bez něj holubí pošta nedoletí.",
     desc_en: "The Abbot lives far away and visits only occasionally. He offers a flock of pigeons for training and connection. Unlocks: the Porta building and the Bird Paper recipe — without it, the pigeon post cannot fly.",
-    unlocks: ["porta", "bird_paper"],
+    unlocks: ["bird_paper"],
     requires: []
 });
 // ── VÁPENICE (Calcaria) ──────────────────────────────────────────────────
@@ -433,6 +433,6 @@ TechTree.push({
     cost: 25,
     desc: "Vápenec sám o sobě k ničemu není. Teprve dny a noci ohně ve vápenici z něj udělají pálené vápno, a hašení s trpělivým zráním v jámě dá maltu, omítku i pergamen. Odemkne: budovu Vápenice, pálení a hašení vápna.",
     desc_en: "Limestone alone is worth nothing. Only days and nights of fire in the kiln turn it into quicklime, and slaking with patient maturation in the pit yields mortar, plaster, and parchment. Unlocks: the Lime Kiln building, lime burning and slaking.",
-    unlocks: ["vapenice", "burn_lime", "slake_lime", "soaked_hide_lime", "porta_whitewash"],
+    unlocks: ["burn_lime", "slake_lime", "soaked_hide_lime"],
     requires: ["tech_fodina"]
 });
