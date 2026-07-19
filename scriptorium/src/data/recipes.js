@@ -557,6 +557,17 @@ const RecipesDB = [
       cat:"building", locked:true, maxStack:1,
       desc:"Bednářská dílna. Výroba sudů pro export vína. Odemkne řemeslo bednáře.",
       desc_en:"Cooperage workshop. Craft barrels for wine export. Unlocks the cooper's craft." },
+
+    // ── VÁPENICE — pálení a hašení vápna ────────────────────────────────────
+    { id:"vapenice",          output:"vapenice",          qty:1,
+      req:{plank:15, cut_stone:20, clay:20},
+      cat:"building", locked:true, maxStack:1,
+      desc:"Pec u lomu. Odemkne pálení vápence a hašení vápna.",
+      desc_en:"A kiln by the quarry. Unlocks limestone burning and lime slaking." },
+    { id:"burn_lime",  output:"vapno_paleny_fresh",  qty:1, req:{vapenec:4, log:3}, cat:"building", locked:true,
+      desc:"Vápenec do pece. Dny a noci ohně, než se vypálí.", desc_en:"Limestone into the kiln. Days and nights of fire before it burns through." },
+    { id:"slake_lime", output:"vapno_hasene_fresh",  qty:2, req:{vapno_paleny_mature:1, water:2}, cat:"building", locked:true,
+      desc:"Pálené vápno uhašené vodou. Prudká reakce — teď musí uležet.", desc_en:"Quicklime slaked with water. A violent reaction — now it must rest." },
 ];
 // ── KADIDLO (Thuribulum) ─────────────────────────────────────────────────
 RecipesDB.push(
