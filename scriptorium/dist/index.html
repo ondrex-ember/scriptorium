@@ -10154,8 +10154,9 @@ const LettersDB = [
     text_en: '"Brother, I live far away and visit your house only occasionally — the road is long, and word reaches you late, or not at all. I have a flock of pigeons, trained at the abbey, accustomed to flying home. Build them a tower, and I shall send them — and from that day we shall speak faster than any horse can ride. — The Abbot"',
     trigger: function () {
       if (GameState.flags && GameState.flags.porta_letter_received) return false;
-      const techCount = (GameState.researchedTechs || []).length;
-      return techCount >= 3;
+      // GM/CHRONICON — Ondrex ručně nastaví GameState.flags.porta_offer = true,
+      // až bude chtít tenhle dopis pustit hráčům (mirror vzoru visitatio_force).
+      return !!(GameState.flags && GameState.flags.porta_offer);
     },
     choices: [
       {
