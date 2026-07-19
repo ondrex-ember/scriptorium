@@ -44628,8 +44628,9 @@ const Game = {
             // Výnosová tabulka podle nominálního tieru (viz Doly MRD) — koně mění
             // jen reálný čas čekání, NE tuhle tabulku.
             const MINE_YIELD = {
-                quarry_stone:  { 2.5: [10, 12], 5: [20, 30], 10: [45, 55], 20: [130, 160], 30: [240, 300] },
-                mine_iron_ore: { 2.5: [1, 1],   5: [1, 3],   10: [3, 5],   20: [6, 10],     30: [10, 15] },
+                quarry_stone:      { 2.5: [10, 12], 5: [20, 30], 10: [45, 55], 20: [130, 160], 30: [240, 300] },
+                mine_iron_ore:     { 2.5: [1, 1],   5: [1, 3],   10: [3, 5],   20: [6, 10],     30: [10, 15] },
+                quarry_limestone:  { 2.5: [8, 10],  5: [16, 24], 10: [36, 44], 20: [100, 130],  30: [190, 240] },
             };
             // COMPLETION: kliknutí na "Sbírat" po uplynutí timeru
             if (GameState.activeAction && GameState.activeAction.id === type) {
@@ -44645,18 +44646,25 @@ const Game = {
                 const _freshMult = (typeof GameState.activeAction.freshMult === 'number') ? GameState.activeAction.freshMult : 1.0;
                 const _invBefore = {};
                 for (const k of Object.keys(GameState.inventory)) _invBefore[k] = GameState.inventory[k] || 0;
+                const _hasPalice = (GameState.inventory['palice_kamenna'] > 0) || (GameState.inventory['palice_zelezna'] > 0);
                 if (type === 'quarry_stone') {
                     const range = MINE_YIELD.quarry_stone[_tier] || MINE_YIELD.quarry_stone[5];
                     const qty = range[0] + Math.floor(Math.random() * (range[1] - range[0] + 1));
                     this.addItem('rock', Math.max(1, Math.round(qty * _mMultC * _freshMult)));
                     if (Math.random() < 0.15) this.addItem('cut_stone', 1);
                     if (Math.random() < 0.05) this.addItem('clay', 1);
+                    if (_hasPalice && Math.random() < 0.05) this.addItem('vapenec', 1);
                 } else if (type === 'mine_iron_ore') {
                     const range = MINE_YIELD.mine_iron_ore[_tier] || MINE_YIELD.mine_iron_ore[5];
                     const qty = range[0] + Math.floor(Math.random() * (range[1] - range[0] + 1));
                     this.addItem('iron_ore', Math.max(1, Math.round(qty * _mMultC * _freshMult)));
                     if (Math.random() < 0.20) this.addItem('charcoal', 1);
                     if (Math.random() < 0.05) this.addItem('rock', 2);
+                    if (_hasPalice && Math.random() < 0.08) this.addItem('vapenec', 1);
+                } else if (type === 'quarry_limestone') {
+                    const range = MINE_YIELD.quarry_limestone[_tier] || MINE_YIELD.quarry_limestone[5];
+                    const qty = range[0] + Math.floor(Math.random() * (range[1] - range[0] + 1));
+                    this.addItem('vapenec', Math.max(1, Math.round(qty * _mMultC * _freshMult)));
                 }
                 const _tgains = {};
                 for (const k of Object.keys(GameState.inventory)) {
@@ -44677,7 +44685,9 @@ const Game = {
             const _mFound = _mineAction.req ? _mineAction.req.find(r => (GameState.inventory[r.item] > 0) || (GameState.inventory['worn_' + r.item] > 0)) : null;
             if (_mineAction.req && !_mFound) {
                 const lang = (GameState.settings && GameState.settings.language) || 'cs';
-                UI.notify(lang === 'en' ? '❌ Requires a pickaxe.' : '❌ Vyžaduje krumpáč.', true);
+                const _toolNames = _mineAction.req.map(r => ItemsDB[r.item] ? ItemsDB[r.item].name : r.item).join('/');
+                const _toolNamesEn = _mineAction.req.map(r => ItemsDB[r.item] ? ItemsDB[r.item].name_en : r.item).join('/');
+                UI.notify(lang === 'en' ? ('❌ Requires: ' + _toolNamesEn + '.') : ('❌ Vyžaduje: ' + _toolNames + '.'), true);
                 return;
             }
             const _mMult = (_mFound && _mFound.mult) ? _mFound.mult : 1.0;
