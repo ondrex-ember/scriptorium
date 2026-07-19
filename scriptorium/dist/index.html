@@ -19061,6 +19061,7 @@ const CellariumSystem = {
     const hasTonn = GameState.researchedTechs && GameState.researchedTechs.includes('tech_tonnellerie');
     const hasUvar = GameState.researchedTechs && GameState.researchedTechs.includes('tech_uvarium');
     const hasPOlei= GameState.researchedTechs && GameState.researchedTechs.includes('tech_prelum_olei');
+    const hasCalcaria = GameState.researchedTechs && GameState.researchedTechs.includes('tech_calcaria');
 
     const title = lang === 'en' ? 'Buildings' : 'Budovy';
 
@@ -19154,6 +19155,14 @@ const CellariumSystem = {
         req_tech: hasPOlei,
         req_build: GameState.storage && GameState.storage.sulci && GameState.storage.sulci.built,
         req_label: lang === 'en' ? 'Requires: Sulci built + Prelum Olei tech' : 'Nutné: Brázdy postaveny + tech Prelum Olei',
+      },
+      {
+        id: 'vapenice', icon: '🏭',
+        name: 'Vápenice', name_en: 'Lime Kiln',
+        desc: 'Pec u lomu. Dny a noci nepřetržitého ohně promění vápenec v pálené vápno.',
+        desc_en: 'A kiln by the quarry. Days and nights of unbroken fire turn limestone into quicklime.',
+        cost: { plank: 15, cut_stone: 20, clay: 20 },
+        req_tech: hasCalcaria, req_build: true, req_label: null,
       },
     ];
 
@@ -19332,6 +19341,9 @@ const CellariumSystem = {
         { key: 'sheepfold', icon: '🐑', titleK: 'farmyard.ovile',       descK: 'farmyard.sheepfoldBuildDesc',
           cost: { rock: 20, stick: 15, rope: 5 }, fn: 'Game.buildSheepfold()',
           tech: 'tech_de_re_rustica' },
+        { key: 'columbarium', icon: '🕊️', titleK: 'farmyard.columbarium', descK: 'farmyard.columbariumBuildDesc',
+          cost: { cut_stone: 60, plank: 25, log: 15, wicker: 20, rope: 10 }, fn: 'FarmyardSystem.buildColumbarium()',
+          tech: 'tech_porta' },
       ];
       simplePens.forEach(d => {
         const built = GameState[d.key] && GameState[d.key].built;
