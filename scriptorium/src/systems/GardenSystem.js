@@ -1595,6 +1595,9 @@ const GardenSystem = {
         const slot = GameState.vinea[idx];
         const lang = (GameState.settings && GameState.settings.language) || 'cs';
         if (!slot || (slot.state !== 'planted' && slot.state !== 'growing' && slot.state !== 'ripe')) return;
+        if ((Date.now() - (slot.lastWateredAt || 0)) <= 4 * 24 * 3600000) {
+            UI.notify(lang==='en' ? 'Already watered recently.' : 'Nedávno zalito.', true); return;
+        }
         const techs = GameState.researchedTechs || [];
         const waterCost = techs.includes('tech_field_irrigation') ? 1 : 2;
         if ((GameState.inventory['water'] || 0) < waterCost) {
@@ -2287,7 +2290,7 @@ const GardenSystem = {
                            </div>
                            <div style="font-size:0.68rem;opacity:0.6;">${daysLeft}d ${recentlyWatered ? '💧' : ''}</div>`;
                 btn = `<button class="craft-btn" onclick="GardenSystem.pruneVine(${idx})" ${slot.pruned?'disabled':''}>✂️ ${lang==='en'?'Prune':'Prořezat'}${slot.pruned?' ✓':''}</button>
-                       <button class="craft-btn" onclick="GardenSystem.waterVine(${idx})" style="font-size:0.72rem; margin-top:3px;">💧 ${lang==='en'?'Water':'Zalít'}</button>
+                       <button class="craft-btn" onclick="GardenSystem.waterVine(${idx})" ${recentlyWatered?'disabled':''} style="font-size:0.72rem; margin-top:3px;">💧 ${lang==='en'?'Water':'Zalít'}${recentlyWatered?' ✓':''}</button>
                        <button class="craft-btn" onclick="GardenSystem.uprootVine(${idx})" style="background:#8b4a3a; font-size:0.72rem; margin-top:3px;">🪴 ${lang==='en'?'Uproot':'Vykořenit'}</button>`;
             } else if (slot.state === 'ripe') {
                 content = `<div style="font-size:1.4rem;">🍇</div>
