@@ -8386,6 +8386,28 @@ TechTree.push({
     unlocks: [],
     requires: []
 });
+// ── PORTA — Holubí pošta ─────────────────────────────────────────────────
+TechTree.push({
+    id: "tech_porta",
+    name: "Porta — Holubí pošta",
+    name_en: "Porta — Pigeon Post",
+    cost: 15,
+    desc: "Opat žije daleko a jezdí jen na návštěvu. Nabízí hejno holubů pro výcvik a spojení. Odemkne: recept Ptačího papíru — bez něj holubí pošta nedoletí.",
+    desc_en: "The Abbot lives far away and visits only occasionally. He offers a flock of pigeons for training and connection. Unlocks: the Bird Paper recipe — without it, the pigeon post cannot fly.",
+    unlocks: ["bird_paper"],
+    requires: []
+});
+// ── VÁPENICE (Calcaria) ──────────────────────────────────────────────────
+TechTree.push({
+    id: "tech_calcaria",
+    name: "Calcaria — Vápenice",
+    name_en: "Calcaria — Lime Kiln",
+    cost: 25,
+    desc: "Vápenec sám o sobě k ničemu není. Teprve dny a noci ohně ve vápenici z něj udělají pálené vápno, a hašení s trpělivým zráním v jámě dá maltu, omítku i pergamen. Odemkne: budovu Vápenice, pálení a hašení vápna.",
+    desc_en: "Limestone alone is worth nothing. Only days and nights of fire in the kiln turn it into quicklime, and slaking with patient maturation in the pit yields mortar, plaster, and parchment. Unlocks: the Lime Kiln building, lime burning and slaking.",
+    unlocks: ["vapenice", "burn_lime", "slake_lime"],
+    requires: ["tech_fodina"]
+});
 
 // ═══ src/core/gamestate.js ═══
 const ActionsDB = [
