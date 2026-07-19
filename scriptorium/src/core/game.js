@@ -3746,6 +3746,12 @@ const Game = {
             // Odemkne Dvůr subtab Columbarium (flag-gated, ne tech-gated přímo)
             if (!GameState.flags) GameState.flags = {};
             GameState.flags.columbarium_available = true;
+            // Reverse-unlock — tech odemyká knihy (opačný směr než obvykle: kniha→tech)
+            if (!GameState.library) GameState.library = { startDate: Date.now(), unlockedBooks: [], readBooks: [], scribeState: { visited: false, totalTrades: 0, lastTrade: 0 } };
+            if (!GameState.library.unlockedBooks) GameState.library.unlockedBooks = [];
+            ['book_palladius_columbaria', 'book_barid_columbinus'].forEach(bid => {
+                if (!GameState.library.unlockedBooks.includes(bid)) GameState.library.unlockedBooks.push(bid);
+            });
         }
         
         const _slang = (GameState.settings && GameState.settings.language) || 'cs';
