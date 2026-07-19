@@ -51,6 +51,7 @@ const PersonaSystem = {
         if (GameState.persona.influence.village  === undefined) GameState.persona.influence.village  = 0;
         if (GameState.persona.influence.church   === undefined) GameState.persona.influence.church   = 0;
         if (GameState.persona.influence.scholars === undefined) GameState.persona.influence.scholars = 0;
+        if (GameState.persona.influence.mercatus === undefined) GameState.persona.influence.mercatus = 0;
         if (GameState.persona.influenceLastDecay === undefined) GameState.persona.influenceLastDecay = Date.now();
         if (GameState.persona.role               === undefined) GameState.persona.role               = null;
 
@@ -586,7 +587,7 @@ const PersonaSystem = {
             inf.benedikt,
             lang==='en'?'Cellarius — high influence → better prices in Hospoda.':'Cellarius — vysoký vliv → lepší ceny v Hospodě.', false);
         h += bar('⚓', lang==='en'?'Giacomo Foscari':'Giacomo Foscari',
-            inf.giacomo,
+            (GameState.contactRelation || {}).giacomo || 0,
             lang==='en'?'Venetian merchant — high influence → rare goods, special orders.':'Benátský obchodník — vysoký vliv → vzácné zboží, speciální zakázky.', false);
         h += bar('✝️', lang==='en'?'The Abbot':'Opat',
             inf.abbot,
@@ -1045,7 +1046,7 @@ const PersonaSystem = {
         if (now - last < DECAY_INTERVAL) return; // ještě není čas
 
         const inf = GameState.persona.influence;
-        const keys = ['benedikt','giacomo','abbot','village','church','scholars'];
+        const keys = ['benedikt','mercatus','abbot','village','church','scholars'];
         let changed = false;
         keys.forEach(k => {
             if ((inf[k] || 0) > 0) {
