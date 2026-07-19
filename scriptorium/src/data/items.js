@@ -42,6 +42,8 @@ const ItemsDB = {
     "paper": { name: "Hadrový papír", name_en: "Rag Paper", icon: "📄", type: "lore", desc: "Lisovaná hadrovina. Středověký papír z lněných vláken, ne ze dřeva.", desc_en: "Pressed rag pulp. Medieval paper made from linen fibres, not wood." },
     "paper_fine": { name: "Benátský papír", name_en: "Venetian Paper", icon: "📃", type: "lore", desc: "Jemnější a bělejší než hadrový papír z domácí výroby. Giacomo ho vozí z Benátek.", desc_en: "Finer and whiter than home-pressed rag paper. Giacomo brings it from Venice." },
     "bird_paper": { name: "Holubí lístek", name_en: "Pigeon Paper", icon: "🕊️", type: "lore", desc: "Charta columbina — ztenčený a odlehčený benátský papír. Unese let na nožičce holuba, ne však mnoho slov.", desc_en: "Charta columbina — thinned and lightened Venetian paper. It bears a pigeon's flight, but few words." },
+    "porta": { name: "Porta", name_en: "Porta", icon: "🐦", type: "building", desc: "Holubník u brány. Opat poslal hejno k výcviku, jakmile byl postaven.", desc_en: "A dovecote by the gate. The Abbot sent a flock for training once it was built." },
+    "porta_whitewash": { name: "Nabílená Porta", name_en: "Whitewashed Porta", icon: "🐦", type: "building", desc: "Vápnem nabílené zdi holubníku. Hladké, chladné, nepřístupné kunám.", desc_en: "Dovecote walls whitewashed with lime. Smooth, cool, unreachable by martens." },
     "ink": { name: "Inkoust", name_en: "Ink", icon: "✒️", type: "lore", desc: "Černý.", desc_en: "Black ink." },
     "research": { name: "Zápisky", name_en: "Notes", icon: "📜", type: "lore", desc: "Vědění.", desc_en: "Accumulated knowledge." },
 
