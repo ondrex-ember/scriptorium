@@ -8302,9 +8302,17 @@ const TechTree = [
   {
     id: "tech_crop_rotation", name: "Trojpolní systém", name_en: "Three-Field System",
     cost: 20,
-    desc: "Středověká revoluce: první pole ozimé obilí, druhé jarní plodiny, třetí ladem. Půda si odpočine, výnosy stoupnou. Historicky nejdůležitější agrární inovace 12. století. Odemkne: +25% výnos Pole, 1 slot ladem.",
-    desc_en: "Medieval revolution: first field winter grain, second spring crops, third fallow. The soil rests, yields increase. Historically the most important agrarian innovation of the 12th century. Unlocks: +25% field yield, 1 fallow slot.",
+    desc: "Středověká revoluce: první pole ozimé obilí, druhé jarní plodiny, třetí ladem. Půda si odpočine, výnosy stoupnou. Historicky nejdůležitější agrární inovace 12. století. Odemkne: +25% výnos Pole.",
+    desc_en: "Medieval revolution: first field winter grain, second spring crops, third fallow. The soil rests, yields increase. Historically the most important agrarian innovation of the 12th century. Unlocks: +25% field yield.",
     unlocks: ["humno"], requires: ["tech_de_re_rustica"]
+  },
+
+  {
+    id: "tech_polnosti_ii", name: "Polnosti II — Rozšíření", name_en: "Fields II — Expansion",
+    cost: 30,
+    desc: "Klučení lesa a odvodnění mokřin rozšíří klášterní pole na 11 běžných záhonů — a tři z nich, vyhrazené jako trvalý úhor, přijmou jen půdu šetřící plodiny jako vikev. Odemkne: 8 nových polních slotů (5 běžných + 3 úhorné).",
+    desc_en: "Clearing forest and draining marshland expands the monastery's fields to 11 regular plots — with three set aside as permanent fallow ground, accepting only soil-sparing crops like vetch. Unlocks: 8 new field slots (5 regular + 3 fallow).",
+    unlocks: [], requires: ["tech_crop_rotation"]
   },
 
   {
