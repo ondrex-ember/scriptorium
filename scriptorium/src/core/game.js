@@ -733,6 +733,8 @@ const Game = {
                     if (typeof Game !== 'undefined' && Game.parishEventTick) Game.parishEventTick();
                     // Caseus — denní zrání sýra (self-guarded 24h, gate tech_caseus)
                     if (typeof CheeseSystem !== 'undefined' && CheeseSystem.dailyTick) CheeseSystem.dailyTick();
+                    // Calcaria — denní zrání vápna (self-guarded 24h, gate tech_calcaria)
+                    if (typeof LimeSystem !== 'undefined' && LimeSystem.dailyTick) LimeSystem.dailyTick();
                     // Conversi — automatické úklidové úkoly (self-guarded 24h přes cleanPen)
                     if (typeof Game !== 'undefined' && Game.checkConversiChores) Game.checkConversiChores();
                     // Conversi — návraty ze Scavenge/Dolů (riziko + výnos)
@@ -3625,6 +3627,13 @@ const Game = {
             const _cheeseBase = { goat_cheese: 'goat_cheese', sheep_cheese: 'sheep_cheese', cow_cheese: 'cow_cheese', syrecky: 'syrecky' }[r.id];
             if (_cheeseBase) {
                 for (let _ci = 0; _ci < craftQty; _ci++) CheeseSystem.registerInstance(_cheeseBase);
+            }
+        }
+        // Calcaria — registrace per-instance zrání pro nově vypálené/hašené vápno
+        if (typeof LimeSystem !== 'undefined') {
+            const _limeBase = { burn_lime: 'vapno_paleny', slake_lime: 'vapno_hasene' }[r.id];
+            if (_limeBase) {
+                for (let _li = 0; _li < craftQty; _li++) LimeSystem.registerInstance(_limeBase);
             }
         }
         // Analytics – zaznamenej craft
