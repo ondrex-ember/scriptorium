@@ -559,6 +559,18 @@ const RecipesDB = [
       desc:"Bednářská dílna. Výroba sudů pro export vína. Odemkne řemeslo bednáře.",
       desc_en:"Cooperage workshop. Craft barrels for wine export. Unlocks the cooper's craft." },
 
+    // ── PORTA — holubník ────────────────────────────────────────────────────
+    { id:"porta",             output:"porta",             qty:1,
+      req:{plank:12, cut_stone:8, wicker:15},
+      cat:"building", locked:true, maxStack:1,
+      desc:"Holubník u brány. Proutěné hnízdní výklenky pro poštovní holuby.",
+      desc_en:"A dovecote by the gate. Wicker nesting niches for the messenger pigeons." },
+    { id:"porta_whitewash",   output:"porta_whitewash",   qty:1,
+      req:{vapno_hasene_mature:2},
+      cat:"building", locked:true,
+      desc:"Nabílení holubníku vápnem. Hladké zdi znesnadní kunám a hadům výstup ke hnízdům.",
+      desc_en:"Whitewashing the dovecote with lime. Smooth walls make it harder for martens and snakes to climb to the nests." },
+
     // ── VÁPENICE — pálení a hašení vápna ────────────────────────────────────
     { id:"vapenice",          output:"vapenice",          qty:1,
       req:{plank:15, cut_stone:20, clay:20},
