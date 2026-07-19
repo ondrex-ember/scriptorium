@@ -1345,26 +1345,36 @@ const GardenSystem = {
         let unlocked = 2;
         if (techs.includes('tech_de_re_rustica'))  unlocked = Math.max(unlocked, 4);
         if (techs.includes('tech_crop_rotation'))  unlocked = Math.max(unlocked, 6);
+        if (techs.includes('tech_polnosti_ii'))    unlocked = Math.max(unlocked, 14);
         GameState.fields.forEach((f, i) => { f.locked = i >= unlocked; });
+    },
+
+    _makeFieldSlot: function(i) {
+        return {
+            locked: i >= 2,    // výchozí, _syncFieldLocks pak přepočítá
+            state: 'empty',    // empty | ploughed | sown | growing | ready
+            crop: null,        // id plodiny
+            phase: 0,          // 0-3 (orba/klíčení/růst/zrání)
+            phaseStart: 0,     // timestamp začátku fáze
+            watered: false,
+            wateredPhases: 0,  // kolik fází bylo zalitých v aktuálním cyklu (0-3, sucho-kompenzace)
+            strawBonus: false, // má Humno?
+            type: i < 11 ? 'normal' : 'fallow', // Polnosti II: 11 normálních + 3 úhorné (jen fallow plodiny)
+        };
     },
 
     _initFields: function() {
         if (!GameState.fields) {
-            GameState.fields = Array.from({length: 6}, (_, i) => ({
-                locked: i >= 2,    // start: 2 sloty, max 6
-                state: 'empty',    // empty | ploughed | sown | growing | ready
-                crop: null,        // id plodiny
-                phase: 0,          // 0-3 (orba/klíčení/růst/zrání)
-                phaseStart: 0,     // timestamp začátku fáze
-                watered: false,
-                wateredPhases: 0,  // kolik fází bylo zalitých v aktuálním cyklu (0-3, sucho-kompenzace)
-                strawBonus: false, // má Humno?
-            }));
+            GameState.fields = Array.from({length: 14}, (_, i) => this._makeFieldSlot(i));
         }
-        // Migrace
-        GameState.fields.forEach(f => {
+        // Migrace — existující save měl jen 6 slotů, doplnit na 14 + type pole
+        while (GameState.fields.length < 14) {
+            GameState.fields.push(this._makeFieldSlot(GameState.fields.length));
+        }
+        GameState.fields.forEach((f, i) => {
             if (f.strawBonus === undefined) f.strawBonus = false;
             if (f.wateredPhases === undefined) f.wateredPhases = 0;
+            if (f.type === undefined) f.type = i < 11 ? 'normal' : 'fallow';
         });
         this._syncFieldLocks();
     },
@@ -1454,7 +1464,7 @@ const GardenSystem = {
         oats:   { id:'oats',        icon:'🌾', name:'Oves',    name_en:'Oats',    seeds:'seeds_oats',   yield:3, strawYield:2, feedVal:2 },
         millet: { id:'millet',      icon:'🌾', name:'Proso',   name_en:'Millet',  seeds:'seeds_millet', yield:4, strawYield:1, feedVal:2 },
         peas:   { id:'peas',        icon:'🫛', name:'Hrách',   name_en:'Peas',    seeds:'seeds_peas',   yield:4, strawYield:0, feedVal:1 },
-        vetch:  { id:'vikev',       icon:'🌸', name:'Vikev',   name_en:'Vetch',   seeds:'seeds_vikev',  yield:3, strawYield:0, feedVal:2 },
+        vetch:  { id:'vikev',       icon:'🌸', name:'Vikev',   name_en:'Vetch',   seeds:'seeds_vikev',  yield:3, strawYield:0, feedVal:2, fallow:true },
         flax:   { id:'flax_fiber',  icon:'🧵', name:'Len',     name_en:'Flax',    seeds:'seeds_flax',   yield:2, strawYield:1, feedVal:0 },
     },
 
@@ -1978,11 +1988,9 @@ const GardenSystem = {
                 return;
             }
 
-            // Fallow slot (trojpolní)
-            if (hasRotation && idx === 0 && GameState.fields.filter(f=>!f.locked && f.state!=='empty').length >= 2) {
-                html += `<div class="garden-plot"><div class="plot-soil" style="opacity:0.5">🟤</div><div class="text-sm">${lang==='en'?'Fallow':'Úhor'}</div><div style="margin-top:auto"><button class="craft-btn" disabled>${lang==='en'?'Resting':'Odpočívá'}</button></div></div>`;
-                return;
-            }
+            // Úhorný slot — přijímá jen úhorné plodiny (dnes: vikev)
+            const isFallow = field.type === 'fallow';
+            const fallowBadge = isFallow ? `<div style="font-size:0.65rem;opacity:0.6;letter-spacing:0.05em;text-transform:uppercase;">🌱 ${lang==='en'?'Fallow slot':'Úhorný slot'}</div>` : '';
 
             let content = '';
             let btn = '';
@@ -1995,8 +2003,10 @@ const GardenSystem = {
             }
             else if (field.state === 'ploughed') {
                 content = `<div class="plot-soil">🟫</div><div class="text-sm">${lang==='en'?'Ploughed':'Zorána'}</div>`;
-                // Výběr plodiny
-                const cropOpts = Object.entries(this.CROPS_DB).map(([key, c]) =>
+                // Výběr plodiny — úhorný slot nabízí jen úhorné plodiny
+                const cropOpts = Object.entries(this.CROPS_DB)
+                    .filter(([key, c]) => field.type !== 'fallow' || c.fallow)
+                    .map(([key, c]) =>
                     `<option value="${key}">${lang==='en'?c.name_en:c.name}</option>`
                 ).join('');
                 btn = `<select id="field-crop-sel-${idx}" style="font-size:0.75rem;padding:2px;width:100%;margin-bottom:4px;">${cropOpts}</select>
@@ -2028,7 +2038,7 @@ const GardenSystem = {
                 }
             }
 
-            html += `<div class="garden-plot">${content}<div style="margin-top:auto">${btn}</div></div>`;
+            html += `<div class="garden-plot">${fallowBadge}${content}<div style="margin-top:auto">${btn}</div></div>`;
         });
         html += '</div>';
 
@@ -2059,6 +2069,10 @@ const GardenSystem = {
         const field = GameState.fields[idx];
         const crop = this.CROPS_DB[cropKey];
         if (!field || field.locked || field.state !== 'ploughed' || !crop) return;
+        if (field.type === 'fallow' && !crop.fallow) {
+            if (typeof UI !== 'undefined') UI.notify(t('game.fallowCropOnly'), true);
+            return;
+        }
         // Kontrola semen
         const seedCost = this.FIELD_SEED_COST;
         if (!(GameState.inventory[crop.seeds] >= seedCost)) {
