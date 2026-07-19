@@ -629,6 +629,11 @@ const ItemsDB = {
     // ── ŽELEZNÁ RUDA + INGOT ────────────────────────────────────────────────
     "iron_ore": { name: "Železná ruda", name_en: "Iron Ore", icon: "🪨", type: "mat", desc: "Surová železná ruda. Taví se s uhlím na ingot.", desc_en: "Raw iron ore. Smelted with charcoal into an ingot." },
     "vapenec": { name: "Vápenec", name_en: "Limestone", icon: "⚪", type: "mat", desc: "Vylámaný vápencový kámen. Čeká na pálení ve vápenici.", desc_en: "Quarried limestone rock. Awaits burning in the lime kiln." },
+    "vapno_paleny_fresh": { name: "Vápenec v peci", name_en: "Limestone in the Kiln", icon: "🔥", type: "mat", desc: "Hoří ve vápenici dny a noci beze změny plamene. Ještě není hotové.", desc_en: "Burning in the kiln for days and nights without pause. Not yet done." },
+    "vapno_paleny_mature": { name: "Pálené vápno", name_en: "Quicklime", icon: "🧱", type: "mat", desc: "Vypálený vápenec. Prudce reaguje s vodou — čeká na hašení.", desc_en: "Burnt limestone. Reacts violently with water — awaits slaking." },
+    "vapno_hasene_fresh": { name: "Čerstvě hašené vápno", name_en: "Freshly Slaked Lime", icon: "💧", type: "mat", desc: "Uhašeno vodou, ještě prudké. Musí uležet v jámě.", desc_en: "Just slaked with water, still caustic. Must rest in the pit." },
+    "vapno_hasene_mature": { name: "Vápno", name_en: "Lime", icon: "⬜", type: "mat", desc: "Vyzrálé v jámě. Klidné, použitelné — malta, omítka, pergamen.", desc_en: "Matured in the pit. Stable and usable — mortar, plaster, parchment." },
+    "vapenice": { name: "Vápenice", name_en: "Lime Kiln", icon: "🏭", type: "building", desc: "Pec u lomu. Dny a noci nepřetržitého ohně promění vápenec v pálené vápno.", desc_en: "A kiln by the quarry. Days and nights of unbroken fire turn limestone into quicklime." },
     "iron_ingot": { name: "Železný ingot", name_en: "Iron Ingot", icon: "⚙️", type: "mat", desc: "Odlitý prut železa. Základ kovářského řemesla.", desc_en: "Cast iron bar. The foundation of the blacksmith's craft." },
     "anvil": { maxStack: 1, name: "Kovadlina", name_en: "Anvil", icon: "⚒️", type: "mat", desc: "Těžká železná kovadlina. Nutná pro stavbu kovárny.", desc_en: "Heavy iron anvil. Required to build the smithy." },
 
