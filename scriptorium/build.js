@@ -60,6 +60,7 @@ const JS_MAIN = [
     'src/systems/TemplumSystem.js',  // Templum (kostelní větev, T1 skeleton)
     'src/systems/DecaySystem.js',
     'src/systems/CheeseSystem.js',
+    'src/systems/LimeSystem.js',
     'src/systems/well.js',
     'src/systems/terrain.js',        // TerrainSystem — únava krajiny
     'src/systems/fireplace.js',
