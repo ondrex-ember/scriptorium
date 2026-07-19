@@ -3749,16 +3749,8 @@ const Game = {
             // Reverse-unlock — tech odemyká knihy (opačný směr než obvykle: kniha→tech)
             if (!GameState.library) GameState.library = { startDate: Date.now(), unlockedBooks: [], readBooks: [], scribeState: { visited: false, totalTrades: 0, lastTrade: 0 } };
             if (!GameState.library.unlockedBooks) GameState.library.unlockedBooks = [];
-            const _portaLang = (GameState.settings && GameState.settings.language) || 'cs';
             ['book_palladius_columbaria', 'book_barid_columbinus'].forEach(bid => {
-                if (!GameState.library.unlockedBooks.includes(bid)) {
-                    GameState.library.unlockedBooks.push(bid);
-                    const _book = LibraryDB.books.find(b => b.id === bid);
-                    if (_book) {
-                        const _title = _portaLang === 'en' ? (_book.title_en || _book.title) : _book.title;
-                        UI.notifyPanel('📚 ' + (_portaLang==='en' ? 'Book unlocked: ' : 'Kniha odemčena: ') + _title, 'system');
-                    }
-                }
+                if (!GameState.library.unlockedBooks.includes(bid)) GameState.library.unlockedBooks.push(bid);
             });
         }
         
@@ -4931,6 +4923,7 @@ const Game = {
     TEMPLUM_DONATIONS: {
         paternoster_beads: { qty: 1, influence: 5 },
         beeswax:           { qty: 5, influence: 2 },
+        crayfish_boiled:   { qty: 1, influence: 3 },
         // TODO: relikvie — item přijde s vizitací / Porta biskupským řetězem
     },
 
