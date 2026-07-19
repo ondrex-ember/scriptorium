@@ -11960,6 +11960,7 @@ const NotificationSystem = {
         const map = {
             sklad:     '📦', dvur: '🐄', athanor: '⚗️',
             obchod:    '💰', udalost: '📜', system: '🔔',
+            porta:     '🕊️', tidings: '🔔',
             chronicon:            '🕊️',
             chronicon_distant:    '🕊️',
             chronicon_local:      '🗣️',
@@ -11976,7 +11977,7 @@ const NotificationSystem = {
         if (cat === 'chronicon_distant')   return (typeof t === 'function') ? t('kronika.chroniconSrc.distant_events')    : 'z dálky';
         if (cat === 'chronicon_local')     return (typeof t === 'function') ? t('kronika.chroniconSrc.local_events')      : 'místní drby';
         if (cat === 'chronicon_monastery') return (typeof t === 'function') ? t('kronika.chroniconSrc.monastery_internal') : 'klášter';
-        const fallback = { sklad: 'sklad', dvur: 'dvůr', athanor: 'athanor', obchod: 'obchod', udalost: 'událost', system: 'systém', postup: 'postup', chronicon: 'zprávy světa' };
+        const fallback = { sklad: 'sklad', dvur: 'dvůr', athanor: 'athanor', obchod: 'obchod', udalost: 'událost', system: 'systém', postup: 'postup', chronicon: 'zprávy světa', porta: 'Porta', tidings: 'zprávy' };
         return fallback[cat] || cat;
     },
 
@@ -12487,6 +12488,7 @@ const NotificationSystem = {
         document.head.appendChild(style);
     },
 };
+
 // ═══ src/systems/ChroniconSystem.js ═══
 // ============================================
 //  ChroniconSystem
