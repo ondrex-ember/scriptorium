@@ -6323,6 +6323,8 @@ const RecipesDB = [
     // LORE SYSTEM
     { id: "pulp", output: "pulp", qty: 1, req: { "rags": 2, "water": 1, "pestle": 0 }, cat: "parchment" },
     { id: "paper", output: "paper", qty: 1, req: { "pulp": 2 }, cat: "parchment" },
+    { id: "bird_paper", output: "bird_paper", qty: 3, req: { "paper_fine": 1 }, cat: "parchment", locked: true,
+      desc: "Ztenčený benátský papír pro poštovní holuby.", desc_en: "Thinned Venetian paper for messenger pigeons." },
     { id: "ink", output: "ink", qty: 1, req: { "charcoal": 1, "water": 1, "pestle": 0 }, cat: "parchment" },
     { id: "research", output: "research", qty: 1, req: { "paper": 1, "ink": 1 }, cat: "lore" },
     
@@ -6789,6 +6791,8 @@ const RecipesDB = [
       desc:"Prostý dřevěný cep. Základní mlácení obilí.", desc_en:"Simple wooden flail. Basic threshing tool." },
     { id:"stone_pickaxe",output:"stone_pickaxe",qty:1, req:{stick:2, rock:4, rope:2}, cat:"stone", locked:true,
       desc:"Kamenná hlava upevněná na násadě. Těžba rudy.", desc_en:"Stone head fixed to a haft. Ore mining." },
+    { id:"palice_kamenna",output:"palice_kamenna",qty:1, req:{stick:2, rock:3, rope:1}, cat:"stone", locked:true,
+      desc:"Těžké kladivo z opracovaného kamene. Láme vápenec.", desc_en:"A heavy mallet of worked stone. Breaks limestone." },
     { id:"stone_shovel", output:"stone_shovel", qty:1, req:{stick:2, rock:2, rope:1}, cat:"stone", locked:true,
       desc:"Plochý kámen jako lopata.", desc_en:"Flat stone as a shovel." },
     { id:"stone_saw",    output:"stone_saw",    qty:1, req:{stick:2, flint:2, cut_stone:3, rope:2}, cat:"stone", locked:true,
@@ -6823,6 +6827,8 @@ const RecipesDB = [
       desc:"Pilový list s mnoha zuby. 2 ingoty, dřevěný rám.", desc_en:"Saw blade with many teeth. 2 ingots, wooden frame." },
     { id:"iron_pickaxe",output:"iron_pickaxe",qty:1, req:{iron_ingot:2, stick:2, rope:1, leather:1}, cat:"iron", locked:true, maxStack:1,
       desc:"Těžká dvojitá hlava. 2 ingoty, dvojnásada.", desc_en:"Heavy double head. 2 ingots, double-hafted." },
+    { id:"palice_zelezna",output:"palice_zelezna",qty:1, req:{iron_ingot:2, plank:1}, cat:"iron", locked:true, maxStack:1,
+      desc:"Kované kladivo s železnou hlavou. Nejlepší na vápenec.", desc_en:"A forged mallet with an iron head. Best for limestone." },
     { id:"iron_tongs",  output:"iron_tongs",  qty:1, req:{iron_ingot:1, leather:1},                  cat:"iron", locked:true, maxStack:1,
       desc:"Kovářské kleště. Nezbytné pro opravy v Kovárně.", desc_en:"Blacksmith tongs. Essential for repairs at the Smithy." },
 
