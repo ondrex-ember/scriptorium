@@ -49974,7 +49974,8 @@ const UI = {
             const actName = (lang === 'en' && act.name_en) ? act.name_en : act.name;
             const actDesc = (lang === 'en' && act.desc_en) ? act.desc_en : act.desc;
 
-            let btnText = act.id === 'hunt' ? t('actions.hunt') : act.id === 'bark' ? t('actions.bark') : t('actions.default');
+            const _actionBtnKeys = ['hunt','bark','basic','wetlands','nature','foraging','resin_harvest','fishing','well_water','grass_gather','wood_harvest','worms_dig','dig_clay','yard_cleanup'];
+            let btnText = t('actions.' + (_actionBtnKeys.includes(act.id) ? act.id : 'default'));
             let btnClass = "craft-btn";
             let btnDisabled = "";
             let infoText = actDesc;
