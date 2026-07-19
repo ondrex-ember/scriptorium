@@ -140,7 +140,9 @@ const FarmyardSystem = {
         if (!GameState.pigsty) GameState.pigsty = { built: false, animals: [] };
         if (!GameState.donkeyStall) GameState.donkeyStall = { built: false, animals: [], lastCleanMs: 0 };
         if (!GameState.stable) GameState.stable = { built: false, animals: [], lastCleanMs: 0 };
-        if (!GameState.columbarium) GameState.columbarium = { built: false, count: 0, lastEggAt: 0, lastFeatherAt: 0, lastCleanMs: 0 };
+        if (!GameState.columbarium) GameState.columbarium = { built: false, count: 0, lastEggAt: 0, lastFeatherAt: 0, lastCleanMs: 0, level: 1, lastPredatorTick: 0 };
+        if (GameState.columbarium.level === undefined) GameState.columbarium.level = 1;
+        if (GameState.columbarium.lastPredatorTick === undefined) GameState.columbarium.lastPredatorTick = 0;
         if (!GameState.loanMale) GameState.loanMale = {};  // {type, returnsAt}
     },
 
@@ -488,6 +490,10 @@ const FarmyardSystem = {
     buildColumbarium: function () {
         this._ensureAnimals();
         if (GameState.columbarium.built) return;
+        if (!(GameState.researchedTechs && GameState.researchedTechs.includes('tech_porta'))) {
+            if (typeof UI !== 'undefined') UI.notify(t('dvur.lockedPrefix') + ' Porta', true);
+            return;
+        }
         const cfg = this.COLUMBARIUM_CFG;
         const can = Object.entries(cfg.build).every(([id, n]) => (GameState.inventory[id] || 0) >= n);
         if (!can) { if (typeof UI !== 'undefined') UI.notify(t('dvur.notEnough'), true); return; }
@@ -517,6 +523,52 @@ const FarmyardSystem = {
         }
         if (collected) { Game.save(); FarmyardSystem.renderFarmyard(); UI.notify('🥚 ' + t('farmyard.columbariumCollected')); }
         else UI.notify(t('game.hiveNotReady'), true);
+    },
+
+    // ── Level 2 — nabílení vápnem (tech_calcaria), odstraní riziko predátora ──
+    WHITEWASH_COST: { vapno_hasene_mature: 3 },
+    whitewashColumbarium: function () {
+        this._ensureAnimals();
+        const c = GameState.columbarium;
+        if (!c.built || c.level >= 2) return;
+        if (!(GameState.researchedTechs && GameState.researchedTechs.includes('tech_calcaria'))) {
+            if (typeof UI !== 'undefined') UI.notify(t('dvur.lockedPrefix') + ' Calcaria', true);
+            return;
+        }
+        const can = Object.entries(this.WHITEWASH_COST).every(([id, n]) => (GameState.inventory[id] || 0) >= n);
+        if (!can) { if (typeof UI !== 'undefined') UI.notify(t('dvur.notEnough'), true); return; }
+        Object.entries(this.WHITEWASH_COST).forEach(([id, n]) => { GameState.inventory[id] -= n; });
+        c.level = 2;
+        if (typeof UI !== 'undefined') UI.notify('⬜ ' + t('farmyard.columbariumWhitewashed'));
+        if (typeof Game !== 'undefined') Game.save();
+        this.renderFarmyard();
+    },
+
+    // ── Predátor — denní kontrola (self-guarded 24h, jen level 1) ───────────
+    // Kuna/had loví jen dokud jsou zdi nenabílené (historicky doloženo —
+    // hladké nabílené zdi znemožňovaly šplhání). Level 2 = imunita.
+    PREDATOR_CHANCE: 0.08,
+    PREDATOR_LOSS_MIN: 1,
+    PREDATOR_LOSS_MAX: 2,
+    columbariumPredatorTick: function () {
+        this._ensureAnimals();
+        const c = GameState.columbarium;
+        if (!c.built || c.count <= 0 || c.level >= 2) return;
+        const now = Date.now();
+        if (now - (c.lastPredatorTick || 0) < this.DAY_MS) return;
+        c.lastPredatorTick = now;
+        if (Math.random() < this.PREDATOR_CHANCE) {
+            const loss = this.PREDATOR_LOSS_MIN + Math.floor(Math.random() * (this.PREDATOR_LOSS_MAX - this.PREDATOR_LOSS_MIN + 1));
+            const actualLoss = Math.min(loss, c.count);
+            c.count -= actualLoss;
+            if (typeof NotificationSystem !== 'undefined' && NotificationSystem.panel) {
+                const lang = (GameState.settings && GameState.settings.language) || 'cs';
+                NotificationSystem.panel('🦡 ' + (lang === 'en'
+                    ? `A marten struck the dovecote — ${actualLoss} pigeon(s) lost.`
+                    : `Kuna se dostala do holubníku — ztraceno ${actualLoss} holub(ů).`), 'warning');
+            }
+            if (typeof Game !== 'undefined') Game.save();
+        }
     },
 
     // ── Animal pen actions (delegated by GardenSystem stubs) ─────────────
@@ -1226,6 +1278,18 @@ const FarmyardSystem = {
         h += `<div>🥚 ${t('farmyard.eggs')}: <strong>${eggReady ? t('farmyard.ready') + ' (' + cfg.eggYield + ')' : Math.ceil(((c.lastEggAt || 0) + cfg.eggIntervalMs - now) / 3600000) + 'h'}</strong></div>`;
         h += `<div>🪶 ${t('farmyard.feathers')}: <strong>${featherReady ? t('farmyard.ready') + ' (' + cfg.featherYield + ')' : Math.ceil(((c.lastFeatherAt || 0) + cfg.featherIntervalMs - now) / 3600000) + 'h'}</strong></div>`;
         h += `</div>`;
+
+        // Level 2 — nabílení vápnem, imunita proti predátorům
+        if (c.level >= 2) {
+            h += `<div style="font-size:0.78rem; color:#5a9a5a; margin-bottom:8px;">⬜ ${t('farmyard.columbariumWhitewashed')}</div>`;
+        } else {
+            const hasCalc = GameState.researchedTechs && GameState.researchedTechs.includes('tech_calcaria');
+            const canWhitewash = hasCalc && (GameState.inventory['vapno_hasene_mature'] || 0) >= this.WHITEWASH_COST.vapno_hasene_mature;
+            h += `<div style="font-size:0.78rem; opacity:0.75; margin-bottom:8px;">🦡 ${t('farmyard.columbariumPredatorRisk')}</div>`;
+            if (hasCalc) {
+                h += `<button class="craft-btn" onclick="FarmyardSystem.whitewashColumbarium()" style="font-size:0.78rem; margin-bottom:8px;" ${canWhitewash ? '' : 'disabled'}>⬜ ${t('farmyard.columbariumWhitewash_btn')} (${this.WHITEWASH_COST.vapno_hasene_mature}× ${typeof iName === 'function' ? iName('vapno_hasene_mature') : 'vápno'})</button>`;
+            }
+        }
 
         const canClean = now - (c.lastCleanMs || 0) >= this.DAY_MS;
         h += `<div style="display:flex; gap:6px; flex-wrap:wrap;">`;
