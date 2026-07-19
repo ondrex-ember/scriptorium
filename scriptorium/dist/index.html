@@ -16432,11 +16432,13 @@ const VigorSystem = {
 
     // Syrové food_raw položky, které lze sníst přímo (bez vaření).
     // Game.eat() proti tomuto seznamu whitelistuje food_raw položky.
+    // cream/butter jsou type:"mat" (crafting surovina) — zůstává tak kvůli
+    // sýr/máslo řetězům, whitelist jen povoluje přímou konzumaci navíc.
     RAW_EDIBLE_FOOD: [
         'apple', 'pear', 'plum', 'cherry', 'mulberry', 'cornel_cherry',
         'carrot', 'cabbage', 'radish', 'turnip',
         'sorrel', 'dandelion', 'ground_elder', 'goosefoot',
-        'walnut',
+        'walnut', 'cream', 'butter',
     ],
 
     // Satiety z jídla
@@ -16486,6 +16488,8 @@ const VigorSystem = {
         stew_koreni:    42,
         cheese:         12,
         egg:            10,
+        cream:          6,
+        butter:         8,
         honey:          8,
         beer:           5,
         wine:           3,
