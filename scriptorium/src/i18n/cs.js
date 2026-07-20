@@ -193,6 +193,8 @@ const STRINGS_cs = {
         needFertilizer: 'Hnojivo!',
         needSeeds: 'Semínka!',
         needWater: 'Vodu!',
+        watered: '💧 Záhon zalit.',
+        wateredSpring: '💧 Záhon zalit pramenitou vodou.',
         growing: 'Roste...',
         needWell: '❌ Nejprve musíš postavit studnu v Řemeslo!',
         fallowCropOnly: '❌ Úhorný slot přijme jen úhorné plodiny (vikev).',
