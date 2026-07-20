@@ -1704,8 +1704,13 @@ const Game = {
 
             plot.plantedAt = Date.now();
         } else if (plot.state === 2 && !plot.water) {
-            if (!(GameState.inventory['water'] > 0)) { UI.notify(t('game.needWater'), true); return; }
-            this.removeItem('water', 1); plot.water = true;
+            const haveWater = GameState.inventory['water'] || 0;
+            const haveSpring = GameState.inventory['spring_water'] || 0;
+            if (haveWater <= 0 && haveSpring <= 0) { UI.notify(t('game.needWater'), true); return; }
+            const usedSpring = haveWater <= 0;
+            if (usedSpring) this.removeItem('spring_water', 1); else this.removeItem('water', 1);
+            plot.water = true;
+            UI.notify(t(usedSpring ? 'game.wateredSpring' : 'game.watered'));
         } else if (plot.state === 2 && plot.water) {
             // Calculate growth time with tech bonuses
             let growthSpeed = CONFIG.GROWTH_SPEED;
