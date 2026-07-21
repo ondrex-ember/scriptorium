@@ -46497,7 +46497,7 @@ const Game = {
     },
     eat: function(foodId) {
         const item = ItemsDB[foodId];
-        const _potionCures = ['antidote', 'potion_heal', 'sleep_potion', 'stamina_tonic'];
+        const _potionCures = ['antidote', 'potion_heal', 'sleep_potion', 'stamina_tonic', 'unguentum_calidum', 'cannabis_poultice'];
         const _isPotionCure = _potionCures.includes(foodId);
         // Syrové ovoce/zelenina (food_raw), co lze sníst přímo — viz VigorSystem.RAW_EDIBLE_FOOD
         const _isRawEdible = (typeof VigorSystem !== 'undefined' && VigorSystem.RAW_EDIBLE_FOOD && VigorSystem.RAW_EDIBLE_FOOD.includes(foodId));
