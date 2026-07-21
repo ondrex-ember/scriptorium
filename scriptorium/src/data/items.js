@@ -50,6 +50,7 @@ const ItemsDB = {
     "seeds_herb": { name: "Semínka", name_en: "Seeds", icon: "🌱", type: "mat", desc: "Rostliny.", desc_en: "Plant seeds." },
     "potion_heal": { name: "Mast", name_en: "Healing Salve", icon: "🧪", type: "alchemy", desc: "Léčí.", desc_en: "Heals wounds." },
     "unguentum_calidum": { name: "Hřejivá mast", name_en: "Warming Salve", icon: "🫙", type: "alchemy", desc: "Kostival, sádlo a rozmarýn. Podle galenické medicíny prohřívá a vysušuje studené vlhké šťávy — proti revma a křečím.", desc_en: "Comfrey, lard and rosemary. In Galenic medicine, warms and dries the cold, damp humours — against rheumatism and cramps." },
+    "cannabis_poultice": { name: "Konopný obklad", name_en: "Hemp Poultice", icon: "🌿", type: "alchemy", desc: "Rozdrcené listy a kořen konopí. Horký obklad na revmatické klouby a prochladlé tělo.", desc_en: "Crushed hemp leaves and root. A hot poultice for rheumatic joints and a chilled body." },
     "antidote": { name: "Protijed", name_en: "Antidote", icon: "💚", type: "alchemy", desc: "Proti jedu.", desc_en: "Against poison." },
     "stamina_tonic": { name: "Tonikum síly", name_en: "Stamina Tonic", icon: "⚡", type: "alchemy", desc: "Energie.", desc_en: "Restores energy." },
     "preservation_oil": { name: "Konzervační olej", name_en: "Preservation Oil", icon: "🫙", type: "alchemy", desc: "Uchovává.", desc_en: "Preserves food and materials." },
