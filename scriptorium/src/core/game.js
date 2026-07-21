@@ -3584,6 +3584,10 @@ const Game = {
             const roleMult = RankSystem.getActiveBonus('craft_speed');
             if (roleMult > 1.0 && Math.random() < (roleMult - 1.0)) craftQty += 1;
         }
+        // Dýmka Flow state — dočasný bonus, stejný vzor jako Professio Scriptor
+        if (GameState.flags && GameState.flags.dymkaEffectType === 'flow' && GameState.flags.dymkaEffectUntil && Date.now() < GameState.flags.dymkaEffectUntil) {
+            if (Math.random() < 0.5) craftQty += 1;
+        }
 
         // ── RESEARCH: diminishing returns ────────────────────────────────────
         if (r.output === 'research') {
