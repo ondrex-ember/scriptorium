@@ -6250,6 +6250,8 @@ const ItemsDB = {
     "bucket": { name: "Vědro", name_en: "Bucket", icon: "🪣", type: "tool", desc: "Dřevěné vědro. Přenáší vodu ze studny.", desc_en: "Wooden bucket. Carries water from the well." },
     "watering_can": { name: "Konev", name_en: "Watering Can", icon: "🚿", type: "tool", desc: "Konev na zalévání zahrady.", desc_en: "Watering can for the garden." },
     "barrel_tool": { name: "Sud", name_en: "Barrel", icon: "🛢️", type: "tool", desc: "Dřevěný sud. Skladování piva, vína a vody.", desc_en: "Wooden barrel. Storage for ale, wine and water." },
+    "bedna": { name: "Bedna", name_en: "Crate", icon: "🗃️", type: "tool", desc: "Dřevěná bedna. +30 jednotek skladové kapacity v Inventariu.", desc_en: "Wooden crate. +30 units of storage capacity in the Inventarium." },
+    "storage_container": { name: "Skladovací kontejner", name_en: "Storage Container", icon: "📦", type: "tool", desc: "Sud přestavěný na kontejner. +50 jednotek skladové kapacity v Inventariu.", desc_en: "A barrel rebuilt into a container. +50 units of storage capacity in the Inventarium." },
 
     // ── KOVOVÉ NÁSTROJE (tech_kovarina — po kovárně) ─────────────────────────
     "iron_axe": { maxUses: 20, maxStack: 1, name: "Železná sekerka", name_en: "Iron Axe", icon: "🪓", type: "tool", tier: "iron", desc: "Železné ostří. Rychlejší těžba dřeva, více kulatiny.", desc_en: "Iron blade. Faster wood harvesting, more logs." },
@@ -6528,7 +6530,7 @@ const ItemsDB = {
     "mustum_tramin": { name: "Mošt z Tramínu", name_en: "Traminer Must", icon: "🍶", type: "mat", desc: "Nalisovaný mošt z Tramínu. Čeká na fermentaci v Cella fermentaria.", desc_en: "Pressed must from Traminer. Awaits fermentation at the Cella fermentaria." },
 };
 // Oprava BUG #2 — semena stromů chybějící v ItemsDB (Trh nákup)
-// (vloženo před uzavírací }; — merge do objektu před buildem)
+// (vloženo před uzavírací závorku objektu — merge do objektu před buildem)
 // ── KADIDLO (Thuribulum) ─────────────────────────────────────────────────
 // Přidáno jako Object.assign — bezpečný merge bez zásahu do stávajícího kódu
 Object.assign(ItemsDB, {
