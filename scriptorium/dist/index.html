@@ -23291,6 +23291,121 @@ const FireplaceSystem = {
         this.render();
     },
 
+    // ── Dýmka (Foculus) — pack/smoke, 3 náhodné efekty, rauš max 8 min ──────
+    DYMKA_MS: 8 * 60 * 1000,
+
+    PIPE_HERETICAL_THOUGHTS: [
+        { cs: "Co když je nekvašená hostie urážkou Božího stvoření? Bůh by z ní udělal spíš teplý bochník s husím sádlem a medem.", en: "What if unleavened bread insults God's creation? He'd have made a warm loaf with goose fat and honey instead." },
+        { cs: "Není náš půst vlastně pohrdáním Božím štědrým darem? Není obžerství jen intenzivní formou chvály?", en: "Isn't our fasting a scorn of God's generous gift? Isn't gluttony just an intense form of praise?" },
+        { cs: "Zvonili na nešpory před chvílí, nebo před staletím? Co když věčnost je tady a teď?", en: "Did the vespers bell ring moments ago, or centuries ago? What if eternity is right here, right now?" },
+        { cs: "Jak může papež mít klíče od nebe, když nebe je zjevně jen stav mysli?", en: "How can the pope hold the keys to heaven, when heaven is clearly just a state of mind?" },
+        { cs: "Andělé v nebi vůbec nemluví latinsky. Dorozumívají se jen čistými barvami.", en: "The angels in heaven don't speak Latin at all. They speak only in pure colour." },
+        { cs: "Ten spodní tón bratra Gregora — to nezpívá on, to rezonuje samotná klenba.", en: "That low tone from Brother Gregor — it isn't him singing, it's the vault itself resonating." },
+        { cs: "Bůh není stvořitel. Bůh JE to stvoření. Je všude — i v hlíně za nehty.", en: "God is not the creator. God IS the creation. He is everywhere — even in the dirt under my nails." },
+        { cs: "Ta moucha nemá žádný hřích, nepotřebuje křest. Proč by měl být člověk od narození zatracen?", en: "That fly has no sin, needs no baptism. Why should man be damned from birth?" },
+        { cs: "Ti chrliči v křížové chodbě se na mě dívají. Vědí, co jsem udělal.", en: "Those gargoyles in the cloister are watching me. They know what I did." },
+        { cs: "Co když celý náš řád slouží Ďáblovi, aniž bychom to věděli?", en: "What if our whole order serves the Devil without knowing it?" },
+        { cs: "Bůh musel stvořit pštrosa a opice — má zjevně smysl pro humor. Smát se v kostele je možná ta nejupřímnější modlitba.", en: "God must have made the ostrich and the ape — He clearly has a sense of humour. Laughing in church may be the most honest prayer." },
+    ],
+
+    _ensurePipeState: function() {
+        this._ensureState();
+        if (!GameState.fire.pipe) GameState.fire.pipe = { state: 'idle' };
+    },
+
+    packPipe: function() {
+        this._ensurePipeState();
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        const pipe = GameState.fire.pipe;
+        if (pipe.state !== 'idle') return;
+        const hasPipe = (GameState.inventory['pipe_large'] || 0) > 0 || (GameState.inventory['pipe_small'] || 0) > 0;
+        if (!hasPipe) { UI.notify(lang === 'en' ? 'You need a pipe.' : 'Potřebuješ dýmku.', true); return; }
+        if (!GameState.fire.active) { UI.notify(lang === 'en' ? 'The hearth must be lit.' : 'Krb musí hořet.', true); return; }
+        if ((GameState.inventory['dried_cannabis'] || 0) <= 0) { UI.notify(lang === 'en' ? 'Need dried hemp.' : 'Potřebuješ sušené konopí.', true); return; }
+        Game.removeItem('dried_cannabis', 1);
+        pipe.state = 'packed';
+        Game.save();
+        this.render();
+    },
+
+    smokePipe: function() {
+        this._ensurePipeState();
+        const pipe = GameState.fire.pipe;
+        if (pipe.state !== 'packed') return;
+        pipe.state = 'idle';
+
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        const roll = Math.floor(Math.random() * 3);
+        if (!GameState.flags) GameState.flags = {};
+        GameState.flags.dymkaEffectUntil = Date.now() + this.DYMKA_MS;
+
+        if (roll === 0) {
+            // Flow state — Vigor/craft bonus (viz core/game.js craft_speed hook), jednorázový hlad
+            GameState.flags.dymkaEffectType = 'flow';
+            GameState.satiety = Math.max(0, (GameState.satiety || 0) - 15);
+            UI.notifyPanel(lang === 'en'
+                ? '🌀 Flow state — the words come easy, but the munchies hit hard.'
+                : '🌀 Stav toku — psaní jde snadno, ale hlad udeřil tvrdě.', 'system');
+        } else if (roll === 1) {
+            // Pain relief — okamžité vyléčení, pokud je co
+            GameState.flags.dymkaEffectType = 'pain';
+            const targets = ['writers_cramp', 'cold', 'rheumatism'];
+            let cured = null;
+            for (const id of targets) {
+                if (typeof HealthSystem !== 'undefined' && HealthSystem.isActive(id)) {
+                    HealthSystem.removeCondition(id, true);
+                    cured = id;
+                    break;
+                }
+            }
+            UI.notifyPanel(cured
+                ? (lang === 'en' ? '💨 The ache melts away.' : '💨 Bolest odplouvá pryč.')
+                : (lang === 'en' ? '💨 A calm settles over you — nothing to heal today.' : '💨 Zahalí tě klid — dnes není co léčit.'), 'system');
+        } else {
+            // Kacířské vize — cena Zbožnost, žádná surovina, jen myšlenka
+            GameState.flags.dymkaEffectType = 'vision';
+            if (typeof PersonaSystem !== 'undefined' && PersonaSystem.addZboznost) PersonaSystem.addZboznost(-8);
+            const thought = this.PIPE_HERETICAL_THOUGHTS[Math.floor(Math.random() * this.PIPE_HERETICAL_THOUGHTS.length)];
+            UI.notifyPanel('🌀 ' + (lang === 'en' ? thought.en : thought.cs), 'system');
+        }
+
+        Game.save();
+        this.render();
+    },
+
+    _renderPipe: function() {
+        const hasAnyPipe = (GameState.inventory['pipe_large'] || 0) > 0 || (GameState.inventory['pipe_small'] || 0) > 0;
+        if (!hasAnyPipe) return '';
+        this._ensurePipeState();
+        const pipe = GameState.fire.pipe;
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        const card = `background:rgba(0,0,0,0.05);padding:14px;border-radius:10px;border-left:3px solid var(--accent-gold);margin-bottom:12px;`;
+        let h = `<div style="${card}"><h4 style="margin:0 0 10px 0;color:var(--ink-primary);">🪈 ${lang === 'en' ? 'Pipe' : 'Dýmka'}</h4>`;
+
+        const btn = (label, onclick, disabled) =>
+            `<button onclick="${onclick}" ${disabled ? 'disabled' : ''} style="width:100%;padding:8px;border-radius:6px;border:1px solid var(--accent-gold);background:${disabled ? 'rgba(197,160,89,0.07)' : 'rgba(197,160,89,0.15)'};color:var(--accent-gold);cursor:${disabled ? 'default' : 'pointer'};font-size:0.85rem;opacity:${disabled ? '0.5' : '1'};">${label}</button>`;
+
+        const effectActive = GameState.flags && GameState.flags.dymkaEffectUntil && Date.now() < GameState.flags.dymkaEffectUntil;
+        if (effectActive) {
+            const remainMin = Math.max(0, Math.ceil((GameState.flags.dymkaEffectUntil - Date.now()) / 60000));
+            h += `<div style="text-align:center;font-size:1.8rem;">💨</div>`;
+            h += `<div style="text-align:center;font-size:0.85rem;color:var(--accent-gold);margin-top:4px;">${lang === 'en' ? remainMin + ' min left' : 'zbývá ' + remainMin + ' min'}</div>`;
+        } else if (pipe.state === 'packed') {
+            h += btn('💨 ' + (lang === 'en' ? 'Smoke' : 'Vykouřit'), 'FireplaceSystem.smokePipe()', false);
+        } else {
+            const hasDried = (GameState.inventory['dried_cannabis'] || 0) > 0;
+            const fireOk = !!GameState.fire.active;
+            const can = hasDried && fireOk;
+            h += btn('🌿 ' + (lang === 'en' ? 'Pack pipe' : 'Napěchovat dýmku'), 'FireplaceSystem.packPipe()', !can);
+            let hint = '';
+            if (!fireOk) hint = lang === 'en' ? 'Hearth must be lit' : 'Krb musí hořet';
+            else if (!hasDried) hint = lang === 'en' ? 'Need dried hemp' : 'Potřeba sušené konopí';
+            if (hint) h += `<div style="font-size:0.72rem;opacity:0.55;margin-top:6px;text-align:center;">${hint}</div>`;
+        }
+        h += `</div>`;
+        return h;
+    },
+
     // ── Kávovinový rituál: stavový automat idle → brewing(43s) → ready → idle ──
     _ensureCoffeeState: function() {
         if (!GameState.fire) this._ensureState();
@@ -23566,7 +23681,8 @@ const FireplaceSystem = {
             this._ensureCoffeeState();
             this._checkCoffeeDone();
             teaEl.innerHTML = this._renderTea() + this._renderCoffee() + this._renderSweep()
-                + (typeof DryingSystem !== 'undefined' ? DryingSystem.renderFoculus() : '');
+                + (typeof DryingSystem !== 'undefined' ? DryingSystem.renderFoculus() : '')
+                + this._renderPipe();
             teaEl.style.display = 'block';
             this._ensureTeaInterval();
             this._ensureCoffeeInterval();
