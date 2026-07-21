@@ -7192,7 +7192,7 @@ const HealthConditionsDB = {
         durationHours: 72,
         onApply: { satiety: -10, fatigue: 15 },
         tickHour: { fatigue: 2 },
-        cures: ["potion_heal", "herbal_tea", "hildegard_tisane", "linden_tea", "sleep_potion"],
+        cures: ["potion_heal", "herbal_tea", "hildegard_tisane", "linden_tea", "sleep_potion", "cannabis_poultice"],
     },
     "mosquito_bites": {
         name: "Komáří štípance", name_en: "Mosquito Bites", icon: "🦟",
@@ -7220,7 +7220,7 @@ const HealthConditionsDB = {
         durationHours: 96,
         onApply: { fatigue: 10 },
         tickHour: { fatigue: 1 },
-        cures: ["herbal_tea", "potion_heal", "hildegard_tisane", "unguentum_calidum"],
+        cures: ["herbal_tea", "potion_heal", "hildegard_tisane", "unguentum_calidum", "cannabis_poultice"],
         // titivillus-infirmary-mrd — žádná blokovaná akce, Infirmerie zde jen
         // zkracuje dobu léčby (96h → 24h) výměnou za Hřejivou mast.
         infirmaryEligible: true,
@@ -7348,6 +7348,7 @@ const HealthConditionsDB = {
         blockedRecipeOutput: "research",
     },
 };
+
 // ═══ src/data/lore.js ═══
 const LoreDB = {
     // TOOLS
