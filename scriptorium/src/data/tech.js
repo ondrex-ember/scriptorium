@@ -269,6 +269,14 @@ const TechTree = [
   },
 
   {
+    id: "tech_horrea_minora", name: "Horrea Minora — Malé sklady", name_en: "Horrea Minora — Small Stores",
+    cost: 12,
+    desc: "Ne každý poklad potřebuje sýpku. Bedny a přestavěné sudy dají další místo k uskladnění, kus po kuse. Odemkne: craft Bedny + přestavbu Sudu na skladovací kontejner — obojí přičítá kapacitu v Inventariu.",
+    desc_en: "Not every store needs a granary. Crates and rebuilt barrels give extra room, piece by piece. Unlocks: crafting the Crate + converting a Barrel into a storage container — both add capacity in the Inventarium.",
+    unlocks: ["bedna", "storage_container"], requires: ["tech_horticulture", "tech_inventarium"]
+  },
+
+  {
     id: "tech_liber_rationum", name: "Pratica della Mercatura — Liber Rationum", name_en: "Pratica della Mercatura — Liber Rationum",
     cost: 12,
     desc: "Pegolottiho zápisník: každý groš má cenu a každá transakce má příběh. Florentský agent znal ceny od Londýna po Caffu. Odemkne: subtab Liber Rationum v Cellariu — účetní kniha všech transakcí.",
