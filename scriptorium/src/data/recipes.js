@@ -501,6 +501,10 @@ const RecipesDB = [
       desc:"Konev na zalévání zahrady.", desc_en:"Watering can for the garden." },
     { id:"barrel_tool",  output:"barrel_tool",  qty:1, req:{plank:6, rope:3},           cat:"craft", locked:true,
       desc:"Dřevěný sud na pivo, víno a vodu.", desc_en:"Wooden barrel for ale, wine and water." },
+    { id:"bedna", output:"bedna", qty:1, req:{plank:8, rope:2}, cat:"craft", locked:true,
+      desc:"Dřevěná bedna. +30 jednotek skladu v Inventariu.", desc_en:"Wooden crate. +30 units of storage in the Inventarium." },
+    { id:"convert_barrel_to_container", output:"storage_container", qty:1, req:{barrel_tool:1}, cat:"craft", locked:true,
+      desc:"Přestavba sudu na skladovací kontejner. +50 jednotek skladu v Inventariu.", desc_en:"Rebuilding a barrel into a storage container. +50 units of storage in the Inventarium." },
 
     // ── ŽELEZNÝ VÝROBNÍ ŘETĚZEC ─────────────────────────────────────────────
     { id:"iron_ingot", output:"iron_ingot", qty:1, req:{iron_ore:3, charcoal:2}, cat:"iron", locked:true,
