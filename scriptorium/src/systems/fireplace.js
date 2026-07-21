@@ -686,7 +686,8 @@ const FireplaceSystem = {
             this._checkTeaDone();
             this._ensureCoffeeState();
             this._checkCoffeeDone();
-            teaEl.innerHTML = this._renderTea() + this._renderCoffee() + this._renderSweep();
+            teaEl.innerHTML = this._renderTea() + this._renderCoffee() + this._renderSweep()
+                + (typeof DryingSystem !== 'undefined' ? DryingSystem.renderFoculus() : '');
             teaEl.style.display = 'block';
             this._ensureTeaInterval();
             this._ensureCoffeeInterval();
