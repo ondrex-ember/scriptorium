@@ -1413,6 +1413,10 @@ const CellariumSystem = {
     if (s.cella    && s.cella.built)    { cap += 600;  storParts.push('Cella (+600j)'); }
     if (s.horreum  && s.horreum.built)  { cap += 1600; storParts.push('Horreum (+1600j)'); }
     if (s.old_cellars && s.old_cellars.built) { cap += 500; storParts.push(lang === 'en' ? 'Old Cellars (+500u)' : 'Staré sklepy (+500j)'); }
+    const bednaCnt = inv['bedna'] || 0;
+    if (bednaCnt > 0) { cap += bednaCnt * 30; storParts.push((lang === 'en' ? 'Crates ×' : 'Bedny ×') + bednaCnt + ' (+' + (bednaCnt * 30) + (lang === 'en' ? 'u)' : 'j)')); }
+    const containerCnt = inv['storage_container'] || 0;
+    if (containerCnt > 0) { cap += containerCnt * 50; storParts.push((lang === 'en' ? 'Containers ×' : 'Kontejnery ×') + containerCnt + ' (+' + (containerCnt * 50) + (lang === 'en' ? 'u)' : 'j)')); }
     const storName = storParts.join(' · ');
     const totalItems = (ds ? ds.totalStock() : Object.values(inv).reduce((sum, v) => sum + (typeof v === 'number' && v > 0 ? v : 0), 0));
     const capPct = Math.min(100, Math.round(totalItems / cap * 100));
