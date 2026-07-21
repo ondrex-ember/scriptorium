@@ -21990,7 +21990,8 @@ const DryingSystem = {
         if (active) {
             const def = this.DRY_TYPES.cannabis;
             const totalMs = def.dryDays * this.DAY_MS;
-            const elapsed = Date.now() - active.startedAt;
+            const slowMult = (typeof FireplaceSystem !== 'undefined' && FireplaceSystem._dymkaSlowMult) ? FireplaceSystem._dymkaSlowMult() : 1;
+            const elapsed = (Date.now() - active.startedAt) * slowMult;
             const pct = Math.min(100, Math.round(elapsed / totalMs * 100));
             const hoursLeft = Math.max(0, Math.ceil((totalMs - elapsed) / 3600000));
             h += `<div style="background:rgba(0,0,0,0.1); border-radius:4px; height:8px;">
