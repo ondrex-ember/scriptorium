@@ -429,6 +429,20 @@ const FireplaceSystem = {
         { cs: "Bůh musel stvořit pštrosa a opice — má zjevně smysl pro humor. Smát se v kostele je možná ta nejupřímnější modlitba.", en: "God must have made the ostrich and the ape — He clearly has a sense of humour. Laughing in church may be the most honest prayer." },
     ],
 
+    PIPE_PARANOIA_FLASHES: [
+        { cs: "Opat na tebe zírá skrze klíčovou dírku.", en: "The Abbot is watching you through the keyhole." },
+        { cs: "Pergamen na tebe dýchá.", en: "The parchment is breathing at you." },
+        { cs: "Něco se pohnulo ve stínu za regálem.", en: "Something moved in the shadow behind the shelf." },
+        { cs: "Svíce mrkla — nebo jsi mrkl ty?", en: "The candle blinked — or did you?" },
+        { cs: "Bratr Bernard tě sleduje z chodby. Nebo tam ani není.", en: "Brother Bernard is watching from the hallway. Or he isn't there at all." },
+        { cs: "Zdálo se ti, že zvon odbil, ale ještě není čas.", en: "You could swear the bell just rang, but it isn't time yet." },
+    ],
+
+    _dymkaSlowMult: function() {
+        const active = GameState.flags && GameState.flags.dymkaEffectUntil && Date.now() < GameState.flags.dymkaEffectUntil;
+        return active ? 0.5 : 1;
+    },
+
     _ensurePipeState: function() {
         this._ensureState();
         if (!GameState.fire.pipe) GameState.fire.pipe = { state: 'idle' };
@@ -459,6 +473,18 @@ const FireplaceSystem = {
         const roll = Math.floor(Math.random() * 3);
         if (!GameState.flags) GameState.flags = {};
         GameState.flags.dymkaEffectUntil = Date.now() + this.DYMKA_MS;
+
+        // Kosmetická vrstva (nezávislá na tom, který ze 3 efektů padl) —
+        // zpomalení: toast + Zprávy z kláštera hned; paranoia: 1 náhodná
+        // linka v polovině okna.
+        UI.notifyPanel(lang === 'en'
+            ? '⏳ Time feels like it is dragging...'
+            : '⏳ Zdá se ti, že čas plyne pomaleji...', 'system');
+        setTimeout(() => {
+            if (!(GameState.flags && GameState.flags.dymkaEffectUntil && Date.now() < GameState.flags.dymkaEffectUntil)) return;
+            const flash = this.PIPE_PARANOIA_FLASHES[Math.floor(Math.random() * this.PIPE_PARANOIA_FLASHES.length)];
+            UI.notifyPanel('👁️ ' + (lang === 'en' ? flash.en : flash.cs), 'system');
+        }, Math.round(this.DYMKA_MS * (0.25 + Math.random() * 0.25)));
 
         if (roll === 0) {
             // Flow state — Vigor/craft bonus (viz core/game.js craft_speed hook), jednorázový hlad
@@ -511,6 +537,7 @@ const FireplaceSystem = {
             const remainMin = Math.max(0, Math.ceil((GameState.flags.dymkaEffectUntil - Date.now()) / 60000));
             h += `<div style="text-align:center;font-size:1.8rem;">💨</div>`;
             h += `<div style="text-align:center;font-size:0.85rem;color:var(--accent-gold);margin-top:4px;">${lang === 'en' ? remainMin + ' min left' : 'zbývá ' + remainMin + ' min'}</div>`;
+            h += `<div style="text-align:center;font-size:0.72rem;opacity:0.6;margin-top:4px;font-style:italic;">${lang === 'en' ? 'It seems to you... time is dragging.' : 'Zdá se ti... že čas plyne pomaleji.'}</div>`;
         } else if (pipe.state === 'packed') {
             h += btn('💨 ' + (lang === 'en' ? 'Smoke' : 'Vykouřit'), 'FireplaceSystem.smokePipe()', false);
         } else {
@@ -613,7 +640,8 @@ const FireplaceSystem = {
             `<button onclick="${onclick}" ${disabled ? 'disabled' : ''} style="width:100%;padding:8px;border-radius:6px;border:1px solid var(--accent-gold);background:${disabled ? 'rgba(197,160,89,0.07)' : 'rgba(197,160,89,0.15)'};color:var(--accent-gold);cursor:${disabled ? 'default' : 'pointer'};font-size:0.85rem;opacity:${disabled ? '0.5' : '1'};">${label}</button>`;
 
         if (tea.state === 'brewing') {
-            const remain = Math.max(0, Math.ceil((this.TEA_BREW_MS - (Date.now() - tea.start)) / 1000));
+            const elapsed = (Date.now() - tea.start) * this._dymkaSlowMult();
+            const remain = Math.max(0, Math.ceil((this.TEA_BREW_MS - elapsed) / 1000));
             h += `<div style="text-align:center;font-size:1.8rem;">♨️</div>`;
             h += `<div style="text-align:center;font-size:0.85rem;color:var(--accent-gold);margin-top:4px;">${t('fireplace.teaBrewing').replace('{s}', remain)}</div>`;
         } else if (tea.state === 'ready') {
@@ -650,7 +678,8 @@ const FireplaceSystem = {
             `<button onclick="${onclick}" ${disabled ? 'disabled' : ''} style="width:100%;padding:8px;border-radius:6px;border:1px solid var(--accent-gold);background:${disabled ? 'rgba(197,160,89,0.07)' : 'rgba(197,160,89,0.15)'};color:var(--accent-gold);cursor:${disabled ? 'default' : 'pointer'};font-size:0.85rem;opacity:${disabled ? '0.5' : '1'};">${label}</button>`;
 
         if (coffee.state === 'brewing') {
-            const remain = Math.max(0, Math.ceil((this.COFFEE_BREW_MS - (Date.now() - coffee.start)) / 1000));
+            const elapsed = (Date.now() - coffee.start) * this._dymkaSlowMult();
+            const remain = Math.max(0, Math.ceil((this.COFFEE_BREW_MS - elapsed) / 1000));
             h += `<div style="text-align:center;font-size:1.8rem;">♨️</div>`;
             h += `<div style="text-align:center;font-size:0.85rem;color:var(--accent-gold);margin-top:4px;">${t('fireplace.coffeeBrewing').replace('{s}', remain)}</div>`;
         } else if (coffee.state === 'ready') {
