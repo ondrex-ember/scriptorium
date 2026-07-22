@@ -46065,9 +46065,8 @@ const Game = {
                     this.addItem('fat', 1); 
                     this.addItem('meat', 1); 
                     if (r > 0.4) this.addItem('bone', 1);
-                    if (r > 0.7) this.addItem('leather', 1); // 30% chance
                     // v7.5: NEW DROPS
-                    if (r > 0.5) this.addItem('hide', 1); // 50% chance - wild hide, needs processing into raw_hide
+                    if (r > 0.5) this.addItem('hide', 1); // 50% chance - wild hide, needs processing into raw_hide or wild_leather
                     if (r > 0.7) this.addItem('feather', 1); // 30% chance - for quill
                 }
                 else if (type === 'nature') { 
@@ -46415,7 +46414,6 @@ const Game = {
                 this.addItem('fat', 1); 
                 this.addItem('meat', 1); 
                 if (r > 0.4) this.addItem('bone', 1);
-                if (r > 0.7) this.addItem('leather', 1); // 30% chance
                 // v7.5: NEW DROPS
                 if (r > 0.5) this.addItem('hide', 1); // 50% chance
                 if (r > 0.7) this.addItem('feather', 1); // 30% chance
