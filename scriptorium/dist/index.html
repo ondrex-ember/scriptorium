@@ -14001,32 +14001,36 @@ const EventsSystem = {
     showEvent: function(event) {
         if (typeof NotificationSystem === 'undefined' || !NotificationSystem.modal) return;
 
-        const choices = (event.choices || []).map(choice => ({
-            label: `${t(choice.labelKey)}<br><small style="opacity:0.7; font-weight:normal; text-transform:none; letter-spacing:0;">${t(choice.descKey)}</small>`,
-            type: 'default',
-            effect: () => {
-                const result = choice.action();
-                Game.save();
-                NotificationSystem.modal({
-                    title: t('events.ui.result'),
-                    image: event.image || null,
-                    text: result,
-                    choices: [{
-                        label: t('events.ui.close'),
-                        type: 'primary',
-                        effect: () => {
-                            if (typeof UI !== 'undefined' && typeof UI.renderAll === 'function') UI.renderAll();
-                        }
-                    }]
-                });
-            }
-        }));
+        const choices = (event.choices || []).map(choice => {
+            const label = choice.label || t(choice.labelKey);
+            const desc  = choice.desc  || (choice.descKey ? t(choice.descKey) : '');
+            return {
+                label: desc ? `${label}<br><small style="opacity:0.7; font-weight:normal; text-transform:none; letter-spacing:0;">${desc}</small>` : label,
+                type: 'default',
+                effect: () => {
+                    const result = choice.action();
+                    Game.save();
+                    NotificationSystem.modal({
+                        title: t('events.ui.result'),
+                        image: event.image || null,
+                        text: result,
+                        choices: [{
+                            label: t('events.ui.close'),
+                            type: 'primary',
+                            effect: () => {
+                                if (typeof UI !== 'undefined' && typeof UI.renderAll === 'function') UI.renderAll();
+                            }
+                        }]
+                    });
+                }
+            };
+        });
 
         NotificationSystem.modal({
             icon: event.icon || '📜',
             image: event.image || null,
-            title: t(event.titleKey),
-            text: t(event.textKey),
+            title: event.title || t(event.titleKey),
+            text: event.text || t(event.textKey),
             choices: choices
         });
     }
