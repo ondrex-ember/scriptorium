@@ -129,24 +129,26 @@ const ChroniconSystem = {
             }
         }
 
-        // CHRONICON unlockFlag → GameState.flags (obecný most, defenzivní —
-        // no-op dokud CHRONICON strana pole unlockFlag nezačne posílat)
-        if (snap.unlockFlag && typeof GameState !== 'undefined') {
+        // CHRONICON unlockFlags → GameState.flags (celá historie vždy — nový
+        // hráč dostane na první fetch všechny dosud udělené flagy najednou)
+        if (Array.isArray(snap.unlockFlags) && typeof GameState !== 'undefined') {
             if (!GameState.flags) GameState.flags = {};
-            if (!GameState.flags[snap.unlockFlag]) {
-                GameState.flags[snap.unlockFlag] = true;
-                if (!GameState.kronika) GameState.kronika = [];
-                GameState.kronika.push({
-                    ts:     Date.now(),
-                    cs:     'Zvěst přinesla novou možnost.',
-                    en:     'A rumor has brought a new possibility.',
-                    la:     null,
-                    type:   'chronicon_unlock',
-                    source: 'chronicon',
-                    icon:   '🕊️',
-                    season: null,
-                });
-            }
+            snap.unlockFlags.forEach(function (flagName) {
+                if (typeof flagName === 'string' && !GameState.flags[flagName]) {
+                    GameState.flags[flagName] = true;
+                    if (!GameState.kronika) GameState.kronika = [];
+                    GameState.kronika.push({
+                        ts:     Date.now(),
+                        cs:     'Zvěst přinesla novou možnost.',
+                        en:     'A rumor has brought a new possibility.',
+                        la:     null,
+                        type:   'chronicon_unlock',
+                        source: 'chronicon',
+                        icon:   '🕊️',
+                        season: null,
+                    });
+                }
+            });
         }
 
         // CHRONICON advisory_events → kurátorované rozhodovací eventy (Sprint 3).
