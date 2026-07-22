@@ -693,6 +693,8 @@ const Game = {
                 CanonicalHours.checkCurrentHour();
                 // v7.5: Check events
                 EventsSystem.checkEvents();
+                // CHRONICON advisory eventy — stejná kadence
+                if (typeof ChroniconSystem !== 'undefined' && ChroniconSystem.checkPendingAdvisory) ChroniconSystem.checkPendingAdvisory();
                 // v8.1: Giacomo weekly check (once per minute)
                 _tickCounter++;
                 if (_tickCounter >= 60) {
@@ -6337,13 +6339,20 @@ const Game = {
         const isLateWinter = month === 2 || month === 3; // shodné s hráčovým healthConditionsDailyTick
         const lang = (GameState.settings && GameState.settings.language) || 'cs';
 
-        const applyTick = (entity) => {
+        const applyTick = (entity, isBrother) => {
             if (!entity.conditions) entity.conditions = {};
             Object.keys(entity.conditions).forEach(id => {
                 const inst = entity.conditions[id];
                 const def = HealthConditionsDB[id];
                 if (!def || !inst) { delete entity.conditions[id]; return; }
-                if (Date.now() >= inst.expiresAt) { delete entity.conditions[id]; return; }
+                if (Date.now() >= inst.expiresAt) {
+                    delete entity.conditions[id];
+                    // Oheň sv. Antonína — jediná neduhová (bez léku), vzácná a nebezpečná;
+                    // jediný spouštěč úmrtí NPC zatím. Infirmarium (až bude postaveno) sem
+                    // vnese modifikátor podle kvality péče — zatím plochá čísla.
+                    if (id === 'ergot_fire') this._checkErgotDeath(entity, isBrother);
+                    return;
+                }
                 // Denní tick = 24h najednou; NPC tlumeněji než hráč (0.3×),
                 // ať se nerozpadnou po jednom dni smůly.
                 if (def.tickHour && typeof def.tickHour.fatigue === 'number') {
@@ -6378,7 +6387,7 @@ const Game = {
             this.NPC_CONTAGIOUS.forEach(id => {
                 const infected = pool.filter(e => e.conditions && e.conditions[id]).length;
                 pool.forEach(entity => {
-                    applyTick(entity);
+                    applyTick(entity, pool === brothers);
                     const task = entity.task || entity.assignedTab;
                     const taskRisk = this.NPC_HEALTH_RISK[task] === id ? 0.02 : 0;
                     // Svrab nemá task-vazbu (na rozdíl od Vší/dvur) — "sdílený
@@ -6449,6 +6458,75 @@ const Game = {
         });
 
         Game.save();
+    },
+
+    // Riziko úmrtí na Oheň sv. Antonína — jediná neduhová bez léku (rare & dangerous).
+    // Mnich má nižší riziko (teplo, lepší strava) než konvrš. Plochá čísla zatím —
+    // Infirmarium (Medicus/Apothecarius péče) sem časem přidá modifikátor kvality.
+    ERGOT_DEATH_CHANCE: { brother: 0.08, konvrs: 0.18 },
+
+    _checkErgotDeath: function(entity, isBrother) {
+        const chance = isBrother ? this.ERGOT_DEATH_CHANCE.brother : this.ERGOT_DEATH_CHANCE.konvrs;
+        if (Math.random() >= chance) return;
+        this._npcDies(entity, isBrother, 'ergot_fire');
+    },
+
+    // Trvalé úmrtí — Rajský dvůr (vnitřní pohřebiště komunity), NE farní Hřbitov
+    // (ten je jen pro farní rodiny přes parishEventTick — historicky odlišené prostory).
+    // Okamžitá náhrada stejnou postavou z rosteru (Bouvard: "vlastní variace do rosteru").
+    _npcDies: function(entity, isBrother, cause) {
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        const name = entity.name;
+        const rosterId = entity.rosterId || null;
+
+        if (isBrother) {
+            GameState.dormitorium.brothers = (GameState.dormitorium.brothers || []).filter(b => b !== entity);
+        } else {
+            GameState.conversi = (GameState.conversi || []).filter(k => k !== entity);
+        }
+
+        if (!GameState.rajskyDvur) GameState.rajskyDvur = { graves: [] };
+        GameState.rajskyDvur.graves.push({ name: name, rosterId: rosterId, ts: Date.now(), cause: cause, wasBrother: isBrother });
+
+        // Officium defunctorum — krátký komunitní stav, žádná nová role potřeba
+        if (!GameState.flags) GameState.flags = {};
+        GameState.flags.officiumDefunctorumUntil = Date.now() + 3 * 24 * 60 * 60 * 1000;
+
+        UI.notifyPanel('☦️ ' + (lang==='en' ? name+' has died.' : name+' zemřel.'), 'warning');
+        Game.addKronikaEntry('important',
+            '☦️ ' + name + ' zemřel. Requiescat in pace.',
+            '☦️ ' + name + ' has died. Requiescat in pace.',
+            '☦️ Frater migravit ad Dominum.');
+
+        if (isBrother) this._respawnBrother(rosterId); else this._respawnKonvrs(rosterId);
+        Game.save();
+    },
+
+    _respawnBrother: function(rosterId) {
+        if (!GameState.dormitorium) GameState.dormitorium = { brothers: [] };
+        if (!GameState.dormitorium.brothers) GameState.dormitorium.brothers = [];
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        const rec = (rosterId && typeof DormitoriumRosterDB !== 'undefined') ? DormitoriumRosterDB[rosterId] : null;
+        const name = rec ? rec.name : (lang === 'en' ? 'Brother' : 'Bratr');
+        const brother = {
+            id: 'brother_' + Date.now(), rosterId: rosterId, name: name, hiredAt: Date.now(),
+            assignedTab: null, xp: {}, fatigue: 0, mood: 60, loyalty: 30, stress: 0, temptation: 0,
+            traits: { piety: 0, obedience: 0, asceticism: 0, erudition: 0, focus: 0, craftsmanship: 0, eloquence: 0, vigor: 0 },
+        };
+        const rosterBonus = this.DORMITORIUM_ROSTER_TRAIT_BONUS[rosterId];
+        if (rosterBonus) rosterBonus.forEach(key => { if (typeof brother.traits[key] === 'number') brother.traits[key] = Math.min(100, brother.traits[key] + 10); });
+        GameState.dormitorium.brothers.push(brother);
+        UI.notifyPanel('📿 ' + (lang==='en' ? name+' has taken his vows anew and joined the community.' : name+' znovu složil sliby a připojil se ke komunitě.'), 'success');
+    },
+
+    _respawnKonvrs: function(rosterId) {
+        if (!GameState.conversi) GameState.conversi = [];
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        const rec = (rosterId && typeof ConversiRosterDB !== 'undefined') ? ConversiRosterDB[rosterId] : null;
+        const name = rec ? rec.name : (lang === 'en' ? 'Lay brother' : 'Konvrš');
+        const konvrs = { id: 'konvrs_' + Date.now(), rosterId: rosterId, name: name, hiredAt: Date.now(), fatigue: 0 };
+        GameState.conversi.push(konvrs);
+        UI.notifyPanel('✝️ ' + (lang==='en' ? name+' has taken his vows anew and joined the community.' : name+' znovu složil sliby a připojil se ke komunitě.'), 'success');
     },
 
     checkConversiChores: function(onlyTab) {
