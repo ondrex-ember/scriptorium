@@ -21993,11 +21993,10 @@ const DryingSystem = {
             const slowMult = (typeof FireplaceSystem !== 'undefined' && FireplaceSystem._dymkaSlowMult) ? FireplaceSystem._dymkaSlowMult() : 1;
             const elapsed = (Date.now() - active.startedAt) * slowMult;
             const pct = Math.min(100, Math.round(elapsed / totalMs * 100));
-            const hoursLeft = Math.max(0, Math.ceil((totalMs - elapsed) / 3600000));
             h += `<div style="background:rgba(0,0,0,0.1); border-radius:4px; height:8px;">
                 <div style="width:${pct}%; background:var(--accent-gold); height:8px; border-radius:4px; transition:width 0.3s;"></div>
               </div>`;
-            h += `<div style="font-size:0.72rem; opacity:0.65; margin-top:4px; text-align:center;">${pct}% — ${lang === 'en' ? hoursLeft + 'h left' : 'zbývá ' + hoursLeft + 'h'}</div>`;
+            h += `<div style="font-size:0.72rem; opacity:0.65; margin-top:4px; text-align:center;">${lang === 'en' ? 'Drying in progress...' : 'Sušení probíhá...'}</div>`;
         } else {
             const have = GameState.inventory['cannabis'] || 0;
             const can = have >= this.DRY_TYPES.cannabis.inputQty;
