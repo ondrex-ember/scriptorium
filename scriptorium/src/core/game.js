@@ -860,6 +860,52 @@ const Game = {
             }
         } catch(e) {}
     },
+    // Historický základ — klášter roku 1465 už nějakou dobu stojí, hřbitov
+    // ani rajský dvůr by neměly být prázdné od prvního dne. Idempotentní —
+    // běží jednou (flag), pak nikdy víc. Přidává k tomu, co už tam je,
+    // nepřepisuje. Frekvence: farní úmrtí ~1×/60-100 dní (3 roky zpátky),
+    // mnišská/konvršská vzácně ~1×/2-3 roky (odpovídá ERGOT_DEATH_CHANCE).
+    _seedHistoricalGraves: function() {
+        try {
+            if (!GameState.flags) GameState.flags = {};
+            if (GameState.flags.historicalGravesSeeded) return;
+
+            if (!GameState.cemetery) GameState.cemetery = { condition: 100, graves: [] };
+            if (!Array.isArray(GameState.cemetery.graves)) GameState.cemetery.graves = [];
+            const parishSeed = [
+                { surname: 'Novák',     days: 1095 }, { surname: 'Dvořák',    days: 990 },
+                { surname: 'Král',      days:  890 }, { surname: 'Procházka', days: 810 },
+                { surname: 'Sedlák',    days:  720 }, { surname: 'Novotný',   days: 640 },
+                { surname: 'Malý',      days:  560 }, { surname: 'Kovář',     days: 480 },
+                { surname: 'Krejčí',    days:  400 }, { surname: 'Novák',     days: 320 },
+                { surname: 'Dvořák',    days:  240 }, { surname: 'Sedlák',    days: 160 },
+                { surname: 'Král',      days:   90 }, { surname: 'Malý',      days:  30 },
+            ];
+            parishSeed.forEach(g => GameState.cemetery.graves.push({ surname: g.surname, ts: Date.now() - g.days * 86400000 }));
+
+            if (!GameState.rajskyDvur) GameState.rajskyDvur = { graves: [] };
+            if (!Array.isArray(GameState.rajskyDvur.graves)) GameState.rajskyDvur.graves = [];
+            const cloisterSeed = [
+                { name: 'Bratr Metoděj', wasBrother: true,  days: 2555 },
+                { name: 'Bratr Ondřej',  wasBrother: true,  days: 1460 },
+                { name: 'Konvrš Blažej', wasBrother: false, days:  400 },
+            ];
+            cloisterSeed.forEach(g => GameState.rajskyDvur.graves.push({
+                name: g.name, wasBrother: g.wasBrother, cause: 'ergot_fire', ts: Date.now() - g.days * 86400000
+            }));
+
+            // Flag se nastaví AŽ po úspěšném dokončení obou seedů — kdyby něco
+            // vybouchlo uprostřed, příště se to jen zkusí znovu (nanejvýš pár
+            // duplicitních hrobů, nikdy pád nebo poškození save).
+            GameState.flags.historicalGravesSeeded = true;
+            Game.save();
+            console.log('🪦 Historický základ hřbitova/rajského dvora doplněn (14 + 3 hrobů).');
+        } catch (e) {
+            // Cokoliv se tu pokazí, save hráče to nesmí ovlivnit — jen zaloguj.
+            console.error('⚠️ _seedHistoricalGraves selhalo (neškodné, zbytek loadu pokračuje):', e);
+        }
+    },
+
     load: function() {
         function deepMerge(target, source) {
             for (let key in source) {
@@ -886,6 +932,7 @@ const Game = {
         } catch(e) {
             console.error('❌ Load error (localStorage):', e);
         }
+        Game._seedHistoricalGraves();
 
         // STEP 2 — async IDB check: if IDB has newer save, patch GameState + re-render
         Game._idbLoad().then(idbRecord => {
@@ -898,6 +945,7 @@ const Game = {
                     // Sync IDB back to localStorage for next load
                     localStorage.setItem('scriptorium_save_v6_4', typeof idbRecord.data === 'string' ? idbRecord.data : JSON.stringify(idbRecord.data));
                     Game.syncTechUnlocks();
+                    Game._seedHistoricalGraves();
                     if (typeof UI !== 'undefined' && UI.renderAll) UI.renderAll();
                     console.log('✅ IDB save was newer — patched GameState and re-rendered');
                 } catch(e) {
