@@ -16,7 +16,17 @@ const TemplumSystem = {
         const days = Math.floor((Date.now() - ts) / (24 * 3600000));
         if (days <= 0) return lang === 'en' ? 'today' : 'dnes';
         if (days === 1) return lang === 'en' ? '1 day ago' : 'včera';
-        return lang === 'en' ? days + ' days ago' : 'před ' + days + ' dny';
+        if (days < 30) return lang === 'en' ? days + ' days ago' : 'před ' + days + ' dny';
+        if (days < 365) {
+            const months = Math.round(days / 30);
+            return lang === 'en'
+                ? months + (months === 1 ? ' month ago' : ' months ago')
+                : 'před ' + months + (months === 1 ? ' měsícem' : ' měsíci');
+        }
+        const years = Math.round(days / 365);
+        return lang === 'en'
+            ? years + (years === 1 ? ' year ago' : ' years ago')
+            : 'před ' + years + (years === 1 ? ' rokem' : ' lety');
     },
 
     _confessionHistoryHtml: function(lang) {
