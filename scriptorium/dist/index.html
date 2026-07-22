@@ -12770,6 +12770,39 @@ const ChroniconSystem = {
             return;
         }
 
+        // CHRONICON pasivní pohřby (před Proboštem) — hráč je informován,
+        // ale nevede obřad (to přijde až s Proboštem přes parishEventTick).
+        // Monotónní čítač + lokální "spotřebováno" kvůli 6h fetch cache —
+        // stejný důvod jako u advisory_events výš.
+        if (snap.region && typeof snap.region.totalFuneralEvents === 'number'
+            && typeof GameState !== 'undefined' && !(GameState.rank && GameState.rank.probost)) {
+            const consumedKey = 'chroniconFuneralsConsumed';
+            const consumed = GameState[consumedKey] || 0;
+            const diff = snap.region.totalFuneralEvents - consumed;
+            if (diff > 0) {
+                const toAdd = Math.min(diff, 2);
+                const surnames = (Game && Game.PARISH_SURNAMES) || ['Novák', 'Dvořák', 'Král', 'Procházka', 'Sedlák'];
+                if (!GameState.cemetery) GameState.cemetery = { condition: 100, graves: [] };
+                for (let i = 0; i < toAdd; i++) {
+                    const surname = surnames[Math.floor(Math.random() * surnames.length)];
+                    GameState.cemetery.graves.push({ surname: surname, ts: Date.now() - i * 3600000 });
+                    if (!GameState.kronika) GameState.kronika = [];
+                    GameState.kronika.push({
+                        ts:     Date.now() - i * 3600000,
+                        cs:     'Zvěst z kraje: rodina ' + surname + ' pohřbila svého blízkého. Faráři z okolí obřad vykonali bez klášterní účasti.',
+                        en:     'News from the region: the ' + surname + ' family buried a loved one. Local priests performed the rite without the monastery\'s part.',
+                        la:     null,
+                        type:   'chronicon_funeral',
+                        source: 'chronicon',
+                        icon:   '⚰️',
+                        season: null,
+                    });
+                }
+                GameState[consumedKey] = consumed + toAdd;
+                Game.save();
+            }
+        }
+
         // Abbot message → toast + kanál zpráv + Kronika (jen při nové/změněné zprávě)
         if (snap.abbot && snap.abbot.message) {
             const msgId   = snap.abbot.message_id || snap.abbot.message;
