@@ -106,16 +106,18 @@ const ChroniconSystem = {
             const lastKey = 'scriptorium_chronicon_abbot_last';
             const lastMsg = localStorage.getItem(lastKey);
             if (lastMsg !== msgId) {
+                const lang     = (typeof GameState !== 'undefined' && GameState.settings && GameState.settings.language) || 'cs';
+                const msgShown = (lang === 'en' && snap.abbot.message_en) ? snap.abbot.message_en : snap.abbot.message;
                 if (typeof NotificationSystem !== 'undefined') {
-                    NotificationSystem.toast('✝️ ' + snap.abbot.message, 'warn');
-                    NotificationSystem.panel('✝️ ' + snap.abbot.message, 'chronicon');
+                    NotificationSystem.toast('✝️ ' + msgShown, 'warn');
+                    NotificationSystem.panel('✝️ ' + msgShown, 'chronicon');
                 }
                 if (typeof GameState !== 'undefined') {
                     if (!GameState.kronika) GameState.kronika = [];
                     GameState.kronika.push({
                         ts:     Date.now(),
                         cs:     snap.abbot.message,
-                        en:     snap.abbot.message,
+                        en:     snap.abbot.message_en || snap.abbot.message,
                         la:     null,
                         type:   'chronicon_abbot',
                         source: 'abbot',
