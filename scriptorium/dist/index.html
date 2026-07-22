@@ -6237,6 +6237,8 @@ const ItemsDB = {
     "glue": { name: "Klej", name_en: "Glue", icon: "🫧", type: "mat", desc: "Kostní klej. Váže dřevo i pergamen.", desc_en: "Bone glue. Bonds wood and parchment." },
     "plank": { name: "Fošna", name_en: "Plank", icon: "🪵", type: "mat", desc: "Otesaná dřevěná deska. Základ každé stavby.", desc_en: "A hewn wooden board. The foundation of every building." },
     "cut_stone": { name: "Tesaný kámen", name_en: "Cut Stone", icon: "🧱", type: "mat", desc: "Kámen opracovaný dlátem. Pevný základ sklepa i sýpky.", desc_en: "Stone shaped by chisel. The firm foundation of cellar and granary." },
+    "nahrobek": { name: "Náhrobek", name_en: "Gravestone", icon: "🪦", type: "mat", desc: "Kamenná deska se jménem. Dílo kameníka pro hrob na hřbitově.", desc_en: "A stone slab bearing a name. The stonemason's work for a grave in the cemetery." },
+    "chrlic": { name: "Chrlič", name_en: "Gargoyle", icon: "🗿", type: "mat", desc: "Kamenná obluda odvádějící dešťovou vodu z okapu. Zdobí i chrání chrám.", desc_en: "A stone beast channeling rainwater from the eaves. It adorns and guards the church." },
 
     // ── KAMENNÉ NÁSTROJE (tech_horticulture + tech_carpentaria) ────────────────
     "stone_axe": { maxUses: 10, name: "Kamenná sekerka", name_en: "Stone Axe", icon: "🪓", type: "tool", tier: "stone", desc: "Kamenné ostří na dřevěné násadě. Odemkne těžbu dřeva.", desc_en: "Stone blade on a wooden haft. Unlocks wood harvesting." },
@@ -6571,7 +6573,6 @@ Object.assign(ItemsDB, {
         desc: "Potřísněný list nalezený mezi zkaženými zásobami. Někdo si zapsal, co znamená, když zanedbání přivolá roj.", desc_en: "A stained page found among the spoiled stores. Someone once wrote down what it means when neglect draws a swarm."
     },
 });
-
 // ═══ src/data/recipes.js ═══
 const RecipesDB = [
     // BASIC TOOLS
@@ -10951,6 +10952,20 @@ const ContactsDB = {
         desc: 'Sklář z hutě v lesích. Alembiky a křivule pro učené — křehké zboží, stálý odbyt.',
         desc_en: 'A glassmaker from a forest works. Alembics and retorts for the learned — fragile goods, steady trade.'
     },
+    kamenik: {
+        confession: "Do základů kostela vyzdil kámen z hřbitovní zdi. Nikdo si nevšiml, tvrdí.",
+        confession_en: "He walled a stone from the cemetery wall into the church foundations. No one noticed, he claims.",
+        name: 'Kameník', name_en: 'Stonemason', icon: '🪨',
+        primaryAxis: 'village',
+        secondaryAxis: { axis: 'church', weight: 0.3 },   // chrliče a kamenné dílo pro Fabrica
+        unlockTech: 'tech_carpentaria',       // existuje — tesařství/kamenictví společný gate (cut_stone)
+        sellBonus: { items: { rock: 1, cut_stone: 3 } },   // mimo trh (BASE_PRICES) — pevná exkluzivní cena, ne null (viz Kovář/iron_ore)
+        // zakázka — sdílí generický mechanismus SaeculumSystem.orderFromContact (stejné pole jako Sklář: 48 h, 1 slot, 50 % záloha)
+        glassOrders: { nahrobek: { itemId: 'nahrobek', price: 8,  minRelation: 0 },
+                       chrlic:   { itemId: 'chrlic',   price: 25, minRelation: 20 } },
+        desc: 'Kameník od lomu. Otesá náhrobek pro farní rodinu i chrliče pro chrám.',
+        desc_en: 'A stonemason from the quarry. He carves a gravestone for a parish family, or gargoyles for the church.'
+    },
     giacomo: {
         confession: "Prodává janovské zboží jako benátské a benátské jako janovské — podle toho, kdo se ptá.",
         confession_en: "He sells Genoese goods as Venetian, and Venetian as Genoese — whichever the buyer prefers.",
@@ -11010,7 +11025,6 @@ const ContactsDB = {
         desc_en: 'A university dealer in books and writing supplies. In Olomouc only after the spring and autumn book fairs.'
     }
 };
-
 // ═══ src/systems/theme.js ═══
 const ThemeSystem = {
     themes: {
@@ -12802,6 +12816,22 @@ const ChroniconSystem = {
             }
         }
 
+        // CHRONICON advisory_events → kurátorované rozhodovací eventy (Sprint 3).
+        // Cap: jen 1 aktivní najednou. "Odložit" nic neztratí — zůstává
+        // aktivní, dokud se hráč nerozhodne jinak. Formát mirror events-reference.md.
+        if (snap.advisory_events && snap.advisory_events.length && typeof GameState !== 'undefined') {
+            if (!GameState.chroniconAdvisory) GameState.chroniconAdvisory = { activeId: null, pending: null, resolvedIds: {} };
+            const adv = GameState.chroniconAdvisory;
+            if (!adv.activeId) {
+                const candidate = snap.advisory_events.find(e => !adv.resolvedIds[e.id]);
+                if (candidate) {
+                    adv.activeId = candidate.id;
+                    adv.pending  = candidate;
+                    Game.save();
+                }
+            }
+        }
+
         // Chronicle záznamy → NotificationSystem.panel() + GameState.kronika
         const seen = ChroniconSystem._loadSeen();
         let added  = 0;
@@ -12914,6 +12944,57 @@ const ChroniconSystem = {
         // Stabilní ID nezávislé na textu — EN/CS verze téže zprávy = stejné ID
         if (entry.id) return String(entry.id);
         return (entry.source || '') + '_' + (entry.tick || 0);
+    },
+
+    // ─── Advisory events — kurátorované rozhodovací eventy z CHRONICONu ─────
+
+    _advisoryShownThisSession: false,
+
+    // Volat ze stejné kadence jako EventsSystem.checkEvents() (1×/s tick)
+    checkPendingAdvisory: function() {
+        if (typeof GameState === 'undefined' || !GameState.chroniconAdvisory) return;
+        const adv = GameState.chroniconAdvisory;
+        if (!adv.pending || !adv.activeId) return;
+        if (ChroniconSystem._advisoryShownThisSession) return;
+        if (typeof EventsSystem === 'undefined' || typeof NotificationSystem === 'undefined') return;
+
+        ChroniconSystem._advisoryShownThisSession = true;
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        const p = adv.pending;
+
+        EventsSystem.showEvent({
+            icon:  p.icon || '☩',
+            title: lang === 'en' ? (p.title_en || p.title_cs) : p.title_cs,
+            text:  lang === 'en' ? (p.text_en  || p.text_cs)  : p.text_cs,
+            choices: (p.choices || []).map(c => ({
+                label: lang === 'en' ? (c.label_en || c.label_cs) : c.label_cs,
+                action: () => ChroniconSystem._resolveAdvisory(adv.activeId, c.id, lang),
+            })),
+        });
+    },
+
+    _resolveAdvisory: function(eventId, choiceId, lang) {
+        const adv = GameState.chroniconAdvisory;
+        if (choiceId === 'defer') {
+            // Nic se neztrácí — zůstává aktivní, může se ukázat znovu příště.
+            ChroniconSystem._advisoryShownThisSession = false;
+            return lang === 'en'
+                ? 'You decide to think it over. The matter can wait.'
+                : 'Rozhodneš se to ještě promyslet. Věc může počkat.';
+        }
+        adv.resolvedIds[eventId] = true;
+        adv.activeId = null;
+        adv.pending  = null;
+        if (choiceId === 'bolster') {
+            if (!GameState.flags) GameState.flags = {};
+            GameState.flags.chroniconPlagueBolstered = true;
+            return lang === 'en'
+                ? 'The brothers resolve to watch over the sick more closely. (Full effect awaits the Infirmarium — for now, this is a resolve, not yet a remedy.)'
+                : 'Bratři se rozhodli bedlivěji dohlížet na nemocné. (Plný účinek čeká na Infirmarium — zatím je to spíš předsevzetí než lék.)';
+        }
+        return lang === 'en'
+            ? 'The monastery carries on as before. What happens in the wider region is beyond these walls.'
+            : 'Klášter pokračuje jako dřív. Co se děje v širším kraji, je mimo tyto zdi.';
     },
 
 };
@@ -13920,32 +14001,36 @@ const EventsSystem = {
     showEvent: function(event) {
         if (typeof NotificationSystem === 'undefined' || !NotificationSystem.modal) return;
 
-        const choices = (event.choices || []).map(choice => ({
-            label: `${t(choice.labelKey)}<br><small style="opacity:0.7; font-weight:normal; text-transform:none; letter-spacing:0;">${t(choice.descKey)}</small>`,
-            type: 'default',
-            effect: () => {
-                const result = choice.action();
-                Game.save();
-                NotificationSystem.modal({
-                    title: t('events.ui.result'),
-                    image: event.image || null,
-                    text: result,
-                    choices: [{
-                        label: t('events.ui.close'),
-                        type: 'primary',
-                        effect: () => {
-                            if (typeof UI !== 'undefined' && typeof UI.renderAll === 'function') UI.renderAll();
-                        }
-                    }]
-                });
-            }
-        }));
+        const choices = (event.choices || []).map(choice => {
+            const label = choice.label || t(choice.labelKey);
+            const desc  = choice.desc  || (choice.descKey ? t(choice.descKey) : '');
+            return {
+                label: desc ? `${label}<br><small style="opacity:0.7; font-weight:normal; text-transform:none; letter-spacing:0;">${desc}</small>` : label,
+                type: 'default',
+                effect: () => {
+                    const result = choice.action();
+                    Game.save();
+                    NotificationSystem.modal({
+                        title: t('events.ui.result'),
+                        image: event.image || null,
+                        text: result,
+                        choices: [{
+                            label: t('events.ui.close'),
+                            type: 'primary',
+                            effect: () => {
+                                if (typeof UI !== 'undefined' && typeof UI.renderAll === 'function') UI.renderAll();
+                            }
+                        }]
+                    });
+                }
+            };
+        });
 
         NotificationSystem.modal({
             icon: event.icon || '📜',
             image: event.image || null,
-            title: t(event.titleKey),
-            text: t(event.textKey),
+            title: event.title || t(event.titleKey),
+            text: event.text || t(event.textKey),
             choices: choices
         });
     }
@@ -20794,7 +20879,7 @@ const SaeculumSystem = {
     this.switchEntity('clientela');
   },
 
-  // V4/S2: Zakázky u kontaktu (Sklář) — 1 slot, 48 h, 50 % záloha, doplatek při vyzvednutí, +2 vztah
+  // V4/S2: Zakázky u kontaktu (Sklář, Kameník...) — 1 slot NA KONTAKT, 48 h, 50 % záloha, doplatek při vyzvednutí, +2 vztah
   GLASS_ORDER_MS: 48 * 60 * 60 * 1000,
 
   orderFromContact: function(contactId, orderKey) {
@@ -20802,33 +20887,36 @@ const SaeculumSystem = {
     const c = ContactsDB[contactId];
     const ord = c && c.glassOrders && c.glassOrders[orderKey];
     if (!ord) return;
-    if (GameState.glassOrder && !GameState.glassOrder.collected) { UI.notify('⚠️ Zakázka už běží — jedna najednou.', true); return; }
+    if (!GameState.craftOrders) GameState.craftOrders = {};
+    if (GameState.craftOrders[contactId]) { UI.notify('⚠️ Zakázka už běží — jedna najednou.', true); return; }
     const rel = (GameState.contactRelation || {})[contactId] || 0;
     if (ord.minRelation && rel < ord.minRelation) return;
     const deposit = Math.ceil(ord.price / 2);
     if (CellariumSystem.getGrose() < deposit) { UI.notify('⚠️ Non habes sufficiens! Záloha ' + deposit + ' g.', true); return; }
     CellariumSystem.addGrose(-deposit);
-    GameState.glassOrder = { contactId: contactId, itemId: ord.itemId, price: ord.price, deposit: deposit, readyAt: Date.now() + this.GLASS_ORDER_MS };
+    GameState.craftOrders[contactId] = { itemId: ord.itemId, price: ord.price, deposit: deposit, readyAt: Date.now() + this.GLASS_ORDER_MS };
     Game.save();
     const itemName = (typeof iName === 'function') ? iName(ord.itemId) : ord.itemId;
     UI.notify('🔮 Zakázka přijata: ' + itemName + '. Hotovo za 48 h. Záloha ' + deposit + ' g.');
     this.switchEntity('clientela');
   },
 
-  collectGlassOrder: function() {
-    const o = GameState.glassOrder;
+  collectGlassOrder: function(contactId) {
+    const o = GameState.craftOrders && GameState.craftOrders[contactId];
     if (!o || Date.now() < o.readyAt) return;
     const rest = o.price - o.deposit;
     if (CellariumSystem.getGrose() < rest) { UI.notify('⚠️ Doplatek ' + rest + ' g. Zakázka trpělivě čeká.', true); return; }
     CellariumSystem.addGrose(-rest);
     Game.addItem(o.itemId, 1);
-    CellariumSystem.recordTransaction('buy', o.itemId, 1, o.price, o.contactId);
-    this.addContactRelation(o.contactId, 2);
+    CellariumSystem.recordTransaction('buy', o.itemId, 1, o.price, contactId);
+    this.addContactRelation(contactId, 2);
     const itemName = (typeof iName === 'function') ? iName(o.itemId) : o.itemId;
-    GameState.glassOrder = null;
+    const lang0 = (GameState.settings && GameState.settings.language) || 'cs';
+    const contactName = ContactsDB[contactId] ? (lang0==='en' ? ContactsDB[contactId].name_en : ContactsDB[contactId].name) : '';
+    delete GameState.craftOrders[contactId];
     Game.save();
     UI.notify('🔮 Zakázka vyzvednuta: ' + itemName + '.');
-    Game.addKronikaEntry('minor', '🔮 Sklář dodal zakázku: ' + itemName + '.', '🔮 The glassmaker delivered a commission: ' + itemName + '.', '🔮 Opus vitreum traditum est.');
+    Game.addKronikaEntry('minor', '🔮 ' + contactName + ' dodal zakázku: ' + itemName + '.', '🔮 ' + contactName + ' delivered a commission: ' + itemName + '.', '🔮 Opus traditum est.');
     this.switchEntity('clientela');
   },
 
@@ -20961,7 +21049,7 @@ const SaeculumSystem = {
     // 🔮 Zakázky (V4/S2) — jen kontakt s glassOrders
     if (c.glassOrders && Object.keys(c.glassOrders).length) {
       h += `<div style="margin-top:14px;"><div style="font-size:0.7rem; font-weight:bold; letter-spacing:0.08em; text-transform:uppercase; color:var(--accent-gold); margin-bottom:8px; padding-bottom:4px; border-bottom:2px solid var(--accent-gold);">🔮 ${lang==='en'?'COMMISSIONS':'ZAKÁZKY'} <span style="opacity:0.6; font-weight:normal; text-transform:none;">(48 h · ${lang==='en'?'50 % deposit':'50 % záloha'})</span></div>`;
-      const o = GameState.glassOrder;
+      const o = GameState.craftOrders && GameState.craftOrders[id];
       if (o) {
         const remH = Math.max(0, Math.ceil((o.readyAt - Date.now()) / 3600000));
         const oName = (typeof iName === 'function') ? iName(o.itemId) : o.itemId;
@@ -20970,7 +21058,7 @@ const SaeculumSystem = {
         } else {
           const rest = o.price - o.deposit;
           h += `<div style="font-size:0.78rem; margin-bottom:6px;">✅ ${oName} ${lang==='en'?'is ready':'je hotov'} — ${lang==='en'?'balance due':'doplatek'} ${rest} g</div>
-                <button class="craft-btn" onclick="SaeculumSystem.collectGlassOrder()">📦 ${lang==='en'?'Collect':'Vyzvednout'}</button>`;
+                <button class="craft-btn" onclick="SaeculumSystem.collectGlassOrder('${id}')">📦 ${lang==='en'?'Collect':'Vyzvednout'}</button>`;
         }
       } else {
         Object.keys(c.glassOrders).forEach(key => {
@@ -21071,7 +21159,6 @@ const SaeculumSystem = {
   },
 
 };
-
 // ═══ src/systems/TemplumSystem.js ═══
 // ─────────────────────────────────────────────────────────────
 // TemplumSystem — kostelní větev (MRD templum-reference.md)
@@ -21158,11 +21245,17 @@ const TemplumSystem = {
         return ['frater', 'armarius', 'prior'].includes(m);
     },
 
+    // Gate: Hřbitov — otevřen dřív než zbytek Templum, od novitius (24h na mnišské dráze)
+    isCemeteryUnlocked: function() {
+        const m = GameState.rank && GameState.rank.monastic;
+        return ['novitius', 'frater', 'armarius', 'prior'].includes(m);
+    },
+
     // Zobrazit/skrýt top-level tab dle gate (volá se z existujícího tick call-site + při přepínání tabů)
     updateTabVisibility: function() {
         const btn = document.getElementById('home-tab-templum');
         if (!btn) return;
-        const show = this.isUnlocked();
+        const show = this.isCemeteryUnlocked();
         const cur = btn.style.display !== 'none';
         if (show !== cur) btn.style.display = show ? '' : 'none';
     },
@@ -21202,7 +21295,14 @@ const TemplumSystem = {
         if (!graves.length) {
             h += `<div style="font-size:0.75rem; opacity:0.6;">${lang==='en'?'No one rests here yet.':'Zatím tu nikdo neodpočívá.'}</div>`;
         } else {
-            h += graves.slice(0, 15).map(g => `<div style="font-size:0.72rem; opacity:0.7; margin-top:3px;">🪦 ${g.surname} · ${this._timeAgo(g.ts, lang)}</div>`).join('');
+            const haveStone = (GameState.inventory['nahrobek'] || 0) >= 1;
+            h += graves.slice(0, 15).map(g => {
+                const mark = g.nahrobek ? '🪦' : '⬜';
+                const btn = g.nahrobek ? '' : `<button class="craft-btn" style="padding:1px 6px; font-size:0.62rem; margin-left:6px;" ${haveStone ? '' : 'disabled'} onclick="Game.buildNahrobek(${g.ts})">${lang==='en'?'Set gravestone':'Postavit náhrobek'}</button>`;
+                return `<div style="font-size:0.72rem; opacity:0.7; margin-top:3px; display:flex; align-items:center; justify-content:space-between;">
+                          <span>${mark} ${g.surname} · ${this._timeAgo(g.ts, lang)}</span>${btn}
+                        </div>`;
+            }).join('');
         }
         h += `</div>`;
         return h;
@@ -21210,7 +21310,7 @@ const TemplumSystem = {
 
     renderTemplumTab: function() {
         const lang = (GameState.settings && GameState.settings.language) || 'cs';
-        if (!this.isUnlocked()) {
+        if (!this.isCemeteryUnlocked()) {
             return `<div style="text-align:center; padding:30px; opacity:0.6;
                         border:1px dashed rgba(197,160,89,0.3); border-radius:8px;">
                       <div style="font-size:2rem; margin-bottom:10px;">🕍</div>
@@ -21245,15 +21345,27 @@ const TemplumSystem = {
             </div>
           </div>`;
 
-        // Subtab přepínač: Hlavní / Hřbitov (mirror Cellarium/Manufaktura vzoru)
-        const entity = (GameState.ui && GameState.ui.templumEntity) || 'main';
+        // Subtab přepínač: Hřbitov / Hlavní (mirror Cellarium/Manufaktura vzoru)
+        const entity = (GameState.ui && GameState.ui.templumEntity) || (this.isUnlocked() ? 'main' : 'hrbitov');
         h += `<div style="display:flex; gap:8px; margin-bottom:16px;">
-                <button class="craft-btn" style="flex:1; ${entity==='main' ? 'background:#2c1810;' : ''}" onclick="TemplumSystem.switchEntity('main')">🕍 ${lang==='en'?'Main':'Hlavní'}</button>
                 <button class="craft-btn" style="flex:1; ${entity==='hrbitov' ? 'background:#2c1810;' : ''}" onclick="TemplumSystem.switchEntity('hrbitov')">⚰️ ${lang==='en'?'Cemetery':'Hřbitov'}</button>
+                <button class="craft-btn" style="flex:1; ${entity==='main' ? 'background:#2c1810;' : ''}" onclick="TemplumSystem.switchEntity('main')">🕍 ${lang==='en'?'Main':'Hlavní'}</button>
               </div>`;
 
         if (entity === 'hrbitov') {
             h += this._renderCemeteryPanel(lang);
+            h += `</div>`;
+            return h;
+        }
+
+        if (!this.isUnlocked()) {
+            h += `<div style="text-align:center; padding:30px; opacity:0.6;
+                        border:1px dashed rgba(197,160,89,0.3); border-radius:8px;">
+                      <div style="font-size:2rem; margin-bottom:10px;">🕍</div>
+                      <div style="font-style:italic; font-size:0.9rem;">
+                        ${lang==='en' ? 'The nave opens only to a brother of the order.' : 'Hlavní loď se otevírá jen bratru řádu.'}
+                      </div>
+                    </div>`;
             h += `</div>`;
             return h;
         }
@@ -21274,9 +21386,16 @@ const TemplumSystem = {
             }
             h += `<div style="padding:12px 15px; margin-bottom:16px; background:rgba(197,160,89,0.05); border:1px solid rgba(197,160,89,0.25); border-radius:8px;">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
-                    <div style="font-weight:bold; font-size:0.9rem;">🏛️ Fabrica Ecclesiae — ${curName}</div>
-                    <button class="craft-btn" style="font-size:0.7rem; padding:3px 10px;" onclick="Game.repairFabrica()" ${cond>=89?'disabled':''}>🔧 ${lang==='en'?'Repair (20g)':'Opravit (20g)'}</button>
-                </div>
+                    <div style="font-weight:bold; font-size:0.9rem;">🏛️ Fabrica Ecclesiae — ${curName}</div>`;
+            {
+                const repCost = cur.repairCost || 20;
+                const repMats = cur.repairMaterials || {};
+                const repMatsOk = Object.keys(repMats).every(mid => (GameState.inventory[mid] || 0) >= repMats[mid]);
+                const repLabel = Object.keys(repMats).map(mid => (typeof iName === 'function' ? iName(mid) : mid) + ' ' + repMats[mid]).join(', ');
+                const repDisabled = cond >= 89 || CellariumSystem.getGrose() < repCost || !repMatsOk;
+                h += `<button class="craft-btn" style="font-size:0.7rem; padding:3px 10px;" onclick="Game.repairFabrica()" ${repDisabled?'disabled':''}>🔧 ${lang==='en'?'Repair':'Opravit'} (${repCost}g${repLabel?', '+repLabel:''})</button>`;
+            }
+            h += `</div>
                 <div style="display:flex; justify-content:space-between; font-size:0.7rem; opacity:0.65; margin-bottom:3px;">
                     <span>${lang==='en'?'Structural condition':'Strukturální stav'}</span><span>${Math.round(cond)} %</span>
                 </div>
@@ -21298,7 +21417,13 @@ const TemplumSystem = {
                     <div style="text-align:center; font-size:0.68rem; opacity:0.55; font-style:italic;">🎹 ${lang==='en'?'click a pipe to play':'klikej na píšťaly'}</div>
                 </div>`;
             }
-            if (next) {
+            if (t0.fabricaBuildUntil) {
+                const remMs = t0.fabricaBuildUntil - Date.now();
+                const remDays = Math.max(0, Math.ceil(remMs / (24*60*60*1000)));
+                const targetDef = Game.FABRICA_TIERS[t0.fabricaBuildTargetTier];
+                const targetName = lang==='en' ? targetDef.name_en : targetDef.name;
+                h += `<div style="font-size:0.78rem; margin-top:6px;">🏗️ ${lang==='en'?'Under construction: ':'Probíhá stavba: '}<strong>${targetName}</strong> — ${lang==='en'?'ready in':'hotovo za'} ${remDays} ${lang==='en'?(remDays===1?'day':'days'):'dní'}</div>`;
+            } else if (next) {
                 const nextName = lang==='en' ? next.name_en : next.name;
                 const req = next.req || {};
                 const eccl = (GameState.persona && GameState.persona.influence && GameState.persona.influence.church) || 0;
@@ -21308,9 +21433,18 @@ const TemplumSystem = {
                 if (req.ecclesia)  rows.push([eccl >= req.ecclesia,  'Ecclesia ≥'+req.ecclesia+' ('+Math.round(eccl)+')']);
                 if (req.zboznost)  rows.push([zbozn >= req.zboznost, (lang==='en'?'Piety':'Zbožnost')+' ≥'+req.zboznost+' ('+Math.round(zbozn)+')']);
                 if (req.organ)     rows.push([(GameState.inventory['organ']||0) >= 1, lang==='en'?'Organ in the church':'Varhany v kostele']);
+                if (req.materials) {
+                    Object.keys(req.materials).forEach(matId => {
+                        const need = req.materials[matId];
+                        const have = GameState.inventory[matId] || 0;
+                        const matName = (typeof iName === 'function') ? iName(matId) : matId;
+                        rows.push([have >= need, matName + ' ' + have + '/' + need]);
+                    });
+                }
                 const met = rows.every(r => r[0]);
                 h += rows.map(r => `<div style="font-size:0.68rem; ${r[0]?'opacity:0.7;':'color:#c0392b;'}">${r[0]?'✓':'✗'} ${r[1]}</div>`).join('');
-                h += `<button class="craft-btn" style="margin-top:8px; width:100%;" ${met && CellariumSystem.getGrose() >= next.cost ? '' : 'disabled'} onclick="Game.upgradeFabrica()">⬆️ ${lang==='en'?'Raise to':'Povýšit na'} ${nextName} (${next.cost}g)</button>`;
+                const buildPart = next.buildDays ? (', ' + (lang==='en'?'build':'stavba') + ' ' + next.buildDays + (lang==='en'?'d':' dní')) : '';
+                h += `<button class="craft-btn" style="margin-top:8px; width:100%;" ${met && CellariumSystem.getGrose() >= next.cost ? '' : 'disabled'} onclick="Game.upgradeFabrica()">⬆️ ${lang==='en'?'Raise to':'Povýšit na'} ${nextName} (${next.cost}g${buildPart})</button>`;
             } else {
                 h += `<div style="font-size:0.75rem; opacity:0.6; font-style:italic;">${lang==='en'?'Highest tier reached.':'Nejvyšší úroveň dosažena.'}</div>`;
             }
@@ -21462,7 +21596,6 @@ const TemplumSystem = {
         return h;
     },
 };
-
 // ═══ src/systems/DecaySystem.js ═══
 // ═══════════════════════════════════════════════════════════════════════════
 // DECAY SYSTEM v1 (B2 — simplified)
@@ -43744,6 +43877,8 @@ const Game = {
                 CanonicalHours.checkCurrentHour();
                 // v7.5: Check events
                 EventsSystem.checkEvents();
+                // CHRONICON advisory eventy — stejná kadence
+                if (typeof ChroniconSystem !== 'undefined' && ChroniconSystem.checkPendingAdvisory) ChroniconSystem.checkPendingAdvisory();
                 // v8.1: Giacomo weekly check (once per minute)
                 _tickCounter++;
                 if (_tickCounter >= 60) {
@@ -48201,6 +48336,14 @@ const Game = {
         this.removeItem(incenseId, 1);
         this.removeItem('hostia', 3);
 
+        // Mešní nádobí (od Katedrály): křehké sklo se občas rozbije, spotřeba jen pokud je skladem
+        let brokenGlass = null;
+        if ((t.fabricaTier || 0) >= 3 && Math.random() < 0.08) {
+            const glassOrder = Math.random() < 0.5 ? ['glass_goblet', 'glass_bowl'] : ['glass_bowl', 'glass_goblet'];
+            const glassId = glassOrder.find(id => (inv[id] || 0) > 0);
+            if (glassId) { this.removeItem(glassId, 1); brokenGlass = glassId; }
+        }
+
         // Stav kostela (T2 payoff): zhasnuto nebo zaprášeno → poloviční efekt
         const lit = (t.litUntil || 0) > now;
         const clean = (t.cleanUntil || 0) > now;
@@ -48244,9 +48387,10 @@ const Game = {
         if (typeof UI !== 'undefined' && UI.notifyPanel) {
             const feastPart = feastName ? (lang==='en' ? ' Feast of ' + feastName + ' — twofold grace!' : ' Svátek ' + feastName + ' — dvojnásobná milost!') : '';
             const vestmentPart = wrongVestment ? (lang==='en' ? ' Wrong vestment colour — impact reduced.' : ' Špatná barva roucha — dopad snížen.') : '';
+            const glassPart = brokenGlass ? (lang==='en' ? ' Fragile glass broke during mass.' : ' Křehké sklo při mši prasklo.') : '';
             UI.notifyPanel('⛪ ' + (degraded
                 ? (lang==='en' ? 'Mass held in gloom and dust. Ecclesia +'+eccl+', village +'+vill+'.' : 'Mše v šeru a prachu. Ecclesia +'+eccl+', vesnice +'+vill+'.')
-                : (lang==='en' ? 'Mass held. Ecclesia +'+eccl+', village +'+vill+'.' : 'Mše odsloužena. Ecclesia +'+eccl+', vesnice +'+vill+'.')) + feastPart + vestmentPart, (degraded || wrongVestment) ? 'warning' : 'success');
+                : (lang==='en' ? 'Mass held. Ecclesia +'+eccl+', village +'+vill+'.' : 'Mše odsloužena. Ecclesia +'+eccl+', vesnice +'+vill+'.')) + feastPart + vestmentPart + glassPart, (degraded || wrongVestment) ? 'warning' : 'success');
         }
         Game.addKronikaEntry('important',
             feastName ? '⛪ Mše o svátku ' + feastName + ' — kostel praskal ve švech.' : (degraded ? '⛪ Mše sloužena v šeru a prachu — kostel volá po péči.' : '⛪ Mše slavnostně odsloužena. Kraj naslouchal.'),
@@ -48260,8 +48404,8 @@ const Game = {
     FABRICA_TIERS: [
         { name: 'Kaple',     name_en: 'Chapel',    cost: 0,   req: null, decayMult: 1.00, repairEff: 1.00 },
         { name: 'Kostel',    name_en: 'Church',    cost: 150, req: { ecclesia: 15, condition: 60, organ: true }, decayMult: 1.10, repairEff: 1.10 },
-        { name: 'Chrám',     name_en: 'Temple',    cost: 400, req: { ecclesia: 35, zboznost: 25, condition: 70 }, decayMult: 1.20, repairEff: 1.25 },
-        { name: 'Katedrála', name_en: 'Cathedral', cost: 900, req: { ecclesia: 60, zboznost: 50, condition: 80 }, decayMult: 1.35, repairEff: 1.40 },
+        { name: 'Chrám',     name_en: 'Temple',    cost: 400, req: { ecclesia: 35, zboznost: 25, condition: 70, materials: { cut_stone: 150, plank: 80, iron_ingot: 4, glass_stopper: 8 } }, decayMult: 1.20, repairEff: 1.25, buildDays: 10, repairCost: 20, repairMaterials: { cut_stone: 5 } },
+        { name: 'Katedrála', name_en: 'Cathedral', cost: 900, req: { ecclesia: 60, zboznost: 50, condition: 80, materials: { cut_stone: 350, plank: 200, iron_ingot: 12, glass_stopper: 20, glass_goblet: 3, glass_bowl: 3, chrlic: 4 } }, decayMult: 1.35, repairEff: 1.40, buildDays: 14, repairCost: 30, repairMaterials: { cut_stone: 8, glass_bowl: 1 } },
     ],
 
     fabricaMeetsRequirements: function(req) {
@@ -48272,6 +48416,11 @@ const Game = {
         if (req.ecclesia && ((p.influence && p.influence.church) || 0) < req.ecclesia) return false;
         if (req.zboznost && (p.zboznost || 0) < req.zboznost) return false;
         if (req.organ && (GameState.inventory['organ'] || 0) < 1) return false;
+        if (req.materials) {
+            for (const matId in req.materials) {
+                if ((GameState.inventory[matId] || 0) < req.materials[matId]) return false;
+            }
+        }
         return true;
     },
 
@@ -48282,20 +48431,68 @@ const Game = {
         const tier = t.fabricaTier || 0;
         const lang = (GameState.settings && GameState.settings.language) || 'cs';
         if (tier >= this.FABRICA_TIERS.length - 1) return;
+        if (t.fabricaBuildUntil) { UI.notify('⚠️ ' + (lang==='en'?'Construction already underway.':'Stavba už probíhá.'), true); return; }
         const next = this.FABRICA_TIERS[tier + 1];
         if (!this.fabricaMeetsRequirements(next.req)) { UI.notify('⚠️ ' + (lang==='en'?'Requirements not met.':'Podmínky nesplněny.'), true); return; }
         if (CellariumSystem.getGrose() < next.cost) { UI.notify('⚠️ ' + (lang==='en'?'Not enough groschen.':'Nedostatek grošů.'), true); return; }
         CellariumSystem.spendGrose(next.cost);
-        t.fabricaTier = tier + 1;
+        const mats = (next.req && next.req.materials) || {};
+        for (const matId in mats) this.removeItem(matId, mats[matId]);
         const name = lang==='en' ? next.name_en : next.name;
-        Game.save();
-        UI.notifyPanel('🏛️ ' + (lang==='en'?'The church rises: ':'Kostel roste: ') + name + '.', 'success');
-        Game.addKronikaEntry('important',
-            '🏛️ Fabrica: kostel povýšen na ' + name + '.',
-            '🏛️ Fabrica: the church raised to ' + name + '.',
-            '🏛️ Fabrica ecclesiae aucta est.');
+        if (next.buildDays) {
+            t.fabricaBuildUntil = Date.now() + next.buildDays * 24 * 60 * 60 * 1000;
+            t.fabricaBuildTargetTier = tier + 1;
+            Game.save();
+            UI.notifyPanel('🏗️ ' + (lang==='en'?'Construction begins: ':'Stavba začíná: ') + name + '.', 'success');
+            Game.addKronikaEntry('important',
+                '🏗️ Fabrica: stavba ' + name + ' zahájena. Potrvá ' + next.buildDays + ' dní.',
+                '🏗️ Fabrica: construction of ' + name + ' begun. Will take ' + next.buildDays + ' days.',
+                '🏗️ Fabrica ecclesiae aedificatur.');
+        } else {
+            t.fabricaTier = tier + 1;
+            Game.save();
+            UI.notifyPanel('🏛️ ' + (lang==='en'?'The church rises: ':'Kostel roste: ') + name + '.', 'success');
+            Game.addKronikaEntry('important',
+                '🏛️ Fabrica: kostel povýšen na ' + name + '.',
+                '🏛️ Fabrica: the church raised to ' + name + '.',
+                '🏛️ Fabrica ecclesiae aucta est.');
+        }
         const el2 = document.getElementById('home-templum-content');
         if (el2 && typeof TemplumSystem !== 'undefined') el2.innerHTML = TemplumSystem.renderTemplumTab();
+    },
+
+    checkFabricaBuildComplete: function() {
+        if (!GameState.templum) return;
+        const t = GameState.templum;
+        if (!t.fabricaBuildUntil || Date.now() < t.fabricaBuildUntil) return;
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        const targetTier = t.fabricaBuildTargetTier;
+        const def = this.FABRICA_TIERS[targetTier];
+        t.fabricaTier = targetTier;
+        t.fabricaBuildUntil = null;
+        t.fabricaBuildTargetTier = null;
+        const name = lang==='en' ? def.name_en : def.name;
+        Game.save();
+        UI.notifyPanel('🏛️ ' + (lang==='en'?'Construction complete: ':'Stavba dokončena: ') + name + '.', 'success');
+        Game.addKronikaEntry('important',
+            '🏛️ Fabrica: ' + name + ' dokončena.',
+            '🏛️ Fabrica: ' + name + ' completed.',
+            '🏛️ Fabrica ecclesiae perfecta est.');
+    },
+
+    buildNahrobek: function(ts) {
+        if (!GameState.cemetery) return;
+        const grave = (GameState.cemetery.graves || []).find(g => g.ts === ts);
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        if (!grave || grave.nahrobek) return;
+        if ((GameState.inventory['nahrobek'] || 0) < 1) { UI.notify('⚠️ ' + (lang==='en'?'No gravestone in store.':'Nemáš náhrobek na skladě.'), true); return; }
+        this.removeItem('nahrobek', 1);
+        grave.nahrobek = true;
+        if (typeof PersonaSystem !== 'undefined' && PersonaSystem.addZboznost) PersonaSystem.addZboznost(1);
+        Game.save();
+        UI.notify('🪦 ' + (lang==='en'?'Gravestone set.':'Náhrobek postaven.'));
+        const el = document.getElementById('home-templum-content');
+        if (el && typeof TemplumSystem !== 'undefined') el.innerHTML = TemplumSystem.renderTemplumTab();
     },
 
     repairFabrica: function() {
@@ -48303,10 +48500,19 @@ const Game = {
         if (!GameState.templum) GameState.templum = {};
         const t = GameState.templum;
         const lang = (GameState.settings && GameState.settings.language) || 'cs';
-        const cost = 20;
-        if (CellariumSystem.getGrose() < cost) { UI.notify('⚠️ ' + (lang==='en'?'Not enough groschen.':'Nedostatek grošů.'), true); return; }
-        CellariumSystem.spendGrose(cost);
         const tierDef = this.FABRICA_TIERS[t.fabricaTier || 0];
+        const cost = tierDef.repairCost || 20;
+        const mats = tierDef.repairMaterials || {};
+        if (CellariumSystem.getGrose() < cost) { UI.notify('⚠️ ' + (lang==='en'?'Not enough groschen.':'Nedostatek grošů.'), true); return; }
+        for (const matId in mats) {
+            if ((GameState.inventory[matId] || 0) < mats[matId]) {
+                const matName = (typeof iName === 'function') ? iName(matId) : matId;
+                UI.notify('⚠️ ' + (lang==='en'?'Missing material: ':'Chybí materiál: ') + matName + '.', true);
+                return;
+            }
+        }
+        CellariumSystem.spendGrose(cost);
+        for (const matId in mats) this.removeItem(matId, mats[matId]);
         t.condition = Math.min(100, (t.condition != null ? t.condition : 100) + 15 * tierDef.repairEff);
         Game.save();
         UI.notify('🔧 ' + (lang==='en'?'Repairs made.':'Opraveno.'));
@@ -48319,6 +48525,7 @@ const Game = {
         const t = GameState.templum;
         const now = Date.now();
         const DAY = 24 * 60 * 60 * 1000;
+        this.checkFabricaBuildComplete();
         if (now - (t.lastTick || 0) < DAY) return;
         t.lastTick = now;
 
@@ -49316,13 +49523,20 @@ const Game = {
         const isLateWinter = month === 2 || month === 3; // shodné s hráčovým healthConditionsDailyTick
         const lang = (GameState.settings && GameState.settings.language) || 'cs';
 
-        const applyTick = (entity) => {
+        const applyTick = (entity, isBrother) => {
             if (!entity.conditions) entity.conditions = {};
             Object.keys(entity.conditions).forEach(id => {
                 const inst = entity.conditions[id];
                 const def = HealthConditionsDB[id];
                 if (!def || !inst) { delete entity.conditions[id]; return; }
-                if (Date.now() >= inst.expiresAt) { delete entity.conditions[id]; return; }
+                if (Date.now() >= inst.expiresAt) {
+                    delete entity.conditions[id];
+                    // Oheň sv. Antonína — jediná neduhová (bez léku), vzácná a nebezpečná;
+                    // jediný spouštěč úmrtí NPC zatím. Infirmarium (až bude postaveno) sem
+                    // vnese modifikátor podle kvality péče — zatím plochá čísla.
+                    if (id === 'ergot_fire') this._checkErgotDeath(entity, isBrother);
+                    return;
+                }
                 // Denní tick = 24h najednou; NPC tlumeněji než hráč (0.3×),
                 // ať se nerozpadnou po jednom dni smůly.
                 if (def.tickHour && typeof def.tickHour.fatigue === 'number') {
@@ -49357,7 +49571,7 @@ const Game = {
             this.NPC_CONTAGIOUS.forEach(id => {
                 const infected = pool.filter(e => e.conditions && e.conditions[id]).length;
                 pool.forEach(entity => {
-                    applyTick(entity);
+                    applyTick(entity, pool === brothers);
                     const task = entity.task || entity.assignedTab;
                     const taskRisk = this.NPC_HEALTH_RISK[task] === id ? 0.02 : 0;
                     // Svrab nemá task-vazbu (na rozdíl od Vší/dvur) — "sdílený
@@ -49428,6 +49642,75 @@ const Game = {
         });
 
         Game.save();
+    },
+
+    // Riziko úmrtí na Oheň sv. Antonína — jediná neduhová bez léku (rare & dangerous).
+    // Mnich má nižší riziko (teplo, lepší strava) než konvrš. Plochá čísla zatím —
+    // Infirmarium (Medicus/Apothecarius péče) sem časem přidá modifikátor kvality.
+    ERGOT_DEATH_CHANCE: { brother: 0.08, konvrs: 0.18 },
+
+    _checkErgotDeath: function(entity, isBrother) {
+        const chance = isBrother ? this.ERGOT_DEATH_CHANCE.brother : this.ERGOT_DEATH_CHANCE.konvrs;
+        if (Math.random() >= chance) return;
+        this._npcDies(entity, isBrother, 'ergot_fire');
+    },
+
+    // Trvalé úmrtí — Rajský dvůr (vnitřní pohřebiště komunity), NE farní Hřbitov
+    // (ten je jen pro farní rodiny přes parishEventTick — historicky odlišené prostory).
+    // Okamžitá náhrada stejnou postavou z rosteru (Bouvard: "vlastní variace do rosteru").
+    _npcDies: function(entity, isBrother, cause) {
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        const name = entity.name;
+        const rosterId = entity.rosterId || null;
+
+        if (isBrother) {
+            GameState.dormitorium.brothers = (GameState.dormitorium.brothers || []).filter(b => b !== entity);
+        } else {
+            GameState.conversi = (GameState.conversi || []).filter(k => k !== entity);
+        }
+
+        if (!GameState.rajskyDvur) GameState.rajskyDvur = { graves: [] };
+        GameState.rajskyDvur.graves.push({ name: name, rosterId: rosterId, ts: Date.now(), cause: cause, wasBrother: isBrother });
+
+        // Officium defunctorum — krátký komunitní stav, žádná nová role potřeba
+        if (!GameState.flags) GameState.flags = {};
+        GameState.flags.officiumDefunctorumUntil = Date.now() + 3 * 24 * 60 * 60 * 1000;
+
+        UI.notifyPanel('☦️ ' + (lang==='en' ? name+' has died.' : name+' zemřel.'), 'warning');
+        Game.addKronikaEntry('important',
+            '☦️ ' + name + ' zemřel. Requiescat in pace.',
+            '☦️ ' + name + ' has died. Requiescat in pace.',
+            '☦️ Frater migravit ad Dominum.');
+
+        if (isBrother) this._respawnBrother(rosterId); else this._respawnKonvrs(rosterId);
+        Game.save();
+    },
+
+    _respawnBrother: function(rosterId) {
+        if (!GameState.dormitorium) GameState.dormitorium = { brothers: [] };
+        if (!GameState.dormitorium.brothers) GameState.dormitorium.brothers = [];
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        const rec = (rosterId && typeof DormitoriumRosterDB !== 'undefined') ? DormitoriumRosterDB[rosterId] : null;
+        const name = rec ? rec.name : (lang === 'en' ? 'Brother' : 'Bratr');
+        const brother = {
+            id: 'brother_' + Date.now(), rosterId: rosterId, name: name, hiredAt: Date.now(),
+            assignedTab: null, xp: {}, fatigue: 0, mood: 60, loyalty: 30, stress: 0, temptation: 0,
+            traits: { piety: 0, obedience: 0, asceticism: 0, erudition: 0, focus: 0, craftsmanship: 0, eloquence: 0, vigor: 0 },
+        };
+        const rosterBonus = this.DORMITORIUM_ROSTER_TRAIT_BONUS[rosterId];
+        if (rosterBonus) rosterBonus.forEach(key => { if (typeof brother.traits[key] === 'number') brother.traits[key] = Math.min(100, brother.traits[key] + 10); });
+        GameState.dormitorium.brothers.push(brother);
+        UI.notifyPanel('📿 ' + (lang==='en' ? name+' has taken his vows anew and joined the community.' : name+' znovu složil sliby a připojil se ke komunitě.'), 'success');
+    },
+
+    _respawnKonvrs: function(rosterId) {
+        if (!GameState.conversi) GameState.conversi = [];
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        const rec = (rosterId && typeof ConversiRosterDB !== 'undefined') ? ConversiRosterDB[rosterId] : null;
+        const name = rec ? rec.name : (lang === 'en' ? 'Lay brother' : 'Konvrš');
+        const konvrs = { id: 'konvrs_' + Date.now(), rosterId: rosterId, name: name, hiredAt: Date.now(), fatigue: 0 };
+        GameState.conversi.push(konvrs);
+        UI.notifyPanel('✝️ ' + (lang==='en' ? name+' has taken his vows anew and joined the community.' : name+' znovu složil sliby a připojil se ke komunitě.'), 'success');
     },
 
     checkConversiChores: function(onlyTab) {

@@ -693,6 +693,8 @@ const Game = {
                 CanonicalHours.checkCurrentHour();
                 // v7.5: Check events
                 EventsSystem.checkEvents();
+                // CHRONICON advisory eventy — stejná kadence
+                if (typeof ChroniconSystem !== 'undefined' && ChroniconSystem.checkPendingAdvisory) ChroniconSystem.checkPendingAdvisory();
                 // v8.1: Giacomo weekly check (once per minute)
                 _tickCounter++;
                 if (_tickCounter >= 60) {
