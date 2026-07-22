@@ -1,10 +1,13 @@
 // ─────────────────────────────────────────────────────────────
-// InfirmariumSystem — Ošetřovna (Sprint 1: gate + tab skeleton)
-// MRD: infirmarium (project reference), sprint dohodnut v chatu
-// Sprint 1 = tab + gate + vizuální kostra (4 stanoviště jako dlaždice).
-// Žádná herní mechanika (diagnostika/produkce/přiřazení) zatím neběží —
-// ta přichází v dalších sprintech (Konvrši úkoly, humorální diagnostika,
-// produkční řetězec, Chirurgus, Capellanus/Zpověď).
+// InfirmariumSystem — Ošetřovna
+// MRD: infirmarium (project reference) + infirmarium-library-books-mrd.md
+// Sprint 1: tab + gate + 4 stanoviště (dlaždice).
+// Sprint 3 (fáze 1 — interní pacienti): admission systém (Game.admitToInfirmarium/
+// dischargeFromInfirmarium), kvalita péče (Game.infirmariumCareModifier — lůžko +
+// staffing Servitor/Coquus/Balneator + CHRONICON chroniconPlagueBolstered flag),
+// napojeno na ergot_fire death chance a obecné tlumení fatigue/satiety ticku.
+// Humorální diagnostika (Medicus) a produkční řetězec (Apothecarius) zatím neběží —
+// ta přichází v dalších sprintech. Externí pacienti (poutníci/hosté) odloženo.
 // ─────────────────────────────────────────────────────────────
 
 const InfirmariumSystem = {
@@ -30,6 +33,35 @@ const InfirmariumSystem = {
         { id: 'hortulanus', icon: '🌿', tech: 'tech_infirmarium_hortulanus', name_cs: 'Bylinář',     name_en: 'Hortulanus' },
         { id: 'balneator',  icon: '🔥', tech: 'tech_infirmarium_balneator', name_cs: 'Topič',       name_en: 'Balneator' }
     ],
+
+    // Kdo leží v Infirmariu — čte GameState.infirmarium.patients, jméno/neduh
+    // resolvuje z conversi/dormitorium poolu. Propuštění se řeší v Saeculu
+    // (detail konvrše/bratra), tady je jen přehled.
+    _renderPatientsSection: function(lang) {
+        const inf = GameState.infirmarium || { beds: 3, patients: [] };
+        const patients = inf.patients || [];
+        let h = `<div style="padding:12px 15px; margin-bottom:14px; background:rgba(197,160,89,0.05); border:1px solid rgba(197,160,89,0.25); border-radius:8px;">`;
+        h += `<div style="font-weight:bold; font-size:0.9rem; margin-bottom:6px;">🛏️ ${lang==='en'?'Beds':'Lůžka'} — ${patients.length}/${inf.beds}</div>`;
+        if (!patients.length) {
+            h += `<div style="font-size:0.75rem; opacity:0.6;">${lang==='en'?'No one lies here yet.':'Zatím tu nikdo neleží.'}</div>`;
+        } else {
+            h += patients.map(p => {
+                const pool = p.isBrother ? ((GameState.dormitorium && GameState.dormitorium.brothers) || []) : (GameState.conversi || []);
+                const entity = pool.find(e => e.id === p.entityId);
+                if (!entity) return '';
+                const conditionIds = entity.conditions ? Object.keys(entity.conditions) : [];
+                const condNames = conditionIds.map(id => {
+                    const def = typeof HealthConditionsDB !== 'undefined' ? HealthConditionsDB[id] : null;
+                    return def ? (lang==='en' ? def.name_en : def.name) : id;
+                }).join(', ');
+                return `<div style="display:flex; justify-content:space-between; align-items:center; font-size:0.75rem; padding:4px 0; border-top:1px solid rgba(197,160,89,0.15);">
+                            <span>🤒 ${entity.name}${condNames ? ' — '+condNames : ''}</span>
+                        </div>`;
+            }).join('');
+        }
+        h += `</div>`;
+        return h;
+    },
 
     renderInfirmariumTab: function() {
         const lang = (GameState.settings && GameState.settings.language) || 'cs';
@@ -57,9 +89,11 @@ const InfirmariumSystem = {
         h += `<div style="padding:12px 15px; margin-bottom:16px; background:rgba(197,160,89,0.05); border:1px solid rgba(197,160,89,0.25); border-radius:8px;">
                 <div style="font-weight:bold; font-size:0.9rem; margin-bottom:6px;">🩺 Infirmarium</div>
                 <div style="font-size:0.78rem; opacity:0.75;">${lang==='en'
-                    ? 'The sick have their own hall now. Diagnosis and care will follow.'
-                    : 'Nemocní mají vlastní síň. Diagnostika a péče přijdou brzy.'}</div>
+                    ? 'The sick have their own hall and beds now. Diagnosis will follow.'
+                    : 'Nemocní mají vlastní síň a lůžka. Diagnostika teprve přijde.'}</div>
               </div>`;
+
+        h += this._renderPatientsSection(lang);
 
         // Řada 4 stanovišť — dlaždice, ne seznam
         h += `<div style="display:grid; grid-template-columns:repeat(4, 1fr); gap:8px;">`;

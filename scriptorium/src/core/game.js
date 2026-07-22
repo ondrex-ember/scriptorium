@@ -6414,18 +6414,27 @@ const Game = {
                 if (Date.now() >= inst.expiresAt) {
                     delete entity.conditions[id];
                     // Oheň sv. Antonína — jediná neduhová (bez léku), vzácná a nebezpečná;
-                    // jediný spouštěč úmrtí NPC zatím. Infirmarium (až bude postaveno) sem
-                    // vnese modifikátor podle kvality péče — zatím plochá čísla.
+                    // jediný spouštěč úmrtí NPC. Infirmarium teď vnáší modifikátor
+                    // podle kvality péče — viz _checkErgotDeath/infirmariumCareModifier.
                     if (id === 'ergot_fire') this._checkErgotDeath(entity, isBrother);
+                    // Uzdraven — pokud byl v péči Infirmaria a už nemá žádný neduh, propustit.
+                    if (entity.admittedToInfirmarium && !Object.keys(entity.conditions).length) {
+                        entity.admittedToInfirmarium = false;
+                        if (GameState.infirmarium) {
+                            GameState.infirmarium.patients = (GameState.infirmarium.patients || []).filter(p => p.entityId !== entity.id);
+                        }
+                    }
                     return;
                 }
                 // Denní tick = 24h najednou; NPC tlumeněji než hráč (0.3×),
                 // ať se nerozpadnou po jednom dni smůly.
+                // V péči Infirmaria (lůžko, teplo, strava) se dopad neduhu tlumí na polovinu.
+                const careHalf = entity.admittedToInfirmarium ? 0.5 : 1;
                 if (def.tickHour && typeof def.tickHour.fatigue === 'number') {
-                    entity.fatigue = Math.min(100, (entity.fatigue || 0) + def.tickHour.fatigue * 24 * 0.3);
+                    entity.fatigue = Math.min(100, (entity.fatigue || 0) + def.tickHour.fatigue * 24 * 0.3 * careHalf);
                 }
                 if (def.tickHour && typeof def.tickHour.satiety === 'number' && typeof entity.mood === 'number') {
-                    entity.mood = Math.max(0, entity.mood - Math.abs(def.tickHour.satiety) * 24 * 0.1);
+                    entity.mood = Math.max(0, entity.mood - Math.abs(def.tickHour.satiety) * 24 * 0.1 * careHalf);
                 }
             });
         };
@@ -6532,9 +6541,61 @@ const Game = {
     ERGOT_DEATH_CHANCE: { brother: 0.08, konvrs: 0.18 },
 
     _checkErgotDeath: function(entity, isBrother) {
-        const chance = isBrother ? this.ERGOT_DEATH_CHANCE.brother : this.ERGOT_DEATH_CHANCE.konvrs;
+        let chance = isBrother ? this.ERGOT_DEATH_CHANCE.brother : this.ERGOT_DEATH_CHANCE.konvrs;
+        if (entity.admittedToInfirmarium) chance *= this.infirmariumCareModifier();
         if (Math.random() >= chance) return;
         this._npcDies(entity, isBrother, 'ergot_fire');
+    },
+
+    // Kvalita péče Infirmaria — násobitel (nižší = lepší) na death chance
+    // a další budoucí healing výpočty. Tři sčítající se vrstvy:
+    // (1) samotné lůžko/teplo/klid, (2) obsazení Servitor/Coquus/Balneator
+    // (Hortulanus se nepočítá — ten krmí až budoucí Apothecarius řetěz),
+    // (3) CHRONICON — komunita se už dřív rozhodla bdít nad nemocnými.
+    infirmariumCareModifier: function() {
+        let mod = 1.0;
+        mod -= 0.15; // lůžko samo o sobě
+        ['servitor', 'coquus', 'balneator'].forEach(taskId => {
+            if ((GameState.conversi || []).some(k => k.task === taskId)) mod -= 0.10;
+        });
+        if (GameState.flags && GameState.flags.chroniconPlagueBolstered) mod -= 0.10;
+        return Math.max(0.2, mod); // floor — nikdy úplně zadarmo
+    },
+
+    // Přijetí nemocného mnicha/konvrše do Infirmaria — stahuje z práce,
+    // výměnou za lepší šanci na uzdravení (viz infirmariumCareModifier).
+    admitToInfirmarium: function(entityId, isBrother) {
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        if (!GameState.infirmarium) GameState.infirmarium = { beds: 3, patients: [] };
+        const inf = GameState.infirmarium;
+        if (inf.patients.length >= inf.beds) {
+            UI.notify(lang==='en' ? 'No free bed.' : 'Žádná volná postel.', true); return;
+        }
+        const pool = isBrother ? ((GameState.dormitorium && GameState.dormitorium.brothers) || []) : (GameState.conversi || []);
+        const entity = pool.find(x => x.id === entityId);
+        if (!entity) return;
+        if (!entity.conditions || !Object.keys(entity.conditions).length) {
+            UI.notify(lang==='en' ? 'Nothing to treat.' : 'Není co léčit.', true); return;
+        }
+        if (entity.admittedToInfirmarium) return;
+        entity.admittedToInfirmarium = true;
+        if (isBrother) entity.assignedTab = null; else entity.task = null;
+        inf.patients.push({ entityId: entityId, isBrother: isBrother, admittedAt: Date.now() });
+        UI.notifyPanel('🩺 ' + (lang==='en' ? entity.name+' admitted to the infirmary.' : entity.name+' přijat do Infirmaria.'), 'system');
+        Game.save();
+        if (typeof SaeculumSystem !== 'undefined') SaeculumSystem.switchEntity(isBrother ? 'dormitorium' : 'conversi');
+    },
+
+    dischargeFromInfirmarium: function(entityId, isBrother) {
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        if (!GameState.infirmarium) GameState.infirmarium = { beds: 3, patients: [] };
+        const pool = isBrother ? ((GameState.dormitorium && GameState.dormitorium.brothers) || []) : (GameState.conversi || []);
+        const entity = pool.find(x => x.id === entityId);
+        if (entity) entity.admittedToInfirmarium = false;
+        GameState.infirmarium.patients = (GameState.infirmarium.patients || []).filter(p => p.entityId !== entityId);
+        if (entity) UI.notifyPanel('🩺 ' + (lang==='en' ? entity.name+' discharged from the infirmary.' : entity.name+' propuštěn z Infirmaria.'), 'system');
+        Game.save();
+        if (typeof SaeculumSystem !== 'undefined') SaeculumSystem.switchEntity(isBrother ? 'dormitorium' : 'conversi');
     },
 
     // Trvalé úmrtí — Rajský dvůr (vnitřní pohřebiště komunity), NE farní Hřbitov

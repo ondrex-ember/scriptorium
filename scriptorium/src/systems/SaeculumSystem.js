@@ -414,6 +414,7 @@ const SaeculumSystem = {
     }
 
     h += this._illnessBadgeHtml(b, lang);
+    h += this._infirmariumActionHtml(b, true, lang);
 
     h += `<div style="margin-bottom:7px;">
         <div style="display:flex; justify-content:space-between; font-size:0.72rem; opacity:0.75; margin-bottom:2px;">
@@ -498,6 +499,12 @@ const SaeculumSystem = {
 
     // Přiřazení na sekci
     h += `<div style="border-top:1px solid rgba(197,160,89,0.3); margin-top:8px; padding-top:8px;">`;
+    if (b.admittedToInfirmarium) {
+      h += `<div style="font-size:0.78rem;">🩺 ${lang==='en' ? "In the infirmary's care — cannot be assigned" : 'V péči Infirmaria — nelze přiřadit'}</div>`;
+      h += `</div>`; // zavírá "Přiřazení na sekci" div
+      h += `</div>`; // zavírá vnější wrapper div (otevřen na začátku funkce)
+      return h;
+    }
     h += `<div style="font-size:0.7rem; font-weight:bold; opacity:0.7; margin-bottom:6px; text-transform:uppercase; letter-spacing:0.06em;">${lang==='en'?'Assign to':'Přiřadit na'}</div>`;
     h += `<div style="display:flex; gap:6px; flex-wrap:wrap;">`;
     const specKeys = (typeof DormitoriumSpecializationDB !== 'undefined') ? Object.keys(DormitoriumSpecializationDB) : [];
@@ -561,6 +568,7 @@ const SaeculumSystem = {
           </div>`;
 
     h += this._illnessBadgeHtml(k, lang);
+    h += this._infirmariumActionHtml(k, false, lang);
 
     h += bar((lang==='en'?'😊 Mood':'😊 Nálada'), mood, moodColor);
     if (k.type !== 'famulus') h += bar((lang==='en'?'🤝 Loyalty':'🤝 Věrnost'), loyalty, loyColor);
@@ -590,7 +598,9 @@ const SaeculumSystem = {
 
     // ── Stav / přiřazení úkolu ──
     h += `<div style="border-top:1px solid rgba(197,160,89,0.3); margin-top:8px; padding-top:8px;">`;
-    if (isAway) {
+    if (k.admittedToInfirmarium) {
+      h += `<div style="font-size:0.78rem;">🩺 ${lang==='en' ? "In the infirmary's care — cannot be assigned" : 'V péči Infirmaria — nelze přiřadit'}</div>`;
+    } else if (isAway) {
       const hRem = Math.ceil((k.awayUntil - now) / (60*60*1000));
       const taskIcon = (Game.CONVERSI_TASKS[k.awayTask] || {}).icon || '';
       h += `<div style="font-size:0.78rem;">🚶 ${lang==='en' ? 'Away on task '+taskIcon+' — returns in '+hRem+'h' : 'Na úkolu '+taskIcon+' — návrat za '+hRem+'h'}</div>`;
@@ -609,12 +619,14 @@ const SaeculumSystem = {
         const taken = Game.conversiTaskCount(taskId, k.id);
         const isCur = k.task === taskId;
         const full = !isCur && taken >= Game.CONVERSI_TASK_SLOTS;
-        const label = ({dvur: lang==='en'?'Farmyard':'Dvůr', zahony: lang==='en'?'Garden':'Záhony', sad: lang==='en'?'Orchard':'Sad', apiarium: lang==='en'?'Apiary':'Apiarium', piscina: lang==='en'?'Fishpond':'Piscina', pole: lang==='en'?'Field':'Pole', vinohrad: lang==='en'?'Vineyard':'Vinohrad', scavenge:'Scavenge', doly: lang==='en'?'Mine':'Doly', kostel: lang==='en'?'Church':'Kostel', hrbitov: lang==='en'?'Cemetery':'Hřbitov'})[taskId];
+        const label = ({dvur: lang==='en'?'Farmyard':'Dvůr', zahony: lang==='en'?'Garden':'Záhony', sad: lang==='en'?'Orchard':'Sad', apiarium: lang==='en'?'Apiary':'Apiarium', piscina: lang==='en'?'Fishpond':'Piscina', pole: lang==='en'?'Field':'Pole', vinohrad: lang==='en'?'Vineyard':'Vinohrad', scavenge:'Scavenge', doly: lang==='en'?'Mine':'Doly', kostel: lang==='en'?'Church':'Kostel', hrbitov: lang==='en'?'Cemetery':'Hřbitov',
+            servitor: lang==='en'?'Servitor':'Ošetřovatel', coquus: lang==='en'?'Coquus':'Kuchař', hortulanus: lang==='en'?'Hortulanus':'Bylinář', balneator: lang==='en'?'Balneator':'Topič'})[taskId];
         let hint = '';
         if (gate.locked) {
           hint = gate.reasonKey === 'gate_fodina_tech' ? (lang==='en'?'needs tech: Fodina':'chybí tech: Fodina')
                : gate.reasonKey === 'gate_fodina_approval' ? (lang==='en'?"needs Abbot's approval":'chybí schválení opata')
                : gate.reasonKey === 'gate_frater' ? (lang==='en'?'needs Frater+':'chybí Frater+')
+               : gate.reasonKey === 'gate_infirmarium_tech' ? (lang==='en'?'needs tech: Infirmarium':'chybí tech: Infirmarium')
                : '';
         } else if (full) {
           hint = lang==='en' ? 'slots full' : 'plno';
@@ -636,6 +648,26 @@ const SaeculumSystem = {
   },
 
   // Nemoc musí "řvát" — výrazný červený badge, ne tichý text.
+  // Admit/Discharge tlačítko + stav "v péči" — voláno z detail view (konvrš i bratr).
+  _infirmariumActionHtml: function(entity, isBrother, lang) {
+    if (typeof InfirmariumSystem === 'undefined' || !InfirmariumSystem.isUnlocked()) return '';
+    const hasCondition = entity.conditions && Object.keys(entity.conditions).length > 0;
+    const admitted = !!entity.admittedToInfirmarium;
+    if (!hasCondition && !admitted) return '';
+    if (admitted) {
+      return `<div style="font-size:0.76rem; margin:4px 0 8px; padding:6px 10px; background:rgba(197,160,89,0.12); border-radius:6px; display:flex; justify-content:space-between; align-items:center;">
+                <span>🩺 ${lang==='en'?"In the infirmary's care":'V péči Infirmaria'}</span>
+                <button class="craft-btn" style="padding:2px 8px; font-size:0.68rem;" onclick="Game.dischargeFromInfirmarium('${entity.id}', ${isBrother})">${lang==='en'?'Discharge':'Propustit'}</button>
+              </div>`;
+    }
+    const inf = GameState.infirmarium || { beds: 3, patients: [] };
+    const full = (inf.patients || []).length >= inf.beds;
+    return `<div style="font-size:0.76rem; margin:4px 0 8px; display:flex; justify-content:space-between; align-items:center;">
+              <button class="craft-btn" ${full ? 'disabled' : ''} onclick="Game.admitToInfirmarium('${entity.id}', ${isBrother})">🩺 ${lang==='en'?'Admit to Infirmary':'Přijmout do Infirmaria'}</button>
+              <span style="opacity:0.65; font-size:0.68rem;">${(inf.patients||[]).length}/${inf.beds} ${lang==='en'?'beds':'lůžek'}</span>
+            </div>`;
+  },
+
   _illnessBadgeHtml: function(entity, lang) {
     if (!entity.conditions || typeof HealthConditionsDB === 'undefined') return '';
     const ids = Object.keys(entity.conditions);
