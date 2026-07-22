@@ -29510,8 +29510,8 @@ const PersonaSystem = {
         // Záloha save
         h += `<div style="margin-top:20px;padding:14px;background:rgba(0,0,0,0.04);border-radius:8px;border:1px solid rgba(197,160,89,0.2);">
             <div style="font-size:0.75rem;font-weight:bold;letter-spacing:0.06em;text-transform:uppercase;opacity:0.6;margin-bottom:8px;">💾 ${lang==='en'?'Save Backup':'Záloha Save'}</div>
-            <button class="craft-btn" onclick="UI.exportSave()" style="font-size:0.82rem;margin-right:8px;">📤 ${lang==='en'?'Export':'Export'}</button>
-            <button class="craft-btn" onclick="UI.importSave()" style="font-size:0.82rem;">📥 ${lang==='en'?'Import':'Import'}</button>
+            <button class="craft-btn" onclick="Game.exportSave()" style="font-size:0.82rem;margin-right:8px;">📤 ${lang==='en'?'Export':'Export'}</button>
+            <button class="craft-btn" onclick="Game.triggerImport()" style="font-size:0.82rem;">📥 ${lang==='en'?'Import':'Import'}</button>
         </div>`;
 
         return h;
