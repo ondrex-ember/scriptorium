@@ -1417,6 +1417,8 @@ const CellariumSystem = {
     if (bednaCnt > 0) { cap += bednaCnt * 30; storParts.push((lang === 'en' ? 'Crates ×' : 'Bedny ×') + bednaCnt + ' (+' + (bednaCnt * 30) + (lang === 'en' ? 'u)' : 'j)')); }
     const containerCnt = inv['storage_container'] || 0;
     if (containerCnt > 0) { cap += containerCnt * 50; storParts.push((lang === 'en' ? 'Containers ×' : 'Kontejnery ×') + containerCnt + ' (+' + (containerCnt * 50) + (lang === 'en' ? 'u)' : 'j)')); }
+    const sackCnt = inv['sack'] || 0;
+    if (sackCnt > 0) { cap += sackCnt * 15; storParts.push((lang === 'en' ? 'Sacks ×' : 'Pytle ×') + sackCnt + ' (+' + (sackCnt * 15) + (lang === 'en' ? 'u)' : 'j)')); }
     const storName = storParts.join(' · ');
     const totalItems = (ds ? ds.totalStock() : Object.values(inv).reduce((sum, v) => sum + (typeof v === 'number' && v > 0 ? v : 0), 0));
     const capPct = Math.min(100, Math.round(totalItems / cap * 100));

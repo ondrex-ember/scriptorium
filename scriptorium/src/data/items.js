@@ -373,6 +373,9 @@ const ItemsDB = {
     "poppy": { name: "Mák", name_en: "Poppy", icon: "🌸", type: "special", desc: "Papaver somniferum. Hildegarda znala jeho moc. Tišil bolest, navozoval spánek. Cenný i drahý.", desc_en: "Papaver somniferum. Hildegard knew its power. Eased pain, brought sleep. Valued and costly." },
     "nettle": { name: "Kopřiva", name_en: "Nettle", icon: "🌿", type: "special", desc: "Urtica dioica. Vlákno, jídlo i lék. Klášterní zahrady ji pěstovaly záměrně — na látku i odvar.", desc_en: "Urtica dioica. Fibre, food and medicine. Monastery gardens cultivated it deliberately." },
     "cannabis": { name: "Konopí seté", name_en: "Hemp", icon: "🌿", type: "mat", desc: "Cannabis sativa. Pěstováno v Čechách od středověku — vlákno na lana a plátno, semena na olej i jídlo.", desc_en: "Cannabis sativa. Cultivated in Bohemia since the Middle Ages — fibre for rope and cloth, seeds for oil and food." },
+    "hemp_fiber": { name: "Konopné vlákno", name_en: "Hemp Fibre", icon: "🧵", type: "mat", desc: "Stonky rosené, lámané a mykané — hrubší a pevnější než len.", desc_en: "Stalks retted, broken and hackled — coarser and stronger than flax." },
+    "hemp_canvas": { name: "Plachtovina", name_en: "Hemp Canvas", icon: "🧵", type: "lore", desc: "Hrubá konopná tkanina. Na pytle, ne na oděv.", desc_en: "Coarse hemp fabric. For sacking, not clothing." },
+    "sack": { name: "Pytel", name_en: "Sack", icon: "🧺", type: "tool", desc: "Konopný pytel na zrní a mouku. +15 jednotek skladové kapacity v Inventariu.", desc_en: "Hemp sack for grain and flour. +15 units of storage capacity in the Inventarium." },
 
     // ATHANOR — výsledné produkty
     "ink_carbon": { name: "Sazový inkoust", name_en: "Carbon Ink", icon: "🖤", type: "lore", desc: "Černý inkoust ze sazí. Levný a trvanlivý.", desc_en: "Black ink from soot. Cheap and durable." },
@@ -460,6 +463,7 @@ const ItemsDB = {
     // KNIHAŘSTVÍ — Plný řetězec vazby (quires → sewn_block → unfitted_codex)
     // ═══════════════════════════════════════════════════════════════════════════
     "linen_thread": { name: "Lněná nit", name_en: "Linen Thread", icon: "🧵", type: "mat", desc: "Spředená lněná vlákna. Drží složky sešité na vazech.", desc_en: "Spun linen fibres. Holds the quires sewn onto the cords." },
+    "linen_cloth": { name: "Plátno", name_en: "Linen Cloth", icon: "🧵", type: "lore", desc: "Tkané lněné plátno. Opotřebené se stává hadry pro papír.", desc_en: "Woven linen cloth. When worn, it becomes rags for paper." },
     "leather_cords": { name: "Kožené vazy", name_en: "Leather Cords", icon: "🪢", type: "mat", desc: "Tenké řemínky, napnuté na vazadlu. Základ šití knižního bloku.", desc_en: "Thin cords, stretched on the sewing frame. The basis of stitching the book block." },
     "metal_clasps": { name: "Kovové spony", name_en: "Metal Clasps", icon: "🔩", type: "mat", desc: "Zaklapnou desky k sobě — brání kroucení pergamenu vlhkem.", desc_en: "Clasp the boards shut — prevent the vellum from warping in damp." },
     "metal_bosses": { name: "Kovové puklice", name_en: "Metal Bosses", icon: "🔘", type: "mat", desc: "Rohové a středové hrboly. Chrání kožený potah, když kniha leží na pultu.", desc_en: "Corner and centre bosses. Protect the leather cover when the book lies on a lectern." },
@@ -479,6 +483,10 @@ const ItemsDB = {
     "egg": { name: "Vejce", name_en: "Egg", icon: "🥚", type: "food", desc: "Čerstvé vejce ze slepice. Jídlo i pigment.", desc_en: "Fresh egg from the hen. Food and pigment." },
     "milk": { name: "Mléko", name_en: "Milk", icon: "🥛", type: "mat", desc: "Čerstvé mléko od ovce.", desc_en: "Fresh milk from the sheep." },
     "wool": { name: "Vlna", name_en: "Wool", icon: "🧶", type: "mat", desc: "Střižená vlna. Na přízi, tkaní i šití.", desc_en: "Shorn wool. For spinning, weaving and sewing." },
+    "wool_thread": { name: "Vlněná příze", name_en: "Wool Yarn", icon: "🧶", type: "mat", desc: "Spředená vlna. Na tkaní soukna.", desc_en: "Spun wool. For weaving woolen cloth." },
+    "wool_cloth": { name: "Soukno", name_en: "Wool Cloth", icon: "🧶", type: "lore", desc: "Tkané vlněné sukno. Teplejší a hrubší než plátno.", desc_en: "Woven wool cloth. Warmer and coarser than linen." },
+    "fulled_wool_cloth": { name: "Zvalchované soukno", name_en: "Fulled Wool Cloth", icon: "🧶", type: "lore", desc: "Zplstěno louhem místo odstáté moči — hustší, teplejší, dostupné každému klášteru.", desc_en: "Fulled with lye instead of stale urine — denser, warmer, available to every monastery." },
+    "kutna": { name: "Kutna", name_en: "Habit", icon: "👘", type: "tool", desc: "Mnišský hábit dle Řehole. Šije Vestiarius z hotového sukna.", desc_en: "A monastic habit per the Rule. Sewn by the Vestiarius from finished cloth." },
     "raw_hide": { name: "Surová kůže", name_en: "Raw Hide", icon: "🐑", type: "mat", desc: "Neupravená zvířecí kůže. Nutno vyčinit.", desc_en: "Untreated animal hide. Must be cured." },
     "feather_hen": { name: "Peří", name_en: "Hen Feather", icon: "🪶", type: "mat", desc: "Husté peří. Na polštáře i brky.", desc_en: "Thick feathers. For pillows and quills." },
 
