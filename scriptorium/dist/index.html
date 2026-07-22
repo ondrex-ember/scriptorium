@@ -8857,6 +8857,37 @@ const GameState = {
         fodina: { status: 'none', submittedAt: null, deniedReason: null, inspectionPending: false },
         fornax: { status: 'none', submittedAt: null, deniedReason: null, inspectionPending: false },
     },
+    // Historický základ — klášter roku 1465 už nějakou dobu stojí, hřbitov
+    // ani rajský dvůr nejsou prázdné od prvního dne. Frekvence odpovídá
+    // ustáleným sazbám: farní úmrtí častěji (~1×/60-100 dní), mnišská/konvršská
+    // vzácně (~1×/2-3 roky, viz ERGOT_DEATH_CHANCE). Jen výchozí stav pro
+    // nové hráče — existující save se tímhle nepřepisuje.
+    cemetery: {
+        condition: 100,
+        graves: [
+            { surname: 'Novák',     ts: Date.now() - 1095 * 86400000 },
+            { surname: 'Dvořák',    ts: Date.now() -  990 * 86400000 },
+            { surname: 'Král',      ts: Date.now() -  890 * 86400000 },
+            { surname: 'Procházka', ts: Date.now() -  810 * 86400000 },
+            { surname: 'Sedlák',    ts: Date.now() -  720 * 86400000 },
+            { surname: 'Novotný',   ts: Date.now() -  640 * 86400000 },
+            { surname: 'Malý',      ts: Date.now() -  560 * 86400000 },
+            { surname: 'Kovář',     ts: Date.now() -  480 * 86400000 },
+            { surname: 'Krejčí',    ts: Date.now() -  400 * 86400000 },
+            { surname: 'Novák',     ts: Date.now() -  320 * 86400000 },
+            { surname: 'Dvořák',    ts: Date.now() -  240 * 86400000 },
+            { surname: 'Sedlák',    ts: Date.now() -  160 * 86400000 },
+            { surname: 'Král',      ts: Date.now() -   90 * 86400000 },
+            { surname: 'Malý',      ts: Date.now() -   30 * 86400000 },
+        ],
+    },
+    rajskyDvur: {
+        graves: [
+            { name: 'Bratr Metoděj', wasBrother: true,  cause: 'ergot_fire', ts: Date.now() - 2555 * 86400000 },
+            { name: 'Bratr Ondřej',  wasBrother: true,  cause: 'ergot_fire', ts: Date.now() - 1460 * 86400000 },
+            { name: 'Konvrš Blažej', wasBrother: false, cause: 'ergot_fire', ts: Date.now() -  400 * 86400000 },
+        ],
+    },
 };
 
 // ═══ src/data/achievements.js ═══
@@ -21237,7 +21268,17 @@ const TemplumSystem = {
         const days = Math.floor((Date.now() - ts) / (24 * 3600000));
         if (days <= 0) return lang === 'en' ? 'today' : 'dnes';
         if (days === 1) return lang === 'en' ? '1 day ago' : 'včera';
-        return lang === 'en' ? days + ' days ago' : 'před ' + days + ' dny';
+        if (days < 30) return lang === 'en' ? days + ' days ago' : 'před ' + days + ' dny';
+        if (days < 365) {
+            const months = Math.round(days / 30);
+            return lang === 'en'
+                ? months + (months === 1 ? ' month ago' : ' months ago')
+                : 'před ' + months + (months === 1 ? ' měsícem' : ' měsíci');
+        }
+        const years = Math.round(days / 365);
+        return lang === 'en'
+            ? years + (years === 1 ? ' year ago' : ' years ago')
+            : 'před ' + years + (years === 1 ? ' rokem' : ' lety');
     },
 
     _confessionHistoryHtml: function(lang) {
@@ -21676,6 +21717,7 @@ const TemplumSystem = {
         return h;
     },
 };
+
 // ═══ src/systems/DecaySystem.js ═══
 // ═══════════════════════════════════════════════════════════════════════════
 // DECAY SYSTEM v1 (B2 — simplified)
