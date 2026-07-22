@@ -2570,6 +2570,8 @@
                         <span data-i18n="fireplace.foculusTab"></span></button>
                     <button id="home-tab-templum" class="filter-btn" style="display:none;" onclick="UI.switchHomeTab('templum', this)">🕍
                         Templum</button>
+                    <button id="home-tab-infirmarium" class="filter-btn" style="display:none;" onclick="UI.switchHomeTab('infirmarium', this)">🩺
+                        Infirmarium</button>
                 </div>
 
                 <div id="home-main-content">
@@ -2632,6 +2634,7 @@
                 <div id="home-cellarium-content" style="display:none;"></div>
                 <div id="home-saeculum-content" style="display:none;"></div>
                 <div id="home-templum-content" style="display:none;"></div>
+                <div id="home-infirmarium-content" style="display:none;"></div>
                 <div id="home-athanor-content" style="display:none;"></div>
                 <div id="home-foculus-content" style="display:none;">
                     <div id="foculus-locked"
@@ -8717,6 +8720,57 @@ TechTree.push({
     unlocks: [],
     requires: []
 });
+// ── INFIRMARIUM — Ošetřovna ───────────────────────────────────────────────
+TechTree.push({
+    id: "tech_infirmarium",
+    name: "Infirmarium",
+    name_en: "Infirmarium",
+    cost: 30,
+    desc: "Nemocní dosud leží tam, kde je nemoc zastihla. Infirmarium jim dá vlastní síň, oddělenou od zdravého společenství. Odemyká: budovu Infirmarium a přístup k jejím čtyřem stanovištím péče.",
+    desc_en: "The sick still lie wherever illness finds them. The Infirmarium gives them their own hall, set apart from the healthy community. Unlocks: the Infirmarium building and access to its four stations of care.",
+    unlocks: [],
+    requires: []
+});
+TechTree.push({
+    id: "tech_infirmarium_servitor",
+    name: "Servitor infirmariae",
+    name_en: "Servitor infirmariae",
+    cost: 12,
+    desc: "Fyzická obsluha nemocných — převlékání lůžek, podávání léků, hygiena sálu. Odemyká: konvrší úkol Ošetřovatel.",
+    desc_en: "Physical care of the sick — changing linens, giving medicine, keeping the hall clean. Unlocks: the Servitor lay-brother task.",
+    unlocks: [],
+    requires: ["tech_infirmarium"]
+});
+TechTree.push({
+    id: "tech_infirmarium_coquus",
+    name: "Coquus infirmariae",
+    name_en: "Coquus infirmariae",
+    cost: 12,
+    desc: "Vlastní kuchyně ošetřovny — maso a bílý chléb povolené i mimo půst, k posílení nemocných. Odemyká: konvrší úkol Kuchař infirmaria.",
+    desc_en: "The infirmary's own kitchen — meat and white bread allowed even outside fast days, to strengthen the sick. Unlocks: the Coquus lay-brother task.",
+    unlocks: [],
+    requires: ["tech_infirmarium"]
+});
+TechTree.push({
+    id: "tech_infirmarium_hortulanus",
+    name: "Hortulanus medicus",
+    name_en: "Hortulanus medicus",
+    cost: 12,
+    desc: "Zahrádka léčivek při ošetřovně — šalvěj, meduňka, mandragora. Odemyká: konvrší úkol Bylinář.",
+    desc_en: "A physic garden by the infirmary — sage, lemon balm, mandrake. Unlocks: the Hortulanus lay-brother task.",
+    unlocks: [],
+    requires: ["tech_infirmarium"]
+});
+TechTree.push({
+    id: "tech_infirmarium_balneator",
+    name: "Balneator / Focarius",
+    name_en: "Balneator / Focarius",
+    cost: 12,
+    desc: "Topič a koupelník — udržuje oheň a teplou vodu pro léčebné koupele. Odemyká: konvrší úkol Topič.",
+    desc_en: "The stoker and bath-keeper — tends the fire and warm water for healing baths. Unlocks: the Balneator lay-brother task.",
+    unlocks: [],
+    requires: ["tech_infirmarium"]
+});
 // ── PORTA — Holubí pošta ─────────────────────────────────────────────────
 TechTree.push({
     id: "tech_porta",
@@ -8739,7 +8793,6 @@ TechTree.push({
     unlocks: ["burn_lime", "slake_lime", "soaked_hide_lime", "premium_soaked_hide", "premium_soaked_hide_goat", "premium_stretched_hide", "premium_vellum"],
     requires: ["tech_fodina"]
 });
-
 // ═══ src/core/gamestate.js ═══
 const ActionsDB = [
     { id: 'basic',        cat: 'scavenge', name: 'Průzkum okolí',    name_en: 'Scour the grounds',  icon: '🖐',  desc: 'Suroviny',         desc_en: 'Raw materials',      yield: 1 },
@@ -21735,6 +21788,90 @@ const TemplumSystem = {
         h += `</div></div>`;
         return h;
     },
+};
+
+// ═══ src/systems/InfirmariumSystem.js ═══
+// ─────────────────────────────────────────────────────────────
+// InfirmariumSystem — Ošetřovna (Sprint 1: gate + tab skeleton)
+// MRD: infirmarium (project reference), sprint dohodnut v chatu
+// Sprint 1 = tab + gate + vizuální kostra (4 stanoviště jako dlaždice).
+// Žádná herní mechanika (diagnostika/produkce/přiřazení) zatím neběží —
+// ta přichází v dalších sprintech (Konvrši úkoly, humorální diagnostika,
+// produkční řetězec, Chirurgus, Capellanus/Zpověď).
+// ─────────────────────────────────────────────────────────────
+
+const InfirmariumSystem = {
+
+    // Gate: budova + tab se odemyká tech_infirmarium
+    isUnlocked: function() {
+        return !!(GameState.researchedTechs && GameState.researchedTechs.includes('tech_infirmarium'));
+    },
+
+    // Zobrazit/skrýt top-level tab dle gate (mirror TemplumSystem.updateTabVisibility)
+    updateTabVisibility: function() {
+        const btn = document.getElementById('home-tab-infirmarium');
+        if (!btn) return;
+        const show = this.isUnlocked();
+        const cur = btn.style.display !== 'none';
+        if (show !== cur) btn.style.display = show ? '' : 'none';
+    },
+
+    // 4 stanoviště (konvrší podrole) — ikony + gate tech, mapuje na CONVERSI_TASKS v game.js
+    _STATIONS: [
+        { id: 'servitor',   icon: '🩺', tech: 'tech_infirmarium_servitor',   name_cs: 'Ošetřovatel', name_en: 'Servitor' },
+        { id: 'coquus',     icon: '🍲', tech: 'tech_infirmarium_coquus',     name_cs: 'Kuchař',      name_en: 'Coquus' },
+        { id: 'hortulanus', icon: '🌿', tech: 'tech_infirmarium_hortulanus', name_cs: 'Bylinář',     name_en: 'Hortulanus' },
+        { id: 'balneator',  icon: '🔥', tech: 'tech_infirmarium_balneator', name_cs: 'Topič',       name_en: 'Balneator' }
+    ],
+
+    renderInfirmariumTab: function() {
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+
+        if (!this.isUnlocked()) {
+            return `<div style="text-align:center; padding:30px; opacity:0.6;
+                        border:1px dashed rgba(197,160,89,0.3); border-radius:8px;">
+                      <div style="font-size:2rem; margin-bottom:10px;">🩺</div>
+                      <div style="font-style:italic; font-size:0.9rem;">
+                        ${lang==='en' ? 'The infirmary has not yet been built.' : 'Ošetřovna zatím nestojí.'}
+                      </div>
+                    </div>`;
+        }
+
+        let h = '';
+
+        // Signature: čtyřhumorální proužek (Sprint 3 ho oživí reálnýma daty)
+        h += `<div style="display:flex; height:6px; border-radius:3px; overflow:hidden; margin-bottom:14px;">
+                <div style="flex:1; background:var(--accent-wax);" title="${lang==='en'?'Blood':'Krev'}"></div>
+                <div style="flex:1; background:var(--accent-gold);" title="${lang==='en'?'Yellow bile':'Žlutá žluč'}"></div>
+                <div style="flex:1; background:var(--ink-secondary);" title="${lang==='en'?'Black bile':'Černá žluč'}"></div>
+                <div style="flex:1; background:#7a95a8;" title="${lang==='en'?'Phlegm':'Hlen'}"></div>
+              </div>`;
+
+        h += `<div style="padding:12px 15px; margin-bottom:16px; background:rgba(197,160,89,0.05); border:1px solid rgba(197,160,89,0.25); border-radius:8px;">
+                <div style="font-weight:bold; font-size:0.9rem; margin-bottom:6px;">🩺 Infirmarium</div>
+                <div style="font-size:0.78rem; opacity:0.75;">${lang==='en'
+                    ? 'The sick have their own hall now. Diagnosis and care will follow.'
+                    : 'Nemocní mají vlastní síň. Diagnostika a péče přijdou brzy.'}</div>
+              </div>`;
+
+        // Řada 4 stanovišť — dlaždice, ne seznam
+        h += `<div style="display:grid; grid-template-columns:repeat(4, 1fr); gap:8px;">`;
+        h += this._STATIONS.map(st => {
+            const gated = !(GameState.researchedTechs && GameState.researchedTechs.includes(st.tech));
+            const label = lang === 'en' ? st.name_en : st.name_cs;
+            return `<div style="text-align:center; padding:10px 6px; border-radius:8px;
+                        border:1px solid rgba(197,160,89,0.25);
+                        background:rgba(197,160,89,0.05);
+                        opacity:${gated ? '0.5' : '1'};">
+                      <div style="font-size:1.4rem;">${st.icon}</div>
+                      <div style="font-size:0.68rem; font-weight:bold; margin-top:4px;">${label}</div>
+                      <div style="font-size:0.6rem; opacity:0.7; margin-top:2px;">${gated ? '🔒 ' + st.tech : (lang==='en' ? 'soon' : 'brzy')}</div>
+                    </div>`;
+        }).join('');
+        h += `</div>`;
+
+        return h;
+    }
 };
 
 // ═══ src/systems/DecaySystem.js ═══
@@ -43862,6 +43999,8 @@ const Game = {
         Game.checkEnvironment();
         // Templum — viditelnost tabu hned při loadu (dřív jen po kliku na jiný tab / až 60s tick)
         if (typeof TemplumSystem !== 'undefined' && TemplumSystem.updateTabVisibility) TemplumSystem.updateTabVisibility();
+        // Infirmarium — viditelnost tabu hned při loadu
+        if (typeof InfirmariumSystem !== 'undefined' && InfirmariumSystem.updateTabVisibility) InfirmariumSystem.updateTabVisibility();
         
         VigorSystem.renderMiniDisplay();
 
@@ -44042,6 +44181,8 @@ const Game = {
                     if (typeof Game !== 'undefined' && Game.vitreaGrantStartPool) { Game.vitreaGrantStartPool(); Game.vitreaWearTick(); }
                     // Templum — viditelnost tabu dle mnišského ranku (levný DOM check)
                     if (typeof TemplumSystem !== 'undefined' && TemplumSystem.updateTabVisibility) TemplumSystem.updateTabVisibility();
+                    // Infirmarium — viditelnost tabu dle tech_infirmarium (levný DOM check)
+                    if (typeof InfirmariumSystem !== 'undefined' && InfirmariumSystem.updateTabVisibility) InfirmariumSystem.updateTabVisibility();
                     // Templum — denní chod kostela (self-guarded 24h, gate frater+)
                     if (typeof Game !== 'undefined' && Game.templumDailyTick) Game.templumDailyTick();
                     // Templum — týdenní zpověď (self-guarded, gate frater+)
@@ -49227,6 +49368,10 @@ const Game = {
         doly:     { icon: '⛏️', away: true,  durationMs: 20 * 60 * 60 * 1000, riskPct: 20 },
         kostel:   { icon: '🕍', away: false },
         hrbitov:  { icon: '⚰️', away: false },
+        servitor:   { icon: '🩺', away: false },
+        coquus:     { icon: '🍲', away: false },
+        hortulanus: { icon: '🌿', away: false },
+        balneator:  { icon: '🔥', away: false },
     },
     CONVERSI_TASK_SLOTS: 2,
 
@@ -49244,6 +49389,18 @@ const Game = {
         if (taskId === 'kostel') {
             if (!(typeof TemplumSystem !== 'undefined' && TemplumSystem.isUnlocked())) {
                 return { locked: true, reasonKey: 'gate_frater' };
+            }
+            return { locked: false };
+        }
+        const INFIRMARIUM_SUBTECH = {
+            servitor: 'tech_infirmarium_servitor',
+            coquus: 'tech_infirmarium_coquus',
+            hortulanus: 'tech_infirmarium_hortulanus',
+            balneator: 'tech_infirmarium_balneator'
+        };
+        if (INFIRMARIUM_SUBTECH[taskId]) {
+            if (!(GameState.researchedTechs && GameState.researchedTechs.includes(INFIRMARIUM_SUBTECH[taskId]))) {
+                return { locked: true, reasonKey: 'gate_infirmarium_tech' };
             }
             return { locked: false };
         }
@@ -50850,7 +51007,6 @@ const Game = {
     },
 
 };
-
 // ═══ src/core/ui.js ═══
 const UI = {
     currentInvFilter: 'all',
@@ -51955,14 +52111,18 @@ const UI = {
         if (focEl) focEl.style.display = tab === 'foculus' ? 'block' : 'none';
         const tmplEl = document.getElementById('home-templum-content');
         if (tmplEl) tmplEl.style.display = tab === 'templum' ? 'block' : 'none';
+        const infEl = document.getElementById('home-infirmarium-content');
+        if (infEl) infEl.style.display = tab === 'infirmarium' ? 'block' : 'none';
         document.querySelectorAll('#screen-home .filter-btn').forEach(b => b.classList.remove('active'));
         if (btn) btn.classList.add('active');
         if (typeof TemplumSystem !== 'undefined') TemplumSystem.updateTabVisibility();
+        if (typeof InfirmariumSystem !== 'undefined') InfirmariumSystem.updateTabVisibility();
         if (tab === 'athanor') AthanorSystem.render('home-athanor-content');
         if (tab === 'cellarium' && celEl) celEl.innerHTML = CellariumSystem.renderCellariumTab();
         if (tab === 'saeculum' && saecEl && typeof SaeculumSystem !== 'undefined') saecEl.innerHTML = SaeculumSystem.renderSaeculumTab();
         if (tab === 'foculus' && typeof FireplaceSystem !== 'undefined') FireplaceSystem.render();
         if (tab === 'templum' && tmplEl && typeof TemplumSystem !== 'undefined') tmplEl.innerHTML = TemplumSystem.renderTemplumTab();
+        if (tab === 'infirmarium' && infEl && typeof InfirmariumSystem !== 'undefined') infEl.innerHTML = InfirmariumSystem.renderInfirmariumTab();
         // Reset sub-tab to scavenge when switching back to main
         if (tab === 'main') this.switchHomeSubTab('scavenge', document.getElementById('home-sub-scavenge'));
     },
@@ -53470,7 +53630,6 @@ const UI = {
 // ===============================================
 // NOTEBOOK SYSTEM - LOCAL ONLY (NO CLOUD)
 // ===============================================
-
 // ═══ src/systems/iching.js ═══
 const IChing = {
 	  
