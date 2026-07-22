@@ -127,6 +127,20 @@ const ContactsDB = {
         desc: 'Sklář z hutě v lesích. Alembiky a křivule pro učené — křehké zboží, stálý odbyt.',
         desc_en: 'A glassmaker from a forest works. Alembics and retorts for the learned — fragile goods, steady trade.'
     },
+    kamenik: {
+        confession: "Do základů kostela vyzdil kámen z hřbitovní zdi. Nikdo si nevšiml, tvrdí.",
+        confession_en: "He walled a stone from the cemetery wall into the church foundations. No one noticed, he claims.",
+        name: 'Kameník', name_en: 'Stonemason', icon: '🪨',
+        primaryAxis: 'village',
+        secondaryAxis: { axis: 'church', weight: 0.3 },   // chrliče a kamenné dílo pro Fabrica
+        unlockTech: 'tech_carpentaria',       // existuje — tesařství/kamenictví společný gate (cut_stone)
+        sellBonus: { items: { rock: 1, cut_stone: 3 } },   // mimo trh (BASE_PRICES) — pevná exkluzivní cena, ne null (viz Kovář/iron_ore)
+        // zakázka — sdílí generický mechanismus SaeculumSystem.orderFromContact (stejné pole jako Sklář: 48 h, 1 slot, 50 % záloha)
+        glassOrders: { nahrobek: { itemId: 'nahrobek', price: 8,  minRelation: 0 },
+                       chrlic:   { itemId: 'chrlic',   price: 25, minRelation: 20 } },
+        desc: 'Kameník od lomu. Otesá náhrobek pro farní rodinu i chrliče pro chrám.',
+        desc_en: 'A stonemason from the quarry. He carves a gravestone for a parish family, or gargoyles for the church.'
+    },
     giacomo: {
         confession: "Prodává janovské zboží jako benátské a benátské jako janovské — podle toho, kdo se ptá.",
         confession_en: "He sells Genoese goods as Venetian, and Venetian as Genoese — whichever the buyer prefers.",

@@ -5150,6 +5150,14 @@ const Game = {
         this.removeItem(incenseId, 1);
         this.removeItem('hostia', 3);
 
+        // Mešní nádobí (od Katedrály): křehké sklo se občas rozbije, spotřeba jen pokud je skladem
+        let brokenGlass = null;
+        if ((t.fabricaTier || 0) >= 3 && Math.random() < 0.08) {
+            const glassOrder = Math.random() < 0.5 ? ['glass_goblet', 'glass_bowl'] : ['glass_bowl', 'glass_goblet'];
+            const glassId = glassOrder.find(id => (inv[id] || 0) > 0);
+            if (glassId) { this.removeItem(glassId, 1); brokenGlass = glassId; }
+        }
+
         // Stav kostela (T2 payoff): zhasnuto nebo zaprášeno → poloviční efekt
         const lit = (t.litUntil || 0) > now;
         const clean = (t.cleanUntil || 0) > now;
@@ -5193,9 +5201,10 @@ const Game = {
         if (typeof UI !== 'undefined' && UI.notifyPanel) {
             const feastPart = feastName ? (lang==='en' ? ' Feast of ' + feastName + ' — twofold grace!' : ' Svátek ' + feastName + ' — dvojnásobná milost!') : '';
             const vestmentPart = wrongVestment ? (lang==='en' ? ' Wrong vestment colour — impact reduced.' : ' Špatná barva roucha — dopad snížen.') : '';
+            const glassPart = brokenGlass ? (lang==='en' ? ' Fragile glass broke during mass.' : ' Křehké sklo při mši prasklo.') : '';
             UI.notifyPanel('⛪ ' + (degraded
                 ? (lang==='en' ? 'Mass held in gloom and dust. Ecclesia +'+eccl+', village +'+vill+'.' : 'Mše v šeru a prachu. Ecclesia +'+eccl+', vesnice +'+vill+'.')
-                : (lang==='en' ? 'Mass held. Ecclesia +'+eccl+', village +'+vill+'.' : 'Mše odsloužena. Ecclesia +'+eccl+', vesnice +'+vill+'.')) + feastPart + vestmentPart, (degraded || wrongVestment) ? 'warning' : 'success');
+                : (lang==='en' ? 'Mass held. Ecclesia +'+eccl+', village +'+vill+'.' : 'Mše odsloužena. Ecclesia +'+eccl+', vesnice +'+vill+'.')) + feastPart + vestmentPart + glassPart, (degraded || wrongVestment) ? 'warning' : 'success');
         }
         Game.addKronikaEntry('important',
             feastName ? '⛪ Mše o svátku ' + feastName + ' — kostel praskal ve švech.' : (degraded ? '⛪ Mše sloužena v šeru a prachu — kostel volá po péči.' : '⛪ Mše slavnostně odsloužena. Kraj naslouchal.'),
@@ -5209,8 +5218,8 @@ const Game = {
     FABRICA_TIERS: [
         { name: 'Kaple',     name_en: 'Chapel',    cost: 0,   req: null, decayMult: 1.00, repairEff: 1.00 },
         { name: 'Kostel',    name_en: 'Church',    cost: 150, req: { ecclesia: 15, condition: 60, organ: true }, decayMult: 1.10, repairEff: 1.10 },
-        { name: 'Chrám',     name_en: 'Temple',    cost: 400, req: { ecclesia: 35, zboznost: 25, condition: 70 }, decayMult: 1.20, repairEff: 1.25 },
-        { name: 'Katedrála', name_en: 'Cathedral', cost: 900, req: { ecclesia: 60, zboznost: 50, condition: 80 }, decayMult: 1.35, repairEff: 1.40 },
+        { name: 'Chrám',     name_en: 'Temple',    cost: 400, req: { ecclesia: 35, zboznost: 25, condition: 70, materials: { cut_stone: 150, plank: 80, iron_ingot: 4, glass_stopper: 8 } }, decayMult: 1.20, repairEff: 1.25, buildDays: 10, repairCost: 20, repairMaterials: { cut_stone: 5 } },
+        { name: 'Katedrála', name_en: 'Cathedral', cost: 900, req: { ecclesia: 60, zboznost: 50, condition: 80, materials: { cut_stone: 350, plank: 200, iron_ingot: 12, glass_stopper: 20, glass_goblet: 3, glass_bowl: 3, chrlic: 4 } }, decayMult: 1.35, repairEff: 1.40, buildDays: 14, repairCost: 30, repairMaterials: { cut_stone: 8, glass_bowl: 1 } },
     ],
 
     fabricaMeetsRequirements: function(req) {
@@ -5221,6 +5230,11 @@ const Game = {
         if (req.ecclesia && ((p.influence && p.influence.church) || 0) < req.ecclesia) return false;
         if (req.zboznost && (p.zboznost || 0) < req.zboznost) return false;
         if (req.organ && (GameState.inventory['organ'] || 0) < 1) return false;
+        if (req.materials) {
+            for (const matId in req.materials) {
+                if ((GameState.inventory[matId] || 0) < req.materials[matId]) return false;
+            }
+        }
         return true;
     },
 
@@ -5231,20 +5245,68 @@ const Game = {
         const tier = t.fabricaTier || 0;
         const lang = (GameState.settings && GameState.settings.language) || 'cs';
         if (tier >= this.FABRICA_TIERS.length - 1) return;
+        if (t.fabricaBuildUntil) { UI.notify('⚠️ ' + (lang==='en'?'Construction already underway.':'Stavba už probíhá.'), true); return; }
         const next = this.FABRICA_TIERS[tier + 1];
         if (!this.fabricaMeetsRequirements(next.req)) { UI.notify('⚠️ ' + (lang==='en'?'Requirements not met.':'Podmínky nesplněny.'), true); return; }
         if (CellariumSystem.getGrose() < next.cost) { UI.notify('⚠️ ' + (lang==='en'?'Not enough groschen.':'Nedostatek grošů.'), true); return; }
         CellariumSystem.spendGrose(next.cost);
-        t.fabricaTier = tier + 1;
+        const mats = (next.req && next.req.materials) || {};
+        for (const matId in mats) this.removeItem(matId, mats[matId]);
         const name = lang==='en' ? next.name_en : next.name;
-        Game.save();
-        UI.notifyPanel('🏛️ ' + (lang==='en'?'The church rises: ':'Kostel roste: ') + name + '.', 'success');
-        Game.addKronikaEntry('important',
-            '🏛️ Fabrica: kostel povýšen na ' + name + '.',
-            '🏛️ Fabrica: the church raised to ' + name + '.',
-            '🏛️ Fabrica ecclesiae aucta est.');
+        if (next.buildDays) {
+            t.fabricaBuildUntil = Date.now() + next.buildDays * 24 * 60 * 60 * 1000;
+            t.fabricaBuildTargetTier = tier + 1;
+            Game.save();
+            UI.notifyPanel('🏗️ ' + (lang==='en'?'Construction begins: ':'Stavba začíná: ') + name + '.', 'success');
+            Game.addKronikaEntry('important',
+                '🏗️ Fabrica: stavba ' + name + ' zahájena. Potrvá ' + next.buildDays + ' dní.',
+                '🏗️ Fabrica: construction of ' + name + ' begun. Will take ' + next.buildDays + ' days.',
+                '🏗️ Fabrica ecclesiae aedificatur.');
+        } else {
+            t.fabricaTier = tier + 1;
+            Game.save();
+            UI.notifyPanel('🏛️ ' + (lang==='en'?'The church rises: ':'Kostel roste: ') + name + '.', 'success');
+            Game.addKronikaEntry('important',
+                '🏛️ Fabrica: kostel povýšen na ' + name + '.',
+                '🏛️ Fabrica: the church raised to ' + name + '.',
+                '🏛️ Fabrica ecclesiae aucta est.');
+        }
         const el2 = document.getElementById('home-templum-content');
         if (el2 && typeof TemplumSystem !== 'undefined') el2.innerHTML = TemplumSystem.renderTemplumTab();
+    },
+
+    checkFabricaBuildComplete: function() {
+        if (!GameState.templum) return;
+        const t = GameState.templum;
+        if (!t.fabricaBuildUntil || Date.now() < t.fabricaBuildUntil) return;
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        const targetTier = t.fabricaBuildTargetTier;
+        const def = this.FABRICA_TIERS[targetTier];
+        t.fabricaTier = targetTier;
+        t.fabricaBuildUntil = null;
+        t.fabricaBuildTargetTier = null;
+        const name = lang==='en' ? def.name_en : def.name;
+        Game.save();
+        UI.notifyPanel('🏛️ ' + (lang==='en'?'Construction complete: ':'Stavba dokončena: ') + name + '.', 'success');
+        Game.addKronikaEntry('important',
+            '🏛️ Fabrica: ' + name + ' dokončena.',
+            '🏛️ Fabrica: ' + name + ' completed.',
+            '🏛️ Fabrica ecclesiae perfecta est.');
+    },
+
+    buildNahrobek: function(ts) {
+        if (!GameState.cemetery) return;
+        const grave = (GameState.cemetery.graves || []).find(g => g.ts === ts);
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        if (!grave || grave.nahrobek) return;
+        if ((GameState.inventory['nahrobek'] || 0) < 1) { UI.notify('⚠️ ' + (lang==='en'?'No gravestone in store.':'Nemáš náhrobek na skladě.'), true); return; }
+        this.removeItem('nahrobek', 1);
+        grave.nahrobek = true;
+        if (typeof PersonaSystem !== 'undefined' && PersonaSystem.addZboznost) PersonaSystem.addZboznost(1);
+        Game.save();
+        UI.notify('🪦 ' + (lang==='en'?'Gravestone set.':'Náhrobek postaven.'));
+        const el = document.getElementById('home-templum-content');
+        if (el && typeof TemplumSystem !== 'undefined') el.innerHTML = TemplumSystem.renderTemplumTab();
     },
 
     repairFabrica: function() {
@@ -5252,10 +5314,19 @@ const Game = {
         if (!GameState.templum) GameState.templum = {};
         const t = GameState.templum;
         const lang = (GameState.settings && GameState.settings.language) || 'cs';
-        const cost = 20;
-        if (CellariumSystem.getGrose() < cost) { UI.notify('⚠️ ' + (lang==='en'?'Not enough groschen.':'Nedostatek grošů.'), true); return; }
-        CellariumSystem.spendGrose(cost);
         const tierDef = this.FABRICA_TIERS[t.fabricaTier || 0];
+        const cost = tierDef.repairCost || 20;
+        const mats = tierDef.repairMaterials || {};
+        if (CellariumSystem.getGrose() < cost) { UI.notify('⚠️ ' + (lang==='en'?'Not enough groschen.':'Nedostatek grošů.'), true); return; }
+        for (const matId in mats) {
+            if ((GameState.inventory[matId] || 0) < mats[matId]) {
+                const matName = (typeof iName === 'function') ? iName(matId) : matId;
+                UI.notify('⚠️ ' + (lang==='en'?'Missing material: ':'Chybí materiál: ') + matName + '.', true);
+                return;
+            }
+        }
+        CellariumSystem.spendGrose(cost);
+        for (const matId in mats) this.removeItem(matId, mats[matId]);
         t.condition = Math.min(100, (t.condition != null ? t.condition : 100) + 15 * tierDef.repairEff);
         Game.save();
         UI.notify('🔧 ' + (lang==='en'?'Repairs made.':'Opraveno.'));
@@ -5268,6 +5339,7 @@ const Game = {
         const t = GameState.templum;
         const now = Date.now();
         const DAY = 24 * 60 * 60 * 1000;
+        this.checkFabricaBuildComplete();
         if (now - (t.lastTick || 0) < DAY) return;
         t.lastTick = now;
 

@@ -997,7 +997,7 @@ const SaeculumSystem = {
     this.switchEntity('clientela');
   },
 
-  // V4/S2: Zakázky u kontaktu (Sklář) — 1 slot, 48 h, 50 % záloha, doplatek při vyzvednutí, +2 vztah
+  // V4/S2: Zakázky u kontaktu (Sklář, Kameník...) — 1 slot NA KONTAKT, 48 h, 50 % záloha, doplatek při vyzvednutí, +2 vztah
   GLASS_ORDER_MS: 48 * 60 * 60 * 1000,
 
   orderFromContact: function(contactId, orderKey) {
@@ -1005,33 +1005,36 @@ const SaeculumSystem = {
     const c = ContactsDB[contactId];
     const ord = c && c.glassOrders && c.glassOrders[orderKey];
     if (!ord) return;
-    if (GameState.glassOrder && !GameState.glassOrder.collected) { UI.notify('⚠️ Zakázka už běží — jedna najednou.', true); return; }
+    if (!GameState.craftOrders) GameState.craftOrders = {};
+    if (GameState.craftOrders[contactId]) { UI.notify('⚠️ Zakázka už běží — jedna najednou.', true); return; }
     const rel = (GameState.contactRelation || {})[contactId] || 0;
     if (ord.minRelation && rel < ord.minRelation) return;
     const deposit = Math.ceil(ord.price / 2);
     if (CellariumSystem.getGrose() < deposit) { UI.notify('⚠️ Non habes sufficiens! Záloha ' + deposit + ' g.', true); return; }
     CellariumSystem.addGrose(-deposit);
-    GameState.glassOrder = { contactId: contactId, itemId: ord.itemId, price: ord.price, deposit: deposit, readyAt: Date.now() + this.GLASS_ORDER_MS };
+    GameState.craftOrders[contactId] = { itemId: ord.itemId, price: ord.price, deposit: deposit, readyAt: Date.now() + this.GLASS_ORDER_MS };
     Game.save();
     const itemName = (typeof iName === 'function') ? iName(ord.itemId) : ord.itemId;
     UI.notify('🔮 Zakázka přijata: ' + itemName + '. Hotovo za 48 h. Záloha ' + deposit + ' g.');
     this.switchEntity('clientela');
   },
 
-  collectGlassOrder: function() {
-    const o = GameState.glassOrder;
+  collectGlassOrder: function(contactId) {
+    const o = GameState.craftOrders && GameState.craftOrders[contactId];
     if (!o || Date.now() < o.readyAt) return;
     const rest = o.price - o.deposit;
     if (CellariumSystem.getGrose() < rest) { UI.notify('⚠️ Doplatek ' + rest + ' g. Zakázka trpělivě čeká.', true); return; }
     CellariumSystem.addGrose(-rest);
     Game.addItem(o.itemId, 1);
-    CellariumSystem.recordTransaction('buy', o.itemId, 1, o.price, o.contactId);
-    this.addContactRelation(o.contactId, 2);
+    CellariumSystem.recordTransaction('buy', o.itemId, 1, o.price, contactId);
+    this.addContactRelation(contactId, 2);
     const itemName = (typeof iName === 'function') ? iName(o.itemId) : o.itemId;
-    GameState.glassOrder = null;
+    const lang0 = (GameState.settings && GameState.settings.language) || 'cs';
+    const contactName = ContactsDB[contactId] ? (lang0==='en' ? ContactsDB[contactId].name_en : ContactsDB[contactId].name) : '';
+    delete GameState.craftOrders[contactId];
     Game.save();
     UI.notify('🔮 Zakázka vyzvednuta: ' + itemName + '.');
-    Game.addKronikaEntry('minor', '🔮 Sklář dodal zakázku: ' + itemName + '.', '🔮 The glassmaker delivered a commission: ' + itemName + '.', '🔮 Opus vitreum traditum est.');
+    Game.addKronikaEntry('minor', '🔮 ' + contactName + ' dodal zakázku: ' + itemName + '.', '🔮 ' + contactName + ' delivered a commission: ' + itemName + '.', '🔮 Opus traditum est.');
     this.switchEntity('clientela');
   },
 
@@ -1164,7 +1167,7 @@ const SaeculumSystem = {
     // 🔮 Zakázky (V4/S2) — jen kontakt s glassOrders
     if (c.glassOrders && Object.keys(c.glassOrders).length) {
       h += `<div style="margin-top:14px;"><div style="font-size:0.7rem; font-weight:bold; letter-spacing:0.08em; text-transform:uppercase; color:var(--accent-gold); margin-bottom:8px; padding-bottom:4px; border-bottom:2px solid var(--accent-gold);">🔮 ${lang==='en'?'COMMISSIONS':'ZAKÁZKY'} <span style="opacity:0.6; font-weight:normal; text-transform:none;">(48 h · ${lang==='en'?'50 % deposit':'50 % záloha'})</span></div>`;
-      const o = GameState.glassOrder;
+      const o = GameState.craftOrders && GameState.craftOrders[id];
       if (o) {
         const remH = Math.max(0, Math.ceil((o.readyAt - Date.now()) / 3600000));
         const oName = (typeof iName === 'function') ? iName(o.itemId) : o.itemId;
@@ -1173,7 +1176,7 @@ const SaeculumSystem = {
         } else {
           const rest = o.price - o.deposit;
           h += `<div style="font-size:0.78rem; margin-bottom:6px;">✅ ${oName} ${lang==='en'?'is ready':'je hotov'} — ${lang==='en'?'balance due':'doplatek'} ${rest} g</div>
-                <button class="craft-btn" onclick="SaeculumSystem.collectGlassOrder()">📦 ${lang==='en'?'Collect':'Vyzvednout'}</button>`;
+                <button class="craft-btn" onclick="SaeculumSystem.collectGlassOrder('${id}')">📦 ${lang==='en'?'Collect':'Vyzvednout'}</button>`;
         }
       } else {
         Object.keys(c.glassOrders).forEach(key => {

@@ -412,6 +412,8 @@ const ItemsDB = {
     "glue": { name: "Klej", name_en: "Glue", icon: "🫧", type: "mat", desc: "Kostní klej. Váže dřevo i pergamen.", desc_en: "Bone glue. Bonds wood and parchment." },
     "plank": { name: "Fošna", name_en: "Plank", icon: "🪵", type: "mat", desc: "Otesaná dřevěná deska. Základ každé stavby.", desc_en: "A hewn wooden board. The foundation of every building." },
     "cut_stone": { name: "Tesaný kámen", name_en: "Cut Stone", icon: "🧱", type: "mat", desc: "Kámen opracovaný dlátem. Pevný základ sklepa i sýpky.", desc_en: "Stone shaped by chisel. The firm foundation of cellar and granary." },
+    "nahrobek": { name: "Náhrobek", name_en: "Gravestone", icon: "🪦", type: "mat", desc: "Kamenná deska se jménem. Dílo kameníka pro hrob na hřbitově.", desc_en: "A stone slab bearing a name. The stonemason's work for a grave in the cemetery." },
+    "chrlic": { name: "Chrlič", name_en: "Gargoyle", icon: "🗿", type: "mat", desc: "Kamenná obluda odvádějící dešťovou vodu z okapu. Zdobí i chrání chrám.", desc_en: "A stone beast channeling rainwater from the eaves. It adorns and guards the church." },
 
     // ── KAMENNÉ NÁSTROJE (tech_horticulture + tech_carpentaria) ────────────────
     "stone_axe": { maxUses: 10, name: "Kamenná sekerka", name_en: "Stone Axe", icon: "🪓", type: "tool", tier: "stone", desc: "Kamenné ostří na dřevěné násadě. Odemkne těžbu dřeva.", desc_en: "Stone blade on a wooden haft. Unlocks wood harvesting." },

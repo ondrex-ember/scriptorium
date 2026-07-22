@@ -83,11 +83,17 @@ const TemplumSystem = {
         return ['frater', 'armarius', 'prior'].includes(m);
     },
 
+    // Gate: Hřbitov — otevřen dřív než zbytek Templum, od novitius (24h na mnišské dráze)
+    isCemeteryUnlocked: function() {
+        const m = GameState.rank && GameState.rank.monastic;
+        return ['novitius', 'frater', 'armarius', 'prior'].includes(m);
+    },
+
     // Zobrazit/skrýt top-level tab dle gate (volá se z existujícího tick call-site + při přepínání tabů)
     updateTabVisibility: function() {
         const btn = document.getElementById('home-tab-templum');
         if (!btn) return;
-        const show = this.isUnlocked();
+        const show = this.isCemeteryUnlocked();
         const cur = btn.style.display !== 'none';
         if (show !== cur) btn.style.display = show ? '' : 'none';
     },
@@ -127,7 +133,14 @@ const TemplumSystem = {
         if (!graves.length) {
             h += `<div style="font-size:0.75rem; opacity:0.6;">${lang==='en'?'No one rests here yet.':'Zatím tu nikdo neodpočívá.'}</div>`;
         } else {
-            h += graves.slice(0, 15).map(g => `<div style="font-size:0.72rem; opacity:0.7; margin-top:3px;">🪦 ${g.surname} · ${this._timeAgo(g.ts, lang)}</div>`).join('');
+            const haveStone = (GameState.inventory['nahrobek'] || 0) >= 1;
+            h += graves.slice(0, 15).map(g => {
+                const mark = g.nahrobek ? '🪦' : '⬜';
+                const btn = g.nahrobek ? '' : `<button class="craft-btn" style="padding:1px 6px; font-size:0.62rem; margin-left:6px;" ${haveStone ? '' : 'disabled'} onclick="Game.buildNahrobek(${g.ts})">${lang==='en'?'Set gravestone':'Postavit náhrobek'}</button>`;
+                return `<div style="font-size:0.72rem; opacity:0.7; margin-top:3px; display:flex; align-items:center; justify-content:space-between;">
+                          <span>${mark} ${g.surname} · ${this._timeAgo(g.ts, lang)}</span>${btn}
+                        </div>`;
+            }).join('');
         }
         h += `</div>`;
         return h;
@@ -135,7 +148,7 @@ const TemplumSystem = {
 
     renderTemplumTab: function() {
         const lang = (GameState.settings && GameState.settings.language) || 'cs';
-        if (!this.isUnlocked()) {
+        if (!this.isCemeteryUnlocked()) {
             return `<div style="text-align:center; padding:30px; opacity:0.6;
                         border:1px dashed rgba(197,160,89,0.3); border-radius:8px;">
                       <div style="font-size:2rem; margin-bottom:10px;">🕍</div>
@@ -170,15 +183,27 @@ const TemplumSystem = {
             </div>
           </div>`;
 
-        // Subtab přepínač: Hlavní / Hřbitov (mirror Cellarium/Manufaktura vzoru)
-        const entity = (GameState.ui && GameState.ui.templumEntity) || 'main';
+        // Subtab přepínač: Hřbitov / Hlavní (mirror Cellarium/Manufaktura vzoru)
+        const entity = (GameState.ui && GameState.ui.templumEntity) || (this.isUnlocked() ? 'main' : 'hrbitov');
         h += `<div style="display:flex; gap:8px; margin-bottom:16px;">
-                <button class="craft-btn" style="flex:1; ${entity==='main' ? 'background:#2c1810;' : ''}" onclick="TemplumSystem.switchEntity('main')">🕍 ${lang==='en'?'Main':'Hlavní'}</button>
                 <button class="craft-btn" style="flex:1; ${entity==='hrbitov' ? 'background:#2c1810;' : ''}" onclick="TemplumSystem.switchEntity('hrbitov')">⚰️ ${lang==='en'?'Cemetery':'Hřbitov'}</button>
+                <button class="craft-btn" style="flex:1; ${entity==='main' ? 'background:#2c1810;' : ''}" onclick="TemplumSystem.switchEntity('main')">🕍 ${lang==='en'?'Main':'Hlavní'}</button>
               </div>`;
 
         if (entity === 'hrbitov') {
             h += this._renderCemeteryPanel(lang);
+            h += `</div>`;
+            return h;
+        }
+
+        if (!this.isUnlocked()) {
+            h += `<div style="text-align:center; padding:30px; opacity:0.6;
+                        border:1px dashed rgba(197,160,89,0.3); border-radius:8px;">
+                      <div style="font-size:2rem; margin-bottom:10px;">🕍</div>
+                      <div style="font-style:italic; font-size:0.9rem;">
+                        ${lang==='en' ? 'The nave opens only to a brother of the order.' : 'Hlavní loď se otevírá jen bratru řádu.'}
+                      </div>
+                    </div>`;
             h += `</div>`;
             return h;
         }
@@ -199,9 +224,16 @@ const TemplumSystem = {
             }
             h += `<div style="padding:12px 15px; margin-bottom:16px; background:rgba(197,160,89,0.05); border:1px solid rgba(197,160,89,0.25); border-radius:8px;">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
-                    <div style="font-weight:bold; font-size:0.9rem;">🏛️ Fabrica Ecclesiae — ${curName}</div>
-                    <button class="craft-btn" style="font-size:0.7rem; padding:3px 10px;" onclick="Game.repairFabrica()" ${cond>=89?'disabled':''}>🔧 ${lang==='en'?'Repair (20g)':'Opravit (20g)'}</button>
-                </div>
+                    <div style="font-weight:bold; font-size:0.9rem;">🏛️ Fabrica Ecclesiae — ${curName}</div>`;
+            {
+                const repCost = cur.repairCost || 20;
+                const repMats = cur.repairMaterials || {};
+                const repMatsOk = Object.keys(repMats).every(mid => (GameState.inventory[mid] || 0) >= repMats[mid]);
+                const repLabel = Object.keys(repMats).map(mid => (typeof iName === 'function' ? iName(mid) : mid) + ' ' + repMats[mid]).join(', ');
+                const repDisabled = cond >= 89 || CellariumSystem.getGrose() < repCost || !repMatsOk;
+                h += `<button class="craft-btn" style="font-size:0.7rem; padding:3px 10px;" onclick="Game.repairFabrica()" ${repDisabled?'disabled':''}>🔧 ${lang==='en'?'Repair':'Opravit'} (${repCost}g${repLabel?', '+repLabel:''})</button>`;
+            }
+            h += `</div>
                 <div style="display:flex; justify-content:space-between; font-size:0.7rem; opacity:0.65; margin-bottom:3px;">
                     <span>${lang==='en'?'Structural condition':'Strukturální stav'}</span><span>${Math.round(cond)} %</span>
                 </div>
@@ -223,7 +255,13 @@ const TemplumSystem = {
                     <div style="text-align:center; font-size:0.68rem; opacity:0.55; font-style:italic;">🎹 ${lang==='en'?'click a pipe to play':'klikej na píšťaly'}</div>
                 </div>`;
             }
-            if (next) {
+            if (t0.fabricaBuildUntil) {
+                const remMs = t0.fabricaBuildUntil - Date.now();
+                const remDays = Math.max(0, Math.ceil(remMs / (24*60*60*1000)));
+                const targetDef = Game.FABRICA_TIERS[t0.fabricaBuildTargetTier];
+                const targetName = lang==='en' ? targetDef.name_en : targetDef.name;
+                h += `<div style="font-size:0.78rem; margin-top:6px;">🏗️ ${lang==='en'?'Under construction: ':'Probíhá stavba: '}<strong>${targetName}</strong> — ${lang==='en'?'ready in':'hotovo za'} ${remDays} ${lang==='en'?(remDays===1?'day':'days'):'dní'}</div>`;
+            } else if (next) {
                 const nextName = lang==='en' ? next.name_en : next.name;
                 const req = next.req || {};
                 const eccl = (GameState.persona && GameState.persona.influence && GameState.persona.influence.church) || 0;
@@ -233,9 +271,18 @@ const TemplumSystem = {
                 if (req.ecclesia)  rows.push([eccl >= req.ecclesia,  'Ecclesia ≥'+req.ecclesia+' ('+Math.round(eccl)+')']);
                 if (req.zboznost)  rows.push([zbozn >= req.zboznost, (lang==='en'?'Piety':'Zbožnost')+' ≥'+req.zboznost+' ('+Math.round(zbozn)+')']);
                 if (req.organ)     rows.push([(GameState.inventory['organ']||0) >= 1, lang==='en'?'Organ in the church':'Varhany v kostele']);
+                if (req.materials) {
+                    Object.keys(req.materials).forEach(matId => {
+                        const need = req.materials[matId];
+                        const have = GameState.inventory[matId] || 0;
+                        const matName = (typeof iName === 'function') ? iName(matId) : matId;
+                        rows.push([have >= need, matName + ' ' + have + '/' + need]);
+                    });
+                }
                 const met = rows.every(r => r[0]);
                 h += rows.map(r => `<div style="font-size:0.68rem; ${r[0]?'opacity:0.7;':'color:#c0392b;'}">${r[0]?'✓':'✗'} ${r[1]}</div>`).join('');
-                h += `<button class="craft-btn" style="margin-top:8px; width:100%;" ${met && CellariumSystem.getGrose() >= next.cost ? '' : 'disabled'} onclick="Game.upgradeFabrica()">⬆️ ${lang==='en'?'Raise to':'Povýšit na'} ${nextName} (${next.cost}g)</button>`;
+                const buildPart = next.buildDays ? (', ' + (lang==='en'?'build':'stavba') + ' ' + next.buildDays + (lang==='en'?'d':' dní')) : '';
+                h += `<button class="craft-btn" style="margin-top:8px; width:100%;" ${met && CellariumSystem.getGrose() >= next.cost ? '' : 'disabled'} onclick="Game.upgradeFabrica()">⬆️ ${lang==='en'?'Raise to':'Povýšit na'} ${nextName} (${next.cost}g${buildPart})</button>`;
             } else {
                 h += `<div style="font-size:0.75rem; opacity:0.6; font-style:italic;">${lang==='en'?'Highest tier reached.':'Nejvyšší úroveň dosažena.'}</div>`;
             }
