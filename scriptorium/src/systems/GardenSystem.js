@@ -1264,12 +1264,11 @@ const GardenSystem = {
         const el = document.getElementById('garden-container');
         this._syncGardenLocks();
 
-        // Calculate growth time with tech bonuses
+        // Calculate growth time with tech bonuses (per-plodina, viz GARDEN_PLANTS_DB.growHours)
         let growthSpeed = CONFIG.GROWTH_SPEED;
         if(GameState.researchedTechs.includes('tech_advanced_farming')) {
-            growthSpeed *= 2.0; // +100% faster growth (24h → 12h)
+            growthSpeed *= 2.0; // +100% faster growth
         }
-        const needed = CONFIG.BASE_GROWTH_TIME / growthSpeed;
         
         const hasCustomPlant = GameState.researchedTechs.includes('tech_hortus_conclusus');
         const lang = (typeof UI !== 'undefined' && UI.lang) ? UI.lang() : 'cs';
@@ -1279,6 +1278,8 @@ const GardenSystem = {
 
         GameState.garden.forEach((plot, idx) => {
             let c = "", b = "", typeLabel = "";
+            const growHoursForPlot = this.getGrowHours(plot.crop);
+            const needed = (growHoursForPlot * 3600000) / growthSpeed;
             
             if(plot.locked) {
                 c = `<div class="plot-soil" style="opacity:0.2">🔒</div><div class="text-sm">${t('garden.locked')}</div>`;
@@ -1329,9 +1330,30 @@ const GardenSystem = {
                 }
                 else { 
                     c = `<div class="plot-soil" style="color:#4caf50">${cropIcon}</div><div class="text-sm">${cropName||t('garden.grown')}</div>`; 
-                    b = `<button class="craft-btn" onclick="Game.farmAction(${idx})">${t('garden.harvest')}</button>`;
+                    const gp = this.GARDEN_PLANTS_DB[plot.crop];
+                    if (gp && gp.canFlower) {
+                        b = `<button class="craft-btn" onclick="Game.farmAction(${idx})">${t('garden.harvest')}</button>
+                             <button class="craft-btn" style="background:#c5a059;margin-top:3px;font-size:0.7rem;" onclick="GardenSystem.letFlower(${idx})">🌸 ${lang==='en'?'Let flower':'Nechat vykvést'}</button>`;
+                    } else {
+                        b = `<button class="craft-btn" onclick="Game.farmAction(${idx})">${t('garden.harvest')}</button>`;
+                    }
                     if (hasCustomPlant) b += ` <button class="craft-btn" style="background:#8b4a3a;margin-top:3px;font-size:0.7rem;" onclick="GardenSystem.uprootGardenPlot(${idx})">🪴 ${t('garden.uproot')}</button>`;
                 }
+            }
+            else if (plot.state === 3) {
+                // Kvetení — čeká na semínka, žádná plodina (zahrada-rust-kveteni-mrd)
+                const gp = this.GARDEN_PLANTS_DB[plot.crop];
+                const flowerNeeded = (growHoursForPlot * 3600000) / growthSpeed; // stejná doba jako dozrání
+                if (Date.now() < (plot.floweredAt || 0) + flowerNeeded) {
+                    const growPct = Math.min(1, Math.max(0, (Date.now() - (plot.floweredAt||0)) / flowerNeeded));
+                    const iconSize = (1.0 + growPct * 1.0).toFixed(2);
+                    c = `<div class="plot-soil" style="color:#c58fd9; font-size:${iconSize}rem;">🌸</div><div class="text-sm">${lang==='en'?'Flowering':'Kvete'}</div>`;
+                    b = `<button class="craft-btn" disabled>${t('garden.wait')}</button>`;
+                } else {
+                    c = `<div class="plot-soil" style="color:#c58fd9">🌸</div><div class="text-sm">${lang==='en'?'Seeds ready':'Semínka zralá'}</div>`;
+                    b = `<button class="craft-btn" onclick="GardenSystem.collectSeeds(${idx})">🌱 ${lang==='en'?'Collect seeds':'Sklidit semínka'}</button>`;
+                }
+                b += ` <button class="craft-btn" style="background:#8b4a3a;margin-top:3px;font-size:0.7rem;" onclick="GardenSystem.uprootGardenPlot(${idx})">🪴 ${t('garden.uproot')}</button>`;
             }
             html += `<div class="garden-plot">${c}<div style="margin-top:auto">${b}</div></div>`;
         });
@@ -1385,33 +1407,39 @@ const GardenSystem = {
     // ── ZÁHONY — databáze plantovatelných rostlin ────────────────────────────
     GARDEN_PLANTS_DB: {
         // cropType: 'herb'
-        herb_red:    { cropType:'herb',      item:'herb_red',    seed:'seeds_herb',      icon:'🌺', name:'Krvavý květ',    name_en:'Bloodwort',     yield:2 },
-        chamomile:   { cropType:'herb',      item:'chamomile',   seed:'seeds_yellow',    icon:'🌼', name:'Heřmánek',       name_en:'Chamomile',     yield:2 },
-        herb_blue:   { cropType:'herb',      item:'herb_blue',   seed:'seeds_blue',      icon:'💜', name:'Levandule',      name_en:'Lavender',      yield:2 },
-        mint:        { cropType:'herb',      item:'mint',        seed:'seeds_mint',      icon:'🌿', name:'Máta',           name_en:'Mint',          yield:2 },
-        thyme:       { cropType:'herb',      item:'thyme',       seed:'seeds_thyme',     icon:'🌿', name:'Tymián',         name_en:'Thyme',         yield:2 },
-        st_johns_wort:{ cropType:'herb',     item:'st_johns_wort',seed:'seeds_herb',     icon:'🌻', name:'Třezalka',       name_en:"St. John's Wort",yield:2 },
-        sage:        { cropType:'herb',      item:'sage',        seed:'seeds_sage',      icon:'🌿', name:'Šalvěj',         name_en:'Sage',          yield:2 },
-        fennel:      { cropType:'herb',      item:'fennel',      seed:'seeds_fennel',    icon:'🌿', name:'Fenykl',         name_en:'Fennel',        yield:2 },
-        wormwood:    { cropType:'herb',      item:'wormwood',    seed:'seeds_wormwood',  icon:'🌿', name:'Pelyněk',        name_en:'Wormwood',      yield:2 },
-        hyssop:      { cropType:'herb',      item:'hyssop',      seed:'seeds_hyssop',    icon:'🌿', name:'Yzop',           name_en:'Hyssop',        yield:2 },
-        yarrow:      { cropType:'herb',      item:'yarrow',      seed:'seeds_yarrow',    icon:'🌿', name:'Řebříček',       name_en:'Yarrow',        yield:2 },
-        plantain:    { cropType:'herb',      item:'plantain',    seed:'seeds_plantain',  icon:'🌿', name:'Jitrocel',       name_en:'Plantain',      yield:2 },
+        herb_red:    { cropType:'herb',      item:'herb_red',    seed:'seeds_herb',      icon:'🌺', name:'Krvavý květ',    name_en:'Bloodwort',     yield:2, growHours:72 },
+        chamomile:   { cropType:'herb',      item:'chamomile',   seed:'seeds_yellow',    icon:'🌼', name:'Heřmánek',       name_en:'Chamomile',     yield:2, growHours:72 },
+        herb_blue:   { cropType:'herb',      item:'herb_blue',   seed:'seeds_blue',      icon:'💜', name:'Levandule',      name_en:'Lavender',      yield:2, growHours:144 },
+        mint:        { cropType:'herb',      item:'mint',        seed:'seeds_mint',      icon:'🌿', name:'Máta',           name_en:'Mint',          yield:2, growHours:36 },
+        thyme:       { cropType:'herb',      item:'thyme',       seed:'seeds_thyme',     icon:'🌿', name:'Tymián',         name_en:'Thyme',         yield:2, growHours:72 },
+        st_johns_wort:{ cropType:'herb',     item:'st_johns_wort',seed:'seeds_herb',     icon:'🌻', name:'Třezalka',       name_en:"St. John's Wort",yield:2, growHours:144 },
+        sage:        { cropType:'herb',      item:'sage',        seed:'seeds_sage',      icon:'🌿', name:'Šalvěj',         name_en:'Sage',          yield:2, growHours:144 },
+        fennel:      { cropType:'herb',      item:'fennel',      seed:'seeds_fennel',    icon:'🌿', name:'Fenykl',         name_en:'Fennel',        yield:2, growHours:72 },
+        wormwood:    { cropType:'herb',      item:'wormwood',    seed:'seeds_wormwood',  icon:'🌿', name:'Pelyněk',        name_en:'Wormwood',      yield:2, growHours:144 },
+        hyssop:      { cropType:'herb',      item:'hyssop',      seed:'seeds_hyssop',    icon:'🌿', name:'Yzop',           name_en:'Hyssop',        yield:2, growHours:72 },
+        yarrow:      { cropType:'herb',      item:'yarrow',      seed:'seeds_yarrow',    icon:'🌿', name:'Řebříček',       name_en:'Yarrow',        yield:2, growHours:36 },
+        plantain:    { cropType:'herb',      item:'plantain',    seed:'seeds_plantain',  icon:'🌿', name:'Jitrocel',       name_en:'Plantain',      yield:2, growHours:36 },
         // cropType: 'vegetable'
-        carrot:      { cropType:'vegetable', item:'carrot',      seed:'seeds_vegetable', icon:'🥕', name:'Mrkev',          name_en:'Carrot',        yield:3 },
-        onion:       { cropType:'vegetable', item:'onion',       seed:'seeds_vegetable', icon:'🧅', name:'Cibule',         name_en:'Onion',         yield:3 },
-        leek:        { cropType:'vegetable', item:'leek',        seed:'seeds_leek',      icon:'🌿', name:'Pór',            name_en:'Leek',          yield:3 },
-        cabbage:     { cropType:'vegetable', item:'cabbage',     seed:'seeds_cabbage',   icon:'🥬', name:'Zelí',           name_en:'Cabbage',       yield:3 },
-        radish:      { cropType:'vegetable', item:'radish',      seed:'seeds_radish',    icon:'🌱', name:'Ředkev',         name_en:'Radish',        yield:3 },
-        turnip:      { cropType:'vegetable', item:'turnip',      seed:'seeds_turnip',    icon:'🟣', name:'Řepa',           name_en:'Turnip',        yield:3 },
-        garlic:      { cropType:'vegetable', item:'garlic',      seed:'seeds_garlic',    icon:'🧄', name:'Česnek',         name_en:'Garlic',        yield:3 },
+        carrot:      { cropType:'vegetable', item:'carrot',      seed:'seeds_carrot',    icon:'🥕', name:'Mrkev',          name_en:'Carrot',        yield:3, growHours:72,  canFlower:true, seedYield:2 },
+        onion:       { cropType:'vegetable', item:'onion',       seed:'seeds_onion',     icon:'🧅', name:'Cibule',         name_en:'Onion',         yield:3, growHours:72,  canFlower:true, seedYield:2 },
+        leek:        { cropType:'vegetable', item:'leek',        seed:'seeds_leek',      icon:'🌿', name:'Pór',            name_en:'Leek',          yield:3, growHours:144, canFlower:true, seedYield:2 },
+        cabbage:     { cropType:'vegetable', item:'cabbage',     seed:'seeds_cabbage',   icon:'🥬', name:'Zelí',           name_en:'Cabbage',       yield:3, growHours:144, canFlower:true, seedYield:2 },
+        radish:      { cropType:'vegetable', item:'radish',      seed:'seeds_radish',    icon:'🌱', name:'Ředkev',         name_en:'Radish',        yield:3, growHours:36 },
+        turnip:      { cropType:'vegetable', item:'turnip',      seed:'seeds_turnip',    icon:'🟣', name:'Řepa',           name_en:'Turnip',        yield:3, growHours:72,  canFlower:true, seedYield:2 },
+        garlic:      { cropType:'vegetable', item:'garlic',      seed:'seeds_garlic',    icon:'🧄', name:'Česnek',         name_en:'Garlic',        yield:3, growHours:312 },
         // cropType: 'special'
-        mandrake:    { cropType:'special',   item:'mandrake',    seed:'seeds_mandrake',  icon:'🌿', name:'Mandragora',     name_en:'Mandrake',      yield:1 },
-        belladonna:  { cropType:'special',   item:'belladonna',  seed:'seeds_belladonna',icon:'🫐', name:'Rulík zlomocný', name_en:'Belladonna',    yield:1 },
-        poppy:       { cropType:'special',   item:'poppy',       seed:'seeds_poppy',     icon:'🌸', name:'Mák',            name_en:'Poppy',         yield:2 },
-        nettle:      { cropType:'special',   item:'nettle',      seed:'seeds_nettle',    icon:'🌿', name:'Kopřiva',        name_en:'Nettle',        yield:3 },
-        cannabis:    { cropType:'special',   item:'cannabis',    seed:'seeds_cannabis',  icon:'🌿', name:'Konopí seté',    name_en:'Hemp',          yield:3 },
-        hops:        { cropType:'special',   item:'hops',        seed:'seeds_hops',      icon:'🌿', name:'Chmel',          name_en:'Hops',          yield:2 },
+        mandrake:    { cropType:'special',   item:'mandrake',    seed:'seeds_mandrake',  icon:'🌿', name:'Mandragora',     name_en:'Mandrake',      yield:1, growHours:312 },
+        belladonna:  { cropType:'special',   item:'belladonna',  seed:'seeds_belladonna',icon:'🫐', name:'Rulík zlomocný', name_en:'Belladonna',    yield:1, growHours:312 },
+        poppy:       { cropType:'special',   item:'poppy',       seed:'seeds_poppy',     icon:'🌸', name:'Mák',            name_en:'Poppy',         yield:2, growHours:144 },
+        nettle:      { cropType:'special',   item:'nettle',      seed:'seeds_nettle',    icon:'🌿', name:'Kopřiva',        name_en:'Nettle',        yield:3, growHours:36 },
+        cannabis:    { cropType:'special',   item:'cannabis',    seed:'seeds_cannabis',  icon:'🌿', name:'Konopí seté',    name_en:'Hemp',          yield:3, growHours:312 },
+        hops:        { cropType:'special',   item:'hops',        seed:'seeds_hops',      icon:'🌿', name:'Chmel',          name_en:'Hops',          yield:2, growHours:312 },
+    },
+
+    // Doba růstu podle druhu (hodiny) — fallback 24h, pokud druh chybí (zahrada-rust-kveteni-mrd)
+    getGrowHours: function(cropId) {
+        const p = this.GARDEN_PLANTS_DB[cropId];
+        return (p && p.growHours) ? p.growHours : 24;
     },
 
     // Zasadit konkrétní plodinu (tech_hortus_conclusus)
@@ -1440,21 +1468,52 @@ const GardenSystem = {
         UI.notify('🌱 ' + plant.name + ' zasazen/a.');
     },
 
-    // Vykořenit plodinu (vrátí 1 semínko)
+    // Vykořenit plodinu (vrátí 1 semínko, ale ne pokud právě kvete — o obojí bys přišel zadarmo)
     uprootGardenPlot: function(idx) {
         const plot = GameState.garden[idx];
         if (!plot || plot.locked) return;
         if (plot.state === 0) { UI.notify('⚠️ Záhon je prázdný.', true); return; }
         if (!confirm('Vykořenit záhon? Rostlina bude nenávratně zničena.')) return;
         const plant = plot.crop ? Object.values(this.GARDEN_PLANTS_DB).find(p => p.item === plot.crop) : null;
-        if (plant) Game.addItem(plant.seed, 1);
+        if (plant && plot.state !== 3) Game.addItem(plant.seed, 1);
         plot.state = 0;
         plot.crop = null;
         plot.water = false;
         plot.plantedAt = 0;
+        plot.floweredAt = 0;
         Game.save();
         GardenSystem.renderGarden();
         UI.notify('🪴 Záhon vykořeněn.');
+    },
+
+    // Nechat vykvést místo sklizně — žádná plodina, ale za stejnou dobu jako
+    // dozrání dá seedYield semínek (zahrada-rust-kveteni-mrd)
+    letFlower: function(idx) {
+        const plot = GameState.garden[idx];
+        if (!plot || plot.locked || plot.state !== 2) return;
+        const gp = this.GARDEN_PLANTS_DB[plot.crop];
+        if (!gp || !gp.canFlower) return;
+        plot.state = 3;
+        plot.floweredAt = Date.now();
+        Game.save();
+        this.renderGarden();
+        UI.notify('🌸 ' + (gp.name || plot.crop) + ' necháno vykvést.');
+    },
+
+    // Sklizeň semínek po odkvětu
+    collectSeeds: function(idx) {
+        const plot = GameState.garden[idx];
+        if (!plot || plot.locked || plot.state !== 3) return;
+        const gp = this.GARDEN_PLANTS_DB[plot.crop];
+        if (!gp) return;
+        const growthSpeed = CONFIG.GROWTH_SPEED * (GameState.researchedTechs.includes('tech_advanced_farming') ? 2.0 : 1.0);
+        const flowerNeeded = (this.getGrowHours(plot.crop) * 3600000) / growthSpeed;
+        if (Date.now() < (plot.floweredAt || 0) + flowerNeeded) { UI.notify('⚠️ Ještě nekvete dost dlouho.', true); return; }
+        Game.addItem(gp.seed, gp.seedYield || 1);
+        plot.state = 0; plot.crop = null; plot.water = false; plot.floweredAt = 0;
+        Game.save();
+        this.renderGarden();
+        UI.notify('🌱 Semínka sklizena.');
     },
 
     // Délka jedné fáze v ms (3 reálné dny)
