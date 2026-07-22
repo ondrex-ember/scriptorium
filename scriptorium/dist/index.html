@@ -12816,6 +12816,22 @@ const ChroniconSystem = {
             }
         }
 
+        // CHRONICON advisory_events → kurátorované rozhodovací eventy (Sprint 3).
+        // Cap: jen 1 aktivní najednou. "Odložit" nic neztratí — zůstává
+        // aktivní, dokud se hráč nerozhodne jinak. Formát mirror events-reference.md.
+        if (snap.advisory_events && snap.advisory_events.length && typeof GameState !== 'undefined') {
+            if (!GameState.chroniconAdvisory) GameState.chroniconAdvisory = { activeId: null, pending: null, resolvedIds: {} };
+            const adv = GameState.chroniconAdvisory;
+            if (!adv.activeId) {
+                const candidate = snap.advisory_events.find(e => !adv.resolvedIds[e.id]);
+                if (candidate) {
+                    adv.activeId = candidate.id;
+                    adv.pending  = candidate;
+                    Game.save();
+                }
+            }
+        }
+
         // Chronicle záznamy → NotificationSystem.panel() + GameState.kronika
         const seen = ChroniconSystem._loadSeen();
         let added  = 0;
@@ -12928,6 +12944,57 @@ const ChroniconSystem = {
         // Stabilní ID nezávislé na textu — EN/CS verze téže zprávy = stejné ID
         if (entry.id) return String(entry.id);
         return (entry.source || '') + '_' + (entry.tick || 0);
+    },
+
+    // ─── Advisory events — kurátorované rozhodovací eventy z CHRONICONu ─────
+
+    _advisoryShownThisSession: false,
+
+    // Volat ze stejné kadence jako EventsSystem.checkEvents() (1×/s tick)
+    checkPendingAdvisory: function() {
+        if (typeof GameState === 'undefined' || !GameState.chroniconAdvisory) return;
+        const adv = GameState.chroniconAdvisory;
+        if (!adv.pending || !adv.activeId) return;
+        if (ChroniconSystem._advisoryShownThisSession) return;
+        if (typeof EventsSystem === 'undefined' || typeof NotificationSystem === 'undefined') return;
+
+        ChroniconSystem._advisoryShownThisSession = true;
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        const p = adv.pending;
+
+        EventsSystem.showEvent({
+            icon:  p.icon || '☩',
+            title: lang === 'en' ? (p.title_en || p.title_cs) : p.title_cs,
+            text:  lang === 'en' ? (p.text_en  || p.text_cs)  : p.text_cs,
+            choices: (p.choices || []).map(c => ({
+                label: lang === 'en' ? (c.label_en || c.label_cs) : c.label_cs,
+                action: () => ChroniconSystem._resolveAdvisory(adv.activeId, c.id, lang),
+            })),
+        });
+    },
+
+    _resolveAdvisory: function(eventId, choiceId, lang) {
+        const adv = GameState.chroniconAdvisory;
+        if (choiceId === 'defer') {
+            // Nic se neztrácí — zůstává aktivní, může se ukázat znovu příště.
+            ChroniconSystem._advisoryShownThisSession = false;
+            return lang === 'en'
+                ? 'You decide to think it over. The matter can wait.'
+                : 'Rozhodneš se to ještě promyslet. Věc může počkat.';
+        }
+        adv.resolvedIds[eventId] = true;
+        adv.activeId = null;
+        adv.pending  = null;
+        if (choiceId === 'bolster') {
+            if (!GameState.flags) GameState.flags = {};
+            GameState.flags.chroniconPlagueBolstered = true;
+            return lang === 'en'
+                ? 'The brothers resolve to watch over the sick more closely. (Full effect awaits the Infirmarium — for now, this is a resolve, not yet a remedy.)'
+                : 'Bratři se rozhodli bedlivěji dohlížet na nemocné. (Plný účinek čeká na Infirmarium — zatím je to spíš předsevzetí než lék.)';
+        }
+        return lang === 'en'
+            ? 'The monastery carries on as before. What happens in the wider region is beyond these walls.'
+            : 'Klášter pokračuje jako dřív. Co se děje v širším kraji, je mimo tyto zdi.';
     },
 
 };
