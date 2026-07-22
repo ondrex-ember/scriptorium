@@ -431,6 +431,57 @@ TechTree.push({
     unlocks: [],
     requires: []
 });
+// ── INFIRMARIUM — Ošetřovna ───────────────────────────────────────────────
+TechTree.push({
+    id: "tech_infirmarium",
+    name: "Infirmarium",
+    name_en: "Infirmarium",
+    cost: 30,
+    desc: "Nemocní dosud leží tam, kde je nemoc zastihla. Infirmarium jim dá vlastní síň, oddělenou od zdravého společenství. Odemyká: budovu Infirmarium a přístup k jejím čtyřem stanovištím péče.",
+    desc_en: "The sick still lie wherever illness finds them. The Infirmarium gives them their own hall, set apart from the healthy community. Unlocks: the Infirmarium building and access to its four stations of care.",
+    unlocks: [],
+    requires: []
+});
+TechTree.push({
+    id: "tech_infirmarium_servitor",
+    name: "Servitor infirmariae",
+    name_en: "Servitor infirmariae",
+    cost: 12,
+    desc: "Fyzická obsluha nemocných — převlékání lůžek, podávání léků, hygiena sálu. Odemyká: konvrší úkol Ošetřovatel.",
+    desc_en: "Physical care of the sick — changing linens, giving medicine, keeping the hall clean. Unlocks: the Servitor lay-brother task.",
+    unlocks: [],
+    requires: ["tech_infirmarium"]
+});
+TechTree.push({
+    id: "tech_infirmarium_coquus",
+    name: "Coquus infirmariae",
+    name_en: "Coquus infirmariae",
+    cost: 12,
+    desc: "Vlastní kuchyně ošetřovny — maso a bílý chléb povolené i mimo půst, k posílení nemocných. Odemyká: konvrší úkol Kuchař infirmaria.",
+    desc_en: "The infirmary's own kitchen — meat and white bread allowed even outside fast days, to strengthen the sick. Unlocks: the Coquus lay-brother task.",
+    unlocks: [],
+    requires: ["tech_infirmarium"]
+});
+TechTree.push({
+    id: "tech_infirmarium_hortulanus",
+    name: "Hortulanus medicus",
+    name_en: "Hortulanus medicus",
+    cost: 12,
+    desc: "Zahrádka léčivek při ošetřovně — šalvěj, meduňka, mandragora. Odemyká: konvrší úkol Bylinář.",
+    desc_en: "A physic garden by the infirmary — sage, lemon balm, mandrake. Unlocks: the Hortulanus lay-brother task.",
+    unlocks: [],
+    requires: ["tech_infirmarium"]
+});
+TechTree.push({
+    id: "tech_infirmarium_balneator",
+    name: "Balneator / Focarius",
+    name_en: "Balneator / Focarius",
+    cost: 12,
+    desc: "Topič a koupelník — udržuje oheň a teplou vodu pro léčebné koupele. Odemyká: konvrší úkol Topič.",
+    desc_en: "The stoker and bath-keeper — tends the fire and warm water for healing baths. Unlocks: the Balneator lay-brother task.",
+    unlocks: [],
+    requires: ["tech_infirmarium"]
+});
 // ── PORTA — Holubí pošta ─────────────────────────────────────────────────
 TechTree.push({
     id: "tech_porta",

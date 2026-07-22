@@ -537,6 +537,8 @@ const Game = {
         Game.checkEnvironment();
         // Templum — viditelnost tabu hned při loadu (dřív jen po kliku na jiný tab / až 60s tick)
         if (typeof TemplumSystem !== 'undefined' && TemplumSystem.updateTabVisibility) TemplumSystem.updateTabVisibility();
+        // Infirmarium — viditelnost tabu hned při loadu
+        if (typeof InfirmariumSystem !== 'undefined' && InfirmariumSystem.updateTabVisibility) InfirmariumSystem.updateTabVisibility();
         
         VigorSystem.renderMiniDisplay();
 
@@ -717,6 +719,8 @@ const Game = {
                     if (typeof Game !== 'undefined' && Game.vitreaGrantStartPool) { Game.vitreaGrantStartPool(); Game.vitreaWearTick(); }
                     // Templum — viditelnost tabu dle mnišského ranku (levný DOM check)
                     if (typeof TemplumSystem !== 'undefined' && TemplumSystem.updateTabVisibility) TemplumSystem.updateTabVisibility();
+                    // Infirmarium — viditelnost tabu dle tech_infirmarium (levný DOM check)
+                    if (typeof InfirmariumSystem !== 'undefined' && InfirmariumSystem.updateTabVisibility) InfirmariumSystem.updateTabVisibility();
                     // Templum — denní chod kostela (self-guarded 24h, gate frater+)
                     if (typeof Game !== 'undefined' && Game.templumDailyTick) Game.templumDailyTick();
                     // Templum — týdenní zpověď (self-guarded, gate frater+)
@@ -5902,6 +5906,10 @@ const Game = {
         doly:     { icon: '⛏️', away: true,  durationMs: 20 * 60 * 60 * 1000, riskPct: 20 },
         kostel:   { icon: '🕍', away: false },
         hrbitov:  { icon: '⚰️', away: false },
+        servitor:   { icon: '🩺', away: false },
+        coquus:     { icon: '🍲', away: false },
+        hortulanus: { icon: '🌿', away: false },
+        balneator:  { icon: '🔥', away: false },
     },
     CONVERSI_TASK_SLOTS: 2,
 
@@ -5919,6 +5927,18 @@ const Game = {
         if (taskId === 'kostel') {
             if (!(typeof TemplumSystem !== 'undefined' && TemplumSystem.isUnlocked())) {
                 return { locked: true, reasonKey: 'gate_frater' };
+            }
+            return { locked: false };
+        }
+        const INFIRMARIUM_SUBTECH = {
+            servitor: 'tech_infirmarium_servitor',
+            coquus: 'tech_infirmarium_coquus',
+            hortulanus: 'tech_infirmarium_hortulanus',
+            balneator: 'tech_infirmarium_balneator'
+        };
+        if (INFIRMARIUM_SUBTECH[taskId]) {
+            if (!(GameState.researchedTechs && GameState.researchedTechs.includes(INFIRMARIUM_SUBTECH[taskId]))) {
+                return { locked: true, reasonKey: 'gate_infirmarium_tech' };
             }
             return { locked: false };
         }
