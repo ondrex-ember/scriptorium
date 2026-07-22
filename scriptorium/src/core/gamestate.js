@@ -159,4 +159,35 @@ const GameState = {
         fodina: { status: 'none', submittedAt: null, deniedReason: null, inspectionPending: false },
         fornax: { status: 'none', submittedAt: null, deniedReason: null, inspectionPending: false },
     },
+    // Historický základ — klášter roku 1465 už nějakou dobu stojí, hřbitov
+    // ani rajský dvůr nejsou prázdné od prvního dne. Frekvence odpovídá
+    // ustáleným sazbám: farní úmrtí častěji (~1×/60-100 dní), mnišská/konvršská
+    // vzácně (~1×/2-3 roky, viz ERGOT_DEATH_CHANCE). Jen výchozí stav pro
+    // nové hráče — existující save se tímhle nepřepisuje.
+    cemetery: {
+        condition: 100,
+        graves: [
+            { surname: 'Novák',     ts: Date.now() - 1095 * 86400000 },
+            { surname: 'Dvořák',    ts: Date.now() -  990 * 86400000 },
+            { surname: 'Král',      ts: Date.now() -  890 * 86400000 },
+            { surname: 'Procházka', ts: Date.now() -  810 * 86400000 },
+            { surname: 'Sedlák',    ts: Date.now() -  720 * 86400000 },
+            { surname: 'Novotný',   ts: Date.now() -  640 * 86400000 },
+            { surname: 'Malý',      ts: Date.now() -  560 * 86400000 },
+            { surname: 'Kovář',     ts: Date.now() -  480 * 86400000 },
+            { surname: 'Krejčí',    ts: Date.now() -  400 * 86400000 },
+            { surname: 'Novák',     ts: Date.now() -  320 * 86400000 },
+            { surname: 'Dvořák',    ts: Date.now() -  240 * 86400000 },
+            { surname: 'Sedlák',    ts: Date.now() -  160 * 86400000 },
+            { surname: 'Král',      ts: Date.now() -   90 * 86400000 },
+            { surname: 'Malý',      ts: Date.now() -   30 * 86400000 },
+        ],
+    },
+    rajskyDvur: {
+        graves: [
+            { name: 'Bratr Metoděj', wasBrother: true,  cause: 'ergot_fire', ts: Date.now() - 2555 * 86400000 },
+            { name: 'Bratr Ondřej',  wasBrother: true,  cause: 'ergot_fire', ts: Date.now() - 1460 * 86400000 },
+            { name: 'Konvrš Blažej', wasBrother: false, cause: 'ergot_fire', ts: Date.now() -  400 * 86400000 },
+        ],
+    },
 };
