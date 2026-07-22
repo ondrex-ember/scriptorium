@@ -204,7 +204,7 @@ const ItemsDB = {
     "worn_type": { name: "Opotřebované litery", name_en: "Worn Type", icon: "🔤", type: "mat", desc: "Prodávaly se jako kovový odpad.", desc_en: "Sold as scrap metal." },
 
     // CODEX TYPES
-    "common_codex": { name: "Běžný kodex", name_en: "Common Codex", icon: "📘", type: "lore", desc: "Papírový tisk. 1 research.", desc_en: "Paper print. 1 research." },
+    "common_codex": { name: "Běžný kodex", name_en: "Common Codex", icon: "📘", type: "lore", desc: "Ručně opsaný papírový kodex. 1 research.", desc_en: "Hand-copied paper codex. 1 research." },
     "luxury_codex": { name: "Luxusní kodex", name_en: "Luxury Codex", icon: "📕", type: "lore", desc: "S illuminací. 5 research.", desc_en: "Illuminated. 5 research." },
     "vellum_codex": { name: "Pergamenový kodex", name_en: "Vellum Codex", icon: "📜", type: "lore", desc: "Na pergamenu. 10 research.", desc_en: "On vellum. 10 research." },
 
