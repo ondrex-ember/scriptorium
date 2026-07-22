@@ -147,7 +147,7 @@ const RecipesDB = [
     { id: "adversaria", output: "adversaria", qty: 1, req: { "paper": 5, "ink": 2, "rope": 1 }, cat: "codex", locked: true },
     { id: "vademecum", output: "vademecum", qty: 1, req: { "leather": 1, "paper": 10, "ink": 3 }, cat: "codex", locked: true },
     { id: "florilegium", output: "florilegium", qty: 1, req: { "leather": 2, "paper": 15, "ink": 5, "herb_yellow": 3 }, cat: "codex", locked: true },
-    { id: "enchiridion", output: "enchiridion", qty: 1, req: { "leather": 3, "paper": 20, "ink": 8, "preservation_oil": 1 }, cat: "codex", locked: true },
+    { id: "enchiridion", output: "enchiridion", qty: 1, req: { "unfitted_codex": 1, "metal_clasps": 2, "metal_bosses": 4, "preservation_oil": 1 }, cat: "codex", locked: true },
     
     // COOKING RECIPES (vyžadují krb + pot)
     { id: "cooked_meat", output: "cooked_meat", qty: 1, req: { "meat": 1, "cooking_pot": 0 }, cat: "food", locked: true },
@@ -338,11 +338,16 @@ const RecipesDB = [
     // VELLUM CHAIN (Pergamen výroba - historicky přesná)
     { id: "ash_water", output: "ash_water", qty: 1, req: { "ash": 2, "water": 3 }, cat: "craft", locked: true, desc: "Louh na namáčení kůže. Historicky 3-4 dny.", desc_en: "Lye for soaking hides. Historically 3-4 days." },
     { id: "raw_hide", output: "raw_hide", qty: 1, req: { "hide": 4 }, cat: "craft", locked: true, desc: "Zpracování a identifikace divoké kůže — vydělání na použitelnou surovou kůži.", desc_en: "Processing and identifying wild hide — curing it into usable raw hide." },
+    { id: "wild_leather", output: "wild_leather", qty: 1, req: { "hide": 3 }, cat: "craft", locked: true, desc: "Sedřít a usušit. Bez louhu, bez tříslovin — hrubé, ale rychlé.", desc_en: "Scrape and dry. No lye, no tannins — rough, but quick." },
     { id: "soaked_hide", output: "soaked_hide", qty: 1, req: { "raw_hide": 2, "ash_water": 1 }, cat: "craft", locked: true, desc: "Kůže loužená 3 dny.", desc_en: "Hide soaked for 3 days." },
     { id: "soaked_hide_lime", output: "soaked_hide", qty: 1, req: { "raw_hide": 2, "vapno_hasene_mature": 1 }, cat: "craft", locked: true, desc: "Kůže loužená ve vápenné lázni — rychlejší a čistší než louh.", desc_en: "Hide soaked in a lime bath — faster and cleaner than lye." },
     { id: "stretched_hide", output: "stretched_hide", qty: 1, req: { "soaked_hide": 1, "rope": 2 }, cat: "craft", locked: true, desc: "Napnuto v rámu.", desc_en: "Stretched on a frame." },
     { id: "pumice", output: "pumice", qty: 1, req: { "rock": 3 }, cat: "craft", locked: true, desc: "Sopečný kámen - leští.", desc_en: "Volcanic stone - for smoothing." },
     { id: "vellum", output: "vellum", qty: 1, req: { "stretched_hide": 1, "pumice": 0, "chalk": 1 }, cat: "parchment", locked: true, desc: "Konečný pergamen. 1 kodex = kůže 3 ovcí.", desc_en: "Finished parchment. 1 codex = 3 sheep hides." },
+    { id: "premium_soaked_hide", output: "premium_soaked_hide", qty: 1, req: { "lamb_hide": 2, "vapno_hasene_mature": 1 }, cat: "craft", locked: true, desc: "Jehněčí kůže — jen ve vápně, nikdy v louhu.", desc_en: "Lamb hide — lime only, never lye." },
+    { id: "premium_soaked_hide_goat", output: "premium_soaked_hide", qty: 1, req: { "goat_hide": 2, "vapno_hasene_mature": 1 }, cat: "craft", locked: true, desc: "Kozí kůže — jen ve vápně, nikdy v louhu.", desc_en: "Goat hide — lime only, never lye." },
+    { id: "premium_stretched_hide", output: "premium_stretched_hide", qty: 1, req: { "premium_soaked_hide": 1, "rope": 1 }, cat: "craft", locked: true, desc: "Napnuto v rámu.", desc_en: "Stretched on a frame." },
+    { id: "premium_vellum", output: "premium_vellum", qty: 1, req: { "premium_stretched_hide": 1, "pumice": 0, "chalk": 1 }, cat: "parchment", locked: true, desc: "Nejjemnější pergamen. Italský standard.", desc_en: "The finest vellum. The Italian standard." },
     
     // QUILL (Husí brko)
     { id: "quill", output: "quill", qty: 1, req: { "feather": 1, "stone_knife": 0 }, cat: "parchment", locked: true, desc: "Řez pod úhlem. 10x použití.", desc_en: "Cut at an angle. 10 uses." },
@@ -354,7 +359,7 @@ const RecipesDB = [
     { id: "ink_netolicky", output: "ink_gallic", qty: 3, req: { "gall_nut": 2, "iron_sulfate": 1, "gum_arabic": 1, "ash": 1, "pestle": 0 }, cat: "parchment", locked: true, desc: "Netolického vlastní receptura — méně duběnek, víc sazí. Vydá o třetinu víc.", desc_en: "Netolický's own formula — fewer galls, more soot. A third more yield." },
     
     // ADVANCED CODEX TYPES
-    { id: "common_codex", output: "common_codex", qty: 1, req: { "paper": 10, "ink": 3 }, cat: "codex", locked: true, desc: "Běžný tisk. 'Nižší typografie' (Voit).", desc_en: "Common print. 'Lower typography' (Voit)." },
+    { id: "common_codex", output: "common_codex", qty: 1, req: { "paper": 10, "ink": 3 }, cat: "codex", locked: true, desc: "Ručně opsaný. 'Nižší typografie' (Voit).", desc_en: "Hand-copied. 'Lower typography' (Voit)." },
     { id: "luxury_codex", output: "luxury_codex", qty: 1, req: { "paper": 20, "ink_gallic": 5, "preservation_oil": 1 }, cat: "codex", locked: true, desc: "'Vyšší typografie' s kvalitním inkoustem.", desc_en: "'Higher typography' with quality ink." },
     { id: "vellum_codex", output: "vellum_codex", qty: 1, req: { "vellum": 3, "ink_gallic": 8, "preservation_oil": 2 }, cat: "codex", locked: true, desc: "Pergamenový. Jak Olomoucký misál (1488) - pouze 20 z 420 výtisků.", desc_en: "On vellum. Like the Olomouc Missal (1488) - only 20 of 420 copies." },
     
@@ -387,7 +392,7 @@ const RecipesDB = [
         id: "backgammon_board",
         output: "backgammon_board",
         qty: 1,
-        req: { stick: 3, leather: 2, bone: 2 },
+        req: { stick: 3, wild_leather: 2, bone: 2 },
         cat: "lore",
         locked: true,
         desc: "Vrhcáby — deska z kůže, kameny z kostí, dvě kostky.", desc_en: "Tables — leather board, bone stones, two dice."
@@ -422,7 +427,7 @@ const RecipesDB = [
       desc: "Vydělená kůže tříslem ze stoupy. Hrubší lázeň, stejný výsledek — a duběnky zbudou na inkoust.", desc_en: "Leather tanned with stamp-mill bark. A coarser bath, the same result — and the galls are spared for ink." },
 
     // Měchy — dual use: oheň + varhany + Athanor upgrade
-    { id: "bellows", output: "bellows", qty: 1, req: { leather: 4, stick: 3, rope: 2 }, cat: "craft", locked: true,
+    { id: "bellows", output: "bellows", qty: 1, req: { wild_leather: 4, stick: 3, rope: 2 }, cat: "craft", locked: true,
       desc: "Kožené měchy. Rozdmýchají oheň i varhanní píšťaly.", desc_en: "Leather bellows. Fan the fire and the organ pipes alike." },
 
     // Vazba knih — základ pro luxury/vellum codex
@@ -438,8 +443,26 @@ const RecipesDB = [
       desc: "Na opasku visí nůž, brousek a pouzdro na pero. Písařova výbava.", desc_en: "Knife, whetstone and quill case hang from it. The scribe's kit." },
 
     // Kožená deska — pro luxury codex
-    { id: "book_cover", output: "book_cover", qty: 1, req: { leather: 3, stick: 5 }, cat: "craft", locked: true,
+    { id: "book_cover", output: "book_cover", qty: 1, req: { leather: 3, plank: 2 }, cat: "craft", locked: true,
       desc: "Dřevěná deska potažená kůží. Chrání kodex po staletí.", desc_en: "Wooden board covered in leather. Protects the codex for centuries." },
+
+    // ═══════════════════════════════════════════════════════════════════════════
+    // KNIHAŘSTVÍ — plný řetězec vazby (Enchiridion)
+    // ═══════════════════════════════════════════════════════════════════════════
+    { id: "linen_thread", output: "linen_thread", qty: 1, req: { flax_fiber: 3 }, cat: "craft", locked: true,
+      desc: "Spředená lněná vlákna do nitě.", desc_en: "Linen fibres spun into thread." },
+    { id: "leather_cords", output: "leather_cords", qty: 2, req: { leather: 1 }, cat: "craft", locked: true,
+      desc: "Kůže nařezaná na tenké vazy pro vazadlo.", desc_en: "Leather cut into thin cords for the sewing frame." },
+    { id: "metal_clasps", output: "metal_clasps", qty: 2, req: { iron_ingot: 1 }, cat: "iron", locked: true,
+      desc: "Kované spony s okem na kožený řemínek.", desc_en: "Forged clasps with an eye for the leather strap." },
+    { id: "metal_bosses", output: "metal_bosses", qty: 4, req: { iron_ingot: 1 }, cat: "iron", locked: true,
+      desc: "Rohové a středové hrboly na desky.", desc_en: "Corner and centre bosses for the boards." },
+    { id: "quires", output: "quires", qty: 1, req: { vellum: 1, ink_gallic: 2 }, cat: "codex", locked: true,
+      desc: "Popsaný pergamen přehnutý do kvaternů.", desc_en: "Written vellum folded into quaternions." },
+    { id: "sewn_block", output: "sewn_block", qty: 1, req: { quires: 4, linen_thread: 2, leather_cords: 2 }, cat: "codex", locked: true,
+      desc: "Složky sešité na vazadle, nit po nitě.", desc_en: "Quires sewn on the frame, thread by thread." },
+    { id: "unfitted_codex", output: "unfitted_codex", qty: 1, req: { sewn_block: 1, plank: 2, leather: 2 }, cat: "codex", locked: true,
+      desc: "Blok mezi deskami, potažený kůží. Čeká na kováře.", desc_en: "Block between boards, covered in leather. Awaiting the smith." },
 
     // Kožené sedátko — komfort buff later
     { id: "cushion", output: "cushion", qty: 1, req: { leather: 2, fiber: 3 }, cat: "craft", locked: true,
@@ -499,7 +522,7 @@ const RecipesDB = [
     // ── DŘEVĚNÉ NÁSTROJE ─────────────────────────────────────────────────────
     { id:"bucket",       output:"bucket",       qty:1, req:{plank:3, rope:2},          cat:"craft", locked:true,
       desc:"Dřevěné vědro na vodu.", desc_en:"Wooden bucket for water." },
-    { id:"watering_can", output:"watering_can", qty:1, req:{plank:2, rope:2, leather:1}, cat:"craft", locked:true,
+    { id:"watering_can", output:"watering_can", qty:1, req:{plank:2, rope:2, wild_leather:1}, cat:"craft", locked:true,
       desc:"Konev na zalévání zahrady.", desc_en:"Watering can for the garden." },
     { id:"barrel_tool",  output:"barrel_tool",  qty:1, req:{plank:6, rope:3},           cat:"craft", locked:true,
       desc:"Dřevěný sud na pivo, víno a vodu.", desc_en:"Wooden barrel for ale, wine and water." },
@@ -513,25 +536,25 @@ const RecipesDB = [
       desc:"Tavení rudy s uhlím. Základ kovářství.", desc_en:"Smelting ore with charcoal. Foundation of smithcraft." },
 
     // ── KOVOVÉ NÁSTROJE (tech_kovarina, max 1 ks) ────────────────────────────
-    { id:"iron_axe",    output:"iron_axe",    qty:1, req:{iron_ingot:2, plank:1, rope:1, leather:1}, cat:"iron", locked:true, maxStack:1,
+    { id:"iron_axe",    output:"iron_axe",    qty:1, req:{iron_ingot:2, plank:1, rope:1, wild_leather:1}, cat:"iron", locked:true, maxStack:1,
       desc:"Masivní sekera. 2 ingoty na hlavu, kůže na opich.", desc_en:"Heavy axe. 2 ingots for the head, leather grip." },
     { id:"iron_spade",  output:"iron_spade",  qty:1, req:{iron_ingot:1, plank:2, rope:1},            cat:"iron", locked:true, maxStack:1,
       desc:"Železná čepel. 2 prkna: násada a opěrka nohy.", desc_en:"Iron blade. 2 planks: shaft and foot rest." },
-    { id:"iron_scythe", output:"iron_scythe", qty:1, req:{iron_ingot:2, stick:3, rope:2, leather:1}, cat:"iron", locked:true, maxStack:1,
+    { id:"iron_scythe", output:"iron_scythe", qty:1, req:{iron_ingot:2, stick:3, rope:2, wild_leather:1}, cat:"iron", locked:true, maxStack:1,
       desc:"Dlouhá zahnutá čepel. Historicky 3dílná rukojeť.", desc_en:"Long curved blade. Historically 3-piece handle." },
-    { id:"iron_sickle", output:"iron_sickle", qty:1, req:{iron_ingot:1, stick:1, rope:1, leather:1}, cat:"iron", locked:true, maxStack:1,
+    { id:"iron_sickle", output:"iron_sickle", qty:1, req:{iron_ingot:1, stick:1, rope:1, wild_leather:1}, cat:"iron", locked:true, maxStack:1,
       desc:"Zahnutá čepel, krátká rukojeť, kůže na opich.", desc_en:"Curved blade, short handle, leather wrapping." },
-    { id:"iron_flail",  output:"iron_flail",  qty:1, req:{iron_ingot:1, stick:3, rope:2, leather:1}, cat:"iron", locked:true, maxStack:1,
+    { id:"iron_flail",  output:"iron_flail",  qty:1, req:{iron_ingot:1, stick:3, rope:2, wild_leather:1}, cat:"iron", locked:true, maxStack:1,
       desc:"Železné závaží, 3dílná rukojeť, provazový kloub.", desc_en:"Iron weight, 3-piece handle, rope joint." },
     { id:"iron_shovel", output:"iron_shovel", qty:1, req:{iron_ingot:1, plank:2, rope:1},            cat:"iron", locked:true, maxStack:1,
       desc:"Širší čepel než rýč. 2 prkna na pevnou násadu.", desc_en:"Wider blade than spade. 2 planks for a firm shaft." },
-    { id:"iron_saw",    output:"iron_saw",    qty:1, req:{iron_ingot:2, plank:1, leather:1},         cat:"iron", locked:true, maxStack:1,
+    { id:"iron_saw",    output:"iron_saw",    qty:1, req:{iron_ingot:2, plank:1, wild_leather:1},         cat:"iron", locked:true, maxStack:1,
       desc:"Pilový list s mnoha zuby. 2 ingoty, dřevěný rám.", desc_en:"Saw blade with many teeth. 2 ingots, wooden frame." },
-    { id:"iron_pickaxe",output:"iron_pickaxe",qty:1, req:{iron_ingot:2, stick:2, rope:1, leather:1}, cat:"iron", locked:true, maxStack:1,
+    { id:"iron_pickaxe",output:"iron_pickaxe",qty:1, req:{iron_ingot:2, stick:2, rope:1, wild_leather:1}, cat:"iron", locked:true, maxStack:1,
       desc:"Těžká dvojitá hlava. 2 ingoty, dvojnásada.", desc_en:"Heavy double head. 2 ingots, double-hafted." },
     { id:"palice_zelezna",output:"palice_zelezna",qty:1, req:{iron_ingot:2, plank:1}, cat:"iron", locked:true, maxStack:1,
       desc:"Kované kladivo s železnou hlavou. Nejlepší na vápenec.", desc_en:"A forged mallet with an iron head. Best for limestone." },
-    { id:"iron_tongs",  output:"iron_tongs",  qty:1, req:{iron_ingot:1, leather:1},                  cat:"iron", locked:true, maxStack:1,
+    { id:"iron_tongs",  output:"iron_tongs",  qty:1, req:{iron_ingot:1, wild_leather:1},                  cat:"iron", locked:true, maxStack:1,
       desc:"Kovářské kleště. Nezbytné pro opravy v Kovárně.", desc_en:"Blacksmith tongs. Essential for repairs at the Smithy." },
 
     // ── OPRAVA OPOTŘEBENÝCH NÁSTROJŮ (Fabrica — vyžaduje iron_tongs) ─────────
@@ -564,7 +587,7 @@ const RecipesDB = [
       desc_en:"Large oak barrels. Wine aged in the barrel gains amber colour. Unlocks Vinum Praeclarum." },
 
     { id:"bedna_dilna",       output:"bedna_dilna",       qty:1,
-      req:{plank:12, iron_ingot:4, rope:5, leather:2},
+      req:{plank:12, iron_ingot:4, rope:5, wild_leather:2},
       cat:"building", locked:true, maxStack:1,
       desc:"Bednářská dílna. Výroba sudů pro export vína. Odemkne řemeslo bednáře.",
       desc_en:"Cooperage workshop. Craft barrels for wine export. Unlocks the cooper's craft." },
