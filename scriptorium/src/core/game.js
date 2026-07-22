@@ -1714,12 +1714,13 @@ const Game = {
             plot.water = true;
             UI.notify(t(usedSpring ? 'game.wateredSpring' : 'game.watered'));
         } else if (plot.state === 2 && plot.water) {
-            // Calculate growth time with tech bonuses
+            // Calculate growth time with tech bonuses (per-plodina, GARDEN_PLANTS_DB.growHours)
             let growthSpeed = CONFIG.GROWTH_SPEED;
             if(GameState.researchedTechs.includes('tech_advanced_farming')) {
-                growthSpeed *= 2.0; // +100% faster growth (24h → 12h)
+                growthSpeed *= 2.0; // +100% faster growth
             }
-            const needed = CONFIG.BASE_GROWTH_TIME / growthSpeed;
+            const growHoursForPlot = (typeof GardenSystem !== 'undefined') ? GardenSystem.getGrowHours(plot.crop) : 24;
+            const needed = (growHoursForPlot * 3600000) / growthSpeed;
             
             if (Date.now() > plot.plantedAt + needed) {
                 plot.state = 0; plot.water = false; 
@@ -1739,8 +1740,9 @@ const Game = {
                 const _yieldMult = (typeof RankSystem !== 'undefined') ? RankSystem.getActiveBonus('herb_yield') : 1.0;
                 if (_gp) {
                     this.addItem(harvestCrop, Math.max(1, Math.round(_gp.yield * _yieldMult)));
-                    // Šance vrátit semínko (30%)
-                    if (Math.random() < 0.3) this.addItem(_gp.seed, 1);
+                    // Šance vrátit semínko (30%) — NEPLATÍ pro druhy s kvetením (zahrada-rust-kveteni-mrd):
+                    // u nich jde semínko jen přes GardenSystem.collectSeeds()
+                    if (!_gp.canFlower && Math.random() < 0.3) this.addItem(_gp.seed, 1);
                 } else if(harvestCrop === 'hops') {
                     this.addItem('hops', Math.max(1, Math.round(2 * _yieldMult)));
                     if(Math.random() > 0.6) this.addItem('seeds_hops', 1);
@@ -6696,12 +6698,13 @@ const Game = {
 
                 let growthSpeed = CONFIG.GROWTH_SPEED;
                 if (GameState.researchedTechs.includes('tech_advanced_farming')) growthSpeed *= 2.0;
-                const needed = CONFIG.BASE_GROWTH_TIME / growthSpeed;
                 const brotherMult = gardenBrother ? this.dormitoriumBrotherMult(gardenBrother, 'zahony') : 1.0;
                 const harvested = {};
 
                 GameState.garden.forEach(plot => {
                     if (plot.locked || plot.state !== 2) return;
+                    const growHoursForPlot = (typeof GardenSystem !== 'undefined') ? GardenSystem.getGrowHours(plot.crop) : 24;
+                    const needed = (growHoursForPlot * 3600000) / growthSpeed;
 
                     // Zalít, pokud suché a je voda na skladě
                     if (!plot.water) {
@@ -6729,7 +6732,7 @@ const Game = {
                         if (_gp) {
                             const q = Math.max(1, Math.round(_gp.yield * totalMult));
                             this.addItem(harvestCrop, q); track(harvestCrop, q);
-                            if (Math.random() < 0.3) this.addItem(_gp.seed, 1);
+                            if (!_gp.canFlower && Math.random() < 0.3) this.addItem(_gp.seed, 1);
                         } else if (harvestCrop === 'hops') {
                             const q = Math.max(1, Math.round(2 * totalMult));
                             this.addItem('hops', q); track('hops', q);
