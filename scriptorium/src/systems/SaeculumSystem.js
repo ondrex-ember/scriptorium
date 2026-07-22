@@ -698,18 +698,20 @@ const SaeculumSystem = {
       h += `<div style="padding:12px; background:rgba(197,160,89,0.07); border:1px solid rgba(197,160,89,0.25); border-radius:8px;">`;
       h += `<div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:6px;">
               <div style="font-weight:bold; font-size:0.88rem;">${specIcon} ${specName}</div>
-              ${st.combo ? `<span title="${lang === 'en' ? 'Brother + lay brother working together' : 'Bratr a konvrš pracují spolu'}" style="font-size:0.9rem;">🤝</span>` : ''}
+              ${st.combo && tabKey !== 'hrbitov' ? `<span title="${lang === 'en' ? 'Brother + lay brother working together' : 'Bratr a konvrš pracují spolu'}" style="font-size:0.9rem;">🤝</span>` : ''}
             </div>`;
 
-      // Bratr
-      if (st.brother) {
-        h += `<div style="font-size:0.76rem; margin-bottom:3px;">
-                📿 <strong>${st.brother.name}</strong> — ${lang === 'en' ? 'level' : 'úroveň'} ${st.level}/4
-                <span style="opacity:0.65;"> (${st.xp} XP, ×${st.mult.toFixed(2)} ${lang === 'en' ? 'yield' : 'výnos'})</span>
-              </div>`;
-        h += this._illnessBadgeHtml(st.brother, lang);
-      } else {
-        h += `<div style="font-size:0.76rem; opacity:0.5; margin-bottom:3px;">📿 ${lang === 'en' ? 'no brother assigned' : 'nepřiřazen žádný bratr'}</div>`;
+      // Bratr — hřbitov nemá vlastní bratra, dohlíží Kostelník (viz manufacturaStatus)
+      if (tabKey !== 'hrbitov') {
+        if (st.brother) {
+          h += `<div style="font-size:0.76rem; margin-bottom:3px;">
+                  📿 <strong>${st.brother.name}</strong> — ${lang === 'en' ? 'level' : 'úroveň'} ${st.level}/4
+                  <span style="opacity:0.65;"> (${st.xp} XP, ×${st.mult.toFixed(2)} ${lang === 'en' ? 'yield' : 'výnos'})</span>
+                </div>`;
+          h += this._illnessBadgeHtml(st.brother, lang);
+        } else {
+          h += `<div style="font-size:0.76rem; opacity:0.5; margin-bottom:3px;">📿 ${lang === 'en' ? 'no brother assigned' : 'nepřiřazen žádný bratr'}</div>`;
+        }
       }
 
       // Konvrš (jen na tabech, kde je to vůbec možné)

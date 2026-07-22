@@ -122,4 +122,5 @@ const DormitoriumSpecializationDB = {
     athanor:  { name: 'Alchymista', name_en: 'Alchemist',    icon: '⚗️' },
     scriptorium: { name: 'Skriptor', name_en: 'Scriptor',    icon: '📜' },
     kostel:   { name: 'Kostelník',  name_en: 'Sacristan',    icon: '⛪' },
+    hrbitov:  { name: 'Hrobník',    name_en: 'Gravedigger',  icon: '⚰️' }, // jen konvrš titul — bratr je pořád Kostelník (viz manufacturaStatus/renderManufactura)
 };

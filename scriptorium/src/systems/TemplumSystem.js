@@ -143,6 +143,27 @@ const TemplumSystem = {
             }).join('');
         }
         h += `</div>`;
+
+        // Rajský dvůr — vnitřní pohřebiště komunity (bratři/konvrši), odděleno
+        // od farního Hřbitova (ten je jen pro farní rodiny přes parishEventTick).
+        const cloister = ((GameState.rajskyDvur && GameState.rajskyDvur.graves) || []).slice().reverse();
+        h += `<div style="padding:14px 16px; margin-top:16px; background:rgba(122,150,122,0.08); border:1px solid rgba(122,150,122,0.35); border-radius:8px;">
+                <div style="font-weight:bold; font-size:0.9rem; margin-bottom:4px; color:#5a7a5a;">🕊️ ${lang==='en'?'Cloister Garth':'Rajský dvůr'} (${cloister.length})</div>
+                <div style="font-size:0.68rem; opacity:0.6; font-style:italic; margin-bottom:8px;">${lang==='en' ? 'Where the brothers who have gone before us rest, within these walls.' : 'Kde odpočívají bratři, kteří odešli před námi, uvnitř těchto zdí.'}</div>`;
+        if (!cloister.length) {
+            h += `<div style="font-size:0.75rem; opacity:0.55;">${lang==='en'?'No brother has yet gone to his rest.':'Žádný bratr zatím neodešel na věčný odpočinek.'}</div>`;
+        } else {
+            h += cloister.slice(0, 15).map(g => {
+                const icon = g.wasBrother ? '📿' : '✝️';
+                const causeDef = (typeof HealthConditionsDB !== 'undefined') ? HealthConditionsDB[g.cause] : null;
+                const causeName = causeDef ? (lang==='en' ? causeDef.name_en : causeDef.name) : g.cause;
+                return `<div style="font-size:0.72rem; opacity:0.8; margin-top:6px;">
+                          ${icon} <strong>${g.name}</strong> <span style="opacity:0.65;">— ${causeName} · ${this._timeAgo(g.ts, lang)}</span>
+                          <div style="font-size:0.62rem; opacity:0.5; font-style:italic;">Requiescat in pace.</div>
+                        </div>`;
+            }).join('');
+        }
+        h += `</div>`;
         return h;
     },
 
