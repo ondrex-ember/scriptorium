@@ -91,8 +91,8 @@ const TechTree = [
   { id: "tech_gallic_ink", name: "Železitoduběnkový Inkoust", name_en: "Iron Gall Ink", cost: 6, desc: "Duběnky + vitriol + arabská guma. Standard 15. století. Permanentní, ale prožírá po 80 letech.", desc_en: "Oak galls + vitriol + gum arabic. 15th-century standard. Permanent, but eats through vellum after 80 years.", unlocks: ["ink_gallic", "iron_sulfate", "gum_arabic"], requires: ["tech_alchemy_2"] },
 
   // CODEX
-  { id: "tech_codex_basic", name: "Běžná Typografie", name_en: "Common Typography", cost: 8, desc: "'Nižší typografie' (Voit) — rychlý papírový tisk.", desc_en: "'Lower typography' (Voit) — fast paper printing.", unlocks: ["common_codex"], requires: [] },
-  { id: "tech_codex_luxury", name: "Vyšší Typografie", name_en: "Luxury Typography", cost: 10, desc: "Individuálně pořizované iniciály, kvalitní inkoust. Pro šlechtu a kláštery.", desc_en: "Individual initials, quality ink. For nobility and monasteries.", unlocks: ["luxury_codex"], requires: ["tech_codex_basic", "tech_gallic_ink"] },
+  { id: "tech_codex_basic", name: "Prostý Opis", name_en: "Plain Copy", cost: 8, desc: "'Nižší typografie' (Voit) — rychlé ruční opisování na papír.", desc_en: "'Lower typography' (Voit) — fast hand-copying onto paper.", unlocks: ["common_codex"], requires: [] },
+  { id: "tech_codex_luxury", name: "Zdobný Opis", name_en: "Ornate Copy", cost: 10, desc: "Individuálně pořizované iniciály, kvalitní inkoust. Pro šlechtu a kláštery.", desc_en: "Individual initials, quality ink. For nobility and monasteries.", unlocks: ["luxury_codex"], requires: ["tech_codex_basic", "tech_gallic_ink"] },
   { id: "tech_codex_vellum", name: "Pergamenové Kodexy", name_en: "Vellum Codices", cost: 12, desc: "Na pergamenu. Jak 20 z 420 výtisků Olomouckého misálu. Věčné, ale drahé.", desc_en: "On vellum. Like 20 of the 420 copies of the Olomouc Missal. Eternal, but costly.", unlocks: ["vellum_codex"], requires: ["tech_vellum_mastery", "tech_codex_luxury"] },
 
   // CANONICAL HOURS
