@@ -6004,7 +6004,8 @@ const ItemsDB = {
     "iching_book": { name: "I-Ching (Kniha Proměn)", name_en: "I-Ching (Book of Changes)", icon: "☯️", type: "lore", cat: "lore", desc: "Starověký čínský text věštění. Hoď mince a poznej svůj osud.", desc_en: "Ancient Chinese divination. Cast coins and know thy fate." },
 
     // VELLUM CHAIN
-    "hide": { name: "Divoká kůže", name_en: "Wild Hide", icon: "🦌", type: "mat", desc: "Nezpracovaná, neidentifikovaná kůže z lovu. Je třeba ji zpracovat na surovou kůži.", desc_en: "Unprocessed, unidentified hide from the hunt. Must be processed into raw hide." },
+    "hide": { name: "Divoká kůže", name_en: "Wild Hide", icon: "🦌", type: "mat", desc: "Nezpracovaná, neidentifikovaná kůže z lovu. Hrubě na useň, nebo pracně na surovou kůži pro pergamen.", desc_en: "Unprocessed, unidentified hide from the hunt. Crudely into rawhide, or laboriously into raw hide for vellum." },
+    "wild_leather": { name: "Hrubá useň", name_en: "Rough Rawhide", icon: "🦴", type: "mat", desc: "Sedřená a usušená divoká kůže, bez vydělávání. Hrubá, ale postačí na nástroje.", desc_en: "Scraped and dried wild hide, untanned. Rough, but good enough for tools." },
     "pumice": { name: "Pemza", name_en: "Pumice", icon: "🪨", type: "mat", desc: "Sopečný kámen na leštění.", desc_en: "Volcanic stone for smoothing." },
     "chalk": { name: "Křída", name_en: "Chalk", icon: "⚪", type: "mat", desc: "Bělení pergamenu.", desc_en: "For whitening vellum." },
     "ash_water": { name: "Louh", name_en: "Lye Water", icon: "💧", type: "mat", desc: "Voda s popelem - na namáčení kůže.", desc_en: "Ash water for soaking hide." },
@@ -6281,6 +6282,16 @@ const ItemsDB = {
     "water_pouch": { name: "Kožený měšec", name_en: "Water Pouch", icon: "🫗", type: "tool", cat: "tool", desc: "Kožený měšec na vodu. Mniši nosili pití při práci.", desc_en: "Leather pouch for water. Monks carried drink during work." },
     "ink_pouch": { name: "Váček na inkoust", name_en: "Ink Pouch", icon: "🫙", type: "mat", desc: "Kožený váček na suchý inkoust a práškové pigmenty.", desc_en: "Leather pouch for dry ink and powdered pigments." },
     // ═══════════════════════════════════════════════════════════════════════════
+    // KNIHAŘSTVÍ — Plný řetězec vazby (quires → sewn_block → unfitted_codex)
+    // ═══════════════════════════════════════════════════════════════════════════
+    "linen_thread": { name: "Lněná nit", name_en: "Linen Thread", icon: "🧵", type: "mat", desc: "Spředená lněná vlákna. Drží složky sešité na vazech.", desc_en: "Spun linen fibres. Holds the quires sewn onto the cords." },
+    "leather_cords": { name: "Kožené vazy", name_en: "Leather Cords", icon: "🪢", type: "mat", desc: "Tenké řemínky, napnuté na vazadlu. Základ šití knižního bloku.", desc_en: "Thin cords, stretched on the sewing frame. The basis of stitching the book block." },
+    "metal_clasps": { name: "Kovové spony", name_en: "Metal Clasps", icon: "🔩", type: "mat", desc: "Zaklapnou desky k sobě — brání kroucení pergamenu vlhkem.", desc_en: "Clasp the boards shut — prevent the vellum from warping in damp." },
+    "metal_bosses": { name: "Kovové puklice", name_en: "Metal Bosses", icon: "🔘", type: "mat", desc: "Rohové a středové hrboly. Chrání kožený potah, když kniha leží na pultu.", desc_en: "Corner and centre bosses. Protect the leather cover when the book lies on a lectern." },
+    "quires": { name: "Složky", name_en: "Quires", icon: "📑", type: "mat", desc: "Popsaný pergamen přehnutý a vložený do sebe — kvaterny, základ knižního bloku.", desc_en: "Written vellum folded and nested — quaternions, the basis of the book block." },
+    "sewn_block": { name: "Ušitý blok", name_en: "Sewn Block", icon: "📗", type: "mat", desc: "Složky sešité na kožených vazech lněnou nití. Ještě bez desek.", desc_en: "Quires sewn onto leather cords with linen thread. Still without boards." },
+    "unfitted_codex": { name: "Neokovaná kniha", name_en: "Unfitted Codex", icon: "📕", type: "mat", desc: "Ušitý blok mezi dřevěnými deskami, potažený kůží. Čeká na kování.", desc_en: "Sewn block between wooden boards, covered in leather. Awaiting its fittings." },
+    // ═══════════════════════════════════════════════════════════════════════════
     // DVŮR — Nakupitelná zvířata (Trh)
     // ═══════════════════════════════════════════════════════════════════════════
     "hen_white": { name: "Slepice bílá", name_en: "White Hen", icon: "🐔", type: "animal", desc: "Bílá slepice. Nosí vejce každých 8h.", desc_en: "White hen. Lays eggs every 8h." },
@@ -6321,6 +6332,9 @@ const ItemsDB = {
     "chicken_meat": { name: "Kuřecí maso", name_en: "Chicken Meat", icon: "🍗", type: "food_raw", hunger: 5, desc: "Čerstvé kuřecí. Uvař před jídlem.", desc_en: "Fresh chicken. Cook before eating." },
     "mutton": { name: "Skopové maso", name_en: "Mutton", icon: "🥩", type: "food_raw", hunger: 7, desc: "Skopové z chléva. Uvař před jídlem.", desc_en: "Mutton from the fold. Cook before eating." },
     "lamb_hide": { name: "Jehněčí kůže", name_en: "Lamb Hide", icon: "🦌", type: "mat", desc: "Jemná kůže jehněte. Kvalitnější pergamen.", desc_en: "Fine lamb skin. Superior vellum quality." },
+    "premium_soaked_hide": { name: "Prémiová namáčená kůže", name_en: "Premium Soaked Hide", icon: "🦌", type: "mat", desc: "Jehněčí či kozí kůže loužená výhradně ve vápně — jemnější než louh.", desc_en: "Lamb or goat hide soaked exclusively in lime — gentler than lye." },
+    "premium_stretched_hide": { name: "Prémiová napnutá kůže", name_en: "Premium Stretched Hide", icon: "🦌", type: "mat", desc: "V rámu, sušená. Základ nejjemnějšího pergamenu.", desc_en: "Stretched on a frame to dry. The base of the finest vellum." },
+    "premium_vellum": { name: "Prémiový pergamen", name_en: "Premium Vellum", icon: "📜", type: "lore", desc: "Z jehněte či kozy. Tenký, pevný, málo mastný — italský standard.", desc_en: "From lamb or goat. Thin, strong, little grease — the Italian standard." },
 
     // ═══════════════════════════════════════════════════════════════════════════
     // PISCINA (Rybník) — v8.x
