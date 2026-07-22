@@ -81,9 +81,9 @@ const TechTree = [
   { id: "tech_ars_chronicae", name: "Ars Chronicae", name_en: "Ars Chronicae", cost: 6, desc: "Kosmas psal Kroniku Čechů na sklonku života (†1125). Dalimil veršoval česky (1314). Hájek lhal okouzlující latinou (1541). Prostudoval jsi umění svědectví — nyní zapiš vlastní příběh. Odemkne: Kroniku.", desc_en: "Cosmas wrote his Chronicle of Bohemia on his deathbed (†1125). Dalimil versified in Czech (1314). Hájek spun enchanting lies in Latin (1541). Thou hast studied the art of witness — now write thine own story. Unlocks: The Chronicle.", unlocks: [], requires: ["tech_commonplace", "tech_monastery_wisdom"] },
 
   // VELLUM
-  { id: "tech_vellum_prep", name: "Příprava Pergamenu", name_en: "Vellum Preparation", cost: 5, desc: "Loužení kůže ve vápenné lázni. Historicky 3–4 dny.", desc_en: "Soaking hide in lime water. Historically 3–4 days.", unlocks: ["raw_hide", "soaked_hide", "stretched_hide", "ash_water"], requires: [] },
+  { id: "tech_vellum_prep", name: "Příprava Pergamenu", name_en: "Vellum Preparation", cost: 5, desc: "Loužení kůže ve vápenné lázni. Historicky 3–4 dny.", desc_en: "Soaking hide in lime water. Historically 3–4 days.", unlocks: ["raw_hide", "soaked_hide", "stretched_hide", "ash_water", "wild_leather"], requires: [] },
   { id: "tech_tanning", name: "Koželužství", name_en: "Tanning", cost: 6, desc: "Třísloviny z duběnek zpevní kůži. Základ každého skriptoria.", desc_en: "Gall nut tannins harden the hide. The foundation of every scriptorium.", unlocks: ["tanned_leather", "tanned_leather_bark", "bellows", "scrinium_case", "water_pouch", "ink_pouch"], requires: ["tech_vellum_prep"] },
-  { id: "tech_bookbinding", name: "Vazba Knih", name_en: "Book Binding", cost: 8, desc: "Kožená vazba, deska a pouzdra. Z volných listů se stává kodex.", desc_en: "Leather binding, boards and cases. Loose leaves become a codex.", unlocks: ["book_binding", "book_cover", "quill_case", "scribes_belt", "cushion"], requires: ["tech_tanning"] },
+  { id: "tech_bookbinding", name: "Vazba Knih", name_en: "Book Binding", cost: 8, desc: "Kožená vazba, deska a pouzdra. Z volných listů se stává kodex.", desc_en: "Leather binding, boards and cases. Loose leaves become a codex.", unlocks: ["book_binding", "book_cover", "quill_case", "scribes_belt", "cushion", "linen_thread", "leather_cords", "quires", "sewn_block", "unfitted_codex"], requires: ["tech_tanning"] },
   { id: "tech_vellum_mastery", name: "Mistrovství Pergamenu", name_en: "Vellum Mastery", cost: 7, desc: "Leštění pemzou, bělení křídou. 1 kodex = kůže 3 ovcí. Jak Olomoucký misál (1488).", desc_en: "Smoothing with pumice, whitening with chalk. 1 codex = 3 sheepskins. As the Olomouc Missal (1488).", unlocks: ["vellum", "pumice"], requires: ["tech_vellum_prep"] },
 
   // SCRIBE TOOLS & INK
@@ -291,7 +291,7 @@ const TechTree = [
     cost: 35,
     desc: "Klášterní kovář byl nepostradatelný. Z rozžhaveného železa tvaroval sekerky, rýče i kosy. Bez kováře nezaoralo žádné pole. Odemkne: železné nástroje (sekerka, rýč, kosa, srp, cep, lopata, pila).",
     desc_en: "The monastic blacksmith was indispensable. He shaped axes, spades and scythes from heated iron. Without a smith no field could be ploughed. Unlocks: iron tools (axe, spade, scythe, sickle, flail, shovel, saw).",
-    unlocks: ["iron_axe", "iron_spade", "iron_scythe", "iron_sickle", "iron_flail", "iron_shovel", "iron_saw", "iron_pickaxe", "iron_tongs", "iron_ingot", "repair_iron_axe", "repair_iron_spade", "repair_iron_scythe", "repair_iron_sickle", "repair_iron_flail", "repair_iron_shovel", "repair_iron_saw", "repair_iron_pickaxe"], requires: ["tech_horticulture"]
+    unlocks: ["iron_axe", "iron_spade", "iron_scythe", "iron_sickle", "iron_flail", "iron_shovel", "iron_saw", "iron_pickaxe", "iron_tongs", "iron_ingot", "repair_iron_axe", "repair_iron_spade", "repair_iron_scythe", "repair_iron_sickle", "repair_iron_flail", "repair_iron_shovel", "repair_iron_saw", "repair_iron_pickaxe", "metal_clasps", "metal_bosses"], requires: ["tech_horticulture"]
   },
 
   {
@@ -450,6 +450,6 @@ TechTree.push({
     cost: 25,
     desc: "Vápenec sám o sobě k ničemu není. Teprve dny a noci ohně ve vápenici z něj udělají pálené vápno, a hašení s trpělivým zráním v jámě dá maltu, omítku i pergamen. Odemkne: budovu Vápenice, pálení a hašení vápna.",
     desc_en: "Limestone alone is worth nothing. Only days and nights of fire in the kiln turn it into quicklime, and slaking with patient maturation in the pit yields mortar, plaster, and parchment. Unlocks: the Lime Kiln building, lime burning and slaking.",
-    unlocks: ["burn_lime", "slake_lime", "soaked_hide_lime"],
+    unlocks: ["burn_lime", "slake_lime", "soaked_hide_lime", "premium_soaked_hide", "premium_soaked_hide_goat", "premium_stretched_hide", "premium_vellum"],
     requires: ["tech_fodina"]
 });
