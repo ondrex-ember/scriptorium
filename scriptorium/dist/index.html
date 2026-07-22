@@ -25184,10 +25184,15 @@ const GardenSystem = {
                 c = `<div class="plot-soil">🟫</div><div class="text-sm">${typeLabel}</div>`;
                 if (hasCustomPlant) {
                     // Custom select — filtrovat podle cropType, jen ty co máme semena
-                    const opts = Object.entries(GardenSystem.GARDEN_PLANTS_DB)
+                    let opts = Object.entries(GardenSystem.GARDEN_PLANTS_DB)
                         .filter(([, p]) => p.cropType === plot.cropType && (GameState.inventory[p.seed] || 0) > 0)
                         .map(([key, p]) => `<option value="${key}">${p.icon} ${lang==='en'?p.name_en:p.name} (${GameState.inventory[p.seed]||0}×)</option>`)
                         .join('');
+                    // Legacy: staré seeds_vegetable (dřív sdílené mrkví+cibulí) — vysází namátkou
+                    // jednu z nich, dokud se zásoba přirozeně nevyčerpá (zahrada-rust-kveteni-mrd)
+                    if (plot.cropType === 'vegetable' && (GameState.inventory['seeds_vegetable'] || 0) > 0) {
+                        opts += `<option value="__legacy_vegetable__">🌱 ${lang==='en'?'Old vegetable seed (random)':'Stará semena zeleniny (namátkou)'} (${GameState.inventory['seeds_vegetable']}×)</option>`;
+                    }
                     if (opts) {
                         b = `<select id="gp-sel-${idx}" style="font-size:0.7rem;margin-bottom:3px;width:100%;border-radius:6px;padding:2px;">${opts}</select>
                              <button class="craft-btn" onclick="GardenSystem.plantGardenPlot(${idx}, document.getElementById('gp-sel-${idx}').value)">${t('garden.plant')}</button>`;
@@ -25332,6 +25337,24 @@ const GardenSystem = {
         const plot = GameState.garden[idx];
         if (!plot || plot.locked) return;
         if (plot.state !== 1) { UI.notify('⚠️ Nejdříve zúrodni záhon.', true); return; }
+
+        // Legacy: staré seeds_vegetable od hráčů před novým systémem semen/růstu —
+        // namátkou zasadí mrkev nebo cibuli, dokud se zásoba přirozeně nevyčerpá
+        if (plantKey === '__legacy_vegetable__') {
+            if (!(GameState.inventory['seeds_vegetable'] > 0)) { UI.notify('⚠️ Chybí: stará semena zeleniny', true); return; }
+            if (plot.cropType !== 'vegetable') { UI.notify('⚠️ Tento záhon není pro zeleninu.', true); return; }
+            Game.removeItem('seeds_vegetable', 1);
+            const legacyPick = this.GARDEN_PLANTS_DB[Math.random() < 0.5 ? 'carrot' : 'onion'];
+            plot.state = 2;
+            plot.crop = legacyPick.item;
+            plot.plantedAt = Date.now();
+            plot.water = false;
+            Game.save();
+            GardenSystem.renderGarden();
+            UI.notify('🌱 ' + legacyPick.name + ' zasazen/a (staré semínko).');
+            return;
+        }
+
         const plant = this.GARDEN_PLANTS_DB[plantKey];
         if (!plant) return;
         if (plant.cropType !== plot.cropType) {
