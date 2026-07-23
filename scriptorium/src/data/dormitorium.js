@@ -123,4 +123,8 @@ const DormitoriumSpecializationDB = {
     scriptorium: { name: 'Skriptor', name_en: 'Scriptor',    icon: '📜' },
     kostel:   { name: 'Kostelník',  name_en: 'Sacristan',    icon: '⛪' },
     hrbitov:  { name: 'Hrobník',    name_en: 'Gravedigger',  icon: '⚰️' }, // jen konvrš titul — bratr je pořád Kostelník (viz manufacturaStatus/renderManufactura)
+    infirmarium_infirmarius:  { name: 'Infirmarius',  name_en: 'Infirmarian', icon: '🩺' },
+    infirmarium_medicus:      { name: 'Medicus',      name_en: 'Medicus',     icon: '⚕️' },
+    infirmarium_apothecarius: { name: 'Apothecarius', name_en: 'Apothecary',  icon: '🧪' },
+    infirmarium_capellanus:   { name: 'Capellanus',   name_en: 'Chaplain',    icon: '⛪' },
 };
