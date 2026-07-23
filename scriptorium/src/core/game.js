@@ -6184,9 +6184,9 @@ const Game = {
         Game.save();
     },
 
-    // Flebotomie — pouštění žilou. MVP bezpečnej/nebezpečnej den podle měsíční fáze
-    // (Homo Signorum/zvěrokruh je budoucí upgrade, viz MRD). Cooldown 21 dní/osobu
-    // (dobově 4-5×/rok = zhruba jednou za ~10 týdnů, 21 dní je bezpečná spodní hranice).
+    // Flebotomie — pouštění žilou. Homo Signorum: nebezpečnej den = úplněk NEBO
+    // měsíc ve vodním znamení (Rak/Štír/Ryby — přebytek vlhkosti). Cooldown 21
+    // dní/osobu (dobově 4-5×/rok = zhruba jednou za ~10 týdnů, 21 dní je spodní hranice).
     performFlebotomie: function(entityId, isBrother) {
         const lang = (GameState.settings && GameState.settings.language) || 'cs';
         if (!GameState.chirurgus || !GameState.chirurgus.hired) {
@@ -6203,14 +6203,23 @@ const Game = {
         }
         const d = new Date();
         const moonPhase = (typeof CalendarSystem !== 'undefined') ? CalendarSystem.getLunarForDay(d.getFullYear(), d.getMonth()+1, d.getDate()) : '🌗';
+        const zodiacIdx = (typeof CalendarSystem !== 'undefined' && CalendarSystem.getZodiacForMoonDay) ? CalendarSystem.getZodiacForMoonDay(d.getFullYear(), d.getMonth()+1, d.getDate()) : 0;
+        const zodiac = (typeof CalendarSystem !== 'undefined' && CalendarSystem.ZODIAC_SIGNS) ? CalendarSystem.ZODIAC_SIGNS[zodiacIdx] : null;
+        const zodiacUnsafe = (typeof CalendarSystem !== 'undefined' && CalendarSystem.ZODIAC_UNSAFE_IDX) ? CalendarSystem.ZODIAC_UNSAFE_IDX.includes(zodiacIdx) : false;
+        const unsafe = moonPhase === '🌕' || zodiacUnsafe;
+        const zodiacName = zodiac ? (lang==='en' ? zodiac.en : zodiac.cs) : '';
+        const bodyPart = zodiac ? (lang==='en' ? zodiac.bodyPart_en : zodiac.bodyPart_cs) : '';
         entity.lastFlebotomie = now;
-        if (moonPhase === '🌕') {
-            // Úplněk — nebezpečnej den
+        if (unsafe) {
             entity.fatigue = Math.min(100, (entity.fatigue || 0) + 15);
-            UI.notifyPanel('🌕 ' + (lang==='en' ? entity.name+' was bled at full moon — worse for it.' : entity.name+' pouštěn žilou za úplňku — na škodu.'), 'warning');
+            UI.notifyPanel((zodiac ? zodiac.icon : '🌕') + ' ' + (lang==='en'
+                ? entity.name+' was bled under '+zodiacName+' ('+bodyPart+') — worse for it.'
+                : entity.name+' pouštěn žilou ve znamení '+zodiacName+' ('+bodyPart+') — na škodu.'), 'warning');
         } else {
             entity.fatigue = Math.max(0, (entity.fatigue || 0) - 15);
-            UI.notifyPanel('🩸 ' + (lang==='en' ? entity.name+' was bled — fatigue eased.' : entity.name+' pouštěn žilou — únava ulevena.'), 'success');
+            UI.notifyPanel('🩸 ' + (lang==='en'
+                ? entity.name+' was bled under '+zodiacName+' — fatigue eased.'
+                : entity.name+' pouštěn žilou ve znamení '+zodiacName+' — únava ulevena.'), 'success');
         }
         Game.save();
         if (typeof SaeculumSystem !== 'undefined') SaeculumSystem.switchEntity(isBrother ? 'dormitorium' : 'conversi');
@@ -6739,7 +6748,12 @@ const Game = {
             if (task === 'apiarium' || task === 'piscina') {
                 if (isSummer) tryInfect(entity, 'mosquito_bites', 0.03);
             }
-            if (task === 'scriptorium') tryInfect(entity, 'writers_cramp', 0.015);
+            if (task === 'scriptorium') {
+                tryInfect(entity, 'writers_cramp', 0.015);
+                tryInfect(entity, 'saturnismus', 0.008);
+                tryInfect(entity, 'acedia', 0.01);
+            }
+            if (task === 'piscina') tryInfect(entity, 'ague', isSummer ? 0.02 : 0.01);
         });
 
         // Nespavost — jen konvrši, zvýšená pokud je v partě 'chrapoun'.
