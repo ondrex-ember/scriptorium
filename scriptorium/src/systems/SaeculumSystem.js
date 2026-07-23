@@ -415,6 +415,7 @@ const SaeculumSystem = {
 
     h += this._illnessBadgeHtml(b, lang);
     h += this._infirmariumActionHtml(b, true, lang);
+    h += this._flebotomieActionHtml(b, true, lang);
 
     h += `<div style="margin-bottom:7px;">
         <div style="display:flex; justify-content:space-between; font-size:0.72rem; opacity:0.75; margin-bottom:2px;">
@@ -574,6 +575,7 @@ const SaeculumSystem = {
 
     h += this._illnessBadgeHtml(k, lang);
     h += this._infirmariumActionHtml(k, false, lang);
+    h += this._flebotomieActionHtml(k, false, lang);
 
     h += bar((lang==='en'?'😊 Mood':'😊 Nálada'), mood, moodColor);
     if (k.type !== 'famulus') h += bar((lang==='en'?'🤝 Loyalty':'🤝 Věrnost'), loyalty, loyColor);
@@ -612,6 +614,9 @@ const SaeculumSystem = {
     } else if (isInjured) {
       const hRem = Math.ceil((k.injuredUntil - now) / (60*60*1000));
       h += `<div style="font-size:0.78rem; color:#c0392b;">🤕 ${lang==='en' ? 'Injured — resting '+hRem+'h, cannot be assigned' : 'Zraněn — odpočívá ještě '+hRem+'h, nelze přiřadit'}</div>`;
+      if ((GameState.inventory['spongia_somnifera'] || 0) > 0) {
+        h += `<button class="craft-btn" style="margin-top:4px; padding:3px 8px; font-size:0.68rem;" onclick="Game.applySpongiaToInjured('${k.id}')">🧽 ${lang==='en'?'Apply Sleeping Sponge':'Podat uspávací houbu'} (${GameState.inventory['spongia_somnifera']})</button>`;
+      }
     } else if (inPenance) {
       const pd = Math.ceil((k.penanceUntil - now) / (24*60*60*1000));
       h += `<div style="font-size:0.78rem;">⚖️ ${lang==='en' ? 'Penance: '+pd+' day(s) — cannot be assigned' : 'Pokání: '+pd+' d — nelze přiřadit'}</div>`;
@@ -654,6 +659,18 @@ const SaeculumSystem = {
 
   // Nemoc musí "řvát" — výrazný červený badge, ne tichý text.
   // Admit/Discharge tlačítko + stav "v péči" — voláno z detail view (konvrš i bratr).
+  // Flebotomie tlačítko — nezávislý na nemoci (preventivní), jen Chirurgus + cooldown.
+  _flebotomieActionHtml: function(entity, isBrother, lang) {
+    if (!GameState.chirurgus || !GameState.chirurgus.hired) return '';
+    const now = Date.now();
+    const COOLDOWN = 21 * 24 * 60 * 60 * 1000;
+    if (entity.lastFlebotomie && now - entity.lastFlebotomie < COOLDOWN) {
+      const daysLeft = Math.ceil((COOLDOWN - (now - entity.lastFlebotomie)) / (24*60*60*1000));
+      return `<div style="font-size:0.68rem; opacity:0.5; margin:2px 0 6px; font-style:italic;">🩸 ${lang==='en'?'Bled recently — safe again in '+daysLeft+'d':'Nedávno pouštěna žíla — bezpečný za '+daysLeft+' d'}</div>`;
+    }
+    return `<button class="craft-btn" style="margin:2px 0 6px; padding:3px 8px; font-size:0.68rem;" onclick="Game.performFlebotomie('${entity.id}', ${isBrother})">🩸 ${lang==='en'?'Bloodletting (Flebotomie)':'Pouštění žilou (Flebotomie)'}</button>`;
+  },
+
   _infirmariumActionHtml: function(entity, isBrother, lang) {
     if (typeof InfirmariumSystem === 'undefined' || !InfirmariumSystem.isUnlocked()) return '';
     const hasCondition = entity.conditions && Object.keys(entity.conditions).length > 0;
@@ -1167,6 +1184,20 @@ const SaeculumSystem = {
               </div>
             </div>
           </div>`;
+
+    // 🩹 Chirurgus — hybrid hire, jedinej kontakt s touhle mechanikou
+    if (id === 'chirurgus') {
+      const hired = GameState.chirurgus && GameState.chirurgus.hired;
+      h += `<div style="margin-bottom:12px; padding:10px; background:rgba(197,160,89,0.08); border-radius:6px;">`;
+      if (hired) {
+        h += `<div style="font-size:0.8rem;">🩹 ${lang==='en'?'In service of the monastery — 3 g/week.':'Slouží klášteru — 3 g/týden.'}</div>`;
+      } else if (r >= 30) {
+        h += `<button class="craft-btn" onclick="Game.hireChirurgus()">🩹 ${lang==='en'?'Hire (3 g/week)':'Najmout (3 g/týden)'}</button>`;
+      } else {
+        h += `<div style="font-size:0.78rem; opacity:0.6; font-style:italic;">${lang==='en'?'Needs relation 30+ to hire.':'Pro najmutí potřeba vztah 30+.'}</div>`;
+      }
+      h += `</div>`;
+    }
 
     // Dva sloupce: Nabídka | Výkup
     h += `<div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:14px; align-items:start;">`;
