@@ -591,7 +591,9 @@ const AthanorDB = {
     // ── Nová vlna: Alchemix recepty adaptované pro Scriptorium ──
 
     // POT35 — Atramentum (Iron Gall Ink) — nejlepší skriptorský inkoust
-    'gall_nut+vitriol+water:coctio': {
+    // DISABLED (athanor-integrity-audit.md §3): ingredience 'vitriol' v items.js
+    // neexistuje. Recept zůstává zapsaný pro budoucí doplnění zdroje.
+    /* 'gall_nut+vitriol+water:coctio': {
       result: { id: 'ink_gallic', qty: 2 },
       name: 'Ferrogalický inkoust',
       name_lat: 'Atramentum Ferrogallicum',
@@ -603,20 +605,22 @@ const AthanorDB = {
         label: 'Crafting ×1.3 po dobu 2 hodin — mistrovský inkoust'
       },
       lore: 'Duběnka + skalice + voda. Recept starý jako středověk sám. Prožírá pergamen, ale vydrží tisíc let.'
-    },
+    }, */
 
     // POT37 — Encaustum — císařský inkoust
-    'gall_nut+vitriol+wine:coctio': {
+    // DISABLED (athanor-integrity-audit.md §3): ingredience 'vitriol' chybí.
+    /* 'gall_nut+vitriol+wine:coctio': {
       result: { id: 'ink_gallic', qty: 3 },
       name: 'Encaustum',
       name_lat: 'Encaustum Imperiale',
       icon: '⚫',
       effect: null,
       lore: 'Víno místo vody dává bohatší tón. Byzantský císařský postup — červenofialový záblesk v černé.'
-    },
+    }, */
 
     // POT05 — Oxymel — med+ocet, klášterní lék
-    'honey+vinegar:coctio': {
+    // DISABLED (athanor-integrity-audit.md §3): ingredience 'vinegar' chybí.
+    /* 'honey+vinegar:coctio': {
       result: { id: 'potion_vigor_minor', qty: 2 },
       name: 'Oxymel',
       name_lat: 'Oxymel Simplex',
@@ -628,10 +632,11 @@ const AthanorDB = {
         label: 'Vigor +25 — klášterní osvědčený lék'
       },
       lore: 'Med a ocet. Hippokratés, Galén, Hildegarda — všichni se shodli. Nejjednodušší a nejspolehlivější lék.'
-    },
+    }, */
 
     // POT04 — Aqua Rosarum — růžová voda
-    'rose+water:destillatio': {
+    // DISABLED (athanor-integrity-audit.md §3): ingredience 'rose' chybí.
+    /* 'rose+water:destillatio': {
       result: { id: 'potion_vigor_minor', qty: 1 },
       name: 'Aqua Rosarum',
       name_lat: 'Aqua Rosarum',
@@ -643,10 +648,11 @@ const AthanorDB = {
         label: 'Vigor +15 — klid a mír duše'
       },
       lore: 'Destilovaná voda z okvětních lístků. Léčí unavené oči písaře. Arabský recept, přes Španělsko do Evropy.'
-    },
+    }, */
 
     // POT10 — Potio Memorativa — paměťový lektvar
-    'honey+rose+wine:maceratio': {
+    // DISABLED (athanor-integrity-audit.md §3): ingredience 'rose' chybí.
+    /* 'honey+rose+wine:maceratio': {
       result: { id: 'potion_craft_boost', qty: 1 },
       name: 'Potio Memorativa',
       name_lat: 'Potio Memorativa',
@@ -658,17 +664,18 @@ const AthanorDB = {
         label: 'Research ×1.2 po dobu 1.5 hodiny — jasná mysl'
       },
       lore: 'Středověký recept na posílení paměti. Rozmarýn, šalvěj a med — klášterní lékaři ho předepisovali písařům.'
-    },
+    }, */
 
     // POT38 — Vernix — lak na pergamen
-    'linseed_oil+sandarak:coctio': {
+    // DISABLED (athanor-integrity-audit.md §3): ingredience 'sandarak' chybí.
+    /* 'linseed_oil+sandarak:coctio': {
       result: { id: 'varnish', qty: 1 },
       name: 'Vernix',
       name_lat: 'Vernix Clara',
       icon: '✨',
       effect: null,
       lore: 'Průzračný lak na lněném oleji. Chrání iluminace před vlhkostí a hmyzem. Základ každé dílny iluminátorů.'
-    },
+    }, */
 
     // POT23 — Oleum Hyperici — třezalkový olej
     'linseed_oil+st_johns_wort:maceratio': {
@@ -696,24 +703,27 @@ const AthanorDB = {
     },
 
     // POT40 — Viride Aes — měděnka z octu
-    'oak_bark+vinegar+water:maceratio': {
+    // DISABLED (athanor-integrity-audit.md §3): ingredience 'vinegar' chybí.
+    /* 'oak_bark+vinegar+water:maceratio': {
       result: { id: 'pigment_green', qty: 2 },
       name: 'Tannin Extract',
       name_lat: 'Extractum Tannini',
       icon: '🟤',
       effect: null,
       lore: 'Třísloviny z dubové kůry. Základ pro fixaci barviv i výrobu inkoustu bez kovů. Lesní alchymie.'
-    },
+    }, */
 
     // Nový — síra + saze = deep black pigment (Calcinatio)
-    'carbon_black+sulfur:calcinatio': {
+    // DISABLED (athanor-integrity-audit.md §3): ingredience 'sulfur' chybí
+    // (stejná díra i v events.js B3/E1 poolu).
+    /* 'carbon_black+sulfur:calcinatio': {
       result: { id: 'ink_carbon', qty: 3 },
       name: 'Černidlo žíhané',
       name_lat: 'Nigrum Calcinatum',
       icon: '🖤',
       effect: null,
       lore: 'Saze žíhané se sírou dají absolutní černou. Praxis alchymistů ze 14. století. Nelze spráci jinak.'
-    },
+    }, */
 
     // ══ CERVISIARIA ══
     'grain+water:coctio': {
@@ -1449,9 +1459,9 @@ const AthanorSystem = {
   _ingCategories: {
     all: null,
     herbs: ['chamomile', 'st_johns_wort', 'thyme', 'hops'],
-    pigments: ['lapis_lazuli', 'ochre', 'cinnabar', 'carbon_black', 'malachite', 'egg_tempera', 'linseed_oil'],
-    liquids: ['water', 'wine', 'mercury', 'turpentine'],
-    minerals: ['sulfur', 'chalk', 'gum_arabic', 'alum', 'pumice', 'oak_bark', 'gall_nut'],
+    pigments: ['lapis_lazuli', 'ochre', 'cinnabar', 'carbon_black', 'egg_tempera', 'linseed_oil'],
+    liquids: ['water', 'wine'],
+    minerals: ['chalk', 'gum_arabic', 'pumice', 'oak_bark', 'gall_nut'],
     brewing: ['grain', 'hops', 'wort', 'honey', 'thyme'],
   },
 
