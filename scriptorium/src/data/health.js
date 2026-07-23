@@ -124,7 +124,7 @@ const HealthConditionsDB = {
         durationHours: 80,
         onApply: { fatigue: 8 },
         tickHour: { fatigue: 1 },
-        cures: ["herbal_tea", "potion_heal"],
+        cures: ["herbal_tea", "potion_heal", "odvar_z_vrby"],
         humor: "cholera",
     },
     "gout": {
@@ -138,8 +138,8 @@ const HealthConditionsDB = {
         durationHours: 72,
         onApply: { fatigue: 15, satiety: -5 },
         tickHour: { fatigue: 1 },
-        cures: [],
-        humor: "cholera", // pouze time-limited — odříkání, žádný lék
+        cures: [], // pouze time-limited — odříkání, žádný lék
+        humor: "cholera",
     },
     "dysentery": {
         name: "Úplavice", name_en: "Dysentery", icon: "🚽",
@@ -166,8 +166,8 @@ const HealthConditionsDB = {
         durationHours: 48,
         onApply: { fatigue: 25, satiety: -15 },
         tickHour: { fatigue: 2 },
-        cures: [],
-        humor: "cholera", // pouze time-limited — vzácná, dramatická, bez léku
+        cures: [], // pouze time-limited — vzácná, dramatická, bez léku
+        humor: "cholera",
     },
     "insomnia": {
         name: "Nespavost", name_en: "Insomnia", icon: "😵",
