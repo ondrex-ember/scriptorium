@@ -21883,12 +21883,41 @@ const InfirmariumSystem = {
         { id: 'balneator',  icon: '🔥', tech: 'tech_infirmarium_balneator', name_cs: 'Topič',       name_en: 'Balneator' }
     ],
 
+    // Humorální diagnostika — jen viditelná/aktivní když je Medicus přiřazenej.
+    // Bez Medica zůstává stávající chování (holej název neduhu, statickej proužek).
+    _HUMOR_NAMES: {
+        sanguis:     { cs: 'Krev',        en: 'Blood' },
+        cholera:     { cs: 'Žlutá žluč',  en: 'Yellow bile' },
+        melancholia: { cs: 'Černá žluč',  en: 'Black bile' },
+        phlegma:     { cs: 'Hlen',        en: 'Phlegm' }
+    },
+
+    _medicusPresent: function() {
+        return ((GameState.dormitorium && GameState.dormitorium.brothers) || []).some(b => b.assignedTab === 'infirmarium_medicus');
+    },
+
+    _humorCounts: function() {
+        const counts = { sanguis: 0, cholera: 0, melancholia: 0, phlegma: 0 };
+        const inf = GameState.infirmarium || { patients: [] };
+        (inf.patients || []).forEach(p => {
+            const pool = p.isBrother ? ((GameState.dormitorium && GameState.dormitorium.brothers) || []) : (GameState.conversi || []);
+            const entity = pool.find(e => e.id === p.entityId);
+            if (!entity || !entity.conditions) return;
+            Object.keys(entity.conditions).forEach(id => {
+                const def = typeof HealthConditionsDB !== 'undefined' ? HealthConditionsDB[id] : null;
+                if (def && def.humor && Object.prototype.hasOwnProperty.call(counts, def.humor)) counts[def.humor]++;
+            });
+        });
+        return counts;
+    },
+
     // Kdo leží v Infirmariu — čte GameState.infirmarium.patients, jméno/neduh
     // resolvuje z conversi/dormitorium poolu. Propuštění se řeší v Saeculu
     // (detail konvrše/bratra), tady je jen přehled.
     _renderPatientsSection: function(lang) {
         const inf = GameState.infirmarium || { beds: 3, patients: [] };
         const patients = inf.patients || [];
+        const medicusPresent = this._medicusPresent();
         let h = `<div style="padding:12px 15px; margin-bottom:14px; background:rgba(197,160,89,0.05); border:1px solid rgba(197,160,89,0.25); border-radius:8px;">`;
         h += `<div style="font-weight:bold; font-size:0.9rem; margin-bottom:6px;">🛏️ ${lang==='en'?'Beds':'Lůžka'} — ${patients.length}/${inf.beds}</div>`;
         if (!patients.length) {
@@ -21903,8 +21932,23 @@ const InfirmariumSystem = {
                     const def = typeof HealthConditionsDB !== 'undefined' ? HealthConditionsDB[id] : null;
                     return def ? (lang==='en' ? def.name_en : def.name) : id;
                 }).join(', ');
-                return `<div style="display:flex; justify-content:space-between; align-items:center; font-size:0.75rem; padding:4px 0; border-top:1px solid rgba(197,160,89,0.15);">
-                            <span>🤒 ${entity.name}${condNames ? ' — '+condNames : ''}</span>
+                let humorLine = '';
+                if (medicusPresent) {
+                    const humors = conditionIds.map(id => {
+                        const def = typeof HealthConditionsDB !== 'undefined' ? HealthConditionsDB[id] : null;
+                        if (!def || !def.humor) return null;
+                        const hn = this._HUMOR_NAMES[def.humor];
+                        return hn ? (lang==='en' ? hn.en : hn.cs) : null;
+                    }).filter(Boolean);
+                    if (humors.length) {
+                        humorLine = `<div style="font-size:0.68rem; opacity:0.65; font-style:italic; margin-top:2px;">⚕️ ${lang==='en'?'Diagnosis':'Diagnóza'}: ${humors.join(', ')}</div>`;
+                    }
+                }
+                return `<div style="font-size:0.75rem; padding:4px 0; border-top:1px solid rgba(197,160,89,0.15);">
+                            <div style="display:flex; justify-content:space-between; align-items:center;">
+                                <span>🤒 ${entity.name}${condNames ? ' — '+condNames : ''}</span>
+                            </div>
+                            ${humorLine}
                         </div>`;
             }).join('');
         }
@@ -21936,19 +21980,33 @@ const InfirmariumSystem = {
 
         let h = '';
 
-        // Signature: čtyřhumorální proužek (Sprint 3 ho oživí reálnýma daty)
-        h += `<div style="display:flex; height:6px; border-radius:3px; overflow:hidden; margin-bottom:14px;">
-                <div style="flex:1; background:var(--accent-wax);" title="${lang==='en'?'Blood':'Krev'}"></div>
-                <div style="flex:1; background:var(--accent-gold);" title="${lang==='en'?'Yellow bile':'Žlutá žluč'}"></div>
-                <div style="flex:1; background:var(--ink-secondary);" title="${lang==='en'?'Black bile':'Černá žluč'}"></div>
-                <div style="flex:1; background:#7a95a8;" title="${lang==='en'?'Phlegm':'Hlen'}"></div>
-              </div>`;
+        // Signature: čtyřhumorální proužek — dynamickej podle pacientů, jen když
+        // je Medicus přiřazenej. Bez něj zůstává dekorativní (4 stejný díly).
+        const medicusPresent = this._medicusPresent();
+        if (medicusPresent) {
+            const c = this._humorCounts();
+            const total = c.sanguis + c.cholera + c.melancholia + c.phlegma;
+            const flex = total > 0 ? c : { sanguis: 1, cholera: 1, melancholia: 1, phlegma: 1 };
+            h += `<div style="display:flex; height:6px; border-radius:3px; overflow:hidden; margin-bottom:14px;">
+                    <div style="flex:${flex.sanguis || 0.02}; background:var(--accent-wax);" title="${lang==='en'?'Blood':'Krev'} (${c.sanguis})"></div>
+                    <div style="flex:${flex.cholera || 0.02}; background:var(--accent-gold);" title="${lang==='en'?'Yellow bile':'Žlutá žluč'} (${c.cholera})"></div>
+                    <div style="flex:${flex.melancholia || 0.02}; background:var(--ink-secondary);" title="${lang==='en'?'Black bile':'Černá žluč'} (${c.melancholia})"></div>
+                    <div style="flex:${flex.phlegma || 0.02}; background:#7a95a8;" title="${lang==='en'?'Phlegm':'Hlen'} (${c.phlegma})"></div>
+                  </div>`;
+        } else {
+            h += `<div style="display:flex; height:6px; border-radius:3px; overflow:hidden; margin-bottom:14px;">
+                    <div style="flex:1; background:var(--accent-wax);" title="${lang==='en'?'Blood':'Krev'}"></div>
+                    <div style="flex:1; background:var(--accent-gold);" title="${lang==='en'?'Yellow bile':'Žlutá žluč'}"></div>
+                    <div style="flex:1; background:var(--ink-secondary);" title="${lang==='en'?'Black bile':'Černá žluč'}"></div>
+                    <div style="flex:1; background:#7a95a8;" title="${lang==='en'?'Phlegm':'Hlen'}"></div>
+                  </div>`;
+        }
 
         h += `<div style="padding:12px 15px; margin-bottom:16px; background:rgba(197,160,89,0.05); border:1px solid rgba(197,160,89,0.25); border-radius:8px;">
                 <div style="font-weight:bold; font-size:0.9rem; margin-bottom:6px;">🩺 Infirmarium</div>
                 <div style="font-size:0.78rem; opacity:0.75;">${lang==='en'
-                    ? 'The sick have their own hall and beds now. Diagnosis will follow.'
-                    : 'Nemocní mají vlastní síň a lůžka. Diagnostika teprve přijde.'}</div>
+                    ? (medicusPresent ? 'The Medicus reads each patient by their humors.' : 'The sick have their own hall and beds now. A Medicus would bring diagnosis.')
+                    : (medicusPresent ? 'Medicus čte nemocné podle jejich humorů.' : 'Nemocní mají vlastní síň a lůžka. Medicus by přinesl diagnostiku.')}</div>
               </div>`;
 
         h += this._renderPatientsSection(lang);
