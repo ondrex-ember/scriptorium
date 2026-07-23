@@ -34973,13 +34973,21 @@ const AthanorSystem = {
       const level = (typeof Game !== 'undefined' && Game.dormitoriumBrotherLevel) ? Game.dormitoriumBrotherLevel(athanorBrother, 'athanor') : 1;
       brotherText = `${bIcon} ${athanorBrother.name} · Lv${level}`;
     }
-    // Chybějící alembik — tech na Destillatio je, nástroj ne (viditelné hned v status baru)
+    // Destilační vybavení — persistentní počty (ne jen varování při nule), viditelné
+    // hned v status baru, ať nemusíš nejdřív kliknout na Destilaci a dostat toast.
     const hasDestilTech = GameState.researchedTechs && GameState.researchedTechs.includes('tech_destillatio');
-    const needsAlembic = hasDestilTech && (GameState.inventory['alembic'] || 0) <= 0;
     const lang = (GameState.settings && GameState.settings.language) || 'cs';
-    const alembicWarning = needsAlembic
-      ? `<span style="opacity:0.3;">·</span><span style="font-size:0.65rem;color:#e69e1e;" title="${lang==='en' ? 'The Glassmaker sells them' : 'Sklář ho prodá'}">⚠️ ${lang==='en' ? 'No alembic' : 'Chybí alembik'}</span>`
-      : '';
+    let destilGear = '';
+    if (hasDestilTech) {
+      const alembicQty = GameState.inventory['alembic'] || 0;
+      const flaskQty = GameState.inventory['glass_flask'] || 0;
+      const alembicColor = alembicQty <= 0 ? '#e05a3a' : '#c9a96e';
+      const flaskColor = flaskQty <= 0 ? '#e05a3a' : '#c9a96e';
+      const glassmakerHint = lang === 'en' ? 'The Glassmaker sells these' : 'Sklář je prodá';
+      destilGear = `<span style="opacity:0.3;">·</span>
+        <span style="color:${alembicColor};" title="${lang==='en'?'Alembic (tool, reusable)':'Alembik (nástroj, nespotřebuje se)'} — ${glassmakerHint}">🧪 ${alembicQty}</span>
+        <span style="color:${flaskColor};" title="${lang==='en'?'Glass flask (consumed per distillation)':'Skleněná baňka (spotřebuje se za běh)'} — ${glassmakerHint}">🫙 ${flaskQty}</span>`;
+    }
     return `<div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center;
       padding:7px 12px;margin-bottom:14px;
       background:rgba(0,0,0,0.12);border-radius:8px;
@@ -34994,7 +35002,7 @@ const AthanorSystem = {
       <span style="color:${mc};" title="Vlhkost">💧 ${moisture > 0 ? '+' : ''}${moisture}</span>
       ${bonusText ? `<span style="opacity:0.3;">·</span><span style="font-size:0.65rem;">✨ ${bonusText}</span>` : ''}
       ${brotherText ? `<span style="opacity:0.3;">·</span><span style="font-size:0.65rem;" title="Řídí">${brotherText}</span>` : ''}
-      ${alembicWarning}
+      ${destilGear}
     </div>`;
   },
 
