@@ -49320,6 +49320,10 @@ const Game = {
         if (!b) return;
         if (tabId === null) { b.assignedTab = null; Game.save(); if (typeof SaeculumSystem !== 'undefined') SaeculumSystem.switchEntity('dormitorium'); return; }
 
+        if (tabId.indexOf('infirmarium_') === 0 && !(GameState.researchedTechs && GameState.researchedTechs.includes('tech_infirmarium'))) {
+            UI.notify(lang==='en' ? 'This role is not open yet.' : 'Tato role ještě není otevřená.', true); return;
+        }
+
         const taken = GameState.dormitorium.brothers.find(x => x.assignedTab === tabId && x.id !== b.id);
         if (taken) {
             UI.notify(lang==='en' ? taken.name+' already manages this section.' : taken.name+' už tuto sekci řídí.', true); return;
@@ -50096,6 +50100,10 @@ const Game = {
         ['servitor', 'coquus', 'balneator'].forEach(taskId => {
             if ((GameState.conversi || []).some(k => k.task === taskId)) mod -= 0.10;
         });
+        // Infirmarius (mnišský dohled) — jediná ze 4 mnišských rolí s funkcí zatím;
+        // Medicus/Apothecarius/Capellanus jsou vědomej stub, čekají na diagnostiku/
+        // produkční řetězec/zpověď v dalších sprintech.
+        if ((GameState.dormitorium && GameState.dormitorium.brothers || []).some(b => b.assignedTab === 'infirmarium_infirmarius')) mod -= 0.10;
         if (GameState.flags && GameState.flags.chroniconPlagueBolstered) mod -= 0.10;
         return Math.max(0.2, mod); // floor — nikdy úplně zadarmo
     },
@@ -51144,6 +51152,7 @@ const Game = {
     },
 
 };
+
 // ═══ src/core/ui.js ═══
 const UI = {
     currentInvFilter: 'all',
