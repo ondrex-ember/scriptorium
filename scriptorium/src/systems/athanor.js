@@ -288,7 +288,171 @@ const AthanorDB = {
       id: 'wort', name: 'Mladina', name_lat: 'Mustum Cerevisiae', rarity: 'uncommon', source: 'crafted',
       color: '#c8a84b', icon: '🫗', thermal: 2, moisture: 2,
       lore: 'Zlatavá tekutina z povařeného obilí. Základ každého piva. Vzniká jen v Athanoru.'
-    }
+    },
+
+    // ── Doplnění (athanor-integrity-audit.md) — 31 ingrediencí použitých
+    // v combos, ale dosud nezaregistrovaných zde. Bez tohoto záznamu je
+    // ingredience v pickeru neviditelná, i když ji hráč v inventáři má.
+    { id: 'rosemary', name: 'Rozmarýn', name_lat: 'Rosmarinus', rarity: 'common', source: 'existing',
+      color: '#6b8e4e', icon: '🌿', thermal: 2, moisture: -2,
+      lore: 'Prohřívací a vysušující bylina Středomoří.' },
+    { id: 'substantia_ignota', name: 'Neznámá substance', name_lat: 'Substantia Ignota', rarity: 'rare', source: 'trade',
+      color: '#7f8c8d', icon: '❓', thermal: 0, moisture: 0,
+      lore: 'Nikdo neví, co to je. Ani poutník sám to neřekl.',
+      dropNote: 'Vzácný dar tajemného poutníka.' },
+    { id: 'poppy', name: 'Mák', name_lat: 'Papaver', rarity: 'uncommon', source: 'existing',
+      color: '#e91e63', icon: '🌸', thermal: -3, moisture: 1,
+      lore: 'Chladivý a uspávající. Hildegarda znala jeho moc.' },
+    { id: 'herb_blue', name: 'Levandule', name_lat: 'Lavandula', rarity: 'common', source: 'existing',
+      color: '#b39ddb', icon: '💜', thermal: 2, moisture: -1,
+      lore: 'Prohřívací vůně proti neklidu a hmyzu.' },
+    { id: 'resin_pine', name: 'Borová pryskyřice', name_lat: 'Resina Pini', rarity: 'common', source: 'foraging',
+      color: '#cc9944', icon: '🌲', thermal: 2, moisture: -2,
+      lore: 'Hořlavá, lepkavá míza. Základ terpentýnu a laků.' },
+    { id: 'berries', name: 'Bobule', name_lat: 'Baccae', rarity: 'common', source: 'foraging',
+      color: '#4a6fa5', icon: '🫐', thermal: -1, moisture: 2,
+      lore: 'Chladivé, šťavnaté lesní plody.' },
+    { id: 'ink_gallic', name: 'Železitoduběnkový inkoust', name_lat: 'Atramentum Gallicum', rarity: 'uncommon', source: 'crafted',
+      color: '#1a1a1a', icon: '✒️', thermal: 0, moisture: -1,
+      lore: 'Hotový inkoust — sám o sobě i vstupní surovina pro dokonalejší verze.' },
+    { id: 'lead', name: 'Olovo', name_lat: 'Plumbum', rarity: 'uncommon', source: 'existing',
+      color: '#4a4a4a', icon: '⚫', thermal: -3, moisture: -3,
+      lore: 'Těžký, chladný a suchý kov — Saturnův kov podle staré nauky.',
+      dropNote: 'Vzácný byproduct z Dolů.' },
+    { id: 'cerusa', name: 'Olověná běloba', name_lat: 'Cerusa', rarity: 'uncommon', source: 'crafted',
+      color: '#f5f5f0', icon: '⚪', thermal: -1, moisture: -2,
+      lore: 'Olovo zpracované octem na nejzásadnější bělobu středověku.' },
+    { id: 'copper', name: 'Měď', name_lat: 'Cuprum', rarity: 'uncommon', source: 'existing',
+      color: '#b87333', icon: '🟠', thermal: 1, moisture: -2,
+      lore: 'Červenozlatý kov. Základ měděnky, azuritu i sklářského barvení.',
+      dropNote: 'Vzácný byproduct z Dolů.' },
+    { id: 'tin', name: 'Cín', name_lat: 'Stannum', rarity: 'uncommon', source: 'existing',
+      color: '#c0c0c0', icon: '⚪', thermal: -1, moisture: -2,
+      lore: 'Čechy jsou cínová velmoc — Krušné hory dodávají cín celé Evropě.',
+      dropNote: 'Vzácný byproduct z Dolů.' },
+    { id: 'ash', name: 'Popel', name_lat: 'Cinis', rarity: 'common', source: 'crafted',
+      color: '#999999', icon: '🌫️', thermal: 3, moisture: -4,
+      lore: 'Krbový zbytek. Horký a suchý — základ louhu.' },
+    { id: 'ash_water', name: 'Louh', name_lat: 'Aqua Cinerum', rarity: 'uncommon', source: 'crafted',
+      color: '#d4c9a8', icon: '💧', thermal: 2, moisture: -2,
+      lore: 'Voda protažená popelem. Zásaditý louh.' },
+    { id: 'tartarus', name: 'Vinný kámen', name_lat: 'Tartarus', rarity: 'uncommon', source: 'crafted',
+      color: '#7a5c3d', icon: '🍇', thermal: 1, moisture: -2,
+      lore: 'Krystalická usazenina ze stěn sudu se zralým vínem.' },
+    { id: 'bone', name: 'Kost', name_lat: 'Os', rarity: 'common', source: 'existing',
+      color: '#e8e0d0', icon: '☠️', thermal: 0, moisture: -3,
+      lore: 'Chladná a suchá — odpad z kuchyně, surovina pro Athanor.' },
+    { id: 'cornu_cervi', name: 'Jelení paroh', name_lat: 'Cornu Cervi', rarity: 'uncommon', source: 'foraging',
+      color: '#d4c4a0', icon: '🦌', thermal: 0, moisture: -3,
+      lore: 'Sesbíraný shozený paroh z lesa. Chladný a suchý jako kost.',
+      dropNote: 'Vzácný nález při sběru v lese.' },
+    { id: 'egg', name: 'Vejce', name_lat: 'Ovum', rarity: 'common', source: 'existing',
+      color: '#f5e6c8', icon: '🥚', thermal: 1, moisture: 2,
+      lore: 'Prohřívací a vlhký — živí i pojí pigment.' },
+    { id: 'wood', name: 'Dřevo', name_lat: 'Lignum', rarity: 'common', source: 'foraging',
+      color: '#8b5a2b', icon: '🪵', thermal: 2, moisture: -2,
+      lore: 'Klestí a větve. Hořlavé, suché.' },
+    { id: 'aqua_ardens', name: 'Ohnivá voda', name_lat: 'Aqua Ardens', rarity: 'uncommon', source: 'crafted',
+      color: '#f0d060', icon: '🔥', thermal: 4, moisture: -2,
+      lore: 'První destilát vína. Hořlavý, prudce prohřívací.' },
+    { id: 'sal_petrae', name: 'Ledek', name_lat: 'Sal Petrae', rarity: 'rare', source: 'existing',
+      color: '#e8e8e0', icon: '⚪', thermal: 3, moisture: -3,
+      lore: 'Hořlavý výkvět ze stěn hlubších štol.',
+      dropNote: 'Vzácný byproduct z Dolů.' },
+    { id: 'aqua_fortis', name: 'Kyselina dusičná', name_lat: 'Aqua Fortis', rarity: 'rare', source: 'crafted',
+      color: '#d4e157', icon: '🧪', thermal: 5, moisture: -3,
+      lore: 'Prudce žíravá lučavka. Pseudo-Geberova Summa Perfectionis.' },
+    { id: 'sal_ammoniac', name: 'Salmiak', name_lat: 'Sal Ammoniacum', rarity: 'rare', source: 'trade',
+      color: '#e0e0e0', icon: '⚪', thermal: 2, moisture: -2,
+      lore: 'Dovážen draze z Egypta přes Benátky. Hlavní tavidlo metalurgie.' },
+    { id: 'arsenicum', name: 'Arsen', name_lat: 'Arsenicum', rarity: 'rare', source: 'existing',
+      color: '#d4d420', icon: '🟡', thermal: 4, moisture: -4,
+      lore: 'Prudce jedovatý. Albertus Magnus: jed i bělidlo mědi.',
+      dropNote: 'Vzácný byproduct z Dolů.' },
+    { id: 'mercury', name: 'Rtuť', name_lat: 'Argentum Vivum', rarity: 'rare', source: 'trade',
+      color: '#b8b8c8', icon: '🔘', thermal: -2, moisture: 3,
+      lore: 'Živé stříbro. Tekutý kov, co se nikdy nezastaví.' },
+    { id: 'spiritus_vini', name: 'Vinný líh', name_lat: 'Spiritus Vini Rectificatus', rarity: 'uncommon', source: 'crafted',
+      color: '#f5f0d0', icon: '🔥', thermal: 5, moisture: -3,
+      lore: 'Čistý, vysoce hořlavý alkohol z opakované destilace.' },
+    { id: 'acetum_destillatum', name: 'Destilovaný ocet', name_lat: 'Spiritus Aceti', rarity: 'uncommon', source: 'crafted',
+      color: '#e8d8b0', icon: '🍶', thermal: -2, moisture: -2,
+      lore: 'Koncentrovaná kyselina octová, zbavená vinných nečistot.' },
+    { id: 'mandrake', name: 'Mandragora', name_lat: 'Mandragora', rarity: 'rare', source: 'existing',
+      color: '#6b4c3a', icon: '🌿', thermal: -4, moisture: -1,
+      lore: 'Nebezpečně chladivý kořen. Uspává — nebo hůř.' },
+    { id: 'gentian', name: 'Hořec', name_lat: 'Gentiana', rarity: 'uncommon', source: 'foraging',
+      color: '#4a90d9', icon: '🌼', thermal: 2, moisture: -2,
+      lore: 'Hořká horská bylina, základ theriaku od antiky.' },
+    { id: 'wormwood', name: 'Pelyněk', name_lat: 'Absinthium', rarity: 'common', source: 'existing',
+      color: '#8a9a5b', icon: '🌿', thermal: -3, moisture: -3,
+      lore: 'Nejsilnější chladivá a suchá bylina proti horečce.' },
+    { id: 'charcoal', name: 'Uhel', name_lat: 'Carbo', rarity: 'common', source: 'existing',
+      color: '#2a2a2a', icon: '⚫', thermal: 3, moisture: -4,
+      lore: 'Žíhané dřevo. Horké a suché skrz naskrz.' },
+    { id: 'stick', name: 'Větev', name_lat: 'Ramus', rarity: 'common', source: 'foraging',
+      color: '#8b6b47', icon: '🪵', thermal: 1, moisture: -2,
+      lore: 'Suchá větévka na podpal nebo žíhání.' },
+
+    // ── Doplnění #2 — vstupy pro Media/Ultima Materia a Scrinium recepty
+    { id: 'minium', name: 'Suřík', name_lat: 'Minium', rarity: 'uncommon', source: 'crafted',
+      color: '#c0392b', icon: '🔴', thermal: 3, moisture: -4,
+      lore: 'Žíhaná olověná běloba. Zářivě červeno-oranžová.' },
+    { id: 'ochra_flava', name: 'Zušlechtěný okr', name_lat: 'Ochra Flava Preparata', rarity: 'uncommon', source: 'crafted',
+      color: '#d4a017', icon: '🟡', thermal: 0, moisture: -1,
+      lore: 'Surový okr donekonečna plavený ve vodě.' },
+    { id: 'palette_membrana', name: 'Tělová barva', name_lat: 'Palette Membrana', rarity: 'rare', source: 'crafted',
+      color: '#d9a679', icon: '🎨', thermal: 0, moisture: -1,
+      lore: 'Běloba, suřík a okr utřené dohromady.' },
+    { id: 'sinopia_tosta', name: 'Žíhaná sinopia', name_lat: 'Sinopia Tosta', rarity: 'uncommon', source: 'crafted',
+      color: '#a0522d', icon: '🟤', thermal: 3, moisture: -4,
+      lore: 'Žlutý okr žíhaný, dokud nezčervená.' },
+    { id: 'verdigris_purum', name: 'Krystalická měděnka', name_lat: 'Viride Aeris Purificatum', rarity: 'rare', source: 'crafted',
+      color: '#1a9e6b', icon: '🟢', thermal: 1, moisture: 0,
+      lore: 'Měděnka rozpuštěná v octě a nechaná krystalizovat.' },
+    { id: 'calx_cupri', name: 'Žíhaná měď', name_lat: 'Calx Cupri', rarity: 'uncommon', source: 'crafted',
+      color: '#3a3a3a', icon: '⚫', thermal: 3, moisture: -3,
+      lore: 'Černý oxid měďnatý ze žíhání.' },
+    { id: 'sal_alkali', name: 'Louhová sůl', name_lat: 'Sal Alkali', rarity: 'uncommon', source: 'crafted',
+      color: '#e8e4d8', icon: '⚪', thermal: 3, moisture: -4,
+      lore: 'Odpařený a žíhaný popelový louh.' },
+    { id: 'cinere_stanni', name: 'Cínový popel', name_lat: 'Cinere Stanni', rarity: 'uncommon', source: 'crafted',
+      color: '#d4d4d4', icon: '⚪', thermal: 2, moisture: -4,
+      lore: 'Oxid cíničitý ze žíhaného cínu.' },
+    { id: 'lithargyrum', name: 'Klejt', name_lat: 'Lithargyrum', rarity: 'uncommon', source: 'crafted',
+      color: '#c9a94a', icon: '🟡', thermal: 2, moisture: -3,
+      lore: 'Žlutý oxid olovnatý z taveného olova.' },
+    { id: 'comfrey', name: 'Kostival', name_lat: 'Symphytum', rarity: 'common', source: 'existing',
+      color: '#6b8f5a', icon: '🌿', thermal: -1, moisture: 1,
+      lore: 'Základ středověké ortopedie. Slizovitý, chladivý.' },
+    { id: 'yarrow', name: 'Řebříček', name_lat: 'Millefolium', rarity: 'common', source: 'existing',
+      color: '#e8d5a8', icon: '🌿', thermal: 1, moisture: -2,
+      lore: 'Achillova bylina. Svíravá, hojí rány.' },
+    { id: 'juniper', name: 'Jalovec', name_lat: 'Juniperus', rarity: 'common', source: 'existing',
+      color: '#4a6b4a', icon: '🌲', thermal: 3, moisture: -2,
+      lore: 'Silně prohřívací silice, oblíbená na revma.' },
+    { id: 'hyssop', name: 'Yzop', name_lat: 'Hyssopus', rarity: 'common', source: 'existing',
+      color: '#7a8b6a', icon: '🌿', thermal: 2, moisture: -1,
+      lore: 'Benediktinská bylina proti kašli.' },
+    { id: 'theriacum_simplex', name: 'Základní theriak', name_lat: 'Theriacum Simplex', rarity: 'rare', source: 'crafted',
+      color: '#8b6914', icon: '🍯', thermal: 1, moisture: 1,
+      lore: 'Pelyněk, hořec a med svařené s vínem.' },
+    { id: 'lazulium_mellitum', name: 'Medový ultramarín', name_lat: 'Lazulium Mellitum', rarity: 'rare', source: 'crafted',
+      color: '#2a52be', icon: '💙', thermal: 0, moisture: 1,
+      lore: 'Lapis lazuli hnětený v medu a gumě.' },
+    { id: 'fennel', name: 'Fenykl', name_lat: 'Foeniculum', rarity: 'common', source: 'existing',
+      color: '#c9d97a', icon: '🌿', thermal: 2, moisture: -1,
+      lore: 'Dobrý na trávení, Hildegarda jej doporučovala.' },
+    { id: 'malachite', name: 'Malachit', name_lat: 'Malachitum', rarity: 'uncommon', source: 'existing',
+      color: '#2a8a5a', icon: '🟢', thermal: -1, moisture: -3,
+      lore: 'Zelená měděná ruda z dolu.',
+      dropNote: 'Vzácný byproduct z Dolů.' },
+    { id: 'spodium', name: 'Kostní popel', name_lat: 'Spodium', rarity: 'uncommon', source: 'crafted',
+      color: '#e8e0d0', icon: '⚪', thermal: 2, moisture: -5,
+      lore: 'Extrémně suchý bílý prášek ze žíhané kosti.' },
+    { id: 'auripigmentum', name: 'Auripigment', name_lat: 'Auripigmentum', rarity: 'rare', source: 'crafted',
+      color: '#f0d020', icon: '🟡', thermal: 4, moisture: -4,
+      lore: 'Sulfid arsenitý. Zářivě žlutý — a smrtelně jedovatý.' }
   ],
 
   // ----------------------------------------------------------
@@ -1436,6 +1600,13 @@ const AthanorSystem = {
     return (GameState.researchedTechs && GameState.researchedTechs.includes('tech_athanor_quaternio')) ? 4 : 3;
   },
 
+  // Codex Athanori — sbalitelný panel (UI-only stav, nepersistuje se do save)
+  _codexCollapsed: false,
+  toggleCodex() {
+    AthanorSystem._codexCollapsed = !AthanorSystem._codexCollapsed;
+    AthanorSystem.render('home-athanor-content');
+  },
+
   // ── INIT ──────────────────────────────────────────────────
   init() {
     if (!GameState.athanor) {
@@ -1860,94 +2031,193 @@ const AthanorSystem = {
     const liq = isBrewing ? liqColors[si] : '#2a1a0a';
     // Calcinatio: intenzivnější žár než ostatní procesy
     const glow = isCalcining ? 'rgba(255,120,20,0.75)' : (isBrewing ? glowColors[si] : 'transparent');
+    const lit = isBrewing && !isGrinding; // suché drcení nepotřebuje oheň pod kotlem
+
     // Trituratio (suché drcení) nemá bublající kapalinu — potlačit bubbles
     const bubbles = (isBrewing && !isGrinding) ? `
-      <circle cx="54" cy="88" r="3" fill="rgba(255,255,255,0.15)">
-        <animate attributeName="cy" values="88;58;88" dur="2.1s" repeatCount="indefinite"/>
-        <animate attributeName="opacity" values="0.6;0;0.6" dur="2.1s" repeatCount="indefinite"/>
+      <circle cx="78" cy="73" r="3" fill="rgba(255,255,255,0.4)">
+        <animate attributeName="cy" values="73;70;73" dur="1.8s" repeatCount="indefinite"/>
+        <animate attributeName="r" values="3;3.6;2.1;3" dur="1.8s" repeatCount="indefinite"/>
       </circle>
-      <circle cx="63" cy="95" r="2" fill="rgba(255,255,255,0.1)">
-        <animate attributeName="cy" values="95;65;95" dur="1.7s" repeatCount="indefinite"/>
-        <animate attributeName="opacity" values="0.5;0;0.5" dur="1.7s" repeatCount="indefinite"/>
+      <circle cx="95" cy="71" r="2" fill="rgba(255,255,255,0.35)">
+        <animate attributeName="cy" values="71;67;71" dur="1.4s" repeatCount="indefinite" begin="0.4s"/>
+        <animate attributeName="r" values="2;2.6;1.6;2" dur="1.4s" repeatCount="indefinite" begin="0.4s"/>
       </circle>
-      <circle cx="47" cy="92" r="2.5" fill="rgba(255,255,255,0.12)">
-        <animate attributeName="cy" values="92;68;92" dur="2.5s" repeatCount="indefinite"/>
-        <animate attributeName="opacity" values="0.4;0;0.4" dur="2.5s" repeatCount="indefinite"/>
+      <circle cx="105" cy="74" r="2.5" fill="rgba(255,255,255,0.45)">
+        <animate attributeName="cy" values="74;72;74" dur="2.1s" repeatCount="indefinite" begin="0.8s"/>
+        <animate attributeName="r" values="2.5;2.8;1.5;2.5" dur="2.1s" repeatCount="indefinite" begin="0.8s"/>
       </circle>` : '';
-    const flame = (isBrewing && !isGrinding) ? `
-      <path d="M42,148 Q50,132 58,148 Q66,132 74,148" fill="rgba(200,80,0,0.5)" stroke="none">
-        <animate attributeName="d" values="M42,148 Q50,132 58,148 Q66,132 74,148;M42,148 Q48,128 58,146 Q68,130 74,148;M42,148 Q50,132 58,148 Q66,132 74,148" dur="0.7s" repeatCount="indefinite"/>
-      </path>
-      <path d="M46,148 Q54,136 58,148 Q62,136 70,148" fill="rgba(240,140,0,0.5)" stroke="none">
-        <animate attributeName="d" values="M46,148 Q54,136 58,148 Q62,136 70,148;M46,148 Q52,132 58,146 Q64,134 70,148;M46,148 Q54,136 58,148 Q62,136 70,148" dur="0.5s" repeatCount="indefinite"/>
-      </path>` : '';
-    // Destillatio: pára stoupající podél hubice trubice (M68,65 → Q95,54 → 115,44)
+    // Destillatio: pára stoupající od hubice trubice (u hrotu ~168,32)
     const steam = isDestilling ? `
-      <circle cx="82" cy="60" r="2.5" fill="rgba(255,255,255,0.35)">
-        <animate attributeName="cy" values="60;42;60" dur="1.8s" repeatCount="indefinite"/>
-        <animate attributeName="cx" values="82;86;82" dur="1.8s" repeatCount="indefinite"/>
+      <circle cx="150" cy="55" r="2.5" fill="rgba(255,255,255,0.35)">
+        <animate attributeName="cy" values="55;30;55" dur="1.8s" repeatCount="indefinite"/>
+        <animate attributeName="cx" values="150;156;150" dur="1.8s" repeatCount="indefinite"/>
         <animate attributeName="opacity" values="0;0.55;0" dur="1.8s" repeatCount="indefinite"/>
       </circle>
-      <circle cx="97" cy="51" r="2" fill="rgba(255,255,255,0.3)">
-        <animate attributeName="cy" values="51;34;51" dur="1.5s" repeatCount="indefinite" begin="0.4s"/>
-        <animate attributeName="cx" values="97;101;97" dur="1.5s" repeatCount="indefinite" begin="0.4s"/>
+      <circle cx="162" cy="44" r="2" fill="rgba(255,255,255,0.3)">
+        <animate attributeName="cy" values="44;20;44" dur="1.5s" repeatCount="indefinite" begin="0.4s"/>
+        <animate attributeName="cx" values="162;167;162" dur="1.5s" repeatCount="indefinite" begin="0.4s"/>
         <animate attributeName="opacity" values="0;0.5;0" dur="1.5s" repeatCount="indefinite" begin="0.4s"/>
       </circle>
-      <circle cx="108" cy="46" r="1.6" fill="rgba(255,255,255,0.3)">
-        <animate attributeName="cy" values="46;30;46" dur="1.6s" repeatCount="indefinite" begin="0.9s"/>
-        <animate attributeName="cx" values="108;112;108" dur="1.6s" repeatCount="indefinite" begin="0.9s"/>
+      <circle cx="171" cy="36" r="1.6" fill="rgba(255,255,255,0.3)">
+        <animate attributeName="cy" values="36;14;36" dur="1.6s" repeatCount="indefinite" begin="0.9s"/>
+        <animate attributeName="cx" values="171;176;171" dur="1.6s" repeatCount="indefinite" begin="0.9s"/>
         <animate attributeName="opacity" values="0;0.45;0" dur="1.6s" repeatCount="indefinite" begin="0.9s"/>
       </circle>` : '';
-    // Calcinatio: jiskry vylétávající z ohně (žíhání v silném ohni)
+    // Calcinatio: jiskry vylétávající přímo z kotle (žíhání v silném ohni)
     const sparks = isCalcining ? `
-      <circle cx="50" cy="140" r="1.4" fill="#ffb347">
-        <animate attributeName="cy" values="140;110;140" dur="0.9s" repeatCount="indefinite"/>
-        <animate attributeName="cx" values="50;44;50" dur="0.9s" repeatCount="indefinite"/>
+      <circle cx="80" cy="65" r="1.4" fill="#ffb347">
+        <animate attributeName="cy" values="65;35;65" dur="0.9s" repeatCount="indefinite"/>
+        <animate attributeName="cx" values="80;74;80" dur="0.9s" repeatCount="indefinite"/>
         <animate attributeName="opacity" values="0;1;0" dur="0.9s" repeatCount="indefinite"/>
       </circle>
-      <circle cx="60" cy="142" r="1.1" fill="#ffd280">
-        <animate attributeName="cy" values="142;105;142" dur="1.1s" repeatCount="indefinite" begin="0.3s"/>
-        <animate attributeName="cx" values="60;66;60" dur="1.1s" repeatCount="indefinite" begin="0.3s"/>
+      <circle cx="100" cy="63" r="1.1" fill="#ffd280">
+        <animate attributeName="cy" values="63;30;63" dur="1.1s" repeatCount="indefinite" begin="0.3s"/>
+        <animate attributeName="cx" values="100;106;100" dur="1.1s" repeatCount="indefinite" begin="0.3s"/>
         <animate attributeName="opacity" values="0;1;0" dur="1.1s" repeatCount="indefinite" begin="0.3s"/>
       </circle>
-      <circle cx="68" cy="139" r="1.2" fill="#ff9f40">
-        <animate attributeName="cy" values="139;115;139" dur="0.75s" repeatCount="indefinite" begin="0.6s"/>
-        <animate attributeName="cx" values="68;72;68" dur="0.75s" repeatCount="indefinite" begin="0.6s"/>
+      <circle cx="112" cy="68" r="1.2" fill="#ff9f40">
+        <animate attributeName="cy" values="68;40;68" dur="0.75s" repeatCount="indefinite" begin="0.6s"/>
+        <animate attributeName="cx" values="112;118;112" dur="0.75s" repeatCount="indefinite" begin="0.6s"/>
         <animate attributeName="opacity" values="0;1;0" dur="0.75s" repeatCount="indefinite" begin="0.6s"/>
       </circle>` : '';
-    // Trituratio: prach poletující kolem baňky při drcení (suchý mechanický proces)
+    // Trituratio: prach poletující kolem kotle při drcení (suchý mechanický proces)
     const dust = isGrinding ? `
-      <circle cx="40" cy="95" r="1.5" fill="rgba(200,180,140,0.5)">
-        <animate attributeName="cy" values="95;85;95" dur="0.6s" repeatCount="indefinite"/>
+      <circle cx="72" cy="66" r="1.5" fill="rgba(200,180,140,0.5)">
+        <animate attributeName="cy" values="66;54;66" dur="0.6s" repeatCount="indefinite"/>
         <animate attributeName="opacity" values="0.5;0.1;0.5" dur="0.6s" repeatCount="indefinite"/>
       </circle>
-      <circle cx="76" cy="90" r="1.3" fill="rgba(200,180,140,0.45)">
-        <animate attributeName="cy" values="90;78;90" dur="0.7s" repeatCount="indefinite" begin="0.2s"/>
+      <circle cx="108" cy="62" r="1.3" fill="rgba(200,180,140,0.45)">
+        <animate attributeName="cy" values="62;48;62" dur="0.7s" repeatCount="indefinite" begin="0.2s"/>
         <animate attributeName="opacity" values="0.45;0.1;0.45" dur="0.7s" repeatCount="indefinite" begin="0.2s"/>
       </circle>
-      <circle cx="58" cy="70" r="1.6" fill="rgba(200,180,140,0.4)">
-        <animate attributeName="cy" values="70;60;70" dur="0.55s" repeatCount="indefinite" begin="0.35s"/>
+      <circle cx="90" cy="58" r="1.6" fill="rgba(200,180,140,0.4)">
+        <animate attributeName="cy" values="58;44;58" dur="0.55s" repeatCount="indefinite" begin="0.35s"/>
         <animate attributeName="opacity" values="0.4;0.05;0.4" dur="0.55s" repeatCount="indefinite" begin="0.35s"/>
       </circle>` : '';
-    return `<svg viewBox="0 0 120 155" width="120" height="155" xmlns="http://www.w3.org/2000/svg"
+
+    return `<svg viewBox="0 0 180 150" width="180" height="150" xmlns="http://www.w3.org/2000/svg"
       style="filter:drop-shadow(0 0 14px ${glow});display:block;margin:0 auto;">
-      <ellipse cx="58" cy="100" rx="44" ry="38" fill="${liq}" stroke="#5c3d1a" stroke-width="2"/>
-      <ellipse cx="58" cy="110" rx="38" ry="26" fill="rgba(255,255,255,0.04)"/>
-      <rect x="48" y="58" width="20" height="30" fill="${liq}" stroke="#5c3d1a" stroke-width="2" rx="2"/>
-      <path d="M68 65 Q95 54 115 44" fill="none" stroke="#5c3d1a" stroke-width="3" stroke-linecap="round"/>
-      <path d="M68 65 Q95 54 115 44" fill="none" stroke="${liq}" stroke-width="1.5" stroke-linecap="round" opacity="0.6"/>
-      <ellipse cx="58" cy="57" rx="13" ry="5" fill="rgba(92,61,26,0.6)" stroke="#5c3d1a" stroke-width="1.5"/>
+      <defs>
+        <radialGradient id="cauldronBodyGrad" cx="35%" cy="30%" r="70%">
+          <stop offset="0%" stop-color="#4a331e"/>
+          <stop offset="50%" stop-color="#2b1a0a"/>
+          <stop offset="100%" stop-color="#140b03"/>
+        </radialGradient>
+        <linearGradient id="metalRimGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" stop-color="#3d2712"/>
+          <stop offset="30%" stop-color="#6e4a23"/>
+          <stop offset="70%" stop-color="#4a3014"/>
+          <stop offset="100%" stop-color="#231407"/>
+        </linearGradient>
+        <linearGradient id="ironLegGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#5c3d1a"/>
+          <stop offset="50%" stop-color="#3d2712"/>
+          <stop offset="100%" stop-color="#1c1005"/>
+        </linearGradient>
+        <radialGradient id="fireGlowGrad" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stop-color="rgba(255,140,20,0.6)"/>
+          <stop offset="60%" stop-color="rgba(220,60,10,0.3)"/>
+          <stop offset="100%" stop-color="rgba(0,0,0,0)"/>
+        </radialGradient>
+      </defs>
+
+      <!-- podlahový stín -->
+      <ellipse cx="90" cy="138" rx="55" ry="6" fill="rgba(15,9,3,0.5)"/>
+
+      <!-- zadní noha trojnožky (za ohněm) -->
+      <line x1="90" y1="98" x2="90" y2="132" stroke="#241508" stroke-width="5" stroke-linecap="round"/>
+
+      <!-- polena a ohniště -->
+      <path d="M 64 135 L 116 127" stroke="#211306" stroke-width="5.5" stroke-linecap="round"/>
+      <path d="M 116 135 L 64 127" stroke="#1c0f04" stroke-width="5.5" stroke-linecap="round"/>
+      ${lit ? `<ellipse cx="90" cy="132" rx="28" ry="6" fill="url(#fireGlowGrad)"/>
+      <ellipse cx="90" cy="131" rx="16" ry="3.5" fill="rgba(255,180,40,0.7)"/>
+      <circle cx="84" cy="126" r="1.2" fill="#ffaa00">
+        <animate attributeName="cy" values="126;100;126" dur="1.4s" repeatCount="indefinite"/>
+        <animate attributeName="cx" values="84;90;84" dur="1.4s" repeatCount="indefinite"/>
+        <animate attributeName="opacity" values="1;0;1" dur="1.4s" repeatCount="indefinite"/>
+      </circle>
+      <circle cx="96" cy="124" r="1" fill="#ffdd44">
+        <animate attributeName="cy" values="124;94;124" dur="1.2s" repeatCount="indefinite" begin="0.5s"/>
+        <animate attributeName="cx" values="96;92;96" dur="1.2s" repeatCount="indefinite" begin="0.5s"/>
+        <animate attributeName="opacity" values="1;0;1" dur="1.2s" repeatCount="indefinite" begin="0.5s"/>
+      </circle>
+      <ellipse cx="90" cy="124" rx="22" ry="12" fill="#d35400" opacity="0.65">
+        <animate attributeName="ry" values="12;15;10;14;12" dur="0.9s" repeatCount="indefinite"/>
+      </ellipse>
+      <ellipse cx="78" cy="120" rx="6.5" ry="13" fill="#e67e22" opacity="0.8">
+        <animate attributeName="ry" values="13;17;10;16;13" dur="1.1s" repeatCount="indefinite"/>
+      </ellipse>
+      <ellipse cx="102" cy="120" rx="6.5" ry="13" fill="#e67e22" opacity="0.8">
+        <animate attributeName="ry" values="13;16;9;17;13" dur="1.3s" repeatCount="indefinite"/>
+      </ellipse>
+      <ellipse cx="90" cy="115" rx="9.5" ry="17" fill="#f39c12" opacity="0.9">
+        <animate attributeName="ry" values="17;23;14;20;17" dur="0.8s" repeatCount="indefinite"/>
+      </ellipse>
+      <ellipse cx="90" cy="112" rx="5.5" ry="11" fill="#f1c40f" opacity="0.95">
+        <animate attributeName="ry" values="11;15;9;14;11" dur="0.65s" repeatCount="indefinite"/>
+      </ellipse>` : ''}
+
+      <!-- tělo kotle (litina/bronz) -->
+      <path d="M 42 70 C 34 100, 52 114, 90 114 C 128 114, 146 100, 138 70 Z"
+        fill="url(#cauldronBodyGrad)" stroke="#5c3d1a" stroke-width="2"/>
+
+      <!-- přední nohy trojnožky (přes oheň, kotel na nich stojí) -->
+      <line x1="56" y1="104" x2="42" y2="136" stroke="#1c1005" stroke-width="7" stroke-linecap="round"/>
+      <line x1="56" y1="104" x2="42" y2="136" stroke="url(#ironLegGrad)" stroke-width="4.5" stroke-linecap="round"/>
+      <line x1="124" y1="104" x2="138" y2="136" stroke="#1c1005" stroke-width="7" stroke-linecap="round"/>
+      <line x1="124" y1="104" x2="138" y2="136" stroke="url(#ironLegGrad)" stroke-width="4.5" stroke-linecap="round"/>
+
+      <!-- vyztužený límec s nýty -->
+      <ellipse cx="90" cy="70" rx="48" ry="17" fill="url(#metalRimGrad)" stroke="#5c3d1a" stroke-width="2.5"/>
+      <circle cx="48" cy="72" r="1.5" fill="#f0c040" opacity="0.8"/>
+      <circle cx="68" cy="80" r="1.5" fill="#f0c040" opacity="0.8"/>
+      <circle cx="90" cy="83" r="1.5" fill="#f0c040" opacity="0.8"/>
+      <circle cx="112" cy="80" r="1.5" fill="#f0c040" opacity="0.8"/>
+      <circle cx="132" cy="72" r="1.5" fill="#f0c040" opacity="0.8"/>
+
+      <!-- vnitřek kotle -->
+      <ellipse cx="90" cy="70" rx="44" ry="14.5" fill="#120a04"/>
+      <ellipse cx="90" cy="71" rx="42" ry="13.5" fill="${liq}"/>
+
+      <!-- vlnky na hladině (jen za varu) -->
+      ${isBrewing ? `<ellipse cx="90" cy="71" rx="24" ry="7.5" fill="none" stroke="rgba(255,255,255,0.22)" stroke-width="1">
+        <animate attributeName="rx" values="16;35;16" dur="3s" repeatCount="indefinite"/>
+        <animate attributeName="ry" values="4;11;4" dur="3s" repeatCount="indefinite"/>
+        <animate attributeName="opacity" values="0.5;0.1;0.5" dur="3s" repeatCount="indefinite"/>
+      </ellipse>` : ''}
+
+      <!-- destilační trubice (jen pro Destillatio), vychází z pravé strany límce -->
+      ${isDestilling ? `<path d="M132 60 Q 155 48 168 32" fill="none" stroke="#5c3d1a" stroke-width="3" stroke-linecap="round"/>
+      <path d="M132 60 Q 155 48 168 32" fill="none" stroke="${liq}" stroke-width="1.5" stroke-linecap="round" opacity="0.6"/>
+      <ellipse cx="168" cy="30" rx="7" ry="4" fill="rgba(92,61,26,0.6)" stroke="#5c3d1a" stroke-width="1.2"/>` : ''}
+
       ${bubbles}
       ${steam}
       ${dust}
-      ${isBrewing && pct > 50 ? `<circle cx="116" cy="43" r="3" fill="${liq}" opacity="0.8">
-        <animate attributeName="r" values="3;4;3" dur="2s" repeatCount="indefinite"/>
+      ${isDestilling && pct > 50 ? `<circle cx="168" cy="29" r="2.5" fill="${liq}" opacity="0.8">
+        <animate attributeName="r" values="2.5;3.3;2.5" dur="2s" repeatCount="indefinite"/>
       </circle>` : ''}
-      ${flame}
       ${sparks}
-      <rect x="18" y="140" width="80" height="6" rx="3" fill="rgba(92,61,26,0.4)" stroke="#5c3d1a" stroke-width="1"/>
+
+      <!-- kované madlo, levé -->
+      <path d="M 49 64 C 28 61, 22 75, 38 77" fill="none" stroke="#1c1005" stroke-width="6.5" stroke-linecap="round"/>
+      <path d="M 49 64 C 28 61, 22 75, 38 77" fill="none" stroke="url(#ironLegGrad)" stroke-width="4.5" stroke-linecap="round"/>
+      <circle cx="49" cy="64" r="2.5" fill="#241508" stroke="#5c3d1a" stroke-width="1"/>
+      <circle cx="38" cy="77" r="3" fill="#241508" stroke="#5c3d1a" stroke-width="1"/>
+
+      <!-- kované madlo, pravé -->
+      <path d="M 131 64 C 152 61, 158 75, 142 77" fill="none" stroke="#1c1005" stroke-width="6.5" stroke-linecap="round"/>
+      <path d="M 131 64 C 152 61, 158 75, 142 77" fill="none" stroke="url(#ironLegGrad)" stroke-width="4.5" stroke-linecap="round"/>
+      <circle cx="131" cy="64" r="2.5" fill="#241508" stroke="#5c3d1a" stroke-width="1"/>
+      <circle cx="142" cy="77" r="3" fill="#241508" stroke="#5c3d1a" stroke-width="1"/>
+
+      <!-- lesk -->
+      <ellipse cx="75" cy="68" rx="12" ry="5" fill="rgba(255,255,255,0.06)" transform="rotate(-20 75 68)"/>
     </svg>`;
   },
+
 
   // Kategorie pro filtr ingrediencí
   _ingCategories: {
@@ -1960,16 +2230,11 @@ const AthanorSystem = {
   },
 
   _activeIngFilter: 'all',
+  _stockOnlyFilter: false,
 
   setIngFilter(cat) {
     AthanorSystem._activeIngFilter = cat;
-    const el = document.getElementById('athanor-ing-list');
-    if (el) {
-      const state = GameState.athanor;
-      const ingMap = {};
-      AthanorDB.ingredients.forEach(i => { ingMap[i.id] = i; });
-      el.innerHTML = AthanorSystem.buildIngredientListCompact(ingMap, state);
-    }
+    AthanorSystem._refreshIngList();
     // Aktualizuj aktivní tlačítko
     document.querySelectorAll('.athanor-filter-btn').forEach(btn => {
       btn.style.background = btn.dataset.cat === cat
@@ -1977,6 +2242,21 @@ const AthanorSystem = {
       btn.style.color = btn.dataset.cat === cat
         ? 'var(--accent-gold)' : 'var(--ink-primary)';
     });
+  },
+
+  toggleStockFilter() {
+    AthanorSystem._stockOnlyFilter = !AthanorSystem._stockOnlyFilter;
+    AthanorSystem.render('home-athanor-content');
+  },
+
+  _refreshIngList() {
+    const el = document.getElementById('athanor-ing-list');
+    if (el) {
+      const state = GameState.athanor;
+      const ingMap = {};
+      AthanorDB.ingredients.forEach(i => { ingMap[i.id] = i; });
+      el.innerHTML = AthanorSystem.buildIngredientListCompact(ingMap, state);
+    }
   },
 
   buildIngFilterBar() {
@@ -1989,7 +2269,8 @@ const AthanorSystem = {
       { id: 'brewing', label: '🍺 Pivovar' },
     ];
     const active = AthanorSystem._activeIngFilter || 'all';
-    return `<div style="display:flex;flex-wrap:wrap;gap:3px;margin-bottom:6px;">
+    const stockOnly = AthanorSystem._stockOnlyFilter;
+    return `<div style="display:flex;flex-wrap:wrap;gap:3px;margin-bottom:6px;align-items:center;">
       ${filters.map(f => `<button class="athanor-filter-btn"
         data-cat="${f.id}"
         onclick="AthanorSystem.setIngFilter('${f.id}')"
@@ -1999,6 +2280,14 @@ const AthanorSystem = {
           font-family:'Crimson Text';">
         ${f.label}
       </button>`).join('')}
+      <span style="width:1px;height:14px;background:rgba(0,0,0,0.15);margin:0 3px;"></span>
+      <button onclick="AthanorSystem.toggleStockFilter()"
+        style="font-size:0.62rem;padding:2px 7px;border:1px solid rgba(0,0,0,0.15);border-radius:4px;cursor:pointer;
+          background:${stockOnly ? 'rgba(200,160,60,0.25)' : 'rgba(0,0,0,0.04)'};
+          color:${stockOnly ? 'var(--accent-gold)' : 'var(--ink-primary)'};
+          font-family:'Crimson Text';">
+        📦 Skladem
+      </button>
     </div>`;
   },
 
@@ -2006,9 +2295,11 @@ const AthanorSystem = {
     const isBrewing = !!state.brewing;
     const activeFilter = AthanorSystem._activeIngFilter || 'all';
     const filterIds = AthanorSystem._ingCategories[activeFilter];
+    const stockOnly = AthanorSystem._stockOnlyFilter;
 
     return AthanorDB.ingredients
       .filter(ing => !filterIds || filterIds.includes(ing.id))
+      .filter(ing => !stockOnly || (GameState.inventory[ing.id] || 0) > 0)
       .map(ing => {
         const have = GameState.inventory[ing.id] || 0;
         const inSlots = state.slots.filter(s => s === ing.id).length;
@@ -2061,18 +2352,9 @@ const AthanorSystem = {
         </div>
         ${AthanorSystem.buildStatsBar(lunar, canonical, state)}
         ${AthanorSystem.buildActiveEffectsHtml()}
-        <div style="display:grid;grid-template-columns:210px 1fr 210px;gap:12px;align-items:start;" class="athanor-grid">
+        <div style="display:grid;grid-template-columns:2fr 1fr;gap:12px;align-items:start;" class="athanor-grid">
 
-          <!-- LEVÝ PANEL: Ingredience -->
-          <div style="background:rgba(0,0,0,0.04);border:1px solid rgba(0,0,0,0.1);border-radius:8px;padding:10px;">
-            <div style="font-family:'Cinzel',serif;font-size:0.68rem;letter-spacing:2px;opacity:0.5;text-transform:uppercase;margin-bottom:6px;">🌿 Ingredience</div>
-            ${AthanorSystem.buildIngFilterBar()}
-            <div id="athanor-ing-list" style="display:flex;flex-direction:column;gap:3px;max-height:440px;overflow-y:auto;" class="athanor-ing-mobile">
-              ${AthanorSystem.buildIngredientListCompact(ingMap, state)}
-            </div>
-          </div>
-
-          <!-- STŘED: Pracovní stůl -->
+          <!-- STŘED: Pracovní stůl (teď 2/3 šířky) -->
           <div style="background:rgba(0,0,0,0.04);border:1px solid rgba(0,0,0,0.1);border-radius:8px;padding:14px;display:flex;flex-direction:column;align-items:center;gap:10px;">
             ${AthanorSystem.buildAlembicSvg(state)}
             ${AthanorSystem.buildBrewingProgressHtml()}
@@ -2088,21 +2370,32 @@ const AthanorSystem = {
             ${AthanorSystem.buildLastResultHtml(state)}
           </div>
 
-          <!-- PRAVÝ PANEL: Codex -->
+          <!-- PRAVÝ PANEL: Codex (collapsible) -->
           <div style="background:rgba(0,0,0,0.04);border:1px solid rgba(0,0,0,0.1);border-radius:8px;padding:10px;">
-            <div style="font-family:'Cinzel',serif;font-size:0.68rem;letter-spacing:2px;opacity:0.5;text-transform:uppercase;margin-bottom:8px;">
-              📜 Codex Athanori
-              <span style="font-size:0.62rem;display:block;margin-top:2px;">${state.discovered.length} / ${Object.keys(AthanorDB.combinations).length} odhaleno</span>
+            <div onclick="AthanorSystem.toggleCodex()" style="font-family:'Cinzel',serif;font-size:0.68rem;letter-spacing:2px;opacity:0.5;text-transform:uppercase;margin-bottom:${AthanorSystem._codexCollapsed ? '0' : '8px'};cursor:pointer;display:flex;justify-content:space-between;align-items:center;user-select:none;">
+              <span>📜 Codex Athanori</span>
+              <span style="font-size:0.9rem;transition:transform 0.2s;transform:rotate(${AthanorSystem._codexCollapsed ? '-90deg' : '0deg'});">▾</span>
             </div>
-            <div style="max-height:440px;overflow-y:auto;">${AthanorSystem.buildCodexHtml(state)}</div>
+            ${!AthanorSystem._codexCollapsed ? `
+            <span style="font-size:0.62rem;display:block;margin-top:-6px;margin-bottom:6px;opacity:0.5;">${state.discovered.length} / ${Object.keys(AthanorDB.combinations).length} odhaleno</span>
+            <div style="max-height:440px;overflow-y:auto;">${AthanorSystem.buildCodexHtml(state)}</div>` : ''}
           </div>
 
+        </div>
+
+        <!-- SPODNÍ PANEL: Ingredience, celá šířka, víc sloupců -->
+        <div style="background:rgba(0,0,0,0.04);border:1px solid rgba(0,0,0,0.1);border-radius:8px;padding:10px;margin-top:12px;">
+          <div style="font-family:'Cinzel',serif;font-size:0.68rem;letter-spacing:2px;opacity:0.5;text-transform:uppercase;margin-bottom:6px;">🌿 Ingredience</div>
+          ${AthanorSystem.buildIngFilterBar()}
+          <div id="athanor-ing-list" style="display:grid;grid-template-columns:repeat(auto-fill, minmax(150px, 1fr));gap:5px;" class="athanor-ing-grid">
+            ${AthanorSystem.buildIngredientListCompact(ingMap, state)}
+          </div>
         </div>
       </div>
       <style>
         @media(max-width:700px){
           .athanor-grid{grid-template-columns:1fr!important}
-          .athanor-ing-mobile{max-height:220px!important}
+          .athanor-ing-grid{grid-template-columns:repeat(auto-fill, minmax(110px, 1fr))!important}
         }
       <\/style>
     `;
