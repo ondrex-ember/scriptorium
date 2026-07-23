@@ -26804,143 +26804,46 @@ const GardenSystem = {
         if (attention > 0) parts.push(`<span style="color:#c55;">⚠️ ${attention} ${lang==='en' ? 'need attention' : 'potřebuje pozornost'}</span>`);
         if (empty > 0) parts.push(`<span style="opacity:0.4;">➕ ${empty} ${lang==='en' ? 'empty' : 'volných'}</span>`);
 
-        if (parts.length === 0) return '';
-        return `<div style="display:flex;gap:14px;flex-wrap:wrap;align-items:center;
-            font-size:0.76rem;padding:6px 12px;margin-bottom:10px;
+        if (parts.length === 0 && apiary.every(h => !h.built)) return '';
+        const statusRow = parts.length > 0 ? `<div style="display:flex;gap:14px;flex-wrap:wrap;align-items:center;
+            font-size:0.76rem;padding:6px 12px;margin-bottom:8px;
             background:rgba(0,0,0,0.04);border-radius:6px;border:1px solid rgba(0,0,0,0.08);">
             ${parts.join('')}
-        </div>`;
-    },
+        </div>` : '';
 
-    // ── Včelařův přehled — podrobný pohled na každý úl, na míru pro plánování ──
-    showApiaryDetail: function() {
-        if (typeof NotificationSystem === 'undefined') return;
-        const lang = (GameState.settings && GameState.settings.language) || 'cs';
-        const apiary = GameState.apiary || [];
-        const season = Game._getApiarySeason ? Game._getApiarySeason() : 'summer';
-        const seasonLabel = { spring: lang==='en'?'Spring':'Jaro', summer: lang==='en'?'Summer':'Léto',
-            autumn: lang==='en'?'Autumn':'Podzim', winter: lang==='en'?'Winter':'Zima' };
-        const COLLECT_HOURS = { spring: 16, summer: 8, autumn: 20, winter: 999 };
-        const hours = COLLECT_HOURS[season] || 12;
-        const weatherMod = Game._apiaryWeatherMod ? Game._apiaryWeatherMod() : 1.0;
-        const honeyBase = { spring: 1, summer: 3, autumn: 1 };
-        const waxBase = { spring: 1, summer: 1, autumn: 2 };
-        const now = Date.now();
-
-        let html = `<div style="font-size:0.78rem; opacity:0.7; margin-bottom:12px;">
-            ${lang==='en' ? `Season: ${seasonLabel[season]} · Weather modifier: ${weatherMod.toFixed(2)}×`
-                          : `Sezóna: ${seasonLabel[season]} · Modifikátor počasí: ${weatherMod.toFixed(2)}×`}
-        </div>`;
-
+        // Dashboard — agregované "high stats", trvale viditelné (ne za klikem)
         const built = apiary.filter(h => h.built);
         const withQueen = built.filter(h => h.hasQueen);
         const stats = GameState.apiaryStats || { totalHoney: 0, totalWax: 0, totalPropolis: 0, totalPollen: 0, totalCollections: 0 };
-
-        // ── Dashboard: agregované "high stats" napříč celým apiáriem ──
+        let dashboardRow = '';
         if (built.length > 0) {
             const avgQueen = withQueen.length > 0
-                ? withQueen.reduce((s, h) => s + (h.queenStrength || 3), 0) / withQueen.length
-                : 0;
+                ? (withQueen.reduce((s, h) => s + (h.queenStrength || 3), 0) / withQueen.length).toFixed(1)
+                : null;
             const bestHive = withQueen.length > 0
                 ? withQueen.reduce((best, h) => ((h.strength || 0) > (best.strength || 0) ? h : best), withQueen[0])
                 : null;
             const grandCount = built.filter(h => h.grand).length;
 
-            const card = (icon, value, label) => `<div style="text-align:center; padding:8px 10px; background:rgba(200,160,60,0.06); border-radius:6px; min-width:90px;">
-                <div style="font-size:1.15rem; font-weight:bold;">${icon} ${value}</div>
-                <div style="font-size:0.65rem; opacity:0.6; margin-top:2px;">${label}</div>
-            </div>`;
+            const card = (icon, value, label) => `<span style="display:inline-flex; align-items:baseline; gap:4px; padding:2px 8px; background:rgba(200,160,60,0.06); border-radius:4px;">
+                <strong>${icon} ${value}</strong><span style="font-size:0.62rem; opacity:0.55;">${label}</span>
+            </span>`;
 
-            html += `<div style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:14px;">
-                ${card('🐝', `${withQueen.length}/${built.length}`, lang==='en' ? 'colonies (of built hives)' : 'včelstev (z postavených)')}
+            dashboardRow = `<div style="display:flex;flex-wrap:wrap;gap:6px;align-items:center;
+                font-size:0.74rem;padding:6px 12px;margin-bottom:8px;
+                background:rgba(0,0,0,0.02);border-radius:6px;border:1px solid rgba(0,0,0,0.06);">
+                ${card('🐝', `${withQueen.length}/${built.length}`, lang==='en' ? 'colonies' : 'včelstev')}
                 ${grandCount > 0 ? card('🛖', grandCount, lang==='en' ? 'Great Hives' : 'Velkých úlů') : ''}
-                ${avgQueen > 0 ? card('⭐', avgQueen.toFixed(1), lang==='en' ? 'avg. queen quality' : 'průměrná kvalita matek') : ''}
-                ${bestHive ? card('👑', bestHive.queenName, lang==='en' ? `top colony (strength ${bestHive.strength}/10)` : `nejsilnější úl (síla ${bestHive.strength}/10)`) : ''}
+                ${avgQueen ? card('⭐', avgQueen, lang==='en' ? 'avg. quality' : 'prům. kvalita') : ''}
+                ${bestHive ? card('👑', bestHive.queenName, lang==='en' ? `top (str. ${bestHive.strength}/10)` : `top (síla ${bestHive.strength}/10)`) : ''}
+                ${card('🍯', stats.totalHoney, lang==='en' ? 'honey total' : 'medu celkem')}
+                ${card('🕯️', stats.totalWax, lang==='en' ? 'wax total' : 'vosku celkem')}
+                ${stats.totalPropolis > 0 ? card('🟤', stats.totalPropolis, lang==='en' ? 'propolis total' : 'propolisu celkem') : ''}
+                ${card('📖', stats.totalCollections, lang==='en' ? 'harvests' : 'sklizní')}
             </div>`;
-
-            html += `<div style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:16px;">
-                ${card('🍯', stats.totalHoney, lang==='en' ? 'honey, lifetime' : 'medu celkem')}
-                ${card('🕯️', stats.totalWax, lang==='en' ? 'wax, lifetime' : 'vosku celkem')}
-                ${card('🌼', stats.totalPollen, lang==='en' ? 'pollen, lifetime' : 'pylu celkem')}
-                ${card('🟤', stats.totalPropolis, lang==='en' ? 'propolis, lifetime' : 'propolisu celkem')}
-                ${card('📖', stats.totalCollections, lang==='en' ? 'harvests, lifetime' : 'sklizní celkem')}
-            </div>
-            <div style="border-top:1px solid rgba(0,0,0,0.1); margin-bottom:14px;"></div>`;
         }
 
-        if (built.length === 0) {
-            html += `<div style="text-align:center; opacity:0.6; padding:20px; font-style:italic;">
-                ${lang==='en' ? 'No hives built yet.' : 'Zatím žádný postavený úl.'}
-            </div>`;
-        } else {
-            apiary.forEach((hive, idx) => {
-                if (!hive.built) return;
-                const grandLabel = hive.grand ? ` 🛖${hive.grand === 2 ? 'II' : 'I'}` : '';
-                let body;
-                if (!hive.hasQueen) {
-                    body = `<div style="opacity:0.6; font-style:italic; font-size:0.78rem;">
-                        ${lang==='en' ? 'Empty — needs a queen.' : 'Prázdný — potřebuje matku.'}</div>`;
-                } else {
-                    const strengthMod = (hive.strength || 3) / 5;
-                    const queenMod = (hive.queenStrength || 3) / 3;
-                    const varroaPenalty = (hive.varroa || 0) >= 70 ? 0.5 : (hive.varroa || 0) >= 40 ? 0.8 : 1.0;
-                    const grandMult = hive.grand === 2 ? 1.5 : hive.grand === 1 ? 1.2 : 1.0;
-                    const isWinter = season === 'winter';
-                    const readyAt = hive.lastCollectAt + (hours * 3600000);
-
-                    const statusLine = isWinter
-                        ? `<span style="opacity:0.6;">❄️ ${lang==='en' ? 'Wintering' : 'Přezimuje'}</span>`
-                        : now >= readyAt
-                            ? `<span style="color:#5a9a5a;">🍯 ${lang==='en' ? 'Ready to collect' : 'Připraveno ke sklizni'}</span>`
-                            : `<span style="opacity:0.6;">⏳ ${lang==='en' ? 'Working, ready in' : 'Pracuje, hotovo za'} ${Math.ceil((readyAt - now) / 3600000)}h</span>`;
-
-                    let yieldLine = '';
-                    if (!isWinter) {
-                        const honeyYield = Math.max(1, Math.round((honeyBase[season] || 1) * strengthMod * queenMod * weatherMod * varroaPenalty * grandMult));
-                        const waxYield = Math.max(1, Math.round((waxBase[season] || 1) * strengthMod * varroaPenalty * grandMult));
-                        const varroaCaveat = !hive.varroaRevealed
-                            ? ` <span style="opacity:0.5;">(${lang==='en' ? 'may be lower — check for Varroa' : 'může být nižší — zkontroluj Varroa'})</span>`
-                            : '';
-                        yieldLine = `<div style="font-size:0.76rem; margin-top:5px;">
-                            ${lang==='en' ? 'Next collection' : 'Příští sklizeň'}: 🍯 ~${honeyYield} · 🕯️ ~${waxYield}${varroaCaveat}
-                        </div>`;
-                    }
-
-                    const statRow = (icon, val, label) =>
-                        `<span title="${label}" style="margin-right:10px; white-space:nowrap;">${icon}${'★'.repeat(val || 2)}</span>`;
-
-                    body = `
-                        <div style="font-size:0.76rem; margin-bottom:6px;">${statusLine}</div>
-                        <div style="margin-bottom:6px; line-height:1.7;">
-                            ${statRow('🍯', hive.queenStrength, lang==='en' ? 'Honey productivity' : 'Produktivita medu')}
-                            ${statRow('🛡️', hive.queenVarroaResist, lang==='en' ? 'Varroa resistance' : 'Odolnost vůči Varroa')}
-                            ${statRow('❄️', hive.queenWinter, lang==='en' ? 'Winter hardiness' : 'Zimovatelnost')}
-                            ${statRow('🕊️', hive.queenMildness, lang==='en' ? 'Mildness' : 'Mírnost')}
-                            ${statRow('🌪️', hive.queenSwarm, lang==='en' ? 'Swarm tendency' : 'Sklon k rojení')}
-                        </div>
-                        <div style="font-size:0.74rem; opacity:0.65;">
-                            ${lang==='en' ? 'Strength' : 'Síla'}: ${hive.strength || 0}/10
-                            · Varroa: ${hive.varroaRevealed ? `${hive.varroa || 0}/100` : (lang==='en' ? 'unknown' : 'neznámo')}
-                            · ${lang==='en' ? 'Swarm mood' : 'Rojivá nálada'}: ${hive.swarmMood || 0}/100
-                        </div>
-                        ${yieldLine}
-                    `;
-                }
-                html += `<div style="border:1px solid rgba(0,0,0,0.1); border-radius:8px; padding:10px 12px; margin-bottom:10px;">
-                    <div style="font-weight:bold; font-size:0.85rem; margin-bottom:2px;">
-                        🐝 ${hive.queenName || (lang==='en' ? 'Empty hive' : 'Prázdný úl')} — ${lang==='en'?'slot':'slot'} ${idx + 1}${grandLabel}
-                    </div>
-                    ${body}
-                </div>`;
-            });
-        }
-
-        NotificationSystem.modal({
-            icon: '📖',
-            title: lang==='en' ? "Beekeeper's Ledger" : 'Včelařův přehled',
-            text: html,
-            choices: [{ label: lang==='en' ? 'Close' : 'Zavřít', type: 'primary', effect: () => {} }]
-        });
+        return dashboardRow + statusRow;
     },
 
     renderApiary: function() {
@@ -27009,8 +26912,7 @@ const GardenSystem = {
 
         let html = `<p class="text-sm" style="margin-bottom:12px; opacity:0.75;">${t('garden.apiaryDesc')}</p>`;
         const _apLang = (typeof UI !== 'undefined' && UI.lang && UI.lang()==='en')?'en':'cs';
-        const detailLink = `<span style="cursor:pointer;" onclick="GardenSystem.showApiaryDetail()">📖 ${_apLang==='en'?"Beekeeper's ledger":'Včelařův přehled'}</span>`;
-        html += this._zahradaStatsBar(_apLang, [seasonLabel[season] || '', this._brotherBadge('apiarium', _apLang), detailLink]);
+        html += this._zahradaStatsBar(_apLang, [seasonLabel[season] || '', this._brotherBadge('apiarium', _apLang)]);
         html += this._buildApiaryOverviewBar(GameState.apiary, now, hours, season);
         html += `<div class="garden-grid">`;
 
@@ -27070,6 +26972,23 @@ const GardenSystem = {
                        </div>`
                     : '';
 
+                // Odhad příští sklizně — rovnou na kartě, žádný klikání (mimo zimu)
+                let yieldEstimate = '';
+                if (season !== 'winter') {
+                    const honeyBaseMap = { spring: 1, summer: 3, autumn: 1 };
+                    const waxBaseMap = { spring: 1, summer: 1, autumn: 2 };
+                    const wMod = Game._apiaryWeatherMod ? Game._apiaryWeatherMod() : 1.0;
+                    const sMod = (hive.strength || 3) / 5;
+                    const qMod = (hive.queenStrength || 3) / 3;
+                    const vPenalty = (hive.varroa || 0) >= 70 ? 0.5 : (hive.varroa || 0) >= 40 ? 0.8 : 1.0;
+                    const gMult = hive.grand === 2 ? 1.5 : hive.grand === 1 ? 1.2 : 1.0;
+                    const estHoney = Math.max(1, Math.round((honeyBaseMap[season] || 1) * sMod * qMod * wMod * vPenalty * gMult));
+                    const estWax = Math.max(1, Math.round((waxBaseMap[season] || 1) * sMod * vPenalty * gMult));
+                    yieldEstimate = `<div style="font-size:0.65rem; opacity:0.5; margin-top:2px;">
+                        ~🍯${estHoney} ~🕯️${estWax}${!hive.varroaRevealed ? ' ❔' : ''}
+                    </div>`;
+                }
+
                 // Varroa varování — MRD 5.1: skryté, dokud hráč úl nezkontroluje nebo nesklidí
                 const varroa = hive.varroa || 0;
                 const varroaWarn = !hive.varroaRevealed
@@ -27121,9 +27040,7 @@ const GardenSystem = {
                                 ${t('garden.apiaryWait')} ${waitH}h</button>`;
                     }
                     extra = grandBadge + queenInfo + varroaWarn + swarmWarn +
-                        `<div style="font-size:0.72rem; margin-top:3px; opacity:0.7;">${stars}</div>`;
-
-                    // Kontrola Varroa — zdarma, kdykoliv, dokud není odhalená (MRD 5.1)
+                        `<div style="font-size:0.72rem; margin-top:3px; opacity:0.7;">${stars}</div>` + yieldEstimate;
                     if (!hive.varroaRevealed) {
                         btn += `<button class="craft-btn" onclick="Game.inspectHive(${idx})"
                                  style="font-size:0.7rem; margin-top:4px; background:rgba(90,90,140,0.6);">
