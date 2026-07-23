@@ -9776,22 +9776,24 @@ const GameState = {
     // hunger odstraněn — nahrazen VigorSystem (GameState.satiety + GameState.fatigue)
     garden: [
         // Fáze 1: 4x herb (2 odemčené, 2 za tech_garden_expand)
-        { state: 0, water: false, crop: null, plantedAt: 0, cropType: 'herb' },
-        { state: 0, water: false, crop: null, plantedAt: 0, cropType: 'herb' },
-        { state: 0, water: false, crop: null, plantedAt: 0, cropType: 'herb', locked: true },
-        { state: 0, water: false, crop: null, plantedAt: 0, cropType: 'herb', locked: true },
+        // fertStage: 0=nehnojeno, 1=hnojeno před setím; fertQuality: 1=bonemeal, 2=compost
+        // midGrowFertilized: hard cap — max 1x přihnojení v průběhu růstu (MRD zahony-tiers)
+        { state: 0, water: false, crop: null, plantedAt: 0, cropType: 'herb', fertStage: 0, fertQuality: 0, midGrowFertilized: false },
+        { state: 0, water: false, crop: null, plantedAt: 0, cropType: 'herb', fertStage: 0, fertQuality: 0, midGrowFertilized: false },
+        { state: 0, water: false, crop: null, plantedAt: 0, cropType: 'herb', locked: true, fertStage: 0, fertQuality: 0, midGrowFertilized: false },
+        { state: 0, water: false, crop: null, plantedAt: 0, cropType: 'herb', locked: true, fertStage: 0, fertQuality: 0, midGrowFertilized: false },
         // Fáze 2: 4x vegetable + 2x special (za tech_horticulture)
-        { state: 0, water: false, crop: null, plantedAt: 0, cropType: 'vegetable', locked: true },
-        { state: 0, water: false, crop: null, plantedAt: 0, cropType: 'vegetable', locked: true },
-        { state: 0, water: false, crop: null, plantedAt: 0, cropType: 'vegetable', locked: true },
-        { state: 0, water: false, crop: null, plantedAt: 0, cropType: 'vegetable', locked: true },
-        { state: 0, water: false, crop: null, plantedAt: 0, cropType: 'special', locked: true },
-        { state: 0, water: false, crop: null, plantedAt: 0, cropType: 'special', locked: true },
+        { state: 0, water: false, crop: null, plantedAt: 0, cropType: 'vegetable', locked: true, fertStage: 0, fertQuality: 0, midGrowFertilized: false },
+        { state: 0, water: false, crop: null, plantedAt: 0, cropType: 'vegetable', locked: true, fertStage: 0, fertQuality: 0, midGrowFertilized: false },
+        { state: 0, water: false, crop: null, plantedAt: 0, cropType: 'vegetable', locked: true, fertStage: 0, fertQuality: 0, midGrowFertilized: false },
+        { state: 0, water: false, crop: null, plantedAt: 0, cropType: 'vegetable', locked: true, fertStage: 0, fertQuality: 0, midGrowFertilized: false },
+        { state: 0, water: false, crop: null, plantedAt: 0, cropType: 'special', locked: true, fertStage: 0, fertQuality: 0, midGrowFertilized: false },
+        { state: 0, water: false, crop: null, plantedAt: 0, cropType: 'special', locked: true, fertStage: 0, fertQuality: 0, midGrowFertilized: false },
         // Fáze 3: 4x vegetable navíc (za tech_advanced_farming)
-        { state: 0, water: false, crop: null, plantedAt: 0, cropType: 'vegetable', locked: true },
-        { state: 0, water: false, crop: null, plantedAt: 0, cropType: 'vegetable', locked: true },
-        { state: 0, water: false, crop: null, plantedAt: 0, cropType: 'vegetable', locked: true },
-        { state: 0, water: false, crop: null, plantedAt: 0, cropType: 'vegetable', locked: true },
+        { state: 0, water: false, crop: null, plantedAt: 0, cropType: 'vegetable', locked: true, fertStage: 0, fertQuality: 0, midGrowFertilized: false },
+        { state: 0, water: false, crop: null, plantedAt: 0, cropType: 'vegetable', locked: true, fertStage: 0, fertQuality: 0, midGrowFertilized: false },
+        { state: 0, water: false, crop: null, plantedAt: 0, cropType: 'vegetable', locked: true, fertStage: 0, fertQuality: 0, midGrowFertilized: false },
+        { state: 0, water: false, crop: null, plantedAt: 0, cropType: 'vegetable', locked: true, fertStage: 0, fertQuality: 0, midGrowFertilized: false },
     ],
     activeAction: null,
     selectedDuration: 0,
@@ -9871,7 +9873,6 @@ const GameState = {
         fornax: { status: 'none', submittedAt: null, deniedReason: null, inspectionPending: false },
     },
 };
-
 // ═══ src/data/achievements.js ═══
 const AchievementsDB = [
     // DISCOVERY
@@ -27201,10 +27202,10 @@ const GardenSystem = {
         // Migrace: přidat sloty 14–15 pokud chybí
         while (GameState.garden.length < 16) {
             const defaults = [
-                { state: 0, water: false, crop: null, plantedAt: 0, cropType: 'herb',    locked: true },
-                { state: 0, water: false, crop: null, plantedAt: 0, cropType: 'special', locked: true },
+                { state: 0, water: false, crop: null, plantedAt: 0, cropType: 'herb',    locked: true, fertStage: 0, fertQuality: 0, midGrowFertilized: false },
+                { state: 0, water: false, crop: null, plantedAt: 0, cropType: 'special', locked: true, fertStage: 0, fertQuality: 0, midGrowFertilized: false },
             ];
-            GameState.garden.push(defaults[GameState.garden.length - 14] || { state: 0, water: false, crop: null, plantedAt: 0, cropType: 'herb', locked: true });
+            GameState.garden.push(defaults[GameState.garden.length - 14] || { state: 0, water: false, crop: null, plantedAt: 0, cropType: 'herb', locked: true, fertStage: 0, fertQuality: 0, midGrowFertilized: false });
         }
 
         // Kanonická mapa cropType podle indexu (migrace poškozených save)
@@ -27218,6 +27219,11 @@ const GardenSystem = {
         GameState.garden.forEach((plot, i) => {
             plot.locked = i >= unlocked;
             if (cropTypeMap[i]) plot.cropType = cropTypeMap[i];
+            // MRD zahony-tiers — starý save neměl fertStage vůbec; plot už v setí/růstu
+            // pod starým pravidlem musel projít hnojením, takže tier 1 (bez regrese)
+            if (plot.fertStage === undefined) plot.fertStage = (plot.state >= 1) ? 1 : 0;
+            if (plot.fertQuality === undefined) plot.fertQuality = (plot.state >= 1) ? 1 : 0;
+            if (plot.midGrowFertilized === undefined) plot.midGrowFertilized = false;
         });
     },
 
@@ -27259,7 +27265,10 @@ const GardenSystem = {
                 else if(plot.cropType === 'vegetable') typeLabel = t('garden.vegetable');
                 else if(plot.cropType === 'special') typeLabel = t('garden.special');
                 c = `<div class="plot-soil" style="opacity:0.3">🟫</div><div class="text-sm">${typeLabel}</div>`; 
-                b = `<button class="craft-btn" onclick="Game.farmAction(${idx})">${t('garden.fertilize')}</button>`; 
+                b = `<button class="craft-btn" onclick="Game.farmAction(${idx})">${t('garden.fertilize')}</button>
+                     <button class="craft-btn" onclick="Game.skipFertilize(${idx})" style="font-size:0.68rem;margin-top:3px;opacity:0.75;"
+                             title="${lang==='en'?'Sow now, lower yield (~60%), no fertilizer needed':'Zasadit hned, nižší výnos (~60 %), bez hnojiva'}">
+                             🟫 ${lang==='en'?'Sow without fertilizer':'Zasadit bez hnojiva'}</button>`; 
             }
             else if (plot.state === 1) {
                 if(plot.cropType === 'herb') typeLabel = t('garden.herb');
@@ -27291,15 +27300,26 @@ const GardenSystem = {
             else if (plot.state === 2) {
                 const cropIcon = ItemsDB[plot.crop] ? ItemsDB[plot.crop].icon : '🌱';
                 const cropName = ItemsDB[plot.crop] ? (lang==='en' ? ItemsDB[plot.crop].name_en : ItemsDB[plot.crop].name) : '';
+                const isMature = Date.now() >= plot.plantedAt + needed;
+                // MRD zahony-tiers — malý odznak aktuálního tieru + tlačítko přihnojit (hard cap 1×), skryto po dozrání
+                let tierBadge = '';
+                if (plot.midGrowFertilized) tierBadge = `<div style="font-size:0.62rem;opacity:0.6;margin-top:2px;">🌱+ ${lang==='en'?'boosted':'posíleno'}</div>`;
+                else if (plot.fertStage < 1) tierBadge = `<div style="font-size:0.62rem;opacity:0.5;margin-top:2px;">🟫 ${lang==='en'?'no fertilizer':'bez hnojiva'}</div>`;
+                else if (plot.fertQuality === 2) tierBadge = `<div style="font-size:0.62rem;opacity:0.5;margin-top:2px;">♻️ ${lang==='en'?'compost':'kompost'}</div>`;
+                const midFertBtn = (!isMature && !plot.midGrowFertilized)
+                    ? `<button class="craft-btn" onclick="Game.fertilizeDuringGrowth(${idx})" style="font-size:0.65rem;margin-top:2px;opacity:0.8;"
+                        title="${lang==='en'?'Fertilize once more — boosts yield, hard cap for now':'Přihnojit ještě jednou — zvýší výnos, zatím tvrdý strop'}">
+                        🌱 ${lang==='en'?'Fertilize':'Hnojit'}</button>`
+                    : '';
                 if (!plot.water) { 
-                    c = `<div class="plot-soil">${cropIcon}</div><div class="text-sm">${cropName||t('garden.dry')}</div>`; 
-                    b = `<button class="craft-btn" onclick="Game.farmAction(${idx})">${t('garden.water')}</button>`; 
+                    c = `<div class="plot-soil">${cropIcon}</div><div class="text-sm">${cropName||t('garden.dry')}</div>${tierBadge}`; 
+                    b = `<button class="craft-btn" onclick="Game.farmAction(${idx})">${t('garden.water')}</button>${midFertBtn}`; 
                 }
-                else if (Date.now() < plot.plantedAt + needed) { 
+                else if (!isMature) { 
                     const growPct = Math.min(1, Math.max(0, (Date.now() - plot.plantedAt) / needed));
                     const iconSize = (1.0 + growPct * 1.0).toFixed(2);
-                    c = `<div class="plot-soil" style="color:#888; font-size:${iconSize}rem;">${cropIcon}</div><div class="text-sm">${cropName||t('garden.growing')}</div>`; 
-                    b = `<button class="craft-btn" disabled>${t('garden.wait')}</button>`;
+                    c = `<div class="plot-soil" style="color:#888; font-size:${iconSize}rem;">${cropIcon}</div><div class="text-sm">${cropName||t('garden.growing')}</div>${tierBadge}`; 
+                    b = `<button class="craft-btn" disabled>${t('garden.wait')}</button>${midFertBtn}`;
                     if (hasCustomPlant) b += ` <button class="craft-btn" style="background:#8b4a3a;margin-top:3px;font-size:0.7rem;" onclick="GardenSystem.uprootGardenPlot(${idx})">🪴 ${t('garden.uproot')}</button>`;
                 }
                 else { 
@@ -29850,7 +29870,12 @@ const FarmyardSystem = {
             const pet = (GameState.abbotPetition && GameState.abbotPetition.columbarium) || { status: 'none' };
             h += `<p style="font-size:0.82rem; opacity:0.7; margin-bottom:10px;">${lang === 'en' ? 'The tower stands empty, awaiting pigeons from the abbey.' : 'Věž stojí prázdná, čeká na holuby z opatství.'}</p>`;
             if (pet.status === 'pending') {
-                h += `<div style="font-size:0.8rem; opacity:0.7; font-style:italic;">⏳ ${t('abbotPetition.columbarium.pending')}</div>`;
+                const cs = lang !== 'en';
+                const _toGameDate = (ts) => { const d = new Date(ts); return new Date(1465, d.getMonth(), d.getDate()); };
+                const submitDate = pet.submittedAt ? _toGameDate(pet.submittedAt).toLocaleDateString(cs ? 'cs-CZ' : 'en-GB') : '?';
+                const responseDate = pet.submittedAt ? _toGameDate(pet.submittedAt + 86400000).toLocaleDateString(cs ? 'cs-CZ' : 'en-GB') : '?';
+                const pendingText = t('abbotPetition.columbarium.pending').replace('{date}', submitDate).replace('{responseDate}', responseDate);
+                h += `<div style="font-size:0.8rem; opacity:0.7; font-style:italic;">⏳ ${pendingText}</div>`;
             } else {
                 h += `<button class="craft-btn" onclick="Game.submitAbbotPetition('columbarium')">🕊️ ${t('abbotPetition.columbarium.submit_btn')}</button>`;
             }
@@ -30251,7 +30276,6 @@ const FarmyardSystem = {
 
 
 };
-
 // ═══ src/systems/ScriptoriumCat.js ═══
 // ═══════════════════════════════════════════════════════════════════════════
 // SCRIPTORIUM CAT — Felis Monastica
@@ -42169,6 +42193,7 @@ const STRINGS_cs = {
         tab_chlevy: 'Chlévy',
         tab_mastal: 'Maštal',
         tab_studna: 'Studna',
+        tab_columbarium: 'Holubník',
         catFed: 'sytá, odpočívá',
         catHunting: 'hladová — v noci loví',
         decayImpact: 'Myši zrychlují kažení zrní, chleba a sýra.',
@@ -43014,7 +43039,6 @@ const STRINGS_cs = {
         },
     },
 };
-
 // ═══ src/i18n/en.js ═══
 // Scriptorium i18n — English (Olde)
 // Základ: STRINGS_cs. Chybějící klíče → fallback na CS automaticky.
@@ -45182,6 +45206,7 @@ According to Theophilus, the organ is an instrument worthy of God, but its const
         tab_chlevy: 'The Byres',
         tab_mastal: 'Stable',
         tab_studna: 'Well',
+        tab_columbarium: 'Dovecote',
         catFed: 'fed, resting',
         catHunting: 'hungry — hunting at night',
         decayImpact: 'Mice speed up the spoilage of grain, bread and cheese.',
@@ -46200,7 +46225,6 @@ Alloys of metal, varnishes for wood and vellum, a poison that whiteneth copper i
         },
     },
 };
-
 // ═══ src/i18n/strings.js ═══
 // Scriptorium i18n — STRINGS assembler + t() helper
 // Přidání jazyka: 1) xx.js, 2) přidat do STRINGS, 3) přidat do build.js
@@ -48060,6 +48084,40 @@ const Game = {
         });
     },
 
+    // MRD zahony-tiers — zasadit rovnou bez hnojiva, early-game friendly, nižší výnos (tier 0)
+    skipFertilize: function(plotIdx) {
+        const plot = GameState.garden[plotIdx];
+        if (!plot || plot.locked) return;
+        if (plot.state !== 0) return;
+        if (!(GameState.inventory['hoe'] > 0)) { UI.notify(t('game.needHoe'), true); return; }
+        plot.state = 1;
+        plot.fertStage = 0;
+        plot.fertQuality = 0;
+        Game.save();
+        UI.renderAll();
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        UI.notify(lang === 'en' ? '🟫 Sown without fertilizer — lower yield, but no waiting.' : '🟫 Zaséto bez hnojiva — nižší výnos, ale bez čekání na hnůj.');
+    },
+
+    // MRD zahony-tiers — přihnojit v průběhu růstu, hard cap 1× za cyklus (budoucí pokročilá horticulture zvýší strop)
+    fertilizeDuringGrowth: function(plotIdx) {
+        const plot = GameState.garden[plotIdx];
+        if (!plot || plot.locked) return;
+        if (plot.state !== 2) return;
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        if (plot.midGrowFertilized) {
+            UI.notify(lang === 'en' ? 'Already fertilized this cycle — hard cap for now.' : 'Tento cyklus už bylo přihnojeno — zatím tvrdý strop.', true);
+            return;
+        }
+        const fertItem = (GameState.inventory['compost'] > 0) ? 'compost' : 'bonemeal';
+        if (!(GameState.inventory[fertItem] > 0)) { UI.notify(t('game.needFertilizer'), true); return; }
+        this.removeItem(fertItem, 1);
+        plot.midGrowFertilized = true;
+        Game.save();
+        UI.renderAll();
+        UI.notify(lang === 'en' ? '🌱 Fertilized mid-growth — yield boosted.' : '🌱 Přihnojeno v průběhu růstu — výnos posílen.');
+    },
+
     farmAction: function(plotIdx) {
         const plot = GameState.garden[plotIdx];
         if(plot.locked) { UI.notify(t('game.plotLocked'), true); return; }
@@ -48069,6 +48127,8 @@ const Game = {
             const fertItem = (GameState.inventory['compost'] > 0) ? 'compost' : 'bonemeal';
             if (!(GameState.inventory[fertItem] > 0)) { UI.notify(t('game.needFertilizer'), true); return; }
             this.removeItem(fertItem, 1); plot.state = 1;
+            plot.fertStage = 1;
+            plot.fertQuality = (fertItem === 'compost') ? 2 : 1; // MRD zahony-tiers — compost = "lepší hnojivo"
         } else if (plot.state === 1) {
             // Pokud má hráč tech_hortus_conclusus — custom sázení řeší GardenSystem.plantGardenPlot
             // farmAction state=1 je fallback pro auto-sow bez techu
@@ -48160,21 +48220,32 @@ const Game = {
                     : null;
                 // Role Zahradník: herb_yield bonus (1.20 = +20%)
                 const _yieldMult = (typeof RankSystem !== 'undefined') ? RankSystem.getActiveBonus('herb_yield') : 1.0;
+                // MRD zahony-tiers — hnojivo ovlivňuje výnos: 0=bez hnojiva 0.6x, 1=bonemeal 1.0x,
+                // compost 1.15x, přihnojeno v růstu (hard cap) 1.3x bez ohledu na vstupní kvalitu
+                let _fertMult = 0.6;
+                if (plot.fertStage >= 1) _fertMult = (plot.fertQuality === 2) ? 1.15 : 1.0;
+                if (plot.midGrowFertilized) _fertMult = 1.3;
+                const _totalMult = _yieldMult * _fertMult;
                 if (_gp) {
-                    this.addItem(harvestCrop, Math.max(1, Math.round(_gp.yield * _yieldMult)));
+                    this.addItem(harvestCrop, Math.max(1, Math.round(_gp.yield * _totalMult)));
                     // Šance vrátit semínko (30%) — NEPLATÍ pro druhy s kvetením (zahrada-rust-kveteni-mrd):
                     // u nich jde semínko jen přes GardenSystem.collectSeeds()
                     if (!_gp.canFlower && Math.random() < 0.3) this.addItem(_gp.seed, 1);
                 } else if(harvestCrop === 'hops') {
-                    this.addItem('hops', Math.max(1, Math.round(2 * _yieldMult)));
+                    this.addItem('hops', Math.max(1, Math.round(2 * _totalMult)));
                     if(Math.random() > 0.6) this.addItem('seeds_hops', 1);
                 } else if(['carrot','onion','potato'].includes(harvestCrop)) {
-                    this.addItem(harvestCrop, Math.max(1, Math.round(3 * _yieldMult)));
+                    this.addItem(harvestCrop, Math.max(1, Math.round(3 * _totalMult)));
                     if(Math.random() > 0.5) this.addItem('seeds_vegetable', 1);
                 } else if (harvestCrop) {
                     // fallback pro neznámé plodiny
-                    this.addItem(harvestCrop, Math.max(1, Math.round(2 * _yieldMult)));
+                    this.addItem(harvestCrop, Math.max(1, Math.round(2 * _totalMult)));
                 }
+
+                // MRD zahony-tiers — reset pro příští cyklus
+                plot.fertStage = 0;
+                plot.fertQuality = 0;
+                plot.midGrowFertilized = false;
 
                 // Herbarium — threshold odemykání Scrinium folií za vzácné byliny
                 if (['mandrake', 'belladonna', 'poppy'].includes(harvestCrop)) {
@@ -49407,6 +49478,10 @@ const Game = {
                         const found = pool[Math.floor(Math.random() * pool.length)];
                         this.addItem(found, 1);
                         UI.notify('🔍 ' + (iName ? iName(found) : found) + '!');
+                    }
+                    // Alchymický symbol vyrytý do kamene/kůry — 4. cesta k Athanoru (laboratoryClues, 3 potřeba)
+                    if (GameState.secrets && !GameState.secrets.laboratoryUnlocked && (GameState.secrets.laboratoryClues || 0) < 3 && Math.random() < 0.0016) {
+                        if (typeof SecretsSystem !== 'undefined') SecretsSystem.addLaboratoryClue();
                     }
                     // v8.x: Sad & Apiarium drops
                     if(Math.random() < 0.04) this.addItem('pollen', 1);          // 4% — pyl z luk
@@ -53973,7 +54048,11 @@ const Game = {
                     // Sklidit, pokud dozrálo — stejná logika výnosu jako farmAction, záhon zůstane prázdný
                     if (Date.now() > plot.plantedAt + needed) {
                         const harvestCrop = plot.crop;
+                        const _wasFertStage = plot.fertStage;
+                        const _wasFertQuality = plot.fertQuality;
+                        const _wasMidGrowFertilized = plot.midGrowFertilized;
                         plot.state = 0; plot.water = false; plot.crop = null;
+                        plot.fertStage = 0; plot.fertQuality = 0; plot.midGrowFertilized = false;
                         didWork = true;
 
                         if (GameState.achievements) GameState.achievements.stats.harvests++;
@@ -53981,7 +54060,11 @@ const Game = {
                             ? Object.values(GardenSystem.GARDEN_PLANTS_DB).find(p => p.item === harvestCrop)
                             : null;
                         const _yieldMult = (typeof RankSystem !== 'undefined') ? RankSystem.getActiveBonus('herb_yield') : 1.0;
-                        const totalMult = _yieldMult * brotherMult;
+                        // MRD zahony-tiers — stejný vzorec jako farmAction
+                        let _fertMultAuto = 0.6;
+                        if (_wasFertStage >= 1) _fertMultAuto = (_wasFertQuality === 2) ? 1.15 : 1.0;
+                        if (_wasMidGrowFertilized) _fertMultAuto = 1.3;
+                        const totalMult = _yieldMult * brotherMult * _fertMultAuto;
                         const track = (id, qty) => { harvested[id] = (harvested[id] || 0) + qty; };
                         if (_gp) {
                             const q = Math.max(1, Math.round(_gp.yield * totalMult));
