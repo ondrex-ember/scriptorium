@@ -373,7 +373,7 @@ const AthanorDB = {
       effect: null,
       lore: 'Rumělkový inkoust pro rubriky a iniciály. Kreslí jím první písmeno kapitoly.'
     },
-    'ochre+egg_tempera:trituratio': {
+    'egg_tempera+ochre:trituratio': {
       result: { id: 'pigment_yellow', qty: 2 },
       name: 'Žlutý pigment',
       name_lat: 'Pigmentum Ochreum',
@@ -724,25 +724,25 @@ const AthanorDB = {
     'hops+wort:maceratio': {
       result: { id: 'prima_cervisia', qty: 2 },
       name: 'Prima Cervisia', name_lat: 'Cervisia Prima', icon: '🍺',
-      effect: { type: 'vigor', amount: 15, duration_min: 30, label: 'Prima Cervisia: Vigor +15 / 30 min' },
+      effect: { type: 'vigor_restore', value: 15, label: 'Prima Cervisia: Vigor +15 / 30 min' },
       lore: 'Mladina vyluhovaná s chmelem. Benediktini ji vařili pro poutníky i pro sebe.'
     },
     'honey+wort:maceratio': {
       result: { id: 'wine', qty: 1 },
       name: 'Hydromel', name_lat: 'Hydromel Monasticum', icon: '🍯',
-      effect: { type: 'vigor', amount: 20, duration_min: 20, label: 'Hydromel: Vigor +20 / 20 min' },
+      effect: { type: 'vigor_restore', value: 20, label: 'Hydromel: Vigor +20 / 20 min' },
       lore: 'Med fermentovaný v mladině. Starší než víno. Nápoj bohů i mnichů.'
     },
     'hops+thyme+wort:coctio': {
       result: { id: 'cervisia_nigra', qty: 2 },
       name: 'Cervisia Nigra', name_lat: 'Cervisia Nigra', icon: '🍺',
-      effect: { type: 'vigor', amount: 25, duration_min: 45, label: 'Cervisia Nigra: Vigor +25 / 45 min' },
+      effect: { type: 'vigor_restore', value: 25, label: 'Cervisia Nigra: Vigor +25 / 45 min' },
       lore: 'Tmavé pivo s tymiánem. Hildegarda by schválila. Prodává se za zlaté.'
     },
     'honey+thyme:coctio': {
       result: { id: 'potion_vigor_minor', qty: 1 },
       name: 'Mel Thymicum', name_lat: 'Mel Thymicum', icon: '🌿',
-      effect: { type: 'vigor', amount: 20, duration_min: 60, label: 'Mel Thymicum: Vigor +20' },
+      effect: { type: 'vigor_restore', value: 20, label: 'Mel Thymicum: Vigor +20' },
       lore: 'Med s tymiánem vařený nad Athanorem. Hildegarda doporučovala na zimnici i smutek duše.'
     },
     'grain+honey:coctio': {
