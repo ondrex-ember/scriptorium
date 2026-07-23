@@ -82,7 +82,7 @@ const HealthConditionsDB = {
         durationHours: 48,
         onApply: { fatigue: 8 },
         tickHour: {},
-        cures: ["sleep_potion", "potion_heal"],
+        cures: ["sleep_potion", "potion_heal", "mast_ze_lneneho_oleje"],
         humor: "melancholia",
     },
     "scurvy": {
@@ -96,7 +96,7 @@ const HealthConditionsDB = {
         durationHours: 120,
         onApply: { satiety: -10 },
         tickHour: { fatigue: 1 },
-        cures: ["berries", "dried_wild_fruit", "rosehip_sauce"],
+        cures: ["berries", "dried_wild_fruit", "rosehip_sauce", "odvar_z_dubenek"],
         humor: "sanguis",
     },
     "lice": {
@@ -152,7 +152,7 @@ const HealthConditionsDB = {
         durationHours: 60,
         onApply: { satiety: -25, fatigue: 20 },
         tickHour: { satiety: -2 },
-        cures: ["antidote", "potion_heal"],
+        cures: ["antidote", "potion_heal", "odvar_z_dubenek"],
         humor: "sanguis",
     },
     "ergot_fire": {
@@ -180,7 +180,7 @@ const HealthConditionsDB = {
         durationHours: 48,
         onApply: { fatigue: 5 },
         tickHour: { fatigue: 1.5 },
-        cures: ["sleep_potion", "linden_tea"],
+        cures: ["sleep_potion", "linden_tea", "mast_ze_lneneho_oleje"],
         humor: "melancholia",
     },
     "writers_cramp": {
@@ -194,7 +194,7 @@ const HealthConditionsDB = {
         durationHours: 60,
         onApply: { fatigue: 12 },
         tickHour: { fatigue: 0.5 },
-        cures: ["potion_heal", "herbal_tea", "unguentum_calidum"],
+        cures: ["potion_heal", "herbal_tea", "unguentum_calidum", "mast_ze_lneneho_oleje"],
         humor: "melancholia",
         // titivillus-infirmary-mrd — nemoc blokuje konkrétní craft output;
         // infirmaryEligible: true zpřístupní tlačítko "Do infirmerie" ve
