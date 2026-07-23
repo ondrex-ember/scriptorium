@@ -329,6 +329,15 @@ const RecipesDB = [
     
     // ALCHEMY - pokročilá
     { id: "antidote", output: "antidote", qty: 1, req: { "nightshade": 1, "honey": 1, "ash": 1, "pestle": 0 }, cat: "alchemy", locked: true },
+    // Apothecarius (Infirmarium) — první batch, Contraria contrariis curantur.
+    // humor pole = kterej humor tenhle lék léčí (opačná kvalita), pro budoucí
+    // automatický párování v Sprint 4 (doručení NPC pacientům).
+    { id: "odvar_z_dubenek", output: "odvar_z_dubenek", qty: 1, req: { "gall_nut": 2, "water": 1, "cooking_pot": 0 }, cat: "alchemy", locked: true,
+      humor: "sanguis",
+      desc: "Svíravej odvar proti krvácení a průjmu — Krev se léčí chladem a suchem.", desc_en: "An astringent decoction against bleeding and flux — Blood is cured by cold and dryness." },
+    { id: "mast_ze_lneneho_oleje", output: "mast_ze_lneneho_oleje", qty: 1, req: { "linseed_oil": 2, "pestle": 0 }, cat: "alchemy", locked: true,
+      humor: "melancholia",
+      desc: "Mast na vyschlé oči a ztuhlé šlachy — Černá žluč se léčí teplem a vlhkem.", desc_en: "A salve for dry eyes and stiff tendons — Black bile is cured by warmth and moisture." },
     { id: "stamina_tonic", output: "stamina_tonic", qty: 1, req: { "herb_yellow": 1, "honey": 1, "roots": 1, "pestle": 0 }, cat: "alchemy", locked: true },
     { id: "preservation_oil", output: "preservation_oil", qty: 1, req: { "resin": 2, "ash": 1, "herb_blue": 1, "pestle": 0 }, cat: "alchemy", locked: true },
     { id: "sleep_potion", output: "sleep_potion", qty: 1, req: { "herb_blue": 2, "mushroom_poison": 1, "honey": 1, "pestle": 0 }, cat: "alchemy", locked: true },
