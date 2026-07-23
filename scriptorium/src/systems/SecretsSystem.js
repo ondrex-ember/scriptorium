@@ -124,6 +124,17 @@ const SecretsSystem = {
     return true;
   },
 
+  // MRD haeresis-occulta — inquisitionHeat roste 0.3/h dokud blud trvá.
+  // Volá se z VigorSystem._tick() se stejným 'elapsedHours' jako Satiety/
+  // Fatigue/HealthSystem.tickAll. Aktivuje dosud nepoužitý inquisitionHeat
+  // stat (0-100, raids at 80+ — viz init()).
+  tickInquisitionHeat: function(elapsedHours) {
+    if (!GameState.secrets) return;
+    const hasHeresy = !!(GameState.health && GameState.health.active && GameState.health.active['haeresis_occulta']);
+    if (!hasHeresy) return;
+    GameState.secrets.inquisitionHeat = Math.min(100, (GameState.secrets.inquisitionHeat || 0) + elapsedHours * 0.3);
+  },
+
   // ═══════════════════════════════════════════════════════════════════════════
   // FOLIO DISCOVERY — mapování knih na folia
   // Volá se z LibraryHelpers.readBook() po každém přečtení knihy
