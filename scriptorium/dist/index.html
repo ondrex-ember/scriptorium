@@ -50036,9 +50036,9 @@ const Game = {
         Game.save();
     },
 
-    // Flebotomie — pouštění žilou. MVP bezpečnej/nebezpečnej den podle měsíční fáze
-    // (Homo Signorum/zvěrokruh je budoucí upgrade, viz MRD). Cooldown 21 dní/osobu
-    // (dobově 4-5×/rok = zhruba jednou za ~10 týdnů, 21 dní je bezpečná spodní hranice).
+    // Flebotomie — pouštění žilou. Homo Signorum: nebezpečnej den = úplněk NEBO
+    // měsíc ve vodním znamení (Rak/Štír/Ryby — přebytek vlhkosti). Cooldown 21
+    // dní/osobu (dobově 4-5×/rok = zhruba jednou za ~10 týdnů, 21 dní je spodní hranice).
     performFlebotomie: function(entityId, isBrother) {
         const lang = (GameState.settings && GameState.settings.language) || 'cs';
         if (!GameState.chirurgus || !GameState.chirurgus.hired) {
@@ -50055,14 +50055,23 @@ const Game = {
         }
         const d = new Date();
         const moonPhase = (typeof CalendarSystem !== 'undefined') ? CalendarSystem.getLunarForDay(d.getFullYear(), d.getMonth()+1, d.getDate()) : '🌗';
+        const zodiacIdx = (typeof CalendarSystem !== 'undefined' && CalendarSystem.getZodiacForMoonDay) ? CalendarSystem.getZodiacForMoonDay(d.getFullYear(), d.getMonth()+1, d.getDate()) : 0;
+        const zodiac = (typeof CalendarSystem !== 'undefined' && CalendarSystem.ZODIAC_SIGNS) ? CalendarSystem.ZODIAC_SIGNS[zodiacIdx] : null;
+        const zodiacUnsafe = (typeof CalendarSystem !== 'undefined' && CalendarSystem.ZODIAC_UNSAFE_IDX) ? CalendarSystem.ZODIAC_UNSAFE_IDX.includes(zodiacIdx) : false;
+        const unsafe = moonPhase === '🌕' || zodiacUnsafe;
+        const zodiacName = zodiac ? (lang==='en' ? zodiac.en : zodiac.cs) : '';
+        const bodyPart = zodiac ? (lang==='en' ? zodiac.bodyPart_en : zodiac.bodyPart_cs) : '';
         entity.lastFlebotomie = now;
-        if (moonPhase === '🌕') {
-            // Úplněk — nebezpečnej den
+        if (unsafe) {
             entity.fatigue = Math.min(100, (entity.fatigue || 0) + 15);
-            UI.notifyPanel('🌕 ' + (lang==='en' ? entity.name+' was bled at full moon — worse for it.' : entity.name+' pouštěn žilou za úplňku — na škodu.'), 'warning');
+            UI.notifyPanel((zodiac ? zodiac.icon : '🌕') + ' ' + (lang==='en'
+                ? entity.name+' was bled under '+zodiacName+' ('+bodyPart+') — worse for it.'
+                : entity.name+' pouštěn žilou ve znamení '+zodiacName+' ('+bodyPart+') — na škodu.'), 'warning');
         } else {
             entity.fatigue = Math.max(0, (entity.fatigue || 0) - 15);
-            UI.notifyPanel('🩸 ' + (lang==='en' ? entity.name+' was bled — fatigue eased.' : entity.name+' pouštěn žilou — únava ulevena.'), 'success');
+            UI.notifyPanel('🩸 ' + (lang==='en'
+                ? entity.name+' was bled under '+zodiacName+' — fatigue eased.'
+                : entity.name+' pouštěn žilou ve znamení '+zodiacName+' — únava ulevena.'), 'success');
         }
         Game.save();
         if (typeof SaeculumSystem !== 'undefined') SaeculumSystem.switchEntity(isBrother ? 'dormitorium' : 'conversi');
@@ -50591,7 +50600,12 @@ const Game = {
             if (task === 'apiarium' || task === 'piscina') {
                 if (isSummer) tryInfect(entity, 'mosquito_bites', 0.03);
             }
-            if (task === 'scriptorium') tryInfect(entity, 'writers_cramp', 0.015);
+            if (task === 'scriptorium') {
+                tryInfect(entity, 'writers_cramp', 0.015);
+                tryInfect(entity, 'saturnismus', 0.008);
+                tryInfect(entity, 'acedia', 0.01);
+            }
+            if (task === 'piscina') tryInfect(entity, 'ague', isSummer ? 0.02 : 0.01);
         });
 
         // Nespavost — jen konvrši, zvýšená pokud je v partě 'chrapoun'.
@@ -55286,6 +55300,37 @@ const CalendarSystem = {
         return ['🌑', '🌒', '🌓', '🌔', '🌕', '🌖', '🌗', '🌘'][idx];
     },
 
+    // ── Homo Signorum — Zvěrokruh a jeho vláda nad tělem ────────────────────
+    // Klasická "Zodiac Man" tradice: každé znamení vládne tělesné části,
+    // nebezpečné je pouštět žilou pod znamením, kterým měsíc právě prochází.
+    // Aproximace: sidereálnej oběh měsíce (~27.32 dne) rozdělenej na 12 dílů —
+    // stejnej kotevní bod jako getLunarForDay (synodickej cyklus), jiná perioda.
+    ZODIAC_SIGNS: [
+        { cs: 'Beran',     en: 'Aries',       icon: '♈', bodyPart_cs: 'hlava',           bodyPart_en: 'head' },
+        { cs: 'Býk',       en: 'Taurus',      icon: '♉', bodyPart_cs: 'krk',             bodyPart_en: 'neck' },
+        { cs: 'Blíženci',  en: 'Gemini',      icon: '♊', bodyPart_cs: 'ramena a paže',   bodyPart_en: 'shoulders and arms' },
+        { cs: 'Rak',       en: 'Cancer',      icon: '♋', bodyPart_cs: 'hruď',            bodyPart_en: 'chest' },
+        { cs: 'Lev',       en: 'Leo',         icon: '♌', bodyPart_cs: 'srdce a záda',    bodyPart_en: 'heart and back' },
+        { cs: 'Panna',     en: 'Virgo',       icon: '♍', bodyPart_cs: 'břicho',          bodyPart_en: 'belly' },
+        { cs: 'Váhy',      en: 'Libra',       icon: '♎', bodyPart_cs: 'ledviny',         bodyPart_en: 'kidneys' },
+        { cs: 'Štír',      en: 'Scorpio',     icon: '♏', bodyPart_cs: 'klín',            bodyPart_en: 'loins' },
+        { cs: 'Střelec',   en: 'Sagittarius', icon: '♐', bodyPart_cs: 'stehna',          bodyPart_en: 'thighs' },
+        { cs: 'Kozoroh',   en: 'Capricorn',   icon: '♑', bodyPart_cs: 'kolena',          bodyPart_en: 'knees' },
+        { cs: 'Vodnář',    en: 'Aquarius',    icon: '♒', bodyPart_cs: 'lýtka',           bodyPart_en: 'shins' },
+        { cs: 'Ryby',      en: 'Pisces',      icon: '♓', bodyPart_cs: 'chodidla',        bodyPart_en: 'feet' },
+    ],
+    // Vodní trojice (Rak/Štír/Ryby) — přebytek vlhkosti, dobově nejrizikovější pro Minutio.
+    ZODIAC_UNSAFE_IDX: [3, 7, 11],
+
+    getZodiacForMoonDay: function (year, month, day) {
+        const d = new Date(year, month - 1, day);
+        const knownNewMoon = new Date(Date.UTC(2000, 0, 6, 18, 14));
+        const daysSince = (d - knownNewMoon) / 86400000;
+        const SIDEREAL = 27.321661;
+        const pos = ((daysSince % SIDEREAL) + SIDEREAL) % SIDEREAL;
+        return Math.floor(pos / SIDEREAL * 12) % 12;
+    },
+
     // ── Navigace ─────────────────────────────────────────────────────────────
     GAME_YEAR: 1465,
 
@@ -55639,6 +55684,7 @@ const CalendarSystem = {
         }
     }
 };
+
     </script>
 
     <!-- ═══════════════════════════════════════════════
