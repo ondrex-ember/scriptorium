@@ -32770,6 +32770,78 @@ const AthanorDB = {
       lore: 'Destilace borové pryskyřice přes alembik. Postup starý jako antika, dnes vyžaduje pokročilé vybavení.'
     },
 
+    // ── Wave 0 (media-materia-konsolidace.md §7) — Theophilus/Cennini strom,
+    // zero nových surovin, jen nové combo výstupy z existujících ingrediencí.
+    'gum_arabic+ochre+water:trituratio': {
+      result: { id: 'ochra_flava', qty: 2 },
+      name: 'Zušlechtěný okr',
+      name_lat: 'Ochra Flava Preparata',
+      icon: '🟡',
+      effect: null,
+      lore: 'Theophilus: surový okr se nekonečně dlouho drtí a plaví ve vodě, aby se oddělil písek a hrubé zrno.'
+    },
+    'alum+berries+gum_arabic:coctio': {
+      result: { id: 'succus_viridis', qty: 1 },
+      name: 'Šťávová zeleň',
+      name_lat: 'Succus Viridis',
+      icon: '🟢',
+      effect: null,
+      lore: 'Zralé bobule svařené s kamencem. Přírodní, vysoce transparentní lazurovací zeleň na listoví a krajiny.'
+    },
+    'alum+chalk+rose:coctio': {
+      result: { id: 'lacca_rosarum', qty: 1 },
+      name: 'Růžový lak',
+      name_lat: 'Lacca Rosarum',
+      icon: '🌸',
+      effect: null,
+      lore: 'Okvětní lístky vyvařené s kamencem, který barvivo vysráží na jemnou křídu. Efekt rubínového skla v miniaturách.'
+    },
+    'gum_arabic+honey+lapis_lazuli:maceratio': {
+      result: { id: 'lazulium_mellitum', qty: 1 },
+      name: 'Medový ultramarín',
+      name_lat: 'Lazulium Mellitum',
+      icon: '💙',
+      effect: {
+        type: 'vigor_restore',
+        value: 10,
+        duration_ms: 0,
+        label: 'Kontemplativní práce s ultramarínem +10 vigor'
+      },
+      lore: 'Vrchol iluminátorského umění. Lapis lazuli hnětený v medu, aby se vytáhlo jen čisté modré zrno.'
+    },
+    'beeswax+linseed_oil+resin_pine:coctio': {
+      result: { id: 'mastix_liquida', qty: 2 },
+      name: 'Tekutý tmel',
+      name_lat: 'Mastix Liquida',
+      icon: '🫙',
+      effect: null,
+      lore: 'Univerzální voděodolné lepidlo. Knihaři jím zpevňují hřbety velkých biblí, hospodáři těsní sudy s pivem.'
+    },
+    'egg_tempera+vitriol:trituratio': {
+      result: { id: 'lazur_teutonicum', qty: 2 },
+      name: 'Německá modř',
+      name_lat: 'Lazur Teutonicum',
+      icon: '💠',
+      effect: null,
+      lore: 'Dostupná klášterní modř, když v pokladnici není groš na afghánský lapis lazuli.'
+    },
+    'gum_arabic+ink_gallic:calcinatio': {
+      result: { id: 'atramentum_siccum', qty: 1 },
+      name: 'Inkoustový koláč',
+      name_lat: 'Atramentum Siccum',
+      icon: '⬛',
+      effect: null,
+      lore: 'Odpařený inkoust pro cestující mnichy a holubí poštu. Před použitím rozřeď kapkou vína nebo vody.'
+    },
+    'ochre:calcinatio': {
+      result: { id: 'sinopia_tosta', qty: 2 },
+      name: 'Žíhaná sinopia',
+      name_lat: 'Sinopia Tosta',
+      icon: '🟤',
+      effect: null,
+      lore: 'Žlutý okr žíhaný v Athanoru, dokud neztratí vázanou vodu a nezčervená. Podklad pro stínování tváří.'
+    },
+
     // ══ CERVISIARIA ══
     'grain+water:coctio': {
       result: { id: 'wort', qty: 1 },
