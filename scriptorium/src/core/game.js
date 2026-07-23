@@ -6036,7 +6036,7 @@ const Game = {
     },
 
     // Vyřeší návraty z Scavenge/Dolů — riziko, výnos, hláška. Volat z periodického ticku.
-    CONVERSI_SCAVENGE_LOOT: ['mushroom', 'berries', 'thyme', 'st_johns_wort', 'wood', 'clay'],
+    CONVERSI_SCAVENGE_LOOT: ['mushroom', 'berries', 'thyme', 'st_johns_wort', 'wood', 'clay', 'rose'],
     checkConversiReturns: function() {
         if (!GameState.conversi || !GameState.conversi.length) return;
         const lang = (GameState.settings && GameState.settings.language) || 'cs';
@@ -6065,6 +6065,12 @@ const Game = {
                     this.addItem('iron_ore', qty);
                     k.fatigue = Math.min(100, k.fatigue + 15);
                     yieldTxt = qty + '× iron_ore';
+                    // Fix 3B (athanor-integrity-audit.md §3) — vzácný byproduct z hlubších štol
+                    if (Math.random() < 0.15) {
+                        const bonusId = Math.random() < 0.5 ? 'vitriol' : 'malachite';
+                        this.addItem(bonusId, 1);
+                        yieldTxt += ' + 1× ' + bonusId;
+                    }
                     UI.notifyPanel('⛏️ ' + (lang==='en' ? k.name+' returned from the mine with '+yieldTxt+'.' : k.name+' se vrátil z dolu s '+yieldTxt+'.'), 'success');
                     Game.addKronikaEntry('minor', '⛏️ '+k.name+' přinesl z dolu '+yieldTxt+'.', '⛏️ '+k.name+' brought '+yieldTxt+' from the mine.', '⛏️ '+k.name+' e fodina rediit.');
                 }
