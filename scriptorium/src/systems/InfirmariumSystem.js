@@ -168,7 +168,14 @@ const InfirmariumSystem = {
             const gated = !(GameState.researchedTechs && GameState.researchedTechs.includes(st.tech));
             const label = lang === 'en' ? st.name_en : st.name_cs;
             const count = (!gated && typeof Game !== 'undefined' && Game.conversiTaskCount) ? Game.conversiTaskCount(st.id) : 0;
-            const statusText = gated ? '🔒 ' + st.tech : count + '/2';
+            let statusText;
+            if (gated) {
+                const techDef = (typeof TechTree !== 'undefined') ? TechTree.find(t => t.id === st.tech) : null;
+                const techName = techDef ? (lang==='en' ? techDef.name_en : techDef.name) : st.tech;
+                statusText = `<span style="font-style:italic;">🔒 ${lang==='en'?'needs':'chybí'}: ${techName}</span>`;
+            } else {
+                statusText = count + '/2';
+            }
             return `<div style="text-align:center; padding:10px 6px; border-radius:8px;
                         border:1px solid rgba(197,160,89,0.25);
                         background:rgba(197,160,89,0.05);
