@@ -10021,6 +10021,113 @@ const ScriniumDB = {
         },
 
         // ══════════════════════════════════════════════════
+        // TAJNÉ SPISY — 7 folií receptů (Scrinium Recipe Folios MRD)
+        // Odemyká Athanor recepty (unlockFolio v athanor.js), ne RecipesDB.
+        // Gate = layer 3 (prostudováno po Arcanum), stejný vzor jako
+        // netolicky_05/palimpsest výše — jen bez samostatné reward-výplaty,
+        // odemčení řeší přímo CombinationEngine.evaluate() kontrolou layeru.
+        // ══════════════════════════════════════════════════
+
+        {
+            id: 'folio_scr01',
+            subtab: 'tajne_spisy',
+            icon: '🎨',
+            physicalForm: 'codex',
+            titleKey: 'scrinium.folios.scr01.title',
+            lectio: { textKey: 'scrinium.folios.scr01.lectio', cost: null },
+            glossa: { textKey: 'scrinium.folios.scr01.glossa', cost: { item: 'candle', amount: 3 } },
+            arcanum: {
+                textKey: 'scrinium.folios.scr01.arcanum',
+                cost: { item: 'ochra_flava', amount: 1 },
+                reward: { type: 'ui_flag', flag: 'scr01_studied', notifyKey: 'scrinium.folios.scr01.reward_notify' },
+            },
+        },
+        {
+            id: 'folio_scr02',
+            subtab: 'tajne_spisy',
+            icon: '🔥',
+            physicalForm: 'scroll',
+            titleKey: 'scrinium.folios.scr02.title',
+            lectio: { textKey: 'scrinium.folios.scr02.lectio', cost: null },
+            glossa: { textKey: 'scrinium.folios.scr02.glossa', cost: { item: 'candle', amount: 3 } },
+            arcanum: {
+                textKey: 'scrinium.folios.scr02.arcanum',
+                cost: { item: 'sal_alkali', amount: 1 },
+                reward: { type: 'ui_flag', flag: 'scr02_studied', notifyKey: 'scrinium.folios.scr02.reward_notify' },
+            },
+        },
+        {
+            id: 'folio_scr03',
+            subtab: 'tajne_spisy',
+            icon: '🌿',
+            physicalForm: 'codex',
+            titleKey: 'scrinium.folios.scr03.title',
+            lectio: { textKey: 'scrinium.folios.scr03.lectio', cost: null },
+            glossa: { textKey: 'scrinium.folios.scr03.glossa', cost: { item: 'candle', amount: 3 } },
+            arcanum: {
+                textKey: 'scrinium.folios.scr03.arcanum',
+                cost: { item: 'honey', amount: 2 },
+                reward: { type: 'ui_flag', flag: 'scr03_studied', notifyKey: 'scrinium.folios.scr03.reward_notify' },
+            },
+        },
+        {
+            id: 'folio_scr04',
+            subtab: 'tajne_spisy',
+            icon: '👑',
+            physicalForm: 'codex',
+            titleKey: 'scrinium.folios.scr04.title',
+            lectio: { textKey: 'scrinium.folios.scr04.lectio', cost: null },
+            glossa: { textKey: 'scrinium.folios.scr04.glossa', cost: { item: 'candle', amount: 5 } },
+            arcanum: {
+                textKey: 'scrinium.folios.scr04.arcanum',
+                cost: { item: 'spiritus_vini', amount: 1 },
+                reward: { type: 'ui_flag', flag: 'scr04_studied', notifyKey: 'scrinium.folios.scr04.reward_notify' },
+            },
+        },
+        {
+            id: 'folio_scr05',
+            subtab: 'tajne_spisy',
+            icon: '🌱',
+            physicalForm: 'leaf',
+            titleKey: 'scrinium.folios.scr05.title',
+            lectio: { textKey: 'scrinium.folios.scr05.lectio', cost: null },
+            glossa: { textKey: 'scrinium.folios.scr05.glossa', cost: { item: 'candle', amount: 3 } },
+            arcanum: {
+                textKey: 'scrinium.folios.scr05.arcanum',
+                cost: { item: 'beeswax', amount: 2 },
+                reward: { type: 'ui_flag', flag: 'scr05_studied', notifyKey: 'scrinium.folios.scr05.reward_notify' },
+            },
+        },
+        {
+            id: 'folio_scr06',
+            subtab: 'tajne_spisy',
+            icon: '⚗️',
+            physicalForm: 'leaf',
+            titleKey: 'scrinium.folios.scr06.title',
+            lectio: { textKey: 'scrinium.folios.scr06.lectio', cost: null },
+            glossa: { textKey: 'scrinium.folios.scr06.glossa', cost: { item: 'candle', amount: 3 } },
+            arcanum: {
+                textKey: 'scrinium.folios.scr06.arcanum',
+                cost: { item: 'gum_arabic', amount: 2 },
+                reward: { type: 'ui_flag', flag: 'scr06_studied', notifyKey: 'scrinium.folios.scr06.reward_notify' },
+            },
+        },
+        {
+            id: 'folio_scr07',
+            subtab: 'tajne_spisy',
+            icon: '⚒️',
+            physicalForm: 'scroll',
+            titleKey: 'scrinium.folios.scr07.title',
+            lectio: { textKey: 'scrinium.folios.scr07.lectio', cost: null },
+            glossa: { textKey: 'scrinium.folios.scr07.glossa', cost: { item: 'candle', amount: 3 } },
+            arcanum: {
+                textKey: 'scrinium.folios.scr07.arcanum',
+                cost: { item: 'vitriol', amount: 1 },
+                reward: { type: 'ui_flag', flag: 'scr07_studied', notifyKey: 'scrinium.folios.scr07.reward_notify' },
+            },
+        },
+
+        // ══════════════════════════════════════════════════
         // KRONIKY — 7 folií (Netolického pozůstalost)
         // ══════════════════════════════════════════════════
 
@@ -10362,6 +10469,7 @@ const ScriniumDB = {
     ], // konec folios[]
 
 }; // konec ScriniumDB
+
 // ═══ src/data/letters.js ═══
 // ═══════════════════════════════════════════════════════════════════════════
 // LettersDB — obsah Porty (P1, dávka 1: L1–L6 + 2 follow-upy).
