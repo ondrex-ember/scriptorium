@@ -32470,6 +32470,43 @@ const AthanorDB = {
       lore: 'Teplé víno s medem a rozmarýnem — proti studené a suché černé žluči. Vyhání blud, ne jen únavu.'
     },
 
+    // ── Haeresis Occulta MRD — kacířské lektvary ze substantia_ignota ──
+    // Gate = vlastnictví vzácný suroviny (B3 poutník), ne TechTree (schválená
+    // výjimka, viz mrd-athanor-haeresis-occulta.md §7). Efekt heresy_brew
+    // = riziko Inkvizice + šance na haeresis_occulta, ne mechanická odměna.
+    'substantia_ignota+wine:maceratio': {
+      result: { id: 'haereticum_stellarum', qty: 1 },
+      name: 'Nápoj cizích hvězd',
+      name_lat: 'Potio Stellarum Alienarum',
+      icon: '✨',
+      effect: { type: 'heresy_brew', conditionChance: 0.30, heatGain: 6 },
+      lore: 'Bratr usnul nad pohárem a slyšel našeptávat hvězdy, které žádný žebřík k nebi nezná.'
+    },
+    'poppy+substantia_ignota:coctio': {
+      result: { id: 'haereticum_circuli', qty: 1 },
+      name: 'Odvar kola životů',
+      name_lat: 'Decoctum Rotae Vitarum',
+      icon: '🌀',
+      effect: { type: 'heresy_brew', conditionChance: 0.55, heatGain: 10 },
+      lore: 'Bratr usnul s pohárem u rtů. Probudil se s podivnou jistotou, že tohle tělo už měl jednou dřív.'
+    },
+    'honey+substantia_ignota:maceratio': {
+      result: { id: 'haereticum_fortunae', qty: 1 },
+      name: 'Elixír cizí přízně',
+      name_lat: 'Elixir Fortunae Alienae',
+      icon: '🍀',
+      effect: { type: 'heresy_brew', conditionChance: 0.35, heatGain: 8 },
+      lore: 'Sladký doušek slibuje štěstí, které si nikdo nezasloužil žádnou prací.'
+    },
+    'herb_blue+substantia_ignota:maceratio': {
+      result: { id: 'haereticum_amoris', qty: 1 },
+      name: 'Nápoj cizí touhy',
+      name_lat: 'Potio Desiderii Alieni',
+      icon: '🌸',
+      effect: { type: 'heresy_brew', conditionChance: 0.40, heatGain: 8 },
+      lore: 'Levandulová vůně probouzí touhu, která nepatří klášterní cele.'
+    },
+
     // ── Discoverable: skryté kombinace ──
     'chamomile+honey:maceratio': {
       result: { id: 'potion_vigor_minor', qty: 1 },
@@ -33138,6 +33175,17 @@ const AthanorSystem = {
           source: sourceName,
           expiresAt: now + effect.duration_ms
         });
+        break;
+      case 'heresy_brew':
+        // MRD: haeresis-occulta — vaření kacířskýho lektvaru samo o sobě
+        // riskuje pozornost Inkvizice + šanci na blud. Aktivuje dosud
+        // nepoužitej GameState.secrets.inquisitionHeat (0-100, raids at 80+).
+        if (GameState.secrets) {
+          GameState.secrets.inquisitionHeat = Math.min(100, (GameState.secrets.inquisitionHeat || 0) + effect.heatGain);
+        }
+        if (Math.random() < effect.conditionChance && typeof HealthSystem !== 'undefined') {
+          HealthSystem.addCondition('haeresis_occulta');
+        }
         break;
     }
   },
