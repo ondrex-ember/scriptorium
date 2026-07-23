@@ -1998,6 +1998,13 @@ const AthanorSystem = {
       const level = (typeof Game !== 'undefined' && Game.dormitoriumBrotherLevel) ? Game.dormitoriumBrotherLevel(athanorBrother, 'athanor') : 1;
       brotherText = `${bIcon} ${athanorBrother.name} · Lv${level}`;
     }
+    // Chybějící alembik — tech na Destillatio je, nástroj ne (viditelné hned v status baru)
+    const hasDestilTech = GameState.researchedTechs && GameState.researchedTechs.includes('tech_destillatio');
+    const needsAlembic = hasDestilTech && (GameState.inventory['alembic'] || 0) <= 0;
+    const lang = (GameState.settings && GameState.settings.language) || 'cs';
+    const alembicWarning = needsAlembic
+      ? `<span style="opacity:0.3;">·</span><span style="font-size:0.65rem;color:#e69e1e;" title="${lang==='en' ? 'The Glassmaker sells them' : 'Sklář ho prodá'}">⚠️ ${lang==='en' ? 'No alembic' : 'Chybí alembik'}</span>`
+      : '';
     return `<div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center;
       padding:7px 12px;margin-bottom:14px;
       background:rgba(0,0,0,0.12);border-radius:8px;
@@ -2012,6 +2019,7 @@ const AthanorSystem = {
       <span style="color:${mc};" title="Vlhkost">💧 ${moisture > 0 ? '+' : ''}${moisture}</span>
       ${bonusText ? `<span style="opacity:0.3;">·</span><span style="font-size:0.65rem;">✨ ${bonusText}</span>` : ''}
       ${brotherText ? `<span style="opacity:0.3;">·</span><span style="font-size:0.65rem;" title="Řídí">${brotherText}</span>` : ''}
+      ${alembicWarning}
     </div>`;
   },
 
@@ -2418,6 +2426,10 @@ const AthanorSystem = {
           .athanor-grid{grid-template-columns:1fr!important}
           .athanor-ing-grid{grid-template-columns:repeat(auto-fill, minmax(110px, 1fr))!important}
         }
+        @keyframes athanorNeedToolPulse {
+          0%, 100% { box-shadow: 0 0 4px 0 rgba(230,150,30,0.5); border-color: rgba(230,150,30,0.6); }
+          50% { box-shadow: 0 0 10px 3px rgba(230,150,30,0.85); border-color: rgba(230,150,30,1); }
+        }
       <\/style>
     `;
   },
@@ -2465,25 +2477,35 @@ const AthanorSystem = {
     const techLocked = process.unlock && !(GameState.researchedTechs && GameState.researchedTechs.includes(process.unlock));
     const needAlembic = process.id === 'destillatio' && !techLocked && (GameState.inventory['alembic'] || 0) <= 0;
     const isLocked = techLocked || needAlembic;
-    const lockHint = techLocked ? ' [Zamčeno]' : needAlembic ? ' [Vyžaduje alembik]' : '';
+    const lang = (GameState.settings && GameState.settings.language) || 'cs';
+    const lockHint = techLocked
+      ? (lang === 'en' ? ' [Locked]' : ' [Zamčeno]')
+      : needAlembic
+        ? (lang === 'en' ? ' [Needs an alembic — buy one from the Glassmaker]' : ' [Vyžaduje alembik — koupíš u Skláře]')
+        : '';
+
+    // needAlembic = akční stav (nástroj lze sehnat hned) — svítí jinak než dlouhodobej tech zámek
+    const alembicGlow = needAlembic
+      ? 'border:1.5px solid rgba(230,150,30,0.8);animation:athanorNeedToolPulse 1.6s ease-in-out infinite;'
+      : `border:1px solid ${isActive ? 'var(--accent-gold)' : 'rgba(0,0,0,0.15)'};`;
 
     return `
       <button
         onclick="${isLocked || isBrewing ? '' : `AthanorSystem.setProcess('${process.id}')`}"
         style="
           padding:5px 10px;
-          background:${isActive ? 'var(--accent-gold)' : 'rgba(0,0,0,0.06)'};
-          color:${isActive ? '#1a1410' : isLocked ? '#aaa' : 'inherit'};
-          border:1px solid ${isActive ? 'var(--accent-gold)' : 'rgba(0,0,0,0.15)'};
+          background:${isActive ? 'var(--accent-gold)' : needAlembic ? 'rgba(230,150,30,0.08)' : 'rgba(0,0,0,0.06)'};
+          color:${isActive ? '#1a1410' : needAlembic ? '#c8791e' : isLocked ? '#aaa' : 'inherit'};
+          ${alembicGlow}
           border-radius:4px;
           font-size:0.75rem;
           cursor:${isLocked || isBrewing ? 'not-allowed' : 'pointer'};
           font-family:inherit;
-          opacity:${isLocked ? '0.5' : '1'};
+          opacity:${techLocked ? '0.5' : '1'};
         "
         title="${process.desc}${lockHint}"
         ${isLocked || isBrewing ? 'disabled' : ''}
-      >${process.icon} ${process.name_cs}${isLocked ? ' 🔒' : ''}</button>
+      >${process.icon} ${process.name_cs}${techLocked ? ' 🔒' : needAlembic ? ' ⚠️' : ''}</button>
     `;
   },
 

@@ -238,6 +238,105 @@ const EventsSystem = {
             ]
         },
 
+        // B-Haeresis — Nájezd Inkvizice (inquisitionHeat >= 80, důsledek kacířských lektvarů)
+        {
+            id: 'inq_raid',
+            icon: '⚖️',
+            title: () => (GameState.settings && GameState.settings.language === 'en') ? 'The Inquisition Comes' : 'Přijela Inkvizice',
+            text: () => {
+                const en = GameState.settings && GameState.settings.language === 'en';
+                return en
+                    ? '*This is no polite morning visit. Three riders in black stop at the gate, and with them a notary with a sealed writ. Someone has spoken of strange lights and stranger smells from your workshop. The tribunal has heard enough to come in person.*'
+                    : '*Tohle není zdvořilá ranní návštěva. U brány zastavují tři jezdci v černém, a s nimi notář s pečetěnou listinou. Někdo mluvil o podivných světlech a ještě podivnějším zápachu z vaší dílny. Tribunál slyšel dost na to, aby přijel osobně.*';
+            },
+            cooldownDays: 21,
+            trigger: () => {
+                return !!(GameState.secrets && GameState.secrets.laboratoryUnlocked)
+                    && (GameState.secrets && (GameState.secrets.inquisitionHeat || 0) >= 80);
+            },
+            choices: [
+                {
+                    label: () => (GameState.settings && GameState.settings.language === 'en') ? 'Confess and do penance' : 'Přiznat se a podstoupit pokání',
+                    desc: () => (GameState.settings && GameState.settings.language === 'en')
+                        ? 'Surrender the heretical brews. Public penance, but a clean slate.'
+                        : 'Vydat kacířské lektvary. Veřejné pokání, ale čistý štít.',
+                    action: () => {
+                        const en = GameState.settings && GameState.settings.language === 'en';
+                        const heretical = ['haereticum_stellarum', 'haereticum_circuli', 'haereticum_fortunae', 'haereticum_amoris'];
+                        let lost = 0;
+                        heretical.forEach(id => {
+                            const qty = GameState.inventory[id] || 0;
+                            if (qty > 0) { lost += qty; Game.removeItem(id, qty); }
+                        });
+                        if (GameState.secrets) GameState.secrets.inquisitionHeat = 0;
+                        if (typeof PersonaSystem !== 'undefined') PersonaSystem.addInfluence('church', -10);
+                        if (typeof HealthSystem !== 'undefined' && HealthSystem.removeCondition) {
+                            HealthSystem.removeCondition('haeresis_occulta', true);
+                        }
+                        const msg = en
+                            ? `Public penance. ${lost} heretical brews surrendered and destroyed. The tribunal's suspicion is gone — for now.`
+                            : `Veřejné pokání. ${lost}× kacířských lektvarů vydáno a zničeno. Podezření tribunálu je pryč — prozatím.`;
+                        UI.notifyPanel(msg, 'warning');
+                        EventsSystem._addKronika(msg);
+                        return msg;
+                    }
+                },
+                {
+                    label: () => (GameState.settings && GameState.settings.language === 'en') ? 'Deny everything' : 'Vše zapřít',
+                    desc: () => (GameState.settings && GameState.settings.language === 'en')
+                        ? 'Risky. If believed, suspicion eases. If not — the Athanor is sealed for a long time.'
+                        : 'Riskantní. Uvěří-li, podezření poleví. Neuvěří-li — Athanor bude zapečetěný nadlouho.',
+                    action: () => {
+                        const en = GameState.settings && GameState.settings.language === 'en';
+                        if (Math.random() < 0.5) {
+                            if (GameState.secrets) GameState.secrets.inquisitionHeat = 40;
+                            const msg = en
+                                ? 'The notary hesitates, unconvinced but unable to prove otherwise. They leave — suspicion lingers, but eases.'
+                                : 'Notář váhá, nepřesvědčen, ale bez důkazu. Odjíždějí — podezření trvá, ale poleví.';
+                            UI.notifyPanel(msg, 'system');
+                            EventsSystem._addKronika(msg);
+                            return msg;
+                        } else {
+                            if (!GameState.flags) GameState.flags = {};
+                            GameState.flags.athanorSealedUntil = Date.now() + (5 * 24 * 3600000);
+                            if (typeof VigorSystem !== 'undefined') VigorSystem.addFatigue(25);
+                            const msg = en
+                                ? 'They did not believe you. The Athanor is sealed under the tribunal\'s wax, for five long days.'
+                                : 'Neuvěřili vám. Athanor je zapečetěn tribunálním voskem, na dlouhých pět dní.';
+                            UI.notifyPanel(msg, 'warning');
+                            EventsSystem._addKronika(msg);
+                            return msg;
+                        }
+                    }
+                },
+                {
+                    label: () => (GameState.settings && GameState.settings.language === 'en') ? 'Bribe the notary (1000 groše)' : 'Podplatit notáře (1000 grošů)',
+                    desc: () => (GameState.settings && GameState.settings.language === 'en')
+                        ? 'Steep, but certain. The writ quietly disappears.'
+                        : 'Drahé, ale jisté. Listina tiše zmizí.',
+                    action: () => {
+                        const en = GameState.settings && GameState.settings.language === 'en';
+                        if (CellariumSystem.getGrose() < 1000) {
+                            const msg = en
+                                ? 'You do not have 1000 groše. The notary notices your empty purse and writes something down.'
+                                : 'Nemáte 1000 grošů. Notář si všimne prázdného měšce a něco si zapisuje.';
+                            UI.notifyPanel(msg, 'warning');
+                            return msg;
+                        }
+                        CellariumSystem.spendGrose(1000);
+                        if (GameState.secrets) GameState.secrets.inquisitionHeat = 0;
+                        if (typeof PersonaSystem !== 'undefined') PersonaSystem.addInfluence('church', -15);
+                        const msg = en
+                            ? 'A heavy purse changes hands beneath the table. The writ is folded away, unread. The tribunal rides on.'
+                            : 'Těžký měšec mění majitele pod stolem. Listina je sbalena, nepřečtená. Tribunál jede dál.';
+                        UI.notifyPanel(msg, 'system');
+                        EventsSystem._addKronika(msg);
+                        return msg;
+                    }
+                }
+            ]
+        },
+
         // B3 — Záhadný poutník s ingrediencí
         {
             id: 'athanor_pilgrim_ingredient',
@@ -1017,9 +1116,14 @@ const EventsSystem = {
     showEvent: function(event) {
         if (typeof NotificationSystem === 'undefined' || !NotificationSystem.modal) return;
 
+        // Podpora title/text/label/desc jako funkce (lazy, jazykově reaktivní) —
+        // vedle stávajícího title/text stringu a titleKey/textKey (t() lookup).
+        // Nesahá do cs.js/en.js — pro nové eventy s inline dvojjazyčným textem.
+        const resolve = (val) => typeof val === 'function' ? val() : val;
+
         const choices = (event.choices || []).map(choice => {
-            const label = choice.label || t(choice.labelKey);
-            const desc  = choice.desc  || (choice.descKey ? t(choice.descKey) : '');
+            const label = resolve(choice.label) || t(choice.labelKey);
+            const desc  = resolve(choice.desc)  || (choice.descKey ? t(choice.descKey) : '');
             return {
                 label: desc ? `${label}<br><small style="opacity:0.7; font-weight:normal; text-transform:none; letter-spacing:0;">${desc}</small>` : label,
                 type: 'default',
@@ -1045,8 +1149,8 @@ const EventsSystem = {
         NotificationSystem.modal({
             icon: event.icon || '📜',
             image: event.image || null,
-            title: event.title || t(event.titleKey),
-            text: event.text || t(event.textKey),
+            title: resolve(event.title) || t(event.titleKey),
+            text: resolve(event.text) || t(event.textKey),
             choices: choices
         });
     }
