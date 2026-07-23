@@ -13668,6 +13668,15 @@ const EventsSystem = {
                         if(Math.random() > 0.3) {
                             Game.addItem('research', 10);
                             Game.addItem('luxury_codex', 1);
+                            // Scrinium Recipe Folios MRD — malá šance na odhalení tajného spisu
+                            if (typeof SecretsSystem !== 'undefined' && GameState.secrets && GameState.secrets.forbiddenUnlocked && Math.random() < 0.1) {
+                                const db = (typeof ScriniumDB !== 'undefined') ? ScriniumDB.folios : [];
+                                const unfound = db.filter(f => f.subtab === 'tajne_spisy' && (!GameState.scrinium || !GameState.scrinium.folios[f.id] || !GameState.scrinium.folios[f.id].found));
+                                if (unfound.length > 0) {
+                                    const pick = unfound[Math.floor(Math.random() * unfound.length)];
+                                    SecretsSystem.unlockFolioById(pick.id);
+                                }
+                            }
                             UI.notifyPanel(t("events.hidden_incunabula.compare_notif_ok"), 'system');
                             EventsSystem._addKronika(t("events.hidden_incunabula.compare_notif_ok"));
                             return t("events.hidden_incunabula.compare_res_ok");
@@ -13709,6 +13718,15 @@ const EventsSystem = {
                     descKey: "events.discovered_old_vaults.explore_desc",
                     action: () => {
                         GameState.oldCellarsFound = true;
+                        // Scrinium Recipe Folios MRD — malá šance na odhalení tajného spisu
+                        if (typeof SecretsSystem !== 'undefined' && GameState.secrets && GameState.secrets.forbiddenUnlocked && Math.random() < 0.15) {
+                            const db = (typeof ScriniumDB !== 'undefined') ? ScriniumDB.folios : [];
+                            const unfound = db.filter(f => f.subtab === 'tajne_spisy' && (!GameState.scrinium || !GameState.scrinium.folios[f.id] || !GameState.scrinium.folios[f.id].found));
+                            if (unfound.length > 0) {
+                                const pick = unfound[Math.floor(Math.random() * unfound.length)];
+                                SecretsSystem.unlockFolioById(pick.id);
+                            }
+                        }
                         UI.notifyPanel(t("events.discovered_old_vaults.explore_notif"), 'system');
                         EventsSystem._addKronika(t("events.discovered_old_vaults.explore_notif"));
                         return t("events.discovered_old_vaults.explore_res");
