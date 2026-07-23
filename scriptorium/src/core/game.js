@@ -6071,6 +6071,14 @@ const Game = {
                         this.addItem(bonusId, 1);
                         yieldTxt += ' + 1× ' + bonusId;
                     }
+                    // Vlna 1 (media-materia-konsolidace.md §3) — základní kovy častější
+                    // než vzácné minerály nahoře, samostatný roll.
+                    if (Math.random() < 0.4) {
+                        const metalPool = ['lead', 'copper', 'tin'];
+                        const metalId = metalPool[Math.floor(Math.random() * metalPool.length)];
+                        this.addItem(metalId, 1);
+                        yieldTxt += ' + 1× ' + metalId;
+                    }
                     UI.notifyPanel('⛏️ ' + (lang==='en' ? k.name+' returned from the mine with '+yieldTxt+'.' : k.name+' se vrátil z dolu s '+yieldTxt+'.'), 'success');
                     Game.addKronikaEntry('minor', '⛏️ '+k.name+' přinesl z dolu '+yieldTxt+'.', '⛏️ '+k.name+' brought '+yieldTxt+' from the mine.', '⛏️ '+k.name+' e fodina rediit.');
                 }
