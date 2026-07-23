@@ -32894,6 +32894,72 @@ const AthanorDB = {
       lore: 'Žíhaný cín na bílý oxid. Základ neprůhledné glazury na klášterní keramiku a klíčová složka mozaikového zlata.'
     },
 
+    // ── Vlna 2 (media-materia-konsolidace.md §7) — zbytek Prima Materia + navazující Media
+    'ash+water:maceratio': {
+      result: { id: 'ash_water', qty: 2 },
+      name: 'Louh z popela',
+      name_lat: 'Aqua Cinerum',
+      icon: '🫗',
+      effect: null,
+      lore: 'Voda protažená dřevěným popelem. Zásaditý louh — základ mýdla i sklářské huti.'
+    },
+    'wine:trituratio': {
+      result: { id: 'tartarus', qty: 1 },
+      name: 'Vinný kámen',
+      name_lat: 'Tartarus',
+      icon: '🍇',
+      effect: null,
+      lore: 'Krystalická usazenina seškrábaná ze stěn sudu se zralým vínem.'
+    },
+    'ash_water:calcinatio': {
+      result: { id: 'sal_alkali', qty: 1 },
+      name: 'Louhová sůl',
+      name_lat: 'Sal Alkali',
+      icon: '⚪',
+      effect: null,
+      lore: 'Odpařený a žíhaný popelový louh. Nezbytný pro tavení lesního skla ve sklářské huti.'
+    },
+    'tartarus+water:coctio': {
+      result: { id: 'oleum_tartari', qty: 1 },
+      name: 'Olej vinného kamene',
+      name_lat: 'Oleum Tartari per Deliquium',
+      icon: '🫗',
+      effect: null,
+      lore: 'Silná zásada z louhování vinného kamene. Neutralizuje kyseliny, základ klášterních mýdel.'
+    },
+    'bone:calcinatio': {
+      result: { id: 'spodium', qty: 2 },
+      name: 'Kostní popel',
+      name_lat: 'Spodium',
+      icon: '⚪',
+      effect: null,
+      lore: 'Extrémně suchý bílý prášek. Leští pergamen, staví žáruvzdorné kelímky pro kupelaci stříbra.'
+    },
+    'cornu_cervi:calcinatio': {
+      result: { id: 'spodium_cervi', qty: 1 },
+      name: 'Jelení běloba',
+      name_lat: 'Spodium Cervi',
+      icon: '⚪',
+      effect: null,
+      lore: 'Dokonale vyžíhaný jelení paroh utřený na nejjemnější prášek. Pro nejjemnější odlesky na rouchách svatých.'
+    },
+    'egg:calcinatio': {
+      result: { id: 'calx_alba', qty: 2 },
+      name: 'Vápenná běloba',
+      name_lat: 'Calx Alba',
+      icon: '⚪',
+      effect: null,
+      lore: 'Vaječné skořápky žíhané na čistý oxid vápenatý. Levnější náhrada za olověnou bělobu.'
+    },
+    'wood:calcinatio': {
+      result: { id: 'carbo_vitis', qty: 2 },
+      name: 'Révová čerň',
+      name_lat: 'Carbo Vitis',
+      icon: '🖤',
+      effect: null,
+      lore: 'Dřevo žíhané bez přístupu vzduchu na sametově modročerný uhlík — jemnější než obyčejné saze z krbu.'
+    },
+
     // ══ CERVISIARIA ══
     'grain+water:coctio': {
       result: { id: 'wort', qty: 1 },
@@ -33627,10 +33693,10 @@ const AthanorSystem = {
   // Kategorie pro filtr ingrediencí
   _ingCategories: {
     all: null,
-    herbs: ['chamomile', 'st_johns_wort', 'thyme', 'hops', 'rose'],
+    herbs: ['chamomile', 'st_johns_wort', 'thyme', 'hops', 'rose', 'gentian'],
     pigments: ['lapis_lazuli', 'ochre', 'cinnabar', 'carbon_black', 'egg_tempera', 'linseed_oil', 'malachite'],
-    liquids: ['water', 'wine', 'vinegar', 'turpentine'],
-    minerals: ['chalk', 'gum_arabic', 'pumice', 'oak_bark', 'gall_nut', 'sulfur', 'alum', 'vitriol', 'lead', 'copper', 'tin'],
+    liquids: ['water', 'wine', 'vinegar', 'turpentine', 'ash_water'],
+    minerals: ['chalk', 'gum_arabic', 'pumice', 'oak_bark', 'gall_nut', 'sulfur', 'alum', 'vitriol', 'lead', 'copper', 'tin', 'sal_petrae', 'arsenicum'],
     brewing: ['grain', 'hops', 'wort', 'honey', 'thyme'],
   },
 
