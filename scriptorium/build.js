@@ -155,6 +155,17 @@ function build() {
         console.log('⚠️  Složka public/ neexistuje - assety nebudou zkopírovány\n');
     }
 
+    // Zkopírovat api/ (Vercel serverless funkce) do dist/api/
+    // Root Directory ve Vercelu ukazuje na dist/, takže funkce musí ležet v dist/api/.
+    // Stejný neagresivní vzor jako kopírování public/ výše — nic jinýho v dist/ se nemaže.
+    const API = path.join(BASE, 'api');
+    if (fs.existsSync(API)) {
+        console.log('📡 Kopíruji api/ → dist/api/...');
+        const distApi = path.join(DIST, 'api');
+        fs.cpSync(API, distApi, { recursive: true });
+        console.log('   📌 Zkopírováno: api/\n');
+    }
+
     let shell = readFile('src/shell.html');
 
     let jsMain = '';
