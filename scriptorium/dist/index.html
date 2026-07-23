@@ -49971,6 +49971,31 @@ const Game = {
         if (typeof SaeculumSystem !== 'undefined') SaeculumSystem.switchEntity('conversi');
     },
 
+    // Capellanus — duchovní útěcha pacientovi, jednou za pobyt. Jinej efekt než
+    // Infirmarius (stress/temptation u bratra, mood u konvrše) — ne další
+    // vrstva do infirmariumCareModifier, ať se role nescvaknou do jednoho čísla.
+    hearConfession: function(entityId, isBrother) {
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        const pool = isBrother ? ((GameState.dormitorium && GameState.dormitorium.brothers) || []) : (GameState.conversi || []);
+        const entity = pool.find(x => x.id === entityId);
+        if (!entity || !entity.admittedToInfirmarium) return;
+        const hasCapellanus = ((GameState.dormitorium && GameState.dormitorium.brothers) || []).some(b => b.assignedTab === 'infirmarium_capellanus');
+        if (!hasCapellanus) {
+            UI.notify(lang==='en' ? 'No Capellanus to hear confession.' : 'Není Capellanus, kdo by vyslechl zpověď.', true); return;
+        }
+        if (entity.confessedThisStay) return;
+        entity.confessedThisStay = true;
+        if (isBrother) {
+            entity.stress = Math.max(0, (entity.stress || 0) - 20);
+            entity.temptation = Math.max(0, (entity.temptation || 0) - 20);
+        } else {
+            entity.mood = Math.min(100, (entity.mood || 0) + 15);
+        }
+        UI.notifyPanel('🙏 ' + (lang==='en' ? entity.name+' finds peace in confession.' : entity.name+' nalezl klid ve zpovědi.'), 'success');
+        Game.save();
+        if (typeof SaeculumSystem !== 'undefined') SaeculumSystem.switchEntity(isBrother ? 'dormitorium' : 'conversi');
+    },
+
     hireChirurgus: function() {
         const lang = (GameState.settings && GameState.settings.language) || 'cs';
         const relation = (GameState.contactRelation && GameState.contactRelation['chirurgus']) || 0;
@@ -50657,6 +50682,7 @@ const Game = {
         }
         if (entity.admittedToInfirmarium) return;
         entity.admittedToInfirmarium = true;
+        entity.confessedThisStay = false;
         if (isBrother) entity.assignedTab = null; else entity.task = null;
         inf.patients.push({ entityId: entityId, isBrother: isBrother, admittedAt: Date.now() });
         UI.notifyPanel('🩺 ' + (lang==='en' ? entity.name+' admitted to the infirmary.' : entity.name+' přijat do Infirmaria.'), 'system');
