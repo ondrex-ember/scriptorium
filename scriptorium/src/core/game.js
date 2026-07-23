@@ -1976,6 +1976,7 @@ const Game = {
         hive.queenWinter       = 0;   // zimovatelnost, 2–4 hvězdy — ovlivňuje přežití zimy i šanci na veteránku
         hive.strength          = 0;   // 1–10 síla včelstva
         hive.varroa            = 0;   // 0–100 tlak Varroa, roste tiše v čase
+        hive.varroaRevealed    = false; // MRD 5.1 — skrytá Varroa, ukáže se jen po Zkontrolovat/sklizni
         hive.swarmMood         = 0;   // 0–100 rojivá nálada
         hive.lastCollectAt     = 0;
         Game.save();
@@ -2006,6 +2007,7 @@ const Game = {
         hive.queenWinter       = 0;
         hive.strength          = 0;
         hive.varroa            = 0;
+        hive.varroaRevealed    = false; // MRD 5.1 — skrytá Varroa
         hive.swarmMood         = 0;
         hive.lastCollectAt     = 0;
         Game.save();
@@ -2026,13 +2028,138 @@ const Game = {
         hive.queenStrength     = Math.floor(Math.random() * 3) + 2; // 2–4 hvězdy (náhoda)
         hive.queenVarroaResist = Math.floor(Math.random() * 3) + 2; // 2–4 hvězdy
         hive.queenWinter       = Math.floor(Math.random() * 3) + 2; // 2–4 hvězdy
+        hive.queenMildness     = Math.floor(Math.random() * 3) + 2; // 2–4 hvězdy — MRD 5.2, tlumí růst rojivé nálady
+        hive.queenSwarm        = Math.floor(Math.random() * 3) + 2; // 2–4 hvězdy — MRD 5.2, žene rojivou náladu
         hive.strength          = 3; // začíná na střední síle
         hive.varroa            = 0;
+        hive.varroaRevealed    = false; // MRD 5.1 — nová matka, nová neznámá
         hive.swarmMood         = 0;
         hive.lastCollectAt     = Date.now();
+        hive.lastCutAt         = 0; // MRD 5.3 — řez matečníků, cooldown počítadlo
         Game.save();
         UI.renderApiary();
         UI.notify('🐝 ' + t('game.queenAdded') + ' — ' + hive.queenName);
+    },
+
+    // MRD 5.7 — chov matek: vysloužilá matka (z rojení, 280g na trhu) dá potomka
+    // se zděděnou silou a zimovatelností (přesně dle popisu itemu veteran_queen)
+    breedQueen: function(slotIdx) {
+        if (!GameState.apiary) return;
+        const hive = GameState.apiary[slotIdx];
+        if (!hive.built || hive.hasQueen) return;
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        if (!(GameState.inventory['veteran_queen'] > 0)) {
+            UI.notify(lang === 'en' ? 'Requires a veteran queen.' : 'Vyžaduje vysloužilou matku.', true);
+            return;
+        }
+        this.removeItem('veteran_queen', 1);
+        hive.hasQueen          = true;
+        hive.queenName         = this._randomQueenName();
+        hive.queenStrength     = Math.floor(Math.random() * 3) + 3; // 3–5 hvězdy — zděděná síla
+        hive.queenVarroaResist = Math.floor(Math.random() * 3) + 2; // 2–4 hvězdy, normální rozptyl
+        hive.queenWinter       = Math.floor(Math.random() * 3) + 3; // 3–5 hvězdy — zděděná zimovatelnost
+        hive.queenMildness     = Math.floor(Math.random() * 3) + 2;
+        hive.queenSwarm        = Math.floor(Math.random() * 3) + 2;
+        hive.strength          = 3;
+        hive.varroa            = 0;
+        hive.varroaRevealed    = false;
+        hive.swarmMood         = 0;
+        hive.lastCollectAt     = Date.now();
+        hive.lastCutAt         = 0;
+        Game.save();
+        UI.renderApiary();
+        UI.notify('👑 ' + (lang === 'en'
+            ? `A bred queen — "${hive.queenName}" — inherits her mother's strength.`
+            : `Chovná matka — „${hive.queenName}" — zdědila sílu své matky.`));
+    },
+
+    // MRD 5.3 — aktivní správa roje: řez matečníků, ~75% šance sníží rojivou náladu na 0
+    cutQueenCells: function(slotIdx) {
+        if (!GameState.apiary) return;
+        const hive = GameState.apiary[slotIdx];
+        if (!hive.built || !hive.hasQueen) return;
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        if (!(GameState.researchedTechs && GameState.researchedTechs.includes('tech_custos_apium'))) {
+            UI.notify(lang === 'en' ? 'Requires the Custos Apium tech.' : 'Vyžaduje tech Custos Apium.', true);
+            return;
+        }
+        const CUT_COOLDOWN_H = 12;
+        const now = Date.now();
+        if (now < (hive.lastCutAt || 0) + (CUT_COOLDOWN_H * 3600000)) {
+            UI.notify(t('game.hiveNotReady'), true);
+            return;
+        }
+        hive.lastCutAt = now;
+        if (Math.random() < 0.75) {
+            hive.swarmMood = 0;
+            Game.save();
+            UI.renderApiary();
+            UI.notify('✂️ ' + (lang === 'en' ? 'Queen cells cut. The colony has settled.' : 'Matečníky vyříznuty. Rojivá nálada klesla.'));
+        } else {
+            Game.save();
+            UI.renderApiary();
+            UI.notify('🐝 ' + (lang === 'en' ? 'One queen cell was overlooked...' : 'Jeden matečník jsi přehlédl...'), true);
+        }
+    },
+
+    // MRD 5.4 — oddělek: silný úl (síla ≥6) založí nový úl ve volném slotu, za cenu vlastní síly
+    makeNuc: function(sourceIdx) {
+        if (!GameState.apiary) return;
+        const source = GameState.apiary[sourceIdx];
+        if (!source.built || !source.hasQueen) return;
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        if (!(GameState.researchedTechs && GameState.researchedTechs.includes('tech_custos_apium'))) {
+            UI.notify(lang === 'en' ? 'Requires the Custos Apium tech.' : 'Vyžaduje tech Custos Apium.', true);
+            return;
+        }
+        if ((source.strength || 0) < 6) {
+            UI.notify(lang === 'en' ? 'The colony is too weak to split.' : 'Včelstvo je příliš slabé pro oddělení.', true);
+            return;
+        }
+        const targetIdx = GameState.apiary.findIndex(h => !h.built);
+        if (targetIdx === -1) {
+            UI.notify(lang === 'en' ? 'No empty hive slot available.' : 'Není volný slot pro nový úl.', true);
+            return;
+        }
+        source.strength = Math.max(0, source.strength - 3);
+        const nuc = GameState.apiary[targetIdx];
+        nuc.built             = true;
+        nuc.hasQueen           = true;
+        nuc.queenName          = this._randomQueenName();
+        nuc.queenStrength      = Math.floor(Math.random() * 3) + 2;
+        nuc.queenVarroaResist  = Math.floor(Math.random() * 3) + 2;
+        nuc.queenWinter        = Math.floor(Math.random() * 3) + 2;
+        nuc.queenMildness      = Math.floor(Math.random() * 3) + 2;
+        nuc.queenSwarm         = Math.floor(Math.random() * 3) + 2;
+        nuc.strength           = 2; // mladé včelstvo, začíná slabší než nákup nové matky
+        nuc.varroa             = 0;
+        nuc.varroaRevealed     = false;
+        nuc.swarmMood          = 0;
+        nuc.lastCollectAt      = Date.now();
+        nuc.lastCutAt          = 0;
+        Game.save();
+        UI.renderApiary();
+        UI.notify('🐣 ' + (lang === 'en'
+            ? `Nuc created — new colony "${nuc.queenName}" in a fresh slot.`
+            : `Oddělek vytvořen — nové včelstvo „${nuc.queenName}“ v novém slotu.`));
+    },
+
+    // MRD 5.1 — bezplatná kontrola stavu Varroa kdykoliv, nezávisle na sklizni
+    inspectHive: function(slotIdx) {
+        if (!GameState.apiary) return;
+        const hive = GameState.apiary[slotIdx];
+        if (!hive.built || !hive.hasQueen) return;
+        hive.varroaRevealed = true;
+        Game.save();
+        UI.renderApiary();
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        const v = hive.varroa || 0;
+        const hint = v >= 70
+            ? (lang === 'en' ? 'critical — treat soon' : 'kritický — brzy ošetři')
+            : v >= 40
+            ? (lang === 'en' ? 'rising' : 'roste')
+            : (lang === 'en' ? 'calm' : 'klidný');
+        UI.notify('🔍 ' + (lang === 'en' ? `Varroa: ${v}/100 (${hint})` : `Varroa: ${v}/100 (${hint})`));
     },
 
     collectHive: function(slotIdx) {
@@ -2062,6 +2189,7 @@ const Game = {
         const varroaResist = hive.queenVarroaResist || 3;
         const varroaGrowth = Math.max(1, Math.round((elapsedH / 8) * (5 - varroaResist)));
         hive.varroa = Math.min(100, (hive.varroa || 0) + varroaGrowth);
+        hive.varroaRevealed = true; // MRD 5.1 — sklizeň odhalí skutečný stav
         const varroaPenalty = hive.varroa >= 70 ? 0.5 : hive.varroa >= 40 ? 0.8 : 1.0;
 
         // Produkce dle sezóny, síly včelstva, produktivity matky, počasí a stavu Varroa
@@ -2078,12 +2206,22 @@ const Game = {
         this.addItem('honey', honeyYield);
         this.addItem('beeswax', waxYield);
 
+        // Celoživotní statistiky — "high stats" pro Včelařův přehled
+        if (!GameState.apiaryStats) GameState.apiaryStats = { totalHoney: 0, totalWax: 0, totalPropolis: 0, totalPollen: 0, totalCollections: 0 };
+        GameState.apiaryStats.totalHoney += honeyYield;
+        GameState.apiaryStats.totalWax += waxYield;
+        GameState.apiaryStats.totalCollections += 1;
+
         // Pyl bonus — jen léto, jen pokud kvetou záhony nebo sad
         if (season === 'summer') {
             const hasFlowers = GameState.garden && GameState.garden.some(p => p.state === 2 && p.water);
             const hasTrees   = GameState.orchard && GameState.orchard.some(s => s.state === 'mature');
-            if (hasFlowers || hasTrees) this.addItem('pollen', 1);
+            if (hasFlowers || hasTrees) { this.addItem('pollen', 1); GameState.apiaryStats.totalPollen += 1; }
         }
+
+        // Propolis — vzácnější drobná šance při každé sklizni (MRD 5.5), Velký úl ji zdvojí
+        const propolisChance = hive.grand ? 0.3 : 0.15;
+        if (Math.random() < propolisChance) { this.addItem('propolis', 1); GameState.apiaryStats.totalPropolis += 1; }
 
         // Síla roste po sklizni (péče o včely) — běžný úl s šancí 60 % (nerf + náhoda, MRD 5.9),
         // Velký úl roste spolehlivě — odměna za investici do stavby
@@ -2094,15 +2232,20 @@ const Game = {
 
         // Rojivá nálada — přeplněný úl (síla vysoká) a pozdní návštěva ji živí,
         // pravidelná péče ji naopak tiší. Odlet je pravděpodobnostní, ne pevný práh.
+        // MRD 5.2 — queenSwarm (sklon k rojení) žene náladu nahoru, queenMildness ji tlumí.
         const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        const swarmTemper = ((hive.queenSwarm || 3) - (hive.queenMildness || 3)) * 0.15; // -0.3..+0.3
         if (hive.strength >= 8) {
             const late = now > hive.lastCollectAt + (hours * 1.5 * 3600000);
-            hive.swarmMood = Math.min(100, (hive.swarmMood || 0) + (late ? 15 : 5));
+            const gain = Math.round((late ? 15 : 5) * (1 + swarmTemper));
+            hive.swarmMood = Math.min(100, (hive.swarmMood || 0) + gain);
         } else {
             hive.swarmMood = Math.max(0, (hive.swarmMood || 0) - 5);
         }
 
-        if (hive.swarmMood >= 60 && Math.random() < 0.35) {
+        // Šance na skutečný odlet — mírná matka roj spíš udrží, náchylná spíš pustí
+        const swarmChance = Math.max(0.15, Math.min(0.55, 0.35 + swarmTemper));
+        if (hive.swarmMood >= 60 && Math.random() < swarmChance) {
             // Matka odletěla s rojem — malá šance, že jde o vysloužilou matku k prodeji
             const veteranChance = 0.08 + (hive.queenWinter || 3) * 0.04;
             const isVeteran = Math.random() < veteranChance;

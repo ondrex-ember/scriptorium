@@ -375,6 +375,10 @@ const AthanorDB = {
     { id: 'spiritus_vini', name: 'Vinný líh', name_lat: 'Spiritus Vini Rectificatus', rarity: 'uncommon', source: 'crafted',
       color: '#f5f0d0', icon: '🔥', thermal: 5, moisture: -3,
       lore: 'Čistý, vysoce hořlavý alkohol z opakované destilace.' },
+    { id: 'propolis', name: 'Propolis', name_lat: 'Propolis', rarity: 'uncommon', source: 'foraging',
+      color: '#6b4a2a', icon: '🟤', thermal: 1, moisture: -1,
+      lore: 'Pryskyřičný tmel z úlu. Včely jím utěsňují každou skulinu proti chladu a chorobě.',
+      dropNote: 'Drobná šance při sklizni z Apiária.' },
     { id: 'acetum_destillatum', name: 'Destilovaný ocet', name_lat: 'Spiritus Aceti', rarity: 'uncommon', source: 'crafted',
       color: '#e8d8b0', icon: '🍶', thermal: -2, moisture: -2,
       lore: 'Koncentrovaná kyselina octová, zbavená vinných nečistot.' },
@@ -656,6 +660,21 @@ const AthanorDB = {
       effect: null,
       unlock: 'tech_infirmarium_apothecarius',
       lore: 'Teplé víno s medem a rozmarýnem — proti studené a suché černé žluči. Vyhání blud, ne jen únavu.'
+    },
+
+    // ── Apiarium II MRD 5.5 — zpracovatelský řetězec, propolisová tinktura ──
+    'propolis+spiritus_vini:maceratio': {
+      result: { id: 'propolis_tinktura', qty: 1 },
+      name: 'Propolisová tinktura',
+      name_lat: 'Tinctura Propolis',
+      icon: '🧪',
+      effect: {
+        type: 'hunger_extend',
+        value: 7200000,
+        duration_ms: 0,
+        label: 'Hlad se zpomalí o 2 hodiny — hojivý účinek propolisu'
+      },
+      lore: 'Propolis louhovaný ve vinném lihu. Prastarý klášterní lék proti ranám a bolesti v krku.'
     },
 
     // ── Haeresis Occulta MRD — kacířské lektvary ze substantia_ignota ──

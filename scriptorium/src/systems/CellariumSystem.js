@@ -221,6 +221,8 @@ const CellariumSystem = {
     pollen:         3,
     linden_blossom: 3,
     beeswax:        6,
+    propolis:       7,   // MRD 5.5 — drobná šance při sklizni, vzácnější než pyl
+    propolis_tinktura: 16, // MRD 5.5 — Athanor: propolis+spiritus_vini:maceratio
     // Sýry (Lactaria/Caseus — prodej: Hospoda + Trh + Sýrař; Obchod vyloučen)
     goat_cheese_fresh:   4,
     goat_cheese_mature:  8,
@@ -295,7 +297,7 @@ const CellariumSystem = {
     rowan: 'food', linden_fruit: 'mat',
     // Produkty dvora
     egg: 'food', milk: 'food', wool: 'mat', raw_hide: 'mat',
-    feather_hen: 'mat', pollen: 'mat', linden_blossom: 'mat', beeswax: 'mat',
+    feather_hen: 'mat', pollen: 'mat', linden_blossom: 'mat', beeswax: 'mat', propolis: 'mat', propolis_tinktura: 'mat',
     // Semena
     seed_apple: 'mat', seed_pear: 'mat', seed_plum: 'mat', seed_cherry: 'mat',
     seed_walnut: 'mat', seed_mulberry: 'mat', seed_quince: 'mat', seed_sorb: 'mat',
