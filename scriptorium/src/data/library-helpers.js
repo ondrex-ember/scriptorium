@@ -418,7 +418,9 @@ const LibraryStateTemplate = {
             lastTrade: 0,
             lastTopicAt: 0,
             askedTopics: [],
-            aiQuota: { count: 0, resetAt: 0 }
+            aiQuota: { count: 0, resetAt: 0 },
+            loyaltyShown: false,
+            bartolomejSecretShown: false
         }
     }
 };
@@ -657,6 +659,8 @@ const LibraryHelpers = {
             UI.notifyPanel(`${t('library_lore.npc_scribe.notify_book')} "${bookTitle}"`, 'system');
 
             // NOVÉ: reakce písaře po obchodu (dosud nevyužitý dialog)
+            const _loyaltyReady = GameState.library.scribeState.totalTrades >= 5
+                && !GameState.library.scribeState.loyaltyShown;
             NotificationSystem.modal({
                 icon: '🖋️',
                 title: ScribeNPC.name,
@@ -668,7 +672,7 @@ const LibraryHelpers = {
                         ? ScribeNPC.dialogues.after_trade.options_en[0]
                         : ScribeNPC.dialogues.after_trade.options[0]),
                     type: 'primary',
-                    effect: function() {}
+                    effect: _loyaltyReady ? function() { LibraryHelpers._showBartolomejLoyalty(); } : function() {}
                 }]
             });
         } else {
@@ -827,11 +831,19 @@ const LibraryHelpers = {
                     PersonaSystem.addInfluence('bartolomej', 1);
                 }
                 Game.save();
+                const isCapstoneTopic = (top.id === 't29' || top.id === 't30');
+                const capstoneReady = isCapstoneTopic
+                    && st.askedTopics.includes('t29') && st.askedTopics.includes('t30')
+                    && !st.bartolomejSecretShown;
                 NotificationSystem.modal({
                     icon: '🖋️',
                     title: ScribeNPC.name,
                     text: (lang === 'en' ? top.text_en : top.text).replace(/\n/g, '<br>'),
-                    choices: [{ label: lang === 'en' ? 'Close' : 'Zavřít', type: 'default', effect: function() {} }]
+                    choices: [{
+                        label: lang === 'en' ? 'Close' : 'Zavřít',
+                        type: 'default',
+                        effect: capstoneReady ? function() { LibraryHelpers._showBartolomejSecret(); } : function() {}
+                    }]
                 });
                 if (typeof UI.renderLibrary === 'function') UI.renderLibrary();
             }
@@ -842,6 +854,53 @@ const LibraryHelpers = {
             title: ScribeNPC.name,
             text: lang === 'en' ? 'On what wouldst thou hear him speak?' : 'Na co se chceš zeptat?',
             choices: topicChoices
+        });
+    },
+
+    // Uznání po 5. obchodu — jednorázové (MRD krok 5, totalTrades)
+    _showBartolomejLoyalty: function() {
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        GameState.library.scribeState.loyaltyShown = true;
+        Game.save();
+        NotificationSystem.modal({
+            icon: '🖋️',
+            title: ScribeNPC.name,
+            text: (lang === 'en'
+                ? `*The scribe pauses mid-motion, setting down a book, and looks at thee longer than is his custom.*
+
+"Five times now hast thou brought me thy paper, lad. Five times thou hast not complained of the price, five times thou hast waited till I finished speaking. Perhaps thou art no longer merely 'the printer' — perhaps thou art simply the one who comes. That means something, even to an old man such as I."`
+                : `*Písař na okamžik přestane rovnat knihy a podívá se na tebe déle, než je jeho zvykem.*
+
+"Popáté už jsi mi donesl svůj papír, chlapče. Popáté sis nestěžoval na cenu, popáté jsi počkal, až domluvím. Možná už nejsi jen 'ten tiskař' — možná jsi prostě ten, co chodí. To už něco znamená, i pro starého muže, jako jsem já."`
+            ).replace(/\n/g, '<br>'),
+            choices: [{ label: lang === 'en' ? 'Close' : 'Zavřít', type: 'default', effect: function() {} }]
+        });
+    },
+
+    // Kapitola/capstone — jednorázové odemčení po zeptání se na témata 29 i 30 (MRD krok 4)
+    _showBartolomejSecret: function() {
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        GameState.library.scribeState.bartolomejSecretShown = true;
+        if (typeof PersonaSystem !== 'undefined' && PersonaSystem.addMilestone) {
+            PersonaSystem.addMilestone('bartolomej_secret',
+                'Bartoloměj ti svěřil svoje celoživotní tajemství.',
+                'Bartoloměj entrusted thee with his lifelong secret.');
+        }
+        Game.save();
+        NotificationSystem.modal({
+            icon: '🖋️',
+            title: ScribeNPC.name,
+            text: (lang === 'en' ? `*The old scribe catches thee by the sleeve, his voice trembling more than usual.*
+
+"It was Brother Prokop, my master, who taught me to hold a quill. Upon his deathbed, forty years past, he made me swear I would finish his final work by hand — and never, so long as I lived, let it pass through any press. It was a foolish vow, an old man's promise to a dying elder. But I have kept it. That manuscript lies locked in the lower drawer to this day, unfinished, for I never dared complete it myself after his death.
+
+Now thou knowest, lad, why thy press wounds me so. It is not the craft. It is a vow I made to a man who has not heard, these forty years, whether I keep it."`
+            : `*Starý písař tě chytne za rukáv, hlas se mu chvěje víc než obvykle.*
+
+"Byl to bratr Prokop, můj mistr, kdo mě naučil držet brk. Na smrtelné posteli, před čtyřiceti lety, mě přiměl přísahat, že dokončím jeho poslední dílo rukou — a že ho nikdy, dokud budu živ, nenechám projít žádným lisem. Byl to hloupý slib starého muže umírajícímu staršímu muži. Ale držel jsem ho. Ten rukopis leží dodnes zamčený ve spodní přihrádce, nedokončený, protože jsem se ho po jeho smrti nikdy neodvážil sám dopsat.
+
+Teď víš, chlapče, proč mě tvůj lis tolik bolí. Nejde o řemeslo. Jde o slib, který jsem dal muži, co už čtyřicet let neslyší, jestli ho držím."`).replace(/\n/g, '<br>'),
+            choices: [{ label: lang === 'en' ? 'I will keep thy secret, master.' : 'Zachovám tvé tajemství, mistře.', type: 'primary', effect: function() {} }]
         });
     },
 
