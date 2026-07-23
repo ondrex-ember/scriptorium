@@ -749,6 +749,10 @@ const Game = {
                     if (typeof Game !== 'undefined' && Game.checkConversiChores) Game.checkConversiChores();
                     // Conversi — denní riziko zranění/nákazy u away:false tasků (Dvůr, Pole, Coquus...)
                     if (typeof Game !== 'undefined' && Game.checkConversiTaskRisk) Game.checkConversiTaskRisk();
+                    // Conversi — denní kontrola dozrání obláta na konvrše
+                    if (typeof Game !== 'undefined' && Game._checkOblatMaturation) Game._checkOblatMaturation();
+                    // Chirurgus — týdenní mzda
+                    if (typeof Game !== 'undefined' && Game.checkChirurgusWage) Game.checkChirurgusWage();
                     // Conversi — návraty ze Scavenge/Dolů (riziko + výnos)
                     if (typeof Game !== 'undefined' && Game.checkConversiReturns) Game.checkConversiReturns();
                     // Studna — časová degradace (self-guarded 24h, grace 5 dní)
@@ -6095,6 +6099,165 @@ const Game = {
         Game.save();
     },
 
+    // Famulus — sezónní síla, žádná trvalá vazba. 4g/týden, bez loajality,
+    // okamžitej odchod při neplacení (viz upravená mzdová smyčka výš).
+    // Chirurgus/Rasor — hybrid hire: nejdřív Clientela vztah (relation >= 30),
+    // pak funguje jako Famulus (3g/týden, bez loajality, okamžitej odchod).
+    // Uspávací houba — zkrátí injuredUntil konvrše (24h → 4h), spotřebuje 1× item.
+    applySpongiaToInjured: function(entityId) {
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        const k = (GameState.conversi || []).find(x => x.id === entityId);
+        if (!k) return;
+        const now = Date.now();
+        if (!k.injuredUntil || k.injuredUntil <= now) {
+            UI.notify(lang==='en' ? 'Not injured.' : 'Není zraněnej.', true); return;
+        }
+        if ((GameState.inventory['spongia_somnifera'] || 0) < 1) {
+            UI.notify(lang==='en' ? 'You have none in stock.' : 'Nemáš to na skladě.', true); return;
+        }
+        this.removeItem('spongia_somnifera', 1);
+        const shortened = now + 4 * 60 * 60 * 1000;
+        if (shortened < k.injuredUntil) k.injuredUntil = shortened;
+        UI.notifyPanel('🧽 ' + (lang==='en' ? k.name+"'s pain is eased — back on his feet sooner." : k.name+'ovi ulevila bolest — brzy na nohou.'), 'success');
+        Game.save();
+        if (typeof SaeculumSystem !== 'undefined') SaeculumSystem.switchEntity('conversi');
+    },
+
+    hireChirurgus: function() {
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        const relation = (GameState.contactRelation && GameState.contactRelation['chirurgus']) || 0;
+        if (relation < 30) {
+            UI.notify(lang==='en' ? 'Not enough trust yet.' : 'Zatím nedostatečná důvěra.', true); return;
+        }
+        if (GameState.chirurgus && GameState.chirurgus.hired) return;
+        GameState.chirurgus = { hired: true, wageOwed: 0, nextWage: Date.now() + 7 * 24 * 60 * 60 * 1000 };
+        UI.notifyPanel('🩹 ' + (lang==='en' ? 'The Chirurgus now serves the monastery.' : 'Chirurgus teď slouží klášteru.'), 'success');
+        Game.addKronikaEntry('minor', '🩹 Chirurgus najat.', '🩹 Chirurgus hired.', '🩹 Chirurgus conductus est.');
+        Game.save();
+        if (typeof SaeculumSystem !== 'undefined') SaeculumSystem.render();
+    },
+
+    // Denní kontrola týdenní mzdy Chirurga — samostatná od Conversi mzdový smyčky
+    // (Chirurgus není v GameState.conversi, je externí Clientela kontakt).
+    checkChirurgusWage: function() {
+        if (!GameState.chirurgus || !GameState.chirurgus.hired) return;
+        if (Date.now() < GameState.chirurgus.nextWage) return;
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        const due = 3 + (GameState.chirurgus.wageOwed || 0);
+        const grose = (typeof CellariumSystem !== 'undefined') ? CellariumSystem.getGrose() : 0;
+        if (grose >= due) {
+            CellariumSystem.addGrose(-due);
+            GameState.chirurgus.wageOwed = 0;
+            UI.notifyPanel('💰 ' + (lang==='en' ? 'Chirurgus paid: '+due+' g.' : 'Chirurgus vyplacen: '+due+' g.'), 'system');
+        } else {
+            GameState.chirurgus.hired = false;
+            GameState.chirurgus.wageOwed = 0;
+            UI.notifyPanel('🚪 ' + (lang==='en' ? 'The Chirurgus left, unpaid.' : 'Chirurgus odešel, neplacen.'), 'warning');
+            Game.addKronikaEntry('minor', '🚪 Chirurgus opustil klášter, neplacen.', '🚪 The Chirurgus left the monastery, unpaid.', '');
+        }
+        GameState.chirurgus.nextWage = Date.now() + 7 * 24 * 60 * 60 * 1000;
+        Game.save();
+    },
+
+    // Flebotomie — pouštění žilou. MVP bezpečnej/nebezpečnej den podle měsíční fáze
+    // (Homo Signorum/zvěrokruh je budoucí upgrade, viz MRD). Cooldown 21 dní/osobu
+    // (dobově 4-5×/rok = zhruba jednou za ~10 týdnů, 21 dní je bezpečná spodní hranice).
+    performFlebotomie: function(entityId, isBrother) {
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        if (!GameState.chirurgus || !GameState.chirurgus.hired) {
+            UI.notify(lang==='en' ? 'No Chirurgus hired.' : 'Chirurgus není najatej.', true); return;
+        }
+        const pool = isBrother ? ((GameState.dormitorium && GameState.dormitorium.brothers) || []) : (GameState.conversi || []);
+        const entity = pool.find(x => x.id === entityId);
+        if (!entity) return;
+        const now = Date.now();
+        const COOLDOWN = 21 * 24 * 60 * 60 * 1000;
+        if (entity.lastFlebotomie && now - entity.lastFlebotomie < COOLDOWN) {
+            const daysLeft = Math.ceil((COOLDOWN - (now - entity.lastFlebotomie)) / (24*60*60*1000));
+            UI.notify(lang==='en' ? 'Too soon — '+daysLeft+'d until safe again.' : 'Ještě brzy — bezpečný za '+daysLeft+' d.', true); return;
+        }
+        const d = new Date();
+        const moonPhase = (typeof CalendarSystem !== 'undefined') ? CalendarSystem.getLunarForDay(d.getFullYear(), d.getMonth()+1, d.getDate()) : '🌗';
+        entity.lastFlebotomie = now;
+        if (moonPhase === '🌕') {
+            // Úplněk — nebezpečnej den
+            entity.fatigue = Math.min(100, (entity.fatigue || 0) + 15);
+            UI.notifyPanel('🌕 ' + (lang==='en' ? entity.name+' was bled at full moon — worse for it.' : entity.name+' pouštěn žilou za úplňku — na škodu.'), 'warning');
+        } else {
+            entity.fatigue = Math.max(0, (entity.fatigue || 0) - 15);
+            UI.notifyPanel('🩸 ' + (lang==='en' ? entity.name+' was bled — fatigue eased.' : entity.name+' pouštěn žilou — únava ulevena.'), 'success');
+        }
+        Game.save();
+        if (typeof SaeculumSystem !== 'undefined') SaeculumSystem.switchEntity(isBrother ? 'dormitorium' : 'conversi');
+    },
+
+    hireFamulus: function() {
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        if (!GameState.conversi) GameState.conversi = [];
+        if (!GameState.researchedTechs || !GameState.researchedTechs.includes('tech_magister')) {
+            UI.notify(lang==='en' ? 'Requires the Magister tech.' : 'Vyžaduje tech Magister.', true); return;
+        }
+        const cap = this.conversiCapacity();
+        if (GameState.conversi.length >= cap) {
+            UI.notify(lang==='en' ? 'No free beds in the Domus.' : 'V Domu není volné lůžko.', true); return;
+        }
+        const usedNames = GameState.conversi.map(k => k.name);
+        const available = this.KONVRS_NAMES.filter(n => !usedNames.includes(n));
+        const pool = available.length ? available : this.KONVRS_NAMES;
+        const name = pool[Math.floor(Math.random() * pool.length)];
+        const famulus = { id: 'famulus_' + Date.now(), rosterId: null, name: name, type: 'famulus', hiredAt: Date.now(), fatigue: 0, mood: 60, wageOwed: 0 };
+        GameState.conversi.push(famulus);
+        UI.notifyPanel('💼 ' + (lang==='en' ? name+' has joined as a famulus — a seasonal hand.' : name+' se připojil jako famulus — sezónní síla.'), 'success');
+        Game.addKronikaEntry('minor', '💼 '+name+' najat jako famulus.', '💼 '+name+' hired as a famulus.', '💼 '+name+' famulus conductus est.');
+        Game.save();
+        if (typeof SaeculumSystem !== 'undefined') SaeculumSystem.switchEntity(GameState.ui.saeculumEntity || 'tavern');
+    },
+
+    // Oblát — dítě/mladík vstupující do kláštera, dozrává na konvrše po 30
+    // reálných dnech (_checkOblatMaturation, denní tick). Bez mzdy do dozrání.
+    hireOblat: function() {
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        if (!GameState.conversi) GameState.conversi = [];
+        if (!GameState.researchedTechs || !GameState.researchedTechs.includes('tech_magister')) {
+            UI.notify(lang==='en' ? 'Requires the Magister tech.' : 'Vyžaduje tech Magister.', true); return;
+        }
+        const cap = this.conversiCapacity();
+        if (GameState.conversi.length >= cap) {
+            UI.notify(lang==='en' ? 'No free beds in the Domus.' : 'V Domu není volné lůžko.', true); return;
+        }
+        if ((typeof CellariumSystem !== 'undefined' ? CellariumSystem.getGrose() : 0) < 5) {
+            UI.notify(lang==='en' ? 'Not enough groats.' : 'Nedostatek grošů.', true); return;
+        }
+        const usedNames = GameState.conversi.map(k => k.name);
+        const available = this.KONVRS_NAMES.filter(n => !usedNames.includes(n));
+        const pool = available.length ? available : this.KONVRS_NAMES;
+        const name = pool[Math.floor(Math.random() * pool.length)];
+        CellariumSystem.addGrose(-5);
+        const oblat = { id: 'oblat_' + Date.now(), rosterId: null, name: name, type: 'oblat', hiredAt: Date.now(), fatigue: 0, mood: 60, matureAt: Date.now() + 30 * 24 * 60 * 60 * 1000 };
+        GameState.conversi.push(oblat);
+        UI.notifyPanel('🌱 ' + (lang==='en' ? name+' has been taken in as an oblate.' : name+' byl přijat jako oblát.'), 'success');
+        Game.addKronikaEntry('minor', '🌱 '+name+' přijat jako oblát.', '🌱 '+name+' taken in as an oblate.', '🌱 '+name+' oblatus susceptus est.');
+        Game.save();
+        if (typeof SaeculumSystem !== 'undefined') SaeculumSystem.switchEntity(GameState.ui.saeculumEntity || 'tavern');
+    },
+
+    // Denní kontrola dozrání obláta na konvrše — volat z denního ticku.
+    _checkOblatMaturation: function() {
+        if (!GameState.conversi) return;
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        const now = Date.now();
+        GameState.conversi.forEach(k => {
+            if (k.type !== 'oblat' || !k.matureAt || k.matureAt > now) return;
+            k.type = null;
+            delete k.matureAt;
+            if (typeof k.loyalty !== 'number') k.loyalty = 30;
+            if (typeof k.wageOwed !== 'number') k.wageOwed = 0;
+            UI.notifyPanel('✝️ ' + (lang==='en' ? k.name+' has matured into a full lay brother.' : k.name+' dozrál na plnýho konvrše.'), 'success');
+            Game.addKronikaEntry('minor', '✝️ '+k.name+' dozrál z obláta na konvrše.', '✝️ '+k.name+' has matured from oblate to lay brother.', '✝️ '+k.name+' conversus factus est.');
+        });
+        Game.save();
+    },
+
     hireKonvrs: function() {
         const lang = (GameState.settings && GameState.settings.language) || 'cs';
         if (!GameState.conversi) GameState.conversi = [];
@@ -6792,17 +6955,22 @@ const Game = {
             const leavers = [];
             let paidCount = 0, paidTotal = 0;
             GameState.conversi.forEach(k => {
+                if (k.type === 'oblat') return; // dozrává, ještě nebere mzdu
                 if (typeof k.wageOwed !== 'number') k.wageOwed = 0;
-                const due = 2 + k.wageOwed;
+                const wageBase = k.type === 'famulus' ? 4 : 2;
+                const due = wageBase + k.wageOwed;
                 const grose = (typeof CellariumSystem !== 'undefined') ? CellariumSystem.getGrose() : 0;
                 if (grose >= due) {
                     CellariumSystem.addGrose(-due);
-                    if (k.wageOwed > 0) k.loyalty = Math.min(100, k.loyalty + 2); // splacený dluh = usmíření
+                    if (k.wageOwed > 0 && k.type !== 'famulus') k.loyalty = Math.min(100, k.loyalty + 2); // splacený dluh = usmíření
                     k.wageOwed = 0;
                     paidCount++;
                     paidTotal += due;
+                } else if (k.type === 'famulus') {
+                    // Famulus — žádná trvalá vazba, při neplacení odchází okamžitě (ne gradual loyalty decay)
+                    leavers.push(k);
                 } else {
-                    k.wageOwed += 2;
+                    k.wageOwed += wageBase;
                     k.loyalty = Math.max(0, k.loyalty - 5);
                     k.mood = Math.max(0, k.mood - 5);
                     if (k.loyalty <= 0) leavers.push(k);
