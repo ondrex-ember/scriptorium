@@ -747,6 +747,8 @@ const Game = {
                     if (typeof FarmyardSystem !== 'undefined' && FarmyardSystem.columbariumPredatorTick) FarmyardSystem.columbariumPredatorTick();
                     // Conversi — automatické úklidové úkoly (self-guarded 24h přes cleanPen)
                     if (typeof Game !== 'undefined' && Game.checkConversiChores) Game.checkConversiChores();
+                    // Conversi — denní riziko zranění/nákazy u away:false tasků (Dvůr, Pole, Coquus...)
+                    if (typeof Game !== 'undefined' && Game.checkConversiTaskRisk) Game.checkConversiTaskRisk();
                     // Conversi — návraty ze Scavenge/Dolů (riziko + výnos)
                     if (typeof Game !== 'undefined' && Game.checkConversiReturns) Game.checkConversiReturns();
                     // Studna — časová degradace (self-guarded 24h, grace 5 dní)
@@ -5899,21 +5901,21 @@ const Game = {
 
     // ── CONVERSI — přiřazování úkolů (M1) ───────────────────────────────────
     CONVERSI_TASKS: {
-        dvur:     { icon: '🏚️', away: false },
-        zahony:   { icon: '🌿', away: false },
-        sad:      { icon: '🍎', away: false },
-        apiarium: { icon: '🐝', away: false },
-        piscina:  { icon: '🐟', away: false },
-        pole:     { icon: '🌾', away: false },
-        vinohrad: { icon: '🍇', away: false },
+        dvur:     { icon: '🏚️', away: false, dailyRiskPct: 8, injuryKind: 'physical' },
+        zahony:   { icon: '🌿', away: false, dailyRiskPct: 2, injuryKind: 'physical' },
+        sad:      { icon: '🍎', away: false, dailyRiskPct: 7, injuryKind: 'physical' },
+        apiarium: { icon: '🐝', away: false, dailyRiskPct: 5, injuryKind: 'sting', injuryHours: 6 },
+        piscina:  { icon: '🐟', away: false, dailyRiskPct: 5, injuryKind: 'physical' },
+        pole:     { icon: '🌾', away: false, dailyRiskPct: 7, injuryKind: 'physical' },
+        vinohrad: { icon: '🍇', away: false, dailyRiskPct: 6, injuryKind: 'physical' },
         scavenge: { icon: '🌾', away: true,  durationMs: 8  * 60 * 60 * 1000, riskPct: 12 },
         doly:     { icon: '⛏️', away: true,  durationMs: 20 * 60 * 60 * 1000, riskPct: 20 },
-        kostel:   { icon: '🕍', away: false },
-        hrbitov:  { icon: '⚰️', away: false },
-        servitor:   { icon: '🩺', away: false },
-        coquus:     { icon: '🍲', away: false },
-        hortulanus: { icon: '🌿', away: false },
-        balneator:  { icon: '🔥', away: false },
+        kostel:   { icon: '🕍', away: false, dailyRiskPct: 3, injuryKind: 'physical' },
+        hrbitov:  { icon: '⚰️', away: false, dailyRiskPct: 6, injuryKind: 'physical' },
+        servitor:   { icon: '🩺', away: false, dailyRiskPct: 6, injuryKind: 'illness' },
+        coquus:     { icon: '🍲', away: false, dailyRiskPct: 7, injuryKind: 'physical' },
+        hortulanus: { icon: '🌿', away: false, dailyRiskPct: 2, injuryKind: 'physical' },
+        balneator:  { icon: '🔥', away: false, dailyRiskPct: 7, injuryKind: 'physical' },
     },
     CONVERSI_TASK_SLOTS: 2,
 
@@ -6031,6 +6033,63 @@ const Game = {
                     UI.notifyPanel('🌾 ' + (lang==='en' ? k.name+' returned from scavenging with '+yieldTxt+'.' : k.name+' se vrátil ze scavenge s '+yieldTxt+'.'), 'success');
                     Game.addKronikaEntry('minor', '🌾 '+k.name+' přinesl ze scavenge '+yieldTxt+'.', '🌾 '+k.name+' brought '+yieldTxt+' from scavenging.', '🌾 '+k.name+' rediit.');
                 }
+            }
+        });
+        Game.save();
+    },
+
+    // Denní riziko zranění/nákazy u away:false konvrší úkolů (Dvůr, Pole, Coquus...).
+    // Nezávislé na checkConversiChores — čistě aditivní, nesahá na výnosovou logiku.
+    // Princip: NIKDY nesmí vyžadovat Infirmarium k vyřešení — čas vždy stačí sám,
+    // Infirmarium/Apothecarius je jen akcelerátor (viz infirmariumCareModifier).
+    checkConversiTaskRisk: function() {
+        const now = Date.now();
+        const DAY = 24 * 60 * 60 * 1000;
+        if (!GameState.conversiNextRiskCheck) { GameState.conversiNextRiskCheck = now + DAY; return; } // první den bez rizika
+        if (now < GameState.conversiNextRiskCheck) return;
+        GameState.conversiNextRiskCheck = now + DAY;
+
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        (GameState.conversi || []).forEach(k => {
+            if (!k.task) return;
+            if (k.injuredUntil && k.injuredUntil > now) return;
+            if (k.admittedToInfirmarium) return;
+            if (k.awayUntil && k.awayUntil > now) return;
+            if (k.penanceUntil && k.penanceUntil > now) return;
+            const cfg = this.CONVERSI_TASKS[k.task];
+            if (!cfg || !cfg.dailyRiskPct) return;
+            if (Math.random() * 100 >= cfg.dailyRiskPct) return;
+
+            if (cfg.injuryKind === 'illness') {
+                // Servitor — nákaza od právě léčenýho pacienta, ne injuredUntil
+                const inf = GameState.infirmarium || { patients: [] };
+                const patientConditions = [];
+                (inf.patients || []).forEach(p => {
+                    const pool = p.isBrother ? ((GameState.dormitorium && GameState.dormitorium.brothers) || []) : (GameState.conversi || []);
+                    const patient = pool.find(e => e.id === p.entityId);
+                    if (patient && patient.conditions) {
+                        Object.keys(patient.conditions).forEach(cid => { if (!patientConditions.includes(cid)) patientConditions.push(cid); });
+                    }
+                });
+                if (!patientConditions.length) return; // nikdo nemocnej, není co chytit
+                const caughtId = patientConditions[Math.floor(Math.random() * patientConditions.length)];
+                if (!k.conditions) k.conditions = {};
+                if (k.conditions[caughtId]) return; // už to má
+                const def = HealthConditionsDB[caughtId];
+                if (!def) return;
+                k.conditions[caughtId] = { startedAt: now, expiresAt: now + def.durationHours * 3600000 };
+                const condName = lang==='en' ? def.name_en : def.name;
+                UI.notifyPanel('🤒 ' + (lang==='en' ? k.name+' caught '+condName+' from a patient.' : k.name+' se nakazil od pacienta: '+condName+'.'), 'warning');
+                this.addKronikaEntry('minor', '🤒 '+k.name+' se v Infirmariu nakazil: '+condName+'.', '🤒 '+k.name+' caught '+condName+' at the infirmary.', '🤒 '+k.name+' aegrotavit.');
+            } else {
+                const hours = cfg.injuryHours || 24;
+                k.injuredUntil = now + hours * 60 * 60 * 1000;
+                k.fatigue = Math.min(100, (k.fatigue || 0) + (cfg.injuryKind === 'sting' ? 10 : 20));
+                const kindMsg = cfg.injuryKind === 'sting'
+                    ? (lang==='en' ? k.name+' was stung repeatedly. Swelling for '+hours+'h.' : k.name+' dostal několik žihadel. Otok na '+hours+'h.')
+                    : (lang==='en' ? k.name+' was hurt at work. Resting '+hours+'h.' : k.name+' se zranil při práci. Odpočívá '+hours+'h.');
+                UI.notifyPanel('⚠️ ' + kindMsg, 'warning');
+                this.addKronikaEntry('minor', '⚠️ '+k.name+' se zranil při práci.', '⚠️ '+k.name+' was hurt at work.', '⚠️ '+k.name+' vulneratus est.');
             }
         });
         Game.save();
