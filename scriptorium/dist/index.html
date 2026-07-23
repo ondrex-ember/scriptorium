@@ -50378,6 +50378,43 @@ const Game = {
         if (typeof SaeculumSystem !== 'undefined') SaeculumSystem.switchEntity(isBrother ? 'dormitorium' : 'conversi');
     },
 
+    // Apothecarius podá lék admitted pacientovi — spotřebuje 1× item z inventáře,
+    // vyléčí přesně ten neduh, kterej ho v cures[] uvádí (viz health.js).
+    // Bez přiřazenýho Apothecaria (mnišská role) tahle akce vůbec nejde spustit.
+    administerCure: function(entityId, isBrother, itemId) {
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        const pool = isBrother ? ((GameState.dormitorium && GameState.dormitorium.brothers) || []) : (GameState.conversi || []);
+        const entity = pool.find(x => x.id === entityId);
+        if (!entity || !entity.conditions) return;
+        const hasApothecarius = ((GameState.dormitorium && GameState.dormitorium.brothers) || []).some(b => b.assignedTab === 'infirmarium_apothecarius');
+        if (!hasApothecarius) {
+            UI.notify(lang==='en' ? 'No Apothecarius to prepare the dose.' : 'Není Apothecarius, kdo by dávku připravil.', true); return;
+        }
+        const conditionId = Object.keys(entity.conditions).find(id => {
+            const def = HealthConditionsDB[id];
+            return def && def.cures && def.cures.includes(itemId);
+        });
+        if (!conditionId) {
+            UI.notify(lang==='en' ? 'This remedy does not match any ailment here.' : 'Tenhle lék na nic z toho nesedí.', true); return;
+        }
+        if ((GameState.inventory[itemId] || 0) < 1) {
+            UI.notify(lang==='en' ? 'You have none of this in stock.' : 'Nemáš to na skladě.', true); return;
+        }
+        this.removeItem(itemId, 1);
+        delete entity.conditions[conditionId];
+        const condDef = HealthConditionsDB[conditionId];
+        const condName = condDef ? (lang==='en' ? condDef.name_en : condDef.name) : conditionId;
+        UI.notifyPanel('⚕️ ' + (lang==='en' ? entity.name+' cured of '+condName+'.' : entity.name+' vyléčen z '+condName+'.'), 'system');
+        if (entity.admittedToInfirmarium && !Object.keys(entity.conditions).length) {
+            entity.admittedToInfirmarium = false;
+            if (GameState.infirmarium) {
+                GameState.infirmarium.patients = (GameState.infirmarium.patients || []).filter(p => p.entityId !== entity.id);
+            }
+        }
+        Game.save();
+        if (typeof SaeculumSystem !== 'undefined') SaeculumSystem.switchEntity(isBrother ? 'dormitorium' : 'conversi');
+    },
+
     // Trvalé úmrtí — Rajský dvůr (vnitřní pohřebiště komunity), NE farní Hřbitov
     // (ten je jen pro farní rodiny přes parishEventTick — historicky odlišené prostory).
     // Okamžitá náhrada stejnou postavou z rosteru (Bouvard: "vlastní variace do rosteru").
