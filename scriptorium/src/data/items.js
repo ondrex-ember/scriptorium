@@ -68,6 +68,7 @@ const ItemsDB = {
     "frog": { name: "Žába", name_en: "Frog", icon: "🐸", type: "alchemy_ing", desc: "Z mokřadu.", desc_en: "From the wetlands." },
     "slug": { name: "Slimák", name_en: "Slug", icon: "🐌", type: "alchemy_ing", desc: "Sliz.", desc_en: "Slimy creature." },
     "resin": { name: "Pryskyřice", name_en: "Resin", icon: "💧", type: "alchemy_ing", desc: "Ze stromů.", desc_en: "Tree resin." },
+    "substantia_ignota": { name: "Neznámá substance", name_en: "Unknown Substance", icon: "❓", type: "alchemy_ing", desc: "Nikdo neví, co to je. Ani poutník sám to neřekl.", desc_en: "No one knows what it is. Not even the pilgrim who brought it would say." },
     "honey": { name: "Med", name_en: "Honey", icon: "🍯", type: "food", desc: "Včelí med.", desc_en: "Bee honey." },
     "mushroom_poison": { name: "Muchotrávka", name_en: "Death Cap", icon: "🍄", type: "alchemy_ing", desc: "Jedovatá houba.", desc_en: "A poisonous mushroom." },
     "roots": { name: "Kořeny", name_en: "Roots", icon: "🪴", type: "alchemy_ing", desc: "Hluboké kořeny.", desc_en: "Deep roots." },
