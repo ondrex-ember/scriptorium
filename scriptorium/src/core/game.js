@@ -2073,6 +2073,45 @@ const Game = {
             : `Chovná matka — „${hive.queenName}" — zdědila sílu své matky.`));
     },
 
+    // MRD 5.6 — stárnutí propolisové tinktury (vzor: Foudres/foudresBarrel), jedna běžící dávka
+    startTinkturaAging: function(amount) {
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        if (GameState.apiaryTinkturaAging) {
+            UI.notify(lang === 'en' ? 'A batch is already aging.' : 'Dávka už zraje.', true);
+            return;
+        }
+        amount = parseInt(amount, 10) || 0;
+        const have = GameState.inventory['propolis_tinktura'] || 0;
+        if (amount <= 0 || amount > have) {
+            UI.notify(lang === 'en' ? 'Not enough tincture.' : 'Nedostatek tinktury.', true);
+            return;
+        }
+        this.removeItem('propolis_tinktura', amount);
+        GameState.apiaryTinkturaAging = {
+            amount: amount,
+            startedAt: Date.now(),
+            readyAt: Date.now() + 10 * 86400000, // 10 dní zrání
+        };
+        Game.save();
+        UI.renderApiary();
+        UI.notify('🏺 ' + (lang === 'en' ? 'Tincture set to age.' : 'Tinktura uložena ke zrání.'));
+    },
+
+    collectTinkturaAging: function() {
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        const batch = GameState.apiaryTinkturaAging;
+        if (!batch) return;
+        if (Date.now() < batch.readyAt) {
+            UI.notify(lang === 'en' ? 'Not ready yet.' : 'Ještě nezraje.', true);
+            return;
+        }
+        this.addItem('propolis_tinktura_vyzrala', batch.amount);
+        GameState.apiaryTinkturaAging = null;
+        Game.save();
+        UI.renderApiary();
+        UI.notify('🏺 ' + (lang === 'en' ? 'Aged tincture collected.' : 'Vyzrálá tinktura vyzvednuta.'));
+    },
+
     // MRD 5.3 — aktivní správa roje: řez matečníků, ~75% šance sníží rojivou náladu na 0
     cutQueenCells: function(slotIdx) {
         if (!GameState.apiary) return;

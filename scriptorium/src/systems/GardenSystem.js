@@ -1363,6 +1363,30 @@ const GardenSystem = {
         });
 
         html += `</div>`;
+
+        // MRD 5.6 — Zrání propolisové tinktury (vzor Foudres), jen když je co zrát/vyzvednout
+        const tinkturaHave = GameState.inventory['propolis_tinktura'] || 0;
+        const aging = GameState.apiaryTinkturaAging;
+        if (aging || tinkturaHave > 0) {
+            html += `<div style="margin-top:12px; padding:12px 14px; background:rgba(150,110,40,0.06); border-radius:8px; border-left:3px solid rgba(150,110,40,0.4);">`;
+            html += `<div style="font-weight:bold; font-size:0.85rem; margin-bottom:6px;">🏺 ${_apLang==='en'?'Aging tincture':'Zrání tinktury'}</div>`;
+            if (aging) {
+                const daysLeft = Math.max(0, Math.ceil((aging.readyAt - now) / 86400000));
+                const ready = now >= aging.readyAt;
+                html += `<div style="font-size:0.78rem; opacity:0.75; margin-bottom:6px;">
+                    ${_apLang==='en'?'Tincture':'Tinktura'} ×${aging.amount} — ${ready ? (_apLang==='en'?'ready!':'hotovo!') : (daysLeft+'d')}
+                </div>
+                <button class="craft-btn" onclick="Game.collectTinkturaAging()" ${ready?'':'disabled'} style="background:${ready?'#4a7c59':'#888'};">
+                    🏺 ${_apLang==='en'?'Collect':'Vyzvednout'}</button>`;
+            } else {
+                html += `<div style="font-size:0.72rem; opacity:0.6; margin-bottom:6px;">${_apLang==='en'?'Available':'K dispozici'}: ${tinkturaHave}</div>
+                <input type="number" id="apiary-aging-amount" min="1" max="${tinkturaHave}" placeholder="${_apLang==='en'?'amount':'množství'}" style="font-size:0.72rem;padding:3px;width:100%;margin-bottom:4px;">
+                <button class="craft-btn" onclick="Game.startTinkturaAging(document.getElementById('apiary-aging-amount').value)" style="font-size:0.75rem;">
+                    🏺 ${_apLang==='en'?'Set to age (10d)':'Uložit ke zrání (10d)'}</button>`;
+            }
+            html += `</div>`;
+        }
+
         el.innerHTML = html;
     },
 

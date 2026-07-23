@@ -65,6 +65,15 @@ const SecretsSystem = {
       }
       Game.save();
       UI.notifyPanel('📕 Scrinium Abbatis apertum est! Opat ti otevřel svou soukromou knihovnu.', 'system');
+
+      // Oprava díry v pořadí čtení — knihy přečtené PŘED odemčením Scrinia
+      // nikdy neprošly checkFolioDiscovery() (ta se tehdy sama ukončila,
+      // protože forbiddenUnlocked byl ještě false). Dožeň to teď zpětně
+      // pro všechny už přečtené knihy, ať se folio nikdy trvale neztratí.
+      GameState.library.readBooks.forEach(function(readBookId) {
+        this.checkFolioDiscovery(readBookId);
+      }, this);
+
       return true;
     }
     return false;
@@ -757,7 +766,7 @@ const SecretsSystem = {
             "Ignis latet in cinere, frater."<br>
             <span style="font-size: 0.85rem; opacity: 0.7;">Fire hides in the ashes, brother.</span>
           </p>
-          <p style="font-size: 0.85rem; opacity: 0.7; margin-bottom: 20px;">Tato laboratoř se odemkne v příští fázi hry.</p>
+          <p style="font-size: 0.85rem; opacity: 0.7; margin-bottom: 20px; line-height: 1.5;">Dveře nejsou zamčené proto, že by za nimi nic nebylo. Klíč, kniha, nebo vlastní bolest — každá cesta otevírá jinak. Ten, kdo hledá s trpělivostí, najde.</p>
           <div style="display: flex; gap: 8px; justify-content: center;">
             <input type="password" id="athanor-pw" placeholder="Heslo..."
                    style="padding: 8px 12px; border: 1px solid rgba(0,0,0,0.2); border-radius: 3px; font-family: 'Crimson Text'; font-size: 1rem; background: var(--bg-card); color: var(--ink-primary);"
