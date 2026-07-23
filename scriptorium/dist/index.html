@@ -7542,6 +7542,25 @@ const HealthConditionsDB = {
         cures: ["herbal_tea", "antidote", "potion_heal"],
         humor: "cholera", // střídavě horko/chlad — cholera jako dominantní (horečková) složka
     },
+
+    // ── Haeresis Occulta MRD — cizí blud z neznámé substance (Athanor) ──
+    // Bez cures pole: řeší se výhradně přes Elixir Purgationis (Athanor/
+    // Apothecarius) nebo zpověď v Templu — obě cesty přidávají další kroky.
+    "haeresis_occulta": {
+        name: "Kacířský blud", name_en: "Heretical Delusion", icon: "🌀",
+        desc: "Haeresis occulta — myšlenka, která do žádné kázně nepatří. Vloudila se dovnitř s douškem neznámé substance.",
+        desc_en: "Haeresis occulta — a thought that belongs to no rule. It slipped in with a draught of the unknown substance.",
+        causeShort: "Pití neznámé substance z Athanoru.",
+        causeShort_en: "Drinking the unknown substance from the Athanor.",
+        advice: "Obyčejný lék nepomůže. Buď uvař Očistný elixír, nebo se vyzpovídej v Templu.",
+        advice_en: "No ordinary remedy helps. Either brew a Purging Elixir, or confess in the Templum.",
+        durationHours: 108,
+        onApply: { fatigue: 15 },
+        tickHour: { fatigue: 1 },
+        cures: [],
+        humor: "melancholia",
+        infirmaryEligible: false,
+    },
 };
 
 // ═══ src/data/lore.js ═══
