@@ -243,6 +243,37 @@ const CalendarSystem = {
         return ['🌑', '🌒', '🌓', '🌔', '🌕', '🌖', '🌗', '🌘'][idx];
     },
 
+    // ── Homo Signorum — Zvěrokruh a jeho vláda nad tělem ────────────────────
+    // Klasická "Zodiac Man" tradice: každé znamení vládne tělesné části,
+    // nebezpečné je pouštět žilou pod znamením, kterým měsíc právě prochází.
+    // Aproximace: sidereálnej oběh měsíce (~27.32 dne) rozdělenej na 12 dílů —
+    // stejnej kotevní bod jako getLunarForDay (synodickej cyklus), jiná perioda.
+    ZODIAC_SIGNS: [
+        { cs: 'Beran',     en: 'Aries',       icon: '♈', bodyPart_cs: 'hlava',           bodyPart_en: 'head' },
+        { cs: 'Býk',       en: 'Taurus',      icon: '♉', bodyPart_cs: 'krk',             bodyPart_en: 'neck' },
+        { cs: 'Blíženci',  en: 'Gemini',      icon: '♊', bodyPart_cs: 'ramena a paže',   bodyPart_en: 'shoulders and arms' },
+        { cs: 'Rak',       en: 'Cancer',      icon: '♋', bodyPart_cs: 'hruď',            bodyPart_en: 'chest' },
+        { cs: 'Lev',       en: 'Leo',         icon: '♌', bodyPart_cs: 'srdce a záda',    bodyPart_en: 'heart and back' },
+        { cs: 'Panna',     en: 'Virgo',       icon: '♍', bodyPart_cs: 'břicho',          bodyPart_en: 'belly' },
+        { cs: 'Váhy',      en: 'Libra',       icon: '♎', bodyPart_cs: 'ledviny',         bodyPart_en: 'kidneys' },
+        { cs: 'Štír',      en: 'Scorpio',     icon: '♏', bodyPart_cs: 'klín',            bodyPart_en: 'loins' },
+        { cs: 'Střelec',   en: 'Sagittarius', icon: '♐', bodyPart_cs: 'stehna',          bodyPart_en: 'thighs' },
+        { cs: 'Kozoroh',   en: 'Capricorn',   icon: '♑', bodyPart_cs: 'kolena',          bodyPart_en: 'knees' },
+        { cs: 'Vodnář',    en: 'Aquarius',    icon: '♒', bodyPart_cs: 'lýtka',           bodyPart_en: 'shins' },
+        { cs: 'Ryby',      en: 'Pisces',      icon: '♓', bodyPart_cs: 'chodidla',        bodyPart_en: 'feet' },
+    ],
+    // Vodní trojice (Rak/Štír/Ryby) — přebytek vlhkosti, dobově nejrizikovější pro Minutio.
+    ZODIAC_UNSAFE_IDX: [3, 7, 11],
+
+    getZodiacForMoonDay: function (year, month, day) {
+        const d = new Date(year, month - 1, day);
+        const knownNewMoon = new Date(Date.UTC(2000, 0, 6, 18, 14));
+        const daysSince = (d - knownNewMoon) / 86400000;
+        const SIDEREAL = 27.321661;
+        const pos = ((daysSince % SIDEREAL) + SIDEREAL) % SIDEREAL;
+        return Math.floor(pos / SIDEREAL * 12) % 12;
+    },
+
     // ── Navigace ─────────────────────────────────────────────────────────────
     GAME_YEAR: 1465,
 
