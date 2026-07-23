@@ -11,6 +11,16 @@
 // ─────────────────────────────────────────────────────────────
 
 const ContactsDB = {
+    chirurgus: {
+        confession: "Přiznává, že žíly pouští i beze svolení faráře — a že nejlepší břitvu ukradl krejčímu.",
+        confession_en: "He confesses to letting blood without the priest's leave — and to having stolen his best razor from a tailor.",
+        name: 'Chirurgus', name_en: 'Surgeon', icon: '🩹',
+        primaryAxis: 'village',
+        secondaryAxis: null,
+        unlockTech: 'tech_infirmarium',
+        desc: 'Potulný ranhojič a lazebník. Klášter mu holí i pouští žilou, chirurgii mniši sami nesmí.',
+        desc_en: 'A wandering surgeon-barber. He shaves the brothers and lets their blood — surgery itself monks may not perform.'
+    },
     syrar: {
         confession: "Přiznává, že do tvarohu přilévá syrovátku a míru dorovnává palcem.",
         confession_en: "He confesses to thinning the curd with whey and topping the measure with his thumb.",
