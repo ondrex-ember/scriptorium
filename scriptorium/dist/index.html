@@ -13578,7 +13578,7 @@ const EventsSystem = {
                             return t('events.athanor_pilgrim_ingredient.accept_res_poor');
                         }
                         CellariumSystem.spendGrose(5);
-                        const pool = ['sulfur', 'lapis_lazuli', 'mercury'];
+                        const pool = ['sulfur', 'lapis_lazuli', 'mercury', 'substantia_ignota'];
                         const gained = pool[Math.floor(Math.random() * pool.length)];
                         Game.addItem(gained, 1);
                         UI.notifyPanel(t('events.athanor_pilgrim_ingredient.accept_notif'), 'system');
