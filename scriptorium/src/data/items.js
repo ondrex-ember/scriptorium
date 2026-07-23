@@ -197,6 +197,7 @@ const ItemsDB = {
     // GALLIC INK
     "gall_nut": { name: "Duběnka", name_en: "Oak Gall", icon: "🫘", type: "alchemy_ing", desc: "Hálka na dubu. Obsahuje tanin.", desc_en: "Oak gall. Contains tannin." },
     "vrbova_kura": { name: "Vrbová kůra", name_en: "Willow Bark", icon: "🌿", type: "alchemy_ing", desc: "Chladná a vlhká kůra vrby. Tiší horečku a bolest.", desc_en: "Cool, moist willow bark. Eases fever and pain." },
+    "oak_bark": { name: "Dubová kůra", name_en: "Oak Bark", icon: "🌳", type: "alchemy_ing", desc: "Třísloviny z dubové kůry. Základ pro fixaci barviv i výrobu inkoustu bez kovů.", desc_en: "Tannins from oak bark. A base for fixing dyes and making ink without metals." },
     "iron_sulfate": { name: "Síran železnatý", name_en: "Iron Vitriol", icon: "⚗️", type: "alchemy_ing", desc: "Vitriol. Z chemické reakce.", desc_en: "Vitriol. From chemical reaction." },
     "gum_arabic": { name: "Arabská guma", name_en: "Gum Arabic", icon: "💧", type: "alchemy_ing", desc: "Ze stromů akácie. Pojidlo.", desc_en: "From acacia trees. A binder." },
     "ink_gallic": { name: "Železitoduběnkový inkoust", name_en: "Iron Gall Ink", icon: "✒️", type: "lore", desc: "Permanentní. Prožírá pergamen po 80 letech.", desc_en: "Permanent. Eats through vellum after 80 years." },
