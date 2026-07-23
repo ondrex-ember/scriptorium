@@ -32205,6 +32205,15 @@ const AthanorDB = {
       dropNote: 'Sbírej při průzkumu v lese.'
     },
     {
+      id: 'vrbova_kura',
+      name: 'Vrbová kůra', name_lat: 'Cortex Salicis',
+      rarity: 'common', source: 'foraging',
+      color: '#8ba888', icon: '🌿',
+      thermal: -2, moisture: 1,
+      lore: 'Chladná a vlhká kůra vrby. Přírodní tišitel horečky a bolesti — základ Contraria contrariis proti Žluté žluči.',
+      dropNote: 'Sbírej při loupání kůry ze stromu.'
+    },
+    {
       id: 'grain', name: 'Obilí', name_lat: 'Granum', rarity: 'common', source: 'existing',
       color: '#d4a820', icon: '🌾', thermal: 1, moisture: 2,
       lore: 'Základ chleba i piva. Kláštery pěstovaly obilí od nepaměti.'
@@ -32387,6 +32396,39 @@ const AthanorDB = {
         label: 'Hlad se zpomalí o 4 hodiny'
       },
       lore: 'Vosk s heřmánkem potírá rozmrzlé prsty a unavené zápěstí.'
+    },
+
+    // ── Valetudo — Apothecarius (Contraria contrariis curantur) ──
+    // Alternativní cesta ke stejným cure itemům jako RecipesDB (odvar_z_dubenek
+    // atd.) — přes Athanor experimentování místo garantovanýho receptu. Gate
+    // pořád tech_infirmarium_apothecarius/tech_chirurgus (kontrolovaný jinde,
+    // combo samo o sobě negatuje tech — jen dělá item dostupným ke zkoušení).
+    'gall_nut+water:coctio': {
+      result: { id: 'odvar_z_dubenek', qty: 1 },
+      name: 'Odvar z duběnek',
+      name_lat: 'Decoctum Gallarum',
+      icon: '🫘',
+      effect: null,
+      unlock: 'tech_infirmarium_apothecarius',
+      lore: 'Svíravej odvar — Krev (horko+vlhko) se léčí chladem a suchem. Duběnka sama je už chladná a suchá.'
+    },
+    'linseed_oil:trituratio': {
+      result: { id: 'mast_ze_lneneho_oleje', qty: 1 },
+      name: 'Mast ze lněného oleje',
+      name_lat: 'Unguentum Lini',
+      icon: '🧴',
+      effect: null,
+      unlock: 'tech_infirmarium_apothecarius',
+      lore: 'Černá žluč (chlad+sucho) se léčí teplem a vlhkem — lněný olej je obojí, drcení v třecí misce ho promění v mast.'
+    },
+    'vrbova_kura+water:coctio': {
+      result: { id: 'odvar_z_vrby', qty: 1 },
+      name: 'Odvar z vrbové kůry',
+      name_lat: 'Decoctum Salicis',
+      icon: '🍵',
+      effect: null,
+      unlock: 'tech_infirmarium_apothecarius',
+      lore: 'Žlutá žluč (horko+sucho) se léčí chladem a vlhkem — přesně kvality vrbový kůry.'
     },
 
     // ── Discoverable: skryté kombinace ──
@@ -32757,6 +32799,21 @@ const CombinationEngine = {
         failure: {
           id: 'UNKNOWN',
           icon: '❓',
+          title: 'Terra Incognita',
+          msg: 'Tato kombinace zatím žádný výsledek nevydala. Zkus jiné složky nebo jiný proces.',
+          lore: 'Alchymie je umění trpělivosti. Pokračuj ve zkoumání.'
+        }
+      };
+    }
+
+    // Tech gate na úrovni combo (nová, volitelná vlastnost — beze změny pro
+    // existující combos, žádná z nich unlock nemá nastavenej).
+    if (combo.unlock && !(GameState.researchedTechs && GameState.researchedTechs.includes(combo.unlock))) {
+      return {
+        success: false,
+        failure: {
+          id: 'LOCKED',
+          icon: '🔒',
           title: 'Terra Incognita',
           msg: 'Tato kombinace zatím žádný výsledek nevydala. Zkus jiné složky nebo jiný proces.',
           lore: 'Alchymie je umění trpělivosti. Pokračuj ve zkoumání.'
@@ -33843,6 +33900,7 @@ const AthanorSystem = {
     if (el && el.style.display !== 'none') AthanorSystem.render('home-athanor-content');
   }
 };
+
 // ═══ src/systems/GamesSystem.js ═══
 // ═══════════════════════════════════════════════════════════════════════════════
 // GAMES SYSTEM — Aula Ludi
