@@ -32997,6 +32997,116 @@ const AthanorDB = {
       lore: 'Dřevo žíhané bez přístupu vzduchu na sametově modročerný uhlík — jemnější než obyčejné saze z krbu.'
     },
 
+    // ── Vlna 3 (media-materia-konsolidace.md §5) — prekurzory
+    'wine:destillatio': {
+      result: { id: 'aqua_ardens', qty: 2 },
+      name: 'Ohnivá voda',
+      name_lat: 'Aqua Ardens',
+      icon: '🔥',
+      effect: null,
+      lore: 'První průchod vína alembikem. Hořlavý líh nižší koncentrace, dezinfekce pro Infirmarium.'
+    },
+    'aqua_ardens:destillatio': {
+      result: { id: 'spiritus_vini', qty: 1 },
+      name: 'Vinný líh',
+      name_lat: 'Spiritus Vini Rectificatus',
+      icon: '🔥',
+      effect: null,
+      lore: 'Vícenásobná destilace přes alembik. Čistý, vysoce hořlavý alkohol pro nejsilnější tinktury.'
+    },
+    'vinegar:destillatio': {
+      result: { id: 'acetum_destillatum', qty: 1 },
+      name: 'Destilovaný ocet',
+      name_lat: 'Spiritus Aceti',
+      icon: '🍶',
+      effect: null,
+      lore: 'Vysoce koncentrovaná kyselina octová zbavená vinných nečistot.'
+    },
+    'vitriol:destillatio': {
+      result: { id: 'spiritus_vitrioli', qty: 1 },
+      name: 'Olej vitriolu',
+      name_lat: 'Spiritus Vitrioli',
+      icon: '🧪',
+      effect: null,
+      lore: 'Silná destilace zelené skalice. Extrémně žíravá a dehydratující látka.'
+    },
+
+    // ── Vlna 3 — Ultima Materia (vrchol)
+    'alum+sal_petrae+vitriol:destillatio': {
+      result: { id: 'aqua_fortis', qty: 1 },
+      name: 'Kyselina dusičná',
+      name_lat: 'Aqua Fortis',
+      icon: '🧪',
+      effect: null,
+      lore: 'Vitriol, kamenec a ledek destilované v alembiku. Pseudo-Geberova Summa Perfectionis, ~1300 — rozpouští stříbro, leptá kovy.'
+    },
+    'aqua_fortis+sal_ammoniac:destillatio': {
+      result: { id: 'aqua_regia', qty: 1 },
+      name: 'Lučavka královská',
+      name_lat: 'Aqua Regia',
+      icon: '🧪',
+      effect: null,
+      lore: 'Aqua Fortis se salmiakem. Jediná kapalina na světě, co rozpustí zlato.'
+    },
+    'arsenicum+sulfur:destillatio': {
+      result: { id: 'auripigmentum', qty: 1 },
+      name: 'Auripigment',
+      name_lat: 'Auripigmentum',
+      icon: '🟡',
+      effect: null,
+      lore: 'Síra a arsen. Zářivě citronová, připomíná ryzí zlato — a stejně tak zabíjí. Albertus Magnus varoval.'
+    },
+    'mercury+sulfur:calcinatio': {
+      result: { id: 'cinnabaris_pura', qty: 1 },
+      name: 'Syntetická rumělka',
+      name_lat: 'Cinnabaris Pura',
+      icon: '🔴',
+      effect: null,
+      lore: 'Síra a živé stříbro v zapečetěné baňce. Prudký žár, toxické výpary — riskantní operace v Athanoru.'
+    },
+    'gall_nut+spiritus_vini+vitriol:destillatio': {
+      result: { id: 'atramentum_perpetuum', qty: 1 },
+      name: 'Věčný inkoust',
+      name_lat: 'Atramentum Perpetuum',
+      icon: '⚫',
+      effect: null,
+      lore: 'Dokonalý ferrogalický inkoust s vinným lihem pro maximální penetraci pergamenu. Nevybledne nikdy.'
+    },
+    'acetum_destillatum+verdigris:destillatio': {
+      result: { id: 'verdigris_purum', qty: 1 },
+      name: 'Krystalická měděnka',
+      name_lat: 'Viride Aeris Purificatum',
+      icon: '🟢',
+      effect: null,
+      lore: 'Surová měděnka rozpuštěná v destilovaném octu, nechaná pomalu krystalizovat. Nejhlubší smaragd středověku.'
+    },
+    'honey+mandrake+spiritus_vini:destillatio': {
+      result: { id: 'magisterium_mandragorae', qty: 1 },
+      name: 'Magisterium mandragory',
+      name_lat: 'Magisterium Mandragorae',
+      icon: '🌿',
+      effect: null,
+      lore: 'Mandragora destilovaná s lihem a medem. Vysoce riskantní anestetikum — a most k myšlenkám, co do kláštera nepatří.'
+    },
+
+    // ── tech_athanor_quaternio — 4-slotové recepty (dřív blokované 3-slot stropem)
+    'mercury+sal_ammoniac+sulfur+tin:calcinatio': {
+      result: { id: 'aurum_musicum', qty: 1 },
+      name: 'Mozaikové zlato',
+      name_lat: 'Aurum Musicum',
+      icon: '✨',
+      effect: null,
+      lore: 'Rtuť, cín, síra a salmiak žíhané v zapečetěné baňce. Třpytí se jako zlato, nikdy nezčerná — Cennini, ~1400.'
+    },
+    'gentian+honey+wine+wormwood:coctio': {
+      result: { id: 'theriacum_simplex', qty: 1 },
+      name: 'Základní theriak',
+      name_lat: 'Theriacum Simplex',
+      icon: '🍯',
+      effect: null,
+      lore: 'Pelyněk, hořec a med svařené s vínem. Hořkosladký základ pro legendární Theriacum Monasticum.'
+    },
+
     // ══ CERVISIARIA ══
     'grain+water:coctio': {
       result: { id: 'wort', qty: 1 },
@@ -33214,6 +33324,11 @@ const CombinationEngine = {
 
 const AthanorSystem = {
 
+  // MRD athanor-quaternio — 3 sloty je základ, tech_athanor_quaternio zvedá na 4.
+  maxSlots() {
+    return (GameState.researchedTechs && GameState.researchedTechs.includes('tech_athanor_quaternio')) ? 4 : 3;
+  },
+
   // ── INIT ──────────────────────────────────────────────────
   init() {
     if (!GameState.athanor) {
@@ -33415,7 +33530,7 @@ const AthanorSystem = {
   addToSlot(ingredientId) {
     const state = GameState.athanor;
     if (state.brewing) return; // nelze měnit za vaření
-    if (state.slots.length >= 3) {
+    if (state.slots.length >= this.maxSlots()) {
       UI.notify('⚗️ Kelímek je plný — nejprve odeber ingredienci.', true);
       return;
     }
@@ -33791,7 +33906,7 @@ const AthanorSystem = {
         const have = GameState.inventory[ing.id] || 0;
         const inSlots = state.slots.filter(s => s === ing.id).length;
         const available = have - inSlots;
-        const canAdd = !isBrewing && available > 0 && state.slots.length < 3;
+        const canAdd = !isBrewing && available > 0 && state.slots.length < AthanorSystem.maxSlots();
         return `<div style="display:flex;align-items:center;gap:6px;padding:5px 6px;border-radius:5px;
           border:1px solid ${canAdd ? 'rgba(200,160,60,0.3)' : 'transparent'};
           background:${have === 0 ? 'transparent' : canAdd ? 'rgba(200,160,60,0.04)' : 'rgba(0,0,0,0.03)'};
@@ -34032,7 +34147,7 @@ const AthanorSystem = {
       const have = GameState.inventory[ing.id] || 0;
       const inSlots = state.slots.filter(s => s === ing.id).length;
       const available = have - inSlots;
-      const canAdd = !isBrewing && available > 0 && state.slots.length < 3;
+      const canAdd = !isBrewing && available > 0 && state.slots.length < AthanorSystem.maxSlots();
 
       if (have === 0) {
         return `
