@@ -33146,6 +33146,169 @@ const AthanorDB = {
       lore: 'Pelyněk, hořec a med svařené s vínem. Hořkosladký základ pro legendární Theriacum Monasticum.'
     },
 
+    // ══════════════════════════════════════════════════════════════════════
+    // SCRINIUM RECIPE FOLIOS MRD — 23 receptů, unlockFolio gate (ne TechTree).
+    // Nalezení konkrétního folia v Tajných spisech odemkne jeho recepty.
+    // ══════════════════════════════════════════════════════════════════════
+
+    // ── Folio 1: Codex Coloris Perditi (Ztracené barvy) ──
+    'cerusa+minium+ochra_flava:trituratio': {
+      result: { id: 'palette_membrana', qty: 1 },
+      name: 'Tělová barva', name_lat: 'Palette Membrana', icon: '🎨',
+      effect: null, unlockFolio: 'folio_scr01',
+      lore: 'Běloba, suřík a okr utřené dohromady. Základní tón lidské kůže v iluminaci.'
+    },
+    'palette_membrana+sinopia_tosta:trituratio': {
+      result: { id: 'poschum', qty: 1 },
+      name: 'Stínovací barva', name_lat: 'Poschum', icon: '🎨',
+      effect: null, unlockFolio: 'folio_scr01',
+      lore: 'Tělová barva prohloubená sinopií. Stín pod oči a líce — hloubka a život.'
+    },
+    'lapis_lazuli+verdigris_purum:trituratio': {
+      result: { id: 'pigment_regius', qty: 1 },
+      name: 'Královský pigment', name_lat: 'Pigmentum Regium', icon: '🟣',
+      effect: null, unlockFolio: 'folio_scr01',
+      lore: 'Krystalická měděnka s lapis lazuli. Roucha králů a Krista.'
+    },
+
+    // ── Folio 2: Notata Fornacis (Poznámky od pece) ──
+    'calx_cupri+sal_alkali:coctio': {
+      result: { id: 'sklo_zelene', qty: 2 },
+      name: 'Zelené sklo', name_lat: 'Vitrum Viride', icon: '🟢',
+      effect: null, unlockFolio: 'folio_scr02',
+      lore: 'Žíhaná měď tavená s louhovou solí. Měď barví sklo do syta zelena.'
+    },
+    'chalk+cinere_stanni:coctio': {
+      result: { id: 'glazura_bila', qty: 2 },
+      name: 'Bílá glazura', name_lat: 'Glazura Alba', icon: '⚪',
+      effect: null, unlockFolio: 'folio_scr02',
+      lore: 'Cínový popel s křídou. Neprůhledná bílá glazura, jaká se dřív jinak nedala.'
+    },
+    'lithargyrum+sal_alkali:coctio': {
+      result: { id: 'sklo_olovnate', qty: 2 },
+      name: 'Olovnaté sklo', name_lat: 'Vitrum Plumbeum', icon: '🟡',
+      effect: null, unlockFolio: 'folio_scr02',
+      lore: 'Klejt tavený s louhovou solí. Těžší, měkčí sklo — snáz broušené.'
+    },
+
+    // ── Folio 3: Liber Medicaminum Arcanorum ──
+    'beeswax+comfrey+linseed_oil:coctio': {
+      result: { id: 'mast_kostivalova', qty: 1 },
+      name: 'Kostivalová mast', name_lat: 'Unguentum Symphyti', icon: '🫙',
+      effect: null, unlockFolio: 'folio_scr03',
+      lore: 'Kostival s voskem a lněným olejem. Základ středověké ortopedie.'
+    },
+    'vinegar+yarrow:maceratio': {
+      result: { id: 'tinktura_rebrikova', qty: 1 },
+      name: 'Řebříčková tinktura', name_lat: 'Tinctura Millefolii', icon: '🍶',
+      effect: null, unlockFolio: 'folio_scr03',
+      lore: 'Řebříček louhovaný v octě. Achilles jím prý léčil rány svých vojáků.'
+    },
+    'honey+juniper:coctio': {
+      result: { id: 'sirup_jalovcovy', qty: 1 },
+      name: 'Jalovcový sirup', name_lat: 'Syrupus Juniperi', icon: '🍯',
+      effect: null, unlockFolio: 'folio_scr03',
+      lore: 'Jalovec svařený s medem. Silně prohřívací, na revma a dnu.'
+    },
+    'hyssop+wine:coctio': {
+      result: { id: 'elixir_plicni', qty: 1 },
+      name: 'Plicní elixír', name_lat: 'Elixir Pulmonis', icon: '🍶',
+      effect: null, unlockFolio: 'folio_scr03',
+      lore: 'Yzop vařený s vínem. Benediktinská bylina proti kašli od žalmů po klášterní zahrady.'
+    },
+
+    // ── Folio 4: Testamentum Ultimum (capstone) ──
+    'honey+theriacum_simplex+wormwood:coctio': {
+      result: { id: 'theriacum_monasticum', qty: 1 },
+      name: 'Theriacum Monasticum', name_lat: 'Theriacum Monasticum', icon: '👑',
+      effect: null, unlockFolio: 'folio_scr04',
+      lore: 'Legendární protijed. Ve středověku 64 složek, 12 let zrání — nejdražší lék světa.'
+    },
+    'honey+lazulium_mellitum+spiritus_vini:destillatio': {
+      result: { id: 'elixir_vitae', qty: 1 },
+      name: 'Elixir Vitae', name_lat: 'Elixir Vitae', icon: '✨',
+      effect: {
+        type: 'vigor_restore',
+        value: 40,
+        duration_ms: 0,
+        label: 'Elixir Vitae: Vigor +40 — den bez únavy'
+      },
+      unlockFolio: 'folio_scr04',
+      lore: 'Alchymisté od Rogera Bacona snili o látce proti stárnutí. Tahle verze slibuje jen den bez únavy.'
+    },
+
+    // ── Folio 5: Herbarium Occultum ──
+    'beeswax+plantain:trituratio': {
+      result: { id: 'mast_jitrocelova', qty: 1 },
+      name: 'Jitrocelová mast', name_lat: 'Unguentum Plantaginis', icon: '🫙',
+      effect: null, unlockFolio: 'folio_scr05',
+      lore: 'Jitrocel s voskem. Poutníkova bylina, hojí rány od nepaměti.'
+    },
+    'fennel+honey:coctio': {
+      result: { id: 'sirup_fenyklovy', qty: 1 },
+      name: 'Fenyklový sirup', name_lat: 'Syrupus Foeniculi', icon: '🍯',
+      effect: null, unlockFolio: 'folio_scr05',
+      lore: 'Fenykl svařený s medem. Hildegarda jej doporučovala na trávení.'
+    },
+    'beeswax+comfrey+yarrow:coctio': {
+      result: { id: 'mast_universalni', qty: 1 },
+      name: 'Univerzální mast', name_lat: 'Unguentum Universale', icon: '🫙',
+      effect: null, unlockFolio: 'folio_scr05',
+      lore: 'Kostival a řebříček s voskem. Jedna mast na rány, pohmožděniny i popáleniny.'
+    },
+
+    // ── Folio 6: Fragmenta Alchemiae ──
+    'gum_arabic+malachite+water:trituratio': {
+      result: { id: 'pigment_malachit', qty: 2 },
+      name: 'Malachitová zeleň', name_lat: 'Pigmentum Malachitum', icon: '🟢',
+      effect: null, unlockFolio: 'folio_scr06',
+      lore: 'Malachit rozetřený s arabskou gumou. Zelený pigment od starověkého Egypta.'
+    },
+    'alum+chalk+gum_arabic:coctio': {
+      result: { id: 'mordant_universal', qty: 2 },
+      name: 'Univerzální mořidlo', name_lat: 'Mordant Universalis', icon: '🧪',
+      effect: null, unlockFolio: 'folio_scr06',
+      lore: 'Kamenec s křídou a gumou. Váže barviva na tkaninu i pergamen proti vlhku.'
+    },
+    'linseed_oil+spodium:trituratio': {
+      result: { id: 'tmel_kostni', qty: 2 },
+      name: 'Kostní tmel', name_lat: 'Cement Ossium', icon: '🦴',
+      effect: null, unlockFolio: 'folio_scr06',
+      lore: 'Kostní popel s lněným olejem. Podklad pro zlacení.'
+    },
+    'auripigmentum+gum_arabic:trituratio': {
+      result: { id: 'pigment_zlatozluty', qty: 1 },
+      name: 'Zlatožlutý pigment', name_lat: 'Pigmentum Aureum', icon: '🟡',
+      effect: null, unlockFolio: 'folio_scr06',
+      lore: 'Auripigment s gumou. Citronově zlatá barva pro iluzi zlacení v chudších knihách.'
+    },
+
+    // ── Folio 7: Secretum Vitriarii ──
+    'lead+tin:calcinatio': {
+      result: { id: 'slitina_cin_olovo', qty: 2 },
+      name: 'Cínovo-olověná slitina', name_lat: 'Stannum Plumbeum', icon: '⚪',
+      effect: null, unlockFolio: 'folio_scr07',
+      lore: 'Cín tavený s olovem. Cíncovina — pravá středověká pájka.'
+    },
+    'copper+tin:calcinatio': {
+      result: { id: 'bronz', qty: 2 },
+      name: 'Bronz', name_lat: 'Aes', icon: '🟠',
+      effect: null, unlockFolio: 'folio_scr07',
+      lore: 'Měď tavená s cínem. Nejstarší slitina lidstva — zvony, nářadí, sochy.'
+    },
+    'sandarak+spiritus_vini:coctio': {
+      result: { id: 'lak_universalni', qty: 1 },
+      name: 'Sandarakový lak', name_lat: 'Vernix Sandaraca', icon: '✨',
+      effect: null, unlockFolio: 'folio_scr07',
+      lore: 'Sandarak ve vinném lihu — Cenniniho nejluxusnější čirý lak.'
+    },
+    'arsenicum+chalk:trituratio': {
+      result: { id: 'belidlo_medi', qty: 1 },
+      name: 'Bělidlo mědi', name_lat: 'Candificatio Cupri', icon: '⚪',
+      effect: null, unlockFolio: 'folio_scr07',
+      lore: 'Arsen s křídou. Albertus Magnus: jed i bělidlo mědi — nebezpečné, ale účinné.'
+    },
+
     // ══ CERVISIARIA ══
     'grain+water:coctio': {
       result: { id: 'wort', qty: 1 },
@@ -33350,6 +33513,25 @@ const CombinationEngine = {
           lore: 'Alchymie je umění trpělivosti. Pokračuj ve zkoumání.'
         }
       };
+    }
+
+    // Folio gate (scrinium-recipe-folios MRD) — recept odemčen až PROSTUDOVÁNÍM
+    // folia po Arcanum (layer 3), ne pouhým nálezem — stejná logika jako
+    // stávající reward.recipe_unlock u netolicky_05/palimpsest (SecretsSystem.js).
+    if (combo.unlockFolio) {
+      const fState = GameState.scrinium && GameState.scrinium.folios && GameState.scrinium.folios[combo.unlockFolio];
+      if (!fState || (fState.layer || 0) < 3) {
+        return {
+          success: false,
+          failure: {
+            id: 'LOCKED',
+            icon: '🔒',
+            title: 'Terra Incognita',
+            msg: 'Tato kombinace zatím žádný výsledek nevydala. Zkus jiné složky nebo jiný proces.',
+            lore: 'Alchymie je umění trpělivosti. Pokračuj ve zkoumání.'
+          }
+        };
+      }
     }
 
     // Kritický úspěch (roll 20, vigor >= 70)
