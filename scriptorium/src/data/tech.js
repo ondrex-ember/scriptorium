@@ -489,7 +489,7 @@ TechTree.push({
     cost: 12,
     desc: "Contraria contrariis curantur — nemocný humor se léčí opačnou kvalitou. Odemyká: první léčivé recepty pro Athanor (Odvar z duběnek, Mast ze lněného oleje).",
     desc_en: "Contraria contrariis curantur — an unbalanced humor is cured by its opposite quality. Unlocks: first medicinal recipes for the Athanor (Oak Gall Decoction, Linseed Oil Salve).",
-    unlocks: ["odvar_z_dubenek", "mast_ze_lneneho_oleje"],
+    unlocks: ["odvar_z_dubenek", "mast_ze_lneneho_oleje", "odvar_z_vrby"],
     requires: ["tech_infirmarium"]
 });
 // ── PORTA — Holubí pošta ─────────────────────────────────────────────────
