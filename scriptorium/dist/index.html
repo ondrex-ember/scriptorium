@@ -7497,6 +7497,50 @@ const HealthConditionsDB = {
         infirmaryEligible: true,
         blockedRecipeOutput: "research",
     },
+
+    // ── 3 nový neduhy specifický pro Scriptorium/klášter (backlog dodatek) ──
+    "saturnismus": {
+        name: "Olověná kolika", name_en: "Lead Colic", icon: "🫥",
+        desc: "Roky olizování štětců s rumělkou a bělobou si vybraly svou daň — kůže šedne, břicho svírá křeč.",
+        desc_en: "Years of wetting brushes tipped with cinnabar and lead white have taken their toll — the skin greys, the belly cramps.",
+        causeShort: "Dlouhodobá práce s olovnatými pigmenty.",
+        causeShort_en: "Long-term work with lead-based pigments.",
+        advice: "Žádný rychlý lék nepomůže — jen odpočinek a čas mimo iluminaci.",
+        advice_en: "No quick remedy helps — only rest and time away from illumination.",
+        durationHours: 96,
+        onApply: { fatigue: 15, satiety: -10 },
+        tickHour: { fatigue: 1 },
+        cures: [], // olověná otrava — dobově bez léku, jen čas
+        humor: "melancholia",
+    },
+    "acedia": {
+        name: "Klášterní malomyslnost", name_en: "Monastic Acedia", icon: "🌫️",
+        desc: "Poledne, a pergamen zůstává prázdný. Duch je unavený k smrti, ale tělo nic nebolí.",
+        desc_en: "Noon, and the parchment stays blank. The spirit is weary unto death, though the body feels no pain.",
+        causeShort: "Jednotvárnost, nedostatek pohybu, dlouhé sezení nad rukopisem.",
+        causeShort_en: "Monotony, lack of movement, long hours bent over the manuscript.",
+        advice: "Bylinný čaj nebo lektvar spánku pomůžou. Vyhýbej se dalšímu sezení, dokud nezmizí.",
+        advice_en: "Herbal tea or a sleep draught help. Avoid more sitting until it clears.",
+        durationHours: 60,
+        onApply: { fatigue: 10 },
+        tickHour: { fatigue: 1 },
+        cures: ["herbal_tea", "sleep_potion"],
+        humor: "melancholia",
+    },
+    "ague": {
+        name: "Třesavka konvršů", name_en: "Marsh Ague", icon: "🥶",
+        desc: "Zimnice od sádek — jednu chvíli mrazí, druhou pálí.",
+        desc_en: "A fever from the fishponds — one moment freezing, the next burning.",
+        causeShort: "Práce u sádek a lužních vod, komáří přenašeči.",
+        causeShort_en: "Work by the fishponds and floodplain waters, mosquito-borne.",
+        advice: "Bylinný čaj nebo protijed pomůžou. Vyhýbej se sádkám za soumraku, dokud nezmizí.",
+        advice_en: "Herbal tea or an antidote help. Avoid the fishponds at dusk until it clears.",
+        durationHours: 72,
+        onApply: { fatigue: 20, satiety: -10 },
+        tickHour: { fatigue: 1.5 },
+        cures: ["herbal_tea", "antidote", "potion_heal"],
+        humor: "cholera", // střídavě horko/chlad — cholera jako dominantní (horečková) složka
+    },
 };
 
 // ═══ src/data/lore.js ═══
