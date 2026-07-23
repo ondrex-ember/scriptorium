@@ -6977,6 +6977,7 @@ const ItemsDB = {
     "beeswax": { name: "Včelí vosk", name_en: "Beeswax", icon: "🕯️", type: "mat", desc: "Z klášterního úlu. Pojivo masti i pečetidlo.", desc_en: "From the monastery hive. Salve binder and sealant." },
     "propolis": { name: "Propolis", name_en: "Propolis", icon: "🟤", type: "mat", desc: "Pryskyřičná tmel, kterým včely utěsňují úl. Vzácnější než pyl, sbírá se jen občas.", desc_en: "The resinous cement bees use to seal the hive. Rarer than pollen, only occasionally gathered." },
     "propolis_tinktura": { name: "Propolisová tinktura", name_en: "Propolis Tincture", icon: "🧪", type: "mat", desc: "Propolis louhovaný ve vinném lihu. Klášterní lék proti ranám a bolesti v krku.", desc_en: "Propolis steeped in grain spirit. A monastery remedy for wounds and sore throats." },
+    "propolis_tinktura_vyzrala": { name: "Vyzrálá propolisová tinktura", name_en: "Aged Propolis Tincture", icon: "🏺", type: "mat", desc: "Tinktura uložená k dlouhému zrání. Síla se zesílila, léčivý účinek je hlubší a trvalejší.", desc_en: "Tincture set to age long. Its strength has deepened — a healing effect both stronger and more lasting." },
     "mandrake": { name: "Mandragora", name_en: "Mandrake", icon: "🌿", type: "special", desc: "Mandragora officinarum. Kapitulář Karla Velikého. Kořen ve tvaru člověka — křičí při vytrhnutí. Pro silné lektvary.", desc_en: "Mandragora officinarum. Root shaped like a man — screams when pulled. For powerful potions." },
     "belladonna": { name: "Rulík zlomocný", name_en: "Belladonna", icon: "🫐", type: "special", desc: "Atropa belladonna. Jed i lék. Lékárníci jej míchali v malých dávkách. Nebezpečná rostlina.", desc_en: "Atropa belladonna. Poison and medicine alike. Apothecaries used it in small doses. Dangerous." },
     "poppy": { name: "Mák", name_en: "Poppy", icon: "🌸", type: "special", desc: "Papaver somniferum. Hildegarda znala jeho moc. Tišil bolest, navozoval spánek. Cenný i drahý.", desc_en: "Papaver somniferum. Hildegard knew its power. Eased pain, brought sleep. Valued and costly." },
@@ -19406,6 +19407,7 @@ const CellariumSystem = {
     beeswax:        6,
     propolis:       7,   // MRD 5.5 — drobná šance při sklizni, vzácnější než pyl
     propolis_tinktura: 16, // MRD 5.5 — Athanor: propolis+spiritus_vini:maceratio
+    propolis_tinktura_vyzrala: 32, // MRD 5.6 — 10denní zrání, dvojnásobná cena
     // Sýry (Lactaria/Caseus — prodej: Hospoda + Trh + Sýrař; Obchod vyloučen)
     goat_cheese_fresh:   4,
     goat_cheese_mature:  8,
@@ -19480,7 +19482,7 @@ const CellariumSystem = {
     rowan: 'food', linden_fruit: 'mat',
     // Produkty dvora
     egg: 'food', milk: 'food', wool: 'mat', raw_hide: 'mat',
-    feather_hen: 'mat', pollen: 'mat', linden_blossom: 'mat', beeswax: 'mat', propolis: 'mat', propolis_tinktura: 'mat',
+    feather_hen: 'mat', pollen: 'mat', linden_blossom: 'mat', beeswax: 'mat', propolis: 'mat', propolis_tinktura: 'mat', propolis_tinktura_vyzrala: 'mat',
     // Semena
     seed_apple: 'mat', seed_pear: 'mat', seed_plum: 'mat', seed_cherry: 'mat',
     seed_walnut: 'mat', seed_mulberry: 'mat', seed_quince: 'mat', seed_sorb: 'mat',
@@ -27159,6 +27161,30 @@ const GardenSystem = {
         });
 
         html += `</div>`;
+
+        // MRD 5.6 — Zrání propolisové tinktury (vzor Foudres), jen když je co zrát/vyzvednout
+        const tinkturaHave = GameState.inventory['propolis_tinktura'] || 0;
+        const aging = GameState.apiaryTinkturaAging;
+        if (aging || tinkturaHave > 0) {
+            html += `<div style="margin-top:12px; padding:12px 14px; background:rgba(150,110,40,0.06); border-radius:8px; border-left:3px solid rgba(150,110,40,0.4);">`;
+            html += `<div style="font-weight:bold; font-size:0.85rem; margin-bottom:6px;">🏺 ${_apLang==='en'?'Aging tincture':'Zrání tinktury'}</div>`;
+            if (aging) {
+                const daysLeft = Math.max(0, Math.ceil((aging.readyAt - now) / 86400000));
+                const ready = now >= aging.readyAt;
+                html += `<div style="font-size:0.78rem; opacity:0.75; margin-bottom:6px;">
+                    ${_apLang==='en'?'Tincture':'Tinktura'} ×${aging.amount} — ${ready ? (_apLang==='en'?'ready!':'hotovo!') : (daysLeft+'d')}
+                </div>
+                <button class="craft-btn" onclick="Game.collectTinkturaAging()" ${ready?'':'disabled'} style="background:${ready?'#4a7c59':'#888'};">
+                    🏺 ${_apLang==='en'?'Collect':'Vyzvednout'}</button>`;
+            } else {
+                html += `<div style="font-size:0.72rem; opacity:0.6; margin-bottom:6px;">${_apLang==='en'?'Available':'K dispozici'}: ${tinkturaHave}</div>
+                <input type="number" id="apiary-aging-amount" min="1" max="${tinkturaHave}" placeholder="${_apLang==='en'?'amount':'množství'}" style="font-size:0.72rem;padding:3px;width:100%;margin-bottom:4px;">
+                <button class="craft-btn" onclick="Game.startTinkturaAging(document.getElementById('apiary-aging-amount').value)" style="font-size:0.75rem;">
+                    🏺 ${_apLang==='en'?'Set to age (10d)':'Uložit ke zrání (10d)'}</button>`;
+            }
+            html += `</div>`;
+        }
+
         el.innerHTML = html;
     },
 
@@ -32436,6 +32462,15 @@ const SecretsSystem = {
       }
       Game.save();
       UI.notifyPanel('📕 Scrinium Abbatis apertum est! Opat ti otevřel svou soukromou knihovnu.', 'system');
+
+      // Oprava díry v pořadí čtení — knihy přečtené PŘED odemčením Scrinia
+      // nikdy neprošly checkFolioDiscovery() (ta se tehdy sama ukončila,
+      // protože forbiddenUnlocked byl ještě false). Dožeň to teď zpětně
+      // pro všechny už přečtené knihy, ať se folio nikdy trvale neztratí.
+      GameState.library.readBooks.forEach(function(readBookId) {
+        this.checkFolioDiscovery(readBookId);
+      }, this);
+
       return true;
     }
     return false;
@@ -33128,7 +33163,7 @@ const SecretsSystem = {
             "Ignis latet in cinere, frater."<br>
             <span style="font-size: 0.85rem; opacity: 0.7;">Fire hides in the ashes, brother.</span>
           </p>
-          <p style="font-size: 0.85rem; opacity: 0.7; margin-bottom: 20px;">Tato laboratoř se odemkne v příští fázi hry.</p>
+          <p style="font-size: 0.85rem; opacity: 0.7; margin-bottom: 20px; line-height: 1.5;">Dveře nejsou zamčené proto, že by za nimi nic nebylo. Klíč, kniha, nebo vlastní bolest — každá cesta otevírá jinak. Ten, kdo hledá s trpělivostí, najde.</p>
           <div style="display: flex; gap: 8px; justify-content: center;">
             <input type="password" id="athanor-pw" placeholder="Heslo..."
                    style="padding: 8px 12px; border: 1px solid rgba(0,0,0,0.2); border-radius: 3px; font-family: 'Crimson Text'; font-size: 1rem; background: var(--bg-card); color: var(--ink-primary);"
@@ -33179,7 +33214,6 @@ const SecretsSystem = {
   }
 
 };
-
 // ═══ src/systems/athanor.js ═══
 // ============================================================
 //  ATHANOR — Alchymistická laboratoř v2.0
@@ -48385,6 +48419,45 @@ const Game = {
         UI.notify('👑 ' + (lang === 'en'
             ? `A bred queen — "${hive.queenName}" — inherits her mother's strength.`
             : `Chovná matka — „${hive.queenName}" — zdědila sílu své matky.`));
+    },
+
+    // MRD 5.6 — stárnutí propolisové tinktury (vzor: Foudres/foudresBarrel), jedna běžící dávka
+    startTinkturaAging: function(amount) {
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        if (GameState.apiaryTinkturaAging) {
+            UI.notify(lang === 'en' ? 'A batch is already aging.' : 'Dávka už zraje.', true);
+            return;
+        }
+        amount = parseInt(amount, 10) || 0;
+        const have = GameState.inventory['propolis_tinktura'] || 0;
+        if (amount <= 0 || amount > have) {
+            UI.notify(lang === 'en' ? 'Not enough tincture.' : 'Nedostatek tinktury.', true);
+            return;
+        }
+        this.removeItem('propolis_tinktura', amount);
+        GameState.apiaryTinkturaAging = {
+            amount: amount,
+            startedAt: Date.now(),
+            readyAt: Date.now() + 10 * 86400000, // 10 dní zrání
+        };
+        Game.save();
+        UI.renderApiary();
+        UI.notify('🏺 ' + (lang === 'en' ? 'Tincture set to age.' : 'Tinktura uložena ke zrání.'));
+    },
+
+    collectTinkturaAging: function() {
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        const batch = GameState.apiaryTinkturaAging;
+        if (!batch) return;
+        if (Date.now() < batch.readyAt) {
+            UI.notify(lang === 'en' ? 'Not ready yet.' : 'Ještě nezraje.', true);
+            return;
+        }
+        this.addItem('propolis_tinktura_vyzrala', batch.amount);
+        GameState.apiaryTinkturaAging = null;
+        Game.save();
+        UI.renderApiary();
+        UI.notify('🏺 ' + (lang === 'en' ? 'Aged tincture collected.' : 'Vyzrálá tinktura vyzvednuta.'));
     },
 
     // MRD 5.3 — aktivní správa roje: řez matečníků, ~75% šance sníží rojivou náladu na 0
