@@ -1403,10 +1403,10 @@ const GardenSystem = {
         // Migrace: přidat sloty 14–15 pokud chybí
         while (GameState.garden.length < 16) {
             const defaults = [
-                { state: 0, water: false, crop: null, plantedAt: 0, cropType: 'herb',    locked: true },
-                { state: 0, water: false, crop: null, plantedAt: 0, cropType: 'special', locked: true },
+                { state: 0, water: false, crop: null, plantedAt: 0, cropType: 'herb',    locked: true, fertStage: 0, fertQuality: 0, midGrowFertilized: false },
+                { state: 0, water: false, crop: null, plantedAt: 0, cropType: 'special', locked: true, fertStage: 0, fertQuality: 0, midGrowFertilized: false },
             ];
-            GameState.garden.push(defaults[GameState.garden.length - 14] || { state: 0, water: false, crop: null, plantedAt: 0, cropType: 'herb', locked: true });
+            GameState.garden.push(defaults[GameState.garden.length - 14] || { state: 0, water: false, crop: null, plantedAt: 0, cropType: 'herb', locked: true, fertStage: 0, fertQuality: 0, midGrowFertilized: false });
         }
 
         // Kanonická mapa cropType podle indexu (migrace poškozených save)
@@ -1420,6 +1420,11 @@ const GardenSystem = {
         GameState.garden.forEach((plot, i) => {
             plot.locked = i >= unlocked;
             if (cropTypeMap[i]) plot.cropType = cropTypeMap[i];
+            // MRD zahony-tiers — starý save neměl fertStage vůbec; plot už v setí/růstu
+            // pod starým pravidlem musel projít hnojením, takže tier 1 (bez regrese)
+            if (plot.fertStage === undefined) plot.fertStage = (plot.state >= 1) ? 1 : 0;
+            if (plot.fertQuality === undefined) plot.fertQuality = (plot.state >= 1) ? 1 : 0;
+            if (plot.midGrowFertilized === undefined) plot.midGrowFertilized = false;
         });
     },
 
@@ -1461,7 +1466,10 @@ const GardenSystem = {
                 else if(plot.cropType === 'vegetable') typeLabel = t('garden.vegetable');
                 else if(plot.cropType === 'special') typeLabel = t('garden.special');
                 c = `<div class="plot-soil" style="opacity:0.3">🟫</div><div class="text-sm">${typeLabel}</div>`; 
-                b = `<button class="craft-btn" onclick="Game.farmAction(${idx})">${t('garden.fertilize')}</button>`; 
+                b = `<button class="craft-btn" onclick="Game.farmAction(${idx})">${t('garden.fertilize')}</button>
+                     <button class="craft-btn" onclick="Game.skipFertilize(${idx})" style="font-size:0.68rem;margin-top:3px;opacity:0.75;"
+                             title="${lang==='en'?'Sow now, lower yield (~60%), no fertilizer needed':'Zasadit hned, nižší výnos (~60 %), bez hnojiva'}">
+                             🟫 ${lang==='en'?'Sow without fertilizer':'Zasadit bez hnojiva'}</button>`; 
             }
             else if (plot.state === 1) {
                 if(plot.cropType === 'herb') typeLabel = t('garden.herb');
@@ -1493,15 +1501,26 @@ const GardenSystem = {
             else if (plot.state === 2) {
                 const cropIcon = ItemsDB[plot.crop] ? ItemsDB[plot.crop].icon : '🌱';
                 const cropName = ItemsDB[plot.crop] ? (lang==='en' ? ItemsDB[plot.crop].name_en : ItemsDB[plot.crop].name) : '';
+                const isMature = Date.now() >= plot.plantedAt + needed;
+                // MRD zahony-tiers — malý odznak aktuálního tieru + tlačítko přihnojit (hard cap 1×), skryto po dozrání
+                let tierBadge = '';
+                if (plot.midGrowFertilized) tierBadge = `<div style="font-size:0.62rem;opacity:0.6;margin-top:2px;">🌱+ ${lang==='en'?'boosted':'posíleno'}</div>`;
+                else if (plot.fertStage < 1) tierBadge = `<div style="font-size:0.62rem;opacity:0.5;margin-top:2px;">🟫 ${lang==='en'?'no fertilizer':'bez hnojiva'}</div>`;
+                else if (plot.fertQuality === 2) tierBadge = `<div style="font-size:0.62rem;opacity:0.5;margin-top:2px;">♻️ ${lang==='en'?'compost':'kompost'}</div>`;
+                const midFertBtn = (!isMature && !plot.midGrowFertilized)
+                    ? `<button class="craft-btn" onclick="Game.fertilizeDuringGrowth(${idx})" style="font-size:0.65rem;margin-top:2px;opacity:0.8;"
+                        title="${lang==='en'?'Fertilize once more — boosts yield, hard cap for now':'Přihnojit ještě jednou — zvýší výnos, zatím tvrdý strop'}">
+                        🌱 ${lang==='en'?'Fertilize':'Hnojit'}</button>`
+                    : '';
                 if (!plot.water) { 
-                    c = `<div class="plot-soil">${cropIcon}</div><div class="text-sm">${cropName||t('garden.dry')}</div>`; 
-                    b = `<button class="craft-btn" onclick="Game.farmAction(${idx})">${t('garden.water')}</button>`; 
+                    c = `<div class="plot-soil">${cropIcon}</div><div class="text-sm">${cropName||t('garden.dry')}</div>${tierBadge}`; 
+                    b = `<button class="craft-btn" onclick="Game.farmAction(${idx})">${t('garden.water')}</button>${midFertBtn}`; 
                 }
-                else if (Date.now() < plot.plantedAt + needed) { 
+                else if (!isMature) { 
                     const growPct = Math.min(1, Math.max(0, (Date.now() - plot.plantedAt) / needed));
                     const iconSize = (1.0 + growPct * 1.0).toFixed(2);
-                    c = `<div class="plot-soil" style="color:#888; font-size:${iconSize}rem;">${cropIcon}</div><div class="text-sm">${cropName||t('garden.growing')}</div>`; 
-                    b = `<button class="craft-btn" disabled>${t('garden.wait')}</button>`;
+                    c = `<div class="plot-soil" style="color:#888; font-size:${iconSize}rem;">${cropIcon}</div><div class="text-sm">${cropName||t('garden.growing')}</div>${tierBadge}`; 
+                    b = `<button class="craft-btn" disabled>${t('garden.wait')}</button>${midFertBtn}`;
                     if (hasCustomPlant) b += ` <button class="craft-btn" style="background:#8b4a3a;margin-top:3px;font-size:0.7rem;" onclick="GardenSystem.uprootGardenPlot(${idx})">🪴 ${t('garden.uproot')}</button>`;
                 }
                 else { 

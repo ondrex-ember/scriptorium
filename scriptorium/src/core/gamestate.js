@@ -65,22 +65,24 @@ const GameState = {
     // hunger odstraněn — nahrazen VigorSystem (GameState.satiety + GameState.fatigue)
     garden: [
         // Fáze 1: 4x herb (2 odemčené, 2 za tech_garden_expand)
-        { state: 0, water: false, crop: null, plantedAt: 0, cropType: 'herb' },
-        { state: 0, water: false, crop: null, plantedAt: 0, cropType: 'herb' },
-        { state: 0, water: false, crop: null, plantedAt: 0, cropType: 'herb', locked: true },
-        { state: 0, water: false, crop: null, plantedAt: 0, cropType: 'herb', locked: true },
+        // fertStage: 0=nehnojeno, 1=hnojeno před setím; fertQuality: 1=bonemeal, 2=compost
+        // midGrowFertilized: hard cap — max 1x přihnojení v průběhu růstu (MRD zahony-tiers)
+        { state: 0, water: false, crop: null, plantedAt: 0, cropType: 'herb', fertStage: 0, fertQuality: 0, midGrowFertilized: false },
+        { state: 0, water: false, crop: null, plantedAt: 0, cropType: 'herb', fertStage: 0, fertQuality: 0, midGrowFertilized: false },
+        { state: 0, water: false, crop: null, plantedAt: 0, cropType: 'herb', locked: true, fertStage: 0, fertQuality: 0, midGrowFertilized: false },
+        { state: 0, water: false, crop: null, plantedAt: 0, cropType: 'herb', locked: true, fertStage: 0, fertQuality: 0, midGrowFertilized: false },
         // Fáze 2: 4x vegetable + 2x special (za tech_horticulture)
-        { state: 0, water: false, crop: null, plantedAt: 0, cropType: 'vegetable', locked: true },
-        { state: 0, water: false, crop: null, plantedAt: 0, cropType: 'vegetable', locked: true },
-        { state: 0, water: false, crop: null, plantedAt: 0, cropType: 'vegetable', locked: true },
-        { state: 0, water: false, crop: null, plantedAt: 0, cropType: 'vegetable', locked: true },
-        { state: 0, water: false, crop: null, plantedAt: 0, cropType: 'special', locked: true },
-        { state: 0, water: false, crop: null, plantedAt: 0, cropType: 'special', locked: true },
+        { state: 0, water: false, crop: null, plantedAt: 0, cropType: 'vegetable', locked: true, fertStage: 0, fertQuality: 0, midGrowFertilized: false },
+        { state: 0, water: false, crop: null, plantedAt: 0, cropType: 'vegetable', locked: true, fertStage: 0, fertQuality: 0, midGrowFertilized: false },
+        { state: 0, water: false, crop: null, plantedAt: 0, cropType: 'vegetable', locked: true, fertStage: 0, fertQuality: 0, midGrowFertilized: false },
+        { state: 0, water: false, crop: null, plantedAt: 0, cropType: 'vegetable', locked: true, fertStage: 0, fertQuality: 0, midGrowFertilized: false },
+        { state: 0, water: false, crop: null, plantedAt: 0, cropType: 'special', locked: true, fertStage: 0, fertQuality: 0, midGrowFertilized: false },
+        { state: 0, water: false, crop: null, plantedAt: 0, cropType: 'special', locked: true, fertStage: 0, fertQuality: 0, midGrowFertilized: false },
         // Fáze 3: 4x vegetable navíc (za tech_advanced_farming)
-        { state: 0, water: false, crop: null, plantedAt: 0, cropType: 'vegetable', locked: true },
-        { state: 0, water: false, crop: null, plantedAt: 0, cropType: 'vegetable', locked: true },
-        { state: 0, water: false, crop: null, plantedAt: 0, cropType: 'vegetable', locked: true },
-        { state: 0, water: false, crop: null, plantedAt: 0, cropType: 'vegetable', locked: true },
+        { state: 0, water: false, crop: null, plantedAt: 0, cropType: 'vegetable', locked: true, fertStage: 0, fertQuality: 0, midGrowFertilized: false },
+        { state: 0, water: false, crop: null, plantedAt: 0, cropType: 'vegetable', locked: true, fertStage: 0, fertQuality: 0, midGrowFertilized: false },
+        { state: 0, water: false, crop: null, plantedAt: 0, cropType: 'vegetable', locked: true, fertStage: 0, fertQuality: 0, midGrowFertilized: false },
+        { state: 0, water: false, crop: null, plantedAt: 0, cropType: 'vegetable', locked: true, fertStage: 0, fertQuality: 0, midGrowFertilized: false },
     ],
     activeAction: null,
     selectedDuration: 0,

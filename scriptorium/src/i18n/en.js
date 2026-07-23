@@ -2164,6 +2164,7 @@ According to Theophilus, the organ is an instrument worthy of God, but its const
         tab_chlevy: 'The Byres',
         tab_mastal: 'Stable',
         tab_studna: 'Well',
+        tab_columbarium: 'Dovecote',
         catFed: 'fed, resting',
         catHunting: 'hungry — hunting at night',
         decayImpact: 'Mice speed up the spoilage of grain, bread and cheese.',

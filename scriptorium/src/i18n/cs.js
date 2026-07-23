@@ -1356,6 +1356,7 @@ const STRINGS_cs = {
         tab_chlevy: 'Chlévy',
         tab_mastal: 'Maštal',
         tab_studna: 'Studna',
+        tab_columbarium: 'Holubník',
         catFed: 'sytá, odpočívá',
         catHunting: 'hladová — v noci loví',
         decayImpact: 'Myši zrychlují kažení zrní, chleba a sýra.',

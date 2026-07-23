@@ -1263,7 +1263,12 @@ const FarmyardSystem = {
             const pet = (GameState.abbotPetition && GameState.abbotPetition.columbarium) || { status: 'none' };
             h += `<p style="font-size:0.82rem; opacity:0.7; margin-bottom:10px;">${lang === 'en' ? 'The tower stands empty, awaiting pigeons from the abbey.' : 'Věž stojí prázdná, čeká na holuby z opatství.'}</p>`;
             if (pet.status === 'pending') {
-                h += `<div style="font-size:0.8rem; opacity:0.7; font-style:italic;">⏳ ${t('abbotPetition.columbarium.pending')}</div>`;
+                const cs = lang !== 'en';
+                const _toGameDate = (ts) => { const d = new Date(ts); return new Date(1465, d.getMonth(), d.getDate()); };
+                const submitDate = pet.submittedAt ? _toGameDate(pet.submittedAt).toLocaleDateString(cs ? 'cs-CZ' : 'en-GB') : '?';
+                const responseDate = pet.submittedAt ? _toGameDate(pet.submittedAt + 86400000).toLocaleDateString(cs ? 'cs-CZ' : 'en-GB') : '?';
+                const pendingText = t('abbotPetition.columbarium.pending').replace('{date}', submitDate).replace('{responseDate}', responseDate);
+                h += `<div style="font-size:0.8rem; opacity:0.7; font-style:italic;">⏳ ${pendingText}</div>`;
             } else {
                 h += `<button class="craft-btn" onclick="Game.submitAbbotPetition('columbarium')">🕊️ ${t('abbotPetition.columbarium.submit_btn')}</button>`;
             }
