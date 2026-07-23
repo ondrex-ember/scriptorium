@@ -1890,6 +1890,70 @@ It is strange how similar recipes — word for word — will appear in print six
 **GAME EFFECT:** Reading this book unlocks the *Cultus Herbarum* tech — the foundation for future preparation of wild herbs, roots, and mushrooms. The recipes themselves will arrive gradually, as the monastery's knowledge grows.`
         },
         {
+            id: 'regula_infirmis_fratribus',
+            title: 'Regula Benedicti — Caput XXXVI',
+            category: 'valetudo',
+            unlockDay: 40,
+            unlockResearch: 35,
+            unlocksTech: ['tech_infirmarium'],
+            icon: '📖',
+            author: 'Benedikt z Nursie',
+            author_en: 'Benedict of Nursia',
+            year: 1465,
+            content: `**De infirmis fratribus — O nemocných bratřích**
+
+Bratr Infirmarius listuje ve staré opsané Řeholi, hledaje oporu pro to, co klášter už dávno tuší, ale dosud nevyřkl nahlas: nemocní bratři potřebují víc než modlitbu.
+
+Kapitola třicátá šestá je krátká, ale nekompromisní. Svatý Benedikt v ní klade péči o nemocné nade všechno ostatní jednání v klášteře — dřív než poslušnost, dřív než mlčení, dřív než práce rukou. Slabý bratr nemá být trestán za to, že je slabý.
+
+Řehole přikazuje tři konkrétní věci. Za prvé: nemocní mají dostat vlastní místnost, oddělenou od společného dormitáře, kde je neruší zvon k Officiu ani chlad kamenné podlahy. Za druhé: má jim sloužit bratr, kterého Bůh obdařil bázní a pečlivostí — ošetřovatel, ne pouhý dozorce. Za třetí, a to je věta, nad kterou se leckterý mladý mnich pozastaví: nemocným se povoluje maso a koupel, cokoliv zdraví bratři odpírají svému tělu z kázně, slabým se má poskytnout z milosrdenství.
+
+Infirmarius zavírá knihu. Řehole nežádá zázrak. Žádá jen místnost, ruce a trochu masa v hrnci. To se dá postavit.
+
+**HERNÍ EFEKT:** Přečtením této knihy odemkneš stavbu *Infirmaria* — vlastní síň pro nemocné, oddělenou od Templa. Lze také vyzkoumat běžně bez knihy, ale kniha to umožní dřív a levněji.`,
+            content_en: `**De infirmis fratribus — On the Sick Brothers**
+
+Brother Infirmarius leafs through the old copied Rule, searching for grounds for something the monastery has long suspected but never said aloud: sick brothers need more than prayer.
+
+Chapter thirty-six is short but uncompromising. Saint Benedict places care of the sick above every other observance of the house — before obedience, before silence, before manual labor. A weak brother is not to be punished for his weakness.
+
+The Rule commands three concrete things. First: the sick are to have their own room, set apart from the common dormitory, where the bell for the Office and the cold of the stone floor cannot reach them. Second: they are to be served by a brother whom God has endowed with fear of Him and with diligence — an attendant, not merely a guard. Third, and this is the line at which many a young monk pauses: the sick are permitted meat and baths, whatever the healthy deny their bodies out of discipline is to be granted the weak out of mercy.
+
+Infirmarius closes the book. The Rule asks for no miracle. It asks only for a room, a pair of hands, and a little meat in the pot. That can be built.
+
+**GAME EFFECT:** Reading this book unlocks construction of the *Infirmarium* — its own hall for the sick, separate from the Templum. It can also be researched normally without the book, but the book grants it sooner and cheaper.`
+        },
+        {
+            id: 'hortulus_walahfrid',
+            title: 'Hortulus',
+            category: 'valetudo',
+            unlockDay: 50,
+            unlockResearch: 45,
+            unlocksTech: ['tech_infirmarium_hortulanus'],
+            icon: '🌿',
+            author: 'Walahfrid Strabo',
+            author_en: 'Walahfrid Strabo',
+            year: 1465,
+            content: `**Hortulus — Zahrádka**
+
+Opis básně starý bezmála šest set let, a přesto voní hlínou, jako by ji autor napsal včera. Walahfrid, kdysi opat na ostrově Reichenau, ji sepsal jako mladý mnich — čtyři sta čtyřicet čtyři veršů o vlastnoručně obdělané zahrádce, věnovaných příteli Grimaldovi ze Sankt Gallen.
+
+Není to suchý herbář. Walahfrid popisuje, jak si od jara dře ruce v hlíně, jak plevel dusí sazenice dřív, než stačí vzejít, a teprve pak, řádku po řádce, čtyřiadvacet bylin, které v té zahrádce pěstoval — šalvěj, routu, meduňku, mátu, mandragoru. U každé nejen jméno, ale k čemu je dobrá a jak se s ní zachází.
+
+Infirmarius čte a přemýšlí, kolik z těch čtyřiadvaceti by se uchytilo i tady, na Moravě, o šest století později. Hlína je hlína. Nemoc je nemoc. A bylinář, který ví, co roste za zdí jeho vlastní ošetřovny, nemusí čekat na kupce z města.
+
+**HERNÍ EFEKT:** Přečtením této knihy odemkneš léčivou zahrádku Infirmaria a konvrší úkol *Bylinář*. Lze také vyzkoumat běžně bez knihy, ale kniha to umožní dřív a levněji.`,
+            content_en: `**Hortulus — The Little Garden**
+
+A copy of a poem nearly six hundred years old, and yet it still smells of turned earth, as if written yesterday. Walahfrid, once abbot of the island of Reichenau, wrote it as a young monk — four hundred and forty-four verses about a garden he tended with his own hands, dedicated to his friend Grimald of St. Gallen.
+
+It is no dry herbal. Walahfrid describes how from spring onward he wears his hands raw in the soil, how weeds choke the seedlings before they can rise, and only then, line by line, the twenty-four herbs he grew in that garden — sage, rue, lemon balm, mint, mandrake. For each, not only the name but what it is good for and how it is to be handled.
+
+Infirmarius reads and wonders how many of those twenty-four would take root here too, in Moravia, six centuries later. Soil is soil. Illness is illness. And a herbalist who knows what grows behind his own infirmary's wall need not wait for a merchant from town.
+
+**GAME EFFECT:** Reading this book unlocks the Infirmarium's physic garden and the Hortulanus lay-brother task. It can also be researched normally without the book, but the book grants it sooner and cheaper.`
+        },
+        {
             // TODO: text/zdroj dodá Ondrex — nahradit content/content_en, případně author/year/icon
             id: 'liber_de_recreatione',
             title: 'Liber de Recreatione',
