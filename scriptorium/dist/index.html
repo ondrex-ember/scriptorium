@@ -8797,6 +8797,16 @@ TechTree.push({
     unlocks: [],
     requires: ["tech_infirmarium"]
 });
+TechTree.push({
+    id: "tech_infirmarium_apothecarius",
+    name: "Ars Apothecaria",
+    name_en: "Ars Apothecaria",
+    cost: 12,
+    desc: "Contraria contrariis curantur — nemocný humor se léčí opačnou kvalitou. Odemyká: první léčivé recepty pro Athanor (Odvar z duběnek, Mast ze lněného oleje).",
+    desc_en: "Contraria contrariis curantur — an unbalanced humor is cured by its opposite quality. Unlocks: first medicinal recipes for the Athanor (Oak Gall Decoction, Linseed Oil Salve).",
+    unlocks: ["odvar_z_dubenek", "mast_ze_lneneho_oleje"],
+    requires: ["tech_infirmarium"]
+});
 // ── PORTA — Holubí pošta ─────────────────────────────────────────────────
 TechTree.push({
     id: "tech_porta",
@@ -8819,6 +8829,7 @@ TechTree.push({
     unlocks: ["burn_lime", "slake_lime", "soaked_hide_lime", "premium_soaked_hide", "premium_soaked_hide_goat", "premium_stretched_hide", "premium_vellum"],
     requires: ["tech_fodina"]
 });
+
 // ═══ src/core/gamestate.js ═══
 const ActionsDB = [
     { id: 'basic',        cat: 'scavenge', name: 'Průzkum okolí',    name_en: 'Scour the grounds',  icon: '🖐',  desc: 'Suroviny',         desc_en: 'Raw materials',      yield: 1 },
