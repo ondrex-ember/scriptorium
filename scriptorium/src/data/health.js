@@ -261,8 +261,6 @@ const HealthConditionsDB = {
         durationHours: 108,
         onApply: { fatigue: 15 },
         tickHour: { fatigue: 1 },
-        cures: [],
-        humor: "melancholia",
-        infirmaryEligible: false,
+        cures: ["elixir_purgationis"],
     },
 };
