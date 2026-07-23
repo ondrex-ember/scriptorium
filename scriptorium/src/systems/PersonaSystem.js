@@ -456,6 +456,14 @@ const PersonaSystem = {
                     }
                 }
 
+                // Haeresis Occulta MRD — Cesta B, dedikovaná mimo villager zpověď
+                let confessLine = '';
+                if (id === 'haeresis_occulta') {
+                    confessLine = `<button onclick="Game.confessHeresy()" class="craft-btn" style="margin-top:8px; font-size:0.75rem;">
+                        🙏 ${lang==='en'?'Confess to the Abbot':'Vyznat se opatovi'}
+                    </button>`;
+                }
+
                 return `<div style="padding:12px 14px;margin-bottom:10px;background:rgba(197,160,89,0.08);border-left:3px solid var(--accent-gold);border-radius:6px;">
                     <div style="display:flex;justify-content:space-between;align-items:baseline;">
                         <strong>${def.icon} ${name}</strong>
@@ -465,6 +473,7 @@ const PersonaSystem = {
                     ${advice ? `<div style="font-size:0.78rem;margin-top:6px;padding-top:6px;border-top:1px dashed rgba(197,160,89,0.3);"><strong>${lang==='en'?'What to do:':'Co dělat:'}</strong> ${advice}</div>` : ''}
                     ${cureLine}
                     ${infirmaryLine}
+                    ${confessLine}
                 </div>`;
             }).join('');
             statusHtml = `<div>${cards}</div>`;
