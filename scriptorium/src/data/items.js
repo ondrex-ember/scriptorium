@@ -56,6 +56,7 @@ const ItemsDB = {
     "odvar_z_dubenek": { name: "Odvar z duběnek", name_en: "Oak Gall Decoction", icon: "🫘", type: "alchemy", desc: "Svíravý odvar. Zastavuje krvácení a průjem.", desc_en: "An astringent decoction. Stops bleeding and flux." },
     "mast_ze_lneneho_oleje": { name: "Mast ze lněného oleje", name_en: "Linseed Oil Salve", icon: "🧴", type: "alchemy", desc: "Zvlhčuje vyschlé oči a ztuhlé šlachy.", desc_en: "Soothes dried eyes and stiffened tendons." },
     "odvar_z_vrby": { name: "Odvar z vrbové kůry", name_en: "Willow Bark Decoction", icon: "🍵", type: "alchemy", desc: "Chladí pálivé svědění a horké klouby.", desc_en: "Cools burning itch and hot joints." },
+    "spongia_somnifera": { name: "Uspávací houba", name_en: "Sleeping Sponge", icon: "🧽", type: "alchemy", desc: "Houba napuštěná mandragorou, rulíkem a mákem. Zmírní šok ze zranění.", desc_en: "A sponge soaked with mandrake, belladonna and poppy. Eases the shock of injury." },
     "stamina_tonic": { name: "Tonikum síly", name_en: "Stamina Tonic", icon: "⚡", type: "alchemy", desc: "Energie.", desc_en: "Restores energy." },
     "preservation_oil": { name: "Konzervační olej", name_en: "Preservation Oil", icon: "🫙", type: "alchemy", desc: "Uchovává.", desc_en: "Preserves food and materials." },
     "sleep_potion": { name: "Lektvar spánku", name_en: "Sleep Draught", icon: "😴", type: "alchemy", desc: "Hluboký spánek.", desc_en: "Brings deep sleep." },
