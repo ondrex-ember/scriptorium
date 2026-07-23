@@ -594,6 +594,9 @@ const PersonaSystem = {
 
         let h = `<div style="font-size:0.75rem;font-weight:bold;letter-spacing:0.06em;text-transform:uppercase;opacity:0.55;margin-bottom:10px;">${lang==='en'?'NPC relations':'Vztahy s NPC'}</div>`;
 
+        h += bar('🖋️', lang==='en'?'Master Bartoloměj':'Mistr Bartoloměj',
+            inf.bartolomej,
+            lang==='en'?'Old scribe — high influence → choose a specific book, deeper personal stories.':'Starý písař — vysoký vliv → výběr konkrétní knihy, hlubší osobní příběhy.', false);
         h += bar('🏠', lang==='en'?'Benedikt of Litomyšl':'Benedikt z Litomyšle',
             inf.benedikt,
             lang==='en'?'Cellarius — high influence → better prices in Hospoda.':'Cellarius — vysoký vliv → lepší ceny v Hospodě.', false);

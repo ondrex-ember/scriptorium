@@ -1856,6 +1856,14 @@ const Game = {
     // SAD (Pomarium) — herní logika
     // ═══════════════════════════════════════════════════════════════════════════
 
+    // Sdílená základní doba růstu (hodiny) — čte plantTree() i checkOrchardGrowth().
+    // Skutečná doba se losuje jednou při zasazení (±15 %), viz plantTree().
+    ORCHARD_GROW_HOURS: {
+        seed_apple: 48, seed_pear: 48, seed_plum: 36, seed_cherry: 36,
+        seed_walnut: 72, seed_mulberry: 48, seed_quince: 60,
+        seed_sorb: 72, seed_rowan: 48, seed_linden: 60,
+    },
+
     plantTree: function(slotIdx, seedId) {
         if (!GameState.orchard) return;
         if (!seedId) { UI.notify(t('game.noSeedSelected'), true); return; }
@@ -1867,6 +1875,9 @@ const Game = {
         slot.treeType = seedId;
         slot.plantedAt = Date.now();
         slot.lastHarvestAt = 0;
+        // Doba růstu — losuje se jednou napevno, ±15 % kolem základu (náhoda do Sadu)
+        const baseHours = this.ORCHARD_GROW_HOURS[seedId] || 48;
+        slot.growHoursActual = Math.round(baseHours * (0.85 + Math.random() * 0.3) * 10) / 10;
         Game.save();
         UI.renderOrchard();
         UI.notify('🌱 ' + t('game.treePlanted'));
@@ -1884,7 +1895,9 @@ const Game = {
         };
         const fruit = TREE_FRUITS[slot.treeType];
         if (!fruit) return;
-        const qty = (slot.treeType === 'seed_walnut' || slot.treeType === 'seed_sorb') ? 2 : 3;
+        const baseQty = (slot.treeType === 'seed_walnut' || slot.treeType === 'seed_sorb') ? 2 : 3;
+        const bountiful = Math.random() < 0.2;
+        const qty = baseQty + (bountiful ? 1 : 0);
         this.addItem(fruit, qty);
         // Lípa dává navíc lipový květ
         if (slot.treeType === 'seed_linden') this.addItem('linden_blossom', 1);
@@ -1893,7 +1906,9 @@ const Game = {
         slot.lastHarvestAt = Date.now();
         Game.save();
         UI.renderOrchard();
-        UI.notify('🍎 ' + t('game.treeHarvested').replace('{qty}', qty));
+        const _lang = (GameState.settings && GameState.settings.language) || 'cs';
+        UI.notify((bountiful ? '🍎✨ ' : '🍎 ') + t('game.treeHarvested').replace('{qty}', qty)
+            + (bountiful ? (_lang === 'en' ? ' — bountiful harvest!' : ' — bohatá úroda!') : ''));
     },
 
     fellTree: function(slotIdx) { return GardenSystem.fellTree(slotIdx); },
@@ -2570,15 +2585,11 @@ const Game = {
 
     checkOrchardGrowth: function() {
         if (!GameState.orchard) return;
-        const GROW_HOURS = {
-            seed_apple: 48, seed_pear: 48, seed_plum: 36, seed_cherry: 36,
-            seed_walnut: 72, seed_mulberry: 48, seed_quince: 60,
-            seed_sorb: 72, seed_rowan: 48, seed_linden: 60,
-        };
         let changed = false;
         GameState.orchard.forEach(slot => {
             if (slot.state === 'growing') {
-                const hours = GROW_HOURS[slot.treeType] || 48;
+                // Použij losovanou dobu (pokud existuje), jinak fallback na základ (staré uložené hry)
+                const hours = slot.growHoursActual || this.ORCHARD_GROW_HOURS[slot.treeType] || 48;
                 if (Date.now() >= slot.plantedAt + (hours * 3600000)) {
                     slot.state = 'mature';
                     slot.lastHarvestAt = Date.now(); // první sklizeň hned k dispozici

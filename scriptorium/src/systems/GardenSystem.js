@@ -1023,7 +1023,8 @@ const GardenSystem = {
                 }
             } else if (slot.state === 'growing') {
                 const td = TREE_DATA[slot.treeType];
-                const matureAt = slot.plantedAt + (td ? td.growHours * 3600000 : 172800000);
+                const growHours = slot.growHoursActual || (td ? td.growHours : 48);
+                const matureAt = slot.plantedAt + (growHours * 3600000);
                 const pct = Math.min(100, Math.round(((now - slot.plantedAt) / (matureAt - slot.plantedAt)) * 100));
                 const iconSize = (1.0 + (pct / 100) * 1.0).toFixed(2);
                 content = `<div class="plot-soil" style="font-size:${iconSize}rem;">🌱</div><div class="text-sm">${slot.treeType ? iName(slot.treeType) : '?'}</div>`;
