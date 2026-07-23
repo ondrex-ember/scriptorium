@@ -14580,6 +14580,74 @@ const EventsSystem = {
             ]
         },
 
+        // MRD 5.8 — Apiarium weather-flavor: bouřka nad úlem (WMO 95-99, sdílí data s _apiaryWeatherMod)
+        {
+            id: 'apiary_storm',
+            icon: '⛈️',
+            title: () => (GameState.settings && GameState.settings.language === 'en') ? 'Storm Over the Hives' : 'Bouřka nad úly',
+            text: () => {
+                const en = GameState.settings && GameState.settings.language === 'en';
+                return en
+                    ? '*Thunder rolls low over the wall. The hives rock in the gusting wind — bees cluster tight inside, but a loose board or two could give way before it passes.*'
+                    : '*Hrom se valí nízko nad zdí. Úly se houpou v poryvech větru — včely se uvnitř tisknou k sobě, ale jedno dvě uvolněná prkna to nemusí vydržet.*';
+            },
+            cooldownDays: 7,
+            trigger: () => {
+                if (!(GameState.researchedTechs && GameState.researchedTechs.includes('tech_liber_apium'))) return false;
+                if (!(GameState.apiary && GameState.apiary.some(h => h.built && h.hasQueen))) return false;
+                const code = (typeof WeatherSystem !== 'undefined' && WeatherSystem.cache && WeatherSystem.cache.current)
+                    ? WeatherSystem.cache.current.weather_code : null;
+                return code !== null && code >= 95 && code <= 99 && Math.random() < 0.15;
+            },
+            choices: [
+                {
+                    label: () => (GameState.settings && GameState.settings.language === 'en') ? 'Rush out and hold the hives' : 'Přiběhnout a přidržet úly',
+                    desc: () => (GameState.settings && GameState.settings.language === 'en')
+                        ? 'Risky in this weather, but it lessens the damage.'
+                        : 'Riskantní v tomhle počasí, ale zmírní to škodu.',
+                    action: () => {
+                        const en = GameState.settings && GameState.settings.language === 'en';
+                        const active = GameState.apiary.filter(h => h.built && h.hasQueen);
+                        const hive = active[Math.floor(Math.random() * active.length)];
+                        if (Math.random() < 0.6) {
+                            hive.strength = Math.max(0, (hive.strength || 0) - 1);
+                            const msg = en
+                                ? `You reach the hives in time. "${hive.queenName}" loses only a little strength in the wind.`
+                                : `Stihneš to k úlům včas. „${hive.queenName}" ztrácí ve větru jen málo síly.`;
+                            UI.notifyPanel(msg, 'system');
+                            return msg;
+                        } else {
+                            hive.strength = Math.max(0, (hive.strength || 0) - 2);
+                            if (typeof VigorSystem !== 'undefined') VigorSystem.addFatigue(8);
+                            const msg = en
+                                ? `The wind wins. Soaked and bruised, you watch "${hive.queenName}"'s hive take the worst of it.`
+                                : `Vítr vyhrává. Promočený a potlučený sleduješ, jak úl „${hive.queenName}" schytal to nejhorší.`;
+                            UI.notifyPanel(msg, 'warning');
+                            return msg;
+                        }
+                    }
+                },
+                {
+                    label: () => (GameState.settings && GameState.settings.language === 'en') ? 'Leave it to fate' : 'Nechat osudu',
+                    desc: () => (GameState.settings && GameState.settings.language === 'en')
+                        ? 'Stay inside, dry. The hives weather it alone.'
+                        : 'Zůstat uvnitř, v suchu. Úly to přečkají samy.',
+                    action: () => {
+                        const en = GameState.settings && GameState.settings.language === 'en';
+                        const active = GameState.apiary.filter(h => h.built && h.hasQueen);
+                        const hive = active[Math.floor(Math.random() * active.length)];
+                        hive.strength = Math.max(0, (hive.strength || 0) - 2);
+                        const msg = en
+                            ? `The storm passes. "${hive.queenName}"'s hive weathered it, but weaker for the wear.`
+                            : `Bouřka přejde. Úl „${hive.queenName}" ji přečkal, ale oslabený.`;
+                        UI.notifyPanel(msg, 'system');
+                        EventsSystem._addKronika(msg);
+                        return msg;
+                    }
+                }
+            ]
+        },
+
         // C1 — Kladivo na čarodějnice
         {
             id: 'print_malleus',
