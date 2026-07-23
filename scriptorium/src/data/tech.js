@@ -492,6 +492,16 @@ TechTree.push({
     unlocks: ["odvar_z_dubenek", "mast_ze_lneneho_oleje", "odvar_z_vrby"],
     requires: ["tech_infirmarium"]
 });
+TechTree.push({
+    id: "tech_chirurgus",
+    name: "Chirurgia Magna",
+    name_en: "Chirurgia Magna",
+    cost: 15,
+    desc: "Guy de Chauliac, 1365. Nejmodernější chirurgický spis doby — ošetřování ran, zlomenin, a spongia somnifera: mořská houba napuštěná opiem, blínem a mandragorou k utlumení bolesti před řezáním. Odemyká: Uspávací houbu.",
+    desc_en: "Guy de Chauliac, 1365. The most advanced surgical treatise of the age — wound care, fractures, and the spongia somnifera: a sea sponge soaked with opium, henbane and mandrake to dull pain before cutting. Unlocks: the Sleeping Sponge.",
+    unlocks: ["spongia_somnifera"],
+    requires: ["tech_infirmarium"]
+});
 // ── PORTA — Holubí pošta ─────────────────────────────────────────────────
 TechTree.push({
     id: "tech_porta",
