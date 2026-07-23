@@ -100,4 +100,44 @@ const HealthSystem = {
         }
         return false;
     },
+
+    // ── Infirmerie (titivillus-infirmary-mrd) — hráčova vlastní zkratka,
+    // samostatná od klášterního Infirmaria (budova/tech/NPC admission).
+    // Spotřebuje 1× Hřejivou mast, zkrátí léčení infirmaryEligible neduhu
+    // na 24h výměnou. Dřív volaná z UI, ale nikde neimplementovaná — doplněno.
+    enterInfirmary: function(conditionId) {
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        if (!GameState.health || !GameState.health.active || !GameState.health.active[conditionId]) return;
+        const def = HealthConditionsDB[conditionId];
+        if (!def || !def.infirmaryEligible) return;
+        if (GameState.infirmaryTimer) {
+            if (typeof UI !== 'undefined' && UI.notify) UI.notify(lang==='en' ? 'The infirmary is occupied.' : 'Infirmerie je obsazená.', true);
+            return;
+        }
+        const salveCount = (GameState.inventory && GameState.inventory['unguentum_calidum']) || 0;
+        if (salveCount < 1) {
+            if (typeof UI !== 'undefined' && UI.notify) UI.notify(lang==='en' ? 'You need a Warming Salve.' : 'Potřebuješ Hřejivou mast.', true);
+            return;
+        }
+        if (typeof Game !== 'undefined' && Game.removeItem) Game.removeItem('unguentum_calidum', 1);
+        const endTime = Date.now() + 24 * 3600000;
+        GameState.infirmaryTimer = { conditionId: conditionId, endTime: endTime };
+        // Zkrať zbývající léčení na 24h, pokud by jinak trvalo déle
+        const inst = GameState.health.active[conditionId];
+        if (inst && inst.expiresAt > endTime) inst.expiresAt = endTime;
+        if (typeof UI !== 'undefined' && UI.notifyPanel) {
+            UI.notifyPanel('🛏️ ' + (lang==='en' ? 'You enter the infirmary to rest.' : 'Odcházíš odpočívat do infirmerie.'), 'system');
+        }
+        if (typeof Game !== 'undefined' && Game.save) Game.save();
+        if (typeof PersonaSystem !== 'undefined' && PersonaSystem.render) PersonaSystem.render();
+    },
+
+    // Volat z ticku (self-guarded) — jen kontroluje čas, uvolní infirmerii po 24h.
+    checkInfirmaryTimer: function() {
+        if (!GameState.infirmaryTimer) return;
+        if (Date.now() >= GameState.infirmaryTimer.endTime) {
+            GameState.infirmaryTimer = null;
+            if (typeof Game !== 'undefined' && Game.save) Game.save();
+        }
+    },
 };
