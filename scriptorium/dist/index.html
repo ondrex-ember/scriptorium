@@ -20854,10 +20854,31 @@ const SaeculumSystem = {
     const admitted = !!entity.admittedToInfirmarium;
     if (!hasCondition && !admitted) return '';
     if (admitted) {
-      return `<div style="font-size:0.76rem; margin:4px 0 8px; padding:6px 10px; background:rgba(197,160,89,0.12); border-radius:6px; display:flex; justify-content:space-between; align-items:center;">
+      let h = `<div style="font-size:0.76rem; margin:4px 0 4px; padding:6px 10px; background:rgba(197,160,89,0.12); border-radius:6px; display:flex; justify-content:space-between; align-items:center;">
                 <span>🩺 ${lang==='en'?"In the infirmary's care":'V péči Infirmaria'}</span>
                 <button class="craft-btn" style="padding:2px 8px; font-size:0.68rem;" onclick="Game.dischargeFromInfirmarium('${entity.id}', ${isBrother})">${lang==='en'?'Discharge':'Propustit'}</button>
               </div>`;
+      const hasApothecarius = ((GameState.dormitorium && GameState.dormitorium.brothers) || []).some(b => b.assignedTab === 'infirmarium_apothecarius');
+      if (hasApothecarius) {
+        const conditionIds = Object.keys(entity.conditions || {});
+        const available = [];
+        conditionIds.forEach(cid => {
+          const def = typeof HealthConditionsDB !== 'undefined' ? HealthConditionsDB[cid] : null;
+          if (!def || !def.cures) return;
+          def.cures.forEach(itemId => {
+            if ((GameState.inventory[itemId] || 0) > 0 && !available.includes(itemId)) available.push(itemId);
+          });
+        });
+        if (available.length) {
+          h += `<div style="font-size:0.68rem; opacity:0.7; margin-bottom:4px;">⚕️ ${lang==='en'?'Administer':'Podat'}:</div>`;
+          h += `<div style="display:flex; gap:4px; flex-wrap:wrap; margin-bottom:6px;">`;
+          h += available.map(itemId => `<button class="craft-btn" style="padding:3px 8px; font-size:0.68rem;" onclick="Game.administerCure('${entity.id}', ${isBrother}, '${itemId}')">${typeof iName === 'function' ? iName(itemId) : itemId} (${GameState.inventory[itemId]})</button>`).join('');
+          h += `</div>`;
+        } else {
+          h += `<div style="font-size:0.68rem; opacity:0.55; font-style:italic; margin-bottom:6px;">${lang==='en'?'Nothing in stock that helps.':'Nic vhodnýho na skladě.'}</div>`;
+        }
+      }
+      return h;
     }
     const inf = GameState.infirmarium || { beds: 3, patients: [] };
     const full = (inf.patients || []).length >= inf.beds;
