@@ -814,6 +814,48 @@ const AthanorDB = {
       lore: 'Žlutý okr žíhaný v Athanoru, dokud neztratí vázanou vodu a nezčervená. Podklad pro stínování tváří.'
     },
 
+    // ── Vlna 1 (media-materia-konsolidace.md §7) — Doly trojice: olovo/měď/cín
+    'lead+vinegar:maceratio': {
+      result: { id: 'cerusa', qty: 2 },
+      name: 'Olověná běloba',
+      name_lat: 'Cerusa',
+      icon: '⚪',
+      effect: null,
+      lore: 'Olověné pláty nad octem v teplém hnoji — po týdnech se seškrábne zářivě bílý prášek. Nejzásadnější běloba středověku.'
+    },
+    'cerusa:calcinatio': {
+      result: { id: 'minium', qty: 2 },
+      name: 'Suřík',
+      name_lat: 'Minium',
+      icon: '🔴',
+      effect: null,
+      lore: 'Dlouhé pražení olověné běloby, dokud se barva nezmění z bílé přes žlutou až po zářivě červeno-oranžovou.'
+    },
+    'lead:calcinatio': {
+      result: { id: 'lithargyrum', qty: 2 },
+      name: 'Klejt',
+      name_lat: 'Lithargyrum',
+      icon: '🟡',
+      effect: null,
+      lore: 'Přímé tavení a oxidace olova na vzduchu. Sušidlo do lněného oleje, glazura do sklářské hutě.'
+    },
+    'copper:calcinatio': {
+      result: { id: 'calx_cupri', qty: 2 },
+      name: 'Žíhaná měď',
+      name_lat: 'Calx Cupri',
+      icon: '⚫',
+      effect: null,
+      lore: 'Žíhaná měď na černý oxid. Barví sklo do syta zelena až modra ve sklářské huti.'
+    },
+    'tin:calcinatio': {
+      result: { id: 'cinere_stanni', qty: 2 },
+      name: 'Cínový popel',
+      name_lat: 'Cinere Stanni',
+      icon: '⚪',
+      effect: null,
+      lore: 'Žíhaný cín na bílý oxid. Základ neprůhledné glazury na klášterní keramiku a klíčová složka mozaikového zlata.'
+    },
+
     // ══ CERVISIARIA ══
     'grain+water:coctio': {
       result: { id: 'wort', qty: 1 },
@@ -1550,7 +1592,7 @@ const AthanorSystem = {
     herbs: ['chamomile', 'st_johns_wort', 'thyme', 'hops', 'rose'],
     pigments: ['lapis_lazuli', 'ochre', 'cinnabar', 'carbon_black', 'egg_tempera', 'linseed_oil', 'malachite'],
     liquids: ['water', 'wine', 'vinegar', 'turpentine'],
-    minerals: ['chalk', 'gum_arabic', 'pumice', 'oak_bark', 'gall_nut', 'sulfur', 'alum', 'vitriol'],
+    minerals: ['chalk', 'gum_arabic', 'pumice', 'oak_bark', 'gall_nut', 'sulfur', 'alum', 'vitriol', 'lead', 'copper', 'tin'],
     brewing: ['grain', 'hops', 'wort', 'honey', 'thyme'],
   },
 
