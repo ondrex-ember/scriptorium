@@ -21899,6 +21899,15 @@ const InfirmariumSystem = {
         return h;
     },
 
+    // 4 mnišský role (Infirmarius/Medicus/Apothecarius/Capellanus) — jen Infirmarius
+    // má zatím funkci (viz Game.infirmariumCareModifier), zbytek vědomej stub.
+    _MONK_ROLES: [
+        { id: 'infirmarium_infirmarius',  icon: '🩺', name_cs: 'Infirmarius',  name_en: 'Infirmarian' },
+        { id: 'infirmarium_medicus',      icon: '⚕️', name_cs: 'Medicus',      name_en: 'Medicus' },
+        { id: 'infirmarium_apothecarius', icon: '🧪', name_cs: 'Apothecarius', name_en: 'Apothecary' },
+        { id: 'infirmarium_capellanus',   icon: '⛪', name_cs: 'Capellanus',   name_en: 'Chaplain' }
+    ],
+
     renderInfirmariumTab: function() {
         const lang = (GameState.settings && GameState.settings.language) || 'cs';
 
@@ -21936,13 +21945,32 @@ const InfirmariumSystem = {
         h += this._STATIONS.map(st => {
             const gated = !(GameState.researchedTechs && GameState.researchedTechs.includes(st.tech));
             const label = lang === 'en' ? st.name_en : st.name_cs;
+            const count = (!gated && typeof Game !== 'undefined' && Game.conversiTaskCount) ? Game.conversiTaskCount(st.id) : 0;
+            const statusText = gated ? '🔒 ' + st.tech : count + '/2';
             return `<div style="text-align:center; padding:10px 6px; border-radius:8px;
                         border:1px solid rgba(197,160,89,0.25);
                         background:rgba(197,160,89,0.05);
                         opacity:${gated ? '0.5' : '1'};">
                       <div style="font-size:1.4rem;">${st.icon}</div>
                       <div style="font-size:0.68rem; font-weight:bold; margin-top:4px;">${label}</div>
-                      <div style="font-size:0.6rem; opacity:0.7; margin-top:2px;">${gated ? '🔒 ' + st.tech : (lang==='en' ? 'soon' : 'brzy')}</div>
+                      <div style="font-size:0.6rem; opacity:0.7; margin-top:2px;">${statusText}</div>
+                    </div>`;
+        }).join('');
+        h += `</div>`;
+
+        // Mnišský dohled — 4 role, jen Infirmarius má zatím funkci
+        h += `<div style="font-size:0.68rem; font-weight:bold; opacity:0.6; text-transform:uppercase; letter-spacing:0.05em; margin:14px 0 6px;">${lang==='en'?'Monastic oversight':'Mnišský dohled'}</div>`;
+        h += `<div style="display:grid; grid-template-columns:repeat(4, 1fr); gap:8px;">`;
+        h += this._MONK_ROLES.map(r => {
+            const brother = ((GameState.dormitorium && GameState.dormitorium.brothers) || []).find(b => b.assignedTab === r.id);
+            const label = lang==='en' ? r.name_en : r.name_cs;
+            const statusText = brother ? brother.name : (lang==='en'?'vacant':'volné');
+            return `<div style="text-align:center; padding:10px 6px; border-radius:8px;
+                        border:1px solid rgba(197,160,89,0.25);
+                        background:rgba(197,160,89,0.05);">
+                      <div style="font-size:1.4rem;">${r.icon}</div>
+                      <div style="font-size:0.68rem; font-weight:bold; margin-top:4px;">${label}</div>
+                      <div style="font-size:0.6rem; opacity:0.7; margin-top:2px;">${statusText}</div>
                     </div>`;
         }).join('');
         h += `</div>`;
@@ -21950,6 +21978,7 @@ const InfirmariumSystem = {
         return h;
     }
 };
+
 // ═══ src/systems/DecaySystem.js ═══
 // ═══════════════════════════════════════════════════════════════════════════
 // DECAY SYSTEM v1 (B2 — simplified)
