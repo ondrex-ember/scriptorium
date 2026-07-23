@@ -170,6 +170,8 @@ const ContactsDB = {
             muskatovy_kvet: { price: 20, stock: 1, minRelation: 32 },
             hedvabi:    { price: 15, stock: 2, minRelation: 30 },
             safran:     { price: 28, stock: 1, minRelation: 35 },
+            alum:       { price: 8,  stock: 4, minRelation: 15 },
+            sandarak:   { price: 14, stock: 2, minRelation: 22 },
         } },
         desc: 'Benátský obchodník. Přiváží, co jinde nekoupíš — ale jen když je jeho loď v přístavu.',
         desc_en: 'A Venetian merchant. He brings what you cannot buy elsewhere — but only while his ship is in port.'
