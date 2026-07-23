@@ -701,6 +701,10 @@ const SaeculumSystem = {
           h += `<div style="font-size:0.68rem; opacity:0.55; font-style:italic; margin-bottom:6px;">${lang==='en'?'Nothing in stock that helps.':'Nic vhodnýho na skladě.'}</div>`;
         }
       }
+      const hasCapellanus = ((GameState.dormitorium && GameState.dormitorium.brothers) || []).some(b => b.assignedTab === 'infirmarium_capellanus');
+      if (hasCapellanus && !entity.confessedThisStay) {
+        h += `<button class="craft-btn" style="padding:3px 8px; font-size:0.68rem;" onclick="Game.hearConfession('${entity.id}', ${isBrother})">🙏 ${lang==='en'?'Hear confession':'Vyslechnout zpověď'}</button>`;
+      }
       return h;
     }
     const inf = GameState.infirmarium || { beds: 3, patients: [] };
