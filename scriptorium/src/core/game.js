@@ -6036,7 +6036,7 @@ const Game = {
     },
 
     // Vyřeší návraty z Scavenge/Dolů — riziko, výnos, hláška. Volat z periodického ticku.
-    CONVERSI_SCAVENGE_LOOT: ['mushroom', 'berries', 'thyme', 'st_johns_wort', 'wood', 'clay', 'rose'],
+    CONVERSI_SCAVENGE_LOOT: ['mushroom', 'berries', 'thyme', 'st_johns_wort', 'wood', 'clay', 'rose', 'cornu_cervi', 'gentian'],
     checkConversiReturns: function() {
         if (!GameState.conversi || !GameState.conversi.length) return;
         const lang = (GameState.settings && GameState.settings.language) || 'cs';
@@ -6066,8 +6066,10 @@ const Game = {
                     k.fatigue = Math.min(100, k.fatigue + 15);
                     yieldTxt = qty + '× iron_ore';
                     // Fix 3B (athanor-integrity-audit.md §3) — vzácný byproduct z hlubších štol
+                    // Vlna 2 (media-materia-konsolidace.md §3) — sal_petrae/arsenicum doplněny do poolu
                     if (Math.random() < 0.15) {
-                        const bonusId = Math.random() < 0.5 ? 'vitriol' : 'malachite';
+                        const rarePool = ['vitriol', 'malachite', 'sal_petrae', 'arsenicum'];
+                        const bonusId = rarePool[Math.floor(Math.random() * rarePool.length)];
                         this.addItem(bonusId, 1);
                         yieldTxt += ' + 1× ' + bonusId;
                     }
