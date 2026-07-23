@@ -3850,7 +3850,7 @@ const Game = {
     },
     eat: function(foodId) {
         const item = ItemsDB[foodId];
-        const _potionCures = ['antidote', 'potion_heal', 'sleep_potion', 'stamina_tonic', 'unguentum_calidum', 'cannabis_poultice'];
+        const _potionCures = ['antidote', 'potion_heal', 'sleep_potion', 'stamina_tonic', 'unguentum_calidum', 'cannabis_poultice', 'odvar_z_dubenek', 'mast_ze_lneneho_oleje', 'odvar_z_vrby', 'elixir_purgationis'];
         const _isPotionCure = _potionCures.includes(foodId);
         // Syrové ovoce/zelenina (food_raw), co lze sníst přímo — viz VigorSystem.RAW_EDIBLE_FOOD
         const _isRawEdible = (typeof VigorSystem !== 'undefined' && VigorSystem.RAW_EDIBLE_FOOD && VigorSystem.RAW_EDIBLE_FOOD.includes(foodId));
@@ -5133,6 +5133,51 @@ const Game = {
                         '🙏 Confession: ' + cName + ' left unheard — and will not forget it.',
                         '🙏 Confessio recusata est.');
                     Game.save(); rerender();
+                }},
+            ]
+        });
+    },
+
+    // ── Haeresis Occulta MRD — Cesta B (pokání). Dedikovaná akce, VÝSLOVNĚ
+    // oddělená od templumConfessionTick nahoře (ten řeší cizí hříchy
+    // villagerů/kontaktů, ne bratrův vlastní blud). Volá se z tlačítka
+    // ve Valetudo tabu (PersonaSystem._renderValetudo), jen když je
+    // haeresis_occulta aktivní. Léčí okamžitě (žádný item), ale sráží
+    // inquisitionHeat víc než Cesta A (Elixir Purgationis).
+    confessHeresy: function() {
+        if (!(GameState.health && GameState.health.active && GameState.health.active['haeresis_occulta'])) return;
+        if (typeof NotificationSystem === 'undefined' || !NotificationSystem.modal) return;
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        const cool = (amount) => { if (GameState.secrets) GameState.secrets.inquisitionHeat = Math.max(0, (GameState.secrets.inquisitionHeat || 0) - amount); };
+
+        NotificationSystem.modal({
+            icon: '🙏',
+            title: lang === 'en' ? 'Confess to the Abbot' : 'Vyznat se opatovi',
+            text: lang === 'en'
+                ? 'The thought that crept in with the draught does not belong to you. Kneel and confess it before it takes root.'
+                : 'Myšlenka, co přišla s douškem, ti nepatří. Poklekni a vyznej ji, než zapustí kořeny.',
+            choices: [
+                { label: (lang === 'en' ? '⚖️ Strict penance' : '⚖️ Přísné pokání'), type: 'danger', effect: () => {
+                    HealthSystem.removeCondition('haeresis_occulta', true);
+                    if (typeof PersonaSystem !== 'undefined') PersonaSystem.addInfluence('church', 8);
+                    cool(20);
+                    Game.addKronikaEntry('minor',
+                        '🙏 Vyznal ses opatovi z kacířského bludu. Přísné pokání — bolestivé, ale důkladné.',
+                        '🙏 You confessed the heretical delusion to the Abbot. Strict penance — painful, but thorough.',
+                        '🙏 Confessio facta est. Poenitentia severa.');
+                    Game.save();
+                    if (typeof PersonaSystem !== 'undefined') PersonaSystem.render();
+                }},
+                { label: (lang === 'en' ? '🕊️ Ask for leniency' : '🕊️ Prosit o shovívavost'), effect: () => {
+                    HealthSystem.removeCondition('haeresis_occulta', true);
+                    if (typeof PersonaSystem !== 'undefined') PersonaSystem.addInfluence('church', 3);
+                    cool(12);
+                    Game.addKronikaEntry('minor',
+                        '🙏 Vyznal ses opatovi z kacířského bludu. Shovívavost — lehčí srdce, menší klid.',
+                        '🙏 You confessed the heretical delusion to the Abbot. Leniency — a lighter heart, a smaller peace.',
+                        '🙏 Confessio facta est. Misericordia data.');
+                    Game.save();
+                    if (typeof PersonaSystem !== 'undefined') PersonaSystem.render();
                 }}
             ]
         });
