@@ -22,6 +22,7 @@ const HealthConditionsDB = {
         onApply: { satiety: -15, fatigue: 15 },
         tickHour: { satiety: -1 },
         cures: ["antidote"],
+        humor: "phlegma",
     },
     "cold": {
         name: "Nachlazení", name_en: "Cold", icon: "🤧",
@@ -35,6 +36,7 @@ const HealthConditionsDB = {
         onApply: { satiety: -10, fatigue: 15 },
         tickHour: { fatigue: 2 },
         cures: ["potion_heal", "herbal_tea", "hildegard_tisane", "linden_tea", "sleep_potion", "cannabis_poultice"],
+        humor: "phlegma",
     },
     "mosquito_bites": {
         name: "Komáří štípance", name_en: "Mosquito Bites", icon: "🦟",
@@ -48,6 +50,7 @@ const HealthConditionsDB = {
         onApply: { fatigue: 10 },
         tickHour: { fatigue: 1 },
         cures: [],
+        humor: "cholera",
     },
 
     // ── monastery-decay-mrd — Vrstva 1, 9 nových nemocí ──────────────────
@@ -63,6 +66,7 @@ const HealthConditionsDB = {
         onApply: { fatigue: 10 },
         tickHour: { fatigue: 1 },
         cures: ["herbal_tea", "potion_heal", "hildegard_tisane", "unguentum_calidum", "cannabis_poultice"],
+        humor: "phlegma",
         // titivillus-infirmary-mrd — žádná blokovaná akce, Infirmerie zde jen
         // zkracuje dobu léčby (96h → 24h) výměnou za Hřejivou mast.
         infirmaryEligible: true,
@@ -79,6 +83,7 @@ const HealthConditionsDB = {
         onApply: { fatigue: 8 },
         tickHour: {},
         cures: ["sleep_potion", "potion_heal"],
+        humor: "melancholia",
     },
     "scurvy": {
         name: "Kurděje", name_en: "Scurvy", icon: "🦷",
@@ -92,6 +97,7 @@ const HealthConditionsDB = {
         onApply: { satiety: -10 },
         tickHour: { fatigue: 1 },
         cures: ["berries", "dried_wild_fruit", "rosehip_sauce"],
+        humor: "sanguis",
     },
     "lice": {
         name: "Vši", name_en: "Lice", icon: "🪲",
@@ -105,6 +111,7 @@ const HealthConditionsDB = {
         onApply: { fatigue: 5 },
         tickHour: { fatigue: 0.5 },
         cures: ["herbal_tea"],
+        humor: "sanguis",
     },
     "scabies": {
         name: "Svrab", name_en: "Scabies", icon: "🔴",
@@ -118,6 +125,7 @@ const HealthConditionsDB = {
         onApply: { fatigue: 8 },
         tickHour: { fatigue: 1 },
         cures: ["herbal_tea", "potion_heal"],
+        humor: "cholera",
     },
     "gout": {
         name: "Dna", name_en: "Gout", icon: "🍖",
@@ -130,7 +138,8 @@ const HealthConditionsDB = {
         durationHours: 72,
         onApply: { fatigue: 15, satiety: -5 },
         tickHour: { fatigue: 1 },
-        cures: [], // pouze time-limited — odříkání, žádný lék
+        cures: [],
+        humor: "cholera", // pouze time-limited — odříkání, žádný lék
     },
     "dysentery": {
         name: "Úplavice", name_en: "Dysentery", icon: "🚽",
@@ -144,6 +153,7 @@ const HealthConditionsDB = {
         onApply: { satiety: -25, fatigue: 20 },
         tickHour: { satiety: -2 },
         cures: ["antidote", "potion_heal"],
+        humor: "sanguis",
     },
     "ergot_fire": {
         name: "Oheň sv. Antonína", name_en: "St. Anthony's Fire", icon: "🔥",
@@ -156,7 +166,8 @@ const HealthConditionsDB = {
         durationHours: 48,
         onApply: { fatigue: 25, satiety: -15 },
         tickHour: { fatigue: 2 },
-        cures: [], // pouze time-limited — vzácná, dramatická, bez léku
+        cures: [],
+        humor: "cholera", // pouze time-limited — vzácná, dramatická, bez léku
     },
     "insomnia": {
         name: "Nespavost", name_en: "Insomnia", icon: "😵",
@@ -170,6 +181,7 @@ const HealthConditionsDB = {
         onApply: { fatigue: 5 },
         tickHour: { fatigue: 1.5 },
         cures: ["sleep_potion", "linden_tea"],
+        humor: "melancholia",
     },
     "writers_cramp": {
         name: "Křeč písařské ruky", name_en: "Writer's Cramp", icon: "✍️",
@@ -183,6 +195,7 @@ const HealthConditionsDB = {
         onApply: { fatigue: 12 },
         tickHour: { fatigue: 0.5 },
         cures: ["potion_heal", "herbal_tea", "unguentum_calidum"],
+        humor: "melancholia",
         // titivillus-infirmary-mrd — nemoc blokuje konkrétní craft output;
         // infirmaryEligible: true zpřístupní tlačítko "Do infirmerie" ve
         // Valetudo (jen nemoci s touto vlastností, ne univerzálně).
