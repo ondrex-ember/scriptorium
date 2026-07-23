@@ -786,6 +786,9 @@ const ItemsDB = {
     "vapno_hasene_fresh": { name: "Čerstvě hašené vápno", name_en: "Freshly Slaked Lime", icon: "💧", type: "mat", desc: "Uhašeno vodou, ještě prudké. Musí uležet v jámě.", desc_en: "Just slaked with water, still caustic. Must rest in the pit." },
     "vapno_hasene_mature": { name: "Vápno", name_en: "Lime", icon: "⬜", type: "mat", desc: "Vyzrálé v jámě. Klidné, použitelné — malta, omítka, pergamen.", desc_en: "Matured in the pit. Stable and usable — mortar, plaster, parchment." },
     "iron_ingot": { name: "Železný ingot", name_en: "Iron Ingot", icon: "⚙️", type: "mat", desc: "Odlitý prut železa. Základ kovářského řemesla.", desc_en: "Cast iron bar. The foundation of the blacksmith's craft." },
+    "kovani": { name: "Kování", name_en: "Ironwork Fittings", icon: "🔩", type: "mat", desc: "Kované pásy, skoby a spony. Vesnický kovář je prodává hotové — sám je nekuješ.", desc_en: "Forged bands, cramps, and clasps. The village blacksmith sells these ready-made — you don't forge them yourself." },
+    "velky_ul_1": { maxStack: 1, name: "Velký úl (I)", name_en: "Great Hive (I)", icon: "🛖", type: "mat", desc: "Zesílená konstrukce úlu — kulatina, lano a kování od kováře. Odemyká vylepšené včelstvo.", desc_en: "A reinforced hive structure — logs, rope, and blacksmith's ironwork. Unlocks an improved colony." },
+    "velky_ul_2": { maxStack: 1, name: "Velký úl (II)", name_en: "Great Hive (II)", icon: "🛖", type: "mat", desc: "Dostavba Velkého úlu na plnou míru. Nejsilnější staveniště pro včelstvo v klášteře.", desc_en: "The Great Hive built out to its full measure. The strongest apiary structure in the monastery." },
     "anvil": { maxStack: 1, name: "Kovadlina", name_en: "Anvil", icon: "⚒️", type: "mat", desc: "Těžká železná kovadlina. Nutná pro stavbu kovárny.", desc_en: "Heavy iron anvil. Required to build the smithy." },
 
     // ── HUTNÍ STAVBY ─────────────────────────────────────────────────────────

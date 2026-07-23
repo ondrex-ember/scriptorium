@@ -70,7 +70,10 @@ const ContactsDB = {
         secondaryAxis: null,
         unlockTech: 'tech_kovarina',          // existuje
         sellBonus: { items: { iron_ore: 6 } },   // K4b: výkup pod nákupní cenou Obchodu (15) — přebytek rozhodne hráč
-        buyOffer: { items: { palice_zelezna: { price: 16, stock: 2 } } }, // plní starý slib "prodá nástroje" z popisku
+        buyOffer: { items: {
+            palice_zelezna: { price: 16, stock: 2 },
+            kovani: { price: 8, stock: 4 }
+        } }, // plní starý slib "prodá nástroje" z popisku + kování na Velký úl (Apiarium MRD)
         desc: 'Vesnický kovář. Vykoupí přebytečnou rudu, prodá nástroje.',
         desc_en: 'The village blacksmith. Buys surplus ore, sells tools.'
     },

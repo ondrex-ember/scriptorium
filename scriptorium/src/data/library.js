@@ -1434,6 +1434,54 @@ Palladius wrote nothing of Olomouc or Moravia — he wrote of a Roman estate a t
 **GAME EFFECT:** Reading this treatise unlocks the *Caseus* tech — curdling milk. A lamb's rennet, an extract of bedstraw, or simply time and warmth: three paths to cheese, depending on what lies to hand.`
         },
         {
+            id: 'book_ruralia_apibus',
+            title: 'Ruralia Commoda: O sídlech a péči o včely',
+            title_en: 'Ruralia Commoda: On the Dwellings and Care of Bees',
+            category: 'innovation',
+            unlockDay: 140,
+            icon: '🐝',
+            author: "Petrus de Crescentiis (Pietro de' Crescenzi)",
+            year: 'psáno 1304–1309 (opis z mnišské tradice, ne tisk)',
+            content: `**Bolognský soudce na venkovském statku**
+
+Petrus de Crescentiis nebyl mnich ani učenec z kláštera — byl to bolognský právník, kterej se po letech u soudu stáhl na svůj venkovský statek a sepsal tam mezi lety 1304 a 1309 dílo Ruralia Commoda, dvanáctero knih o hospodářství od polí po sady, od dobytka po ryby. Čerpal z Catona, Varrona, Columelly a Palladia — starých římských autorů — ale přidal i vlastní zkušenost hospodáře. Kniha se rozšířila po celé Evropě v opisech dřív, než ji kdokoli vytiskl; do roku 1465 koluje jako rukopisný kodex, ne jako tisk — mnišské skriptorium ji zná z opisu, ne z lisu.
+
+**Kde má úl stát**
+
+Devátá kniha se věnuje výhradně včelám a začíná tam, kde by měl začít každý dobrý hospodář — místem. Crescenzi cituje Palladia: úl patří do odlehlého kouta zahrady, na slunném a teplém místě, chráněném před větrem. Podle Varrona má stát poblíž dvora, ale ne tam, kde se ozývá ozvěna — bzukot odražený od zdi prý včely plaší, jako by slyšely křídla nepřítele. Podle Vergilia má úl hledět k zimnímu východu slunce a mít nablízku čistou vodu — ale ne jen tak ledajakou: do vody se má hodit vrbové proutí a kameny napříč, aby včely, když si letí pro vodu, měly kde přistát a usušit si křídla, než utonou. Úly samy stojí na podezdívce vysoké tři stopy, nabílené vápnem — kvůli ještěrkám a hadům, co by jinak vlezli dovnitř.
+
+*"Kde chybí místo, chybí i med — o úl se nestará ten, kdo mu nevybere správný domov."*
+
+**Naslouchat úlu**
+
+Nejpozoruhodnější rada se netýká stavby, ale sluchu. Crescenzi píše, že dřív, než se úl otevře ke sklizni, má se hospodář naklonit a poslouchat: je-li bzukot hlasitý a chraplavý, plástve ještě nejsou zralé. Sklízet se má ráno, dokud včely ještě nejsou rozehřáté vedrem, a před otevřením úlu se má zakouřit — pryskyřicí galbanem nebo suchým hovězím trusem, aby včely ztichly. A pak přichází otázka, kolik vzít: Varro radí nechat včelám dvě třetiny na zimu a vzít jen třetinu; Vergilius jde dál — obává-li se hospodář tuhé zimy, nemá brát vůbec nic. Lidé Crescenziho doby, jak sám píše, se drží jednoho pravidla: med se bere jen jednou za rok, od konce srpna do poloviny září.
+
+**Strážce, ne dobyvatel**
+
+Crescenzi na rozdíl od suššího Palladia zdůrazňuje něco navíc — úl si žádá službu, ne pouhé využívání. Hospodář, kterej se o včely stará pozorně a trpělivě, z mála za krátký čas získá mnoho; kdo je jen obírá, brzy nemá nic. Přesně tenhle tón — péče jako povinnost, ne jen zisk — sedí na klášterní život líp než na kterýkoli světský statek. Crescenzi nikdy nepsal o Olomouci ani o Moravě, ale bratr, kterej se ve skriptoriu skloní nad opsanou stránkou o zimním slunci a vrbovém proutí ve vodě, pozná přesně, oč jde — letos na jaře postaví úl přesně tam, kam radí kniha.
+
+**HERNÍ EFEKT:** Přečtením tohoto spisu odemkneš MOŽNOST výzkumu nového tech *Custos Apium* (pracovní název, k potvrzení) — bez přečtení nejde tech vůbec zkoumat, i kdybys měl grošů dost.`,
+            content_en: `**A Bolognese Judge on a Country Estate**
+
+Petrus de Crescentiis was no monk or cloistered scholar — he was a Bolognese jurist who, after years at court, retired to his country estate and wrote there, between 1304 and 1309, the Ruralia Commoda: twelve books on husbandry, from fields to orchards, from cattle to fish. He drew on Cato, Varro, Columella, and Palladius — the old Roman authors — but added his own experience as a landowner. The book spread across Europe in copies long before anyone printed it; by 1465 it still circulates as a hand-copied codex, not a printed one — the monastic scriptorium knows it from the copyist's pen, not the press.
+
+**Where the Hive Should Stand**
+
+The ninth book is devoted entirely to bees, and it begins where every good husbandman should begin — with the site. Crescenzi cites Palladius: the hive belongs in a secluded corner of the garden, sunny and warm, sheltered from the wind. According to Varro it should stand near the farmyard, but not where an echo answers — a hum bounced off a wall is said to frighten the bees, as though they heard an enemy's wings. According to Virgil the hive should face the winter sunrise and have clean water nearby — but not just any water: willow twigs and stones should be thrown across it, so bees flying out for water have somewhere to land and dry their wings before they drown. The hives themselves stand on a plastered platform three feet high, whitewashed with lime — against lizards and snakes that would otherwise creep inside.
+
+*"Where there is no proper place, there is no honey either — no one truly tends a hive who has not first chosen it the right home."*
+
+**Listening to the Hive**
+
+The most remarkable advice concerns not construction but hearing. Crescenzi writes that before a hive is opened for harvest, the keeper should lean in and listen: if the hum is loud and hoarse, the combs are not yet ripe. Harvesting should happen in the morning, while the bees are not yet stirred by heat, and smoke — from galbanum resin or dried cow-dung — should calm them before the hive is opened. Then comes the question of how much to take: Varro advises leaving two-thirds for the bees through winter and taking only a third; Virgil goes further — if a hard winter is feared, take nothing at all. The people of Crescenzi's own time, he notes, hold to one rule: honey is taken only once a year, from the end of August to the middle of September.
+
+**A Guardian, Not a Conqueror**
+
+Unlike the drier Palladius, Crescenzi stresses something more: the hive asks for service, not mere use. A keeper who tends the bees attentively and patiently gains much from little in a short time; one who only takes from them soon has nothing left. That very tone — care as duty, not just profit — suits monastic life better than any worldly estate. Crescenzi never wrote of Olomouc or Moravia, but a brother bent over the copied page about the winter sun and the willow twigs in the water will know exactly what it means — this spring, he will build the hive exactly where the book advises.
+
+**GAME EFFECT:** Reading this treatise unlocks the POSSIBILITY of researching the new tech *Custos Apium* (working title, pending confirmation) — without reading it, the tech cannot be researched at all, no matter how much research you have.`
+        },
+        {
             id: 'book_palladius_columbaria',
             title: 'Opus Agriculturae: O stavbě holubníku',
             title_en: 'Opus Agriculturae: On the Building of the Dovecote',

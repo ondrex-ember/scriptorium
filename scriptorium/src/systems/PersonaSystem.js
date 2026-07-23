@@ -54,6 +54,8 @@ const PersonaSystem = {
         if (GameState.persona.influence.mercatus === undefined) GameState.persona.influence.mercatus = 0;
         if (GameState.persona.influenceLastDecay === undefined) GameState.persona.influenceLastDecay = Date.now();
         if (GameState.persona.role               === undefined) GameState.persona.role               = null;
+        // Migrace v3 — Mistr Bartoloměj (Starý Písař)
+        if (GameState.persona.influence.bartolomej === undefined) GameState.persona.influence.bartolomej = 0;
 
         // Zkontrolovat zda zobrazit origin modal
         this.checkOriginModal();
@@ -1055,7 +1057,7 @@ const PersonaSystem = {
         if (now - last < DECAY_INTERVAL) return; // ještě není čas
 
         const inf = GameState.persona.influence;
-        const keys = ['benedikt','mercatus','abbot','village','church','scholars'];
+        const keys = ['benedikt','mercatus','abbot','village','church','scholars','bartolomej'];
         let changed = false;
         keys.forEach(k => {
             if ((inf[k] || 0) > 0) {

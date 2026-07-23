@@ -1121,11 +1121,17 @@ const GardenSystem = {
             if (!hive.built) {
                 // ── Prázdný slot ───────────────────────────────────────────
                 const canBuild = (GameState.inventory['stick'] || 0) >= 10 && (GameState.inventory['rope'] || 0) >= 5;
+                const hasGrandItem = (GameState.inventory['velky_ul_2'] || 0) > 0 || (GameState.inventory['velky_ul_1'] || 0) > 0;
+                const _gLang = (typeof UI !== 'undefined' && UI.lang && UI.lang()==='en') ? 'en' : 'cs';
                 content = `<div class="plot-soil" style="opacity:0.3;">🪵</div>
                            <div class="text-sm">${t('garden.apiaryEmpty')}</div>`;
                 btn = `<button class="craft-btn" onclick="Game.buildHive(${idx})"
                         ${canBuild ? '' : 'disabled'} style="font-size:0.75rem;">
                         ${t('garden.apiaryBuild')}</button>`;
+                if (hasGrandItem) {
+                    btn += `<button class="craft-btn" onclick="Game.buildGrandHive(${idx})" style="font-size:0.75rem;margin-top:4px;">
+                        ${_gLang === 'en' ? '🛖 Build Great Hive' : '🛖 Postavit Velký úl'}</button>`;
+                }
 
             } else if (!hive.hasQueen) {
                 // ── Úl bez matky ───────────────────────────────────────────
@@ -1140,6 +1146,10 @@ const GardenSystem = {
                 // ── Aktivní úl ─────────────────────────────────────────────
                 const strength = hive.strength || 3;
                 const stars = '⭐'.repeat(Math.min(5, Math.ceil(strength / 2)));
+                const _gLang2 = (typeof UI !== 'undefined' && UI.lang && UI.lang()==='en') ? 'en' : 'cs';
+                const grandBadge = hive.grand
+                    ? `<div style="font-size:0.68rem; color:var(--accent-gold); margin-bottom:2px;">🛖 ${_gLang2==='en' ? 'Great Hive' : 'Velký úl'} (${hive.grand === 2 ? 'II' : 'I'})</div>`
+                    : '';
                 const queenInfo = hive.queenName
                     ? `<div style="font-size:0.72rem; opacity:0.65; font-style:italic;">
                          👑 ${hive.queenName} ${'★'.repeat(hive.queenStrength || 2)}
@@ -1171,7 +1181,7 @@ const GardenSystem = {
                     // ── Zima: jen přikrmení ────────────────────────────────
                     content = `<div class="plot-soil" style="color:#7aa;">❄️</div>
                                <div class="text-sm">${t('garden.apiaryWintering')}</div>`;
-                    extra = queenInfo + varroaWarn + swarmWarn +
+                    extra = grandBadge + queenInfo + varroaWarn + swarmWarn +
                         `<div style="font-size:0.72rem; margin-top:3px;">${stars}</div>`;
                     const hasHoney = (GameState.inventory['honey'] || 0) >= 1;
                     btn = `<button class="craft-btn" onclick="Game.feedHive(${idx})"
@@ -1192,7 +1202,7 @@ const GardenSystem = {
                         btn = `<button class="craft-btn" disabled style="font-size:0.72rem;">
                                 ${t('garden.apiaryWait')} ${waitH}h</button>`;
                     }
-                    extra = queenInfo + varroaWarn + swarmWarn +
+                    extra = grandBadge + queenInfo + varroaWarn + swarmWarn +
                         `<div style="font-size:0.72rem; margin-top:3px; opacity:0.7;">${stars}</div>`;
 
                     // Léčba Varroa — dostupná jakmile je tlak patrný

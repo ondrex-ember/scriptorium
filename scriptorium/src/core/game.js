@@ -295,12 +295,26 @@ const Game = {
                 scribeState: {
                     visited: false,
                     totalTrades: 0,
-                    lastTrade: 0
+                    lastTrade: 0,
+                    lastTopicAt: 0,
+                    askedTopics: [],
+                    aiQuota: { count: 0, resetAt: 0 }
                 }
             };
         }
         // Migrace: existující save nemá readingTimer (eye_strain, monastery-decay-mrd)
         if (typeof GameState.library.readingTimer === 'undefined') GameState.library.readingTimer = null;
+        // Migrace: existující save nemá lastTopicAt/askedTopics (Bartoloměj — 30 témat, MRD krok 4/5)
+        if (GameState.library.scribeState && typeof GameState.library.scribeState.lastTopicAt === 'undefined') {
+            GameState.library.scribeState.lastTopicAt = 0;
+        }
+        if (GameState.library.scribeState && !GameState.library.scribeState.askedTopics) {
+            GameState.library.scribeState.askedTopics = [];
+        }
+        // Migrace: existující save nemá aiQuota (Bartoloměj — živý rozhovor, AI guardrails MRD)
+        if (GameState.library.scribeState && !GameState.library.scribeState.aiQuota) {
+            GameState.library.scribeState.aiQuota = { count: 0, resetAt: 0 };
+        }
         // Migrace: existující save nemá infirmaryTimer (titivillus-infirmary-mrd)
         if (typeof GameState.infirmaryTimer === 'undefined') GameState.infirmaryTimer = null;
 		// Initialize well if not present (přesun do WellSystem._ensureState)
@@ -1954,6 +1968,38 @@ const Game = {
         UI.notify('🪹 ' + t('game.hiveBuilt'));
     },
 
+    // ── Velký úl (Custos Apium, MRD Apiarium II) ──────────────────────────────
+    buildGrandHive: function(slotIdx) {
+        if (!GameState.apiary) return;
+        const hive = GameState.apiary[slotIdx];
+        if (hive.built) return;
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        const hasTier2 = (GameState.inventory['velky_ul_2'] || 0) > 0;
+        const hasTier1 = (GameState.inventory['velky_ul_1'] || 0) > 0;
+        if (!hasTier2 && !hasTier1) {
+            UI.notify(lang === 'en' ? 'You need a built Great Hive (I or II) from Crafting.' : 'Potřebuješ postavený Velký úl (I nebo II) z Craftingu.', true);
+            return;
+        }
+        const tier = hasTier2 ? 2 : 1;
+        this.removeItem(hasTier2 ? 'velky_ul_2' : 'velky_ul_1', 1);
+        hive.built             = true;
+        hive.grand             = tier; // 1 nebo 2 — ovlivňuje yield multiplikátor v collectHive()
+        hive.hasQueen          = false;
+        hive.queenName         = null;
+        hive.queenStrength     = 0;
+        hive.queenVarroaResist = 0;
+        hive.queenWinter       = 0;
+        hive.strength          = 0;
+        hive.varroa            = 0;
+        hive.swarmMood         = 0;
+        hive.lastCollectAt     = 0;
+        Game.save();
+        UI.renderApiary();
+        UI.notify('🛖 ' + (lang === 'en'
+            ? `Great Hive (${tier === 2 ? 'II' : 'I'}) built!`
+            : `Velký úl (${tier === 2 ? 'II' : 'I'}) postaven!`));
+    },
+
     addQueen: function(slotIdx) {
         if (!GameState.apiary) return;
         const hive = GameState.apiary[slotIdx];
@@ -2007,10 +2053,12 @@ const Game = {
         const strengthMod = (hive.strength || 3) / 5; // 0.2–2.0
         const queenMod     = (hive.queenStrength || 3) / 3; // 0.67–1.33
         const weatherMod   = this._apiaryWeatherMod();
+        // Velký úl (MRD 5.9) — čistý multiplikátor navrch, žádnej jinej vzorec se neupravuje
+        const grandMult    = hive.grand === 2 ? 1.5 : hive.grand === 1 ? 1.2 : 1.0;
         const honeyBase   = { spring: 1, summer: 3, autumn: 1 };
         const waxBase     = { spring: 1, summer: 1, autumn: 2 };
-        const honeyYield  = Math.max(1, Math.round(honeyBase[season] * strengthMod * queenMod * weatherMod * varroaPenalty));
-        const waxYield    = Math.max(1, Math.round(waxBase[season] * strengthMod * varroaPenalty));
+        const honeyYield  = Math.max(1, Math.round(honeyBase[season] * strengthMod * queenMod * weatherMod * varroaPenalty * grandMult));
+        const waxYield    = Math.max(1, Math.round(waxBase[season] * strengthMod * varroaPenalty * grandMult));
 
         this.addItem('honey', honeyYield);
         this.addItem('beeswax', waxYield);
@@ -2022,8 +2070,12 @@ const Game = {
             if (hasFlowers || hasTrees) this.addItem('pollen', 1);
         }
 
-        // Síla roste po sklizni (péče o včely)
-        hive.strength = Math.min(10, (hive.strength || 3) + 1);
+        // Síla roste po sklizni (péče o včely) — běžný úl s šancí 60 % (nerf + náhoda, MRD 5.9),
+        // Velký úl roste spolehlivě — odměna za investici do stavby
+        const growChance = hive.grand ? 1.0 : 0.6;
+        if (Math.random() < growChance) {
+            hive.strength = Math.min(10, (hive.strength || 3) + 1);
+        }
 
         // Rojivá nálada — přeplněný úl (síla vysoká) a pozdní návštěva ji živí,
         // pravidelná péče ji naopak tiší. Odlet je pravděpodobnostní, ne pevný práh.
@@ -3765,6 +3817,17 @@ const Game = {
         const tech = TechTree.find(x => x.id === id);
         if (typeof VigorSystem !== 'undefined' && !VigorSystem.canResearch()) { UI.notify(t('game.vigor.researchBlock'), true); return; }
         if((GameState.inventory['research'] || 0) < tech.cost) { UI.notify(t('game.notEnoughResearch'), true); return; }
+
+        // NOVÉ: kniha jako prerekvizita výzkumu
+        if (tech.requiresBook) {
+            const hasRead = GameState.library && GameState.library.readBooks && GameState.library.readBooks.includes(tech.requiresBook);
+            if (!hasRead) {
+                const lang = (GameState.settings && GameState.settings.language) || 'cs';
+                UI.notify(lang === 'en' ? '📖 You must first read the required book.' : '📖 Nejprve musíš přečíst potřebný spis.', true);
+                return;
+            }
+        }
+
         // Save hint tracking (research = important action)
         Game._saveHint.actions += 5;
         Game._checkSaveHint();
@@ -3818,7 +3881,7 @@ const Game = {
             if (!GameState.flags) GameState.flags = {};
             GameState.flags.columbarium_available = true;
             // Reverse-unlock — tech odemyká knihy (opačný směr než obvykle: kniha→tech)
-            if (!GameState.library) GameState.library = { startDate: Date.now(), unlockedBooks: [], readBooks: [], scribeState: { visited: false, totalTrades: 0, lastTrade: 0 } };
+            if (!GameState.library) GameState.library = { startDate: Date.now(), unlockedBooks: [], readBooks: [], scribeState: { visited: false, totalTrades: 0, lastTrade: 0, lastTopicAt: 0, askedTopics: [] } };
             if (!GameState.library.unlockedBooks) GameState.library.unlockedBooks = [];
             ['book_palladius_columbaria', 'book_barid_columbinus'].forEach(bid => {
                 if (!GameState.library.unlockedBooks.includes(bid)) GameState.library.unlockedBooks.push(bid);

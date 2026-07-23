@@ -943,6 +943,17 @@ const UI = {
                 }
             }
 
+            // NOVÉ: kontrola knihy
+            if (tech.requiresBook && !done) {
+                const hasRead = GameState.library && GameState.library.readBooks && GameState.library.readBooks.includes(tech.requiresBook);
+                if (!hasRead) {
+                    canResearch = false;
+                    const bookDef = typeof LibraryDB !== 'undefined' ? LibraryDB[tech.requiresBook] : null;
+                    const bookName = bookDef ? ((lang !== 'cs' && bookDef.name_en) ? bookDef.name_en : bookDef.name) : tech.requiresBook;
+                    reqText += `<div class="text-sm text-danger">📖 ${lang==='en' ? 'Requires reading:' : 'Vyžaduje přečtení:'} ${bookName}</div>`;
+                }
+            }
+
             h += `<div class="card" style="border-color:${done ? 'var(--accent-gold)' : 'var(--ink-secondary)'};flex-wrap:wrap;" onclick="(function(el){var f=el.querySelector('.tech-lore-full');if(f)f.style.display=f.style.display==='block'?'none':'block'})(this)">
                 <div class="item-icon" style="background:${done ? '#c5a059' : '#e8dec0'};flex-shrink:0">${done ? '🎓' : '📖'}</div>
                 <div style="flex:1;min-width:0">
@@ -1486,20 +1497,39 @@ const UI = {
             }
         }
 
+        const _bartolomejRel = (GameState.persona && GameState.persona.influence && GameState.persona.influence.bartolomej) || 0;
+        const _libLang = (GameState.settings && GameState.settings.language) || 'cs';
         h += `
             <div style="margin-bottom:20px;padding:15px;background:var(--bg-card);border:1px solid var(--border-color);border-radius:5px;">
                 <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
-                    <div style="font-size:2rem;">🖋️</div>
-                    <div style="flex:1;">
-                        <strong>${t('library_lore.npc_scribe.name')}</strong>
-                        <div class="text-sm" style="color:var(--ink-secondary);">
-                            ${t('library_lore.npc_scribe.scribe_short')}
+                    <div style="display:flex;align-items:center;gap:10px;flex:1;">
+                        <div style="font-size:2rem;">🖋️</div>
+                        <div style="flex:1;">
+                            <strong>${t('library_lore.npc_scribe.name')}</strong>
+                            <div class="text-sm" style="color:var(--ink-secondary);">
+                                ${t('library_lore.npc_scribe.scribe_short')}
+                            </div>
                         </div>
                     </div>
+                    <button class="craft-btn" onclick="LibraryHelpers.scribeVisit()">
+                        ${_libLang === 'en' ? '💬 Talk' : '💬 Promluvit'}
+                    </button>
+                    <button class="craft-btn" onclick="LibraryHelpers.scribeAskTopic()">
+                        ${_libLang === 'en' ? '🗣️ Ask' : '🗣️ Zeptat se'}
+                    </button>
+                    <button class="craft-btn" onclick="LibraryHelpers.scribeAIChat()">
+                        ${_libLang === 'en' ? '🗨️ Chat' : '🗨️ Pokecat'}
+                    </button>
                     <button class="craft-btn" onclick="LibraryHelpers.scribeTrade()">
                         ${t('library_lore.npc_scribe.opt_trade')}
                     </button>
                 </div>
+                ${_bartolomejRel >= 25 ? `
+                <div style="display:flex;justify-content:flex-end;">
+                    <button class="craft-btn" onclick="LibraryHelpers.scribeTradeChoice()">
+                        ${_libLang === 'en' ? '🖋️ Choose a Book (10x Paper)' : '🖋️ Vybrat knihu (10x Papír)'}
+                    </button>
+                </div>` : ''}
             </div>
         `;
 

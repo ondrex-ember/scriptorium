@@ -149,6 +149,15 @@ const TechTree = [
     unlocks: [], requires: ["tech_monastery_wisdom"]
   },
 
+  // VČELAŘINA II (Custos Apium) — odemkne Velký úl v Buildings, vyžaduje přečtenou knihu Ruralia Commoda
+  {
+    id: "tech_custos_apium", name: "Custos Apium", name_en: "Custos Apium",
+    cost: 25,
+    desc: "Strážce, ne dobyvatel. Crescenziho Ruralia Commoda učí, že úl si žádá službu, ne pouhé využívání — kdo se o včely stará pozorně a trpělivě, z mála za krátký čas získá mnoho. Odemkne: Velký úl (Buildings) a pokročilou péči o včelstvo.",
+    desc_en: "A guardian, not a conqueror. Crescenzi's Ruralia Commoda teaches that the hive asks for service, not mere use — a keeper who tends the bees attentively and patiently gains much from little in a short time. Unlocks: the Great Hive (Buildings) and advanced apiary care.",
+    unlocks: ["velky_ul_1", "velky_ul_2"], requires: ["tech_liber_apium"], requiresBook: "book_ruralia_apibus"
+  },
+
   // SKLADOVÉ HOSPODÁŘSTVÍ
   {
     id: "tech_carpentaria", name: "Carpentaria — Tesařství", name_en: "Carpentaria — Carpentry",

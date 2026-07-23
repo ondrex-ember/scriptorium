@@ -606,6 +606,19 @@ const RecipesDB = [
       desc:"Bednářská dílna. Výroba sudů pro export vína. Odemkne řemeslo bednáře.",
       desc_en:"Cooperage workshop. Craft barrels for wine export. Unlocks the cooper's craft." },
 
+    // ── VČELÍN — Velký úl (Custos Apium, tier 1–2) ─────────────────────────────
+    { id:"velky_ul_1",        output:"velky_ul_1",        qty:1,
+      req:{log:15, rope:8, kovani:3},
+      cat:"building", locked:true, maxStack:1,
+      desc:"Zesílená konstrukce úlu — kulatina, lano a kování od kováře. Odemyká vylepšené včelstvo.",
+      desc_en:"A reinforced hive structure — logs, rope, and blacksmith's ironwork. Unlocks an improved colony." },
+
+    { id:"velky_ul_2",        output:"velky_ul_2",        qty:1,
+      req:{velky_ul_1:1, log:25, rope:12, kovani:6},
+      cat:"building", locked:true, maxStack:1,
+      desc:"Dostavba Velkého úlu na plnou míru. Nejsilnější staveniště pro včelstvo v klášteře.",
+      desc_en:"The Great Hive built out to its full measure. The strongest apiary structure in the monastery." },
+
     // ── VÁPENICE — pálení a hašení vápna (budova sama je v buildStorage()) ──
     { id:"burn_lime",  output:"vapno_paleny_fresh",  qty:1, req:{vapenec:4, log:3}, cat:"craft", locked:true,
       desc:"Vápenec do pece. Dny a noci ohně, než se vypálí.", desc_en:"Limestone into the kiln. Days and nights of fire before it burns through." },
