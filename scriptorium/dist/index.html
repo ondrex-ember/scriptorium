@@ -2924,6 +2924,8 @@
                             data-i18n="library.tabKronika">📖 Kronika</button>
                         <button id="lib-tab-kraj" class="filter-btn" onclick="UI.switchLibraryTab('kraj', this)">🌍
                             Kraj</button>
+                        <button id="lib-tab-studovna" class="filter-btn" onclick="UI.switchLibraryTab('studovna', this)">📖
+                            Studovna</button>
                     </div>
                     <div id="library-books-content" style="margin-top:20px;"></div>
                     <div id="library-games-content" style="margin-top:20px; display:none;"></div>
@@ -2931,6 +2933,7 @@
                     <div id="library-scrinium-content" style="margin-top:20px; display:none;"></div>
                     <div id="library-kronika-content" style="margin-top:20px; display:none;"></div>
                     <div id="library-kraj-content" style="margin-top:20px; display:none;"></div>
+                    <div id="library-studovna-content" style="margin-top:20px; display:none;"></div>
                 </div>
             </div>
 
@@ -12040,6 +12043,7 @@ const DormitoriumSpecializationDB = {
     infirmarium_medicus:      { name: 'Medicus',      name_en: 'Medicus',     icon: '⚕️' },
     infirmarium_apothecarius: { name: 'Apothecarius', name_en: 'Apothecary',  icon: '🧪' },
     infirmarium_capellanus:   { name: 'Capellanus',   name_en: 'Chaplain',    icon: '⛪' },
+    studovna: { name: 'Lector',   name_en: 'Lector',   icon: '📖' },
 };
 // ═══ src/data/contacts.js ═══
 // ─────────────────────────────────────────────────────────────
@@ -14275,7 +14279,7 @@ const ChroniconSystem = {
         }
 
         // Studovna 'accept' — stejný soft-bounce vzor jako hospes: zamčená
-        // tech nesmí žádost ztratit, jen ji odloží na příště.
+        // tech nebo obsazenej hostí slot nesmí žádost ztratit, jen ji odloží.
         if (choiceId === 'accept' && p && p.kind === 'studovna') {
             const hasTech = !!(GameState.researchedTechs && GameState.researchedTechs.includes('tech_studovna'));
             if (!hasTech) {
@@ -14283,6 +14287,12 @@ const ChroniconSystem = {
                 return lang === 'en'
                     ? 'There is no room yet fit to receive him. (Requires: Studovna)'
                     : 'Zatím není žádná místnost hodná jeho přijetí. (Vyžaduje: Studovna)';
+            }
+            if (GameState.studovnaGuest && GameState.studovnaGuest.until > Date.now()) {
+                ChroniconSystem._advisoryShownThisSession = false;
+                return lang === 'en'
+                    ? 'The study room is already occupied by another guest.'
+                    : 'Studovna je právě obsazená jiným hostem.';
             }
         }
 
@@ -14324,8 +14334,13 @@ const ChroniconSystem = {
         }
         if (choiceId === 'accept' && p && p.kind === 'studovna') {
             // Vyhovění žádosti — Vrchnost influence + anonymní denní report,
-            // viz studovna-vrchnost-mrd.md §3-4.
+            // viz studovna-vrchnost-mrd.md §3-4. Timed occupancy slot (48h) —
+            // vizuálně obsazen ve StudovnaSystem, mirror hospes recoverHours vzor.
             if (typeof PersonaSystem !== 'undefined' && PersonaSystem.addInfluence) PersonaSystem.addInfluence('vrchnost', 4);
+            GameState.studovnaGuest = {
+                name: lang === 'en' ? 'The Lord' : 'Vrchnost',
+                until: Date.now() + 48 * 60 * 60 * 1000,
+            };
             if (typeof Game !== 'undefined' && Game.addKronikaEntry) {
                 Game.addKronikaEntry('important',
                     '📜 Vrchnost přijata do Studovny — listiny prohledány, klid zachován.',
@@ -14333,6 +14348,7 @@ const ChroniconSystem = {
                     '📜 Dominus in studiolo susceptus est.');
             }
             ChroniconSystem._reportVrchnostFavorIfNewDay();
+            if (typeof Game !== 'undefined' && Game.save) Game.save();
             return lang === 'en'
                 ? "The Lord is received in the study room. The monastery's charters are laid open before him."
                 : 'Vrchnost je přijat do Studovny. Klášterní listiny jsou před ním otevřeny.';
@@ -22027,15 +22043,18 @@ const SaeculumSystem = {
       const spec = DormitoriumSpecializationDB[tabId];
       const isCur = b.assignedTab === tabId;
       const takenBy = (GameState.dormitorium.brothers || []).find(x => x.assignedTab === tabId && x.id !== b.id);
-      // Infirmarium mnišský role — jediný tech-gated brother specializace zatím.
-      const locked = tabId.indexOf('infirmarium_') === 0
-          && !(GameState.researchedTechs && GameState.researchedTechs.includes('tech_infirmarium'));
+      // Infirmarium mnišský role — tech-gated brother specializace.
+      const locked = (tabId.indexOf('infirmarium_') === 0
+          && !(GameState.researchedTechs && GameState.researchedTechs.includes('tech_infirmarium')))
+        || (tabId === 'studovna'
+          && !(GameState.researchedTechs && GameState.researchedTechs.includes('tech_studovna')));
       const disabled = (takenBy && !isCur) || locked;
       const bg = isCur ? '#8a3324' : disabled ? 'rgba(0,0,0,0.04)' : 'rgba(197,160,89,0.15)';
       const fg = isCur ? '#fcf5e5' : 'inherit';
       const opac = disabled && !isCur ? '0.55' : '1';
       const specName = lang === 'en' ? spec.name_en : spec.name;
-      const hint = locked ? (lang==='en'?'needs tech: Infirmarium':'chybí tech: Infirmarium')
+      const lockedTechName = tabId === 'studovna' ? (lang==='en'?'Studovna':'Studovna') : (lang==='en'?'Infirmarium':'Infirmarium');
+      const hint = locked ? (lang==='en'?'needs tech: ':'chybí tech: ') + lockedTechName
                  : (takenBy && !isCur ? specName + ' (' + takenBy.name + ')' : specName);
       h += `<div onclick="${disabled ? '' : `Game.assignBrotherTab('${b.id}', ${isCur ? 'null' : `'${tabId}'`})`}" style="cursor:${disabled ? 'default' : 'pointer'}; opacity:${opac}; padding:6px 10px; border-radius:6px; background:${bg}; color:${fg}; font-size:0.74rem; text-align:center;">
               <div>${spec.icon}</div>
@@ -23656,6 +23675,94 @@ const InfirmariumSystem = {
         return h;
     }
 };
+// ═══ src/systems/StudovnaSystem.js ═══
+// ─────────────────────────────────────────────────────────────
+// StudovnaSystem — Studovna (čítárna při Knihovně)
+// MRD: studovna-vrchnost-mrd.md. Tři sloty obsazenosti:
+// 1) Vrchnost/Chronicon host — timed pobyt (GameState.studovnaGuest),
+//    nastavuje ChroniconSystem._resolveAdvisory() po přijetí žádosti.
+// 2) Mnišský Lector — bratr s assignedTab === 'studovna' (DormitoriumSpecializationDB).
+// 3) Hráč — kosmetickej slot, vždy přítomen, jakmile je tech odemčená.
+// Žádná nová produkční smyčka — čistě vizuální přehled "kdo je ve Studovně".
+// ─────────────────────────────────────────────────────────────
+
+const StudovnaSystem = {
+
+    isUnlocked: function() {
+        return !!(GameState.researchedTechs && GameState.researchedTechs.includes('tech_studovna'));
+    },
+
+    // Vyprší-li pobyt hosta, tiše ho uklidí. Voláno lazy při každém renderu —
+    // žádný samostatný denní tick netřeba, sloty se dívají jen na požádání.
+    _clearExpiredGuest: function() {
+        const g = GameState.studovnaGuest;
+        if (g && g.until && Date.now() >= g.until) {
+            GameState.studovnaGuest = null;
+            if (typeof Game !== 'undefined' && Game.save) Game.save();
+        }
+    },
+
+    render: function() {
+        const el = document.getElementById('library-studovna-content');
+        if (!el) return;
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+
+        if (!this.isUnlocked()) {
+            el.innerHTML = `<div style="text-align:center; padding:40px 20px; opacity:0.6;
+                        border:1px dashed rgba(197,160,89,0.3); border-radius:8px;">
+                      <div style="font-size:2rem; margin-bottom:10px;">📖</div>
+                      <div style="font-style:italic; font-size:0.9rem;">
+                        ${lang==='en' ? 'The study room has not yet been built.' : 'Studovna zatím nestojí.'}
+                      </div>
+                    </div>`;
+            return;
+        }
+
+        this._clearExpiredGuest();
+
+        let h = `<div style="padding:12px 15px; margin-bottom:16px; background:rgba(197,160,89,0.05); border:1px solid rgba(197,160,89,0.25); border-radius:8px;">
+                <div style="font-weight:bold; font-size:0.9rem; margin-bottom:6px;">📖 ${lang==='en'?'Study Room':'Studovna'}</div>
+                <div style="font-size:0.78rem; opacity:0.75;">${lang==='en'
+                    ? 'A quiet room by the library, kept for reading — by brothers, by you, and now and then by a guest from outside the walls.'
+                    : 'Tichá místnost při knihovně, vyhrazená ke čtení — bratry, tebou, a čas od času i hostem zvenčí kláštera.'}</div>
+              </div>`;
+
+        h += `<div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(180px, 1fr)); gap:10px;">`;
+
+        // Slot 1 — hráč (kosmetický, vždy přítomen)
+        h += `<div style="text-align:center; padding:14px 10px; border-radius:8px; border:1px solid rgba(197,160,89,0.25); background:rgba(197,160,89,0.08);">
+                <div style="font-size:1.6rem;">🕯️</div>
+                <div style="font-size:0.75rem; font-weight:bold; margin-top:6px;">${lang==='en'?'You':'Ty'}</div>
+                <div style="font-size:0.6rem; opacity:0.6; margin-top:2px;">${lang==='en'?'always at your desk':'vždy u svého pultu'}</div>
+              </div>`;
+
+        // Slot 2 — mnišský Lector
+        const lector = ((GameState.dormitorium && GameState.dormitorium.brothers) || []).find(b => b.assignedTab === 'studovna');
+        h += `<div style="text-align:center; padding:14px 10px; border-radius:8px; border:1px solid rgba(197,160,89,0.25); background:${lector ? 'rgba(197,160,89,0.08)' : 'rgba(0,0,0,0.03)'};">
+                <div style="font-size:1.6rem;">📖</div>
+                <div style="font-size:0.75rem; font-weight:bold; margin-top:6px;">${lector ? lector.name : (lang==='en'?'Lector':'Lector')}</div>
+                <div style="font-size:0.6rem; opacity:0.6; margin-top:2px;">${lector ? (lang==='en'?'reading':'čte') : (lang==='en'?'vacant':'volné')}</div>
+              </div>`;
+
+        // Slot 3 — Vrchnost/Chronicon host (timed)
+        const guest = GameState.studovnaGuest;
+        let guestSub = lang === 'en' ? 'vacant' : 'volné';
+        if (guest) {
+            const hoursLeft = Math.max(0, Math.ceil((guest.until - Date.now()) / 3600000));
+            guestSub = lang === 'en' ? `${hoursLeft}h remaining` : `zbývá ${hoursLeft}h`;
+        }
+        h += `<div style="text-align:center; padding:14px 10px; border-radius:8px; border:1px solid rgba(197,160,89,0.25); background:${guest ? 'rgba(197,160,89,0.08)' : 'rgba(0,0,0,0.03)'};">
+                <div style="font-size:1.6rem;">${guest ? '🏰' : '💺'}</div>
+                <div style="font-size:0.75rem; font-weight:bold; margin-top:6px;">${guest ? guest.name : (lang==='en'?'Guest':'Host')}</div>
+                <div style="font-size:0.6rem; opacity:0.6; margin-top:2px;">${guestSub}</div>
+              </div>`;
+
+        h += `</div>`;
+        el.innerHTML = h;
+    },
+
+};
+
 // ═══ src/systems/DecaySystem.js ═══
 // ═══════════════════════════════════════════════════════════════════════════
 // DECAY SYSTEM v1 (B2 — simplified)
@@ -56376,7 +56483,7 @@ const UI = {
         GameState.ui.libraryTab = tab;
 
         // Hide all library tabs
-        const tabs = ['books', 'games', 'news', 'scrinium', 'kronika', 'kraj'];
+        const tabs = ['books', 'games', 'news', 'scrinium', 'kronika', 'kraj', 'studovna'];
         tabs.forEach(t => {
             const el = document.getElementById('library-' + t + '-content');
             if (el) el.style.display = 'none';
@@ -56406,6 +56513,9 @@ const UI = {
         } else if (tab === 'kraj') {
             const el = document.getElementById('library-kraj-content');
             if (el) { el.style.display = 'block'; UI.renderChroniconWindow(); }
+        } else if (tab === 'studovna') {
+            const el = document.getElementById('library-studovna-content');
+            if (el) { el.style.display = 'block'; if (typeof StudovnaSystem !== 'undefined') StudovnaSystem.render(); }
         }
     },
 
