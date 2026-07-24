@@ -1090,7 +1090,7 @@ const UI = {
         GameState.ui.libraryTab = tab;
 
         // Hide all library tabs
-        const tabs = ['books', 'games', 'news', 'scrinium', 'kronika'];
+        const tabs = ['books', 'games', 'news', 'scrinium', 'kronika', 'kraj'];
         tabs.forEach(t => {
             const el = document.getElementById('library-' + t + '-content');
             if (el) el.style.display = 'none';
@@ -1117,6 +1117,9 @@ const UI = {
         } else if (tab === 'kronika') {
             const el = document.getElementById('library-kronika-content');
             if (el) { el.style.display = 'block'; UI.renderKronika(); }
+        } else if (tab === 'kraj') {
+            const el = document.getElementById('library-kraj-content');
+            if (el) { el.style.display = 'block'; UI.renderChroniconWindow(); }
         }
     },
 
@@ -2704,6 +2707,132 @@ const UI = {
             <div>${entriesHtml}</div>
             ${paginationHtml}
         `;
+    },
+
+    // Okno do Chroniconu — dashboard (počasí/napětí/aktéři) + chronicle_local/
+    // chronicle_distant ze živého snapshotu, ve dvou sloupcích vedle sebe.
+    // Žádný nový fetch — ChroniconSystem._snap je už stažený jednou/den.
+    _ACTOR_ICONS: {
+        vrchnost: '🏰', mlynar: '🌾', kovar: '⚒️', uhlic: '🔥', vorar: '🪵',
+        rybnikar: '🐟', prevoznik: '⛴️', valach: '🐑', klaster: '⛪', vcelar: '🐝',
+    },
+
+    renderChroniconWindow: function () {
+        const el = document.getElementById('library-kraj-content');
+        if (!el) return;
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+
+        const hasArsChr = (GameState.researchedTechs || []).includes('tech_ars_chronicae');
+        if (!hasArsChr) {
+            el.innerHTML = `
+                <div style="text-align:center; padding:60px 20px; color:var(--ink-secondary);">
+                    <div style="font-size:3rem; margin-bottom:20px;">🌍</div>
+                    <p><em>${t('kronika.locked')}</em></p>
+                    <p style="font-size:0.9rem; margin-top:8px;">${t('kronika.lockedHint')}</p>
+                </div>`;
+            return;
+        }
+
+        const snap = (typeof ChroniconSystem !== 'undefined') ? ChroniconSystem._snap : null;
+        if (!snap) {
+            el.innerHTML = `<div style="text-align:center; padding:40px 20px; opacity:0.6;">
+                <div style="font-size:2rem; margin-bottom:10px;">🌫️</div>
+                <p><em>${lang === 'en' ? 'No word from the region has arrived yet.' : 'Ze světa zatím nedorazila žádná zpráva.'}</em></p>
+            </div>`;
+            return;
+        }
+
+        // ── Stav kraje: napětí, počasí, den, zlatá éra ──────────────────────
+        const tension = (snap.region && snap.region.tension) || 0;
+        const tColor = tension >= 70 ? '#c0392b' : tension >= 40 ? 'var(--accent-gold)' : '#5a9a5a';
+        const wx = snap.weather || {};
+        const goldenBadge = (snap.region && snap.region.goldenAge)
+            ? `<span style="background:#c5a559; color:#2c1810; padding:2px 8px; border-radius:10px; font-size:0.7rem; font-weight:bold; margin-left:8px;">✨ ${lang === 'en' ? 'Golden Age' : 'Zlatá éra'}</span>`
+            : '';
+
+        let h = `<div style="padding:12px 15px; margin-bottom:16px; background:rgba(197,160,89,0.06); border:1px solid rgba(197,160,89,0.25); border-radius:8px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; margin-bottom:10px;">
+                <div style="font-weight:bold; font-size:0.9rem;">${(snap.time && snap.time.date_string) || ''}${goldenBadge}</div>
+                <div style="font-size:0.85rem;">${wx.icon || ''} ${lang === 'en' ? wx.name_en || wx.name : wx.name || ''} — <span style="opacity:0.7; font-style:italic;">${wx.desc || ''}</span></div>
+            </div>
+            <div style="display:flex; align-items:center; gap:10px;">
+                <span style="font-size:0.75rem; width:130px;">⚖️ ${lang === 'en' ? 'Regional tension' : 'Napětí v kraji'}</span>
+                <div style="flex:1; height:8px; background:rgba(0,0,0,0.1); border-radius:4px; overflow:hidden; max-width:300px;">
+                    <div style="height:100%; width:${tension}%; background:${tColor};"></div>
+                </div>
+                <span style="font-size:0.75rem; opacity:0.7;">${tension}</span>
+            </div>
+        </div>`;
+
+        // ── Aktéři kraje (Betlém ekonomika) — mood/wealth mini-bary + stav ──
+        const actors = snap.actors || [];
+        if (actors.length) {
+            h += `<div style="margin-bottom:20px;">
+                <h3 style="color:var(--accent-gold); border-bottom:2px solid var(--accent-gold); padding-bottom:5px;">
+                    👥 ${lang === 'en' ? 'Figures of the Region' : 'Postavy kraje'}
+                </h3>
+                <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(150px, 1fr)); gap:8px; margin-top:10px;">`;
+            actors.forEach(a => {
+                const icon = this._ACTOR_ICONS[a.id] || '👤';
+                const statusBadge = a.status === 'krize'
+                    ? `<div style="font-size:0.6rem; color:#c0392b; font-weight:bold;">⚠️ ${lang === 'en' ? 'crisis' : 'krize'}</div>`
+                    : a.status === 'zanikajici'
+                        ? `<div style="font-size:0.6rem; color:#c0392b; font-weight:bold;">📉 ${lang === 'en' ? 'declining' : 'na pokraji zániku'}</div>`
+                        : a.status === 'mrtvy'
+                            ? `<div style="font-size:0.6rem; opacity:0.5;">☠️ ${lang === 'en' ? 'gone' : 'zesnulý'}</div>`
+                            : '';
+                h += `<div style="padding:8px 10px; background:rgba(255,255,255,0.4); border:1px solid rgba(197,160,89,0.2); border-radius:6px;">
+                    <div style="font-size:0.8rem; font-weight:bold;">${icon} ${a.label}</div>
+                    <div style="font-size:0.6rem; opacity:0.6; margin-bottom:4px;">${a.profession}</div>
+                    <div style="display:flex; align-items:center; gap:4px; margin-bottom:2px;">
+                        <span style="font-size:0.58rem; width:34px; opacity:0.6;">${lang === 'en' ? 'mood' : 'nálada'}</span>
+                        <div style="flex:1; height:4px; background:rgba(0,0,0,0.1); border-radius:2px; overflow:hidden;">
+                            <div style="height:100%; width:${a.mood}%; background:#7a9a5a;"></div>
+                        </div>
+                    </div>
+                    <div style="display:flex; align-items:center; gap:4px;">
+                        <span style="font-size:0.58rem; width:34px; opacity:0.6;">${lang === 'en' ? 'wealth' : 'jmění'}</span>
+                        <div style="flex:1; height:4px; background:rgba(0,0,0,0.1); border-radius:2px; overflow:hidden;">
+                            <div style="height:100%; width:${a.wealth}%; background:#c5a559;"></div>
+                        </div>
+                    </div>
+                    ${statusBadge}
+                </div>`;
+            });
+            h += `</div></div>`;
+        }
+
+        // ── Zprávy z kraje — dva sloupce vedle sebe ──────────────────────────
+        const renderSection = (entries, emptyText) => {
+            if (!entries || !entries.length) {
+                return `<div style="opacity:0.55; font-size:0.82rem; font-style:italic; padding:6px 0;">${emptyText}</div>`;
+            }
+            return entries.map(e => {
+                const text = lang === 'en' ? (e.text_en || e.text) : (e.text_cs || e.text);
+                const srcLabel = t('kronika.chroniconSrc.' + e.source) || '';
+                return `<div style="padding:10px 0; border-bottom:1px solid rgba(197,160,89,0.15);">
+                    <div style="font-size:0.85rem; line-height:1.5;">${e.icon || '📰'} ${text}</div>
+                    <div style="font-size:0.62rem; opacity:0.5; margin-top:4px;">${srcLabel} · ${e.season || ''} ${e.year || ''}</div>
+                </div>`;
+            }).join('');
+        };
+
+        h += `<div style="display:flex; gap:20px; flex-wrap:wrap;">
+            <div style="flex:1; min-width:280px;">
+                <h3 style="color:var(--accent-gold); border-bottom:2px solid var(--accent-gold); padding-bottom:5px;">
+                    🏘️ ${lang === 'en' ? 'Village & Countryside' : 'Vesnice a okolí'}
+                </h3>
+                ${renderSection(snap.chronicle_local, lang === 'en' ? 'Quiet — nothing to tell.' : 'Ticho — není co vyprávět.')}
+            </div>
+            <div style="flex:1; min-width:280px;">
+                <h3 style="color:var(--accent-gold); border-bottom:2px solid var(--accent-gold); padding-bottom:5px;">
+                    🌍 ${lang === 'en' ? 'The Wider World' : 'Širý svět'}
+                </h3>
+                ${renderSection(snap.chronicle_distant, lang === 'en' ? 'No word from afar.' : 'Žádná zpráva zdaleka.')}
+            </div>
+        </div>`;
+
+        el.innerHTML = h;
     },
 
 };
