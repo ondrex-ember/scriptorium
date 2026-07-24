@@ -902,6 +902,55 @@ const SaeculumSystem = {
       }
     }
     h += `</div>`;
+    h += this.renderUbytovna();
+    return h;
+  },
+
+  // Vlna 1 — Ubytovna, vnořená pod Conversi (ubytovna-mrd.md §8c —
+  // Ondrex: "klidně pod Conversi"). Čistě zobrazovací, žádná nová
+  // game-state mutace. Data v GameState.ubytovna.guests[] (ChroniconSystem.js).
+  UBYTOVNA_VARIANT_NAMES: {
+    poutnik:       { cs: 'Poutník',       en: 'Pilgrim' },
+    kramar:        { cs: 'Kramář',        en: 'Peddler' },
+    zebravy_mnich: { cs: 'Žebravý bratr', en: 'Mendicant friar' },
+    uprchlik:      { cs: 'Uprchlík',      en: 'Refugee' },
+  },
+
+  renderUbytovna: function() {
+    const lang = (GameState.settings && GameState.settings.language) || 'cs';
+    const cap = (typeof Game !== 'undefined' && Game.ubytovnaCapacity) ? Game.ubytovnaCapacity() : 1;
+    const guests = (GameState.ubytovna && GameState.ubytovna.guests) || [];
+    const now = Date.now();
+    const DAY_MS = 24 * 60 * 60 * 1000;
+
+    let h = `<div style="margin-bottom:16px; background:rgba(0,0,0,0.03); border-radius:8px; border-left:3px solid var(--accent-gold); padding:12px 14px;">`;
+    h += `<div style="font-weight:bold; font-size:0.92rem; margin-bottom:4px;">🥾 ${lang==='en'?'Guesthouse':'Ubytovna'}</div>`;
+    h += `<div style="font-size:0.85rem; margin-bottom:6px;">${lang==='en'?'Guests':'Hosté'}: <strong>${guests.length} / ${cap}</strong></div>`;
+    h += `<div style="font-size:0.7rem; opacity:0.6; font-style:italic; margin-bottom:8px;">${lang==='en'
+      ? 'Guests arrive on their own — pilgrims, refugees, travelers passing through.'
+      : 'Hosté přicházejí sami — poutníci, uprchlíci, pocestní na cestě.'}</div>`;
+
+    if (!guests.length) {
+      h += `<div style="font-size:0.8rem; opacity:0.6; font-style:italic;">${lang==='en'?'No one is staying here yet.':'Zatím tu nikdo nebydlí.'}</div>`;
+    } else {
+      h += `<div style="display:flex; flex-wrap:wrap; gap:6px;">`;
+      guests.forEach(g => {
+        const vn = this.UBYTOVNA_VARIANT_NAMES[g.variant] || { cs: g.variant, en: g.variant };
+        const name = lang === 'en' ? vn.en : vn.cs;
+        const icon = g.variant === 'uprchlik' ? '🏚️' : '🥾';
+        const dueAt = (g.arrivedAt || 0) + (g.plannedDays || 1) * DAY_MS;
+        const daysLeft = Math.max(0, Math.ceil((dueAt - now) / DAY_MS));
+        const chance = Math.round(g.joinChance || 0);
+        h += `<div style="display:flex; align-items:center; gap:6px; padding:6px 10px; background:rgba(255,255,255,0.4); border:1px solid rgba(197,160,89,0.4); border-radius:8px;">
+                <span style="font-size:1rem;">${icon}</span>
+                <span style="font-size:0.72rem; font-weight:bold;">${name}</span>
+                <span style="font-size:0.65rem; opacity:0.6;">${daysLeft}${lang==='en'?'d left':'d zbývá'}</span>
+                ${chance > 0 ? `<span style="font-size:0.65rem; opacity:0.75;" title="${lang==='en'?'Growing fondness for monastic life':'Rostoucí náklonnost ke klášternímu životu'}">🙏 ${chance}%</span>` : ''}
+              </div>`;
+      });
+      h += `</div>`;
+    }
+    h += `</div>`;
     return h;
   },
 

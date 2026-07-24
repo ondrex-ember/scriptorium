@@ -373,10 +373,12 @@ const ChroniconSystem = {
         // chování): plná lůžka nesmí kandidáta ztratit, hráč má šanci se
         // vrátit, jakmile se uvolní. cause: 'war' (Vlna 1 / C —
         // ubytovna-mrd.md §8c-C) míří na Ubytovnu místo Infirmaria —
-        // zdravý uprchlík, ne nemocný. Základní 1 lůžko od začátku hry.
+        // zdravý uprchlík, ne nemocný. Kapacita živě z Game.ubytovnaCapacity()
+        // (sklep upgrade 4/5) — základ 1 lůžko od začátku hry.
         if (choiceId === 'accept' && p && p.kind === 'hospes' && p.cause === 'war') {
-            if (!GameState.ubytovna) GameState.ubytovna = { beds: 1, guests: [] };
-            if ((GameState.ubytovna.guests || []).length >= GameState.ubytovna.beds) {
+            if (!GameState.ubytovna) GameState.ubytovna = { guests: [] };
+            const bedsNow = (typeof Game !== 'undefined' && Game.ubytovnaCapacity) ? Game.ubytovnaCapacity() : 1;
+            if ((GameState.ubytovna.guests || []).length >= bedsNow) {
                 ChroniconSystem._advisoryShownThisSession = false;
                 return lang === 'en'
                     ? 'No room is free. He waits at the gate.'
@@ -421,13 +423,14 @@ const ChroniconSystem = {
 
         // Pocestný 'accept' — stejný soft-bounce vzor jako hospes/studovna
         // (ubytovna-mrd.md §8c-B, rozšíření): plná Ubytovna nesmí
-        // kandidáta ztratit, jen ho odloží. Základní 1 lůžko dostupné od
-        // začátku hry (bez tech/building gate) — reálné navýšení kapacity
-        // přijde se sklep upgrade 4/5 (Bouvarde 24.7.).
+        // kandidáta ztratit, jen ho odloží. Kapacita živě z
+        // Game.ubytovnaCapacity() (sklep upgrade 4/5, §D — Bouvarde 24.7.),
+        // základ 1 lůžko od začátku hry.
         if (choiceId === 'accept' && p && p.kind === 'pocestny') {
-            if (!GameState.ubytovna) GameState.ubytovna = { beds: 1, guests: [] };
+            if (!GameState.ubytovna) GameState.ubytovna = { guests: [] };
             const uby = GameState.ubytovna;
-            if ((uby.guests || []).length >= uby.beds) {
+            const bedsNow = (typeof Game !== 'undefined' && Game.ubytovnaCapacity) ? Game.ubytovnaCapacity() : 1;
+            if ((uby.guests || []).length >= bedsNow) {
                 ChroniconSystem._advisoryShownThisSession = false;
                 return lang === 'en'
                     ? 'No room is free. The traveler waits at the gate.'
@@ -456,7 +459,7 @@ const ChroniconSystem = {
             // Uprchlík — Ubytovna, ne Infirmarium (Vlna 1 / C —
             // ubytovna-mrd.md §8c-C). Delší plannedDays než pocestný/
             // hostina — "levné ubytování na dlouho", ne noc přes cestu.
-            if (!GameState.ubytovna) GameState.ubytovna = { beds: 1, guests: [] };
+            if (!GameState.ubytovna) GameState.ubytovna = { guests: [] };
             GameState.ubytovna.guests.push({
                 variant: 'uprchlik',
                 title_cs: p.title_cs,
@@ -464,6 +467,8 @@ const ChroniconSystem = {
                 actorId: p.actorId,
                 arrivedAt: Date.now(),
                 plannedDays: 6,
+                joinChance: 0,
+                joinOffered: false,
             });
             if (typeof Game !== 'undefined' && Game.save) Game.save();
             return lang === 'en'
@@ -509,13 +514,15 @@ const ChroniconSystem = {
             // plannedDays: placeholder podle typu, snadno doladitelné —
             // do budoucna základ pro delší pobyty (uprchlík/vesničan).
             const PLANNED_DAYS = { poutnik: 1, kramar: 2, zebravy_mnich: 1 };
-            if (!GameState.ubytovna) GameState.ubytovna = { beds: 1, guests: [] };
+            if (!GameState.ubytovna) GameState.ubytovna = { guests: [] };
             GameState.ubytovna.guests.push({
                 variant: p.variant,
                 title_cs: p.title_cs,
                 title_en: p.title_en,
                 arrivedAt: Date.now(),
                 plannedDays: PLANNED_DAYS[p.variant] || 1,
+                joinChance: 0,
+                joinOffered: false,
             });
             if (typeof Game !== 'undefined' && Game.save) Game.save();
             return lang === 'en'
@@ -611,6 +618,11 @@ const ChroniconSystem = {
     // ubytovna-mrd.md §8c-B rozšíření).
     UBYTOVNA_DAY_MS: 24 * 60 * 60 * 1000,
 
+    // "Twist" (Bouvarde 24.7.): host se může přimknout k víře/práci a
+    // zůstat jako Oblát/Famulus. Růst/den + cílová cesta per varianta.
+    UBYTOVNA_JOIN_GROWTH: { poutnik: 18, uprchlik: 15, kramar: 12, zebravy_mnich: 5 },
+    UBYTOVNA_JOIN_TRACK:  { poutnik: 'oblat', uprchlik: 'oblat', kramar: 'famulus', zebravy_mnich: 'oblat' },
+
     ubytovnaDailyTick: function() {
         if (!GameState.ubytovnaTick) GameState.ubytovnaTick = { lastTick: 0 };
         const now = Date.now();
@@ -620,8 +632,25 @@ const ChroniconSystem = {
         const uby = GameState.ubytovna;
         if (!uby || !uby.guests || !uby.guests.length) return;
 
+        const hasMagister = !!(GameState.researchedTechs && GameState.researchedTechs.includes('tech_magister'));
+        const freeSlot = (typeof Game !== 'undefined' && Game.conversiCapacity)
+            ? (GameState.conversi || []).length < Game.conversiCapacity() : false;
+
         const stillHere = [];
         uby.guests.forEach(g => {
+            // Náklonnost roste vždy — i bez volnýho slotu, vidět v dashboardu.
+            const growth = ChroniconSystem.UBYTOVNA_JOIN_GROWTH[g.variant] || 10;
+            g.joinChance = Math.min(90, (g.joinChance || 0) + growth);
+
+            // Nabídka připojení — jen jednou za pobyt, jen s volným slotem
+            // a vyzkoumaným Magistrem (mirror hireOblat/hireFamulus gate).
+            if (!g.joinOffered && hasMagister && freeSlot && Math.random() * 100 < g.joinChance) {
+                g.joinOffered = true;
+                ChroniconSystem._offerGuestJoin(g);
+                stillHere.push(g);
+                return; // nechat ho tu, dokud hráč nerozhodne
+            }
+
             const dueAt = (g.arrivedAt || 0) + (g.plannedDays || 1) * ChroniconSystem.UBYTOVNA_DAY_MS;
             if (now < dueAt) { stillHere.push(g); return; }
 
@@ -643,7 +672,93 @@ const ChroniconSystem = {
             }
         });
         uby.guests = stillHere;
+
+        // Flavour interakce — čistě narativní, žádnej mechanickej efekt
+        // (Bouvarde 24.7., "cokoliv, spíš flavour").
+        if (stillHere.length && (GameState.conversi || []).length && Math.random() < 0.08) {
+            ChroniconSystem._ubytovnaFlavorVignette(stillHere);
+        }
+
         if (typeof Game !== 'undefined' && Game.save) Game.save();
+    },
+
+    // Nabídka "host chce zůstat" — lokální event, mimo CHRONICON (rozhoduje
+    // se jen na Scriptorium straně, žádnej round-trip).
+    _offerGuestJoin: function(g) {
+        if (typeof EventsSystem === 'undefined' || !EventsSystem.showEvent) return;
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        const track = ChroniconSystem.UBYTOVNA_JOIN_TRACK[g.variant] || 'oblat';
+        const trackName_cs = track === 'famulus' ? 'famula' : 'obláta';
+        const trackName_en = track === 'famulus' ? 'famulus' : 'oblate';
+        EventsSystem.showEvent({
+            icon: '🙏',
+            title: lang === 'en' ? 'A guest wishes to stay' : 'Host chce zůstat',
+            text: lang === 'en'
+                ? `${g.title_en} has grown fond of life here and asks to join as a ${trackName_en}.`
+                : `${g.title_cs} si oblíbil klášterní život a prosí, zda by mohl zůstat jako ${trackName_cs}.`,
+            choices: [
+                {
+                    label: lang === 'en' ? 'Welcome him' : 'Přijmout ho',
+                    action: () => ChroniconSystem._resolveGuestJoin(g, true),
+                },
+                {
+                    label: lang === 'en' ? 'Let him move on' : 'Nechat ho jít dál',
+                    action: () => ChroniconSystem._resolveGuestJoin(g, false),
+                },
+            ],
+        });
+    },
+
+    _resolveGuestJoin: function(g, accepted) {
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        if (!accepted) {
+            return lang === 'en' ? 'He nods and, for now, continues on his way.' : 'Přikývne a zatím pokračuje dál svou cestou.';
+        }
+        if (GameState.ubytovna && GameState.ubytovna.guests) {
+            GameState.ubytovna.guests = GameState.ubytovna.guests.filter(x => x !== g);
+        }
+        const track = ChroniconSystem.UBYTOVNA_JOIN_TRACK[g.variant] || 'oblat';
+        if (!GameState.conversi) GameState.conversi = [];
+        const namePool = (typeof Game !== 'undefined' && Game.KONVRS_NAMES) ? Game.KONVRS_NAMES : ['Bratr'];
+        const usedNames = GameState.conversi.map(k => k.name);
+        const available = namePool.filter(n => !usedNames.includes(n));
+        const pool = available.length ? available : namePool;
+        const name = pool[Math.floor(Math.random() * pool.length)];
+        const entry = track === 'famulus'
+            ? { id: 'famulus_' + Date.now(), rosterId: null, name: name, type: 'famulus', hiredAt: Date.now(), fatigue: 0, mood: 60, wageOwed: 0 }
+            : { id: 'oblat_' + Date.now(), rosterId: null, name: name, type: 'oblat', hiredAt: Date.now(), fatigue: 0, mood: 60, matureAt: Date.now() + 30 * 24 * 60 * 60 * 1000 };
+        GameState.conversi.push(entry);
+        if (typeof Game !== 'undefined' && Game.addKronikaEntry) {
+            Game.addKronikaEntry('important',
+                '🙏 ' + g.title_cs + ' zůstává v klášteře jako ' + name + '.',
+                '🙏 ' + g.title_en + ' remains at the monastery as ' + name + '.',
+                '🙏 Hospes conversus factus est.');
+        }
+        return lang === 'en'
+            ? `${name} — for that is his name now — joins the community.`
+            : `${name} — tak se teď jmenuje — se připojuje ke komunitě.`;
+    },
+
+    // Krátká narativní vinětka host↔konvrš, žádnej mechanickej efekt.
+    // Vzory drženy jen v nominativu na obou stranách (X a Y), ať se
+    // vyhnou českýmu skloňování dynamickýho jména.
+    _ubytovnaFlavorVignette: function(guests) {
+        const conv = GameState.conversi || [];
+        if (!guests.length || !conv.length) return;
+        const g = guests[Math.floor(Math.random() * guests.length)];
+        const k = conv[Math.floor(Math.random() * conv.length)];
+        const VIGNETTES = [
+            { cs: 'Bratr ' + k.name + ' a ' + g.title_cs + ' strávili večer v tichém rozhovoru.',
+              en: 'Brother ' + k.name + ' and ' + g.title_en + ' spent the evening in quiet conversation.' },
+            { cs: g.title_cs + ' a bratr ' + k.name + ' si spolu zazpívali žalm na dvoře.',
+              en: g.title_en + ' and brother ' + k.name + ' sang a psalm together in the yard.' },
+            { cs: 'Bratr ' + k.name + ' a ' + g.title_cs + ' sdíleli chléb u večerního stolu.',
+              en: 'Brother ' + k.name + ' and ' + g.title_en + ' shared bread at the evening table.' },
+        ];
+        const v = VIGNETTES[Math.floor(Math.random() * VIGNETTES.length)];
+        if (typeof Game !== 'undefined' && Game.addKronikaEntry) {
+            Game.addKronikaEntry('minor', v.cs, v.en, null);
+        }
     },
 
 };
