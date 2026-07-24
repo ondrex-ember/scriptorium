@@ -334,6 +334,18 @@ const ChroniconSystem = {
             }
         }
 
+        // Studovna 'accept' — stejný soft-bounce vzor jako hospes: zamčená
+        // tech nesmí žádost ztratit, jen ji odloží na příště.
+        if (choiceId === 'accept' && p && p.kind === 'studovna') {
+            const hasTech = !!(GameState.researchedTechs && GameState.researchedTechs.includes('tech_studovna'));
+            if (!hasTech) {
+                ChroniconSystem._advisoryShownThisSession = false;
+                return lang === 'en'
+                    ? 'There is no room yet fit to receive him. (Requires: Studovna)'
+                    : 'Zatím není žádná místnost hodná jeho přijetí. (Vyžaduje: Studovna)';
+            }
+        }
+
         if (choiceId === 'defer') {
             // Nic se neztrácí — zůstává aktivní, může se ukázat znovu příště.
             ChroniconSystem._advisoryShownThisSession = false;
@@ -370,6 +382,21 @@ const ChroniconSystem = {
                 ? `${p.name} is taken into the infirmary. A bed is made ready.`
                 : `${p.name} je přijat do Infirmaria. Lůžko je připraveno.`;
         }
+        if (choiceId === 'accept' && p && p.kind === 'studovna') {
+            // Vyhovění žádosti — Vrchnost influence + anonymní denní report,
+            // viz studovna-vrchnost-mrd.md §3-4.
+            if (typeof PersonaSystem !== 'undefined' && PersonaSystem.addInfluence) PersonaSystem.addInfluence('vrchnost', 4);
+            if (typeof Game !== 'undefined' && Game.addKronikaEntry) {
+                Game.addKronikaEntry('important',
+                    '📜 Vrchnost přijata do Studovny — listiny prohledány, klid zachován.',
+                    '📜 The Lord was received in the study room — the charters searched, the peace kept.',
+                    '📜 Dominus in studiolo susceptus est.');
+            }
+            ChroniconSystem._reportVrchnostFavorIfNewDay();
+            return lang === 'en'
+                ? "The Lord is received in the study room. The monastery's charters are laid open before him."
+                : 'Vrchnost je přijat do Studovny. Klášterní listiny jsou před ním otevřeny.';
+        }
         if (choiceId === 'accept') {
             // Právo sepultury — dar úměrný jmění zesnulého (historicky přesně
             // takhle kláštery vydělávaly na "dary za spásu duše").
@@ -386,6 +413,11 @@ const ChroniconSystem = {
                 ? `The gift is accepted — ${gift} groschen for the monastery's coffers. The deceased rests within the church walls, as befits his station.`
                 : `Dar je přijat — ${gift} grošů do klášterní pokladny. Zesnulý odpočívá uvnitř kostelních zdí, jak přísluší jeho postavení.`;
         }
+        if (choiceId === 'decline' && p && p.kind === 'studovna') {
+            return lang === 'en'
+                ? 'The request is turned down. The Lord takes no offense — but none either.'
+                : 'Žádost je odmítnuta. Vrchnost se neurazí — ale ani nepotěší.';
+        }
         if (choiceId === 'decline' && p && p.kind === 'hospes') {
             return lang === 'en'
                 ? 'The traveler is turned away. He must seek shelter elsewhere.'
@@ -399,6 +431,23 @@ const ChroniconSystem = {
         return lang === 'en'
             ? 'The monastery carries on as before. What happens in the wider region is beyond these walls.'
             : 'Klášter pokračuje jako dřív. Co se děje v širším kraji, je mimo tyto zdi.';
+    },
+
+    // Anonymní denní report vyhovění Vrchnosti — mirror
+    // InfirmariumSystem._reportRescueIfNewDay, ale bez per-actor smyčky
+    // (Vrchnost je jeden konkrétní aktér, viz studovna-vrchnost-mrd.md §3).
+    _reportVrchnostFavorIfNewDay: function() {
+        const today = new Date().toISOString().slice(0, 10);
+        if (GameState.vrchnostReportSent === today) return;
+        GameState.vrchnostReportSent = today;
+
+        try {
+            fetch('/api/vrchnost-report', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ favor: true, day: today }),
+            }).catch(() => {});
+        } catch (e) { /* tiché selhání */ }
     },
 
 };

@@ -80,6 +80,8 @@ const PersonaSystem = {
         if (GameState.persona.role               === undefined) GameState.persona.role               = null;
         // Migrace v3 — Mistr Bartoloměj (Starý Písař)
         if (GameState.persona.influence.bartolomej === undefined) GameState.persona.influence.bartolomej = 0;
+        // Migrace v4 — Vrchnost (Studovna, studovna-vrchnost-mrd.md)
+        if (GameState.persona.influence.vrchnost === undefined) GameState.persona.influence.vrchnost = 0;
 
         // Zkontrolovat zda zobrazit origin modal
         this.checkOriginModal();
