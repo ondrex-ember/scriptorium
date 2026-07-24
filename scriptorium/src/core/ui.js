@@ -1096,7 +1096,7 @@ const UI = {
         GameState.ui.libraryTab = tab;
 
         // Hide all library tabs
-        const tabs = ['books', 'games', 'news', 'scrinium', 'kronika', 'kraj'];
+        const tabs = ['books', 'games', 'news', 'scrinium', 'kronika', 'kraj', 'studovna'];
         tabs.forEach(t => {
             const el = document.getElementById('library-' + t + '-content');
             if (el) el.style.display = 'none';
@@ -1126,6 +1126,9 @@ const UI = {
         } else if (tab === 'kraj') {
             const el = document.getElementById('library-kraj-content');
             if (el) { el.style.display = 'block'; UI.renderChroniconWindow(); }
+        } else if (tab === 'studovna') {
+            const el = document.getElementById('library-studovna-content');
+            if (el) { el.style.display = 'block'; if (typeof StudovnaSystem !== 'undefined') StudovnaSystem.render(); }
         }
     },
 

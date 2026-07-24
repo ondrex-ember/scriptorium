@@ -335,7 +335,7 @@ const ChroniconSystem = {
         }
 
         // Studovna 'accept' — stejný soft-bounce vzor jako hospes: zamčená
-        // tech nesmí žádost ztratit, jen ji odloží na příště.
+        // tech nebo obsazenej hostí slot nesmí žádost ztratit, jen ji odloží.
         if (choiceId === 'accept' && p && p.kind === 'studovna') {
             const hasTech = !!(GameState.researchedTechs && GameState.researchedTechs.includes('tech_studovna'));
             if (!hasTech) {
@@ -343,6 +343,12 @@ const ChroniconSystem = {
                 return lang === 'en'
                     ? 'There is no room yet fit to receive him. (Requires: Studovna)'
                     : 'Zatím není žádná místnost hodná jeho přijetí. (Vyžaduje: Studovna)';
+            }
+            if (GameState.studovnaGuest && GameState.studovnaGuest.until > Date.now()) {
+                ChroniconSystem._advisoryShownThisSession = false;
+                return lang === 'en'
+                    ? 'The study room is already occupied by another guest.'
+                    : 'Studovna je právě obsazená jiným hostem.';
             }
         }
 
@@ -384,8 +390,13 @@ const ChroniconSystem = {
         }
         if (choiceId === 'accept' && p && p.kind === 'studovna') {
             // Vyhovění žádosti — Vrchnost influence + anonymní denní report,
-            // viz studovna-vrchnost-mrd.md §3-4.
+            // viz studovna-vrchnost-mrd.md §3-4. Timed occupancy slot (48h) —
+            // vizuálně obsazen ve StudovnaSystem, mirror hospes recoverHours vzor.
             if (typeof PersonaSystem !== 'undefined' && PersonaSystem.addInfluence) PersonaSystem.addInfluence('vrchnost', 4);
+            GameState.studovnaGuest = {
+                name: lang === 'en' ? 'The Lord' : 'Vrchnost',
+                until: Date.now() + 48 * 60 * 60 * 1000,
+            };
             if (typeof Game !== 'undefined' && Game.addKronikaEntry) {
                 Game.addKronikaEntry('important',
                     '📜 Vrchnost přijata do Studovny — listiny prohledány, klid zachován.',
@@ -393,6 +404,7 @@ const ChroniconSystem = {
                     '📜 Dominus in studiolo susceptus est.');
             }
             ChroniconSystem._reportVrchnostFavorIfNewDay();
+            if (typeof Game !== 'undefined' && Game.save) Game.save();
             return lang === 'en'
                 ? "The Lord is received in the study room. The monastery's charters are laid open before him."
                 : 'Vrchnost je přijat do Studovny. Klášterní listiny jsou před ním otevřeny.';

@@ -59,6 +59,7 @@ const JS_MAIN = [
     'src/systems/SaeculumSystem.js',
     'src/systems/TemplumSystem.js',  // Templum (kostelní větev, T1 skeleton)
     'src/systems/InfirmariumSystem.js', // Infirmarium (ošetřovna, Sprint 1 skeleton)
+    'src/systems/StudovnaSystem.js', // Studovna (čítárna, occupancy sloty)
     'src/systems/DecaySystem.js',
     'src/systems/CheeseSystem.js',
     'src/systems/LimeSystem.js',
