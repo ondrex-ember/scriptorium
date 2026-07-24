@@ -55343,6 +55343,9 @@ const UI = {
         // Porta — odhalit tlačítko v navigaci, jakmile GameState.flags.porta_active naskočí (Chronicon most)
         const _portaBtn = document.getElementById('lore-tab-porta');
         if (_portaBtn) _portaBtn.style.display = (GameState.flags && GameState.flags.porta_active) ? '' : 'none';
+        // Zakázky — stejná podmínka jako Porta (bez ní nejsou žádné závazkové dopisy)
+        const _commitBtn = document.getElementById('lore-tab-commitments');
+        if (_commitBtn) _commitBtn.style.display = (GameState.flags && GameState.flags.porta_active) ? '' : 'none';
 
         const s = this.currentScreen || 'home';
         if (s === 'home') {
@@ -56270,6 +56273,7 @@ const UI = {
         const _lcalEl = document.getElementById('lore-calendarium-content'); if (_lcalEl) _lcalEl.style.display = 'none';
         const _lperEl = document.getElementById('lore-persona-content'); if (_lperEl) _lperEl.style.display = 'none';
         const _lportEl = document.getElementById('lore-porta-content'); if (_lportEl) _lportEl.style.display = 'none';
+        const _lcommitEl = document.getElementById('lore-commitments-content'); if (_lcommitEl) _lcommitEl.style.display = 'none';
 
         // Remove active class from all buttons
         document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
@@ -56297,6 +56301,8 @@ const UI = {
             if (_lperEl) { _lperEl.style.display = 'block'; if (typeof PersonaSystem !== 'undefined') PersonaSystem.render(); }
         } else if (tab === 'porta') {
             if (_lportEl) { _lportEl.style.display = 'block'; if (typeof PortaSystem !== 'undefined') PortaSystem.render(); }
+        } else if (tab === 'commitments') {
+            if (_lcommitEl) { _lcommitEl.style.display = 'block'; if (typeof CommitmentsSystem !== 'undefined') CommitmentsSystem.render(); }
         }
     },
 
