@@ -14098,12 +14098,18 @@ const ChroniconSystem = {
         // CHRONICON advisory_events → kurátorované rozhodovací eventy (Sprint 3).
         // Cap: jen 1 aktivní najednou. "Odložit" nic neztratí — zůstává
         // aktivní, dokud se hráč nerozhodne jinak. Formát mirror events-reference.md.
-        if (snap.advisory_events && snap.advisory_events.length && typeof GameState !== 'undefined') {
+        // Vlna 1 / Hostina (ubytovna-mrd.md §8c-A): syntetický kandidát ze
+        // snap.feast — GM-ruční pole, žádná změna na CHRONICON straně. Řadí
+        // se před advisory_events, jinak stejná cap-1/resolvedIds mechanika.
+        const feastCandidate = ChroniconSystem._buildFeastCandidate(snap);
+        const hasAdvisorySource = (snap.advisory_events && snap.advisory_events.length) || feastCandidate;
+        if (hasAdvisorySource && typeof GameState !== 'undefined') {
             if (!GameState.chroniconAdvisory) GameState.chroniconAdvisory = { activeId: null, pending: null, resolvedIds: {} };
             const adv = GameState.chroniconAdvisory;
             if (!adv.activeId) {
                 const isProbost = !!(GameState.rank && GameState.rank.probost);
-                const candidate = snap.advisory_events.find(e => !adv.resolvedIds[e.id] && (!e.probost_only || isProbost));
+                const pool = feastCandidate ? [feastCandidate].concat(snap.advisory_events || []) : (snap.advisory_events || []);
+                const candidate = pool.find(e => !adv.resolvedIds[e.id] && (!e.probost_only || isProbost));
                 if (candidate) {
                     adv.activeId = candidate.id;
                     adv.pending  = candidate;
@@ -14220,6 +14226,32 @@ const ChroniconSystem = {
         });
     },
 
+    // Vlna 1 — Hostina (ubytovna-mrd.md §8c-A): syntetický advisory kandidát
+    // ze snap.feast. Dedup per svátek+den přes vlastní id — mirror
+    // _reportRescueIfNewDay vzor jinde v kódu. Žádný nový CHRONICON
+    // payload, jen nový spotřebitel pole, co už teče (viz core/game.js
+    // serveMass ×2 vliv).
+    _buildFeastCandidate: function(snap) {
+        if (!snap || !snap.feast || !snap.feast.active) return null;
+        const dateKey = (snap.time && snap.time.date_string) || snap.generated || '';
+        const name    = snap.feast.name_cs || 'svátek';
+        const nameEn  = snap.feast.name_en || name;
+        return {
+            id: 'hostina_' + name + '_' + dateKey,
+            kind: 'hostina',
+            icon: '🍞',
+            title_cs: 'Hosté na ' + name,
+            title_en: 'Guests for ' + nameEn,
+            text_cs: 'Ke slavnosti "' + name + '" dorazili k bráně poutníci a vesničané — chtějí se přidat k oslavě a přenocovat.',
+            text_en: 'Pilgrims and villagers have arrived at the gate for the feast of "' + nameEn + '" — they wish to join the celebration and stay the night.',
+            choices: [
+                { id: 'accept',  label_cs: 'Přijmout na oslavu',    label_en: 'Welcome them to the feast' },
+                { id: 'decline', label_cs: 'Zdvořile odmítnout',    label_en: 'Politely decline' },
+                { id: 'defer',   label_cs: 'Rozhodnout se později', label_en: 'Decide later' },
+            ],
+        };
+    },
+
     _entryId: function(entry) {
         // Stabilní ID nezávislé na textu — EN/CS verze téže zprávy = stejné ID
         if (entry.id) return String(entry.id);
@@ -14332,6 +14364,32 @@ const ChroniconSystem = {
                 ? `${p.name} is taken into the infirmary. A bed is made ready.`
                 : `${p.name} je přijat do Infirmaria. Lůžko je připraveno.`;
         }
+        if (choiceId === 'accept' && p && p.kind === 'hostina') {
+            // Vlna 1 — Hostina: jednorázový efekt, žádné lůžko (mirror sepultura).
+            if (typeof PersonaSystem !== 'undefined' && PersonaSystem.addInfluence) PersonaSystem.addInfluence('village', 2);
+            if (typeof Game !== 'undefined' && Game.addKronikaEntry) {
+                Game.addKronikaEntry('important',
+                    '🍞 ' + p.title_cs + ' — klášter otevřel brány poutníkům a vesničanům.',
+                    '🍞 ' + p.title_en + ' — the monastery opened its gates to pilgrims and villagers.',
+                    '🍞 Hospites in festo suscepti sunt.');
+            }
+            return lang === 'en'
+                ? 'The gates are opened. Pilgrims and villagers join the feast within the walls.'
+                : 'Brány jsou otevřeny. Poutníci a vesničané se přidávají k oslavě uvnitř zdí.';
+        }
+        if (choiceId === 'accept' && p && p.kind === 'pocestny') {
+            // Vlna 1 — Pocestný: jednorázový efekt, žádné lůžko (mirror hostina).
+            if (typeof PersonaSystem !== 'undefined' && PersonaSystem.addInfluence) PersonaSystem.addInfluence('village', 1);
+            if (typeof Game !== 'undefined' && Game.addKronikaEntry) {
+                Game.addKronikaEntry('important',
+                    '🥾 ' + p.title_cs + ' — klášter poskytl nocleh na jednu noc.',
+                    '🥾 ' + p.title_en + ' — the monastery gave shelter for a single night.',
+                    '🥾 Peregrinus hospitio susceptus est.');
+            }
+            return lang === 'en'
+                ? 'He is given a bed for the night and departs at dawn.'
+                : 'Dostává lůžko na noc a za úsvitu odchází.';
+        }
         if (choiceId === 'accept' && p && p.kind === 'studovna') {
             // Vyhovění žádosti — Vrchnost influence + anonymní denní report,
             // viz studovna-vrchnost-mrd.md §3-4. Timed occupancy slot (48h) —
@@ -14378,6 +14436,16 @@ const ChroniconSystem = {
             return lang === 'en'
                 ? 'The traveler is turned away. He must seek shelter elsewhere.'
                 : 'Poutník je odmítnut. Musí hledat útočiště jinde.';
+        }
+        if (choiceId === 'decline' && p && p.kind === 'hostina') {
+            return lang === 'en'
+                ? 'The gates remain closed. The feast is kept within the walls alone.'
+                : 'Brány zůstávají zavřené. Oslava se drží jen uvnitř zdí.';
+        }
+        if (choiceId === 'decline' && p && p.kind === 'pocestny') {
+            return lang === 'en'
+                ? 'He is turned away and continues down the road.'
+                : 'Je odmítnut a pokračuje dál po cestě.';
         }
         if (choiceId === 'decline') {
             return lang === 'en'
