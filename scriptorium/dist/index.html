@@ -35333,6 +35333,37 @@ const AthanorSystem = {
       if (!('lastResult' in GameState.athanor)) GameState.athanor.lastResult = null;
     }
     setInterval(() => AthanorSystem.tick(), 2000);
+    setInterval(() => AthanorSystem._tickProgressBar(), 500);
+  },
+
+  // ── PROGRESS BAR TICK (každých 500ms) ──────────────────────
+  // Cíleně aktualizuje jen šířku pruhu a zbývající čas přes DOM, BEZ
+  // překreslení celého panelu — jedině tak má CSS transition co animovat.
+  _tickProgressBar() {
+    const b = GameState.athanor && GameState.athanor.brewing;
+    if (!b) return;
+    const panel = document.getElementById('home-athanor-content');
+    if (!panel || panel.style.display === 'none') return;
+
+    const fillEl = document.getElementById('athanor-progress-fill');
+    const remEl = document.getElementById('athanor-progress-remaining');
+    if (!fillEl || !remEl) return; // panel otevřený, ale zrovna jinde (např. modal výsledku)
+
+    const now = Date.now();
+    const pct = Math.min(100, Math.floor(((now - b.startedAt) / b.duration) * 100));
+    const stageIndex = pct < 33 ? 0 : pct < 66 ? 1 : 2;
+    const remaining = Math.max(0, Math.ceil((b.expiresAt - now) / 1000));
+
+    // Fáze (Nigredo/Albedo/Rubedo) se změnila — barva/label/ikona potřebují
+    // celý přerender panelu, ne jen šířku. Rychlý tick to jednorázově pozná
+    // a přepne na plný refresh, pak pokračuje dál v cíleném módu.
+    if (fillEl.dataset.stage !== String(stageIndex)) {
+      AthanorSystem.refreshIfOpen();
+      return;
+    }
+
+    fillEl.style.width = pct + '%';
+    remEl.textContent = remaining + 's';
   },
 
   // ── TICK (každé 2s) ───────────────────────────────────────
@@ -36223,20 +36254,20 @@ const AthanorSystem = {
         color:#e8d5a3;
       ">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-          <span style="color:${stage.textColor};font-family:'Cinzel',serif;font-size:0.8rem;letter-spacing:1px;">
+          <span id="athanor-progress-label" style="color:${stage.textColor};font-family:'Cinzel',serif;font-size:0.8rem;letter-spacing:1px;">
             ${stageIcons[stageIndex]} ${stage.label}
           </span>
-          <span style="font-size:0.75rem;opacity:0.6;">${remaining}s</span>
+          <span id="athanor-progress-remaining" style="font-size:0.75rem;opacity:0.6;">${remaining}s</span>
         </div>
         <div style="font-style:italic;font-size:0.76rem;opacity:0.7;margin-bottom:10px;">
           ${stage.desc}
         </div>
         <div style="background:rgba(0,0,0,0.3);border-radius:4px;height:6px;overflow:hidden;">
-          <div style="
+          <div id="athanor-progress-fill" data-stage="${stageIndex}" style="
             width:${pct}%;
             height:100%;
             background:${stage.textColor};
-            transition:width 2s linear;
+            transition:width 0.5s linear;
             border-radius:4px;
           "></div>
         </div>
