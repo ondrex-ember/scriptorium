@@ -2893,6 +2893,7 @@
                         <button id="lore-tab-persona" class="filter-btn" onclick="UI.switchLoreTab('persona', this)">🧑
                             Persona</button>
                         <button id="lore-tab-porta" class="filter-btn" onclick="UI.switchLoreTab('porta', this)" style="display:none;">🕊️ Porta</button>
+                        <button id="lore-tab-commitments" class="filter-btn" onclick="UI.switchLoreTab('commitments', this)" style="display:none;">📋 Zakázky</button>
                     </div>
                     <div id="lore-research-content" style="margin-top:20px;"></div>
                     <div id="lore-codex-content" style="margin-top:20px; display:none;"></div>
@@ -2902,6 +2903,7 @@
                     <div id="lore-calendarium-content" style="margin-top:20px; display:none;"></div>
                     <div id="lore-persona-content" style="margin-top:20px; display:none;"></div>
                     <div id="lore-porta-content" style="margin-top:20px; display:none;"></div>
+                    <div id="lore-commitments-content" style="margin-top:20px; display:none;"></div>
                 </div>
             </div>
 
@@ -7216,6 +7218,8 @@ const ItemsDB = {
     "cured_beef": { name: "Uzené hovězí", name_en: "Cured Beef", icon: "🥩", type: "food", desc: "Nasolené a uzené hovězí. Vydrží celou zimu.", desc_en: "Salted and smoked beef. Lasts all winter." },
     "quill_premium": { name: "Brk holubí", name_en: "Pigeon Quill", icon: "🪶", type: "mat", desc: "Holubí brk. Jemnější než husí, vhodný pro drobné písmo a iluminace.", desc_en: "Pigeon quill. Finer than goose feather, suited for small script and illumination." },
     "pigeon_dung": { name: "Holubí trus", name_en: "Pigeon Dung", icon: "💩", type: "mat", desc: "Vysoce koncentrované hnojivo. Klášterní zahradníci ho sbírali z holubníku pro zahradu.", desc_en: "Highly concentrated fertiliser. Monastic gardeners collected it from the dovecote for the garden." },
+    "pigeon_squab": { name: "Holoubě", name_en: "Squab", icon: "🍗", type: "food_raw", hunger: 6, desc: "Mladý, nevzletný holub. Uvař před jídlem. Historicky cennější pečeně než dospělý pták — v klášteře patřilo hlavně na stůl infirmária nebo vzácného hosta.", desc_en: "A young, unfledged pigeon. Cook before eating. Historically a more prized roast than an adult bird — in the monastery it belonged chiefly on the table of the infirmary or an honoured guest." },
+    "pigeon_meat": { name: "Holubí maso", name_en: "Pigeon Meat", icon: "🍖", type: "food_raw", hunger: 4, desc: "Maso dospělého holuba z holubníku. Uvař před jídlem. Méně cenné než holoubě, ale poctivá potrava.", desc_en: "Meat from an adult dovecote pigeon. Cook before eating. Less prized than squab, but honest food." },
     "butter": { name: "Máslo", name_en: "Butter", icon: "🧈", type: "mat", desc: "Čerstvé máslo z kravského mléka. Postní výjimka u nemocných.", desc_en: "Fresh butter from cow's milk. A Lenten exception for the sick." },
     "cheese": { name: "Sýr", name_en: "Cheese", icon: "🧀", type: "food", desc: "Tvrdý klášterní sýr. Trvanlivý, výživný. Prodávaný na trzích.", desc_en: "Hard monastic cheese. Long-lasting, nutritious. Sold at markets." },
     "salt": { name: "Sůl", name_en: "Salt", icon: "🧂", type: "mat", desc: "Drahá obchodní komodita ze solných stezek. Bez ní se sýr nezasolí a brzy zkazí.", desc_en: "A costly trade good from the salt roads. Without it cheese cannot be salted and soon spoils." },
@@ -9332,6 +9336,14 @@ const TechTree = [
     unlocks: ["velky_ul_1", "velky_ul_2"], requires: ["tech_liber_apium"], requiresBook: "book_ruralia_apibus"
   },
 
+  {
+    id: "tech_columbaria_interna", name: "Columbaria Interna", name_en: "Columbaria Interna",
+    cost: 40,
+    desc: "Palladiova kapitola o holubníku: zdi hladké a nabílené, uvnitř řady výklenků v přesných rozměrech, aby měl pár dost místa. Odemkne: rozšíření věže na 40 ptáků (Dvůr — Holubník).",
+    desc_en: "Palladius's chapter on the dovecote: walls smooth and whitewashed, rows of niches within of precise dimensions, so a pair has room enough. Unlocks: tower expansion to 40 birds (Farmyard — Dovecote).",
+    requires: ["tech_porta"], requiresBook: "book_palladius_columbaria"
+  },
+
   // SKLADOVÉ HOSPODÁŘSTVÍ
   {
     id: "tech_carpentaria", name: "Carpentaria — Tesařství", name_en: "Carpentaria — Carpentry",
@@ -11103,6 +11115,7 @@ const LettersDB = [
   // ── L1 — Farář: o falešné zpovědi (předehra Zpovědi) ──
   {
     id: 'l1_farar_zpoved',
+    sender_cs: 'Farář Havel od Panny Marie', sender_en: 'Father Havel of Our Lady',
     seal: 'village',
     title_cs: 'List faráře Havla',
     title_en: 'A Letter from Father Havel',
@@ -11126,6 +11139,7 @@ const LettersDB = [
   // ── L2 — Křivě obviněná paní Ofka (⚡ 5 dní; první dvoudílný řetěz) ──
   {
     id: 'l2_ofka',
+    sender_cs: 'Písař Jindřich', sender_en: 'Henry the Scribe',
     seal: 'village',
     urgent: true,
     expiry_days: 5,
@@ -11165,6 +11179,7 @@ const LettersDB = [
   // ── L2b — rozuzlení (přimluvil ses): +7 dní po L2 ──
   {
     id: 'l2b_ofka_spoke',
+    sender_cs: 'Písař Jindřich', sender_en: 'Henry the Scribe',
     seal: 'village',
     title_cs: 'Zpráva z Újezda: pravda vyšla najevo',
     title_en: 'News from Újezd: The Truth Comes Out',
@@ -11190,6 +11205,7 @@ const LettersDB = [
   // ── L2c — rozuzlení (mlčel jsi / prošvihl): +7 dní po L2 ──
   {
     id: 'l2c_ofka_silent',
+    sender_cs: 'Písař Jindřich', sender_en: 'Henry the Scribe',
     seal: 'village',
     title_cs: 'Zpráva z Újezda: po ohni',
     title_en: 'News from Újezd: After the Fire',
@@ -11215,6 +11231,7 @@ const LettersDB = [
   // ── L3 — Kupec Mikuláš: ceny a rada (anály 1342) ──
   {
     id: 'l3_kupec_ceny',
+    sender_cs: 'Kupec Mikuláš', sender_en: 'Nicholas the Merchant',
     seal: 'village',
     title_cs: 'List kupce Mikuláše',
     title_en: 'A Letter from Nicholas the Merchant',
@@ -11236,6 +11253,7 @@ const LettersDB = [
   // ── L4 — Vdova Kačna: vosk za duši (první dopis s přílohou) ──
   {
     id: 'l4_vdova_vosk',
+    sender_cs: 'Vdova Kačna z Chválkovic', sender_en: 'Widow Kačna of Chválkovice',
     seal: 'village',
     title_cs: 'Dar vdovy Kačny',
     title_en: 'The Widow Kačna\'s Gift',
@@ -11258,6 +11276,7 @@ const LettersDB = [
   // ── L5 — Bratr Prokop z Hradiska: mlýny (předehra vodních služeb) ──
   {
     id: 'l5_hradisko_mlyny',
+    sender_cs: 'Bratr Prokop z Hradiska', sender_en: 'Brother Prokop of Hradisko',
     seal: 'abbot',
     title_cs: 'List bratra Prokopa z Hradiska',
     title_en: 'A Letter from Brother Prokop of Hradisko',
@@ -11277,6 +11296,7 @@ const LettersDB = [
   // ── L6 — Biskupská kancelář: misál (14 dní; vstup vizitačního řetězu) ──
   {
     id: 'l6_biskup_misal',
+    sender_cs: 'Kancelář biskupství olomouckého', sender_en: 'Chancery of the Bishopric of Olomouc',
     seal: 'abbot',
     expiry_days: 14,
     title_cs: 'List biskupské kanceláře',
@@ -11309,6 +11329,7 @@ const LettersDB = [
   // ── L7 — Zadání: podmínky misálu (accepted + 3 dny) ──
   {
     id: 'l7_biskup_zadani',
+    sender_cs: 'Kancelář biskupství olomouckého', sender_en: 'Chancery of the Bishopric of Olomouc',
     seal: 'abbot',
     title_cs: 'Podmínky biskupské kanceláře',
     title_en: 'Terms from the Bishop\'s Chancery',
@@ -11319,6 +11340,15 @@ const LettersDB = [
       const t0 = GameState.flags.bishopMissalAcceptedAt
         || (((GameState.letters && GameState.letters.archive) || []).find(e => e.id === 'l6_biskup_misal' || e.id === 'l10_biskup_druha_sance') || {}).ts;
       return !!t0 && (Date.now() - t0) >= 3 * 24 * 60 * 60 * 1000;
+    },
+    commitment: {
+      flagKey: 'bishopMissal',
+      deadlineFlagKey: 'bishopMissalDeadline',
+      activeStatuses: ['commissioned'],
+      forWhom_cs: 'Biskup olomoucký', forWhom_en: 'Bishop of Olomouc',
+      what_cs: 'Luxusní kodex (misál pro katedrálu)', what_en: 'Luxury codex (missal for the cathedral)',
+      reward_cs: '120 grošů + Ecclesia +8', reward_en: '120 groschen + Ecclesia +8',
+      risk_cs: 'Ecclesia −3 při zmeškání lhůty', risk_en: 'Ecclesia −3 if the deadline is missed',
     },
     choices: [
       { label_cs: '📜 Přijímám podmínky', label_en: '📜 I accept the terms',
@@ -11334,6 +11364,7 @@ const LettersDB = [
   // ── L8 — Odevzdání (commissioned + kodex v ruce + před lhůtou) ──
   {
     id: 'l8_biskup_odevzdani',
+    sender_cs: 'Kancelář biskupství olomouckého', sender_en: 'Chancery of the Bishopric of Olomouc',
     seal: 'abbot',
     title_cs: 'Posel kanceláře čeká na misál',
     title_en: 'The Chancery\'s Messenger Awaits the Missal',
@@ -11364,6 +11395,7 @@ const LettersDB = [
   // ── L9 — Zmeškaná lhůta (commissioned + po deadline) ──
   {
     id: 'l9_biskup_zmeskani',
+    sender_cs: 'Kancelář biskupství olomouckého', sender_en: 'Chancery of the Bishopric of Olomouc',
     seal: 'abbot',
     title_cs: 'Chladný list kanceláře',
     title_en: 'A Cold Letter from the Chancery',
@@ -11388,6 +11420,7 @@ const LettersDB = [
   // ── L10 — Druhá šance (declined/ignored + 14 dní) ──
   {
     id: 'l10_biskup_druha_sance',
+    sender_cs: 'Kancelář biskupství olomouckého', sender_en: 'Chancery of the Bishopric of Olomouc',
     seal: 'abbot',
     title_cs: 'Kancelář píše podruhé',
     title_en: 'The Chancery Writes a Second Time',
@@ -11419,6 +11452,7 @@ const LettersDB = [
   // ═══ VISITATIO V1: ohlašovací dopis (MRD visitatio-reference.md) ═══
   {
     id: 'l11_visitatio_ohlaseni',
+    sender_cs: 'Kancelář biskupství olomouckého', sender_en: 'Chancery of the Bishopric of Olomouc',
     seal: 'abbot',
     urgent: true,
     title_cs: 'Ohlášení vizitace',
@@ -11466,6 +11500,7 @@ const LettersDB = [
   // ── L12 — Opat: nabídka holubího hejna (Porta) ──
   {
     id: 'l12_opat_holubi',
+    sender_cs: 'Opat', sender_en: 'The Abbot',
     seal: 'abbot',
     title_cs: 'List opatův o holubech',
     title_en: "A Letter from the Abbot on Pigeons",
@@ -11491,7 +11526,6 @@ const LettersDB = [
   },
 
 ];
-
 // ═══ src/data/conversi.js ═══
 // ─────────────────────────────────────────────────────────────
 // ConversiRosterDB — autorský roster konvršů
@@ -11941,6 +11975,7 @@ const DormitoriumSpecializationDB = {
     apiarium: { name: 'Včelař',     name_en: 'Beekeeper',    icon: '🐝' },
     piscina:  { name: 'Rybář',      name_en: 'Fisherman',    icon: '🐟' },
     athanor:  { name: 'Alchymista', name_en: 'Alchemist',    icon: '⚗️' },
+    columbarium: { name: 'Columbarius', name_en: 'Columbarius', icon: '🕊️' },
     scriptorium: { name: 'Skriptor', name_en: 'Scriptor',    icon: '📜' },
     kostel:   { name: 'Kostelník',  name_en: 'Sacristan',    icon: '⛪' },
     hrbitov:  { name: 'Hrobník',    name_en: 'Gravedigger',  icon: '⚰️' }, // jen konvrš titul — bratr je pořád Kostelník (viz manufacturaStatus/renderManufactura)
@@ -11949,7 +11984,6 @@ const DormitoriumSpecializationDB = {
     infirmarium_apothecarius: { name: 'Apothecarius', name_en: 'Apothecary',  icon: '🧪' },
     infirmarium_capellanus:   { name: 'Capellanus',   name_en: 'Chaplain',    icon: '⛪' },
 };
-
 // ═══ src/data/contacts.js ═══
 // ─────────────────────────────────────────────────────────────
 // ContactsDB — Clientela: satelitní kontakty kláštera
@@ -19441,6 +19475,9 @@ const CellariumSystem = {
     mutton:         6,
     lamb_hide:      8,
     chick:          3,
+    // MRD Columbarium II — holoubě cennější než dospělý pták (historicky doloženo)
+    pigeon_squab:   7,
+    pigeon_meat:    4,
     lamb:           5,
     veteran_queen: 280,
   },
@@ -19489,7 +19526,7 @@ const CellariumSystem = {
     seed_walnut: 'mat', seed_mulberry: 'mat', seed_quince: 'mat', seed_sorb: 'mat',
     seed_rowan: 'mat', seed_linden: 'mat',
     fry: 'mat', carp_young: 'mat', carp: 'food_raw',
-    chicken_meat: 'food', mutton: 'food',
+    chicken_meat: 'food', mutton: 'food', pigeon_squab: 'food', pigeon_meat: 'food',
     lamb_hide: 'mat', chick: 'mat', lamb: 'mat',
     veteran_queen: 'mat',
   },
@@ -19507,7 +19544,7 @@ const CellariumSystem = {
 
   // CH-2: Postní dny (Chronicon fast flag) — ryby žádané, maso leží
   FAST_FISH: ['cooked_fish', 'carp'],
-  FAST_MEAT: ['cooked_meat', 'chicken_meat', 'mutton'],
+  FAST_MEAT: ['cooked_meat', 'chicken_meat', 'mutton', 'pigeon_squab', 'pigeon_meat'],
 
   _fastMult: function(itemId) {
     const snap = (typeof ChroniconSystem !== 'undefined') ? ChroniconSystem._snap : null;
@@ -20406,7 +20443,7 @@ const CellariumSystem = {
     const TAVERN_ITEMS = ['bread','cooked_meat','cooked_fish','stew','mushroom_soup',
                           'berry_pie','honey','water','potion_heal','stamina_tonic',
                           'sleep_potion','candle',
-                          'egg','milk','chicken_meat','mutton',
+                          'egg','milk','chicken_meat','mutton','pigeon_squab','pigeon_meat',
                           'apple','pear','plum','cherry',
                           'beer','wine',
                           'goat_cheese_fresh','goat_cheese_mature','goat_cheese_aged',
@@ -22062,9 +22099,9 @@ const SaeculumSystem = {
   renderManufactura: function() {
     const lang = (GameState.settings && GameState.settings.language) || 'cs';
     // Pořadí odpovídá DormitoriumSpecializationDB; dvur navíc (údržba, bez XP tabu tam).
-    const TAB_ORDER = ['dvur', 'kostel', 'hrbitov', 'zahony', 'sad', 'pole', 'vinohrad', 'apiarium', 'piscina', 'athanor', 'scriptorium'];
+    const TAB_ORDER = ['dvur', 'kostel', 'hrbitov', 'zahony', 'sad', 'pole', 'vinohrad', 'apiarium', 'piscina', 'columbarium', 'athanor', 'scriptorium'];
     // Konvrš lze přiřadit jen na tyto (athanor/scriptorium nejsou v CONVERSI_TASKS — jen bratr).
-    const CONVERSI_CAPABLE = ['dvur', 'kostel', 'hrbitov', 'zahony', 'sad', 'apiarium', 'piscina', 'pole', 'vinohrad'];
+    const CONVERSI_CAPABLE = ['dvur', 'kostel', 'hrbitov', 'zahony', 'sad', 'apiarium', 'piscina', 'pole', 'vinohrad', 'columbarium'];
 
     let h = `<div style="margin-bottom:10px; font-size:0.8rem; opacity:0.75;">
       ${lang === 'en'
@@ -22696,7 +22733,6 @@ const SaeculumSystem = {
   },
 
 };
-
 // ═══ src/systems/TemplumSystem.js ═══
 // ─────────────────────────────────────────────────────────────
 // TemplumSystem — kostelní větev (MRD templum-reference.md)
@@ -28670,6 +28706,16 @@ const FarmyardSystem = {
         featherYield: 3,  // fixní strop, nezávislé na count
     },
 
+    // MRD Columbarium II — kapacita podle capacityTier (level 1 = start, level 2 = Columbaria Interna)
+    // POZOR: samostatné pole od `level` (to znamená vybílení vápnem, viz whitewashColumbarium)
+    COLUMBARIUM_CAPACITY_BY_LEVEL: { 1: 20, 2: 40 },
+    COLUMBARIUM_UPGRADE_COST: { cut_stone: 30, plank: 10, vapno_hasene_mature: 5 },
+
+    columbariumCapacity: function () {
+        const tier = (GameState.columbarium && GameState.columbarium.capacityTier) || 1;
+        return this.COLUMBARIUM_CAPACITY_BY_LEVEL[tier] || 20;
+    },
+
     // Mood thresholds → produkční multiplikátor
     MOOD_MULT: function (mood) {
         if (mood >= 70) return 1.0;
@@ -28747,9 +28793,12 @@ const FarmyardSystem = {
         if (!GameState.pigsty) GameState.pigsty = { built: false, animals: [] };
         if (!GameState.donkeyStall) GameState.donkeyStall = { built: false, animals: [], lastCleanMs: 0 };
         if (!GameState.stable) GameState.stable = { built: false, animals: [], lastCleanMs: 0 };
-        if (!GameState.columbarium) GameState.columbarium = { built: false, count: 0, lastEggAt: 0, lastFeatherAt: 0, lastCleanMs: 0, level: 1, lastPredatorTick: 0 };
+        if (!GameState.columbarium) GameState.columbarium = { built: false, count: 0, lastEggAt: 0, lastFeatherAt: 0, lastCleanMs: 0, level: 1, lastPredatorTick: 0, nesting: null, squabPool: 0, capacityTier: 1 };
         if (GameState.columbarium.level === undefined) GameState.columbarium.level = 1;
         if (GameState.columbarium.lastPredatorTick === undefined) GameState.columbarium.lastPredatorTick = 0;
+        if (GameState.columbarium.nesting === undefined) GameState.columbarium.nesting = null;
+        if (GameState.columbarium.squabPool === undefined) GameState.columbarium.squabPool = 0;
+        if (GameState.columbarium.capacityTier === undefined) GameState.columbarium.capacityTier = 1;
         if (!GameState.loanMale) GameState.loanMale = {};  // {type, returnsAt}
     },
 
@@ -28877,9 +28926,10 @@ const FarmyardSystem = {
         c.lastCleanMs = now;
 
         // Generovat hnůj: stejný vzorec jako cleanPen, 1–3 ks dle počtu ptáků
+        // MRD Columbarium II — specificky pigeon_dung (guáno), ne obecný manure
         const n = Math.max(1, Math.min(3, Math.ceil(c.count / 2)));
         const inv = GameState.inventory;
-        inv['manure'] = (inv['manure'] || 0) + n;
+        inv['pigeon_dung'] = (inv['pigeon_dung'] || 0) + n;
 
         if (typeof UI !== 'undefined' && UI.notify) UI.notify('💩 ' + t('farmyard.cleanDone').replace('{n}', n));
         if (typeof Game !== 'undefined' && Game.save) Game.save();
@@ -29130,6 +29180,110 @@ const FarmyardSystem = {
         }
         if (collected) { Game.save(); FarmyardSystem.renderFarmyard(); UI.notify('🥚 ' + t('farmyard.columbariumCollected')); }
         else UI.notify(t('game.penNotReady'), true);
+    },
+
+    // MRD Columbarium II — líheň. Mirror startNesting()/startBreeding() vzoru (Kurník/Chlév).
+    startNestingColumbarium: function () {
+        this._ensureAnimals();
+        const c = GameState.columbarium;
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        if (!c || !c.built || (c.count || 0) < 2) {
+            if (typeof UI !== 'undefined') UI.notify(lang === 'en' ? 'Needs at least 2 pigeons to nest.' : 'Ke hnízdění je potřeba aspoň pár holubů.', true);
+            return;
+        }
+        if (c.nesting) {
+            if (typeof UI !== 'undefined') UI.notify(t('game.nestingActive'), true);
+            return;
+        }
+        const now = Date.now();
+        let hatchMs = 72 * 60 * 60 * 1000; // 72h základ
+        // Vikev — spotřebuje se, +25% rychlosti (přímo z Palladia: hrách a vikev)
+        let usedVetch = false;
+        if ((GameState.inventory['vikev'] || 0) > 0) {
+            GameState.inventory['vikev']--;
+            hatchMs = Math.round(hatchMs * 0.75);
+            usedVetch = true;
+        }
+        c.nesting = { state: 'nesting', startedAt: now, hatchAt: now + hatchMs };
+        Game.save();
+        this.renderFarmyard();
+        UI.notify('🕊️ ' + (lang === 'en'
+            ? `Nesting begun.${usedVetch ? ' Vetch feed speeds the brood.' : ''}`
+            : `Hnízdění zahájeno.${usedVetch ? ' Vikev urychlí odchov.' : ''}`));
+    },
+
+    // Squab pool → tři cesty (MRD): doplnit hejno / porazit na maso / rovnou do inventáře k prodeji
+    populateSquabsColumbarium: function (qty) {
+        this._ensureAnimals();
+        const c = GameState.columbarium;
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        if (!c || (c.squabPool || 0) <= 0) return;
+        const cap = this.columbariumCapacity();
+        const space = Math.max(0, cap - (c.count || 0));
+        const n = Math.max(0, Math.min(qty || c.squabPool, c.squabPool, space));
+        if (n <= 0) {
+            if (typeof UI !== 'undefined') UI.notify(lang === 'en' ? 'The dovecote is at full capacity.' : 'Holubník je na plné kapacitě.', true);
+            return;
+        }
+        c.squabPool -= n;
+        c.count = (c.count || 0) + n;
+        Game.save();
+        this.renderFarmyard();
+        UI.notify('🕊️ ' + (lang === 'en' ? `+${n} pigeons joined the flock.` : `+${n} holubů přibylo do hejna.`));
+    },
+
+    slaughterSquabColumbarium: function (qty) {
+        this._ensureAnimals();
+        const c = GameState.columbarium;
+        if (!c) return;
+        const n = Math.max(0, Math.min(qty || 1, c.squabPool || 0));
+        if (n <= 0) return;
+        c.squabPool -= n;
+        Game.addItem('pigeon_squab', n);
+        Game.save();
+        this.renderFarmyard();
+        UI.notify('🍗 +' + n + ' × ' + (typeof iName === 'function' ? iName('pigeon_squab') : 'pigeon_squab'));
+    },
+
+    slaughterAdultColumbarium: function (qty) {
+        this._ensureAnimals();
+        const c = GameState.columbarium;
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        if (!c) return;
+        const n = Math.max(0, Math.min(qty || 1, c.count || 0));
+        if (n <= 0) return;
+        if (typeof confirm === 'function' && !confirm(lang === 'en'
+            ? `Slaughter ${n} pigeon(s) from the flock? This permanently reduces the population.`
+            : `Porazit ${n} holuba/holubů z hejna? Trvale to sníží populaci.`)) return;
+        c.count -= n;
+        Game.addItem('pigeon_meat', n);
+        Game.save();
+        this.renderFarmyard();
+        UI.notify('🍖 +' + n + ' × ' + (typeof iName === 'function' ? iName('pigeon_meat') : 'pigeon_meat'));
+    },
+
+    // MRD Columbarium II — kapacita 40. Kniha (requiresBook přes tech) + tech + materiál + vápno.
+    upgradeColumbariumCapacity: function () {
+        this._ensureAnimals();
+        const c = GameState.columbarium;
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        if (!c || !c.built) return;
+        if ((c.capacityTier || 1) >= 2) {
+            if (typeof UI !== 'undefined') UI.notify(lang === 'en' ? 'Already upgraded.' : 'Už vylepšeno.', true);
+            return;
+        }
+        if (!(GameState.researchedTechs && GameState.researchedTechs.includes('tech_columbaria_interna'))) {
+            if (typeof UI !== 'undefined') UI.notify(t('dvur.lockedPrefix') + ' Columbaria Interna', true);
+            return;
+        }
+        const cost = this.COLUMBARIUM_UPGRADE_COST;
+        const can = Object.entries(cost).every(([id, n]) => (GameState.inventory[id] || 0) >= n);
+        if (!can) { if (typeof UI !== 'undefined') UI.notify(t('dvur.notEnough'), true); return; }
+        Object.entries(cost).forEach(([id, n]) => { GameState.inventory[id] -= n; });
+        c.capacityTier = 2;
+        Game.save();
+        this.renderFarmyard();
+        UI.notify('🏗️ ' + (lang === 'en' ? 'Columbaria Interna built — capacity 40.' : 'Vnitřní kolumbária postavena — kapacita 40.'));
     },
 
     // ── Level 2 — nabílení vápnem (tech_calcaria), odstraní riziko predátora ──
@@ -29885,11 +30039,42 @@ const FarmyardSystem = {
 
         const eggReady = now >= (c.lastEggAt || 0) + cfg.eggIntervalMs;
         const featherReady = now >= (c.lastFeatherAt || 0) + cfg.featherIntervalMs;
+        const cap = this.columbariumCapacity();
         h += `<div style="display:grid; grid-template-columns:1fr 1fr; gap:6px; margin-bottom:12px; font-size:0.82rem;">`;
-        h += `<div>🕊️ ${lang === 'en' ? 'Pigeons' : 'Holubi'}: <strong>${c.count}</strong></div>`;
+        h += `<div>🕊️ ${lang === 'en' ? 'Pigeons' : 'Holubi'}: <strong>${c.count}/${cap}</strong></div>`;
         h += `<div>🥚 ${t('farmyard.eggs')}: <strong>${eggReady ? t('farmyard.ready') + ' (' + cfg.eggYield + ')' : Math.ceil(((c.lastEggAt || 0) + cfg.eggIntervalMs - now) / 3600000) + 'h'}</strong></div>`;
         h += `<div>🪶 ${t('farmyard.feathers')}: <strong>${featherReady ? t('farmyard.ready') + ' (' + cfg.featherYield + ')' : Math.ceil(((c.lastFeatherAt || 0) + cfg.featherIntervalMs - now) / 3600000) + 'h'}</strong></div>`;
         h += `</div>`;
+
+        // MRD Columbarium II — kapacita 40 (Columbaria Interna)
+        if ((c.capacityTier || 1) < 2) {
+            const hasTech = GameState.researchedTechs && GameState.researchedTechs.includes('tech_columbaria_interna');
+            if (hasTech) {
+                const upCost = this.COLUMBARIUM_UPGRADE_COST;
+                const canUp = Object.entries(upCost).every(([id, n]) => (GameState.inventory[id] || 0) >= n);
+                const costStr = Object.entries(upCost).map(([id, n]) => `${n}× ${typeof iName === 'function' ? iName(id) : id}`).join(', ');
+                h += `<button class="craft-btn" onclick="FarmyardSystem.upgradeColumbariumCapacity()" style="font-size:0.76rem; margin-bottom:8px;" ${canUp ? '' : 'disabled'}>🏗️ ${lang === 'en' ? 'Build Columbaria Interna' : 'Postavit Vnitřní kolumbária'} (${costStr})</button>`;
+            }
+        }
+
+        // MRD Columbarium II — líheň a squab pool
+        if (c.nesting) {
+            const hoursLeft = Math.max(0, Math.ceil((c.nesting.hatchAt - now) / 3600000));
+            h += `<div style="font-size:0.78rem; opacity:0.75; margin-bottom:8px;">🥚 ${lang === 'en' ? 'Nesting' : 'Hnízdění'} — ${hoursLeft}h</div>`;
+        } else {
+            const canNest = (c.count || 0) >= 2;
+            h += `<button class="craft-btn" onclick="FarmyardSystem.startNestingColumbarium()" style="font-size:0.78rem; margin-bottom:8px;" ${canNest ? '' : 'disabled'}>🥚 ${lang === 'en' ? 'Start nesting' : 'Zahájit hnízdění'}</button>`;
+        }
+        if ((c.squabPool || 0) > 0) {
+            h += `<div style="font-size:0.82rem; margin-bottom:6px;">🐣 ${lang === 'en' ? 'Squabs' : 'Holoubata'}: <strong>${c.squabPool}</strong></div>`;
+            h += `<div style="display:flex; gap:6px; flex-wrap:wrap; margin-bottom:8px;">`;
+            h += `<button class="craft-btn" onclick="FarmyardSystem.populateSquabsColumbarium(${c.squabPool})" style="font-size:0.72rem;">🕊️ ${lang === 'en' ? 'Add to flock' : 'Do hejna'}</button>`;
+            h += `<button class="craft-btn" onclick="FarmyardSystem.slaughterSquabColumbarium(${c.squabPool})" style="font-size:0.72rem; background:rgba(140,80,60,0.85);">🍗 ${lang === 'en' ? 'Slaughter for meat' : 'Porazit na maso'}</button>`;
+            h += `</div>`;
+        }
+        if ((c.count || 0) > 2) {
+            h += `<button class="craft-btn" onclick="FarmyardSystem.slaughterAdultColumbarium(1)" style="font-size:0.72rem; margin-bottom:8px; background:rgba(140,80,60,0.7);">🍖 ${lang === 'en' ? 'Slaughter 1 adult' : 'Porazit 1 dospělého'}</button>`;
+        }
 
         // Level 2 — nabílení vápnem, imunita proti predátorům
         if (c.level >= 2) {
@@ -30269,6 +30454,14 @@ const FarmyardSystem = {
                 s.sheep = Math.max(0, s.sheep - 1);
                 if (typeof UI !== 'undefined' && UI.notify) UI.notify(t('events.curia_sheep_disease.healer_notif_fail'), true);
             }
+            changed = true;
+        }
+        // MRD Columbarium II — líheň, jednostupňová (hnízdění → rovnou squabPool, žádná mezifáze "growing")
+        const cb = GameState.columbarium;
+        if (cb && cb.nesting && cb.nesting.state === 'nesting' && now >= cb.nesting.hatchAt) {
+            const yieldN = 1 + Math.floor(Math.random() * 2); // 1–2 holoubata
+            cb.squabPool = (cb.squabPool || 0) + yieldN;
+            cb.nesting = null;
             changed = true;
         }
         if (changed) Game.save();
@@ -32275,6 +32468,18 @@ const PortaSystem = {
         const lang = (GameState.settings && GameState.settings.language) || 'cs';
         return (lang === 'en' ? (c.label_en || c.label_cs) : c.label_cs) || t(c.labelKey);
     },
+    _sender: function (l) {
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        return (lang === 'en' ? l.sender_en : l.sender_cs) || l.sender_cs || '';
+    },
+    // MRD Porta-katalogizace — datum ve hře, offset na rok 1465 (nikdy skutečný rok)
+    _dateStr: function (ts) {
+        if (!ts) return '';
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        const d = new Date(ts);
+        const gameDate = new Date(1465, d.getMonth(), d.getDate());
+        return gameDate.toLocaleDateString(lang === 'en' ? 'en-GB' : 'cs-CZ');
+    },
 
     // Fronta — dopisy z LettersDB, jejichž trigger() platí a ještě nebyly přečteny
     getQueue: function () {
@@ -32342,27 +32547,73 @@ const PortaSystem = {
                 const sealIcon = letter.seal === 'abbot' ? '✝️' : letter.seal === 'village' ? '🌾' : '🕊️';
                 const urgentBadge = letter.urgent ? ' <span style="color:#c0392b; font-weight:bold;">⚡</span>' : '';
                 const border = letter.urgent ? 'border-left:3px solid #c0392b;' : '';
+                const sender = PortaSystem._sender(letter);
+                const received = PortaSystem._dateStr(GameState.letters.firstSeen[letter.id]);
                 h += `<div style="display:flex; align-items:center; justify-content:space-between; padding:10px; background:rgba(0,0,0,0.04); border-radius:8px; ${border}">
-                    <span>${sealIcon} <strong>${PortaSystem._title(letter)}</strong>${urgentBadge}</span>
+                    <div>
+                        <div>${sealIcon} <strong>${PortaSystem._title(letter)}</strong>${urgentBadge}</div>
+                        <div style="font-size:0.7rem; opacity:0.55; margin-top:2px;">
+                            ${sender ? (lang==='en' ? `From ${sender}` : `Od: ${sender}`) : ''}${sender && received ? ' · ' : ''}${received ? (lang==='en' ? `Received ${received}` : `Přijato ${received}`) : ''}
+                        </div>
+                    </div>
                     <button class="craft-btn" style="font-size:0.78rem;" onclick="PortaSystem.openLetter('${letter.id}')">${t('porta.open')}</button>
                 </div>`;
             });
             h += `</div>`;
         }
 
-        // Archiv — krátký přehled posledních přečtených
-        const archived = GameState.letters.archive.slice(-10).reverse();
+        // Archiv — přehled přečtených, klikatelný pro zpětné přečtení plného textu
+        const archived = GameState.letters.archive.slice(-30).reverse();
         if (archived.length > 0) {
             h += `<div style="margin-top:18px;">`;
             h += `<div style="font-size:0.72rem; font-weight:bold; letter-spacing:0.06em; text-transform:uppercase; opacity:0.55; margin-bottom:8px;">${t('porta.archive')}</div>`;
             archived.forEach(entry => {
-                h += `<div style="font-size:0.78rem; opacity:0.65; padding:4px 0;">📜 ${entry.title}</div>`;
+                const srcLetter = (typeof LettersDB !== 'undefined') ? LettersDB.find(l => l.id === entry.id) : null;
+                const sender = srcLetter ? PortaSystem._sender(srcLetter) : '';
+                const resolved = PortaSystem._dateStr(entry.ts);
+                h += `<div style="padding:4px 0; cursor:pointer;" onclick="PortaSystem.openArchivedLetter('${entry.id}')" title="${lang==='en' ? 'Click to re-read' : 'Klikni pro znovupřečtení'}">
+                    <div style="font-size:0.78rem; opacity:0.7;">📜 ${entry.title}</div>
+                    <div style="font-size:0.66rem; opacity:0.45; margin-top:1px;">
+                        ${sender ? (lang==='en' ? `From ${sender}` : `Od: ${sender}`) : ''}${sender && resolved ? ' · ' : ''}${resolved ? (lang==='en' ? `Resolved ${resolved}` : `Vyřízeno ${resolved}`) : ''}
+                    </div>
+                </div>`;
             });
             h += `</div>`;
         }
 
         h += `</div>`;
         el.innerHTML = h;
+    },
+
+    // Znovu otevřít archivovaný dopis — jen ke čtení, bez voleb (rozhodnutí už padlo)
+    openArchivedLetter: function (letterId) {
+        if (typeof LettersDB === 'undefined' || typeof NotificationSystem === 'undefined' || !NotificationSystem.modal) return;
+        const letter = LettersDB.find(l => l.id === letterId);
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        if (!letter) {
+            if (typeof UI !== 'undefined') UI.notify(lang === 'en' ? 'This letter is no longer available.' : 'Tenhle dopis už není dostupný.', true);
+            return;
+        }
+        NotificationSystem.modal({
+            icon: letter.seal === 'abbot' ? '✝️' : letter.seal === 'village' ? '🌾' : '🕊️',
+            image: letter.image || null,
+            title: PortaSystem._title(letter),
+            text: PortaSystem._letterDateline(letter) + PortaSystem._text(letter) + `<div style="margin-top:12px; font-size:0.72rem; opacity:0.5; font-style:italic;">${lang==='en' ? '— already resolved —' : '— již vyřízeno —'}</div>`,
+            choices: [{ label: lang === 'en' ? 'Close' : 'Zavřít', type: 'primary', effect: () => {} }]
+        });
+    },
+
+    // Katalogizační hlavička dopisu — odesílatel + datum přijetí, nad text jako skutečná dopisní hlavička
+    _letterDateline: function (letter) {
+        this._ensureState();
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        const sender = this._sender(letter);
+        const received = this._dateStr(GameState.letters.firstSeen[letter.id]);
+        if (!sender && !received) return '';
+        return `<div style="font-size:0.74rem; opacity:0.6; margin-bottom:10px; padding-bottom:8px; border-bottom:1px solid rgba(0,0,0,0.1);">
+            ${sender ? `<div>${lang==='en' ? 'From' : 'Od'}: <strong>${sender}</strong></div>` : ''}
+            ${received ? `<div>${lang==='en' ? 'Received' : 'Přijato'}: ${received}</div>` : ''}
+        </div>`;
     },
 
     openLetter: function (letterId) {
@@ -32390,7 +32641,7 @@ const PortaSystem = {
             icon: letter.seal === 'abbot' ? '✝️' : letter.seal === 'village' ? '🌾' : '🕊️',
             image: letter.image || null,
             title: PortaSystem._title(letter),
-            text: PortaSystem._text(letter),
+            text: PortaSystem._letterDateline(letter) + PortaSystem._text(letter),
             choices: choices
         });
     },
@@ -32414,6 +32665,95 @@ const PortaSystem = {
         }
 
         if (typeof Game !== 'undefined') Game.save();
+    },
+
+};
+// ═══ src/systems/CommitmentsSystem.js ═══
+// ═══════════════════════════════════════════════════════════════════════════
+// CommitmentsSystem — Scriptorium
+// Přehled aktivních zakázek vzešlých z dopisů (Porta). Nečte žádný nový
+// stav sám — jen prohledá LettersDB, jestli má nějaký dopis pole
+// `commitment`, a porovná ho proti GameState.flags. Nová zakázka
+// v budoucnu = jen přidat `commitment` blok k dopisu, nic víc.
+// Sesterský tab k Portě — stejná viditelnostní podmínka (porta_active).
+// ═══════════════════════════════════════════════════════════════════════════
+
+const CommitmentsSystem = {
+
+    // Najde všechny dopisy s definovaným commitment blokem, jejichž
+    // aktuální flag-stav odpovídá "aktivní" (probíhající) zakázce.
+    _getActiveCommitments: function () {
+        if (typeof LettersDB === 'undefined' || !GameState.flags) return [];
+        const now = Date.now();
+        return LettersDB
+            .filter(l => l.commitment)
+            .map(l => {
+                const c = l.commitment;
+                const status = GameState.flags[c.flagKey];
+                if (!c.activeStatuses.includes(status)) return null;
+                const deadline = c.deadlineFlagKey ? GameState.flags[c.deadlineFlagKey] : null;
+                return { letter: l, commitment: c, deadline, daysLeft: deadline ? Math.ceil((deadline - now) / 86400000) : null };
+            })
+            .filter(Boolean);
+    },
+
+    render: function () {
+        const el = document.getElementById('lore-commitments-content');
+        if (!el) return;
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+
+        if (!(GameState.flags && GameState.flags.porta_active)) {
+            el.innerHTML = `<div style="padding:16px; background:rgba(197,160,89,0.06); border-radius:10px; border-left:4px solid var(--accent-gold); text-align:center; opacity:0.7;">
+                <div style="font-size:2rem; margin-bottom:8px;">📋</div>
+                <div style="font-size:0.85rem; font-style:italic;">${lang==='en' ? 'No commitments yet — nothing to track.' : 'Zatím žádné zakázky — není co sledovat.'}</div>
+            </div>`;
+            return;
+        }
+
+        const active = this._getActiveCommitments();
+
+        let h = `<div style="padding:16px; background:rgba(197,160,89,0.06); border-radius:10px; border-left:4px solid var(--accent-gold);">`;
+        h += `<h3 style="margin:0 0 12px 0; font-size:1rem;">📋 ${lang==='en' ? 'Commitments' : 'Zakázky'}</h3>`;
+        h += `<p style="font-size:0.82rem; opacity:0.7; margin-bottom:14px;">${lang==='en'
+            ? 'Promises made through Porta — who they are for, how much time remains, what is at stake.'
+            : 'Sliby dané přes Portu — pro koho jsou, kolik zbývá času, co je v sázce.'}</p>`;
+
+        if (active.length === 0) {
+            h += `<div style="font-size:0.82rem; opacity:0.6; font-style:italic;">${lang==='en' ? 'No open commitments right now.' : 'Momentálně žádné otevřené zakázky.'}</div>`;
+        } else {
+            h += `<div style="display:flex; flex-direction:column; gap:10px;">`;
+            active.forEach(({ commitment: c, daysLeft }) => {
+                const forWhom = lang === 'en' ? (c.forWhom_en || c.forWhom_cs) : c.forWhom_cs;
+                const what = lang === 'en' ? (c.what_en || c.what_cs) : c.what_cs;
+                const reward = lang === 'en' ? (c.reward_en || c.reward_cs) : c.reward_cs;
+                const risk = lang === 'en' ? (c.risk_en || c.risk_cs) : c.risk_cs;
+
+                let timeLine;
+                if (daysLeft === null) {
+                    timeLine = lang === 'en' ? 'No fixed deadline' : 'Bez pevné lhůty';
+                } else if (daysLeft < 0) {
+                    timeLine = `<span style="color:#c0392b;">${lang==='en' ? 'Overdue' : 'Po lhůtě'}</span>`;
+                } else if (daysLeft <= 3) {
+                    timeLine = `<span style="color:#c0392b; font-weight:bold;">${lang==='en' ? `${daysLeft} days left` : `zbývá ${daysLeft} dní`}</span>`;
+                } else {
+                    timeLine = lang === 'en' ? `${daysLeft} days left` : `zbývá ${daysLeft} dní`;
+                }
+
+                h += `<div style="padding:12px; background:rgba(0,0,0,0.04); border-radius:8px;">
+                    <div style="font-weight:bold; font-size:0.88rem; margin-bottom:4px;">🕊️ ${forWhom}</div>
+                    <div style="font-size:0.82rem; opacity:0.85; margin-bottom:6px;">${what}</div>
+                    <div style="display:flex; flex-wrap:wrap; gap:12px; font-size:0.76rem; opacity:0.75;">
+                        <span>⏳ ${timeLine}</span>
+                        ${reward ? `<span>💰 ${reward}</span>` : ''}
+                        ${risk ? `<span style="opacity:0.65;">⚠️ ${risk}</span>` : ''}
+                    </div>
+                </div>`;
+            });
+            h += `</div>`;
+        }
+
+        h += `</div>`;
+        el.innerHTML = h;
     },
 
 };
@@ -54797,6 +55137,9 @@ const UI = {
         // Porta — odhalit tlačítko v navigaci, jakmile GameState.flags.porta_active naskočí (Chronicon most)
         const _portaBtn = document.getElementById('lore-tab-porta');
         if (_portaBtn) _portaBtn.style.display = (GameState.flags && GameState.flags.porta_active) ? '' : 'none';
+        // Zakázky — stejná podmínka jako Porta (bez ní nejsou žádné závazkové dopisy)
+        const _commitBtn = document.getElementById('lore-tab-commitments');
+        if (_commitBtn) _commitBtn.style.display = (GameState.flags && GameState.flags.porta_active) ? '' : 'none';
 
         const s = this.currentScreen || 'home';
         if (s === 'home') {
@@ -55705,6 +56048,7 @@ const UI = {
         const _lcalEl = document.getElementById('lore-calendarium-content'); if (_lcalEl) _lcalEl.style.display = 'none';
         const _lperEl = document.getElementById('lore-persona-content'); if (_lperEl) _lperEl.style.display = 'none';
         const _lportEl = document.getElementById('lore-porta-content'); if (_lportEl) _lportEl.style.display = 'none';
+        const _lcommitEl = document.getElementById('lore-commitments-content'); if (_lcommitEl) _lcommitEl.style.display = 'none';
 
         // Remove active class from all buttons
         document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
@@ -55732,6 +56076,8 @@ const UI = {
             if (_lperEl) { _lperEl.style.display = 'block'; if (typeof PersonaSystem !== 'undefined') PersonaSystem.render(); }
         } else if (tab === 'porta') {
             if (_lportEl) { _lportEl.style.display = 'block'; if (typeof PortaSystem !== 'undefined') PortaSystem.render(); }
+        } else if (tab === 'commitments') {
+            if (_lcommitEl) { _lcommitEl.style.display = 'block'; if (typeof CommitmentsSystem !== 'undefined') CommitmentsSystem.render(); }
         }
     },
 
