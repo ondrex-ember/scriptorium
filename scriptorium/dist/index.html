@@ -34081,10 +34081,6 @@ const AthanorDB = {
     { id: 'spiritus_vini', name: 'Vinný líh', name_lat: 'Spiritus Vini Rectificatus', rarity: 'uncommon', source: 'crafted',
       color: '#f5f0d0', icon: '🔥', thermal: 5, moisture: -3,
       lore: 'Čistý, vysoce hořlavý alkohol z opakované destilace.' },
-    { id: 'propolis', name: 'Propolis', name_lat: 'Propolis', rarity: 'uncommon', source: 'foraging',
-      color: '#6b4a2a', icon: '🟤', thermal: 1, moisture: -1,
-      lore: 'Pryskyřičný tmel z úlu. Včely jím utěsňují každou skulinu proti chladu a chorobě.',
-      dropNote: 'Drobná šance při sklizni z Apiária.' },
     { id: 'acetum_destillatum', name: 'Destilovaný ocet', name_lat: 'Spiritus Aceti', rarity: 'uncommon', source: 'crafted',
       color: '#e8d8b0', icon: '🍶', thermal: -2, moisture: -2,
       lore: 'Koncentrovaná kyselina octová, zbavená vinných nečistot.' },
@@ -34366,21 +34362,6 @@ const AthanorDB = {
       effect: null,
       unlock: 'tech_infirmarium_apothecarius',
       lore: 'Teplé víno s medem a rozmarýnem — proti studené a suché černé žluči. Vyhání blud, ne jen únavu.'
-    },
-
-    // ── Apiarium II MRD 5.5 — zpracovatelský řetězec, propolisová tinktura ──
-    'propolis+spiritus_vini:maceratio': {
-      result: { id: 'propolis_tinktura', qty: 1 },
-      name: 'Propolisová tinktura',
-      name_lat: 'Tinctura Propolis',
-      icon: '🧪',
-      effect: {
-        type: 'hunger_extend',
-        value: 7200000,
-        duration_ms: 0,
-        label: 'Hlad se zpomalí o 2 hodiny — hojivý účinek propolisu'
-      },
-      lore: 'Propolis louhovaný ve vinném lihu. Prastarý klášterní lék proti ranám a bolesti v krku.'
     },
 
     // ── Haeresis Occulta MRD — kacířské lektvary ze substantia_ignota ──
@@ -35366,8 +35347,6 @@ const AthanorSystem = {
         AthanorSystem.finishBrewing();
         return;
       }
-      // NOVÉ: vaření ještě běží — překreslit, ať countdown vizuálně žije (ne jen na re-render při navigaci)
-      AthanorSystem.refreshIfOpen();
     }
 
     // Aktivní efekty — expiry check
@@ -35723,21 +35702,6 @@ const AthanorSystem = {
       const level = (typeof Game !== 'undefined' && Game.dormitoriumBrotherLevel) ? Game.dormitoriumBrotherLevel(athanorBrother, 'athanor') : 1;
       brotherText = `${bIcon} ${athanorBrother.name} · Lv${level}`;
     }
-    // Destilační vybavení — persistentní počty (ne jen varování při nule), viditelné
-    // hned v status baru, ať nemusíš nejdřív kliknout na Destilaci a dostat toast.
-    const hasDestilTech = GameState.researchedTechs && GameState.researchedTechs.includes('tech_destillatio');
-    const lang = (GameState.settings && GameState.settings.language) || 'cs';
-    let destilGear = '';
-    if (hasDestilTech) {
-      const alembicQty = GameState.inventory['alembic'] || 0;
-      const flaskQty = GameState.inventory['glass_flask'] || 0;
-      const alembicColor = alembicQty <= 0 ? '#e05a3a' : '#c9a96e';
-      const flaskColor = flaskQty <= 0 ? '#e05a3a' : '#c9a96e';
-      const glassmakerHint = lang === 'en' ? 'The Glassmaker sells these' : 'Sklář je prodá';
-      destilGear = `<span style="opacity:0.3;">·</span>
-        <span style="color:${alembicColor};" title="${lang==='en'?'Alembic (tool, reusable)':'Alembik (nástroj, nespotřebuje se)'} — ${glassmakerHint}">🧪 ${alembicQty}</span>
-        <span style="color:${flaskColor};" title="${lang==='en'?'Glass flask (consumed per distillation)':'Skleněná baňka (spotřebuje se za běh)'} — ${glassmakerHint}">🫙 ${flaskQty}</span>`;
-    }
     return `<div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center;
       padding:7px 12px;margin-bottom:14px;
       background:rgba(0,0,0,0.12);border-radius:8px;
@@ -35752,7 +35716,6 @@ const AthanorSystem = {
       <span style="color:${mc};" title="Vlhkost">💧 ${moisture > 0 ? '+' : ''}${moisture}</span>
       ${bonusText ? `<span style="opacity:0.3;">·</span><span style="font-size:0.65rem;">✨ ${bonusText}</span>` : ''}
       ${brotherText ? `<span style="opacity:0.3;">·</span><span style="font-size:0.65rem;" title="Řídí">${brotherText}</span>` : ''}
-      ${destilGear}
     </div>`;
   },
 
@@ -35762,7 +35725,6 @@ const AthanorSystem = {
     const isDestilling = procId === 'destillatio';
     const isCalcining = procId === 'calcinatio';
     const isGrinding = procId === 'trituratio';
-    const isMacerating = procId === 'maceratio';
     const now = Date.now();
     let pct = 0, si = 0;
     if (isBrewing) {
@@ -35775,10 +35737,10 @@ const AthanorSystem = {
     const liq = isBrewing ? liqColors[si] : '#2a1a0a';
     // Calcinatio: intenzivnější žár než ostatní procesy
     const glow = isCalcining ? 'rgba(255,120,20,0.75)' : (isBrewing ? glowColors[si] : 'transparent');
-    const lit = isBrewing && !isGrinding && !isMacerating; // suché drcení a louhování nepotřebují oheň pod kotlem
+    const lit = isBrewing && !isGrinding; // suché drcení nepotřebuje oheň pod kotlem
 
-    // Trituratio (suché drcení) a Maceratio (louhování) nemají bublající var
-    const bubbles = (isBrewing && !isGrinding && !isMacerating) ? `
+    // Trituratio (suché drcení) nemá bublající kapalinu — potlačit bubbles
+    const bubbles = (isBrewing && !isGrinding) ? `
       <circle cx="78" cy="73" r="3" fill="rgba(255,255,255,0.4)">
         <animate attributeName="cy" values="73;70;73" dur="1.8s" repeatCount="indefinite"/>
         <animate attributeName="r" values="3;3.6;2.1;3" dur="1.8s" repeatCount="indefinite"/>
@@ -35839,23 +35801,6 @@ const AthanorSystem = {
         <animate attributeName="cy" values="58;44;58" dur="0.55s" repeatCount="indefinite" begin="0.35s"/>
         <animate attributeName="opacity" values="0.4;0.05;0.4" dur="0.55s" repeatCount="indefinite" begin="0.35s"/>
       </circle>` : '';
-    // Maceratio: klidné soustředné vlnky na hladině — pasivní louhování, žádný oheň ani bublání
-    const ripples = isMacerating ? `
-      <ellipse cx="90" cy="71" rx="8" ry="2.6" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="1">
-        <animate attributeName="rx" values="8;38;8" dur="2.6s" repeatCount="indefinite"/>
-        <animate attributeName="ry" values="2.6;12;2.6" dur="2.6s" repeatCount="indefinite"/>
-        <animate attributeName="opacity" values="0.55;0;0.55" dur="2.6s" repeatCount="indefinite"/>
-      </ellipse>
-      <ellipse cx="90" cy="71" rx="8" ry="2.6" fill="none" stroke="rgba(255,255,255,0.24)" stroke-width="0.8">
-        <animate attributeName="rx" values="8;34;8" dur="2.6s" repeatCount="indefinite" begin="0.9s"/>
-        <animate attributeName="ry" values="2.6;11;2.6" dur="2.6s" repeatCount="indefinite" begin="0.9s"/>
-        <animate attributeName="opacity" values="0.45;0;0.45" dur="2.6s" repeatCount="indefinite" begin="0.9s"/>
-      </ellipse>
-      <ellipse cx="90" cy="71" rx="8" ry="2.6" fill="none" stroke="rgba(255,255,255,0.18)" stroke-width="0.7">
-        <animate attributeName="rx" values="8;30;8" dur="2.6s" repeatCount="indefinite" begin="1.7s"/>
-        <animate attributeName="ry" values="2.6;9.5;2.6" dur="2.6s" repeatCount="indefinite" begin="1.7s"/>
-        <animate attributeName="opacity" values="0.35;0;0.35" dur="2.6s" repeatCount="indefinite" begin="1.7s"/>
-      </ellipse>` : '';
 
     return `<svg viewBox="0 0 180 150" width="180" height="150" xmlns="http://www.w3.org/2000/svg"
       style="filter:drop-shadow(0 0 14px ${glow});display:block;margin:0 auto;">
@@ -35942,8 +35887,8 @@ const AthanorSystem = {
       <ellipse cx="90" cy="70" rx="44" ry="14.5" fill="#120a04"/>
       <ellipse cx="90" cy="71" rx="42" ry="13.5" fill="${liq}"/>
 
-      <!-- vlnky na hladině (jen za varu, mimo Maceratio — to má vlastní klidné vlnky níž) -->
-      ${isBrewing && !isMacerating ? `<ellipse cx="90" cy="71" rx="24" ry="7.5" fill="none" stroke="rgba(255,255,255,0.22)" stroke-width="1">
+      <!-- vlnky na hladině (jen za varu) -->
+      ${isBrewing ? `<ellipse cx="90" cy="71" rx="24" ry="7.5" fill="none" stroke="rgba(255,255,255,0.22)" stroke-width="1">
         <animate attributeName="rx" values="16;35;16" dur="3s" repeatCount="indefinite"/>
         <animate attributeName="ry" values="4;11;4" dur="3s" repeatCount="indefinite"/>
         <animate attributeName="opacity" values="0.5;0.1;0.5" dur="3s" repeatCount="indefinite"/>
@@ -35957,7 +35902,6 @@ const AthanorSystem = {
       ${bubbles}
       ${steam}
       ${dust}
-      ${ripples}
       ${isDestilling && pct > 50 ? `<circle cx="168" cy="29" r="2.5" fill="${liq}" opacity="0.8">
         <animate attributeName="r" values="2.5;3.3;2.5" dur="2s" repeatCount="indefinite"/>
       </circle>` : ''}
@@ -36121,9 +36065,7 @@ const AthanorSystem = {
             ${AthanorSystem.buildAlembicSvg(state)}
             ${AthanorSystem.buildBrewingProgressHtml()}
             <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center;width:100%;">
-              ${AthanorSystem.buildSlotHtml(0, state, ingMap)}
-              ${AthanorSystem.buildSlotHtml(1, state, ingMap)}
-              ${AthanorSystem.buildSlotHtml(2, state, ingMap)}
+              ${Array.from({ length: AthanorSystem.maxSlots() }, (_, i) => AthanorSystem.buildSlotHtml(i, state, ingMap)).join('')}
             </div>
             <div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:center;">
               ${AthanorDB.processes.map(p => AthanorSystem.buildProcessBtn(p, state)).join('')}
@@ -36158,10 +36100,6 @@ const AthanorSystem = {
         @media(max-width:700px){
           .athanor-grid{grid-template-columns:1fr!important}
           .athanor-ing-grid{grid-template-columns:repeat(auto-fill, minmax(110px, 1fr))!important}
-        }
-        @keyframes athanorNeedToolPulse {
-          0%, 100% { box-shadow: 0 0 4px 0 rgba(230,150,30,0.5); border-color: rgba(230,150,30,0.6); }
-          50% { box-shadow: 0 0 10px 3px rgba(230,150,30,0.85); border-color: rgba(230,150,30,1); }
         }
       <\/style>
     `;
@@ -36210,35 +36148,25 @@ const AthanorSystem = {
     const techLocked = process.unlock && !(GameState.researchedTechs && GameState.researchedTechs.includes(process.unlock));
     const needAlembic = process.id === 'destillatio' && !techLocked && (GameState.inventory['alembic'] || 0) <= 0;
     const isLocked = techLocked || needAlembic;
-    const lang = (GameState.settings && GameState.settings.language) || 'cs';
-    const lockHint = techLocked
-      ? (lang === 'en' ? ' [Locked]' : ' [Zamčeno]')
-      : needAlembic
-        ? (lang === 'en' ? ' [Needs an alembic — buy one from the Glassmaker]' : ' [Vyžaduje alembik — koupíš u Skláře]')
-        : '';
-
-    // needAlembic = akční stav (nástroj lze sehnat hned) — svítí jinak než dlouhodobej tech zámek
-    const alembicGlow = needAlembic
-      ? 'border:1.5px solid rgba(230,150,30,0.8);animation:athanorNeedToolPulse 1.6s ease-in-out infinite;'
-      : `border:1px solid ${isActive ? 'var(--accent-gold)' : 'rgba(0,0,0,0.15)'};`;
+    const lockHint = techLocked ? ' [Zamčeno]' : needAlembic ? ' [Vyžaduje alembik]' : '';
 
     return `
       <button
         onclick="${isLocked || isBrewing ? '' : `AthanorSystem.setProcess('${process.id}')`}"
         style="
           padding:5px 10px;
-          background:${isActive ? 'var(--accent-gold)' : needAlembic ? 'rgba(230,150,30,0.08)' : 'rgba(0,0,0,0.06)'};
-          color:${isActive ? '#1a1410' : needAlembic ? '#c8791e' : isLocked ? '#aaa' : 'inherit'};
-          ${alembicGlow}
+          background:${isActive ? 'var(--accent-gold)' : 'rgba(0,0,0,0.06)'};
+          color:${isActive ? '#1a1410' : isLocked ? '#aaa' : 'inherit'};
+          border:1px solid ${isActive ? 'var(--accent-gold)' : 'rgba(0,0,0,0.15)'};
           border-radius:4px;
           font-size:0.75rem;
           cursor:${isLocked || isBrewing ? 'not-allowed' : 'pointer'};
           font-family:inherit;
-          opacity:${techLocked ? '0.5' : '1'};
+          opacity:${isLocked ? '0.5' : '1'};
         "
         title="${process.desc}${lockHint}"
         ${isLocked || isBrewing ? 'disabled' : ''}
-      >${process.icon} ${process.name_cs}${techLocked ? ' 🔒' : needAlembic ? ' ⚠️' : ''}</button>
+      >${process.icon} ${process.name_cs}${isLocked ? ' 🔒' : ''}</button>
     `;
   },
 
@@ -36584,6 +36512,7 @@ const AthanorSystem = {
     if (el && el.style.display !== 'none') AthanorSystem.render('home-athanor-content');
   }
 };
+
 // ═══ src/systems/GamesSystem.js ═══
 // ═══════════════════════════════════════════════════════════════════════════════
 // GAMES SYSTEM — Aula Ludi
