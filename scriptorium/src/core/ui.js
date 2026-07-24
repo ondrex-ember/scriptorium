@@ -128,9 +128,6 @@ const UI = {
         // Porta — odhalit tlačítko v navigaci, jakmile GameState.flags.porta_active naskočí (Chronicon most)
         const _portaBtn = document.getElementById('lore-tab-porta');
         if (_portaBtn) _portaBtn.style.display = (GameState.flags && GameState.flags.porta_active) ? '' : 'none';
-        // Zakázky — stejná podmínka jako Porta (bez ní nejsou žádné závazkové dopisy)
-        const _commitBtn = document.getElementById('lore-tab-commitments');
-        if (_commitBtn) _commitBtn.style.display = (GameState.flags && GameState.flags.porta_active) ? '' : 'none';
 
         const s = this.currentScreen || 'home';
         if (s === 'home') {
@@ -599,6 +596,25 @@ const UI = {
         if (chevron) chevron.style.transform = collapsed ? 'rotate(0deg)' : 'rotate(90deg)';
         if (typeof Game !== 'undefined' && Game.save) Game.save();
     },
+    // Filtr Knihovny (tech_bibliotheca_catalogus) — přegeneruje celý blok,
+    // aktivní tlačítko se spočítá znovu z UI.currentLibraryFilter, žádná
+    // ruční manipulace tříd netřeba (na rozdíl od filterCrafting výše).
+    filterLibrary: function (key) {
+        this.currentLibraryFilter = key;
+        this.renderLibrary();
+    },
+    // Sbalovací kategorie v Knihovně — stejný vzor jako toggleInventoryCategory.
+    toggleLibraryCategory: function (cat) {
+        if (!GameState.uiPrefs) GameState.uiPrefs = {};
+        if (!GameState.uiPrefs.libCollapsed) GameState.uiPrefs.libCollapsed = {};
+        const collapsed = !GameState.uiPrefs.libCollapsed[cat];
+        GameState.uiPrefs.libCollapsed[cat] = collapsed;
+        const body = document.getElementById('lib-cat-body-' + cat);
+        if (body) body.style.display = collapsed ? 'none' : 'block';
+        const chevron = document.getElementById('lib-cat-chevron-' + cat);
+        if (chevron) chevron.style.transform = collapsed ? 'rotate(0deg)' : 'rotate(90deg)';
+        if (typeof Game !== 'undefined' && Game.save) Game.save();
+    },
     filterInventory: function (cat, btn) {
         this.currentInvFilter = cat;
         const container = document.getElementById('inv-filter-bar');
@@ -1039,7 +1055,6 @@ const UI = {
         const _lcalEl = document.getElementById('lore-calendarium-content'); if (_lcalEl) _lcalEl.style.display = 'none';
         const _lperEl = document.getElementById('lore-persona-content'); if (_lperEl) _lperEl.style.display = 'none';
         const _lportEl = document.getElementById('lore-porta-content'); if (_lportEl) _lportEl.style.display = 'none';
-        const _lcommitEl = document.getElementById('lore-commitments-content'); if (_lcommitEl) _lcommitEl.style.display = 'none';
 
         // Remove active class from all buttons
         document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
@@ -1067,8 +1082,6 @@ const UI = {
             if (_lperEl) { _lperEl.style.display = 'block'; if (typeof PersonaSystem !== 'undefined') PersonaSystem.render(); }
         } else if (tab === 'porta') {
             if (_lportEl) { _lportEl.style.display = 'block'; if (typeof PortaSystem !== 'undefined') PortaSystem.render(); }
-        } else if (tab === 'commitments') {
-            if (_lcommitEl) { _lcommitEl.style.display = 'block'; if (typeof CommitmentsSystem !== 'undefined') CommitmentsSystem.render(); }
         }
     },
 
@@ -1544,18 +1557,59 @@ const UI = {
             return;
         }
 
+        // tech_bibliotheca_catalogus — filtrování + sbalovací kategorie (Penum vzor, ui.js:508+)
+        const hasCatalogus = GameState.researchedTechs && GameState.researchedTechs.includes('tech_bibliotheca_catalogus');
+        const libFilter = hasCatalogus ? (this.currentLibraryFilter || 'all') : 'all';
+
+        const matchesLibFilter = (book) => {
+            if (!hasCatalogus) return true;
+            const isUnlocked = GameState.library.unlockedBooks.includes(book.id);
+            const isRead = GameState.library.readBooks.includes(book.id);
+            switch (libFilter) {
+                case 'read':   return isUnlocked && isRead;
+                case 'toread': return isUnlocked && !isRead;
+                case 'locked': return !isUnlocked && book.unlockDay > 0;
+                default:       return true; // 'all'
+            }
+        };
+
+        if (hasCatalogus) {
+            const libFilters = [
+                { key: 'all',    label: lang === 'en' ? 'All' : 'Vše' },
+                { key: 'read',   label: lang === 'en' ? 'Read' : 'Přečteno' },
+                { key: 'toread', label: lang === 'en' ? 'To Read' : 'Ke čtení' },
+                { key: 'locked', label: lang === 'en' ? 'Unacquired' : 'Bez akvizice' },
+            ];
+            h += `<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;">`;
+            libFilters.forEach(f => {
+                h += `<button class="filter-btn${libFilter === f.key ? ' active' : ''}" onclick="UI.filterLibrary('${f.key}')">${f.label}</button>`;
+            });
+            h += `</div>`;
+        }
+
         // Group by category
         Object.entries(LibraryDB.categories).forEach(([catId, catData]) => {
             const books = LibraryDB.books.filter(b => b.category === catId);
             const unlockedInCat = books.filter(b => GameState.library.unlockedBooks.includes(b.id));
+            const visibleBooks = books.filter(matchesLibFilter);
+            if (hasCatalogus && visibleBooks.length === 0) return; // prázdná kategorie po filtru — přeskočit
             const catName = t(`library_lore.categories.${catId}`); // Získáme přeložený název kategorie
+            const collapsed = hasCatalogus && !!(GameState.uiPrefs && GameState.uiPrefs.libCollapsed && GameState.uiPrefs.libCollapsed[catId]);
 
             h += `<div style="margin-top:20px;">`;
-            h += `<h3 style="color:var(--accent-gold);border-bottom:2px solid var(--accent-gold);padding-bottom:5px;">
-                    ${catData.icon} ${catName} (${unlockedInCat.length}/${books.length})
-                  </h3>`;
+            if (hasCatalogus) {
+                h += `<h3 style="color:var(--accent-gold);border-bottom:2px solid var(--accent-gold);padding-bottom:5px;cursor:pointer;display:flex;align-items:center;gap:8px;" onclick="UI.toggleLibraryCategory('${catId}')">
+                        <span id="lib-cat-chevron-${catId}" style="font-size:0.7rem;display:inline-block;transition:transform 0.15s;transform:rotate(${collapsed ? 0 : 90}deg);">▶</span>
+                        ${catData.icon} ${catName} (${unlockedInCat.length}/${books.length})
+                      </h3>`;
+                h += `<div id="lib-cat-body-${catId}" style="display:${collapsed ? 'none' : 'block'};">`;
+            } else {
+                h += `<h3 style="color:var(--accent-gold);border-bottom:2px solid var(--accent-gold);padding-bottom:5px;">
+                        ${catData.icon} ${catName} (${unlockedInCat.length}/${books.length})
+                      </h3>`;
+            }
 
-            books.forEach(book => {
+            visibleBooks.forEach(book => {
                 const isUnlocked = GameState.library.unlockedBooks.includes(book.id);
                 const isRead = GameState.library.readBooks.includes(book.id);
 
@@ -1636,6 +1690,7 @@ const UI = {
                 // contains it — showing a "🔒 ??? unlocks in -N days" card was the bug.
             });
 
+            if (hasCatalogus) h += `</div>`; // konec lib-cat-body-${catId}
             h += `</div>`;
         });
 

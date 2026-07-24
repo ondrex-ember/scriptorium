@@ -136,6 +136,7 @@ const ContactsDB = {
                        tercik:   { itemId: 'window_roundel',    price: 15, minRelation: 0  },
                        alembik:  { itemId: 'alembic',           price: 25, minRelation: 25 },
                        pateriky: { itemId: 'paternoster_beads', price: 18, minRelation: 30 },
+                       oculi:    { itemId: 'oculi',             price: 30, minRelation: 35 },
                        zrcadlo:  { itemId: 'glass_mirror',      price: 40, minRelation: 50 } },
         desc: 'Sklář z hutě v lesích. Alembiky a křivule pro učené — křehké zboží, stálý odbyt.',
         desc_en: 'A glassmaker from a forest works. Alembics and retorts for the learned — fragile goods, steady trade.'
@@ -150,7 +151,8 @@ const ContactsDB = {
         sellBonus: { items: { rock: 1, cut_stone: 3 } },   // mimo trh (BASE_PRICES) — pevná exkluzivní cena, ne null (viz Kovář/iron_ore)
         // zakázka — sdílí generický mechanismus SaeculumSystem.orderFromContact (stejné pole jako Sklář: 48 h, 1 slot, 50 % záloha)
         glassOrders: { nahrobek: { itemId: 'nahrobek', price: 8,  minRelation: 0 },
-                       chrlic:   { itemId: 'chrlic',   price: 25, minRelation: 20 } },
+                       chrlic:   { itemId: 'chrlic',   price: 25, minRelation: 20 },
+                       beryllus: { itemId: 'beryllus', price: 8,  minRelation: 0 } },
         desc: 'Kameník od lomu. Otesá náhrobek pro farní rodinu i chrliče pro chrám.',
         desc_en: 'A stonemason from the quarry. He carves a gravestone for a parish family, or gargoyles for the church.'
     },

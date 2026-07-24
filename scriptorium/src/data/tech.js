@@ -4,6 +4,7 @@ const TechTree = [
   { id: "tech_meteorologica", name: "Meteorologica — Živly a Oheň", name_en: "Meteorologica — Elements and Fire", cost: 20, desc: "Aristotelovo pojednání o povětří a živlech. Oheň jako horký a suchý element stoupající k nebi. Odemkne: správu paliva v krbu, subtab Ohniště.", desc_en: "Aristotle's treatise on weather and the elements. Fire as a hot, dry element rising toward heaven. Unlocks: hearth fuel management, the Foculus subtab.", unlocks: ["fireplace_fuel"], requires: ["tech_candle"] },
   { id: "tech_backpack", name: "Organizace Batohu", name_en: "Satchel Organisation", cost: 3, desc: "Odemkne: Třídění předmětů", desc_en: "Unlocks: Item sorting", unlocks: [] },
   { id: "tech_backpack_ii", name: "Registrum Cellarii — Katalog Zásob", name_en: "Registrum Cellarii — Stock Catalogue", cost: 10, desc: "Cellarius sestavil podrobný rejstřík, kde má každá věc své místo — od nástrojů po nalezené drobnosti. Odemkne: filtrování podle kategorií v Inventariu (Cellarium → Zásoby). Vše, co nemá jasné zařazení, spadne do kategorie Ostatní.", desc_en: "The cellarius compiled a detailed register where every item has its place — from tools to found trinkets. Unlocks: category filtering in the Inventarium (Cellarium → Stores). Anything without a clear place falls under Miscellaneous.", unlocks: [], requires: ["tech_backpack"] },
+  { id: "tech_bibliotheca_catalogus", name: "Katalog Knihovny", name_en: "Library Catalogue", cost: 10, desc: "Armarius sestavil katalog — signatura, obsah a secundo folio pro každý svazek. Odemyká: filtrování (Přečteno / Ke čtení / Bez akvizice) a sbalovací kategorie v Knihovně.", desc_en: "The armarius compiled a catalogue — shelf-mark, contents, and secundo folio for every volume. Unlocks: filtering (Read / To Read / Unacquired) and collapsible categories in the Library.", unlocks: [] },
   { id: "tech_alchemy_1", name: "Základy Bylinkářství", name_en: "Herbalism Basics", cost: 3, desc: "Odemkne: Hojivá mast, Hřejivá mast", desc_en: "Unlocks: Healing salve, Warming salve", unlocks: ["potion_heal", "unguentum_calidum"] },
 
   // TIER 2 - cooking
@@ -156,14 +157,6 @@ const TechTree = [
     desc: "Strážce, ne dobyvatel. Crescenziho Ruralia Commoda učí, že úl si žádá službu, ne pouhé využívání — kdo se o včely stará pozorně a trpělivě, z mála za krátký čas získá mnoho. Odemkne: Velký úl (Buildings) a pokročilou péči o včelstvo.",
     desc_en: "A guardian, not a conqueror. Crescenzi's Ruralia Commoda teaches that the hive asks for service, not mere use — a keeper who tends the bees attentively and patiently gains much from little in a short time. Unlocks: the Great Hive (Buildings) and advanced apiary care.",
     unlocks: ["velky_ul_1", "velky_ul_2"], requires: ["tech_liber_apium"], requiresBook: "book_ruralia_apibus"
-  },
-
-  {
-    id: "tech_columbaria_interna", name: "Columbaria Interna", name_en: "Columbaria Interna",
-    cost: 40,
-    desc: "Palladiova kapitola o holubníku: zdi hladké a nabílené, uvnitř řady výklenků v přesných rozměrech, aby měl pár dost místa. Odemkne: rozšíření věže na 40 ptáků (Dvůr — Holubník).",
-    desc_en: "Palladius's chapter on the dovecote: walls smooth and whitewashed, rows of niches within of precise dimensions, so a pair has room enough. Unlocks: tower expansion to 40 birds (Farmyard — Dovecote).",
-    requires: ["tech_porta"], requiresBook: "book_palladius_columbaria"
   },
 
   // SKLADOVÉ HOSPODÁŘSTVÍ

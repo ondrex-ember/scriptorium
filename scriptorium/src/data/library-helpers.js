@@ -198,7 +198,17 @@ In exchange, I shall reveal to thee the secret of one book from thine own librar
             `"Praha... ach, Praha přišla k fenoménu tisku hrozně pozdě, opatrně a z dálky přešlapovala. Ale když už tamější mistři konečně začali lisy stavět a tisknout, předběhli svou řemeslnou kvalitou a inovacemi polovinu Evropy. To je prostě typická česká nátura – dlouho čekat v ústraní, a pak nečekaně zazářit."`,
             `"Pan Jiří Melantrich, to nebyl obyčejný tiskař v zástěře, to byl nelítostný obchodní dravec s čichem na krev a peníze. Ale pamatuj, že jen takoví dravci v historii přežívají a tvoří mocné dynastie. Ti slabí a příliš poctiví prostě beze stopy mizí v prachu a bezejmenných archivech."`,
             `"Rychlost. Pořád se honíte jen za rychlostí a efektivitou. Víš, kolik vám reálně zabere vytisknout jednu stranu? Odhadem pět minut práce. Víš, kolik trvalo mně ji krasopisně opsat a složitě iluminovat? Tři čisté hodiny bez jediného mrknutí oka. Přesně proto jsme tuhle válku prohráli. Ale ztratili jsme při tom umění."`,
-            `"Mnozí z mých bratrů písařů nedokázali unést chudobu. Zradili své celoživotní přesvědčení a skončili u vás, v těch hlučných dílnách páchnoucích olejem, jako prachobyčejní sazeči. Museli jsme se přizpůsobit nové dravé době, nebo zemřít hlady. Já jsem se sice fyzicky přizpůsobil... ale uvnitř, ve své duši, jsem nikdy nepřestal vzpomínat na ticho scriptoria."`
+            `"Mnozí z mých bratrů písařů nedokázali unést chudobu. Zradili své celoživotní přesvědčení a skončili u vás, v těch hlučných dílnách páchnoucích olejem, jako prachobyčejní sazeči. Museli jsme se přizpůsobit nové dravé době, nebo zemřít hlady. Já jsem se sice fyzicky přizpůsobil... ale uvnitř, ve své duši, jsem nikdy nepřestal vzpomínat na ticho scriptoria."`,
+            `"Víš, kdo vynalezl pohyblivé litery jako první? Ne Gutenberg. Číňan Pi Šeng, přes čtyři sta let před ním, z pálené hlíny. A Korejci odlévali litery z kovu ještě dřív, než se Mohuč vůbec probudila. Evropa si jen myslí, že vynalézá. Většinou jen dohání."`,
+            `"Vidím, žes objednal u Skláře čočky na nos. Oculi, říkáte tomu. My starci jsme si vystačili s berylem položeným na stránku — beryllus, kámen ke čtení. Fungovalo to sto let předtím, než někoho napadlo dát dvě čočky do rámu a pověsit si je na uši jako kozel zvonec."`,
+            `"Kniha v mé mladosti nebyla připoutána ke stolu jen tak pro nic za nic. Řetěz, catena, byl dražší než leckterý svazek, co držel. Kdo krade knihu, krade statek. Vaše tištěné kopie? Ty jsou tak levné, že se nikomu nevyplatí je ani ukrást."`,
+            `"Nikdy jsme neměli titulní listy, chlapče. Kniha začínala rovnou textem. Jak jsme je od sebe rozeznali, když jich v jedné truhle leželo sto stejně začínajících? Podle druhého listu — secundo folio. Každý opis se lišil už na druhé straně. Vaše tištěné výtisky jsou stejné do posledního puntíku. Žádné druhé folio vám nepomůže."`,
+            `"Pergamen se nevyhazuje, ani když je kniha k ničemu. Seškrábeš starý text pemzou, umyješ mlékem, a píšeš znovu. Palimpsest. Pod žaltářem, co dnes čteš, možná leží zapomenutá antika. Váš papír? Shoří a je z něj popel. Nic pod ním nezůstane pro vnuky ke čtení."`,
+            `"Anglický král dal roku 1476 kejklíři jménem Caxton povolení stavět lis ve Westminsteru. První v celém království. Zajímavé, jak i ostrované na kraji světa dřív pochopili, že kdo ovládá lis, ovládá i to, co si lidé myslí."`,
+            `"Slyšel jsem o rybím tahu vyz na Piscině — prý až sem, k Olomouci, jako za starých časů. To je novinka, co v mých letech ještě potěší: aspoň řeka si pamatuje, jak to bylo, i když lidé zapomínají rychleji než voda teče."`,
+            `"Ve vašem Athanoru prý teď vaříte barvy a laky, o kterých starý Theofilus psal v klášterním rukopisu před staletími. Kdo by řekl, že se k němu vrátíte přes kelímek a měchy, místo přes brk a inkoust. Cesty k témuž poznání bývají klikaté."`,
+            `"Blázni z jihu prý teď vaří lektvary, co církev nazývá kacířskými, a inkvizitor už čenichá po klášteře. Za mých časů stačilo přepsat špatnou glosu na okraj a shořel jsi za to i s knihou. Buď opatrný, chlapče — plamen se od mého inkoustu k vaší síře nese rychleji, než myslíš."`,
+            `"Univerzitní studenti si dřív nekupovali knihu vcelku — najali si arch, opsali ho, vrátili, půjčili si další. Pecie, říkalo se tomu. Stacionář si hlídal každý list jako oko v hlavě. Vaše tiskárny prodávají rovnou celé svazky. Rychlejší, ano. Ale ten student, co si sám přepsal každé slovo, ho znal nazpaměť. Ten váš, co si knihu koupil, ji možná ani nepřečte."`
         ],
         random_wisdom_en: [
             `"The famed Master Johannes Gutenberg did change the world, aye — yet he died in poverty and forgetting, stripped of his own life's work. Treacherous Fust, by contrast, died richer than in any fable, surrounded by luxury. Thou askest which of the twain was the more successful? That dependeth on how thou measurest success. In coin? Or in the legacy history remembers?"`,
@@ -208,7 +218,17 @@ In exchange, I shall reveal to thee the secret of one book from thine own librar
             `"Prague... ah, Prague came to this phenomenon of printing most tardily, hanging back and shuffling its feet from afar. Yet when at last her masters began to build their presses and set their type, they outstripped half of Europe in craft and cunning. Such is the true Bohemian nature — to wait long in the shadows, and then, unlooked-for, to shine."`,
             `"Master Jiří Melantrich was no common printer in an apron — he was a merciless beast of commerce, with a nose for blood and for coin. But mark thou well: only such beasts survive in history and found mighty dynasties. The weak, and those too honest by half, simply vanish without trace into the dust of nameless archives."`,
             `"Speed. Ever dost thou chase after speed and efficiency alone. Knowest thou how long it truly taketh thee to print a single page? Some five minutes' labour, I would reckon. Knowest thou how long it took me to copy it fair and illuminate it with care? Three full hours, without so much as a blink. This, precisely, is why we lost that war. Yet in the losing of it, we lost also an art."`,
-            `"Many of my brother-scribes could not bear the weight of poverty. They betrayed the conviction of a whole lifetime and ended up among you, in those clamorous workshops reeking of oil, as common compositors of type. We were forced to bend to this new, ravenous age, or else to starve. I myself bent, in body... but within, in my very soul, I never ceased to remember the silence of the scriptorium."`
+            `"Many of my brother-scribes could not bear the weight of poverty. They betrayed the conviction of a whole lifetime and ended up among you, in those clamorous workshops reeking of oil, as common compositors of type. We were forced to bend to this new, ravenous age, or else to starve. I myself bent, in body... but within, in my very soul, I never ceased to remember the silence of the scriptorium."`,
+            `"Knowest thou who first invented movable type? Not Gutenberg. The Chinaman Bi Sheng, some four hundred years before him, out of fired clay. And the Koreans were casting letters of metal ere Mainz had even woken. Europe believeth it invents. Most often, it merely catches up."`,
+            `"I see thou hast ordered lenses for thy nose from the Glassmaker. Oculi, you call them. We old men made do with a beryl laid upon the page — beryllus, the reading-stone. It served a hundred years before any thought to set two lenses in a frame and hang them from the ears like a bell on a goat."`,
+            `"A book in my youth was not chained to the desk for nothing. The catena, the chain, cost dearer than many a volume it held. He who steals a book steals a farmstead. Thy printed copies? They are so cheap that none troubles even to steal them."`,
+            `"We never had title pages, lad. A book began straightway with the text. How did we tell one from another, when a hundred lay in one chest, all beginning alike? By the second leaf — secundo folio. Every copy differed by the second page. Thy printed volumes are alike unto the last dot. No second folio shall aid thee."`,
+            `"Parchment is never thrown away, not even when the book is worthless. Thou scrapest the old text off with pumice, washest it with milk, and writest anew. A palimpsest. Beneath the psalter thou readest today may lie some forgotten antiquity. Thy paper? It burns to ash. Nothing remains beneath it for thy grandsons to read."`,
+            `"In the year 1476 the English king gave leave to a fellow named Caxton to raise a press at Westminster. The first in the whole kingdom. Curious, how even islanders at the edge of the world grasped early that who commands the press commands also what men think."`,
+            `"I have heard of the sturgeon run at the Piscina — as far as Olomouc, they say, as in the old days. That is news to gladden even a man of my years: at least the river remembers how things were, though men forget faster than the water flows."`,
+            `"In thy Athanor, they say, thou now brewest colours and varnishes that old Theophilus wrote of in a monastic manuscript centuries past. Who would have said thou wouldst return to him through crucible and bellows, rather than quill and ink. The roads to the selfsame knowledge are ever crooked."`,
+            `"Fools from the south, they say, now brew potions the Church calls heretical, and an inquisitor already sniffs about the cloister. In my day, it sufficed to copy one ill-worded gloss into the margin, and thou didst burn for it, book and all. Be wary, lad — the flame travels from my ink to your brimstone faster than thou thinkest."`,
+            `"University students of old did not buy a book whole — they hired a quire, copied it, returned it, hired the next. Pecie, it was called. The stationer watched over every leaf as over the apple of his eye. Thy presses sell whole volumes outright. Faster, aye. But the student who copied every word himself knew it by heart. Thine, who merely bought the book, may never even read it."`
         ],
         
         after_trade: {
@@ -500,13 +520,34 @@ const LibraryHelpers = {
         }
 
         if (hasEyeStrain && !GameState.library.readBooks.includes(bookId)) {
-            // Spustit 6h odpočet místo okamžitého čtení (jen pro NEpřečtené —
+            // Beryllus/Oculi (knihovna-upgrade-tiers) — optická dvojice zmírňuje
+            // 6h odpočet eye_strain. Oculi ho obejdou úplně, ale sklo je křehké
+            // (3% šance zániku při každém použití). Beryllus jen zkrátí na 3h,
+            // bez rizika — kámen se nerozbije.
+            const hasOculi = (GameState.inventory['oculi'] || 0) > 0;
+            const hasBeryllus = (GameState.inventory['beryllus'] || 0) > 0;
+
+            if (hasOculi) {
+                if (Math.random() < 0.03) {
+                    Game.removeItem('oculi', 1);
+                    const brokeMsg = Math.random() < 0.5
+                        ? (lang==='en' ? 'Your spectacles slipped and shattered on the flagstones.' : 'Brýle ti sklouzly a praskly o dlažbu.')
+                        : (lang==='en' ? 'Your spectacles have wandered off somewhere — perhaps a crow took them.' : 'Brýle se ti někde zatoulaly — možná je má vrána.');
+                    UI.notifyPanel('👓💥 ' + brokeMsg, 'warning');
+                    Game.addKronikaEntry('minor', '👓 Brýle při čtení přišly vniveč.', '👓 The spectacles were lost while reading.', '👓 Oculi lecturae perierunt.');
+                }
+                LibraryHelpers._doReadBook(bookId, book, lang);
+                return;
+            }
+
+            // Spustit odpočet místo okamžitého čtení (jen pro NEpřečtené —
             // opakované čtení už přečtené knihy eye_strain neomezuje)
-            GameState.library.readingTimer = { bookId, startTime: Date.now(), endTime: Date.now() + 6 * 3600000 };
+            const restMs = hasBeryllus ? 3 * 3600000 : 6 * 3600000;
+            GameState.library.readingTimer = { bookId, startTime: Date.now(), endTime: Date.now() + restMs };
             Game.save();
-            UI.notify(lang==='en'
-                ? '🥴 Eyes too strained to read quickly — 6 hours needed.'
-                : '🥴 Oči jsou přepracované, čtení potrvá — 6 hodin.', true);
+            UI.notify(hasBeryllus
+                ? (lang==='en' ? '🥴 Eyes too strained to read quickly — the beryllus helps: 3 hours needed.' : '🥴 Oči jsou přepracované, beryllus čtení zkrátí — 3 hodiny.')
+                : (lang==='en' ? '🥴 Eyes too strained to read quickly — 6 hours needed.' : '🥴 Oči jsou přepracované, čtení potrvá — 6 hodin.'), true);
             if (typeof UI.renderLibrary === 'function') UI.renderLibrary();
             return;
         }
