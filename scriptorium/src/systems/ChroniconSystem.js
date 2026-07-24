@@ -384,6 +384,27 @@ const ChroniconSystem = {
             }
         }
 
+        // Pocestný 'accept' — stejný soft-bounce vzor jako hospes/studovna
+        // (ubytovna-mrd.md §8c-B, rozšíření): nepostavené sklepy nebo
+        // plná Ubytovna nesmí kandidáta ztratit, jen ho odloží.
+        if (choiceId === 'accept' && p && p.kind === 'pocestny') {
+            const hasCellars = !!(GameState.storage && GameState.storage.old_cellars && GameState.storage.old_cellars.built);
+            if (!hasCellars) {
+                ChroniconSystem._advisoryShownThisSession = false;
+                return lang === 'en'
+                    ? 'The brothers have nowhere yet to house a traveler. (Requires: Old Cellars)'
+                    : 'Bratři zatím nemají kde pocestného ubytovat. (Vyžaduje: Staré sklepy)';
+            }
+            if (!GameState.ubytovna) GameState.ubytovna = { beds: 1, guests: [] };
+            const uby = GameState.ubytovna;
+            if ((uby.guests || []).length >= uby.beds) {
+                ChroniconSystem._advisoryShownThisSession = false;
+                return lang === 'en'
+                    ? 'No room is free. The traveler waits at the gate.'
+                    : 'Žádné místo není volné. Pocestný čeká u brány.';
+            }
+        }
+
         if (choiceId === 'defer') {
             // Nic se neztrácí — zůstává aktivní, může se ukázat znovu příště.
             ChroniconSystem._advisoryShownThisSession = false;
@@ -434,17 +455,24 @@ const ChroniconSystem = {
                 : 'Brány jsou otevřeny. Poutníci a vesničané se přidávají k oslavě uvnitř zdí.';
         }
         if (choiceId === 'accept' && p && p.kind === 'pocestny') {
-            // Vlna 1 — Pocestný: jednorázový efekt, žádné lůžko (mirror hostina).
-            if (typeof PersonaSystem !== 'undefined' && PersonaSystem.addInfluence) PersonaSystem.addInfluence('village', 1);
-            if (typeof Game !== 'undefined' && Game.addKronikaEntry) {
-                Game.addKronikaEntry('important',
-                    '🥾 ' + p.title_cs + ' — klášter poskytl nocleh na jednu noc.',
-                    '🥾 ' + p.title_en + ' — the monastery gave shelter for a single night.',
-                    '🥾 Peregrinus hospitio susceptus est.');
-            }
+            // Vlna 1 — Pocestný, s lůžkem (ubytovna-mrd.md §8c-B, rozšíření):
+            // obsadí Ubytovnu, odejde + odmění se v
+            // ChroniconSystem.ubytovnaDailyTick() po uplynutí plannedDays.
+            // plannedDays: placeholder podle typu, snadno doladitelné —
+            // do budoucna základ pro delší pobyty (uprchlík/vesničan).
+            const PLANNED_DAYS = { poutnik: 1, kramar: 2, zebravy_mnich: 1 };
+            if (!GameState.ubytovna) GameState.ubytovna = { beds: 1, guests: [] };
+            GameState.ubytovna.guests.push({
+                variant: p.variant,
+                title_cs: p.title_cs,
+                title_en: p.title_en,
+                arrivedAt: Date.now(),
+                plannedDays: PLANNED_DAYS[p.variant] || 1,
+            });
+            if (typeof Game !== 'undefined' && Game.save) Game.save();
             return lang === 'en'
-                ? 'He is given a bed for the night and departs at dawn.'
-                : 'Dostává lůžko na noc a za úsvitu odchází.';
+                ? 'He is given a bed for the night.'
+                : 'Dostává lůžko na noc.';
         }
         if (choiceId === 'accept' && p && p.kind === 'studovna') {
             // Vyhovění žádosti — Vrchnost influence + anonymní denní report,
@@ -528,6 +556,40 @@ const ChroniconSystem = {
                 body: JSON.stringify({ favor: true, day: today }),
             }).catch(() => {});
         } catch (e) { /* tiché selhání */ }
+    },
+
+    // Vlna 1 — Ubytovna: hosté odcházejí po uplynutí plannedDays, self-
+    // guarded 24h (mirror InfirmariumSystem.hospesDailyTick vzoru,
+    // ubytovna-mrd.md §8c-B rozšíření).
+    UBYTOVNA_DAY_MS: 24 * 60 * 60 * 1000,
+
+    ubytovnaDailyTick: function() {
+        if (!GameState.ubytovnaTick) GameState.ubytovnaTick = { lastTick: 0 };
+        const now = Date.now();
+        if (now - (GameState.ubytovnaTick.lastTick || 0) < ChroniconSystem.UBYTOVNA_DAY_MS) return;
+        GameState.ubytovnaTick.lastTick = now;
+
+        const uby = GameState.ubytovna;
+        if (!uby || !uby.guests || !uby.guests.length) return;
+
+        const stillHere = [];
+        uby.guests.forEach(g => {
+            const dueAt = (g.arrivedAt || 0) + (g.plannedDays || 1) * ChroniconSystem.UBYTOVNA_DAY_MS;
+            if (now < dueAt) { stillHere.push(g); return; }
+
+            // Odchází — drobný dar + village influence, mirror hospes vzoru.
+            const gift = 2 + Math.floor(Math.random() * 3); // 2-4 grošů
+            if (typeof CellariumSystem !== 'undefined' && CellariumSystem.addGrose) CellariumSystem.addGrose(gift);
+            if (typeof PersonaSystem !== 'undefined' && PersonaSystem.addInfluence) PersonaSystem.addInfluence('village', 1);
+            if (typeof Game !== 'undefined' && Game.addKronikaEntry) {
+                Game.addKronikaEntry('important',
+                    '🥾 ' + g.title_cs + ' opouští Ubytovnu — na cestu dostal ' + gift + ' grošů.',
+                    '🥾 ' + g.title_en + ' leaves the guesthouse — given ' + gift + ' groschen for the road.',
+                    '🥾 Peregrinus hospitio discessit.');
+            }
+        });
+        uby.guests = stillHere;
+        if (typeof Game !== 'undefined' && Game.save) Game.save();
     },
 
 };
