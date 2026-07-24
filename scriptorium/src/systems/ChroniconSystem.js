@@ -282,16 +282,40 @@ const ChroniconSystem = {
         });
     },
 
+    // Vlna 1 — Hostina, kalendářní fallback (ubytovna-mrd.md §8c-A
+    // rozšíření, Bouvarde 24.7. "navázat na svátky v kalendáři"). Reuse
+    // existující !subtle filtr (viz calendar.js showDayDetail/legend) —
+    // odděluje "skutečný" svátek od vedlejších (Advent má 24 dní, ale je
+    // subtle: true, tudíž vyfiltrovaný).
+    _todaysMajorFeast: function() {
+        if (typeof CalendarSystem === 'undefined' || !CalendarSystem.getFeastsForMonth) return null;
+        const now = new Date();
+        const month = now.getMonth() + 1;
+        const day = now.getDate();
+        const feasts = CalendarSystem.getFeastsForMonth(month, CalendarSystem.GAME_YEAR)
+            .filter(f => f.day === day && !f.subtle);
+        return feasts.length ? feasts[0] : null;
+    },
+
     // Vlna 1 — Hostina (ubytovna-mrd.md §8c-A): syntetický advisory kandidát
-    // ze snap.feast. Dedup per svátek+den přes vlastní id — mirror
-    // _reportRescueIfNewDay vzor jinde v kódu. Žádný nový CHRONICON
-    // payload, jen nový spotřebitel pole, co už teče (viz core/game.js
-    // serveMass ×2 vliv).
+    // ze snap.feast (GM-ruční, přednost) NEBO z kalendáře (automatický
+    // fallback, viz _todaysMajorFeast výš). Dedup per svátek+den přes
+    // vlastní id — mirror _reportRescueIfNewDay vzor jinde v kódu.
     _buildFeastCandidate: function(snap) {
-        if (!snap || !snap.feast || !snap.feast.active) return null;
-        const dateKey = (snap.time && snap.time.date_string) || snap.generated || '';
-        const name    = snap.feast.name_cs || 'svátek';
-        const nameEn  = snap.feast.name_en || name;
+        let name, nameEn, dateKey;
+        if (snap && snap.feast && snap.feast.active) {
+            name    = snap.feast.name_cs || 'svátek';
+            nameEn  = snap.feast.name_en || name;
+            dateKey = (snap.time && snap.time.date_string) || snap.generated || '';
+        } else {
+            const cf = ChroniconSystem._todaysMajorFeast();
+            if (!cf) return null;
+            name    = cf.nameCS;
+            nameEn  = cf.nameEN;
+            // Reálné ISO datum — svátek se přirozeně vrací každý rok
+            // (jiný rok = jiný dateKey = nový kandidát, ne navěky resolved).
+            dateKey = new Date().toISOString().slice(0, 10);
+        }
         return {
             id: 'hostina_' + name + '_' + dateKey,
             kind: 'hostina',
@@ -346,9 +370,20 @@ const ChroniconSystem = {
         const p = adv.pending;
 
         // Hospes 'accept' — gate kontroly PŘED trvalým resolve (mirror 'defer'
-        // chování): zamčená tech nebo plná lůžka nesmí kandidáta ztratit,
-        // hráč má šanci se vrátit, jakmile podmínky splní.
-        if (choiceId === 'accept' && p && p.kind === 'hospes') {
+        // chování): plná lůžka nesmí kandidáta ztratit, hráč má šanci se
+        // vrátit, jakmile se uvolní. cause: 'war' (Vlna 1 / C —
+        // ubytovna-mrd.md §8c-C) míří na Ubytovnu místo Infirmaria —
+        // zdravý uprchlík, ne nemocný. Základní 1 lůžko od začátku hry.
+        if (choiceId === 'accept' && p && p.kind === 'hospes' && p.cause === 'war') {
+            if (!GameState.ubytovna) GameState.ubytovna = { beds: 1, guests: [] };
+            if ((GameState.ubytovna.guests || []).length >= GameState.ubytovna.beds) {
+                ChroniconSystem._advisoryShownThisSession = false;
+                return lang === 'en'
+                    ? 'No room is free. He waits at the gate.'
+                    : 'Žádné místo není volné. Čeká u brány.';
+            }
+        }
+        if (choiceId === 'accept' && p && p.kind === 'hospes' && p.cause !== 'war') {
             const hasTech = !!(GameState.researchedTechs && GameState.researchedTechs.includes('tech_infirmarium_hospitalitas'));
             if (!hasTech) {
                 ChroniconSystem._advisoryShownThisSession = false;
@@ -385,16 +420,11 @@ const ChroniconSystem = {
         }
 
         // Pocestný 'accept' — stejný soft-bounce vzor jako hospes/studovna
-        // (ubytovna-mrd.md §8c-B, rozšíření): nepostavené sklepy nebo
-        // plná Ubytovna nesmí kandidáta ztratit, jen ho odloží.
+        // (ubytovna-mrd.md §8c-B, rozšíření): plná Ubytovna nesmí
+        // kandidáta ztratit, jen ho odloží. Základní 1 lůžko dostupné od
+        // začátku hry (bez tech/building gate) — reálné navýšení kapacity
+        // přijde se sklep upgrade 4/5 (Bouvarde 24.7.).
         if (choiceId === 'accept' && p && p.kind === 'pocestny') {
-            const hasCellars = !!(GameState.storage && GameState.storage.old_cellars && GameState.storage.old_cellars.built);
-            if (!hasCellars) {
-                ChroniconSystem._advisoryShownThisSession = false;
-                return lang === 'en'
-                    ? 'The brothers have nowhere yet to house a traveler. (Requires: Old Cellars)'
-                    : 'Bratři zatím nemají kde pocestného ubytovat. (Vyžaduje: Staré sklepy)';
-            }
             if (!GameState.ubytovna) GameState.ubytovna = { beds: 1, guests: [] };
             const uby = GameState.ubytovna;
             if ((uby.guests || []).length >= uby.beds) {
@@ -421,6 +451,24 @@ const ChroniconSystem = {
             return lang === 'en'
                 ? 'The brothers resolve to watch over the sick more closely. (Full effect awaits the Infirmarium — for now, this is a resolve, not yet a remedy.)'
                 : 'Bratři se rozhodli bedlivěji dohlížet na nemocné. (Plný účinek čeká na Infirmarium — zatím je to spíš předsevzetí než lék.)';
+        }
+        if (choiceId === 'accept' && p && p.kind === 'hospes' && p.cause === 'war') {
+            // Uprchlík — Ubytovna, ne Infirmarium (Vlna 1 / C —
+            // ubytovna-mrd.md §8c-C). Delší plannedDays než pocestný/
+            // hostina — "levné ubytování na dlouho", ne noc přes cestu.
+            if (!GameState.ubytovna) GameState.ubytovna = { beds: 1, guests: [] };
+            GameState.ubytovna.guests.push({
+                variant: 'uprchlik',
+                title_cs: p.title_cs,
+                title_en: p.title_en,
+                actorId: p.actorId,
+                arrivedAt: Date.now(),
+                plannedDays: 6,
+            });
+            if (typeof Game !== 'undefined' && Game.save) Game.save();
+            return lang === 'en'
+                ? `${p.title_en || 'He'} is given shelter for the days ahead.`
+                : `${p.title_cs || 'Uprchlík'} dostává útočiště na několik dní dopředu.`;
         }
         if (choiceId === 'accept' && p && p.kind === 'hospes') {
             // Přijetí hospes pacienta — viz infirmarium-hospites-rescue-mrd.md §3.
@@ -586,6 +634,12 @@ const ChroniconSystem = {
                     '🥾 ' + g.title_cs + ' opouští Ubytovnu — na cestu dostal ' + gift + ' grošů.',
                     '🥾 ' + g.title_en + ' leaves the guesthouse — given ' + gift + ' groschen for the road.',
                     '🥾 Peregrinus hospitio discessit.');
+            }
+            // Uprchlík (cause: 'war') má actorId — reuse existující rescue
+            // report, mirror InfirmariumSystem._reportRescueIfNewDay (§8c-C).
+            // Pocestný/hostina nemají actorId, funkce se v tichosti vrátí.
+            if (g.actorId && typeof InfirmariumSystem !== 'undefined' && InfirmariumSystem._reportRescueIfNewDay) {
+                InfirmariumSystem._reportRescueIfNewDay(g.actorId);
             }
         });
         uby.guests = stillHere;
