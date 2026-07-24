@@ -735,6 +735,8 @@ const Game = {
                     if (typeof TemplumSystem !== 'undefined' && TemplumSystem.updateTabVisibility) TemplumSystem.updateTabVisibility();
                     // Infirmarium — viditelnost tabu dle tech_infirmarium (levný DOM check)
                     if (typeof InfirmariumSystem !== 'undefined' && InfirmariumSystem.updateTabVisibility) InfirmariumSystem.updateTabVisibility();
+                    // Infirmarium — hospes recovery/discharge (self-guarded 24h)
+                    if (typeof InfirmariumSystem !== 'undefined' && InfirmariumSystem.hospesDailyTick) InfirmariumSystem.hospesDailyTick();
                     // Templum — denní chod kostela (self-guarded 24h, gate frater+)
                     if (typeof Game !== 'undefined' && Game.templumDailyTick) Game.templumDailyTick();
                     // Templum — týdenní zpověď (self-guarded, gate frater+)

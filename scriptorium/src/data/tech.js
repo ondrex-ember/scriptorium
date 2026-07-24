@@ -513,6 +513,16 @@ TechTree.push({
     unlocks: ["spongia_somnifera"],
     requires: ["tech_infirmarium"]
 });
+TechTree.push({
+    id: "tech_infirmarium_hospitalitas",
+    name: "Hospitalitas",
+    name_en: "Hospitalitas",
+    cost: 15,
+    desc: "Řehole sv. Benedikta, kap. 53: \"Omnes supervenientes hospites tamquam Christus suscipiantur\" — všichni příchozí hosté ať jsou přijati jako sám Kristus. Odemyká: přijímání cizích nemocných (poutníků) do Infirmaria, vedle bratří a konvršů.",
+    desc_en: "The Rule of St. Benedict, ch. 53: \"Omnes supervenientes hospites tamquam Christus suscipiantur\" — all guests who arrive should be received as Christ himself. Unlocks: admitting sick strangers (pilgrims) into the Infirmarium, alongside brothers and lay-brothers.",
+    unlocks: [],
+    requires: ["tech_infirmarium"]
+});
 // ── PORTA — Holubí pošta ─────────────────────────────────────────────────
 TechTree.push({
     id: "tech_porta",

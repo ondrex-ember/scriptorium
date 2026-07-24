@@ -312,6 +312,28 @@ const ChroniconSystem = {
     _resolveAdvisory: function(eventId, choiceId, lang) {
         const adv = GameState.chroniconAdvisory;
         const p = adv.pending;
+
+        // Hospes 'accept' — gate kontroly PŘED trvalým resolve (mirror 'defer'
+        // chování): zamčená tech nebo plná lůžka nesmí kandidáta ztratit,
+        // hráč má šanci se vrátit, jakmile podmínky splní.
+        if (choiceId === 'accept' && p && p.kind === 'hospes') {
+            const hasTech = !!(GameState.researchedTechs && GameState.researchedTechs.includes('tech_infirmarium_hospitalitas'));
+            if (!hasTech) {
+                ChroniconSystem._advisoryShownThisSession = false;
+                return lang === 'en'
+                    ? 'The brothers lack the means to take in strangers yet. (Requires: Hospitalitas)'
+                    : 'Bratři zatím nemají prostředky přijímat cizí. (Vyžaduje: Hospitalitas)';
+            }
+            if (!GameState.infirmarium) GameState.infirmarium = { beds: 3, patients: [] };
+            const inf = GameState.infirmarium;
+            if ((inf.patients || []).length >= inf.beds) {
+                ChroniconSystem._advisoryShownThisSession = false;
+                return lang === 'en'
+                    ? 'No bed is free. The traveler waits at the gate.'
+                    : 'Žádná postel není volná. Poutník čeká u brány.';
+            }
+        }
+
         if (choiceId === 'defer') {
             // Nic se neztrácí — zůstává aktivní, může se ukázat znovu příště.
             ChroniconSystem._advisoryShownThisSession = false;
@@ -329,6 +351,25 @@ const ChroniconSystem = {
                 ? 'The brothers resolve to watch over the sick more closely. (Full effect awaits the Infirmarium — for now, this is a resolve, not yet a remedy.)'
                 : 'Bratři se rozhodli bedlivěji dohlížet na nemocné. (Plný účinek čeká na Infirmarium — zatím je to spíš předsevzetí než lék.)';
         }
+        if (choiceId === 'accept' && p && p.kind === 'hospes') {
+            // Přijetí hospes pacienta — viz infirmarium-hospites-rescue-mrd.md §3.
+            if (!GameState.infirmarium) GameState.infirmarium = { beds: 3, patients: [] };
+            GameState.infirmarium.patients.push({
+                kind: 'hospes',
+                id: p.id,
+                name: p.name,
+                ailment_cs: p.cause === 'plague' ? 'Mor' : 'Bída a vyčerpání',
+                ailment_en: p.cause === 'plague' ? 'Plague' : 'Poverty and exhaustion',
+                wealth: p.wealth || 0,
+                actorId: p.actorId,
+                arrivedAt: Date.now(),
+                recoverHours: p.cause === 'plague' ? 144 : 60,
+            });
+            if (typeof Game !== 'undefined' && Game.save) Game.save();
+            return lang === 'en'
+                ? `${p.name} is taken into the infirmary. A bed is made ready.`
+                : `${p.name} je přijat do Infirmaria. Lůžko je připraveno.`;
+        }
         if (choiceId === 'accept') {
             // Právo sepultury — dar úměrný jmění zesnulého (historicky přesně
             // takhle kláštery vydělávaly na "dary za spásu duše").
@@ -344,6 +385,11 @@ const ChroniconSystem = {
             return lang === 'en'
                 ? `The gift is accepted — ${gift} groschen for the monastery's coffers. The deceased rests within the church walls, as befits his station.`
                 : `Dar je přijat — ${gift} grošů do klášterní pokladny. Zesnulý odpočívá uvnitř kostelních zdí, jak přísluší jeho postavení.`;
+        }
+        if (choiceId === 'decline' && p && p.kind === 'hospes') {
+            return lang === 'en'
+                ? 'The traveler is turned away. He must seek shelter elsewhere.'
+                : 'Poutník je odmítnut. Musí hledat útočiště jinde.';
         }
         if (choiceId === 'decline') {
             return lang === 'en'
