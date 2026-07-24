@@ -32,6 +32,30 @@ const PersonaSystem = {
     BIRTH_PLACES: ['Olomouc', 'Brno', 'Znojmo', 'Kroměříž', 'Uherské Hradiště', 'Přerov', 'Prostějov', 'Opava'],
 
     // ── Inicializace ─────────────────────────────────────────────────────────
+    // Registrum Coenobii — denní anonymní vzorek na komunitní agregát
+    // (Fáze 2, Varianta A). Žádné ID hráče, jen lux/umbra/weight/den.
+    // Tiché selhání vždy — síťová chyba nesmí hráči nic zpomalit ani zobrazit.
+    RANK_WEIGHT: { novitius: 1, frater: 2, armarius: 3, prior: 4 },
+
+    reportRegistrumIfNewDay: function() {
+        if (!GameState.persona) return;
+        const today = new Date().toISOString().slice(0, 10);
+        if (GameState.persona.registrumLastSent === today) return;
+        GameState.persona.registrumLastSent = today; // nastavit hned — zabrání dalším pokusům tento den i při chybě sítě
+
+        const reg = this.computeRegistrum();
+        const rankTier = (GameState.rank && GameState.rank.monastic) || null;
+        const weight = this.RANK_WEIGHT[rankTier] || 1;
+
+        try {
+            fetch('/api/registrum-report', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ lux: reg.lux, umbra: reg.umbra, weight, day: today }),
+            }).catch(() => {}); // tiché selhání — offline, výpadek, cokoliv
+        } catch (e) { /* tiché selhání */ }
+    },
+
     init: function() {
         if (!GameState.persona) {
             GameState.persona = {
@@ -59,6 +83,9 @@ const PersonaSystem = {
 
         // Zkontrolovat zda zobrazit origin modal
         this.checkOriginModal();
+
+        // Registrum Coenobii — denní vzorek na komunitní agregát (tiché selhání uvnitř)
+        this.reportRegistrumIfNewDay();
     },
 
     checkOriginModal: function() {
@@ -1039,6 +1066,39 @@ const PersonaSystem = {
         if (!(npc in GameState.persona.influence)) return;
         GameState.persona.influence[npc] = Math.max(0, Math.min(100, (GameState.persona.influence[npc]||0) + amount));
         Game.save();
+    },
+
+    // Registrum Coenobii (Fáze 0, registrum-coenobii-reference.md) — čistě čtecí
+    // formule, nic nemutuje, nic neukládá. Počítá se na požádání (renderTemplumTab),
+    // ne jednou denně — je to levný výpočet nad už existujícím stavem.
+    // Stejné váhy pro každou položku (dohodnuto s Bouvardem), doladit až podle
+    // reálného chování hráčů.
+    computeRegistrum: function() {
+        const infl = (GameState.persona && GameState.persona.influence) || {};
+        const readBooks = (GameState.library && GameState.library.readBooks) || [];
+        const totalBooks = (typeof LibraryDB !== 'undefined' && LibraryDB.books) ? LibraryDB.books.length : 0;
+        const readPct = totalBooks ? (readBooks.length / totalBooks) * 100 : 0;
+        const folios = (GameState.scrinium && GameState.scrinium.folios) || {};
+        const folioIds = Object.keys(folios);
+        const foundPct = folioIds.length ? (Object.values(folios).filter(f => f.found).length / folioIds.length) * 100 : 0;
+        const probostBonus = (GameState.rank && GameState.rank.probost) ? 100 : 0;
+        const deliveredBonus = (GameState.flags && GameState.flags.bishopMissal === 'delivered') ? 100 : 0;
+
+        const luxParts = [infl.scholars || 0, Math.min(100, infl.church || 0), readPct, foundPct, probostBonus, deliveredBonus];
+        const lux = Math.round(luxParts.reduce((a, b) => a + b, 0) / luxParts.length);
+
+        const heat = (GameState.secrets && GameState.secrets.inquisitionHeat) || 0;
+        const cond = (GameState.cemetery && GameState.cemetery.condition != null) ? GameState.cemetery.condition : 100;
+        const neglect = cond < 40 ? (100 - cond) : 0;
+        const log = (GameState.templum && GameState.templum.log) || [];
+        const parishEntries = log.filter(e => e.type === 'parish');
+        const declinedPct = parishEntries.length ? (parishEntries.filter(e => e.officiated === false).length / parishEntries.length) * 100 : 0;
+        const failedBonus = (GameState.flags && GameState.flags.bishopMissal === 'failed') ? 100 : 0;
+
+        const umbraParts = [heat, neglect, declinedPct, failedBonus];
+        const umbra = Math.round(umbraParts.reduce((a, b) => a + b, 0) / umbraParts.length);
+
+        return { lux: Math.max(0, Math.min(100, lux)), umbra: Math.max(0, Math.min(100, umbra)) };
     },
 
     // Zbožnost — osobní/vnitřní stav mnicha (Cassianových osm myšlenek, endgame-branches-reference.md sekce 9)

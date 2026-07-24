@@ -214,6 +214,33 @@ const TemplumSystem = {
             </div>
           </div>`;
 
+        // Registrum Coenobii (Fáze 0) — čistě informační, žádný nový tech gate
+        // (nic neodemyká, jen ukazuje odvozený stav). registrum-coenobii-reference.md
+        if (typeof PersonaSystem !== 'undefined' && PersonaSystem.computeRegistrum) {
+            const reg = PersonaSystem.computeRegistrum();
+            const tone = reg.lux >= reg.umbra
+                ? (lang === 'en' ? 'a hearth of learning' : 'ohnisko vzdělanosti')
+                : (lang === 'en' ? 'a nest of whispers' : 'hnízdo šepotu');
+            h += `<div style="padding:10px 14px; margin-bottom:16px; background:rgba(197,160,89,0.05); border:1px solid rgba(197,160,89,0.2); border-radius:8px;">
+                    <div style="font-weight:bold; font-size:0.85rem; margin-bottom:6px;">📜 Registrum Coenobii — <span style="opacity:0.75; font-style:italic; font-weight:normal;">${tone}</span></div>
+                    <div style="display:flex; gap:10px; align-items:center; margin-bottom:4px;">
+                      <span style="font-size:0.68rem; width:100px;">☀️ Lux Scientiae</span>
+                      <div style="flex:1; height:6px; background:rgba(0,0,0,0.1); border-radius:3px; overflow:hidden;">
+                        <div style="height:100%; width:${reg.lux}%; background:#c5a559;"></div>
+                      </div>
+                      <span style="font-size:0.68rem; opacity:0.6; width:24px; text-align:right;">${reg.lux}</span>
+                    </div>
+                    <div style="display:flex; gap:10px; align-items:center;">
+                      <span style="font-size:0.68rem; width:100px;">🌑 Umbra Corruptionis</span>
+                      <div style="flex:1; height:6px; background:rgba(0,0,0,0.1); border-radius:3px; overflow:hidden;">
+                        <div style="height:100%; width:${reg.umbra}%; background:#8a3a3a;"></div>
+                      </div>
+                      <span style="font-size:0.68rem; opacity:0.6; width:24px; text-align:right;">${reg.umbra}</span>
+                    </div>
+                    <div style="font-size:0.6rem; opacity:0.5; font-style:italic; margin-top:6px;">${lang === 'en' ? 'How this house is spoken of beyond its walls.' : 'Jak se o tomto domě mluví za jeho zdmi.'}</div>
+                  </div>`;
+        }
+
         // Subtab přepínač: Hřbitov / Hlavní (mirror Cellarium/Manufaktura vzoru)
         const entity = (GameState.ui && GameState.ui.templumEntity) || (this.isUnlocked() ? 'main' : 'hrbitov');
         h += `<div style="display:flex; gap:8px; margin-bottom:16px;">
