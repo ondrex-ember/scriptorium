@@ -158,6 +158,14 @@ const TechTree = [
     unlocks: ["velky_ul_1", "velky_ul_2"], requires: ["tech_liber_apium"], requiresBook: "book_ruralia_apibus"
   },
 
+  {
+    id: "tech_columbaria_interna", name: "Columbaria Interna", name_en: "Columbaria Interna",
+    cost: 40,
+    desc: "Palladiova kapitola o holubníku: zdi hladké a nabílené, uvnitř řady výklenků v přesných rozměrech, aby měl pár dost místa. Odemkne: rozšíření věže na 40 ptáků (Dvůr — Holubník).",
+    desc_en: "Palladius's chapter on the dovecote: walls smooth and whitewashed, rows of niches within of precise dimensions, so a pair has room enough. Unlocks: tower expansion to 40 birds (Farmyard — Dovecote).",
+    requires: ["tech_porta"], requiresBook: "book_palladius_columbaria"
+  },
+
   // SKLADOVÉ HOSPODÁŘSTVÍ
   {
     id: "tech_carpentaria", name: "Carpentaria — Tesařství", name_en: "Carpentaria — Carpentry",

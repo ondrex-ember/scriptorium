@@ -120,6 +120,7 @@ const DormitoriumSpecializationDB = {
     apiarium: { name: 'Včelař',     name_en: 'Beekeeper',    icon: '🐝' },
     piscina:  { name: 'Rybář',      name_en: 'Fisherman',    icon: '🐟' },
     athanor:  { name: 'Alchymista', name_en: 'Alchemist',    icon: '⚗️' },
+    columbarium: { name: 'Columbarius', name_en: 'Columbarius', icon: '🕊️' },
     scriptorium: { name: 'Skriptor', name_en: 'Scriptor',    icon: '📜' },
     kostel:   { name: 'Kostelník',  name_en: 'Sacristan',    icon: '⛪' },
     hrbitov:  { name: 'Hrobník',    name_en: 'Gravedigger',  icon: '⚰️' }, // jen konvrš titul — bratr je pořád Kostelník (viz manufacturaStatus/renderManufactura)

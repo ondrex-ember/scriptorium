@@ -63,6 +63,16 @@ const FarmyardSystem = {
         featherYield: 3,  // fixní strop, nezávislé na count
     },
 
+    // MRD Columbarium II — kapacita podle capacityTier (level 1 = start, level 2 = Columbaria Interna)
+    // POZOR: samostatné pole od `level` (to znamená vybílení vápnem, viz whitewashColumbarium)
+    COLUMBARIUM_CAPACITY_BY_LEVEL: { 1: 20, 2: 40 },
+    COLUMBARIUM_UPGRADE_COST: { cut_stone: 30, plank: 10, vapno_hasene_mature: 5 },
+
+    columbariumCapacity: function () {
+        const tier = (GameState.columbarium && GameState.columbarium.capacityTier) || 1;
+        return this.COLUMBARIUM_CAPACITY_BY_LEVEL[tier] || 20;
+    },
+
     // Mood thresholds → produkční multiplikátor
     MOOD_MULT: function (mood) {
         if (mood >= 70) return 1.0;
@@ -140,9 +150,12 @@ const FarmyardSystem = {
         if (!GameState.pigsty) GameState.pigsty = { built: false, animals: [] };
         if (!GameState.donkeyStall) GameState.donkeyStall = { built: false, animals: [], lastCleanMs: 0 };
         if (!GameState.stable) GameState.stable = { built: false, animals: [], lastCleanMs: 0 };
-        if (!GameState.columbarium) GameState.columbarium = { built: false, count: 0, lastEggAt: 0, lastFeatherAt: 0, lastCleanMs: 0, level: 1, lastPredatorTick: 0 };
+        if (!GameState.columbarium) GameState.columbarium = { built: false, count: 0, lastEggAt: 0, lastFeatherAt: 0, lastCleanMs: 0, level: 1, lastPredatorTick: 0, nesting: null, squabPool: 0, capacityTier: 1 };
         if (GameState.columbarium.level === undefined) GameState.columbarium.level = 1;
         if (GameState.columbarium.lastPredatorTick === undefined) GameState.columbarium.lastPredatorTick = 0;
+        if (GameState.columbarium.nesting === undefined) GameState.columbarium.nesting = null;
+        if (GameState.columbarium.squabPool === undefined) GameState.columbarium.squabPool = 0;
+        if (GameState.columbarium.capacityTier === undefined) GameState.columbarium.capacityTier = 1;
         if (!GameState.loanMale) GameState.loanMale = {};  // {type, returnsAt}
     },
 
@@ -270,9 +283,10 @@ const FarmyardSystem = {
         c.lastCleanMs = now;
 
         // Generovat hnůj: stejný vzorec jako cleanPen, 1–3 ks dle počtu ptáků
+        // MRD Columbarium II — specificky pigeon_dung (guáno), ne obecný manure
         const n = Math.max(1, Math.min(3, Math.ceil(c.count / 2)));
         const inv = GameState.inventory;
-        inv['manure'] = (inv['manure'] || 0) + n;
+        inv['pigeon_dung'] = (inv['pigeon_dung'] || 0) + n;
 
         if (typeof UI !== 'undefined' && UI.notify) UI.notify('💩 ' + t('farmyard.cleanDone').replace('{n}', n));
         if (typeof Game !== 'undefined' && Game.save) Game.save();
@@ -523,6 +537,110 @@ const FarmyardSystem = {
         }
         if (collected) { Game.save(); FarmyardSystem.renderFarmyard(); UI.notify('🥚 ' + t('farmyard.columbariumCollected')); }
         else UI.notify(t('game.penNotReady'), true);
+    },
+
+    // MRD Columbarium II — líheň. Mirror startNesting()/startBreeding() vzoru (Kurník/Chlév).
+    startNestingColumbarium: function () {
+        this._ensureAnimals();
+        const c = GameState.columbarium;
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        if (!c || !c.built || (c.count || 0) < 2) {
+            if (typeof UI !== 'undefined') UI.notify(lang === 'en' ? 'Needs at least 2 pigeons to nest.' : 'Ke hnízdění je potřeba aspoň pár holubů.', true);
+            return;
+        }
+        if (c.nesting) {
+            if (typeof UI !== 'undefined') UI.notify(t('game.nestingActive'), true);
+            return;
+        }
+        const now = Date.now();
+        let hatchMs = 72 * 60 * 60 * 1000; // 72h základ
+        // Vikev — spotřebuje se, +25% rychlosti (přímo z Palladia: hrách a vikev)
+        let usedVetch = false;
+        if ((GameState.inventory['vikev'] || 0) > 0) {
+            GameState.inventory['vikev']--;
+            hatchMs = Math.round(hatchMs * 0.75);
+            usedVetch = true;
+        }
+        c.nesting = { state: 'nesting', startedAt: now, hatchAt: now + hatchMs };
+        Game.save();
+        this.renderFarmyard();
+        UI.notify('🕊️ ' + (lang === 'en'
+            ? `Nesting begun.${usedVetch ? ' Vetch feed speeds the brood.' : ''}`
+            : `Hnízdění zahájeno.${usedVetch ? ' Vikev urychlí odchov.' : ''}`));
+    },
+
+    // Squab pool → tři cesty (MRD): doplnit hejno / porazit na maso / rovnou do inventáře k prodeji
+    populateSquabsColumbarium: function (qty) {
+        this._ensureAnimals();
+        const c = GameState.columbarium;
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        if (!c || (c.squabPool || 0) <= 0) return;
+        const cap = this.columbariumCapacity();
+        const space = Math.max(0, cap - (c.count || 0));
+        const n = Math.max(0, Math.min(qty || c.squabPool, c.squabPool, space));
+        if (n <= 0) {
+            if (typeof UI !== 'undefined') UI.notify(lang === 'en' ? 'The dovecote is at full capacity.' : 'Holubník je na plné kapacitě.', true);
+            return;
+        }
+        c.squabPool -= n;
+        c.count = (c.count || 0) + n;
+        Game.save();
+        this.renderFarmyard();
+        UI.notify('🕊️ ' + (lang === 'en' ? `+${n} pigeons joined the flock.` : `+${n} holubů přibylo do hejna.`));
+    },
+
+    slaughterSquabColumbarium: function (qty) {
+        this._ensureAnimals();
+        const c = GameState.columbarium;
+        if (!c) return;
+        const n = Math.max(0, Math.min(qty || 1, c.squabPool || 0));
+        if (n <= 0) return;
+        c.squabPool -= n;
+        Game.addItem('pigeon_squab', n);
+        Game.save();
+        this.renderFarmyard();
+        UI.notify('🍗 +' + n + ' × ' + (typeof iName === 'function' ? iName('pigeon_squab') : 'pigeon_squab'));
+    },
+
+    slaughterAdultColumbarium: function (qty) {
+        this._ensureAnimals();
+        const c = GameState.columbarium;
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        if (!c) return;
+        const n = Math.max(0, Math.min(qty || 1, c.count || 0));
+        if (n <= 0) return;
+        if (typeof confirm === 'function' && !confirm(lang === 'en'
+            ? `Slaughter ${n} pigeon(s) from the flock? This permanently reduces the population.`
+            : `Porazit ${n} holuba/holubů z hejna? Trvale to sníží populaci.`)) return;
+        c.count -= n;
+        Game.addItem('pigeon_meat', n);
+        Game.save();
+        this.renderFarmyard();
+        UI.notify('🍖 +' + n + ' × ' + (typeof iName === 'function' ? iName('pigeon_meat') : 'pigeon_meat'));
+    },
+
+    // MRD Columbarium II — kapacita 40. Kniha (requiresBook přes tech) + tech + materiál + vápno.
+    upgradeColumbariumCapacity: function () {
+        this._ensureAnimals();
+        const c = GameState.columbarium;
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        if (!c || !c.built) return;
+        if ((c.capacityTier || 1) >= 2) {
+            if (typeof UI !== 'undefined') UI.notify(lang === 'en' ? 'Already upgraded.' : 'Už vylepšeno.', true);
+            return;
+        }
+        if (!(GameState.researchedTechs && GameState.researchedTechs.includes('tech_columbaria_interna'))) {
+            if (typeof UI !== 'undefined') UI.notify(t('dvur.lockedPrefix') + ' Columbaria Interna', true);
+            return;
+        }
+        const cost = this.COLUMBARIUM_UPGRADE_COST;
+        const can = Object.entries(cost).every(([id, n]) => (GameState.inventory[id] || 0) >= n);
+        if (!can) { if (typeof UI !== 'undefined') UI.notify(t('dvur.notEnough'), true); return; }
+        Object.entries(cost).forEach(([id, n]) => { GameState.inventory[id] -= n; });
+        c.capacityTier = 2;
+        Game.save();
+        this.renderFarmyard();
+        UI.notify('🏗️ ' + (lang === 'en' ? 'Columbaria Interna built — capacity 40.' : 'Vnitřní kolumbária postavena — kapacita 40.'));
     },
 
     // ── Level 2 — nabílení vápnem (tech_calcaria), odstraní riziko predátora ──
@@ -1278,11 +1396,42 @@ const FarmyardSystem = {
 
         const eggReady = now >= (c.lastEggAt || 0) + cfg.eggIntervalMs;
         const featherReady = now >= (c.lastFeatherAt || 0) + cfg.featherIntervalMs;
+        const cap = this.columbariumCapacity();
         h += `<div style="display:grid; grid-template-columns:1fr 1fr; gap:6px; margin-bottom:12px; font-size:0.82rem;">`;
-        h += `<div>🕊️ ${lang === 'en' ? 'Pigeons' : 'Holubi'}: <strong>${c.count}</strong></div>`;
+        h += `<div>🕊️ ${lang === 'en' ? 'Pigeons' : 'Holubi'}: <strong>${c.count}/${cap}</strong></div>`;
         h += `<div>🥚 ${t('farmyard.eggs')}: <strong>${eggReady ? t('farmyard.ready') + ' (' + cfg.eggYield + ')' : Math.ceil(((c.lastEggAt || 0) + cfg.eggIntervalMs - now) / 3600000) + 'h'}</strong></div>`;
         h += `<div>🪶 ${t('farmyard.feathers')}: <strong>${featherReady ? t('farmyard.ready') + ' (' + cfg.featherYield + ')' : Math.ceil(((c.lastFeatherAt || 0) + cfg.featherIntervalMs - now) / 3600000) + 'h'}</strong></div>`;
         h += `</div>`;
+
+        // MRD Columbarium II — kapacita 40 (Columbaria Interna)
+        if ((c.capacityTier || 1) < 2) {
+            const hasTech = GameState.researchedTechs && GameState.researchedTechs.includes('tech_columbaria_interna');
+            if (hasTech) {
+                const upCost = this.COLUMBARIUM_UPGRADE_COST;
+                const canUp = Object.entries(upCost).every(([id, n]) => (GameState.inventory[id] || 0) >= n);
+                const costStr = Object.entries(upCost).map(([id, n]) => `${n}× ${typeof iName === 'function' ? iName(id) : id}`).join(', ');
+                h += `<button class="craft-btn" onclick="FarmyardSystem.upgradeColumbariumCapacity()" style="font-size:0.76rem; margin-bottom:8px;" ${canUp ? '' : 'disabled'}>🏗️ ${lang === 'en' ? 'Build Columbaria Interna' : 'Postavit Vnitřní kolumbária'} (${costStr})</button>`;
+            }
+        }
+
+        // MRD Columbarium II — líheň a squab pool
+        if (c.nesting) {
+            const hoursLeft = Math.max(0, Math.ceil((c.nesting.hatchAt - now) / 3600000));
+            h += `<div style="font-size:0.78rem; opacity:0.75; margin-bottom:8px;">🥚 ${lang === 'en' ? 'Nesting' : 'Hnízdění'} — ${hoursLeft}h</div>`;
+        } else {
+            const canNest = (c.count || 0) >= 2;
+            h += `<button class="craft-btn" onclick="FarmyardSystem.startNestingColumbarium()" style="font-size:0.78rem; margin-bottom:8px;" ${canNest ? '' : 'disabled'}>🥚 ${lang === 'en' ? 'Start nesting' : 'Zahájit hnízdění'}</button>`;
+        }
+        if ((c.squabPool || 0) > 0) {
+            h += `<div style="font-size:0.82rem; margin-bottom:6px;">🐣 ${lang === 'en' ? 'Squabs' : 'Holoubata'}: <strong>${c.squabPool}</strong></div>`;
+            h += `<div style="display:flex; gap:6px; flex-wrap:wrap; margin-bottom:8px;">`;
+            h += `<button class="craft-btn" onclick="FarmyardSystem.populateSquabsColumbarium(${c.squabPool})" style="font-size:0.72rem;">🕊️ ${lang === 'en' ? 'Add to flock' : 'Do hejna'}</button>`;
+            h += `<button class="craft-btn" onclick="FarmyardSystem.slaughterSquabColumbarium(${c.squabPool})" style="font-size:0.72rem; background:rgba(140,80,60,0.85);">🍗 ${lang === 'en' ? 'Slaughter for meat' : 'Porazit na maso'}</button>`;
+            h += `</div>`;
+        }
+        if ((c.count || 0) > 2) {
+            h += `<button class="craft-btn" onclick="FarmyardSystem.slaughterAdultColumbarium(1)" style="font-size:0.72rem; margin-bottom:8px; background:rgba(140,80,60,0.7);">🍖 ${lang === 'en' ? 'Slaughter 1 adult' : 'Porazit 1 dospělého'}</button>`;
+        }
 
         // Level 2 — nabílení vápnem, imunita proti predátorům
         if (c.level >= 2) {
@@ -1662,6 +1811,14 @@ const FarmyardSystem = {
                 s.sheep = Math.max(0, s.sheep - 1);
                 if (typeof UI !== 'undefined' && UI.notify) UI.notify(t('events.curia_sheep_disease.healer_notif_fail'), true);
             }
+            changed = true;
+        }
+        // MRD Columbarium II — líheň, jednostupňová (hnízdění → rovnou squabPool, žádná mezifáze "growing")
+        const cb = GameState.columbarium;
+        if (cb && cb.nesting && cb.nesting.state === 'nesting' && now >= cb.nesting.hatchAt) {
+            const yieldN = 1 + Math.floor(Math.random() * 2); // 1–2 holoubata
+            cb.squabPool = (cb.squabPool || 0) + yieldN;
+            cb.nesting = null;
             changed = true;
         }
         if (changed) Game.save();

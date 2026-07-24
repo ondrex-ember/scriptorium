@@ -10,6 +10,7 @@ const LettersDB = [
   // ── L1 — Farář: o falešné zpovědi (předehra Zpovědi) ──
   {
     id: 'l1_farar_zpoved',
+    sender_cs: 'Farář Havel od Panny Marie', sender_en: 'Father Havel of Our Lady',
     seal: 'village',
     title_cs: 'List faráře Havla',
     title_en: 'A Letter from Father Havel',
@@ -33,6 +34,7 @@ const LettersDB = [
   // ── L2 — Křivě obviněná paní Ofka (⚡ 5 dní; první dvoudílný řetěz) ──
   {
     id: 'l2_ofka',
+    sender_cs: 'Písař Jindřich', sender_en: 'Henry the Scribe',
     seal: 'village',
     urgent: true,
     expiry_days: 5,
@@ -72,6 +74,7 @@ const LettersDB = [
   // ── L2b — rozuzlení (přimluvil ses): +7 dní po L2 ──
   {
     id: 'l2b_ofka_spoke',
+    sender_cs: 'Písař Jindřich', sender_en: 'Henry the Scribe',
     seal: 'village',
     title_cs: 'Zpráva z Újezda: pravda vyšla najevo',
     title_en: 'News from Újezd: The Truth Comes Out',
@@ -97,6 +100,7 @@ const LettersDB = [
   // ── L2c — rozuzlení (mlčel jsi / prošvihl): +7 dní po L2 ──
   {
     id: 'l2c_ofka_silent',
+    sender_cs: 'Písař Jindřich', sender_en: 'Henry the Scribe',
     seal: 'village',
     title_cs: 'Zpráva z Újezda: po ohni',
     title_en: 'News from Újezd: After the Fire',
@@ -122,6 +126,7 @@ const LettersDB = [
   // ── L3 — Kupec Mikuláš: ceny a rada (anály 1342) ──
   {
     id: 'l3_kupec_ceny',
+    sender_cs: 'Kupec Mikuláš', sender_en: 'Nicholas the Merchant',
     seal: 'village',
     title_cs: 'List kupce Mikuláše',
     title_en: 'A Letter from Nicholas the Merchant',
@@ -143,6 +148,7 @@ const LettersDB = [
   // ── L4 — Vdova Kačna: vosk za duši (první dopis s přílohou) ──
   {
     id: 'l4_vdova_vosk',
+    sender_cs: 'Vdova Kačna z Chválkovic', sender_en: 'Widow Kačna of Chválkovice',
     seal: 'village',
     title_cs: 'Dar vdovy Kačny',
     title_en: 'The Widow Kačna\'s Gift',
@@ -165,6 +171,7 @@ const LettersDB = [
   // ── L5 — Bratr Prokop z Hradiska: mlýny (předehra vodních služeb) ──
   {
     id: 'l5_hradisko_mlyny',
+    sender_cs: 'Bratr Prokop z Hradiska', sender_en: 'Brother Prokop of Hradisko',
     seal: 'abbot',
     title_cs: 'List bratra Prokopa z Hradiska',
     title_en: 'A Letter from Brother Prokop of Hradisko',
@@ -184,6 +191,7 @@ const LettersDB = [
   // ── L6 — Biskupská kancelář: misál (14 dní; vstup vizitačního řetězu) ──
   {
     id: 'l6_biskup_misal',
+    sender_cs: 'Kancelář biskupství olomouckého', sender_en: 'Chancery of the Bishopric of Olomouc',
     seal: 'abbot',
     expiry_days: 14,
     title_cs: 'List biskupské kanceláře',
@@ -216,6 +224,7 @@ const LettersDB = [
   // ── L7 — Zadání: podmínky misálu (accepted + 3 dny) ──
   {
     id: 'l7_biskup_zadani',
+    sender_cs: 'Kancelář biskupství olomouckého', sender_en: 'Chancery of the Bishopric of Olomouc',
     seal: 'abbot',
     title_cs: 'Podmínky biskupské kanceláře',
     title_en: 'Terms from the Bishop\'s Chancery',
@@ -226,6 +235,15 @@ const LettersDB = [
       const t0 = GameState.flags.bishopMissalAcceptedAt
         || (((GameState.letters && GameState.letters.archive) || []).find(e => e.id === 'l6_biskup_misal' || e.id === 'l10_biskup_druha_sance') || {}).ts;
       return !!t0 && (Date.now() - t0) >= 3 * 24 * 60 * 60 * 1000;
+    },
+    commitment: {
+      flagKey: 'bishopMissal',
+      deadlineFlagKey: 'bishopMissalDeadline',
+      activeStatuses: ['commissioned'],
+      forWhom_cs: 'Biskup olomoucký', forWhom_en: 'Bishop of Olomouc',
+      what_cs: 'Luxusní kodex (misál pro katedrálu)', what_en: 'Luxury codex (missal for the cathedral)',
+      reward_cs: '120 grošů + Ecclesia +8', reward_en: '120 groschen + Ecclesia +8',
+      risk_cs: 'Ecclesia −3 při zmeškání lhůty', risk_en: 'Ecclesia −3 if the deadline is missed',
     },
     choices: [
       { label_cs: '📜 Přijímám podmínky', label_en: '📜 I accept the terms',
@@ -241,6 +259,7 @@ const LettersDB = [
   // ── L8 — Odevzdání (commissioned + kodex v ruce + před lhůtou) ──
   {
     id: 'l8_biskup_odevzdani',
+    sender_cs: 'Kancelář biskupství olomouckého', sender_en: 'Chancery of the Bishopric of Olomouc',
     seal: 'abbot',
     title_cs: 'Posel kanceláře čeká na misál',
     title_en: 'The Chancery\'s Messenger Awaits the Missal',
@@ -271,6 +290,7 @@ const LettersDB = [
   // ── L9 — Zmeškaná lhůta (commissioned + po deadline) ──
   {
     id: 'l9_biskup_zmeskani',
+    sender_cs: 'Kancelář biskupství olomouckého', sender_en: 'Chancery of the Bishopric of Olomouc',
     seal: 'abbot',
     title_cs: 'Chladný list kanceláře',
     title_en: 'A Cold Letter from the Chancery',
@@ -295,6 +315,7 @@ const LettersDB = [
   // ── L10 — Druhá šance (declined/ignored + 14 dní) ──
   {
     id: 'l10_biskup_druha_sance',
+    sender_cs: 'Kancelář biskupství olomouckého', sender_en: 'Chancery of the Bishopric of Olomouc',
     seal: 'abbot',
     title_cs: 'Kancelář píše podruhé',
     title_en: 'The Chancery Writes a Second Time',
@@ -326,6 +347,7 @@ const LettersDB = [
   // ═══ VISITATIO V1: ohlašovací dopis (MRD visitatio-reference.md) ═══
   {
     id: 'l11_visitatio_ohlaseni',
+    sender_cs: 'Kancelář biskupství olomouckého', sender_en: 'Chancery of the Bishopric of Olomouc',
     seal: 'abbot',
     urgent: true,
     title_cs: 'Ohlášení vizitace',
@@ -373,6 +395,7 @@ const LettersDB = [
   // ── L12 — Opat: nabídka holubího hejna (Porta) ──
   {
     id: 'l12_opat_holubi',
+    sender_cs: 'Opat', sender_en: 'The Abbot',
     seal: 'abbot',
     title_cs: 'List opatův o holubech',
     title_en: "A Letter from the Abbot on Pigeons",

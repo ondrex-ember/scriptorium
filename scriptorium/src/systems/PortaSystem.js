@@ -30,6 +30,18 @@ const PortaSystem = {
         const lang = (GameState.settings && GameState.settings.language) || 'cs';
         return (lang === 'en' ? (c.label_en || c.label_cs) : c.label_cs) || t(c.labelKey);
     },
+    _sender: function (l) {
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        return (lang === 'en' ? l.sender_en : l.sender_cs) || l.sender_cs || '';
+    },
+    // MRD Porta-katalogizace — datum ve hře, offset na rok 1465 (nikdy skutečný rok)
+    _dateStr: function (ts) {
+        if (!ts) return '';
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        const d = new Date(ts);
+        const gameDate = new Date(1465, d.getMonth(), d.getDate());
+        return gameDate.toLocaleDateString(lang === 'en' ? 'en-GB' : 'cs-CZ');
+    },
 
     // Fronta — dopisy z LettersDB, jejichž trigger() platí a ještě nebyly přečteny
     getQueue: function () {
@@ -97,27 +109,73 @@ const PortaSystem = {
                 const sealIcon = letter.seal === 'abbot' ? '✝️' : letter.seal === 'village' ? '🌾' : '🕊️';
                 const urgentBadge = letter.urgent ? ' <span style="color:#c0392b; font-weight:bold;">⚡</span>' : '';
                 const border = letter.urgent ? 'border-left:3px solid #c0392b;' : '';
+                const sender = PortaSystem._sender(letter);
+                const received = PortaSystem._dateStr(GameState.letters.firstSeen[letter.id]);
                 h += `<div style="display:flex; align-items:center; justify-content:space-between; padding:10px; background:rgba(0,0,0,0.04); border-radius:8px; ${border}">
-                    <span>${sealIcon} <strong>${PortaSystem._title(letter)}</strong>${urgentBadge}</span>
+                    <div>
+                        <div>${sealIcon} <strong>${PortaSystem._title(letter)}</strong>${urgentBadge}</div>
+                        <div style="font-size:0.7rem; opacity:0.55; margin-top:2px;">
+                            ${sender ? (lang==='en' ? `From ${sender}` : `Od: ${sender}`) : ''}${sender && received ? ' · ' : ''}${received ? (lang==='en' ? `Received ${received}` : `Přijato ${received}`) : ''}
+                        </div>
+                    </div>
                     <button class="craft-btn" style="font-size:0.78rem;" onclick="PortaSystem.openLetter('${letter.id}')">${t('porta.open')}</button>
                 </div>`;
             });
             h += `</div>`;
         }
 
-        // Archiv — krátký přehled posledních přečtených
-        const archived = GameState.letters.archive.slice(-10).reverse();
+        // Archiv — přehled přečtených, klikatelný pro zpětné přečtení plného textu
+        const archived = GameState.letters.archive.slice(-30).reverse();
         if (archived.length > 0) {
             h += `<div style="margin-top:18px;">`;
             h += `<div style="font-size:0.72rem; font-weight:bold; letter-spacing:0.06em; text-transform:uppercase; opacity:0.55; margin-bottom:8px;">${t('porta.archive')}</div>`;
             archived.forEach(entry => {
-                h += `<div style="font-size:0.78rem; opacity:0.65; padding:4px 0;">📜 ${entry.title}</div>`;
+                const srcLetter = (typeof LettersDB !== 'undefined') ? LettersDB.find(l => l.id === entry.id) : null;
+                const sender = srcLetter ? PortaSystem._sender(srcLetter) : '';
+                const resolved = PortaSystem._dateStr(entry.ts);
+                h += `<div style="padding:4px 0; cursor:pointer;" onclick="PortaSystem.openArchivedLetter('${entry.id}')" title="${lang==='en' ? 'Click to re-read' : 'Klikni pro znovupřečtení'}">
+                    <div style="font-size:0.78rem; opacity:0.7;">📜 ${entry.title}</div>
+                    <div style="font-size:0.66rem; opacity:0.45; margin-top:1px;">
+                        ${sender ? (lang==='en' ? `From ${sender}` : `Od: ${sender}`) : ''}${sender && resolved ? ' · ' : ''}${resolved ? (lang==='en' ? `Resolved ${resolved}` : `Vyřízeno ${resolved}`) : ''}
+                    </div>
+                </div>`;
             });
             h += `</div>`;
         }
 
         h += `</div>`;
         el.innerHTML = h;
+    },
+
+    // Znovu otevřít archivovaný dopis — jen ke čtení, bez voleb (rozhodnutí už padlo)
+    openArchivedLetter: function (letterId) {
+        if (typeof LettersDB === 'undefined' || typeof NotificationSystem === 'undefined' || !NotificationSystem.modal) return;
+        const letter = LettersDB.find(l => l.id === letterId);
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        if (!letter) {
+            if (typeof UI !== 'undefined') UI.notify(lang === 'en' ? 'This letter is no longer available.' : 'Tenhle dopis už není dostupný.', true);
+            return;
+        }
+        NotificationSystem.modal({
+            icon: letter.seal === 'abbot' ? '✝️' : letter.seal === 'village' ? '🌾' : '🕊️',
+            image: letter.image || null,
+            title: PortaSystem._title(letter),
+            text: PortaSystem._letterDateline(letter) + PortaSystem._text(letter) + `<div style="margin-top:12px; font-size:0.72rem; opacity:0.5; font-style:italic;">${lang==='en' ? '— already resolved —' : '— již vyřízeno —'}</div>`,
+            choices: [{ label: lang === 'en' ? 'Close' : 'Zavřít', type: 'primary', effect: () => {} }]
+        });
+    },
+
+    // Katalogizační hlavička dopisu — odesílatel + datum přijetí, nad text jako skutečná dopisní hlavička
+    _letterDateline: function (letter) {
+        this._ensureState();
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        const sender = this._sender(letter);
+        const received = this._dateStr(GameState.letters.firstSeen[letter.id]);
+        if (!sender && !received) return '';
+        return `<div style="font-size:0.74rem; opacity:0.6; margin-bottom:10px; padding-bottom:8px; border-bottom:1px solid rgba(0,0,0,0.1);">
+            ${sender ? `<div>${lang==='en' ? 'From' : 'Od'}: <strong>${sender}</strong></div>` : ''}
+            ${received ? `<div>${lang==='en' ? 'Received' : 'Přijato'}: ${received}</div>` : ''}
+        </div>`;
     },
 
     openLetter: function (letterId) {
@@ -145,7 +203,7 @@ const PortaSystem = {
             icon: letter.seal === 'abbot' ? '✝️' : letter.seal === 'village' ? '🌾' : '🕊️',
             image: letter.image || null,
             title: PortaSystem._title(letter),
-            text: PortaSystem._text(letter),
+            text: PortaSystem._letterDateline(letter) + PortaSystem._text(letter),
             choices: choices
         });
     },

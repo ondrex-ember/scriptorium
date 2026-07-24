@@ -256,6 +256,9 @@ const CellariumSystem = {
     mutton:         6,
     lamb_hide:      8,
     chick:          3,
+    // MRD Columbarium II — holoubě cennější než dospělý pták (historicky doloženo)
+    pigeon_squab:   7,
+    pigeon_meat:    4,
     lamb:           5,
     veteran_queen: 280,
   },
@@ -304,7 +307,7 @@ const CellariumSystem = {
     seed_walnut: 'mat', seed_mulberry: 'mat', seed_quince: 'mat', seed_sorb: 'mat',
     seed_rowan: 'mat', seed_linden: 'mat',
     fry: 'mat', carp_young: 'mat', carp: 'food_raw',
-    chicken_meat: 'food', mutton: 'food',
+    chicken_meat: 'food', mutton: 'food', pigeon_squab: 'food', pigeon_meat: 'food',
     lamb_hide: 'mat', chick: 'mat', lamb: 'mat',
     veteran_queen: 'mat',
   },
@@ -322,7 +325,7 @@ const CellariumSystem = {
 
   // CH-2: Postní dny (Chronicon fast flag) — ryby žádané, maso leží
   FAST_FISH: ['cooked_fish', 'carp'],
-  FAST_MEAT: ['cooked_meat', 'chicken_meat', 'mutton'],
+  FAST_MEAT: ['cooked_meat', 'chicken_meat', 'mutton', 'pigeon_squab', 'pigeon_meat'],
 
   _fastMult: function(itemId) {
     const snap = (typeof ChroniconSystem !== 'undefined') ? ChroniconSystem._snap : null;
@@ -1221,7 +1224,7 @@ const CellariumSystem = {
     const TAVERN_ITEMS = ['bread','cooked_meat','cooked_fish','stew','mushroom_soup',
                           'berry_pie','honey','water','potion_heal','stamina_tonic',
                           'sleep_potion','candle',
-                          'egg','milk','chicken_meat','mutton',
+                          'egg','milk','chicken_meat','mutton','pigeon_squab','pigeon_meat',
                           'apple','pear','plum','cherry',
                           'beer','wine',
                           'goat_cheese_fresh','goat_cheese_mature','goat_cheese_aged',

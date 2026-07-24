@@ -738,9 +738,9 @@ const SaeculumSystem = {
   renderManufactura: function() {
     const lang = (GameState.settings && GameState.settings.language) || 'cs';
     // Pořadí odpovídá DormitoriumSpecializationDB; dvur navíc (údržba, bez XP tabu tam).
-    const TAB_ORDER = ['dvur', 'kostel', 'hrbitov', 'zahony', 'sad', 'pole', 'vinohrad', 'apiarium', 'piscina', 'athanor', 'scriptorium'];
+    const TAB_ORDER = ['dvur', 'kostel', 'hrbitov', 'zahony', 'sad', 'pole', 'vinohrad', 'apiarium', 'piscina', 'columbarium', 'athanor', 'scriptorium'];
     // Konvrš lze přiřadit jen na tyto (athanor/scriptorium nejsou v CONVERSI_TASKS — jen bratr).
-    const CONVERSI_CAPABLE = ['dvur', 'kostel', 'hrbitov', 'zahony', 'sad', 'apiarium', 'piscina', 'pole', 'vinohrad'];
+    const CONVERSI_CAPABLE = ['dvur', 'kostel', 'hrbitov', 'zahony', 'sad', 'apiarium', 'piscina', 'pole', 'vinohrad', 'columbarium'];
 
     let h = `<div style="margin-bottom:10px; font-size:0.8rem; opacity:0.75;">
       ${lang === 'en'
