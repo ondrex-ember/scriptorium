@@ -179,4 +179,31 @@ if ('serviceWorker' in navigator) {
     });
 }
 
+// ── HEADER OFFSET SYNC — #pills-bar (mobil) je position:fixed, top:55px.
+// main#main-content dřív mělo natvrdo padding-top:70px, ale skutečná výška
+// pills-bar kolísá podle počtu pillů/wrapu na víc řádků — ResizeObserver
+// drží CSS proměnnou --header-offset v souladu se skutečností, žádná
+// mezera navíc ani překryv, bez zásahu do každýho render() volání.
+(function () {
+    const PILLS_TOP = 55;   // musí sedět s #pills-bar { top: 55px } v CSS
+    const BUFFER = 8;
+    function syncHeaderOffset() {
+        const bar = document.getElementById('pills-bar');
+        if (!bar || bar.style.display === 'none') return;
+        const h = bar.getBoundingClientRect().height;
+        if (h > 0) {
+            document.documentElement.style.setProperty('--header-offset', (PILLS_TOP + h + BUFFER) + 'px');
+        }
+    }
+    if (typeof ResizeObserver !== 'undefined') {
+        const ro = new ResizeObserver(syncHeaderOffset);
+        document.addEventListener('DOMContentLoaded', () => {
+            const bar = document.getElementById('pills-bar');
+            if (bar) ro.observe(bar);
+            syncHeaderOffset();
+        });
+        window.addEventListener('resize', syncHeaderOffset);
+    }
+})();
+
 window.onload = Game.init;
