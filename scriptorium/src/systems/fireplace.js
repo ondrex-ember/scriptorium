@@ -129,7 +129,6 @@ const FireplaceSystem = {
     addFuel: function(itemId) {
         this._ensureState();
         if (!GameState.fire.active) return;
-        if (!this.hasMeteorologica()) return;
 
         const fuelAmount = this.FUEL_VALUES[itemId];
         if (!fuelAmount) return;
@@ -751,11 +750,15 @@ const FireplaceSystem = {
         const lockedView = document.getElementById('foculus-locked');
         const unlockedView = document.getElementById('foculus-unlocked');
 
-        if (!this.hasMeteorologica()) {
+        const isFireActive = !!(GameState.fire && GameState.fire.active) || !!(GameState.flags && GameState.flags.fireplaceLit);
+        const hasTech = this.hasMeteorologica();
+
+        if (!isFireActive && !hasTech) {
             if (lockedView) lockedView.style.display = 'block';
             if (unlockedView) unlockedView.style.display = 'none';
             return;
         }
+
         if (lockedView) lockedView.style.display = 'none';
         if (unlockedView) unlockedView.style.display = 'block';
 
@@ -818,26 +821,35 @@ const FireplaceSystem = {
             if (btnLog) { btnLog.disabled = true; btnLog.style.opacity = '0.5'; btnLog.textContent = `+ ${iName('log')}`; }
         }
 
+        const techNotice = document.getElementById('foculus-tech-locked');
         const dash = document.getElementById('foculus-dashboard');
-        if (dash) {
-            dash.innerHTML = this._renderDashboard();
-            dash.style.display = 'block';
-        }
-
         const teaEl = document.getElementById('foculus-tea');
-        if (teaEl) {
-            this._ensureTeaState();
-            this._checkTeaDone();
-            this._ensureCoffeeState();
-            this._checkCoffeeDone();
-            teaEl.innerHTML = this._renderTea() + this._renderCoffee() + this._renderSweep()
-                + (typeof DryingSystem !== 'undefined' ? DryingSystem.renderFoculus() : '')
-                + this._renderPipe();
-            teaEl.style.display = 'block';
-            this._ensureTeaInterval();
-            this._ensureCoffeeInterval();
+
+        if (hasTech) {
+            if (techNotice) techNotice.style.display = 'none';
+            if (dash) {
+                dash.innerHTML = this._renderDashboard();
+                dash.style.display = 'block';
+            }
+            if (teaEl) {
+                this._ensureTeaState();
+                this._checkTeaDone();
+                this._ensureCoffeeState();
+                this._checkCoffeeDone();
+                teaEl.innerHTML = this._renderTea() + this._renderCoffee() + this._renderSweep()
+                    + (typeof DryingSystem !== 'undefined' ? DryingSystem.renderFoculus() : '')
+                    + this._renderPipe();
+                teaEl.style.display = 'block';
+                this._ensureTeaInterval();
+                this._ensureCoffeeInterval();
+            }
+            if (typeof IncenseSystem !== 'undefined') IncenseSystem.render();
+        } else {
+            if (techNotice) techNotice.style.display = 'block';
+            if (dash) dash.style.display = 'none';
+            if (teaEl) teaEl.style.display = 'none';
+            const incenseEl = document.getElementById('incense-panel');
+            if (incenseEl) incenseEl.style.display = 'none';
         }
-        // Kadidlo (Thuribulum)
-        if (typeof IncenseSystem !== 'undefined') IncenseSystem.render();
     }
 };

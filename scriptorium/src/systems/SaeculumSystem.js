@@ -513,18 +513,15 @@ const SaeculumSystem = {
       const spec = DormitoriumSpecializationDB[tabId];
       const isCur = b.assignedTab === tabId;
       const takenBy = (GameState.dormitorium.brothers || []).find(x => x.assignedTab === tabId && x.id !== b.id);
-      // Infirmarium mnišský role — tech-gated brother specializace.
-      const locked = (tabId.indexOf('infirmarium_') === 0
-          && !(GameState.researchedTechs && GameState.researchedTechs.includes('tech_infirmarium')))
-        || (tabId === 'studovna'
-          && !(GameState.researchedTechs && GameState.researchedTechs.includes('tech_studovna')));
+      // Infirmarium mnišský role — jediný tech-gated brother specializace zatím.
+      const locked = tabId.indexOf('infirmarium_') === 0
+          && !(GameState.researchedTechs && GameState.researchedTechs.includes('tech_infirmarium'));
       const disabled = (takenBy && !isCur) || locked;
       const bg = isCur ? '#8a3324' : disabled ? 'rgba(0,0,0,0.04)' : 'rgba(197,160,89,0.15)';
       const fg = isCur ? '#fcf5e5' : 'inherit';
       const opac = disabled && !isCur ? '0.55' : '1';
       const specName = lang === 'en' ? spec.name_en : spec.name;
-      const lockedTechName = tabId === 'studovna' ? (lang==='en'?'Studovna':'Studovna') : (lang==='en'?'Infirmarium':'Infirmarium');
-      const hint = locked ? (lang==='en'?'needs tech: ':'chybí tech: ') + lockedTechName
+      const hint = locked ? (lang==='en'?'needs tech: Infirmarium':'chybí tech: Infirmarium')
                  : (takenBy && !isCur ? specName + ' (' + takenBy.name + ')' : specName);
       h += `<div onclick="${disabled ? '' : `Game.assignBrotherTab('${b.id}', ${isCur ? 'null' : `'${tabId}'`})`}" style="cursor:${disabled ? 'default' : 'pointer'}; opacity:${opac}; padding:6px 10px; border-radius:6px; background:${bg}; color:${fg}; font-size:0.74rem; text-align:center;">
               <div>${spec.icon}</div>
@@ -820,10 +817,18 @@ const SaeculumSystem = {
         h += `<div style="font-size:0.72rem; opacity:0.5;">${lang === 'en' ? 'Nobody working here.' : 'Nikdo tu nepracuje.'}</div>`;
       } else if (st.ready) {
         h += `<button class="craft-btn" onclick="Game.manufacturaCollect('${tabKey}')" style="width:100%; background:#4a7c59;">
-                🧺 ${lang === 'en' ? 'Collect' : 'Sebrat'}
+                🧺 ${lang === 'en' ? 'Collect / Work' : 'Odvést práci / Sebrat'}
               </button>`;
       } else {
         h += `<div style="font-size:0.72rem; opacity:0.65;">⏳ ${lang === 'en' ? 'Ready in' : 'Připraveno za'} ~${st.hoursLeft}h</div>`;
+      }
+
+      if (tabKey === 'scriptorium') {
+        h += `<div style="margin-top:6px;">
+                <button onclick="UI.switchScreen('lore'); setTimeout(function(){ UI.switchLoreTab('manuscripts'); }, 50);" style="width:100%; font-size:0.75rem; padding:4px 8px; cursor:pointer; background:rgba(255,255,255,0.85); border:1px solid #c5a059; border-radius:4px; font-weight:bold; color:#2c3e50;">
+                  📖 ${lang === 'en' ? 'Open Scriptorium' : 'Otevřít Scriptorium'}
+                </button>
+              </div>`;
       }
       h += `</div>`;
 
@@ -900,55 +905,6 @@ const SaeculumSystem = {
         const k = list.find(x => x.id === selected);
         if (k) h += this.renderConversiDetail(k);
       }
-    }
-    h += `</div>`;
-    h += this.renderUbytovna();
-    return h;
-  },
-
-  // Vlna 1 — Ubytovna, vnořená pod Conversi (ubytovna-mrd.md §8c —
-  // Ondrex: "klidně pod Conversi"). Čistě zobrazovací, žádná nová
-  // game-state mutace. Data v GameState.ubytovna.guests[] (ChroniconSystem.js).
-  UBYTOVNA_VARIANT_NAMES: {
-    poutnik:       { cs: 'Poutník',       en: 'Pilgrim' },
-    kramar:        { cs: 'Kramář',        en: 'Peddler' },
-    zebravy_mnich: { cs: 'Žebravý bratr', en: 'Mendicant friar' },
-    uprchlik:      { cs: 'Uprchlík',      en: 'Refugee' },
-  },
-
-  renderUbytovna: function() {
-    const lang = (GameState.settings && GameState.settings.language) || 'cs';
-    const cap = (typeof Game !== 'undefined' && Game.ubytovnaCapacity) ? Game.ubytovnaCapacity() : 1;
-    const guests = (GameState.ubytovna && GameState.ubytovna.guests) || [];
-    const now = Date.now();
-    const DAY_MS = 24 * 60 * 60 * 1000;
-
-    let h = `<div style="margin-bottom:16px; background:rgba(0,0,0,0.03); border-radius:8px; border-left:3px solid var(--accent-gold); padding:12px 14px;">`;
-    h += `<div style="font-weight:bold; font-size:0.92rem; margin-bottom:4px;">🥾 ${lang==='en'?'Guesthouse':'Ubytovna'}</div>`;
-    h += `<div style="font-size:0.85rem; margin-bottom:6px;">${lang==='en'?'Guests':'Hosté'}: <strong>${guests.length} / ${cap}</strong></div>`;
-    h += `<div style="font-size:0.7rem; opacity:0.6; font-style:italic; margin-bottom:8px;">${lang==='en'
-      ? 'Guests arrive on their own — pilgrims, refugees, travelers passing through.'
-      : 'Hosté přicházejí sami — poutníci, uprchlíci, pocestní na cestě.'}</div>`;
-
-    if (!guests.length) {
-      h += `<div style="font-size:0.8rem; opacity:0.6; font-style:italic;">${lang==='en'?'No one is staying here yet.':'Zatím tu nikdo nebydlí.'}</div>`;
-    } else {
-      h += `<div style="display:flex; flex-wrap:wrap; gap:6px;">`;
-      guests.forEach(g => {
-        const vn = this.UBYTOVNA_VARIANT_NAMES[g.variant] || { cs: g.variant, en: g.variant };
-        const name = lang === 'en' ? vn.en : vn.cs;
-        const icon = g.variant === 'uprchlik' ? '🏚️' : '🥾';
-        const dueAt = (g.arrivedAt || 0) + (g.plannedDays || 1) * DAY_MS;
-        const daysLeft = Math.max(0, Math.ceil((dueAt - now) / DAY_MS));
-        const chance = Math.round(g.joinChance || 0);
-        h += `<div style="display:flex; align-items:center; gap:6px; padding:6px 10px; background:rgba(255,255,255,0.4); border:1px solid rgba(197,160,89,0.4); border-radius:8px;">
-                <span style="font-size:1rem;">${icon}</span>
-                <span style="font-size:0.72rem; font-weight:bold;">${name}</span>
-                <span style="font-size:0.65rem; opacity:0.6;">${daysLeft}${lang==='en'?'d left':'d zbývá'}</span>
-                ${chance > 0 ? `<span style="font-size:0.65rem; opacity:0.75;" title="${lang==='en'?'Growing fondness for monastic life':'Rostoucí náklonnost ke klášternímu životu'}">🙏 ${chance}%</span>` : ''}
-              </div>`;
-      });
-      h += `</div>`;
     }
     h += `</div>`;
     return h;

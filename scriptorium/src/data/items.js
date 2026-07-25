@@ -35,6 +35,7 @@ const ItemsDB = {
     "cooking_pot": { name: "Hrnec", name_en: "Cooking Pot", icon: "🫕", type: "tool", desc: "Na vaření.", desc_en: "For cooking." },
     "tea_kettle": { name: "Konvička", name_en: "Kettle", icon: "🫖", type: "tool", desc: "Hliněná konvička na čaj. Pověsí se nad oheň.", desc_en: "A clay kettle for tea. Hung over the fire." },
     "basket": { name: "Koš", name_en: "Basket", icon: "🧺", type: "tool", desc: "Na sběr.", desc_en: "For foraging." },
+    "loaded_dice": { name: "Cinknuté kostky", name_en: "Loaded Dice", icon: "🎲", type: "tool", desc: "Kostky naplněné olovem. V hospodě zvyšují šanci na výhru o 15 %, ale pozor na šenkýře!", desc_en: "Dice loaded with lead. Increases win chance in the tavern, but beware the keeper!" },
 
     "repair_kit": { name: "Opravná sada", name_en: "Repair Kit", icon: "🔧", type: "tool", desc: "Na opravu studny.", desc_en: "For repairing the well.", cat: "tool" },
 

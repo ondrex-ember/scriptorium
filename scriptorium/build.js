@@ -89,6 +89,7 @@ const JS_MAIN = [
     'src/games/backgammon.js',
     'src/games/draughts.js',
     'src/games/hnefatafl.js',
+    'src/games/TavernDice.js',
 
     // i18n — MUSÍ být před Game a UI
     'src/i18n/cs.js',               // Čeština (master)

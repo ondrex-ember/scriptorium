@@ -5,11 +5,25 @@ const UI = {
     _dirty: { home: false, inv: false, craft: false, lore: false, garden: false, cellarium: false },
     _hashInv: '', _hashCraft: '', _hashActions: '',
     switchScreen: function (name, btn) {
+        if (name === 'saeculum') {
+            this.navigateToSaeculum();
+            return;
+        }
+        if (name === 'cellarium') {
+            this.navigateToCellarium();
+            return;
+        }
+        const screenEl = document.getElementById('screen-' + name);
+        if (!screenEl) {
+            console.warn('UI.switchScreen: Screen element not found:', name);
+            return;
+        }
         document.querySelectorAll('.screen').forEach(e => e.classList.remove('active'));
-        document.getElementById('screen-' + name).classList.add('active');
+        screenEl.classList.add('active');
         document.querySelectorAll('.nav-btn').forEach(e => e.classList.remove('active'));
         if (btn) btn.classList.add('active');
         this.currentScreen = name;
+        this.renderResourceTracker();
         if (this._dirty[name]) {
             this._dirty[name] = false;
             if (name === 'inv') { this.renderInventory(); }
@@ -39,6 +53,11 @@ const UI = {
                 themeSelector.value = GameState.settings.theme || 'default';
             }
 
+            const designSelector = document.getElementById('design-style-selector');
+            if (designSelector) {
+                designSelector.value = GameState.settings.designStyle || 'marniva';
+            }
+
             // Load fire volume slider
             const fireVolumeSlider = document.getElementById('fire-volume-slider');
             if (fireVolumeSlider) {
@@ -65,7 +84,7 @@ const UI = {
             if (tier3Option) tier3Option.style.display = tier3 ? 'flex' : 'none';
 
             // Nastavit aktuálně vybraný radio button
-            const currentTier = (typeof audioSys !== 'undefined') ? audioSys.musicTier : (GameState.settings.musicTier || 1);
+            const currentTier = (typeof audioSys !== 'undefined' && audioSys !== null) ? audioSys.musicTier : (GameState.settings?.musicTier || 1);
             const tierRadio = document.querySelector(`input[name="musicTier"][value="${currentTier}"]`);
             if (tierRadio) tierRadio.checked = true;
 
@@ -124,13 +143,31 @@ const UI = {
             }
         }
     },
+
+    navigateToSaeculum: function(entity) {
+        this.switchScreen('home', document.getElementById('nav-home'));
+        const tabBtn = document.getElementById('home-tab-saeculum');
+        this.switchHomeTab('saeculum', tabBtn);
+        if (entity && typeof SaeculumSystem !== 'undefined') {
+            SaeculumSystem.switchEntity(entity);
+        }
+    },
+
+    navigateToCellarium: function(entity) {
+        this.switchScreen('home', document.getElementById('nav-home'));
+        const tabBtn = document.getElementById('home-tab-cellarium');
+        this.switchHomeTab('cellarium', tabBtn);
+        if (entity && typeof CellariumSystem !== 'undefined') {
+            CellariumSystem.switchEntity(entity);
+        }
+    },
+
     renderAll: function () {
         // Porta — odhalit tlačítko v navigaci, jakmile GameState.flags.porta_active naskočí (Chronicon most)
         const _portaBtn = document.getElementById('lore-tab-porta');
         if (_portaBtn) _portaBtn.style.display = (GameState.flags && GameState.flags.porta_active) ? '' : 'none';
-        // Zakázky — stejná podmínka jako Porta (bez ní nejsou žádné závazkové dopisy)
-        const _commitBtn = document.getElementById('lore-tab-commitments');
-        if (_commitBtn) _commitBtn.style.display = (GameState.flags && GameState.flags.porta_active) ? '' : 'none';
+
+        this.renderResourceTracker();
 
         const s = this.currentScreen || 'home';
         if (s === 'home') {
@@ -155,6 +192,198 @@ const UI = {
         const allScreens = ['home', 'inv', 'craft', 'lore', 'garden'];
         allScreens.forEach(sc => { if (sc !== s) this._dirty[sc] = true; });
         this._dirty.cellarium = true;
+    },
+
+    toggleResourceTracker: function (e) {
+        if (e && e.stopPropagation) e.stopPropagation();
+        if (typeof GameState === 'undefined' || !GameState) return;
+        if (!GameState.ui) GameState.ui = {};
+        GameState.ui.resTrackerCollapsed = !GameState.ui.resTrackerCollapsed;
+        this.renderResourceTracker();
+    },
+
+    renderResourceTracker: function () {
+        const bars = document.querySelectorAll('.resource-tracker-bar');
+        if (!bars.length) return;
+        if (typeof GameState === 'undefined' || !GameState || !GameState.inventory) {
+            bars.forEach(el => { el.innerHTML = ''; });
+            return;
+        }
+
+        if (!GameState.ui) GameState.ui = {};
+        const isCollapsed = !!GameState.ui.resTrackerCollapsed;
+
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        const isCs = lang === 'cs';
+        const sc = this.currentScreen || 'home';
+
+        const inv = GameState.inventory || {};
+
+        let barTitle = isCs ? 'Suroviny:' : 'Supplies:';
+        let barIcon = '📦';
+        let items = [];
+
+        if (sc === 'home' || sc === 'craft') {
+            barTitle = isCs ? 'Suroviny:' : 'Supplies:';
+            barIcon = '📦';
+            const woodCount = (inv.wood || 0) + (inv.log || 0);
+            const branchCount = inv.stick || 0;
+            const tallowCount = inv.fat || 0;
+            const flakeCount = inv.sharp_stone || 0;
+            const rockCount = inv.rock || 0;
+            const ropeCount = inv.rope || 0;
+            const fiberCount = inv.fiber || 0;
+
+            items = [
+                { id: 'wood', icon: '🌲', label: isCs ? 'Dřevo' : 'Wood', count: woodCount, key: 'wood' },
+                { id: 'stick', icon: '🌿', label: isCs ? 'Větve' : 'Branches', count: branchCount, key: 'stick' },
+                { id: 'fat', icon: '🥩', label: isCs ? 'Tuk' : 'Tallow', count: tallowCount, key: 'fat' },
+                { id: 'sharp_stone', icon: '🔪', label: isCs ? 'Úštěpky' : 'Flakes', count: flakeCount, subCount: rockCount, subLabel: isCs ? 'Kameny' : 'Rocks', key: 'sharp_stone' },
+                { id: 'rope', icon: '➰', label: isCs ? 'Provaz' : 'Twine', count: ropeCount, subCount: fiberCount, subLabel: isCs ? 'Vlákna' : 'Fibers', key: 'rope' }
+            ];
+        } else if (sc === 'garden') {
+            barTitle = isCs ? 'Zahrada:' : 'Garden:';
+            barIcon = '🌱';
+            const waterCount = inv.water || 0;
+            const herbCount = (inv.herbs || 0) + (inv.seeds || 0);
+            const berryCount = (inv.berries || 0) + (inv.apple || 0) + (inv.fruit || 0);
+            const ashCount = (inv.ash || 0) + (inv.fertilizer || 0);
+            const stickCount = inv.stick || 0;
+
+            items = [
+                { id: 'water', icon: '💧', label: isCs ? 'Voda' : 'Water', count: waterCount, key: 'water' },
+                { id: 'herbs', icon: '🌱', label: isCs ? 'Sazenice/Byliny' : 'Herbs', count: herbCount, key: 'herbs' },
+                { id: 'berries', icon: '🍎', label: isCs ? 'Plody/Úroda' : 'Harvest', count: berryCount, key: 'berries' },
+                { id: 'ash', icon: '🔥', label: isCs ? 'Popel/Hnojivo' : 'Ash/Fertilizer', count: ashCount, key: 'ash' },
+                { id: 'stick', icon: '🌿', label: isCs ? 'Větve' : 'Branches', count: stickCount, key: 'stick' }
+            ];
+        } else if (sc === 'inv') {
+            barTitle = isCs ? 'Zásoby:' : 'Pantry:';
+            barIcon = '🥖';
+            const waterCount = inv.water || 0;
+            const breadCount = inv.bread || 0;
+            const meatCount = (inv.meat || 0) + (inv.fish || 0) + (inv.meat_cooked || 0);
+            const pieCount = inv.pie || 0;
+            const eggCount = inv.egg || 0;
+
+            items = [
+                { id: 'water', icon: '💧', label: isCs ? 'Voda' : 'Water', count: waterCount, key: 'water' },
+                { id: 'bread', icon: '🍞', label: isCs ? 'Chléb' : 'Bread', count: breadCount, key: 'bread' },
+                { id: 'meat', icon: '🍖', label: isCs ? 'Maso/Ryby' : 'Meat/Fish', count: meatCount, key: 'meat' },
+                { id: 'pie', icon: '🥧', label: isCs ? 'Koláč' : 'Pie', count: pieCount, key: 'pie' },
+                { id: 'egg', icon: '🥚', label: isCs ? 'Vejce' : 'Eggs', count: eggCount, key: 'egg' }
+            ];
+        } else if (sc === 'scriptorium' || sc === 'lore') {
+            barTitle = isCs ? 'Písařství:' : 'Scribe:';
+            barIcon = '🖋️';
+            const paperCount = inv.paper || 0;
+            const parchmentCount = inv.parchment || 0;
+            const inkCount = (inv.ink || 0) + (inv.ink_gall || 0);
+            const quillCount = inv.quill || 0;
+            const coinCount = GameState.coins || inv.coins || 0;
+
+            items = [
+                { id: 'paper', icon: '📄', label: isCs ? 'Papír' : 'Paper', count: paperCount, key: 'paper' },
+                { id: 'parchment', icon: '📜', label: isCs ? 'Pergamen' : 'Parchment', count: parchmentCount, key: 'parchment' },
+                { id: 'ink', icon: '🖋️', label: isCs ? 'Inkoust' : 'Ink', count: inkCount, key: 'ink' },
+                { id: 'quill', icon: '✒️', label: isCs ? 'Brky' : 'Quills', count: quillCount, key: 'quill' },
+                { id: 'coins', icon: '💰', label: isCs ? 'Mince' : 'Coins', count: coinCount, key: 'coins' }
+            ];
+        } else if (sc === 'library') {
+            barTitle = isCs ? 'Knihovna:' : 'Library:';
+            barIcon = '📚';
+            const resPoints = GameState.researchPoints || 0;
+            const paperCount = inv.paper || 0;
+
+            let unlockedCount = 0;
+            let readCount = 0;
+            let totalCount = 0;
+            if (typeof LibraryDB !== 'undefined' && LibraryDB.books) {
+                totalCount = LibraryDB.books.length;
+                const stateLib = GameState.library || {};
+                const unlockedArr = stateLib.unlockedBooks || [];
+                const readArr = stateLib.readBooks || [];
+                unlockedCount = unlockedArr.length;
+                readCount = readArr.length;
+            }
+
+            items = [
+                { id: 'research', icon: '🧠', label: isCs ? 'Výzkum' : 'Research', count: resPoints, key: 'research' },
+                { id: 'unlocked', icon: '📚', label: isCs ? 'Odemčeno' : 'Unlocked', count: unlockedCount, subCount: totalCount, subLabel: isCs ? 'Celkem' : 'Total', key: 'unlocked' },
+                { id: 'read', icon: '📖', label: isCs ? 'Přečteno' : 'Read', count: readCount, subCount: totalCount, subLabel: isCs ? 'Celkem' : 'Total', key: 'read' },
+                { id: 'paper', icon: '📄', label: isCs ? 'Papír' : 'Paper', count: paperCount, key: 'paper' }
+            ];
+        } else {
+            barTitle = isCs ? 'Suroviny:' : 'Supplies:';
+            barIcon = '📦';
+            const woodCount = (inv.wood || 0) + (inv.log || 0);
+            const branchCount = inv.stick || 0;
+            const paperCount = inv.paper || 0;
+            items = [
+                { id: 'wood', icon: '🌲', label: isCs ? 'Dřevo' : 'Wood', count: woodCount, key: 'wood' },
+                { id: 'stick', icon: '🌿', label: isCs ? 'Větve' : 'Branches', count: branchCount, key: 'stick' },
+                { id: 'paper', icon: '📄', label: isCs ? 'Papír' : 'Paper', count: paperCount, key: 'paper' }
+            ];
+        }
+
+        if (isCollapsed) {
+            const cleanTitle = barTitle.replace(':', '');
+            const html = `
+                <button class="res-tracker-toggle-btn collapsed-btn" onclick="UI.toggleResourceTracker(event)" title="${isCs ? 'Klikni pro rozbalení' : 'Click to expand'}">
+                    ${barIcon} <span class="res-tracker-title-text">${cleanTitle}</span> <span class="res-tracker-icon">➕</span>
+                </button>
+            `;
+            bars.forEach(el => {
+                el.classList.add('is-collapsed');
+                el.innerHTML = html;
+            });
+            return;
+        }
+
+        bars.forEach(el => { el.classList.remove('is-collapsed'); });
+
+        const clickTarget = sc === 'home' ? 'craft' : sc;
+
+        let html = `
+            <div class="res-tracker-container">
+                <span class="res-tracker-title" onclick="UI.switchScreen('${clickTarget}')" title="${isCs ? 'Detail' : 'Detail'}">
+                    ${barIcon} <span class="res-tracker-title-text">${barTitle}</span>
+                </span>
+                <div class="res-tracker-pills">
+        `;
+
+        items.forEach(item => {
+            const isZero = item.count === 0 && (!item.subCount || item.subCount === 0);
+            let valStr = `${item.count}`;
+            if (item.subCount !== undefined && item.subCount > 0) {
+                let subTag = '';
+                if (item.key === 'sharp_stone') subTag = '⛰️';
+                else if (item.key === 'rope') subTag = '🌾';
+
+                if (item.key === 'unlocked' || item.key === 'read') {
+                    valStr = `${item.count}<span class="res-subval" title="${item.subLabel}">/${item.subCount}</span>`;
+                } else {
+                    valStr += ` <span class="res-subval" title="${item.subLabel}">(${item.subCount}${subTag ? ' ' + subTag : ''})</span>`;
+                }
+            }
+            html += `
+                <div class="res-pill ${isZero ? 'res-pill-empty' : ''}" onclick="UI.switchScreen('${clickTarget}')" title="${item.label}">
+                    <span class="res-pill-icon">${item.icon}</span>
+                    <span class="res-pill-label">${item.label}:</span>
+                    <span class="res-pill-val">${valStr}</span>
+                </div>
+            `;
+        });
+
+        html += `
+                </div>
+                <button class="res-tracker-close-btn" onclick="UI.toggleResourceTracker(event)" title="${isCs ? 'Sbalit' : 'Collapse'}">
+                    ✖
+                </button>
+            </div>
+        `;
+
+        bars.forEach(el => { el.innerHTML = html; });
     },
 
     showItemModal: function (id) {
@@ -945,7 +1174,8 @@ const UI = {
         const _t = window.t || t;
         const _lang = (GameState.settings && GameState.settings.language) || 'cs';
         const notesLabel = _lang === 'en' ? 'Notes:' : 'Zápisky:';
-        let h = `<div style="text-align:center;margin-bottom:15px;border:1px solid var(--accent-gold);padding:10px;">${notesLabel} <strong>${res}</strong> 📜</div>`;
+        let h = `<div id="manuscript-copy-widget">${typeof ManuscriptCopySystem !== 'undefined' ? ManuscriptCopySystem.renderWidget() : ''}</div>`;
+        h += `<div style="text-align:center;margin-bottom:15px;border:1px solid var(--accent-gold);padding:10px;">${notesLabel} <strong>${res}</strong> 📜</div>`;
         TechTree.forEach(tech => {
             const done = GameState.researchedTechs.includes(tech.id);
             let canResearch = res >= tech.cost;
@@ -1049,25 +1279,31 @@ const UI = {
     },
 
     switchLoreTab: function (tab, btn) {
+        if (!btn) btn = document.getElementById('lore-tab-' + tab);
         // Hide all tabs
         document.getElementById('lore-research-content').style.display = 'none';
         document.getElementById('lore-codex-content').style.display = 'none';
         document.getElementById('lore-notebooks-content').style.display = 'none';
         document.getElementById('lore-achievements-content').style.display = 'none';
+        const _ltasksEl = document.getElementById('lore-tasks-content'); if (_ltasksEl) _ltasksEl.style.display = 'none';
+        const _lmsEl = document.getElementById('lore-manuscripts-content'); if (_lmsEl) _lmsEl.style.display = 'none';
         const _lichEl = document.getElementById('lore-iching-content'); if (_lichEl) _lichEl.style.display = 'none';
         const _lcalEl = document.getElementById('lore-calendarium-content'); if (_lcalEl) _lcalEl.style.display = 'none';
         const _lperEl = document.getElementById('lore-persona-content'); if (_lperEl) _lperEl.style.display = 'none';
         const _lportEl = document.getElementById('lore-porta-content'); if (_lportEl) _lportEl.style.display = 'none';
-        const _lcommitEl = document.getElementById('lore-commitments-content'); if (_lcommitEl) _lcommitEl.style.display = 'none';
 
-        // Remove active class from all buttons
-        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+        // Remove active class from screen-lore filter buttons
+        document.querySelectorAll('#screen-lore .filter-btn').forEach(b => b.classList.remove('active'));
         if (btn) btn.classList.add('active');
 
         // Show selected tab
         if (tab === 'research') {
             document.getElementById('lore-research-content').style.display = 'block';
             UI.renderScriptorium();
+        } else if (tab === 'tasks') {
+            if (_ltasksEl) { _ltasksEl.style.display = 'block'; if (typeof MonasticTasksSystem !== 'undefined') MonasticTasksSystem.render(); else UI.renderMonasticTasks(); }
+        } else if (tab === 'manuscripts') {
+            if (_lmsEl) { _lmsEl.style.display = 'block'; if (typeof ManuscriptCopySystem !== 'undefined') ManuscriptCopySystem.renderPage(); else UI.renderManuscriptCopying(); }
         } else if (tab === 'codex') {
             document.getElementById('lore-codex-content').style.display = 'block';
             UI.renderCodex();
@@ -1086,8 +1322,6 @@ const UI = {
             if (_lperEl) { _lperEl.style.display = 'block'; if (typeof PersonaSystem !== 'undefined') PersonaSystem.render(); }
         } else if (tab === 'porta') {
             if (_lportEl) { _lportEl.style.display = 'block'; if (typeof PortaSystem !== 'undefined') PortaSystem.render(); }
-        } else if (tab === 'commitments') {
-            if (_lcommitEl) { _lcommitEl.style.display = 'block'; if (typeof CommitmentsSystem !== 'undefined') CommitmentsSystem.render(); }
         }
     },
 
@@ -1130,6 +1364,379 @@ const UI = {
             const el = document.getElementById('library-studovna-content');
             if (el) { el.style.display = 'block'; if (typeof StudovnaSystem !== 'undefined') StudovnaSystem.render(); }
         }
+    },
+
+    renderMonasticTasks: function () {
+        const el = document.getElementById('lore-tasks-content');
+        if (!el) return;
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        const isEn = lang === 'en';
+
+        if (!GameState.tasksState) {
+            GameState.tasksState = {
+                completedToday: {},
+                lastResetDay: GameState.stats ? GameState.stats.day : 1
+            };
+        }
+
+        const currentDay = GameState.stats ? GameState.stats.day : 1;
+        if (GameState.tasksState.lastResetDay !== currentDay) {
+            GameState.tasksState.completedToday = {};
+            GameState.tasksState.lastResetDay = currentDay;
+        }
+
+        const tasksList = [
+            { id: 'task_prayer', icon: '⛪', title: isEn ? 'Morning Office & Prayer' : 'Ranní officium a modlitba', desc: isEn ? 'Recite Psalms for spiritual strength (+10 Vigor)' : 'Recitace žalmů pro duchovní sílu (+10 Vigor)' },
+            { id: 'task_scriptorium', icon: '✒️', title: isEn ? 'Scriptorium Copying Duty' : 'Služba v skriptoriu', desc: isEn ? 'Write scripture lines (+5 Research)' : 'Napsat 5 řádků písemností (+5 Výzkum)' },
+            { id: 'task_garden', icon: '🪴', title: isEn ? 'Herb Garden Tending' : 'Péče o klášterní zahrádku', desc: isEn ? 'Water herbs (+1 Herbs)' : 'Zalít bylinky a plevat plevel (+1 Byliny)' },
+            { id: 'task_library', icon: '📖', title: isEn ? 'Library Cataloging' : 'Katalogizace knihovny', desc: isEn ? 'Inspect scroll condition (+3 Research)' : 'Prohlédnout stav svitků (+3 Výzkum)' }
+        ];
+
+        let h = `<div style="padding:20px; background:#fbf7ee; border:1px solid #c5a059; border-radius:8px; position:relative; box-shadow:0 4px 12px rgba(0,0,0,0.06);">`;
+        // Corner ornaments
+        h += `<div style="position:absolute; top:4px; left:4px; width:10px; height:10px; border-top:2px solid #c5a059; border-left:2px solid #c5a059;"></div>`;
+        h += `<div style="position:absolute; top:4px; right:4px; width:10px; height:10px; border-top:2px solid #c5a059; border-right:2px solid #c5a059;"></div>`;
+        h += `<div style="position:absolute; bottom:4px; left:4px; width:10px; height:10px; border-bottom:2px solid #c5a059; border-left:2px solid #c5a059;"></div>`;
+        h += `<div style="position:absolute; bottom:4px; right:4px; width:10px; height:10px; border-bottom:2px solid #c5a059; border-right:2px solid #c5a059;"></div>`;
+
+        h += `<div style="font-size:0.75rem; font-weight:bold; letter-spacing:1.5px; color:#2b6cb0; text-transform:uppercase; margin-bottom:6px;">📜 ${isEn ? 'DAILY SCHEDULE (HORARIUM MONASTICUM)' : 'DENNÍ ŘÁD (HORARIUM MONASTICUM)'}</div>`;
+        h += `<div style="font-size:0.85rem; color:#4a5568; margin-bottom:16px;">${isEn ? 'Rule of Saint Benedict: Ora et labora. Fulfill daily duties for spiritual and practical benefit of the monastery.' : 'Řehole svatého Benedikta: Ora et labora. Plň každodenní povinnosti pro duchovní i praktický užitek kláštera.'}</div>`;
+
+        // Canonical Hours Grid matching Screenshot 2
+        const canonicalGrid = [
+            { id: 'vigilie', name: 'Vigilie', time: '02:00', icon: '🌙' },
+            { id: 'laudes', name: 'Laudes', time: '06:00', icon: '🌅' },
+            { id: 'prima', name: 'Prima', time: '09:00', icon: '☀️' },
+            { id: 'sexta', name: 'Sexta', time: '12:00', icon: '☀️' },
+            { id: 'nona', name: 'Nona', time: '15:00', icon: '🌤️' },
+            { id: 'vesperae', name: 'Vesperae', time: '18:00', icon: '🏙️' }
+        ];
+
+        h += `<div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(90px, 1fr)); gap:8px; margin-bottom:12px;">`;
+        canonicalGrid.forEach(ch => {
+            h += `<div style="padding:10px 6px; background:rgba(255,255,255,0.7); border:1px solid rgba(197,160,89,0.4); border-radius:6px; text-align:center;">
+                <div style="font-size:1.3rem; margin-bottom:2px;">${ch.icon}</div>
+                <div style="font-weight:bold; font-size:0.8rem; color:#2c3e50;">${ch.name}</div>
+                <div style="font-size:0.68rem; opacity:0.65;">${ch.time}</div>
+            </div>`;
+        });
+        h += `</div>`;
+
+        h += `<div style="display:flex; justify-content:center; margin-bottom:20px;">`;
+        h += `<div style="padding:8px 24px; background:rgba(255,255,255,0.7); border:1px solid rgba(197,160,89,0.4); border-radius:6px; text-align:center; min-width:140px;">
+            <div style="font-size:1.3rem; margin-bottom:2px;">🕯️</div>
+            <div style="font-weight:bold; font-size:0.8rem; color:#2c3e50;">Completorium</div>
+            <div style="font-size:0.68rem; opacity:0.65;">21:00</div>
+        </div>`;
+        h += `</div>`;
+
+        // Decorative divider
+        h += `<div style="position:relative; height:1px; background:#90cdf4; margin:16px 0 20px 0;">`;
+        h += `<div style="position:absolute; top:-3px; left:50%; transform:translateX(-50%) rotate(45deg); width:7px; height:7px; background:#90cdf4;"></div>`;
+        h += `</div>`;
+
+        h += `<div style="font-size:0.9rem; font-weight:bold; color:#2c3e50; margin-bottom:12px;">📋 ${isEn ? 'Daily Duties' : 'Denní povinnosti k vyplnění'}</div>`;
+        h += `<div style="display:flex; flex-direction:column; gap:10px;">`;
+        tasksList.forEach(t => {
+            const isDone = !!GameState.tasksState.completedToday[t.id];
+            h += `<div style="display:flex; align-items:center; justify-content:space-between; padding:12px 16px; background:${isDone ? 'rgba(76,175,80,0.08)' : 'rgba(255,255,255,0.6)'}; border:1px solid ${isDone ? 'rgba(76,175,80,0.35)' : 'rgba(197,160,89,0.35)'}; border-radius:8px;">
+                <div style="display:flex; align-items:center; gap:14px;">
+                    <div style="font-size:1.6rem;">${t.icon}</div>
+                    <div>
+                        <div style="font-weight:bold; font-size:0.92rem; color:#2c3e50;">${t.title} ${isDone ? '<span style="color:#27ae60;">✔</span>' : ''}</div>
+                        <div style="font-size:0.78rem; opacity:0.75; color:#555;">${t.desc}</div>
+                    </div>
+                </div>
+                <div>
+                    <button class="medieval-btn" style="padding:6px 14px; font-size:0.8rem; border-radius:4px; font-weight:bold; cursor:${isDone ? 'default' : 'pointer'}; background:${isDone ? '#e2e8f0' : 'linear-gradient(180deg, #8b4513 0%, #5a2a0a 100%)'}; color:${isDone ? '#718096' : '#fff'}; border:1px solid ${isDone ? '#cbd5e0' : '#d4af37'};" ${isDone ? 'disabled' : `onclick="UI.completeMonasticTask('${t.id}')"`}>
+                        ${isDone ? (isEn ? 'Completed' : 'Splněno') : (isEn ? 'Fulfill' : 'Splnit')}
+                    </button>
+                </div>
+            </div>`;
+        });
+        h += `</div></div>`;
+        el.innerHTML = h;
+    },
+
+    completeMonasticTask: function (taskId) {
+        if (!GameState.tasksState) GameState.tasksState = { completedToday: {}, lastResetDay: 1 };
+        if (GameState.tasksState.completedToday[taskId]) return;
+        GameState.tasksState.completedToday[taskId] = true;
+
+        if (taskId === 'task_prayer') {
+            if (typeof VigorSystem !== 'undefined' && VigorSystem.addFatigue) VigorSystem.addFatigue(-10);
+            UI.notify('⛪ Modlitba dokončena (+10 Vigor)');
+        } else if (taskId === 'task_scriptorium') {
+            GameState.inventory['research'] = (GameState.inventory['research'] || 0) + 5;
+            UI.notify('✒️ Služba v skriptoriu (+5 Výzkum)');
+        } else if (taskId === 'task_garden') {
+            GameState.inventory['herbs'] = (GameState.inventory['herbs'] || 0) + 1;
+            UI.notify('🪴 Bylinky sesbírány (+1 Byliny)');
+        } else if (taskId === 'task_library') {
+            GameState.inventory['research'] = (GameState.inventory['research'] || 0) + 3;
+            UI.notify('📖 Katalogizace dokončena (+3 Výzkum)');
+        }
+        UI.renderMonasticTasks();
+        if (typeof Game !== 'undefined' && Game.save) Game.save();
+    },
+
+    renderManuscriptCopying: function () {
+        const el = document.getElementById('lore-manuscripts-content');
+        if (!el) return;
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        const isEn = lang === 'en';
+
+        const MANUSCRIPTS_DB = [
+            { id: 'anselm', name: 'Žaltář sv. Anselma', name_en: 'Psalter of St. Anselm', folios: 10 },
+            { id: 'benedict', name: 'Řehole sv. Benedikta', name_en: 'Rule of St. Benedict', folios: 20 },
+            { id: 'chronica', name: 'Kronika kláštera Kladruby', name_en: 'Chronicle of Kladruby Monastery', folios: 35 },
+            { id: 'herbar', name: 'Herbář a Lékařství', name_en: 'Herbal & Medicine Codex', folios: 50 },
+            { id: 'homiliar', name: 'Homiliář a Kázání', name_en: 'Homiliary & Sermons', folios: 75 },
+            { id: 'gigas', name: 'Codex Gigas', name_en: 'Codex Gigas', folios: 120 }
+        ];
+
+        if (!GameState.manuscriptsState) {
+            GameState.manuscriptsState = {
+                activeId: 'anselm',
+                progress: 0,
+                auto: false,
+                copies: { anselm: 0, benedict: 0, chronica: 0, herbar: 0, homiliar: 0, gigas: 0 }
+            };
+        }
+
+        const ms = GameState.manuscriptsState;
+        if (!ms.copies) ms.copies = {};
+
+        const activeManuscript = MANUSCRIPTS_DB.find(m => m.id === ms.activeId) || MANUSCRIPTS_DB[0];
+        const manuscriptName = isEn ? activeManuscript.name_en : activeManuscript.name;
+        const totalFolios = activeManuscript.folios;
+        const currentProgress = ms.progress || 0;
+        const pct = Math.min(100, Math.round((currentProgress / totalFolios) * 100));
+        const copiesCount = ms.copies[activeManuscript.id] || 0;
+
+        const paper = GameState.inventory['paper'] || 0;
+        const parchment = GameState.inventory['parchment'] || 0;
+        const ink = GameState.inventory['ink'] || 0;
+        const quill = GameState.inventory['quill'] || 0;
+
+        let h = `<div style="padding:16px; background:rgba(0,0,0,0.03); border-radius:8px; margin-bottom:16px; display:flex; flex-wrap:wrap; gap:16px; font-size:0.85rem; border:1px solid rgba(197,160,89,0.3);">`;
+        h += `<div>📜 ${isEn ? 'Paper' : 'Papír'}: <strong>${paper}</strong></div>`;
+        h += `<div>📜 ${isEn ? 'Parchment' : 'Pergamen'}: <strong>${parchment}</strong></div>`;
+        h += `<div>🖋️ ${isEn ? 'Ink' : 'Inkoust'}: <strong>${ink}</strong></div>`;
+        h += `<div>🪶 ${isEn ? 'Quills' : 'Brky'}: <strong>${quill}</strong></div>`;
+        h += `</div>`;
+
+        // Dormitorium / Scriptor status card
+        const scriptoriumBrother = (GameState.dormitorium && GameState.dormitorium.brothers || [])
+            .find(b => b.assignedTab === 'scriptorium');
+        const isDormitoriumBuilt = (typeof Game !== 'undefined' && Game.dormitoriumCapacity)
+            ? Game.dormitoriumCapacity() > 0
+            : false;
+
+        if (scriptoriumBrother) {
+            const skLvl = (typeof Game !== 'undefined' && Game.dormitoriumBrotherLevel) ? Game.dormitoriumBrotherLevel(scriptoriumBrother, 'scriptorium') : 1;
+            const maxFolios = 1 + skLvl;
+            const hasSupplies = ink > 0 && (paper > 0 || parchment > 0);
+
+            h += `<div style="padding:14px 18px; background:#fbf7ee; border:1px solid #c5a059; border-radius:8px; margin-bottom:16px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; font-size:0.88rem; box-shadow:0 2px 8px rgba(0,0,0,0.05); border-left:4px solid #3182ce;">`;
+            h += `<div>`;
+            h += `<div style="font-weight:bold; color:#2c3e50; font-family:'Cinzel', serif, Georgia; font-size:0.95rem;">📿 ${isEn ? 'Assigned Scriptor' : 'Přiřazený Skriptor'}: <span style="color:#2b6cb0;">${scriptoriumBrother.name}</span> (${isEn ? 'Level' : 'Úroveň'} ${skLvl}/4)</div>`;
+            h += `<div style="font-size:0.8rem; color:#5a4a3a; margin-top:4px;">`;
+            if (hasSupplies) {
+                h += isEn 
+                    ? `⚙️ Automatically copies up to <strong>${maxFolios} folios</strong> per day during daily monastery tick (and reads in library).` 
+                    : `⚙️ Automaticky opisuje až <strong>${maxFolios} folií</strong> za den při denním cyklu kláštera (a čte v knihovně).`;
+            } else {
+                h += isEn 
+                    ? `⚠️ Missing supplies! Ink and Paper/Parchment required for automated copying.` 
+                    : `⚠️ Chybí psací potřeby! Pro automatické opisování je potřeba Inkoust + Papír/Pergamen.`;
+            }
+            h += `</div></div>`;
+            h += `<button class="craft-btn" onclick="UI.navigateToSaeculum('dormitorium')">`;
+            h += `🏰 ${isEn ? 'Monk Roster' : 'Správa mnichů'}`;
+            h += `</button>`;
+            h += `</div>`;
+        } else if (isDormitoriumBuilt) {
+            h += `<div style="padding:14px 18px; background:#fbf7ee; border:1px dashed #c5a059; border-radius:8px; margin-bottom:16px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; font-size:0.88rem; box-shadow:0 2px 8px rgba(0,0,0,0.05); border-left:4px solid #c5a059;">`;
+            h += `<div>`;
+            h += `<div style="font-weight:bold; color:#744210; font-family:'Cinzel', serif, Georgia; font-size:0.95rem;">📿 ${isEn ? 'No Scriptor assigned' : 'V Dormitoriu není přiřazen žádný Skriptor'}</div>`;
+            h += `<div style="font-size:0.8rem; color:#5a4a3a; margin-top:4px;">${isEn ? 'Assign a monk to Scriptorium in Saeculum (Dormitorium) for automatic daily manuscript copying.' : 'Přiřaď bratra na pracoviště Scriptorium v Saeculum (Dormitorium) pro automatické denní opisování.'}</div>`;
+            h += `</div>`;
+            h += `<button class="craft-btn" onclick="UI.navigateToSaeculum('dormitorium')">`;
+            h += `🏰 ${isEn ? 'Assign Monk' : 'Přiřadit bratra'}`;
+            h += `</button>`;
+            h += `</div>`;
+        } else {
+            h += `<div style="padding:14px 18px; background:#fbf7ee; border:1px dashed #a88a48; border-radius:8px; margin-bottom:16px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; font-size:0.88rem; box-shadow:0 2px 8px rgba(0,0,0,0.05); border-left:4px solid #8c5319;">`;
+            h += `<div>`;
+            h += `<div style="font-weight:bold; color:#8c5319; font-family:'Cinzel', serif, Georgia; font-size:0.95rem;">🔒 ${isEn ? 'Dormitorium not built' : 'Dormitorium ještě není postaveno'}</div>`;
+            h += `<div style="font-size:0.8rem; color:#5a4a3a; margin-top:4px;">${isEn ? 'To automate manuscript copying, construct the Dormitorium in Cellarium (Buildings) and assign a monk.' : 'Pro automatické opisování rukopisů postav Dormitorium v Cellarium (Budovy) a přiřaď v něm bratra.'}</div>`;
+            h += `</div>`;
+            h += `<button class="craft-btn" onclick="UI.navigateToCellarium('buildings')">`;
+            h += `🏛️ ${isEn ? 'Build Dormitorium' : 'Postavit Dormitorium'}`;
+            h += `</button>`;
+            h += `</div>`;
+        }
+
+        // Golden illuminated parchment container matching Screenshot 3
+        h += `<div style="padding:20px; background:#fbf7ee; border:1px solid #c5a059; border-radius:8px; position:relative; box-shadow:0 4px 12px rgba(0,0,0,0.06); margin-bottom:20px;">`;
+        // 4 Corner flourishes
+        h += `<div style="position:absolute; top:4px; left:4px; width:10px; height:10px; border-top:2px solid #c5a059; border-left:2px solid #c5a059;"></div>`;
+        h += `<div style="position:absolute; top:4px; right:4px; width:10px; height:10px; border-top:2px solid #c5a059; border-right:2px solid #c5a059;"></div>`;
+        h += `<div style="position:absolute; bottom:4px; left:4px; width:10px; height:10px; border-bottom:2px solid #c5a059; border-left:2px solid #c5a059;"></div>`;
+        h += `<div style="position:absolute; bottom:4px; right:4px; width:10px; height:10px; border-bottom:2px solid #c5a059; border-right:2px solid #c5a059;"></div>`;
+
+        // Subheader
+        h += `<div style="font-size:0.75rem; font-weight:bold; letter-spacing:1.5px; color:#2b6cb0; text-transform:uppercase; margin-bottom:8px;">✒️ ${isEn ? 'ACTIVE MANUSCRIPT COPYING' : 'AKTIVNÍ OPISOVÁNÍ RUKOPISU'}</div>`;
+
+        // Title row
+        h += `<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; flex-wrap:wrap; gap:8px;">`;
+        h += `<div style="font-size:1.15rem; font-weight:bold; color:#2c3e50; font-family:'Cinzel', serif, Georgia;">📖 ${manuscriptName} <span style="font-weight:normal; font-size:0.85rem; opacity:0.75;">(${copiesCount}x ${isEn ? 'copied' : 'opsáno'})</span></div>`;
+        h += `<div style="font-size:0.95rem; font-weight:bold; color:#3182ce;">${currentProgress} / ${totalFolios} ${isEn ? 'folios' : 'folií'} (${pct}%)</div>`;
+        h += `</div>`;
+
+        // Decorative line divider
+        h += `<div style="position:relative; height:1px; background:#90cdf4; margin:10px 0 16px 0;">`;
+        h += `<div style="position:absolute; top:-3px; left:50%; transform:translateX(-50%) rotate(45deg); width:7px; height:7px; background:#90cdf4;"></div>`;
+        h += `</div>`;
+
+        // Folios squares grid
+        h += `<div style="display:flex; flex-wrap:wrap; gap:6px; justify-content:center; margin:16px 0 20px 0;">`;
+        for (let i = 0; i < totalFolios; i++) {
+            if (i < currentProgress) {
+                h += `<div style="width:16px; height:16px; background:#3182ce; border:1px solid #2b6cb0; border-radius:3px; box-shadow:inset 0 1px 2px rgba(255,255,255,0.3);" title="Folium ${i+1}"></div>`;
+            } else {
+                h += `<div style="width:16px; height:16px; background:rgba(144, 205, 244, 0.25); border:1px solid #7bc5d8; border-radius:3px;" title="Folium ${i+1}"></div>`;
+            }
+        }
+        h += `</div>`;
+
+        // Buttons row matching Screenshot 3
+        h += `<div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">`;
+        h += `<div style="display:flex; gap:10px; flex-wrap:wrap;">`;
+        h += `<button onclick="UI.copyFolium(1)" style="background:linear-gradient(180deg, #8b4513 0%, #5a2a0a 100%); color:#ffffff; border:1px solid #d4af37; padding:8px 16px; border-radius:4px; font-weight:bold; font-family:'Cinzel', serif, Georgia; font-size:0.85rem; cursor:pointer; box-shadow:0 2px 4px rgba(0,0,0,0.25); display:flex; align-items:center; gap:6px;">
+            ✒️ ${isEn ? 'COPY 1 FOLIUM (1 ✒️)' : 'OPSAT 1 FOLIUM (1 ✒️)'}
+        </button>`;
+        h += `<button onclick="UI.copyFolium(5)" style="background:linear-gradient(180deg, #8b4513 0%, #5a2a0a 100%); color:#ffffff; border:1px solid #d4af37; padding:8px 16px; border-radius:4px; font-weight:bold; font-family:'Cinzel', serif, Georgia; font-size:0.85rem; cursor:pointer; box-shadow:0 2px 4px rgba(0,0,0,0.25); display:flex; align-items:center; gap:6px;">
+            📜 ${isEn ? 'COPY 5 FOLIOS' : 'OPSAT 5 FOLÍÍ'}
+        </button>`;
+        h += `</div>`;
+
+        const isAuto = !!ms.auto;
+        h += `<button onclick="UI.toggleManuscriptAutomation()" style="background:linear-gradient(180deg, #2b6cb0 0%, #1a4971 100%); color:#ffffff; border:1px solid #63b3ed; padding:8px 16px; border-radius:4px; font-weight:bold; font-family:'Cinzel', serif, Georgia; font-size:0.85rem; cursor:pointer; box-shadow:0 2px 4px rgba(0,0,0,0.25); display:flex; align-items:center; gap:6px;">
+            ⚡ ${isEn ? 'AUTOMATION' : 'AUTOMATIKA'}: ${isAuto ? (isEn ? 'ON' : 'ZAP') : (isEn ? 'OFF' : 'VYP')}
+        </button>`;
+        h += `</div>`;
+
+        h += `</div>`;
+
+        // Manuscript selection list
+        h += `<div style="font-size:0.92rem; font-weight:bold; color:#2c3e50; margin-bottom:10px;">📜 ${isEn ? 'Available Manuscripts for Copying' : 'Knižní kodexy k opisování'}</div>`;
+        h += `<div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(220px, 1fr)); gap:10px;">`;
+        MANUSCRIPTS_DB.forEach(m => {
+            const isSel = m.id === activeManuscript.id;
+            const name = isEn ? m.name_en : m.name;
+            const cop = ms.copies[m.id] || 0;
+            h += `<div onclick="UI.selectManuscript('${m.id}')" style="padding:10px 14px; background:${isSel ? 'rgba(197,160,89,0.18)' : 'rgba(255,255,255,0.6)'}; border:1px solid ${isSel ? '#c5a059' : 'rgba(197,160,89,0.3)'}; border-radius:6px; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
+                <div>
+                    <div style="font-weight:bold; font-size:0.88rem; color:#2c3e50;">📖 ${name}</div>
+                    <div style="font-size:0.75rem; opacity:0.7;">${m.folios} ${isEn ? 'folios' : 'folií'} | ${cop}x ${isEn ? 'copied' : 'opsáno'}</div>
+                </div>
+                ${isSel ? '<span style="font-size:0.8rem; font-weight:bold; color:#8b4513;">▶ AKTIVNÍ</span>' : ''}
+            </div>`;
+        });
+        h += `</div>`;
+
+        el.innerHTML = h;
+    },
+
+    selectManuscript: function (id) {
+        if (!GameState.manuscriptsState) GameState.manuscriptsState = { activeId: 'anselm', progress: 0, auto: false, copies: {} };
+        if (GameState.manuscriptsState.activeId === id) return;
+        GameState.manuscriptsState.activeId = id;
+        GameState.manuscriptsState.progress = 0;
+        UI.renderManuscriptCopying();
+        if (typeof Game !== 'undefined' && Game.save) Game.save();
+    },
+
+    copyFolium: function (count = 1) {
+        if (!GameState.manuscriptsState) {
+            GameState.manuscriptsState = { activeId: 'anselm', progress: 0, auto: false, copies: {} };
+        }
+        const ms = GameState.manuscriptsState;
+        const MANUSCRIPTS_DB = {
+            anselm: 10, benedict: 20, chronica: 35, herbar: 50, homiliar: 75, gigas: 120
+        };
+        const maxFolios = MANUSCRIPTS_DB[ms.activeId] || 10;
+
+        let copiesDone = 0;
+        for (let c = 0; c < count; c++) {
+            const paper = GameState.inventory['paper'] || 0;
+            const parchment = GameState.inventory['parchment'] || 0;
+            const ink = GameState.inventory['ink'] || 0;
+
+            if (ink <= 0 || (paper <= 0 && parchment <= 0)) {
+                if (copiesDone === 0) {
+                    UI.notify('⚠️ Chybí psací potřeby (Inkoust + Papír/Pergamen)!');
+                }
+                break;
+            }
+
+            GameState.inventory['ink'] = ink - 1;
+            if (parchment > 0) {
+                GameState.inventory['parchment'] = parchment - 1;
+            } else {
+                GameState.inventory['paper'] = paper - 1;
+            }
+
+            ms.progress = (ms.progress || 0) + 1;
+            GameState.inventory['research'] = (GameState.inventory['research'] || 0) + 3;
+            copiesDone++;
+
+            if (ms.progress >= maxFolios) {
+                ms.progress = 0;
+                ms.copies[ms.activeId] = (ms.copies[ms.activeId] || 0) + 1;
+                GameState.inventory['research'] += 20;
+                GameState.inventory['parchment'] = (GameState.inventory['parchment'] || 0) + 2;
+                UI.notify(`📜 Kodex dokončen! Získáváš +20 Zápisků a 2 Pergamene.`);
+                break;
+            }
+        }
+
+        if (copiesDone > 0) {
+            UI.notify(`✒️ Opsáno ${copiesDone} folium (+${copiesDone * 3} Zápisky)`);
+        }
+
+        UI.renderManuscriptCopying();
+        if (typeof Game !== 'undefined' && Game.save) Game.save();
+        return copiesDone > 0;
+    },
+
+    toggleManuscriptAutomation: function () {
+        if (!GameState.manuscriptsState) {
+            GameState.manuscriptsState = { activeId: 'anselm', progress: 0, auto: false, copies: {} };
+        }
+        GameState.manuscriptsState.auto = !GameState.manuscriptsState.auto;
+
+        if (window._msAutoTimer) {
+            clearInterval(window._msAutoTimer);
+            window._msAutoTimer = null;
+        }
+
+        if (GameState.manuscriptsState.auto) {
+            UI.notify('⚡ Automatika opisování zapnuta');
+            window._msAutoTimer = setInterval(() => {
+                const success = UI.copyFolium(1);
+                if (!success) {
+                    UI.toggleManuscriptAutomation();
+                }
+            }, 3000);
+        } else {
+            UI.notify('⚡ Automatika opisování vypnuta');
+        }
+
+        UI.renderManuscriptCopying();
+        if (typeof Game !== 'undefined' && Game.save) Game.save();
     },
 
     switchHomeTab: function (tab, btn) {
@@ -1531,36 +2138,36 @@ const UI = {
         const _bartolomejRel = (GameState.persona && GameState.persona.influence && GameState.persona.influence.bartolomej) || 0;
         const _libLang = (GameState.settings && GameState.settings.language) || 'cs';
         h += `
-            <div style="margin-bottom:20px;padding:15px;background:var(--bg-card);border:1px solid var(--border-color);border-radius:5px;">
-                <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
-                    <div style="display:flex;align-items:center;gap:10px;flex:1;">
-                        <div style="font-size:2rem;">🖋️</div>
-                        <div style="flex:1;">
+            <div style="margin-bottom:20px;padding:12px;background:var(--bg-card);border:1px solid var(--border-color);border-radius:5px;">
+                <div style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px;">
+                    <div style="display:flex;align-items:center;gap:10px;min-width:180px;flex:1;">
+                        <div style="font-size:1.8rem;flex-shrink:0;">🖋️</div>
+                        <div>
                             <strong>${t('library_lore.npc_scribe.name')}</strong>
                             <div class="text-sm" style="color:var(--ink-secondary);">
                                 ${t('library_lore.npc_scribe.scribe_short')}
                             </div>
                         </div>
                     </div>
-                    <button class="craft-btn" onclick="LibraryHelpers.scribeVisit()">
-                        ${_libLang === 'en' ? '💬 Talk' : '💬 Promluvit'}
-                    </button>
-                    <button class="craft-btn" onclick="LibraryHelpers.scribeAskTopic()">
-                        ${_libLang === 'en' ? '🗣️ Ask' : '🗣️ Zeptat se'}
-                    </button>
-                    <button class="craft-btn" onclick="LibraryHelpers.scribeAIChat()">
-                        ${_libLang === 'en' ? '🗨️ Chat' : '🗨️ Pokecat'}
-                    </button>
-                    <button class="craft-btn" onclick="LibraryHelpers.scribeTrade()">
-                        ${t('library_lore.npc_scribe.opt_trade')}
-                    </button>
+                    <div style="display:flex;flex-wrap:wrap;gap:6px;align-items:center;">
+                        <button class="craft-btn" style="font-size:0.75rem;padding:4px 8px;min-width:auto;min-height:32px;white-space:nowrap;" onclick="LibraryHelpers.scribeVisit()">
+                            ${_libLang === 'en' ? '💬 Talk' : '💬 Promluvit'}
+                        </button>
+                        <button class="craft-btn" style="font-size:0.75rem;padding:4px 8px;min-width:auto;min-height:32px;white-space:nowrap;" onclick="LibraryHelpers.scribeAskTopic()">
+                            ${_libLang === 'en' ? '🗣️ Ask' : '🗣️ Zeptat se'}
+                        </button>
+                        <button class="craft-btn" style="font-size:0.75rem;padding:4px 8px;min-width:auto;min-height:32px;white-space:nowrap;" onclick="LibraryHelpers.scribeAIChat()">
+                            ${_libLang === 'en' ? '🗨️ Chat' : '🗨️ Pokecat'}
+                        </button>
+                        <button class="craft-btn" style="font-size:0.75rem;padding:4px 8px;min-width:auto;min-height:32px;white-space:nowrap;" onclick="LibraryHelpers.scribeTrade()">
+                            ${t('library_lore.npc_scribe.opt_trade')}
+                        </button>
+                        ${_bartolomejRel >= 25 ? `
+                        <button class="craft-btn" style="font-size:0.75rem;padding:4px 8px;min-width:auto;min-height:32px;white-space:nowrap;" onclick="LibraryHelpers.scribeTradeChoice()">
+                            ${_libLang === 'en' ? '🖋️ Choose Book (10x Paper)' : '🖋️ Vybrat knihu (10x Papír)'}
+                        </button>` : ''}
+                    </div>
                 </div>
-                ${_bartolomejRel >= 25 ? `
-                <div style="display:flex;justify-content:flex-end;">
-                    <button class="craft-btn" onclick="LibraryHelpers.scribeTradeChoice()">
-                        ${_libLang === 'en' ? '🖋️ Choose a Book (10x Paper)' : '🖋️ Vybrat knihu (10x Papír)'}
-                    </button>
-                </div>` : ''}
             </div>
         `;
 
@@ -2554,8 +3161,27 @@ const UI = {
     },
 
     openAboutModal: function () {
-        document.getElementById('about-modal').style.display = 'block';
-        document.body.style.overflow = 'hidden';
+        const modal = document.getElementById('about-modal');
+        if (modal) {
+            modal.style.display = 'block';
+            document.body.style.overflow = 'hidden';
+            if (typeof TutorialSystem !== 'undefined') {
+                const btnToggle = document.getElementById('btn-toggle-tutorial');
+                const btnReset = document.getElementById('btn-reset-tutorial');
+                const isRunning = GameState.tutorial && GameState.tutorial.active;
+                if (btnToggle) {
+                    btnToggle.textContent = isRunning ? '⏸️ POZASTAVIT TUTORIAL' : '🚀 SPUSTIT TUTORIAL REŽIM';
+                    btnToggle.onclick = function() {
+                        if (isRunning) TutorialSystem.stopTutorial();
+                        else TutorialSystem.startTutorialFromModal();
+                        UI.openAboutModal();
+                    };
+                }
+                if (btnReset) {
+                    btnReset.style.display = (GameState.tutorial && (GameState.tutorial.step > 0 || GameState.tutorial.completed)) ? 'inline-block' : 'none';
+                }
+            }
+        }
     },
 
     closeAboutModal: function () {
@@ -2723,7 +3349,7 @@ const UI = {
     // Žádný nový fetch — ChroniconSystem._snap je už stažený jednou/den.
     _ACTOR_ICONS: {
         vrchnost: '🏰', mlynar: '🌾', kovar: '⚒️', uhlic: '🔥', vorar: '🪵',
-        rybnikar: '🐟', prevoznik: '⛴️', valach: '🐑', klaster: '🏛️', vcelar: '🐝',
+        rybnikar: '🐟', prevoznik: '⛴️', valach: '🐑', klaster: '⛪', vcelar: '🐝',
     },
 
     renderChroniconWindow: function () {
@@ -2791,8 +3417,8 @@ const UI = {
                             ? `<div style="font-size:0.6rem; opacity:0.5;">☠️ ${lang === 'en' ? 'gone' : 'zesnulý'}</div>`
                             : '';
                 h += `<div style="padding:8px 10px; background:rgba(255,255,255,0.4); border:1px solid rgba(197,160,89,0.2); border-radius:6px;">
-                    <div style="font-size:0.8rem; font-weight:bold;">${icon} ${lang === 'en' ? (a.label_en || a.label) : a.label}</div>
-                    <div style="font-size:0.6rem; opacity:0.6; margin-bottom:4px;">${lang === 'en' ? (a.profession_en || a.profession) : a.profession}</div>
+                    <div style="font-size:0.8rem; font-weight:bold;">${icon} ${a.label}</div>
+                    <div style="font-size:0.6rem; opacity:0.6; margin-bottom:4px;">${a.profession}</div>
                     <div style="display:flex; align-items:center; gap:4px; margin-bottom:2px;">
                         <span style="font-size:0.58rem; width:34px; opacity:0.6;">${lang === 'en' ? 'mood' : 'nálada'}</span>
                         <div style="flex:1; height:4px; background:rgba(0,0,0,0.1); border-radius:2px; overflow:hidden;">

@@ -74,6 +74,27 @@ const ThemeSystem = {
         this.applyTheme(weatherTheme, true); // Silent auto-update
     },
     
+    applyDesignStyle: function(styleName, silent = false) {
+        if (styleName !== 'pokorna' && styleName !== 'marniva') {
+            styleName = 'marniva';
+        }
+        
+        document.body.classList.remove('design-pokorna', 'design-marniva');
+        document.body.classList.add('design-' + styleName);
+        
+        const oldStyle = GameState.settings.designStyle;
+        GameState.settings.designStyle = styleName;
+        if (typeof Game !== 'undefined' && Game.save) Game.save();
+        
+        if (!silent && styleName !== oldStyle) {
+            const lang = (GameState.settings && GameState.settings.language) || 'cs';
+            const label = styleName === 'pokorna' 
+                ? (lang === 'en' ? 'Style: Humble 🪨' : 'Vzhled: Pokorná 🪨')
+                : (lang === 'en' ? 'Style: Vanity ✨' : 'Vzhled: Marnivá ✨');
+            if (typeof UI !== 'undefined' && UI.notify) UI.notify(label);
+        }
+    },
+
     init: function() {
         // Apply saved theme (silent on init)
         const savedTheme = GameState.settings.theme || 'default';
@@ -84,5 +105,9 @@ const ThemeSystem = {
         } else {
             this.applyTheme(savedTheme, true);
         }
+
+        // Apply saved design style (default: marniva)
+        const savedDesign = GameState.settings.designStyle || 'marniva';
+        this.applyDesignStyle(savedDesign, true);
     }
 };

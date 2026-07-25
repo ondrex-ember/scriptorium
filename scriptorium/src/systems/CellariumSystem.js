@@ -1202,6 +1202,24 @@ const CellariumSystem = {
 
     // ── Reputace — info pruh (živé číslo, stejný zdroj jako calcPrice) ──────
     if (entity === 'tavern') {
+      const sub = GameState.ui.tavernSubtab || 'shop';
+      h += `
+      <div style="display:flex; gap:8px; margin-bottom:12px;">
+        <button class="filter-btn${sub==='shop'?' active':''}" onclick="GameState.ui.tavernSubtab='shop'; CellariumSystem.switchEntity('tavern');" style="padding:6px 14px; font-weight:bold;">
+          🍺 ${lang==='en'?'Tavern Store':'Šenk & Obchod'}
+        </button>
+        <button class="filter-btn${sub==='dice'?' active':''}" onclick="GameState.ui.tavernSubtab='dice'; CellariumSystem.switchEntity('tavern');" style="padding:6px 14px; font-weight:bold; background:${sub==='dice'?'var(--accent-gold)':'rgba(197,160,89,0.1)'}; color:${sub==='dice'?'#000':'var(--ink-primary)'};">
+          🎲 ${lang==='en'?'Gambling Table':'Hazardní Stůl & Vrhcáby'}
+        </button>
+      </div>
+      `;
+
+      if (sub === 'dice') {
+        h += `<div id="tavern-dice-container"></div>`;
+        setTimeout(() => { if (typeof TavernDice !== 'undefined') TavernDice.render(); }, 20);
+        return h;
+      }
+
       const rel = (GameState.persona && GameState.persona.influence && GameState.persona.influence.benedikt) || 0;
       const pct = Math.round((this._repMult('tavern') - 1) * 100);
       h += `<div style="font-size:0.78rem;opacity:0.75;margin-bottom:10px;padding:6px 10px;background:rgba(197,160,89,0.08);border-radius:6px;">
