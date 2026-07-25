@@ -22293,10 +22293,10 @@ const CellariumSystem = {
       const sub = GameState.ui.tavernSubtab || 'shop';
       h += `
       <div style="display:flex; gap:8px; margin-bottom:12px;">
-        <button class="filter-btn${sub==='shop'?' active':''}" onclick="GameState.ui.tavernSubtab='shop'; CellariumSystem.switchEntity('tavern');" style="padding:6px 14px; font-weight:bold;">
+        <button class="filter-btn${sub==='shop'?' active':''}" onclick="GameState.ui.tavernSubtab='shop'; SaeculumSystem.switchEntity('tavern');" style="padding:6px 14px; font-weight:bold;">
           🍺 ${lang==='en'?'Tavern Store':'Šenk & Obchod'}
         </button>
-        <button class="filter-btn${sub==='dice'?' active':''}" onclick="GameState.ui.tavernSubtab='dice'; CellariumSystem.switchEntity('tavern');" style="padding:6px 14px; font-weight:bold; background:${sub==='dice'?'var(--accent-gold)':'rgba(197,160,89,0.1)'}; color:${sub==='dice'?'#000':'var(--ink-primary)'};">
+        <button class="filter-btn${sub==='dice'?' active':''}" onclick="GameState.ui.tavernSubtab='dice'; SaeculumSystem.switchEntity('tavern');" style="padding:6px 14px; font-weight:bold; background:${sub==='dice'?'var(--accent-gold)':'rgba(197,160,89,0.1)'}; color:${sub==='dice'?'#000':'var(--ink-primary)'};">
           🎲 ${lang==='en'?'Gambling Table':'Hazardní Stůl & Vrhcáby'}
         </button>
       </div>
