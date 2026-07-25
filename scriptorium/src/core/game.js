@@ -719,6 +719,12 @@ const Game = {
                     _tickCounter = 0;
                     CellariumSystem.checkGiacomoEvent();
                     CellariumSystem.checkStationariusEvent();
+                    // CHRONICON — periodický re-fetch (self-guarded 6h TTL uvnitř
+                    // _fetch). Bez tohohle se dlouho otevřená session nikdy
+                    // nedozví o novém tiku, dokud hráč nereloadne stránku —
+                    // teď dorazí sama, jakmile TTL vyprší (až 4×/den, mirror
+                    // CHRONICON engine kadence 6/12/18/00).
+                    if (typeof ChroniconSystem !== 'undefined' && ChroniconSystem._fetch) ChroniconSystem._fetch();
                     // v8.x: Orchard growing → mature transition
                     Game.checkOrchardGrowth();
                     if (typeof GardenSystem !== 'undefined') GardenSystem.checkFieldGrowth();
@@ -737,6 +743,10 @@ const Game = {
                     if (typeof TemplumSystem !== 'undefined' && TemplumSystem.updateTabVisibility) TemplumSystem.updateTabVisibility();
                     // Infirmarium — viditelnost tabu dle tech_infirmarium (levný DOM check)
                     if (typeof InfirmariumSystem !== 'undefined' && InfirmariumSystem.updateTabVisibility) InfirmariumSystem.updateTabVisibility();
+                    // Infirmarium — hospes recovery/discharge (self-guarded 24h)
+                    if (typeof InfirmariumSystem !== 'undefined' && InfirmariumSystem.hospesDailyTick) InfirmariumSystem.hospesDailyTick();
+                    // Ubytovna — odchod hostů po plannedDays (self-guarded 24h, ubytovna-mrd.md §8c-B)
+                    if (typeof ChroniconSystem !== 'undefined' && ChroniconSystem.ubytovnaDailyTick) ChroniconSystem.ubytovnaDailyTick();
                     // Templum — denní chod kostela (self-guarded 24h, gate frater+)
                     if (typeof Game !== 'undefined' && Game.templumDailyTick) Game.templumDailyTick();
                     // Templum — týdenní zpověď (self-guarded, gate frater+)
@@ -5692,6 +5702,11 @@ const Game = {
         t.nextMass = now + 7 * 24 * 60 * 60 * 1000;
         t.lastMass = { ts: now, incense: incenseId, degraded: degraded };
         Game._templumLog({ type: 'mass', incense: incenseId, degraded: degraded, feastName: feastName, eccl: eccl });
+        // CHRONICON — anonymní denní favor report pro 'klaster' (Path C,
+        // 25.7.2026). Mše = jádro klášterní legitimity, přirozený spouštěč.
+        if (typeof ChroniconSystem !== 'undefined' && ChroniconSystem._reportActorFavorIfNewDay) {
+            ChroniconSystem._reportActorFavorIfNewDay('klaster');
+        }
         // R1: odsloužená mše = držený kanonický rytmus (frater vyžaduje streak ≥ 7)
         if (GameState.rank) {
             GameState.rank.canonicalStreak = (GameState.rank.canonicalStreak || 0) + 1;

@@ -75,6 +75,15 @@ const InfirmariumSystem = {
             h += `<div style="font-size:0.75rem; opacity:0.6;">${lang==='en'?'No one lies here yet.':'Zatím tu nikdo neleží.'}</div>`;
         } else {
             h += patients.map(p => {
+                if (p.kind === 'hospes') {
+                    const ailment = lang === 'en' ? p.ailment_en : p.ailment_cs;
+                    return `<div style="font-size:0.75rem; padding:4px 0; border-top:1px solid rgba(197,160,89,0.15);">
+                                <div style="display:flex; justify-content:space-between; align-items:center;">
+                                    <span>🕊️ ${p.name}${ailment ? ' — '+ailment : ''}</span>
+                                </div>
+                                <div style="font-size:0.6rem; opacity:0.55; font-style:italic; margin-top:2px;">${lang==='en'?'a stranger, taken in':'cizinec, přijatý zvenčí'}</div>
+                            </div>`;
+                }
                 const pool = p.isBrother ? ((GameState.dormitorium && GameState.dormitorium.brothers) || []) : (GameState.conversi || []);
                 const entity = pool.find(e => e.id === p.entityId);
                 if (!entity) return '';
@@ -115,6 +124,62 @@ const InfirmariumSystem = {
         { id: 'infirmarium_apothecarius', icon: '🧪', name_cs: 'Apothecarius', name_en: 'Apothecary' },
         { id: 'infirmarium_capellanus',   icon: '⛪', name_cs: 'Capellanus',   name_en: 'Chaplain' }
     ],
+
+    // Hospes recovery — denní self-guarded check (mirror CheeseSystem.dailyTick
+    // vzor). Propuštění po uplynutí recoverHours: dar + Ecclesia influence +
+    // Kronika + anonymní rescue-report (viz infirmarium-hospites-rescue-mrd.md §4).
+    DAY_MS: 24 * 60 * 60 * 1000,
+
+    hospesDailyTick: function() {
+        if (!GameState.infirmariumHospesTick) GameState.infirmariumHospesTick = { lastTick: 0 };
+        const now = Date.now();
+        if (now - (GameState.infirmariumHospesTick.lastTick || 0) < this.DAY_MS) return;
+        GameState.infirmariumHospesTick.lastTick = now;
+
+        const inf = GameState.infirmarium;
+        if (!inf || !inf.patients || !inf.patients.length) return;
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+
+        const stillHere = [];
+        inf.patients.forEach(p => {
+            if (p.kind !== 'hospes') { stillHere.push(p); return; }
+            const dueAt = (p.arrivedAt || 0) + (p.recoverHours || 60) * 60 * 60 * 1000;
+            if (now < dueAt) { stillHere.push(p); return; }
+
+            // Uzdravil se a odchází — dar + influence, mirror sepultura
+            const gift = Math.round((p.wealth || 30) * 0.8);
+            if (typeof CellariumSystem !== 'undefined' && CellariumSystem.addGrose) CellariumSystem.addGrose(gift);
+            if (typeof PersonaSystem !== 'undefined' && PersonaSystem.addInfluence) PersonaSystem.addInfluence('church', 2);
+            if (typeof Game !== 'undefined' && Game.addKronikaEntry) {
+                Game.addKronikaEntry('important',
+                    '🩺 ' + p.name + ' opouští Infirmarium uzdraven — na cestu dostal ' + gift + ' grošů.',
+                    '🩺 ' + p.name + ' leaves the infirmary healed — given ' + gift + ' groschen for the road.',
+                    '🩺 Hospes sanus discessit.');
+            }
+            this._reportRescueIfNewDay(p.actorId);
+        });
+        inf.patients = stillHere;
+        if (typeof Game !== 'undefined' && Game.save) Game.save();
+    },
+
+    // Anonymní denní report na konkrétního zachráněnýho aktéra — mirror
+    // PersonaSystem.reportRegistrumIfNewDay, ale dedup PER AKTÉR, ne globálně
+    // (hráč může tentýž den propustit hosty vázaný na různý aktéry).
+    _reportRescueIfNewDay: function(actorId) {
+        if (!actorId) return;
+        if (!GameState.rescueReportSent) GameState.rescueReportSent = {};
+        const today = new Date().toISOString().slice(0, 10);
+        if (GameState.rescueReportSent[actorId] === today) return;
+        GameState.rescueReportSent[actorId] = today;
+
+        try {
+            fetch('/api/rescue-report', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ actorId: actorId, day: today }),
+            }).catch(() => {});
+        } catch (e) { /* tiché selhání */ }
+    },
 
     renderInfirmariumTab: function() {
         const lang = (GameState.settings && GameState.settings.language) || 'cs';
