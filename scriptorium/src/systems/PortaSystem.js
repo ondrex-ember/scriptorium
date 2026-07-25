@@ -14,7 +14,53 @@ const PortaSystem = {
         if (!GameState.letters.readIds) GameState.letters.readIds = {};
         if (!GameState.letters.archive) GameState.letters.archive = [];
         if (!GameState.letters.firstSeen) GameState.letters.firstSeen = {};
+        // CHRONICON Vrstva 3 — dynamické dopisy přijaté ze snapshotu
+        // (porta_letters). Trvalý store, roste jako LettersDB, nemaže se.
+        if (!GameState.letters.dynamic) GameState.letters.dynamic = [];
         return GameState.letters;
+    },
+
+    // Najde dopis buď ve statickém LettersDB, nebo v dynamickém CHRONICON poolu.
+    _findLetter: function (letterId) {
+        if (typeof LettersDB !== 'undefined') {
+            const s = LettersDB.find(l => l.id === letterId);
+            if (s) return s;
+        }
+        this._ensureState();
+        return GameState.letters.dynamic.find(l => l.id === letterId) || null;
+    },
+
+    // Deklarativní efekty z CHRONICON dopisů (Vrstva 3) — data, ne kód.
+    // Neznámý/chybný typ efektu se potichu přeskočí, nesmí shodit resolveLetter.
+    _applyEffects: function (effects) {
+        (effects || []).forEach(function (e) {
+            try {
+                if (!e || !e.type) return;
+                if (e.type === 'influence' && e.axis) {
+                    if (typeof PersonaSystem !== 'undefined' && PersonaSystem.addInfluence) {
+                        PersonaSystem.addInfluence(e.axis, e.amount || 0);
+                    }
+                } else if (e.type === 'item' && e.id) {
+                    const qty = e.qty || 0;
+                    if (qty >= 0) {
+                        if (typeof Game !== 'undefined' && Game.addItem) Game.addItem(e.id, qty);
+                    } else {
+                        if (typeof Game !== 'undefined' && Game.removeItem) Game.removeItem(e.id, Math.abs(qty));
+                    }
+                } else if (e.type === 'grose') {
+                    if (typeof CellariumSystem !== 'undefined' && CellariumSystem.addGrose) {
+                        CellariumSystem.addGrose(e.amount || 0);
+                    }
+                } else if (e.type === 'contactRelation' && e.id) {
+                    if (typeof SaeculumSystem !== 'undefined' && SaeculumSystem.addContactRelation) {
+                        SaeculumSystem.addContactRelation(e.id, e.amount || 0);
+                    }
+                } else if (e.type === 'flag' && e.name) {
+                    if (!GameState.flags) GameState.flags = {};
+                    GameState.flags[e.name] = (e.value !== undefined) ? e.value : true;
+                }
+            } catch (err) { /* jeden vadný efekt nesmí shodit zbytek */ }
+        });
     },
 
     // Inline dvojjazyčné texty (vzor Chronicon text_cs/text_en) s fallbackem na i18n klíče
@@ -43,13 +89,17 @@ const PortaSystem = {
         return gameDate.toLocaleDateString(lang === 'en' ? 'en-GB' : 'cs-CZ');
     },
 
-    // Fronta — dopisy z LettersDB, jejichž trigger() platí a ještě nebyly přečteny
+    // Fronta — dopisy z LettersDB (trigger() platí) + dynamické CHRONICON
+    // dopisy (Vrstva 3 — Chronicon už podmínku vyhodnotil při výběru, takže
+    // mají syntetický trigger()=>true), obojí ještě nepřečtené.
     getQueue: function () {
         this._ensureState();
         if (typeof LettersDB === 'undefined') return [];
         const now = Date.now();
         let changed = false;
-        const queue = LettersDB.filter(letter => {
+        const dynPool = GameState.letters.dynamic.map(d => Object.assign({}, d, { trigger: function () { return true; } }));
+        const pool = LettersDB.concat(dynPool);
+        const queue = pool.filter(letter => {
             if (GameState.letters.readIds[letter.id]) return false;
             let active = false;
             try { active = letter.trigger(); } catch (e) { return false; }
@@ -106,7 +156,7 @@ const PortaSystem = {
         } else {
             h += `<div style="display:flex; flex-direction:column; gap:8px;">`;
             queue.forEach(letter => {
-                const sealIcon = letter.seal === 'abbot' ? '✝️' : letter.seal === 'village' ? '🌾' : '🕊️';
+                const sealIcon = letter.seal === 'abbot' ? '✝️' : letter.seal === 'village' ? '🌾' : letter.seal === 'scholars' ? '📚' : letter.seal === 'noble' ? '🛡️' : '🕊️';
                 const urgentBadge = letter.urgent ? ' <span style="color:#c0392b; font-weight:bold;">⚡</span>' : '';
                 const border = letter.urgent ? 'border-left:3px solid #c0392b;' : '';
                 const sender = PortaSystem._sender(letter);
@@ -130,7 +180,7 @@ const PortaSystem = {
             h += `<div style="margin-top:18px;">`;
             h += `<div style="font-size:0.72rem; font-weight:bold; letter-spacing:0.06em; text-transform:uppercase; opacity:0.55; margin-bottom:8px;">${t('porta.archive')}</div>`;
             archived.forEach(entry => {
-                const srcLetter = (typeof LettersDB !== 'undefined') ? LettersDB.find(l => l.id === entry.id) : null;
+                const srcLetter = PortaSystem._findLetter(entry.id);
                 const sender = srcLetter ? PortaSystem._sender(srcLetter) : '';
                 const resolved = PortaSystem._dateStr(entry.ts);
                 h += `<div style="padding:4px 0; cursor:pointer;" onclick="PortaSystem.openArchivedLetter('${entry.id}')" title="${lang==='en' ? 'Click to re-read' : 'Klikni pro znovupřečtení'}">
@@ -150,14 +200,14 @@ const PortaSystem = {
     // Znovu otevřít archivovaný dopis — jen ke čtení, bez voleb (rozhodnutí už padlo)
     openArchivedLetter: function (letterId) {
         if (typeof LettersDB === 'undefined' || typeof NotificationSystem === 'undefined' || !NotificationSystem.modal) return;
-        const letter = LettersDB.find(l => l.id === letterId);
+        const letter = PortaSystem._findLetter(letterId);
         const lang = (GameState.settings && GameState.settings.language) || 'cs';
         if (!letter) {
             if (typeof UI !== 'undefined') UI.notify(lang === 'en' ? 'This letter is no longer available.' : 'Tenhle dopis už není dostupný.', true);
             return;
         }
         NotificationSystem.modal({
-            icon: letter.seal === 'abbot' ? '✝️' : letter.seal === 'village' ? '🌾' : '🕊️',
+            icon: letter.seal === 'abbot' ? '✝️' : letter.seal === 'village' ? '🌾' : letter.seal === 'scholars' ? '📚' : letter.seal === 'noble' ? '🛡️' : '🕊️',
             image: letter.image || null,
             title: PortaSystem._title(letter),
             text: PortaSystem._letterDateline(letter) + PortaSystem._text(letter) + `<div style="margin-top:12px; font-size:0.72rem; opacity:0.5; font-style:italic;">${lang==='en' ? '— already resolved —' : '— již vyřízeno —'}</div>`,
@@ -180,7 +230,7 @@ const PortaSystem = {
 
     openLetter: function (letterId) {
         if (typeof LettersDB === 'undefined' || typeof NotificationSystem === 'undefined' || !NotificationSystem.modal) return;
-        const letter = LettersDB.find(l => l.id === letterId);
+        const letter = PortaSystem._findLetter(letterId);
         if (!letter) return;
 
         const choices = (letter.choices || []).map(choice => {
@@ -200,7 +250,7 @@ const PortaSystem = {
         });
 
         NotificationSystem.modal({
-            icon: letter.seal === 'abbot' ? '✝️' : letter.seal === 'village' ? '🌾' : '🕊️',
+            icon: letter.seal === 'abbot' ? '✝️' : letter.seal === 'village' ? '🌾' : letter.seal === 'scholars' ? '📚' : letter.seal === 'noble' ? '🛡️' : '🕊️',
             image: letter.image || null,
             title: PortaSystem._title(letter),
             text: PortaSystem._letterDateline(letter) + PortaSystem._text(letter),
@@ -210,7 +260,14 @@ const PortaSystem = {
 
     _resolveLetter: function (letter, choice) {
         this._ensureState();
-        choice.effect();
+        // Statické dopisy (LettersDB) mají choice.effect jako funkci.
+        // Dynamické CHRONICON dopisy (Vrstva 3) mají choice.effects jako
+        // deklarativní pole — viz PortaSystem._applyEffects.
+        if (typeof choice.effect === 'function') {
+            choice.effect();
+        } else if (Array.isArray(choice.effects)) {
+            this._applyEffects(choice.effects);
+        }
 
         GameState.letters.readIds[letter.id] = true;
         const lang = (GameState.settings && GameState.settings.language) || 'cs';
