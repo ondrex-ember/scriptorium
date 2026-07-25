@@ -8115,6 +8115,8 @@ const ItemsDB = {
     "iron_pickaxe": { maxUses: 700, maxStack: 1, name: "Železný krumpáč", name_en: "Iron Pickaxe", icon: "⛏️", type: "tool", tier: "iron", desc: "Těžká železná hlava. Efektivní těžba rudy a bourání.", desc_en: "Heavy iron head. Efficient ore mining and demolition." },
     "palice_zelezna": { maxUses: 700, maxStack: 1, name: "Železná palice", name_en: "Iron Mallet", icon: "🔨", type: "tool", tier: "iron", desc: "Kované kladivo s železnou hlavou. Nejlepší nástroj na lámání vápence.", desc_en: "A forged mallet with an iron head. The best tool for breaking limestone." },
     "iron_tongs": { maxUses: 30, maxStack: 1, name: "Železné kleště", name_en: "Iron Tongs", icon: "🔧", type: "tool", tier: "iron", desc: "Kovářské kleště. Nutné pro opravy železa v Kovárně.", desc_en: "Blacksmith tongs. Required for iron repairs at the Smithy." },
+    "whetstone_rock": { name: "Brusný kámen", name_en: "Whetstone Rock", icon: "🪨", type: "mat", desc: "Kus jemnozrnné horniny z hlubší štoly — křemičitá břidlice nebo pískovec, vhodný na výrobu brousků.", desc_en: "A piece of fine-grained rock from a deeper shaft — quartz-bearing schist or sandstone, suitable for making whetstones." },
+    "whetstone": { maxUses: 3, name: "Brousek", name_en: "Whetstone", icon: "🗿", type: "tool", desc: "Obtahovací kámen na ostření. Nabrousí železný nástroj bez nutnosti kovářských kleští — lehká údržba místo překování.", desc_en: "A hand whetstone for sharpening. Hones an iron tool without needing blacksmith tongs — light maintenance instead of reforging." },
     "log": { name: "Kulatina", name_en: "Log", icon: "🪵", type: "mat", desc: "Kmen pokáceného stromu. Základ tesařství.", desc_en: "Felled tree trunk. The foundation of carpentry." },
     "bellows": { name: "Měchy", name_en: "Bellows", icon: "💨", type: "tool", cat: "tool", desc: "Kožené měchy. Rozdmýchají oheň i varhanní píšťaly.", desc_en: "Leather bellows. Fan the fire and the organ pipes alike." },
     "book_binding": { name: "Vazba knih", name_en: "Book Binding", icon: "📚", type: "mat", desc: "Kožená vazba drží složky pohromadě. Bez ní jsou jen listy.", desc_en: "Leather binding holds the quires. Without it, just loose leaves." },
@@ -8335,7 +8337,8 @@ const ItemsDB = {
     "iron_ingot": { name: "Železný ingot", name_en: "Iron Ingot", icon: "⚙️", type: "mat", desc: "Odlitý prut železa. Základ kovářského řemesla.", desc_en: "Cast iron bar. The foundation of the blacksmith's craft." },
     "stribrny_prut": { name: "Stříbrný prut", name_en: "Silver Ingot", icon: "🥈", type: "mat", desc: "Odlitý prut ryzího stříbra, vážený a značený zlatníkem. Cenná komodita, ne oběživo.", desc_en: "A cast bar of pure silver, weighed and marked by the goldsmith. A valuable commodity, not coin." },
     "zlaty_prut": { name: "Zlatý prut", name_en: "Gold Ingot", icon: "🟨", type: "mat", desc: "Odlitý prut ryzího zlata, vážený a značený zlatníkem. Menší poklad na dlani.", desc_en: "A cast bar of pure gold, weighed and marked by the goldsmith. A small treasure in the palm of one's hand." },
-    "truhla": { name: "Truhla", name_en: "Curio Chest", icon: "🗝️", type: "tool", desc: "Kovaná truhla se zámkem. Uschová cenné nálezy a kuriozity — otevře vlastní přihrádku v Personě.", desc_en: "An ironbound chest with a lock. Holds precious finds and curiosities — opens its own compartment under Persona." },
+    "truhla_i": { name: "Malá truhla", name_en: "Small Chest", icon: "🗝️", type: "tool", desc: "Prostá dřevěná truhlička s železným kováním. Uschová pár cenných nálezů a kuriozit — otevře vlastní přihrádku v Personě.", desc_en: "A plain wooden chest with iron fittings. Holds a few precious finds and curiosities — opens its own compartment under Persona." },
+    "truhla_ii": { name: "Velká truhla", name_en: "Large Chest", icon: "🗝️", type: "tool", desc: "Zdobená kovaná truhla se zámkem — dílo zlatníka nebo dovoz z trhu. Mnohem víc místa na poklady a kuriozity.", desc_en: "An ornate ironbound chest with a lock — a goldsmith's work or a market import. Much more room for treasures and curiosities." },
     "kovani": { name: "Kování", name_en: "Ironwork Fittings", icon: "🔩", type: "mat", desc: "Kované pásy, skoby a spony. Vesnický kovář je prodává hotové — sám je nekuješ.", desc_en: "Forged bands, cramps, and clasps. The village blacksmith sells these ready-made — you don't forge them yourself." },
     "velky_ul_1": { maxStack: 1, name: "Velký úl (I)", name_en: "Great Hive (I)", icon: "🛖", type: "mat", desc: "Zesílená konstrukce úlu — kulatina, lano a kování od kováře. Odemyká vylepšené včelstvo.", desc_en: "A reinforced hive structure — logs, rope, and blacksmith's ironwork. Unlocks an improved colony." },
     "velky_ul_2": { maxStack: 1, name: "Velký úl (II)", name_en: "Great Hive (II)", icon: "🛖", type: "mat", desc: "Dostavba Velkého úlu na plnou míru. Nejsilnější staveniště pro včelstvo v klášteře.", desc_en: "The Great Hive built out to its full measure. The strongest apiary structure in the monastery." },
@@ -8492,7 +8495,7 @@ const RecipesDB = [
     // NEW RECIPES - Mini-games & Notebooks
     { id: "playing_cards", output: "playing_cards", qty: 1, req: { "paper": 5, "ink": 1 }, cat: "lore", locked: true },
     { id: "loaded_dice", output: "loaded_dice", qty: 1, req: { "bone": 2, "pestle": 0 }, cat: "craft", desc: "Cinknuté kostky vyřezané z kosti, vyvážené olovem.", desc_en: "Loaded dice carved from bone, weighted with lead." },
-    { id: "truhla", output: "truhla", qty: 1, req: { "iron_ingot": 3, "kovani": 2, "plank": 12, "leather": 4, "rope": 3 }, cat: "craft", desc: "Kovaná truhla se zámkem na cenné nálezy a kuriozity.", desc_en: "An ironbound, locked chest for precious finds and curiosities." },
+    { id: "truhla_i", output: "truhla_i", qty: 1, req: { "iron_ingot": 1, "kovani": 1, "plank": 6, "leather": 2, "rope": 2 }, cat: "craft", desc: "Prostá dřevěná truhlička na drobné cennosti.", desc_en: "A plain small chest for minor valuables." },
 	{
 	  id: "recipe_iching_book",
 	  output: "iching_book",
@@ -9029,6 +9032,17 @@ const RecipesDB = [
     { id:"repair_iron_shovel", output:"iron_shovel", qty:1, req:{worn_iron_shovel:1,  iron_tongs:1}, cat:"iron", locked:true, desc:"Narovnání čepele lopaty.", desc_en:"Straighten the shovel blade." },
     { id:"repair_iron_saw",     output:"iron_saw",     qty:1, req:{worn_iron_saw:1,     iron_tongs:1}, cat:"iron", locked:true, desc:"Přebroušení zubů pily.", desc_en:"Re-sharpen the saw teeth." },
     { id:"repair_iron_pickaxe", output:"iron_pickaxe", qty:1, req:{worn_iron_pickaxe:1, iron_tongs:1}, cat:"iron", locked:true, desc:"Překování hrotu krumpáče.", desc_en:"Reforge the pickaxe head." },
+
+    // Whetstone — craft + alternativní oprava železných nástrojů (nespotřebovává iron_tongs, vlastní pool 3 použití)
+    { id:"whetstone", output:"whetstone", qty:4, req:{whetstone_rock:1}, cat:"stone", desc:"Z brusného kamene vybroušeny čtyři brousky.", desc_en:"Four whetstones honed from the rock." },
+    { id:"repair_iron_axe_whetstone",     output:"iron_axe",     qty:1, req:{worn_iron_axe:1,     whetstone:1}, cat:"iron", locked:true, desc:"Nabroušení sekerky obtahovacím kamenem.", desc_en:"Hone the axe with a whetstone." },
+    { id:"repair_iron_spade_whetstone",   output:"iron_spade",   qty:1, req:{worn_iron_spade:1,   whetstone:1}, cat:"iron", locked:true, desc:"Nabroušení rýče obtahovacím kamenem.", desc_en:"Hone the spade with a whetstone." },
+    { id:"repair_iron_scythe_whetstone",  output:"iron_scythe",  qty:1, req:{worn_iron_scythe:1,  whetstone:1}, cat:"iron", locked:true, desc:"Nabroušení kosy obtahovacím kamenem.", desc_en:"Hone the scythe with a whetstone." },
+    { id:"repair_iron_sickle_whetstone",  output:"iron_sickle",  qty:1, req:{worn_iron_sickle:1,  whetstone:1}, cat:"iron", locked:true, desc:"Nabroušení srpu obtahovacím kamenem.", desc_en:"Hone the sickle with a whetstone." },
+    { id:"repair_iron_flail_whetstone",   output:"iron_flail",   qty:1, req:{worn_iron_flail:1,   whetstone:1}, cat:"iron", locked:true, desc:"Nabroušení cepu obtahovacím kamenem.", desc_en:"Hone the flail with a whetstone." },
+    { id:"repair_iron_shovel_whetstone",  output:"iron_shovel",  qty:1, req:{worn_iron_shovel:1,  whetstone:1}, cat:"iron", locked:true, desc:"Nabroušení lopaty obtahovacím kamenem.", desc_en:"Hone the shovel with a whetstone." },
+    { id:"repair_iron_saw_whetstone",     output:"iron_saw",     qty:1, req:{worn_iron_saw:1,     whetstone:1}, cat:"iron", locked:true, desc:"Nabroušení zubů pily obtahovacím kamenem.", desc_en:"Hone the saw teeth with a whetstone." },
+    { id:"repair_iron_pickaxe_whetstone", output:"iron_pickaxe", qty:1, req:{worn_iron_pickaxe:1, whetstone:1}, cat:"iron", locked:true, desc:"Nabroušení hrotu krumpáče obtahovacím kamenem.", desc_en:"Hone the pickaxe head with a whetstone." },
 
     // ── VINOHRAD — stavby ─────────────────────────────────────────────────────
     { id:"prelum",            output:"prelum",            qty:1,
@@ -13413,6 +13427,7 @@ const DormitoriumSpecializationDB = {
     infirmarium_apothecarius: { name: 'Apothecarius', name_en: 'Apothecary',  icon: '🧪' },
     infirmarium_capellanus:   { name: 'Capellanus',   name_en: 'Chaplain',    icon: '⛪' },
     studovna: { name: 'Lector',   name_en: 'Lector',   icon: '📖' },
+    kantor: { name: 'Kantor',   name_en: 'Cantor',   icon: '🎵' },
 };
 // ═══ src/data/contacts.js ═══
 // ─────────────────────────────────────────────────────────────
@@ -13588,6 +13603,7 @@ const ContactsDB = {
         buyOffer: { items: {
             stribrny_prut: { price: 150,  stock: 3, minRelation: 0 },
             zlaty_prut:    { price: 1700, stock: 2, minRelation: 0 },
+            truhla_ii:     { price: 1400, stock: 1, minRelation: 0 },
         } },
         desc: 'Zlatník ve městě. Kupuje i prodává stříbrné a zlaté pruty — cesta k němu vede přes Kameníkovy styky.',
         desc_en: "A goldsmith in the city. Buys and sells silver and gold ingots — the path to him leads through the Stonemason's connections."
@@ -21636,6 +21652,7 @@ const CellariumSystem = {
       { itemId: 'seed_walnut',   basePrice: 15,  dailyStock: 2  },
       { itemId: 'seed_mulberry', basePrice: 12,  dailyStock: 2  },
       { itemId: 'seed_quince',   basePrice: 10,  dailyStock: 2  },
+      { itemId: 'truhla_ii',     basePrice: 1700, dailyStock: 1 },
       { itemId: 'seed_sorb',     basePrice: 18,  dailyStock: 2  },
       { itemId: 'seed_rowan',    basePrice: 8,   dailyStock: 3  },
       { itemId: 'seed_linden',   basePrice: 14,  dailyStock: 2  },
@@ -23863,17 +23880,20 @@ const SaeculumSystem = {
       const spec = DormitoriumSpecializationDB[tabId];
       const isCur = b.assignedTab === tabId;
       const takenBy = (GameState.dormitorium.brothers || []).find(x => x.assignedTab === tabId && x.id !== b.id);
-      // Infirmarium mnišský role — tech-gated; Studovna — gated na postavenou Knihovnu St. I.
+      // Infirmarium mnišský role — tech-gated; Studovna — gated na postavenou Knihovnu St. I;
+      // Kantor — gated na Schola Cantorum.
       const locked = (tabId.indexOf('infirmarium_') === 0
           && !(GameState.researchedTechs && GameState.researchedTechs.includes('tech_infirmarium')))
         || (tabId === 'studovna'
-          && !(typeof StudovnaSystem !== 'undefined' && StudovnaSystem.isUnlocked && StudovnaSystem.isUnlocked()));
+          && !(typeof StudovnaSystem !== 'undefined' && StudovnaSystem.isUnlocked && StudovnaSystem.isUnlocked()))
+        || (tabId === 'kantor'
+          && !(GameState.researchedTechs && GameState.researchedTechs.includes('tech_schola_cantorum')));
       const disabled = (takenBy && !isCur) || locked;
       const bg = isCur ? '#8a3324' : disabled ? 'rgba(0,0,0,0.04)' : 'rgba(197,160,89,0.15)';
       const fg = isCur ? '#fcf5e5' : 'inherit';
       const opac = disabled && !isCur ? '0.55' : '1';
       const specName = lang === 'en' ? spec.name_en : spec.name;
-      const lockedName = tabId === 'studovna' ? 'Studovna' : 'Infirmarium';
+      const lockedName = tabId === 'studovna' ? 'Studovna' : tabId === 'kantor' ? 'Schola Cantorum' : 'Infirmarium';
       const hint = locked ? (lang==='en'?'needs: ':'chybí: ') + lockedName
                  : (takenBy && !isCur ? specName + ' (' + takenBy.name + ')' : specName);
       h += `<div onclick="${disabled ? '' : `Game.assignBrotherTab('${b.id}', ${isCur ? 'null' : `'${tabId}'`})`}" style="cursor:${disabled ? 'default' : 'pointer'}; opacity:${opac}; padding:6px 10px; border-radius:6px; background:${bg}; color:${fg}; font-size:0.74rem; text-align:center;">
@@ -25300,6 +25320,28 @@ const TemplumSystem = {
                 ${this._pilgrimsHistoryHtml(lang)}
                 ${(inv['reliquia'] || 0) >= 1 ? `<div style="font-size:0.68rem; color:var(--accent-gold); margin-top:2px;">✨ ${lang==='en'?'the relic draws them':'relikvie je přitahuje'}</div>` : `<div style="font-size:0.66rem; opacity:0.55; margin-top:2px;">${lang==='en'?'a relic would draw more':'relikvie by přitáhla víc'}</div>`}
                 <div style="font-size:0.62rem; opacity:0.55; font-style:italic; margin-top:5px;">${lang==='en'?'weekly · a living church draws the road':'týdně · živý kostel přitahuje cestu'}</div>
+              </div>`;
+
+        // Pilíř Almužník (T7) — týdenní rozdání přebytku jídla, gate frater+
+        const isFraterPlus = !!(GameState.rank && ['frater','armarius','prior'].includes(GameState.rank.monastic));
+        const nextAlms = t.nextAlms || 0;
+        const almsReady = isFraterPlus && nextAlms <= now;
+        const almsDaysLeft = Math.max(0, Math.ceil((nextAlms - now) / (24*3600000)));
+        let almsFoodTotal = 0;
+        for (const [id, qty] of Object.entries(inv || {})) {
+            const it = (typeof ItemsDB !== 'undefined') ? ItemsDB[id] : null;
+            if (it && it.type === 'food' && typeof qty === 'number') almsFoodTotal += qty;
+        }
+        h += `<div style="padding:12px; background:rgba(255,255,255,0.4); border:1px solid rgba(197,160,89,0.25); border-radius:8px;">
+                <div style="font-size:1.5rem; margin-bottom:4px;">🥖</div>
+                <div style="font-weight:bold; font-size:0.82rem;">${lang==='en'?'Almoner':'Almužník'}</div>
+                ${!isFraterPlus
+                    ? `<div style="font-size:0.7rem; margin-top:5px; opacity:0.6;">${lang==='en'?'requires rank: Frater or higher':'vyžaduje rank Frater a výš'}</div>`
+                    : nextAlms > now
+                        ? `<div style="font-size:0.7rem; margin-top:5px; opacity:0.75;">⏳ ${lang==='en'?'next alms in':'další almužna za'} ${almsDaysLeft} d</div>`
+                        : `<div style="font-size:0.7rem; margin-top:5px; opacity:0.75;">${lang==='en'?'food surplus':'přebytek jídla'}: ${almsFoodTotal}/15</div>
+                           <button class="craft-btn" style="margin-top:6px;" ${almsFoodTotal >= 15 ? '' : 'disabled'} onclick="Game.giveAlms()">🥖 ${lang==='en'?'Distribute alms':'Rozdat almužnu'}</button>`}
+                <div style="font-size:0.62rem; opacity:0.55; font-style:italic; margin-top:5px;">${lang==='en'?'weekly · village favor + piety, costs 15 food':'týdně · vliv u vsi + zbožnost, stojí 15 jídla'}</div>
               </div>`;
 
         h += this._parishCardHtml(lang);
@@ -33833,7 +33875,7 @@ const PersonaSystem = {
                 onclick="PersonaSystem.switchTab('professio',this)">⚒️ ${lang==='en'?'Professio':'Professio'}</button>
             <button id="persona-tab-felis" class="filter-btn ${this._activeTab==='felis'?'active':''}"
                 onclick="PersonaSystem.switchTab('felis',this)">🐈‍⬛ Felis</button>
-            ${(GameState.inventory && GameState.inventory['truhla'] > 0) ? `
+            ${((GameState.inventory && (GameState.inventory['truhla_i'] > 0 || GameState.inventory['truhla_ii'] > 0))) ? `
             <button id="persona-tab-truhla" class="filter-btn ${this._activeTab==='truhla'?'active':''}"
                 onclick="PersonaSystem.switchTab('truhla',this)">🗝️ ${lang==='en'?'Curio Chest':'Truhla'}</button>` : ''}
         </div>`;
@@ -33845,7 +33887,7 @@ const PersonaSystem = {
         h += `<div id="persona-subtab-influentia" style="${this._activeTab==='influentia'?'':'display:none'}">` + this._renderInfluentia(lang) + `</div>`;
         h += `<div id="persona-subtab-professio" style="${this._activeTab==='professio'?'':'display:none'}">` + this._renderProfessio(lang) + `</div>`;
         h += `<div id="persona-subtab-felis" style="${this._activeTab==='felis'?'':'display:none'}">` + this._renderFelis(lang) + `</div>`;
-        if (GameState.inventory && GameState.inventory['truhla'] > 0) {
+        if (GameState.inventory && (GameState.inventory['truhla_i'] > 0 || GameState.inventory['truhla_ii'] > 0)) {
             h += `<div id="persona-subtab-truhla" style="${this._activeTab==='truhla'?'':'display:none'}">` + this._renderTruhla(lang) + `</div>`;
         }
 
@@ -33956,16 +33998,29 @@ const PersonaSystem = {
         ${this._renderTruhlaTeaser(lang)}`;
     },
 
-    // ── Truhla teaser — dvě cesty k pořízení (craft / koupě), zmizí po pořízení ──
+    // ── Truhla teaser — ukáže co chybí ke craftu Malé truhly (Výroba),
+    // + odkaz na Velkou truhlu u Klenotníka/na Trhu. Zmizí, jakmile má
+    // hráč kteroukoliv z obou truhel.
     _renderTruhlaTeaser: function(lang) {
-        if (GameState.inventory && GameState.inventory['truhla'] > 0) return '';
-        const coins = (typeof CellariumSystem !== 'undefined') ? CellariumSystem.getGrose() : 0;
+        if (GameState.inventory && (GameState.inventory['truhla_i'] > 0 || GameState.inventory['truhla_ii'] > 0)) return '';
+        const req = { iron_ingot: 1, kovani: 1, plank: 6, leather: 2, rope: 2 };
+        const inv = GameState.inventory || {};
+        const rows = Object.entries(req).map(([id, n]) => {
+            const have = inv[id] || 0;
+            const ok = have >= n;
+            const name = (typeof iName === 'function') ? iName(id) : id;
+            return `<div style="font-size:0.75rem; ${ok ? 'color:#5a9a5a;' : 'color:#c0392b;'}">${ok ? '✓' : '✗'} ${name}: ${have}/${n}</div>`;
+        }).join('');
         return `<div style="margin-top:16px;padding:12px;background:rgba(197,160,89,0.06);border:1px dashed rgba(197,160,89,0.35);border-radius:8px;">
             <div style="font-size:0.75rem;font-weight:bold;letter-spacing:0.06em;text-transform:uppercase;opacity:0.6;margin-bottom:6px;">🗝️ ${lang==='en'?'Curio Chest':'Truhla'}</div>
             <div style="font-size:0.8rem;opacity:0.75;margin-bottom:8px;">${lang==='en'
-                ? 'A place for precious finds and curiosities. Craft one (Crafting screen), or buy one ready-made.'
-                : 'Místo pro cenné nálezy a kuriozity. Vyrob ji (obrazovka Výroba), nebo kup rovnou hotovou.'}</div>
-            <button class="craft-btn" onclick="Game.buyTruhla()" ${coins < 1500 ? 'disabled' : ''}>🗝️ ${lang==='en'?'Buy ready-made (1500 g)':'Koupit hotovou (1500 g)'}</button>
+                ? 'A place for precious finds and curiosities.'
+                : 'Místo pro cenné nálezy a kuriozity.'}</div>
+            <div style="font-size:0.78rem;font-weight:bold;margin-bottom:4px;">${lang==='en'?'Small Chest — craft in Crafting:':'Malá truhla — vyrob ve Výrobě:'}</div>
+            ${rows}
+            <div style="font-size:0.7rem;opacity:0.6;margin-top:8px;font-style:italic;">${lang==='en'
+                ? 'Or buy a Large Chest ready-made — from the Goldsmith (Clientela), or pricier at the Market.'
+                : 'Nebo kup rovnou hotovou Velkou truhlu — u Klenotníka (Clientela), dráž na Trhu.'}</div>
         </div>`;
     },
 
@@ -55100,14 +55155,26 @@ const Game = {
         if (Math.random() >= chance) { Game.save(); return; } // ticho — žádný spam
 
         const infl = (GameState.persona && GameState.persona.influence) || {};
-        const grose = 3 + Math.floor(Math.random() * 6) + Math.floor((infl.church || 0) / 10);
+        let grose = 3 + Math.floor(Math.random() * 6) + Math.floor((infl.church || 0) / 10);
+        // Hostitel (T6-Hostitel) — konvrš přiřazený ke správě hostů; kvalita
+        // ubytování (Domus Conversorum tier) zvyšuje ofěru, snižuje riziko nákazy.
+        const hostitel = (GameState.conversi || []).find(k => k.task === 'hostitel');
+        let hostitelPresent = false;
+        if (hostitel) {
+            hostitelPresent = true;
+            const storage = GameState.storage || {};
+            const domusTier = (storage.domus_conversorum_iii && storage.domus_conversorum_iii.built) ? 3
+                : (storage.domus_conversorum_ii && storage.domus_conversorum_ii.built) ? 2
+                : (storage.domus_conversorum_i && storage.domus_conversorum_i.built) ? 1 : 0;
+            grose += domusTier * 2;
+        }
         if (typeof CellariumSystem !== 'undefined' && CellariumSystem.addGrose) CellariumSystem.addGrose(grose);
         if (typeof PersonaSystem !== 'undefined' && PersonaSystem.addInfluence) PersonaSystem.addInfluence('village', 1);
         t.lastPilgrims = { ts: Date.now(), grose: grose };
         Game._templumLog({ type: 'pilgrims', grose: grose });
         // T6-V2: poutní cesty = přenašeči — 10% šance nachlazení (existující nemoc, žádný nový obsah)
         let caughtCold = false;
-        if (typeof HealthSystem !== 'undefined' && HealthSystem.addCondition && Math.random() < 0.10) {
+        if (!hostitelPresent && typeof HealthSystem !== 'undefined' && HealthSystem.addCondition && Math.random() < 0.10) {
             HealthSystem.addCondition('cold');
             caughtCold = true;
         }
@@ -55332,6 +55399,56 @@ const Game = {
             '📿 Donum ecclesiae oblatum est.');
         const el = document.getElementById('home-templum-content');
         if (el && typeof TemplumSystem !== 'undefined') el.innerHTML = TemplumSystem.renderTemplumTab();
+    },
+
+    // ── TEMPLUM T7 — Almužník: týdenní rozdání přebytku jídla chudým.
+    // Gate frater+ (monastery hierarchie review, Almužník role). Žádná nová
+    // ekonomika — spotřeba existujících food itemů, mirror _checkDomusIIConditions
+    // foodTotal vzoru.
+    giveAlms: function() {
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        if (!(GameState.rank && ['frater', 'armarius', 'prior'].includes(GameState.rank.monastic))) {
+            UI.notify(lang==='en' ? 'Requires rank: Frater or higher.' : 'Vyžaduje rank Frater a výš.', true); return;
+        }
+        if (!GameState.templum) GameState.templum = {};
+        const t = GameState.templum;
+        const now = Date.now();
+        if ((t.nextAlms || 0) > now) return;
+
+        const ALMS_COST = 15;
+        let foodTotal = 0;
+        for (const [id, qty] of Object.entries(GameState.inventory || {})) {
+            const item = (typeof ItemsDB !== 'undefined') ? ItemsDB[id] : null;
+            if (item && item.type === 'food' && typeof qty === 'number') foodTotal += qty;
+        }
+        if (foodTotal < ALMS_COST) {
+            UI.notify(lang==='en' ? 'Needs at least 15 units of food surplus.' : 'Potřeba aspoň 15 jednotek přebytku jídla.', true); return;
+        }
+
+        let toRemove = ALMS_COST;
+        const foodEntries = Object.entries(GameState.inventory)
+            .filter(([id, qty]) => { const it = ItemsDB[id]; return it && it.type === 'food' && qty > 0; })
+            .sort((a, b) => b[1] - a[1]);
+        for (const [id, qty] of foodEntries) {
+            if (toRemove <= 0) break;
+            const take = Math.min(qty, toRemove);
+            this.removeItem(id, take);
+            toRemove -= take;
+        }
+
+        t.nextAlms = now + 7 * 24 * 60 * 60 * 1000;
+        t.lastAlms = { ts: now };
+        if (typeof PersonaSystem !== 'undefined' && PersonaSystem.addInfluence) PersonaSystem.addInfluence('village', 4);
+        if (typeof PersonaSystem !== 'undefined' && PersonaSystem.addZboznost) PersonaSystem.addZboznost(2);
+        Game._templumLog({ type: 'alms' });
+        Game.save();
+        UI.notifyPanel('🥖 ' + (lang==='en' ? 'Alms distributed to the poor.' : 'Almužna rozdána chudým.'), 'success');
+        Game.addKronikaEntry('minor',
+            '🥖 Almužník rozdal almužnu chudým ze zásob kláštera.',
+            '🥖 The Almoner distributed alms to the poor from the monastery stores.',
+            '🥖 Eleemosyna pauperibus data est.');
+        const el2 = document.getElementById('home-templum-content');
+        if (el2 && typeof TemplumSystem !== 'undefined') el2.innerHTML = TemplumSystem.renderTemplumTab();
     },
 
     // ── TEMPLUM: sdílený log pro dashboard (Confession/Mass/Offerings/
@@ -55581,6 +55698,13 @@ const Game = {
         let eccl = 5 + (this.MASS_INCENSE_TIER[incenseId] || 0);
         // Visitatio V2: vystavená relikvie — mše nese větší milost (základ, PŘED degradací i svátkem)
         if ((GameState.inventory['reliquia'] || 0) >= 1) eccl += 1;
+        // Kantor (T6-Kantor) — přiřazený bratr vede chorál, mše nese víc milosti dle jeho úrovně
+        const kantorBrother = (GameState.dormitorium && GameState.dormitorium.brothers || [])
+            .find(b => b.assignedTab === 'kantor');
+        if (kantorBrother) {
+            const kantorLevel = this.dormitoriumBrotherLevel(kantorBrother, 'kantor') || 1;
+            eccl += kantorLevel;
+        }
         let vill = 3;
         if (degraded) { eccl = Math.max(1, Math.floor(eccl / 2)); vill = Math.max(1, Math.floor(vill / 2)); }
         if (wrongVestment) { eccl = Math.max(1, Math.floor(eccl / 2)); vill = Math.max(1, Math.floor(vill / 2)); }
@@ -55602,6 +55726,10 @@ const Game = {
         t.nextMass = now + 7 * 24 * 60 * 60 * 1000;
         t.lastMass = { ts: now, incense: incenseId, degraded: degraded };
         Game._templumLog({ type: 'mass', incense: incenseId, degraded: degraded, feastName: feastName, eccl: eccl });
+        if (kantorBrother) {
+            this.dormitoriumAddXp(kantorBrother, 'kantor');
+            kantorBrother.fatigue = Math.min(100, (kantorBrother.fatigue || 0) + 8);
+        }
         // CHRONICON — anonymní denní favor report pro 'klaster' (Path C,
         // 25.7.2026). Mše = jádro klášterní legitimity, přirozený spouštěč.
         if (typeof ChroniconSystem !== 'undefined' && ChroniconSystem._reportActorFavorIfNewDay) {
@@ -56295,6 +56423,7 @@ const Game = {
         coquus:     { icon: '🍲', away: false, dailyRiskPct: 7, injuryKind: 'physical' },
         hortulanus: { icon: '🌿', away: false, dailyRiskPct: 2, injuryKind: 'physical' },
         balneator:  { icon: '🔥', away: false, dailyRiskPct: 7, injuryKind: 'physical' },
+        hostitel:   { icon: '🥾', away: false, dailyRiskPct: 3, injuryKind: 'illness' },
     },
     CONVERSI_TASK_SLOTS: 2,
 
@@ -56311,6 +56440,13 @@ const Game = {
         }
         if (taskId === 'kostel') {
             if (!(typeof TemplumSystem !== 'undefined' && TemplumSystem.isUnlocked())) {
+                return { locked: true, reasonKey: 'gate_frater' };
+            }
+            return { locked: false };
+        }
+        if (taskId === 'hostitel') {
+            if (!(typeof TemplumSystem !== 'undefined' && TemplumSystem.isUnlocked())
+                || !(GameState.researchedTechs && GameState.researchedTechs.includes('tech_canonical_hours'))) {
                 return { locked: true, reasonKey: 'gate_frater' };
             }
             return { locked: false };
@@ -56410,6 +56546,11 @@ const Game = {
                         const metalId = metalPool[Math.floor(Math.random() * metalPool.length)];
                         this.addItem(metalId, 1);
                         yieldTxt += ' + 1× ' + metalId;
+                    }
+                    // Whetstone rock — vzácný nález vhodné horniny na brousky (samostatný roll)
+                    if (Math.random() < 0.1) {
+                        this.addItem('whetstone_rock', 1);
+                        yieldTxt += ' + 1× whetstone_rock';
                     }
                     UI.notifyPanel('⛏️ ' + (lang==='en' ? k.name+' returned from the mine with '+yieldTxt+'.' : k.name+' se vrátil z dolu s '+yieldTxt+'.'), 'success');
                     Game.addKronikaEntry('minor', '⛏️ '+k.name+' přinesl z dolu '+yieldTxt+'.', '⛏️ '+k.name+' brought '+yieldTxt+' from the mine.', '⛏️ '+k.name+' e fodina rediit.');
@@ -56664,23 +56805,6 @@ const Game = {
         Game.addKronikaEntry('minor', '🌱 '+name+' přijat jako oblát.', '🌱 '+name+' taken in as an oblate.', '🌱 '+name+' oblatus susceptus est.');
         Game.save();
         if (typeof SaeculumSystem !== 'undefined') SaeculumSystem.switchEntity(GameState.ui.saeculumEntity || 'tavern');
-    },
-
-    buyTruhla: function() {
-        const lang = (GameState.settings && GameState.settings.language) || 'cs';
-        if (GameState.inventory['truhla'] > 0) {
-            UI.notify(lang==='en' ? 'You already own a Curio Chest.' : 'Truhlu už máš.', true); return;
-        }
-        const price = 1500;
-        if ((typeof CellariumSystem !== 'undefined' ? CellariumSystem.getGrose() : 0) < price) {
-            UI.notify(lang==='en' ? 'Not enough groats.' : 'Nedostatek grošů.', true); return;
-        }
-        CellariumSystem.addGrose(-price);
-        this.addItem('truhla', 1);
-        UI.notifyPanel('🗝️ ' + (lang==='en' ? 'A finished Curio Chest, bought outright from the joiner.' : 'Hotová truhla, koupená rovnou od truhláře.'), 'success');
-        Game.addKronikaEntry('minor', '🗝️ Zakoupena hotová truhla za '+price+' g.', '🗝️ A finished chest purchased for '+price+' g.', '🗝️ Arca empta.');
-        Game.save();
-        if (typeof UI !== 'undefined' && UI.renderAll) UI.renderAll();
     },
 
     // Denní kontrola dozrání obláta na konvrše — volat z denního ticku.
