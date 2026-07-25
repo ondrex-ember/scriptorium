@@ -7580,6 +7580,23 @@ const ItemsDB = {
 
     "repair_kit": { name: "Opravná sada", name_en: "Repair Kit", icon: "🔧", type: "tool", desc: "Na opravu studny.", desc_en: "For repairing the well.", cat: "tool" },
 
+    // INFIRMARIUM — MINUTIO (pouštění žilou)
+    // Tři unikátní břitvy, mechanicky totožné (bloodletTool: true = odemyká
+    // HealthSystem.performMinutio pro minutioEligible neduhy). Liší se jen
+    // původem/popiskem/vzácností. Nespotřebovávají se — nástroj, ne lektvar.
+    "britva_chirurgus": { name: "Břitva ranhojiče", name_en: "The Surgeon's Razor", icon: "🪒", type: "tool",
+        desc: "Stará břitva od Chirurgova mistra. Ostří potřebuje ruku, co ho ocení.",
+        desc_en: "An old razor from the Surgeon's own master. The blade needs a hand that appreciates it.",
+        bloodletTool: true },
+    "britva_kovarska": { name: "Kovářská břitva", name_en: "Blacksmith's Razor", icon: "🪒", type: "tool",
+        desc: "Poctivá kovářská práce. Ne krásná, ale drží ostří.",
+        desc_en: "Honest blacksmith's work. Not pretty, but it holds an edge.",
+        bloodletTool: true },
+    "britva_cizi": { name: "Cizí břitva", name_en: "Foreign Razor", icon: "🪒", type: "tool",
+        desc: "Přinesl ji potulný lazebník odkudsi zdaleka. Ostří jinak broušené, než je tu zvykem.",
+        desc_en: "Brought by a wandering barber from somewhere far away. Ground differently than is the custom here.",
+        bloodletTool: true },
+
     // LORE
     "pulp": { name: "Hadrovina", name_en: "Rag Pulp", icon: "🌫️", type: "mat", desc: "Rozmělněná lněná vlákna ve vodě. Základ hadrového papíru.", desc_en: "Macerated linen fibres in water. The base of rag paper." },
     "paper": { name: "Hadrový papír", name_en: "Rag Paper", icon: "📄", type: "lore", desc: "Lisovaná hadrovina. Středověký papír z lněných vláken, ne ze dřeva.", desc_en: "Pressed rag pulp. Medieval paper made from linen fibres, not wood." },
@@ -9196,6 +9213,7 @@ const HealthConditionsDB = {
         tickHour: { fatigue: 1 },
         cures: ["berries", "dried_wild_fruit", "rosehip_sauce", "odvar_z_dubenek"],
         humor: "sanguis",
+        minutioEligible: true,
     },
     "lice": {
         name: "Vši", name_en: "Lice", icon: "🪲",
@@ -9210,6 +9228,7 @@ const HealthConditionsDB = {
         tickHour: { fatigue: 0.5 },
         cures: ["herbal_tea"],
         humor: "sanguis",
+        minutioEligible: true,
     },
     "scabies": {
         name: "Svrab", name_en: "Scabies", icon: "🔴",
@@ -9251,6 +9270,24 @@ const HealthConditionsDB = {
         onApply: { satiety: -25, fatigue: 20 },
         tickHour: { satiety: -2 },
         cures: ["antidote", "potion_heal", "odvar_z_dubenek"],
+        humor: "sanguis",
+        minutioEligible: true,
+    },
+
+    // ── Minutio (pouštění žilou) — komplikace, ne samostatně chytatelná
+    // nemoc. Přidává ji HealthSystem.performMinutio() při 20% neúspěchu. ──
+    "minutio_slabost": {
+        name: "Slabost po pouštění žilou", name_en: "Weakness After Bloodletting", icon: "😮‍💨",
+        desc: "Ranhojič odebral víc krve, než bylo bezpečné. Tělo se musí zotavit.",
+        desc_en: "The surgeon drew more blood than was safe. The body must recover.",
+        causeShort: "Komplikace při pouštění žilou.",
+        causeShort_en: "A complication during bloodletting.",
+        advice: "Žádný lék nepomůže — jen odpočinek.",
+        advice_en: "No remedy helps — only rest.",
+        durationHours: 24,
+        onApply: { fatigue: 15 },
+        tickHour: {},
+        cures: [],
         humor: "sanguis",
     },
     "ergot_fire": {
@@ -9362,7 +9399,6 @@ const HealthConditionsDB = {
         cures: ["elixir_purgationis"],
     },
 };
-
 // ═══ src/data/lore.js ═══
 const LoreDB = {
     // TOOLS
@@ -12784,8 +12820,9 @@ const LettersDB = [
         effect: function () {
           if (typeof CellariumSystem !== 'undefined' && CellariumSystem.addGrose) CellariumSystem.addGrose(-5);
           if (typeof SaeculumSystem !== 'undefined' && SaeculumSystem.addContactRelation) SaeculumSystem.addContactRelation('chirurgus', 3);
+          if (typeof Game !== 'undefined' && Game.addItem) Game.addItem('britva_chirurgus', 1);
         },
-        notify_cs: 'Břitva koupena. (−5 grošů, Chirurgus +3)', notify_en: 'The razor is bought. (−5 groschen, Surgeon +3)' },
+        notify_cs: 'Břitva koupena. (−5 grošů, Chirurgus +3, 🪒 Břitva ranhojiče)', notify_en: 'The razor is bought. (−5 groschen, Surgeon +3, 🪒 The Surgeon\'s Razor)' },
       { label_cs: '🙏 Poděkovat, ale odmítnout', label_en: '🙏 Thank him, but decline',
         effect: function () {}, notify_cs: 'Chirurgus pokrčil rameny.', notify_en: 'The surgeon shrugged.' }
     ]
@@ -13509,8 +13546,11 @@ const ContactsDB = {
         sellBonus: { items: { iron_ore: 6 } },   // K4b: výkup pod nákupní cenou Obchodu (15) — přebytek rozhodne hráč
         buyOffer: { items: {
             palice_zelezna: { price: 16, stock: 2 },
-            kovani: { price: 8, stock: 4 }
+            kovani: { price: 8, stock: 4 },
+            britva_kovarska: { price: 12, stock: 1 }
         } }, // plní starý slib "prodá nástroje" z popisku + kování na Velký úl (Apiarium MRD)
+          // britva_kovarska: Minutio MRD (25.7.2026) — do budoucna i craftovatelná
+          // v klášteře po kovárna-upgrade tech (TODO, samostatný sprint)
         desc: 'Vesnický kovář. Vykoupí přebytečnou rudu, prodá nástroje.',
         desc_en: 'The village blacksmith. Buys surplus ore, sells tools.'
     },
@@ -21161,8 +21201,43 @@ const HealthSystem = {
             if (typeof Game !== 'undefined' && Game.save) Game.save();
         }
     },
-};
 
+    // ── Minutio (pouštění žilou) — vyžaduje libovolnou břitvu (ItemsDB
+    // bloodletTool: true), nespotřebovává se. 20% šance komplikace
+    // (minutio_slabost místo vyléčení). Jen pro minutioEligible neduhy. ──
+    _hasBloodletTool: function() {
+        if (!GameState.inventory || typeof ItemsDB === 'undefined') return false;
+        for (const id of Object.keys(GameState.inventory)) {
+            if ((GameState.inventory[id] || 0) > 0 && ItemsDB[id] && ItemsDB[id].bloodletTool) return true;
+        }
+        return false;
+    },
+
+    performMinutio: function(conditionId) {
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        if (!GameState.health || !GameState.health.active || !GameState.health.active[conditionId]) return;
+        const def = HealthConditionsDB[conditionId];
+        if (!def || !def.minutioEligible) return;
+        if (!this._hasBloodletTool()) {
+            if (typeof UI !== 'undefined' && UI.notify) UI.notify(lang==='en' ? 'You need a razor for bloodletting.' : 'Potřebuješ břitvu na pouštění žilou.', true);
+            return;
+        }
+        const complication = Math.random() < 0.20;
+        if (complication) {
+            this.addCondition('minutio_slabost');
+            if (typeof UI !== 'undefined' && UI.notifyPanel) {
+                UI.notifyPanel(lang==='en' ? '🩸 The bloodletting went wrong. Only weakness remains.' : '🩸 Pouštění žilou se nezdařilo. Zůstala jen slabost.', 'system');
+            }
+        } else {
+            this.removeCondition(conditionId, true);
+            if (typeof UI !== 'undefined' && UI.notifyPanel) {
+                UI.notifyPanel(lang==='en' ? '🩸 The bloodletting worked. The ailment is gone.' : '🩸 Pouštění žilou zabralo. Neduh je pryč.', 'system');
+            }
+        }
+        if (typeof Game !== 'undefined' && Game.save) Game.save();
+        if (typeof PersonaSystem !== 'undefined' && PersonaSystem.render) PersonaSystem.render();
+    },
+};
 // ═══ src/systems/CellariumSystem.js ═══
 // ═══════════════════════════════════════════════════════════════════════════════
 // CELLARIUM SYSTEM v8.1 — Economy & Barter
@@ -34218,6 +34293,15 @@ const PersonaSystem = {
                     }
                 }
 
+                // Minutio (pouštění žilou) — jen pro minutioEligible nemoci
+                let minutioLine = '';
+                if (def.minutioEligible) {
+                    const hasTool = (typeof HealthSystem !== 'undefined') && HealthSystem._hasBloodletTool && HealthSystem._hasBloodletTool();
+                    minutioLine = `<button onclick="HealthSystem.performMinutio('${id}')" class="craft-btn" style="margin-top:8px; font-size:0.75rem;" ${hasTool ? '' : 'disabled'}>
+                        🩸 ${lang==='en'?'Bloodletting (razor, 20% risk)':'Pustit žilou (břitva, 20% riziko)'}
+                    </button>`;
+                }
+
                 // Haeresis Occulta MRD — Cesta B, dedikovaná mimo villager zpověď
                 let confessLine = '';
                 if (id === 'haeresis_occulta') {
@@ -34235,6 +34319,7 @@ const PersonaSystem = {
                     ${advice ? `<div style="font-size:0.78rem;margin-top:6px;padding-top:6px;border-top:1px dashed rgba(197,160,89,0.3);"><strong>${lang==='en'?'What to do:':'Co dělat:'}</strong> ${advice}</div>` : ''}
                     ${cureLine}
                     ${infirmaryLine}
+                    ${minutioLine}
                     ${confessLine}
                 </div>`;
             }).join('');
