@@ -141,7 +141,8 @@ const TavernDice = {
       const caught = Math.random() < 0.05; // 5% risk
       if (caught) {
         const fine = Math.min(coins, 100);
-        GameState.coins = Math.max(0, GameState.coins - fine - this.bet);
+        if (typeof CellariumSystem !== 'undefined' && CellariumSystem.spendGrose) CellariumSystem.spendGrose(Math.min(coins, fine + this.bet));
+        else GameState.coins = Math.max(0, GameState.coins - fine - this.bet);
         if (GameState.persona && GameState.persona.influence) {
           GameState.persona.influence.benedikt = Math.max(0, (GameState.persona.influence.benedikt || 0) - 10);
         }
@@ -162,7 +163,8 @@ const TavernDice = {
 
     // Deduct bet if at start of game or main roll
     if (this.activeGame !== 'hazard' || this.hazardState.phase === 'main') {
-      GameState.coins -= this.bet;
+      if (typeof CellariumSystem !== 'undefined' && CellariumSystem.spendGrose) CellariumSystem.spendGrose(this.bet);
+      else GameState.coins -= this.bet;
     }
 
     this.isRolling = true;
@@ -226,7 +228,8 @@ const TavernDice = {
 
       if (isNick) {
         const payout = this.bet * 2;
-        GameState.coins += payout;
+        if (typeof CellariumSystem !== 'undefined' && CellariumSystem.addGrose) CellariumSystem.addGrose(payout);
+        else GameState.coins += payout;
         this.streak++;
         if (typeof AudioSystem !== 'undefined' && AudioSystem.playCink) AudioSystem.playCink(1.2);
         this.lastResult = {
@@ -264,7 +267,8 @@ const TavernDice = {
 
       if (sum === chance) {
         const payout = this.bet * 2;
-        GameState.coins += payout;
+        if (typeof CellariumSystem !== 'undefined' && CellariumSystem.addGrose) CellariumSystem.addGrose(payout);
+        else GameState.coins += payout;
         this.streak++;
         if (typeof AudioSystem !== 'undefined' && AudioSystem.playCink) AudioSystem.playCink(1.2);
         this.lastResult = {
@@ -310,7 +314,8 @@ const TavernDice = {
 
     if (isWin) {
       const payout = Math.floor(this.bet * 1.95);
-      GameState.coins += payout;
+      if (typeof CellariumSystem !== 'undefined' && CellariumSystem.addGrose) CellariumSystem.addGrose(payout);
+      else GameState.coins += payout;
       this.streak++;
       if (typeof AudioSystem !== 'undefined' && AudioSystem.playCink) AudioSystem.playCink(1.2);
       this.lastResult = {
@@ -353,7 +358,8 @@ const TavernDice = {
 
     if (sum === target) {
       const payout = Math.floor(this.bet * mult);
-      GameState.coins += payout;
+      if (typeof CellariumSystem !== 'undefined' && CellariumSystem.addGrose) CellariumSystem.addGrose(payout);
+      else GameState.coins += payout;
       this.streak++;
       if (typeof AudioSystem !== 'undefined' && AudioSystem.playCink) AudioSystem.playCink(1.2);
       this.lastResult = {
