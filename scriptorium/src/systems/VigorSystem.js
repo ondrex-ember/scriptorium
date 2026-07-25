@@ -1036,6 +1036,14 @@ const VigorSystem = {
                 <span>${(typeof RankSystem !== 'undefined' && GameState.rank) ? (RankSystem.getCurrentSecularRank().icon + ' ' + RankSystem.getRankNameShort(GameState.rank.secular)) : '–'}</span>
                 <span style="font-style:italic;">${GameState.persona && GameState.persona.role ? '⚒️ ' + GameState.persona.role : (lang === 'en' ? 'no role' : 'bez role')}</span>
             </div>
+            <div style="font-size:0.7rem;opacity:0.65;display:flex;justify-content:space-between;margin-top:2px;">
+                <span>${(() => {
+                    const monasticId = GameState.rank && GameState.rank.monastic;
+                    if (!monasticId || typeof RankSystem === 'undefined') return (lang === 'en' ? '– not on the monastic path' : '– mimo klášterní dráhu');
+                    const mRank = RankSystem.monastic.find(r => r.id === monasticId);
+                    return mRank ? (mRank.icon + ' ' + RankSystem.getRankNameShort(monasticId)) : '–';
+                })()}</span>
+            </div>
         `;
     },
 
