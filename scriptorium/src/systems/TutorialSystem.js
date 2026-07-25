@@ -15,8 +15,8 @@ const TutorialSystem = {
             id: 'gather',
             navTarget: '#nav-home',
             target: '#home-scavenge-content',
-            text_cs: 'Začni ve Dvoře — nasbírej dřevo a klestí ve výběru akcí níže.',
-            text_en: 'Start in the Yard — gather wood and brushwood from the actions below.',
+            text_cs: 'V Pracovně, v sekci Sběr, nasbírej dřevo a klestí ve výběru akcí níže.',
+            text_en: 'In the Workshop, under Gathering, collect wood and brushwood from the actions below.',
             isDone: function () { return (GameState.inventory['wood'] || 0) >= 5; }
         },
         {
@@ -107,6 +107,10 @@ const TutorialSystem = {
         if (step.isDone()) {
             GameState.tutorial.step++;
             if (typeof Game !== 'undefined' && Game.save) Game.save();
+            const lang = (GameState.settings && GameState.settings.language) || 'cs';
+            if (typeof UI !== 'undefined' && UI.notify) {
+                UI.notify(lang === 'en' ? '✅ Step done!' : '✅ Krok splněn!');
+            }
             if (GameState.tutorial.step >= this.STEPS.length) { this._complete(); return; }
         }
         this.render();
