@@ -12799,9 +12799,14 @@ const LettersDB = [
     text_en: '"Brother, my cheese mould has cracked after years of service. I hear your monastery has wicker baskets that would serve as a replacement. I shall trade a fine piece of aging cheese for one — an honest exchange, I\'d say. — The Cheesemaker"',
     trigger: function () { return (GameState.researchedTechs || []).includes('tech_caseus'); },
     choices: [
-      { label_cs: '🧀 Vyměnit', label_en: '🧀 Trade',
-        effect: function () { if (typeof SaeculumSystem !== 'undefined' && SaeculumSystem.addContactRelation) SaeculumSystem.addContactRelation('syrar', 3); },
-        notify_cs: 'Výměna proběhla ke spokojenosti obou. (Sýrař +3)', notify_en: 'The trade pleased both sides. (Cheesemaker +3)' }
+      { label_cs: '🧀 Vyměnit proutí za sýr (−1 proutí, +2 sýr)', label_en: '🧀 Trade wicker for cheese (−1 wicker, +2 cheese)',
+        canAfford: function () { return (GameState.inventory['wicker'] || 0) >= 1; },
+        effect: function () {
+          if (typeof Game !== 'undefined' && Game.removeItem) Game.removeItem('wicker', 1);
+          if (typeof Game !== 'undefined' && Game.addItem) Game.addItem('cheese', 2);
+          if (typeof SaeculumSystem !== 'undefined' && SaeculumSystem.addContactRelation) SaeculumSystem.addContactRelation('syrar', 3);
+        },
+        notify_cs: 'Výměna proběhla ke spokojenosti obou. (−1 proutí, +2 sýr, Sýrař +3)', notify_en: 'The trade pleased both sides. (−1 wicker, +2 cheese, Cheesemaker +3)' }
     ]
   },
   {
@@ -35002,20 +35007,37 @@ const PortaSystem = {
     // Fronta — dopisy z LettersDB (trigger() platí) + dynamické CHRONICON
     // dopisy (Vrstva 3 — Chronicon už podmínku vyhodnotil při výběru, takže
     // mají syntetický trigger()=>true), obojí ještě nepřečtené.
+    //
+    // DRIP (25.7.2026): dopis, co ještě nikdy nebyl ve frontě (firstSeen na
+    // něj nesahal), se pustí max 1 za DRIP_COOLDOWN_MS reálného času — jako
+    // by holub nosil jedno psaní za dva dny. Bez tohohle by hráč se spoustou
+    // splněných podmínek najednou (starý save, rychlý postup) dostal
+    // desítky dopisů v jednu chvíli. Jednou vypuštěný dopis touhle brzdou
+    // dál neprochází — čte se kdykoliv, žádná další podmínka.
     getQueue: function () {
         this._ensureState();
         if (typeof LettersDB === 'undefined') return [];
         const now = Date.now();
         let changed = false;
+        const DRIP_COOLDOWN_MS = 48 * 60 * 60 * 1000; // ob dva dny
         const dynPool = GameState.letters.dynamic.map(d => Object.assign({}, d, { trigger: function () { return true; } }));
         const pool = LettersDB.concat(dynPool);
-        const queue = pool.filter(letter => {
+
+        const eligible = pool.filter(letter => {
             if (GameState.letters.readIds[letter.id]) return false;
-            let active = false;
-            try { active = letter.trigger(); } catch (e) { return false; }
-            if (!active) return false;
-            // Phase 1: firstSeen — od prvního objevení ve frontě
-            if (!GameState.letters.firstSeen[letter.id]) {
+            try { return letter.trigger(); } catch (e) { return false; }
+        });
+
+        if (!GameState.letters.lastDripAt) GameState.letters.lastDripAt = 0;
+        const canDripNow = (now - GameState.letters.lastDripAt) >= DRIP_COOLDOWN_MS;
+        let dripUsed = false;
+
+        const queue = eligible.filter(letter => {
+            const alreadyReleased = !!GameState.letters.firstSeen[letter.id];
+            if (!alreadyReleased) {
+                if (!canDripNow || dripUsed) return false; // čeká na svou řadu
+                dripUsed = true;
+                GameState.letters.lastDripAt = now;
                 GameState.letters.firstSeen[letter.id] = now;
                 changed = true;
                 if (typeof NotificationSystem !== 'undefined') {
@@ -61898,7 +61920,7 @@ const UI = {
     // Žádný nový fetch — ChroniconSystem._snap je už stažený jednou/den.
     _ACTOR_ICONS: {
         vrchnost: '🏰', mlynar: '🌾', kovar: '⚒️', uhlic: '🔥', vorar: '🪵',
-        rybnikar: '🐟', prevoznik: '⛴️', valach: '🐑', klaster: '⛪', vcelar: '🐝',
+        rybnikar: '🐟', prevoznik: '⛴️', valach: '🐑', klaster: '🏛️', vcelar: '🐝',
     },
 
     renderChroniconWindow: function () {
@@ -61966,8 +61988,8 @@ const UI = {
                             ? `<div style="font-size:0.6rem; opacity:0.5;">☠️ ${lang === 'en' ? 'gone' : 'zesnulý'}</div>`
                             : '';
                 h += `<div style="padding:8px 10px; background:rgba(255,255,255,0.4); border:1px solid rgba(197,160,89,0.2); border-radius:6px;">
-                    <div style="font-size:0.8rem; font-weight:bold;">${icon} ${a.label}</div>
-                    <div style="font-size:0.6rem; opacity:0.6; margin-bottom:4px;">${a.profession}</div>
+                    <div style="font-size:0.8rem; font-weight:bold;">${icon} ${lang === 'en' ? (a.label_en || a.label) : a.label}</div>
+                    <div style="font-size:0.6rem; opacity:0.6; margin-bottom:4px;">${lang === 'en' ? (a.profession_en || a.profession) : a.profession}</div>
                     <div style="display:flex; align-items:center; gap:4px; margin-bottom:2px;">
                         <span style="font-size:0.58rem; width:34px; opacity:0.6;">${lang === 'en' ? 'mood' : 'nálada'}</span>
                         <div style="flex:1; height:4px; background:rgba(0,0,0,0.1); border-radius:2px; overflow:hidden;">
