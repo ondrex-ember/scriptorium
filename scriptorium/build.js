@@ -76,6 +76,7 @@ const JS_MAIN = [
     'src/systems/CommitmentsSystem.js',
     'src/systems/SecretsSystem.js',
     'src/systems/athanor.js',
+    'src/systems/TutorialSystem.js', // TutorialSystem — nenucený arrow/spotlight tutorial
     'src/systems/GamesSystem.js',
 
     // Mini-hry
