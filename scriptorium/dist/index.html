@@ -56241,6 +56241,33 @@ const Game = {
         return mult;
     },
 
+    // Conversi output efficiency (25.7.2026 sprint) — roste podle SKUTEČNÉ
+    // odvedené práce na daném tabu (k.taskXp[tabId]), ne podle kalendáře/
+    // loyalty. Konvrš startuje skoro na 1.0, famulus roste nad standard
+    // (ostřílená sezónní ruka), oblát startuje nejslabší. Aplikováno jen
+    // na zahony/sad/apiarium (plný efekt) a jako bonus-only na pole/
+    // vinohrad/piscina — viz komentáře u jednotlivých volání.
+    CONVERSI_EFFICIENCY_CURVE: {
+        famulus: { floor: 0.85, cap: 1.15, rate: 0.10 },
+        oblat:   { floor: 0.50, cap: 0.90, rate: 0.08 },
+        _default: { floor: 0.85, cap: 1.00, rate: 0.15 } // konvrš (k.type null/undefined)
+    },
+
+    conversiEfficiency: function(k, tabId) {
+        if (!k) return 1.0;
+        const cfg = this.CONVERSI_EFFICIENCY_CURVE[k.type] || this.CONVERSI_EFFICIENCY_CURVE._default;
+        const xp = (k.taskXp && k.taskXp[tabId]) || 0;
+        return cfg.floor + (cfg.cap - cfg.floor) * (1 - Math.exp(-cfg.rate * xp));
+    },
+
+    // Volat při KAŽDÉM skutečně odvedeném úkolu (didWork/didHarvest) —
+    // zrcadlí dormitoriumAddXp pro bratry, ale pro konvrše/famuly/obláty.
+    conversiAddTaskXp: function(k, tabId) {
+        if (!k) return;
+        if (!k.taskXp) k.taskXp = {};
+        k.taskXp[tabId] = (k.taskXp[tabId] || 0) + 1;
+    },
+
     // Mapování tab → (primární vlastnost +2, sekundární +1) — monk-attributes-mrd.
     // Zbožnost/Pokora/Askeze/Výřečnost prací NEROSTOU — rostou denním rytmem
     // (Officium/Kapitula), řešeno jinde, ne zde.
@@ -57895,7 +57922,7 @@ const Game = {
                         let _fertMultAuto = 0.6;
                         if (_wasFertStage >= 1) _fertMultAuto = (_wasFertQuality === 2) ? 1.15 : 1.0;
                         if (_wasMidGrowFertilized) _fertMultAuto = 1.3;
-                        const totalMult = _yieldMult * brotherMult * _fertMultAuto;
+                        const totalMult = _yieldMult * brotherMult * _fertMultAuto * this.conversiEfficiency(gardener, 'zahony');
                         const track = (id, qty) => { harvested[id] = (harvested[id] || 0) + qty; };
                         if (_gp) {
                             const q = Math.max(1, Math.round(_gp.yield * totalMult));
@@ -57920,6 +57947,7 @@ const Game = {
                     if (gardener) {
                         const workGain = this._konvrsTraits(gardener).includes('silak') ? 10 : 15;
                         gardener.fatigue = Math.min(100, gardener.fatigue + workGain);
+                        this.conversiAddTaskXp(gardener, 'zahony');
                     }
                     if (gardenBrother) {
                         this.dormitoriumAddXp(gardenBrother, 'zahony');
@@ -57983,7 +58011,7 @@ const Game = {
                     const fruit = TREE_FRUITS[slot.treeType];
                     if (!fruit) return;
                     const baseQty = (slot.treeType === 'seed_walnut' || slot.treeType === 'seed_sorb') ? 2 : 3;
-                    const qty = Math.max(1, Math.round(baseQty * brotherMult));
+                    const qty = Math.max(1, Math.round(baseQty * brotherMult * this.conversiEfficiency(orchardKeeper, 'sad')));
                     this.addItem(fruit, qty);
                     harvested[fruit] = (harvested[fruit] || 0) + qty;
                     if (slot.treeType === 'seed_linden') this.addItem('linden_blossom', 1);
@@ -57996,6 +58024,7 @@ const Game = {
                     if (orchardKeeper) {
                         const workGain = this._konvrsTraits(orchardKeeper).includes('silak') ? 10 : 15;
                         orchardKeeper.fatigue = Math.min(100, orchardKeeper.fatigue + workGain);
+                        this.conversiAddTaskXp(orchardKeeper, 'sad');
                     }
                     if (orchardBrother) {
                         this.dormitoriumAddXp(orchardBrother, 'sad');
@@ -58075,8 +58104,9 @@ const Game = {
                     const queenMod    = (hive.queenStrength || 3) / 3;
                     const honeyBase = { spring: 1, summer: 3, autumn: 1 };
                     const waxBase   = { spring: 1, summer: 1, autumn: 2 };
-                    const hQty = Math.max(1, Math.round(honeyBase[season] * strengthMod * queenMod * weatherMod * varroaPenalty * brotherMult));
-                    const wQty = Math.max(1, Math.round(waxBase[season] * strengthMod * varroaPenalty * brotherMult));
+                    const konvrsEff = this.conversiEfficiency(beekeeper, 'apiarium');
+                    const hQty = Math.max(1, Math.round(honeyBase[season] * strengthMod * queenMod * weatherMod * varroaPenalty * brotherMult * konvrsEff));
+                    const wQty = Math.max(1, Math.round(waxBase[season] * strengthMod * varroaPenalty * brotherMult * konvrsEff));
                     this.addItem('honey', hQty);
                     this.addItem('beeswax', wQty);
                     honeyGained += hQty; waxGained += wQty;
@@ -58115,6 +58145,7 @@ const Game = {
                     if (beekeeper) {
                         const workGain = this._konvrsTraits(beekeeper).includes('silak') ? 10 : 15;
                         beekeeper.fatigue = Math.min(100, beekeeper.fatigue + workGain);
+                        this.conversiAddTaskXp(beekeeper, 'apiarium');
                     }
                     if (apiaryBrother) {
                         this.dormitoriumAddXp(apiaryBrother, 'apiarium');
@@ -58180,7 +58211,7 @@ const Game = {
                 // sklidily jako 'carp' bez ohledu na skutečný druh (viz Sprint 4).
                 const carpTotal = (p.fish || []).filter(r => r.stage === 'adult' && r.species === 'kapr').reduce((s, r) => s + r.qty, 0);
                 if (carpTotal > 0) {
-                    const qty = Math.max(carpTotal, Math.round(carpTotal * brotherMult));
+                    const qty = Math.max(carpTotal, Math.round(carpTotal * brotherMult * this.conversiEfficiency(fisherman, 'piscina')));
                     (p.fish || []).forEach(r => { if (r.stage === 'adult' && r.species === 'kapr') r.qty = 0; });
                     this.addItem('carp', qty);
                     didWork = true; carpCaught = qty;
@@ -58192,6 +58223,7 @@ const Game = {
                     if (fisherman) {
                         const workGain = this._konvrsTraits(fisherman).includes('silak') ? 10 : 15;
                         fisherman.fatigue = Math.min(100, fisherman.fatigue + workGain);
+                        this.conversiAddTaskXp(fisherman, 'piscina');
                     }
                     if (piscinaBrother) {
                         this.dormitoriumAddXp(piscinaBrother, 'piscina');
@@ -58254,8 +58286,9 @@ const Game = {
                         Object.keys(GameState.inventory).forEach(itemId => {
                             let gained = (GameState.inventory[itemId] || 0) - (before[itemId] || 0);
                             if (gained <= 0) return;
-                            if (brotherMult > 1.0) {
-                                const bonus = Math.round(gained * (brotherMult - 1.0));
+                            const combinedMult = brotherMult * this.conversiEfficiency(plowman, 'pole');
+                            if (combinedMult > 1.0) {
+                                const bonus = Math.round(gained * (combinedMult - 1.0));
                                 if (bonus > 0) { this.addItem(itemId, bonus); gained += bonus; }
                             }
                             harvested[itemId] = (harvested[itemId] || 0) + gained;
@@ -58267,6 +58300,7 @@ const Game = {
                     if (plowman) {
                         const workGain = this._konvrsTraits(plowman).includes('silak') ? 10 : 15;
                         plowman.fatigue = Math.min(100, plowman.fatigue + workGain);
+                        this.conversiAddTaskXp(plowman, 'pole');
                     }
                     if (fieldBrother) {
                         this.dormitoriumAddXp(fieldBrother, 'pole');
@@ -58341,8 +58375,9 @@ const Game = {
                         Object.keys(GameState.inventory).forEach(itemId => {
                             let gained = (GameState.inventory[itemId] || 0) - (before[itemId] || 0);
                             if (gained <= 0) return;
-                            if (brotherMult > 1.0) {
-                                const bonus = Math.round(gained * (brotherMult - 1.0));
+                            const combinedMult = brotherMult * this.conversiEfficiency(vintner, 'vinohrad');
+                            if (combinedMult > 1.0) {
+                                const bonus = Math.round(gained * (combinedMult - 1.0));
                                 if (bonus > 0) { this.addItem(itemId, bonus); gained += bonus; }
                             }
                             harvested[itemId] = (harvested[itemId] || 0) + gained;
@@ -58354,6 +58389,7 @@ const Game = {
                     if (vintner) {
                         const workGain = this._konvrsTraits(vintner).includes('silak') ? 10 : 15;
                         vintner.fatigue = Math.min(100, vintner.fatigue + workGain);
+                        this.conversiAddTaskXp(vintner, 'vinohrad');
                     }
                     if (vineaBrother) {
                         this.dormitoriumAddXp(vineaBrother, 'vinohrad');
