@@ -8327,6 +8327,9 @@ const ItemsDB = {
     "vapno_hasene_fresh": { name: "Čerstvě hašené vápno", name_en: "Freshly Slaked Lime", icon: "💧", type: "mat", desc: "Uhašeno vodou, ještě prudké. Musí uležet v jámě.", desc_en: "Just slaked with water, still caustic. Must rest in the pit." },
     "vapno_hasene_mature": { name: "Vápno", name_en: "Lime", icon: "⬜", type: "mat", desc: "Vyzrálé v jámě. Klidné, použitelné — malta, omítka, pergamen.", desc_en: "Matured in the pit. Stable and usable — mortar, plaster, parchment." },
     "iron_ingot": { name: "Železný ingot", name_en: "Iron Ingot", icon: "⚙️", type: "mat", desc: "Odlitý prut železa. Základ kovářského řemesla.", desc_en: "Cast iron bar. The foundation of the blacksmith's craft." },
+    "stribrny_prut": { name: "Stříbrný prut", name_en: "Silver Ingot", icon: "🥈", type: "mat", desc: "Odlitý prut ryzího stříbra, vážený a značený zlatníkem. Cenná komodita, ne oběživo.", desc_en: "A cast bar of pure silver, weighed and marked by the goldsmith. A valuable commodity, not coin." },
+    "zlaty_prut": { name: "Zlatý prut", name_en: "Gold Ingot", icon: "🟨", type: "mat", desc: "Odlitý prut ryzího zlata, vážený a značený zlatníkem. Menší poklad na dlani.", desc_en: "A cast bar of pure gold, weighed and marked by the goldsmith. A small treasure in the palm of one's hand." },
+    "truhla": { name: "Truhla", name_en: "Curio Chest", icon: "🗝️", type: "tool", desc: "Kovaná truhla se zámkem. Uschová cenné nálezy a kuriozity — otevře vlastní přihrádku v Personě.", desc_en: "An ironbound chest with a lock. Holds precious finds and curiosities — opens its own compartment under Persona." },
     "kovani": { name: "Kování", name_en: "Ironwork Fittings", icon: "🔩", type: "mat", desc: "Kované pásy, skoby a spony. Vesnický kovář je prodává hotové — sám je nekuješ.", desc_en: "Forged bands, cramps, and clasps. The village blacksmith sells these ready-made — you don't forge them yourself." },
     "velky_ul_1": { maxStack: 1, name: "Velký úl (I)", name_en: "Great Hive (I)", icon: "🛖", type: "mat", desc: "Zesílená konstrukce úlu — kulatina, lano a kování od kováře. Odemyká vylepšené včelstvo.", desc_en: "A reinforced hive structure — logs, rope, and blacksmith's ironwork. Unlocks an improved colony." },
     "velky_ul_2": { maxStack: 1, name: "Velký úl (II)", name_en: "Great Hive (II)", icon: "🛖", type: "mat", desc: "Dostavba Velkého úlu na plnou míru. Nejsilnější staveniště pro včelstvo v klášteře.", desc_en: "The Great Hive built out to its full measure. The strongest apiary structure in the monastery." },
@@ -8483,6 +8486,7 @@ const RecipesDB = [
     // NEW RECIPES - Mini-games & Notebooks
     { id: "playing_cards", output: "playing_cards", qty: 1, req: { "paper": 5, "ink": 1 }, cat: "lore", locked: true },
     { id: "loaded_dice", output: "loaded_dice", qty: 1, req: { "bone": 2, "pestle": 0 }, cat: "craft", desc: "Cinknuté kostky vyřezané z kosti, vyvážené olovem.", desc_en: "Loaded dice carved from bone, weighted with lead." },
+    { id: "truhla", output: "truhla", qty: 1, req: { "iron_ingot": 3, "kovani": 2, "plank": 12, "leather": 4, "rope": 3 }, cat: "craft", desc: "Kovaná truhla se zámkem na cenné nálezy a kuriozity.", desc_en: "An ironbound, locked chest for precious finds and curiosities." },
 	{
 	  id: "recipe_iching_book",
 	  output: "iching_book",
@@ -10747,6 +10751,16 @@ TechTree.push({
     cost: 18,
     desc: "Šlechta odedávna hledala v klášterních archivech doklady k pozemkovým sporům, rodokmenům i závětem. Vlastní studovna při knihovně nabídne světskému hostu klid a soukromí, aniž naruší řád kláštera. Odemyká: přijímání žádostí Vrchnosti o přístup ke klášterním listinám.",
     desc_en: "Nobility had long sought in monastery archives the proof needed for land disputes, lineage claims, and testaments. A private study room by the library offers a secular guest quiet and privacy without disrupting the monastery's order. Unlocks: receiving the Lord's requests for access to the monastery's charters.",
+    unlocks: [],
+    requires: []
+});
+TechTree.push({
+    id: "tech_klenotnictvi",
+    name: "Klenotnictví",
+    name_en: "Goldsmith's Art",
+    cost: 22,
+    desc: "Zlatnictví je cech oddělený od kamenictví — jiný výcvik, jiná pravidla, jiná čtvrť města. Skrze Kameníkovy styky se otevírá cesta ke klenotníkovi ve městě, který obchoduje se stříbrem a zlatem.",
+    desc_en: "Goldsmithing is a guild apart from stonemasonry — different training, different rules, a different quarter of the city. Through the Stonemason's connections, a path opens to a goldsmith in the city who trades in silver and gold.",
     unlocks: [],
     requires: []
 });
@@ -13552,6 +13566,25 @@ const ContactsDB = {
                        beryllus: { itemId: 'beryllus', price: 8,  minRelation: 0 } },
         desc: 'Kameník od lomu. Otesá náhrobek pro farní rodinu i chrliče pro chrám.',
         desc_en: 'A stonemason from the quarry. He carves a gravestone for a parish family, or gargoyles for the church.'
+    },
+    klenotnik: {
+        confession: "Zlato, co váží na zlaťáku falešnou váhu, prý poznat nejde — leda by ses zeptal jeho svědomí.",
+        confession_en: "Gold weighed on a rigged scale can't be told apart, he says — unless you ask his conscience.",
+        name: 'Klenotník', name_en: 'Goldsmith', icon: '💍',
+        primaryAxis: 'village',
+        secondaryAxis: null,
+        unlockTech: 'tech_klenotnictvi',
+        // Odemčení navíc vyžaduje vztah s Kameníkem (zvláštní gate, viz
+        // renderClientela — zlatnický cech je oddělený od kamenického,
+        // Kameník jen zprostředkuje kontakt).
+        unlockContact: { id: 'kamenik', minRelation: 40 },
+        sellBonus: { items: { stribrny_prut: 105, zlaty_prut: 1190 } },   // výkup zpět — spread ~70 % nákupní ceny (mirror historické praxe zlatníků)
+        buyOffer: { items: {
+            stribrny_prut: { price: 150,  stock: 3, minRelation: 0 },
+            zlaty_prut:    { price: 1700, stock: 2, minRelation: 0 },
+        } },
+        desc: 'Zlatník ve městě. Kupuje i prodává stříbrné a zlaté pruty — cesta k němu vede přes Kameníkovy styky.',
+        desc_en: "A goldsmith in the city. Buys and sells silver and gold ingots — the path to him leads through the Stonemason's connections."
     },
     giacomo: {
         confession: "Prodává janovské zboží jako benátské a benátské jako janovské — podle toho, kdo se ptá.",
@@ -21223,6 +21256,9 @@ const CellariumSystem = {
   // ═══════════════════════════════════════════════════════════════════════════
 
   BASE_PRICES: {
+    // Zlatnictví — prodej zpátky (Klenotník vykoupí za ~70 %, Obchod za ~80 %)
+    stribrny_prut: 120,
+    zlaty_prut:   1360,
     // Lore / Psaní
     paper:          2,
     ink:            2,
@@ -21389,6 +21425,7 @@ const CellariumSystem = {
     herb_red: 'mat', herb_yellow: 'mat', herb_blue: 'mat', roots: 'mat',
     chalk: 'mat',
     metal: 'mat', glue: 'mat', tallow: 'mat', sealant: 'mat',
+    stribrny_prut: 'mat', zlaty_prut: 'mat',
     bellows: 'tool', book_binding: 'tool', organ: 'tool',
     senet_board: 'tool', backgammon_board: 'tool', draughts_board: 'tool', hnefatafl_board: 'tool',
     potion_heal: 'alchemy', antidote: 'alchemy', stamina_tonic: 'alchemy',
@@ -24503,7 +24540,8 @@ const SaeculumSystem = {
       if (id === 'stationarius') return; // vlastní vstup v Knihovně, ne tady
       const c = ContactsDB[id];
       const unlocked = (!c.unlockTech || researched.includes(c.unlockTech))
-                    && (!c.unlockBook || (GameState.library && GameState.library.readBooks && GameState.library.readBooks.includes(c.unlockBook)));
+                    && (!c.unlockBook || (GameState.library && GameState.library.readBooks && GameState.library.readBooks.includes(c.unlockBook)))
+                    && (!c.unlockContact || ((GameState.contactRelation || {})[c.unlockContact.id] || 0) >= c.unlockContact.minRelation);
       const r = Math.min(100, Math.round(rel[id] || 0));
       if (unlocked) {
         const isActive = id === activeContact;
@@ -24516,6 +24554,7 @@ const SaeculumSystem = {
         h += `<div style="display:flex; align-items:center; gap:6px; padding:6px 10px; background:rgba(0,0,0,0.04); border:1px dashed rgba(197,160,89,0.35); border-radius:8px; opacity:0.55;">
                 <span style="font-size:1rem; filter:grayscale(1);">🔒</span>
                 <span style="font-size:0.72rem;">???</span>
+                <span onclick="event.stopPropagation(); SaeculumSystem.showContactLockHint('${id}')" title="?" style="font-size:0.6rem; cursor:pointer; opacity:0.85; border:1px solid rgba(197,160,89,0.5); border-radius:50%; width:14px; height:14px; display:inline-flex; align-items:center; justify-content:center; line-height:1;">❓</span>
               </div>`;
       }
     });
@@ -24728,6 +24767,35 @@ const SaeculumSystem = {
 
     h += `</div>`;
     return h;
+  },
+
+  // Generický "hint" vzor pro zamčené věci — vypíše, co přesně chybí.
+  // Zatím pro Clientela kontakty; stejný princip (id → spočti chybějící
+  // podmínky → UI.notify) lze znovupoužít i jinde (tutoriál, tech, budovy).
+  showContactLockHint: function(id) {
+    const c = ContactsDB[id];
+    if (!c) return;
+    const lang = (GameState.settings && GameState.settings.language) || 'cs';
+    const researched = GameState.researchedTechs || [];
+    const parts = [];
+    if (c.unlockTech && !researched.includes(c.unlockTech)) {
+      const techObj = (typeof TechTree !== 'undefined') ? TechTree.find(t => t.id === c.unlockTech) : null;
+      const techName = techObj ? (lang==='en' ? techObj.name_en : techObj.name) : c.unlockTech;
+      parts.push((lang==='en' ? 'research: ' : 'vyzkoumat: ') + techName);
+    }
+    if (c.unlockBook && !(GameState.library && GameState.library.readBooks && GameState.library.readBooks.includes(c.unlockBook))) {
+      parts.push(lang==='en' ? 'read the right book' : 'přečíst správnou knihu');
+    }
+    if (c.unlockContact) {
+      const other = ContactsDB[c.unlockContact.id];
+      const otherName = other ? (lang==='en' ? other.name_en : other.name) : c.unlockContact.id;
+      const cur = Math.round((GameState.contactRelation || {})[c.unlockContact.id] || 0);
+      parts.push(lang==='en'
+        ? `relation with ${otherName}: ${cur}/${c.unlockContact.minRelation}%`
+        : `vztah s "${otherName}": ${cur}/${c.unlockContact.minRelation} %`);
+    }
+    const msg = (lang==='en' ? '🔒 Requires ' : '🔒 Vyžaduje ') + (parts.length ? parts.join(' + ') : (lang==='en'?'unknown conditions':'neznámé podmínky'));
+    if (typeof UI !== 'undefined' && UI.notify) UI.notify(msg);
   },
 
   switchEntity: function(entityId) {
@@ -33759,6 +33827,9 @@ const PersonaSystem = {
                 onclick="PersonaSystem.switchTab('professio',this)">⚒️ ${lang==='en'?'Professio':'Professio'}</button>
             <button id="persona-tab-felis" class="filter-btn ${this._activeTab==='felis'?'active':''}"
                 onclick="PersonaSystem.switchTab('felis',this)">🐈‍⬛ Felis</button>
+            ${(GameState.inventory && GameState.inventory['truhla'] > 0) ? `
+            <button id="persona-tab-truhla" class="filter-btn ${this._activeTab==='truhla'?'active':''}"
+                onclick="PersonaSystem.switchTab('truhla',this)">🗝️ ${lang==='en'?'Curio Chest':'Truhla'}</button>` : ''}
         </div>`;
 
         h += `<div id="persona-subtab-persona"  style="${this._activeTab==='persona'?'':'display:none'}">` + this._renderPersona(lang) + `</div>`;
@@ -33768,6 +33839,9 @@ const PersonaSystem = {
         h += `<div id="persona-subtab-influentia" style="${this._activeTab==='influentia'?'':'display:none'}">` + this._renderInfluentia(lang) + `</div>`;
         h += `<div id="persona-subtab-professio" style="${this._activeTab==='professio'?'':'display:none'}">` + this._renderProfessio(lang) + `</div>`;
         h += `<div id="persona-subtab-felis" style="${this._activeTab==='felis'?'':'display:none'}">` + this._renderFelis(lang) + `</div>`;
+        if (GameState.inventory && GameState.inventory['truhla'] > 0) {
+            h += `<div id="persona-subtab-truhla" style="${this._activeTab==='truhla'?'':'display:none'}">` + this._renderTruhla(lang) + `</div>`;
+        }
 
         el.innerHTML = h;
     },
@@ -33776,7 +33850,7 @@ const PersonaSystem = {
         this._activeTab = tab;
         document.querySelectorAll('#lore-persona-content .filter-btn').forEach(b => b.classList.remove('active'));
         if (btn) btn.classList.add('active');
-        ['persona','vigor','valetudo','stats','influentia','professio','felis'].forEach(t => {
+        ['persona','vigor','valetudo','stats','influentia','professio','felis','truhla'].forEach(t => {
             const d = document.getElementById('persona-subtab-' + t);
             if (d) d.style.display = t === tab ? '' : 'none';
         });
@@ -33872,7 +33946,21 @@ const PersonaSystem = {
             ${timelineHtml}
         </div>
         ${this._renderNextRankProgress(lang)}
-        ${this._renderMonasticPath(lang)}`;
+        ${this._renderMonasticPath(lang)}
+        ${this._renderTruhlaTeaser(lang)}`;
+    },
+
+    // ── Truhla teaser — dvě cesty k pořízení (craft / koupě), zmizí po pořízení ──
+    _renderTruhlaTeaser: function(lang) {
+        if (GameState.inventory && GameState.inventory['truhla'] > 0) return '';
+        const coins = (typeof CellariumSystem !== 'undefined') ? CellariumSystem.getGrose() : 0;
+        return `<div style="margin-top:16px;padding:12px;background:rgba(197,160,89,0.06);border:1px dashed rgba(197,160,89,0.35);border-radius:8px;">
+            <div style="font-size:0.75rem;font-weight:bold;letter-spacing:0.06em;text-transform:uppercase;opacity:0.6;margin-bottom:6px;">🗝️ ${lang==='en'?'Curio Chest':'Truhla'}</div>
+            <div style="font-size:0.8rem;opacity:0.75;margin-bottom:8px;">${lang==='en'
+                ? 'A place for precious finds and curiosities. Craft one (Crafting screen), or buy one ready-made.'
+                : 'Místo pro cenné nálezy a kuriozity. Vyrob ji (obrazovka Výroba), nebo kup rovnou hotovou.'}</div>
+            <button class="craft-btn" onclick="Game.buyTruhla()" ${coins < 1500 ? 'disabled' : ''}>🗝️ ${lang==='en'?'Buy ready-made (1500 g)':'Koupit hotovou (1500 g)'}</button>
+        </div>`;
     },
 
     // ── Cursus Monasticus — klášterní dráha (odděleně od světské) ───────────
@@ -34471,6 +34559,54 @@ const PersonaSystem = {
             h += `</div>`;
         }
 
+        h += `</div>`;
+        return h;
+    },
+
+    // ── Truhla — vitrína kuriozit a cenných nálezů ─────────────────────────────
+    // Čistě zobrazovací (žádná nová game-state mutace) — filtruje ItemsDB
+    // na lostItem:true položky, který hráč vlastní, + stříbrné/zlaté pruty.
+    _renderTruhla: function(lang) {
+        const inv = GameState.inventory || {};
+        let h = `<div style="padding:12px 15px; background:rgba(197,160,89,0.05); border:1px solid rgba(197,160,89,0.25); border-radius:8px;">`;
+        h += `<div style="font-weight:bold; font-size:0.95rem; margin-bottom:6px;">🗝️ ${lang==='en'?'Curio Chest':'Truhla'}</div>`;
+        h += `<div style="font-size:0.78rem; opacity:0.7; margin-bottom:14px; font-style:italic;">${lang==='en'
+            ? 'Precious finds and curiosities, kept safe under lock.'
+            : 'Cenné nálezy a kuriozity, uschované pod zámkem.'}</div>`;
+
+        // Pruty — poklad zlatníka
+        const prutIds = ['stribrny_prut', 'zlaty_prut'];
+        const prutOwned = prutIds.filter(id => (inv[id] || 0) > 0);
+        if (prutOwned.length) {
+            h += `<div style="font-size:0.8rem; font-weight:bold; margin-bottom:6px; opacity:0.8;">${lang==='en'?'Bullion':'Poklad'}</div>`;
+            h += `<div style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:16px;">`;
+            prutOwned.forEach(id => {
+                const item = ItemsDB[id];
+                h += `<div style="display:flex; align-items:center; gap:8px; padding:8px 12px; background:rgba(255,255,255,0.5); border:1px solid rgba(197,160,89,0.4); border-radius:8px;">
+                        <span style="font-size:1.3rem;">${item.icon}</span>
+                        <div><strong style="font-size:0.8rem;">${lang==='en'?item.name_en:item.name}</strong><div style="font-size:0.68rem; opacity:0.6;">×${inv[id]}</div></div>
+                      </div>`;
+            });
+            h += `</div>`;
+        }
+
+        // Kuriozity — lostItem pool
+        const curioIds = Object.keys(ItemsDB).filter(id => ItemsDB[id].lostItem && (inv[id] || 0) > 0);
+        h += `<div style="font-size:0.8rem; font-weight:bold; margin-bottom:6px; opacity:0.8;">${lang==='en'?'Curiosities':'Kuriozity'}</div>`;
+        if (!curioIds.length) {
+            h += `<div style="font-size:0.8rem; opacity:0.6; font-style:italic;">${lang==='en'?'Nothing set aside yet.':'Zatím nic uschovaného.'}</div>`;
+        } else {
+            h += `<div style="display:flex; flex-wrap:wrap; gap:8px;">`;
+            curioIds.forEach(id => {
+                const item = ItemsDB[id];
+                const desc = lang==='en' ? item.desc_en : item.desc;
+                h += `<div title="${desc}" style="display:flex; align-items:center; gap:8px; padding:8px 12px; background:rgba(255,255,255,0.4); border:1px solid rgba(197,160,89,0.3); border-radius:8px; max-width:220px;">
+                        <span style="font-size:1.2rem;">${item.icon}</span>
+                        <div><strong style="font-size:0.76rem;">${lang==='en'?item.name_en:item.name}</strong>${inv[id] > 1 ? ` <span style="opacity:0.6;">×${inv[id]}</span>` : ''}</div>
+                      </div>`;
+            });
+            h += `</div>`;
+        }
         h += `</div>`;
         return h;
     },
@@ -56522,6 +56658,23 @@ const Game = {
         Game.addKronikaEntry('minor', '🌱 '+name+' přijat jako oblát.', '🌱 '+name+' taken in as an oblate.', '🌱 '+name+' oblatus susceptus est.');
         Game.save();
         if (typeof SaeculumSystem !== 'undefined') SaeculumSystem.switchEntity(GameState.ui.saeculumEntity || 'tavern');
+    },
+
+    buyTruhla: function() {
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        if (GameState.inventory['truhla'] > 0) {
+            UI.notify(lang==='en' ? 'You already own a Curio Chest.' : 'Truhlu už máš.', true); return;
+        }
+        const price = 1500;
+        if ((typeof CellariumSystem !== 'undefined' ? CellariumSystem.getGrose() : 0) < price) {
+            UI.notify(lang==='en' ? 'Not enough groats.' : 'Nedostatek grošů.', true); return;
+        }
+        CellariumSystem.addGrose(-price);
+        this.addItem('truhla', 1);
+        UI.notifyPanel('🗝️ ' + (lang==='en' ? 'A finished Curio Chest, bought outright from the joiner.' : 'Hotová truhla, koupená rovnou od truhláře.'), 'success');
+        Game.addKronikaEntry('minor', '🗝️ Zakoupena hotová truhla za '+price+' g.', '🗝️ A finished chest purchased for '+price+' g.', '🗝️ Arca empta.');
+        Game.save();
+        if (typeof UI !== 'undefined' && UI.renderAll) UI.renderAll();
     },
 
     // Denní kontrola dozrání obláta na konvrše — volat z denního ticku.
