@@ -598,6 +598,12 @@ const CellariumSystem = {
       UI.notify(lang === 'en' ? '📦 Sold out for today. Come back tomorrow.' : '📦 Vyprodáno na dnes. Přijď zítra.', true);
       return;
     }
+    // Velká truhla — vlastnický strop 2 ks celkem (vzácný special item, ne denní stock)
+    if (itemId === 'truhla_ii' && (GameState.inventory['truhla_ii'] || 0) >= 2) {
+      const lang = (GameState.settings && GameState.settings.language) || 'cs';
+      UI.notify(lang === 'en' ? 'You already own the maximum of 2 Large Chests.' : 'Velkou truhlu už máš maximální počet 2 ks.', true);
+      return;
+    }
     const price = this.calcBuyPrice(itemId, entity, shopEntry.basePrice);
     if (this.getGrose() < price) {
       UI.notify(t('cellarium.noGrose'), true);
@@ -1471,6 +1477,10 @@ const CellariumSystem = {
     if (containerCnt > 0) { cap += containerCnt * 50; storParts.push((lang === 'en' ? 'Containers ×' : 'Kontejnery ×') + containerCnt + ' (+' + (containerCnt * 50) + (lang === 'en' ? 'u)' : 'j)')); }
     const sackCnt = inv['sack'] || 0;
     if (sackCnt > 0) { cap += sackCnt * 15; storParts.push((lang === 'en' ? 'Sacks ×' : 'Pytle ×') + sackCnt + ' (+' + (sackCnt * 15) + (lang === 'en' ? 'u)' : 'j)')); }
+    const truhlaICnt = inv['truhla_i'] || 0;
+    if (truhlaICnt > 0) { cap += truhlaICnt * 50; storParts.push((lang === 'en' ? 'Small Chests ×' : 'Malé truhly ×') + truhlaICnt + ' (+' + (truhlaICnt * 50) + (lang === 'en' ? 'u)' : 'j)')); }
+    const truhlaIICnt = inv['truhla_ii'] || 0;
+    if (truhlaIICnt > 0) { cap += truhlaIICnt * 250; storParts.push((lang === 'en' ? 'Large Chests ×' : 'Velké truhly ×') + truhlaIICnt + ' (+' + (truhlaIICnt * 250) + (lang === 'en' ? 'u)' : 'j)')); }
     const storName = storParts.join(' · ');
     const totalItems = (ds ? ds.totalStock() : Object.values(inv).reduce((sum, v) => sum + (typeof v === 'number' && v > 0 ? v : 0), 0));
     const capPct = Math.min(100, Math.round(totalItems / cap * 100));
