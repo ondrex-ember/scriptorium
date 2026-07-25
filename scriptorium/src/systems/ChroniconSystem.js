@@ -151,6 +151,22 @@ const ChroniconSystem = {
             });
         }
 
+        // CHRONICON porta_letters (Vrstva 3) → GameState.letters.dynamic.
+        // Stejný dedup princip jako unlockFlags — jen nové id se přidá,
+        // PortaSystem.getQueue() pak řeší readIds/firstSeen/expiry stejně
+        // jako u statických LettersDB dopisů.
+        if (Array.isArray(snap.porta_letters) && typeof GameState !== 'undefined') {
+            if (!GameState.letters) GameState.letters = { readIds: {}, archive: [], firstSeen: {} };
+            if (!GameState.letters.dynamic) GameState.letters.dynamic = [];
+            const knownIds = {};
+            GameState.letters.dynamic.forEach(function (l) { knownIds[l.id] = true; });
+            snap.porta_letters.forEach(function (entry) {
+                if (!entry || !entry.id || knownIds[entry.id]) return;
+                GameState.letters.dynamic.push(entry);
+                knownIds[entry.id] = true;
+            });
+        }
+
         // CHRONICON advisory_events → kurátorované rozhodovací eventy (Sprint 3).
         // Cap: jen 1 aktivní najednou. "Odložit" nic neztratí — zůstává
         // aktivní, dokud se hráč nerozhodne jinak. Formát mirror events-reference.md.
@@ -609,6 +625,28 @@ const ChroniconSystem = {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ favor: true, day: today }),
+            }).catch(() => {});
+        } catch (e) { /* tiché selhání */ }
+    },
+
+    // Generický anonymní denní favor report pro libovolného CHRONICON
+    // aktéra (api/actor-favor-report.js, core/actor-favor-register.js).
+    // Dnes voláno pro 'klaster' po odsloužené mši (Game.serveMass) — dělá
+    // z "Klášter" v CHRONICONu mechanickou zprávu o komunitě hráčů, ne jen
+    // vyprávěcí gesto. Rozšíření na dalšího aktéra = jen další volání
+    // odsud, žádný nový engine.
+    _reportActorFavorIfNewDay: function(actorId) {
+        if (!actorId) return;
+        const today = new Date().toISOString().slice(0, 10);
+        if (!GameState.actorFavorReportSent) GameState.actorFavorReportSent = {};
+        if (GameState.actorFavorReportSent[actorId] === today) return;
+        GameState.actorFavorReportSent[actorId] = today;
+
+        try {
+            fetch('/api/actor-favor-report', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ actorId: actorId, day: today }),
             }).catch(() => {});
         } catch (e) { /* tiché selhání */ }
     },

@@ -2723,7 +2723,7 @@ const UI = {
     // Žádný nový fetch — ChroniconSystem._snap je už stažený jednou/den.
     _ACTOR_ICONS: {
         vrchnost: '🏰', mlynar: '🌾', kovar: '⚒️', uhlic: '🔥', vorar: '🪵',
-        rybnikar: '🐟', prevoznik: '⛴️', valach: '🐑', klaster: '⛪', vcelar: '🐝',
+        rybnikar: '🐟', prevoznik: '⛴️', valach: '🐑', klaster: '🏛️', vcelar: '🐝',
     },
 
     renderChroniconWindow: function () {
@@ -2791,8 +2791,8 @@ const UI = {
                             ? `<div style="font-size:0.6rem; opacity:0.5;">☠️ ${lang === 'en' ? 'gone' : 'zesnulý'}</div>`
                             : '';
                 h += `<div style="padding:8px 10px; background:rgba(255,255,255,0.4); border:1px solid rgba(197,160,89,0.2); border-radius:6px;">
-                    <div style="font-size:0.8rem; font-weight:bold;">${icon} ${a.label}</div>
-                    <div style="font-size:0.6rem; opacity:0.6; margin-bottom:4px;">${a.profession}</div>
+                    <div style="font-size:0.8rem; font-weight:bold;">${icon} ${lang === 'en' ? (a.label_en || a.label) : a.label}</div>
+                    <div style="font-size:0.6rem; opacity:0.6; margin-bottom:4px;">${lang === 'en' ? (a.profession_en || a.profession) : a.profession}</div>
                     <div style="display:flex; align-items:center; gap:4px; margin-bottom:2px;">
                         <span style="font-size:0.58rem; width:34px; opacity:0.6;">${lang === 'en' ? 'mood' : 'nálada'}</span>
                         <div style="flex:1; height:4px; background:rgba(0,0,0,0.1); border-radius:2px; overflow:hidden;">
