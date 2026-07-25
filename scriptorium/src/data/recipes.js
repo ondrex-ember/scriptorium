@@ -45,6 +45,7 @@ const RecipesDB = [
     // NEW RECIPES - Mini-games & Notebooks
     { id: "playing_cards", output: "playing_cards", qty: 1, req: { "paper": 5, "ink": 1 }, cat: "lore", locked: true },
     { id: "loaded_dice", output: "loaded_dice", qty: 1, req: { "bone": 2, "pestle": 0 }, cat: "craft", desc: "Cinknuté kostky vyřezané z kosti, vyvážené olovem.", desc_en: "Loaded dice carved from bone, weighted with lead." },
+    { id: "truhla", output: "truhla", qty: 1, req: { "iron_ingot": 3, "kovani": 2, "plank": 12, "leather": 4, "rope": 3 }, cat: "craft", desc: "Kovaná truhla se zámkem na cenné nálezy a kuriozity.", desc_en: "An ironbound, locked chest for precious finds and curiosities." },
 	{
 	  id: "recipe_iching_book",
 	  output: "iching_book",

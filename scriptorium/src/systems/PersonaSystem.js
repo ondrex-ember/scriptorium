@@ -217,6 +217,9 @@ const PersonaSystem = {
                 onclick="PersonaSystem.switchTab('professio',this)">⚒️ ${lang==='en'?'Professio':'Professio'}</button>
             <button id="persona-tab-felis" class="filter-btn ${this._activeTab==='felis'?'active':''}"
                 onclick="PersonaSystem.switchTab('felis',this)">🐈‍⬛ Felis</button>
+            ${(GameState.inventory && GameState.inventory['truhla'] > 0) ? `
+            <button id="persona-tab-truhla" class="filter-btn ${this._activeTab==='truhla'?'active':''}"
+                onclick="PersonaSystem.switchTab('truhla',this)">🗝️ ${lang==='en'?'Curio Chest':'Truhla'}</button>` : ''}
         </div>`;
 
         h += `<div id="persona-subtab-persona"  style="${this._activeTab==='persona'?'':'display:none'}">` + this._renderPersona(lang) + `</div>`;
@@ -226,6 +229,9 @@ const PersonaSystem = {
         h += `<div id="persona-subtab-influentia" style="${this._activeTab==='influentia'?'':'display:none'}">` + this._renderInfluentia(lang) + `</div>`;
         h += `<div id="persona-subtab-professio" style="${this._activeTab==='professio'?'':'display:none'}">` + this._renderProfessio(lang) + `</div>`;
         h += `<div id="persona-subtab-felis" style="${this._activeTab==='felis'?'':'display:none'}">` + this._renderFelis(lang) + `</div>`;
+        if (GameState.inventory && GameState.inventory['truhla'] > 0) {
+            h += `<div id="persona-subtab-truhla" style="${this._activeTab==='truhla'?'':'display:none'}">` + this._renderTruhla(lang) + `</div>`;
+        }
 
         el.innerHTML = h;
     },
@@ -234,7 +240,7 @@ const PersonaSystem = {
         this._activeTab = tab;
         document.querySelectorAll('#lore-persona-content .filter-btn').forEach(b => b.classList.remove('active'));
         if (btn) btn.classList.add('active');
-        ['persona','vigor','valetudo','stats','influentia','professio','felis'].forEach(t => {
+        ['persona','vigor','valetudo','stats','influentia','professio','felis','truhla'].forEach(t => {
             const d = document.getElementById('persona-subtab-' + t);
             if (d) d.style.display = t === tab ? '' : 'none';
         });
@@ -330,7 +336,21 @@ const PersonaSystem = {
             ${timelineHtml}
         </div>
         ${this._renderNextRankProgress(lang)}
-        ${this._renderMonasticPath(lang)}`;
+        ${this._renderMonasticPath(lang)}
+        ${this._renderTruhlaTeaser(lang)}`;
+    },
+
+    // ── Truhla teaser — dvě cesty k pořízení (craft / koupě), zmizí po pořízení ──
+    _renderTruhlaTeaser: function(lang) {
+        if (GameState.inventory && GameState.inventory['truhla'] > 0) return '';
+        const coins = (typeof CellariumSystem !== 'undefined') ? CellariumSystem.getGrose() : 0;
+        return `<div style="margin-top:16px;padding:12px;background:rgba(197,160,89,0.06);border:1px dashed rgba(197,160,89,0.35);border-radius:8px;">
+            <div style="font-size:0.75rem;font-weight:bold;letter-spacing:0.06em;text-transform:uppercase;opacity:0.6;margin-bottom:6px;">🗝️ ${lang==='en'?'Curio Chest':'Truhla'}</div>
+            <div style="font-size:0.8rem;opacity:0.75;margin-bottom:8px;">${lang==='en'
+                ? 'A place for precious finds and curiosities. Craft one (Crafting screen), or buy one ready-made.'
+                : 'Místo pro cenné nálezy a kuriozity. Vyrob ji (obrazovka Výroba), nebo kup rovnou hotovou.'}</div>
+            <button class="craft-btn" onclick="Game.buyTruhla()" ${coins < 1500 ? 'disabled' : ''}>🗝️ ${lang==='en'?'Buy ready-made (1500 g)':'Koupit hotovou (1500 g)'}</button>
+        </div>`;
     },
 
     // ── Cursus Monasticus — klášterní dráha (odděleně od světské) ───────────
@@ -929,6 +949,54 @@ const PersonaSystem = {
             h += `</div>`;
         }
 
+        h += `</div>`;
+        return h;
+    },
+
+    // ── Truhla — vitrína kuriozit a cenných nálezů ─────────────────────────────
+    // Čistě zobrazovací (žádná nová game-state mutace) — filtruje ItemsDB
+    // na lostItem:true položky, který hráč vlastní, + stříbrné/zlaté pruty.
+    _renderTruhla: function(lang) {
+        const inv = GameState.inventory || {};
+        let h = `<div style="padding:12px 15px; background:rgba(197,160,89,0.05); border:1px solid rgba(197,160,89,0.25); border-radius:8px;">`;
+        h += `<div style="font-weight:bold; font-size:0.95rem; margin-bottom:6px;">🗝️ ${lang==='en'?'Curio Chest':'Truhla'}</div>`;
+        h += `<div style="font-size:0.78rem; opacity:0.7; margin-bottom:14px; font-style:italic;">${lang==='en'
+            ? 'Precious finds and curiosities, kept safe under lock.'
+            : 'Cenné nálezy a kuriozity, uschované pod zámkem.'}</div>`;
+
+        // Pruty — poklad zlatníka
+        const prutIds = ['stribrny_prut', 'zlaty_prut'];
+        const prutOwned = prutIds.filter(id => (inv[id] || 0) > 0);
+        if (prutOwned.length) {
+            h += `<div style="font-size:0.8rem; font-weight:bold; margin-bottom:6px; opacity:0.8;">${lang==='en'?'Bullion':'Poklad'}</div>`;
+            h += `<div style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:16px;">`;
+            prutOwned.forEach(id => {
+                const item = ItemsDB[id];
+                h += `<div style="display:flex; align-items:center; gap:8px; padding:8px 12px; background:rgba(255,255,255,0.5); border:1px solid rgba(197,160,89,0.4); border-radius:8px;">
+                        <span style="font-size:1.3rem;">${item.icon}</span>
+                        <div><strong style="font-size:0.8rem;">${lang==='en'?item.name_en:item.name}</strong><div style="font-size:0.68rem; opacity:0.6;">×${inv[id]}</div></div>
+                      </div>`;
+            });
+            h += `</div>`;
+        }
+
+        // Kuriozity — lostItem pool
+        const curioIds = Object.keys(ItemsDB).filter(id => ItemsDB[id].lostItem && (inv[id] || 0) > 0);
+        h += `<div style="font-size:0.8rem; font-weight:bold; margin-bottom:6px; opacity:0.8;">${lang==='en'?'Curiosities':'Kuriozity'}</div>`;
+        if (!curioIds.length) {
+            h += `<div style="font-size:0.8rem; opacity:0.6; font-style:italic;">${lang==='en'?'Nothing set aside yet.':'Zatím nic uschovaného.'}</div>`;
+        } else {
+            h += `<div style="display:flex; flex-wrap:wrap; gap:8px;">`;
+            curioIds.forEach(id => {
+                const item = ItemsDB[id];
+                const desc = lang==='en' ? item.desc_en : item.desc;
+                h += `<div title="${desc}" style="display:flex; align-items:center; gap:8px; padding:8px 12px; background:rgba(255,255,255,0.4); border:1px solid rgba(197,160,89,0.3); border-radius:8px; max-width:220px;">
+                        <span style="font-size:1.2rem;">${item.icon}</span>
+                        <div><strong style="font-size:0.76rem;">${lang==='en'?item.name_en:item.name}</strong>${inv[id] > 1 ? ` <span style="opacity:0.6;">×${inv[id]}</span>` : ''}</div>
+                      </div>`;
+            });
+            h += `</div>`;
+        }
         h += `</div>`;
         return h;
     },

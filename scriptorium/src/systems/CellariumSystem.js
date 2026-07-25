@@ -124,6 +124,9 @@ const CellariumSystem = {
   // ═══════════════════════════════════════════════════════════════════════════
 
   BASE_PRICES: {
+    // Zlatnictví — prodej zpátky (Klenotník vykoupí za ~70 %, Obchod za ~80 %)
+    stribrny_prut: 120,
+    zlaty_prut:   1360,
     // Lore / Psaní
     paper:          2,
     ink:            2,
@@ -290,6 +293,7 @@ const CellariumSystem = {
     herb_red: 'mat', herb_yellow: 'mat', herb_blue: 'mat', roots: 'mat',
     chalk: 'mat',
     metal: 'mat', glue: 'mat', tallow: 'mat', sealant: 'mat',
+    stribrny_prut: 'mat', zlaty_prut: 'mat',
     bellows: 'tool', book_binding: 'tool', organ: 'tool',
     senet_board: 'tool', backgammon_board: 'tool', draughts_board: 'tool', hnefatafl_board: 'tool',
     potion_heal: 'alchemy', antidote: 'alchemy', stamina_tonic: 'alchemy',

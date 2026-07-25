@@ -523,6 +523,16 @@ TechTree.push({
     unlocks: [],
     requires: []
 });
+TechTree.push({
+    id: "tech_klenotnictvi",
+    name: "Klenotnictví",
+    name_en: "Goldsmith's Art",
+    cost: 22,
+    desc: "Zlatnictví je cech oddělený od kamenictví — jiný výcvik, jiná pravidla, jiná čtvrť města. Skrze Kameníkovy styky se otevírá cesta ke klenotníkovi ve městě, který obchoduje se stříbrem a zlatem.",
+    desc_en: "Goldsmithing is a guild apart from stonemasonry — different training, different rules, a different quarter of the city. Through the Stonemason's connections, a path opens to a goldsmith in the city who trades in silver and gold.",
+    unlocks: [],
+    requires: []
+});
 // ── PORTA — Holubí pošta ─────────────────────────────────────────────────
 TechTree.push({
     id: "tech_porta",

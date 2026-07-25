@@ -1196,7 +1196,8 @@ const SaeculumSystem = {
       if (id === 'stationarius') return; // vlastní vstup v Knihovně, ne tady
       const c = ContactsDB[id];
       const unlocked = (!c.unlockTech || researched.includes(c.unlockTech))
-                    && (!c.unlockBook || (GameState.library && GameState.library.readBooks && GameState.library.readBooks.includes(c.unlockBook)));
+                    && (!c.unlockBook || (GameState.library && GameState.library.readBooks && GameState.library.readBooks.includes(c.unlockBook)))
+                    && (!c.unlockContact || ((GameState.contactRelation || {})[c.unlockContact.id] || 0) >= c.unlockContact.minRelation);
       const r = Math.min(100, Math.round(rel[id] || 0));
       if (unlocked) {
         const isActive = id === activeContact;
@@ -1209,6 +1210,7 @@ const SaeculumSystem = {
         h += `<div style="display:flex; align-items:center; gap:6px; padding:6px 10px; background:rgba(0,0,0,0.04); border:1px dashed rgba(197,160,89,0.35); border-radius:8px; opacity:0.55;">
                 <span style="font-size:1rem; filter:grayscale(1);">🔒</span>
                 <span style="font-size:0.72rem;">???</span>
+                <span onclick="event.stopPropagation(); SaeculumSystem.showContactLockHint('${id}')" title="?" style="font-size:0.6rem; cursor:pointer; opacity:0.85; border:1px solid rgba(197,160,89,0.5); border-radius:50%; width:14px; height:14px; display:inline-flex; align-items:center; justify-content:center; line-height:1;">❓</span>
               </div>`;
       }
     });
@@ -1421,6 +1423,35 @@ const SaeculumSystem = {
 
     h += `</div>`;
     return h;
+  },
+
+  // Generický "hint" vzor pro zamčené věci — vypíše, co přesně chybí.
+  // Zatím pro Clientela kontakty; stejný princip (id → spočti chybějící
+  // podmínky → UI.notify) lze znovupoužít i jinde (tutoriál, tech, budovy).
+  showContactLockHint: function(id) {
+    const c = ContactsDB[id];
+    if (!c) return;
+    const lang = (GameState.settings && GameState.settings.language) || 'cs';
+    const researched = GameState.researchedTechs || [];
+    const parts = [];
+    if (c.unlockTech && !researched.includes(c.unlockTech)) {
+      const techObj = (typeof TechTree !== 'undefined') ? TechTree.find(t => t.id === c.unlockTech) : null;
+      const techName = techObj ? (lang==='en' ? techObj.name_en : techObj.name) : c.unlockTech;
+      parts.push((lang==='en' ? 'research: ' : 'vyzkoumat: ') + techName);
+    }
+    if (c.unlockBook && !(GameState.library && GameState.library.readBooks && GameState.library.readBooks.includes(c.unlockBook))) {
+      parts.push(lang==='en' ? 'read the right book' : 'přečíst správnou knihu');
+    }
+    if (c.unlockContact) {
+      const other = ContactsDB[c.unlockContact.id];
+      const otherName = other ? (lang==='en' ? other.name_en : other.name) : c.unlockContact.id;
+      const cur = Math.round((GameState.contactRelation || {})[c.unlockContact.id] || 0);
+      parts.push(lang==='en'
+        ? `relation with ${otherName}: ${cur}/${c.unlockContact.minRelation}%`
+        : `vztah s "${otherName}": ${cur}/${c.unlockContact.minRelation} %`);
+    }
+    const msg = (lang==='en' ? '🔒 Requires ' : '🔒 Vyžaduje ') + (parts.length ? parts.join(' + ') : (lang==='en'?'unknown conditions':'neznámé podmínky'));
+    if (typeof UI !== 'undefined' && UI.notify) UI.notify(msg);
   },
 
   switchEntity: function(entityId) {

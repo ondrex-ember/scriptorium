@@ -6766,6 +6766,23 @@ const Game = {
         if (typeof SaeculumSystem !== 'undefined') SaeculumSystem.switchEntity(GameState.ui.saeculumEntity || 'tavern');
     },
 
+    buyTruhla: function() {
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        if (GameState.inventory['truhla'] > 0) {
+            UI.notify(lang==='en' ? 'You already own a Curio Chest.' : 'Truhlu už máš.', true); return;
+        }
+        const price = 1500;
+        if ((typeof CellariumSystem !== 'undefined' ? CellariumSystem.getGrose() : 0) < price) {
+            UI.notify(lang==='en' ? 'Not enough groats.' : 'Nedostatek grošů.', true); return;
+        }
+        CellariumSystem.addGrose(-price);
+        this.addItem('truhla', 1);
+        UI.notifyPanel('🗝️ ' + (lang==='en' ? 'A finished Curio Chest, bought outright from the joiner.' : 'Hotová truhla, koupená rovnou od truhláře.'), 'success');
+        Game.addKronikaEntry('minor', '🗝️ Zakoupena hotová truhla za '+price+' g.', '🗝️ A finished chest purchased for '+price+' g.', '🗝️ Arca empta.');
+        Game.save();
+        if (typeof UI !== 'undefined' && UI.renderAll) UI.renderAll();
+    },
+
     // Denní kontrola dozrání obláta na konvrše — volat z denního ticku.
     _checkOblatMaturation: function() {
         if (!GameState.conversi) return;

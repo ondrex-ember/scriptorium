@@ -156,6 +156,25 @@ const ContactsDB = {
         desc: 'Kameník od lomu. Otesá náhrobek pro farní rodinu i chrliče pro chrám.',
         desc_en: 'A stonemason from the quarry. He carves a gravestone for a parish family, or gargoyles for the church.'
     },
+    klenotnik: {
+        confession: "Zlato, co váží na zlaťáku falešnou váhu, prý poznat nejde — leda by ses zeptal jeho svědomí.",
+        confession_en: "Gold weighed on a rigged scale can't be told apart, he says — unless you ask his conscience.",
+        name: 'Klenotník', name_en: 'Goldsmith', icon: '💍',
+        primaryAxis: 'village',
+        secondaryAxis: null,
+        unlockTech: 'tech_klenotnictvi',
+        // Odemčení navíc vyžaduje vztah s Kameníkem (zvláštní gate, viz
+        // renderClientela — zlatnický cech je oddělený od kamenického,
+        // Kameník jen zprostředkuje kontakt).
+        unlockContact: { id: 'kamenik', minRelation: 40 },
+        sellBonus: { items: { stribrny_prut: 105, zlaty_prut: 1190 } },   // výkup zpět — spread ~70 % nákupní ceny (mirror historické praxe zlatníků)
+        buyOffer: { items: {
+            stribrny_prut: { price: 150,  stock: 3, minRelation: 0 },
+            zlaty_prut:    { price: 1700, stock: 2, minRelation: 0 },
+        } },
+        desc: 'Zlatník ve městě. Kupuje i prodává stříbrné a zlaté pruty — cesta k němu vede přes Kameníkovy styky.',
+        desc_en: "A goldsmith in the city. Buys and sells silver and gold ingots — the path to him leads through the Stonemason's connections."
+    },
     giacomo: {
         confession: "Prodává janovské zboží jako benátské a benátské jako janovské — podle toho, kdo se ptá.",
         confession_en: "He sells Genoese goods as Venetian, and Venetian as Genoese — whichever the buyer prefers.",
