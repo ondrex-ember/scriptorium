@@ -464,11 +464,9 @@ const CellariumSystem = {
       { itemId: 'resin_styrax',    basePrice: 18, dailyStock: 2,  req_tech: 'tech_thuribulum' },
       // Alembik — destilační nádoba, dostupná v Obchodě od Destillatio (MRD: athanor-tiers)
       { itemId: 'alembic',         basePrice: 30, dailyStock: 1,  req_tech: 'tech_destillatio' },
-      // Liturgická roucha — trvanlivá, vestment-sezóna (endgame-branches-reference.md)
-      { itemId: 'roucho_bile',     basePrice: 15, dailyStock: 1,  req_tech: 'tech_canonical_hours' },
-      { itemId: 'roucho_fialove',  basePrice: 15, dailyStock: 1,  req_tech: 'tech_canonical_hours' },
-      { itemId: 'roucho_zelene',   basePrice: 15, dailyStock: 1,  req_tech: 'tech_canonical_hours' },
-      { itemId: 'roucho_cervene',  basePrice: 18, dailyStock: 1,  req_tech: 'tech_canonical_hours' },
+      // Liturgická roucha — přesunuta do Tkadlecova Clientela buyOffer
+      // (Clientela pool MRD, 25.7.2026): osobní vztah s tkadlecem, ne
+      // anonymní pult vedle křídy a semínek. Viz contacts.js → tkadlec.
       // Včelař — sousedský chovatel, výhodnější cena než na Trhu (Trh: 40 groší)
       { itemId: 'queen_bee',       basePrice: 22, dailyStock: 1,  req_tech: 'tech_liber_apium' },
     ],

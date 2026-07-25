@@ -726,6 +726,10 @@ const ItemsDB = {
     "glass_jug": { name: "Džbán", name_en: "Glass Jug", icon: "🏺", type: "tool", desc: "Džbán na vodu i víno. Stolní nádobí.", desc_en: "A jug for water and wine. Tableware." },
     "glass_bowl": { name: "Mísa", name_en: "Glass Bowl", icon: "🫕", type: "tool", desc: "Skleněná mísa. Stolní nádobí.", desc_en: "A glass bowl. Tableware." },
     "glass_pitcher": { name: "Konvice", name_en: "Glass Pitcher", icon: "🫖", type: "tool", desc: "Konvice se skleněným tělem. Stolní nádobí.", desc_en: "A pitcher with a glass body. Tableware." },
+    // Skleněné náramky — Sklář, nový obsah (Clientela pool MRD, 25.7.2026)
+    "naramek_sklo_zeleny": { name: "Náramek — zelené sklo", name_en: "Bracelet — Green Glass", icon: "💚", type: "tool", desc: "Zelené sklo ze železité příměsi — nejběžnější barva středověké huti.", desc_en: "Green glass from an iron impurity — the most common colour of a medieval glassworks." },
+    "naramek_sklo_hnedy": { name: "Náramek — hnědé sklo", name_en: "Bracelet — Brown Glass", icon: "🟤", type: "tool", desc: "Hnědé sklo, běžný odstín lesních hutí.", desc_en: "Brown glass, a common shade from forest glassworks." },
+    "naramek_sklo_modry": { name: "Náramek — modré sklo", name_en: "Bracelet — Blue Glass", icon: "🔵", type: "tool", desc: "Modré sklo barvené kobaltem — vzácnější a dražší surovina.", desc_en: "Blue glass coloured with cobalt — a rarer, costlier material." },
     "glass_vase": { name: "Váza", name_en: "Glass Vase", icon: "🏵️", type: "tool", desc: "Ozdobná váza. Krása má v klášteře své místo.", desc_en: "A decorative vase. Beauty has its place in a monastery." },
     "window_roundel": { name: "Okenní terčík", name_en: "Window Roundel", icon: "🟡", type: "tool", desc: "Kulatý terčík do olova okenní výplně. Světlo dovnitř, zima ven.", desc_en: "A round pane set in lead. Light in, cold out." },
     "paternoster_beads": { name: "Páteříky", name_en: "Paternoster Beads", icon: "📿", type: "tool", desc: "Skleněné růžencové korálky. Sklářská pýcha českých hutí.", desc_en: "Glass rosary beads. The pride of Bohemian glassworks." },

@@ -18,6 +18,17 @@ const ContactsDB = {
         primaryAxis: 'village',
         secondaryAxis: null,
         unlockTech: 'tech_infirmarium',
+        // Clientela pool MRD (25.7.2026): bere syrové byliny na svoje masti,
+        // prodává hotové mastičky bez vlastního receptu (jeho obor — rány/
+        // zlomeniny, ne bylinkářské sirupy, ty zůstávají jinde)
+        sellBonus: { items: { comfrey: 3, yarrow: 3, plantain: 3 } },
+        buyOffer: { items: {
+            mast_kostivalova:   { price: 10, stock: 3 },
+            tinktura_rebrikova: { price: 9,  stock: 3 },
+            mast_jitrocelova:   { price: 8,  stock: 4 },
+            mast_universalni:   { price: 13, stock: 2 },
+            spongia_somnifera:  { price: 9,  stock: 2 },
+        } },
         desc: 'Potulný ranhojič a lazebník. Klášter mu holí i pouští žilou, chirurgii mniši sami nesmí.',
         desc_en: 'A wandering surgeon-barber. He shaves the brothers and lets their blood — surgery itself monks may not perform.'
     },
@@ -30,7 +41,12 @@ const ContactsDB = {
         unlockTech: 'tech_caseus',            // existuje (Lactaria II řetězec)
         sellBonus: { items: { goat_cheese_fresh: null, goat_cheese_mature: null, goat_cheese_aged: null,
                               sheep_cheese_fresh: null, sheep_cheese_mature: null, sheep_cheese_aged: null,
-                              cow_cheese_fresh: null, cow_cheese_mature: null, cow_cheese_aged: null, syrecky_fresh: null, syrecky_mature: null } }, // K4b: null = BASE_PRICES
+                              cow_cheese_fresh: null, cow_cheese_mature: null, cow_cheese_aged: null, syrecky_fresh: null, syrecky_mature: null,
+                              cheese: 6 } }, // K4b: null = BASE_PRICES; cheese: 6 pevná cena (obecný Sýr z L19 dopisu, dosud bez ceny nikde — Clientela pool MRD 25.7.2026)
+        buyOffer: { items: {
+            rennet:      { price: 4,  stock: 5 },
+            cheese_mold: { price: 10, stock: 2 },
+        } },
         desc: 'Vesnický sýrař. Vykoupí klášterní sýr lépe než trh.',
         desc_en: 'The village cheesemaker. Buys monastery cheese better than the market.'
     },
@@ -58,7 +74,12 @@ const ContactsDB = {
         primaryAxis: 'village',
         secondaryAxis: { axis: 'church', weight: 0.2 },   // mešní víno
         unlockTech: 'tech_vinifikace',        // existuje (Mustum→Vinum řetězec)
-        sellBonus: { items: { mustum: 3, vinum: 9, vinum_rubrum: 10, vinum_praeclarum: 22 } }, // K4b: exkluzivní odbyt — trh vinum neprodává (mimo BASE_PRICES)
+        sellBonus: { items: { mustum: 3, vinum: 9, vinum_rubrum: 10, vinum_praeclarum: 22,
+                              raisins: 4 } }, // K4b: exkluzivní odbyt — trh vinum neprodává (mimo BASE_PRICES); raisins: popisek slibuje prodej, dosud bez ceny (Clientela pool MRD 25.7.2026)
+        buyOffer: { items: {
+            vinegar:  { price: 3, stock: 5 },
+            tartarus: { price: 6, stock: 3 },
+        } },
         desc: 'Vinař z jižních strání. Mešní víno dodává i biskupství.',
         desc_en: 'A winemaker from the southern slopes. He supplies mass wine even to the bishopric.'
     },
@@ -69,7 +90,7 @@ const ContactsDB = {
         primaryAxis: 'village',
         secondaryAxis: null,
         unlockTech: 'tech_kovarina',          // existuje
-        sellBonus: { items: { iron_ore: 6 } },   // K4b: výkup pod nákupní cenou Obchodu (15) — přebytek rozhodne hráč
+        sellBonus: { items: { iron_ore: 6, iron_ingot: 10 } },   // K4b: výkup pod nákupní cenou Obchodu (15) — přebytek rozhodne hráč; iron_ingot: polotovar, přebytek nad truhla_i spotřebou (Clientela pool MRD 25.7.2026)
         buyOffer: { items: {
             palice_zelezna: { price: 16, stock: 2 },
             kovani: { price: 8, stock: 4 },
@@ -88,6 +109,19 @@ const ContactsDB = {
         secondaryAxis: { axis: 'church', weight: 0.2 },   // roucha/paramenta
         unlockTech: 'tech_de_re_rustica',     // stříhání vlny žije pod Ovile (tech_lanificium zrušen — mechanika už existovala)
         sellBonus: { items: { wool: null } }, // K4: null = cena z BASE_PRICES (wool: 5)
+        // Clientela pool MRD (25.7.2026): hotové plátno/soukno (dosud bez
+        // receptu i ceny) + liturgická roucha (přesunuto z ENTITY_SHOP.shop —
+        // patří k osobnímu vztahu s tkadlecem, ne anonymnímu pultu Obchodu)
+        buyOffer: { items: {
+            wool_cloth:        { price: 9,  stock: 4 },
+            fulled_wool_cloth: { price: 14, stock: 2 },
+            linen_cloth:       { price: 7,  stock: 3 },
+            hemp_canvas:       { price: 5,  stock: 4 },
+            roucho_bile:       { price: 12, stock: 1 },
+            roucho_fialove:    { price: 12, stock: 1 },
+            roucho_zelene:     { price: 12, stock: 1 },
+            roucho_cervene:    { price: 12, stock: 1 },
+        } },
         desc: 'Tkadlec z podhradí. Vlnu bere, roucha tká i pro kostel.',
         desc_en: 'A weaver from below the castle. He takes wool and weaves vestments even for the church.'
     },
@@ -99,7 +133,11 @@ const ContactsDB = {
         secondaryAxis: null,
         unlockTech: 'tech_candle',            // existuje (Apiarium/svíce)
         sellBonus: { items: { beeswax: null } }, // K4: null = cena z BASE_PRICES (trh)
-        buyOffer: { items: { candle: { price: 4, stock: 5 } } }, // schváleno: prodej svící (trh vykupuje za 2; vlastní výroba fat+rope nejlevnější — Voskař = pohodlí)
+        buyOffer: { items: {
+            candle: { price: 4, stock: 5 }, // schváleno: prodej svící (trh vykupuje za 2; vlastní výroba fat+rope nejlevnější — Voskař = pohodlí)
+            incense_spruce: { price: 3, stock: 5 },
+            incense_pine:   { price: 4, stock: 4 },
+        } }, // incense_spruce/pine: Clientela pool MRD 25.7.2026, levné místní kadidlo
         desc: 'Voskař u kostela. Surový vosk z Apiária vykoupí líp než kdokoliv.',
         desc_en: 'The wax chandler by the church. He pays better for raw beeswax than anyone.'
     },
@@ -110,7 +148,8 @@ const ContactsDB = {
         primaryAxis: 'village',
         secondaryAxis: null,
         unlockTech: 'tech_de_animalibus',     // NÁVRH (znalost zvěře) — TBD potvrdit, alternativa: scavenge hunt flag
-        sellBonus: { items: { meat: 2, hide: null, leather: null, caught_small_game: 3 } }, // L2: Divoké maso exkluzivně (mimo trh), kůže z BASE_PRICES; fat/bone záměrně mimo (craft užití)
+        sellBonus: { items: { meat: 2, hide: null, leather: null, caught_small_game: 3,
+                              cornu_cervi: 5, rabbit_pelt: 3 } }, // L2: Divoké maso exkluzivně (mimo trh), kůže z BASE_PRICES; fat/bone záměrně mimo (craft užití); cornu_cervi/rabbit_pelt: Clientela pool MRD 25.7.2026
         // L3a: exkluzivní nabídka — oko až od vztahu ≥ 25 (MRD bod 8 mechanismus)
         buyOffer: { items: { snare: { price: 5, stock: 3, minRelation: 25 } } },
         desc: 'Lovec drobné zvěře. Velká zvěř patří pánům — on to ví nejlíp.',
@@ -133,7 +172,10 @@ const ContactsDB = {
                              glass_jug:     { price: 9,  stock: 2 },
                              glass_bowl:    { price: 10, stock: 2 },
                              glass_pitcher: { price: 12, stock: 1 },
-                             fly_trap_glass:{ price: 7,  stock: 1 } } },
+                             fly_trap_glass:{ price: 7,  stock: 1 },
+                             naramek_sklo_zeleny: { price: 5,  stock: 4 },
+                             naramek_sklo_hnedy:  { price: 5,  stock: 4 },
+                             naramek_sklo_modry:  { price: 12, stock: 2 } } }, // náramky: Clientela pool MRD 25.7.2026, nový obsah
         // V4/S2 — zakázky: 48 h, 50 % záloha, vztahové gaty, +2 vztah za dokončení
         glassOrders: { vaza:     { itemId: 'glass_vase',        price: 14, minRelation: 0  },
                        tercik:   { itemId: 'window_roundel',    price: 15, minRelation: 0  },
@@ -152,6 +194,11 @@ const ContactsDB = {
         secondaryAxis: { axis: 'church', weight: 0.3 },   // chrliče a kamenné dílo pro Fabrica
         unlockTech: 'tech_carpentaria',       // existuje — tesařství/kamenictví společný gate (cut_stone)
         sellBonus: { items: { rock: 1, cut_stone: 3 } },   // mimo trh (BASE_PRICES) — pevná exkluzivní cena, ne null (viz Kovář/iron_ore)
+        // Clientela pool MRD (25.7.2026): běžná denní nabídka vedle zakázek — kamenná obdoba Kovářových nástrojů
+        buyOffer: { items: {
+            whetstone:      { price: 5, stock: 3 },
+            palice_kamenna: { price: 9, stock: 2 },
+        } },
         // zakázka — sdílí generický mechanismus SaeculumSystem.orderFromContact (stejné pole jako Sklář: 48 h, 1 slot, 50 % záloha)
         glassOrders: { nahrobek: { itemId: 'nahrobek', price: 8,  minRelation: 0 },
                        chrlic:   { itemId: 'chrlic',   price: 25, minRelation: 20 },
@@ -202,7 +249,9 @@ const ContactsDB = {
             sandarak:   { price: 14, stock: 2, minRelation: 22 },
             sal_ammoniac: { price: 18, stock: 2, minRelation: 28 },
             verzino:    { price: 16, stock: 2, minRelation: 24 },
-        } },
+            incense_styrax:   { price: 10, stock: 2, minRelation: 20 },
+            incense_olibanum: { price: 16, stock: 1, minRelation: 28 },
+        } }, // incense_styrax/olibanum: Clientela pool MRD 25.7.2026, exotický dovoz vedle koření
         desc: 'Benátský obchodník. Přiváží, co jinde nekoupíš — ale jen když je jeho loď v přístavu.',
         desc_en: 'A Venetian merchant. He brings what you cannot buy elsewhere — but only while his ship is in port.'
     },
@@ -213,7 +262,18 @@ const ContactsDB = {
         primaryAxis: 'village',
         secondaryAxis: null,
         unlockTech: 'tech_piscina_administratio',
-        sellBonus: {},
+        // Clientela pool MRD (25.7.2026): mokřadní úlovek bez odbytu (crayfish/
+        // snail/frog_legs nejsou ani na trhu), sádkové produkty bez ceny nikde,
+        // úhoř (popisek slibuje "cenná na trhu", dosud 0), vyza premium tier.
+        // Záměrně BEZ proutí — má zůstat vzácné, nekupovat zpátky.
+        sellBonus: { items: {
+            crayfish: 3, snail: 2, frog_legs: 3,
+            uhor: 18,
+            kapr_sadky_fresh: 4, kapr_sadky_purified: 6,
+            stika_sadky_fresh: 6, stika_sadky_purified: 9,
+            vyza_sadky_fresh: 10,
+            vyza_maso: 14, vyza_jikry: 20,
+        } },
         buyOffer: { items: { stika:  { price: 15, stock: 1 },
                              pstruh: { price: 12, stock: 2 },
                              uhor:   { price: 18, stock: 1 } } },

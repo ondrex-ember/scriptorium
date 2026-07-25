@@ -683,8 +683,9 @@ const LettersDB = [
           if (typeof CellariumSystem !== 'undefined' && CellariumSystem.addGrose) CellariumSystem.addGrose(-10);
           if (typeof PersonaSystem !== 'undefined' && PersonaSystem.addInfluence) PersonaSystem.addInfluence('church', 2);
           if (typeof SaeculumSystem !== 'undefined' && SaeculumSystem.addContactRelation) SaeculumSystem.addContactRelation('tkadlec', 3);
+          if (typeof Game !== 'undefined' && Game.addItem) Game.addItem('roucho_zelene', 1);
         },
-        notify_cs: 'Roucho objednáno. (−10 grošů, Ecclesia +2, Tkadlec +3)', notify_en: 'The vestment is ordered. (−10 groschen, Ecclesia +2, Weaver +3)' }
+        notify_cs: 'Roucho objednáno. (−10 grošů, Ecclesia +2, Tkadlec +3, 🟢 Roucho — zelené)', notify_en: 'The vestment is ordered. (−10 groschen, Ecclesia +2, Weaver +3, 🟢 Vestment — Green)' }
     ]
   },
   {
