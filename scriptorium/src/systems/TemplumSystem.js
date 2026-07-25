@@ -486,6 +486,28 @@ const TemplumSystem = {
                 <div style="font-size:0.62rem; opacity:0.55; font-style:italic; margin-top:5px;">${lang==='en'?'weekly · a living church draws the road':'týdně · živý kostel přitahuje cestu'}</div>
               </div>`;
 
+        // Pilíř Almužník (T7) — týdenní rozdání přebytku jídla, gate frater+
+        const isFraterPlus = !!(GameState.rank && ['frater','armarius','prior'].includes(GameState.rank.monastic));
+        const nextAlms = t.nextAlms || 0;
+        const almsReady = isFraterPlus && nextAlms <= now;
+        const almsDaysLeft = Math.max(0, Math.ceil((nextAlms - now) / (24*3600000)));
+        let almsFoodTotal = 0;
+        for (const [id, qty] of Object.entries(inv || {})) {
+            const it = (typeof ItemsDB !== 'undefined') ? ItemsDB[id] : null;
+            if (it && it.type === 'food' && typeof qty === 'number') almsFoodTotal += qty;
+        }
+        h += `<div style="padding:12px; background:rgba(255,255,255,0.4); border:1px solid rgba(197,160,89,0.25); border-radius:8px;">
+                <div style="font-size:1.5rem; margin-bottom:4px;">🥖</div>
+                <div style="font-weight:bold; font-size:0.82rem;">${lang==='en'?'Almoner':'Almužník'}</div>
+                ${!isFraterPlus
+                    ? `<div style="font-size:0.7rem; margin-top:5px; opacity:0.6;">${lang==='en'?'requires rank: Frater or higher':'vyžaduje rank Frater a výš'}</div>`
+                    : nextAlms > now
+                        ? `<div style="font-size:0.7rem; margin-top:5px; opacity:0.75;">⏳ ${lang==='en'?'next alms in':'další almužna za'} ${almsDaysLeft} d</div>`
+                        : `<div style="font-size:0.7rem; margin-top:5px; opacity:0.75;">${lang==='en'?'food surplus':'přebytek jídla'}: ${almsFoodTotal}/15</div>
+                           <button class="craft-btn" style="margin-top:6px;" ${almsFoodTotal >= 15 ? '' : 'disabled'} onclick="Game.giveAlms()">🥖 ${lang==='en'?'Distribute alms':'Rozdat almužnu'}</button>`}
+                <div style="font-size:0.62rem; opacity:0.55; font-style:italic; margin-top:5px;">${lang==='en'?'weekly · village favor + piety, costs 15 food':'týdně · vliv u vsi + zbožnost, stojí 15 jídla'}</div>
+              </div>`;
+
         h += this._parishCardHtml(lang);
 
         h += `</div></div>`;

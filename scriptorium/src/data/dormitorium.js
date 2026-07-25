@@ -129,4 +129,5 @@ const DormitoriumSpecializationDB = {
     infirmarium_apothecarius: { name: 'Apothecarius', name_en: 'Apothecary',  icon: '🧪' },
     infirmarium_capellanus:   { name: 'Capellanus',   name_en: 'Chaplain',    icon: '⛪' },
     studovna: { name: 'Lector',   name_en: 'Lector',   icon: '📖' },
+    kantor: { name: 'Kantor',   name_en: 'Cantor',   icon: '🎵' },
 };

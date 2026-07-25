@@ -5200,14 +5200,26 @@ const Game = {
         if (Math.random() >= chance) { Game.save(); return; } // ticho — žádný spam
 
         const infl = (GameState.persona && GameState.persona.influence) || {};
-        const grose = 3 + Math.floor(Math.random() * 6) + Math.floor((infl.church || 0) / 10);
+        let grose = 3 + Math.floor(Math.random() * 6) + Math.floor((infl.church || 0) / 10);
+        // Hostitel (T6-Hostitel) — konvrš přiřazený ke správě hostů; kvalita
+        // ubytování (Domus Conversorum tier) zvyšuje ofěru, snižuje riziko nákazy.
+        const hostitel = (GameState.conversi || []).find(k => k.task === 'hostitel');
+        let hostitelPresent = false;
+        if (hostitel) {
+            hostitelPresent = true;
+            const storage = GameState.storage || {};
+            const domusTier = (storage.domus_conversorum_iii && storage.domus_conversorum_iii.built) ? 3
+                : (storage.domus_conversorum_ii && storage.domus_conversorum_ii.built) ? 2
+                : (storage.domus_conversorum_i && storage.domus_conversorum_i.built) ? 1 : 0;
+            grose += domusTier * 2;
+        }
         if (typeof CellariumSystem !== 'undefined' && CellariumSystem.addGrose) CellariumSystem.addGrose(grose);
         if (typeof PersonaSystem !== 'undefined' && PersonaSystem.addInfluence) PersonaSystem.addInfluence('village', 1);
         t.lastPilgrims = { ts: Date.now(), grose: grose };
         Game._templumLog({ type: 'pilgrims', grose: grose });
         // T6-V2: poutní cesty = přenašeči — 10% šance nachlazení (existující nemoc, žádný nový obsah)
         let caughtCold = false;
-        if (typeof HealthSystem !== 'undefined' && HealthSystem.addCondition && Math.random() < 0.10) {
+        if (!hostitelPresent && typeof HealthSystem !== 'undefined' && HealthSystem.addCondition && Math.random() < 0.10) {
             HealthSystem.addCondition('cold');
             caughtCold = true;
         }
@@ -5432,6 +5444,56 @@ const Game = {
             '📿 Donum ecclesiae oblatum est.');
         const el = document.getElementById('home-templum-content');
         if (el && typeof TemplumSystem !== 'undefined') el.innerHTML = TemplumSystem.renderTemplumTab();
+    },
+
+    // ── TEMPLUM T7 — Almužník: týdenní rozdání přebytku jídla chudým.
+    // Gate frater+ (monastery hierarchie review, Almužník role). Žádná nová
+    // ekonomika — spotřeba existujících food itemů, mirror _checkDomusIIConditions
+    // foodTotal vzoru.
+    giveAlms: function() {
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        if (!(GameState.rank && ['frater', 'armarius', 'prior'].includes(GameState.rank.monastic))) {
+            UI.notify(lang==='en' ? 'Requires rank: Frater or higher.' : 'Vyžaduje rank Frater a výš.', true); return;
+        }
+        if (!GameState.templum) GameState.templum = {};
+        const t = GameState.templum;
+        const now = Date.now();
+        if ((t.nextAlms || 0) > now) return;
+
+        const ALMS_COST = 15;
+        let foodTotal = 0;
+        for (const [id, qty] of Object.entries(GameState.inventory || {})) {
+            const item = (typeof ItemsDB !== 'undefined') ? ItemsDB[id] : null;
+            if (item && item.type === 'food' && typeof qty === 'number') foodTotal += qty;
+        }
+        if (foodTotal < ALMS_COST) {
+            UI.notify(lang==='en' ? 'Needs at least 15 units of food surplus.' : 'Potřeba aspoň 15 jednotek přebytku jídla.', true); return;
+        }
+
+        let toRemove = ALMS_COST;
+        const foodEntries = Object.entries(GameState.inventory)
+            .filter(([id, qty]) => { const it = ItemsDB[id]; return it && it.type === 'food' && qty > 0; })
+            .sort((a, b) => b[1] - a[1]);
+        for (const [id, qty] of foodEntries) {
+            if (toRemove <= 0) break;
+            const take = Math.min(qty, toRemove);
+            this.removeItem(id, take);
+            toRemove -= take;
+        }
+
+        t.nextAlms = now + 7 * 24 * 60 * 60 * 1000;
+        t.lastAlms = { ts: now };
+        if (typeof PersonaSystem !== 'undefined' && PersonaSystem.addInfluence) PersonaSystem.addInfluence('village', 4);
+        if (typeof PersonaSystem !== 'undefined' && PersonaSystem.addZboznost) PersonaSystem.addZboznost(2);
+        Game._templumLog({ type: 'alms' });
+        Game.save();
+        UI.notifyPanel('🥖 ' + (lang==='en' ? 'Alms distributed to the poor.' : 'Almužna rozdána chudým.'), 'success');
+        Game.addKronikaEntry('minor',
+            '🥖 Almužník rozdal almužnu chudým ze zásob kláštera.',
+            '🥖 The Almoner distributed alms to the poor from the monastery stores.',
+            '🥖 Eleemosyna pauperibus data est.');
+        const el2 = document.getElementById('home-templum-content');
+        if (el2 && typeof TemplumSystem !== 'undefined') el2.innerHTML = TemplumSystem.renderTemplumTab();
     },
 
     // ── TEMPLUM: sdílený log pro dashboard (Confession/Mass/Offerings/
@@ -5681,6 +5743,13 @@ const Game = {
         let eccl = 5 + (this.MASS_INCENSE_TIER[incenseId] || 0);
         // Visitatio V2: vystavená relikvie — mše nese větší milost (základ, PŘED degradací i svátkem)
         if ((GameState.inventory['reliquia'] || 0) >= 1) eccl += 1;
+        // Kantor (T6-Kantor) — přiřazený bratr vede chorál, mše nese víc milosti dle jeho úrovně
+        const kantorBrother = (GameState.dormitorium && GameState.dormitorium.brothers || [])
+            .find(b => b.assignedTab === 'kantor');
+        if (kantorBrother) {
+            const kantorLevel = this.dormitoriumBrotherLevel(kantorBrother, 'kantor') || 1;
+            eccl += kantorLevel;
+        }
         let vill = 3;
         if (degraded) { eccl = Math.max(1, Math.floor(eccl / 2)); vill = Math.max(1, Math.floor(vill / 2)); }
         if (wrongVestment) { eccl = Math.max(1, Math.floor(eccl / 2)); vill = Math.max(1, Math.floor(vill / 2)); }
@@ -5702,6 +5771,10 @@ const Game = {
         t.nextMass = now + 7 * 24 * 60 * 60 * 1000;
         t.lastMass = { ts: now, incense: incenseId, degraded: degraded };
         Game._templumLog({ type: 'mass', incense: incenseId, degraded: degraded, feastName: feastName, eccl: eccl });
+        if (kantorBrother) {
+            this.dormitoriumAddXp(kantorBrother, 'kantor');
+            kantorBrother.fatigue = Math.min(100, (kantorBrother.fatigue || 0) + 8);
+        }
         // CHRONICON — anonymní denní favor report pro 'klaster' (Path C,
         // 25.7.2026). Mše = jádro klášterní legitimity, přirozený spouštěč.
         if (typeof ChroniconSystem !== 'undefined' && ChroniconSystem._reportActorFavorIfNewDay) {
@@ -6395,6 +6468,7 @@ const Game = {
         coquus:     { icon: '🍲', away: false, dailyRiskPct: 7, injuryKind: 'physical' },
         hortulanus: { icon: '🌿', away: false, dailyRiskPct: 2, injuryKind: 'physical' },
         balneator:  { icon: '🔥', away: false, dailyRiskPct: 7, injuryKind: 'physical' },
+        hostitel:   { icon: '🥾', away: false, dailyRiskPct: 3, injuryKind: 'illness' },
     },
     CONVERSI_TASK_SLOTS: 2,
 
@@ -6411,6 +6485,13 @@ const Game = {
         }
         if (taskId === 'kostel') {
             if (!(typeof TemplumSystem !== 'undefined' && TemplumSystem.isUnlocked())) {
+                return { locked: true, reasonKey: 'gate_frater' };
+            }
+            return { locked: false };
+        }
+        if (taskId === 'hostitel') {
+            if (!(typeof TemplumSystem !== 'undefined' && TemplumSystem.isUnlocked())
+                || !(GameState.researchedTechs && GameState.researchedTechs.includes('tech_canonical_hours'))) {
                 return { locked: true, reasonKey: 'gate_frater' };
             }
             return { locked: false };
@@ -6510,6 +6591,11 @@ const Game = {
                         const metalId = metalPool[Math.floor(Math.random() * metalPool.length)];
                         this.addItem(metalId, 1);
                         yieldTxt += ' + 1× ' + metalId;
+                    }
+                    // Whetstone rock — vzácný nález vhodné horniny na brousky (samostatný roll)
+                    if (Math.random() < 0.1) {
+                        this.addItem('whetstone_rock', 1);
+                        yieldTxt += ' + 1× whetstone_rock';
                     }
                     UI.notifyPanel('⛏️ ' + (lang==='en' ? k.name+' returned from the mine with '+yieldTxt+'.' : k.name+' se vrátil z dolu s '+yieldTxt+'.'), 'success');
                     Game.addKronikaEntry('minor', '⛏️ '+k.name+' přinesl z dolu '+yieldTxt+'.', '⛏️ '+k.name+' brought '+yieldTxt+' from the mine.', '⛏️ '+k.name+' e fodina rediit.');
@@ -6764,23 +6850,6 @@ const Game = {
         Game.addKronikaEntry('minor', '🌱 '+name+' přijat jako oblát.', '🌱 '+name+' taken in as an oblate.', '🌱 '+name+' oblatus susceptus est.');
         Game.save();
         if (typeof SaeculumSystem !== 'undefined') SaeculumSystem.switchEntity(GameState.ui.saeculumEntity || 'tavern');
-    },
-
-    buyTruhla: function() {
-        const lang = (GameState.settings && GameState.settings.language) || 'cs';
-        if (GameState.inventory['truhla'] > 0) {
-            UI.notify(lang==='en' ? 'You already own a Curio Chest.' : 'Truhlu už máš.', true); return;
-        }
-        const price = 1500;
-        if ((typeof CellariumSystem !== 'undefined' ? CellariumSystem.getGrose() : 0) < price) {
-            UI.notify(lang==='en' ? 'Not enough groats.' : 'Nedostatek grošů.', true); return;
-        }
-        CellariumSystem.addGrose(-price);
-        this.addItem('truhla', 1);
-        UI.notifyPanel('🗝️ ' + (lang==='en' ? 'A finished Curio Chest, bought outright from the joiner.' : 'Hotová truhla, koupená rovnou od truhláře.'), 'success');
-        Game.addKronikaEntry('minor', '🗝️ Zakoupena hotová truhla za '+price+' g.', '🗝️ A finished chest purchased for '+price+' g.', '🗝️ Arca empta.');
-        Game.save();
-        if (typeof UI !== 'undefined' && UI.renderAll) UI.renderAll();
     },
 
     // Denní kontrola dozrání obláta na konvrše — volat z denního ticku.

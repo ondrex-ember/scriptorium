@@ -171,6 +171,7 @@ const ContactsDB = {
         buyOffer: { items: {
             stribrny_prut: { price: 150,  stock: 3, minRelation: 0 },
             zlaty_prut:    { price: 1700, stock: 2, minRelation: 0 },
+            truhla_ii:     { price: 1400, stock: 1, minRelation: 0 },
         } },
         desc: 'Zlatník ve městě. Kupuje i prodává stříbrné a zlaté pruty — cesta k němu vede přes Kameníkovy styky.',
         desc_en: "A goldsmith in the city. Buys and sells silver and gold ingots — the path to him leads through the Stonemason's connections."

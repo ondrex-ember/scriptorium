@@ -45,7 +45,7 @@ const RecipesDB = [
     // NEW RECIPES - Mini-games & Notebooks
     { id: "playing_cards", output: "playing_cards", qty: 1, req: { "paper": 5, "ink": 1 }, cat: "lore", locked: true },
     { id: "loaded_dice", output: "loaded_dice", qty: 1, req: { "bone": 2, "pestle": 0 }, cat: "craft", desc: "Cinknuté kostky vyřezané z kosti, vyvážené olovem.", desc_en: "Loaded dice carved from bone, weighted with lead." },
-    { id: "truhla", output: "truhla", qty: 1, req: { "iron_ingot": 3, "kovani": 2, "plank": 12, "leather": 4, "rope": 3 }, cat: "craft", desc: "Kovaná truhla se zámkem na cenné nálezy a kuriozity.", desc_en: "An ironbound, locked chest for precious finds and curiosities." },
+    { id: "truhla_i", output: "truhla_i", qty: 1, req: { "iron_ingot": 1, "kovani": 1, "plank": 6, "leather": 2, "rope": 2 }, cat: "craft", desc: "Prostá dřevěná truhlička na drobné cennosti.", desc_en: "A plain small chest for minor valuables." },
 	{
 	  id: "recipe_iching_book",
 	  output: "iching_book",
@@ -582,6 +582,17 @@ const RecipesDB = [
     { id:"repair_iron_shovel", output:"iron_shovel", qty:1, req:{worn_iron_shovel:1,  iron_tongs:1}, cat:"iron", locked:true, desc:"Narovnání čepele lopaty.", desc_en:"Straighten the shovel blade." },
     { id:"repair_iron_saw",     output:"iron_saw",     qty:1, req:{worn_iron_saw:1,     iron_tongs:1}, cat:"iron", locked:true, desc:"Přebroušení zubů pily.", desc_en:"Re-sharpen the saw teeth." },
     { id:"repair_iron_pickaxe", output:"iron_pickaxe", qty:1, req:{worn_iron_pickaxe:1, iron_tongs:1}, cat:"iron", locked:true, desc:"Překování hrotu krumpáče.", desc_en:"Reforge the pickaxe head." },
+
+    // Whetstone — craft + alternativní oprava železných nástrojů (nespotřebovává iron_tongs, vlastní pool 3 použití)
+    { id:"whetstone", output:"whetstone", qty:4, req:{whetstone_rock:1}, cat:"stone", desc:"Z brusného kamene vybroušeny čtyři brousky.", desc_en:"Four whetstones honed from the rock." },
+    { id:"repair_iron_axe_whetstone",     output:"iron_axe",     qty:1, req:{worn_iron_axe:1,     whetstone:1}, cat:"iron", locked:true, desc:"Nabroušení sekerky obtahovacím kamenem.", desc_en:"Hone the axe with a whetstone." },
+    { id:"repair_iron_spade_whetstone",   output:"iron_spade",   qty:1, req:{worn_iron_spade:1,   whetstone:1}, cat:"iron", locked:true, desc:"Nabroušení rýče obtahovacím kamenem.", desc_en:"Hone the spade with a whetstone." },
+    { id:"repair_iron_scythe_whetstone",  output:"iron_scythe",  qty:1, req:{worn_iron_scythe:1,  whetstone:1}, cat:"iron", locked:true, desc:"Nabroušení kosy obtahovacím kamenem.", desc_en:"Hone the scythe with a whetstone." },
+    { id:"repair_iron_sickle_whetstone",  output:"iron_sickle",  qty:1, req:{worn_iron_sickle:1,  whetstone:1}, cat:"iron", locked:true, desc:"Nabroušení srpu obtahovacím kamenem.", desc_en:"Hone the sickle with a whetstone." },
+    { id:"repair_iron_flail_whetstone",   output:"iron_flail",   qty:1, req:{worn_iron_flail:1,   whetstone:1}, cat:"iron", locked:true, desc:"Nabroušení cepu obtahovacím kamenem.", desc_en:"Hone the flail with a whetstone." },
+    { id:"repair_iron_shovel_whetstone",  output:"iron_shovel",  qty:1, req:{worn_iron_shovel:1,  whetstone:1}, cat:"iron", locked:true, desc:"Nabroušení lopaty obtahovacím kamenem.", desc_en:"Hone the shovel with a whetstone." },
+    { id:"repair_iron_saw_whetstone",     output:"iron_saw",     qty:1, req:{worn_iron_saw:1,     whetstone:1}, cat:"iron", locked:true, desc:"Nabroušení zubů pily obtahovacím kamenem.", desc_en:"Hone the saw teeth with a whetstone." },
+    { id:"repair_iron_pickaxe_whetstone", output:"iron_pickaxe", qty:1, req:{worn_iron_pickaxe:1, whetstone:1}, cat:"iron", locked:true, desc:"Nabroušení hrotu krumpáče obtahovacím kamenem.", desc_en:"Hone the pickaxe head with a whetstone." },
 
     // ── VINOHRAD — stavby ─────────────────────────────────────────────────────
     { id:"prelum",            output:"prelum",            qty:1,

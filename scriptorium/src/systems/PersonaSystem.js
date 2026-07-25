@@ -217,7 +217,7 @@ const PersonaSystem = {
                 onclick="PersonaSystem.switchTab('professio',this)">⚒️ ${lang==='en'?'Professio':'Professio'}</button>
             <button id="persona-tab-felis" class="filter-btn ${this._activeTab==='felis'?'active':''}"
                 onclick="PersonaSystem.switchTab('felis',this)">🐈‍⬛ Felis</button>
-            ${(GameState.inventory && GameState.inventory['truhla'] > 0) ? `
+            ${((GameState.inventory && (GameState.inventory['truhla_i'] > 0 || GameState.inventory['truhla_ii'] > 0))) ? `
             <button id="persona-tab-truhla" class="filter-btn ${this._activeTab==='truhla'?'active':''}"
                 onclick="PersonaSystem.switchTab('truhla',this)">🗝️ ${lang==='en'?'Curio Chest':'Truhla'}</button>` : ''}
         </div>`;
@@ -229,7 +229,7 @@ const PersonaSystem = {
         h += `<div id="persona-subtab-influentia" style="${this._activeTab==='influentia'?'':'display:none'}">` + this._renderInfluentia(lang) + `</div>`;
         h += `<div id="persona-subtab-professio" style="${this._activeTab==='professio'?'':'display:none'}">` + this._renderProfessio(lang) + `</div>`;
         h += `<div id="persona-subtab-felis" style="${this._activeTab==='felis'?'':'display:none'}">` + this._renderFelis(lang) + `</div>`;
-        if (GameState.inventory && GameState.inventory['truhla'] > 0) {
+        if (GameState.inventory && (GameState.inventory['truhla_i'] > 0 || GameState.inventory['truhla_ii'] > 0)) {
             h += `<div id="persona-subtab-truhla" style="${this._activeTab==='truhla'?'':'display:none'}">` + this._renderTruhla(lang) + `</div>`;
         }
 
@@ -340,16 +340,29 @@ const PersonaSystem = {
         ${this._renderTruhlaTeaser(lang)}`;
     },
 
-    // ── Truhla teaser — dvě cesty k pořízení (craft / koupě), zmizí po pořízení ──
+    // ── Truhla teaser — ukáže co chybí ke craftu Malé truhly (Výroba),
+    // + odkaz na Velkou truhlu u Klenotníka/na Trhu. Zmizí, jakmile má
+    // hráč kteroukoliv z obou truhel.
     _renderTruhlaTeaser: function(lang) {
-        if (GameState.inventory && GameState.inventory['truhla'] > 0) return '';
-        const coins = (typeof CellariumSystem !== 'undefined') ? CellariumSystem.getGrose() : 0;
+        if (GameState.inventory && (GameState.inventory['truhla_i'] > 0 || GameState.inventory['truhla_ii'] > 0)) return '';
+        const req = { iron_ingot: 1, kovani: 1, plank: 6, leather: 2, rope: 2 };
+        const inv = GameState.inventory || {};
+        const rows = Object.entries(req).map(([id, n]) => {
+            const have = inv[id] || 0;
+            const ok = have >= n;
+            const name = (typeof iName === 'function') ? iName(id) : id;
+            return `<div style="font-size:0.75rem; ${ok ? 'color:#5a9a5a;' : 'color:#c0392b;'}">${ok ? '✓' : '✗'} ${name}: ${have}/${n}</div>`;
+        }).join('');
         return `<div style="margin-top:16px;padding:12px;background:rgba(197,160,89,0.06);border:1px dashed rgba(197,160,89,0.35);border-radius:8px;">
             <div style="font-size:0.75rem;font-weight:bold;letter-spacing:0.06em;text-transform:uppercase;opacity:0.6;margin-bottom:6px;">🗝️ ${lang==='en'?'Curio Chest':'Truhla'}</div>
             <div style="font-size:0.8rem;opacity:0.75;margin-bottom:8px;">${lang==='en'
-                ? 'A place for precious finds and curiosities. Craft one (Crafting screen), or buy one ready-made.'
-                : 'Místo pro cenné nálezy a kuriozity. Vyrob ji (obrazovka Výroba), nebo kup rovnou hotovou.'}</div>
-            <button class="craft-btn" onclick="Game.buyTruhla()" ${coins < 1500 ? 'disabled' : ''}>🗝️ ${lang==='en'?'Buy ready-made (1500 g)':'Koupit hotovou (1500 g)'}</button>
+                ? 'A place for precious finds and curiosities.'
+                : 'Místo pro cenné nálezy a kuriozity.'}</div>
+            <div style="font-size:0.78rem;font-weight:bold;margin-bottom:4px;">${lang==='en'?'Small Chest — craft in Crafting:':'Malá truhla — vyrob ve Výrobě:'}</div>
+            ${rows}
+            <div style="font-size:0.7rem;opacity:0.6;margin-top:8px;font-style:italic;">${lang==='en'
+                ? 'Or buy a Large Chest ready-made — from the Goldsmith (Clientela), or pricier at the Market.'
+                : 'Nebo kup rovnou hotovou Velkou truhlu — u Klenotníka (Clientela), dráž na Trhu.'}</div>
         </div>`;
     },
 

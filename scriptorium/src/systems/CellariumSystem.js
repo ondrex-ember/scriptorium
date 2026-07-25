@@ -498,6 +498,7 @@ const CellariumSystem = {
       { itemId: 'seed_walnut',   basePrice: 15,  dailyStock: 2  },
       { itemId: 'seed_mulberry', basePrice: 12,  dailyStock: 2  },
       { itemId: 'seed_quince',   basePrice: 10,  dailyStock: 2  },
+      { itemId: 'truhla_ii',     basePrice: 1700, dailyStock: 1 },
       { itemId: 'seed_sorb',     basePrice: 18,  dailyStock: 2  },
       { itemId: 'seed_rowan',    basePrice: 8,   dailyStock: 3  },
       { itemId: 'seed_linden',   basePrice: 14,  dailyStock: 2  },
