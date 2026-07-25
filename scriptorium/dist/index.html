@@ -11773,9 +11773,14 @@ const LettersDB = [
     text_en: '"Brother, my cheese mould has cracked after years of service. I hear your monastery has wicker baskets that would serve as a replacement. I shall trade a fine piece of aging cheese for one — an honest exchange, I\'d say. — The Cheesemaker"',
     trigger: function () { return (GameState.researchedTechs || []).includes('tech_caseus'); },
     choices: [
-      { label_cs: '🧀 Vyměnit', label_en: '🧀 Trade',
-        effect: function () { if (typeof SaeculumSystem !== 'undefined' && SaeculumSystem.addContactRelation) SaeculumSystem.addContactRelation('syrar', 3); },
-        notify_cs: 'Výměna proběhla ke spokojenosti obou. (Sýrař +3)', notify_en: 'The trade pleased both sides. (Cheesemaker +3)' }
+      { label_cs: '🧀 Vyměnit proutí za sýr (−1 proutí, +2 sýr)', label_en: '🧀 Trade wicker for cheese (−1 wicker, +2 cheese)',
+        canAfford: function () { return (GameState.inventory['wicker'] || 0) >= 1; },
+        effect: function () {
+          if (typeof Game !== 'undefined' && Game.removeItem) Game.removeItem('wicker', 1);
+          if (typeof Game !== 'undefined' && Game.addItem) Game.addItem('cheese', 2);
+          if (typeof SaeculumSystem !== 'undefined' && SaeculumSystem.addContactRelation) SaeculumSystem.addContactRelation('syrar', 3);
+        },
+        notify_cs: 'Výměna proběhla ke spokojenosti obou. (−1 proutí, +2 sýr, Sýrař +3)', notify_en: 'The trade pleased both sides. (−1 wicker, +2 cheese, Cheesemaker +3)' }
     ]
   },
   {
