@@ -14095,6 +14095,22 @@ const ChroniconSystem = {
             });
         }
 
+        // CHRONICON porta_letters (Vrstva 3) → GameState.letters.dynamic.
+        // Stejný dedup princip jako unlockFlags — jen nové id se přidá,
+        // PortaSystem.getQueue() pak řeší readIds/firstSeen/expiry stejně
+        // jako u statických LettersDB dopisů.
+        if (Array.isArray(snap.porta_letters) && typeof GameState !== 'undefined') {
+            if (!GameState.letters) GameState.letters = { readIds: {}, archive: [], firstSeen: {} };
+            if (!GameState.letters.dynamic) GameState.letters.dynamic = [];
+            const knownIds = {};
+            GameState.letters.dynamic.forEach(function (l) { knownIds[l.id] = true; });
+            snap.porta_letters.forEach(function (entry) {
+                if (!entry || !entry.id || knownIds[entry.id]) return;
+                GameState.letters.dynamic.push(entry);
+                knownIds[entry.id] = true;
+            });
+        }
+
         // CHRONICON advisory_events → kurátorované rozhodovací eventy (Sprint 3).
         // Cap: jen 1 aktivní najednou. "Odložit" nic neztratí — zůstává
         // aktivní, dokud se hráč nerozhodne jinak. Formát mirror events-reference.md.
@@ -14553,6 +14569,28 @@ const ChroniconSystem = {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ favor: true, day: today }),
+            }).catch(() => {});
+        } catch (e) { /* tiché selhání */ }
+    },
+
+    // Generický anonymní denní favor report pro libovolného CHRONICON
+    // aktéra (api/actor-favor-report.js, core/actor-favor-register.js).
+    // Dnes voláno pro 'klaster' po odsloužené mši (Game.serveMass) — dělá
+    // z "Klášter" v CHRONICONu mechanickou zprávu o komunitě hráčů, ne jen
+    // vyprávěcí gesto. Rozšíření na dalšího aktéra = jen další volání
+    // odsud, žádný nový engine.
+    _reportActorFavorIfNewDay: function(actorId) {
+        if (!actorId) return;
+        const today = new Date().toISOString().slice(0, 10);
+        if (!GameState.actorFavorReportSent) GameState.actorFavorReportSent = {};
+        if (GameState.actorFavorReportSent[actorId] === today) return;
+        GameState.actorFavorReportSent[actorId] = today;
+
+        try {
+            fetch('/api/actor-favor-report', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ actorId: actorId, day: today }),
             }).catch(() => {});
         } catch (e) { /* tiché selhání */ }
     },
@@ -48149,6 +48187,12 @@ const Game = {
                     _tickCounter = 0;
                     CellariumSystem.checkGiacomoEvent();
                     CellariumSystem.checkStationariusEvent();
+                    // CHRONICON — periodický re-fetch (self-guarded 6h TTL uvnitř
+                    // _fetch). Bez tohohle se dlouho otevřená session nikdy
+                    // nedozví o novém tiku, dokud hráč nereloadne stránku —
+                    // teď dorazí sama, jakmile TTL vyprší (až 4×/den, mirror
+                    // CHRONICON engine kadence 6/12/18/00).
+                    if (typeof ChroniconSystem !== 'undefined' && ChroniconSystem._fetch) ChroniconSystem._fetch();
                     // v8.x: Orchard growing → mature transition
                     Game.checkOrchardGrowth();
                     if (typeof GardenSystem !== 'undefined') GardenSystem.checkFieldGrowth();
@@ -53041,6 +53085,11 @@ const Game = {
         t.nextMass = now + 7 * 24 * 60 * 60 * 1000;
         t.lastMass = { ts: now, incense: incenseId, degraded: degraded };
         Game._templumLog({ type: 'mass', incense: incenseId, degraded: degraded, feastName: feastName, eccl: eccl });
+        // CHRONICON — anonymní denní favor report pro 'klaster' (Path C,
+        // 25.7.2026). Mše = jádro klášterní legitimity, přirozený spouštěč.
+        if (typeof ChroniconSystem !== 'undefined' && ChroniconSystem._reportActorFavorIfNewDay) {
+            ChroniconSystem._reportActorFavorIfNewDay('klaster');
+        }
         // R1: odsloužená mše = držený kanonický rytmus (frater vyžaduje streak ≥ 7)
         if (GameState.rank) {
             GameState.rank.canonicalStreak = (GameState.rank.canonicalStreak || 0) + 1;
@@ -58460,7 +58509,7 @@ const UI = {
     // Žádný nový fetch — ChroniconSystem._snap je už stažený jednou/den.
     _ACTOR_ICONS: {
         vrchnost: '🏰', mlynar: '🌾', kovar: '⚒️', uhlic: '🔥', vorar: '🪵',
-        rybnikar: '🐟', prevoznik: '⛴️', valach: '🐑', klaster: '⛪', vcelar: '🐝',
+        rybnikar: '🐟', prevoznik: '⛴️', valach: '🐑', klaster: '🏛️', vcelar: '🐝',
     },
 
     renderChroniconWindow: function () {
@@ -58528,8 +58577,8 @@ const UI = {
                             ? `<div style="font-size:0.6rem; opacity:0.5;">☠️ ${lang === 'en' ? 'gone' : 'zesnulý'}</div>`
                             : '';
                 h += `<div style="padding:8px 10px; background:rgba(255,255,255,0.4); border:1px solid rgba(197,160,89,0.2); border-radius:6px;">
-                    <div style="font-size:0.8rem; font-weight:bold;">${icon} ${a.label}</div>
-                    <div style="font-size:0.6rem; opacity:0.6; margin-bottom:4px;">${a.profession}</div>
+                    <div style="font-size:0.8rem; font-weight:bold;">${icon} ${lang === 'en' ? (a.label_en || a.label) : a.label}</div>
+                    <div style="font-size:0.6rem; opacity:0.6; margin-bottom:4px;">${lang === 'en' ? (a.profession_en || a.profession) : a.profession}</div>
                     <div style="display:flex; align-items:center; gap:4px; margin-bottom:2px;">
                         <span style="font-size:0.58rem; width:34px; opacity:0.6;">${lang === 'en' ? 'mood' : 'nálada'}</span>
                         <div style="flex:1; height:4px; background:rgba(0,0,0,0.1); border-radius:2px; overflow:hidden;">
