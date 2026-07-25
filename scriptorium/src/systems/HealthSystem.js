@@ -140,4 +140,40 @@ const HealthSystem = {
             if (typeof Game !== 'undefined' && Game.save) Game.save();
         }
     },
+
+    // ── Minutio (pouštění žilou) — vyžaduje libovolnou břitvu (ItemsDB
+    // bloodletTool: true), nespotřebovává se. 20% šance komplikace
+    // (minutio_slabost místo vyléčení). Jen pro minutioEligible neduhy. ──
+    _hasBloodletTool: function() {
+        if (!GameState.inventory || typeof ItemsDB === 'undefined') return false;
+        for (const id of Object.keys(GameState.inventory)) {
+            if ((GameState.inventory[id] || 0) > 0 && ItemsDB[id] && ItemsDB[id].bloodletTool) return true;
+        }
+        return false;
+    },
+
+    performMinutio: function(conditionId) {
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        if (!GameState.health || !GameState.health.active || !GameState.health.active[conditionId]) return;
+        const def = HealthConditionsDB[conditionId];
+        if (!def || !def.minutioEligible) return;
+        if (!this._hasBloodletTool()) {
+            if (typeof UI !== 'undefined' && UI.notify) UI.notify(lang==='en' ? 'You need a razor for bloodletting.' : 'Potřebuješ břitvu na pouštění žilou.', true);
+            return;
+        }
+        const complication = Math.random() < 0.20;
+        if (complication) {
+            this.addCondition('minutio_slabost');
+            if (typeof UI !== 'undefined' && UI.notifyPanel) {
+                UI.notifyPanel(lang==='en' ? '🩸 The bloodletting went wrong. Only weakness remains.' : '🩸 Pouštění žilou se nezdařilo. Zůstala jen slabost.', 'system');
+            }
+        } else {
+            this.removeCondition(conditionId, true);
+            if (typeof UI !== 'undefined' && UI.notifyPanel) {
+                UI.notifyPanel(lang==='en' ? '🩸 The bloodletting worked. The ailment is gone.' : '🩸 Pouštění žilou zabralo. Neduh je pryč.', 'system');
+            }
+        }
+        if (typeof Game !== 'undefined' && Game.save) Game.save();
+        if (typeof PersonaSystem !== 'undefined' && PersonaSystem.render) PersonaSystem.render();
+    },
 };

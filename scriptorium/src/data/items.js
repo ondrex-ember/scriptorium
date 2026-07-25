@@ -39,6 +39,23 @@ const ItemsDB = {
 
     "repair_kit": { name: "Opravná sada", name_en: "Repair Kit", icon: "🔧", type: "tool", desc: "Na opravu studny.", desc_en: "For repairing the well.", cat: "tool" },
 
+    // INFIRMARIUM — MINUTIO (pouštění žilou)
+    // Tři unikátní břitvy, mechanicky totožné (bloodletTool: true = odemyká
+    // HealthSystem.performMinutio pro minutioEligible neduhy). Liší se jen
+    // původem/popiskem/vzácností. Nespotřebovávají se — nástroj, ne lektvar.
+    "britva_chirurgus": { name: "Břitva ranhojiče", name_en: "The Surgeon's Razor", icon: "🪒", type: "tool",
+        desc: "Stará břitva od Chirurgova mistra. Ostří potřebuje ruku, co ho ocení.",
+        desc_en: "An old razor from the Surgeon's own master. The blade needs a hand that appreciates it.",
+        bloodletTool: true },
+    "britva_kovarska": { name: "Kovářská břitva", name_en: "Blacksmith's Razor", icon: "🪒", type: "tool",
+        desc: "Poctivá kovářská práce. Ne krásná, ale drží ostří.",
+        desc_en: "Honest blacksmith's work. Not pretty, but it holds an edge.",
+        bloodletTool: true },
+    "britva_cizi": { name: "Cizí břitva", name_en: "Foreign Razor", icon: "🪒", type: "tool",
+        desc: "Přinesl ji potulný lazebník odkudsi zdaleka. Ostří jinak broušené, než je tu zvykem.",
+        desc_en: "Brought by a wandering barber from somewhere far away. Ground differently than is the custom here.",
+        bloodletTool: true },
+
     // LORE
     "pulp": { name: "Hadrovina", name_en: "Rag Pulp", icon: "🌫️", type: "mat", desc: "Rozmělněná lněná vlákna ve vodě. Základ hadrového papíru.", desc_en: "Macerated linen fibres in water. The base of rag paper." },
     "paper": { name: "Hadrový papír", name_en: "Rag Paper", icon: "📄", type: "lore", desc: "Lisovaná hadrovina. Středověký papír z lněných vláken, ne ze dřeva.", desc_en: "Pressed rag pulp. Medieval paper made from linen fibres, not wood." },

@@ -72,8 +72,11 @@ const ContactsDB = {
         sellBonus: { items: { iron_ore: 6 } },   // K4b: výkup pod nákupní cenou Obchodu (15) — přebytek rozhodne hráč
         buyOffer: { items: {
             palice_zelezna: { price: 16, stock: 2 },
-            kovani: { price: 8, stock: 4 }
+            kovani: { price: 8, stock: 4 },
+            britva_kovarska: { price: 12, stock: 1 }
         } }, // plní starý slib "prodá nástroje" z popisku + kování na Velký úl (Apiarium MRD)
+          // britva_kovarska: Minutio MRD (25.7.2026) — do budoucna i craftovatelná
+          // v klášteře po kovárna-upgrade tech (TODO, samostatný sprint)
         desc: 'Vesnický kovář. Vykoupí přebytečnou rudu, prodá nástroje.',
         desc_en: 'The village blacksmith. Buys surplus ore, sells tools.'
     },

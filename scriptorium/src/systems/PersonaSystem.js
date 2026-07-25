@@ -520,6 +520,15 @@ const PersonaSystem = {
                     }
                 }
 
+                // Minutio (pouštění žilou) — jen pro minutioEligible nemoci
+                let minutioLine = '';
+                if (def.minutioEligible) {
+                    const hasTool = (typeof HealthSystem !== 'undefined') && HealthSystem._hasBloodletTool && HealthSystem._hasBloodletTool();
+                    minutioLine = `<button onclick="HealthSystem.performMinutio('${id}')" class="craft-btn" style="margin-top:8px; font-size:0.75rem;" ${hasTool ? '' : 'disabled'}>
+                        🩸 ${lang==='en'?'Bloodletting (razor, 20% risk)':'Pustit žilou (břitva, 20% riziko)'}
+                    </button>`;
+                }
+
                 // Haeresis Occulta MRD — Cesta B, dedikovaná mimo villager zpověď
                 let confessLine = '';
                 if (id === 'haeresis_occulta') {
@@ -537,6 +546,7 @@ const PersonaSystem = {
                     ${advice ? `<div style="font-size:0.78rem;margin-top:6px;padding-top:6px;border-top:1px dashed rgba(197,160,89,0.3);"><strong>${lang==='en'?'What to do:':'Co dělat:'}</strong> ${advice}</div>` : ''}
                     ${cureLine}
                     ${infirmaryLine}
+                    ${minutioLine}
                     ${confessLine}
                 </div>`;
             }).join('');

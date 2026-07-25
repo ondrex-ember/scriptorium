@@ -593,8 +593,9 @@ const LettersDB = [
         effect: function () {
           if (typeof CellariumSystem !== 'undefined' && CellariumSystem.addGrose) CellariumSystem.addGrose(-5);
           if (typeof SaeculumSystem !== 'undefined' && SaeculumSystem.addContactRelation) SaeculumSystem.addContactRelation('chirurgus', 3);
+          if (typeof Game !== 'undefined' && Game.addItem) Game.addItem('britva_chirurgus', 1);
         },
-        notify_cs: 'Břitva koupena. (−5 grošů, Chirurgus +3)', notify_en: 'The razor is bought. (−5 groschen, Surgeon +3)' },
+        notify_cs: 'Břitva koupena. (−5 grošů, Chirurgus +3, 🪒 Břitva ranhojiče)', notify_en: 'The razor is bought. (−5 groschen, Surgeon +3, 🪒 The Surgeon\'s Razor)' },
       { label_cs: '🙏 Poděkovat, ale odmítnout', label_en: '🙏 Thank him, but decline',
         effect: function () {}, notify_cs: 'Chirurgus pokrčil rameny.', notify_en: 'The surgeon shrugged.' }
     ]

@@ -98,6 +98,7 @@ const HealthConditionsDB = {
         tickHour: { fatigue: 1 },
         cures: ["berries", "dried_wild_fruit", "rosehip_sauce", "odvar_z_dubenek"],
         humor: "sanguis",
+        minutioEligible: true,
     },
     "lice": {
         name: "Vši", name_en: "Lice", icon: "🪲",
@@ -112,6 +113,7 @@ const HealthConditionsDB = {
         tickHour: { fatigue: 0.5 },
         cures: ["herbal_tea"],
         humor: "sanguis",
+        minutioEligible: true,
     },
     "scabies": {
         name: "Svrab", name_en: "Scabies", icon: "🔴",
@@ -153,6 +155,24 @@ const HealthConditionsDB = {
         onApply: { satiety: -25, fatigue: 20 },
         tickHour: { satiety: -2 },
         cures: ["antidote", "potion_heal", "odvar_z_dubenek"],
+        humor: "sanguis",
+        minutioEligible: true,
+    },
+
+    // ── Minutio (pouštění žilou) — komplikace, ne samostatně chytatelná
+    // nemoc. Přidává ji HealthSystem.performMinutio() při 20% neúspěchu. ──
+    "minutio_slabost": {
+        name: "Slabost po pouštění žilou", name_en: "Weakness After Bloodletting", icon: "😮‍💨",
+        desc: "Ranhojič odebral víc krve, než bylo bezpečné. Tělo se musí zotavit.",
+        desc_en: "The surgeon drew more blood than was safe. The body must recover.",
+        causeShort: "Komplikace při pouštění žilou.",
+        causeShort_en: "A complication during bloodletting.",
+        advice: "Žádný lék nepomůže — jen odpočinek.",
+        advice_en: "No remedy helps — only rest.",
+        durationHours: 24,
+        onApply: { fatigue: 15 },
+        tickHour: {},
+        cures: [],
         humor: "sanguis",
     },
     "ergot_fire": {
