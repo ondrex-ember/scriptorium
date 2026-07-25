@@ -33690,20 +33690,37 @@ const PortaSystem = {
     // Fronta — dopisy z LettersDB (trigger() platí) + dynamické CHRONICON
     // dopisy (Vrstva 3 — Chronicon už podmínku vyhodnotil při výběru, takže
     // mají syntetický trigger()=>true), obojí ještě nepřečtené.
+    //
+    // DRIP (25.7.2026): dopis, co ještě nikdy nebyl ve frontě (firstSeen na
+    // něj nesahal), se pustí max 1 za DRIP_COOLDOWN_MS reálného času — jako
+    // by holub nosil jedno psaní za dva dny. Bez tohohle by hráč se spoustou
+    // splněných podmínek najednou (starý save, rychlý postup) dostal
+    // desítky dopisů v jednu chvíli. Jednou vypuštěný dopis touhle brzdou
+    // dál neprochází — čte se kdykoliv, žádná další podmínka.
     getQueue: function () {
         this._ensureState();
         if (typeof LettersDB === 'undefined') return [];
         const now = Date.now();
         let changed = false;
+        const DRIP_COOLDOWN_MS = 48 * 60 * 60 * 1000; // ob dva dny
         const dynPool = GameState.letters.dynamic.map(d => Object.assign({}, d, { trigger: function () { return true; } }));
         const pool = LettersDB.concat(dynPool);
-        const queue = pool.filter(letter => {
+
+        const eligible = pool.filter(letter => {
             if (GameState.letters.readIds[letter.id]) return false;
-            let active = false;
-            try { active = letter.trigger(); } catch (e) { return false; }
-            if (!active) return false;
-            // Phase 1: firstSeen — od prvního objevení ve frontě
-            if (!GameState.letters.firstSeen[letter.id]) {
+            try { return letter.trigger(); } catch (e) { return false; }
+        });
+
+        if (!GameState.letters.lastDripAt) GameState.letters.lastDripAt = 0;
+        const canDripNow = (now - GameState.letters.lastDripAt) >= DRIP_COOLDOWN_MS;
+        let dripUsed = false;
+
+        const queue = eligible.filter(letter => {
+            const alreadyReleased = !!GameState.letters.firstSeen[letter.id];
+            if (!alreadyReleased) {
+                if (!canDripNow || dripUsed) return false; // čeká na svou řadu
+                dripUsed = true;
+                GameState.letters.lastDripAt = now;
                 GameState.letters.firstSeen[letter.id] = now;
                 changed = true;
                 if (typeof NotificationSystem !== 'undefined') {
