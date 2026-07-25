@@ -513,15 +513,18 @@ const SaeculumSystem = {
       const spec = DormitoriumSpecializationDB[tabId];
       const isCur = b.assignedTab === tabId;
       const takenBy = (GameState.dormitorium.brothers || []).find(x => x.assignedTab === tabId && x.id !== b.id);
-      // Infirmarium mnišský role — jediný tech-gated brother specializace zatím.
-      const locked = tabId.indexOf('infirmarium_') === 0
-          && !(GameState.researchedTechs && GameState.researchedTechs.includes('tech_infirmarium'));
+      // Infirmarium mnišský role — tech-gated; Studovna — gated na postavenou Knihovnu St. I.
+      const locked = (tabId.indexOf('infirmarium_') === 0
+          && !(GameState.researchedTechs && GameState.researchedTechs.includes('tech_infirmarium')))
+        || (tabId === 'studovna'
+          && !(typeof StudovnaSystem !== 'undefined' && StudovnaSystem.isUnlocked && StudovnaSystem.isUnlocked()));
       const disabled = (takenBy && !isCur) || locked;
       const bg = isCur ? '#8a3324' : disabled ? 'rgba(0,0,0,0.04)' : 'rgba(197,160,89,0.15)';
       const fg = isCur ? '#fcf5e5' : 'inherit';
       const opac = disabled && !isCur ? '0.55' : '1';
       const specName = lang === 'en' ? spec.name_en : spec.name;
-      const hint = locked ? (lang==='en'?'needs tech: Infirmarium':'chybí tech: Infirmarium')
+      const lockedName = tabId === 'studovna' ? 'Studovna' : 'Infirmarium';
+      const hint = locked ? (lang==='en'?'needs: ':'chybí: ') + lockedName
                  : (takenBy && !isCur ? specName + ' (' + takenBy.name + ')' : specName);
       h += `<div onclick="${disabled ? '' : `Game.assignBrotherTab('${b.id}', ${isCur ? 'null' : `'${tabId}'`})`}" style="cursor:${disabled ? 'default' : 'pointer'}; opacity:${opac}; padding:6px 10px; border-radius:6px; background:${bg}; color:${fg}; font-size:0.74rem; text-align:center;">
               <div>${spec.icon}</div>

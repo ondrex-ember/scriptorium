@@ -422,8 +422,8 @@ const ChroniconSystem = {
         // Studovna 'accept' — stejný soft-bounce vzor jako hospes: zamčená
         // tech nebo obsazenej hostí slot nesmí žádost ztratit, jen ji odloží.
         if (choiceId === 'accept' && p && p.kind === 'studovna') {
-            const hasTech = !!(GameState.researchedTechs && GameState.researchedTechs.includes('tech_studovna'));
-            if (!hasTech) {
+            const hasRoom = (typeof StudovnaSystem !== 'undefined' && StudovnaSystem.isUnlocked && StudovnaSystem.isUnlocked());
+            if (!hasRoom) {
                 ChroniconSystem._advisoryShownThisSession = false;
                 return lang === 'en'
                     ? 'There is no room yet fit to receive him. (Requires: Studovna)'

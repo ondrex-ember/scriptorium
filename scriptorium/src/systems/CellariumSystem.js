@@ -1393,6 +1393,29 @@ const CellariumSystem = {
     }
     h += `</div>`;
 
+    // Fáze 4 — Domus Conversorum III (petice opatovi, eskalovaná)
+    const phase4Built = storage.domus_conversorum_iii && storage.domus_conversorum_iii.built;
+    const petition3 = (GameState.abbotPetition && GameState.abbotPetition.domus_iii) || { status: 'none' };
+    const cost4 = { cut_stone: 330, plank: 200, rope: 75, iron_ingot: 4 };
+    const costStr4 = Object.entries(cost4).map(([k,v]) => `${v}× ${(typeof iName==='function')?iName(k):k}`).join(', ') + ` + 110g`;
+    h += `<div style="padding:12px; margin-top:10px; background:${phase3Built ? 'rgba(255,255,255,0.4)' : 'rgba(0,0,0,0.02)'}; border-radius:6px; opacity:${phase3Built ? '1' : '0.4'};">`;
+    h += `<div style="font-weight:bold; margin-bottom:4px;">${phase3Built ? '' : '🔒 '}${lang==='en'?'Phase 4 — Domus Conversorum III':'Fáze 4 — Domus Conversorum III'}</div>`;
+    h += `<div style="font-size:0.8rem; opacity:0.75; margin-bottom:8px;">${lang==='en'?"Great dormitory for lay brothers (20 slots). Requires the Abbot's approval.":'Velký dormitář pro konvrše (20 slotů). Vyžaduje souhlas opata.'}</div>`;
+    if (phase4Built) {
+      h += `<div style="color:#5a9; font-size:0.85rem;">✅ ${lang==='en'?'Complete':'Dokončeno'}</div>`;
+    } else if (!phase3Built) {
+      h += `<div style="font-size:0.72rem; opacity:0.6; font-style:italic;">${lang==='en'?'Requires Phase 3 first.':'Nutná nejprve Fáze 3.'}</div>`;
+    } else if (petition3.status === 'pending') {
+      const remH = Math.max(0, Math.ceil((petition3.submittedAt + 86400000 - Date.now()) / 3600000));
+      h += `<div style="font-size:0.8rem;">⏳ ${lang==='en'?'Awaiting the Abbot\'s reply —':'Čeká na odpověď opata —'} <strong>${remH}h</strong></div>`;
+    } else if (petition3.status === 'approved') {
+      h += `<div style="font-size:0.75rem; opacity:0.6; margin-bottom:6px;">${costStr4}</div>`;
+      h += `<button class="craft-btn" onclick="Game.buildStorage('domus_conversorum_iii')">🏗️ ${lang==='en'?'Build':'Postavit'}</button>`;
+    } else {
+      h += `<button class="craft-btn" onclick="Game.submitAbbotPetition('domus_iii'); CellariumSystem.switchEntity('old_cellars');">📜 ${lang==='en'?'Submit petition to the Abbot':'Zaslat žádost opatovi'}</button>`;
+    }
+    h += `</div>`;
+
     h += `</div>`;
     return h;
   },
@@ -2060,6 +2083,30 @@ const CellariumSystem = {
       // Studna — progresivní karta (patří k Dvoru, vedle kurníku/ovčína)
       dvurInner += this._renderWellBuilding(lang);
 
+      // Knihovna — Stupeň I (Studovna). Tech tech_studovna otevírá možnost,
+      // samotná stavba (materiál+groše) v Cellarium/Budovy, mirror vzoru Vápenice.
+      const hasStudovnaTech = GameState.researchedTechs && GameState.researchedTechs.includes('tech_studovna');
+      const libBuilt = storage.knihovna_grade_i && storage.knihovna_grade_i.built;
+      const libCost = { cut_stone: 20, plank: 15, rope: 6 };
+      const libGrose = 15;
+      const libHasGrose = (typeof CellariumSystem !== 'undefined' ? CellariumSystem.getGrose() : 0) >= libGrose;
+      const libHasItems = Object.entries(libCost).every(([id, n]) => (GameState.inventory[id]||0) >= n);
+      const libCan = hasStudovnaTech && !libBuilt && libHasGrose && libHasItems;
+      const libCostStr = Object.entries(libCost).map(([id, n]) => {
+        const it = ItemsDB[id];
+        const have = GameState.inventory[id] || 0;
+        return `<div style="font-size:0.72rem; ${have >= n ? '' : 'color:#c0392b;'}">${it ? it.icon : '📦'} ${(typeof iName === 'function') ? iName(id) : id} ×${n} <span style="opacity:0.6;">(${lang==='en'?'has':'máš'}: ${have})</span></div>`;
+      }).join('') + `<div style="font-size:0.72rem; ${libHasGrose ? '' : 'color:#c0392b;'}">💰 ${libGrose}g</div>`;
+      let libInner = `<div style="padding:10px; background:rgba(197,160,89,0.05); border-radius:8px; border:1px solid rgba(197,160,89,0.18);">
+        <div style="font-weight:bold; font-size:0.88rem; margin-bottom:4px;">📖 ${lang==='en'?'Knihovna — Grade I':'Knihovna — Stupeň I'}</div>
+        <div style="font-size:0.75rem; opacity:0.7; margin-bottom:6px;">${lang==='en'?"A private study room by the library — receives the Lord's guests.":'Studovna při knihovně — přijímá hosty Vrchnosti.'}</div>
+        ${libBuilt
+          ? `<div style="font-size:0.78rem; color:#5a9a5a;">✅ ${lang==='en' ? 'Built' : 'Postaveno'}</div>`
+          : !hasStudovnaTech
+            ? `<div style="font-size:0.74rem; opacity:0.6;">🔒 ${t('dvur.lockedPrefix')} ${(typeof tName === 'function') ? tName('tech_studovna') : 'Studovna'}</div>`
+            : libCostStr + `<button onclick="Game.buildStorage('knihovna_grade_i')" class="craft-btn" style="font-size:0.78rem; margin-top:6px;" ${libCan ? '' : 'disabled'}>🏗️ ${lang==='en' ? 'Build' : 'Postavit'}</button>`}
+      </div>`;
+
       // Dormitorium — bratři (Dormitorium MRD), 3 sekvenční tiery, bez tech gate
       // (jen materiál + groše — sekvence I→II→III vynucena v Game.buildStorage).
       const dormTiers = [
@@ -2103,6 +2150,7 @@ const CellariumSystem = {
       h += section('⚒️', lang==='en' ? 'Workshops' : 'Dílny', grid(workInner));
       h += section('🐄', lang==='en' ? 'Farmyard' : 'Dvůr', grid(dvurInner));
       h += section('🍇', lang==='en' ? 'Winery' : 'Vinohrad', grid(wineInner));
+      h += section('📖', lang==='en' ? 'Library' : 'Knihovna', grid(libInner));
       h += section('📿', lang==='en' ? 'Dormitorium' : 'Dormitorium', grid(dormInner));
       h += `</div>`;
     }
