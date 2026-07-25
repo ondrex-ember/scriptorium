@@ -10740,6 +10740,16 @@ TechTree.push({
     unlocks: ["spongia_somnifera"],
     requires: ["tech_infirmarium"]
 });
+TechTree.push({
+    id: "tech_studovna",
+    name: "Studovna",
+    name_en: "Studiolum",
+    cost: 18,
+    desc: "Šlechta odedávna hledala v klášterních archivech doklady k pozemkovým sporům, rodokmenům i závětem. Vlastní studovna při knihovně nabídne světskému hostu klid a soukromí, aniž naruší řád kláštera. Odemyká: přijímání žádostí Vrchnosti o přístup ke klášterním listinám.",
+    desc_en: "Nobility had long sought in monastery archives the proof needed for land disputes, lineage claims, and testaments. A private study room by the library offers a secular guest quiet and privacy without disrupting the monastery's order. Unlocks: receiving the Lord's requests for access to the monastery's charters.",
+    unlocks: [],
+    requires: []
+});
 // ── PORTA — Holubí pošta ─────────────────────────────────────────────────
 TechTree.push({
     id: "tech_porta",
@@ -13382,6 +13392,7 @@ const DormitoriumSpecializationDB = {
     infirmarium_medicus:      { name: 'Medicus',      name_en: 'Medicus',     icon: '⚕️' },
     infirmarium_apothecarius: { name: 'Apothecarius', name_en: 'Apothecary',  icon: '🧪' },
     infirmarium_capellanus:   { name: 'Capellanus',   name_en: 'Chaplain',    icon: '⛪' },
+    studovna: { name: 'Lector',   name_en: 'Lector',   icon: '📖' },
 };
 // ═══ src/data/contacts.js ═══
 // ─────────────────────────────────────────────────────────────
@@ -15729,8 +15740,8 @@ const ChroniconSystem = {
         // Studovna 'accept' — stejný soft-bounce vzor jako hospes: zamčená
         // tech nebo obsazenej hostí slot nesmí žádost ztratit, jen ji odloží.
         if (choiceId === 'accept' && p && p.kind === 'studovna') {
-            const hasTech = !!(GameState.researchedTechs && GameState.researchedTechs.includes('tech_studovna'));
-            if (!hasTech) {
+            const hasRoom = (typeof StudovnaSystem !== 'undefined' && StudovnaSystem.isUnlocked && StudovnaSystem.isUnlocked());
+            if (!hasRoom) {
                 ChroniconSystem._advisoryShownThisSession = false;
                 return lang === 'en'
                     ? 'There is no room yet fit to receive him. (Requires: Studovna)'
@@ -22481,6 +22492,29 @@ const CellariumSystem = {
     }
     h += `</div>`;
 
+    // Fáze 4 — Domus Conversorum III (petice opatovi, eskalovaná)
+    const phase4Built = storage.domus_conversorum_iii && storage.domus_conversorum_iii.built;
+    const petition3 = (GameState.abbotPetition && GameState.abbotPetition.domus_iii) || { status: 'none' };
+    const cost4 = { cut_stone: 330, plank: 200, rope: 75, iron_ingot: 4 };
+    const costStr4 = Object.entries(cost4).map(([k,v]) => `${v}× ${(typeof iName==='function')?iName(k):k}`).join(', ') + ` + 110g`;
+    h += `<div style="padding:12px; margin-top:10px; background:${phase3Built ? 'rgba(255,255,255,0.4)' : 'rgba(0,0,0,0.02)'}; border-radius:6px; opacity:${phase3Built ? '1' : '0.4'};">`;
+    h += `<div style="font-weight:bold; margin-bottom:4px;">${phase3Built ? '' : '🔒 '}${lang==='en'?'Phase 4 — Domus Conversorum III':'Fáze 4 — Domus Conversorum III'}</div>`;
+    h += `<div style="font-size:0.8rem; opacity:0.75; margin-bottom:8px;">${lang==='en'?"Great dormitory for lay brothers (20 slots). Requires the Abbot's approval.":'Velký dormitář pro konvrše (20 slotů). Vyžaduje souhlas opata.'}</div>`;
+    if (phase4Built) {
+      h += `<div style="color:#5a9; font-size:0.85rem;">✅ ${lang==='en'?'Complete':'Dokončeno'}</div>`;
+    } else if (!phase3Built) {
+      h += `<div style="font-size:0.72rem; opacity:0.6; font-style:italic;">${lang==='en'?'Requires Phase 3 first.':'Nutná nejprve Fáze 3.'}</div>`;
+    } else if (petition3.status === 'pending') {
+      const remH = Math.max(0, Math.ceil((petition3.submittedAt + 86400000 - Date.now()) / 3600000));
+      h += `<div style="font-size:0.8rem;">⏳ ${lang==='en'?'Awaiting the Abbot\'s reply —':'Čeká na odpověď opata —'} <strong>${remH}h</strong></div>`;
+    } else if (petition3.status === 'approved') {
+      h += `<div style="font-size:0.75rem; opacity:0.6; margin-bottom:6px;">${costStr4}</div>`;
+      h += `<button class="craft-btn" onclick="Game.buildStorage('domus_conversorum_iii')">🏗️ ${lang==='en'?'Build':'Postavit'}</button>`;
+    } else {
+      h += `<button class="craft-btn" onclick="Game.submitAbbotPetition('domus_iii'); CellariumSystem.switchEntity('old_cellars');">📜 ${lang==='en'?'Submit petition to the Abbot':'Zaslat žádost opatovi'}</button>`;
+    }
+    h += `</div>`;
+
     h += `</div>`;
     return h;
   },
@@ -23148,6 +23182,30 @@ const CellariumSystem = {
       // Studna — progresivní karta (patří k Dvoru, vedle kurníku/ovčína)
       dvurInner += this._renderWellBuilding(lang);
 
+      // Knihovna — Stupeň I (Studovna). Tech tech_studovna otevírá možnost,
+      // samotná stavba (materiál+groše) v Cellarium/Budovy, mirror vzoru Vápenice.
+      const hasStudovnaTech = GameState.researchedTechs && GameState.researchedTechs.includes('tech_studovna');
+      const libBuilt = storage.knihovna_grade_i && storage.knihovna_grade_i.built;
+      const libCost = { cut_stone: 20, plank: 15, rope: 6 };
+      const libGrose = 15;
+      const libHasGrose = (typeof CellariumSystem !== 'undefined' ? CellariumSystem.getGrose() : 0) >= libGrose;
+      const libHasItems = Object.entries(libCost).every(([id, n]) => (GameState.inventory[id]||0) >= n);
+      const libCan = hasStudovnaTech && !libBuilt && libHasGrose && libHasItems;
+      const libCostStr = Object.entries(libCost).map(([id, n]) => {
+        const it = ItemsDB[id];
+        const have = GameState.inventory[id] || 0;
+        return `<div style="font-size:0.72rem; ${have >= n ? '' : 'color:#c0392b;'}">${it ? it.icon : '📦'} ${(typeof iName === 'function') ? iName(id) : id} ×${n} <span style="opacity:0.6;">(${lang==='en'?'has':'máš'}: ${have})</span></div>`;
+      }).join('') + `<div style="font-size:0.72rem; ${libHasGrose ? '' : 'color:#c0392b;'}">💰 ${libGrose}g</div>`;
+      let libInner = `<div style="padding:10px; background:rgba(197,160,89,0.05); border-radius:8px; border:1px solid rgba(197,160,89,0.18);">
+        <div style="font-weight:bold; font-size:0.88rem; margin-bottom:4px;">📖 ${lang==='en'?'Knihovna — Grade I':'Knihovna — Stupeň I'}</div>
+        <div style="font-size:0.75rem; opacity:0.7; margin-bottom:6px;">${lang==='en'?"A private study room by the library — receives the Lord's guests.":'Studovna při knihovně — přijímá hosty Vrchnosti.'}</div>
+        ${libBuilt
+          ? `<div style="font-size:0.78rem; color:#5a9a5a;">✅ ${lang==='en' ? 'Built' : 'Postaveno'}</div>`
+          : !hasStudovnaTech
+            ? `<div style="font-size:0.74rem; opacity:0.6;">🔒 ${t('dvur.lockedPrefix')} ${(typeof tName === 'function') ? tName('tech_studovna') : 'Studovna'}</div>`
+            : libCostStr + `<button onclick="Game.buildStorage('knihovna_grade_i')" class="craft-btn" style="font-size:0.78rem; margin-top:6px;" ${libCan ? '' : 'disabled'}>🏗️ ${lang==='en' ? 'Build' : 'Postavit'}</button>`}
+      </div>`;
+
       // Dormitorium — bratři (Dormitorium MRD), 3 sekvenční tiery, bez tech gate
       // (jen materiál + groše — sekvence I→II→III vynucena v Game.buildStorage).
       const dormTiers = [
@@ -23191,6 +23249,7 @@ const CellariumSystem = {
       h += section('⚒️', lang==='en' ? 'Workshops' : 'Dílny', grid(workInner));
       h += section('🐄', lang==='en' ? 'Farmyard' : 'Dvůr', grid(dvurInner));
       h += section('🍇', lang==='en' ? 'Winery' : 'Vinohrad', grid(wineInner));
+      h += section('📖', lang==='en' ? 'Library' : 'Knihovna', grid(libInner));
       h += section('📿', lang==='en' ? 'Dormitorium' : 'Dormitorium', grid(dormInner));
       h += `</div>`;
     }
@@ -23761,15 +23820,18 @@ const SaeculumSystem = {
       const spec = DormitoriumSpecializationDB[tabId];
       const isCur = b.assignedTab === tabId;
       const takenBy = (GameState.dormitorium.brothers || []).find(x => x.assignedTab === tabId && x.id !== b.id);
-      // Infirmarium mnišský role — jediný tech-gated brother specializace zatím.
-      const locked = tabId.indexOf('infirmarium_') === 0
-          && !(GameState.researchedTechs && GameState.researchedTechs.includes('tech_infirmarium'));
+      // Infirmarium mnišský role — tech-gated; Studovna — gated na postavenou Knihovnu St. I.
+      const locked = (tabId.indexOf('infirmarium_') === 0
+          && !(GameState.researchedTechs && GameState.researchedTechs.includes('tech_infirmarium')))
+        || (tabId === 'studovna'
+          && !(typeof StudovnaSystem !== 'undefined' && StudovnaSystem.isUnlocked && StudovnaSystem.isUnlocked()));
       const disabled = (takenBy && !isCur) || locked;
       const bg = isCur ? '#8a3324' : disabled ? 'rgba(0,0,0,0.04)' : 'rgba(197,160,89,0.15)';
       const fg = isCur ? '#fcf5e5' : 'inherit';
       const opac = disabled && !isCur ? '0.55' : '1';
       const specName = lang === 'en' ? spec.name_en : spec.name;
-      const hint = locked ? (lang==='en'?'needs tech: Infirmarium':'chybí tech: Infirmarium')
+      const lockedName = tabId === 'studovna' ? 'Studovna' : 'Infirmarium';
+      const hint = locked ? (lang==='en'?'needs: ':'chybí: ') + lockedName
                  : (takenBy && !isCur ? specName + ' (' + takenBy.name + ')' : specName);
       h += `<div onclick="${disabled ? '' : `Game.assignBrotherTab('${b.id}', ${isCur ? 'null' : `'${tabId}'`})`}" style="cursor:${disabled ? 'default' : 'pointer'}; opacity:${opac}; padding:6px 10px; border-radius:6px; background:${bg}; color:${fg}; font-size:0.74rem; text-align:center;">
               <div>${spec.icon}</div>
@@ -33446,6 +33508,8 @@ const PersonaSystem = {
         if (GameState.persona.role               === undefined) GameState.persona.role               = null;
         // Migrace v3 — Mistr Bartoloměj (Starý Písař)
         if (GameState.persona.influence.bartolomej === undefined) GameState.persona.influence.bartolomej = 0;
+        // Migrace v4 — Vrchnost (Studovna, studovna-vrchnost-mrd.md)
+        if (GameState.persona.influence.vrchnost === undefined) GameState.persona.influence.vrchnost = 0;
 
         // Zkontrolovat zda zobrazit origin modal
         this.checkOriginModal();
@@ -49918,6 +49982,7 @@ const Game = {
 		if (!GameState.abbotPetition.fodina) GameState.abbotPetition.fodina = { status: 'none', submittedAt: null, deniedReason: null, inspectionPending: false };
 		if (!GameState.abbotPetition.fornax) GameState.abbotPetition.fornax = { status: 'none', submittedAt: null, deniedReason: null, inspectionPending: false };
 		if (!GameState.abbotPetition.domus_ii) GameState.abbotPetition.domus_ii = { status: 'none', submittedAt: null, deniedReason: null, inspectionPending: false };
+		if (!GameState.abbotPetition.domus_iii) GameState.abbotPetition.domus_iii = { status: 'none', submittedAt: null, deniedReason: null, inspectionPending: false };
 		// Vyhodnotit čekající žádosti po načtení
 		Game.checkAbbotPetitions();
 
@@ -54158,6 +54223,8 @@ const Game = {
 		if (!GameState.storage.old_cellars)        GameState.storage.old_cellars        = {built:false};
 		if (!GameState.storage.domus_conversorum_i) GameState.storage.domus_conversorum_i = {built:false};
 		if (!GameState.storage.domus_conversorum_ii) GameState.storage.domus_conversorum_ii = {built:false};
+		if (!GameState.storage.domus_conversorum_iii) GameState.storage.domus_conversorum_iii = {built:false};
+		if (!GameState.storage.knihovna_grade_i) GameState.storage.knihovna_grade_i = {built:false};
 		if (!GameState.storage.dormitorium_i)   GameState.storage.dormitorium_i   = {built:false};
 		if (!GameState.storage.dormitorium_ii)  GameState.storage.dormitorium_ii  = {built:false};
 		if (!GameState.storage.dormitorium_iii) GameState.storage.dormitorium_iii = {built:false};
@@ -54216,8 +54283,19 @@ const Game = {
 				UI.notify(lang==='en' ? '❌ Abbot approval required. Submit a petition first.' : '❌ Vyžaduje souhlas opata. Nejprve zašli žádost.', true); return;
 			}
 		}
+		if (type === 'domus_conversorum_iii') {
+			if (!(GameState.storage.domus_conversorum_ii && GameState.storage.domus_conversorum_ii.built)) {
+				UI.notify(lang==='en' ? 'Build Domus Conversorum II first.' : 'Nejprve postav Domus Conversorum II.', true); return;
+			}
+			if (!(GameState.abbotPetition && GameState.abbotPetition.domus_iii && GameState.abbotPetition.domus_iii.status === 'approved')) {
+				UI.notify(lang==='en' ? '❌ Abbot approval required. Submit a petition first.' : '❌ Vyžaduje souhlas opata. Nejprve zašli žádost.', true); return;
+			}
+		}
 		if (type === 'vapenice' && !(GameState.researchedTechs && GameState.researchedTechs.includes('tech_calcaria'))) {
 			UI.notify(lang==='en' ? 'Research Calcaria first.' : 'Nejprve prozkoumej tech Calcaria.', true); return;
+		}
+		if (type === 'knihovna_grade_i' && !(GameState.researchedTechs && GameState.researchedTechs.includes('tech_studovna'))) {
+			UI.notify(lang==='en' ? 'Research Studovna first.' : 'Nejprve prozkoumej tech Studovna.', true); return;
 		}
 		if (GameState.storage[type] && GameState.storage[type].built) {
 			UI.notify(lang==='en' ? 'Already built.' : 'Jiz postaveno.', true); return;
@@ -54241,6 +54319,8 @@ const Game = {
 			old_cellars:       { cut_stone: 15, plank: 10, rope: 5 },
 			domus_conversorum_i: { cut_stone: 40, plank: 25, rope: 10 },
 			domus_conversorum_ii: { cut_stone: 150, plank: 90, rope: 35 },
+			domus_conversorum_iii: { cut_stone: 330, plank: 200, rope: 75, iron_ingot: 4 },
+			knihovna_grade_i: { cut_stone: 20, plank: 15, rope: 6 },
 			dormitorium_i:   { cut_stone: 30, plank: 20, rope: 8 },
 			dormitorium_ii:  { cut_stone: 90,  plank: 60, rope: 25, iron_ingot: 2, glass_stopper: 6 },
 			dormitorium_iii: { cut_stone: 200, plank: 130, rope: 50, iron_ingot: 6, glass_stopper: 10, glass_tankard: 10 },
@@ -54250,6 +54330,8 @@ const Game = {
 		const costsGrose = {
 			domus_conversorum_i: 25,
 			domus_conversorum_ii: 50,
+			domus_conversorum_iii: 110,
+			knihovna_grade_i: 15,
 			dormitorium_i: 15,
 			dormitorium_ii: 35,
 			dormitorium_iii: 70,
@@ -54281,6 +54363,8 @@ const Game = {
 			old_cellars: 'Staré sklepy',
 			domus_conversorum_i: 'Domus Conversorum I',
 			domus_conversorum_ii: 'Domus Conversorum II',
+			domus_conversorum_iii: 'Domus Conversorum III',
+			knihovna_grade_i: 'Knihovna — Stupeň I',
 			dormitorium_i: 'Dormitorium I',
 			dormitorium_ii: 'Dormitorium II',
 			dormitorium_iii: 'Dormitorium III',
@@ -54521,6 +54605,53 @@ const Game = {
         return null;
     },
 
+    // Vrací null pokud všechny podmínky splněny, jinak klíč zamítnutí (denied_*)
+    // Domus III — eskalovaný Domus II vzor (~4× prahy, dle skoku kapacity 5→20)
+    _checkDomusIIIConditions: function() {
+        if (!(GameState.storage && GameState.storage.domus_conversorum_ii && GameState.storage.domus_conversorum_ii.built)) {
+            return 'denied_phase3';
+        }
+        const influence = (GameState.persona && GameState.persona.influence && GameState.persona.influence.abbot) || 0;
+        if (influence < 70) return 'denied_influence';
+
+        let foodTotal = 0;
+        for (const [id, qty] of Object.entries(GameState.inventory || {})) {
+            const item = (typeof ItemsDB !== 'undefined') ? ItemsDB[id] : null;
+            if (item && item.type === 'food' && typeof qty === 'number') foodTotal += qty;
+        }
+        if (foodTotal < 150) return 'denied_food';
+
+        const grose = (typeof CellariumSystem !== 'undefined') ? CellariumSystem.getGrose() : 0;
+        const txs = (GameState.treasury && GameState.treasury.transactions) || [];
+        const ledgerBalance = txs.filter(t => t.type === 'sell').reduce((s, t) => s + t.total, 0)
+                             - txs.filter(t => t.type === 'buy').reduce((s, t) => s + t.total, 0);
+        if (grose < 250 && ledgerBalance <= 0) return 'denied_economy';
+
+        const drinkIds = ['vinum', 'vinum_rubrum', 'vinum_obscurum', 'vinum_baci', 'vinum_praeclarum', 'prima_cervisia', 'cervisia_nigra', 'honey'];
+        const hasDrink = drinkIds.some(id => (GameState.inventory[id] || 0) > 0);
+        if (!hasDrink) return 'denied_drink';
+
+        if (!(GameState.rank && GameState.rank.monastic === 'prior')) return 'denied_rank';
+
+        return null;
+    },
+
+    // Textace zamítnutí Domus III — inline cs/en (bez zásahu do cs.js/en.js,
+    // mirror _checkDomusIIIConditions klíčů).
+    _domusIIIDeniedText: function(deniedKey, lang) {
+        const cs = lang !== 'en';
+        const texts = {
+            denied_phase3:   { cs: 'Nejprve musí stát Domus Conversorum II.', en: 'Domus Conversorum II must stand first.' },
+            denied_influence:{ cs: 'Opat zatím tvé prosbě nedůvěřuje natolik — potřebuješ větší vliv.', en: 'The Abbot does not yet trust the request enough — greater influence is needed.' },
+            denied_food:     { cs: 'Zásoby jídla jsou na tak velký dormitář příliš skromné.', en: 'Food stores are too modest for such a large dormitory.' },
+            denied_economy:  { cs: 'Pokladna kláštera na tak nákladnou stavbu nestačí.', en: 'The monastery treasury cannot bear such a costly build.' },
+            denied_drink:    { cs: 'Opat očekává, že při jednání nabídneš alespoň doušek nápoje.', en: 'The Abbot expects at least a drink to be offered during the audience.' },
+            denied_rank:     { cs: 'Žádost o rozšíření na tuto míru přísluší jen priorovi.', en: 'A petition of this scale is fitting only for a Prior.' },
+        };
+        const entry = texts[deniedKey] || { cs: 'Žádost byla zamítnuta.', en: 'The petition was denied.' };
+        return cs ? entry.cs : entry.en;
+    },
+
     submitAbbotPetition: function(type) {
         const lang = (GameState.settings && GameState.settings.language) || 'cs';
         const cs = lang === 'cs';
@@ -54589,6 +54720,14 @@ const Game = {
             const deniedKey = this._checkDomusIIConditions();
             if (deniedKey) {
                 UI.notify(t('abbotPetition.domus_ii.' + deniedKey), true); return;
+            }
+        }
+
+        // Validace podmínek — pro Domus Conversorum III (inline texty, viz _domusIIIDeniedText)
+        if (type === 'domus_iii') {
+            const deniedKey = this._checkDomusIIIConditions();
+            if (deniedKey) {
+                UI.notify('❌ ' + this._domusIIIDeniedText(deniedKey, lang), true); return;
             }
         }
 
@@ -55507,7 +55646,7 @@ const Game = {
         const now = Date.now();
         const DAY_MS = 86400000;
 
-        ['fodina', 'fornax', 'domus_ii', 'probost'].forEach(type => {
+        ['fodina', 'fornax', 'domus_ii', 'domus_iii', 'probost'].forEach(type => {
             const pet = GameState.abbotPetition[type];
             if (!pet || pet.status !== 'pending') return;
             if (now - pet.submittedAt < DAY_MS) return;
@@ -55542,6 +55681,10 @@ const Game = {
                 deniedKey = this._checkDomusIIConditions();
             }
 
+            if (type === 'domus_iii') {
+                deniedKey = this._checkDomusIIIConditions();
+            }
+
             if (type === 'probost') {
                 const fTier = (GameState.templum && GameState.templum.fabricaTier) || 0;
                 if (fTier < 1) deniedKey = 'denied_fabrica';
@@ -55552,10 +55695,12 @@ const Game = {
                 // Zamítnout
                 pet.status = 'denied';
                 pet.deniedReason = deniedKey;
-                const reason = t('abbotPetition.' + type + '.' + deniedKey);
+                const reason = (type === 'domus_iii') ? this._domusIIIDeniedText(deniedKey, lang) : t('abbotPetition.' + type + '.' + deniedKey);
                 UI.notifyPanel('❌ ' + (cs ? 'Opat zamítl žádost.' : 'The Abbot denied the petition.') + ' ' + reason, 'warning');
                 Game.addKronikaEntry('important',
-                    t('abbotPetition.' + type + '.kronika_denied').replace('{reason}', reason),
+                    (type === 'domus_iii')
+                        ? ('Opat zamítl žádost o rozšíření Domu Konvršů (III). Důvod: ' + reason)
+                        : t('abbotPetition.' + type + '.kronika_denied').replace('{reason}', reason),
                     'The Abbot denied the petition. Reason: ' + reason,
                     'Abbas petitionem negavit.'
                 );
@@ -55579,13 +55724,23 @@ const Game = {
                     if (!GameState.flags) GameState.flags = {};
                     GameState.flags.porta_active = true;
                 }
-                UI.notifyPanel('✅ ' + t('abbotPetition.' + type + '.approved'), 'success');
-                UI.notifyPanel('🔍 ' + t('abbotPetition.' + type + '.inspect_hint'), 'info');
-                Game.addKronikaEntry('important',
-                    t('abbotPetition.' + type + '.kronika_approved'),
-                    type === 'fodina' ? 'The Abbot granted mining rights (Fodina).' : 'The Abbot approved the Fornax Ferraria.',
-                    'Abbas petitionem approbavit.'
-                );
+                if (type === 'domus_iii') {
+                    UI.notifyPanel('✅ ' + (cs ? 'Opat schválil rozšíření Domu Konvršů na III. stupeň.' : 'The Abbot approved expanding the Domus Conversorum to Tier III.'), 'success');
+                    UI.notifyPanel('🔍 ' + (cs ? 'Očekávej brzkou vizitaci opata.' : 'Expect an Abbot\'s inspection soon.'), 'info');
+                    Game.addKronikaEntry('important',
+                        'Opat schválil rozšíření Domu Konvršů na III. stupeň.',
+                        'The Abbot approved expanding the Domus Conversorum to Tier III.',
+                        'Abbas petitionem approbavit.'
+                    );
+                } else {
+                    UI.notifyPanel('✅ ' + t('abbotPetition.' + type + '.approved'), 'success');
+                    UI.notifyPanel('🔍 ' + t('abbotPetition.' + type + '.inspect_hint'), 'info');
+                    Game.addKronikaEntry('important',
+                        t('abbotPetition.' + type + '.kronika_approved'),
+                        type === 'fodina' ? 'The Abbot granted mining rights (Fodina).' : 'The Abbot approved the Fornax Ferraria.',
+                        'Abbas petitionem approbavit.'
+                    );
+                }
             }
             Game.save();
             if (typeof UI !== 'undefined' && UI.renderAll) UI.renderAll();
@@ -55597,6 +55752,7 @@ const Game = {
 
     conversiCapacity: function() {
         const s = GameState.storage || {};
+        if (s.domus_conversorum_iii && s.domus_conversorum_iii.built) return 20;
         if (s.domus_conversorum_ii && s.domus_conversorum_ii.built) return 5;
         if (s.domus_conversorum_i  && s.domus_conversorum_i.built)  return 2;
         return 0;
