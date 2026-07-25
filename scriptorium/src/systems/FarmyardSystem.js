@@ -1038,6 +1038,7 @@ const FarmyardSystem = {
         { id: 'mastal', icon: '🐎', tech: 'tech_stabulum' },
         { id: 'studna', icon: '🚰', tech: null },
         { id: 'columbarium', icon: '🕊️', tech: null, flag: 'columbarium_available' },
+        { id: 'mice', icon: '🐭', tech: 'tech_de_animalibus' },
     ],
 
     switchDvurTab: function (tab) {
@@ -1226,6 +1227,8 @@ const FarmyardSystem = {
             html += this._renderMastal();
         } else if (tab === 'columbarium' && GameState.flags && GameState.flags.columbarium_available) {
             html += this._renderColumbarium();
+        } else if (tab === 'mice' && GameState.researchedTechs && GameState.researchedTechs.includes('tech_de_animalibus')) {
+            html += this._renderMicePanel();
         } else if (tab !== 'studna') {
             html += this._renderDvurLocked(tab);
         }
@@ -1450,6 +1453,48 @@ const FarmyardSystem = {
         h += `<button class="craft-btn" onclick="FarmyardSystem.collectColumbarium()">🥚 ${t('farmyard.collect')}</button>`;
         h += `<button class="craft-btn" onclick="FarmyardSystem.cleanColumbarium()" style="background:rgba(90,154,90,0.85);">${canClean ? '🧹 ' + t('farmyard.clean') : '🧹 ' + t('farmyard.cleanTomorrow')}</button>`;
         h += `</div>`;
+        h += `</div>`;
+        return h;
+    },
+
+    // Myší panel (25.7.2026 sprint) — plní slib tech_de_animalibus ("Odemkne:
+    // Myší panel na Dvoře — přesný počet myší, trend populace, ztráty zásob
+    // a vliv na kažení."), visící v tech tree bez obsahu. Vedle Columbaria,
+    // stejná úroveň v DVUR_TABS. Do budoucna rozšiřitelný o další drobnou
+    // zvěř (ježek, hadi...) ve stejném subtabu.
+    _renderMicePanel: function () {
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        const ds = (typeof DecaySystem !== 'undefined') ? DecaySystem : null;
+        if (!GameState.mice) GameState.mice = { count: 3, lastTick: 0 };
+        const m = GameState.mice;
+        const cap = ds ? ds.MICE_CAP : 30;
+        const prev = (typeof m.prevCount === 'number') ? m.prevCount : m.count;
+        const trend = m.count > prev ? '▲' : (m.count < prev ? '▼' : '–');
+        const trendColor = m.count > prev ? '#b05a3a' : (m.count < prev ? '#5a9a5a' : 'inherit');
+
+        let h = `<div style="padding:16px; background:rgba(197,160,89,0.06); border-radius:10px; border-left:4px solid var(--accent-gold);">`;
+        h += `<h3 style="margin:0 0 12px 0; font-size:1rem;">🐭 ${lang === 'en' ? 'Mice' : 'Myši'}</h3>`;
+
+        // Přesný počet + trend
+        h += `<div style="display:grid; grid-template-columns:1fr 1fr; gap:6px; margin-bottom:12px; font-size:0.82rem;">`;
+        h += `<div>🐭 ${lang === 'en' ? 'Population' : 'Populace'}: <strong>${m.count}/${cap}</strong> <span style="color:${trendColor};">${trend}</span></div>`;
+        h += `<div>🪤 ${lang === 'en' ? 'Traps in stock' : 'Pastičky na skladě'}: <strong>${GameState.inventory['mousetrap'] || 0}</strong></div>`;
+        h += `</div>`;
+
+        // Vliv na kažení zásob
+        const decayPct = ds ? Math.round((ds.miceMult() - 1) * 100) : 0;
+        h += `<div style="font-size:0.82rem; margin-bottom:6px;">📦 ${lang === 'en' ? 'Store decay' : 'Kažení zásob'}: <strong>${decayPct >= 0 ? '+' : ''}${decayPct}%</strong></div>`;
+
+        // Ztráty — aktuální riziko na Dvoře a Zahonech (ne historický log, průběžný stav)
+        const feedPct = ds ? Math.round(ds.miceFeedTheftChance() * 100) : 0;
+        const gardenPct = ds ? Math.round((1 - ds.miceGardenMult()) * 100) : 0;
+        h += `<div style="font-size:0.82rem; margin-bottom:6px;">🌾 ${lang === 'en' ? 'Feed theft risk (Farmyard)' : 'Riziko krádeže krmiva (Dvůr)'}: <strong>${feedPct}%</strong>/${lang === 'en' ? 'day' : 'den'}</div>`;
+        h += `<div style="font-size:0.82rem; margin-bottom:12px;">🌱 ${lang === 'en' ? 'Yield loss (Garden beds)' : 'Ztráta výnosu (Záhony)'}: <strong>−${gardenPct}%</strong></div>`;
+
+        h += `<div style="font-size:0.78rem; opacity:0.7; font-style:italic;">${lang === 'en'
+            ? 'Cats and mousetraps keep the population in check.'
+            : 'Kočka a pastičky drží populaci na uzdě.'}</div>`;
+
         h += `</div>`;
         return h;
     },

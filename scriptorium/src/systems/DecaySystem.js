@@ -63,6 +63,22 @@ const DecaySystem = {
         return 1 + n / 40;   // mírné: 30 myší = ×1.75
     },
 
+    // Myší vliv na Zahony (25.7.2026 sprint) — penalizace výnosu, strop −30 %
+    // při 30+ myších. Vkládá se do totalMult vedle conversiEfficiency.
+    miceGardenMult: function() {
+        const n = (GameState.mice && GameState.mice.count) || 0;
+        return Math.max(0.7, 1 - n * 0.01);
+    },
+
+    // Myší vliv na Dvůr (25.7.2026 sprint) — šance, že krmivo "zmizí" dřív,
+    // než dojde na zvíře (myši byly rychlejší). Strop 40 % při 27+ myších.
+    // Zvíře ten den zůstane nekrmené i přes plný sklad — skutečný blocker,
+    // dokud hráč populaci nedostane pod kontrolu (kočka/pastičky).
+    miceFeedTheftChance: function() {
+        const n = (GameState.mice && GameState.mice.count) || 0;
+        return Math.min(0.4, n * 0.015);
+    },
+
     // Mouchový multiplikátor (jen pro flies:true položky, monastery-decay-mrd).
     // Aktivní hlavně v teplém období (květen–září). Hlavní faktor: postavené
     // Dvůr budovy + neuklizený hnůj (manure) ve skladu — vysoký stav manure
@@ -151,6 +167,7 @@ const DecaySystem = {
         const now = Date.now();
         if (now - (m.lastTick || 0) < this.DAY_MS) return;
         m.lastTick = now;
+        m.prevCount = m.count;   // pro trend v Myším panelu (tech_de_animalibus)
 
         // Spawn ∝ zásoby jídla/zrní; podzim+zima ×1.5 (myši táhnou do tepla)
         let foodStock = 0;

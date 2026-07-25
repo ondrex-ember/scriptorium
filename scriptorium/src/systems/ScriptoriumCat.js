@@ -824,50 +824,6 @@ Object.assign(ScriptoriumCat, {
         this._foculusScheduleMove();
     },
 });
-// ── MICE TICK — přidáno jako rozšíření (mimo Object.assign blok) ──────────
-Object.assign(ScriptoriumCat, {
-
-    // Zrní, která myši vyhledávají
-    GRAIN_ITEMS: ['grain', 'oats', 'millet', 'barley', 'rye', 'wheat'],
-    DAY_MS_MICE: 24 * 60 * 60 * 1000,
-
-    // Denní tick myší populace — volán z game.js, self-guarded (24h)
-    // Odděleno od dailyTick — funguje bez tech_cura_felium
-    miceTick: function () {
-        if (!GameState.mice) GameState.mice = { count: 3, lastTick: 0 };
-        const m = GameState.mice;
-        const now = Date.now();
-        if (now - m.lastTick < this.DAY_MS_MICE) return;
-        m.lastTick = now;
-
-        // 1) Spawn: +floor(zásoby zrní / 30) myší/den
-        const grainTotal = this.GRAIN_ITEMS.reduce((sum, id) => sum + (GameState.inventory[id] || 0), 0);
-        const spawn = Math.floor(grainTotal / 30);
-        m.count = Math.max(0, m.count + spawn);
-
-        // 2) Přirozená úmrtnost –15 %/den
-        m.count = Math.max(0, Math.floor(m.count * 0.85));
-
-        // 3) Myši žerou scraps ze zásoby (floor(count/5) kusů/den)
-        if (m.count > 0 && (GameState.inventory['scraps'] || 0) > 0) {
-            const eaten = Math.min(GameState.inventory['scraps'], Math.floor(m.count / 5));
-            if (eaten > 0) {
-                GameState.inventory['scraps'] = Math.max(0, (GameState.inventory['scraps'] || 0) - eaten);
-                const lang = (GameState.settings && GameState.settings.language) || 'cs';
-                const miceMsg = lang === 'en'
-                    ? `🐭 Mice ate ${eaten} scraps from the stores.`
-                    : `🐭 Myši sežraly ${eaten} zbytků ze zásoby.`;
-                if (typeof UI !== 'undefined' && UI.notify) {
-                    UI.notify(miceMsg);
-                    if (UI.notifyPanel) UI.notifyPanel(miceMsg, 'warning');
-                }
-            }
-        }
-
-        // 4) Nastavit globální decay multiplikátor (čtený DecaySystem)
-        // 1.0 (0 myší) → 2.0 (25+ myší)
-        window.miceDecayMultiplier = Math.min(2.0, 1.0 + (m.count * 0.04));
-
-        if (typeof Game !== 'undefined' && Game.save) Game.save();
-    },
-});
+// Myší spawn/mortalita/pastičky řeší výhradně DecaySystem.miceTick()
+// (25.7.2026 sprint — smazána duplicitní/nikdy neproběhlá verze zde,
+// co blokovala DecaySystem přes sdílený GameState.mice.lastTick gate).

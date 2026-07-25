@@ -733,9 +733,10 @@ const Game = {
                     if (typeof ScriptoriumCat !== 'undefined' && ScriptoriumCat.dailyTick) ScriptoriumCat.dailyTick();
                     // FarmyardSystem — mood tick (self-guarded 24h)
                     if (typeof FarmyardSystem !== 'undefined' && FarmyardSystem.moodTick) FarmyardSystem.moodTick();
-                    // Myší populace — denní tick spawn/mortality/scraps (self-guarded 24h)
-                    if (typeof ScriptoriumCat !== 'undefined' && ScriptoriumCat.miceTick) ScriptoriumCat.miceTick();
-                    // Decay — denní kažení zásob (self-guarded 24h, gate tech_inventarium)
+                    // Myší populace — denní tick spawn/mortality/pastičky, výhradně
+                    // DecaySystem.dailyTick() (25.7.2026 sprint — smazáno duplicitní
+                    // volání ScriptoriumCat.miceTick(), co blokovalo tohle přes sdílený
+                    // GameState.mice.lastTick gate — pastičky díky tomu nikdy nechytaly).
                     if (typeof DecaySystem !== 'undefined' && DecaySystem.dailyTick) DecaySystem.dailyTick();
                     // Vitrea — startovní pool (jednorázově) + denní opotřebení vybavení (self-guarded 24h)
                     if (typeof Game !== 'undefined' && Game.vitreaGrantStartPool) { Game.vitreaGrantStartPool(); Game.vitreaWearTick(); }
@@ -4457,6 +4458,16 @@ const Game = {
 				// stejné pole jako u manuálního Feed tlačítka. Žádný samostatný hunger counter.
 				const hoursSinceFed = (now - (GameState[a.key].lastFedAt || 0)) / 3600000;
 				if (hoursSinceFed < 24) return;
+				// Myši (25.7.2026 sprint) — šance, že krmivo ze sýpky zmizí dřív, než
+				// dojde na zvíře. Odlišná hláška od "chybí v sýpce", ať hráč ví proč.
+				const theftChance = (typeof DecaySystem !== 'undefined') ? DecaySystem.miceFeedTheftChance() : 0;
+				if (theftChance > 0 && Math.random() < theftChance) {
+					UI.notify(lang==='en' ? a.name+' — mice got to the fodder first!' : a.name+' — myši se dostaly ke krmivu první!', true);
+					if (typeof NotificationSystem !== 'undefined' && NotificationSystem.panel) {
+						NotificationSystem.panel('🐭 ' + (lang==='en' ? a.name+' — mice got to the fodder first.' : a.name+' — myši se dostaly ke krmivu první.'), 'warning');
+					}
+					return;
+				}
 				const useFeed = a.feedChain.find(f => (GameState.inventory[f] || 0) >= a.feedAmt);
 				if (useFeed) {
 					Game.removeItem(useFeed, a.feedAmt);
@@ -7832,11 +7843,17 @@ const Game = {
                     { key: 'cowbyre',   built: GameState.cowbyre && GameState.cowbyre.built && GameState.cowbyre.animals && GameState.cowbyre.animals.length > 0, feedChain: ['hay', 'feed_meal'], feedAmt: 1, name: lang==='en'?'Cattle':'Skot' },
                     { key: 'pigsty',    built: GameState.pigsty && GameState.pigsty.built && GameState.pigsty.animals && GameState.pigsty.animals.length > 0, feedChain: ['scraps', 'feed_meal', 'grain', 'hay'], feedAmt: 2, name: lang==='en'?'Pigs':'Prasata' },
                 ];
+                let stolenAny = false;
                 animals.forEach(a => {
                     if (!a.built) return;
                     // v2: lastFedAt přímo na GameState[pen] — stejné pole jako getMood()/manuální Feed
                     const hoursSinceFed = (Date.now() - (GameState[a.key].lastFedAt || 0)) / 3600000;
                     if (hoursSinceFed < 24) return;
+                    // Myši (25.7.2026 sprint) — šance, že krmivo zmizí dřív, než dojde
+                    // na zvíře. Zvíře zůstane nekrmené i přes plný sklad — blocker,
+                    // dokud populace neklesne (kočka/pastičky).
+                    const theftChance = (typeof DecaySystem !== 'undefined') ? DecaySystem.miceFeedTheftChance() : 0;
+                    if (theftChance > 0 && Math.random() < theftChance) { stolenAny = true; return; }
                     const useFeed = a.feedChain.find(f => (GameState.inventory[f] || 0) >= a.feedAmt);
                     if (useFeed) {
                         this.removeItem(useFeed, a.feedAmt);
@@ -7844,6 +7861,11 @@ const Game = {
                         fedAny = true;
                     }
                 });
+                if (stolenAny) {
+                    const lang2 = (GameState.settings && GameState.settings.language) || 'cs';
+                    const msg = lang2 === 'en' ? '🐭 Mice got to the fodder before the animals did.' : '🐭 Myši se dostaly ke krmivu dřív než dobytek.';
+                    if (typeof UI !== 'undefined' && UI.notify) UI.notify(msg, true);
+                }
             }
 
             if (cleanedAny || fedAny) {
@@ -7928,7 +7950,8 @@ const Game = {
                         let _fertMultAuto = 0.6;
                         if (_wasFertStage >= 1) _fertMultAuto = (_wasFertQuality === 2) ? 1.15 : 1.0;
                         if (_wasMidGrowFertilized) _fertMultAuto = 1.3;
-                        const totalMult = _yieldMult * brotherMult * _fertMultAuto * this.conversiEfficiency(gardener, 'zahony');
+                        const _miceGardenMult = (typeof DecaySystem !== 'undefined') ? DecaySystem.miceGardenMult() : 1.0;
+                        const totalMult = _yieldMult * brotherMult * _fertMultAuto * this.conversiEfficiency(gardener, 'zahony') * _miceGardenMult;
                         const track = (id, qty) => { harvested[id] = (harvested[id] || 0) + qty; };
                         if (_gp) {
                             const q = Math.max(1, Math.round(_gp.yield * totalMult));
