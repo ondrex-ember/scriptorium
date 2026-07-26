@@ -1105,6 +1105,17 @@ const SaeculumSystem = {
     return GameState.contactShopSold.sold[contactId + ':' + itemId] || 0;
   },
 
+  // sdileny-pool-mrd v2 (26.7.2026) — pokud má kontakt chroniconActorId
+  // A item je trackovaný v jeho producesItems, stock se čte živě ze
+  // snapshotu místo statického buyOffer.stock. Cena zůstává statická
+  // (cenový vzorec vědomě odložen, viz MRD). null z Chronicon = spadni
+  // na static beze změny (aktér zatím neexistuje / item netrackovaný).
+  _effectiveStock: function (c, itemId, staticStock) {
+    if (!c.chroniconActorId || typeof ChroniconSystem === 'undefined') return staticStock;
+    const live = ChroniconSystem.getActorItemStock(c.chroniconActorId, itemId);
+    return (live === null) ? staticStock : live;
+  },
+
   buyFromContact: function(contactId, itemId, qty) {
     if (typeof ContactsDB === 'undefined' || typeof CellariumSystem === 'undefined') return;
     const c = ContactsDB[contactId];
@@ -1125,7 +1136,8 @@ const SaeculumSystem = {
     // Exkluzivní nabídka: gate na vztah (MRD bod 8)
     if (offer.minRelation && ((GameState.contactRelation || {})[contactId] || 0) < offer.minRelation) return;
     const soldToday = this._contactSoldToday(contactId, itemId);
-    const left = Math.max(0, offer.stock - soldToday);
+    const effStock = this._effectiveStock(c, itemId, offer.stock);
+    const left = Math.max(0, effStock - soldToday);
     qty = Math.max(0, Math.min(left, qty | 0));
     if (qty <= 0) { UI.notify('⚠️ ' + (((GameState.settings||{}).language)==='en' ? 'Sold out today.' : 'Dnes vyprodáno.'), true); return; }
     const total = offer.price * qty;
@@ -1285,7 +1297,7 @@ const SaeculumSystem = {
                 </div>`;
           return;
         }
-        const left = Math.max(0, o.stock - this._contactSoldToday(id, itemId));
+        const left = Math.max(0, this._effectiveStock(c, itemId, o.stock) - this._contactSoldToday(id, itemId));
         const grose = CellariumSystem.getGrose();
         h += `<div style="display:flex; align-items:center; gap:6px; font-size:0.78rem; margin-bottom:6px;">
                 <span style="flex:1;">${itemName} <span style="opacity:0.6;">(${o.price} g/${lang==='en'?'pc':'ks'} · ${lang==='en'?'stock':'skladem'} ${left})</span></span>
