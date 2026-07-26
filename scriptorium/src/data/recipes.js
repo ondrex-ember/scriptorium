@@ -585,14 +585,14 @@ const RecipesDB = [
 
     // Whetstone — craft + alternativní oprava železných nástrojů (nespotřebovává iron_tongs, vlastní pool 3 použití)
     { id:"whetstone", output:"whetstone", qty:4, req:{whetstone_rock:1}, cat:"stone", desc:"Z brusného kamene vybroušeny čtyři brousky.", desc_en:"Four whetstones honed from the rock." },
-    { id:"repair_iron_axe_whetstone",     output:"iron_axe",     qty:1, req:{worn_iron_axe:1,     whetstone:1}, cat:"iron", locked:true, desc:"Nabroušení sekerky obtahovacím kamenem.", desc_en:"Hone the axe with a whetstone." },
-    { id:"repair_iron_spade_whetstone",   output:"iron_spade",   qty:1, req:{worn_iron_spade:1,   whetstone:1}, cat:"iron", locked:true, desc:"Nabroušení rýče obtahovacím kamenem.", desc_en:"Hone the spade with a whetstone." },
-    { id:"repair_iron_scythe_whetstone",  output:"iron_scythe",  qty:1, req:{worn_iron_scythe:1,  whetstone:1}, cat:"iron", locked:true, desc:"Nabroušení kosy obtahovacím kamenem.", desc_en:"Hone the scythe with a whetstone." },
-    { id:"repair_iron_sickle_whetstone",  output:"iron_sickle",  qty:1, req:{worn_iron_sickle:1,  whetstone:1}, cat:"iron", locked:true, desc:"Nabroušení srpu obtahovacím kamenem.", desc_en:"Hone the sickle with a whetstone." },
-    { id:"repair_iron_flail_whetstone",   output:"iron_flail",   qty:1, req:{worn_iron_flail:1,   whetstone:1}, cat:"iron", locked:true, desc:"Nabroušení cepu obtahovacím kamenem.", desc_en:"Hone the flail with a whetstone." },
-    { id:"repair_iron_shovel_whetstone",  output:"iron_shovel",  qty:1, req:{worn_iron_shovel:1,  whetstone:1}, cat:"iron", locked:true, desc:"Nabroušení lopaty obtahovacím kamenem.", desc_en:"Hone the shovel with a whetstone." },
-    { id:"repair_iron_saw_whetstone",     output:"iron_saw",     qty:1, req:{worn_iron_saw:1,     whetstone:1}, cat:"iron", locked:true, desc:"Nabroušení zubů pily obtahovacím kamenem.", desc_en:"Hone the saw teeth with a whetstone." },
-    { id:"repair_iron_pickaxe_whetstone", output:"iron_pickaxe", qty:1, req:{worn_iron_pickaxe:1, whetstone:1}, cat:"iron", locked:true, desc:"Nabroušení hrotu krumpáče obtahovacím kamenem.", desc_en:"Hone the pickaxe head with a whetstone." },
+    { id:"repair_iron_axe_whetstone",     output:"iron_axe",     qty:1, req:{worn_iron_axe:1},     toolReq:[{item:"whetstone"}], cat:"iron", locked:true, desc:"Nabroušení sekerky obtahovacím kamenem.", desc_en:"Hone the axe with a whetstone." },
+    { id:"repair_iron_spade_whetstone",   output:"iron_spade",   qty:1, req:{worn_iron_spade:1},   toolReq:[{item:"whetstone"}], cat:"iron", locked:true, desc:"Nabroušení rýče obtahovacím kamenem.", desc_en:"Hone the spade with a whetstone." },
+    { id:"repair_iron_scythe_whetstone",  output:"iron_scythe",  qty:1, req:{worn_iron_scythe:1},  toolReq:[{item:"whetstone"}], cat:"iron", locked:true, desc:"Nabroušení kosy obtahovacím kamenem.", desc_en:"Hone the scythe with a whetstone." },
+    { id:"repair_iron_sickle_whetstone",  output:"iron_sickle",  qty:1, req:{worn_iron_sickle:1},  toolReq:[{item:"whetstone"}], cat:"iron", locked:true, desc:"Nabroušení srpu obtahovacím kamenem.", desc_en:"Hone the sickle with a whetstone." },
+    { id:"repair_iron_flail_whetstone",   output:"iron_flail",   qty:1, req:{worn_iron_flail:1},   toolReq:[{item:"whetstone"}], cat:"iron", locked:true, desc:"Nabroušení cepu obtahovacím kamenem.", desc_en:"Hone the flail with a whetstone." },
+    { id:"repair_iron_shovel_whetstone",  output:"iron_shovel",  qty:1, req:{worn_iron_shovel:1},  toolReq:[{item:"whetstone"}], cat:"iron", locked:true, desc:"Nabroušení lopaty obtahovacím kamenem.", desc_en:"Hone the shovel with a whetstone." },
+    { id:"repair_iron_saw_whetstone",     output:"iron_saw",     qty:1, req:{worn_iron_saw:1},     toolReq:[{item:"whetstone"}], cat:"iron", locked:true, desc:"Nabroušení zubů pily obtahovacím kamenem.", desc_en:"Hone the saw teeth with a whetstone." },
+    { id:"repair_iron_pickaxe_whetstone", output:"iron_pickaxe", qty:1, req:{worn_iron_pickaxe:1}, toolReq:[{item:"whetstone"}], cat:"iron", locked:true, desc:"Nabroušení hrotu krumpáče obtahovacím kamenem.", desc_en:"Hone the pickaxe head with a whetstone." },
 
     // ── VINOHRAD — stavby ─────────────────────────────────────────────────────
     { id:"prelum",            output:"prelum",            qty:1,

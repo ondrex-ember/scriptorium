@@ -196,7 +196,7 @@ const ContactsDB = {
         sellBonus: { items: { rock: 1, cut_stone: 3 } },   // mimo trh (BASE_PRICES) — pevná exkluzivní cena, ne null (viz Kovář/iron_ore)
         // Clientela pool MRD (25.7.2026): běžná denní nabídka vedle zakázek — kamenná obdoba Kovářových nástrojů
         buyOffer: { items: {
-            whetstone:      { price: 5, stock: 3 },
+            whetstone:      { price: 12, stock: 3 },
             palice_kamenna: { price: 9, stock: 2 },
         } },
         // zakázka — sdílí generický mechanismus SaeculumSystem.orderFromContact (stejné pole jako Sklář: 48 h, 1 slot, 50 % záloha)
