@@ -3208,6 +3208,8 @@ const Game = {
                     if(Math.random() < 0.15) this.addItem('crayfish', 1);
                     // Orobinec — kořen z mokřadu
                     if(Math.random() < 0.06) this.addItem('cattail_root', 1);
+                    // Proutí — vrbové pruty u mokřadu, běžný stavební materiál (Columbarium)
+                    if(Math.random() < 0.20) this.addItem('wicker', 2);
                 }
                 else if (type === 'resin_harvest') {
                     if(r<0.5) this.addItem('resin', 1);
@@ -3539,6 +3541,8 @@ const Game = {
                 if(Math.random() < 0.15) this.addItem('crayfish', 1);
                 // Orobinec — kořen z mokřadu
                 if(Math.random() < 0.06) this.addItem('cattail_root', 1);
+                // Proutí — vrbové pruty u mokřadu, běžný stavební materiál (Columbarium)
+                if(Math.random() < 0.20) this.addItem('wicker', 2);
             }
             else if (type === 'resin_harvest') {
                 if(r<0.5) this.addItem('resin', 1);
