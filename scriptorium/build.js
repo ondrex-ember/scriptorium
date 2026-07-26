@@ -75,8 +75,8 @@ const JS_MAIN = [
     'src/systems/PortaSystem.js',
     'src/systems/CommitmentsSystem.js',
     'src/systems/SecretsSystem.js',
+    'src/systems/TutorialSystem.js',
     'src/systems/athanor.js',
-    'src/systems/TutorialSystem.js', // TutorialSystem — nenucený arrow/spotlight tutorial
     'src/systems/GamesSystem.js',
 
     // Mini-hry
