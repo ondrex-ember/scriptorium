@@ -167,6 +167,10 @@ const UI = {
         const _portaBtn = document.getElementById('lore-tab-porta');
         if (_portaBtn) _portaBtn.style.display = (GameState.flags && GameState.flags.porta_active) ? '' : 'none';
 
+        // Zakázky — stejná viditelnostní podmínka jako Porta
+        const _commitBtn = document.getElementById('lore-tab-commitments');
+        if (_commitBtn) _commitBtn.style.display = (GameState.flags && GameState.flags.porta_active) ? '' : 'none';
+
         this.renderResourceTracker();
 
         const s = this.currentScreen || 'home';
@@ -1302,6 +1306,7 @@ const UI = {
         const _lcalEl = document.getElementById('lore-calendarium-content'); if (_lcalEl) _lcalEl.style.display = 'none';
         const _lperEl = document.getElementById('lore-persona-content'); if (_lperEl) _lperEl.style.display = 'none';
         const _lportEl = document.getElementById('lore-porta-content'); if (_lportEl) _lportEl.style.display = 'none';
+        const _lcommitEl = document.getElementById('lore-commitments-content'); if (_lcommitEl) _lcommitEl.style.display = 'none';
 
         // Remove active class from screen-lore filter buttons
         document.querySelectorAll('#screen-lore .filter-btn').forEach(b => b.classList.remove('active'));
@@ -1333,6 +1338,8 @@ const UI = {
             if (_lperEl) { _lperEl.style.display = 'block'; if (typeof PersonaSystem !== 'undefined') PersonaSystem.render(); }
         } else if (tab === 'porta') {
             if (_lportEl) { _lportEl.style.display = 'block'; if (typeof PortaSystem !== 'undefined') PortaSystem.render(); }
+        } else if (tab === 'commitments') {
+            if (_lcommitEl) { _lcommitEl.style.display = 'block'; if (typeof CommitmentsSystem !== 'undefined') CommitmentsSystem.render(); }
         }
     },
 
