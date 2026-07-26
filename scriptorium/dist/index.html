@@ -303,7 +303,11 @@
             max-width: 100%;
             margin-left: auto;
             flex: 0 1 auto;
-            overflow: visible;
+            overflow-x: auto;
+            overflow-y: hidden;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: thin;
+            scrollbar-color: var(--accent-gold, #c5a059) rgba(0, 0, 0, 0.05);
             color: var(--ink-primary, #2c241b);
         }
 
@@ -396,7 +400,10 @@
             display: flex;
             align-items: center;
             gap: 8px;
-            flex-wrap: wrap;
+            flex-wrap: nowrap;
+            white-space: nowrap;
+            width: max-content;
+            min-width: min-content;
             justify-content: flex-start;
         }
 
@@ -422,8 +429,9 @@
             display: flex;
             align-items: center;
             gap: 5px;
-            flex-wrap: wrap;
+            flex-wrap: nowrap;
             justify-content: flex-start;
+            flex-shrink: 0;
         }
 
         .res-pill {
@@ -1302,7 +1310,7 @@
             backdrop-filter: blur(6px);
         }
 
-        @media (max-width: 767px) {
+        @media (max-width: 750px) {
 
             /* Dlouhé texty v tlačítkách nesmí přetékat (BUILD HENHOUSE...) */
             .craft-btn {
@@ -1363,7 +1371,7 @@
             }
 
             main#main-content {
-                padding-top: var(--header-offset, 70px) !important;
+                padding-top: 70px !important;
             }
 
             .header-content {
@@ -1380,7 +1388,7 @@
             }
         }
 
-        @media (min-width: 768px) {
+        @media (min-width: 751px) {
             #settings-btn {
                 display: block !important;
             }
@@ -2437,8 +2445,7 @@
         /* Velké PC monitory (od 1200px šířky) */
         @media (min-width: 1200px) {
             #game-container {
-                width: 90%;
-                max-width: 1600px;
+                max-width: 1200px;
             }
 
             /* 3 sloupce na velkém monitoru */
@@ -2446,19 +2453,6 @@
             #crafting-list,
             #inventory-grid {
                 grid-template-columns: repeat(3, 1fr);
-            }
-        }
-
-        /* Velmi široké monitory (od 1600px) — 4 sloupce */
-        @media (min-width: 1600px) {
-            #game-container {
-                max-width: 1900px;
-            }
-
-            #workspace-actions,
-            #crafting-list,
-            #inventory-grid {
-                grid-template-columns: repeat(4, 1fr);
             }
         }
 
@@ -3443,6 +3437,12 @@
                         <span id="research-count">0</span>
                     </div>
                     <span class="separator">•</span>
+                    <div id="chronicon-header-pill" onclick="ChroniconSystem.openModal()" style="display:inline-flex; align-items:center; gap:4px; background:rgba(197,160,89,0.18); border:1px solid rgba(197,160,89,0.45); border-radius:12px; padding:2px 8px; cursor:pointer; font-size:0.72rem; color:var(--accent-gold); transition:all 0.2s;" title="Chronicon – Živý svět Olomoucka 1465">
+                        <span>📜</span>
+                        <span style="font-family:'Cinzel Decorative'; font-weight:bold; letter-spacing:0.5px;">CHRONICON</span>
+                        <span id="chronicon-header-badge" style="display:none; background:#c0392b; width:7px; height:7px; border-radius:50%;"></span>
+                    </div>
+                    <span class="separator">•</span>
                     <span id="date-display"
                         style="text-transform:uppercase; font-size:0.72rem; letter-spacing:-0.3px; font-family:'Cinzel'; opacity:0.85;"></span>
                     <span id="date-separator" class="separator" style="font-size:0.72rem;">·</span>
@@ -3471,6 +3471,11 @@
                     <div class="hpill" id="pill-progress" onclick="pillToggle('progress')">
                         <span>📜</span>
                         <span class="hpill-val" id="pill-progress-val">–</span>
+                    </div>
+                    <div class="hpill" id="pill-chronicon" onclick="ChroniconSystem.openModal()" title="Chronicon – Živý svět Olomoucka 1465">
+                        <span>📜</span>
+                        <span class="hpill-val" id="pill-chronicon-val">1465</span>
+                        <span id="chronicon-header-badge-mobile" style="display:none; background:#c0392b; width:6px; height:6px; border-radius:50%; margin-left:2px;"></span>
                     </div>
                     <div class="hpill" id="cat-pill" onclick="pillToggle('cat')" style="display:none;">
                         <span id="cat-pill-label">🐈</span>
