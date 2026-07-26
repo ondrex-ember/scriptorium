@@ -16009,6 +16009,19 @@ const ChroniconSystem = {
             });
     },
 
+    // ─── Sdílený pool (sdileny-pool-mrd v2, 26.7.2026) ──────────────────────
+    // Čte item-úroveň produkci z posledního fetchnutého snapshotu
+    // (ChroniconSystem._snap — SKUTEČNÁ cache proměnná z _fetch() níže,
+    // ověřeno před psaním, ne odhadnuto). null = aktér/item netracknutý →
+    // volající (SaeculumSystem) spadne na statický buyOffer beze změny.
+    getActorItemStock: function(actorId, itemId) {
+        const snap = ChroniconSystem._snap;
+        const a = snap && snap.actors && snap.actors.find(function (x) { return x.id === actorId; });
+        if (!a || !a.itemStock) return null;
+        const v = a.itemStock[itemId];
+        return (v === undefined) ? null : Math.floor(v);
+    },
+
     // ─── Apply snapshot ─────────────────────────────────────────────────────
 
     _apply: function(snap) {
