@@ -5928,7 +5928,7 @@ const Game = {
         const now = Date.now();
         const DAY_MS = 86400000;
 
-        ['fodina', 'fornax', 'domus_ii', 'probost'].forEach(type => {
+        ['fodina', 'fornax', 'columbarium', 'domus_ii', 'probost'].forEach(type => {
             const pet = GameState.abbotPetition[type];
             if (!pet || pet.status !== 'pending') return;
             if (now - pet.submittedAt < DAY_MS) return;
@@ -5993,7 +5993,9 @@ const Game = {
                 if (type === 'columbarium') {
                     if (typeof FarmyardSystem !== 'undefined') FarmyardSystem._ensureAnimals();
                     const _cfg = (typeof FarmyardSystem !== 'undefined') ? FarmyardSystem.COLUMBARIUM_CFG : null;
-                    GameState.columbarium.count = _cfg ? _cfg.startCount : 20;
+                    if (!GameState.columbarium.count) {
+                        GameState.columbarium.count = _cfg ? _cfg.startCount : 20;
+                    }
                     GameState.columbarium.lastEggAt = Date.now();
                     GameState.columbarium.lastFeatherAt = Date.now();
                     // PortaSystem engine gate — dopisy/pošta ožívají až s holuby

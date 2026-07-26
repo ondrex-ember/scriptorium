@@ -36,6 +36,7 @@ const JS_MAIN = [
     'src/data/daily-facts.js',      // DailyFactsDB
     'src/data/scrinium.js',         // ScriniumDB
     'src/data/letters.js',          // LettersDB
+    'src/data/porta-correspondence.js', // OutgoingLettersDB — odchozí korespondence
     'src/data/conversi.js',         // ConversiRosterDB, ConversiTraitsDB, ConversiBondsDB
     'src/data/dormitorium.js',      // DormitoriumRosterDB, DormitoriumSpecializationDB
     'src/data/contacts.js',         // ContactsDB (Clientela)

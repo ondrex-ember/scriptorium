@@ -17,7 +17,167 @@ const PortaSystem = {
         // CHRONICON Vrstva 3 — dynamické dopisy přijaté ze snapshotu
         // (porta_letters). Trvalý store, roste jako LettersDB, nemaže se.
         if (!GameState.letters.dynamic) GameState.letters.dynamic = [];
+        // Odchozí korespondence — dopisy na cestě (holub letí), viz sendLetter/_resolveOutgoing.
+        if (!GameState.letters.outgoing) GameState.letters.outgoing = [];
         return GameState.letters;
+    },
+
+    // Odchozí korespondence — pošle dopis, spotřebuje holuba + zásoby, zařadí do fronty "na cestě".
+    sendLetter: function (contactId, topicId) {
+        this._ensureState();
+        const contact = (typeof OutgoingLettersDB !== 'undefined') ? OutgoingLettersDB.find(function (c) { return c.id === contactId; }) : null;
+        const topic = contact && contact.topics.find(function (tp) { return tp.id === topicId; });
+        if (!topic) return;
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+
+        const pigeonsAvailable = (GameState.columbarium && GameState.columbarium.count) || 0;
+        const paper = GameState.inventory['paper'] || 0;
+        const ink = GameState.inventory['ink'] || 0;
+        const cost = topic.cost || {};
+        if (pigeonsAvailable < (cost.pigeon || 0) || paper < (cost.paper || 0) || ink < (cost.ink || 0)) {
+            if (typeof NotificationSystem !== 'undefined') {
+                NotificationSystem.panel('🕊️ ' + (lang === 'en' ? 'Not enough pigeons or supplies.' : 'Nemáš dost holubů nebo zásob.'), 'porta');
+            }
+            return;
+        }
+
+        if (cost.pigeon) GameState.columbarium.count -= cost.pigeon;
+        if (cost.paper) GameState.inventory['paper'] -= cost.paper;
+        if (cost.ink) GameState.inventory['ink'] -= cost.ink;
+
+        const now = Date.now();
+        const lost = Math.random() < (topic.riskLoss || 0);
+        GameState.letters.outgoing.push({
+            contactId: contactId, topicId: topicId,
+            sentAt: now, arrivesAt: now + (topic.travelHours || 24) * 3600000,
+            lost: lost
+        });
+
+        if (typeof NotificationSystem !== 'undefined') {
+            NotificationSystem.panel('🕊️ ' + (lang === 'en' ? 'Pigeon sent.' : 'Holub vypuštěn.'), 'porta');
+        }
+        if (typeof Game !== 'undefined' && Game.save) Game.save();
+        this.render();
+    },
+
+    // Lazy vyřešení dopisů "na cestě", jejichž čas doručení uplynul — voláno na začátku render().
+    // Odpověď se vloží přímo do dynamic poolu a firstSeen se rovnou nastaví, aby obešla drip
+    // cooldown (je to přímá reakce na hráčovu akci, ne náhodně objevený dopis).
+    _resolveOutgoing: function () {
+        this._ensureState();
+        if (typeof OutgoingLettersDB === 'undefined') return;
+        const now = Date.now();
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        const stillPending = [];
+        let changed = false;
+
+        GameState.letters.outgoing.forEach(function (entry) {
+            if (entry.arrivesAt > now) { stillPending.push(entry); return; }
+            changed = true;
+            const contact = OutgoingLettersDB.find(function (c) { return c.id === entry.contactId; });
+            const topic = contact && contact.topics.find(function (tp) { return tp.id === entry.topicId; });
+            if (!topic) return;
+
+            if (entry.lost) {
+                const lostTitle = (lang === 'en' ? 'Pigeon lost — no reply from ' : 'Holub se ztratil — bez odpovědi od ') + (lang === 'en' ? contact.name_en : contact.name_cs);
+                GameState.letters.archive.push({ id: 'lost_' + entry.topicId + '_' + entry.sentAt, title: lostTitle, ts: now, seal: contact.seal });
+                if (typeof NotificationSystem !== 'undefined') {
+                    NotificationSystem.panel('🕊️💔 ' + (lang === 'en' ? 'A pigeon never returned.' : 'Holub se nevrátil.'), 'porta');
+                }
+                return;
+            }
+
+            const replyId = 'reply_' + entry.topicId + '_' + entry.sentAt;
+            const reply = topic.reply;
+            GameState.letters.dynamic.push({
+                id: replyId,
+                sender_cs: contact.name_cs, sender_en: contact.name_en,
+                seal: contact.seal,
+                title_cs: reply.title_cs, title_en: reply.title_en,
+                text_cs: reply.text_cs, text_en: reply.text_en,
+                choices: [{
+                    label_cs: '📜 Vzít na vědomí', label_en: '📜 Take note',
+                    effect: reply.effect || function () {},
+                    notify_cs: reply.notify_cs || '', notify_en: reply.notify_en || ''
+                }]
+            });
+            GameState.letters.firstSeen[replyId] = now;
+            if (typeof NotificationSystem !== 'undefined') {
+                NotificationSystem.panel('🕊️ ' + (lang === 'en' ? 'A reply has arrived' : 'Dorazila odpověď'), 'porta');
+            }
+        });
+
+        GameState.letters.outgoing = stillPending;
+        if (changed && typeof Game !== 'undefined' && Game.save) Game.save();
+    },
+
+    // Malý stavový řádek holubníku — počet/kapacita + odvozená nálada (žádný nový ukládaný stav).
+    _dovecoteStatusHtml: function () {
+        if (typeof FarmyardSystem === 'undefined' || !GameState.columbarium) return '';
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        const count = GameState.columbarium.count || 0;
+        const capacity = FarmyardSystem.columbariumCapacity ? FarmyardSystem.columbariumCapacity() : 20;
+        const now = Date.now();
+        const recentPredator = GameState.columbarium.lastPredatorTick && (now - GameState.columbarium.lastPredatorTick) < 3 * 24 * 3600000;
+        const uneasy = recentPredator || !!GameState.columbarium.nesting;
+        const moodLabel = uneasy ? (lang === 'en' ? 'Uneasy' : 'Neklidný') : (lang === 'en' ? 'Calm' : 'Klidný');
+        return `<div style="display:flex; align-items:center; gap:10px; padding:8px 12px; margin-bottom:12px; background:rgba(0,0,0,0.03); border-radius:8px; font-size:0.78rem; opacity:0.85;">
+            <span>🐦 ${count}/${capacity}</span>
+            <span style="opacity:0.4;">·</span>
+            <span>${uneasy ? '😟' : '😊'} ${moodLabel}</span>
+        </div>`;
+    },
+
+    // Psací stůl — výběr kontaktu + tématu, odešle dopis.
+    _composeHtml: function () {
+        if (typeof OutgoingLettersDB === 'undefined') return '';
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        const pigeonsAvailable = (GameState.columbarium && GameState.columbarium.count) || 0;
+        const paper = GameState.inventory['paper'] || 0;
+        const ink = GameState.inventory['ink'] || 0;
+
+        let h = `<div style="margin-top:18px;">`;
+        h += `<div style="font-size:0.72rem; font-weight:bold; letter-spacing:0.06em; text-transform:uppercase; opacity:0.55; margin-bottom:8px;">${lang === 'en' ? 'Write a letter' : 'Napsat dopis'}</div>`;
+        OutgoingLettersDB.forEach(function (contact) {
+            h += `<div style="margin-bottom:10px; padding:8px 10px; background:rgba(0,0,0,0.03); border-radius:8px;">
+                <div style="font-size:0.82rem; font-weight:bold; margin-bottom:6px;">${contact.icon} ${lang === 'en' ? contact.name_en : contact.name_cs}</div>`;
+            contact.topics.forEach(function (topic) {
+                const label = lang === 'en' ? topic.label_en : topic.label_cs;
+                const cost = topic.cost || {};
+                const canAfford = pigeonsAvailable >= (cost.pigeon || 0) && paper >= (cost.paper || 0) && ink >= (cost.ink || 0);
+                h += `<div style="display:flex; align-items:center; justify-content:space-between; gap:8px; padding:5px 0; font-size:0.76rem;">
+                    <span style="opacity:0.85;">${label}</span>
+                    <button class="craft-btn" style="font-size:0.68rem; padding:3px 8px; flex-shrink:0;" onclick="PortaSystem.sendLetter('${contact.id}','${topic.id}')" ${canAfford ? '' : 'disabled'}>🕊️${cost.pigeon || 0} · 📄${cost.paper || 0} · 🖋️${cost.ink || 0}</button>
+                </div>`;
+            });
+            h += `</div>`;
+        });
+        h += `</div>`;
+        return h;
+    },
+
+    // "V doručování" — dopisy na cestě, s odpočtem.
+    _outgoingHtml: function () {
+        this._ensureState();
+        const pending = GameState.letters.outgoing;
+        if (!pending.length || typeof OutgoingLettersDB === 'undefined') return '';
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        const now = Date.now();
+        let h = `<div style="margin-top:16px;">`;
+        h += `<div style="font-size:0.72rem; font-weight:bold; letter-spacing:0.06em; text-transform:uppercase; opacity:0.55; margin-bottom:8px;">${lang === 'en' ? 'In transit' : 'V doručování'}</div>`;
+        pending.forEach(function (entry) {
+            const contact = OutgoingLettersDB.find(function (c) { return c.id === entry.contactId; });
+            const topic = contact && contact.topics.find(function (tp) { return tp.id === entry.topicId; });
+            if (!contact || !topic) return;
+            const hoursLeft = Math.max(0, Math.ceil((entry.arrivesAt - now) / 3600000));
+            h += `<div style="display:flex; align-items:center; gap:8px; padding:5px 0; font-size:0.76rem; opacity:0.7;">
+                <span>🕊️</span>
+                <span>${contact.icon} ${lang === 'en' ? contact.name_en : contact.name_cs} — ${lang === 'en' ? topic.label_en : topic.label_cs}</span>
+                <span style="opacity:0.6; margin-left:auto;">${lang === 'en' ? hoursLeft + 'h left' : 'zbývá ' + hoursLeft + 'h'}</span>
+            </div>`;
+        });
+        h += `</div>`;
+        return h;
     },
 
     // Najde dopis buď ve statickém LettersDB, nebo v dynamickém CHRONICON poolu.
@@ -148,6 +308,22 @@ const PortaSystem = {
         return queue;
     },
 
+    _sealIcon: function (seal) {
+        return seal === 'abbot' ? '✝️' : seal === 'village' ? '🌾' : seal === 'scholars' ? '📚' : seal === 'noble' ? '🛡️' : seal === 'church' ? '⛪' : '🕊️';
+    },
+
+    // Archiv — filtr podle pečeti + řazení, uloženo v GameState.ui (přežije reload).
+    setArchiveFilter: function (seal) {
+        if (!GameState.ui) GameState.ui = {};
+        GameState.ui.portaArchiveFilter = seal;
+        this.render();
+    },
+    toggleArchiveSort: function () {
+        if (!GameState.ui) GameState.ui = {};
+        GameState.ui.portaArchiveSort = (GameState.ui.portaArchiveSort === 'asc') ? 'desc' : 'asc';
+        this.render();
+    },
+
     render: function () {
         const el = document.getElementById('lore-porta-content');
         if (!el) return;
@@ -161,19 +337,21 @@ const PortaSystem = {
         }
 
         this._ensureState();
+        this._resolveOutgoing();
         const lang = (GameState.settings && GameState.settings.language) || 'cs';
         const queue = this.getQueue();
 
         let h = `<div style="padding:16px; background:rgba(197,160,89,0.06); border-radius:10px; border-left:4px solid var(--accent-gold);">`;
         h += `<h3 style="margin:0 0 12px 0; font-size:1rem;">🕊️ ${t('porta.title')}</h3>`;
         h += `<p style="font-size:0.82rem; opacity:0.7; margin-bottom:14px;">${t('porta.intro')}</p>`;
+        h += this._dovecoteStatusHtml();
 
         if (queue.length === 0) {
             h += `<div style="font-size:0.82rem; opacity:0.6; font-style:italic;">${t('porta.empty')}</div>`;
         } else {
             h += `<div style="display:flex; flex-direction:column; gap:8px;">`;
             queue.forEach(letter => {
-                const sealIcon = letter.seal === 'abbot' ? '✝️' : letter.seal === 'village' ? '🌾' : letter.seal === 'scholars' ? '📚' : letter.seal === 'noble' ? '🛡️' : '🕊️';
+                const sealIcon = PortaSystem._sealIcon(letter.seal);
                 const urgentBadge = letter.urgent ? ' <span style="color:#c0392b; font-weight:bold;">⚡</span>' : '';
                 const border = letter.urgent ? 'border-left:3px solid #c0392b;' : '';
                 const sender = PortaSystem._sender(letter);
@@ -191,17 +369,55 @@ const PortaSystem = {
             h += `</div>`;
         }
 
-        // Archiv — přehled přečtených, klikatelný pro zpětné přečtení plného textu
-        const archived = GameState.letters.archive.slice(-30).reverse();
-        if (archived.length > 0) {
+        h += this._outgoingHtml();
+        h += this._composeHtml();
+
+        // Archiv — filtr podle pečeti + řazení, klikatelný pro zpětné přečtení plného textu
+        if (!GameState.ui) GameState.ui = {};
+        const archFilter = GameState.ui.portaArchiveFilter || 'all';
+        const archSort = GameState.ui.portaArchiveSort || 'desc';
+        const sealLookup = function (entry) {
+            if (entry.seal) return entry.seal;
+            const src = PortaSystem._findLetter(entry.id);
+            return src ? src.seal : null;
+        };
+        let filteredArchive = GameState.letters.archive.filter(function (entry) {
+            return archFilter === 'all' || sealLookup(entry) === archFilter;
+        });
+        filteredArchive = filteredArchive.slice(-30); // cap: 30 nejnovějších (podle skutečného pořadí archivace)
+        if (archSort === 'desc') filteredArchive = filteredArchive.slice().reverse();
+
+        if (GameState.letters.archive.length > 0) {
+            const sealChips = [
+                { key: 'all', icon: '📜', label_cs: 'Vše', label_en: 'All' },
+                { key: 'abbot', icon: '✝️', label_cs: 'Opat', label_en: 'Abbot' },
+                { key: 'church', icon: '⛪', label_cs: 'Církev', label_en: 'Church' },
+                { key: 'noble', icon: '🛡️', label_cs: 'Šlechta', label_en: 'Nobles' },
+                { key: 'scholars', icon: '📚', label_cs: 'Učenci', label_en: 'Scholars' },
+                { key: 'village', icon: '🌾', label_cs: 'Ves', label_en: 'Village' }
+            ];
             h += `<div style="margin-top:18px;">`;
-            h += `<div style="font-size:0.72rem; font-weight:bold; letter-spacing:0.06em; text-transform:uppercase; opacity:0.55; margin-bottom:8px;">${t('porta.archive')}</div>`;
-            archived.forEach(entry => {
+            h += `<div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:6px; margin-bottom:8px;">`;
+            h += `<div style="font-size:0.72rem; font-weight:bold; letter-spacing:0.06em; text-transform:uppercase; opacity:0.55;">${t('porta.archive')}</div>`;
+            h += `<button class="filter-btn" style="font-size:0.68rem; padding:2px 8px;" onclick="PortaSystem.toggleArchiveSort()">${archSort === 'desc' ? (lang === 'en' ? '↓ Newest' : '↓ Nejnovější') : (lang === 'en' ? '↑ Oldest' : '↑ Nejstarší')}</button>`;
+            h += `</div>`;
+            h += `<div style="display:flex; flex-wrap:wrap; gap:4px; margin-bottom:10px;">`;
+            sealChips.forEach(function (chip) {
+                const active = archFilter === chip.key;
+                h += `<button class="filter-btn${active ? ' active' : ''}" style="font-size:0.68rem; padding:2px 8px;" onclick="PortaSystem.setArchiveFilter('${chip.key}')">${chip.icon} ${lang === 'en' ? chip.label_en : chip.label_cs}</button>`;
+            });
+            h += `</div>`;
+
+            if (filteredArchive.length === 0) {
+                h += `<div style="font-size:0.76rem; opacity:0.5; font-style:italic;">${lang === 'en' ? 'Nothing under this seal yet.' : 'Pod touto pečetí zatím nic.'}</div>`;
+            }
+            filteredArchive.forEach(entry => {
                 const srcLetter = PortaSystem._findLetter(entry.id);
                 const sender = srcLetter ? PortaSystem._sender(srcLetter) : '';
                 const resolved = PortaSystem._dateStr(entry.ts);
+                const chipIcon = PortaSystem._sealIcon(sealLookup(entry));
                 h += `<div style="padding:4px 0; cursor:pointer;" onclick="PortaSystem.openArchivedLetter('${entry.id}')" title="${lang==='en' ? 'Click to re-read' : 'Klikni pro znovupřečtení'}">
-                    <div style="font-size:0.78rem; opacity:0.7;">📜 ${entry.title}</div>
+                    <div style="font-size:0.78rem; opacity:0.7;">${chipIcon} ${entry.title}</div>
                     <div style="font-size:0.66rem; opacity:0.45; margin-top:1px;">
                         ${sender ? (lang==='en' ? `From ${sender}` : `Od: ${sender}`) : ''}${sender && resolved ? ' · ' : ''}${resolved ? (lang==='en' ? `Resolved ${resolved}` : `Vyřízeno ${resolved}`) : ''}
                     </div>
