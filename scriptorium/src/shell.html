@@ -2416,15 +2416,13 @@
             }
 
             /* 4. MŘÍŽKA: 2 sloupce karet */
-            #workspace-actions,
-            #inventory-grid {
+            #workspace-actions {
                 display: grid;
                 grid-template-columns: repeat(2, 1fr);
                 gap: 15px;
             }
 
-            #workspace-actions .card,
-            #inventory-grid .card {
+            #workspace-actions .card {
                 margin-bottom: 0;
                 height: 100%;
                 box-sizing: border-box;
@@ -2443,14 +2441,55 @@
                 box-sizing: border-box;
             }
 
+            /* ZÁSOBY: fluidní mřížka, stejný vzor jako Výroba */
+            #inventory-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+                gap: 15px;
+            }
+
+            #inventory-grid .card {
+                margin-bottom: 0;
+                height: 100%;
+                box-sizing: border-box;
+            }
+
+            /* KNIHOVNA (KNIHY): fluidní mřížka pro každou kategorii knih */
+            [id^="lib-cat-body-"],
+            .lib-cat-body {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+                gap: 15px;
+            }
+
+            [id^="lib-cat-body-"] .card,
+            .lib-cat-body .card {
+                margin-bottom: 0;
+                height: 100%;
+                box-sizing: border-box;
+            }
+
+            /* SCRIPTORIUM (VÝZKUM): fluidní mřížka, stejný vzor jako Výroba */
+            #lore-research-content {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+                gap: 15px;
+                align-items: start;
+            }
+
+            #lore-research-content .card {
+                margin-bottom: 0;
+                box-sizing: border-box;
+            }
+
+            #manuscript-copy-widget {
+                grid-column: 1 / -1;
+            }
+
             .garden-grid {
                 grid-template-columns: repeat(4, 1fr);
             }
 
-            #lore-content-wrapper {
-                max-width: 650px;
-                margin: 0 auto;
-            }
         }
 
         /* Velké PC monitory (od 1200px šířky) */
@@ -2460,8 +2499,7 @@
             }
 
             /* 3 sloupce na velkém monitoru */
-            #workspace-actions,
-            #inventory-grid {
+            #workspace-actions {
                 grid-template-columns: repeat(3, 1fr);
             }
         }

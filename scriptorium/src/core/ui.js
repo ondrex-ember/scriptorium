@@ -842,7 +842,7 @@ const UI = {
         const collapsed = !GameState.uiPrefs.libCollapsed[cat];
         GameState.uiPrefs.libCollapsed[cat] = collapsed;
         const body = document.getElementById('lib-cat-body-' + cat);
-        if (body) body.style.display = collapsed ? 'none' : 'block';
+        if (body) body.style.display = collapsed ? 'none' : '';
         const chevron = document.getElementById('lib-cat-chevron-' + cat);
         if (chevron) chevron.style.transform = collapsed ? 'rotate(0deg)' : 'rotate(90deg)';
         if (typeof Game !== 'undefined' && Game.save) Game.save();
@@ -1169,13 +1169,17 @@ const UI = {
     },
 
 
+    toggleTechCard: function (el) {
+        el.querySelectorAll('.tech-full').forEach(f => { f.style.display = f.style.display === 'block' ? 'none' : 'block'; });
+        el.querySelectorAll('.tech-short').forEach(s => { s.style.display = s.style.display === 'none' ? '' : 'none'; });
+    },
     renderScriptorium: function () {
         const el = document.getElementById('lore-research-content'); const res = GameState.inventory['research'] || 0;
         const _t = window.t || t;
         const _lang = (GameState.settings && GameState.settings.language) || 'cs';
         const notesLabel = _lang === 'en' ? 'Notes:' : 'Zápisky:';
         let h = `<div id="manuscript-copy-widget">${typeof ManuscriptCopySystem !== 'undefined' ? ManuscriptCopySystem.renderWidget() : ''}</div>`;
-        h += `<div style="text-align:center;margin-bottom:15px;border:1px solid var(--accent-gold);padding:10px;">${notesLabel} <strong>${res}</strong> 📜</div>`;
+        h += `<div style="grid-column:1/-1;text-align:center;margin-bottom:15px;border:1px solid var(--accent-gold);padding:10px;">${notesLabel} <strong>${res}</strong> 📜</div>`;
         TechTree.forEach(tech => {
             const done = GameState.researchedTechs.includes(tech.id);
             let canResearch = res >= tech.cost;
@@ -1206,13 +1210,20 @@ const UI = {
                 }
             }
 
-            h += `<div class="card" style="border-color:${done ? 'var(--accent-gold)' : 'var(--ink-secondary)'};flex-wrap:wrap;" onclick="(function(el){var f=el.querySelector('.tech-lore-full');if(f)f.style.display=f.style.display==='block'?'none':'block'})(this)">
+            const DESC_TRUNC = 110;
+            const descIsLong = displayDesc.length > DESC_TRUNC;
+            const descShort = descIsLong ? displayDesc.slice(0, DESC_TRUNC).replace(/\s+\S*$/, '') + '…' : displayDesc;
+            const descHtml = descIsLong
+                ? `<span class="tech-short">${descShort}</span><span class="tech-full" style="display:none;">${displayDesc}</span>`
+                : displayDesc;
+
+            h += `<div class="card" style="border-color:${done ? 'var(--accent-gold)' : 'var(--ink-secondary)'};flex-wrap:wrap;" onclick="UI.toggleTechCard(this)">
                 <div class="item-icon" style="background:${done ? '#c5a059' : '#e8dec0'};flex-shrink:0">${done ? '🎓' : '📖'}</div>
                 <div style="flex:1;min-width:0">
                     <strong>${displayName}</strong>
-                    <div class="text-sm">${displayDesc}</div>
+                    <div class="text-sm">${descHtml}</div>
                     ${reqText}
-                    ${typeof TechLoreDB !== 'undefined' && TechLoreDB[tech.id] ? `<div class="text-sm" style="margin-top:6px;font-style:italic;opacity:0.75;">${TechLoreDB[tech.id].replace(/<[^>]*>/g, '').split(' ').slice(0, 8).join(' ')}… <div class="tech-lore-full" style="display:none;margin-top:6px;padding:8px;background:rgba(197,160,89,0.1);border-left:3px solid var(--accent-gold);font-style:italic;">${TechLoreDB[tech.id]}</div></div>` : ''}
+                    ${typeof TechLoreDB !== 'undefined' && TechLoreDB[tech.id] ? `<div class="text-sm" style="margin-top:6px;font-style:italic;opacity:0.75;"><span class="tech-short">${TechLoreDB[tech.id].replace(/<[^>]*>/g, '').split(' ').slice(0, 8).join(' ')}…</span><span class="tech-full" style="display:none;margin-top:6px;padding:8px;background:rgba(197,160,89,0.1);border-left:3px solid var(--accent-gold);">${TechLoreDB[tech.id]}</span></div>` : ''}
                 </div>
                 <div style="flex-shrink:0;align-self:flex-end;padding-left:8px;margin-top:6px;">
                     ${done ? `<span style="font-weight:bold;color:var(--accent-gold)">${_t('game.techDone')}</span>` : `<button class="craft-btn" onclick="event.stopPropagation();Game.study('${tech.id}')" ${canResearch ? '' : 'disabled'}>${_t('game.techStudy')} (${tech.cost} 📜)</button>`}
@@ -1298,7 +1309,7 @@ const UI = {
 
         // Show selected tab
         if (tab === 'research') {
-            document.getElementById('lore-research-content').style.display = 'block';
+            document.getElementById('lore-research-content').style.display = '';
             UI.renderScriptorium();
         } else if (tab === 'tasks') {
             if (_ltasksEl) { _ltasksEl.style.display = 'block'; if (typeof MonasticTasksSystem !== 'undefined') MonasticTasksSystem.render(); else UI.renderMonasticTasks(); }
@@ -2221,11 +2232,12 @@ const UI = {
                         <span id="lib-cat-chevron-${catId}" style="font-size:0.7rem;display:inline-block;transition:transform 0.15s;transform:rotate(${collapsed ? 0 : 90}deg);">▶</span>
                         ${catData.icon} ${catName} (${unlockedInCat.length}/${books.length})
                       </h3>`;
-                h += `<div id="lib-cat-body-${catId}" style="display:${collapsed ? 'none' : 'block'};">`;
+                h += `<div id="lib-cat-body-${catId}" style="display:${collapsed ? 'none' : ''};">`;
             } else {
                 h += `<h3 style="color:var(--accent-gold);border-bottom:2px solid var(--accent-gold);padding-bottom:5px;">
                         ${catData.icon} ${catName} (${unlockedInCat.length}/${books.length})
                       </h3>`;
+                h += `<div class="lib-cat-body">`;
             }
 
             visibleBooks.forEach(book => {
@@ -2309,7 +2321,7 @@ const UI = {
                 // contains it — showing a "🔒 ??? unlocks in -N days" card was the bug.
             });
 
-            if (hasCatalogus) h += `</div>`; // konec lib-cat-body-${catId}
+            h += `</div>`; // konec lib-cat-body-${catId} / .lib-cat-body
             h += `</div>`;
         });
 
