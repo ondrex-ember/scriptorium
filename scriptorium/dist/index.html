@@ -13878,6 +13878,11 @@ const ContactsDB = {
         secondaryAxis: null,
         unlockTech: 'tech_czech_glass',       // existuje
         unlockBook: 'book_czech_glass',       // dvojitý gate (schváleno 7.7.): tech = umíš, kniha = víš o hutích
+        // sdileny-pool-mrd v2 (26.7.2026): propojeno na Chronicon aktéra
+        // 'sklar' — stock u itemů co má v producesItems se čte živě ze
+        // snapshotu (viz ChroniconSystem.getActorItemStock); cena zůstává
+        // statická z buyOffer níže (cenový vzorec odloženo na budoucí fázi).
+        chroniconActorId: 'sklar',
         sellBonus: {},                        // Sklář jen prodává — výkup nemá
         // V4 — nabídka: běžné kusy denně; speciality přes ZAKÁZKY (glassOrders níže)
         buyOffer: { items: { glass_stopper: { price: 3,  stock: 5 },
