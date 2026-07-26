@@ -15500,6 +15500,7 @@ const ChroniconSystem = {
     MAX_PER_LOAD: 4,   // Max nových záznamů zobrazených při jednom načtení
 
     init: function() {
+        ChroniconSystem.initLocalState();
         const cached = ChroniconSystem._loadCache();
         if (cached) {
             ChroniconSystem._snap = cached;
@@ -15507,6 +15508,233 @@ const ChroniconSystem = {
         }
         // Vždy zkus fetch — pokud je cache čerstvá, server odpoví rychle z CDN
         ChroniconSystem._fetch();
+    },
+
+    // ─── Local State Engine & Dynamic Multi-directional Mechanics ──────────
+
+    initLocalState: function() {
+        if (typeof GameState === 'undefined') return;
+        if (!GameState.chroniconLocal) {
+            GameState.chroniconLocal = {
+                lastTick: Date.now(),
+                actors: {
+                    vrchnost: { mood: 75, wealth: 85, status: 'normal', level: 1, quest: null },
+                    mlynar:   { mood: 65, wealth: 60, status: 'normal', level: 1, quest: null },
+                    kovar:    { mood: 70, wealth: 55, status: 'normal', level: 1, quest: null },
+                    uhlic:    { mood: 50, wealth: 40, status: 'normal', level: 1, quest: null },
+                    vorar:    { mood: 60, wealth: 50, status: 'normal', level: 1, quest: null },
+                    rybnikar: { mood: 80, wealth: 70, status: 'normal', level: 1, quest: null },
+                    prevoznik:{ mood: 55, wealth: 45, status: 'normal', level: 1, quest: null },
+                    valach:   { mood: 65, wealth: 50, status: 'normal', level: 1, quest: null },
+                    klaster:  { mood: 85, wealth: 75, status: 'normal', level: 1, quest: null },
+                    vcelar:   { mood: 90, wealth: 65, status: 'normal', level: 1, quest: null },
+                },
+                history: [],
+                stats: { totalHelped: 0, totalTraded: 0 }
+            };
+        }
+        // Doplnění chybějících aktérů
+        const defaultList = ['vrchnost','mlynar','kovar','uhlic','vorar','rybnikar','prevoznik','valach','klaster','vcelar'];
+        defaultList.forEach(id => {
+            if (!GameState.chroniconLocal.actors[id]) {
+                GameState.chroniconLocal.actors[id] = { mood: 70, wealth: 60, status: 'normal', level: 1, quest: null };
+            }
+        });
+    },
+
+    getBuffs: function() {
+        ChroniconSystem.initLocalState();
+        const snap = ChroniconSystem._snap || {};
+        const local = (typeof GameState !== 'undefined' && GameState.chroniconLocal) ? GameState.chroniconLocal : null;
+        const actors = (local && local.actors) || {};
+
+        const tension = (snap.region && typeof snap.region.tension === 'number') ? snap.region.tension : 25;
+        const goldenAge = !!(snap.region && snap.region.goldenAge);
+
+        const klasterMood  = (actors.klaster && actors.klaster.mood) || 85;
+        const mlynarWealth = (actors.mlynar && actors.mlynar.wealth) || 60;
+        const vrchnostMood = (actors.vrchnost && actors.vrchnost.mood) || 75;
+        const kovarMood    = (actors.kovar && actors.kovar.mood) || 70;
+        const vcelarMood   = (actors.vcelar && actors.vcelar.mood) || 90;
+
+        return {
+            tension: tension,
+            goldenAge: goldenAge,
+            scriptXpBonus: (goldenAge ? 0.25 : 0) + (klasterMood >= 80 ? 0.15 : 0),
+            vigorRegenBonus: tension < 30 ? 0.15 : (tension > 70 ? -0.15 : 0),
+            craftSuccessBonus: kovarMood >= 75 ? 0.10 : 0,
+            tallowCostDiscount: vcelarMood >= 80 ? 0.20 : 0,
+            portaVisitorBonus: vrchnostMood >= 80 ? 0.30 : 0,
+            cellariumExtraYield: mlynarWealth >= 70 ? 1 : 0
+        };
+    },
+
+    onPlayerAction: function(actionType, detail) {
+        ChroniconSystem.initLocalState();
+        if (typeof GameState === 'undefined' || !GameState.chroniconLocal) return;
+        const actors = GameState.chroniconLocal.actors;
+        let msg_cs = '';
+        let msg_en = '';
+
+        if (actionType === 'complete_script') {
+            if (actors.klaster) actors.klaster.mood = Math.min(100, actors.klaster.mood + 3);
+            if (actors.vrchnost) actors.vrchnost.mood = Math.min(100, actors.vrchnost.mood + 2);
+            msg_cs = 'Dokončení opisování posílilo duchovní autoritu kláštera u vrchnosti!';
+            msg_en = 'Completing manuscript copying strengthened monastery prestige!';
+        } else if (actionType === 'cook_food') {
+            if (actors.mlynar) actors.mlynar.mood = Math.min(100, actors.mlynar.mood + 2);
+            if (actors.rybnikar) actors.rybnikar.wealth = Math.min(100, actors.rybnikar.wealth + 1);
+            msg_cs = 'Příprava pokrmů z lokálních zásob těší mlynáře i rybníkáře.';
+            msg_en = 'Preparing meals with local supplies pleases local millers and fishermen.';
+        } else if (actionType === 'craft_candle' || actionType === 'light_candle') {
+            if (actors.vcelar) actors.vcelar.mood = Math.min(100, actors.vcelar.mood + 2);
+            msg_cs = 'Práce se svícemi a voskem podporuje cech včelařů.';
+            msg_en = 'Work with candles supports the beekeepers guild.';
+        } else if (actionType === 'trade_porta') {
+            if (actors.prevoznik) actors.prevoznik.mood = Math.min(100, actors.prevoznik.mood + 2);
+            if (actors.vrchnost) actors.vrchnost.wealth = Math.min(100, actors.vrchnost.wealth + 1);
+            msg_cs = 'Čilý ruch u klášterní brány přináší zisk převozníkovi.';
+            msg_en = 'Lively gate trade boosts local ferryman commerce.';
+        } else if (actionType === 'prayer' || actionType === 'liturgy') {
+            if (actors.klaster) actors.klaster.mood = Math.min(100, actors.klaster.mood + 4);
+            msg_cs = 'Duchovní hodinky a mše šíří mír po celém kraji.';
+            msg_en = 'Divine hours and mass spread peace throughout the region.';
+        }
+
+        if (msg_cs && Math.random() < 0.35) {
+            const lang = (GameState.settings && GameState.settings.language) || 'cs';
+            if (typeof NotificationSystem !== 'undefined') {
+                NotificationSystem.toast('📜 ' + (lang === 'en' ? msg_en : msg_cs), 'info');
+            }
+        }
+    },
+
+    _lastWorldTick: 0,
+    localWorldTick: function() {
+        ChroniconSystem.initLocalState();
+        const now = Date.now();
+        // Spouští se každých 30 sekund
+        if (now - ChroniconSystem._lastWorldTick < 30000) return;
+        ChroniconSystem._lastWorldTick = now;
+
+        if (typeof GameState === 'undefined' || !GameState.chroniconLocal) return;
+        const actors = GameState.chroniconLocal.actors;
+
+        // Organická živá fluktuace nálady a jmění (+-1)
+        Object.keys(actors).forEach(id => {
+            const a = actors[id];
+            const moodDelta = Math.floor(Math.random() * 5) - 2; // -2 až +2
+            const wealthDelta = Math.floor(Math.random() * 3) - 1; // -1 až +1
+            a.mood = Math.max(25, Math.min(100, a.mood + moodDelta));
+            a.wealth = Math.max(20, Math.min(100, a.wealth + wealthDelta));
+
+            // Šance 20% na generování požadavku (questu)
+            if (!a.quest && Math.random() < 0.20) {
+                ChroniconSystem._generateActorQuest(id, a);
+            }
+        });
+
+        ChroniconSystem.updateUIHeader();
+    },
+
+    _generateActorQuest: function(id, actor) {
+        const QUEST_TYPES = {
+            mlynar:   { needItem: 'wood', needQty: 4, giveItem: 'flour', giveQty: 8, label_cs: 'Potřebuje 4x Dřevo na opravu náhonu', label_en: 'Needs 4x Wood to fix the mill' },
+            vcelar:   { needItem: 'tallow', needQty: 2, giveItem: 'beeswax', giveQty: 3, label_cs: 'Potřebuje 2x Lůj na ošetření úlů', label_en: 'Needs 2x Tallow for hives' },
+            kovar:    { needItem: 'charcoal', needQty: 3, giveItem: 'iron_ingot', giveQty: 2, label_cs: 'Potřebuje 3x Dřevěné uhlí do výhně', label_en: 'Needs 3x Charcoal for forge' },
+            vrchnost: { needItem: 'gold', needQty: 15, giveItem: 'dye_vermilion', giveQty: 2, label_cs: 'Žádá příspěvek 15 Zlatých na obranu', label_en: 'Requests 15 Gold contribution' },
+            uhlic:    { needItem: 'wood', needQty: 5, giveItem: 'charcoal', giveQty: 6, label_cs: 'Potřebuje 5x Dřevo na nový milíř', label_en: 'Needs 5x Wood for kiln' },
+            rybnikar: { needItem: 'salt', needQty: 2, giveItem: 'fish', giveQty: 5, label_cs: 'Potřebuje 2x Sůl na nasolení ryb', label_en: 'Needs 2x Salt to cure fish' },
+            valach:   { needItem: 'bread', needQty: 2, giveItem: 'wool', giveQty: 4, label_cs: 'Potřebuje 2x Chléb pro pastevce', label_en: 'Needs 2x Bread for shepherds' },
+            klaster:  { needItem: 'tallow_candle', needQty: 2, giveItem: 'script_notes', giveQty: 10, label_cs: 'Prosí o 2x Svíčku na noční modlitby', label_en: 'Needs 2x Candles for vigils' },
+        };
+
+        const q = QUEST_TYPES[id];
+        if (q) {
+            actor.quest = { ...q, created: Date.now() };
+        }
+    },
+
+    interactWithActor: function(actorId, action) {
+        ChroniconSystem.initLocalState();
+        if (typeof GameState === 'undefined' || !GameState.chroniconLocal) return;
+        const actors = GameState.chroniconLocal.actors;
+        const actor = actors[actorId];
+        if (!actor) return;
+
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        const inv = GameState.inventory || {};
+
+        if (action === 'quest') {
+            if (!actor.quest) return;
+            const q = actor.quest;
+            const reqItem = q.needItem;
+            const reqQty = q.needQty;
+
+            let hasEnough = false;
+            if (reqItem === 'gold') {
+                hasEnough = (GameState.gold || 0) >= reqQty;
+            } else {
+                hasEnough = (inv[reqItem] || 0) >= reqQty;
+            }
+
+            if (!hasEnough) {
+                const msg = lang === 'en' ? `⚠️ Missing resources for ${actor.label}!` : `⚠️ Nemáš dostatek surovin pro ${actor.label}!`;
+                if (typeof NotificationSystem !== 'undefined') NotificationSystem.toast(msg, 'warn');
+                return;
+            }
+
+            // Odeber suroviny
+            if (reqItem === 'gold') {
+                GameState.gold -= reqQty;
+            } else {
+                inv[reqItem] -= reqQty;
+            }
+
+            // Přidej odměnu
+            if (q.giveItem === 'script_notes') {
+                GameState.knowledge = (GameState.knowledge || 0) + q.giveQty;
+            } else {
+                inv[q.giveItem] = (inv[q.giveItem] || 0) + q.giveQty;
+            }
+
+            actor.mood = Math.min(100, actor.mood + 20);
+            actor.wealth = Math.min(100, actor.wealth + 10);
+            actor.quest = null;
+            GameState.chroniconLocal.stats.totalHelped++;
+
+            if (typeof Game !== 'undefined' && Game.save) Game.save();
+
+            const succMsg = lang === 'en'
+                ? `✅ Helped ${actor.label}! Mood +20, Received rewards.`
+                : `✅ Pomohl jsi postavě ${actor.label}! Nálada +20, odměna převzata.`;
+
+            if (typeof NotificationSystem !== 'undefined') NotificationSystem.toast(succMsg, 'success');
+            ChroniconSystem.refreshOverview();
+
+        } else if (action === 'bless') {
+            // Požehnání / Mše — spotřebuje 1 svíčku/lůj nebo 5 Zápisníků
+            const candleQty = inv['tallow_candle'] || inv['wax_candle'] || 0;
+            if (candleQty < 1 && (GameState.knowledge || 0) < 5) {
+                const msg = lang === 'en' ? '⚠️ You need 1 Candle or 5 Notes to bestow a blessing!' : '⚠️ Pro požehnání potřebuješ 1 Svíčku nebo 5 Zápisníků!';
+                if (typeof NotificationSystem !== 'undefined') NotificationSystem.toast(msg, 'warn');
+                return;
+            }
+
+            if (inv['tallow_candle'] > 0) inv['tallow_candle']--;
+            else if (inv['wax_candle'] > 0) inv['wax_candle']--;
+            else GameState.knowledge -= 5;
+
+            actor.mood = Math.min(100, actor.mood + 25);
+            if (typeof Game !== 'undefined' && Game.save) Game.save();
+
+            const msg = lang === 'en'
+                ? `✨ Blessed ${actor.label}! Mood +25.`
+                : `✨ Udělil jsi požehnání postavě ${actor.label}! Nálada +25.`;
+
+            if (typeof NotificationSystem !== 'undefined') NotificationSystem.toast(msg, 'success');
+            ChroniconSystem.refreshOverview();
+        }
     },
 
     // ─── Fetch ──────────────────────────────────────────────────────────────
@@ -15728,6 +15956,7 @@ const ChroniconSystem = {
         if (added > 0) {
             ChroniconSystem._saveSeen(seen);
         }
+        ChroniconSystem.updateUIHeader();
     },
 
     // ─── Cache helpers ───────────────────────────────────────────────────────
@@ -15905,8 +16134,8 @@ const ChroniconSystem = {
         // Studovna 'accept' — stejný soft-bounce vzor jako hospes: zamčená
         // tech nebo obsazenej hostí slot nesmí žádost ztratit, jen ji odloží.
         if (choiceId === 'accept' && p && p.kind === 'studovna') {
-            const hasRoom = (typeof StudovnaSystem !== 'undefined' && StudovnaSystem.isUnlocked && StudovnaSystem.isUnlocked());
-            if (!hasRoom) {
+            const hasTech = !!(GameState.researchedTechs && GameState.researchedTechs.includes('tech_studovna'));
+            if (!hasTech) {
                 ChroniconSystem._advisoryShownThisSession = false;
                 return lang === 'en'
                     ? 'There is no room yet fit to receive him. (Requires: Studovna)'
@@ -16282,7 +16511,419 @@ const ChroniconSystem = {
         }
     },
 
+    // ─── VISUAL OVERVIEW & MODAL INTEGRATION ──────────────────────────────
+
+    _ACTOR_ICONS: {
+        vrchnost: '🏰', mlynar: '🌾', kovar: '⚒️', uhlic: '🔥', vorar: '🪵',
+        rybnikar: '🐟', prevoznik: '⛴️', valach: '🐑', klaster: '⛪', vcelar: '🐝',
+    },
+
+    _activeFilter: 'all',
+
+    setFilter: function(filter) {
+        ChroniconSystem._activeFilter = filter;
+        ChroniconSystem.refreshOverview();
+    },
+
+    openModal: function() {
+        let modal = document.getElementById('chronicon-modal');
+        if (!modal) {
+            modal = document.createElement('div');
+            modal.id = 'chronicon-modal';
+            modal.style.cssText = 'display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.78); z-index:1001; justify-content:center; align-items:center; backdrop-filter:blur(3px);';
+            document.body.appendChild(modal);
+        }
+
+        modal.innerHTML = `
+            <div style="background:var(--bg-parchment, #fcf5e5); border:2px solid var(--accent-gold, #c5a059); padding:24px; max-width:850px; width:94%; max-height:88vh; overflow-y:auto; box-shadow:0 0 50px rgba(0,0,0,0.8); border-radius:8px; position:relative; font-family:'Crimson Text', serif; color:var(--ink-primary, #2c241b);">
+                <button onclick="ChroniconSystem.closeModal()" style="position:absolute; top:12px; right:14px; background:none; border:none; font-size:1.6rem; cursor:pointer; color:var(--ink-primary); width:36px; height:36px; display:flex; align-items:center; justify-content:center; border-radius:50%; transition:background 0.2s;" onmouseover="this.style.background='rgba(0,0,0,0.08)'" onmouseout="this.style.background='transparent'">✕</button>
+                <div id="chronicon-modal-content">
+                    ${ChroniconSystem.renderOverviewHTML('modal')}
+                </div>
+            </div>
+        `;
+
+        modal.style.display = 'flex';
+        ChroniconSystem.updateUIHeader();
+    },
+
+    closeModal: function() {
+        const modal = document.getElementById('chronicon-modal');
+        if (modal) modal.style.display = 'none';
+    },
+
+    refreshOverview: function() {
+        const modalContent = document.getElementById('chronicon-modal-content');
+        if (modalContent) {
+            modalContent.innerHTML = ChroniconSystem.renderOverviewHTML('modal');
+        }
+        if (typeof UI !== 'undefined' && UI.renderChroniconWindow) {
+            UI.renderChroniconWindow();
+        }
+    },
+
+    forceSync: function() {
+        localStorage.removeItem(ChroniconSystem.CACHE_KEY);
+        if (typeof NotificationSystem !== 'undefined') {
+            NotificationSystem.toast('🔄 Synchronizuji Chronicon z GitHubu...', 'info');
+        }
+        fetch(ChroniconSystem.URL + '?t=' + Date.now())
+            .then(function(r) {
+                if (!r.ok) throw new Error('HTTP ' + r.status);
+                return r.json();
+            })
+            .then(function(snap) {
+                snap._fetched = Date.now();
+                localStorage.setItem(ChroniconSystem.CACHE_KEY, JSON.stringify(snap));
+                ChroniconSystem._snap = snap;
+                ChroniconSystem._apply(snap);
+                if (typeof NotificationSystem !== 'undefined') {
+                    NotificationSystem.toast('📜 Chronicon úspěšně synchronizován!', 'success');
+                }
+                ChroniconSystem.refreshOverview();
+            })
+            .catch(function(err) {
+                if (typeof NotificationSystem !== 'undefined') {
+                    NotificationSystem.toast('⚠️ Nelze načíst Chronicon: ' + err.message, 'warn');
+                }
+            });
+    },
+
+    updateUIHeader: function() {
+        const snap = ChroniconSystem._snap;
+        const pillVal = document.getElementById('pill-chronicon-val');
+        if (pillVal && snap) {
+            const tension = (snap.region && typeof snap.region.tension === 'number') ? snap.region.tension : 0;
+            pillVal.textContent = tension > 50 ? `1465 ⚠️` : `1465`;
+        }
+
+        const badge = document.getElementById('chronicon-header-badge');
+        const badgeMobile = document.getElementById('chronicon-header-badge-mobile');
+        if (snap) {
+            const hasUnreadAbbot = snap.abbot && snap.abbot.message && (localStorage.getItem('scriptorium_chronicon_abbot_last') !== (snap.abbot.message_id || snap.abbot.message));
+            const hasPendingAdvisory = typeof GameState !== 'undefined' && GameState.chroniconAdvisory && GameState.chroniconAdvisory.pending;
+            const showBadge = (hasUnreadAbbot || hasPendingAdvisory);
+            if (badge) badge.style.display = showBadge ? 'inline-block' : 'none';
+            if (badgeMobile) badgeMobile.style.display = showBadge ? 'inline-block' : 'none';
+        }
+    },
+
+    renderOverviewHTML: function(context) {
+        const snap = ChroniconSystem._snap || ChroniconSystem._loadCache();
+        const lang = (typeof GameState !== 'undefined' && GameState.settings && GameState.settings.language) || 'cs';
+
+        if (!snap) {
+            return `
+                <div style="text-align:center; padding:50px 20px;">
+                    <div style="font-size:3rem; margin-bottom:15px; animation: pulse 2s infinite;">📜</div>
+                    <h3 style="font-family:'Cinzel Decorative', serif; color:var(--accent-gold, #c5a059);">CHRONICON — Živý Svět 1465</h3>
+                    <p style="opacity:0.8; max-width:450px; margin:10px auto; font-style:italic;">
+                        ${lang === 'en' ? 'Connecting to Chronicon generative world engine on GitHub...' : 'Připojování k záložnímu živému světu Chroniconu na GitHubu...'}
+                    </p>
+                    <button onclick="ChroniconSystem.forceSync()" class="craft-btn" style="margin-top:15px; padding:8px 18px; font-weight:bold;">
+                        🔄 ${lang === 'en' ? 'Fetch World State' : 'Načíst stav světa'}
+                    </button>
+                </div>
+            `;
+        }
+
+        const dateStr = (snap.time && snap.time.date_string) || 'Červenec 1465, Olomoucko';
+        const tension = (snap.region && typeof snap.region.tension === 'number') ? snap.region.tension : 25;
+        const tColor = tension >= 70 ? '#c0392b' : tension >= 40 ? '#d35400' : '#27ae60';
+        const tLabel = tension >= 70
+            ? (lang === 'en' ? 'High Tension / Unrest' : 'Vysoké napětí / Nepokoje')
+            : tension >= 40
+                ? (lang === 'en' ? 'Unsettled Region' : 'Neklidný kraj')
+                : (lang === 'en' ? 'Peace & Quiet' : 'Mír a klid');
+
+        const wx = snap.weather || { icon: '🌤️', name: 'Polojasno', desc: 'Příznivý vítr nad Moravou' };
+        const goldenBadge = (snap.region && snap.region.goldenAge)
+            ? `<span style="background:linear-gradient(135deg, #f39c12, #f1c40f); color:#2c1810; padding:3px 10px; border-radius:12px; font-size:0.75rem; font-weight:bold; box-shadow:0 2px 6px rgba(0,0,0,0.2);">✨ ${lang === 'en' ? 'Golden Age of the Region' : 'Zlatá éra kraje'}</span>`
+            : '';
+
+        let html = `
+            <div style="border-bottom:2px solid var(--accent-gold, #c5a059); padding-bottom:12px; margin-bottom:18px;">
+                <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:10px;">
+                    <div>
+                        <h2 style="font-family:'Cinzel Decorative', serif; margin:0; color:var(--accent-gold, #c5a059); font-size:1.35rem; display:flex; align-items:center; gap:8px;">
+                            <span>📜</span> CHRONICON — ${lang === 'en' ? 'Living World' : 'Živý Svět Olomoucka'}
+                            ${goldenBadge}
+                        </h2>
+                        <div style="font-size:0.85rem; opacity:0.85; margin-top:3px; font-style:italic;">
+                            ${lang === 'en' ? 'Generative environment simulation engine for Scriptorium (Anno Domini 1465)' : 'Generativní simulace živého světa v roce 1465 propojená se Scriptorium'}
+                        </div>
+                    </div>
+                    <button onclick="ChroniconSystem.forceSync()" class="craft-btn" style="padding:6px 14px; font-size:0.8rem; display:flex; align-items:center; gap:5px;" title="${lang === 'en' ? 'Sync live snapshot from GitHub' : 'Aktualizovat živý snapshot z GitHubu'}">
+                        🔄 ${lang === 'en' ? 'Sync GitHub' : 'Obnovit data'}
+                    </button>
+                </div>
+            </div>
+        `;
+
+        if (snap.abbot && snap.abbot.message) {
+            const abbotText = (lang === 'en' && snap.abbot.message_en) ? snap.abbot.message_en : snap.abbot.message;
+            html += `
+                <div style="background:linear-gradient(135deg, rgba(197,160,89,0.18), rgba(120,80,40,0.12)); border:2px solid rgba(197,160,89,0.5); border-radius:8px; padding:16px 20px; margin-bottom:20px; position:relative; box-shadow: inset 0 0 15px rgba(197,160,89,0.1);">
+                    <div style="position:absolute; top:-12px; left:20px; background:#8b0000; color:#ffd700; padding:2px 10px; border-radius:4px; font-family:'Cinzel', serif; font-size:0.75rem; font-weight:bold; letter-spacing:1px; box-shadow:0 2px 5px rgba(0,0,0,0.4); display:flex; align-items:center; gap:4px;">
+                        ✝️ ${lang === 'en' ? 'DECREE OF THE ABBOT' : 'DEKRÉT OPATA KLÁŠTERA'}
+                    </div>
+                    <div style="font-style:italic; font-size:1.02rem; line-height:1.6; margin-top:6px; color:var(--ink-primary, #2c241b);">
+                        "${abbotText}"
+                    </div>
+                    <div style="text-align:right; font-size:0.78rem; opacity:0.75; margin-top:8px; font-family:'Cinzel', serif;">
+                        — ${snap.abbot.author || (lang === 'en' ? 'Abbot of the Monastery' : 'Opat Kláštera')} (${dateStr})
+                    </div>
+                </div>
+            `;
+        }
+
+        // Active World Buffs
+        const buffs = ChroniconSystem.getBuffs();
+        let buffBadges = [];
+        if (buffs.scriptXpBonus > 0) buffBadges.push(`📜 +${Math.round(buffs.scriptXpBonus * 100)}% ${lang === 'en' ? 'Scripting XP' : 'Zkušenosti s psaním'}`);
+        if (buffs.vigorRegenBonus > 0) buffBadges.push(`⚡ +${Math.round(buffs.vigorRegenBonus * 100)}% ${lang === 'en' ? 'Energy Regen' : 'Obnova energie'}`);
+        if (buffs.craftSuccessBonus > 0) buffBadges.push(`🔨 +10% ${lang === 'en' ? 'Forge Quality' : 'Kvalita v dílně'}`);
+        if (buffs.tallowCostDiscount > 0) buffBadges.push(`🕯️ -20% ${lang === 'en' ? 'Candle/Wax Cost' : 'Sleva na vosk & svíce'}`);
+        if (buffs.portaVisitorBonus > 0) buffBadges.push(`🚪 +30% ${lang === 'en' ? 'Gate Visitors' : 'Návštěvnost u brány'}`);
+
+        let buffBannerHTML = '';
+        if (buffBadges.length) {
+            buffBannerHTML = `
+                <div style="background:rgba(39,174,96,0.1); border:1px solid rgba(39,174,96,0.35); border-radius:6px; padding:8px 12px; margin-bottom:16px; display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+                    <span style="font-size:0.8rem; font-weight:bold; color:#27ae60;">✨ ${lang === 'en' ? 'Active World Blessings:' : 'Aktivní požehnání kraje:'}</span>
+                    ${buffBadges.map(b => `<span style="font-size:0.75rem; background:rgba(39,174,96,0.2); color:#1e8449; padding:2px 8px; border-radius:10px; font-weight:600;">${b}</span>`).join('')}
+                </div>
+            `;
+        }
+
+        html += buffBannerHTML;
+
+        html += `
+            <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap:12px; margin-bottom:20px;">
+                <div style="background:rgba(0,0,0,0.04); border:1px solid rgba(197,160,89,0.3); border-radius:6px; padding:10px 14px;">
+                    <div style="font-size:0.72rem; opacity:0.7; font-family:'Cinzel'; text-transform:uppercase;">📅 ${lang === 'en' ? 'World Date' : 'Datum ve světě'}</div>
+                    <div style="font-weight:bold; font-size:0.92rem; margin-top:2px;">${dateStr}</div>
+                </div>
+
+                <div style="background:rgba(0,0,0,0.04); border:1px solid rgba(197,160,89,0.3); border-radius:6px; padding:10px 14px;">
+                    <div style="font-size:0.72rem; opacity:0.7; font-family:'Cinzel'; text-transform:uppercase;">🌤️ ${lang === 'en' ? 'Weather' : 'Počasí & Podnebí'}</div>
+                    <div style="font-weight:bold; font-size:0.92rem; margin-top:2px; display:flex; align-items:center; gap:6px;">
+                        <span>${wx.icon || '🌤️'}</span> ${lang === 'en' ? (wx.name_en || wx.name) : wx.name}
+                    </div>
+                    <div style="font-size:0.7rem; opacity:0.7; margin-top:2px;">${wx.desc || ''}</div>
+                </div>
+
+                <div style="background:rgba(0,0,0,0.04); border:1px solid rgba(197,160,89,0.3); border-radius:6px; padding:10px 14px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <span style="font-size:0.72rem; opacity:0.7; font-family:'Cinzel'; text-transform:uppercase;">⚖️ ${lang === 'en' ? 'Tension' : 'Napětí v kraji'}</span>
+                        <span style="font-size:0.8rem; font-weight:bold; color:${tColor}">${tension}%</span>
+                    </div>
+                    <div style="height:6px; background:rgba(0,0,0,0.1); border-radius:3px; overflow:hidden; margin:6px 0 4px 0;">
+                        <div style="height:100%; width:${tension}%; background:${tColor}; transition:width 0.5s;"></div>
+                    </div>
+                    <div style="font-size:0.7rem; color:${tColor}; font-weight:600;">${tLabel}</div>
+                </div>
+
+                <div style="background:rgba(0,0,0,0.04); border:1px solid rgba(197,160,89,0.3); border-radius:6px; padding:10px 14px;">
+                    <div style="font-size:0.72rem; opacity:0.7; font-family:'Cinzel'; text-transform:uppercase;">🏰 ${lang === 'en' ? 'Region Status' : 'Obyvatelé & Kraj'}</div>
+                    <div style="font-weight:bold; font-size:0.92rem; margin-top:2px;">
+                        👥 ${(snap.region && snap.region.population) || '4,200'} ${lang === 'en' ? 'souls' : 'duší'}
+                    </div>
+                    <div style="font-size:0.7rem; opacity:0.7; margin-top:2px;">
+                        ${lang === 'en' ? 'Olomouc Region 1465' : 'Olomoucká diecéze'}
+                    </div>
+                </div>
+            </div>
+        `;
+
+        const localActors = (typeof GameState !== 'undefined' && GameState.chroniconLocal && GameState.chroniconLocal.actors)
+            ? GameState.chroniconLocal.actors
+            : {};
+
+        const defaultActors = [
+            { id: 'vrchnost', label: 'Vrchnost', profession: 'Šlechta & Hrad' },
+            { id: 'mlynar', label: 'Mlynář', profession: 'Mlynářství & Mouka' },
+            { id: 'kovar', label: 'Kovář', profession: 'Cech kovářský' },
+            { id: 'uhlic', label: 'Uhlíř', profession: 'Milíře v lesích' },
+            { id: 'vorar', label: 'Vorař', profession: 'Plavba po Moravě' },
+            { id: 'rybnikar', label: 'Rybníkář', profession: 'Klášterní rybníky' },
+            { id: 'prevoznik', label: 'Převozník', profession: 'Přívoz & Cestující' },
+            { id: 'valach', label: 'Valach', profession: 'Pastviny & Vlna' },
+            { id: 'klaster', label: 'Klášter', profession: 'Komunita bratří' },
+            { id: 'vcelar', label: 'Včelař', profession: 'Med & Vosk pro svíce' },
+        ];
+
+        html += `
+            <div style="margin-bottom:24px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid rgba(197,160,89,0.4); padding-bottom:6px; margin-bottom:12px;">
+                    <h3 style="font-family:'Cinzel Decorative', serif; margin:0; color:var(--accent-gold, #c5a059); font-size:1.05rem;">
+                        👥 ${lang === 'en' ? 'Figures & Guilds of the Region' : 'Postavy a Cechy Olomoucka'}
+                    </h3>
+                    <span style="font-size:0.75rem; opacity:0.7; font-style:italic;">
+                        ${lang === 'en' ? 'Interactions affect mood and region stability' : 'Interakce a pomoc ovlivňují náladu a mír'}
+                    </span>
+                </div>
+                <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(170px, 1fr)); gap:10px;">
+        `;
+
+        const ACTOR_DESCS = {
+            vrchnost: 'Feudální páni Olomouce. Vyžadují respekt a darování ve Studovně.',
+            mlynar: 'Dodává mouku pro chléb. Ovlivňuje stav zásob v Cellariu.',
+            kovar: 'Kuje železo a nástroje. Důležitý pro dílnu a opravy.',
+            uhlic: 'Pálí dřevěné uhlí v hlubokých lesích pro kováře a vyhřívání.',
+            vorar: 'Splavuje dřevo po řece Moravě pro klášterní stavby.',
+            rybnikar: 'Stará se o klášterní rybníky, klíčové pro postní jídlo.',
+            prevoznik: 'Propojuje břehy řeky, přivádí poutníky k bráně kláštera.',
+            valach: 'Chová ovce, dodává vlnu a skopové maso.',
+            klaster: 'Duchovní centrum. Tvoje modlitby a mše přímo posilují klášter!',
+            vcelar: 'Stáčí med a vosk — hlavní zdroj pro výrobu klášterních svící.',
+        };
+
+        defaultActors.forEach(baseA => {
+            const id = baseA.id;
+            const dynA = localActors[id] || { mood: 70, wealth: 60, quest: null };
+            const label = baseA.label;
+            const prof = baseA.profession;
+            const icon = ChroniconSystem._ACTOR_ICONS[id] || '👤';
+            const desc = ACTOR_DESCS[id] || prof;
+
+            const mood = dynA.mood || 70;
+            const wealth = dynA.wealth || 60;
+            const quest = dynA.quest || null;
+
+            let questBtnHTML = '';
+            if (quest) {
+                const questText = lang === 'en' ? (quest.label_en || quest.label_cs) : quest.label_cs;
+                questBtnHTML = `
+                    <div style="margin-top:6px; padding:4px 6px; background:rgba(241,196,15,0.15); border:1px solid rgba(241,196,15,0.4); border-radius:4px; font-size:0.68rem; color:#b7950b;">
+                        <div style="font-weight:bold; margin-bottom:2px;">⚠️ ${questText}</div>
+                        <button onclick="ChroniconSystem.interactWithActor('${id}', 'quest')" class="craft-btn" style="width:100%; padding:2px 4px; font-size:0.65rem; font-weight:bold; margin-top:2px;">
+                            🎁 ${lang === 'en' ? 'Fulfill Request' : 'Splnit požadavek'}
+                        </button>
+                    </div>
+                `;
+            }
+
+            html += `
+                <div style="padding:10px; background:rgba(0,0,0,0.03); border:1px solid rgba(197,160,89,0.25); border-radius:6px; display:flex; flex-direction:column; justify-content:space-between;" title="${desc}">
+                    <div>
+                        <div style="display:flex; align-items:center; gap:6px;">
+                            <span style="font-size:1.2rem;">${icon}</span>
+                            <div>
+                                <div style="font-size:0.82rem; font-weight:bold; line-height:1.1;">${label}</div>
+                                <div style="font-size:0.65rem; opacity:0.65;">${prof}</div>
+                            </div>
+                        </div>
+                        <div style="margin-top:8px;">
+                            <div style="display:flex; align-items:center; gap:4px; margin-bottom:3px;">
+                                <span style="font-size:0.58rem; width:36px; opacity:0.65;">${lang === 'en' ? 'Mood' : 'Nálada'}</span>
+                                <div style="flex:1; height:4px; background:rgba(0,0,0,0.1); border-radius:2px; overflow:hidden;">
+                                    <div style="height:100%; width:${mood}%; background:#27ae60;"></div>
+                                </div>
+                                <span style="font-size:0.58rem; opacity:0.7;">${mood}%</span>
+                            </div>
+                            <div style="display:flex; align-items:center; gap:4px;">
+                                <span style="font-size:0.58rem; width:36px; opacity:0.65;">${lang === 'en' ? 'Wealth' : 'Jmění'}</span>
+                                <div style="flex:1; height:4px; background:rgba(0,0,0,0.1); border-radius:2px; overflow:hidden;">
+                                    <div style="height:100%; width:${wealth}%; background:#c5a059;"></div>
+                                </div>
+                                <span style="font-size:0.58rem; opacity:0.7;">${wealth}%</span>
+                            </div>
+                        </div>
+                        ${questBtnHTML}
+                    </div>
+
+                    <div style="margin-top:8px; display:flex; gap:4px;">
+                        <button onclick="ChroniconSystem.interactWithActor('${id}', 'bless')" style="flex:1; padding:3px 0; font-size:0.65rem; background:rgba(197,160,89,0.15); border:1px solid rgba(197,160,89,0.4); border-radius:3px; cursor:pointer; color:var(--ink-primary);" title="${lang === 'en' ? 'Bestow blessing / candles' : 'Věnovat svíčky / požehnání'}">
+                            ✨ ${lang === 'en' ? 'Bless' : 'Požehnat'}
+                        </button>
+                    </div>
+                </div>
+            `;
+        });
+
+        html += `</div></div>`;
+
+        const activeFilter = ChroniconSystem._activeFilter || 'all';
+
+        let allEntries = [];
+        if (snap.chronicle_local) {
+            allEntries = allEntries.concat(snap.chronicle_local.map(e => ({ ...e, cat: 'local' })));
+        }
+        if (snap.chronicle_distant) {
+            allEntries = allEntries.concat(snap.chronicle_distant.map(e => ({ ...e, cat: 'distant' })));
+        }
+        if (snap.chronicle_monastery) {
+            allEntries = allEntries.concat(snap.chronicle_monastery.map(e => ({ ...e, cat: 'monastery' })));
+        }
+        if (!allEntries.length && snap.chronicle) {
+            allEntries = snap.chronicle.map(e => ({ ...e, cat: 'all' }));
+        }
+
+        let filtered = allEntries;
+        if (activeFilter === 'local') filtered = allEntries.filter(e => e.cat === 'local');
+        else if (activeFilter === 'distant') filtered = allEntries.filter(e => e.cat === 'distant');
+        else if (activeFilter === 'monastery') filtered = allEntries.filter(e => e.cat === 'monastery');
+
+        const btnStyle = (f) => f === activeFilter
+            ? 'background:var(--accent-gold, #c5a059); color:#fff; border:1px solid var(--accent-gold, #c5a059); font-weight:bold;'
+            : 'background:rgba(0,0,0,0.04); color:var(--ink-primary); border:1px solid rgba(197,160,89,0.3);';
+
+        html += `
+            <div>
+                <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; border-bottom:1px solid rgba(197,160,89,0.4); padding-bottom:8px; margin-bottom:12px;">
+                    <h3 style="font-family:'Cinzel Decorative', serif; margin:0; color:var(--accent-gold, #c5a059); font-size:1.05rem;">
+                        📰 ${lang === 'en' ? 'Chronicle of Events & Rumors' : 'Živá Kronika Událostí a Zpráv'}
+                    </h3>
+                    <div style="display:flex; gap:4px; flex-wrap:wrap;">
+                        <button onclick="ChroniconSystem.setFilter('all')" style="padding:4px 10px; font-size:0.75rem; border-radius:4px; cursor:pointer; ${btnStyle('all')}">
+                            ${lang === 'en' ? 'All' : 'Vše'} (${allEntries.length})
+                        </button>
+                        <button onclick="ChroniconSystem.setFilter('local')" style="padding:4px 10px; font-size:0.75rem; border-radius:4px; cursor:pointer; ${btnStyle('local')}">
+                            🏘️ ${lang === 'en' ? 'Local' : 'Olomoucko'}
+                        </button>
+                        <button onclick="ChroniconSystem.setFilter('distant')" style="padding:4px 10px; font-size:0.75rem; border-radius:4px; cursor:pointer; ${btnStyle('distant')}">
+                            🌍 ${lang === 'en' ? 'Distant' : 'Širý Svět'}
+                        </button>
+                        <button onclick="ChroniconSystem.setFilter('monastery')" style="padding:4px 10px; font-size:0.75rem; border-radius:4px; cursor:pointer; ${btnStyle('monastery')}">
+                            ⛪ ${lang === 'en' ? 'Monastery' : 'Klášter'}
+                        </button>
+                    </div>
+                </div>
+
+                <div style="max-height:280px; overflow-y:auto; padding-right:6px; display:flex; flex-direction:column; gap:8px;">
+        `;
+
+        if (!filtered.length) {
+            html += `
+                <div style="text-align:center; padding:20px; opacity:0.6; font-style:italic; font-size:0.88rem;">
+                    ${lang === 'en' ? 'No chronicle records in this category.' : 'V této kategorii nejsou žádné nové záznamy.'}
+                </div>
+            `;
+        } else {
+            filtered.forEach(e => {
+                const text = lang === 'en' ? (e.text_en || e.text) : (e.text_cs || e.text);
+                const icon = e.icon || (e.cat === 'local' ? '🏘️' : e.cat === 'distant' ? '🌍' : '⛪');
+                const catTag = e.cat === 'local' ? 'Olomoucko' : e.cat === 'distant' ? 'Širý Svět' : 'Klášter';
+                html += `
+                    <div style="padding:10px 12px; background:rgba(255,255,255,0.4); border-left:3px solid var(--accent-gold, #c5a059); border-radius:0 4px 4px 0; font-size:0.88rem; line-height:1.45;">
+                        <div style="display:flex; justify-content:space-between; opacity:0.65; font-size:0.7rem; margin-bottom:3px; font-family:'Cinzel';">
+                            <span>${catTag}</span>
+                            <span>${e.season || ''} ${e.year || '1465'}</span>
+                        </div>
+                        <div>${icon} ${text}</div>
+                    </div>
+                `;
+            });
+        }
+
+        html += `</div></div>`;
+
+        return html;
+    },
+
 };
+
 // ═══ src/systems/events.js ═══
 const EventsSystem = {
     events: [
