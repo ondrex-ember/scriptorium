@@ -487,6 +487,10 @@ const CellariumSystem = {
       { itemId: 'piglet',        basePrice: 40,  dailyStock: 1,  req_tech: 'tech_suile' },
       { itemId: 'horse',         basePrice: 250, dailyStock: 1,  req_tech: 'tech_stabulum' },
       { itemId: 'donkey',        basePrice: 55,  dailyStock: 1,  req_tech: 'tech_asinus' },
+      // Skot (Armentum) — kráva má týdenní zásobu (viz checkCowRestock), ne dailyStock
+      { itemId: 'cow',           basePrice: 70,               req_tech: 'tech_armentum' },
+      { itemId: 'tele',          basePrice: 35,  dailyStock: 1, req_tech: 'tech_armentum' },
+      { itemId: 'byk',           basePrice: 2000, dailyStock: 1, req_tech: 'tech_armentum' },
       { itemId: 'queen_bee',     basePrice: 40,  dailyStock: 1  },
       // Semena stromů — drahá
       { itemId: 'seed_apple',    basePrice: 8,   dailyStock: 3  },
@@ -563,6 +567,8 @@ const CellariumSystem = {
 
   _getStockRemaining: function(entity, itemId) {
     this._resetStockIfNewDay();
+    // Kráva — týdenní zásoba (viz checkCowRestock), ne dailyStock jako ostatní zvířata
+    if (itemId === 'cow') return (GameState.economy && GameState.economy.cowAvailable) ? 1 : 0;
     const shopList = this.ENTITY_SHOP[entity];
     if (!shopList) return 999;
     const entry = shopList.find(s => s.itemId === itemId);
@@ -572,6 +578,7 @@ const CellariumSystem = {
   },
 
   _useStock: function(entity, itemId) {
+    if (itemId === 'cow') { if (GameState.economy) GameState.economy.cowAvailable = false; return; }
     const key = this._stockKey(entity, itemId);
     GameState.shopStock.used[key] = (GameState.shopStock.used[key] || 0) + 1;
   },
@@ -797,6 +804,20 @@ const CellariumSystem = {
     }
     // Heinrich Traxdorf — varhanář z Norimberka
     this.checkHeinrichEvent();
+  },
+
+  // Kráva — týdenní zásoba na trhu (1 kus/týden), mirror Giacomo intervalu.
+  // Krava-mrd (26.7.2026): na rozdíl od dailyStock zvířat se resetuje jen
+  // 1×/týden a NEpropadá, pokud se nekoupí (cowAvailable zůstane true).
+  COW_RESTOCK_MS: 7 * 24 * 60 * 60 * 1000,
+  checkCowRestock: function() {
+    if (!GameState.economy) return;
+    const now = Date.now();
+    if (now - (GameState.economy.lastCowRestock || 0) >= this.COW_RESTOCK_MS) {
+      GameState.economy.lastCowRestock = now;
+      GameState.economy.cowAvailable = true;
+      Game.save();
+    }
   },
 
   // Giacomo je "v přístavu" jen 3 dny po příjezdu — jinak je jeho buyOffer (Clientela) nedostupný

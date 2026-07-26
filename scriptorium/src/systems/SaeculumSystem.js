@@ -68,6 +68,7 @@ const SaeculumSystem = {
     { type: 'ram',        icon: '🐏', label: 'Beran', label_en: 'Ram',         pen: 'sheepfold', penLabel: 'Ovile',   cost: 15 },
     { type: 'billy_goat', icon: '🐐', label: 'Kozel', label_en: 'Billy goat',  pen: 'goatpen',    penLabel: 'Caprile', cost: 15 },
     { type: 'boar',       icon: '🐗', label: 'Kanec', label_en: 'Boar',        pen: 'pigsty',     penLabel: 'Suile',   cost: 15 },
+    { type: 'bull',       icon: '🐂', label: 'Býk',   label_en: 'Bull',        pen: 'cowbyre',    penLabel: 'Kravín (Armentum)', cost: 50 },
   ],
 
   renderForumPecuarium: function() {

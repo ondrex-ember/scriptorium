@@ -719,6 +719,7 @@ const Game = {
                     _tickCounter = 0;
                     CellariumSystem.checkGiacomoEvent();
                     CellariumSystem.checkStationariusEvent();
+                    CellariumSystem.checkCowRestock();
                     // v8.x: Orchard growing → mature transition
                     Game.checkOrchardGrowth();
                     if (typeof GardenSystem !== 'undefined') GardenSystem.checkFieldGrowth();
@@ -3196,6 +3197,11 @@ const Game = {
                         this.addItem(found, 1);
                         UI.notify('🔍 ' + (iName ? iName(found) : found) + '!');
                     }
+                    // Zatoulaná kráva — krava-mrd (26.7.2026), viz FarmyardSystem.showStrayCowModal
+                    if (GameState.researchedTechs && GameState.researchedTechs.includes('tech_armentum')
+                        && typeof FarmyardSystem !== 'undefined' && Math.random() < FarmyardSystem.strayCowChance()) {
+                        FarmyardSystem.showStrayCowModal('scavenge');
+                    }
                 }
                 else if (type === 'wetlands') {
                     if(r<0.4) this.addItem('frog', 1);
@@ -3528,6 +3534,11 @@ const Game = {
                     const found = pool[Math.floor(Math.random() * pool.length)];
                     this.addItem(found, 1);
                     UI.notify('🔍 ' + (iName ? iName(found) : found) + '!');
+                }
+                // Zatoulaná kráva — krava-mrd (26.7.2026), viz FarmyardSystem.showStrayCowModal
+                if (GameState.researchedTechs && GameState.researchedTechs.includes('tech_armentum')
+                    && typeof FarmyardSystem !== 'undefined' && Math.random() < FarmyardSystem.strayCowChance()) {
+                    FarmyardSystem.showStrayCowModal('scavenge');
                 }
             }
             else if (type === 'wetlands') {

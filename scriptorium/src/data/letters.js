@@ -784,4 +784,27 @@ const LettersDB = [
     ]
   },
 
+  {
+    id: 'l30_zatoulana_krava',
+    sender_cs: 'Ze vsi', sender_en: 'From the Village',
+    seal: 'village',
+    title_cs: 'Zpráva o zatoulané krávě', title_en: 'News of a Stray Cow',
+    text_cs: '„Bratře, po mezích u lesa běhá kráva bez pána — nikdo se k ní nehlásí, nikdo ji nekrmí. Konvrši ji viděli dvakrát, ale je plachá. Jestli ji chce klášter, ať si pro ni pošle, než ji dostane vlk. — Ze vsi“',
+    text_en: '\"Brother, a cow with no owner has been wandering the meadows by the forest — no one claims her, no one feeds her. The lay brothers have seen her twice, but she is skittish. If the monastery wants her, send for her before the wolf does. — From the village\"',
+    trigger: function () {
+      return (GameState.researchedTechs || []).includes('tech_armentum')
+        && !(GameState.strayCow && GameState.strayCow.resolved);
+    },
+    choices: [
+      { label_cs: '🏠 Umístit (do inventáře, potřebuje chlév)', label_en: '🏠 Take her in (to inventory, needs a byre)',
+        effect: function () { FarmyardSystem._strayCowResolve('place'); },
+        notify_cs: 'Kráva čeká v inventáři na chlév.', notify_en: 'The cow waits in the inventory for a byre.' },
+      { label_cs: '🔪 Utratit — je zmožená', label_en: '🔪 Put her down — she is too weak',
+        effect: function () { FarmyardSystem._strayCowResolve('slaughter'); },
+        notify_cs: 'Utracena. Maso a kůže do spižírny.', notify_en: 'Put down. Meat and hide go to the larder.' },
+      { label_cs: '💰 Prodat pryč (50g)', label_en: '💰 Sell her off (50g)',
+        effect: function () { FarmyardSystem._strayCowResolve('sell'); },
+        notify_cs: 'Prodána za 50 grošů.', notify_en: 'Sold for 50 groschen.' }
+    ]
+  },
 ];
