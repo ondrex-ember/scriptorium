@@ -2417,7 +2417,6 @@
 
             /* 4. MŘÍŽKA: 2 sloupce karet */
             #workspace-actions,
-            #crafting-list,
             #inventory-grid {
                 display: grid;
                 grid-template-columns: repeat(2, 1fr);
@@ -2425,8 +2424,20 @@
             }
 
             #workspace-actions .card,
-            #crafting-list .card,
             #inventory-grid .card {
+                margin-bottom: 0;
+                height: 100%;
+                box-sizing: border-box;
+            }
+
+            /* VÝROBA: fluidní mřížka, sloupce se doplňují podle šířky (žádný pevný počet) */
+            #crafting-list {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+                gap: 15px;
+            }
+
+            #crafting-list .card {
                 margin-bottom: 0;
                 height: 100%;
                 box-sizing: border-box;
@@ -2450,9 +2461,15 @@
 
             /* 3 sloupce na velkém monitoru */
             #workspace-actions,
-            #crafting-list,
             #inventory-grid {
                 grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        /* Velmi široké monitory: víc prostoru, #crafting-list se fluidně doplní (auto-fit) */
+        @media (min-width: 1600px) {
+            #game-container {
+                max-width: 1700px;
             }
         }
 
@@ -3473,7 +3490,7 @@
                         <span class="hpill-val" id="pill-progress-val">–</span>
                     </div>
                     <div class="hpill" id="pill-chronicon" onclick="ChroniconSystem.openModal()" title="Chronicon – Živý svět Olomoucka 1465">
-                        <span>📜</span>
+                        <span>📯</span>
                         <span class="hpill-val" id="pill-chronicon-val">1465</span>
                         <span id="chronicon-header-badge-mobile" style="display:none; background:#c0392b; width:6px; height:6px; border-radius:50%; margin-left:2px;"></span>
                     </div>
