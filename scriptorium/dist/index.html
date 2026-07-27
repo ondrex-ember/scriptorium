@@ -36709,7 +36709,7 @@ const CommitmentsSystem = {
                 const status = GameState.flags[c.flagKey];
                 if (!c.activeStatuses.includes(status)) return null;
                 const deadline = c.deadlineFlagKey ? GameState.flags[c.deadlineFlagKey] : null;
-                return { letter: l, commitment: c, deadline, daysLeft: deadline ? Math.ceil((deadline - now) / 86400000) : null };
+                return { source: 'letter', letter: l, commitment: c, deadline, daysLeft: deadline ? Math.ceil((deadline - now) / 86400000) : null };
             })
             .filter(Boolean);
     },
@@ -36775,6 +36775,57 @@ const CommitmentsSystem = {
         };
     },
 
+    // Dodatek 27.7.2026 — lokální Klášter pool (parishEventTick "Naplánovat"
+    // volba). Stejné materiálové náklady jako Vesnice farni (rozhodnuto),
+    // ale žádný _reportActorFavorIfNewDay a žádný Chronicon zdroj — čistě
+    // GameState.localFarniEvents, mizí okamžitě po vyřešení (ne resolvedIds
+    // dedup, protože to není sdílená fronta).
+    _FARNI_REQUIRED_ITEMS: {
+        baptism: [{ id: 'wine', qty: 1 }, { id: 'hostia', qty: 1 }, { id: 'paper', qty: 1 }],
+        wedding: [{ id: 'vellum', qty: 1 }, { id: 'candle', qty: 1 }, { id: 'wine', qty: 1 }],
+        funeral: [{ id: 'candle', qty: 2 }, { id: 'paper', qty: 1 }],
+    },
+    _FARNI_TITLE_CS: { baptism: 'Křest', wedding: 'Svatba', funeral: 'Pohřeb' },
+    _FARNI_TITLE_EN: { baptism: 'Baptism', wedding: 'Wedding', funeral: 'Funeral' },
+    _FARNI_TEXT_CS: {
+        baptism: 'žádá o křest dítěte.', wedding: 'žádá o oddání.', funeral: 'žádá o pohřeb.',
+    },
+    _FARNI_TEXT_EN: {
+        baptism: 'asks for a christening.', wedding: 'asks to be wed.', funeral: 'asks for a funeral rite.',
+    },
+
+    _getLocalFarniCommitments: function () {
+        if (!Array.isArray(GameState.localFarniEvents)) return [];
+        return GameState.localFarniEvents.map(f => this._normalizeLocalFarniEvent(f));
+    },
+
+    _normalizeLocalFarniEvent: function (f) {
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        const title = (lang === 'en' ? this._FARNI_TITLE_EN[f.type] : this._FARNI_TITLE_CS[f.type]) + ' — ' + f.surname;
+        const text = lang === 'en'
+            ? 'The ' + f.surname + ' family ' + this._FARNI_TEXT_EN[f.type]
+            : 'Rodina ' + f.surname + ' ' + this._FARNI_TEXT_CS[f.type];
+        return {
+            source: 'local',
+            id: f.id,
+            kind: 'farni',
+            farniType: f.type,
+            icon: f.type === 'baptism' ? '👶' : f.type === 'wedding' ? '💍' : '⚰️',
+            title: title,
+            text: text,
+            requiredItems: this._FARNI_REQUIRED_ITEMS[f.type] || [],
+        };
+    },
+
+    // Dodatek 27.7.2026 — poslední historie (accept i decline, napříč
+    // všemi 3 zdroji). Cap 15, nejnovější první.
+    _pushHistory: function (entry) {
+        if (!Array.isArray(GameState.commitmentsHistory)) GameState.commitmentsHistory = [];
+        GameState.commitmentsHistory.unshift(Object.assign({ ts: Date.now() }, entry));
+        if (GameState.commitmentsHistory.length > 15) GameState.commitmentsHistory.length = 15;
+    },
+
+
     render: function () {
         const el = document.getElementById('lore-commitments-content');
         if (!el) return;
@@ -36785,10 +36836,11 @@ const CommitmentsSystem = {
         // (sepultura/material/farni) se zobrazí i bez aktivní Porty.
         const portaActive = !!(GameState.flags && GameState.flags.porta_active);
         const chronicleCommitments = this._getChronicleCommitments();
+        const localCommitments = this._getLocalFarniCommitments();
         const letterCommitments = portaActive ? this._getActiveCommitments() : [];
-        const active = letterCommitments.concat(chronicleCommitments);
+        const active = letterCommitments.concat(chronicleCommitments).concat(localCommitments);
 
-        if (!portaActive && chronicleCommitments.length === 0) {
+        if (!portaActive && chronicleCommitments.length === 0 && localCommitments.length === 0) {
             el.innerHTML = `<div style="padding:16px; background:rgba(197,160,89,0.06); border-radius:10px; border-left:4px solid var(--accent-gold); text-align:center; opacity:0.7;">
                 <div style="font-size:2rem; margin-bottom:8px;">📋</div>
                 <div style="font-size:0.85rem; font-style:italic;">${lang==='en' ? 'No commitments yet — nothing to track.' : 'Zatím žádné zakázky — není co sledovat.'}</div>
@@ -36811,6 +36863,8 @@ const CommitmentsSystem = {
             });
             h += `</div>`;
         }
+
+        h += this._renderHistory(lang);
 
         h += `</div>`;
         el.innerHTML = h;
@@ -36864,8 +36918,9 @@ const CommitmentsSystem = {
     _renderChronicleCard: function (item, lang) {
         let itemsLine = '';
         let enough = true;
-        if (item.requiredItems.length) {
-            const parts = item.requiredItems.map(req => {
+        const requiredItems = item.requiredItems || [];
+        if (requiredItems.length) {
+            const parts = requiredItems.map(req => {
                 let have = GameState.inventory[req.id] || 0;
                 if (req.id === 'wine' && have < req.qty && GameState.inventory.vinum) have = GameState.inventory.vinum;
                 const ok = have >= req.qty;
@@ -36888,18 +36943,42 @@ const CommitmentsSystem = {
             extraLine = `<span>💰 ~${Math.round(item.wealth * 1.2)} ${lang==='en'?'groschen':'grošů'}</span>`;
         }
 
+        const resolveFn = item.source === 'local' ? 'resolveLocal' : 'resolveChronicle';
+        const sourceTag = item.source === 'local'
+            ? `<span style="opacity:0.5; font-style:italic;">${lang==='en'?'(monastery)':'(klášter)'}</span>`
+            : '';
+
         return `<div style="padding:12px; background:rgba(0,0,0,0.04); border-radius:8px;">
-            <div style="font-weight:bold; font-size:0.88rem; margin-bottom:4px;">${item.icon} ${item.title}</div>
+            <div style="font-weight:bold; font-size:0.88rem; margin-bottom:4px;">${item.icon} ${item.title} ${sourceTag}</div>
             <div style="font-size:0.82rem; opacity:0.85; margin-bottom:6px;">${item.text}</div>
             ${itemsLine}
             ${extraLine ? `<div style="display:flex; flex-wrap:wrap; gap:12px; font-size:0.76rem; opacity:0.75; margin-bottom:6px;">${extraLine}</div>` : ''}
             <div style="display:flex; gap:8px; margin-top:4px;">
                 <button class="craft-btn" style="font-size:0.76rem;" ${enough ? '' : 'disabled'}
-                    onclick="CommitmentsSystem.resolveChronicle('${item.id}', 'accept')">${acceptLabel}</button>
+                    onclick="CommitmentsSystem.${resolveFn}('${item.id}', 'accept')">${acceptLabel}</button>
                 <button class="craft-btn" style="font-size:0.76rem; opacity:0.7;"
-                    onclick="CommitmentsSystem.resolveChronicle('${item.id}', 'decline')">${declineLabel}</button>
+                    onclick="CommitmentsSystem.${resolveFn}('${item.id}', 'decline')">${declineLabel}</button>
             </div>
         </div>`;
+    },
+
+    // Dodatek 27.7.2026 — posledních 15 vyřešených zakázek, nejnovější první.
+    _renderHistory: function (lang) {
+        const hist = GameState.commitmentsHistory || [];
+        if (!hist.length) return '';
+        let h = `<div style="margin-top:18px; padding-top:12px; border-top:1px solid rgba(0,0,0,0.08);">
+            <h4 style="font-size:0.8rem; opacity:0.65; margin:0 0 8px 0;">🕰️ ${lang==='en' ? 'Recent history' : 'Poslední historie'}</h4>
+            <div style="display:flex; flex-direction:column; gap:5px;">`;
+        hist.forEach(e => {
+            const outcome = e.outcome === 'accept'
+                ? (lang==='en' ? 'done' : 'vykonáno')
+                : (lang==='en' ? 'declined' : 'odmítnuto');
+            h += `<div style="font-size:0.74rem; opacity:0.6; padding:5px 8px; background:rgba(0,0,0,0.03); border-radius:6px;">
+                ${e.icon || '📋'} ${e.title} — ${outcome}${e.detail ? ' · ' + e.detail : ''}
+            </div>`;
+        });
+        h += `</div></div>`;
+        return h;
     },
 
 
@@ -36931,6 +37010,7 @@ const CommitmentsSystem = {
             '📜 Zakázka odevzdána: ' + forWhom + ' — ' + what + '.',
             '📜 Commission delivered: ' + forWhom + ' — ' + what + '.',
             '📜 Opus traditum est.');
+        this._pushHistory({ icon: '📜', title: forWhom, outcome: 'accept', detail: what });
         if (typeof Game !== 'undefined') Game.save();
         this.render();
     },
@@ -36972,6 +37052,7 @@ const CommitmentsSystem = {
                     '⚱️ Right of sepulture granted — buried within the church walls, for a gift of ' + gift + ' groschen.',
                     '⚱️ Sepultura intra muros concessa est.');
                 if (typeof UI !== 'undefined') UI.notify('⚱️ ' + (lang==='en' ? 'Right of sepulture granted.' : 'Právo sepultury uděleno.'));
+                this._pushHistory({ icon: '⚱️', title: item.title, outcome: 'accept', detail: gift + (lang==='en'?' groschen':' grošů') });
             } else if (item.kind === 'material') {
                 if (typeof CellariumSystem !== 'undefined' && CellariumSystem.addGrose) CellariumSystem.addGrose(item.rewardGrose || 0);
                 if (typeof Game !== 'undefined' && Game.addKronikaEntry) Game.addKronikaEntry('minor',
@@ -36979,6 +37060,7 @@ const CommitmentsSystem = {
                     '📦 Commission delivered — ' + (item.rewardGrose||0) + ' groschen.',
                     '📦 Opus traditum est.');
                 if (typeof UI !== 'undefined') UI.notify('📦 ' + (lang==='en' ? 'Delivered.' : 'Odbaveno.'));
+                this._pushHistory({ icon: '📦', title: item.title, outcome: 'accept', detail: (item.rewardGrose||0) + (lang==='en'?' groschen':' grošů') });
             } else if (item.kind === 'farni') {
                 // Odměny beze změny oproti parishEventTick (core/game.js) —
                 // stejné hodnoty, jen jiný spouštěč (Zakázky, ne modal).
@@ -37008,6 +37090,7 @@ const CommitmentsSystem = {
                     '✝️ ' + item.title + ' — rite performed.',
                     '✝️ Ritus peractus est.');
                 if (typeof UI !== 'undefined') UI.notify('✝️ ' + (lang==='en' ? 'Rite performed.' : 'Obřad vykonán.'));
+                this._pushHistory({ icon: item.icon, title: item.title, outcome: 'accept' });
             }
 
             GameState.chroniconAdvisory.resolvedIds[id] = true;
@@ -37022,6 +37105,74 @@ const CommitmentsSystem = {
             }
             GameState.chroniconAdvisory.resolvedIds[id] = true;
             if (typeof UI !== 'undefined') UI.notify(lang==='en' ? 'Declined.' : 'Odmítnuto.');
+            this._pushHistory({ icon: item.icon, title: item.title, outcome: 'decline' });
+            if (typeof Game !== 'undefined' && Game.save) Game.save();
+            this.render();
+        }
+    },
+
+    // Dodatek 27.7.2026 — resolve pro lokální Klášter pool (parishEventTick
+    // "Naplánovat" volba). Stejná materiálová logika jako resolveChronicle,
+    // ale: (1) žádný _reportActorFavorIfNewDay, (2) po vyřešení se záznam
+    // ODEBERE z GameState.localFarniEvents (ne resolvedIds — není to sdílená
+    // fronta, nemá smysl si pamatovat "vyřešeno", prostě zmizí).
+    resolveLocal: function (id, choiceId) {
+        if (!Array.isArray(GameState.localFarniEvents)) return;
+        const idx = GameState.localFarniEvents.findIndex(f => f.id === id);
+        if (idx === -1) return;
+        const item = this._normalizeLocalFarniEvent(GameState.localFarniEvents[idx]);
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+
+        if (choiceId === 'accept') {
+            for (const req of item.requiredItems) {
+                let have = GameState.inventory[req.id] || 0;
+                if (req.id === 'wine' && have < req.qty && GameState.inventory.vinum) have = GameState.inventory.vinum;
+                if (have < req.qty) {
+                    if (typeof UI !== 'undefined') UI.notify(lang==='en' ? '⚠️ Not enough in stock.' : '⚠️ Nemáš dost na skladě.', true);
+                    return;
+                }
+            }
+            item.requiredItems.forEach(req => {
+                let useId = req.id;
+                if (useId === 'wine' && (GameState.inventory.wine || 0) < req.qty && GameState.inventory.vinum) useId = 'vinum';
+                Game.removeItem(useId, req.qty);
+            });
+
+            // Odměny beze změny oproti parishEventTick "Vykonat" — jen bez
+            // actor favor reportu (rozhodnuto: zůstává lokální).
+            if (typeof PersonaSystem !== 'undefined' && PersonaSystem.addZboznost) PersonaSystem.addZboznost(1);
+            if (typeof PersonaSystem !== 'undefined' && PersonaSystem.addInfluence) {
+                PersonaSystem.addInfluence('church', 2);
+                PersonaSystem.addInfluence('village', 2);
+            }
+            if (item.farniType === 'wedding' && typeof CellariumSystem !== 'undefined' && CellariumSystem.addGrose) {
+                CellariumSystem.addGrose(5 + Math.floor(Math.random() * 10));
+            }
+            if (item.farniType === 'funeral') {
+                if (!GameState.cemetery) GameState.cemetery = { condition: 100, graves: [] };
+                GameState.cemetery.graves.push({ surname: GameState.localFarniEvents[idx].surname, ts: Date.now() });
+                if (GameState.cemetery.graves.length === 1 && typeof SecretsSystem !== 'undefined' && SecretsSystem.unlockFolioById) {
+                    SecretsSystem.unlockFolioById('folio_grim_bestiar');
+                }
+            }
+            if (typeof Game !== 'undefined' && Game.addKronikaEntry) Game.addKronikaEntry('minor',
+                '✝️ ' + item.title + ' — obřad vykonán.',
+                '✝️ ' + item.title + ' — rite performed.',
+                '✝️ Ritus peractus est.');
+            if (typeof UI !== 'undefined') UI.notify('✝️ ' + (lang==='en' ? 'Rite performed.' : 'Obřad vykonán.'));
+            this._pushHistory({ icon: item.icon, title: item.title, outcome: 'accept' });
+
+            GameState.localFarniEvents.splice(idx, 1);
+            if (typeof Game !== 'undefined' && Game.save) Game.save();
+            this.render();
+            return;
+        }
+
+        if (choiceId === 'decline') {
+            if (typeof PersonaSystem !== 'undefined' && PersonaSystem.addInfluence) PersonaSystem.addInfluence('village', -2);
+            if (typeof UI !== 'undefined') UI.notify(lang==='en' ? 'Declined.' : 'Odmítnuto.');
+            this._pushHistory({ icon: item.icon, title: item.title, outcome: 'decline' });
+            GameState.localFarniEvents.splice(idx, 1);
             if (typeof Game !== 'undefined' && Game.save) Game.save();
             this.render();
         }
@@ -57068,6 +57219,20 @@ const Game = {
                         '✝️ ' + titleMap[type][1] + ': the ' + surname + ' family — rite performed.',
                         '✝️ Ritus peractus est.');
                     Game.save(); rerender();
+                }},
+                { label: (lang==='en'?'📋 Plan for later (Commitments)':'📋 Naplánovat do Zakázek'), effect: () => {
+                    // Klášter pool zůstává lokální — žádný _reportActorFavorIfNewDay
+                    // (na rozdíl od Vesnice pool v CommitmentsSystem.resolveChronicle).
+                    // farnost-chronicon-reference.md, dodatek 27.7.2026.
+                    if (!Array.isArray(GameState.localFarniEvents)) GameState.localFarniEvents = [];
+                    GameState.localFarniEvents.push({
+                        id: 'local_farni_' + type + '_' + Date.now(),
+                        type: type,
+                        surname: surname,
+                    });
+                    if (GameState.localFarniEvents.length > 10) GameState.localFarniEvents.shift();
+                    Game.save(); rerender();
+                    if (typeof UI !== 'undefined') UI.notify(lang==='en' ? '📋 Added to Commitments.' : '📋 Přidáno do Zakázek.');
                 }},
                 { label: (lang==='en'?'🚪 Decline':'🚪 Odmítnout'), effect: () => {
                     if (typeof PersonaSystem !== 'undefined' && PersonaSystem.addInfluence) PersonaSystem.addInfluence('village', -2);
