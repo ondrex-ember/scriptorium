@@ -68,6 +68,19 @@ const CommitmentsSystem = {
                     timeLine = lang === 'en' ? `${daysLeft} days left` : `zbývá ${daysLeft} dní`;
                 }
 
+                // zakazky-centralizace-mrd, Fáze 1 (26.7.2026) — tlačítko
+                // "Odbavit" přímo tady, nahrazuje dřívější skrytý dopis (L8)
+                let fulfillLine = '';
+                if (c.requiredItem) {
+                    const have = GameState.inventory[c.requiredItem.id] || 0;
+                    const enough = have >= c.requiredItem.qty;
+                    const itemName = (typeof iName === 'function') ? iName(c.requiredItem.id) : c.requiredItem.id;
+                    fulfillLine = `<button class="craft-btn" style="margin-top:8px; font-size:0.76rem;" ${enough ? '' : 'disabled'}
+                        onclick="CommitmentsSystem.fulfill('${c.flagKey}')">
+                        📜 ${lang==='en'?'Deliver':'Odbavit'} (${have}/${c.requiredItem.qty} ${itemName})
+                    </button>`;
+                }
+
                 h += `<div style="padding:12px; background:rgba(0,0,0,0.04); border-radius:8px;">
                     <div style="font-weight:bold; font-size:0.88rem; margin-bottom:4px;">🕊️ ${forWhom}</div>
                     <div style="font-size:0.82rem; opacity:0.85; margin-bottom:6px;">${what}</div>
@@ -76,6 +89,7 @@ const CommitmentsSystem = {
                         ${reward ? `<span>💰 ${reward}</span>` : ''}
                         ${risk ? `<span style="opacity:0.65;">⚠️ ${risk}</span>` : ''}
                     </div>
+                    ${fulfillLine}
                 </div>`;
             });
             h += `</div>`;
@@ -83,6 +97,38 @@ const CommitmentsSystem = {
 
         h += `</div>`;
         el.innerHTML = h;
+    },
+
+    // zakazky-centralizace-mrd, Fáze 1 (26.7.2026) — univerzální odbavení
+    // libovolné zakázky s requiredItem (nahrazuje ad-hoc "L8" dopisy).
+    // flagKey identifikuje KTEROU zakázku (unikátní per commitment blok).
+    fulfill: function (flagKey) {
+        if (typeof LettersDB === 'undefined') return;
+        const letter = LettersDB.find(l => l.commitment && l.commitment.flagKey === flagKey);
+        const c = letter && letter.commitment;
+        if (!c || !c.requiredItem) return;
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        const have = GameState.inventory[c.requiredItem.id] || 0;
+        if (have < c.requiredItem.qty) {
+            if (typeof UI !== 'undefined') UI.notify(lang==='en' ? '⚠️ Not enough in stock.' : '⚠️ Nemáš dost na skladě.', true);
+            return;
+        }
+        Game.removeItem(c.requiredItem.id, c.requiredItem.qty);
+        if (c.reward) {
+            if (c.reward.grose && typeof CellariumSystem !== 'undefined' && CellariumSystem.addGrose) CellariumSystem.addGrose(c.reward.grose);
+            if (c.reward.influenceKey && typeof PersonaSystem !== 'undefined' && PersonaSystem.addInfluence) PersonaSystem.addInfluence(c.reward.influenceKey, c.reward.influenceAmt || 0);
+        }
+        GameState.flags[flagKey] = c.deliveredValue || 'delivered';
+        GameState.flags[flagKey + 'DeliveredAt'] = Date.now();
+        const forWhom = lang === 'en' ? (c.forWhom_en || c.forWhom_cs) : c.forWhom_cs;
+        const what = lang === 'en' ? (c.what_en || c.what_cs) : c.what_cs;
+        if (typeof UI !== 'undefined') UI.notify('📜 ' + (lang==='en' ? 'Delivered: ' : 'Odbaveno: ') + what);
+        if (typeof Game !== 'undefined' && Game.addKronikaEntry) Game.addKronikaEntry('important',
+            '📜 Zakázka odevzdána: ' + forWhom + ' — ' + what + '.',
+            '📜 Commission delivered: ' + forWhom + ' — ' + what + '.',
+            '📜 Opus traditum est.');
+        if (typeof Game !== 'undefined') Game.save();
+        this.render();
     },
 
 };

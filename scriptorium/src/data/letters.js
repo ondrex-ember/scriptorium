@@ -244,6 +244,12 @@ const LettersDB = [
       what_cs: 'Luxusní kodex (misál pro katedrálu)', what_en: 'Luxury codex (missal for the cathedral)',
       reward_cs: '120 grošů + Ecclesia +8', reward_en: '120 groschen + Ecclesia +8',
       risk_cs: 'Ecclesia −3 při zmeškání lhůty', risk_en: 'Ecclesia −3 if the deadline is missed',
+      // zakazky-centralizace-mrd, Fáze 1 (26.7.2026) — strukturovaná pole
+      // pro CommitmentsSystem.fulfill(), nahrazuje skrytý L8 dopis
+      requiredItem: { id: 'luxury_codex', qty: 1 },
+      reward: { grose: 120, influenceKey: 'church', influenceAmt: 8 },
+      penalty: { influenceKey: 'church', influenceAmt: -3 },
+      deliveredValue: 'delivered',
     },
     choices: [
       { label_cs: '📜 Přijímám podmínky', label_en: '📜 I accept the terms',
@@ -253,37 +259,6 @@ const LettersDB = [
         },
         notify_cs: 'Zakázka běží: luxusní kodex pro biskupa, 21 dní. Kancelář počítá.',
         notify_en: 'The commission runs: a luxury codex for the bishop, 21 days. The chancery is counting.' }
-    ]
-  },
-
-  // ── L8 — Odevzdání (commissioned + kodex v ruce + před lhůtou) ──
-  {
-    id: 'l8_biskup_odevzdani',
-    sender_cs: 'Kancelář biskupství olomouckého', sender_en: 'Chancery of the Bishopric of Olomouc',
-    seal: 'abbot',
-    title_cs: 'Posel kanceláře čeká na misál',
-    title_en: 'The Chancery\'s Messenger Awaits the Missal',
-    text_cs: '„Bratře, posel Jeho Milosti stojí u brány a doslechl se, že dílo je hotovo. Vydáš-li misál nyní, odměna sto dvaceti grošů bude vyplacena na místě. — Kancelář biskupství olomouckého"',
-    text_en: '"Brother, His Grace\'s messenger stands at the gate, having heard the work is finished. Hand over the missal now and the reward of one hundred and twenty groschen will be paid on the spot. — Chancery of the Bishopric of Olomouc"',
-    trigger: function () {
-      return GameState.flags.bishopMissal === 'commissioned'
-        && (GameState.inventory['luxury_codex'] || 0) >= 1
-        && Date.now() < (GameState.flags.bishopMissalDeadline || 0);
-    },
-    choices: [
-      { label_cs: '📜 Odevzdat misál (−1 luxusní kodex)', label_en: '📜 Hand over the missal (−1 luxury codex)',
-        effect: function () {
-          if ((GameState.inventory['luxury_codex'] || 0) < 1) {
-            if (typeof UI !== 'undefined') UI.notify('⚠️ Kodex mezitím zmizel z polic.', true);
-            return;
-          }
-          Game.removeItem('luxury_codex', 1);
-          if (typeof CellariumSystem !== 'undefined' && CellariumSystem.addGrose) CellariumSystem.addGrose(120);
-          if (typeof PersonaSystem !== 'undefined' && PersonaSystem.addInfluence) PersonaSystem.addInfluence('church', 8);
-          GameState.flags.bishopMissal = 'delivered';
-        },
-        notify_cs: 'Misál předán poslu. +120 grošů, Ecclesia +8. Biskup si zapamatuje jméno kláštera.',
-        notify_en: 'The missal is handed to the messenger. +120 groschen, Ecclesia +8. The bishop will remember the monastery\'s name.' }
     ]
   },
 
@@ -376,8 +351,14 @@ const LettersDB = [
         return (Date.now() - GameState.flags.visitatioDone) >= 60 * 24 * 60 * 60 * 1000;
       }
       // první vizitace: 10 dní od uzavření misálového řetězu
+      // (zakazky-centralizace-mrd, 26.7.2026: L8 zrušen, odevzdání teď jde
+      // přes tlačítko v Zakázkách — bishopMissalDeliveredAt je jeho náhrada
+      // za archivovaný timestamp L8 dopisu)
+      if (GameState.flags.bishopMissalDeliveredAt) {
+        return (Date.now() - GameState.flags.bishopMissalDeliveredAt) >= 10 * 24 * 60 * 60 * 1000;
+      }
       const arch = (GameState.letters && GameState.letters.archive) || [];
-      const closer = arch.filter(e => ['l8_biskup_odevzdani', 'l9_biskup_zmeskani', 'l10_biskup_druha_sance'].includes(e.id))
+      const closer = arch.filter(e => ['l9_biskup_zmeskani', 'l10_biskup_druha_sance'].includes(e.id))
                          .sort((a, b) => b.ts - a.ts)[0];
       return !!closer && (Date.now() - closer.ts) >= 10 * 24 * 60 * 60 * 1000;
     },

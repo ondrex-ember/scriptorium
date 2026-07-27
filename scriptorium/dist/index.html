@@ -12537,6 +12537,12 @@ const LettersDB = [
       what_cs: 'Luxusní kodex (misál pro katedrálu)', what_en: 'Luxury codex (missal for the cathedral)',
       reward_cs: '120 grošů + Ecclesia +8', reward_en: '120 groschen + Ecclesia +8',
       risk_cs: 'Ecclesia −3 při zmeškání lhůty', risk_en: 'Ecclesia −3 if the deadline is missed',
+      // zakazky-centralizace-mrd, Fáze 1 (26.7.2026) — strukturovaná pole
+      // pro CommitmentsSystem.fulfill(), nahrazuje skrytý L8 dopis
+      requiredItem: { id: 'luxury_codex', qty: 1 },
+      reward: { grose: 120, influenceKey: 'church', influenceAmt: 8 },
+      penalty: { influenceKey: 'church', influenceAmt: -3 },
+      deliveredValue: 'delivered',
     },
     choices: [
       { label_cs: '📜 Přijímám podmínky', label_en: '📜 I accept the terms',
@@ -12546,37 +12552,6 @@ const LettersDB = [
         },
         notify_cs: 'Zakázka běží: luxusní kodex pro biskupa, 21 dní. Kancelář počítá.',
         notify_en: 'The commission runs: a luxury codex for the bishop, 21 days. The chancery is counting.' }
-    ]
-  },
-
-  // ── L8 — Odevzdání (commissioned + kodex v ruce + před lhůtou) ──
-  {
-    id: 'l8_biskup_odevzdani',
-    sender_cs: 'Kancelář biskupství olomouckého', sender_en: 'Chancery of the Bishopric of Olomouc',
-    seal: 'abbot',
-    title_cs: 'Posel kanceláře čeká na misál',
-    title_en: 'The Chancery\'s Messenger Awaits the Missal',
-    text_cs: '„Bratře, posel Jeho Milosti stojí u brány a doslechl se, že dílo je hotovo. Vydáš-li misál nyní, odměna sto dvaceti grošů bude vyplacena na místě. — Kancelář biskupství olomouckého"',
-    text_en: '"Brother, His Grace\'s messenger stands at the gate, having heard the work is finished. Hand over the missal now and the reward of one hundred and twenty groschen will be paid on the spot. — Chancery of the Bishopric of Olomouc"',
-    trigger: function () {
-      return GameState.flags.bishopMissal === 'commissioned'
-        && (GameState.inventory['luxury_codex'] || 0) >= 1
-        && Date.now() < (GameState.flags.bishopMissalDeadline || 0);
-    },
-    choices: [
-      { label_cs: '📜 Odevzdat misál (−1 luxusní kodex)', label_en: '📜 Hand over the missal (−1 luxury codex)',
-        effect: function () {
-          if ((GameState.inventory['luxury_codex'] || 0) < 1) {
-            if (typeof UI !== 'undefined') UI.notify('⚠️ Kodex mezitím zmizel z polic.', true);
-            return;
-          }
-          Game.removeItem('luxury_codex', 1);
-          if (typeof CellariumSystem !== 'undefined' && CellariumSystem.addGrose) CellariumSystem.addGrose(120);
-          if (typeof PersonaSystem !== 'undefined' && PersonaSystem.addInfluence) PersonaSystem.addInfluence('church', 8);
-          GameState.flags.bishopMissal = 'delivered';
-        },
-        notify_cs: 'Misál předán poslu. +120 grošů, Ecclesia +8. Biskup si zapamatuje jméno kláštera.',
-        notify_en: 'The missal is handed to the messenger. +120 groschen, Ecclesia +8. The bishop will remember the monastery\'s name.' }
     ]
   },
 
@@ -12669,8 +12644,14 @@ const LettersDB = [
         return (Date.now() - GameState.flags.visitatioDone) >= 60 * 24 * 60 * 60 * 1000;
       }
       // první vizitace: 10 dní od uzavření misálového řetězu
+      // (zakazky-centralizace-mrd, 26.7.2026: L8 zrušen, odevzdání teď jde
+      // přes tlačítko v Zakázkách — bishopMissalDeliveredAt je jeho náhrada
+      // za archivovaný timestamp L8 dopisu)
+      if (GameState.flags.bishopMissalDeliveredAt) {
+        return (Date.now() - GameState.flags.bishopMissalDeliveredAt) >= 10 * 24 * 60 * 60 * 1000;
+      }
       const arch = (GameState.letters && GameState.letters.archive) || [];
-      const closer = arch.filter(e => ['l8_biskup_odevzdani', 'l9_biskup_zmeskani', 'l10_biskup_druha_sance'].includes(e.id))
+      const closer = arch.filter(e => ['l9_biskup_zmeskani', 'l10_biskup_druha_sance'].includes(e.id))
                          .sort((a, b) => b.ts - a.ts)[0];
       return !!closer && (Date.now() - closer.ts) >= 10 * 24 * 60 * 60 * 1000;
     },
@@ -36760,6 +36741,19 @@ const CommitmentsSystem = {
                     timeLine = lang === 'en' ? `${daysLeft} days left` : `zbývá ${daysLeft} dní`;
                 }
 
+                // zakazky-centralizace-mrd, Fáze 1 (26.7.2026) — tlačítko
+                // "Odbavit" přímo tady, nahrazuje dřívější skrytý dopis (L8)
+                let fulfillLine = '';
+                if (c.requiredItem) {
+                    const have = GameState.inventory[c.requiredItem.id] || 0;
+                    const enough = have >= c.requiredItem.qty;
+                    const itemName = (typeof iName === 'function') ? iName(c.requiredItem.id) : c.requiredItem.id;
+                    fulfillLine = `<button class="craft-btn" style="margin-top:8px; font-size:0.76rem;" ${enough ? '' : 'disabled'}
+                        onclick="CommitmentsSystem.fulfill('${c.flagKey}')">
+                        📜 ${lang==='en'?'Deliver':'Odbavit'} (${have}/${c.requiredItem.qty} ${itemName})
+                    </button>`;
+                }
+
                 h += `<div style="padding:12px; background:rgba(0,0,0,0.04); border-radius:8px;">
                     <div style="font-weight:bold; font-size:0.88rem; margin-bottom:4px;">🕊️ ${forWhom}</div>
                     <div style="font-size:0.82rem; opacity:0.85; margin-bottom:6px;">${what}</div>
@@ -36768,6 +36762,7 @@ const CommitmentsSystem = {
                         ${reward ? `<span>💰 ${reward}</span>` : ''}
                         ${risk ? `<span style="opacity:0.65;">⚠️ ${risk}</span>` : ''}
                     </div>
+                    ${fulfillLine}
                 </div>`;
             });
             h += `</div>`;
@@ -36777,8 +36772,39 @@ const CommitmentsSystem = {
         el.innerHTML = h;
     },
 
-};
+    // zakazky-centralizace-mrd, Fáze 1 (26.7.2026) — univerzální odbavení
+    // libovolné zakázky s requiredItem (nahrazuje ad-hoc "L8" dopisy).
+    // flagKey identifikuje KTEROU zakázku (unikátní per commitment blok).
+    fulfill: function (flagKey) {
+        if (typeof LettersDB === 'undefined') return;
+        const letter = LettersDB.find(l => l.commitment && l.commitment.flagKey === flagKey);
+        const c = letter && letter.commitment;
+        if (!c || !c.requiredItem) return;
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        const have = GameState.inventory[c.requiredItem.id] || 0;
+        if (have < c.requiredItem.qty) {
+            if (typeof UI !== 'undefined') UI.notify(lang==='en' ? '⚠️ Not enough in stock.' : '⚠️ Nemáš dost na skladě.', true);
+            return;
+        }
+        Game.removeItem(c.requiredItem.id, c.requiredItem.qty);
+        if (c.reward) {
+            if (c.reward.grose && typeof CellariumSystem !== 'undefined' && CellariumSystem.addGrose) CellariumSystem.addGrose(c.reward.grose);
+            if (c.reward.influenceKey && typeof PersonaSystem !== 'undefined' && PersonaSystem.addInfluence) PersonaSystem.addInfluence(c.reward.influenceKey, c.reward.influenceAmt || 0);
+        }
+        GameState.flags[flagKey] = c.deliveredValue || 'delivered';
+        GameState.flags[flagKey + 'DeliveredAt'] = Date.now();
+        const forWhom = lang === 'en' ? (c.forWhom_en || c.forWhom_cs) : c.forWhom_cs;
+        const what = lang === 'en' ? (c.what_en || c.what_cs) : c.what_cs;
+        if (typeof UI !== 'undefined') UI.notify('📜 ' + (lang==='en' ? 'Delivered: ' : 'Odbaveno: ') + what);
+        if (typeof Game !== 'undefined' && Game.addKronikaEntry) Game.addKronikaEntry('important',
+            '📜 Zakázka odevzdána: ' + forWhom + ' — ' + what + '.',
+            '📜 Commission delivered: ' + forWhom + ' — ' + what + '.',
+            '📜 Opus traditum est.');
+        if (typeof Game !== 'undefined') Game.save();
+        this.render();
+    },
 
+};
 // ═══ src/systems/SecretsSystem.js ═══
 // ═══════════════════════════════════════════════════════════════════════════════
 // EASTER EGG SYSTEM v9.0 — Locked Secret Tabs
