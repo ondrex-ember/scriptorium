@@ -8250,6 +8250,7 @@ const ItemsDB = {
     "linden_fruit": { name: "Lipový plod", name_en: "Linden Fruit", icon: "🌸", type: "food_raw", desc: "Ze sadu. Drobná nažka lípy, spíš léčivá než k jídlu.", desc_en: "From the orchard. A tiny linden nutlet, more medicinal than edible." },
     "grass": { name: "Tráva", name_en: "Grass", icon: "🌿", type: "mat", desc: "Posečená čerstvá tráva. Suší se na seno.", desc_en: "Cut fresh grass. Dried to make hay." },
     "queen_bee": { name: "Včelí matka", name_en: "Queen Bee", icon: "🐝", type: "animal", desc: "Včelí matka. Nutná pro stavbu úlu.", desc_en: "Queen bee. Required to establish a hive." },
+    "pigeon_squab_live": { name: "Holoubě", name_en: "Squab", icon: "🐣", type: "animal", desc: "Živé holoubě k umístění do holubníku. Zatím nevycvičené.", desc_en: "A live squab to place in the dovecote. Not yet trained." },
     "veteran_queen": { name: "Vysloužilá matka", name_en: "Veteran Queen", icon: "👑", type: "animal", desc: "Stará matka, která přežila roj i zimu. Včelaři takové platí zlatem — z jejího plodu se prý dědí síla i zimovatelnost.", desc_en: "An old queen who survived both swarming and winter. Beekeepers pay gold for one — her brood is said to inherit strength and hardiness alike." },
 
     // ═══════════════════════════════════════════════════════════════════════════
@@ -8535,6 +8536,14 @@ const RecipesDB = [
     // BASIC TOOLS
     { id: "sharp_stone", output: "sharp_stone", qty: 1, req: { "rock": 2 }, cat: "stone" },
     { id: "rope", output: "rope", qty: 1, req: { "fiber": 3 }, cat: "craft" },
+    // Dodatek 27.7.2026 — přímá cesta k vláknu ze surovin, bez tech gate
+    // (mirror rope výše — základní přežití, ne pokročilá výroba).
+    { id: "fiber_from_nettle", output: "fiber", qty: 3, req: { "nettle": 1 }, cat: "craft" },
+    { id: "fiber_from_grass", output: "fiber", qty: 1, req: { "grass": 5 }, cat: "craft" },
+    { id: "fiber_from_cannabis", output: "fiber", qty: 5, req: { "cannabis": 1 }, cat: "craft" },
+    // Alternativní cesta k provazu z konopného vlákna (tech_susarna řetězec
+    // beze změny) — kvalitnější surovina, méně kusů na výsledek.
+    { id: "rope_hemp", output: "rope", qty: 1, req: { "hemp_fiber": 1 }, cat: "craft" },
     { id: "stone_knife", output: "stone_knife", qty: 1, req: { "sharp_stone": 1, "stick": 1, "rope": 1 }, cat: "stone" },
     { id: "charcoal", output: "charcoal", qty: 2, req: { "stick": 2 }, cat: "fire" },
     { id: "pestle", output: "pestle", qty: 1, req: { "rock": 2, "sharp_stone": 1 }, cat: "stone" },
@@ -22682,6 +22691,9 @@ const CellariumSystem = {
       { itemId: 'tele',          basePrice: 35,  dailyStock: 1, req_tech: 'tech_armentum' },
       { itemId: 'byk',           basePrice: 2000, dailyStock: 1, req_tech: 'tech_armentum' },
       { itemId: 'queen_bee',     basePrice: 40,  dailyStock: 1  },
+      // Holoubě — dodatek 27.7.2026, alternativa k chovu (mirror ostatních
+      // mláďat výše). Gate tech_porta, stejně jako samotný Holubník.
+      { itemId: 'pigeon_squab_live', basePrice: 50, dailyStock: 2, req_tech: 'tech_porta' },
       // Semena stromů — drahá
       { itemId: 'seed_apple',    basePrice: 8,   dailyStock: 3  },
       { itemId: 'seed_pear',     basePrice: 8,   dailyStock: 3  },
@@ -32203,12 +32215,16 @@ const FarmyardSystem = {
         if (!GameState.pigsty) GameState.pigsty = { built: false, animals: [] };
         if (!GameState.donkeyStall) GameState.donkeyStall = { built: false, animals: [], lastCleanMs: 0 };
         if (!GameState.stable) GameState.stable = { built: false, animals: [], lastCleanMs: 0 };
-        if (!GameState.columbarium) GameState.columbarium = { built: false, count: 0, lastEggAt: 0, lastFeatherAt: 0, lastCleanMs: 0, level: 1, lastPredatorTick: 0, nesting: null, squabPool: 0, capacityTier: 1 };
+        if (!GameState.columbarium) GameState.columbarium = { built: false, count: 0, lastEggAt: 0, lastFeatherAt: 0, lastCleanMs: 0, level: 1, lastPredatorTick: 0, nesting: null, squabPool: 0, capacityTier: 1, trainedCount: 0, training: null, lastRegrowTick: 0 };
         if (GameState.columbarium.level === undefined) GameState.columbarium.level = 1;
         if (GameState.columbarium.lastPredatorTick === undefined) GameState.columbarium.lastPredatorTick = 0;
         if (GameState.columbarium.nesting === undefined) GameState.columbarium.nesting = null;
         if (GameState.columbarium.squabPool === undefined) GameState.columbarium.squabPool = 0;
         if (GameState.columbarium.capacityTier === undefined) GameState.columbarium.capacityTier = 1;
+        // Dodatek 27.7.2026 — výcvik + auto-doplňování populace (holubnik-mrd)
+        if (GameState.columbarium.trainedCount === undefined) GameState.columbarium.trainedCount = 0;
+        if (GameState.columbarium.training === undefined) GameState.columbarium.training = null;
+        if (GameState.columbarium.lastRegrowTick === undefined) GameState.columbarium.lastRegrowTick = 0;
         if (!GameState.loanMale) GameState.loanMale = {};  // {type, returnsAt}
     },
 
@@ -32671,6 +32687,7 @@ const FarmyardSystem = {
             ? `Slaughter ${n} pigeon(s) from the flock? This permanently reduces the population.`
             : `Porazit ${n} holuba/holubů z hejna? Trvale to sníží populaci.`)) return;
         c.count -= n;
+        c.trainedCount = Math.min(c.trainedCount || 0, c.count);
         Game.addItem('pigeon_meat', n);
         Game.save();
         this.renderFarmyard();
@@ -32726,6 +32743,12 @@ const FarmyardSystem = {
     PREDATOR_CHANCE: 0.08,
     PREDATOR_LOSS_MIN: 1,
     PREDATOR_LOSS_MAX: 2,
+    // Dodatek 27.7.2026 (holubnik-mrd) — podlaha/strop populace, ať hejno
+    // nemůže vymřít bez cesty zpět (chov vyžaduje ≥2 holuby, nákup byl
+    // dřív jediná záchrana a ten dřív vůbec neexistoval).
+    POPULATION_FLOOR: 5,
+    POPULATION_AUTO_CEILING: 13,
+    TRAINING_MS: 9 * 24 * 60 * 60 * 1000, // 9 dní
     columbariumPredatorTick: function () {
         this._ensureAnimals();
         const c = GameState.columbarium;
@@ -32735,9 +32758,12 @@ const FarmyardSystem = {
         c.lastPredatorTick = now;
         if (Math.random() < this.PREDATOR_CHANCE) {
             const loss = this.PREDATOR_LOSS_MIN + Math.floor(Math.random() * (this.PREDATOR_LOSS_MAX - this.PREDATOR_LOSS_MIN + 1));
-            const actualLoss = Math.min(loss, c.count);
+            // Podlaha — predátor nikdy nesrazí hejno pod POPULATION_FLOOR.
+            const maxLoss = Math.max(0, c.count - this.POPULATION_FLOOR);
+            const actualLoss = Math.min(loss, maxLoss);
             c.count -= actualLoss;
-            if (typeof NotificationSystem !== 'undefined' && NotificationSystem.panel) {
+            c.trainedCount = Math.min(c.trainedCount || 0, c.count);
+            if (actualLoss > 0 && typeof NotificationSystem !== 'undefined' && NotificationSystem.panel) {
                 const lang = (GameState.settings && GameState.settings.language) || 'cs';
                 NotificationSystem.panel('🦡 ' + (lang === 'en'
                     ? `A marten struck the dovecote — ${actualLoss} pigeon(s) lost.`
@@ -32745,6 +32771,83 @@ const FarmyardSystem = {
             }
             if (typeof Game !== 'undefined') Game.save();
         }
+    },
+
+    // Dodatek 27.7.2026 — pasivní organický přírůstek, NEZÁVISLE na
+    // manuálním hnízdění. Roste jen do POPULATION_AUTO_CEILING (13), bez
+    // ohledu na tier kapacitu — zbytek do plné kapacity musí hráč doplnit
+    // sám (hnízdění/nákup). Nově narozený kus je vždy nevycvičený.
+    columbariumRegrowTick: function () {
+        this._ensureAnimals();
+        const c = GameState.columbarium;
+        if (!c.built || c.count <= 0) return;
+        const now = Date.now();
+        if (now - (c.lastRegrowTick || 0) < this.DAY_MS) return;
+        c.lastRegrowTick = now;
+        if ((c.count || 0) < this.POPULATION_AUTO_CEILING) {
+            c.count = Math.min(this.POPULATION_AUTO_CEILING, (c.count || 0) + 1);
+            if (typeof Game !== 'undefined') Game.save();
+        }
+    },
+
+    // ── Výcvik — squab už dnes množí/dává vejce i maso bez výcviku, ale
+    // nelítá pro Portu (viz PortaSystem.sendLetter — čte trainedCount).
+    // V1: jediný obecný výcvik, 9 dní, žádný materiálový náklad, jeden
+    // aktivní běh najednou (mirror nesting vzoru).
+    startTrainingColumbarium: function (qty) {
+        this._ensureAnimals();
+        const c = GameState.columbarium;
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        if (c.training) {
+            if (typeof UI !== 'undefined') UI.notify(lang === 'en' ? 'Training already underway.' : 'Výcvik už probíhá.', true);
+            return;
+        }
+        const untrained = Math.max(0, (c.count || 0) - (c.trainedCount || 0));
+        const n = Math.max(0, Math.min(qty || untrained, untrained));
+        if (n <= 0) {
+            if (typeof UI !== 'undefined') UI.notify(lang === 'en' ? 'No untrained pigeons available.' : 'Žádní nevycvičení holubi k dispozici.', true);
+            return;
+        }
+        c.training = { qty: n, startedAt: Date.now(), readyAt: Date.now() + this.TRAINING_MS };
+        Game.save();
+        this.renderFarmyard();
+        UI.notify('🎯 ' + (lang === 'en' ? `Training begun for ${n} pigeon(s) — 9 days.` : `Výcvik zahájen pro ${n} holuba/holubů — 9 dní.`));
+    },
+
+    // Voláno z denního ticku (core/game.js) — self-guarded přes readyAt,
+    // ne přes 24h interval (jednorázová událost, ne opakovaný check).
+    checkTrainingColumbarium: function () {
+        this._ensureAnimals();
+        const c = GameState.columbarium;
+        if (!c.training) return;
+        if (Date.now() < c.training.readyAt) return;
+        const n = c.training.qty;
+        c.trainedCount = Math.min((c.trainedCount || 0) + n, c.count || 0);
+        c.training = null;
+        if (typeof Game !== 'undefined') Game.save();
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        if (typeof NotificationSystem !== 'undefined' && NotificationSystem.panel) {
+            NotificationSystem.panel('🎯 ' + (lang === 'en'
+                ? `${n} pigeon(s) finished training — ready to fly for Porta.`
+                : `${n} holub(ů) dokončilo výcvik — připraveni létat pro Portu.`), 'info');
+        }
+    },
+
+    // Most mezi Trhem (generický nákup do inventáře) a bespoke Columbarium
+    // stavem — koupené holoubě jde do stejného squabPool jako z hnízdění,
+    // takže projde stejným "Do hejna" krokem (stane se holubem).
+    placePurchasedSquabColumbarium: function (qty) {
+        this._ensureAnimals();
+        const c = GameState.columbarium;
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        const have = GameState.inventory['pigeon_squab_live'] || 0;
+        const n = Math.max(0, Math.min(qty || have, have));
+        if (n <= 0) return;
+        GameState.inventory['pigeon_squab_live'] -= n;
+        c.squabPool = (c.squabPool || 0) + n;
+        Game.save();
+        this.renderFarmyard();
+        UI.notify('🐣 ' + (lang === 'en' ? `+${n} squab(s) added to the pool.` : `+${n} holoubě do zásoby.`));
     },
 
     // ── Animal pen actions (delegated by GardenSystem stubs) ─────────────
@@ -33493,10 +33596,26 @@ const FarmyardSystem = {
         const featherReady = now >= (c.lastFeatherAt || 0) + cfg.featherIntervalMs;
         const cap = this.columbariumCapacity();
         h += `<div style="display:grid; grid-template-columns:1fr 1fr; gap:6px; margin-bottom:12px; font-size:0.82rem;">`;
-        h += `<div>🕊️ ${lang === 'en' ? 'Pigeons' : 'Holubi'}: <strong>${c.count}/${cap}</strong></div>`;
+        h += `<div>🕊️ ${lang === 'en' ? 'Pigeons' : 'Holubi'}: <strong>${c.count}/${cap}</strong> <span style="opacity:0.65; font-size:0.76rem;">(${lang === 'en' ? 'trained' : 'vycvičeno'} ${c.trainedCount || 0})</span></div>`;
         h += `<div>🥚 ${t('farmyard.eggs')}: <strong>${eggReady ? t('farmyard.ready') + ' (' + cfg.eggYield + ')' : Math.ceil(((c.lastEggAt || 0) + cfg.eggIntervalMs - now) / 3600000) + 'h'}</strong></div>`;
         h += `<div>🪶 ${t('farmyard.feathers')}: <strong>${featherReady ? t('farmyard.ready') + ' (' + cfg.featherYield + ')' : Math.ceil(((c.lastFeatherAt || 0) + cfg.featherIntervalMs - now) / 3600000) + 'h'}</strong></div>`;
         h += `</div>`;
+
+        // Dodatek 27.7.2026 — koupené holoubě čeká v inventáři na umístění
+        if ((GameState.inventory['pigeon_squab_live'] || 0) > 0) {
+            h += `<button class="craft-btn" onclick="FarmyardSystem.placePurchasedSquabColumbarium(${GameState.inventory['pigeon_squab_live']})" style="font-size:0.76rem; margin-bottom:8px;">🐣 ${lang === 'en' ? `Place purchased squab (${GameState.inventory['pigeon_squab_live']})` : `Umístit koupené holoubě (${GameState.inventory['pigeon_squab_live']})`}</button>`;
+        }
+
+        // Dodatek 27.7.2026 — výcvik (9 dní, jeden běh najednou)
+        if (c.training) {
+            const daysLeft = Math.max(0, Math.ceil((c.training.readyAt - now) / this.DAY_MS));
+            h += `<div style="font-size:0.78rem; opacity:0.75; margin-bottom:8px;">🎯 ${lang === 'en' ? `Training ${c.training.qty} pigeon(s)` : `Cvičí se ${c.training.qty} holub(ů)`} — ${daysLeft}${lang === 'en' ? 'd' : 'd'}</div>`;
+        } else {
+            const untrained = Math.max(0, (c.count || 0) - (c.trainedCount || 0));
+            if (untrained > 0) {
+                h += `<button class="craft-btn" onclick="FarmyardSystem.startTrainingColumbarium(${untrained})" style="font-size:0.76rem; margin-bottom:8px;">🎯 ${lang === 'en' ? `Train ${untrained} pigeon(s) (9d)` : `Vycvičit ${untrained} holuba/ů (9 dní)`}</button>`;
+            }
+        }
 
         // MRD Columbarium II — kapacita 40 (Columbaria Interna)
         if ((c.capacityTier || 1) < 2) {
@@ -36187,18 +36306,24 @@ const PortaSystem = {
         if (!topic) return;
         const lang = (GameState.settings && GameState.settings.language) || 'cs';
 
-        const pigeonsAvailable = (GameState.columbarium && GameState.columbarium.count) || 0;
+        // Holubnik-mrd (27.7.2026): jen VYCVIČENÍ holubi lítají pro Portu —
+        // nevycvičení množí/dávají vejce a maso, ale nelítají.
+        const pigeonsAvailable = (GameState.columbarium && GameState.columbarium.trainedCount) || 0;
         const paper = GameState.inventory['paper'] || 0;
         const ink = GameState.inventory['ink'] || 0;
         const cost = topic.cost || {};
         if (pigeonsAvailable < (cost.pigeon || 0) || paper < (cost.paper || 0) || ink < (cost.ink || 0)) {
             if (typeof NotificationSystem !== 'undefined') {
-                NotificationSystem.panel('🕊️ ' + (lang === 'en' ? 'Not enough pigeons or supplies.' : 'Nemáš dost holubů nebo zásob.'), 'porta');
+                NotificationSystem.panel('🕊️ ' + (lang === 'en' ? 'Not enough trained pigeons or supplies.' : 'Nemáš dost vycvičených holubů nebo zásob.'), 'porta');
             }
             return;
         }
 
-        if (cost.pigeon) GameState.columbarium.count -= cost.pigeon;
+        // Odletěný holub mizí z hejna úplně — snižuje se count i trainedCount stejně.
+        if (cost.pigeon) {
+            GameState.columbarium.count -= cost.pigeon;
+            GameState.columbarium.trainedCount -= cost.pigeon;
+        }
         if (cost.paper) GameState.inventory['paper'] -= cost.paper;
         if (cost.ink) GameState.inventory['ink'] -= cost.ink;
 
@@ -36273,13 +36398,14 @@ const PortaSystem = {
         if (typeof FarmyardSystem === 'undefined' || !GameState.columbarium) return '';
         const lang = (GameState.settings && GameState.settings.language) || 'cs';
         const count = GameState.columbarium.count || 0;
+        const trained = GameState.columbarium.trainedCount || 0;
         const capacity = FarmyardSystem.columbariumCapacity ? FarmyardSystem.columbariumCapacity() : 20;
         const now = Date.now();
         const recentPredator = GameState.columbarium.lastPredatorTick && (now - GameState.columbarium.lastPredatorTick) < 3 * 24 * 3600000;
         const uneasy = recentPredator || !!GameState.columbarium.nesting;
         const moodLabel = uneasy ? (lang === 'en' ? 'Uneasy' : 'Neklidný') : (lang === 'en' ? 'Calm' : 'Klidný');
         return `<div style="display:flex; align-items:center; gap:10px; padding:8px 12px; margin-bottom:12px; background:rgba(0,0,0,0.03); border-radius:8px; font-size:0.78rem; opacity:0.85;">
-            <span>🐦 ${count}/${capacity}</span>
+            <span>🐦 ${count}/${capacity} <span style="opacity:0.6;">(${lang === 'en' ? 'trained' : 'vycvičeno'} ${trained})</span></span>
             <span style="opacity:0.4;">·</span>
             <span>${uneasy ? '😟' : '😊'} ${moodLabel}</span>
         </div>`;
@@ -36289,7 +36415,7 @@ const PortaSystem = {
     _composeHtml: function () {
         if (typeof OutgoingLettersDB === 'undefined') return '';
         const lang = (GameState.settings && GameState.settings.language) || 'cs';
-        const pigeonsAvailable = (GameState.columbarium && GameState.columbarium.count) || 0;
+        const pigeonsAvailable = (GameState.columbarium && GameState.columbarium.trainedCount) || 0;
         const paper = GameState.inventory['paper'] || 0;
         const ink = GameState.inventory['ink'] || 0;
 
@@ -52757,6 +52883,10 @@ const Game = {
                     if (typeof DryingSystem !== 'undefined' && DryingSystem.dailyTick) DryingSystem.dailyTick();
                     // Columbarium — denní riziko predátora (self-guarded 24h, jen level 1)
                     if (typeof FarmyardSystem !== 'undefined' && FarmyardSystem.columbariumPredatorTick) FarmyardSystem.columbariumPredatorTick();
+                    // Columbarium — pasivní přírůstek do stropu 13 (self-guarded 24h, holubnik-mrd)
+                    if (typeof FarmyardSystem !== 'undefined' && FarmyardSystem.columbariumRegrowTick) FarmyardSystem.columbariumRegrowTick();
+                    // Columbarium — dokončení výcviku (self-guarded přes readyAt, holubnik-mrd)
+                    if (typeof FarmyardSystem !== 'undefined' && FarmyardSystem.checkTrainingColumbarium) FarmyardSystem.checkTrainingColumbarium();
                     // Conversi — automatické úklidové úkoly (self-guarded 24h přes cleanPen)
                     if (typeof Game !== 'undefined' && Game.checkConversiChores) Game.checkConversiChores();
                     // Conversi — denní riziko zranění/nákazy u away:false tasků (Dvůr, Pole, Coquus...)
