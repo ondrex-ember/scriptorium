@@ -832,22 +832,11 @@ const ChroniconSystem = {
                 ? "The Lord is received in the study room. The monastery's charters are laid open before him."
                 : 'Vrchnost je přijat do Studovny. Klášterní listiny jsou před ním otevřeny.';
         }
-        if (choiceId === 'accept') {
-            // Právo sepultury — dar úměrný jmění zesnulého (historicky přesně
-            // takhle kláštery vydělávaly na "dary za spásu duše").
-            const gift = Math.round((p && p.wealth ? p.wealth : 60) * 1.2);
-            if (typeof CellariumSystem !== 'undefined' && CellariumSystem.addGrose) CellariumSystem.addGrose(gift);
-            if (typeof PersonaSystem !== 'undefined' && PersonaSystem.addInfluence) PersonaSystem.addInfluence('church', 3);
-            if (typeof Game !== 'undefined' && Game.addKronikaEntry) {
-                Game.addKronikaEntry('important',
-                    '⚱️ Právo sepultury uděleno — pohřben uvnitř kostelních zdí, za dar ' + gift + ' grošů.',
-                    '⚱️ Right of sepulture granted — buried within the church walls, for a gift of ' + gift + ' groschen.',
-                    '⚱️ Sepultura intra muros concessa est.');
-            }
-            return lang === 'en'
-                ? `The gift is accepted — ${gift} groschen for the monastery's coffers. The deceased rests within the church walls, as befits his station.`
-                : `Dar je přijat — ${gift} grošů do klášterní pokladny. Zesnulý odpočívá uvnitř kostelních zdí, jak přísluší jeho postavení.`;
-        }
+        // Sepultura accept/decline zde odstraněno (krok 3c, 27.7.2026) —
+        // od kroku 3b (ZAKAZKY_KINDS filtr) sem `kind==='sepultura'` už
+        // nikdy nedorazí, tenhle catchall se stal orphan kódem. Logika
+        // (dar = wealth×1.2, church+3) žije dál v
+        // CommitmentsSystem.resolveChronicle() beze změny čísel.
         if (choiceId === 'decline' && p && p.kind === 'studovna') {
             return lang === 'en'
                 ? 'The request is turned down. The Lord takes no offense — but none either.'
@@ -867,11 +856,6 @@ const ChroniconSystem = {
             return lang === 'en'
                 ? 'He is turned away and continues down the road.'
                 : 'Je odmítnut a pokračuje dál po cestě.';
-        }
-        if (choiceId === 'decline') {
-            return lang === 'en'
-                ? 'The request is politely declined. The family must seek burial elsewhere.'
-                : 'Žádost je zdvořile odmítnuta. Rodina musí hledat pohřeb jinde.';
         }
         return lang === 'en'
             ? 'The monastery carries on as before. What happens in the wider region is beyond these walls.'
