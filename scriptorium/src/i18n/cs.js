@@ -911,9 +911,9 @@ const STRINGS_cs = {
         // ===== MONASTIC B1: CANDIDATUS =====
         candidatus_name: 'Uchazeč',
         candidatus_name_short: 'Candidatus',
-        candidatus_desc: 'Klepeš na bránu. Opat tě odmítl. Přijď zítra.',
+        candidatus_desc: 'Klepeš na bránu. Opat tě přijal na zkoušku — teď se čeká, zda vytrváš. Vrať se zítra.',
         candidatus_lore: 'Řehole sv. Benedikta (kap. 58): "Nechť mu není přijímání ulehčeno." Čtyřikrát odmítni. Pokud vytrvá, teprve pak ho vpusť.',
-        candidatus_toast: 'Přistoupils ke bráně. Opat tě odmítl. Je třeba vytrvalosti.',
+        candidatus_toast: 'Přistoupils ke bráně. Opat tě přijímá na zkoušku. Ukáže se, zda vytrváš.',
         candidatus_requirement: 'Antiquarius+ a dobrovolná volba',
 
         // ===== MONASTIC B2: NOVITIUS =====
