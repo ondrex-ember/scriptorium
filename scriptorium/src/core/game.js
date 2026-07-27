@@ -5225,6 +5225,20 @@ const Game = {
                         '✝️ Ritus peractus est.');
                     Game.save(); rerender();
                 }},
+                { label: (lang==='en'?'📋 Plan for later (Commitments)':'📋 Naplánovat do Zakázek'), effect: () => {
+                    // Klášter pool zůstává lokální — žádný _reportActorFavorIfNewDay
+                    // (na rozdíl od Vesnice pool v CommitmentsSystem.resolveChronicle).
+                    // farnost-chronicon-reference.md, dodatek 27.7.2026.
+                    if (!Array.isArray(GameState.localFarniEvents)) GameState.localFarniEvents = [];
+                    GameState.localFarniEvents.push({
+                        id: 'local_farni_' + type + '_' + Date.now(),
+                        type: type,
+                        surname: surname,
+                    });
+                    if (GameState.localFarniEvents.length > 10) GameState.localFarniEvents.shift();
+                    Game.save(); rerender();
+                    if (typeof UI !== 'undefined') UI.notify(lang==='en' ? '📋 Added to Commitments.' : '📋 Přidáno do Zakázek.');
+                }},
                 { label: (lang==='en'?'🚪 Decline':'🚪 Odmítnout'), effect: () => {
                     if (typeof PersonaSystem !== 'undefined' && PersonaSystem.addInfluence) PersonaSystem.addInfluence('village', -2);
                     Game._templumLog({ type: 'parish', eventType: type, surname: surname, officiated: false });
