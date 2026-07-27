@@ -5633,6 +5633,12 @@ const Game = {
         t.nextMass = now + 7 * 24 * 60 * 60 * 1000;
         t.lastMass = { ts: now, incense: incenseId, degraded: degraded };
         Game._templumLog({ type: 'mass', incense: incenseId, degraded: degraded, feastName: feastName, eccl: eccl });
+        // Anonymní denní favor report pro CHRONICON aktéra 'klaster' —
+        // farnost-chronicon-reference.md sekce 4. Funkce v ChroniconSystem.js
+        // existovala už dřív, jen nebyla nikde volaná.
+        if (typeof ChroniconSystem !== 'undefined' && ChroniconSystem._reportActorFavorIfNewDay) {
+            ChroniconSystem._reportActorFavorIfNewDay('klaster');
+        }
         // R1: odsloužená mše = držený kanonický rytmus (frater vyžaduje streak ≥ 7)
         if (GameState.rank) {
             GameState.rank.canonicalStreak = (GameState.rank.canonicalStreak || 0) + 1;

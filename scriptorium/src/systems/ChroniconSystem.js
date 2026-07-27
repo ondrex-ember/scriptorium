@@ -414,6 +414,11 @@ const ChroniconSystem = {
         // Vlna 1 / Hostina (ubytovna-mrd.md §8c-A): syntetický kandidát ze
         // snap.feast — GM-ruční pole, žádná změna na CHRONICON straně. Řadí
         // se před advisory_events, jinak stejná cap-1/resolvedIds mechanika.
+        //
+        // farnost-chronicon-reference.md sekce 5, krok 3b (27.7.2026): sepultura/
+        // material/farni se STĚHUJÍ do Zakázky tabu (CommitmentsSystem) — sem
+        // do modalu už NEPATŘÍ, aby nešly řešit na dvou místech zároveň.
+        const ZAKAZKY_KINDS = ['sepultura', 'material', 'farni'];
         const feastCandidate = ChroniconSystem._buildFeastCandidate(snap);
         const hasAdvisorySource = (snap.advisory_events && snap.advisory_events.length) || feastCandidate;
         if (hasAdvisorySource && typeof GameState !== 'undefined') {
@@ -422,13 +427,32 @@ const ChroniconSystem = {
             if (!adv.activeId) {
                 const isProbost = !!(GameState.rank && GameState.rank.probost);
                 const pool = feastCandidate ? [feastCandidate].concat(snap.advisory_events || []) : (snap.advisory_events || []);
-                const candidate = pool.find(e => !adv.resolvedIds[e.id] && (!e.probost_only || isProbost));
+                const candidate = pool.find(e => !ZAKAZKY_KINDS.includes(e.kind) && !adv.resolvedIds[e.id] && (!e.probost_only || isProbost));
                 if (candidate) {
                     adv.activeId = candidate.id;
                     adv.pending  = candidate;
                     Game.save();
                 }
             }
+        }
+
+        // Jednorázový toast pro nové Zakázky-kind položky (sepultura/material/
+        // farni) — nejdou modalem, ale hráč má vědět, že přibyla nová zakázka.
+        // Dedup přes GameState.zakazkyNotified (mirror _loadSeen vzoru u kroniky).
+        if (Array.isArray(snap.advisory_events) && typeof GameState !== 'undefined') {
+            if (!GameState.zakazkyNotified) GameState.zakazkyNotified = {};
+            const lang = (GameState.settings && GameState.settings.language) || 'cs';
+            snap.advisory_events.forEach(e => {
+                if (!ZAKAZKY_KINDS.includes(e.kind)) return;
+                if (GameState.zakazkyNotified[e.id]) return;
+                GameState.zakazkyNotified[e.id] = true;
+                if (typeof NotificationSystem !== 'undefined' && NotificationSystem.toast) {
+                    const title = lang === 'en' ? (e.title_en || e.title_cs) : e.title_cs;
+                    NotificationSystem.toast('📋 ' + (lang === 'en'
+                        ? 'New commission: ' + title + ' — see the Commitments tab.'
+                        : 'Nová zakázka: ' + title + ' — najdeš v tabu Zakázky.'), 'info');
+                }
+            });
         }
 
         // Chronicle záznamy → NotificationSystem.panel() + GameState.kronika
