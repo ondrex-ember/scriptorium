@@ -30,18 +30,24 @@ const PortaSystem = {
         if (!topic) return;
         const lang = (GameState.settings && GameState.settings.language) || 'cs';
 
-        const pigeonsAvailable = (GameState.columbarium && GameState.columbarium.count) || 0;
+        // Holubnik-mrd (27.7.2026): jen VYCVIČENÍ holubi lítají pro Portu —
+        // nevycvičení množí/dávají vejce a maso, ale nelítají.
+        const pigeonsAvailable = (GameState.columbarium && GameState.columbarium.trainedCount) || 0;
         const paper = GameState.inventory['paper'] || 0;
         const ink = GameState.inventory['ink'] || 0;
         const cost = topic.cost || {};
         if (pigeonsAvailable < (cost.pigeon || 0) || paper < (cost.paper || 0) || ink < (cost.ink || 0)) {
             if (typeof NotificationSystem !== 'undefined') {
-                NotificationSystem.panel('🕊️ ' + (lang === 'en' ? 'Not enough pigeons or supplies.' : 'Nemáš dost holubů nebo zásob.'), 'porta');
+                NotificationSystem.panel('🕊️ ' + (lang === 'en' ? 'Not enough trained pigeons or supplies.' : 'Nemáš dost vycvičených holubů nebo zásob.'), 'porta');
             }
             return;
         }
 
-        if (cost.pigeon) GameState.columbarium.count -= cost.pigeon;
+        // Odletěný holub mizí z hejna úplně — snižuje se count i trainedCount stejně.
+        if (cost.pigeon) {
+            GameState.columbarium.count -= cost.pigeon;
+            GameState.columbarium.trainedCount -= cost.pigeon;
+        }
         if (cost.paper) GameState.inventory['paper'] -= cost.paper;
         if (cost.ink) GameState.inventory['ink'] -= cost.ink;
 
@@ -116,13 +122,14 @@ const PortaSystem = {
         if (typeof FarmyardSystem === 'undefined' || !GameState.columbarium) return '';
         const lang = (GameState.settings && GameState.settings.language) || 'cs';
         const count = GameState.columbarium.count || 0;
+        const trained = GameState.columbarium.trainedCount || 0;
         const capacity = FarmyardSystem.columbariumCapacity ? FarmyardSystem.columbariumCapacity() : 20;
         const now = Date.now();
         const recentPredator = GameState.columbarium.lastPredatorTick && (now - GameState.columbarium.lastPredatorTick) < 3 * 24 * 3600000;
         const uneasy = recentPredator || !!GameState.columbarium.nesting;
         const moodLabel = uneasy ? (lang === 'en' ? 'Uneasy' : 'Neklidný') : (lang === 'en' ? 'Calm' : 'Klidný');
         return `<div style="display:flex; align-items:center; gap:10px; padding:8px 12px; margin-bottom:12px; background:rgba(0,0,0,0.03); border-radius:8px; font-size:0.78rem; opacity:0.85;">
-            <span>🐦 ${count}/${capacity}</span>
+            <span>🐦 ${count}/${capacity} <span style="opacity:0.6;">(${lang === 'en' ? 'trained' : 'vycvičeno'} ${trained})</span></span>
             <span style="opacity:0.4;">·</span>
             <span>${uneasy ? '😟' : '😊'} ${moodLabel}</span>
         </div>`;
@@ -132,7 +139,7 @@ const PortaSystem = {
     _composeHtml: function () {
         if (typeof OutgoingLettersDB === 'undefined') return '';
         const lang = (GameState.settings && GameState.settings.language) || 'cs';
-        const pigeonsAvailable = (GameState.columbarium && GameState.columbarium.count) || 0;
+        const pigeonsAvailable = (GameState.columbarium && GameState.columbarium.trainedCount) || 0;
         const paper = GameState.inventory['paper'] || 0;
         const ink = GameState.inventory['ink'] || 0;
 

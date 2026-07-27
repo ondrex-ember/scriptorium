@@ -762,6 +762,10 @@ const Game = {
                     if (typeof DryingSystem !== 'undefined' && DryingSystem.dailyTick) DryingSystem.dailyTick();
                     // Columbarium — denní riziko predátora (self-guarded 24h, jen level 1)
                     if (typeof FarmyardSystem !== 'undefined' && FarmyardSystem.columbariumPredatorTick) FarmyardSystem.columbariumPredatorTick();
+                    // Columbarium — pasivní přírůstek do stropu 13 (self-guarded 24h, holubnik-mrd)
+                    if (typeof FarmyardSystem !== 'undefined' && FarmyardSystem.columbariumRegrowTick) FarmyardSystem.columbariumRegrowTick();
+                    // Columbarium — dokončení výcviku (self-guarded přes readyAt, holubnik-mrd)
+                    if (typeof FarmyardSystem !== 'undefined' && FarmyardSystem.checkTrainingColumbarium) FarmyardSystem.checkTrainingColumbarium();
                     // Conversi — automatické úklidové úkoly (self-guarded 24h přes cleanPen)
                     if (typeof Game !== 'undefined' && Game.checkConversiChores) Game.checkConversiChores();
                     // Conversi — denní riziko zranění/nákazy u away:false tasků (Dvůr, Pole, Coquus...)

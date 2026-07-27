@@ -492,6 +492,9 @@ const CellariumSystem = {
       { itemId: 'tele',          basePrice: 35,  dailyStock: 1, req_tech: 'tech_armentum' },
       { itemId: 'byk',           basePrice: 2000, dailyStock: 1, req_tech: 'tech_armentum' },
       { itemId: 'queen_bee',     basePrice: 40,  dailyStock: 1  },
+      // Holoubě — dodatek 27.7.2026, alternativa k chovu (mirror ostatních
+      // mláďat výše). Gate tech_porta, stejně jako samotný Holubník.
+      { itemId: 'pigeon_squab_live', basePrice: 50, dailyStock: 2, req_tech: 'tech_porta' },
       // Semena stromů — drahá
       { itemId: 'seed_apple',    basePrice: 8,   dailyStock: 3  },
       { itemId: 'seed_pear',     basePrice: 8,   dailyStock: 3  },

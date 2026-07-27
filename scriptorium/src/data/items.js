@@ -649,6 +649,7 @@ const ItemsDB = {
     "linden_fruit": { name: "Lipový plod", name_en: "Linden Fruit", icon: "🌸", type: "food_raw", desc: "Ze sadu. Drobná nažka lípy, spíš léčivá než k jídlu.", desc_en: "From the orchard. A tiny linden nutlet, more medicinal than edible." },
     "grass": { name: "Tráva", name_en: "Grass", icon: "🌿", type: "mat", desc: "Posečená čerstvá tráva. Suší se na seno.", desc_en: "Cut fresh grass. Dried to make hay." },
     "queen_bee": { name: "Včelí matka", name_en: "Queen Bee", icon: "🐝", type: "animal", desc: "Včelí matka. Nutná pro stavbu úlu.", desc_en: "Queen bee. Required to establish a hive." },
+    "pigeon_squab_live": { name: "Holoubě", name_en: "Squab", icon: "🐣", type: "animal", desc: "Živé holoubě k umístění do holubníku. Zatím nevycvičené.", desc_en: "A live squab to place in the dovecote. Not yet trained." },
     "veteran_queen": { name: "Vysloužilá matka", name_en: "Veteran Queen", icon: "👑", type: "animal", desc: "Stará matka, která přežila roj i zimu. Včelaři takové platí zlatem — z jejího plodu se prý dědí síla i zimovatelnost.", desc_en: "An old queen who survived both swarming and winter. Beekeepers pay gold for one — her brood is said to inherit strength and hardiness alike." },
 
     // ═══════════════════════════════════════════════════════════════════════════
