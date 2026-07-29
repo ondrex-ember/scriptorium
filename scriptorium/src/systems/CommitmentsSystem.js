@@ -114,6 +114,100 @@ const CommitmentsSystem = {
         baptism: 'asks for a christening.', wedding: 'asks to be wed.', funeral: 'asks for a funeral rite.',
     },
 
+    // Zakázky od Clientela↔Chronicon propojených aktérů (Krok C,
+    // zakazky-3-kandidati.md). Seed: sklář první (nejdál rozjetá
+    // infrastruktura — chroniconActorId, živý itemStock). Mlynář/kovář
+    // přijdou později — přidání dalšího aktéra = jen nový klíč sem,
+    // žádná jiná změna v generátoru/renderu/resolveru.
+    _AKTER_ZAKAZKY_CATALOG: {
+        sklar: [
+            {
+                key: 'sifra_receptura',
+                icon: '🔮',
+                title_cs: 'Zašifrovaný zápis tajné receptury',
+                title_en: 'An Encoded Recipe for a Secret Glass Colour',
+                text_cs: 'Sklář prosí o zapsání jeho receptury na barvu skla — tak, aby ji nikdo cizí nepřečetl.',
+                text_en: "The glassmaker asks for his glass-colour recipe to be written down — but so no stranger could read it.",
+                requiredItems: [{ id: 'ink', qty: 2 }, { id: 'paper', qty: 1 }],
+                rewardGrose: 12,
+                contactRelationReward: 5,
+            },
+        ],
+    },
+
+    // Týdenní self-guarded generátor (mirror Game.parishEventTick vzoru,
+    // ale gate na odemčenost kontaktu, ne na rank Probošt — tohle jsou
+    // řemeslné zakázky, ne farní povinnosti).
+    akterZakazkyTick: function () {
+        if (!Array.isArray(GameState.localAkterZakazky)) GameState.localAkterZakazky = [];
+        const WEEK = 7 * 24 * 60 * 60 * 1000;
+        if (!GameState.akterZakazkyNextTick) {
+            GameState.akterZakazkyNextTick = Date.now() + Math.round(WEEK * 0.5);
+            return;
+        }
+        if (Date.now() < GameState.akterZakazkyNextTick) return;
+        GameState.akterZakazkyNextTick = Date.now() + WEEK;
+        if (Math.random() >= 0.25) return; // ~25 % šance/týden na aktéra, ne vždy
+
+        const researched = GameState.researchedTechs || [];
+        const readBooks = (GameState.library && GameState.library.readBooks) || [];
+        let changed = false;
+
+        Object.keys(this._AKTER_ZAKAZKY_CATALOG).forEach(actorId => {
+            const contact = (typeof ContactsDB !== 'undefined') ? ContactsDB[actorId] : null;
+            if (!contact) return;
+            if (contact.unlockTech && !researched.includes(contact.unlockTech)) return;
+            if (contact.unlockBook && !readBooks.includes(contact.unlockBook)) return;
+            // Nejvýš 1 aktivní zakázka na aktéra najednou
+            if (GameState.localAkterZakazky.some(z => z.actorId === actorId)) return;
+
+            const options = this._AKTER_ZAKAZKY_CATALOG[actorId];
+            const opt = options[Math.floor(Math.random() * options.length)];
+            GameState.localAkterZakazky.push({
+                id: 'akter_' + actorId + '_' + opt.key + '_' + Date.now(),
+                actorId: actorId,
+                key: opt.key,
+                createdAt: Date.now(),
+                deadlineDays: 7,
+            });
+            changed = true;
+        });
+
+        if (changed) {
+            if (typeof Game !== 'undefined' && Game.save) Game.save();
+            this.render();
+        }
+    },
+
+    _getLocalAkterCommitments: function () {
+        if (!Array.isArray(GameState.localAkterZakazky)) return [];
+        return GameState.localAkterZakazky.map(z => this._normalizeLocalAkterEvent(z)).filter(Boolean);
+    },
+
+    _normalizeLocalAkterEvent: function (z) {
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        const options = this._AKTER_ZAKAZKY_CATALOG[z.actorId];
+        const opt = options && options.find(o => o.key === z.key);
+        if (!opt) return null;
+        const contact = (typeof ContactsDB !== 'undefined') ? ContactsDB[z.actorId] : null;
+        const actorName = contact ? (lang === 'en' ? contact.name_en : contact.name) : z.actorId;
+        const daysLeft = Math.max(0, Math.ceil(((z.createdAt + z.deadlineDays * 24 * 60 * 60 * 1000) - Date.now()) / (24 * 60 * 60 * 1000)));
+        return {
+            source: 'local',
+            id: z.id,
+            kind: 'akter',
+            actorId: z.actorId,
+            actorName: actorName,
+            icon: opt.icon,
+            title: (lang === 'en' ? opt.title_en : opt.title_cs) + ' — ' + actorName,
+            text: lang === 'en' ? opt.text_en : opt.text_cs,
+            requiredItems: opt.requiredItems,
+            rewardGrose: opt.rewardGrose,
+            contactRelationReward: opt.contactRelationReward,
+            daysLeft: daysLeft,
+        };
+    },
+
     _getLocalFarniCommitments: function () {
         if (!Array.isArray(GameState.localFarniEvents)) return [];
         return GameState.localFarniEvents.map(f => this._normalizeLocalFarniEvent(f));
@@ -157,10 +251,19 @@ const CommitmentsSystem = {
         const portaActive = !!(GameState.flags && GameState.flags.porta_active);
         const chronicleCommitments = this._getChronicleCommitments();
         const localCommitments = this._getLocalFarniCommitments();
+        const localAkterCommitments = this._getLocalAkterCommitments();
         const letterCommitments = portaActive ? this._getActiveCommitments() : [];
-        const active = letterCommitments.concat(chronicleCommitments).concat(localCommitments);
 
-        if (!portaActive && chronicleCommitments.length === 0 && localCommitments.length === 0) {
+        // Dvě kategorie (stejný design karet, jen oddělené nadpisem):
+        // 1) sliby dané přes Portu + farní rodiny ze vsi (beze změny)
+        // 2) zakázky vázané na konkrétního reálného Chronicon aktéra —
+        //    sepultura/material/farní-z-Chroniconu + nové řemeslné
+        //    zakázky (Krok C, zakazky-3-kandidati.md)
+        const villageGroup = letterCommitments.concat(localCommitments);
+        const akterGroup = chronicleCommitments.concat(localAkterCommitments);
+        const active = villageGroup.concat(akterGroup);
+
+        if (!portaActive && chronicleCommitments.length === 0 && localCommitments.length === 0 && localAkterCommitments.length === 0) {
             el.innerHTML = `<div style="padding:16px; background:rgba(197,160,89,0.06); border-radius:10px; border-left:4px solid var(--accent-gold); text-align:center; opacity:0.7;">
                 <div style="font-size:2rem; margin-bottom:8px;">📋</div>
                 <div style="font-size:0.85rem; font-style:italic;">${lang==='en' ? 'No commitments yet — nothing to track.' : 'Zatím žádné zakázky — není co sledovat.'}</div>
@@ -177,11 +280,22 @@ const CommitmentsSystem = {
         if (active.length === 0) {
             h += `<div style="font-size:0.82rem; opacity:0.6; font-style:italic;">${lang==='en' ? 'No open commitments right now.' : 'Momentálně žádné otevřené zakázky.'}</div>`;
         } else {
-            h += `<div style="display:flex; flex-direction:column; gap:10px;">`;
-            active.forEach(item => {
-                h += (item.source === 'letter') ? this._renderLetterCard(item, lang) : this._renderChronicleCard(item, lang);
-            });
-            h += `</div>`;
+            if (villageGroup.length > 0) {
+                h += `<div style="font-size:0.78rem; font-weight:bold; opacity:0.75; margin:4px 0 8px;">🕊️ ${lang==='en' ? 'Promises & village requests' : 'Sliby a žádosti ze vsi'}</div>`;
+                h += `<div style="display:flex; flex-direction:column; gap:10px; margin-bottom:16px;">`;
+                villageGroup.forEach(item => {
+                    h += (item.source === 'letter') ? this._renderLetterCard(item, lang) : this._renderChronicleCard(item, lang);
+                });
+                h += `</div>`;
+            }
+            if (akterGroup.length > 0) {
+                h += `<div style="font-size:0.78rem; font-weight:bold; opacity:0.75; margin:4px 0 8px;">🏛️ ${lang==='en' ? 'Commissions from Chronicon actors' : 'Zakázky od aktérů Chroniconu'}</div>`;
+                h += `<div style="display:flex; flex-direction:column; gap:10px;">`;
+                akterGroup.forEach(item => {
+                    h += this._renderChronicleCard(item, lang);
+                });
+                h += `</div>`;
+            }
         }
 
         h += this._renderHistory(lang);
@@ -252,8 +366,8 @@ const CommitmentsSystem = {
         }
 
         const acceptLabel = lang === 'en'
-            ? (item.kind === 'sepultura' ? '⚱️ Grant the right' : item.kind === 'material' ? '📦 We shall help' : '✝️ Officiate')
-            : (item.kind === 'sepultura' ? '⚱️ Udělit právo' : item.kind === 'material' ? '📦 Pomůžeme' : '✝️ Vykonat obřad');
+            ? (item.kind === 'sepultura' ? '⚱️ Grant the right' : item.kind === 'material' ? '📦 We shall help' : item.kind === 'akter' ? '📜 Complete' : '✝️ Officiate')
+            : (item.kind === 'sepultura' ? '⚱️ Udělit právo' : item.kind === 'material' ? '📦 Pomůžeme' : item.kind === 'akter' ? '📜 Vyhotovit' : '✝️ Vykonat obřad');
         const declineLabel = lang === 'en' ? '🚪 Decline' : '🚪 Odmítnout';
 
         let extraLine = '';
@@ -261,6 +375,12 @@ const CommitmentsSystem = {
             extraLine = `<span>💰 ${item.rewardGrose} ${lang==='en'?'groschen':'grošů'}</span>` + (item.deadlineDays ? `<span>⏳ ${item.deadlineDays} ${lang==='en'?'days':'dní'}</span>` : '');
         } else if (item.kind === 'sepultura' && item.wealth) {
             extraLine = `<span>💰 ~${Math.round(item.wealth * 1.2)} ${lang==='en'?'groschen':'grošů'}</span>`;
+        } else if (item.kind === 'akter') {
+            const parts = [];
+            if (item.rewardGrose) parts.push(`<span>💰 ${item.rewardGrose} ${lang==='en'?'groschen':'grošů'}</span>`);
+            if (item.contactRelationReward) parts.push(`<span>🤝 +${item.contactRelationReward} ${lang==='en'?'relation':'vztah'}</span>`);
+            if (typeof item.daysLeft === 'number') parts.push(`<span>⏳ ${item.daysLeft} ${lang==='en'?'days left':'dní zbývá'}</span>`);
+            extraLine = parts.join('');
         }
 
         const resolveFn = item.source === 'local' ? 'resolveLocal' : 'resolveChronicle';
@@ -437,6 +557,10 @@ const CommitmentsSystem = {
     // ODEBERE z GameState.localFarniEvents (ne resolvedIds — není to sdílená
     // fronta, nemá smysl si pamatovat "vyřešeno", prostě zmizí).
     resolveLocal: function (id, choiceId) {
+        if (typeof id === 'string' && id.indexOf('akter_') === 0) {
+            this.resolveLocalAkter(id, choiceId);
+            return;
+        }
         if (!Array.isArray(GameState.localFarniEvents)) return;
         const idx = GameState.localFarniEvents.findIndex(f => f.id === id);
         if (idx === -1) return;
@@ -493,6 +617,66 @@ const CommitmentsSystem = {
             if (typeof UI !== 'undefined') UI.notify(lang==='en' ? 'Declined.' : 'Odmítnuto.');
             this._pushHistory({ icon: item.icon, title: item.title, outcome: 'decline' });
             GameState.localFarniEvents.splice(idx, 1);
+            if (typeof Game !== 'undefined' && Game.save) Game.save();
+            this.render();
+        }
+    },
+
+    // Krok C (zakazky-3-kandidati.md) — zakázky od Clientela↔Chronicon
+    // propojených aktérů. Na rozdíl od farní/mše se odměna promítá do
+    // GameState.contactRelation[actorId] — a ten se pak SÁM propíše přes
+    // ChroniconSystem._reportContactRelationIfNewDay() (Krok B) do
+    // Chroniconu. Žádné další propojení tu není potřeba, kruh se
+    // uzavírá existující mechanikou.
+    resolveLocalAkter: function (id, choiceId) {
+        if (!Array.isArray(GameState.localAkterZakazky)) return;
+        const idx = GameState.localAkterZakazky.findIndex(z => z.id === id);
+        if (idx === -1) return;
+        const raw = GameState.localAkterZakazky[idx];
+        const item = this._normalizeLocalAkterEvent(raw);
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        if (!item) { GameState.localAkterZakazky.splice(idx, 1); return; }
+
+        if (choiceId === 'accept') {
+            for (const req of item.requiredItems) {
+                const have = GameState.inventory[req.id] || 0;
+                if (have < req.qty) {
+                    if (typeof UI !== 'undefined') UI.notify(lang==='en' ? '⚠️ Not enough in stock.' : '⚠️ Nemáš dost na skladě.', true);
+                    return;
+                }
+            }
+            item.requiredItems.forEach(req => Game.removeItem(req.id, req.qty));
+
+            if (item.rewardGrose && typeof CellariumSystem !== 'undefined' && CellariumSystem.addGrose) {
+                CellariumSystem.addGrose(item.rewardGrose);
+            }
+            if (item.contactRelationReward) {
+                if (!GameState.contactRelation) GameState.contactRelation = {};
+                const cur = GameState.contactRelation[raw.actorId] || 0;
+                GameState.contactRelation[raw.actorId] = Math.max(0, Math.min(100, cur + item.contactRelationReward));
+            }
+            if (typeof Game !== 'undefined' && Game.addKronikaEntry) Game.addKronikaEntry('minor',
+                '📜 ' + item.title + ' — vyhotoveno.',
+                '📜 ' + item.title + ' — completed.',
+                '📜 Opus peractum est.');
+            if (typeof UI !== 'undefined') UI.notify('📜 ' + (lang==='en' ? 'Commission completed.' : 'Zakázka vyhotovena.'));
+            this._pushHistory({ icon: item.icon, title: item.title, outcome: 'accept' });
+
+            GameState.localAkterZakazky.splice(idx, 1);
+            if (typeof Game !== 'undefined' && Game.save) Game.save();
+            this.render();
+            return;
+        }
+
+        if (choiceId === 'decline') {
+            if (item.contactRelationReward) {
+                if (!GameState.contactRelation) GameState.contactRelation = {};
+                const cur = GameState.contactRelation[raw.actorId] || 0;
+                GameState.contactRelation[raw.actorId] = Math.max(0, cur - 1);
+            }
+            if (typeof UI !== 'undefined') UI.notify(lang==='en' ? 'Declined.' : 'Odmítnuto.');
+            this._pushHistory({ icon: item.icon, title: item.title, outcome: 'decline' });
+            GameState.localAkterZakazky.splice(idx, 1);
             if (typeof Game !== 'undefined' && Game.save) Game.save();
             this.render();
         }
