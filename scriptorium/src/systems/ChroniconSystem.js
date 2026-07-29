@@ -182,6 +182,13 @@ const ChroniconSystem = {
         const lang = (GameState.settings && GameState.settings.language) || 'cs';
         const inv = GameState.inventory || {};
 
+        // Reálné jméno ze snapshotu (dřív se tu čekal actor.label, který na
+        // lokálním objektu nikdy neexistoval — zprávy hlásily "undefined").
+        const snapActor = (ChroniconSystem._snap && Array.isArray(ChroniconSystem._snap.actors))
+            ? ChroniconSystem._snap.actors.find(a => a.id === actorId)
+            : null;
+        const realLabel = snapActor ? (lang === 'en' ? (snapActor.label_en || snapActor.label) : snapActor.label) : actorId;
+
         if (action === 'quest') {
             if (!actor.quest) return;
             const q = actor.quest;
@@ -196,7 +203,7 @@ const ChroniconSystem = {
             }
 
             if (!hasEnough) {
-                const msg = lang === 'en' ? `⚠️ Missing resources for ${actor.label}!` : `⚠️ Nemáš dostatek surovin pro ${actor.label}!`;
+                const msg = lang === 'en' ? `⚠️ Missing resources for ${realLabel}!` : `⚠️ Nemáš dostatek surovin pro ${realLabel}!`;
                 if (typeof NotificationSystem !== 'undefined') NotificationSystem.toast(msg, 'warn');
                 return;
             }
@@ -223,8 +230,8 @@ const ChroniconSystem = {
             if (typeof Game !== 'undefined' && Game.save) Game.save();
 
             const succMsg = lang === 'en'
-                ? `✅ Helped ${actor.label}! Mood +20, Received rewards.`
-                : `✅ Pomohl jsi postavě ${actor.label}! Nálada +20, odměna převzata.`;
+                ? `✅ Helped ${realLabel}! Mood +20, Received rewards.`
+                : `✅ Pomohl jsi postavě ${realLabel}! Nálada +20, odměna převzata.`;
 
             if (typeof NotificationSystem !== 'undefined') NotificationSystem.toast(succMsg, 'success');
             ChroniconSystem.refreshOverview();
@@ -242,12 +249,16 @@ const ChroniconSystem = {
             else if (inv['wax_candle'] > 0) inv['wax_candle']--;
             else GameState.knowledge -= 5;
 
+            // Lokální nálada — dál krmí ChroniconSystem.getBuffs() (herní
+            // bonusy), beze změny. Navíc teď propojeno se skutečným
+            // Chroniconem — stejný mechanismus jako mše/pohřby/sepultura.
             actor.mood = Math.min(100, actor.mood + 25);
+            ChroniconSystem._reportActorFavorIfNewDay(actorId);
             if (typeof Game !== 'undefined' && Game.save) Game.save();
 
             const msg = lang === 'en'
-                ? `✨ Blessed ${actor.label}! Mood +25.`
-                : `✨ Udělil jsi požehnání postavě ${actor.label}! Nálada +25.`;
+                ? `✨ Blessed ${realLabel}! Sent to the living Chronicon — the effect on the region will show in tomorrow's summary.`
+                : `✨ Udělil jsi požehnání postavě ${realLabel}. Odesláno do živého Chroniconu — projeví se v zítřejším souhrnu kraje.`;
 
             if (typeof NotificationSystem !== 'undefined') NotificationSystem.toast(msg, 'success');
             ChroniconSystem.refreshOverview();
@@ -1265,7 +1276,9 @@ const ChroniconSystem = {
                 <div style="background:rgba(0,0,0,0.04); border:1px solid rgba(197,160,89,0.3); border-radius:6px; padding:10px 14px;">
                     <div style="font-size:0.72rem; opacity:0.7; font-family:'Cinzel'; text-transform:uppercase;">🏰 ${lang === 'en' ? 'Region Status' : 'Obyvatelé & Kraj'}</div>
                     <div style="font-weight:bold; font-size:0.92rem; margin-top:2px;">
-                        👥 ${(snap.region && snap.region.population) || '4,200'} ${lang === 'en' ? 'souls' : 'duší'}
+                        👥 ${typeof (snap.region && snap.region.population) === 'number'
+                            ? snap.region.population.toLocaleString(lang === 'en' ? 'en-US' : 'cs-CZ')
+                            : '—'} ${lang === 'en' ? 'souls' : 'duší'}
                     </div>
                     <div style="font-size:0.7rem; opacity:0.7; margin-top:2px;">
                         ${lang === 'en' ? 'Olomouc Region 1465' : 'Olomoucká diecéze'}
@@ -1274,22 +1287,15 @@ const ChroniconSystem = {
             </div>
         `;
 
+        // Krok "Opat/real data" — karty teď čtou label/profese/náladu/jmění
+        // přímo ze snapshotu (snap.actors), ne z hardcoded tabulky ani z
+        // lokální náhodné procházky. chroniconLocal zůstává jen pro .quest
+        // (lokální barter "Splnit požadavek", beze změny).
         const localActors = (typeof GameState !== 'undefined' && GameState.chroniconLocal && GameState.chroniconLocal.actors)
             ? GameState.chroniconLocal.actors
             : {};
 
-        const defaultActors = [
-            { id: 'vrchnost', label: 'Vrchnost', profession: 'Šlechta & Hrad' },
-            { id: 'mlynar', label: 'Mlynář', profession: 'Mlynářství & Mouka' },
-            { id: 'kovar', label: 'Kovář', profession: 'Cech kovářský' },
-            { id: 'uhlic', label: 'Uhlíř', profession: 'Milíře v lesích' },
-            { id: 'vorar', label: 'Vorař', profession: 'Plavba po Moravě' },
-            { id: 'rybnikar', label: 'Rybníkář', profession: 'Klášterní rybníky' },
-            { id: 'prevoznik', label: 'Převozník', profession: 'Přívoz & Cestující' },
-            { id: 'valach', label: 'Valach', profession: 'Pastviny & Vlna' },
-            { id: 'klaster', label: 'Klášter', profession: 'Komunita bratří' },
-            { id: 'vcelar', label: 'Včelař', profession: 'Med & Vosk pro svíce' },
-        ];
+        const realActors = Array.isArray(snap.actors) ? snap.actors : [];
 
         html += `
             <div style="margin-bottom:24px;">
@@ -1313,21 +1319,20 @@ const ChroniconSystem = {
             rybnikar: 'Stará se o klášterní rybníky, klíčové pro postní jídlo.',
             prevoznik: 'Propojuje břehy řeky, přivádí poutníky k bráně kláštera.',
             valach: 'Chová ovce, dodává vlnu a skopové maso.',
-            klaster: 'Duchovní centrum. Tvoje modlitby a mše přímo posilují klášter!',
+            klaster: 'Opat kláštera ve městě. Tvoje modlitby a mše přímo posilují jeho postavení!',
             vcelar: 'Stáčí med a vosk — hlavní zdroj pro výrobu klášterních svící.',
         };
 
-        defaultActors.forEach(baseA => {
+        realActors.forEach(baseA => {
             const id = baseA.id;
-            const dynA = localActors[id] || { mood: 70, wealth: 60, quest: null };
-            const label = baseA.label;
-            const prof = baseA.profession;
+            const label = lang === 'en' ? (baseA.label_en || baseA.label) : baseA.label;
+            const prof = lang === 'en' ? (baseA.profession_en || baseA.profession) : baseA.profession;
             const icon = ChroniconSystem._ACTOR_ICONS[id] || '👤';
             const desc = ACTOR_DESCS[id] || prof;
 
-            const mood = dynA.mood || 70;
-            const wealth = dynA.wealth || 60;
-            const quest = dynA.quest || null;
+            const mood = typeof baseA.mood === 'number' ? baseA.mood : 50;
+            const wealth = typeof baseA.wealth === 'number' ? baseA.wealth : 50;
+            const quest = (localActors[id] && localActors[id].quest) || null;
 
             let questBtnHTML = '';
             if (quest) {
