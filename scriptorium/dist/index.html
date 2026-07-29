@@ -57850,6 +57850,68 @@ const Game = {
         if (el && typeof TemplumSystem !== 'undefined') el.innerHTML = TemplumSystem.renderTemplumTab();
     },
 
+    // Pilíř Almužník (T7) — týdenní rozdání přebytku jídla, mirror serveMass
+    // vzoru. Gating (rank frater+, cooldown, 15 jídla) už existovalo v
+    // TemplumSystem.renderTemplumTab(), jen tahle akce chyběla — tlačítko
+    // volalo Game.giveAlms(), která nikde nebyla definovaná.
+    giveAlms: function() {
+        if (typeof TemplumSystem === 'undefined' || !TemplumSystem.isUnlocked()) return;
+        if (!GameState.templum) GameState.templum = {};
+        const t = GameState.templum;
+        const now = Date.now();
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+
+        if (!(GameState.rank && ['frater', 'armarius', 'prior'].includes(GameState.rank.monastic))) return;
+        if ((t.nextAlms || 0) > now) return;
+
+        const inv = GameState.inventory;
+        let need = 15;
+        const consumed = [];
+        for (const [id, qty] of Object.entries(inv || {})) {
+            if (need <= 0) break;
+            const it = (typeof ItemsDB !== 'undefined') ? ItemsDB[id] : null;
+            if (it && it.type === 'food' && typeof qty === 'number' && qty > 0) {
+                const take = Math.min(qty, need);
+                consumed.push([id, take]);
+                need -= take;
+            }
+        }
+        if (need > 0) {
+            UI.notify('⚠️ ' + (lang === 'en' ? 'Not enough food surplus (need 15).' : 'Nedostatek přebytku jídla (potřeba 15).'), true);
+            return;
+        }
+        consumed.forEach(([id, qty]) => this.removeItem(id, qty));
+
+        const vill = 5;
+        const zboz = 1;
+        if (typeof PersonaSystem !== 'undefined' && PersonaSystem.addInfluence) PersonaSystem.addInfluence('village', vill);
+        if (typeof PersonaSystem !== 'undefined' && PersonaSystem.addZboznost) PersonaSystem.addZboznost(zboz);
+
+        t.nextAlms = now + 7 * 24 * 60 * 60 * 1000;
+        t.lastAlms = { ts: now };
+
+        // Stejný anonymní denní favor report pro 'klaster' jako u mše —
+        // almužna je taky charitativní čin kláštera vůči kraji.
+        if (typeof ChroniconSystem !== 'undefined' && ChroniconSystem._reportActorFavorIfNewDay) {
+            ChroniconSystem._reportActorFavorIfNewDay('klaster');
+        }
+
+        Game.save();
+
+        if (typeof UI !== 'undefined' && UI.notifyPanel) {
+            UI.notifyPanel('🥖 ' + (lang === 'en'
+                ? 'Alms distributed. Village +' + vill + ', piety +' + zboz + '.'
+                : 'Almužna rozdána. Vesnice +' + vill + ', zbožnost +' + zboz + '.'), 'success');
+        }
+        Game.addKronikaEntry('important',
+            '🥖 Almužník rozdal přebytek jídla chudým ve vsi.',
+            '🥖 The almoner distributed the surplus food to the poor of the village.',
+            '🥖 Eleemosyna pauperibus distributa est.');
+
+        const elAlms = document.getElementById('home-templum-content');
+        if (elAlms && typeof TemplumSystem !== 'undefined') elAlms.innerHTML = TemplumSystem.renderTemplumTab();
+    },
+
     // ── TEMPLUM Fabrica Ecclesiae — 4 stavební úrovně (endgame-branches-reference.md sekce 4.2) ──
     FABRICA_TIERS: [
         { name: 'Kaple',     name_en: 'Chapel',    cost: 0,   req: null, decayMult: 1.00, repairEff: 1.00 },
@@ -60593,6 +60655,7 @@ const Game = {
     },
 
 };
+
 // ═══ src/core/ui.js ═══
 const UI = {
     currentInvFilter: 'all',
