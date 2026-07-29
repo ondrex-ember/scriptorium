@@ -15775,19 +15775,25 @@ const ChroniconSystem = {
     },
 
     getBuffs: function() {
-        ChroniconSystem.initLocalState();
         const snap = ChroniconSystem._snap || {};
-        const local = (typeof GameState !== 'undefined' && GameState.chroniconLocal) ? GameState.chroniconLocal : null;
-        const actors = (local && local.actors) || {};
+        const realActors = Array.isArray(snap.actors) ? snap.actors : [];
+        const findMood = (id, fallback) => {
+            const a = realActors.find(x => x.id === id);
+            return (a && typeof a.mood === 'number') ? a.mood : fallback;
+        };
+        const findWealth = (id, fallback) => {
+            const a = realActors.find(x => x.id === id);
+            return (a && typeof a.wealth === 'number') ? a.wealth : fallback;
+        };
 
         const tension = (snap.region && typeof snap.region.tension === 'number') ? snap.region.tension : 25;
         const goldenAge = !!(snap.region && snap.region.goldenAge);
 
-        const klasterMood  = (actors.klaster && actors.klaster.mood) || 85;
-        const mlynarWealth = (actors.mlynar && actors.mlynar.wealth) || 60;
-        const vrchnostMood = (actors.vrchnost && actors.vrchnost.mood) || 75;
-        const kovarMood    = (actors.kovar && actors.kovar.mood) || 70;
-        const vcelarMood   = (actors.vcelar && actors.vcelar.mood) || 90;
+        const klasterMood  = findMood('klaster', 85);
+        const mlynarWealth = findWealth('mlynar', 60);
+        const vrchnostMood = findMood('vrchnost', 75);
+        const kovarMood    = findMood('kovar', 70);
+        const vcelarMood   = findMood('vcelar', 90);
 
         return {
             tension: tension,
