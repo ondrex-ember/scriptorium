@@ -16618,6 +16618,45 @@ const ChroniconSystem = {
         } catch (e) { /* tiché selhání */ }
     },
 
+    // Krok B (clientela-chronicon-most-mrd.md §5) — vážený denní report
+    // contactRelation hodnot pro Clientela kontakty propojené na reálného
+    // Chronicon aktéra (chroniconActorId pole v contacts.js). Mirror
+    // PersonaSystem.reportRegistrumIfNewDay() 1:1 — stejná denní-dedup a
+    // rank-váha logika (RANK_WEIGHT), jen relace místo lux/umbra a
+    // per-aktér místo jednoho globálního páru. Volá se z Game.init(),
+    // stejně jako checkAbbotPetitions() — jednou za session, ne na tik.
+    _reportContactRelationIfNewDay: function() {
+        if (typeof GameState === 'undefined' || !GameState.contactRelation) return;
+        if (typeof ContactsDB === 'undefined') return;
+        const today = new Date().toISOString().slice(0, 10);
+        if (GameState.contactRelationLastSent === today) return;
+        GameState.contactRelationLastSent = today;
+
+        const relations = {};
+        let any = false;
+        Object.keys(ContactsDB).forEach(cid => {
+            const c = ContactsDB[cid];
+            if (!c.chroniconActorId) return;
+            const rel = GameState.contactRelation[cid];
+            if (typeof rel !== 'number') return;
+            relations[c.chroniconActorId] = rel;
+            any = true;
+        });
+        if (!any) return;
+
+        const rankTier = (GameState.rank && GameState.rank.monastic) || null;
+        const RANK_WEIGHT = { novitius: 1, frater: 2, armarius: 3, prior: 4 };
+        const weight = RANK_WEIGHT[rankTier] || 1;
+
+        try {
+            fetch('/api/contact-relation-report', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ relations: relations, weight: weight, day: today }),
+            }).catch(() => {});
+        } catch (e) { /* tiché selhání */ }
+    },
+
     // Generický anonymní denní favor report pro libovolného CHRONICON
     // aktéra (api/actor-favor-report.js, core/actor-favor-register.js).
     // Dnes voláno pro 'klaster' po odsloužené mši (Game.serveMass) — dělá
