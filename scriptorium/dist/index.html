@@ -37040,6 +37040,32 @@ const CommitmentsSystem = {
                 contactRelationReward: 5,
             },
         ],
+        kovar: [
+            {
+                key: 'cechovni_listina',
+                icon: '🔨',
+                title_cs: 'Cechovní listina',
+                title_en: 'A Guild Charter',
+                text_cs: 'Kovář prosí o sepsání cechovní listiny — potvrzení jeho privilegií, ať má na dokázání, když se v cechu povede spor.',
+                text_en: 'The blacksmith asks for a guild charter to be drafted — proof of his privileges, should a dispute arise within the guild.',
+                requiredItems: [{ id: 'ink', qty: 1 }, { id: 'paper', qty: 2 }],
+                rewardGrose: 10,
+                contactRelationReward: 5,
+            },
+        ],
+        mlynar: [
+            {
+                key: 'potvrzeni_vodniho_prava',
+                icon: '🌾',
+                title_cs: 'Potvrzení vodního práva',
+                title_en: 'Confirmation of Water Rights',
+                text_cs: 'Mlynář prosí o sepsání potvrzení vodního práva na jez a strouhu — bez listiny mu soused hrozí sporem.',
+                text_en: 'The miller asks for a written confirmation of his water rights over the weir and millrace — without it, a neighbour threatens a dispute.',
+                requiredItems: [{ id: 'ink', qty: 1 }, { id: 'paper', qty: 1 }],
+                rewardGrose: 8,
+                contactRelationReward: 5,
+            },
+        ],
     },
 
     // Týdenní self-guarded generátor (mirror Game.parishEventTick vzoru,
