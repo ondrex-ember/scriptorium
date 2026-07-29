@@ -52556,6 +52556,10 @@ const Game = {
 		if (!GameState.abbotPetition.domus_ii) GameState.abbotPetition.domus_ii = { status: 'none', submittedAt: null, deniedReason: null, inspectionPending: false };
 		// Vyhodnotit čekající žádosti po načtení
 		Game.checkAbbotPetitions();
+		// Krok B — vážený denní report Clientela↔Chronicon vztahů (mirror registrum)
+		if (typeof ChroniconSystem !== 'undefined' && ChroniconSystem._reportContactRelationIfNewDay) {
+			ChroniconSystem._reportContactRelationIfNewDay();
+		}
 
 		// CONVERSI — holý skelet (jméno + slot, bez úkolů zatím)
 		if (!GameState.conversi) GameState.conversi = [];
