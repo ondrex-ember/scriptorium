@@ -26792,6 +26792,10 @@ const StudovnaSystem = {
         return !!(GameState.researchedTechs && GameState.researchedTechs.includes('tech_studovna'));
     },
 
+    isBuilt: function() {
+        return !!(GameState.storage && GameState.storage.knihovna_grade_i && GameState.storage.knihovna_grade_i.built);
+    },
+
     // Vyprší-li pobyt hosta, tiše ho uklidí. Voláno lazy při každém renderu —
     // žádný samostatný denní tick netřeba, sloty se dívají jen na požádání.
     _clearExpiredGuest: function() {
@@ -26813,6 +26817,17 @@ const StudovnaSystem = {
                       <div style="font-size:2rem; margin-bottom:10px;">📖</div>
                       <div style="font-style:italic; font-size:0.9rem;">
                         ${lang==='en' ? 'The study room has not yet been built.' : 'Studovna zatím nestojí.'}
+                      </div>
+                    </div>`;
+            return;
+        }
+
+        if (!this.isBuilt()) {
+            el.innerHTML = `<div style="text-align:center; padding:40px 20px; opacity:0.6;
+                        border:1px dashed rgba(197,160,89,0.3); border-radius:8px;">
+                      <div style="font-size:2rem; margin-bottom:10px;">🏗️</div>
+                      <div style="font-style:italic; font-size:0.9rem;">
+                        ${lang==='en' ? 'The study room has been discovered but not yet built. Build it in Cellarium → Buildings.' : 'Studovna byla objevena, ale ještě nebyla postavena. Postav ji v Cellarium → Budovy.'}
                       </div>
                     </div>`;
             return;
