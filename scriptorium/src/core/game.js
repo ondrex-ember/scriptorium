@@ -4607,6 +4607,7 @@ const Game = {
 		if (!GameState.storage.dormitorium_i)   GameState.storage.dormitorium_i   = {built:false};
 		if (!GameState.storage.dormitorium_ii)  GameState.storage.dormitorium_ii  = {built:false};
 		if (!GameState.storage.dormitorium_iii) GameState.storage.dormitorium_iii = {built:false};
+		if (!GameState.storage.knihovna_grade_i) GameState.storage.knihovna_grade_i = {built:false};
 		if (!GameState.storage.transactions) GameState.storage.transactions = [];
 		// Prereq checks — storage buildings
 		if (type === 'cella' && !GameState.storage.almarium.built) {
@@ -4690,6 +4691,7 @@ const Game = {
 			dormitorium_i:   { cut_stone: 30, plank: 20, rope: 8 },
 			dormitorium_ii:  { cut_stone: 90,  plank: 60, rope: 25, iron_ingot: 2, glass_stopper: 6 },
 			dormitorium_iii: { cut_stone: 200, plank: 130, rope: 50, iron_ingot: 6, glass_stopper: 10, glass_tankard: 10 },
+			knihovna_grade_i: { cut_stone: 20, plank: 15, rope: 6 },
 		};
 		// Volitelný groše náklad navíc k materiálu — dnes jen Domus Conversorum I/II.
 		// Cokoliv chybí v costsGrose má groseNeeded=0, tedy nulový dopad na stávající budovy.
@@ -4699,6 +4701,7 @@ const Game = {
 			dormitorium_i: 15,
 			dormitorium_ii: 35,
 			dormitorium_iii: 70,
+			knihovna_grade_i: 15,
 		};
 		const cost = costs[type];
 		if (!cost) return;
@@ -4730,6 +4733,7 @@ const Game = {
 			dormitorium_i: 'Dormitorium I',
 			dormitorium_ii: 'Dormitorium II',
 			dormitorium_iii: 'Dormitorium III',
+			knihovna_grade_i: 'Knihovna — Stupeň I',
 		};
 		const n = names[type] || type;
 		UI.notifyPanel('🏗️ ' + (lang==='en' ? n+' built.' : n+' postaveno.'), 'system');
