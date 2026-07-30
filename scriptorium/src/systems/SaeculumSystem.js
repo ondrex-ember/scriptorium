@@ -519,7 +519,8 @@ const SaeculumSystem = {
       const locked = (tabId.indexOf('infirmarium_') === 0
           && !(GameState.researchedTechs && GameState.researchedTechs.includes('tech_infirmarium')))
         || (tabId === 'studovna'
-          && !(typeof StudovnaSystem !== 'undefined' && StudovnaSystem.isUnlocked && StudovnaSystem.isUnlocked()))
+          && !(typeof StudovnaSystem !== 'undefined' && StudovnaSystem.isUnlocked && StudovnaSystem.isUnlocked()
+            && StudovnaSystem.isBuilt && StudovnaSystem.isBuilt()))
         || (tabId === 'kantor'
           && !(GameState.researchedTechs && GameState.researchedTechs.includes('tech_schola_cantorum')));
       const disabled = (takenBy && !isCur) || locked;
