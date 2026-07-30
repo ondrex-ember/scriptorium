@@ -50,9 +50,17 @@ const ChroniconSystem = {
                 stats: { totalHelped: 0, totalTraded: 0 }
             };
         }
-        // Doplnění chybějících aktérů
+        // Doplnění chybějících aktérů — základní seznam + cokoliv navíc,
+        // co už dorazilo ze skutečného Chroniconu (např. sklář,
+        // 29.7.2026). Bez tohohle "Požehnat" na novém aktérovi tiše nic
+        // neudělá (chroniconLocal.actors[id] by bylo undefined a
+        // interactWithActor() by na `if (!actor) return;` skončila potichu).
         const defaultList = ['vrchnost','mlynar','kovar','uhlic','vorar','rybnikar','prevoznik','valach','klaster','vcelar'];
-        defaultList.forEach(id => {
+        const snapActorIds = (ChroniconSystem._snap && Array.isArray(ChroniconSystem._snap.actors))
+            ? ChroniconSystem._snap.actors.map(a => a.id)
+            : [];
+        const allIds = Array.from(new Set(defaultList.concat(snapActorIds)));
+        allIds.forEach(id => {
             if (!GameState.chroniconLocal.actors[id]) {
                 GameState.chroniconLocal.actors[id] = { mood: 70, wealth: 60, status: 'normal', level: 1, quest: null };
             }
@@ -1110,6 +1118,7 @@ const ChroniconSystem = {
     _ACTOR_ICONS: {
         vrchnost: '🏰', mlynar: '🌾', kovar: '⚒️', uhlic: '🔥', vorar: '🪵',
         rybnikar: '🐟', prevoznik: '⛴️', valach: '🐑', klaster: '⛪', vcelar: '🐝',
+        sklar: '🔮',
     },
 
     _activeFilter: 'all',
