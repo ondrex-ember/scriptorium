@@ -823,6 +823,124 @@ const EventsSystem = {
                     }
                 }
             ]
+        },
+
+        // ═══ ZAKÁZKY — Kategorie C: kacířská/hříšná zakázka ═══
+        // zakazky-rozsireni-ctyri-kategorie-mrd.md §4. Instant-choice modal,
+        // NE fronta (mirror print_malleus) — morální dilema má být naléhavé.
+        // Historické zakotvení: rok 1465, spor Jiřího z Poděbrad s Římem
+        // (papežský půhon obnoven VIII/1465, Zelenohorská jednota XI/1465).
+        // Lidovost/Šlechta/Církev delty jsou herní zjednodušení dobové
+        // nálady, ne tvrzení o skutečném rozvrstvení sympatií.
+
+        // C-Kacir1 — Žádost o opis Basilejských kompaktát pro utrakvistu
+        {
+            id: 'kacir_kompaktata',
+            icon: '📜',
+            title: () => (GameState.settings && GameState.settings.language === 'en') ? 'A Quiet Request' : 'Tichá žádost',
+            text: () => {
+                const en = GameState.settings && GameState.settings.language === 'en';
+                return en
+                    ? '*A traveller lingers after Compline, voice low. He asks for a copy of the Basel Compacts — the old settlement that lets a man take both kinds at Mass. "For a sick uncle," he says, not meeting your eyes. Rome\'s patience with the king\'s party grows thin this year. Copying such a thing now is not nothing.*'
+                    : '*Poutník se zdrží po kompletáři, hlas ztišený. Žádá o opis Basilejských kompaktát — starého narovnání, co dovoluje přijímat pod obojí. „Pro nemocného strýce," praví, aniž by pohlédl do očí. Řím letos nemá s královou stranou trpělivosti nazbyt. Opsat něco takového teď není nic málo.*';
+            },
+            cooldownDays: 21,
+            trigger: () => {
+                const m = GameState.rank && GameState.rank.monastic;
+                return !!(m && ['frater', 'armarius', 'prior'].includes(m)) && Math.random() < 0.012;
+            },
+            choices: [
+                {
+                    label: () => (GameState.settings && GameState.settings.language === 'en') ? 'Copy the compacts' : 'Opsat kompaktáta',
+                    desc: () => (GameState.settings && GameState.settings.language === 'en')
+                        ? 'A few groschen, and the village remembers a kindness. But the tribunal keeps its own ledger.'
+                        : 'Pár grošů, a ves si pamatuje laskavost. Ale tribunál si vede vlastní účty.',
+                    action: () => {
+                        const en = GameState.settings && GameState.settings.language === 'en';
+                        CellariumSystem.addGrose(35);
+                        if (GameState.secrets) GameState.secrets.inquisitionHeat = Math.min(100, (GameState.secrets.inquisitionHeat || 0) + 15);
+                        if (typeof PersonaSystem !== 'undefined' && PersonaSystem.addReputation) {
+                            PersonaSystem.addReputation('lidovost', 2);
+                            PersonaSystem.addReputation('cirkev', -3);
+                        }
+                        const msg = en
+                            ? 'The compacts are copied and pass quietly into other hands. 35 groschen. (Suspicion +15, Clergy reputation −3, Common folk +2)'
+                            : 'Kompaktáta jsou opsána a tiše přechází do jiných rukou. 35 grošů. (Podezření +15, Církevní pověst −3, Lid +2)';
+                        UI.notifyPanel(msg, 'warning');
+                        EventsSystem._addKronika(msg);
+                        return msg;
+                    }
+                },
+                {
+                    label: () => (GameState.settings && GameState.settings.language === 'en') ? 'Decline' : 'Odmítnout',
+                    desc: () => (GameState.settings && GameState.settings.language === 'en')
+                        ? 'Safe. The traveller nods and says no more.'
+                        : 'Bezpečné. Poutník přikývne a víc neřekne.',
+                    action: () => {
+                        const en = GameState.settings && GameState.settings.language === 'en';
+                        const msg = en
+                            ? 'You decline. The traveller leaves as quietly as he came.'
+                            : 'Odmítáš. Poutník odchází stejně tiše, jako přišel.';
+                        UI.notifyPanel(msg, 'system');
+                        return msg;
+                    }
+                }
+            ]
+        },
+
+        // C-Kacir2 — Žádost o opis provolání Zelenohorské jednoty
+        {
+            id: 'kacir_zelenohorska',
+            icon: '🛡️',
+            title: () => (GameState.settings && GameState.settings.language === 'en') ? 'A Sealed Letter' : 'Zapečetěný list',
+            text: () => {
+                const en = GameState.settings && GameState.settings.language === 'en';
+                return en
+                    ? '*A rider in a lord\'s livery brings a sealed proclamation — the founding writ of a league of Catholic lords against the king, sworn at the end of November. He asks for copies, quietly, to be sent on to other houses. "The king\'s men," he adds, "do not love readers of this."*'
+                    : '*Jezdec v panském livreji přiváží zapečetěné provolání — zakládací listinu jednoty katolických pánů proti králi, přísahanou koncem listopadu. Žádá o opisy, tiše, k rozeslání dalším domům. „Královi lidé," dodává, „nemají čtenáře tohoto listu v lásce."*';
+            },
+            cooldownDays: 21,
+            trigger: () => {
+                const m = GameState.rank && GameState.rank.monastic;
+                return !!(m && ['frater', 'armarius', 'prior'].includes(m)) && Math.random() < 0.012;
+            },
+            choices: [
+                {
+                    label: () => (GameState.settings && GameState.settings.language === 'en') ? 'Copy the proclamation' : 'Opsat provolání',
+                    desc: () => (GameState.settings && GameState.settings.language === 'en')
+                        ? 'Lordly favour and the Church\'s quiet approval — but the village hears whose side you have chosen.'
+                        : 'Přízeň šlechty a tiché uznání církve — ale ves slyší, na čí stranu ses přiklonil.',
+                    action: () => {
+                        const en = GameState.settings && GameState.settings.language === 'en';
+                        CellariumSystem.addGrose(35);
+                        if (typeof PersonaSystem !== 'undefined' && PersonaSystem.addReputation) {
+                            PersonaSystem.addReputation('slechta', 3);
+                            PersonaSystem.addReputation('cirkev', 2);
+                            PersonaSystem.addReputation('lidovost', -2);
+                        }
+                        const msg = en
+                            ? 'Copies are made and sent on with the rider. 35 groschen. (Nobility +3, Clergy reputation +2, Common folk −2)'
+                            : 'Opisy jsou hotové a odeslané s jezdcem. 35 grošů. (Šlechta +3, Církevní pověst +2, Lid −2)';
+                        UI.notifyPanel(msg, 'system');
+                        EventsSystem._addKronika(msg);
+                        return msg;
+                    }
+                },
+                {
+                    label: () => (GameState.settings && GameState.settings.language === 'en') ? 'Decline' : 'Odmítnout',
+                    desc: () => (GameState.settings && GameState.settings.language === 'en')
+                        ? 'Safe. The rider rides on to the next house.'
+                        : 'Bezpečné. Jezdec pokračuje k dalšímu domu.',
+                    action: () => {
+                        const en = GameState.settings && GameState.settings.language === 'en';
+                        const msg = en
+                            ? 'You decline. The rider takes his sealed letter elsewhere.'
+                            : 'Odmítáš. Jezdec odváží svůj zapečetěný list jinam.';
+                        UI.notifyPanel(msg, 'system');
+                        return msg;
+                    }
+                }
+            ]
         }
     ],
 
