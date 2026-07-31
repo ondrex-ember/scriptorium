@@ -13116,10 +13116,10 @@ const LettersDB = [
       activeStatuses: ['commissioned'],
       forWhom_cs: 'Opat kláštera v Rajhradě', forWhom_en: 'Abbot of Rajhrad Abbey',
       what_cs: 'Opis kodexu pro klášterní knihovnu', what_en: 'A codex copy for the abbey library',
-      reward_cs: '60 grošů + Učenci +6', reward_en: '60 groschen + Scholars +6',
+      reward_cs: '60 grošů + Učenci +6 + Církevní pověst +2', reward_en: '60 groschen + Scholars +6 + Clergy reputation +2',
       risk_cs: 'Učenci −4 při zmeškání lhůty', risk_en: 'Scholars −4 if the deadline is missed',
       requiredItem: { id: 'common_codex', qty: 1 },
-      reward: { grose: 60, influenceKey: 'scholars', influenceAmt: 6 },
+      reward: { grose: 60, influenceKey: 'scholars', influenceAmt: 6, reputationKey: 'cirkev', reputationAmt: 2 },
       penalty: { influenceKey: 'scholars', influenceAmt: -4 },
       deliveredValue: 'delivered',
     },
@@ -13181,10 +13181,10 @@ const LettersDB = [
       activeStatuses: ['commissioned'],
       forWhom_cs: 'Farář ze sousední vsi', forWhom_en: 'The Priest of the Neighbouring Village',
       what_cs: 'Kancionál pro chudou farnost', what_en: 'A hymnal for a poor parish',
-      reward_cs: '25 grošů + Ecclesia +4', reward_en: '25 groschen + Ecclesia +4',
+      reward_cs: '25 grošů + Ecclesia +4 + Církevní pověst +2', reward_en: '25 groschen + Ecclesia +4 + Clergy reputation +2',
       risk_cs: 'Ecclesia −2 při zmeškání lhůty', risk_en: 'Ecclesia −2 if the deadline is missed',
       requiredItem: { id: 'common_codex', qty: 1 },
-      reward: { grose: 25, influenceKey: 'church', influenceAmt: 4 },
+      reward: { grose: 25, influenceKey: 'church', influenceAmt: 4, reputationKey: 'cirkev', reputationAmt: 2 },
       penalty: { influenceKey: 'church', influenceAmt: -2 },
       deliveredValue: 'delivered',
     },
@@ -37382,6 +37382,180 @@ const CommitmentsSystem = {
         ],
     },
 
+    // ═══ ZAKÁZKY — Kategorie A: existující Clientela kontakty ═══
+    // zakazky-rozsireni-ctyri-kategorie-mrd.md §2. Oddělený katalog od
+    // _AKTER_ZAKAZKY_CATALOG (sklar/kovar/mlynar), ať se nemění jejich
+    // už doladěná týdenní/25% kadence — tahle kategorie má být častější,
+    // viditelná "fronta" (viz vlastní tik níže, MRD §1 revize).
+    _KLIENTELA_A_CATALOG: {
+        stationarius: [
+            {
+                key: 'pecia_opis',
+                icon: '📚',
+                title_cs: 'Opis na pecii pro žáky',
+                title_en: 'A Pecia Copy for Students',
+                text_cs: 'Stationarius prosí o rozepsání textu na nezašité archy k pronájmu studentům — pecia systém, jak ho zná z univerzit.',
+                text_en: 'The stationarius asks for a text copied onto unbound quires for rent to students — the pecia system, as known from the universities.',
+                requiredItems: [{ id: 'paper', qty: 2 }, { id: 'ink', qty: 1 }],
+                rewardGrose: 10,
+                contactRelationReward: 5,
+                reputationKey: 'lidovost', reputationAmt: 1,
+            },
+        ],
+        klenotnik: [
+            {
+                key: 'kovana_vazba',
+                icon: '💍',
+                title_cs: 'Kovaná vazba na evangeliář',
+                title_en: 'A Metal Binding for a Gospel Book',
+                text_cs: 'Klenotník nabízí stříbrný prut na kovanou vazbu, žádá jen dohled písaře nad prací — a podíl na hotovém díle.',
+                text_en: 'The goldsmith offers a silver ingot for a metal binding, and asks only for a scribe\'s oversight of the work — and a share of the finished piece.',
+                requiredItems: [{ id: 'stribrny_prut', qty: 1 }],
+                rewardGrose: 25,
+                contactRelationReward: 5,
+                reputationKey: 'lidovost', reputationAmt: 2,
+            },
+        ],
+        giacomo: [
+            {
+                key: 'horologium_export',
+                icon: '⚓',
+                title_cs: 'Iluminovaný kodex na export',
+                title_en: 'An Illuminated Codex for Export',
+                text_cs: 'Giacomo shání luxusní kodex pro benátského patrona — platí dobře, ale čeká práci hodnou vývozu.',
+                text_en: 'Giacomo seeks a luxury codex for a Venetian patron — he pays well, but expects work worthy of export.',
+                requiredItems: [{ id: 'luxury_codex', qty: 1 }],
+                rewardGrose: 50,
+                contactRelationReward: 5,
+                reputationKey: 'lidovost', reputationAmt: 2,
+            },
+        ],
+        kamenik: [
+            {
+                key: 'pametni_napis',
+                icon: '🪨',
+                title_cs: 'Pamětní nápis pro rodinu',
+                title_en: 'A Memorial Inscription for a Family',
+                text_cs: 'Kameník prosí o návrh textu pamětního nápisu — rodina si přeje důstojná slova, ne jen datum.',
+                text_en: 'The stonemason asks for a memorial inscription text — the family wants dignified words, not just a date.',
+                requiredItems: [{ id: 'cut_stone', qty: 2 }],
+                rewardGrose: 15,
+                contactRelationReward: 5,
+                reputationKey: 'lidovost', reputationAmt: 1,
+            },
+        ],
+    },
+
+    // Denní self-guarded generátor (MRD §1 revize — Kategorie A má být
+    // "fronta", ne vzácnost). Stejný per-aktér strop (max 1 najednou)
+    // jako u _AKTER_ZAKAZKY_CATALOG, ale vlastní, kratší kadence.
+    klientelaATick: function () {
+        if (!Array.isArray(GameState.localAkterZakazky)) GameState.localAkterZakazky = [];
+        const DAY = 24 * 60 * 60 * 1000;
+        if (!GameState.klientelaANextTick) {
+            GameState.klientelaANextTick = Date.now() + Math.round(DAY * 0.5);
+            return;
+        }
+        if (Date.now() < GameState.klientelaANextTick) return;
+        GameState.klientelaANextTick = Date.now() + DAY;
+        if (Math.random() >= 0.12) return; // ~12 %/den
+
+        const researched = GameState.researchedTechs || [];
+        const readBooks = (GameState.library && GameState.library.readBooks) || [];
+        let changed = false;
+
+        Object.keys(this._KLIENTELA_A_CATALOG).forEach(actorId => {
+            const contact = (typeof ContactsDB !== 'undefined') ? ContactsDB[actorId] : null;
+            if (!contact) return;
+            if (contact.unlockTech && !researched.includes(contact.unlockTech)) return;
+            if (contact.unlockBook && !readBooks.includes(contact.unlockBook)) return;
+            if (contact.unlockContact) {
+                const rel = (GameState.contactRelation && GameState.contactRelation[contact.unlockContact.id]) || 0;
+                if (rel < contact.unlockContact.minRelation) return;
+            }
+            if (GameState.localAkterZakazky.some(z => z.actorId === actorId)) return;
+
+            const options = this._KLIENTELA_A_CATALOG[actorId];
+            const opt = options[Math.floor(Math.random() * options.length)];
+            GameState.localAkterZakazky.push({
+                id: 'klientela_' + actorId + '_' + opt.key + '_' + Date.now(),
+                actorId: actorId,
+                key: opt.key,
+                createdAt: Date.now(),
+                deadlineDays: 7,
+            });
+            changed = true;
+        });
+
+        if (changed) {
+            if (typeof Game !== 'undefined' && Game.save) Game.save();
+            this.render();
+        }
+    },
+
+    // ═══ ZAKÁZKY — Kategorie B: Cizí vrchnost ═══
+    // zakazky-rozsireni-ctyri-kategorie-mrd.md §3. Abstraktní odesílatel,
+    // ŽÁDNÝ ContactsDB záznam (rozhodnuto — levnější, žádný nový systém).
+    // Odměna/postih jde přes Pověst (reputation.slechta), ne contactRelation
+    // — pro "vrchnost" žádná taková osa neexistuje.
+    _VRCHNOST_ZAKAZKY_CATALOG: {
+        vrchnost: [
+            {
+                key: 'erbovnik',
+                icon: '🛡️',
+                senderName_cs: 'Cizí vrchnost', senderName_en: 'A Foreign Lord',
+                title_cs: 'Erbovník pro rodový dům',
+                title_en: 'An Armorial for the Family House',
+                text_cs: 'Šlechtic žádá o sepsání erbovníku svého rodu — má zdobit síň, ne knihovnu.',
+                text_en: 'A nobleman asks for an armorial of his family to be drawn up — meant to adorn a hall, not a library.',
+                requiredItems: [{ id: 'vellum', qty: 2 }, { id: 'ink_gallic', qty: 1 }],
+                rewardGrose: 40,
+                reputationKey: 'slechta', reputationAmt: 3,
+            },
+            {
+                key: 'hranicni_listina',
+                icon: '📜',
+                senderName_cs: 'Cizí vrchnost', senderName_en: 'A Foreign Lord',
+                title_cs: 'Hraniční listina',
+                title_en: 'A Boundary Charter',
+                text_cs: 'Spor o mez se sousedem — šlechtic žádá o sepsání listiny, co jeho právo potvrdí na papíře, ne jen na slovo.',
+                text_en: 'A boundary dispute with a neighbour — the lord asks for a charter confirming his right on paper, not just by word.',
+                requiredItems: [{ id: 'paper', qty: 2 }, { id: 'ink', qty: 1 }],
+                rewardGrose: 30,
+                reputationKey: 'slechta', reputationAmt: 2,
+            },
+        ],
+    },
+
+    // Týdenní self-guarded generátor (mirror akterZakazkyTick kadence),
+    // jen 1 slot najednou (žádný per-aktér strop potřeba — jeden abstraktní
+    // odesílatel, ne více kontaktů).
+    vrchnostZakazkyTick: function () {
+        if (!Array.isArray(GameState.localAkterZakazky)) GameState.localAkterZakazky = [];
+        const WEEK = 7 * 24 * 60 * 60 * 1000;
+        if (!GameState.vrchnostZakazkyNextTick) {
+            GameState.vrchnostZakazkyNextTick = Date.now() + Math.round(WEEK * 0.5);
+            return;
+        }
+        if (Date.now() < GameState.vrchnostZakazkyNextTick) return;
+        GameState.vrchnostZakazkyNextTick = Date.now() + WEEK;
+        if (Math.random() >= 0.20) return; // ~20 %/týden
+
+        if (GameState.localAkterZakazky.some(z => z.actorId === 'vrchnost')) return;
+
+        const options = this._VRCHNOST_ZAKAZKY_CATALOG.vrchnost;
+        const opt = options[Math.floor(Math.random() * options.length)];
+        GameState.localAkterZakazky.push({
+            id: 'vrchnost_' + opt.key + '_' + Date.now(),
+            actorId: 'vrchnost',
+            key: opt.key,
+            createdAt: Date.now(),
+            deadlineDays: 10,
+        });
+        if (typeof Game !== 'undefined' && Game.save) Game.save();
+        this.render();
+    },
+
     // Týdenní self-guarded generátor (mirror Game.parishEventTick vzoru,
     // ale gate na odemčenost kontaktu, ne na rank Probošt — tohle jsou
     // řemeslné zakázky, ne farní povinnosti).
@@ -37433,11 +37607,17 @@ const CommitmentsSystem = {
 
     _normalizeLocalAkterEvent: function (z) {
         const lang = (GameState.settings && GameState.settings.language) || 'cs';
-        const options = this._AKTER_ZAKAZKY_CATALOG[z.actorId];
+        // Hledá napříč všemi 3 katalogy (sklar/kovar/mlynar, Klientela A, Vrchnost B)
+        const options = this._AKTER_ZAKAZKY_CATALOG[z.actorId]
+            || this._KLIENTELA_A_CATALOG[z.actorId]
+            || this._VRCHNOST_ZAKAZKY_CATALOG[z.actorId];
         const opt = options && options.find(o => o.key === z.key);
         if (!opt) return null;
         const contact = (typeof ContactsDB !== 'undefined') ? ContactsDB[z.actorId] : null;
-        const actorName = contact ? (lang === 'en' ? contact.name_en : contact.name) : z.actorId;
+        // senderName_cs/en override — pro odesílatele bez ContactsDB záznamu (Vrchnost)
+        const actorName = opt.senderName_cs
+            ? (lang === 'en' ? opt.senderName_en : opt.senderName_cs)
+            : (contact ? (lang === 'en' ? contact.name_en : contact.name) : z.actorId);
         const daysLeft = Math.max(0, Math.ceil(((z.createdAt + z.deadlineDays * 24 * 60 * 60 * 1000) - Date.now()) / (24 * 60 * 60 * 1000)));
         return {
             source: 'local',
@@ -37451,6 +37631,8 @@ const CommitmentsSystem = {
             requiredItems: opt.requiredItems,
             rewardGrose: opt.rewardGrose,
             contactRelationReward: opt.contactRelationReward,
+            reputationKey: opt.reputationKey,
+            reputationAmt: opt.reputationAmt,
             daysLeft: daysLeft,
         };
     },
@@ -37687,6 +37869,8 @@ const CommitmentsSystem = {
         if (c.reward) {
             if (c.reward.grose && typeof CellariumSystem !== 'undefined' && CellariumSystem.addGrose) CellariumSystem.addGrose(c.reward.grose);
             if (c.reward.influenceKey && typeof PersonaSystem !== 'undefined' && PersonaSystem.addInfluence) PersonaSystem.addInfluence(c.reward.influenceKey, c.reward.influenceAmt || 0);
+            // Pověst (povest-frakcni-reputace-mrd.md) — volitelné, jen pokud dopis reputationKey definuje
+            if (c.reward.reputationKey && typeof PersonaSystem !== 'undefined' && PersonaSystem.addReputation) PersonaSystem.addReputation(c.reward.reputationKey, c.reward.reputationAmt || 0);
         }
         GameState.flags[flagKey] = c.deliveredValue || 'delivered';
         GameState.flags[flagKey + 'DeliveredAt'] = Date.now();
@@ -37897,10 +38081,15 @@ const CommitmentsSystem = {
             if (item.rewardGrose && typeof CellariumSystem !== 'undefined' && CellariumSystem.addGrose) {
                 CellariumSystem.addGrose(item.rewardGrose);
             }
-            if (item.contactRelationReward) {
+            // contactRelation jen pro skutečné Clientela kontakty (sklar/kovar/mlynar, Kategorie A)
+            if (item.contactRelationReward && typeof ContactsDB !== 'undefined' && ContactsDB[raw.actorId]) {
                 if (!GameState.contactRelation) GameState.contactRelation = {};
                 const cur = GameState.contactRelation[raw.actorId] || 0;
                 GameState.contactRelation[raw.actorId] = Math.max(0, Math.min(100, cur + item.contactRelationReward));
+            }
+            // Pověst (povest-frakcni-reputace-mrd.md) — Kategorie A→lidovost, B→slechta
+            if (item.reputationKey && typeof PersonaSystem !== 'undefined' && PersonaSystem.addReputation) {
+                PersonaSystem.addReputation(item.reputationKey, item.reputationAmt || 0);
             }
             if (typeof Game !== 'undefined' && Game.addKronikaEntry) Game.addKronikaEntry('minor',
                 '📜 ' + item.title + ' — vyhotoveno.',
@@ -37916,10 +38105,15 @@ const CommitmentsSystem = {
         }
 
         if (choiceId === 'decline') {
-            if (item.contactRelationReward) {
+            // contactRelation jen pro skutečné Clientela kontakty
+            if (item.contactRelationReward && typeof ContactsDB !== 'undefined' && ContactsDB[raw.actorId]) {
                 if (!GameState.contactRelation) GameState.contactRelation = {};
                 const cur = GameState.contactRelation[raw.actorId] || 0;
                 GameState.contactRelation[raw.actorId] = Math.max(0, cur - 1);
+            }
+            // Pověst — malý postih při odmítnutí (jen Kategorie A/B, mají reputationKey)
+            if (item.reputationKey && typeof PersonaSystem !== 'undefined' && PersonaSystem.addReputation) {
+                PersonaSystem.addReputation(item.reputationKey, -1);
             }
             if (typeof UI !== 'undefined') UI.notify(lang==='en' ? 'Declined.' : 'Odmítnuto.');
             this._pushHistory({ icon: item.icon, title: item.title, outcome: 'decline' });
