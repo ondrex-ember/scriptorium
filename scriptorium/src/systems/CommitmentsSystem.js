@@ -587,6 +587,10 @@ const CommitmentsSystem = {
             const parts = [];
             if (item.rewardGrose) parts.push(`<span>💰 ${item.rewardGrose} ${lang==='en'?'groschen':'grošů'}</span>`);
             if (item.contactRelationReward) parts.push(`<span>🤝 +${item.contactRelationReward} ${lang==='en'?'relation':'vztah'}</span>`);
+            if (item.reputationKey && item.reputationAmt) {
+                const _repLabel = { lidovost: lang==='en'?'Common folk':'Lid', slechta: lang==='en'?'Nobility':'Šlechta', cirkev: lang==='en'?'Clergy':'Církev' }[item.reputationKey] || item.reputationKey;
+                parts.push(`<span>📜 +${item.reputationAmt} ${_repLabel} (${lang==='en'?'reputation':'pověst'})</span>`);
+            }
             if (typeof item.daysLeft === 'number') parts.push(`<span>⏳ ${item.daysLeft} ${lang==='en'?'days left':'dní zbývá'}</span>`);
             extraLine = parts.join('');
         }
