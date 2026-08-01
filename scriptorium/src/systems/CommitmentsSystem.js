@@ -266,6 +266,15 @@ const CommitmentsSystem = {
                 deadlineDays: 7,
             });
             changed = true;
+            // Zprávy z kláštera (bell panel) + Kronika — zakázka dorazila
+            const _lang = (GameState.settings && GameState.settings.language) || 'cs';
+            const _senderName = _lang === 'en' ? (contact.name_en || contact.name) : contact.name;
+            if (typeof UI !== 'undefined' && UI.notifyPanel) UI.notifyPanel(
+                (_lang === 'en' ? `📜 ${_senderName} has a request for you.` : `📜 ${_senderName} má pro tebe žádost.`), 'obchod');
+            if (typeof Game !== 'undefined' && Game.addKronikaEntry) Game.addKronikaEntry('minor',
+                `📜 Zakázka od ${contact.name}.`,
+                `📜 A commission from ${contact.name_en || contact.name}.`,
+                `📜 Opus novum oblatum est.`);
         });
 
         if (changed) {
@@ -344,6 +353,15 @@ const CommitmentsSystem = {
             createdAt: Date.now(),
             deadlineDays: 10,
         });
+        // Zprávy z kláštera (bell panel) + Kronika — zakázka dorazila
+        const _lang = (GameState.settings && GameState.settings.language) || 'cs';
+        const _senderName = _lang === 'en' ? opt.senderName_en : opt.senderName_cs;
+        if (typeof UI !== 'undefined' && UI.notifyPanel) UI.notifyPanel(
+            (_lang === 'en' ? `📜 ${_senderName} has a request for you.` : `📜 ${_senderName} má pro tebe žádost.`), 'obchod');
+        if (typeof Game !== 'undefined' && Game.addKronikaEntry) Game.addKronikaEntry('minor',
+            `📜 Zakázka od ${opt.senderName_cs}.`,
+            `📜 A commission from ${opt.senderName_en}.`,
+            `📜 Opus novum oblatum est.`);
         if (typeof Game !== 'undefined' && Game.save) Game.save();
         this.render();
     },
@@ -384,6 +402,15 @@ const CommitmentsSystem = {
                 deadlineDays: 7,
             });
             changed = true;
+            // Zprávy z kláštera (bell panel) + Kronika — zakázka dorazila
+            const _lang = (GameState.settings && GameState.settings.language) || 'cs';
+            const _senderName = _lang === 'en' ? (contact.name_en || contact.name) : contact.name;
+            if (typeof UI !== 'undefined' && UI.notifyPanel) UI.notifyPanel(
+                (_lang === 'en' ? `📜 ${_senderName} has a request for you.` : `📜 ${_senderName} má pro tebe žádost.`), 'obchod');
+            if (typeof Game !== 'undefined' && Game.addKronikaEntry) Game.addKronikaEntry('minor',
+                `📜 Zakázka od ${contact.name}.`,
+                `📜 A commission from ${contact.name_en || contact.name}.`,
+                `📜 Opus novum oblatum est.`);
         });
 
         if (changed) {
