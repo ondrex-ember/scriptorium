@@ -37415,6 +37415,7 @@ const CommitmentsSystem = {
                 rewardGrose: 10,
                 contactRelationReward: 5,
                 reputationKey: 'lidovost', reputationAmt: 1,
+                bonusItem: { id: 'glosa_studenta', qty: 1 },
             },
         ],
         klenotnik: [
@@ -37429,6 +37430,7 @@ const CommitmentsSystem = {
                 rewardGrose: 25,
                 contactRelationReward: 5,
                 reputationKey: 'lidovost', reputationAmt: 2,
+                bonusItem: { id: 'drahokam_ulomek', qty: 1 },
             },
         ],
         giacomo: [
@@ -37526,6 +37528,7 @@ const CommitmentsSystem = {
                 requiredItems: [{ id: 'vellum', qty: 2 }, { id: 'ink_gallic', qty: 1 }],
                 rewardGrose: 40,
                 reputationKey: 'slechta', reputationAmt: 3,
+                bonusItem: { id: 'erbovni_nakres', qty: 1 },
             },
             {
                 key: 'hranicni_listina',
@@ -37658,6 +37661,7 @@ const CommitmentsSystem = {
             contactRelationReward: opt.contactRelationReward,
             reputationKey: opt.reputationKey,
             reputationAmt: opt.reputationAmt,
+            bonusItem: opt.bonusItem,
             daysLeft: daysLeft,
         };
     },
@@ -37836,6 +37840,10 @@ const CommitmentsSystem = {
             if (item.reputationKey && item.reputationAmt) {
                 const _repLabel = { lidovost: lang==='en'?'Common folk':'Lid', slechta: lang==='en'?'Nobility':'Šlechta', cirkev: lang==='en'?'Clergy':'Církev' }[item.reputationKey] || item.reputationKey;
                 parts.push(`<span>📜 +${item.reputationAmt} ${_repLabel} (${lang==='en'?'reputation':'pověst'})</span>`);
+            }
+            if (item.bonusItem && typeof ItemsDB !== 'undefined' && ItemsDB[item.bonusItem.id]) {
+                const _bi = ItemsDB[item.bonusItem.id];
+                parts.push(`<span>${_bi.icon} ${lang==='en'?_bi.name_en:_bi.name}</span>`);
             }
             if (typeof item.daysLeft === 'number') parts.push(`<span>⏳ ${item.daysLeft} ${lang==='en'?'days left':'dní zbývá'}</span>`);
             extraLine = parts.join('');
@@ -38119,6 +38127,11 @@ const CommitmentsSystem = {
             // Pověst (povest-frakcni-reputace-mrd.md) — Kategorie A→lidovost, B→slechta
             if (item.reputationKey && typeof PersonaSystem !== 'undefined' && PersonaSystem.addReputation) {
                 PersonaSystem.addReputation(item.reputationKey, item.reputationAmt || 0);
+            }
+            // Vrstva 3 (zakazky-rozsireni-ctyri-kategorie-mrd.md §6) — kontakt-specifická
+            // věcná odměna, curio do Truhly (ItemsDB lostItem:true, čistě zobrazovací tam)
+            if (item.bonusItem && typeof Game !== 'undefined' && Game.addItem) {
+                Game.addItem(item.bonusItem.id, item.bonusItem.qty || 1);
             }
             if (typeof Game !== 'undefined' && Game.addKronikaEntry) Game.addKronikaEntry('minor',
                 '📜 ' + item.title + ' — vyhotoveno.',
