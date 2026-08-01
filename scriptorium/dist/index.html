@@ -7980,6 +7980,20 @@ const ItemsDB = {
         desc: "Zlatý dukát. V klášterním dvoře? Někdo ho tady musel ztratit za velmi podivných okolností.", desc_en: "A gold ducat. In the monastery yard? Someone must have dropped it under very peculiar circumstances."
     },
 
+    // ── ZAKÁZKOVÉ KURIOZITY (vrstva 3, zakazky-rozsireni-ctyri-kategorie-mrd.md §6) ──
+    "drahokam_ulomek": {
+        name: "Úlomek drahokamu", name_en: "Gem Fragment", icon: "💎", type: "mat", lostItem: true,
+        desc: "Odštěpek z klenotníkovy dílny — zbytek po broušení, na šperk už malý, na vzpomínku právě dost.", desc_en: "A chip from the goldsmith's workshop — too small for jewellery, just right for a keepsake."
+    },
+    "glosa_studenta": {
+        name: "Glosa neznámého studenta", name_en: "Gloss of an Unknown Student", icon: "✒️", type: "lore", lostItem: true,
+        desc: "Okraj vypůjčeného textu popsaný cizí rukou — poznámka, hádka s autorem, možná i vtip. Pecia systém nechává stopy.", desc_en: "The margin of a borrowed text, scrawled by another hand — a note, an argument with the author, perhaps a joke. The pecia system leaves its traces."
+    },
+    "erbovni_nakres": {
+        name: "Nedokončený erbovní nákres", name_en: "Unfinished Heraldic Sketch", icon: "🎨", type: "lore", lostItem: true,
+        desc: "Pracovní návrh erbu, co se do finální listiny nakonec nedostal. Štít zůstal napůl vybarvený.", desc_en: "A working sketch of a coat of arms that never made it into the final charter. The shield stayed half-coloured."
+    },
+
     // ATHANOR — ingredience (nové suroviny)
     "carbon_black": { name: "Saze", name_en: "Carbon Black", icon: "🖤", type: "alchemy_ing", desc: "Saze z krbu. Nejstarší černý pigment.", desc_en: "Soot from the hearth. The oldest black pigment." },
     "ochre": { name: "Okr", name_en: "Ochre", icon: "🟤", type: "alchemy_ing", desc: "Žlutohnědá zemina. Pigment od pravěku.", desc_en: "Yellow-brown earth. A pigment since prehistory." },
@@ -8531,6 +8545,7 @@ Object.assign(ItemsDB, {
         desc: "Potřísněný list nalezený mezi zkaženými zásobami. Někdo si zapsal, co znamená, když zanedbání přivolá roj.", desc_en: "A stained page found among the spoiled stores. Someone once wrote down what it means when neglect draws a swarm."
     },
 });
+
 // ═══ src/data/recipes.js ═══
 const RecipesDB = [
     // BASIC TOOLS
