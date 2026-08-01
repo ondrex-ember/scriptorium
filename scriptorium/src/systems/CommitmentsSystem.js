@@ -257,7 +257,7 @@ const CommitmentsSystem = {
             const options = this._KLIENTELA_A_CATALOG[actorId];
             const opt = options[Math.floor(Math.random() * options.length)];
             GameState.localAkterZakazky.push({
-                id: 'klientela_' + actorId + '_' + opt.key + '_' + Date.now(),
+                id: 'akter_' + actorId + '_' + opt.key + '_' + Date.now(),
                 actorId: actorId,
                 key: opt.key,
                 createdAt: Date.now(),
@@ -325,7 +325,7 @@ const CommitmentsSystem = {
         const options = this._VRCHNOST_ZAKAZKY_CATALOG.vrchnost;
         const opt = options[Math.floor(Math.random() * options.length)];
         GameState.localAkterZakazky.push({
-            id: 'vrchnost_' + opt.key + '_' + Date.now(),
+            id: 'akter_vrchnost_' + opt.key + '_' + Date.now(),
             actorId: 'vrchnost',
             key: opt.key,
             createdAt: Date.now(),
