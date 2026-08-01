@@ -309,8 +309,18 @@ const CommitmentsSystem = {
     // Týdenní self-guarded generátor (mirror akterZakazkyTick kadence),
     // jen 1 slot najednou (žádný per-aktér strop potřeba — jeden abstraktní
     // odesílatel, ne více kontaktů).
+    //
+    // Gate na Šlechtu (slechta≥3, DECIDED 1.8.2026): MRD navrhovala vyšší
+    // práh, ale zdroje `slechta` jsou dnes jen Visitatio Laudatio (+3,
+    // vzácné) a tahle zakázka sama (+3 při přijetí) — vysoký práh by byl
+    // kruhová závislost (potřebuješ Šlechtu, abys dostal zakázku, co dává
+    // Šlechtu). Práh 3 = symbolický, "šlechta o tobě ví" spíš než bariéra;
+    // stačí 1× Laudatio. ZATÍM — přehodnotit, až bude víc zdrojů slechta
+    // (vrstva 3/4 z zakazky-rozsireni MRD, další Vrchnost dopisy apod.).
     vrchnostZakazkyTick: function () {
         if (!Array.isArray(GameState.localAkterZakazky)) GameState.localAkterZakazky = [];
+        const _slechta = (GameState.persona && GameState.persona.reputation && GameState.persona.reputation.slechta) || 0;
+        if (_slechta < 3) return;
         const WEEK = 7 * 24 * 60 * 60 * 1000;
         if (!GameState.vrchnostZakazkyNextTick) {
             GameState.vrchnostZakazkyNextTick = Date.now() + Math.round(WEEK * 0.5);
