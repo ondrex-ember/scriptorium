@@ -152,7 +152,7 @@ const FarmyardSystem = {
         if (!GameState.pigsty) GameState.pigsty = { built: false, animals: [] };
         if (!GameState.donkeyStall) GameState.donkeyStall = { built: false, animals: [], lastCleanMs: 0 };
         if (!GameState.stable) GameState.stable = { built: false, animals: [], lastCleanMs: 0 };
-        if (!GameState.columbarium) GameState.columbarium = { built: false, count: 0, lastEggAt: 0, lastFeatherAt: 0, lastCleanMs: 0, level: 1, lastPredatorTick: 0, nesting: null, squabPool: 0, capacityTier: 1, trainedCount: 0, training: null, lastRegrowTick: 0 };
+        if (!GameState.columbarium) GameState.columbarium = { built: false, count: 0, lastEggAt: 0, lastFeatherAt: 0, lastCleanMs: 0, level: 1, lastPredatorTick: 0, nesting: null, squabPool: 0, capacityTier: 1, trainedCount: 0, training: null, lastRegrowTick: 0, lastWildArrivalTick: 0 };
         if (GameState.columbarium.level === undefined) GameState.columbarium.level = 1;
         if (GameState.columbarium.lastPredatorTick === undefined) GameState.columbarium.lastPredatorTick = 0;
         if (GameState.columbarium.nesting === undefined) GameState.columbarium.nesting = null;
@@ -162,6 +162,7 @@ const FarmyardSystem = {
         if (GameState.columbarium.trainedCount === undefined) GameState.columbarium.trainedCount = 0;
         if (GameState.columbarium.training === undefined) GameState.columbarium.training = null;
         if (GameState.columbarium.lastRegrowTick === undefined) GameState.columbarium.lastRegrowTick = 0;
+        if (GameState.columbarium.lastWildArrivalTick === undefined) GameState.columbarium.lastWildArrivalTick = 0;
         if (!GameState.loanMale) GameState.loanMale = {};  // {type, returnsAt}
     },
 
@@ -680,6 +681,10 @@ const FarmyardSystem = {
     PREDATOR_CHANCE: 0.08,
     PREDATOR_LOSS_MIN: 1,
     PREDATOR_LOSS_MAX: 2,
+    // Dodatek 27.7.2026 (holubnik-mrd doplněk) — týdenní vzácný divoký
+    // přírůstek NAD RÁMEC POPULATION_AUTO_CEILING (na rozdíl od
+    // columbariumRegrowTick, ten strop respektuje). Bonus, ne nutnost.
+    WILD_ARRIVAL_CHANCE: 0.07,
     // Dodatek 27.7.2026 (holubnik-mrd) — podlaha/strop populace, ať hejno
     // nemůže vymřít bez cesty zpět (chov vyžaduje ≥2 holuby, nákup byl
     // dřív jediná záchrana a ten dřív vůbec neexistoval).
@@ -723,6 +728,35 @@ const FarmyardSystem = {
         c.lastRegrowTick = now;
         if ((c.count || 0) < this.POPULATION_AUTO_CEILING) {
             c.count = Math.min(this.POPULATION_AUTO_CEILING, (c.count || 0) + 1);
+            if (typeof Game !== 'undefined') Game.save();
+        }
+    },
+
+    // Dodatek 27.7.2026 (holubnik-mrd doplněk) — týdenní vzácný divoký
+    // holub, NEZÁVISLE na columbariumRegrowTick a jeho stropu (schváleno:
+    // "navíc, nad rámec stropu 13"). Nový kus je vždy nevycvičený (mirror
+    // regrow). Na rozdíl od predator/regrow ticků oznamuje se toastem
+    // I kronikou — obě jim dosud chyběly.
+    columbariumWildArrivalTick: function () {
+        this._ensureAnimals();
+        const c = GameState.columbarium;
+        if (!c.built) return;
+        const now = Date.now();
+        const WEEK = 7 * 24 * 60 * 60 * 1000;
+        if (now - (c.lastWildArrivalTick || 0) < WEEK) return;
+        c.lastWildArrivalTick = now;
+        if (Math.random() < this.WILD_ARRIVAL_CHANCE) {
+            c.count = (c.count || 0) + 1;
+            const lang = (GameState.settings && GameState.settings.language) || 'cs';
+            if (typeof NotificationSystem !== 'undefined' && NotificationSystem.panel) {
+                NotificationSystem.panel('🕊️ ' + (lang === 'en'
+                    ? 'A wild pigeon strayed into the dovecote and stayed.'
+                    : 'Divoký holub zabloudil do holubníku a zůstal.'));
+            }
+            if (typeof Game !== 'undefined' && Game.addKronikaEntry) Game.addKronikaEntry('minor',
+                '🕊️ Divoký holub zabloudil do holubníku a zůstal.',
+                '🕊️ A wild pigeon strayed into the dovecote and stayed.',
+                '🕊️ Columba peregrina advenit.');
             if (typeof Game !== 'undefined') Game.save();
         }
     },

@@ -764,6 +764,8 @@ const Game = {
                     if (typeof FarmyardSystem !== 'undefined' && FarmyardSystem.columbariumPredatorTick) FarmyardSystem.columbariumPredatorTick();
                     // Columbarium — pasivní přírůstek do stropu 13 (self-guarded 24h, holubnik-mrd)
                     if (typeof FarmyardSystem !== 'undefined' && FarmyardSystem.columbariumRegrowTick) FarmyardSystem.columbariumRegrowTick();
+                    // Columbarium — týdenní vzácný divoký přírůstek nad rámec stropu (self-guarded 7d, holubnik-mrd doplněk)
+                    if (typeof FarmyardSystem !== 'undefined' && FarmyardSystem.columbariumWildArrivalTick) FarmyardSystem.columbariumWildArrivalTick();
                     // Columbarium — dokončení výcviku (self-guarded přes readyAt, holubnik-mrd)
                     if (typeof FarmyardSystem !== 'undefined' && FarmyardSystem.checkTrainingColumbarium) FarmyardSystem.checkTrainingColumbarium();
                     // Conversi — automatické úklidové úkoly (self-guarded 24h přes cleanPen)
