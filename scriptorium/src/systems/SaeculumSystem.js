@@ -321,6 +321,81 @@ const SaeculumSystem = {
     this.switchEntity('dormitorium');
   },
 
+  // ── PERSONÁL — sjednocený přehled (doplněk, ne náhrada Conversi/Dormitoria) ──
+  // Ondrex 2.8.2026: "hráčovi lidé (parta)", ne Clientela — ta zůstává mimo,
+  // je to jiná kategorie (vnější vztahy, ne najatý personál). Vlastní selekce
+  // (personalSelected: {source, id}), routuje do existujících detail funkcí —
+  // žádná nová detail logika, jen agregace seznamu.
+  selectPersonal: function(source, id) {
+    if (!GameState.ui) GameState.ui = {};
+    const cur = GameState.ui.personalSelected;
+    GameState.ui.personalSelected = (cur && cur.source === source && cur.id === id) ? null : { source, id };
+    if (typeof CellariumSystem !== 'undefined') CellariumSystem.switchEntity('personal');
+  },
+
+  renderPersonal: function() {
+    const lang = (GameState.settings && GameState.settings.language) || 'cs';
+    if (!GameState.ui) GameState.ui = {};
+    const conversiList = GameState.conversi || [];
+    const brotherList = (GameState.dormitorium && GameState.dormitorium.brothers) || [];
+    const selected = GameState.ui.personalSelected;
+    const now = Date.now();
+
+    let h = `<div style="margin-bottom:16px; background:rgba(0,0,0,0.03); border-radius:8px; border-left:3px solid var(--accent-gold); padding:12px 14px;">`;
+    h += `<div style="font-weight:bold; font-size:0.92rem; margin-bottom:4px;">👥 ${lang==='en'?'Personnel':'Personál'}</div>`;
+    h += `<div style="font-size:0.78rem; opacity:0.65; margin-bottom:10px;">${lang==='en'
+      ? 'Everyone under your roof, in one place.'
+      : 'Všichni pod tvou střechou, na jednom místě.'}</div>`;
+
+    if (!conversiList.length && !brotherList.length) {
+      h += `<div style="font-size:0.8rem; opacity:0.6; font-style:italic;">${lang==='en'?'No one hired yet.':'Zatím nikdo najatý.'}</div>`;
+    } else {
+      h += `<div style="display:flex; flex-wrap:wrap; gap:6px; margin-bottom:10px;">`;
+      conversiList.forEach(k => {
+        const kf = (typeof k.fatigue === 'number') ? k.fatigue : 0;
+        const rec = (k.rosterId && typeof ConversiRosterDB !== 'undefined') ? ConversiRosterDB[k.rosterId] : null;
+        const typeFallbackIcon = k.type === 'famulus' ? '💼' : k.type === 'oblat' ? '🌱' : '✝️';
+        const kIcon = (rec && rec.icon) ? rec.icon : typeFallbackIcon;
+        const isActive = selected && selected.source === 'conversi' && selected.id === k.id;
+        let statusDot = '#5a9a5a';
+        if (k.awayUntil && k.awayUntil > now) statusDot = '#7f8fa6';
+        else if (k.injuredUntil && k.injuredUntil > now) statusDot = '#c0392b';
+        else if (k.penanceUntil && k.penanceUntil > now) statusDot = '#7f6ea6';
+        else if (kf >= 80) statusDot = '#c0392b';
+        h += `<div onclick="SaeculumSystem.selectPersonal('conversi','${k.id}')" style="display:flex; align-items:center; gap:6px; padding:6px 10px; background:${isActive ? 'rgba(197,160,89,0.22)' : 'rgba(255,255,255,0.4)'}; border:${isActive ? '2px solid var(--accent-wax)' : '1px solid rgba(197,160,89,0.4)'}; border-radius:8px; cursor:pointer;">
+                  <span style="font-size:1rem;">${kIcon}</span>
+                  <span style="font-size:0.72rem; font-weight:bold;">${k.name}</span>
+                  ${(k.conditions && Object.keys(k.conditions).length > 0) ? `<span style="font-size:0.85rem;">🤒</span>` : ''}
+                  <span style="width:6px; height:6px; border-radius:50%; background:${statusDot};"></span>
+                </div>`;
+      });
+      brotherList.forEach(b => {
+        const rec = (b.rosterId && typeof DormitoriumRosterDB !== 'undefined') ? DormitoriumRosterDB[b.rosterId] : null;
+        const bIcon = (rec && rec.icon) ? rec.icon : '📿';
+        const isActive = selected && selected.source === 'dormitorium' && selected.id === b.id;
+        h += `<div onclick="SaeculumSystem.selectPersonal('dormitorium','${b.id}')" style="display:flex; align-items:center; gap:6px; padding:6px 10px; background:${isActive ? 'rgba(197,160,89,0.22)' : 'rgba(255,255,255,0.4)'}; border:${isActive ? '2px solid var(--accent-wax)' : '1px solid rgba(197,160,89,0.4)'}; border-radius:8px; cursor:pointer;">
+                  <span style="font-size:1rem;">${bIcon}</span>
+                  <span style="font-size:0.72rem; font-weight:bold;">${b.name}</span>
+                  ${(b.conditions && Object.keys(b.conditions).length > 0) ? `<span style="font-size:0.85rem;">🤒</span>` : ''}
+                  <span style="width:6px; height:6px; border-radius:50%; background:#7f8fa6;"></span>
+                </div>`;
+      });
+      h += `</div>`;
+
+      if (selected) {
+        if (selected.source === 'conversi') {
+          const k = conversiList.find(x => x.id === selected.id);
+          if (k) h += this.renderConversiDetail(k);
+        } else if (selected.source === 'dormitorium') {
+          const b = brotherList.find(x => x.id === selected.id);
+          if (b) h += this.renderDormitoriumDetail(b);
+        }
+      }
+    }
+    h += `</div>`;
+    return h;
+  },
+
   // ── DORMITORIUM — bratři (mniši/skriptoři), manažerská vrstva nad Conversi ──
   // Tabů, které mohou být přiřazeny: klíče DormitoriumSpecializationDB.
   renderDormitorium: function() {

@@ -1161,6 +1161,7 @@ const CellariumSystem = {
       ...(hasLR  ? [{ id: 'liber_rationum', icon: '📒', label: 'Liber Rationum',label_en: 'Liber Rationum'}] : []),
       ...(hasOldCellars ? [{ id: 'old_cellars', icon: '🕯️', label: 'Staré sklepy', label_en: 'Old Cellars' }] : []),
       ...(hasManufactura ? [{ id: 'manufaktura', icon: '⚙️', label: 'Manufaktura', label_en: 'Manufactory' }] : []),
+      { id: 'personal', icon: '👥', label: 'Personál', label_en: 'Personnel' },
       { id: 'buildings', icon: '🏗️', label: 'Budovy', label_en: 'Buildings' },
     ];
     const lang = (GameState.settings && GameState.settings.language) || 'cs';
@@ -1210,6 +1211,7 @@ const CellariumSystem = {
     if (entity === 'old_cellars')    return this.renderOldCellars();
     if (entity === 'buildings')      return this.renderBuildings();
     if (entity === 'manufaktura')    return (typeof SaeculumSystem !== 'undefined') ? SaeculumSystem.renderManufactura() : '';
+    if (entity === 'personal')       return (typeof SaeculumSystem !== 'undefined') ? SaeculumSystem.renderPersonal() : '';
 
     const open = this.isEntityOpen(entity);
     const lang = (GameState.settings && GameState.settings.language) || 'cs';
