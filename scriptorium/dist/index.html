@@ -25392,7 +25392,18 @@ const SaeculumSystem = {
     const lang = (GameState.settings && GameState.settings.language) || 'cs';
     const rec = (k.rosterId && typeof ConversiRosterDB !== 'undefined') ? ConversiRosterDB[k.rosterId] : null;
     const icon = (rec && rec.icon) ? rec.icon : '✝️';
-    const origin = rec ? (lang === 'en' ? rec.origin_en : rec.origin_cs) : '';
+    let origin = rec ? (lang === 'en' ? rec.origin_en : rec.origin_cs) : '';
+    // Vlákno C — Famulus/Oblát nemají pojmenovaný roster (rec === null),
+    // příběh se odemyká postupně podle dní ve službě (AnonymousLoreDB).
+    if (!rec && (k.type === 'famulus' || k.type === 'oblat') && typeof AnonymousLoreDB !== 'undefined') {
+      const pool = AnonymousLoreDB[k.type] || [];
+      const daysServed = k.hiredAt ? Math.floor((Date.now() - k.hiredAt) / (24*60*60*1000)) : 0;
+      const unlocked = pool.filter(fr => daysServed >= fr.days);
+      if (unlocked.length) {
+        const latest = unlocked[unlocked.length - 1];
+        origin = lang === 'en' ? latest.en : latest.cs;
+      }
+    }
     const mood = (typeof k.mood === 'number') ? k.mood : 60;
     const loyalty = (typeof k.loyalty === 'number') ? k.loyalty : 30;
     const fat = (typeof k.fatigue === 'number') ? k.fatigue : 0;
