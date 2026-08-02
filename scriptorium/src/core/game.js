@@ -774,8 +774,6 @@ const Game = {
                     if (typeof FarmyardSystem !== 'undefined' && FarmyardSystem.columbariumPredatorTick) FarmyardSystem.columbariumPredatorTick();
                     // Columbarium — pasivní přírůstek do stropu 13 (self-guarded 24h, holubnik-mrd)
                     if (typeof FarmyardSystem !== 'undefined' && FarmyardSystem.columbariumRegrowTick) FarmyardSystem.columbariumRegrowTick();
-                    // Columbarium — týdenní vzácný divoký přírůstek nad rámec stropu (self-guarded 7d, holubnik-mrd doplněk)
-                    if (typeof FarmyardSystem !== 'undefined' && FarmyardSystem.columbariumWildArrivalTick) FarmyardSystem.columbariumWildArrivalTick();
                     // Columbarium — dokončení výcviku (self-guarded přes readyAt, holubnik-mrd)
                     if (typeof FarmyardSystem !== 'undefined' && FarmyardSystem.checkTrainingColumbarium) FarmyardSystem.checkTrainingColumbarium();
                     // Conversi — automatické úklidové úkoly (self-guarded 24h přes cleanPen)
@@ -7010,6 +7008,72 @@ const Game = {
         if (typeof SaeculumSystem !== 'undefined') SaeculumSystem.switchEntity(GameState.ui.saeculumEntity || 'tavern');
     },
 
+    // ── Rozvázání slibu — Vlákno A (npc-subtab-konsolidovany-mrd.md §2.1) ──
+    // Jen Konvrš (ne Famulus/Oblát — jiná právní kategorie, viz MRD §1).
+    // Gate: armarius/prior (těžší akt než najmutí, co stačí frater+) a jen
+    // při Officiu (6–9h, TimeSys.gameHour) — veřejný akt, ne tichý.
+    // Dvě narativní varianty, mechanicky totožné: 'absolutio' (rozvázání
+    // slibu) / 'translatio' (poslán do jiného domu). Žádný Pověst hit zde
+    // — to je vyhrazeno pro nedobrovolný odchod zanedbáním (viz leavers
+    // výše, §5 MRD). Afinitní vazba (ConversiBondsDB) se šíří na partnera.
+    dismissKonvrs: function(id, variant) {
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        const m = GameState.rank && GameState.rank.monastic;
+        if (!['armarius', 'prior'].includes(m)) {
+            UI.notify(lang==='en' ? '❌ Requires rank Armarius or higher.' : '❌ Vyžaduje hodnost Armarius nebo vyšší.', true);
+            return;
+        }
+        if (!Game.isOfficiumHours()) {
+            UI.notify(lang==='en' ? '❌ Such a matter is spoken only at Officium (6:00–9:00).' : '❌ Taková věc se přednáší jen při Officiu (6:00–9:00).', true);
+            return;
+        }
+        const k = (GameState.conversi || []).find(x => x.id === id);
+        if (!k || k.type === 'famulus' || k.type === 'oblat') return;
+
+        const rec = (k.rosterId && typeof ConversiRosterDB !== 'undefined') ? ConversiRosterDB[k.rosterId] : null;
+        const farewell = rec && rec.quotes && rec.quotes.farewell
+            ? (lang==='en' ? rec.quotes.farewell.en : rec.quotes.farewell.cs)
+            : (variant === 'translatio'
+                ? (lang==='en' ? 'God\'s houses are many. I go to another.' : 'Božích domů je víc. Jdu do jiného.')
+                : (lang==='en' ? 'The vow is spoken; it may also be unspoken. I go in peace.' : 'Slib je pronesen; dá se i odříct. Odcházím v pokoji.'));
+
+        // Afinitní vazba — ztráta se šíří na partnera (ne tension, ta by
+        // se naopak uklidnila odchodem — jen affinity nese smutek).
+        if (k.rosterId && typeof ConversiBondsDB !== 'undefined') {
+            const hiredIds = (GameState.conversi || []).map(x => x.rosterId).filter(Boolean);
+            const affinityBond = ConversiBondsDB.find(bd =>
+                bd.type === 'affinity' && (bd.a === k.rosterId || bd.b === k.rosterId) &&
+                hiredIds.includes(bd.a === k.rosterId ? bd.b : bd.a));
+            if (affinityBond) {
+                const partnerId = affinityBond.a === k.rosterId ? affinityBond.b : affinityBond.a;
+                const partner = GameState.conversi.find(x => x.rosterId === partnerId);
+                if (partner) {
+                    partner.mood = Math.max(0, (typeof partner.mood === 'number' ? partner.mood : 60) - 12);
+                    const partnerRec = ConversiRosterDB[partnerId];
+                    if (typeof UI !== 'undefined' && UI.notifyPanel) UI.notifyPanel((lang==='en'
+                        ? '💔 ' + (partnerRec ? partnerRec.name : partnerId) + ' heard of ' + k.name + '\'s departure — the loss weighs on him.'
+                        : '💔 ' + (partnerRec ? partnerRec.name : partnerId) + ' se doslechl o odchodu ' + k.name + ' — ztráta na něm leží.'), 'system');
+                }
+            }
+        }
+
+        GameState.conversi = GameState.conversi.filter(x => x.id !== id);
+
+        const actionLabel_cs = variant === 'translatio' ? 'poslán do jiného domu (translatio)' : 'slib rozvázán (absolutio voti)';
+        const actionLabel_en = variant === 'translatio' ? 'sent to another house (translatio)' : 'vow released (absolutio voti)';
+        if (typeof UI !== 'undefined' && UI.notifyPanel) {
+            UI.notifyPanel('🕊️ ' + k.name + ' — ' + (lang==='en' ? actionLabel_en : actionLabel_cs) + '. „' + farewell + '“', 'system');
+        }
+        Game.addKronikaEntry('important',
+            '🕊️ ' + k.name + ' — ' + actionLabel_cs + '. „' + farewell + '“',
+            '🕊️ ' + k.name + ' — ' + actionLabel_en + '. "' + farewell + '"',
+            '🕊️ ' + k.name + ' recessit in pace.'
+        );
+        Game.save();
+        if (GameState.ui) GameState.ui.conversiSelected = null;
+        if (typeof SaeculumSystem !== 'undefined') SaeculumSystem.switchEntity('conversi');
+    },
+
     // Officium — konvrši nedostupní mezi Laudes (6:00) a Prima (9:00), reálný čas
     isOfficiumHours: function() {
         const h = (typeof TimeSys !== 'undefined') ? TimeSys.gameHour() : new Date().getHours();
@@ -7671,6 +7735,11 @@ const Game = {
                     const partnerBrother = (GameState.dormitorium && GameState.dormitorium.brothers || [])
                         .find(b => b.assignedTab === k.task);
                     if (partnerBrother) partnerBrother.stress = Math.min(100, (partnerBrother.stress || 0) + 8);
+                }
+                // Pověst (npc-subtab-konsolidovany-mrd.md §5) — nedobrovolný odchod
+                // "zanedbáním" (ne translatio, ne důstojné rozvázání) sráží Lidovost.
+                if (typeof PersonaSystem !== 'undefined' && PersonaSystem.addReputation) {
+                    PersonaSystem.addReputation('lidovost', -2);
                 }
                 if (typeof UI !== 'undefined' && UI.notifyPanel) {
                     UI.notifyPanel('🚪 ' + (lang==='en'
