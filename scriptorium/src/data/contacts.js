@@ -101,7 +101,8 @@ const ContactsDB = {
         buyOffer: { items: {
             palice_zelezna: { price: 16, stock: 2 },
             kovani: { price: 8, stock: 4 },
-            britva_kovarska: { price: 12, stock: 1 }
+            britva_kovarska: { price: 12, stock: 1 },
+            sada_podkov: { price: 14, stock: 2 }
         } }, // plní starý slib "prodá nástroje" z popisku + kování na Velký úl (Apiarium MRD)
           // britva_kovarska: Minutio MRD (25.7.2026) — do budoucna i craftovatelná
           // v klášteře po kovárna-upgrade tech (TODO, samostatný sprint)

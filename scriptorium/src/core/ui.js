@@ -1818,8 +1818,10 @@ const UI = {
         if (anyVisible) {
             // ── Volič délky (2.5/5/10/20/30) — koně jen zkracují reálné čekání,
             // výnos zůstává vázán na zvolený tier. Zobrazit obojí zřetelně.
-            const horseCount = (GameState.stable && GameState.stable.animals) ? GameState.stable.animals.length : 0;
-            const horseMult = horseCount >= 2 ? 0.5 : horseCount === 1 ? 0.75 : 1.0;
+            const _stableAnimalsUI = (GameState.stable && GameState.stable.animals) ? GameState.stable.animals : [];
+            const horseCount = _stableAnimalsUI.length;
+            const shodHorseCount = _stableAnimalsUI.filter(a => a.shoeDurability > 0).length;
+            const horseMult = shodHorseCount >= 2 ? 0.5 : horseCount >= 1 ? 0.75 : 1.0;
             const tiers = [2.5, 5, 10, 20, 30];
             const selected = GameState.selectedMineDuration || 5;
             let tierBtns = '<div class="time-selector">';

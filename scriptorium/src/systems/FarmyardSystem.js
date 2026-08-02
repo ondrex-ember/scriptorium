@@ -174,6 +174,7 @@ const FarmyardSystem = {
         if (a.lastCleaned === undefined) a.lastCleaned = 0;
         if (a.mature === undefined) a.mature = true;
         if (a.bornAt === undefined) a.bornAt = a.placedAt || Date.now();
+        if (a.shoeDurability === undefined) a.shoeDurability = 0;
         return a;
     },
 
@@ -195,6 +196,7 @@ const FarmyardSystem = {
             if (!st || !st.built) return;
             st.animals.forEach(a => {
                 this._ensureAnimalFields(a);
+                if (pen === 'stable' && a.shoeDurability > 0) a.shoeDurability = Math.max(0, a.shoeDurability - 1);
                 // Pasivní decay −5/den; přeplněný výběh −10 navíc
                 let decay = 5;
                 const cap = this.ANIMAL_CFG[pen] ? this.ANIMAL_CFG[pen].cap : 6;
@@ -272,6 +274,22 @@ const FarmyardSystem = {
         }
 
         if (typeof UI !== 'undefined' && UI.notify) UI.notify('💩 ' + t('farmyard.cleanDone').replace('{n}', n));
+        if (typeof Game !== 'undefined' && Game.save) Game.save();
+        this.renderFarmyard();
+    },
+
+    // ── Okování koní (Kovář-reference MRD, 2.8.2026) ────────────────────
+    shoeHorse: function (idx) {
+        this._ensureAnimals();
+        const st = GameState.stable;
+        if (!st || !st.animals || !st.animals[idx]) return;
+        if ((GameState.inventory['sada_podkov'] || 0) < 1) {
+            if (typeof UI !== 'undefined' && UI.notify) UI.notify(t('farmyard.needShoes'), true);
+            return;
+        }
+        GameState.inventory['sada_podkov'] -= 1;
+        st.animals[idx].shoeDurability = 100;
+        if (typeof UI !== 'undefined' && UI.notify) UI.notify('🧲 ' + t('farmyard.shoeHorseDone'));
         if (typeof Game !== 'undefined' && Game.save) Game.save();
         this.renderFarmyard();
     },
@@ -1189,11 +1207,14 @@ const FarmyardSystem = {
 
         if (pen === 'stable' && st.animals.length) {
             h += '<div style="display:flex;flex-direction:column;gap:6px;margin-bottom:10px;">';
-            st.animals.forEach(function (a) {
+            st.animals.forEach(function (a, idx) {
                 _selfAct._ensureAnimalFields(a);
                 var mi = _selfAct.MOOD_ICON(a.mood);
                 var sx = a.sex === 'm' ? (lang === 'en' ? '♂ Stallion' : '♂ Hřebec') : (lang === 'en' ? '♀ Mare' : '♀ Klisna');
-                h += '<div style="padding:6px 10px;background:rgba(0,0,0,0.04);border-radius:6px;display:flex;align-items:center;gap:8px;font-size:0.8rem;"><span style="font-size:1.3rem;">🐎</span><div style="flex:1;"><strong>' + (a.name || sx) + '</strong> <span style="opacity:0.6;">' + mi + ' ' + a.mood + '/100</span></div></div>';
+                var shod = a.shoeDurability > 0;
+                var shoeLabel = shod ? ('🧲 ' + a.shoeDurability + '/100') : ('🧲 ' + t('farmyard.unshod'));
+                var canShoe = (GameState.inventory['sada_podkov'] || 0) > 0;
+                h += '<div style="padding:6px 10px;background:rgba(0,0,0,0.04);border-radius:6px;display:flex;align-items:center;gap:8px;font-size:0.8rem;"><span style="font-size:1.3rem;">🐎</span><div style="flex:1;"><strong>' + (a.name || sx) + '</strong> <span style="opacity:0.6;">' + mi + ' ' + a.mood + '/100</span> <span style="opacity:0.6;">' + shoeLabel + '</span></div><button class="craft-btn" style="font-size:0.72rem;padding:4px 8px;" onclick="FarmyardSystem.shoeHorse(' + idx + ')" ' + (canShoe ? '' : 'disabled') + '>' + t('farmyard.shoeHorse') + '</button></div>';
             });
             h += '</div>';
             var hasMale = st.animals.some(function (a) { return a.sex === 'm'; });

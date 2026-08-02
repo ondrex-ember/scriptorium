@@ -3001,9 +3001,16 @@ const Game = {
             if (typeof MineSystem !== 'undefined') MineSystem.onScavenge(_tierStart);
             // Koně zrychlují Mine (tažná síla při dopravě rubaniny) — mění jen reálný
             // čas čekání, výnosová tabulka zůstává vázaná na zvolený nominální tier.
-            const _horseCount = (GameState.stable && GameState.stable.animals) ? GameState.stable.animals.length : 0;
-            const _horseTimeMult = _horseCount >= 2 ? 0.5 : _horseCount === 1 ? 0.75 : 1.0;
+            // Podkovy (Kovář-reference MRD, 2.8.2026): 2+ řádně okovaní koně = max gain,
+            // jinak (neokovaný/jen 1 okovaný) padá na baseline 25% i při víc koních.
+            const _stableAnimals = (GameState.stable && GameState.stable.animals) ? GameState.stable.animals : [];
+            const _horseCount = _stableAnimals.length;
+            const _shodHorseCount = _stableAnimals.filter(a => a.shoeDurability > 0).length;
+            const _horseTimeMult = _shodHorseCount >= 2 ? 0.5 : _horseCount >= 1 ? 0.75 : 1.0;
             const _mineMs = Math.round(_tierStart * 60 * 1000 * _horseTimeMult);
+            // Aktivní opotřebení podkov — škáluje s délkou tieru (X = round(6×tier/30))
+            const _shoeWear = Math.round(6 * _tierStart / 30);
+            _stableAnimals.forEach(a => { if (a.shoeDurability > 0) a.shoeDurability = Math.max(0, a.shoeDurability - _shoeWear); });
             GameState.activeAction = { id: type, startTime: Date.now(), endTime: Date.now() + _mineMs, multiplier: _mMultiplier, durationMin: _tierStart, freshMult: _freshMultStart };
             Game.save(); UI.renderMineActions();
             return;

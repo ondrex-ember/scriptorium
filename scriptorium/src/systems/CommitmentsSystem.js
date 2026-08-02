@@ -469,14 +469,14 @@ const CommitmentsSystem = {
     // řemeslné zakázky, ne farní povinnosti).
     akterZakazkyTick: function () {
         if (!Array.isArray(GameState.localAkterZakazky)) GameState.localAkterZakazky = [];
-        const WEEK = 7 * 24 * 60 * 60 * 1000;
+        const DAY = 24 * 60 * 60 * 1000;
         if (!GameState.akterZakazkyNextTick) {
-            GameState.akterZakazkyNextTick = Date.now() + Math.round(WEEK * 0.5);
+            GameState.akterZakazkyNextTick = Date.now() + Math.round(DAY * 0.2); // ~5h zahřívačka, ne 3,5 dne
             return;
         }
         if (Date.now() < GameState.akterZakazkyNextTick) return;
-        GameState.akterZakazkyNextTick = Date.now() + WEEK;
-        if (Math.random() >= 0.25) return; // ~25 % šance/týden na aktéra, ne vždy
+        GameState.akterZakazkyNextTick = Date.now() + DAY; // denní hod, ne týdenní
+        if (Math.random() >= 0.25) return; // ~25 % šance/den na aktéra (dřív týdně — celkově mnohem živější)
 
         const researched = GameState.researchedTechs || [];
         const readBooks = (GameState.library && GameState.library.readBooks) || [];
