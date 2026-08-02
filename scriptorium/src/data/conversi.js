@@ -349,3 +349,29 @@ const ConversiBondsDB = [
       desc_cs: 'Dva vypravěči z cest. Každý večer soutěž, kdo zná lepší historku — Šimon vede o délku sedmi zemí, Havel to nikdy neuzná.',
       desc_en: 'Two storytellers of the road. Every evening a contest for the better tale — \u0160imon leads by the length of seven lands, Havel will never admit it.' }
 ];
+
+// Vlákno C (npc-subtab-konsolidovany-mrd.md §2.3) — Famulus/Oblát nemají
+// origin_cs/en jako pojmenovaný roster (KONVRS_NAMES = anonymní jména).
+// Místo statického příběhu se odemyká postupně, podle dní ve službě
+// (hiredAt tick, mirror _checkOblatMaturation vzoru). Sdílený pool per
+// typ (ne per-jméno — jsou anonymní), 3 stupně. Historicky odlišeno:
+// Famulus = dospělý, ekonomická nouze; Oblát = dítě poslané rodinou
+// (viz Vlákno A research — dědictví, ne víra, byl častý reálný důvod).
+const AnonymousLoreDB = {
+    famulus: [
+        { days: 5,  cs: 'Mlčí o tom, odkud přišel. Ruce má ale zvyklé na těžší práci, než je tahle.',
+                    en: 'He stays silent about where he came from. But his hands are used to harder work than this.' },
+        { days: 15, cs: 'Jednou utrousil něco o dluhu, co za ním zůstal ve vsi. Víc už neřekl.',
+                    en: 'Once he let slip something about a debt left behind in his village. He said no more.' },
+        { days: 28, cs: 'Teprve teď, po tolika dnech, přiznal, že je tu proto, že doma už neměl co jíst. Klášter mu dal aspoň to.',
+                    en: 'Only now, after so many days, did he admit he is here because there was nothing left to eat at home. The monastery gave him at least that.' },
+    ],
+    oblat: [
+        { days: 5,  cs: 'Ještě neumí dobře skrývat, jak moc se mu stýská. Ale snaží se.',
+                    en: 'He has not yet learned to hide how much he misses home. But he tries.' },
+        { days: 12, cs: 'Zeptal se, jestli tu může zůstat, i kdyby si ho rodina nikdy nevyžádala zpět. Nečekal jsem tu otázku.',
+                    en: 'He asked if he could stay, even if his family never asked for him back. I did not expect that question.' },
+        { days: 22, cs: 'Teprve teď řekl, proč ho poslali — nejde o víru, jde o to, že bratrů bylo doma příliš a půdy málo.',
+                    en: 'Only now did he say why he was sent — not faith, but too many brothers at home and too little land.' },
+    ],
+};
