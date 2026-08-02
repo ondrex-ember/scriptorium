@@ -611,6 +611,35 @@ const SaeculumSystem = {
       h += `</div>`;
     }
 
+    // ── Vazby (ConversiBondsDB) — jen s aktuálně najatými konvrši ──
+    // NPC-subtab-konsolidovany-mrd.md §2.2 — dosud existovalo jen interně
+    // (nábor, Kapitula), tady poprvé viditelné přímo hráči.
+    if (k.rosterId && typeof ConversiBondsDB !== 'undefined') {
+      const hiredIds = (GameState.conversi || []).map(x => x.rosterId).filter(Boolean);
+      const myBonds = ConversiBondsDB.filter(bd =>
+        (bd.a === k.rosterId || bd.b === k.rosterId) &&
+        hiredIds.includes(bd.a === k.rosterId ? bd.b : bd.a));
+      if (myBonds.length) {
+        h += `<div style="border-top:1px solid rgba(197,160,89,0.3); margin-top:8px; padding-top:8px;">`;
+        h += `<div style="font-size:0.7rem; font-weight:bold; opacity:0.7; margin-bottom:6px; text-transform:uppercase; letter-spacing:0.06em;">${lang==='en'?'Bonds':'Vazby'}</div>`;
+        myBonds.forEach(bd => {
+          const otherId = bd.a === k.rosterId ? bd.b : bd.a;
+          const otherRec = (typeof ConversiRosterDB !== 'undefined') ? ConversiRosterDB[otherId] : null;
+          const otherName = otherRec ? otherRec.name : otherId;
+          const otherIcon = otherRec ? otherRec.icon : '✝️';
+          const isTension = bd.type === 'tension';
+          const bondIcon = isTension ? '⚡' : '🤍';
+          const bondColor = isTension ? '#c0392b' : '#5a9a5a';
+          const desc = lang === 'en' ? bd.desc_en : bd.desc_cs;
+          h += `<div style="margin-bottom:6px; padding:6px 8px; background:rgba(0,0,0,0.03); border-radius:6px; border-left:2px solid ${bondColor};">
+                  <div style="font-size:0.74rem; font-weight:bold;">${bondIcon} ${otherIcon} ${otherName}</div>
+                  <div style="font-size:0.7rem; opacity:0.75; font-style:italic; margin-top:2px; line-height:1.35;">${desc}</div>
+                </div>`;
+        });
+        h += `</div>`;
+      }
+    }
+
     // ── Stav / přiřazení úkolu ──
     h += `<div style="border-top:1px solid rgba(197,160,89,0.3); margin-top:8px; padding-top:8px;">`;
     if (k.admittedToInfirmarium) {
@@ -661,6 +690,25 @@ const SaeculumSystem = {
       });
       h += `</div>`;
     }
+    // ── Rozvázání slibu — Vlákno A, jen Konvrš (ne Famulus/Oblát) ──
+    if (k.type !== 'famulus' && k.type !== 'oblat') {
+      const rankOk = ['armarius', 'prior'].includes(GameState.rank && GameState.rank.monastic);
+      const officiumOk = (typeof Game !== 'undefined' && Game.isOfficiumHours) ? Game.isOfficiumHours() : false;
+      h += `<div style="border-top:1px solid rgba(197,160,89,0.3); margin-top:8px; padding-top:8px;">`;
+      h += `<div style="font-size:0.7rem; font-weight:bold; opacity:0.7; margin-bottom:6px; text-transform:uppercase; letter-spacing:0.06em;">${lang==='en'?'Release from vow':'Rozvázání slibu'}</div>`;
+      if (!rankOk) {
+        h += `<div style="font-size:0.7rem; opacity:0.55; font-style:italic;">${lang==='en'?'Requires rank Armarius or higher.':'Vyžaduje hodnost Armarius nebo vyšší.'}</div>`;
+      } else if (!officiumOk) {
+        h += `<div style="font-size:0.7rem; opacity:0.55; font-style:italic;">${lang==='en'?'Such a matter is spoken only at Officium (6:00–9:00).':'Taková věc se přednáší jen při Officiu (6:00–9:00).'}</div>`;
+      } else {
+        h += `<div style="display:flex; gap:6px;">
+                <button class="craft-btn" style="flex:1; font-size:0.7rem; padding:5px 8px;" onclick="Game.dismissKonvrs('${k.id}', 'absolutio')">🕊️ ${lang==='en'?'Absolutio voti':'Absolutio voti'}</button>
+                <button class="craft-btn" style="flex:1; font-size:0.7rem; padding:5px 8px;" onclick="Game.dismissKonvrs('${k.id}', 'translatio')">🚶 ${lang==='en'?'Translatio':'Translatio'}</button>
+              </div>`;
+      }
+      h += `</div>`;
+    }
+
     h += `</div></div>`;
     return h;
   },
