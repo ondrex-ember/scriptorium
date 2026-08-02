@@ -60512,10 +60512,17 @@ const Game = {
         const list = GameState.conversi || [];
         const hiredIds = list.map(k => k.rosterId).filter(Boolean);
 
-        // Aktivní tenze: oba z páru najatí
+        // Aktivní tenze: oba z páru najatí. Vlákno B — páry označené jako
+        // "vyhořelé" (GameState.kapitulaHistory[pairKey].resolved==='burned')
+        // se dál nenabízí, mirror principu "jednou provždy vyřešeno".
         let conflict = null;
         if (typeof ConversiBondsDB !== 'undefined') {
-            const bond = ConversiBondsDB.find(bd => bd.type === 'tension' && hiredIds.includes(bd.a) && hiredIds.includes(bd.b));
+            const bond = ConversiBondsDB.find(bd => {
+                if (bd.type !== 'tension' || !hiredIds.includes(bd.a) || !hiredIds.includes(bd.b)) return false;
+                const pairKey = bd.a + '|' + bd.b;
+                const hist = GameState.kapitulaHistory && GameState.kapitulaHistory[pairKey];
+                return !(hist && hist.resolved === 'burned');
+            });
             if (bond) {
                 const ka = list.find(k => k.rosterId === bond.a);
                 const kb = list.find(k => k.rosterId === bond.b);
@@ -60534,20 +60541,75 @@ const Game = {
             // "druhou tvář" — týž démon, tentokrát poslouchající klevety
             // místo opisovačských chyb. unlockFolioById je idempotentní.
             if (typeof SecretsSystem !== 'undefined') SecretsSystem.unlockFolioById('folio_titivillus_secunda');
+
+            // Vlákno B — Kapitula jako seriál. meetCount roste při KAŽDÉM
+            // setkání tohohle konkrétního páru (ne globálně). 3. setkání
+            // nabídne jednorázovou volbu místo běžného modálu; jinak beze
+            // změny existující logiky (surgical — MRD §3).
+            const pairKey = bond.a + '|' + bond.b;
+            if (!GameState.kapitulaHistory) GameState.kapitulaHistory = {};
+            if (!GameState.kapitulaHistory[pairKey]) GameState.kapitulaHistory[pairKey] = { meetCount: 0, lastPeaceful: false, resolved: null };
+            const hist = GameState.kapitulaHistory[pairKey];
+            hist.meetCount++;
+
+            const rerender = () => { if (typeof SaeculumSystem !== 'undefined') SaeculumSystem.switchEntity(GameState.ui.saeculumEntity || 'tavern'); };
+            const retro = (typeof KapitulaRetrospectiveDB !== 'undefined') ? KapitulaRetrospectiveDB[pairKey] : null;
+
+            if (hist.meetCount === 3 && retro) {
+                // Třetí setkání — jednorázová volba: vyhoření (jeden odejde,
+                // pár se natrvalo uzavře) vs. trvání (žije dál jako rys komunity).
+                const victim3 = (ka.loyalty <= kb.loyalty) ? ka : kb;
+                const leavesText = lang === 'en' ? retro.leaves_en : retro.leaves_cs;
+                NotificationSystem.modal({
+                    icon: '🔥',
+                    title: (lang==='en' ? 'Chapter — a choice, once and for all' : 'Kapitula — volba, jednou provždy'),
+                    text: `<div style="font-size:0.82rem; line-height:1.45;"><strong>${ka.name}</strong> × <strong>${kb.name}</strong><br><span style="opacity:0.75; font-style:italic;">${lang==='en'?bond.desc_en:bond.desc_cs}</span><br><br>${lang==='en'?'This has come before the chapter enough times. It ends here, one way or another.':'Tohle už bylo před kapitulou dost často. Skončí to tu, tak či onak.'}</div>`,
+                    choices: [
+                        { label: (lang==='en'?'🔥 Let it burn out':'🔥 Nechat vyhořet'), type: 'danger', effect: () => {
+                            hist.resolved = 'burned';
+                            GameState.conversi = GameState.conversi.filter(x => x.id !== victim3.id);
+                            if (typeof UI !== 'undefined' && UI.notifyPanel) {
+                                UI.notifyPanel('🔥 ' + victim3.name + ' — ' + (lang==='en'?'has left.':'odešel.') + ' „' + leavesText + '“', 'warning');
+                            }
+                            Game.addKronikaEntry('important',
+                                '🔥 ' + victim3.name + ' opustil klášter. „' + leavesText + '“',
+                                '🔥 ' + victim3.name + ' left the monastery. "' + leavesText + '"',
+                                '🔥 ' + victim3.name + ' recessit.');
+                            Game.save(); rerender();
+                        }},
+                        { label: (lang==='en'?'🕯️ Let it live on':'🕯️ Nechat žít dál'), effect: () => {
+                            hist.resolved = 'persists';
+                            ka.mood = Math.min(100, ka.mood + 3);
+                            kb.mood = Math.min(100, kb.mood + 3);
+                            Game.addKronikaEntry('minor',
+                                '🕯️ Napětí mezi ' + ka.name + ' a ' + kb.name + ' zůstává — trvalý rys komunity, ne rána.',
+                                '🕯️ The tension between ' + ka.name + ' and ' + kb.name + ' remains — a lasting trait of the community, not a wound.',
+                                '🕯️ Manet.');
+                            Game.save(); rerender();
+                        }}
+                    ]
+                });
+                return;
+            }
+
             // Viník = nižší loajalita; druhý = poškozený
             const victim = (ka.loyalty <= kb.loyalty) ? ka : kb;
             const other  = (victim === ka) ? kb : ka;
             const bondText = lang === 'en' ? bond.desc_en : bond.desc_cs;
-            const rerender = () => { if (typeof SaeculumSystem !== 'undefined') SaeculumSystem.switchEntity(GameState.ui.saeculumEntity || 'tavern'); };
+            // Vlákno B — 2. setkání, jen pokud 1. bylo vyřešeno smírně, přidá
+            // retrospektivu před běžný text. Volby/efekty beze změny.
+            const retroText = (hist.meetCount === 2 && hist.lastPeaceful && retro)
+                ? `<br><br><span style="opacity:0.8;">${lang==='en'?retro.retrospective_en:retro.retrospective_cs}</span>` : '';
             NotificationSystem.modal({
                 icon: '⚖️',
                 title: (lang==='en' ? 'Chapter — a dispute among the brothers' : 'Kapitula — spor mezi bratry'),
-                text: `<div style="font-size:0.82rem; line-height:1.45;"><strong>${ka.name}</strong> × <strong>${kb.name}</strong><br><span style="opacity:0.75; font-style:italic;">${bondText}</span><br><br>${lang==='en'?'The chapter awaits your judgement.':'Kapitula čeká na tvůj soud.'}</div>`,
+                text: `<div style="font-size:0.82rem; line-height:1.45;"><strong>${ka.name}</strong> × <strong>${kb.name}</strong><br><span style="opacity:0.75; font-style:italic;">${bondText}</span>${retroText}<br><br>${lang==='en'?'The chapter awaits your judgement.':'Kapitula čeká na tvůj soud.'}</div>`,
                 choices: [
                     { label: (lang==='en'?'🕊️ Reconcile them':'🕊️ Rozsoudit smírně'), effect: () => {
                         ka.mood = Math.min(100, ka.mood + 5);
                         kb.mood = Math.min(100, kb.mood + 5);
                         if (typeof PersonaSystem !== 'undefined' && PersonaSystem.addZboznost) PersonaSystem.addZboznost(1);
+                        hist.lastPeaceful = true;
                         Game.addKronikaEntry('minor',
                             '⚖️ Kapitula: spor mezi bratry ' + ka.name + ' a ' + kb.name + ' urovnán smírem.',
                             '⚖️ Chapter: the dispute between ' + ka.name + ' and ' + kb.name + ' was settled peacefully.',
@@ -60558,6 +60620,7 @@ const Game = {
                         victim.penanceUntil = Date.now() + 2 * 24 * 60 * 60 * 1000;
                         victim.loyalty = Math.max(0, victim.loyalty - 5);
                         other.mood = Math.min(100, other.mood + 8);
+                        hist.lastPeaceful = false;
                         UI.notifyPanel('⚖️ ' + (lang==='en' ? victim.name+' was given two days of penance.' : victim.name+' dostal dva dny Pokání.'), 'warning');
                         Game.addKronikaEntry('important',
                             '⚖️ Kapitula: bratr ' + victim.name + ' dostal dva dny Pokání za spor s bratrem jménem ' + other.name + '.',
@@ -60566,6 +60629,7 @@ const Game = {
                         Game.save(); rerender();
                     }},
                     { label: (lang==='en'?'🤐 Let it be':'🤐 Nechat být'), effect: () => {
+                        hist.lastPeaceful = false;
                         ka.mood = Math.max(0, ka.mood - 5);
                         kb.mood = Math.max(0, kb.mood - 5);
                         Game.addKronikaEntry('minor',
