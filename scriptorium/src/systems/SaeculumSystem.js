@@ -581,6 +581,27 @@ const SaeculumSystem = {
             ${origin ? `<div style="font-style:italic; font-size:0.74rem; opacity:0.75; margin-top:2px; line-height:1.35;">${origin}</div>` : ''}</div>
           </div>`;
 
+    // ── Vlákno D (npc-subtab-konsolidovany-mrd.md §4) — Matěj reaguje na to,
+    // kterou z dvou drah (secular/monastic) hráč rozvíjí. Čistě čtecí —
+    // žádná mutace, jen dynamický text podle GameState.rank.
+    if (k.rosterId === 'k_matej' && typeof RankSystem !== 'undefined') {
+      const monasticStarted = !!(GameState.rank && GameState.rank.monastic);
+      const secularTier = RankSystem.getSecularRankTier ? RankSystem.getSecularRankTier() : 1;
+      let reaction = null;
+      if (monasticStarted && ['frater', 'armarius', 'prior'].includes(GameState.rank.monastic)) {
+        reaction = lang === 'en'
+          ? 'Frater. That word sits better on my tongue when I say it to you. In books we are closest — where else would we be.'
+          : 'Frater. To slovo mi sedí líp na jazyku, když ho říkám vám. V knihách jsme si nejblíž, kde jinde.';
+      } else if (!monasticStarted && secularTier >= 3) {
+        reaction = lang === 'en'
+          ? 'You have reached what I could not — the library, the research, the title. Quod erat demonstrandum, how a career is made — the one that eluded me.'
+          : 'Vy jste to dotáhl tam, kam já ne — knihovna, výzkum, titul. Quod erat demonstrandum, jak se dělá kariéra, co mně nevyšla.';
+      }
+      if (reaction) {
+        h += `<div style="font-size:0.72rem; opacity:0.7; font-style:italic; margin:2px 0 8px; padding:6px 8px; background:rgba(197,160,89,0.08); border-radius:6px;">„${reaction}“</div>`;
+      }
+    }
+
     h += this._illnessBadgeHtml(k, lang);
     h += this._infirmariumActionHtml(k, false, lang);
     h += this._flebotomieActionHtml(k, false, lang);
