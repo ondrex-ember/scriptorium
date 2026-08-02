@@ -6150,6 +6150,7 @@ const Game = {
 
     conversiCapacity: function() {
         const s = GameState.storage || {};
+        if (s.domus_conversorum_iii && s.domus_conversorum_iii.built) return 20;
         if (s.domus_conversorum_ii && s.domus_conversorum_ii.built) return 5;
         if (s.domus_conversorum_i  && s.domus_conversorum_i.built)  return 2;
         return 0;
