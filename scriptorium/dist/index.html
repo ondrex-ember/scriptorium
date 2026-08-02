@@ -33598,14 +33598,14 @@ const FarmyardSystem = {
             // Plemenitba — mirror ovčího bloku
             var hasBull = this.hasBullAvailable();
             h += '<div style="margin-top:6px; padding:10px; background:rgba(0,0,0,0.06); border-radius:8px;">';
-            h += '<strong style="font-size:0.85rem;">🐄 ' + (t('farmyard.breeding') || 'Plemenitba') + '</strong><br>';
+            h += '<strong style="font-size:0.85rem;">🐄 ' + (t('farmyard.cowBreeding') || 'Plemenitba') + '</strong><br>';
             if (!st.breeding) {
                 var canBreedC = st.animals.some(function (a) { return a.type === 'cow' && a.mature !== false; }) && hasBull;
-                var breedLabelC = !hasBull ? (lang === 'en' ? 'Needs bull (buy or Forum Pecuarium)' : 'Potřeba býka (koupě nebo Forum Pecuarium)') : (t('farmyard.startBreeding') || 'Zahájit plemenitbu');
+                var breedLabelC = !hasBull ? (lang === 'en' ? 'Needs bull (buy or Forum Pecuarium)' : 'Potřeba býka (koupě nebo Forum Pecuarium)') : (t('farmyard.cowStartBreeding') || 'Zahájit plemenitbu');
                 h += '<button class="craft-btn" onclick="FarmyardSystem.startCowBreeding()" ' + (canBreedC ? '' : 'disabled') + ' style="margin-top:6px;font-size:0.78rem;">' + breedLabelC + '</button>';
             } else if (st.breeding.state === 'gestating') {
                 var leftC = Math.max(0, Math.ceil((st.breeding.bornAt - now3) / 3600000));
-                h += '<p class="text-sm" style="margin:6px 0;">🤰 ' + (t('farmyard.gestating') || 'Březost') + ' — ' + leftC + 'h</p>';
+                h += '<p class="text-sm" style="margin:6px 0;">🤰 ' + (t('farmyard.cowGestating') || 'Březost') + ' — ' + leftC + 'h</p>';
             }
             h += '</div>';
         }
