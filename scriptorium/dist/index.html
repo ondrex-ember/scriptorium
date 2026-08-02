@@ -8438,6 +8438,7 @@ const ItemsDB = {
     "truhla_i": { name: "Malá truhla", name_en: "Small Chest", icon: "🗝️", type: "tool", desc: "Prostá dřevěná truhlička s železným kováním. Uschová pár cenných nálezů a kuriozit — otevře vlastní přihrádku v Personě.", desc_en: "A plain wooden chest with iron fittings. Holds a few precious finds and curiosities — opens its own compartment under Persona." },
     "truhla_ii": { name: "Velká truhla", name_en: "Large Chest", icon: "🗝️", type: "tool", desc: "Zdobená kovaná truhla se zámkem — dílo zlatníka nebo dovoz z trhu. Mnohem víc místa na poklady a kuriozity.", desc_en: "An ornate ironbound chest with a lock — a goldsmith's work or a market import. Much more room for treasures and curiosities." },
     "kovani": { name: "Kování", name_en: "Ironwork Fittings", icon: "🔩", type: "mat", desc: "Kované pásy, skoby a spony. Vesnický kovář je prodává hotové — sám je nekuješ.", desc_en: "Forged bands, cramps, and clasps. The village blacksmith sells these ready-made — you don't forge them yourself." },
+    "sada_podkov": { name: "Sada podkov", name_en: "Horseshoe Set", icon: "🧲", type: "mat", desc: "Čtyři kované podkovy s hřeby od vesnického kováře. Bez nich kůň rychle ztrácí tažnou sílu na kamenité cestě k lomu.", desc_en: "Four forged horseshoes with nails from the village blacksmith. Without them a horse quickly loses its draught strength on the stony quarry road." },
     "velky_ul_1": { maxStack: 1, name: "Velký úl (I)", name_en: "Great Hive (I)", icon: "🛖", type: "mat", desc: "Zesílená konstrukce úlu — kulatina, lano a kování od kováře. Odemyká vylepšené včelstvo.", desc_en: "A reinforced hive structure — logs, rope, and blacksmith's ironwork. Unlocks an improved colony." },
     "velky_ul_2": { maxStack: 1, name: "Velký úl (II)", name_en: "Great Hive (II)", icon: "🛖", type: "mat", desc: "Dostavba Velkého úlu na plnou míru. Nejsilnější staveniště pro včelstvo v klášteře.", desc_en: "The Great Hive built out to its full measure. The strongest apiary structure in the monastery." },
     "anvil": { maxStack: 1, name: "Kovadlina", name_en: "Anvil", icon: "⚒️", type: "mat", desc: "Těžká železná kovadlina. Nutná pro stavbu kovárny.", desc_en: "Heavy iron anvil. Required to build the smithy." },
@@ -8545,7 +8546,6 @@ Object.assign(ItemsDB, {
         desc: "Potřísněný list nalezený mezi zkaženými zásobami. Někdo si zapsal, co znamená, když zanedbání přivolá roj.", desc_en: "A stained page found among the spoiled stores. Someone once wrote down what it means when neglect draws a swarm."
     },
 });
-
 // ═══ src/data/recipes.js ═══
 const RecipesDB = [
     // BASIC TOOLS
@@ -14029,7 +14029,8 @@ const ContactsDB = {
         buyOffer: { items: {
             palice_zelezna: { price: 16, stock: 2 },
             kovani: { price: 8, stock: 4 },
-            britva_kovarska: { price: 12, stock: 1 }
+            britva_kovarska: { price: 12, stock: 1 },
+            sada_podkov: { price: 14, stock: 2 }
         } }, // plní starý slib "prodá nástroje" z popisku + kování na Velký úl (Apiarium MRD)
           // britva_kovarska: Minutio MRD (25.7.2026) — do budoucna i craftovatelná
           // v klášteře po kovárna-upgrade tech (TODO, samostatný sprint)
@@ -14242,7 +14243,6 @@ const ContactsDB = {
         desc_en: 'A university dealer in books and writing supplies. In Olomouc only after the spring and autumn book fairs.'
     }
 };
-
 // ═══ src/systems/theme.js ═══
 const ThemeSystem = {
     themes: {
@@ -32865,6 +32865,7 @@ const FarmyardSystem = {
         if (a.lastCleaned === undefined) a.lastCleaned = 0;
         if (a.mature === undefined) a.mature = true;
         if (a.bornAt === undefined) a.bornAt = a.placedAt || Date.now();
+        if (a.shoeDurability === undefined) a.shoeDurability = 0;
         return a;
     },
 
@@ -32886,6 +32887,7 @@ const FarmyardSystem = {
             if (!st || !st.built) return;
             st.animals.forEach(a => {
                 this._ensureAnimalFields(a);
+                if (pen === 'stable' && a.shoeDurability > 0) a.shoeDurability = Math.max(0, a.shoeDurability - 1);
                 // Pasivní decay −5/den; přeplněný výběh −10 navíc
                 let decay = 5;
                 const cap = this.ANIMAL_CFG[pen] ? this.ANIMAL_CFG[pen].cap : 6;
@@ -32963,6 +32965,22 @@ const FarmyardSystem = {
         }
 
         if (typeof UI !== 'undefined' && UI.notify) UI.notify('💩 ' + t('farmyard.cleanDone').replace('{n}', n));
+        if (typeof Game !== 'undefined' && Game.save) Game.save();
+        this.renderFarmyard();
+    },
+
+    // ── Okování koní (Kovář-reference MRD, 2.8.2026) ────────────────────
+    shoeHorse: function (idx) {
+        this._ensureAnimals();
+        const st = GameState.stable;
+        if (!st || !st.animals || !st.animals[idx]) return;
+        if ((GameState.inventory['sada_podkov'] || 0) < 1) {
+            if (typeof UI !== 'undefined' && UI.notify) UI.notify(t('farmyard.needShoes'), true);
+            return;
+        }
+        GameState.inventory['sada_podkov'] -= 1;
+        st.animals[idx].shoeDurability = 100;
+        if (typeof UI !== 'undefined' && UI.notify) UI.notify('🧲 ' + t('farmyard.shoeHorseDone'));
         if (typeof Game !== 'undefined' && Game.save) Game.save();
         this.renderFarmyard();
     },
@@ -33880,11 +33898,14 @@ const FarmyardSystem = {
 
         if (pen === 'stable' && st.animals.length) {
             h += '<div style="display:flex;flex-direction:column;gap:6px;margin-bottom:10px;">';
-            st.animals.forEach(function (a) {
+            st.animals.forEach(function (a, idx) {
                 _selfAct._ensureAnimalFields(a);
                 var mi = _selfAct.MOOD_ICON(a.mood);
                 var sx = a.sex === 'm' ? (lang === 'en' ? '♂ Stallion' : '♂ Hřebec') : (lang === 'en' ? '♀ Mare' : '♀ Klisna');
-                h += '<div style="padding:6px 10px;background:rgba(0,0,0,0.04);border-radius:6px;display:flex;align-items:center;gap:8px;font-size:0.8rem;"><span style="font-size:1.3rem;">🐎</span><div style="flex:1;"><strong>' + (a.name || sx) + '</strong> <span style="opacity:0.6;">' + mi + ' ' + a.mood + '/100</span></div></div>';
+                var shod = a.shoeDurability > 0;
+                var shoeLabel = shod ? ('🧲 ' + a.shoeDurability + '/100') : ('🧲 ' + t('farmyard.unshod'));
+                var canShoe = (GameState.inventory['sada_podkov'] || 0) > 0;
+                h += '<div style="padding:6px 10px;background:rgba(0,0,0,0.04);border-radius:6px;display:flex;align-items:center;gap:8px;font-size:0.8rem;"><span style="font-size:1.3rem;">🐎</span><div style="flex:1;"><strong>' + (a.name || sx) + '</strong> <span style="opacity:0.6;">' + mi + ' ' + a.mood + '/100</span> <span style="opacity:0.6;">' + shoeLabel + '</span></div><button class="craft-btn" style="font-size:0.72rem;padding:4px 8px;" onclick="FarmyardSystem.shoeHorse(' + idx + ')" ' + (canShoe ? '' : 'disabled') + '>' + t('farmyard.shoeHorse') + '</button></div>';
             });
             h += '</div>';
             var hasMale = st.animals.some(function (a) { return a.sex === 'm'; });
@@ -34903,7 +34924,6 @@ const FarmyardSystem = {
 
 
 };
-
 // ═══ src/systems/ScriptoriumCat.js ═══
 // ═══════════════════════════════════════════════════════════════════════════
 // SCRIPTORIUM CAT — Felis Monastica
@@ -38013,14 +38033,14 @@ const CommitmentsSystem = {
     // řemeslné zakázky, ne farní povinnosti).
     akterZakazkyTick: function () {
         if (!Array.isArray(GameState.localAkterZakazky)) GameState.localAkterZakazky = [];
-        const WEEK = 7 * 24 * 60 * 60 * 1000;
+        const DAY = 24 * 60 * 60 * 1000;
         if (!GameState.akterZakazkyNextTick) {
-            GameState.akterZakazkyNextTick = Date.now() + Math.round(WEEK * 0.5);
+            GameState.akterZakazkyNextTick = Date.now() + Math.round(DAY * 0.2); // ~5h zahřívačka, ne 3,5 dne
             return;
         }
         if (Date.now() < GameState.akterZakazkyNextTick) return;
-        GameState.akterZakazkyNextTick = Date.now() + WEEK;
-        if (Math.random() >= 0.25) return; // ~25 % šance/týden na aktéra, ne vždy
+        GameState.akterZakazkyNextTick = Date.now() + DAY; // denní hod, ne týdenní
+        if (Math.random() >= 0.25) return; // ~25 % šance/den na aktéra (dřív týdně — celkově mnohem živější)
 
         const researched = GameState.researchedTechs || [];
         const readBooks = (GameState.library && GameState.library.readBooks) || [];
@@ -38599,7 +38619,6 @@ const CommitmentsSystem = {
     },
 
 };
-
 // ═══ src/systems/SecretsSystem.js ═══
 // ═══════════════════════════════════════════════════════════════════════════════
 // EASTER EGG SYSTEM v9.0 — Locked Secret Tabs
@@ -49423,6 +49442,10 @@ const STRINGS_cs = {
         cleanDone: 'Výběh uklizen! +{n}× hnůj.',
         cleanCooldown: 'Uklidíte až zítra.',
         cleanTomorrow: 'Zítra',
+        unshod: 'neokován',
+        shoeHorse: '🧲 Okovat',
+        needShoes: '❌ Nemáš sadu podkov (koupíš u Kováře).',
+        shoeHorseDone: 'Kůň okován. Podkovy vydrží 100 dní/použití.',
         addDonkey: 'Uvázat osla',
         donkeyStallTitle: 'Oslárna (Asinus)',
         donkeyBuildDesc: 'Přístřešek pro osla. Osel pohání studnu, vleče na pole a přináší +15% výnosu.',
@@ -50095,7 +50118,6 @@ const STRINGS_cs = {
         },
     },
 };
-
 // ═══ src/i18n/en.js ═══
 // Scriptorium i18n — English (Olde)
 // Základ: STRINGS_cs. Chybějící klíče → fallback na CS automaticky.
@@ -52453,6 +52475,10 @@ According to Theophilus, the organ is an instrument worthy of God, but its const
         cleanDone: 'Pen cleaned! +{n}× manure.',
         cleanCooldown: 'You can clean again tomorrow.',
         cleanTomorrow: 'Tomorrow',
+        unshod: 'unshod',
+        shoeHorse: '🧲 Shoe horse',
+        needShoes: '❌ No horseshoe set (buy from the Blacksmith).',
+        shoeHorseDone: 'Horse shod. Shoes last 100 days/uses.',
         addDonkey: 'Tie the donkey',
         donkeyStallTitle: 'Donkey Stall (Asinus)',
         donkeyBuildDesc: 'A shelter for the donkey. Powers the well, hauls to the fields, grants +15% yield.',
@@ -53298,7 +53324,6 @@ Alloys of metal, varnishes for wood and vellum, a poison that whiteneth copper i
         },
     },
 };
-
 // ═══ src/i18n/strings.js ═══
 // Scriptorium i18n — STRINGS assembler + t() helper
 // Přidání jazyka: 1) xx.js, 2) přidat do STRINGS, 3) přidat do build.js
@@ -56447,9 +56472,16 @@ const Game = {
             if (typeof MineSystem !== 'undefined') MineSystem.onScavenge(_tierStart);
             // Koně zrychlují Mine (tažná síla při dopravě rubaniny) — mění jen reálný
             // čas čekání, výnosová tabulka zůstává vázaná na zvolený nominální tier.
-            const _horseCount = (GameState.stable && GameState.stable.animals) ? GameState.stable.animals.length : 0;
-            const _horseTimeMult = _horseCount >= 2 ? 0.5 : _horseCount === 1 ? 0.75 : 1.0;
+            // Podkovy (Kovář-reference MRD, 2.8.2026): 2+ řádně okovaní koně = max gain,
+            // jinak (neokovaný/jen 1 okovaný) padá na baseline 25% i při víc koních.
+            const _stableAnimals = (GameState.stable && GameState.stable.animals) ? GameState.stable.animals : [];
+            const _horseCount = _stableAnimals.length;
+            const _shodHorseCount = _stableAnimals.filter(a => a.shoeDurability > 0).length;
+            const _horseTimeMult = _shodHorseCount >= 2 ? 0.5 : _horseCount >= 1 ? 0.75 : 1.0;
             const _mineMs = Math.round(_tierStart * 60 * 1000 * _horseTimeMult);
+            // Aktivní opotřebení podkov — škáluje s délkou tieru (X = round(6×tier/30))
+            const _shoeWear = Math.round(6 * _tierStart / 30);
+            _stableAnimals.forEach(a => { if (a.shoeDurability > 0) a.shoeDurability = Math.max(0, a.shoeDurability - _shoeWear); });
             GameState.activeAction = { id: type, startTime: Date.now(), endTime: Date.now() + _mineMs, multiplier: _mMultiplier, durationMin: _tierStart, freshMult: _freshMultStart };
             Game.save(); UI.renderMineActions();
             return;
@@ -62212,7 +62244,6 @@ const Game = {
     },
 
 };
-
 // ═══ src/core/ui.js ═══
 const UI = {
     currentInvFilter: 'all',
@@ -64034,8 +64065,10 @@ const UI = {
         if (anyVisible) {
             // ── Volič délky (2.5/5/10/20/30) — koně jen zkracují reálné čekání,
             // výnos zůstává vázán na zvolený tier. Zobrazit obojí zřetelně.
-            const horseCount = (GameState.stable && GameState.stable.animals) ? GameState.stable.animals.length : 0;
-            const horseMult = horseCount >= 2 ? 0.5 : horseCount === 1 ? 0.75 : 1.0;
+            const _stableAnimalsUI = (GameState.stable && GameState.stable.animals) ? GameState.stable.animals : [];
+            const horseCount = _stableAnimalsUI.length;
+            const shodHorseCount = _stableAnimalsUI.filter(a => a.shoeDurability > 0).length;
+            const horseMult = shodHorseCount >= 2 ? 0.5 : horseCount >= 1 ? 0.75 : 1.0;
             const tiers = [2.5, 5, 10, 20, 30];
             const selected = GameState.selectedMineDuration || 5;
             let tierBtns = '<div class="time-selector">';
