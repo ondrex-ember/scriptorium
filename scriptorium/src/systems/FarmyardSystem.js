@@ -36,7 +36,8 @@ const FarmyardSystem = {
             itemId: 'piglet', cap: 3,
             build: { cut_stone: 15, plank: 10 },
             growMs: 60 * 24 * 60 * 60 * 1000,
-            acornBoostMs: 5 * 24 * 60 * 60 * 1000
+            acornBoostMs: 5 * 24 * 60 * 60 * 1000,
+            breedMs: 24 * 24 * 60 * 60 * 1000  // prasnice březost (kanec-mrd, 2.8.2026)
         },
         stable: {
             itemId: 'horse', cap: 4,
@@ -278,7 +279,7 @@ const FarmyardSystem = {
     cleanColumbarium: function () {
         this._ensureAnimals();
         const c = GameState.columbarium;
-        if (!c || !c.built) return;
+        if (!c || !c.built || c.count <= 0) return;
         const now = Date.now();
 
         // cooldown 24h
@@ -1135,14 +1136,14 @@ const FarmyardSystem = {
             // Plemenitba — mirror ovčího bloku
             var hasBull = this.hasBullAvailable();
             h += '<div style="margin-top:6px; padding:10px; background:rgba(0,0,0,0.06); border-radius:8px;">';
-            h += '<strong style="font-size:0.85rem;">🐄 ' + (t('farmyard.breeding') || 'Plemenitba') + '</strong><br>';
+            h += '<strong style="font-size:0.85rem;">🐄 ' + (t('farmyard.cowBreeding') || 'Plemenitba') + '</strong><br>';
             if (!st.breeding) {
                 var canBreedC = st.animals.some(function (a) { return a.type === 'cow' && a.mature !== false; }) && hasBull;
-                var breedLabelC = !hasBull ? (lang === 'en' ? 'Needs bull (buy or Forum Pecuarium)' : 'Potřeba býka (koupě nebo Forum Pecuarium)') : (t('farmyard.startBreeding') || 'Zahájit plemenitbu');
+                var breedLabelC = !hasBull ? (lang === 'en' ? 'Needs bull (buy or Forum Pecuarium)' : 'Potřeba býka (koupě nebo Forum Pecuarium)') : (t('farmyard.cowStartBreeding') || 'Zahájit plemenitbu');
                 h += '<button class="craft-btn" onclick="FarmyardSystem.startCowBreeding()" ' + (canBreedC ? '' : 'disabled') + ' style="margin-top:6px;font-size:0.78rem;">' + breedLabelC + '</button>';
             } else if (st.breeding.state === 'gestating') {
                 var leftC = Math.max(0, Math.ceil((st.breeding.bornAt - now3) / 3600000));
-                h += '<p class="text-sm" style="margin:6px 0;">🤰 ' + (t('farmyard.gestating') || 'Březost') + ' — ' + leftC + 'h</p>';
+                h += '<p class="text-sm" style="margin:6px 0;">🤰 ' + (t('farmyard.cowGestating') || 'Březost') + ' — ' + leftC + 'h</p>';
             }
             h += '</div>';
         }
@@ -1170,6 +1171,20 @@ const FarmyardSystem = {
             var canCleanP = Date.now() - (st.lastCleanMs || 0) >= 86400000;
             var cleanQP = Math.max(1, st.animals.length);
             h += '<button class="craft-btn" onclick="FarmyardSystem.cleanPen(\'pigsty\')" style="background:rgba(90,154,90,0.85);">' + (canCleanP ? '🧹 ' + t('farmyard.clean') + ' (💩 +' + cleanQP + ')' : '🧹 ' + t('farmyard.cleanTomorrow')) + '</button>';
+            // Plemenitba — mirror kravího bloku (kanec-mrd, 2.8.2026)
+            var hasSow = st.animals.some(function (a) { return _selfAct._pigMature(a); });
+            var hasBoar = this.loanMaleActive('boar');
+            h += '<div style="margin-top:6px; padding:10px; background:rgba(0,0,0,0.06); border-radius:8px;">';
+            h += '<strong style="font-size:0.85rem;">🐖 ' + (t('farmyard.pigBreeding') || 'Plemenitba') + '</strong><br>';
+            if (!st.breeding) {
+                var canBreedP = hasSow && hasBoar;
+                var breedLabelP = !hasSow ? (t('farmyard.needSow') || 'Potřebuješ dospělou prasnici.') : !hasBoar ? (t('farmyard.needBoar') || 'Potřebuješ kance (Forum Pecuarium).') : (t('farmyard.pigStartBreeding') || 'Zahájit odchov');
+                h += '<button class="craft-btn" onclick="FarmyardSystem.startPigBreeding()" ' + (canBreedP ? '' : 'disabled') + ' style="margin-top:6px;font-size:0.78rem;">' + breedLabelP + '</button>';
+            } else if (st.breeding.state === 'gestating') {
+                var leftP = Math.max(0, Math.ceil((st.breeding.bornAt - Date.now()) / 3600000));
+                h += '<p class="text-sm" style="margin:6px 0;">🤰 ' + (t('farmyard.pigGestating') || 'Prasnice březí') + ' — ' + leftP + 'h</p>';
+            }
+            h += '</div>';
         }
 
         if (pen === 'stable' && st.animals.length) {
@@ -1937,6 +1952,21 @@ const FarmyardSystem = {
         UI.notify('🐄 ' + (t('farmyard.cowBreedingStarted') || 'Plemenitba zahájena.'));
     },
 
+    // Prase — mirror startCowBreeding (kanec-mrd, 2.8.2026). Litr 1-3 selata,
+    // výstup jde do inventáře (piglet), ne rovnou do chlévě — chlév může
+    // být plný, hráč umístí přes existující placeAnimal('pigsty').
+    startPigBreeding: function () {
+        const st = GameState.pigsty;
+        if (!st || !st.built) return;
+        const sows = st.animals.filter(a => this._pigMature(a));
+        if (!sows.length) { UI.notify(t('farmyard.needSow') || 'Potřebuješ dospělou prasnici.', true); return; }
+        if (st.breeding) { UI.notify(t('game.breedingActive'), true); return; }
+        if (!this.loanMaleActive('boar')) { UI.notify(t('farmyard.needBoar') || 'Potřebuješ kance (Forum Pecuarium).', true); return; }
+        st.breeding = { state: 'gestating', startedAt: Date.now(), bornAt: Date.now() + this.ANIMAL_CFG.pigsty.breedMs };
+        Game.save(); FarmyardSystem.renderFarmyard();
+        UI.notify('🐖 ' + (t('farmyard.pigBreedingStarted') || 'Odchov zahájen.'));
+    },
+
     // ═══════════════════════════════════════════════════════════════════════
     // TOULAVÁ KRÁVA — krava-mrd (26.7.2026). Aktivní po tech_armentum, dokud
     // není resolved. Dvě cesty k nálezu (scavenge 'foraging' v game.js,
@@ -2140,6 +2170,17 @@ const FarmyardSystem = {
             }
             changed = true;
         }
+        // Prase — gestace → 1-3 selata do inventáře, ne rovnou do chlévě
+        // (kanec-mrd, 2.8.2026), mirror skotu.
+        const pigSt = GameState.pigsty;
+        if (pigSt && pigSt.breeding && pigSt.breeding.state === 'gestating' && now >= pigSt.breeding.bornAt) {
+            pigSt.breeding = null;
+            const litter = 1 + Math.floor(Math.random() * 3);
+            GameState.inventory.piglet = (GameState.inventory.piglet || 0) + litter;
+            if (typeof UI !== 'undefined') UI.notify('🐖 ' + (t('farmyard.pigletsBorn') || 'Narodilo se {n} selat.').replace('{n}', litter));
+            if (typeof Game !== 'undefined' && Game.addKronikaEntry) Game.addKronikaEntry('event', '🐖 V chlévě se narodilo ' + litter + ' selat.', '🐖 ' + litter + ' piglets were born in the sty.', '🐖 Porcelli nati sunt.');
+            changed = true;
+        }
         if (cowSt && cowSt.animals) {
             cowSt.animals.forEach(a => {
                 if (a.type === 'tele' && this._calfMature(a)) { a.type = 'cow'; a.mature = true; changed = true; }
@@ -2160,7 +2201,9 @@ const FarmyardSystem = {
         const cb = GameState.columbarium;
         if (cb && cb.nesting && cb.nesting.state === 'nesting' && now >= cb.nesting.hatchAt) {
             const yieldN = 1 + Math.floor(Math.random() * 2); // 1–2 holoubata
-            cb.squabPool = (cb.squabPool || 0) + yieldN;
+            // Strop 10 — mirror henhouse chickPool, ať se squabPool nehromadí donekonečna.
+            const space = Math.max(0, 10 - (cb.squabPool || 0));
+            cb.squabPool = (cb.squabPool || 0) + Math.min(yieldN, space);
             cb.nesting = null;
             changed = true;
         }

@@ -1160,7 +1160,9 @@ const GardenSystem = {
 
         // Migrace starých save — přidej chybějící pole (varroaRisk boolean → varroa gradient)
         GameState.apiary.forEach(h => {
-            if (h.queenName         === undefined) h.queenName         = null;
+            if (h.queenName         === undefined || (h.hasQueen && h.queenName === null)) {
+                h.queenName = h.hasQueen ? (typeof Game !== 'undefined' && Game._randomQueenName ? Game._randomQueenName() : 'Matka') : null;
+            }
             if (h.queenStrength     === undefined) h.queenStrength     = 0;
             if (h.queenVarroaResist === undefined) h.queenVarroaResist = h.hasQueen ? (Math.floor(Math.random()*3)+2) : 0;
             if (h.queenWinter       === undefined) h.queenWinter       = h.hasQueen ? (Math.floor(Math.random()*3)+2) : 0;

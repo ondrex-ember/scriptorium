@@ -50,9 +50,17 @@ const ChroniconSystem = {
                 stats: { totalHelped: 0, totalTraded: 0 }
             };
         }
-        // Doplnění chybějících aktérů
+        // Doplnění chybějících aktérů — základní seznam + cokoliv navíc,
+        // co už dorazilo ze skutečného Chroniconu (např. sklář,
+        // 29.7.2026). Bez tohohle "Požehnat" na novém aktérovi tiše nic
+        // neudělá (chroniconLocal.actors[id] by bylo undefined a
+        // interactWithActor() by na `if (!actor) return;` skončila potichu).
         const defaultList = ['vrchnost','mlynar','kovar','uhlic','vorar','rybnikar','prevoznik','valach','klaster','vcelar'];
-        defaultList.forEach(id => {
+        const snapActorIds = (ChroniconSystem._snap && Array.isArray(ChroniconSystem._snap.actors))
+            ? ChroniconSystem._snap.actors.map(a => a.id)
+            : [];
+        const allIds = Array.from(new Set(defaultList.concat(snapActorIds)));
+        allIds.forEach(id => {
             if (!GameState.chroniconLocal.actors[id]) {
                 GameState.chroniconLocal.actors[id] = { mood: 70, wealth: 60, status: 'normal', level: 1, quest: null };
             }
@@ -60,19 +68,25 @@ const ChroniconSystem = {
     },
 
     getBuffs: function() {
-        ChroniconSystem.initLocalState();
         const snap = ChroniconSystem._snap || {};
-        const local = (typeof GameState !== 'undefined' && GameState.chroniconLocal) ? GameState.chroniconLocal : null;
-        const actors = (local && local.actors) || {};
+        const realActors = Array.isArray(snap.actors) ? snap.actors : [];
+        const findMood = (id, fallback) => {
+            const a = realActors.find(x => x.id === id);
+            return (a && typeof a.mood === 'number') ? a.mood : fallback;
+        };
+        const findWealth = (id, fallback) => {
+            const a = realActors.find(x => x.id === id);
+            return (a && typeof a.wealth === 'number') ? a.wealth : fallback;
+        };
 
         const tension = (snap.region && typeof snap.region.tension === 'number') ? snap.region.tension : 25;
         const goldenAge = !!(snap.region && snap.region.goldenAge);
 
-        const klasterMood  = (actors.klaster && actors.klaster.mood) || 85;
-        const mlynarWealth = (actors.mlynar && actors.mlynar.wealth) || 60;
-        const vrchnostMood = (actors.vrchnost && actors.vrchnost.mood) || 75;
-        const kovarMood    = (actors.kovar && actors.kovar.mood) || 70;
-        const vcelarMood   = (actors.vcelar && actors.vcelar.mood) || 90;
+        const klasterMood  = findMood('klaster', 85);
+        const mlynarWealth = findWealth('mlynar', 60);
+        const vrchnostMood = findMood('vrchnost', 75);
+        const kovarMood    = findMood('kovar', 70);
+        const vcelarMood   = findMood('vcelar', 90);
 
         return {
             tension: tension,
@@ -182,6 +196,13 @@ const ChroniconSystem = {
         const lang = (GameState.settings && GameState.settings.language) || 'cs';
         const inv = GameState.inventory || {};
 
+        // Reálné jméno ze snapshotu (dřív se tu čekal actor.label, který na
+        // lokálním objektu nikdy neexistoval — zprávy hlásily "undefined").
+        const snapActor = (ChroniconSystem._snap && Array.isArray(ChroniconSystem._snap.actors))
+            ? ChroniconSystem._snap.actors.find(a => a.id === actorId)
+            : null;
+        const realLabel = snapActor ? (lang === 'en' ? (snapActor.label_en || snapActor.label) : snapActor.label) : actorId;
+
         if (action === 'quest') {
             if (!actor.quest) return;
             const q = actor.quest;
@@ -196,7 +217,7 @@ const ChroniconSystem = {
             }
 
             if (!hasEnough) {
-                const msg = lang === 'en' ? `⚠️ Missing resources for ${actor.label}!` : `⚠️ Nemáš dostatek surovin pro ${actor.label}!`;
+                const msg = lang === 'en' ? `⚠️ Missing resources for ${realLabel}!` : `⚠️ Nemáš dostatek surovin pro ${realLabel}!`;
                 if (typeof NotificationSystem !== 'undefined') NotificationSystem.toast(msg, 'warn');
                 return;
             }
@@ -223,8 +244,8 @@ const ChroniconSystem = {
             if (typeof Game !== 'undefined' && Game.save) Game.save();
 
             const succMsg = lang === 'en'
-                ? `✅ Helped ${actor.label}! Mood +20, Received rewards.`
-                : `✅ Pomohl jsi postavě ${actor.label}! Nálada +20, odměna převzata.`;
+                ? `✅ Helped ${realLabel}! Mood +20, Received rewards.`
+                : `✅ Pomohl jsi postavě ${realLabel}! Nálada +20, odměna převzata.`;
 
             if (typeof NotificationSystem !== 'undefined') NotificationSystem.toast(succMsg, 'success');
             ChroniconSystem.refreshOverview();
@@ -242,12 +263,16 @@ const ChroniconSystem = {
             else if (inv['wax_candle'] > 0) inv['wax_candle']--;
             else GameState.knowledge -= 5;
 
+            // Lokální nálada — dál krmí ChroniconSystem.getBuffs() (herní
+            // bonusy), beze změny. Navíc teď propojeno se skutečným
+            // Chroniconem — stejný mechanismus jako mše/pohřby/sepultura.
             actor.mood = Math.min(100, actor.mood + 25);
+            ChroniconSystem._reportActorFavorIfNewDay(actorId);
             if (typeof Game !== 'undefined' && Game.save) Game.save();
 
             const msg = lang === 'en'
-                ? `✨ Blessed ${actor.label}! Mood +25.`
-                : `✨ Udělil jsi požehnání postavě ${actor.label}! Nálada +25.`;
+                ? `✨ Blessed ${realLabel}! Sent to the living Chronicon — the effect on the region will show in tomorrow's summary.`
+                : `✨ Udělil jsi požehnání postavě ${realLabel}. Odesláno do živého Chroniconu — projeví se v zítřejším souhrnu kraje.`;
 
             if (typeof NotificationSystem !== 'undefined') NotificationSystem.toast(msg, 'success');
             ChroniconSystem.refreshOverview();
@@ -879,6 +904,45 @@ const ChroniconSystem = {
         } catch (e) { /* tiché selhání */ }
     },
 
+    // Krok B (clientela-chronicon-most-mrd.md §5) — vážený denní report
+    // contactRelation hodnot pro Clientela kontakty propojené na reálného
+    // Chronicon aktéra (chroniconActorId pole v contacts.js). Mirror
+    // PersonaSystem.reportRegistrumIfNewDay() 1:1 — stejná denní-dedup a
+    // rank-váha logika (RANK_WEIGHT), jen relace místo lux/umbra a
+    // per-aktér místo jednoho globálního páru. Volá se z Game.init(),
+    // stejně jako checkAbbotPetitions() — jednou za session, ne na tik.
+    _reportContactRelationIfNewDay: function() {
+        if (typeof GameState === 'undefined' || !GameState.contactRelation) return;
+        if (typeof ContactsDB === 'undefined') return;
+        const today = new Date().toISOString().slice(0, 10);
+        if (GameState.contactRelationLastSent === today) return;
+        GameState.contactRelationLastSent = today;
+
+        const relations = {};
+        let any = false;
+        Object.keys(ContactsDB).forEach(cid => {
+            const c = ContactsDB[cid];
+            if (!c.chroniconActorId) return;
+            const rel = GameState.contactRelation[cid];
+            if (typeof rel !== 'number') return;
+            relations[c.chroniconActorId] = rel;
+            any = true;
+        });
+        if (!any) return;
+
+        const rankTier = (GameState.rank && GameState.rank.monastic) || null;
+        const RANK_WEIGHT = { novitius: 1, frater: 2, armarius: 3, prior: 4 };
+        const weight = RANK_WEIGHT[rankTier] || 1;
+
+        try {
+            fetch('/api/contact-relation-report', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ relations: relations, weight: weight, day: today }),
+            }).catch(() => {});
+        } catch (e) { /* tiché selhání */ }
+    },
+
     // Generický anonymní denní favor report pro libovolného CHRONICON
     // aktéra (api/actor-favor-report.js, core/actor-favor-register.js).
     // Dnes voláno pro 'klaster' po odsloužené mši (Game.serveMass) — dělá
@@ -1054,6 +1118,7 @@ const ChroniconSystem = {
     _ACTOR_ICONS: {
         vrchnost: '🏰', mlynar: '🌾', kovar: '⚒️', uhlic: '🔥', vorar: '🪵',
         rybnikar: '🐟', prevoznik: '⛴️', valach: '🐑', klaster: '⛪', vcelar: '🐝',
+        sklar: '🔮',
     },
 
     _activeFilter: 'all',
@@ -1265,7 +1330,9 @@ const ChroniconSystem = {
                 <div style="background:rgba(0,0,0,0.04); border:1px solid rgba(197,160,89,0.3); border-radius:6px; padding:10px 14px;">
                     <div style="font-size:0.72rem; opacity:0.7; font-family:'Cinzel'; text-transform:uppercase;">🏰 ${lang === 'en' ? 'Region Status' : 'Obyvatelé & Kraj'}</div>
                     <div style="font-weight:bold; font-size:0.92rem; margin-top:2px;">
-                        👥 ${(snap.region && snap.region.population) || '4,200'} ${lang === 'en' ? 'souls' : 'duší'}
+                        👥 ${typeof (snap.region && snap.region.population) === 'number'
+                            ? snap.region.population.toLocaleString(lang === 'en' ? 'en-US' : 'cs-CZ')
+                            : '—'} ${lang === 'en' ? 'souls' : 'duší'}
                     </div>
                     <div style="font-size:0.7rem; opacity:0.7; margin-top:2px;">
                         ${lang === 'en' ? 'Olomouc Region 1465' : 'Olomoucká diecéze'}
@@ -1274,22 +1341,15 @@ const ChroniconSystem = {
             </div>
         `;
 
+        // Krok "Opat/real data" — karty teď čtou label/profese/náladu/jmění
+        // přímo ze snapshotu (snap.actors), ne z hardcoded tabulky ani z
+        // lokální náhodné procházky. chroniconLocal zůstává jen pro .quest
+        // (lokální barter "Splnit požadavek", beze změny).
         const localActors = (typeof GameState !== 'undefined' && GameState.chroniconLocal && GameState.chroniconLocal.actors)
             ? GameState.chroniconLocal.actors
             : {};
 
-        const defaultActors = [
-            { id: 'vrchnost', label: 'Vrchnost', profession: 'Šlechta & Hrad' },
-            { id: 'mlynar', label: 'Mlynář', profession: 'Mlynářství & Mouka' },
-            { id: 'kovar', label: 'Kovář', profession: 'Cech kovářský' },
-            { id: 'uhlic', label: 'Uhlíř', profession: 'Milíře v lesích' },
-            { id: 'vorar', label: 'Vorař', profession: 'Plavba po Moravě' },
-            { id: 'rybnikar', label: 'Rybníkář', profession: 'Klášterní rybníky' },
-            { id: 'prevoznik', label: 'Převozník', profession: 'Přívoz & Cestující' },
-            { id: 'valach', label: 'Valach', profession: 'Pastviny & Vlna' },
-            { id: 'klaster', label: 'Klášter', profession: 'Komunita bratří' },
-            { id: 'vcelar', label: 'Včelař', profession: 'Med & Vosk pro svíce' },
-        ];
+        const realActors = Array.isArray(snap.actors) ? snap.actors : [];
 
         html += `
             <div style="margin-bottom:24px;">
@@ -1313,21 +1373,20 @@ const ChroniconSystem = {
             rybnikar: 'Stará se o klášterní rybníky, klíčové pro postní jídlo.',
             prevoznik: 'Propojuje břehy řeky, přivádí poutníky k bráně kláštera.',
             valach: 'Chová ovce, dodává vlnu a skopové maso.',
-            klaster: 'Duchovní centrum. Tvoje modlitby a mše přímo posilují klášter!',
+            klaster: 'Opat kláštera ve městě. Tvoje modlitby a mše přímo posilují jeho postavení!',
             vcelar: 'Stáčí med a vosk — hlavní zdroj pro výrobu klášterních svící.',
         };
 
-        defaultActors.forEach(baseA => {
+        realActors.forEach(baseA => {
             const id = baseA.id;
-            const dynA = localActors[id] || { mood: 70, wealth: 60, quest: null };
-            const label = baseA.label;
-            const prof = baseA.profession;
+            const label = lang === 'en' ? (baseA.label_en || baseA.label) : baseA.label;
+            const prof = lang === 'en' ? (baseA.profession_en || baseA.profession) : baseA.profession;
             const icon = ChroniconSystem._ACTOR_ICONS[id] || '👤';
             const desc = ACTOR_DESCS[id] || prof;
 
-            const mood = dynA.mood || 70;
-            const wealth = dynA.wealth || 60;
-            const quest = dynA.quest || null;
+            const mood = typeof baseA.mood === 'number' ? baseA.mood : 50;
+            const wealth = typeof baseA.wealth === 'number' ? baseA.wealth : 50;
+            const quest = (localActors[id] && localActors[id].quest) || null;
 
             let questBtnHTML = '';
             if (quest) {

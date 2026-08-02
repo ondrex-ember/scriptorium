@@ -57,6 +57,10 @@ const ContactsDB = {
         primaryAxis: 'village',
         secondaryAxis: { axis: 'church', weight: 0.2 },   // mlýnský desátek
         unlockTech: null,                     // dostupný hned s hubem (Mola/mouka = raná hra)
+        // clientela-chronicon-most-mrd v0.1 (29.7.2026) — propojeno na
+        // Chronicon aktéra 'mlynar' (Krok A). Zatím jen identita; report
+        // mechanismus (Krok B) přijde samostatně.
+        chroniconActorId: 'mlynar',
         // M1 — výkup z polí (mouku NEvykupuje, tu mele sám); zrní mimo BASE_PRICES = exkluzivní kanál
         sellBonus: { items: { grain: 2, rye_grain_2: 3, wheat_grain_2: 3, rye_grain_1: 5, wheat_grain_1: 5,
                               barley: 2, oats: 2, millet: 2, peas: 2 } },
@@ -90,6 +94,9 @@ const ContactsDB = {
         primaryAxis: 'village',
         secondaryAxis: null,
         unlockTech: 'tech_kovarina',          // existuje
+        // clientela-chronicon-most-mrd v0.1 (29.7.2026) — propojeno na
+        // Chronicon aktéra 'kovar' (Krok A), mirror mlynar/sklar.
+        chroniconActorId: 'kovar',
         sellBonus: { items: { iron_ore: 6, iron_ingot: 10 } },   // K4b: výkup pod nákupní cenou Obchodu (15) — přebytek rozhodne hráč; iron_ingot: polotovar, přebytek nad truhla_i spotřebou (Clientela pool MRD 25.7.2026)
         buyOffer: { items: {
             palice_zelezna: { price: 16, stock: 2 },

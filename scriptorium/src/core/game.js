@@ -338,8 +338,14 @@ const Game = {
 		if (!GameState.abbotPetition.fodina) GameState.abbotPetition.fodina = { status: 'none', submittedAt: null, deniedReason: null, inspectionPending: false };
 		if (!GameState.abbotPetition.fornax) GameState.abbotPetition.fornax = { status: 'none', submittedAt: null, deniedReason: null, inspectionPending: false };
 		if (!GameState.abbotPetition.domus_ii) GameState.abbotPetition.domus_ii = { status: 'none', submittedAt: null, deniedReason: null, inspectionPending: false };
+		if (!GameState.ubytovnaPetition) GameState.ubytovnaPetition = {};
 		// Vyhodnotit čekající žádosti po načtení
 		Game.checkAbbotPetitions();
+		Game.checkUbytovnaPetitions();
+		// Krok B — vážený denní report Clientela↔Chronicon vztahů (mirror registrum)
+		if (typeof ChroniconSystem !== 'undefined' && ChroniconSystem._reportContactRelationIfNewDay) {
+			ChroniconSystem._reportContactRelationIfNewDay();
+		}
 
 		// CONVERSI — holý skelet (jméno + slot, bez úkolů zatím)
 		if (!GameState.conversi) GameState.conversi = [];
@@ -754,6 +760,10 @@ const Game = {
                     if (typeof Game !== 'undefined' && Game.pilgrimTick) Game.pilgrimTick();
                     // Probošt — životní události farních rodin (self-guarded 7 d, gate rank.probost)
                     if (typeof Game !== 'undefined' && Game.parishEventTick) Game.parishEventTick();
+                    // Krok C (zakazky-3-kandidati.md) — zakázky od propojených aktérů (sklář první)
+                    if (typeof CommitmentsSystem !== 'undefined' && CommitmentsSystem.akterZakazkyTick) CommitmentsSystem.akterZakazkyTick();
+                    if (typeof CommitmentsSystem !== 'undefined' && CommitmentsSystem.klientelaATick) CommitmentsSystem.klientelaATick();
+                    if (typeof CommitmentsSystem !== 'undefined' && CommitmentsSystem.vrchnostZakazkyTick) CommitmentsSystem.vrchnostZakazkyTick();
                     // Caseus — denní zrání sýra (self-guarded 24h, gate tech_caseus)
                     if (typeof CheeseSystem !== 'undefined' && CheeseSystem.dailyTick) CheeseSystem.dailyTick();
                     // Calcaria — denní zrání vápna (self-guarded 24h, gate tech_calcaria)
@@ -4600,9 +4610,11 @@ const Game = {
 		if (!GameState.storage.old_cellars)        GameState.storage.old_cellars        = {built:false};
 		if (!GameState.storage.domus_conversorum_i) GameState.storage.domus_conversorum_i = {built:false};
 		if (!GameState.storage.domus_conversorum_ii) GameState.storage.domus_conversorum_ii = {built:false};
+		if (!GameState.storage.domus_conversorum_iii) GameState.storage.domus_conversorum_iii = {built:false};
 		if (!GameState.storage.dormitorium_i)   GameState.storage.dormitorium_i   = {built:false};
 		if (!GameState.storage.dormitorium_ii)  GameState.storage.dormitorium_ii  = {built:false};
 		if (!GameState.storage.dormitorium_iii) GameState.storage.dormitorium_iii = {built:false};
+		if (!GameState.storage.knihovna_grade_i) GameState.storage.knihovna_grade_i = {built:false};
 		if (!GameState.storage.transactions) GameState.storage.transactions = [];
 		// Prereq checks — storage buildings
 		if (type === 'cella' && !GameState.storage.almarium.built) {
@@ -4658,6 +4670,11 @@ const Game = {
 				UI.notify(lang==='en' ? '❌ Abbot approval required. Submit a petition first.' : '❌ Vyžaduje souhlas opata. Nejprve zašli žádost.', true); return;
 			}
 		}
+		if (type === 'domus_conversorum_iii') {
+			if (!(GameState.abbotPetition && GameState.abbotPetition.domus_iii && GameState.abbotPetition.domus_iii.status === 'approved')) {
+				UI.notify(lang==='en' ? '❌ Abbot approval required. Submit a petition first.' : '❌ Vyžaduje souhlas opata. Nejprve zašli žádost.', true); return;
+			}
+		}
 		if (type === 'vapenice' && !(GameState.researchedTechs && GameState.researchedTechs.includes('tech_calcaria'))) {
 			UI.notify(lang==='en' ? 'Research Calcaria first.' : 'Nejprve prozkoumej tech Calcaria.', true); return;
 		}
@@ -4683,18 +4700,22 @@ const Game = {
 			old_cellars:       { cut_stone: 15, plank: 10, rope: 5 },
 			domus_conversorum_i: { cut_stone: 40, plank: 25, rope: 10 },
 			domus_conversorum_ii: { cut_stone: 150, plank: 90, rope: 35 },
+			domus_conversorum_iii: { cut_stone: 330, plank: 200, rope: 75, iron_ingot: 4 },
 			dormitorium_i:   { cut_stone: 30, plank: 20, rope: 8 },
 			dormitorium_ii:  { cut_stone: 90,  plank: 60, rope: 25, iron_ingot: 2, glass_stopper: 6 },
 			dormitorium_iii: { cut_stone: 200, plank: 130, rope: 50, iron_ingot: 6, glass_stopper: 10, glass_tankard: 10 },
+			knihovna_grade_i: { cut_stone: 20, plank: 15, rope: 6 },
 		};
 		// Volitelný groše náklad navíc k materiálu — dnes jen Domus Conversorum I/II.
 		// Cokoliv chybí v costsGrose má groseNeeded=0, tedy nulový dopad na stávající budovy.
 		const costsGrose = {
 			domus_conversorum_i: 25,
 			domus_conversorum_ii: 50,
+			domus_conversorum_iii: 110,
 			dormitorium_i: 15,
 			dormitorium_ii: 35,
 			dormitorium_iii: 70,
+			knihovna_grade_i: 15,
 		};
 		const cost = costs[type];
 		if (!cost) return;
@@ -4723,9 +4744,11 @@ const Game = {
 			old_cellars: 'Staré sklepy',
 			domus_conversorum_i: 'Domus Conversorum I',
 			domus_conversorum_ii: 'Domus Conversorum II',
+			domus_conversorum_iii: 'Domus Conversorum III',
 			dormitorium_i: 'Dormitorium I',
 			dormitorium_ii: 'Dormitorium II',
 			dormitorium_iii: 'Dormitorium III',
+			knihovna_grade_i: 'Knihovna — Stupeň I',
 		};
 		const n = names[type] || type;
 		UI.notifyPanel('🏗️ ' + (lang==='en' ? n+' built.' : n+' postaveno.'), 'system');
@@ -5212,6 +5235,7 @@ const Game = {
                         PersonaSystem.addInfluence('church', 2);
                         PersonaSystem.addInfluence('village', 2);
                     }
+                    if (typeof PersonaSystem !== 'undefined' && PersonaSystem.addReputation) PersonaSystem.addReputation('lidovost', 1);
                     if (type === 'wedding' && typeof CellariumSystem !== 'undefined' && CellariumSystem.addGrose) {
                         CellariumSystem.addGrose(5 + Math.floor(Math.random() * 10));
                     }
@@ -5247,6 +5271,7 @@ const Game = {
                 }},
                 { label: (lang==='en'?'🚪 Decline':'🚪 Odmítnout'), effect: () => {
                     if (typeof PersonaSystem !== 'undefined' && PersonaSystem.addInfluence) PersonaSystem.addInfluence('village', -2);
+                    if (typeof PersonaSystem !== 'undefined' && PersonaSystem.addReputation) PersonaSystem.addReputation('lidovost', -1);
                     Game._templumLog({ type: 'parish', eventType: type, surname: surname, officiated: false });
                     Game.addKronikaEntry('minor',
                         '🚪 ' + titleMap[type][0] + ': rodina ' + surname + ' odmítnuta.',
@@ -5297,12 +5322,21 @@ const Game = {
                 this.addItem('reliquia', 1);
                 if (typeof PersonaSystem !== 'undefined') PersonaSystem.addInfluence('church', 10);
             }
+            if (typeof PersonaSystem !== 'undefined' && PersonaSystem.addReputation) {
+                PersonaSystem.addReputation('slechta', 3);
+                PersonaSystem.addReputation('cirkev', 3);
+            }
             GameState.flags.visitatioLaudatio = true;
             if (GameState.rank) GameState.rank.priorNomination = true; // MRD 6.5: biskupova chvála = jmenovací akt (Prior)
         } else if (band === 'neutrum') {
             if (typeof PersonaSystem !== 'undefined') PersonaSystem.addInfluence('church', 3);
         } else {
             if (typeof PersonaSystem !== 'undefined') PersonaSystem.addInfluence('church', -5);
+            if (typeof PersonaSystem !== 'undefined' && PersonaSystem.addReputation) {
+                PersonaSystem.addReputation('lidovost', -1);
+                PersonaSystem.addReputation('slechta', -3);
+                PersonaSystem.addReputation('cirkev', -3);
+            }
             // Jednotlivec, ne plošný trest: biskup jmenuje jednoho „nedbalého" bratra (MRD 6.6)
             const pool = (GameState.conversi || []).filter(k => !(k.penanceUntil && k.penanceUntil > now));
             if (pool.length) {
@@ -5682,6 +5716,74 @@ const Game = {
         if (el && typeof TemplumSystem !== 'undefined') el.innerHTML = TemplumSystem.renderTemplumTab();
     },
 
+    // Pilíř Almužník (T7) — týdenní rozdání přebytku jídla, mirror serveMass
+    // vzoru. Gating (rank frater+, cooldown, 15 jídla) už existovalo v
+    // TemplumSystem.renderTemplumTab(), jen tahle akce chyběla — tlačítko
+    // volalo Game.giveAlms(), která nikde nebyla definovaná.
+    giveAlms: function() {
+        if (typeof TemplumSystem === 'undefined' || !TemplumSystem.isUnlocked()) return;
+        if (!GameState.templum) GameState.templum = {};
+        const t = GameState.templum;
+        const now = Date.now();
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+
+        if (!(GameState.rank && ['frater', 'armarius', 'prior'].includes(GameState.rank.monastic))) return;
+        if ((t.nextAlms || 0) > now) return;
+
+        const inv = GameState.inventory;
+        let need = 15;
+        const consumed = [];
+        for (const [id, qty] of Object.entries(inv || {})) {
+            if (need <= 0) break;
+            const it = (typeof ItemsDB !== 'undefined') ? ItemsDB[id] : null;
+            if (it && it.type === 'food' && typeof qty === 'number' && qty > 0) {
+                const take = Math.min(qty, need);
+                consumed.push([id, take]);
+                need -= take;
+            }
+        }
+        if (need > 0) {
+            UI.notify('⚠️ ' + (lang === 'en' ? 'Not enough food surplus (need 15).' : 'Nedostatek přebytku jídla (potřeba 15).'), true);
+            return;
+        }
+        consumed.forEach(([id, qty]) => this.removeItem(id, qty));
+
+        const vill = 5;
+        const zboz = 1;
+        if (typeof PersonaSystem !== 'undefined' && PersonaSystem.addInfluence) PersonaSystem.addInfluence('village', vill);
+        if (typeof PersonaSystem !== 'undefined' && PersonaSystem.addZboznost) PersonaSystem.addZboznost(zboz);
+        // Pověst — Lidovost, tiered diminishing returns (povest-frakcni-reputace-mrd.md R3)
+        if (typeof PersonaSystem !== 'undefined' && PersonaSystem.addReputation) {
+            const _curLid = (GameState.persona && GameState.persona.reputation && GameState.persona.reputation.lidovost) || 0;
+            const _repDelta = _curLid < 50 ? 2 : _curLid < 80 ? 1 : 0;
+            if (_repDelta > 0) PersonaSystem.addReputation('lidovost', _repDelta);
+        }
+
+        t.nextAlms = now + 7 * 24 * 60 * 60 * 1000;
+        t.lastAlms = { ts: now };
+
+        // Stejný anonymní denní favor report pro 'klaster' jako u mše —
+        // almužna je taky charitativní čin kláštera vůči kraji.
+        if (typeof ChroniconSystem !== 'undefined' && ChroniconSystem._reportActorFavorIfNewDay) {
+            ChroniconSystem._reportActorFavorIfNewDay('klaster');
+        }
+
+        Game.save();
+
+        if (typeof UI !== 'undefined' && UI.notifyPanel) {
+            UI.notifyPanel('🥖 ' + (lang === 'en'
+                ? 'Alms distributed. Village +' + vill + ', piety +' + zboz + '.'
+                : 'Almužna rozdána. Vesnice +' + vill + ', zbožnost +' + zboz + '.'), 'success');
+        }
+        Game.addKronikaEntry('important',
+            '🥖 Almužník rozdal přebytek jídla chudým ve vsi.',
+            '🥖 The almoner distributed the surplus food to the poor of the village.',
+            '🥖 Eleemosyna pauperibus distributa est.');
+
+        const elAlms = document.getElementById('home-templum-content');
+        if (elAlms && typeof TemplumSystem !== 'undefined') elAlms.innerHTML = TemplumSystem.renderTemplumTab();
+    },
+
     // ── TEMPLUM Fabrica Ecclesiae — 4 stavební úrovně (endgame-branches-reference.md sekce 4.2) ──
     FABRICA_TIERS: [
         { name: 'Kaple',     name_en: 'Chapel',    cost: 0,   req: null, decayMult: 1.00, repairEff: 1.00 },
@@ -5969,7 +6071,7 @@ const Game = {
         const now = Date.now();
         const DAY_MS = 86400000;
 
-        ['fodina', 'fornax', 'columbarium', 'domus_ii', 'probost'].forEach(type => {
+        ['fodina', 'fornax', 'columbarium', 'domus_ii', 'domus_iii', 'probost'].forEach(type => {
             const pet = GameState.abbotPetition[type];
             if (!pet || pet.status !== 'pending') return;
             if (now - pet.submittedAt < DAY_MS) return;
@@ -6061,9 +6163,115 @@ const Game = {
 
     conversiCapacity: function() {
         const s = GameState.storage || {};
+        if (s.domus_conversorum_iii && s.domus_conversorum_iii.built) return 20;
         if (s.domus_conversorum_ii && s.domus_conversorum_ii.built) return 5;
         if (s.domus_conversorum_i  && s.domus_conversorum_i.built)  return 2;
         return 0;
+    },
+
+    // ── UBYTOVNA — kapacita hostů, vlastní tier žebřík (I→IV: 1/3/6/9) ──────
+    // Sdílí prerekvizitu se sklepy (storage.old_cellars.built), ale progrese
+    // je oddělená od Domus Conversorum (jiná budova, jiný účel — hosté, ne
+    // trvalí konvrši). "Oddělené a propojené" (Bouvarde 2.8.2026).
+    // Vlastní petiční systém (ne sdílený s abbotPetition/submitAbbotPetition)
+    // — ten interně čte i18n klíče (t('abbotPetition.'+type+'...')), co pro
+    // nové typy nemůžeme přidat bez aktuálních cs.js/en.js (i18n hard rule).
+    // Tenhle systém je proto self-contained, inline bilingvní text všude.
+    ubytovnaCapacity: function() {
+        const s = GameState.storage || {};
+        if (s.ubytovna_iv  && s.ubytovna_iv.built)  return 9;
+        if (s.ubytovna_iii && s.ubytovna_iii.built) return 6;
+        if (s.ubytovna_ii  && s.ubytovna_ii.built)  return 3;
+        return 1;
+    },
+
+    UBYTOVNA_TIER_COSTS: {
+        ubytovna_ii:  { items: { cut_stone: 15, plank: 10, rope: 4 },  grose: 10, cap: 3 },
+        ubytovna_iii: { items: { cut_stone: 105, plank: 63, rope: 25 }, grose: 35, cap: 6 },
+        ubytovna_iv:  { items: { cut_stone: 330, plank: 200, rope: 75, iron_ingot: 4 }, grose: 110, cap: 9 },
+    },
+
+    submitUbytovnaPetition: function(tier) {
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        if (!GameState.ubytovnaPetition) GameState.ubytovnaPetition = {};
+        if (!GameState.ubytovnaPetition[tier]) GameState.ubytovnaPetition[tier] = { status: 'none', submittedAt: null };
+        const pet = GameState.ubytovnaPetition[tier];
+        if (pet.status === 'pending') {
+            UI.notify(lang==='en' ? '⏳ Petition already submitted. Await the Abbot\'s reply.' : '⏳ Žádost už byla odeslána. Čekej na odpověď opata.', true);
+            return;
+        }
+        if (pet.status === 'approved') {
+            UI.notify(lang==='en' ? '✅ The Abbot already approved this.' : '✅ Opat už tuto žádost schválil.', true);
+            return;
+        }
+        pet.status = 'pending';
+        pet.submittedAt = Date.now();
+        if (typeof UI !== 'undefined' && UI.notifyPanel) UI.notifyPanel('📜 ' + (lang==='en'
+            ? 'Petition submitted to the Abbot. Reply expected in 24h.'
+            : 'Žádost odeslána opatovi. Odpověď se čeká za 24 hodin.'), 'system');
+        if (typeof Game !== 'undefined' && Game.save) Game.save();
+    },
+
+    buildUbytovnaTier: function(tier) {
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        const cfg = Game.UBYTOVNA_TIER_COSTS[tier];
+        if (!cfg) return;
+        const pet = GameState.ubytovnaPetition && GameState.ubytovnaPetition[tier];
+        if (!pet || pet.status !== 'approved') {
+            UI.notify(lang==='en' ? '❌ Abbot approval required. Submit a petition first.' : '❌ Vyžaduje souhlas opata. Nejprve zašli žádost.', true); return;
+        }
+        if (!GameState.storage) GameState.storage = {};
+        if (!GameState.storage[tier]) GameState.storage[tier] = { built: false };
+        if (GameState.storage[tier].built) {
+            UI.notify(lang==='en' ? 'Already built.' : 'Již postaveno.', true); return;
+        }
+        if (cfg.grose > 0 && (typeof CellariumSystem !== 'undefined' ? CellariumSystem.getGrose() : 0) < cfg.grose) {
+            UI.notify((lang==='en'?'Not enough groats: ':'Nedostatek grošů: ')+cfg.grose, true); return;
+        }
+        for (const [item, amt] of Object.entries(cfg.items)) {
+            if ((GameState.inventory[item] || 0) < amt) {
+                const itemName = (typeof iName === 'function') ? iName(item) : item;
+                UI.notify((lang==='en'?'Not enough: ':'Nedostatek: ')+itemName+' x'+amt, true); return;
+            }
+        }
+        for (const [item, amt] of Object.entries(cfg.items)) { Game.removeItem(item, amt); }
+        if (cfg.grose > 0 && typeof CellariumSystem !== 'undefined') CellariumSystem.addGrose(-cfg.grose);
+        GameState.storage[tier].built = true;
+        if (typeof Game !== 'undefined' && Game.save) Game.save();
+        if (typeof UI !== 'undefined' && UI.notifyPanel) UI.notifyPanel('🏗️ ' + (lang==='en'
+            ? 'Guesthouse expanded — ' + cfg.cap + ' beds now.'
+            : 'Ubytovna rozšířena — teď ' + cfg.cap + ' lůžek.'), 'system');
+        if (typeof Game !== 'undefined' && Game.addKronikaEntry) Game.addKronikaEntry('important',
+            '🥾 Ubytovna rozšířena na ' + cfg.cap + ' lůžek.',
+            '🥾 The Guesthouse was expanded to ' + cfg.cap + ' beds.',
+            '🥾 Hospitium ampliatum est.');
+        if (typeof CellariumSystem !== 'undefined') {
+            if (!GameState.ui) GameState.ui = {};
+            const _cel = document.getElementById('cellarium-content');
+            if (_cel) _cel.outerHTML = CellariumSystem.renderCellariumContent();
+        }
+    },
+
+    checkUbytovnaPetitions: function() {
+        if (!GameState.ubytovnaPetition) return;
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        const now = Date.now();
+        const DAY_MS = 86400000;
+        ['ubytovna_ii', 'ubytovna_iii', 'ubytovna_iv'].forEach(tier => {
+            const pet = GameState.ubytovnaPetition[tier];
+            if (!pet || pet.status !== 'pending') return;
+            if (now - pet.submittedAt < DAY_MS) return;
+            pet.status = 'approved';
+            if (typeof UI !== 'undefined' && UI.notifyPanel) {
+                UI.notifyPanel('✅ ' + (lang==='en' ? 'The Abbot approved the guesthouse expansion.' : 'Opat schválil rozšíření Ubytovny.'), 'success');
+            }
+            if (typeof Game !== 'undefined' && Game.addKronikaEntry) Game.addKronikaEntry('important',
+                '📜 Opat schválil rozšíření Ubytovny.',
+                '📜 The Abbot approved the expansion of the Guesthouse.',
+                '📜 Abbas hospitii ampliationem approbavit.');
+            if (typeof Game !== 'undefined' && Game.save) Game.save();
+            if (typeof UI !== 'undefined' && UI.renderAll) UI.renderAll();
+        });
     },
 
     // ── DORMITORIUM — kapacita bratrů (mniši/skriptoři, manažerská vrstva) ──

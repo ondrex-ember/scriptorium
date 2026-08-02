@@ -131,6 +131,12 @@ const WellSystem = {
             UI.notify(msg);
         }
 
+        // Statistika (Persona/Statistics tab) — hodnota se zobrazovala,
+        // ale nikdy se sem nedostal žádný increment.
+        if (GameState.achievements && GameState.achievements.stats) {
+            GameState.achievements.stats.waterDrawn = (GameState.achievements.stats.waterDrawn || 0) + 1;
+        }
+
         // Degradace užitím (purity model v2, místo RNG) + úbytek hladiny
         this._degrade(this.USE_DECAY[level] || 0);
         GameState.well.level_water = Math.max(0, (GameState.well.level_water || 0) - this.DRAW_COST);

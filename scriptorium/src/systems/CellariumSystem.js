@@ -1449,6 +1449,44 @@ const CellariumSystem = {
     }
     h += `</div>`;
 
+    // ═══ UBYTOVNA — samostatný tier žebřík (I→IV: 1/3/6/9 lůžek) ═══
+    // Sdílí prerekvizitu (Fáze 1 — Čistý sklep), ale jinak oddělené od
+    // Domus Conversorum (hosté, ne trvalí konvrši). Vlastní petiční
+    // systém — Game.submitUbytovnaPetition/buildUbytovnaTier, ne sdílený
+    // abbotPetition (i18n hard rule, viz komentář u ubytovnaCapacity).
+    h += `<div style="font-size:0.72rem; font-weight:bold; letter-spacing:0.06em; text-transform:uppercase; opacity:0.55; margin:18px 0 8px;">🥾 ${lang==='en'?'Guesthouse — separate ladder':'Ubytovna — samostatný žebřík'}</div>`;
+
+    const _ubyTiers = [
+      { id: 'ubytovna_ii',  label_cs: 'Ubytovna II',  label_en: 'Guesthouse II',  desc_cs: 'Přístavek s dalšími lůžky (3 celkem).', desc_en: 'An annex with more beds (3 total).' },
+      { id: 'ubytovna_iii', label_cs: 'Ubytovna III', label_en: 'Guesthouse III', desc_cs: 'Rozšířené křídlo (6 lůžek celkem).',    desc_en: 'An expanded wing (6 beds total).' },
+      { id: 'ubytovna_iv',  label_cs: 'Ubytovna IV',  label_en: 'Guesthouse IV',  desc_cs: 'Plný hostinec (9 lůžek celkem).',      desc_en: 'A full guesthouse (9 beds total).' },
+    ];
+    const _ubyPrevBuilt = (i) => i === 0 ? phase1Built : (GameState.storage && GameState.storage[_ubyTiers[i-1].id] && GameState.storage[_ubyTiers[i-1].id].built);
+    _ubyTiers.forEach((tierDef, i) => {
+      const built = GameState.storage && GameState.storage[tierDef.id] && GameState.storage[tierDef.id].built;
+      const prevOk = _ubyPrevBuilt(i);
+      const pet = (GameState.ubytovnaPetition && GameState.ubytovnaPetition[tierDef.id]) || { status: 'none' };
+      const cfg = (typeof Game !== 'undefined') ? Game.UBYTOVNA_TIER_COSTS[tierDef.id] : null;
+      const costStr = cfg ? Object.entries(cfg.items).map(([k,v]) => `${v}× ${(typeof iName==='function')?iName(k):k}`).join(', ') + ` + ${cfg.grose}g` : '';
+      h += `<div style="padding:12px; margin-bottom:8px; background:${prevOk ? 'rgba(255,255,255,0.4)' : 'rgba(0,0,0,0.02)'}; border-radius:6px; opacity:${prevOk ? '1' : '0.4'};">`;
+      h += `<div style="font-weight:bold; margin-bottom:4px;">${prevOk ? '' : '🔒 '}${lang==='en'?tierDef.label_en:tierDef.label_cs}</div>`;
+      h += `<div style="font-size:0.8rem; opacity:0.75; margin-bottom:8px;">${lang==='en'?tierDef.desc_en:tierDef.desc_cs}</div>`;
+      if (built) {
+        h += `<div style="color:#5a9; font-size:0.85rem;">✅ ${lang==='en'?'Complete':'Dokončeno'}</div>`;
+      } else if (!prevOk) {
+        h += `<div style="font-size:0.72rem; opacity:0.6; font-style:italic;">${lang==='en'?'Requires the previous tier first.':'Nutná nejprve předchozí úroveň.'}</div>`;
+      } else if (pet.status === 'pending') {
+        const remH = Math.max(0, Math.ceil((pet.submittedAt + 86400000 - Date.now()) / 3600000));
+        h += `<div style="font-size:0.8rem;">⏳ ${lang==='en'?'Awaiting the Abbot\'s reply —':'Čeká na odpověď opata —'} <strong>${remH}h</strong></div>`;
+      } else if (pet.status === 'approved') {
+        h += `<div style="font-size:0.75rem; opacity:0.6; margin-bottom:6px;">${costStr}</div>`;
+        h += `<button class="craft-btn" onclick="Game.buildUbytovnaTier('${tierDef.id}')">🏗️ ${lang==='en'?'Build':'Postavit'}</button>`;
+      } else {
+        h += `<button class="craft-btn" onclick="Game.submitUbytovnaPetition('${tierDef.id}'); CellariumSystem.switchEntity('old_cellars');">📜 ${lang==='en'?'Submit petition to the Abbot':'Zaslat žádost opatovi'}</button>`;
+      }
+      h += `</div>`;
+    });
+
     h += `</div>`;
     return h;
   },
