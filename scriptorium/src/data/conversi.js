@@ -375,3 +375,23 @@ const AnonymousLoreDB = {
                     en: 'Only now did he say why he was sent — not faith, but too many brothers at home and too little land.' },
     ],
 };
+
+// Vlákno B (npc-subtab-konsolidovany-mrd.md §3) — Kapitula jako seriál.
+// Jen pro `type: 'tension'` páry (2 dnes: Jakub×Vojtěch, Bartoloměj×Havel).
+// Klíč = přesně `bond.a + '|' + bond.b`, mirror pořadí v ConversiBondsDB.
+// retrospective = text při 2. setkání (jen pokud 1. bylo vyřešeno smírně).
+// leaves = "sbohem" text pro toho, kdo při "vyhoření" (3. setkání) odejde.
+const KapitulaRetrospectiveDB = {
+    'k_jakub|k_vojtech': {
+        retrospective_cs: 'Když napětí na chvíli povolilo, Jakub jednou prohodil, že u Lipan neviděl nepřítele — jen sousedy v jiné zbroji. Vojtěch mlčel déle než obvykle. Možná to bylo poprvé, co ho slyšel mluvit o válce přímo.',
+        retrospective_en: 'When the tension eased for a moment, Jakub once remarked that at Lipany he saw no enemy — only neighbours in different armour. Vojtěch was silent longer than usual. Perhaps it was the first time he heard him speak of the war directly.',
+        leaves_cs: 'Řekl, že dvě strany jedné války se nedají smířit modlitbou navždy — jen na chvíli. Odchází, než se ta chvíle vyčerpá docela.',
+        leaves_en: 'He said two sides of one war cannot be reconciled by prayer forever — only for a while. He leaves before that while runs out entirely.',
+    },
+    'k_bartolomej|k_havel': {
+        retrospective_cs: 'Havel přiznal — jen jednou, jen tiše —, že tu historku o svěceném pivu možná trochu přehání. Bartoloměj řekl, že mu odpouští, i kdyby byla pravda celá. Trochu si od té chvíle rozumí. Trochu.',
+        retrospective_en: 'Havel admitted — just once, just quietly — that the tale of the consecrated beer might be a touch exaggerated. Bartoloměj said he forgives him, even if it were entirely true. Since then they understand each other a little. A little.',
+        leaves_cs: 'Řekl, že cesta ho volá víc než další rok stejného škádlení. Zabalil vůz a slíbil, že tuhle historku bude vyprávět nejlíp ze všech.',
+        leaves_en: 'He said the road calls louder than another year of the same teasing. He packed his cart and promised he would tell this tale best of all.',
+    },
+};
