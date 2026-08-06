@@ -62,6 +62,8 @@ const GameState = {
     quietHoursEnd: 6
      },
     candleStart: 0,
+    torchStart: 0,
+    torchItemId: null,
     // hunger odstraněn — nahrazen VigorSystem (GameState.satiety + GameState.fatigue)
     garden: [
         // Fáze 1: 4x herb (2 odemčené, 2 za tech_garden_expand)
