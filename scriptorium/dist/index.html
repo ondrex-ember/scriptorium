@@ -7628,8 +7628,9 @@ const ItemsDB = {
     "stone_knife": { name: "Nůž", name_en: "Stone Knife", icon: "🗡️", type: "tool", desc: "Nástroj k lovu.", desc_en: "A hunting tool." },
     "pestle": { name: "Hmoždíř", name_en: "Mortar & Pestle", icon: "🥣", type: "tool", desc: "Na drcení.", desc_en: "For grinding." },
     "flint": { name: "Křesadlo", name_en: "Flint", icon: "🔥", type: "tool", tier: "fire", desc: "Na oheň.", desc_en: "For striking fire." },
-    "primitive_torch": { name: "Louč", name_en: "Torch", icon: "🪵", type: "tool", tier: "fire", desc: "Špinavé světlo.", desc_en: "Crude light." },
-    "candle": { name: "Svíčka", name_en: "Candle", icon: "🕯️", type: "tool", tier: "fire", desc: "24h světla.", desc_en: "24 hours of light." },
+    "primitive_torch": { name: "Louč (sádlová)", name_en: "Torch (lard)", icon: "🪵", type: "tool", tier: "fire", lightHours: 1, desc: "Nouzová louč ze sádla. Rychle se rozteče a hoří jen krátce, navíc čadí. 1h světla.", desc_en: "Emergency torch made with lard. Melts fast and burns only briefly, and smokes badly. 1h of light." },
+    "torch_resin": { name: "Louč (smolná)", name_en: "Torch (resin)", icon: "🔥", type: "tool", tier: "fire", lightHours: 6, desc: "Louč napuštěná pryskyřicí jehličnanů. Hoří jasně, stabilně a odolá i větru. 6h světla.", desc_en: "A torch soaked in conifer resin. Burns bright, stable, and holds up against wind. 6h of light." },
+    "candle": { name: "Svíčka", name_en: "Candle", icon: "🕯️", type: "tool", tier: "fire", lightHours: 24, desc: "24h světla.", desc_en: "24 hours of light." },
     "rope": { name: "Provaz", name_en: "Rope", icon: "➰", type: "mat", desc: "Pevný spoj.", desc_en: "Strong binding." },
     "hoe": { name: "Motyka", name_en: "Hoe", icon: "⚒️", type: "tool", desc: "K farmě.", desc_en: "For the garden." },
     "fishing_rod": { name: "Udice", name_en: "Fishing Rod", icon: "🎣", type: "tool", desc: "Na ryby.", desc_en: "For fishing." },
@@ -8546,6 +8547,7 @@ Object.assign(ItemsDB, {
         desc: "Potřísněný list nalezený mezi zkaženými zásobami. Někdo si zapsal, co znamená, když zanedbání přivolá roj.", desc_en: "A stained page found among the spoiled stores. Someone once wrote down what it means when neglect draws a swarm."
     },
 });
+
 // ═══ src/data/recipes.js ═══
 const RecipesDB = [
     // BASIC TOOLS
@@ -8564,6 +8566,8 @@ const RecipesDB = [
     { id: "pestle", output: "pestle", qty: 1, req: { "rock": 2, "sharp_stone": 1 }, cat: "stone" },
     { id: "flint", output: "flint", qty: 1, req: { "rock": 2 }, cat: "stone" },
     { id: "primitive_torch", output: "primitive_torch", qty: 1, req: { "stick": 1, "fat": 1 }, cat: "fire", blind: true },
+    { id: "torch_resin_spruce", output: "torch_resin", qty: 1, req: { "stick": 1, "resin_spruce": 1 }, cat: "fire", blind: true, desc: "Klacek napuštěný smrkovou smůlou.", desc_en: "A stick soaked in spruce resin." },
+    { id: "torch_resin_pine", output: "torch_resin", qty: 1, req: { "stick": 1, "resin_pine": 1 }, cat: "fire", blind: true, desc: "Klacek napuštěný borovou smůlou.", desc_en: "A stick soaked in pine resin." },
     { id: "tinderbox", output: "tinderbox", qty: 1, req: { "bark": 1, "fiber": 1 }, cat: "fire", blind: true },
     { id: "hoe", output: "hoe", qty: 1, req: { "sharp_stone": 1, "stick": 2, "rope": 1 }, cat: "stone" },
     { id: "bonemeal", output: "bonemeal", qty: 3, req: { "bone": 1, "pestle": 0 }, cat: "craft" },
@@ -9202,6 +9206,7 @@ RecipesDB.push(
     { id: "incense_styrax",   output: "incense_styrax",   qty: 1, req: { "resin_styrax": 1, "charcoal": 1 }, cat: "fire", locked: true, desc: "Styrax + uhlí = byzantské kadidlo.", desc_en: "Styrax + charcoal = Byzantine incense." },
     { id: "incense_olibanum", output: "incense_olibanum", qty: 1, req: { "resin_olibanum": 1, "charcoal": 1 }, cat: "fire", locked: true, desc: "Olibanum + uhlí = posvátné kadidlo.", desc_en: "Olibanum + charcoal = sacred incense." }
 );
+
 // ═══ src/data/health.js ═══
 // ═══════════════════════════════════════════════════════════════════════════
 // HEALTH CONDITIONS DB (Valetudo)
@@ -10997,6 +11002,8 @@ const GameState = {
     quietHoursEnd: 6
      },
     candleStart: 0,
+    torchStart: 0,
+    torchItemId: null,
     // hunger odstraněn — nahrazen VigorSystem (GameState.satiety + GameState.fatigue)
     garden: [
         // Fáze 1: 4x herb (2 odemčené, 2 za tech_garden_expand)
@@ -11097,6 +11104,7 @@ const GameState = {
         fornax: { status: 'none', submittedAt: null, deniedReason: null, inspectionPending: false },
     },
 };
+
 // ═══ src/data/achievements.js ═══
 const AchievementsDB = [
     // DISCOVERY
@@ -14839,6 +14847,21 @@ const TimeSys = {
             }
         }
 
+        // Torch check — stejný vzor jako svíčka, ale délka podle konkrétní
+        // zapálené louče (primitive_torch = 1h nouzová, torch_resin = 6h).
+        if (GameState.flags && GameState.flags.torchLit) {
+            const _torchItem = GameState.torchItemId || 'primitive_torch';
+            const _torchHrs = (typeof ItemsDB !== 'undefined' && ItemsDB[_torchItem] && ItemsDB[_torchItem].lightHours) ? ItemsDB[_torchItem].lightHours : 1;
+            if ((Date.now() - GameState.torchStart) > (_torchHrs * 60 * 60 * 1000)) {
+                GameState.flags.torchLit = false;
+                GameState.torchStart = 0;
+                GameState.torchItemId = null;
+                UI.notify(t('game.torchBurnedOut') || 'Louč dohořela.');
+                Game.checkEnvironment();
+                Game.save();
+            }
+        }
+
                 const researchCount = GameState.inventory.research || 0;
         const researchEl = document.getElementById('research-count');
         if (researchEl) {
@@ -14878,6 +14901,7 @@ const TimeSys = {
         }
     }
 };
+
 // ═══ src/systems/canonical.js ═══
 // ═══════════════════════════════════════════════════════════════════
 // CANONICAL HOURS — Benediktinské kanonické hodiny
@@ -16010,6 +16034,19 @@ const ChroniconSystem = {
                 GameState.chroniconLocal.actors[id] = { mood: 70, wealth: 60, status: 'normal', level: 1, quest: null };
             }
         });
+
+        // Repair starých savů — quest se ukládal jako "zamrzlá" kopie hodnot
+        // v momentě vzniku, takže hráči, co měli aktivní quest ještě před
+        // opravou (tallow/tallow_candle/dye_vermilion ID mismatch, 6.8.2026),
+        // mají v save napořád rozbité hodnoty. Ty se samy neopraví — bez tohohle
+        // by zůstal quest navždy nesplnitelný (žádné tlačítko na jeho zrušení).
+        Object.keys(GameState.chroniconLocal.actors).forEach(id => {
+            const a = GameState.chroniconLocal.actors[id];
+            const canonical = ChroniconSystem.QUEST_TYPES[id];
+            if (a.quest && canonical && (a.quest.needItem !== canonical.needItem || a.quest.giveItem !== canonical.giveItem)) {
+                a.quest = { ...canonical, created: a.quest.created || Date.now() };
+            }
+        });
     },
 
     getBuffs: function() {
@@ -16113,19 +16150,19 @@ const ChroniconSystem = {
         ChroniconSystem.updateUIHeader();
     },
 
-    _generateActorQuest: function(id, actor) {
-        const QUEST_TYPES = {
-            mlynar:   { needItem: 'wood', needQty: 4, giveItem: 'flour', giveQty: 8, label_cs: 'Potřebuje 4x Dřevo na opravu náhonu', label_en: 'Needs 4x Wood to fix the mill' },
-            vcelar:   { needItem: 'fat', needQty: 2, giveItem: 'beeswax', giveQty: 3, label_cs: 'Potřebuje 2x Lůj na ošetření úlů', label_en: 'Needs 2x Tallow for hives' },
-            kovar:    { needItem: 'charcoal', needQty: 3, giveItem: 'iron_ingot', giveQty: 2, label_cs: 'Potřebuje 3x Dřevěné uhlí do výhně', label_en: 'Needs 3x Charcoal for forge' },
-            vrchnost: { needItem: 'gold', needQty: 15, giveItem: 'cinnabar', giveQty: 2, label_cs: 'Žádá příspěvek 15 Zlatých na obranu', label_en: 'Requests 15 Gold contribution' },
-            uhlic:    { needItem: 'wood', needQty: 5, giveItem: 'charcoal', giveQty: 6, label_cs: 'Potřebuje 5x Dřevo na nový milíř', label_en: 'Needs 5x Wood for kiln' },
-            rybnikar: { needItem: 'salt', needQty: 2, giveItem: 'fish', giveQty: 5, label_cs: 'Potřebuje 2x Sůl na nasolení ryb', label_en: 'Needs 2x Salt to cure fish' },
-            valach:   { needItem: 'bread', needQty: 2, giveItem: 'wool', giveQty: 4, label_cs: 'Potřebuje 2x Chléb pro pastevce', label_en: 'Needs 2x Bread for shepherds' },
-            klaster:  { needItem: 'candle', needQty: 2, giveItem: 'script_notes', giveQty: 10, label_cs: 'Prosí o 2x Svíčku na noční modlitby', label_en: 'Needs 2x Candles for vigils' },
-        };
+    QUEST_TYPES: {
+        mlynar:   { needItem: 'wood', needQty: 4, giveItem: 'flour', giveQty: 8, label_cs: 'Potřebuje 4x Dřevo na opravu náhonu', label_en: 'Needs 4x Wood to fix the mill' },
+        vcelar:   { needItem: 'fat', needQty: 2, giveItem: 'beeswax', giveQty: 3, label_cs: 'Potřebuje 2x Lůj na ošetření úlů', label_en: 'Needs 2x Tallow for hives' },
+        kovar:    { needItem: 'charcoal', needQty: 3, giveItem: 'iron_ingot', giveQty: 2, label_cs: 'Potřebuje 3x Dřevěné uhlí do výhně', label_en: 'Needs 3x Charcoal for forge' },
+        vrchnost: { needItem: 'gold', needQty: 15, giveItem: 'cinnabar', giveQty: 2, label_cs: 'Žádá příspěvek 15 Zlatých na obranu', label_en: 'Requests 15 Gold contribution' },
+        uhlic:    { needItem: 'wood', needQty: 5, giveItem: 'charcoal', giveQty: 6, label_cs: 'Potřebuje 5x Dřevo na nový milíř', label_en: 'Needs 5x Wood for kiln' },
+        rybnikar: { needItem: 'salt', needQty: 2, giveItem: 'fish', giveQty: 5, label_cs: 'Potřebuje 2x Sůl na nasolení ryb', label_en: 'Needs 2x Salt to cure fish' },
+        valach:   { needItem: 'bread', needQty: 2, giveItem: 'wool', giveQty: 4, label_cs: 'Potřebuje 2x Chléb pro pastevce', label_en: 'Needs 2x Bread for shepherds' },
+        klaster:  { needItem: 'candle', needQty: 2, giveItem: 'script_notes', giveQty: 10, label_cs: 'Prosí o 2x Svíčku na noční modlitby', label_en: 'Needs 2x Candles for vigils' },
+    },
 
-        const q = QUEST_TYPES[id];
+    _generateActorQuest: function(id, actor) {
+        const q = ChroniconSystem.QUEST_TYPES[id];
         if (q) {
             actor.quest = { ...q, created: Date.now() };
         }
@@ -29055,6 +29092,8 @@ const FireplaceSystem = {
         GameState.flags.fireplaceLit = false;
         GameState.flags.candleLit = false;
         GameState.flags.torchLit = false;
+        GameState.torchStart = 0;
+        GameState.torchItemId = null;
 
         if ((GameState.inventory['tinderbox'] || 0) <= 0) {
             GameState.inventory['tinderbox'] = 1;
@@ -48166,6 +48205,7 @@ const STRINGS_cs = {
             tooTiredLight:'😔 Jsi příliš unavený. Odpočiň si nebo se najez. (Vigor < 10)',
         },
         candleBurnedOut: 'Svíčka dohořela.',
+        torchBurnedOut: 'Louč dohořela.',
         hungry: '⚠️ Máš hlad!',
         saveExported: '💾 Save exportován!',
         saveExportFail: '❌ Export selhal!',
@@ -50174,6 +50214,7 @@ const STRINGS_cs = {
         },
     },
 };
+
 // ═══ src/i18n/en.js ═══
 // Scriptorium i18n — English (Olde)
 // Základ: STRINGS_cs. Chybějící klíče → fallback na CS automaticky.
@@ -50377,6 +50418,7 @@ const STRINGS_en = {
             tooTiredLight:'😔 Too tired for crafting. Rest or eat first. (Vigor < 10)',
         },
         candleBurnedOut: 'The candle hath burned out.',
+        torchBurnedOut: 'The torch hath burned out.',
         hungry: '⚠️ Hunger claimeth thee!',
         saveExported: '💾 Save exported!',
         saveExportFail: '❌ Export failed!',
@@ -53380,6 +53422,7 @@ Alloys of metal, varnishes for wood and vellum, a poison that whiteneth copper i
         },
     },
 };
+
 // ═══ src/i18n/strings.js ═══
 // Scriptorium i18n — STRINGS assembler + t() helper
 // Přidání jazyka: 1) xx.js, 2) přidat do STRINGS, 3) přidat do build.js
@@ -54636,7 +54679,8 @@ const Game = {
     },
     lightSource: function(type) {
         if (!GameState.flags.fireplaceLit) { UI.notify(t('game.needFire'), true); return; }
-        let item = (type === 'candle') ? 'candle' : 'primitive_torch';
+        // Louč: preferuj kvalitnější smolovou (torch_resin), jinak nouzová sádlová (primitive_torch)
+        let item = (type === 'candle') ? 'candle' : ((GameState.inventory['torch_resin'] || 0) > 0 ? 'torch_resin' : 'primitive_torch');
         if (!GameState.inventory[item]) { UI.notify(t('game.missingItem').replace('{item}', ItemsDB[item].name), true); return; }
         
         if (type === 'candle') { 
@@ -54649,7 +54693,12 @@ const Game = {
                 GameState.achievements.stats.candlesLit++;
             }
         }
-        else { GameState.flags.candleLit = false; GameState.flags.torchLit = true; }
+        else { 
+            GameState.flags.candleLit = false; 
+            GameState.flags.torchLit = true; 
+            GameState.torchStart = Date.now();
+            GameState.torchItemId = item;
+        }
         
         this.removeItem(item, 1);
         UI.notify(t('game.itemIgnited').replace('{item}', ItemsDB[item].name));
@@ -56688,6 +56737,9 @@ const Game = {
                     if(Math.random() < 0.04) this.addItem('ochre', 1);
                     if(Math.random() < 0.10) this.addItem('chalk', 1);
                     if(Math.random() < 0.35) this.addItem('rags', 1);
+                    // Smůla — na louč (torch_resin-mrd, 6.8.2026): dostupná i z běžného průzkumu
+                    if(Math.random() < 0.08) this.addItem('resin_spruce', 1);
+                    if(Math.random() < 0.05) this.addItem('resin_pine', 1);
                     // Iron ore — vzácný nález (3%) po odemčení kovařiny
                     if(Math.random() < 0.03 && GameState.researchedTechs && GameState.researchedTechs.includes('tech_kovarina')) {
                         this.addItem('iron_ore', 1);
@@ -56805,6 +56857,9 @@ const Game = {
                     if(Math.random() < 0.20) this.addItem('bark', 1);
                     if(Math.random() < 0.10) this.addItem('resin', 1);
                     if(Math.random() < 0.05) this.addItem('charcoal', 1);
+                    // Smůla — na louč (torch_resin-mrd, 6.8.2026): kácení dává víc než průzkum
+                    if(Math.random() < 0.25) this.addItem('resin_spruce', Math.random() < 0.4 ? 2 : 1);
+                    if(Math.random() < 0.15) this.addItem('resin_pine', 1);
                 }
                 else if (type === 'worms_dig') {
                     this.addItem('worms', Math.random() < 0.5 ? 3 : 2);
@@ -57032,6 +57087,9 @@ const Game = {
                 if(Math.random() < 0.04) this.addItem('ochre', 1);
                 if(Math.random() < 0.10) this.addItem('chalk', 1); // Křídová pánev — lokálně dostupná
                 if(Math.random() < 0.35) this.addItem('rags', 1);
+                // Smůla — na louč (torch_resin-mrd, 6.8.2026): dostupná i z běžného průzkumu
+                if(Math.random() < 0.08) this.addItem('resin_spruce', 1);
+                if(Math.random() < 0.05) this.addItem('resin_pine', 1);
                 if(Math.random() < 0.0017) {
                     const pool = this.LOST_ITEM_POOLS.basic;
                     const found = pool[Math.floor(Math.random() * pool.length)];
@@ -57141,6 +57199,9 @@ const Game = {
                 if(Math.random() < 0.20) this.addItem('bark', 1);
                 if(Math.random() < 0.10) this.addItem('resin', 1);
                 if(Math.random() < 0.05) this.addItem('charcoal', 1);
+                // Smůla — na louč (torch_resin-mrd, 6.8.2026): kácení dává víc než průzkum
+                if(Math.random() < 0.25) this.addItem('resin_spruce', Math.random() < 0.4 ? 2 : 1);
+                if(Math.random() < 0.15) this.addItem('resin_pine', 1);
             }
             else if (type === 'worms_dig') {
                 this.addItem('worms', Math.random() < 0.5 ? 3 : 2);
@@ -57353,7 +57414,7 @@ const Game = {
             const lTitle = document.getElementById('light-title'); if (lTitle) lTitle.innerText = t('light.none');
             if (lightDesc) lightDesc.innerText = t('light.noneDesc'); // Aktualizace popisku
             const hasC = (GameState.inventory['candle'] || 0) > 0; 
-            const hasT = (GameState.inventory['primitive_torch'] || 0) > 0;
+            const hasT = (GameState.inventory['primitive_torch'] || 0) > 0 || (GameState.inventory['torch_resin'] || 0) > 0;
             if (btnCandle) btnCandle.style.display = (GameState.flags.fireplaceLit && hasC) ? 'inline-block' : 'none';
             if (btnTorch) btnTorch.style.display = (GameState.flags.fireplaceLit && hasT) ? 'inline-block' : 'none';
             if (loreOverlay) loreOverlay.style.display = 'block'; if (loreWrap) loreWrap.classList.add('lore-darkness');
@@ -62300,6 +62361,7 @@ const Game = {
     },
 
 };
+
 // ═══ src/core/ui.js ═══
 const UI = {
     currentInvFilter: 'all',
