@@ -100,6 +100,21 @@ const TimeSys = {
             }
         }
 
+        // Torch check — stejný vzor jako svíčka, ale délka podle konkrétní
+        // zapálené louče (primitive_torch = 1h nouzová, torch_resin = 6h).
+        if (GameState.flags && GameState.flags.torchLit) {
+            const _torchItem = GameState.torchItemId || 'primitive_torch';
+            const _torchHrs = (typeof ItemsDB !== 'undefined' && ItemsDB[_torchItem] && ItemsDB[_torchItem].lightHours) ? ItemsDB[_torchItem].lightHours : 1;
+            if ((Date.now() - GameState.torchStart) > (_torchHrs * 60 * 60 * 1000)) {
+                GameState.flags.torchLit = false;
+                GameState.torchStart = 0;
+                GameState.torchItemId = null;
+                UI.notify(t('game.torchBurnedOut') || 'Louč dohořela.');
+                Game.checkEnvironment();
+                Game.save();
+            }
+        }
+
                 const researchCount = GameState.inventory.research || 0;
         const researchEl = document.getElementById('research-count');
         if (researchEl) {
