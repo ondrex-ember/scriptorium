@@ -200,6 +200,7 @@ const STRINGS_en = {
             tooTiredLight:'😔 Too tired for crafting. Rest or eat first. (Vigor < 10)',
         },
         candleBurnedOut: 'The candle hath burned out.',
+        torchBurnedOut: 'The torch hath burned out.',
         hungry: '⚠️ Hunger claimeth thee!',
         saveExported: '💾 Save exported!',
         saveExportFail: '❌ Export failed!',
