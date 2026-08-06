@@ -175,6 +175,8 @@ const FireplaceSystem = {
         GameState.flags.fireplaceLit = false;
         GameState.flags.candleLit = false;
         GameState.flags.torchLit = false;
+        GameState.torchStart = 0;
+        GameState.torchItemId = null;
 
         if ((GameState.inventory['tinderbox'] || 0) <= 0) {
             GameState.inventory['tinderbox'] = 1;
