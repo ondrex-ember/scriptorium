@@ -32728,7 +32728,8 @@ const FarmyardSystem = {
         goatpen: {
             itemId: 'goat', cap: 3,
             build: { plank: 12, rock: 8, rope: 3 },
-            milkMs: 12 * 60 * 60 * 1000
+            milkMs: 12 * 60 * 60 * 1000,
+            breedMs: 30 * 24 * 60 * 60 * 1000  // březost kozy (goat-mrd, mirror prase/kráva)
         },
         cowbyre: {
             itemId: ['tele', 'cow', 'byk'], cap: 4,
@@ -33835,6 +33836,19 @@ const FarmyardSystem = {
             h += '<button class="craft-btn" onclick="FarmyardSystem.collectGoatMilk()" ' + (readyG ? '' : 'disabled') + '>🥛 ' + t('dvur.milkGoats') + ' (' + readyG + ' → ' + milkYieldG + ')</button>';
             h += '<button class="craft-btn" onclick="FarmyardSystem.cleanPen(\'goatpen\')" style="background:rgba(90,154,90,0.85);">' + (canCleanG ? '🧹 ' + t('farmyard.clean') + ' (💩 +' + cleanQG + ')' : '🧹 ' + t('farmyard.cleanTomorrow')) + '</button>';
             h += '</div>';
+            // Plemenitba — mirror prasečího/kravího bloku (goat-mrd)
+            var hasDoe = st.animals.some(function (a) { return a.mature !== false; });
+            h += '<div style="margin-top:6px; padding:10px; background:rgba(0,0,0,0.06); border-radius:8px;">';
+            h += '<strong style="font-size:0.85rem;">🐐 ' + (t('farmyard.goatBreeding') || 'Plemenitba') + '</strong><br>';
+            if (!st.breeding) {
+                var canBreedG = hasDoe && _billyActive;
+                var breedLabelG = !hasDoe ? (t('farmyard.needDoe') || 'Potřebuješ dospělou kozu.') : !_billyActive ? (t('farmyard.needBilly') || 'Potřebuješ kozla (Forum Pecuarium).') : (t('farmyard.goatStartBreeding') || 'Zahájit odchov');
+                h += '<button class="craft-btn" onclick="FarmyardSystem.startGoatBreeding()" ' + (canBreedG ? '' : 'disabled') + ' style="margin-top:6px;font-size:0.78rem;">' + breedLabelG + '</button>';
+            } else if (st.breeding.state === 'gestating') {
+                var leftG = Math.max(0, Math.ceil((st.breeding.bornAt - now2) / 3600000));
+                h += '<p class="text-sm" style="margin:6px 0;">🤰 ' + (t('farmyard.goatGestating') || 'Březí') + ' — ' + leftG + 'h</p>';
+            }
+            h += '</div>';
         }
 
         if (pen === 'cowbyre' && st.animals.length) {
@@ -34693,6 +34707,21 @@ const FarmyardSystem = {
         UI.notify('🐖 ' + (t('farmyard.pigBreedingStarted') || 'Odchov zahájen.'));
     },
 
+    // Koza — mirror startPigBreeding (goat-mrd). Vrh 1-2 kůzlata (kozy běžně
+    // dvojčata), výstup jde do inventáře (goat), ne rovnou do chlévě —
+    // chlév může být plný, hráč umístí přes existující placeAnimal('goatpen').
+    startGoatBreeding: function () {
+        const st = GameState.goatpen;
+        if (!st || !st.built) return;
+        const does = st.animals.filter(a => a.mature !== false);
+        if (!does.length) { UI.notify(t('farmyard.needDoe') || 'Potřebuješ dospělou kozu.', true); return; }
+        if (st.breeding) { UI.notify(t('game.breedingActive'), true); return; }
+        if (!this.loanMaleActive('billy_goat')) { UI.notify(t('farmyard.needBilly') || 'Potřebuješ kozla (Forum Pecuarium).', true); return; }
+        st.breeding = { state: 'gestating', startedAt: Date.now(), bornAt: Date.now() + this.ANIMAL_CFG.goatpen.breedMs };
+        Game.save(); FarmyardSystem.renderFarmyard();
+        UI.notify('🐐 ' + (t('farmyard.goatBreedingStarted') || 'Plemenitba zahájena.'));
+    },
+
     // ═══════════════════════════════════════════════════════════════════════
     // TOULAVÁ KRÁVA — krava-mrd (26.7.2026). Aktivní po tech_armentum, dokud
     // není resolved. Dvě cesty k nálezu (scavenge 'foraging' v game.js,
@@ -34911,6 +34940,16 @@ const FarmyardSystem = {
             cowSt.animals.forEach(a => {
                 if (a.type === 'tele' && this._calfMature(a)) { a.type = 'cow'; a.mature = true; changed = true; }
             });
+        }
+        // Koza — gestace → 1-2 kůzlata do inventáře (goat-mrd), mirror prasete.
+        const goatSt = GameState.goatpen;
+        if (goatSt && goatSt.breeding && goatSt.breeding.state === 'gestating' && now >= goatSt.breeding.bornAt) {
+            goatSt.breeding = null;
+            const kids = 1 + Math.floor(Math.random() * 2);
+            GameState.inventory.goat = (GameState.inventory.goat || 0) + kids;
+            if (typeof UI !== 'undefined') UI.notify('🐐 ' + (t('farmyard.kidsBorn') || 'Narodila se {n} kůzlata.').replace('{n}', kids));
+            if (typeof Game !== 'undefined' && Game.addKronikaEntry) Game.addKronikaEntry('event', '🐐 V kozinci se narodila kůzlata.', '🐐 Kids were born in the goat pen.', '🐐 Haedi nati sunt.');
+            changed = true;
         }
         if (s && s.healerPending && now >= s.healerPending.readyAt) {
             s.healerPending = null;
