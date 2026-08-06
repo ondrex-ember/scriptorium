@@ -171,13 +171,13 @@ const ChroniconSystem = {
     _generateActorQuest: function(id, actor) {
         const QUEST_TYPES = {
             mlynar:   { needItem: 'wood', needQty: 4, giveItem: 'flour', giveQty: 8, label_cs: 'Potřebuje 4x Dřevo na opravu náhonu', label_en: 'Needs 4x Wood to fix the mill' },
-            vcelar:   { needItem: 'tallow', needQty: 2, giveItem: 'beeswax', giveQty: 3, label_cs: 'Potřebuje 2x Lůj na ošetření úlů', label_en: 'Needs 2x Tallow for hives' },
+            vcelar:   { needItem: 'fat', needQty: 2, giveItem: 'beeswax', giveQty: 3, label_cs: 'Potřebuje 2x Lůj na ošetření úlů', label_en: 'Needs 2x Tallow for hives' },
             kovar:    { needItem: 'charcoal', needQty: 3, giveItem: 'iron_ingot', giveQty: 2, label_cs: 'Potřebuje 3x Dřevěné uhlí do výhně', label_en: 'Needs 3x Charcoal for forge' },
-            vrchnost: { needItem: 'gold', needQty: 15, giveItem: 'dye_vermilion', giveQty: 2, label_cs: 'Žádá příspěvek 15 Zlatých na obranu', label_en: 'Requests 15 Gold contribution' },
+            vrchnost: { needItem: 'gold', needQty: 15, giveItem: 'cinnabar', giveQty: 2, label_cs: 'Žádá příspěvek 15 Zlatých na obranu', label_en: 'Requests 15 Gold contribution' },
             uhlic:    { needItem: 'wood', needQty: 5, giveItem: 'charcoal', giveQty: 6, label_cs: 'Potřebuje 5x Dřevo na nový milíř', label_en: 'Needs 5x Wood for kiln' },
             rybnikar: { needItem: 'salt', needQty: 2, giveItem: 'fish', giveQty: 5, label_cs: 'Potřebuje 2x Sůl na nasolení ryb', label_en: 'Needs 2x Salt to cure fish' },
             valach:   { needItem: 'bread', needQty: 2, giveItem: 'wool', giveQty: 4, label_cs: 'Potřebuje 2x Chléb pro pastevce', label_en: 'Needs 2x Bread for shepherds' },
-            klaster:  { needItem: 'tallow_candle', needQty: 2, giveItem: 'script_notes', giveQty: 10, label_cs: 'Prosí o 2x Svíčku na noční modlitby', label_en: 'Needs 2x Candles for vigils' },
+            klaster:  { needItem: 'candle', needQty: 2, giveItem: 'script_notes', giveQty: 10, label_cs: 'Prosí o 2x Svíčku na noční modlitby', label_en: 'Needs 2x Candles for vigils' },
         };
 
         const q = QUEST_TYPES[id];
@@ -212,6 +212,11 @@ const ChroniconSystem = {
             let hasEnough = false;
             if (reqItem === 'gold') {
                 hasEnough = (GameState.gold || 0) >= reqQty;
+            } else if (reqItem === 'wood') {
+                // "Dřevo" v resource baru (core/ui.js woodCount) sčítá wood+log
+                // dohromady. Quest musí počítat stejně, jinak hráč s pouze
+                // 'log' (kulatina) dostával falešné "nemáš suroviny".
+                hasEnough = ((inv.wood || 0) + (inv.log || 0)) >= reqQty;
             } else {
                 hasEnough = (inv[reqItem] || 0) >= reqQty;
             }
@@ -225,6 +230,16 @@ const ChroniconSystem = {
             // Odeber suroviny
             if (reqItem === 'gold') {
                 GameState.gold -= reqQty;
+            } else if (reqItem === 'wood') {
+                // Spotřebuj nejdřív obyčejné dřevo (wood), kulatinu (log)
+                // jen pokud wood nestačí — viz komentář u hasEnough výše.
+                let remaining = reqQty;
+                const useWood = Math.min(inv.wood || 0, remaining);
+                inv.wood = (inv.wood || 0) - useWood;
+                remaining -= useWood;
+                if (remaining > 0) {
+                    inv.log = (inv.log || 0) - remaining;
+                }
             } else {
                 inv[reqItem] -= reqQty;
             }
@@ -252,15 +267,14 @@ const ChroniconSystem = {
 
         } else if (action === 'bless') {
             // Požehnání / Mše — spotřebuje 1 svíčku/lůj nebo 5 Zápisníků
-            const candleQty = inv['tallow_candle'] || inv['wax_candle'] || 0;
+            const candleQty = inv['candle'] || 0;
             if (candleQty < 1 && (GameState.knowledge || 0) < 5) {
                 const msg = lang === 'en' ? '⚠️ You need 1 Candle or 5 Notes to bestow a blessing!' : '⚠️ Pro požehnání potřebuješ 1 Svíčku nebo 5 Zápisníků!';
                 if (typeof NotificationSystem !== 'undefined') NotificationSystem.toast(msg, 'warn');
                 return;
             }
 
-            if (inv['tallow_candle'] > 0) inv['tallow_candle']--;
-            else if (inv['wax_candle'] > 0) inv['wax_candle']--;
+            if (inv['candle'] > 0) inv['candle']--;
             else GameState.knowledge -= 5;
 
             // Lokální nálada — dál krmí ChroniconSystem.getBuffs() (herní
