@@ -16156,7 +16156,9 @@ const ChroniconSystem = {
 
             let hasEnough = false;
             if (reqItem === 'gold') {
-                hasEnough = (GameState.gold || 0) >= reqQty;
+                // GameState.gold nikde jinde v kódu neexistuje — skutečná
+                // pokladna je GameState.treasury.grose přes CellariumSystem.
+                hasEnough = (typeof CellariumSystem !== 'undefined' ? CellariumSystem.getGrose() : 0) >= reqQty;
             } else if (reqItem === 'wood') {
                 // "Dřevo" v resource baru (core/ui.js woodCount) sčítá wood+log
                 // dohromady. Quest musí počítat stejně, jinak hráč s pouze
@@ -16174,7 +16176,7 @@ const ChroniconSystem = {
 
             // Odeber suroviny
             if (reqItem === 'gold') {
-                GameState.gold -= reqQty;
+                if (typeof CellariumSystem !== 'undefined' && CellariumSystem.spendGrose) CellariumSystem.spendGrose(reqQty);
             } else if (reqItem === 'wood') {
                 // Spotřebuj nejdřív obyčejné dřevo (wood), kulatinu (log)
                 // jen pokud wood nestačí — viz komentář u hasEnough výše.
