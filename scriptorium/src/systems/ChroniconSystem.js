@@ -65,6 +65,19 @@ const ChroniconSystem = {
                 GameState.chroniconLocal.actors[id] = { mood: 70, wealth: 60, status: 'normal', level: 1, quest: null };
             }
         });
+
+        // Repair starých savů — quest se ukládal jako "zamrzlá" kopie hodnot
+        // v momentě vzniku, takže hráči, co měli aktivní quest ještě před
+        // opravou (tallow/tallow_candle/dye_vermilion ID mismatch, 6.8.2026),
+        // mají v save napořád rozbité hodnoty. Ty se samy neopraví — bez tohohle
+        // by zůstal quest navždy nesplnitelný (žádné tlačítko na jeho zrušení).
+        Object.keys(GameState.chroniconLocal.actors).forEach(id => {
+            const a = GameState.chroniconLocal.actors[id];
+            const canonical = ChroniconSystem.QUEST_TYPES[id];
+            if (a.quest && canonical && (a.quest.needItem !== canonical.needItem || a.quest.giveItem !== canonical.giveItem)) {
+                a.quest = { ...canonical, created: a.quest.created || Date.now() };
+            }
+        });
     },
 
     getBuffs: function() {
@@ -168,19 +181,19 @@ const ChroniconSystem = {
         ChroniconSystem.updateUIHeader();
     },
 
-    _generateActorQuest: function(id, actor) {
-        const QUEST_TYPES = {
-            mlynar:   { needItem: 'wood', needQty: 4, giveItem: 'flour', giveQty: 8, label_cs: 'Potřebuje 4x Dřevo na opravu náhonu', label_en: 'Needs 4x Wood to fix the mill' },
-            vcelar:   { needItem: 'fat', needQty: 2, giveItem: 'beeswax', giveQty: 3, label_cs: 'Potřebuje 2x Lůj na ošetření úlů', label_en: 'Needs 2x Tallow for hives' },
-            kovar:    { needItem: 'charcoal', needQty: 3, giveItem: 'iron_ingot', giveQty: 2, label_cs: 'Potřebuje 3x Dřevěné uhlí do výhně', label_en: 'Needs 3x Charcoal for forge' },
-            vrchnost: { needItem: 'gold', needQty: 15, giveItem: 'cinnabar', giveQty: 2, label_cs: 'Žádá příspěvek 15 Zlatých na obranu', label_en: 'Requests 15 Gold contribution' },
-            uhlic:    { needItem: 'wood', needQty: 5, giveItem: 'charcoal', giveQty: 6, label_cs: 'Potřebuje 5x Dřevo na nový milíř', label_en: 'Needs 5x Wood for kiln' },
-            rybnikar: { needItem: 'salt', needQty: 2, giveItem: 'fish', giveQty: 5, label_cs: 'Potřebuje 2x Sůl na nasolení ryb', label_en: 'Needs 2x Salt to cure fish' },
-            valach:   { needItem: 'bread', needQty: 2, giveItem: 'wool', giveQty: 4, label_cs: 'Potřebuje 2x Chléb pro pastevce', label_en: 'Needs 2x Bread for shepherds' },
-            klaster:  { needItem: 'candle', needQty: 2, giveItem: 'script_notes', giveQty: 10, label_cs: 'Prosí o 2x Svíčku na noční modlitby', label_en: 'Needs 2x Candles for vigils' },
-        };
+    QUEST_TYPES: {
+        mlynar:   { needItem: 'wood', needQty: 4, giveItem: 'flour', giveQty: 8, label_cs: 'Potřebuje 4x Dřevo na opravu náhonu', label_en: 'Needs 4x Wood to fix the mill' },
+        vcelar:   { needItem: 'fat', needQty: 2, giveItem: 'beeswax', giveQty: 3, label_cs: 'Potřebuje 2x Lůj na ošetření úlů', label_en: 'Needs 2x Tallow for hives' },
+        kovar:    { needItem: 'charcoal', needQty: 3, giveItem: 'iron_ingot', giveQty: 2, label_cs: 'Potřebuje 3x Dřevěné uhlí do výhně', label_en: 'Needs 3x Charcoal for forge' },
+        vrchnost: { needItem: 'gold', needQty: 15, giveItem: 'cinnabar', giveQty: 2, label_cs: 'Žádá příspěvek 15 Zlatých na obranu', label_en: 'Requests 15 Gold contribution' },
+        uhlic:    { needItem: 'wood', needQty: 5, giveItem: 'charcoal', giveQty: 6, label_cs: 'Potřebuje 5x Dřevo na nový milíř', label_en: 'Needs 5x Wood for kiln' },
+        rybnikar: { needItem: 'salt', needQty: 2, giveItem: 'fish', giveQty: 5, label_cs: 'Potřebuje 2x Sůl na nasolení ryb', label_en: 'Needs 2x Salt to cure fish' },
+        valach:   { needItem: 'bread', needQty: 2, giveItem: 'wool', giveQty: 4, label_cs: 'Potřebuje 2x Chléb pro pastevce', label_en: 'Needs 2x Bread for shepherds' },
+        klaster:  { needItem: 'candle', needQty: 2, giveItem: 'script_notes', giveQty: 10, label_cs: 'Prosí o 2x Svíčku na noční modlitby', label_en: 'Needs 2x Candles for vigils' },
+    },
 
-        const q = QUEST_TYPES[id];
+    _generateActorQuest: function(id, actor) {
+        const q = ChroniconSystem.QUEST_TYPES[id];
         if (q) {
             actor.quest = { ...q, created: Date.now() };
         }
