@@ -220,6 +220,7 @@ const STRINGS_cs = {
             tooTiredLight:'😔 Jsi příliš unavený. Odpočiň si nebo se najez. (Vigor < 10)',
         },
         candleBurnedOut: 'Svíčka dohořela.',
+        torchBurnedOut: 'Louč dohořela.',
         hungry: '⚠️ Máš hlad!',
         saveExported: '💾 Save exportován!',
         saveExportFail: '❌ Export selhal!',
