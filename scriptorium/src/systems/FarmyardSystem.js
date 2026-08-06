@@ -1074,7 +1074,7 @@ const FarmyardSystem = {
         }
 
         // Animals list with mood
-        if (st.animals.length) {
+        if (st.animals.length && pen !== 'stable' && pen !== 'pigsty') {
             const isV2Mood = this.MOOD_V2_PENS.includes(pen);
             const penMood = isV2Mood ? this.getMood(pen) : null;
             h += `<div style="display:flex; flex-direction:column; gap:6px; margin-bottom:10px;">`;
