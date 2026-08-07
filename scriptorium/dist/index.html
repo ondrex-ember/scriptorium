@@ -16136,6 +16136,15 @@ const ChroniconSystem = {
         if (typeof GameState === 'undefined' || !GameState.chroniconLocal) return;
         const actors = GameState.chroniconLocal.actors;
 
+        // Skutečný wealth ze sdíleného Chronicon snapshotu (ne lokální kopie)
+        // — určuje, jak moc je aktér "v nouzi" v živém světě.
+        const snap = ChroniconSystem._snap || {};
+        const realActors = Array.isArray(snap.actors) ? snap.actors : [];
+        const realWealth = (id, fallback) => {
+            const ra = realActors.find(x => x.id === id);
+            return (ra && typeof ra.wealth === 'number') ? ra.wealth : fallback;
+        };
+
         // Organická živá fluktuace nálady a jmění (+-1)
         Object.keys(actors).forEach(id => {
             const a = actors[id];
@@ -16144,9 +16153,12 @@ const ChroniconSystem = {
             a.mood = Math.max(25, Math.min(100, a.mood + moodDelta));
             a.wealth = Math.max(20, Math.min(100, a.wealth + wealthDelta));
 
-            // Šance 20% na generování požadavku (questu) — ale ne dřív,
-            // než uplyne cooldown po posledním splnění (viz QUEST_COOLDOWN_MS).
-            if (!a.quest && (!a.questCooldownUntil || now >= a.questCooldownUntil) && Math.random() < 0.20) {
+            // Šance na požadavek podle skutečné nouze ve světě (chronicon-link-mrd,
+            // 6.8.2026) — chudý aktér prosí častěji, bohatý skoro nikdy. Pořád
+            // respektuje cooldown po posledním splnění (QUEST_COOLDOWN_MS).
+            const w = realWealth(id, 50);
+            const questChance = w < 35 ? 0.30 : (w > 60 ? 0.05 : 0.12);
+            if (!a.quest && (!a.questCooldownUntil || now >= a.questCooldownUntil) && Math.random() < questChance) {
                 ChroniconSystem._generateActorQuest(id, a);
             }
         });
@@ -16249,6 +16261,11 @@ const ChroniconSystem = {
             actor.quest = null;
             actor.questCooldownUntil = Date.now() + ChroniconSystem.QUEST_COOLDOWN_MS;
             GameState.chroniconLocal.stats.totalHelped++;
+
+            // Reálný, ne jen lokální dopad — nahlásí do sdíleného Chronicon
+            // registru (chronicon-link-mrd, 6.8.2026). Dřív dělal jen klaster
+            // po mši, teď libovolný questový aktér po splnění požadavku.
+            ChroniconSystem._reportActorFavorIfNewDay(actorId);
 
             if (typeof Game !== 'undefined' && Game.save) Game.save();
 
