@@ -15,6 +15,7 @@ const RecipesDB = [
     { id: "pestle", output: "pestle", qty: 1, req: { "rock": 2, "sharp_stone": 1 }, cat: "stone" },
     { id: "flint", output: "flint", qty: 1, req: { "rock": 2 }, cat: "stone" },
     { id: "primitive_torch", output: "primitive_torch", qty: 1, req: { "stick": 1, "fat": 1 }, cat: "fire", blind: true },
+    { id: "torch_tallow", output: "torch_tallow", qty: 1, req: { "stick": 1, "tallow": 1 }, cat: "fire", blind: true, desc: "Klacek napuštěný lojem.", desc_en: "A stick soaked in tallow." },
     { id: "torch_resin_spruce", output: "torch_resin", qty: 1, req: { "stick": 1, "resin_spruce": 1 }, cat: "fire", blind: true, desc: "Klacek napuštěný smrkovou smůlou.", desc_en: "A stick soaked in spruce resin." },
     { id: "torch_resin_pine", output: "torch_resin", qty: 1, req: { "stick": 1, "resin_pine": 1 }, cat: "fire", blind: true, desc: "Klacek napuštěný borovou smůlou.", desc_en: "A stick soaked in pine resin." },
     { id: "tinderbox", output: "tinderbox", qty: 1, req: { "bark": 1, "fiber": 1 }, cat: "fire", blind: true },
