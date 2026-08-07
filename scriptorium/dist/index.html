@@ -54679,8 +54679,8 @@ const Game = {
     },
     lightSource: function(type) {
         if (!GameState.flags.fireplaceLit) { UI.notify(t('game.needFire'), true); return; }
-        // Louč: preferuj kvalitnější smolovou (torch_resin), jinak nouzová sádlová (primitive_torch)
-        let item = (type === 'candle') ? 'candle' : ((GameState.inventory['torch_resin'] || 0) > 0 ? 'torch_resin' : 'primitive_torch');
+        // Louč: preferuj smolovou (torch_resin), pak lojovou (torch_tallow), jinak nouzová tuková (primitive_torch)
+        let item = (type === 'candle') ? 'candle' : ((GameState.inventory['torch_resin'] || 0) > 0 ? 'torch_resin' : ((GameState.inventory['torch_tallow'] || 0) > 0 ? 'torch_tallow' : 'primitive_torch'));
         if (!GameState.inventory[item]) { UI.notify(t('game.missingItem').replace('{item}', ItemsDB[item].name), true); return; }
         
         if (type === 'candle') { 
@@ -56658,6 +56658,8 @@ const Game = {
                     // v7.5: NEW DROPS
                     if (r > 0.5) this.addItem('hide', 1); // 50% chance - wild hide, needs processing into raw_hide or wild_leather
                     if (r > 0.7) this.addItem('feather', 1); // 30% chance - for quill
+                    // Lůj (tallow-mrd, 7.8.2026): 3x řidčeji než tuk
+                    if (Math.random() < 0.33) this.addItem('tallow', 1);
                 }
                 else if (type === 'nature') { 
                     if(r<0.08) this.addItem('herb_red',1);
@@ -57024,6 +57026,8 @@ const Game = {
                 // v7.5: NEW DROPS
                 if (r > 0.5) this.addItem('hide', 1); // 50% chance
                 if (r > 0.7) this.addItem('feather', 1); // 30% chance
+                // Lůj (tallow-mrd, 7.8.2026): 3x řidčeji než tuk
+                if (Math.random() < 0.33) this.addItem('tallow', 1);
             }
             else if (type === 'nature') { 
                 if(r<0.08) this.addItem('herb_red',1);
@@ -57414,7 +57418,7 @@ const Game = {
             const lTitle = document.getElementById('light-title'); if (lTitle) lTitle.innerText = t('light.none');
             if (lightDesc) lightDesc.innerText = t('light.noneDesc'); // Aktualizace popisku
             const hasC = (GameState.inventory['candle'] || 0) > 0; 
-            const hasT = (GameState.inventory['primitive_torch'] || 0) > 0 || (GameState.inventory['torch_resin'] || 0) > 0;
+            const hasT = (GameState.inventory['primitive_torch'] || 0) > 0 || (GameState.inventory['torch_tallow'] || 0) > 0 || (GameState.inventory['torch_resin'] || 0) > 0;
             if (btnCandle) btnCandle.style.display = (GameState.flags.fireplaceLit && hasC) ? 'inline-block' : 'none';
             if (btnTorch) btnTorch.style.display = (GameState.flags.fireplaceLit && hasT) ? 'inline-block' : 'none';
             if (loreOverlay) loreOverlay.style.display = 'block'; if (loreWrap) loreWrap.classList.add('lore-darkness');
