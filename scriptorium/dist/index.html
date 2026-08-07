@@ -23181,6 +23181,16 @@ const CellariumSystem = {
       // víkend. Zbytek polního osiva (žito/pšenice/ječmen...) zatím
       // zůstává jen na Trhu — otevřeno k rozšíření, pokud bude chtít Bouvard.
       { itemId: 'seeds_peas',      basePrice: 5,  dailyStock: 10 },
+      { itemId: 'seeds_lentils',   basePrice: 5,  dailyStock: 10 }, // čočka — mirror hrách, obchod-podklad 7.8.2026
+      // Obchod-podklad (7.8.2026): 5 potvrzených mezer z historického
+      // dokladu ("řemeslné výrobky běžné potřeby" + slané ryby, Zóna 1
+      // olomouckého trhu). Karmín má navíc vlastní craft cestu (červec →
+      // karmin, tech_cervec) — tohle je dovozní alternativa, dražší ale bez tech gatu.
+      { itemId: 'pottery_vessel',  basePrice: 6,  dailyStock: 8  },
+      { itemId: 'dreveky',         basePrice: 5,  dailyStock: 6  },
+      { itemId: 'kozene_boty',     basePrice: 14, dailyStock: 3  },
+      { itemId: 'slany_sled',      basePrice: 8,  dailyStock: 10 },
+      { itemId: 'karmin',          basePrice: 30, dailyStock: 2  },
       // Kadidlo — dovozní pryskyřice (Thuribulum)
       { itemId: 'resin_styrax',    basePrice: 18, dailyStock: 2,  req_tech: 'tech_thuribulum' },
       // Alembik — destilační nádoba, dostupná v Obchodě od Destillatio (MRD: athanor-tiers)
@@ -23190,6 +23200,30 @@ const CellariumSystem = {
       // anonymní pult vedle křídy a semínek. Viz contacts.js → tkadlec.
       // Včelař — sousedský chovatel, výhodnější cena než na Trhu (Trh: 40 groší)
       { itemId: 'queen_bee',       basePrice: 22, dailyStock: 1,  req_tech: 'tech_liber_apium' },
+      // giacomo-obchod-mirror (7.8.2026): STEJNÝCH 14 položek jako Giacomo
+      // (ContactsDB.giacomo.buyOffer), ale bez vztahu/reputace/přítomnosti —
+      // anonymní pult, kdykoliv Obchod otevřený. Cena = Giacomova ZÁKLADNÍ
+      // cena (ne slevněná) × 2,5 (běžné) nebo × 4,0 (top4 exotika — safran/
+      // muškátový květ/hedvábí/olibanum, stejná čtveřice jako minReputation
+      // gate u Giacoma). Sklad = poloviční, min. 1 — lokální trh dostane
+      // menší příděl než přímý dovozce. STATICKY dopočteno teď, ne
+      // dynamicky odvozeno z contacts.js — pokud se Giacomovy ceny změní,
+      // je třeba přepočítat i tohle ručně.
+      { itemId: 'paper_fine',      basePrice: 15,  dailyStock: 2 },  // 6×2.5
+      { itemId: 'pepr_cerny',      basePrice: 15,  dailyStock: 2 },  // 6×2.5
+      { itemId: 'zazvor',          basePrice: 15,  dailyStock: 2 },  // 6×2.5
+      { itemId: 'hrebicek',        basePrice: 30,  dailyStock: 1 },  // 12×2.5
+      { itemId: 'skorice',         basePrice: 25,  dailyStock: 1 },  // 10×2.5
+      { itemId: 'muskat',          basePrice: 35,  dailyStock: 1 },  // 14×2.5
+      { itemId: 'muskatovy_kvet',  basePrice: 80,  dailyStock: 1 },  // 20×4.0 — exotika
+      { itemId: 'hedvabi',         basePrice: 60,  dailyStock: 1 },  // 15×4.0 — exotika
+      { itemId: 'safran',          basePrice: 112, dailyStock: 1 },  // 28×4.0 — exotika
+      { itemId: 'alum',            basePrice: 20,  dailyStock: 2 },  // 8×2.5
+      { itemId: 'sandarak',        basePrice: 35,  dailyStock: 1 },  // 14×2.5
+      { itemId: 'sal_ammoniac',    basePrice: 45,  dailyStock: 1 },  // 18×2.5
+      { itemId: 'verzino',         basePrice: 40,  dailyStock: 1 },  // 16×2.5
+      { itemId: 'incense_styrax',  basePrice: 25,  dailyStock: 1 },  // 10×2.5
+      { itemId: 'incense_olibanum', basePrice: 64, dailyStock: 1 },  // 16×4.0 — exotika
     ],
     market: [
       { itemId: 'paper',         basePrice: 3,   dailyStock: 25 },
