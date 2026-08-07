@@ -25099,6 +25099,23 @@ const SaeculumSystem = {
   MOLA_COST: 3,
   MOLA_MS: 4 * 60 * 60 * 1000,
 
+  // Váhový poplatek dle objemu zakázky — jen pro položky BEZ explicitního
+  // inp.cost (zrní rodina: grain/wheat_grain_*/rye_grain_*). Pila (log) a
+  // stoupa (bark) mají vlastní cost, tohohle se netýká.
+  // mlynar-vlastni-mlyn-mrd.md Fáze 1 (7.8.2026), 6 pásem.
+  MOLA_FEE_TIERS: [
+    { max: 40,  fee: 3 },
+    { max: 90,  fee: 4 },
+    { max: 150, fee: 5 },
+    { max: 225, fee: 6 },
+    { max: 325, fee: 7 },
+    { max: Infinity, fee: 8 },
+  ],
+  _molaFeeForQty: function(qty) {
+    const tier = this.MOLA_FEE_TIERS.find(t => qty <= t.max);
+    return tier ? tier.fee : this.MOLA_COST;
+  },
+
   renderMola: function() {
     if (!GameState.ui) GameState.ui = {};
     const molaOpen = GameState.ui.saeculumMolaOpen !== false;
@@ -25143,9 +25160,10 @@ const SaeculumSystem = {
           return;
         }
         const have = GameState.inventory[inp.id] || 0;
+        const fee = inp.cost || this._molaFeeForQty(have);
         h += `<button class="craft-btn" onclick="SaeculumSystem.sendToMill('${inp.id}')" ${have > 0 ? '' : 'disabled'}
                 style="text-align:left; white-space:normal; word-break:break-word; line-height:1.25; width:100%;">
-                ${inp.icon} ${name} (${have}) → ${t('saeculum.millTo')}
+                ${inp.icon} ${name} (${have}) → ${t('saeculum.millTo')} (${fee}g)
               </button>`;
       });
       h += `</div>`;
@@ -25163,7 +25181,7 @@ const SaeculumSystem = {
     if (have <= 0) return false;
     const inp = this.MOLA_INPUTS.find(x => x.id === inputId);
     if (!inp) return false;
-    const orderCost = inp.cost || this.MOLA_COST;
+    const orderCost = inp.cost || this._molaFeeForQty(have);
     if (typeof CellariumSystem !== 'undefined' && CellariumSystem.getGrose) {
       if (CellariumSystem.getGrose() < orderCost) {
         if (typeof UI !== 'undefined') UI.notify(t('saeculum.millNoGold'), true);
@@ -26181,6 +26199,15 @@ const SaeculumSystem = {
     return 1.10 + (r / 100) * 0.25;
   },
 
+  // M1: nákup OD kontaktu (buyOffer) — sleva s rostoucím vztahem, strop 65 %
+  // při vztahu 100 (mlynar-vlastni-mlyn-mrd.md Fáze 1, 7.8.2026). Jen 'mlynar'
+  // teď — obecný mechanismus pro ostatní kontakty až bude druhý případ.
+  contactBuyDiscountMult: function(contactId) {
+    if (contactId !== 'mlynar') return 1.0;
+    const r = Math.min(100, (GameState.contactRelation || {})[contactId] || 0);
+    return 1.0 - Math.min(0.65, (r / 100) * 0.65);
+  },
+
   sellToContact: function(contactId, itemId, qty) {
     if (typeof ContactsDB === 'undefined' || typeof CellariumSystem === 'undefined') return;
     const c = ContactsDB[contactId];
@@ -26269,12 +26296,13 @@ const SaeculumSystem = {
     const left = Math.max(0, effStock - soldToday);
     qty = Math.max(0, Math.min(left, qty | 0));
     if (qty <= 0) { UI.notify('⚠️ ' + (((GameState.settings||{}).language)==='en' ? 'Sold out today.' : 'Dnes vyprodáno.'), true); return; }
-    const total = offer.price * qty;
+    const unitPrice = Math.max(1, Math.round(offer.price * this.contactBuyDiscountMult(contactId)));
+    const total = unitPrice * qty;
     if (CellariumSystem.getGrose() < total) { UI.notify('⚠️ Non habes sufficiens!', true); return; }
     CellariumSystem.addGrose(-total);
     Game.addItem(itemId, qty);
     GameState.contactShopSold.sold[contactId + ':' + itemId] = soldToday + qty;
-    CellariumSystem.recordTransaction('buy', itemId, qty, offer.price, contactId);
+    CellariumSystem.recordTransaction('buy', itemId, qty, unitPrice, contactId);
     this.addContactRelation(contactId, 1);
     Game.save();
     const lang = (GameState.settings && GameState.settings.language) || 'cs';
@@ -26428,10 +26456,15 @@ const SaeculumSystem = {
         }
         const left = Math.max(0, this._effectiveStock(c, itemId, o.stock) - this._contactSoldToday(id, itemId));
         const grose = CellariumSystem.getGrose();
+        const discMult = this.contactBuyDiscountMult(id);
+        const unitPrice = Math.max(1, Math.round(o.price * discMult));
+        const priceLabel = discMult < 1
+          ? `<span style="text-decoration:line-through; opacity:0.5;">${o.price}</span> ${unitPrice} g/${lang==='en'?'pc':'ks'}`
+          : `${unitPrice} g/${lang==='en'?'pc':'ks'}`;
         h += `<div style="display:flex; align-items:center; gap:6px; font-size:0.78rem; margin-bottom:6px;">
-                <span style="flex:1;">${itemName} <span style="opacity:0.6;">(${o.price} g/${lang==='en'?'pc':'ks'} · ${lang==='en'?'stock':'skladem'} ${left})</span></span>
-                <button class="craft-btn" style="padding:2px 8px; font-size:0.7rem;" ${left>0 && grose>=o.price ? '' : 'disabled'} onclick="SaeculumSystem.buyFromContact('${id}','${itemId}',1)">×1</button>
-                <button class="craft-btn" style="padding:2px 8px; font-size:0.7rem;" ${left>=5 && grose>=o.price*5 ? '' : 'disabled'} onclick="SaeculumSystem.buyFromContact('${id}','${itemId}',5)">×5</button>
+                <span style="flex:1;">${itemName} <span style="opacity:0.6;">(${priceLabel} · ${lang==='en'?'stock':'skladem'} ${left})</span></span>
+                <button class="craft-btn" style="padding:2px 8px; font-size:0.7rem;" ${left>0 && grose>=unitPrice ? '' : 'disabled'} onclick="SaeculumSystem.buyFromContact('${id}','${itemId}',1)">×1</button>
+                <button class="craft-btn" style="padding:2px 8px; font-size:0.7rem;" ${left>=5 && grose>=unitPrice*5 ? '' : 'disabled'} onclick="SaeculumSystem.buyFromContact('${id}','${itemId}',5)">×5</button>
               </div>`;
       });
     } else {
@@ -26608,6 +26641,7 @@ const SaeculumSystem = {
   },
 
 };
+
 // ═══ src/systems/TemplumSystem.js ═══
 // ─────────────────────────────────────────────────────────────
 // TemplumSystem — kostelní větev (MRD templum-reference.md)
