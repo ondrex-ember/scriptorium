@@ -336,6 +336,7 @@ const STRINGS_en = {
     about: {
         version: 'Version:', date: 'Date:', dateVal: '10 June 2026', author: 'Author:',
         aboutTitle: 'About the Game',
+        devNote: 'Know ye, brethren, that Scriptorium is a work yet living, evermore wrought by our own hands. Day by day the monastery\'s world doth grow — new customs, new holdings, new bonds with the realm of CHRONICON. In such haste a blunder may now and again show itself, or some labour not yet true to its own telling. For your holy patience, and for every gracious tiding of correction, we render thee thanks. For our dwelling is built stone upon stone, even as the holy scriptoria of old grew, volume upon volume.',
         aboutText: 'A medieval idle game about copying manuscripts, crafting paper, and studying in a monastery scriptorium. Blends survival mechanics (fire, light, hunger) with crafting, gardening, and gradual technology unlocks. Historically grounded, set in the year 1465 in Olomouc.',
         r791: 'Tools — stone and iron with wear, degradation and repair',
         r792: 'Fabrica — iron ingots, tools and repairs from raw materials',
