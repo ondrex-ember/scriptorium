@@ -7604,6 +7604,7 @@ const ItemsDB = {
     "tinderbox": { name: "Troud", name_en: "Tinderbox", icon: "🔥", type: "tool", tier: "fire", desc: "Sada na oheň.", desc_en: "A fire-starting kit." },
     "rock": { name: "Kámen", name_en: "Stone", icon: "🪨", type: "mat", desc: "Tvrdý.", desc_en: "Hard stone." },
     "clay": { name: "Hlína", name_en: "Clay", icon: "🟤", type: "mat", desc: "Jílovitá hlína z břehu potoka. Vhodná pro hrnčířství a stavbu.", desc_en: "Clay from a streambank. Good for pottery and construction." },
+    "pottery_vessel": { name: "Hliněná nádoba", name_en: "Clay Vessel", icon: "🏺", type: "mat", desc: "Vypálená hrnčířská nádoba z městského trhu. Základní kuchyňské a skladovací nádobí.", desc_en: "A fired pottery vessel from the town market. Basic kitchen and storage ware." },
     "wood": { name: "Dřevo", name_en: "Wood", icon: "🪵", type: "mat", desc: "Klestí a větve sebrané při hledání. Palivo i stavební materiál.", desc_en: "Brushwood and branches gathered while foraging. Fuel and building material." },
     "wicker": { name: "Proutí", name_en: "Wicker", icon: "🧺", type: "mat", desc: "Ohebné vrbové pruty z mokřadu. Na pletení košů i konstrukcí.", desc_en: "Pliant willow withies from the wetlands. For weaving baskets and structures." },
     "stick": { name: "Větev", name_en: "Branch", icon: "🪵", type: "mat", desc: "Dřevo.", desc_en: "A length of wood." },
@@ -7620,6 +7621,7 @@ const ItemsDB = {
     "meat": { name: "Divoké maso", name_en: "Wild Game Meat", icon: "🍖", type: "food_raw", desc: "Syrové maso z ulovené zvěře. K vaření, ne k prodeji na trhu.", desc_en: "Raw meat from hunted game. For cooking, not for the market stall." },
     "crayfish": { name: "Raci", name_en: "Crayfish", icon: "🦞", type: "food_raw", desc: "Sladkovodní raci z mokřadu.", desc_en: "Freshwater crayfish from the wetlands." },
     "snail": { name: "Hlemýždi", name_en: "Snails", icon: "🐌", type: "food_raw", desc: "Hlemýždi s ulitou. Jiní tvorové než slimák.", desc_en: "Shelled snails. A different creature from the slug." },
+    "cervec": { name: "Červec", name_en: "Cochineal Grubs", icon: "🐛", type: "mat", desc: "Drobný hmyz sbíraný u kořenů luk kolem svatojánské noci. Rozdrcený dává karmínově rudé barvivo — polský červec, cenný před dovozem mexického košenilu.", desc_en: "Tiny grubs gathered from meadow roots around Midsummer. Crushed, they yield a crimson dye — Polish cochineal, prized before Mexican cochineal was imported." },
     "frog_legs": { name: "Žabí stehýnka", name_en: "Frog Legs", icon: "🍗", type: "food_raw", desc: "Stažená stehýnka ze žáby.", desc_en: "Skinned frog legs." },
     "bone": { name: "Kost", name_en: "Bone", icon: "☠️", type: "mat", desc: "Tvrdá kost.", desc_en: "Hard bone." },
     "leather": { name: "Kůže", name_en: "Leather", icon: "🦌", type: "mat", desc: "Ze zvířat.", desc_en: "Cured animal hide." },
@@ -7639,6 +7641,8 @@ const ItemsDB = {
     "cooking_pot": { name: "Hrnec", name_en: "Cooking Pot", icon: "🫕", type: "tool", desc: "Na vaření.", desc_en: "For cooking." },
     "tea_kettle": { name: "Konvička", name_en: "Kettle", icon: "🫖", type: "tool", desc: "Hliněná konvička na čaj. Pověsí se nad oheň.", desc_en: "A clay kettle for tea. Hung over the fire." },
     "basket": { name: "Koš", name_en: "Basket", icon: "🧺", type: "tool", desc: "Na sběr.", desc_en: "For foraging." },
+    "dreveky": { name: "Dřeváky", name_en: "Clogs", icon: "👢", type: "mat", desc: "Vyřezávané dřevěné boty z tržní boudy. Levná, odolná obuv pro každodenní práci.", desc_en: "Carved wooden shoes from a market stall. Cheap, durable footwear for everyday work." },
+    "kozene_boty": { name: "Kožené boty", name_en: "Leather Shoes", icon: "👞", type: "mat", desc: "Obyčejné kožené boty od městského ševce. Pohodlnější než dřeváky, dražší.", desc_en: "Plain leather shoes from a town cobbler. More comfortable than clogs, costlier." },
     "loaded_dice": { name: "Cinknuté kostky", name_en: "Loaded Dice", icon: "🎲", type: "tool", desc: "Kostky naplněné olovem. V hospodě zvyšují šanci na výhru o 15 %, ale pozor na šenkýře!", desc_en: "Dice loaded with lead. Increases win chance in the tavern, but beware the keeper!" },
 
     "repair_kit": { name: "Opravná sada", name_en: "Repair Kit", icon: "🔧", type: "tool", desc: "Na opravu studny.", desc_en: "For repairing the well.", cat: "tool" },
@@ -7793,6 +7797,7 @@ const ItemsDB = {
     "seeds_oats": { name: "Osivo ovsa", name_en: "Oat Seed", icon: "🌾", type: "mat", desc: "Osivo ovsa. Krmivo pro koně a dobytek.", desc_en: "Oat seed. Feed for horses and livestock." },
     "seeds_millet": { name: "Osivo prosa", name_en: "Millet Seed", icon: "🌾", type: "mat", desc: "Osivo prosa. Nenáročná plodina pro pole.", desc_en: "Millet seed. An undemanding field crop." },
     "seeds_peas": { name: "Osivo hrachu", name_en: "Pea Seed", icon: "🌱", type: "mat", desc: "Osivo hrachu. Luštěnina pro pole.", desc_en: "Pea seed. A legume for the fields." },
+    "seeds_lentils": { name: "Osivo čočky", name_en: "Lentil Seed", icon: "🌱", type: "mat", desc: "Osivo čočky. Drobná luštěnina, základní potravina vedle hrachu a obilí.", desc_en: "Lentil seed. A small legume, a staple alongside peas and grain." },
     "seeds_vikev": { name: "Osivo vikve", name_en: "Vetch Seed", icon: "🌱", type: "mat", desc: "Osivo vikve. Luštěnina pro pole, hojí půdu.", desc_en: "Vetch seed. A legume for the fields, heals the soil." },
     "seeds_flax": { name: "Osivo lnu", name_en: "Flax Seed", icon: "🌱", type: "mat", desc: "Osivo lnu. Přadná plodina, vzácnější.", desc_en: "Flax seed. A fibre crop, rarer to find." },
     "seeds_mandrake": { name: "Semínka mandragory", name_en: "Mandrake Seeds", icon: "🌾", type: "mat", desc: "Vzácná. Opatřit není snadné.", desc_en: "Rare. Not easy to obtain." },
@@ -8009,6 +8014,7 @@ const ItemsDB = {
     // B3/E1 event pool (sulfur, mercury — už tam byly zapsané, jen chyběl item),
     // Giacomo import (alum, sandarak).
     "vitriol": { name: "Zelená skalice", name_en: "Green Vitriol", icon: "💚", type: "alchemy_ing", desc: "Vitriolum. Síran železnatý z hlubin dolu. Se svíravou duběnkou dává inkoust, co propálí pergamen za sto let, ale vydrží tisíc.", desc_en: "Vitriolum. Iron sulfate from deep in the mine. With astringent oak gall it makes an ink that eats through vellum in a century, yet lasts a thousand years." },
+    "karmin": { name: "Karmín", name_en: "Cochineal Dye", icon: "🔴", type: "alchemy_ing", desc: "Karmínově rudý pigment z drceného červce. Vzácná barva pro iluminace a purpurové iniciály.", desc_en: "A crimson pigment from crushed cochineal grubs. A rare colour for illuminations and purple initials." },
     "malachite": { name: "Malachit", name_en: "Malachite", icon: "🟢", type: "alchemy_ing", desc: "Zelená měděná ruda z dolu. Rozetřená dává jasně zelený pigment pro iluminace.", desc_en: "Green copper ore from the mine. Ground fine, it yields a bright green pigment for illuminations." },
     "rose": { name: "Divoká růže", name_en: "Wild Rose", icon: "🌹", type: "herb", desc: "Šípková růže z mezí a remízků. Okvětní lístky voní i po usušení.", desc_en: "Wild dog-rose from the hedgerows. Its petals keep their scent even dried." },
     "vinegar": { name: "Ocet", name_en: "Vinegar", icon: "🍶", type: "food", desc: "Zkyslé víno. Konzervant, rozpouštědlo, základ mnoha lékařských odvarů.", desc_en: "Soured wine. A preservative, a solvent, the base of many medicinal draughts." },
@@ -8378,6 +8384,7 @@ const ItemsDB = {
     "butter": { name: "Máslo", name_en: "Butter", icon: "🧈", type: "mat", desc: "Čerstvé máslo z kravského mléka. Postní výjimka u nemocných.", desc_en: "Fresh butter from cow's milk. A Lenten exception for the sick." },
     "cheese": { name: "Sýr", name_en: "Cheese", icon: "🧀", type: "food", desc: "Tvrdý klášterní sýr. Trvanlivý, výživný. Prodávaný na trzích.", desc_en: "Hard monastic cheese. Long-lasting, nutritious. Sold at markets." },
     "salt": { name: "Sůl", name_en: "Salt", icon: "🧂", type: "mat", desc: "Drahá obchodní komodita ze solných stezek. Bez ní se sýr nezasolí a brzy zkazí.", desc_en: "A costly trade good from the salt roads. Without it cheese cannot be salted and soon spoils." },
+    "slany_sled": { name: "Slaný sleď", name_en: "Salted Herring", icon: "🐟", type: "mat", desc: "Sud nasolených sleďů dovezených od Pobaltí. Základ postní stravy, kdy jiné maso leží.", desc_en: "A barrel of salted herring imported from the Baltic. A staple of fast-day meals, when other meat is forbidden." },
 
     // GIACOMO IMPORT — koření a hedvábí, viz ContactsDB.giacomo.buyOffer
     "pepr_cerny": { name: "Černý pepř", name_en: "Black Pepper", icon: "⚫", type: "mat", desc: "Král koření. Tvoří většinu obchodu s Orientem — platí se jím i daně.", desc_en: "The king of spices. Makes up most of the trade with the Orient — even taxes are paid in it." },
@@ -8472,6 +8479,7 @@ const ItemsDB = {
     "oats": { name: "Oves", name_en: "Oats", icon: "🌾", type: "mat", desc: "Oves setý. Krmivo pro koně a osla. Bez ovsa tažný dobytek ztrácí sílu.", desc_en: "Common oats. Feed for horses and donkeys. Without oats, draught animals lose strength." },
     "millet": { name: "Proso", name_en: "Millet", icon: "🌾", type: "mat", desc: "Proso seté. Rychlá kaše, krmivo pro drůbež. Odolné i v suchu.", desc_en: "Common millet. Quick porridge, poultry feed. Resilient even in drought." },
     "peas": { name: "Hrách", name_en: "Peas", icon: "🫛", type: "mat", desc: "Polní hrách. Polévka, krmivo, obohacuje půdu dusíkem.", desc_en: "Field peas. Soup, fodder, enriches soil with nitrogen." },
+    "lentils": { name: "Čočka", name_en: "Lentils", icon: "🟤", type: "mat", desc: "Polní čočka. Základní potravina vedle hrachu a obilí — sytá, skladná, obohacuje půdu dusíkem.", desc_en: "Field lentils. A staple alongside peas and grain — filling, storable, enriches soil with nitrogen." },
     "vikev": { name: "Vikev", name_en: "Vetch", icon: "🌸", type: "mat", desc: "Drobná luštěnina — levné krmivo pro dobytek i holuby, na kořenech váže dusík. Sela se na úhor.", desc_en: "A small legume — cheap fodder for livestock and pigeons, fixes nitrogen at the roots. Sown on fallow ground." },
     "flax_fiber": { name: "Lněná vlákna", name_en: "Flax Fibre", icon: "🧵", type: "mat", desc: "Stonky lnu po rosení a tření. Základ pro tkaní plátna a výrobu provazů.", desc_en: "Flax stalks after retting and breaking. The basis for weaving linen and making rope." },
     "straw": { name: "Sláma", name_en: "Straw", icon: "🌿", type: "mat", desc: "Posklizňová sláma. Podestýlka pro zvířata, střešní krytina, krmivo pro skot.", desc_en: "Post-harvest straw. Bedding for animals, thatching material, fodder for cattle." },
