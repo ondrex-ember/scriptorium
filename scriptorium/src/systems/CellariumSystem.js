@@ -828,6 +828,46 @@ const CellariumSystem = {
   isGiacomoPresent: function() {
     return (Date.now() - (GameState.economy.lastGiacomoVisit || 0)) < this.GIACOMO_PRESENCE_MS;
   },
+  // giacomo-prezence-audit (7.8.2026): dřív se přítomnost zjišťovala jen při
+  // pokusu o nákup (chybová notify) — nikde v UI se aktivně neukazovala.
+  // Vrací { present: bool, days: int } — present ? dny do odjezdu : dny do
+  // příjezdu (týdenní cyklus checkGiacomoEvent, 7 dní).
+  giacomoDaysLeft: function() {
+    const now = Date.now();
+    const since = now - (GameState.economy.lastGiacomoVisit || 0);
+    if (since < this.GIACOMO_PRESENCE_MS) {
+      return { present: true, days: Math.max(0, Math.ceil((this.GIACOMO_PRESENCE_MS - since) / 86400000)) };
+    }
+    const week = 7 * 24 * 60 * 60 * 1000;
+    return { present: false, days: Math.max(0, Math.ceil((week - since) / 86400000)) };
+  },
+
+  // giacomo-obchod-audit (7.8.2026): Giacomův CELKOVÝ stock (napříč celým
+  // katalogem) škáluje s Chronicon regionálním napětím (region.tension,
+  // sdílené všem hráčům) a persona.reputation.slechta funguje jako OBRANNÝ
+  // faktor proti tension (ne samostatný bonus navrch). goldenAge tension
+  // úplně přebije — historicky "zlatý věk" znamená bezpečné obchodní cesty
+  // bez ohledu na jinak neklidný kraj; dává hráči šanci věc vylepšit i když
+  // je Chronicon svět/hráčova reputace jinak ve špatném stavu.
+  //
+  // Vzorec (odsouhlaseno 7.8.2026):
+  //   tensionPenalty   = tension > 50 ? (tension-50)/50 × 0.50 : 0   // 0–50 %, jen nad práh 50
+  //   reputationOffset = min(tensionPenalty, (slechta/100) × tensionPenalty × 0.50)  // vrátí max polovinu ztráty
+  //   stockMult = goldenAge ? 1.0 : clamp(1 − tensionPenalty + reputationOffset, 0.3, 1.0)
+  //
+  // Příklady: tension 25 → 1.0 (beze změny). Tension 80, slechta 0 → 0.70
+  // (−30 %). Tension 80, slechta 100 → 0.85 (jen −15 %, reputace vrátila
+  // polovinu ztráty). goldenAge aktivní → vždy 1.0 bez ohledu na tension.
+  giacomoStockMult: function() {
+    if (typeof ChroniconSystem === 'undefined' || !ChroniconSystem.getBuffs) return 1.0;
+    const buffs = ChroniconSystem.getBuffs();
+    if (buffs.goldenAge) return 1.0;
+    const tension = typeof buffs.tension === 'number' ? buffs.tension : 25;
+    const tensionPenalty = tension > 50 ? ((tension - 50) / 50) * 0.50 : 0;
+    const slechta = (GameState.persona && GameState.persona.reputation && GameState.persona.reputation.slechta) || 0;
+    const reputationOffset = Math.min(tensionPenalty, (slechta / 100) * tensionPenalty * 0.50);
+    return Math.max(0.3, Math.min(1.0, 1 - tensionPenalty + reputationOffset));
+  },
 
   // Stationarius — mirror Giacomo vzoru (týdenní interval + krátké okno),
   // jen delší cyklus (knižní veletrh je vzácnější než týdenní loď).
