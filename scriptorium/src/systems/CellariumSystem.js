@@ -369,6 +369,37 @@ const CellariumSystem = {
   // SELL — hráč prodává item entitě
   // ═══════════════════════════════════════════════════════════════════════════
 
+  // sellToContact-cap-audit (7.8.2026): sdíleno mezi sellItem (Cellarium)
+  // a SaeculumSystem.sellToContact (Clientela) — jedno místo pravdy pro
+  // postupnou slevu při velkoobjemovém prodeji.
+  SELL_SAT_THRESHOLDS: [5, 15, 30],
+  SELL_SAT_MULTS: [1.00, 0.80, 0.60, 0.45],
+
+  // Sdílený výpočet saturovaného prodeje. hardCap (volitelný) = tvrdý denní
+  // strop — nad něj se dál neprodává (na rozdíl od sellItem, kde saturace
+  // jen zlevňuje, ale nikdy neblokuje). Vrací kolik se SKUTEČNĚ prodalo
+  // (actuallySold může být < qty, pokud hardCap zarazí dřív).
+  _calcSaturatedSale: function(baseNoSat, qty, soldBefore, hardCap) {
+    const thresholds = this.SELL_SAT_THRESHOLDS;
+    const mults = this.SELL_SAT_MULTS;
+    const cap = hardCap || Infinity;
+    let total = 0, remaining = qty, sold = soldBefore, guard = 0;
+    while (remaining > 0 && sold < cap && guard < 10000) {
+      guard++;
+      let tierIdx = thresholds.findIndex(th => sold < th);
+      if (tierIdx === -1) tierIdx = thresholds.length;
+      let tierCap = tierIdx < thresholds.length ? thresholds[tierIdx] : Infinity;
+      tierCap = Math.min(tierCap, cap);
+      const canSellInTier = Math.min(remaining, tierCap - sold);
+      if (canSellInTier <= 0) break;
+      const tierPrice = Math.max(1, Math.round(baseNoSat * mults[tierIdx]));
+      total += tierPrice * canSellInTier;
+      sold += canSellInTier;
+      remaining -= canSellInTier;
+    }
+    return { total: total, soldAfter: sold, actuallySold: sold - soldBefore };
+  },
+
   sellItem: function(itemId, qty, entity) {
     if (!this.hasNumismatica()) return;
     if (!this.isEntityOpen(entity)) {
@@ -388,27 +419,15 @@ const CellariumSystem = {
 
     this._resetStockIfNewDay();
     const soldKey = this._stockKey(entity, itemId);
-    let sold = GameState.shopStock.dailySold[soldKey] || 0;
-    const SAT_THRESHOLDS = [5, 15, 30];
-    const SAT_MULTS = [1.00, 0.80, 0.60, 0.45];
+    const soldBefore = GameState.shopStock.dailySold[soldKey] || 0;
 
-    let total = 0, remaining = qty, guard = 0;
-    while (remaining > 0 && guard < 10000) {
-      guard++;
-      let tierIdx = SAT_THRESHOLDS.findIndex(th => sold < th);
-      if (tierIdx === -1) tierIdx = SAT_THRESHOLDS.length;
-      const tierCap = tierIdx < SAT_THRESHOLDS.length ? SAT_THRESHOLDS[tierIdx] : Infinity;
-      const canSellInTier = tierCap === Infinity ? remaining : Math.min(remaining, tierCap - sold);
-      const tierPrice = Math.max(1, Math.round(baseNoSat * SAT_MULTS[tierIdx]));
-      total += tierPrice * canSellInTier;
-      sold += canSellInTier;
-      remaining -= canSellInTier;
-    }
+    const result = this._calcSaturatedSale(baseNoSat, qty, soldBefore, null);
+    const total = result.total;
 
     Game.removeItem(itemId, qty);
     this.addGrose(total);
     // Saturace — zaznamenat prodané množství
-    GameState.shopStock.dailySold[soldKey] = sold;
+    GameState.shopStock.dailySold[soldKey] = result.soldAfter;
     this.recordTransaction('sell', itemId, qty, Math.round(total / qty), entity);
     GameState.economy.tradesTotal++;
     // Reputace — obchod zvyšuje vztah k entitě (+1 základ + Celerarius bonus navrch)
