@@ -656,3 +656,8 @@ RecipesDB.push(
     { id: "incense_styrax",   output: "incense_styrax",   qty: 1, req: { "resin_styrax": 1, "charcoal": 1 }, cat: "fire", locked: true, desc: "Styrax + uhlí = byzantské kadidlo.", desc_en: "Styrax + charcoal = Byzantine incense." },
     { id: "incense_olibanum", output: "incense_olibanum", qty: 1, req: { "resin_olibanum": 1, "charcoal": 1 }, cat: "fire", locked: true, desc: "Olibanum + uhlí = posvátné kadidlo.", desc_en: "Olibanum + charcoal = sacred incense." }
 );
+// ── ČERVEC (Ars Coccinea) — obchod-podklad 7.8.2026, tech_cervec ────────
+RecipesDB.push(
+    { id: "karmin", output: "karmin", qty: 1, req: { "cervec": 5 }, cat: "alchemy", locked: true,
+      desc: "Pět drcených červců dá karmínově rudý pigment.", desc_en: "Five crushed cochineal grubs yield a crimson pigment." }
+);
