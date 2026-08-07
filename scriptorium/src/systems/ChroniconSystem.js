@@ -172,14 +172,20 @@ const ChroniconSystem = {
             a.mood = Math.max(25, Math.min(100, a.mood + moodDelta));
             a.wealth = Math.max(20, Math.min(100, a.wealth + wealthDelta));
 
-            // Šance 20% na generování požadavku (questu)
-            if (!a.quest && Math.random() < 0.20) {
+            // Šance 20% na generování požadavku (questu) — ale ne dřív,
+            // než uplyne cooldown po posledním splnění (viz QUEST_COOLDOWN_MS).
+            if (!a.quest && (!a.questCooldownUntil || now >= a.questCooldownUntil) && Math.random() < 0.20) {
                 ChroniconSystem._generateActorQuest(id, a);
             }
         });
 
         ChroniconSystem.updateUIHeader();
     },
+
+    // Cooldown po splnění questu — 6h reálného času, mirror Chronicon
+    // vlastního cronu (4x/den = jednou za 6h). Bez tohohle aktér chtěl
+    // hned zase další věc (testeři, 6.8.2026).
+    QUEST_COOLDOWN_MS: 6 * 60 * 60 * 1000,
 
     QUEST_TYPES: {
         mlynar:   { needItem: 'wood', needQty: 4, giveItem: 'flour', giveQty: 8, label_cs: 'Potřebuje 4x Dřevo na opravu náhonu', label_en: 'Needs 4x Wood to fix the mill' },
@@ -269,6 +275,7 @@ const ChroniconSystem = {
             actor.mood = Math.min(100, actor.mood + 20);
             actor.wealth = Math.min(100, actor.wealth + 10);
             actor.quest = null;
+            actor.questCooldownUntil = Date.now() + ChroniconSystem.QUEST_COOLDOWN_MS;
             GameState.chroniconLocal.stats.totalHelped++;
 
             if (typeof Game !== 'undefined' && Game.save) Game.save();
