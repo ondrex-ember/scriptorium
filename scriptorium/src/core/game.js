@@ -3222,6 +3222,8 @@ const Game = {
                     if(Math.random() < 0.03) this.addItem('morel', 1);
                     if(Math.random() < 0.04) this.addItem('saffron_milk_cap', 1);
                     if(Math.random() < 0.03) this.addItem('porcini', 1);
+                    // Červec — obchod-podklad 7.8.2026, u kořenů luk, drtí se na karmín (tech_cervec)
+                    if(Math.random() < 0.04) this.addItem('cervec', 1);
                     // 0.07% — útržky, pečeť, byliny/váček zapomenuté v přírodě (viz LOST_ITEM_POOLS.foraging)
                     if(Math.random() < 0.0007) {
                         const pool = this.LOST_ITEM_POOLS.foraging;
