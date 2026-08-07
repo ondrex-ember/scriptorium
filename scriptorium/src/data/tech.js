@@ -431,6 +431,17 @@ TechTree.push({
     unlocks: ["incense_spruce", "incense_pine", "incense_styrax", "incense_olibanum"],
     requires: ["tech_meteorologica"]
 });
+// ── ČERVEC (Karmín) ──────────────────────────────────────────────────────
+TechTree.push({
+    id: "tech_cervec",
+    name: "Ars Coccinea — Umění karmínu",
+    name_en: "Ars Coccinea — The Art of Cochineal",
+    cost: 40,
+    desc: "Polský červec (Porphyrophora polonica) se sbírá u kořenů luk kolem svatojánské noci a drtí na karmínově rudý pigment — cennou barvu pro purpurové iniciály, dostupnou střední Evropě dávno před dovozem mexického košenilu. Odemkne: recept karmínu z červce.",
+    desc_en: "Polish cochineal (Porphyrophora polonica) is gathered from meadow roots around Midsummer and crushed into a crimson pigment — a prized colour for purple initials, available to Central Europe long before Mexican cochineal was imported. Unlocks: the cochineal dye recipe from grubs.",
+    unlocks: ["karmin"],
+    requires: ["tech_meteorologica"]
+});
 // ── MAGISTER CONVERSORUM ─────────────────────────────────────────────────
 TechTree.push({
     id: "tech_magister",
