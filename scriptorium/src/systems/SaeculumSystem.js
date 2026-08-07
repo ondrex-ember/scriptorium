@@ -116,20 +116,25 @@ const SaeculumSystem = {
     { id: 'wheat_grain_2', outputId: 'flour_2', icon: '🌾', label: 'Pšenice (2. tř.)', label_en: 'Wheat (Grade 2)' },
     { id: 'rye_grain_2',   outputId: 'flour_2', icon: '🌾', label: 'Žito (2. tř.)',     label_en: 'Rye (Grade 2)' },
     { id: 'grain',         outputId: 'flour_2', icon: '🌾', label: 'Zrní (tržní)',      label_en: 'Grain (market)' },
-    // M-V: vodní PILA (Obchod nit 1, payoff dopisu L5) — mult 7, prémiová cena, gate tech+vztah
-    { id: 'log', outputId: 'plank', mult: 7, cost: 5, unlockTech: 'tech_carpentaria', minRelation: 10,
+    // M-V: vodní PILA (Obchod nit 1, payoff dopisu L5) — mult 7, gate tech+vztah.
+    // pila-stoupa-audit (7.8.2026): flat cost nahrazen feeTiers (vyváženo proti
+    // vlastnímu craftu plank_from_log — viz VigorSystem.plank + stone_saw maxUses).
+    { id: 'log', outputId: 'plank', mult: 7, unlockTech: 'tech_carpentaria', minRelation: 10,
+      verbKey: 'sawTo',
+      feeTiers: [ { max: 3, fee: 2 }, { max: 8, fee: 4 }, { max: 15, fee: 6 }, { max: 25, fee: 9 }, { max: 40, fee: 13 }, { max: Infinity, fee: 18 } ],
       icon: '🪵', label: 'Klády (pila: 1 → 7 fošen)', label_en: 'Logs (sawmill: 1 → 7 planks)' },
     // M-V2: STOUPA — kůra → tříslo (koželužský bulk; duběnky zůstávají pro inkoust)
-    { id: 'bark', outputId: 'tanbark', mult: 2, cost: 4, unlockTech: 'tech_tanning', minRelation: 15,
+    { id: 'bark', outputId: 'tanbark', mult: 2, unlockTech: 'tech_tanning', minRelation: 15,
+      verbKey: 'crushTo',
+      feeTiers: [ { max: 5, fee: 2 }, { max: 12, fee: 3 }, { max: 25, fee: 5 }, { max: 40, fee: 7 }, { max: Infinity, fee: 10 } ],
       icon: '🟤', label: 'Kůra (stoupa: 1 → 2 třísla)', label_en: 'Bark (stamp mill: 1 → 2 tanbark)' },
   ],
   MOLA_COST: 3,
   MOLA_MS: 4 * 60 * 60 * 1000,
 
-  // Váhový poplatek dle objemu zakázky — jen pro položky BEZ explicitního
-  // inp.cost (zrní rodina: grain/wheat_grain_*/rye_grain_*). Pila (log) a
-  // stoupa (bark) mají vlastní cost, tohohle se netýká.
-  // mlynar-vlastni-mlyn-mrd.md Fáze 1 (7.8.2026), 6 pásem.
+  // Váhový poplatek dle objemu zakázky — výchozí pro zrní rodinu (žádné
+  // feeTiers na položce). Pila/stoupa mají vlastní feeTiers přímo na entry
+  // (viz MOLA_INPUTS výše) — mlynar-vlastni-mlyn-mrd.md Fáze 1 (7.8.2026), 6 pásem.
   MOLA_FEE_TIERS: [
     { max: 40,  fee: 3 },
     { max: 90,  fee: 4 },
@@ -138,9 +143,16 @@ const SaeculumSystem = {
     { max: 325, fee: 7 },
     { max: Infinity, fee: 8 },
   ],
+  _tieredFee: function(tiers, qty) {
+    const tier = tiers.find(t => qty <= t.max);
+    return tier ? tier.fee : tiers[tiers.length - 1].fee;
+  },
   _molaFeeForQty: function(qty) {
-    const tier = this.MOLA_FEE_TIERS.find(t => qty <= t.max);
-    return tier ? tier.fee : this.MOLA_COST;
+    return this._tieredFee(this.MOLA_FEE_TIERS, qty);
+  },
+  _feeForInput: function(inp, qty) {
+    if (inp.feeTiers) return this._tieredFee(inp.feeTiers, qty);
+    return this._molaFeeForQty(qty);
   },
 
   renderMola: function() {
@@ -187,10 +199,11 @@ const SaeculumSystem = {
           return;
         }
         const have = GameState.inventory[inp.id] || 0;
-        const fee = inp.cost || this._molaFeeForQty(have);
+        const fee = this._feeForInput(inp, have);
+        const verb = t('saeculum.' + (inp.verbKey || 'millTo'));
         h += `<button class="craft-btn" onclick="SaeculumSystem.sendToMill('${inp.id}')" ${have > 0 ? '' : 'disabled'}
                 style="text-align:left; white-space:normal; word-break:break-word; line-height:1.25; width:100%;">
-                ${inp.icon} ${name} (${have}) → ${t('saeculum.millTo')} (${fee}g)
+                ${inp.icon} ${name} (${have}) → ${verb} (${fee}g)
               </button>`;
       });
       h += `</div>`;
@@ -208,7 +221,7 @@ const SaeculumSystem = {
     if (have <= 0) return false;
     const inp = this.MOLA_INPUTS.find(x => x.id === inputId);
     if (!inp) return false;
-    const orderCost = inp.cost || this._molaFeeForQty(have);
+    const orderCost = this._feeForInput(inp, have);
     if (typeof CellariumSystem !== 'undefined' && CellariumSystem.getGrose) {
       if (CellariumSystem.getGrose() < orderCost) {
         if (typeof UI !== 'undefined') UI.notify(t('saeculum.millNoGold'), true);
