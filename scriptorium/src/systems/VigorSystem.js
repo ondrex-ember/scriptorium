@@ -38,6 +38,7 @@ const VigorSystem = {
         tinderbox:      2,
         quill:          3,
         // Craft — střední
+        plank:          6,  // ruční řezání kulatiny — reálná fyzická práce (pila-stoupa-audit, 7.8.2026)
         ink_gallic:     5,
         codex_common:   8,
         // Craft — těžký
