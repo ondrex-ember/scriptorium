@@ -571,6 +571,9 @@
 
         <section id="about">
             <h2 class="section-title" id="lbl-about">O hře</h2>
+            <div class="about-block" style="font-style:italic; opacity:0.9; border-left:3px solid var(--accent-gold); padding:12px 16px; background:rgba(197,160,89,0.08); margin-bottom:16px;">
+                <p id="txt-dev-note">Vězte, bratřie, že Scriptorium jest dílem živým a rukama našima neustále hněteným. Svět klášterní den ode dne o nové zvyklosti, statky a bratrská spojení s říší CHRONICON utěšeně vzrůstá. Při kvapu takovém občasně se blud nějaký zjeví, anebo dílo, jež k popisu svému ještě zcela nepřiléhá. Za svatou trpělivost vaši a za každou milostivou zvěst o nápravu díky vám vzdáváme. Neboť příbytek náš kámen po kameni se buduje, přesně tak, jak svatá skriptoria kdysi rostla svazek po svazku.</p>
+            </div>
             <div class="about-block">
                 <p id="txt-about">Středověká idle hra o kopírování rukopisů, výrobě papíru a studiu v klášterním
                     skriptoriu. Kombinuje survival mechaniky (oheň, světlo, hlad) s craftingem, zahradničením a
@@ -756,6 +759,7 @@
                 heroCTAAbout: 'O hře ↓',
                 lblAbout: 'O hře',
                 txtAbout: 'Středověká idle hra o kopírování rukopisů, výrobě papíru a studiu v klášterním skriptoriu. Kombinuje survival mechaniky (oheň, světlo, hlad) s craftingem, zahradničením a postupným odemykáním technologií. Historicky podložená hra zasazená do roku 1465 v Olomouci.',
+                txtDevNote: 'Vězte, bratřie, že Scriptorium jest dílem živým a rukama našima neustále hněteným. Svět klášterní den ode dne o nové zvyklosti, statky a bratrská spojení s říší CHRONICON utěšeně vzrůstá. Při kvapu takovém občasně se blud nějaký zjeví, anebo dílo, jež k popisu svému ještě zcela nepřiléhá. Za svatou trpělivost vaši a za každou milostivou zvěst o nápravu díky vám vzdáváme. Neboť příbytek náš kámen po kameni se buduje, přesně tak, jak svatá skriptoria kdysi rostla svazek po svazku.',
                 lblVersion: 'Verze:', lblDate: 'Datum:', lblAuthor: 'Autor:',
                 valVersion: '7.9 "Ferrum et Herba"', valDate: '10. června 2026',
                 lblChangelog: '📓 Release Notes',
@@ -828,6 +832,7 @@
                 heroCTAAbout: 'About ↓',
                 lblAbout: 'About the Game',
                 txtAbout: 'A medieval idle game about copying manuscripts, crafting paper, and studying in a monastery scriptorium. Blends survival mechanics (fire, light, hunger) with crafting, gardening, and gradual technology unlocks. Historically grounded, set in the year 1465 in Olomouc.',
+                txtDevNote: 'Know ye, brethren, that Scriptorium is a work yet living, evermore wrought by our own hands. Day by day the monastery\'s world doth grow — new customs, new holdings, new bonds with the realm of CHRONICON. In such haste a blunder may now and again show itself, or some labour not yet true to its own telling. For your holy patience, and for every gracious tiding of correction, we render thee thanks. For our dwelling is built stone upon stone, even as the holy scriptoria of old grew, volume upon volume.',
                 lblVersion: 'Version:', lblDate: 'Date:', lblAuthor: 'Author:',
                 valVersion: '7.9 "Ferrum et Herba"', valDate: '10 June 2026',
                 lblChangelog: '📓 Release Notes',
@@ -914,6 +919,7 @@
             // About
             document.getElementById('lbl-about').textContent = L.lblAbout;
             document.getElementById('txt-about').textContent = L.txtAbout;
+            document.getElementById('txt-dev-note').textContent = L.txtDevNote;
             document.getElementById('lbl-version').textContent = L.lblVersion;
             document.getElementById('lbl-date').textContent = L.lblDate;
             document.getElementById('val-version').textContent = L.valVersion;
