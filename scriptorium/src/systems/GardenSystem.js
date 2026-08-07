@@ -1742,6 +1742,7 @@ const GardenSystem = {
         oats:   { id:'oats',        icon:'🌾', name:'Oves',    name_en:'Oats',    seeds:'seeds_oats',   yield:3, strawYield:2, feedVal:2 },
         millet: { id:'millet',      icon:'🌾', name:'Proso',   name_en:'Millet',  seeds:'seeds_millet', yield:4, strawYield:1, feedVal:2 },
         peas:   { id:'peas',        icon:'🫛', name:'Hrách',   name_en:'Peas',    seeds:'seeds_peas',   yield:4, strawYield:0, feedVal:1 },
+        lentils: { id:'lentils',    icon:'🟤', name:'Čočka',   name_en:'Lentils', seeds:'seeds_lentils', yield:4, strawYield:0, feedVal:1 },
         vetch:  { id:'vikev',       icon:'🌸', name:'Vikev',   name_en:'Vetch',   seeds:'seeds_vikev',  yield:3, strawYield:0, feedVal:2, fallow:true },
         flax:   { id:'flax_fiber',  icon:'🧵', name:'Len',     name_en:'Flax',    seeds:'seeds_flax',   yield:2, strawYield:1, feedVal:0 },
     },
