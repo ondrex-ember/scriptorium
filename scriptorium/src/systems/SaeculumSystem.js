@@ -1306,10 +1306,19 @@ const SaeculumSystem = {
   // snapshotu místo statického buyOffer.stock. Cena zůstává statická
   // (cenový vzorec vědomě odložen, viz MRD). null z Chronicon = spadni
   // na static beze změny (aktér zatím neexistuje / item netrackovaný).
-  _effectiveStock: function (c, itemId, staticStock) {
-    if (!c.chroniconActorId || typeof ChroniconSystem === 'undefined') return staticStock;
-    const live = ChroniconSystem.getActorItemStock(c.chroniconActorId, itemId);
-    return (live === null) ? staticStock : live;
+  // giacomo-obchod-audit (7.8.2026): Giacomo navrch dostává CellariumSystem
+  // .giacomoStockMult() na CELÝ efektivní stock (tension/goldenAge/slechta —
+  // viz komentář tam). Nezávislé na chroniconActorId větvi výše.
+  _effectiveStock: function (c, contactId, itemId, staticStock) {
+    let stock = staticStock;
+    if (c.chroniconActorId && typeof ChroniconSystem !== 'undefined') {
+      const live = ChroniconSystem.getActorItemStock(c.chroniconActorId, itemId);
+      if (live !== null) stock = live;
+    }
+    if (contactId === 'giacomo' && typeof CellariumSystem !== 'undefined') {
+      stock = Math.max(0, Math.round(stock * CellariumSystem.giacomoStockMult()));
+    }
+    return stock;
   },
 
   buyFromContact: function(contactId, itemId, qty) {
@@ -1331,8 +1340,15 @@ const SaeculumSystem = {
     }
     // Exkluzivní nabídka: gate na vztah (MRD bod 8)
     if (offer.minRelation && ((GameState.contactRelation || {})[contactId] || 0) < offer.minRelation) return;
+    // giacomo-obchod-audit (7.8.2026): druhá, NEZÁVISLÁ vrstva gatingu —
+    // frakční reputace (persona.reputation[axis]), ne osobní vztah. Viz
+    // komentář u ContactsDB.giacomo.buyOffer pro celé zdůvodnění.
+    if (offer.minReputation) {
+      const repVal = (GameState.persona && GameState.persona.reputation && GameState.persona.reputation[offer.minReputation.axis]) || 0;
+      if (repVal < offer.minReputation.value) return;
+    }
     const soldToday = this._contactSoldToday(contactId, itemId);
-    const effStock = this._effectiveStock(c, itemId, offer.stock);
+    const effStock = this._effectiveStock(c, contactId, itemId, offer.stock);
     const left = Math.max(0, effStock - soldToday);
     qty = Math.max(0, Math.min(left, qty | 0));
     if (qty <= 0) { UI.notify('⚠️ ' + (((GameState.settings||{}).language)==='en' ? 'Sold out today.' : 'Dnes vyprodáno.'), true); return; }
@@ -1414,10 +1430,19 @@ const SaeculumSystem = {
       const r = Math.min(100, Math.round(rel[id] || 0));
       if (unlocked) {
         const isActive = id === activeContact;
+        // giacomo-prezence-audit (7.8.2026): badge přímo na chipu — stejný
+        // princip jako zelená/červená tečka u tavern/shop/market (isEntityOpen).
+        let presenceBadge = '';
+        if (id === 'giacomo' && typeof CellariumSystem !== 'undefined') {
+          const p = CellariumSystem.giacomoDaysLeft();
+          presenceBadge = p.present
+            ? ` <span style="color:#5a9a5a; font-size:0.6rem;" title="${lang==='en'?'In port':'V přístavu'}">⚓${p.days}d</span>`
+            : ` <span style="color:#c55; font-size:0.6rem;" title="${lang==='en'?'At sea':'Na moři'}">🌊${p.days}d</span>`;
+        }
         h += `<div onclick="SaeculumSystem.openContact('${id}')" style="display:flex; align-items:center; gap:6px; padding:6px 10px; background:${isActive ? 'rgba(197,160,89,0.22)' : 'rgba(255,255,255,0.4)'}; border:${isActive ? '2px solid var(--accent-wax)' : '1px solid rgba(197,160,89,0.4)'}; border-radius:8px; cursor:pointer;">
                 <span style="font-size:1rem;">${c.icon}</span>
                 <span style="font-size:0.72rem; font-weight:bold;">${lang==='en'?c.name_en:c.name}</span>
-                <span style="font-size:0.62rem; opacity:0.6;">${r}%</span>
+                <span style="font-size:0.62rem; opacity:0.6;">${r}%</span>${presenceBadge}
               </div>`;
       } else {
         h += `<div style="display:flex; align-items:center; gap:6px; padding:6px 10px; background:rgba(0,0,0,0.04); border:1px dashed rgba(197,160,89,0.35); border-radius:8px; opacity:0.55;">
@@ -1464,6 +1489,26 @@ const SaeculumSystem = {
             </div>
           </div>`;
 
+    // giacomo-prezence-audit (7.8.2026): banner o přítomnosti — dřív se
+    // zjišťovala jen při pokusu o nákup (chybová notify), teď vidět rovnou.
+    if (id === 'giacomo' && typeof CellariumSystem !== 'undefined') {
+      const p = CellariumSystem.giacomoDaysLeft();
+      h += p.present
+        ? `<div style="font-size:0.74rem; margin-bottom:10px; color:#5a9a5a;">⚓ ${lang==='en'?`In port — departs in ${p.days}d.`:`V přístavu — odplouvá za ${p.days} dny.`}</div>`
+        : `<div style="font-size:0.74rem; margin-bottom:10px; color:#c55;">🌊 ${lang==='en'?`At sea — returns in ${p.days}d.`:`Na moři — vrací se za ${p.days} dní.`}</div>`;
+    }
+
+    // giacomo-obchod-audit (7.8.2026): viditelný stav — proč je nabídka
+    // dnes tenčí/plnější než obvykle (CellariumSystem.giacomoStockMult()).
+    if (id === 'giacomo' && typeof CellariumSystem !== 'undefined') {
+      const mult = CellariumSystem.giacomoStockMult();
+      if (mult >= 1.0) {
+        h += `<div style="font-size:0.72rem; opacity:0.7; margin-bottom:10px; font-style:italic;">✨ ${lang==='en'?'Golden age — safe trade routes, full stock.':'Zlatý věk — bezpečné cesty, plné sklady.'}</div>`;
+      } else if (mult < 0.95) {
+        h += `<div style="font-size:0.72rem; opacity:0.7; margin-bottom:10px; font-style:italic;">⚠️ ${lang==='en'?'Unrest in the region — smaller cargo than usual.':'Neklid v kraji — menší náklad než obvykle.'}</div>`;
+      }
+    }
+
     // 🩹 Chirurgus — hybrid hire, jedinej kontakt s touhle mechanikou
     if (id === 'chirurgus') {
       const hired = GameState.chirurgus && GameState.chirurgus.hired;
@@ -1483,6 +1528,14 @@ const SaeculumSystem = {
 
     // 🛒 Nabídka (kontakt prodává hráči)
     h += `<div><div style="font-size:0.7rem; font-weight:bold; letter-spacing:0.08em; text-transform:uppercase; color:var(--accent-gold); margin-bottom:8px; padding-bottom:4px; border-bottom:2px solid var(--accent-gold);">🛒 ${lang==='en'?'HIS OFFER':'NABÍDKA'}</div>`;
+    // giacomo-prezence-audit (7.8.2026): dřív zůstávala tlačítka aktivní i
+    // když je na moři — klik skončil chybovou notify až po pokusu o nákup.
+    // Teď rovnou jasná zpráva místo nefunkčního katalogu.
+    if (id === 'giacomo' && typeof CellariumSystem !== 'undefined' && !CellariumSystem.isGiacomoPresent()) {
+      h += `<div style="font-size:0.78rem; opacity:0.6; font-style:italic; padding:10px 0;">${lang==='en'
+        ? 'His ship is at sea. Nothing to buy until he returns.'
+        : 'Jeho loď je na moři. Nic k nákupu, dokud se nevrátí.'}</div></div>`;
+    } else {
     const offerItems = c.buyOffer && c.buyOffer.items;
     if (offerItems && Object.keys(offerItems).length) {
       Object.keys(offerItems).forEach(itemId => {
@@ -1494,7 +1547,19 @@ const SaeculumSystem = {
                 </div>`;
           return;
         }
-        const left = Math.max(0, this._effectiveStock(c, itemId, o.stock) - this._contactSoldToday(id, itemId));
+        // giacomo-obchod-audit (7.8.2026): druhý, nezávislý zámek — frakční
+        // reputace (persona.reputation[axis]), odlišný text od vztahového zámku výše.
+        if (o.minReputation) {
+          const repVal = (GameState.persona && GameState.persona.reputation && GameState.persona.reputation[o.minReputation.axis]) || 0;
+          if (repVal < o.minReputation.value) {
+            const axisLabel = o.minReputation.axis === 'slechta' ? (lang==='en'?'nobility':'šlechty') : o.minReputation.axis;
+            h += `<div style="display:flex; align-items:center; gap:6px; font-size:0.78rem; margin-bottom:6px; opacity:0.5;">
+                    <span style="flex:1;">🔒 ${itemName} <span style="opacity:0.7; font-style:italic;">(${lang==='en'?'from reputation with':'od pověsti u'} ${axisLabel} ${o.minReputation.value})</span></span>
+                  </div>`;
+            return;
+          }
+        }
+        const left = Math.max(0, this._effectiveStock(c, id, itemId, o.stock) - this._contactSoldToday(id, itemId));
         const grose = CellariumSystem.getGrose();
         const discMult = this.contactBuyDiscountMult(id);
         const unitPrice = Math.max(1, Math.round(o.price * discMult));
@@ -1511,6 +1576,7 @@ const SaeculumSystem = {
       h += `<div style="font-size:0.74rem; opacity:0.55; font-style:italic;">${lang==='en'?'Nothing on offer right now.':'Zatím nic nenabízí.'}</div>`;
     }
     h += `</div>`;
+    }
 
     // 💰 Výkup (hráč prodává kontaktu)
     h += `<div><div style="font-size:0.7rem; font-weight:bold; letter-spacing:0.08em; text-transform:uppercase; color:var(--accent-gold); margin-bottom:8px; padding-bottom:4px; border-bottom:2px solid var(--accent-gold);">💰 ${lang==='en'?'BUYING FROM YOU':'VÝKUP'} <span style="opacity:0.6; font-weight:normal; text-transform:none;">(+${Math.round((this.contactPriceMult(id)-1)*100)} % ${lang==='en'?'over market':'nad trh'})</span></div>`;
