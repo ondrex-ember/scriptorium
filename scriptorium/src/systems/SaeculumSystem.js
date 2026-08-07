@@ -1239,6 +1239,25 @@ const SaeculumSystem = {
     return 1.10 + (r / 100) * 0.25;
   },
 
+  // sellToContact-cap-audit (7.8.2026): tvrdý denní strop prodeje KONTAKTU
+  // (výkup) — mirror filozofie dailyStock u nákupu. Bez tohohle šlo prodat
+  // neomezené množství (např. nahromaděnou vlnu) jedním "vše" klikem za
+  // plnou/skoro plnou cenu — reálná ekonomická díra, ne teoretická.
+  // Jedno číslo pro všechny kontakty/položky — ne per-item konfigurace,
+  // ať se nerozjíždí refaktor přes celý ContactsDB najednou.
+  CONTACT_SELL_CAP: 15,
+
+  // Oddělený tracker od _contactSoldToday (ten je pro NÁKUP od kontaktu) —
+  // stejný item může být u kontaktu v buyOffer i sellBonus zároveň (např.
+  // mlynář zrní), sdílený klíč by je omylem sečetl dohromady.
+  _contactSellSoldToday: function(contactId, itemId) {
+    const dayKey = new Date().toDateString();
+    if (!GameState.contactSellSold || GameState.contactSellSold.day !== dayKey) {
+      GameState.contactSellSold = { day: dayKey, sold: {} };
+    }
+    return GameState.contactSellSold.sold[contactId + ':' + itemId] || 0;
+  },
+
   // M1: nákup OD kontaktu (buyOffer) — sleva s rostoucím vztahem, strop 65 %
   // při vztahu 100 (mlynar-vlastni-mlyn-mrd.md Fáze 1, 7.8.2026). Jen 'mlynar'
   // teď — obecný mechanismus pro ostatní kontakty až bude druhý případ.
@@ -1265,18 +1284,30 @@ const SaeculumSystem = {
     // Základ: BASE_PRICES přes calcPrice('market'); není-li item na trhu, kontaktní base cena (exkluzivní odbyt)
     const basePrice = CellariumSystem.calcPrice(itemId, 'market') || items[itemId];
     if (!basePrice) return;
-    const price = Math.max(1, Math.round(basePrice * this.contactPriceMult(contactId)));
-    const total = price * qty;
-    Game.removeItem(itemId, qty);
+    // sellToContact-cap-audit (7.8.2026): relation markup se aplikuje PŘED
+    // saturací (je součástí "základní" ceny, kterou pak saturace odstupňuje
+    // dolů) — stejný princip jako calcPrice(entity, skipSaturation) v Cellariu.
+    const relPrice = Math.max(1, Math.round(basePrice * this.contactPriceMult(contactId)));
+    const soldBefore = this._contactSellSoldToday(contactId, itemId);
+    const result = CellariumSystem._calcSaturatedSale(relPrice, qty, soldBefore, this.CONTACT_SELL_CAP);
+    if (result.actuallySold <= 0) {
+      const lang = (GameState.settings && GameState.settings.language) || 'cs';
+      UI.notify(lang==='en' ? '⚠️ He has bought enough from you today.' : '⚠️ Dnes už od tebe koupil dost.', true);
+      return;
+    }
+    const total = result.total;
+    Game.removeItem(itemId, result.actuallySold);
     CellariumSystem.addGrose(total);
-    CellariumSystem.recordTransaction('sell', itemId, qty, price, contactId);
+    GameState.contactSellSold.sold[contactId + ':' + itemId] = result.soldAfter;
+    CellariumSystem.recordTransaction('sell', itemId, result.actuallySold, Math.round(total / result.actuallySold), contactId);
     GameState.economy.tradesTotal++;
     this.addContactRelation(contactId, 1);
     Game.save();
     const lang = (GameState.settings && GameState.settings.language) || 'cs';
     const itemName = (typeof iName === 'function') ? iName(itemId) : itemId;
     const cName = lang === 'en' ? c.name_en : c.name;
-    UI.notify('🤝 ' + itemName + ' ×' + qty + ' → ' + total + ' g · ' + cName);
+    const partialNote = result.actuallySold < qty ? (lang==='en' ? ' (daily limit reached)' : ' (denní limit dosažen)') : '';
+    UI.notify('🤝 ' + itemName + ' ×' + result.actuallySold + ' → ' + total + ' g · ' + cName + partialNote);
     this.switchEntity('clientela'); // refresh panelu (modal zrušen)
   },
 
@@ -1590,11 +1621,16 @@ const SaeculumSystem = {
         const basePrice = CellariumSystem.calcPrice(itemId, 'market') || sbItems[itemId] || 0;
         const price = Math.max(1, Math.round(basePrice * this.contactPriceMult(id)));
         const itemName = (typeof iName === 'function') ? iName(itemId) : itemId;
+        // sellToContact-cap-audit (7.8.2026): zbývající denní kapacita —
+        // stejný princip jako "skladem X" na nákupní straně.
+        const soldToday = this._contactSellSoldToday(id, itemId);
+        const left = Math.max(0, this.CONTACT_SELL_CAP - soldToday);
+        const capLabel = `<span style="opacity:0.55;"> · ${lang==='en'?'buys up to':'koupí do'} ${left}${lang==='en'?'/day':'/den'}</span>`;
         h += `<div style="display:flex; align-items:center; gap:6px; font-size:0.78rem; margin-bottom:6px;">
-                <span style="flex:1;">${itemName} <span style="opacity:0.6;">(${lang==='en'?'have':'máš'} ${have} · ${price} g/${lang==='en'?'pc':'ks'})</span></span>
-                <button class="craft-btn" style="padding:2px 8px; font-size:0.7rem;" onclick="SaeculumSystem.sellToContact('${id}','${itemId}',1)">×1</button>
-                <button class="craft-btn" style="padding:2px 8px; font-size:0.7rem;" onclick="SaeculumSystem.sellToContact('${id}','${itemId}',5)">×5</button>
-                <button class="craft-btn" style="padding:2px 8px; font-size:0.7rem;" onclick="SaeculumSystem.sellToContact('${id}','${itemId}','all')">${lang==='en'?'all':'vše'}</button>
+                <span style="flex:1;">${itemName} <span style="opacity:0.6;">(${lang==='en'?'have':'máš'} ${have} · ${price} g/${lang==='en'?'pc':'ks'})</span>${capLabel}</span>
+                <button class="craft-btn" style="padding:2px 8px; font-size:0.7rem;" ${left>0?'':'disabled'} onclick="SaeculumSystem.sellToContact('${id}','${itemId}',1)">×1</button>
+                <button class="craft-btn" style="padding:2px 8px; font-size:0.7rem;" ${left>=5?'':'disabled'} onclick="SaeculumSystem.sellToContact('${id}','${itemId}',5)">×5</button>
+                <button class="craft-btn" style="padding:2px 8px; font-size:0.7rem;" ${left>0?'':'disabled'} onclick="SaeculumSystem.sellToContact('${id}','${itemId}','all')">${lang==='en'?'all':'vše'}</button>
               </div>`;
       });
       if (!anyStock) h += `<div style="font-size:0.74rem; opacity:0.55; font-style:italic;">${lang==='en'?'You have nothing he would buy right now.':'Nemáš teď nic, co by vykoupil.'}</div>`;
