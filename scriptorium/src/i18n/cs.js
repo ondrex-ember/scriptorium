@@ -1494,7 +1494,7 @@ const STRINGS_cs = {
         millCollect: 'Vyzvednout',
         milling: 'Mele se',
         readyIn: 'hotovo za',
-        millCostNote: '4 hodiny, 3 groše za cestu',
+        millCostNote: '4 hodiny · cena za cestu dle množství',
         millTo: 'mlít',
     },
     farmyard: {
