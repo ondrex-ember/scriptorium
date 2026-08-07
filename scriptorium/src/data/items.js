@@ -588,7 +588,7 @@ const ItemsDB = {
     "stone_pickaxe": { maxUses: 150, name: "Kamenný krumpáč", name_en: "Stone Pickaxe", icon: "⛏️", type: "tool", tier: "stone", desc: "Kamenná hlava na násadě. Těžba rudy a bourání kamene.", desc_en: "Stone head on a haft. Ore mining and stone breaking." },
     "palice_kamenna": { maxUses: 100, name: "Kamenná palice", name_en: "Stone Mallet", icon: "🔨", type: "tool", tier: "stone", desc: "Těžké kladivo z opracovaného kamene. Láme vápenec v lomu.", desc_en: "A heavy mallet of worked stone. Breaks limestone in the quarry." },
     "stone_shovel": { name: "Kamenná lopata", name_en: "Stone Shovel", icon: "🪛", type: "tool", tier: "stone", desc: "Plochý kámen jako lopata. Přesun půdy a hnoje.", desc_en: "Flat stone as shovel. Moving soil and manure." },
-    "stone_saw": { maxUses: 10, name: "Kamenná pila", name_en: "Stone Saw", icon: "🪚", type: "tool", tier: "stone", desc: "Pila z křemenných úštěpků. Hrubé opracování dřeva.", desc_en: "Saw of flint chips. Rough wood working." },
+    "stone_saw": { maxUses: 6, name: "Kamenná pila", name_en: "Stone Saw", icon: "🪚", type: "tool", tier: "stone", desc: "Pila z křemenných úštěpků. Hrubé opracování dřeva.", desc_en: "Saw of flint chips. Rough wood working." },
 
     // ── DŘEVĚNÉ NÁSTROJE (jen jedna verze) ──────────────────────────────────
     "bucket": { name: "Vědro", name_en: "Bucket", icon: "🪣", type: "tool", desc: "Dřevěné vědro. Přenáší vodu ze studny.", desc_en: "Wooden bucket. Carries water from the well." },
