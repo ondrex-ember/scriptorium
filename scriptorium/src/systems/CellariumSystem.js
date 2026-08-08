@@ -257,6 +257,9 @@ const CellariumSystem = {
     // Produkty Gallinarium & Ovile
     chicken_meat:   4,
     mutton:         6,
+    // udirna-mrd (7.8.2026): hotový konzervovaný produkt, dražší než syrové maso
+    cured_meat:     10,
+    cured_beef:     12,
     lamb_hide:      8,
     chick:          3,
     // MRD Columbarium II — holoubě cennější než dospělý pták (historicky doloženo)
@@ -597,6 +600,8 @@ const CellariumSystem = {
       { itemId: 'seeds_barley',  basePrice: 5,   dailyStock: 30 },
       { itemId: 'seeds_oats',    basePrice: 4,   dailyStock: 30 },
       { itemId: 'seeds_millet',  basePrice: 6,   dailyStock: 20 },
+      // coquina-tier1-mrd (7.8.2026): pohanka — nová plodina, dostupná od začátku
+      { itemId: 'seeds_pohanka', basePrice: 8,   dailyStock: 10 },
       { itemId: 'seeds_peas',    basePrice: 5,   dailyStock: 25 },
       { itemId: 'seeds_vikev',   basePrice: 5,   dailyStock: 25 },
       // Kovářství (vyžaduje tech_kovarina)
@@ -1383,6 +1388,8 @@ const CellariumSystem = {
                           'egg','milk','chicken_meat','mutton','pigeon_squab','pigeon_meat',
                           'apple','pear','plum','cherry',
                           'beer','wine',
+                          // udirna-mrd (7.8.2026): Trh čeká na Cechy, Hospoda může teď
+                          'cured_meat','cured_beef',
                           'goat_cheese_fresh','goat_cheese_mature','goat_cheese_aged',
                           'sheep_cheese_fresh','sheep_cheese_mature','sheep_cheese_aged',
                           'cow_cheese_fresh','cow_cheese_mature','cow_cheese_aged','syrecky_fresh','syrecky_mature'];
@@ -1957,6 +1964,9 @@ const CellariumSystem = {
     const hasUvar = GameState.researchedTechs && GameState.researchedTechs.includes('tech_uvarium');
     const hasPOlei= GameState.researchedTechs && GameState.researchedTechs.includes('tech_prelum_olei');
     const hasCalcaria = GameState.researchedTechs && GameState.researchedTechs.includes('tech_calcaria');
+    const hasUdirna = GameState.researchedTechs && GameState.researchedTechs.includes('tech_udirna');
+    const hasTacuinum = GameState.researchedTechs && GameState.researchedTechs.includes('tech_tacuinum_sanitatis');
+    const hasPlatina = GameState.researchedTechs && GameState.researchedTechs.includes('tech_platina_honesta');
 
     const title = lang === 'en' ? 'Buildings' : 'Budovy';
 
@@ -2058,6 +2068,38 @@ const CellariumSystem = {
         desc_en: 'A kiln by the quarry. Days and nights of unbroken fire turn limestone into quicklime.',
         cost: { plank: 15, cut_stone: 20, clay: 20, hrebiky: 7 },
         req_tech: hasCalcaria, req_build: true, req_label: null,
+      },
+      {
+        id: 'cerna_kuchyne', icon: '🏚️',
+        name: 'Černá kuchyně', name_en: 'Black Kitchen',
+        desc: 'Klenutá kuchyně s širokým soplouchem. Rychlejší a účinnější uzení než holé Ohniště, oddělené od obytných místností.',
+        desc_en: 'A vaulted kitchen with a wide smoke-hood. Faster, more effective smoking than a bare Hearth, separated from the living quarters.',
+        cost: { cut_stone: 15, plank: 8, clay: 12, hrebiky: 3 },
+        req_tech: hasTacuinum, req_build: true, req_label: null,
+      },
+      {
+        id: 'udirna', icon: '🏚️',
+        name: 'Udírna', name_en: 'Smokehouse',
+        desc: 'Samostatná věžová udírna. Studený kouř z dřeva mimo ohniště vyudí maso na zimu.',
+        desc_en: 'A standalone tower smokehouse. Cold smoke from an offset hearth cures meat for winter.',
+        cost: { cut_stone: 25, plank: 15, rope: 4, clay: 8, hrebiky: 6 },
+        req_tech: hasUdirna, req_build: true, req_label: null,
+      },
+      {
+        id: 'velky_hmozdir', icon: '⚱️',
+        name: 'Velký hmoždíř', name_en: 'Great Mortar',
+        desc: 'Kamenný hmoždíř na drcení koření a mandlí. Bez něj zůstává drahé koření jen hrubé kusy.',
+        desc_en: 'A stone mortar for grinding spice and almonds. Without it, costly spice stays coarse lumps.',
+        cost: { cut_stone: 30, hrebiky: 2 },
+        req_tech: hasPlatina, req_build: true, req_label: null,
+      },
+      {
+        id: 'rozen', icon: '🍖',
+        name: 'Rožeň', name_en: 'Spit',
+        desc: 'Železný rožeň na pečeně hodné panského stolu.',
+        desc_en: 'An iron spit for roasts worthy of a lord\'s table.',
+        cost: { iron_ingot: 6, plank: 4, hrebiky: 3 },
+        req_tech: hasPlatina, req_build: true, req_label: null,
       },
     ];
 

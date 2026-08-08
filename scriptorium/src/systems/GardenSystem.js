@@ -1747,6 +1747,9 @@ const GardenSystem = {
         barley: { id:'barley',      icon:'🌾', name:'Ječmen',  name_en:'Barley',  seeds:'seeds_barley', yield:3, strawYield:2, feedVal:0 },
         oats:   { id:'oats',        icon:'🌾', name:'Oves',    name_en:'Oats',    seeds:'seeds_oats',   yield:3, strawYield:2, feedVal:2 },
         millet: { id:'millet',      icon:'🌾', name:'Proso',   name_en:'Millet',  seeds:'seeds_millet', yield:4, strawYield:1, feedVal:2 },
+        // coquina-tier1-mrd (7.8.2026): nová plodina, dostupná od začátku
+        // hry přes sloty 0-1 (proměnlivé množství semen, viz pole-mala-policka-mrd)
+        pohanka: { id:'pohanka',    icon:'🌾', name:'Pohanka', name_en:'Buckwheat', seeds:'seeds_pohanka', yield:3, strawYield:1, feedVal:1 },
         peas:   { id:'peas',        icon:'🫛', name:'Hrách',   name_en:'Peas',    seeds:'seeds_peas',   yield:4, strawYield:0, feedVal:1 },
         lentils: { id:'lentils',    icon:'🟤', name:'Čočka',   name_en:'Lentils', seeds:'seeds_lentils', yield:4, strawYield:0, feedVal:1 },
         vetch:  { id:'vikev',       icon:'🌸', name:'Vikev',   name_en:'Vetch',   seeds:'seeds_vikev',  yield:3, strawYield:0, feedVal:2, fallow:true },
@@ -2302,8 +2305,17 @@ const GardenSystem = {
                     .map(([key, c]) =>
                     `<option value="${key}">${lang==='en'?c.name_en:c.name}</option>`
                 ).join('');
+                // pole-mala-policka-mrd (7.8.2026): sloty 0-1 mají navíc
+                // volbu množství semen (2-10), zbytek Pole seje pevně 30 (beze změny).
+                const amtSelector = idx < 2
+                    ? `<input type="number" id="field-seed-amt-${idx}" min="2" max="10" value="2" style="font-size:0.72rem;padding:2px;width:100%;margin-bottom:4px;" title="${lang==='en'?'Seeds to sow (2-10)':'Kolik semen zasít (2-10)'}"/>`
+                    : '';
+                const sowCall = idx < 2
+                    ? `GardenSystem.sowField(${idx}, document.getElementById('field-crop-sel-${idx}').value, parseInt(document.getElementById('field-seed-amt-${idx}').value))`
+                    : `GardenSystem.sowField(${idx}, document.getElementById('field-crop-sel-${idx}').value)`;
                 btn = `<select id="field-crop-sel-${idx}" style="font-size:0.75rem;padding:2px;width:100%;margin-bottom:4px;">${cropOpts}</select>
-                       <button class="craft-btn" onclick="GardenSystem.sowField(${idx}, document.getElementById('field-crop-sel-${idx}').value)">🌱 ${lang==='en'?'Sow':'Osít'}</button>`;
+                       ${amtSelector}
+                       <button class="craft-btn" onclick="${sowCall}">🌱 ${lang==='en'?'Sow':'Osít'}</button>`;
             }
             else if (field.state === 'growing') {
                 const crop = this.CROPS_DB[field.crop];
@@ -2359,7 +2371,7 @@ const GardenSystem = {
     // Počet semen potřebných k osetí celého pole (na rozdíl od záhonu, kde stačí 1)
     FIELD_SEED_COST: 30,
 
-    sowField: function(idx, cropKey) {
+    sowField: function(idx, cropKey, chosenAmt) {
         this._initFields();
         const field = GameState.fields[idx];
         const crop = this.CROPS_DB[cropKey];
@@ -2368,8 +2380,14 @@ const GardenSystem = {
             if (typeof UI !== 'undefined') UI.notify(t('game.fallowCropOnly'), true);
             return;
         }
+        // pole-mala-policka-mrd (7.8.2026): sloty 0-1 mají proměnlivou
+        // spotřebu semen (2-10, víc semen = víc výnosu), odstraňuje 30ku
+        // jako bariéru ke vstupu. Zbytek Pole (2-13) beze změny.
+        let seedCost = this.FIELD_SEED_COST;
+        if (idx < 2 && chosenAmt) {
+            seedCost = Math.max(2, Math.min(10, Math.round(chosenAmt)));
+        }
         // Kontrola semen
-        const seedCost = this.FIELD_SEED_COST;
         if (!(GameState.inventory[crop.seeds] >= seedCost)) {
             const seedName = typeof ItemsDB !== 'undefined' && ItemsDB[crop.seeds] ? ItemsDB[crop.seeds].name : crop.seeds;
             const have = GameState.inventory[crop.seeds] || 0;
@@ -2384,6 +2402,7 @@ const GardenSystem = {
         field.phaseStart = Date.now();
         field.watered = false;
         field.wateredPhases = 0;
+        field.sownSeedCost = seedCost;
         Game.save();
         this.renderFieldTab();
     },
@@ -2417,8 +2436,11 @@ const GardenSystem = {
         const isRye = field.crop === 'rye';
         const isWheat = field.crop === 'wheat';
 
-        // Výpočet výnosu — crop.yield je poměr osivo:výnos (1:3 apod.), násobí se počtem zasetých semen
-        let yieldAmt = crop.yield * this.FIELD_SEED_COST;
+        // Výpočet výnosu — crop.yield je poměr osivo:výnos (1:3 apod.), násobí
+        // se počtem SKUTEČNĚ zasetých semen (pole-mala-policka-mrd 7.8.2026:
+        // sloty 0-1 mají proměnlivé množství 2-10, ne pevných 30 jako zbytek).
+        // Fallback na FIELD_SEED_COST pro staré savy bez sownSeedCost.
+        let yieldAmt = crop.yield * (field.sownSeedCost || this.FIELD_SEED_COST);
         if (hasRotation) yieldAmt = Math.round(yieldAmt * 1.25);
 
         // Sucho penalizace (žito je vůči suchu odolné — neuplatňuje se)

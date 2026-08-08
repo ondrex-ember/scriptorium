@@ -181,7 +181,7 @@ const TechTree = [
     cost: 10,
     desc: "Ibn Butlanova tabulka zdraví: chlad a tma prodlužují život potravin. Klášterní cella — chladný klenutý sklep — byl vědomou zbraní proti hladu. Odemkne: stavbu Cella (kapacita 600j, decay organických 2–3× pomalejší).",
     desc_en: "Ibn Butlan's table of health: cold and darkness prolong the life of foodstuffs. The monastic cella — a cool vaulted cellar — was a conscious weapon against hunger. Unlocks: Cella building (capacity 600 units, organic decay 2–3× slower).",
-    unlocks: [], requires: ["tech_almarium", "tech_cellarium"]
+    unlocks: [], requires: ["tech_almarium", "tech_cellarium"], requiresBook: "book_tacuinum_sanitatis"
   },
 
   {
@@ -278,6 +278,49 @@ const TechTree = [
     desc: "Klášterní cellarius vedl přesný soupis každého pytle mouky a každého sudu piva. Bez inventáře se zásoby ztrácejí samy od sebe. Odemkne: subtab Inventarium v Cellariu — přehled zásob. POZOR: Kdo vede soupis, vidí i ztráty. Od této chvíle se zásoby kazí — mléko kysne, maso plesniví, myši žerou zrní. Připrav se na hospodaření se zásobami.",
     desc_en: "The monastic cellarius kept an exact inventory of every sack of flour and every barrel of ale. Without an inventory, stores disappear of their own accord. Unlocks: Inventarium subtab in the Cellarium — stock overview. BEWARE: He who keeps the ledger also sees the losses. From now on stores decay — milk sours, meat moulds, mice eat the grain. Prepare to manage your stores.",
     unlocks: ["mousetrap", "fly_trap_paper"], requires: ["tech_almarium"]
+  },
+
+  // ── COQUINA TIER 1 — Dymná jizba, pasivní uzení (Ruralia Commoda) ───────
+  // coquina-tier1-mrd (7.8.2026): brzy dostupný, existující Ohniště, žádná
+  // nová stavba. Ne plná imunita rozkladu — jen prodloužená (smoked_meat_home).
+  {
+    id: "tech_ruralia_meat", name: "Ruralia Commoda — O uchování masa", name_en: "Ruralia Commoda — On Preserving Meat",
+    cost: 10,
+    desc: "Pietro de' Crescenzi, hospodářský manuál z počátku 14. století, nejopisovanější svého druhu. \"Maso budiž hrubou solí posypáno a v jizbě pod střechou zavěšeno, by kouřem z ohniště pomalu vysychalo.\" Odemkne: solení a pasivní uzení nad Ohništěm.",
+    desc_en: "Pietro de' Crescenzi's agricultural manual from the early 14th century, the most widely copied of its kind. \"Let the meat be strewn with coarse salt and hung in the chamber beneath the roof, that it may slowly dry in the hearth's smoke.\" Unlocks: salting and passive smoking over the Hearth.",
+    unlocks: ["smoked_meat_home"], requires: ["tech_writing_basics"], requiresBook: "book_ruralia_meat"
+  },
+
+  // ── COQUINA TIER 2 — Černá kuchyně, Soplouch (Tacuinum Sanitatis) ────────
+  // coquina-tier2-mrd (7.8.2026): humorální medicína — vepřové "studené a
+  // vlhké" musí kouř+sůl napravit. Mezistupeň mezi Ohništěm a Udírnou.
+  {
+    id: "tech_tacuinum_sanitatis", name: "Tacuinum Sanitatis — Tabulky zdraví", name_en: "Tacuinum Sanitatis — Tables of Health",
+    cost: 17,
+    desc: "Ibn Butlánův lékařský spis, přeložený z arabštiny na sicilském dvoře. Vepřové je svou přirozeností studené a vlhké — jen silný kouř a sůl je napraví, než ho tělo ochutná. Odemkne: stavbu Černé kuchyně se Soplouchem, vylepšené solné kádě.",
+    desc_en: "Ibn Butlan's medical treatise, translated from Arabic at the Sicilian court. Pork is by nature cold and wet — only strong smoke and salt can correct it before the body tastes it. Unlocks: building the Black Kitchen with its Smoke-Hood, improved salting vats.",
+    unlocks: ["cerna_kuchyne"], requires: ["tech_ruralia_meat"], requiresBook: "book_tacuinum_carnium"
+  },
+
+  // ── UDÍRNA (Ars Fumandi) — Coquina Tier 3 ────────────────────────────────
+  {
+    id: "tech_udirna", name: "Tractatus de Conservatione Carnium", name_en: "Tractatus de Conservatione Carnium",
+    cost: 31,
+    desc: "Traktát o konzervaci masa. Sůl vytáhne vodu, studený kouř z tvrdého dřeva dokoná zbytek — nikdy ne ze smrku či borovice, ty maso znahořknou a otráví. Odemkne: stavbu Udírny, solení a uzení masa (subtab Vaření).",
+    desc_en: "A treatise on preserving meat. Salt draws out the water; cold smoke from hardwood finishes the work — never spruce or pine, which turn meat bitter and poisonous. Unlocks: building the Smokehouse, salting and smoking meat (Cooking subtab).",
+    unlocks: ["udirna"], requires: ["tech_inventarium", "tech_tacuinum_sanitatis"], requiresBook: "book_buch_guter_speise"
+  },
+
+  // ── COQUINA TIER 4 — Panská kuchyně (Platina, 1465) ──────────────────────
+  // coquina-tier4-mrd (7.8.2026): Hmoždíř + Rožeň, elitní recepty s vlivem
+  // na Ecclesia. Poslední vrstva Coquina stromu — vazba na Visitatio
+  // scoring zatím jen přímý addInfluence, hlubší napojení later.
+  {
+    id: "tech_platina_honesta", name: "De honesta voluptate et valetudine", name_en: "De honesta voluptate et valetudine",
+    cost: 45,
+    desc: "Platina, papežský sekretář, sepsal letos deset knih o počestném požitku ze stolu. Recepty mistra Martina da Como, ospravedlněné humanistickým perem. Odemkne: Hmoždíř, Rožeň, elitní recepty pro vzácné hosty.",
+    desc_en: "Platina, the Pope's secretary, wrote ten books this very year on honest pleasure at table. Recipes by master Martino da Como, justified by a humanist's pen. Unlocks: the Mortar, the Spit, elite recipes for honoured guests.",
+    unlocks: ["velky_hmozdir", "rozen"], requires: ["tech_udirna"], requiresBook: "book_platina_honesta"
   },
 
   {

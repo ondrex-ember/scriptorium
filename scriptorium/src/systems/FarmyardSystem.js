@@ -996,11 +996,13 @@ const FarmyardSystem = {
         if (!a || !this._pigMature(a)) return;
         st.animals.splice(idx, 1);
         const inv = GameState.inventory;
-        inv['meat'] = (inv['meat'] || 0) + 4;
+        // udirna-mrd (7.8.2026): pork nahrazuje generické 'meat' (dřív se
+        // míchalo s divokým masem z lovu). cured_meat už není zdarma —
+        // musí se nasolit a udit (subtab Vaření).
+        inv['pork'] = (inv['pork'] || 0) + 4;
         inv['lard'] = (inv['lard'] || 0) + 3;
-        inv['cured_meat'] = (inv['cured_meat'] || 0) + 2;
         if (typeof UI !== 'undefined') UI.notify('🔪 ' + t('dvur.pigSlaughtered'));
-        if (typeof Game !== 'undefined' && Game.addKronikaEntry) Game.addKronikaEntry('important', '🐖 Zabijačka! Klášterní spižírna se naplnila masem, sádlem a špekem.', '🐖 Pig slaughter! The monastery larder filled with meat, lard and cured meat.', '🐖 Porcus mactatus est.');
+        if (typeof Game !== 'undefined' && Game.addKronikaEntry) Game.addKronikaEntry('important', '🐖 Zabijačka! Klášterní spižírna se naplnila vepřovým masem a sádlem.', '🐖 Pig slaughter! The monastery larder filled with pork and lard.', '🐖 Porcus mactatus est.');
         if (typeof Game !== 'undefined') Game.save();
         this.renderFarmyard();
     },
@@ -1019,8 +1021,9 @@ const FarmyardSystem = {
         if (!a) return;
         st.animals.splice(idx, 1);
         const inv = GameState.inventory;
+        // udirna-mrd (7.8.2026): cured_beef už není zdarma — musí se
+        // nasolit a udit (subtab Vaření), stejně jako vepřové.
         inv['beef'] = (inv['beef'] || 0) + 5;
-        inv['cured_beef'] = (inv['cured_beef'] || 0) + 2;
         inv['raw_hide'] = (inv['raw_hide'] || 0) + 2;
         if (typeof UI !== 'undefined') UI.notify('🔪 ' + t('dvur.cowSlaughtered'));
         if (typeof Game !== 'undefined' && Game.addKronikaEntry) Game.addKronikaEntry('important', '🐄 Zabijačka! Klášterní spižírna se naplnila hovězím masem.', '🐄 Cattle slaughter! The monastery larder filled with beef.', '🐄 Bos mactatus est.');
@@ -2088,8 +2091,9 @@ const FarmyardSystem = {
             UI.notify('🐄 ' + (t('farmyard.strayCowPlaced') || 'Kráva čeká v inventáři na chlév.'));
         } else if (choice === 'slaughter') {
             const inv = GameState.inventory;
+            // udirna-mrd (7.8.2026): cured_beef už není zdarma, stejná
+            // oprava jako slaughterCow() — musí přes solení+Udírnu.
             inv['beef'] = (inv['beef'] || 0) + 5;
-            inv['cured_beef'] = (inv['cured_beef'] || 0) + 2;
             inv['raw_hide'] = (inv['raw_hide'] || 0) + 2;
             GameState.strayCow.resolved = true;
             UI.notify('🔪 ' + (t('farmyard.strayCowSlaughtered') || 'Utracena. Maso a kůže do spižírny.'));

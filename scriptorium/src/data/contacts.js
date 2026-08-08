@@ -269,6 +269,8 @@ const ContactsDB = {
             muskatovy_kvet: { price: 20, stock: 1, minRelation: 32, minReputation: { axis: 'slechta', value: 32 } },
             hedvabi:    { price: 15, stock: 2, minRelation: 30, minReputation: { axis: 'slechta', value: 30 } },
             safran:     { price: 28, stock: 1, minRelation: 35, minReputation: { axis: 'slechta', value: 35 } },
+            // coquina-tier4-mrd (7.8.2026): mandle pro panskou kuchyň (Platina)
+            almond:     { price: 12, stock: 3, minRelation: 22 },
             alum:       { price: 8,  stock: 4, minRelation: 15 },
             sandarak:   { price: 14, stock: 2, minRelation: 22 },
             sal_ammoniac: { price: 18, stock: 2, minRelation: 28 },

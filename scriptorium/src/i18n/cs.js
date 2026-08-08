@@ -4,7 +4,7 @@
 
 const STRINGS_cs = {
     nav: { home: 'Pracovna', garden: 'Zahrada', craft: 'Výroba', inv: 'Zásoby', lore: 'Script<br>orium', library: 'Knihovna' },
-    screens: { home: 'Pracovna', garden: 'Zahrada', craft: 'Výroba', inv: 'Zásoby', lore: 'Scriptorium', library: 'Knihovna', settings: 'Nastavení', scavenge: 'Sběr', mine: 'Těžba' },
+    screens: { home: 'Pracovna', garden: 'Zahrada', craft: 'Výroba', inv: 'Zásoby', lore: 'Scriptorium', library: 'Knihovna', settings: 'Nastavení', scavenge: 'Sběr', mine: 'Těžba', cooking: 'Vaření' },
     fireplace: {
         cold: 'Vyhaslý Krb', coldDesc: 'Je tu zima.', kindle: 'ROZEŽEHNOUT',
         lit: 'Hřejivý Krb', litDesc: 'Oheň dává život.',
@@ -2233,6 +2233,16 @@ const STRINGS_cs = {
             kronika_submit: 'Odeslána žádost opatovi o rozšíření Domu Konvršů. Odpověď očekávána {responseDate}.',
             kronika_approved: 'Opat schválil rozšíření na Domus Conversorum II.',
             kronika_denied: 'Opat zamítl žádost o rozšíření Domu Konvršů. Důvod: {reason}',
+            inspect_hint: 'Opat přislíbil inspekční návštěvu po dokončení stavby.',
+        },
+        domus_iii: {
+            title: 'Žádost o velký dormitář Konvršů',
+            submit_btn: 'Zaslat žádost opatovi',
+            pending: '⏳ Žádost odeslána {date}. Opat odpoví {responseDate}.',
+            approved: '✅ Opat schválil rozšíření na Domus Conversorum III. Stavba může začít.',
+            kronika_submit: 'Odeslána žádost opatovi o velký dormitář Konvršů. Odpověď očekávána {responseDate}.',
+            kronika_approved: 'Opat schválil rozšíření na Domus Conversorum III.',
+            kronika_denied: 'Opat zamítl žádost o velký dormitář Konvršů. Důvod: {reason}',
             inspect_hint: 'Opat přislíbil inspekční návštěvu po dokončení stavby.',
         },
         probost: {

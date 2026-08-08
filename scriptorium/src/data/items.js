@@ -195,6 +195,9 @@ const ItemsDB = {
     "seeds_barley": { name: "Osivo ječmene", name_en: "Barley Seed", icon: "🌾", type: "mat", desc: "Osivo ječmene. Pro pole, i pro pivovar.", desc_en: "Barley seed. For the fields — and the brewery." },
     "seeds_oats": { name: "Osivo ovsa", name_en: "Oat Seed", icon: "🌾", type: "mat", desc: "Osivo ovsa. Krmivo pro koně a dobytek.", desc_en: "Oat seed. Feed for horses and livestock." },
     "seeds_millet": { name: "Osivo prosa", name_en: "Millet Seed", icon: "🌾", type: "mat", desc: "Osivo prosa. Nenáročná plodina pro pole.", desc_en: "Millet seed. An undemanding field crop." },
+    // coquina-tier1-mrd (7.8.2026): pohanka — přišla z východu, šířila se
+    // Evropou v 15. stol., výborná pro těžce pracující lid (Pohanka s česnekem, Tier 1 recept)
+    "seeds_pohanka": { name: "Osivo pohanky", name_en: "Buckwheat Seed", icon: "🌾", type: "mat", desc: "Osivo pohanky. Nová plodina z východu, teprve se šíří po Evropě.", desc_en: "Buckwheat seed. A new crop from the east, only just spreading through Europe." },
     "seeds_peas": { name: "Osivo hrachu", name_en: "Pea Seed", icon: "🌱", type: "mat", desc: "Osivo hrachu. Luštěnina pro pole.", desc_en: "Pea seed. A legume for the fields." },
     "seeds_lentils": { name: "Osivo čočky", name_en: "Lentil Seed", icon: "🌱", type: "mat", desc: "Osivo čočky. Drobná luštěnina, základní potravina vedle hrachu a obilí.", desc_en: "Lentil seed. A small legume, a staple alongside peas and grain." },
     "seeds_vikev": { name: "Osivo vikve", name_en: "Vetch Seed", icon: "🌱", type: "mat", desc: "Osivo vikve. Luštěnina pro pole, hojí půdu.", desc_en: "Vetch seed. A legume for the fields, heals the soil." },
@@ -782,6 +785,19 @@ const ItemsDB = {
     "cow_milk": { name: "Kravské mléko", name_en: "Cow Milk", icon: "🥛", type: "mat", desc: "Husté kravské mléko z klášterního chléva. Základ másla i sýra.", desc_en: "Rich cow's milk from the monastery byre. The base of butter and cheese." },
     "lard": { name: "Sádlo", name_en: "Lard", icon: "🫙", type: "mat", desc: "Vepřové sádlo. Konzervant, mazivo i palivo do lamp.", desc_en: "Pig lard. Preservative, lubricant and lamp fuel." },
     "cured_meat": { name: "Uzené maso", name_en: "Cured Meat", icon: "🥩", type: "food", desc: "Nasolené a uzené vepřové. Vydrží celou zimu. Zásobování konvršů a čeledi.", desc_en: "Salted and smoked pork. Lasts all winter. Provisions for lay brothers and servants." },
+    // udirna-mrd (7.8.2026): pork nahrazuje generické 'meat' při porážce prasete
+    // (dřív se míchalo s divokým masem z lovu). salted_* = mezikrok solení
+    // (potřeba kádě/barrel_tool), pak Udírna → cured_meat/cured_beef.
+    "pork": { name: "Vepřové maso", name_en: "Pork", icon: "🍖", type: "food_raw", desc: "Syrové vepřové z chlívku. Uvař, nebo nasol a udi na zimu.", desc_en: "Raw pork from the sty. Cook it, or salt and smoke it for winter." },
+    "salted_pork": { name: "Nasolené vepřové", name_en: "Salted Pork", icon: "🧂", type: "food_raw", desc: "Vepřové v soli, čeká na udírnu. Sůl vytáhla vodu, ale ještě to není hotovo.", desc_en: "Pork packed in salt, awaiting the smokehouse. The salt has drawn out the water, but it isn't finished yet." },
+    "salted_beef": { name: "Nasolené hovězí", name_en: "Salted Beef", icon: "🧂", type: "food_raw", desc: "Hovězí v soli, čeká na udírnu.", desc_en: "Beef packed in salt, awaiting the smokehouse." },
+    // coquina-tier1-mrd (7.8.2026): Tier 1 pasivní uzení (Dymná jizba) —
+    // existující Ohniště, žádná nová stavba, ale ne plná imunita rozkladu
+    // jako Tier 3 cured_meat. Odlišná položka, ať se ty dva produkty nemíchají.
+    "smoked_meat_home": { name: "Domácí uzené maso", name_en: "Home-Smoked Meat", icon: "🍖", type: "food", desc: "Prosolené maso zavěšené nad ohništěm, pomalu vysychající kouřem. Vydrží déle než syrové, ale ne navěky — na to je potřeba pravá udírna.", desc_en: "Salted meat hung over the hearth, slowly drying in the smoke. Lasts longer than raw, but not forever — for that you need a proper smokehouse." },
+    // coquina-tier2-mrd (7.8.2026): Černá kuchyně/Soplouch — mezi Tier 1
+    // (Ohniště, 0.05) a Tier 3 (Udírna, 0.005), plynulá škála.
+    "smoked_meat_chimney": { name: "Komínové uzené maso", name_en: "Chimney-Smoked Meat", icon: "🍖", type: "food", desc: "Maso zavěšené v širokém soplouchu nad černou kuchyní. Lepší tah kouře než prostá jizba, ale pořád ne studený kouř skutečné udírny.", desc_en: "Meat hung in the wide flue above the black kitchen. Better draw than a simple chamber, but still not the cold smoke of a true smokehouse." },
     "beef": { name: "Hovězí maso", name_en: "Beef", icon: "🍖", type: "food_raw", desc: "Syrové hovězí z kravína. Uvař nebo usuš před jídlem.", desc_en: "Raw beef from the byre. Cook or cure before eating." },
     "cured_beef": { name: "Uzené hovězí", name_en: "Cured Beef", icon: "🥩", type: "food", desc: "Nasolené a uzené hovězí. Vydrží celou zimu.", desc_en: "Salted and smoked beef. Lasts all winter." },
     "quill_premium": { name: "Brk holubí", name_en: "Pigeon Quill", icon: "🪶", type: "mat", desc: "Holubí brk. Jemnější než husí, vhodný pro drobné písmo a iluminace.", desc_en: "Pigeon quill. Finer than goose feather, suited for small script and illumination." },
@@ -799,6 +815,14 @@ const ItemsDB = {
     "muskatovy_kvet": { name: "Muškátový květ", name_en: "Mace", icon: "🔴", type: "mat", desc: "Sytě červený míšek obalující muškátový oříšek. Jemnější chuť, dražší než oříšek sám.", desc_en: "The bright red membrane wrapping the nutmeg seed. A finer flavour, pricier than the nut itself." },
     "skorice": { name: "Skořice", name_en: "Cinnamon", icon: "🟫", type: "mat", desc: "Ve skutečnosti čínská kasie — drsnější a ostřejší než pravá cejlonská skořice.", desc_en: "In truth Chinese cassia — coarser and sharper than true Ceylon cinnamon." },
     "safran": { name: "Šafrán", name_en: "Saffron", icon: "🟡", type: "mat", desc: "Nejdražší koření světa. Na půl kila je třeba 75 000 květů. Zlatá barva na panském stole.", desc_en: "The world's most expensive spice. Half a kilo needs 75,000 flowers. A golden colour for the lord's table." },
+    // coquina-tier4-mrd (7.8.2026): panská kuchyně, Platina/Martino da Como.
+    // almond = Giacomo import (Čechy mandle nepěstují). paste/ground_spice =
+    // mezikroky přes Hmoždíř. pork_pie_abbot = vlajkový elitní recept,
+    // propojuje Udírnu (cured_meat) + koření + sádlo napříč systémy.
+    "almond": { name: "Mandle", name_en: "Almonds", icon: "🌰", type: "mat", desc: "Dovezené ze Středomoří. V Čechách nerostou — drahá surovina panské kuchyně.", desc_en: "Imported from the Mediterranean. They do not grow in Bohemia — an expensive ingredient of the noble kitchen." },
+    "almond_paste": { name: "Mandlová pasta", name_en: "Almond Paste", icon: "🥜", type: "food_raw", desc: "Mandle rozdrcené v hmoždíři na hladkou pastu. Základ mandlového mléka, marcipánu i sladkých kaší.", desc_en: "Almonds ground smooth in the mortar. The base of almond milk, marzipan and sweet porridges." },
+    "ground_spice": { name: "Mleté koření", name_en: "Ground Spice", icon: "✨", type: "mat", desc: "Drahé koření rozdrcené na jemný prášek. Bez hmoždíře zůstává koření jen hrubé kusy — mistr kuchař potřebuje prášek.", desc_en: "Costly spice ground to a fine powder. Without a mortar, spice remains coarse lumps — a master cook needs powder." },
+    "pork_pie_abbot": { name: "Masový koláč pro Opata", name_en: "Meat Pie for the Abbot", icon: "🥧", type: "food", desc: "Uzené maso, mleté koření a sádlo zapečené v tvrdé krustě — vydrží týdny. Okázalé jídlo hodné biskupské návštěvy.", desc_en: "Smoked meat, ground spice and lard baked into a hard crust — it keeps for weeks. A showpiece worthy of a bishop's visit." },
     "hedvabi": { name: "Hedvábí", name_en: "Silk", icon: "🧣", type: "mat", desc: "Vzácná tkanina z Východu. Giacomo ji sežene, i když sám neví odkud přesně.", desc_en: "A rare fabric from the East. Giacomo procures it, though even he isn't quite sure where from." },
 
     "rennet": { name: "Syřidlo", name_en: "Rennet", icon: "🫙", type: "mat", desc: "Sráží mléko pro výrobu sýra. Ze slezu mláděte nebo z bylin.", desc_en: "Curdles milk for cheesemaking. From a kid's stomach or from herbs." },
@@ -883,6 +907,7 @@ const ItemsDB = {
     "barley": { name: "Ječmen", name_en: "Barley", icon: "🌾", type: "mat", desc: "Dvouřadý ječmen. Základ každého klášterního piva. Bez ječmene není pivovar.", desc_en: "Two-row barley. The basis of every monastic ale. Without barley, no brewery." },
     "oats": { name: "Oves", name_en: "Oats", icon: "🌾", type: "mat", desc: "Oves setý. Krmivo pro koně a osla. Bez ovsa tažný dobytek ztrácí sílu.", desc_en: "Common oats. Feed for horses and donkeys. Without oats, draught animals lose strength." },
     "millet": { name: "Proso", name_en: "Millet", icon: "🌾", type: "mat", desc: "Proso seté. Rychlá kaše, krmivo pro drůbež. Odolné i v suchu.", desc_en: "Common millet. Quick porridge, poultry feed. Resilient even in drought." },
+    "pohanka": { name: "Pohanka", name_en: "Buckwheat", icon: "🌾", type: "mat", desc: "Pohanka setá. Výborná pro těžce pracující — kaše hustá a syté.", desc_en: "Common buckwheat. Excellent for hard labourers — a thick, filling porridge." },
     "peas": { name: "Hrách", name_en: "Peas", icon: "🫛", type: "mat", desc: "Polní hrách. Polévka, krmivo, obohacuje půdu dusíkem.", desc_en: "Field peas. Soup, fodder, enriches soil with nitrogen." },
     "lentils": { name: "Čočka", name_en: "Lentils", icon: "🟤", type: "mat", desc: "Polní čočka. Základní potravina vedle hrachu a obilí — sytá, skladná, obohacuje půdu dusíkem.", desc_en: "Field lentils. A staple alongside peas and grain — filling, storable, enriches soil with nitrogen." },
     "vikev": { name: "Vikev", name_en: "Vetch", icon: "🌸", type: "mat", desc: "Drobná luštěnina — levné krmivo pro dobytek i holuby, na kořenech váže dusík. Sela se na úhor.", desc_en: "A small legume — cheap fodder for livestock and pigeons, fixes nitrogen at the roots. Sown on fallow ground." },

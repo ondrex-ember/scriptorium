@@ -65,6 +65,7 @@ const JS_MAIN = [
     'src/systems/CheeseSystem.js',
     'src/systems/LimeSystem.js',
     'src/systems/DryingSystem.js',
+    'src/systems/CookingSystem.js', // udirna-mrd (7.8.2026), mirror DryingSystem
     'src/systems/well.js',
     'src/systems/terrain.js',        // TerrainSystem — únava krajiny
     'src/systems/fireplace.js',

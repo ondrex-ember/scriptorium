@@ -1822,11 +1822,14 @@ const UI = {
     switchHomeSubTab: function (tab, btn) {
         const scav = document.getElementById('home-scavenge-content');
         const mine = document.getElementById('home-mine-content');
+        const cooking = document.getElementById('home-cooking-content');
         if (scav) scav.style.display = tab === 'scavenge' ? 'block' : 'none';
         if (mine) mine.style.display = tab === 'mine' ? 'block' : 'none';
+        if (cooking) cooking.style.display = tab === 'cooking' ? 'block' : 'none';
         document.querySelectorAll('#home-main-content .filter-btn').forEach(b => b.classList.remove('active'));
         if (btn) btn.classList.add('active');
         if (tab === 'mine') { this.renderMineYieldInfo(); this.renderFodinaPetitionPanel(); this.renderMineActions(); }
+        if (tab === 'cooking' && cooking && typeof CookingSystem !== 'undefined') cooking.innerHTML = CookingSystem.render();
     },
 
     renderMineYieldInfo: function () {

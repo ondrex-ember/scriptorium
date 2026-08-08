@@ -19,6 +19,13 @@ const DecaySystem = {
         goat_milk:    { rate: 0.30 },
         cream:        { rate: 0.30 },
         meat:         { rate: 0.20, flies: true },
+        // udirna-mrd (7.8.2026): beef/mutton tu dřív chyběly úplně —
+        // syrové hovězí/skopové dnes vůbec nehnilo (bug). pork nový.
+        pork:         { rate: 0.20, flies: true },
+        beef:         { rate: 0.20, flies: true },
+        mutton:       { rate: 0.20, flies: true },
+        salted_pork:  { rate: 0.05 },
+        salted_beef:  { rate: 0.05 },
         fish:         { rate: 0.20, flies: true },
         carp:         { rate: 0.20, flies: true },
         chicken_meat: { rate: 0.20, flies: true },
@@ -32,7 +39,21 @@ const DecaySystem = {
         mushroom:     { rate: 0.15 },
         egg:          { rate: 0.05 },
         cheese:       { rate: 0.03, mice: true, flies: true },
-        cured_meat:   { rate: 0.01, mice: true },
+        // coquina-tier1-mrd (7.8.2026): domácí uzené — mezi syrovým (0.20)
+        // a pravou Udírnou (0.005) — vyplatí se postoupit na Tier 3.
+        smoked_meat_home: { rate: 0.05 },
+        // coquina-tier2-mrd (7.8.2026): Černá kuchyně — mezistupeň mezi
+        // Tier 1 (0.05) a Tier 3 (0.005), plynulá škála.
+        smoked_meat_chimney: { rate: 0.02 },
+        // udirna-mrd (7.8.2026): sníženo z 0.01 na 0.005 — Tier 3 má být
+        // 10× lepší než Tier 1 (smoked_meat_home 0.05), ne jen 5×.
+        cured_meat:   { rate: 0.005, mice: true },
+        cured_beef:   { rate: 0.005, mice: true },
+        // coquina-tier4-mrd (7.8.2026): almond_paste = čerstvá mletá pasta,
+        // mirror butter. pork_pie_abbot = tvrdá krusta funguje jako
+        // "středověký tupperware" (dle historického podkladu), vydrží týdny.
+        almond_paste: { rate: 0.08 },
+        pork_pie_abbot: { rate: 0.02, mice: true },
         lard:         { rate: 0.01 },
         rye_grain:    { rate: 0.005, mice: true },
         rye_grain_1:  { rate: 0.005, mice: true },

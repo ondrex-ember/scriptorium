@@ -770,6 +770,12 @@ const Game = {
                     if (typeof LimeSystem !== 'undefined' && LimeSystem.dailyTick) LimeSystem.dailyTick();
                     // Susarna — denní sušení konopí (self-guarded 24h, gate tech_susarna)
                     if (typeof DryingSystem !== 'undefined' && DryingSystem.dailyTick) DryingSystem.dailyTick();
+                    // Vaření/Udírna — self-guarded 5 min (kratší časy, hodiny ne dny), gate tech_udirna
+                    if (typeof CookingSystem !== 'undefined' && CookingSystem.tick) CookingSystem.tick();
+                    // Opatovy petice — dřív jen při načtení stránky, proto se hráč musel refreshovat
+                    // (7.8.2026 fix). Funkce jsou už interně self-guarded (kontrola per-petici).
+                    if (typeof Game !== 'undefined' && Game.checkAbbotPetitions) Game.checkAbbotPetitions();
+                    if (typeof Game !== 'undefined' && Game.checkUbytovnaPetitions) Game.checkUbytovnaPetitions();
                     // Columbarium — denní riziko predátora (self-guarded 24h, jen level 1)
                     if (typeof FarmyardSystem !== 'undefined' && FarmyardSystem.columbariumPredatorTick) FarmyardSystem.columbariumPredatorTick();
                     // Columbarium — pasivní přírůstek do stropu 13 (self-guarded 24h, holubnik-mrd)
@@ -4646,6 +4652,10 @@ const Game = {
 		if (!GameState.storage.fodina)             GameState.storage.fodina             = {built:false};
 		if (!GameState.storage.fornax_ferraria)    GameState.storage.fornax_ferraria    = {built:false};
 		if (!GameState.storage.vapenice)           GameState.storage.vapenice           = {built:false};
+		if (!GameState.storage.udirna)             GameState.storage.udirna             = {built:false};
+		if (!GameState.storage.cerna_kuchyne)       GameState.storage.cerna_kuchyne       = {built:false};
+		if (!GameState.storage.velky_hmozdir)       GameState.storage.velky_hmozdir       = {built:false};
+		if (!GameState.storage.rozen)               GameState.storage.rozen               = {built:false};
 		if (!GameState.storage.old_cellars)        GameState.storage.old_cellars        = {built:false};
 		if (!GameState.storage.domus_conversorum_i) GameState.storage.domus_conversorum_i = {built:false};
 		if (!GameState.storage.domus_conversorum_ii) GameState.storage.domus_conversorum_ii = {built:false};
@@ -4747,6 +4757,13 @@ const Game = {
 			dormitorium_ii:  { cut_stone: 90,  plank: 60, rope: 25, iron_ingot: 2, glass_stopper: 6, hrebiky: 25 },
 			dormitorium_iii: { cut_stone: 200, plank: 130, rope: 50, iron_ingot: 6, glass_stopper: 10, glass_tankard: 10, hrebiky: 50 },
 			knihovna_grade_i: { cut_stone: 20, plank: 15, rope: 6, hrebiky: 7 },
+			// udirna-mrd (7.8.2026): samostatná věžová udírna, kámen+dřevo dle podkladu
+			udirna: { cut_stone: 25, plank: 15, rope: 4, clay: 8, hrebiky: 6 },
+			// coquina-tier2-mrd (7.8.2026): klenutá kuchyně + soplouch — víc jíl na komín, míň prkna než Udírna
+			cerna_kuchyne: { cut_stone: 15, plank: 8, clay: 12, hrebiky: 3 },
+			// coquina-tier4-mrd (7.8.2026): panská kuchyně — hmoždíř na koření, rožeň na pečeně
+			velky_hmozdir: { cut_stone: 30, hrebiky: 2 },
+			rozen: { iron_ingot: 6, plank: 4, hrebiky: 3 },
 		};
 		// Volitelný groše náklad navíc k materiálu — dnes jen Domus Conversorum I/II.
 		// Cokoliv chybí v costsGrose má groseNeeded=0, tedy nulový dopad na stávající budovy.
@@ -6375,6 +6392,11 @@ const Game = {
         piscina:     { primary: 'craftsmanship', secondary: 'vigor' },
         dvur:        { primary: 'vigor',         secondary: 'craftsmanship' },
         kostel:      { primary: 'piety',         secondary: 'obedience' },
+        // coquina-tier4-mrd (7.8.2026): Mistr kuchař — hráčova akce
+        // (Vaření), ne denní tick jako ostatní. XP guard 1×/den v
+        // CookingSystem.js, ať level neroste rychleji jen kvůli krátkým
+        // receptům (mletí koření apod.).
+        kuchyne:     { primary: 'craftsmanship', secondary: 'focus' },
     },
 
     // Individualizace rosteru (monk-attributes-mrd, krok 5) — malý startovní

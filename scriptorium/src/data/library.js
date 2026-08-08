@@ -1358,7 +1358,7 @@ According to Theophilus, the organ is an instrument worthy of God, but its const
             title: 'Tacuinum Sanitatis: Tabulky zdraví a zkázy',
             title_en: 'Tacuinum Sanitatis: Tables of Health and Ruin',
             category: 'innovation',
-            unlockDay: 44,
+            unlockDay: 15,
             icon: '🌿',
             author: 'Ibn Butlan (latinský překlad: italské školy, 13. stol.)',
             year: 'cca 1050 (překlad cca 1250)',
@@ -1432,6 +1432,174 @@ Palladius devotes a chapter of its own to curdling milk, describing what practic
 Palladius wrote nothing of Olomouc or Moravia — he wrote of a Roman estate a thousand years earlier. But his method travelled with the monastic orders across Europe, and every region bent it to its own use. In Bohemia it is said that the simplest path — souring without rennet — gave rise to small, sharply scented curd cheeses, made even where no young lamb was to be had. Something similar, the story goes, arose around Olomouc as well.
 
 **GAME EFFECT:** Reading this treatise unlocks the *Caseus* tech — curdling milk. A lamb's rennet, an extract of bedstraw, or simply time and warmth: three paths to cheese, depending on what lies to hand.`
+        },
+        {
+            id: 'book_platina_honesta',
+            title: 'De honesta voluptate et valetudine',
+            title_en: 'On Honest Indulgence and Good Health',
+            category: 'innovation',
+            unlockDay: 170,
+            icon: '📕',
+            author: 'Bartolomeo Sacchi, zvaný Platina, papežský sekretář',
+            year: 'sepsáno 1465 (dosud nevytištěno — tisk přijde až po 1470)',
+            content: `**Rukopis přímo z tohoto roku**
+
+Žádná kniha v tomhle skriptoriu není tak čerstvá. Bartolomeo Sacchi — Platina, po svém rodišti Piadena — sloužil jako sekretář papežů Pia II. a Pavla II., než se stal vatikánským knihovníkem. Právě letos, roku 1465, dokončil deset knih O počestném požitku a zdraví. Do tisku to půjde až za pět let; teď to koluje jen jako rukopis mezi těmi, kdo mají styky do Říma.
+
+**Kuchařova ruka, učencovo pero**
+
+Platina sám nevařil. Většinu receptů převzal od Martina da Como, uznávaného mistra kuchaře, co sloužil na předních italských dvorech. Co Platina přidal, je ospravedlnění — humanistický rámec, co říká, že požitek ze stolu není hřích, je-li poctivý a vyvážený zdravím. Poprvé kuchařská kniha netvrdí, že jídlo je jen nutnost nebo lék. Tvrdí, že může být pravou radostí, a že na tom není nic nečestného.
+
+*"Voluptas honesta" — počestný požitek. Ne hodování, ne půst. Něco mezi, co si zaslouží mistrovství.*
+
+**Co to znamená pro klášter**
+
+Bratr, co touhle knihou listuje, drží důkaz, že i klášterní kuchyně může hostit biskupa důstojně — ne z rozmařilosti, ale z počestné pohostinnosti, jak radí sám papežský sekretář. Hmoždíř na drcení koření, rožeň na pečeně hodné stolu — tohle je poslední krok od přežití zimy k tomu, aby Ecclesia měla, čím se pochlubit.
+
+**HERNÍ EFEKT:** Přečtením tohoto spisu odemkneš možnost výzkumu tech *De honesta voluptate* — Hmoždíř, Rožeň a elitní recepty (subtab Vaření), co zvyšují Vliv u církve.`,
+            content_en: `**A Manuscript from This Very Year**
+
+No book in this scriptorium is so fresh. Bartolomeo Sacchi — Platina, after his birthplace of Piadena — served as secretary to Popes Pius II and Paul II before becoming Vatican librarian. This very year, 1465, he completed ten books On Honest Indulgence and Health. Print is still five years away; for now it circulates only as a manuscript among those with connections to Rome.
+
+**A Cook's Hand, A Scholar's Pen**
+
+Platina himself did not cook. Most of the recipes he took from Martino da Como, a celebrated master chef who served at the foremost Italian courts. What Platina added was justification — a humanist framework declaring that pleasure at the table is no sin, so long as it is honest and balanced with health. For the first time, a cookbook does not claim that food is mere necessity or medicine. It claims food can be a true joy, and that there is nothing dishonourable in it.
+
+*"Voluptas honesta" — honest pleasure. Not feasting, not fasting. Something between, worthy of mastery.*
+
+**What It Means for the Monastery**
+
+The brother who leafs through this book holds proof that even a monastic kitchen may host a bishop with dignity — not from excess, but from honest hospitality, as the Pope's own secretary advises. A mortar for grinding spice, a spit for roasts worthy of the table — this is the last step from surviving winter to giving Ecclesia something to be proud of.
+
+**GAME EFFECT:** Reading this treatise unlocks the ability to research the *De honesta voluptate* tech — the Mortar, the Spit, and elite recipes (Cooking subtab) that raise Church Influence.`
+        },
+        {
+            id: 'book_buch_guter_speise',
+            title: 'Daz Buch von guter Spise',
+            title_en: 'The Book of Good Food',
+            category: 'innovation',
+            unlockDay: 110,
+            icon: '📗',
+            author: 'sebráno Michaelem de Leone, protonotářem würzburského biskupa',
+            year: 'sestaveno koncem 40. let 14. století, Würzburg',
+            content: `**Sběratel, ne kuchař**
+
+Michael de Leone knihu nenapsal — sesbíral ji. Jako protonotář würzburského biskupa měl přístup k receptům, co kolovaly po kuchyních biskupského dvora, a dal je zapsat dohromady s písněmi a jinými texty do svého domácího sborníku. Je to první kuchařská kniha v němčině vůbec, a hned na začátku říká, k čemu je:
+
+*"Tato kniha mluví o dobré krmi, ta i nezkušené kuchaře moudrými učiní."*
+
+**Velká jídla z malých věcí**
+
+Úvodní verše slibují něco, co žádná dřívější kniha ve skriptoriu neřešila: *"jak lze udělat velká jídla z mnoha malých věcí"* — ne přežití, ale hostina. Recepty uvnitř mluví o blamenžé z kuřecích prsou a mandlového mléka, o jehňatech nadívaných vejci a kořením, o pečeních v kůži tak, aby vypadala živá na stole. Žádné slovo o soli a kouři — to je práce sedláka a řezníka, ne mistra kuchaře. Ta zůstává v Ruralia Commoda a Tacuinum Sanitatis, ne tady.
+
+**Co znamená, že kniha dorazila do kláštera**
+
+Bratr, co tuhle knihu opisuje, nekopíruje návod na přežití zimy — kopíruje důkaz, že kuchyně může být řemeslo, ne jen nutnost. Klášter, co si tohle přečte a vezme vážně, nezůstane u ohniště v jizbě. Postaví věžovou udírnu, jak radí starší traktáty, ale tentokrát ne z nouze — z ambice. A jednou, až přijde hmoždíř na koření a rožeň na pečeně, bude tahle kniha tím, co za to může.
+
+**HERNÍ EFEKT:** Přečtením tohoto spisu odemkneš možnost výzkumu tech *Tractatus de Conservatione Carnium* — stavbu skutečné věžové Udírny. Toto je první krok ke skutečné panské kuchyni; další vybavení (hmoždíř, rožeň, dávkové vaření) bude následovat.`,
+            content_en: `**A Collector, Not a Cook**
+
+Michael de Leone did not write this book — he collected it. As protonotary to the Bishop of Würzburg, he had access to recipes circulating through the episcopal kitchens, and had them written down together with songs and other texts into his household compilation. It is the first cookbook in the German language, and it states its purpose at once:
+
+*"This book speaks of good food, and it will make even unskilled cooks wise."*
+
+**Great Dishes from Small Things**
+
+The opening verses promise something no earlier book in the scriptorium addressed: *"how one may make great dishes from many small things"* — not survival, but feast. The recipes within speak of blancmange from chicken breast and almond milk, of lambs stuffed with egg and spice, of roasts dressed back in their own skin to look alive upon the table. Not a word about salt or smoke — that is a peasant's and butcher's work, not a master cook's. That remains in the Ruralia Commoda and the Tacuinum Sanitatis, not here.
+
+**What It Means That the Book Has Arrived**
+
+The brother who copies this book is not copying instructions for surviving winter — he is copying proof that cooking can be a craft, not merely a necessity. A monastery that reads this and takes it seriously will not remain at the hearth in the smoke-chamber. It will build a tower smokehouse, as the older treatises advise, but this time not from want — from ambition. And one day, when the mortar for spices and the spit for roasts arrive, this book will be why.
+
+**GAME EFFECT:** Reading this treatise unlocks the ability to research the *Tractatus de Conservatione Carnium* tech — building a true tower Smokehouse. This is the first step toward a real noble kitchen; further equipment (mortar, spit, batch cooking) will follow.`
+        },
+        {
+            id: 'book_tacuinum_carnium',
+            title: 'Tacuinum Sanitatis: O mase a jeho nápravě',
+            title_en: 'Tacuinum Sanitatis: On Meat and Its Correction',
+            category: 'innovation',
+            unlockDay: 60,
+            icon: '⚖️',
+            author: 'Ibn Butlán z Bagdádu (lat. překlad ze 13. stol.)',
+            year: 'sepsáno 11. stol., přeloženo do latiny kolem 1250–1266',
+            content: `**Z Bagdádu na sicilský dvůr**
+
+Ibn Butlán, křesťanský lékař působící v Bagdádu, sepsal ve 11. století Taqwím as-Sihha — "Tabulkový soupis zdraví". Dílo zůstalo dvě stě let v arabštině, než je kolem poloviny 13. století dal přeložit do latiny sicilský a neapolský dvůr. Latinský název — Tacuinum — je jen zkomolené arabské "taqwím", tabulka. A tabulkou to skutečně je: takřka 280 položek, každá s vlastní "přirozeností" — horká, či studená, vlhká, či suchá — podle staré humorální nauky, co ovládala evropskou medicínu od Galéna až po tenhle klášter.
+
+**Vepřové jako nebezpečí**
+
+Butlánova tabulka neváhá: vepřové maso je svou přirozeností *studené a vlhké*. Snězeno syrové nebo jen zbrkle upravené, kazí tělesné šťávy a plodí neduhy — kašel, zahlenění, těžkost. Náprava je ale přesně opačná: silný kouř, co maso vysuší, a hrubá sůl, co odejme vlhkost, obrátí přirozenost masa k suchu a teplu, než ho tělo vůbec ochutná. Nejde tedy jen o to maso *uchovat* — jde o to ho *napravit*, dřív než se dostane na stůl.
+
+*Co se mnich dočte: přesné poměry soli, ledku a koření pro nakládání do láků, a nutnost odvést kouř pryč z obytných místností — ne kvůli zápachu, ale kvůli zdraví plic těch, kdo v jizbě žijí.*
+
+**Černá kuchyně**
+
+Odtud plyne rada, co zní jako stavební návod, ne lékařská kniha: odděl oheň od obydlí. Široký komín — soplouch — nad zvláštní klenutou kuchyní odvede kouř tam, kam patří, a maso zavěšené v jeho hrdle dostane silnější, rovnoměrnější tah než v obyčejné dymné jizbě. Kuchyň sama zčerná sazemi — proto jí říkají černá — ale obytné komnaty zůstanou čisté a mniši v nich nekašlou.
+
+**HERNÍ EFEKT:** Přečtením tohoto spisu odemkneš možnost výzkumu tech *Tacuinum Sanitatis* — stavbu Černé kuchyně se Soplouchem (rychlejší a účinnější uzení než prosté Ohniště, pořád ne tak dobré jako skutečná Udírna) a vylepšení solných kádí.`,
+            content_en: `**From Baghdad to the Sicilian Court**
+
+Ibn Butlan, a Christian physician working in Baghdad, composed in the 11th century the Taqwīm as-Sihha — the "Tabular Register of Health." The work remained in Arabic for two centuries before the Sicilian and Neapolitan court had it translated into Latin around the mid-13th century. The Latin name — Tacuinum — is merely the corrupted Arabic "taqwīm," a table. And a table it truly is: nearly 280 entries, each with its own "nature" — hot or cold, wet or dry — following the old humoral doctrine that ruled European medicine from Galen down to this very monastery.
+
+**Pork as Danger**
+
+Butlan's table does not hesitate: pork, by its nature, is *cold and wet*. Eaten raw or carelessly prepared, it corrupts the bodily humours and breeds ailments — coughing, congestion, heaviness. The remedy is precisely the opposite: strong smoke to dry the meat, and coarse salt to draw off the moisture, turning the meat's nature toward dryness and warmth before the body ever tastes it. It is not merely a matter of *preserving* the meat — it is a matter of *correcting* it, before it reaches the table at all.
+
+*What the monk reads: exact proportions of salt, saltpetre, and spice for the brine-vat, and the necessity of carrying the smoke away from living quarters — not for the smell's sake, but for the lungs of those who dwell there.*
+
+**The Black Kitchen**
+
+From this follows advice that reads like a building manual, not a medical text: separate the fire from the dwelling. A wide flue — a smoke-hood — above a special vaulted kitchen carries the smoke where it belongs, and meat hung in its throat draws a stronger, more even current than in a plain smoke-chamber. The kitchen itself blackens with soot — hence its name — but the living quarters stay clean, and the brothers within do not cough.
+
+**GAME EFFECT:** Reading this treatise unlocks the ability to research the *Tacuinum Sanitatis* tech — building the Black Kitchen with its Smoke-Hood (faster and more effective smoking than a plain Hearth, though still not as good as a true Smokehouse) and an upgrade to the salting vats.`
+        },
+        {
+            id: 'book_ruralia_meat',
+            title: 'Ruralia Commoda: O zabíjačce a uchování masa',
+            title_en: 'Ruralia Commoda: On Slaughter and the Preservation of Meat',
+            category: 'innovation',
+            unlockDay: 12,
+            icon: '🧂',
+            author: "Petrus de Crescentiis (Pietro de' Crescenzi)",
+            year: 'psáno 1304–1309 (opis z mnišské tradice, ne tisk)',
+            content: `**Statkářův rukopis, ne kuchařka**
+
+Stejný Petrus de Crescentiis, co psal o včelách, věnoval jinou knihu svého díla i chovu a zabíjení dobytka — Ruralia Commoda není kuchařka pro panskou tabuli, je to hospodářský manuál pro toho, kdo musí přežít zimu. Čerpá, jako všude jinde ve svém díle, z Catona, Varrona, Columelly a Palladia — starých římských hospodářů, kteří věděli, že hladová zima zabije klášter stejně spolehlivě jako mor, jen pomaleji.
+
+**Kdy a jak zabíjet**
+
+Crescenzi radí zabíjet dobytek až po prvních mrazech — dřív maso v teple zkazí i ta nejlepší sůl. Ve středoevropských krajích se toho drží dodnes: prase padne kolem svatého Martina, ne dřív. Maso se má hned po porážce nasolit hrubou solí, vrstva masa, vrstva soli, uleženo pod závažím v dřevěné kádi — sůl vytáhne šťávu z masa i chuť ke hnilobě zároveň.
+
+*„Maso budiž hrubou solí posypáno a v jizbě pod střechou zavěšeno, by kouřem z ohniště pomalu vysychalo."*
+
+**Dymná jizba**
+
+Kde není zvláštní udírna, poslouží obyčejná jizba s ohništěm uprostřed — přesně to, co má každý klášter už dnes. Nasolené maso zavěšené vysoko pod střechou, kam stoupá kouř z ohně, jímž se stejně topí, pomalu vysychá týdny místo dnů. Není to dokonalá ochrana — takhle uzené maso časem přece jen zvlhne a zkazí se, ne jako v pravé věžové udírně, o níž píší jiní autoři — ale pro chudý dvůr, co nemá na zvláštní stavbu, je to rozdíl mezi hladem a přežitím.
+
+**Chudoba jako učitel**
+
+Crescenzi nepíše pro bohaté panství — píše pro každého, kdo má dvůr a zimu před sebou. Bratr, co se skloní nad touhle stránkou, nepotřebuje kovárnu ani zedníka. Potřebuje jen sůl, kterou má, a oheň, který už hoří.
+
+**HERNÍ EFEKT:** Přečtením tohoto spisu odemkneš možnost výzkumu tech *Ruralia Commoda — O uchování masa* — solení a pasivní uzení nad existujícím Ohništěm, žádná nová stavba. Uzené maso takhle vydrží déle než syrové, ale ne navěky — na to je potřeba pravá udírna.`,
+            content_en: `**A Landowner's Manuscript, Not a Cookbook**
+
+The same Petrus de Crescentiis who wrote of bees devoted another book of his work to raising and slaughtering livestock — the Ruralia Commoda is no cookbook for a lord's table, but a husbandry manual for one who must survive the winter. He draws, as throughout his work, on Cato, Varro, Columella, and Palladius — old Roman husbandmen who knew that a hungry winter kills a monastery as surely as plague, only slower.
+
+**When and How to Slaughter**
+
+Crescenzi advises slaughtering only after the first frosts — before that, even the best salt cannot save meat in the warmth. Central European lands hold to this still: the pig falls around Martinmas, not before. The meat should be salted at once with coarse salt, layer of meat, layer of salt, weighted down in a wooden vat — the salt draws out both the juice and the taste for rot together.
+
+*"Let the meat be strewn with coarse salt and hung in the chamber beneath the roof, that it may slowly dry in the hearth's smoke."*
+
+**The Smoke-Chamber**
+
+Where there is no proper smokehouse, an ordinary chamber with a hearth at its centre will serve — exactly what every monastery already has today. Salted meat hung high beneath the roof, where the smoke rises from the same fire that heats the room, dries slowly over weeks instead of days. It is no perfect protection — meat smoked this way will in time grow damp and spoil, unlike the true tower smokehouse other authors describe — but for a poor household with no means to build one, it is the difference between hunger and survival.
+
+**Poverty as Teacher**
+
+Crescenzi does not write for a wealthy estate — he writes for anyone with a yard and a winter ahead. The brother who bends over this page needs no forge, no mason. He needs only the salt he already has, and the fire already burning.
+
+**GAME EFFECT:** Reading this treatise unlocks the ability to research *Ruralia Commoda — On Preserving Meat* — salting and passive smoking over the existing Hearth, no new building required. Meat smoked this way lasts longer than raw, but not forever — for that you need a proper smokehouse.`
         },
         {
             id: 'book_ruralia_apibus',

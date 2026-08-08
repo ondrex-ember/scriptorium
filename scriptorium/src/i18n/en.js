@@ -3,7 +3,7 @@
 
 const STRINGS_en = {
     nav: { home: 'Workshop', garden: 'Garden', craft: 'Craft', inv: 'Penum', lore: 'Scriptorium', library: 'Library' },
-    screens: { home: 'Officina', garden: 'The Garden', craft: 'Crafting', inv: 'Penum', lore: 'Scriptorium', library: 'The Library', settings: 'Settings', scavenge: 'Scavenge', mine: 'Mine' },
+    screens: { home: 'Officina', garden: 'The Garden', craft: 'Crafting', inv: 'Penum', lore: 'Scriptorium', library: 'The Library', settings: 'Settings', scavenge: 'Scavenge', mine: 'Mine', cooking: 'Cooking' },
     header: { weatherNow: 'Presently in Prague (click to refresh)', weatherTomorrow: 'Morrow\'s forecast', hunger: 'Hunger', streak: 'Daily Streak', research: 'Knowledge Gathered', settings: 'Settings' },
     // ------------------------------
     fireplace: {
@@ -3206,6 +3206,16 @@ Alloys of metal, varnishes for wood and vellum, a poison that whiteneth copper i
             kronika_submit: 'Petition submitted to the Abbot to expand the House of Lay Brothers. Reply expected by {responseDate}.',
             kronika_approved: 'The Abbot approved the expansion to Domus Conversorum II.',
             kronika_denied: 'The Abbot denied the petition to expand the House of Lay Brothers. Reason: {reason}',
+            inspect_hint: 'The Abbot has promised an inspection visit once the building is complete.',
+        },
+        domus_iii: {
+            title: 'Request for the Great Dormitory of Lay Brothers',
+            submit_btn: 'Submit petition to the Abbot',
+            pending: '⏳ Petition submitted {date}. The Abbot will reply by {responseDate}.',
+            approved: '✅ The Abbot has approved the expansion to Domus Conversorum III. Construction may begin.',
+            kronika_submit: 'Petition submitted to the Abbot for the great dormitory of lay brothers. Reply expected by {responseDate}.',
+            kronika_approved: 'The Abbot approved the expansion to Domus Conversorum III.',
+            kronika_denied: 'The Abbot denied the petition for the great dormitory of lay brothers. Reason: {reason}',
             inspect_hint: 'The Abbot has promised an inspection visit once the building is complete.',
         },
         probost: {
