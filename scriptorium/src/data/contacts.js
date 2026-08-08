@@ -248,6 +248,16 @@ const ContactsDB = {
         unlockTech: null,                     // dostupný hned, jako dnes (persona.influence.giacomo)
         sellBonus: {},                        // Giacomo jen prodává — výkup řeší jinde (vinum bonus zůstává legacy mechanika)
         // Přítomen jen v okně po příjezdu (CellariumSystem.isGiacomoPresent) — gate v buyFromContact
+        // giacomo-obchod-audit (7.8.2026): DVĚ NEZÁVISLÉ vrstvy gatingu navrch k sobě:
+        //   1) minRelation — osobní důvěra k Giacomovi (beze změny, jako dnes)
+        //   2) minReputation — u NEJDRAŽŠÍCH/NEJEXOTIČTĚJŠÍCH 4 položek navíc
+        //      persona.reputation.slechta (pověst u šlechty). Zahraniční luxusní
+        //      kupec dbá i na společenské postavení klienta, ne jen na to, kolikrát
+        //      s ním hráč osobně obchodoval. Práh = mirror minRelation dané položky
+        //      (symetrie, žádná nová libovolná čísla).
+        //   Navrch na CELÝ katalog (bez ohledu na minReputation) ještě škáluje
+        //   efektivní stock CellariumSystem.giacomoStockMult() — Chronicon tension
+        //   + goldenAge + slechta jako obranný faktor proti tension (viz tam).
         buyOffer: { items: {
             paper_fine: { price: 6,  stock: 3, minRelation: 0 },
             pepr_cerny: { price: 6,  stock: 3, minRelation: 20 },
@@ -255,15 +265,15 @@ const ContactsDB = {
             hrebicek:   { price: 12, stock: 2, minRelation: 25 },
             skorice:    { price: 10, stock: 2, minRelation: 25 },
             muskat:     { price: 14, stock: 2, minRelation: 28 },
-            muskatovy_kvet: { price: 20, stock: 1, minRelation: 32 },
-            hedvabi:    { price: 15, stock: 2, minRelation: 30 },
-            safran:     { price: 28, stock: 1, minRelation: 35 },
+            muskatovy_kvet: { price: 20, stock: 1, minRelation: 32, minReputation: { axis: 'slechta', value: 32 } },
+            hedvabi:    { price: 15, stock: 2, minRelation: 30, minReputation: { axis: 'slechta', value: 30 } },
+            safran:     { price: 28, stock: 1, minRelation: 35, minReputation: { axis: 'slechta', value: 35 } },
             alum:       { price: 8,  stock: 4, minRelation: 15 },
             sandarak:   { price: 14, stock: 2, minRelation: 22 },
             sal_ammoniac: { price: 18, stock: 2, minRelation: 28 },
             verzino:    { price: 16, stock: 2, minRelation: 24 },
             incense_styrax:   { price: 10, stock: 2, minRelation: 20 },
-            incense_olibanum: { price: 16, stock: 1, minRelation: 28 },
+            incense_olibanum: { price: 16, stock: 1, minRelation: 28, minReputation: { axis: 'slechta', value: 28 } },
         } }, // incense_styrax/olibanum: Clientela pool MRD 25.7.2026, exotický dovoz vedle koření
         desc: 'Benátský obchodník. Přiváží, co jinde nekoupíš — ale jen když je jeho loď v přístavu.',
         desc_en: 'A Venetian merchant. He brings what you cannot buy elsewhere — but only while his ship is in port.'
