@@ -1015,7 +1015,7 @@ const PersonaSystem = {
             h += `<div style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:16px;">`;
             prutOwned.forEach(id => {
                 const item = ItemsDB[id];
-                h += `<div style="display:flex; align-items:center; gap:8px; padding:8px 12px; background:rgba(255,255,255,0.5); border:1px solid rgba(197,160,89,0.4); border-radius:8px;">
+                h += `<div onclick="UI.showItemModal('${id}')" style="cursor:pointer; display:flex; align-items:center; gap:8px; padding:8px 12px; background:rgba(255,255,255,0.5); border:1px solid rgba(197,160,89,0.4); border-radius:8px;">
                         <span style="font-size:1.3rem;">${item.icon}</span>
                         <div><strong style="font-size:0.8rem;">${lang==='en'?item.name_en:item.name}</strong><div style="font-size:0.68rem; opacity:0.6;">×${inv[id]}</div></div>
                       </div>`;
@@ -1033,7 +1033,7 @@ const PersonaSystem = {
             curioIds.forEach(id => {
                 const item = ItemsDB[id];
                 const desc = lang==='en' ? item.desc_en : item.desc;
-                h += `<div title="${desc}" style="display:flex; align-items:center; gap:8px; padding:8px 12px; background:rgba(255,255,255,0.4); border:1px solid rgba(197,160,89,0.3); border-radius:8px; max-width:220px;">
+                h += `<div onclick="UI.showItemModal('${id}')" title="${desc}" style="cursor:pointer; display:flex; align-items:center; gap:8px; padding:8px 12px; background:rgba(255,255,255,0.4); border:1px solid rgba(197,160,89,0.3); border-radius:8px; max-width:220px;">
                         <span style="font-size:1.2rem;">${item.icon}</span>
                         <div><strong style="font-size:0.76rem;">${lang==='en'?item.name_en:item.name}</strong>${inv[id] > 1 ? ` <span style="opacity:0.6;">×${inv[id]}</span>` : ''}</div>
                       </div>`;

@@ -113,6 +113,7 @@ const KarnoffelGame = {
     
     endGame: function() {
         this.gameActive = false;
+        if (typeof VigorSystem !== 'undefined') VigorSystem.restFromPlay();
         
         if(this.playerTricks > this.opponentTricks) {
             const reward = 3;

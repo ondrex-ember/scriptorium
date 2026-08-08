@@ -123,6 +123,7 @@ const PrimeroGame = {
     
     endGame: function() {
         this.gameActive = false;
+        if (typeof VigorSystem !== 'undefined') VigorSystem.restFromPlay();
         
         if(this.playerScore > this.opponentScore) {
             const reward = this.bet * 2;

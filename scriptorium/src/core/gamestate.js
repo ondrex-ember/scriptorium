@@ -91,6 +91,11 @@ const GameState = {
     terrain: { fatigue: 0, lastRegen: 0, lastToastTier: 0 }, // TerrainSystem — únava krajiny
     incense: { activeItem: null, timerRemaining: 0, maxTimer: 0, fatiguePerSec: 0 }, // IncenseSystem — kadidlo
     researchHour: { count: 0, hourStart: 0 }, // Research diminishing returns
+    // scriptorium-mastery-mrd (7.8.2026): +1 za každý kodex dokončený VLASTNÍ
+    // rukou hráče (copyFolium), ne bratrem-Skriptorem. Snižuje Vigor/folium,
+    // dává rostoucí šanci na bonusové folium zdarma. Navrch RankSystem
+    // Scriptor role, ne místo ní.
+    scriptoriumMastery: 0,
     shopStock: { date: '', used: {} },          // Denní sklady entit (reset o půlnoci)
     discoveredLore: [], // Track discovered lore entries
     dailyRewards: {

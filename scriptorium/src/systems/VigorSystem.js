@@ -14,9 +14,12 @@ const VigorSystem = {
     SATIETY_DRAIN_NIGHT: 0.1,      // 21–7h: téměř žádný hlad při spánku
 
     // Fatigue recovery per hodina (záporné = klesá)
-    FATIGUE_RECOVERY_DAY:   4,     // 7–21h: -4/h
-    FATIGUE_RECOVERY_NIGHT: 8,     // 21–7h: -8/h (spánek)
-    FATIGUE_RECOVERY_HORA:  10,    // Completorium/Vigilie: -10/h
+    // vigor-regen-vyvazeni (7.8.2026): +100% napříč — vyvažuje nové náklady
+    // přidané dnes (Zahrada/Dvůr akce, opisování/folium), poměr den:noc:hora
+    // beze změny, jen celá škála výš.
+    FATIGUE_RECOVERY_DAY:   8,     // 7–21h: -8/h (dřív 4)
+    FATIGUE_RECOVERY_NIGHT: 16,    // 21–7h: -16/h, spánek (dřív 8)
+    FATIGUE_RECOVERY_HORA:  20,    // Completorium/Vigilie: -20/h (dřív 10)
 
     // Noční spánek: 8h+ neaktivity → plný reset únavy
     SLEEP_HOURS_FOR_FULL_REST: 8,
@@ -37,6 +40,10 @@ const VigorSystem = {
         candle:         2,
         tinderbox:      2,
         quill:          3,
+        // opisovani-vigor-audit (7.8.2026): opisování folia — lehký craft,
+        // opakovaná akce (i přes Automatiku), mirror paper/ink. Volá se přímo
+        // z UI.copyFolium(), ne přes Game.craft() — proto vlastní hodnota tady.
+        folium:         2,
         // Craft — střední
         plank:          6,  // ruční řezání kulatiny — reálná fyzická práce (pila-stoupa-audit, 7.8.2026)
         ink_gallic:     5,
@@ -360,6 +367,28 @@ const VigorSystem = {
     addFatigue: function(amount) {
         GameState.fatigue = Math.min(this.MAX_FATIGUE, (GameState.fatigue || 0) + amount);
         this.renderPill();
+    },
+
+    // aula-ludi-vigor-audit (7.8.2026): odměna Vigoru po dohrání hry v Aula
+    // Ludi — ať vyhraje nebo prohraje. Čistě únavová strana (mirror
+    // holy_water: -20 v FATIGUE_RELIEF), ne sytost — hra nezasytí, jen
+    // odpočine mysl. Volané z konce KAŽDÉ z 10 her (win i loss cesta).
+    // Toast + Kronika přidány dodatečně (7.8.2026) — dřív tichá změna, hráč
+    // neviděl, že se něco stalo.
+    restFromPlay: function(amount) {
+        amount = amount || 20;
+        GameState.fatigue = Math.max(0, (GameState.fatigue || 0) - amount);
+        this.renderPill();
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        if (typeof UI !== 'undefined' && UI.notify) {
+            UI.notify(lang === 'en' ? `🧘 +${amount} Vigor (a moment's rest)` : `🧘 +${amount} Vigor (chvíle odpočinku)`);
+        }
+        if (typeof Game !== 'undefined' && Game.addKronikaEntry) {
+            Game.addKronikaEntry('minor',
+                '🧘 Bratr si u hry odpočinul.',
+                '🧘 A brother rested a while over the game.',
+                '🧘 Frater ludo se recreavit.');
+        }
     },
 
     // ── Scavenge hook ─────────────────────────────────────────────────────────

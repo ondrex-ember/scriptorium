@@ -3617,10 +3617,16 @@
                         <div><strong id="light-title">Není světlo</strong>
                             <div id="light-desc" class="text-sm">Tma halí knihy.</div>
                         </div>
-                        <button id="btn-light-torch" class="craft-btn" onclick="Game.lightSource('torch')" disabled
-                            style="display:none; margin-left:5px;">ZAPÁLIT LOUČ</button>
-                        <button id="btn-light-candle" class="craft-btn" onclick="Game.lightSource('candle')" disabled
-                            style="display:none;">ZAPÁLIT SVÍČKU</button>
+                        <!-- svetlo-tlacitka-fix (7.8.2026): vlastní sloupcový kontejner —
+                             na úzkém displeji se obě tlačítka (mají-li obě fuel) naskládají
+                             pod sebe místo přetečení do textu (.card je flex nowrap, sdíleno
+                             globálně, tady neupravováno). -->
+                        <div style="display:flex; flex-direction:column; gap:4px; margin-left:auto;">
+                            <button id="btn-light-torch" class="craft-btn" onclick="Game.lightSource('torch')" disabled
+                                style="display:none;">ZAPÁLIT LOUČ</button>
+                            <button id="btn-light-candle" class="craft-btn" onclick="Game.lightSource('candle')" disabled
+                                style="display:none;">ZAPÁLIT SVÍČKU</button>
+                        </div>
                     </div>
 
                     <!-- Level 2: SCAVENGE | MINE -->

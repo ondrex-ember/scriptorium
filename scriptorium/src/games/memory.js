@@ -84,6 +84,7 @@ const MemoryGame = {
     
     complete: function() {
         this.gameActive = false;
+        if (typeof VigorSystem !== 'undefined') VigorSystem.restFromPlay();
         
         // Calculate reward based on moves
         const perfectMoves = this.cards.length / 2;

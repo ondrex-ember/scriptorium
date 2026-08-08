@@ -224,6 +224,7 @@ const SenetGame = {
     checkWin: function() {
         if (this.playerPieces.every(p => p.out)) {
             this.gameActive = false;
+            if (typeof VigorSystem !== 'undefined') VigorSystem.restFromPlay();
             const reward = 5;
             Game.addItem('research', reward);
             if (GameState.achievements) {
@@ -237,6 +238,7 @@ const SenetGame = {
         }
         if (this.aiPieces.every(p => p.out)) {
             this.gameActive = false;
+            if (typeof VigorSystem !== 'undefined') VigorSystem.restFromPlay();
             if (GameState.achievements) GameState.achievements.stats.totalGamesPlayed++;
             this.lastMessage = t('games.senetLoss');
             UI.notify(this.lastMessage, true);

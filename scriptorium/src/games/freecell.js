@@ -163,6 +163,7 @@ const FreeCellGame = {
     
     win: function() {
         this.gameActive = false;
+        if (typeof VigorSystem !== 'undefined') VigorSystem.restFromPlay();
         
         let reward = 5;
         if(this.moves < 100) reward = 8;

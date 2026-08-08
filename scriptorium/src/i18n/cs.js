@@ -951,6 +951,24 @@ const STRINGS_cs = {
         prior_requirement: 'Armarius + nomination event',
     },
 
+    // minigames-i18n-fix (7.8.2026): memory.js a ur.js volají t('minigames.*'),
+    // ale ten namespace tu nikdy nebyl — proto se zobrazoval raw klíč
+    // (např. "minigames.memory.moves") místo textu. Doplněno.
+    minigames: {
+        memory: {
+            need_items: 'Objev nejdřív víc věcí ve hře, ať máš z čeho hrát páry!',
+            win: '🎉 Skvělá práce! Dokončeno na {moves} tahů. +{reward} Zápisky.',
+            moves: 'Tahy',
+            new_game: 'Nová hra',
+        },
+        ur: {
+            grade_perfect: 'Dokonalé',
+            grade_good: 'Dobré',
+            grade_ok: 'Ujde',
+            grade_pass: 'Dohráno',
+        },
+    },
+
     games: {
         // Header
         title: '🎮 Mini-Games',

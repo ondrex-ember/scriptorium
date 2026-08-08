@@ -1759,6 +1759,22 @@ According to Theophilus, the organ is an instrument worthy of God, but its const
     },
 
 
+    // minigames-i18n-fix (7.8.2026): mirror of cs.js fix — see comment there.
+    minigames: {
+        memory: {
+            need_items: 'Discover more things in the game first, so you have pairs to play with!',
+            win: '🎉 Great work! Completed in {moves} moves. +{reward} Notes.',
+            moves: 'Moves',
+            new_game: 'New Game',
+        },
+        ur: {
+            grade_perfect: 'Perfect',
+            grade_good: 'Good',
+            grade_ok: 'Pass',
+            grade_pass: 'Finished',
+        },
+    },
+
     games: {
         // Header
         title: '🎮 Miniature Games',

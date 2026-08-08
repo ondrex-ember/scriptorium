@@ -293,6 +293,7 @@ const RoyalGameOfUr = {
     checkWin: function() {
         if(this.stats.playerFinished === 7) {
             this.gameActive = false;
+            if (typeof VigorSystem !== 'undefined') VigorSystem.restFromPlay();
             const reward = 4;
             Game.addItem('research', reward);
             
@@ -306,6 +307,7 @@ const RoyalGameOfUr = {
             setTimeout(() => this.render(), 2000);
         } else if(this.stats.aiFinished === 7) {
             this.gameActive = false;
+            if (typeof VigorSystem !== 'undefined') VigorSystem.restFromPlay();
             
             if(GameState.achievements) {
                 GameState.achievements.stats.totalGamesPlayed++;
@@ -673,6 +675,7 @@ const RoyalGameOfUrSolo = {
     checkWin: function() {
         if(this.stats.finished === 7) {
             this.gameActive = false;
+            if (typeof VigorSystem !== 'undefined') VigorSystem.restFromPlay();
             
             let reward = 2;
             let gradeKey = 'grade_pass';

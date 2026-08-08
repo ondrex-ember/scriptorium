@@ -222,6 +222,7 @@ const FarmyardSystem = {
             return;
         }
         st.lastCleanMs = now;
+        if (typeof VigorSystem !== 'undefined') VigorSystem.addFatigue(0.5);
 
         // Mood +30 všem zvířatům — jen pro chlévy MIMO v2 (donkeyStall/stable).
         // v2 pens (rabbitry/henhouse/sheepfold/goatpen/cowbyre/pigsty) mají
@@ -308,6 +309,7 @@ const FarmyardSystem = {
             return;
         }
         c.lastCleanMs = now;
+        if (typeof VigorSystem !== 'undefined') VigorSystem.addFatigue(0.5);
 
         // Generovat hnůj: stejný vzorec jako cleanPen, 1–3 ks dle počtu ptáků
         // MRD Columbarium II — specificky pigeon_dung (guáno), ne obecný manure
@@ -567,7 +569,7 @@ const FarmyardSystem = {
             c.lastFeatherAt = now;
             collected = true;
         }
-        if (collected) { Game.save(); FarmyardSystem.renderFarmyard(); UI.notify('🥚 ' + t('farmyard.columbariumCollected')); }
+        if (collected) { if (typeof VigorSystem !== 'undefined') VigorSystem.addFatigue(0.5); Game.save(); FarmyardSystem.renderFarmyard(); UI.notify('🥚 ' + t('farmyard.columbariumCollected')); }
         else UI.notify(t('game.penNotReady'), true);
     },
 
@@ -940,6 +942,7 @@ const FarmyardSystem = {
         });
         if (milk) {
             GameState.inventory['goat_milk'] = (GameState.inventory['goat_milk'] || 0) + milk;
+            if (typeof VigorSystem !== 'undefined') VigorSystem.addFatigue(0.5);
             if (typeof UI !== 'undefined') UI.notify('🥛 ' + t('dvur.goatMilked').replace('{n}', milk));
             if (typeof Game !== 'undefined') Game.save();
             this.renderFarmyard();
@@ -965,6 +968,7 @@ const FarmyardSystem = {
         });
         if (milk) {
             GameState.inventory['cow_milk'] = (GameState.inventory['cow_milk'] || 0) + milk;
+            if (typeof VigorSystem !== 'undefined') VigorSystem.addFatigue(0.5);
             if (typeof UI !== 'undefined') UI.notify('🥛 ' + t('dvur.cowMilked').replace('{n}', milk));
             if (typeof Game !== 'undefined') Game.save();
             this.renderFarmyard();
@@ -979,6 +983,7 @@ const FarmyardSystem = {
         if (!a) return;
         if ((GameState.inventory['acorn'] || 0) < 1) { if (typeof UI !== 'undefined') UI.notify(t('dvur.noAcorn'), true); return; }
         GameState.inventory['acorn'] -= 1;
+        if (typeof VigorSystem !== 'undefined') VigorSystem.addFatigue(0.5);
         a.placedAt = (a.placedAt || a.bornAt || Date.now()) - cfg.acornBoostMs;
         if (typeof UI !== 'undefined') UI.notify('🌰 ' + t('dvur.acornFed'));
         if (typeof Game !== 'undefined') Game.save();
@@ -1867,7 +1872,7 @@ const FarmyardSystem = {
             Game.addItem('feather_hen', h.hens.length);
             h.lastFeatherAt = now; collected = true;
         }
-        if (collected) { Game.save(); FarmyardSystem.renderFarmyard(); UI.notify('🥚 ' + t('game.hennouseCollected')); }
+        if (collected) { if (typeof VigorSystem !== 'undefined') VigorSystem.addFatigue(0.5); Game.save(); FarmyardSystem.renderFarmyard(); UI.notify('🥚 ' + t('game.hennouseCollected')); }
         else UI.notify(t('game.penNotReady'), true);
     },
 
@@ -1887,6 +1892,7 @@ const FarmyardSystem = {
         if (grainItem && grainHave >= totalFeed) {
             // Plné krmení zrním
             Game.removeItem(grainItem, totalFeed);
+            if (typeof VigorSystem !== 'undefined') VigorSystem.addFatigue(0.5);
             h.lastFedAt = Date.now();
             Game.save(); FarmyardSystem.renderFarmyard();
             UI.notify('🌾 ' + t('game.henFed'));
@@ -1900,6 +1906,7 @@ const FarmyardSystem = {
         const seedNeeded = totalFeed * 4;
         if (seedItem && seedHave >= seedNeeded) {
             Game.removeItem(seedItem, seedNeeded);
+            if (typeof VigorSystem !== 'undefined') VigorSystem.addFatigue(0.5);
             h.lastFedAt = Date.now();
             Game.save(); FarmyardSystem.renderFarmyard();
             UI.notify('🌱 ' + t('game.henFedSeeds') + ' (1/4)');
@@ -1919,6 +1926,7 @@ const FarmyardSystem = {
             UI.notify(t('farmyard.needSlug') + ' (' + needed + ')', true); return;
         }
         Game.removeItem('slug', needed);
+        if (typeof VigorSystem !== 'undefined') VigorSystem.addFatigue(0.5);
         h.lastFedAt = Date.now();
         h.slugFedAt = Date.now();
         Game.save(); FarmyardSystem.renderFarmyard();
@@ -2140,7 +2148,7 @@ const FarmyardSystem = {
             if (woolQty > 0) { Game.addItem('wool', woolQty); }
             s.lastWoolAt = now; collected = true;
         }
-        if (collected) { Game.save(); FarmyardSystem.renderFarmyard(); UI.notify('🐑 ' + t('game.sheepCollected')); }
+        if (collected) { if (typeof VigorSystem !== 'undefined') VigorSystem.addFatigue(0.5); Game.save(); FarmyardSystem.renderFarmyard(); UI.notify('🐑 ' + t('game.sheepCollected')); }
         else UI.notify(t('game.penNotReady'), true);
     },
 
@@ -2152,6 +2160,7 @@ const FarmyardSystem = {
         if ((GameState.inventory['fiber'] || 0) < fiberNeeded) { UI.notify(t('game.needFeedSheep') + ' (' + fiberNeeded + ')', true); return; }
         if (!this._checkFeedWater(waterNeeded, false).ok) { UI.notify(t('game.needWater'), true); return; }
         Game.removeItem('fiber', fiberNeeded);
+        if (typeof VigorSystem !== 'undefined') VigorSystem.addFatigue(0.5);
         this._checkFeedWater(waterNeeded, true);
         st.lastFedAt = Date.now();
         Game.save(); FarmyardSystem.renderFarmyard();
@@ -2167,6 +2176,7 @@ const FarmyardSystem = {
         if ((GameState.inventory['fiber'] || 0) < fiberNeeded) { UI.notify(t('game.needFeedSheep') + ' (' + fiberNeeded + ')', true); return; }
         if (!this._checkFeedWater(waterNeeded, false).ok) { UI.notify(t('game.needWater'), true); return; }
         Game.removeItem('fiber', fiberNeeded);
+        if (typeof VigorSystem !== 'undefined') VigorSystem.addFatigue(0.5);
         this._checkFeedWater(waterNeeded, true);
         s.lastFedAt = Date.now();
         Game.save(); FarmyardSystem.renderFarmyard();

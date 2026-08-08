@@ -408,6 +408,12 @@ const UI = {
             if (typeof Game !== 'undefined' && Game.showBelzebubSpisModal) Game.showBelzebubSpisModal();
             return;
         }
+        // dymka-modal-fix (7.8.2026): klik na dýmku v Zásobách/Truhle otevře
+        // stejné akce (napěchovat/vykouřit) jako karta v Ohništi, ne jen popis.
+        if (id === 'pipe_large' || id === 'pipe_small') {
+            if (typeof FireplaceSystem !== 'undefined' && FireplaceSystem.showPipeModal) FireplaceSystem.showPipeModal();
+            return;
+        }
         const _coinValues = { old_coin_1: 6, old_coin_2: 8, old_coin_3: 12 };
         if (_coinValues[id] !== undefined) {
             if (typeof Game !== 'undefined' && Game.showCoinModal) Game.showCoinModal(id, _coinValues[id]);
@@ -1687,25 +1693,45 @@ const UI = {
         };
         const maxFolios = MANUSCRIPTS_DB[ms.activeId] || 10;
 
+        // scriptorium-mastery-mrd (7.8.2026): navrch RankSystem Scriptor role.
+        const mastery = GameState.scriptoriumMastery || 0;
+        const vigorPerFolium = Math.max(1, 2 - mastery * 0.05);
+        const bonusChance = Math.min(0.25, mastery * 0.01);
+
         let copiesDone = 0;
+        let bonusCopies = 0;
         for (let c = 0; c < count; c++) {
             const paper = GameState.inventory['paper'] || 0;
             const parchment = GameState.inventory['parchment'] || 0;
             const ink = GameState.inventory['ink'] || 0;
 
-            if (ink <= 0 || (paper <= 0 && parchment <= 0)) {
-                if (copiesDone === 0) {
-                    UI.notify('⚠️ Chybí psací potřeby (Inkoust + Papír/Pergamen)!');
+            // scriptorium-mastery-mrd: zkušená ruka občas napíše folium
+            // "z hlavy" bez spotřeby surovin — šance roste s mastery, strop 25 %.
+            const isBonus = mastery > 0 && Math.random() < bonusChance;
+
+            if (!isBonus) {
+                if (ink <= 0 || (paper <= 0 && parchment <= 0)) {
+                    if (copiesDone === 0) {
+                        UI.notify('⚠️ Chybí psací potřeby (Inkoust + Papír/Pergamen)!');
+                    }
+                    break;
                 }
-                break;
+                GameState.inventory['ink'] = ink - 1;
+                if (parchment > 0) {
+                    GameState.inventory['parchment'] = parchment - 1;
+                } else {
+                    GameState.inventory['paper'] = paper - 1;
+                }
+            } else {
+                bonusCopies++;
             }
 
-            GameState.inventory['ink'] = ink - 1;
-            if (parchment > 0) {
-                GameState.inventory['parchment'] = parchment - 1;
-            } else {
-                GameState.inventory['paper'] = paper - 1;
-            }
+            // opisovani-vigor-audit (7.8.2026): opisování dřív nestálo žádný
+            // Vigor — popis About slibuje "trochu energie" za folium, teď to
+            // fakt platí. Vždy hráč (Athanor/Scriptorium nejsou v
+            // CONVERSI_TASKS), bezpečné bez dalšího rozlišování.
+            // scriptorium-mastery-mrd: náklad klesá s masterou (min. 1).
+            if (typeof VigorSystem !== 'undefined') VigorSystem.addFatigue(vigorPerFolium);
 
             ms.progress = (ms.progress || 0) + 1;
             GameState.inventory['research'] = (GameState.inventory['research'] || 0) + 3;
@@ -1716,13 +1742,22 @@ const UI = {
                 ms.copies[ms.activeId] = (ms.copies[ms.activeId] || 0) + 1;
                 GameState.inventory['research'] += 20;
                 GameState.inventory['parchment'] = (GameState.inventory['parchment'] || 0) + 2;
+                GameState.scriptoriumMastery = (GameState.scriptoriumMastery || 0) + 1;
                 UI.notify(`📜 Kodex dokončen! Získáváš +20 Zápisků a 2 Pergamene.`);
+                UI.notify(`✍️ Zkušenost roste — trvale snižuje únavu z psaní a dává šanci na folium zdarma.`);
+                if (typeof Game !== 'undefined' && Game.addKronikaEntry) {
+                    Game.addKronikaEntry('minor',
+                        '✍️ Bratrova ruka zkušeností zesílila — psaní jde snáz.',
+                        '✍️ The brother\'s hand has grown surer with practice — writing comes easier now.',
+                        '✍️ Manus fratris usu firmata est.');
+                }
                 break;
             }
         }
 
         if (copiesDone > 0) {
-            UI.notify(`✒️ Opsáno ${copiesDone} folium (+${copiesDone * 3} Zápisky)`);
+            const bonusNote = bonusCopies > 0 ? ` (${bonusCopies}× zdarma, zkušenost)` : '';
+            UI.notify(`✒️ Opsáno ${copiesDone} folium (+${copiesDone * 3} Zápisky)${bonusNote}`);
         }
 
         UI.renderManuscriptCopying();

@@ -464,6 +464,49 @@ const FireplaceSystem = {
         this.render();
     },
 
+    // dymka-modal-fix (7.8.2026): klik na dýmku v Zásobách/Truhle — stejné
+    // akce jako karta v Ohništi, jen jako modal (mirror Game.showNetolickyModal).
+    showPipeModal: function() {
+        this._ensurePipeState();
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        const en = lang === 'en';
+        const pipe = GameState.fire.pipe;
+        const effectActive = GameState.flags && GameState.flags.dymkaEffectUntil && Date.now() < GameState.flags.dymkaEffectUntil;
+
+        let text, choices;
+        if (effectActive) {
+            const remainMin = Math.max(0, Math.ceil((GameState.flags.dymkaEffectUntil - Date.now()) / 60000));
+            text = en
+                ? `<em>Smoke still lingers. Time feels like it is dragging...</em><br><br>${remainMin} min left.`
+                : `<em>Kouř ještě neopadl. Zdá se ti, že čas plyne pomaleji...</em><br><br>zbývá ${remainMin} min.`;
+            choices = [{ label: en ? 'Close' : 'Zavřít', type: 'default', effect: function() {} }];
+        } else if (pipe.state === 'packed') {
+            text = en ? 'The pipe is packed and ready.' : 'Dýmka je napěchovaná a připravená.';
+            choices = [
+                { label: '💨 ' + (en ? 'Smoke' : 'Vykouřit'), type: 'primary', effect: function() { FireplaceSystem.smokePipe(); } },
+                { label: en ? 'Close' : 'Zavřít', type: 'default', effect: function() {} }
+            ];
+        } else {
+            const hasDried = (GameState.inventory['dried_cannabis'] || 0) > 0;
+            const fireOk = !!GameState.fire.active;
+            const can = hasDried && fireOk;
+            let hint = '';
+            if (!fireOk) hint = en ? 'The hearth must be lit.' : 'Krb musí hořet.';
+            else if (!hasDried) hint = en ? 'Need dried hemp.' : 'Potřeba sušené konopí.';
+            text = en
+                ? `An empty pipe, waiting to be packed.${hint ? '<br><br><small>' + hint + '</small>' : ''}`
+                : `Prázdná dýmka, čeká na napěchování.${hint ? '<br><br><small>' + hint + '</small>' : ''}`;
+            choices = can
+                ? [
+                    { label: '🌿 ' + (en ? 'Pack pipe' : 'Napěchovat dýmku'), type: 'primary', effect: function() { FireplaceSystem.packPipe(); } },
+                    { label: en ? 'Close' : 'Zavřít', type: 'default', effect: function() {} }
+                  ]
+                : [{ label: en ? 'Close' : 'Zavřít', type: 'default', effect: function() {} }];
+        }
+
+        NotificationSystem.modal({ icon: '🪈', title: en ? 'Pipe' : 'Dýmka', text: text, choices: choices });
+    },
+
     smokePipe: function() {
         this._ensurePipeState();
         const pipe = GameState.fire.pipe;

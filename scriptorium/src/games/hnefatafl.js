@@ -257,6 +257,7 @@ const HnefataflGame = {
 
     endGame: function(winner, reason) {
         this.gameActive = false;
+        if (typeof VigorSystem !== 'undefined') VigorSystem.restFromPlay();
         const reward = 8;
         if (winner === 'player') {
             Game.addItem('research', reward);

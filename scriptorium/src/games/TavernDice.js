@@ -415,13 +415,13 @@ const TavernDice = {
 
         <!-- Game Selector Tabs -->
         <div style="display: flex; gap: 8px; margin-bottom: 16px;">
-          <button onclick="TavernDice.setGame('hazard')" class="craft-btn" style="flex: 1; padding: 8px; font-size: 0.82rem; background: ${this.activeGame==='hazard'?'var(--accent-gold)':'rgba(255,255,255,0.08)'}; color: ${this.activeGame==='hazard'?'#000':'#f5e6c8'}; border: 1px solid #c5a059;">
+          <button onclick="TavernDice.setGame('hazard')" class="craft-btn" style="flex: 1; padding: 6px 4px; font-size: 0.7rem; white-space: normal; line-height: 1.25; background: ${this.activeGame==='hazard'?'var(--accent-gold)':'rgba(255,255,255,0.08)'}; color: ${this.activeGame==='hazard'?'#000':'#f5e6c8'}; border: 1px solid #c5a059;">
             🎲 Hazard (2d6)
           </button>
-          <button onclick="TavernDice.setGame('passage')" class="craft-btn" style="flex: 1; padding: 8px; font-size: 0.82rem; background: ${this.activeGame==='passage'?'var(--accent-gold)':'rgba(255,255,255,0.08)'}; color: ${this.activeGame==='passage'?'#000':'#f5e6c8'}; border: 1px solid #c5a059;">
+          <button onclick="TavernDice.setGame('passage')" class="craft-btn" style="flex: 1; padding: 6px 4px; font-size: 0.7rem; white-space: normal; line-height: 1.25; background: ${this.activeGame==='passage'?'var(--accent-gold)':'rgba(255,255,255,0.08)'}; color: ${this.activeGame==='passage'?'#000':'#f5e6c8'}; border: 1px solid #c5a059;">
             🎲 Passage (3d6)
           </button>
-          <button onclick="TavernDice.setGame('zara')" class="craft-btn" style="flex: 1; padding: 8px; font-size: 0.82rem; background: ${this.activeGame==='zara'?'var(--accent-gold)':'rgba(255,255,255,0.08)'}; color: ${this.activeGame==='zara'?'#000':'#f5e6c8'}; border: 1px solid #c5a059;">
+          <button onclick="TavernDice.setGame('zara')" class="craft-btn" style="flex: 1; padding: 6px 4px; font-size: 0.7rem; white-space: normal; line-height: 1.25; background: ${this.activeGame==='zara'?'var(--accent-gold)':'rgba(255,255,255,0.08)'}; color: ${this.activeGame==='zara'?'#000':'#f5e6c8'}; border: 1px solid #c5a059;">
             🎲 Zara (3d6)
           </button>
         </div>
@@ -542,7 +542,7 @@ const TavernDice = {
             <button onclick="TavernDice.setBet(50)" class="craft-btn" style="padding: 4px 8px; font-size: 0.75rem;">50 g</button>
             <button onclick="TavernDice.setBet(100)" class="craft-btn" style="padding: 4px 8px; font-size: 0.75rem;">100 g</button>
             <button onclick="TavernDice.setBet(500)" class="craft-btn" style="padding: 4px 8px; font-size: 0.75rem;">500 g</button>
-            <button onclick="TavernDice.setBetAllIn()" class="craft-btn" style="padding: 4px 8px; font-size: 0.75rem; background: #c0392b; color: #fff; font-weight: bold;">
+            <button onclick="TavernDice.setBetAllIn()" class="craft-btn" style="padding: 4px 8px; font-size: 0.75rem; white-space: normal; line-height: 1.2; background: #c0392b; color: #fff; font-weight: bold;">
               💀 ALL IN (${coins} g)
             </button>
           </div>

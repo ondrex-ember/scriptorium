@@ -399,6 +399,7 @@ const BackgammonGame = {
 
     win: function(side) {
         this.gameActive = false;
+        if (typeof VigorSystem !== 'undefined') VigorSystem.restFromPlay();
         const reward = 6;
         if (side === 'player') {
             Game.addItem('research', reward);

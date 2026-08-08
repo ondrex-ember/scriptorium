@@ -394,6 +394,7 @@ const Rithmomachia = {
     
     endGame: function(winner, reason) {
         this.gameActive = false;
+        if (typeof VigorSystem !== 'undefined') VigorSystem.restFromPlay();
         
         if (winner === 'white') {
             const reward = 8;

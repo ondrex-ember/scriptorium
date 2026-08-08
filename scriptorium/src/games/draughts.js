@@ -253,6 +253,7 @@ const DraughtsGame = {
 
     endGame: function(winner) {
         this.gameActive = false;
+        if (typeof VigorSystem !== 'undefined') VigorSystem.restFromPlay();
         const reward = 4;
         if (winner === 'player') {
             Game.addItem('research', reward);

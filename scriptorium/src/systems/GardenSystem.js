@@ -15,6 +15,7 @@ const GardenSystem = {
         const slot = GameState.orchard[slotIdx];
         if (slot.state !== 'empty') { UI.notify(t('game.slotOccupied'), true); return; }
         Game.removeItem(seedId, 1);
+        if (typeof VigorSystem !== 'undefined') VigorSystem.addFatigue(0.5);
         slot.state    = 'growing';
         slot.treeType = seedId;
         slot.plantedAt = Date.now();
@@ -105,6 +106,7 @@ const GardenSystem = {
         if (feedNeeded === 0) { UI.notify(t('game.piscinaEmpty'), true); return; }
         if ((GameState.inventory['fiber']||0) < feedNeeded) { UI.notify(t('game.needFeedFish') + ` (${feedNeeded})`, true); return; }
         Game.removeItem('fiber', feedNeeded);
+        if (typeof VigorSystem !== 'undefined') VigorSystem.addFatigue(0.5);
         p.lastFedAt = Date.now();
         Game.save(); GardenSystem.renderPiscina();
         UI.notify('🌿 ' + t('game.piscinaFed'));
@@ -128,6 +130,7 @@ const GardenSystem = {
         if (qty <= 0) { UI.notify(t('game.noCarp'), true); return; }
         p.carp -= qty;
         Game.addItem('carp', qty);
+        if (typeof VigorSystem !== 'undefined') VigorSystem.addFatigue(0.5);
         Game.save(); GardenSystem.renderPiscina();
         UI.notify('🐠 ' + t('game.carpHarvested').replace('{qty}', qty));
     },
@@ -1651,6 +1654,7 @@ const GardenSystem = {
             if (!(GameState.inventory['seeds_vegetable'] > 0)) { UI.notify('⚠️ Chybí: stará semena zeleniny', true); return; }
             if (plot.cropType !== 'vegetable') { UI.notify('⚠️ Tento záhon není pro zeleninu.', true); return; }
             Game.removeItem('seeds_vegetable', 1);
+            if (typeof VigorSystem !== 'undefined') VigorSystem.addFatigue(0.5);
             const legacyPick = this.GARDEN_PLANTS_DB[Math.random() < 0.5 ? 'carrot' : 'onion'];
             plot.state = 2;
             plot.crop = legacyPick.item;
@@ -1674,6 +1678,7 @@ const GardenSystem = {
             return;
         }
         Game.removeItem(plant.seed, 1);
+        if (typeof VigorSystem !== 'undefined') VigorSystem.addFatigue(0.5);
         plot.state = 2;
         plot.crop = plant.item;
         plot.plantedAt = Date.now();
@@ -1725,6 +1730,7 @@ const GardenSystem = {
         const flowerNeeded = (this.getGrowHours(plot.crop) * 3600000) / growthSpeed;
         if (Date.now() < (plot.floweredAt || 0) + flowerNeeded) { UI.notify('⚠️ Ještě nekvete dost dlouho.', true); return; }
         Game.addItem(gp.seed, gp.seedYield || 1);
+        if (typeof VigorSystem !== 'undefined') VigorSystem.addFatigue(0.5);
         plot.state = 0; plot.crop = null; plot.water = false; plot.floweredAt = 0;
         Game.save();
         this.renderGarden();
@@ -1810,6 +1816,7 @@ const GardenSystem = {
             UI.notify(lang==='en' ? 'No cutting available.' : 'Nemáš řízek.', true); return;
         }
         Game.removeItem(variety.viticis, 1);
+        if (typeof VigorSystem !== 'undefined') VigorSystem.addFatigue(0.5);
         const now = Date.now();
         const DAY_MS = 86400000;
         slot.state     = 'planted';
@@ -1880,6 +1887,7 @@ const GardenSystem = {
             UI.notify(lang==='en' ? 'Not enough water.' : 'Nedostatek vody!', true); return;
         }
         Game.removeItem('water', waterCost);
+        if (typeof VigorSystem !== 'undefined') VigorSystem.addFatigue(0.5);
         slot.lastWateredAt = Date.now();
         Game.save();
         this.renderVinohrad();
@@ -1919,6 +1927,7 @@ const GardenSystem = {
         const outputId = 'grapes_' + variety.id;
 
         Game.addItem(outputId, qty);
+        if (typeof VigorSystem !== 'undefined') VigorSystem.addFatigue(0.5);
         const itemName = (typeof iName === 'function') ? iName(outputId) : outputId;
         UI.notify('🍇 ' + (lang==='en'?'Harvested: ':'Sklizeno: ') + itemName + ' ×' + qty);
         Game.addKronikaEntry('important',
@@ -2054,6 +2063,7 @@ const GardenSystem = {
             UI.notify(lang==='en' ? 'Not ready yet.' : 'Ještě nezraje.', true); return;
         }
         Game.addItem('vinum_praeclarum', barrel.amount);
+        if (typeof VigorSystem !== 'undefined') VigorSystem.addFatigue(0.5);
         const itemName = (typeof iName === 'function') ? iName('vinum_praeclarum') : 'vinum_praeclarum';
         UI.notify('🏺 ' + (lang==='en'?'Collected: ':'Vyzvednuto: ') + itemName + ' ×' + barrel.amount);
         Game.addKronikaEntry('important',
@@ -2107,6 +2117,7 @@ const GardenSystem = {
             UI.notify(lang==='en' ? 'Not dry yet.' : 'Ještě neuschly.', true); return;
         }
         Game.addItem('raisins', drying.amount);
+        if (typeof VigorSystem !== 'undefined') VigorSystem.addFatigue(0.5);
         const itemName = (typeof iName === 'function') ? iName('raisins') : 'raisins';
         UI.notify('🍇 ' + (lang==='en'?'Collected: ':'Vyzvednuto: ') + itemName + ' ×' + drying.amount);
         Game.addKronikaEntry('important',
@@ -2366,6 +2377,7 @@ const GardenSystem = {
             return;
         }
         Game.removeItem(crop.seeds, seedCost);
+        if (typeof VigorSystem !== 'undefined') VigorSystem.addFatigue(0.5);
         field.state   = 'growing';
         field.crop    = cropKey;
         field.phase   = 0;
@@ -2387,6 +2399,7 @@ const GardenSystem = {
             return;
         }
         Game.removeItem('water', waterCost);
+        if (typeof VigorSystem !== 'undefined') VigorSystem.addFatigue(0.5);
         field.watered = true;
         Game.save();
         this.renderFieldTab();
@@ -2436,6 +2449,7 @@ const GardenSystem = {
         }
 
         Game.addItem(outputId, yieldAmt);
+        if (typeof VigorSystem !== 'undefined') VigorSystem.addFatigue(0.5);
 
         // Sláma
         const strawAmt = hasHumno ? crop.strawYield * 2 : Math.min(1, crop.strawYield);
