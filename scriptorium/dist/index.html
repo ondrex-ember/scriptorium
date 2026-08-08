@@ -3636,6 +3636,8 @@
                                 data-i18n="screens.scavenge"></span></button>
                         <button id="home-sub-mine" class="filter-btn" onclick="UI.switchHomeSubTab('mine', this)">⛏️
                             <span data-i18n="screens.mine"></span></button>
+                        <button id="home-sub-cooking" class="filter-btn" onclick="UI.switchHomeSubTab('cooking', this)">🍲
+                            <span data-i18n="screens.cooking">Vaření</span></button>
                     </div>
 
                     <!-- SCAVENGE content -->
@@ -3660,6 +3662,8 @@
                         <div id="fodina-petition-panel"></div>
                         <div id="mine-actions"></div>
                     </div>
+
+                    <div id="home-cooking-content" style="display:none;"></div>
 
                 </div><!-- end home-main-content -->
 
@@ -5663,7 +5667,7 @@ According to Theophilus, the organ is an instrument worthy of God, but its const
             title: 'Tacuinum Sanitatis: Tabulky zdraví a zkázy',
             title_en: 'Tacuinum Sanitatis: Tables of Health and Ruin',
             category: 'innovation',
-            unlockDay: 44,
+            unlockDay: 15,
             icon: '🌿',
             author: 'Ibn Butlan (latinský překlad: italské školy, 13. stol.)',
             year: 'cca 1050 (překlad cca 1250)',
@@ -5737,6 +5741,177 @@ Palladius devotes a chapter of its own to curdling milk, describing what practic
 Palladius wrote nothing of Olomouc or Moravia — he wrote of a Roman estate a thousand years earlier. But his method travelled with the monastic orders across Europe, and every region bent it to its own use. In Bohemia it is said that the simplest path — souring without rennet — gave rise to small, sharply scented curd cheeses, made even where no young lamb was to be had. Something similar, the story goes, arose around Olomouc as well.
 
 **GAME EFFECT:** Reading this treatise unlocks the *Caseus* tech — curdling milk. A lamb's rennet, an extract of bedstraw, or simply time and warmth: three paths to cheese, depending on what lies to hand.`
+        },
+        {
+<<<<<<< HEAD
+            id: 'book_platina_honesta',
+            title: 'De honesta voluptate et valetudine',
+            title_en: 'On Honest Indulgence and Good Health',
+            category: 'innovation',
+            unlockDay: 170,
+            icon: '📕',
+            author: 'Bartolomeo Sacchi, zvaný Platina, papežský sekretář',
+            year: 'sepsáno 1465 (dosud nevytištěno — tisk přijde až po 1470)',
+            content: `**Rukopis přímo z tohoto roku**
+
+Žádná kniha v tomhle skriptoriu není tak čerstvá. Bartolomeo Sacchi — Platina, po svém rodišti Piadena — sloužil jako sekretář papežů Pia II. a Pavla II., než se stal vatikánským knihovníkem. Právě letos, roku 1465, dokončil deset knih O počestném požitku a zdraví. Do tisku to půjde až za pět let; teď to koluje jen jako rukopis mezi těmi, kdo mají styky do Říma.
+
+**Kuchařova ruka, učencovo pero**
+
+Platina sám nevařil. Většinu receptů převzal od Martina da Como, uznávaného mistra kuchaře, co sloužil na předních italských dvorech. Co Platina přidal, je ospravedlnění — humanistický rámec, co říká, že požitek ze stolu není hřích, je-li poctivý a vyvážený zdravím. Poprvé kuchařská kniha netvrdí, že jídlo je jen nutnost nebo lék. Tvrdí, že může být pravou radostí, a že na tom není nic nečestného.
+
+*"Voluptas honesta" — počestný požitek. Ne hodování, ne půst. Něco mezi, co si zaslouží mistrovství.*
+
+**Co to znamená pro klášter**
+
+Bratr, co touhle knihou listuje, drží důkaz, že i klášterní kuchyně může hostit biskupa důstojně — ne z rozmařilosti, ale z počestné pohostinnosti, jak radí sám papežský sekretář. Hmoždíř na drcení koření, rožeň na pečeně hodné stolu — tohle je poslední krok od přežití zimy k tomu, aby Ecclesia měla, čím se pochlubit.
+
+**HERNÍ EFEKT:** Přečtením tohoto spisu odemkneš možnost výzkumu tech *De honesta voluptate* — Hmoždíř, Rožeň a elitní recepty (subtab Vaření), co zvyšují Vliv u církve.`,
+            content_en: `**A Manuscript from This Very Year**
+
+No book in this scriptorium is so fresh. Bartolomeo Sacchi — Platina, after his birthplace of Piadena — served as secretary to Popes Pius II and Paul II before becoming Vatican librarian. This very year, 1465, he completed ten books On Honest Indulgence and Health. Print is still five years away; for now it circulates only as a manuscript among those with connections to Rome.
+
+**A Cook's Hand, A Scholar's Pen**
+
+Platina himself did not cook. Most of the recipes he took from Martino da Como, a celebrated master chef who served at the foremost Italian courts. What Platina added was justification — a humanist framework declaring that pleasure at the table is no sin, so long as it is honest and balanced with health. For the first time, a cookbook does not claim that food is mere necessity or medicine. It claims food can be a true joy, and that there is nothing dishonourable in it.
+
+*"Voluptas honesta" — honest pleasure. Not feasting, not fasting. Something between, worthy of mastery.*
+
+**What It Means for the Monastery**
+
+The brother who leafs through this book holds proof that even a monastic kitchen may host a bishop with dignity — not from excess, but from honest hospitality, as the Pope's own secretary advises. A mortar for grinding spice, a spit for roasts worthy of the table — this is the last step from surviving winter to giving Ecclesia something to be proud of.
+
+**GAME EFFECT:** Reading this treatise unlocks the ability to research the *De honesta voluptate* tech — the Mortar, the Spit, and elite recipes (Cooking subtab) that raise Church Influence.`
+        },
+        {
+            id: 'book_buch_guter_speise',
+            title: 'Daz Buch von guter Spise',
+            title_en: 'The Book of Good Food',
+            category: 'innovation',
+            unlockDay: 110,
+            icon: '📗',
+            author: 'sebráno Michaelem de Leone, protonotářem würzburského biskupa',
+            year: 'sestaveno koncem 40. let 14. století, Würzburg',
+            content: `**Sběratel, ne kuchař**
+
+Michael de Leone knihu nenapsal — sesbíral ji. Jako protonotář würzburského biskupa měl přístup k receptům, co kolovaly po kuchyních biskupského dvora, a dal je zapsat dohromady s písněmi a jinými texty do svého domácího sborníku. Je to první kuchařská kniha v němčině vůbec, a hned na začátku říká, k čemu je:
+
+*"Tato kniha mluví o dobré krmi, ta i nezkušené kuchaře moudrými učiní."*
+
+**Velká jídla z malých věcí**
+
+Úvodní verše slibují něco, co žádná dřívější kniha ve skriptoriu neřešila: *"jak lze udělat velká jídla z mnoha malých věcí"* — ne přežití, ale hostina. Recepty uvnitř mluví o blamenžé z kuřecích prsou a mandlového mléka, o jehňatech nadívaných vejci a kořením, o pečeních v kůži tak, aby vypadala živá na stole. Žádné slovo o soli a kouři — to je práce sedláka a řezníka, ne mistra kuchaře. Ta zůstává v Ruralia Commoda a Tacuinum Sanitatis, ne tady.
+
+**Co znamená, že kniha dorazila do kláštera**
+
+Bratr, co tuhle knihu opisuje, nekopíruje návod na přežití zimy — kopíruje důkaz, že kuchyně může být řemeslo, ne jen nutnost. Klášter, co si tohle přečte a vezme vážně, nezůstane u ohniště v jizbě. Postaví věžovou udírnu, jak radí starší traktáty, ale tentokrát ne z nouze — z ambice. A jednou, až přijde hmoždíř na koření a rožeň na pečeně, bude tahle kniha tím, co za to může.
+
+**HERNÍ EFEKT:** Přečtením tohoto spisu odemkneš možnost výzkumu tech *Tractatus de Conservatione Carnium* — stavbu skutečné věžové Udírny. Toto je první krok ke skutečné panské kuchyni; další vybavení (hmoždíř, rožeň, dávkové vaření) bude následovat.`,
+            content_en: `**A Collector, Not a Cook**
+
+Michael de Leone did not write this book — he collected it. As protonotary to the Bishop of Würzburg, he had access to recipes circulating through the episcopal kitchens, and had them written down together with songs and other texts into his household compilation. It is the first cookbook in the German language, and it states its purpose at once:
+
+*"This book speaks of good food, and it will make even unskilled cooks wise."*
+
+**Great Dishes from Small Things**
+
+The opening verses promise something no earlier book in the scriptorium addressed: *"how one may make great dishes from many small things"* — not survival, but feast. The recipes within speak of blancmange from chicken breast and almond milk, of lambs stuffed with egg and spice, of roasts dressed back in their own skin to look alive upon the table. Not a word about salt or smoke — that is a peasant's and butcher's work, not a master cook's. That remains in the Ruralia Commoda and the Tacuinum Sanitatis, not here.
+
+**What It Means That the Book Has Arrived**
+
+The brother who copies this book is not copying instructions for surviving winter — he is copying proof that cooking can be a craft, not merely a necessity. A monastery that reads this and takes it seriously will not remain at the hearth in the smoke-chamber. It will build a tower smokehouse, as the older treatises advise, but this time not from want — from ambition. And one day, when the mortar for spices and the spit for roasts arrive, this book will be why.
+
+**GAME EFFECT:** Reading this treatise unlocks the ability to research the *Tractatus de Conservatione Carnium* tech — building a true tower Smokehouse. This is the first step toward a real noble kitchen; further equipment (mortar, spit, batch cooking) will follow.`
+        },
+        {
+            id: 'book_tacuinum_carnium',
+            title: 'Tacuinum Sanitatis: O mase a jeho nápravě',
+            title_en: 'Tacuinum Sanitatis: On Meat and Its Correction',
+            category: 'innovation',
+            unlockDay: 60,
+            icon: '⚖️',
+            author: 'Ibn Butlán z Bagdádu (lat. překlad ze 13. stol.)',
+            year: 'sepsáno 11. stol., přeloženo do latiny kolem 1250–1266',
+            content: `**Z Bagdádu na sicilský dvůr**
+
+Ibn Butlán, křesťanský lékař působící v Bagdádu, sepsal ve 11. století Taqwím as-Sihha — "Tabulkový soupis zdraví". Dílo zůstalo dvě stě let v arabštině, než je kolem poloviny 13. století dal přeložit do latiny sicilský a neapolský dvůr. Latinský název — Tacuinum — je jen zkomolené arabské "taqwím", tabulka. A tabulkou to skutečně je: takřka 280 položek, každá s vlastní "přirozeností" — horká, či studená, vlhká, či suchá — podle staré humorální nauky, co ovládala evropskou medicínu od Galéna až po tenhle klášter.
+
+**Vepřové jako nebezpečí**
+
+Butlánova tabulka neváhá: vepřové maso je svou přirozeností *studené a vlhké*. Snězeno syrové nebo jen zbrkle upravené, kazí tělesné šťávy a plodí neduhy — kašel, zahlenění, těžkost. Náprava je ale přesně opačná: silný kouř, co maso vysuší, a hrubá sůl, co odejme vlhkost, obrátí přirozenost masa k suchu a teplu, než ho tělo vůbec ochutná. Nejde tedy jen o to maso *uchovat* — jde o to ho *napravit*, dřív než se dostane na stůl.
+
+*Co se mnich dočte: přesné poměry soli, ledku a koření pro nakládání do láků, a nutnost odvést kouř pryč z obytných místností — ne kvůli zápachu, ale kvůli zdraví plic těch, kdo v jizbě žijí.*
+
+**Černá kuchyně**
+
+Odtud plyne rada, co zní jako stavební návod, ne lékařská kniha: odděl oheň od obydlí. Široký komín — soplouch — nad zvláštní klenutou kuchyní odvede kouř tam, kam patří, a maso zavěšené v jeho hrdle dostane silnější, rovnoměrnější tah než v obyčejné dymné jizbě. Kuchyň sama zčerná sazemi — proto jí říkají černá — ale obytné komnaty zůstanou čisté a mniši v nich nekašlou.
+
+**HERNÍ EFEKT:** Přečtením tohoto spisu odemkneš možnost výzkumu tech *Tacuinum Sanitatis* — stavbu Černé kuchyně se Soplouchem (rychlejší a účinnější uzení než prosté Ohniště, pořád ne tak dobré jako skutečná Udírna) a vylepšení solných kádí.`,
+            content_en: `**From Baghdad to the Sicilian Court**
+
+Ibn Butlan, a Christian physician working in Baghdad, composed in the 11th century the Taqwīm as-Sihha — the "Tabular Register of Health." The work remained in Arabic for two centuries before the Sicilian and Neapolitan court had it translated into Latin around the mid-13th century. The Latin name — Tacuinum — is merely the corrupted Arabic "taqwīm," a table. And a table it truly is: nearly 280 entries, each with its own "nature" — hot or cold, wet or dry — following the old humoral doctrine that ruled European medicine from Galen down to this very monastery.
+
+**Pork as Danger**
+
+Butlan's table does not hesitate: pork, by its nature, is *cold and wet*. Eaten raw or carelessly prepared, it corrupts the bodily humours and breeds ailments — coughing, congestion, heaviness. The remedy is precisely the opposite: strong smoke to dry the meat, and coarse salt to draw off the moisture, turning the meat's nature toward dryness and warmth before the body ever tastes it. It is not merely a matter of *preserving* the meat — it is a matter of *correcting* it, before it reaches the table at all.
+
+*What the monk reads: exact proportions of salt, saltpetre, and spice for the brine-vat, and the necessity of carrying the smoke away from living quarters — not for the smell's sake, but for the lungs of those who dwell there.*
+
+**The Black Kitchen**
+
+From this follows advice that reads like a building manual, not a medical text: separate the fire from the dwelling. A wide flue — a smoke-hood — above a special vaulted kitchen carries the smoke where it belongs, and meat hung in its throat draws a stronger, more even current than in a plain smoke-chamber. The kitchen itself blackens with soot — hence its name — but the living quarters stay clean, and the brothers within do not cough.
+
+**GAME EFFECT:** Reading this treatise unlocks the ability to research the *Tacuinum Sanitatis* tech — building the Black Kitchen with its Smoke-Hood (faster and more effective smoking than a plain Hearth, though still not as good as a true Smokehouse) and an upgrade to the salting vats.`
+        },
+        {
+=======
+>>>>>>> 116e5f2b6e87558caa6df5eb0650bd77fd9ab099
+            id: 'book_ruralia_meat',
+            title: 'Ruralia Commoda: O zabíjačce a uchování masa',
+            title_en: 'Ruralia Commoda: On Slaughter and the Preservation of Meat',
+            category: 'innovation',
+            unlockDay: 12,
+            icon: '🧂',
+            author: "Petrus de Crescentiis (Pietro de' Crescenzi)",
+            year: 'psáno 1304–1309 (opis z mnišské tradice, ne tisk)',
+            content: `**Statkářův rukopis, ne kuchařka**
+
+Stejný Petrus de Crescentiis, co psal o včelách, věnoval jinou knihu svého díla i chovu a zabíjení dobytka — Ruralia Commoda není kuchařka pro panskou tabuli, je to hospodářský manuál pro toho, kdo musí přežít zimu. Čerpá, jako všude jinde ve svém díle, z Catona, Varrona, Columelly a Palladia — starých římských hospodářů, kteří věděli, že hladová zima zabije klášter stejně spolehlivě jako mor, jen pomaleji.
+
+**Kdy a jak zabíjet**
+
+Crescenzi radí zabíjet dobytek až po prvních mrazech — dřív maso v teple zkazí i ta nejlepší sůl. Ve středoevropských krajích se toho drží dodnes: prase padne kolem svatého Martina, ne dřív. Maso se má hned po porážce nasolit hrubou solí, vrstva masa, vrstva soli, uleženo pod závažím v dřevěné kádi — sůl vytáhne šťávu z masa i chuť ke hnilobě zároveň.
+
+*„Maso budiž hrubou solí posypáno a v jizbě pod střechou zavěšeno, by kouřem z ohniště pomalu vysychalo."*
+
+**Dymná jizba**
+
+Kde není zvláštní udírna, poslouží obyčejná jizba s ohništěm uprostřed — přesně to, co má každý klášter už dnes. Nasolené maso zavěšené vysoko pod střechou, kam stoupá kouř z ohně, jímž se stejně topí, pomalu vysychá týdny místo dnů. Není to dokonalá ochrana — takhle uzené maso časem přece jen zvlhne a zkazí se, ne jako v pravé věžové udírně, o níž píší jiní autoři — ale pro chudý dvůr, co nemá na zvláštní stavbu, je to rozdíl mezi hladem a přežitím.
+
+**Chudoba jako učitel**
+
+Crescenzi nepíše pro bohaté panství — píše pro každého, kdo má dvůr a zimu před sebou. Bratr, co se skloní nad touhle stránkou, nepotřebuje kovárnu ani zedníka. Potřebuje jen sůl, kterou má, a oheň, který už hoří.
+
+**HERNÍ EFEKT:** Přečtením tohoto spisu odemkneš možnost výzkumu tech *Ruralia Commoda — O uchování masa* — solení a pasivní uzení nad existujícím Ohništěm, žádná nová stavba. Uzené maso takhle vydrží déle než syrové, ale ne navěky — na to je potřeba pravá udírna.`,
+            content_en: `**A Landowner's Manuscript, Not a Cookbook**
+
+The same Petrus de Crescentiis who wrote of bees devoted another book of his work to raising and slaughtering livestock — the Ruralia Commoda is no cookbook for a lord's table, but a husbandry manual for one who must survive the winter. He draws, as throughout his work, on Cato, Varro, Columella, and Palladius — old Roman husbandmen who knew that a hungry winter kills a monastery as surely as plague, only slower.
+
+**When and How to Slaughter**
+
+Crescenzi advises slaughtering only after the first frosts — before that, even the best salt cannot save meat in the warmth. Central European lands hold to this still: the pig falls around Martinmas, not before. The meat should be salted at once with coarse salt, layer of meat, layer of salt, weighted down in a wooden vat — the salt draws out both the juice and the taste for rot together.
+
+*"Let the meat be strewn with coarse salt and hung in the chamber beneath the roof, that it may slowly dry in the hearth's smoke."*
+
+**The Smoke-Chamber**
+
+Where there is no proper smokehouse, an ordinary chamber with a hearth at its centre will serve — exactly what every monastery already has today. Salted meat hung high beneath the roof, where the smoke rises from the same fire that heats the room, dries slowly over weeks instead of days. It is no perfect protection — meat smoked this way will in time grow damp and spoil, unlike the true tower smokehouse other authors describe — but for a poor household with no means to build one, it is the difference between hunger and survival.
+
+**Poverty as Teacher**
+
+Crescenzi does not write for a wealthy estate — he writes for anyone with a yard and a winter ahead. The brother who bends over this page needs no forge, no mason. He needs only the salt he already has, and the fire already burning.
+
+**GAME EFFECT:** Reading this treatise unlocks the ability to research *Ruralia Commoda — On Preserving Meat* — salting and passive smoking over the existing Hearth, no new building required. Meat smoked this way lasts longer than raw, but not forever — for that you need a proper smokehouse.`
         },
         {
             id: 'book_ruralia_apibus',
@@ -6534,6 +6709,7 @@ Každý mnich měl přidělený svůj vlastní záhon, a každý tento záhon by
 // ================================================
 // 3. EASTER EGGS - Skryté achievementy a speciální itemy
 // ================================================
+
 // ═══ src/data/library-helpers.js ═══
 const EasterEggsDB = {
     achievements: [
@@ -7805,6 +7981,9 @@ const ItemsDB = {
     "seeds_barley": { name: "Osivo ječmene", name_en: "Barley Seed", icon: "🌾", type: "mat", desc: "Osivo ječmene. Pro pole, i pro pivovar.", desc_en: "Barley seed. For the fields — and the brewery." },
     "seeds_oats": { name: "Osivo ovsa", name_en: "Oat Seed", icon: "🌾", type: "mat", desc: "Osivo ovsa. Krmivo pro koně a dobytek.", desc_en: "Oat seed. Feed for horses and livestock." },
     "seeds_millet": { name: "Osivo prosa", name_en: "Millet Seed", icon: "🌾", type: "mat", desc: "Osivo prosa. Nenáročná plodina pro pole.", desc_en: "Millet seed. An undemanding field crop." },
+    // coquina-tier1-mrd (7.8.2026): pohanka — přišla z východu, šířila se
+    // Evropou v 15. stol., výborná pro těžce pracující lid (Pohanka s česnekem, Tier 1 recept)
+    "seeds_pohanka": { name: "Osivo pohanky", name_en: "Buckwheat Seed", icon: "🌾", type: "mat", desc: "Osivo pohanky. Nová plodina z východu, teprve se šíří po Evropě.", desc_en: "Buckwheat seed. A new crop from the east, only just spreading through Europe." },
     "seeds_peas": { name: "Osivo hrachu", name_en: "Pea Seed", icon: "🌱", type: "mat", desc: "Osivo hrachu. Luštěnina pro pole.", desc_en: "Pea seed. A legume for the fields." },
     "seeds_lentils": { name: "Osivo čočky", name_en: "Lentil Seed", icon: "🌱", type: "mat", desc: "Osivo čočky. Drobná luštěnina, základní potravina vedle hrachu a obilí.", desc_en: "Lentil seed. A small legume, a staple alongside peas and grain." },
     "seeds_vikev": { name: "Osivo vikve", name_en: "Vetch Seed", icon: "🌱", type: "mat", desc: "Osivo vikve. Luštěnina pro pole, hojí půdu.", desc_en: "Vetch seed. A legume for the fields, heals the soil." },
@@ -8259,8 +8438,12 @@ const ItemsDB = {
     "sheep": { name: "Ovce", name_en: "Sheep", icon: "🐑", type: "animal", desc: "Ovce produkuje vlnu, mléko a kůži.", desc_en: "Sheep produces wool, milk and hide." },
 
     // ── Produkty zvířat ────────────────────────────────────────────────────
-    "egg": { name: "Vejce", name_en: "Egg", icon: "🥚", type: "food", desc: "Čerstvé vejce ze slepice. Jídlo i pigment.", desc_en: "Fresh egg from the hen. Food and pigment." },
-    "milk": { name: "Mléko", name_en: "Milk", icon: "🥛", type: "mat", desc: "Čerstvé mléko od ovce.", desc_en: "Fresh milk from the sheep." },
+    "egg": { name: "Slepičí vejce", name_en: "Hen Egg", icon: "🥚", type: "food", desc: "Čerstvé vejce ze slepice. Jídlo i pigment.", desc_en: "Fresh egg from the hen. Food and pigment." },
+    // vejce-druhy-mrd (7.8.2026): holubí = Columbarium (dřív omylem míchané do 'egg'), křepelčí/kachní = jen scavenge, žádná chovná zvířata zatím
+    "pigeon_egg": { name: "Holubí vejce", name_en: "Pigeon Egg", icon: "🥚", type: "food", desc: "Drobné vejce z holubníku. Menší než slepičí, stejně chutné.", desc_en: "A small egg from the dovecote. Smaller than a hen's, just as good to eat." },
+    "quail_egg": { name: "Křepelčí vejce", name_en: "Quail Egg", icon: "🥚", type: "food", desc: "Drobounké skvrnité vajíčko z hnízda v trávě. Vzácný nález.", desc_en: "A tiny speckled egg from a nest in the grass. A rare find." },
+    "duck_egg": { name: "Kachní vejce", name_en: "Duck Egg", icon: "🥚", type: "food", desc: "Vejce z divoké kachny, nalezené u vody. Větší a tučnější než slepičí.", desc_en: "A wild duck's egg, found by the water. Larger and richer than a hen's." },
+    "milk": { name: "Ovčí mléko", name_en: "Sheep Milk", icon: "🥛", type: "mat", desc: "Čerstvé mléko od ovce.", desc_en: "Fresh milk from the sheep." },
     "wool": { name: "Vlna", name_en: "Wool", icon: "🧶", type: "mat", desc: "Střižená vlna. Na přízi, tkaní i šití.", desc_en: "Shorn wool. For spinning, weaving and sewing." },
     "wool_thread": { name: "Vlněná příze", name_en: "Wool Yarn", icon: "🧶", type: "mat", desc: "Spředená vlna. Na tkaní soukna.", desc_en: "Spun wool. For weaving woolen cloth." },
     "wool_cloth": { name: "Soukno", name_en: "Wool Cloth", icon: "🧶", type: "lore", desc: "Tkané vlněné sukno. Teplejší a hrubší než plátno.", desc_en: "Woven wool cloth. Warmer and coarser than linen." },
@@ -8388,6 +8571,19 @@ const ItemsDB = {
     "cow_milk": { name: "Kravské mléko", name_en: "Cow Milk", icon: "🥛", type: "mat", desc: "Husté kravské mléko z klášterního chléva. Základ másla i sýra.", desc_en: "Rich cow's milk from the monastery byre. The base of butter and cheese." },
     "lard": { name: "Sádlo", name_en: "Lard", icon: "🫙", type: "mat", desc: "Vepřové sádlo. Konzervant, mazivo i palivo do lamp.", desc_en: "Pig lard. Preservative, lubricant and lamp fuel." },
     "cured_meat": { name: "Uzené maso", name_en: "Cured Meat", icon: "🥩", type: "food", desc: "Nasolené a uzené vepřové. Vydrží celou zimu. Zásobování konvršů a čeledi.", desc_en: "Salted and smoked pork. Lasts all winter. Provisions for lay brothers and servants." },
+    // udirna-mrd (7.8.2026): pork nahrazuje generické 'meat' při porážce prasete
+    // (dřív se míchalo s divokým masem z lovu). salted_* = mezikrok solení
+    // (potřeba kádě/barrel_tool), pak Udírna → cured_meat/cured_beef.
+    "pork": { name: "Vepřové maso", name_en: "Pork", icon: "🍖", type: "food_raw", desc: "Syrové vepřové z chlívku. Uvař, nebo nasol a udi na zimu.", desc_en: "Raw pork from the sty. Cook it, or salt and smoke it for winter." },
+    "salted_pork": { name: "Nasolené vepřové", name_en: "Salted Pork", icon: "🧂", type: "food_raw", desc: "Vepřové v soli, čeká na udírnu. Sůl vytáhla vodu, ale ještě to není hotovo.", desc_en: "Pork packed in salt, awaiting the smokehouse. The salt has drawn out the water, but it isn't finished yet." },
+    "salted_beef": { name: "Nasolené hovězí", name_en: "Salted Beef", icon: "🧂", type: "food_raw", desc: "Hovězí v soli, čeká na udírnu.", desc_en: "Beef packed in salt, awaiting the smokehouse." },
+    // coquina-tier1-mrd (7.8.2026): Tier 1 pasivní uzení (Dymná jizba) —
+    // existující Ohniště, žádná nová stavba, ale ne plná imunita rozkladu
+    // jako Tier 3 cured_meat. Odlišná položka, ať se ty dva produkty nemíchají.
+    "smoked_meat_home": { name: "Domácí uzené maso", name_en: "Home-Smoked Meat", icon: "🍖", type: "food", desc: "Prosolené maso zavěšené nad ohništěm, pomalu vysychající kouřem. Vydrží déle než syrové, ale ne navěky — na to je potřeba pravá udírna.", desc_en: "Salted meat hung over the hearth, slowly drying in the smoke. Lasts longer than raw, but not forever — for that you need a proper smokehouse." },
+    // coquina-tier2-mrd (7.8.2026): Černá kuchyně/Soplouch — mezi Tier 1
+    // (Ohniště, 0.05) a Tier 3 (Udírna, 0.005), plynulá škála.
+    "smoked_meat_chimney": { name: "Komínové uzené maso", name_en: "Chimney-Smoked Meat", icon: "🍖", type: "food", desc: "Maso zavěšené v širokém soplouchu nad černou kuchyní. Lepší tah kouře než prostá jizba, ale pořád ne studený kouř skutečné udírny.", desc_en: "Meat hung in the wide flue above the black kitchen. Better draw than a simple chamber, but still not the cold smoke of a true smokehouse." },
     "beef": { name: "Hovězí maso", name_en: "Beef", icon: "🍖", type: "food_raw", desc: "Syrové hovězí z kravína. Uvař nebo usuš před jídlem.", desc_en: "Raw beef from the byre. Cook or cure before eating." },
     "cured_beef": { name: "Uzené hovězí", name_en: "Cured Beef", icon: "🥩", type: "food", desc: "Nasolené a uzené hovězí. Vydrží celou zimu.", desc_en: "Salted and smoked beef. Lasts all winter." },
     "quill_premium": { name: "Brk holubí", name_en: "Pigeon Quill", icon: "🪶", type: "mat", desc: "Holubí brk. Jemnější než husí, vhodný pro drobné písmo a iluminace.", desc_en: "Pigeon quill. Finer than goose feather, suited for small script and illumination." },
@@ -8405,6 +8601,14 @@ const ItemsDB = {
     "muskatovy_kvet": { name: "Muškátový květ", name_en: "Mace", icon: "🔴", type: "mat", desc: "Sytě červený míšek obalující muškátový oříšek. Jemnější chuť, dražší než oříšek sám.", desc_en: "The bright red membrane wrapping the nutmeg seed. A finer flavour, pricier than the nut itself." },
     "skorice": { name: "Skořice", name_en: "Cinnamon", icon: "🟫", type: "mat", desc: "Ve skutečnosti čínská kasie — drsnější a ostřejší než pravá cejlonská skořice.", desc_en: "In truth Chinese cassia — coarser and sharper than true Ceylon cinnamon." },
     "safran": { name: "Šafrán", name_en: "Saffron", icon: "🟡", type: "mat", desc: "Nejdražší koření světa. Na půl kila je třeba 75 000 květů. Zlatá barva na panském stole.", desc_en: "The world's most expensive spice. Half a kilo needs 75,000 flowers. A golden colour for the lord's table." },
+    // coquina-tier4-mrd (7.8.2026): panská kuchyně, Platina/Martino da Como.
+    // almond = Giacomo import (Čechy mandle nepěstují). paste/ground_spice =
+    // mezikroky přes Hmoždíř. pork_pie_abbot = vlajkový elitní recept,
+    // propojuje Udírnu (cured_meat) + koření + sádlo napříč systémy.
+    "almond": { name: "Mandle", name_en: "Almonds", icon: "🌰", type: "mat", desc: "Dovezené ze Středomoří. V Čechách nerostou — drahá surovina panské kuchyně.", desc_en: "Imported from the Mediterranean. They do not grow in Bohemia — an expensive ingredient of the noble kitchen." },
+    "almond_paste": { name: "Mandlová pasta", name_en: "Almond Paste", icon: "🥜", type: "food_raw", desc: "Mandle rozdrcené v hmoždíři na hladkou pastu. Základ mandlového mléka, marcipánu i sladkých kaší.", desc_en: "Almonds ground smooth in the mortar. The base of almond milk, marzipan and sweet porridges." },
+    "ground_spice": { name: "Mleté koření", name_en: "Ground Spice", icon: "✨", type: "mat", desc: "Drahé koření rozdrcené na jemný prášek. Bez hmoždíře zůstává koření jen hrubé kusy — mistr kuchař potřebuje prášek.", desc_en: "Costly spice ground to a fine powder. Without a mortar, spice remains coarse lumps — a master cook needs powder." },
+    "pork_pie_abbot": { name: "Masový koláč pro Opata", name_en: "Meat Pie for the Abbot", icon: "🥧", type: "food", desc: "Uzené maso, mleté koření a sádlo zapečené v tvrdé krustě — vydrží týdny. Okázalé jídlo hodné biskupské návštěvy.", desc_en: "Smoked meat, ground spice and lard baked into a hard crust — it keeps for weeks. A showpiece worthy of a bishop's visit." },
     "hedvabi": { name: "Hedvábí", name_en: "Silk", icon: "🧣", type: "mat", desc: "Vzácná tkanina z Východu. Giacomo ji sežene, i když sám neví odkud přesně.", desc_en: "A rare fabric from the East. Giacomo procures it, though even he isn't quite sure where from." },
 
     "rennet": { name: "Syřidlo", name_en: "Rennet", icon: "🫙", type: "mat", desc: "Sráží mléko pro výrobu sýra. Ze slezu mláděte nebo z bylin.", desc_en: "Curdles milk for cheesemaking. From a kid's stomach or from herbs." },
@@ -8489,6 +8693,7 @@ const ItemsDB = {
     "barley": { name: "Ječmen", name_en: "Barley", icon: "🌾", type: "mat", desc: "Dvouřadý ječmen. Základ každého klášterního piva. Bez ječmene není pivovar.", desc_en: "Two-row barley. The basis of every monastic ale. Without barley, no brewery." },
     "oats": { name: "Oves", name_en: "Oats", icon: "🌾", type: "mat", desc: "Oves setý. Krmivo pro koně a osla. Bez ovsa tažný dobytek ztrácí sílu.", desc_en: "Common oats. Feed for horses and donkeys. Without oats, draught animals lose strength." },
     "millet": { name: "Proso", name_en: "Millet", icon: "🌾", type: "mat", desc: "Proso seté. Rychlá kaše, krmivo pro drůbež. Odolné i v suchu.", desc_en: "Common millet. Quick porridge, poultry feed. Resilient even in drought." },
+    "pohanka": { name: "Pohanka", name_en: "Buckwheat", icon: "🌾", type: "mat", desc: "Pohanka setá. Výborná pro těžce pracující — kaše hustá a syté.", desc_en: "Common buckwheat. Excellent for hard labourers — a thick, filling porridge." },
     "peas": { name: "Hrách", name_en: "Peas", icon: "🫛", type: "mat", desc: "Polní hrách. Polévka, krmivo, obohacuje půdu dusíkem.", desc_en: "Field peas. Soup, fodder, enriches soil with nitrogen." },
     "lentils": { name: "Čočka", name_en: "Lentils", icon: "🟤", type: "mat", desc: "Polní čočka. Základní potravina vedle hrachu a obilí — sytá, skladná, obohacuje půdu dusíkem.", desc_en: "Field lentils. A staple alongside peas and grain — filling, storable, enriches soil with nitrogen." },
     "vikev": { name: "Vikev", name_en: "Vetch", icon: "🌸", type: "mat", desc: "Drobná luštěnina — levné krmivo pro dobytek i holuby, na kořenech váže dusík. Sela se na úhor.", desc_en: "A small legume — cheap fodder for livestock and pigeons, fixes nitrogen at the roots. Sown on fallow ground." },
@@ -10597,7 +10802,7 @@ const TechTree = [
     cost: 10,
     desc: "Ibn Butlanova tabulka zdraví: chlad a tma prodlužují život potravin. Klášterní cella — chladný klenutý sklep — byl vědomou zbraní proti hladu. Odemkne: stavbu Cella (kapacita 600j, decay organických 2–3× pomalejší).",
     desc_en: "Ibn Butlan's table of health: cold and darkness prolong the life of foodstuffs. The monastic cella — a cool vaulted cellar — was a conscious weapon against hunger. Unlocks: Cella building (capacity 600 units, organic decay 2–3× slower).",
-    unlocks: [], requires: ["tech_almarium", "tech_cellarium"]
+    unlocks: [], requires: ["tech_almarium", "tech_cellarium"], requiresBook: "book_tacuinum_sanitatis"
   },
 
   {
@@ -10694,6 +10899,49 @@ const TechTree = [
     desc: "Klášterní cellarius vedl přesný soupis každého pytle mouky a každého sudu piva. Bez inventáře se zásoby ztrácejí samy od sebe. Odemkne: subtab Inventarium v Cellariu — přehled zásob. POZOR: Kdo vede soupis, vidí i ztráty. Od této chvíle se zásoby kazí — mléko kysne, maso plesniví, myši žerou zrní. Připrav se na hospodaření se zásobami.",
     desc_en: "The monastic cellarius kept an exact inventory of every sack of flour and every barrel of ale. Without an inventory, stores disappear of their own accord. Unlocks: Inventarium subtab in the Cellarium — stock overview. BEWARE: He who keeps the ledger also sees the losses. From now on stores decay — milk sours, meat moulds, mice eat the grain. Prepare to manage your stores.",
     unlocks: ["mousetrap", "fly_trap_paper"], requires: ["tech_almarium"]
+  },
+
+  // ── COQUINA TIER 1 — Dymná jizba, pasivní uzení (Ruralia Commoda) ───────
+  // coquina-tier1-mrd (7.8.2026): brzy dostupný, existující Ohniště, žádná
+  // nová stavba. Ne plná imunita rozkladu — jen prodloužená (smoked_meat_home).
+  {
+    id: "tech_ruralia_meat", name: "Ruralia Commoda — O uchování masa", name_en: "Ruralia Commoda — On Preserving Meat",
+    cost: 10,
+    desc: "Pietro de' Crescenzi, hospodářský manuál z počátku 14. století, nejopisovanější svého druhu. \"Maso budiž hrubou solí posypáno a v jizbě pod střechou zavěšeno, by kouřem z ohniště pomalu vysychalo.\" Odemkne: solení a pasivní uzení nad Ohništěm.",
+    desc_en: "Pietro de' Crescenzi's agricultural manual from the early 14th century, the most widely copied of its kind. \"Let the meat be strewn with coarse salt and hung in the chamber beneath the roof, that it may slowly dry in the hearth's smoke.\" Unlocks: salting and passive smoking over the Hearth.",
+    unlocks: ["smoked_meat_home"], requires: ["tech_writing_basics"], requiresBook: "book_ruralia_meat"
+  },
+
+  // ── COQUINA TIER 2 — Černá kuchyně, Soplouch (Tacuinum Sanitatis) ────────
+  // coquina-tier2-mrd (7.8.2026): humorální medicína — vepřové "studené a
+  // vlhké" musí kouř+sůl napravit. Mezistupeň mezi Ohništěm a Udírnou.
+  {
+    id: "tech_tacuinum_sanitatis", name: "Tacuinum Sanitatis — Tabulky zdraví", name_en: "Tacuinum Sanitatis — Tables of Health",
+    cost: 17,
+    desc: "Ibn Butlánův lékařský spis, přeložený z arabštiny na sicilském dvoře. Vepřové je svou přirozeností studené a vlhké — jen silný kouř a sůl je napraví, než ho tělo ochutná. Odemkne: stavbu Černé kuchyně se Soplouchem, vylepšené solné kádě.",
+    desc_en: "Ibn Butlan's medical treatise, translated from Arabic at the Sicilian court. Pork is by nature cold and wet — only strong smoke and salt can correct it before the body tastes it. Unlocks: building the Black Kitchen with its Smoke-Hood, improved salting vats.",
+    unlocks: ["cerna_kuchyne"], requires: ["tech_ruralia_meat"], requiresBook: "book_tacuinum_carnium"
+  },
+
+  // ── UDÍRNA (Ars Fumandi) — Coquina Tier 3 ────────────────────────────────
+  {
+    id: "tech_udirna", name: "Tractatus de Conservatione Carnium", name_en: "Tractatus de Conservatione Carnium",
+    cost: 31,
+    desc: "Traktát o konzervaci masa. Sůl vytáhne vodu, studený kouř z tvrdého dřeva dokoná zbytek — nikdy ne ze smrku či borovice, ty maso znahořknou a otráví. Odemkne: stavbu Udírny, solení a uzení masa (subtab Vaření).",
+    desc_en: "A treatise on preserving meat. Salt draws out the water; cold smoke from hardwood finishes the work — never spruce or pine, which turn meat bitter and poisonous. Unlocks: building the Smokehouse, salting and smoking meat (Cooking subtab).",
+    unlocks: ["udirna"], requires: ["tech_inventarium", "tech_tacuinum_sanitatis"], requiresBook: "book_buch_guter_speise"
+  },
+
+  // ── COQUINA TIER 4 — Panská kuchyně (Platina, 1465) ──────────────────────
+  // coquina-tier4-mrd (7.8.2026): Hmoždíř + Rožeň, elitní recepty s vlivem
+  // na Ecclesia. Poslední vrstva Coquina stromu — vazba na Visitatio
+  // scoring zatím jen přímý addInfluence, hlubší napojení later.
+  {
+    id: "tech_platina_honesta", name: "De honesta voluptate et valetudine", name_en: "De honesta voluptate et valetudine",
+    cost: 45,
+    desc: "Platina, papežský sekretář, sepsal letos deset knih o počestném požitku ze stolu. Recepty mistra Martina da Como, ospravedlněné humanistickým perem. Odemkne: Hmoždíř, Rožeň, elitní recepty pro vzácné hosty.",
+    desc_en: "Platina, the Pope's secretary, wrote ten books this very year on honest pleasure at table. Recipes by master Martino da Como, justified by a humanist's pen. Unlocks: the Mortar, the Spit, elite recipes for honoured guests.",
+    unlocks: ["velky_hmozdir", "rozen"], requires: ["tech_udirna"], requiresBook: "book_platina_honesta"
   },
 
   {
@@ -14254,6 +14502,8 @@ const ContactsDB = {
             muskatovy_kvet: { price: 20, stock: 1, minRelation: 32, minReputation: { axis: 'slechta', value: 32 } },
             hedvabi:    { price: 15, stock: 2, minRelation: 30, minReputation: { axis: 'slechta', value: 30 } },
             safran:     { price: 28, stock: 1, minRelation: 35, minReputation: { axis: 'slechta', value: 35 } },
+            // coquina-tier4-mrd (7.8.2026): mandle pro panskou kuchyň (Platina)
+            almond:     { price: 12, stock: 3, minRelation: 22 },
             alum:       { price: 8,  stock: 4, minRelation: 15 },
             sandarak:   { price: 14, stock: 2, minRelation: 22 },
             sal_ammoniac: { price: 18, stock: 2, minRelation: 28 },
@@ -23032,6 +23282,9 @@ const CellariumSystem = {
     // Produkty Gallinarium & Ovile
     chicken_meat:   4,
     mutton:         6,
+    // udirna-mrd (7.8.2026): hotový konzervovaný produkt, dražší než syrové maso
+    cured_meat:     10,
+    cured_beef:     12,
     lamb_hide:      8,
     chick:          3,
     // MRD Columbarium II — holoubě cennější než dospělý pták (historicky doloženo)
@@ -23372,6 +23625,8 @@ const CellariumSystem = {
       { itemId: 'seeds_barley',  basePrice: 5,   dailyStock: 30 },
       { itemId: 'seeds_oats',    basePrice: 4,   dailyStock: 30 },
       { itemId: 'seeds_millet',  basePrice: 6,   dailyStock: 20 },
+      // coquina-tier1-mrd (7.8.2026): pohanka — nová plodina, dostupná od začátku
+      { itemId: 'seeds_pohanka', basePrice: 8,   dailyStock: 10 },
       { itemId: 'seeds_peas',    basePrice: 5,   dailyStock: 25 },
       { itemId: 'seeds_vikev',   basePrice: 5,   dailyStock: 25 },
       // Kovářství (vyžaduje tech_kovarina)
@@ -24158,6 +24413,8 @@ const CellariumSystem = {
                           'egg','milk','chicken_meat','mutton','pigeon_squab','pigeon_meat',
                           'apple','pear','plum','cherry',
                           'beer','wine',
+                          // udirna-mrd (7.8.2026): Trh čeká na Cechy, Hospoda může teď
+                          'cured_meat','cured_beef',
                           'goat_cheese_fresh','goat_cheese_mature','goat_cheese_aged',
                           'sheep_cheese_fresh','sheep_cheese_mature','sheep_cheese_aged',
                           'cow_cheese_fresh','cow_cheese_mature','cow_cheese_aged','syrecky_fresh','syrecky_mature'];
@@ -24732,6 +24989,9 @@ const CellariumSystem = {
     const hasUvar = GameState.researchedTechs && GameState.researchedTechs.includes('tech_uvarium');
     const hasPOlei= GameState.researchedTechs && GameState.researchedTechs.includes('tech_prelum_olei');
     const hasCalcaria = GameState.researchedTechs && GameState.researchedTechs.includes('tech_calcaria');
+    const hasUdirna = GameState.researchedTechs && GameState.researchedTechs.includes('tech_udirna');
+    const hasTacuinum = GameState.researchedTechs && GameState.researchedTechs.includes('tech_tacuinum_sanitatis');
+    const hasPlatina = GameState.researchedTechs && GameState.researchedTechs.includes('tech_platina_honesta');
 
     const title = lang === 'en' ? 'Buildings' : 'Budovy';
 
@@ -24833,6 +25093,38 @@ const CellariumSystem = {
         desc_en: 'A kiln by the quarry. Days and nights of unbroken fire turn limestone into quicklime.',
         cost: { plank: 15, cut_stone: 20, clay: 20, hrebiky: 7 },
         req_tech: hasCalcaria, req_build: true, req_label: null,
+      },
+      {
+        id: 'cerna_kuchyne', icon: '🏚️',
+        name: 'Černá kuchyně', name_en: 'Black Kitchen',
+        desc: 'Klenutá kuchyně s širokým soplouchem. Rychlejší a účinnější uzení než holé Ohniště, oddělené od obytných místností.',
+        desc_en: 'A vaulted kitchen with a wide smoke-hood. Faster, more effective smoking than a bare Hearth, separated from the living quarters.',
+        cost: { cut_stone: 15, plank: 8, clay: 12, hrebiky: 3 },
+        req_tech: hasTacuinum, req_build: true, req_label: null,
+      },
+      {
+        id: 'udirna', icon: '🏚️',
+        name: 'Udírna', name_en: 'Smokehouse',
+        desc: 'Samostatná věžová udírna. Studený kouř z dřeva mimo ohniště vyudí maso na zimu.',
+        desc_en: 'A standalone tower smokehouse. Cold smoke from an offset hearth cures meat for winter.',
+        cost: { cut_stone: 25, plank: 15, rope: 4, clay: 8, hrebiky: 6 },
+        req_tech: hasUdirna, req_build: true, req_label: null,
+      },
+      {
+        id: 'velky_hmozdir', icon: '⚱️',
+        name: 'Velký hmoždíř', name_en: 'Great Mortar',
+        desc: 'Kamenný hmoždíř na drcení koření a mandlí. Bez něj zůstává drahé koření jen hrubé kusy.',
+        desc_en: 'A stone mortar for grinding spice and almonds. Without it, costly spice stays coarse lumps.',
+        cost: { cut_stone: 30, hrebiky: 2 },
+        req_tech: hasPlatina, req_build: true, req_label: null,
+      },
+      {
+        id: 'rozen', icon: '🍖',
+        name: 'Rožeň', name_en: 'Spit',
+        desc: 'Železný rožeň na pečeně hodné panského stolu.',
+        desc_en: 'An iron spit for roasts worthy of a lord\'s table.',
+        cost: { iron_ingot: 6, plank: 4, hrebiky: 3 },
+        req_tech: hasPlatina, req_build: true, req_label: null,
       },
     ];
 
@@ -27864,6 +28156,13 @@ const DecaySystem = {
         goat_milk:    { rate: 0.30 },
         cream:        { rate: 0.30 },
         meat:         { rate: 0.20, flies: true },
+        // udirna-mrd (7.8.2026): beef/mutton tu dřív chyběly úplně —
+        // syrové hovězí/skopové dnes vůbec nehnilo (bug). pork nový.
+        pork:         { rate: 0.20, flies: true },
+        beef:         { rate: 0.20, flies: true },
+        mutton:       { rate: 0.20, flies: true },
+        salted_pork:  { rate: 0.05 },
+        salted_beef:  { rate: 0.05 },
         fish:         { rate: 0.20, flies: true },
         carp:         { rate: 0.20, flies: true },
         chicken_meat: { rate: 0.20, flies: true },
@@ -27877,7 +28176,21 @@ const DecaySystem = {
         mushroom:     { rate: 0.15 },
         egg:          { rate: 0.05 },
         cheese:       { rate: 0.03, mice: true, flies: true },
-        cured_meat:   { rate: 0.01, mice: true },
+        // coquina-tier1-mrd (7.8.2026): domácí uzené — mezi syrovým (0.20)
+        // a pravou Udírnou (0.005) — vyplatí se postoupit na Tier 3.
+        smoked_meat_home: { rate: 0.05 },
+        // coquina-tier2-mrd (7.8.2026): Černá kuchyně — mezistupeň mezi
+        // Tier 1 (0.05) a Tier 3 (0.005), plynulá škála.
+        smoked_meat_chimney: { rate: 0.02 },
+        // udirna-mrd (7.8.2026): sníženo z 0.01 na 0.005 — Tier 3 má být
+        // 10× lepší než Tier 1 (smoked_meat_home 0.05), ne jen 5×.
+        cured_meat:   { rate: 0.005, mice: true },
+        cured_beef:   { rate: 0.005, mice: true },
+        // coquina-tier4-mrd (7.8.2026): almond_paste = čerstvá mletá pasta,
+        // mirror butter. pork_pie_abbot = tvrdá krusta funguje jako
+        // "středověký tupperware" (dle historického podkladu), vydrží týdny.
+        almond_paste: { rate: 0.08 },
+        pork_pie_abbot: { rate: 0.02, mice: true },
         lard:         { rate: 0.01 },
         rye_grain:    { rate: 0.005, mice: true },
         rye_grain_1:  { rate: 0.005, mice: true },
@@ -28406,6 +28719,295 @@ const DryingSystem = {
     },
 };
 
+// ═══ src/systems/CookingSystem.js ═══
+// ═══════════════════════════════════════════════════════════════════════════
+// COOKING SYSTEM v1 — Vaření (subtab Pracovna, vedle Sběr/Těžba)
+// udirna-mrd (7.8.2026). Mirror DryingSystem.js architektury (viz tam) —
+// instance-based, data-driven COOK_TYPES, self-guarded tick.
+// Rozšíření na budoucí recepty = jen další řádek v COOK_TYPES, žádný nový kód.
+// DryingSystem.js zůstává nedotčený — Vaření tab renderuje oba systémy
+// vedle sebe na UI úrovni, ne sloučené na úrovni dat.
+// ═══════════════════════════════════════════════════════════════════════════
+
+const CookingSystem = {
+
+    HOUR_MS: 60 * 60 * 1000,
+    TICK_GUARD_MS: 5 * 60 * 1000, // 5 min — kratší než DryingSystem (naše časy jsou v hodinách, ne dnech)
+
+    // coquina-tier1-mrd (7.8.2026): needsTech přidán ke KAŽDÉMU receptu —
+    // salting patří Tier 1 (Ruralia Commoda odemyká oboje, nasolování i
+    // pasivní uzení), cured_* zůstává Tier 3 (Udírna). Dva tiery, jeden
+    // sdílený mezikrok (salted_pork/salted_beef).
+    COOK_TYPES: {
+        // coquina-tier2-mrd (7.8.2026): "vylepšené solné kádě" z knihy —
+        // s tech_tacuinum_sanitatis se solení zrychlí 8h→5h. Viz _effectiveDuration().
+        salted_pork: { input: 'pork', inputQty: 1, saltQty: 2, needsItem: 'barrel_tool',
+            needsTech: 'tech_ruralia_meat', output: 'salted_pork', durationH: 8,
+            fastDurationH: 5, fastTech: 'tech_tacuinum_sanitatis' },
+        salted_beef: { input: 'beef', inputQty: 1, saltQty: 2, needsItem: 'barrel_tool',
+            needsTech: 'tech_ruralia_meat', output: 'salted_beef', durationH: 8,
+            fastDurationH: 5, fastTech: 'tech_tacuinum_sanitatis' },
+        // Tier 1 — přes existující Ohniště, žádná stavba, pomalu (24h),
+        // horší výsledek (smoked_meat_home, decay 0.05) než Tier 3.
+        smoked_home_pork: { input: 'salted_pork', inputQty: 1,
+            needsTech: 'tech_ruralia_meat', output: 'smoked_meat_home', durationH: 24 },
+        smoked_home_beef: { input: 'salted_beef', inputQty: 1,
+            needsTech: 'tech_ruralia_meat', output: 'smoked_meat_home', durationH: 24 },
+        // Tier 2 — Černá kuchyně/Soplouch, rychlejší (20h) a lepší
+        // (smoked_meat_chimney, decay 0.02) než holé Ohniště, pořád ne
+        // tak dobré jako Udírna. Žádné dřevo navíc (soplouch svede kouř sám).
+        smoked_chimney_pork: { input: 'salted_pork', inputQty: 1,
+            needsBuild: 'cerna_kuchyne', needsTech: 'tech_tacuinum_sanitatis', output: 'smoked_meat_chimney', durationH: 20 },
+        smoked_chimney_beef: { input: 'salted_beef', inputQty: 1,
+            needsBuild: 'cerna_kuchyne', needsTech: 'tech_tacuinum_sanitatis', output: 'smoked_meat_chimney', durationH: 20 },
+        // Tier 3 — Udírna, dřevo, rychlejší (16h), plná imunita (decay 0.005).
+        cured_meat: { input: 'salted_pork', inputQty: 1, needsItem: 'log', needsItemQty: 2,
+            needsBuild: 'udirna', needsTech: 'tech_udirna', output: 'cured_meat', durationH: 16 },
+        cured_beef: { input: 'salted_beef', inputQty: 1, needsItem: 'log', needsItemQty: 2,
+            needsBuild: 'udirna', needsTech: 'tech_udirna', output: 'cured_beef', durationH: 16 },
+        // coquina-tier4-mrd (7.8.2026): panská kuchyně (Platina). Mezikroky
+        // rychlé (drcení v hmoždíři), vlajkový recept pomalejší a propojuje
+        // 3 systémy najednou (Udírna+koření+sádlo) přes nový extraInputs.
+        almond_paste: { input: 'almond', inputQty: 3,
+            needsBuild: 'velky_hmozdir', needsTech: 'tech_platina_honesta', output: 'almond_paste', durationH: 1 },
+        ground_spice: { input: 'pepr_cerny', inputQty: 2,
+            needsBuild: 'velky_hmozdir', needsTech: 'tech_platina_honesta', output: 'ground_spice', durationH: 1 },
+        pork_pie_abbot: { input: 'cured_meat', inputQty: 3, extraInputs: { flour: 2, ground_spice: 1, lard: 1 },
+            needsBuild: 'rozen', needsTech: 'tech_platina_honesta', output: 'pork_pie_abbot', durationH: 6,
+            influenceGain: { axis: 'church', amount: 8 } },
+    },
+
+    // coquina-tier1-mrd: tab je vidět, jakmile hráč má ASPOŇ jeden tier —
+    // jednotlivé recepty se pak filtrují zvlášť podle vlastního needsTech.
+    isActive: function() {
+        const t = GameState.researchedTechs || [];
+        return t.includes('tech_ruralia_meat') || t.includes('tech_udirna');
+    },
+
+    _ensureState: function() {
+        if (!GameState.cookingInstances) GameState.cookingInstances = [];
+        return GameState.cookingInstances;
+    },
+
+    // coquina-tier4-mrd (7.8.2026): Mistr kuchař — přiřazený bratr na
+    // 'kuchyne' tab. fatigue<90 mirror ostatních specializací (unavený
+    // bratr se nevybere).
+    _getChef: function() {
+        return (GameState.dormitorium && GameState.dormitorium.brothers || [])
+            .find(b => b.assignedTab === 'kuchyne' && (b.fatigue || 0) < 90) || null;
+    },
+
+    // coquina-tier2-mrd (7.8.2026): "vylepšené solné kádě" — vrátí kratší
+    // dobu, má-li hráč fastTech; jinak normální durationH. Jedno místo
+    // pravdy pro tick/render/startCooking, ať se nerozjede na 3 kopiích.
+    // coquina-tier4-mrd: + volitelný chefMult — u BĚŽÍCÍ instance je to
+    // hodnota zapečená při startu (inst.brotherMult), u náhledu receptu
+    // (ještě nezačato) se počítá živě z aktuálně přiřazeného bratra.
+    _effectiveDuration: function(def, chefMult) {
+        let dur = def.durationH;
+        if (def.fastTech && GameState.researchedTechs && GameState.researchedTechs.includes(def.fastTech)) {
+            dur = def.fastDurationH || def.durationH;
+        }
+        if (chefMult === undefined) {
+            const chef = this._getChef();
+            chefMult = (chef && typeof Game !== 'undefined' && Game.dormitoriumBrotherMult) ? Game.dormitoriumBrotherMult(chef, 'kuchyne') : 1.0;
+        }
+        return dur / chefMult;
+    },
+
+    startCooking: function(typeKey) {
+        if (!this.isActive()) return;
+        const def = this.COOK_TYPES[typeKey];
+        if (!def) return;
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        if (def.needsTech && !(GameState.researchedTechs && GameState.researchedTechs.includes(def.needsTech))) {
+            if (typeof UI !== 'undefined') UI.notify(lang === 'en' ? 'Requires further research.' : 'Vyžaduje další výzkum.', true);
+            return;
+        }
+        if (def.needsBuild && !(GameState.storage && GameState.storage[def.needsBuild] && GameState.storage[def.needsBuild].built)) {
+            if (typeof UI !== 'undefined') UI.notify(lang === 'en' ? 'Needs the Smokehouse built first.' : 'Nejdřív je třeba postavit Udírnu.', true);
+            return;
+        }
+        if (def.needsItem === 'barrel_tool' && (GameState.inventory['barrel_tool'] || 0) < 1) {
+            if (typeof UI !== 'undefined') UI.notify(lang === 'en' ? 'Needs a barrel (vat) for salting.' : 'Na nasolení je potřeba sud (kádě).', true);
+            return;
+        }
+        if ((GameState.inventory[def.input] || 0) < def.inputQty) {
+            if (typeof UI !== 'undefined') UI.notify(lang === 'en' ? 'Not enough raw material.' : 'Nedostatek suroviny.', true);
+            return;
+        }
+        if (def.saltQty && (GameState.inventory['salt'] || 0) < def.saltQty) {
+            if (typeof UI !== 'undefined') UI.notify(lang === 'en' ? 'Not enough salt.' : 'Nedostatek soli.', true);
+            return;
+        }
+        if (def.needsItem === 'log' && (GameState.inventory['log'] || 0) < (def.needsItemQty || 1)) {
+            if (typeof UI !== 'undefined') UI.notify(lang === 'en' ? 'Not enough wood for smoking.' : 'Nedostatek dřeva na uzení.', true);
+            return;
+        }
+        // coquina-tier4-mrd (7.8.2026): extraInputs — obecná podpora pro
+        // recepty s víc než jednou surovinou (Masový koláč: mouka+koření+sádlo).
+        if (def.extraInputs) {
+            for (const [id, qty] of Object.entries(def.extraInputs)) {
+                if ((GameState.inventory[id] || 0) < qty) {
+                    const nm = (typeof iName === 'function') ? iName(id) : id;
+                    if (typeof UI !== 'undefined') UI.notify((lang === 'en' ? 'Not enough: ' : 'Nedostatek: ') + nm, true);
+                    return;
+                }
+            }
+        }
+        Game.removeItem(def.input, def.inputQty);
+        if (def.saltQty) Game.removeItem('salt', def.saltQty);
+        if (def.needsItem === 'log') Game.removeItem('log', def.needsItemQty || 1);
+        if (def.extraInputs) {
+            for (const [id, qty] of Object.entries(def.extraInputs)) Game.removeItem(id, qty);
+        }
+        const _chef = this._getChef();
+        const _chefMult = (_chef && typeof Game !== 'undefined' && Game.dormitoriumBrotherMult) ? Game.dormitoriumBrotherMult(_chef, 'kuchyne') : 1.0;
+        this._ensureState().push({ type: typeKey, startedAt: Date.now(), brotherMult: _chefMult, brotherId: _chef ? _chef.id : null });
+        Game.save();
+        const effH = this._effectiveDuration(def, _chefMult);
+        // udirna-mrd: elegantní modal — "začalo se vařit", odkaz do Vaření tabu
+        if (typeof NotificationSystem !== 'undefined' && NotificationSystem.modal) {
+            NotificationSystem.modal({
+                icon: '🍲',
+                title: lang === 'en' ? 'Cooking has begun' : 'Začalo se vařit',
+                text: lang === 'en'
+                    ? `Ready in ${effH}h. Track progress in the Cooking tab.`
+                    : `Hotovo za ${effH}h. Sleduj postup v tabu Vaření.`,
+                choices: [
+                    { label: lang === 'en' ? 'Go to Cooking' : 'Do Vaření', type: 'primary',
+                      effect: function() { if (typeof UI !== 'undefined' && UI.switchHomeSubTab) UI.switchHomeSubTab('cooking', document.getElementById('home-sub-cooking')); } },
+                    { label: lang === 'en' ? 'Continue' : 'Pokračovat', type: 'default', effect: function() {} },
+                ],
+            });
+        }
+        if (typeof CellariumSystem !== 'undefined' && CellariumSystem.render) CellariumSystem.render();
+    },
+
+    // ── Tick (self-guarded 5 min, volán z game.js tick batch) ──────────────
+    tick: function() {
+        if (!this.isActive()) return;
+        if (!GameState.cookingTick) GameState.cookingTick = { lastTick: 0 };
+        const now = Date.now();
+        if (now - (GameState.cookingTick.lastTick || 0) < this.TICK_GUARD_MS) return;
+        GameState.cookingTick.lastTick = now;
+
+        const list = this._ensureState();
+        let done = [];
+        for (let i = list.length - 1; i >= 0; i--) {
+            const inst = list[i];
+            const def = this.COOK_TYPES[inst.type];
+            if (!def) { list.splice(i, 1); continue; }
+            const _brotherMult = inst.brotherMult || 1.0;
+            if (now - inst.startedAt >= this._effectiveDuration(def, _brotherMult) * this.HOUR_MS) {
+                Game.addItem(def.output, 1);
+                done.push(def.output);
+                // coquina-tier4-mrd (7.8.2026): elitní recepty zvyšují Vliv,
+                // mirror mše/relikvie vzoru (PersonaSystem.addInfluence).
+                // Mistr kuchař násobí výsledný Vliv stejným multiplikátorem
+                // jako rychlost — zapečeno při startu, ne živě.
+                if (def.influenceGain && typeof PersonaSystem !== 'undefined' && PersonaSystem.addInfluence) {
+                    const amt = Math.round(def.influenceGain.amount * _brotherMult * 10) / 10;
+                    PersonaSystem.addInfluence(def.influenceGain.axis, amt);
+                }
+                // XP guard 1×/den — jinak by krátké recepty (mletí koření,
+                // 1h) nahnaly level rychleji než ostatní specializace (denní tick).
+                if (inst.brotherId && typeof Game !== 'undefined' && Game.dormitoriumAddXp) {
+                    const brother = (GameState.dormitorium && GameState.dormitorium.brothers || []).find(b => b.id === inst.brotherId);
+                    if (brother) {
+                        if (!GameState.cookingXpLastAt) GameState.cookingXpLastAt = {};
+                        const lastXp = GameState.cookingXpLastAt[inst.brotherId] || 0;
+                        if (now - lastXp >= 24 * this.HOUR_MS) {
+                            Game.dormitoriumAddXp(brother, 'kuchyne');
+                            GameState.cookingXpLastAt[inst.brotherId] = now;
+                        }
+                    }
+                }
+                list.splice(i, 1);
+            }
+        }
+
+        if (done.length > 0) {
+            const lang = (GameState.settings && GameState.settings.language) || 'cs';
+            if (typeof NotificationSystem !== 'undefined' && NotificationSystem.panel) {
+                const names = done.map(id => (typeof iName === 'function') ? iName(id) : id).join(', ');
+                NotificationSystem.panel('🍲 ' + (lang === 'en' ? `Ready: ${names}` : `Hotovo: ${names}`), 'info');
+            }
+            Game.save();
+        }
+    },
+
+    // ── Vaření tab — seznam receptů + aktivní procesy s progress bary ──────
+    render: function() {
+        if (!this.isActive()) {
+            const lang = (GameState.settings && GameState.settings.language) || 'cs';
+            return `<div style="padding:20px; text-align:center; opacity:0.6; font-style:italic;">${lang === 'en' ? 'Requires research first.' : 'Vyžaduje nejdřív výzkum.'}</div>`;
+        }
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        const list = this._ensureState();
+        let h = `<div style="padding:12px;">`;
+
+        if (list.length > 0) {
+            h += `<h4 style="margin:0 0 10px 0; color:var(--ink-primary);">🔥 ${lang === 'en' ? 'In Progress' : 'Probíhá'}</h4>`;
+            list.forEach(inst => {
+                const def = this.COOK_TYPES[inst.type];
+                if (!def) return;
+                const totalMs = this._effectiveDuration(def, inst.brotherMult || 1.0) * this.HOUR_MS;
+                const elapsed = Date.now() - inst.startedAt;
+                const pct = Math.min(100, Math.round(elapsed / totalMs * 100));
+                const remainH = Math.max(0, Math.ceil((totalMs - elapsed) / this.HOUR_MS));
+                const outName = (typeof iName === 'function') ? iName(def.output) : def.output;
+                h += `<div style="background:rgba(0,0,0,0.05); padding:12px; border-radius:8px; border-left:3px solid var(--accent-gold); margin-bottom:8px;">
+                        <div style="font-size:0.85rem; font-weight:bold; margin-bottom:6px;">${outName}</div>
+                        <div style="background:rgba(0,0,0,0.1); border-radius:4px; height:8px;">
+                          <div style="width:${pct}%; background:var(--accent-gold); height:8px; border-radius:4px; transition:width 0.3s;"></div>
+                        </div>
+                        <div style="font-size:0.72rem; opacity:0.65; margin-top:4px;">${lang === 'en' ? `${remainH}h remaining` : `zbývá ${remainH}h`}</div>
+                      </div>`;
+            });
+        }
+
+        h += `<h4 style="margin:14px 0 10px 0; color:var(--ink-primary);">📖 ${lang === 'en' ? 'Recipes' : 'Recepty'}</h4>`;
+        Object.keys(this.COOK_TYPES).forEach(key => {
+            const def = this.COOK_TYPES[key];
+            const hasTech = !def.needsTech || (GameState.researchedTechs && GameState.researchedTechs.includes(def.needsTech));
+            if (!hasTech) return; // recept se vůbec nezobrazí, dokud není tech
+            const outName = (typeof iName === 'function') ? iName(def.output) : def.output;
+            const inName = (typeof iName === 'function') ? iName(def.input) : def.input;
+            const have = GameState.inventory[def.input] || 0;
+            const hasBuild = !def.needsBuild || (GameState.storage && GameState.storage[def.needsBuild] && GameState.storage[def.needsBuild].built);
+            const hasBarrel = def.needsItem !== 'barrel_tool' || (GameState.inventory['barrel_tool'] || 0) >= 1;
+            const hasSalt = !def.saltQty || (GameState.inventory['salt'] || 0) >= def.saltQty;
+            const hasWood = def.needsItem !== 'log' || (GameState.inventory['log'] || 0) >= (def.needsItemQty || 1);
+            // coquina-tier4-mrd (7.8.2026): extraInputs kontrola pro recepty s víc surovinami
+            const hasExtraInputs = !def.extraInputs || Object.entries(def.extraInputs).every(([id, qty]) => (GameState.inventory[id] || 0) >= qty);
+            const can = have >= def.inputQty && hasBuild && hasBarrel && hasSalt && hasWood && hasExtraInputs;
+            const effH = this._effectiveDuration(def);
+            let reqStr = `${def.inputQty}× ${inName}`;
+            if (def.saltQty) reqStr += `, ${def.saltQty}× ${(typeof iName === 'function') ? iName('salt') : 'sůl'}`;
+            if (def.needsItem === 'log') reqStr += `, ${def.needsItemQty}× ${(typeof iName === 'function') ? iName('log') : 'dřevo'}`;
+            if (def.extraInputs) {
+                Object.entries(def.extraInputs).forEach(([id, qty]) => {
+                    reqStr += `, ${qty}× ${(typeof iName === 'function') ? iName(id) : id}`;
+                });
+            }
+            h += `<div style="background:rgba(255,255,255,0.4); padding:10px; border-radius:8px; border:1px solid rgba(197,160,89,0.3); margin-bottom:6px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                      <div>
+                        <div style="font-size:0.82rem; font-weight:bold;">${outName}</div>
+                        <div style="font-size:0.7rem; opacity:0.65;">${reqStr} — ${effH}h</div>
+                        ${!hasBuild ? `<div style="font-size:0.68rem; color:#c0392b;">🔒 ${lang === 'en' ? 'Needs Smokehouse' : 'Potřeba Udírna'}</div>` : ''}
+                        ${def.needsItem === 'barrel_tool' && !hasBarrel ? `<div style="font-size:0.68rem; color:#c0392b;">🔒 ${lang === 'en' ? 'Needs a barrel' : 'Potřeba sud'}</div>` : ''}
+                      </div>
+                      <button class="craft-btn" onclick="CookingSystem.startCooking('${key}')" ${can ? '' : 'disabled'} style="font-size:0.75rem;">🍲 ${lang === 'en' ? 'Start' : 'Vařit'}</button>
+                    </div>
+                  </div>`;
+        });
+
+        h += `</div>`;
+        return h;
+    },
+};
 // ═══ src/systems/well.js ═══
 // ═══════════════════════════════════════════════════════════════════════════
 // WELL SYSTEM (Puteus)
@@ -32090,6 +32692,9 @@ const GardenSystem = {
         barley: { id:'barley',      icon:'🌾', name:'Ječmen',  name_en:'Barley',  seeds:'seeds_barley', yield:3, strawYield:2, feedVal:0 },
         oats:   { id:'oats',        icon:'🌾', name:'Oves',    name_en:'Oats',    seeds:'seeds_oats',   yield:3, strawYield:2, feedVal:2 },
         millet: { id:'millet',      icon:'🌾', name:'Proso',   name_en:'Millet',  seeds:'seeds_millet', yield:4, strawYield:1, feedVal:2 },
+        // coquina-tier1-mrd (7.8.2026): nová plodina, dostupná od začátku
+        // hry přes sloty 0-1 (proměnlivé množství semen, viz pole-mala-policka-mrd)
+        pohanka: { id:'pohanka',    icon:'🌾', name:'Pohanka', name_en:'Buckwheat', seeds:'seeds_pohanka', yield:3, strawYield:1, feedVal:1 },
         peas:   { id:'peas',        icon:'🫛', name:'Hrách',   name_en:'Peas',    seeds:'seeds_peas',   yield:4, strawYield:0, feedVal:1 },
         lentils: { id:'lentils',    icon:'🟤', name:'Čočka',   name_en:'Lentils', seeds:'seeds_lentils', yield:4, strawYield:0, feedVal:1 },
         vetch:  { id:'vikev',       icon:'🌸', name:'Vikev',   name_en:'Vetch',   seeds:'seeds_vikev',  yield:3, strawYield:0, feedVal:2, fallow:true },
@@ -32645,8 +33250,17 @@ const GardenSystem = {
                     .map(([key, c]) =>
                     `<option value="${key}">${lang==='en'?c.name_en:c.name}</option>`
                 ).join('');
+                // pole-mala-policka-mrd (7.8.2026): sloty 0-1 mají navíc
+                // volbu množství semen (2-10), zbytek Pole seje pevně 30 (beze změny).
+                const amtSelector = idx < 2
+                    ? `<input type="number" id="field-seed-amt-${idx}" min="2" max="10" value="2" style="font-size:0.72rem;padding:2px;width:100%;margin-bottom:4px;" title="${lang==='en'?'Seeds to sow (2-10)':'Kolik semen zasít (2-10)'}"/>`
+                    : '';
+                const sowCall = idx < 2
+                    ? `GardenSystem.sowField(${idx}, document.getElementById('field-crop-sel-${idx}').value, parseInt(document.getElementById('field-seed-amt-${idx}').value))`
+                    : `GardenSystem.sowField(${idx}, document.getElementById('field-crop-sel-${idx}').value)`;
                 btn = `<select id="field-crop-sel-${idx}" style="font-size:0.75rem;padding:2px;width:100%;margin-bottom:4px;">${cropOpts}</select>
-                       <button class="craft-btn" onclick="GardenSystem.sowField(${idx}, document.getElementById('field-crop-sel-${idx}').value)">🌱 ${lang==='en'?'Sow':'Osít'}</button>`;
+                       ${amtSelector}
+                       <button class="craft-btn" onclick="${sowCall}">🌱 ${lang==='en'?'Sow':'Osít'}</button>`;
             }
             else if (field.state === 'growing') {
                 const crop = this.CROPS_DB[field.crop];
@@ -32702,7 +33316,7 @@ const GardenSystem = {
     // Počet semen potřebných k osetí celého pole (na rozdíl od záhonu, kde stačí 1)
     FIELD_SEED_COST: 30,
 
-    sowField: function(idx, cropKey) {
+    sowField: function(idx, cropKey, chosenAmt) {
         this._initFields();
         const field = GameState.fields[idx];
         const crop = this.CROPS_DB[cropKey];
@@ -32711,8 +33325,14 @@ const GardenSystem = {
             if (typeof UI !== 'undefined') UI.notify(t('game.fallowCropOnly'), true);
             return;
         }
+        // pole-mala-policka-mrd (7.8.2026): sloty 0-1 mají proměnlivou
+        // spotřebu semen (2-10, víc semen = víc výnosu), odstraňuje 30ku
+        // jako bariéru ke vstupu. Zbytek Pole (2-13) beze změny.
+        let seedCost = this.FIELD_SEED_COST;
+        if (idx < 2 && chosenAmt) {
+            seedCost = Math.max(2, Math.min(10, Math.round(chosenAmt)));
+        }
         // Kontrola semen
-        const seedCost = this.FIELD_SEED_COST;
         if (!(GameState.inventory[crop.seeds] >= seedCost)) {
             const seedName = typeof ItemsDB !== 'undefined' && ItemsDB[crop.seeds] ? ItemsDB[crop.seeds].name : crop.seeds;
             const have = GameState.inventory[crop.seeds] || 0;
@@ -32727,6 +33347,7 @@ const GardenSystem = {
         field.phaseStart = Date.now();
         field.watered = false;
         field.wateredPhases = 0;
+        field.sownSeedCost = seedCost;
         Game.save();
         this.renderFieldTab();
     },
@@ -32760,8 +33381,11 @@ const GardenSystem = {
         const isRye = field.crop === 'rye';
         const isWheat = field.crop === 'wheat';
 
-        // Výpočet výnosu — crop.yield je poměr osivo:výnos (1:3 apod.), násobí se počtem zasetých semen
-        let yieldAmt = crop.yield * this.FIELD_SEED_COST;
+        // Výpočet výnosu — crop.yield je poměr osivo:výnos (1:3 apod.), násobí
+        // se počtem SKUTEČNĚ zasetých semen (pole-mala-policka-mrd 7.8.2026:
+        // sloty 0-1 mají proměnlivé množství 2-10, ne pevných 30 jako zbytek).
+        // Fallback na FIELD_SEED_COST pro staré savy bez sownSeedCost.
+        let yieldAmt = crop.yield * (field.sownSeedCost || this.FIELD_SEED_COST);
         if (hasRotation) yieldAmt = Math.round(yieldAmt * 1.25);
 
         // Sucho penalizace (žito je vůči suchu odolné — neuplatňuje se)
@@ -33728,7 +34352,7 @@ const FarmyardSystem = {
         const now = Date.now();
         let collected = false;
         if (now >= (c.lastEggAt || 0) + cfg.eggIntervalMs) {
-            Game.addItem('egg', cfg.eggYield);
+            Game.addItem('pigeon_egg', cfg.eggYield);
             c.lastEggAt = now;
             collected = true;
         }
@@ -34164,11 +34788,13 @@ const FarmyardSystem = {
         if (!a || !this._pigMature(a)) return;
         st.animals.splice(idx, 1);
         const inv = GameState.inventory;
-        inv['meat'] = (inv['meat'] || 0) + 4;
+        // udirna-mrd (7.8.2026): pork nahrazuje generické 'meat' (dřív se
+        // míchalo s divokým masem z lovu). cured_meat už není zdarma —
+        // musí se nasolit a udit (subtab Vaření).
+        inv['pork'] = (inv['pork'] || 0) + 4;
         inv['lard'] = (inv['lard'] || 0) + 3;
-        inv['cured_meat'] = (inv['cured_meat'] || 0) + 2;
         if (typeof UI !== 'undefined') UI.notify('🔪 ' + t('dvur.pigSlaughtered'));
-        if (typeof Game !== 'undefined' && Game.addKronikaEntry) Game.addKronikaEntry('important', '🐖 Zabijačka! Klášterní spižírna se naplnila masem, sádlem a špekem.', '🐖 Pig slaughter! The monastery larder filled with meat, lard and cured meat.', '🐖 Porcus mactatus est.');
+        if (typeof Game !== 'undefined' && Game.addKronikaEntry) Game.addKronikaEntry('important', '🐖 Zabijačka! Klášterní spižírna se naplnila vepřovým masem a sádlem.', '🐖 Pig slaughter! The monastery larder filled with pork and lard.', '🐖 Porcus mactatus est.');
         if (typeof Game !== 'undefined') Game.save();
         this.renderFarmyard();
     },
@@ -34187,8 +34813,9 @@ const FarmyardSystem = {
         if (!a) return;
         st.animals.splice(idx, 1);
         const inv = GameState.inventory;
+        // udirna-mrd (7.8.2026): cured_beef už není zdarma — musí se
+        // nasolit a udit (subtab Vaření), stejně jako vepřové.
         inv['beef'] = (inv['beef'] || 0) + 5;
-        inv['cured_beef'] = (inv['cured_beef'] || 0) + 2;
         inv['raw_hide'] = (inv['raw_hide'] || 0) + 2;
         if (typeof UI !== 'undefined') UI.notify('🔪 ' + t('dvur.cowSlaughtered'));
         if (typeof Game !== 'undefined' && Game.addKronikaEntry) Game.addKronikaEntry('important', '🐄 Zabijačka! Klášterní spižírna se naplnila hovězím masem.', '🐄 Cattle slaughter! The monastery larder filled with beef.', '🐄 Bos mactatus est.');
@@ -35256,8 +35883,9 @@ const FarmyardSystem = {
             UI.notify('🐄 ' + (t('farmyard.strayCowPlaced') || 'Kráva čeká v inventáři na chlév.'));
         } else if (choice === 'slaughter') {
             const inv = GameState.inventory;
+            // udirna-mrd (7.8.2026): cured_beef už není zdarma, stejná
+            // oprava jako slaughterCow() — musí přes solení+Udírnu.
             inv['beef'] = (inv['beef'] || 0) + 5;
-            inv['cured_beef'] = (inv['cured_beef'] || 0) + 2;
             inv['raw_hide'] = (inv['raw_hide'] || 0) + 2;
             GameState.strayCow.resolved = true;
             UI.notify('🔪 ' + (t('farmyard.strayCowSlaughtered') || 'Utracena. Maso a kůže do spižírny.'));
@@ -48430,7 +49058,7 @@ const TavernDice = {
 
 const STRINGS_cs = {
     nav: { home: 'Pracovna', garden: 'Zahrada', craft: 'Výroba', inv: 'Zásoby', lore: 'Script<br>orium', library: 'Knihovna' },
-    screens: { home: 'Pracovna', garden: 'Zahrada', craft: 'Výroba', inv: 'Zásoby', lore: 'Scriptorium', library: 'Knihovna', settings: 'Nastavení', scavenge: 'Sběr', mine: 'Těžba' },
+    screens: { home: 'Pracovna', garden: 'Zahrada', craft: 'Výroba', inv: 'Zásoby', lore: 'Scriptorium', library: 'Knihovna', settings: 'Nastavení', scavenge: 'Sběr', mine: 'Těžba', cooking: 'Vaření' },
     fireplace: {
         cold: 'Vyhaslý Krb', coldDesc: 'Je tu zima.', kindle: 'ROZEŽEHNOUT',
         lit: 'Hřejivý Krb', litDesc: 'Oheň dává život.',
@@ -50661,6 +51289,16 @@ const STRINGS_cs = {
             kronika_denied: 'Opat zamítl žádost o rozšíření Domu Konvršů. Důvod: {reason}',
             inspect_hint: 'Opat přislíbil inspekční návštěvu po dokončení stavby.',
         },
+        domus_iii: {
+            title: 'Žádost o velký dormitář Konvršů',
+            submit_btn: 'Zaslat žádost opatovi',
+            pending: '⏳ Žádost odeslána {date}. Opat odpoví {responseDate}.',
+            approved: '✅ Opat schválil rozšíření na Domus Conversorum III. Stavba může začít.',
+            kronika_submit: 'Odeslána žádost opatovi o velký dormitář Konvršů. Odpověď očekávána {responseDate}.',
+            kronika_approved: 'Opat schválil rozšíření na Domus Conversorum III.',
+            kronika_denied: 'Opat zamítl žádost o velký dormitář Konvršů. Důvod: {reason}',
+            inspect_hint: 'Opat přislíbil inspekční návštěvu po dokončení stavby.',
+        },
         probost: {
             title: 'Žádost o úřad probošta',
             submit_btn: 'Zaslat žádost opatovi',
@@ -50682,7 +51320,7 @@ const STRINGS_cs = {
 
 const STRINGS_en = {
     nav: { home: 'Workshop', garden: 'Garden', craft: 'Craft', inv: 'Penum', lore: 'Scriptorium', library: 'Library' },
-    screens: { home: 'Officina', garden: 'The Garden', craft: 'Crafting', inv: 'Penum', lore: 'Scriptorium', library: 'The Library', settings: 'Settings', scavenge: 'Scavenge', mine: 'Mine' },
+    screens: { home: 'Officina', garden: 'The Garden', craft: 'Crafting', inv: 'Penum', lore: 'Scriptorium', library: 'The Library', settings: 'Settings', scavenge: 'Scavenge', mine: 'Mine', cooking: 'Cooking' },
     header: { weatherNow: 'Presently in Prague (click to refresh)', weatherTomorrow: 'Morrow\'s forecast', hunger: 'Hunger', streak: 'Daily Streak', research: 'Knowledge Gathered', settings: 'Settings' },
     // ------------------------------
     fireplace: {
@@ -53887,6 +54525,16 @@ Alloys of metal, varnishes for wood and vellum, a poison that whiteneth copper i
             kronika_denied: 'The Abbot denied the petition to expand the House of Lay Brothers. Reason: {reason}',
             inspect_hint: 'The Abbot has promised an inspection visit once the building is complete.',
         },
+        domus_iii: {
+            title: 'Request for the Great Dormitory of Lay Brothers',
+            submit_btn: 'Submit petition to the Abbot',
+            pending: '⏳ Petition submitted {date}. The Abbot will reply by {responseDate}.',
+            approved: '✅ The Abbot has approved the expansion to Domus Conversorum III. Construction may begin.',
+            kronika_submit: 'Petition submitted to the Abbot for the great dormitory of lay brothers. Reply expected by {responseDate}.',
+            kronika_approved: 'The Abbot approved the expansion to Domus Conversorum III.',
+            kronika_denied: 'The Abbot denied the petition for the great dormitory of lay brothers. Reason: {reason}',
+            inspect_hint: 'The Abbot has promised an inspection visit once the building is complete.',
+        },
         probost: {
             title: 'Request for the Office of Provost',
             submit_btn: 'Submit petition to the Abbot',
@@ -54820,6 +55468,12 @@ const Game = {
                     if (typeof LimeSystem !== 'undefined' && LimeSystem.dailyTick) LimeSystem.dailyTick();
                     // Susarna — denní sušení konopí (self-guarded 24h, gate tech_susarna)
                     if (typeof DryingSystem !== 'undefined' && DryingSystem.dailyTick) DryingSystem.dailyTick();
+                    // Vaření/Udírna — self-guarded 5 min (kratší časy, hodiny ne dny), gate tech_udirna
+                    if (typeof CookingSystem !== 'undefined' && CookingSystem.tick) CookingSystem.tick();
+                    // Opatovy petice — dřív jen při načtení stránky, proto se hráč musel refreshovat
+                    // (7.8.2026 fix). Funkce jsou už interně self-guarded (kontrola per-petici).
+                    if (typeof Game !== 'undefined' && Game.checkAbbotPetitions) Game.checkAbbotPetitions();
+                    if (typeof Game !== 'undefined' && Game.checkUbytovnaPetitions) Game.checkUbytovnaPetitions();
                     // Columbarium — denní riziko predátora (self-guarded 24h, jen level 1)
                     if (typeof FarmyardSystem !== 'undefined' && FarmyardSystem.columbariumPredatorTick) FarmyardSystem.columbariumPredatorTick();
                     // Columbarium — pasivní přírůstek do stropu 13 (self-guarded 24h, holubnik-mrd)
@@ -57274,6 +57928,8 @@ const Game = {
                     if(Math.random() < 0.03) this.addItem('porcini', 1);
                     // Červec — obchod-podklad 7.8.2026, u kořenů luk, drtí se na karmín (tech_cervec)
                     if(Math.random() < 0.04) this.addItem('cervec', 1);
+                    // Křepelčí vejce — vejce-druhy-mrd 7.8.2026, hnízdo v trávě, vzácné
+                    if(Math.random() < 0.03) this.addItem('quail_egg', 1);
                     // 0.07% — útržky, pečeť, byliny/váček zapomenuté v přírodě (viz LOST_ITEM_POOLS.foraging)
                     if(Math.random() < 0.0007) {
                         const pool = this.LOST_ITEM_POOLS.foraging;
@@ -57300,6 +57956,8 @@ const Game = {
                     if(Math.random() < 0.06) this.addItem('cattail_root', 1);
                     // Proutí — vrbové pruty u mokřadu, běžný stavební materiál (Columbarium)
                     if(Math.random() < 0.20) this.addItem('wicker', 2);
+                    // Kachní vejce — vejce-druhy-mrd 7.8.2026, hnízdo u vody
+                    if(Math.random() < 0.05) this.addItem('duck_egg', 1);
                 }
                 else if (type === 'resin_harvest') {
                     if(r<0.5) this.addItem('resin', 1);
@@ -57621,6 +58279,10 @@ const Game = {
                 if(Math.random() < 0.03) this.addItem('morel', 1);
                 if(Math.random() < 0.04) this.addItem('saffron_milk_cap', 1);
                 if(Math.random() < 0.03) this.addItem('porcini', 1);
+                // Červec — obchod-podklad 7.8.2026 (dřív chybělo v téhle 2. lokaci)
+                if(Math.random() < 0.04) this.addItem('cervec', 1);
+                // Křepelčí vejce — vejce-druhy-mrd 7.8.2026
+                if(Math.random() < 0.03) this.addItem('quail_egg', 1);
                 if(Math.random() < 0.0007) {
                     const pool = this.LOST_ITEM_POOLS.foraging;
                     const found = pool[Math.floor(Math.random() * pool.length)];
@@ -57646,6 +58308,8 @@ const Game = {
                 if(Math.random() < 0.06) this.addItem('cattail_root', 1);
                 // Proutí — vrbové pruty u mokřadu, běžný stavební materiál (Columbarium)
                 if(Math.random() < 0.20) this.addItem('wicker', 2);
+                // Kachní vejce — vejce-druhy-mrd 7.8.2026
+                if(Math.random() < 0.05) this.addItem('duck_egg', 1);
             }
             else if (type === 'resin_harvest') {
                 if(r<0.5) this.addItem('resin', 1);
@@ -58686,6 +59350,10 @@ const Game = {
 		if (!GameState.storage.fodina)             GameState.storage.fodina             = {built:false};
 		if (!GameState.storage.fornax_ferraria)    GameState.storage.fornax_ferraria    = {built:false};
 		if (!GameState.storage.vapenice)           GameState.storage.vapenice           = {built:false};
+		if (!GameState.storage.udirna)             GameState.storage.udirna             = {built:false};
+		if (!GameState.storage.cerna_kuchyne)       GameState.storage.cerna_kuchyne       = {built:false};
+		if (!GameState.storage.velky_hmozdir)       GameState.storage.velky_hmozdir       = {built:false};
+		if (!GameState.storage.rozen)               GameState.storage.rozen               = {built:false};
 		if (!GameState.storage.old_cellars)        GameState.storage.old_cellars        = {built:false};
 		if (!GameState.storage.domus_conversorum_i) GameState.storage.domus_conversorum_i = {built:false};
 		if (!GameState.storage.domus_conversorum_ii) GameState.storage.domus_conversorum_ii = {built:false};
@@ -58787,6 +59455,13 @@ const Game = {
 			dormitorium_ii:  { cut_stone: 90,  plank: 60, rope: 25, iron_ingot: 2, glass_stopper: 6, hrebiky: 25 },
 			dormitorium_iii: { cut_stone: 200, plank: 130, rope: 50, iron_ingot: 6, glass_stopper: 10, glass_tankard: 10, hrebiky: 50 },
 			knihovna_grade_i: { cut_stone: 20, plank: 15, rope: 6, hrebiky: 7 },
+			// udirna-mrd (7.8.2026): samostatná věžová udírna, kámen+dřevo dle podkladu
+			udirna: { cut_stone: 25, plank: 15, rope: 4, clay: 8, hrebiky: 6 },
+			// coquina-tier2-mrd (7.8.2026): klenutá kuchyně + soplouch — víc jíl na komín, míň prkna než Udírna
+			cerna_kuchyne: { cut_stone: 15, plank: 8, clay: 12, hrebiky: 3 },
+			// coquina-tier4-mrd (7.8.2026): panská kuchyně — hmoždíř na koření, rožeň na pečeně
+			velky_hmozdir: { cut_stone: 30, hrebiky: 2 },
+			rozen: { iron_ingot: 6, plank: 4, hrebiky: 3 },
 		};
 		// Volitelný groše náklad navíc k materiálu — dnes jen Domus Conversorum I/II.
 		// Cokoliv chybí v costsGrose má groseNeeded=0, tedy nulový dopad na stávající budovy.
@@ -60415,6 +61090,11 @@ const Game = {
         piscina:     { primary: 'craftsmanship', secondary: 'vigor' },
         dvur:        { primary: 'vigor',         secondary: 'craftsmanship' },
         kostel:      { primary: 'piety',         secondary: 'obedience' },
+        // coquina-tier4-mrd (7.8.2026): Mistr kuchař — hráčova akce
+        // (Vaření), ne denní tick jako ostatní. XP guard 1×/den v
+        // CookingSystem.js, ať level neroste rychleji jen kvůli krátkým
+        // receptům (mletí koření apod.).
+        kuchyne:     { primary: 'craftsmanship', secondary: 'focus' },
     },
 
     // Individualizace rosteru (monk-attributes-mrd, krok 5) — malý startovní
@@ -64676,11 +65356,14 @@ const UI = {
     switchHomeSubTab: function (tab, btn) {
         const scav = document.getElementById('home-scavenge-content');
         const mine = document.getElementById('home-mine-content');
+        const cooking = document.getElementById('home-cooking-content');
         if (scav) scav.style.display = tab === 'scavenge' ? 'block' : 'none';
         if (mine) mine.style.display = tab === 'mine' ? 'block' : 'none';
+        if (cooking) cooking.style.display = tab === 'cooking' ? 'block' : 'none';
         document.querySelectorAll('#home-main-content .filter-btn').forEach(b => b.classList.remove('active'));
         if (btn) btn.classList.add('active');
         if (tab === 'mine') { this.renderMineYieldInfo(); this.renderFodinaPetitionPanel(); this.renderMineActions(); }
+        if (tab === 'cooking' && cooking && typeof CookingSystem !== 'undefined') cooking.innerHTML = CookingSystem.render();
     },
 
     renderMineYieldInfo: function () {
