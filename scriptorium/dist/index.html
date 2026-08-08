@@ -3617,10 +3617,16 @@
                         <div><strong id="light-title">Není světlo</strong>
                             <div id="light-desc" class="text-sm">Tma halí knihy.</div>
                         </div>
-                        <button id="btn-light-torch" class="craft-btn" onclick="Game.lightSource('torch')" disabled
-                            style="display:none; margin-left:5px;">ZAPÁLIT LOUČ</button>
-                        <button id="btn-light-candle" class="craft-btn" onclick="Game.lightSource('candle')" disabled
-                            style="display:none;">ZAPÁLIT SVÍČKU</button>
+                        <!-- svetlo-tlacitka-fix (7.8.2026): vlastní sloupcový kontejner —
+                             na úzkém displeji se obě tlačítka (mají-li obě fuel) naskládají
+                             pod sebe místo přetečení do textu (.card je flex nowrap, sdíleno
+                             globálně, tady neupravováno). -->
+                        <div style="display:flex; flex-direction:column; gap:4px; margin-left:auto;">
+                            <button id="btn-light-torch" class="craft-btn" onclick="Game.lightSource('torch')" disabled
+                                style="display:none;">ZAPÁLIT LOUČ</button>
+                            <button id="btn-light-candle" class="craft-btn" onclick="Game.lightSource('candle')" disabled
+                                style="display:none;">ZAPÁLIT SVÍČKU</button>
+                        </div>
                     </div>
 
                     <!-- Level 2: SCAVENGE | MINE -->
@@ -11062,6 +11068,11 @@ const GameState = {
     terrain: { fatigue: 0, lastRegen: 0, lastToastTier: 0 }, // TerrainSystem — únava krajiny
     incense: { activeItem: null, timerRemaining: 0, maxTimer: 0, fatiguePerSec: 0 }, // IncenseSystem — kadidlo
     researchHour: { count: 0, hourStart: 0 }, // Research diminishing returns
+    // scriptorium-mastery-mrd (7.8.2026): +1 za každý kodex dokončený VLASTNÍ
+    // rukou hráče (copyFolium), ne bratrem-Skriptorem. Snižuje Vigor/folium,
+    // dává rostoucí šanci na bonusové folium zdarma. Navrch RankSystem
+    // Scriptor role, ne místo ní.
+    scriptoriumMastery: 0,
     shopStock: { date: '', used: {} },          // Denní sklady entit (reset o půlnoci)
     discoveredLore: [], // Track discovered lore entries
     dailyRewards: {
@@ -11135,7 +11146,6 @@ const GameState = {
         fornax: { status: 'none', submittedAt: null, deniedReason: null, inspectionPending: false },
     },
 };
-
 // ═══ src/data/achievements.js ═══
 const AchievementsDB = [
     // DISCOVERY
@@ -21381,9 +21391,12 @@ const VigorSystem = {
     SATIETY_DRAIN_NIGHT: 0.1,      // 21–7h: téměř žádný hlad při spánku
 
     // Fatigue recovery per hodina (záporné = klesá)
-    FATIGUE_RECOVERY_DAY:   4,     // 7–21h: -4/h
-    FATIGUE_RECOVERY_NIGHT: 8,     // 21–7h: -8/h (spánek)
-    FATIGUE_RECOVERY_HORA:  10,    // Completorium/Vigilie: -10/h
+    // vigor-regen-vyvazeni (7.8.2026): +100% napříč — vyvažuje nové náklady
+    // přidané dnes (Zahrada/Dvůr akce, opisování/folium), poměr den:noc:hora
+    // beze změny, jen celá škála výš.
+    FATIGUE_RECOVERY_DAY:   8,     // 7–21h: -8/h (dřív 4)
+    FATIGUE_RECOVERY_NIGHT: 16,    // 21–7h: -16/h, spánek (dřív 8)
+    FATIGUE_RECOVERY_HORA:  20,    // Completorium/Vigilie: -20/h (dřív 10)
 
     // Noční spánek: 8h+ neaktivity → plný reset únavy
     SLEEP_HOURS_FOR_FULL_REST: 8,
@@ -21404,6 +21417,10 @@ const VigorSystem = {
         candle:         2,
         tinderbox:      2,
         quill:          3,
+        // opisovani-vigor-audit (7.8.2026): opisování folia — lehký craft,
+        // opakovaná akce (i přes Automatiku), mirror paper/ink. Volá se přímo
+        // z UI.copyFolium(), ne přes Game.craft() — proto vlastní hodnota tady.
+        folium:         2,
         // Craft — střední
         plank:          6,  // ruční řezání kulatiny — reálná fyzická práce (pila-stoupa-audit, 7.8.2026)
         ink_gallic:     5,
@@ -21727,6 +21744,28 @@ const VigorSystem = {
     addFatigue: function(amount) {
         GameState.fatigue = Math.min(this.MAX_FATIGUE, (GameState.fatigue || 0) + amount);
         this.renderPill();
+    },
+
+    // aula-ludi-vigor-audit (7.8.2026): odměna Vigoru po dohrání hry v Aula
+    // Ludi — ať vyhraje nebo prohraje. Čistě únavová strana (mirror
+    // holy_water: -20 v FATIGUE_RELIEF), ne sytost — hra nezasytí, jen
+    // odpočine mysl. Volané z konce KAŽDÉ z 10 her (win i loss cesta).
+    // Toast + Kronika přidány dodatečně (7.8.2026) — dřív tichá změna, hráč
+    // neviděl, že se něco stalo.
+    restFromPlay: function(amount) {
+        amount = amount || 20;
+        GameState.fatigue = Math.max(0, (GameState.fatigue || 0) - amount);
+        this.renderPill();
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        if (typeof UI !== 'undefined' && UI.notify) {
+            UI.notify(lang === 'en' ? `🧘 +${amount} Vigor (a moment's rest)` : `🧘 +${amount} Vigor (chvíle odpočinku)`);
+        }
+        if (typeof Game !== 'undefined' && Game.addKronikaEntry) {
+            Game.addKronikaEntry('minor',
+                '🧘 Bratr si u hry odpočinul.',
+                '🧘 A brother rested a while over the game.',
+                '🧘 Frater ludo se recreavit.');
+        }
     },
 
     // ── Scavenge hook ─────────────────────────────────────────────────────────
@@ -22534,7 +22573,6 @@ const VigorSystem = {
         </div>`;
     },
 };
-
 // ═══ src/systems/HealthSystem.js ═══
 // ═══════════════════════════════════════════════════════════════════════════
 // HEALTH SYSTEM (Valetudo)
@@ -29687,6 +29725,49 @@ const FireplaceSystem = {
         this.render();
     },
 
+    // dymka-modal-fix (7.8.2026): klik na dýmku v Zásobách/Truhle — stejné
+    // akce jako karta v Ohništi, jen jako modal (mirror Game.showNetolickyModal).
+    showPipeModal: function() {
+        this._ensurePipeState();
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        const en = lang === 'en';
+        const pipe = GameState.fire.pipe;
+        const effectActive = GameState.flags && GameState.flags.dymkaEffectUntil && Date.now() < GameState.flags.dymkaEffectUntil;
+
+        let text, choices;
+        if (effectActive) {
+            const remainMin = Math.max(0, Math.ceil((GameState.flags.dymkaEffectUntil - Date.now()) / 60000));
+            text = en
+                ? `<em>Smoke still lingers. Time feels like it is dragging...</em><br><br>${remainMin} min left.`
+                : `<em>Kouř ještě neopadl. Zdá se ti, že čas plyne pomaleji...</em><br><br>zbývá ${remainMin} min.`;
+            choices = [{ label: en ? 'Close' : 'Zavřít', type: 'default', effect: function() {} }];
+        } else if (pipe.state === 'packed') {
+            text = en ? 'The pipe is packed and ready.' : 'Dýmka je napěchovaná a připravená.';
+            choices = [
+                { label: '💨 ' + (en ? 'Smoke' : 'Vykouřit'), type: 'primary', effect: function() { FireplaceSystem.smokePipe(); } },
+                { label: en ? 'Close' : 'Zavřít', type: 'default', effect: function() {} }
+            ];
+        } else {
+            const hasDried = (GameState.inventory['dried_cannabis'] || 0) > 0;
+            const fireOk = !!GameState.fire.active;
+            const can = hasDried && fireOk;
+            let hint = '';
+            if (!fireOk) hint = en ? 'The hearth must be lit.' : 'Krb musí hořet.';
+            else if (!hasDried) hint = en ? 'Need dried hemp.' : 'Potřeba sušené konopí.';
+            text = en
+                ? `An empty pipe, waiting to be packed.${hint ? '<br><br><small>' + hint + '</small>' : ''}`
+                : `Prázdná dýmka, čeká na napěchování.${hint ? '<br><br><small>' + hint + '</small>' : ''}`;
+            choices = can
+                ? [
+                    { label: '🌿 ' + (en ? 'Pack pipe' : 'Napěchovat dýmku'), type: 'primary', effect: function() { FireplaceSystem.packPipe(); } },
+                    { label: en ? 'Close' : 'Zavřít', type: 'default', effect: function() {} }
+                  ]
+                : [{ label: en ? 'Close' : 'Zavřít', type: 'default', effect: function() {} }];
+        }
+
+        NotificationSystem.modal({ icon: '🪈', title: en ? 'Pipe' : 'Dýmka', text: text, choices: choices });
+    },
+
     smokePipe: function() {
         this._ensurePipeState();
         const pipe = GameState.fire.pipe;
@@ -30078,7 +30159,6 @@ const FireplaceSystem = {
         }
     }
 };
-
 // ═══ src/systems/IncenseSystem.js ═══
 // IncenseSystem.js — Thuribulum (Kadidlo1)
 // Pálení kadidla v Ohništi (Foculus) → pasivní snížení únavy po dobu hoření
@@ -30256,6 +30336,7 @@ const GardenSystem = {
         const slot = GameState.orchard[slotIdx];
         if (slot.state !== 'empty') { UI.notify(t('game.slotOccupied'), true); return; }
         Game.removeItem(seedId, 1);
+        if (typeof VigorSystem !== 'undefined') VigorSystem.addFatigue(0.5);
         slot.state    = 'growing';
         slot.treeType = seedId;
         slot.plantedAt = Date.now();
@@ -30346,6 +30427,7 @@ const GardenSystem = {
         if (feedNeeded === 0) { UI.notify(t('game.piscinaEmpty'), true); return; }
         if ((GameState.inventory['fiber']||0) < feedNeeded) { UI.notify(t('game.needFeedFish') + ` (${feedNeeded})`, true); return; }
         Game.removeItem('fiber', feedNeeded);
+        if (typeof VigorSystem !== 'undefined') VigorSystem.addFatigue(0.5);
         p.lastFedAt = Date.now();
         Game.save(); GardenSystem.renderPiscina();
         UI.notify('🌿 ' + t('game.piscinaFed'));
@@ -30369,6 +30451,7 @@ const GardenSystem = {
         if (qty <= 0) { UI.notify(t('game.noCarp'), true); return; }
         p.carp -= qty;
         Game.addItem('carp', qty);
+        if (typeof VigorSystem !== 'undefined') VigorSystem.addFatigue(0.5);
         Game.save(); GardenSystem.renderPiscina();
         UI.notify('🐠 ' + t('game.carpHarvested').replace('{qty}', qty));
     },
@@ -31892,6 +31975,7 @@ const GardenSystem = {
             if (!(GameState.inventory['seeds_vegetable'] > 0)) { UI.notify('⚠️ Chybí: stará semena zeleniny', true); return; }
             if (plot.cropType !== 'vegetable') { UI.notify('⚠️ Tento záhon není pro zeleninu.', true); return; }
             Game.removeItem('seeds_vegetable', 1);
+            if (typeof VigorSystem !== 'undefined') VigorSystem.addFatigue(0.5);
             const legacyPick = this.GARDEN_PLANTS_DB[Math.random() < 0.5 ? 'carrot' : 'onion'];
             plot.state = 2;
             plot.crop = legacyPick.item;
@@ -31915,6 +31999,7 @@ const GardenSystem = {
             return;
         }
         Game.removeItem(plant.seed, 1);
+        if (typeof VigorSystem !== 'undefined') VigorSystem.addFatigue(0.5);
         plot.state = 2;
         plot.crop = plant.item;
         plot.plantedAt = Date.now();
@@ -31966,6 +32051,7 @@ const GardenSystem = {
         const flowerNeeded = (this.getGrowHours(plot.crop) * 3600000) / growthSpeed;
         if (Date.now() < (plot.floweredAt || 0) + flowerNeeded) { UI.notify('⚠️ Ještě nekvete dost dlouho.', true); return; }
         Game.addItem(gp.seed, gp.seedYield || 1);
+        if (typeof VigorSystem !== 'undefined') VigorSystem.addFatigue(0.5);
         plot.state = 0; plot.crop = null; plot.water = false; plot.floweredAt = 0;
         Game.save();
         this.renderGarden();
@@ -32051,6 +32137,7 @@ const GardenSystem = {
             UI.notify(lang==='en' ? 'No cutting available.' : 'Nemáš řízek.', true); return;
         }
         Game.removeItem(variety.viticis, 1);
+        if (typeof VigorSystem !== 'undefined') VigorSystem.addFatigue(0.5);
         const now = Date.now();
         const DAY_MS = 86400000;
         slot.state     = 'planted';
@@ -32121,6 +32208,7 @@ const GardenSystem = {
             UI.notify(lang==='en' ? 'Not enough water.' : 'Nedostatek vody!', true); return;
         }
         Game.removeItem('water', waterCost);
+        if (typeof VigorSystem !== 'undefined') VigorSystem.addFatigue(0.5);
         slot.lastWateredAt = Date.now();
         Game.save();
         this.renderVinohrad();
@@ -32160,6 +32248,7 @@ const GardenSystem = {
         const outputId = 'grapes_' + variety.id;
 
         Game.addItem(outputId, qty);
+        if (typeof VigorSystem !== 'undefined') VigorSystem.addFatigue(0.5);
         const itemName = (typeof iName === 'function') ? iName(outputId) : outputId;
         UI.notify('🍇 ' + (lang==='en'?'Harvested: ':'Sklizeno: ') + itemName + ' ×' + qty);
         Game.addKronikaEntry('important',
@@ -32295,6 +32384,7 @@ const GardenSystem = {
             UI.notify(lang==='en' ? 'Not ready yet.' : 'Ještě nezraje.', true); return;
         }
         Game.addItem('vinum_praeclarum', barrel.amount);
+        if (typeof VigorSystem !== 'undefined') VigorSystem.addFatigue(0.5);
         const itemName = (typeof iName === 'function') ? iName('vinum_praeclarum') : 'vinum_praeclarum';
         UI.notify('🏺 ' + (lang==='en'?'Collected: ':'Vyzvednuto: ') + itemName + ' ×' + barrel.amount);
         Game.addKronikaEntry('important',
@@ -32348,6 +32438,7 @@ const GardenSystem = {
             UI.notify(lang==='en' ? 'Not dry yet.' : 'Ještě neuschly.', true); return;
         }
         Game.addItem('raisins', drying.amount);
+        if (typeof VigorSystem !== 'undefined') VigorSystem.addFatigue(0.5);
         const itemName = (typeof iName === 'function') ? iName('raisins') : 'raisins';
         UI.notify('🍇 ' + (lang==='en'?'Collected: ':'Vyzvednuto: ') + itemName + ' ×' + drying.amount);
         Game.addKronikaEntry('important',
@@ -32607,6 +32698,7 @@ const GardenSystem = {
             return;
         }
         Game.removeItem(crop.seeds, seedCost);
+        if (typeof VigorSystem !== 'undefined') VigorSystem.addFatigue(0.5);
         field.state   = 'growing';
         field.crop    = cropKey;
         field.phase   = 0;
@@ -32628,6 +32720,7 @@ const GardenSystem = {
             return;
         }
         Game.removeItem('water', waterCost);
+        if (typeof VigorSystem !== 'undefined') VigorSystem.addFatigue(0.5);
         field.watered = true;
         Game.save();
         this.renderFieldTab();
@@ -32677,6 +32770,7 @@ const GardenSystem = {
         }
 
         Game.addItem(outputId, yieldAmt);
+        if (typeof VigorSystem !== 'undefined') VigorSystem.addFatigue(0.5);
 
         // Sláma
         const strawAmt = hasHumno ? crop.strawYield * 2 : Math.min(1, crop.strawYield);
@@ -33049,7 +33143,6 @@ const GardenSystem = {
     },
 
 };
-
 // ═══ src/systems/FarmyardSystem.js ═══
 // ═══════════════════════════════════════════════════════════════════════════
 // FARMYARD SYSTEM — Dvůr v3
@@ -33275,6 +33368,7 @@ const FarmyardSystem = {
             return;
         }
         st.lastCleanMs = now;
+        if (typeof VigorSystem !== 'undefined') VigorSystem.addFatigue(0.5);
 
         // Mood +30 všem zvířatům — jen pro chlévy MIMO v2 (donkeyStall/stable).
         // v2 pens (rabbitry/henhouse/sheepfold/goatpen/cowbyre/pigsty) mají
@@ -33361,6 +33455,7 @@ const FarmyardSystem = {
             return;
         }
         c.lastCleanMs = now;
+        if (typeof VigorSystem !== 'undefined') VigorSystem.addFatigue(0.5);
 
         // Generovat hnůj: stejný vzorec jako cleanPen, 1–3 ks dle počtu ptáků
         // MRD Columbarium II — specificky pigeon_dung (guáno), ne obecný manure
@@ -33620,7 +33715,7 @@ const FarmyardSystem = {
             c.lastFeatherAt = now;
             collected = true;
         }
-        if (collected) { Game.save(); FarmyardSystem.renderFarmyard(); UI.notify('🥚 ' + t('farmyard.columbariumCollected')); }
+        if (collected) { if (typeof VigorSystem !== 'undefined') VigorSystem.addFatigue(0.5); Game.save(); FarmyardSystem.renderFarmyard(); UI.notify('🥚 ' + t('farmyard.columbariumCollected')); }
         else UI.notify(t('game.penNotReady'), true);
     },
 
@@ -33993,6 +34088,7 @@ const FarmyardSystem = {
         });
         if (milk) {
             GameState.inventory['goat_milk'] = (GameState.inventory['goat_milk'] || 0) + milk;
+            if (typeof VigorSystem !== 'undefined') VigorSystem.addFatigue(0.5);
             if (typeof UI !== 'undefined') UI.notify('🥛 ' + t('dvur.goatMilked').replace('{n}', milk));
             if (typeof Game !== 'undefined') Game.save();
             this.renderFarmyard();
@@ -34018,6 +34114,7 @@ const FarmyardSystem = {
         });
         if (milk) {
             GameState.inventory['cow_milk'] = (GameState.inventory['cow_milk'] || 0) + milk;
+            if (typeof VigorSystem !== 'undefined') VigorSystem.addFatigue(0.5);
             if (typeof UI !== 'undefined') UI.notify('🥛 ' + t('dvur.cowMilked').replace('{n}', milk));
             if (typeof Game !== 'undefined') Game.save();
             this.renderFarmyard();
@@ -34032,6 +34129,7 @@ const FarmyardSystem = {
         if (!a) return;
         if ((GameState.inventory['acorn'] || 0) < 1) { if (typeof UI !== 'undefined') UI.notify(t('dvur.noAcorn'), true); return; }
         GameState.inventory['acorn'] -= 1;
+        if (typeof VigorSystem !== 'undefined') VigorSystem.addFatigue(0.5);
         a.placedAt = (a.placedAt || a.bornAt || Date.now()) - cfg.acornBoostMs;
         if (typeof UI !== 'undefined') UI.notify('🌰 ' + t('dvur.acornFed'));
         if (typeof Game !== 'undefined') Game.save();
@@ -34920,7 +35018,7 @@ const FarmyardSystem = {
             Game.addItem('feather_hen', h.hens.length);
             h.lastFeatherAt = now; collected = true;
         }
-        if (collected) { Game.save(); FarmyardSystem.renderFarmyard(); UI.notify('🥚 ' + t('game.hennouseCollected')); }
+        if (collected) { if (typeof VigorSystem !== 'undefined') VigorSystem.addFatigue(0.5); Game.save(); FarmyardSystem.renderFarmyard(); UI.notify('🥚 ' + t('game.hennouseCollected')); }
         else UI.notify(t('game.penNotReady'), true);
     },
 
@@ -34940,6 +35038,7 @@ const FarmyardSystem = {
         if (grainItem && grainHave >= totalFeed) {
             // Plné krmení zrním
             Game.removeItem(grainItem, totalFeed);
+            if (typeof VigorSystem !== 'undefined') VigorSystem.addFatigue(0.5);
             h.lastFedAt = Date.now();
             Game.save(); FarmyardSystem.renderFarmyard();
             UI.notify('🌾 ' + t('game.henFed'));
@@ -34953,6 +35052,7 @@ const FarmyardSystem = {
         const seedNeeded = totalFeed * 4;
         if (seedItem && seedHave >= seedNeeded) {
             Game.removeItem(seedItem, seedNeeded);
+            if (typeof VigorSystem !== 'undefined') VigorSystem.addFatigue(0.5);
             h.lastFedAt = Date.now();
             Game.save(); FarmyardSystem.renderFarmyard();
             UI.notify('🌱 ' + t('game.henFedSeeds') + ' (1/4)');
@@ -34972,6 +35072,7 @@ const FarmyardSystem = {
             UI.notify(t('farmyard.needSlug') + ' (' + needed + ')', true); return;
         }
         Game.removeItem('slug', needed);
+        if (typeof VigorSystem !== 'undefined') VigorSystem.addFatigue(0.5);
         h.lastFedAt = Date.now();
         h.slugFedAt = Date.now();
         Game.save(); FarmyardSystem.renderFarmyard();
@@ -35193,7 +35294,7 @@ const FarmyardSystem = {
             if (woolQty > 0) { Game.addItem('wool', woolQty); }
             s.lastWoolAt = now; collected = true;
         }
-        if (collected) { Game.save(); FarmyardSystem.renderFarmyard(); UI.notify('🐑 ' + t('game.sheepCollected')); }
+        if (collected) { if (typeof VigorSystem !== 'undefined') VigorSystem.addFatigue(0.5); Game.save(); FarmyardSystem.renderFarmyard(); UI.notify('🐑 ' + t('game.sheepCollected')); }
         else UI.notify(t('game.penNotReady'), true);
     },
 
@@ -35205,6 +35306,7 @@ const FarmyardSystem = {
         if ((GameState.inventory['fiber'] || 0) < fiberNeeded) { UI.notify(t('game.needFeedSheep') + ' (' + fiberNeeded + ')', true); return; }
         if (!this._checkFeedWater(waterNeeded, false).ok) { UI.notify(t('game.needWater'), true); return; }
         Game.removeItem('fiber', fiberNeeded);
+        if (typeof VigorSystem !== 'undefined') VigorSystem.addFatigue(0.5);
         this._checkFeedWater(waterNeeded, true);
         st.lastFedAt = Date.now();
         Game.save(); FarmyardSystem.renderFarmyard();
@@ -35220,6 +35322,7 @@ const FarmyardSystem = {
         if ((GameState.inventory['fiber'] || 0) < fiberNeeded) { UI.notify(t('game.needFeedSheep') + ' (' + fiberNeeded + ')', true); return; }
         if (!this._checkFeedWater(waterNeeded, false).ok) { UI.notify(t('game.needWater'), true); return; }
         Game.removeItem('fiber', fiberNeeded);
+        if (typeof VigorSystem !== 'undefined') VigorSystem.addFatigue(0.5);
         this._checkFeedWater(waterNeeded, true);
         s.lastFedAt = Date.now();
         Game.save(); FarmyardSystem.renderFarmyard();
@@ -35325,7 +35428,6 @@ const FarmyardSystem = {
 
 
 };
-
 // ═══ src/systems/ScriptoriumCat.js ═══
 // ═══════════════════════════════════════════════════════════════════════════
 // SCRIPTORIUM CAT — Felis Monastica
@@ -37174,7 +37276,7 @@ const PersonaSystem = {
             h += `<div style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:16px;">`;
             prutOwned.forEach(id => {
                 const item = ItemsDB[id];
-                h += `<div style="display:flex; align-items:center; gap:8px; padding:8px 12px; background:rgba(255,255,255,0.5); border:1px solid rgba(197,160,89,0.4); border-radius:8px;">
+                h += `<div onclick="UI.showItemModal('${id}')" style="cursor:pointer; display:flex; align-items:center; gap:8px; padding:8px 12px; background:rgba(255,255,255,0.5); border:1px solid rgba(197,160,89,0.4); border-radius:8px;">
                         <span style="font-size:1.3rem;">${item.icon}</span>
                         <div><strong style="font-size:0.8rem;">${lang==='en'?item.name_en:item.name}</strong><div style="font-size:0.68rem; opacity:0.6;">×${inv[id]}</div></div>
                       </div>`;
@@ -37192,7 +37294,7 @@ const PersonaSystem = {
             curioIds.forEach(id => {
                 const item = ItemsDB[id];
                 const desc = lang==='en' ? item.desc_en : item.desc;
-                h += `<div title="${desc}" style="display:flex; align-items:center; gap:8px; padding:8px 12px; background:rgba(255,255,255,0.4); border:1px solid rgba(197,160,89,0.3); border-radius:8px; max-width:220px;">
+                h += `<div onclick="UI.showItemModal('${id}')" title="${desc}" style="cursor:pointer; display:flex; align-items:center; gap:8px; padding:8px 12px; background:rgba(255,255,255,0.4); border:1px solid rgba(197,160,89,0.3); border-radius:8px; max-width:220px;">
                         <span style="font-size:1.2rem;">${item.icon}</span>
                         <div><strong style="font-size:0.76rem;">${lang==='en'?item.name_en:item.name}</strong>${inv[id] > 1 ? ` <span style="opacity:0.6;">×${inv[id]}</span>` : ''}</div>
                       </div>`;
@@ -37432,7 +37534,6 @@ const PersonaSystem = {
     },
 
 };
-
 // ═══ src/systems/PortaSystem.js ═══
 // ═══════════════════════════════════════════════════════════════════════════
 // PortaSystem — Scriptorium
@@ -43307,6 +43408,7 @@ const MemoryGame = {
     
     complete: function() {
         this.gameActive = false;
+        if (typeof VigorSystem !== 'undefined') VigorSystem.restFromPlay();
         
         // Calculate reward based on moves
         const perfectMoves = this.cards.length / 2;
@@ -43538,6 +43640,7 @@ const PrimeroGame = {
     
     endGame: function() {
         this.gameActive = false;
+        if (typeof VigorSystem !== 'undefined') VigorSystem.restFromPlay();
         
         if(this.playerScore > this.opponentScore) {
             const reward = this.bet * 2;
@@ -44092,6 +44195,7 @@ const Rithmomachia = {
     
     endGame: function(winner, reason) {
         this.gameActive = false;
+        if (typeof VigorSystem !== 'undefined') VigorSystem.restFromPlay();
         
         if (winner === 'white') {
             const reward = 8;
@@ -44569,6 +44673,7 @@ const RoyalGameOfUr = {
     checkWin: function() {
         if(this.stats.playerFinished === 7) {
             this.gameActive = false;
+            if (typeof VigorSystem !== 'undefined') VigorSystem.restFromPlay();
             const reward = 4;
             Game.addItem('research', reward);
             
@@ -44582,6 +44687,7 @@ const RoyalGameOfUr = {
             setTimeout(() => this.render(), 2000);
         } else if(this.stats.aiFinished === 7) {
             this.gameActive = false;
+            if (typeof VigorSystem !== 'undefined') VigorSystem.restFromPlay();
             
             if(GameState.achievements) {
                 GameState.achievements.stats.totalGamesPlayed++;
@@ -44949,6 +45055,7 @@ const RoyalGameOfUrSolo = {
     checkWin: function() {
         if(this.stats.finished === 7) {
             this.gameActive = false;
+            if (typeof VigorSystem !== 'undefined') VigorSystem.restFromPlay();
             
             let reward = 2;
             let gradeKey = 'grade_pass';
@@ -45254,6 +45361,7 @@ const KarnoffelGame = {
     
     endGame: function() {
         this.gameActive = false;
+        if (typeof VigorSystem !== 'undefined') VigorSystem.restFromPlay();
         
         if(this.playerTricks > this.opponentTricks) {
             const reward = 3;
@@ -45558,6 +45666,7 @@ const FreeCellGame = {
     
     win: function() {
         this.gameActive = false;
+        if (typeof VigorSystem !== 'undefined') VigorSystem.restFromPlay();
         
         let reward = 5;
         if(this.moves < 100) reward = 8;
@@ -45943,6 +46052,7 @@ const SenetGame = {
     checkWin: function() {
         if (this.playerPieces.every(p => p.out)) {
             this.gameActive = false;
+            if (typeof VigorSystem !== 'undefined') VigorSystem.restFromPlay();
             const reward = 5;
             Game.addItem('research', reward);
             if (GameState.achievements) {
@@ -45956,6 +46066,7 @@ const SenetGame = {
         }
         if (this.aiPieces.every(p => p.out)) {
             this.gameActive = false;
+            if (typeof VigorSystem !== 'undefined') VigorSystem.restFromPlay();
             if (GameState.achievements) GameState.achievements.stats.totalGamesPlayed++;
             this.lastMessage = t('games.senetLoss');
             UI.notify(this.lastMessage, true);
@@ -46123,7 +46234,6 @@ const SenetGame = {
         modal.innerHTML = h;
     }
 };
-
 // ═══ src/games/backgammon.js ═══
 // ═══════════════════════════════════════════════════════════════════════════════
 // TABLES (BACKGAMMON) — Středověký předchůdce Backgammonu
@@ -46526,6 +46636,7 @@ const BackgammonGame = {
 
     win: function(side) {
         this.gameActive = false;
+        if (typeof VigorSystem !== 'undefined') VigorSystem.restFromPlay();
         const reward = 6;
         if (side === 'player') {
             Game.addItem('research', reward);
@@ -46699,7 +46810,6 @@ const BackgammonGame = {
         modal.innerHTML = h;
     }
 };
-
 // ═══ src/games/draughts.js ═══
 // ═══════════════════════════════════════════════════════════════════════════════
 // DÁMA (DRAUGHTS) — Z arabského Alquerque (10. stol.)
@@ -46956,6 +47066,7 @@ const DraughtsGame = {
 
     endGame: function(winner) {
         this.gameActive = false;
+        if (typeof VigorSystem !== 'undefined') VigorSystem.restFromPlay();
         const reward = 4;
         if (winner === 'player') {
             Game.addItem('research', reward);
@@ -47459,6 +47570,7 @@ const HnefataflGame = {
 
     endGame: function(winner, reason) {
         this.gameActive = false;
+        if (typeof VigorSystem !== 'undefined') VigorSystem.restFromPlay();
         const reward = 8;
         if (winner === 'player') {
             Game.addItem('research', reward);
@@ -48130,13 +48242,13 @@ const TavernDice = {
 
         <!-- Game Selector Tabs -->
         <div style="display: flex; gap: 8px; margin-bottom: 16px;">
-          <button onclick="TavernDice.setGame('hazard')" class="craft-btn" style="flex: 1; padding: 8px; font-size: 0.82rem; background: ${this.activeGame==='hazard'?'var(--accent-gold)':'rgba(255,255,255,0.08)'}; color: ${this.activeGame==='hazard'?'#000':'#f5e6c8'}; border: 1px solid #c5a059;">
+          <button onclick="TavernDice.setGame('hazard')" class="craft-btn" style="flex: 1; padding: 6px 4px; font-size: 0.7rem; white-space: normal; line-height: 1.25; background: ${this.activeGame==='hazard'?'var(--accent-gold)':'rgba(255,255,255,0.08)'}; color: ${this.activeGame==='hazard'?'#000':'#f5e6c8'}; border: 1px solid #c5a059;">
             🎲 Hazard (2d6)
           </button>
-          <button onclick="TavernDice.setGame('passage')" class="craft-btn" style="flex: 1; padding: 8px; font-size: 0.82rem; background: ${this.activeGame==='passage'?'var(--accent-gold)':'rgba(255,255,255,0.08)'}; color: ${this.activeGame==='passage'?'#000':'#f5e6c8'}; border: 1px solid #c5a059;">
+          <button onclick="TavernDice.setGame('passage')" class="craft-btn" style="flex: 1; padding: 6px 4px; font-size: 0.7rem; white-space: normal; line-height: 1.25; background: ${this.activeGame==='passage'?'var(--accent-gold)':'rgba(255,255,255,0.08)'}; color: ${this.activeGame==='passage'?'#000':'#f5e6c8'}; border: 1px solid #c5a059;">
             🎲 Passage (3d6)
           </button>
-          <button onclick="TavernDice.setGame('zara')" class="craft-btn" style="flex: 1; padding: 8px; font-size: 0.82rem; background: ${this.activeGame==='zara'?'var(--accent-gold)':'rgba(255,255,255,0.08)'}; color: ${this.activeGame==='zara'?'#000':'#f5e6c8'}; border: 1px solid #c5a059;">
+          <button onclick="TavernDice.setGame('zara')" class="craft-btn" style="flex: 1; padding: 6px 4px; font-size: 0.7rem; white-space: normal; line-height: 1.25; background: ${this.activeGame==='zara'?'var(--accent-gold)':'rgba(255,255,255,0.08)'}; color: ${this.activeGame==='zara'?'#000':'#f5e6c8'}; border: 1px solid #c5a059;">
             🎲 Zara (3d6)
           </button>
         </div>
@@ -48257,7 +48369,7 @@ const TavernDice = {
             <button onclick="TavernDice.setBet(50)" class="craft-btn" style="padding: 4px 8px; font-size: 0.75rem;">50 g</button>
             <button onclick="TavernDice.setBet(100)" class="craft-btn" style="padding: 4px 8px; font-size: 0.75rem;">100 g</button>
             <button onclick="TavernDice.setBet(500)" class="craft-btn" style="padding: 4px 8px; font-size: 0.75rem;">500 g</button>
-            <button onclick="TavernDice.setBetAllIn()" class="craft-btn" style="padding: 4px 8px; font-size: 0.75rem; background: #c0392b; color: #fff; font-weight: bold;">
+            <button onclick="TavernDice.setBetAllIn()" class="craft-btn" style="padding: 4px 8px; font-size: 0.75rem; white-space: normal; line-height: 1.2; background: #c0392b; color: #fff; font-weight: bold;">
               💀 ALL IN (${coins} g)
             </button>
           </div>
@@ -49241,6 +49353,24 @@ const STRINGS_cs = {
         prior_lore: 'Prior nebyl kariérní postup – byl jmenován nebo volen komunitou. Opat ho mohl kdykoliv odvolat.',
         prior_toast: 'Prior – Opat tě jmenoval. Komunita tě přijala.',
         prior_requirement: 'Armarius + nomination event',
+    },
+
+    // minigames-i18n-fix (7.8.2026): memory.js a ur.js volají t('minigames.*'),
+    // ale ten namespace tu nikdy nebyl — proto se zobrazoval raw klíč
+    // (např. "minigames.memory.moves") místo textu. Doplněno.
+    minigames: {
+        memory: {
+            need_items: 'Objev nejdřív víc věcí ve hře, ať máš z čeho hrát páry!',
+            win: '🎉 Skvělá práce! Dokončeno na {moves} tahů. +{reward} Zápisky.',
+            moves: 'Tahy',
+            new_game: 'Nová hra',
+        },
+        ur: {
+            grade_perfect: 'Dokonalé',
+            grade_good: 'Dobré',
+            grade_ok: 'Ujde',
+            grade_pass: 'Dohráno',
+        },
     },
 
     games: {
@@ -50524,7 +50654,6 @@ const STRINGS_cs = {
         },
     },
 };
-
 // ═══ src/i18n/en.js ═══
 // Scriptorium i18n — English (Olde)
 // Základ: STRINGS_cs. Chybějící klíče → fallback na CS automaticky.
@@ -52286,6 +52415,22 @@ According to Theophilus, the organ is an instrument worthy of God, but its const
         prior_requirement: 'Armarius + nomination event',
     },
 
+
+    // minigames-i18n-fix (7.8.2026): mirror of cs.js fix — see comment there.
+    minigames: {
+        memory: {
+            need_items: 'Discover more things in the game first, so you have pairs to play with!',
+            win: '🎉 Great work! Completed in {moves} moves. +{reward} Notes.',
+            moves: 'Moves',
+            new_game: 'New Game',
+        },
+        ur: {
+            grade_perfect: 'Perfect',
+            grade_good: 'Good',
+            grade_ok: 'Pass',
+            grade_pass: 'Finished',
+        },
+    },
 
     games: {
         // Header
@@ -63092,6 +63237,12 @@ const UI = {
             if (typeof Game !== 'undefined' && Game.showBelzebubSpisModal) Game.showBelzebubSpisModal();
             return;
         }
+        // dymka-modal-fix (7.8.2026): klik na dýmku v Zásobách/Truhle otevře
+        // stejné akce (napěchovat/vykouřit) jako karta v Ohništi, ne jen popis.
+        if (id === 'pipe_large' || id === 'pipe_small') {
+            if (typeof FireplaceSystem !== 'undefined' && FireplaceSystem.showPipeModal) FireplaceSystem.showPipeModal();
+            return;
+        }
         const _coinValues = { old_coin_1: 6, old_coin_2: 8, old_coin_3: 12 };
         if (_coinValues[id] !== undefined) {
             if (typeof Game !== 'undefined' && Game.showCoinModal) Game.showCoinModal(id, _coinValues[id]);
@@ -64371,25 +64522,45 @@ const UI = {
         };
         const maxFolios = MANUSCRIPTS_DB[ms.activeId] || 10;
 
+        // scriptorium-mastery-mrd (7.8.2026): navrch RankSystem Scriptor role.
+        const mastery = GameState.scriptoriumMastery || 0;
+        const vigorPerFolium = Math.max(1, 2 - mastery * 0.05);
+        const bonusChance = Math.min(0.25, mastery * 0.01);
+
         let copiesDone = 0;
+        let bonusCopies = 0;
         for (let c = 0; c < count; c++) {
             const paper = GameState.inventory['paper'] || 0;
             const parchment = GameState.inventory['parchment'] || 0;
             const ink = GameState.inventory['ink'] || 0;
 
-            if (ink <= 0 || (paper <= 0 && parchment <= 0)) {
-                if (copiesDone === 0) {
-                    UI.notify('⚠️ Chybí psací potřeby (Inkoust + Papír/Pergamen)!');
+            // scriptorium-mastery-mrd: zkušená ruka občas napíše folium
+            // "z hlavy" bez spotřeby surovin — šance roste s mastery, strop 25 %.
+            const isBonus = mastery > 0 && Math.random() < bonusChance;
+
+            if (!isBonus) {
+                if (ink <= 0 || (paper <= 0 && parchment <= 0)) {
+                    if (copiesDone === 0) {
+                        UI.notify('⚠️ Chybí psací potřeby (Inkoust + Papír/Pergamen)!');
+                    }
+                    break;
                 }
-                break;
+                GameState.inventory['ink'] = ink - 1;
+                if (parchment > 0) {
+                    GameState.inventory['parchment'] = parchment - 1;
+                } else {
+                    GameState.inventory['paper'] = paper - 1;
+                }
+            } else {
+                bonusCopies++;
             }
 
-            GameState.inventory['ink'] = ink - 1;
-            if (parchment > 0) {
-                GameState.inventory['parchment'] = parchment - 1;
-            } else {
-                GameState.inventory['paper'] = paper - 1;
-            }
+            // opisovani-vigor-audit (7.8.2026): opisování dřív nestálo žádný
+            // Vigor — popis About slibuje "trochu energie" za folium, teď to
+            // fakt platí. Vždy hráč (Athanor/Scriptorium nejsou v
+            // CONVERSI_TASKS), bezpečné bez dalšího rozlišování.
+            // scriptorium-mastery-mrd: náklad klesá s masterou (min. 1).
+            if (typeof VigorSystem !== 'undefined') VigorSystem.addFatigue(vigorPerFolium);
 
             ms.progress = (ms.progress || 0) + 1;
             GameState.inventory['research'] = (GameState.inventory['research'] || 0) + 3;
@@ -64400,13 +64571,22 @@ const UI = {
                 ms.copies[ms.activeId] = (ms.copies[ms.activeId] || 0) + 1;
                 GameState.inventory['research'] += 20;
                 GameState.inventory['parchment'] = (GameState.inventory['parchment'] || 0) + 2;
+                GameState.scriptoriumMastery = (GameState.scriptoriumMastery || 0) + 1;
                 UI.notify(`📜 Kodex dokončen! Získáváš +20 Zápisků a 2 Pergamene.`);
+                UI.notify(`✍️ Zkušenost roste — trvale snižuje únavu z psaní a dává šanci na folium zdarma.`);
+                if (typeof Game !== 'undefined' && Game.addKronikaEntry) {
+                    Game.addKronikaEntry('minor',
+                        '✍️ Bratrova ruka zkušeností zesílila — psaní jde snáz.',
+                        '✍️ The brother\'s hand has grown surer with practice — writing comes easier now.',
+                        '✍️ Manus fratris usu firmata est.');
+                }
                 break;
             }
         }
 
         if (copiesDone > 0) {
-            UI.notify(`✒️ Opsáno ${copiesDone} folium (+${copiesDone * 3} Zápisky)`);
+            const bonusNote = bonusCopies > 0 ? ` (${bonusCopies}× zdarma, zkušenost)` : '';
+            UI.notify(`✒️ Opsáno ${copiesDone} folium (+${copiesDone * 3} Zápisky)${bonusNote}`);
         }
 
         UI.renderManuscriptCopying();
