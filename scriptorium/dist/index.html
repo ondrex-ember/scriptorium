@@ -8244,6 +8244,8 @@ const ItemsDB = {
     "leather_cords": { name: "Kožené vazy", name_en: "Leather Cords", icon: "🪢", type: "mat", desc: "Tenké řemínky, napnuté na vazadlu. Základ šití knižního bloku.", desc_en: "Thin cords, stretched on the sewing frame. The basis of stitching the book block." },
     "metal_clasps": { name: "Kovové spony", name_en: "Metal Clasps", icon: "🔩", type: "mat", desc: "Zaklapnou desky k sobě — brání kroucení pergamenu vlhkem.", desc_en: "Clasp the boards shut — prevent the vellum from warping in damp." },
     "metal_bosses": { name: "Kovové puklice", name_en: "Metal Bosses", icon: "🔘", type: "mat", desc: "Rohové a středové hrboly. Chrání kožený potah, když kniha leží na pultu.", desc_en: "Corner and centre bosses. Protect the leather cover when the book lies on a lectern." },
+    // kovani-rozsireni-mrd (7.8.2026): mirror metal_clasps/metal_bosses vzoru — vedlejší produkt Kovářiny
+    "hrebiky": { name: "Hřebíky", name_en: "Nails", icon: "📌", type: "mat", desc: "Kované hřebíky. Drží prkna pohromadě tam, kde provaz a čep nestačí.", desc_en: "Forged nails. Hold planks together where rope and peg fall short." },
     "quires": { name: "Složky", name_en: "Quires", icon: "📑", type: "mat", desc: "Popsaný pergamen přehnutý a vložený do sebe — kvaterny, základ knižního bloku.", desc_en: "Written vellum folded and nested — quaternions, the basis of the book block." },
     "sewn_block": { name: "Ušitý blok", name_en: "Sewn Block", icon: "📗", type: "mat", desc: "Složky sešité na kožených vazech lněnou nití. Ještě bez desek.", desc_en: "Quires sewn onto leather cords with linen thread. Still without boards." },
     "unfitted_codex": { name: "Neokovaná kniha", name_en: "Unfitted Codex", icon: "📕", type: "mat", desc: "Ušitý blok mezi dřevěnými deskami, potažený kůží. Čeká na kování.", desc_en: "Sewn block between wooden boards, covered in leather. Awaiting its fittings." },
@@ -9059,6 +9061,9 @@ const RecipesDB = [
       desc: "Kované spony s okem na kožený řemínek.", desc_en: "Forged clasps with an eye for the leather strap." },
     { id: "metal_bosses", output: "metal_bosses", qty: 4, req: { iron_ingot: 1 }, cat: "iron", locked: true,
       desc: "Rohové a středové hrboly na desky.", desc_en: "Corner and centre bosses for the boards." },
+    // kovani-rozsireni-mrd (7.8.2026): vedlejší produkt Kovářiny, mirror metal_bosses
+    { id: "hrebiky", output: "hrebiky", qty: 6, req: { iron_ingot: 1 }, cat: "iron", locked: true,
+      desc: "Kovářský výmět — kladivo, kovadlina, hotovo.", desc_en: "Off the smith's anvil — hammer, strike, done." },
     { id: "quires", output: "quires", qty: 1, req: { vellum: 1, ink_gallic: 2 }, cat: "codex", locked: true,
       desc: "Popsaný pergamen přehnutý do kvaternů.", desc_en: "Written vellum folded into quaternions." },
     { id: "sewn_block", output: "sewn_block", qty: 1, req: { quires: 4, linen_thread: 2, leather_cords: 2 }, cat: "codex", locked: true,
@@ -10713,7 +10718,7 @@ const TechTree = [
     cost: 35,
     desc: "Klášterní kovář byl nepostradatelný. Z rozžhaveného železa tvaroval sekerky, rýče i kosy. Bez kováře nezaoralo žádné pole. Odemkne: železné nástroje (sekerka, rýč, kosa, srp, cep, lopata, pila).",
     desc_en: "The monastic blacksmith was indispensable. He shaped axes, spades and scythes from heated iron. Without a smith no field could be ploughed. Unlocks: iron tools (axe, spade, scythe, sickle, flail, shovel, saw).",
-    unlocks: ["iron_axe", "iron_spade", "iron_scythe", "iron_sickle", "iron_flail", "iron_shovel", "iron_saw", "iron_pickaxe", "iron_tongs", "iron_ingot", "repair_iron_axe", "repair_iron_spade", "repair_iron_scythe", "repair_iron_sickle", "repair_iron_flail", "repair_iron_shovel", "repair_iron_saw", "repair_iron_pickaxe", "metal_clasps", "metal_bosses"], requires: ["tech_horticulture"]
+    unlocks: ["iron_axe", "iron_spade", "iron_scythe", "iron_sickle", "iron_flail", "iron_shovel", "iron_saw", "iron_pickaxe", "iron_tongs", "iron_ingot", "repair_iron_axe", "repair_iron_spade", "repair_iron_scythe", "repair_iron_sickle", "repair_iron_flail", "repair_iron_shovel", "repair_iron_saw", "repair_iron_pickaxe", "metal_clasps", "metal_bosses", "hrebiky"], requires: ["tech_horticulture"]
   },
 
   {
@@ -14081,6 +14086,7 @@ const ContactsDB = {
         buyOffer: { items: {
             palice_zelezna: { price: 16, stock: 2 },
             kovani: { price: 8, stock: 4 },
+            hrebiky: { price: 2.5, stock: 5 }, // kovani-rozsireni-mrd (7.8.2026): nejlevnější kanál, ale nejvíc omezený
             britva_kovarska: { price: 12, stock: 1 },
             sada_podkov: { price: 14, stock: 2 }
         } }, // plní starý slib "prodá nástroje" z popisku + kování na Velký úl (Apiarium MRD)
@@ -14305,7 +14311,6 @@ const ContactsDB = {
         desc_en: 'A university dealer in books and writing supplies. In Olomouc only after the spring and autumn book fairs.'
     }
 };
-
 // ═══ src/systems/theme.js ═══
 const ThemeSystem = {
     themes: {
@@ -23256,6 +23261,8 @@ const CellariumSystem = {
       // zůstává jen na Trhu — otevřeno k rozšíření, pokud bude chtít Bouvard.
       { itemId: 'seeds_peas',      basePrice: 5,  dailyStock: 10 },
       { itemId: 'seeds_lentils',   basePrice: 5,  dailyStock: 10 }, // čočka — mirror hrách, obchod-podklad 7.8.2026
+      // kovani-rozsireni-mrd (7.8.2026): hřebíky před tech_kovarina — drahý kanál, malý sklad
+      { itemId: 'hrebiky',         basePrice: 6,  dailyStock: 3 },
       // Obchod-podklad (7.8.2026): 5 potvrzených mezer z historického
       // dokladu ("řemeslné výrobky běžné potřeby" + slané ryby, Zóna 1
       // olomouckého trhu). Karmín má navíc vlastní craft cestu (červec →
@@ -23304,6 +23311,8 @@ const CellariumSystem = {
       { itemId: 'paper_fine',    basePrice: 18,  dailyStock: 2,  req_tech: 'tech_porta' },
       { itemId: 'palice_zelezna', basePrice: 50, dailyStock: 2,  req_tech: 'tech_fodina' },
       { itemId: 'salt',          basePrice: 9,   dailyStock: 20 },
+      // kovani-rozsireni-mrd (7.8.2026): hřebíky před tech_kovarina — střední kanál
+      { itemId: 'hrebiky',       basePrice: 4,   dailyStock: 10 },
       // Zvířata
       { itemId: 'hen_white',     basePrice: 15,  dailyStock: 3  },
       { itemId: 'hen_black',     basePrice: 18,  dailyStock: 2  },
@@ -24245,7 +24254,7 @@ const CellariumSystem = {
     h += `<div style="font-size:0.8rem; opacity:0.75; margin-bottom:14px; font-style:italic;">${intro}</div>`;
 
     // Fáze 1 — Čistý sklep
-    const cost1 = { cut_stone: 15, plank: 10, rope: 5 };
+    const cost1 = { cut_stone: 15, plank: 10, rope: 5, hrebiky: 5 };
     const costStr1 = Object.entries(cost1).map(([k,v]) => `${v}× ${(typeof iName==='function')?iName(k):k}`).join(', ');
     h += `<div style="padding:12px; margin-bottom:10px; background:rgba(255,255,255,0.4); border-radius:6px;">`;
     h += `<div style="font-weight:bold; margin-bottom:4px;">${lang==='en'?'Phase 1 — Cleared Cellar':'Fáze 1 — Čistý sklep'}</div>`;
@@ -24260,7 +24269,7 @@ const CellariumSystem = {
 
     // Fáze 2 — Domus Conversorum I (funkční)
     const phase2Built = storage.domus_conversorum_i && storage.domus_conversorum_i.built;
-    const cost2 = { cut_stone: 40, plank: 25, rope: 10 };
+    const cost2 = { cut_stone: 40, plank: 25, rope: 10, hrebiky: 12 };
     const costStr2 = Object.entries(cost2).map(([k,v]) => `${v}× ${(typeof iName==='function')?iName(k):k}`).join(', ') + ` + 25g`;
     h += `<div style="padding:12px; margin-bottom:10px; background:${phase1Built ? 'rgba(255,255,255,0.4)' : 'rgba(0,0,0,0.02)'}; border-radius:6px; opacity:${phase1Built ? '1' : '0.4'};">`;
     h += `<div style="font-weight:bold; margin-bottom:4px;">${phase1Built ? '' : '🔒 '}${lang==='en'?'Phase 2 — Domus Conversorum I':'Fáze 2 — Domus Conversorum I'}</div>`;
@@ -24277,7 +24286,7 @@ const CellariumSystem = {
     // Fáze 3 — Domus Conversorum II (petice opatovi)
     const phase3Built = storage.domus_conversorum_ii && storage.domus_conversorum_ii.built;
     const petition = (GameState.abbotPetition && GameState.abbotPetition.domus_ii) || { status: 'none' };
-    const cost3 = { cut_stone: 150, plank: 90, rope: 35 };
+    const cost3 = { cut_stone: 150, plank: 90, rope: 35, hrebiky: 35 };
     const costStr3 = Object.entries(cost3).map(([k,v]) => `${v}× ${(typeof iName==='function')?iName(k):k}`).join(', ') + ` + 50g`;
     h += `<div style="padding:12px; background:${phase2Built ? 'rgba(255,255,255,0.4)' : 'rgba(0,0,0,0.02)'}; border-radius:6px; opacity:${phase2Built ? '1' : '0.4'};">`;
     h += `<div style="font-weight:bold; margin-bottom:4px;">${phase2Built ? '' : '🔒 '}${lang==='en'?'Phase 3 — Domus Conversorum II':'Fáze 3 — Domus Conversorum II'}</div>`;
@@ -24300,7 +24309,7 @@ const CellariumSystem = {
     // Fáze 4 — Domus Conversorum III (petice opatovi, eskalovaná)
     const phase4Built = storage.domus_conversorum_iii && storage.domus_conversorum_iii.built;
     const petition3 = (GameState.abbotPetition && GameState.abbotPetition.domus_iii) || { status: 'none' };
-    const cost4 = { cut_stone: 330, plank: 200, rope: 75, iron_ingot: 4 };
+    const cost4 = { cut_stone: 330, plank: 200, rope: 75, iron_ingot: 4, hrebiky: 70 };
     const costStr4 = Object.entries(cost4).map(([k,v]) => `${v}× ${(typeof iName==='function')?iName(k):k}`).join(', ') + ` + 110g`;
     h += `<div style="padding:12px; margin-top:10px; background:${phase3Built ? 'rgba(255,255,255,0.4)' : 'rgba(0,0,0,0.02)'}; border-radius:6px; opacity:${phase3Built ? '1' : '0.4'};">`;
     h += `<div style="font-weight:bold; margin-bottom:4px;">${phase3Built ? '' : '🔒 '}${lang==='en'?'Phase 4 — Domus Conversorum III':'Fáze 4 — Domus Conversorum III'}</div>`;
@@ -24751,7 +24760,7 @@ const CellariumSystem = {
         name: 'Horreum', name_en: 'Horreum',
         desc: 'Velká sýpka. Kapacita 1600j. Aktivuje krmivo pro zvířata.',
         desc_en: 'Large granary. Capacity 1600 units. Activates animal fodder.',
-        cost: { cut_stone: 20, plank: 10, glue: 4, rope: 6 },
+        cost: { cut_stone: 20, plank: 10, glue: 4, rope: 6, hrebiky: 5 },
         req_tech: hasHor,
         req_build: storage.cella && storage.cella.built,
         req_label: lang === 'en' ? 'Requires: Cella built' : 'Nutné: Cella postavena',
@@ -24765,7 +24774,7 @@ const CellariumSystem = {
         name: 'Fabrica', name_en: 'Smithy',
         desc: 'Kovářská dílna s výhní. Výroba a oprava železných nástrojů.',
         desc_en: 'Smithy with forge. Craft and repair iron tools.',
-        cost: { rock: 30, plank: 15, charcoal: 10, anvil: 1 },
+        cost: { rock: 30, plank: 15, charcoal: 10, anvil: 1, hrebiky: 8 },
         req_tech: hasKov, req_build: true, req_label: null,
       },
       {
@@ -24773,7 +24782,7 @@ const CellariumSystem = {
         name: 'Fornax Ferraria (Huť)', name_en: 'Fornax Ferraria (Smelting Furnace)',
         desc: 'Tavicí pec s měchy. Přetaví železnou rudu na ingoty. Vyžaduje souhlas opata.',
         desc_en: 'Smelting furnace with bellows. Converts iron ore into ingots. Requires Abbot consent.',
-        cost: { rock: 40, cut_stone: 15, clay: 20, plank: 20, charcoal: 15 },
+        cost: { rock: 40, cut_stone: 15, clay: 20, plank: 20, charcoal: 15, hrebiky: 10 },
         req_tech: hasKov,
         req_build: GameState.abbotPetition && GameState.abbotPetition.fornax && GameState.abbotPetition.fornax.status === 'approved',
         req_label: lang === 'en' ? 'Requires: Abbot approval (petition) + Fodina open' : 'Nutné: Souhlas opata (žádost) + Fodina otevřena',
@@ -24802,7 +24811,7 @@ const CellariumSystem = {
         name: 'Uvarium — Sušárna', name_en: 'Uvarium — Drying House',
         desc: 'Sušení hroznů na slunci a ve stínu. Giacomo přivezl znalost z Benátek. Výroba hrozinek.',
         desc_en: 'Drying grapes in sun and shade. Giacomo brought the knowledge from Venice. Raisin production.',
-        cost: { plank: 8, rock: 4, rope: 3 },
+        cost: { plank: 8, rock: 4, rope: 3, hrebiky: 4 },
         req_tech: hasUvar,
         req_build: GameState.storage && GameState.storage.foudres && GameState.storage.foudres.built,
         req_label: lang === 'en' ? 'Requires: Foudres built + Uvarium tech' : 'Nutné: Foudres postaveny + tech Uvarium',
@@ -24812,7 +24821,7 @@ const CellariumSystem = {
         name: 'Prelum Olei — Lisovna', name_en: 'Prelum Olei — Oil Press',
         desc: 'Lněný olej z pole lisovaný dřevěným klínem. Propojení Pole → Skriptorium.',
         desc_en: 'Linseed oil from the field, pressed with a wooden wedge. Links Field → Scriptorium.',
-        cost: { plank: 10, rope: 4, rock: 4, iron_ingot: 1 },
+        cost: { plank: 10, rope: 4, rock: 4, iron_ingot: 1, hrebiky: 5 },
         req_tech: hasPOlei,
         req_build: GameState.storage && GameState.storage.sulci && GameState.storage.sulci.built,
         req_label: lang === 'en' ? 'Requires: Sulci built + Prelum Olei tech' : 'Nutné: Brázdy postaveny + tech Prelum Olei',
@@ -24822,7 +24831,7 @@ const CellariumSystem = {
         name: 'Vápenice', name_en: 'Lime Kiln',
         desc: 'Pec u lomu. Dny a noci nepřetržitého ohně promění vápenec v pálené vápno.',
         desc_en: 'A kiln by the quarry. Days and nights of unbroken fire turn limestone into quicklime.',
-        cost: { plank: 15, cut_stone: 20, clay: 20 },
+        cost: { plank: 15, cut_stone: 20, clay: 20, hrebiky: 7 },
         req_tech: hasCalcaria, req_build: true, req_label: null,
       },
     ];
@@ -24841,7 +24850,7 @@ const CellariumSystem = {
         name: 'Prelum — Vinný lis', name_en: 'Prelum — Wine Press',
         desc: 'Dřevěný rám, kamenná podlaha, železné šrouby. Odemkne lisování hroznů → Mustum.',
         desc_en: 'Wooden frame, stone floor, iron screws. Unlocks grape pressing → Mustum.',
-        cost: { plank: 8, rope: 4, rock: 6, iron_ingot: 2 },
+        cost: { plank: 8, rope: 4, rock: 6, iron_ingot: 2, hrebiky: 4 },
         req_tech: hasVin,
         req_build: GameState.storage && GameState.storage.vinea && GameState.storage.vinea.built,
         req_label: lang === 'en' ? 'Requires: Vinea built' : 'Nutné: Vinohrad (Vinea) postaven',
@@ -24851,7 +24860,7 @@ const CellariumSystem = {
         name: 'Cella fermentaria', name_en: 'Cella fermentaria',
         desc: 'Hliněné nádoby, kamenné zdivo, chlad. Odemkne fermentaci → Vinum a Vinum Rubrum.',
         desc_en: 'Clay vessels, stone masonry, cool air. Unlocks fermentation → Vinum and Vinum Rubrum.',
-        cost: { plank: 10, rock: 8, rope: 3, clay: 4 },
+        cost: { plank: 10, rock: 8, rope: 3, clay: 4, hrebiky: 5 },
         req_tech: hasVinF,
         req_build: GameState.storage && GameState.storage.prelum && GameState.storage.prelum.built,
         req_label: lang === 'en' ? 'Requires: Prelum built + Ars Vinificandi' : 'Nutné: Prelum postaveno + Ars Vinificandi',
@@ -24861,7 +24870,7 @@ const CellariumSystem = {
         name: 'Foudres — Sudy', name_en: 'Foudres — Barrels',
         desc: 'Velké dubové sudy. Víno zrající v sudu získá jantarovou barvu. Odemkne Vinum Praeclarum.',
         desc_en: 'Large oak barrels. Wine aged in the barrel gains amber colour. Unlocks Vinum Praeclarum.',
-        cost: { plank: 15, rope: 6, iron_ingot: 3 },
+        cost: { plank: 15, rope: 6, iron_ingot: 3, hrebiky: 7 },
         req_tech: hasTonn,
         req_build: GameState.storage && GameState.storage.cella_fermentaria && GameState.storage.cella_fermentaria.built,
         req_label: lang === 'en' ? 'Requires: Cella fermentaria + Ars Tonnellaria' : 'Nutné: Cella fermentaria + Ars Tonnellaria',
@@ -24871,7 +24880,7 @@ const CellariumSystem = {
         name: 'Cellarium Vini — Vinný sklep', name_en: 'Cellarium Vini — Wine Cellar',
         desc: 'Chladný sklep s regály pro sudy. Giacomo platí za víno o 30% více.',
         desc_en: 'Cool cellar with barrel racks. Giacomo pays 30% more for wine.',
-        cost: { cut_stone: 10, plank: 6, rope: 4 },
+        cost: { cut_stone: 10, plank: 6, rope: 4, hrebiky: 3 },
         req_tech: hasTonn,
         req_build: GameState.storage && GameState.storage.foudres && GameState.storage.foudres.built,
         req_label: lang === 'en' ? 'Requires: Foudres built' : 'Nutné: Foudres postaveny',
@@ -25003,7 +25012,7 @@ const CellariumSystem = {
           cost: { rock: 20, stick: 15, rope: 5 }, fn: 'Game.buildSheepfold()',
           tech: 'tech_de_re_rustica' },
         { key: 'columbarium', icon: '🕊️', titleK: 'farmyard.columbarium', descK: 'farmyard.columbariumBuildDesc',
-          cost: { cut_stone: 60, plank: 25, log: 15, wicker: 20, rope: 10 }, fn: 'FarmyardSystem.buildColumbarium()',
+          cost: { cut_stone: 60, plank: 25, log: 15, wicker: 20, rope: 10, hrebiky: 10 }, fn: 'FarmyardSystem.buildColumbarium()',
           tech: 'tech_porta' },
       ];
       simplePens.forEach(d => {
@@ -25033,7 +25042,7 @@ const CellariumSystem = {
       // samotná stavba (materiál+groše) v Cellarium/Budovy, mirror vzoru Vápenice.
       const hasStudovnaTech = GameState.researchedTechs && GameState.researchedTechs.includes('tech_studovna');
       const libBuilt = storage.knihovna_grade_i && storage.knihovna_grade_i.built;
-      const libCost = { cut_stone: 20, plank: 15, rope: 6 };
+      const libCost = { cut_stone: 20, plank: 15, rope: 6, hrebiky: 7 };
       const libGrose = 15;
       const libHasGrose = (typeof CellariumSystem !== 'undefined' ? CellariumSystem.getGrose() : 0) >= libGrose;
       const libHasItems = Object.entries(libCost).every(([id, n]) => (GameState.inventory[id]||0) >= n);
@@ -25058,13 +25067,13 @@ const CellariumSystem = {
       const dormTiers = [
         { id: 'dormitorium_i',   icon: '📿', label: lang==='en'?'Dormitorium I':'Dormitorium I',
           desc: lang==='en'?'Cells for 3 brothers.':'Cely pro 3 bratry.',
-          cost: { cut_stone: 30, plank: 20, rope: 8 }, grose: 15, reqPrev: null },
+          cost: { cut_stone: 30, plank: 20, rope: 8, hrebiky: 10 }, grose: 15, reqPrev: null },
         { id: 'dormitorium_ii',  icon: '📿', label: lang==='en'?'Dormitorium II':'Dormitorium II',
           desc: lang==='en'?'Expanded — 6 brothers.':'Rozšířeno — 6 bratrů.',
-          cost: { cut_stone: 90, plank: 60, rope: 25, iron_ingot: 2, glass_stopper: 6 }, grose: 35, reqPrev: 'dormitorium_i' },
+          cost: { cut_stone: 90, plank: 60, rope: 25, iron_ingot: 2, glass_stopper: 6, hrebiky: 25 }, grose: 35, reqPrev: 'dormitorium_i' },
         { id: 'dormitorium_iii', icon: '📿', label: lang==='en'?'Dormitorium III':'Dormitorium III',
           desc: lang==='en'?'Full wing — 10 brothers.':'Celé křídlo — 10 bratrů.',
-          cost: { cut_stone: 200, plank: 130, rope: 50, iron_ingot: 6, glass_stopper: 10, glass_tankard: 10 }, grose: 70, reqPrev: 'dormitorium_ii' },
+          cost: { cut_stone: 200, plank: 130, rope: 50, iron_ingot: 6, glass_stopper: 10, glass_tankard: 10, hrebiky: 50 }, grose: 70, reqPrev: 'dormitorium_ii' },
       ];
       let dormInner = '';
       dormTiers.forEach(d => {
@@ -33187,7 +33196,7 @@ const FarmyardSystem = {
         },
         cowbyre: {
             itemId: ['tele', 'cow', 'byk'], cap: 4,
-            build: { cut_stone: 50, plank: 30, rope: 15 },
+            build: { cut_stone: 50, plank: 30, rope: 15, hrebiky: 12 }, // kovani-rozsireni-mrd v2, 7.8.2026
             milkMs: 12 * 60 * 60 * 1000,
             growMs: 90 * 24 * 60 * 60 * 1000,   // tele → kráva (krava-mrd, 26.7.2026)
             breedMs: 60 * 24 * 60 * 60 * 1000,  // kráva + býk → nové tele
@@ -33201,7 +33210,7 @@ const FarmyardSystem = {
         },
         stable: {
             itemId: 'horse', cap: 4,
-            build: { cut_stone: 20, plank: 15, rope: 6 },
+            build: { cut_stone: 20, plank: 15, rope: 6, hrebiky: 6 }, // kovani-rozsireni-mrd v2, 7.8.2026
             milkMs: 0
         },   // koně: tažná síla, žádná produkce v1
         donkeyStall: {
@@ -33218,7 +33227,7 @@ const FarmyardSystem = {
     // do ANIMAL_CFG — moodTick/buildAnimalPen/placeAnimal počítají
     // s jiným state shape a Columbarium by je rozbilo.
     COLUMBARIUM_CFG: {
-        build: { cut_stone: 60, plank: 25, log: 15, wicker: 20, rope: 10 },
+        build: { cut_stone: 60, plank: 25, log: 15, wicker: 20, rope: 10, hrebiky: 10 }, // kovani-rozsireni-mrd v2, 7.8.2026
         startCount: 20,
         eggIntervalMs: 24 * 60 * 60 * 1000,
         featherIntervalMs: 24 * 60 * 60 * 1000,
@@ -58754,27 +58763,30 @@ const Game = {
 		const costs = {
 			almarium:          { plank: 6,  rope: 3,  leather: 2 },
 			cella:             { cut_stone: 12, rope: 5, chalk: 4 },
-			horreum:           { cut_stone: 20, plank: 10, glue: 4, rope: 6 },
-			fabrica:           { rock: 30,  plank: 15, charcoal: 10, anvil: 1 },
+			// kovani-rozsireni-mrd v2 (7.8.2026): hřebíky do staveb střední+
+			// úrovně (ne raná fáze) — viz mrd audit, skutečný zdroj nákladů
+			// (ne recipes.js RecipesDB, které tahle funkce vůbec nečte).
+			horreum:           { cut_stone: 20, plank: 10, glue: 4, rope: 6, hrebiky: 5 },
+			fabrica:           { rock: 30,  plank: 15, charcoal: 10, anvil: 1, hrebiky: 8 },
 			sulci:             { plank: 8,  rope: 4,  stick: 10 },
 			humno:             { cut_stone: 8, plank: 6, rope: 3 },
 			vinea:             { plank: 12, rope: 6,  rock: 6 },
-			prelum:            { plank: 8,  rope: 4,  rock: 6,  iron_ingot: 2 },
-			cella_fermentaria: { plank: 10, rock: 8,  rope: 3,  clay: 4 },
-			foudres:           { plank: 15, rope: 6,  iron_ingot: 3 },
-			cellarium_vini:    { cut_stone: 10, plank: 6, rope: 4 },
-			uvarium:           { plank: 8,  rock: 4,  rope: 3 },
-			prelum_olei:       { plank: 10, rope: 4,  rock: 4,  iron_ingot: 1 },
-			fornax_ferraria:   { rock: 40, cut_stone: 15, clay: 20, plank: 20, charcoal: 15 },
-			vapenice:          { plank: 15, cut_stone: 20, clay: 20 },
-			old_cellars:       { cut_stone: 15, plank: 10, rope: 5 },
-			domus_conversorum_i: { cut_stone: 40, plank: 25, rope: 10 },
-			domus_conversorum_ii: { cut_stone: 150, plank: 90, rope: 35 },
-			domus_conversorum_iii: { cut_stone: 330, plank: 200, rope: 75, iron_ingot: 4 },
-			dormitorium_i:   { cut_stone: 30, plank: 20, rope: 8 },
-			dormitorium_ii:  { cut_stone: 90,  plank: 60, rope: 25, iron_ingot: 2, glass_stopper: 6 },
-			dormitorium_iii: { cut_stone: 200, plank: 130, rope: 50, iron_ingot: 6, glass_stopper: 10, glass_tankard: 10 },
-			knihovna_grade_i: { cut_stone: 20, plank: 15, rope: 6 },
+			prelum:            { plank: 8,  rope: 4,  rock: 6,  iron_ingot: 2, hrebiky: 4 },
+			cella_fermentaria: { plank: 10, rock: 8,  rope: 3,  clay: 4, hrebiky: 5 },
+			foudres:           { plank: 15, rope: 6,  iron_ingot: 3, hrebiky: 7 },
+			cellarium_vini:    { cut_stone: 10, plank: 6, rope: 4, hrebiky: 3 },
+			uvarium:           { plank: 8,  rock: 4,  rope: 3, hrebiky: 4 },
+			prelum_olei:       { plank: 10, rope: 4,  rock: 4,  iron_ingot: 1, hrebiky: 5 },
+			fornax_ferraria:   { rock: 40, cut_stone: 15, clay: 20, plank: 20, charcoal: 15, hrebiky: 10 },
+			vapenice:          { plank: 15, cut_stone: 20, clay: 20, hrebiky: 7 },
+			old_cellars:       { cut_stone: 15, plank: 10, rope: 5, hrebiky: 5 },
+			domus_conversorum_i: { cut_stone: 40, plank: 25, rope: 10, hrebiky: 12 },
+			domus_conversorum_ii: { cut_stone: 150, plank: 90, rope: 35, hrebiky: 35 },
+			domus_conversorum_iii: { cut_stone: 330, plank: 200, rope: 75, iron_ingot: 4, hrebiky: 70 },
+			dormitorium_i:   { cut_stone: 30, plank: 20, rope: 8, hrebiky: 10 },
+			dormitorium_ii:  { cut_stone: 90,  plank: 60, rope: 25, iron_ingot: 2, glass_stopper: 6, hrebiky: 25 },
+			dormitorium_iii: { cut_stone: 200, plank: 130, rope: 50, iron_ingot: 6, glass_stopper: 10, glass_tankard: 10, hrebiky: 50 },
+			knihovna_grade_i: { cut_stone: 20, plank: 15, rope: 6, hrebiky: 7 },
 		};
 		// Volitelný groše náklad navíc k materiálu — dnes jen Domus Conversorum I/II.
 		// Cokoliv chybí v costsGrose má groseNeeded=0, tedy nulový dopad na stávající budovy.
