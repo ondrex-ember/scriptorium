@@ -54,6 +54,8 @@ const DecaySystem = {
         // "středověký tupperware" (dle historického podkladu), vydrží týdny.
         almond_paste: { rate: 0.08 },
         pork_pie_abbot: { rate: 0.02, mice: true },
+        // coquina-tier1-mrd (7.8.2026): hotová kaše, mirror stew
+        pohanka_s_cesnekem: { rate: 0.15, flies: true },
         lard:         { rate: 0.01 },
         rye_grain:    { rate: 0.005, mice: true },
         rye_grain_1:  { rate: 0.005, mice: true },

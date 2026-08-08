@@ -53,6 +53,10 @@ const CookingSystem = {
         pork_pie_abbot: { input: 'cured_meat', inputQty: 3, extraInputs: { flour: 2, ground_spice: 1, lard: 1 },
             needsBuild: 'rozen', needsTech: 'tech_platina_honesta', output: 'pork_pie_abbot', durationH: 6,
             influenceGain: { axis: 'church', amount: 8 } },
+        // coquina-tier1-mrd (7.8.2026): první ze 23 receptů — rychlá kaše,
+        // žádná stavba, gate na stejný tech jako zbytek Tier 1.
+        pohanka_s_cesnekem: { input: 'pohanka', inputQty: 1, extraInputs: { garlic: 1, linseed_oil: 1 },
+            needsTech: 'tech_ruralia_meat', output: 'pohanka_s_cesnekem', durationH: 1 },
     },
 
     // coquina-tier1-mrd: tab je vidět, jakmile hráč má ASPOŇ jeden tier —

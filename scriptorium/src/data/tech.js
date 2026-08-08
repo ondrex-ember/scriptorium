@@ -459,7 +459,7 @@ const TechTree = [
     cost: 20,
     desc: "Lněný olej z pole lisovaný dřevěným klínem. Propojení Pole → Skriptorium. Odemkne: Prelum Olei — výroba lněného oleje.",
     desc_en: "Linseed oil from the field, pressed with a wooden wedge. Links Field → Scriptorium. Unlocks: Prelum Olei — linseed oil production.",
-    unlocks: [], requires: ["tech_de_re_rustica", "tech_vinohrad"]
+    unlocks: ["linseed_oil"], requires: ["tech_de_re_rustica", "tech_vinohrad"]
   },
 
 ];

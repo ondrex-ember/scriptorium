@@ -148,6 +148,8 @@ const ItemsDB = {
     "roast_rabbit_dish": { name: "Pečený králík s zeleninou", name_en: "Roast Rabbit with Vegetables", icon: "🍽️", type: "food", desc: "Králík pečený s mrkví a zelím.", desc_en: "Rabbit roasted with carrot and cabbage." },
     "cooked_fish": { name: "Pečená ryba", name_en: "Roasted Fish", icon: "🐠", type: "food", hunger: 4, desc: "Sytí 4h.", desc_en: "Fills for 4h." },
     "stew": { name: "Guláš", name_en: "Stew", icon: "🍲", type: "food", hunger: 12, desc: "Sytí 12h.", desc_en: "Fills for 12h." },
+    // coquina-tier1-mrd (7.8.2026): první ze 23 receptů, Úroveň 1 (chudina)
+    "pohanka_s_cesnekem": { name: "Pohanka s česnekem", name_en: "Buckwheat with Garlic", icon: "🍲", type: "food", hunger: 10, desc: "Hustá kaše pro těžce pracující. Sytí 10h.", desc_en: "A thick porridge for hard labourers. Fills for 10h." },
     "stew_koreni": { name: "Guláš s pepřem", name_en: "Peppered Stew", icon: "🍲", type: "food", desc: "Guláš dochucený černým pepřem — statusová hostina, ne obyčejná kaše.", desc_en: "Stew seasoned with black pepper — a dish of status, not common porridge." },
     "mushroom_soup": { name: "Houbová polévka", name_en: "Mushroom Pottage", icon: "🥣", type: "food", hunger: 8, desc: "Sytí 8h.", desc_en: "Fills for 8h." },
     "spring_herb_porridge": { name: "Jarní bylinková kaše", name_en: "Spring Herb Porridge", icon: "🥣", type: "food", desc: "Kopřiva, bršlice a lebeda v ovesné kaši. Chudé jaro, plný hrnec.", desc_en: "Nettle, ground elder and goosefoot in oat porridge. A lean spring, a full pot." },

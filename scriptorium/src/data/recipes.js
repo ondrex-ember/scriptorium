@@ -338,6 +338,10 @@ const RecipesDB = [
     { id: "ash", output: "ash", qty: 1, req: { "charcoal": 4 }, cat: "alchemy", locked: true },
     { id: "ash_from_sticks", output: "ash", qty: 1, req: { "stick": 4 }, cat: "alchemy", locked: true, desc: "Spálené větve. Pomalé, ale bez uhlí.", desc_en: "Burned branches. Slow, but no charcoal needed." },
     { id: "ash_from_log", output: "ash", qty: 2, req: { "log": 1 }, cat: "alchemy", locked: true, desc: "Kulatina dá více popele.", desc_en: "A log yields more ash." },
+    // coquina-tier1-mrd (7.8.2026): linseed_oil byl duch — položka existovala,
+    // recept nikdy ne. seeds_flax odpovídá popisku ("lisovaný z lněného semene").
+    { id: "linseed_oil", output: "linseed_oil", qty: 2, req: { "seeds_flax": 5 }, cat: "alchemy", locked: true,
+      desc: "Lněné semeno lisované v Prelum Olei na olej.", desc_en: "Flax seed pressed in the Prelum Olei into oil." },
     // smola-tesneni-sudu-mrd (7.8.2026): zahřátá pryskyřice → smola na těsnění sudů
     { id: "smola", output: "smola", qty: 1, req: { "resin_pine": 3 }, cat: "alchemy", locked: true,
       desc: "Borová pryskyřice zahřátá u ohně, ztuhlá na smolu.", desc_en: "Pine resin heated by the fire, hardened into pitch." },
