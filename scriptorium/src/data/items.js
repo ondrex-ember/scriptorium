@@ -649,8 +649,12 @@ const ItemsDB = {
     "sheep": { name: "Ovce", name_en: "Sheep", icon: "🐑", type: "animal", desc: "Ovce produkuje vlnu, mléko a kůži.", desc_en: "Sheep produces wool, milk and hide." },
 
     // ── Produkty zvířat ────────────────────────────────────────────────────
-    "egg": { name: "Vejce", name_en: "Egg", icon: "🥚", type: "food", desc: "Čerstvé vejce ze slepice. Jídlo i pigment.", desc_en: "Fresh egg from the hen. Food and pigment." },
-    "milk": { name: "Mléko", name_en: "Milk", icon: "🥛", type: "mat", desc: "Čerstvé mléko od ovce.", desc_en: "Fresh milk from the sheep." },
+    "egg": { name: "Slepičí vejce", name_en: "Hen Egg", icon: "🥚", type: "food", desc: "Čerstvé vejce ze slepice. Jídlo i pigment.", desc_en: "Fresh egg from the hen. Food and pigment." },
+    // vejce-druhy-mrd (7.8.2026): holubí = Columbarium (dřív omylem míchané do 'egg'), křepelčí/kachní = jen scavenge, žádná chovná zvířata zatím
+    "pigeon_egg": { name: "Holubí vejce", name_en: "Pigeon Egg", icon: "🥚", type: "food", desc: "Drobné vejce z holubníku. Menší než slepičí, stejně chutné.", desc_en: "A small egg from the dovecote. Smaller than a hen's, just as good to eat." },
+    "quail_egg": { name: "Křepelčí vejce", name_en: "Quail Egg", icon: "🥚", type: "food", desc: "Drobounké skvrnité vajíčko z hnízda v trávě. Vzácný nález.", desc_en: "A tiny speckled egg from a nest in the grass. A rare find." },
+    "duck_egg": { name: "Kachní vejce", name_en: "Duck Egg", icon: "🥚", type: "food", desc: "Vejce z divoké kachny, nalezené u vody. Větší a tučnější než slepičí.", desc_en: "A wild duck's egg, found by the water. Larger and richer than a hen's." },
+    "milk": { name: "Ovčí mléko", name_en: "Sheep Milk", icon: "🥛", type: "mat", desc: "Čerstvé mléko od ovce.", desc_en: "Fresh milk from the sheep." },
     "wool": { name: "Vlna", name_en: "Wool", icon: "🧶", type: "mat", desc: "Střižená vlna. Na přízi, tkaní i šití.", desc_en: "Shorn wool. For spinning, weaving and sewing." },
     "wool_thread": { name: "Vlněná příze", name_en: "Wool Yarn", icon: "🧶", type: "mat", desc: "Spředená vlna. Na tkaní soukna.", desc_en: "Spun wool. For weaving woolen cloth." },
     "wool_cloth": { name: "Soukno", name_en: "Wool Cloth", icon: "🧶", type: "lore", desc: "Tkané vlněné sukno. Teplejší a hrubší než plátno.", desc_en: "Woven wool cloth. Warmer and coarser than linen." },

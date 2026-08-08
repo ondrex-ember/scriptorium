@@ -560,7 +560,7 @@ const FarmyardSystem = {
         const now = Date.now();
         let collected = false;
         if (now >= (c.lastEggAt || 0) + cfg.eggIntervalMs) {
-            Game.addItem('egg', cfg.eggYield);
+            Game.addItem('pigeon_egg', cfg.eggYield);
             c.lastEggAt = now;
             collected = true;
         }

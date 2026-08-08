@@ -3224,6 +3224,8 @@ const Game = {
                     if(Math.random() < 0.03) this.addItem('porcini', 1);
                     // Červec — obchod-podklad 7.8.2026, u kořenů luk, drtí se na karmín (tech_cervec)
                     if(Math.random() < 0.04) this.addItem('cervec', 1);
+                    // Křepelčí vejce — vejce-druhy-mrd 7.8.2026, hnízdo v trávě, vzácné
+                    if(Math.random() < 0.03) this.addItem('quail_egg', 1);
                     // 0.07% — útržky, pečeť, byliny/váček zapomenuté v přírodě (viz LOST_ITEM_POOLS.foraging)
                     if(Math.random() < 0.0007) {
                         const pool = this.LOST_ITEM_POOLS.foraging;
@@ -3250,6 +3252,8 @@ const Game = {
                     if(Math.random() < 0.06) this.addItem('cattail_root', 1);
                     // Proutí — vrbové pruty u mokřadu, běžný stavební materiál (Columbarium)
                     if(Math.random() < 0.20) this.addItem('wicker', 2);
+                    // Kachní vejce — vejce-druhy-mrd 7.8.2026, hnízdo u vody
+                    if(Math.random() < 0.05) this.addItem('duck_egg', 1);
                 }
                 else if (type === 'resin_harvest') {
                     if(r<0.5) this.addItem('resin', 1);
@@ -3571,6 +3575,10 @@ const Game = {
                 if(Math.random() < 0.03) this.addItem('morel', 1);
                 if(Math.random() < 0.04) this.addItem('saffron_milk_cap', 1);
                 if(Math.random() < 0.03) this.addItem('porcini', 1);
+                // Červec — obchod-podklad 7.8.2026 (dřív chybělo v téhle 2. lokaci)
+                if(Math.random() < 0.04) this.addItem('cervec', 1);
+                // Křepelčí vejce — vejce-druhy-mrd 7.8.2026
+                if(Math.random() < 0.03) this.addItem('quail_egg', 1);
                 if(Math.random() < 0.0007) {
                     const pool = this.LOST_ITEM_POOLS.foraging;
                     const found = pool[Math.floor(Math.random() * pool.length)];
@@ -3596,6 +3604,8 @@ const Game = {
                 if(Math.random() < 0.06) this.addItem('cattail_root', 1);
                 // Proutí — vrbové pruty u mokřadu, běžný stavební materiál (Columbarium)
                 if(Math.random() < 0.20) this.addItem('wicker', 2);
+                // Kachní vejce — vejce-druhy-mrd 7.8.2026
+                if(Math.random() < 0.05) this.addItem('duck_egg', 1);
             }
             else if (type === 'resin_harvest') {
                 if(r<0.5) this.addItem('resin', 1);
