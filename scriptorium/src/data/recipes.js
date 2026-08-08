@@ -338,6 +338,9 @@ const RecipesDB = [
     { id: "ash", output: "ash", qty: 1, req: { "charcoal": 4 }, cat: "alchemy", locked: true },
     { id: "ash_from_sticks", output: "ash", qty: 1, req: { "stick": 4 }, cat: "alchemy", locked: true, desc: "Spálené větve. Pomalé, ale bez uhlí.", desc_en: "Burned branches. Slow, but no charcoal needed." },
     { id: "ash_from_log", output: "ash", qty: 2, req: { "log": 1 }, cat: "alchemy", locked: true, desc: "Kulatina dá více popele.", desc_en: "A log yields more ash." },
+    // smola-tesneni-sudu-mrd (7.8.2026): zahřátá pryskyřice → smola na těsnění sudů
+    { id: "smola", output: "smola", qty: 1, req: { "resin_pine": 3 }, cat: "alchemy", locked: true,
+      desc: "Borová pryskyřice zahřátá u ohně, ztuhlá na smolu.", desc_en: "Pine resin heated by the fire, hardened into pitch." },
     { id: "compost", output: "compost", qty: 2, req: { "fiber": 3, "bone": 1, "water": 1 }, cat: "craft", locked: true },
     
     // ALCHEMY - pokročilá
@@ -551,7 +554,7 @@ const RecipesDB = [
       desc:"Dřevěné vědro na vodu.", desc_en:"Wooden bucket for water." },
     { id:"watering_can", output:"watering_can", qty:1, req:{plank:2, rope:2, wild_leather:1}, cat:"craft", locked:true,
       desc:"Konev na zalévání zahrady.", desc_en:"Watering can for the garden." },
-    { id:"barrel_tool",  output:"barrel_tool",  qty:1, req:{plank:6, rope:3},           cat:"craft", locked:true,
+    { id:"barrel_tool",  output:"barrel_tool",  qty:1, req:{plank:6, rope:3, smola:2},           cat:"craft", locked:true,
       desc:"Dřevěný sud na pivo, víno a vodu.", desc_en:"Wooden barrel for ale, wine and water." },
     { id:"bedna", output:"bedna", qty:1, req:{plank:8, rope:2}, cat:"craft", locked:true,
       desc:"Dřevěná bedna. +30 jednotek skladu v Inventariu.", desc_en:"Wooden crate. +30 units of storage in the Inventarium." },

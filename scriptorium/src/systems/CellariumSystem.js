@@ -1414,7 +1414,7 @@ const CellariumSystem = {
               ${t('cellarium.nothingToSell')}
             </div>`;
     } else {
-      h += `<div style="display:flex; flex-direction:column; gap:6px;">`;
+      h += `<div style="display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:6px;">`;
       sellable.forEach(id => {
         const have  = GameState.inventory[id] || 0;
         const price = this.calcPrice(id, entity);

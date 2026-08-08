@@ -334,7 +334,7 @@ const TechTree = [
     cost: 10,
     desc: "Klášterní zahradník byl vzdělán v bylinářství, pěstování i závlaze. Odemkne: kamenné nástroje (sekerka, rýč, kosa, srp, cep, lopata), vědro, konev, sud.",
     desc_en: "The monastic gardener was learned in herbalism, cultivation and irrigation. Unlocks: stone tools (axe, spade, scythe, sickle, flail, shovel), bucket, watering can, barrel.",
-    unlocks: ["stone_axe", "stone_spade", "stone_scythe", "stone_sickle", "stone_flail", "wooden_flail", "stone_shovel", "stone_pickaxe", "bucket", "watering_can", "barrel_tool"], requires: ["tech_writing_basics"]
+    unlocks: ["stone_axe", "stone_spade", "stone_scythe", "stone_sickle", "stone_flail", "wooden_flail", "stone_shovel", "stone_pickaxe", "bucket", "watering_can", "barrel_tool", "smola"], requires: ["tech_writing_basics"]
   },
 
   {

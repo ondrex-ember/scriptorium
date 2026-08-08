@@ -926,6 +926,9 @@ Object.assign(ItemsDB, {
     // Suroviny — pryskyřice
     "resin_spruce": { name: "Smrková pryskyřice", name_en: "Spruce Resin", icon: "🌲", type: "mat", desc: "Obyčejná smrková smůla nasbíraná v lese. Základ nejjednodušší kadidelné směsi.", desc_en: "Common spruce pitch from the forest. The basis of the simplest incense blend." },
     "resin_pine": { name: "Borová pryskyřice", name_en: "Pine Resin", icon: "🌲", type: "mat", desc: "Lepkavá pryskyřice borového stromu. Dioscorides stromy Pitys a Peuce chválil pro jejich stahující vlastnosti.", desc_en: "Sticky pine resin. Dioscorides praised the Pitys and Peuce trees for their astringent properties." },
+    // smola-tesneni-sudu-mrd (7.8.2026): budoucí migrace — až se "alchymie"
+    // ve Výrobě přesune do laboratorních podmínek Athanoru, jde smola s ní.
+    "smola": { name: "Smola", name_en: "Pitch", icon: "⚫", type: "mat", desc: "Zahřátá borová pryskyřice, ztuhlá na černý dehet. Těsní dřevěné sudy, aby netekly.", desc_en: "Heated pine resin, hardened into black pitch. Seals wooden barrels against leaks." },
     "resin_styrax": { name: "Styrax", name_en: "Styrax", icon: "🏺", type: "mat", desc: "Vzácná pryskyřice styraxového stromu dovážená z Levanty. Hojně využívaná v klášterních vykuřovadlech.", desc_en: "Rare resin of the styrax tree, imported from the Levant. Widely used in monastic incenses." },
     "resin_olibanum": { name: "Olibanum", name_en: "Olibanum", icon: "✨", type: "mat", desc: "Pravé arabské kadidlo (Libanon Thus). Jak píše Dioscorides: dobré kadidlo je bílé, uvnitř mastné a hoří rovným plamenem.", desc_en: "True Arabian frankincense (Libanon Thus). As Dioscorides writes: good frankincense is white, oily within, and burns with a straight flame." },
     // Hotová kadidla (consumable)
