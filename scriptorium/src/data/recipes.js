@@ -487,6 +487,9 @@ const RecipesDB = [
       desc: "Kované spony s okem na kožený řemínek.", desc_en: "Forged clasps with an eye for the leather strap." },
     { id: "metal_bosses", output: "metal_bosses", qty: 4, req: { iron_ingot: 1 }, cat: "iron", locked: true,
       desc: "Rohové a středové hrboly na desky.", desc_en: "Corner and centre bosses for the boards." },
+    // kovani-rozsireni-mrd (7.8.2026): vedlejší produkt Kovářiny, mirror metal_bosses
+    { id: "hrebiky", output: "hrebiky", qty: 6, req: { iron_ingot: 1 }, cat: "iron", locked: true,
+      desc: "Kovářský výmět — kladivo, kovadlina, hotovo.", desc_en: "Off the smith's anvil — hammer, strike, done." },
     { id: "quires", output: "quires", qty: 1, req: { vellum: 1, ink_gallic: 2 }, cat: "codex", locked: true,
       desc: "Popsaný pergamen přehnutý do kvaternů.", desc_en: "Written vellum folded into quaternions." },
     { id: "sewn_block", output: "sewn_block", qty: 1, req: { quires: 4, linen_thread: 2, leather_cords: 2 }, cat: "codex", locked: true,

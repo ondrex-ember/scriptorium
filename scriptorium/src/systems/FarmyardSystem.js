@@ -28,7 +28,7 @@ const FarmyardSystem = {
         },
         cowbyre: {
             itemId: ['tele', 'cow', 'byk'], cap: 4,
-            build: { cut_stone: 50, plank: 30, rope: 15 },
+            build: { cut_stone: 50, plank: 30, rope: 15, hrebiky: 12 }, // kovani-rozsireni-mrd v2, 7.8.2026
             milkMs: 12 * 60 * 60 * 1000,
             growMs: 90 * 24 * 60 * 60 * 1000,   // tele → kráva (krava-mrd, 26.7.2026)
             breedMs: 60 * 24 * 60 * 60 * 1000,  // kráva + býk → nové tele
@@ -42,7 +42,7 @@ const FarmyardSystem = {
         },
         stable: {
             itemId: 'horse', cap: 4,
-            build: { cut_stone: 20, plank: 15, rope: 6 },
+            build: { cut_stone: 20, plank: 15, rope: 6, hrebiky: 6 }, // kovani-rozsireni-mrd v2, 7.8.2026
             milkMs: 0
         },   // koně: tažná síla, žádná produkce v1
         donkeyStall: {
@@ -59,7 +59,7 @@ const FarmyardSystem = {
     // do ANIMAL_CFG — moodTick/buildAnimalPen/placeAnimal počítají
     // s jiným state shape a Columbarium by je rozbilo.
     COLUMBARIUM_CFG: {
-        build: { cut_stone: 60, plank: 25, log: 15, wicker: 20, rope: 10 },
+        build: { cut_stone: 60, plank: 25, log: 15, wicker: 20, rope: 10, hrebiky: 10 }, // kovani-rozsireni-mrd v2, 7.8.2026
         startCount: 20,
         eggIntervalMs: 24 * 60 * 60 * 1000,
         featherIntervalMs: 24 * 60 * 60 * 1000,

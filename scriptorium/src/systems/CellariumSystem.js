@@ -486,6 +486,8 @@ const CellariumSystem = {
       // zůstává jen na Trhu — otevřeno k rozšíření, pokud bude chtít Bouvard.
       { itemId: 'seeds_peas',      basePrice: 5,  dailyStock: 10 },
       { itemId: 'seeds_lentils',   basePrice: 5,  dailyStock: 10 }, // čočka — mirror hrách, obchod-podklad 7.8.2026
+      // kovani-rozsireni-mrd (7.8.2026): hřebíky před tech_kovarina — drahý kanál, malý sklad
+      { itemId: 'hrebiky',         basePrice: 6,  dailyStock: 3 },
       // Obchod-podklad (7.8.2026): 5 potvrzených mezer z historického
       // dokladu ("řemeslné výrobky běžné potřeby" + slané ryby, Zóna 1
       // olomouckého trhu). Karmín má navíc vlastní craft cestu (červec →
@@ -534,6 +536,8 @@ const CellariumSystem = {
       { itemId: 'paper_fine',    basePrice: 18,  dailyStock: 2,  req_tech: 'tech_porta' },
       { itemId: 'palice_zelezna', basePrice: 50, dailyStock: 2,  req_tech: 'tech_fodina' },
       { itemId: 'salt',          basePrice: 9,   dailyStock: 20 },
+      // kovani-rozsireni-mrd (7.8.2026): hřebíky před tech_kovarina — střední kanál
+      { itemId: 'hrebiky',       basePrice: 4,   dailyStock: 10 },
       // Zvířata
       { itemId: 'hen_white',     basePrice: 15,  dailyStock: 3  },
       { itemId: 'hen_black',     basePrice: 18,  dailyStock: 2  },
@@ -1475,7 +1479,7 @@ const CellariumSystem = {
     h += `<div style="font-size:0.8rem; opacity:0.75; margin-bottom:14px; font-style:italic;">${intro}</div>`;
 
     // Fáze 1 — Čistý sklep
-    const cost1 = { cut_stone: 15, plank: 10, rope: 5 };
+    const cost1 = { cut_stone: 15, plank: 10, rope: 5, hrebiky: 5 };
     const costStr1 = Object.entries(cost1).map(([k,v]) => `${v}× ${(typeof iName==='function')?iName(k):k}`).join(', ');
     h += `<div style="padding:12px; margin-bottom:10px; background:rgba(255,255,255,0.4); border-radius:6px;">`;
     h += `<div style="font-weight:bold; margin-bottom:4px;">${lang==='en'?'Phase 1 — Cleared Cellar':'Fáze 1 — Čistý sklep'}</div>`;
@@ -1490,7 +1494,7 @@ const CellariumSystem = {
 
     // Fáze 2 — Domus Conversorum I (funkční)
     const phase2Built = storage.domus_conversorum_i && storage.domus_conversorum_i.built;
-    const cost2 = { cut_stone: 40, plank: 25, rope: 10 };
+    const cost2 = { cut_stone: 40, plank: 25, rope: 10, hrebiky: 12 };
     const costStr2 = Object.entries(cost2).map(([k,v]) => `${v}× ${(typeof iName==='function')?iName(k):k}`).join(', ') + ` + 25g`;
     h += `<div style="padding:12px; margin-bottom:10px; background:${phase1Built ? 'rgba(255,255,255,0.4)' : 'rgba(0,0,0,0.02)'}; border-radius:6px; opacity:${phase1Built ? '1' : '0.4'};">`;
     h += `<div style="font-weight:bold; margin-bottom:4px;">${phase1Built ? '' : '🔒 '}${lang==='en'?'Phase 2 — Domus Conversorum I':'Fáze 2 — Domus Conversorum I'}</div>`;
@@ -1507,7 +1511,7 @@ const CellariumSystem = {
     // Fáze 3 — Domus Conversorum II (petice opatovi)
     const phase3Built = storage.domus_conversorum_ii && storage.domus_conversorum_ii.built;
     const petition = (GameState.abbotPetition && GameState.abbotPetition.domus_ii) || { status: 'none' };
-    const cost3 = { cut_stone: 150, plank: 90, rope: 35 };
+    const cost3 = { cut_stone: 150, plank: 90, rope: 35, hrebiky: 35 };
     const costStr3 = Object.entries(cost3).map(([k,v]) => `${v}× ${(typeof iName==='function')?iName(k):k}`).join(', ') + ` + 50g`;
     h += `<div style="padding:12px; background:${phase2Built ? 'rgba(255,255,255,0.4)' : 'rgba(0,0,0,0.02)'}; border-radius:6px; opacity:${phase2Built ? '1' : '0.4'};">`;
     h += `<div style="font-weight:bold; margin-bottom:4px;">${phase2Built ? '' : '🔒 '}${lang==='en'?'Phase 3 — Domus Conversorum II':'Fáze 3 — Domus Conversorum II'}</div>`;
@@ -1530,7 +1534,7 @@ const CellariumSystem = {
     // Fáze 4 — Domus Conversorum III (petice opatovi, eskalovaná)
     const phase4Built = storage.domus_conversorum_iii && storage.domus_conversorum_iii.built;
     const petition3 = (GameState.abbotPetition && GameState.abbotPetition.domus_iii) || { status: 'none' };
-    const cost4 = { cut_stone: 330, plank: 200, rope: 75, iron_ingot: 4 };
+    const cost4 = { cut_stone: 330, plank: 200, rope: 75, iron_ingot: 4, hrebiky: 70 };
     const costStr4 = Object.entries(cost4).map(([k,v]) => `${v}× ${(typeof iName==='function')?iName(k):k}`).join(', ') + ` + 110g`;
     h += `<div style="padding:12px; margin-top:10px; background:${phase3Built ? 'rgba(255,255,255,0.4)' : 'rgba(0,0,0,0.02)'}; border-radius:6px; opacity:${phase3Built ? '1' : '0.4'};">`;
     h += `<div style="font-weight:bold; margin-bottom:4px;">${phase3Built ? '' : '🔒 '}${lang==='en'?'Phase 4 — Domus Conversorum III':'Fáze 4 — Domus Conversorum III'}</div>`;
@@ -1981,7 +1985,7 @@ const CellariumSystem = {
         name: 'Horreum', name_en: 'Horreum',
         desc: 'Velká sýpka. Kapacita 1600j. Aktivuje krmivo pro zvířata.',
         desc_en: 'Large granary. Capacity 1600 units. Activates animal fodder.',
-        cost: { cut_stone: 20, plank: 10, glue: 4, rope: 6 },
+        cost: { cut_stone: 20, plank: 10, glue: 4, rope: 6, hrebiky: 5 },
         req_tech: hasHor,
         req_build: storage.cella && storage.cella.built,
         req_label: lang === 'en' ? 'Requires: Cella built' : 'Nutné: Cella postavena',
@@ -1995,7 +1999,7 @@ const CellariumSystem = {
         name: 'Fabrica', name_en: 'Smithy',
         desc: 'Kovářská dílna s výhní. Výroba a oprava železných nástrojů.',
         desc_en: 'Smithy with forge. Craft and repair iron tools.',
-        cost: { rock: 30, plank: 15, charcoal: 10, anvil: 1 },
+        cost: { rock: 30, plank: 15, charcoal: 10, anvil: 1, hrebiky: 8 },
         req_tech: hasKov, req_build: true, req_label: null,
       },
       {
@@ -2003,7 +2007,7 @@ const CellariumSystem = {
         name: 'Fornax Ferraria (Huť)', name_en: 'Fornax Ferraria (Smelting Furnace)',
         desc: 'Tavicí pec s měchy. Přetaví železnou rudu na ingoty. Vyžaduje souhlas opata.',
         desc_en: 'Smelting furnace with bellows. Converts iron ore into ingots. Requires Abbot consent.',
-        cost: { rock: 40, cut_stone: 15, clay: 20, plank: 20, charcoal: 15 },
+        cost: { rock: 40, cut_stone: 15, clay: 20, plank: 20, charcoal: 15, hrebiky: 10 },
         req_tech: hasKov,
         req_build: GameState.abbotPetition && GameState.abbotPetition.fornax && GameState.abbotPetition.fornax.status === 'approved',
         req_label: lang === 'en' ? 'Requires: Abbot approval (petition) + Fodina open' : 'Nutné: Souhlas opata (žádost) + Fodina otevřena',
@@ -2032,7 +2036,7 @@ const CellariumSystem = {
         name: 'Uvarium — Sušárna', name_en: 'Uvarium — Drying House',
         desc: 'Sušení hroznů na slunci a ve stínu. Giacomo přivezl znalost z Benátek. Výroba hrozinek.',
         desc_en: 'Drying grapes in sun and shade. Giacomo brought the knowledge from Venice. Raisin production.',
-        cost: { plank: 8, rock: 4, rope: 3 },
+        cost: { plank: 8, rock: 4, rope: 3, hrebiky: 4 },
         req_tech: hasUvar,
         req_build: GameState.storage && GameState.storage.foudres && GameState.storage.foudres.built,
         req_label: lang === 'en' ? 'Requires: Foudres built + Uvarium tech' : 'Nutné: Foudres postaveny + tech Uvarium',
@@ -2042,7 +2046,7 @@ const CellariumSystem = {
         name: 'Prelum Olei — Lisovna', name_en: 'Prelum Olei — Oil Press',
         desc: 'Lněný olej z pole lisovaný dřevěným klínem. Propojení Pole → Skriptorium.',
         desc_en: 'Linseed oil from the field, pressed with a wooden wedge. Links Field → Scriptorium.',
-        cost: { plank: 10, rope: 4, rock: 4, iron_ingot: 1 },
+        cost: { plank: 10, rope: 4, rock: 4, iron_ingot: 1, hrebiky: 5 },
         req_tech: hasPOlei,
         req_build: GameState.storage && GameState.storage.sulci && GameState.storage.sulci.built,
         req_label: lang === 'en' ? 'Requires: Sulci built + Prelum Olei tech' : 'Nutné: Brázdy postaveny + tech Prelum Olei',
@@ -2052,7 +2056,7 @@ const CellariumSystem = {
         name: 'Vápenice', name_en: 'Lime Kiln',
         desc: 'Pec u lomu. Dny a noci nepřetržitého ohně promění vápenec v pálené vápno.',
         desc_en: 'A kiln by the quarry. Days and nights of unbroken fire turn limestone into quicklime.',
-        cost: { plank: 15, cut_stone: 20, clay: 20 },
+        cost: { plank: 15, cut_stone: 20, clay: 20, hrebiky: 7 },
         req_tech: hasCalcaria, req_build: true, req_label: null,
       },
     ];
@@ -2071,7 +2075,7 @@ const CellariumSystem = {
         name: 'Prelum — Vinný lis', name_en: 'Prelum — Wine Press',
         desc: 'Dřevěný rám, kamenná podlaha, železné šrouby. Odemkne lisování hroznů → Mustum.',
         desc_en: 'Wooden frame, stone floor, iron screws. Unlocks grape pressing → Mustum.',
-        cost: { plank: 8, rope: 4, rock: 6, iron_ingot: 2 },
+        cost: { plank: 8, rope: 4, rock: 6, iron_ingot: 2, hrebiky: 4 },
         req_tech: hasVin,
         req_build: GameState.storage && GameState.storage.vinea && GameState.storage.vinea.built,
         req_label: lang === 'en' ? 'Requires: Vinea built' : 'Nutné: Vinohrad (Vinea) postaven',
@@ -2081,7 +2085,7 @@ const CellariumSystem = {
         name: 'Cella fermentaria', name_en: 'Cella fermentaria',
         desc: 'Hliněné nádoby, kamenné zdivo, chlad. Odemkne fermentaci → Vinum a Vinum Rubrum.',
         desc_en: 'Clay vessels, stone masonry, cool air. Unlocks fermentation → Vinum and Vinum Rubrum.',
-        cost: { plank: 10, rock: 8, rope: 3, clay: 4 },
+        cost: { plank: 10, rock: 8, rope: 3, clay: 4, hrebiky: 5 },
         req_tech: hasVinF,
         req_build: GameState.storage && GameState.storage.prelum && GameState.storage.prelum.built,
         req_label: lang === 'en' ? 'Requires: Prelum built + Ars Vinificandi' : 'Nutné: Prelum postaveno + Ars Vinificandi',
@@ -2091,7 +2095,7 @@ const CellariumSystem = {
         name: 'Foudres — Sudy', name_en: 'Foudres — Barrels',
         desc: 'Velké dubové sudy. Víno zrající v sudu získá jantarovou barvu. Odemkne Vinum Praeclarum.',
         desc_en: 'Large oak barrels. Wine aged in the barrel gains amber colour. Unlocks Vinum Praeclarum.',
-        cost: { plank: 15, rope: 6, iron_ingot: 3 },
+        cost: { plank: 15, rope: 6, iron_ingot: 3, hrebiky: 7 },
         req_tech: hasTonn,
         req_build: GameState.storage && GameState.storage.cella_fermentaria && GameState.storage.cella_fermentaria.built,
         req_label: lang === 'en' ? 'Requires: Cella fermentaria + Ars Tonnellaria' : 'Nutné: Cella fermentaria + Ars Tonnellaria',
@@ -2101,7 +2105,7 @@ const CellariumSystem = {
         name: 'Cellarium Vini — Vinný sklep', name_en: 'Cellarium Vini — Wine Cellar',
         desc: 'Chladný sklep s regály pro sudy. Giacomo platí za víno o 30% více.',
         desc_en: 'Cool cellar with barrel racks. Giacomo pays 30% more for wine.',
-        cost: { cut_stone: 10, plank: 6, rope: 4 },
+        cost: { cut_stone: 10, plank: 6, rope: 4, hrebiky: 3 },
         req_tech: hasTonn,
         req_build: GameState.storage && GameState.storage.foudres && GameState.storage.foudres.built,
         req_label: lang === 'en' ? 'Requires: Foudres built' : 'Nutné: Foudres postaveny',
@@ -2233,7 +2237,7 @@ const CellariumSystem = {
           cost: { rock: 20, stick: 15, rope: 5 }, fn: 'Game.buildSheepfold()',
           tech: 'tech_de_re_rustica' },
         { key: 'columbarium', icon: '🕊️', titleK: 'farmyard.columbarium', descK: 'farmyard.columbariumBuildDesc',
-          cost: { cut_stone: 60, plank: 25, log: 15, wicker: 20, rope: 10 }, fn: 'FarmyardSystem.buildColumbarium()',
+          cost: { cut_stone: 60, plank: 25, log: 15, wicker: 20, rope: 10, hrebiky: 10 }, fn: 'FarmyardSystem.buildColumbarium()',
           tech: 'tech_porta' },
       ];
       simplePens.forEach(d => {
@@ -2263,7 +2267,7 @@ const CellariumSystem = {
       // samotná stavba (materiál+groše) v Cellarium/Budovy, mirror vzoru Vápenice.
       const hasStudovnaTech = GameState.researchedTechs && GameState.researchedTechs.includes('tech_studovna');
       const libBuilt = storage.knihovna_grade_i && storage.knihovna_grade_i.built;
-      const libCost = { cut_stone: 20, plank: 15, rope: 6 };
+      const libCost = { cut_stone: 20, plank: 15, rope: 6, hrebiky: 7 };
       const libGrose = 15;
       const libHasGrose = (typeof CellariumSystem !== 'undefined' ? CellariumSystem.getGrose() : 0) >= libGrose;
       const libHasItems = Object.entries(libCost).every(([id, n]) => (GameState.inventory[id]||0) >= n);
@@ -2288,13 +2292,13 @@ const CellariumSystem = {
       const dormTiers = [
         { id: 'dormitorium_i',   icon: '📿', label: lang==='en'?'Dormitorium I':'Dormitorium I',
           desc: lang==='en'?'Cells for 3 brothers.':'Cely pro 3 bratry.',
-          cost: { cut_stone: 30, plank: 20, rope: 8 }, grose: 15, reqPrev: null },
+          cost: { cut_stone: 30, plank: 20, rope: 8, hrebiky: 10 }, grose: 15, reqPrev: null },
         { id: 'dormitorium_ii',  icon: '📿', label: lang==='en'?'Dormitorium II':'Dormitorium II',
           desc: lang==='en'?'Expanded — 6 brothers.':'Rozšířeno — 6 bratrů.',
-          cost: { cut_stone: 90, plank: 60, rope: 25, iron_ingot: 2, glass_stopper: 6 }, grose: 35, reqPrev: 'dormitorium_i' },
+          cost: { cut_stone: 90, plank: 60, rope: 25, iron_ingot: 2, glass_stopper: 6, hrebiky: 25 }, grose: 35, reqPrev: 'dormitorium_i' },
         { id: 'dormitorium_iii', icon: '📿', label: lang==='en'?'Dormitorium III':'Dormitorium III',
           desc: lang==='en'?'Full wing — 10 brothers.':'Celé křídlo — 10 bratrů.',
-          cost: { cut_stone: 200, plank: 130, rope: 50, iron_ingot: 6, glass_stopper: 10, glass_tankard: 10 }, grose: 70, reqPrev: 'dormitorium_ii' },
+          cost: { cut_stone: 200, plank: 130, rope: 50, iron_ingot: 6, glass_stopper: 10, glass_tankard: 10, hrebiky: 50 }, grose: 70, reqPrev: 'dormitorium_ii' },
       ];
       let dormInner = '';
       dormTiers.forEach(d => {

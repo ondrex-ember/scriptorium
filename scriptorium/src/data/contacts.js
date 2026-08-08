@@ -101,6 +101,7 @@ const ContactsDB = {
         buyOffer: { items: {
             palice_zelezna: { price: 16, stock: 2 },
             kovani: { price: 8, stock: 4 },
+            hrebiky: { price: 2.5, stock: 5 }, // kovani-rozsireni-mrd (7.8.2026): nejlevnější kanál, ale nejvíc omezený
             britva_kovarska: { price: 12, stock: 1 },
             sada_podkov: { price: 14, stock: 2 }
         } }, // plní starý slib "prodá nástroje" z popisku + kování na Velký úl (Apiarium MRD)
