@@ -8536,6 +8536,9 @@ Object.assign(ItemsDB, {
     // Suroviny — pryskyřice
     "resin_spruce": { name: "Smrková pryskyřice", name_en: "Spruce Resin", icon: "🌲", type: "mat", desc: "Obyčejná smrková smůla nasbíraná v lese. Základ nejjednodušší kadidelné směsi.", desc_en: "Common spruce pitch from the forest. The basis of the simplest incense blend." },
     "resin_pine": { name: "Borová pryskyřice", name_en: "Pine Resin", icon: "🌲", type: "mat", desc: "Lepkavá pryskyřice borového stromu. Dioscorides stromy Pitys a Peuce chválil pro jejich stahující vlastnosti.", desc_en: "Sticky pine resin. Dioscorides praised the Pitys and Peuce trees for their astringent properties." },
+    // smola-tesneni-sudu-mrd (7.8.2026): budoucí migrace — až se "alchymie"
+    // ve Výrobě přesune do laboratorních podmínek Athanoru, jde smola s ní.
+    "smola": { name: "Smola", name_en: "Pitch", icon: "⚫", type: "mat", desc: "Zahřátá borová pryskyřice, ztuhlá na černý dehet. Těsní dřevěné sudy, aby netekly.", desc_en: "Heated pine resin, hardened into black pitch. Seals wooden barrels against leaks." },
     "resin_styrax": { name: "Styrax", name_en: "Styrax", icon: "🏺", type: "mat", desc: "Vzácná pryskyřice styraxového stromu dovážená z Levanty. Hojně využívaná v klášterních vykuřovadlech.", desc_en: "Rare resin of the styrax tree, imported from the Levant. Widely used in monastic incenses." },
     "resin_olibanum": { name: "Olibanum", name_en: "Olibanum", icon: "✨", type: "mat", desc: "Pravé arabské kadidlo (Libanon Thus). Jak píše Dioscorides: dobré kadidlo je bílé, uvnitř mastné a hoří rovným plamenem.", desc_en: "True Arabian frankincense (Libanon Thus). As Dioscorides writes: good frankincense is white, oily within, and burns with a straight flame." },
     // Hotová kadidla (consumable)
@@ -8566,7 +8569,6 @@ Object.assign(ItemsDB, {
         desc: "Potřísněný list nalezený mezi zkaženými zásobami. Někdo si zapsal, co znamená, když zanedbání přivolá roj.", desc_en: "A stained page found among the spoiled stores. Someone once wrote down what it means when neglect draws a swarm."
     },
 });
-
 // ═══ src/data/recipes.js ═══
 const RecipesDB = [
     // BASIC TOOLS
@@ -8908,6 +8910,9 @@ const RecipesDB = [
     { id: "ash", output: "ash", qty: 1, req: { "charcoal": 4 }, cat: "alchemy", locked: true },
     { id: "ash_from_sticks", output: "ash", qty: 1, req: { "stick": 4 }, cat: "alchemy", locked: true, desc: "Spálené větve. Pomalé, ale bez uhlí.", desc_en: "Burned branches. Slow, but no charcoal needed." },
     { id: "ash_from_log", output: "ash", qty: 2, req: { "log": 1 }, cat: "alchemy", locked: true, desc: "Kulatina dá více popele.", desc_en: "A log yields more ash." },
+    // smola-tesneni-sudu-mrd (7.8.2026): zahřátá pryskyřice → smola na těsnění sudů
+    { id: "smola", output: "smola", qty: 1, req: { "resin_pine": 3 }, cat: "alchemy", locked: true,
+      desc: "Borová pryskyřice zahřátá u ohně, ztuhlá na smolu.", desc_en: "Pine resin heated by the fire, hardened into pitch." },
     { id: "compost", output: "compost", qty: 2, req: { "fiber": 3, "bone": 1, "water": 1 }, cat: "craft", locked: true },
     
     // ALCHEMY - pokročilá
@@ -9121,7 +9126,7 @@ const RecipesDB = [
       desc:"Dřevěné vědro na vodu.", desc_en:"Wooden bucket for water." },
     { id:"watering_can", output:"watering_can", qty:1, req:{plank:2, rope:2, wild_leather:1}, cat:"craft", locked:true,
       desc:"Konev na zalévání zahrady.", desc_en:"Watering can for the garden." },
-    { id:"barrel_tool",  output:"barrel_tool",  qty:1, req:{plank:6, rope:3},           cat:"craft", locked:true,
+    { id:"barrel_tool",  output:"barrel_tool",  qty:1, req:{plank:6, rope:3, smola:2},           cat:"craft", locked:true,
       desc:"Dřevěný sud na pivo, víno a vodu.", desc_en:"Wooden barrel for ale, wine and water." },
     { id:"bedna", output:"bedna", qty:1, req:{plank:8, rope:2}, cat:"craft", locked:true,
       desc:"Dřevěná bedna. +30 jednotek skladu v Inventariu.", desc_en:"Wooden crate. +30 units of storage in the Inventarium." },
@@ -9231,7 +9236,6 @@ RecipesDB.push(
     { id: "karmin", output: "karmin", qty: 1, req: { "cervec": 5 }, cat: "alchemy", locked: true,
       desc: "Pět drcených červců dá karmínově rudý pigment.", desc_en: "Five crushed cochineal grubs yield a crimson pigment." }
 );
-
 // ═══ src/data/health.js ═══
 // ═══════════════════════════════════════════════════════════════════════════
 // HEALTH CONDITIONS DB (Valetudo)
@@ -10741,7 +10745,7 @@ const TechTree = [
     cost: 10,
     desc: "Klášterní zahradník byl vzdělán v bylinářství, pěstování i závlaze. Odemkne: kamenné nástroje (sekerka, rýč, kosa, srp, cep, lopata), vědro, konev, sud.",
     desc_en: "The monastic gardener was learned in herbalism, cultivation and irrigation. Unlocks: stone tools (axe, spade, scythe, sickle, flail, shovel), bucket, watering can, barrel.",
-    unlocks: ["stone_axe", "stone_spade", "stone_scythe", "stone_sickle", "stone_flail", "wooden_flail", "stone_shovel", "stone_pickaxe", "bucket", "watering_can", "barrel_tool"], requires: ["tech_writing_basics"]
+    unlocks: ["stone_axe", "stone_spade", "stone_scythe", "stone_sickle", "stone_flail", "wooden_flail", "stone_shovel", "stone_pickaxe", "bucket", "watering_can", "barrel_tool", "smola"], requires: ["tech_writing_basics"]
   },
 
   {
@@ -10973,7 +10977,6 @@ TechTree.push({
     unlocks: ["burn_lime", "slake_lime", "soaked_hide_lime", "premium_soaked_hide", "premium_soaked_hide_goat", "premium_stretched_hide", "premium_vellum"],
     requires: ["tech_fodina"]
 });
-
 // ═══ src/core/gamestate.js ═══
 const ActionsDB = [
     { id: 'basic',        cat: 'scavenge', name: 'Průzkum okolí',    name_en: 'Scour the grounds',  icon: '🖐',  desc: 'Suroviny',         desc_en: 'Raw materials',      yield: 1 },
@@ -24181,7 +24184,7 @@ const CellariumSystem = {
               ${t('cellarium.nothingToSell')}
             </div>`;
     } else {
-      h += `<div style="display:flex; flex-direction:column; gap:6px;">`;
+      h += `<div style="display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:6px;">`;
       sellable.forEach(id => {
         const have  = GameState.inventory[id] || 0;
         const price = this.calcPrice(id, entity);
@@ -25148,7 +25151,6 @@ const CellariumSystem = {
 
 
 };
-
 // ═══ src/systems/SaeculumSystem.js ═══
 // ═══════════════════════════════════════════════════════════════════════════════
 // SAECULUM SYSTEM v1.0 — Kontakt s venkem
