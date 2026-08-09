@@ -3594,7 +3594,7 @@
                         Athanor</button>
                     <button id="home-tab-foculus" class="filter-btn" onclick="UI.switchHomeTab('foculus', this)">🔥
                         <span data-i18n="fireplace.foculusTab"></span></button>
-                    <button id="home-tab-templum" class="filter-btn" style="display:none;" onclick="UI.switchHomeTab('templum', this)">🕍
+                    <button id="home-tab-templum" class="filter-btn" style="display:none;" onclick="UI.switchHomeTab('templum', this)">⛪
                         Templum</button>
                     <button id="home-tab-infirmarium" class="filter-btn" style="display:none;" onclick="UI.switchHomeTab('infirmarium', this)">🩺
                         Infirmarium</button>
@@ -7963,6 +7963,7 @@ const ItemsDB = {
     "seeds_blue": { name: "Semínka levandule", name_en: "Lavender Seeds", icon: "🌾", type: "mat", desc: "Modrá bylina.", desc_en: "Blue herb seeds." },
     "seeds_mint": { name: "Semínka máty", name_en: "Mint Seeds", icon: "🌾", type: "mat", desc: "Máta.", desc_en: "Mint seeds." },
     "seeds_thyme": { name: "Semínka tymiánu", name_en: "Thyme Seeds", icon: "🌾", type: "mat", desc: "Tymián. Léčí Varroa, koření jídla.", desc_en: "Thyme. Treats Varroa, seasons food." },
+    "seeds_kopr": { name: "Semínka kopru", name_en: "Dill Seeds", icon: "🌾", type: "mat", desc: "Kopr. Vzácnější semínko, k rakům se hodí nejlíp.", desc_en: "Dill. A rarer seed, pairs best with crayfish." },
     "seeds_sage": { name: "Semínka šalvěje", name_en: "Sage Seeds", icon: "🌾", type: "mat", desc: "Šalvěj. Salvia — zachraňuje.", desc_en: "Sage. Salvia — it saves." },
     "seeds_fennel": { name: "Semínka fenyklu", name_en: "Fennel Seeds", icon: "🌾", type: "mat", desc: "Fenykl. Na trávení.", desc_en: "Fennel. For digestion." },
     "seeds_wormwood": { name: "Semínka pelynku", name_en: "Wormwood Seeds", icon: "🌾", type: "mat", desc: "Pelyněk. Hořký jako pokání.", desc_en: "Wormwood. Bitter as penance." },
@@ -8311,6 +8312,7 @@ const ItemsDB = {
     "thyme": { name: "Tymián", name_en: "Thyme", icon: "🌿", type: "herb", desc: "Odvání Varroa z úlů. Hildegarda jej znala dobře.", desc_en: "Drives Varroa from hives. Hildegard knew it well." },
     "sage": { name: "Šalvěj", name_en: "Sage", icon: "🌿", type: "herb", desc: "Salvia officinalis. Kapitulář Karla Velikého. Čistí vzduch i mysl.", desc_en: "Salvia officinalis. Capitulare de villis. Purifies air and mind." },
     "fennel": { name: "Fenykl", name_en: "Fennel", icon: "🌿", type: "herb", desc: "Foeniculum vulgare. Dobrý na trávení, Hildegarda jej doporučovala.", desc_en: "Foeniculum vulgare. Good for digestion, praised by Hildegard." },
+    "kopr": { name: "Kopr", name_en: "Dill", icon: "🌿", type: "herb", desc: "Anethum graveolens. Uveden v Kapitulári Karla Velikého mezi povinnými zahradními bylinami.", desc_en: "Anethum graveolens. Listed among the mandatory garden herbs in Charlemagne's Capitulare de villis." },
     "wormwood": { name: "Pelyněk", name_en: "Wormwood", icon: "🌿", type: "herb", desc: "Artemisia absinthium. Bylina všech bylin. Chrání před morem.", desc_en: "Artemisia absinthium. Herb of herbs. Wards off pestilence." },
     "comfrey": { name: "Kostival lékařský", name_en: "Comfrey", icon: "🌿", type: "herb", desc: "Symphytum officinale. Základ středověké ortopedie — obklady na bolavé klouby a kosti.", desc_en: "Symphytum officinale. The foundation of medieval orthopaedics — poultices for aching joints and bones." },
     "juniper": { name: "Jalovec", name_en: "Juniper", icon: "🌲", type: "herb", desc: "Juniperus communis. Silně prohřívací silice, oblíbená na revma.", desc_en: "Juniperus communis. Strongly warming resin, favoured against rheumatism." },
@@ -8630,6 +8632,7 @@ const ItemsDB = {
     "syrecky_fresh": { name: "Syrečky (čerstvé)", name_en: "Curd Cheese (Fresh)", icon: "🧀", type: "food", desc: "Čerstvé syrečky z kysaného tvarohu. Olomoucká specialita — bez syřidla.", desc_en: "Fresh curd cheese from soured curds. An Olomouc speciality — no rennet needed." },
     "syrecky_mature": { name: "Syrečky (zralé)", name_en: "Curd Cheese (Mature)", icon: "🧀", type: "food", desc: "Vyzrálé syrečky. Pronikavá vůně, výrazná chuť.", desc_en: "Matured curd cheese. Pungent aroma, sharp flavour." },
     "cream": { name: "Smetana", name_en: "Cream", icon: "🥛", type: "mat", desc: "Hustá smetana sebraná z mléka. Vzácnost klášterní kuchyně — a slabost každé kočky.", desc_en: "Thick cream skimmed from milk. A rarity of the monastic kitchen — and every cat's weakness." },
+    "tvaroh": { name: "Tvaroh", name_en: "Curd", icon: "🥛", type: "mat", desc: "Mléko srazené časem a teplem, bez syřidla. Základ pro syrečky i taštičky.", desc_en: "Milk curdled by time and warmth, no rennet needed. The base for curd cheese and dumplings alike." },
     "buttermilk": { name: "Podmáslí", name_en: "Buttermilk", icon: "🥛", type: "mat", desc: "Kyselé podmáslí, zbytek po stloukání másla. Osvěžující nápoj čeledi.", desc_en: "Sour buttermilk, left over from churning butter. A refreshing drink for the servants." },
     "mouse": { name: "Myš", name_en: "Mouse", icon: "🐭", type: "mat", desc: "Klášterní myš. Žere zrní i pergamen. Kočka ji občas přinese jako dar.", desc_en: "A monastery mouse. Eats grain and parchment alike. The cat sometimes brings one as a gift." },
     "rabbit_m": { name: "Králík ♂", name_en: "Rabbit ♂", icon: "🐇", type: "animal", desc: "Samec. V králíkárně se postará o přírůstky.", desc_en: "Male. Will take care of the offspring in the hutch." },
@@ -8717,6 +8720,10 @@ const ItemsDB = {
     // coquina-tier2-mrd (7.8.2026): Úroveň 2 (svátky, sváteční mnišská strava)
     "vajecna_jicha": { name: "Vaječná jícha", name_en: "Egg Thick-Sauce", icon: "🍳", type: "food", hunger: 8, desc: "Žloutky šlehané s octem do husté omáčky, poléváno na chléb.", desc_en: "Egg yolks whisked with vinegar into a thick sauce, poured over bread." },
     "stika_s_maslem": { name: "Štika na rožni s bylinkovým máslem", name_en: "Spit-Roasted Pike with Herb Butter", icon: "🐊", type: "food", hunger: 12, desc: "Prémiová dravá ryba ze sádek, pečená na rožni a potíraná přepuštěným máslem.", desc_en: "A premium predatory fish from the ponds, roasted on the spit and basted with clarified butter." },
+    "pecena_slanecka": { name: "Pečený slaneček", name_en: "Baked Salted Herring", icon: "🐟", type: "food", hunger: 8, desc: "Sud nasolených sleďů propečený nad ohněm. Základ postní stravy.", desc_en: "Barrel-salted herring baked over the fire. A staple of fast-day meals." },
+    "repny_prejt": { name: "Řepný prejt", name_en: "Turnip Pudding", icon: "🥘", type: "food", hunger: 7, desc: "Strouhaná řepa zapečená s kroupami a sádlem. Sytá zimní strava chudých.", desc_en: "Grated turnip baked with groats and lard. Hearty winter fare for the poor." },
+    "raci_s_koprem": { name: "Raci s koprem", name_en: "Dill Crayfish", icon: "🦞", type: "food", hunger: 9, desc: "Raci vaření v pivu s koprem a solí, vhozeni do vroucí tekutiny živí.", desc_en: "Crayfish boiled alive in beer with dill and salt." },
+    "tvarohove_tasticky": { name: "Tvarohové taštičky", name_en: "Curd Dumplings", icon: "🥟", type: "food", hunger: 10, desc: "Taštičky z mouky plněné tvarohem, vařené v hrnci.", desc_en: "Flour dumplings filled with curd, boiled in the pot." },
     "flour_1": { name: "Mouka (1. třída)", name_en: "Flour (Grade 1)", icon: "⚪", type: "mat", desc: "Semleta z prvotřídního zrní vlastního pole. Nejlepší chléb a koláče.", desc_en: "Milled from prime grain off your own field. The finest bread and pastries." },
     "flour_2": { name: "Mouka (2. třída)", name_en: "Flour (Grade 2)", icon: "⚪", type: "mat", desc: "Běžná mouka — z horšího zrní nebo koupená. Postačí na denní chléb.", desc_en: "Common flour — lower-grade or bought. Fine for everyday bread." },
     "grain_feed": { name: "Zrní (krmivo)", name_en: "Grain Feed", icon: "🌾", type: "mat", desc: "Směs zrní pro drůbež a prasata. Udržuje zdraví zvířat.", desc_en: "Grain mix for poultry and pigs. Maintains animal health." },
@@ -9496,7 +9503,13 @@ RecipesDB.push(
     { id: "almond_paste", output: "almond_paste", qty: 1, req: { "almond": 3 }, needsBuild: "velky_hmozdir", cat: "food", locked: true },
     { id: "ground_spice", output: "ground_spice", qty: 1, req: { "pepr_cerny": 2 }, needsBuild: "velky_hmozdir", cat: "food", locked: true },
     { id: "pork_pie_abbot", output: "pork_pie_abbot", qty: 1, req: { "cured_meat": 3, "flour": 2, "ground_spice": 1, "lard": 1 }, needsBuild: "rozen", cat: "food", locked: true },
-    { id: "kroupy", output: "kroupy", qty: 2, req: { "barley": 3 }, cat: "food", locked: false }
+    { id: "kroupy", output: "kroupy", qty: 2, req: { "barley": 3 }, cat: "food", locked: false },
+    // coquina-tier2-dopocet-mrd (9.8.2026): dopočet 23-seznamu Tier 2
+    { id: "pecena_slanecka", output: "pecena_slanecka", qty: 1, req: { "slany_sled": 2, "cooking_pot": 0 }, cat: "food", locked: true },
+    { id: "repny_prejt", output: "repny_prejt", qty: 1, req: { "turnip": 2, "kroupy": 2, "fat": 1, "cooking_pot": 0 }, cat: "food", locked: true },
+    { id: "raci_s_koprem", output: "raci_s_koprem", qty: 1, req: { "crayfish": 3, "beer": 1, "kopr": 1, "salt": 1, "cooking_pot": 0 }, cat: "food", locked: true },
+    { id: "tvaroh", output: "tvaroh", qty: 1, req: { "milk": 3, "cooking_pot": 0 }, cat: "food", locked: true },
+    { id: "tvarohove_tasticky", output: "tvarohove_tasticky", qty: 1, req: { "tvaroh": 2, "flour": 2, "egg": 1, "cooking_pot": 0 }, cat: "food", locked: true }
 );
 // ═══ src/data/health.js ═══
 // ═══════════════════════════════════════════════════════════════════════════
@@ -10942,7 +10955,7 @@ const TechTree = [
     cost: 20,
     desc: "Mléko samo zkysne, ale syřidlo dělá z tvarohu sýr. Slez z jehněte, výluh ze svízelu, nebo jen čas a teplo — tři cesty k téže hroudě. Odemkne: Syřidlo, čtyři druhy sýra.",
     desc_en: "Milk sours on its own, but rennet turns curd into cheese. A lamb's stomach, an extract of bedstraw, or simply time and warmth — three paths to the same wheel. Unlocks: Rennet, four kinds of cheese.",
-    unlocks: ["rennet_galium", "cheese_mold", "goat_cheese", "sheep_cheese", "cow_cheese", "syrecky"], requires: ["tech_lactaria"]
+    unlocks: ["rennet_galium", "cheese_mold", "goat_cheese", "sheep_cheese", "cow_cheese", "syrecky", "tvaroh"], requires: ["tech_lactaria"]
   },
 
   {
@@ -10961,7 +10974,7 @@ const TechTree = [
     cost: 10,
     desc: "Pietro de' Crescenzi, hospodářský manuál z počátku 14. století, nejopisovanější svého druhu. \"Maso budiž hrubou solí posypáno a v jizbě pod střechou zavěšeno, by kouřem z ohniště pomalu vysychalo.\" Odemkne: solení a pasivní uzení nad Ohništěm.",
     desc_en: "Pietro de' Crescenzi's agricultural manual from the early 14th century, the most widely copied of its kind. \"Let the meat be strewn with coarse salt and hung in the chamber beneath the roof, that it may slowly dry in the hearth's smoke.\" Unlocks: salting and passive smoking over the Hearth.",
-    unlocks: ["smoked_meat_home", "pohanka_s_cesnekem", "sauerkraut", "zelnacka_s_kroupami", "pucalka", "ovesna_kase", "cibulova_jicha", "placky_z_popela", "vajecna_jicha", "stika_s_maslem", "salted_pork", "salted_beef", "smoked_home_pork", "smoked_home_beef"], requires: ["tech_writing_basics"], requiresBook: "book_ruralia_meat"
+    unlocks: ["smoked_meat_home", "pohanka_s_cesnekem", "sauerkraut", "zelnacka_s_kroupami", "pucalka", "ovesna_kase", "cibulova_jicha", "placky_z_popela", "vajecna_jicha", "stika_s_maslem", "salted_pork", "salted_beef", "smoked_home_pork", "smoked_home_beef", "pecena_slanecka", "repny_prejt", "raci_s_koprem", "tvarohove_tasticky"], requires: ["tech_writing_basics"], requiresBook: "book_ruralia_meat"
   },
 
   // ── COQUINA TIER 2 — Černá kuchyně, Soplouch (Tacuinum Sanitatis) ────────
@@ -23550,6 +23563,8 @@ const CellariumSystem = {
       { itemId: 'salt',            basePrice: 12, dailyStock: 2  },
       { itemId: 'wine',            basePrice: 4,  dailyStock: 5  },
       { itemId: 'seeds_thyme',     basePrice: 6,  dailyStock: 5  }, // tymián — Varroa léčba
+      { itemId: 'kopr',            basePrice: 6,  dailyStock: 8  }, // kopr — k rakům
+      { itemId: 'seeds_kopr',      basePrice: 10, dailyStock: 3  }, // semínka kopru — vzácnější
       { itemId: 'seeds_plantain',  basePrice: 5,  dailyStock: 5  }, // jitrocel — hojivá bylina
       { itemId: 'seeds_herb',      basePrice: 6,  dailyStock: 10 },
       { itemId: 'seeds_vegetable', basePrice: 6,  dailyStock: 10 },
@@ -27491,7 +27506,7 @@ const TemplumSystem = {
         if (!this.isCemeteryUnlocked()) {
             return `<div style="text-align:center; padding:30px; opacity:0.6;
                         border:1px dashed rgba(197,160,89,0.3); border-radius:8px;">
-                      <div style="font-size:2rem; margin-bottom:10px;">🕍</div>
+                      <div style="font-size:2rem; margin-bottom:10px;">⛪</div>
                       <div style="font-style:italic; font-size:0.9rem;">
                         ${lang==='en' ? 'The church opens only to a brother of the order.' : 'Kostel se otevírá jen bratru řádu.'}
                       </div>
@@ -27509,7 +27524,7 @@ const TemplumSystem = {
           <div style="display:flex; align-items:center; gap:15px; margin-bottom:20px;
                       padding:15px; background:rgba(197,160,89,0.07);
                       border-radius:10px; border-left:4px solid var(--accent-gold);">
-            <div style="font-size:2.5rem;">🕍</div>
+            <div style="font-size:2.5rem;">⛪</div>
             <div style="flex:1;">
               <div style="font-weight:bold; font-size:1rem;">Templum</div>
               <div style="font-size:0.8rem; opacity:0.65; font-style:italic;">${lang==='en'?'The monastery church':'Klášterní kostel'}</div>
@@ -27554,7 +27569,7 @@ const TemplumSystem = {
         const entity = (GameState.ui && GameState.ui.templumEntity) || (this.isUnlocked() ? 'main' : 'hrbitov');
         h += `<div style="display:flex; gap:8px; margin-bottom:16px;">
                 <button class="craft-btn" style="flex:1; ${entity==='hrbitov' ? 'background:#2c1810;' : ''}" onclick="TemplumSystem.switchEntity('hrbitov')">⚰️ ${lang==='en'?'Cemetery':'Hřbitov'}</button>
-                <button class="craft-btn" style="flex:1; ${entity==='main' ? 'background:#2c1810;' : ''}" onclick="TemplumSystem.switchEntity('main')">🕍 ${lang==='en'?'Main':'Hlavní'}</button>
+                <button class="craft-btn" style="flex:1; ${entity==='main' ? 'background:#2c1810;' : ''}" onclick="TemplumSystem.switchEntity('main')">⛪ ${lang==='en'?'Main':'Hlavní'}</button>
               </div>`;
 
         if (entity === 'hrbitov') {
@@ -27566,7 +27581,7 @@ const TemplumSystem = {
         if (!this.isUnlocked()) {
             h += `<div style="text-align:center; padding:30px; opacity:0.6;
                         border:1px dashed rgba(197,160,89,0.3); border-radius:8px;">
-                      <div style="font-size:2rem; margin-bottom:10px;">🕍</div>
+                      <div style="font-size:2rem; margin-bottom:10px;">⛪</div>
                       <div style="font-style:italic; font-size:0.9rem;">
                         ${lang==='en' ? 'The nave opens only to a brother of the order.' : 'Hlavní loď se otevírá jen bratru řádu.'}
                       </div>
@@ -28956,6 +28971,23 @@ const CookingSystem = {
             needsTech: 'tech_ruralia_meat', output: 'vajecna_jicha', durationH: 1 },
         stika_s_maslem: { input: 'stika', inputQty: 1, extraInputs: { butter: 1 },
             needsTech: 'tech_ruralia_meat', output: 'stika_s_maslem', durationH: 1 },
+        // coquina-tier2-dopocet-mrd (9.8.2026): zbylé 4 z 23-seznamu (Starý
+        // Pepřovník zůstává blokovaný na Furnus, viz plánovací MRD bod 7).
+        // Stejný tech gate jako sourozenci výše — tech_ruralia_meat, MRD
+        // "Tier 2" značka je jen historicko-tematická, ne nový tech strom.
+        pecena_slanecka: { input: 'slany_sled', inputQty: 2, needsTool: ['cooking_pot'],
+            needsTech: 'tech_ruralia_meat', output: 'pecena_slanecka', durationH: 1 },
+        repny_prejt: { input: 'turnip', inputQty: 2, extraInputs: { kroupy: 2, fat: 1 }, needsTool: ['cooking_pot'],
+            needsTech: 'tech_ruralia_meat', output: 'repny_prejt', durationH: 1.5 },
+        raci_s_koprem: { input: 'crayfish', inputQty: 3, extraInputs: { beer: 1, kopr: 1, salt: 1 }, needsTool: ['cooking_pot'],
+            needsTech: 'tech_ruralia_meat', output: 'raci_s_koprem', durationH: 1.5 },
+        // tvaroh — mléko srazené bez syřidla (mirror syrečky koncept z
+        // cheese-system-reference.md), vlastní gate tech_caseus (Sýrárna
+        // znalost), ne Coquina strom — tvarohove_tasticky pak potřebuje obojí.
+        tvaroh: { input: 'milk', inputQty: 3, needsTool: ['cooking_pot'],
+            needsTech: 'tech_caseus', output: 'tvaroh', durationH: 0.5 },
+        tvarohove_tasticky: { input: 'tvaroh', inputQty: 2, extraInputs: { flour: 2, egg: 1 }, needsTool: ['cooking_pot'],
+            needsTech: 'tech_ruralia_meat', output: 'tvarohove_tasticky', durationH: 1 },
         // coquina-migrace-mrd (7.8.2026): Fáze 1 migrace existujících receptů
         // z Výroby. ID MUSÍ sedět s RecipesDB id (Game.craft() redirect podle
         // shody). Žádné needsTech — spoléhá na vlastní starší RecipesDB unlock,
@@ -32883,6 +32915,7 @@ const GardenSystem = {
         herb_blue:   { cropType:'herb',      item:'herb_blue',   seed:'seeds_blue',      icon:'💜', name:'Levandule',      name_en:'Lavender',      yield:2, growHours:144 },
         mint:        { cropType:'herb',      item:'mint',        seed:'seeds_mint',      icon:'🌿', name:'Máta',           name_en:'Mint',          yield:2, growHours:36 },
         thyme:       { cropType:'herb',      item:'thyme',       seed:'seeds_thyme',     icon:'🌿', name:'Tymián',         name_en:'Thyme',         yield:2, growHours:72 },
+        kopr:        { cropType:'herb',      item:'kopr',        seed:'seeds_kopr',      icon:'🌿', name:'Kopr',           name_en:'Dill',          yield:2, growHours:72 },
         st_johns_wort:{ cropType:'herb',     item:'st_johns_wort',seed:'seeds_herb',     icon:'🌻', name:'Třezalka',       name_en:"St. John's Wort",yield:2, growHours:144 },
         sage:        { cropType:'herb',      item:'sage',        seed:'seeds_sage',      icon:'🌿', name:'Šalvěj',         name_en:'Sage',          yield:2, growHours:144 },
         fennel:      { cropType:'herb',      item:'fennel',      seed:'seeds_fennel',    icon:'🌿', name:'Fenykl',         name_en:'Fennel',        yield:2, growHours:72 },
@@ -58320,6 +58353,8 @@ const Game = {
                     if(Math.random() < 0.05) this.addItem('st_johns_wort', 1);
                     if(Math.random() < 0.04) this.addItem('thyme', 1);
                     if(Math.random() < 0.03) this.addItem('seeds_thyme', 1);
+                    if(Math.random() < 0.03) this.addItem('kopr', 1);
+                    if(Math.random() < 0.01) this.addItem('seeds_kopr', 1);
                     if(Math.random() < 0.02) this.addItem('hops', 1);
                     if(Math.random() < 0.01) this.addItem('seeds_hops', 1);
                     // v8.x: Nové byliny — šalvěj, fenykl, pelyněk, yzop, řebříček
@@ -58482,6 +58517,7 @@ const Game = {
                     if(Math.random() < 0.10) this.addItem('thyme', 1);
                     if(Math.random() < 0.08) this.addItem('yarrow', 1);
                     if(Math.random() < 0.05) this.addItem('wormwood', 1);
+                    if(Math.random() < 0.05) this.addItem('kopr', 1);
                     if(Math.random() < 0.04) this.addItem('sage', 1);
                     if(Math.random() < 0.02) this.addItem('plantain', 1);
                     // Titivillus-infirmary-mrd — kostival a rozmarýn rostou mezi trávou (jalovec je keř, viz jinde)
@@ -58694,6 +58730,8 @@ const Game = {
                 if(Math.random() < 0.05) this.addItem('st_johns_wort', 1);
                 if(Math.random() < 0.04) this.addItem('thyme', 1);
                 if(Math.random() < 0.03) this.addItem('seeds_thyme', 1);
+                if(Math.random() < 0.03) this.addItem('kopr', 1);
+                if(Math.random() < 0.01) this.addItem('seeds_kopr', 1);
                 if(Math.random() < 0.02) this.addItem('hops', 1);
                 if(Math.random() < 0.01) this.addItem('seeds_hops', 1);
                 // v8.x: Nové byliny
@@ -58832,6 +58870,7 @@ const Game = {
                 if(Math.random() < 0.10) this.addItem('thyme', 1);
                 if(Math.random() < 0.08) this.addItem('yarrow', 1);
                 if(Math.random() < 0.05) this.addItem('wormwood', 1);
+                if(Math.random() < 0.05) this.addItem('kopr', 1);
                 if(Math.random() < 0.04) this.addItem('sage', 1);
                 if(Math.random() < 0.02) this.addItem('plantain', 1);
                 // Titivillus-infirmary-mrd — kostival a rozmarýn
@@ -61823,7 +61862,7 @@ const Game = {
         vinohrad: { icon: '🍇', away: false, dailyRiskPct: 6, injuryKind: 'physical' },
         scavenge: { icon: '🌾', away: true,  durationMs: 8  * 60 * 60 * 1000, riskPct: 12 },
         doly:     { icon: '⛏️', away: true,  durationMs: 20 * 60 * 60 * 1000, riskPct: 20 },
-        kostel:   { icon: '🕍', away: false, dailyRiskPct: 3, injuryKind: 'physical' },
+        kostel:   { icon: '⛪', away: false, dailyRiskPct: 3, injuryKind: 'physical' },
         hrbitov:  { icon: '⚰️', away: false, dailyRiskPct: 6, injuryKind: 'physical' },
         servitor:   { icon: '🩺', away: false, dailyRiskPct: 6, injuryKind: 'illness' },
         coquus:     { icon: '🍲', away: false, dailyRiskPct: 7, injuryKind: 'physical' },
