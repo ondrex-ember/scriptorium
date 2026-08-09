@@ -7930,6 +7930,8 @@ const ItemsDB = {
     "roast_rabbit_dish": { name: "Pečený králík s zeleninou", name_en: "Roast Rabbit with Vegetables", icon: "🍽️", type: "food", desc: "Králík pečený s mrkví a zelím.", desc_en: "Rabbit roasted with carrot and cabbage." },
     "cooked_fish": { name: "Pečená ryba", name_en: "Roasted Fish", icon: "🐠", type: "food", hunger: 4, desc: "Sytí 4h.", desc_en: "Fills for 4h." },
     "stew": { name: "Guláš", name_en: "Stew", icon: "🍲", type: "food", hunger: 12, desc: "Sytí 12h.", desc_en: "Fills for 12h." },
+    // coquina-tier1-mrd (7.8.2026): první ze 23 receptů, Úroveň 1 (chudina)
+    "pohanka_s_cesnekem": { name: "Pohanka s česnekem", name_en: "Buckwheat with Garlic", icon: "🍲", type: "food", hunger: 10, desc: "Hustá kaše pro těžce pracující. Sytí 10h.", desc_en: "A thick porridge for hard labourers. Fills for 10h." },
     "stew_koreni": { name: "Guláš s pepřem", name_en: "Peppered Stew", icon: "🍲", type: "food", desc: "Guláš dochucený černým pepřem — statusová hostina, ne obyčejná kaše.", desc_en: "Stew seasoned with black pepper — a dish of status, not common porridge." },
     "mushroom_soup": { name: "Houbová polévka", name_en: "Mushroom Pottage", icon: "🥣", type: "food", hunger: 8, desc: "Sytí 8h.", desc_en: "Fills for 8h." },
     "spring_herb_porridge": { name: "Jarní bylinková kaše", name_en: "Spring Herb Porridge", icon: "🥣", type: "food", desc: "Kopřiva, bršlice a lebeda v ovesné kaši. Chudé jaro, plný hrnec.", desc_en: "Nettle, ground elder and goosefoot in oat porridge. A lean spring, a full pot." },
@@ -9113,6 +9115,10 @@ const RecipesDB = [
     { id: "ash", output: "ash", qty: 1, req: { "charcoal": 4 }, cat: "alchemy", locked: true },
     { id: "ash_from_sticks", output: "ash", qty: 1, req: { "stick": 4 }, cat: "alchemy", locked: true, desc: "Spálené větve. Pomalé, ale bez uhlí.", desc_en: "Burned branches. Slow, but no charcoal needed." },
     { id: "ash_from_log", output: "ash", qty: 2, req: { "log": 1 }, cat: "alchemy", locked: true, desc: "Kulatina dá více popele.", desc_en: "A log yields more ash." },
+    // coquina-tier1-mrd (7.8.2026): linseed_oil byl duch — položka existovala,
+    // recept nikdy ne. seeds_flax odpovídá popisku ("lisovaný z lněného semene").
+    { id: "linseed_oil", output: "linseed_oil", qty: 2, req: { "seeds_flax": 5 }, cat: "alchemy", locked: true,
+      desc: "Lněné semeno lisované v Prelum Olei na olej.", desc_en: "Flax seed pressed in the Prelum Olei into oil." },
     // smola-tesneni-sudu-mrd (7.8.2026): zahřátá pryskyřice → smola na těsnění sudů
     { id: "smola", output: "smola", qty: 1, req: { "resin_pine": 3 }, cat: "alchemy", locked: true,
       desc: "Borová pryskyřice zahřátá u ohně, ztuhlá na smolu.", desc_en: "Pine resin heated by the fire, hardened into pitch." },
@@ -11076,7 +11082,7 @@ const TechTree = [
     cost: 20,
     desc: "Lněný olej z pole lisovaný dřevěným klínem. Propojení Pole → Skriptorium. Odemkne: Prelum Olei — výroba lněného oleje.",
     desc_en: "Linseed oil from the field, pressed with a wooden wedge. Links Field → Scriptorium. Unlocks: Prelum Olei — linseed oil production.",
-    unlocks: [], requires: ["tech_de_re_rustica", "tech_vinohrad"]
+    unlocks: ["linseed_oil"], requires: ["tech_de_re_rustica", "tech_vinohrad"]
   },
 
 ];
@@ -28187,6 +28193,8 @@ const DecaySystem = {
         // "středověký tupperware" (dle historického podkladu), vydrží týdny.
         almond_paste: { rate: 0.08 },
         pork_pie_abbot: { rate: 0.02, mice: true },
+        // coquina-tier1-mrd (7.8.2026): hotová kaše, mirror stew
+        pohanka_s_cesnekem: { rate: 0.15, flies: true },
         lard:         { rate: 0.01 },
         rye_grain:    { rate: 0.005, mice: true },
         rye_grain_1:  { rate: 0.005, mice: true },
@@ -28771,6 +28779,10 @@ const CookingSystem = {
         pork_pie_abbot: { input: 'cured_meat', inputQty: 3, extraInputs: { flour: 2, ground_spice: 1, lard: 1 },
             needsBuild: 'rozen', needsTech: 'tech_platina_honesta', output: 'pork_pie_abbot', durationH: 6,
             influenceGain: { axis: 'church', amount: 8 } },
+        // coquina-tier1-mrd (7.8.2026): první ze 23 receptů — rychlá kaše,
+        // žádná stavba, gate na stejný tech jako zbytek Tier 1.
+        pohanka_s_cesnekem: { input: 'pohanka', inputQty: 1, extraInputs: { garlic: 1, linseed_oil: 1 },
+            needsTech: 'tech_ruralia_meat', output: 'pohanka_s_cesnekem', durationH: 1 },
     },
 
     // coquina-tier1-mrd: tab je vidět, jakmile hráč má ASPOŇ jeden tier —
