@@ -1808,6 +1808,16 @@
             .coquina-flame, .coquina-brewing::after { animation: none !important; }
         }
 
+        /* svetlo-detail-mrd (9.8.2026): poetické popisky světel — výchozí
+           1 řádek + tečičky, klik odhalí celý text. */
+        .coquina-light-desc {
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+            max-width: 100%; cursor: pointer;
+        }
+        .coquina-light-desc.expanded {
+            white-space: normal; overflow: visible; text-overflow: clip;
+        }
+
         /* Mobile-friendly touch targets */
         @media (max-width: 500px) {
             .craft-btn {
@@ -3688,7 +3698,10 @@
                     <div id="card-light-source" class="card" style="opacity: 0.5;">
                         <div class="item-icon" id="light-icon">🌑</div>
                         <div><strong id="light-title">Není světlo</strong>
-                            <div id="light-desc" class="text-sm">Tma halí knihy.</div>
+                            <!-- svetlo-detail-mrd (9.8.2026): poetické popisky bývají delší
+                                 než původní krátký text — výchozí 1 řádek + tečičky, klik
+                                 rozbalí na plné znění (třída .expanded, viz CSS níže). -->
+                            <div id="light-desc" class="text-sm coquina-light-desc" onclick="this.classList.toggle('expanded')" title="Klikni pro celý text">Tma halí knihy.</div>
                         </div>
                         <!-- svetlo-tlacitka-fix (7.8.2026): vlastní sloupcový kontejner —
                              na úzkém displeji se obě tlačítka (mají-li obě fuel) naskládají
@@ -7894,7 +7907,13 @@ const ItemsDB = {
     "rope": { name: "Provaz", name_en: "Rope", icon: "➰", type: "mat", desc: "Pevný spoj.", desc_en: "Strong binding." },
     "hoe": { name: "Motyka", name_en: "Hoe", icon: "⚒️", type: "tool", desc: "K farmě.", desc_en: "For the garden." },
     "fishing_rod": { name: "Udice", name_en: "Fishing Rod", icon: "🎣", type: "tool", desc: "Na ryby.", desc_en: "For fishing." },
-    "cooking_pot": { name: "Hrnec", name_en: "Cooking Pot", icon: "🫕", type: "tool", desc: "Na vaření.", desc_en: "For cooking." },
+    "cooking_pot": { name: "Kotlík", name_en: "Cauldron", icon: "🫕", type: "tool", desc: "Na vaření.", desc_en: "For cooking." },
+    // coquina-kotlik-mrd (9.8.2026): scavenge nález, neaktivní dokud se
+    // nevyčistí (viz recept vycistit_kotlik) — nesplní žádnou vaření-kontrolu
+    // (cooking_pot:0), protože to je jiné ID. Po vyčištění → cooking_pot, tier 2.
+    "zrezly_kotlik": { name: "Zrezlý kotlík", name_en: "Rusty Pot", icon: "🍂", type: "mat", desc: "Starý kovový kotlík, celý ve rzi. Než se v něm dá vařit, musí se pořádně vydrhnout.", desc_en: "An old metal pot, thick with rust. It needs a thorough scouring before anything can be cooked in it." },
+    // Meziprodukt na drhnutí — hrubý kámen rozdrcený v hmoždíři na drsný prášek
+    "crushed_stone": { name: "Drcený kámen", name_en: "Crushed Stone", icon: "🪨", type: "mat", desc: "Kámen rozdrcený na hrubý prášek. Brusivo na drhnutí, ne stavební materiál.", desc_en: "Stone ground to a coarse powder. An abrasive for scouring, not a building material." },
     "tea_kettle": { name: "Konvička", name_en: "Kettle", icon: "🫖", type: "tool", desc: "Hliněná konvička na čaj. Pověsí se nad oheň.", desc_en: "A clay kettle for tea. Hung over the fire." },
     "basket": { name: "Koš", name_en: "Basket", icon: "🧺", type: "tool", desc: "Na sběr.", desc_en: "For foraging." },
     "dreveky": { name: "Dřeváky", name_en: "Clogs", icon: "👞", type: "mat", desc: "Vyřezávané dřevěné boty z tržní boudy. Levná, odolná obuv pro každodenní práci.", desc_en: "Carved wooden shoes from a market stall. Cheap, durable footwear for everyday work." },
@@ -8909,6 +8928,14 @@ const RecipesDB = [
     // COOKING TOOLS
     { id: "fishing_rod", output: "fishing_rod", qty: 1, req: { "stick": 2, "rope": 1, "bone": 1 }, cat: "stone", locked: true },
     { id: "cooking_pot", output: "cooking_pot", qty: 1, req: { "rock": 3, "water": 1 }, cat: "craft", locked: true },
+    // coquina-kotlik-mrd (9.8.2026): tier systém — kámen (dnešní recept výše,
+    // tier 1) → vyčištěný ze rzi (tier 2) → bronzové vylepšení (tier 3, přes
+    // Athanor bronz). Tier se nastavuje v Game.craft() podle r.id, viz tam.
+    { id: "crushed_stone", output: "crushed_stone", qty: 1, req: { "rock": 3, "pestle": 0 }, cat: "stone", locked: false },
+    { id: "vycistit_kotlik", output: "cooking_pot", qty: 1, req: { "zrezly_kotlik": 1, "crushed_stone": 2, "water": 1 }, cat: "craft", locked: false,
+      desc: "Zrezlý kotlík vydrhnutý drceným kamenem — znovu použitelný.", desc_en: "A rusty pot scoured with crushed stone — usable again." },
+    { id: "bronzovy_kotlik", output: "cooking_pot", qty: 1, req: { "cooking_pot": 1, "bronz": 2 }, cat: "craft", locked: false,
+      desc: "Přetavení kotlíku v bronzu — nejlépe vede teplo.", desc_en: "The pot recast in bronze — the best heat conductor." },
     { id: "tea_kettle", output: "tea_kettle", qty: 1, req: { "clay": 3, "water": 1 }, cat: "craft", locked: true },
     { id: "basket", output: "basket", qty: 1, req: { "fiber": 5, "stick": 2 }, cat: "craft", locked: true },
 
@@ -28963,6 +28990,549 @@ const DryingSystem = {
     },
 };
 
+// ═══ src/systems/CoquinaVisuals.js ═══
+// ═══════════════════════════════════════════════════════════════════════════
+// COQUINA VISUALS — SVG ilustrace stanic Vaření (Ohniště/Černá kuchyně/
+// Udírna/Panská kuchyně/Sýrárna). Mirror Athanor buildAlembicSvg techniky
+// (inline SVG + nativní <animate>, ne sprite obrázky). Samostatný soubor,
+// mirror oddělení CheeseSystem.js od CookingSystem.js — jen vizuál, žádná
+// herní logika, volané z CookingSystem.js render().
+//
+// DŮLEŽITÉ: každá stanice může být v gridu vykreslená SOUČASNĚ s ostatními
+// (5 panelů vedle sebe) — SVG id atributy (gradienty, clipPath) jsou GLOBÁLNÍ
+// v rámci celého dokumentu, ne jen uvnitř vlastního <svg>. Proto má každá
+// stanice vlastní prefix na všech gradient/clip ID (coquina-ohniste-*,
+// coquina-cernaKuchyne-* atd.) — bez prefixu by při současném zobrazení
+// dvou stanic druhá "ukradla" gradient tomu prvnímu (url(#id) resolvuje
+// první nalezený element s tím ID v celém dokumentu).
+// coquina-visuals-mrd (9.8.2026)
+// ═══════════════════════════════════════════════════════════════════════════
+
+const CoquinaVisuals = {
+
+    // ── Sdílený plamenný tvar (3 hroty, mirror flame-only-prototype) ───────
+    // Base kotví na (50,108) ve vlastním prostoru; translate+scale ho zasadí
+    // kamkoliv (Ohniště pod hrnec, Černá kuchyně do pece i pod komín, Udírna
+    // do malého bočního ohniště, Panská kuchyně pod rožeň).
+    _flameGroup: function (x, y, scale, active, idPrefix) {
+        const outerGrad = idPrefix + '-flameOuter';
+        const innerGrad = idPrefix + '-flameInner';
+        const embers = `
+            <ellipse cx="50" cy="108" rx="26" ry="6" fill="#3a1608"/>
+            <ellipse cx="50" cy="106" rx="18" ry="4" fill="${active ? '#ff6a1a' : '#5c3a1a'}" opacity="${active ? 1 : 0.35}">
+                ${active ? '<animate attributeName="opacity" values="0.8;1;0.7;1" dur="0.5s" repeatCount="indefinite"/>' : ''}
+            </ellipse>`;
+        const flames = active ? `
+            <path fill="url(#${outerGrad})" opacity="0.92">
+                <animate attributeName="d" dur="0.6s" repeatCount="indefinite"
+                    values="
+                        M30,108 C21,108 17,90 22,72 C17,59 20,48 32,40 C36,49 38,57 40,64 C43,44 46,24 50,8 C55,24 58,44 61,64 C63,57 65,49 69,38 C81,47 83,59 78,72 C83,90 79,108 70,108 Z;
+                        M30,108 C20,108 16,89 21,70 C16,58 19,46 30,36 C35,46 37,55 40,62 C42,42 45,22 50,6 C56,22 59,42 61,62 C64,55 66,46 71,35 C82,45 85,58 79,70 C84,89 80,108 70,108 Z;
+                        M30,108 C21,108 17,91 22,73 C18,60 21,49 33,44 C37,51 39,58 40,66 C44,46 47,26 50,10 C54,26 57,46 61,66 C62,58 64,51 68,42 C80,49 84,60 79,73 C84,91 79,108 70,108 Z;
+                        M30,108 C21,108 17,90 22,72 C17,59 20,48 32,40 C36,49 38,57 40,64 C43,44 46,24 50,8 C55,24 58,44 61,64 C63,57 65,49 69,38 C81,47 83,59 78,72 C83,90 79,108 70,108 Z"/>
+            </path>
+            <path fill="url(#${innerGrad})">
+                <animate attributeName="d" dur="0.45s" repeatCount="indefinite" begin="0.12s"
+                    values="
+                        M36,106 C29,106 26,92 30,78 C26,68 29,60 38,54 C41,61 42,67 44,72 C46,56 48,40 50,26 C53,40 55,56 57,72 C59,67 60,61 63,53 C72,59 75,68 71,78 C75,92 72,106 65,106 Z;
+                        M36,106 C28,106 25,91 29,76 C25,67 28,58 37,51 C40,59 41,65 44,70 C45,54 47,36 50,22 C54,36 56,54 57,70 C60,65 61,59 64,50 C73,57 76,67 72,76 C76,91 73,106 65,106 Z;
+                        M36,106 C29,106 26,93 30,79 C27,69 30,61 39,57 C42,63 43,69 44,74 C47,58 48,42 50,30 C53,42 54,58 57,74 C58,69 59,63 62,56 C71,60 74,69 71,79 C75,93 72,106 65,106 Z;
+                        M36,106 C29,106 26,92 30,78 C26,68 29,60 38,54 C41,61 42,67 44,72 C46,56 48,40 50,26 C53,40 55,56 57,72 C59,67 60,61 63,53 C72,59 75,68 71,78 C75,92 72,106 65,106 Z"/>
+            </path>
+            <circle cx="42" cy="40" r="1.3" fill="#ffd280">
+                <animate attributeName="cy" values="40;5;40" dur="1.3s" repeatCount="indefinite"/>
+                <animate attributeName="cx" values="42;48;42" dur="1.3s" repeatCount="indefinite"/>
+                <animate attributeName="opacity" values="1;0;1" dur="1.3s" repeatCount="indefinite"/>
+            </circle>
+            <circle cx="60" cy="45" r="1" fill="#ffe8b0">
+                <animate attributeName="cy" values="45;8;45" dur="1.6s" repeatCount="indefinite" begin="0.5s"/>
+                <animate attributeName="cx" values="60;54;60" dur="1.6s" repeatCount="indefinite" begin="0.5s"/>
+                <animate attributeName="opacity" values="1;0;1" dur="1.6s" repeatCount="indefinite" begin="0.5s"/>
+            </circle>` : '';
+        return `<g transform="translate(${x},${y}) scale(${scale}) translate(-50,-108)">${embers}${flames}</g>`;
+    },
+
+    _flameDefs: function (idPrefix) {
+        return `
+            <linearGradient id="${idPrefix}-flameOuter" x1="0%" y1="100%" x2="0%" y2="0%">
+                <stop offset="0%" stop-color="#7a1a0a"/>
+                <stop offset="40%" stop-color="#d4390f"/>
+                <stop offset="100%" stop-color="#ff8c14"/>
+            </linearGradient>
+            <linearGradient id="${idPrefix}-flameInner" x1="0%" y1="100%" x2="0%" y2="0%">
+                <stop offset="0%" stop-color="#e8590c"/>
+                <stop offset="50%" stop-color="#ffb020"/>
+                <stop offset="100%" stop-color="#fff3c4"/>
+            </linearGradient>`;
+    },
+
+    // ── Ohniště — kotlík na trojnožce nad skutečným plamenem. Kotlík se
+    //    ukáže jen když ho hráč fakticky vlastní (hasPot), barva podle tieru
+    //    (1=kámen/2=železo/3=bronz) — mirror Game.craft() tier hook. ────────
+    ohniste: function (active, hasPot, tier) {
+        const p = 'coquina-ohniste';
+        hasPot = hasPot !== false; // default true pro zpětnou kompatibilitu starých volání bez parametru
+        tier = tier || 1;
+        const glow = (active && hasPot) ? 'rgba(255,140,20,0.55)' : 'rgba(120,60,10,0.15)';
+        const potColors = {
+            1: { top: '#7a7368', mid: '#4a453c', low: '#252119' }, // kamenný
+            2: { top: '#5c5147', mid: '#332c25', low: '#171310' }, // železný
+            3: { top: '#c9822e', mid: '#8a5a1e', low: '#4a2f0e' }, // bronzový
+        }[tier] || { top: '#5c5147', mid: '#332c25', low: '#171310' };
+        const bubbles = (active && hasPot) ? `
+            <circle cx="82" cy="72" r="2.8" fill="rgba(255,235,200,0.55)">
+                <animate attributeName="cy" values="72;66;72" dur="1.6s" repeatCount="indefinite"/>
+                <animate attributeName="opacity" values="0.55;0.15;0.55" dur="1.6s" repeatCount="indefinite"/>
+            </circle>
+            <circle cx="96" cy="70" r="2.2" fill="rgba(255,235,200,0.5)">
+                <animate attributeName="cy" values="70;64;70" dur="1.3s" repeatCount="indefinite" begin="0.35s"/>
+                <animate attributeName="opacity" values="0.5;0.1;0.5" dur="1.3s" repeatCount="indefinite" begin="0.35s"/>
+            </circle>
+            <circle cx="106" cy="73" r="2" fill="rgba(255,235,200,0.5)">
+                <animate attributeName="cy" values="73;68;73" dur="1.9s" repeatCount="indefinite" begin="0.7s"/>
+                <animate attributeName="opacity" values="0.5;0.1;0.5" dur="1.9s" repeatCount="indefinite" begin="0.7s"/>
+            </circle>` : '';
+        const steam = (active && hasPot) ? `
+            <circle cx="88" cy="52" r="2.4" fill="rgba(255,255,255,0.4)">
+                <animate attributeName="cy" values="52;24;52" dur="2.2s" repeatCount="indefinite"/>
+                <animate attributeName="cx" values="88;94;88" dur="2.2s" repeatCount="indefinite"/>
+                <animate attributeName="opacity" values="0;0.5;0" dur="2.2s" repeatCount="indefinite"/>
+            </circle>
+            <circle cx="100" cy="50" r="2" fill="rgba(255,255,255,0.35)">
+                <animate attributeName="cy" values="50;20;50" dur="1.9s" repeatCount="indefinite" begin="0.5s"/>
+                <animate attributeName="cx" values="100;95;100" dur="1.9s" repeatCount="indefinite" begin="0.5s"/>
+                <animate attributeName="opacity" values="0;0.45;0" dur="1.9s" repeatCount="indefinite" begin="0.5s"/>
+            </circle>` : '';
+        const potHtml = hasPot ? `
+            <ellipse cx="90" cy="82" rx="34" ry="26" fill="url(#${p}-potBody)" stroke="#0e0b08" stroke-width="1.5"/>
+            <ellipse cx="90" cy="70" rx="27" ry="9" fill="${active ? '#4a2f18' : '#221912'}"/>
+            <ellipse cx="90" cy="68" rx="29" ry="6" fill="none" stroke="url(#${p}-potRim)" stroke-width="4"/>
+            <ellipse cx="58" cy="66" rx="4" ry="6" fill="none" stroke="#3d342a" stroke-width="3"/>
+            <ellipse cx="122" cy="66" rx="4" ry="6" fill="none" stroke="#3d342a" stroke-width="3"/>` : '';
+
+        return `<svg viewBox="0 0 180 150" width="100%" height="140" xmlns="http://www.w3.org/2000/svg"
+            style="filter:drop-shadow(0 0 14px ${glow});display:block;margin:0 auto;">
+            <defs>
+                <radialGradient id="${p}-potBody" cx="35%" cy="25%" r="75%">
+                    <stop offset="0%" stop-color="${potColors.top}"/>
+                    <stop offset="55%" stop-color="${potColors.mid}"/>
+                    <stop offset="100%" stop-color="${potColors.low}"/>
+                </radialGradient>
+                <linearGradient id="${p}-potRim" x1="0%" y1="0%" x2="100%" y2="0%">
+                    <stop offset="0%" stop-color="#2a231c"/>
+                    <stop offset="30%" stop-color="#6e6154"/>
+                    <stop offset="70%" stop-color="#443b31"/>
+                    <stop offset="100%" stop-color="#1c1712"/>
+                </linearGradient>
+                ${this._flameDefs(p)}
+            </defs>
+
+            <ellipse cx="90" cy="138" rx="52" ry="6" fill="rgba(10,7,3,0.5)"/>
+
+            <line x1="90" y1="82" x2="58" y2="132" stroke="#241a10" stroke-width="4.5" stroke-linecap="round"/>
+            <line x1="90" y1="82" x2="122" y2="132" stroke="#241a10" stroke-width="4.5" stroke-linecap="round"/>
+            <line x1="90" y1="82" x2="90" y2="134" stroke="#1a130b" stroke-width="4.5" stroke-linecap="round"/>
+
+            ${this._flameGroup(90, 133, 0.34, active && hasPot, p)}
+
+            ${potHtml}
+
+            ${bubbles}
+            ${steam}
+        </svg>`;
+    },
+
+    // ── Černá kuchyně — zděná pec (otvor+plamen) + kotel visící vzadu +
+    //    trychtýřovitý soplouch s masem a kouřem ─────────────────────────────
+    cernaKuchyne: function (active) {
+        const p = 'coquina-cernaKuchyne';
+        const meat = active ? `
+            <line x1="78" y1="62" x2="118" y2="58" stroke="#2a2015" stroke-width="2.5" stroke-linecap="round"/>
+            <line x1="182" y1="58" x2="222" y2="62" stroke="#2a2015" stroke-width="2.5" stroke-linecap="round"/>
+            <g stroke="#3d2e1c" stroke-width="1.3">
+                <line x1="86" y1="61" x2="86" y2="72"/>
+                <line x1="96" y1="60" x2="96" y2="75"/>
+                <line x1="106" y1="59" x2="106" y2="70"/>
+                <line x1="194" y1="59" x2="194" y2="73"/>
+                <line x1="204" y1="60" x2="204" y2="68"/>
+                <line x1="214" y1="61" x2="214" y2="76"/>
+            </g>
+            <text x="86" y="84" font-size="15" text-anchor="middle">🍖</text>
+            <text x="96" y="88" font-size="16" text-anchor="middle">🥓</text>
+            <text x="106" y="80" font-size="13" text-anchor="middle">🍗</text>
+            <text x="194" y="86" font-size="15" text-anchor="middle">🍗</text>
+            <text x="204" y="78" font-size="13" text-anchor="middle">🥓</text>
+            <text x="214" y="88" font-size="16" text-anchor="middle">🍖</text>` : '';
+
+        const smoke = active ? `
+            <ellipse cx="150" cy="58" rx="10" ry="6" fill="#a0a0a0" opacity="0.35">
+                <animate attributeName="cy" values="58;18;58" dur="3.2s" repeatCount="indefinite"/>
+                <animate attributeName="rx" values="10;20;10" dur="3.2s" repeatCount="indefinite"/>
+                <animate attributeName="opacity" values="0;0.4;0" dur="3.2s" repeatCount="indefinite"/>
+            </ellipse>
+            <ellipse cx="138" cy="62" rx="7" ry="5" fill="#969696" opacity="0.3">
+                <animate attributeName="cy" values="62;25;62" dur="2.6s" repeatCount="indefinite" begin="0.7s"/>
+                <animate attributeName="rx" values="7;15;7" dur="2.6s" repeatCount="indefinite" begin="0.7s"/>
+                <animate attributeName="opacity" values="0;0.35;0" dur="2.6s" repeatCount="indefinite" begin="0.7s"/>
+            </ellipse>
+            <ellipse cx="164" cy="60" rx="8" ry="5" fill="#aaaaaa" opacity="0.32">
+                <animate attributeName="cy" values="60;20;60" dur="2.9s" repeatCount="indefinite" begin="1.3s"/>
+                <animate attributeName="rx" values="8;17;8" dur="2.9s" repeatCount="indefinite" begin="1.3s"/>
+                <animate attributeName="opacity" values="0;0.38;0" dur="2.9s" repeatCount="indefinite" begin="1.3s"/>
+            </ellipse>
+            <ellipse cx="96" cy="95" rx="16" ry="8" fill="#b4b4b4" opacity="0.28">
+                <animate attributeName="cy" values="95;60;95" dur="4.1s" repeatCount="indefinite" begin="0.3s"/>
+                <animate attributeName="opacity" values="0;0.32;0" dur="4.1s" repeatCount="indefinite" begin="0.3s"/>
+            </ellipse>
+            <ellipse cx="204" cy="93" rx="16" ry="8" fill="#b4b4b4" opacity="0.26">
+                <animate attributeName="cy" values="93;58;93" dur="3.7s" repeatCount="indefinite" begin="1.1s"/>
+                <animate attributeName="opacity" values="0;0.3;0" dur="3.7s" repeatCount="indefinite" begin="1.1s"/>
+            </ellipse>` : `
+            <ellipse cx="150" cy="55" rx="6" ry="4" fill="#8c8c8c" opacity="0.12">
+                <animate attributeName="cy" values="55;40;55" dur="5s" repeatCount="indefinite"/>
+                <animate attributeName="opacity" values="0;0.15;0" dur="5s" repeatCount="indefinite"/>
+            </ellipse>`;
+
+        const ovenBubbles = active ? `
+            <circle cx="41" cy="34" r="2" fill="#ffebc8" opacity="0.5">
+                <animate attributeName="cy" values="34;29;34" dur="1.5s" repeatCount="indefinite"/>
+                <animate attributeName="opacity" values="0.5;0.15;0.5" dur="1.5s" repeatCount="indefinite"/>
+            </circle>
+            <circle cx="53" cy="32" r="1.7" fill="#ffebc8" opacity="0.45">
+                <animate attributeName="cy" values="32;27;32" dur="1.2s" repeatCount="indefinite" begin="0.3s"/>
+                <animate attributeName="opacity" values="0.45;0.1;0.45" dur="1.2s" repeatCount="indefinite" begin="0.3s"/>
+            </circle>` : '';
+
+        return `<svg viewBox="0 0 240 160" width="100%" height="140" xmlns="http://www.w3.org/2000/svg" style="display:block;margin:0 auto;">
+            <defs>
+                <linearGradient id="${p}-hood" x1="0%" y1="0%" x2="0%" y2="100%">
+                    <stop offset="0%" stop-color="#3a352f"/>
+                    <stop offset="60%" stop-color="#221e1a"/>
+                    <stop offset="100%" stop-color="#100e0b"/>
+                </linearGradient>
+                <linearGradient id="${p}-brick" x1="0%" y1="0%" x2="100%" y2="0%">
+                    <stop offset="0%" stop-color="#5a4a3a"/>
+                    <stop offset="50%" stop-color="#3d3226"/>
+                    <stop offset="100%" stop-color="#241d15"/>
+                </linearGradient>
+                <linearGradient id="${p}-ovenStone" x1="0%" y1="0%" x2="0%" y2="100%">
+                    <stop offset="0%" stop-color="#6a5c4a"/>
+                    <stop offset="55%" stop-color="#4a3d2e"/>
+                    <stop offset="100%" stop-color="#2a2117"/>
+                </linearGradient>
+                <radialGradient id="${p}-ovenPot" cx="35%" cy="25%" r="75%">
+                    <stop offset="0%" stop-color="#5c5147"/>
+                    <stop offset="55%" stop-color="#332c25"/>
+                    <stop offset="100%" stop-color="#171310"/>
+                </radialGradient>
+                ${this._flameDefs(p)}
+            </defs>
+
+            <ellipse cx="120" cy="150" rx="112" ry="6" fill="#050403" opacity="0.5"/>
+
+            <!-- LEVÁ ČÁST — kotel visí vzadu/nahoře, žádné vlastní ohniště -->
+            <line x1="49" y1="12" x2="49" y2="32" stroke="#1c1712" stroke-width="2.5"/>
+            <ellipse cx="49" cy="40" rx="20" ry="15" fill="url(#${p}-ovenPot)" stroke="#0a0806" stroke-width="1.5"/>
+            <ellipse cx="49" cy="29" rx="16" ry="3.5" fill="none" stroke="#5a4a3a" stroke-width="2.2"/>
+            <ellipse cx="49" cy="27" rx="13" ry="4.5" fill="${active ? '#3a2412' : '#1c150e'}"/>
+            ${ovenBubbles}
+
+            <rect x="8" y="58" width="82" height="86" fill="url(#${p}-ovenStone)" stroke="#100d0a" stroke-width="1.5"/>
+            <g stroke="#100d0a" stroke-width="0.6" opacity="0.45">
+                <line x1="8" y1="76" x2="90" y2="76"/>
+                <line x1="8" y1="94" x2="90" y2="94"/>
+                <line x1="8" y1="112" x2="90" y2="112"/>
+                <line x1="8" y1="130" x2="90" y2="130"/>
+            </g>
+
+            <path d="M 26 144 L 26 112 Q 26 100 40 100 L 58 100 Q 72 100 72 112 L 72 144 Z"
+                  fill="#0a0705" stroke="#100d0a" stroke-width="1.5"/>
+            ${this._flameGroup(49, 143, 0.38, active, p)}
+
+            <!-- PRAVÁ ČÁST — trychtýřovitý soplouch -->
+            <rect x="118" y="118" width="64" height="20" fill="url(#${p}-brick)" stroke="#0d0a07" stroke-width="1"/>
+            <line x1="118" y1="124" x2="182" y2="124" stroke="#0d0a07" stroke-width="0.6" opacity="0.5"/>
+            <line x1="118" y1="130" x2="182" y2="130" stroke="#0d0a07" stroke-width="0.6" opacity="0.5"/>
+
+            ${this._flameGroup(150, 137, 0.3, active, p)}
+
+            <path d="M 100 118 L 126 55 L 174 55 L 200 118 Z" fill="url(#${p}-hood)" stroke="#080604" stroke-width="1.5"/>
+            <rect x="136" y="14" width="28" height="44" fill="url(#${p}-hood)" stroke="#080604" stroke-width="1.5"/>
+            <path d="M 100 118 L 200 118" stroke="#5a4a3a" stroke-width="2.5" opacity="0.7"/>
+
+            ${meat}
+            ${smoke}
+        </svg>`;
+    },
+
+    // ── Udírna — samostatná věž, boční ohniště s malým plamenem ─────────────
+    udirna: function (active) {
+        const p = 'coquina-udirna';
+        const meat = active ? `
+            <line x1="52" y1="72" x2="52" y2="84" stroke="#3d2e1c" stroke-width="1.3"/>
+            <line x1="66" y1="70" x2="66" y2="86" stroke="#3d2e1c" stroke-width="1.3"/>
+            <text x="52" y="96" font-size="14" text-anchor="middle">🍖</text>
+            <text x="66" y="99" font-size="15" text-anchor="middle">🥓</text>` : '';
+        const smoke = active ? `
+            <ellipse cx="60" cy="55" rx="4" ry="3" fill="rgba(170,170,170,0.3)">
+                <animate attributeName="cy" values="55;20;55" dur="2.8s" repeatCount="indefinite"/>
+                <animate attributeName="opacity" values="0;0.35;0" dur="2.8s" repeatCount="indefinite"/>
+            </ellipse>
+            <ellipse cx="68" cy="40" rx="3" ry="2.5" fill="rgba(160,160,160,0.28)">
+                <animate attributeName="cy" values="40;10;40" dur="2.3s" repeatCount="indefinite" begin="0.5s"/>
+                <animate attributeName="opacity" values="0;0.3;0" dur="2.3s" repeatCount="indefinite" begin="0.5s"/>
+            </ellipse>
+            <ellipse cx="52" cy="48" rx="3.5" ry="2.5" fill="rgba(175,175,175,0.26)">
+                <animate attributeName="cy" values="48;15;48" dur="3.1s" repeatCount="indefinite" begin="1s"/>
+                <animate attributeName="opacity" values="0;0.3;0" dur="3.1s" repeatCount="indefinite" begin="1s"/>
+            </ellipse>
+            <ellipse cx="38" cy="60" rx="3" ry="2" fill="rgba(160,160,160,0.22)">
+                <animate attributeName="cx" values="38;24;38" dur="2.6s" repeatCount="indefinite" begin="0.3s"/>
+                <animate attributeName="opacity" values="0;0.25;0" dur="2.6s" repeatCount="indefinite" begin="0.3s"/>
+            </ellipse>
+            <ellipse cx="82" cy="65" rx="3" ry="2" fill="rgba(160,160,160,0.22)">
+                <animate attributeName="cx" values="82;96;82" dur="2.9s" repeatCount="indefinite" begin="0.8s"/>
+                <animate attributeName="opacity" values="0;0.25;0" dur="2.9s" repeatCount="indefinite" begin="0.8s"/>
+            </ellipse>
+            <ellipse cx="122" cy="112" rx="4" ry="2.5" fill="rgba(150,150,150,0.25)">
+                <animate attributeName="cx" values="122;98;122" dur="1.8s" repeatCount="indefinite"/>
+                <animate attributeName="opacity" values="0.3;0.15;0.3" dur="1.8s" repeatCount="indefinite"/>
+            </ellipse>` : '';
+
+        return `<svg viewBox="0 0 180 150" width="100%" height="140" xmlns="http://www.w3.org/2000/svg" style="display:block;margin:0 auto;">
+            <defs>
+                <linearGradient id="${p}-tower" x1="0%" y1="0%" x2="100%" y2="0%">
+                    <stop offset="0%" stop-color="#4a4038"/>
+                    <stop offset="50%" stop-color="#2e2822"/>
+                    <stop offset="100%" stop-color="#161310"/>
+                </linearGradient>
+                <linearGradient id="${p}-roof" x1="0%" y1="0%" x2="0%" y2="100%">
+                    <stop offset="0%" stop-color="#3a3128"/>
+                    <stop offset="100%" stop-color="#1a1712"/>
+                </linearGradient>
+                ${this._flameDefs(p)}
+            </defs>
+
+            <ellipse cx="80" cy="140" rx="60" ry="6" fill="rgba(8,6,3,0.5)"/>
+
+            <rect x="42" y="30" width="46" height="100" fill="url(#${p}-tower)" stroke="#0a0806" stroke-width="1.5"/>
+            <g stroke="#0a0806" stroke-width="0.5" opacity="0.4">
+                <line x1="42" y1="50" x2="88" y2="50"/>
+                <line x1="42" y1="70" x2="88" y2="70"/>
+                <line x1="42" y1="90" x2="88" y2="90"/>
+                <line x1="42" y1="110" x2="88" y2="110"/>
+            </g>
+            <path d="M 36 30 L 65 8 L 94 30 Z" fill="url(#${p}-roof)" stroke="#0a0806" stroke-width="1.5"/>
+            <rect x="55" y="106" width="20" height="24" fill="#100d0a" stroke="#3d3226" stroke-width="1"/>
+
+            ${meat}
+
+            <rect x="108" y="102" width="26" height="14" fill="url(#${p}-tower)" stroke="#0a0806" stroke-width="1.2"/>
+            ${this._flameGroup(121, 115, 0.16, active, p)}
+            <path d="M 108 106 L 88 100" stroke="#241d15" stroke-width="4" stroke-linecap="round" fill="none"/>
+
+            ${smoke}
+        </svg>`;
+    },
+
+    // ── Panská kuchyně — hmoždíř s tloukem (mechanický) + rožeň nad plamenem ─
+    panskaKuchyne: function (active) {
+        const p = 'coquina-panskaKuchyne';
+        const grindMotion = active
+            ? `<animateTransform attributeName="transform" type="rotate" values="-8 40 55;8 40 55;-8 40 55" dur="0.9s" repeatCount="indefinite"/>`
+            : '';
+        const spicePowder = active ? `
+            <circle cx="30" cy="68" r="1.1" fill="#c9a24a">
+                <animate attributeName="cy" values="68;56;68" dur="1.1s" repeatCount="indefinite"/>
+                <animate attributeName="opacity" values="0.7;0.1;0.7" dur="1.1s" repeatCount="indefinite"/>
+            </circle>
+            <circle cx="48" cy="70" r="1" fill="#d4b05a">
+                <animate attributeName="cy" values="70;58;70" dur="1.3s" repeatCount="indefinite" begin="0.3s"/>
+                <animate attributeName="opacity" values="0.6;0.1;0.6" dur="1.3s" repeatCount="indefinite" begin="0.3s"/>
+            </circle>` : '';
+
+        return `<svg viewBox="0 0 240 160" width="100%" height="140" xmlns="http://www.w3.org/2000/svg" style="display:block;margin:0 auto;">
+            <defs>
+                <radialGradient id="${p}-mortar" cx="35%" cy="20%" r="80%">
+                    <stop offset="0%" stop-color="#7a7368"/>
+                    <stop offset="55%" stop-color="#4a453c"/>
+                    <stop offset="100%" stop-color="#252119"/>
+                </radialGradient>
+                <linearGradient id="${p}-pestle" x1="0%" y1="0%" x2="100%" y2="0%">
+                    <stop offset="0%" stop-color="#6a6155"/>
+                    <stop offset="50%" stop-color="#8a8072"/>
+                    <stop offset="100%" stop-color="#4a453c"/>
+                </linearGradient>
+                ${this._flameDefs(p)}
+            </defs>
+
+            <ellipse cx="120" cy="150" rx="112" ry="6" fill="rgba(8,6,3,0.5)"/>
+
+            <!-- LEVÁ ČÁST — kamenný hmoždíř s tloukem -->
+            <ellipse cx="40" cy="98" rx="30" ry="7" fill="rgba(8,6,3,0.4)"/>
+            <rect x="28" y="92" width="24" height="14" fill="#332e26" stroke="#100d0a" stroke-width="1"/>
+            <path d="M 12 92 L 20 58 Q 40 48 60 58 L 68 92 Z" fill="url(#${p}-mortar)" stroke="#100d0a" stroke-width="1.5"/>
+            <ellipse cx="40" cy="58" rx="20" ry="6" fill="#1c1712"/>
+            <ellipse cx="40" cy="57" rx="17" ry="5" fill="${active ? '#5a4522' : '#2a2419'}"/>
+            ${spicePowder}
+            <g transform="rotate(-4 40 55)">
+                ${grindMotion}
+                <path d="M 36 15 L 44 15 C 46 26 49 36 51 44 C 53 53 50 61 40 64
+                         C 30 61 27 53 29 44 C 31 36 34 26 36 15 Z"
+                      fill="url(#${p}-pestle)" stroke="#100d0a" stroke-width="1.2"/>
+            </g>
+            <g transform="rotate(-4 40 55)">
+                <path d="M 39 20 C 38 32 37 46 38 58" stroke="#2a251d" stroke-width="1.2" opacity="0.4" fill="none"/>
+            </g>
+
+            <!-- PRAVÁ ČÁST — rožeň s masem nad plamenem -->
+            <path d="M 148 130 L 148 95 L 138 78 M148 95 L 158 78" stroke="#241a10" stroke-width="4" stroke-linecap="round" fill="none"/>
+            <path d="M 232 130 L 232 95 L 222 78 M232 95 L 242 78" stroke="#241a10" stroke-width="4" stroke-linecap="round" fill="none"/>
+
+            ${this._flameGroup(190, 148, 0.32, active, p)}
+
+            <line x1="140" y1="92" x2="240" y2="92" stroke="#4a4038" stroke-width="2.5"/>
+
+            <text x="190" y="98" font-size="20" text-anchor="middle">🍗</text>
+            ${active ? `
+            <ellipse cx="182" cy="86" rx="6" ry="3" fill="rgba(255,220,150,0.4)">
+                <animateTransform attributeName="transform" type="translate" values="0,0; 14,0; 0,0" dur="2.2s" repeatCount="indefinite"/>
+                <animate attributeName="opacity" values="0.4;0.15;0.4" dur="2.2s" repeatCount="indefinite"/>
+            </ellipse>
+            <circle cx="188" cy="102" r="1.2" fill="#c9852a">
+                <animate attributeName="cy" values="102;122" dur="1.4s" repeatCount="indefinite"/>
+                <animate attributeName="opacity" values="0.8;0" dur="1.4s" repeatCount="indefinite"/>
+            </circle>` : ''}
+        </svg>`;
+    },
+
+    // ── Sýrárna — šroubový lis (bez ohně, mléko se nesmí vařit) + 5 zracích
+    //    polic se stohy bochníků na spodních dvou ───────────────────────────
+    syrarna: function (active) {
+        const p = 'coquina-syrarna';
+        const wheyDrip = active ? `
+            <circle cx="42" cy="86" r="1.3" fill="#e8dcb0" opacity="0.7">
+                <animate attributeName="cy" values="86;104" dur="1.3s" repeatCount="indefinite"/>
+                <animate attributeName="opacity" values="0.7;0" dur="1.3s" repeatCount="indefinite"/>
+            </circle>
+            <circle cx="52" cy="86" r="1.1" fill="#e8dcb0" opacity="0.6">
+                <animate attributeName="cy" values="86;104" dur="1.5s" repeatCount="indefinite" begin="0.5s"/>
+                <animate attributeName="opacity" values="0.6;0" dur="1.5s" repeatCount="indefinite" begin="0.5s"/>
+            </circle>` : '';
+
+        const wheelR = (cx, cy, r, ripe) =>
+            `<ellipse cx="${cx}" cy="${cy}" rx="${r}" ry="${r * 0.62}" fill="${ripe ? '#c9973f' : '#e8d29a'}" stroke="#5a4322" stroke-width="1"/>
+             <ellipse cx="${cx}" cy="${cy - r * 0.18}" rx="${r * 0.82}" ry="${r * 0.42}" fill="${ripe ? '#d9aa52' : '#f2e0ab'}" opacity="0.6"/>`;
+        const wheelOnShelf = (cx, shelfY, r, ripe) => wheelR(cx, shelfY - r * 0.62, r, ripe);
+        const stackOnShelf = (cx, shelfY, r, ripeArr) => {
+            let h = '';
+            let y = shelfY - r * 0.62;
+            for (let i = 0; i < 3; i++) {
+                h += wheelR(cx, y, r, ripeArr[i]);
+                y -= r * 0.62 * 1.65;
+            }
+            return h;
+        };
+
+        const shelfYs = [30, 58, 86, 114, 142];
+        const shelvesIdle = `
+            ${wheelOnShelf(150, shelfYs[0], 8, false)} ${wheelOnShelf(200, shelfYs[0], 7, true)}
+            ${wheelOnShelf(170, shelfYs[1], 8, true)}
+            ${wheelOnShelf(155, shelfYs[2], 8, false)} ${wheelOnShelf(210, shelfYs[2], 7, false)}
+            ${stackOnShelf(150, shelfYs[3], 7, [false, false, true])}
+            ${wheelOnShelf(200, shelfYs[4], 7, true)}
+        `;
+        const shelvesActive = `
+            ${wheelOnShelf(136, shelfYs[0], 8, false)} ${wheelOnShelf(158, shelfYs[0], 7, true)} ${wheelOnShelf(180, shelfYs[0], 8, true)} ${wheelOnShelf(202, shelfYs[0], 7, false)} ${wheelOnShelf(224, shelfYs[0], 8, true)}
+            ${wheelOnShelf(136, shelfYs[1], 8, true)} ${wheelOnShelf(160, shelfYs[1], 9, false)} ${wheelOnShelf(184, shelfYs[1], 8, true)} ${wheelOnShelf(208, shelfYs[1], 7, true)} ${wheelOnShelf(228, shelfYs[1], 7, false)}
+            ${wheelOnShelf(138, shelfYs[2], 8, false)} ${wheelOnShelf(162, shelfYs[2], 8, true)} ${wheelOnShelf(186, shelfYs[2], 9, false)} ${wheelOnShelf(210, shelfYs[2], 7, true)} ${wheelOnShelf(230, shelfYs[2], 7, true)}
+            ${stackOnShelf(140, shelfYs[3], 7, [false, true, true])}
+            ${stackOnShelf(180, shelfYs[3], 8, [true, false, true])}
+            ${wheelOnShelf(220, shelfYs[3], 7, false)}
+            ${stackOnShelf(150, shelfYs[4], 7, [true, true, false])}
+            ${stackOnShelf(200, shelfYs[4], 7, [false, true, true])}
+        `;
+
+        return `<svg viewBox="0 0 240 160" width="100%" height="140" xmlns="http://www.w3.org/2000/svg" style="display:block;margin:0 auto;">
+            <defs>
+                <linearGradient id="${p}-pressWood" x1="0%" y1="0%" x2="0%" y2="100%">
+                    <stop offset="0%" stop-color="#6a5840"/>
+                    <stop offset="100%" stop-color="#3d3122"/>
+                </linearGradient>
+                <linearGradient id="${p}-shelfWood" x1="0%" y1="0%" x2="0%" y2="100%">
+                    <stop offset="0%" stop-color="#54452f"/>
+                    <stop offset="100%" stop-color="#2e2519"/>
+                </linearGradient>
+                <radialGradient id="${p}-mold" cx="35%" cy="25%" r="80%">
+                    <stop offset="0%" stop-color="#e8dcb0"/>
+                    <stop offset="60%" stop-color="#d4c48a"/>
+                    <stop offset="100%" stop-color="#b0a066"/>
+                </radialGradient>
+                <linearGradient id="${p}-screw" x1="0%" y1="0%" x2="100%" y2="0%">
+                    <stop offset="0%" stop-color="#a68a5c"/>
+                    <stop offset="50%" stop-color="#e0c48a"/>
+                    <stop offset="100%" stop-color="#8a7048"/>
+                </linearGradient>
+            </defs>
+
+            <ellipse cx="120" cy="150" rx="112" ry="6" fill="rgba(8,6,3,0.5)"/>
+
+            <!-- LEVÁ ČÁST — šroubový lis, šroub s barber-pole animací při aktivní -->
+            <rect x="14" y="20" width="8" height="90" fill="url(#${p}-pressWood)" stroke="#100d0a" stroke-width="1"/>
+            <rect x="70" y="20" width="8" height="90" fill="url(#${p}-pressWood)" stroke="#100d0a" stroke-width="1"/>
+            <rect x="10" y="16" width="72" height="10" fill="url(#${p}-pressWood)" stroke="#100d0a" stroke-width="1"/>
+            <line x1="46" y1="26" x2="46" y2="${active ? 58 : 70}" stroke="url(#${p}-screw)" stroke-width="5" stroke-linecap="round"/>
+            <clipPath id="${p}-screwClip"><rect x="39" y="26" width="14" height="${active ? 32 : 44}"/></clipPath>
+            <g stroke="#e0c48a" stroke-width="1" opacity="0.7" clip-path="url(#${p}-screwClip)">
+                <g>
+                    ${active ? '<animateTransform attributeName="transform" type="translate" values="0,0;0,7" dur="1.6s" repeatCount="indefinite"/>' : ''}
+                    <line x1="41" y1="16" x2="51" y2="19"/>
+                    <line x1="41" y1="23" x2="51" y2="26"/>
+                    <line x1="41" y1="30" x2="51" y2="33"/>
+                    <line x1="41" y1="37" x2="51" y2="40"/>
+                    <line x1="41" y1="44" x2="51" y2="47"/>
+                    <line x1="41" y1="51" x2="51" y2="54"/>
+                    <line x1="41" y1="58" x2="51" y2="61"/>
+                    <line x1="41" y1="65" x2="51" y2="68"/>
+                </g>
+            </g>
+            <rect x="28" y="${active ? 58 : 70}" width="36" height="7" rx="1" fill="#8a7048" stroke="#e0c48a" stroke-width="1"/>
+            <rect x="20" y="104" width="52" height="8" fill="url(#${p}-pressWood)" stroke="#100d0a" stroke-width="1"/>
+            <g stroke="#100d0a" stroke-width="0.6" opacity="0.4">
+                <line x1="26" y1="106" x2="26" y2="112"/>
+                <line x1="36" y1="106" x2="36" y2="112"/>
+                <line x1="46" y1="106" x2="46" y2="112"/>
+                <line x1="56" y1="106" x2="56" y2="112"/>
+                <line x1="66" y1="106" x2="66" y2="112"/>
+            </g>
+            <ellipse cx="46" cy="${active ? 66 : 78}" rx="18" ry="10" fill="url(#${p}-mold)" stroke="#5a4322" stroke-width="1.3"/>
+            ${wheyDrip}
+            <line x1="24" y1="112" x2="24" y2="130" stroke="#241d14" stroke-width="3" stroke-linecap="round"/>
+            <line x1="68" y1="112" x2="68" y2="130" stroke="#241d14" stroke-width="3" stroke-linecap="round"/>
+
+            <!-- PRAVÁ ČÁST — 5 polic, sýry dosedají na desku, dole stohy -->
+            ${shelfYs.map(y => `<rect x="120" y="${y}" width="118" height="5" fill="url(#${p}-shelfWood)" stroke="#100d0a" stroke-width="1"/>`).join('')}
+            <line x1="126" y1="30" x2="126" y2="147" stroke="#241d14" stroke-width="4" stroke-linecap="round"/>
+            <line x1="232" y1="30" x2="232" y2="147" stroke="#241d14" stroke-width="4" stroke-linecap="round"/>
+
+            ${active ? shelvesActive : shelvesIdle}
+        </svg>`;
+    },
+
+    // ── Dispatcher — volané z CookingSystem.js render() ─────────────────────
+    // extra: volitelný objekt s dalšími parametry pro konkrétní stanici
+    // (dnes jen ohniste: {hasPot, tier}).
+    render: function (stationKey, active, extra) {
+        if (stationKey === 'ohniste') return this.ohniste(active, extra && extra.hasPot, extra && extra.tier);
+        const map = {
+            cerna_kuchyne: this.cernaKuchyne,
+            udirna: this.udirna,
+            panska_kuchyne: this.panskaKuchyne,
+        };
+        const fn = map[stationKey];
+        return fn ? fn.call(this, active) : '';
+    },
+};
 // ═══ src/systems/CookingSystem.js ═══
 // ═══════════════════════════════════════════════════════════════════════════
 // COOKING SYSTEM v1 — Vaření (subtab Pracovna, vedle Sběr/Těžba)
@@ -29112,25 +29682,27 @@ const CookingSystem = {
             output: 'braised_beef', durationH: 1 },
         roast_rabbit_dish: { input: 'cooked_rabbit', inputQty: 1, extraInputs: { carrot: 1, cabbage: 1 }, needsTool: ['cooking_pot'],
             output: 'roast_rabbit_dish', durationH: 1 },
-        // coquina-migrace-mrd (7.8.2026): Fáze 5 — polévky/dušená jídla, víc surovin
+        // coquina-migrace-mrd (7.8.2026): Fáze 5 — polévky/dušená jídla, víc surovin.
+        // cerna-kuchyne-tie-in-mrd (9.8.2026): pilotní sada pro fastBuild bonus —
+        // "pokročilejší" recepty (víc ingrediencí), 1.5h→1h s Černou kuchyní.
         stew: { input: 'meat', inputQty: 1, extraInputs: { carrot: 1, turnip: 1, water: 1 }, needsTool: ['cooking_pot'],
-            output: 'stew', durationH: 1.5 },
+            output: 'stew', durationH: 1.5, fastBuild: 'cerna_kuchyne', fastBuildDurationH: 1 },
         stew_koreni: { input: 'meat', inputQty: 1, extraInputs: { carrot: 1, turnip: 1, water: 1, pepr_cerny: 1 }, needsTool: ['cooking_pot'],
-            output: 'stew_koreni', durationH: 1.5 },
+            output: 'stew_koreni', durationH: 1.5, fastBuild: 'cerna_kuchyne', fastBuildDurationH: 1 },
         mushroom_soup: { input: 'mushroom', inputQty: 2, extraInputs: { onion: 1, water: 1 }, needsTool: ['cooking_pot'],
-            output: 'mushroom_soup', durationH: 1.5 },
+            output: 'mushroom_soup', durationH: 1.5, fastBuild: 'cerna_kuchyne', fastBuildDurationH: 1 },
         spring_herb_porridge: { input: 'nettle', inputQty: 1, extraInputs: { ground_elder: 1, goosefoot: 1, oats: 1 }, needsTool: ['cooking_pot'],
-            output: 'spring_herb_porridge', durationH: 1.5 },
+            output: 'spring_herb_porridge', durationH: 1.5, fastBuild: 'cerna_kuchyne', fastBuildDurationH: 1 },
         rosehip_sauce: { input: 'rosehip', inputQty: 3, extraInputs: { bread: 1 }, needsTool: ['cooking_pot'],
-            output: 'rosehip_sauce', durationH: 1.5 },
+            output: 'rosehip_sauce', durationH: 1.5, fastBuild: 'cerna_kuchyne', fastBuildDurationH: 1 },
         crayfish_boiled: { input: 'crayfish', inputQty: 3, extraInputs: { beer: 1 }, needsTool: ['cooking_pot'],
-            output: 'crayfish_boiled', durationH: 1.5 },
+            output: 'crayfish_boiled', durationH: 1.5, fastBuild: 'cerna_kuchyne', fastBuildDurationH: 1 },
         snails_black_sauce: { input: 'snail', inputQty: 4, extraInputs: { bread: 1, honey: 1, fat: 1 }, needsTool: ['cooking_pot'],
-            output: 'snails_black_sauce', durationH: 1.5 },
+            output: 'snails_black_sauce', durationH: 1.5, fastBuild: 'cerna_kuchyne', fastBuildDurationH: 1 },
         morel_stuffed: { input: 'morel', inputQty: 3, extraInputs: { bread: 1, garlic: 1, fat: 1 }, needsTool: ['cooking_pot'],
-            output: 'morel_stuffed', durationH: 1.5 },
+            output: 'morel_stuffed', durationH: 1.5, fastBuild: 'cerna_kuchyne', fastBuildDurationH: 1 },
         smazenice: { input: 'mushroom', inputQty: 3, extraInputs: { onion: 1, egg: 2 }, needsTool: ['cooking_pot'],
-            output: 'smazenice', durationH: 1.5 },
+            output: 'smazenice', durationH: 1.5, fastBuild: 'cerna_kuchyne', fastBuildDurationH: 1 },
         // coquina-migrace-mrd (7.8.2026): Fáze 6 — nakládání, delší proces (mirror sauerkraut)
         pickled_mushrooms: { input: 'saffron_milk_cap', inputQty: 2, extraInputs: { porcini: 1 }, needsTool: ['barrel_tool'],
             output: 'pickled_mushrooms', durationH: 24 },
@@ -29189,6 +29761,14 @@ const CookingSystem = {
         let dur = def.durationH;
         if (def.fastTech && GameState.researchedTechs && GameState.researchedTechs.includes(def.fastTech)) {
             dur = def.fastDurationH || def.durationH;
+        }
+        // cerna-kuchyne-tie-in-mrd (9.8.2026): stavební rychlostní bonus,
+        // mirror fastTech výše — recept zůstává v Ohništi (needsBuild se
+        // nemění, stanice se nepřesouvá), jen je rychlejší, má-li hráč
+        // Černou kuchyni postavenou. Pilotní sada: Fáze 5 recepty (pokročilejší,
+        // víc surovin) — viz jejich fastBuild pole níže.
+        if (def.fastBuild && GameState.storage && GameState.storage[def.fastBuild] && GameState.storage[def.fastBuild].built) {
+            dur = def.fastBuildDurationH || dur;
         }
         if (chefMult === undefined) {
             const chef = this._getChef();
@@ -29360,10 +29940,81 @@ const CookingSystem = {
     // needsBuild — Hmoždíř i Rožeň sdílí "Panská kuchyně" (mirror MRD
     // modulového seznamu: Ohniště/Černá kuchyně/Udírna/Panská kuchyně).
     STATIONS: {
-        ohniste:        { icon: '🔥', name: 'Ohniště',        name_en: 'Hearth',         tier: 'Tier 1', flame: true },
-        cerna_kuchyne:  { icon: '🏚️', name: 'Černá kuchyně',  name_en: 'Black Kitchen',  tier: 'Tier 2' },
-        udirna:         { icon: '🏚️', name: 'Udírna',         name_en: 'Smokehouse',     tier: 'Tier 3' },
-        panska_kuchyne: { icon: '⚱️', name: 'Panská kuchyně', name_en: "Lord's Kitchen", tier: 'Tier 4' },
+        ohniste:        { icon: '🔥', name: 'Ohniště',        name_en: 'Hearth',         tier: 'Tier 1', flame: true, buildRequirement: null },
+        cerna_kuchyne:  { icon: '🏚️', name: 'Černá kuchyně',  name_en: 'Black Kitchen',  tier: 'Tier 2', buildRequirement: 'cerna_kuchyne' },
+        udirna:         { icon: '🏚️', name: 'Udírna',         name_en: 'Smokehouse',     tier: 'Tier 3', buildRequirement: 'udirna' },
+        panska_kuchyne: { icon: '⚱️', name: 'Panská kuchyně', name_en: "Lord's Kitchen", tier: 'Tier 4', buildRequirement: ['velky_hmozdir', 'rozen'] },
+    },
+    // coquina-visuals-mrd (9.8.2026): panel stanice (mimo Ohniště) se v gridu
+    // ukáže, až je aspoň jedna z jejích buildRequirement staveb postavená —
+    // ne jen podle techu (rozdíl od Výroby, kde recept zůstává vidět zamčený
+    // i bez budovy — RecipesDB/Výroba se touhle podmínkou vůbec nemění).
+    _stationBuilt: function(stationKey) {
+        const req = this.STATIONS[stationKey] && this.STATIONS[stationKey].buildRequirement;
+        if (!req) return true; // Ohniště — vždy
+        const ids = Array.isArray(req) ? req : [req];
+        return ids.some(id => GameState.storage && GameState.storage[id] && GameState.storage[id].built);
+    },
+    // coquina-info-levels-mrd (9.8.2026): sdílená úroveň odkrývání info (0-4)
+    // napříč CELÝM dashboardem — počet postavených Coquina staveb/tech, ne
+    // per-stanice. Level 0 = jen Ohniště, level 4 = všechny 4 postavené/
+    // vyzkoumané. Používá se k postupnému odkrývání textových popisků.
+    _coquinaInfoLevel: function() {
+        let n = 0;
+        if (GameState.storage && GameState.storage['cerna_kuchyne'] && GameState.storage['cerna_kuchyne'].built) n++;
+        if (GameState.storage && GameState.storage['udirna'] && GameState.storage['udirna'].built) n++;
+        if (this._stationBuilt('panska_kuchyne')) n++;
+        if (GameState.researchedTechs && GameState.researchedTechs.includes('tech_caseus')) n++;
+        return n;
+    },
+    // coquina-info-levels-mrd (9.8.2026): textový info blok pod ilustrací,
+    // odkrývá se podle _coquinaInfoLevel() (0-4). Level 0 = jen základní
+    // materiál/stav, level 4 = plný popisný text (mirror Athanor lore stylu).
+    // items = pole běžících instancí z buildInProgressHtml (stejná stanice).
+    _infoBlock: function(stationKey, level, items, extra) {
+        const isCs = ((GameState.settings && GameState.settings.language) || 'cs') !== 'en';
+        const lines = [];
+        const active = items && items.length > 0;
+        const firstName = active ? ((typeof iName === 'function') ? iName(this.COOK_TYPES[items[0].type].output) : items[0].type) : null;
+        const extraCount = active && items.length > 1 ? items.length - 1 : 0;
+
+        if (stationKey === 'ohniste') {
+            if (!extra || !extra.hasPot) return '';
+            const tierNames = { 1: isCs ? 'Kamenný' : 'Stone', 2: isCs ? 'Železný' : 'Iron', 3: isCs ? 'Bronzový' : 'Bronze' };
+            lines.push((isCs ? 'Kotlík' : 'Pot') + ': ' + (tierNames[extra.tier] || tierNames[1]));
+            if (level >= 1) lines.push(active ? '🌡️ ' + (isCs ? 'Žhavé' : 'Hot') : '🌡️ ' + (isCs ? 'Vychladlé' : 'Cold'));
+            if (level >= 2 && active) lines.push((isCs ? 'Vaří se' : 'Cooking') + ': ' + firstName + (extraCount ? ` (+${extraCount})` : ''));
+            if (level >= 3 && active) lines.push(isCs ? 'Bublá, vůně se line komnatou.' : 'It bubbles, the smell fills the room.');
+            if (level >= 4) lines.push(isCs ? 'Srdce kuchyně od úsvitu klášterního života — sem se snáší dřevo, sem se vrací hladoví.' : "The kitchen's heart since the dawn of monastic life — wood comes here, the hungry return here.");
+        }
+        else if (stationKey === 'cerna_kuchyne') {
+            if (level >= 1) lines.push(active ? '🌡️ ' + (isCs ? 'Pec rozehřátá' : 'Oven hot') : '🌡️ ' + (isCs ? 'Pec vychladlá' : 'Oven cold'));
+            if (level >= 2 && active) lines.push((isCs ? 'Probíhá' : 'Working') + ': ' + firstName + (extraCount ? ` (+${extraCount})` : ''));
+            if (level >= 3 && active) lines.push(isCs ? 'Dým stoupá komínem, maso hnědne pomalu.' : 'Smoke climbs the chimney, meat browns slowly.');
+            if (level >= 4) lines.push(isCs ? 'Klenutá kuchyně se širokým soplouchem — oheň tu slouží dvakrát, k vaření i uzení.' : 'A vaulted kitchen with a wide smoke-hood — one fire serving two purposes, cooking and smoking.');
+        }
+        else if (stationKey === 'udirna') {
+            if (level >= 1) lines.push(active ? '🌫️ ' + (isCs ? 'Kouří se' : 'Smoking') : '🌫️ ' + (isCs ? 'Klidná' : 'Quiet'));
+            if (level >= 2 && active) lines.push((isCs ? 'Udí se' : 'Smoking') + ': ' + firstName + (extraCount ? ` (+${extraCount})` : ''));
+            if (level >= 3 && active) lines.push(isCs ? 'Studený kouř provoní maso pomalu, bez spěchu.' : 'Cold smoke perfumes the meat slowly, unhurried.');
+            if (level >= 4) lines.push(isCs ? 'Samostatná věž, oheň vedený zvenčí — takhle se maso udí na zimu, ne na oběd.' : "A standalone tower, its fire fed from outside — meat smoked this way is for winter, not for lunch.");
+        }
+        else if (stationKey === 'panska_kuchyne') {
+            if (level >= 1) lines.push(active ? '⚒️ ' + (isCs ? 'V provozu' : 'Working') : '⚒️ ' + (isCs ? 'Klidná' : 'Idle'));
+            if (level >= 2 && active) lines.push((isCs ? 'Připravuje se' : 'Preparing') + ': ' + firstName + (extraCount ? ` (+${extraCount})` : ''));
+            if (level >= 3 && active) lines.push(isCs ? 'Tlouk ťuká o kámen, rožeň se pomalu otáčí.' : 'The pestle taps stone, the spit turns slowly.');
+            if (level >= 4) lines.push(isCs ? 'Hmoždíř na koření, rožeň na maso — vybavení pro hosty, ne pro každodenní kaši.' : 'Mortar for spice, spit for meat — equipment for guests, not for everyday porridge.');
+        }
+        else if (stationKey === 'syrarna') {
+            const cheeseCount = extra && extra.cheeseCount || 0;
+            if (level >= 1) lines.push(cheeseCount > 0 ? '🧀 ' + cheeseCount + ' ' + (isCs ? 'zraje' : 'aging') : '🧀 ' + (isCs ? 'Police prázdné' : 'Shelves empty'));
+            if (level >= 2 && cheeseCount > 0 && extra && extra.cheeseTypes) lines.push((isCs ? 'Druhy' : 'Types') + ': ' + extra.cheeseTypes.join(', '));
+            if (level >= 3 && cheeseCount > 0) lines.push(isCs ? 'V klidu, v chladu, v tichu — sýr si žádá čas.' : 'Cool, still, and quiet — cheese demands its time.');
+            if (level >= 4) lines.push(isCs ? 'Casearium — mléko čeká na svou proměnu, sýr zraje beze spěchu.' : 'Casearium — milk awaits its transformation, cheese ages without hurry.');
+        }
+
+        if (lines.length === 0) return '';
+        return `<div style="font-size:0.68rem; opacity:0.75; line-height:1.5; margin-bottom:8px; padding:0 2px;">${lines.map(l => `<div>${l}</div>`).join('')}</div>`;
     },
     _stationKey: function(def) {
         if (!def.needsBuild) return 'ohniste';
@@ -29418,7 +30069,7 @@ const CookingSystem = {
                         <span style="opacity:0.6; white-space:nowrap;">${remainStr}</span>
                       </div>`;
             });
-            return { count: items.length, html: h };
+            return { count: items.length, html: h, items: items };
         };
 
         const buildRecipeCard = (key, def) => {
@@ -29455,6 +30106,7 @@ const CookingSystem = {
         };
 
         let gridHtml = '';
+        const _infoLevel = this._coquinaInfoLevel();
         Object.keys(this.STATIONS).forEach(stationKey => {
             const meta = this.STATIONS[stationKey];
             const recipeKeys = Object.keys(this.COOK_TYPES).filter(key => {
@@ -29464,12 +30116,23 @@ const CookingSystem = {
                 return hasTech;
             });
             const inProgress = buildInProgressHtml(stationKey);
-            if (recipeKeys.length === 0 && inProgress.count === 0) return; // stanice zatím nedostupná — skrýt celou
+            if (recipeKeys.length === 0 && inProgress.count === 0) return; // stanice zatím nedostupná (tech) — skrýt celou
+            if (!this._stationBuilt(stationKey)) return; // budova ještě nestojí — skrýt celou (jen Vaření dashboard, Výroba beze změny)
 
             const collapseKey = 'cookingStation_' + stationKey + 'Open';
             const isOpen = GameState.ui[collapseKey] !== false;
             const stationName = isCs ? meta.name : meta.name_en;
             const flameIcon = meta.flame ? `<span class="coquina-flame">${meta.icon}</span>` : meta.icon;
+            const visualHtml = (typeof CoquinaVisuals !== 'undefined')
+                ? CoquinaVisuals.render(stationKey, inProgress.count > 0, {
+                    hasPot: (GameState.inventory['cooking_pot'] || 0) > 0,
+                    tier: GameState.cookingPotTier || 1,
+                  })
+                : '';
+            const infoBlockHtml = this._infoBlock(stationKey, _infoLevel, inProgress.items, {
+                hasPot: (GameState.inventory['cooking_pot'] || 0) > 0,
+                tier: GameState.cookingPotTier || 1,
+            });
 
             const progressCollapseKey = 'cookingStation_' + stationKey + 'ProgressOpen';
             // defaultně otevřeno jen do 3 rozjetých procesů — nad to bobtná panel, radši sbalit
@@ -29486,6 +30149,8 @@ const CookingSystem = {
                   <div class="coquina-station-title">${flameIcon}<span class="coquina-station-name">${stationName}</span></div>
                   <span class="coquina-station-tier">${meta.tier}</span>
                 </div>
+                ${visualHtml ? `<div style="margin-bottom:8px;">${visualHtml}</div>` : ''}
+                ${infoBlockHtml}
                 ${progressHtml}
                 <details ${isOpen ? 'open' : ''} ontoggle="GameState.ui.${collapseKey} = this.open; Game.save();">
                   <summary class="coquina-summary" style="cursor:pointer; font-size:0.72rem; opacity:0.6; user-select:none; margin-bottom:4px;">📖 ${isCs ? 'Recepty' : 'Recipes'} (${recipeKeys.length})</summary>
@@ -29497,16 +30162,67 @@ const CookingSystem = {
         // Sýrárna — vlastní panel ve stejném gridu, obsah beze změny (CheeseSystem.render()).
         const cheeseContent = (typeof CheeseSystem !== 'undefined' && CheeseSystem.render) ? CheeseSystem.render() : '';
         if (cheeseContent) {
+            // aktivní = aspoň 1 instance ještě NENÍ v koncové fázi (fresh vždy
+            // "pracuje"; mature jen pokud existuje další agedDays fáze —
+            // syrečky nemají aged fázi, mature u nich je koncový stav)
+            const cheeseActive = (GameState.cheeseInstances || []).some(inst => {
+                const def = (typeof CheeseSystem !== 'undefined' && CheeseSystem.CHEESE_TYPES) ? CheeseSystem.CHEESE_TYPES[inst.baseType] : null;
+                if (!def) return false;
+                if (inst.phase === 'fresh') return true;
+                if (inst.phase === 'mature' && def.agedDays) return true;
+                return false;
+            });
+            const cheeseVisual = (typeof CoquinaVisuals !== 'undefined') ? CoquinaVisuals.syrarna(cheeseActive) : '';
+            const _activeCheeseInsts = (GameState.cheeseInstances || []).filter(inst => {
+                const def = (typeof CheeseSystem !== 'undefined' && CheeseSystem.CHEESE_TYPES) ? CheeseSystem.CHEESE_TYPES[inst.baseType] : null;
+                if (!def) return false;
+                if (inst.phase === 'fresh') return true;
+                if (inst.phase === 'mature' && def.agedDays) return true;
+                return false;
+            });
+            const _cheeseTypeNames = [...new Set(_activeCheeseInsts.map(inst => {
+                const def = (typeof CheeseSystem !== 'undefined' && CheeseSystem.CHEESE_TYPES) ? CheeseSystem.CHEESE_TYPES[inst.baseType] : null;
+                return def ? (isCs ? def.name : (def.name_en || def.name)) : inst.baseType;
+            }))];
+            const syrarnaInfoHtml = this._infoBlock('syrarna', _infoLevel, null, {
+                cheeseCount: _activeCheeseInsts.length,
+                cheeseTypes: _cheeseTypeNames,
+            });
             gridHtml += `<div class="coquina-station">
                 <div class="coquina-station-head">
                   <div class="coquina-station-title">🧀<span class="coquina-station-name">${isCs ? 'Sýrárna' : 'Dairy'}</span></div>
                   <span class="coquina-station-tier">Caseus</span>
                 </div>
+                ${cheeseVisual ? `<div style="margin-bottom:8px;">${cheeseVisual}</div>` : ''}
+                ${syrarnaInfoHtml}
                 <div style="margin:0 -12px -12px;">${cheeseContent}</div>
               </div>`;
         }
 
-        return `<div style="padding:12px;"><div class="coquina-stations">${gridHtml}</div></div>`;
+        // ── Infobar — souhrn přes celý dashboard (vaří/udí/zraje sýr) ──────────
+        let _brewCount = 0, _smokeCount = 0;
+        (GameState.cookingInstances || []).forEach(inst => {
+            const def = this.COOK_TYPES[inst.type];
+            if (!def) return;
+            const isSmoking = def.needsBuild === 'udirna' || def.output === 'smoked_meat_chimney';
+            if (isSmoking) _smokeCount++; else _brewCount++;
+        });
+        const _agingCount = (GameState.cheeseInstances || []).filter(inst => {
+            const def = (typeof CheeseSystem !== 'undefined' && CheeseSystem.CHEESE_TYPES) ? CheeseSystem.CHEESE_TYPES[inst.baseType] : null;
+            if (!def) return false;
+            if (inst.phase === 'fresh') return true;
+            if (inst.phase === 'mature' && def.agedDays) return true;
+            return false;
+        }).length;
+        const _infobarParts = [];
+        if (_brewCount > 0) _infobarParts.push(`🍲 ${_brewCount} ${isCs ? 'vaří' : 'cooking'}`);
+        if (_smokeCount > 0) _infobarParts.push(`🔥 ${_smokeCount} ${isCs ? 'udí' : 'smoking'}`);
+        if (_agingCount > 0) _infobarParts.push(`🧀 ${_agingCount} ${isCs ? 'zraje' : 'aging'}`);
+        const infobarHtml = _infobarParts.length > 0
+            ? `<div style="display:flex; gap:16px; padding:6px 12px; margin-bottom:8px; font-size:0.78rem; opacity:0.75; flex-wrap:wrap;">${_infobarParts.map(p => `<span>${p}</span>`).join('')}</div>`
+            : '';
+
+        return `<div style="padding:12px;">${infobarHtml}<div class="coquina-stations">${gridHtml}</div></div>`;
     },
 };
 // ═══ src/systems/well.js ═══
@@ -49724,7 +50440,31 @@ const STRINGS_cs = {
         candle: 'Svíčka (Hoří)', torch: 'Louč (Praská)',
         candleDesc: 'Malý, ale stálý plamen.',
         torchDesc: 'Kouří a prská, ale svítí jasně.',
-        btnTorch: 'ZAPÁLIT LOUČ', btnCandle: 'ZAPÁLIT SVÍČKU'
+        btnTorch: 'ZAPÁLIT LOUČ', btnCandle: 'ZAPÁLIT SVÍČKU',
+        // svetlo-detail-mrd (9.8.2026): poetické popisky per typ louče a fázi
+        // hoření (fresh/steady/low), rozklikávací (viz shell.html #light-desc).
+        torchDescs: {
+            primitive_torch: {
+                fresh: 'Voní jako pečeně na Boží hod vánoční — sliny se sbíhají, i když víš, že hoří jen tuk.',
+                steady: 'Čadí a odkapává, ale zatím drží plamen.',
+                low: 'Teď už smrdí jak spálená mrtvola a kape mastnou špínu na podlahu. Poslední chvíle.',
+            },
+            torch_tallow: {
+                fresh: 'Lůj ztuhl a hoří stabilně, bez velkého kouře — poctivé řemeslné světlo.',
+                steady: 'Hoří rovnoměrně dál, spolehlivá jako starý přítel.',
+                low: 'Lůj dochází, plamen už jen mihotá.',
+            },
+            torch_resin: {
+                fresh: 'Voní pryskyřicí a jehličím, jako by v ruce hořel kus lesa. Praská vesele, jasně, beze strachu z větru.',
+                steady: 'Prská a čadí kadidlovou vůní — jako by se sem přestěhoval kostel.',
+                low: 'Pryskyřice dohořívá, vůně slábne, plamínek se krčí.',
+            },
+        },
+        candleDescs: {
+            fresh: 'Jasná a stálá jako boží světlo. Nekouří, nepraská, nikoho neruší.',
+            steady: 'Hoří tiše dál, věrná jako modlitba.',
+            low: 'Vosk už dochází, plamínek se chvěje.',
+        },
     },
     header: {
         weatherNow: 'Aktuálně v Praze (klikni pro refresh)',
@@ -52009,7 +52749,29 @@ const STRINGS_en = {
         candle: 'Candle (Burning)', torch: 'Torch (Crackling)',
         candleDesc: 'A small but steady flame.',
         torchDesc: 'It smokes and crackles, yet burns bright.',
-        btnTorch: 'LIGHT TORCH', btnCandle: 'LIGHT CANDLE'
+        btnTorch: 'LIGHT TORCH', btnCandle: 'LIGHT CANDLE',
+        torchDescs: {
+            primitive_torch: {
+                fresh: 'Smells like a Christmas roast — your mouth waters even knowing it is only burning fat.',
+                steady: 'Smokes and drips, but still holds its flame.',
+                low: 'Now it reeks like a burnt corpse and drips greasy filth on the floor. Its final moments.',
+            },
+            torch_tallow: {
+                fresh: 'The tallow has hardened and burns steady, without much smoke — an honest craftsman\'s light.',
+                steady: 'Burns evenly on, reliable as an old friend.',
+                low: 'Tallow running low, the flame now only flickers.',
+            },
+            torch_resin: {
+                fresh: 'Smells of resin and pine needles, as if a piece of forest burned in your hand. Crackles cheerfully, bright, unafraid of wind.',
+                steady: 'Crackles and smokes with a scent of incense — as if a church had moved in here.',
+                low: 'The resin is spent, the scent fades, the flame shrinks low.',
+            },
+        },
+        candleDescs: {
+            fresh: 'Bright and steady as divine light. No smoke, no crackling, disturbs no one.',
+            steady: 'Burns quietly on, faithful as a prayer.',
+            low: 'The wax is nearly spent, the little flame trembles.',
+        },
     },
     craft: { filterAll: 'All', filterTool: 'Tools', filterMat: 'Materials', filterFood: 'Provisions', filterAlchemy: 'Alchemy', filterLore: 'Knowledge', btn: 'Craft', repair: 'Repair', cook: 'Cook' },
     inv: { filterAll: 'All', filterMat: 'Materials', filterTool: 'Tools', filterLore: 'Other' },
@@ -56372,6 +57134,13 @@ const Game = {
                     Game.syncTechUnlocks();
                     Game._seedHistoricalGraves();
                     if (typeof UI !== 'undefined' && UI.renderAll) UI.renderAll();
+                    // fireplace-idb-refresh-fix (9.8.2026): renderAll() nevolá
+                    // checkEnvironment() — pokud IDB doplnilo novější stav, kde
+                    // mezitím (jinde/jindy) dohořel krb, "tma"/mode-frozen a
+                    // Rozežehnout overlay se bez tohohle nikdy nezobrazí, dokud
+                    // hráč neudělá hard refresh (dieOut() sám to volá správně,
+                    // tohle byla jediná chybějící cesta).
+                    if (typeof Game.checkEnvironment === 'function') Game.checkEnvironment();
                     console.log('✅ IDB save was newer — patched GameState and re-rendered');
                 } catch(e) {
                     console.error('❌ IDB patch error:', e);
@@ -58281,6 +59050,312 @@ const Game = {
 
     checkFarmyardProduction: function(...args) { if (typeof FarmyardSystem !== 'undefined') FarmyardSystem.checkFarmyardProduction(...args); },
 
+    // coquina-kotlik-mrd (9.8.2026): pity systém pro nález zrezlého kotlíku
+    // v Průzkumu okolí (basic) a Úklidu hospodářství (yard_cleanup). Šance
+    // roste s každou kombinovanou akcí, tvrdá garance jako pojistka proti
+    // smůle (4× basic, nebo 3× yard_cleanup, nebo 9× kombinovaně). Přestane
+    // rolovat, jakmile hráč cokoliv k vaření vlastní.
+    _checkRustyPotFind: function(actionType) {
+        if (actionType !== 'basic' && actionType !== 'yard_cleanup') return;
+        if ((GameState.inventory['zrezly_kotlik'] || 0) > 0 || (GameState.inventory['cooking_pot'] || 0) > 0) return;
+        if (!GameState.rustyPotHunt) GameState.rustyPotHunt = { basic: 0, yard_cleanup: 0 };
+        GameState.rustyPotHunt[actionType] = (GameState.rustyPotHunt[actionType] || 0) + 1;
+        const bC = GameState.rustyPotHunt.basic;
+        const yC = GameState.rustyPotHunt.yard_cleanup;
+        const combined = bC + yC;
+        const guaranteed = bC >= 4 || yC >= 3 || combined >= 9;
+        const chance = guaranteed ? 1.0 : (0.12 + combined * 0.06);
+        if (Math.random() < chance) {
+            this.addItem('zrezly_kotlik', 1);
+            if (typeof UI !== 'undefined' && UI.notify) {
+                const _name = (typeof iName === 'function') ? iName('zrezly_kotlik') : 'Zrezlý kotlík';
+                UI.notify('🔍 ' + _name + '!');
+            }
+        }
+    },
+
+    // ── scavenge-reward-consolidation-mrd (9.8.2026) ─────────────────────
+    // Jedno místo pravdy pro drop-tabulky scavenge typů. Dřív existovaly
+    // 2-4× duplicitně napříč 3 kontexty (instant-loop / timed-completion /
+    // durationMin=0 instant) a driftovaly nezávisle (basic/nature/resin_harvest/
+    // yard_cleanup měly mezi kopiemi reálně chybějící itemy). Použita vždy
+    // nejúplnější nalezená verze. Volá se ze všech 3 kontextů.
+    // POZOR: quarry_stone/mine_iron_ore/quarry_limestone SEM NEPATŘÍ — jsou
+    // to mine-collectMode typy se svými vlastními lokálními proměnnými
+    // (_tier/_mMultC/_freshMult/_hasPalice/MINE_YIELD), zůstávají nedotčené.
+    _scavengeReward: function(type, r) {
+        if (type === 'basic' || type === 'yard_cleanup') this._checkRustyPotFind(type);
+        if (type === 'hunt') {
+                    this.addItem('fat', 1); 
+                    this.addItem('meat', 1); 
+                    if (r > 0.4) this.addItem('bone', 1);
+                    // v7.5: NEW DROPS
+                    if (r > 0.5) this.addItem('hide', 1); // 50% chance - wild hide, needs processing into raw_hide or wild_leather
+                    if (r > 0.7) this.addItem('feather', 1); // 30% chance - for quill
+                    // Lůj (tallow-mrd, 7.8.2026): 3x řidčeji než tuk
+                    if (Math.random() < 0.33) this.addItem('tallow', 1);
+        }
+        else if (type === 'bark') {
+            if (Math.random() < 0.15) this.addItem('vrbova_kura', 1);
+            else if (Math.random() < 0.15) this.addItem('oak_bark', 1);
+            else this.addItem('bark', 2);
+        }
+        else if (type === 'fishing') {
+            this.addItem('fish', r < 0.3 ? 2 : 1);
+            if (r > 0.8) this.addItem('water', 1);
+        }
+        else if (type === 'foraging') {
+                    if(r<0.25) this.addItem('mushroom', 2);
+                    else if(r<0.45) this.addItem('berries', 2);
+                    else if(r<0.55) this.addItem('mushroom_poison', 1);
+                    else if(r<0.7) this.addItem('roots', 1);
+                    else if(r<0.8) this.addItem('seeds_vegetable', 1);
+                    else if(r<0.9) this.addItem('nightshade', 1);
+                    else this.addItem('fiber', 1);
+                    if(Math.random() < 0.02) this.addItem('viticis_baco', 1);
+                    // v8.x: Zelenina a koření při sběru potravy
+                    if(Math.random() < 0.05) this.addItem('garlic', 1);
+                    if(Math.random() < 0.04) this.addItem('leek', 1);
+                    if(Math.random() < 0.04) this.addItem('nettle', 1);
+                    if(Math.random() < 0.04) this.addItem('galium', 1);
+                    if(Math.random() < 0.03) this.addItem('seeds_garlic', 1);
+                    if(Math.random() < 0.02) this.addItem('seeds_nettle', 1);
+                    // Žaludy — podzimní nález
+                    if(Math.random() < 0.12) this.addItem('acorn', 1);
+                    // Hlemýždi — vyšší šance po dešti
+                    const _snailWet = (typeof WeatherSystem !== 'undefined') ? WeatherSystem.countWetDays(3) : { wet: 0 };
+                    if(Math.random() < (_snailWet.wet >= 2 ? 0.15 : 0.05)) this.addItem('snail', 1);
+                    // Divoké byliny a kořeny (Cultus Herbarum)
+                    if(Math.random() < 0.06) this.addItem('ground_elder', 1);
+                    if(Math.random() < 0.05) this.addItem('goosefoot', 1);
+                    if(Math.random() < 0.05) this.addItem('sorrel', 1);
+                    if(Math.random() < 0.04) this.addItem('dandelion', 1);
+                    if(Math.random() < 0.05) this.addItem('burdock_root', 1);
+                    if(Math.random() < 0.05) this.addItem('couch_grass', 1);
+                    // Titivillus-infirmary-mrd — jalovec roste v lesích/na mezích
+                    if(Math.random() < 0.03) this.addItem('juniper', 1);
+                    // Bukvice — podzim, spolu se žaludy
+                    if(Math.random() < 0.08) this.addItem('beechnut', 1);
+                    // Vzácnější houby (Cultus Herbarum)
+                    if(Math.random() < 0.03) this.addItem('morel', 1);
+                    if(Math.random() < 0.04) this.addItem('saffron_milk_cap', 1);
+                    if(Math.random() < 0.03) this.addItem('porcini', 1);
+                    // Červec — obchod-podklad 7.8.2026, u kořenů luk, drtí se na karmín (tech_cervec)
+                    if(Math.random() < 0.04) this.addItem('cervec', 1);
+                    // Křepelčí vejce — vejce-druhy-mrd 7.8.2026, hnízdo v trávě, vzácné
+                    if(Math.random() < 0.03) this.addItem('quail_egg', 1);
+                    // 0.07% — útržky, pečeť, byliny/váček zapomenuté v přírodě (viz LOST_ITEM_POOLS.foraging)
+                    if(Math.random() < 0.0007) {
+                        const pool = this.LOST_ITEM_POOLS.foraging;
+                        const found = pool[Math.floor(Math.random() * pool.length)];
+                        this.addItem(found, 1);
+                        UI.notify('🔍 ' + (iName ? iName(found) : found) + '!');
+                    }
+                    // Zatoulaná kráva — krava-mrd (26.7.2026), viz FarmyardSystem.showStrayCowModal
+                    if (GameState.researchedTechs && GameState.researchedTechs.includes('tech_armentum')
+                        && typeof FarmyardSystem !== 'undefined' && Math.random() < FarmyardSystem.strayCowChance()) {
+                        FarmyardSystem.showStrayCowModal('scavenge');
+                    }
+        }
+        else if (type === 'wetlands') {
+                    if(r<0.4) this.addItem('frog', 1);
+                    else if(r<0.7) this.addItem('slug', 2);
+                    else if(r<0.85) this.addItem('water', 2);
+                    else this.addItem('fiber', 1);
+                    // v8.x: plůdek — vzácný nález v mokřadu
+                    if(Math.random() < 0.08) this.addItem('fry', 1);
+                    // Raci — vzácnější nález v mokřadu
+                    if(Math.random() < 0.15) this.addItem('crayfish', 1);
+                    // Orobinec — kořen z mokřadu
+                    if(Math.random() < 0.06) this.addItem('cattail_root', 1);
+                    // Proutí — vrbové pruty u mokřadu, běžný stavební materiál (Columbarium)
+                    if(Math.random() < 0.20) this.addItem('wicker', 2);
+                    // Kachní vejce — vejce-druhy-mrd 7.8.2026, hnízdo u vody
+                    if(Math.random() < 0.05) this.addItem('duck_egg', 1);
+        }
+        else if (type === 'grass_gather') {
+                    this.addItem('grass', Math.random() < 0.5 ? 3 : 2);
+                    this.addItem('fiber', Math.random() < 0.5 ? 3 : 2);
+                    if(Math.random() < 0.30) this.addItem('linden_blossom', 1);
+                    if(Math.random() < 0.20) this.addItem('chamomile', 1);
+                    if(Math.random() < 0.10) this.addItem('thyme', 1);
+                    if(Math.random() < 0.08) this.addItem('yarrow', 1);
+                    if(Math.random() < 0.05) this.addItem('wormwood', 1);
+                    if(Math.random() < 0.05) this.addItem('kopr', 1);
+                    if(Math.random() < 0.04) this.addItem('sage', 1);
+                    if(Math.random() < 0.02) this.addItem('plantain', 1);
+                    // Titivillus-infirmary-mrd — kostival a rozmarýn rostou mezi trávou (jalovec je keř, viz jinde)
+                    if(Math.random() < 0.03) this.addItem('comfrey', 1);
+                    if(Math.random() < 0.02) this.addItem('rosemary', 1);
+                    // Divoke obili mezi travou
+                    if(Math.random() < 0.04) this.addItem('seeds_rye', 1);
+                    if(Math.random() < 0.03) this.addItem('seeds_wheat', 1);
+                    if(Math.random() < 0.03) this.addItem('seeds_barley', 1);
+                    if(Math.random() < 0.03) this.addItem('seeds_oats', 1);
+                    if(Math.random() < 0.02) this.addItem('seeds_millet', 1);
+                    if(Math.random() < 0.02) this.addItem('seeds_peas', 1);
+                    if(Math.random() < 0.015) this.addItem('seeds_flax', 1);
+        }
+        else if (type === 'wood_harvest') {
+                    this.addItem('log', Math.random() < 0.4 ? 2 : 1);
+                    if(Math.random() < 0.60) this.addItem('stick', 2);
+                    if(Math.random() < 0.20) this.addItem('bark', 1);
+                    if(Math.random() < 0.10) this.addItem('resin', 1);
+                    if(Math.random() < 0.05) this.addItem('charcoal', 1);
+                    // Smůla — na louč (torch_resin-mrd, 6.8.2026): kácení dává víc než průzkum
+                    if(Math.random() < 0.25) this.addItem('resin_spruce', Math.random() < 0.4 ? 2 : 1);
+                    if(Math.random() < 0.15) this.addItem('resin_pine', 1);
+        }
+        else if (type === 'worms_dig') {
+                    this.addItem('worms', Math.random() < 0.5 ? 3 : 2);
+                    if(Math.random() < 0.40) this.addItem('rock', 1);
+                    if(Math.random() < 0.20) this.addItem('clay', 1);
+                    if(Math.random() < 0.10) this.addItem('seeds_herb', 1);
+        }
+        else if (type === 'dig_clay') {
+                    this.addItem('clay', Math.random() < 0.5 ? 3 : 2);
+                    if(Math.random() < 0.30) this.addItem('rock', 1);
+                    if(Math.random() < 0.10) this.addItem('worms', 1);
+        }
+        else if (type === 'basic') {
+                    this.addItem((r<0.4?'rock':'stick'), 1);
+                    if(Math.random() < 0.05) this.addItem('carbon_black', 1);
+                    if(Math.random() < 0.04) this.addItem('ochre', 1);
+                    if(Math.random() < 0.10) this.addItem('chalk', 1);
+                    if(Math.random() < 0.35) this.addItem('rags', 1);
+                    // Smůla — na louč (torch_resin-mrd, 6.8.2026): dostupná i z běžného průzkumu
+                    if(Math.random() < 0.08) this.addItem('resin_spruce', 1);
+                    if(Math.random() < 0.05) this.addItem('resin_pine', 1);
+                    // Iron ore — vzácný nález (3%) po odemčení kovařiny
+                    if(Math.random() < 0.03 && GameState.researchedTechs && GameState.researchedTechs.includes('tech_kovarina')) {
+                        this.addItem('iron_ore', 1);
+                    }
+                    // 0.17% — klíče/svitky/mince (viz LOST_ITEM_POOLS.basic)
+                    if(Math.random() < 0.0017) {
+                        const pool = this.LOST_ITEM_POOLS.basic;
+                        const found = pool[Math.floor(Math.random() * pool.length)];
+                        this.addItem(found, 1);
+                        UI.notify('🔍 ' + (iName ? iName(found) : found) + '!');
+                    }
+        }
+        else if (type === 'nature') {
+                    if(r<0.08) this.addItem('herb_red',1);
+                    else if(r<0.12) this.addItem('herb_yellow',1);
+                    else if(r<0.16) this.addItem('herb_blue',1);
+                    else if(r<0.2) this.addItem('mint',1);
+                    else if(r<0.5) this.addItem('fiber',2);
+                    else if(r<0.7) this.addItem('water',1);
+                    else if(r<0.8) this.addItem('seeds_herb',1);
+                    else if(r<0.9) this.addItem('seeds_yellow',1);
+                    else if(r<0.95) this.addItem('seeds_blue',1);
+                    else this.addItem('seeds_mint',1);
+                    
+                    // v7.5: NEW DROP - gall_nut for gallic ink
+                    if(Math.random() < 0.06) this.addItem('gall_nut', 1); // 6% chance
+                    // hadry — základ hadrového papíru
+                    if(Math.random() < 0.35) this.addItem('rags', 1);
+                    // Athanor: byliny
+                    if(Math.random() < 0.08) this.addItem('chamomile', 1);
+                    if(Math.random() < 0.08) this.addItem('plantain', 1);
+                    if(Math.random() < 0.05) this.addItem('st_johns_wort', 1);
+                    if(Math.random() < 0.04) this.addItem('thyme', 1);
+                    if(Math.random() < 0.03) this.addItem('seeds_thyme', 1);
+                    if(Math.random() < 0.03) this.addItem('kopr', 1);
+                    if(Math.random() < 0.01) this.addItem('seeds_kopr', 1);
+                    if(Math.random() < 0.02) this.addItem('hops', 1);
+                    if(Math.random() < 0.01) this.addItem('seeds_hops', 1);
+                    // v8.x: Nové byliny — šalvěj, fenykl, pelyněk, yzop, řebříček
+                    if(Math.random() < 0.03) this.addItem('sage', 1);
+                    if(Math.random() < 0.02) this.addItem('fennel', 1);
+                    if(Math.random() < 0.03) this.addItem('wormwood', 1);
+                    if(Math.random() < 0.04) this.addItem('yarrow', 1);
+                    if(Math.random() < 0.02) this.addItem('hyssop', 1);
+                    // Titivillus-infirmary-mrd — kostival, jalovec, rozmarýn (na mast proti revma/křeči)
+                    if(Math.random() < 0.03) this.addItem('comfrey', 1);
+                    if(Math.random() < 0.02) this.addItem('juniper', 1);
+                    if(Math.random() < 0.03) this.addItem('rosemary', 1);
+                    // Semena nových bylin — vzácnější
+                    if(Math.random() < 0.015) this.addItem('seeds_sage', 1);
+                    if(Math.random() < 0.010) this.addItem('seeds_wormwood', 1);
+                    if(Math.random() < 0.020) this.addItem('seeds_yarrow', 1);
+                    // Rare drop - Netolického pozůstalost (0.1% chance)
+                    if(Math.random() < 0.001) {
+                        this.addItem('netolicky_legacy', 1);
+                        UI.notifyPanel('📜 ' + (typeof t === 'function' ? t('game.rareFind') : 'Vzácný nález!'), 'system');
+                        setTimeout(function() { Game.showNetolickyModal(); }, 300);
+                    }
+                    // 0.16% — spony/dýmky/drobnosti (viz LOST_ITEM_POOLS.nature)
+                    if(Math.random() < 0.0016) {
+                        const pool = this.LOST_ITEM_POOLS.nature;
+                        const found = pool[Math.floor(Math.random() * pool.length)];
+                        this.addItem(found, 1);
+                        UI.notify('🔍 ' + (iName ? iName(found) : found) + '!');
+                    }
+                    // Alchymický symbol vyrytý do kamene/kůry — 4. cesta k Athanoru (laboratoryClues, 3 potřeba)
+                    if (GameState.secrets && !GameState.secrets.laboratoryUnlocked && (GameState.secrets.laboratoryClues || 0) < 3 && Math.random() < 0.0016) {
+                        if (typeof SecretsSystem !== 'undefined') SecretsSystem.addLaboratoryClue();
+                    }
+                    // v8.x: Sad & Apiarium drops
+                    if(Math.random() < 0.04) this.addItem('pollen', 1);          // 4% — pyl z luk
+                    if(Math.random() < 0.03) this.addItem('linden_blossom', 1);  // 3% — lipový květ
+                    // Semena stromů — vzácné nálezy při sběru v přírodě
+                    const treeSeedRoll = Math.random();
+                    if(treeSeedRoll < 0.015)      this.addItem('seed_apple', 1);
+                    else if(treeSeedRoll < 0.025) this.addItem('seed_pear', 1);
+                    else if(treeSeedRoll < 0.034) this.addItem('seed_plum', 1);
+                    else if(treeSeedRoll < 0.040) this.addItem('seed_cherry', 1);
+                    else if(treeSeedRoll < 0.043) this.addItem('seed_rowan', 1);
+                    // Plané ovoce a šípky — podzim (Cultus Herbarum)
+                    if(Math.random() < 0.06) this.addItem('rosehip', 1);
+                    if(Math.random() < 0.05) this.addItem('wild_fruit', 1);
+                    if(Math.random() < 0.04) this.addItem('cornel_cherry', 1);
+                    if(Math.random() < 0.03) this.addItem('sloe', 1);
+                    if(Math.random() < 0.03) this.addItem('bracket_fungus', 1);
+        }
+        else if (type === 'resin_harvest') {
+                    if(r<0.5) this.addItem('resin', 1);
+                    else if(r<0.7) this.addItem('honey', 1);
+                    else this.addItem('bark', 1);
+                    if(Math.random() < 0.20) this.addItem('beeswax', 1);
+                    if(Math.random() < 0.05) this.addItem('linden_blossom', 1);
+                    if(Math.random() < 0.03) this.addItem('pollen', 1);
+                    if(Math.random() < 0.03) this.addItem('viticis_baco', 1);
+                    // Kadidlo: smrková a borová pryskyřice
+                    if(Math.random() < 0.40) this.addItem('resin_spruce', 1);
+                    if(Math.random() < 0.25) this.addItem('resin_pine', 1);
+        }
+        else if (type === 'yard_cleanup') {
+                this.addItem('scraps', Math.random() < 0.5 ? 2 : 1);
+                if(Math.random() < 0.40) this.addItem('feather_hen', 1);
+                if(Math.random() < 0.30) this.addItem('wool', 1);
+                if(Math.random() < 0.20) this.addItem('egg', 1);
+                if(Math.random() < 0.10) this.addItem('pollen', 1);
+                if(Math.random() < 0.05) this.addItem('bone', 1);
+                this.addItem('rags', 1);                             // staré hadry z hospodářství
+                if(Math.random() < 0.35) this.addItem('rags', 1);   // bonus
+                // 0.2% — viz vysvětlení u instant varianty výše
+                if(Math.random() < 0.002) {
+                    const lostPool = Object.entries(ItemsDB).filter(([id, i]) => i.lostItem).map(([id]) => id);
+                    if(lostPool.length > 0) {
+                        const found = lostPool[Math.floor(Math.random() * lostPool.length)];
+                        this.addItem(found, 1);
+                        UI.notify('🔍 ' + (iName ? iName(found) : found) + '!');
+                    }
+                }
+                // 👺 Cesta B (Bestiář) — nález "titivillus_spis", nezávislý na
+                // lostPool i na Titivillus craft-checku (Cesta A). Vlastní 0.2%,
+                // zablokovaný jen když už folio máš, nebo spis už držíš v inventáři.
+                {
+                    const _folioState = GameState.scrinium && GameState.scrinium.folios && GameState.scrinium.folios['folio_titivillus_bestiar'];
+                    const _alreadyHeld = (GameState.inventory['titivillus_spis'] || 0) > 0;
+                    if (!(_folioState && _folioState.found) && !_alreadyHeld && Math.random() < 0.002) {
+                        this.addItem('titivillus_spis', 1);
+                        setTimeout(function() { Game.showTitivillusSpisModal(); }, 300);
+                    }
+                }
+        }
+    },
+
     scavenge: function(type) {
         if (typeof VigorSystem !== 'undefined' && !VigorSystem.canAct()) { UI.notify(t('game.vigor.exhausted'), true); return; }
 
@@ -58465,257 +59540,8 @@ const Game = {
             let total = 0;
             for(let i=0; i<count; i++) {
                 let r = Math.random();
-                if (type === 'hunt') { 
-                    this.addItem('fat', 1); 
-                    this.addItem('meat', 1); 
-                    if (r > 0.4) this.addItem('bone', 1);
-                    // v7.5: NEW DROPS
-                    if (r > 0.5) this.addItem('hide', 1); // 50% chance - wild hide, needs processing into raw_hide or wild_leather
-                    if (r > 0.7) this.addItem('feather', 1); // 30% chance - for quill
-                    // Lůj (tallow-mrd, 7.8.2026): 3x řidčeji než tuk
-                    if (Math.random() < 0.33) this.addItem('tallow', 1);
-                }
-                else if (type === 'nature') { 
-                    if(r<0.08) this.addItem('herb_red',1);
-                    else if(r<0.12) this.addItem('herb_yellow',1);
-                    else if(r<0.16) this.addItem('herb_blue',1);
-                    else if(r<0.2) this.addItem('mint',1);
-                    else if(r<0.5) this.addItem('fiber',2);
-                    else if(r<0.7) this.addItem('water',1);
-                    else if(r<0.8) this.addItem('seeds_herb',1);
-                    else if(r<0.9) this.addItem('seeds_yellow',1);
-                    else if(r<0.95) this.addItem('seeds_blue',1);
-                    else this.addItem('seeds_mint',1);
-                    
-                    // v7.5: NEW DROP - gall_nut for gallic ink
-                    if(Math.random() < 0.06) this.addItem('gall_nut', 1); // 6% chance
-                    // hadry — základ hadrového papíru
-                    if(Math.random() < 0.35) this.addItem('rags', 1);
-                    // Athanor: byliny
-                    if(Math.random() < 0.08) this.addItem('chamomile', 1);
-                    if(Math.random() < 0.08) this.addItem('plantain', 1);
-                    if(Math.random() < 0.05) this.addItem('st_johns_wort', 1);
-                    if(Math.random() < 0.04) this.addItem('thyme', 1);
-                    if(Math.random() < 0.03) this.addItem('seeds_thyme', 1);
-                    if(Math.random() < 0.03) this.addItem('kopr', 1);
-                    if(Math.random() < 0.01) this.addItem('seeds_kopr', 1);
-                    if(Math.random() < 0.02) this.addItem('hops', 1);
-                    if(Math.random() < 0.01) this.addItem('seeds_hops', 1);
-                    // v8.x: Nové byliny — šalvěj, fenykl, pelyněk, yzop, řebříček
-                    if(Math.random() < 0.03) this.addItem('sage', 1);
-                    if(Math.random() < 0.02) this.addItem('fennel', 1);
-                    if(Math.random() < 0.03) this.addItem('wormwood', 1);
-                    if(Math.random() < 0.04) this.addItem('yarrow', 1);
-                    if(Math.random() < 0.02) this.addItem('hyssop', 1);
-                    // Titivillus-infirmary-mrd — kostival, jalovec, rozmarýn (na mast proti revma/křeči)
-                    if(Math.random() < 0.03) this.addItem('comfrey', 1);
-                    if(Math.random() < 0.02) this.addItem('juniper', 1);
-                    if(Math.random() < 0.03) this.addItem('rosemary', 1);
-                    // Semena nových bylin — vzácnější
-                    if(Math.random() < 0.015) this.addItem('seeds_sage', 1);
-                    if(Math.random() < 0.010) this.addItem('seeds_wormwood', 1);
-                    if(Math.random() < 0.020) this.addItem('seeds_yarrow', 1);
-                    // Rare drop - Netolického pozůstalost (0.1% chance)
-                    if(Math.random() < 0.001) {
-                        this.addItem('netolicky_legacy', 1);
-                        UI.notifyPanel('📜 ' + (typeof t === 'function' ? t('game.rareFind') : 'Vzácný nález!'), 'system');
-                        setTimeout(function() { Game.showNetolickyModal(); }, 300);
-                    }
-                    // 0.16% — spony/dýmky/drobnosti (viz LOST_ITEM_POOLS.nature)
-                    if(Math.random() < 0.0016) {
-                        const pool = this.LOST_ITEM_POOLS.nature;
-                        const found = pool[Math.floor(Math.random() * pool.length)];
-                        this.addItem(found, 1);
-                        UI.notify('🔍 ' + (iName ? iName(found) : found) + '!');
-                    }
-                    // Alchymický symbol vyrytý do kamene/kůry — 4. cesta k Athanoru (laboratoryClues, 3 potřeba)
-                    if (GameState.secrets && !GameState.secrets.laboratoryUnlocked && (GameState.secrets.laboratoryClues || 0) < 3 && Math.random() < 0.0016) {
-                        if (typeof SecretsSystem !== 'undefined') SecretsSystem.addLaboratoryClue();
-                    }
-                    // v8.x: Sad & Apiarium drops
-                    if(Math.random() < 0.04) this.addItem('pollen', 1);          // 4% — pyl z luk
-                    if(Math.random() < 0.03) this.addItem('linden_blossom', 1);  // 3% — lipový květ
-                    // Semena stromů — vzácné nálezy při sběru v přírodě
-                    const treeSeedRoll = Math.random();
-                    if(treeSeedRoll < 0.015)      this.addItem('seed_apple', 1);
-                    else if(treeSeedRoll < 0.025) this.addItem('seed_pear', 1);
-                    else if(treeSeedRoll < 0.034) this.addItem('seed_plum', 1);
-                    else if(treeSeedRoll < 0.040) this.addItem('seed_cherry', 1);
-                    else if(treeSeedRoll < 0.043) this.addItem('seed_rowan', 1);
-                    // Plané ovoce a šípky — podzim (Cultus Herbarum)
-                    if(Math.random() < 0.06) this.addItem('rosehip', 1);
-                    if(Math.random() < 0.05) this.addItem('wild_fruit', 1);
-                    if(Math.random() < 0.04) this.addItem('cornel_cherry', 1);
-                    if(Math.random() < 0.03) this.addItem('sloe', 1);
-                    if(Math.random() < 0.03) this.addItem('bracket_fungus', 1);
-                }
-                else if (type === 'basic') {
-                    this.addItem((r<0.4?'rock':'stick'), 1);
-                    if(Math.random() < 0.05) this.addItem('carbon_black', 1);
-                    if(Math.random() < 0.04) this.addItem('ochre', 1);
-                    if(Math.random() < 0.10) this.addItem('chalk', 1);
-                    if(Math.random() < 0.35) this.addItem('rags', 1);
-                    // Smůla — na louč (torch_resin-mrd, 6.8.2026): dostupná i z běžného průzkumu
-                    if(Math.random() < 0.08) this.addItem('resin_spruce', 1);
-                    if(Math.random() < 0.05) this.addItem('resin_pine', 1);
-                    // Iron ore — vzácný nález (3%) po odemčení kovařiny
-                    if(Math.random() < 0.03 && GameState.researchedTechs && GameState.researchedTechs.includes('tech_kovarina')) {
-                        this.addItem('iron_ore', 1);
-                    }
-                    // 0.17% — klíče/svitky/mince (viz LOST_ITEM_POOLS.basic)
-                    if(Math.random() < 0.0017) {
-                        const pool = this.LOST_ITEM_POOLS.basic;
-                        const found = pool[Math.floor(Math.random() * pool.length)];
-                        this.addItem(found, 1);
-                        UI.notify('🔍 ' + (iName ? iName(found) : found) + '!');
-                    }
-                }
-                else if (type === 'bark') { if (Math.random() < 0.15) this.addItem('vrbova_kura', 1); else if (Math.random() < 0.15) this.addItem('oak_bark', 1); else this.addItem('bark', 2); }
-                else if (type === 'fishing') { this.addItem('fish', r<0.3?2:1); if(r>0.8) this.addItem('water', 1); }
-                else if (type === 'foraging') { 
-                    if(r<0.25) this.addItem('mushroom', 2);
-                    else if(r<0.45) this.addItem('berries', 2);
-                    else if(r<0.55) this.addItem('mushroom_poison', 1);
-                    else if(r<0.7) this.addItem('roots', 1);
-                    else if(r<0.8) this.addItem('seeds_vegetable', 1);
-                    else if(r<0.9) this.addItem('nightshade', 1);
-                    else this.addItem('fiber', 1);
-                    if(Math.random() < 0.02) this.addItem('viticis_baco', 1);
-                    // v8.x: Zelenina a koření při sběru potravy
-                    if(Math.random() < 0.05) this.addItem('garlic', 1);
-                    if(Math.random() < 0.04) this.addItem('leek', 1);
-                    if(Math.random() < 0.04) this.addItem('nettle', 1);
-                    if(Math.random() < 0.04) this.addItem('galium', 1);
-                    if(Math.random() < 0.03) this.addItem('seeds_garlic', 1);
-                    if(Math.random() < 0.02) this.addItem('seeds_nettle', 1);
-                    // Žaludy — podzimní nález
-                    if(Math.random() < 0.12) this.addItem('acorn', 1);
-                    // Hlemýždi — vyšší šance po dešti
-                    const _snailWet = (typeof WeatherSystem !== 'undefined') ? WeatherSystem.countWetDays(3) : { wet: 0 };
-                    if(Math.random() < (_snailWet.wet >= 2 ? 0.15 : 0.05)) this.addItem('snail', 1);
-                    // Divoké byliny a kořeny (Cultus Herbarum)
-                    if(Math.random() < 0.06) this.addItem('ground_elder', 1);
-                    if(Math.random() < 0.05) this.addItem('goosefoot', 1);
-                    if(Math.random() < 0.05) this.addItem('sorrel', 1);
-                    if(Math.random() < 0.04) this.addItem('dandelion', 1);
-                    if(Math.random() < 0.05) this.addItem('burdock_root', 1);
-                    if(Math.random() < 0.05) this.addItem('couch_grass', 1);
-                    // Titivillus-infirmary-mrd — jalovec roste v lesích/na mezích
-                    if(Math.random() < 0.03) this.addItem('juniper', 1);
-                    // Bukvice — podzim, spolu se žaludy
-                    if(Math.random() < 0.08) this.addItem('beechnut', 1);
-                    // Vzácnější houby (Cultus Herbarum)
-                    if(Math.random() < 0.03) this.addItem('morel', 1);
-                    if(Math.random() < 0.04) this.addItem('saffron_milk_cap', 1);
-                    if(Math.random() < 0.03) this.addItem('porcini', 1);
-                    // Červec — obchod-podklad 7.8.2026, u kořenů luk, drtí se na karmín (tech_cervec)
-                    if(Math.random() < 0.04) this.addItem('cervec', 1);
-                    // Křepelčí vejce — vejce-druhy-mrd 7.8.2026, hnízdo v trávě, vzácné
-                    if(Math.random() < 0.03) this.addItem('quail_egg', 1);
-                    // 0.07% — útržky, pečeť, byliny/váček zapomenuté v přírodě (viz LOST_ITEM_POOLS.foraging)
-                    if(Math.random() < 0.0007) {
-                        const pool = this.LOST_ITEM_POOLS.foraging;
-                        const found = pool[Math.floor(Math.random() * pool.length)];
-                        this.addItem(found, 1);
-                        UI.notify('🔍 ' + (iName ? iName(found) : found) + '!');
-                    }
-                    // Zatoulaná kráva — krava-mrd (26.7.2026), viz FarmyardSystem.showStrayCowModal
-                    if (GameState.researchedTechs && GameState.researchedTechs.includes('tech_armentum')
-                        && typeof FarmyardSystem !== 'undefined' && Math.random() < FarmyardSystem.strayCowChance()) {
-                        FarmyardSystem.showStrayCowModal('scavenge');
-                    }
-                }
-                else if (type === 'wetlands') {
-                    if(r<0.4) this.addItem('frog', 1);
-                    else if(r<0.7) this.addItem('slug', 2);
-                    else if(r<0.85) this.addItem('water', 2);
-                    else this.addItem('fiber', 1);
-                    // v8.x: plůdek — vzácný nález v mokřadu
-                    if(Math.random() < 0.08) this.addItem('fry', 1);
-                    // Raci — vzácnější nález v mokřadu
-                    if(Math.random() < 0.15) this.addItem('crayfish', 1);
-                    // Orobinec — kořen z mokřadu
-                    if(Math.random() < 0.06) this.addItem('cattail_root', 1);
-                    // Proutí — vrbové pruty u mokřadu, běžný stavební materiál (Columbarium)
-                    if(Math.random() < 0.20) this.addItem('wicker', 2);
-                    // Kachní vejce — vejce-druhy-mrd 7.8.2026, hnízdo u vody
-                    if(Math.random() < 0.05) this.addItem('duck_egg', 1);
-                }
-                else if (type === 'resin_harvest') {
-                    if(r<0.5) this.addItem('resin', 1);
-                    else if(r<0.7) this.addItem('honey', 1);
-                    else this.addItem('bark', 1);
-                    if(Math.random() < 0.20) this.addItem('beeswax', 1);
-                    if(Math.random() < 0.05) this.addItem('linden_blossom', 1);
-                    if(Math.random() < 0.03) this.addItem('pollen', 1);
-                    if(Math.random() < 0.03) this.addItem('viticis_baco', 1);
-                    // Kadidlo: smrková a borová pryskyřice
-                    if(Math.random() < 0.40) this.addItem('resin_spruce', 1);
-                    if(Math.random() < 0.25) this.addItem('resin_pine', 1);
-                }
-                else if (type === 'grass_gather') {
-                    this.addItem('grass', Math.random() < 0.5 ? 3 : 2);
-                    this.addItem('fiber', Math.random() < 0.5 ? 3 : 2);
-                    if(Math.random() < 0.30) this.addItem('linden_blossom', 1);
-                    if(Math.random() < 0.20) this.addItem('chamomile', 1);
-                    if(Math.random() < 0.10) this.addItem('thyme', 1);
-                    if(Math.random() < 0.08) this.addItem('yarrow', 1);
-                    if(Math.random() < 0.05) this.addItem('wormwood', 1);
-                    if(Math.random() < 0.05) this.addItem('kopr', 1);
-                    if(Math.random() < 0.04) this.addItem('sage', 1);
-                    if(Math.random() < 0.02) this.addItem('plantain', 1);
-                    // Titivillus-infirmary-mrd — kostival a rozmarýn rostou mezi trávou (jalovec je keř, viz jinde)
-                    if(Math.random() < 0.03) this.addItem('comfrey', 1);
-                    if(Math.random() < 0.02) this.addItem('rosemary', 1);
-                    // Divoke obili mezi travou
-                    if(Math.random() < 0.04) this.addItem('seeds_rye', 1);
-                    if(Math.random() < 0.03) this.addItem('seeds_wheat', 1);
-                    if(Math.random() < 0.03) this.addItem('seeds_barley', 1);
-                    if(Math.random() < 0.03) this.addItem('seeds_oats', 1);
-                    if(Math.random() < 0.02) this.addItem('seeds_millet', 1);
-                    if(Math.random() < 0.02) this.addItem('seeds_peas', 1);
-                    if(Math.random() < 0.015) this.addItem('seeds_flax', 1);
-                }
-                else if (type === 'wood_harvest') {
-                    this.addItem('log', Math.random() < 0.4 ? 2 : 1);
-                    if(Math.random() < 0.60) this.addItem('stick', 2);
-                    if(Math.random() < 0.20) this.addItem('bark', 1);
-                    if(Math.random() < 0.10) this.addItem('resin', 1);
-                    if(Math.random() < 0.05) this.addItem('charcoal', 1);
-                    // Smůla — na louč (torch_resin-mrd, 6.8.2026): kácení dává víc než průzkum
-                    if(Math.random() < 0.25) this.addItem('resin_spruce', Math.random() < 0.4 ? 2 : 1);
-                    if(Math.random() < 0.15) this.addItem('resin_pine', 1);
-                }
-                else if (type === 'worms_dig') {
-                    this.addItem('worms', Math.random() < 0.5 ? 3 : 2);
-                    if(Math.random() < 0.40) this.addItem('rock', 1);
-                    if(Math.random() < 0.20) this.addItem('clay', 1);
-                    if(Math.random() < 0.10) this.addItem('seeds_herb', 1);
-                }
-                else if (type === 'dig_clay') {
-                    this.addItem('clay', Math.random() < 0.5 ? 3 : 2);
-                    if(Math.random() < 0.30) this.addItem('rock', 1);
-                    if(Math.random() < 0.10) this.addItem('worms', 1);
-                }
-                else if (type === 'yard_cleanup') {
-                    this.addItem('scraps', Math.random() < 0.5 ? 2 : 1);
-                    if(Math.random() < 0.40) this.addItem('feather_hen', 1);
-                    if(Math.random() < 0.30) this.addItem('wool', 1);
-                    if(Math.random() < 0.20) this.addItem('egg', 1);
-                    if(Math.random() < 0.10) this.addItem('pollen', 1);
-                    if(Math.random() < 0.05) this.addItem('bone', 1);
-                    this.addItem('rags', 1);                             // staré hadry z hospodářství
-                    if(Math.random() < 0.35) this.addItem('rags', 1);   // bonus
-                    // 0.2% — náhodný lostItem z CELÉHO poolu (obecný úklid, snížené
-                    // z 0.5% při rozdělení dalších skupin do basic/nature/foraging)
-                    if(Math.random() < 0.002) {
-                        const lostPool = Object.entries(ItemsDB).filter(([id, i]) => i.lostItem).map(([id]) => id);
-                        if(lostPool.length > 0) {
-                            const found = lostPool[Math.floor(Math.random() * lostPool.length)];
-                            this.addItem(found, 1);
-                            UI.notify('🔍 ' + (iName ? iName(found) : found) + '!');
-                        }
-                    }
+                if (['hunt','nature','basic','bark','fishing','foraging','wetlands','resin_harvest','grass_gather','wood_harvest','worms_dig','dig_clay','yard_cleanup'].includes(type)) {
+                    this._scavengeReward(type, r);
                 }
                 else if (type === 'quarry_stone') {
                     const qty = Math.random() < 0.4 ? 6 : (Math.random() < 0.6 ? 4 : 3);
@@ -58771,46 +59597,8 @@ const Game = {
             // (timed akce běží jinde, ale RYCHLE! by jinak bylo bez postihu).
             if (typeof CuriaSystem !== 'undefined') CuriaSystem.onScavenge(0);
             let r = Math.random();
-            if (type === 'nature') { 
-                if(r<0.08) this.addItem('herb_red',1);
-                else if(r<0.12) this.addItem('herb_yellow',1);
-                else if(r<0.16) this.addItem('herb_blue',1);
-                else if(r<0.2) this.addItem('mint',1);
-                else if(r<0.5) this.addItem('fiber',2);
-                else if(r<0.7) this.addItem('water',1);
-                else if(r<0.8) this.addItem('seeds_herb',1);
-                else if(r<0.9) this.addItem('seeds_yellow',1);
-                else if(r<0.95) this.addItem('seeds_blue',1);
-                else this.addItem('seeds_mint',1);
-                
-                // v7.5: NEW DROP - gall_nut for gallic ink
-                if(Math.random() < 0.06) this.addItem('gall_nut', 1); // 6% chance
-                // hadry — základ hadrového papíru
-                if(Math.random() < 0.35) this.addItem('rags', 1);
-                
-                // Rare drop - Netolického pozůstalost (0.1% chance)
-                if(Math.random() < 0.001) {
-                    this.addItem('netolicky_legacy', 1);
-                    UI.notifyPanel('📜 ' + (typeof t === 'function' ? t('game.rareFind') : 'Vzácný nález!'), 'system');
-                    setTimeout(function() { Game.showNetolickyModal(); }, 300);
-                }
-                if(Math.random() < 0.0016) {
-                    const pool = this.LOST_ITEM_POOLS.nature;
-                    const found = pool[Math.floor(Math.random() * pool.length)];
-                    this.addItem(found, 1);
-                    UI.notify('🔍 ' + (iName ? iName(found) : found) + '!');
-                }
-            }
-            else if (type === 'basic') { 
-                this.addItem((r<0.4?'rock':'stick'), 1); 
-                if(Math.random() < 0.10) this.addItem('chalk', 1);
-                if(Math.random() < 0.35) this.addItem('rags', 1);
-                if(Math.random() < 0.0017) {
-                    const pool = this.LOST_ITEM_POOLS.basic;
-                    const found = pool[Math.floor(Math.random() * pool.length)];
-                    this.addItem(found, 1);
-                    UI.notify('🔍 ' + (iName ? iName(found) : found) + '!');
-                }
+            if (type === 'nature' || type === 'basic') {
+                this._scavengeReward(type, r);
             }
             // ── Aplikovat curia mult na zisk (stejná logika jako hlavní instant cesta) ──
             const _curiaMultQ = (typeof CuriaSystem !== 'undefined') ? CuriaSystem.getMult() : 1.0;
@@ -58842,243 +59630,8 @@ const Game = {
             const _s0before = {};
             for (const k of Object.keys(GameState.inventory)) _s0before[k] = GameState.inventory[k] || 0;
             let r = Math.random();
-            if (type === 'hunt') { 
-                this.addItem('fat', 1); 
-                this.addItem('meat', 1); 
-                if (r > 0.4) this.addItem('bone', 1);
-                // v7.5: NEW DROPS
-                if (r > 0.5) this.addItem('hide', 1); // 50% chance
-                if (r > 0.7) this.addItem('feather', 1); // 30% chance
-                // Lůj (tallow-mrd, 7.8.2026): 3x řidčeji než tuk
-                if (Math.random() < 0.33) this.addItem('tallow', 1);
-            }
-            else if (type === 'nature') { 
-                if(r<0.08) this.addItem('herb_red',1);
-                else if(r<0.12) this.addItem('herb_yellow',1);
-                else if(r<0.16) this.addItem('herb_blue',1);
-                else if(r<0.2) this.addItem('mint',1);
-                else if(r<0.5) this.addItem('fiber',2);
-                else if(r<0.7) this.addItem('water',1);
-                else if(r<0.8) this.addItem('seeds_herb',1);
-                else if(r<0.9) this.addItem('seeds_yellow',1);
-                else if(r<0.95) this.addItem('seeds_blue',1);
-                else this.addItem('seeds_mint',1);
-                
-                // v7.5: NEW DROP - gall_nut for gallic ink
-                if(Math.random() < 0.06) this.addItem('gall_nut', 1); // 6% chance
-                // hadry — základ hadrového papíru
-                if(Math.random() < 0.35) this.addItem('rags', 1);
-                // Athanor: byliny
-                if(Math.random() < 0.08) this.addItem('chamomile', 1);
-                if(Math.random() < 0.08) this.addItem('plantain', 1);
-                if(Math.random() < 0.05) this.addItem('st_johns_wort', 1);
-                if(Math.random() < 0.04) this.addItem('thyme', 1);
-                if(Math.random() < 0.03) this.addItem('seeds_thyme', 1);
-                if(Math.random() < 0.03) this.addItem('kopr', 1);
-                if(Math.random() < 0.01) this.addItem('seeds_kopr', 1);
-                if(Math.random() < 0.02) this.addItem('hops', 1);
-                if(Math.random() < 0.01) this.addItem('seeds_hops', 1);
-                // v8.x: Nové byliny
-                if(Math.random() < 0.03) this.addItem('sage', 1);
-                if(Math.random() < 0.02) this.addItem('fennel', 1);
-                if(Math.random() < 0.03) this.addItem('wormwood', 1);
-                if(Math.random() < 0.04) this.addItem('yarrow', 1);
-                if(Math.random() < 0.02) this.addItem('hyssop', 1);
-                // Titivillus-infirmary-mrd — kostival, jalovec, rozmarýn
-                if(Math.random() < 0.03) this.addItem('comfrey', 1);
-                if(Math.random() < 0.02) this.addItem('juniper', 1);
-                if(Math.random() < 0.03) this.addItem('rosemary', 1);
-                if(Math.random() < 0.015) this.addItem('seeds_sage', 1);
-                if(Math.random() < 0.010) this.addItem('seeds_wormwood', 1);
-                if(Math.random() < 0.020) this.addItem('seeds_yarrow', 1);
-                // Rare drop - Netolického pozůstalost (0.1% chance)
-                if(Math.random() < 0.001) {
-                    this.addItem('netolicky_legacy', 1);
-                    UI.notifyPanel('📜 ' + (typeof t === 'function' ? t('game.rareFind') : 'Vzácný nález!'), 'system');
-                    setTimeout(function() { Game.showNetolickyModal(); }, 300);
-                }
-                if(Math.random() < 0.0016) {
-                    const pool = this.LOST_ITEM_POOLS.nature;
-                    const found = pool[Math.floor(Math.random() * pool.length)];
-                    this.addItem(found, 1);
-                    UI.notify('🔍 ' + (iName ? iName(found) : found) + '!');
-                }
-                // Plané ovoce a šípky — podzim (Cultus Herbarum)
-                if(Math.random() < 0.06) this.addItem('rosehip', 1);
-                if(Math.random() < 0.05) this.addItem('wild_fruit', 1);
-                if(Math.random() < 0.04) this.addItem('cornel_cherry', 1);
-                if(Math.random() < 0.03) this.addItem('sloe', 1);
-                if(Math.random() < 0.03) this.addItem('bracket_fungus', 1);
-            }
-            else if (type === 'basic') {
-                this.addItem((r<0.4?'rock':'stick'), 1);
-                if(Math.random() < 0.05) this.addItem('carbon_black', 1);
-                if(Math.random() < 0.04) this.addItem('ochre', 1);
-                if(Math.random() < 0.10) this.addItem('chalk', 1); // Křídová pánev — lokálně dostupná
-                if(Math.random() < 0.35) this.addItem('rags', 1);
-                // Smůla — na louč (torch_resin-mrd, 6.8.2026): dostupná i z běžného průzkumu
-                if(Math.random() < 0.08) this.addItem('resin_spruce', 1);
-                if(Math.random() < 0.05) this.addItem('resin_pine', 1);
-                if(Math.random() < 0.0017) {
-                    const pool = this.LOST_ITEM_POOLS.basic;
-                    const found = pool[Math.floor(Math.random() * pool.length)];
-                    this.addItem(found, 1);
-                    UI.notify('🔍 ' + (iName ? iName(found) : found) + '!');
-                }
-            }
-            else if (type === 'bark') { if (Math.random() < 0.15) this.addItem('vrbova_kura', 1); else if (Math.random() < 0.15) this.addItem('oak_bark', 1); else this.addItem('bark', 2); }
-            else if (type === 'fishing') { this.addItem('fish', r<0.3?2:1); if(r>0.8) this.addItem('water', 1); }
-            else if (type === 'foraging') { 
-                if(r<0.25) this.addItem('mushroom', 2);
-                else if(r<0.45) this.addItem('berries', 2);
-                else if(r<0.55) this.addItem('mushroom_poison', 1);
-                else if(r<0.7) this.addItem('roots', 1);
-                else if(r<0.8) this.addItem('seeds_vegetable', 1);
-                else if(r<0.9) this.addItem('nightshade', 1);
-                else this.addItem('fiber', 1);
-                if(Math.random() < 0.02) this.addItem('viticis_baco', 1);
-                // v8.x: Zelenina a koření
-                if(Math.random() < 0.05) this.addItem('garlic', 1);
-                if(Math.random() < 0.04) this.addItem('leek', 1);
-                if(Math.random() < 0.04) this.addItem('nettle', 1);
-                if(Math.random() < 0.04) this.addItem('galium', 1);
-                if(Math.random() < 0.03) this.addItem('seeds_garlic', 1);
-                if(Math.random() < 0.02) this.addItem('seeds_nettle', 1);
-                // Žaludy
-                if(Math.random() < 0.12) this.addItem('acorn', 1);
-                // Hlemýždi — vyšší šance po dešti
-                const _snailWet2 = (typeof WeatherSystem !== 'undefined') ? WeatherSystem.countWetDays(3) : { wet: 0 };
-                if(Math.random() < (_snailWet2.wet >= 2 ? 0.15 : 0.05)) this.addItem('snail', 1);
-                // Divoké byliny a kořeny (Cultus Herbarum)
-                if(Math.random() < 0.06) this.addItem('ground_elder', 1);
-                if(Math.random() < 0.05) this.addItem('goosefoot', 1);
-                if(Math.random() < 0.05) this.addItem('sorrel', 1);
-                if(Math.random() < 0.04) this.addItem('dandelion', 1);
-                if(Math.random() < 0.05) this.addItem('burdock_root', 1);
-                if(Math.random() < 0.05) this.addItem('couch_grass', 1);
-                // Titivillus-infirmary-mrd — jalovec
-                if(Math.random() < 0.03) this.addItem('juniper', 1);
-                // Bukvice — podzim, spolu se žaludy
-                if(Math.random() < 0.08) this.addItem('beechnut', 1);
-                // Vzácnější houby (Cultus Herbarum)
-                if(Math.random() < 0.03) this.addItem('morel', 1);
-                if(Math.random() < 0.04) this.addItem('saffron_milk_cap', 1);
-                if(Math.random() < 0.03) this.addItem('porcini', 1);
-                // Červec — obchod-podklad 7.8.2026 (dřív chybělo v téhle 2. lokaci)
-                if(Math.random() < 0.04) this.addItem('cervec', 1);
-                // Křepelčí vejce — vejce-druhy-mrd 7.8.2026
-                if(Math.random() < 0.03) this.addItem('quail_egg', 1);
-                if(Math.random() < 0.0007) {
-                    const pool = this.LOST_ITEM_POOLS.foraging;
-                    const found = pool[Math.floor(Math.random() * pool.length)];
-                    this.addItem(found, 1);
-                    UI.notify('🔍 ' + (iName ? iName(found) : found) + '!');
-                }
-                // Zatoulaná kráva — krava-mrd (26.7.2026), viz FarmyardSystem.showStrayCowModal
-                if (GameState.researchedTechs && GameState.researchedTechs.includes('tech_armentum')
-                    && typeof FarmyardSystem !== 'undefined' && Math.random() < FarmyardSystem.strayCowChance()) {
-                    FarmyardSystem.showStrayCowModal('scavenge');
-                }
-            }
-            else if (type === 'wetlands') {
-                if(r<0.4) this.addItem('frog', 1);
-                else if(r<0.7) this.addItem('slug', 2);
-                else if(r<0.85) this.addItem('water', 2);
-                else this.addItem('fiber', 1);
-                // v8.x: plůdek — vzácný nález v mokřadu
-                if(Math.random() < 0.08) this.addItem('fry', 1);
-                // Raci — vzácnější nález v mokřadu
-                if(Math.random() < 0.15) this.addItem('crayfish', 1);
-                // Orobinec — kořen z mokřadu
-                if(Math.random() < 0.06) this.addItem('cattail_root', 1);
-                // Proutí — vrbové pruty u mokřadu, běžný stavební materiál (Columbarium)
-                if(Math.random() < 0.20) this.addItem('wicker', 2);
-                // Kachní vejce — vejce-druhy-mrd 7.8.2026
-                if(Math.random() < 0.05) this.addItem('duck_egg', 1);
-            }
-            else if (type === 'resin_harvest') {
-                if(r<0.5) this.addItem('resin', 1);
-                else if(r<0.7) this.addItem('honey', 1);
-                else this.addItem('bark', 1);
-                if(Math.random() < 0.15) this.addItem('beeswax', 1);
-                if(Math.random() < 0.03) this.addItem('viticis_baco', 1);
-                // Kadidlo: smrková a borová pryskyřice
-                if(Math.random() < 0.40) this.addItem('resin_spruce', 1);
-                if(Math.random() < 0.25) this.addItem('resin_pine', 1);
-            }
-            else if (type === 'grass_gather') {
-                this.addItem('grass', Math.random() < 0.5 ? 3 : 2);
-                this.addItem('fiber', Math.random() < 0.5 ? 3 : 2);
-                if(Math.random() < 0.30) this.addItem('linden_blossom', 1);
-                if(Math.random() < 0.20) this.addItem('chamomile', 1);
-                if(Math.random() < 0.10) this.addItem('thyme', 1);
-                if(Math.random() < 0.08) this.addItem('yarrow', 1);
-                if(Math.random() < 0.05) this.addItem('wormwood', 1);
-                if(Math.random() < 0.05) this.addItem('kopr', 1);
-                if(Math.random() < 0.04) this.addItem('sage', 1);
-                if(Math.random() < 0.02) this.addItem('plantain', 1);
-                // Titivillus-infirmary-mrd — kostival a rozmarýn
-                if(Math.random() < 0.03) this.addItem('comfrey', 1);
-                if(Math.random() < 0.02) this.addItem('rosemary', 1);
-                // Divoke obili mezi travou
-                if(Math.random() < 0.04) this.addItem('seeds_rye', 1);
-                if(Math.random() < 0.03) this.addItem('seeds_wheat', 1);
-                if(Math.random() < 0.03) this.addItem('seeds_barley', 1);
-                if(Math.random() < 0.03) this.addItem('seeds_oats', 1);
-                if(Math.random() < 0.02) this.addItem('seeds_millet', 1);
-                if(Math.random() < 0.02) this.addItem('seeds_peas', 1);
-                if(Math.random() < 0.015) this.addItem('seeds_flax', 1);
-            }
-            else if (type === 'wood_harvest') {
-                this.addItem('log', Math.random() < 0.4 ? 2 : 1);
-                if(Math.random() < 0.60) this.addItem('stick', 2);
-                if(Math.random() < 0.20) this.addItem('bark', 1);
-                if(Math.random() < 0.10) this.addItem('resin', 1);
-                if(Math.random() < 0.05) this.addItem('charcoal', 1);
-                // Smůla — na louč (torch_resin-mrd, 6.8.2026): kácení dává víc než průzkum
-                if(Math.random() < 0.25) this.addItem('resin_spruce', Math.random() < 0.4 ? 2 : 1);
-                if(Math.random() < 0.15) this.addItem('resin_pine', 1);
-            }
-            else if (type === 'worms_dig') {
-                this.addItem('worms', Math.random() < 0.5 ? 3 : 2);
-                if(Math.random() < 0.40) this.addItem('rock', 1);
-                if(Math.random() < 0.20) this.addItem('clay', 1);
-                if(Math.random() < 0.10) this.addItem('seeds_herb', 1);
-            }
-            else if (type === 'dig_clay') {
-                this.addItem('clay', Math.random() < 0.5 ? 3 : 2);
-                if(Math.random() < 0.30) this.addItem('rock', 1);
-                if(Math.random() < 0.10) this.addItem('worms', 1);
-            }
-            else if (type === 'yard_cleanup') {
-                this.addItem('scraps', Math.random() < 0.5 ? 2 : 1);
-                if(Math.random() < 0.40) this.addItem('feather_hen', 1);
-                if(Math.random() < 0.30) this.addItem('wool', 1);
-                if(Math.random() < 0.20) this.addItem('egg', 1);
-                if(Math.random() < 0.10) this.addItem('pollen', 1);
-                if(Math.random() < 0.05) this.addItem('bone', 1);
-                this.addItem('rags', 1);                             // staré hadry z hospodářství
-                if(Math.random() < 0.35) this.addItem('rags', 1);   // bonus
-                // 0.2% — viz vysvětlení u instant varianty výše
-                if(Math.random() < 0.002) {
-                    const lostPool = Object.entries(ItemsDB).filter(([id, i]) => i.lostItem).map(([id]) => id);
-                    if(lostPool.length > 0) {
-                        const found = lostPool[Math.floor(Math.random() * lostPool.length)];
-                        this.addItem(found, 1);
-                        UI.notify('🔍 ' + (iName ? iName(found) : found) + '!');
-                    }
-                }
-                // 👺 Cesta B (Bestiář) — nález "titivillus_spis", nezávislý na
-                // lostPool i na Titivillus craft-checku (Cesta A). Vlastní 0.2%,
-                // zablokovaný jen když už folio máš, nebo spis už držíš v inventáři.
-                {
-                    const _folioState = GameState.scrinium && GameState.scrinium.folios && GameState.scrinium.folios['folio_titivillus_bestiar'];
-                    const _alreadyHeld = (GameState.inventory['titivillus_spis'] || 0) > 0;
-                    if (!(_folioState && _folioState.found) && !_alreadyHeld && Math.random() < 0.002) {
-                        this.addItem('titivillus_spis', 1);
-                        setTimeout(function() { Game.showTitivillusSpisModal(); }, 300);
-                    }
-                }
+            if (['hunt','nature','basic','bark','fishing','foraging','wetlands','resin_harvest','grass_gather','wood_harvest','worms_dig','dig_clay','yard_cleanup'].includes(type)) {
+                this._scavengeReward(type, r);
             }
             // ── notifyAccum: single scavenge ──
             {
@@ -59234,14 +59787,30 @@ const Game = {
         if (GameState.flags.candleLit) {
             const lIcon = document.getElementById('light-icon'); if (lIcon) lIcon.innerText = "🕯️"; 
             const lTitle = document.getElementById('light-title'); if (lTitle) lTitle.innerText = t('light.candle');
-            if (lightDesc) lightDesc.innerText = t('light.candleDesc'); // Aktualizace popisku
+            // svetlo-detail-mrd (9.8.2026): slovní odhad zbývající doby —
+            // schválně bez přesných minut/hodin, jen "čerstvá/stabilní/dohořívá".
+            if (lightDesc) {
+                const _candlePct = 1 - Math.max(0, Math.min(1, (Date.now() - (GameState.candleStart || 0)) / CONFIG.CANDLE_DURATION));
+                const _cTier = _candlePct > 0.66 ? 'fresh' : _candlePct > 0.25 ? 'steady' : 'low';
+                lightDesc.innerText = t('light.candleDescs.' + _cTier);
+            }
             if (navLore) navLore.classList.add('nav-candle-active'); 
             if (btnCandle) btnCandle.style.display = 'none'; if (btnTorch) btnTorch.style.display = 'inline-block';
             if (loreOverlay) loreOverlay.style.display = 'none'; if (loreWrap) loreWrap.classList.remove('lore-darkness');
         } else if (GameState.flags.torchLit) {
             const lIcon = document.getElementById('light-icon'); if (lIcon) lIcon.innerText = "🔥"; 
-            const lTitle = document.getElementById('light-title'); if (lTitle) lTitle.innerText = t('light.torch');
-            if (lightDesc) lightDesc.innerText = t('light.torchDesc'); // Aktualizace popisku
+            // svetlo-detail-mrd (9.8.2026): konkrétní typ louče (tuková/lojová/
+            // smolná) místo obecného textu — torchItemId/lightHours už existují,
+            // jen se dřív nepoužívaly v tomhle zobrazení.
+            const _torchItem = GameState.torchItemId || 'primitive_torch';
+            const _torchName = (typeof iName === 'function' && ItemsDB[_torchItem]) ? iName(_torchItem) : t('light.torch');
+            const lTitle = document.getElementById('light-title'); if (lTitle) lTitle.innerText = _torchName;
+            if (lightDesc) {
+                const _torchHrs = (ItemsDB[_torchItem] && ItemsDB[_torchItem].lightHours) ? ItemsDB[_torchItem].lightHours : 1;
+                const _torchPct = 1 - Math.max(0, Math.min(1, (Date.now() - (GameState.torchStart || 0)) / (_torchHrs * 3600000)));
+                const _tTier = _torchPct > 0.66 ? 'fresh' : _torchPct > 0.25 ? 'steady' : 'low';
+                lightDesc.innerText = t('light.torchDescs.' + _torchItem + '.' + _tTier);
+            }
             if (navLore) navLore.classList.add('nav-torch-active'); 
             if (btnTorch) btnTorch.style.display = 'none'; if (btnCandle) btnCandle.style.display = 'inline-block';
             if (loreOverlay) loreOverlay.style.display = 'none'; if (loreWrap) loreWrap.classList.remove('lore-darkness');
@@ -59467,6 +60036,12 @@ const Game = {
             Game.addKronikaEntry('important', `⚒️ Poprvé vyrobeno: ${_fcn}`, `⚒️ Crafted for the first time: ${_fcne}`, `⚒️ Primo factum: ${_fcn}`);
         }
         this.addItem(r.output, craftQty);
+        // coquina-kotlik-mrd (9.8.2026): tier tracking pro Kotlík — jen
+        // vizuál/popisky (viz CoquinaVisuals.ohniste), nedotýká se
+        // cooking_pot:0 kontroly v žádném z ~40 receptů, co ji vyžadují.
+        if (r.id === 'cooking_pot') GameState.cookingPotTier = 1;
+        else if (r.id === 'vycistit_kotlik') GameState.cookingPotTier = 2;
+        else if (r.id === 'bronzovy_kotlik') GameState.cookingPotTier = 3;
         if (typeof UI !== 'undefined' && UI.spawnFloatingGain) UI.spawnFloatingGain(r.id, craftQty);
         // coquina-vyroba-modal-mrd (7.8.2026): Výroba beze změny chování
         // (pořád okamžité), jen informativní odkaz do Vaření pro cat:"food".
