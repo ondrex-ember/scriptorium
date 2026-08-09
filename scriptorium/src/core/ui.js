@@ -42,8 +42,12 @@ const UI = {
             // subtab se dřív nepřekresloval při přepnutí zpět na Home.
             // coquina-dashboard-mrd (9.8.2026): Sýrárna teď vlastní panel
             // uvnitř CookingSystem.render() (grid stanic) — cheeseHtml pryč.
+            // coquina-visibility-fix (9.8.2026): style.display samo o sobě
+            // nestačí — .screen/.screen.active skrývá CELOU Home obrazovku
+            // přes CSS třídu, ne přes inline styl na home-cooking-content.
+            // offsetParent===null pokrývá i skrytí přes rodiče (robustní test).
             const cookEl = document.getElementById('home-cooking-content');
-            if (cookEl && cookEl.style.display !== 'none' && typeof CookingSystem !== 'undefined') {
+            if (cookEl && cookEl.offsetParent !== null && typeof CookingSystem !== 'undefined') {
                 cookEl.innerHTML = CookingSystem.render();
             }
         }
@@ -200,7 +204,7 @@ const UI = {
             // zůstala tlačítka "can"/disabled stav zamrzlý na stavu PŘED
             // spotřebou surovin, dokud hráč neopustil a nevrátil se na Vaření.
             const cookEl = document.getElementById('home-cooking-content');
-            if (cookEl && cookEl.style.display !== 'none' && typeof CookingSystem !== 'undefined') {
+            if (cookEl && cookEl.offsetParent !== null && typeof CookingSystem !== 'undefined') {
                 cookEl.innerHTML = CookingSystem.render();
             }
         } else if (s === 'inv') { this.renderInventory(); }

@@ -718,7 +718,7 @@ const Game = {
                 // zůstaly zamrzlé do dalšího přepnutí. Stejný vzor jako activeAction výše.
                 if (GameState.cookingInstances && GameState.cookingInstances.length > 0) {
                     const _cookEl = document.getElementById('home-cooking-content');
-                    if (_cookEl && _cookEl.style.display !== 'none' && typeof CookingSystem !== 'undefined' && CookingSystem.render) {
+                    if (_cookEl && _cookEl.offsetParent !== null && typeof CookingSystem !== 'undefined' && CookingSystem.render) {
                         _cookEl.innerHTML = CookingSystem.render();
                     }
                 }

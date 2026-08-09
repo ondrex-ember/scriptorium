@@ -303,8 +303,16 @@ const CookingSystem = {
         Game.save();
         // vareni-refresh-fix (9.8.2026): okamžitě zobrazit nově rozjetý proces,
         // ne až po přepnutí tabu — mirror stejné opravy v UI.renderAll().
+        // coquina-visibility-fix (9.8.2026): style.display na home-cooking-content
+        // samo o sobě neříká, jestli je hráč na Vaření — .screen/.screen.active
+        // skrývá CELOU Home obrazovku přes CSS třídu nezávisle na tomhle inline
+        // stylu. Bez tohohle: klik na Uvařit z Výroby tiše potlačil "Začalo se
+        // vařit" modal (myslel si, že hráč kouká na Vaření, i když ne) — recept
+        // se spustil správně, jen to nebylo vidět. offsetParent===null pokrývá
+        // i skrytí přes rodiče.
         const _cookEl = document.getElementById('home-cooking-content');
-        if (_cookEl && _cookEl.style.display !== 'none') {
+        const _cookingTabVisible = !!(_cookEl && _cookEl.offsetParent !== null);
+        if (_cookingTabVisible) {
             _cookEl.innerHTML = this.render();
         }
         const effH = this._effectiveDuration(def, _chefMult);
@@ -312,7 +320,6 @@ const CookingSystem = {
         // vareni-refresh-fix (9.8.2026): jen když Vaření není zrovna vidět (klik
         // z Výroby, přesměrovaný přes Game.craft()) — na Vaření tabu je zbytečný,
         // hráč vidí rozjetý proces v progress baru rovnou (_cookEl refresh výše).
-        const _cookingTabVisible = !!(_cookEl && _cookEl.style.display !== 'none');
         if (!_cookingTabVisible && typeof NotificationSystem !== 'undefined' && NotificationSystem.modal) {
             NotificationSystem.modal({
                 icon: '🍲',
