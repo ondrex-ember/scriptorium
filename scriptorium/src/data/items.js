@@ -37,7 +37,13 @@ const ItemsDB = {
     "rope": { name: "Provaz", name_en: "Rope", icon: "➰", type: "mat", desc: "Pevný spoj.", desc_en: "Strong binding." },
     "hoe": { name: "Motyka", name_en: "Hoe", icon: "⚒️", type: "tool", desc: "K farmě.", desc_en: "For the garden." },
     "fishing_rod": { name: "Udice", name_en: "Fishing Rod", icon: "🎣", type: "tool", desc: "Na ryby.", desc_en: "For fishing." },
-    "cooking_pot": { name: "Hrnec", name_en: "Cooking Pot", icon: "🫕", type: "tool", desc: "Na vaření.", desc_en: "For cooking." },
+    "cooking_pot": { name: "Kotlík", name_en: "Cauldron", icon: "🫕", type: "tool", desc: "Na vaření.", desc_en: "For cooking." },
+    // coquina-kotlik-mrd (9.8.2026): scavenge nález, neaktivní dokud se
+    // nevyčistí (viz recept vycistit_kotlik) — nesplní žádnou vaření-kontrolu
+    // (cooking_pot:0), protože to je jiné ID. Po vyčištění → cooking_pot, tier 2.
+    "zrezly_kotlik": { name: "Zrezlý kotlík", name_en: "Rusty Pot", icon: "🍂", type: "mat", desc: "Starý kovový kotlík, celý ve rzi. Než se v něm dá vařit, musí se pořádně vydrhnout.", desc_en: "An old metal pot, thick with rust. It needs a thorough scouring before anything can be cooked in it." },
+    // Meziprodukt na drhnutí — hrubý kámen rozdrcený v hmoždíři na drsný prášek
+    "crushed_stone": { name: "Drcený kámen", name_en: "Crushed Stone", icon: "🪨", type: "mat", desc: "Kámen rozdrcený na hrubý prášek. Brusivo na drhnutí, ne stavební materiál.", desc_en: "Stone ground to a coarse powder. An abrasive for scouring, not a building material." },
     "tea_kettle": { name: "Konvička", name_en: "Kettle", icon: "🫖", type: "tool", desc: "Hliněná konvička na čaj. Pověsí se nad oheň.", desc_en: "A clay kettle for tea. Hung over the fire." },
     "basket": { name: "Koš", name_en: "Basket", icon: "🧺", type: "tool", desc: "Na sběr.", desc_en: "For foraging." },
     "dreveky": { name: "Dřeváky", name_en: "Clogs", icon: "👞", type: "mat", desc: "Vyřezávané dřevěné boty z tržní boudy. Levná, odolná obuv pro každodenní práci.", desc_en: "Carved wooden shoes from a market stall. Cheap, durable footwear for everyday work." },

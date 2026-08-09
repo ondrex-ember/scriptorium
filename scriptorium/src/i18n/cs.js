@@ -40,7 +40,31 @@ const STRINGS_cs = {
         candle: 'Svíčka (Hoří)', torch: 'Louč (Praská)',
         candleDesc: 'Malý, ale stálý plamen.',
         torchDesc: 'Kouří a prská, ale svítí jasně.',
-        btnTorch: 'ZAPÁLIT LOUČ', btnCandle: 'ZAPÁLIT SVÍČKU'
+        btnTorch: 'ZAPÁLIT LOUČ', btnCandle: 'ZAPÁLIT SVÍČKU',
+        // svetlo-detail-mrd (9.8.2026): poetické popisky per typ louče a fázi
+        // hoření (fresh/steady/low), rozklikávací (viz shell.html #light-desc).
+        torchDescs: {
+            primitive_torch: {
+                fresh: 'Voní jako pečeně na Boží hod vánoční — sliny se sbíhají, i když víš, že hoří jen tuk.',
+                steady: 'Čadí a odkapává, ale zatím drží plamen.',
+                low: 'Teď už smrdí jak spálená mrtvola a kape mastnou špínu na podlahu. Poslední chvíle.',
+            },
+            torch_tallow: {
+                fresh: 'Lůj ztuhl a hoří stabilně, bez velkého kouře — poctivé řemeslné světlo.',
+                steady: 'Hoří rovnoměrně dál, spolehlivá jako starý přítel.',
+                low: 'Lůj dochází, plamen už jen mihotá.',
+            },
+            torch_resin: {
+                fresh: 'Voní pryskyřicí a jehličím, jako by v ruce hořel kus lesa. Praská vesele, jasně, beze strachu z větru.',
+                steady: 'Prská a čadí kadidlovou vůní — jako by se sem přestěhoval kostel.',
+                low: 'Pryskyřice dohořívá, vůně slábne, plamínek se krčí.',
+            },
+        },
+        candleDescs: {
+            fresh: 'Jasná a stálá jako boží světlo. Nekouří, nepraská, nikoho neruší.',
+            steady: 'Hoří tiše dál, věrná jako modlitba.',
+            low: 'Vosk už dochází, plamínek se chvěje.',
+        },
     },
     header: {
         weatherNow: 'Aktuálně v Praze (klikni pro refresh)',

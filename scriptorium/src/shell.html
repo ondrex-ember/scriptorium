@@ -1808,6 +1808,16 @@
             .coquina-flame, .coquina-brewing::after { animation: none !important; }
         }
 
+        /* svetlo-detail-mrd (9.8.2026): poetické popisky světel — výchozí
+           1 řádek + tečičky, klik odhalí celý text. */
+        .coquina-light-desc {
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+            max-width: 100%; cursor: pointer;
+        }
+        .coquina-light-desc.expanded {
+            white-space: normal; overflow: visible; text-overflow: clip;
+        }
+
         /* Mobile-friendly touch targets */
         @media (max-width: 500px) {
             .craft-btn {
@@ -3688,7 +3698,10 @@
                     <div id="card-light-source" class="card" style="opacity: 0.5;">
                         <div class="item-icon" id="light-icon">🌑</div>
                         <div><strong id="light-title">Není světlo</strong>
-                            <div id="light-desc" class="text-sm">Tma halí knihy.</div>
+                            <!-- svetlo-detail-mrd (9.8.2026): poetické popisky bývají delší
+                                 než původní krátký text — výchozí 1 řádek + tečičky, klik
+                                 rozbalí na plné znění (třída .expanded, viz CSS níže). -->
+                            <div id="light-desc" class="text-sm coquina-light-desc" onclick="this.classList.toggle('expanded')" title="Klikni pro celý text">Tma halí knihy.</div>
                         </div>
                         <!-- svetlo-tlacitka-fix (7.8.2026): vlastní sloupcový kontejner —
                              na úzkém displeji se obě tlačítka (mají-li obě fuel) naskládají

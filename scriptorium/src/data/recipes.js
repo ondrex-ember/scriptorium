@@ -33,6 +33,14 @@ const RecipesDB = [
     // COOKING TOOLS
     { id: "fishing_rod", output: "fishing_rod", qty: 1, req: { "stick": 2, "rope": 1, "bone": 1 }, cat: "stone", locked: true },
     { id: "cooking_pot", output: "cooking_pot", qty: 1, req: { "rock": 3, "water": 1 }, cat: "craft", locked: true },
+    // coquina-kotlik-mrd (9.8.2026): tier systém — kámen (dnešní recept výše,
+    // tier 1) → vyčištěný ze rzi (tier 2) → bronzové vylepšení (tier 3, přes
+    // Athanor bronz). Tier se nastavuje v Game.craft() podle r.id, viz tam.
+    { id: "crushed_stone", output: "crushed_stone", qty: 1, req: { "rock": 3, "pestle": 0 }, cat: "stone", locked: false },
+    { id: "vycistit_kotlik", output: "cooking_pot", qty: 1, req: { "zrezly_kotlik": 1, "crushed_stone": 2, "water": 1 }, cat: "craft", locked: false,
+      desc: "Zrezlý kotlík vydrhnutý drceným kamenem — znovu použitelný.", desc_en: "A rusty pot scoured with crushed stone — usable again." },
+    { id: "bronzovy_kotlik", output: "cooking_pot", qty: 1, req: { "cooking_pot": 1, "bronz": 2 }, cat: "craft", locked: false,
+      desc: "Přetavení kotlíku v bronzu — nejlépe vede teplo.", desc_en: "The pot recast in bronze — the best heat conductor." },
     { id: "tea_kettle", output: "tea_kettle", qty: 1, req: { "clay": 3, "water": 1 }, cat: "craft", locked: true },
     { id: "basket", output: "basket", qty: 1, req: { "fiber": 5, "stick": 2 }, cat: "craft", locked: true },
 

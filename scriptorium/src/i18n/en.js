@@ -41,7 +41,29 @@ const STRINGS_en = {
         candle: 'Candle (Burning)', torch: 'Torch (Crackling)',
         candleDesc: 'A small but steady flame.',
         torchDesc: 'It smokes and crackles, yet burns bright.',
-        btnTorch: 'LIGHT TORCH', btnCandle: 'LIGHT CANDLE'
+        btnTorch: 'LIGHT TORCH', btnCandle: 'LIGHT CANDLE',
+        torchDescs: {
+            primitive_torch: {
+                fresh: 'Smells like a Christmas roast — your mouth waters even knowing it is only burning fat.',
+                steady: 'Smokes and drips, but still holds its flame.',
+                low: 'Now it reeks like a burnt corpse and drips greasy filth on the floor. Its final moments.',
+            },
+            torch_tallow: {
+                fresh: 'The tallow has hardened and burns steady, without much smoke — an honest craftsman\'s light.',
+                steady: 'Burns evenly on, reliable as an old friend.',
+                low: 'Tallow running low, the flame now only flickers.',
+            },
+            torch_resin: {
+                fresh: 'Smells of resin and pine needles, as if a piece of forest burned in your hand. Crackles cheerfully, bright, unafraid of wind.',
+                steady: 'Crackles and smokes with a scent of incense — as if a church had moved in here.',
+                low: 'The resin is spent, the scent fades, the flame shrinks low.',
+            },
+        },
+        candleDescs: {
+            fresh: 'Bright and steady as divine light. No smoke, no crackling, disturbs no one.',
+            steady: 'Burns quietly on, faithful as a prayer.',
+            low: 'The wax is nearly spent, the little flame trembles.',
+        },
     },
     craft: { filterAll: 'All', filterTool: 'Tools', filterMat: 'Materials', filterFood: 'Provisions', filterAlchemy: 'Alchemy', filterLore: 'Knowledge', btn: 'Craft', repair: 'Repair', cook: 'Cook' },
     inv: { filterAll: 'All', filterMat: 'Materials', filterTool: 'Tools', filterLore: 'Other' },

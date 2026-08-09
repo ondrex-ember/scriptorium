@@ -146,25 +146,27 @@ const CookingSystem = {
             output: 'braised_beef', durationH: 1 },
         roast_rabbit_dish: { input: 'cooked_rabbit', inputQty: 1, extraInputs: { carrot: 1, cabbage: 1 }, needsTool: ['cooking_pot'],
             output: 'roast_rabbit_dish', durationH: 1 },
-        // coquina-migrace-mrd (7.8.2026): Fáze 5 — polévky/dušená jídla, víc surovin
+        // coquina-migrace-mrd (7.8.2026): Fáze 5 — polévky/dušená jídla, víc surovin.
+        // cerna-kuchyne-tie-in-mrd (9.8.2026): pilotní sada pro fastBuild bonus —
+        // "pokročilejší" recepty (víc ingrediencí), 1.5h→1h s Černou kuchyní.
         stew: { input: 'meat', inputQty: 1, extraInputs: { carrot: 1, turnip: 1, water: 1 }, needsTool: ['cooking_pot'],
-            output: 'stew', durationH: 1.5 },
+            output: 'stew', durationH: 1.5, fastBuild: 'cerna_kuchyne', fastBuildDurationH: 1 },
         stew_koreni: { input: 'meat', inputQty: 1, extraInputs: { carrot: 1, turnip: 1, water: 1, pepr_cerny: 1 }, needsTool: ['cooking_pot'],
-            output: 'stew_koreni', durationH: 1.5 },
+            output: 'stew_koreni', durationH: 1.5, fastBuild: 'cerna_kuchyne', fastBuildDurationH: 1 },
         mushroom_soup: { input: 'mushroom', inputQty: 2, extraInputs: { onion: 1, water: 1 }, needsTool: ['cooking_pot'],
-            output: 'mushroom_soup', durationH: 1.5 },
+            output: 'mushroom_soup', durationH: 1.5, fastBuild: 'cerna_kuchyne', fastBuildDurationH: 1 },
         spring_herb_porridge: { input: 'nettle', inputQty: 1, extraInputs: { ground_elder: 1, goosefoot: 1, oats: 1 }, needsTool: ['cooking_pot'],
-            output: 'spring_herb_porridge', durationH: 1.5 },
+            output: 'spring_herb_porridge', durationH: 1.5, fastBuild: 'cerna_kuchyne', fastBuildDurationH: 1 },
         rosehip_sauce: { input: 'rosehip', inputQty: 3, extraInputs: { bread: 1 }, needsTool: ['cooking_pot'],
-            output: 'rosehip_sauce', durationH: 1.5 },
+            output: 'rosehip_sauce', durationH: 1.5, fastBuild: 'cerna_kuchyne', fastBuildDurationH: 1 },
         crayfish_boiled: { input: 'crayfish', inputQty: 3, extraInputs: { beer: 1 }, needsTool: ['cooking_pot'],
-            output: 'crayfish_boiled', durationH: 1.5 },
+            output: 'crayfish_boiled', durationH: 1.5, fastBuild: 'cerna_kuchyne', fastBuildDurationH: 1 },
         snails_black_sauce: { input: 'snail', inputQty: 4, extraInputs: { bread: 1, honey: 1, fat: 1 }, needsTool: ['cooking_pot'],
-            output: 'snails_black_sauce', durationH: 1.5 },
+            output: 'snails_black_sauce', durationH: 1.5, fastBuild: 'cerna_kuchyne', fastBuildDurationH: 1 },
         morel_stuffed: { input: 'morel', inputQty: 3, extraInputs: { bread: 1, garlic: 1, fat: 1 }, needsTool: ['cooking_pot'],
-            output: 'morel_stuffed', durationH: 1.5 },
+            output: 'morel_stuffed', durationH: 1.5, fastBuild: 'cerna_kuchyne', fastBuildDurationH: 1 },
         smazenice: { input: 'mushroom', inputQty: 3, extraInputs: { onion: 1, egg: 2 }, needsTool: ['cooking_pot'],
-            output: 'smazenice', durationH: 1.5 },
+            output: 'smazenice', durationH: 1.5, fastBuild: 'cerna_kuchyne', fastBuildDurationH: 1 },
         // coquina-migrace-mrd (7.8.2026): Fáze 6 — nakládání, delší proces (mirror sauerkraut)
         pickled_mushrooms: { input: 'saffron_milk_cap', inputQty: 2, extraInputs: { porcini: 1 }, needsTool: ['barrel_tool'],
             output: 'pickled_mushrooms', durationH: 24 },
@@ -223,6 +225,14 @@ const CookingSystem = {
         let dur = def.durationH;
         if (def.fastTech && GameState.researchedTechs && GameState.researchedTechs.includes(def.fastTech)) {
             dur = def.fastDurationH || def.durationH;
+        }
+        // cerna-kuchyne-tie-in-mrd (9.8.2026): stavební rychlostní bonus,
+        // mirror fastTech výše — recept zůstává v Ohništi (needsBuild se
+        // nemění, stanice se nepřesouvá), jen je rychlejší, má-li hráč
+        // Černou kuchyni postavenou. Pilotní sada: Fáze 5 recepty (pokročilejší,
+        // víc surovin) — viz jejich fastBuild pole níže.
+        if (def.fastBuild && GameState.storage && GameState.storage[def.fastBuild] && GameState.storage[def.fastBuild].built) {
+            dur = def.fastBuildDurationH || dur;
         }
         if (chefMult === undefined) {
             const chef = this._getChef();
@@ -394,10 +404,81 @@ const CookingSystem = {
     // needsBuild — Hmoždíř i Rožeň sdílí "Panská kuchyně" (mirror MRD
     // modulového seznamu: Ohniště/Černá kuchyně/Udírna/Panská kuchyně).
     STATIONS: {
-        ohniste:        { icon: '🔥', name: 'Ohniště',        name_en: 'Hearth',         tier: 'Tier 1', flame: true },
-        cerna_kuchyne:  { icon: '🏚️', name: 'Černá kuchyně',  name_en: 'Black Kitchen',  tier: 'Tier 2' },
-        udirna:         { icon: '🏚️', name: 'Udírna',         name_en: 'Smokehouse',     tier: 'Tier 3' },
-        panska_kuchyne: { icon: '⚱️', name: 'Panská kuchyně', name_en: "Lord's Kitchen", tier: 'Tier 4' },
+        ohniste:        { icon: '🔥', name: 'Ohniště',        name_en: 'Hearth',         tier: 'Tier 1', flame: true, buildRequirement: null },
+        cerna_kuchyne:  { icon: '🏚️', name: 'Černá kuchyně',  name_en: 'Black Kitchen',  tier: 'Tier 2', buildRequirement: 'cerna_kuchyne' },
+        udirna:         { icon: '🏚️', name: 'Udírna',         name_en: 'Smokehouse',     tier: 'Tier 3', buildRequirement: 'udirna' },
+        panska_kuchyne: { icon: '⚱️', name: 'Panská kuchyně', name_en: "Lord's Kitchen", tier: 'Tier 4', buildRequirement: ['velky_hmozdir', 'rozen'] },
+    },
+    // coquina-visuals-mrd (9.8.2026): panel stanice (mimo Ohniště) se v gridu
+    // ukáže, až je aspoň jedna z jejích buildRequirement staveb postavená —
+    // ne jen podle techu (rozdíl od Výroby, kde recept zůstává vidět zamčený
+    // i bez budovy — RecipesDB/Výroba se touhle podmínkou vůbec nemění).
+    _stationBuilt: function(stationKey) {
+        const req = this.STATIONS[stationKey] && this.STATIONS[stationKey].buildRequirement;
+        if (!req) return true; // Ohniště — vždy
+        const ids = Array.isArray(req) ? req : [req];
+        return ids.some(id => GameState.storage && GameState.storage[id] && GameState.storage[id].built);
+    },
+    // coquina-info-levels-mrd (9.8.2026): sdílená úroveň odkrývání info (0-4)
+    // napříč CELÝM dashboardem — počet postavených Coquina staveb/tech, ne
+    // per-stanice. Level 0 = jen Ohniště, level 4 = všechny 4 postavené/
+    // vyzkoumané. Používá se k postupnému odkrývání textových popisků.
+    _coquinaInfoLevel: function() {
+        let n = 0;
+        if (GameState.storage && GameState.storage['cerna_kuchyne'] && GameState.storage['cerna_kuchyne'].built) n++;
+        if (GameState.storage && GameState.storage['udirna'] && GameState.storage['udirna'].built) n++;
+        if (this._stationBuilt('panska_kuchyne')) n++;
+        if (GameState.researchedTechs && GameState.researchedTechs.includes('tech_caseus')) n++;
+        return n;
+    },
+    // coquina-info-levels-mrd (9.8.2026): textový info blok pod ilustrací,
+    // odkrývá se podle _coquinaInfoLevel() (0-4). Level 0 = jen základní
+    // materiál/stav, level 4 = plný popisný text (mirror Athanor lore stylu).
+    // items = pole běžících instancí z buildInProgressHtml (stejná stanice).
+    _infoBlock: function(stationKey, level, items, extra) {
+        const isCs = ((GameState.settings && GameState.settings.language) || 'cs') !== 'en';
+        const lines = [];
+        const active = items && items.length > 0;
+        const firstName = active ? ((typeof iName === 'function') ? iName(this.COOK_TYPES[items[0].type].output) : items[0].type) : null;
+        const extraCount = active && items.length > 1 ? items.length - 1 : 0;
+
+        if (stationKey === 'ohniste') {
+            if (!extra || !extra.hasPot) return '';
+            const tierNames = { 1: isCs ? 'Kamenný' : 'Stone', 2: isCs ? 'Železný' : 'Iron', 3: isCs ? 'Bronzový' : 'Bronze' };
+            lines.push((isCs ? 'Kotlík' : 'Pot') + ': ' + (tierNames[extra.tier] || tierNames[1]));
+            if (level >= 1) lines.push(active ? '🌡️ ' + (isCs ? 'Žhavé' : 'Hot') : '🌡️ ' + (isCs ? 'Vychladlé' : 'Cold'));
+            if (level >= 2 && active) lines.push((isCs ? 'Vaří se' : 'Cooking') + ': ' + firstName + (extraCount ? ` (+${extraCount})` : ''));
+            if (level >= 3 && active) lines.push(isCs ? 'Bublá, vůně se line komnatou.' : 'It bubbles, the smell fills the room.');
+            if (level >= 4) lines.push(isCs ? 'Srdce kuchyně od úsvitu klášterního života — sem se snáší dřevo, sem se vrací hladoví.' : "The kitchen's heart since the dawn of monastic life — wood comes here, the hungry return here.");
+        }
+        else if (stationKey === 'cerna_kuchyne') {
+            if (level >= 1) lines.push(active ? '🌡️ ' + (isCs ? 'Pec rozehřátá' : 'Oven hot') : '🌡️ ' + (isCs ? 'Pec vychladlá' : 'Oven cold'));
+            if (level >= 2 && active) lines.push((isCs ? 'Probíhá' : 'Working') + ': ' + firstName + (extraCount ? ` (+${extraCount})` : ''));
+            if (level >= 3 && active) lines.push(isCs ? 'Dým stoupá komínem, maso hnědne pomalu.' : 'Smoke climbs the chimney, meat browns slowly.');
+            if (level >= 4) lines.push(isCs ? 'Klenutá kuchyně se širokým soplouchem — oheň tu slouží dvakrát, k vaření i uzení.' : 'A vaulted kitchen with a wide smoke-hood — one fire serving two purposes, cooking and smoking.');
+        }
+        else if (stationKey === 'udirna') {
+            if (level >= 1) lines.push(active ? '🌫️ ' + (isCs ? 'Kouří se' : 'Smoking') : '🌫️ ' + (isCs ? 'Klidná' : 'Quiet'));
+            if (level >= 2 && active) lines.push((isCs ? 'Udí se' : 'Smoking') + ': ' + firstName + (extraCount ? ` (+${extraCount})` : ''));
+            if (level >= 3 && active) lines.push(isCs ? 'Studený kouř provoní maso pomalu, bez spěchu.' : 'Cold smoke perfumes the meat slowly, unhurried.');
+            if (level >= 4) lines.push(isCs ? 'Samostatná věž, oheň vedený zvenčí — takhle se maso udí na zimu, ne na oběd.' : "A standalone tower, its fire fed from outside — meat smoked this way is for winter, not for lunch.");
+        }
+        else if (stationKey === 'panska_kuchyne') {
+            if (level >= 1) lines.push(active ? '⚒️ ' + (isCs ? 'V provozu' : 'Working') : '⚒️ ' + (isCs ? 'Klidná' : 'Idle'));
+            if (level >= 2 && active) lines.push((isCs ? 'Připravuje se' : 'Preparing') + ': ' + firstName + (extraCount ? ` (+${extraCount})` : ''));
+            if (level >= 3 && active) lines.push(isCs ? 'Tlouk ťuká o kámen, rožeň se pomalu otáčí.' : 'The pestle taps stone, the spit turns slowly.');
+            if (level >= 4) lines.push(isCs ? 'Hmoždíř na koření, rožeň na maso — vybavení pro hosty, ne pro každodenní kaši.' : 'Mortar for spice, spit for meat — equipment for guests, not for everyday porridge.');
+        }
+        else if (stationKey === 'syrarna') {
+            const cheeseCount = extra && extra.cheeseCount || 0;
+            if (level >= 1) lines.push(cheeseCount > 0 ? '🧀 ' + cheeseCount + ' ' + (isCs ? 'zraje' : 'aging') : '🧀 ' + (isCs ? 'Police prázdné' : 'Shelves empty'));
+            if (level >= 2 && cheeseCount > 0 && extra && extra.cheeseTypes) lines.push((isCs ? 'Druhy' : 'Types') + ': ' + extra.cheeseTypes.join(', '));
+            if (level >= 3 && cheeseCount > 0) lines.push(isCs ? 'V klidu, v chladu, v tichu — sýr si žádá čas.' : 'Cool, still, and quiet — cheese demands its time.');
+            if (level >= 4) lines.push(isCs ? 'Casearium — mléko čeká na svou proměnu, sýr zraje beze spěchu.' : 'Casearium — milk awaits its transformation, cheese ages without hurry.');
+        }
+
+        if (lines.length === 0) return '';
+        return `<div style="font-size:0.68rem; opacity:0.75; line-height:1.5; margin-bottom:8px; padding:0 2px;">${lines.map(l => `<div>${l}</div>`).join('')}</div>`;
     },
     _stationKey: function(def) {
         if (!def.needsBuild) return 'ohniste';
@@ -452,7 +533,7 @@ const CookingSystem = {
                         <span style="opacity:0.6; white-space:nowrap;">${remainStr}</span>
                       </div>`;
             });
-            return { count: items.length, html: h };
+            return { count: items.length, html: h, items: items };
         };
 
         const buildRecipeCard = (key, def) => {
@@ -489,6 +570,7 @@ const CookingSystem = {
         };
 
         let gridHtml = '';
+        const _infoLevel = this._coquinaInfoLevel();
         Object.keys(this.STATIONS).forEach(stationKey => {
             const meta = this.STATIONS[stationKey];
             const recipeKeys = Object.keys(this.COOK_TYPES).filter(key => {
@@ -498,12 +580,23 @@ const CookingSystem = {
                 return hasTech;
             });
             const inProgress = buildInProgressHtml(stationKey);
-            if (recipeKeys.length === 0 && inProgress.count === 0) return; // stanice zatím nedostupná — skrýt celou
+            if (recipeKeys.length === 0 && inProgress.count === 0) return; // stanice zatím nedostupná (tech) — skrýt celou
+            if (!this._stationBuilt(stationKey)) return; // budova ještě nestojí — skrýt celou (jen Vaření dashboard, Výroba beze změny)
 
             const collapseKey = 'cookingStation_' + stationKey + 'Open';
             const isOpen = GameState.ui[collapseKey] !== false;
             const stationName = isCs ? meta.name : meta.name_en;
             const flameIcon = meta.flame ? `<span class="coquina-flame">${meta.icon}</span>` : meta.icon;
+            const visualHtml = (typeof CoquinaVisuals !== 'undefined')
+                ? CoquinaVisuals.render(stationKey, inProgress.count > 0, {
+                    hasPot: (GameState.inventory['cooking_pot'] || 0) > 0,
+                    tier: GameState.cookingPotTier || 1,
+                  })
+                : '';
+            const infoBlockHtml = this._infoBlock(stationKey, _infoLevel, inProgress.items, {
+                hasPot: (GameState.inventory['cooking_pot'] || 0) > 0,
+                tier: GameState.cookingPotTier || 1,
+            });
 
             const progressCollapseKey = 'cookingStation_' + stationKey + 'ProgressOpen';
             // defaultně otevřeno jen do 3 rozjetých procesů — nad to bobtná panel, radši sbalit
@@ -520,6 +613,8 @@ const CookingSystem = {
                   <div class="coquina-station-title">${flameIcon}<span class="coquina-station-name">${stationName}</span></div>
                   <span class="coquina-station-tier">${meta.tier}</span>
                 </div>
+                ${visualHtml ? `<div style="margin-bottom:8px;">${visualHtml}</div>` : ''}
+                ${infoBlockHtml}
                 ${progressHtml}
                 <details ${isOpen ? 'open' : ''} ontoggle="GameState.ui.${collapseKey} = this.open; Game.save();">
                   <summary class="coquina-summary" style="cursor:pointer; font-size:0.72rem; opacity:0.6; user-select:none; margin-bottom:4px;">📖 ${isCs ? 'Recepty' : 'Recipes'} (${recipeKeys.length})</summary>
@@ -531,15 +626,66 @@ const CookingSystem = {
         // Sýrárna — vlastní panel ve stejném gridu, obsah beze změny (CheeseSystem.render()).
         const cheeseContent = (typeof CheeseSystem !== 'undefined' && CheeseSystem.render) ? CheeseSystem.render() : '';
         if (cheeseContent) {
+            // aktivní = aspoň 1 instance ještě NENÍ v koncové fázi (fresh vždy
+            // "pracuje"; mature jen pokud existuje další agedDays fáze —
+            // syrečky nemají aged fázi, mature u nich je koncový stav)
+            const cheeseActive = (GameState.cheeseInstances || []).some(inst => {
+                const def = (typeof CheeseSystem !== 'undefined' && CheeseSystem.CHEESE_TYPES) ? CheeseSystem.CHEESE_TYPES[inst.baseType] : null;
+                if (!def) return false;
+                if (inst.phase === 'fresh') return true;
+                if (inst.phase === 'mature' && def.agedDays) return true;
+                return false;
+            });
+            const cheeseVisual = (typeof CoquinaVisuals !== 'undefined') ? CoquinaVisuals.syrarna(cheeseActive) : '';
+            const _activeCheeseInsts = (GameState.cheeseInstances || []).filter(inst => {
+                const def = (typeof CheeseSystem !== 'undefined' && CheeseSystem.CHEESE_TYPES) ? CheeseSystem.CHEESE_TYPES[inst.baseType] : null;
+                if (!def) return false;
+                if (inst.phase === 'fresh') return true;
+                if (inst.phase === 'mature' && def.agedDays) return true;
+                return false;
+            });
+            const _cheeseTypeNames = [...new Set(_activeCheeseInsts.map(inst => {
+                const def = (typeof CheeseSystem !== 'undefined' && CheeseSystem.CHEESE_TYPES) ? CheeseSystem.CHEESE_TYPES[inst.baseType] : null;
+                return def ? (isCs ? def.name : (def.name_en || def.name)) : inst.baseType;
+            }))];
+            const syrarnaInfoHtml = this._infoBlock('syrarna', _infoLevel, null, {
+                cheeseCount: _activeCheeseInsts.length,
+                cheeseTypes: _cheeseTypeNames,
+            });
             gridHtml += `<div class="coquina-station">
                 <div class="coquina-station-head">
                   <div class="coquina-station-title">🧀<span class="coquina-station-name">${isCs ? 'Sýrárna' : 'Dairy'}</span></div>
                   <span class="coquina-station-tier">Caseus</span>
                 </div>
+                ${cheeseVisual ? `<div style="margin-bottom:8px;">${cheeseVisual}</div>` : ''}
+                ${syrarnaInfoHtml}
                 <div style="margin:0 -12px -12px;">${cheeseContent}</div>
               </div>`;
         }
 
-        return `<div style="padding:12px;"><div class="coquina-stations">${gridHtml}</div></div>`;
+        // ── Infobar — souhrn přes celý dashboard (vaří/udí/zraje sýr) ──────────
+        let _brewCount = 0, _smokeCount = 0;
+        (GameState.cookingInstances || []).forEach(inst => {
+            const def = this.COOK_TYPES[inst.type];
+            if (!def) return;
+            const isSmoking = def.needsBuild === 'udirna' || def.output === 'smoked_meat_chimney';
+            if (isSmoking) _smokeCount++; else _brewCount++;
+        });
+        const _agingCount = (GameState.cheeseInstances || []).filter(inst => {
+            const def = (typeof CheeseSystem !== 'undefined' && CheeseSystem.CHEESE_TYPES) ? CheeseSystem.CHEESE_TYPES[inst.baseType] : null;
+            if (!def) return false;
+            if (inst.phase === 'fresh') return true;
+            if (inst.phase === 'mature' && def.agedDays) return true;
+            return false;
+        }).length;
+        const _infobarParts = [];
+        if (_brewCount > 0) _infobarParts.push(`🍲 ${_brewCount} ${isCs ? 'vaří' : 'cooking'}`);
+        if (_smokeCount > 0) _infobarParts.push(`🔥 ${_smokeCount} ${isCs ? 'udí' : 'smoking'}`);
+        if (_agingCount > 0) _infobarParts.push(`🧀 ${_agingCount} ${isCs ? 'zraje' : 'aging'}`);
+        const infobarHtml = _infobarParts.length > 0
+            ? `<div style="display:flex; gap:16px; padding:6px 12px; margin-bottom:8px; font-size:0.78rem; opacity:0.75; flex-wrap:wrap;">${_infobarParts.map(p => `<span>${p}</span>`).join('')}</div>`
+            : '';
+
+        return `<div style="padding:12px;">${infobarHtml}<div class="coquina-stations">${gridHtml}</div></div>`;
     },
 };
