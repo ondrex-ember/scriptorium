@@ -812,7 +812,10 @@ const DecaySystem = {
 
     // ── Helpers pro Inventarium UI ────────────────────────────────────────
     // Efektivní denní sazba položky (po modifikátorech), null = nekazí se
-    effectiveRate: function(id) {
+    // qty (volitelné) — loose-herd sazba (viz FarmyardSystem) je qty-závislá
+    // (√n škálování), na rozdíl od DECAY_RATES/DURABLE_DECAY_RATES kde na
+    // qty nezáleží. Bez qty se pro zvířata vrátí null (stejné jako dřív).
+    effectiveRate: function(id, qty) {
         const def = this.DECAY_RATES[id];
         if (def) {
             let rate = def.rate * this.storageReduction() * (this.isOverflow() ? 2 : 1);
@@ -824,6 +827,12 @@ const DecaySystem = {
         if (durableDef) {
             const protectedNow = this.durableStorageProtects() && !(this.isOverflow() && this.perishableStockLow());
             return protectedNow ? 0 : durableDef.rate;
+        }
+        // Volné stádo (loose-herd-mrd, 9.8.2026) — jiný systém (FarmyardSystem),
+        // ale stejné volací místo, ať mají všechny UI seznamy jeden zdroj pravdy.
+        if (qty > 0 && typeof FarmyardSystem !== 'undefined' && FarmyardSystem.LOOSE_HERD_SPECIES
+            && FarmyardSystem.LOOSE_HERD_SPECIES.includes(id)) {
+            return 0.15 / Math.sqrt(qty);
         }
         return null;
     },

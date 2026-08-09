@@ -583,7 +583,7 @@ const UI = {
         // stejně jako scavenge dřív — decay-modal-fix, 9.8.2026).
         let decayHtml = '';
         if (typeof DecaySystem !== 'undefined' && DecaySystem.isActive && DecaySystem.isActive()) {
-            const rate = DecaySystem.effectiveRate(id);
+            const rate = DecaySystem.effectiveRate(id, qty);
             const isDurable = !!DecaySystem.DURABLE_DECAY_RATES[id];
             if (rate === null) {
                 decayHtml = `<div style="margin:10px 0;padding:8px 12px;background:rgba(90,154,90,0.08);border-radius:6px;border-left:3px solid #5a9a5a;font-size:0.85rem;">∞ ${lang === 'en' ? 'Does not decay' : 'Nekazí se'}</div>`;

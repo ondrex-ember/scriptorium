@@ -1747,7 +1747,7 @@ const CellariumSystem = {
       if (hasRegistrum && activeCat !== 'all' && itemCat !== activeCat) continue;
 
       let decayHtml = '';
-      let rate = ds ? ds.effectiveRate(id) : null;
+      let rate = ds ? ds.effectiveRate(id, qty) : null;
       if (rate !== null && rate !== undefined) {
         const pct = Math.round(rate * 100);
         const warn = pct >= 20;
