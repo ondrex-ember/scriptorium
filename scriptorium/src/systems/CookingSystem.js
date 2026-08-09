@@ -305,8 +305,7 @@ const CookingSystem = {
         // ne až po přepnutí tabu — mirror stejné opravy v UI.renderAll().
         const _cookEl = document.getElementById('home-cooking-content');
         if (_cookEl && _cookEl.style.display !== 'none') {
-            const _cheeseHtml = (typeof CheeseSystem !== 'undefined' && CheeseSystem.render) ? CheeseSystem.render() : '';
-            _cookEl.innerHTML = this.render() + _cheeseHtml;
+            _cookEl.innerHTML = this.render();
         }
         const effH = this._effectiveDuration(def, _chefMult);
         // udirna-mrd: elegantní modal — "začalo se vařit", odkaz do Vaření tabu.
@@ -384,56 +383,72 @@ const CookingSystem = {
         }
     },
 
-    // ── Vaření tab — seznam receptů + aktivní procesy s progress bary ──────
+    // coquina-dashboard-mrd (9.8.2026): mapování receptu na stanici podle
+    // needsBuild — Hmoždíř i Rožeň sdílí "Panská kuchyně" (mirror MRD
+    // modulového seznamu: Ohniště/Černá kuchyně/Udírna/Panská kuchyně).
+    STATIONS: {
+        ohniste:        { icon: '🔥', name: 'Ohniště',        name_en: 'Hearth',         tier: 'Tier 1', flame: true },
+        cerna_kuchyne:  { icon: '🏚️', name: 'Černá kuchyně',  name_en: 'Black Kitchen',  tier: 'Tier 2' },
+        udirna:         { icon: '🏚️', name: 'Udírna',         name_en: 'Smokehouse',     tier: 'Tier 3' },
+        panska_kuchyne: { icon: '⚱️', name: 'Panská kuchyně', name_en: "Lord's Kitchen", tier: 'Tier 4' },
+    },
+    _stationKey: function(def) {
+        if (!def.needsBuild) return 'ohniste';
+        if (def.needsBuild === 'cerna_kuchyne') return 'cerna_kuchyne';
+        if (def.needsBuild === 'udirna') return 'udirna';
+        if (def.needsBuild === 'velky_hmozdir' || def.needsBuild === 'rozen') return 'panska_kuchyne';
+        return 'ohniste';
+    },
+    _buildNames: {
+        cerna_kuchyne: { cs: 'Černá kuchyně', en: 'Black Kitchen' },
+        udirna: { cs: 'Udírna', en: 'Smokehouse' },
+        velky_hmozdir: { cs: 'Velký hmoždíř', en: 'Great Mortar' },
+        rozen: { cs: 'Rožeň', en: 'Spit' },
+    },
+    _buildName: function(id, lang) {
+        return (this._buildNames[id] && this._buildNames[id][lang === 'en' ? 'en' : 'cs']) || id;
+    },
+
+    // ── Vaření tab — grid stanic (Ohniště/Černá kuchyně/Udírna/Panská
+    // kuchyně/Sýrárna), každá s vlastním "Probíhá" + seznamem receptů.
+    // Mirror Athanor panel jazyka (coquina-station CSS třída v shell.html).
     render: function() {
         if (!this.isActive()) {
             const lang = (GameState.settings && GameState.settings.language) || 'cs';
             return `<div style="padding:20px; text-align:center; opacity:0.6; font-style:italic;">${lang === 'en' ? 'Requires research first.' : 'Vyžaduje nejdřív výzkum.'}</div>`;
         }
         const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        const isCs = lang !== 'en';
         const list = this._ensureState();
-        let h = `<div style="padding:12px;">`;
-
-        // coquina-vareni-ui-mrd (7.8.2026): sbalitelné sekce (mirror Forum
-        // Pecuarium vzoru), stav uložen do GameState.ui ať zůstane po reloadu.
         if (!GameState.ui) GameState.ui = {};
-        if (list.length > 0) {
-            const progressOpen = GameState.ui.cookingProgressOpen !== false;
-            h += `<details ${progressOpen ? 'open' : ''} ontoggle="GameState.ui.cookingProgressOpen = this.open; Game.save();" style="margin-bottom:14px; background:rgba(0,0,0,0.03); border-radius:8px; border-left:3px solid var(--accent-gold);">`;
-            h += `<summary style="cursor:pointer; padding:10px 14px; font-size:0.92rem; font-weight:bold; list-style:none; user-select:none; display:flex; align-items:center; justify-content:space-between; gap:6px; color:var(--ink-primary);">
-                    <span>🔥 ${lang === 'en' ? 'In Progress' : 'Probíhá'}</span><span style="opacity:0.5; font-weight:normal;">▾</span>
-                  </summary>`;
-            h += `<div style="padding:4px 14px 14px;">`;
-            list.forEach(inst => {
+
+        const buildInProgressHtml = (stationKey) => {
+            const items = list.filter(inst => {
                 const def = this.COOK_TYPES[inst.type];
-                if (!def) return;
+                return def && this._stationKey(def) === stationKey;
+            });
+            if (items.length === 0) return { count: 0, html: '' };
+            let h = '';
+            items.forEach(inst => {
+                const def = this.COOK_TYPES[inst.type];
                 const totalMs = this._effectiveDuration(def, inst.brotherMult || 1.0) * this.HOUR_MS;
                 const elapsed = Date.now() - inst.startedAt;
                 const pct = Math.min(100, Math.round(elapsed / totalMs * 100));
                 const remainH = Math.max(0, (totalMs - elapsed) / this.HOUR_MS);
                 const outName = (typeof iName === 'function') ? iName(def.output) : def.output;
-                h += `<div style="background:rgba(0,0,0,0.05); padding:12px; border-radius:8px; border-left:3px solid var(--accent-gold); margin-bottom:8px;">
-                        <div style="font-size:0.85rem; font-weight:bold; margin-bottom:6px;">${outName}</div>
-                        <div style="background:rgba(0,0,0,0.1); border-radius:4px; height:8px;">
-                          <div style="width:${pct}%; background:var(--accent-gold); height:8px; border-radius:4px; transition:width 0.3s;"></div>
+                const remainStr = isCs ? `zbývá ${this._formatDuration(remainH, 'cs')}` : `${this._formatDuration(remainH, 'en')} left`;
+                h += `<div class="coquina-brewing" style="display:flex; align-items:center; gap:7px; background:rgba(0,0,0,0.18); padding:5px 8px; border-radius:6px; margin-bottom:4px; font-size:0.72rem;">
+                        <span style="font-weight:bold; white-space:nowrap;">${outName}</span>
+                        <div style="flex:1; background:rgba(0,0,0,0.25); border-radius:3px; height:5px; overflow:hidden;">
+                          <div style="width:${pct}%; background:var(--accent-gold); height:5px; border-radius:3px; transition:width 0.3s;"></div>
                         </div>
-                        <div style="font-size:0.72rem; opacity:0.65; margin-top:4px;">${lang === 'en' ? `${this._formatDuration(remainH, 'en')} remaining` : `zbývá ${this._formatDuration(remainH, 'cs')}`}</div>
+                        <span style="opacity:0.6; white-space:nowrap;">${remainStr}</span>
                       </div>`;
             });
-            h += `</div></details>`;
-        }
+            return { count: items.length, html: h };
+        };
 
-        const recipesOpen = GameState.ui.cookingRecipesOpen !== false;
-        h += `<details ${recipesOpen ? 'open' : ''} ontoggle="GameState.ui.cookingRecipesOpen = this.open; Game.save();" style="background:rgba(0,0,0,0.03); border-radius:8px; border-left:3px solid var(--accent-gold);">`;
-        h += `<summary style="cursor:pointer; padding:10px 14px; font-size:0.92rem; font-weight:bold; list-style:none; user-select:none; display:flex; align-items:center; justify-content:space-between; gap:6px; color:var(--ink-primary);">
-                <span>📖 ${lang === 'en' ? 'Recipes' : 'Recepty'}</span><span style="opacity:0.5; font-weight:normal;">▾</span>
-              </summary>`;
-        // grid — auto-fit/minmax se sám zúží na 1 sloupec na úzkém displeji, až 3 na širokém
-        h += `<div style="padding:4px 14px 14px; display:grid; grid-template-columns:repeat(auto-fit, minmax(260px, 1fr)); gap:6px;">`;
-        Object.keys(this.COOK_TYPES).forEach(key => {
-            const def = this.COOK_TYPES[key];
-            const hasTech = !def.needsTech || (GameState.researchedTechs && GameState.researchedTechs.includes(def.needsTech));
-            if (!hasTech) return; // recept se vůbec nezobrazí, dokud není tech
+        const buildRecipeCard = (key, def) => {
             const outName = (typeof iName === 'function') ? iName(def.output) : def.output;
             const inName = (typeof iName === 'function') ? iName(def.input) : def.input;
             const have = GameState.inventory[def.input] || 0;
@@ -442,7 +457,6 @@ const CookingSystem = {
             const hasTool = !missingTool;
             const hasSalt = !def.saltQty || (GameState.inventory['salt'] || 0) >= def.saltQty;
             const hasWood = def.needsItem !== 'log' || (GameState.inventory['log'] || 0) >= (def.needsItemQty || 1);
-            // coquina-tier4-mrd (7.8.2026): extraInputs kontrola pro recepty s víc surovinami
             const hasExtraInputs = !def.extraInputs || Object.entries(def.extraInputs).every(([id, qty]) => (GameState.inventory[id] || 0) >= qty);
             const can = have >= def.inputQty && hasBuild && hasTool && hasSalt && hasWood && hasExtraInputs;
             const effH = this._effectiveDuration(def);
@@ -454,20 +468,71 @@ const CookingSystem = {
                     reqStr += `, ${qty}× ${(typeof iName === 'function') ? iName(id) : id}`;
                 });
             }
-            h += `<div style="background:rgba(255,255,255,0.4); padding:10px; border-radius:8px; border:1px solid rgba(197,160,89,0.3); margin-bottom:6px;">
+            return `<div style="background:rgba(255,255,255,0.09); padding:9px; border-radius:7px; border:1px solid rgba(197,160,89,0.45); margin-bottom:5px;">
                     <div style="display:flex; justify-content:space-between; align-items:center;">
                       <div>
-                        <div style="font-size:0.82rem; font-weight:bold;">${outName}</div>
-                        <div style="font-size:0.7rem; opacity:0.65;">${reqStr} — ${this._formatDuration(effH, lang)}</div>
-                        ${!hasBuild ? `<div style="font-size:0.68rem; color:#c0392b;">🔒 ${lang === 'en' ? 'Needs Smokehouse' : 'Potřeba Udírna'}</div>` : ''}
-                        ${missingTool ? `<div style="font-size:0.68rem; color:#c0392b;">🔒 ${lang === 'en' ? 'Needs: ' : 'Potřeba: '}${(typeof iName === 'function') ? iName(missingTool) : missingTool}</div>` : ''}
+                        <div style="font-size:0.8rem; font-weight:bold;">${outName}</div>
+                        <div style="font-size:0.68rem; opacity:0.65;">${reqStr} — ${this._formatDuration(effH, lang)}</div>
+                        ${!hasBuild ? `<div style="font-size:0.65rem; color:#e07a5f;">🔒 ${isCs ? 'Potřeba' : 'Needs'}: ${this._buildName(def.needsBuild, lang)}</div>` : ''}
+                        ${missingTool ? `<div style="font-size:0.65rem; color:#e07a5f;">🔒 ${isCs ? 'Potřeba' : 'Needs'}: ${(typeof iName === 'function') ? iName(missingTool) : missingTool}</div>` : ''}
                       </div>
-                      <button class="craft-btn" onclick="CookingSystem.startCooking('${key}')" ${can ? '' : 'disabled'} style="font-size:0.75rem;">🍲 ${lang === 'en' ? 'Start' : 'Vařit'}</button>
+                      <button class="craft-btn" onclick="CookingSystem.startCooking('${key}')" ${can ? '' : 'disabled'} style="font-size:0.72rem;">🍲 ${isCs ? 'Vařit' : 'Start'}</button>
                     </div>
                   </div>`;
+        };
+
+        let gridHtml = '';
+        Object.keys(this.STATIONS).forEach(stationKey => {
+            const meta = this.STATIONS[stationKey];
+            const recipeKeys = Object.keys(this.COOK_TYPES).filter(key => {
+                const def = this.COOK_TYPES[key];
+                if (this._stationKey(def) !== stationKey) return false;
+                const hasTech = !def.needsTech || (GameState.researchedTechs && GameState.researchedTechs.includes(def.needsTech));
+                return hasTech;
+            });
+            const inProgress = buildInProgressHtml(stationKey);
+            if (recipeKeys.length === 0 && inProgress.count === 0) return; // stanice zatím nedostupná — skrýt celou
+
+            const collapseKey = 'cookingStation_' + stationKey + 'Open';
+            const isOpen = GameState.ui[collapseKey] !== false;
+            const stationName = isCs ? meta.name : meta.name_en;
+            const flameIcon = meta.flame ? `<span class="coquina-flame">${meta.icon}</span>` : meta.icon;
+
+            const progressCollapseKey = 'cookingStation_' + stationKey + 'ProgressOpen';
+            // defaultně otevřeno jen do 3 rozjetých procesů — nad to bobtná panel, radši sbalit
+            const progressDefaultOpen = inProgress.count <= 3;
+            const progressOpen = GameState.ui[progressCollapseKey] !== undefined ? GameState.ui[progressCollapseKey] : progressDefaultOpen;
+            const progressHtml = inProgress.count === 0 ? '' : `
+                <details ${progressOpen ? 'open' : ''} ontoggle="GameState.ui.${progressCollapseKey} = this.open; Game.save();" style="margin-bottom:8px;">
+                  <summary class="coquina-summary" style="cursor:pointer; font-size:0.72rem; opacity:0.7; user-select:none; margin-bottom:4px;">🔥 ${isCs ? 'Probíhá' : 'In progress'} (${inProgress.count})</summary>
+                  ${inProgress.html}
+                </details>`;
+
+            gridHtml += `<div class="coquina-station">
+                <div class="coquina-station-head">
+                  <div class="coquina-station-title">${flameIcon}<span class="coquina-station-name">${stationName}</span></div>
+                  <span class="coquina-station-tier">${meta.tier}</span>
+                </div>
+                ${progressHtml}
+                <details ${isOpen ? 'open' : ''} ontoggle="GameState.ui.${collapseKey} = this.open; Game.save();">
+                  <summary class="coquina-summary" style="cursor:pointer; font-size:0.72rem; opacity:0.6; user-select:none; margin-bottom:4px;">📖 ${isCs ? 'Recepty' : 'Recipes'} (${recipeKeys.length})</summary>
+                  ${recipeKeys.map(key => buildRecipeCard(key, this.COOK_TYPES[key])).join('')}
+                </details>
+              </div>`;
         });
 
-        h += `</div></details></div>`;
-        return h;
+        // Sýrárna — vlastní panel ve stejném gridu, obsah beze změny (CheeseSystem.render()).
+        const cheeseContent = (typeof CheeseSystem !== 'undefined' && CheeseSystem.render) ? CheeseSystem.render() : '';
+        if (cheeseContent) {
+            gridHtml += `<div class="coquina-station">
+                <div class="coquina-station-head">
+                  <div class="coquina-station-title">🧀<span class="coquina-station-name">${isCs ? 'Sýrárna' : 'Dairy'}</span></div>
+                  <span class="coquina-station-tier">Caseus</span>
+                </div>
+                <div style="margin:0 -12px -12px;">${cheeseContent}</div>
+              </div>`;
+        }
+
+        return `<div style="padding:12px;"><div class="coquina-stations">${gridHtml}</div></div>`;
     },
 };

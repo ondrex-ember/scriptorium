@@ -1735,6 +1735,79 @@
             to { transform: scale(1.05); }
         }
 
+        /* coquina-dashboard-mrd (9.8.2026): grid stanic ve Vaření — mirror
+           Athanor panel jazyka (měkké pozadí, tenký border, zaoblené rohy),
+           ne nový vizuální systém. Vlastní jmenný prostor coquina-*, ať se
+           nepere s craft-btn/card třídami použitými jinde. */
+        .coquina-stations {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));
+            gap: 12px;
+        }
+        .coquina-station {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 12px;
+            box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.15);
+            position: relative;
+            overflow: hidden;
+        }
+        .coquina-station::before {
+            content: '';
+            position: absolute; top: 0; left: 0; right: 0; height: 2px;
+            background: linear-gradient(90deg, transparent, var(--accent-gold), transparent);
+            opacity: 0.5;
+        }
+        .coquina-station-head {
+            display: flex; align-items: center; justify-content: space-between; gap: 8px;
+            margin-bottom: 8px;
+        }
+        .coquina-station-title { display: flex; align-items: center; gap: 7px; }
+        .coquina-station-name {
+            font-family: 'Cinzel', serif; font-size: 0.86rem;
+            color: var(--accent-gold); letter-spacing: 0.4px;
+        }
+        .coquina-station-tier {
+            font-family: 'Cinzel', serif; font-size: 0.56rem; letter-spacing: 1.2px;
+            text-transform: uppercase; opacity: 0.5;
+            border: 1px solid var(--border-color); border-radius: 4px; padding: 2px 5px;
+        }
+        .coquina-flame { display: inline-block; animation: coquina-flicker 1.6s ease-in-out infinite; }
+        @keyframes coquina-flicker {
+            0%, 100% { opacity: 1; transform: scale(1) rotate(0deg); }
+            50% { opacity: 0.55; transform: scale(0.82) rotate(-3deg); }
+        }
+        .coquina-brewing { position: relative; }
+        .coquina-brewing::after {
+            content: '♨'; position: absolute; top: -7px; left: 1px;
+            font-size: 0.68rem; opacity: 0; color: var(--accent-gold);
+            animation: coquina-rise 2.6s ease-in infinite;
+        }
+        @keyframes coquina-rise {
+            0% { transform: translateY(4px); opacity: 0; }
+            30% { opacity: 0.7; }
+            100% { transform: translateY(-12px); opacity: 0; }
+        }
+        /* summary elementy bez nativního markeru (list-style:none) — vlastní ▾.
+           Zúženo na .coquina-summary (ne všechny .coquina-station summary),
+           CheeseSystem.render() má svou vlastní ▾ vloženou v textu (jiný vzor) —
+           obecný selektor by jí přidal druhou šipku navrch. */
+        .coquina-summary { list-style: none; }
+        .coquina-summary::-webkit-details-marker { display: none; }
+        .coquina-summary::after {
+            content: '▾'; float: right; opacity: 0.55; transition: transform 0.15s;
+        }
+        details[open] > .coquina-summary::after { transform: rotate(180deg); }
+        /* design-pokorna (accessibility) i OS prefers-reduced-motion — bez animací */
+        body.design-pokorna .coquina-flame,
+        body.design-pokorna .coquina-brewing::after {
+            animation: none !important;
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .coquina-flame, .coquina-brewing::after { animation: none !important; }
+        }
+
         /* Mobile-friendly touch targets */
         @media (max-width: 500px) {
             .craft-btn {

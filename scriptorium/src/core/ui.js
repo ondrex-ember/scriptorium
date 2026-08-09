@@ -40,10 +40,11 @@ const UI = {
             }
             // vareni-refresh-fix (9.8.2026): mirror renderAll() níže — Vaření
             // subtab se dřív nepřekresloval při přepnutí zpět na Home.
+            // coquina-dashboard-mrd (9.8.2026): Sýrárna teď vlastní panel
+            // uvnitř CookingSystem.render() (grid stanic) — cheeseHtml pryč.
             const cookEl = document.getElementById('home-cooking-content');
             if (cookEl && cookEl.style.display !== 'none' && typeof CookingSystem !== 'undefined') {
-                const cheeseHtml = (typeof CheeseSystem !== 'undefined' && CheeseSystem.render) ? CheeseSystem.render() : '';
-                cookEl.innerHTML = CookingSystem.render() + cheeseHtml;
+                cookEl.innerHTML = CookingSystem.render();
             }
         }
         if (name === 'garden') this.renderGarden();
@@ -200,8 +201,7 @@ const UI = {
             // spotřebou surovin, dokud hráč neopustil a nevrátil se na Vaření.
             const cookEl = document.getElementById('home-cooking-content');
             if (cookEl && cookEl.style.display !== 'none' && typeof CookingSystem !== 'undefined') {
-                const cheeseHtml = (typeof CheeseSystem !== 'undefined' && CheeseSystem.render) ? CheeseSystem.render() : '';
-                cookEl.innerHTML = CookingSystem.render() + cheeseHtml;
+                cookEl.innerHTML = CookingSystem.render();
             }
         } else if (s === 'inv') { this.renderInventory(); }
         else if (s === 'craft') { this.renderCrafting(); }
@@ -1973,11 +1973,10 @@ const UI = {
         if (btn) btn.classList.add('active');
         if (tab === 'mine') { this.renderMineYieldInfo(); this.renderFodinaPetitionPanel(); this.renderMineActions(); }
         if (tab === 'cooking' && cooking && typeof CookingSystem !== 'undefined') {
-            // coquina-cheese-mirror-mrd (7.8.2026): sýry zrcadlené vedle
-            // CookingSystem procesů — samostatný systém (CheeseSystem), jen
-            // společné zobrazení, ne migrace do COOK_TYPES.
-            const cheeseHtml = (typeof CheeseSystem !== 'undefined' && CheeseSystem.render) ? CheeseSystem.render() : '';
-            cooking.innerHTML = CookingSystem.render() + cheeseHtml;
+            // coquina-dashboard-mrd (9.8.2026): Sýrárna teď vlastní panel
+            // uvnitř CookingSystem.render() (grid stanic), mirror ostatních
+            // stanic — CheeseSystem samostatný systém, ale ne samostatné HTML.
+            cooking.innerHTML = CookingSystem.render();
         }
     },
 

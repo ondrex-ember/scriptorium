@@ -719,8 +719,7 @@ const Game = {
                 if (GameState.cookingInstances && GameState.cookingInstances.length > 0) {
                     const _cookEl = document.getElementById('home-cooking-content');
                     if (_cookEl && _cookEl.style.display !== 'none' && typeof CookingSystem !== 'undefined' && CookingSystem.render) {
-                        const _cheeseHtml = (typeof CheeseSystem !== 'undefined' && CheeseSystem.render) ? CheeseSystem.render() : '';
-                        _cookEl.innerHTML = CookingSystem.render() + _cheeseHtml;
+                        _cookEl.innerHTML = CookingSystem.render();
                     }
                 }
 
