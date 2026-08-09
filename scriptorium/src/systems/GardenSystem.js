@@ -48,6 +48,7 @@ const GardenSystem = {
 
         // Opotřebení sekery
         GardenSystem.useToolCharge(axe);
+        if (typeof VigorSystem !== 'undefined') VigorSystem.addFatigue(1.0);
 
         slot.state = 'empty';
         slot.treeType = null;
@@ -95,6 +96,7 @@ const GardenSystem = {
         Game.removeItem('fry', qty);
         p.fry += qty;
         p.fryAddedAt = p.fryAddedAt || Date.now();
+        if (typeof VigorSystem !== 'undefined') VigorSystem.addFatigue(0.5);
         Game.save(); GardenSystem.renderPiscina();
         UI.notify('🫧 ' + t('game.fryAdded').replace('{qty}', qty));
     },
@@ -1853,6 +1855,8 @@ const GardenSystem = {
             Game.addItem(variety.viticis, cuttings);
             UI.notify('✂️ ' + (lang==='en' ? 'Pruned. +' + cuttings + ' cutting(s).' : 'Prořezáno. +' + cuttings + ' řízek/řízky.'));
         }
+        // vigor-audit-mrd (7.8.2026): chybelo
+        if (typeof VigorSystem !== 'undefined') VigorSystem.addFatigue(0.5);
         Game.save();
         this.renderVinohrad();
     },
@@ -2364,6 +2368,8 @@ const GardenSystem = {
         const field = GameState.fields[idx];
         if (!field || field.locked) return;
         field.state = 'ploughed';
+        // vigor-audit-mrd (7.8.2026): chybelo, mirror waterField/sowField
+        if (typeof VigorSystem !== 'undefined') VigorSystem.addFatigue(0.5);
         Game.save();
         this.renderFieldTab();
     },

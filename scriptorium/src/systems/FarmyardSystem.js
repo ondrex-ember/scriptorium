@@ -631,6 +631,7 @@ const FarmyardSystem = {
         if (n <= 0) return;
         c.squabPool -= n;
         Game.addItem('pigeon_squab', n);
+        if (typeof VigorSystem !== 'undefined') VigorSystem.addFatigue(0.5);
         Game.save();
         this.renderFarmyard();
         UI.notify('🍗 +' + n + ' × ' + (typeof iName === 'function' ? iName('pigeon_squab') : 'pigeon_squab'));
@@ -649,6 +650,7 @@ const FarmyardSystem = {
         c.count -= n;
         c.trainedCount = Math.min(c.trainedCount || 0, c.count);
         Game.addItem('pigeon_meat', n);
+        if (typeof VigorSystem !== 'undefined') VigorSystem.addFatigue(0.5);
         Game.save();
         this.renderFarmyard();
         UI.notify('🍖 +' + n + ' × ' + (typeof iName === 'function' ? iName('pigeon_meat') : 'pigeon_meat'));
@@ -923,6 +925,8 @@ const FarmyardSystem = {
         st.animals.pop();
         GameState.inventory['rabbit_meat'] = (GameState.inventory['rabbit_meat'] || 0) + 1;
         GameState.inventory['rabbit_pelt'] = (GameState.inventory['rabbit_pelt'] || 0) + 1;
+        // vigor-audit-mrd (7.8.2026): chybelo, jedina porazka bez fatigue
+        if (typeof VigorSystem !== 'undefined') VigorSystem.addFatigue(0.5);
         if (typeof UI !== 'undefined') UI.notify('🍖 ' + t('dvur.rabbitSlaughtered'));
         if (typeof Game !== 'undefined') Game.save();
         this.renderFarmyard();
@@ -1004,6 +1008,7 @@ const FarmyardSystem = {
         // musí se nasolit a udit (subtab Vaření).
         inv['pork'] = (inv['pork'] || 0) + 4;
         inv['lard'] = (inv['lard'] || 0) + 3;
+        if (typeof VigorSystem !== 'undefined') VigorSystem.addFatigue(1.0);
         if (typeof UI !== 'undefined') UI.notify('🔪 ' + t('dvur.pigSlaughtered'));
         if (typeof Game !== 'undefined' && Game.addKronikaEntry) Game.addKronikaEntry('important', '🐖 Zabijačka! Klášterní spižírna se naplnila vepřovým masem a sádlem.', '🐖 Pig slaughter! The monastery larder filled with pork and lard.', '🐖 Porcus mactatus est.');
         if (typeof Game !== 'undefined') Game.save();
@@ -1028,6 +1033,7 @@ const FarmyardSystem = {
         // nasolit a udit (subtab Vaření), stejně jako vepřové.
         inv['beef'] = (inv['beef'] || 0) + 5;
         inv['raw_hide'] = (inv['raw_hide'] || 0) + 2;
+        if (typeof VigorSystem !== 'undefined') VigorSystem.addFatigue(1.0);
         if (typeof UI !== 'undefined') UI.notify('🔪 ' + t('dvur.cowSlaughtered'));
         if (typeof Game !== 'undefined' && Game.addKronikaEntry) Game.addKronikaEntry('important', '🐄 Zabijačka! Klášterní spižírna se naplnila hovězím masem.', '🐄 Cattle slaughter! The monastery larder filled with beef.', '🐄 Bos mactatus est.');
         if (typeof Game !== 'undefined') Game.save();
@@ -1067,6 +1073,7 @@ const FarmyardSystem = {
         const inv = GameState.inventory;
         inv['beef'] = (inv['beef'] || 0) + 5;
         inv['raw_hide'] = (inv['raw_hide'] || 0) + 2;
+        if (typeof VigorSystem !== 'undefined') VigorSystem.addFatigue(1.0);
         if (typeof UI !== 'undefined') UI.notify('🔪 ' + (t('farmyard.bullSlaughtered') || 'Býk poražen.'));
         if (typeof Game !== 'undefined' && Game.addKronikaEntry) Game.addKronikaEntry('important', '🐂 Plemenný býk poražen.', '🐂 The breeding bull was slaughtered.', '🐂 Taurus mactatus est.');
         if (typeof Game !== 'undefined') Game.save();
@@ -1083,6 +1090,7 @@ const FarmyardSystem = {
         const inv = GameState.inventory;
         inv['veal'] = (inv['veal'] || 0) + 2;
         inv['calf_hide'] = (inv['calf_hide'] || 0) + 1;
+        if (typeof VigorSystem !== 'undefined') VigorSystem.addFatigue(1.0);
         if (typeof UI !== 'undefined') UI.notify('🔪 ' + (t('farmyard.calfSlaughtered') || 'Tele poraženo. +2 Telecí, +1 Telecí kůže.'));
         if (typeof Game !== 'undefined' && Game.addKronikaEntry) Game.addKronikaEntry('important', '🐮 Tele poraženo — sváteční telecí na stůl.', '🐮 A calf was slaughtered — festive veal for the table.', '🐮 Vitulus mactatus est.');
         if (typeof Game !== 'undefined') Game.save();
@@ -1927,6 +1935,7 @@ const FarmyardSystem = {
             const mood = 80;
             h.hens.push({ type, sex, mood, addedAt: Date.now(), lastCleaned: 0 });
         }
+        if (typeof VigorSystem !== 'undefined') VigorSystem.addFatigue(0.5);
         Game.save(); FarmyardSystem.renderFarmyard();
         UI.notify('🐔 ' + t('game.henAdded'));
     },
@@ -1948,6 +1957,7 @@ const FarmyardSystem = {
         h.chickPool -= qty;
         Game.addItem('chicken_meat', qty);
         Game.addItem('feather_hen', qty * 2);
+        if (typeof VigorSystem !== 'undefined') VigorSystem.addFatigue(1.0);
         Game.save(); FarmyardSystem.renderFarmyard();
         UI.notify('🍗 ' + t('game.slaughtered').replace('{qty}', qty));
     },
@@ -1958,6 +1968,7 @@ const FarmyardSystem = {
         h.hens.splice(idx, 1);
         Game.addItem('chicken_meat', 2);
         Game.addItem('feather_hen', 3);
+        if (typeof VigorSystem !== 'undefined') VigorSystem.addFatigue(1.0);
         Game.save(); FarmyardSystem.renderFarmyard();
         UI.notify('🍗 ' + t('game.henSlaughtered'));
     },
@@ -2067,6 +2078,7 @@ const FarmyardSystem = {
         s.sheep++;
         if (!Array.isArray(s.sheepObjs)) s.sheepObjs = [];
         s.sheepObjs.push({ sex: 'f', mood: 80, bornAt: Date.now(), lastCleaned: 0 });
+        if (typeof VigorSystem !== 'undefined') VigorSystem.addFatigue(0.5);
         Game.save(); FarmyardSystem.renderFarmyard();
         UI.notify('🐑 ' + t('game.sheepAdded'));
     },
@@ -2200,6 +2212,7 @@ const FarmyardSystem = {
             // oprava jako slaughterCow() — musí přes solení+Udírnu.
             inv['beef'] = (inv['beef'] || 0) + 5;
             inv['raw_hide'] = (inv['raw_hide'] || 0) + 2;
+            if (typeof VigorSystem !== 'undefined') VigorSystem.addFatigue(1.0);
             GameState.strayCow.resolved = true;
             UI.notify('🔪 ' + (t('farmyard.strayCowSlaughtered') || 'Utracena. Maso a kůže do spižírny.'));
         } else if (choice === 'sell') {
@@ -2220,6 +2233,7 @@ const FarmyardSystem = {
         Game.addItem('mutton', qty * 2);
         Game.addItem('lamb_hide', qty);
         Game.addItem('rennet', qty);
+        if (typeof VigorSystem !== 'undefined') VigorSystem.addFatigue(1.0);
         Game.save(); FarmyardSystem.renderFarmyard();
         UI.notify('🥩 ' + t('game.lambSlaughtered').replace('{qty}', qty));
     },
@@ -2232,6 +2246,7 @@ const FarmyardSystem = {
         Game.addItem('mutton', 3);
         Game.addItem('raw_hide', 1);
         if (Math.random() < 0.5) Game.addItem('rennet', 1);
+        if (typeof VigorSystem !== 'undefined') VigorSystem.addFatigue(1.0);
         Game.save(); FarmyardSystem.renderFarmyard();
         UI.notify('🥩 ' + t('game.sheepSlaughtered'));
     },

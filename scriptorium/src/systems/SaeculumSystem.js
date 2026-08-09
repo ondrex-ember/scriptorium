@@ -1272,6 +1272,10 @@ const SaeculumSystem = {
     const c = ContactsDB[contactId];
     const items = c && c.sellBonus && c.sellBonus.items;
     if (!items || !(itemId in items)) return;
+    // vykup-vapna-mrd (7.8.2026): objekt {price, minRelation} vs. ciste cislo
+    const sbEntry = items[itemId];
+    const sbMinRel = (typeof sbEntry === 'object') ? (sbEntry.minRelation || 0) : 0;
+    if (((GameState.contactRelation || {})[contactId] || 0) < sbMinRel) return;
     if (contactId === 'stationarius' && typeof CellariumSystem !== 'undefined' && !CellariumSystem.isStationariusPresent()) {
       const lang = (GameState.settings && GameState.settings.language) || 'cs';
       UI.notify(lang==='en' ? 'The Stationarius travels between book fairs — he is not in Olomouc now.' : 'Stationarius cestuje mezi veletrhy — teď není v Olomouci.', true);
@@ -1282,7 +1286,7 @@ const SaeculumSystem = {
     qty = Math.max(0, Math.min(have, qty | 0));
     if (qty <= 0) { UI.notify('⚠️ Non habes sufficiens!', true); return; }
     // Základ: BASE_PRICES přes calcPrice('market'); není-li item na trhu, kontaktní base cena (exkluzivní odbyt)
-    const basePrice = CellariumSystem.calcPrice(itemId, 'market') || items[itemId];
+    const basePrice = CellariumSystem.calcPrice(itemId, 'market') || ((typeof sbEntry === 'object') ? sbEntry.price : sbEntry);
     if (!basePrice) return;
     // sellToContact-cap-audit (7.8.2026): relation markup se aplikuje PŘED
     // saturací (je součástí "základní" ceny, kterou pak saturace odstupňuje
@@ -1615,12 +1619,24 @@ const SaeculumSystem = {
     if (sbItems && Object.keys(sbItems).length) {
       let anyStock = false;
       Object.keys(sbItems).forEach(itemId => {
+        // vykup-vapna-mrd (7.8.2026): sellBonus polozka muze byt cislo
+        // (bez podminky) nebo objekt {price, minRelation} — zpetne kompatibilni.
+        const sbEntry = sbItems[itemId];
+        const sbPrice = (typeof sbEntry === 'object') ? sbEntry.price : sbEntry;
+        const sbMinRel = (typeof sbEntry === 'object') ? (sbEntry.minRelation || 0) : 0;
+        const curRel = (GameState.contactRelation || {})[id] || 0;
+        const itemName = (typeof iName === 'function') ? iName(itemId) : itemId;
+        if (curRel < sbMinRel) {
+          // pod prah vztahu — ukáže se zamčené s vysvětlením, ne ticho skryté
+          anyStock = true;
+          h += `<div style="font-size:0.76rem; opacity:0.6; margin-bottom:6px;">🔒 ${itemName}: ${lang==='en'?'buys from relation':'vykoupí od vztahu'} ${sbMinRel} (${lang==='en'?'now':'teď'} ${curRel})</div>`;
+          return;
+        }
         const have = GameState.inventory[itemId] || 0;
         if (have <= 0) return;
         anyStock = true;
-        const basePrice = CellariumSystem.calcPrice(itemId, 'market') || sbItems[itemId] || 0;
+        const basePrice = CellariumSystem.calcPrice(itemId, 'market') || sbPrice || 0;
         const price = Math.max(1, Math.round(basePrice * this.contactPriceMult(id)));
-        const itemName = (typeof iName === 'function') ? iName(itemId) : itemId;
         // sellToContact-cap-audit (7.8.2026): zbývající denní kapacita —
         // stejný princip jako "skladem X" na nákupní straně.
         const soldToday = this._contactSellSoldToday(id, itemId);

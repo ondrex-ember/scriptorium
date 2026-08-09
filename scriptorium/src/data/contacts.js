@@ -177,7 +177,7 @@ const ContactsDB = {
         // snapshotu (viz ChroniconSystem.getActorItemStock); cena zůstává
         // statická z buyOffer níže (cenový vzorec odloženo na budoucí fázi).
         chroniconActorId: 'sklar',
-        sellBonus: {},                        // Sklář jen prodává — výkup nemá
+        sellBonus: { items: { vapno_hasene_mature: { price: 4, minRelation: 50 } } }, // vykup-vapna-mrd (7.8.2026)
         // V4 — nabídka: běžné kusy denně; speciality přes ZAKÁZKY (glassOrders níže)
         buyOffer: { items: { glass_stopper: { price: 3,  stock: 5 },
                              glass_flask:   { price: 6,  stock: 3 },
