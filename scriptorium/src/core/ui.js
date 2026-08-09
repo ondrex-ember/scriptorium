@@ -565,6 +565,12 @@ const UI = {
             if (typeof Game !== 'undefined' && Game.showMysteriousBulbModal) Game.showMysteriousBulbModal();
             return;
         }
+        // coquina-kotlik-mrd (9.8.2026): klik na Zrezlý kotlík v Zásobách/Truhle
+        // otevře modal s přímou nabídkou vyčištění, mirror pipe_large/dýmka vzoru.
+        if (id === 'zrezly_kotlik') {
+            if (typeof Game !== 'undefined' && Game.showRustyPotModal) Game.showRustyPotModal();
+            return;
+        }
         const item = ItemsDB[id];
         if (!item) return;
         const lang = (GameState.settings && GameState.settings.language) || 'cs';
@@ -572,23 +578,27 @@ const UI = {
         const name = (typeof iName === 'function') ? iName(id) : (item.name || id);
         const desc = (typeof iDesc === 'function') ? iDesc(id) : (lang === 'en' ? (item.desc_en || item.desc) : item.desc);
 
-        // Decay info
-        const decayMap = {
-            milk: { h: 24 }, egg: { h: 120 }, raw_fish: { h: 24 }, cooked_fish: { h: 48 },
-            cooked_meat: { h: 48 }, thyme: { h: 720 }, chamomile: { h: 720 }, st_johns_wort: { h: 720 },
-            linden_blossom: { h: 720 }, hay: { h: 336 }, grass: { h: 48 }, worms: { h: 24 }
-        };
-        const decay = decayMap[id];
-        const hasCella = GameState.researchedTechs && GameState.researchedTechs.includes('tech_cella');
+        // Decay info — napojeno na skutečný DecaySystem (dřív samostatná
+        // zastaralá decayMap s 11 itemy, driftovala od skutečné tabulky
+        // stejně jako scavenge dřív — decay-modal-fix, 9.8.2026).
         let decayHtml = '';
-        if (decay) {
-            const h = hasCella ? Math.round(decay.h * 2.5) : decay.h;
-            const days = Math.round(h / 24 * 10) / 10;
-            const cellaNote = hasCella ? ' (Cella x2.5)' : '';
-            decayHtml = `<div style="margin:10px 0;padding:8px 12px;background:rgba(192,57,43,0.08);border-radius:6px;border-left:3px solid #c0392b;font-size:0.85rem;">
-                ⏳ ${lang === 'en' ? 'Expires in' : 'Vyprší za'}: <strong>${days} ${lang === 'en' ? 'days' : 'dní'}${cellaNote}</strong></div>`;
+        if (typeof DecaySystem !== 'undefined' && DecaySystem.isActive && DecaySystem.isActive()) {
+            const rate = DecaySystem.effectiveRate(id);
+            const isDurable = !!DecaySystem.DURABLE_DECAY_RATES[id];
+            if (rate === null) {
+                decayHtml = `<div style="margin:10px 0;padding:8px 12px;background:rgba(90,154,90,0.08);border-radius:6px;border-left:3px solid #5a9a5a;font-size:0.85rem;">∞ ${lang === 'en' ? 'Does not decay' : 'Nekazí se'}</div>`;
+            } else if (rate === 0 && isDurable) {
+                decayHtml = `<div style="margin:10px 0;padding:8px 12px;background:rgba(90,154,90,0.08);border-radius:6px;border-left:3px solid #5a9a5a;font-size:0.85rem;">🛡️ ${lang === 'en' ? 'Protected by storage' : 'Chráněno skladem'}</div>`;
+            } else {
+                const pctStr = (rate * 100).toFixed(rate < 0.01 ? 3 : 1);
+                const halfLifeDays = rate > 0 ? Math.round(Math.log(0.5) / Math.log(1 - rate)) : null;
+                const durNote = isDurable ? (lang === 'en' ? ' (durable goods — slow erosion)' : ' (trvanlivé zboží — pomalá eroze)') : '';
+                decayHtml = `<div style="margin:10px 0;padding:8px 12px;background:rgba(192,57,43,0.08);border-radius:6px;border-left:3px solid #c0392b;font-size:0.85rem;">
+                    ⏳ ${lang === 'en' ? 'Losing' : 'Ztrácí'}: <strong>~${pctStr}%/${lang === 'en' ? 'day' : 'den'}</strong>${durNote}
+                    ${halfLifeDays ? `<br><small style="opacity:0.7;">${lang === 'en' ? '~half gone in' : '~polovina zmizí za'} ${halfLifeDays} ${lang === 'en' ? 'days' : 'dní'}</small>` : ''}</div>`;
+            }
         } else if (item.type !== 'animal' && item.type !== 'key') {
-            decayHtml = `<div style="margin:10px 0;padding:8px 12px;background:rgba(90,154,90,0.08);border-radius:6px;border-left:3px solid #5a9a5a;font-size:0.85rem;">∞ ${lang === 'en' ? 'Does not expire' : 'Nevyprší'}</div>`;
+            decayHtml = `<div style="margin:10px 0;padding:8px 12px;background:rgba(90,154,90,0.08);border-radius:6px;border-left:3px solid #5a9a5a;font-size:0.85rem;">∞ ${lang === 'en' ? 'Does not decay yet (research Inventarium)' : 'Zatím se nekazí (vyzkoumej Inventarium)'}</div>`;
         }
 
         // Kde se item používá
@@ -612,6 +622,17 @@ const UI = {
         if (item.lostItem) props.push('🔍 ' + (lang === 'en' ? 'Found item' : 'Nalezený předmět'));
         if (item.type === 'tool') props.push('🔨 ' + (lang === 'en' ? 'Tool (not consumed)' : 'Nástroj (nespotřebovává se)'));
         if (item.type === 'key') props.push('🗝️ ' + (lang === 'en' ? 'Key' : 'Klíč'));
+        // coquina-kotlik-mrd (9.8.2026): Kotlík tier je dynamický (GameState.cookingPotTier),
+        // ne statické item.tier pole — jiný mechanismus než stone_axe/iron_axe.
+        if (id === 'cooking_pot') {
+            const potTierNames = { 1: '🪨 ' + (lang === 'en' ? 'Stone' : 'Kamenný'), 2: '⚙️ ' + (lang === 'en' ? 'Iron' : 'Železný'), 3: '🟠 ' + (lang === 'en' ? 'Bronze' : 'Bronzový') };
+            props.push(potTierNames[GameState.cookingPotTier || 1]);
+        }
+        // Opotřebení nástroje (maxUses/toolUses) — existující systém, dřív se v modalu vůbec neukazoval
+        if (item.maxUses && GameState.toolUses && GameState.toolUses[id] !== undefined) {
+            const usesLeft = GameState.toolUses[id];
+            props.push('⚡ ' + usesLeft + '/' + item.maxUses + ' ' + (lang === 'en' ? 'uses' : 'použití'));
+        }
         const propsHtml = props.length > 0
             ? `<div style="margin-top:8px;display:flex;flex-wrap:wrap;gap:4px;">${props.map(p => `<span style="padding:2px 8px;background:rgba(197,160,89,0.2);border-radius:10px;font-size:0.75rem;">${p}</span>`).join('')}</div>`
             : '';
@@ -800,7 +821,7 @@ const UI = {
         const renderItem = (id, qty) => {
             const item = ItemsDB[id];
             if (!item) return '';
-            const _isRareModal = (id === 'netolicky_legacy') || id === 'old_coin_1' || id === 'old_coin_2' || id === 'old_coin_3' || id === 'torn_page' || id === 'wax_seal' || ['lost_key_1', 'lost_key_2', 'lost_key_3', 'lost_key_4', 'lost_key_5', 'key_large_1', 'key_large_2', 'key_large_3', 'lost_scroll_1', 'lost_scroll_2'].includes(id) || ['dried_herbs_bundle', 'hemp_pouch', 'mysterious_bulb'].includes(id);
+            const _isRareModal = (id === 'netolicky_legacy') || id === 'old_coin_1' || id === 'old_coin_2' || id === 'old_coin_3' || id === 'torn_page' || id === 'wax_seal' || ['lost_key_1', 'lost_key_2', 'lost_key_3', 'lost_key_4', 'lost_key_5', 'key_large_1', 'key_large_2', 'key_large_3', 'lost_scroll_1', 'lost_scroll_2'].includes(id) || ['dried_herbs_bundle', 'hemp_pouch', 'mysterious_bulb', 'zrezly_kotlik'].includes(id);
             const _click = (_hasMateria || _isRareModal) ? `onclick="UI.showItemModal('${id}')" style="cursor:pointer;"` : '';
             let actionBtn = '';
             if (id === 'water' || id === 'spring_water' || id === 'holy_water') {

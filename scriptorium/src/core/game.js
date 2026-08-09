@@ -744,6 +744,8 @@ const Game = {
                     if (typeof ScriptoriumCat !== 'undefined' && ScriptoriumCat.dailyTick) ScriptoriumCat.dailyTick();
                     // FarmyardSystem — mood tick (self-guarded 24h)
                     if (typeof FarmyardSystem !== 'undefined' && FarmyardSystem.moodTick) FarmyardSystem.moodTick();
+                    // Volné stádo — denní ubývání nasyslených/neumístěných zvířat (self-guarded 24h)
+                    if (typeof FarmyardSystem !== 'undefined' && FarmyardSystem.looseHerdDailyTick) FarmyardSystem.looseHerdDailyTick();
                     // Myší populace — denní tick spawn/mortality/scraps (self-guarded 24h)
                     if (typeof ScriptoriumCat !== 'undefined' && ScriptoriumCat.miceTick) ScriptoriumCat.miceTick();
                     // Decay — denní kažení zásob (self-guarded 24h, gate tech_inventarium)
@@ -1158,6 +1160,43 @@ const Game = {
         Game.save(); Game.checkEnvironment();
     },
     // ── Ztracené klíče — modal ───────────────────────────────────────────────
+    // coquina-kotlik-mrd (9.8.2026): modal pro Zrezlý kotlík — nabídne
+    // vyčištění přímo (spotřebuje crushed_stone+water, vrátí Kotlík tier 2),
+    // mirror stylu showLostKeyModal/showHempPouchModal.
+    showRustyPotModal: function() {
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        const isEn = lang === 'en';
+        const qty = GameState.inventory['zrezly_kotlik'] || 0;
+        const haveStone = GameState.inventory['crushed_stone'] || 0;
+        const haveWater = GameState.inventory['water'] || 0;
+        const needStone = 2, needWater = 1;
+        const canClean = haveStone >= needStone && haveWater >= needWater;
+
+        NotificationSystem.modal({
+            icon: '🍂',
+            title: isEn ? 'Rusty Pot' : 'Zrezlý kotlík',
+            text: (isEn
+                ? '<em>An old metal pot, thick with rust. It needs a thorough scouring before anything can be cooked in it.</em>'
+                : '<em>Starý kovový kotlík, celý ve rzi. Než se v něm dá vařit, musí se pořádně vydrhnout.</em>')
+                + '<br><br>' + (isEn ? 'In stock' : 'Na skladě') + ': <strong>' + qty + '</strong>'
+                + '<br>' + (isEn ? 'Needed' : 'Potřeba') + ': ' + needStone + '× ' + (typeof iName === 'function' ? iName('crushed_stone') : 'Drcený kámen')
+                + ' (' + haveStone + '/' + needStone + '), ' + needWater + '× ' + (typeof iName === 'function' ? iName('water') : 'Voda') + ' (' + haveWater + '/' + needWater + ')'
+                + (!canClean ? '<br><small style="color:#c0392b;">⚠️ ' + (isEn ? 'Not enough materials' : 'Nedostatek surovin') + '</small>' : ''),
+            choices: [
+                {
+                    label: isEn ? '🧽 Scour clean' : '🧽 Vydrhnout',
+                    type: canClean ? 'primary' : 'default',
+                    effect: canClean ? function() {
+                        Game.craft('vycistit_kotlik');
+                    } : function() {
+                        UI.notify(isEn ? '⚠️ Not enough materials.' : '⚠️ Nedostatek surovin.', true);
+                    }
+                },
+                { label: isEn ? 'Close' : 'Zavřít', type: 'default', effect: function() {} }
+            ]
+        });
+    },
+
     showLostKeyModal: function(keyId) {
         const lang = (GameState.settings && GameState.settings.language) || 'cs';
         const cs = lang === 'en';

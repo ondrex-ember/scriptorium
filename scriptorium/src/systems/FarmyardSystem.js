@@ -184,6 +184,82 @@ const FarmyardSystem = {
         if (st && Array.isArray(st.animals)) st.animals.forEach(a => this._ensureAnimalFields(a));
     },
 
+    // ── Volné stádo (loose-herd-mrd, 9.8.2026) ──────────────────────────────
+    // Zvířata v syrovém inventáři (mimo konkrétní chlévy — koupě/chov nad
+    // kapacitu, odkudkoliv) = "volné stádo kolem kláštera", bez pořádného
+    // ohrazení. Denně ubývá — vlci/medvěd, nemoc, zaběhnutí, krádež. Vážená
+    // ztráta škáluje s odmocninou počtu (0.15×√n) — malý přebytek ubývá
+    // pomalu (pár kusů se snáz pohlídá), velký rychleji, ale ne lineárně
+    // (jeden vlk nesežere 2× víc, jen protože je stádo 2× větší).
+    // Holubi/včely VYNECHÁNI — mají vlastní systémy (Kolumbárium/Apiarium,
+    // včetně vlastního predátorího ticku).
+    LOOSE_HERD_SPECIES: ['hen_white', 'hen_black', 'hen_colored', 'rooster', 'chick',
+        'sheep', 'lamb', 'rabbit_m', 'rabbit_f', 'goat', 'piglet', 'pig',
+        'cow', 'tele', 'byk', 'donkey', 'horse', 'mule'],
+
+    _pickLooseHerdReason: function () {
+        const r = Math.random();
+        if (r < 0.35) return 'predator';
+        if (r < 0.65) return 'disease';
+        if (r < 0.85) return 'stray';
+        return 'theft';
+    },
+
+    looseHerdDailyTick: function () {
+        if (!GameState.looseHerd) GameState.looseHerd = { lastTick: 0, lastLosses: [] };
+        const lh = GameState.looseHerd;
+        const now = Date.now();
+        if (now - (lh.lastTick || 0) < this.DAY_MS) return;
+        lh.lastTick = now;
+
+        const losses = [];
+        this.LOOSE_HERD_SPECIES.forEach(id => {
+            const count = GameState.inventory[id] || 0;
+            if (count <= 0) return;
+            const expected = 0.15 * Math.sqrt(count);
+            let lost = Math.floor(expected);
+            if (Math.random() < (expected - lost)) lost += 1;
+            lost = Math.min(lost, count);
+            if (lost <= 0) return;
+            GameState.inventory[id] = count - lost;
+            for (let i = 0; i < lost; i++) {
+                losses.push({ id, reason: this._pickLooseHerdReason() });
+            }
+        });
+
+        lh.lastLosses = losses;
+        if (losses.length && typeof this._notifyLooseHerdLosses === 'function') this._notifyLooseHerdLosses(losses);
+        if (typeof Game !== 'undefined' && Game.save) Game.save();
+    },
+
+    _notifyLooseHerdLosses: function (losses) {
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        const reasonLabels = {
+            predator: lang === 'en' ? 'wolves/bear' : 'vlci/medvěd',
+            disease: lang === 'en' ? 'disease' : 'nemoc',
+            stray: lang === 'en' ? 'strayed off' : 'zaběhnutí',
+            theft: lang === 'en' ? 'theft' : 'krádež',
+        };
+        // agregace podle id (počet) — reasony sečíst do závorky za druhem
+        const bySpecies = {};
+        losses.forEach(l => {
+            if (!bySpecies[l.id]) bySpecies[l.id] = { count: 0, reasons: {} };
+            bySpecies[l.id].count++;
+            bySpecies[l.id].reasons[l.reason] = (bySpecies[l.id].reasons[l.reason] || 0) + 1;
+        });
+        const parts = Object.entries(bySpecies).map(([id, info]) => {
+            const nm = (typeof iName === 'function') ? iName(id) : id;
+            const reasonStr = Object.entries(info.reasons).map(([r, n]) => `${n}× ${reasonLabels[r]}`).join(', ');
+            return `${info.count}× ${nm} (${reasonStr})`;
+        });
+        const msg = (lang === 'en' ? 'Loose herd: ' : 'Volné stádo: ') + '−' + losses.length + ' — ' + parts.join('; ');
+        if (typeof NotificationSystem !== 'undefined' && NotificationSystem.panel) {
+            NotificationSystem.panel('🐑 ' + msg, 'warning');
+        } else if (typeof UI !== 'undefined' && UI.notify) {
+            UI.notify('🐑 ' + msg, true);
+        }
+    },
+
     // ── Mood denní tick (voláno z DecaySystem/game.js) ───────────────────
     moodTick: function () {
         if (!GameState._farmyardMoodTick) GameState._farmyardMoodTick = 0;
@@ -1672,6 +1748,26 @@ const FarmyardSystem = {
 
         if (ds && ds.isActive() && miceN > 6) {
             h += `<div style="font-size:0.76rem; color:#a0722d;">⚠️ ${t('dvur.decayImpact')}</div>`;
+        }
+
+        // Volné stádo (loose-herd-mrd, 9.8.2026) — nasyslená/neumístěná
+        // zvířata mimo chlévy. "Neustájených celkem" = VŠECHNY type:"animal"
+        // itemy v inventáři (dynamicky z ItemsDB, i holubi/včely — jen
+        // informativně, ty úbytku nepodléhají, mají vlastní systémy).
+        {
+            let allUnstabled = 0;
+            if (typeof ItemsDB !== 'undefined') {
+                Object.keys(ItemsDB).forEach(id => {
+                    if (ItemsDB[id].type === 'animal') allUnstabled += (GameState.inventory[id] || 0);
+                });
+            }
+            if (allUnstabled > 0) {
+                h += `<div style="font-size:0.8rem;">🐑 ${lang === 'en' ? 'Unstabled animals total' : 'Neustájených zvířat celkem'}: <strong>${allUnstabled}</strong></div>`;
+                const lastLosses = GameState.looseHerd && GameState.looseHerd.lastLosses;
+                if (lastLosses && lastLosses.length > 0) {
+                    h += `<div style="font-size:0.72rem; opacity:0.65;">↳ ${lang === 'en' ? 'yesterday' : 'včera'}: −${lastLosses.length}</div>`;
+                }
+            }
         }
 
         h += `</div>`;
