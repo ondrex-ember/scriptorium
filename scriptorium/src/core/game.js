@@ -713,6 +713,17 @@ const Game = {
                     if (document.getElementById('mine-actions') && typeof UI !== 'undefined' && UI.renderMineActions) UI.renderMineActions();
                 }
 
+                // Obnova progress baru u rozjetých Vaření procesů — CookingSystem.render()
+                // se jinak volá jen po kliku/přepnutí tabu, % a "zbývá Xh" by jinak
+                // zůstaly zamrzlé do dalšího přepnutí. Stejný vzor jako activeAction výše.
+                if (GameState.cookingInstances && GameState.cookingInstances.length > 0) {
+                    const _cookEl = document.getElementById('home-cooking-content');
+                    if (_cookEl && _cookEl.style.display !== 'none' && typeof CookingSystem !== 'undefined' && CookingSystem.render) {
+                        const _cheeseHtml = (typeof CheeseSystem !== 'undefined' && CheeseSystem.render) ? CheeseSystem.render() : '';
+                        _cookEl.innerHTML = CookingSystem.render() + _cheeseHtml;
+                    }
+                }
+
                 // v7.5: Check canonical hours
                 CanonicalHours.checkCurrentHour();
                 // v7.5: Check events

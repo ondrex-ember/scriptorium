@@ -78,17 +78,56 @@ const CheeseSystem = {
         inst.phase = newPhase;
     },
 
-    // coquina-cheese-mirror-mrd (7.8.2026): zrcadlení zrání do Vaření —
-    // jen zobrazení průběhu, výroba čerstvého sýra i denní tick zůstávají
-    // beze změny (CheeseSystem samostatný systém, ne migrovaný do CookingSystem).
+    // coquina-cheese-mirror-mrd (7.8.2026): zrcadlení zrání do Vaření.
+    // coquina-cheese-vyroba-mrd (9.8.2026): + výroba čerstvého sýra přímo
+    // odsud — stejné RecipesDB recepty a Game.craft() jako Výroba (žádná
+    // duplicitní logika), jen dostupné bez přepínání tabů. Aging engine
+    // (dailyTick, registerInstance, _advance) beze změny.
     render: function() {
         if (!this.isActive()) return '';
-        const list = this._ensureState();
-        if (list.length === 0) return '';
         const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        const list = this._ensureState();
+        let h = '';
+
+        const cheeseRecipeIds = ['goat_cheese', 'sheep_cheese', 'cow_cheese', 'syrecky'];
+        const cheeseRecipes = cheeseRecipeIds
+            .map(id => (typeof RecipesDB !== 'undefined') ? RecipesDB.find(r => r.id === id) : null)
+            .filter(r => r && (!r.locked || (GameState.unlockedRecipes || []).includes(r.id)));
+
+        if (cheeseRecipes.length > 0) {
+            h += `<div style="padding:12px 12px 4px;">`;
+            h += `<div style="font-size:0.92rem; font-weight:bold; margin-bottom:8px; color:var(--ink-primary);">🧀 ${lang === 'en' ? 'Make Cheese' : 'Vyrobit sýr'}</div>`;
+            h += `<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(260px, 1fr)); gap:6px;">`;
+            cheeseRecipes.forEach(r => {
+                const prod = (typeof ItemsDB !== 'undefined') ? ItemsDB[r.output] : null;
+                if (!prod) return;
+                let can = true; let reqStr = '';
+                Object.entries(r.req).forEach(([id, amt]) => {
+                    const has = GameState.inventory[id] || 0;
+                    const missing = (amt > 0 && has < amt) || (amt === 0 && !has);
+                    if (missing) can = false;
+                    const nm = (typeof iName === 'function') ? iName(id) : id;
+                    reqStr += `${amt === 0 ? (lang === 'en' ? 'req.' : 'nutno mít') : amt + 'x'} ${nm}, `;
+                });
+                reqStr = reqStr.slice(0, -2);
+                const outName = (typeof iName === 'function') ? iName(r.output) : r.output;
+                h += `<div style="background:rgba(255,255,255,0.4); padding:10px; border-radius:8px; border:1px solid rgba(197,160,89,0.3);">
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                          <div>
+                            <div style="font-size:0.82rem; font-weight:bold;">${prod.icon} ${outName}</div>
+                            <div style="font-size:0.7rem; opacity:0.65;">${reqStr}</div>
+                          </div>
+                          <button class="craft-btn" onclick="Game.craft('${r.id}')" ${can ? '' : 'disabled'} style="font-size:0.75rem;">🧀 ${lang === 'en' ? 'Make' : 'Vyrobit'}</button>
+                        </div>
+                      </div>`;
+            });
+            h += `</div></div>`;
+        }
+
+        if (list.length === 0) return h;
         if (!GameState.ui) GameState.ui = {};
         const cheeseOpen = GameState.ui.cheeseAgingOpen !== false;
-        let h = `<details ${cheeseOpen ? 'open' : ''} ontoggle="GameState.ui.cheeseAgingOpen = this.open; Game.save();" style="margin-top:14px; background:rgba(0,0,0,0.03); border-radius:8px; border-left:3px solid var(--accent-gold);">`;
+        h += `<details ${cheeseOpen ? 'open' : ''} ontoggle="GameState.ui.cheeseAgingOpen = this.open; Game.save();" style="margin-top:14px; background:rgba(0,0,0,0.03); border-radius:8px; border-left:3px solid var(--accent-gold);">`;
         h += `<summary style="cursor:pointer; padding:10px 14px; font-size:0.92rem; font-weight:bold; list-style:none; user-select:none; display:flex; align-items:center; justify-content:space-between; gap:6px; color:var(--ink-primary);">
                 <span>🧀 ${lang === 'en' ? 'Cheese Aging' : 'Zrání sýrů'}</span><span style="opacity:0.5; font-weight:normal;">▾</span>
               </summary>`;

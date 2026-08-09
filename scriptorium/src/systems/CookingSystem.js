@@ -284,9 +284,20 @@ const CookingSystem = {
         const _chefMult = (_chef && typeof Game !== 'undefined' && Game.dormitoriumBrotherMult) ? Game.dormitoriumBrotherMult(_chef, 'kuchyne') : 1.0;
         this._ensureState().push({ type: typeKey, startedAt: Date.now(), brotherMult: _chefMult, brotherId: _chef ? _chef.id : null });
         Game.save();
+        // vareni-refresh-fix (9.8.2026): okamžitě zobrazit nově rozjetý proces,
+        // ne až po přepnutí tabu — mirror stejné opravy v UI.renderAll().
+        const _cookEl = document.getElementById('home-cooking-content');
+        if (_cookEl && _cookEl.style.display !== 'none') {
+            const _cheeseHtml = (typeof CheeseSystem !== 'undefined' && CheeseSystem.render) ? CheeseSystem.render() : '';
+            _cookEl.innerHTML = this.render() + _cheeseHtml;
+        }
         const effH = this._effectiveDuration(def, _chefMult);
-        // udirna-mrd: elegantní modal — "začalo se vařit", odkaz do Vaření tabu
-        if (typeof NotificationSystem !== 'undefined' && NotificationSystem.modal) {
+        // udirna-mrd: elegantní modal — "začalo se vařit", odkaz do Vaření tabu.
+        // vareni-refresh-fix (9.8.2026): jen když Vaření není zrovna vidět (klik
+        // z Výroby, přesměrovaný přes Game.craft()) — na Vaření tabu je zbytečný,
+        // hráč vidí rozjetý proces v progress baru rovnou (_cookEl refresh výše).
+        const _cookingTabVisible = !!(_cookEl && _cookEl.style.display !== 'none');
+        if (!_cookingTabVisible && typeof NotificationSystem !== 'undefined' && NotificationSystem.modal) {
             NotificationSystem.modal({
                 icon: '🍲',
                 title: lang === 'en' ? 'Cooking has begun' : 'Začalo se vařit',

@@ -38,6 +38,13 @@ const UI = {
                 this._dirty.cellarium = false;
                 celEl.innerHTML = CellariumSystem.renderCellariumTab();
             }
+            // vareni-refresh-fix (9.8.2026): mirror renderAll() níže — Vaření
+            // subtab se dřív nepřekresloval při přepnutí zpět na Home.
+            const cookEl = document.getElementById('home-cooking-content');
+            if (cookEl && cookEl.style.display !== 'none' && typeof CookingSystem !== 'undefined') {
+                const cheeseHtml = (typeof CheeseSystem !== 'undefined' && CheeseSystem.render) ? CheeseSystem.render() : '';
+                cookEl.innerHTML = CookingSystem.render() + cheeseHtml;
+            }
         }
         if (name === 'garden') this.renderGarden();
         if (name === 'inv') this._updateInvFilterBar();
@@ -186,6 +193,15 @@ const UI = {
             if (this._dirty.cellarium && celEl && celEl.style.display !== 'none') {
                 this._dirty.cellarium = false;
                 celEl.innerHTML = CellariumSystem.renderCellariumTab();
+            }
+            // vareni-refresh-fix (9.8.2026): home-cooking-content se dřív nikdy
+            // nepřekresloval z renderAll() — po craftu (sýr, Coquina recept)
+            // zůstala tlačítka "can"/disabled stav zamrzlý na stavu PŘED
+            // spotřebou surovin, dokud hráč neopustil a nevrátil se na Vaření.
+            const cookEl = document.getElementById('home-cooking-content');
+            if (cookEl && cookEl.style.display !== 'none' && typeof CookingSystem !== 'undefined') {
+                const cheeseHtml = (typeof CheeseSystem !== 'undefined' && CheeseSystem.render) ? CheeseSystem.render() : '';
+                cookEl.innerHTML = CookingSystem.render() + cheeseHtml;
             }
         } else if (s === 'inv') { this.renderInventory(); }
         else if (s === 'craft') { this.renderCrafting(); }
