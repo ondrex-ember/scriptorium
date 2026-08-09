@@ -28396,6 +28396,496 @@ const DecaySystem = {
         oats:         { rate: 0.005, mice: true },
         millet:       { rate: 0.005, mice: true },
         peas:         { rate: 0.005, mice: true },
+
+        // MAT kategorie (decay-audit-mrd, 9.8.2026) — sazbová pásma podle kategorie
+        // fresh_dairy (0.25)
+        tvaroh: { rate: 0.25 },
+        wort: { rate: 0.25 },
+        mustum_klevner: { rate: 0.25 },
+        mustum_frankovka: { rate: 0.25 },
+        mustum_tramin: { rate: 0.25 },
+        cow_milk: { rate: 0.25 },
+        // fresh_animal (0.18)
+        fat: { rate: 0.18, flies: true },
+        tallow: { rate: 0.18, flies: true },
+        hide: { rate: 0.18, flies: true },
+        raw_hide: { rate: 0.18, flies: true },
+        calf_hide: { rate: 0.18, flies: true },
+        lamb_hide: { rate: 0.18, flies: true },
+        goat_hide: { rate: 0.18, flies: true },
+        soaked_hide: { rate: 0.18, flies: true },
+        stretched_hide: { rate: 0.18, flies: true },
+        premium_soaked_hide: { rate: 0.18, flies: true },
+        premium_stretched_hide: { rate: 0.18, flies: true },
+        feather: { rate: 0.18, flies: true },
+        feather_hen: { rate: 0.18, flies: true },
+        pigeon_dung: { rate: 0.18, flies: true },
+        manure: { rate: 0.18, flies: true },
+        bone: { rate: 0.18, flies: true },
+        rabbit_pelt: { rate: 0.18, flies: true },
+        mouse: { rate: 0.18, flies: true },
+        caught_small_game: { rate: 0.18, flies: true },
+        cervec: { rate: 0.18, flies: true },
+        quill_premium: { rate: 0.18, flies: true },
+        rennet: { rate: 0.18, flies: true },
+        scraps: { rate: 0.18, flies: true },
+        // fresh_fish_small (0.15)
+        fry: { rate: 0.15, flies: true },
+        carp_young: { rate: 0.15, flies: true },
+        worms: { rate: 0.15, flies: true },
+        // fresh_produce (0.13)
+        herb_red: { rate: 0.13 },
+        herb_yellow: { rate: 0.13 },
+        herb_blue: { rate: 0.13 },
+        mint: { rate: 0.13 },
+        pollen: { rate: 0.13 },
+        linden_blossom: { rate: 0.13 },
+        grass: { rate: 0.13 },
+        leaves: { rate: 0.13 },
+        cannabis: { rate: 0.13 },
+        acorn: { rate: 0.13 },
+        acorns: { rate: 0.13 },
+        // cured_textile (0.03)
+        leather: { rate: 0.03 },
+        wild_leather: { rate: 0.03 },
+        wool: { rate: 0.03 },
+        wool_thread: { rate: 0.03 },
+        linen_thread: { rate: 0.03 },
+        hemp_fiber: { rate: 0.03 },
+        flax_fiber: { rate: 0.03 },
+        rags: { rate: 0.03 },
+        pulp: { rate: 0.03 },
+        hedvabi: { rate: 0.03 },
+        leather_cords: { rate: 0.03 },
+        fiber: { rate: 0.03 },
+        rope: { rate: 0.03 },
+        dreveky: { rate: 0.03 },
+        kozene_boty: { rate: 0.03 },
+        // dried_herb_spice (0.02)
+        dried_herbs_bundle: { rate: 0.02, mice: true },
+        hemp_pouch: { rate: 0.02, mice: true },
+        dried_cannabis: { rate: 0.02, mice: true },
+        pepr_cerny: { rate: 0.02, mice: true },
+        zazvor: { rate: 0.02, mice: true },
+        hrebicek: { rate: 0.02, mice: true },
+        muskat: { rate: 0.02, mice: true },
+        muskatovy_kvet: { rate: 0.02, mice: true },
+        skorice: { rate: 0.02, mice: true },
+        safran: { rate: 0.02, mice: true },
+        almond: { rate: 0.02, mice: true },
+        ground_spice: { rate: 0.02, mice: true },
+        seeds_herb: { rate: 0.02, mice: true },
+        acorn_roasted: { rate: 0.02, mice: true },
+        chicory_roasted: { rate: 0.02, mice: true },
+        galium: { rate: 0.02, mice: true },
+        hostia: { rate: 0.02, mice: true },
+        slany_sled: { rate: 0.02, mice: true },
+        // grain_seed (0.005)
+        seeds_vegetable: { rate: 0.005, mice: true },
+        seeds_yellow: { rate: 0.005, mice: true },
+        seeds_blue: { rate: 0.005, mice: true },
+        seeds_mint: { rate: 0.005, mice: true },
+        seeds_thyme: { rate: 0.005, mice: true },
+        seeds_kopr: { rate: 0.005, mice: true },
+        seeds_sage: { rate: 0.005, mice: true },
+        seeds_fennel: { rate: 0.005, mice: true },
+        seeds_wormwood: { rate: 0.005, mice: true },
+        seeds_hyssop: { rate: 0.005, mice: true },
+        seeds_yarrow: { rate: 0.005, mice: true },
+        seeds_plantain: { rate: 0.005, mice: true },
+        seeds_leek: { rate: 0.005, mice: true },
+        seeds_carrot: { rate: 0.005, mice: true },
+        seeds_onion: { rate: 0.005, mice: true },
+        seeds_cabbage: { rate: 0.005, mice: true },
+        seeds_radish: { rate: 0.005, mice: true },
+        seeds_turnip: { rate: 0.005, mice: true },
+        seeds_garlic: { rate: 0.005, mice: true },
+        seeds_rye: { rate: 0.005, mice: true },
+        seeds_wheat: { rate: 0.005, mice: true },
+        seeds_barley: { rate: 0.005, mice: true },
+        seeds_oats: { rate: 0.005, mice: true },
+        seeds_millet: { rate: 0.005, mice: true },
+        seeds_pohanka: { rate: 0.005, mice: true },
+        seeds_peas: { rate: 0.005, mice: true },
+        seeds_lentils: { rate: 0.005, mice: true },
+        seeds_vikev: { rate: 0.005, mice: true },
+        seeds_flax: { rate: 0.005, mice: true },
+        seeds_mandrake: { rate: 0.005, mice: true },
+        seeds_belladonna: { rate: 0.005, mice: true },
+        seeds_poppy: { rate: 0.005, mice: true },
+        seeds_nettle: { rate: 0.005, mice: true },
+        seeds_cannabis: { rate: 0.005, mice: true },
+        seeds_hops: { rate: 0.005, mice: true },
+        pohanka: { rate: 0.005, mice: true },
+        lentils: { rate: 0.005, mice: true },
+        vikev: { rate: 0.005, mice: true },
+        grain: { rate: 0.005, mice: true },
+        grain_feed: { rate: 0.005, mice: true },
+        flour: { rate: 0.005, mice: true },
+        kroupy: { rate: 0.005, mice: true },
+        flour_1: { rate: 0.005, mice: true },
+        flour_2: { rate: 0.005, mice: true },
+        hay: { rate: 0.005, mice: true },
+        straw: { rate: 0.005, mice: true },
+        couch_grass_flour: { rate: 0.005, mice: true },
+        feed_meal: { rate: 0.005, mice: true },
+        // preserve_slow (0.01)
+        beeswax: { rate: 0.01 },
+        propolis: { rate: 0.01 },
+        propolis_tinktura: { rate: 0.01 },
+        propolis_tinktura_vyzrala: { rate: 0.01 },
+        resin_spruce: { rate: 0.01 },
+        resin_pine: { rate: 0.01 },
+        smola: { rate: 0.01 },
+        resin_styrax: { rate: 0.01 },
+        resin_olibanum: { rate: 0.01 },
+        glue: { rate: 0.01 },
+        klih: { rate: 0.01 },
+        salt: { rate: 0.01 },
+        hops: { rate: 0.01 },
+        linseed_oil: { rate: 0.01 },
+        // wood_organic (0.008)
+        wood: { rate: 0.008 },
+        stick: { rate: 0.008 },
+        bark: { rate: 0.008 },
+        log: { rate: 0.008 },
+        plank: { rate: 0.008 },
+        wicker: { rate: 0.008 },
+        tanbark: { rate: 0.008 },
+        // ash_lime (0.015)
+        ash_water: { rate: 0.015 },
+        vapno_paleny_fresh: { rate: 0.015 },
+        vapno_paleny_mature: { rate: 0.015 },
+        vapno_hasene_fresh: { rate: 0.015 },
+        vapno_hasene_mature: { rate: 0.015 },
+        compost: { rate: 0.015 },
+        bonemeal: { rate: 0.015 },
+        charcoal: { rate: 0.015 },
+        // sapling (0.02)
+        seed_apple: { rate: 0.02 },
+        seed_pear: { rate: 0.02 },
+        seed_plum: { rate: 0.02 },
+        seed_cherry: { rate: 0.02 },
+        seed_walnut: { rate: 0.02 },
+        seed_mulberry: { rate: 0.02 },
+        seed_quince: { rate: 0.02 },
+        seed_sorb: { rate: 0.02 },
+        seed_rowan: { rate: 0.02 },
+        seed_linden: { rate: 0.02 },
+        viticis_belina: { rate: 0.02 },
+        viticis_klevner: { rate: 0.02 },
+        viticis_frankovka: { rate: 0.02 },
+        viticis_tramin: { rate: 0.02 },
+        viticis_modry_janek: { rate: 0.02 },
+        viticis_baco: { rate: 0.02 },
+        // dried_herb_spice_book (0.01)
+        book_binding: { rate: 0.01 },
+        book_cover: { rate: 0.01 },
+        ink_pouch: { rate: 0.01 },
+        quires: { rate: 0.01 },
+        sewn_block: { rate: 0.01 },
+        unfitted_codex: { rate: 0.01 },
+
+        // FOOD kategorie (decay-audit-mrd, 9.8.2026) — sazbová pásma podle kategorie
+        // raw_meat_fish (0.2)
+        veal: { rate: 0.2, flies: true },
+        rabbit_meat: { rate: 0.2, flies: true },
+        crayfish: { rate: 0.2, flies: true },
+        snail: { rate: 0.2, flies: true },
+        frog_legs: { rate: 0.2, flies: true },
+        pstruh: { rate: 0.2, flies: true },
+        uhor: { rate: 0.2, flies: true },
+        vyza_maso: { rate: 0.2, flies: true },
+        kapr_sadky_fresh: { rate: 0.2, flies: true },
+        stika_sadky_fresh: { rate: 0.2, flies: true },
+        vyza_sadky_fresh: { rate: 0.2, flies: true },
+        stika: { rate: 0.2, flies: true },
+        morel: { rate: 0.2, flies: true },
+        porcini: { rate: 0.2, flies: true },
+        saffron_milk_cap: { rate: 0.2, flies: true },
+        quince: { rate: 0.2, flies: true },
+        kapr_sadky_purified: { rate: 0.2, flies: true },
+        stika_sadky_purified: { rate: 0.2, flies: true },
+        // cooked_dish (0.15)
+        braised_beef: { rate: 0.15, flies: true },
+        cooked_beef: { rate: 0.15, flies: true },
+        cooked_chicken: { rate: 0.15, flies: true },
+        cooked_mutton: { rate: 0.15, flies: true },
+        cooked_rabbit: { rate: 0.15, flies: true },
+        mushroom_soup: { rate: 0.15, flies: true },
+        spring_herb_porridge: { rate: 0.15, flies: true },
+        rosehip_sauce: { rate: 0.15, flies: true },
+        crayfish_boiled: { rate: 0.15, flies: true },
+        snails_black_sauce: { rate: 0.15, flies: true },
+        morel_stuffed: { rate: 0.15, flies: true },
+        smazenice: { rate: 0.15, flies: true },
+        stew_koreni: { rate: 0.15, flies: true },
+        roast_beef: { rate: 0.15, flies: true },
+        roast_rabbit_dish: { rate: 0.15, flies: true },
+        pecena_slanecka: { rate: 0.15, flies: true },
+        repny_prejt: { rate: 0.15, flies: true },
+        raci_s_koprem: { rate: 0.15, flies: true },
+        tvarohove_tasticky: { rate: 0.15, flies: true },
+        frog_legs_fried: { rate: 0.15, flies: true },
+        chicory_drink: { rate: 0.15, flies: true },
+        acorn_brew: { rate: 0.15, flies: true },
+        // baked_good (0.1)
+        berry_pie: { rate: 0.1, mice: true },
+        berry_pie_fine: { rate: 0.1, mice: true },
+        berry_pie_fine_1: { rate: 0.1, mice: true },
+        berry_pie_koreni: { rate: 0.1, mice: true },
+        bread_fine: { rate: 0.1, mice: true },
+        bread_fine_1: { rate: 0.1, mice: true },
+        famine_bread: { rate: 0.1, mice: true },
+        // fresh_veg (0.12)
+        cabbage: { rate: 0.12 },
+        carrot: { rate: 0.12 },
+        onion: { rate: 0.12 },
+        turnip: { rate: 0.12 },
+        garlic: { rate: 0.12 },
+        leek: { rate: 0.12 },
+        radish: { rate: 0.12 },
+        potato: { rate: 0.12 },
+        burdock_root: { rate: 0.12 },
+        cattail_root: { rate: 0.12 },
+        couch_grass: { rate: 0.12 },
+        dandelion: { rate: 0.12 },
+        goosefoot: { rate: 0.12 },
+        ground_elder: { rate: 0.12 },
+        sorrel: { rate: 0.12 },
+        burdock_root_baked: { rate: 0.12 },
+        // fresh_fruit (0.12)
+        apple: { rate: 0.12 },
+        pear: { rate: 0.12 },
+        cherry: { rate: 0.12 },
+        plum: { rate: 0.12 },
+        grapes_baco: { rate: 0.12 },
+        grapes_belina: { rate: 0.12 },
+        grapes_frankovka: { rate: 0.12 },
+        grapes_klevner: { rate: 0.12 },
+        grapes_modry_janek: { rate: 0.12 },
+        grapes_tramin: { rate: 0.12 },
+        cornel_cherry: { rate: 0.12 },
+        mulberry: { rate: 0.12 },
+        rowan: { rate: 0.12 },
+        sorb: { rate: 0.12 },
+        walnut: { rate: 0.12 },
+        rosehip: { rate: 0.12 },
+        sloe: { rate: 0.12 },
+        wild_fruit: { rate: 0.12 },
+        linden_fruit: { rate: 0.12 },
+        beechnut: { rate: 0.12 },
+        bracket_fungus: { rate: 0.12 },
+        // cheese_fresh (0.15)
+        cow_cheese_fresh: { rate: 0.15, mice: true },
+        goat_cheese_fresh: { rate: 0.15, mice: true },
+        sheep_cheese_fresh: { rate: 0.15, mice: true },
+        syrecky_fresh: { rate: 0.15, mice: true },
+        // cheese_mature (0.05)
+        cow_cheese_mature: { rate: 0.05, mice: true },
+        goat_cheese_mature: { rate: 0.05, mice: true },
+        sheep_cheese_mature: { rate: 0.05, mice: true },
+        syrecky_mature: { rate: 0.05, mice: true },
+        // cheese_aged (0.02)
+        cow_cheese_aged: { rate: 0.02, mice: true },
+        goat_cheese_aged: { rate: 0.02, mice: true },
+        sheep_cheese_aged: { rate: 0.02, mice: true },
+        // preserve (0.03)
+        sloe_jam: { rate: 0.03 },
+        pickled_mushrooms: { rate: 0.03 },
+        dried_wild_fruit: { rate: 0.03 },
+        raisins: { rate: 0.03 },
+        // egg_other (0.05)
+        duck_egg: { rate: 0.05 },
+        pigeon_egg: { rate: 0.05 },
+        quail_egg: { rate: 0.05 },
+        // fermented_drink (0.01)
+        beer: { rate: 0.01 },
+        cervisia_nigra: { rate: 0.01 },
+        prima_cervisia: { rate: 0.01 },
+        mustum: { rate: 0.01 },
+        vinum: { rate: 0.01 },
+        vinum_baci: { rate: 0.01 },
+        vinum_obscurum: { rate: 0.01 },
+        vinum_praeclarum: { rate: 0.01 },
+        vinum_rubrum: { rate: 0.01 },
+        wine: { rate: 0.01 },
+        // herbal_drink (0.08)
+        herbal_tea: { rate: 0.08 },
+        hildegard_tisane: { rate: 0.08 },
+        linden_tea: { rate: 0.08 },
+        // near_eternal (0.002)
+        water: { rate: 0.002 },
+        spring_water: { rate: 0.002 },
+        holy_water: { rate: 0.002 },
+        vinegar: { rate: 0.002 },
+        honey: { rate: 0.002 },
+        // caviar (0.04)
+        vyza_jikry: { rate: 0.04 },
+        pryk: { rate: 0.04 },
+    },
+
+    // ── DURABLE_DECAY_RATES — trvanlivé zboží (nástroje, minerály, kov, kůže,
+    // dřevo, textil, sklo). Mimo běžné jídelní kažení — vlastní, mnohem
+    // pomalejší tabulka, chráněná skladem binárně (viz durableStorageProtects()),
+    // s kaskádovou výjimkou pro krizi zásob (viz dailyTick + perishableStockLow()).
+    // decay-audit-durables-mrd (9.8.2026)
+    DURABLE_DECAY_RATES: {
+        // mineral_glass (0.00002)
+        alembic: { rate: 0.00002 },
+        alum: { rate: 0.00002 },
+        beryllus: { rate: 0.00002 },
+        chalk: { rate: 0.00002 },
+        chrlic: { rate: 0.00002 },
+        clay: { rate: 0.00002 },
+        cornu_cervi: { rate: 0.00002 },
+        crushed_stone: { rate: 0.00002 },
+        cut_stone: { rate: 0.00002 },
+        drahokam_ulomek: { rate: 0.00002 },
+        flint: { rate: 0.00002 },
+        fly_trap_glass: { rate: 0.00002 },
+        glass_bowl: { rate: 0.00002 },
+        glass_flask: { rate: 0.00002 },
+        glass_goblet: { rate: 0.00002 },
+        glass_jug: { rate: 0.00002 },
+        glass_mirror: { rate: 0.00002 },
+        glass_pitcher: { rate: 0.00002 },
+        glass_stopper: { rate: 0.00002 },
+        glass_tankard: { rate: 0.00002 },
+        glass_vase: { rate: 0.00002 },
+        iron_ore: { rate: 0.00002 },
+        nahrobek: { rate: 0.00002 },
+        naramek_sklo_hnedy: { rate: 0.00002 },
+        naramek_sklo_modry: { rate: 0.00002 },
+        naramek_sklo_zeleny: { rate: 0.00002 },
+        oculi: { rate: 0.00002 },
+        palice_kamenna: { rate: 0.00002 },
+        paternoster_beads: { rate: 0.00002 },
+        pottery_vessel: { rate: 0.00002 },
+        pumice: { rate: 0.00002 },
+        reliquia: { rate: 0.00002 },
+        rock: { rate: 0.00002 },
+        sal_ammoniac: { rate: 0.00002 },
+        sandarak: { rate: 0.00002 },
+        sharp_stone: { rate: 0.00002 },
+        stribrny_prut: { rate: 0.00002 },
+        vapenec: { rate: 0.00002 },
+        verzino: { rate: 0.00002 },
+        whetstone: { rate: 0.00002 },
+        whetstone_rock: { rate: 0.00002 },
+        window_roundel: { rate: 0.00002 },
+        zlaty_prut: { rate: 0.00002 },
+        // iron_tool (0.0003)
+        anvil: { rate: 0.0003 },
+        britva_chirurgus: { rate: 0.0003 },
+        britva_cizi: { rate: 0.0003 },
+        britva_kovarska: { rate: 0.0003 },
+        cooking_pot: { rate: 0.0003 },
+        font_set: { rate: 0.0003 },
+        hrebiky: { rate: 0.0003 },
+        iron_axe: { rate: 0.0003 },
+        iron_flail: { rate: 0.0003 },
+        iron_ingot: { rate: 0.0003 },
+        iron_pickaxe: { rate: 0.0003 },
+        iron_saw: { rate: 0.0003 },
+        iron_scythe: { rate: 0.0003 },
+        iron_shovel: { rate: 0.0003 },
+        iron_sickle: { rate: 0.0003 },
+        iron_spade: { rate: 0.0003 },
+        iron_tongs: { rate: 0.0003 },
+        kovani: { rate: 0.0003 },
+        lead_alloy: { rate: 0.0003 },
+        metal_bosses: { rate: 0.0003 },
+        metal_clasps: { rate: 0.0003 },
+        palice_zelezna: { rate: 0.0003 },
+        printing_type: { rate: 0.0003 },
+        repair_kit: { rate: 0.0003 },
+        sada_podkov: { rate: 0.0003 },
+        tea_kettle: { rate: 0.0003 },
+        worn_iron_axe: { rate: 0.0003 },
+        worn_iron_flail: { rate: 0.0003 },
+        worn_iron_pickaxe: { rate: 0.0003 },
+        worn_iron_saw: { rate: 0.0003 },
+        worn_iron_scythe: { rate: 0.0003 },
+        worn_iron_shovel: { rate: 0.0003 },
+        worn_iron_sickle: { rate: 0.0003 },
+        worn_iron_spade: { rate: 0.0003 },
+        worn_iron_tongs: { rate: 0.0003 },
+        worn_type: { rate: 0.0003 },
+        // wood_tool (0.0005)
+        backgammon_board: { rate: 0.0005 },
+        barrel_tool: { rate: 0.0005 },
+        basket: { rate: 0.0005 },
+        bedna: { rate: 0.0005 },
+        bucket: { rate: 0.0005 },
+        cheese_mold: { rate: 0.0005 },
+        churn: { rate: 0.0005 },
+        draughts_board: { rate: 0.0005 },
+        fishing_rod: { rate: 0.0005 },
+        fly_trap_paper: { rate: 0.0005 },
+        french_deck: { rate: 0.0005 },
+        goose_quill: { rate: 0.0005 },
+        hnefatafl_board: { rate: 0.0005 },
+        hoe: { rate: 0.0005 },
+        karnoffel_deck: { rate: 0.0005 },
+        loaded_dice: { rate: 0.0005 },
+        mousetrap: { rate: 0.0005 },
+        organ: { rate: 0.0005 },
+        pestle: { rate: 0.0005 },
+        playing_cards: { rate: 0.0005 },
+        primero_deck: { rate: 0.0005 },
+        quill: { rate: 0.0005 },
+        rithmomachia_board: { rate: 0.0005 },
+        sack: { rate: 0.0005 },
+        senet_board: { rate: 0.0005 },
+        stone_axe: { rate: 0.0005 },
+        stone_flail: { rate: 0.0005 },
+        stone_knife: { rate: 0.0005 },
+        stone_pickaxe: { rate: 0.0005 },
+        stone_saw: { rate: 0.0005 },
+        stone_scythe: { rate: 0.0005 },
+        stone_shovel: { rate: 0.0005 },
+        stone_sickle: { rate: 0.0005 },
+        stone_spade: { rate: 0.0005 },
+        storage_container: { rate: 0.0005 },
+        tabula: { rate: 0.0005 },
+        tinderbox: { rate: 0.0005 },
+        truhla_i: { rate: 0.0005 },
+        truhla_ii: { rate: 0.0005 },
+        ur_board: { rate: 0.0005 },
+        watering_can: { rate: 0.0005 },
+        wooden_bowl: { rate: 0.0005 },
+        wooden_flail: { rate: 0.0005 },
+        // leather_tool (0.0007)
+        bellows: { rate: 0.0007 },
+        cushion: { rate: 0.0007 },
+        quill_case: { rate: 0.0007 },
+        scribes_belt: { rate: 0.0007 },
+        scrinium_case: { rate: 0.0007 },
+        water_pouch: { rate: 0.0007 },
+        // textile_worn (0.0008)
+        kutna: { rate: 0.0008 },
+        roucho_bile: { rate: 0.0008 },
+        roucho_cervene: { rate: 0.0008 },
+        roucho_fialove: { rate: 0.0008 },
+        roucho_zelene: { rate: 0.0008 },
+    },
+
+    // Existuje jakákoliv skladová budova → trvanlivé zboží plně chráněno (0 %),
+    // dokud nenastane kaskáda (viz níže).
+    durableStorageProtects: function() {
+        const s = GameState.storage || {};
+        return !!((s.almarium && s.almarium.built) || (s.cella && s.cella.built)
+            || (s.horreum && s.horreum.built) || (s.old_cellars && s.old_cellars.built));
+    },
+
+    // "Rychle kazitelné" = vše z DECAY_RATES (jídlo/suroviny). Pod 20 kusů
+    // celkem = došly zásoby na obětování při přetečení, kaskáda se spustí.
+    perishableStockLow: function() {
+        const inv = GameState.inventory || {};
+        let total = 0;
+        for (const id of Object.keys(this.DECAY_RATES)) total += (inv[id] || 0);
+        return total < 20;
     },
 
     // ── Gate ──────────────────────────────────────────────────────────────
@@ -28587,6 +29077,26 @@ const DecaySystem = {
             losses.push({ id, lost });
         }
 
+        // ── Durable goods — vlastní, mnohem pomalejší tabulka. Chráněno
+        // skladem binárně, kaskáda přepíše ochranu jen při overflow +
+        // kriticky nízkých rychle kazitelných zásobách (decay-audit-
+        // durables-mrd, 9.8.2026).
+        const durableProtected = this.durableStorageProtects();
+        const cascadeOverride = this.isOverflow() && this.perishableStockLow();
+        if (!durableProtected || cascadeOverride) {
+            for (const [id, def] of Object.entries(this.DURABLE_DECAY_RATES)) {
+                const count = inv[id] || 0;
+                if (count <= 0) continue;
+                const exact = count * def.rate;
+                let lost = Math.floor(exact);
+                if (Math.random() < (exact - lost)) lost += 1;
+                if (lost <= 0) continue;
+
+                inv[id] = Math.max(0, count - lost);
+                losses.push({ id, lost });
+            }
+        }
+
         st.lastLosses = losses;
         if (losses.length) this._notifyLosses(losses, oMult > 1);
 
@@ -28623,11 +29133,18 @@ const DecaySystem = {
     // Efektivní denní sazba položky (po modifikátorech), null = nekazí se
     effectiveRate: function(id) {
         const def = this.DECAY_RATES[id];
-        if (!def) return null;
-        let rate = def.rate * this.storageReduction() * (this.isOverflow() ? 2 : 1);
-        if (def.mice) rate *= this.miceMult();
-        if (def.flies) rate *= this.fliesMult();
-        return Math.min(0.9, rate);
+        if (def) {
+            let rate = def.rate * this.storageReduction() * (this.isOverflow() ? 2 : 1);
+            if (def.mice) rate *= this.miceMult();
+            if (def.flies) rate *= this.fliesMult();
+            return Math.min(0.9, rate);
+        }
+        const durableDef = this.DURABLE_DECAY_RATES[id];
+        if (durableDef) {
+            const protectedNow = this.durableStorageProtects() && !(this.isOverflow() && this.perishableStockLow());
+            return protectedNow ? 0 : durableDef.rate;
+        }
+        return null;
     },
 
     miceFuzzyShort: function() {
@@ -35200,6 +35717,82 @@ const FarmyardSystem = {
         if (st && Array.isArray(st.animals)) st.animals.forEach(a => this._ensureAnimalFields(a));
     },
 
+    // ── Volné stádo (loose-herd-mrd, 9.8.2026) ──────────────────────────────
+    // Zvířata v syrovém inventáři (mimo konkrétní chlévy — koupě/chov nad
+    // kapacitu, odkudkoliv) = "volné stádo kolem kláštera", bez pořádného
+    // ohrazení. Denně ubývá — vlci/medvěd, nemoc, zaběhnutí, krádež. Vážená
+    // ztráta škáluje s odmocninou počtu (0.15×√n) — malý přebytek ubývá
+    // pomalu (pár kusů se snáz pohlídá), velký rychleji, ale ne lineárně
+    // (jeden vlk nesežere 2× víc, jen protože je stádo 2× větší).
+    // Holubi/včely VYNECHÁNI — mají vlastní systémy (Kolumbárium/Apiarium,
+    // včetně vlastního predátorího ticku).
+    LOOSE_HERD_SPECIES: ['hen_white', 'hen_black', 'hen_colored', 'rooster', 'chick',
+        'sheep', 'lamb', 'rabbit_m', 'rabbit_f', 'goat', 'piglet', 'pig',
+        'cow', 'tele', 'byk', 'donkey', 'horse', 'mule'],
+
+    _pickLooseHerdReason: function () {
+        const r = Math.random();
+        if (r < 0.35) return 'predator';
+        if (r < 0.65) return 'disease';
+        if (r < 0.85) return 'stray';
+        return 'theft';
+    },
+
+    looseHerdDailyTick: function () {
+        if (!GameState.looseHerd) GameState.looseHerd = { lastTick: 0, lastLosses: [] };
+        const lh = GameState.looseHerd;
+        const now = Date.now();
+        if (now - (lh.lastTick || 0) < this.DAY_MS) return;
+        lh.lastTick = now;
+
+        const losses = [];
+        this.LOOSE_HERD_SPECIES.forEach(id => {
+            const count = GameState.inventory[id] || 0;
+            if (count <= 0) return;
+            const expected = 0.15 * Math.sqrt(count);
+            let lost = Math.floor(expected);
+            if (Math.random() < (expected - lost)) lost += 1;
+            lost = Math.min(lost, count);
+            if (lost <= 0) return;
+            GameState.inventory[id] = count - lost;
+            for (let i = 0; i < lost; i++) {
+                losses.push({ id, reason: this._pickLooseHerdReason() });
+            }
+        });
+
+        lh.lastLosses = losses;
+        if (losses.length && typeof this._notifyLooseHerdLosses === 'function') this._notifyLooseHerdLosses(losses);
+        if (typeof Game !== 'undefined' && Game.save) Game.save();
+    },
+
+    _notifyLooseHerdLosses: function (losses) {
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        const reasonLabels = {
+            predator: lang === 'en' ? 'wolves/bear' : 'vlci/medvěd',
+            disease: lang === 'en' ? 'disease' : 'nemoc',
+            stray: lang === 'en' ? 'strayed off' : 'zaběhnutí',
+            theft: lang === 'en' ? 'theft' : 'krádež',
+        };
+        // agregace podle id (počet) — reasony sečíst do závorky za druhem
+        const bySpecies = {};
+        losses.forEach(l => {
+            if (!bySpecies[l.id]) bySpecies[l.id] = { count: 0, reasons: {} };
+            bySpecies[l.id].count++;
+            bySpecies[l.id].reasons[l.reason] = (bySpecies[l.id].reasons[l.reason] || 0) + 1;
+        });
+        const parts = Object.entries(bySpecies).map(([id, info]) => {
+            const nm = (typeof iName === 'function') ? iName(id) : id;
+            const reasonStr = Object.entries(info.reasons).map(([r, n]) => `${n}× ${reasonLabels[r]}`).join(', ');
+            return `${info.count}× ${nm} (${reasonStr})`;
+        });
+        const msg = (lang === 'en' ? 'Loose herd: ' : 'Volné stádo: ') + '−' + losses.length + ' — ' + parts.join('; ');
+        if (typeof NotificationSystem !== 'undefined' && NotificationSystem.panel) {
+            NotificationSystem.panel('🐑 ' + msg, 'warning');
+        } else if (typeof UI !== 'undefined' && UI.notify) {
+            UI.notify('🐑 ' + msg, true);
+        }
+    },
+
     // ── Mood denní tick (voláno z DecaySystem/game.js) ───────────────────
     moodTick: function () {
         if (!GameState._farmyardMoodTick) GameState._farmyardMoodTick = 0;
@@ -36688,6 +37281,26 @@ const FarmyardSystem = {
 
         if (ds && ds.isActive() && miceN > 6) {
             h += `<div style="font-size:0.76rem; color:#a0722d;">⚠️ ${t('dvur.decayImpact')}</div>`;
+        }
+
+        // Volné stádo (loose-herd-mrd, 9.8.2026) — nasyslená/neumístěná
+        // zvířata mimo chlévy. "Neustájených celkem" = VŠECHNY type:"animal"
+        // itemy v inventáři (dynamicky z ItemsDB, i holubi/včely — jen
+        // informativně, ty úbytku nepodléhají, mají vlastní systémy).
+        {
+            let allUnstabled = 0;
+            if (typeof ItemsDB !== 'undefined') {
+                Object.keys(ItemsDB).forEach(id => {
+                    if (ItemsDB[id].type === 'animal') allUnstabled += (GameState.inventory[id] || 0);
+                });
+            }
+            if (allUnstabled > 0) {
+                h += `<div style="font-size:0.8rem;">🐑 ${lang === 'en' ? 'Unstabled animals total' : 'Neustájených zvířat celkem'}: <strong>${allUnstabled}</strong></div>`;
+                const lastLosses = GameState.looseHerd && GameState.looseHerd.lastLosses;
+                if (lastLosses && lastLosses.length > 0) {
+                    h += `<div style="font-size:0.72rem; opacity:0.65;">↳ ${lang === 'en' ? 'yesterday' : 'včera'}: −${lastLosses.length}</div>`;
+                }
+            }
         }
 
         h += `</div>`;
@@ -56874,6 +57487,8 @@ const Game = {
                     if (typeof ScriptoriumCat !== 'undefined' && ScriptoriumCat.dailyTick) ScriptoriumCat.dailyTick();
                     // FarmyardSystem — mood tick (self-guarded 24h)
                     if (typeof FarmyardSystem !== 'undefined' && FarmyardSystem.moodTick) FarmyardSystem.moodTick();
+                    // Volné stádo — denní ubývání nasyslených/neumístěných zvířat (self-guarded 24h)
+                    if (typeof FarmyardSystem !== 'undefined' && FarmyardSystem.looseHerdDailyTick) FarmyardSystem.looseHerdDailyTick();
                     // Myší populace — denní tick spawn/mortality/scraps (self-guarded 24h)
                     if (typeof ScriptoriumCat !== 'undefined' && ScriptoriumCat.miceTick) ScriptoriumCat.miceTick();
                     // Decay — denní kažení zásob (self-guarded 24h, gate tech_inventarium)
@@ -57288,6 +57903,43 @@ const Game = {
         Game.save(); Game.checkEnvironment();
     },
     // ── Ztracené klíče — modal ───────────────────────────────────────────────
+    // coquina-kotlik-mrd (9.8.2026): modal pro Zrezlý kotlík — nabídne
+    // vyčištění přímo (spotřebuje crushed_stone+water, vrátí Kotlík tier 2),
+    // mirror stylu showLostKeyModal/showHempPouchModal.
+    showRustyPotModal: function() {
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        const isEn = lang === 'en';
+        const qty = GameState.inventory['zrezly_kotlik'] || 0;
+        const haveStone = GameState.inventory['crushed_stone'] || 0;
+        const haveWater = GameState.inventory['water'] || 0;
+        const needStone = 2, needWater = 1;
+        const canClean = haveStone >= needStone && haveWater >= needWater;
+
+        NotificationSystem.modal({
+            icon: '🍂',
+            title: isEn ? 'Rusty Pot' : 'Zrezlý kotlík',
+            text: (isEn
+                ? '<em>An old metal pot, thick with rust. It needs a thorough scouring before anything can be cooked in it.</em>'
+                : '<em>Starý kovový kotlík, celý ve rzi. Než se v něm dá vařit, musí se pořádně vydrhnout.</em>')
+                + '<br><br>' + (isEn ? 'In stock' : 'Na skladě') + ': <strong>' + qty + '</strong>'
+                + '<br>' + (isEn ? 'Needed' : 'Potřeba') + ': ' + needStone + '× ' + (typeof iName === 'function' ? iName('crushed_stone') : 'Drcený kámen')
+                + ' (' + haveStone + '/' + needStone + '), ' + needWater + '× ' + (typeof iName === 'function' ? iName('water') : 'Voda') + ' (' + haveWater + '/' + needWater + ')'
+                + (!canClean ? '<br><small style="color:#c0392b;">⚠️ ' + (isEn ? 'Not enough materials' : 'Nedostatek surovin') + '</small>' : ''),
+            choices: [
+                {
+                    label: isEn ? '🧽 Scour clean' : '🧽 Vydrhnout',
+                    type: canClean ? 'primary' : 'default',
+                    effect: canClean ? function() {
+                        Game.craft('vycistit_kotlik');
+                    } : function() {
+                        UI.notify(isEn ? '⚠️ Not enough materials.' : '⚠️ Nedostatek surovin.', true);
+                    }
+                },
+                { label: isEn ? 'Close' : 'Zavřít', type: 'default', effect: function() {} }
+            ]
+        });
+    },
+
     showLostKeyModal: function(keyId) {
         const lang = (GameState.settings && GameState.settings.language) || 'cs';
         const cs = lang === 'en';
@@ -65384,6 +66036,12 @@ const UI = {
             if (typeof Game !== 'undefined' && Game.showMysteriousBulbModal) Game.showMysteriousBulbModal();
             return;
         }
+        // coquina-kotlik-mrd (9.8.2026): klik na Zrezlý kotlík v Zásobách/Truhle
+        // otevře modal s přímou nabídkou vyčištění, mirror pipe_large/dýmka vzoru.
+        if (id === 'zrezly_kotlik') {
+            if (typeof Game !== 'undefined' && Game.showRustyPotModal) Game.showRustyPotModal();
+            return;
+        }
         const item = ItemsDB[id];
         if (!item) return;
         const lang = (GameState.settings && GameState.settings.language) || 'cs';
@@ -65391,23 +66049,27 @@ const UI = {
         const name = (typeof iName === 'function') ? iName(id) : (item.name || id);
         const desc = (typeof iDesc === 'function') ? iDesc(id) : (lang === 'en' ? (item.desc_en || item.desc) : item.desc);
 
-        // Decay info
-        const decayMap = {
-            milk: { h: 24 }, egg: { h: 120 }, raw_fish: { h: 24 }, cooked_fish: { h: 48 },
-            cooked_meat: { h: 48 }, thyme: { h: 720 }, chamomile: { h: 720 }, st_johns_wort: { h: 720 },
-            linden_blossom: { h: 720 }, hay: { h: 336 }, grass: { h: 48 }, worms: { h: 24 }
-        };
-        const decay = decayMap[id];
-        const hasCella = GameState.researchedTechs && GameState.researchedTechs.includes('tech_cella');
+        // Decay info — napojeno na skutečný DecaySystem (dřív samostatná
+        // zastaralá decayMap s 11 itemy, driftovala od skutečné tabulky
+        // stejně jako scavenge dřív — decay-modal-fix, 9.8.2026).
         let decayHtml = '';
-        if (decay) {
-            const h = hasCella ? Math.round(decay.h * 2.5) : decay.h;
-            const days = Math.round(h / 24 * 10) / 10;
-            const cellaNote = hasCella ? ' (Cella x2.5)' : '';
-            decayHtml = `<div style="margin:10px 0;padding:8px 12px;background:rgba(192,57,43,0.08);border-radius:6px;border-left:3px solid #c0392b;font-size:0.85rem;">
-                ⏳ ${lang === 'en' ? 'Expires in' : 'Vyprší za'}: <strong>${days} ${lang === 'en' ? 'days' : 'dní'}${cellaNote}</strong></div>`;
+        if (typeof DecaySystem !== 'undefined' && DecaySystem.isActive && DecaySystem.isActive()) {
+            const rate = DecaySystem.effectiveRate(id);
+            const isDurable = !!DecaySystem.DURABLE_DECAY_RATES[id];
+            if (rate === null) {
+                decayHtml = `<div style="margin:10px 0;padding:8px 12px;background:rgba(90,154,90,0.08);border-radius:6px;border-left:3px solid #5a9a5a;font-size:0.85rem;">∞ ${lang === 'en' ? 'Does not decay' : 'Nekazí se'}</div>`;
+            } else if (rate === 0 && isDurable) {
+                decayHtml = `<div style="margin:10px 0;padding:8px 12px;background:rgba(90,154,90,0.08);border-radius:6px;border-left:3px solid #5a9a5a;font-size:0.85rem;">🛡️ ${lang === 'en' ? 'Protected by storage' : 'Chráněno skladem'}</div>`;
+            } else {
+                const pctStr = (rate * 100).toFixed(rate < 0.01 ? 3 : 1);
+                const halfLifeDays = rate > 0 ? Math.round(Math.log(0.5) / Math.log(1 - rate)) : null;
+                const durNote = isDurable ? (lang === 'en' ? ' (durable goods — slow erosion)' : ' (trvanlivé zboží — pomalá eroze)') : '';
+                decayHtml = `<div style="margin:10px 0;padding:8px 12px;background:rgba(192,57,43,0.08);border-radius:6px;border-left:3px solid #c0392b;font-size:0.85rem;">
+                    ⏳ ${lang === 'en' ? 'Losing' : 'Ztrácí'}: <strong>~${pctStr}%/${lang === 'en' ? 'day' : 'den'}</strong>${durNote}
+                    ${halfLifeDays ? `<br><small style="opacity:0.7;">${lang === 'en' ? '~half gone in' : '~polovina zmizí za'} ${halfLifeDays} ${lang === 'en' ? 'days' : 'dní'}</small>` : ''}</div>`;
+            }
         } else if (item.type !== 'animal' && item.type !== 'key') {
-            decayHtml = `<div style="margin:10px 0;padding:8px 12px;background:rgba(90,154,90,0.08);border-radius:6px;border-left:3px solid #5a9a5a;font-size:0.85rem;">∞ ${lang === 'en' ? 'Does not expire' : 'Nevyprší'}</div>`;
+            decayHtml = `<div style="margin:10px 0;padding:8px 12px;background:rgba(90,154,90,0.08);border-radius:6px;border-left:3px solid #5a9a5a;font-size:0.85rem;">∞ ${lang === 'en' ? 'Does not decay yet (research Inventarium)' : 'Zatím se nekazí (vyzkoumej Inventarium)'}</div>`;
         }
 
         // Kde se item používá
@@ -65431,6 +66093,17 @@ const UI = {
         if (item.lostItem) props.push('🔍 ' + (lang === 'en' ? 'Found item' : 'Nalezený předmět'));
         if (item.type === 'tool') props.push('🔨 ' + (lang === 'en' ? 'Tool (not consumed)' : 'Nástroj (nespotřebovává se)'));
         if (item.type === 'key') props.push('🗝️ ' + (lang === 'en' ? 'Key' : 'Klíč'));
+        // coquina-kotlik-mrd (9.8.2026): Kotlík tier je dynamický (GameState.cookingPotTier),
+        // ne statické item.tier pole — jiný mechanismus než stone_axe/iron_axe.
+        if (id === 'cooking_pot') {
+            const potTierNames = { 1: '🪨 ' + (lang === 'en' ? 'Stone' : 'Kamenný'), 2: '⚙️ ' + (lang === 'en' ? 'Iron' : 'Železný'), 3: '🟠 ' + (lang === 'en' ? 'Bronze' : 'Bronzový') };
+            props.push(potTierNames[GameState.cookingPotTier || 1]);
+        }
+        // Opotřebení nástroje (maxUses/toolUses) — existující systém, dřív se v modalu vůbec neukazoval
+        if (item.maxUses && GameState.toolUses && GameState.toolUses[id] !== undefined) {
+            const usesLeft = GameState.toolUses[id];
+            props.push('⚡ ' + usesLeft + '/' + item.maxUses + ' ' + (lang === 'en' ? 'uses' : 'použití'));
+        }
         const propsHtml = props.length > 0
             ? `<div style="margin-top:8px;display:flex;flex-wrap:wrap;gap:4px;">${props.map(p => `<span style="padding:2px 8px;background:rgba(197,160,89,0.2);border-radius:10px;font-size:0.75rem;">${p}</span>`).join('')}</div>`
             : '';
@@ -65619,7 +66292,7 @@ const UI = {
         const renderItem = (id, qty) => {
             const item = ItemsDB[id];
             if (!item) return '';
-            const _isRareModal = (id === 'netolicky_legacy') || id === 'old_coin_1' || id === 'old_coin_2' || id === 'old_coin_3' || id === 'torn_page' || id === 'wax_seal' || ['lost_key_1', 'lost_key_2', 'lost_key_3', 'lost_key_4', 'lost_key_5', 'key_large_1', 'key_large_2', 'key_large_3', 'lost_scroll_1', 'lost_scroll_2'].includes(id) || ['dried_herbs_bundle', 'hemp_pouch', 'mysterious_bulb'].includes(id);
+            const _isRareModal = (id === 'netolicky_legacy') || id === 'old_coin_1' || id === 'old_coin_2' || id === 'old_coin_3' || id === 'torn_page' || id === 'wax_seal' || ['lost_key_1', 'lost_key_2', 'lost_key_3', 'lost_key_4', 'lost_key_5', 'key_large_1', 'key_large_2', 'key_large_3', 'lost_scroll_1', 'lost_scroll_2'].includes(id) || ['dried_herbs_bundle', 'hemp_pouch', 'mysterious_bulb', 'zrezly_kotlik'].includes(id);
             const _click = (_hasMateria || _isRareModal) ? `onclick="UI.showItemModal('${id}')" style="cursor:pointer;"` : '';
             let actionBtn = '';
             if (id === 'water' || id === 'spring_water' || id === 'holy_water') {
