@@ -4077,6 +4077,8 @@
                             Kraj</button>
                         <button id="lib-tab-studovna" class="filter-btn" onclick="UI.switchLibraryTab('studovna', this)">📖
                             Studovna</button>
+                        <button id="lib-tab-opat" class="filter-btn" onclick="UI.switchLibraryTab('opat', this)">👤
+                            Opat</button>
                     </div>
                     <div id="library-books-content" style="margin-top:20px;"></div>
                     <div id="library-games-content" style="margin-top:20px; display:none;"></div>
@@ -4085,6 +4087,7 @@
                     <div id="library-kronika-content" style="margin-top:20px; display:none;"></div>
                     <div id="library-kraj-content" style="margin-top:20px; display:none;"></div>
                     <div id="library-studovna-content" style="margin-top:20px; display:none;"></div>
+                    <div id="library-opat-content" style="margin-top:20px; display:none;"></div>
                 </div>
             </div>
 
@@ -41101,6 +41104,107 @@ const CommitmentsSystem = {
         ],
     },
 
+    // zakazky-rozsireni-ctyri-kategorie-mrd.md, Kategorie C (9.8.2026) —
+    // kacířská/hříšná zakázka. Historicky přesně na rok 1465: srpen 1465
+    // papež Pavel II. obnovil půhon proti Jiřímu z Poděbrad, 28.11.1465
+    // katolická šlechta ustavila Zelenohorskou jednotu. 2 jmenovité
+    // (frakčně vyhrocené), 2 obecné/tajemné (neexponované jméno, mirror
+    // "jméno neexponovat" principu z visitatio-reference.md). Zvyšuje
+    // inquisitionHeat (existující L16/inq_raid vlákno) a snižuje abbotFavor
+    // (trace pro budoucí Abbot screen — opat se dozví, čím dům riskuje).
+    _KACIRSKA_ZAKAZKY_CATALOG: {
+        kacirska: [
+            {
+                key: 'utrakvisticky_opis',
+                icon: '⚜️',
+                senderName_cs: 'Písař ze dvora krále Jiřího', senderName_en: "A Scribe from King Jiří's Court",
+                title_cs: 'Opis pro věrné krále',
+                title_en: 'A Copy for the Faithful of the King',
+                text_cs: 'Přichází psaní bez pečeti, jen ústní vzkaz doručený pocestným: opsat kompaktátový spis pro sympatizanta krále Jiřího. Platí se dobře — mlčení se cení výš než práce.',
+                text_en: "A letter arrives without a seal, only a spoken message brought by a traveller: copy a compactata-related text for a sympathizer of King Jiří. It pays well — silence is valued higher than the labour.",
+                requiredItems: [{ id: 'paper', qty: 2 }, { id: 'ink', qty: 1 }],
+                rewardGrose: 20,
+                inquisitionHeatDelta: 10,
+                abbotFavorDelta: -5,
+            },
+            {
+                key: 'zelenohorska_provolani',
+                icon: '🛡️',
+                senderName_cs: 'Posel Zelenohorské jednoty', senderName_en: 'A Messenger of the Green Mountain League',
+                title_cs: 'Provolání katolické šlechty',
+                title_en: 'A Proclamation of the Catholic Nobility',
+                text_cs: 'Jezdec v erbovním plášti žádá opis provolání jednoty, co se proti králi spikla u Zelené Hory. I tohle je psaní, které se nečte nahlas.',
+                text_en: 'A rider in a heraldic cloak requests a copy of the league\'s proclamation, sworn against the king at Zelená Hora. This too is a writing not read aloud.',
+                requiredItems: [{ id: 'paper', qty: 2 }, { id: 'ink', qty: 1 }],
+                rewardGrose: 20,
+                inquisitionHeatDelta: 10,
+                abbotFavorDelta: -5,
+            },
+            {
+                key: 'podezrely_traktat',
+                icon: '🔮',
+                senderName_cs: 'Tajemný žadatel', senderName_en: 'A Mysterious Petitioner',
+                title_cs: 'Spis s pochybnou pověstí',
+                title_en: 'A Text of Dubious Repute',
+                text_cs: 'Nikdo neví, odkud přišel vzkaz. Žádá opis astrologického traktátu, o němž se šeptá, že jeho autor skončil špatně. Odměna odpovídá riziku.',
+                text_en: 'No one knows where the message came from. It asks for a copy of an astrological treatise, whispered to have brought its author to a bad end. The reward matches the risk.',
+                requiredItems: [{ id: 'vellum', qty: 1 }, { id: 'ink_gallic', qty: 1 }],
+                rewardGrose: 35,
+                inquisitionHeatDelta: 15,
+                abbotFavorDelta: -8,
+            },
+            {
+                key: 'zahaleny_muz',
+                icon: '🎭',
+                senderName_cs: 'Zahalený muž', senderName_en: 'A Cloaked Man',
+                title_cs: 'Spis o zkaženosti církve',
+                title_en: 'A Text on the Corruption of the Church',
+                text_cs: 'Přišel za soumraku, tvář skrytou kápí. Chce opis satirického spisku, co si utahuje z tlustých opatů a lakomých kanovníků. „Vždyť je to jen žert,“ říká — a odchází dřív, než mu lze věřit.',
+                text_en: 'He came at dusk, face hidden by a hood. He wants a copy of a satirical pamphlet mocking fat abbots and greedy canons. "It is only a jest," he says — and leaves before he can be trusted.',
+                requiredItems: [{ id: 'paper', qty: 1 }, { id: 'ink', qty: 1 }],
+                rewardGrose: 15,
+                inquisitionHeatDelta: 8,
+                abbotFavorDelta: -6,
+            },
+        ],
+    },
+
+    // zakazky-rozsireni-ctyri-kategorie-mrd.md, Kategorie D (9.8.2026) —
+    // církevní postava mimo biskupa. Poctivé, čestné zakázky — zvyšují
+    // abbotFavor (trace pro budoucí Abbot screen), žádný inquisitionHeat
+    // dopad. Papežský legát vědomě vynechán (MRD §5 — příliš blízko
+    // Visitatio endgame vláknu).
+    _CIRKEVNI_ZAKAZKY_CATALOG: {
+        cirkevni_mimo_biskupa: [
+            {
+                key: 'meziknihovni_vypujcka',
+                icon: '📖',
+                senderName_cs: 'Opat kláštera Hradisko', senderName_en: 'The Abbot of Hradisko Monastery',
+                title_cs: 'Zapůjčení exempláře k opsání',
+                title_en: 'Loan of an Exemplar for Copying',
+                text_cs: 'Bratrský klášter posílá vzácný exemplář se žádostí o opis — meziklášterní laskavost, jak bývá zvykem mezi domy stejné řehole. Opat žádá pečlivost, ne spěch.',
+                text_en: 'A brother house sends a rare exemplar with a request for a copy — an inter-monastery courtesy, as is customary among houses of the same rule. The abbot asks for care, not haste.',
+                requiredItems: [{ id: 'vellum', qty: 1 }, { id: 'ink', qty: 1 }],
+                rewardGrose: 15,
+                reputationKey: 'lidovost', reputationAmt: 1,
+                abbotFavorDelta: 8,
+            },
+            {
+                key: 'kancional_pro_farnost',
+                icon: '🎵',
+                senderName_cs: 'Farní kněz z Bystřice', senderName_en: 'The Parish Priest of Bystřice',
+                title_cs: 'Kancionál pro chudou farnost',
+                title_en: 'A Hymnal for a Poor Parish',
+                text_cs: 'Vesnický farář píše skromně a poctivě: jeho farnost nemá na pořádný kancionál, zpívají ze slov, co si kdo pamatuje. Prosí o opis — a modlí se za vás na oplátku.',
+                text_en: 'The village priest writes modestly and honestly: his parish cannot afford a proper hymnal, they sing from whatever words are remembered. He asks for a copy — and prays for you in return.',
+                requiredItems: [{ id: 'paper', qty: 2 }, { id: 'ink', qty: 1 }],
+                rewardGrose: 10,
+                reputationKey: 'lidovost', reputationAmt: 2,
+                abbotFavorDelta: 6,
+            },
+        ],
+    },
+
     // Týdenní self-guarded generátor (mirror akterZakazkyTick kadence),
     // jen 1 slot najednou (žádný per-aktér strop potřeba — jeden abstraktní
     // odesílatel, ne více kontaktů).
@@ -41137,6 +41241,93 @@ const CommitmentsSystem = {
             deadlineDays: 10,
         });
         // Zprávy z kláštera (bell panel) + Kronika — zakázka dorazila
+        const _lang = (GameState.settings && GameState.settings.language) || 'cs';
+        const _senderName = _lang === 'en' ? opt.senderName_en : opt.senderName_cs;
+        if (typeof UI !== 'undefined' && UI.notifyPanel) UI.notifyPanel(
+            (_lang === 'en' ? `📜 ${_senderName} has a request for you.` : `📜 ${_senderName} má pro tebe žádost.`), 'obchod');
+        if (typeof Game !== 'undefined' && Game.addKronikaEntry) Game.addKronikaEntry('minor',
+            `📜 Zakázka od ${opt.senderName_cs}.`,
+            `📜 A commission from ${opt.senderName_en}.`,
+            `📜 Opus novum oblatum est.`);
+        if (typeof Game !== 'undefined' && Game.save) Game.save();
+        this.render();
+    },
+
+    // zakazky-rozsireni-ctyri-kategorie-mrd.md, Kategorie C (9.8.2026) —
+    // mirror vrchnostZakazkyTick přesně, jen: (1) žádný reputation gate
+    // (kacírská nabídka nepotřebuje, aby si tě šlechta/lid všimli), (2)
+    // základní ~20% týdenní šance VÁŽENÁ živým Chronicon napětím kraje
+    // (region.tension přes ChroniconSystem.getBuffs() — vyšší napětí =
+    // o něco pravděpodobnější heretická nabídka, mirror tension_min/max
+    // principu z narrative_README.md, ale čtení, ne psaní do Chroniconu).
+    kacirskaZakazkyTick: function () {
+        if (!Array.isArray(GameState.localAkterZakazky)) GameState.localAkterZakazky = [];
+        const WEEK = 7 * 24 * 60 * 60 * 1000;
+        if (!GameState.kacirskaZakazkyNextTick) {
+            GameState.kacirskaZakazkyNextTick = Date.now() + Math.round(WEEK * 0.5);
+            return;
+        }
+        if (Date.now() < GameState.kacirskaZakazkyNextTick) return;
+        GameState.kacirskaZakazkyNextTick = Date.now() + WEEK;
+
+        let chance = 0.20;
+        if (typeof ChroniconSystem !== 'undefined' && ChroniconSystem.getBuffs) {
+            const buffs = ChroniconSystem.getBuffs();
+            const tension = typeof buffs.tension === 'number' ? buffs.tension : 25;
+            // 25 (výchozí) → beze změny; nad/pod 25 posune šanci max o ±0.10
+            chance = Math.max(0.05, Math.min(0.35, 0.20 + (tension - 25) / 75 * 0.10));
+        }
+        if (Math.random() >= chance) return;
+
+        if (GameState.localAkterZakazky.some(z => z.actorId === 'kacirska')) return;
+
+        const options = this._KACIRSKA_ZAKAZKY_CATALOG.kacirska;
+        const opt = options[Math.floor(Math.random() * options.length)];
+        GameState.localAkterZakazky.push({
+            id: 'akter_kacirska_' + opt.key + '_' + Date.now(),
+            actorId: 'kacirska',
+            key: opt.key,
+            createdAt: Date.now(),
+            deadlineDays: 7,
+        });
+        const _lang = (GameState.settings && GameState.settings.language) || 'cs';
+        const _senderName = _lang === 'en' ? opt.senderName_en : opt.senderName_cs;
+        if (typeof UI !== 'undefined' && UI.notifyPanel) UI.notifyPanel(
+            (_lang === 'en' ? `📜 ${_senderName} has a request for you.` : `📜 ${_senderName} má pro tebe žádost.`), 'obchod');
+        if (typeof Game !== 'undefined' && Game.addKronikaEntry) Game.addKronikaEntry('minor',
+            `📜 Podezřelá zakázka od ${opt.senderName_cs}.`,
+            `📜 A suspicious commission from ${opt.senderName_en}.`,
+            `📜 Opus dubium oblatum est.`);
+        if (typeof Game !== 'undefined' && Game.save) Game.save();
+        this.render();
+    },
+
+    // zakazky-rozsireni-ctyri-kategorie-mrd.md, Kategorie D (9.8.2026) —
+    // mirror vrchnostZakazkyTick přesně, žádný reputation gate, žádná
+    // tension vazba (poctivé zakázky, ne kacířské — Chronicon napětí
+    // sem nepatří).
+    cirkevniZakazkyTick: function () {
+        if (!Array.isArray(GameState.localAkterZakazky)) GameState.localAkterZakazky = [];
+        const WEEK = 7 * 24 * 60 * 60 * 1000;
+        if (!GameState.cirkevniZakazkyNextTick) {
+            GameState.cirkevniZakazkyNextTick = Date.now() + Math.round(WEEK * 0.5);
+            return;
+        }
+        if (Date.now() < GameState.cirkevniZakazkyNextTick) return;
+        GameState.cirkevniZakazkyNextTick = Date.now() + WEEK;
+        if (Math.random() >= 0.20) return;
+
+        if (GameState.localAkterZakazky.some(z => z.actorId === 'cirkevni_mimo_biskupa')) return;
+
+        const options = this._CIRKEVNI_ZAKAZKY_CATALOG.cirkevni_mimo_biskupa;
+        const opt = options[Math.floor(Math.random() * options.length)];
+        GameState.localAkterZakazky.push({
+            id: 'akter_cirkevni_' + opt.key + '_' + Date.now(),
+            actorId: 'cirkevni_mimo_biskupa',
+            key: opt.key,
+            createdAt: Date.now(),
+            deadlineDays: 10,
+        });
         const _lang = (GameState.settings && GameState.settings.language) || 'cs';
         const _senderName = _lang === 'en' ? opt.senderName_en : opt.senderName_cs;
         if (typeof UI !== 'undefined' && UI.notifyPanel) UI.notifyPanel(
@@ -41209,14 +41400,18 @@ const CommitmentsSystem = {
 
     _normalizeLocalAkterEvent: function (z) {
         const lang = (GameState.settings && GameState.settings.language) || 'cs';
-        // Hledá napříč všemi 3 katalogy (sklar/kovar/mlynar, Klientela A, Vrchnost B)
+        // Hledá napříč všemi 5 katalogy (sklar/kovar/mlynar, Klientela A,
+        // Vrchnost B, Kacírská C, Církevní D — zakazky-rozsireni-ctyri-
+        // kategorie-mrd.md, 9.8.2026)
         const options = this._AKTER_ZAKAZKY_CATALOG[z.actorId]
             || this._KLIENTELA_A_CATALOG[z.actorId]
-            || this._VRCHNOST_ZAKAZKY_CATALOG[z.actorId];
+            || this._VRCHNOST_ZAKAZKY_CATALOG[z.actorId]
+            || this._KACIRSKA_ZAKAZKY_CATALOG[z.actorId]
+            || this._CIRKEVNI_ZAKAZKY_CATALOG[z.actorId];
         const opt = options && options.find(o => o.key === z.key);
         if (!opt) return null;
         const contact = (typeof ContactsDB !== 'undefined') ? ContactsDB[z.actorId] : null;
-        // senderName_cs/en override — pro odesílatele bez ContactsDB záznamu (Vrchnost)
+        // senderName_cs/en override — pro odesílatele bez ContactsDB záznamu (Vrchnost, Kacírská, Církevní)
         const actorName = opt.senderName_cs
             ? (lang === 'en' ? opt.senderName_en : opt.senderName_cs)
             : (contact ? (lang === 'en' ? contact.name_en : contact.name) : z.actorId);
@@ -41236,6 +41431,11 @@ const CommitmentsSystem = {
             reputationKey: opt.reputationKey,
             reputationAmt: opt.reputationAmt,
             bonusItem: opt.bonusItem,
+            // zakazky-rozsireni-ctyri-kategorie-mrd.md §"traces" (9.8.2026) —
+            // háček pro budoucí Abbot screen, nikým dnes nečtený krom
+            // resolveLocalAkter samotného. inquisitionHeatDelta jen Kategorie C.
+            inquisitionHeatDelta: opt.inquisitionHeatDelta,
+            abbotFavorDelta: opt.abbotFavorDelta,
             daysLeft: daysLeft,
         };
     },
@@ -41707,6 +41907,19 @@ const CommitmentsSystem = {
             if (item.bonusItem && typeof Game !== 'undefined' && Game.addItem) {
                 Game.addItem(item.bonusItem.id, item.bonusItem.qty || 1);
             }
+            // zakazky-rozsireni-ctyri-kategorie-mrd.md §"traces" (9.8.2026) —
+            // Kategorie C zvyšuje existující inquisitionHeat (L16/inq_raid
+            // vlákno). Obě C i D mění abbotFavor — dnes jen tichý háček,
+            // nikým nečtený krom budoucího Abbot screen; lazy-init mirror
+            // vzoru z core/game.js (laboratoryUnlocked apod.).
+            if (item.inquisitionHeatDelta) {
+                if (!GameState.secrets) GameState.secrets = {};
+                GameState.secrets.inquisitionHeat = Math.max(0, (GameState.secrets.inquisitionHeat || 0) + item.inquisitionHeatDelta);
+            }
+            if (item.abbotFavorDelta) {
+                if (!GameState.secrets) GameState.secrets = {};
+                GameState.secrets.abbotFavor = (GameState.secrets.abbotFavor || 0) + item.abbotFavorDelta;
+            }
             if (typeof Game !== 'undefined' && Game.addKronikaEntry) Game.addKronikaEntry('minor',
                 '📜 ' + item.title + ' — vyhotoveno.',
                 '📜 ' + item.title + ' — completed.',
@@ -41739,6 +41952,106 @@ const CommitmentsSystem = {
         }
     },
 
+};
+// ═══ src/systems/AbbotSystem.js ═══
+// ═══════════════════════════════════════════════════════════════════════════
+// ABBOT SYSTEM — rodokmen opatů Monasterium Sancti Carbunculi (založeno 1189)
+// + současný stav. "Nejlehčí run" hlubšího Opat vlákna (zakazky-rozsireni-
+// ctyri-kategorie-mrd.md traces, 9.8.2026) — čistě obsahová/UI vrstva,
+// žádná nová herní mechanika. Zobrazuje existující GameState.secrets.abbotFavor
+// (dnes tiše měněný Kategorií C/D zakázek), jinak jen historie/lore.
+//
+// Augustin NENÍ opat — je jeho přímý zástupce (mirror "Dekret opata"
+// Chronicon vzoru: "skrze mne káže vám zvěstovati... bratr váš, Augustin").
+// Aktuální opat (Bernard) je často na cestách mezi klášterem a Olomouckým
+// opatstvím — připraveno jako háček pro budoucí "cestující opat" mechaniku,
+// dnes jen text, žádný stavový automat.
+// abbot-lineage-mrd (9.8.2026)
+// ═══════════════════════════════════════════════════════════════════════════
+
+const AbbotSystem = {
+
+    MONASTERY_NAME_LAT: 'Monasterium Sancti Carbunculi',
+    FOUNDED_YEAR: 1189,
+
+    // Rodokmen — 12 opatů 1189–1459, pak současný (Bernard, viz CURRENT níže).
+    // Vymyšlená lore (žádný reálný klášter), ale roky/události kotví na
+    // existující historické zakotvení hry (husitské války 1419–1434 —
+    // mirror i18n/cs.js husitský blok).
+    LINEAGE: [
+        { name: 'Blažej I.', years: '1189–1204', note_cs: 'Zakladatel. Podle klášterní pověsti založil dům na místě, kde v noci žhnul o samotě uhlík, jenž nikdy neuhasl — odtud "Carbunculus".', note_en: 'The founder. Monastery legend holds he built the house where a single ember glowed through the night, never dying out — hence "Carbunculus".' },
+        { name: 'Godefrid', years: '1204–1219', note_cs: 'Postavil první kamenný kostel na místě dřevěné kaple.', note_en: 'Built the first stone church on the site of the wooden chapel.' },
+        { name: 'Bertold', years: '1219–1241', note_cs: 'Za jeho opatství klášter opevnil zdi — na Moravu dolehl strach z tatarského vpádu.', note_en: 'Under his abbacy the monastery fortified its walls — fear of the Tatar invasion reached Moravia.' },
+        { name: 'Ctibor', years: '1241–1265', note_cs: 'Rozšířil hospodářství o první rybníky.', note_en: 'Expanded the estate with the first fishponds.' },
+        { name: 'Wolfram', years: '1265–1288', note_cs: 'Německého původu — přivedl první konvrše ze Slezska.', note_en: 'Of German origin — brought the first lay brothers from Silesia.' },
+        { name: 'Domoslav', years: '1288–1310', note_cs: 'Založil skriptorium jako samostatnou dílnu, ne pouhý koutek knihovny.', note_en: 'Established the scriptorium as its own workshop, not merely a corner of the library.' },
+        { name: 'Jindřich I.', years: '1310–1335', note_cs: 'Zemřel na mor, co se toho roku prohnal krajem.', note_en: 'Died of the plague that swept the region that year.' },
+        { name: 'Petr z Rokytné', years: '1335–1358', note_cs: 'Rodák z blízké vsi — první opat zvolený z místních, ne dosazený zvenčí.', note_en: 'A native of a nearby village — the first abbot elected from among the local brothers, not appointed from outside.' },
+        { name: 'Blažej II.', years: '1358–1379', note_cs: 'Jmenován po předku ze zbožnosti, ne z příbuzenství.', note_en: 'Named after his predecessor out of piety, not kinship.' },
+        { name: 'Racek', years: '1379–1408', note_cs: 'Nejdelší funkční období rodokmenu — 29 let klidu před bouří.', note_en: "The longest tenure in the lineage — 29 years of calm before the storm." },
+        { name: 'Silvestr', years: '1408–1434', note_cs: 'Opat husitských válek. Klášter přežil, ne beze ztrát — část knihovny byla zachráněna jen díky včasnému ukrytí.', note_en: 'The abbot of the Hussite Wars. The monastery survived, not unscathed — part of the library was saved only by being hidden in time.' },
+        { name: 'Ambrož', years: '1434–1459', note_cs: 'Opat obnovy. Vrátil klášteru hospodářskou sílu po letech válečných útrap.', note_en: 'The abbot of rebuilding. Restored the monastery\'s economic strength after years of wartime hardship.' },
+    ],
+
+    // Současný stav (1465) — Bernard jako opat, Augustin jako jeho přímý
+    // zástupce/prior. Bernard často cestuje mezi klášterem a Olomouckým
+    // opatstvím (Dekret opata, Chronicon) — text zatím, žádný stavový
+    // automat (viz hlavička souboru).
+    CURRENT: {
+        name: 'Bernard',
+        since: '1459',
+        note_cs: 'Třináctý opat od založení. Často na cestách mezi klášterem a Olomouckým opatstvím — jedná s biskupstvím, dohlíží na záležitosti řádu ve městě.',
+        note_en: 'The thirteenth abbot since the founding. Often travelling between the monastery and the Olomouc Abbey — dealing with the bishopric, overseeing the order\'s affairs in the city.',
+        deputyName: 'Augustin',
+        deputyNote_cs: 'Bratr Augustin, přímý zástupce opata. V jeho nepřítomnosti mluví jeho jménem a řídí denní chod domu.',
+        deputyNote_en: "Brother Augustin, the abbot's direct deputy. In his absence, he speaks in his name and runs the daily life of the house.",
+    },
+
+    // Fuzzy popis abbotFavor — mirror DecaySystem.miceFuzzyShort stylu,
+    // ale inline text (ne i18n dictionary — mirror letters.js/Zakázky
+    // katalog vzoru pro obsahově těžké, ne mechanicky sdílené texty).
+    _favorFuzzy: function (favor, isCs) {
+        if (favor >= 15) return isCs ? '🙏 Opat vás chová ve zvláštní přízni.' : "🙏 The abbot holds you in special favour.";
+        if (favor >= 5) return isCs ? '✅ Opat je s vámi spokojen.' : '✅ The abbot is pleased with you.';
+        if (favor > -5) return isCs ? '➖ Opat vás nezná blíže, ani v dobrém, ani ve zlém.' : "➖ The abbot does not know you well, for good or ill.";
+        if (favor > -15) return isCs ? '⚠️ Opat vás sleduje s jistou obezřetností.' : '⚠️ The abbot watches you with some wariness.';
+        return isCs ? '🔥 Opat má o vás vážné pochybnosti.' : '🔥 The abbot has serious doubts about you.';
+    },
+
+    render: function () {
+        const el = document.getElementById('library-opat-content');
+        if (!el) return;
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        const isCs = lang !== 'en';
+        const favor = (GameState.secrets && GameState.secrets.abbotFavor) || 0;
+
+        const lineageHtml = this.LINEAGE.map((a, i) => `
+            <div style="display:flex; gap:10px; padding:8px 0; border-bottom:1px solid rgba(197,160,89,0.15);">
+                <div style="font-size:0.7rem; opacity:0.5; min-width:26px; text-align:right;">${i + 1}.</div>
+                <div>
+                    <div style="font-weight:bold; font-size:0.88rem;">${a.name} <span style="font-weight:normal; opacity:0.6; font-size:0.78rem;">(${a.years})</span></div>
+                    <div style="font-size:0.78rem; opacity:0.75; font-style:italic; margin-top:2px;">${isCs ? a.note_cs : a.note_en}</div>
+                </div>
+            </div>`).join('');
+
+        const c = this.CURRENT;
+        el.innerHTML = `
+            <div style="background:rgba(197,160,89,0.07); border:1px solid rgba(197,160,89,0.25); border-radius:8px; padding:14px 16px; margin-bottom:16px;">
+                <div style="font-size:0.72rem; opacity:0.6; letter-spacing:0.05em; text-transform:uppercase; margin-bottom:4px;">${this.MONASTERY_NAME_LAT}</div>
+                <div style="font-size:0.85rem;">${isCs ? 'Založeno' : 'Founded'} ${this.FOUNDED_YEAR} — ${isCs ? '13. opat' : '13th abbot'}: <strong>${c.name}</strong> (${isCs ? 'od' : 'since'} ${c.since})</div>
+                <div style="font-size:0.8rem; opacity:0.8; margin-top:6px; font-style:italic;">${isCs ? c.note_cs : c.note_en}</div>
+                <div style="font-size:0.8rem; margin-top:10px; padding-top:10px; border-top:1px solid rgba(197,160,89,0.2);">
+                    👤 <strong>${c.deputyName}</strong> — ${isCs ? 'zástupce opata' : "abbot's deputy"}
+                    <div style="font-size:0.78rem; opacity:0.75; font-style:italic; margin-top:2px;">${isCs ? c.deputyNote_cs : c.deputyNote_en}</div>
+                </div>
+                <div style="font-size:0.8rem; margin-top:10px; padding-top:10px; border-top:1px solid rgba(197,160,89,0.2);">
+                    ${this._favorFuzzy(favor, isCs)}
+                </div>
+            </div>
+            <div style="font-size:0.72rem; opacity:0.6; letter-spacing:0.05em; text-transform:uppercase; margin-bottom:8px;">${isCs ? 'Rodokmen opatů' : 'Lineage of Abbots'}</div>
+            <div>${lineageHtml}</div>
+        `;
+    },
 };
 // ═══ src/systems/SecretsSystem.js ═══
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -57528,6 +57841,9 @@ const Game = {
                     if (typeof CommitmentsSystem !== 'undefined' && CommitmentsSystem.akterZakazkyTick) CommitmentsSystem.akterZakazkyTick();
                     if (typeof CommitmentsSystem !== 'undefined' && CommitmentsSystem.klientelaATick) CommitmentsSystem.klientelaATick();
                     if (typeof CommitmentsSystem !== 'undefined' && CommitmentsSystem.vrchnostZakazkyTick) CommitmentsSystem.vrchnostZakazkyTick();
+                    // Kategorie C/D (zakazky-rozsireni-ctyri-kategorie-mrd.md, 9.8.2026)
+                    if (typeof CommitmentsSystem !== 'undefined' && CommitmentsSystem.kacirskaZakazkyTick) CommitmentsSystem.kacirskaZakazkyTick();
+                    if (typeof CommitmentsSystem !== 'undefined' && CommitmentsSystem.cirkevniZakazkyTick) CommitmentsSystem.cirkevniZakazkyTick();
                     // Caseus — denní zrání sýra (self-guarded 24h, gate tech_caseus)
                     if (typeof CheeseSystem !== 'undefined' && CheeseSystem.dailyTick) CheeseSystem.dailyTick();
                     // Calcaria — denní zrání vápna (self-guarded 24h, gate tech_calcaria)
@@ -67002,7 +67318,7 @@ const UI = {
         GameState.ui.libraryTab = tab;
 
         // Hide all library tabs
-        const tabs = ['books', 'games', 'news', 'scrinium', 'kronika', 'kraj', 'studovna'];
+        const tabs = ['books', 'games', 'news', 'scrinium', 'kronika', 'kraj', 'studovna', 'opat'];
         tabs.forEach(t => {
             const el = document.getElementById('library-' + t + '-content');
             if (el) el.style.display = 'none';
@@ -67035,6 +67351,9 @@ const UI = {
         } else if (tab === 'studovna') {
             const el = document.getElementById('library-studovna-content');
             if (el) { el.style.display = 'block'; if (typeof StudovnaSystem !== 'undefined') StudovnaSystem.render(); }
+        } else if (tab === 'opat') {
+            const el = document.getElementById('library-opat-content');
+            if (el) { el.style.display = 'block'; if (typeof AbbotSystem !== 'undefined') AbbotSystem.render(); }
         }
     },
 
