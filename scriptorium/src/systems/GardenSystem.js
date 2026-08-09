@@ -1614,6 +1614,7 @@ const GardenSystem = {
         herb_blue:   { cropType:'herb',      item:'herb_blue',   seed:'seeds_blue',      icon:'💜', name:'Levandule',      name_en:'Lavender',      yield:2, growHours:144 },
         mint:        { cropType:'herb',      item:'mint',        seed:'seeds_mint',      icon:'🌿', name:'Máta',           name_en:'Mint',          yield:2, growHours:36 },
         thyme:       { cropType:'herb',      item:'thyme',       seed:'seeds_thyme',     icon:'🌿', name:'Tymián',         name_en:'Thyme',         yield:2, growHours:72 },
+        kopr:        { cropType:'herb',      item:'kopr',        seed:'seeds_kopr',      icon:'🌿', name:'Kopr',           name_en:'Dill',          yield:2, growHours:72 },
         st_johns_wort:{ cropType:'herb',     item:'st_johns_wort',seed:'seeds_herb',     icon:'🌻', name:'Třezalka',       name_en:"St. John's Wort",yield:2, growHours:144 },
         sage:        { cropType:'herb',      item:'sage',        seed:'seeds_sage',      icon:'🌿', name:'Šalvěj',         name_en:'Sage',          yield:2, growHours:144 },
         fennel:      { cropType:'herb',      item:'fennel',      seed:'seeds_fennel',    icon:'🌿', name:'Fenykl',         name_en:'Fennel',        yield:2, growHours:72 },

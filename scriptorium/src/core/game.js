@@ -3130,6 +3130,8 @@ const Game = {
                     if(Math.random() < 0.05) this.addItem('st_johns_wort', 1);
                     if(Math.random() < 0.04) this.addItem('thyme', 1);
                     if(Math.random() < 0.03) this.addItem('seeds_thyme', 1);
+                    if(Math.random() < 0.03) this.addItem('kopr', 1);
+                    if(Math.random() < 0.01) this.addItem('seeds_kopr', 1);
                     if(Math.random() < 0.02) this.addItem('hops', 1);
                     if(Math.random() < 0.01) this.addItem('seeds_hops', 1);
                     // v8.x: Nové byliny — šalvěj, fenykl, pelyněk, yzop, řebříček
@@ -3292,6 +3294,7 @@ const Game = {
                     if(Math.random() < 0.10) this.addItem('thyme', 1);
                     if(Math.random() < 0.08) this.addItem('yarrow', 1);
                     if(Math.random() < 0.05) this.addItem('wormwood', 1);
+                    if(Math.random() < 0.05) this.addItem('kopr', 1);
                     if(Math.random() < 0.04) this.addItem('sage', 1);
                     if(Math.random() < 0.02) this.addItem('plantain', 1);
                     // Titivillus-infirmary-mrd — kostival a rozmarýn rostou mezi trávou (jalovec je keř, viz jinde)
@@ -3504,6 +3507,8 @@ const Game = {
                 if(Math.random() < 0.05) this.addItem('st_johns_wort', 1);
                 if(Math.random() < 0.04) this.addItem('thyme', 1);
                 if(Math.random() < 0.03) this.addItem('seeds_thyme', 1);
+                if(Math.random() < 0.03) this.addItem('kopr', 1);
+                if(Math.random() < 0.01) this.addItem('seeds_kopr', 1);
                 if(Math.random() < 0.02) this.addItem('hops', 1);
                 if(Math.random() < 0.01) this.addItem('seeds_hops', 1);
                 // v8.x: Nové byliny
@@ -3642,6 +3647,7 @@ const Game = {
                 if(Math.random() < 0.10) this.addItem('thyme', 1);
                 if(Math.random() < 0.08) this.addItem('yarrow', 1);
                 if(Math.random() < 0.05) this.addItem('wormwood', 1);
+                if(Math.random() < 0.05) this.addItem('kopr', 1);
                 if(Math.random() < 0.04) this.addItem('sage', 1);
                 if(Math.random() < 0.02) this.addItem('plantain', 1);
                 // Titivillus-infirmary-mrd — kostival a rozmarýn
@@ -6633,7 +6639,7 @@ const Game = {
         vinohrad: { icon: '🍇', away: false, dailyRiskPct: 6, injuryKind: 'physical' },
         scavenge: { icon: '🌾', away: true,  durationMs: 8  * 60 * 60 * 1000, riskPct: 12 },
         doly:     { icon: '⛏️', away: true,  durationMs: 20 * 60 * 60 * 1000, riskPct: 20 },
-        kostel:   { icon: '🕍', away: false, dailyRiskPct: 3, injuryKind: 'physical' },
+        kostel:   { icon: '⛪', away: false, dailyRiskPct: 3, injuryKind: 'physical' },
         hrbitov:  { icon: '⚰️', away: false, dailyRiskPct: 6, injuryKind: 'physical' },
         servitor:   { icon: '🩺', away: false, dailyRiskPct: 6, injuryKind: 'illness' },
         coquus:     { icon: '🍲', away: false, dailyRiskPct: 7, injuryKind: 'physical' },

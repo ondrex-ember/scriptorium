@@ -700,5 +700,11 @@ RecipesDB.push(
     { id: "almond_paste", output: "almond_paste", qty: 1, req: { "almond": 3 }, needsBuild: "velky_hmozdir", cat: "food", locked: true },
     { id: "ground_spice", output: "ground_spice", qty: 1, req: { "pepr_cerny": 2 }, needsBuild: "velky_hmozdir", cat: "food", locked: true },
     { id: "pork_pie_abbot", output: "pork_pie_abbot", qty: 1, req: { "cured_meat": 3, "flour": 2, "ground_spice": 1, "lard": 1 }, needsBuild: "rozen", cat: "food", locked: true },
-    { id: "kroupy", output: "kroupy", qty: 2, req: { "barley": 3 }, cat: "food", locked: false }
+    { id: "kroupy", output: "kroupy", qty: 2, req: { "barley": 3 }, cat: "food", locked: false },
+    // coquina-tier2-dopocet-mrd (9.8.2026): dopočet 23-seznamu Tier 2
+    { id: "pecena_slanecka", output: "pecena_slanecka", qty: 1, req: { "slany_sled": 2, "cooking_pot": 0 }, cat: "food", locked: true },
+    { id: "repny_prejt", output: "repny_prejt", qty: 1, req: { "turnip": 2, "kroupy": 2, "fat": 1, "cooking_pot": 0 }, cat: "food", locked: true },
+    { id: "raci_s_koprem", output: "raci_s_koprem", qty: 1, req: { "crayfish": 3, "beer": 1, "kopr": 1, "salt": 1, "cooking_pot": 0 }, cat: "food", locked: true },
+    { id: "tvaroh", output: "tvaroh", qty: 1, req: { "milk": 3, "cooking_pot": 0 }, cat: "food", locked: true },
+    { id: "tvarohove_tasticky", output: "tvarohove_tasticky", qty: 1, req: { "tvaroh": 2, "flour": 2, "egg": 1, "cooking_pot": 0 }, cat: "food", locked: true }
 );

@@ -473,6 +473,8 @@ const CellariumSystem = {
       { itemId: 'salt',            basePrice: 12, dailyStock: 2  },
       { itemId: 'wine',            basePrice: 4,  dailyStock: 5  },
       { itemId: 'seeds_thyme',     basePrice: 6,  dailyStock: 5  }, // tymián — Varroa léčba
+      { itemId: 'kopr',            basePrice: 6,  dailyStock: 8  }, // kopr — k rakům
+      { itemId: 'seeds_kopr',      basePrice: 10, dailyStock: 3  }, // semínka kopru — vzácnější
       { itemId: 'seeds_plantain',  basePrice: 5,  dailyStock: 5  }, // jitrocel — hojivá bylina
       { itemId: 'seeds_herb',      basePrice: 6,  dailyStock: 10 },
       { itemId: 'seeds_vegetable', basePrice: 6,  dailyStock: 10 },

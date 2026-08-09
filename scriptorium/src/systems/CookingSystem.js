@@ -78,6 +78,23 @@ const CookingSystem = {
             needsTech: 'tech_ruralia_meat', output: 'vajecna_jicha', durationH: 1 },
         stika_s_maslem: { input: 'stika', inputQty: 1, extraInputs: { butter: 1 },
             needsTech: 'tech_ruralia_meat', output: 'stika_s_maslem', durationH: 1 },
+        // coquina-tier2-dopocet-mrd (9.8.2026): zbylé 4 z 23-seznamu (Starý
+        // Pepřovník zůstává blokovaný na Furnus, viz plánovací MRD bod 7).
+        // Stejný tech gate jako sourozenci výše — tech_ruralia_meat, MRD
+        // "Tier 2" značka je jen historicko-tematická, ne nový tech strom.
+        pecena_slanecka: { input: 'slany_sled', inputQty: 2, needsTool: ['cooking_pot'],
+            needsTech: 'tech_ruralia_meat', output: 'pecena_slanecka', durationH: 1 },
+        repny_prejt: { input: 'turnip', inputQty: 2, extraInputs: { kroupy: 2, fat: 1 }, needsTool: ['cooking_pot'],
+            needsTech: 'tech_ruralia_meat', output: 'repny_prejt', durationH: 1.5 },
+        raci_s_koprem: { input: 'crayfish', inputQty: 3, extraInputs: { beer: 1, kopr: 1, salt: 1 }, needsTool: ['cooking_pot'],
+            needsTech: 'tech_ruralia_meat', output: 'raci_s_koprem', durationH: 1.5 },
+        // tvaroh — mléko srazené bez syřidla (mirror syrečky koncept z
+        // cheese-system-reference.md), vlastní gate tech_caseus (Sýrárna
+        // znalost), ne Coquina strom — tvarohove_tasticky pak potřebuje obojí.
+        tvaroh: { input: 'milk', inputQty: 3, needsTool: ['cooking_pot'],
+            needsTech: 'tech_caseus', output: 'tvaroh', durationH: 0.5 },
+        tvarohove_tasticky: { input: 'tvaroh', inputQty: 2, extraInputs: { flour: 2, egg: 1 }, needsTool: ['cooking_pot'],
+            needsTech: 'tech_ruralia_meat', output: 'tvarohove_tasticky', durationH: 1 },
         // coquina-migrace-mrd (7.8.2026): Fáze 1 migrace existujících receptů
         // z Výroby. ID MUSÍ sedět s RecipesDB id (Game.craft() redirect podle
         // shody). Žádné needsTech — spoléhá na vlastní starší RecipesDB unlock,

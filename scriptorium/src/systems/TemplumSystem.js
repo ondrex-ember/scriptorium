@@ -182,7 +182,7 @@ const TemplumSystem = {
         if (!this.isCemeteryUnlocked()) {
             return `<div style="text-align:center; padding:30px; opacity:0.6;
                         border:1px dashed rgba(197,160,89,0.3); border-radius:8px;">
-                      <div style="font-size:2rem; margin-bottom:10px;">🕍</div>
+                      <div style="font-size:2rem; margin-bottom:10px;">⛪</div>
                       <div style="font-style:italic; font-size:0.9rem;">
                         ${lang==='en' ? 'The church opens only to a brother of the order.' : 'Kostel se otevírá jen bratru řádu.'}
                       </div>
@@ -200,7 +200,7 @@ const TemplumSystem = {
           <div style="display:flex; align-items:center; gap:15px; margin-bottom:20px;
                       padding:15px; background:rgba(197,160,89,0.07);
                       border-radius:10px; border-left:4px solid var(--accent-gold);">
-            <div style="font-size:2.5rem;">🕍</div>
+            <div style="font-size:2.5rem;">⛪</div>
             <div style="flex:1;">
               <div style="font-weight:bold; font-size:1rem;">Templum</div>
               <div style="font-size:0.8rem; opacity:0.65; font-style:italic;">${lang==='en'?'The monastery church':'Klášterní kostel'}</div>
@@ -245,7 +245,7 @@ const TemplumSystem = {
         const entity = (GameState.ui && GameState.ui.templumEntity) || (this.isUnlocked() ? 'main' : 'hrbitov');
         h += `<div style="display:flex; gap:8px; margin-bottom:16px;">
                 <button class="craft-btn" style="flex:1; ${entity==='hrbitov' ? 'background:#2c1810;' : ''}" onclick="TemplumSystem.switchEntity('hrbitov')">⚰️ ${lang==='en'?'Cemetery':'Hřbitov'}</button>
-                <button class="craft-btn" style="flex:1; ${entity==='main' ? 'background:#2c1810;' : ''}" onclick="TemplumSystem.switchEntity('main')">🕍 ${lang==='en'?'Main':'Hlavní'}</button>
+                <button class="craft-btn" style="flex:1; ${entity==='main' ? 'background:#2c1810;' : ''}" onclick="TemplumSystem.switchEntity('main')">⛪ ${lang==='en'?'Main':'Hlavní'}</button>
               </div>`;
 
         if (entity === 'hrbitov') {
@@ -257,7 +257,7 @@ const TemplumSystem = {
         if (!this.isUnlocked()) {
             h += `<div style="text-align:center; padding:30px; opacity:0.6;
                         border:1px dashed rgba(197,160,89,0.3); border-radius:8px;">
-                      <div style="font-size:2rem; margin-bottom:10px;">🕍</div>
+                      <div style="font-size:2rem; margin-bottom:10px;">⛪</div>
                       <div style="font-style:italic; font-size:0.9rem;">
                         ${lang==='en' ? 'The nave opens only to a brother of the order.' : 'Hlavní loď se otevírá jen bratru řádu.'}
                       </div>

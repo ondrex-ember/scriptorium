@@ -269,7 +269,7 @@ const TechTree = [
     cost: 20,
     desc: "Mléko samo zkysne, ale syřidlo dělá z tvarohu sýr. Slez z jehněte, výluh ze svízelu, nebo jen čas a teplo — tři cesty k téže hroudě. Odemkne: Syřidlo, čtyři druhy sýra.",
     desc_en: "Milk sours on its own, but rennet turns curd into cheese. A lamb's stomach, an extract of bedstraw, or simply time and warmth — three paths to the same wheel. Unlocks: Rennet, four kinds of cheese.",
-    unlocks: ["rennet_galium", "cheese_mold", "goat_cheese", "sheep_cheese", "cow_cheese", "syrecky"], requires: ["tech_lactaria"]
+    unlocks: ["rennet_galium", "cheese_mold", "goat_cheese", "sheep_cheese", "cow_cheese", "syrecky", "tvaroh"], requires: ["tech_lactaria"]
   },
 
   {
@@ -288,7 +288,7 @@ const TechTree = [
     cost: 10,
     desc: "Pietro de' Crescenzi, hospodářský manuál z počátku 14. století, nejopisovanější svého druhu. \"Maso budiž hrubou solí posypáno a v jizbě pod střechou zavěšeno, by kouřem z ohniště pomalu vysychalo.\" Odemkne: solení a pasivní uzení nad Ohništěm.",
     desc_en: "Pietro de' Crescenzi's agricultural manual from the early 14th century, the most widely copied of its kind. \"Let the meat be strewn with coarse salt and hung in the chamber beneath the roof, that it may slowly dry in the hearth's smoke.\" Unlocks: salting and passive smoking over the Hearth.",
-    unlocks: ["smoked_meat_home", "pohanka_s_cesnekem", "sauerkraut", "zelnacka_s_kroupami", "pucalka", "ovesna_kase", "cibulova_jicha", "placky_z_popela", "vajecna_jicha", "stika_s_maslem", "salted_pork", "salted_beef", "smoked_home_pork", "smoked_home_beef"], requires: ["tech_writing_basics"], requiresBook: "book_ruralia_meat"
+    unlocks: ["smoked_meat_home", "pohanka_s_cesnekem", "sauerkraut", "zelnacka_s_kroupami", "pucalka", "ovesna_kase", "cibulova_jicha", "placky_z_popela", "vajecna_jicha", "stika_s_maslem", "salted_pork", "salted_beef", "smoked_home_pork", "smoked_home_beef", "pecena_slanecka", "repny_prejt", "raci_s_koprem", "tvarohove_tasticky"], requires: ["tech_writing_basics"], requiresBook: "book_ruralia_meat"
   },
 
   // ── COQUINA TIER 2 — Černá kuchyně, Soplouch (Tacuinum Sanitatis) ────────
