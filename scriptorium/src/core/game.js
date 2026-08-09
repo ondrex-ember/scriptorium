@@ -3923,6 +3923,14 @@ const Game = {
     },
     craft: function(id) {
         const r = RecipesDB.find(x => x.id === id);
+        // coquina-migrace-mrd (7.8.2026): migrované cat:"food" recepty
+        // (mají shodné id v CookingSystem.COOK_TYPES) se přesměrují na
+        // časovaný proces ve Vaření. Ne-migrované food recepty i vše
+        // ostatní (cat != food) beze změny — okamžitá cesta níž.
+        if (r && r.cat === 'food' && typeof CookingSystem !== 'undefined' && CookingSystem.COOK_TYPES && CookingSystem.COOK_TYPES[id]) {
+            CookingSystem.startCooking(id);
+            return;
+        }
         if(!GameState.flags.fireplaceLit && !r.blind) { UI.notify(t('game.frozenHands'), true); return; }
 
         // Save hint tracking
@@ -4076,6 +4084,22 @@ const Game = {
         }
         this.addItem(r.output, craftQty);
         if (typeof UI !== 'undefined' && UI.spawnFloatingGain) UI.spawnFloatingGain(r.id, craftQty);
+        // coquina-vyroba-modal-mrd (7.8.2026): Výroba beze změny chování
+        // (pořád okamžité), jen informativní odkaz do Vaření pro cat:"food".
+        if (r.cat === 'food' && typeof NotificationSystem !== 'undefined' && NotificationSystem.modal) {
+            const lang = (GameState.settings && GameState.settings.language) || 'cs';
+            const outName = (typeof iName === 'function') ? iName(r.output) : r.output;
+            NotificationSystem.modal({
+                icon: '🍲',
+                title: lang === 'en' ? 'Cooked' : 'Uvařeno',
+                text: lang === 'en' ? `${outName} is ready. See it alongside other kitchen work in Cooking.` : `${outName} je hotové. Sleduj to spolu s ostatní kuchyní v tabu Vaření.`,
+                choices: [
+                    { label: lang === 'en' ? 'Go to Cooking' : 'Do Vaření', type: 'primary',
+                      effect: function() { if (typeof UI !== 'undefined' && UI.switchHomeSubTab) UI.switchHomeSubTab('cooking', document.getElementById('home-sub-cooking')); } },
+                    { label: lang === 'en' ? 'Continue' : 'Pokračovat', type: 'default', effect: function() {} },
+                ],
+            });
+        }
 
         // Vigor — přidat Fatigue dle výstupu
         if (typeof VigorSystem !== 'undefined') VigorSystem.onCraft(r.output);

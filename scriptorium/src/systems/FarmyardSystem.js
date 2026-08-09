@@ -860,6 +860,9 @@ const FarmyardSystem = {
     _sexFromItem: function (itemId, pen) {
         if (itemId && itemId.endsWith('_m')) return 'm';
         if (itemId && itemId.endsWith('_f')) return 'f';
+        // krava-bug-fix (7.8.2026): 'byk' nemá _m/_f suffix, dřív spadal
+        // na obecný default 'f' — býk se pak zobrazoval jako samice.
+        if (itemId === 'byk') return 'm';
         if (pen === 'stable') return 'f';  // klisna default
         return 'f';
     },
@@ -1018,7 +1021,7 @@ const FarmyardSystem = {
             }
         }
         const a = st.animals[idx];
-        if (!a) return;
+        if (!a) { if (typeof UI !== 'undefined') UI.notify(t('farmyard.needMatureCow') || 'Žádná dospělá kráva k porážce.', true); return; }
         st.animals.splice(idx, 1);
         const inv = GameState.inventory;
         // udirna-mrd (7.8.2026): cured_beef už není zdarma — musí se
@@ -1029,6 +1032,69 @@ const FarmyardSystem = {
         if (typeof Game !== 'undefined' && Game.addKronikaEntry) Game.addKronikaEntry('important', '🐄 Zabijačka! Klášterní spižírna se naplnila hovězím masem.', '🐄 Cattle slaughter! The monastery larder filled with beef.', '🐄 Bos mactatus est.');
         if (typeof Game !== 'undefined') Game.save();
         this.renderFarmyard();
+    },
+
+    // krava-bug-fix (7.8.2026): samostatná porážka býka, s potvrzovacím
+    // modalem — je to plemenné zvíře, nechceme omylem přijít o něj.
+    slaughterBull: function () {
+        const st = GameState.cowbyre;
+        const idx = st.animals.findIndex(a => a.type === 'byk');
+        if (idx === -1) { if (typeof UI !== 'undefined') UI.notify(t('farmyard.noBullToSlaughter') || 'Žádný býk k porážce.', true); return; }
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        const isInfertile = st.animals[idx].sex === 'f'; // starý bug před krava-bug-fix opravou
+        if (typeof NotificationSystem !== 'undefined' && NotificationSystem.modal) {
+            NotificationSystem.modal({
+                icon: '🐂',
+                title: lang === 'en' ? 'Slaughter the bull?' : 'Porazit býka?',
+                text: isInfertile
+                    ? (lang === 'en' ? 'This bull appears infertile and cannot breed. Slaughtering it is likely wise.' : 'Tento býk se jeví jako neplodný a nemůže se pářit. Poražením ho pravděpodobně nic neztratíš.')
+                    : (lang === 'en' ? 'This is your breeding bull. Slaughtering it will end any breeding plans until you get another.' : 'Tohle je tvůj plemenný býk. Porážkou skončí možnost plemenitby, dokud nepořídíš dalšího.'),
+                choices: [
+                    { label: lang === 'en' ? 'Slaughter' : 'Porazit', type: 'primary', effect: function() { FarmyardSystem._confirmSlaughterBull(); } },
+                    { label: lang === 'en' ? 'Cancel' : 'Zrušit', type: 'default', effect: function() {} },
+                ],
+            });
+        } else {
+            this._confirmSlaughterBull();
+        }
+    },
+
+    _confirmSlaughterBull: function () {
+        const st = GameState.cowbyre;
+        const idx = st.animals.findIndex(a => a.type === 'byk');
+        if (idx === -1) return;
+        st.animals.splice(idx, 1);
+        const inv = GameState.inventory;
+        inv['beef'] = (inv['beef'] || 0) + 5;
+        inv['raw_hide'] = (inv['raw_hide'] || 0) + 2;
+        if (typeof UI !== 'undefined') UI.notify('🔪 ' + (t('farmyard.bullSlaughtered') || 'Býk poražen.'));
+        if (typeof Game !== 'undefined' && Game.addKronikaEntry) Game.addKronikaEntry('important', '🐂 Plemenný býk poražen.', '🐂 The breeding bull was slaughtered.', '🐂 Taurus mactatus est.');
+        if (typeof Game !== 'undefined') Game.save();
+        this.renderFarmyard();
+    },
+
+    // krava-bug-fix (7.8.2026): porážka telete — dřív vůbec nešlo, jediná
+    // možnost úklidu chlévu byla nechat dorůst. Sváteční maso + jemnější kůže.
+    slaughterTele: function () {
+        const st = GameState.cowbyre;
+        const idx = st.animals.findIndex(a => a.type === 'tele');
+        if (idx === -1) { if (typeof UI !== 'undefined') UI.notify(t('farmyard.noCalfToSlaughter') || 'Žádné tele k porážce.', true); return; }
+        st.animals.splice(idx, 1);
+        const inv = GameState.inventory;
+        inv['veal'] = (inv['veal'] || 0) + 2;
+        inv['calf_hide'] = (inv['calf_hide'] || 0) + 1;
+        if (typeof UI !== 'undefined') UI.notify('🔪 ' + (t('farmyard.calfSlaughtered') || 'Tele poraženo. +2 Telecí, +1 Telecí kůže.'));
+        if (typeof Game !== 'undefined' && Game.addKronikaEntry) Game.addKronikaEntry('important', '🐮 Tele poraženo — sváteční telecí na stůl.', '🐮 A calf was slaughtered — festive veal for the table.', '🐮 Vitulus mactatus est.');
+        if (typeof Game !== 'undefined') Game.save();
+        this.renderFarmyard();
+    },
+
+    // krava-bug-fix (7.8.2026): staré legacy zvíře bez a.type pole vůbec
+    // (z doby před krava-mrd refaktorem) — slaughterCow() ho už uměl brát
+    // jako krávu (fallback !a.type), ale UI to nezobrazovalo ani nepočítalo
+    // do "má co porazit" — teď obojí sedí.
+    _hasLegacyCow: function (st) {
+        return st.animals.some(a => !a.type);
     },
 
     // ── Render animal pen (generic) ───────────────────────────────────────
@@ -1093,8 +1159,28 @@ const FarmyardSystem = {
                 const mIcon = this.MOOD_ICON(moodVal);
                 const sexLabel = a.sex === 'm' ? (lang === 'en' ? '♂ male' : '♂ samec') : a.sex === 'f' ? (lang === 'en' ? '♀ female' : '♀ samice') : '';
                 const isKid = a.mature === false;
-                h += `<div style="padding:5px 8px; background:rgba(0,0,0,0.04); border-radius:5px; display:flex; align-items:center; gap:8px; font-size:0.78rem;">
+                // krava-bug-fix (7.8.2026): jasný popisek typ+věk+stav, jen
+                // tam kde a.type existuje (dnes cowbyre) — ostatní chlévy beze změny.
+                let typeInfo = '';
+                if (a.type) {
+                    const typeName = (typeof iName === 'function') ? iName(a.type) : a.type;
+                    const ageDays = Math.floor((Date.now() - (a.bornAt || a.placedAt || Date.now())) / 86400000);
+                    const ageStr = lang === 'en' ? `${ageDays}d old` : `${ageDays} dní`;
+                    const matureStr = a.mature === false
+                        ? (lang === 'en' ? 'immature' : 'nedospělé')
+                        : (a.sex === 'f' && a.type === 'byk')
+                            ? (lang === 'en' ? '⚠️ infertile' : '⚠️ neplodný')
+                            : (lang === 'en' ? 'mature' : 'dospělé');
+                    typeInfo = `<strong>${typeName}</strong> <span style="opacity:0.6;">(${ageStr}, ${matureStr})</span>`;
+                } else if (pen === 'cowbyre') {
+                    // krava-bug-fix (7.8.2026): legacy zvíře z doby před
+                    // refaktorem (žádné a.type pole) — slaughterCow() ho bere
+                    // jako krávu, tak to i UI teď jasně řekne.
+                    typeInfo = `<strong>${(typeof iName === 'function') ? iName('cow') : 'Kráva'}</strong> <span style="opacity:0.6;">(${lang === 'en' ? 'legacy record' : 'starší záznam'})</span>`;
+                }
+                h += `<div style="padding:5px 8px; background:rgba(0,0,0,0.04); border-radius:5px; display:flex; align-items:center; gap:8px; font-size:0.78rem; flex-wrap:wrap;">
                     <span>${icons[pen] || '🐾'}${isKid ? '🐣' : ''}</span>
+                    ${typeInfo}
                     <span style="opacity:0.7;">${sexLabel}</span>
                     <span>${mIcon} ${moodVal}/100</span>
                 </div>`;
@@ -1158,7 +1244,7 @@ const FarmyardSystem = {
             var now3 = Date.now();
             var moodCAvg = this.getMood('cowbyre');
             var readyC = st.animals.filter(function (a) { return a.mature !== false && a.type !== 'byk' && now3 - (a.lastMilk || a.bornAt) >= cfg.milkMs; }).length;
-            h += '<div style="font-size:0.8rem;margin-bottom:8px;">🐄 ' + this.MOOD_ICON(moodCAvg) + ' ' + moodCAvg + '/100</div>';
+            h += '<div style="font-size:0.8rem;margin-bottom:8px;opacity:0.75;font-style:italic;">🐄 ' + (lang === 'en' ? 'Byre average mood' : 'Průměrná nálada chlévu') + ': ' + this.MOOD_ICON(moodCAvg) + ' ' + moodCAvg + '/100</div>';
             var canCleanC = Date.now() - (st.lastCleanMs || 0) >= 86400000;
             var cleanQC = Math.max(1, Math.ceil(st.animals.length / 2));
             // Tele — přehled dorůstání (krava-mrd, 26.7.2026), mirror pigsty %
@@ -1170,7 +1256,20 @@ const FarmyardSystem = {
             });
             h += '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px;">';
             h += '<button class="craft-btn" onclick="FarmyardSystem.collectCowMilk()" ' + (readyC ? '' : 'disabled') + '>🥛 ' + t('dvur.milkCow') + ' (' + readyC + ')</button>';
-            h += '<button class="craft-btn" onclick="FarmyardSystem.slaughterCow()" style="background:#8b4a3a;">🔪 ' + t('dvur.slaughterCow') + '</button>';
+            // krava-bug-fix (7.8.2026): dřív tlačítko vždy aktivní, i bez
+            // dospělé krávy — klik nedělal nic, žádná zpětná vazba proč.
+            // Zahrnuje i legacy zvíře bez a.type (starý save před refaktorem).
+            var hasSlaughterableCow = st.animals.some(function (a) { return (a.type === 'cow' && a.mature !== false) || !a.type; });
+            h += '<button class="craft-btn" onclick="FarmyardSystem.slaughterCow()" style="background:#8b4a3a;" ' + (hasSlaughterableCow ? '' : 'disabled') + '>🔪 ' + t('dvur.slaughterCow') + '</button>';
+            var bullAnimal = st.animals.find(function (a) { return a.type === 'byk'; });
+            if (bullAnimal) {
+                var bullInfertile = bullAnimal.sex === 'f';
+                h += '<button class="craft-btn" onclick="FarmyardSystem.slaughterBull()" style="background:#8b4a3a;">🔪 ' + (bullInfertile ? (lang === 'en' ? 'Slaughter bull (infertile!)' : 'Porazit býka (neplodný!)') : (lang === 'en' ? 'Slaughter bull' : 'Porazit býka')) + '</button>';
+            }
+            var teleAnimal = st.animals.find(function (a) { return a.type === 'tele'; });
+            if (teleAnimal) {
+                h += '<button class="craft-btn" onclick="FarmyardSystem.slaughterTele()" style="background:#8b4a3a;">🔪 ' + (lang === 'en' ? 'Slaughter calf' : 'Porazit tele') + '</button>';
+            }
             h += '<button class="craft-btn" onclick="FarmyardSystem.cleanPen(\'cowbyre\')" style="background:rgba(90,154,90,0.85);">' + (canCleanC ? '🧹 ' + t('farmyard.clean') + ' (💩 +' + cleanQC + ')' : '🧹 ' + t('farmyard.cleanTomorrow')) + '</button>';
             h += '</div>';
             // Plemenitba — mirror ovčího bloku
@@ -1178,8 +1277,14 @@ const FarmyardSystem = {
             h += '<div style="margin-top:6px; padding:10px; background:rgba(0,0,0,0.06); border-radius:8px;">';
             h += '<strong style="font-size:0.85rem;">🐄 ' + (t('farmyard.cowBreeding') || 'Plemenitba') + '</strong><br>';
             if (!st.breeding) {
-                var canBreedC = st.animals.some(function (a) { return a.type === 'cow' && a.mature !== false; }) && hasBull;
-                var breedLabelC = !hasBull ? (lang === 'en' ? 'Needs bull (buy or Forum Pecuarium)' : 'Potřeba býka (koupě nebo Forum Pecuarium)') : (t('farmyard.cowStartBreeding') || 'Zahájit plemenitbu');
+                var hasMatureCow = st.animals.some(function (a) { return a.type === 'cow' && a.mature !== false; });
+                var canBreedC = hasMatureCow && hasBull;
+                // krava-bug-fix (7.8.2026): dřív tlačítko u chybějící dospělé
+                // krávy jen tiše zůstalo disabled bez důvodu — teď řekne proč,
+                // mirror existujícího "Potřeba býka" vzoru.
+                var breedLabelC = !hasBull ? (lang === 'en' ? 'Needs bull (buy or Forum Pecuarium)' : 'Potřeba býka (koupě nebo Forum Pecuarium)')
+                    : !hasMatureCow ? (lang === 'en' ? 'Needs a mature cow (buy at market)' : 'Potřeba dospělé krávy (koupě na Trhu)')
+                    : (t('farmyard.cowStartBreeding') || 'Zahájit plemenitbu');
                 h += '<button class="craft-btn" onclick="FarmyardSystem.startCowBreeding()" ' + (canBreedC ? '' : 'disabled') + ' style="margin-top:6px;font-size:0.78rem;">' + breedLabelC + '</button>';
             } else if (st.breeding.state === 'gestating') {
                 var leftC = Math.max(0, Math.ceil((st.breeding.bornAt - now3) / 3600000));
@@ -2247,7 +2352,9 @@ const FarmyardSystem = {
         }
         if (cowSt && cowSt.animals) {
             cowSt.animals.forEach(a => {
-                if (a.type === 'tele' && this._calfMature(a)) { a.type = 'cow'; a.mature = true; changed = true; }
+                // krava-bug-fix (7.8.2026): dřív vždy 'cow' bez ohledu na
+                // pohlaví — samčí tele skončilo jako kráva, šance na býka byla 0%.
+                if (a.type === 'tele' && this._calfMature(a)) { a.type = (a.sex === 'm') ? 'byk' : 'cow'; a.mature = true; changed = true; }
             });
         }
         // Koza — gestace → 1-2 kůzlata do inventáře (goat-mrd), mirror prasete.

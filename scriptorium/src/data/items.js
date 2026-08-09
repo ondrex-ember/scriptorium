@@ -666,6 +666,9 @@ const ItemsDB = {
     "fulled_wool_cloth": { name: "Zvalchované soukno", name_en: "Fulled Wool Cloth", icon: "🧶", type: "lore", desc: "Zplstěno louhem místo odstáté moči — hustší, teplejší, dostupné každému klášteru.", desc_en: "Fulled with lye instead of stale urine — denser, warmer, available to every monastery." },
     "kutna": { name: "Kutna", name_en: "Habit", icon: "👘", type: "tool", desc: "Mnišský hábit dle Řehole. Šije Vestiarius z hotového sukna.", desc_en: "A monastic habit per the Rule. Sewn by the Vestiarius from finished cloth." },
     "raw_hide": { name: "Surová kůže", name_en: "Raw Hide", icon: "🐑", type: "mat", desc: "Neupravená zvířecí kůže. Nutno vyčinit.", desc_en: "Untreated animal hide. Must be cured." },
+    // krava-bug-fix (7.8.2026): porážka telete — sváteční maso, jemnější kůže
+    "veal": { name: "Telecí maso", name_en: "Veal", icon: "🍖", type: "food_raw", desc: "Jemné maso mladého telete. Sváteční pochoutka, vzácnější než hovězí.", desc_en: "Tender meat from a young calf. A festive delicacy, rarer than beef." },
+    "calf_hide": { name: "Telecí kůže", name_en: "Calf Hide", icon: "🐑", type: "mat", desc: "Jemná kůže z telete. Nejjemnější pergamen (vellum) se dělá právě z ní.", desc_en: "Fine hide from a calf. The finest vellum is made from exactly this." },
     "feather_hen": { name: "Peří", name_en: "Hen Feather", icon: "🪶", type: "mat", desc: "Husté peří. Na polštáře i brky.", desc_en: "Thick feathers. For pillows and quills." },
 
     // ── Produkty zahrady / včelína ─────────────────────────────────────────
@@ -916,6 +919,20 @@ const ItemsDB = {
     "flax_fiber": { name: "Lněná vlákna", name_en: "Flax Fibre", icon: "🧵", type: "mat", desc: "Stonky lnu po rosení a tření. Základ pro tkaní plátna a výrobu provazů.", desc_en: "Flax stalks after retting and breaking. The basis for weaving linen and making rope." },
     "straw": { name: "Sláma", name_en: "Straw", icon: "🌿", type: "mat", desc: "Posklizňová sláma. Podestýlka pro zvířata, střešní krytina, krmivo pro skot.", desc_en: "Post-harvest straw. Bedding for animals, thatching material, fodder for cattle." },
     "flour": { name: "Mouka", name_en: "Flour", icon: "⚪", type: "mat", desc: "Mletá pšeničná nebo žitná mouka. Základ pro chléb, oplatky a kaši.", desc_en: "Ground wheat or rye flour. The basis for bread, wafers and porridge." },
+    // coquina-tier1-mrd (7.8.2026): kroupy = loupaný/drcený ječmen, zpracovaný
+    // produkt (ne totéž co syrový barley). Výroba zatím ve Výrobě (instantní
+    // craft), časem přejde do Vaření spolu se zbytkem zpracování (po Udírně).
+    "kroupy": { name: "Kroupy", name_en: "Pearl Barley", icon: "🌾", type: "mat", desc: "Loupaný a drcený ječmen. Vaří se rychleji a je stravitelnější než celé zrno.", desc_en: "Hulled and crushed barley. Cooks faster and digests easier than the whole grain." },
+    "sauerkraut": { name: "Kysané zelí", name_en: "Sauerkraut", icon: "🥬", type: "food_raw", desc: "Zelí kvašené v soli. Lék proti kurdějím na dlouhé zimy — vydrží měsíce.", desc_en: "Cabbage fermented in salt. A remedy against scurvy through long winters — keeps for months." },
+    "zelnacka_s_kroupami": { name: "Zelňačka s kroupami", name_en: "Cabbage & Groat Pottage", icon: "🍲", type: "food", hunger: 10, desc: "Hustá kaše ze zelí a krup. Nasytí na dlouho, sytí 10h.", desc_en: "A thick pottage of cabbage and groats. Filling and long-lasting — fills for 10h." },
+    // coquina-tier1-mrd (7.8.2026): poslední 4 recepty Úrovně 1 (chudina)
+    "pucalka": { name: "Pučálka", name_en: "Puchalka", icon: "🫛", type: "food", hunger: 4, desc: "Naklíčený hrách opražený na sucho. Rychlý svačinový pokrm pro pracující konvrše.", desc_en: "Sprouted peas roasted dry. A quick bite for working lay brothers." },
+    "ovesna_kase": { name: "Ovesná kaše", name_en: "Oatmeal Gruel", icon: "🥣", type: "food", hunger: 6, desc: "Oves vařený jen ve vodě a soli. Žalostně nízká chuť, ale levné.", desc_en: "Oats boiled in nothing but water and salt. Sorrowfully plain, but cheap." },
+    "cibulova_jicha": { name: "Cibulová jícha", name_en: "Onion Slop", icon: "🧅", type: "food", hunger: 6, desc: "Rozvařená cibule zahuštěná starým chlebem. Zachrání chléb, než zplesniví.", desc_en: "Boiled onion thickened with stale bread. Saves the bread before it moulds." },
+    "placky_z_popela": { name: "Placky z popela", name_en: "Ashcakes", icon: "🫓", type: "food", hunger: 5, desc: "Hrubé těsto pláclé přímo do žhavého popela na kraji ohniště. Žádné dřevo navíc.", desc_en: "Coarse dough slapped straight into the glowing ash at the hearth's edge. No extra wood needed." },
+    // coquina-tier2-mrd (7.8.2026): Úroveň 2 (svátky, sváteční mnišská strava)
+    "vajecna_jicha": { name: "Vaječná jícha", name_en: "Egg Thick-Sauce", icon: "🍳", type: "food", hunger: 8, desc: "Žloutky šlehané s octem do husté omáčky, poléváno na chléb.", desc_en: "Egg yolks whisked with vinegar into a thick sauce, poured over bread." },
+    "stika_s_maslem": { name: "Štika na rožni s bylinkovým máslem", name_en: "Spit-Roasted Pike with Herb Butter", icon: "🐊", type: "food", hunger: 12, desc: "Prémiová dravá ryba ze sádek, pečená na rožni a potíraná přepuštěným máslem.", desc_en: "A premium predatory fish from the ponds, roasted on the spit and basted with clarified butter." },
     "flour_1": { name: "Mouka (1. třída)", name_en: "Flour (Grade 1)", icon: "⚪", type: "mat", desc: "Semleta z prvotřídního zrní vlastního pole. Nejlepší chléb a koláče.", desc_en: "Milled from prime grain off your own field. The finest bread and pastries." },
     "flour_2": { name: "Mouka (2. třída)", name_en: "Flour (Grade 2)", icon: "⚪", type: "mat", desc: "Běžná mouka — z horšího zrní nebo koupená. Postačí na denní chléb.", desc_en: "Common flour — lower-grade or bought. Fine for everyday bread." },
     "grain_feed": { name: "Zrní (krmivo)", name_en: "Grain Feed", icon: "🌾", type: "mat", desc: "Směs zrní pro drůbež a prasata. Udržuje zdraví zvířat.", desc_en: "Grain mix for poultry and pigs. Maintains animal health." },

@@ -1829,7 +1829,13 @@ const UI = {
         document.querySelectorAll('#home-main-content .filter-btn').forEach(b => b.classList.remove('active'));
         if (btn) btn.classList.add('active');
         if (tab === 'mine') { this.renderMineYieldInfo(); this.renderFodinaPetitionPanel(); this.renderMineActions(); }
-        if (tab === 'cooking' && cooking && typeof CookingSystem !== 'undefined') cooking.innerHTML = CookingSystem.render();
+        if (tab === 'cooking' && cooking && typeof CookingSystem !== 'undefined') {
+            // coquina-cheese-mirror-mrd (7.8.2026): sýry zrcadlené vedle
+            // CookingSystem procesů — samostatný systém (CheeseSystem), jen
+            // společné zobrazení, ne migrace do COOK_TYPES.
+            const cheeseHtml = (typeof CheeseSystem !== 'undefined' && CheeseSystem.render) ? CheeseSystem.render() : '';
+            cooking.innerHTML = CookingSystem.render() + cheeseHtml;
+        }
     },
 
     renderMineYieldInfo: function () {

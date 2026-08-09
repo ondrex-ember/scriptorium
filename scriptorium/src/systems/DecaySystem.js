@@ -56,6 +56,16 @@ const DecaySystem = {
         pork_pie_abbot: { rate: 0.02, mice: true },
         // coquina-tier1-mrd (7.8.2026): hotová kaše, mirror stew
         pohanka_s_cesnekem: { rate: 0.15, flies: true },
+        // coquina-tier1-mrd (7.8.2026): kysané zelí je trvanlivé (kvašení
+        // konzervuje), mirror kdoule/zavařenina — pomalý rozklad.
+        sauerkraut: { rate: 0.03 },
+        zelnacka_s_kroupami: { rate: 0.15, flies: true },
+        pucalka: { rate: 0.15, flies: true },
+        ovesna_kase: { rate: 0.15, flies: true },
+        cibulova_jicha: { rate: 0.15, flies: true },
+        placky_z_popela: { rate: 0.10 },
+        vajecna_jicha: { rate: 0.15, flies: true },
+        stika_s_maslem: { rate: 0.15, flies: true },
         lard:         { rate: 0.01 },
         rye_grain:    { rate: 0.005, mice: true },
         rye_grain_1:  { rate: 0.005, mice: true },
