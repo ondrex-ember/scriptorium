@@ -1522,7 +1522,7 @@ const UI = {
         GameState.ui.libraryTab = tab;
 
         // Hide all library tabs
-        const tabs = ['books', 'games', 'news', 'scrinium', 'kronika', 'kraj', 'studovna'];
+        const tabs = ['books', 'games', 'news', 'scrinium', 'kronika', 'kraj', 'studovna', 'opat'];
         tabs.forEach(t => {
             const el = document.getElementById('library-' + t + '-content');
             if (el) el.style.display = 'none';
@@ -1555,6 +1555,9 @@ const UI = {
         } else if (tab === 'studovna') {
             const el = document.getElementById('library-studovna-content');
             if (el) { el.style.display = 'block'; if (typeof StudovnaSystem !== 'undefined') StudovnaSystem.render(); }
+        } else if (tab === 'opat') {
+            const el = document.getElementById('library-opat-content');
+            if (el) { el.style.display = 'block'; if (typeof AbbotSystem !== 'undefined') AbbotSystem.render(); }
         }
     },
 

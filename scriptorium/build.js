@@ -77,6 +77,7 @@ const JS_MAIN = [
     'src/systems/PersonaSystem.js',
     'src/systems/PortaSystem.js',
     'src/systems/CommitmentsSystem.js',
+    'src/systems/AbbotSystem.js', // abbot-lineage-mrd (9.8.2026)
     'src/systems/SecretsSystem.js',
     'src/systems/TutorialSystem.js',
     'src/systems/athanor.js',

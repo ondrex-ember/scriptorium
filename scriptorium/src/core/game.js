@@ -776,6 +776,9 @@ const Game = {
                     if (typeof CommitmentsSystem !== 'undefined' && CommitmentsSystem.akterZakazkyTick) CommitmentsSystem.akterZakazkyTick();
                     if (typeof CommitmentsSystem !== 'undefined' && CommitmentsSystem.klientelaATick) CommitmentsSystem.klientelaATick();
                     if (typeof CommitmentsSystem !== 'undefined' && CommitmentsSystem.vrchnostZakazkyTick) CommitmentsSystem.vrchnostZakazkyTick();
+                    // Kategorie C/D (zakazky-rozsireni-ctyri-kategorie-mrd.md, 9.8.2026)
+                    if (typeof CommitmentsSystem !== 'undefined' && CommitmentsSystem.kacirskaZakazkyTick) CommitmentsSystem.kacirskaZakazkyTick();
+                    if (typeof CommitmentsSystem !== 'undefined' && CommitmentsSystem.cirkevniZakazkyTick) CommitmentsSystem.cirkevniZakazkyTick();
                     // Caseus — denní zrání sýra (self-guarded 24h, gate tech_caseus)
                     if (typeof CheeseSystem !== 'undefined' && CheeseSystem.dailyTick) CheeseSystem.dailyTick();
                     // Calcaria — denní zrání vápna (self-guarded 24h, gate tech_calcaria)
