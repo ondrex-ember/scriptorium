@@ -8448,6 +8448,9 @@ const ItemsDB = {
     "fulled_wool_cloth": { name: "Zvalchované soukno", name_en: "Fulled Wool Cloth", icon: "🧶", type: "lore", desc: "Zplstěno louhem místo odstáté moči — hustší, teplejší, dostupné každému klášteru.", desc_en: "Fulled with lye instead of stale urine — denser, warmer, available to every monastery." },
     "kutna": { name: "Kutna", name_en: "Habit", icon: "👘", type: "tool", desc: "Mnišský hábit dle Řehole. Šije Vestiarius z hotového sukna.", desc_en: "A monastic habit per the Rule. Sewn by the Vestiarius from finished cloth." },
     "raw_hide": { name: "Surová kůže", name_en: "Raw Hide", icon: "🐑", type: "mat", desc: "Neupravená zvířecí kůže. Nutno vyčinit.", desc_en: "Untreated animal hide. Must be cured." },
+    // krava-bug-fix (7.8.2026): porážka telete — sváteční maso, jemnější kůže
+    "veal": { name: "Telecí maso", name_en: "Veal", icon: "🍖", type: "food_raw", desc: "Jemné maso mladého telete. Sváteční pochoutka, vzácnější než hovězí.", desc_en: "Tender meat from a young calf. A festive delicacy, rarer than beef." },
+    "calf_hide": { name: "Telecí kůže", name_en: "Calf Hide", icon: "🐑", type: "mat", desc: "Jemná kůže z telete. Nejjemnější pergamen (vellum) se dělá právě z ní.", desc_en: "Fine hide from a calf. The finest vellum is made from exactly this." },
     "feather_hen": { name: "Peří", name_en: "Hen Feather", icon: "🪶", type: "mat", desc: "Husté peří. Na polštáře i brky.", desc_en: "Thick feathers. For pillows and quills." },
 
     // ── Produkty zahrady / včelína ─────────────────────────────────────────
@@ -8698,6 +8701,20 @@ const ItemsDB = {
     "flax_fiber": { name: "Lněná vlákna", name_en: "Flax Fibre", icon: "🧵", type: "mat", desc: "Stonky lnu po rosení a tření. Základ pro tkaní plátna a výrobu provazů.", desc_en: "Flax stalks after retting and breaking. The basis for weaving linen and making rope." },
     "straw": { name: "Sláma", name_en: "Straw", icon: "🌿", type: "mat", desc: "Posklizňová sláma. Podestýlka pro zvířata, střešní krytina, krmivo pro skot.", desc_en: "Post-harvest straw. Bedding for animals, thatching material, fodder for cattle." },
     "flour": { name: "Mouka", name_en: "Flour", icon: "⚪", type: "mat", desc: "Mletá pšeničná nebo žitná mouka. Základ pro chléb, oplatky a kaši.", desc_en: "Ground wheat or rye flour. The basis for bread, wafers and porridge." },
+    // coquina-tier1-mrd (7.8.2026): kroupy = loupaný/drcený ječmen, zpracovaný
+    // produkt (ne totéž co syrový barley). Výroba zatím ve Výrobě (instantní
+    // craft), časem přejde do Vaření spolu se zbytkem zpracování (po Udírně).
+    "kroupy": { name: "Kroupy", name_en: "Pearl Barley", icon: "🌾", type: "mat", desc: "Loupaný a drcený ječmen. Vaří se rychleji a je stravitelnější než celé zrno.", desc_en: "Hulled and crushed barley. Cooks faster and digests easier than the whole grain." },
+    "sauerkraut": { name: "Kysané zelí", name_en: "Sauerkraut", icon: "🥬", type: "food_raw", desc: "Zelí kvašené v soli. Lék proti kurdějím na dlouhé zimy — vydrží měsíce.", desc_en: "Cabbage fermented in salt. A remedy against scurvy through long winters — keeps for months." },
+    "zelnacka_s_kroupami": { name: "Zelňačka s kroupami", name_en: "Cabbage & Groat Pottage", icon: "🍲", type: "food", hunger: 10, desc: "Hustá kaše ze zelí a krup. Nasytí na dlouho, sytí 10h.", desc_en: "A thick pottage of cabbage and groats. Filling and long-lasting — fills for 10h." },
+    // coquina-tier1-mrd (7.8.2026): poslední 4 recepty Úrovně 1 (chudina)
+    "pucalka": { name: "Pučálka", name_en: "Puchalka", icon: "🫛", type: "food", hunger: 4, desc: "Naklíčený hrách opražený na sucho. Rychlý svačinový pokrm pro pracující konvrše.", desc_en: "Sprouted peas roasted dry. A quick bite for working lay brothers." },
+    "ovesna_kase": { name: "Ovesná kaše", name_en: "Oatmeal Gruel", icon: "🥣", type: "food", hunger: 6, desc: "Oves vařený jen ve vodě a soli. Žalostně nízká chuť, ale levné.", desc_en: "Oats boiled in nothing but water and salt. Sorrowfully plain, but cheap." },
+    "cibulova_jicha": { name: "Cibulová jícha", name_en: "Onion Slop", icon: "🧅", type: "food", hunger: 6, desc: "Rozvařená cibule zahuštěná starým chlebem. Zachrání chléb, než zplesniví.", desc_en: "Boiled onion thickened with stale bread. Saves the bread before it moulds." },
+    "placky_z_popela": { name: "Placky z popela", name_en: "Ashcakes", icon: "🫓", type: "food", hunger: 5, desc: "Hrubé těsto pláclé přímo do žhavého popela na kraji ohniště. Žádné dřevo navíc.", desc_en: "Coarse dough slapped straight into the glowing ash at the hearth's edge. No extra wood needed." },
+    // coquina-tier2-mrd (7.8.2026): Úroveň 2 (svátky, sváteční mnišská strava)
+    "vajecna_jicha": { name: "Vaječná jícha", name_en: "Egg Thick-Sauce", icon: "🍳", type: "food", hunger: 8, desc: "Žloutky šlehané s octem do husté omáčky, poléváno na chléb.", desc_en: "Egg yolks whisked with vinegar into a thick sauce, poured over bread." },
+    "stika_s_maslem": { name: "Štika na rožni s bylinkovým máslem", name_en: "Spit-Roasted Pike with Herb Butter", icon: "🐊", type: "food", hunger: 12, desc: "Prémiová dravá ryba ze sádek, pečená na rožni a potíraná přepuštěným máslem.", desc_en: "A premium predatory fish from the ponds, roasted on the spit and basted with clarified butter." },
     "flour_1": { name: "Mouka (1. třída)", name_en: "Flour (Grade 1)", icon: "⚪", type: "mat", desc: "Semleta z prvotřídního zrní vlastního pole. Nejlepší chléb a koláče.", desc_en: "Milled from prime grain off your own field. The finest bread and pastries." },
     "flour_2": { name: "Mouka (2. třída)", name_en: "Flour (Grade 2)", icon: "⚪", type: "mat", desc: "Běžná mouka — z horšího zrní nebo koupená. Postačí na denní chléb.", desc_en: "Common flour — lower-grade or bought. Fine for everyday bread." },
     "grain_feed": { name: "Zrní (krmivo)", name_en: "Grain Feed", icon: "🌾", type: "mat", desc: "Směs zrní pro drůbež a prasata. Udržuje zdraví zvířat.", desc_en: "Grain mix for poultry and pigs. Maintains animal health." },
@@ -28195,6 +28212,16 @@ const DecaySystem = {
         pork_pie_abbot: { rate: 0.02, mice: true },
         // coquina-tier1-mrd (7.8.2026): hotová kaše, mirror stew
         pohanka_s_cesnekem: { rate: 0.15, flies: true },
+        // coquina-tier1-mrd (7.8.2026): kysané zelí je trvanlivé (kvašení
+        // konzervuje), mirror kdoule/zavařenina — pomalý rozklad.
+        sauerkraut: { rate: 0.03 },
+        zelnacka_s_kroupami: { rate: 0.15, flies: true },
+        pucalka: { rate: 0.15, flies: true },
+        ovesna_kase: { rate: 0.15, flies: true },
+        cibulova_jicha: { rate: 0.15, flies: true },
+        placky_z_popela: { rate: 0.10 },
+        vajecna_jicha: { rate: 0.15, flies: true },
+        stika_s_maslem: { rate: 0.15, flies: true },
         lard:         { rate: 0.01 },
         rye_grain:    { rate: 0.005, mice: true },
         rye_grain_1:  { rate: 0.005, mice: true },
@@ -28537,8 +28564,46 @@ const CheeseSystem = {
         }
         inst.phase = newPhase;
     },
-};
 
+    // coquina-cheese-mirror-mrd (7.8.2026): zrcadlení zrání do Vaření —
+    // jen zobrazení průběhu, výroba čerstvého sýra i denní tick zůstávají
+    // beze změny (CheeseSystem samostatný systém, ne migrovaný do CookingSystem).
+    render: function() {
+        if (!this.isActive()) return '';
+        const list = this._ensureState();
+        if (list.length === 0) return '';
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        if (!GameState.ui) GameState.ui = {};
+        const cheeseOpen = GameState.ui.cheeseAgingOpen !== false;
+        let h = `<details ${cheeseOpen ? 'open' : ''} ontoggle="GameState.ui.cheeseAgingOpen = this.open; Game.save();" style="margin-top:14px; background:rgba(0,0,0,0.03); border-radius:8px; border-left:3px solid var(--accent-gold);">`;
+        h += `<summary style="cursor:pointer; padding:10px 14px; font-size:0.92rem; font-weight:bold; list-style:none; user-select:none; display:flex; align-items:center; justify-content:space-between; gap:6px; color:var(--ink-primary);">
+                <span>🧀 ${lang === 'en' ? 'Cheese Aging' : 'Zrání sýrů'}</span><span style="opacity:0.5; font-weight:normal;">▾</span>
+              </summary>`;
+        h += `<div style="padding:4px 14px 14px;">`;
+        list.forEach(inst => {
+            const def = this.CHEESE_TYPES[inst.baseType];
+            if (!def) return;
+            const ageMs = Date.now() - inst.createdAt;
+            const ageDays = ageMs / this.DAY_MS;
+            const name = (typeof iName === 'function') ? iName(inst.baseType + '_' + inst.phase) : inst.baseType;
+            let targetDays, label;
+            if (inst.phase === 'fresh') { targetDays = def.matureDays; label = lang === 'en' ? 'to Mature' : 'do zralého'; }
+            else if (inst.phase === 'mature' && def.agedDays) { targetDays = def.agedDays; label = lang === 'en' ? 'to Aged' : 'do vyzrálého'; }
+            else { h += `<div style="background:rgba(0,0,0,0.05); padding:10px 12px; border-radius:8px; margin-bottom:6px; font-size:0.8rem;">✅ ${name} — ${lang === 'en' ? 'fully aged' : 'plně vyzrálé'}</div>`; return; }
+            const pct = Math.min(100, Math.round(ageDays / targetDays * 100));
+            const remainDays = Math.max(0, Math.ceil(targetDays - ageDays));
+            h += `<div style="background:rgba(0,0,0,0.05); padding:12px; border-radius:8px; border-left:3px solid var(--accent-gold); margin-bottom:8px;">
+                    <div style="font-size:0.85rem; font-weight:bold; margin-bottom:6px;">${name}</div>
+                    <div style="background:rgba(0,0,0,0.1); border-radius:4px; height:8px;">
+                      <div style="width:${pct}%; background:var(--accent-gold); height:8px; border-radius:4px; transition:width 0.3s;"></div>
+                    </div>
+                    <div style="font-size:0.72rem; opacity:0.65; margin-top:4px;">${remainDays} ${lang === 'en' ? 'days' : 'dní'} ${label}</div>
+                  </div>`;
+        });
+        h += `</div></details>`;
+        return h;
+    },
+};
 // ═══ src/systems/LimeSystem.js ═══
 // ═══════════════════════════════════════════════════════════════════════════
 // LIME SYSTEM v1 — Calcaria
@@ -28745,10 +28810,10 @@ const CookingSystem = {
     COOK_TYPES: {
         // coquina-tier2-mrd (7.8.2026): "vylepšené solné kádě" z knihy —
         // s tech_tacuinum_sanitatis se solení zrychlí 8h→5h. Viz _effectiveDuration().
-        salted_pork: { input: 'pork', inputQty: 1, saltQty: 2, needsItem: 'barrel_tool',
+        salted_pork: { input: 'pork', inputQty: 1, saltQty: 2, needsTool: ['barrel_tool'],
             needsTech: 'tech_ruralia_meat', output: 'salted_pork', durationH: 8,
             fastDurationH: 5, fastTech: 'tech_tacuinum_sanitatis' },
-        salted_beef: { input: 'beef', inputQty: 1, saltQty: 2, needsItem: 'barrel_tool',
+        salted_beef: { input: 'beef', inputQty: 1, saltQty: 2, needsTool: ['barrel_tool'],
             needsTech: 'tech_ruralia_meat', output: 'salted_beef', durationH: 8,
             fastDurationH: 5, fastTech: 'tech_tacuinum_sanitatis' },
         // Tier 1 — přes existující Ohniště, žádná stavba, pomalu (24h),
@@ -28783,13 +28848,130 @@ const CookingSystem = {
         // žádná stavba, gate na stejný tech jako zbytek Tier 1.
         pohanka_s_cesnekem: { input: 'pohanka', inputQty: 1, extraInputs: { garlic: 1, linseed_oil: 1 },
             needsTech: 'tech_ruralia_meat', output: 'pohanka_s_cesnekem', durationH: 1 },
+        // coquina-tier1-mrd (7.8.2026): druhý ze 23 receptů. Fermentace
+        // (48h, skutečný kvasný proces) + rychlá polévka z hotových surovin.
+        sauerkraut: { input: 'cabbage', inputQty: 2, saltQty: 1,
+            needsTech: 'tech_ruralia_meat', output: 'sauerkraut', durationH: 48 },
+        zelnacka_s_kroupami: { input: 'sauerkraut', inputQty: 1, extraInputs: { kroupy: 2 },
+            needsTech: 'tech_ruralia_meat', output: 'zelnacka_s_kroupami', durationH: 1 },
+        // coquina-tier1-mrd (7.8.2026): poslední 4 recepty Úrovně 1, žádná
+        // nová surovina, vše mirror pohanka_s_cesnekem vzoru (rychlé, žádná stavba).
+        pucalka: { input: 'peas', inputQty: 2,
+            needsTech: 'tech_ruralia_meat', output: 'pucalka', durationH: 1 },
+        ovesna_kase: { input: 'oats', inputQty: 2, saltQty: 1,
+            needsTech: 'tech_ruralia_meat', output: 'ovesna_kase', durationH: 1 },
+        cibulova_jicha: { input: 'onion', inputQty: 2, extraInputs: { bread: 1 },
+            needsTech: 'tech_ruralia_meat', output: 'cibulova_jicha', durationH: 1 },
+        placky_z_popela: { input: 'flour', inputQty: 2,
+            needsTech: 'tech_ruralia_meat', output: 'placky_z_popela', durationH: 1 },
+        // coquina-tier2-mrd (7.8.2026): Úroveň 2, žádná nová stavba potřeba
+        vajecna_jicha: { input: 'egg', inputQty: 2, extraInputs: { vinegar: 1, bread: 1 },
+            needsTech: 'tech_ruralia_meat', output: 'vajecna_jicha', durationH: 1 },
+        stika_s_maslem: { input: 'stika', inputQty: 1, extraInputs: { butter: 1 },
+            needsTech: 'tech_ruralia_meat', output: 'stika_s_maslem', durationH: 1 },
+        // coquina-migrace-mrd (7.8.2026): Fáze 1 migrace existujících receptů
+        // z Výroby. ID MUSÍ sedět s RecipesDB id (Game.craft() redirect podle
+        // shody). Žádné needsTech — spoléhá na vlastní starší RecipesDB unlock,
+        // ne na Coquina strom. Čaj jako kotva časování — 20 min (7.8.2026 revize).
+        herbal_tea: { input: 'chamomile', inputQty: 1, extraInputs: { water: 1 }, needsTool: ['cooking_pot'],
+            output: 'herbal_tea', durationH: 0.333 },
+        herbal_tea_alt: { input: 'thyme', inputQty: 1, extraInputs: { water: 1 }, needsTool: ['cooking_pot'],
+            output: 'herbal_tea_alt', durationH: 0.333 },
+        hildegard_tisane: { input: 'chamomile', inputQty: 1, extraInputs: { thyme: 1, honey: 1, water: 1 }, needsTool: ['cooking_pot'],
+            output: 'hildegard_tisane', durationH: 0.333 },
+        linden_tea: { input: 'linden_blossom', inputQty: 1, extraInputs: { water: 1 }, needsTool: ['cooking_pot'],
+            output: 'linden_tea', durationH: 0.333 },
+        kroupy: { input: 'barley', inputQty: 3, outputQty: 2,
+            output: 'kroupy', durationH: 0.417 },
+        // coquina-migrace-mrd (7.8.2026): Fáze 2 — jednoduché pečení/pražení,
+        // věrná migrace stávajících RecipesDB receptů (žádné nové needsTool
+        // přidané navíc, i tam kde popis mluví o hmoždíři/peci ale req ho
+        // nevyžadoval). cattail_root_flour output je "couch_grass_flour" už
+        // ve stávajících datech (pravděpodobný překlep) — zachováno věrně.
+        frog_legs_prep: { input: 'frog', inputQty: 1, output: 'frog_legs', durationH: 0.5 },
+        burdock_root_baked: { input: 'burdock_root', inputQty: 2, output: 'burdock_root_baked', durationH: 0.5 },
+        couch_grass_flour: { input: 'couch_grass', inputQty: 3, output: 'couch_grass_flour', durationH: 0.5 },
+        cattail_root_flour: { input: 'cattail_root', inputQty: 3, output: 'couch_grass_flour', durationH: 0.5 },
+        famine_bread: { input: 'acorn', inputQty: 2, extraInputs: { beechnut: 2 }, needsTool: ['pestle'],
+            output: 'famine_bread', durationH: 0.5 },
+        dried_wild_fruit: { input: 'wild_fruit', inputQty: 2, extraInputs: { cornel_cherry: 1 }, output: 'dried_wild_fruit', durationH: 0.5 },
+        sloe_jam: { input: 'sloe', inputQty: 3, needsTool: ['cooking_pot'], output: 'sloe_jam', durationH: 0.5 },
+        acorn_roasted: { input: 'acorn', inputQty: 2, needsTool: ['cooking_pot'], output: 'acorn_roasted', durationH: 0.5 },
+        chicory_roasted: { input: 'roots', inputQty: 2, needsTool: ['cooking_pot'], output: 'chicory_roasted', durationH: 0.5 },
+        // Žaludovka/Cikorka — druhý krok, 15 min (zadáno explicitně)
+        acorn_brew: { input: 'acorn_roasted', inputQty: 1, extraInputs: { water: 1 }, needsTool: ['cooking_pot'],
+            output: 'acorn_brew', durationH: 0.25 },
+        chicory_drink: { input: 'chicory_roasted', inputQty: 1, extraInputs: { water: 1 }, needsTool: ['cooking_pot'],
+            output: 'chicory_drink', durationH: 0.25 },
+        // coquina-migrace-mrd (7.8.2026): Fáze 3 — jednoduché maso, 1 surovina + hrnec
+        cooked_meat: { input: 'meat', inputQty: 1, needsTool: ['cooking_pot'], output: 'cooked_meat', durationH: 0.75 },
+        cooked_beef: { input: 'beef', inputQty: 1, needsTool: ['cooking_pot'], output: 'cooked_beef', durationH: 0.75 },
+        cooked_mutton: { input: 'mutton', inputQty: 1, needsTool: ['cooking_pot'], output: 'cooked_mutton', durationH: 0.75 },
+        cooked_chicken: { input: 'chicken_meat', inputQty: 1, needsTool: ['cooking_pot'], output: 'cooked_chicken', durationH: 0.75 },
+        cooked_rabbit: { input: 'rabbit_meat', inputQty: 1, needsTool: ['cooking_pot'], output: 'cooked_rabbit', durationH: 0.75 },
+        cooked_fish: { input: 'fish', inputQty: 1, needsTool: ['cooking_pot'], output: 'cooked_fish', durationH: 0.75 },
+        // navazuje na frog_legs_prep (Fáze 2) — druhý krok
+        frog_legs_fried: { input: 'frog_legs', inputQty: 2, extraInputs: { fat: 1, garlic: 1 }, needsTool: ['cooking_pot'],
+            output: 'frog_legs_fried', durationH: 1 },
+        // coquina-migrace-mrd (7.8.2026): Fáze 4 — dvoukroková jídla, navazují na Fázi 3
+        roast_beef: { input: 'cooked_beef', inputQty: 1, extraInputs: { onion: 1 }, needsTool: ['cooking_pot'],
+            output: 'roast_beef', durationH: 1 },
+        braised_beef: { input: 'cooked_beef', inputQty: 1, extraInputs: { carrot: 1 }, needsTool: ['cooking_pot'],
+            output: 'braised_beef', durationH: 1 },
+        roast_rabbit_dish: { input: 'cooked_rabbit', inputQty: 1, extraInputs: { carrot: 1, cabbage: 1 }, needsTool: ['cooking_pot'],
+            output: 'roast_rabbit_dish', durationH: 1 },
+        // coquina-migrace-mrd (7.8.2026): Fáze 5 — polévky/dušená jídla, víc surovin
+        stew: { input: 'meat', inputQty: 1, extraInputs: { carrot: 1, turnip: 1, water: 1 }, needsTool: ['cooking_pot'],
+            output: 'stew', durationH: 1.5 },
+        stew_koreni: { input: 'meat', inputQty: 1, extraInputs: { carrot: 1, turnip: 1, water: 1, pepr_cerny: 1 }, needsTool: ['cooking_pot'],
+            output: 'stew_koreni', durationH: 1.5 },
+        mushroom_soup: { input: 'mushroom', inputQty: 2, extraInputs: { onion: 1, water: 1 }, needsTool: ['cooking_pot'],
+            output: 'mushroom_soup', durationH: 1.5 },
+        spring_herb_porridge: { input: 'nettle', inputQty: 1, extraInputs: { ground_elder: 1, goosefoot: 1, oats: 1 }, needsTool: ['cooking_pot'],
+            output: 'spring_herb_porridge', durationH: 1.5 },
+        rosehip_sauce: { input: 'rosehip', inputQty: 3, extraInputs: { bread: 1 }, needsTool: ['cooking_pot'],
+            output: 'rosehip_sauce', durationH: 1.5 },
+        crayfish_boiled: { input: 'crayfish', inputQty: 3, extraInputs: { beer: 1 }, needsTool: ['cooking_pot'],
+            output: 'crayfish_boiled', durationH: 1.5 },
+        snails_black_sauce: { input: 'snail', inputQty: 4, extraInputs: { bread: 1, honey: 1, fat: 1 }, needsTool: ['cooking_pot'],
+            output: 'snails_black_sauce', durationH: 1.5 },
+        morel_stuffed: { input: 'morel', inputQty: 3, extraInputs: { bread: 1, garlic: 1, fat: 1 }, needsTool: ['cooking_pot'],
+            output: 'morel_stuffed', durationH: 1.5 },
+        smazenice: { input: 'mushroom', inputQty: 3, extraInputs: { onion: 1, egg: 2 }, needsTool: ['cooking_pot'],
+            output: 'smazenice', durationH: 1.5 },
+        // coquina-migrace-mrd (7.8.2026): Fáze 6 — nakládání, delší proces (mirror sauerkraut)
+        pickled_mushrooms: { input: 'saffron_milk_cap', inputQty: 2, extraInputs: { porcini: 1 }, needsTool: ['barrel_tool'],
+            output: 'pickled_mushrooms', durationH: 24 },
+        // coquina-migrace-mrd (7.8.2026): Fáze 7 (poslední) — pečivo, pečení
+        // trvá nejdéle. bread/bread_fine/bread_fine_1 mají outputQty:2
+        // (stejné jako stávající recepty). 7 variant, ne 6 (dodatečně
+        // nalezené berry_pie_koreni při auditu).
+        bread: { input: 'fiber', inputQty: 3, extraInputs: { water: 1 }, needsTool: ['cooking_pot'],
+            output: 'bread', outputQty: 2, durationH: 2 },
+        bread_fine: { input: 'flour_2', inputQty: 3, extraInputs: { water: 1 }, needsTool: ['cooking_pot'],
+            output: 'bread_fine', outputQty: 2, durationH: 2 },
+        bread_fine_1: { input: 'flour_1', inputQty: 3, extraInputs: { water: 1 }, needsTool: ['cooking_pot'],
+            output: 'bread_fine_1', outputQty: 2, durationH: 2 },
+        berry_pie: { input: 'berries', inputQty: 3, extraInputs: { honey: 1 }, needsTool: ['cooking_pot'],
+            output: 'berry_pie', durationH: 1.5 },
+        berry_pie_koreni: { input: 'berries', inputQty: 3, extraInputs: { honey: 1, skorice: 1 }, needsTool: ['cooking_pot'],
+            output: 'berry_pie_koreni', durationH: 1.5 },
+        berry_pie_fine: { input: 'flour_2', inputQty: 2, extraInputs: { berries: 3, honey: 1 }, needsTool: ['cooking_pot'],
+            output: 'berry_pie_fine', durationH: 1.5 },
+        berry_pie_fine_1: { input: 'flour_1', inputQty: 2, extraInputs: { berries: 3, honey: 1 }, needsTool: ['cooking_pot'],
+            output: 'berry_pie_fine_1', durationH: 1.5 },
     },
 
     // coquina-tier1-mrd: tab je vidět, jakmile hráč má ASPOŇ jeden tier —
     // jednotlivé recepty se pak filtrují zvlášť podle vlastního needsTech.
+    // coquina-vyroba-modal-mrd (7.8.2026): tab viditelný i BEZ Coquina tech,
+    // pokud má hráč odemčený aspoň 1 migrovaný recept (vlastní, starší tech
+    // cesta) — jinak by klik ve Výrobě na odemčený čaj nic neudělal.
     isActive: function() {
         const t = GameState.researchedTechs || [];
-        return t.includes('tech_ruralia_meat') || t.includes('tech_udirna');
+        if (t.includes('tech_ruralia_meat') || t.includes('tech_udirna')) return true;
+        const unlocked = GameState.unlockedRecipes || [];
+        return Object.keys(this.COOK_TYPES).some(k => unlocked.includes(k));
     },
 
     _ensureState: function() {
@@ -28823,6 +29005,18 @@ const CookingSystem = {
         return dur / chefMult;
     },
 
+    // coquina-migrace-mrd (7.8.2026): oprava zobrazení — Math.ceil() dřív
+    // zaokrouhloval cokoliv pod hodinu nahoru na "1h" (12 min → "1h" lež).
+    // Pod hodinu ukáže minuty, nad hodinu hodiny (zaokrouhleno na 15 min).
+    _formatDuration: function(hours, lang) {
+        if (hours < 1) {
+            const min = Math.max(1, Math.round(hours * 60));
+            return min + ' ' + (lang === 'en' ? 'min' : 'min');
+        }
+        const rounded = Math.round(hours * 4) / 4; // čtvrthodiny
+        return (rounded % 1 === 0 ? rounded : rounded.toFixed(2).replace(/0$/, '')) + 'h';
+    },
+
     startCooking: function(typeKey) {
         if (!this.isActive()) return;
         const def = this.COOK_TYPES[typeKey];
@@ -28836,9 +29030,17 @@ const CookingSystem = {
             if (typeof UI !== 'undefined') UI.notify(lang === 'en' ? 'Needs the Smokehouse built first.' : 'Nejdřív je třeba postavit Udírnu.', true);
             return;
         }
-        if (def.needsItem === 'barrel_tool' && (GameState.inventory['barrel_tool'] || 0) < 1) {
-            if (typeof UI !== 'undefined') UI.notify(lang === 'en' ? 'Needs a barrel (vat) for salting.' : 'Na nasolení je potřeba sud (kádě).', true);
-            return;
+        // coquina-vyroba-modal-mrd (7.8.2026): needsTool — obecné pole
+        // vlastněných-ne-spotřebovaných nástrojů (cooking_pot, pestle,
+        // cheese_mold, barrel_tool...). Nahrazuje starší hardcoded barrel_tool.
+        if (def.needsTool) {
+            for (const toolId of def.needsTool) {
+                if ((GameState.inventory[toolId] || 0) < 1) {
+                    const nm = (typeof iName === 'function') ? iName(toolId) : toolId;
+                    if (typeof UI !== 'undefined') UI.notify((lang === 'en' ? 'Needs: ' : 'Potřeba: ') + nm, true);
+                    return;
+                }
+            }
         }
         if ((GameState.inventory[def.input] || 0) < def.inputQty) {
             if (typeof UI !== 'undefined') UI.notify(lang === 'en' ? 'Not enough raw material.' : 'Nedostatek suroviny.', true);
@@ -28880,11 +29082,11 @@ const CookingSystem = {
                 icon: '🍲',
                 title: lang === 'en' ? 'Cooking has begun' : 'Začalo se vařit',
                 text: lang === 'en'
-                    ? `Ready in ${effH}h. Track progress in the Cooking tab.`
-                    : `Hotovo za ${effH}h. Sleduj postup v tabu Vaření.`,
+                    ? `Ready in ${this._formatDuration(effH, 'en')}. Track progress in the Cooking tab.`
+                    : `Hotovo za ${this._formatDuration(effH, 'cs')}. Sleduj postup v tabu Vaření.`,
                 choices: [
                     { label: lang === 'en' ? 'Go to Cooking' : 'Do Vaření', type: 'primary',
-                      effect: function() { if (typeof UI !== 'undefined' && UI.switchHomeSubTab) UI.switchHomeSubTab('cooking', document.getElementById('home-sub-cooking')); } },
+                      effect: function() { if (typeof UI !== 'undefined' && UI.switchScreen) UI.switchScreen('home', document.getElementById('nav-home')); if (typeof UI !== 'undefined' && UI.switchHomeSubTab) UI.switchHomeSubTab('cooking', document.getElementById('home-sub-cooking')); } },
                     { label: lang === 'en' ? 'Continue' : 'Pokračovat', type: 'default', effect: function() {} },
                 ],
             });
@@ -28908,7 +29110,7 @@ const CookingSystem = {
             if (!def) { list.splice(i, 1); continue; }
             const _brotherMult = inst.brotherMult || 1.0;
             if (now - inst.startedAt >= this._effectiveDuration(def, _brotherMult) * this.HOUR_MS) {
-                Game.addItem(def.output, 1);
+                Game.addItem(def.output, def.outputQty || 1);
                 done.push(def.output);
                 // coquina-tier4-mrd (7.8.2026): elitní recepty zvyšují Vliv,
                 // mirror mše/relikvie vzoru (PersonaSystem.addInfluence).
@@ -28955,27 +29157,42 @@ const CookingSystem = {
         const list = this._ensureState();
         let h = `<div style="padding:12px;">`;
 
+        // coquina-vareni-ui-mrd (7.8.2026): sbalitelné sekce (mirror Forum
+        // Pecuarium vzoru), stav uložen do GameState.ui ať zůstane po reloadu.
+        if (!GameState.ui) GameState.ui = {};
         if (list.length > 0) {
-            h += `<h4 style="margin:0 0 10px 0; color:var(--ink-primary);">🔥 ${lang === 'en' ? 'In Progress' : 'Probíhá'}</h4>`;
+            const progressOpen = GameState.ui.cookingProgressOpen !== false;
+            h += `<details ${progressOpen ? 'open' : ''} ontoggle="GameState.ui.cookingProgressOpen = this.open; Game.save();" style="margin-bottom:14px; background:rgba(0,0,0,0.03); border-radius:8px; border-left:3px solid var(--accent-gold);">`;
+            h += `<summary style="cursor:pointer; padding:10px 14px; font-size:0.92rem; font-weight:bold; list-style:none; user-select:none; display:flex; align-items:center; justify-content:space-between; gap:6px; color:var(--ink-primary);">
+                    <span>🔥 ${lang === 'en' ? 'In Progress' : 'Probíhá'}</span><span style="opacity:0.5; font-weight:normal;">▾</span>
+                  </summary>`;
+            h += `<div style="padding:4px 14px 14px;">`;
             list.forEach(inst => {
                 const def = this.COOK_TYPES[inst.type];
                 if (!def) return;
                 const totalMs = this._effectiveDuration(def, inst.brotherMult || 1.0) * this.HOUR_MS;
                 const elapsed = Date.now() - inst.startedAt;
                 const pct = Math.min(100, Math.round(elapsed / totalMs * 100));
-                const remainH = Math.max(0, Math.ceil((totalMs - elapsed) / this.HOUR_MS));
+                const remainH = Math.max(0, (totalMs - elapsed) / this.HOUR_MS);
                 const outName = (typeof iName === 'function') ? iName(def.output) : def.output;
                 h += `<div style="background:rgba(0,0,0,0.05); padding:12px; border-radius:8px; border-left:3px solid var(--accent-gold); margin-bottom:8px;">
                         <div style="font-size:0.85rem; font-weight:bold; margin-bottom:6px;">${outName}</div>
                         <div style="background:rgba(0,0,0,0.1); border-radius:4px; height:8px;">
                           <div style="width:${pct}%; background:var(--accent-gold); height:8px; border-radius:4px; transition:width 0.3s;"></div>
                         </div>
-                        <div style="font-size:0.72rem; opacity:0.65; margin-top:4px;">${lang === 'en' ? `${remainH}h remaining` : `zbývá ${remainH}h`}</div>
+                        <div style="font-size:0.72rem; opacity:0.65; margin-top:4px;">${lang === 'en' ? `${this._formatDuration(remainH, 'en')} remaining` : `zbývá ${this._formatDuration(remainH, 'cs')}`}</div>
                       </div>`;
             });
+            h += `</div></details>`;
         }
 
-        h += `<h4 style="margin:14px 0 10px 0; color:var(--ink-primary);">📖 ${lang === 'en' ? 'Recipes' : 'Recepty'}</h4>`;
+        const recipesOpen = GameState.ui.cookingRecipesOpen !== false;
+        h += `<details ${recipesOpen ? 'open' : ''} ontoggle="GameState.ui.cookingRecipesOpen = this.open; Game.save();" style="background:rgba(0,0,0,0.03); border-radius:8px; border-left:3px solid var(--accent-gold);">`;
+        h += `<summary style="cursor:pointer; padding:10px 14px; font-size:0.92rem; font-weight:bold; list-style:none; user-select:none; display:flex; align-items:center; justify-content:space-between; gap:6px; color:var(--ink-primary);">
+                <span>📖 ${lang === 'en' ? 'Recipes' : 'Recepty'}</span><span style="opacity:0.5; font-weight:normal;">▾</span>
+              </summary>`;
+        // grid — auto-fit/minmax se sám zúží na 1 sloupec na úzkém displeji, až 3 na širokém
+        h += `<div style="padding:4px 14px 14px; display:grid; grid-template-columns:repeat(auto-fit, minmax(260px, 1fr)); gap:6px;">`;
         Object.keys(this.COOK_TYPES).forEach(key => {
             const def = this.COOK_TYPES[key];
             const hasTech = !def.needsTech || (GameState.researchedTechs && GameState.researchedTechs.includes(def.needsTech));
@@ -28984,12 +29201,13 @@ const CookingSystem = {
             const inName = (typeof iName === 'function') ? iName(def.input) : def.input;
             const have = GameState.inventory[def.input] || 0;
             const hasBuild = !def.needsBuild || (GameState.storage && GameState.storage[def.needsBuild] && GameState.storage[def.needsBuild].built);
-            const hasBarrel = def.needsItem !== 'barrel_tool' || (GameState.inventory['barrel_tool'] || 0) >= 1;
+            const missingTool = def.needsTool ? def.needsTool.find(t => (GameState.inventory[t] || 0) < 1) : null;
+            const hasTool = !missingTool;
             const hasSalt = !def.saltQty || (GameState.inventory['salt'] || 0) >= def.saltQty;
             const hasWood = def.needsItem !== 'log' || (GameState.inventory['log'] || 0) >= (def.needsItemQty || 1);
             // coquina-tier4-mrd (7.8.2026): extraInputs kontrola pro recepty s víc surovinami
             const hasExtraInputs = !def.extraInputs || Object.entries(def.extraInputs).every(([id, qty]) => (GameState.inventory[id] || 0) >= qty);
-            const can = have >= def.inputQty && hasBuild && hasBarrel && hasSalt && hasWood && hasExtraInputs;
+            const can = have >= def.inputQty && hasBuild && hasTool && hasSalt && hasWood && hasExtraInputs;
             const effH = this._effectiveDuration(def);
             let reqStr = `${def.inputQty}× ${inName}`;
             if (def.saltQty) reqStr += `, ${def.saltQty}× ${(typeof iName === 'function') ? iName('salt') : 'sůl'}`;
@@ -29003,16 +29221,16 @@ const CookingSystem = {
                     <div style="display:flex; justify-content:space-between; align-items:center;">
                       <div>
                         <div style="font-size:0.82rem; font-weight:bold;">${outName}</div>
-                        <div style="font-size:0.7rem; opacity:0.65;">${reqStr} — ${effH}h</div>
+                        <div style="font-size:0.7rem; opacity:0.65;">${reqStr} — ${this._formatDuration(effH, lang)}</div>
                         ${!hasBuild ? `<div style="font-size:0.68rem; color:#c0392b;">🔒 ${lang === 'en' ? 'Needs Smokehouse' : 'Potřeba Udírna'}</div>` : ''}
-                        ${def.needsItem === 'barrel_tool' && !hasBarrel ? `<div style="font-size:0.68rem; color:#c0392b;">🔒 ${lang === 'en' ? 'Needs a barrel' : 'Potřeba sud'}</div>` : ''}
+                        ${missingTool ? `<div style="font-size:0.68rem; color:#c0392b;">🔒 ${lang === 'en' ? 'Needs: ' : 'Potřeba: '}${(typeof iName === 'function') ? iName(missingTool) : missingTool}</div>` : ''}
                       </div>
                       <button class="craft-btn" onclick="CookingSystem.startCooking('${key}')" ${can ? '' : 'disabled'} style="font-size:0.75rem;">🍲 ${lang === 'en' ? 'Start' : 'Vařit'}</button>
                     </div>
                   </div>`;
         });
 
-        h += `</div>`;
+        h += `</div></details></div>`;
         return h;
     },
 };
@@ -34660,6 +34878,9 @@ const FarmyardSystem = {
     _sexFromItem: function (itemId, pen) {
         if (itemId && itemId.endsWith('_m')) return 'm';
         if (itemId && itemId.endsWith('_f')) return 'f';
+        // krava-bug-fix (7.8.2026): 'byk' nemá _m/_f suffix, dřív spadal
+        // na obecný default 'f' — býk se pak zobrazoval jako samice.
+        if (itemId === 'byk') return 'm';
         if (pen === 'stable') return 'f';  // klisna default
         return 'f';
     },
@@ -34818,7 +35039,7 @@ const FarmyardSystem = {
             }
         }
         const a = st.animals[idx];
-        if (!a) return;
+        if (!a) { if (typeof UI !== 'undefined') UI.notify(t('farmyard.needMatureCow') || 'Žádná dospělá kráva k porážce.', true); return; }
         st.animals.splice(idx, 1);
         const inv = GameState.inventory;
         // udirna-mrd (7.8.2026): cured_beef už není zdarma — musí se
@@ -34829,6 +35050,69 @@ const FarmyardSystem = {
         if (typeof Game !== 'undefined' && Game.addKronikaEntry) Game.addKronikaEntry('important', '🐄 Zabijačka! Klášterní spižírna se naplnila hovězím masem.', '🐄 Cattle slaughter! The monastery larder filled with beef.', '🐄 Bos mactatus est.');
         if (typeof Game !== 'undefined') Game.save();
         this.renderFarmyard();
+    },
+
+    // krava-bug-fix (7.8.2026): samostatná porážka býka, s potvrzovacím
+    // modalem — je to plemenné zvíře, nechceme omylem přijít o něj.
+    slaughterBull: function () {
+        const st = GameState.cowbyre;
+        const idx = st.animals.findIndex(a => a.type === 'byk');
+        if (idx === -1) { if (typeof UI !== 'undefined') UI.notify(t('farmyard.noBullToSlaughter') || 'Žádný býk k porážce.', true); return; }
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        const isInfertile = st.animals[idx].sex === 'f'; // starý bug před krava-bug-fix opravou
+        if (typeof NotificationSystem !== 'undefined' && NotificationSystem.modal) {
+            NotificationSystem.modal({
+                icon: '🐂',
+                title: lang === 'en' ? 'Slaughter the bull?' : 'Porazit býka?',
+                text: isInfertile
+                    ? (lang === 'en' ? 'This bull appears infertile and cannot breed. Slaughtering it is likely wise.' : 'Tento býk se jeví jako neplodný a nemůže se pářit. Poražením ho pravděpodobně nic neztratíš.')
+                    : (lang === 'en' ? 'This is your breeding bull. Slaughtering it will end any breeding plans until you get another.' : 'Tohle je tvůj plemenný býk. Porážkou skončí možnost plemenitby, dokud nepořídíš dalšího.'),
+                choices: [
+                    { label: lang === 'en' ? 'Slaughter' : 'Porazit', type: 'primary', effect: function() { FarmyardSystem._confirmSlaughterBull(); } },
+                    { label: lang === 'en' ? 'Cancel' : 'Zrušit', type: 'default', effect: function() {} },
+                ],
+            });
+        } else {
+            this._confirmSlaughterBull();
+        }
+    },
+
+    _confirmSlaughterBull: function () {
+        const st = GameState.cowbyre;
+        const idx = st.animals.findIndex(a => a.type === 'byk');
+        if (idx === -1) return;
+        st.animals.splice(idx, 1);
+        const inv = GameState.inventory;
+        inv['beef'] = (inv['beef'] || 0) + 5;
+        inv['raw_hide'] = (inv['raw_hide'] || 0) + 2;
+        if (typeof UI !== 'undefined') UI.notify('🔪 ' + (t('farmyard.bullSlaughtered') || 'Býk poražen.'));
+        if (typeof Game !== 'undefined' && Game.addKronikaEntry) Game.addKronikaEntry('important', '🐂 Plemenný býk poražen.', '🐂 The breeding bull was slaughtered.', '🐂 Taurus mactatus est.');
+        if (typeof Game !== 'undefined') Game.save();
+        this.renderFarmyard();
+    },
+
+    // krava-bug-fix (7.8.2026): porážka telete — dřív vůbec nešlo, jediná
+    // možnost úklidu chlévu byla nechat dorůst. Sváteční maso + jemnější kůže.
+    slaughterTele: function () {
+        const st = GameState.cowbyre;
+        const idx = st.animals.findIndex(a => a.type === 'tele');
+        if (idx === -1) { if (typeof UI !== 'undefined') UI.notify(t('farmyard.noCalfToSlaughter') || 'Žádné tele k porážce.', true); return; }
+        st.animals.splice(idx, 1);
+        const inv = GameState.inventory;
+        inv['veal'] = (inv['veal'] || 0) + 2;
+        inv['calf_hide'] = (inv['calf_hide'] || 0) + 1;
+        if (typeof UI !== 'undefined') UI.notify('🔪 ' + (t('farmyard.calfSlaughtered') || 'Tele poraženo. +2 Telecí, +1 Telecí kůže.'));
+        if (typeof Game !== 'undefined' && Game.addKronikaEntry) Game.addKronikaEntry('important', '🐮 Tele poraženo — sváteční telecí na stůl.', '🐮 A calf was slaughtered — festive veal for the table.', '🐮 Vitulus mactatus est.');
+        if (typeof Game !== 'undefined') Game.save();
+        this.renderFarmyard();
+    },
+
+    // krava-bug-fix (7.8.2026): staré legacy zvíře bez a.type pole vůbec
+    // (z doby před krava-mrd refaktorem) — slaughterCow() ho už uměl brát
+    // jako krávu (fallback !a.type), ale UI to nezobrazovalo ani nepočítalo
+    // do "má co porazit" — teď obojí sedí.
+    _hasLegacyCow: function (st) {
+        return st.animals.some(a => !a.type);
     },
 
     // ── Render animal pen (generic) ───────────────────────────────────────
@@ -34893,8 +35177,28 @@ const FarmyardSystem = {
                 const mIcon = this.MOOD_ICON(moodVal);
                 const sexLabel = a.sex === 'm' ? (lang === 'en' ? '♂ male' : '♂ samec') : a.sex === 'f' ? (lang === 'en' ? '♀ female' : '♀ samice') : '';
                 const isKid = a.mature === false;
-                h += `<div style="padding:5px 8px; background:rgba(0,0,0,0.04); border-radius:5px; display:flex; align-items:center; gap:8px; font-size:0.78rem;">
+                // krava-bug-fix (7.8.2026): jasný popisek typ+věk+stav, jen
+                // tam kde a.type existuje (dnes cowbyre) — ostatní chlévy beze změny.
+                let typeInfo = '';
+                if (a.type) {
+                    const typeName = (typeof iName === 'function') ? iName(a.type) : a.type;
+                    const ageDays = Math.floor((Date.now() - (a.bornAt || a.placedAt || Date.now())) / 86400000);
+                    const ageStr = lang === 'en' ? `${ageDays}d old` : `${ageDays} dní`;
+                    const matureStr = a.mature === false
+                        ? (lang === 'en' ? 'immature' : 'nedospělé')
+                        : (a.sex === 'f' && a.type === 'byk')
+                            ? (lang === 'en' ? '⚠️ infertile' : '⚠️ neplodný')
+                            : (lang === 'en' ? 'mature' : 'dospělé');
+                    typeInfo = `<strong>${typeName}</strong> <span style="opacity:0.6;">(${ageStr}, ${matureStr})</span>`;
+                } else if (pen === 'cowbyre') {
+                    // krava-bug-fix (7.8.2026): legacy zvíře z doby před
+                    // refaktorem (žádné a.type pole) — slaughterCow() ho bere
+                    // jako krávu, tak to i UI teď jasně řekne.
+                    typeInfo = `<strong>${(typeof iName === 'function') ? iName('cow') : 'Kráva'}</strong> <span style="opacity:0.6;">(${lang === 'en' ? 'legacy record' : 'starší záznam'})</span>`;
+                }
+                h += `<div style="padding:5px 8px; background:rgba(0,0,0,0.04); border-radius:5px; display:flex; align-items:center; gap:8px; font-size:0.78rem; flex-wrap:wrap;">
                     <span>${icons[pen] || '🐾'}${isKid ? '🐣' : ''}</span>
+                    ${typeInfo}
                     <span style="opacity:0.7;">${sexLabel}</span>
                     <span>${mIcon} ${moodVal}/100</span>
                 </div>`;
@@ -34958,7 +35262,7 @@ const FarmyardSystem = {
             var now3 = Date.now();
             var moodCAvg = this.getMood('cowbyre');
             var readyC = st.animals.filter(function (a) { return a.mature !== false && a.type !== 'byk' && now3 - (a.lastMilk || a.bornAt) >= cfg.milkMs; }).length;
-            h += '<div style="font-size:0.8rem;margin-bottom:8px;">🐄 ' + this.MOOD_ICON(moodCAvg) + ' ' + moodCAvg + '/100</div>';
+            h += '<div style="font-size:0.8rem;margin-bottom:8px;opacity:0.75;font-style:italic;">🐄 ' + (lang === 'en' ? 'Byre average mood' : 'Průměrná nálada chlévu') + ': ' + this.MOOD_ICON(moodCAvg) + ' ' + moodCAvg + '/100</div>';
             var canCleanC = Date.now() - (st.lastCleanMs || 0) >= 86400000;
             var cleanQC = Math.max(1, Math.ceil(st.animals.length / 2));
             // Tele — přehled dorůstání (krava-mrd, 26.7.2026), mirror pigsty %
@@ -34970,7 +35274,20 @@ const FarmyardSystem = {
             });
             h += '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px;">';
             h += '<button class="craft-btn" onclick="FarmyardSystem.collectCowMilk()" ' + (readyC ? '' : 'disabled') + '>🥛 ' + t('dvur.milkCow') + ' (' + readyC + ')</button>';
-            h += '<button class="craft-btn" onclick="FarmyardSystem.slaughterCow()" style="background:#8b4a3a;">🔪 ' + t('dvur.slaughterCow') + '</button>';
+            // krava-bug-fix (7.8.2026): dřív tlačítko vždy aktivní, i bez
+            // dospělé krávy — klik nedělal nic, žádná zpětná vazba proč.
+            // Zahrnuje i legacy zvíře bez a.type (starý save před refaktorem).
+            var hasSlaughterableCow = st.animals.some(function (a) { return (a.type === 'cow' && a.mature !== false) || !a.type; });
+            h += '<button class="craft-btn" onclick="FarmyardSystem.slaughterCow()" style="background:#8b4a3a;" ' + (hasSlaughterableCow ? '' : 'disabled') + '>🔪 ' + t('dvur.slaughterCow') + '</button>';
+            var bullAnimal = st.animals.find(function (a) { return a.type === 'byk'; });
+            if (bullAnimal) {
+                var bullInfertile = bullAnimal.sex === 'f';
+                h += '<button class="craft-btn" onclick="FarmyardSystem.slaughterBull()" style="background:#8b4a3a;">🔪 ' + (bullInfertile ? (lang === 'en' ? 'Slaughter bull (infertile!)' : 'Porazit býka (neplodný!)') : (lang === 'en' ? 'Slaughter bull' : 'Porazit býka')) + '</button>';
+            }
+            var teleAnimal = st.animals.find(function (a) { return a.type === 'tele'; });
+            if (teleAnimal) {
+                h += '<button class="craft-btn" onclick="FarmyardSystem.slaughterTele()" style="background:#8b4a3a;">🔪 ' + (lang === 'en' ? 'Slaughter calf' : 'Porazit tele') + '</button>';
+            }
             h += '<button class="craft-btn" onclick="FarmyardSystem.cleanPen(\'cowbyre\')" style="background:rgba(90,154,90,0.85);">' + (canCleanC ? '🧹 ' + t('farmyard.clean') + ' (💩 +' + cleanQC + ')' : '🧹 ' + t('farmyard.cleanTomorrow')) + '</button>';
             h += '</div>';
             // Plemenitba — mirror ovčího bloku
@@ -34978,8 +35295,14 @@ const FarmyardSystem = {
             h += '<div style="margin-top:6px; padding:10px; background:rgba(0,0,0,0.06); border-radius:8px;">';
             h += '<strong style="font-size:0.85rem;">🐄 ' + (t('farmyard.cowBreeding') || 'Plemenitba') + '</strong><br>';
             if (!st.breeding) {
-                var canBreedC = st.animals.some(function (a) { return a.type === 'cow' && a.mature !== false; }) && hasBull;
-                var breedLabelC = !hasBull ? (lang === 'en' ? 'Needs bull (buy or Forum Pecuarium)' : 'Potřeba býka (koupě nebo Forum Pecuarium)') : (t('farmyard.cowStartBreeding') || 'Zahájit plemenitbu');
+                var hasMatureCow = st.animals.some(function (a) { return a.type === 'cow' && a.mature !== false; });
+                var canBreedC = hasMatureCow && hasBull;
+                // krava-bug-fix (7.8.2026): dřív tlačítko u chybějící dospělé
+                // krávy jen tiše zůstalo disabled bez důvodu — teď řekne proč,
+                // mirror existujícího "Potřeba býka" vzoru.
+                var breedLabelC = !hasBull ? (lang === 'en' ? 'Needs bull (buy or Forum Pecuarium)' : 'Potřeba býka (koupě nebo Forum Pecuarium)')
+                    : !hasMatureCow ? (lang === 'en' ? 'Needs a mature cow (buy at market)' : 'Potřeba dospělé krávy (koupě na Trhu)')
+                    : (t('farmyard.cowStartBreeding') || 'Zahájit plemenitbu');
                 h += '<button class="craft-btn" onclick="FarmyardSystem.startCowBreeding()" ' + (canBreedC ? '' : 'disabled') + ' style="margin-top:6px;font-size:0.78rem;">' + breedLabelC + '</button>';
             } else if (st.breeding.state === 'gestating') {
                 var leftC = Math.max(0, Math.ceil((st.breeding.bornAt - now3) / 3600000));
@@ -36047,7 +36370,9 @@ const FarmyardSystem = {
         }
         if (cowSt && cowSt.animals) {
             cowSt.animals.forEach(a => {
-                if (a.type === 'tele' && this._calfMature(a)) { a.type = 'cow'; a.mature = true; changed = true; }
+                // krava-bug-fix (7.8.2026): dřív vždy 'cow' bez ohledu na
+                // pohlaví — samčí tele skončilo jako kráva, šance na býka byla 0%.
+                if (a.type === 'tele' && this._calfMature(a)) { a.type = (a.sex === 'm') ? 'byk' : 'cow'; a.mature = true; changed = true; }
             });
         }
         // Koza — gestace → 1-2 kůzlata do inventáře (goat-mrd), mirror prasete.
@@ -50500,10 +50825,10 @@ const STRINGS_cs = {
         pigGrowing: 'Roste...',
         pigMature: 'Dospělé — připraveno na zabijačku',
         slaughterPig: 'Zabijačka',
-        pigSlaughtered: 'Zabijačka! +4 maso, +3 sádlo, +2 uzené.',
+        pigSlaughtered: 'Zabijačka! +4 vepřové, +3 sádlo.',
         slaughterCow: 'Porazit krávu',
         calfGrowing: 'Tele dorůstá',
-        cowSlaughtered: 'Zabijačka! +5 hovězí, +2 uzené hovězí, +2 kůže.',
+        cowSlaughtered: 'Zabijačka! +5 hovězí, +2 kůže.',
         buildInCellarium: 'Stavbu zadej v Cellariu → Budovy (sekce Dvůr).',
         penHungry: 'Zvířata hladoví! Produkce stojí — doplň krmivo (Horreum krmí automaticky).',
         goatsHungry: 'Kozy hladoví a mléko nedají. Doplň seno.',
@@ -50581,6 +50906,26 @@ const STRINGS_cs = {
         crushTo: 'drtit',
     },
     farmyard: {
+        // krava-bug-fix (7.8.2026): audit proti kódu odhalil 17 chybějících
+        // klíčů — raw i18n string se zobrazoval místo textu (stejný bug jako
+        // dřív u domus_iii, jen jinde). Doplněno najednou po auditu.
+        goatBreeding: 'Plemenitba',
+        goatStartBreeding: 'Zahájit odchov',
+        goatBreedingStarted: 'Plemenitba zahájena.',
+        goatGestating: 'Koza březí',
+        needDoe: 'Potřebuješ dospělou kozu.',
+        needBilly: 'Potřebuješ kozla (Forum Pecuarium).',
+        bullSlaughtered: 'Býk poražen.',
+        calfSlaughtered: 'Tele poraženo. +2 Telecí, +1 Telecí kůže.',
+        needMatureCow: 'Žádná dospělá kráva k porážce.',
+        noBullToSlaughter: 'Žádný býk k porážce.',
+        noCalfToSlaughter: 'Žádné tele k porážce.',
+        kidsBorn: 'Narodilo se {n} kůzlat.',
+        needSlug: 'Nedostatek slimáků',
+        slugFed: 'Slepice nakrmeny slimáky (+25 % snůška, 8h).',
+        strayCowPlaced: 'Kráva čeká v inventáři na chlév.',
+        strayCowSlaughtered: 'Utracena. Hovězí a kůže do spižírny.',
+        strayCowSold: 'Kráva prodána.',
         gallinarium: 'Gallinarium (Kurník)',
         ovile: 'Ovile (Chlév)',
         buildHenhouse: 'Postavit kurník',
@@ -53563,10 +53908,10 @@ According to Theophilus, the organ is an instrument worthy of God, but its const
         pigGrowing: 'Growing...',
         pigMature: 'Mature — ready for slaughter',
         slaughterPig: 'Slaughter',
-        pigSlaughtered: 'Pig slaughter! +4 meat, +3 lard, +2 cured meat.',
+        pigSlaughtered: 'Pig slaughter! +4 pork, +3 lard.',
         slaughterCow: 'Slaughter cow',
         calfGrowing: 'Calf growing',
-        cowSlaughtered: 'Cattle slaughter! +5 beef, +2 cured beef, +2 hide.',
+        cowSlaughtered: 'Cattle slaughter! +5 beef, +2 hide.',
         buildInCellarium: 'Order construction in the Cellarium → Buildings (Farmyard section).',
         penHungry: 'The animals are hungry! Production halted — restock feed (the Horreum feeds automatically).',
         goatsHungry: 'The goats are hungry and give no milk. Restock hay.',
@@ -53644,6 +53989,24 @@ According to Theophilus, the organ is an instrument worthy of God, but its const
         crushTo: 'crush',
     },
     farmyard: {
+        // krava-bug-fix (7.8.2026): mirror cs.js — viz komentář tam
+        goatBreeding: 'Breeding',
+        goatStartBreeding: 'Start breeding',
+        goatBreedingStarted: 'Breeding started.',
+        goatGestating: 'Goat pregnant',
+        needDoe: 'You need a mature doe.',
+        needBilly: 'You need a billy goat (Forum Pecuarium).',
+        bullSlaughtered: 'Bull slaughtered.',
+        calfSlaughtered: 'Calf slaughtered. +2 Veal, +1 Calf Hide.',
+        needMatureCow: 'No mature cow to slaughter.',
+        noBullToSlaughter: 'No bull to slaughter.',
+        noCalfToSlaughter: 'No calf to slaughter.',
+        kidsBorn: '{n} kids were born.',
+        needSlug: 'Not enough slugs',
+        slugFed: 'Hens fed slugs (+25% laying, 8h).',
+        strayCowPlaced: 'The cow waits in your inventory for a byre.',
+        strayCowSlaughtered: 'Culled. Beef and hide to the larder.',
+        strayCowSold: 'Cow sold.',
         gallinarium: 'Gallinarium (Henhouse)',
         ovile: 'Ovile (Sheepfold)',
         buildHenhouse: 'Build henhouse',
@@ -58629,6 +58992,14 @@ const Game = {
     },
     craft: function(id) {
         const r = RecipesDB.find(x => x.id === id);
+        // coquina-migrace-mrd (7.8.2026): migrované cat:"food" recepty
+        // (mají shodné id v CookingSystem.COOK_TYPES) se přesměrují na
+        // časovaný proces ve Vaření. Ne-migrované food recepty i vše
+        // ostatní (cat != food) beze změny — okamžitá cesta níž.
+        if (r && r.cat === 'food' && typeof CookingSystem !== 'undefined' && CookingSystem.COOK_TYPES && CookingSystem.COOK_TYPES[id]) {
+            CookingSystem.startCooking(id);
+            return;
+        }
         if(!GameState.flags.fireplaceLit && !r.blind) { UI.notify(t('game.frozenHands'), true); return; }
 
         // Save hint tracking
@@ -58782,6 +59153,22 @@ const Game = {
         }
         this.addItem(r.output, craftQty);
         if (typeof UI !== 'undefined' && UI.spawnFloatingGain) UI.spawnFloatingGain(r.id, craftQty);
+        // coquina-vyroba-modal-mrd (7.8.2026): Výroba beze změny chování
+        // (pořád okamžité), jen informativní odkaz do Vaření pro cat:"food".
+        if (r.cat === 'food' && typeof NotificationSystem !== 'undefined' && NotificationSystem.modal) {
+            const lang = (GameState.settings && GameState.settings.language) || 'cs';
+            const outName = (typeof iName === 'function') ? iName(r.output) : r.output;
+            NotificationSystem.modal({
+                icon: '🍲',
+                title: lang === 'en' ? 'Cooked' : 'Uvařeno',
+                text: lang === 'en' ? `${outName} is ready. See it alongside other kitchen work in Cooking.` : `${outName} je hotové. Sleduj to spolu s ostatní kuchyní v tabu Vaření.`,
+                choices: [
+                    { label: lang === 'en' ? 'Go to Cooking' : 'Do Vaření', type: 'primary',
+                      effect: function() { if (typeof UI !== 'undefined' && UI.switchHomeSubTab) UI.switchHomeSubTab('cooking', document.getElementById('home-sub-cooking')); } },
+                    { label: lang === 'en' ? 'Continue' : 'Pokračovat', type: 'default', effect: function() {} },
+                ],
+            });
+        }
 
         // Vigor — přidat Fatigue dle výstupu
         if (typeof VigorSystem !== 'undefined') VigorSystem.onCraft(r.output);
@@ -65371,7 +65758,13 @@ const UI = {
         document.querySelectorAll('#home-main-content .filter-btn').forEach(b => b.classList.remove('active'));
         if (btn) btn.classList.add('active');
         if (tab === 'mine') { this.renderMineYieldInfo(); this.renderFodinaPetitionPanel(); this.renderMineActions(); }
-        if (tab === 'cooking' && cooking && typeof CookingSystem !== 'undefined') cooking.innerHTML = CookingSystem.render();
+        if (tab === 'cooking' && cooking && typeof CookingSystem !== 'undefined') {
+            // coquina-cheese-mirror-mrd (7.8.2026): sýry zrcadlené vedle
+            // CookingSystem procesů — samostatný systém (CheeseSystem), jen
+            // společné zobrazení, ne migrace do COOK_TYPES.
+            const cheeseHtml = (typeof CheeseSystem !== 'undefined' && CheeseSystem.render) ? CheeseSystem.render() : '';
+            cooking.innerHTML = CookingSystem.render() + cheeseHtml;
+        }
     },
 
     renderMineYieldInfo: function () {
