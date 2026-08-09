@@ -24937,7 +24937,7 @@ const CellariumSystem = {
       if (hasRegistrum && activeCat !== 'all' && itemCat !== activeCat) continue;
 
       let decayHtml = '';
-      let rate = ds ? ds.effectiveRate(id) : null;
+      let rate = ds ? ds.effectiveRate(id, qty) : null;
       if (rate !== null && rate !== undefined) {
         const pct = Math.round(rate * 100);
         const warn = pct >= 20;
@@ -29131,7 +29131,10 @@ const DecaySystem = {
 
     // ── Helpers pro Inventarium UI ────────────────────────────────────────
     // Efektivní denní sazba položky (po modifikátorech), null = nekazí se
-    effectiveRate: function(id) {
+    // qty (volitelné) — loose-herd sazba (viz FarmyardSystem) je qty-závislá
+    // (√n škálování), na rozdíl od DECAY_RATES/DURABLE_DECAY_RATES kde na
+    // qty nezáleží. Bez qty se pro zvířata vrátí null (stejné jako dřív).
+    effectiveRate: function(id, qty) {
         const def = this.DECAY_RATES[id];
         if (def) {
             let rate = def.rate * this.storageReduction() * (this.isOverflow() ? 2 : 1);
@@ -29143,6 +29146,12 @@ const DecaySystem = {
         if (durableDef) {
             const protectedNow = this.durableStorageProtects() && !(this.isOverflow() && this.perishableStockLow());
             return protectedNow ? 0 : durableDef.rate;
+        }
+        // Volné stádo (loose-herd-mrd, 9.8.2026) — jiný systém (FarmyardSystem),
+        // ale stejné volací místo, ať mají všechny UI seznamy jeden zdroj pravdy.
+        if (qty > 0 && typeof FarmyardSystem !== 'undefined' && FarmyardSystem.LOOSE_HERD_SPECIES
+            && FarmyardSystem.LOOSE_HERD_SPECIES.includes(id)) {
+            return 0.15 / Math.sqrt(qty);
         }
         return null;
     },
@@ -66054,7 +66063,7 @@ const UI = {
         // stejně jako scavenge dřív — decay-modal-fix, 9.8.2026).
         let decayHtml = '';
         if (typeof DecaySystem !== 'undefined' && DecaySystem.isActive && DecaySystem.isActive()) {
-            const rate = DecaySystem.effectiveRate(id);
+            const rate = DecaySystem.effectiveRate(id, qty);
             const isDurable = !!DecaySystem.DURABLE_DECAY_RATES[id];
             if (rate === null) {
                 decayHtml = `<div style="margin:10px 0;padding:8px 12px;background:rgba(90,154,90,0.08);border-radius:6px;border-left:3px solid #5a9a5a;font-size:0.85rem;">∞ ${lang === 'en' ? 'Does not decay' : 'Nekazí se'}</div>`;
