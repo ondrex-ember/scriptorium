@@ -160,7 +160,7 @@ const STRINGS_cs = {
             quietNote: 'Zvuky budou ztlumeny v této době'
         }
     },
-    craft: { filterAll: 'Vše', filterTool: 'Nástroje', filterMat: 'Materiály', filterFood: 'Jídlo', filterAlchemy: 'Alchymie', filterLore: 'Vědění', btn: 'Výroba', repair: 'Opravit' },
+    craft: { filterAll: 'Vše', filterTool: 'Nástroje', filterMat: 'Materiály', filterFood: 'Jídlo', filterAlchemy: 'Alchymie', filterLore: 'Vědění', btn: 'Výroba', repair: 'Opravit', cook: 'Uvařit' },
     inv: { filterAll: 'Vše', filterMat: 'Suroviny', filterTool: 'Nástroje', filterLore: 'Ostatní' },
     settings: { langLabel: '🗺️ Jazyk / Language' },
     actions: {
@@ -1367,6 +1367,7 @@ const STRINGS_cs = {
         stone: '🪨 Kamenné',
         iron: '⚒️ Železné',
         craft: '🪵 Řemeslo',
+        building: '🏗️ Stavby',
         fire: '🕯️ Oheň',
         parchment: '📜 Pergamen',
         codex: '📖 Kodex',

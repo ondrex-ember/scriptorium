@@ -671,3 +671,34 @@ RecipesDB.push(
     { id: "karmin", output: "karmin", qty: 1, req: { "cervec": 5 }, cat: "alchemy", locked: true,
       desc: "Pět drcených červců dá karmínově rudý pigment.", desc_en: "Five crushed cochineal grubs yield a crimson pigment." }
 );
+// ── COQUINA — doplnění chybějících receptů do Výroby (9.8.2026) ──────────
+// Mirror CookingSystem.COOK_TYPES — id MUSÍ sedět přesně, jinak se
+// Game.craft() redirect na CookingSystem.startCooking() nespustí (viz
+// core/game.js). RecipesDB req slouží jen k zobrazení/enable stavu karty;
+// skutečná spotřeba surovin proběhne uvnitř startCooking(). Nástroje
+// (barrel_tool) jako qty:0 — mirror cooked_meat/herbal_tea konvence.
+// needsBuild — nové pole, kontrolováno v UI.renderCrafting() (needsBuild).
+// kroupy jediný bez tech gate (needsTech chybí i v COOK_TYPES) — locked:false.
+RecipesDB.push(
+    { id: "pohanka_s_cesnekem", output: "pohanka_s_cesnekem", qty: 1, req: { "pohanka": 1, "garlic": 1, "linseed_oil": 1 }, cat: "food", locked: true },
+    { id: "sauerkraut", output: "sauerkraut", qty: 1, req: { "cabbage": 2, "salt": 1 }, cat: "food", locked: true },
+    { id: "zelnacka_s_kroupami", output: "zelnacka_s_kroupami", qty: 1, req: { "sauerkraut": 1, "kroupy": 2 }, cat: "food", locked: true },
+    { id: "pucalka", output: "pucalka", qty: 1, req: { "peas": 2 }, cat: "food", locked: true },
+    { id: "ovesna_kase", output: "ovesna_kase", qty: 1, req: { "oats": 2, "salt": 1 }, cat: "food", locked: true },
+    { id: "cibulova_jicha", output: "cibulova_jicha", qty: 1, req: { "onion": 2, "bread": 1 }, cat: "food", locked: true },
+    { id: "placky_z_popela", output: "placky_z_popela", qty: 1, req: { "flour": 2 }, cat: "food", locked: true },
+    { id: "vajecna_jicha", output: "vajecna_jicha", qty: 1, req: { "egg": 2, "vinegar": 1, "bread": 1 }, cat: "food", locked: true },
+    { id: "stika_s_maslem", output: "stika_s_maslem", qty: 1, req: { "stika": 1, "butter": 1 }, cat: "food", locked: true },
+    { id: "salted_pork", output: "salted_pork", qty: 1, req: { "pork": 1, "salt": 2, "barrel_tool": 0 }, cat: "food", locked: true },
+    { id: "salted_beef", output: "salted_beef", qty: 1, req: { "beef": 1, "salt": 2, "barrel_tool": 0 }, cat: "food", locked: true },
+    { id: "smoked_home_pork", output: "smoked_meat_home", qty: 1, req: { "salted_pork": 1 }, cat: "food", locked: true },
+    { id: "smoked_home_beef", output: "smoked_meat_home", qty: 1, req: { "salted_beef": 1 }, cat: "food", locked: true },
+    { id: "smoked_chimney_pork", output: "smoked_meat_chimney", qty: 1, req: { "salted_pork": 1 }, needsBuild: "cerna_kuchyne", cat: "food", locked: true },
+    { id: "smoked_chimney_beef", output: "smoked_meat_chimney", qty: 1, req: { "salted_beef": 1 }, needsBuild: "cerna_kuchyne", cat: "food", locked: true },
+    { id: "cured_meat", output: "cured_meat", qty: 1, req: { "salted_pork": 1, "log": 2 }, needsBuild: "udirna", cat: "food", locked: true },
+    { id: "cured_beef", output: "cured_beef", qty: 1, req: { "salted_beef": 1, "log": 2 }, needsBuild: "udirna", cat: "food", locked: true },
+    { id: "almond_paste", output: "almond_paste", qty: 1, req: { "almond": 3 }, needsBuild: "velky_hmozdir", cat: "food", locked: true },
+    { id: "ground_spice", output: "ground_spice", qty: 1, req: { "pepr_cerny": 2 }, needsBuild: "velky_hmozdir", cat: "food", locked: true },
+    { id: "pork_pie_abbot", output: "pork_pie_abbot", qty: 1, req: { "cured_meat": 3, "flour": 2, "ground_spice": 1, "lard": 1 }, needsBuild: "rozen", cat: "food", locked: true },
+    { id: "kroupy", output: "kroupy", qty: 2, req: { "barley": 3 }, cat: "food", locked: false }
+);

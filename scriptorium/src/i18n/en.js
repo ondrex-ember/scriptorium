@@ -43,7 +43,7 @@ const STRINGS_en = {
         torchDesc: 'It smokes and crackles, yet burns bright.',
         btnTorch: 'LIGHT TORCH', btnCandle: 'LIGHT CANDLE'
     },
-    craft: { filterAll: 'All', filterTool: 'Tools', filterMat: 'Materials', filterFood: 'Provisions', filterAlchemy: 'Alchemy', filterLore: 'Knowledge', btn: 'Craft', repair: 'Repair' },
+    craft: { filterAll: 'All', filterTool: 'Tools', filterMat: 'Materials', filterFood: 'Provisions', filterAlchemy: 'Alchemy', filterLore: 'Knowledge', btn: 'Craft', repair: 'Repair', cook: 'Cook' },
     inv: { filterAll: 'All', filterMat: 'Materials', filterTool: 'Tools', filterLore: 'Other' },
     settings: { langLabel: '🗺️ Language / Jazyk' },
     wellUI: {
@@ -2167,6 +2167,7 @@ According to Theophilus, the organ is an instrument worthy of God, but its const
         stone: '🪨 Stone',
         iron: '⚒️ Iron',
         craft: '🪵 Crafting',
+        building: '🏗️ Buildings',
         fire: '🕯️ Fire',
         parchment: '📜 Parchment',
         codex: '📖 Codex',

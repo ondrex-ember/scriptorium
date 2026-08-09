@@ -288,7 +288,7 @@ const TechTree = [
     cost: 10,
     desc: "Pietro de' Crescenzi, hospodářský manuál z počátku 14. století, nejopisovanější svého druhu. \"Maso budiž hrubou solí posypáno a v jizbě pod střechou zavěšeno, by kouřem z ohniště pomalu vysychalo.\" Odemkne: solení a pasivní uzení nad Ohništěm.",
     desc_en: "Pietro de' Crescenzi's agricultural manual from the early 14th century, the most widely copied of its kind. \"Let the meat be strewn with coarse salt and hung in the chamber beneath the roof, that it may slowly dry in the hearth's smoke.\" Unlocks: salting and passive smoking over the Hearth.",
-    unlocks: ["smoked_meat_home"], requires: ["tech_writing_basics"], requiresBook: "book_ruralia_meat"
+    unlocks: ["smoked_meat_home", "pohanka_s_cesnekem", "sauerkraut", "zelnacka_s_kroupami", "pucalka", "ovesna_kase", "cibulova_jicha", "placky_z_popela", "vajecna_jicha", "stika_s_maslem", "salted_pork", "salted_beef", "smoked_home_pork", "smoked_home_beef"], requires: ["tech_writing_basics"], requiresBook: "book_ruralia_meat"
   },
 
   // ── COQUINA TIER 2 — Černá kuchyně, Soplouch (Tacuinum Sanitatis) ────────
@@ -299,7 +299,7 @@ const TechTree = [
     cost: 17,
     desc: "Ibn Butlánův lékařský spis, přeložený z arabštiny na sicilském dvoře. Vepřové je svou přirozeností studené a vlhké — jen silný kouř a sůl je napraví, než ho tělo ochutná. Odemkne: stavbu Černé kuchyně se Soplouchem, vylepšené solné kádě.",
     desc_en: "Ibn Butlan's medical treatise, translated from Arabic at the Sicilian court. Pork is by nature cold and wet — only strong smoke and salt can correct it before the body tastes it. Unlocks: building the Black Kitchen with its Smoke-Hood, improved salting vats.",
-    unlocks: ["cerna_kuchyne"], requires: ["tech_ruralia_meat"], requiresBook: "book_tacuinum_carnium"
+    unlocks: ["cerna_kuchyne", "smoked_chimney_pork", "smoked_chimney_beef"], requires: ["tech_ruralia_meat"], requiresBook: "book_tacuinum_carnium"
   },
 
   // ── UDÍRNA (Ars Fumandi) — Coquina Tier 3 ────────────────────────────────
@@ -308,7 +308,7 @@ const TechTree = [
     cost: 31,
     desc: "Traktát o konzervaci masa. Sůl vytáhne vodu, studený kouř z tvrdého dřeva dokoná zbytek — nikdy ne ze smrku či borovice, ty maso znahořknou a otráví. Odemkne: stavbu Udírny, solení a uzení masa (subtab Vaření).",
     desc_en: "A treatise on preserving meat. Salt draws out the water; cold smoke from hardwood finishes the work — never spruce or pine, which turn meat bitter and poisonous. Unlocks: building the Smokehouse, salting and smoking meat (Cooking subtab).",
-    unlocks: ["udirna"], requires: ["tech_inventarium", "tech_tacuinum_sanitatis"], requiresBook: "book_buch_guter_speise"
+    unlocks: ["udirna", "cured_meat", "cured_beef"], requires: ["tech_inventarium", "tech_tacuinum_sanitatis"], requiresBook: "book_buch_guter_speise"
   },
 
   // ── COQUINA TIER 4 — Panská kuchyně (Platina, 1465) ──────────────────────
@@ -320,7 +320,7 @@ const TechTree = [
     cost: 45,
     desc: "Platina, papežský sekretář, sepsal letos deset knih o počestném požitku ze stolu. Recepty mistra Martina da Como, ospravedlněné humanistickým perem. Odemkne: Hmoždíř, Rožeň, elitní recepty pro vzácné hosty.",
     desc_en: "Platina, the Pope's secretary, wrote ten books this very year on honest pleasure at table. Recipes by master Martino da Como, justified by a humanist's pen. Unlocks: the Mortar, the Spit, elite recipes for honoured guests.",
-    unlocks: ["velky_hmozdir", "rozen"], requires: ["tech_udirna"], requiresBook: "book_platina_honesta"
+    unlocks: ["velky_hmozdir", "rozen", "almond_paste", "ground_spice", "pork_pie_abbot"], requires: ["tech_udirna"], requiresBook: "book_platina_honesta"
   },
 
   {

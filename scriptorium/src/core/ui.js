@@ -227,7 +227,7 @@ const UI = {
         let barIcon = '📦';
         let items = [];
 
-        if (sc === 'home' || sc === 'craft') {
+        if (sc === 'home') {
             barTitle = isCs ? 'Suroviny:' : 'Supplies:';
             barIcon = '📦';
             const woodCount = (inv.wood || 0) + (inv.log || 0);
@@ -245,6 +245,108 @@ const UI = {
                 { id: 'sharp_stone', icon: '🔪', label: isCs ? 'Úštěpky' : 'Flakes', count: flakeCount, subCount: rockCount, subLabel: isCs ? 'Kameny' : 'Rocks', key: 'sharp_stone' },
                 { id: 'rope', icon: '➰', label: isCs ? 'Provaz' : 'Twine', count: ropeCount, subCount: fiberCount, subLabel: isCs ? 'Vlákna' : 'Fibers', key: 'rope' }
             ];
+        } else if (sc === 'craft') {
+            // coquina-vyroba-mrd (9.8.2026): pill bar podle aktivního filtru Výroby.
+            // Data z auditu RecipesDB (spotřeba in-cat + downstream produkce) —
+            // ne jen "co recept žere", ale i "co kategorie vyrábí a kam to jde dál"
+            // (např. cut_stone se v 'stone' skoro nepoužije, ale je to flagship
+            // produkt 'craft' kategorie — proto patří tam, ne do Kamenných).
+            barIcon = '📦';
+            const flt = this.currentFilter || 'all';
+            const g = (id) => inv[id] || 0;
+            const barTitles = {
+                all: isCs ? 'Suroviny:' : 'Supplies:', stone: isCs ? 'Kamenné:' : 'Stone:',
+                iron: isCs ? 'Železné:' : 'Iron:', craft: isCs ? 'Řemeslo:' : 'Crafting:',
+                building: isCs ? 'Stavby:' : 'Buildings:', fire: isCs ? 'Oheň:' : 'Fire:',
+                parchment: isCs ? 'Pergamen:' : 'Parchment:', codex: isCs ? 'Kodex:' : 'Codex:',
+                food: isCs ? 'Jídlo:' : 'Food:', alchemy: isCs ? 'Alchymie:' : 'Alchemy:', lore: isCs ? 'Vědění:' : 'Knowledge:',
+            };
+            barTitle = barTitles[flt] || barTitles.all;
+
+            const filterItems = {
+                stone: [
+                    { id: 'stick', icon: '🪵', label: isCs ? 'Větev' : 'Branch', count: g('stick') },
+                    { id: 'rock', icon: '🪨', label: isCs ? 'Kámen' : 'Rock', count: g('rock') },
+                    { id: 'rope', icon: '➰', label: isCs ? 'Provaz' : 'Rope', count: g('rope'), subCount: g('fiber'), subLabel: isCs ? 'Vlákno' : 'Fiber' },
+                    { id: 'sharp_stone', icon: '🔪', label: isCs ? 'Úštěpky' : 'Flakes', count: g('sharp_stone'), subCount: g('rock'), subLabel: isCs ? 'Kámen' : 'Rock' },
+                ],
+                iron: [
+                    { id: 'iron_ingot', icon: '⚙️', label: isCs ? 'Železný ingot' : 'Iron Ingot', count: g('iron_ingot'), subCount: g('iron_ore'), subLabel: isCs ? 'Ruda' : 'Ore' },
+                    { id: 'iron_tongs', icon: '🔧', label: isCs ? 'Kleště' : 'Tongs', count: g('iron_tongs') },
+                    { id: 'rope', icon: '➰', label: isCs ? 'Provaz' : 'Rope', count: g('rope') },
+                    { id: 'wild_leather', icon: '🦴', label: isCs ? 'Hrubá useň' : 'Rawhide', count: g('wild_leather') },
+                    { id: 'plank', icon: '🪵', label: isCs ? 'Fošna' : 'Plank', count: g('plank') },
+                ],
+                craft: [
+                    { id: 'rope', icon: '➰', label: isCs ? 'Provaz' : 'Rope', count: g('rope'), subCount: g('fiber'), subLabel: isCs ? 'Vlákno' : 'Fiber' },
+                    { id: 'plank', icon: '🪵', label: isCs ? 'Fošna' : 'Plank', count: g('plank') },
+                    { id: 'cut_stone', icon: '🧱', label: isCs ? 'Tesaný kámen' : 'Cut Stone', count: g('cut_stone'), subCount: g('rock'), subLabel: isCs ? 'Kámen' : 'Rock' },
+                    { id: 'leather', icon: '🦌', label: isCs ? 'Kůže' : 'Leather', count: g('leather') },
+                    { id: 'wild_leather', icon: '🦴', label: isCs ? 'Hrubá useň' : 'Rawhide', count: g('wild_leather') },
+                ],
+                building: [
+                    { id: 'rope', icon: '➰', label: isCs ? 'Provaz' : 'Rope', count: g('rope') },
+                    { id: 'plank', icon: '🪵', label: isCs ? 'Fošna' : 'Plank', count: g('plank') },
+                    { id: 'iron_ingot', icon: '⚙️', label: isCs ? 'Železný ingot' : 'Iron Ingot', count: g('iron_ingot') },
+                    { id: 'log', icon: '🪵', label: isCs ? 'Kulatina' : 'Log', count: g('log') },
+                ],
+                fire: [
+                    { id: 'stick', icon: '🪵', label: isCs ? 'Větev' : 'Branch', count: g('stick') },
+                    { id: 'charcoal', icon: '⚫', label: isCs ? 'Uhel' : 'Charcoal', count: g('charcoal') },
+                    { id: 'fat', icon: '🥩', label: isCs ? 'Tuk' : 'Fat', count: g('fat') },
+                    { id: 'resin_spruce', icon: '🌲', label: isCs ? 'Smrk. pryskyřice' : 'Spruce Resin', count: g('resin_spruce') },
+                    { id: 'resin_pine', icon: '🌲', label: isCs ? 'Bor. pryskyřice' : 'Pine Resin', count: g('resin_pine') },
+                ],
+                parchment: [
+                    { id: 'paper', icon: '📄', label: isCs ? 'Papír' : 'Paper', count: g('paper'), subCount: g('pulp'), subLabel: isCs ? 'Hadrovina' : 'Pulp' },
+                    { id: 'ink', icon: '✒️', label: isCs ? 'Inkoust' : 'Ink', count: g('ink'), subCount: g('charcoal'), subLabel: isCs ? 'Uhel' : 'Charcoal' },
+                    { id: 'vellum', icon: '📜', label: isCs ? 'Pergamen' : 'Vellum', count: g('vellum') },
+                    { id: 'gall_nut', icon: '🫘', label: isCs ? 'Duběnka' : 'Gall Nut', count: g('gall_nut') },
+                    { id: 'rags', icon: '🧻', label: isCs ? 'Hadry' : 'Rags', count: g('rags') },
+                ],
+                codex: [
+                    { id: 'paper', icon: '📄', label: isCs ? 'Papír' : 'Paper', count: g('paper') },
+                    { id: 'ink', icon: '✒️', label: isCs ? 'Inkoust' : 'Ink', count: g('ink') },
+                    { id: 'vellum', icon: '📜', label: isCs ? 'Pergamen' : 'Vellum', count: g('vellum') },
+                    { id: 'leather', icon: '🦌', label: isCs ? 'Kůže' : 'Leather', count: g('leather') },
+                    { id: 'preservation_oil', icon: '🫙', label: isCs ? 'Konz. olej' : 'Preserv. Oil', count: g('preservation_oil') },
+                ],
+                food: [
+                    { id: 'water', icon: '💧', label: isCs ? 'Voda' : 'Water', count: g('water') },
+                    { id: 'honey', icon: '🍯', label: isCs ? 'Med' : 'Honey', count: g('honey') },
+                    { id: 'bread', icon: '🍞', label: isCs ? 'Chléb' : 'Bread', count: g('bread') },
+                    { id: 'salt', icon: '🧂', label: isCs ? 'Sůl' : 'Salt', count: g('salt') },
+                    { id: 'carrot', icon: '🥕', label: isCs ? 'Mrkev' : 'Carrot', count: g('carrot') },
+                    { id: 'onion', icon: '🧅', label: isCs ? 'Cibule' : 'Onion', count: g('onion') },
+                ],
+                alchemy: [
+                    { id: 'ash', icon: '🌫️', label: isCs ? 'Popel' : 'Ash', count: g('ash') },
+                    { id: 'herb_blue', icon: '💜', label: isCs ? 'Levandule' : 'Lavender', count: g('herb_blue') },
+                    { id: 'honey', icon: '🍯', label: isCs ? 'Med' : 'Honey', count: g('honey') },
+                    { id: 'preservation_oil', icon: '🫙', label: isCs ? 'Konz. olej' : 'Preserv. Oil', count: g('preservation_oil') },
+                    { id: 'charcoal', icon: '⚫', label: isCs ? 'Uhel' : 'Charcoal', count: g('charcoal') },
+                ],
+                lore: [
+                    { id: 'ink', icon: '✒️', label: isCs ? 'Inkoust' : 'Ink', count: g('ink') },
+                    { id: 'paper', icon: '📄', label: isCs ? 'Papír' : 'Paper', count: g('paper') },
+                    { id: 'charcoal', icon: '⚫', label: isCs ? 'Uhel' : 'Charcoal', count: g('charcoal') },
+                    { id: 'bone', icon: '☠️', label: isCs ? 'Kost' : 'Bone', count: g('bone') },
+                    { id: 'stick', icon: '🪵', label: isCs ? 'Větev' : 'Branch', count: g('stick') },
+                ],
+            };
+
+            if (flt === 'all' || !filterItems[flt]) {
+                const woodCount = (inv.wood || 0) + (inv.log || 0);
+                items = [
+                    { id: 'wood', icon: '🌲', label: isCs ? 'Dřevo' : 'Wood', count: woodCount },
+                    { id: 'stick', icon: '🌿', label: isCs ? 'Větve' : 'Branches', count: g('stick') },
+                    { id: 'fat', icon: '🥩', label: isCs ? 'Tuk' : 'Tallow', count: g('fat') },
+                    { id: 'sharp_stone', icon: '🔪', label: isCs ? 'Úštěpky' : 'Flakes', count: g('sharp_stone'), subCount: g('rock'), subLabel: isCs ? 'Kameny' : 'Rocks' },
+                    { id: 'rope', icon: '➰', label: isCs ? 'Provaz' : 'Twine', count: g('rope'), subCount: g('fiber'), subLabel: isCs ? 'Vlákna' : 'Fibers' },
+                ];
+            } else {
+                items = filterItems[flt];
+            }
         } else if (sc === 'garden') {
             barTitle = isCs ? 'Zahrada:' : 'Garden:';
             barIcon = '🌱';
@@ -361,8 +463,8 @@ const UI = {
             let valStr = `${item.count}`;
             if (item.subCount !== undefined && item.subCount > 0) {
                 let subTag = '';
-                if (item.key === 'sharp_stone') subTag = '⛰️';
-                else if (item.key === 'rope') subTag = '🌾';
+                if (item.id === 'sharp_stone') subTag = '⛰️';
+                else if (item.id === 'rope') subTag = '🌾';
 
                 if (item.key === 'unlocked' || item.key === 'read') {
                     valStr = `${item.count}<span class="res-subval" title="${item.subLabel}">/${item.subCount}</span>`;
@@ -813,6 +915,7 @@ const UI = {
         this.currentFilter = cat;
         if (btn) { document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active')); btn.classList.add('active'); }
         this.renderCrafting();
+        this.renderResourceTracker();
     },
     toggleCraftCategory: function (cat) {
         if (!GameState.uiPrefs) GameState.uiPrefs = { craftCollapsed: {} };
@@ -893,17 +996,35 @@ const UI = {
         }
     },
     renderCrafting: function () {
-        const _hCraft = JSON.stringify(GameState.unlockedRecipes) + JSON.stringify(GameState.inventory) + (this.currentFilter || 'all');
+        const _hCraft = JSON.stringify(GameState.unlockedRecipes) + JSON.stringify(GameState.inventory) + JSON.stringify(['cerna_kuchyne', 'udirna', 'velky_hmozdir', 'rozen'].map(b => GameState.storage && GameState.storage[b] && GameState.storage[b].built)) + (this.currentFilter || 'all');
         if (_hCraft === this._hashCraft) return;
         this._hashCraft = _hCraft;
         const el = document.getElementById('crafting-list'); el.innerHTML = "";
         const lang = (GameState.settings && GameState.settings.language) || 'cs';
+
+        // coquina-vyroba-mrd (9.8.2026): needsBuild — recepty vázané na budovu
+        // (Černá kuchyně, Udírna, Velký hmoždíř, Rožeň), mirror COOK_TYPES
+        // ve CookingSystem.js. Jméno budov jen pro zobrazení — zdroj pravdy
+        // (cost, req_tech) zůstává v CellariumSystem.js, nic se neduplikuje.
+        const buildNames = {
+            cerna_kuchyne: { cs: 'Černá kuchyně', en: 'Black Kitchen' },
+            udirna: { cs: 'Udírna', en: 'Smokehouse' },
+            velky_hmozdir: { cs: 'Velký hmoždíř', en: 'Great Mortar' },
+            rozen: { cs: 'Rožeň', en: 'Spit' },
+        };
+        const buildName = (id) => (buildNames[id] && buildNames[id][lang]) || id;
+        const hasBuild = (id) => !!(GameState.storage && GameState.storage[id] && GameState.storage[id].built);
 
         const renderRecipe = (r) => {
             const prod = ItemsDB[r.output]; let reqStr = ""; let can = true;
             for (let [id, amt] of Object.entries(r.req)) {
                 const has = GameState.inventory[id] || 0; if ((amt > 0 && has < amt) || (amt === 0 && !has)) can = false;
                 reqStr += `<span class="${(amt > 0 && has < amt) || (amt === 0 && !has) ? 'text-danger' : ''}">${amt === 0 ? t('game.required') : amt + 'x'} ${iName(id)}</span>, `;
+            }
+            if (r.needsBuild) {
+                const built = hasBuild(r.needsBuild);
+                if (!built) can = false;
+                reqStr += `<span class="${built ? '' : 'text-danger'}">+ 🏛️ ${buildName(r.needsBuild)}</span>, `;
             }
             const blindIcon = r.blind ? " 🌑" : "";
             const blindClass = r.blind ? " blind-recipe" : "";
@@ -934,7 +1055,8 @@ const UI = {
                 researchBadge = `<div style="margin-top:4px; font-size:0.75rem; color:${effColor};">✍️ ${effLabel} (${cnt}/hod)</div>${vigorBadge}`;
             }
 
-            return `<div class="card${blindClass}" data-recipe-id="${r.id}" style="opacity:${can ? 1 : 0.6}; position:relative;"><div class="item-icon">${prod.icon}</div><div style="flex:1"><strong>${iName(r.output)}${blindIcon}${ownedStr}</strong><div class="text-sm">${reqStr.slice(0, -2)}</div>${researchBadge}</div><button class="craft-btn" onclick="Game.craft('${r.id}')" ${can ? '' : 'disabled'}>${r.id.startsWith('repair_') ? t('craft.repair') : t('craft.btn')}</button></div>`;
+            const btnLabel = r.id.startsWith('repair_') ? t('craft.repair') : (r.cat === 'food' ? t('craft.cook') : t('craft.btn'));
+            return `<div class="card${blindClass}" data-recipe-id="${r.id}" style="opacity:${can ? 1 : 0.6}; position:relative;"><div class="item-icon">${prod.icon}</div><div style="flex:1"><strong>${iName(r.output)}${blindIcon}${ownedStr}</strong><div class="text-sm">${reqStr.slice(0, -2)}</div>${researchBadge}</div><button class="craft-btn" onclick="Game.craft('${r.id}')" ${can ? '' : 'disabled'}>${btnLabel}</button></div>`;
         };
 
         // Seskupení receptů se stejným výstupem (a stejnou kategorií) do jedné
@@ -974,6 +1096,11 @@ const UI = {
                     const toolNames = r.toolReq.map(tr => iName(tr.item)).join('/');
                     reqStr += ` <span class="${hasTool ? '' : 'text-danger'}">+ 🔧 ${toolNames}</span>`;
                 }
+                if (r.needsBuild) {
+                    const built = hasBuild(r.needsBuild);
+                    if (!built) can = false;
+                    reqStr += ` <span class="${built ? '' : 'text-danger'}">+ 🏛️ ${buildName(r.needsBuild)}</span>`;
+                }
                 if (r.qty && r.qty !== 1) reqStr += ` <span style="opacity:0.55;">→ ${r.qty}×</span>`;
                 if (can && bestId === null) { bestId = r.id; bestR = r; }
                 return `<span style="${can ? '' : 'opacity:0.6;'}">${reqStr}</span>`;
@@ -982,7 +1109,7 @@ const UI = {
             if (!anyCan) { bestId = fam[0].id; bestR = fam[0]; } // cíl pro disabled tlačítko
 
             const reqBlock = `<div class="text-sm">${parts.join(` <span style="opacity:0.5;">${orLabel}</span> `)}</div>`;
-            const btnLabel = bestR && bestR.id.startsWith('repair_') ? t('craft.repair') : t('craft.btn');
+            const btnLabel = bestR && bestR.id.startsWith('repair_') ? t('craft.repair') : (fam[0].cat === 'food' ? t('craft.cook') : t('craft.btn'));
             return `<div class="card" data-recipe-id="${bestId}" style="opacity:${anyCan ? 1 : 0.6}; position:relative;"><div class="item-icon">${prod.icon}</div><div style="flex:1"><strong>${iName(fam[0].output)}${ownedStr}</strong>${reqBlock}</div><button class="craft-btn" onclick="Game.craft('${bestId}')" ${anyCan ? '' : 'disabled'}>${btnLabel}</button></div>`;
         };
 
