@@ -555,6 +555,7 @@ const Game = {
         
         // NOW render UI (after theme is set and all systems initialized)
         UI.renderAll(); 
+        if (typeof AbbotSystem !== 'undefined' && AbbotSystem.renderPill) AbbotSystem.renderPill();
         Game.checkEnvironment();
         // Templum — viditelnost tabu hned při loadu (dřív jen po kliku na jiný tab / až 60s tick)
         if (typeof TemplumSystem !== 'undefined' && TemplumSystem.updateTabVisibility) TemplumSystem.updateTabVisibility();
@@ -746,6 +747,8 @@ const Game = {
                     if (typeof FarmyardSystem !== 'undefined' && FarmyardSystem.moodTick) FarmyardSystem.moodTick();
                     // Volné stádo — denní ubývání nasyslených/neumístěných zvířat (self-guarded 24h)
                     if (typeof FarmyardSystem !== 'undefined' && FarmyardSystem.looseHerdDailyTick) FarmyardSystem.looseHerdDailyTick();
+                    // Cestující opat — self-guarded ~3 dny (abbot-travel-mrd, 9.8.2026)
+                    if (typeof AbbotSystem !== 'undefined' && AbbotSystem.locationTick) AbbotSystem.locationTick();
                     // Myší populace — denní tick spawn/mortality/scraps (self-guarded 24h)
                     if (typeof ScriptoriumCat !== 'undefined' && ScriptoriumCat.miceTick) ScriptoriumCat.miceTick();
                     // Decay — denní kažení zásob (self-guarded 24h, gate tech_inventarium)
