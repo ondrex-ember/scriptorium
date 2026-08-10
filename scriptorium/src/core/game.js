@@ -3652,7 +3652,14 @@ const Game = {
             const fpTitle = document.getElementById('fireplace-title');
             if (fpTitle) fpTitle.innerText = t('fireplace.lit');
             const fpDesc = document.getElementById('fireplace-desc');
-            if (fpDesc) fpDesc.innerText = t('fireplace.litDesc');
+            // fireplace-tier2-mrd (9.8.2026): reálný status místo statické
+            // fráze — mirror _wordedBurnout z Foculus panelu, ať karta
+            // Oheň/dlaždice v Pracovně ukazuje totéž, co bohatý panel.
+            if (fpDesc) {
+                fpDesc.innerText = (typeof FireplaceSystem !== 'undefined' && FireplaceSystem._wordedBurnout && GameState.fire)
+                    ? FireplaceSystem._wordedBurnout(GameState.fire.fuelMs)
+                    : t('fireplace.litDesc');
+            }
             if (btnIgnite) btnIgnite.style.display = 'none';
             const fpVisualLit = document.getElementById('fireplace-visual');
             if (fpVisualLit) fpVisualLit.src = '/img/hearth_base_red.png';

@@ -871,10 +871,18 @@ const FireplaceSystem = {
             timeText.textContent = this._wordedBurnout(GameState.fire.fuelMs);
             timeText.title = `${Math.floor(GameState.fire.fuelMs / 3600000)}h ${Math.floor((GameState.fire.fuelMs % 3600000) / 60000)}m`;
 
+            // fireplace-tier2-mrd (9.8.2026): stejný status i na kartě
+            // Oheň/dlaždici v Pracovně (#fireplace-desc), ne jen tady v
+            // Foculu — mirror, ať se to hýbe live s každým tickem.
+            const fpDescLive = document.getElementById('fireplace-desc');
+            if (fpDescLive) fpDescLive.innerText = this._wordedBurnout(GameState.fire.fuelMs);
+
             const hasStick = (GameState.inventory['stick'] || 0) > 0;
             const hasLog = (GameState.inventory['log'] || 0) > 0;
+            const hasCharcoal = (GameState.inventory['charcoal'] || 0) > 0;
             const canFitStick = (GameState.fire.fuelMs + this.FUEL_VALUES['stick']) <= this.MAX_FUEL_MS;
             const canFitLog = (GameState.fire.fuelMs + this.FUEL_VALUES['log']) <= this.MAX_FUEL_MS;
+            const canFitCharcoal = (GameState.fire.fuelMs + this.FUEL_VALUES['charcoal']) <= this.MAX_FUEL_MS;
 
             if (btnStick) {
                 btnStick.disabled = !hasStick || !canFitStick;
@@ -887,6 +895,13 @@ const FireplaceSystem = {
                 btnLog.style.opacity = (!hasLog || !canFitLog) ? '0.5' : '1';
                 const lQty = GameState.inventory['log'] || 0;
                 btnLog.textContent = `+ ${iName('log')} (${lQty})`;
+            }
+            const btnCharcoal = document.getElementById('btn-fuel-charcoal');
+            if (btnCharcoal) {
+                btnCharcoal.disabled = !hasCharcoal || !canFitCharcoal;
+                btnCharcoal.style.opacity = (!hasCharcoal || !canFitCharcoal) ? '0.5' : '1';
+                const cQty = GameState.inventory['charcoal'] || 0;
+                btnCharcoal.textContent = `+ ${iName('charcoal')} (${cQty})`;
             }
         } else {
             panel.style.display = 'block';
