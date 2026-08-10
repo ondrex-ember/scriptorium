@@ -16,6 +16,7 @@ const STRINGS_en = {
         statusLabel: 'Fire status:',
         burnNow: 'dying out', burnSoon: 'burning out soon',
         burnToday: 'burns out today {part}', burnTomorrow: 'burns out tomorrow {part}',
+        tempHigh: '🌡️ Roaring fire', tempMedium: '🌡️ Steady warmth', tempLow: '🌡️ Faint embers',
         partMorning: 'in the morning', partAfternoon: 'in the afternoon', partEvening: 'in the evening', partNight: 'at night',
         dashTitle: 'Workshop status', dashWeather: 'Weather', dashWeatherNA: '—', dashEnviron: 'Environment',
         dashStav: 'Status', dashTime: 'Time & Calendar', dashForecast: 'Forecast',

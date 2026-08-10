@@ -146,6 +146,7 @@ const FireplaceSystem = {
 
         Game.removeItem(itemId, 1);
         GameState.fire.fuelMs += fuelAmount;
+        GameState.fire.lastFuelType = itemId; // fireplace-tier2-mrd (9.8.2026) — "čím je zatopeno"
         Game.save();
         this.render();
 
@@ -193,6 +194,26 @@ const FireplaceSystem = {
 
     // Slovní vyjádření času do vyhasnutí (palivo běží v reálném čase).
     // MAX palivo = 24h → výsledek je vždy "dnes" nebo "zítra" + denní doba.
+    // Přibližná teplota — mirror stejných prahů jako barva fuel baru (50%/20%)
+    _tempLabel: function(fuelMs) {
+        const pct = (fuelMs / this.MAX_FUEL_MS) * 100;
+        if (pct > 50) return t('fireplace.tempHigh');
+        if (pct > 20) return t('fireplace.tempMedium');
+        return t('fireplace.tempLow');
+    },
+
+    // Kompletní status pro kartu Oheň — teplota + čím zatopeno + kdy vyhasne
+    _fullStatusText: function(fuelMs) {
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        const parts = [this._tempLabel(fuelMs)];
+        const lastFuel = GameState.fire && GameState.fire.lastFuelType;
+        if (lastFuel && typeof iName === 'function') {
+            parts.push((lang === 'en' ? 'last: ' : 'naposledy: ') + iName(lastFuel));
+        }
+        parts.push(this._wordedBurnout(fuelMs));
+        return parts.join(' · ');
+    },
+
     _wordedBurnout: function(fuelMs) {
         if (fuelMs <= 0) return t('fireplace.burnNow');
         if (fuelMs < 30 * 60 * 1000) return t('fireplace.burnSoon');
@@ -871,11 +892,24 @@ const FireplaceSystem = {
             timeText.textContent = this._wordedBurnout(GameState.fire.fuelMs);
             timeText.title = `${Math.floor(GameState.fire.fuelMs / 3600000)}h ${Math.floor((GameState.fire.fuelMs % 3600000) / 60000)}m`;
 
+            // fireplace-tier2-layout-mrd (10.8.2026): teplota + čím naposledy
+            // zatopeno, do sloupcového layoutu vedle animace.
+            const tempFuelLine = document.getElementById('fireplace-temp-fuel-line');
+            if (tempFuelLine) {
+                const lang = (GameState.settings && GameState.settings.language) || 'cs';
+                const lastFuel = GameState.fire.lastFuelType;
+                let line = this._tempLabel(GameState.fire.fuelMs);
+                if (lastFuel && typeof iName === 'function') {
+                    line += ' · ' + (lang === 'en' ? 'last: ' : 'naposledy: ') + iName(lastFuel);
+                }
+                tempFuelLine.textContent = line;
+            }
+
             // fireplace-tier2-mrd (9.8.2026): stejný status i na kartě
             // Oheň/dlaždici v Pracovně (#fireplace-desc), ne jen tady v
             // Foculu — mirror, ať se to hýbe live s každým tickem.
             const fpDescLive = document.getElementById('fireplace-desc');
-            if (fpDescLive) fpDescLive.innerText = this._wordedBurnout(GameState.fire.fuelMs);
+            if (fpDescLive) fpDescLive.innerText = this._fullStatusText(GameState.fire.fuelMs);
 
             const hasStick = (GameState.inventory['stick'] || 0) > 0;
             const hasLog = (GameState.inventory['log'] || 0) > 0;

@@ -3773,34 +3773,40 @@
                         <div style="font-style:italic; font-size:0.9rem;" data-i18n="fireplace.foculusLocked"></div>
                     </div>
                     <div id="foculus-unlocked" style="display:none; position:relative;">
-                        <div style="position:relative; width:300px; max-width:100%; margin:0 auto 14px;">
-                            <div id="fireplace-visual-foculus"
-                                style="display:block; width:300px; height:320px; max-width:100%; background-image:url('/img/hearth_base_dead.png'); background-size:100% 100%; background-repeat:no-repeat; border-radius:8px; border:1px solid var(--ink-secondary, #6b5d4f); image-rendering:pixelated;">
-                            </div>
-                            <div id="cat-lane-top" style="position:absolute; bottom:0; left:0; right:0; height:100px;">
-                            </div>
-                        </div>
-                        <div id="fireplace-fuel-panel"
-                            style="display:none; padding:12px; border:1px solid var(--ink-secondary); border-radius:8px;">
-                            <div
-                                style="display:flex; justify-content:space-between; font-size:0.9rem; margin-bottom:8px;">
-                                <strong id="fireplace-status-text" style="color:var(--ink-secondary);"></strong>
-                                <span id="fireplace-time-left" style="font-weight:bold; color:var(--accent-gold);">0h
-                                    0m</span>
-                            </div>
-                            <div
-                                style="height:8px; background:rgba(0,0,0,0.2); border-radius:4px; overflow:hidden; margin-bottom:14px; border:1px solid rgba(197,160,89,0.3);">
-                                <div id="fireplace-fuel-bar"
-                                    style="height:100%; width:0%; background:#ffbd40; transition:width 0.5s, background-color 0.5s;">
+                        <!-- fireplace-tier2-layout-mrd (10.8.2026): 2 sloupce (animace|info),
+                             flex-wrap přirozeně složí pod sebe na úzkém displeji, žádná
+                             media query potřeba. -->
+                        <div style="display:flex; gap:16px; flex-wrap:wrap; align-items:flex-start; margin-bottom:14px;">
+                            <div style="position:relative; width:210px; max-width:100%; flex-shrink:0; margin:0 auto;">
+                                <div id="fireplace-visual-foculus"
+                                    style="display:block; width:210px; height:224px; max-width:100%; background-image:url('/img/hearth_base_dead.png'); background-size:100% 100%; background-repeat:no-repeat; border-radius:8px; border:1px solid var(--ink-secondary, #6b5d4f); image-rendering:pixelated;">
+                                </div>
+                                <div id="cat-lane-top" style="position:absolute; bottom:0; left:0; right:0; height:70px;">
                                 </div>
                             </div>
-                            <div style="display:flex; gap:8px;">
-                                <button class="filter-btn" onclick="FireplaceSystem.addFuel('stick')"
-                                    id="btn-fuel-stick" style="flex:1;">+ Větev</button>
-                                <button class="filter-btn" onclick="FireplaceSystem.addFuel('log')" id="btn-fuel-log"
-                                    style="flex:1;">+ Poleno</button>
-                                <button class="filter-btn" onclick="FireplaceSystem.addFuel('charcoal')" id="btn-fuel-charcoal"
-                                    style="flex:1;" title="+8h, nejdéle hoří">+ Uhlí</button>
+                            <div id="fireplace-fuel-panel"
+                                style="display:none; flex:1; min-width:220px; padding:12px; border:1px solid var(--ink-secondary); border-radius:8px;">
+                                <div
+                                    style="display:flex; justify-content:space-between; font-size:0.9rem; margin-bottom:4px;">
+                                    <strong id="fireplace-status-text" style="color:var(--ink-secondary);"></strong>
+                                    <span id="fireplace-time-left" style="font-weight:bold; color:var(--accent-gold);">0h
+                                        0m</span>
+                                </div>
+                                <div id="fireplace-temp-fuel-line" style="font-size:0.76rem; opacity:0.7; margin-bottom:10px;"></div>
+                                <div
+                                    style="height:8px; background:rgba(0,0,0,0.2); border-radius:4px; overflow:hidden; margin-bottom:14px; border:1px solid rgba(197,160,89,0.3);">
+                                    <div id="fireplace-fuel-bar"
+                                        style="height:100%; width:0%; background:#ffbd40; transition:width 0.5s, background-color 0.5s;">
+                                    </div>
+                                </div>
+                                <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                                    <button class="filter-btn" onclick="FireplaceSystem.addFuel('stick')"
+                                        id="btn-fuel-stick" style="flex:1; min-width:80px;">+ Větev</button>
+                                    <button class="filter-btn" onclick="FireplaceSystem.addFuel('log')" id="btn-fuel-log"
+                                        style="flex:1; min-width:80px;">+ Poleno</button>
+                                    <button class="filter-btn" onclick="FireplaceSystem.addFuel('charcoal')" id="btn-fuel-charcoal"
+                                        style="flex:1; min-width:80px;" title="+8h, nejdéle hoří">+ Uhlí</button>
+                                </div>
                             </div>
                         </div>
                         <div id="foculus-tech-locked" style="display:none; margin-top:16px; padding:16px; border:1px dashed rgba(197,160,89,0.4); border-radius:8px; text-align:center; background:rgba(0,0,0,0.15);">

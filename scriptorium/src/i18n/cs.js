@@ -15,6 +15,7 @@ const STRINGS_cs = {
         statusLabel: 'Stav ohně:',
         burnNow: 'vyhasíná', burnSoon: 'brzy vyhasne',
         burnToday: 'vyhasne dnes {part}', burnTomorrow: 'vyhasne zítra {part}',
+        tempHigh: '🌡️ Žhavý oheň', tempMedium: '🌡️ Mírný žár', tempLow: '🌡️ Slabě doutná',
         partMorning: 'ráno', partAfternoon: 'odpoledne', partEvening: 'večer', partNight: 'v noci',
         dashTitle: 'Stav pracovny', dashWeather: 'Počasí', dashWeatherNA: '—', dashEnviron: 'Prostředí',
         dashStav: 'Stav', dashTime: 'Čas & Kalendář', dashForecast: 'Předpověď',

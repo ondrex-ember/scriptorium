@@ -3656,8 +3656,8 @@ const Game = {
             // fráze — mirror _wordedBurnout z Foculus panelu, ať karta
             // Oheň/dlaždice v Pracovně ukazuje totéž, co bohatý panel.
             if (fpDesc) {
-                fpDesc.innerText = (typeof FireplaceSystem !== 'undefined' && FireplaceSystem._wordedBurnout && GameState.fire)
-                    ? FireplaceSystem._wordedBurnout(GameState.fire.fuelMs)
+                fpDesc.innerText = (typeof FireplaceSystem !== 'undefined' && FireplaceSystem._fullStatusText && GameState.fire)
+                    ? FireplaceSystem._fullStatusText(GameState.fire.fuelMs)
                     : t('fireplace.litDesc');
             }
             if (btnIgnite) btnIgnite.style.display = 'none';
