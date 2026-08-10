@@ -3773,34 +3773,40 @@
                         <div style="font-style:italic; font-size:0.9rem;" data-i18n="fireplace.foculusLocked"></div>
                     </div>
                     <div id="foculus-unlocked" style="display:none; position:relative;">
-                        <div style="position:relative; width:300px; max-width:100%; margin:0 auto 14px;">
-                            <div id="fireplace-visual-foculus"
-                                style="display:block; width:300px; height:320px; max-width:100%; background-image:url('/img/hearth_base_dead.png'); background-size:100% 100%; background-repeat:no-repeat; border-radius:8px; border:1px solid var(--ink-secondary, #6b5d4f); image-rendering:pixelated;">
-                            </div>
-                            <div id="cat-lane-top" style="position:absolute; bottom:0; left:0; right:0; height:100px;">
-                            </div>
-                        </div>
-                        <div id="fireplace-fuel-panel"
-                            style="display:none; padding:12px; border:1px solid var(--ink-secondary); border-radius:8px;">
-                            <div
-                                style="display:flex; justify-content:space-between; font-size:0.9rem; margin-bottom:8px;">
-                                <strong id="fireplace-status-text" style="color:var(--ink-secondary);"></strong>
-                                <span id="fireplace-time-left" style="font-weight:bold; color:var(--accent-gold);">0h
-                                    0m</span>
-                            </div>
-                            <div
-                                style="height:8px; background:rgba(0,0,0,0.2); border-radius:4px; overflow:hidden; margin-bottom:14px; border:1px solid rgba(197,160,89,0.3);">
-                                <div id="fireplace-fuel-bar"
-                                    style="height:100%; width:0%; background:#ffbd40; transition:width 0.5s, background-color 0.5s;">
+                        <!-- fireplace-tier2-layout-mrd (10.8.2026): 2 sloupce (animace|info),
+                             flex-wrap přirozeně složí pod sebe na úzkém displeji, žádná
+                             media query potřeba. -->
+                        <div style="display:flex; gap:16px; flex-wrap:wrap; align-items:flex-start; margin-bottom:14px;">
+                            <div style="position:relative; width:210px; max-width:100%; flex-shrink:0; margin:0 auto;">
+                                <div id="fireplace-visual-foculus"
+                                    style="display:block; width:210px; height:224px; max-width:100%; background-image:url('/img/hearth_base_dead.png'); background-size:100% 100%; background-repeat:no-repeat; border-radius:8px; border:1px solid var(--ink-secondary, #6b5d4f); image-rendering:pixelated;">
+                                </div>
+                                <div id="cat-lane-top" style="position:absolute; bottom:0; left:0; right:0; height:70px;">
                                 </div>
                             </div>
-                            <div style="display:flex; gap:8px;">
-                                <button class="filter-btn" onclick="FireplaceSystem.addFuel('stick')"
-                                    id="btn-fuel-stick" style="flex:1;">+ Větev</button>
-                                <button class="filter-btn" onclick="FireplaceSystem.addFuel('log')" id="btn-fuel-log"
-                                    style="flex:1;">+ Poleno</button>
-                                <button class="filter-btn" onclick="FireplaceSystem.addFuel('charcoal')" id="btn-fuel-charcoal"
-                                    style="flex:1;" title="+8h, nejdéle hoří">+ Uhlí</button>
+                            <div id="fireplace-fuel-panel"
+                                style="display:none; flex:1; min-width:220px; padding:12px; border:1px solid var(--ink-secondary); border-radius:8px;">
+                                <div
+                                    style="display:flex; justify-content:space-between; font-size:0.9rem; margin-bottom:4px;">
+                                    <strong id="fireplace-status-text" style="color:var(--ink-secondary);"></strong>
+                                    <span id="fireplace-time-left" style="font-weight:bold; color:var(--accent-gold);">0h
+                                        0m</span>
+                                </div>
+                                <div id="fireplace-temp-fuel-line" style="font-size:0.76rem; opacity:0.7; margin-bottom:10px;"></div>
+                                <div
+                                    style="height:8px; background:rgba(0,0,0,0.2); border-radius:4px; overflow:hidden; margin-bottom:14px; border:1px solid rgba(197,160,89,0.3);">
+                                    <div id="fireplace-fuel-bar"
+                                        style="height:100%; width:0%; background:#ffbd40; transition:width 0.5s, background-color 0.5s;">
+                                    </div>
+                                </div>
+                                <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                                    <button class="filter-btn" onclick="FireplaceSystem.addFuel('stick')"
+                                        id="btn-fuel-stick" style="flex:1; min-width:80px;">+ Větev</button>
+                                    <button class="filter-btn" onclick="FireplaceSystem.addFuel('log')" id="btn-fuel-log"
+                                        style="flex:1; min-width:80px;">+ Poleno</button>
+                                    <button class="filter-btn" onclick="FireplaceSystem.addFuel('charcoal')" id="btn-fuel-charcoal"
+                                        style="flex:1; min-width:80px;" title="+8h, nejdéle hoří">+ Uhlí</button>
+                                </div>
                             </div>
                         </div>
                         <div id="foculus-tech-locked" style="display:none; margin-top:16px; padding:16px; border:1px dashed rgba(197,160,89,0.4); border-radius:8px; text-align:center; background:rgba(0,0,0,0.15);">
@@ -31919,6 +31925,7 @@ const FireplaceSystem = {
 
         Game.removeItem(itemId, 1);
         GameState.fire.fuelMs += fuelAmount;
+        GameState.fire.lastFuelType = itemId; // fireplace-tier2-mrd (9.8.2026) — "čím je zatopeno"
         Game.save();
         this.render();
 
@@ -31966,6 +31973,26 @@ const FireplaceSystem = {
 
     // Slovní vyjádření času do vyhasnutí (palivo běží v reálném čase).
     // MAX palivo = 24h → výsledek je vždy "dnes" nebo "zítra" + denní doba.
+    // Přibližná teplota — mirror stejných prahů jako barva fuel baru (50%/20%)
+    _tempLabel: function(fuelMs) {
+        const pct = (fuelMs / this.MAX_FUEL_MS) * 100;
+        if (pct > 50) return t('fireplace.tempHigh');
+        if (pct > 20) return t('fireplace.tempMedium');
+        return t('fireplace.tempLow');
+    },
+
+    // Kompletní status pro kartu Oheň — teplota + čím zatopeno + kdy vyhasne
+    _fullStatusText: function(fuelMs) {
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        const parts = [this._tempLabel(fuelMs)];
+        const lastFuel = GameState.fire && GameState.fire.lastFuelType;
+        if (lastFuel && typeof iName === 'function') {
+            parts.push((lang === 'en' ? 'last: ' : 'naposledy: ') + iName(lastFuel));
+        }
+        parts.push(this._wordedBurnout(fuelMs));
+        return parts.join(' · ');
+    },
+
     _wordedBurnout: function(fuelMs) {
         if (fuelMs <= 0) return t('fireplace.burnNow');
         if (fuelMs < 30 * 60 * 1000) return t('fireplace.burnSoon');
@@ -32644,11 +32671,24 @@ const FireplaceSystem = {
             timeText.textContent = this._wordedBurnout(GameState.fire.fuelMs);
             timeText.title = `${Math.floor(GameState.fire.fuelMs / 3600000)}h ${Math.floor((GameState.fire.fuelMs % 3600000) / 60000)}m`;
 
+            // fireplace-tier2-layout-mrd (10.8.2026): teplota + čím naposledy
+            // zatopeno, do sloupcového layoutu vedle animace.
+            const tempFuelLine = document.getElementById('fireplace-temp-fuel-line');
+            if (tempFuelLine) {
+                const lang = (GameState.settings && GameState.settings.language) || 'cs';
+                const lastFuel = GameState.fire.lastFuelType;
+                let line = this._tempLabel(GameState.fire.fuelMs);
+                if (lastFuel && typeof iName === 'function') {
+                    line += ' · ' + (lang === 'en' ? 'last: ' : 'naposledy: ') + iName(lastFuel);
+                }
+                tempFuelLine.textContent = line;
+            }
+
             // fireplace-tier2-mrd (9.8.2026): stejný status i na kartě
             // Oheň/dlaždici v Pracovně (#fireplace-desc), ne jen tady v
             // Foculu — mirror, ať se to hýbe live s každým tickem.
             const fpDescLive = document.getElementById('fireplace-desc');
-            if (fpDescLive) fpDescLive.innerText = this._wordedBurnout(GameState.fire.fuelMs);
+            if (fpDescLive) fpDescLive.innerText = this._fullStatusText(GameState.fire.fuelMs);
 
             const hasStick = (GameState.inventory['stick'] || 0) > 0;
             const hasLog = (GameState.inventory['log'] || 0) > 0;
@@ -51816,6 +51856,7 @@ const STRINGS_cs = {
         statusLabel: 'Stav ohně:',
         burnNow: 'vyhasíná', burnSoon: 'brzy vyhasne',
         burnToday: 'vyhasne dnes {part}', burnTomorrow: 'vyhasne zítra {part}',
+        tempHigh: '🌡️ Žhavý oheň', tempMedium: '🌡️ Mírný žár', tempLow: '🌡️ Slabě doutná',
         partMorning: 'ráno', partAfternoon: 'odpoledne', partEvening: 'večer', partNight: 'v noci',
         dashTitle: 'Stav pracovny', dashWeather: 'Počasí', dashWeatherNA: '—', dashEnviron: 'Prostředí',
         dashStav: 'Stav', dashTime: 'Čas & Kalendář', dashForecast: 'Předpověď',
@@ -54125,6 +54166,7 @@ const STRINGS_en = {
         statusLabel: 'Fire status:',
         burnNow: 'dying out', burnSoon: 'burning out soon',
         burnToday: 'burns out today {part}', burnTomorrow: 'burns out tomorrow {part}',
+        tempHigh: '🌡️ Roaring fire', tempMedium: '🌡️ Steady warmth', tempLow: '🌡️ Faint embers',
         partMorning: 'in the morning', partAfternoon: 'in the afternoon', partEvening: 'in the evening', partNight: 'at night',
         dashTitle: 'Workshop status', dashWeather: 'Weather', dashWeatherNA: '—', dashEnviron: 'Environment',
         dashStav: 'Status', dashTime: 'Time & Calendar', dashForecast: 'Forecast',
@@ -61187,8 +61229,8 @@ const Game = {
             // fráze — mirror _wordedBurnout z Foculus panelu, ať karta
             // Oheň/dlaždice v Pracovně ukazuje totéž, co bohatý panel.
             if (fpDesc) {
-                fpDesc.innerText = (typeof FireplaceSystem !== 'undefined' && FireplaceSystem._wordedBurnout && GameState.fire)
-                    ? FireplaceSystem._wordedBurnout(GameState.fire.fuelMs)
+                fpDesc.innerText = (typeof FireplaceSystem !== 'undefined' && FireplaceSystem._fullStatusText && GameState.fire)
+                    ? FireplaceSystem._fullStatusText(GameState.fire.fuelMs)
                     : t('fireplace.litDesc');
             }
             if (btnIgnite) btnIgnite.style.display = 'none';
