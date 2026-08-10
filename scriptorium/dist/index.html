@@ -3799,6 +3799,8 @@
                                     id="btn-fuel-stick" style="flex:1;">+ Větev</button>
                                 <button class="filter-btn" onclick="FireplaceSystem.addFuel('log')" id="btn-fuel-log"
                                     style="flex:1;">+ Poleno</button>
+                                <button class="filter-btn" onclick="FireplaceSystem.addFuel('charcoal')" id="btn-fuel-charcoal"
+                                    style="flex:1;" title="+8h, nejdéle hoří">+ Uhlí</button>
                             </div>
                         </div>
                         <div id="foculus-tech-locked" style="display:none; margin-top:16px; padding:16px; border:1px dashed rgba(197,160,89,0.4); border-radius:8px; text-align:center; background:rgba(0,0,0,0.15);">
@@ -32642,10 +32644,18 @@ const FireplaceSystem = {
             timeText.textContent = this._wordedBurnout(GameState.fire.fuelMs);
             timeText.title = `${Math.floor(GameState.fire.fuelMs / 3600000)}h ${Math.floor((GameState.fire.fuelMs % 3600000) / 60000)}m`;
 
+            // fireplace-tier2-mrd (9.8.2026): stejný status i na kartě
+            // Oheň/dlaždici v Pracovně (#fireplace-desc), ne jen tady v
+            // Foculu — mirror, ať se to hýbe live s každým tickem.
+            const fpDescLive = document.getElementById('fireplace-desc');
+            if (fpDescLive) fpDescLive.innerText = this._wordedBurnout(GameState.fire.fuelMs);
+
             const hasStick = (GameState.inventory['stick'] || 0) > 0;
             const hasLog = (GameState.inventory['log'] || 0) > 0;
+            const hasCharcoal = (GameState.inventory['charcoal'] || 0) > 0;
             const canFitStick = (GameState.fire.fuelMs + this.FUEL_VALUES['stick']) <= this.MAX_FUEL_MS;
             const canFitLog = (GameState.fire.fuelMs + this.FUEL_VALUES['log']) <= this.MAX_FUEL_MS;
+            const canFitCharcoal = (GameState.fire.fuelMs + this.FUEL_VALUES['charcoal']) <= this.MAX_FUEL_MS;
 
             if (btnStick) {
                 btnStick.disabled = !hasStick || !canFitStick;
@@ -32658,6 +32668,13 @@ const FireplaceSystem = {
                 btnLog.style.opacity = (!hasLog || !canFitLog) ? '0.5' : '1';
                 const lQty = GameState.inventory['log'] || 0;
                 btnLog.textContent = `+ ${iName('log')} (${lQty})`;
+            }
+            const btnCharcoal = document.getElementById('btn-fuel-charcoal');
+            if (btnCharcoal) {
+                btnCharcoal.disabled = !hasCharcoal || !canFitCharcoal;
+                btnCharcoal.style.opacity = (!hasCharcoal || !canFitCharcoal) ? '0.5' : '1';
+                const cQty = GameState.inventory['charcoal'] || 0;
+                btnCharcoal.textContent = `+ ${iName('charcoal')} (${cQty})`;
             }
         } else {
             panel.style.display = 'block';
@@ -61166,7 +61183,14 @@ const Game = {
             const fpTitle = document.getElementById('fireplace-title');
             if (fpTitle) fpTitle.innerText = t('fireplace.lit');
             const fpDesc = document.getElementById('fireplace-desc');
-            if (fpDesc) fpDesc.innerText = t('fireplace.litDesc');
+            // fireplace-tier2-mrd (9.8.2026): reálný status místo statické
+            // fráze — mirror _wordedBurnout z Foculus panelu, ať karta
+            // Oheň/dlaždice v Pracovně ukazuje totéž, co bohatý panel.
+            if (fpDesc) {
+                fpDesc.innerText = (typeof FireplaceSystem !== 'undefined' && FireplaceSystem._wordedBurnout && GameState.fire)
+                    ? FireplaceSystem._wordedBurnout(GameState.fire.fuelMs)
+                    : t('fireplace.litDesc');
+            }
             if (btnIgnite) btnIgnite.style.display = 'none';
             const fpVisualLit = document.getElementById('fireplace-visual');
             if (fpVisualLit) fpVisualLit.src = '/img/hearth_base_red.png';
