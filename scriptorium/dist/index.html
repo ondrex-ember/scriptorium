@@ -3613,6 +3613,10 @@
                         <span>📜</span>
                         <span class="hpill-val" id="pill-progress-val">–</span>
                     </div>
+                    <div class="hpill" id="pill-abbot" onclick="AbbotSystem.openTab()" title="Opat">
+                        <span id="pill-abbot-icon">🏠</span>
+                        <span class="hpill-val" id="pill-abbot-val">–</span>
+                    </div>
                     <div class="hpill" id="pill-chronicon" onclick="ChroniconSystem.openModal()" title="Chronicon – Živý svět Olomoucka 1465">
                         <span>📯</span>
                         <span class="hpill-val" id="pill-chronicon-val">1465</span>
@@ -42108,6 +42112,109 @@ const AbbotSystem = {
         },
     ],
 
+    // ── Cestující opat (abbot-travel-mrd, 9.8.2026) ─────────────────────────
+    // 3 polohy: přítomen v klášteře / na cestách / v Olomouckém opatství.
+    // Váhovaný náhodný tick, self-guarded ~3 dny (mirror "jen na nějaká
+    // období", ne denní přeskakování). Vysoké inquisitionHeat táhne pryč
+    // (jedná s biskupem, hasí problém), vysoký abbotFavor táhne domů.
+    LOCATIONS: {
+        present: { icon: '🏠', name_cs: 'V klášteře', name_en: 'At the Monastery' },
+        traveling: { icon: '🚶', name_cs: 'Na cestách', name_en: 'Traveling' },
+        abbey: { icon: '🏛️', name_cs: 'V Olomouckém opatství', name_en: 'At the Olomouc Abbey' },
+    },
+    LOCATION_TICK_DAYS: 3,
+
+    _locationWeights: function () {
+        const favor = (GameState.secrets && GameState.secrets.abbotFavor) || 0;
+        const heat = (GameState.secrets && GameState.secrets.inquisitionHeat) || 0;
+        let w = { present: 40, traveling: 35, abbey: 25 };
+        if (heat >= 50) { w.abbey += 25; w.present -= 15; w.traveling -= 10; }
+        else if (heat >= 30) { w.abbey += 10; w.present -= 5; w.traveling -= 5; }
+        if (favor >= 15) { w.present += 15; w.traveling -= 5; w.abbey -= 10; }
+        else if (favor <= -15) { w.present -= 10; w.abbey += 10; }
+        // ŽIVÝ Chronicon — klasterMood/vztah s Vrchností (sdílený svět,
+        // ne jen tento hráč). Byl to přehmat nechat to jen lokální —
+        // opat má být SDÍLENÁ persona, ne dvě oddělené postavy.
+        if (typeof ChroniconSystem !== 'undefined' && ChroniconSystem._snap && Array.isArray(ChroniconSystem._snap.actors)) {
+            const klaster = ChroniconSystem._snap.actors.find(a => a.id === 'klaster');
+            if (klaster) {
+                if (klaster.mood < 40) { w.abbey += 15; w.traveling += 5; w.present -= 15; }
+                else if (klaster.mood >= 70) { w.present += 10; w.abbey -= 5; }
+                const vrchnostRel = klaster.relations && klaster.relations.vrchnost;
+                if (typeof vrchnostRel === 'number' && vrchnostRel < -20) { w.abbey += 15; w.present -= 10; }
+            }
+        }
+        w.present = Math.max(5, w.present);
+        w.traveling = Math.max(5, w.traveling);
+        w.abbey = Math.max(5, w.abbey);
+        return w;
+    },
+
+    _pickWeighted: function (w) {
+        const total = w.present + w.traveling + w.abbey;
+        let r = Math.random() * total;
+        if (r < w.present) return 'present';
+        r -= w.present;
+        if (r < w.traveling) return 'traveling';
+        return 'abbey';
+    },
+
+    _locationChangeFlavor: function (loc, isCs) {
+        const texts = {
+            present: { cs: 'Opat se vrátil do kláštera.', en: 'The abbot has returned to the monastery.' },
+            traveling: { cs: 'Opat se vydal na cestu.', en: 'The abbot has set out on the road.' },
+            abbey: { cs: 'Opat odjel jednat do Olomouckého opatství.', en: 'The abbot has departed to attend to matters at the Olomouc Abbey.' },
+        };
+        return isCs ? texts[loc].cs : texts[loc].en;
+    },
+
+    locationTick: function () {
+        if (!GameState.abbotLocation) GameState.abbotLocation = 'present';
+        const now = Date.now();
+        const dayMs = 24 * 60 * 60 * 1000;
+        if (!GameState.abbotLocationNextTick) {
+            GameState.abbotLocationNextTick = now + Math.round(dayMs * this.LOCATION_TICK_DAYS * 0.5);
+            return;
+        }
+        if (now < GameState.abbotLocationNextTick) return;
+        GameState.abbotLocationNextTick = now + dayMs * this.LOCATION_TICK_DAYS;
+
+        const newLoc = this._pickWeighted(this._locationWeights());
+        if (newLoc === GameState.abbotLocation) return; // beze změny, žádná notifikace navíc
+        GameState.abbotLocation = newLoc;
+        this.renderPill();
+
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        const isCs = lang !== 'en';
+        if (typeof NotificationSystem !== 'undefined' && NotificationSystem.panel) {
+            NotificationSystem.panel(this.LOCATIONS[newLoc].icon + ' ' + this._locationChangeFlavor(newLoc, isCs), 'system');
+        }
+        // ZPĚT do Chroniconu (abbot-travel-mrd, 9.8.2026) — dřív jednosměrné
+        // (svět → poloha), teď i poloha → svět. Osobní přítomnost v Olomouci
+        // = skutečné jednání s biskupstvím, přispívá do sdíleného signálu
+        // stejně jako mše/Kategorie D (mirror _reportActorFavorIfNewDay).
+        if (newLoc === 'abbey' && typeof ChroniconSystem !== 'undefined' && ChroniconSystem._reportActorFavorIfNewDay) {
+            ChroniconSystem._reportActorFavorIfNewDay('klaster');
+        }
+        if (typeof Game !== 'undefined' && Game.save) Game.save();
+    },
+
+    renderPill: function () {
+        const loc = GameState.abbotLocation || 'present';
+        const def = this.LOCATIONS[loc];
+        const iconEl = document.getElementById('pill-abbot-icon');
+        const valEl = document.getElementById('pill-abbot-val');
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        if (iconEl) iconEl.textContent = def.icon;
+        if (valEl) valEl.textContent = lang === 'en' ? def.name_en : def.name_cs;
+    },
+
+    openTab: function () {
+        if (typeof UI !== 'undefined' && UI.switchScreen) UI.switchScreen('library');
+        const btn = document.getElementById('lib-tab-opat');
+        if (typeof UI !== 'undefined' && UI.switchLibraryTab && btn) UI.switchLibraryTab('opat', btn);
+    },
+
     // Váhování abbotFavorDelta podle Bernardova charakteru. Volané z
     // CommitmentsSystem.resolveLocalAkter TĚSNĚ před zápisem do
     // GameState.secrets.abbotFavor — inquisitionHeatDelta zůstává
@@ -42120,9 +42227,6 @@ const AbbotSystem = {
         return mult;
     },
 
-
-    // ale inline text (ne i18n dictionary — mirror letters.js/Zakázky
-    // katalog vzoru pro obsahově těžké, ne mechanicky sdílené texty).
     // Fuzzy popis abbotFavor — mirror DecaySystem.miceFuzzyShort stylu,
     // ale inline text (ne i18n dictionary — mirror letters.js/Zakázky
     // katalog vzoru pro obsahově těžké, ne mechanicky sdílené texty).
@@ -42187,6 +42291,7 @@ const AbbotSystem = {
                     <div style="flex:1;">
                         <div style="font-size:1.05rem; font-weight:bold;">${c.name}</div>
                         <div style="font-size:0.76rem; opacity:0.65; margin-bottom:4px;">${isCs ? 'nar.' : 'b.'} ${c.born} — ${isCs ? '13. opat, od' : '13th abbot, since'} ${c.since}</div>
+                        <div style="font-size:0.78rem; margin-bottom:4px;">${this.LOCATIONS[GameState.abbotLocation || 'present'].icon} ${isCs ? this.LOCATIONS[GameState.abbotLocation || 'present'].name_cs : this.LOCATIONS[GameState.abbotLocation || 'present'].name_en}</div>
                         <div style="font-size:0.78rem; font-style:italic; color:#a08040;">„${c.motto}“ <span style="opacity:0.6;">— ${c.motto_en_gloss}</span></div>
                         <div style="font-size:0.78rem; margin-top:6px; display:flex; gap:6px; flex-wrap:wrap;">
                             ${this.TRAITS.map(tr => `<span style="background:rgba(197,160,89,0.15); border-radius:4px; padding:2px 8px;" title="${isCs ? tr.desc_cs : tr.desc_en}">${isCs ? tr.name_cs : tr.name_en}</span>`).join('')}
@@ -57836,6 +57941,7 @@ const Game = {
         
         // NOW render UI (after theme is set and all systems initialized)
         UI.renderAll(); 
+        if (typeof AbbotSystem !== 'undefined' && AbbotSystem.renderPill) AbbotSystem.renderPill();
         Game.checkEnvironment();
         // Templum — viditelnost tabu hned při loadu (dřív jen po kliku na jiný tab / až 60s tick)
         if (typeof TemplumSystem !== 'undefined' && TemplumSystem.updateTabVisibility) TemplumSystem.updateTabVisibility();
@@ -58027,6 +58133,8 @@ const Game = {
                     if (typeof FarmyardSystem !== 'undefined' && FarmyardSystem.moodTick) FarmyardSystem.moodTick();
                     // Volné stádo — denní ubývání nasyslených/neumístěných zvířat (self-guarded 24h)
                     if (typeof FarmyardSystem !== 'undefined' && FarmyardSystem.looseHerdDailyTick) FarmyardSystem.looseHerdDailyTick();
+                    // Cestující opat — self-guarded ~3 dny (abbot-travel-mrd, 9.8.2026)
+                    if (typeof AbbotSystem !== 'undefined' && AbbotSystem.locationTick) AbbotSystem.locationTick();
                     // Myší populace — denní tick spawn/mortality/scraps (self-guarded 24h)
                     if (typeof ScriptoriumCat !== 'undefined' && ScriptoriumCat.miceTick) ScriptoriumCat.miceTick();
                     // Decay — denní kažení zásob (self-guarded 24h, gate tech_inventarium)
