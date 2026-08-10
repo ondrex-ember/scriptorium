@@ -87,10 +87,50 @@ const TemplumSystem = {
               </div>`;
     },
 
+    // dymka-templum-mrd (9.8.2026) — dočasné pozastavení, NE degradace ranku.
+    // Rank frater+ zůstává navždy (týdny práce se nemažou), jen se dočasně
+    // zamkne PŘÍSTUP, dokud se hráč "neomluví" (viz liftSuspension níže).
+    isSuspended: function () {
+        return !!GameState.templumSuspended;
+    },
+
+    SUSPENSION_ZBOZNOST_FLOOR: 15,   // pod tímhle = okamžité pozastavení
+    SUSPENSION_WARNING_LIMIT: 3,     // nebo 3. varování, co první přijde
+    PENANCE_ZBOZNOST_REQUIRED: 20,   // musí se vyšplhat aspoň sem, ne jen o fous nad podlahu
+
+    // Pokání — jediná cesta zpět. Náklad mirror existující týdenní Templum
+    // akce (15 jídla), navíc vyžaduje Zbožnost už reálně vzchopenou, ne
+    // jen jedno kliknutí bez námahy.
+    liftSuspension: function () {
+        if (!GameState.templumSuspended) return;
+        const zbozn = (GameState.persona && GameState.persona.zboznost) || 0;
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        if (zbozn < this.PENANCE_ZBOZNOST_REQUIRED) {
+            if (typeof UI !== 'undefined') UI.notify(lang === 'en'
+                ? `⚠️ Piety still too low (need ≥${this.PENANCE_ZBOZNOST_REQUIRED}).`
+                : `⚠️ Zbožnost je pořád nízká (potřeba ≥${this.PENANCE_ZBOZNOST_REQUIRED}).`, true);
+            return;
+        }
+        if ((GameState.inventory['bread'] || 0) < 15) {
+            if (typeof UI !== 'undefined') UI.notify(lang === 'en' ? '⚠️ Not enough bread for penance (15).' : '⚠️ Nedostatek chleba na pokání (15).', true);
+            return;
+        }
+        Game.removeItem('bread', 15);
+        GameState.templumSuspended = false;
+        GameState.templumWarnings = 0;
+        if (typeof NotificationSystem !== 'undefined' && NotificationSystem.panel) {
+            NotificationSystem.panel(lang === 'en'
+                ? '🙏 Penance accepted — the church is yours to tend again.'
+                : '🙏 Pokání přijato — kostel je zase ve tvé péči.', 'system');
+        }
+        Game.save();
+        this.render();
+    },
+
     // Gate: mnišská dráha od bratra výš (Cursus Monasticus)
     isUnlocked: function() {
         const m = GameState.rank && GameState.rank.monastic;
-        return ['frater', 'armarius', 'prior'].includes(m);
+        return ['frater', 'armarius', 'prior'].includes(m) && !this.isSuspended();
     },
 
     // Gate: Hřbitov — otevřen dřív než zbytek Templum, od novitius (24h na mnišské dráze)
@@ -255,6 +295,19 @@ const TemplumSystem = {
         }
 
         if (!this.isUnlocked()) {
+            if (this.isSuspended()) {
+                const zbozn = (GameState.persona && GameState.persona.zboznost) || 0;
+                h += `<div style="text-align:center; padding:24px; border:1px dashed rgba(192,57,43,0.4); border-radius:8px; background:rgba(192,57,43,0.06);">
+                          <div style="font-size:2rem; margin-bottom:8px;">🕊️</div>
+                          <div style="font-style:italic; font-size:0.88rem; margin-bottom:10px;">
+                            ${lang==='en' ? 'A pigeon sits on the sill — the abbot has closed the church to you until you make amends.' : 'Na parapetu sedí holub — opat ti uzavřel kostel, dokud se neomluvíš.'}
+                          </div>
+                          <div style="font-size:0.76rem; opacity:0.7; margin-bottom:8px;">${lang==='en'?'Piety':'Zbožnost'}: ${Math.round(zbozn)}/100 (${lang==='en'?'need':'potřeba'} ≥${this.PENANCE_ZBOZNOST_REQUIRED})</div>
+                          <button class="craft-btn" onclick="TemplumSystem.liftSuspension()">🙏 ${lang==='en'?'Do penance (15 bread)':'Vykonat pokání (15 chleba)'}</button>
+                        </div>`;
+                h += `</div>`;
+                return h;
+            }
             h += `<div style="text-align:center; padding:30px; opacity:0.6;
                         border:1px dashed rgba(197,160,89,0.3); border-radius:8px;">
                       <div style="font-size:2rem; margin-bottom:10px;">⛪</div>

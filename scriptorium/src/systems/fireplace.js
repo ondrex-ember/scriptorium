@@ -560,6 +560,37 @@ const FireplaceSystem = {
             UI.notifyPanel('🌀 ' + (lang === 'en' ? thought.en : thought.cs), 'system');
         }
 
+        // dymka-templum-mrd (9.8.2026) — opat si všimne, JEN když je fyzicky
+        // přítomen v klášteře (AbbotSystem.LOCATIONS), 40% šance. Okamžitá
+        // reakce (ne čekat na periodický tick — "nemůže čekat týden, má
+        // přece holubník"), penalizace Zbožnost i abbotFavor napřímo,
+        // 3. varování NEBO propad pod podlahu = okamžité pozastavení Templum.
+        const _abbotHere = (GameState.abbotLocation || 'present') === 'present';
+        if (_abbotHere && Math.random() < 0.4 && typeof TemplumSystem !== 'undefined' && !TemplumSystem.isSuspended()) {
+            if (typeof PersonaSystem !== 'undefined' && PersonaSystem.addZboznost) PersonaSystem.addZboznost(-12);
+            if (!GameState.secrets) GameState.secrets = {};
+            GameState.secrets.abbotFavor = (GameState.secrets.abbotFavor || 0) - 5;
+            if (!GameState.templumWarnings) GameState.templumWarnings = 0;
+            GameState.templumWarnings += 1;
+
+            const zboznNow = (GameState.persona && GameState.persona.zboznost) || 0;
+            const warnCount = GameState.templumWarnings;
+            const hitFloor = zboznNow < TemplumSystem.SUSPENSION_ZBOZNOST_FLOOR;
+            const hitLimit = warnCount >= TemplumSystem.SUSPENSION_WARNING_LIMIT;
+
+            if (hitFloor || hitLimit) {
+                GameState.templumSuspended = true;
+                if (GameState.templum) GameState.templum.uninterruptedWeeks = 0;
+                NotificationSystem.panel(lang === 'en'
+                    ? '🕊️ A pigeon arrives with the abbot\'s seal — the church is closed to you until you make amends.'
+                    : '🕊️ Přiletí holub s opatovou pečetí — kostel je ti uzavřen, dokud se neomluvíš.', 'warning');
+            } else {
+                NotificationSystem.panel(lang === 'en'
+                    ? `🕊️ A pigeon arrives — the abbot noticed the smell of smoke. Warning ${warnCount}/${TemplumSystem.SUSPENSION_WARNING_LIMIT}.`
+                    : `🕊️ Přiletí holub — opat ucítil kouř. Varování ${warnCount}/${TemplumSystem.SUSPENSION_WARNING_LIMIT}.`, 'warning');
+            }
+        }
+
         Game.save();
         this.render();
     },
