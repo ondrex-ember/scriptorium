@@ -164,7 +164,8 @@ const CanonicalHours = {
         
         UI.notify(`🔔 ${hourName} — ${desc}`, false);
         if (typeof NotificationSystem !== 'undefined') NotificationSystem.panel(`🔔 ${hourName} — ${desc}`, 'system');
-        
+        this.renderPill();
+
         // Special actions per hour
         switch(hour.buff) {
             case 'dailyQuest':
@@ -394,5 +395,44 @@ const CanonicalHours = {
         }
         
         console.log(`🔔 ${hour}:00 - ${mode} mode: ${bellType}`);
-    }
+    },
+
+    // canonical-pray-mrd (9.8.2026) — chybějící explicitní modlitba, dřív jen
+    // pasivní časové okno (buffValue ovlivňoval jiné akce ambientně). Self-
+    // guard: 1× za KAŽDOU hodinu (ne jen jednou denně) — 7 hodin/den = max
+    // 7 modliteb. Odměna: Zbožnost +3, malá šance na kadidlo jako plod.
+    pray: function () {
+        if (!this.currentHour) return;
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        const today = new Date().toISOString().slice(0, 10);
+        const key = today + '_' + this.currentHour.id;
+        if (GameState.canonicalPrayedKeys && GameState.canonicalPrayedKeys.includes(key)) {
+            if (typeof UI !== 'undefined') UI.notify(lang === 'en' ? '🙏 Already prayed this hour.' : '🙏 Tuhle hodinu ses už modlil.', true);
+            return;
+        }
+        if (!GameState.canonicalPrayedKeys) GameState.canonicalPrayedKeys = [];
+        GameState.canonicalPrayedKeys.push(key);
+        if (GameState.canonicalPrayedKeys.length > 30) GameState.canonicalPrayedKeys.shift(); // jen krátká historie, ne trvalý růst
+
+        if (typeof PersonaSystem !== 'undefined' && PersonaSystem.addZboznost) PersonaSystem.addZboznost(3);
+        if (Math.random() < 0.15 && typeof Game !== 'undefined' && Game.addItem) Game.addItem('candle', 1);
+
+        const hourName = lang === 'en' ? this.currentHour.nameEN : this.currentHour.name;
+        if (typeof NotificationSystem !== 'undefined') NotificationSystem.panel(
+            '🙏 ' + (lang === 'en' ? `Prayer at ${hourName} — piety +3.` : `Modlitba na ${hourName} — zbožnost +3.`), 'system');
+        if (typeof Game !== 'undefined' && Game.save) Game.save();
+        this.renderPill();
+    },
+
+    renderPill: function () {
+        const pill = document.getElementById('pill-canonical');
+        if (!pill) return;
+        if (this.currentHour) {
+            pill.style.display = '';
+            const iconEl = document.getElementById('pill-canonical-icon');
+            if (iconEl) iconEl.textContent = this.currentHour.icon;
+        } else {
+            pill.style.display = 'none';
+        }
+    },
 };
