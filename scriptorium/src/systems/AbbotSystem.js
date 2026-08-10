@@ -23,18 +23,18 @@ const AbbotSystem = {
     // existující historické zakotvení hry (husitské války 1419–1434 —
     // mirror i18n/cs.js husitský blok).
     LINEAGE: [
-        { name: 'Blažej I.', years: '1189–1204', note_cs: 'Zakladatel. Podle klášterní pověsti založil dům na místě, kde v noci žhnul o samotě uhlík, jenž nikdy neuhasl — odtud "Carbunculus".', note_en: 'The founder. Monastery legend holds he built the house where a single ember glowed through the night, never dying out — hence "Carbunculus".' },
-        { name: 'Godefrid', years: '1204–1219', note_cs: 'Postavil první kamenný kostel na místě dřevěné kaple.', note_en: 'Built the first stone church on the site of the wooden chapel.' },
-        { name: 'Bertold', years: '1219–1241', note_cs: 'Za jeho opatství klášter opevnil zdi — na Moravu dolehl strach z tatarského vpádu.', note_en: 'Under his abbacy the monastery fortified its walls — fear of the Tatar invasion reached Moravia.' },
-        { name: 'Ctibor', years: '1241–1265', note_cs: 'Rozšířil hospodářství o první rybníky.', note_en: 'Expanded the estate with the first fishponds.' },
-        { name: 'Wolfram', years: '1265–1288', note_cs: 'Německého původu — přivedl první konvrše ze Slezska.', note_en: 'Of German origin — brought the first lay brothers from Silesia.' },
-        { name: 'Domoslav', years: '1288–1310', note_cs: 'Založil skriptorium jako samostatnou dílnu, ne pouhý koutek knihovny.', note_en: 'Established the scriptorium as its own workshop, not merely a corner of the library.' },
-        { name: 'Jindřich I.', years: '1310–1335', note_cs: 'Zemřel na mor, co se toho roku prohnal krajem.', note_en: 'Died of the plague that swept the region that year.' },
-        { name: 'Petr z Rokytné', years: '1335–1358', note_cs: 'Rodák z blízké vsi — první opat zvolený z místních, ne dosazený zvenčí.', note_en: 'A native of a nearby village — the first abbot elected from among the local brothers, not appointed from outside.' },
-        { name: 'Blažej II.', years: '1358–1379', note_cs: 'Jmenován po předku ze zbožnosti, ne z příbuzenství.', note_en: 'Named after his predecessor out of piety, not kinship.' },
-        { name: 'Racek', years: '1379–1408', note_cs: 'Nejdelší funkční období rodokmenu — 29 let klidu před bouří.', note_en: "The longest tenure in the lineage — 29 years of calm before the storm." },
-        { name: 'Silvestr', years: '1408–1434', note_cs: 'Opat husitských válek. Klášter přežil, ne beze ztrát — část knihovny byla zachráněna jen díky včasnému ukrytí.', note_en: 'The abbot of the Hussite Wars. The monastery survived, not unscathed — part of the library was saved only by being hidden in time.' },
-        { name: 'Ambrož', years: '1434–1459', note_cs: 'Opat obnovy. Vrátil klášteru hospodářskou sílu po letech válečných útrap.', note_en: 'The abbot of rebuilding. Restored the monastery\'s economic strength after years of wartime hardship.' },
+        { name: 'Blažej I.', years: '1189–1204', born: '1155', motto: 'Ignis qui non extinguitur', motto_en_gloss: 'The fire that does not go out', note_cs: 'Zakladatel. Podle klášterní pověsti založil dům na místě, kde v noci žhnul o samotě uhlík, jenž nikdy neuhasl — odtud "Carbunculus".', note_en: 'The founder. Monastery legend holds he built the house where a single ember glowed through the night, never dying out — hence "Carbunculus".' },
+        { name: 'Godefrid', years: '1204–1219', born: '1170', motto: 'Lapide fundata, fide firma', motto_en_gloss: 'Founded on stone, firm in faith', note_cs: 'Postavil první kamenný kostel na místě dřevěné kaple.', note_en: 'Built the first stone church on the site of the wooden chapel.' },
+        { name: 'Bertold', years: '1219–1241', born: '1185', motto: 'Murus noster Dominus', motto_en_gloss: 'The Lord is our wall', note_cs: 'Za jeho opatství klášter opevnil zdi — na Moravu dolehl strach z tatarského vpádu.', note_en: 'Under his abbacy the monastery fortified its walls — fear of the Tatar invasion reached Moravia.' },
+        { name: 'Ctibor', years: '1241–1265', born: '1205', motto: 'Aqua et labor vitam dant', motto_en_gloss: 'Water and labor give life', note_cs: 'Rozšířil hospodářství o první rybníky.', note_en: 'Expanded the estate with the first fishponds.' },
+        { name: 'Wolfram', years: '1265–1288', born: '1230', motto: 'Hospes eram, et suscepistis me', motto_en_gloss: 'I was a stranger, and you took me in', note_cs: 'Německého původu — přivedl první konvrše ze Slezska.', note_en: 'Of German origin — brought the first lay brothers from Silesia.' },
+        { name: 'Domoslav', years: '1288–1310', born: '1250', motto: 'Littera manet, vox perit', motto_en_gloss: 'The letter remains, the voice perishes', note_cs: 'Založil skriptorium jako samostatnou dílnu, ne pouhý koutek knihovny.', note_en: 'Established the scriptorium as its own workshop, not merely a corner of the library.' },
+        { name: 'Jindřich I.', years: '1310–1335', born: '1275', motto: 'Memento mori', motto_en_gloss: 'Remember you must die', note_cs: 'Zemřel na mor, co se toho roku prohnal krajem.', note_en: 'Died of the plague that swept the region that year.' },
+        { name: 'Petr z Rokytné', years: '1335–1358', born: '1300', motto: 'De nostris, pro nostris', motto_en_gloss: 'Of our own, for our own', note_cs: 'Rodák z blízké vsi — první opat zvolený z místních, ne dosazený zvenčí.', note_en: 'A native of a nearby village — the first abbot elected from among the local brothers, not appointed from outside.' },
+        { name: 'Blažej II.', years: '1358–1379', born: '1325', motto: 'Nomen sequitur virtutem', motto_en_gloss: 'The name follows virtue', note_cs: 'Jmenován po předku ze zbožnosti, ne z příbuzenství.', note_en: 'Named after his predecessor out of piety, not kinship.' },
+        { name: 'Racek', years: '1379–1408', born: '1345', motto: 'Diu et in pace', motto_en_gloss: 'Long, and in peace', note_cs: 'Nejdelší funkční období rodokmenu — 29 let klidu před bouří.', note_en: "The longest tenure in the lineage — 29 years of calm before the storm." },
+        { name: 'Silvestr', years: '1408–1434', born: '1370', motto: 'In tempestate, statio', motto_en_gloss: 'In the storm, a haven', note_cs: 'Opat husitských válek. Klášter přežil, ne beze ztrát — část knihovny byla zachráněna jen díky včasnému ukrytí.', note_en: 'The abbot of the Hussite Wars. The monastery survived, not unscathed — part of the library was saved only by being hidden in time.' },
+        { name: 'Ambrož', years: '1434–1459', born: '1395', motto: 'Post ruinam, aedificatio', motto_en_gloss: 'After ruin, building', note_cs: 'Opat obnovy. Vrátil klášteru hospodářskou sílu po letech válečných útrap.', note_en: 'The abbot of rebuilding. Restored the monastery\'s economic strength after years of wartime hardship.' },
     ],
 
     // Současný stav (1465) — Bernard jako opat, Augustin jako jeho přímý
@@ -43,7 +43,13 @@ const AbbotSystem = {
     // automat (viz hlavička souboru).
     CURRENT: {
         name: 'Bernard',
+        born: '1420',
         since: '1459',
+        motto: 'Fides sine dubio',
+        motto_en_gloss: 'Faith without doubt',
+        // Cesta k portrétu — až Bouvarde dodá soubor, nahradí se tímhle
+        // řetězcem (zatím null = zobrazí se ozdobný placeholder v rámečku).
+        portraitUrl: null,
         note_cs: 'Třináctý opat od založení. Často na cestách mezi klášterem a Olomouckým opatstvím — jedná s biskupstvím, dohlíží na záležitosti řádu ve městě.',
         note_en: 'The thirteenth abbot since the founding. Often travelling between the monastery and the Olomouc Abbey — dealing with the bishopric, overseeing the order\'s affairs in the city.',
         deputyName: 'Augustin',
@@ -116,6 +122,27 @@ const AbbotSystem = {
         return isCs ? '🔥 Opat má o vás vážné pochybnosti.' : '🔥 The abbot has serious doubts about you.';
     },
 
+    // Portrétní medailon — dvojitý zlatý rám, zaoblené dolní rohy (mirror
+    // románského okna/výklenku), rohové kudrlinky, placeholder dokud
+    // Bouvarde nedodá skutečný soubor (CURRENT.portraitUrl zůstává null).
+    _portraitFrame: function (portraitUrl) {
+        return `
+            <div style="position:relative; width:110px; height:130px; flex-shrink:0;">
+                <div style="position:absolute; inset:0; border:3px double #c5a059; border-radius:6px 6px 36px 36px; background:linear-gradient(180deg, rgba(197,160,89,0.10), rgba(197,160,89,0.02)); box-shadow:0 2px 6px rgba(0,0,0,0.15);"></div>
+                <div style="position:absolute; inset:7px; border-radius:3px 3px 30px 30px; overflow:hidden; display:flex; align-items:center; justify-content:center; background:rgba(0,0,0,0.12);">
+                    ${portraitUrl
+                        ? `<img src="${portraitUrl}" alt="" style="width:100%; height:100%; object-fit:cover;">`
+                        : `<span style="font-size:2.4rem; opacity:0.3;">🧔</span>`}
+                </div>
+                <span style="position:absolute; top:-7px; left:-5px; font-size:0.85rem; color:#c5a059; opacity:0.75;">❦</span>
+                <span style="position:absolute; top:-7px; right:-5px; font-size:0.85rem; color:#c5a059; opacity:0.75; display:inline-block; transform:scaleX(-1);">❦</span>
+            </div>`;
+    },
+
+    _ornateDivider: function () {
+        return `<div style="text-align:center; color:#c5a059; opacity:0.45; font-size:0.8rem; letter-spacing:0.3em; margin:12px 0;">❧ ❧ ❧</div>`;
+    },
+
     render: function () {
         const el = document.getElementById('library-opat-content');
         if (!el) return;
@@ -124,24 +151,33 @@ const AbbotSystem = {
         const favor = (GameState.secrets && GameState.secrets.abbotFavor) || 0;
 
         const lineageHtml = this.LINEAGE.map((a, i) => `
-            <div style="display:flex; gap:10px; padding:8px 0; border-bottom:1px solid rgba(197,160,89,0.15);">
+            <div style="display:flex; gap:10px; padding:10px 0; border-bottom:1px solid rgba(197,160,89,0.15);">
                 <div style="font-size:0.7rem; opacity:0.5; min-width:26px; text-align:right;">${i + 1}.</div>
                 <div>
-                    <div style="font-weight:bold; font-size:0.88rem;">${a.name} <span style="font-weight:normal; opacity:0.6; font-size:0.78rem;">(${a.years})</span></div>
-                    <div style="font-size:0.78rem; opacity:0.75; font-style:italic; margin-top:2px;">${isCs ? a.note_cs : a.note_en}</div>
+                    <div style="font-weight:bold; font-size:0.88rem;">${a.name} <span style="font-weight:normal; opacity:0.6; font-size:0.78rem;">(${a.years}${a.born ? `, ${isCs ? 'nar.' : 'b.'} ${a.born}` : ''})</span></div>
+                    ${a.motto ? `<div style="font-size:0.74rem; font-style:italic; color:#a08040; margin-top:2px;">„${a.motto}“ <span style="opacity:0.6;">— ${a.motto_en_gloss}</span></div>` : ''}
+                    <div style="font-size:0.78rem; opacity:0.75; margin-top:3px;">${isCs ? a.note_cs : a.note_en}</div>
                 </div>
             </div>`).join('');
 
         const c = this.CURRENT;
         el.innerHTML = `
-            <div style="background:rgba(197,160,89,0.07); border:1px solid rgba(197,160,89,0.25); border-radius:8px; padding:14px 16px; margin-bottom:16px;">
-                <div style="font-size:0.72rem; opacity:0.6; letter-spacing:0.05em; text-transform:uppercase; margin-bottom:4px;">${this.MONASTERY_NAME_LAT}</div>
-                <div style="font-size:0.85rem;">${isCs ? 'Založeno' : 'Founded'} ${this.FOUNDED_YEAR} — ${isCs ? '13. opat' : '13th abbot'}: <strong>${c.name}</strong> (${isCs ? 'od' : 'since'} ${c.since})</div>
-                <div style="font-size:0.8rem; opacity:0.8; margin-top:6px; font-style:italic;">${isCs ? c.note_cs : c.note_en}</div>
-                <div style="font-size:0.78rem; margin-top:8px; display:flex; gap:6px; flex-wrap:wrap;">
-                    ${this.TRAITS.map(tr => `<span style="background:rgba(197,160,89,0.15); border-radius:4px; padding:2px 8px;" title="${isCs ? tr.desc_cs : tr.desc_en}">${isCs ? tr.name_cs : tr.name_en}</span>`).join('')}
+            <div style="background:rgba(197,160,89,0.07); border:2px double rgba(197,160,89,0.4); border-radius:10px; padding:16px 18px; margin-bottom:16px;">
+                <div style="font-size:0.72rem; opacity:0.6; letter-spacing:0.05em; text-transform:uppercase; margin-bottom:10px; text-align:center;">${this.MONASTERY_NAME_LAT}</div>
+                <div style="display:flex; gap:16px; align-items:flex-start;">
+                    ${this._portraitFrame(c.portraitUrl)}
+                    <div style="flex:1;">
+                        <div style="font-size:1.05rem; font-weight:bold;">${c.name}</div>
+                        <div style="font-size:0.76rem; opacity:0.65; margin-bottom:4px;">${isCs ? 'nar.' : 'b.'} ${c.born} — ${isCs ? '13. opat, od' : '13th abbot, since'} ${c.since}</div>
+                        <div style="font-size:0.78rem; font-style:italic; color:#a08040;">„${c.motto}“ <span style="opacity:0.6;">— ${c.motto_en_gloss}</span></div>
+                        <div style="font-size:0.78rem; margin-top:6px; display:flex; gap:6px; flex-wrap:wrap;">
+                            ${this.TRAITS.map(tr => `<span style="background:rgba(197,160,89,0.15); border-radius:4px; padding:2px 8px;" title="${isCs ? tr.desc_cs : tr.desc_en}">${isCs ? tr.name_cs : tr.name_en}</span>`).join('')}
+                        </div>
+                    </div>
                 </div>
-                <div style="font-size:0.8rem; margin-top:10px; padding-top:10px; border-top:1px solid rgba(197,160,89,0.2);">
+                <div style="font-size:0.8rem; opacity:0.8; margin-top:10px; font-style:italic;">${isCs ? c.note_cs : c.note_en}</div>
+                ${this._ornateDivider()}
+                <div style="font-size:0.8rem;">
                     👤 <strong>${c.deputyName}</strong> — ${isCs ? 'zástupce opata' : "abbot's deputy"}
                     <div style="font-size:0.78rem; opacity:0.75; font-style:italic; margin-top:2px;">${isCs ? c.deputyNote_cs : c.deputyNote_en}</div>
                 </div>
