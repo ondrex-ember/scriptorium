@@ -51,6 +51,60 @@ const AbbotSystem = {
         deputyNote_en: "Brother Augustin, the abbot's direct deputy. In his absence, he speaks in his name and runs the daily life of the house.",
     },
 
+    // Charakterové rysy Bernarda — určují VÁHU (ne jen text), jak silně
+    // konkrétní akce ovlivní abbotFavor. Viz _abbotFavorMultiplier níže,
+    // volané z CommitmentsSystem.resolveLocalAkter. Zatím jen Scriptorium
+    // strana — živá mood hodnota aktéra 'klaster' v Chroniconu (core/engine.js)
+    // se dnes počítá z frekvence favor-reportů, ne z charakteru; provázání
+    // charakteru do TÉ hodnoty je budoucí krok (zásah do běžícího Chronicon
+    // enginu, ne jen do Scriptoria — samostatné rozhodnutí).
+    // abbot-persona-mrd (9.8.2026)
+    TRAITS: [
+        {
+            id: 'prisny_ve_vire',
+            name_cs: 'Přísný ve víře', name_en: 'Strict in Faith',
+            desc_cs: 'Kacířské myšlenky ho zraní hluboko — každý opis pro kteroukoliv stranu bolí víc, než by čekal nezasvěcený.',
+            desc_en: 'Heretical thoughts wound him deeply — every copy, for either side, stings more than an outsider would expect.',
+        },
+        {
+            id: 'verny_rimu',
+            name_cs: 'Věrný Římu', name_en: 'Loyal to Rome',
+            desc_cs: 'Nakloněn katolické straně sporu — utrakvistické psaní ho zraní citelně víc než provolání Zelenohorské jednoty.',
+            desc_en: 'Inclined toward the Catholic side of the dispute — an Utraquist letter wounds him noticeably more than a League proclamation.',
+        },
+    ],
+
+    // Připravená zásoba budoucích opatů — následníci pro (zatím
+    // neimplementovaný) engine úmrtí/volby. Dnes jen data, nikde nečtená
+    // krom tohoto pole samotného.
+    CANDIDATES: [
+        {
+            name: 'Prokop',
+            traits_cs: ['Mírný soudce — kacířské myšlenky ho zraní méně, hospodářské spory více'],
+            traits_en: ['Gentle judge — heretical thoughts wound him less, economic disputes more'],
+        },
+        {
+            name: 'Metoděj',
+            traits_cs: ['Učenec — nakloněn skriptoriu a knihovně nad hospodářstvím'],
+            traits_en: ['Scholar — favours the scriptorium and library over the estate'],
+        },
+    ],
+
+    // Váhování abbotFavorDelta podle Bernardova charakteru. Volané z
+    // CommitmentsSystem.resolveLocalAkter TĚSNĚ před zápisem do
+    // GameState.secrets.abbotFavor — inquisitionHeatDelta zůstává
+    // nedotčený (to je objektivní riziko, ne osobní reakce opata).
+    _abbotFavorMultiplier: function (actorId, letterKey) {
+        if (actorId !== 'kacirska') return 1.0; // Přísný ve víře cílí jen na herezi, D-kategorie beze změny
+        let mult = 1.5; // Přísný ve víře — obecný základ pro celou Kategorii C
+        if (letterKey === 'utrakvisticky_opis') mult *= 1.3;   // Věrný Římu — extra bolest
+        else if (letterKey === 'zelenohorska_provolani') mult *= 0.8; // Věrný Římu — soucit s vlastní stranou
+        return mult;
+    },
+
+
+    // ale inline text (ne i18n dictionary — mirror letters.js/Zakázky
+    // katalog vzoru pro obsahově těžké, ne mechanicky sdílené texty).
     // Fuzzy popis abbotFavor — mirror DecaySystem.miceFuzzyShort stylu,
     // ale inline text (ne i18n dictionary — mirror letters.js/Zakázky
     // katalog vzoru pro obsahově těžké, ne mechanicky sdílené texty).
@@ -84,6 +138,9 @@ const AbbotSystem = {
                 <div style="font-size:0.72rem; opacity:0.6; letter-spacing:0.05em; text-transform:uppercase; margin-bottom:4px;">${this.MONASTERY_NAME_LAT}</div>
                 <div style="font-size:0.85rem;">${isCs ? 'Založeno' : 'Founded'} ${this.FOUNDED_YEAR} — ${isCs ? '13. opat' : '13th abbot'}: <strong>${c.name}</strong> (${isCs ? 'od' : 'since'} ${c.since})</div>
                 <div style="font-size:0.8rem; opacity:0.8; margin-top:6px; font-style:italic;">${isCs ? c.note_cs : c.note_en}</div>
+                <div style="font-size:0.78rem; margin-top:8px; display:flex; gap:6px; flex-wrap:wrap;">
+                    ${this.TRAITS.map(tr => `<span style="background:rgba(197,160,89,0.15); border-radius:4px; padding:2px 8px;" title="${isCs ? tr.desc_cs : tr.desc_en}">${isCs ? tr.name_cs : tr.name_en}</span>`).join('')}
+                </div>
                 <div style="font-size:0.8rem; margin-top:10px; padding-top:10px; border-top:1px solid rgba(197,160,89,0.2);">
                     👤 <strong>${c.deputyName}</strong> — ${isCs ? 'zástupce opata' : "abbot's deputy"}
                     <div style="font-size:0.78rem; opacity:0.75; font-style:italic; margin-top:2px;">${isCs ? c.deputyNote_cs : c.deputyNote_en}</div>
@@ -92,8 +149,55 @@ const AbbotSystem = {
                     ${this._favorFuzzy(favor, isCs)}
                 </div>
             </div>
+            ${this._chroniconLiveSection(isCs)}
+            <div style="font-size:0.72rem; opacity:0.5; margin-bottom:14px; font-style:italic;">
+                ${isCs ? '🕯️ V řádu čekají další bratři, jednou k nástupnictví způsobilí' : '🕯️ Other brothers wait in the order, one day fit to succeed'}: ${this.CANDIDATES.map(cd => cd.name).join(', ')}
+            </div>
             <div style="font-size:0.72rem; opacity:0.6; letter-spacing:0.05em; text-transform:uppercase; margin-bottom:8px;">${isCs ? 'Rodokmen opatů' : 'Lineage of Abbots'}</div>
             <div>${lineageHtml}</div>
         `;
+    },
+
+    // Živá sekce z Chronicon snapshotu (abbot-persona-mrd, 9.8.2026) —
+    // nálada/jmění/zásoby "legitimity" a vztahy s ostatními 10 aktéry
+    // (relations pole, dřív jen interní pro engine, teď v exponovaném
+    // snapshotu). Tichý fallback (prázdný string), pokud snapshot chybí/
+    // je starý — mirror principu zbytku ChroniconSystem.
+    _chroniconLiveSection: function (isCs) {
+        if (typeof ChroniconSystem === 'undefined' || !ChroniconSystem._snap) return '';
+        const actors = ChroniconSystem._snap.actors;
+        if (!Array.isArray(actors)) return '';
+        const klaster = actors.find(a => a.id === 'klaster');
+        if (!klaster) return '';
+
+        const nameById = {};
+        actors.forEach(a => { nameById[a.id] = isCs ? a.label : (a.label_en || a.label); });
+
+        const relEntries = klaster.relations
+            ? Object.entries(klaster.relations)
+                .filter(([id]) => nameById[id])
+                .sort((a, b) => b[1] - a[1])
+            : [];
+        const relHtml = relEntries.map(([id, val]) => {
+            const color = val > 20 ? '#5a9a5a' : val < -5 ? '#c0392b' : '#a0722d';
+            const sign = val > 0 ? '+' : '';
+            return `<span style="display:inline-block; margin:2px 6px 2px 0; font-size:0.76rem;">${nameById[id]}: <strong style="color:${color};">${sign}${val}</strong></span>`;
+        }).join('');
+
+        return `
+            <div style="background:rgba(90,120,150,0.07); border:1px solid rgba(90,120,150,0.2); border-radius:8px; padding:12px 16px; margin-bottom:16px;">
+                <div style="font-size:0.72rem; opacity:0.6; letter-spacing:0.05em; text-transform:uppercase; margin-bottom:6px;">
+                    ${isCs ? '🌍 Živý svět — Chronicon' : '🌍 The Living World — Chronicon'}
+                </div>
+                <div style="font-size:0.8rem;">
+                    ${isCs ? 'Nálada' : 'Mood'}: <strong>${klaster.mood}</strong>/100 ·
+                    ${isCs ? 'Jmění' : 'Wealth'}: <strong>${klaster.wealth}</strong>/100 ·
+                    ${isCs ? 'Zásoby legitimity' : 'Legitimacy stores'}: <strong>${klaster.stores}</strong>
+                </div>
+                ${relHtml ? `<div style="margin-top:8px;">
+                    <div style="font-size:0.7rem; opacity:0.6; margin-bottom:4px;">${isCs ? 'Vztahy s krajem' : 'Relations with the region'}:</div>
+                    ${relHtml}
+                </div>` : ''}
+            </div>`;
     },
 };

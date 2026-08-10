@@ -109,7 +109,15 @@ const ChroniconSystem = {
             craftSuccessBonus: kovarMood >= 75 ? 0.10 : 0,
             tallowCostDiscount: vcelarMood >= 80 ? 0.20 : 0,
             portaVisitorBonus: vrchnostMood >= 80 ? 0.30 : 0,
-            cellariumExtraYield: mlynarWealth >= 70 ? 1 : 0
+            cellariumExtraYield: mlynarWealth >= 70 ? 1 : 0,
+            // abbot-persona-mrd (9.8.2026) — LOKÁLNÍ modifikátor (ne ze
+            // sdíleného snapshotu jako ostatní pole výše), ale patří sem
+            // logicky (odměny/požehnání skrz postavu opata). ±1 %/bod
+            // abbotFavor, strop ±25 %.
+            abbotFavorRewardMult: (() => {
+                const favor = (typeof GameState !== 'undefined' && GameState.secrets && GameState.secrets.abbotFavor) || 0;
+                return 1 + Math.max(-0.25, Math.min(0.25, favor * 0.01));
+            })(),
         };
     },
 
@@ -965,7 +973,8 @@ const ChroniconSystem = {
     // per-aktér místo jednoho globálního páru. Volá se z Game.init(),
     // stejně jako checkAbbotPetitions() — jednou za session, ne na tik.
     _reportContactRelationIfNewDay: function() {
-        if (typeof GameState === 'undefined' || !GameState.contactRelation) return;
+        if (typeof GameState === 'undefined') return;
+        if (!GameState.contactRelation) GameState.contactRelation = {};
         if (typeof ContactsDB === 'undefined') return;
         const today = new Date().toISOString().slice(0, 10);
         if (GameState.contactRelationLastSent === today) return;
@@ -981,6 +990,14 @@ const ChroniconSystem = {
             relations[c.chroniconActorId] = rel;
             any = true;
         });
+        // abbot-persona-mrd (9.8.2026) — Opat (klaster) není ContactsDB
+        // záznam (žádné obchodní vztahy), ale patří do stejného váženého
+        // kanálu. Normalizace lokálního abbotFavor (neomezená škála) na
+        // 0-100 relation škálu, mirror ostatních kontaktů (50 = neutrál).
+        if (GameState.secrets && typeof GameState.secrets.abbotFavor === 'number') {
+            relations['klaster'] = Math.max(0, Math.min(100, 50 + GameState.secrets.abbotFavor));
+            any = true;
+        }
         if (!any) return;
 
         const rankTier = (GameState.rank && GameState.rank.monastic) || null;
@@ -1060,7 +1077,13 @@ const ChroniconSystem = {
             if (now < dueAt) { stillHere.push(g); return; }
 
             // Odchází — drobný dar + village influence, mirror hospes vzoru.
-            const gift = 2 + Math.floor(Math.random() * 3); // 2-4 grošů
+            // abbot-persona-mrd (9.8.2026) — konečně zapojený portaVisitorBonus,
+            // dřív jen dekorativní pilulka. Žádná lokální šance na FREKVENCI
+            // návštěv existuje (pocestný vzniká jen na Chronicon straně) —
+            // přepnuto na ŠTĚDROST místo četnosti: +30% na odchodový dar.
+            const visitorMult = (typeof ChroniconSystem !== 'undefined' && ChroniconSystem.getBuffs)
+                ? 1 + (ChroniconSystem.getBuffs().portaVisitorBonus || 0) : 1.0;
+            const gift = Math.round((2 + Math.floor(Math.random() * 3)) * visitorMult); // 2-4 grošů, ±bonus
             if (typeof CellariumSystem !== 'undefined' && CellariumSystem.addGrose) CellariumSystem.addGrose(gift);
             if (typeof PersonaSystem !== 'undefined' && PersonaSystem.addInfluence) PersonaSystem.addInfluence('village', 1);
             if (typeof Game !== 'undefined' && Game.addKronikaEntry) {

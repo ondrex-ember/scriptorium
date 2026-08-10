@@ -3881,7 +3881,19 @@ const Game = {
             }
         }
 
-        for(let [item, amt] of Object.entries(r.req)) if(amt > 0) this.removeItem(item, amt);
+        // abbot-persona-mrd (9.8.2026) — konečně zapojený tallowCostDiscount,
+        // dřív jen dekorativní pilulka. Recepty mají pevné celočíselné qty
+        // (fat:1/tallow:1), takže % sleva = % šance na vrácení té konkrétní
+        // suroviny místo zlomkového snížení ceny.
+        let _tallowDiscount = 0;
+        if ((r.output === 'candle' || r.output === 'torch_tallow') && typeof ChroniconSystem !== 'undefined' && ChroniconSystem.getBuffs) {
+            _tallowDiscount = ChroniconSystem.getBuffs().tallowCostDiscount || 0;
+        }
+        for(let [item, amt] of Object.entries(r.req)) {
+            if (amt <= 0) continue;
+            if (_tallowDiscount > 0 && (item === 'fat' || item === 'tallow') && Math.random() < _tallowDiscount) continue; // vrácena zdarma
+            this.removeItem(item, amt);
+        }
         if (_foundTool) this.useToolCharge(_foundTool.item);
 
         // Init toolUses pro nový nástroj
@@ -3910,9 +3922,22 @@ const Game = {
         if (GameState.flags && GameState.flags.dymkaEffectType === 'flow' && GameState.flags.dymkaEffectUntil && Date.now() < GameState.flags.dymkaEffectUntil) {
             if (Math.random() < 0.5) craftQty += 1;
         }
+        // abbot-persona-mrd (9.8.2026) — konečně zapojený craftSuccessBonus,
+        // dřív jen dekorativní pilulka. Stejný vzor jako Laudes/Professio výš.
+        if (typeof ChroniconSystem !== 'undefined' && ChroniconSystem.getBuffs) {
+            const _csb = ChroniconSystem.getBuffs().craftSuccessBonus || 0;
+            if (_csb > 0 && Math.random() < _csb) craftQty += 1;
+        }
 
         // ── RESEARCH: diminishing returns ────────────────────────────────────
         if (r.output === 'research') {
+            // abbot-persona-mrd (9.8.2026) — konečně zapojený scriptXpBonus,
+            // dřív jen dekorativní pilulka. Aplikuje se PŘED diminishing
+            // returns, ať se počítá do stejné hodinové kvóty jako zbytek.
+            if (typeof ChroniconSystem !== 'undefined' && ChroniconSystem.getBuffs) {
+                const _sxb = ChroniconSystem.getBuffs().scriptXpBonus || 0;
+                if (_sxb > 0 && Math.random() < _sxb) craftQty += 1;
+            }
             if (!GameState.researchHour) GameState.researchHour = { count: 0, hourStart: 0 };
             const now = Date.now();
             const HOUR_MS = 60 * 60 * 1000;

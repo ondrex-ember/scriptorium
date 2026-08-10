@@ -21,6 +21,14 @@ const VigorSystem = {
     FATIGUE_RECOVERY_NIGHT: 16,    // 21–7h: -16/h, spánek (dřív 8)
     FATIGUE_RECOVERY_HORA:  20,    // Completorium/Vigilie: -20/h (dřív 10)
 
+    // abbot-persona-mrd (9.8.2026) — konečně zapojený vigorRegenBonus,
+    // dřív jen dekorativní pilulka (potvrzeno 2× nezávisle, 2.8. a 9.8.
+    // session). ±15% podle napětí kraje, mirror storageReduction stylu.
+    _regenMult: function () {
+        if (typeof ChroniconSystem === 'undefined' || !ChroniconSystem.getBuffs) return 1.0;
+        return 1.0 + (ChroniconSystem.getBuffs().vigorRegenBonus || 0);
+    },
+
     // Noční spánek: 8h+ neaktivity → plný reset únavy
     SLEEP_HOURS_FOR_FULL_REST: 8,
 
@@ -311,6 +319,7 @@ const VigorSystem = {
         }
         // Pokud je Vigor < 10 — zrychlený odpočinek
         if (this.getVigor() < 10) recovery = Math.max(recovery, this.FATIGUE_RECOVERY_HORA);
+        recovery *= this._regenMult(); // Chronicon vigorRegenBonus (abbot-persona-mrd, 9.8.2026)
 
         const fatRecovery = elapsed * recovery;
         GameState.fatigue = Math.max(0, (GameState.fatigue || 0) - fatRecovery);
@@ -950,7 +959,7 @@ const VigorSystem = {
         const fatigue = GameState.fatigue || 0;
         if (fatigue <= 0) return 0;
         const hour = new Date().getHours();
-        const rate = (hour < 6 || hour >= 18) ? this.FATIGUE_RECOVERY_NIGHT : this.FATIGUE_RECOVERY_DAY;
+        const rate = ((hour < 6 || hour >= 18) ? this.FATIGUE_RECOVERY_NIGHT : this.FATIGUE_RECOVERY_DAY) * this._regenMult();
         return Math.ceil(fatigue / rate);
     },
 

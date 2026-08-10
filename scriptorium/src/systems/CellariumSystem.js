@@ -425,7 +425,15 @@ const CellariumSystem = {
     const soldBefore = GameState.shopStock.dailySold[soldKey] || 0;
 
     const result = this._calcSaturatedSale(baseNoSat, qty, soldBefore, null);
-    const total = result.total;
+    let total = result.total;
+    // abbot-persona-mrd (9.8.2026) — konečně zapojený cellariumExtraYield,
+    // dřív jen dekorativní pilulka. Mlynářovo jmění = "štědřejší váha" —
+    // hráč dostane zaplaceno za +1 kus navíc, aniž by ho fyzicky odevzdal
+    // (removeItem níže pořád bere jen původní qty).
+    if (typeof ChroniconSystem !== 'undefined' && ChroniconSystem.getBuffs) {
+        const _cey = ChroniconSystem.getBuffs().cellariumExtraYield || 0;
+        if (_cey > 0 && qty > 0) total += Math.round((total / qty) * _cey);
+    }
 
     Game.removeItem(itemId, qty);
     this.addGrose(total);

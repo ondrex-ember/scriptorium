@@ -1202,7 +1202,9 @@ const CommitmentsSystem = {
             item.requiredItems.forEach(req => Game.removeItem(req.id, req.qty));
 
             if (item.rewardGrose && typeof CellariumSystem !== 'undefined' && CellariumSystem.addGrose) {
-                CellariumSystem.addGrose(item.rewardGrose);
+                const rewardMult = (typeof ChroniconSystem !== 'undefined' && ChroniconSystem.getBuffs)
+                    ? ChroniconSystem.getBuffs().abbotFavorRewardMult : 1.0;
+                CellariumSystem.addGrose(Math.round(item.rewardGrose * rewardMult));
             }
             // contactRelation jen pro skutečné Clientela kontakty (sklar/kovar/mlynar, Kategorie A)
             if (item.contactRelationReward && typeof ContactsDB !== 'undefined' && ContactsDB[raw.actorId]) {
@@ -1230,7 +1232,20 @@ const CommitmentsSystem = {
             }
             if (item.abbotFavorDelta) {
                 if (!GameState.secrets) GameState.secrets = {};
-                GameState.secrets.abbotFavor = (GameState.secrets.abbotFavor || 0) + item.abbotFavorDelta;
+                const mult = (typeof AbbotSystem !== 'undefined' && AbbotSystem._abbotFavorMultiplier)
+                    ? AbbotSystem._abbotFavorMultiplier(raw.actorId, raw.key) : 1.0;
+                GameState.secrets.abbotFavor = (GameState.secrets.abbotFavor || 0) + Math.round(item.abbotFavorDelta * mult);
+            }
+            // abbot-persona-mrd (9.8.2026) — Kategorie D jako DRUHÁ cesta ke
+            // stejnému sdílenému "svět" signálu jako mše (Game.serveMass).
+            // Kombinační element: nízký LOKÁLNÍ abbotFavor gatuje příspěvek
+            // do SVĚTOVÉHO — opatovy pochybnosti o tobě znamenají, že tvá
+            // zbožnost teď nereprezentuje dům dobře navenek.
+            if (raw.actorId === 'cirkevni_mimo_biskupa') {
+                const currentFavor = (GameState.secrets && GameState.secrets.abbotFavor) || 0;
+                if (currentFavor >= -15 && typeof ChroniconSystem !== 'undefined' && ChroniconSystem._reportActorFavorIfNewDay) {
+                    ChroniconSystem._reportActorFavorIfNewDay('klaster');
+                }
             }
             if (typeof Game !== 'undefined' && Game.addKronikaEntry) Game.addKronikaEntry('minor',
                 '📜 ' + item.title + ' — vyhotoveno.',
