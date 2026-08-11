@@ -32381,18 +32381,69 @@ const FireplaceSystem = {
             if (hitFloor || hitLimit) {
                 GameState.templumSuspended = true;
                 if (GameState.templum) GameState.templum.uninterruptedWeeks = 0;
-                NotificationSystem.panel(lang === 'en'
-                    ? '🕊️ A pigeon arrives with the abbot\'s seal — the church is closed to you until you make amends.'
-                    : '🕊️ Přiletí holub s opatovou pečetí — kostel je ti uzavřen, dokud se neomluvíš.', 'warning');
+                this._sendAbbotSmokeWarning(warnCount, true, lang);
             } else {
-                NotificationSystem.panel(lang === 'en'
-                    ? `🕊️ A pigeon arrives — the abbot noticed the smell of smoke. Warning ${warnCount}/${TemplumSystem.SUSPENSION_WARNING_LIMIT}.`
-                    : `🕊️ Přiletí holub — opat ucítil kouř. Varování ${warnCount}/${TemplumSystem.SUSPENSION_WARNING_LIMIT}.`, 'warning');
+                this._sendAbbotSmokeWarning(warnCount, false, lang);
             }
         }
 
         Game.save();
         this.render();
+    },
+
+    // dymka-templum-mrd (9.8.2026), revize "žádný holub" — opat je FYZICKY
+    // přítomen, takže žádná pigeon-fikce: dopis jde přímo do Porty,
+    // podepsaný živým jménem opata (AbbotSystem.CURRENT.name — přežije
+    // budoucí výměnu opata, viz abbot-lineage-mrd). Pokud hráč ještě nemá
+    // Portu odemčenou (GameState.flags.porta_active), spadne to zpátky na
+    // obyčejnou notifikaci — jinak by dopis zmizel v datech beze stopy,
+    // Porta tab před odemčením v navigaci vůbec neexistuje.
+    _sendAbbotSmokeWarning: function(warnCount, isSuspension, lang) {
+        const abbotName = (typeof AbbotSystem !== 'undefined' && AbbotSystem.CURRENT && AbbotSystem.CURRENT.name)
+            || (lang === 'en' ? 'The Abbot' : 'Opat');
+
+        const TEXTS = {
+            1: {
+                cs: `Bratře, přistihl jsem tě s dýmkou v hodinách, kdy má vonět jen kadidlo. Netrestám — jen připomínám: dým ať zůstane u ohniště, ne u tvé práce. — ${abbotName}`,
+                en: `Brother, I caught you with your pipe at an hour that should smell of incense alone. I do not punish — only remind: let the smoke stay by the hearth, not by your work. — ${abbotName}`
+            },
+            2: {
+                cs: `Podruhé, bratře. Dým z tvé dýmky mě už zdaleka nemine — a moje trpělivost houstne stejně pomalu. Příště se neomezím na slovo. — ${abbotName}`,
+                en: `A second time, brother. The smoke of your pipe no longer escapes me from afar — and my patience thickens just as slowly as it does. Next time, words will not be enough. — ${abbotName}`
+            },
+            suspension: {
+                cs: `Řekl jsem to už dvakrát. Dnes jsem to viděl na vlastní oči potřetí — kostel je ti do odvolání uzavřen. Vrať se, až tvé pokání bude vidět, ne jen slyšet. — ${abbotName}`,
+                en: `I said it twice already. Today I saw it with my own eyes a third time — the church is closed to you until further notice. Return when your penance can be seen, not merely heard. — ${abbotName}`
+            }
+        };
+        const key = isSuspension ? 'suspension' : (warnCount >= 2 ? 2 : 1);
+        const body = TEXTS[key];
+        const titleCs = isSuspension ? 'Kostel uzavřen' : `Varování ${warnCount}/${TemplumSystem.SUSPENSION_WARNING_LIMIT}`;
+        const titleEn = isSuspension ? 'Church Closed' : `Warning ${warnCount}/${TemplumSystem.SUSPENSION_WARNING_LIMIT}`;
+
+        const portaReady = GameState.flags && GameState.flags.porta_active && typeof PortaSystem !== 'undefined';
+        if (portaReady) {
+            PortaSystem._ensureState();
+            const letterId = 'abbot_smoke_' + (isSuspension ? 'susp' : warnCount) + '_' + Date.now();
+            GameState.letters.dynamic.push({
+                id: letterId,
+                sender_cs: 'Opat ' + abbotName, sender_en: 'Abbot ' + abbotName,
+                seal: 'abbot',
+                title_cs: titleCs, title_en: titleEn,
+                text_cs: body.cs, text_en: body.en,
+                choices: [{
+                    label_cs: '📜 Vzít na vědomí', label_en: '📜 Take note',
+                    effect: function() {},
+                    notify_cs: '', notify_en: ''
+                }]
+            });
+            GameState.letters.firstSeen[letterId] = Date.now();
+            NotificationSystem.panel(lang === 'en'
+                ? '✉️ A note has arrived from the Abbot.'
+                : '✉️ Dorazil vzkaz od opata.', 'porta');
+        } else {
+            NotificationSystem.panel(lang === 'en' ? '✉️ ' + body.en : '✉️ ' + body.cs, 'warning');
+        }
     },
 
     _renderPipe: function() {
@@ -32757,6 +32808,7 @@ const FireplaceSystem = {
         }
     }
 };
+
 // ═══ src/systems/IncenseSystem.js ═══
 // IncenseSystem.js — Thuribulum (Kadidlo1)
 // Pálení kadidla v Ohništi (Foculus) → pasivní snížení únavy po dobu hoření
