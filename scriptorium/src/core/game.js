@@ -3110,6 +3110,11 @@ const Game = {
                     if(Math.random() < 0.02) this.addItem('seeds_millet', 1);
                     if(Math.random() < 0.02) this.addItem('seeds_peas', 1);
                     if(Math.random() < 0.015) this.addItem('seeds_flax', 1);
+                    // herbarium-seed-fix-mrd (10.8.2026): stejný vzácný nález jako u nature,
+                    // Sběr bylin je tematicky stejně vhodné místo
+                    if(Math.random() < 0.004) this.addItem('seeds_mandrake', 1);
+                    if(Math.random() < 0.005) this.addItem('seeds_belladonna', 1);
+                    if(Math.random() < 0.008) this.addItem('seeds_poppy', 1);
         }
         else if (type === 'wood_harvest') {
                     this.addItem('log', Math.random() < 0.4 ? 2 : 1);
@@ -3193,6 +3198,13 @@ const Game = {
                     if(Math.random() < 0.015) this.addItem('seeds_sage', 1);
                     if(Math.random() < 0.010) this.addItem('seeds_wormwood', 1);
                     if(Math.random() < 0.020) this.addItem('seeds_yarrow', 1);
+                    // herbarium-seed-fix-mrd (10.8.2026): vzácné/nebezpečné byliny —
+                    // dřív neměly ŽÁDNOU cestu k získání (ani scavenge, ani trh),
+                    // celé Herbář Scrinium vlákno bylo nedosažitelné. Nízká šance,
+                    // mirror stromových semínek co do řádu vzácnosti.
+                    if(Math.random() < 0.002) this.addItem('seeds_mandrake', 1);
+                    if(Math.random() < 0.0025) this.addItem('seeds_belladonna', 1);
+                    if(Math.random() < 0.004) this.addItem('seeds_poppy', 1);
                     // Rare drop - Netolického pozůstalost (0.1% chance)
                     if(Math.random() < 0.001) {
                         this.addItem('netolicky_legacy', 1);
