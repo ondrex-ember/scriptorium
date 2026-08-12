@@ -313,6 +313,16 @@ const ChroniconSystem = {
             ChroniconSystem.refreshOverview();
 
         } else if (action === 'bless') {
+            // bless-cooldown-fix-mrd (10.8.2026): dřív žádný limit — spamovatelné
+            // donekonečna, každé kliknutí +25 nálady bez pauzy. Teď 1/den per aktér.
+            const today = new Date().toISOString().slice(0, 10);
+            if (!GameState.chroniconLocal.blessedToday) GameState.chroniconLocal.blessedToday = {};
+            if (GameState.chroniconLocal.blessedToday[actorId] === today) {
+                const msg = lang === 'en' ? `⚠️ You already blessed ${realLabel} today.` : `⚠️ ${realLabel} jsi dnes už požehnal.`;
+                if (typeof NotificationSystem !== 'undefined') NotificationSystem.toast(msg, 'warn');
+                return;
+            }
+
             // Požehnání / Mše — spotřebuje 1 svíčku/lůj nebo 5 Zápisníků
             const candleQty = inv['candle'] || 0;
             if (candleQty < 1 && (GameState.knowledge || 0) < 5) {
@@ -323,6 +333,7 @@ const ChroniconSystem = {
 
             if (inv['candle'] > 0) inv['candle']--;
             else GameState.knowledge -= 5;
+            GameState.chroniconLocal.blessedToday[actorId] = today;
 
             // Lokální nálada — dál krmí ChroniconSystem.getBuffs() (herní
             // bonusy), beze změny. Navíc teď propojeno se skutečným
