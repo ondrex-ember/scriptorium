@@ -101,18 +101,11 @@ const GardenSystem = {
         UI.notify('🫧 ' + t('game.fryAdded').replace('{qty}', qty));
     },
 
-    feedPiscina: function() {
-        const p = GameState.piscina;
-        if (p.tier < 1) return;
-        const feedNeeded = p.fry + p.youngCarp + p.carp;
-        if (feedNeeded === 0) { UI.notify(t('game.piscinaEmpty'), true); return; }
-        if ((GameState.inventory['fiber']||0) < feedNeeded) { UI.notify(t('game.needFeedFish') + ` (${feedNeeded})`, true); return; }
-        Game.removeItem('fiber', feedNeeded);
-        if (typeof VigorSystem !== 'undefined') VigorSystem.addFatigue(0.5);
-        p.lastFedAt = Date.now();
-        Game.save(); GardenSystem.renderPiscina();
-        UI.notify('🌿 ' + t('game.piscinaFed'));
-    },
+    // feedPiscina odstraněno (10.8.2026) — byla to mrtvá duplicita, tlačítko
+    // vždy volalo Game.feedPiscina() (core/game.js), tahle kopie se nikdy
+    // nespustila. Ponechán jen komentář jako stopa pro budoucí hledání.
+
+
 
     transferFry: function() {
         const p = GameState.piscina;
@@ -865,7 +858,11 @@ const GardenSystem = {
             const kaprAdultQty = fishRows.filter(r => r.stage === 'adult' && r.species === 'kapr').reduce((s, r) => s + r.qty, 0);
             const sadkyItems = ['kapr_sadky_fresh', 'kapr_sadky_purified', 'stika_sadky_fresh', 'stika_sadky_purified'];
             const sadkyHave = sadkyItems.some(id => (GameState.inventory[id] || 0) > 0);
-            if (sadkyHave || kaprAdultQty > 0 || stikaAdult > 0) {
+            // fishing-species-mrd (10.8.2026): volný úlovek z rybaření-scavenge,
+            // odlišný zdroj od Piscina chovu (kaprAdultQty/stikaAdult výš).
+            const caughtCarp = GameState.inventory['carp'] || 0;
+            const caughtStika = GameState.inventory['stika'] || 0;
+            if (sadkyHave || kaprAdultQty > 0 || stikaAdult > 0 || caughtCarp > 0 || caughtStika > 0) {
                 html += `<div style="font-size:0.75rem; margin-bottom:8px; padding-top:6px; border-top:1px solid rgba(0,0,0,0.08);">`;
                 html += `<div style="opacity:0.7; margin-bottom:4px;">🪣 ${lang==='en'?'Holding tank (sádky)':'Sádky'}</div>`;
                 sadkyItems.forEach(id => {
@@ -874,6 +871,8 @@ const GardenSystem = {
                 });
                 if (kaprAdultQty > 0) html += `<button class="craft-btn" onclick="Game.moveToSadky('kapr',${kaprAdultQty})" style="font-size:0.68rem; margin:4px 4px 0 0;">${lang==='en'?'→ Carp to tank':'→ Kapr do sádek'}</button>`;
                 if (stikaAdult > 0) html += `<button class="craft-btn" onclick="Game.moveToSadky('stika',${stikaAdult})" style="font-size:0.68rem; margin:4px 0 0;">${lang==='en'?'→ Pike to tank':'→ Štika do sádek'}</button>`;
+                if (caughtCarp > 0) html += `<button class="craft-btn" onclick="Game.stockCaughtFish('carp',${caughtCarp})" style="font-size:0.68rem; margin:4px 4px 0 0;" title="${lang==='en'?'From wild catch':'Z volného úlovku'}">${lang==='en'?'→ Caught carp to tank':'→ Ulovený kapr do sádek'}</button>`;
+                if (caughtStika > 0) html += `<button class="craft-btn" onclick="Game.stockCaughtFish('stika',${caughtStika})" style="font-size:0.68rem; margin:4px 0 0;" title="${lang==='en'?'From wild catch':'Z volného úlovku'}">${lang==='en'?'→ Caught pike to tank':'→ Ulovená štika do sádek'}</button>`;
                 html += `</div>`;
             }
 
