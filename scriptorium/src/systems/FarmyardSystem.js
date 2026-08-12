@@ -36,9 +36,15 @@ const FarmyardSystem = {
         pigsty: {
             itemId: 'piglet', cap: 3,
             build: { cut_stone: 15, plank: 10 },
+<<<<<<< HEAD
+            growMs: 200 * 24 * 60 * 60 * 1000,  // historicky-podklad-mrd (9.8.2026): fallback pro staré save bez growTargetMs — reálná hodnota je per sele, viz growTargetMs v placeAnimal, rozmezí 180-240 dní (6-8 měsíců)
+            acornBoostMs: 5 * 24 * 60 * 60 * 1000,
+            breedMs: 33 * 24 * 60 * 60 * 1000  // historicky-podklad-mrd (9.8.2026): vědomá herní zkratka (reálná březost prasnice ~114 dní), zkráceno pro hratelnost
+=======
             growMs: 60 * 24 * 60 * 60 * 1000,
             acornBoostMs: 5 * 24 * 60 * 60 * 1000,
             breedMs: 24 * 24 * 60 * 60 * 1000  // prasnice březost (kanec-mrd, 2.8.2026)
+>>>>>>> 8c7dd2a3aa87f6b660d980beca15f331feb06d5d
         },
         stable: {
             itemId: 'horse', cap: 4,
@@ -141,10 +147,14 @@ const FarmyardSystem = {
     },
 
     // Všechna zvířata ve všech výbězích pro mood tick
-    ALL_PENS: ['rabbitry', 'goatpen', 'pigsty', 'donkeyStall', 'cowbyre'],
+    // historicky-podklad-mrd (9.8.2026): stable doplněno — jen kvůli
+    // shoeDurability decay v moodTick (nálada samotná jde přes v2/getMood,
+    // viz restrukturovaný moodTick níž).
+    ALL_PENS: ['rabbitry', 'goatpen', 'pigsty', 'donkeyStall', 'cowbyre', 'stable'],
     // v2 mood systém (hunger+hygiene přes getMood) — tyhle výběhy už nemají
-    // pasivní decay mutující a.mood. Mimo v2: donkeyStall, stable.
-    MOOD_V2_PENS: ['rabbitry', 'henhouse', 'sheepfold', 'goatpen', 'cowbyre', 'pigsty'],
+    // pasivní decay mutující a.mood. historicky-podklad-mrd (9.8.2026):
+    // stable+donkeyStall doplněny pro konzistenci (dřív mimo v2 úplně).
+    MOOD_V2_PENS: ['rabbitry', 'henhouse', 'sheepfold', 'goatpen', 'cowbyre', 'pigsty', 'stable', 'donkeyStall'],
 
     // ── Lazy init ─────────────────────────────────────────────────────────
     _ensureAnimals: function () {
@@ -175,7 +185,15 @@ const FarmyardSystem = {
         if (a.lastCleaned === undefined) a.lastCleaned = 0;
         if (a.mature === undefined) a.mature = true;
         if (a.bornAt === undefined) a.bornAt = a.placedAt || Date.now();
+<<<<<<< HEAD
+        // historicky-podklad-mrd (9.8.2026): staré/dosud nikdy neumístěné
+        // save prasat neměly a.placedAt vůbec (bug — _pigMature() proto
+        // vždy vracelo false). Self-heal na bornAt, ať se nezaseknou navždy.
+        if (a.placedAt === undefined) a.placedAt = a.bornAt || Date.now();
         if (a.shoeDurability === undefined) a.shoeDurability = 0;
+=======
+        if (a.shoeDurability === undefined) a.shoeDurability = 0;
+>>>>>>> 8c7dd2a3aa87f6b660d980beca15f331feb06d5d
         return a;
     },
 
@@ -268,12 +286,22 @@ const FarmyardSystem = {
         GameState._farmyardMoodTick = now;
         this._ensureAnimals();
         this.ALL_PENS.forEach(pen => {
-            if (this.MOOD_V2_PENS.includes(pen)) return; // v2: nálada z getMood(), ne z pasivního decay
             const st = GameState[pen];
             if (!st || !st.built) return;
+            const isV2Mood = this.MOOD_V2_PENS.includes(pen);
             st.animals.forEach(a => {
                 this._ensureAnimalFields(a);
+<<<<<<< HEAD
+                // historicky-podklad-mrd (9.8.2026): podkovy musí opotřebovávat
+                // NEZÁVISLE na tom, jestli pen používá starý nebo v2 mood —
+                // dřív byla tahle větev za "if MOOD_V2_PENS return", takže se
+                // pro 'stable' nikdy nespustila (mrtvý kód, 'stable' navíc
+                // chybělo v ALL_PENS vůbec).
                 if (pen === 'stable' && a.shoeDurability > 0) a.shoeDurability = Math.max(0, a.shoeDurability - 1);
+                if (isV2Mood) return; // v2: nálada z getMood(), ne z pasivního decay
+=======
+                if (pen === 'stable' && a.shoeDurability > 0) a.shoeDurability = Math.max(0, a.shoeDurability - 1);
+>>>>>>> 8c7dd2a3aa87f6b660d980beca15f331feb06d5d
                 // Pasivní decay −5/den; přeplněný výběh −10 navíc
                 let decay = 5;
                 const cap = this.ANIMAL_CFG[pen] ? this.ANIMAL_CFG[pen].cap : 6;
@@ -338,8 +366,8 @@ const FarmyardSystem = {
                     let chance = 0.03;
                     if (typeof VigorSystem !== 'undefined' && VigorSystem.getVigorPct && VigorSystem.getVigorPct() < 30) chance += 0.05;
                     const staleFields = ['conversiGardenLastTick', 'conversiOrchardLastTick', 'conversiApiaryLastTick',
-                                          'conversiPiscinaLastTick', 'conversiFieldLastTick', 'conversiVineaLastTick',
-                                          'conversiAthanorLastTick', 'conversiScriptoriumLastTick'];
+                        'conversiPiscinaLastTick', 'conversiFieldLastTick', 'conversiVineaLastTick',
+                        'conversiAthanorLastTick', 'conversiScriptoriumLastTick'];
                     const DAY2 = 2 * this.DAY_MS;
                     const staleCount = staleFields.filter(f => GameState[f] > 0 && (now - GameState[f]) >= DAY2).length;
                     chance = Math.min(0.25, chance + staleCount * 0.02);
@@ -526,6 +554,17 @@ const FarmyardSystem = {
         }
 
         h += `<div style="font-size:0.82rem; margin-bottom:10px;">${t('dvur.occupancy')}: <strong>${st.animals.length} / ${cfg.cap}</strong></div>`;
+
+        // historicky-podklad-mrd (9.8.2026): stejný hay-feed vzor jako
+        // goatpen/cowbyre/pigsty/stable (renderAnimalPen) — dřív žádný.
+        if (st.animals.length > 0) {
+            const fedAgoD = st.lastFedAt ? Math.floor((Date.now() - st.lastFedAt) / 3600000) : null;
+            const fedTxtD = fedAgoD === null ? (lang === 'en' ? 'Never' : 'Nikdy') : fedAgoD < 1 ? (lang === 'en' ? '< 1h ago' : 'před < 1h') : (lang === 'en' ? '~' + fedAgoD + 'h ago' : 'před ~' + fedAgoD + 'h');
+            const hayNeededD = st.animals.length;
+            const canFeedD = (GameState.inventory['hay'] || 0) >= hayNeededD;
+            h += `<div style="font-size:0.82rem; margin-bottom:6px;">🌾 ${lang === 'en' ? 'Last fed' : 'Krmeno'}: <strong>${fedTxtD}</strong></div>`;
+            h += '<button class="craft-btn" style="margin-bottom:10px;" onclick="FarmyardSystem.feedPen(\'donkeyStall\')" ' + (canFeedD ? '' : 'disabled') + '>🌾 ' + t('farmyard.feed') + ' (' + (lang === 'en' ? 'have' : 'máš') + ' ' + (GameState.inventory['hay'] || 0) + '/' + hayNeededD + ')</button>';
+        }
         const haveD = GameState.inventory['donkey'] || 0;
         h += `<button class="craft-btn" style="margin-bottom:10px;" onclick="FarmyardSystem.placeDonkey()"
             ${haveD > 0 && st.animals.length < cfg.cap ? '' : 'disabled'}>➕ ${t('farmyard.addDonkey')} (${t('dvur.have')}: ${haveD})</button>`;
@@ -535,16 +574,17 @@ const FarmyardSystem = {
 
         if (st.animals.length) {
             const working = this.donkeyWorking();
+            const donkeyMood = this.getMood('donkeyStall');
             h += `<div style="margin-top:10px; padding:10px; background:rgba(0,0,0,0.04); border-radius:8px;">`;
             h += `<div style="font-size:0.88rem; font-weight:bold; margin-bottom:6px;">`;
             st.animals.forEach((a, i) => {
                 this._ensureAnimalFields(a);
-                const mIcon = this.MOOD_ICON(a.mood);
+                const mIcon = this.MOOD_ICON(donkeyMood);
                 h += `<div style="display:flex; align-items:center; gap:8px; margin-bottom:6px;">
                     <span style="font-size:1.4rem;">🫏</span>
                     <div style="flex:1;">
                         <span style="font-weight:bold;">${a.name || t('farmyard.donkeyDefault')}</span>
-                        <span style="font-size:0.75rem; opacity:0.6; margin-left:6px;">${mIcon} ${a.mood}/100</span>
+                        <span style="font-size:0.75rem; opacity:0.6; margin-left:6px;">${mIcon} ${donkeyMood}/100</span>
                         ${working ? `<span style="font-size:0.72rem; color:#5a9a5a; margin-left:4px;">⚡ +${Math.round(cfg.fieldBonus * 100)}% ${lang === 'en' ? 'field yield' : 'výnos pole'}</span>` : `<span style="font-size:0.72rem; color:#a0722d; margin-left:4px;">${t('farmyard.donkeyStubborn').replace('{name}', '')}</span>`}
                     </div>
                     <button class="craft-btn" style="padding:3px 7px; font-size:0.7rem;" onclick="FarmyardSystem.renameDonkey(${i})">✏️</button>
@@ -602,7 +642,7 @@ const FarmyardSystem = {
     },
 
     _pigMature: function (a) {
-        return Date.now() - a.placedAt >= this.ANIMAL_CFG.pigsty.growMs;
+        return Date.now() - a.placedAt >= (a.growTargetMs || this.ANIMAL_CFG.pigsty.growMs);
     },
 
     // Tele → kráva (krava-mrd, 26.7.2026), mirror _pigMature
@@ -962,6 +1002,14 @@ const FarmyardSystem = {
             a.type = useItemId;             // 'tele' | 'cow' | 'byk'
             if (useItemId === 'tele') { a.mature = false; a.placedAt = Date.now(); }
         }
+        // historicky-podklad-mrd (9.8.2026): sele → dospělé prase, 180-240
+        // dní (6-8 měsíců), vážené k nižšímu konci (pow 1.6 stáhne náhodu
+        // k nule). Dřív tu chybělo a.placedAt úplně (bug, viz _pigMature).
+        if (pen === 'pigsty') {
+            a.mature = false;
+            a.placedAt = Date.now();
+            a.growTargetMs = 180 * 86400000 + Math.floor(Math.pow(Math.random(), 1.6) * 60 * 86400000);
+        }
         if (pen === 'goatpen') a.lastMilk = Date.now();
         st.animals.push(a);
         if (typeof UI !== 'undefined') UI.notify(t('dvur.placed_' + pen));
@@ -1116,6 +1164,73 @@ const FarmyardSystem = {
         this.renderFarmyard();
     },
 
+<<<<<<< HEAD
+    // krava-bug-fix (7.8.2026): samostatná porážka býka, s potvrzovacím
+    // modalem — je to plemenné zvíře, nechceme omylem přijít o něj.
+    slaughterBull: function () {
+        const st = GameState.cowbyre;
+        const idx = st.animals.findIndex(a => a.type === 'byk');
+        if (idx === -1) { if (typeof UI !== 'undefined') UI.notify(t('farmyard.noBullToSlaughter') || 'Žádný býk k porážce.', true); return; }
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        const isInfertile = st.animals[idx].sex === 'f'; // starý bug před krava-bug-fix opravou
+        if (typeof NotificationSystem !== 'undefined' && NotificationSystem.modal) {
+            NotificationSystem.modal({
+                icon: '🐂',
+                title: lang === 'en' ? 'Slaughter the bull?' : 'Porazit býka?',
+                text: isInfertile
+                    ? (lang === 'en' ? 'This bull appears infertile and cannot breed. Slaughtering it is likely wise.' : 'Tento býk se jeví jako neplodný a nemůže se pářit. Poražením ho pravděpodobně nic neztratíš.')
+                    : (lang === 'en' ? 'This is your breeding bull. Slaughtering it will end any breeding plans until you get another.' : 'Tohle je tvůj plemenný býk. Porážkou skončí možnost plemenitby, dokud nepořídíš dalšího.'),
+                choices: [
+                    { label: lang === 'en' ? 'Slaughter' : 'Porazit', type: 'primary', effect: function () { FarmyardSystem._confirmSlaughterBull(); } },
+                    { label: lang === 'en' ? 'Cancel' : 'Zrušit', type: 'default', effect: function () { } },
+                ],
+            });
+        } else {
+            this._confirmSlaughterBull();
+        }
+    },
+
+    _confirmSlaughterBull: function () {
+        const st = GameState.cowbyre;
+        const idx = st.animals.findIndex(a => a.type === 'byk');
+        if (idx === -1) return;
+        st.animals.splice(idx, 1);
+        const inv = GameState.inventory;
+        inv['beef'] = (inv['beef'] || 0) + 5;
+        inv['raw_hide'] = (inv['raw_hide'] || 0) + 2;
+        if (typeof VigorSystem !== 'undefined') VigorSystem.addFatigue(1.0);
+        if (typeof UI !== 'undefined') UI.notify('🔪 ' + (t('farmyard.bullSlaughtered') || 'Býk poražen.'));
+        if (typeof Game !== 'undefined' && Game.addKronikaEntry) Game.addKronikaEntry('important', '🐂 Plemenný býk poražen.', '🐂 The breeding bull was slaughtered.', '🐂 Taurus mactatus est.');
+        if (typeof Game !== 'undefined') Game.save();
+        this.renderFarmyard();
+    },
+
+    // krava-bug-fix (7.8.2026): porážka telete — dřív vůbec nešlo, jediná
+    // možnost úklidu chlévu byla nechat dorůst. Sváteční maso + jemnější kůže.
+    slaughterTele: function () {
+        const st = GameState.cowbyre;
+        const idx = st.animals.findIndex(a => a.type === 'tele');
+        if (idx === -1) { if (typeof UI !== 'undefined') UI.notify(t('farmyard.noCalfToSlaughter') || 'Žádné tele k porážce.', true); return; }
+        st.animals.splice(idx, 1);
+        const inv = GameState.inventory;
+        inv['veal'] = (inv['veal'] || 0) + 2;
+        inv['calf_hide'] = (inv['calf_hide'] || 0) + 1;
+        if (typeof VigorSystem !== 'undefined') VigorSystem.addFatigue(1.0);
+        if (typeof UI !== 'undefined') UI.notify('🔪 ' + (t('farmyard.calfSlaughtered') || 'Tele poraženo. +2 Telecí, +1 Telecí kůže.'));
+        if (typeof Game !== 'undefined' && Game.addKronikaEntry) Game.addKronikaEntry('important', '🐮 Tele poraženo — sváteční telecí na stůl.', '🐮 A calf was slaughtered — festive veal for the table.', '🐮 Vitulus mactatus est.');
+        if (typeof Game !== 'undefined') Game.save();
+        this.renderFarmyard();
+    },
+
+    // krava-bug-fix (7.8.2026): staré legacy zvíře bez a.type pole vůbec
+    // (z doby před krava-mrd refaktorem) — slaughterCow() ho už uměl brát
+    // jako krávu (fallback !a.type), ale UI to nezobrazovalo ani nepočítalo
+    // do "má co porazit" — teď obojí sedí.
+    _hasLegacyCow: function (st) {
+        return st.animals.some(a => !a.type);
+    },
+
+=======
     // krava-bug-fix (7.8.2026): samostatná porážka býka, s potvrzovacím
     // modalem — je to plemenné zvíře, nechceme omylem přijít o něj.
     slaughterBull: function () {
@@ -1181,6 +1296,7 @@ const FarmyardSystem = {
         return st.animals.some(a => !a.type);
     },
 
+>>>>>>> 8c7dd2a3aa87f6b660d980beca15f331feb06d5d
     // ── Render animal pen (generic) ───────────────────────────────────────
     renderAnimalPen: function (pen) {
         this._ensureAnimals();
@@ -1206,11 +1322,24 @@ const FarmyardSystem = {
         if (pen === 'rabbitry' && st.built) {
             const fedAgoR = st.lastFedAt ? Math.floor((Date.now() - st.lastFedAt) / 3600000) : null;
             const fedTxtR = fedAgoR === null ? (lang === 'en' ? 'Never' : 'Nikdy') : fedAgoR < 1 ? (lang === 'en' ? '< 1h ago' : 'před < 1h') : (lang === 'en' ? '~' + fedAgoR + 'h ago' : 'před ~' + fedAgoR + 'h');
-            h += `<div style="font-size:0.82rem; margin-bottom:8px;">🌿 ${lang==='en'?'Last fed':'Krmeno'}: <strong>${fedTxtR}</strong></div>`;
+            h += `<div style="font-size:0.82rem; margin-bottom:8px;">🌿 ${lang === 'en' ? 'Last fed' : 'Krmeno'}: <strong>${fedTxtR}</strong></div>`;
         }
 
         if (this._penHungry(pen)) {
             h += `<div style="font-size:0.78rem; color:#c0392b; margin-bottom:8px;">⚠️ ${t('dvur.penHungry')}</div>`;
+        }
+
+        // historicky-podklad-mrd (9.8.2026): seno-krmení pro goatpen/
+        // cowbyre/pigsty/stable — v teplé sezóně se zvěř pase sama zdarma
+        // (sezónní gating přijde samostatně), tohle je jen samotné Feed
+        // tlačítko + funkce, co dřív chyběly úplně (viz feedPen).
+        if (['goatpen', 'cowbyre', 'pigsty', 'stable'].includes(pen) && st.animals.length > 0) {
+            const fedAgoP = st.lastFedAt ? Math.floor((Date.now() - st.lastFedAt) / 3600000) : null;
+            const fedTxtP = fedAgoP === null ? (lang === 'en' ? 'Never' : 'Nikdy') : fedAgoP < 1 ? (lang === 'en' ? '< 1h ago' : 'před < 1h') : (lang === 'en' ? '~' + fedAgoP + 'h ago' : 'před ~' + fedAgoP + 'h');
+            const hayNeeded = st.animals.length;
+            const canFeedP = (GameState.inventory['hay'] || 0) >= hayNeeded;
+            h += `<div style="font-size:0.82rem; margin-bottom:6px;">🌾 ${lang === 'en' ? 'Last fed' : 'Krmeno'}: <strong>${fedTxtP}</strong></div>`;
+            h += '<button class="craft-btn" style="margin-bottom:10px;" onclick="FarmyardSystem.feedPen(\'' + pen + '\')" ' + (canFeedP ? '' : 'disabled') + '>🌾 ' + t('farmyard.feed') + ' (' + (lang === 'en' ? 'have' : 'máš') + ' ' + (GameState.inventory['hay'] || 0) + '/' + hayNeeded + ')</button>';
         }
 
         if (Array.isArray(cfg.itemId)) {
@@ -1361,6 +1490,16 @@ const FarmyardSystem = {
             h += '<div style="margin-top:6px; padding:10px; background:rgba(0,0,0,0.06); border-radius:8px;">';
             h += '<strong style="font-size:0.85rem;">🐄 ' + (t('farmyard.cowBreeding') || 'Plemenitba') + '</strong><br>';
             if (!st.breeding) {
+<<<<<<< HEAD
+                var hasMatureCow = st.animals.some(function (a) { return a.type === 'cow' && a.mature !== false; });
+                var canBreedC = hasMatureCow && hasBull;
+                // krava-bug-fix (7.8.2026): dřív tlačítko u chybějící dospělé
+                // krávy jen tiše zůstalo disabled bez důvodu — teď řekne proč,
+                // mirror existujícího "Potřeba býka" vzoru.
+                var breedLabelC = !hasBull ? (lang === 'en' ? 'Needs bull (buy or Forum Pecuarium)' : 'Potřeba býka (koupě nebo Forum Pecuarium)')
+                    : !hasMatureCow ? (lang === 'en' ? 'Needs a mature cow (buy at market)' : 'Potřeba dospělé krávy (koupě na Trhu)')
+                        : (t('farmyard.cowStartBreeding') || 'Zahájit plemenitbu');
+=======
                 var hasMatureCow = st.animals.some(function (a) { return a.type === 'cow' && a.mature !== false; });
                 var canBreedC = hasMatureCow && hasBull;
                 // krava-bug-fix (7.8.2026): dřív tlačítko u chybějící dospělé
@@ -1369,6 +1508,7 @@ const FarmyardSystem = {
                 var breedLabelC = !hasBull ? (lang === 'en' ? 'Needs bull (buy or Forum Pecuarium)' : 'Potřeba býka (koupě nebo Forum Pecuarium)')
                     : !hasMatureCow ? (lang === 'en' ? 'Needs a mature cow (buy at market)' : 'Potřeba dospělé krávy (koupě na Trhu)')
                     : (t('farmyard.cowStartBreeding') || 'Zahájit plemenitbu');
+>>>>>>> 8c7dd2a3aa87f6b660d980beca15f331feb06d5d
                 h += '<button class="craft-btn" onclick="FarmyardSystem.startCowBreeding()" ' + (canBreedC ? '' : 'disabled') + ' style="margin-top:6px;font-size:0.78rem;">' + breedLabelC + '</button>';
             } else if (st.breeding.state === 'gestating') {
                 var leftC = Math.max(0, Math.ceil((st.breeding.bornAt - now3) / 3600000));
@@ -1384,7 +1524,7 @@ const FarmyardSystem = {
             h += '<div style="display:flex;flex-direction:column;gap:6px;margin-bottom:8px;">';
             st.animals.forEach(function (a, i) {
                 var mature = _selfAct._pigMature(a);
-                var pct = Math.min(100, Math.round((Date.now() - (a.placedAt || a.bornAt || Date.now())) / _selfAct.ANIMAL_CFG.pigsty.growMs * 100));
+                var pct = Math.min(100, Math.round((Date.now() - (a.placedAt || a.bornAt || Date.now())) / (a.growTargetMs || _selfAct.ANIMAL_CFG.pigsty.growMs) * 100));
                 h += '<div style="padding:8px 10px;background:rgba(0,0,0,0.04);border-radius:6px;display:flex;align-items:center;gap:8px;">';
                 h += '<span style="font-size:1.2rem;">' + (mature ? '🐖' : '🐷') + '</span>';
                 h += '<div style="flex:1;"><div style="font-size:0.78rem;">' + (mature ? t('dvur.pigMature') : t('dvur.pigGrowing') + ' ' + pct + '%') + '</div>';
@@ -1417,15 +1557,23 @@ const FarmyardSystem = {
         }
 
         if (pen === 'stable' && st.animals.length) {
+            var stableMood = this.getMood('stable');
             h += '<div style="display:flex;flex-direction:column;gap:6px;margin-bottom:10px;">';
             st.animals.forEach(function (a, idx) {
                 _selfAct._ensureAnimalFields(a);
-                var mi = _selfAct.MOOD_ICON(a.mood);
+                var mi = _selfAct.MOOD_ICON(stableMood);
                 var sx = a.sex === 'm' ? (lang === 'en' ? '♂ Stallion' : '♂ Hřebec') : (lang === 'en' ? '♀ Mare' : '♀ Klisna');
+<<<<<<< HEAD
+                var shod = a.shoeDurability > 0;
+                var shoeLabel = shod ? ('🧲 ' + a.shoeDurability + '/100') : ('🧲 ' + t('farmyard.unshod'));
+                var canShoe = (GameState.inventory['sada_podkov'] || 0) > 0;
+                h += '<div style="padding:6px 10px;background:rgba(0,0,0,0.04);border-radius:6px;display:flex;align-items:center;gap:8px;font-size:0.8rem;"><span style="font-size:1.3rem;">🐎</span><div style="flex:1;"><strong>' + (a.name || sx) + '</strong> <span style="opacity:0.6;">' + mi + ' ' + stableMood + '/100</span> <span style="opacity:0.6;">' + shoeLabel + '</span></div><button class="craft-btn" style="font-size:0.72rem;padding:4px 8px;" onclick="FarmyardSystem.shoeHorse(' + idx + ')" ' + (canShoe ? '' : 'disabled') + '>' + t('farmyard.shoeHorse') + '</button></div>';
+=======
                 var shod = a.shoeDurability > 0;
                 var shoeLabel = shod ? ('🧲 ' + a.shoeDurability + '/100') : ('🧲 ' + t('farmyard.unshod'));
                 var canShoe = (GameState.inventory['sada_podkov'] || 0) > 0;
                 h += '<div style="padding:6px 10px;background:rgba(0,0,0,0.04);border-radius:6px;display:flex;align-items:center;gap:8px;font-size:0.8rem;"><span style="font-size:1.3rem;">🐎</span><div style="flex:1;"><strong>' + (a.name || sx) + '</strong> <span style="opacity:0.6;">' + mi + ' ' + a.mood + '/100</span> <span style="opacity:0.6;">' + shoeLabel + '</span></div><button class="craft-btn" style="font-size:0.72rem;padding:4px 8px;" onclick="FarmyardSystem.shoeHorse(' + idx + ')" ' + (canShoe ? '' : 'disabled') + '>' + t('farmyard.shoeHorse') + '</button></div>';
+>>>>>>> 8c7dd2a3aa87f6b660d980beca15f331feb06d5d
             });
             h += '</div>';
             var hasMale = st.animals.some(function (a) { return a.sex === 'm'; });
@@ -1675,7 +1823,7 @@ const FarmyardSystem = {
         const lang = (GameState.settings && GameState.settings.language) || 'cs';
 
         let h = `<div style="position:relative; margin-bottom:14px; padding:10px 12px; background:rgba(197,160,89,0.07); border:1px solid rgba(197,160,89,0.25); border-radius:8px; display:flex; flex-direction:column; gap:5px;">`;
-        h += `<span style="position:absolute; top:10px; right:12px; font-size:0.72rem; cursor:pointer; opacity:0.75;" onclick="GardenSystem.showZahradaDetail()">📦 ${lang==='en'?'Overview':'Přehled'}</span>`;
+        h += `<span style="position:absolute; top:10px; right:12px; font-size:0.72rem; cursor:pointer; opacity:0.75;" onclick="GardenSystem.showZahradaDetail()">📦 ${lang === 'en' ? 'Overview' : 'Přehled'}</span>`;
         h += `<div style="font-size:0.68rem; font-weight:bold; letter-spacing:0.08em; text-transform:uppercase; opacity:0.55;">${t('dvur.dashTitle')}</div>`;
 
         const miceTxt = ds ? ds.miceFuzzyShort() : (typeof ScriptoriumCat !== 'undefined' && ScriptoriumCat.miceFuzzy ? ScriptoriumCat.miceFuzzy() : '');
@@ -2370,6 +2518,24 @@ const FarmyardSystem = {
         }
         if (collected) { if (typeof VigorSystem !== 'undefined') VigorSystem.addFatigue(0.5); Game.save(); FarmyardSystem.renderFarmyard(); UI.notify('🐑 ' + t('game.sheepCollected')); }
         else UI.notify(t('game.penNotReady'), true);
+    },
+
+    // historicky-podklad-mrd (9.8.2026): sdílená feed funkce pro
+    // goatpen/cowbyre/pigsty/stable — dřív neexistovala vůbec (bug, viz
+    // audit). 1 seno + 1 voda per zvíře, mirror feedRabbitry/feedSheepfold.
+    feedPen: function (pen) {
+        const st = GameState[pen];
+        if (!st || !st.built || !st.animals || st.animals.length === 0) return;
+        const hayNeeded = st.animals.length;
+        const waterNeeded = st.animals.length;
+        if ((GameState.inventory['hay'] || 0) < hayNeeded) { UI.notify(t('game.needHay') + ' (' + hayNeeded + ')', true); return; }
+        if (!this._checkFeedWater(waterNeeded, false).ok) { UI.notify(t('game.needWater'), true); return; }
+        Game.removeItem('hay', hayNeeded);
+        if (typeof VigorSystem !== 'undefined') VigorSystem.addFatigue(0.5);
+        this._checkFeedWater(waterNeeded, true);
+        st.lastFedAt = Date.now();
+        Game.save(); FarmyardSystem.renderFarmyard();
+        UI.notify('🌾 ' + t('farmyard.feed'));
     },
 
     feedRabbitry: function () {
