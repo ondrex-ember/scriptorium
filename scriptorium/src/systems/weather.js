@@ -2,13 +2,13 @@ const WeatherSystem = {
     cache: null,
     cacheTime: 0,
     cacheDuration: 30 * 60 * 1000, // 30 minut
-    
+
     // Prague coordinates
     lat: 50.0755,
     lon: 14.4378,
-    
+
     // WMO Weather codes → emoji mapping
-    getWeatherEmoji: function(code) {
+    getWeatherEmoji: function (code) {
         // WMO codes: https://www.noaa.gov/weather
         if (code === 0) return '☀️'; // Clear sky
         if (code === 1) return '🌤️'; // Mainly clear
@@ -23,42 +23,62 @@ const WeatherSystem = {
         if (code >= 95 && code <= 99) return '⛈️'; // Thunderstorm
         return '🌍'; // Unknown
     },
-    
-    fetchWeather: async function(forceRefresh = false) {
+
+    fetchWeather: async function (forceRefresh = false) {
         // Check cache
         const now = Date.now();
         if (!forceRefresh && this.cache && (now - this.cacheTime) < this.cacheDuration) {
             this.updateDisplay(this.cache);
             return;
         }
-        
+
         // Show loading
         const todayEl = document.getElementById('weather-today');
         const tomorrowEl = document.getElementById('weather-tomorrow');
         todayEl.innerHTML = '⏳';
         tomorrowEl.innerHTML = '⏳';
-        
+
         try {
             const url = `https://api.open-meteo.com/v1/forecast?latitude=${this.lat}&longitude=${this.lon}&current=temperature_2m,weather_code,wind_speed_10m&daily=temperature_2m_max,temperature_2m_min,weather_code,precipitation_sum,wind_speed_10m_max,sunrise,sunset&timezone=auto&past_days=7&forecast_days=7`;
-            
+
             const response = await fetch(url);
             if (!response.ok) throw new Error('Weather API error');
-            
+
             const data = await response.json();
-            
+
             // Cache data
             this.cache = data;
             this.cacheTime = now;
-            
+
+            // historicky-podklad-mrd (9.8.2026): první sníh v aktuálním
+            // podzim/zima cyklu = urychlovač pro FarmyardSystem.grazeCoverage()
+            // (pastva zvěře). Kontroluje jen minulé/dnešní dny (ne forecast),
+            // nastaví se jen jednou za cyklus, reset na jaře v grazeCoverage().
+            try {
+                if (data.daily && Array.isArray(data.daily.weather_code) && Array.isArray(data.daily.time)) {
+                    const todayStr = new Date().toISOString().slice(0, 10);
+                    const todayIdx = data.daily.time.indexOf(todayStr);
+                    const pastCodes = todayIdx >= 0 ? data.daily.weather_code.slice(0, todayIdx + 1) : data.daily.weather_code;
+                    const hasSnow = pastCodes.some(c => (c >= 71 && c <= 77) || (c >= 85 && c <= 86));
+                    if (hasSnow && typeof GameState !== 'undefined' && typeof Game !== 'undefined' && Game._getApiarySeason) {
+                        const seasonNow = Game._getApiarySeason();
+                        if (!GameState.weather) GameState.weather = {};
+                        if ((seasonNow === 'autumn' || seasonNow === 'winter') && !GameState.weather.firstSnowAt) {
+                            GameState.weather.firstSnowAt = Date.now();
+                        }
+                    }
+                }
+            } catch (e) { }
+
             // Save to localStorage
             try {
                 localStorage.setItem('weather_cache', JSON.stringify({ data, time: now }));
-            } catch(e) {}
-            
+            } catch (e) { }
+
             this.updateDisplay(data);
         } catch (error) {
             console.error('Weather fetch error:', error);
-            
+
             // Try to load from localStorage
             try {
                 const cached = localStorage.getItem('weather_cache');
@@ -71,8 +91,8 @@ const WeatherSystem = {
                         return;
                     }
                 }
-            } catch(e) {}
-            
+            } catch (e) { }
+
             // Fallback - show error
             todayEl.innerHTML = '❌';
             tomorrowEl.innerHTML = '❌';
@@ -80,46 +100,46 @@ const WeatherSystem = {
             tomorrowEl.title = 'Chyba načítání počasí (klikni pro retry)';
         }
     },
-    
-    updateDisplay: function(data) {
+
+    updateDisplay: function (data) {
         if (!data) return;
-        
+
         const todayEl = document.getElementById('weather-today');
         const tomorrowEl = document.getElementById('weather-tomorrow');
-        
+
         // Current weather
         const currentTemp = Math.round(data.current.temperature_2m);
         const currentCode = data.current.weather_code;
         const currentEmoji = this.getWeatherEmoji(currentCode);
-        
+
         todayEl.innerHTML = `${currentEmoji}${currentTemp}°`;
         todayEl.title = `Aktuálně v Praze: ${currentTemp}°C (klikni pro refresh)`;
-        
+
         // Tomorrow's forecast (past_days posouvá pole → najdi dnešek)
         const tIdx = this.getDailyIndex(1);
         const tomorrowMaxTemp = Math.round(data.daily.temperature_2m_max[tIdx]);
         const tomorrowMinTemp = Math.round(data.daily.temperature_2m_min[tIdx]);
         const tomorrowCode = data.daily.weather_code[tIdx];
         const tomorrowEmoji = this.getWeatherEmoji(tomorrowCode);
-        
+
         tomorrowEl.innerHTML = `${tomorrowEmoji}${tomorrowMaxTemp}°/${tomorrowMinTemp}°`;
         tomorrowEl.title = `Zítra v Praze: max ${tomorrowMaxTemp}°C, min ${tomorrowMinTemp}°C (klikni pro refresh)`;
-        
+
         // Update auto theme if enabled
-        if(GameState.settings.autoTheme) {
+        if (GameState.settings.autoTheme) {
             ThemeSystem.updateAutoTheme();
         }
 
         // Update header background image (season + time + weather)
-        if(typeof HeaderImageSystem !== 'undefined') {
+        if (typeof HeaderImageSystem !== 'undefined') {
             HeaderImageSystem.update();
         }
     },
-    
+
     // ─── Daily index helpers (past_days posouvá daily pole) ──────────────
     // Najde index "dneška" v daily.time; vrátí idx+offset.
     // Fallback = offset (staré chování) když time chybí / dnešek nenalezen.
-    getDailyIndex: function(offset = 0) {
+    getDailyIndex: function (offset = 0) {
         try {
             const t = this.cache && this.cache.daily && this.cache.daily.time;
             if (Array.isArray(t) && t.length) {
@@ -130,12 +150,12 @@ const WeatherSystem = {
                 const idx = t.indexOf(today);
                 if (idx >= 0) return idx + offset;
             }
-        } catch (e) {}
+        } catch (e) { }
         return offset;
     },
 
     // Počet suchých dní (< 0.1 mm) v okně [dnes−daysBack … dnes] včetně.
-    countDryDays: function(daysBack = 3) {
+    countDryDays: function (daysBack = 3) {
         const out = { dry: 0, total: 0 };
         try {
             const ps = this.cache && this.cache.daily && this.cache.daily.precipitation_sum;
@@ -147,13 +167,13 @@ const WeatherSystem = {
                 out.total++;
                 if ((ps[i] || 0) < 0.1) out.dry++;
             }
-        } catch (e) {}
+        } catch (e) { }
         return out;
     },
 
     // Počet vlhkých dní (≥ 1.0 mm) v okně [dnes−daysBack … dnes] včetně.
     // Vzor identický s countDryDays, jen invertovaný práh — pro riziko paličkovice u žita.
-    countWetDays: function(daysBack = 3) {
+    countWetDays: function (daysBack = 3) {
         const out = { wet: 0, total: 0 };
         try {
             const ps = this.cache && this.cache.daily && this.cache.daily.precipitation_sum;
@@ -165,11 +185,11 @@ const WeatherSystem = {
                 out.total++;
                 if ((ps[i] || 0) >= 1.0) out.wet++;
             }
-        } catch (e) {}
+        } catch (e) { }
         return out;
     },
 
-    init: function() {
+    init: function () {
         // Try to load from cache first (instant display)
         try {
             const cached = localStorage.getItem('weather_cache');
@@ -182,11 +202,11 @@ const WeatherSystem = {
                     this.updateDisplay(data);
                 }
             }
-        } catch(e) {}
-        
+        } catch (e) { }
+
         // Initial fetch
         this.fetchWeather();
-        
+
         // Update every 30 minutes
         setInterval(() => {
             this.fetchWeather();
