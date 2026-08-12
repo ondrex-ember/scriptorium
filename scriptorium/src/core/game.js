@@ -3084,7 +3084,7 @@ const Game = {
                     // Orobinec — kořen z mokřadu
                     if(Math.random() < 0.06) this.addItem('cattail_root', 1);
                     // Proutí — vrbové pruty u mokřadu, běžný stavební materiál (Columbarium)
-                    if(Math.random() < 0.20) this.addItem('wicker', 2);
+                    if(Math.random() < 0.25) this.addItem('wicker', 2);
                     // Kachní vejce — vejce-druhy-mrd 7.8.2026, hnízdo u vody
                     if(Math.random() < 0.05) this.addItem('duck_egg', 1);
         }
