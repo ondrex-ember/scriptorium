@@ -8171,6 +8171,29 @@ const ItemsDB = {
         name: "Útržek pergamenu", name_en: "Torn Page", icon: "📄", type: "lore", lostItem: true,
         desc: "Potrhaný list s nečitelným textem. Místy čitelné latinské slabiky. Kdo to psal?", desc_en: "A torn leaf with barely legible text. Fragments of Latin visible. Who wrote this?"
     },
+    // fishing-species-mrd (10.8.2026): 5 nových pokladů z řeky/rybníka,
+    // mirror torn_page/wax_seal vzoru. Ne "rezavý kotlík" — to je oddělený,
+    // specifický mechanismus (kotlík quest), tady jde o obecné říční nálezy.
+    "old_boot": {
+        name: "Starý střevíc", name_en: "Old Boot", icon: "👢", type: "mat", lostItem: true,
+        desc: "Rozmoklý střevíc vytažený z bahna. Kdo ho tu ztratil a proč jen jeden?", desc_en: "A sodden boot pulled from the mud. Who lost it here, and why only one?"
+    },
+    "broken_pot_shard": {
+        name: "Střep starého hrnce", name_en: "Broken Pot Shard", icon: "🏺", type: "mat", lostItem: true,
+        desc: "Kus rozbité nádoby, hladce ohlazený vodou. Léta ležel na dně.", desc_en: "A shard of a broken vessel, smoothed by years underwater."
+    },
+    "drowned_coin": {
+        name: "Utopená mince", name_en: "Drowned Coin", icon: "🪙", type: "mat", lostItem: true,
+        desc: "Zčernalá mince vytažená z bahna. Ražba nečitelná, ale je to stříbro.", desc_en: "A blackened coin pulled from the silt. The mint mark illegible, but it is silver."
+    },
+    "lost_fishing_hook": {
+        name: "Ztracený rybářský háček", name_en: "Lost Fishing Hook", icon: "🪝", type: "mat", lostItem: true,
+        desc: "Zrezlý háček, dávno utržený z cizí šňůry. Ještě se dá nabrousit.", desc_en: "A rusted hook, long since snapped from someone else's line. It can still be sharpened."
+    },
+    "water_smoothed_amulet": {
+        name: "Vodou ohlazený amulet", name_en: "Water-Smoothed Amulet", icon: "🔮", type: "mat", lostItem: true,
+        desc: "Malý přívěsek neznámého tvaru, obroušený proudem do hladka. Pohanský, nebo jen starý?", desc_en: "A small pendant of unclear shape, worn smooth by the current. Pagan, or merely old?"
+    },
     "wax_seal": {
         name: "Pečetní vosk", name_en: "Wax Seal", icon: "🔴", type: "mat", lostItem: true,
         desc: "Stará pečeť odlomená od dopisu. Heraldický znak — ale čí? Vosk lze přetavit.", desc_en: "An old seal broken from a letter. A heraldic device — but whose? The wax can be remelted."
@@ -8911,6 +8934,7 @@ Object.assign(ItemsDB, {
         desc: "Potřísněný list nalezený mezi zkaženými zásobami. Někdo si zapsal, co znamená, když zanedbání přivolá roj.", desc_en: "A stained page found among the spoiled stores. Someone once wrote down what it means when neglect draws a swarm."
     },
 });
+
 // ═══ src/data/recipes.js ═══
 const RecipesDB = [
     // BASIC TOOLS
