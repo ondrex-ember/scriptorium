@@ -13752,6 +13752,147 @@ const LettersDB = [
         notify_en: 'A promise unkept. (Ecclesia −2, Common folk reputation −1)' }
     ]
   },
+
+  // ═══════════════════════════════════════════════════════════════════════
+  // KATEGORIE C — kacířská/hříšná zakázka (13. 8. 2026)
+  // Zvyšuje GameState.secrets.inquisitionHeat přímo v effect (mirror l16).
+  // Historicky zakotveno k roku 1465 — MRD: zakazky-rozsireni-ctyri-kategorie-mrd.md §4
+  // ═══════════════════════════════════════════════════════════════════════
+
+  // ── H1 — Neznámý sympatizant: opis kompaktátního spisu ──
+  {
+    id: 'h1_sympatizant_kompaktata',
+    sender_cs: 'Neznámý sympatizant', sender_en: 'An Unknown Sympathizer',
+    seal: 'village',
+    title_cs: 'Tichá prosba neznámého', title_en: 'A Quiet Plea from a Stranger',
+    text_cs: '„Bratře, slyšel jsem o zručnosti tvého pera i o mlčenlivosti tvého srdce. Papež Pavel II. povolal našeho krále před svůj tribunál do Říma — lhůta plyne a mnozí se ptají, komu vlastně náleží pravda basilejských kompaktát. Potřebuji tichý opis starého spisu, jenž je hájí, pro vlastní potřebu, ne pro rozruch. Zaplatím dobře a jméno tvé nikdo nezná. Važ ale dobře, komu otvíráš dveře skriptoria — ne každý posel je tím, za koho se vydává. — muž, jenž své jméno tají\"',
+    text_en: '\"Brother, I have heard of the skill of your pen and the discretion of your heart. Pope Paul II has summoned our king before his tribunal in Rome — the term runs, and many now ask to whom the truth of the Basel compacts truly belongs. I need a quiet copy of an old text defending them, for my own use, not for stir. I will pay well, and your name will stay unknown to me. But weigh carefully whose door you open — not every messenger is what he claims. — a man who hides his name\"',
+    trigger: function () {
+      const m = GameState.rank && GameState.rank.monastic;
+      return ['frater', 'armarius', 'prior'].includes(m)
+        && typeof TemplumSystem !== 'undefined' && TemplumSystem.isUnlocked()
+        && !GameState.flags.h1SympatizantKompaktata;
+    },
+    commitment: {
+      flagKey: 'h1SympatizantKompaktata',
+      deadlineFlagKey: 'h1SympatizantKompaktataDeadline',
+      activeStatuses: ['commissioned'],
+      forWhom_cs: 'Neznámý sympatizant', forWhom_en: 'An Unknown Sympathizer',
+      what_cs: 'Tichý opis kompaktátního spisu', what_en: 'A quiet copy of a compactata text',
+      reward_cs: '50 grošů', reward_en: '50 groschen',
+      risk_cs: 'Podezření inkvizice ihned +15; při zmeškání lhůty +5 navíc', risk_en: 'Inquisition suspicion +15 immediately; +5 more if the deadline is missed',
+      requiredItem: { id: 'common_codex', qty: 1 },
+      reward: { grose: 50 },
+      deliveredValue: 'delivered',
+    },
+    choices: [
+      { label_cs: '📜 Přijímám prosbu', label_en: '📜 I accept the request',
+        effect: function () {
+          GameState.flags.h1SympatizantKompaktata = 'commissioned';
+          GameState.flags.h1SympatizantKompaktataDeadline = Date.now() + 18 * 24 * 60 * 60 * 1000;
+          if (GameState.secrets) GameState.secrets.inquisitionHeat = Math.min(100, (GameState.secrets.inquisitionHeat || 0) + 15);
+        },
+        notify_cs: 'Zakázka běží: tichý opis, 18 dní. (Podezření inkvizice vzrostlo)',
+        notify_en: 'The commission runs: a quiet copy, 18 days. (Inquisition suspicion has risen)' },
+      { label_cs: '🚪 Zdvořile odmítnout', label_en: '🚪 Politely refuse',
+        effect: function () {},
+        notify_cs: 'Odmítl jsi. Nikdo se nedozví, že jsi byl žádán.',
+        notify_en: 'You refused. No one will know you were asked.' }
+    ]
+  },
+
+  // ── H1b — Zmeškaná lhůta (h1SympatizantKompaktata: commissioned + po deadline) ──
+  {
+    id: 'h1b_sympatizant_zmeskani',
+    sender_cs: 'Neznámý sympatizant', sender_en: 'An Unknown Sympathizer',
+    seal: 'village',
+    title_cs: 'Ticho místo odpovědi', title_en: 'Silence Instead of an Answer',
+    text_cs: '„Bratře, čekal jsem. Spis nepřišel. Snad je to znamení, že jsi moudřejší než já. — muž, jenž své jméno tají\"',
+    text_en: '\"Brother, I waited. The text did not come. Perhaps it is a sign that you are wiser than I. — a man who hides his name\"',
+    trigger: function () {
+      return GameState.flags.h1SympatizantKompaktata === 'commissioned'
+        && (GameState.flags.h1SympatizantKompaktataDeadline || 0) > 0
+        && Date.now() > GameState.flags.h1SympatizantKompaktataDeadline;
+    },
+    choices: [
+      { label_cs: '🕯️ Sklopit hlavu', label_en: '🕯️ Bow the head',
+        effect: function () {
+          GameState.flags.h1SympatizantKompaktata = 'failed';
+          if (GameState.secrets) GameState.secrets.inquisitionHeat = Math.min(100, (GameState.secrets.inquisitionHeat || 0) + 5);
+        },
+        notify_cs: 'Zakázka propadla. (Podezření mírně vzrostlo)',
+        notify_en: 'The commission has lapsed. (Suspicion has risen slightly)' }
+    ]
+  },
+
+  // ── H2 — Drobný zeman: opis provolání Zelenohorské jednoty (gate: po 28. 11. 1465) ──
+  {
+    id: 'h2_zelenohorska_provolani',
+    sender_cs: 'Drobný zeman z okolí', sender_en: 'A Minor Nobleman from the Region',
+    seal: 'noble',
+    title_cs: 'Žádost zemanova', title_en: "A Nobleman's Request",
+    text_cs: '„Ctihodný bratře, zajisté se i k vám donesla zvěst, že se na Zelené Hoře sešli páni v čele se Zdeňkem ze Šternberka a ustavili jednotu proti králi. Mnozí z nás žádají opis jejich provolání, aby se slovo šířilo mezi věrnými domy. Tvé skriptorium má pověst zručnosti — žádám opis, a nabízím za něj slušnou odměnu. Věz ale, že kdo takový spis chová, nese na sobě stín podezření z obou stran sporu. — zeman, jenž službu králi ani jednotě otevřeně nepřiznává\"',
+    text_en: '\"Venerable brother, surely news has reached you too that the lords gathered at Zelená Hora under Zdeněk ze Šternberka and formed a union against the king. Many of us ask for a copy of their proclamation, that the word may spread among loyal houses. Your scriptorium has a name for skill — I ask for a copy, and offer fair payment for it. But know that whoever keeps such a text bears the shadow of suspicion from both sides of the dispute. — a nobleman who openly declares loyalty to neither king nor union\"',
+    trigger: function () {
+      const m = GameState.rank && GameState.rank.monastic;
+      const now = new Date();
+      const afterNov28 = (now.getMonth() > 10) || (now.getMonth() === 10 && now.getDate() >= 28); // reálný kalendář = 1465
+      return afterNov28
+        && ['frater', 'armarius', 'prior'].includes(m)
+        && typeof TemplumSystem !== 'undefined' && TemplumSystem.isUnlocked()
+        && !GameState.flags.h2ZelenohorskaProvolani;
+    },
+    commitment: {
+      flagKey: 'h2ZelenohorskaProvolani',
+      deadlineFlagKey: 'h2ZelenohorskaProvolaniDeadline',
+      activeStatuses: ['commissioned'],
+      forWhom_cs: 'Drobný zeman z okolí', forWhom_en: 'A Minor Nobleman from the Region',
+      what_cs: 'Opis provolání Zelenohorské jednoty', what_en: 'A copy of the Zelenohorská Union proclamation',
+      reward_cs: '55 grošů', reward_en: '55 groschen',
+      risk_cs: 'Podezření inkvizice ihned +12; při zmeškání lhůty +5 navíc', risk_en: 'Inquisition suspicion +12 immediately; +5 more if the deadline is missed',
+      requiredItem: { id: 'common_codex', qty: 1 },
+      reward: { grose: 55 },
+      deliveredValue: 'delivered',
+    },
+    choices: [
+      { label_cs: '📜 Přijímám prosbu', label_en: '📜 I accept the request',
+        effect: function () {
+          GameState.flags.h2ZelenohorskaProvolani = 'commissioned';
+          GameState.flags.h2ZelenohorskaProvolaniDeadline = Date.now() + 16 * 24 * 60 * 60 * 1000;
+          if (GameState.secrets) GameState.secrets.inquisitionHeat = Math.min(100, (GameState.secrets.inquisitionHeat || 0) + 12);
+        },
+        notify_cs: 'Zakázka běží: opis provolání, 16 dní. (Podezření inkvizice vzrostlo)',
+        notify_en: 'The commission runs: a copy of the proclamation, 16 days. (Inquisition suspicion has risen)' },
+      { label_cs: '🚪 Zdvořile odmítnout', label_en: '🚪 Politely refuse',
+        effect: function () {},
+        notify_cs: 'Odmítl jsi. Zeman odešel bez odpovědi.',
+        notify_en: 'You refused. The nobleman left without an answer.' }
+    ]
+  },
+
+  // ── H2b — Zmeškaná lhůta (h2ZelenohorskaProvolani: commissioned + po deadline) ──
+  {
+    id: 'h2b_zelenohorska_zmeskani',
+    sender_cs: 'Drobný zeman z okolí', sender_en: 'A Minor Nobleman from the Region',
+    seal: 'noble',
+    title_cs: 'Chladná zpráva zemanova', title_en: 'A Cold Word from the Nobleman',
+    text_cs: '„Bratře, opis nepřišel. Snad je opatrnost víc ctností než ochota. Nezapomenu na to, ale nebudu se ani zlobit. — zeman\"',
+    text_en: '\"Brother, the copy did not come. Perhaps caution is more a virtue than willingness. I will not forget it, but neither will I be angry. — the nobleman\"',
+    trigger: function () {
+      return GameState.flags.h2ZelenohorskaProvolani === 'commissioned'
+        && (GameState.flags.h2ZelenohorskaProvolaniDeadline || 0) > 0
+        && Date.now() > GameState.flags.h2ZelenohorskaProvolaniDeadline;
+    },
+    choices: [
+      { label_cs: '🕯️ Sklopit hlavu', label_en: '🕯️ Bow the head',
+        effect: function () {
+          GameState.flags.h2ZelenohorskaProvolani = 'failed';
+          if (GameState.secrets) GameState.secrets.inquisitionHeat = Math.min(100, (GameState.secrets.inquisitionHeat || 0) + 5);
+        },
+        notify_cs: 'Zakázka propadla. (Podezření mírně vzrostlo)',
+        notify_en: 'The commission has lapsed. (Suspicion has risen slightly)' }
+    ]
+  },
 ];
 
 // ═══ src/data/porta-correspondence.js ═══
