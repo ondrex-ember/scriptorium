@@ -1117,6 +1117,17 @@ const Game = {
             });
         });
         if (added) console.log(`🔧 syncTechUnlocks: doplněno ${added} chybějících unlocků.`);
+
+        // Retroaktivní fix (13.8.2026): ink_netolicky recept dřív nikde neodemykal
+        // modal "Prostudovat" pozůstalost — hráč s netolicky_legacy item už dávno
+        // pryč (spotřebován) by se k němu jinak nikdy nedostal. Folio je trvalý
+        // příznak, že už studoval.
+        if (GameState.scrinium && GameState.scrinium.folios && GameState.scrinium.folios.folio_netolicky_01
+            && GameState.scrinium.folios.folio_netolicky_01.found
+            && !GameState.unlockedRecipes.includes('ink_netolicky')) {
+            GameState.unlockedRecipes.push('ink_netolicky');
+            console.log('🔧 syncTechUnlocks: doplněn ink_netolicky (retroaktivně, Netolický už studován).');
+        }
     },
 
     setVolume: function(val) { if(audioSys) audioSys.setVolume(val); },
@@ -1679,6 +1690,8 @@ const Game = {
                         Game.removeItem('netolicky_legacy', 1);
                         Game.addItem('research', 30);
                         if (typeof SecretsSystem !== 'undefined') SecretsSystem.unlockNetolickyFolios();
+                        if (!GameState.unlockedRecipes) GameState.unlockedRecipes = [];
+                        if (!GameState.unlockedRecipes.includes('ink_netolicky')) GameState.unlockedRecipes.push('ink_netolicky');
                         UI.notify(cs ? '📜 Netolický\'s legacy studied. +30 notes.' : '📜 Pozůstalost prostudována. +30 zápisků.');
                         Game.save();
                     }

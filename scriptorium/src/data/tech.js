@@ -329,7 +329,7 @@ const TechTree = [
     cost: 12,
     desc: "Ne každý poklad potřebuje sýpku. Bedny a přestavěné sudy dají další místo k uskladnění, kus po kuse. Odemkne: craft Bedny + přestavbu Sudu na skladovací kontejner — obojí přičítá kapacitu v Inventariu.",
     desc_en: "Not every store needs a granary. Crates and rebuilt barrels give extra room, piece by piece. Unlocks: crafting the Crate + converting a Barrel into a storage container — both add capacity in the Inventarium.",
-    unlocks: ["bedna", "storage_container"], requires: ["tech_horticulture", "tech_inventarium"]
+    unlocks: ["bedna", "convert_barrel_to_container"], requires: ["tech_horticulture", "tech_inventarium"]
   },
 
   {
@@ -346,7 +346,7 @@ const TechTree = [
     cost: 35,
     desc: "Klášterní kovář byl nepostradatelný. Z rozžhaveného železa tvaroval sekerky, rýče i kosy. Bez kováře nezaoralo žádné pole. Odemkne: železné nástroje (sekerka, rýč, kosa, srp, cep, lopata, pila).",
     desc_en: "The monastic blacksmith was indispensable. He shaped axes, spades and scythes from heated iron. Without a smith no field could be ploughed. Unlocks: iron tools (axe, spade, scythe, sickle, flail, shovel, saw).",
-    unlocks: ["iron_axe", "iron_spade", "iron_scythe", "iron_sickle", "iron_flail", "iron_shovel", "iron_saw", "iron_pickaxe", "iron_tongs", "iron_ingot", "repair_iron_axe", "repair_iron_spade", "repair_iron_scythe", "repair_iron_sickle", "repair_iron_flail", "repair_iron_shovel", "repair_iron_saw", "repair_iron_pickaxe", "metal_clasps", "metal_bosses", "hrebiky"], requires: ["tech_horticulture"]
+    unlocks: ["iron_axe", "iron_spade", "iron_scythe", "iron_sickle", "iron_flail", "iron_shovel", "iron_saw", "iron_pickaxe", "iron_knife", "iron_tongs", "iron_ingot", "repair_iron_axe", "repair_iron_spade", "repair_iron_scythe", "repair_iron_sickle", "repair_iron_flail", "repair_iron_shovel", "repair_iron_saw", "repair_iron_pickaxe", "repair_iron_knife", "repair_iron_axe_whetstone", "repair_iron_knife_whetstone", "repair_iron_spade_whetstone", "repair_iron_scythe_whetstone", "repair_iron_sickle_whetstone", "repair_iron_flail_whetstone", "repair_iron_shovel_whetstone", "repair_iron_saw_whetstone", "repair_iron_pickaxe_whetstone", "metal_clasps", "metal_bosses", "hrebiky"], requires: ["tech_horticulture"]
   },
 
   {
