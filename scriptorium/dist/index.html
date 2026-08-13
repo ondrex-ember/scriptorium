@@ -67523,6 +67523,24 @@ const UI = {
             }
         }
 
+        // Opotřebení nástroje (maxUses/toolUses) — vlastní zvýrazněný box,
+        // mirror stylu decayHtml. Fallback na plnou hodnotu, pokud
+        // toolUses[id] ještě není inicializováno (nepoužitý nástroj) —
+        // dřív se v tom případě neukazovalo nic.
+        let durabilityHtml = '';
+        if (item.maxUses) {
+            const usesLeft = (GameState.toolUses && GameState.toolUses[id] !== undefined)
+                ? GameState.toolUses[id] : item.maxUses;
+            const pct = Math.max(0, Math.min(100, Math.round((usesLeft / item.maxUses) * 100)));
+            const color = pct > 50 ? '#5a9a5a' : (pct > 20 ? '#c5a059' : '#c0392b');
+            const bgTint = pct > 50 ? 'rgba(90,154,90,0.08)' : (pct > 20 ? 'rgba(197,160,89,0.08)' : 'rgba(192,57,43,0.08)');
+            durabilityHtml = `<div style="margin:10px 0;padding:8px 12px;background:${bgTint};border-radius:6px;border-left:3px solid ${color};font-size:0.85rem;">
+                🔧 ${lang === 'en' ? 'Condition' : 'Stav'}: <strong>${usesLeft}/${item.maxUses}</strong> ${lang === 'en' ? 'uses' : 'použití'} (${pct}%)
+                <div style="margin-top:4px;height:5px;background:rgba(0,0,0,0.1);border-radius:3px;overflow:hidden;">
+                    <div style="height:100%;width:${pct}%;background:${color};"></div>
+                </div></div>`;
+        }
+
         // Vlastnosti
         const props = [];
         if (item.tier === 'stone') props.push('🪨 ' + (lang === 'en' ? 'Stone tier' : 'Kamenný tier'));
@@ -67535,11 +67553,6 @@ const UI = {
         if (id === 'cooking_pot') {
             const potTierNames = { 1: '🪨 ' + (lang === 'en' ? 'Stone' : 'Kamenný'), 2: '⚙️ ' + (lang === 'en' ? 'Iron' : 'Železný'), 3: '🟠 ' + (lang === 'en' ? 'Bronze' : 'Bronzový') };
             props.push(potTierNames[GameState.cookingPotTier || 1]);
-        }
-        // Opotřebení nástroje (maxUses/toolUses) — existující systém, dřív se v modalu vůbec neukazoval
-        if (item.maxUses && GameState.toolUses && GameState.toolUses[id] !== undefined) {
-            const usesLeft = GameState.toolUses[id];
-            props.push('⚡ ' + usesLeft + '/' + item.maxUses + ' ' + (lang === 'en' ? 'uses' : 'použití'));
         }
         const propsHtml = props.length > 0
             ? `<div style="margin-top:8px;display:flex;flex-wrap:wrap;gap:4px;">${props.map(p => `<span style="padding:2px 8px;background:rgba(197,160,89,0.2);border-radius:10px;font-size:0.75rem;">${p}</span>`).join('')}</div>`
@@ -67555,7 +67568,7 @@ const UI = {
             setTimeout(() => {
                 const body = document.querySelector('.ns-modal-body');
                 if (body) {
-                    const extra = decayHtml + propsHtml + usedIn;
+                    const extra = decayHtml + durabilityHtml + propsHtml + usedIn;
                     if (extra) body.insertAdjacentHTML('afterend', `<div style="padding:0 28px 8px;">${extra}</div>`);
                 }
             }, 20);
@@ -70514,6 +70527,7 @@ const UI = {
 // ===============================================
 // NOTEBOOK SYSTEM - LOCAL ONLY (NO CLOUD)
 // ===============================================
+
 // ═══ src/systems/iching.js ═══
 const IChing = {
 	  
