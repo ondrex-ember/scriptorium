@@ -11449,12 +11449,12 @@ TechTree.push({
 const ActionsDB = [
     { id: 'basic',        cat: 'scavenge', name: 'Průzkum okolí',    name_en: 'Scour the grounds',  icon: '🖐',  desc: 'Suroviny',         desc_en: 'Raw materials',      yield: 1 },
     { id: 'nature',       cat: 'scavenge', name: 'Sběr bylin',       name_en: 'Gather herbs',       icon: '🌿',  desc: 'Vlákna/Semínka',   desc_en: 'Fibres / Seeds',     yield: 1 },
-    { id: 'hunt',         cat: 'scavenge', name: 'Lov zvěře',        name_en: 'Hunt game',          icon: '🐗',  desc: 'Tuk/Kosti',        desc_en: 'Fat / Bones',        yield: 1, req: 'stone_knife' },
-    { id: 'bark',         cat: 'scavenge', name: 'Oloupat strom',    name_en: 'Strip bark',         icon: '🗡️', desc: 'Kůra',             desc_en: 'Bark',               yield: 1, req: 'stone_knife' },
+    { id: 'hunt',         cat: 'scavenge', name: 'Lov zvěře',        name_en: 'Hunt game',          icon: '🐗',  desc: 'Tuk/Kosti',        desc_en: 'Fat / Bones',        yield: 1, req: [{item:'stone_knife', mult:0.7}, {item:'iron_knife', mult:1.2}] },
+    { id: 'bark',         cat: 'scavenge', name: 'Oloupat strom',    name_en: 'Strip bark',         icon: '🗡️', desc: 'Kůra',             desc_en: 'Bark',               yield: 1, req: [{item:'stone_knife', mult:0.7}, {item:'iron_knife', mult:1.2}] },
     { id: 'fishing',      cat: 'scavenge', name: 'Rybolov',          name_en: 'Fish',               icon: '🎣',  desc: 'Ryby',             desc_en: 'Fish',               yield: 1, req: 'fishing_rod' },
     { id: 'foraging',     cat: 'scavenge', name: 'Sběr potravy',     name_en: 'Forage',             icon: '🧺',  desc: 'Houby/Bobule',     desc_en: 'Mushrooms / Berries',yield: 1, req: 'basket' },
-    { id: 'wetlands',     cat: 'scavenge', name: 'Průzkum mokřadu',  name_en: 'Search the wetlands',icon: '🐸',  desc: 'Žáby/Slimáci',    desc_en: 'Frogs / Snails',     yield: 1, req: 'stone_knife' },
-    { id: 'resin_harvest',cat: 'scavenge', name: 'Sběr pryskyřice',  name_en: 'Harvest resin',      icon: '🌲',  desc: 'Pryskyřice/Med',   desc_en: 'Resin / Honey',      yield: 1, req: 'stone_knife' },
+    { id: 'wetlands',     cat: 'scavenge', name: 'Průzkum mokřadu',  name_en: 'Search the wetlands',icon: '🐸',  desc: 'Žáby/Slimáci',    desc_en: 'Frogs / Snails',     yield: 1, req: [{item:'stone_knife', mult:0.7}, {item:'iron_knife', mult:1.2}] },
+    { id: 'resin_harvest',cat: 'scavenge', name: 'Sběr pryskyřice',  name_en: 'Harvest resin',      icon: '🌲',  desc: 'Pryskyřice/Med',   desc_en: 'Resin / Honey',      yield: 1, req: [{item:'stone_knife', mult:0.7}, {item:'iron_knife', mult:1.2}] },
     { id: 'well_water',   cat: 'scavenge', name: 'Jít pro vodu',        name_en: 'Draw water',          icon: '🚰',  desc: 'Ze studny',           desc_en: 'From the well',       yield: 1 },
     { id: 'grass_gather', cat: 'scavenge', name: 'Posečení trávy',      name_en: 'Mow grass',           icon: '🌿',  desc: 'Tráva na seno',       desc_en: 'Grass for hay',       yield: 1, req: [{item:'stone_scythe', mult:0.7}, {item:'iron_scythe', mult:1.2}] },
     { id: 'wood_harvest', cat: 'scavenge', name: 'Těžba dřeva',         name_en: 'Harvest wood',        icon: '🪓',  desc: 'Kulatina/Větve',      desc_en: 'Logs / Branches',     yield: 1, req: [{item:'stone_axe', mult:0.7}, {item:'iron_axe', mult:1.2}] },
@@ -11617,6 +11617,7 @@ const GameState = {
         fornax: { status: 'none', submittedAt: null, deniedReason: null, inspectionPending: false },
     },
 };
+
 // ═══ src/data/achievements.js ═══
 const AchievementsDB = [
     // DISCOVERY
