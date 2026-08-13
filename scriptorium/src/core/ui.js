@@ -1364,6 +1364,10 @@ const UI = {
         el.querySelectorAll('.tech-full').forEach(f => { f.style.display = f.style.display === 'block' ? 'none' : 'block'; });
         el.querySelectorAll('.tech-short').forEach(s => { s.style.display = s.style.display === 'none' ? '' : 'none'; });
     },
+    filterTech: function (key) {
+        this.currentTechFilter = key;
+        this.renderScriptorium();
+    },
     renderScriptorium: function () {
         const el = document.getElementById('lore-research-content'); const res = GameState.inventory['research'] || 0;
         const _t = window.t || t;
@@ -1371,7 +1375,33 @@ const UI = {
         const notesLabel = _lang === 'en' ? 'Notes:' : 'Zápisky:';
         let h = `<div id="manuscript-copy-widget">${typeof ManuscriptCopySystem !== 'undefined' ? ManuscriptCopySystem.renderWidget() : ''}</div>`;
         h += `<div style="grid-column:1/-1;text-align:center;margin-bottom:15px;border:1px solid var(--accent-gold);padding:10px;">${notesLabel} <strong>${res}</strong> 📜</div>`;
-        TechTree.forEach(tech => {
+
+        // tech_scriptorium_catalogus — filtrování Vše/Vyzkoumané/Nevyzkoumané (mirror Knihovna vzoru, tech_bibliotheca_catalogus)
+        const hasTechCatalogus = GameState.researchedTechs && GameState.researchedTechs.includes('tech_scriptorium_catalogus');
+        const techFilter = hasTechCatalogus ? (this.currentTechFilter || 'all') : 'all';
+        const matchesTechFilter = (tech) => {
+            if (!hasTechCatalogus) return true;
+            const isDone = GameState.researchedTechs.includes(tech.id);
+            switch (techFilter) {
+                case 'researched':   return isDone;
+                case 'unresearched': return !isDone;
+                default:             return true; // 'all'
+            }
+        };
+        if (hasTechCatalogus) {
+            const techFilters = [
+                { key: 'all',          label: _lang === 'en' ? 'All' : 'Vše' },
+                { key: 'researched',   label: _lang === 'en' ? 'Researched' : 'Vyzkoumané' },
+                { key: 'unresearched', label: _lang === 'en' ? 'Unresearched' : 'Nevyzkoumané' },
+            ];
+            h += `<div style="grid-column:1/-1;display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;">`;
+            techFilters.forEach(f => {
+                h += `<button class="filter-btn${techFilter === f.key ? ' active' : ''}" onclick="UI.filterTech('${f.key}')">${f.label}</button>`;
+            });
+            h += `</div>`;
+        }
+
+        TechTree.filter(matchesTechFilter).forEach(tech => {
             const done = GameState.researchedTechs.includes(tech.id);
             let canResearch = res >= tech.cost;
             let reqText = "";
