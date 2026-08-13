@@ -9523,6 +9523,8 @@ const RecipesDB = [
     // ── KOVOVÉ NÁSTROJE (tech_kovarina, max 1 ks) ────────────────────────────
     { id:"iron_axe",    output:"iron_axe",    qty:1, req:{iron_ingot:2, plank:1, rope:1, wild_leather:1}, cat:"iron", locked:true, maxStack:1,
       desc:"Masivní sekera. 2 ingoty na hlavu, kůže na opich.", desc_en:"Heavy axe. 2 ingots for the head, leather grip." },
+    { id:"iron_knife",  output:"iron_knife",  qty:1, req:{iron_ingot:1, stick:1, rope:1}, cat:"iron", locked:true, maxStack:1,
+      desc:"Malé železné ostří na dřevěné rukojeti. Vydrží mnohem déle než kamenné.", desc_en:"A small iron blade on a wooden haft. Lasts far longer than stone." },
     { id:"iron_spade",  output:"iron_spade",  qty:1, req:{iron_ingot:1, plank:2, rope:1},            cat:"iron", locked:true, maxStack:1,
       desc:"Železná čepel. 2 prkna: násada a opěrka nohy.", desc_en:"Iron blade. 2 planks: shaft and foot rest." },
     { id:"iron_scythe", output:"iron_scythe", qty:1, req:{iron_ingot:2, stick:3, rope:2, wild_leather:1}, cat:"iron", locked:true, maxStack:1,
@@ -9544,6 +9546,7 @@ const RecipesDB = [
 
     // ── OPRAVA OPOTŘEBENÝCH NÁSTROJŮ (Fabrica — vyžaduje iron_tongs) ─────────
     { id:"repair_iron_axe",    output:"iron_axe",    qty:1, req:{worn_iron_axe:1,     iron_tongs:1}, cat:"iron", locked:true, desc:"Překování a nabroušení sekerky.", desc_en:"Reforge and sharpen the axe." },
+    { id:"repair_iron_knife",  output:"iron_knife",  qty:1, req:{worn_iron_knife:1,   iron_tongs:1}, cat:"iron", locked:true, desc:"Překování a nabroušení nože.", desc_en:"Reforge and sharpen the knife." },
     { id:"repair_iron_spade",  output:"iron_spade",  qty:1, req:{worn_iron_spade:1,   iron_tongs:1}, cat:"iron", locked:true, desc:"Vyrovnání a oprava rýče.", desc_en:"Straighten and repair the spade." },
     { id:"repair_iron_scythe", output:"iron_scythe", qty:1, req:{worn_iron_scythe:1,  iron_tongs:1}, cat:"iron", locked:true, desc:"Nabroušení kosy na bruse.", desc_en:"Sharpen the scythe on the grindstone." },
     { id:"repair_iron_sickle", output:"iron_sickle", qty:1, req:{worn_iron_sickle:1,  iron_tongs:1}, cat:"iron", locked:true, desc:"Nabroušení a překování srpu.", desc_en:"Sharpen and reforge the sickle." },
@@ -9555,6 +9558,7 @@ const RecipesDB = [
     // Whetstone — craft + alternativní oprava železných nástrojů (nespotřebovává iron_tongs, vlastní pool 3 použití)
     { id:"whetstone", output:"whetstone", qty:4, req:{whetstone_rock:1}, cat:"stone", desc:"Z brusného kamene vybroušeny čtyři brousky.", desc_en:"Four whetstones honed from the rock." },
     { id:"repair_iron_axe_whetstone",     output:"iron_axe",     qty:1, req:{worn_iron_axe:1},     toolReq:[{item:"whetstone"}], cat:"iron", locked:true, desc:"Nabroušení sekerky obtahovacím kamenem.", desc_en:"Hone the axe with a whetstone." },
+    { id:"repair_iron_knife_whetstone",   output:"iron_knife",   qty:1, req:{worn_iron_knife:1},   toolReq:[{item:"whetstone"}], cat:"iron", locked:true, desc:"Nabroušení nože obtahovacím kamenem.", desc_en:"Hone the knife with a whetstone." },
     { id:"repair_iron_spade_whetstone",   output:"iron_spade",   qty:1, req:{worn_iron_spade:1},   toolReq:[{item:"whetstone"}], cat:"iron", locked:true, desc:"Nabroušení rýče obtahovacím kamenem.", desc_en:"Hone the spade with a whetstone." },
     { id:"repair_iron_scythe_whetstone",  output:"iron_scythe",  qty:1, req:{worn_iron_scythe:1},  toolReq:[{item:"whetstone"}], cat:"iron", locked:true, desc:"Nabroušení kosy obtahovacím kamenem.", desc_en:"Hone the scythe with a whetstone." },
     { id:"repair_iron_sickle_whetstone",  output:"iron_sickle",  qty:1, req:{worn_iron_sickle:1},  toolReq:[{item:"whetstone"}], cat:"iron", locked:true, desc:"Nabroušení srpu obtahovacím kamenem.", desc_en:"Hone the sickle with a whetstone." },
@@ -9656,6 +9660,7 @@ RecipesDB.push(
     { id: "tvaroh", output: "tvaroh", qty: 1, req: { "milk": 3, "cooking_pot": 0 }, cat: "food", locked: true },
     { id: "tvarohove_tasticky", output: "tvarohove_tasticky", qty: 1, req: { "tvaroh": 2, "flour": 2, "egg": 1, "cooking_pot": 0 }, cat: "food", locked: true }
 );
+
 // ═══ src/data/health.js ═══
 // ═══════════════════════════════════════════════════════════════════════════
 // HEALTH CONDITIONS DB (Valetudo)
