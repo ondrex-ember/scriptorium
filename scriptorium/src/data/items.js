@@ -27,7 +27,7 @@ const ItemsDB = {
 
     // TOOLS
     "sharp_stone": { name: "Úštěpek", name_en: "Flint Shard", icon: "🔪", type: "tool", desc: "Základní ostří.", desc_en: "A crude cutting edge." },
-    "stone_knife": { name: "Nůž", name_en: "Stone Knife", icon: "🗡️", type: "tool", desc: "Nástroj k lovu.", desc_en: "A hunting tool." },
+    "stone_knife": { maxUses: 100, tier: "stone", name: "Nůž", name_en: "Stone Knife", icon: "🗡️", type: "tool", desc: "Nástroj k lovu.", desc_en: "A hunting tool." },
     "pestle": { name: "Hmoždíř", name_en: "Mortar & Pestle", icon: "🥣", type: "tool", desc: "Na drcení.", desc_en: "For grinding." },
     "flint": { name: "Křesadlo", name_en: "Flint", icon: "🔥", type: "tool", tier: "fire", desc: "Na oheň.", desc_en: "For striking fire." },
     "primitive_torch": { name: "Louč (tuková)", name_en: "Torch (fat)", icon: "🪵", type: "tool", tier: "fire", lightHours: 1, desc: "Nouzová louč napuštěná tukem. Tuk je na pochodeň nevhodný — rychle se rozteče a hoří jen krátce, navíc čadí. 1h světla.", desc_en: "Emergency torch soaked in fat. Fat is a poor torch fuel — melts fast, burns only briefly, and smokes badly. 1h of light." },
@@ -641,6 +641,7 @@ const ItemsDB = {
 
     // ── KOVOVÉ NÁSTROJE (tech_kovarina — po kovárně) ─────────────────────────
     "iron_axe": { maxUses: 20, maxStack: 1, name: "Železná sekerka", name_en: "Iron Axe", icon: "🪓", type: "tool", tier: "iron", desc: "Železné ostří. Rychlejší těžba dřeva, více kulatiny.", desc_en: "Iron blade. Faster wood harvesting, more logs." },
+    "iron_knife": { maxUses: 500, maxStack: 1, name: "Železný nůž", name_en: "Iron Knife", icon: "🗡️", type: "tool", tier: "iron", desc: "Železné ostří. Ostřejší řez, méně plýtvání při lovu i zpracování.", desc_en: "Iron blade. A sharper cut, less waste when hunting or processing." },
     "iron_spade": { maxUses: 20, maxStack: 1, name: "Železný rýč", name_en: "Iron Spade", icon: "⛏️", type: "tool", tier: "iron", desc: "Železný rýč. Více červů, hlubší kopání.", desc_en: "Iron spade. More worms, deeper digging." },
     "iron_scythe": { maxUses: 20, maxStack: 1, name: "Železná kosa", name_en: "Iron Scythe", icon: "⚔️", type: "tool", tier: "iron", desc: "Ostrá železná kosa. Více trávy za méně akcí.", desc_en: "Sharp iron scythe. More grass per action." },
     "iron_sickle": { maxUses: 20, maxStack: 1, name: "Železný srp", name_en: "Iron Sickle", icon: "🌾", type: "tool", tier: "iron", desc: "Železný srp. Přesná žeň obilí a bylin.", desc_en: "Iron sickle. Precise harvesting of grain and herbs." },
@@ -925,6 +926,7 @@ const ItemsDB = {
 
     // ── OPOTŘEBENÉ ŽELEZNÉ NÁSTROJE ──────────────────────────────────────────
     "worn_iron_axe": { maxUses: 3, name: "Otupená sekerka", name_en: "Worn Iron Axe", icon: "🪓", type: "tool", tier: "iron", desc: "Otupené železné ostří. Opravit v Kovárně.", desc_en: "Blunted iron blade. Repair at the Smithy." },
+    "worn_iron_knife": { maxUses: 3, name: "Otupený nůž", name_en: "Worn Iron Knife", icon: "🗡️", type: "tool", tier: "iron", desc: "Otupené železné ostří nože. Opravit v Kovárně.", desc_en: "Blunted iron knife blade. Repair at the Smithy." },
     "worn_iron_spade": { maxUses: 3, name: "Tupý rýč", name_en: "Worn Iron Spade", icon: "⛏️", type: "tool", tier: "iron", desc: "Ohnutý železný rýč. Opravit v Kovárně.", desc_en: "Bent iron spade. Repair at the Smithy." },
     "worn_iron_scythe": { maxUses: 3, name: "Tupá kosa", name_en: "Worn Iron Scythe", icon: "⚔️", type: "tool", tier: "iron", desc: "Otupenná železná kosa. Opravit v Kovárně.", desc_en: "Blunted iron scythe. Repair at the Smithy." },
     "worn_iron_sickle": { maxUses: 3, name: "Tupý srp", name_en: "Worn Iron Sickle", icon: "🌾", type: "tool", tier: "iron", desc: "Otupenný železný srp. Opravit v Kovárně.", desc_en: "Blunted iron sickle. Repair at the Smithy." },
