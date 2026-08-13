@@ -57985,6 +57985,75 @@ const Game = {
         fishing: ['old_boot','broken_pot_shard','drowned_coin','lost_fishing_hook','water_smoothed_amulet'],
     },
 
+    // ═══════════════════════════════════════════════════════════════════
+    // seasonalita-scavenge-mrd.md (13.8.2026) — sezónní dostupnost scavenge
+    // položek. Mirror Chronicon SEASON_MODS vzoru (data/actors.js), jen
+    // kategorií (ItemsDB[id].seasonCat) místo per-aktér. Žádný tech gate
+    // na sezónu samotnou (ambientní fakt světa) — jen na řešení (budoucí
+    // tech_hon/tech_konzervace). [jaro, léto, podzim, zima]
+    // ═══════════════════════════════════════════════════════════════════
+    SEASON_MODS: {
+        jarni_zelenina:        [1.5, 1.0, 0.4,  0.1],
+        jarni_houba:           [1.8, 0.1, 0.05, 0],
+        podzimni_houby:        [0.2, 0.6, 1.6,  0.3],
+        podzimni_orechy:       [0.1, 0.1, 1.6,  0.5],
+        letni_bobule:          [0.3, 1.6, 0.5,  0],
+        podzimni_plane_ovoce:  [0,   0.2, 1.5,  0.4],
+        koreny_hlizy:          [1.0, 0.8, 1.3,  0.6],
+        semena_letni_podzim:   [0.1, 0.5, 1.5,  0.2],
+        aromaticke_byliny:     [0.6, 1.6, 0.8,  0.1],
+        lipovy_kvet:           [0,   1.8, 0.1,  0],
+        rozmaryn:              [0.6, 1.0, 0.8,  0.4],
+        vlakno:                [0.5, 1.2, 1.3,  0.3],
+        mokradni_fauna:        [0.5, 1.6, 0.7,  0.05],
+        divoka_vejce:          [1.3, 1.2, 0.2,  0],
+        prouti:                [1.0, 0.6, 0.8,  1.3],
+        drevo_kura:            [1.0, 0.9, 1.0,  1.0],
+        pryskyrice_smula:      [0.8, 0.7, 1.0,  1.2],
+        nerosty:               [1.0, 1.0, 1.0,  0.7],
+        zizaly:                [1.2, 0.9, 1.2,  0.3],
+        lov:                   [0.4, 0.5, 1.3,  1.4],
+        rybolov:               [1.0, 0.9, 1.1,  0.6],
+        jalovec:               [0.6, 0.7, 1.0,  1.2],
+        hmyz_teplo:            [1.0, 1.3, 1.0,  0.05],
+        jedovate_rostliny:     [0.1, 0.9, 1.3,  0.1],
+        zimuvzdorna_zelenina:  [0.3, 0.5, 1.2,  0.9],
+    },
+
+    // Sezónní multiplikátor pro daný item (1 = beze změny, pro netagované
+    // položky vždy 1 — bezpečný no-op). Sdílí zdroj sezóny s Apiáriem.
+    _seasonMult: function (itemId) {
+        const def = typeof ItemsDB !== 'undefined' ? ItemsDB[itemId] : null;
+        const cat = def && def.seasonCat;
+        if (!cat || !this.SEASON_MODS[cat]) return 1;
+        const idx = this._getApiarySeason();
+        const arr = this.SEASON_MODS[cat];
+        return (typeof arr[idx] === 'number') ? arr[idx] : 1;
+    },
+
+    // Nahrazuje `Math.random() < P` u nezávislých bonusových dropů —
+    // stejné volání, jen P se sezónně přeškáluje. Ořezáno na 0.95, ať
+    // žádná kombinace nedá jistotu.
+    _seasonRoll: function (itemId, baseP) {
+        return Math.random() < Math.min(baseP * this._seasonMult(itemId), 0.95);
+    },
+
+    // Vážený výběr z primárního poolu (dřív pevný r<X řetězec). `pool`:
+    // [{id, qty, w}], `w` = původní design váha (šířky z dřívějších
+    // prahů, součet 1.0 — ověřeno ručně proti staré logice). Při w=1
+    // pro všechny sezóny reprodukuje identické rozložení jako dřív.
+    _weightedSeasonPick: function (pool) {
+        const weighted = pool.map((p) => ({ id: p.id, qty: p.qty, w: p.w * this._seasonMult(p.id) }));
+        const total = weighted.reduce((s, p) => s + p.w, 0);
+        if (total <= 0) return pool[pool.length - 1]; // bezpečný fallback, nemělo by nastat
+        let r = Math.random() * total;
+        for (let i = 0; i < weighted.length; i++) {
+            r -= weighted[i].w;
+            if (r <= 0) return weighted[i];
+        }
+        return weighted[weighted.length - 1];
+    },
+
     init: function() {
         Game.load();
 
@@ -61015,7 +61084,7 @@ const Game = {
                     if (r > 0.5) this.addItem('hide', 1); // 50% chance - wild hide, needs processing into raw_hide or wild_leather
                     if (r > 0.7) this.addItem('feather', 1); // 30% chance - for quill
                     // Lůj (tallow-mrd, 7.8.2026): 3x řidčeji než tuk
-                    if (Math.random() < 0.33) this.addItem('tallow', 1);
+                    if (this._seasonRoll('tallow', 0.33)) this.addItem('tallow', 1);
         }
         else if (type === 'bark') {
             if (Math.random() < 0.15) this.addItem('vrbova_kura', 1);
@@ -61043,45 +61112,48 @@ const Game = {
             }
         }
         else if (type === 'foraging') {
-                    if(r<0.25) this.addItem('mushroom', 2);
-                    else if(r<0.45) this.addItem('berries', 2);
-                    else if(r<0.55) this.addItem('mushroom_poison', 1);
-                    else if(r<0.7) this.addItem('roots', 1);
-                    else if(r<0.8) this.addItem('seeds_vegetable', 1);
-                    else if(r<0.9) this.addItem('nightshade', 1);
-                    else this.addItem('fiber', 1);
-                    if(Math.random() < 0.02) this.addItem('viticis_baco', 1);
+                    const _forPick = this._weightedSeasonPick([
+                        { id: 'mushroom', qty: 2, w: 0.25 },
+                        { id: 'berries', qty: 2, w: 0.20 },
+                        { id: 'mushroom_poison', qty: 1, w: 0.10 },
+                        { id: 'roots', qty: 1, w: 0.15 },
+                        { id: 'seeds_vegetable', qty: 1, w: 0.10 },
+                        { id: 'nightshade', qty: 1, w: 0.10 },
+                        { id: 'fiber', qty: 1, w: 0.10 },
+                    ]);
+                    this.addItem(_forPick.id, _forPick.qty);
+                    if(this._seasonRoll('viticis_baco', 0.02)) this.addItem('viticis_baco', 1);
                     // v8.x: Zelenina a koření při sběru potravy
-                    if(Math.random() < 0.05) this.addItem('garlic', 1);
-                    if(Math.random() < 0.04) this.addItem('leek', 1);
-                    if(Math.random() < 0.04) this.addItem('nettle', 1);
-                    if(Math.random() < 0.04) this.addItem('galium', 1);
-                    if(Math.random() < 0.03) this.addItem('seeds_garlic', 1);
-                    if(Math.random() < 0.02) this.addItem('seeds_nettle', 1);
+                    if(this._seasonRoll('garlic', 0.05)) this.addItem('garlic', 1);
+                    if(this._seasonRoll('leek', 0.04)) this.addItem('leek', 1);
+                    if(this._seasonRoll('nettle', 0.04)) this.addItem('nettle', 1);
+                    if(this._seasonRoll('galium', 0.04)) this.addItem('galium', 1);
+                    if(this._seasonRoll('seeds_garlic', 0.03)) this.addItem('seeds_garlic', 1);
+                    if(this._seasonRoll('seeds_nettle', 0.02)) this.addItem('seeds_nettle', 1);
                     // Žaludy — podzimní nález
-                    if(Math.random() < 0.12) this.addItem('acorn', 1);
+                    if(this._seasonRoll('acorn', 0.12)) this.addItem('acorn', 1);
                     // Hlemýždi — vyšší šance po dešti
                     const _snailWet = (typeof WeatherSystem !== 'undefined') ? WeatherSystem.countWetDays(3) : { wet: 0 };
-                    if(Math.random() < (_snailWet.wet >= 2 ? 0.15 : 0.05)) this.addItem('snail', 1);
+                    if(this._seasonRoll('snail', _snailWet.wet >= 2 ? 0.15 : 0.05)) this.addItem('snail', 1);
                     // Divoké byliny a kořeny (Cultus Herbarum)
-                    if(Math.random() < 0.06) this.addItem('ground_elder', 1);
-                    if(Math.random() < 0.05) this.addItem('goosefoot', 1);
-                    if(Math.random() < 0.05) this.addItem('sorrel', 1);
-                    if(Math.random() < 0.04) this.addItem('dandelion', 1);
-                    if(Math.random() < 0.05) this.addItem('burdock_root', 1);
-                    if(Math.random() < 0.05) this.addItem('couch_grass', 1);
+                    if(this._seasonRoll('ground_elder', 0.06)) this.addItem('ground_elder', 1);
+                    if(this._seasonRoll('goosefoot', 0.05)) this.addItem('goosefoot', 1);
+                    if(this._seasonRoll('sorrel', 0.05)) this.addItem('sorrel', 1);
+                    if(this._seasonRoll('dandelion', 0.04)) this.addItem('dandelion', 1);
+                    if(this._seasonRoll('burdock_root', 0.05)) this.addItem('burdock_root', 1);
+                    if(this._seasonRoll('couch_grass', 0.05)) this.addItem('couch_grass', 1);
                     // Titivillus-infirmary-mrd — jalovec roste v lesích/na mezích
-                    if(Math.random() < 0.03) this.addItem('juniper', 1);
+                    if(this._seasonRoll('juniper', 0.03)) this.addItem('juniper', 1);
                     // Bukvice — podzim, spolu se žaludy
-                    if(Math.random() < 0.08) this.addItem('beechnut', 1);
+                    if(this._seasonRoll('beechnut', 0.08)) this.addItem('beechnut', 1);
                     // Vzácnější houby (Cultus Herbarum)
-                    if(Math.random() < 0.03) this.addItem('morel', 1);
-                    if(Math.random() < 0.04) this.addItem('saffron_milk_cap', 1);
-                    if(Math.random() < 0.03) this.addItem('porcini', 1);
+                    if(this._seasonRoll('morel', 0.03)) this.addItem('morel', 1);
+                    if(this._seasonRoll('saffron_milk_cap', 0.04)) this.addItem('saffron_milk_cap', 1);
+                    if(this._seasonRoll('porcini', 0.03)) this.addItem('porcini', 1);
                     // Červec — obchod-podklad 7.8.2026, u kořenů luk, drtí se na karmín (tech_cervec)
-                    if(Math.random() < 0.04) this.addItem('cervec', 1);
+                    if(this._seasonRoll('cervec', 0.04)) this.addItem('cervec', 1);
                     // Křepelčí vejce — vejce-druhy-mrd 7.8.2026, hnízdo v trávě, vzácné
-                    if(Math.random() < 0.03) this.addItem('quail_egg', 1);
+                    if(this._seasonRoll('quail_egg', 0.03)) this.addItem('quail_egg', 1);
                     // 0.07% — útržky, pečeť, byliny/váček zapomenuté v přírodě (viz LOST_ITEM_POOLS.foraging)
                     if(Math.random() < 0.0007) {
                         const pool = this.LOST_ITEM_POOLS.foraging;
@@ -61096,43 +61168,46 @@ const Game = {
                     }
         }
         else if (type === 'wetlands') {
-                    if(r<0.4) this.addItem('frog', 1);
-                    else if(r<0.7) this.addItem('slug', 2);
-                    else if(r<0.85) this.addItem('water', 2);
-                    else this.addItem('fiber', 1);
+                    const _wetPick = this._weightedSeasonPick([
+                        { id: 'frog', qty: 1, w: 0.40 },
+                        { id: 'slug', qty: 2, w: 0.30 },
+                        { id: 'water', qty: 2, w: 0.15 },
+                        { id: 'fiber', qty: 1, w: 0.15 },
+                    ]);
+                    this.addItem(_wetPick.id, _wetPick.qty);
                     // v8.x: plůdek — vzácný nález v mokřadu
-                    if(Math.random() < 0.08) this.addItem('fry', 1);
+                    if(this._seasonRoll('fry', 0.08)) this.addItem('fry', 1);
                     // Raci — vzácnější nález v mokřadu
-                    if(Math.random() < 0.15) this.addItem('crayfish', 1);
+                    if(this._seasonRoll('crayfish', 0.15)) this.addItem('crayfish', 1);
                     // Orobinec — kořen z mokřadu
-                    if(Math.random() < 0.06) this.addItem('cattail_root', 1);
+                    if(this._seasonRoll('cattail_root', 0.06)) this.addItem('cattail_root', 1);
                     // Proutí — vrbové pruty u mokřadu, běžný stavební materiál (Columbarium)
-                    if(Math.random() < 0.20) this.addItem('wicker', 2);
+                    if(this._seasonRoll('wicker', 0.20)) this.addItem('wicker', 2);
                     // Kachní vejce — vejce-druhy-mrd 7.8.2026, hnízdo u vody
-                    if(Math.random() < 0.05) this.addItem('duck_egg', 1);
+                    if(this._seasonRoll('duck_egg', 0.05)) this.addItem('duck_egg', 1);
         }
         else if (type === 'grass_gather') {
                     this.addItem('grass', Math.random() < 0.5 ? 3 : 2);
                     this.addItem('fiber', Math.random() < 0.5 ? 3 : 2);
-                    if(Math.random() < 0.30) this.addItem('linden_blossom', 1);
-                    if(Math.random() < 0.20) this.addItem('chamomile', 1);
-                    if(Math.random() < 0.10) this.addItem('thyme', 1);
-                    if(Math.random() < 0.08) this.addItem('yarrow', 1);
-                    if(Math.random() < 0.05) this.addItem('wormwood', 1);
-                    if(Math.random() < 0.05) this.addItem('kopr', 1);
-                    if(Math.random() < 0.04) this.addItem('sage', 1);
-                    if(Math.random() < 0.02) this.addItem('plantain', 1);
+                    if(this._seasonRoll('linden_blossom', 0.30)) this.addItem('linden_blossom', 1);
+                    if(this._seasonRoll('chamomile', 0.20)) this.addItem('chamomile', 1);
+                    if(this._seasonRoll('thyme', 0.10)) this.addItem('thyme', 1);
+                    if(this._seasonRoll('yarrow', 0.08)) this.addItem('yarrow', 1);
+                    if(this._seasonRoll('wormwood', 0.05)) this.addItem('wormwood', 1);
+                    if(this._seasonRoll('kopr', 0.05)) this.addItem('kopr', 1);
+                    if(this._seasonRoll('sage', 0.04)) this.addItem('sage', 1);
+                    if(this._seasonRoll('plantain', 0.02)) this.addItem('plantain', 1);
                     // Titivillus-infirmary-mrd — kostival a rozmarýn rostou mezi trávou (jalovec je keř, viz jinde)
-                    if(Math.random() < 0.03) this.addItem('comfrey', 1);
-                    if(Math.random() < 0.02) this.addItem('rosemary', 1);
+                    if(this._seasonRoll('comfrey', 0.03)) this.addItem('comfrey', 1);
+                    if(this._seasonRoll('rosemary', 0.02)) this.addItem('rosemary', 1);
                     // Divoke obili mezi travou
-                    if(Math.random() < 0.04) this.addItem('seeds_rye', 1);
-                    if(Math.random() < 0.03) this.addItem('seeds_wheat', 1);
-                    if(Math.random() < 0.03) this.addItem('seeds_barley', 1);
-                    if(Math.random() < 0.03) this.addItem('seeds_oats', 1);
-                    if(Math.random() < 0.02) this.addItem('seeds_millet', 1);
-                    if(Math.random() < 0.02) this.addItem('seeds_peas', 1);
-                    if(Math.random() < 0.015) this.addItem('seeds_flax', 1);
+                    if(this._seasonRoll('seeds_rye', 0.04)) this.addItem('seeds_rye', 1);
+                    if(this._seasonRoll('seeds_wheat', 0.03)) this.addItem('seeds_wheat', 1);
+                    if(this._seasonRoll('seeds_barley', 0.03)) this.addItem('seeds_barley', 1);
+                    if(this._seasonRoll('seeds_oats', 0.03)) this.addItem('seeds_oats', 1);
+                    if(this._seasonRoll('seeds_millet', 0.02)) this.addItem('seeds_millet', 1);
+                    if(this._seasonRoll('seeds_peas', 0.02)) this.addItem('seeds_peas', 1);
+                    if(this._seasonRoll('seeds_flax', 0.015)) this.addItem('seeds_flax', 1);
                     // herbarium-seed-fix-mrd (10.8.2026): stejný vzácný nález jako u nature,
                     // Sběr bylin je tematicky stejně vhodné místo
                     if(Math.random() < 0.004) this.addItem('seeds_mandrake', 1);
@@ -61141,19 +61216,19 @@ const Game = {
         }
         else if (type === 'wood_harvest') {
                     this.addItem('log', Math.random() < 0.4 ? 2 : 1);
-                    if(Math.random() < 0.60) this.addItem('stick', 2);
-                    if(Math.random() < 0.20) this.addItem('bark', 1);
-                    if(Math.random() < 0.10) this.addItem('resin', 1);
+                    if(this._seasonRoll('stick', 0.60)) this.addItem('stick', 2);
+                    if(this._seasonRoll('bark', 0.20)) this.addItem('bark', 1);
+                    if(this._seasonRoll('resin', 0.10)) this.addItem('resin', 1);
                     if(Math.random() < 0.05) this.addItem('charcoal', 1);
                     // Smůla — na louč (torch_resin-mrd, 6.8.2026): kácení dává víc než průzkum
-                    if(Math.random() < 0.25) this.addItem('resin_spruce', Math.random() < 0.4 ? 2 : 1);
-                    if(Math.random() < 0.15) this.addItem('resin_pine', 1);
+                    if(this._seasonRoll('resin_spruce', 0.25)) this.addItem('resin_spruce', Math.random() < 0.4 ? 2 : 1);
+                    if(this._seasonRoll('resin_pine', 0.15)) this.addItem('resin_pine', 1);
         }
         else if (type === 'worms_dig') {
                     this.addItem('worms', Math.random() < 0.5 ? 3 : 2);
                     if(Math.random() < 0.40) this.addItem('rock', 1);
                     if(Math.random() < 0.20) this.addItem('clay', 1);
-                    if(Math.random() < 0.10) this.addItem('seeds_herb', 1);
+                    if(this._seasonRoll('seeds_herb', 0.10)) this.addItem('seeds_herb', 1);
         }
         else if (type === 'dig_clay') {
                     this.addItem('clay', Math.random() < 0.5 ? 3 : 2);
@@ -61161,14 +61236,18 @@ const Game = {
                     if(Math.random() < 0.10) this.addItem('worms', 1);
         }
         else if (type === 'basic') {
-                    this.addItem((r<0.4?'rock':'stick'), 1);
+                    const _basicPick = this._weightedSeasonPick([
+                        { id: 'rock', qty: 1, w: 0.4 },
+                        { id: 'stick', qty: 1, w: 0.6 },
+                    ]);
+                    this.addItem(_basicPick.id, _basicPick.qty);
                     if(Math.random() < 0.05) this.addItem('carbon_black', 1);
                     if(Math.random() < 0.04) this.addItem('ochre', 1);
                     if(Math.random() < 0.10) this.addItem('chalk', 1);
                     if(Math.random() < 0.35) this.addItem('rags', 1);
                     // Smůla — na louč (torch_resin-mrd, 6.8.2026): dostupná i z běžného průzkumu
-                    if(Math.random() < 0.08) this.addItem('resin_spruce', 1);
-                    if(Math.random() < 0.05) this.addItem('resin_pine', 1);
+                    if(this._seasonRoll('resin_spruce', 0.08)) this.addItem('resin_spruce', 1);
+                    if(this._seasonRoll('resin_pine', 0.05)) this.addItem('resin_pine', 1);
                     // Iron ore — vzácný nález (3%) po odemčení kovařiny
                     if(Math.random() < 0.03 && GameState.researchedTechs && GameState.researchedTechs.includes('tech_kovarina')) {
                         this.addItem('iron_ore', 1);
@@ -61182,45 +61261,48 @@ const Game = {
                     }
         }
         else if (type === 'nature') {
-                    if(r<0.08) this.addItem('herb_red',1);
-                    else if(r<0.12) this.addItem('herb_yellow',1);
-                    else if(r<0.16) this.addItem('herb_blue',1);
-                    else if(r<0.2) this.addItem('mint',1);
-                    else if(r<0.5) this.addItem('fiber',2);
-                    else if(r<0.7) this.addItem('water',1);
-                    else if(r<0.8) this.addItem('seeds_herb',1);
-                    else if(r<0.9) this.addItem('seeds_yellow',1);
-                    else if(r<0.95) this.addItem('seeds_blue',1);
-                    else this.addItem('seeds_mint',1);
-                    
+                    const _natPick = this._weightedSeasonPick([
+                        { id: 'herb_red', qty: 1, w: 0.08 },
+                        { id: 'herb_yellow', qty: 1, w: 0.04 },
+                        { id: 'herb_blue', qty: 1, w: 0.04 },
+                        { id: 'mint', qty: 1, w: 0.04 },
+                        { id: 'fiber', qty: 2, w: 0.30 },
+                        { id: 'water', qty: 1, w: 0.20 },
+                        { id: 'seeds_herb', qty: 1, w: 0.10 },
+                        { id: 'seeds_yellow', qty: 1, w: 0.10 },
+                        { id: 'seeds_blue', qty: 1, w: 0.05 },
+                        { id: 'seeds_mint', qty: 1, w: 0.05 },
+                    ]);
+                    this.addItem(_natPick.id, _natPick.qty);
+
                     // v7.5: NEW DROP - gall_nut for gallic ink
                     if(Math.random() < 0.06) this.addItem('gall_nut', 1); // 6% chance
                     // hadry — základ hadrového papíru
                     if(Math.random() < 0.35) this.addItem('rags', 1);
                     // Athanor: byliny
-                    if(Math.random() < 0.08) this.addItem('chamomile', 1);
-                    if(Math.random() < 0.08) this.addItem('plantain', 1);
-                    if(Math.random() < 0.05) this.addItem('st_johns_wort', 1);
-                    if(Math.random() < 0.04) this.addItem('thyme', 1);
-                    if(Math.random() < 0.03) this.addItem('seeds_thyme', 1);
-                    if(Math.random() < 0.03) this.addItem('kopr', 1);
+                    if(this._seasonRoll('chamomile', 0.08)) this.addItem('chamomile', 1);
+                    if(this._seasonRoll('plantain', 0.08)) this.addItem('plantain', 1);
+                    if(this._seasonRoll('st_johns_wort', 0.05)) this.addItem('st_johns_wort', 1);
+                    if(this._seasonRoll('thyme', 0.04)) this.addItem('thyme', 1);
+                    if(this._seasonRoll('seeds_thyme', 0.03)) this.addItem('seeds_thyme', 1);
+                    if(this._seasonRoll('kopr', 0.03)) this.addItem('kopr', 1);
                     if(Math.random() < 0.01) this.addItem('seeds_kopr', 1);
                     if(Math.random() < 0.02) this.addItem('hops', 1);
                     if(Math.random() < 0.01) this.addItem('seeds_hops', 1);
                     // v8.x: Nové byliny — šalvěj, fenykl, pelyněk, yzop, řebříček
-                    if(Math.random() < 0.03) this.addItem('sage', 1);
-                    if(Math.random() < 0.02) this.addItem('fennel', 1);
-                    if(Math.random() < 0.03) this.addItem('wormwood', 1);
-                    if(Math.random() < 0.04) this.addItem('yarrow', 1);
-                    if(Math.random() < 0.02) this.addItem('hyssop', 1);
+                    if(this._seasonRoll('sage', 0.03)) this.addItem('sage', 1);
+                    if(this._seasonRoll('fennel', 0.02)) this.addItem('fennel', 1);
+                    if(this._seasonRoll('wormwood', 0.03)) this.addItem('wormwood', 1);
+                    if(this._seasonRoll('yarrow', 0.04)) this.addItem('yarrow', 1);
+                    if(this._seasonRoll('hyssop', 0.02)) this.addItem('hyssop', 1);
                     // Titivillus-infirmary-mrd — kostival, jalovec, rozmarýn (na mast proti revma/křeči)
-                    if(Math.random() < 0.03) this.addItem('comfrey', 1);
-                    if(Math.random() < 0.02) this.addItem('juniper', 1);
-                    if(Math.random() < 0.03) this.addItem('rosemary', 1);
+                    if(this._seasonRoll('comfrey', 0.03)) this.addItem('comfrey', 1);
+                    if(this._seasonRoll('juniper', 0.02)) this.addItem('juniper', 1);
+                    if(this._seasonRoll('rosemary', 0.03)) this.addItem('rosemary', 1);
                     // Semena nových bylin — vzácnější
-                    if(Math.random() < 0.015) this.addItem('seeds_sage', 1);
-                    if(Math.random() < 0.010) this.addItem('seeds_wormwood', 1);
-                    if(Math.random() < 0.020) this.addItem('seeds_yarrow', 1);
+                    if(this._seasonRoll('seeds_sage', 0.015)) this.addItem('seeds_sage', 1);
+                    if(this._seasonRoll('seeds_wormwood', 0.010)) this.addItem('seeds_wormwood', 1);
+                    if(this._seasonRoll('seeds_yarrow', 0.020)) this.addItem('seeds_yarrow', 1);
                     // herbarium-seed-fix-mrd (10.8.2026): vzácné/nebezpečné byliny —
                     // dřív neměly ŽÁDNOU cestu k získání (ani scavenge, ani trh),
                     // celé Herbář Scrinium vlákno bylo nedosažitelné. Nízká šance,
@@ -61246,8 +61328,8 @@ const Game = {
                         if (typeof SecretsSystem !== 'undefined') SecretsSystem.addLaboratoryClue();
                     }
                     // v8.x: Sad & Apiarium drops
-                    if(Math.random() < 0.04) this.addItem('pollen', 1);          // 4% — pyl z luk
-                    if(Math.random() < 0.03) this.addItem('linden_blossom', 1);  // 3% — lipový květ
+                    if(this._seasonRoll('pollen', 0.04)) this.addItem('pollen', 1);          // 4% — pyl z luk
+                    if(this._seasonRoll('linden_blossom', 0.03)) this.addItem('linden_blossom', 1);  // 3% — lipový květ
                     // Semena stromů — vzácné nálezy při sběru v přírodě
                     const treeSeedRoll = Math.random();
                     if(treeSeedRoll < 0.015)      this.addItem('seed_apple', 1);
@@ -61256,23 +61338,26 @@ const Game = {
                     else if(treeSeedRoll < 0.040) this.addItem('seed_cherry', 1);
                     else if(treeSeedRoll < 0.043) this.addItem('seed_rowan', 1);
                     // Plané ovoce a šípky — podzim (Cultus Herbarum)
-                    if(Math.random() < 0.06) this.addItem('rosehip', 1);
-                    if(Math.random() < 0.05) this.addItem('wild_fruit', 1);
-                    if(Math.random() < 0.04) this.addItem('cornel_cherry', 1);
-                    if(Math.random() < 0.03) this.addItem('sloe', 1);
-                    if(Math.random() < 0.03) this.addItem('bracket_fungus', 1);
+                    if(this._seasonRoll('rosehip', 0.06)) this.addItem('rosehip', 1);
+                    if(this._seasonRoll('wild_fruit', 0.05)) this.addItem('wild_fruit', 1);
+                    if(this._seasonRoll('cornel_cherry', 0.04)) this.addItem('cornel_cherry', 1);
+                    if(this._seasonRoll('sloe', 0.03)) this.addItem('sloe', 1);
+                    if(this._seasonRoll('bracket_fungus', 0.03)) this.addItem('bracket_fungus', 1);
         }
         else if (type === 'resin_harvest') {
-                    if(r<0.5) this.addItem('resin', 1);
-                    else if(r<0.7) this.addItem('honey', 1);
-                    else this.addItem('bark', 1);
+                    const _resinPick = this._weightedSeasonPick([
+                        { id: 'resin', qty: 1, w: 0.5 },
+                        { id: 'honey', qty: 1, w: 0.2 },
+                        { id: 'bark', qty: 1, w: 0.3 },
+                    ]);
+                    this.addItem(_resinPick.id, _resinPick.qty);
                     if(Math.random() < 0.20) this.addItem('beeswax', 1);
-                    if(Math.random() < 0.05) this.addItem('linden_blossom', 1);
-                    if(Math.random() < 0.03) this.addItem('pollen', 1);
-                    if(Math.random() < 0.03) this.addItem('viticis_baco', 1);
+                    if(this._seasonRoll('linden_blossom', 0.05)) this.addItem('linden_blossom', 1);
+                    if(this._seasonRoll('pollen', 0.03)) this.addItem('pollen', 1);
+                    if(this._seasonRoll('viticis_baco', 0.03)) this.addItem('viticis_baco', 1);
                     // Kadidlo: smrková a borová pryskyřice
-                    if(Math.random() < 0.40) this.addItem('resin_spruce', 1);
-                    if(Math.random() < 0.25) this.addItem('resin_pine', 1);
+                    if(this._seasonRoll('resin_spruce', 0.40)) this.addItem('resin_spruce', 1);
+                    if(this._seasonRoll('resin_pine', 0.25)) this.addItem('resin_pine', 1);
         }
         else if (type === 'yard_cleanup') {
                 this.addItem('scraps', Math.random() < 0.5 ? 2 : 1);
