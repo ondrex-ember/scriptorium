@@ -49,6 +49,28 @@ const HealthSystem = {
         if (typeof Game !== 'undefined' && Game.addKronikaEntry) {
             Game.addKronikaEntry('important', `${def.name}: ${def.desc}`, `${def.name_en}: ${def.desc_en}`, '');
         }
+
+        // Info modal při propuknutí — stejný obsah, jaký Valetudo kompendium
+        // ukazuje trvale (desc/advice/cures), jen navíc hned v momentě onsetu.
+        if (typeof NotificationSystem !== 'undefined' && NotificationSystem.modal) {
+            const name = lang === 'en' ? def.name_en : def.name;
+            const desc = lang === 'en' ? def.desc_en : def.desc;
+            const advice = lang === 'en' ? def.advice_en : def.advice;
+            const cureNames = (def.cures || []).map(cid => (typeof iName === 'function' ? iName(cid) : cid)).join(' / ');
+            const cureLine = cureNames
+                ? `<div style="font-size:0.82rem;opacity:0.75;margin-top:8px;">${lang==='en'?'Cured by':'Léčí'}: ${cureNames}</div>`
+                : `<div style="font-size:0.82rem;opacity:0.6;margin-top:8px;font-style:italic;">${lang==='en'?'No cure — will pass naturally':'Bez léku — jen doběhne'}</div>`;
+            const adviceLine = advice
+                ? `<div style="font-size:0.82rem;margin-top:8px;padding-top:8px;border-top:1px dashed rgba(197,160,89,0.3);"><strong>${lang==='en'?'What to do:':'Co dělat:'}</strong> ${advice}</div>`
+                : '';
+            NotificationSystem.modal({
+                icon: def.icon,
+                title: name,
+                text: `<div style="font-size:0.88rem;line-height:1.45;">${desc}</div>${adviceLine}${cureLine}`,
+                choices: [{ label: lang==='en' ? 'Understood' : 'Rozumím', effect: () => {} }]
+            });
+        }
+
         if (typeof VigorSystem !== 'undefined' && VigorSystem.renderPill) VigorSystem.renderPill();
 
         // Organický trigger pro Athanor Tier I (MRD: athanor-tiers)

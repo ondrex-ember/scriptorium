@@ -432,6 +432,9 @@ const Game = {
 			if (typeof b.loyalty !== 'number') b.loyalty = 30;
 			if (typeof b.stress !== 'number') b.stress = 0;
 			if (typeof b.temptation !== 'number') b.temptation = 0;
+			// monk-hunger-mrd — mniši teď taky jedí (0.5x konvrš, dle Askeze).
+			if (typeof b.mealAccumulator !== 'number') b.mealAccumulator = 0;
+			if (typeof b.unfedStreak !== 'number') b.unfedStreak = 0;
 			if (!b.traits) {
 				b.traits = {
 					piety: 0, obedience: 0, asceticism: 0, erudition: 0,
@@ -5459,6 +5462,11 @@ const Game = {
         const hasIncense = ['incense_olibanum','incense_styrax','incense_pine','incense_spruce'].some(id => (inv[id] || 0) > 0);
         score += item((inv['candle'] || 0) >= 2 && ((inv['vinum'] || 0) + (inv['wine'] || 0)) >= 1 && hasIncense && (inv['hostia'] || 0) >= 3, 1, 'Zásoba na mši skladem', 'Mass supplies in store');
         score += item(!!t.lastConfession, 1, 'Zpovědní služba běží', 'Confession service kept');
+        // monk-hunger-mrd Fáze 4 (14.8.2026) — snapshot posledního refektářského
+        // ticku, ne týdenní průměr (stejný vzor jako ostatní řádky výš — živý stav).
+        const mealLog = GameState.conversiMealLog;
+        const anyHungry = !!(mealLog && ((mealLog.unfed && mealLog.unfed.length) || (mealLog.brothersUnfed && mealLog.brothersUnfed.length)));
+        score += item(!anyHungry, 1, 'Nikdo v domě nehladoví', 'No one in the house goes hungry');
         const mis = GameState.flags.bishopMissal;
         const misPts = mis === 'delivered' ? 2 : mis === 'failed' ? -2 : mis === 'refused_final' ? -1 : 0;
         rows.push({ ok: misPts > 0, pts: misPts, cs: 'Misálová pověst', en: 'Missal reputation' });
@@ -6484,6 +6492,10 @@ const Game = {
         // Nemoc snižuje výkon přímo — mimo fatigue navíc (co ho stejně
         // vyřadí z výběru přes existující filtry), i aktivní bratr pracuje hůř.
         if (brother.conditions && Object.keys(brother.conditions).length > 0) mult *= 0.7;
+        // monk-hunger-mrd (14.8.2026) — mírný okamžitý postih za hlad, dřív
+        // než se stačí rozvinout v nemoc (ta srazí přes řádek výš). Násobí
+        // se s ním, ne nahrazuje — hladový A nemocný bratr je na tom nejhůř.
+        if (brother.unfedStreak > 0) mult *= 0.9;
         return mult;
     },
 
@@ -7268,6 +7280,18 @@ const Game = {
     // Refektář: prostá strava, priorita od nejlevnější; luxus (koláče, pečeně) se NIKDY nebere
     REFECTORY_FOODS: ['spring_herb_porridge', 'famine_bread', 'burdock_root_baked', 'berries', 'mushroom', 'bread', 'mushroom_soup', 'cooked_fish', 'cooked_meat', 'stew'],
 
+    // monk-hunger-mrd (14.8.2026) — strop akumulátoru, ať dluh za dlouhé
+    // hladovění nenaroste do nesmyslných čísel (víc než 2 dny dluhu se dál
+    // neprohlubuje, unfedStreak už samo o sobě vyjadřuje závažnost).
+    BROTHER_MEAL_ACCUMULATOR_CAP: 2,
+
+    // Mnišská porce: 0.5x konvrš, snížená Askezí (0-100). Askeze 100 → 0.25,
+    // askeze 0 → 0.5. Nikdy nula — i nejpřísnější asketa musí něco jíst.
+    _brotherPortion: function(b) {
+        const asc = (b.traits && typeof b.traits.asceticism === 'number') ? b.traits.asceticism : 0;
+        return 0.5 * (1 - asc / 200);
+    },
+
     _runRefectory: function() {
         const lastMeal = GameState.conversiLastMeal || 0;
         if (Date.now() - lastMeal < 24 * 60 * 60 * 1000) return;
@@ -7298,28 +7322,86 @@ const Game = {
                 }
                 servedIdx++;
                 fed.push(k.name);
+                k.unfedStreak = 0;
             } else {
                 k.mood = Math.max(0, k.mood - 8);
                 k.loyalty = Math.max(0, k.loyalty - 2);
                 unfed.push(k.name);
+                k.unfedStreak = (k.unfedStreak || 0) + 1;
             }
         });
-        GameState.conversiMealLog = { ts: Date.now(), fed: fed, unfed: unfed, dish: dish };
+
+        // monk-hunger-mrd Fáze 3 (14.8.2026) — zběhnutí z hladu. Jen konvrši
+        // (mniši vázáni slibem, netýká se jich). Práh streak 3, šance roste
+        // s dny hladovění, strop 50 %. Smrt na neúspěšný pokus zatím
+        // NEŘEŠENA — samostatný pozdější krok (jinak pro mnichy, jinak pro
+        // konvrše — Bouvard 14.8.2026).
+        const deserters = [];
+        GameState.conversi.forEach(k => {
+            if ((k.unfedStreak || 0) < 3) return;
+            const chance = Math.min(0.5, 0.1 * (k.unfedStreak - 2));
+            if (Math.random() < chance) deserters.push(k);
+        });
+        deserters.forEach(k => {
+            GameState.conversi = GameState.conversi.filter(x => x.id !== k.id);
+            if (typeof PersonaSystem !== 'undefined' && PersonaSystem.addReputation) {
+                PersonaSystem.addReputation('lidovost', -2);
+            }
+            if (typeof UI !== 'undefined' && UI.notifyPanel) {
+                UI.notifyPanel('🚪 ' + (lang==='en'
+                    ? k.name + ' has fled the monastery — hunger drove him over the wall.'
+                    : k.name + ' zběhl z kláštera — hlad ho vyhnal přes zeď.'), 'warning');
+            }
+            Game.addKronikaEntry('important',
+                '🚪 ' + k.name + ' zběhl z kláštera. Hlad byl silnější než slib.',
+                '🚪 ' + k.name + ' has deserted the monastery. Hunger proved stronger than the vow.',
+                '🚪 ' + k.name + ' fugit.'
+            );
+        });
+
+        // monk-hunger-mrd — mniši ze stejné zásoby, po konvrších. Zlomková
+        // potřeba (0.25-0.5) přes akumulátor: dokud nedluží celou porci,
+        // ten den se neřeší (přirozeně řidší stravování u vyšší Askeze).
+        // Nádobí se na bratry nepočítá — klauzura, ne konvršský refektář.
+        const brothers = (GameState.dormitorium && GameState.dormitorium.brothers) || [];
+        const brothersFed = [], brothersUnfed = [];
+        brothers.forEach(b => {
+            if (typeof b.mealAccumulator !== 'number') b.mealAccumulator = 0;
+            b.mealAccumulator = Math.min(this.BROTHER_MEAL_ACCUMULATOR_CAP, b.mealAccumulator + this._brotherPortion(b));
+            if (b.mealAccumulator < 1) return;
+            const foodId = this.REFECTORY_FOODS.find(f => (inv[f] || 0) > 0);
+            if (foodId) {
+                inv[foodId] -= 1;
+                b.mealAccumulator -= 1;
+                b.fatigue = Math.max(0, (b.fatigue || 0) - 5);
+                b.mood = Math.min(100, (b.mood || 60) + 2);
+                brothersFed.push(b.name);
+                b.unfedStreak = 0;
+            } else {
+                b.mood = Math.max(0, (b.mood || 60) - 8);
+                b.loyalty = Math.max(0, (b.loyalty || 30) - 2);
+                brothersUnfed.push(b.name);
+                b.unfedStreak = (b.unfedStreak || 0) + 1;
+            }
+        });
+
+        const allUnfed = unfed.concat(brothersUnfed);
+        GameState.conversiMealLog = { ts: Date.now(), fed: fed, unfed: unfed, dish: dish, brothersFed: brothersFed, brothersUnfed: brothersUnfed };
         GameState.conversiLastMeal = Date.now();
         if (typeof UI !== 'undefined' && UI.notifyPanel) {
-            if (unfed.length === 0) {
+            if (allUnfed.length === 0) {
                 const handNote = dish.none > 0 ? (lang==='en' ? ' Some ate from their hands — dishes are short.' : ' Část jedla z ruky — nádobí nestačí.') : '';
-                UI.notifyPanel('🍲 ' + (lang==='en' ? 'The refectory served all the brothers.' : 'Refektář nasytil všechny bratry.') + handNote, dish.none > 0 ? 'warning' : 'success');
+                UI.notifyPanel('🍲 ' + (lang==='en' ? 'The refectory served everyone.' : 'Refektář nasytil všechny.') + handNote, dish.none > 0 ? 'warning' : 'success');
             } else {
                 UI.notifyPanel('🍲 ' + (lang==='en'
-                    ? 'The refectory is short of food — hungry: ' + unfed.join(', ')
-                    : 'V refektáři nebylo dost jídla — hladoví: ' + unfed.join(', ')), 'warning');
+                    ? 'The refectory is short of food — hungry: ' + allUnfed.join(', ')
+                    : 'V refektáři nebylo dost jídla — hladoví: ' + allUnfed.join(', ')), 'warning');
             }
         }
         Game.addKronikaEntry('minor',
-            unfed.length === 0 ? '🍲 Refektář: všichni bratři nasyceni.' : '🍲 Refektář: nedostatek jídla, hladoví — ' + unfed.join(', ') + '.',
-            unfed.length === 0 ? '🍲 Refectory: all brothers fed.' : '🍲 Refectory: food shortage, hungry — ' + unfed.join(', ') + '.',
-            unfed.length === 0 ? '🍲 Refectorium: omnes saturati.' : '🍲 Refectorium: fames.');
+            allUnfed.length === 0 ? '🍲 Refektář: všichni nasyceni.' : '🍲 Refektář: nedostatek jídla, hladoví — ' + allUnfed.join(', ') + '.',
+            allUnfed.length === 0 ? '🍲 Refectory: everyone fed.' : '🍲 Refectory: food shortage, hungry — ' + allUnfed.join(', ') + '.',
+            allUnfed.length === 0 ? '🍲 Refectorium: omnes saturati.' : '🍲 Refectorium: fames.');
         Game.save();
     },
 
@@ -7595,6 +7677,11 @@ const Game = {
     // sebou / bratři mezi sebou), sdílený dormitář a nářadí.
     NPC_CONTAGIOUS: ['scabies', 'lice'],
 
+    // monk-hunger-mrd (14.8.2026) — hlad (unfedStreak z _runRefectory) jako
+    // samostatný, přídavný zdroj rizika kurdějí/úplavice/malomyslnosti —
+    // nezávislý na existujících task/shared-risk rollech výš, ne jejich úprava.
+    HUNGER_ILLNESS: { threshold: 2, step: 0.02, cap: 0.10, ids: ['scurvy', 'dysentery', 'acedia'] },
+
     _npcHealthTick: function() {
         const conversi = GameState.conversi || [];
         const brothers = (GameState.dormitorium && GameState.dormitorium.brothers) || [];
@@ -7735,6 +7822,19 @@ const Game = {
             }
             tryInfect(entity, id, chance);
         });
+
+        // monk-hunger-mrd (14.8.2026) — hlad (unfedStreak) zvyšuje riziko
+        // kurdějí/úplavice/malomyslnosti, samostatně pro konvrše i mnichy.
+        // Přídavné rolly, nezávislé na task/shared-risk blocích výš.
+        {
+            const hi = this.HUNGER_ILLNESS;
+            [...conversi, ...brothers].forEach(entity => {
+                const streak = entity.unfedStreak || 0;
+                if (streak < hi.threshold) return;
+                const bonus = Math.min(hi.cap, hi.step * (streak - 1));
+                hi.ids.forEach(id => tryInfect(entity, id, bonus));
+            });
+        }
 
         Game.save();
     },
@@ -7918,6 +8018,7 @@ const Game = {
             if (typeof k.fatigue !== 'number') k.fatigue = legacyFatigue;
             if (typeof k.mood !== 'number') k.mood = 60;
             if (typeof k.loyalty !== 'number') k.loyalty = 30;
+            if (typeof k.unfedStreak !== 'number') k.unfedStreak = 0;
             // Migrace: starý save bez rosterId → dohledat podle jména; mimo roster = null (běží dál bez hlášek)
             if (k.rosterId === undefined && typeof ConversiRosterDB !== 'undefined') {
                 const rid = Object.keys(ConversiRosterDB).find(r => ConversiRosterDB[r].name === k.name);

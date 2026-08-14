@@ -1705,6 +1705,7 @@ const SaeculumSystem = {
     const lang = (GameState.settings && GameState.settings.language) || 'cs';
     const block = (typeof Game !== 'undefined' && Game.conversiDayBlock) ? Game.conversiDayBlock() : 'work';
     const list = GameState.conversi || [];
+    const brothers = (GameState.dormitorium && GameState.dormitorium.brothers) || [];
 
     const blocks = [
       { id: 'officium', icon: '🕯️', time: '6:00–9:00',   cs: 'Officium — ranní modlitba',   en: 'Officium — morning prayer' },
@@ -1720,7 +1721,9 @@ const SaeculumSystem = {
     let h = `<div style="margin-bottom:16px; background:rgba(0,0,0,0.03); border-radius:8px; border-left:3px solid var(--accent-gold); padding:12px 14px;">`;
     h += `<div style="font-weight:bold; font-size:0.92rem; margin-bottom:10px;">🕯️ ${lang==='en'?'Regula — the daily rule':'Regula — denní řád'}</div>`;
 
-    if (!list.length) {
+    // monk-hunger-mrd — mniši teď taky patří do Reguly, gate nesmí skrýt
+    // celý tab jen kvůli chybějícím konvršům.
+    if (!list.length && !brothers.length) {
       h += `<div style="font-size:0.8rem; opacity:0.6; font-style:italic;">${lang==='en'?'No lay brothers yet — the rule awaits them.':'Zatím žádní konvrši — řád na ně čeká.'}</div>`;
       h += `</div>`;
       return h;
@@ -1739,8 +1742,20 @@ const SaeculumSystem = {
     // Refektář info
     h += `<div style="font-size:0.72rem; font-weight:bold; opacity:0.75; margin:12px 0 4px;">🍲 ${lang==='en'?'Refectory':'Refektář'}</div>`;
     h += `<div style="font-size:0.72rem; opacity:0.65; margin-bottom:6px;">${lang==='en'
-        ? 'One portion of plain fare per brother per day. Feasts (pies, roasts) are never touched.'
-        : 'Jedna porce prosté stravy na bratra denně. Sváteční jídlo (koláče, pečeně) refektář nebere.'}</div>`;
+        ? 'One portion of plain fare per lay brother per day; monks eat half, less still with Asceticism. Feasts (pies, roasts) are never touched.'
+        : 'Jedna porce prosté stravy na konvrše denně; mniši polovinu, s Askezí ještě míň. Sváteční jídlo (koláče, pečeně) refektář nebere.'}</div>`;
+
+    // monk-hunger-mrd — forecast: sdílená zásoba REFECTORY_FOODS ÷ denní
+    // potřeba (konvrši 1x + mniši dle _brotherPortion), na kolik dní vydrží.
+    if (typeof Game !== 'undefined' && Game.REFECTORY_FOODS) {
+      const stock = Game.REFECTORY_FOODS.reduce((s, id) => s + (GameState.inventory[id] || 0), 0);
+      const dailyNeed = list.length + brothers.reduce((s, b) => s + (Game._brotherPortion ? Game._brotherPortion(b) : 0.5), 0);
+      if (dailyNeed > 0) {
+        const daysLeft = Math.floor(stock / dailyNeed);
+        h += `<div style="font-size:0.76rem; margin-bottom:6px; ${daysLeft <= 1 ? 'color:#c0392b;' : ''}">📦 ${lang==='en'?'Stock':'Zásoba'}: ${stock} ${lang==='en'?`— lasts ~${daysLeft} day(s)`:`— vydrží ~${daysLeft} dní`}</div>`;
+      }
+    }
+
     // V2: nádobí — kapacita vs. počet bratrů
     const _TG = ['glass_goblet','glass_tankard','glass_jug','glass_bowl','glass_pitcher'];
     const _glassCap = _TG.reduce((s, id) => s + (GameState.inventory[id] || 0), 0);
@@ -1753,9 +1768,19 @@ const SaeculumSystem = {
       const when = _toGameDate(log.ts).toLocaleDateString(lang==='en'?'en-GB':'cs-CZ');
       if (log.fed.length)   h += `<div style="font-size:0.76rem; margin-bottom:2px;">✅ ${when} — ${lang==='en'?'fed':'nasyceni'}: ${log.fed.join(', ')}</div>`;
       if (log.unfed.length) h += `<div style="font-size:0.76rem; color:#c0392b;">⚠️ ${when} — ${lang==='en'?'hungry':'hladoví'}: ${log.unfed.join(', ')}</div>`;
+      // monk-hunger-mrd — mnišská řádka, stejný vzor jako konvrši výš
+      if (log.brothersFed && log.brothersFed.length)   h += `<div style="font-size:0.76rem; margin-bottom:2px;">✅ ${when} — ${lang==='en'?'monks fed':'mniši nasyceni'}: ${log.brothersFed.join(', ')}</div>`;
+      if (log.brothersUnfed && log.brothersUnfed.length) h += `<div style="font-size:0.76rem; color:#c0392b;">⚠️ ${when} — ${lang==='en'?'monks hungry':'mniši hladoví'}: ${log.brothersUnfed.join(', ')}</div>`;
     } else {
       h += `<div style="font-size:0.76rem; opacity:0.6; font-style:italic;">${lang==='en'?'No meal served yet.':'Zatím se nevařilo.'}</div>`;
     }
+
+    // monk-hunger-mrd — deep-link na Vaření (Pracovna), ať hráč může hned
+    // zareagovat na docházející zásoby bez ručního hledání v menu.
+    h += `<button class="craft-btn" style="margin-top:8px; font-size:0.76rem;"
+            onclick="UI.switchHomeTab('main', document.getElementById('home-tab-main')); UI.switchHomeSubTab('cooking', document.getElementById('home-sub-cooking'));">
+            🍲 → ${lang==='en'?'Cooking':'Vaření'}
+          </button>`;
 
     h += `</div>`;
     return h;
