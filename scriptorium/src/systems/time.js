@@ -45,14 +45,17 @@ const TimeSys = {
     },
 
     getLunarPhase: function() {
-        // Jednoduchý výpočet lunární fáze (synodická perioda 29.53 dní)
+        // Sjednoceno s CalendarSystem (kalendar-widget-mrd.md §4) — dřív
+        // třetí nezávislý výpočet stejné věci, algoritmicky identický, jen
+        // duplicitní. Fallback pro edge-case bez calendar.js.
+        if (typeof CalendarSystem !== 'undefined' && CalendarSystem.getLunarPhase) {
+            return CalendarSystem.getLunarPhase().icon8;
+        }
         const now = new Date();
         const msPerDay = 86400000;
-        // Referenční nový měsíc: 6. ledna 2000 18:14 UTC (J2000.0 nulový bod)
         const knownNewMoon = new Date(Date.UTC(2000, 0, 6, 18, 14));
         const daysSince = (now - knownNewMoon) / msPerDay;
         const phase = ((daysSince % 29.53058867) + 29.53058867) % 29.53058867;
-        // 8 fází
         const idx = Math.round(phase / 29.53058867 * 8) % 8;
         return ['🌑','🌒','🌓','🌔','🌕','🌖','🌗','🌘'][idx];
     },
@@ -88,6 +91,23 @@ const TimeSys = {
         // Lunar phase u počasí
         const lunarEl = document.getElementById('lunar-display');
         if (lunarEl) lunarEl.innerText = this.getLunarPhase();
+
+        // Duchovní profil (kalendar-widget-mrd.md §2) — tichý indikátor,
+        // klik vede do Kalendária. Neviditelný dokud CalendarSystem není
+        // načtený nebo je alignment neutrální (žádný nový hráč nemá co ukázat).
+        const alignEl = document.getElementById('alignment-display');
+        if (alignEl && typeof CalendarSystem !== 'undefined' && CalendarSystem.getAlignment) {
+            const a = CalendarSystem.getAlignment();
+            if (Math.abs(a) < 10) {
+                alignEl.textContent = '';
+            } else if (a > 0) {
+                alignEl.textContent = '✝️';
+                alignEl.title = 'Duchovní profil: zbožný (' + a + ') — křesťanské svátky silnější, pohanské slabší';
+            } else {
+                alignEl.textContent = '🌿';
+                alignEl.title = 'Duchovní profil: pohanský (' + a + ') — pohanské svátky silnější, křesťanské slabší';
+            }
+        }
 
         // Candle check
         if (GameState.flags && GameState.flags.candleLit) {

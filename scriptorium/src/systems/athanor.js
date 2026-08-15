@@ -1977,6 +1977,12 @@ const AthanorSystem = {
   // ── RENDER ────────────────────────────────────────────────
   // ── LUNAR + CANONICAL HELPERS ────────────────────────────
   getLunarPhase() {
+    // Sjednoceno s CalendarSystem (dřív vlastní Julian-day vzorec, jiné
+    // číslo než kalendář — kalendar-widget-mrd.md §4). Fallback zachován
+    // pro edge-case, kdy by se athanor.js načetl bez calendar.js.
+    if (typeof CalendarSystem !== 'undefined' && CalendarSystem.getLunarPhase) {
+      return CalendarSystem.getLunarPhase();
+    }
     const now = new Date();
     const jd = 367 * now.getFullYear()
       - Math.floor(7 * (now.getFullYear() + Math.floor((now.getMonth() + 10) / 12)) / 4)

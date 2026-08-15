@@ -233,14 +233,36 @@ const CalendarSystem = {
         return feasts;
     },
 
-    // ── Lunární fáze pro den ──────────────────────────────────────────────────
-    getLunarForDay: function (year, month, day) {
-        const d = new Date(year, month - 1, day);
+    // ── Lunární fáze — JEDEN zdroj pravdy (dřív duplicitní vzorec v athanor.js) ──
+    // Coligny-styl: kontinuální fáze 0–1, světlá (dorůstající) / tmavá (couvající)
+    // půlka dělená úplňkem, ne binární body. `date` volitelné (default dnes) —
+    // AthanorSystem.getLunarPhase() volá bez argumentu, getLunarForDay(y,m,d)
+    // pro libovolný den v kalendáři.
+    getLunarPhase: function (date) {
+        const d = date || new Date();
         const knownNewMoon = new Date(Date.UTC(2000, 0, 6, 18, 14));
         const daysSince = (d - knownNewMoon) / 86400000;
-        const phase = ((daysSince % 29.53058867) + 29.53058867) % 29.53058867;
-        const idx = Math.round(phase / 29.53058867 * 8) % 8;
-        return ['🌑', '🌒', '🌓', '🌔', '🌕', '🌖', '🌗', '🌘'][idx];
+        const SYNODIC = 29.53058867;
+        const phase = ((daysSince % SYNODIC) + SYNODIC) % SYNODIC / SYNODIC; // 0–1
+        const half = phase < 0.5 ? 'light' : 'dark'; // Coligny: MAT (dorůstá) / ANM (couvá)
+        const icon8 = ['🌑', '🌒', '🌓', '🌔', '🌕', '🌖', '🌗', '🌘'][Math.round(phase * 8) % 8];
+
+        let name, icon4, bonus;
+        if (phase < 0.03 || phase > 0.97) { name = 'Nov';      icon4 = '🌑'; bonus = 'nigredo'; }
+        else if (phase < 0.47)            { name = 'Dorůstá';  icon4 = '🌔'; bonus = null; }
+        else if (phase < 0.53)            { name = 'Úplněk';   icon4 = '🌕'; bonus = 'rubedo'; }
+        else                               { name = 'Ubývá';    icon4 = '🌖'; bonus = null; }
+
+        const label = bonus === 'nigredo' ? 'Nov — Nigredo +20%'
+            : bonus === 'rubedo' ? 'Úplněk — Rubedo +20%'
+            : name === 'Dorůstá' ? 'Dorůstající měsíc' : 'Ubývající měsíc';
+
+        return { phase, half, icon8, name, icon: icon4, bonus, label };
+    },
+
+    // ── Lunární fáze pro den ──────────────────────────────────────────────────
+    getLunarForDay: function (year, month, day) {
+        return this.getLunarPhase(new Date(year, month - 1, day)).icon8;
     },
 
     // ── Homo Signorum — Zvěrokruh a jeho vláda nad tělem ────────────────────
@@ -371,7 +393,46 @@ const CalendarSystem = {
         }
     },
 
-    // ── Filipojakubská noc — modal s volbou, extrahováno kvůli reopenu z panelu ──
+    // ── Duchovní profil × dva kalendáře (kalendar-widget-mrd.md §2/§7) ──────
+    // Žádné nové pole v GameState — alignment se počítá za běhu ze stávajících
+    // čísel. cal_midsummer je "dual" (sv. Jan Křtitel = Slunovrat, stejné
+    // datum) — počítá OBĚ role najednou, ne jednu nebo druhou.
+    EVENT_FAMILY: {
+        cal_ash_wednesday: 'christian', cal_easter: 'christian',
+        cal_walpurgis: 'pagan', cal_may_day: 'pagan', cal_midsummer: 'dual',
+        cal_all_souls: 'christian', cal_advent: 'christian',
+        cal_christmas: 'christian', cal_new_year: 'neutral',
+    },
+
+    getAlignment: function () {
+        const p = GameState.persona || {};
+        const inf = p.influence || {};
+        const s = GameState.secrets || {};
+        const raw = (p.zboznost || 0) + (inf.church || 0) - (s.inquisitionHeat || 0) - (s.forbiddenUnlocked ? 30 : 0);
+        return Math.max(-100, Math.min(100, raw));
+    },
+
+    _clamp: function (v, lo, hi) { return Math.max(lo, Math.min(hi, v)); },
+
+    // Vrchol na Nov I Úplněk (Coligny světlá/tmavá půlka, kontinuální).
+    // Křesťanská strana lunární násobič nemá — vazba na měsíc je už v datu
+    // Velikonoc (paschální neděle, getEaster).
+    _lunarModifier: function () {
+        return 1 + 0.2 * Math.cos(4 * Math.PI * this.getLunarPhase().phase);
+    },
+
+    getEventWeight: function (eventId) {
+        const family = this.EVENT_FAMILY[eventId] || 'neutral';
+        const align = this.getAlignment();
+        const christian = this._clamp(1 + align / 200, 0.5, 1.5);
+        const pagan = this._clamp(1 - align / 200, 0.5, 1.5) * this._lunarModifier();
+        if (family === 'christian') return { christian: christian, pagan: null };
+        if (family === 'pagan')     return { christian: null, pagan: pagan };
+        if (family === 'dual')      return { christian: christian, pagan: pagan };
+        return { christian: 1, pagan: 1 };
+    },
+
+
     _showWalpurgisModal: function () {
         const L = (key) => t('events.' + key);
         const year = new Date().getFullYear();
@@ -388,9 +449,13 @@ const CalendarSystem = {
             icon: '🔥',
             choices: [
                 { label: L('cal_walpurgis.athanor_btn'), type: 'primary', effect: () => {
-                    if (!GameState.eventFlags) GameState.eventFlags = {};
-                    GameState.eventFlags.walpurgisBonus = true;
-                    GameState.eventFlags.inquisitorRisk = (Math.random() < 0.4);
+                    if (!GameState.flags) GameState.flags = {};
+                    // Duchovní profil (§2/§7): pohanský weight prodlužuje bonus
+                    // a snižuje riziko pro profil "v elementu"; obráceně pro
+                    // hluboce zbožného, co dělá něco svýmu profilu cizího.
+                    const w = CalendarSystem.getEventWeight('cal_walpurgis').pagan;
+                    GameState.flags.walpurgisAthanor = Date.now() + Math.round(8 * 3600000 * w);
+                    if (Math.random() < Math.min(0.9, 0.4 / w)) GameState.flags.inquisitorComing = true;
                     NotificationSystem.panel(L('cal_walpurgis.athanor_res'), 'system');
                     clearPending();
                     Game.save();
@@ -434,17 +499,25 @@ const CalendarSystem = {
             icon: '🌞',
             choices: [
                 { label: L('cal_midsummer.herbs_btn'), type: 'primary', effect: () => {
-                    Game.addItem('st_johns_wort', 3);
-                    Game.addItem('thyme', 2);
+                    // Dual event (sv. Jan Křtitel = Slunovrat, stejné datum) —
+                    // pohanská role škáluje sběr, křesťanská role dá vždy
+                    // malý Zbožnost tik navrch (liturgický rozměr dne platí
+                    // bez ohledu na volbu, kalendar-widget-mrd.md §7.1(b)).
+                    const w = CalendarSystem.getEventWeight('cal_midsummer');
+                    Game.addItem('st_johns_wort', Math.max(1, Math.round(3 * w.pagan)));
+                    Game.addItem('thyme', Math.max(1, Math.round(2 * w.pagan)));
                     Game.addItem('pollen', 1);
                     if (typeof VigorSystem !== 'undefined') VigorSystem.add(-10);
+                    if (typeof PersonaSystem !== 'undefined' && PersonaSystem.addZboznost) PersonaSystem.addZboznost(Math.round(1 * w.christian));
                     NotificationSystem.panel(L('cal_midsummer.herbs_res'), 'system');
                     clearPending();
                     Game.save();
                 }},
                 { label: L('cal_midsummer.work_btn'), type: 'default', effect: () => {
+                    const w = CalendarSystem.getEventWeight('cal_midsummer');
                     if (!GameState.eventFlags) GameState.eventFlags = {};
                     GameState.eventFlags.midsummerCandleBonus = true;
+                    if (typeof PersonaSystem !== 'undefined' && PersonaSystem.addZboznost) PersonaSystem.addZboznost(Math.round(1 * w.christian));
                     NotificationSystem.panel(L('cal_midsummer.work_res'), 'system');
                     clearPending();
                     Game.save();
@@ -612,7 +685,8 @@ const CalendarSystem = {
         if (easter.month === month && easter.day === day && !done('cal_easter')) {
             mark('cal_easter');
             NotificationSystem.panel(L('cal_easter.notify'), 'system');
-            if (typeof VigorSystem !== 'undefined') VigorSystem.add(30);
+            const w = this.getEventWeight('cal_easter').christian;
+            if (typeof VigorSystem !== 'undefined') VigorSystem.add(Math.round(30 * w));
             if (!GameState.eventFlags) GameState.eventFlags = {};
             GameState.eventFlags.easterToday = true;
             Game.save();
@@ -652,13 +726,21 @@ const CalendarSystem = {
         if (month === 12 && day === 24 && !done('cal_christmas')) {
             mark('cal_christmas');
             NotificationSystem.panel(L('cal_christmas.notify'), 'system');
-            if (typeof VigorSystem !== 'undefined') VigorSystem.add(50);
+            const w = this.getEventWeight('cal_christmas').christian;
+            if (typeof VigorSystem !== 'undefined') VigorSystem.add(Math.round(50 * w));
             Game.save();
         }
 
         if (month === 12 && day === 31 && !done('cal_new_year')) {
             mark('cal_new_year');
             NotificationSystem.panel(L('cal_new_year.notify'), 'system');
+            // Reset náhodných jednorázových eventů (EventsSystem A–F) —
+            // dřív dělala jen zrušená EventsSystem verze cal_new_year,
+            // bez tohohle by po 1. roce žádný random event znovu nenastal.
+            if (typeof EventsSystem !== 'undefined' && EventsSystem.events) {
+                EventsSystem.events.forEach(e => { e.canTrigger = true; });
+                if (GameState.events) GameState.events.triggered = {};
+            }
             Game.addKronikaEntry('important',
                 'Rok ' + year + ' uzavřen. Calendarium se obnovuje.',
                 'Year ' + year + ' closed. The Calendarium renews.',

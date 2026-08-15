@@ -800,8 +800,8 @@ const Game = {
 
                 // v7.5: Check canonical hours
                 CanonicalHours.checkCurrentHour();
-                // v7.5: Check events
-                EventsSystem.checkEvents();
+                // Kalendářní eventy: CalendarSystem.checkCalendarEvents() (game.js:652)
+                // je jediná autorita — EventsSystem.checkEvents() zrušeno (kalendar-widget-mrd.md §0)
                 // CHRONICON advisory eventy — stejná kadence
                 if (typeof ChroniconSystem !== 'undefined' && ChroniconSystem.checkPendingAdvisory) ChroniconSystem.checkPendingAdvisory();
                 // v8.1: Giacomo weekly check (once per minute)
