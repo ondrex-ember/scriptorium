@@ -16344,11 +16344,24 @@ const NotificationSystem = {
     // hráč nevybere volbu. Klik mimo modal (closeModal) je nemaže — jen
     // schová dialog, záznam žije dál v GameState.pendingDecisionEvents.
     // ════════════════════════════════════════════════════════════════════════
-    pendingEvent: function(id) {
+    pendingEvent: function(entry) {
+        if (!entry || !entry.id) return; // bez stabilního id nelze znovu otevřít — nesledovat
         if (!GameState.pendingDecisionEvents) GameState.pendingDecisionEvents = [];
-        const existing = GameState.pendingDecisionEvents.find(p => p.id === id);
-        if (existing) { existing.time = Date.now(); }
-        else { GameState.pendingDecisionEvents.unshift({ id: id, time: Date.now() }); }
+        const existing = GameState.pendingDecisionEvents.find(p => p.id === entry.id);
+        if (existing) {
+            existing.time   = Date.now();
+            existing.icon   = entry.icon   || existing.icon;
+            existing.title  = entry.title  || existing.title;
+            existing.source = entry.source || existing.source;
+        } else {
+            GameState.pendingDecisionEvents.unshift({
+                id:     entry.id,
+                time:   Date.now(),
+                icon:   entry.icon   || '📜',
+                title:  entry.title  || entry.id,
+                source: entry.source || 'events',
+            });
+        }
         this._renderPanelBadge();
         if (this._panelOpen) this._renderPanelList();
     },
@@ -16360,22 +16373,31 @@ const NotificationSystem = {
         if (this._panelOpen) this._renderPanelList();
     },
 
-    // ─── Vykreslení jedné pending položky ───────────────────────────────────
-    _renderPendingItem: function(entry) {
-        if (typeof EventsSystem === 'undefined' || !EventsSystem._findEventById) return '';
-        const event = EventsSystem._findEventById(entry.id);
-        if (!event) return ''; // event zmizel z DB (např. stará verze) — nezobrazovat
+    // ─── Vykreslení jedné pending položky (data uložená přímo v záznamu — ──
+    // žádný re-lookup při renderu, funguje i pro eventy mimo EventsSystem pool)
+    // reopenMap — jeden "source" tag = jedno stabilní reopen volání. Nový
+    // zdroj pending eventů = přidat sem jeden řádek + reopenX() na jeho straně.
+    _pendingReopenMap: {
+        events:              (id) => `EventsSystem.showEvent(EventsSystem._findEventById('${id}'))`,
+        chronicon:           ()   => `ChroniconSystem.reopenAdvisory()`,
+        chronicon_guestjoin: (id) => `ChroniconSystem.reopenGuestJoin('${id}')`,
+        game_parish:         ()   => `Game.reopenParishEvent()`,
+        game_confession:     ()   => `Game.reopenConfession()`,
+        game_kapitula:       ()   => `Game.reopenKapitula()`,
+        calendar_walpurgis:  ()   => `CalendarSystem.reopenWalpurgis()`,
+        calendar_midsummer:  ()   => `CalendarSystem.reopenMidsummer()`,
+    },
 
-        const resolve = (val) => typeof val === 'function' ? val() : val;
-        const title = resolve(event.title) || (event.titleKey ? t(event.titleKey) : entry.id);
-        const icon  = event.icon || '📜';
+    _renderPendingItem: function(entry) {
+        const build  = this._pendingReopenMap[entry.source] || this._pendingReopenMap.events;
+        const reopen = build(entry.id);
 
         return `
-            <div class="ns-panel-item ns-panel-item--pending" data-id="${entry.id}" onclick="EventsSystem.showEvent(EventsSystem._findEventById('${entry.id}'))">
-                <span class="ns-item-icon ns-item-icon--pending">${icon}<span class="ns-pending-pin">📌</span></span>
+            <div class="ns-panel-item ns-panel-item--pending" data-id="${entry.id}" onclick="${reopen}">
+                <span class="ns-item-icon ns-item-icon--pending">${entry.icon || '📜'}<span class="ns-pending-pin">📌</span></span>
                 <span class="ns-item-body">
-                    <span class="ns-item-msg">${title}</span>
-                    <span class="ns-item-meta">${t('notifications.cat_pending') !== 'notifications.cat_pending' ? t('notifications.cat_pending') : 'čeká na rozhodnutí'} · ${this._relTime(entry.time)}</span>
+                    <span class="ns-item-msg">${entry.title}</span>
+                    <span class="ns-item-meta">${t('notifications.cat_pending')} · ${this._relTime(entry.time)}</span>
                 </span>
             </div>
         `;
@@ -17552,6 +17574,8 @@ const ChroniconSystem = {
         const p = adv.pending;
 
         EventsSystem.showEvent({
+            id:     p.id || adv.activeId,
+            source: 'chronicon',
             icon:  p.icon || '☩',
             title: lang === 'en' ? (p.title_en || p.title_cs) : p.title_cs,
             text:  lang === 'en' ? (p.text_en  || p.text_cs)  : p.text_cs,
@@ -17560,6 +17584,13 @@ const ChroniconSystem = {
                 action: () => ChroniconSystem._resolveAdvisory(adv.activeId, c.id, lang),
             })),
         });
+    },
+
+    // Reopen z panelu "Zprávy kláštera" — mimo modal dismiss nic neztrácí,
+    // jen skryje dialog; klik na pending položku spustí stejný modal znovu.
+    reopenAdvisory: function() {
+        ChroniconSystem._advisoryShownThisSession = false;
+        ChroniconSystem.checkPendingAdvisory();
     },
 
     _resolveAdvisory: function(eventId, choiceId, lang) {
@@ -17645,6 +17676,9 @@ const ChroniconSystem = {
         adv.resolvedIds[eventId] = true;
         adv.activeId = null;
         adv.pending  = null;
+        if (typeof NotificationSystem !== 'undefined' && NotificationSystem.resolvePendingEvent) {
+            NotificationSystem.resolvePendingEvent(eventId);
+        }
         if (choiceId === 'bolster') {
             if (!GameState.flags) GameState.flags = {};
             GameState.flags.chroniconPlagueBolstered = true;
@@ -17940,14 +17974,18 @@ const ChroniconSystem = {
     },
 
     // Nabídka "host chce zůstat" — lokální event, mimo CHRONICON (rozhoduje
-    // se jen na Scriptorium straně, žádnej round-trip).
+    // se jen na Scriptorium straně, žádnej round-trip). id = arrivedAt
+    // (unikátní per host) — umožňuje reopen z panelu po dismissu mimo modal.
     _offerGuestJoin: function(g) {
         if (typeof EventsSystem === 'undefined' || !EventsSystem.showEvent) return;
         const lang = (GameState.settings && GameState.settings.language) || 'cs';
         const track = ChroniconSystem.UBYTOVNA_JOIN_TRACK[g.variant] || 'oblat';
         const trackName_cs = track === 'famulus' ? 'famula' : 'obláta';
         const trackName_en = track === 'famulus' ? 'famulus' : 'oblate';
+        const id = 'guestjoin_' + g.arrivedAt;
         EventsSystem.showEvent({
+            id: id,
+            source: 'chronicon_guestjoin',
             icon: '🙏',
             title: lang === 'en' ? 'A guest wishes to stay' : 'Host chce zůstat',
             text: lang === 'en'
@@ -17956,14 +17994,34 @@ const ChroniconSystem = {
             choices: [
                 {
                     label: lang === 'en' ? 'Welcome him' : 'Přijmout ho',
-                    action: () => ChroniconSystem._resolveGuestJoin(g, true),
+                    action: () => {
+                        const result = ChroniconSystem._resolveGuestJoin(g, true);
+                        if (NotificationSystem.resolvePendingEvent) NotificationSystem.resolvePendingEvent(id);
+                        return result;
+                    },
                 },
                 {
                     label: lang === 'en' ? 'Let him move on' : 'Nechat ho jít dál',
-                    action: () => ChroniconSystem._resolveGuestJoin(g, false),
+                    action: () => {
+                        const result = ChroniconSystem._resolveGuestJoin(g, false);
+                        if (NotificationSystem.resolvePendingEvent) NotificationSystem.resolvePendingEvent(id);
+                        return result;
+                    },
                 },
             ],
         });
+    },
+
+    // Reopen z panelu — hledá hosta podle arrivedAt (zakódováno v id).
+    // Pokud mezitím odešel/byl vyřízen jinak, tiše vyčistí pending záznam.
+    reopenGuestJoin: function(id) {
+        const arrivedAt = Number(String(id).replace('guestjoin_', ''));
+        const g = (GameState.ubytovna && GameState.ubytovna.guests || []).find(x => x.arrivedAt === arrivedAt);
+        if (!g) {
+            if (typeof NotificationSystem !== 'undefined' && NotificationSystem.resolvePendingEvent) NotificationSystem.resolvePendingEvent(id);
+            return;
+        }
+        ChroniconSystem._offerGuestJoin(g);
     },
 
     _resolveGuestJoin: function(g, accepted) {
@@ -18425,7 +18483,6 @@ const ChroniconSystem = {
     },
 
 };
-
 // ═══ src/systems/events.js ═══
 const EventsSystem = {
     events: [
@@ -19739,16 +19796,25 @@ const EventsSystem = {
     showEvent: function(event) {
         if (typeof NotificationSystem === 'undefined' || !NotificationSystem.modal) return;
 
-        // Nevyřízený decision-event zůstává ve frontě (Panel), dokud hráč
-        // nevybere volbu — klik mimo modal ho dnes jen zavře, nezmaže.
-        if (event.choices && event.choices.length > 0 && NotificationSystem.pendingEvent) {
-            NotificationSystem.pendingEvent(event.id);
-        }
-
         // Podpora title/text/label/desc jako funkce (lazy, jazykově reaktivní) —
         // vedle stávajícího title/text stringu a titleKey/textKey (t() lookup).
         // Nesahá do cs.js/en.js — pro nové eventy s inline dvojjazyčným textem.
         const resolve = (val) => typeof val === 'function' ? val() : val;
+        const resolvedTitle = resolve(event.title) || (event.titleKey ? t(event.titleKey) : '');
+
+        // Nevyřízený decision-event zůstává ve frontě (Panel), dokud hráč
+        // nevybere volbu — klik mimo modal ho dnes jen zavře, nezmaže.
+        // event.id musí být stabilní (buď z EventsSystem poolů, nebo dodané
+        // volajícím systémem — viz ChroniconSystem.checkPendingAdvisory,
+        // event.source='chronicon'); bez id nelze položku znovu otevřít.
+        if (event.choices && event.choices.length > 0 && event.id && NotificationSystem.pendingEvent) {
+            NotificationSystem.pendingEvent({
+                id:     event.id,
+                icon:   event.icon || '📜',
+                title:  resolvedTitle,
+                source: event.source || 'events',
+            });
+        }
 
         const choices = (event.choices || []).map(choice => {
             const label = resolve(choice.label) || t(choice.labelKey);
@@ -19758,7 +19824,13 @@ const EventsSystem = {
                 type: 'default',
                 effect: () => {
                     const result = choice.action();
-                    if (NotificationSystem.resolvePendingEvent) NotificationSystem.resolvePendingEvent(event.id);
+                    // Auto-resolve z fronty jen pro vlastní eventy (events.js pooly) —
+                    // u cizích volajících (source='chronicon' aj.) může volba znamenat
+                    // "odložit" (defer) a záznam má zůstat pending; ten systém si
+                    // resolvePendingEvent zavolá sám v momentě, kdy je opravdu hotovo.
+                    if ((!event.source || event.source === 'events') && event.id && NotificationSystem.resolvePendingEvent) {
+                        NotificationSystem.resolvePendingEvent(event.id);
+                    }
                     Game.save();
                     NotificationSystem.modal({
                         title: t('events.ui.result'),
@@ -19779,7 +19851,7 @@ const EventsSystem = {
         NotificationSystem.modal({
             icon: event.icon || '📜',
             image: event.image || null,
-            title: resolve(event.title) || t(event.titleKey),
+            title: resolvedTitle,
             text: resolve(event.text) || t(event.textKey),
             choices: choices
         });
@@ -53264,7 +53336,8 @@ const STRINGS_cs = {
         cat_obchod: "obchod",
         cat_udalost: "událost",
         cat_system: "systém",
-        cat_postup: "postup"
+        cat_postup: "postup",
+        cat_pending: "čeká na rozhodnutí"
     },
     canonical: {
         buff_crafting: 'Výroba +{percent}%',
@@ -56379,7 +56452,8 @@ According to Theophilus, the organ is an instrument worthy of God, but its const
         cat_obchod: "trade",
         cat_udalost: "event",
         cat_system: "system",
-        cat_postup: "progress"
+        cat_postup: "progress",
+        cat_pending: "awaiting decision"
     },
     canonical: {
         buff_crafting: 'Crafting +{percent}%',
@@ -63663,22 +63737,49 @@ const Game = {
         t.nextParishEvent = Date.now() + WEEK;
         if (Math.random() >= 0.5) { Game.save(); return; } // ne každý týden — tichý farní klid
 
-        const lang = (GameState.settings && GameState.settings.language) || 'cs';
         const types = ['baptism', 'wedding', 'funeral'];
         const type = types[Math.floor(Math.random() * types.length)];
         const surname = this.PARISH_SURNAMES[Math.floor(Math.random() * this.PARISH_SURNAMES.length)];
+        const id = 'parish_' + type + '_' + Date.now();
+        // Persistováno — klik mimo modal ho jen schová, ne ztratí (reopen z panelu).
+        t.pendingParish = { id: id, type: type, surname: surname };
+        Game.save();
+
+        Game._showParishModal(type, surname, id);
+    },
+
+    // Reopen z panelu "Zprávy kláštera" — stejná modalka, znovu z persistovaných dat.
+    reopenParishEvent: function() {
+        const p = GameState.templum && GameState.templum.pendingParish;
+        if (!p) return;
+        Game._showParishModal(p.type, p.surname, p.id);
+    },
+
+    _showParishModal: function(type, surname, id) {
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
         const titleMap = { baptism: ['Křest', 'Baptism'], wedding: ['Svatba', 'Wedding'], funeral: ['Pohřeb', 'Funeral'] };
         const descMap = {
             baptism: ['Rodina ' + surname + ' žádá o křest dítěte.', 'The ' + surname + ' family asks for a christening.'],
             wedding: ['Rodina ' + surname + ' žádá o oddání.', 'The ' + surname + ' family asks to be wed.'],
             funeral: ['Rodina ' + surname + ' žádá o pohřeb.', 'The ' + surname + ' family asks for a funeral rite.'],
         };
-        Game.save();
 
         const rerender = () => {
             const el = document.getElementById('home-templum-content');
             if (el && typeof TemplumSystem !== 'undefined') el.innerHTML = TemplumSystem.renderTemplumTab();
         };
+        const clearPending = () => {
+            if (GameState.templum) GameState.templum.pendingParish = null;
+            if (typeof NotificationSystem !== 'undefined' && NotificationSystem.resolvePendingEvent) NotificationSystem.resolvePendingEvent(id);
+        };
+        if (typeof NotificationSystem !== 'undefined' && NotificationSystem.pendingEvent) {
+            NotificationSystem.pendingEvent({
+                id: id,
+                icon: type === 'baptism' ? '👶' : type === 'wedding' ? '💍' : '⚰️',
+                title: (lang === 'en' ? titleMap[type][1] : titleMap[type][0]) + ' — ' + surname,
+                source: 'game_parish',
+            });
+        }
 
         NotificationSystem.modal({
             icon: type === 'baptism' ? '👶' : type === 'wedding' ? '💍' : '⚰️',
@@ -63709,6 +63810,7 @@ const Game = {
                         '✝️ ' + titleMap[type][0] + ': rodina ' + surname + ' — obřad vykonán.',
                         '✝️ ' + titleMap[type][1] + ': the ' + surname + ' family — rite performed.',
                         '✝️ Ritus peractus est.');
+                    clearPending();
                     Game.save(); rerender();
                 }},
                 { label: (lang==='en'?'📋 Plan for later (Commitments)':'📋 Naplánovat do Zakázek'), effect: () => {
@@ -63722,6 +63824,7 @@ const Game = {
                         surname: surname,
                     });
                     if (GameState.localFarniEvents.length > 10) GameState.localFarniEvents.shift();
+                    clearPending();
                     Game.save(); rerender();
                     if (typeof UI !== 'undefined') UI.notify(lang==='en' ? '📋 Added to Commitments.' : '📋 Přidáno do Zakázek.');
                 }},
@@ -63733,6 +63836,7 @@ const Game = {
                         '🚪 ' + titleMap[type][0] + ': rodina ' + surname + ' odmítnuta.',
                         '🚪 ' + titleMap[type][1] + ': the ' + surname + ' family turned away.',
                         '🚪 Petitio recusata est.');
+                    clearPending();
                     Game.save(); rerender();
                 }}
             ]
@@ -63911,12 +64015,34 @@ const Game = {
         t.nextConfession = Date.now() + WEEK;
         if (!unlocked.length) { Game.save(); return; } // nikdo se nezná — zpověď odpadá
 
-        const id = unlocked[Math.floor(Math.random() * unlocked.length)];
-        const c = ContactsDB[id];
+        const contactId = unlocked[Math.floor(Math.random() * unlocked.length)];
+        const pendingId = 'confession_' + contactId + '_' + Date.now();
+        // Persistováno — klik mimo modal ho jen schová, ne ztratí (reopen z panelu).
+        t.pendingConfession = { contactId: contactId, pendingId: pendingId };
+        Game.save();
+
+        Game._showConfessionModal(contactId, pendingId);
+    },
+
+    // Reopen z panelu "Zprávy kláštera" — stejný kontakt, znovu z persistovaných dat.
+    reopenConfession: function() {
+        const p = GameState.templum && GameState.templum.pendingConfession;
+        if (!p) return;
+        Game._showConfessionModal(p.contactId, p.pendingId);
+    },
+
+    _showConfessionModal: function(id, pendingId) {
+        const c = (typeof ContactsDB !== 'undefined') ? ContactsDB[id] : null;
+        const t = GameState.templum || (GameState.templum = {});
+        const clearPending = () => {
+            if (GameState.templum) GameState.templum.pendingConfession = null;
+            if (typeof NotificationSystem !== 'undefined' && NotificationSystem.resolvePendingEvent) NotificationSystem.resolvePendingEvent(pendingId);
+        };
+        if (!c) { clearPending(); return; } // data se mezitím změnila — nic k zobrazení
+
         const lang = (GameState.settings && GameState.settings.language) || 'cs';
         const cName = lang === 'en' ? c.name_en : c.name;
         const sin = lang === 'en' ? (c.confession_en || '') : (c.confession || '');
-        Game.save();
 
         // Osa a váha — Přísné pokání/Shovívavost teď platí/vydělávají na OSE
         // toho konkrétního kontaktu, ne vždycky na Church. Sekundární osa
@@ -63946,6 +64072,15 @@ const Game = {
             Game._templumLog({ type: 'confession', name: cName, choice: choice });
         };
 
+        if (typeof NotificationSystem !== 'undefined' && NotificationSystem.pendingEvent) {
+            NotificationSystem.pendingEvent({
+                id: pendingId,
+                icon: '🙏',
+                title: (lang==='en' ? 'Confession — ' : 'Zpověď — ') + cName,
+                source: 'game_confession',
+            });
+        }
+
         NotificationSystem.modal({
             icon: '🙏',
             title: (lang==='en' ? 'Confession — ' : 'Zpověď — ') + cName,
@@ -63963,6 +64098,7 @@ const Game = {
                         '🙏 Zpověď: ' + cName + ' dostal přísné pokání. Bylo to k něčímu prospěchu — jemu ne.',
                         '🙏 Confession: ' + cName + ' received strict penance. Someone benefits from it — he does not.',
                         '🙏 Poenitentia severa imposita est.');
+                    clearPending();
                     Game.save(); rerender();
                 }},
                 { label: (lang==='en'?'🕊️ Leniency':'🕊️ Shovívavost'), effect: () => {
@@ -63976,6 +64112,7 @@ const Game = {
                         '🙏 Zpověď: ' + cName + ' odešel s lehkým pokáním a lehčím srdcem.',
                         '🙏 Confession: ' + cName + ' left with a light penance and a lighter heart.',
                         '🙏 Misericordia praevaluit.');
+                    clearPending();
                     Game.save(); rerender();
                 }},
                 { label: (lang==='en'?'🚪 Turn him away':'🚪 Odmítnout'), effect: () => {
@@ -63986,6 +64123,7 @@ const Game = {
                         '🙏 Zpověď: ' + cName + ' odešel nevyslyšen — a nezapomene na to.',
                         '🙏 Confession: ' + cName + ' left unheard — and will not forget it.',
                         '🙏 Confessio recusata est.');
+                    clearPending();
                     Game.save(); rerender();
                 }},
             ]
@@ -65739,6 +65877,8 @@ const Game = {
             const { bond, ka, kb } = conflict;
             // Napětí v komunitě — i bratři v Dormitoriu ho cítí, ne jen dva
             // konvrši v konfliktu. Malý plošný bump, nezávislý na volbě řešení.
+            // Jednorázový vedlejší efekt SETKÁNÍ (ne volby) — proto zůstává tady
+            // v _runKapitula, ne v _showKapitulaModal (ta se volá i při reopenu).
             (GameState.dormitorium && GameState.dormitorium.brothers || []).forEach(b => {
                 if (b.assignedTab) b.stress = Math.min(100, (b.stress || 0) + 5);
             });
@@ -65754,97 +65894,13 @@ const Game = {
             const pairKey = bond.a + '|' + bond.b;
             if (!GameState.kapitulaHistory) GameState.kapitulaHistory = {};
             if (!GameState.kapitulaHistory[pairKey]) GameState.kapitulaHistory[pairKey] = { meetCount: 0, lastPeaceful: false, resolved: null };
-            const hist = GameState.kapitulaHistory[pairKey];
-            hist.meetCount++;
+            GameState.kapitulaHistory[pairKey].meetCount++;
 
-            const rerender = () => { if (typeof SaeculumSystem !== 'undefined') SaeculumSystem.switchEntity(GameState.ui.saeculumEntity || 'tavern'); };
-            const retro = (typeof KapitulaRetrospectiveDB !== 'undefined') ? KapitulaRetrospectiveDB[pairKey] : null;
+            // Persistováno — klik mimo modal ho jen schová, ne ztratí (reopen z panelu).
+            GameState.pendingKapitula = pairKey;
+            Game.save();
 
-            if (hist.meetCount === 3 && retro) {
-                // Třetí setkání — jednorázová volba: vyhoření (jeden odejde,
-                // pár se natrvalo uzavře) vs. trvání (žije dál jako rys komunity).
-                const victim3 = (ka.loyalty <= kb.loyalty) ? ka : kb;
-                const leavesText = lang === 'en' ? retro.leaves_en : retro.leaves_cs;
-                NotificationSystem.modal({
-                    icon: '🔥',
-                    title: (lang==='en' ? 'Chapter — a choice, once and for all' : 'Kapitula — volba, jednou provždy'),
-                    text: `<div style="font-size:0.82rem; line-height:1.45;"><strong>${ka.name}</strong> × <strong>${kb.name}</strong><br><span style="opacity:0.75; font-style:italic;">${lang==='en'?bond.desc_en:bond.desc_cs}</span><br><br>${lang==='en'?'This has come before the chapter enough times. It ends here, one way or another.':'Tohle už bylo před kapitulou dost často. Skončí to tu, tak či onak.'}</div>`,
-                    choices: [
-                        { label: (lang==='en'?'🔥 Let it burn out':'🔥 Nechat vyhořet'), type: 'danger', effect: () => {
-                            hist.resolved = 'burned';
-                            GameState.conversi = GameState.conversi.filter(x => x.id !== victim3.id);
-                            if (typeof UI !== 'undefined' && UI.notifyPanel) {
-                                UI.notifyPanel('🔥 ' + victim3.name + ' — ' + (lang==='en'?'has left.':'odešel.') + ' „' + leavesText + '“', 'warning');
-                            }
-                            Game.addKronikaEntry('important',
-                                '🔥 ' + victim3.name + ' opustil klášter. „' + leavesText + '“',
-                                '🔥 ' + victim3.name + ' left the monastery. "' + leavesText + '"',
-                                '🔥 ' + victim3.name + ' recessit.');
-                            Game.save(); rerender();
-                        }},
-                        { label: (lang==='en'?'🕯️ Let it live on':'🕯️ Nechat žít dál'), effect: () => {
-                            hist.resolved = 'persists';
-                            ka.mood = Math.min(100, ka.mood + 3);
-                            kb.mood = Math.min(100, kb.mood + 3);
-                            Game.addKronikaEntry('minor',
-                                '🕯️ Napětí mezi ' + ka.name + ' a ' + kb.name + ' zůstává — trvalý rys komunity, ne rána.',
-                                '🕯️ The tension between ' + ka.name + ' and ' + kb.name + ' remains — a lasting trait of the community, not a wound.',
-                                '🕯️ Manet.');
-                            Game.save(); rerender();
-                        }}
-                    ]
-                });
-                return;
-            }
-
-            // Viník = nižší loajalita; druhý = poškozený
-            const victim = (ka.loyalty <= kb.loyalty) ? ka : kb;
-            const other  = (victim === ka) ? kb : ka;
-            const bondText = lang === 'en' ? bond.desc_en : bond.desc_cs;
-            // Vlákno B — 2. setkání, jen pokud 1. bylo vyřešeno smírně, přidá
-            // retrospektivu před běžný text. Volby/efekty beze změny.
-            const retroText = (hist.meetCount === 2 && hist.lastPeaceful && retro)
-                ? `<br><br><span style="opacity:0.8;">${lang==='en'?retro.retrospective_en:retro.retrospective_cs}</span>` : '';
-            NotificationSystem.modal({
-                icon: '⚖️',
-                title: (lang==='en' ? 'Chapter — a dispute among the brothers' : 'Kapitula — spor mezi bratry'),
-                text: `<div style="font-size:0.82rem; line-height:1.45;"><strong>${ka.name}</strong> × <strong>${kb.name}</strong><br><span style="opacity:0.75; font-style:italic;">${bondText}</span>${retroText}<br><br>${lang==='en'?'The chapter awaits your judgement.':'Kapitula čeká na tvůj soud.'}</div>`,
-                choices: [
-                    { label: (lang==='en'?'🕊️ Reconcile them':'🕊️ Rozsoudit smírně'), effect: () => {
-                        ka.mood = Math.min(100, ka.mood + 5);
-                        kb.mood = Math.min(100, kb.mood + 5);
-                        if (typeof PersonaSystem !== 'undefined' && PersonaSystem.addZboznost) PersonaSystem.addZboznost(1);
-                        hist.lastPeaceful = true;
-                        Game.addKronikaEntry('minor',
-                            '⚖️ Kapitula: spor mezi bratry ' + ka.name + ' a ' + kb.name + ' urovnán smírem.',
-                            '⚖️ Chapter: the dispute between ' + ka.name + ' and ' + kb.name + ' was settled peacefully.',
-                            '⚖️ Capitulum: lis composita est.');
-                        Game.save(); rerender();
-                    }},
-                    { label: (lang==='en'?'⚖️ Impose penance on '+victim.name:'⚖️ Uložit Pokání — '+victim.name), type: 'danger', effect: () => {
-                        victim.penanceUntil = Date.now() + 2 * 24 * 60 * 60 * 1000;
-                        victim.loyalty = Math.max(0, victim.loyalty - 5);
-                        other.mood = Math.min(100, other.mood + 8);
-                        hist.lastPeaceful = false;
-                        UI.notifyPanel('⚖️ ' + (lang==='en' ? victim.name+' was given two days of penance.' : victim.name+' dostal dva dny Pokání.'), 'warning');
-                        Game.addKronikaEntry('important',
-                            '⚖️ Kapitula: bratr ' + victim.name + ' dostal dva dny Pokání za spor s bratrem jménem ' + other.name + '.',
-                            '⚖️ Chapter: brother ' + victim.name + ' received two days of penance over the dispute with brother ' + other.name + '.',
-                            '⚖️ Capitulum: ' + victim.name + ' poenitentiam accepit.');
-                        Game.save(); rerender();
-                    }},
-                    { label: (lang==='en'?'🤐 Let it be':'🤐 Nechat být'), effect: () => {
-                        hist.lastPeaceful = false;
-                        ka.mood = Math.max(0, ka.mood - 5);
-                        kb.mood = Math.max(0, kb.mood - 5);
-                        Game.addKronikaEntry('minor',
-                            '⚖️ Kapitula: spor mezi bratry zůstal nevyřešen. Hnisá dál.',
-                            '⚖️ Chapter: the dispute among the brothers remains unresolved. It festers on.',
-                            '⚖️ Capitulum: lis manet.');
-                        Game.save(); rerender();
-                    }}
-                ]
-            });
+            Game._showKapitulaModal(pairKey);
             return;
         }
 
@@ -65873,6 +65929,136 @@ const Game = {
                 '⚖️ The chapter passed without notable events.',
                 '⚖️ Capitulum sine eventu.');
         }
+    },
+
+    // Reopen z panelu "Zprávy kláštera" — pairKey stačí, zbytek (bond/ka/kb/
+    // hist/retro) se dopočítá znovu ze živého GameState (deterministické).
+    reopenKapitula: function() {
+        const pairKey = GameState.pendingKapitula;
+        if (!pairKey) return;
+        Game._showKapitulaModal(pairKey);
+    },
+
+    _showKapitulaModal: function(pairKey) {
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        const [aId, bId] = pairKey.split('|');
+        const list = GameState.conversi || [];
+        const ka = list.find(k => k.rosterId === aId);
+        const kb = list.find(k => k.rosterId === bId);
+        const bond = (typeof ConversiBondsDB !== 'undefined') ? ConversiBondsDB.find(bd => bd.a === aId && bd.b === bId) : null;
+        const pendingId = 'kapitula_' + pairKey;
+        const clearPending = () => {
+            if (GameState.pendingKapitula === pairKey) GameState.pendingKapitula = null;
+            if (typeof NotificationSystem !== 'undefined' && NotificationSystem.resolvePendingEvent) NotificationSystem.resolvePendingEvent(pendingId);
+        };
+        if (!ka || !kb || !bond) { clearPending(); return; } // mezitím se stav změnil (odešel, apod.)
+
+        if (!GameState.kapitulaHistory) GameState.kapitulaHistory = {};
+        if (!GameState.kapitulaHistory[pairKey]) GameState.kapitulaHistory[pairKey] = { meetCount: 0, lastPeaceful: false, resolved: null };
+        const hist = GameState.kapitulaHistory[pairKey];
+        const rerender = () => { if (typeof SaeculumSystem !== 'undefined') SaeculumSystem.switchEntity(GameState.ui.saeculumEntity || 'tavern'); };
+        const retro = (typeof KapitulaRetrospectiveDB !== 'undefined') ? KapitulaRetrospectiveDB[pairKey] : null;
+        const isFinal = hist.meetCount === 3 && retro;
+
+        if (typeof NotificationSystem !== 'undefined' && NotificationSystem.pendingEvent) {
+            NotificationSystem.pendingEvent({
+                id: pendingId,
+                icon: isFinal ? '🔥' : '⚖️',
+                title: (lang==='en' ? 'Chapter — ' : 'Kapitula — ') + ka.name + ' × ' + kb.name,
+                source: 'game_kapitula',
+            });
+        }
+
+        if (isFinal) {
+            // Třetí setkání — jednorázová volba: vyhoření (jeden odejde,
+            // pár se natrvalo uzavře) vs. trvání (žije dál jako rys komunity).
+            const victim3 = (ka.loyalty <= kb.loyalty) ? ka : kb;
+            const leavesText = lang === 'en' ? retro.leaves_en : retro.leaves_cs;
+            NotificationSystem.modal({
+                icon: '🔥',
+                title: (lang==='en' ? 'Chapter — a choice, once and for all' : 'Kapitula — volba, jednou provždy'),
+                text: `<div style="font-size:0.82rem; line-height:1.45;"><strong>${ka.name}</strong> × <strong>${kb.name}</strong><br><span style="opacity:0.75; font-style:italic;">${lang==='en'?bond.desc_en:bond.desc_cs}</span><br><br>${lang==='en'?'This has come before the chapter enough times. It ends here, one way or another.':'Tohle už bylo před kapitulou dost často. Skončí to tu, tak či onak.'}</div>`,
+                choices: [
+                    { label: (lang==='en'?'🔥 Let it burn out':'🔥 Nechat vyhořet'), type: 'danger', effect: () => {
+                        hist.resolved = 'burned';
+                        GameState.conversi = GameState.conversi.filter(x => x.id !== victim3.id);
+                        if (typeof UI !== 'undefined' && UI.notifyPanel) {
+                            UI.notifyPanel('🔥 ' + victim3.name + ' — ' + (lang==='en'?'has left.':'odešel.') + ' „' + leavesText + '“', 'warning');
+                        }
+                        Game.addKronikaEntry('important',
+                            '🔥 ' + victim3.name + ' opustil klášter. „' + leavesText + '“',
+                            '🔥 ' + victim3.name + ' left the monastery. "' + leavesText + '"',
+                            '🔥 ' + victim3.name + ' recessit.');
+                        clearPending();
+                        Game.save(); rerender();
+                    }},
+                    { label: (lang==='en'?'🕯️ Let it live on':'🕯️ Nechat žít dál'), effect: () => {
+                        hist.resolved = 'persists';
+                        ka.mood = Math.min(100, ka.mood + 3);
+                        kb.mood = Math.min(100, kb.mood + 3);
+                        Game.addKronikaEntry('minor',
+                            '🕯️ Napětí mezi ' + ka.name + ' a ' + kb.name + ' zůstává — trvalý rys komunity, ne rána.',
+                            '🕯️ The tension between ' + ka.name + ' and ' + kb.name + ' remains — a lasting trait of the community, not a wound.',
+                            '🕯️ Manet.');
+                        clearPending();
+                        Game.save(); rerender();
+                    }}
+                ]
+            });
+            return;
+        }
+
+        // Viník = nižší loajalita; druhý = poškozený
+        const victim = (ka.loyalty <= kb.loyalty) ? ka : kb;
+        const other  = (victim === ka) ? kb : ka;
+        const bondText = lang === 'en' ? bond.desc_en : bond.desc_cs;
+        // Vlákno B — 2. setkání, jen pokud 1. bylo vyřešeno smírně, přidá
+        // retrospektivu před běžný text. Volby/efekty beze změny.
+        const retroText = (hist.meetCount === 2 && hist.lastPeaceful && retro)
+            ? `<br><br><span style="opacity:0.8;">${lang==='en'?retro.retrospective_en:retro.retrospective_cs}</span>` : '';
+        NotificationSystem.modal({
+            icon: '⚖️',
+            title: (lang==='en' ? 'Chapter — a dispute among the brothers' : 'Kapitula — spor mezi bratry'),
+            text: `<div style="font-size:0.82rem; line-height:1.45;"><strong>${ka.name}</strong> × <strong>${kb.name}</strong><br><span style="opacity:0.75; font-style:italic;">${bondText}</span>${retroText}<br><br>${lang==='en'?'The chapter awaits your judgement.':'Kapitula čeká na tvůj soud.'}</div>`,
+            choices: [
+                { label: (lang==='en'?'🕊️ Reconcile them':'🕊️ Rozsoudit smírně'), effect: () => {
+                    ka.mood = Math.min(100, ka.mood + 5);
+                    kb.mood = Math.min(100, kb.mood + 5);
+                    if (typeof PersonaSystem !== 'undefined' && PersonaSystem.addZboznost) PersonaSystem.addZboznost(1);
+                    hist.lastPeaceful = true;
+                    Game.addKronikaEntry('minor',
+                        '⚖️ Kapitula: spor mezi bratry ' + ka.name + ' a ' + kb.name + ' urovnán smírem.',
+                        '⚖️ Chapter: the dispute between ' + ka.name + ' and ' + kb.name + ' was settled peacefully.',
+                        '⚖️ Capitulum: lis composita est.');
+                    clearPending();
+                    Game.save(); rerender();
+                }},
+                { label: (lang==='en'?'⚖️ Impose penance on '+victim.name:'⚖️ Uložit Pokání — '+victim.name), type: 'danger', effect: () => {
+                    victim.penanceUntil = Date.now() + 2 * 24 * 60 * 60 * 1000;
+                    victim.loyalty = Math.max(0, victim.loyalty - 5);
+                    other.mood = Math.min(100, other.mood + 8);
+                    hist.lastPeaceful = false;
+                    UI.notifyPanel('⚖️ ' + (lang==='en' ? victim.name+' was given two days of penance.' : victim.name+' dostal dva dny Pokání.'), 'warning');
+                    Game.addKronikaEntry('important',
+                        '⚖️ Kapitula: bratr ' + victim.name + ' dostal dva dny Pokání za spor s bratrem jménem ' + other.name + '.',
+                        '⚖️ Chapter: brother ' + victim.name + ' received two days of penance over the dispute with brother ' + other.name + '.',
+                        '⚖️ Capitulum: ' + victim.name + ' poenitentiam accepit.');
+                    clearPending();
+                    Game.save(); rerender();
+                }},
+                { label: (lang==='en'?'🤐 Let it be':'🤐 Nechat být'), effect: () => {
+                    hist.lastPeaceful = false;
+                    ka.mood = Math.max(0, ka.mood - 5);
+                    kb.mood = Math.max(0, kb.mood - 5);
+                    Game.addKronikaEntry('minor',
+                        '⚖️ Kapitula: spor mezi bratry zůstal nevyřešen. Hnisá dál.',
+                        '⚖️ Chapter: the dispute among the brothers remains unresolved. It festers on.',
+                        '⚖️ Capitulum: lis manet.');
+                    clearPending();
+                    Game.save(); rerender();
+                }}
+            ]
+        });
     },
 
     // ═══════════════════════════════════════════════════════════════════
@@ -72028,6 +72214,92 @@ const CalendarSystem = {
         }
     },
 
+    // ── Filipojakubská noc — modal s volbou, extrahováno kvůli reopenu z panelu ──
+    _showWalpurgisModal: function () {
+        const L = (key) => t('events.' + key);
+        const year = new Date().getFullYear();
+        const id = 'cal_walpurgis_' + year;
+        const clearPending = () => {
+            if (typeof NotificationSystem !== 'undefined' && NotificationSystem.resolvePendingEvent) NotificationSystem.resolvePendingEvent(id);
+        };
+        if (typeof NotificationSystem !== 'undefined' && NotificationSystem.pendingEvent) {
+            NotificationSystem.pendingEvent({ id: id, icon: '🔥', title: L('cal_walpurgis.title'), source: 'calendar_walpurgis' });
+        }
+        NotificationSystem.modal({
+            title: L('cal_walpurgis.title'),
+            text: L('cal_walpurgis.text'),
+            icon: '🔥',
+            choices: [
+                { label: L('cal_walpurgis.athanor_btn'), type: 'primary', effect: () => {
+                    if (!GameState.eventFlags) GameState.eventFlags = {};
+                    GameState.eventFlags.walpurgisBonus = true;
+                    GameState.eventFlags.inquisitorRisk = (Math.random() < 0.4);
+                    NotificationSystem.panel(L('cal_walpurgis.athanor_res'), 'system');
+                    clearPending();
+                    Game.save();
+                }},
+                { label: L('cal_walpurgis.pray_btn'), type: 'default', effect: () => {
+                    if (typeof VigorSystem !== 'undefined') VigorSystem.add(10);
+                    NotificationSystem.panel(L('cal_walpurgis.pray_res'), 'system');
+                    clearPending();
+                    Game.save();
+                }},
+                { label: L('cal_walpurgis.herbs_btn'), type: 'default', effect: () => {
+                    Game.addItem('thyme', 3);
+                    Game.addItem('st_johns_wort', 2);
+                    Game.addItem('chamomile', 1);
+                    NotificationSystem.panel(L('cal_walpurgis.herbs_res'), 'system');
+                    clearPending();
+                    Game.save();
+                }},
+            ]
+        });
+    },
+
+    reopenWalpurgis: function () {
+        CalendarSystem._showWalpurgisModal();
+    },
+
+    // ── Slunovrat/Svatý Jan — modal s volbou, extrahováno kvůli reopenu z panelu ──
+    _showMidsummerModal: function () {
+        const L = (key) => t('events.' + key);
+        const year = new Date().getFullYear();
+        const id = 'cal_midsummer_' + year;
+        const clearPending = () => {
+            if (typeof NotificationSystem !== 'undefined' && NotificationSystem.resolvePendingEvent) NotificationSystem.resolvePendingEvent(id);
+        };
+        if (typeof NotificationSystem !== 'undefined' && NotificationSystem.pendingEvent) {
+            NotificationSystem.pendingEvent({ id: id, icon: '🌞', title: L('cal_midsummer.title'), source: 'calendar_midsummer' });
+        }
+        NotificationSystem.modal({
+            title: L('cal_midsummer.title'),
+            text: L('cal_midsummer.text'),
+            icon: '🌞',
+            choices: [
+                { label: L('cal_midsummer.herbs_btn'), type: 'primary', effect: () => {
+                    Game.addItem('st_johns_wort', 3);
+                    Game.addItem('thyme', 2);
+                    Game.addItem('pollen', 1);
+                    if (typeof VigorSystem !== 'undefined') VigorSystem.add(-10);
+                    NotificationSystem.panel(L('cal_midsummer.herbs_res'), 'system');
+                    clearPending();
+                    Game.save();
+                }},
+                { label: L('cal_midsummer.work_btn'), type: 'default', effect: () => {
+                    if (!GameState.eventFlags) GameState.eventFlags = {};
+                    GameState.eventFlags.midsummerCandleBonus = true;
+                    NotificationSystem.panel(L('cal_midsummer.work_res'), 'system');
+                    clearPending();
+                    Game.save();
+                }},
+            ]
+        });
+    },
+
+    reopenMidsummer: function () {
+        CalendarSystem._showMidsummerModal();
+    },
+
     // ── Hlavní render ─────────────────────────────────────────────────────────
     render: function () {
         const el = document.getElementById('lore-calendarium-content');
@@ -72177,32 +72449,7 @@ const CalendarSystem = {
         if (month === 4 && day === 30 && !done('cal_walpurgis')) {
             mark('cal_walpurgis');
             NotificationSystem.panel(L('cal_walpurgis.athanor_notif'), 'system');
-            NotificationSystem.modal({
-                title: L('cal_walpurgis.title'),
-                text: L('cal_walpurgis.text'),
-                icon: '🔥',
-                choices: [
-                    { label: L('cal_walpurgis.athanor_btn'), type: 'primary', effect: () => {
-                        if (!GameState.eventFlags) GameState.eventFlags = {};
-                        GameState.eventFlags.walpurgisBonus = true;
-                        GameState.eventFlags.inquisitorRisk = (Math.random() < 0.4);
-                        NotificationSystem.panel(L('cal_walpurgis.athanor_res'), 'system');
-                        Game.save();
-                    }},
-                    { label: L('cal_walpurgis.pray_btn'), type: 'default', effect: () => {
-                        if (typeof VigorSystem !== 'undefined') VigorSystem.add(10);
-                        NotificationSystem.panel(L('cal_walpurgis.pray_res'), 'system');
-                        Game.save();
-                    }},
-                    { label: L('cal_walpurgis.herbs_btn'), type: 'default', effect: () => {
-                        Game.addItem('thyme', 3);
-                        Game.addItem('st_johns_wort', 2);
-                        Game.addItem('chamomile', 1);
-                        NotificationSystem.panel(L('cal_walpurgis.herbs_res'), 'system');
-                        Game.save();
-                    }},
-                ]
-            });
+            CalendarSystem._showWalpurgisModal();
         }
 
         if (easter.month === month && easter.day === day && !done('cal_easter')) {
@@ -72225,27 +72472,7 @@ const CalendarSystem = {
         if (month === 6 && day === 24 && !done('cal_midsummer')) {
             mark('cal_midsummer');
             NotificationSystem.panel(L('cal_midsummer.herbs_notif'), 'system');
-            NotificationSystem.modal({
-                title: L('cal_midsummer.title'),
-                text: L('cal_midsummer.text'),
-                icon: '🌞',
-                choices: [
-                    { label: L('cal_midsummer.herbs_btn'), type: 'primary', effect: () => {
-                        Game.addItem('st_johns_wort', 3);
-                        Game.addItem('thyme', 2);
-                        Game.addItem('pollen', 1);
-                        if (typeof VigorSystem !== 'undefined') VigorSystem.add(-10);
-                        NotificationSystem.panel(L('cal_midsummer.herbs_res'), 'system');
-                        Game.save();
-                    }},
-                    { label: L('cal_midsummer.work_btn'), type: 'default', effect: () => {
-                        if (!GameState.eventFlags) GameState.eventFlags = {};
-                        GameState.eventFlags.midsummerCandleBonus = true;
-                        NotificationSystem.panel(L('cal_midsummer.work_res'), 'system');
-                        Game.save();
-                    }},
-                ]
-            });
+            CalendarSystem._showMidsummerModal();
         }
 
         if (month === 11 && day === 2 && !done('cal_all_souls')) {
@@ -72284,7 +72511,6 @@ const CalendarSystem = {
         }
     }
 };
-
     </script>
 
     <!-- ═══════════════════════════════════════════════
