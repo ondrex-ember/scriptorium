@@ -298,6 +298,9 @@ const NotificationSystem = {
         game_kapitula:       ()   => `Game.reopenKapitula()`,
         calendar_walpurgis:  ()   => `CalendarSystem.reopenWalpurgis()`,
         calendar_midsummer:  ()   => `CalendarSystem.reopenMidsummer()`,
+        calendar_imbolc:     ()   => `CalendarSystem.reopenImbolc()`,
+        calendar_lughnasadh: ()   => `CalendarSystem.reopenLughnasadh()`,
+        calendar_samhain:    ()   => `CalendarSystem.reopenSamhain()`,
     },
 
     _renderPendingItem: function(entry) {

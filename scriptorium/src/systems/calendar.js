@@ -402,6 +402,7 @@ const CalendarSystem = {
         cal_walpurgis: 'pagan', cal_may_day: 'pagan', cal_midsummer: 'dual',
         cal_all_souls: 'christian', cal_advent: 'christian',
         cal_christmas: 'christian', cal_new_year: 'neutral',
+        cal_imbolc: 'dual', cal_lughnasadh: 'pagan', cal_samhain: 'dual',
     },
 
     getAlignment: function () {
@@ -528,6 +529,148 @@ const CalendarSystem = {
 
     reopenMidsummer: function () {
         CalendarSystem._showMidsummerModal();
+    },
+
+    // ── Imbolc/Hromnice (2.2.) — dual, Coligny Kolo roku × zasvěcení svící ──
+    // Historie: Imbolc (jehňata, mléko, návrat světla) христianizováno jako
+    // Hromnice/Candlemas — svěcení svící proti zimní tmě. Stejné datum,
+    // stejný symbol (světlo), dvě čtení.
+    _showImbolcModal: function () {
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        const id = 'cal_imbolc_' + new Date().getFullYear();
+        const clearPending = () => {
+            if (typeof NotificationSystem !== 'undefined' && NotificationSystem.resolvePendingEvent) NotificationSystem.resolvePendingEvent(id);
+        };
+        if (typeof NotificationSystem !== 'undefined' && NotificationSystem.pendingEvent) {
+            NotificationSystem.pendingEvent({
+                id: id, icon: '🕯️',
+                title: lang === 'en' ? 'Imbolc — Candlemas' : 'Imbolc — Hromnice',
+                source: 'calendar_imbolc',
+            });
+        }
+        NotificationSystem.modal({
+            icon: '🕯️',
+            title: lang === 'en' ? 'Imbolc — Candlemas' : 'Imbolc — Hromnice',
+            text: lang === 'en'
+                ? 'The ewes near their first lambing, milk returns to the churns. The old feast of returning light meets the Church\'s blessing of candles against the last of winter\'s dark.'
+                : 'Ovce se blíží prvnímu jehnění, mléko se vrací do máselnic. Stará slavnost navracejícího se světla se potkává s církevním svěcením svící proti poslední zimní tmě.',
+            choices: [
+                { label: lang === 'en' ? '🕯️ Bless the candles' : '🕯️ Vysvětit svíce', type: 'primary', effect: () => {
+                    const w = CalendarSystem.getEventWeight('cal_imbolc');
+                    Game.addItem('candle', Math.max(1, Math.round(2 * w.christian)));
+                    if (typeof PersonaSystem !== 'undefined' && PersonaSystem.addZboznost) PersonaSystem.addZboznost(Math.round(1 * w.pagan));
+                    NotificationSystem.panel(lang === 'en' ? 'Candles blessed — light against the dark.' : 'Svíce vysvěceny — světlo proti tmě.', 'system');
+                    clearPending();
+                    Game.save();
+                }},
+                { label: lang === 'en' ? '🐑 Celebrate the lambing' : '🐑 Oslavit jehnění', type: 'default', effect: () => {
+                    const w = CalendarSystem.getEventWeight('cal_imbolc');
+                    Game.addItem('goat_milk', Math.max(1, Math.round(2 * w.pagan)));
+                    if (typeof PersonaSystem !== 'undefined' && PersonaSystem.addZboznost) PersonaSystem.addZboznost(Math.round(1 * w.christian));
+                    NotificationSystem.panel(lang === 'en' ? 'The fold rejoices — spring is turning.' : 'Ovčín se raduje — jaro se obrací.', 'system');
+                    clearPending();
+                    Game.save();
+                }},
+            ]
+        });
+    },
+
+    reopenImbolc: function () {
+        CalendarSystem._showImbolcModal();
+    },
+
+    // ── Lughnasadh (1.8.) — čistě pohanský, začátek žní ──────────────────────
+    // Zdroj nedává křesťanský protějšek pro české prostředí — nevymýšlím ho,
+    // zůstává jednostranný (na rozdíl od Walpurgis/Midsummer/Imbolc/Samhain).
+    _showLughnasadhModal: function () {
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        const id = 'cal_lughnasadh_' + new Date().getFullYear();
+        const clearPending = () => {
+            if (typeof NotificationSystem !== 'undefined' && NotificationSystem.resolvePendingEvent) NotificationSystem.resolvePendingEvent(id);
+        };
+        if (typeof NotificationSystem !== 'undefined' && NotificationSystem.pendingEvent) {
+            NotificationSystem.pendingEvent({
+                id: id, icon: '🌾',
+                title: lang === 'en' ? 'Lughnasadh — First Harvest' : 'Lughnasadh — Počátek žní',
+                source: 'calendar_lughnasadh',
+            });
+        }
+        NotificationSystem.modal({
+            icon: '🌾',
+            title: lang === 'en' ? 'Lughnasadh — First Harvest' : 'Lughnasadh — Počátek žní',
+            text: lang === 'en'
+                ? 'The first sheaves are cut, the first bread baked from new grain. The old faith marks the start of harvest, before winter comes.'
+                : 'První snopy jsou skoseny, první chléb upečen z nové mouky. Stará víra slaví počátek sklizně, než přijde zima.',
+            choices: [
+                { label: lang === 'en' ? '🌾 Join the village harvest feast' : '🌾 Oslavit s vesnicí', type: 'primary', effect: () => {
+                    const w = CalendarSystem.getEventWeight('cal_lughnasadh').pagan;
+                    Game.addItem('grain', Math.max(1, Math.round(3 * w)));
+                    if (typeof PersonaSystem !== 'undefined' && PersonaSystem.addInfluence) PersonaSystem.addInfluence('village', Math.round(2 * w));
+                    NotificationSystem.panel(lang === 'en' ? 'The harvest is blessed — the village shares its bread.' : 'Sklizeň je požehnaná — vesnice sdílí svůj chléb.', 'system');
+                    clearPending();
+                    Game.save();
+                }},
+                { label: lang === 'en' ? '📜 Stay at quiet work in the Scriptorium' : '📜 Zůstat u tiché práce ve skriptoriu', type: 'default', effect: () => {
+                    if (typeof VigorSystem !== 'undefined') VigorSystem.add(10);
+                    NotificationSystem.panel(lang === 'en' ? 'The scriptorium stays quiet while the village feasts.' : 'Skriptorium zůstává tiché, zatímco vesnice hoduje.', 'system');
+                    clearPending();
+                    Game.save();
+                }},
+            ]
+        });
+    },
+
+    reopenLughnasadh: function () {
+        CalendarSystem._showLughnasadhModal();
+    },
+
+    // ── Samhain (1.11.) — dual, konec roku × předvečer Všech svatých ────────
+    // Historie: konec pastevního roku, porážka dobytka co nelze přezimovat.
+    // Křesťanská Slavnost Všech svatých (1.11.) položena na stejné datum —
+    // Dušičky (cal_all_souls, 2.11.) navazují den poté, dnes už ve hře.
+    _showSamhainModal: function () {
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        const id = 'cal_samhain_' + new Date().getFullYear();
+        const clearPending = () => {
+            if (typeof NotificationSystem !== 'undefined' && NotificationSystem.resolvePendingEvent) NotificationSystem.resolvePendingEvent(id);
+        };
+        if (typeof NotificationSystem !== 'undefined' && NotificationSystem.pendingEvent) {
+            NotificationSystem.pendingEvent({
+                id: id, icon: '🕯️',
+                title: lang === 'en' ? 'Samhain — All Saints\' Eve' : 'Samhain — Předvečer Všech svatých',
+                source: 'calendar_samhain',
+            });
+        }
+        NotificationSystem.modal({
+            icon: '🕯️',
+            title: lang === 'en' ? 'Samhain — All Saints\' Eve' : 'Samhain — Předvečer Všech svatých',
+            text: lang === 'en'
+                ? 'Herds thin before winter — beasts that cannot be fed through the cold go under the knife. Fires burn in the village; they say the veil between worlds runs thin tonight. The monastery keeps the eve of All Saints.'
+                : 'Stáda se ztenčují před zimou — zvířata, co nelze přezimovat, jdou pod nůž. Ve vsi hoří ohně, brány mezi světy jsou prý dnes tenké. Klášter drží předvečer Všech svatých.',
+            choices: [
+                { label: lang === 'en' ? '🔥 Join the village bonfire' : '🔥 Zúčastnit se vesnických ohňů', type: 'primary', effect: () => {
+                    const w = CalendarSystem.getEventWeight('cal_samhain');
+                    Game.addItem('cured_meat', Math.max(1, Math.round(2 * w.pagan)));
+                    if (typeof PersonaSystem !== 'undefined' && PersonaSystem.addInfluence) PersonaSystem.addInfluence('village', Math.round(2 * w.pagan));
+                    if (typeof PersonaSystem !== 'undefined' && PersonaSystem.addZboznost) PersonaSystem.addZboznost(Math.round(1 * w.christian));
+                    NotificationSystem.panel(lang === 'en' ? 'The fires keep the dark at bay.' : 'Ohně drží tmu na uzdě.', 'system');
+                    clearPending();
+                    Game.save();
+                }},
+                { label: lang === 'en' ? '🕯️ Keep vigil for the dead' : '🕯️ Držet vigilii za zesnulé', type: 'default', effect: () => {
+                    const w = CalendarSystem.getEventWeight('cal_samhain');
+                    if (typeof PersonaSystem !== 'undefined' && PersonaSystem.addInfluence) PersonaSystem.addInfluence('church', Math.round(2 * w.christian));
+                    if (typeof PersonaSystem !== 'undefined' && PersonaSystem.addZboznost) PersonaSystem.addZboznost(Math.round(1 * w.pagan));
+                    NotificationSystem.panel(lang === 'en' ? 'The brothers pray through the thinning dark.' : 'Bratři se modlí, zatímco se tma ztenčuje.', 'system');
+                    clearPending();
+                    Game.save();
+                }},
+            ]
+        });
+    },
+
+    reopenSamhain: function () {
+        CalendarSystem._showSamhainModal();
     },
 
     // ── Hlavní render ─────────────────────────────────────────────────────────
@@ -668,6 +811,11 @@ const CalendarSystem = {
             }
         }
 
+        if (month === 2 && day === 2 && !done('cal_imbolc')) {
+            mark('cal_imbolc');
+            CalendarSystem._showImbolcModal();
+        }
+
         if (ashDate.getMonth() + 1 === month && ashDate.getDate() === day && !done('cal_ash_wednesday')) {
             mark('cal_ash_wednesday');
             NotificationSystem.panel(L('cal_ash_wednesday.notify'), 'system');
@@ -704,6 +852,16 @@ const CalendarSystem = {
             mark('cal_midsummer');
             NotificationSystem.panel(L('cal_midsummer.herbs_notif'), 'system');
             CalendarSystem._showMidsummerModal();
+        }
+
+        if (month === 8 && day === 1 && !done('cal_lughnasadh')) {
+            mark('cal_lughnasadh');
+            CalendarSystem._showLughnasadhModal();
+        }
+
+        if (month === 11 && day === 1 && !done('cal_samhain')) {
+            mark('cal_samhain');
+            CalendarSystem._showSamhainModal();
         }
 
         if (month === 11 && day === 2 && !done('cal_all_souls')) {
