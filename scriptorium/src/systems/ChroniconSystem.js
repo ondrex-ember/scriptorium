@@ -734,6 +734,8 @@ const ChroniconSystem = {
         const p = adv.pending;
 
         EventsSystem.showEvent({
+            id:     p.id || adv.activeId,
+            source: 'chronicon',
             icon:  p.icon || '☩',
             title: lang === 'en' ? (p.title_en || p.title_cs) : p.title_cs,
             text:  lang === 'en' ? (p.text_en  || p.text_cs)  : p.text_cs,
@@ -742,6 +744,13 @@ const ChroniconSystem = {
                 action: () => ChroniconSystem._resolveAdvisory(adv.activeId, c.id, lang),
             })),
         });
+    },
+
+    // Reopen z panelu "Zprávy kláštera" — mimo modal dismiss nic neztrácí,
+    // jen skryje dialog; klik na pending položku spustí stejný modal znovu.
+    reopenAdvisory: function() {
+        ChroniconSystem._advisoryShownThisSession = false;
+        ChroniconSystem.checkPendingAdvisory();
     },
 
     _resolveAdvisory: function(eventId, choiceId, lang) {
@@ -827,6 +836,9 @@ const ChroniconSystem = {
         adv.resolvedIds[eventId] = true;
         adv.activeId = null;
         adv.pending  = null;
+        if (typeof NotificationSystem !== 'undefined' && NotificationSystem.resolvePendingEvent) {
+            NotificationSystem.resolvePendingEvent(eventId);
+        }
         if (choiceId === 'bolster') {
             if (!GameState.flags) GameState.flags = {};
             GameState.flags.chroniconPlagueBolstered = true;
@@ -1122,14 +1134,18 @@ const ChroniconSystem = {
     },
 
     // Nabídka "host chce zůstat" — lokální event, mimo CHRONICON (rozhoduje
-    // se jen na Scriptorium straně, žádnej round-trip).
+    // se jen na Scriptorium straně, žádnej round-trip). id = arrivedAt
+    // (unikátní per host) — umožňuje reopen z panelu po dismissu mimo modal.
     _offerGuestJoin: function(g) {
         if (typeof EventsSystem === 'undefined' || !EventsSystem.showEvent) return;
         const lang = (GameState.settings && GameState.settings.language) || 'cs';
         const track = ChroniconSystem.UBYTOVNA_JOIN_TRACK[g.variant] || 'oblat';
         const trackName_cs = track === 'famulus' ? 'famula' : 'obláta';
         const trackName_en = track === 'famulus' ? 'famulus' : 'oblate';
+        const id = 'guestjoin_' + g.arrivedAt;
         EventsSystem.showEvent({
+            id: id,
+            source: 'chronicon_guestjoin',
             icon: '🙏',
             title: lang === 'en' ? 'A guest wishes to stay' : 'Host chce zůstat',
             text: lang === 'en'
@@ -1138,14 +1154,34 @@ const ChroniconSystem = {
             choices: [
                 {
                     label: lang === 'en' ? 'Welcome him' : 'Přijmout ho',
-                    action: () => ChroniconSystem._resolveGuestJoin(g, true),
+                    action: () => {
+                        const result = ChroniconSystem._resolveGuestJoin(g, true);
+                        if (NotificationSystem.resolvePendingEvent) NotificationSystem.resolvePendingEvent(id);
+                        return result;
+                    },
                 },
                 {
                     label: lang === 'en' ? 'Let him move on' : 'Nechat ho jít dál',
-                    action: () => ChroniconSystem._resolveGuestJoin(g, false),
+                    action: () => {
+                        const result = ChroniconSystem._resolveGuestJoin(g, false);
+                        if (NotificationSystem.resolvePendingEvent) NotificationSystem.resolvePendingEvent(id);
+                        return result;
+                    },
                 },
             ],
         });
+    },
+
+    // Reopen z panelu — hledá hosta podle arrivedAt (zakódováno v id).
+    // Pokud mezitím odešel/byl vyřízen jinak, tiše vyčistí pending záznam.
+    reopenGuestJoin: function(id) {
+        const arrivedAt = Number(String(id).replace('guestjoin_', ''));
+        const g = (GameState.ubytovna && GameState.ubytovna.guests || []).find(x => x.arrivedAt === arrivedAt);
+        if (!g) {
+            if (typeof NotificationSystem !== 'undefined' && NotificationSystem.resolvePendingEvent) NotificationSystem.resolvePendingEvent(id);
+            return;
+        }
+        ChroniconSystem._offerGuestJoin(g);
     },
 
     _resolveGuestJoin: function(g, accepted) {

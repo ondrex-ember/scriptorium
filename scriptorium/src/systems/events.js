@@ -1310,16 +1310,25 @@ const EventsSystem = {
     showEvent: function(event) {
         if (typeof NotificationSystem === 'undefined' || !NotificationSystem.modal) return;
 
-        // Nevyřízený decision-event zůstává ve frontě (Panel), dokud hráč
-        // nevybere volbu — klik mimo modal ho dnes jen zavře, nezmaže.
-        if (event.choices && event.choices.length > 0 && NotificationSystem.pendingEvent) {
-            NotificationSystem.pendingEvent(event.id);
-        }
-
         // Podpora title/text/label/desc jako funkce (lazy, jazykově reaktivní) —
         // vedle stávajícího title/text stringu a titleKey/textKey (t() lookup).
         // Nesahá do cs.js/en.js — pro nové eventy s inline dvojjazyčným textem.
         const resolve = (val) => typeof val === 'function' ? val() : val;
+        const resolvedTitle = resolve(event.title) || (event.titleKey ? t(event.titleKey) : '');
+
+        // Nevyřízený decision-event zůstává ve frontě (Panel), dokud hráč
+        // nevybere volbu — klik mimo modal ho dnes jen zavře, nezmaže.
+        // event.id musí být stabilní (buď z EventsSystem poolů, nebo dodané
+        // volajícím systémem — viz ChroniconSystem.checkPendingAdvisory,
+        // event.source='chronicon'); bez id nelze položku znovu otevřít.
+        if (event.choices && event.choices.length > 0 && event.id && NotificationSystem.pendingEvent) {
+            NotificationSystem.pendingEvent({
+                id:     event.id,
+                icon:   event.icon || '📜',
+                title:  resolvedTitle,
+                source: event.source || 'events',
+            });
+        }
 
         const choices = (event.choices || []).map(choice => {
             const label = resolve(choice.label) || t(choice.labelKey);
@@ -1329,7 +1338,13 @@ const EventsSystem = {
                 type: 'default',
                 effect: () => {
                     const result = choice.action();
-                    if (NotificationSystem.resolvePendingEvent) NotificationSystem.resolvePendingEvent(event.id);
+                    // Auto-resolve z fronty jen pro vlastní eventy (events.js pooly) —
+                    // u cizích volajících (source='chronicon' aj.) může volba znamenat
+                    // "odložit" (defer) a záznam má zůstat pending; ten systém si
+                    // resolvePendingEvent zavolá sám v momentě, kdy je opravdu hotovo.
+                    if ((!event.source || event.source === 'events') && event.id && NotificationSystem.resolvePendingEvent) {
+                        NotificationSystem.resolvePendingEvent(event.id);
+                    }
                     Game.save();
                     NotificationSystem.modal({
                         title: t('events.ui.result'),
@@ -1350,7 +1365,7 @@ const EventsSystem = {
         NotificationSystem.modal({
             icon: event.icon || '📜',
             image: event.image || null,
-            title: resolve(event.title) || t(event.titleKey),
+            title: resolvedTitle,
             text: resolve(event.text) || t(event.textKey),
             choices: choices
         });

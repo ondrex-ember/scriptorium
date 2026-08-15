@@ -256,11 +256,24 @@ const NotificationSystem = {
     // hráč nevybere volbu. Klik mimo modal (closeModal) je nemaže — jen
     // schová dialog, záznam žije dál v GameState.pendingDecisionEvents.
     // ════════════════════════════════════════════════════════════════════════
-    pendingEvent: function(id) {
+    pendingEvent: function(entry) {
+        if (!entry || !entry.id) return; // bez stabilního id nelze znovu otevřít — nesledovat
         if (!GameState.pendingDecisionEvents) GameState.pendingDecisionEvents = [];
-        const existing = GameState.pendingDecisionEvents.find(p => p.id === id);
-        if (existing) { existing.time = Date.now(); }
-        else { GameState.pendingDecisionEvents.unshift({ id: id, time: Date.now() }); }
+        const existing = GameState.pendingDecisionEvents.find(p => p.id === entry.id);
+        if (existing) {
+            existing.time   = Date.now();
+            existing.icon   = entry.icon   || existing.icon;
+            existing.title  = entry.title  || existing.title;
+            existing.source = entry.source || existing.source;
+        } else {
+            GameState.pendingDecisionEvents.unshift({
+                id:     entry.id,
+                time:   Date.now(),
+                icon:   entry.icon   || '📜',
+                title:  entry.title  || entry.id,
+                source: entry.source || 'events',
+            });
+        }
         this._renderPanelBadge();
         if (this._panelOpen) this._renderPanelList();
     },
@@ -272,22 +285,31 @@ const NotificationSystem = {
         if (this._panelOpen) this._renderPanelList();
     },
 
-    // ─── Vykreslení jedné pending položky ───────────────────────────────────
-    _renderPendingItem: function(entry) {
-        if (typeof EventsSystem === 'undefined' || !EventsSystem._findEventById) return '';
-        const event = EventsSystem._findEventById(entry.id);
-        if (!event) return ''; // event zmizel z DB (např. stará verze) — nezobrazovat
+    // ─── Vykreslení jedné pending položky (data uložená přímo v záznamu — ──
+    // žádný re-lookup při renderu, funguje i pro eventy mimo EventsSystem pool)
+    // reopenMap — jeden "source" tag = jedno stabilní reopen volání. Nový
+    // zdroj pending eventů = přidat sem jeden řádek + reopenX() na jeho straně.
+    _pendingReopenMap: {
+        events:              (id) => `EventsSystem.showEvent(EventsSystem._findEventById('${id}'))`,
+        chronicon:           ()   => `ChroniconSystem.reopenAdvisory()`,
+        chronicon_guestjoin: (id) => `ChroniconSystem.reopenGuestJoin('${id}')`,
+        game_parish:         ()   => `Game.reopenParishEvent()`,
+        game_confession:     ()   => `Game.reopenConfession()`,
+        game_kapitula:       ()   => `Game.reopenKapitula()`,
+        calendar_walpurgis:  ()   => `CalendarSystem.reopenWalpurgis()`,
+        calendar_midsummer:  ()   => `CalendarSystem.reopenMidsummer()`,
+    },
 
-        const resolve = (val) => typeof val === 'function' ? val() : val;
-        const title = resolve(event.title) || (event.titleKey ? t(event.titleKey) : entry.id);
-        const icon  = event.icon || '📜';
+    _renderPendingItem: function(entry) {
+        const build  = this._pendingReopenMap[entry.source] || this._pendingReopenMap.events;
+        const reopen = build(entry.id);
 
         return `
-            <div class="ns-panel-item ns-panel-item--pending" data-id="${entry.id}" onclick="EventsSystem.showEvent(EventsSystem._findEventById('${entry.id}'))">
-                <span class="ns-item-icon ns-item-icon--pending">${icon}<span class="ns-pending-pin">📌</span></span>
+            <div class="ns-panel-item ns-panel-item--pending" data-id="${entry.id}" onclick="${reopen}">
+                <span class="ns-item-icon ns-item-icon--pending">${entry.icon || '📜'}<span class="ns-pending-pin">📌</span></span>
                 <span class="ns-item-body">
-                    <span class="ns-item-msg">${title}</span>
-                    <span class="ns-item-meta">${t('notifications.cat_pending') !== 'notifications.cat_pending' ? t('notifications.cat_pending') : 'čeká na rozhodnutí'} · ${this._relTime(entry.time)}</span>
+                    <span class="ns-item-msg">${entry.title}</span>
+                    <span class="ns-item-meta">${t('notifications.cat_pending')} · ${this._relTime(entry.time)}</span>
                 </span>
             </div>
         `;

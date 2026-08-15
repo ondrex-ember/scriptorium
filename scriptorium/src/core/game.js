@@ -5366,22 +5366,49 @@ const Game = {
         t.nextParishEvent = Date.now() + WEEK;
         if (Math.random() >= 0.5) { Game.save(); return; } // ne každý týden — tichý farní klid
 
-        const lang = (GameState.settings && GameState.settings.language) || 'cs';
         const types = ['baptism', 'wedding', 'funeral'];
         const type = types[Math.floor(Math.random() * types.length)];
         const surname = this.PARISH_SURNAMES[Math.floor(Math.random() * this.PARISH_SURNAMES.length)];
+        const id = 'parish_' + type + '_' + Date.now();
+        // Persistováno — klik mimo modal ho jen schová, ne ztratí (reopen z panelu).
+        t.pendingParish = { id: id, type: type, surname: surname };
+        Game.save();
+
+        Game._showParishModal(type, surname, id);
+    },
+
+    // Reopen z panelu "Zprávy kláštera" — stejná modalka, znovu z persistovaných dat.
+    reopenParishEvent: function() {
+        const p = GameState.templum && GameState.templum.pendingParish;
+        if (!p) return;
+        Game._showParishModal(p.type, p.surname, p.id);
+    },
+
+    _showParishModal: function(type, surname, id) {
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
         const titleMap = { baptism: ['Křest', 'Baptism'], wedding: ['Svatba', 'Wedding'], funeral: ['Pohřeb', 'Funeral'] };
         const descMap = {
             baptism: ['Rodina ' + surname + ' žádá o křest dítěte.', 'The ' + surname + ' family asks for a christening.'],
             wedding: ['Rodina ' + surname + ' žádá o oddání.', 'The ' + surname + ' family asks to be wed.'],
             funeral: ['Rodina ' + surname + ' žádá o pohřeb.', 'The ' + surname + ' family asks for a funeral rite.'],
         };
-        Game.save();
 
         const rerender = () => {
             const el = document.getElementById('home-templum-content');
             if (el && typeof TemplumSystem !== 'undefined') el.innerHTML = TemplumSystem.renderTemplumTab();
         };
+        const clearPending = () => {
+            if (GameState.templum) GameState.templum.pendingParish = null;
+            if (typeof NotificationSystem !== 'undefined' && NotificationSystem.resolvePendingEvent) NotificationSystem.resolvePendingEvent(id);
+        };
+        if (typeof NotificationSystem !== 'undefined' && NotificationSystem.pendingEvent) {
+            NotificationSystem.pendingEvent({
+                id: id,
+                icon: type === 'baptism' ? '👶' : type === 'wedding' ? '💍' : '⚰️',
+                title: (lang === 'en' ? titleMap[type][1] : titleMap[type][0]) + ' — ' + surname,
+                source: 'game_parish',
+            });
+        }
 
         NotificationSystem.modal({
             icon: type === 'baptism' ? '👶' : type === 'wedding' ? '💍' : '⚰️',
@@ -5412,6 +5439,7 @@ const Game = {
                         '✝️ ' + titleMap[type][0] + ': rodina ' + surname + ' — obřad vykonán.',
                         '✝️ ' + titleMap[type][1] + ': the ' + surname + ' family — rite performed.',
                         '✝️ Ritus peractus est.');
+                    clearPending();
                     Game.save(); rerender();
                 }},
                 { label: (lang==='en'?'📋 Plan for later (Commitments)':'📋 Naplánovat do Zakázek'), effect: () => {
@@ -5425,6 +5453,7 @@ const Game = {
                         surname: surname,
                     });
                     if (GameState.localFarniEvents.length > 10) GameState.localFarniEvents.shift();
+                    clearPending();
                     Game.save(); rerender();
                     if (typeof UI !== 'undefined') UI.notify(lang==='en' ? '📋 Added to Commitments.' : '📋 Přidáno do Zakázek.');
                 }},
@@ -5436,6 +5465,7 @@ const Game = {
                         '🚪 ' + titleMap[type][0] + ': rodina ' + surname + ' odmítnuta.',
                         '🚪 ' + titleMap[type][1] + ': the ' + surname + ' family turned away.',
                         '🚪 Petitio recusata est.');
+                    clearPending();
                     Game.save(); rerender();
                 }}
             ]
@@ -5614,12 +5644,34 @@ const Game = {
         t.nextConfession = Date.now() + WEEK;
         if (!unlocked.length) { Game.save(); return; } // nikdo se nezná — zpověď odpadá
 
-        const id = unlocked[Math.floor(Math.random() * unlocked.length)];
-        const c = ContactsDB[id];
+        const contactId = unlocked[Math.floor(Math.random() * unlocked.length)];
+        const pendingId = 'confession_' + contactId + '_' + Date.now();
+        // Persistováno — klik mimo modal ho jen schová, ne ztratí (reopen z panelu).
+        t.pendingConfession = { contactId: contactId, pendingId: pendingId };
+        Game.save();
+
+        Game._showConfessionModal(contactId, pendingId);
+    },
+
+    // Reopen z panelu "Zprávy kláštera" — stejný kontakt, znovu z persistovaných dat.
+    reopenConfession: function() {
+        const p = GameState.templum && GameState.templum.pendingConfession;
+        if (!p) return;
+        Game._showConfessionModal(p.contactId, p.pendingId);
+    },
+
+    _showConfessionModal: function(id, pendingId) {
+        const c = (typeof ContactsDB !== 'undefined') ? ContactsDB[id] : null;
+        const t = GameState.templum || (GameState.templum = {});
+        const clearPending = () => {
+            if (GameState.templum) GameState.templum.pendingConfession = null;
+            if (typeof NotificationSystem !== 'undefined' && NotificationSystem.resolvePendingEvent) NotificationSystem.resolvePendingEvent(pendingId);
+        };
+        if (!c) { clearPending(); return; } // data se mezitím změnila — nic k zobrazení
+
         const lang = (GameState.settings && GameState.settings.language) || 'cs';
         const cName = lang === 'en' ? c.name_en : c.name;
         const sin = lang === 'en' ? (c.confession_en || '') : (c.confession || '');
-        Game.save();
 
         // Osa a váha — Přísné pokání/Shovívavost teď platí/vydělávají na OSE
         // toho konkrétního kontaktu, ne vždycky na Church. Sekundární osa
@@ -5649,6 +5701,15 @@ const Game = {
             Game._templumLog({ type: 'confession', name: cName, choice: choice });
         };
 
+        if (typeof NotificationSystem !== 'undefined' && NotificationSystem.pendingEvent) {
+            NotificationSystem.pendingEvent({
+                id: pendingId,
+                icon: '🙏',
+                title: (lang==='en' ? 'Confession — ' : 'Zpověď — ') + cName,
+                source: 'game_confession',
+            });
+        }
+
         NotificationSystem.modal({
             icon: '🙏',
             title: (lang==='en' ? 'Confession — ' : 'Zpověď — ') + cName,
@@ -5666,6 +5727,7 @@ const Game = {
                         '🙏 Zpověď: ' + cName + ' dostal přísné pokání. Bylo to k něčímu prospěchu — jemu ne.',
                         '🙏 Confession: ' + cName + ' received strict penance. Someone benefits from it — he does not.',
                         '🙏 Poenitentia severa imposita est.');
+                    clearPending();
                     Game.save(); rerender();
                 }},
                 { label: (lang==='en'?'🕊️ Leniency':'🕊️ Shovívavost'), effect: () => {
@@ -5679,6 +5741,7 @@ const Game = {
                         '🙏 Zpověď: ' + cName + ' odešel s lehkým pokáním a lehčím srdcem.',
                         '🙏 Confession: ' + cName + ' left with a light penance and a lighter heart.',
                         '🙏 Misericordia praevaluit.');
+                    clearPending();
                     Game.save(); rerender();
                 }},
                 { label: (lang==='en'?'🚪 Turn him away':'🚪 Odmítnout'), effect: () => {
@@ -5689,6 +5752,7 @@ const Game = {
                         '🙏 Zpověď: ' + cName + ' odešel nevyslyšen — a nezapomene na to.',
                         '🙏 Confession: ' + cName + ' left unheard — and will not forget it.',
                         '🙏 Confessio recusata est.');
+                    clearPending();
                     Game.save(); rerender();
                 }},
             ]
@@ -7442,6 +7506,8 @@ const Game = {
             const { bond, ka, kb } = conflict;
             // Napětí v komunitě — i bratři v Dormitoriu ho cítí, ne jen dva
             // konvrši v konfliktu. Malý plošný bump, nezávislý na volbě řešení.
+            // Jednorázový vedlejší efekt SETKÁNÍ (ne volby) — proto zůstává tady
+            // v _runKapitula, ne v _showKapitulaModal (ta se volá i při reopenu).
             (GameState.dormitorium && GameState.dormitorium.brothers || []).forEach(b => {
                 if (b.assignedTab) b.stress = Math.min(100, (b.stress || 0) + 5);
             });
@@ -7457,97 +7523,13 @@ const Game = {
             const pairKey = bond.a + '|' + bond.b;
             if (!GameState.kapitulaHistory) GameState.kapitulaHistory = {};
             if (!GameState.kapitulaHistory[pairKey]) GameState.kapitulaHistory[pairKey] = { meetCount: 0, lastPeaceful: false, resolved: null };
-            const hist = GameState.kapitulaHistory[pairKey];
-            hist.meetCount++;
+            GameState.kapitulaHistory[pairKey].meetCount++;
 
-            const rerender = () => { if (typeof SaeculumSystem !== 'undefined') SaeculumSystem.switchEntity(GameState.ui.saeculumEntity || 'tavern'); };
-            const retro = (typeof KapitulaRetrospectiveDB !== 'undefined') ? KapitulaRetrospectiveDB[pairKey] : null;
+            // Persistováno — klik mimo modal ho jen schová, ne ztratí (reopen z panelu).
+            GameState.pendingKapitula = pairKey;
+            Game.save();
 
-            if (hist.meetCount === 3 && retro) {
-                // Třetí setkání — jednorázová volba: vyhoření (jeden odejde,
-                // pár se natrvalo uzavře) vs. trvání (žije dál jako rys komunity).
-                const victim3 = (ka.loyalty <= kb.loyalty) ? ka : kb;
-                const leavesText = lang === 'en' ? retro.leaves_en : retro.leaves_cs;
-                NotificationSystem.modal({
-                    icon: '🔥',
-                    title: (lang==='en' ? 'Chapter — a choice, once and for all' : 'Kapitula — volba, jednou provždy'),
-                    text: `<div style="font-size:0.82rem; line-height:1.45;"><strong>${ka.name}</strong> × <strong>${kb.name}</strong><br><span style="opacity:0.75; font-style:italic;">${lang==='en'?bond.desc_en:bond.desc_cs}</span><br><br>${lang==='en'?'This has come before the chapter enough times. It ends here, one way or another.':'Tohle už bylo před kapitulou dost často. Skončí to tu, tak či onak.'}</div>`,
-                    choices: [
-                        { label: (lang==='en'?'🔥 Let it burn out':'🔥 Nechat vyhořet'), type: 'danger', effect: () => {
-                            hist.resolved = 'burned';
-                            GameState.conversi = GameState.conversi.filter(x => x.id !== victim3.id);
-                            if (typeof UI !== 'undefined' && UI.notifyPanel) {
-                                UI.notifyPanel('🔥 ' + victim3.name + ' — ' + (lang==='en'?'has left.':'odešel.') + ' „' + leavesText + '“', 'warning');
-                            }
-                            Game.addKronikaEntry('important',
-                                '🔥 ' + victim3.name + ' opustil klášter. „' + leavesText + '“',
-                                '🔥 ' + victim3.name + ' left the monastery. "' + leavesText + '"',
-                                '🔥 ' + victim3.name + ' recessit.');
-                            Game.save(); rerender();
-                        }},
-                        { label: (lang==='en'?'🕯️ Let it live on':'🕯️ Nechat žít dál'), effect: () => {
-                            hist.resolved = 'persists';
-                            ka.mood = Math.min(100, ka.mood + 3);
-                            kb.mood = Math.min(100, kb.mood + 3);
-                            Game.addKronikaEntry('minor',
-                                '🕯️ Napětí mezi ' + ka.name + ' a ' + kb.name + ' zůstává — trvalý rys komunity, ne rána.',
-                                '🕯️ The tension between ' + ka.name + ' and ' + kb.name + ' remains — a lasting trait of the community, not a wound.',
-                                '🕯️ Manet.');
-                            Game.save(); rerender();
-                        }}
-                    ]
-                });
-                return;
-            }
-
-            // Viník = nižší loajalita; druhý = poškozený
-            const victim = (ka.loyalty <= kb.loyalty) ? ka : kb;
-            const other  = (victim === ka) ? kb : ka;
-            const bondText = lang === 'en' ? bond.desc_en : bond.desc_cs;
-            // Vlákno B — 2. setkání, jen pokud 1. bylo vyřešeno smírně, přidá
-            // retrospektivu před běžný text. Volby/efekty beze změny.
-            const retroText = (hist.meetCount === 2 && hist.lastPeaceful && retro)
-                ? `<br><br><span style="opacity:0.8;">${lang==='en'?retro.retrospective_en:retro.retrospective_cs}</span>` : '';
-            NotificationSystem.modal({
-                icon: '⚖️',
-                title: (lang==='en' ? 'Chapter — a dispute among the brothers' : 'Kapitula — spor mezi bratry'),
-                text: `<div style="font-size:0.82rem; line-height:1.45;"><strong>${ka.name}</strong> × <strong>${kb.name}</strong><br><span style="opacity:0.75; font-style:italic;">${bondText}</span>${retroText}<br><br>${lang==='en'?'The chapter awaits your judgement.':'Kapitula čeká na tvůj soud.'}</div>`,
-                choices: [
-                    { label: (lang==='en'?'🕊️ Reconcile them':'🕊️ Rozsoudit smírně'), effect: () => {
-                        ka.mood = Math.min(100, ka.mood + 5);
-                        kb.mood = Math.min(100, kb.mood + 5);
-                        if (typeof PersonaSystem !== 'undefined' && PersonaSystem.addZboznost) PersonaSystem.addZboznost(1);
-                        hist.lastPeaceful = true;
-                        Game.addKronikaEntry('minor',
-                            '⚖️ Kapitula: spor mezi bratry ' + ka.name + ' a ' + kb.name + ' urovnán smírem.',
-                            '⚖️ Chapter: the dispute between ' + ka.name + ' and ' + kb.name + ' was settled peacefully.',
-                            '⚖️ Capitulum: lis composita est.');
-                        Game.save(); rerender();
-                    }},
-                    { label: (lang==='en'?'⚖️ Impose penance on '+victim.name:'⚖️ Uložit Pokání — '+victim.name), type: 'danger', effect: () => {
-                        victim.penanceUntil = Date.now() + 2 * 24 * 60 * 60 * 1000;
-                        victim.loyalty = Math.max(0, victim.loyalty - 5);
-                        other.mood = Math.min(100, other.mood + 8);
-                        hist.lastPeaceful = false;
-                        UI.notifyPanel('⚖️ ' + (lang==='en' ? victim.name+' was given two days of penance.' : victim.name+' dostal dva dny Pokání.'), 'warning');
-                        Game.addKronikaEntry('important',
-                            '⚖️ Kapitula: bratr ' + victim.name + ' dostal dva dny Pokání za spor s bratrem jménem ' + other.name + '.',
-                            '⚖️ Chapter: brother ' + victim.name + ' received two days of penance over the dispute with brother ' + other.name + '.',
-                            '⚖️ Capitulum: ' + victim.name + ' poenitentiam accepit.');
-                        Game.save(); rerender();
-                    }},
-                    { label: (lang==='en'?'🤐 Let it be':'🤐 Nechat být'), effect: () => {
-                        hist.lastPeaceful = false;
-                        ka.mood = Math.max(0, ka.mood - 5);
-                        kb.mood = Math.max(0, kb.mood - 5);
-                        Game.addKronikaEntry('minor',
-                            '⚖️ Kapitula: spor mezi bratry zůstal nevyřešen. Hnisá dál.',
-                            '⚖️ Chapter: the dispute among the brothers remains unresolved. It festers on.',
-                            '⚖️ Capitulum: lis manet.');
-                        Game.save(); rerender();
-                    }}
-                ]
-            });
+            Game._showKapitulaModal(pairKey);
             return;
         }
 
@@ -7576,6 +7558,136 @@ const Game = {
                 '⚖️ The chapter passed without notable events.',
                 '⚖️ Capitulum sine eventu.');
         }
+    },
+
+    // Reopen z panelu "Zprávy kláštera" — pairKey stačí, zbytek (bond/ka/kb/
+    // hist/retro) se dopočítá znovu ze živého GameState (deterministické).
+    reopenKapitula: function() {
+        const pairKey = GameState.pendingKapitula;
+        if (!pairKey) return;
+        Game._showKapitulaModal(pairKey);
+    },
+
+    _showKapitulaModal: function(pairKey) {
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        const [aId, bId] = pairKey.split('|');
+        const list = GameState.conversi || [];
+        const ka = list.find(k => k.rosterId === aId);
+        const kb = list.find(k => k.rosterId === bId);
+        const bond = (typeof ConversiBondsDB !== 'undefined') ? ConversiBondsDB.find(bd => bd.a === aId && bd.b === bId) : null;
+        const pendingId = 'kapitula_' + pairKey;
+        const clearPending = () => {
+            if (GameState.pendingKapitula === pairKey) GameState.pendingKapitula = null;
+            if (typeof NotificationSystem !== 'undefined' && NotificationSystem.resolvePendingEvent) NotificationSystem.resolvePendingEvent(pendingId);
+        };
+        if (!ka || !kb || !bond) { clearPending(); return; } // mezitím se stav změnil (odešel, apod.)
+
+        if (!GameState.kapitulaHistory) GameState.kapitulaHistory = {};
+        if (!GameState.kapitulaHistory[pairKey]) GameState.kapitulaHistory[pairKey] = { meetCount: 0, lastPeaceful: false, resolved: null };
+        const hist = GameState.kapitulaHistory[pairKey];
+        const rerender = () => { if (typeof SaeculumSystem !== 'undefined') SaeculumSystem.switchEntity(GameState.ui.saeculumEntity || 'tavern'); };
+        const retro = (typeof KapitulaRetrospectiveDB !== 'undefined') ? KapitulaRetrospectiveDB[pairKey] : null;
+        const isFinal = hist.meetCount === 3 && retro;
+
+        if (typeof NotificationSystem !== 'undefined' && NotificationSystem.pendingEvent) {
+            NotificationSystem.pendingEvent({
+                id: pendingId,
+                icon: isFinal ? '🔥' : '⚖️',
+                title: (lang==='en' ? 'Chapter — ' : 'Kapitula — ') + ka.name + ' × ' + kb.name,
+                source: 'game_kapitula',
+            });
+        }
+
+        if (isFinal) {
+            // Třetí setkání — jednorázová volba: vyhoření (jeden odejde,
+            // pár se natrvalo uzavře) vs. trvání (žije dál jako rys komunity).
+            const victim3 = (ka.loyalty <= kb.loyalty) ? ka : kb;
+            const leavesText = lang === 'en' ? retro.leaves_en : retro.leaves_cs;
+            NotificationSystem.modal({
+                icon: '🔥',
+                title: (lang==='en' ? 'Chapter — a choice, once and for all' : 'Kapitula — volba, jednou provždy'),
+                text: `<div style="font-size:0.82rem; line-height:1.45;"><strong>${ka.name}</strong> × <strong>${kb.name}</strong><br><span style="opacity:0.75; font-style:italic;">${lang==='en'?bond.desc_en:bond.desc_cs}</span><br><br>${lang==='en'?'This has come before the chapter enough times. It ends here, one way or another.':'Tohle už bylo před kapitulou dost často. Skončí to tu, tak či onak.'}</div>`,
+                choices: [
+                    { label: (lang==='en'?'🔥 Let it burn out':'🔥 Nechat vyhořet'), type: 'danger', effect: () => {
+                        hist.resolved = 'burned';
+                        GameState.conversi = GameState.conversi.filter(x => x.id !== victim3.id);
+                        if (typeof UI !== 'undefined' && UI.notifyPanel) {
+                            UI.notifyPanel('🔥 ' + victim3.name + ' — ' + (lang==='en'?'has left.':'odešel.') + ' „' + leavesText + '“', 'warning');
+                        }
+                        Game.addKronikaEntry('important',
+                            '🔥 ' + victim3.name + ' opustil klášter. „' + leavesText + '“',
+                            '🔥 ' + victim3.name + ' left the monastery. "' + leavesText + '"',
+                            '🔥 ' + victim3.name + ' recessit.');
+                        clearPending();
+                        Game.save(); rerender();
+                    }},
+                    { label: (lang==='en'?'🕯️ Let it live on':'🕯️ Nechat žít dál'), effect: () => {
+                        hist.resolved = 'persists';
+                        ka.mood = Math.min(100, ka.mood + 3);
+                        kb.mood = Math.min(100, kb.mood + 3);
+                        Game.addKronikaEntry('minor',
+                            '🕯️ Napětí mezi ' + ka.name + ' a ' + kb.name + ' zůstává — trvalý rys komunity, ne rána.',
+                            '🕯️ The tension between ' + ka.name + ' and ' + kb.name + ' remains — a lasting trait of the community, not a wound.',
+                            '🕯️ Manet.');
+                        clearPending();
+                        Game.save(); rerender();
+                    }}
+                ]
+            });
+            return;
+        }
+
+        // Viník = nižší loajalita; druhý = poškozený
+        const victim = (ka.loyalty <= kb.loyalty) ? ka : kb;
+        const other  = (victim === ka) ? kb : ka;
+        const bondText = lang === 'en' ? bond.desc_en : bond.desc_cs;
+        // Vlákno B — 2. setkání, jen pokud 1. bylo vyřešeno smírně, přidá
+        // retrospektivu před běžný text. Volby/efekty beze změny.
+        const retroText = (hist.meetCount === 2 && hist.lastPeaceful && retro)
+            ? `<br><br><span style="opacity:0.8;">${lang==='en'?retro.retrospective_en:retro.retrospective_cs}</span>` : '';
+        NotificationSystem.modal({
+            icon: '⚖️',
+            title: (lang==='en' ? 'Chapter — a dispute among the brothers' : 'Kapitula — spor mezi bratry'),
+            text: `<div style="font-size:0.82rem; line-height:1.45;"><strong>${ka.name}</strong> × <strong>${kb.name}</strong><br><span style="opacity:0.75; font-style:italic;">${bondText}</span>${retroText}<br><br>${lang==='en'?'The chapter awaits your judgement.':'Kapitula čeká na tvůj soud.'}</div>`,
+            choices: [
+                { label: (lang==='en'?'🕊️ Reconcile them':'🕊️ Rozsoudit smírně'), effect: () => {
+                    ka.mood = Math.min(100, ka.mood + 5);
+                    kb.mood = Math.min(100, kb.mood + 5);
+                    if (typeof PersonaSystem !== 'undefined' && PersonaSystem.addZboznost) PersonaSystem.addZboznost(1);
+                    hist.lastPeaceful = true;
+                    Game.addKronikaEntry('minor',
+                        '⚖️ Kapitula: spor mezi bratry ' + ka.name + ' a ' + kb.name + ' urovnán smírem.',
+                        '⚖️ Chapter: the dispute between ' + ka.name + ' and ' + kb.name + ' was settled peacefully.',
+                        '⚖️ Capitulum: lis composita est.');
+                    clearPending();
+                    Game.save(); rerender();
+                }},
+                { label: (lang==='en'?'⚖️ Impose penance on '+victim.name:'⚖️ Uložit Pokání — '+victim.name), type: 'danger', effect: () => {
+                    victim.penanceUntil = Date.now() + 2 * 24 * 60 * 60 * 1000;
+                    victim.loyalty = Math.max(0, victim.loyalty - 5);
+                    other.mood = Math.min(100, other.mood + 8);
+                    hist.lastPeaceful = false;
+                    UI.notifyPanel('⚖️ ' + (lang==='en' ? victim.name+' was given two days of penance.' : victim.name+' dostal dva dny Pokání.'), 'warning');
+                    Game.addKronikaEntry('important',
+                        '⚖️ Kapitula: bratr ' + victim.name + ' dostal dva dny Pokání za spor s bratrem jménem ' + other.name + '.',
+                        '⚖️ Chapter: brother ' + victim.name + ' received two days of penance over the dispute with brother ' + other.name + '.',
+                        '⚖️ Capitulum: ' + victim.name + ' poenitentiam accepit.');
+                    clearPending();
+                    Game.save(); rerender();
+                }},
+                { label: (lang==='en'?'🤐 Let it be':'🤐 Nechat být'), effect: () => {
+                    hist.lastPeaceful = false;
+                    ka.mood = Math.max(0, ka.mood - 5);
+                    kb.mood = Math.max(0, kb.mood - 5);
+                    Game.addKronikaEntry('minor',
+                        '⚖️ Kapitula: spor mezi bratry zůstal nevyřešen. Hnisá dál.',
+                        '⚖️ Chapter: the dispute among the brothers remains unresolved. It festers on.',
+                        '⚖️ Capitulum: lis manet.');
+                    clearPending();
+                    Game.save(); rerender();
+                }}
+            ]
+        });
     },
 
     // ═══════════════════════════════════════════════════════════════════

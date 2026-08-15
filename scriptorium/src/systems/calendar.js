@@ -371,6 +371,92 @@ const CalendarSystem = {
         }
     },
 
+    // ── Filipojakubská noc — modal s volbou, extrahováno kvůli reopenu z panelu ──
+    _showWalpurgisModal: function () {
+        const L = (key) => t('events.' + key);
+        const year = new Date().getFullYear();
+        const id = 'cal_walpurgis_' + year;
+        const clearPending = () => {
+            if (typeof NotificationSystem !== 'undefined' && NotificationSystem.resolvePendingEvent) NotificationSystem.resolvePendingEvent(id);
+        };
+        if (typeof NotificationSystem !== 'undefined' && NotificationSystem.pendingEvent) {
+            NotificationSystem.pendingEvent({ id: id, icon: '🔥', title: L('cal_walpurgis.title'), source: 'calendar_walpurgis' });
+        }
+        NotificationSystem.modal({
+            title: L('cal_walpurgis.title'),
+            text: L('cal_walpurgis.text'),
+            icon: '🔥',
+            choices: [
+                { label: L('cal_walpurgis.athanor_btn'), type: 'primary', effect: () => {
+                    if (!GameState.eventFlags) GameState.eventFlags = {};
+                    GameState.eventFlags.walpurgisBonus = true;
+                    GameState.eventFlags.inquisitorRisk = (Math.random() < 0.4);
+                    NotificationSystem.panel(L('cal_walpurgis.athanor_res'), 'system');
+                    clearPending();
+                    Game.save();
+                }},
+                { label: L('cal_walpurgis.pray_btn'), type: 'default', effect: () => {
+                    if (typeof VigorSystem !== 'undefined') VigorSystem.add(10);
+                    NotificationSystem.panel(L('cal_walpurgis.pray_res'), 'system');
+                    clearPending();
+                    Game.save();
+                }},
+                { label: L('cal_walpurgis.herbs_btn'), type: 'default', effect: () => {
+                    Game.addItem('thyme', 3);
+                    Game.addItem('st_johns_wort', 2);
+                    Game.addItem('chamomile', 1);
+                    NotificationSystem.panel(L('cal_walpurgis.herbs_res'), 'system');
+                    clearPending();
+                    Game.save();
+                }},
+            ]
+        });
+    },
+
+    reopenWalpurgis: function () {
+        CalendarSystem._showWalpurgisModal();
+    },
+
+    // ── Slunovrat/Svatý Jan — modal s volbou, extrahováno kvůli reopenu z panelu ──
+    _showMidsummerModal: function () {
+        const L = (key) => t('events.' + key);
+        const year = new Date().getFullYear();
+        const id = 'cal_midsummer_' + year;
+        const clearPending = () => {
+            if (typeof NotificationSystem !== 'undefined' && NotificationSystem.resolvePendingEvent) NotificationSystem.resolvePendingEvent(id);
+        };
+        if (typeof NotificationSystem !== 'undefined' && NotificationSystem.pendingEvent) {
+            NotificationSystem.pendingEvent({ id: id, icon: '🌞', title: L('cal_midsummer.title'), source: 'calendar_midsummer' });
+        }
+        NotificationSystem.modal({
+            title: L('cal_midsummer.title'),
+            text: L('cal_midsummer.text'),
+            icon: '🌞',
+            choices: [
+                { label: L('cal_midsummer.herbs_btn'), type: 'primary', effect: () => {
+                    Game.addItem('st_johns_wort', 3);
+                    Game.addItem('thyme', 2);
+                    Game.addItem('pollen', 1);
+                    if (typeof VigorSystem !== 'undefined') VigorSystem.add(-10);
+                    NotificationSystem.panel(L('cal_midsummer.herbs_res'), 'system');
+                    clearPending();
+                    Game.save();
+                }},
+                { label: L('cal_midsummer.work_btn'), type: 'default', effect: () => {
+                    if (!GameState.eventFlags) GameState.eventFlags = {};
+                    GameState.eventFlags.midsummerCandleBonus = true;
+                    NotificationSystem.panel(L('cal_midsummer.work_res'), 'system');
+                    clearPending();
+                    Game.save();
+                }},
+            ]
+        });
+    },
+
+    reopenMidsummer: function () {
+        CalendarSystem._showMidsummerModal();
+    },
+
     // ── Hlavní render ─────────────────────────────────────────────────────────
     render: function () {
         const el = document.getElementById('lore-calendarium-content');
@@ -520,32 +606,7 @@ const CalendarSystem = {
         if (month === 4 && day === 30 && !done('cal_walpurgis')) {
             mark('cal_walpurgis');
             NotificationSystem.panel(L('cal_walpurgis.athanor_notif'), 'system');
-            NotificationSystem.modal({
-                title: L('cal_walpurgis.title'),
-                text: L('cal_walpurgis.text'),
-                icon: '🔥',
-                choices: [
-                    { label: L('cal_walpurgis.athanor_btn'), type: 'primary', effect: () => {
-                        if (!GameState.eventFlags) GameState.eventFlags = {};
-                        GameState.eventFlags.walpurgisBonus = true;
-                        GameState.eventFlags.inquisitorRisk = (Math.random() < 0.4);
-                        NotificationSystem.panel(L('cal_walpurgis.athanor_res'), 'system');
-                        Game.save();
-                    }},
-                    { label: L('cal_walpurgis.pray_btn'), type: 'default', effect: () => {
-                        if (typeof VigorSystem !== 'undefined') VigorSystem.add(10);
-                        NotificationSystem.panel(L('cal_walpurgis.pray_res'), 'system');
-                        Game.save();
-                    }},
-                    { label: L('cal_walpurgis.herbs_btn'), type: 'default', effect: () => {
-                        Game.addItem('thyme', 3);
-                        Game.addItem('st_johns_wort', 2);
-                        Game.addItem('chamomile', 1);
-                        NotificationSystem.panel(L('cal_walpurgis.herbs_res'), 'system');
-                        Game.save();
-                    }},
-                ]
-            });
+            CalendarSystem._showWalpurgisModal();
         }
 
         if (easter.month === month && easter.day === day && !done('cal_easter')) {
@@ -568,27 +629,7 @@ const CalendarSystem = {
         if (month === 6 && day === 24 && !done('cal_midsummer')) {
             mark('cal_midsummer');
             NotificationSystem.panel(L('cal_midsummer.herbs_notif'), 'system');
-            NotificationSystem.modal({
-                title: L('cal_midsummer.title'),
-                text: L('cal_midsummer.text'),
-                icon: '🌞',
-                choices: [
-                    { label: L('cal_midsummer.herbs_btn'), type: 'primary', effect: () => {
-                        Game.addItem('st_johns_wort', 3);
-                        Game.addItem('thyme', 2);
-                        Game.addItem('pollen', 1);
-                        if (typeof VigorSystem !== 'undefined') VigorSystem.add(-10);
-                        NotificationSystem.panel(L('cal_midsummer.herbs_res'), 'system');
-                        Game.save();
-                    }},
-                    { label: L('cal_midsummer.work_btn'), type: 'default', effect: () => {
-                        if (!GameState.eventFlags) GameState.eventFlags = {};
-                        GameState.eventFlags.midsummerCandleBonus = true;
-                        NotificationSystem.panel(L('cal_midsummer.work_res'), 'system');
-                        Game.save();
-                    }},
-                ]
-            });
+            CalendarSystem._showMidsummerModal();
         }
 
         if (month === 11 && day === 2 && !done('cal_all_souls')) {

@@ -1505,7 +1505,8 @@ According to Theophilus, the organ is an instrument worthy of God, but its const
         cat_obchod: "trade",
         cat_udalost: "event",
         cat_system: "system",
-        cat_postup: "progress"
+        cat_postup: "progress",
+        cat_pending: "awaiting decision"
     },
     canonical: {
         buff_crafting: 'Crafting +{percent}%',

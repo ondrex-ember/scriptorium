@@ -701,7 +701,8 @@ const STRINGS_cs = {
         cat_obchod: "obchod",
         cat_udalost: "událost",
         cat_system: "systém",
-        cat_postup: "postup"
+        cat_postup: "postup",
+        cat_pending: "čeká na rozhodnutí"
     },
     canonical: {
         buff_crafting: 'Výroba +{percent}%',
