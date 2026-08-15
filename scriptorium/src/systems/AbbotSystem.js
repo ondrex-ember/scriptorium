@@ -80,21 +80,41 @@ const AbbotSystem = {
         },
     ],
 
-    // Připravená zásoba budoucích opatů — následníci pro (zatím
-    // neimplementovaný) engine úmrtí/volby. Dnes jen data, nikde nečtená
-    // krom tohoto pole samotného.
+    // Připravená zásoba budoucích opatů — následníci pro engine úmrtí/volby
+    // (checkSuccession/_applySuccession níže). Chronicon core/engine.js drží
+    // stejná id ('prokop'/'metodej') — to je zdroj pravdy pro shodu při
+    // nástupnictví (id-based, ne name-string matching).
+    // opat-nastupnictvi-mrd (15.8.2026)
     CANDIDATES: [
         {
+            id: 'prokop',
             name: 'Prokop',
+            born: '1435',
+            motto: 'Iustitia cum clementia',
+            motto_en_gloss: 'Justice with mercy',
+            note_cs: 'Mírný soudce. Kacířské myšlenky ho zraní méně než Bernarda — ale hospodářské spory ho tíží víc.',
+            note_en: 'A gentle judge. Heretical thoughts wound him less than they wound Bernard — but economic disputes weigh on him more.',
             portraitUrl: null, // ← sem cesta, až Bouvarde dodá obrázek
-            traits_cs: ['Mírný soudce — kacířské myšlenky ho zraní méně, hospodářské spory více'],
-            traits_en: ['Gentle judge — heretical thoughts wound him less, economic disputes more'],
+            traits: [
+                { id: 'mirny_soudce', name_cs: 'Mírný soudce', name_en: 'Gentle Judge',
+                  desc_cs: 'Kacířské myšlenky ho zraní méně než Bernarda.',
+                  desc_en: 'Heretical thoughts wound him less than they wound Bernard.' },
+            ],
         },
         {
+            id: 'metodej',
             name: 'Metoděj',
+            born: '1440',
+            motto: 'Sapientia thesaurus est',
+            motto_en_gloss: 'Wisdom is a treasure',
+            note_cs: 'Učenec. Nakloněn skriptoriu a knihovně nad hospodářstvím.',
+            note_en: 'A scholar. Favours the scriptorium and library over the estate.',
             portraitUrl: null, // ← sem cesta, až Bouvarde dodá obrázek
-            traits_cs: ['Učenec — nakloněn skriptoriu a knihovně nad hospodářstvím'],
-            traits_en: ['Scholar — favours the scriptorium and library over the estate'],
+            traits: [
+                { id: 'ucenec', name_cs: 'Učenec', name_en: 'Scholar',
+                  desc_cs: 'Nakloněn skriptoriu a knihovně nad hospodářstvím.',
+                  desc_en: 'Favours the scriptorium and library over the estate.' },
+            ],
         },
     ],
 
@@ -201,17 +221,33 @@ const AbbotSystem = {
         if (typeof UI !== 'undefined' && UI.switchLibraryTab && btn) UI.switchLibraryTab('opat', btn);
     },
 
-    // Váhování abbotFavorDelta podle Bernardova charakteru. Volané z
+    // Váhování abbotFavorDelta podle charakteru AKTUÁLNÍHO opata. Volané z
     // CommitmentsSystem.resolveLocalAkter TĚSNĚ před zápisem do
     // GameState.secrets.abbotFavor — inquisitionHeatDelta zůstává
     // nedotčený (to je objektivní riziko, ne osobní reakce opata).
+    // opat-nastupnictvi-mrd (15.8.2026) — rozšířeno o Prokopa/Metoděje;
+    // sekce 5, "hospodářské spory" polovina Prokopova traitu zůstává
+    // flavor-only (žádný kanál do abbotFavor pro 'vrchnost' zakázky dnes
+    // neexistuje) — backlog ticket, ne teď.
     _abbotFavorMultiplier: function (actorId, letterKey) {
-        if (actorId !== 'kacirska') return 1.0; // Přísný ve víře cílí jen na herezi, D-kategorie beze změny
+        if (actorId !== 'kacirska') return 1.0; // Přísný ve víře cílí jen na herezi, D-kategorie beze změny pro kteréhokoliv opata
+
+        const knownId = GameState.knownAbbotId || 'bernard';
+
+        // Prokop — Mírný soudce: kacířství ho bolí míň než Bernarda, žádná
+        // "Věrný Římu" váha na konkrétní dopisy (ten trait nemá).
+        if (knownId === 'prokop') return 0.7;
+
+        // Metoděj — Učenec: bez traitu vůči herezi, neutrální základ.
+        if (knownId === 'metodej') return 1.0;
+
+        // Bernard (default) — Přísný ve víře + Věrný Římu, beze změny.
         let mult = 1.5; // Přísný ve víře — obecný základ pro celou Kategorii C
         if (letterKey === 'utrakvisticky_opis') mult *= 1.3;   // Věrný Římu — extra bolest
         else if (letterKey === 'zelenohorska_provolani') mult *= 0.8; // Věrný Římu — soucit s vlastní stranou
         return mult;
     },
+
 
     // Fuzzy popis abbotFavor — mirror DecaySystem.miceFuzzyShort stylu,
     // ale inline text (ne i18n dictionary — mirror letters.js/Zakázky
@@ -222,6 +258,99 @@ const AbbotSystem = {
         if (favor > -5) return isCs ? '➖ Opat vás nezná blíže, ani v dobrém, ani ve zlém.' : "➖ The abbot does not know you well, for good or ill.";
         if (favor > -15) return isCs ? '⚠️ Opat vás sleduje s jistou obezřetností.' : '⚠️ The abbot watches you with some wariness.';
         return isCs ? '🔥 Opat má o vás vážné pochybnosti.' : '🔥 The abbot has serious doubts about you.';
+    },
+
+    // ── Nástupnictví (opat-nastupnictvi-mrd, 15.8.2026) ─────────────────────
+    // Hra běží ve fixním roce 1465 (žádná herní roková progrese dnes —
+    // viz core/ui.js _toGameDate), takže "since" nového opata je vždy
+    // '1465', žádný TimeSys.gameYear() neexistuje. Reálná roková progrese
+    // (Nový rok → 1466 atd.) je otevřený backlog bod, mimo scope tady.
+
+    // Efektivní CURRENT — statický Bernard, dokud nedošlo k nástupnictví,
+    // jinak poskládaný záznam z CANDIDATES. Deputy (Augustin) vždy ze
+    // statického CURRENT — úřad zástupce není vázán na osobu opata.
+    getCurrentAbbot: function () {
+        const knownId = GameState.knownAbbotId || 'bernard';
+        if (knownId === 'bernard') return this.CURRENT;
+        const candidate = this.CANDIDATES.find(c => c.id === knownId);
+        if (!candidate) return this.CURRENT; // neznámé ID, tichý fallback
+        return {
+            name: candidate.name,
+            born: candidate.born,
+            since: '1465',
+            motto: candidate.motto,
+            motto_en_gloss: candidate.motto_en_gloss,
+            portraitUrl: candidate.portraitUrl,
+            note_cs: candidate.note_cs,
+            note_en: candidate.note_en,
+            deputyName: this.CURRENT.deputyName,
+            deputyNote_cs: this.CURRENT.deputyNote_cs,
+            deputyNote_en: this.CURRENT.deputyNote_en,
+        };
+    },
+
+    getCurrentTraits: function () {
+        const knownId = GameState.knownAbbotId || 'bernard';
+        if (knownId === 'bernard') return this.TRAITS;
+        const candidate = this.CANDIDATES.find(c => c.id === knownId);
+        return (candidate && candidate.traits) ? candidate.traits : this.TRAITS;
+    },
+
+    _currentOrdinal: function () {
+        return 13 + ((GameState.abbotLineageExtra && GameState.abbotLineageExtra.length) || 0);
+    },
+
+    // Favor carryover — zrcadlo existující ChroniconSystem.js normalizace
+    // (relations['klaster'] = clamp(50 + abbotFavor, 0, 100)), obráceně.
+    // persona.influence.abbot (0-100, neeroduje) = obecná pověst mezi
+    // klérem, ne osobní vztah s předchůdcem — dělení /2.5 tlumí extrém.
+    _successionFavorSeed: function () {
+        const influence = (GameState.persona && GameState.persona.influence && GameState.persona.influence.abbot) || 0;
+        const seed = Math.round((influence - 50) / 2.5);
+        return Math.max(-20, Math.min(20, seed));
+    },
+
+    // Detekce změny identity z Chronicon snapshotu — volané denním tickem
+    // (mirror locationTick cadence, core/game.js). Levný no-op ve většině
+    // dnů (snapshot se stejně mění ~1×/den).
+    checkSuccession: function () {
+        if (!GameState.knownAbbotId) GameState.knownAbbotId = 'bernard';
+        if (typeof ChroniconSystem === 'undefined' || !ChroniconSystem._snap || !Array.isArray(ChroniconSystem._snap.actors)) return;
+        const klaster = ChroniconSystem._snap.actors.find(a => a.id === 'klaster');
+        if (!klaster || !klaster.abbotId) return;
+        if (klaster.abbotId === GameState.knownAbbotId) return;
+        this._applySuccession(klaster.abbotId);
+    },
+
+    _applySuccession: function (newAbbotId) {
+        const candidate = this.CANDIDATES.find(c => c.id === newAbbotId);
+        if (!candidate) return; // neznámé ID (budoucí rozšíření Chronicon strany bez aktualizace CANDIDATES), tichý no-op
+
+        const old = this.getCurrentAbbot();
+        if (!GameState.abbotLineageExtra) GameState.abbotLineageExtra = [];
+        GameState.abbotLineageExtra.push({
+            name: old.name, years: `${old.since}–1465`, born: old.born,
+            motto: old.motto, motto_en_gloss: old.motto_en_gloss,
+            note_cs: old.note_cs, note_en: old.note_en,
+        });
+
+        GameState.secrets = GameState.secrets || {};
+        GameState.secrets.abbotFavor = this._successionFavorSeed();
+        GameState.abbotLocation = 'present';
+        GameState.knownAbbotId = newAbbotId;
+
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        const isCs = lang !== 'en';
+        const ordinal = this._currentOrdinal();
+        const msgCs = `Opat ${old.name} zemřel. Bratr ${candidate.name} byl zvolen ${ordinal}. opatem od založení kláštera.`;
+        const msgEn = `Abbot ${old.name} has died. Brother ${candidate.name} has been elected the ${ordinal}th abbot since the monastery's founding.`;
+        if (typeof Game !== 'undefined' && Game.addKronikaEntry) {
+            Game.addKronikaEntry('major', msgCs, msgEn, `Abbas ${old.name} obiit.`);
+        }
+        if (typeof NotificationSystem !== 'undefined' && NotificationSystem.panel) {
+            NotificationSystem.panel('🕯️ ' + (isCs ? msgCs : msgEn), 'system');
+        }
+        if (typeof Game !== 'undefined' && Game.save) Game.save();
     },
 
     // Portrétní medailon — dvojitý zlatý rám, zaoblené dolní rohy (mirror
@@ -258,7 +387,8 @@ const AbbotSystem = {
         const isCs = lang !== 'en';
         const favor = (GameState.secrets && GameState.secrets.abbotFavor) || 0;
 
-        const lineageHtml = this.LINEAGE.map((a, i) => `
+        const fullLineage = this.LINEAGE.concat(GameState.abbotLineageExtra || []);
+        const lineageHtml = fullLineage.map((a, i) => `
             <div style="display:flex; gap:10px; padding:10px 0; border-bottom:1px solid rgba(197,160,89,0.15);">
                 <div style="font-size:0.7rem; opacity:0.5; min-width:26px; text-align:right;">${i + 1}.</div>
                 <div>
@@ -268,7 +398,8 @@ const AbbotSystem = {
                 </div>
             </div>`).join('');
 
-        const c = this.CURRENT;
+        const c = this.getCurrentAbbot();
+        const ordinal = this._currentOrdinal();
         el.innerHTML = `
             <div style="background:rgba(197,160,89,0.07); border:2px double rgba(197,160,89,0.4); border-radius:10px; padding:16px 18px; margin-bottom:16px;">
                 <div style="font-size:0.72rem; opacity:0.6; letter-spacing:0.05em; text-transform:uppercase; margin-bottom:10px; text-align:center;">${this.MONASTERY_NAME_LAT}</div>
@@ -276,11 +407,11 @@ const AbbotSystem = {
                     ${this._portraitFrame(c.portraitUrl)}
                     <div style="flex:1;">
                         <div style="font-size:1.05rem; font-weight:bold;">${c.name}</div>
-                        <div style="font-size:0.76rem; opacity:0.65; margin-bottom:4px;">${isCs ? 'nar.' : 'b.'} ${c.born} — ${isCs ? '13. opat, od' : '13th abbot, since'} ${c.since}</div>
+                        <div style="font-size:0.76rem; opacity:0.65; margin-bottom:4px;">${isCs ? 'nar.' : 'b.'} ${c.born} — ${isCs ? ordinal + '. opat, od' : ordinal + 'th abbot, since'} ${c.since}</div>
                         <div style="font-size:0.78rem; margin-bottom:4px;">${this.LOCATIONS[GameState.abbotLocation || 'present'].icon} ${isCs ? this.LOCATIONS[GameState.abbotLocation || 'present'].name_cs : this.LOCATIONS[GameState.abbotLocation || 'present'].name_en}</div>
                         <div style="font-size:0.78rem; font-style:italic; color:#a08040;">„${c.motto}“ <span style="opacity:0.6;">— ${c.motto_en_gloss}</span></div>
                         <div style="font-size:0.78rem; margin-top:6px; display:flex; gap:6px; flex-wrap:wrap;">
-                            ${this.TRAITS.map(tr => `<span style="background:rgba(197,160,89,0.15); border-radius:4px; padding:2px 8px;" title="${isCs ? tr.desc_cs : tr.desc_en}">${isCs ? tr.name_cs : tr.name_en}</span>`).join('')}
+                            ${this.getCurrentTraits().map(tr => `<span style="background:rgba(197,160,89,0.15); border-radius:4px; padding:2px 8px;" title="${isCs ? tr.desc_cs : tr.desc_en}">${isCs ? tr.name_cs : tr.name_en}</span>`).join('')}
                         </div>
                     </div>
                 </div>
@@ -295,12 +426,16 @@ const AbbotSystem = {
                 </div>
             </div>
             ${this._chroniconLiveSection(isCs)}
+            ${(() => {
+                const waiting = this.CANDIDATES.filter(cd => cd.id !== (GameState.knownAbbotId || 'bernard'));
+                if (waiting.length === 0) return '';
+                return `
             <div style="margin-bottom:16px;">
                 <div style="font-size:0.72rem; opacity:0.6; font-style:italic; margin-bottom:8px;">
                     ${isCs ? '🕯️ V řádu čekají další bratři, jednou k nástupnictví způsobilí:' : '🕯️ Other brothers wait in the order, one day fit to succeed:'}
                 </div>
                 <div style="display:flex; gap:16px;">
-                    ${this.CANDIDATES.map(cd => `
+                    ${waiting.map(cd => `
                         <div style="text-align:center;">
                             <div style="position:relative; width:52px; height:62px; margin:0 auto 4px;">
                                 <div style="position:absolute; inset:0; border:2px double #c5a059; border-radius:4px 4px 20px 20px; opacity:0.7;"></div>
@@ -311,7 +446,8 @@ const AbbotSystem = {
                             <div style="font-size:0.72rem; opacity:0.8;">${cd.name}</div>
                         </div>`).join('')}
                 </div>
-            </div>
+            </div>`;
+            })()}
             <div style="font-size:0.72rem; opacity:0.6; letter-spacing:0.05em; text-transform:uppercase; margin-bottom:8px;">${isCs ? 'Rodokmen opatů' : 'Lineage of Abbots'}</div>
             <div>${lineageHtml}</div>
         `;

@@ -823,6 +823,8 @@ const Game = {
                     if (typeof FarmyardSystem !== 'undefined' && FarmyardSystem.looseHerdDailyTick) FarmyardSystem.looseHerdDailyTick();
                     // Cestující opat — self-guarded ~3 dny (abbot-travel-mrd, 9.8.2026)
                     if (typeof AbbotSystem !== 'undefined' && AbbotSystem.locationTick) AbbotSystem.locationTick();
+                    // Nástupnictví opata — detekce změny identity z Chronicon snapshotu (opat-nastupnictvi-mrd, 15.8.2026)
+                    if (typeof AbbotSystem !== 'undefined' && AbbotSystem.checkSuccession) AbbotSystem.checkSuccession();
                     // Myší populace — denní tick spawn/mortality/scraps (self-guarded 24h)
                     if (typeof ScriptoriumCat !== 'undefined' && ScriptoriumCat.miceTick) ScriptoriumCat.miceTick();
                     // Decay — denní kažení zásob (self-guarded 24h, gate tech_inventarium)
