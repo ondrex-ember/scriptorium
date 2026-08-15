@@ -27248,7 +27248,15 @@ const SaeculumSystem = {
   // plnou/skoro plnou cenu — reálná ekonomická díra, ne teoretická.
   // Jedno číslo pro všechny kontakty/položky — ne per-item konfigurace,
   // ať se nerozjíždí refaktor přes celý ContactsDB najednou.
-  CONTACT_SELL_CAP: 15,
+  // clientela-sell-cap-variabilni (15.8.2026): strop podle ceny (proxy pro
+  // vzácnost/realitu) — levné suroviny se hromadí (vyšší strop), drahé/
+  // vzácné zboží má přirozeně omezenější odbyt. Nahrazuje flat číslo
+  // (bylo 30, dřív 15) — malý edit, ne per-item konfigurace v ContactsDB.
+  _contactSellCap: function(basePrice) {
+    if (basePrice <= 5) return 40;
+    if (basePrice <= 15) return 25;
+    return 12;
+  },
 
   // Oddělený tracker od _contactSoldToday (ten je pro NÁKUP od kontaktu) —
   // stejný item může být u kontaktu v buyOffer i sellBonus zároveň (např.
@@ -27296,7 +27304,7 @@ const SaeculumSystem = {
     // dolů) — stejný princip jako calcPrice(entity, skipSaturation) v Cellariu.
     const relPrice = Math.max(1, Math.round(basePrice * this.contactPriceMult(contactId)));
     const soldBefore = this._contactSellSoldToday(contactId, itemId);
-    const result = CellariumSystem._calcSaturatedSale(relPrice, qty, soldBefore, this.CONTACT_SELL_CAP);
+    const result = CellariumSystem._calcSaturatedSale(relPrice, qty, soldBefore, this._contactSellCap(basePrice));
     if (result.actuallySold <= 0) {
       const lang = (GameState.settings && GameState.settings.language) || 'cs';
       UI.notify(lang==='en' ? '⚠️ He has bought enough from you today.' : '⚠️ Dnes už od tebe koupil dost.', true);
@@ -27649,7 +27657,7 @@ const SaeculumSystem = {
         // sellToContact-cap-audit (7.8.2026): zbývající denní kapacita —
         // stejný princip jako "skladem X" na nákupní straně.
         const soldToday = this._contactSellSoldToday(id, itemId);
-        const left = Math.max(0, this.CONTACT_SELL_CAP - soldToday);
+        const left = Math.max(0, this._contactSellCap(basePrice) - soldToday);
         const capLabel = `<span style="opacity:0.55;"> · ${lang==='en'?'buys up to':'koupí do'} ${left}${lang==='en'?'/day':'/den'}</span>`;
         h += `<div style="display:flex; align-items:center; gap:6px; font-size:0.78rem; margin-bottom:6px;">
                 <span style="flex:1;">${itemName} <span style="opacity:0.6;">(${lang==='en'?'have':'máš'} ${have} · ${price} g/${lang==='en'?'pc':'ks'})</span>${capLabel}</span>
