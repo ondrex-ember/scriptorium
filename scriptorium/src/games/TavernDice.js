@@ -22,6 +22,16 @@ const TavernDice = {
   isRolling: false,
   useLoadedDice: false,
 
+  // vrchcaby-ekonomika-mrd (15.8.2026): násobky přepočítané z přesné pravděpodobnosti
+  // součtu 3d6 (216 kombinací) na cílený house edge 15% (mult = 0.85 / p).
+  // Původní tabulka byla "od oka" a dávala edge −75 až −94% — hráč prohrával
+  // systematicky bez ohledu na štěstí. Klíč = cílové číslo (3–18).
+  ZARA_MULT: { 3: 184, 18: 184, 4: 61, 17: 61, 5: 31, 16: 31, 6: 18, 15: 18,
+               7: 12, 14: 12, 8: 8.7, 13: 8.7, 9: 7.3, 12: 7.3, 10: 6.8, 11: 6.8 },
+  getZaraMult: function(target) {
+    return this.ZARA_MULT[target] || 6.8;
+  },
+
   // Web Audio sound effects for dice rolling
   playDiceSound: function() {
     try {
@@ -313,7 +323,7 @@ const TavernDice = {
     const isWin = (sum > 10) && hasPair;
 
     if (isWin) {
-      const payout = Math.floor(this.bet * 1.95);
+      const payout = Math.floor(this.bet * 3.83); // vrchcaby-ekonomika-mrd: 15% house edge (p=22.22%)
       if (typeof CellariumSystem !== 'undefined' && CellariumSystem.addGrose) CellariumSystem.addGrose(payout);
       else GameState.coins += payout;
       this.streak++;
@@ -348,13 +358,7 @@ const TavernDice = {
       if (p3 >= 1 && p3 <= 6) { dice = [p1, p2, p3]; sum = target; }
     }
 
-    let mult = 1.8;
-    if (target === 3 || target === 18) mult = 12.0;
-    else if (target === 4 || target === 17) mult = 8.0;
-    else if (target === 5 || target === 16) mult = 5.0;
-    else if (target === 6 || target === 15) mult = 4.0;
-    else if (target === 7 || target === 14) mult = 3.0;
-    else if (target === 8 || target === 13) mult = 2.5;
+    const mult = this.getZaraMult(target);
 
     if (sum === target) {
       const payout = Math.floor(this.bet * mult);
@@ -469,7 +473,7 @@ const TavernDice = {
           <label style="font-size: 0.85rem; color: #e6c687;">Tipuj součet (3-18):</label>
           <input type="number" min="3" max="18" value="${this.zaraTarget}" onchange="TavernDice.zaraTarget = Math.max(3, Math.min(18, parseInt(this.value)||10)); TavernDice.render();" style="width: 60px; background: #2b2219; color: #ffd700; border: 1px solid #c5a059; padding: 4px; text-align: center; font-weight: bold; border-radius: 4px;">
           <span style="font-size: 0.8rem; color: #aaa;">
-            Kurz výhry: <strong style="color:#5a9;">${this.zaraTarget===3||this.zaraTarget===18?'12×':this.zaraTarget===4||this.zaraTarget===17?'8×':this.zaraTarget===5||this.zaraTarget===16?'5×':this.zaraTarget===6||this.zaraTarget===15?'4×':this.zaraTarget===7||this.zaraTarget===14?'3×':this.zaraTarget===8||this.zaraTarget===13?'2.5×':'1.8×'}</strong>
+            Kurz výhry: <strong style="color:#5a9;">${this.getZaraMult(this.zaraTarget)}×</strong>
           </span>
         </div>
       `;
