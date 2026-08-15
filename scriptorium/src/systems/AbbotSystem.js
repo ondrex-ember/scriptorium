@@ -82,14 +82,17 @@ const AbbotSystem = {
 
     // Připravená zásoba budoucích opatů — následníci pro engine úmrtí/volby
     // (checkSuccession/_applySuccession níže). Chronicon core/engine.js drží
-    // stejná id ('prokop'/'metodej') — to je zdroj pravdy pro shodu při
-    // nástupnictví (id-based, ne name-string matching).
+    // stejná id ('prokop'/'metodej'/'havel'/'bohuslav') — to je zdroj pravdy
+    // pro shodu při nástupnictví (id-based, ne name-string matching).
+    // Roky narození cíleně 50+ v roce 1465 (Bouvard, 15.8.2026) — vlastní
+    // LINEAGE má historicky nástupní věk 33-39, ale nový standard pro
+    // budoucí kandidáty je starší/zkušenější postava, ne mladík.
     // opat-nastupnictvi-mrd (15.8.2026)
     CANDIDATES: [
         {
             id: 'prokop',
             name: 'Prokop',
-            born: '1435',
+            born: '1410',
             motto: 'Iustitia cum clementia',
             motto_en_gloss: 'Justice with mercy',
             note_cs: 'Mírný soudce. Kacířské myšlenky ho zraní méně než Bernarda — ale hospodářské spory ho tíží víc.',
@@ -99,12 +102,15 @@ const AbbotSystem = {
                 { id: 'mirny_soudce', name_cs: 'Mírný soudce', name_en: 'Gentle Judge',
                   desc_cs: 'Kacířské myšlenky ho zraní méně než Bernarda.',
                   desc_en: 'Heretical thoughts wound him less than they wound Bernard.' },
+                { id: 'citlivy_na_spory', name_cs: 'Citlivý na spory', name_en: 'Sensitive to Disputes',
+                  desc_cs: 'Hospodářské spory ho tíží víc než ostatní.',
+                  desc_en: 'Economic disputes weigh on him more than on others.' },
             ],
         },
         {
             id: 'metodej',
             name: 'Metoděj',
-            born: '1440',
+            born: '1408',
             motto: 'Sapientia thesaurus est',
             motto_en_gloss: 'Wisdom is a treasure',
             note_cs: 'Učenec. Nakloněn skriptoriu a knihovně nad hospodářstvím.',
@@ -114,6 +120,36 @@ const AbbotSystem = {
                 { id: 'ucenec', name_cs: 'Učenec', name_en: 'Scholar',
                   desc_cs: 'Nakloněn skriptoriu a knihovně nad hospodářstvím.',
                   desc_en: 'Favours the scriptorium and library over the estate.' },
+            ],
+        },
+        {
+            id: 'havel',
+            name: 'Havel',
+            born: '1412',
+            motto: 'Humilitas ante omnia',
+            motto_en_gloss: 'Humility before all',
+            note_cs: 'Pokorný. Skromný, hluboce zbožný — celoživotní tichá služba, dává přednost modlitbě před okázalostí úřadu.',
+            note_en: 'Humble. Modest, deeply devout — a lifetime of quiet service, prefers prayer to the pomp of office.',
+            portraitUrl: null, // ← sem cesta, až Bouvarde dodá obrázek
+            traits: [
+                { id: 'pokorny', name_cs: 'Pokorný', name_en: 'Humble',
+                  desc_cs: 'Skromný, hluboce zbožný — dává přednost tichu modlitby před okázalostí úřadu.',
+                  desc_en: 'Modest, deeply devout — prefers the quiet of prayer to the pomp of office.' },
+            ],
+        },
+        {
+            id: 'bohuslav',
+            name: 'Bohuslav',
+            born: '1415',
+            motto: 'Cura rerum, cura animarum',
+            motto_en_gloss: 'Care of things, care of souls',
+            note_cs: 'Zkušený hospodář. Léta vedl hospodářství kláštera — hospodářské spory ho nerozhoupou tak snadno jako jiné.',
+            note_en: "A seasoned steward. Ran the monastery's estate for years — economic disputes rattle him less easily than others.",
+            portraitUrl: null, // ← sem cesta, až Bouvarde dodá obrázek
+            traits: [
+                { id: 'hospodar', name_cs: 'Zkušený hospodář', name_en: 'Seasoned Steward',
+                  desc_cs: 'Léta vedl hospodářství kláštera — hospodářské spory ho nerozhoupou tak snadno jako jiné.',
+                  desc_en: "Ran the monastery's estate for years — economic disputes rattle him less easily than others." },
             ],
         },
     ],
@@ -225,14 +261,19 @@ const AbbotSystem = {
     // CommitmentsSystem.resolveLocalAkter TĚSNĚ před zápisem do
     // GameState.secrets.abbotFavor — inquisitionHeatDelta zůstává
     // nedotčený (to je objektivní riziko, ne osobní reakce opata).
-    // opat-nastupnictvi-mrd (15.8.2026) — rozšířeno o Prokopa/Metoděje;
-    // sekce 5, "hospodářské spory" polovina Prokopova traitu zůstává
-    // flavor-only (žádný kanál do abbotFavor pro 'vrchnost' zakázky dnes
-    // neexistuje) — backlog ticket, ne teď.
+    // opat-nastupnictvi-mrd (15.8.2026, revize) — rozšířeno o Prokopa/
+    // Metoděje/Havla/Bohuslava. Prokopova "hospodářské spory" polovina
+    // traitu teď mechanická přes 'vrchnost' (hranicni_listina jediná
+    // s abbotFavorDelta — erbovník je vanity, žádný spor).
     _abbotFavorMultiplier: function (actorId, letterKey) {
-        if (actorId !== 'kacirska') return 1.0; // Přísný ve víře cílí jen na herezi, D-kategorie beze změny pro kteréhokoliv opata
-
         const knownId = GameState.knownAbbotId || 'bernard';
+
+        // Vrchnost (Kategorie B) — jen hraniční listina nese abbotFavorDelta.
+        if (actorId === 'vrchnost') {
+            return (knownId === 'prokop') ? 1.8 : 1.0;
+        }
+
+        if (actorId !== 'kacirska') return 1.0; // Přísný ve víře cílí jen na herezi, D-kategorie beze změny pro kteréhokoliv opata
 
         // Prokop — Mírný soudce: kacířství ho bolí míň než Bernarda, žádná
         // "Věrný Římu" váha na konkrétní dopisy (ten trait nemá).
@@ -240,6 +281,10 @@ const AbbotSystem = {
 
         // Metoděj — Učenec: bez traitu vůči herezi, neutrální základ.
         if (knownId === 'metodej') return 1.0;
+
+        // Havel — Pokorný, Bohuslav — Zkušený hospodář: žádný z obou traitů
+        // se netýká hereze, neutrální základ (mirror Metoděj).
+        if (knownId === 'havel' || knownId === 'bohuslav') return 1.0;
 
         // Bernard (default) — Přísný ve víře + Věrný Římu, beze změny.
         let mult = 1.5; // Přísný ve víře — obecný základ pro celou Kategorii C

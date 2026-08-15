@@ -412,6 +412,7 @@ const CommitmentsSystem = {
                 requiredItems: [{ id: 'paper', qty: 2 }, { id: 'ink', qty: 1 }],
                 rewardGrose: 30,
                 reputationKey: 'slechta', reputationAmt: 2,
+                abbotFavorDelta: -3,
             },
         ],
     },

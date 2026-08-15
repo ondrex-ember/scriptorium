@@ -1274,7 +1274,7 @@ const SaeculumSystem = {
     if (!items || !(itemId in items)) return;
     // vykup-vapna-mrd (7.8.2026): objekt {price, minRelation} vs. ciste cislo
     const sbEntry = items[itemId];
-    const sbMinRel = (typeof sbEntry === 'object') ? (sbEntry.minRelation || 0) : 0;
+    const sbMinRel = (sbEntry && typeof sbEntry === 'object') ? (sbEntry.minRelation || 0) : 0;
     if (((GameState.contactRelation || {})[contactId] || 0) < sbMinRel) return;
     if (contactId === 'stationarius' && typeof CellariumSystem !== 'undefined' && !CellariumSystem.isStationariusPresent()) {
       const lang = (GameState.settings && GameState.settings.language) || 'cs';
@@ -1286,7 +1286,7 @@ const SaeculumSystem = {
     qty = Math.max(0, Math.min(have, qty | 0));
     if (qty <= 0) { UI.notify('⚠️ Non habes sufficiens!', true); return; }
     // Základ: BASE_PRICES přes calcPrice('market'); není-li item na trhu, kontaktní base cena (exkluzivní odbyt)
-    const basePrice = CellariumSystem.calcPrice(itemId, 'market') || ((typeof sbEntry === 'object') ? sbEntry.price : sbEntry);
+    const basePrice = CellariumSystem.calcPrice(itemId, 'market') || ((sbEntry && typeof sbEntry === 'object') ? sbEntry.price : sbEntry);
     if (!basePrice) return;
     // sellToContact-cap-audit (7.8.2026): relation markup se aplikuje PŘED
     // saturací (je součástí "základní" ceny, kterou pak saturace odstupňuje
@@ -1399,6 +1399,12 @@ const SaeculumSystem = {
     const lang = (GameState.settings && GameState.settings.language) || 'cs';
     const itemName = (typeof iName === 'function') ? iName(itemId) : itemId;
     UI.notify('🛒 ' + itemName + ' ×' + qty + ' → -' + total + ' g');
+    // objevitelnost-ok-mrd (15.8.2026): karta "Oka" na Pracovně se zobrazí
+    // jen když už hráč nějaké vlastní/líčí/má úlovek — po první koupi bez
+    // pointeru nebylo jasné, kam se má jít podívat.
+    if (itemId === 'snare') {
+      UI.notify(lang==='en' ? '🪤 Set it in the Workshop (Pracovna).' : '🪤 Nalíčíš ho v Pracovně.');
+    }
     this.switchEntity('clientela');
   },
 
@@ -1622,8 +1628,8 @@ const SaeculumSystem = {
         // vykup-vapna-mrd (7.8.2026): sellBonus polozka muze byt cislo
         // (bez podminky) nebo objekt {price, minRelation} — zpetne kompatibilni.
         const sbEntry = sbItems[itemId];
-        const sbPrice = (typeof sbEntry === 'object') ? sbEntry.price : sbEntry;
-        const sbMinRel = (typeof sbEntry === 'object') ? (sbEntry.minRelation || 0) : 0;
+        const sbPrice = (sbEntry && typeof sbEntry === 'object') ? sbEntry.price : sbEntry;
+        const sbMinRel = (sbEntry && typeof sbEntry === 'object') ? (sbEntry.minRelation || 0) : 0;
         const curRel = (GameState.contactRelation || {})[id] || 0;
         const itemName = (typeof iName === 'function') ? iName(itemId) : itemId;
         if (curRel < sbMinRel) {
