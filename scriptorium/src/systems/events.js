@@ -1299,8 +1299,22 @@ const EventsSystem = {
 
     ], // konec calendarEvents
 
+    // ── Najít definici eventu podle id napříč všemi 3 pooly (pro reopen z panelu) ──
+    _findEventById: function(id) {
+        return this.events.find(e => e.id === id) ||
+               this.repeatableEvents.find(e => e.id === id) ||
+               this.calendarEvents.find(e => e.id === id) ||
+               null;
+    },
+
     showEvent: function(event) {
         if (typeof NotificationSystem === 'undefined' || !NotificationSystem.modal) return;
+
+        // Nevyřízený decision-event zůstává ve frontě (Panel), dokud hráč
+        // nevybere volbu — klik mimo modal ho dnes jen zavře, nezmaže.
+        if (event.choices && event.choices.length > 0 && NotificationSystem.pendingEvent) {
+            NotificationSystem.pendingEvent(event.id);
+        }
 
         // Podpora title/text/label/desc jako funkce (lazy, jazykově reaktivní) —
         // vedle stávajícího title/text stringu a titleKey/textKey (t() lookup).
@@ -1315,6 +1329,7 @@ const EventsSystem = {
                 type: 'default',
                 effect: () => {
                     const result = choice.action();
+                    if (NotificationSystem.resolvePendingEvent) NotificationSystem.resolvePendingEvent(event.id);
                     Game.save();
                     NotificationSystem.modal({
                         title: t('events.ui.result'),

@@ -125,6 +125,7 @@ const GameState = {
     health: { active: {} },  // Valetudo — aktivní neduhy { id: {startedAt, expiresAt} }
     uiPrefs: { craftCollapsed: {} },  // UI stav — sbalené/rozbalené sekce (přežije reload)
     notifications: [],  // NotificationSystem — persistentní panel zpráv
+    pendingDecisionEvents: [],  // Nevyřízené decision-eventy (dismiss mimo modal je nemaže) { id, time }
     toolUses: {},       // Zbývající použití nástrojů { itemId: remainingUses }
     persona: {
         nameGiven: '',

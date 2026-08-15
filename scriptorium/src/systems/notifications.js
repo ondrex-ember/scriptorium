@@ -156,9 +156,10 @@ const NotificationSystem = {
 
     // ─── Badge (záložka) ────────────────────────────────────────────────────
     _renderPanelBadge: function() {
-        const total = (GameState.notifications || []).length;
+        const pendingCount = (GameState.pendingDecisionEvents || []).length;
+        const total = (GameState.notifications || []).length + pendingCount;
 
-        // Skrýt záložku pokud nejsou žádné zprávy
+        // Skrýt záložku pokud nejsou žádné zprávy ani nevyřízené eventy
         if (total === 0) {
             const existing = document.getElementById('ns-panel-tab');
             if (existing) existing.style.display = 'none';
@@ -179,6 +180,7 @@ const NotificationSystem = {
         const unread = (GameState.notifications || []).filter(n => !n.read).length;
         tab.innerHTML = `
             <span class="ns-tab-icon">🔔</span>
+            ${pendingCount > 0 ? `<span class="ns-tab-badge ns-tab-badge--pending" title="Nevyřízené eventy">${pendingCount}</span>` : ''}
             ${unread > 0 ? `<span class="ns-tab-badge">${unread}</span>` : ''}
         `;
     },
@@ -207,8 +209,9 @@ const NotificationSystem = {
                 <button class="ns-panel-close" onclick="NotificationSystem.togglePanel()" aria-label="Zavřít">✕</button>
             </div>
             <div class="ns-panel-body" id="ns-panel-body">
+                ${(GameState.pendingDecisionEvents || []).slice().sort((a, b) => b.time - a.time).map(p => this._renderPendingItem(p)).join('')}
                 ${notifications.length === 0
-                    ? `<div class="ns-panel-empty">${t('notifications.panel_empty')}</div>`
+                    ? ((GameState.pendingDecisionEvents || []).length === 0 ? `<div class="ns-panel-empty">${t('notifications.panel_empty')}</div>` : '')
                     : notifications.map(n => `
                         <div class="ns-panel-item ${n.read ? '' : 'ns-panel-item--unread'}" data-id="${n.id}">
                             <span class="ns-item-icon">${this._catIcon(n.category)}</span>
@@ -246,6 +249,48 @@ const NotificationSystem = {
         GameState.notifications = [];
         this.togglePanel();
         this._renderPanelBadge();
+    },
+
+    // ════════════════════════════════════════════════════════════════════════
+    // PENDING DECISION EVENTS — decision-eventy zůstávají ve frontě dokud
+    // hráč nevybere volbu. Klik mimo modal (closeModal) je nemaže — jen
+    // schová dialog, záznam žije dál v GameState.pendingDecisionEvents.
+    // ════════════════════════════════════════════════════════════════════════
+    pendingEvent: function(id) {
+        if (!GameState.pendingDecisionEvents) GameState.pendingDecisionEvents = [];
+        const existing = GameState.pendingDecisionEvents.find(p => p.id === id);
+        if (existing) { existing.time = Date.now(); }
+        else { GameState.pendingDecisionEvents.unshift({ id: id, time: Date.now() }); }
+        this._renderPanelBadge();
+        if (this._panelOpen) this._renderPanelList();
+    },
+
+    resolvePendingEvent: function(id) {
+        if (!GameState.pendingDecisionEvents) return;
+        GameState.pendingDecisionEvents = GameState.pendingDecisionEvents.filter(p => p.id !== id);
+        this._renderPanelBadge();
+        if (this._panelOpen) this._renderPanelList();
+    },
+
+    // ─── Vykreslení jedné pending položky ───────────────────────────────────
+    _renderPendingItem: function(entry) {
+        if (typeof EventsSystem === 'undefined' || !EventsSystem._findEventById) return '';
+        const event = EventsSystem._findEventById(entry.id);
+        if (!event) return ''; // event zmizel z DB (např. stará verze) — nezobrazovat
+
+        const resolve = (val) => typeof val === 'function' ? val() : val;
+        const title = resolve(event.title) || (event.titleKey ? t(event.titleKey) : entry.id);
+        const icon  = event.icon || '📜';
+
+        return `
+            <div class="ns-panel-item ns-panel-item--pending" data-id="${entry.id}" onclick="EventsSystem.showEvent(EventsSystem._findEventById('${entry.id}'))">
+                <span class="ns-item-icon ns-item-icon--pending">${icon}<span class="ns-pending-pin">📌</span></span>
+                <span class="ns-item-body">
+                    <span class="ns-item-msg">${title}</span>
+                    <span class="ns-item-meta">${t('notifications.cat_pending') !== 'notifications.cat_pending' ? t('notifications.cat_pending') : 'čeká na rozhodnutí'} · ${this._relTime(entry.time)}</span>
+                </span>
+            </div>
+        `;
     },
 
     // ─── Relativní čas ──────────────────────────────────────────────────────
@@ -423,6 +468,12 @@ const NotificationSystem = {
     text-align: center;
     font-family: var(--font-ui, sans-serif);
 }
+/* Pending badge — outline, ne plná barva, ať nebije se s žádným tématem */
+.ns-tab-badge--pending {
+    background: transparent;
+    border: 1.5px solid var(--ink-primary, #2c1810);
+    color: var(--ink-primary, #2c1810);
+}
 
 /* ── Panel ── */
 .ns-panel {
@@ -485,6 +536,21 @@ const NotificationSystem = {
     transition: background 0.15s;
 }
 .ns-panel-item--unread { background: rgba(200,169,110,0.12); }
+/* Pending decision-event — jemný levý pruh místo křiklavé barvy, cursor signalizuje klikatelnost */
+.ns-panel-item--pending {
+    cursor: pointer;
+    border-left: 2px solid var(--ink-primary, #2c1810);
+    background: rgba(0,0,0,0.03);
+}
+.ns-panel-item--pending:hover { background: rgba(0,0,0,0.07); }
+.ns-item-icon--pending { position: relative; }
+.ns-pending-pin {
+    position: absolute;
+    bottom: -4px;
+    right: -6px;
+    font-size: 0.6rem;
+    filter: drop-shadow(0 0 1px var(--bg-parchment, #ede8dc));
+}
 .ns-item-count { font-size: 0.8em; opacity: 0.7; font-weight: bold; color: var(--accent-gold); }
 .ns-panel-item:hover   { background: rgba(200,169,110,0.18); }
 .ns-item-icon { font-size: 1.1rem; flex-shrink: 0; margin-top: 1px; }
