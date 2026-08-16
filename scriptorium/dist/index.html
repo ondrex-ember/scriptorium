@@ -3735,6 +3735,13 @@
                             <span data-i18n="screens.mine"></span></button>
                         <button id="home-sub-cooking" class="filter-btn" onclick="UI.switchHomeSubTab('cooking', this)">🍲
                             <span data-i18n="screens.cooking">Vaření</span></button>
+                        <!-- mlynar-vlastni-mlyn-mrd.md §4.5 (16.8.2026) — žádnej data-i18n
+                             (i18n hard rule, nesahat do cs.js/en.js bez aktuálních souborů
+                             od Ondrexe), statickej text, doplnit i18n klíč později.
+                             display:none defaultně — UI.renderAll() odhaluje po tech_susarna_industria,
+                             mirror lore-tab-porta vzoru. -->
+                        <button id="home-sub-drying" class="filter-btn" onclick="UI.switchHomeSubTab('drying', this)" style="display:none;">🌾
+                            Sušárna</button>
                     </div>
 
                     <!-- SCAVENGE content -->
@@ -3761,6 +3768,8 @@
                     </div>
 
                     <div id="home-cooking-content" style="display:none;"></div>
+
+                    <div id="home-drying-content" style="display:none;"></div>
 
                 </div><!-- end home-main-content -->
 
@@ -8546,6 +8555,8 @@ const ItemsDB = {
     "whetstone_rock": { name: "Brusný kámen", name_en: "Whetstone Rock", icon: "🪨", type: "mat", desc: "Kus jemnozrnné horniny z hlubší štoly — křemičitá břidlice nebo pískovec, vhodný na výrobu brousků.", desc_en: "A piece of fine-grained rock from a deeper shaft — quartz-bearing schist or sandstone, suitable for making whetstones." },
     "whetstone": { maxUses: 3, name: "Brousek", name_en: "Whetstone", icon: "🗿", type: "tool", desc: "Obtahovací kámen na ostření. Nabrousí železný nástroj bez nutnosti kovářských kleští — lehká údržba místo překování.", desc_en: "A hand whetstone for sharpening. Hones an iron tool without needing blacksmith tongs — light maintenance instead of reforging." },
     "log": { name: "Kulatina", name_en: "Log", icon: "🪵", type: "mat", desc: "Kmen pokáceného stromu. Základ tesařství.", desc_en: "Felled tree trunk. The foundation of carpentry." , seasonCat: "drevo_kura" },
+    "oak_log_raw": { name: "Dubová kulatina (syrová)", name_en: "Oak Log (Green)", icon: "🪵", type: "mat", desc: "Čerstvě pokácený dub. Tvrdé, těžké dřevo — nepoužitelné rovnou, musí nejdřív schnout a zrát.", desc_en: "A freshly felled oak. Hard, heavy timber — unusable as it is, it must first dry and season." },
+    "oak_log_seasoned": { name: "Dubová kulatina (vyzrálá)", name_en: "Oak Log (Seasoned)", icon: "🪵", type: "mat", desc: "Vyschlé, vyzrálé dubové dřevo. Na neustále mokrých částech vodního díla — hřídel, kolo, stavidla — tvrdne jako kámen.", desc_en: "Dried, seasoned oak. In parts that stay constantly wet — the shaft, the wheel, the sluice — it hardens like stone." },
     "bellows": { name: "Měchy", name_en: "Bellows", icon: "💨", type: "tool", cat: "tool", desc: "Kožené měchy. Rozdmýchají oheň i varhanní píšťaly.", desc_en: "Leather bellows. Fan the fire and the organ pipes alike." },
     "book_binding": { name: "Vazba knih", name_en: "Book Binding", icon: "📚", type: "mat", desc: "Kožená vazba drží složky pohromadě. Bez ní jsou jen listy.", desc_en: "Leather binding holds the quires. Without it, just loose leaves." },
     "quill_case": { name: "Pouzdro na pera", name_en: "Quill Case", icon: "🖊️", type: "tool", cat: "tool", desc: "Kožené pouzdro chrání husí brka před zlomením.", desc_en: "Leather case protects quills from snapping." },
@@ -9661,6 +9672,16 @@ RecipesDB.push(
     { id: "raci_s_koprem", output: "raci_s_koprem", qty: 1, req: { "crayfish": 3, "beer": 1, "kopr": 1, "salt": 1, "cooking_pot": 0 }, cat: "food", locked: true },
     { id: "tvaroh", output: "tvaroh", qty: 1, req: { "milk": 3, "cooking_pot": 0 }, cat: "food", locked: true },
     { id: "tvarohove_tasticky", output: "tvarohove_tasticky", qty: 1, req: { "tvaroh": 2, "flour": 2, "egg": 1, "cooking_pot": 0 }, cat: "food", locked: true }
+);
+
+// ── SUŠÁRNA — mirror DryingSystem.DRY_TYPES (mlynar-vlastni-mlyn-mrd.md
+// §4.5, 16.8.2026), stejnej vzor jako COQUINA blok výš. id MUSÍ sedět
+// přesně s DRY_TYPES klíčem, jinak Game.craft() redirect na Drying
+// System.startDrying() nespustí (core/game.js). RecipesDB req jen k
+// zobrazení/enable stavu karty, skutečná spotřeba uvnitř startDrying().
+RecipesDB.push(
+    { id: "cannabis", output: "dried_cannabis", qty: 1, req: { "cannabis": 2 }, cat: "mat", locked: true },
+    { id: "oak", output: "oak_log_seasoned", qty: 1, req: { "oak_log_raw": 1 }, cat: "mat", locked: true }
 );
 // ═══ src/data/health.js ═══
 // ═══════════════════════════════════════════════════════════════════════════
@@ -10868,6 +10889,8 @@ const TechTree = [
   { id: "tech_garden_expand_3", name: "Zahrada sv. Hildegardy", name_en: "Hildegard's Garden", cost: 10, desc: "Hildegarda z Bingenu popsala 230 rostlin ve Physica. Odemkne: 8 políček.", desc_en: "Hildegard of Bingen described 230 plants in Physica. Unlocks: 8 plots.", unlocks: [], requires: ["tech_garden_expand_2"] },
   { id: "tech_hortus_conclusus", name: "Hortus Conclusus", name_en: "Hortus Conclusus", cost: 25, desc: "Uzavřená zahrada — symbol středověké dokonalosti. Podle plánu ze Sankt Gallenu: Herbularius a Hortus jako oddělené části. Odemkne: 2 nové záhony (byliny + speciál) a možnost zasadit a vykořenit libovolnou plodinu na všech záhonech.", desc_en: "The enclosed garden — symbol of medieval perfection. Following the St Gallen plan: Herbularius and Hortus as separate sections. Unlocks: 2 new plots (herb + special) and the ability to plant and uproot any crop on all plots.", unlocks: ["cannabis_poultice"], requires: ["tech_garden_expand_3"] },
   { id: "tech_susarna", name: "Susarna — Sušárna", name_en: "Susarna — Drying Rack", cost: 15, desc: "Sušení na vzduchu a ve stínu — žádná zvláštní budova, jen čas a trpělivost. Odemkne: sušení konopí ve Foculu (24 h), základ pro budoucí sušené suroviny.", desc_en: "Air-drying in the shade — no special building, just time and patience. Unlocks: hemp drying at the Foculus (24h), foundation for future dried goods.", unlocks: ["dried_cannabis"], requires: ["tech_hortus_conclusus"] },
+
+  { id: "tech_susarna_industria", name: "Susarna Industria — Průmyslová Sušárna", name_en: "Susarna Industria — Industrial Drying Rack", cost: 25, desc: "Foculus stačí na hrst konopí, ne na dubové klády. Vlastní sušárenská plocha v Pracovně — víc surovin, víc najednou, ve větším měřítku. Odemkne: Sušárna tab v Pracovně, sušení dubu na stavbu vodního mlýna.", desc_en: "The Foculus suffices for a handful of hemp, not oak logs. A dedicated drying yard in the Workshop — more materials, more at once, at scale. Unlocks: the Drying Rack tab in the Workshop, oak drying for the water mill.", unlocks: ["cannabis", "oak"], requires: ["tech_susarna"] },
   { id: "tech_herbalism_2", name: "Pokročilé Bylinkářství", name_en: "Advanced Herbalism", cost: 4, desc: "Odemkne: Nové byliny", desc_en: "Unlocks: New herbs", unlocks: [] },
   { id: "tech_composting", name: "Kompostování", name_en: "Composting", cost: 3, desc: "Odemkne: Kompost", desc_en: "Unlocks: Compost", unlocks: ["compost"] },
 
@@ -14949,6 +14972,9 @@ const ContactsDB = {
                 verzino: { price: 16, stock: 2, minRelation: 24 },
                 incense_styrax: { price: 10, stock: 2, minRelation: 20 },
                 incense_olibanum: { price: 16, stock: 1, minRelation: 28, minReputation: { axis: 'slechta', value: 28 } },
+                // mlynar-vlastni-mlyn-mrd.md §4.5 (16.8.2026) — tržní zkratka k
+                // vyzrálýmu dubu, alternativa k vlastnímu kácení+sušení (DryingSystem).
+                oak_log_seasoned: { price: 18, stock: 3, minRelation: 20 },
             }
         }, // incense_styrax/olibanum: Clientela pool MRD 25.7.2026, exotický dovoz vedle koření
         desc: 'Benátský obchodník. Přiváží, co jinde nekoupíš — ale jen když je jeho loď v přístavu.',
@@ -15048,28 +15074,51 @@ const GuildsDB = {
 // ═══ src/data/land.js ═══
 // ─────────────────────────────────────────────────────────────
 // LandParcelsDB — Pozemky: rozšíření panství
-// MRD: pozemky-mrd.md (v1.3, schváleno 16.8.2026)
+// MRD: pozemky-mrd.md (v1.5, 16.8.2026)
 // K1: infrastruktura. Hra tento soubor zatím NEČTE mimo rozhovor s
-// opatem (Game.askAbbotAboutLand). Picker/nákup samotnej = další krok.
+// opatem (Game.askAbbotAboutLand) a nákup samotnej (Game.buyLandParcel).
+// Stavba budov NA parcele = další krok, dosud nikde neimplementováno.
 //
 // Statická definice, mirror GuildsDB (data/guilds.js) — mutable stav
-// (owned/status) půjde do GameState.landParcels, NE sem, stejná chyba
-// jako se opravovala u GuildsDB v1.0 (relation nepatřilo do static DB).
+// (owned/status) půjde do GameState.landParcels, NE sem.
 //
-// Fáze 1 (teď): jen mlynsky_nahon. Zbytek matrixu (Návrší/Hvozd/Cesta/
-// Vesnice, pozemky-mrd.md §3) se přidá stejným vzorem, až přijde na
-// řadu — žádná architektura navíc potřeba, jen nové záznamy.
+// slotsCapacity (přejmenováno ze `slots` 16.8.2026, pozemky-mrd.md §3.1):
+// KAPACITA, ne obsazení. Parcela nenese konkrétní budovy — jen tag +
+// kolik slotů unese. Který budovy tam půjdou, řeší katalog nároků
+// budov (pozemky-mrd.md §3.2, zatím jen v MRD, ne v kódu — čeká, až
+// se bude řešit skutečná stavba).
 // ─────────────────────────────────────────────────────────────
 
 const LandParcelsDB = {
     mlynsky_nahon: {
         name: 'Mlýnský náhon', name_en: 'The Mill Race',
         tags: ['voda'],
-        slots: 1,
+        slotsCapacity: 1,
         price: 250,
         phase: 1,
         desc: 'Úzký pruh země podél odbočky z potoka, s náhonem už napůl vyhloubeným — někdejší majetek souseda, co ho klášteru nabídl k prodeji. Stačí pár úprav a voda potáhne kolo.',
         desc_en: "A narrow strip of land along a stream's offshoot, its race already half-dug — once a neighbour's land, now offered to the monastery for sale. A little adjustment, and the water will turn a wheel.",
+    },
+    navrsi: {
+        name: 'Návrší', name_en: 'The Rise',
+        tags: ['kopec'],
+        slotsCapacity: 2,
+        price: 250,
+        phase: 2,
+        desc: 'Holý hřeben nad klášterem, otevřený všem větrům — pastviny nahoře řídké, ale vítr tu nikdy neustává. Přesně to místo, kde by se otáčela mlýnská křídla.',
+        desc_en: "A bare ridge above the monastery, open to every wind — the pasture up top is thin, but the wind never stops. Just the place for a mill's sails to turn.",
+    },
+    // Nový tag `slunce` (pozemky-mrd.md §3.2, 16.8.2026) — žádnej z
+    // předchozích pěti neseděl na "sluneční svah" z historickýho
+    // podkladu o vinařství. Přesná shoda, ne kompromis na existujícím.
+    vinice: {
+        name: 'Vinice', name_en: 'The Vineyard Slope',
+        tags: ['slunce'],
+        slotsCapacity: 2,
+        price: 300,
+        phase: 3,
+        desc: 'Jižní svah nad řekou, kam slunce dopadá od rána do večera. Réva by se tu držela dobře — je jen otázka, kdo ji vysadí a jak dlouho počká na první úrodu.',
+        desc_en: 'A south-facing slope above the river, where the sun falls from morning to evening. Vines would hold well here — only a question of who plants them, and how long they wait for the first harvest.',
     },
 };
 // ═══ src/systems/theme.js ═══
@@ -24934,6 +24983,10 @@ const CellariumSystem = {
       // práva, hráč to musí vidět průběžně, ne až po výzkumu. Vždy dostupný,
       // mirror personal/buildings (žádný open/closed hodinovej gate).
       { id: 'cechy', icon: '⚖️', label: 'Cechy', label_en: 'Guilds' },
+      // Pozemky — pozemky-mrd.md §6, 16.8.2026. Podmíněnej, na rozdíl od
+      // Cechů — dokud hráč nepromluví s opatem (Budovy tab), tab se
+      // vůbec nezobrazí. Jakmile flags.pozemky_active, zůstává natrvalo.
+      ...((GameState.flags && GameState.flags.pozemky_active) ? [{ id: 'pozemky', icon: '🏛️', label: 'Pozemky', label_en: 'Land' }] : []),
     ];
     const lang = (GameState.settings && GameState.settings.language) || 'cs';
     if (!GameState.ui) GameState.ui = {};
@@ -24982,6 +25035,7 @@ const CellariumSystem = {
     if (entity === 'old_cellars')    return this.renderOldCellars();
     if (entity === 'buildings')      return this.renderBuildings();
     if (entity === 'cechy')          return this.renderCechyPanel();
+    if (entity === 'pozemky')        return this.renderPozemkyPanel();
     if (entity === 'manufaktura')    return (typeof SaeculumSystem !== 'undefined') ? SaeculumSystem.renderManufactura() : '';
     if (entity === 'personal')       return (typeof SaeculumSystem !== 'undefined') ? SaeculumSystem.renderPersonal() : '';
 
@@ -25268,7 +25322,56 @@ const CellariumSystem = {
     return h;
   },
 
-  // Cechy — plná stránka na úrovni Inventarium/Budovy (cechy-a-prava-mrd.md
+  // Pozemky — plná stránka na úrovni Cechy/Inventarium (pozemky-mrd.md
+  // §6.1, 16.8.2026). Fáze 1: jen mlynsky_nahon. Tři stavy per parcela:
+  // available (koupit), pending (čeká na Zemské desky, 24h), owned
+  // (koupena — stavba Mlýna samotná je samostatnej, budoucí krok).
+  renderPozemkyPanel: function() {
+    const lang = (GameState.settings && GameState.settings.language) || 'cs';
+    if (typeof LandParcelsDB === 'undefined') {
+      return `<div style="padding:20px; opacity:0.6; text-align:center;">🏛️</div>`;
+    }
+    const landParcels = GameState.landParcels || {};
+
+    let h = `<div style="padding:15px; background:rgba(0,0,0,0.03); border-radius:8px; border-left:3px solid var(--accent-gold);">`;
+    h += `<div style="font-size:0.85rem; opacity:0.75; font-style:italic; margin-bottom:14px;">
+      ${lang === 'en'
+        ? 'Land the Abbot has secured leave to acquire from the Lord of the Manor.'
+        : 'Pozemky, co opat vyjednal možnost získat od Zemského pána.'}
+    </div>`;
+
+    Object.keys(LandParcelsDB).forEach(id => {
+      const parcel = LandParcelsDB[id];
+      const name = lang === 'en' ? (parcel.name_en || parcel.name) : parcel.name;
+      const desc = lang === 'en' ? (parcel.desc_en || parcel.desc) : parcel.desc;
+      const state = (landParcels[id] && landParcels[id].status) || 'none';
+
+      let actionHtml = '';
+      if (state === 'none') {
+        actionHtml = `<button onclick="Game.buyLandParcel('${id}')" style="font-size:0.78rem; padding:6px 14px; cursor:pointer;">${lang === 'en' ? `Buy — ${parcel.price}g` : `Koupit — ${parcel.price}g`}</button>`;
+      } else if (state === 'pending') {
+        const p = landParcels[id];
+        const hoursLeft = Math.max(0, Math.ceil((p.deskyCompleteAt - Date.now()) / 3600000));
+        actionHtml = `<span style="font-size:0.78rem; opacity:0.7;">⏳ ${lang === 'en' ? `Land Register, ~${hoursLeft}h` : `Zemské desky, ~${hoursLeft}h`}</span>`;
+      } else if (state === 'owned') {
+        actionHtml = `<span style="font-size:0.78rem;">✅ ${lang === 'en' ? 'Owned' : 'Vlastníš'}</span>`;
+      }
+
+      h += `<div style="padding:12px 14px; margin-bottom:10px; background:rgba(197,160,89,0.06); border-radius:6px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+          <div style="font-weight:bold; font-size:0.9rem;">${name}</div>
+          ${actionHtml}
+        </div>
+        <div style="font-size:0.78rem; opacity:0.75; font-style:italic; margin-bottom:4px;">${desc}</div>
+        <div style="font-size:0.72rem; opacity:0.6;">${lang === 'en' ? 'tags' : 'tagy'}: ${parcel.tags.join(', ')} · ${lang === 'en' ? 'slots' : 'sloty'}: ${parcel.slotsCapacity}</div>
+      </div>`;
+    });
+
+    h += `</div>`;
+    return h;
+  },
+
+
   // §3, přesun z Trh 16.8.2026 — Bouvard: "trhy jsou otevřené jen o víkendu,
   // vztah s cechy se buduje pořád, potřebuju přehled pořád"). Vždy dostupná,
   // NEgatováno tech_ius_terrae na úrovni viditelnosti taby (jen petiční
@@ -25746,6 +25849,10 @@ const CellariumSystem = {
     const hasUdirna = GameState.researchedTechs && GameState.researchedTechs.includes('tech_udirna');
     const hasTacuinum = GameState.researchedTechs && GameState.researchedTechs.includes('tech_tacuinum_sanitatis');
     const hasPlatina = GameState.researchedTechs && GameState.researchedTechs.includes('tech_platina_honesta');
+    // mlynar-vlastni-mlyn-mrd.md §4.5 (16.8.2026) — Sušárna jako skutečná
+    // budova, ne jen tech. Historický podklad: kámen+cihly (požární
+    // bezpečnost), železné rošty, vápno/hlína jako pojivo.
+    const hasSusarnaIndustria = GameState.researchedTechs && GameState.researchedTechs.includes('tech_susarna_industria');
 
     const title = lang === 'en' ? 'Buildings' : 'Budovy';
 
@@ -25847,6 +25954,14 @@ const CellariumSystem = {
         desc_en: 'A kiln by the quarry. Days and nights of unbroken fire turn limestone into quicklime.',
         cost: { plank: 15, cut_stone: 20, clay: 20, hrebiky: 7 },
         req_tech: hasCalcaria, req_build: true, req_label: null,
+      },
+      {
+        id: 'susarna', icon: '🏛️',
+        name: 'Sušárna', name_en: 'Drying Rack',
+        desc: 'Kamenná stavba se železnými rošty nad tlejícím ohništěm — nikdy otevřený plamen, jen sálavé teplo a kouř. Syrové dřevo tu vyzraje za týdny, ne za roky.',
+        desc_en: 'A stone structure with iron grates over a smouldering hearth — never an open flame, only radiant heat and smoke. Green timber seasons here in weeks, not years.',
+        cost: { cut_stone: 25, iron_ingot: 5, vapno_hasene_mature: 10, plank: 8, hrebiky: 5 },
+        req_tech: hasSusarnaIndustria, req_build: true, req_label: null,
       },
       {
         id: 'cerna_kuchyne', icon: '🏚️',
@@ -30149,10 +30264,20 @@ const DryingSystem = {
 
     DRY_TYPES: {
         cannabis: { input: 'cannabis', inputQty: 2, output: 'dried_cannabis', dryDays: 1 },
+        // mlynar-vlastni-mlyn-mrd.md §4.5 (16.8.2026) — dub na hřídel/kolo vodního
+        // mlýna. dryDays herně zkráceno z historickejch "i několik let" na 5 dní.
+        oak: { input: 'oak_log_raw', inputQty: 1, output: 'oak_log_seasoned', dryDays: 5 },
     },
 
     isActive: function() {
         return !!(GameState.researchedTechs && GameState.researchedTechs.includes('tech_susarna'));
+    },
+
+    // Tier 2 — samostatná brána jen pro Sušárnu (Pracovna tab), Foculus
+    // (isActive výš) zůstává na tech_susarna, mlynar-vlastni-mlyn-mrd.md
+    // §4.5, upřesněno 16.8.2026.
+    isIndustrialActive: function() {
+        return !!(GameState.researchedTechs && GameState.researchedTechs.includes('tech_susarna_industria'));
     },
 
     _ensureState: function() {
@@ -30236,8 +30361,65 @@ const DryingSystem = {
         h += `</div>`;
         return h;
     },
-};
 
+    // ── Sušárna — průmyslová verze, Pracovna vlastní tab (mlynar-vlastni-
+    // mlyn-mrd.md §4.5, 16.8.2026). NEZÁVISLÁ na renderFoculus (ten zůstává
+    // soukromej, jen konopí) — tahle je generická přes celou DRY_TYPES,
+    // víc instancí najednou na typ. Stejná data (GameState.dryingInstances,
+    // stejnej dailyTick), jen jinej vstupní bod a jiná UI vrstva.
+    renderSusarna: function() {
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        if (!this.isIndustrialActive()) {
+            return `<div style="padding:20px; text-align:center; opacity:0.6; font-style:italic;">${lang === 'en' ? 'Requires research first (Susarna Industria).' : 'Vyžaduje nejdřív výzkum (Sušárna Industria).'}</div>`;
+        }
+        // mlynar-vlastni-mlyn-mrd.md §4.5 (16.8.2026) — tech odemyká jen
+        // MOŽNOST postavit, samotná funkčnost čeká na fyzickou budovu
+        // (Cellarium → Budovy → Sušárna), mirror Fodina tech-vs-petice vzoru.
+        if (!(GameState.storage && GameState.storage.susarna && GameState.storage.susarna.built)) {
+            return `<div style="padding:20px; text-align:center; opacity:0.6; font-style:italic;">${lang === 'en' ? 'Build the Drying Rack first (Cellarium → Buildings).' : 'Nejdřív postav Sušárnu (Cellarium → Budovy).'}</div>`;
+        }
+        const list = this._ensureState();
+        let h = '';
+
+        Object.keys(this.DRY_TYPES).forEach(typeKey => {
+            const def = this.DRY_TYPES[typeKey];
+            const inName = (typeof iName === 'function') ? iName(def.input) : def.input;
+            const outName = (typeof iName === 'function') ? iName(def.output) : def.output;
+            const active = list.filter(inst => inst.type === typeKey);
+            const have = GameState.inventory[def.input] || 0;
+            const can = have >= def.inputQty;
+
+            h += `<div style="background:rgba(0,0,0,0.05); padding:14px; border-radius:10px; border-left:3px solid var(--accent-gold); margin-bottom:12px;">`;
+            h += `<h4 style="margin:0 0 10px 0; color:var(--ink-primary);">🌾 ${outName}</h4>`;
+
+            active.forEach(inst => {
+                const totalMs = def.dryDays * this.DAY_MS;
+                const elapsed = Date.now() - inst.startedAt;
+                const pct = Math.min(100, Math.round(elapsed / totalMs * 100));
+                h += `<div style="display:flex; align-items:center; gap:8px; margin-bottom:6px; font-size:0.78rem;">
+                    <div style="flex:1; background:rgba(0,0,0,0.1); border-radius:4px; height:8px;">
+                        <div style="width:${pct}%; background:var(--accent-gold); height:8px; border-radius:4px; transition:width 0.3s;"></div>
+                    </div>
+                    <span style="opacity:0.65; white-space:nowrap;">${pct}%</span>
+                </div>`;
+            });
+            if (active.length === 0) {
+                h += `<div style="font-size:0.78rem; opacity:0.5; font-style:italic; margin-bottom:8px;">${lang === 'en' ? 'Nothing drying right now.' : 'Momentálně se nic neschne.'}</div>`;
+            }
+
+            h += `<button onclick="DryingSystem.startDrying('${typeKey}')" ${can ? '' : 'disabled'}
+                style="width:100%; padding:8px; border-radius:6px; border:1px solid var(--accent-gold);
+                background:${can ? 'rgba(197,160,89,0.15)' : 'rgba(197,160,89,0.07)'};
+                color:var(--accent-gold); cursor:${can ? 'pointer' : 'default'};
+                font-size:0.82rem; opacity:${can ? '1' : '0.5'};">
+                🌾 ${lang === 'en' ? 'Start drying' : 'Zahájit sušení'} (${def.inputQty}× ${inName}, ${def.dryDays}${lang === 'en' ? 'd' : 'd'})
+            </button>`;
+            h += `</div>`;
+        });
+
+        return h;
+    },
+};
 // ═══ src/systems/CoquinaVisuals.js ═══
 // ═══════════════════════════════════════════════════════════════════════════
 // COQUINA VISUALS — SVG ilustrace stanic Vaření (Ohniště/Černá kuchyně/
@@ -43935,7 +44117,121 @@ const SecretsSystem = {
     }
   },
 
+  // Mapy — pozemky-mrd.md §6.1, 16.8.2026. Ukazuje LandParcelsDB stav
+  // (GameState.landParcels) jako klikatelný Authentica listiny — mirror
+  // renderFolioCard/openFolio interakčního vzoru (list → klik → detail
+  // → zpět), ale vlastní datová struktura (LandParcelsDB, ne folia —
+  // ty maj 3vrstvý Lectio/Glossa/Arcanum čtení, sem se nehodí).
+  renderMapyContent: function() {
+    const lang = (GameState.settings && GameState.settings.language) || 'cs';
+    if (typeof LandParcelsDB === 'undefined') {
+      return `<div style="padding:40px; text-align:center; opacity:0.5;"><p style="font-style:italic;">In constructione...</p></div>`;
+    }
+    const landParcels = GameState.landParcels || {};
+    const known = Object.keys(landParcels).filter(id => landParcels[id] && landParcels[id].status !== 'none');
+
+    if (known.length === 0) {
+      return `<div style="padding:40px; text-align:center; opacity:0.5;">
+        <p style="font-style:italic;">${lang==='en' ? 'No deed yet rests in this drawer.' : 'V týhle zásuvce zatím neleží žádná listina.'}</p>
+      </div>`;
+    }
+
+    let h = '<div style="display:flex; flex-direction:column; gap:12px;">';
+    known.forEach(id => {
+      const parcel = LandParcelsDB[id];
+      if (!parcel) return;
+      const p = landParcels[id];
+      const name = lang === 'en' ? (parcel.name_en || parcel.name) : parcel.name;
+      const isOwned = p.status === 'owned';
+      const statusBadge = isOwned
+        ? `<span style="font-size:0.75rem; background:rgba(60,120,60,0.15); color:#2a6a2a; padding:2px 8px; border-radius:3px;">✓ ${lang==='en'?'Registered':'Zapsáno'}</span>`
+        : `<span style="font-size:0.75rem; background:rgba(80,80,160,0.12); color:#444; padding:2px 8px; border-radius:3px;">⏳ ${lang==='en'?'Pending':'Vyřizuje se'}</span>`;
+      h += `<div onclick="SecretsSystem.openLandFolio('${id}')" style="cursor:pointer; padding:14px 16px;
+        background:rgba(0,0,0,0.03); border-radius:6px; border:1px solid rgba(0,0,0,0.1);
+        transition:background 0.15s;"
+        onmouseover="this.style.background='rgba(0,0,0,0.07)'"
+        onmouseout="this.style.background='rgba(0,0,0,0.03)'">
+        <div style="display:flex; align-items:center; gap:10px;">
+          <span style="font-size:1.5rem;">🗺️</span>
+          <div style="flex:1;">
+            <div style="font-weight:600; font-size:1rem;">${name}</div>
+            <div style="font-size:0.8rem; opacity:0.6; margin-top:2px;">${lang==='en'?'Deed of purchase':'Kupní listina'}</div>
+          </div>
+          ${statusBadge}
+        </div>
+      </div>`;
+    });
+    h += '</div>';
+    return h;
+  },
+
+  // Detail Authentica listiny — mirror openFolio/renderFolioDetail
+  // interakce (← zpět tlačítko, switchSubtab('mapy')). Sekce "Mapa
+  // pozemku" je vědomej placeholder — vizuál (poloha/směr ke vsi/ke
+  // klášteru dle tagů) je budoucí práce, ne teď.
+  openLandFolio: function(parcelId) {
+    const el = document.getElementById('scrinium-subtab-content');
+    if (!el) return;
+    el.innerHTML = this.renderLandFolioDetail(parcelId);
+  },
+
+  renderLandFolioDetail: function(parcelId) {
+    const lang = (GameState.settings && GameState.settings.language) || 'cs';
+    const parcel = (typeof LandParcelsDB !== 'undefined') ? LandParcelsDB[parcelId] : null;
+    const p = (GameState.landParcels || {})[parcelId];
+    if (!parcel || !p) return '';
+
+    const name = lang === 'en' ? (parcel.name_en || parcel.name) : parcel.name;
+    const desc = lang === 'en' ? (parcel.desc_en || parcel.desc) : parcel.desc;
+    const isOwned = p.status === 'owned';
+    // Herní datum, ne reálný — mirror _toGameDate vzoru z abbotPetition
+    // (core/game.js), DATE DISPLAY hard rule: nikdy neexponovat reálnej rok.
+    const _toGameDate = (ts) => { const d = new Date(ts); return new Date(1465, d.getMonth(), d.getDate()); };
+    const purchDate = _toGameDate(p.purchasedAt).toLocaleDateString(lang==='en'?'en-GB':'cs-CZ');
+    const statusLine = isOwned
+      ? (lang==='en' ? 'Entered into the Land Register.' : 'Zapsáno do Zemských desek.')
+      : (lang==='en' ? `Registration in progress (~${Math.max(0, Math.ceil((p.deskyCompleteAt - Date.now())/3600000))}h).` : `Zápis se vyřizuje (~${Math.max(0, Math.ceil((p.deskyCompleteAt - Date.now())/3600000))}h).`);
+
+    let html = `
+      <button onclick="SecretsSystem.switchSubtab('mapy')"
+        style="margin-bottom:16px; background:none; border:1px solid rgba(0,0,0,0.2);
+               border-radius:4px; padding:5px 12px; cursor:pointer;
+               font-family:'Crimson Text'; font-size:0.9rem;">
+        ← ${lang==='en' ? 'Maps' : 'Mapy'}
+      </button>
+      <div style="max-width:680px;">
+        <h3 style="font-size:1.2rem; margin-bottom:4px;">🗺️ ${name}</h3>
+        <p style="font-size:0.8rem; opacity:0.55; margin-bottom:20px;">
+          ${lang==='en' ? 'Deed of purchase (Authentica)' : 'Kupní listina (Authentica)'}
+        </p>
+
+        <div style="margin-bottom:16px; padding:16px; background:rgba(0,0,0,0.03); border-radius:6px; border-left:3px solid rgba(138,51,36,0.3);">
+          <div style="font-style:italic; line-height:1.7;">${desc}</div>
+        </div>
+
+        <div style="margin-bottom:16px; font-size:0.85rem; opacity:0.8;">
+          <div>${lang==='en'?'Status':'Stav'}: ${statusLine}</div>
+          <div>${lang==='en'?'Acquired':'Získáno'}: ${purchDate}</div>
+          <div>${lang==='en'?'Tags':'Tagy'}: ${parcel.tags.join(', ')} · ${lang==='en'?'Building slots':'Stavební sloty'}: ${parcel.slotsCapacity}</div>
+        </div>
+
+        <div style="padding:24px; text-align:center; opacity:0.45; border:1px dashed rgba(0,0,0,0.2); border-radius:6px;">
+          <div style="font-size:1.8rem; margin-bottom:6px;">🧭</div>
+          <p style="font-style:italic; font-size:0.85rem;">
+            ${lang==='en' ? 'A map of the parcel — its place by the monastery, the road to the village — will be drawn here in time.' : 'Mapa pozemku — jeho poloha u kláštera, cesta do vsi — se sem vykreslí časem.'}
+          </p>
+        </div>
+      </div>`;
+    return html;
+  },
+
   renderSubtabContent: function(subtabId) {
+    // Mapy — pozemky-mrd.md §6.1, 16.8.2026. Vlastní obsah, ne generický
+    // folio systém (ten je pro nálezy/tajemství se 3vrstvym čtením —
+    // koupenej pozemek je evidence, ne rozluštění). Plně inline text,
+    // žádnej t() — LandParcelsDB nemá i18n klíče.
+    if (subtabId === 'mapy') return this.renderMapyContent();
+
     // Folia tohoto subtabu
     const foliosInTab = ScriniumDB.folios.filter(function(f) {
       return f.subtab === subtabId;
@@ -59132,6 +59428,7 @@ const Game = {
 		Game.checkAbbotPetitions();
 		Game.checkUbytovnaPetitions();
 		Game.checkGuildPetitions();
+		Game.checkLandParcels();
 		// Krok B — vážený denní report Clientela↔Chronicon vztahů (mirror registrum)
 		if (typeof ChroniconSystem !== 'undefined' && ChroniconSystem._reportContactRelationIfNewDay) {
 			ChroniconSystem._reportContactRelationIfNewDay();
@@ -59592,6 +59889,7 @@ const Game = {
                     if (typeof Game !== 'undefined' && Game.checkAbbotPetitions) Game.checkAbbotPetitions();
                     if (typeof Game !== 'undefined' && Game.checkUbytovnaPetitions) Game.checkUbytovnaPetitions();
                     if (typeof Game !== 'undefined' && Game.checkGuildPetitions) Game.checkGuildPetitions();
+                    if (typeof Game !== 'undefined' && Game.checkLandParcels) Game.checkLandParcels();
                     // Columbarium — denní riziko predátora (self-guarded 24h, jen level 1)
                     if (typeof FarmyardSystem !== 'undefined' && FarmyardSystem.columbariumPredatorTick) FarmyardSystem.columbariumPredatorTick();
                     // Columbarium — pasivní přírůstek do stropu 13 (self-guarded 24h, holubnik-mrd)
@@ -61995,6 +62293,9 @@ const Game = {
                     // Smůla — na louč (torch_resin-mrd, 6.8.2026): kácení dává víc než průzkum
                     if(this._seasonRoll('resin_spruce', 0.25)) this.addItem('resin_spruce', Math.random() < 0.4 ? 2 : 1);
                     if(this._seasonRoll('resin_pine', 0.15)) this.addItem('resin_pine', 1);
+                    // Dub — mlynar-vlastni-mlyn-mrd.md §4.5 (16.8.2026), vzácnej nález,
+                    // syrovej, potřebuje DryingSystem sušení (tech_susarna) než jde použít.
+                    if(Math.random() < 0.08) this.addItem('oak_log_raw', 1);
         }
         else if (type === 'worms_dig') {
                     this.addItem('worms', Math.random() < 0.5 ? 3 : 2);
@@ -62696,6 +62997,13 @@ const Game = {
         // ostatní (cat != food) beze změny — okamžitá cesta níž.
         if (r && r.cat === 'food' && typeof CookingSystem !== 'undefined' && CookingSystem.COOK_TYPES && CookingSystem.COOK_TYPES[id]) {
             CookingSystem.startCooking(id);
+            return;
+        }
+        // Sušárna — mirror cooking redirect přesně (mlynar-vlastni-mlyn-mrd.md
+        // §4.5, 16.8.2026). cat 'mat' + shoda v DRY_TYPES = přesměruj na
+        // časovanej proces, jinak normální okamžitá cesta níž beze změny.
+        if (r && r.cat === 'mat' && typeof DryingSystem !== 'undefined' && DryingSystem.DRY_TYPES && DryingSystem.DRY_TYPES[id]) {
+            DryingSystem.startDrying(id);
             return;
         }
         if(!GameState.flags.fireplaceLit && !r.blind) { UI.notify(t('game.frozenHands'), true); return; }
@@ -63478,6 +63786,7 @@ const Game = {
 		if (!GameState.storage.cerna_kuchyne)       GameState.storage.cerna_kuchyne       = {built:false};
 		if (!GameState.storage.velky_hmozdir)       GameState.storage.velky_hmozdir       = {built:false};
 		if (!GameState.storage.rozen)               GameState.storage.rozen               = {built:false};
+		if (!GameState.storage.susarna)             GameState.storage.susarna             = {built:false};
 		if (!GameState.storage.old_cellars)        GameState.storage.old_cellars        = {built:false};
 		if (!GameState.storage.domus_conversorum_i) GameState.storage.domus_conversorum_i = {built:false};
 		if (!GameState.storage.domus_conversorum_ii) GameState.storage.domus_conversorum_ii = {built:false};
@@ -63549,6 +63858,9 @@ const Game = {
 		if (type === 'vapenice' && !(GameState.researchedTechs && GameState.researchedTechs.includes('tech_calcaria'))) {
 			UI.notify(lang==='en' ? 'Research Calcaria first.' : 'Nejprve prozkoumej tech Calcaria.', true); return;
 		}
+		if (type === 'susarna' && !(GameState.researchedTechs && GameState.researchedTechs.includes('tech_susarna_industria'))) {
+			UI.notify(lang==='en' ? 'Research Susarna Industria first.' : 'Nejprve prozkoumej tech Sušárna Industria.', true); return;
+		}
 		if (GameState.storage[type] && GameState.storage[type].built) {
 			UI.notify(lang==='en' ? 'Already built.' : 'Jiz postaveno.', true); return;
 		}
@@ -63571,6 +63883,9 @@ const Game = {
 			prelum_olei:       { plank: 10, rope: 4,  rock: 4,  iron_ingot: 1, hrebiky: 5 },
 			fornax_ferraria:   { rock: 40, cut_stone: 15, clay: 20, plank: 20, charcoal: 15, hrebiky: 10 },
 			vapenice:          { plank: 15, cut_stone: 20, clay: 20, hrebiky: 7 },
+			// mlynar-vlastni-mlyn-mrd.md §4.5 (16.8.2026) — kámen+železo+vápno,
+			// mirror Udírna/Vápenice škály (mid-tier utility budova).
+			susarna:           { cut_stone: 25, iron_ingot: 5, vapno_hasene_mature: 10, plank: 8, hrebiky: 5 },
 			old_cellars:       { cut_stone: 15, plank: 10, rope: 5, hrebiky: 5 },
 			domus_conversorum_i: { cut_stone: 40, plank: 25, rope: 10, hrebiky: 12 },
 			domus_conversorum_ii: { cut_stone: 150, plank: 90, rope: 35, hrebiky: 35 },
@@ -65589,6 +65904,85 @@ const Game = {
             if (typeof UI !== 'undefined' && UI.renderAll) UI.renderAll();
         });
     },
+
+    // Pozemky — nákup parcely (pozemky-mrd.md §6, v1.3, 16.8.2026). Mirror
+    // ubytovnaPetition/guildPetition vzoru, plně inline text. LandParcelsDB
+    // je statická (mirror GuildsDB oprava) — mutable stav žije tady.
+    LAND_DESKY_MS: 86400000, // 24h, "byrokracie ne fyzická práce" — mirror abbotPetition/guildPetition, ne Mola (4h)
+
+    buyLandParcel: function(parcelId) {
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        if (!(GameState.flags && GameState.flags.pozemky_active)) {
+            UI.notify(lang==='en' ? '❌ Speak with the Abbot first.' : '❌ Nejdřív promluv s opatem.', true);
+            return;
+        }
+        if (typeof LandParcelsDB === 'undefined' || !LandParcelsDB[parcelId]) return;
+        const parcel = LandParcelsDB[parcelId];
+        const name = lang === 'en' ? (parcel.name_en || parcel.name) : parcel.name;
+
+        if (!GameState.landParcels) GameState.landParcels = {};
+        const existing = GameState.landParcels[parcelId];
+        if (existing && existing.status !== 'none') {
+            UI.notify(lang==='en' ? '❌ Already acquired (or in progress).' : '❌ Už koupeno (nebo se vyřizuje).', true);
+            return;
+        }
+        if ((typeof CellariumSystem !== 'undefined' ? CellariumSystem.getGrose() : 0) < parcel.price) {
+            UI.notify((lang==='en'?'Not enough groats: ':'Nedostatek grošů: ')+parcel.price, true);
+            return;
+        }
+
+        if (typeof CellariumSystem !== 'undefined' && CellariumSystem.addGrose) CellariumSystem.addGrose(-parcel.price);
+        if (typeof CellariumSystem !== 'undefined' && CellariumSystem.recordCommissionIncome) {
+            // Reuse jako výdaj — recordCommissionIncome píše 'sell'/kladně,
+            // tady chceme zápornou položku, proto přímej zápis do transactions.
+            if (!GameState.treasury) GameState.treasury = {};
+            if (!GameState.treasury.transactions) GameState.treasury.transactions = [];
+            GameState.treasury.transactions.unshift({
+                date: new Date().toLocaleDateString('cs-CZ', { day: '2-digit', month: '2-digit' }),
+                type: 'buy', itemId: null, name: name, qty: 1, price: parcel.price,
+                entity: 'land', entityName: 'Zemský pán', entityName_en: 'Lord of the Manor',
+                total: parcel.price,
+            });
+        }
+
+        GameState.landParcels[parcelId] = { status: 'pending', purchasedAt: Date.now(), deskyCompleteAt: Date.now() + Game.LAND_DESKY_MS };
+
+        if (typeof UI !== 'undefined' && UI.notifyPanel) UI.notifyPanel('📜 ' + (lang==='en'
+            ? `${name} purchased — awaiting entry into the Land Register (~24h).`
+            : `${name} koupen — čeká na zápis do Zemských desek (~24h).`), 'system');
+        if (typeof Game !== 'undefined' && Game.addKronikaEntry) Game.addKronikaEntry('important',
+            `🏛️ Koupen pozemek — ${parcel.name}.`,
+            `🏛️ Land purchased — ${parcel.name_en || parcel.name}.`,
+            `🏛️ Fundus emptus est.`);
+        if (typeof Game !== 'undefined' && Game.save) Game.save();
+        if (typeof UI !== 'undefined' && UI.renderAll) UI.renderAll();
+    },
+
+    checkLandParcels: function() {
+        if (!GameState.landParcels) return;
+        if (typeof LandParcelsDB === 'undefined') return;
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        const now = Date.now();
+        Object.keys(GameState.landParcels).forEach(parcelId => {
+            const p = GameState.landParcels[parcelId];
+            if (!p || p.status !== 'pending') return;
+            if (now < p.deskyCompleteAt) return;
+            const parcel = LandParcelsDB[parcelId];
+            if (!parcel) return;
+            p.status = 'owned';
+            const name = lang === 'en' ? (parcel.name_en || parcel.name) : parcel.name;
+            if (typeof UI !== 'undefined' && UI.notifyPanel) UI.notifyPanel('✅ ' + (lang==='en'
+                ? `${name} entered into the Land Register — the parcel is now thine.`
+                : `${name} zapsán do Zemských desek — parcela je teď tvoje.`), 'success');
+            if (typeof Game !== 'undefined' && Game.addKronikaEntry) Game.addKronikaEntry('important',
+                `🏛️ Zápis do Zemských desek dokončen — ${parcel.name}.`,
+                `🏛️ Land Register entry complete — ${parcel.name_en || parcel.name}.`,
+                `🏛️ Fundus in tabulas terrae inscriptus est.`);
+            if (typeof Game !== 'undefined' && Game.save) Game.save();
+            if (typeof UI !== 'undefined' && UI.renderAll) UI.renderAll();
+        });
+    },
+
 
     // ── DORMITORIUM — kapacita bratrů (mniši/skriptoři, manažerská vrstva) ──
     dormitoriumCapacity: function() {
@@ -68417,6 +68811,10 @@ const UI = {
         const _commitBtn = document.getElementById('lore-tab-commitments');
         if (_commitBtn) _commitBtn.style.display = (GameState.flags && GameState.flags.porta_active) ? '' : 'none';
 
+        // Sušárna — mlynar-vlastni-mlyn-mrd.md §4.5 (16.8.2026), mirror Porta vzoru přesně
+        const _dryingBtn = document.getElementById('home-sub-drying');
+        if (_dryingBtn) _dryingBtn.style.display = (GameState.researchedTechs && GameState.researchedTechs.includes('tech_susarna_industria')) ? '' : 'none';
+
         this.renderResourceTracker();
 
         const s = this.currentScreen || 'home';
@@ -70271,9 +70669,11 @@ const UI = {
         const scav = document.getElementById('home-scavenge-content');
         const mine = document.getElementById('home-mine-content');
         const cooking = document.getElementById('home-cooking-content');
+        const drying = document.getElementById('home-drying-content');
         if (scav) scav.style.display = tab === 'scavenge' ? 'block' : 'none';
         if (mine) mine.style.display = tab === 'mine' ? 'block' : 'none';
         if (cooking) cooking.style.display = tab === 'cooking' ? 'block' : 'none';
+        if (drying) drying.style.display = tab === 'drying' ? 'block' : 'none';
         document.querySelectorAll('#home-main-content .filter-btn').forEach(b => b.classList.remove('active'));
         if (btn) btn.classList.add('active');
         if (tab === 'mine') { this.renderMineYieldInfo(); this.renderFodinaPetitionPanel(); this.renderMineActions(); }
@@ -70282,6 +70682,10 @@ const UI = {
             // uvnitř CookingSystem.render() (grid stanic), mirror ostatních
             // stanic — CheeseSystem samostatný systém, ale ne samostatné HTML.
             cooking.innerHTML = CookingSystem.render();
+        }
+        // Sušárna — mlynar-vlastni-mlyn-mrd.md §4.5, 16.8.2026. Mirror cooking dispatch.
+        if (tab === 'drying' && drying && typeof DryingSystem !== 'undefined') {
+            drying.innerHTML = DryingSystem.renderSusarna();
         }
     },
 
