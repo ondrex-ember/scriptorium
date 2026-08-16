@@ -805,6 +805,44 @@ const CellariumSystem = {
     if (typeof SaeculumSystem !== 'undefined') SaeculumSystem.switchEntity(GameState.ui.saeculumEntity || 'tavern');
   },
 
+  // Cechy — cechy-a-prava-mrd.md §3 / chronicon-cechy-mrd.md. Read-only
+  // status teď (K2 začátek) — `relation` zůstává 0, dokud nepřijde
+  // mechanismus jak ho zvednout (K3, TBD). `tension` se čte živě z
+  // Chroniconu, NIKDY se lokálně neukládá/nekopíruje — je to sdílený
+  // svět, ne hráčův stav. Jen 4 MVP aktivní cechy (GUILDS_ACTIVE),
+  // zbytek existuje v datech, ale nezobrazuje se, dokud nepřijde Furnus.
+  renderCechyStatus: function(lang) {
+    if (typeof GuildsDB === 'undefined' || typeof GUILDS_ACTIVE === 'undefined') return '';
+    const snap = (typeof ChroniconSystem !== 'undefined' && ChroniconSystem._snap) ? ChroniconSystem._snap : null;
+    const worldGuilds = (snap && snap.guilds) || null;
+
+    let rows = '';
+    GUILDS_ACTIVE.forEach(id => {
+      const g = GuildsDB[id];
+      if (!g) return;
+      const name = lang === 'en' ? g.name_en : g.name;
+      const tension = (worldGuilds && worldGuilds[id]) ? Math.round(worldGuilds[id].tension) : null;
+      const tensionLabel = tension === null ? (lang === 'en' ? 'unknown' : 'neznámo') : `${tension}/100`;
+      const pravoLabels = {
+        none:        lang === 'en' ? 'none'      : 'žádné',
+        negotiating: lang === 'en' ? 'in talks'   : 'vyjednává se',
+        granted:     lang === 'en' ? 'granted'    : 'uděleno',
+      };
+      const pravoLabel = pravoLabels[g.pravo.status] || g.pravo.status;
+      rows += `<div style="display:flex; justify-content:space-between; font-size:0.74rem; opacity:0.8; padding:2px 0;">
+        <span>${name}</span>
+        <span>${lang === 'en' ? 'tension' : 'napětí'} ${tensionLabel} · ${lang === 'en' ? 'right' : 'právo'}: ${pravoLabel}</span>
+      </div>`;
+    });
+
+    if (!rows) return '';
+
+    return `<div style="font-size:0.78rem;opacity:0.85;margin-bottom:10px;padding:8px 10px;background:rgba(197,160,89,0.08);border-radius:6px;">
+      <div style="font-weight:bold; margin-bottom:4px;">⚖️ ${lang === 'en' ? 'Guilds' : 'Cechy'}</div>
+      ${rows}
+    </div>`;
+  },
+
   renderBuyPanel: function(entity, lang) {
     const allItems = this.ENTITY_SHOP[entity];
     if (!allItems || allItems.length === 0) return '';
@@ -1362,7 +1400,7 @@ const CellariumSystem = {
           🍺 ${lang==='en'?'Tavern Store':'Šenk & Obchod'}
         </button>
         <button class="filter-btn${sub==='dice'?' active':''}" onclick="GameState.ui.tavernSubtab='dice'; SaeculumSystem.switchEntity('tavern');" style="padding:6px 14px; font-weight:bold; background:${sub==='dice'?'var(--accent-gold)':'rgba(197,160,89,0.1)'}; color:${sub==='dice'?'#000':'var(--ink-primary)'};">
-          🎲 ${lang==='en'?'Gambling Table':'Hazardní Stůl'}
+          🎲 ${lang==='en'?'Gambling Table':'Hazardní Stůl & Vrhcáby'}
         </button>
       </div>
       `;
@@ -1388,6 +1426,7 @@ const CellariumSystem = {
       h += `<div style="font-size:0.78rem;opacity:0.75;margin-bottom:10px;padding:6px 10px;background:rgba(197,160,89,0.08);border-radius:6px;">
         ⚓ Giacomo: ${rel}/100
       </div>`;
+      h += this.renderCechyStatus(lang);
     }
 
     // ── Dvousloupcový layout: NÁKUP | PRODEJ ───────────────────────────────
