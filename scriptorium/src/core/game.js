@@ -5801,39 +5801,56 @@ const Game = {
     // ve Valetudo tabu (PersonaSystem._renderValetudo), jen když je
     // haeresis_occulta aktivní. Léčí okamžitě (žádný item), ale sráží
     // inquisitionHeat víc než Cesta A (Elixir Purgationis).
+    // vrchcaby-confessor-agency-mrd (16.8.2026): sdílené pro obě zpovědi
+    // (kacířství i hazard) — opat rozhoduje sám, váha podle jeho
+    // charakterového rysu + mírný posun podle aktuálního Podezření.
+    ABBOT_STRICTNESS: { bernard: 0.50, prokop: 0.65, metodej: 0.35, havel: 0.30, bohuslav: 0.55 },
+    _rollAbbotStrict: function() {
+        const abbotId = GameState.knownAbbotId || 'bernard';
+        const heat = (GameState.secrets && GameState.secrets.inquisitionHeat) || 0;
+        const pStrict = Math.max(0.05, Math.min(0.95, (this.ABBOT_STRICTNESS[abbotId] || 0.50) + (heat / 100) * 0.15));
+        return Math.random() < pStrict;
+    },
+
     confessHeresy: function() {
         if (!(GameState.health && GameState.health.active && GameState.health.active['haeresis_occulta'])) return;
         if ((GameState.abbotLocation || 'present') !== 'present') return;
         if (typeof NotificationSystem === 'undefined' || !NotificationSystem.modal) return;
         const lang = (GameState.settings && GameState.settings.language) || 'cs';
         const cool = (amount) => { if (GameState.secrets) GameState.secrets.inquisitionHeat = Math.max(0, (GameState.secrets.inquisitionHeat || 0) - amount); };
+        const abbotName = (typeof AbbotSystem !== 'undefined' && AbbotSystem.getCurrentAbbot) ? AbbotSystem.getCurrentAbbot().name : 'Opat';
 
         NotificationSystem.modal({
             icon: '🙏',
             title: lang === 'en' ? 'Confess to the Abbot' : 'Vyznat se opatovi',
             text: lang === 'en'
-                ? 'The thought that crept in with the draught does not belong to you. Kneel and confess it before it takes root.'
-                : 'Myšlenka, co přišla s douškem, ti nepatří. Poklekni a vyznej ji, než zapustí kořeny.',
+                ? 'The thought that crept in with the draught does not belong to you. Kneel and confess it before it takes root. How he judges you is his to decide, not yours.'
+                : 'Myšlenka, co přišla s douškem, ti nepatří. Poklekni a vyznej ji, než zapustí kořeny. Jak tě posoudí, je na něm, ne na tobě.',
             choices: [
-                { label: (lang === 'en' ? '⚖️ Strict penance' : '⚖️ Přísné pokání'), type: 'danger', effect: () => {
+                { label: (lang === 'en' ? '🙏 Confess' : '🙏 Vyznat se'), type: 'primary', effect: () => {
                     HealthSystem.removeCondition('haeresis_occulta', true);
-                    if (typeof PersonaSystem !== 'undefined') PersonaSystem.addInfluence('church', 8);
-                    cool(20);
-                    Game.addKronikaEntry('minor',
-                        '🙏 Vyznal ses opatovi z kacířského bludu. Přísné pokání — bolestivé, ale důkladné.',
-                        '🙏 You confessed the heretical delusion to the Abbot. Strict penance — painful, but thorough.',
-                        '🙏 Confessio facta est. Poenitentia severa.');
-                    Game.save();
-                    if (typeof PersonaSystem !== 'undefined') PersonaSystem.render();
-                }},
-                { label: (lang === 'en' ? '🕊️ Ask for leniency' : '🕊️ Prosit o shovívavost'), effect: () => {
-                    HealthSystem.removeCondition('haeresis_occulta', true);
-                    if (typeof PersonaSystem !== 'undefined') PersonaSystem.addInfluence('church', 3);
-                    cool(12);
-                    Game.addKronikaEntry('minor',
-                        '🙏 Vyznal ses opatovi z kacířského bludu. Shovívavost — lehčí srdce, menší klid.',
-                        '🙏 You confessed the heretical delusion to the Abbot. Leniency — a lighter heart, a smaller peace.',
-                        '🙏 Confessio facta est. Misericordia data.');
+                    const strict = Game._rollAbbotStrict();
+                    if (strict) {
+                        if (typeof PersonaSystem !== 'undefined') PersonaSystem.addInfluence('church', 8);
+                        cool(20);
+                        UI.notify('⚖️ ' + (lang === 'en'
+                            ? abbotName + ' judges you strictly — painful, but thorough. Ecclesia +8, suspicion −20.'
+                            : abbotName + ' tě posoudil přísně — bolestivé, ale důkladné. Ecclesia +8, Podezření −20.'));
+                        Game.addKronikaEntry('minor',
+                            '🙏 Vyznal ses opatovi z kacířského bludu. Posoudil tě přísně.',
+                            '🙏 You confessed the heretical delusion to the Abbot. He judged you strictly.',
+                            '🙏 Confessio facta est. Poenitentia severa.');
+                    } else {
+                        if (typeof PersonaSystem !== 'undefined') PersonaSystem.addInfluence('church', 3);
+                        cool(12);
+                        UI.notify('🕊️ ' + (lang === 'en'
+                            ? abbotName + ' shows you mercy — a lighter heart, a smaller peace. Ecclesia +3, suspicion −12.'
+                            : abbotName + ' ti prokázal milost — lehčí srdce, menší klid. Ecclesia +3, Podezření −12.'));
+                        Game.addKronikaEntry('minor',
+                            '🙏 Vyznal ses opatovi z kacířského bludu. Prokázal ti milost.',
+                            '🙏 You confessed the heretical delusion to the Abbot. He showed you mercy.',
+                            '🙏 Confessio facta est. Misericordia data.');
+                    }
                     Game.save();
                     if (typeof PersonaSystem !== 'undefined') PersonaSystem.render();
                 }}
@@ -5874,26 +5891,32 @@ const Game = {
             icon: '🙏',
             title: (lang==='en'?'Confess to ':'Vyznat se — ') + abbotName,
             text: `<div style="margin-bottom:10px;">${lang==='en'
-                ? 'You kneel to confess: you have been gambling at dice, and it weighs on you.'
-                : 'Klekáš ke zpovědi: hrál jsi v kostky, a tíží tě to.'}</div>${chatHtml}`,
+                ? 'You kneel to confess: you have been gambling at dice, and it weighs on you. How he judges you is his to decide, not yours.'
+                : 'Klekáš ke zpovědi: hrál jsi v kostky, a tíží tě to. Jak tě posoudí, je na něm, ne na tobě.'}</div>${chatHtml}`,
             choices: [
-                { label: (lang==='en'?'⚖️ Strict penance':'⚖️ Přísné pokání'), type: 'danger', effect: () => {
-                    if (typeof PersonaSystem !== 'undefined' && PersonaSystem.addZboznost) PersonaSystem.addZboznost(2);
-                    cool(20);
-                    Game.addKronikaEntry('minor',
-                        '🙏 Vyznal ses opatovi z hazardu. Přísné pokání.',
-                        '🙏 You confessed the gambling to the Abbot. Strict penance.',
-                        '🙏 Confessio facta est de alea. Poenitentia severa.');
-                    Game.save();
-                    if (typeof PersonaSystem !== 'undefined') PersonaSystem.render();
-                }},
-                { label: (lang==='en'?'🕊️ Ask for leniency':'🕊️ Prosit o shovívavost'), effect: () => {
-                    if (typeof PersonaSystem !== 'undefined' && PersonaSystem.addZboznost) PersonaSystem.addZboznost(1);
-                    cool(12);
-                    Game.addKronikaEntry('minor',
-                        '🙏 Vyznal ses opatovi z hazardu. Shovívavost.',
-                        '🙏 You confessed the gambling to the Abbot. Leniency.',
-                        '🙏 Confessio facta est de alea. Misericordia data.');
+                { label: (lang==='en'?'🙏 Confess':'🙏 Vyznat se'), type: 'primary', effect: () => {
+                    const strict = Game._rollAbbotStrict();
+                    if (strict) {
+                        if (typeof PersonaSystem !== 'undefined' && PersonaSystem.addZboznost) PersonaSystem.addZboznost(2);
+                        cool(20);
+                        UI.notify('⚖️ ' + (lang==='en'
+                            ? abbotName + ' judges you strictly — Piety +2, suspicion −20.'
+                            : abbotName + ' tě posoudil přísně — Zbožnost +2, Podezření −20.'));
+                        Game.addKronikaEntry('minor',
+                            '🙏 Vyznal ses opatovi z hazardu. Posoudil tě přísně.',
+                            '🙏 You confessed the gambling to the Abbot. He judged you strictly.',
+                            '🙏 Confessio facta est de alea. Poenitentia severa.');
+                    } else {
+                        if (typeof PersonaSystem !== 'undefined' && PersonaSystem.addZboznost) PersonaSystem.addZboznost(1);
+                        cool(12);
+                        UI.notify('🕊️ ' + (lang==='en'
+                            ? abbotName + ' shows you mercy — Piety +1, suspicion −12.'
+                            : abbotName + ' ti prokázal milost — Zbožnost +1, Podezření −12.'));
+                        Game.addKronikaEntry('minor',
+                            '🙏 Vyznal ses opatovi z hazardu. Prokázal ti milost.',
+                            '🙏 You confessed the gambling to the Abbot. He showed you mercy.',
+                            '🙏 Confessio facta est de alea. Misericordia data.');
+                    }
                     Game.save();
                     if (typeof PersonaSystem !== 'undefined') PersonaSystem.render();
                 }}
