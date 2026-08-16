@@ -1,6 +1,6 @@
 const TechTree = [
   // TIER 1
-  { id: "tech_candle", name: "Zpracování Tuku", name_en: "Fat Rendering", cost: 2, desc: "Odemkne: Svíčky, Klíh", desc_en: "Unlocks: Candles, Glue", unlocks: ["candle", "glue"] },
+  { id: "tech_candle", name: "Zpracování Tuku", name_en: "Fat Rendering", cost: 2, desc: "Odemkne: Svíčky (tuková — nejhorší, čadí — i lojová), Klíh", desc_en: "Unlocks: Candles (fat — worst, smoky — and tallow), Glue", unlocks: ["candle", "candle_tallow", "glue"] },
   { id: "tech_meteorologica", name: "Meteorologica — Živly a Oheň", name_en: "Meteorologica — Elements and Fire", cost: 20, desc: "Aristotelovo pojednání o povětří a živlech. Oheň jako horký a suchý element stoupající k nebi. Odemkne: správu paliva v krbu, subtab Ohniště.", desc_en: "Aristotle's treatise on weather and the elements. Fire as a hot, dry element rising toward heaven. Unlocks: hearth fuel management, the Foculus subtab.", unlocks: ["fireplace_fuel"], requires: ["tech_candle"] },
   { id: "tech_backpack", name: "Organizace Batohu", name_en: "Satchel Organisation", cost: 3, desc: "Odemkne: Třídění předmětů", desc_en: "Unlocks: Item sorting", unlocks: [] },
   { id: "tech_backpack_ii", name: "Registrum Cellarii — Katalog Zásob", name_en: "Registrum Cellarii — Stock Catalogue", cost: 10, desc: "Cellarius sestavil podrobný rejstřík, kde má každá věc své místo — od nástrojů po nalezené drobnosti. Odemkne: filtrování podle kategorií v Inventariu (Cellarium → Zásoby). Vše, co nemá jasné zařazení, spadne do kategorie Ostatní.", desc_en: "The cellarius compiled a detailed register where every item has its place — from tools to found trinkets. Unlocks: category filtering in the Inventarium (Cellarium → Stores). Anything without a clear place falls under Miscellaneous.", unlocks: [], requires: ["tech_backpack"] },
@@ -154,7 +154,7 @@ const TechTree = [
     cost: 12,
     desc: "Kniha o včelách. Columella, Isidor ze Sevilly i Hildegarda z Bingenu psali o včelách s úctou. Med léčil rány, vosk svítil při večerních modlitbách. Odemkne: Včelín (Apiarium) — med a vosk.",
     desc_en: "The Book of Bees. Columella, Isidore of Seville and Hildegard of Bingen all wrote of bees with reverence. Honey healed wounds, wax lit the evening prayers. Unlocks: Apiary (Apiarium) — honey and wax.",
-    unlocks: [], requires: ["tech_monastery_wisdom"]
+    unlocks: ["candle_wax"], requires: ["tech_monastery_wisdom"]
   },
 
   // VČELAŘINA II (Custos Apium) — odemkne Velký úl v Buildings, vyžaduje přečtenou knihu Ruralia Commoda

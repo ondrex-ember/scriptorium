@@ -1234,13 +1234,18 @@ const Game = {
     lightSource: function(type) {
         if (!GameState.flags.fireplaceLit) { UI.notify(t('game.needFire'), true); return; }
         // Louč: preferuj smolovou (torch_resin), pak lojovou (torch_tallow), jinak nouzová tuková (primitive_torch)
-        let item = (type === 'candle') ? 'candle' : ((GameState.inventory['torch_resin'] || 0) > 0 ? 'torch_resin' : ((GameState.inventory['torch_tallow'] || 0) > 0 ? 'torch_tallow' : 'primitive_torch'));
+        // Svíčka: stejná kaskáda — voskavka (candle_wax), pak lojová (candle_tallow), jinak tuková (candle)
+        // svitidla-mrd (16.8.2026), mirror torch vzoru přesně.
+        let item = (type === 'candle')
+            ? ((GameState.inventory['candle_wax'] || 0) > 0 ? 'candle_wax' : ((GameState.inventory['candle_tallow'] || 0) > 0 ? 'candle_tallow' : 'candle'))
+            : ((GameState.inventory['torch_resin'] || 0) > 0 ? 'torch_resin' : ((GameState.inventory['torch_tallow'] || 0) > 0 ? 'torch_tallow' : 'primitive_torch'));
         if (!GameState.inventory[item]) { UI.notify(t('game.missingItem').replace('{item}', ItemsDB[item].name), true); return; }
         
         if (type === 'candle') { 
             GameState.flags.torchLit = false; 
             GameState.flags.candleLit = true; 
             GameState.candleStart = Date.now();
+            GameState.candleItemId = item;
             
             // Track candles lit
             if(GameState.achievements) {
@@ -3891,7 +3896,12 @@ const Game = {
             // svetlo-detail-mrd (9.8.2026): slovní odhad zbývající doby —
             // schválně bez přesných minut/hodin, jen "čerstvá/stabilní/dohořívá".
             if (lightDesc) {
-                const _candlePct = 1 - Math.max(0, Math.min(1, (Date.now() - (GameState.candleStart || 0)) / CONFIG.CANDLE_DURATION));
+                // svitidla-mrd (16.8.2026) — per-tier lightHours (candleItemId),
+                // fallback na starou CONFIG konstantu pro save předcházející tuhle opravu.
+                const _candleDurMs = (GameState.candleItemId && ItemsDB[GameState.candleItemId] && ItemsDB[GameState.candleItemId].lightHours)
+                    ? ItemsDB[GameState.candleItemId].lightHours * 3600000
+                    : CONFIG.CANDLE_DURATION;
+                const _candlePct = 1 - Math.max(0, Math.min(1, (Date.now() - (GameState.candleStart || 0)) / _candleDurMs));
                 const _cTier = _candlePct > 0.66 ? 'fresh' : _candlePct > 0.25 ? 'steady' : 'low';
                 lightDesc.innerText = t('light.candleDescs.' + _cTier);
             }
@@ -4004,7 +4014,7 @@ const Game = {
             if (!VigorSystem.canAct()) { UI.notify(t('game.vigor.exhausted'), true); return; }
             const heavyItems = ['vellum','codex_luxury','illuminated_page','vellum_codex','printing_type','ink_gallic'];
             const isHeavy = heavyItems.includes(r.output);
-            const isLight = ['paper','ink','candle','tinderbox','quill','tallow_candle'].includes(r.output);
+            const isLight = ['paper','ink','candle','candle_tallow','candle_wax','tinderbox','quill','tallow_candle'].includes(r.output);
             if (isHeavy && !VigorSystem.canHeavy()) {
                 const lang = (GameState.settings && GameState.settings.language) || 'cs';
                 UI.notify(lang === 'en'
@@ -4082,7 +4092,9 @@ const Game = {
         // (fat:1/tallow:1), takže % sleva = % šance na vrácení té konkrétní
         // suroviny místo zlomkového snížení ceny.
         let _tallowDiscount = 0;
-        if ((r.output === 'candle' || r.output === 'torch_tallow') && typeof ChroniconSystem !== 'undefined' && ChroniconSystem.getBuffs) {
+        // svitidla-mrd (16.8.2026) — candle_tallow patří do stejný podmínky,
+        // spotřebovává tallow přesně jako torch_tallow.
+        if ((r.output === 'candle' || r.output === 'torch_tallow' || r.output === 'candle_tallow') && typeof ChroniconSystem !== 'undefined' && ChroniconSystem.getBuffs) {
             _tallowDiscount = ChroniconSystem.getBuffs().tallowCostDiscount || 0;
         }
         for(let [item, amt] of Object.entries(r.req)) {

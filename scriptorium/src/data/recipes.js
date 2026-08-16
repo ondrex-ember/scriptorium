@@ -337,6 +337,9 @@ const RecipesDB = [
     
     // ALCHEMY - základní
     { id: "candle", output: "candle", qty: 1, req: { "fat": 1, "rope": 1 }, cat: "fire", locked: true }, 
+    // svitidla-mrd (16.8.2026) — mirror candle receptu přesně, jiný materiál
+    { id: "candle_tallow", output: "candle_tallow", qty: 1, req: { "tallow": 1, "rope": 1 }, cat: "fire", locked: true },
+    { id: "candle_wax", output: "candle_wax", qty: 1, req: { "beeswax": 1, "rope": 1 }, cat: "fire", locked: true },
     { id: "glue", output: "glue", qty: 1, req: { "bone": 2, "water": 1 }, cat: "craft", locked: true,
       desc: "Kostní klíh — kosti se hodiny vyvařují, dokud nevznikne hustá želatina.", desc_en: "Bone glue — bones boiled for hours into a thick gelatin." },
     { id: "potion_heal", output: "potion_heal", qty: 1, req: { "herb_red": 1, "fat": 1, "pestle": 0 }, cat: "alchemy", locked: true },

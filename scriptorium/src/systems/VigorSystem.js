@@ -29,6 +29,15 @@ const VigorSystem = {
         return 1.0 + (ChroniconSystem.getBuffs().vigorRegenBonus || 0);
     },
 
+    // svitidla-mrd (16.8.2026) — voskavka snižuje únavu z craftu (jasné,
+    // stabilní světlo šetří oči a šetří sílu). Lojová/tuková beze změny
+    // (1.0×, baseline). Jen onCraft — scavenge/mine jsou venkovní práce,
+    // svíčka na ně nemá vliv.
+    _lightQualityMult: function () {
+        if (GameState.flags && GameState.flags.candleLit && GameState.candleItemId === 'candle_wax') return 0.8;
+        return 1.0;
+    },
+
     // Noční spánek: 8h+ neaktivity → plný reset únavy
     SLEEP_HOURS_FOR_FULL_REST: 8,
 
@@ -412,7 +421,7 @@ const VigorSystem = {
 
     // ── Craft hook ────────────────────────────────────────────────────────────
     onCraft: function(itemId) {
-        const cost = this.FATIGUE_COSTS[itemId] || 2; // default lehký craft
+        const cost = (this.FATIGUE_COSTS[itemId] || 2) * this._lightQualityMult(); // default lehký craft
         this.addFatigue(cost);
     },
 
