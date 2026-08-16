@@ -13959,6 +13959,34 @@ const OutgoingLettersDB = [
                     notify_cs: 'Dorazilo: 3× Papír z opatovy sbírky.',
                     notify_en: 'Arrived: 3× Paper from the Abbot\'s collection.'
                 }
+            },
+            {
+                // vrchcaby-hrich-mrd (15.8.2026): žádost o návštěvu, potřeba pro
+                // osobní zpověď (presence gate). Skrytá, když je opat už tu.
+                id: 'opat_pozadat_navstevu',
+                label_cs: 'Požádat opata o návštěvu',
+                label_en: "Ask the Abbot to visit",
+                cost: { pigeon: 1, paper: 1, ink: 1 },
+                travelHours: function () {
+                    return (GameState.abbotLocation === 'traveling') ? 24 : 60;
+                },
+                riskLoss: 0.05,
+                hideIf: function () {
+                    return GameState.abbotLocation === 'present';
+                },
+                reply: {
+                    title_cs: 'Odpověď Opata',
+                    title_en: 'Reply from the Abbot',
+                    text_cs: '„Bratře, vyslyšel jsem tvé volání a vydávám se na cestu do kláštera. Buď trpělivý — cesty jsou, jaké jsou. — Opat"',
+                    text_en: '"Brother, I have heard your call and set out for the monastery. Be patient — the roads are as they are. — The Abbot"',
+                    effect: function () {
+                        GameState.abbotLocation = 'present';
+                        GameState.abbotLocationNextTick = Date.now() + 2 * 24 * 3600000;
+                        if (typeof AbbotSystem !== 'undefined' && AbbotSystem.renderPill) AbbotSystem.renderPill();
+                    },
+                    notify_cs: 'Opat dorazil do kláštera.',
+                    notify_en: 'The Abbot has arrived at the monastery.'
+                }
             }
         ]
     },
@@ -14055,7 +14083,6 @@ const OutgoingLettersDB = [
         ]
     }
 ];
-
 // ═══ src/data/conversi.js ═══
 // ─────────────────────────────────────────────────────────────
 // ConversiRosterDB — autorský roster konvršů
@@ -27826,7 +27853,16 @@ const TemplumSystem = {
     _donationHistoryHtml: function(lang) {
         const entries = this._logEntries('donation', 5);
         if (!entries.length) return '';
+        const penanceNames = {
+            penance_small:  lang==='en' ? 'Small alms'  : 'Malá almužna',
+            penance_medium: lang==='en' ? 'Medium alms' : 'Střední almužna',
+            penance_large:  lang==='en' ? 'Large alms'  : 'Velká almužna',
+        };
         const rows = entries.map(e => {
+            if (penanceNames[e.itemId]) {
+                const cool = e.heatCool || 0;
+                return `<div style="font-size:0.68rem; opacity:0.65; margin-top:2px;">${penanceNames[e.itemId]} — ${lang==='en'?'suspicion':'podezření'} −${cool} · ${this._timeAgo(e.ts, lang)}</div>`;
+            }
             const nm = (typeof iName === 'function') ? iName(e.itemId) : e.itemId;
             return `<div style="font-size:0.68rem; opacity:0.65; margin-top:2px;">${nm} — Ecclesia +${e.influence} · ${this._timeAgo(e.ts, lang)}</div>`;
         }).join('');
@@ -28268,20 +28304,24 @@ const TemplumSystem = {
                               : (lang==='en'?'turned away':'odmítnut')) : null;
         h += `<div style="padding:12px; background:rgba(255,255,255,0.4); border:1px solid rgba(197,160,89,0.25); border-radius:8px;">
                 <div style="font-size:1.5rem; margin-bottom:4px;">🙏</div>
-                <div style="font-weight:bold; font-size:0.82rem;">${lang==='en'?'Confession':'Zpověď'}</div>
+                <div style="font-weight:bold; font-size:0.82rem;">${lang==='en'?'Confessional':'Zpovědnice'}</div>
                 <div style="font-size:0.7rem; margin-top:5px; opacity:0.75;">⏳ ${lang==='en'?'next penitent in':'další zpovědník za'} ${confDays} d</div>
                 ${this._confessionHistoryHtml(lang)}
                 <div style="font-size:0.62rem; opacity:0.55; font-style:italic; margin-top:5px;">${lang==='en'?'the countryside comes to confess · your word weighs':'kraj se přichází vyznat · tvé slovo má váhu'}</div>
               </div>`;
 
         // Pilíř Dary (T5) — páteříky/vosk → Ecclesia
+        const grose = CellariumSystem.getGrose();
         const beadsN = inv['paternoster_beads'] || 0;
         const waxN = inv['beeswax'] || 0;
         const crayfishN = inv['crayfish_boiled'] || 0;
         const ld = t.lastDonation;
+        const curZboznost = (GameState.persona && GameState.persona.zboznost) || 0;
+        const curHeat = Math.round((GameState.secrets && GameState.secrets.inquisitionHeat) || 0);
         h += `<div style="padding:12px; background:rgba(255,255,255,0.4); border:1px solid rgba(197,160,89,0.25); border-radius:8px;">
                 <div style="font-size:1.5rem; margin-bottom:4px;">📿</div>
                 <div style="font-weight:bold; font-size:0.82rem;">${lang==='en'?'Offerings':'Dary'}</div>
+                <div style="font-size:0.68rem; opacity:0.7; margin-top:3px; margin-bottom:4px;">🙏 ${lang==='en'?'Piety':'Zbožnost'}: <strong>${curZboznost}/100</strong> &nbsp; 👁️ ${lang==='en'?'Suspicion':'Podezření'}: <strong style="color:${curHeat>=60?'#c0392b':curHeat>=30?'#c5a059':'#5a9a5a'};">${curHeat}/100</strong></div>
                 <div style="display:flex; align-items:center; gap:6px; font-size:0.7rem; margin-top:5px;">
                   <span style="flex:1;">📿 ${lang==='en'?'Paternoster beads':'Páteříky'} (${beadsN}) → +5</span>
                   <button class="craft-btn" style="padding:2px 8px; font-size:0.66rem;" ${beadsN >= 1 ? '' : 'disabled'} onclick="Game.templumDonate('paternoster_beads')">${lang==='en'?'Offer':'Darovat'}</button>
@@ -28293,6 +28333,19 @@ const TemplumSystem = {
                 <div style="display:flex; align-items:center; gap:6px; font-size:0.7rem; margin-top:3px;">
                   <span style="flex:1;">🦞 ${lang==='en'?'crayfish boiled in beer':'raci vaření v pivu'} (${crayfishN}) → +3</span>
                   <button class="craft-btn" style="padding:2px 8px; font-size:0.66rem;" ${crayfishN >= 1 ? '' : 'disabled'} onclick="Game.templumDonate('crayfish_boiled')">${lang==='en'?'Offer':'Darovat'}</button>
+                </div>
+                <div style="font-size:0.66rem; opacity:0.6; margin-top:8px; border-top:1px solid rgba(197,160,89,0.2); padding-top:6px;">${lang==='en'?'Penitential alms — cools suspicion, not piety':'Kající almužna — chladí podezření, ne zbožnost'}</div>
+                <div style="display:flex; align-items:center; gap:6px; font-size:0.7rem; margin-top:4px;">
+                  <span style="flex:1;">15g → ${lang==='en'?'suspicion':'podezření'} −8</span>
+                  <button class="craft-btn" style="padding:2px 8px; font-size:0.66rem;" ${grose >= 15 ? '' : 'disabled'} onclick="Game.templumPenance('small')">${lang==='en'?'Give':'Dát'}</button>
+                </div>
+                <div style="display:flex; align-items:center; gap:6px; font-size:0.7rem; margin-top:3px;">
+                  <span style="flex:1;">40g → ${lang==='en'?'suspicion':'podezření'} −20</span>
+                  <button class="craft-btn" style="padding:2px 8px; font-size:0.66rem;" ${grose >= 40 ? '' : 'disabled'} onclick="Game.templumPenance('medium')">${lang==='en'?'Give':'Dát'}</button>
+                </div>
+                <div style="display:flex; align-items:center; gap:6px; font-size:0.7rem; margin-top:3px;">
+                  <span style="flex:1;">100g → ${lang==='en'?'suspicion':'podezření'} −45</span>
+                  <button class="craft-btn" style="padding:2px 8px; font-size:0.66rem;" ${grose >= 100 ? '' : 'disabled'} onclick="Game.templumPenance('large')">${lang==='en'?'Give':'Dát'}</button>
                 </div>
                 ${ld ? `<div style="font-size:0.66rem; opacity:0.6; margin-top:4px;">${lang==='en'?'last offering':'poslední dar'}: ${(typeof iName==='function')?iName(ld.id):ld.id}</div>` : ''}
                 ${this._donationHistoryHtml(lang)}
@@ -40039,9 +40092,21 @@ const PersonaSystem = {
                 // Haeresis Occulta MRD — Cesta B, dedikovaná mimo villager zpověď
                 let confessLine = '';
                 if (id === 'haeresis_occulta') {
-                    confessLine = `<button onclick="Game.confessHeresy()" class="craft-btn" style="margin-top:8px; font-size:0.75rem;">
-                        🙏 ${lang==='en'?'Confess to the Abbot':'Vyznat se opatovi'}
-                    </button>`;
+                    // vrchcaby-hrich-mrd (15.8.2026): presence gate — zpověď vyžaduje
+                    // opata fyzicky v klášteře, mirror stejné podmínky u nové hazardní zpovědi.
+                    const abbotPresent = (GameState.abbotLocation || 'present') === 'present';
+                    if (abbotPresent) {
+                        confessLine = `<button onclick="Game.confessHeresy()" class="craft-btn" style="margin-top:8px; font-size:0.75rem;">
+                            🙏 ${lang==='en'?'Confess to the Abbot':'Vyznat se opatovi'}
+                        </button>`;
+                    } else {
+                        confessLine = `<div style="margin-top:8px; font-size:0.72rem; opacity:0.7; font-style:italic;">
+                            ${lang==='en'?'The Abbot is not at the monastery.':'Opat není v klášteře.'}
+                        </div>
+                        <button onclick="UI.switchLoreTab('porta')" class="craft-btn" style="margin-top:4px; font-size:0.72rem; opacity:0.85;">
+                            🕊️ ${lang==='en'?'Ask him to visit (Porta)':'Požádat o návštěvu (Porta)'}
+                        </button>`;
+                    }
                 }
 
                 return `<div style="padding:12px 14px;margin-bottom:10px;background:rgba(197,160,89,0.08);border-left:3px solid var(--accent-gold);border-radius:6px;">
@@ -40171,6 +40236,26 @@ const PersonaSystem = {
             </div>`;
         };
 
+        // vrchcaby-hrich-mrd (15.8.2026): pro Podezření je vysoká hodnota ŠPATNĚ
+        // (opak ostatních barů) — barva invertovaná: nízko=zelená, vysoko=červená.
+        const barDanger = (icon, name, value, desc) => {
+            const pct = Math.min(100, Math.round(value || 0));
+            const color = pct >= 60 ? '#c0392b' : pct >= 30 ? 'var(--accent-gold)' : '#5a9a5a';
+            return `<div style="margin-bottom:12px;padding:12px;background:var(--bg-card);border:1px solid rgba(197,160,89,0.2);border-radius:8px;">
+                <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+                    <span style="font-size:1.3rem;">${icon}</span>
+                    <div style="flex:1;">
+                        <div style="font-weight:bold;font-size:0.88rem;">${name}</div>
+                        <div style="font-size:0.74rem;opacity:0.65;font-style:italic;">${desc}</div>
+                    </div>
+                    <strong style="color:${color};">${pct}/100</strong>
+                </div>
+                <div style="height:5px;background:rgba(0,0,0,0.1);border-radius:3px;">
+                    <div style="height:100%;width:${pct}%;background:${color};border-radius:3px;transition:width 0.4s;"></div>
+                </div>
+            </div>`;
+        };
+
         let h = `<div style="font-size:0.75rem;font-weight:bold;letter-spacing:0.06em;text-transform:uppercase;opacity:0.55;margin-bottom:10px;">${lang==='en'?'NPC relations':'Vztahy s NPC'}</div>`;
 
         h += bar('🖋️', lang==='en'?'Master Bartoloměj':'Mistr Bartoloměj',
@@ -40214,6 +40299,9 @@ const PersonaSystem = {
         h += bar('🙏', lang==='en'?'Piety':'Zbožnost',
             (GameState.persona && GameState.persona.zboznost) || 0,
             lang==='en'?'Personal, inward — distinct from Church (institutional). Grows through Mass, confession, quiet endurance.':'Osobní, vnitřní — odlišné od Církve (institucionální). Roste mší, zpovědí, tichou vytrvalostí.', false);
+        h += barDanger('👁️', lang==='en'?'Suspicion':'Podezření',
+            (GameState.secrets && GameState.secrets.inquisitionHeat) || 0,
+            lang==='en'?'What the world notices — high suspicion draws the Inquisition, keeps the Abbot away.':'Co si svět všímá — vysoké podezření přitahuje inkvizici, drží opata pryč.');
 
         // Clientela — jen promítnutí souhrnu; ovládání a jednání probíhá v Saeculum → Clientela
         const clientelaTier = (typeof RankSystem !== 'undefined' && RankSystem.getSecularRankTier) ? RankSystem.getSecularRankTier() : 1;
@@ -40828,9 +40916,10 @@ const PortaSystem = {
 
         const now = Date.now();
         const lost = Math.random() < (topic.riskLoss || 0);
+        const travelHours = typeof topic.travelHours === 'function' ? topic.travelHours() : (topic.travelHours || 24);
         GameState.letters.outgoing.push({
             contactId: contactId, topicId: topicId,
-            sentAt: now, arrivesAt: now + (topic.travelHours || 24) * 3600000,
+            sentAt: now, arrivesAt: now + travelHours * 3600000,
             lost: lost
         });
 
@@ -40924,6 +41013,7 @@ const PortaSystem = {
             h += `<div style="margin-bottom:10px; padding:8px 10px; background:rgba(0,0,0,0.03); border-radius:8px;">
                 <div style="font-size:0.82rem; font-weight:bold; margin-bottom:6px;">${contact.icon} ${lang === 'en' ? contact.name_en : contact.name_cs}</div>`;
             contact.topics.forEach(function (topic) {
+                if (topic.hideIf && topic.hideIf()) return;
                 const label = lang === 'en' ? topic.label_en : topic.label_cs;
                 const cost = topic.cost || {};
                 const canAfford = pigeonsAvailable >= (cost.pigeon || 0) && paper >= (cost.paper || 0) && ink >= (cost.ink || 0);
@@ -43058,6 +43148,14 @@ const AbbotSystem = {
                 <div style="font-size:0.8rem; margin-top:10px; padding-top:10px; border-top:1px solid rgba(197,160,89,0.2);">
                     ${this._favorFuzzy(favor, isCs)}
                 </div>
+                ${(() => {
+                    const heat = Math.round((GameState.secrets && GameState.secrets.inquisitionHeat) || 0);
+                    const color = heat >= 60 ? '#c0392b' : heat >= 30 ? '#c5a059' : '#5a9a5a';
+                    return `<div style="font-size:0.78rem; margin-top:8px;">
+                        👁️ ${isCs ? 'Podezření' : 'Suspicion'}: <strong style="color:${color};">${heat}/100</strong>
+                        <span style="opacity:0.6; font-style:italic;"> — ${isCs ? 'vysoké podezření drží opata pryč, v Olomouci' : 'high suspicion keeps the abbot away, in Olomouc'}</span>
+                    </div>`;
+                })()}
             </div>
             ${this._chroniconLiveSection(isCs)}
             ${(() => {
@@ -63783,6 +63881,42 @@ const Game = {
         // TODO: relikvie — item přijde s vizitací / Porta biskupským řetězem
     },
 
+    // vrchcaby-hrich-mrd (15.8.2026): almužna za groše, cílí na inquisitionHeat
+    // (veřejné gesto — chladí podezření), ne na Zbožnost (to řeší existující
+    // item-based Dary výše, +1 flat). Cena za bod roste s velikostí, ať
+    // bohatství neumaže podezření zadarmo.
+    PENANCE_TIERS: {
+        small:  { cost: 15,  heatCool: 8  },
+        medium: { cost: 40,  heatCool: 20 },
+        large:  { cost: 100, heatCool: 45 },
+    },
+
+    templumPenance: function(tier) {
+        if (typeof TemplumSystem === 'undefined' || !TemplumSystem.isUnlocked()) return;
+        const p = this.PENANCE_TIERS[tier];
+        if (!p) return;
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        if (typeof CellariumSystem === 'undefined' || CellariumSystem.getGrose() < p.cost) {
+            UI.notify('⚠️ Non habes sufficiens!', true); return;
+        }
+        CellariumSystem.spendGrose(p.cost);
+        if (!GameState.secrets) GameState.secrets = {};
+        GameState.secrets.inquisitionHeat = Math.max(0, (GameState.secrets.inquisitionHeat || 0) - p.heatCool);
+        if (!GameState.templum) GameState.templum = {};
+        GameState.templum.lastDonation = { id: 'penance_' + tier, ts: Date.now() };
+        Game._templumLog({ type: 'donation', itemId: 'penance_' + tier, influence: 0, heatCool: p.heatCool });
+        Game.save();
+        UI.notify('📿 ' + (lang==='en'
+            ? 'Alms given — suspicion cooled by ' + p.heatCool + '.'
+            : 'Almužna dána — podezření sníženo o ' + p.heatCool + '.'));
+        Game.addKronikaEntry('minor',
+            '📿 Almužna do Templa — ' + p.cost + ' grošů.',
+            '📿 Alms to the Temple — ' + p.cost + ' groschen.',
+            '📿 Eleemosyna templo data.');
+        const el = document.getElementById('home-templum-content');
+        if (el && typeof TemplumSystem !== 'undefined') el.innerHTML = TemplumSystem.renderTemplumTab();
+    },
+
     templumDonate: function(itemId) {
         if (typeof TemplumSystem === 'undefined' || !TemplumSystem.isUnlocked()) return;
         const d = this.TEMPLUM_DONATIONS[itemId];
@@ -63965,6 +64099,7 @@ const Game = {
     // inquisitionHeat víc než Cesta A (Elixir Purgationis).
     confessHeresy: function() {
         if (!(GameState.health && GameState.health.active && GameState.health.active['haeresis_occulta'])) return;
+        if ((GameState.abbotLocation || 'present') !== 'present') return;
         if (typeof NotificationSystem === 'undefined' || !NotificationSystem.modal) return;
         const lang = (GameState.settings && GameState.settings.language) || 'cs';
         const cool = (amount) => { if (GameState.secrets) GameState.secrets.inquisitionHeat = Math.max(0, (GameState.secrets.inquisitionHeat || 0) - amount); };
