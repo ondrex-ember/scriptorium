@@ -15009,13 +15009,19 @@ const ContactsDB = {
 // ─────────────────────────────────────────────────────────────
 // GuildsDB — Cechy: městská regulace mimo klášterní zdi
 // MRD: cechy-a-prava-mrd.md §3, chronicon-cechy-mrd.md (schváleno)
-// K1: infrastruktura. Hra tento soubor zatím NEČTE. Žádná mechanika.
+// K1: infrastruktura, K2: read-only status panel (CellariumSystem).
 //
-// DŮLEŽITÉ: id klíče MUSÍ sedět 1:1 s Chronicon data/guilds.js —
-// `relation`/`pravo` jsou per-hráč (žijou tady), `tension` je sdílený
-// svět a žije v Chroniconu (ChroniconSystem._snap.guilds[id].tension).
-// Nespojovat, nekopírovat tension sem — čte se z _snap přímo, až bude
-// K2 (UI/negotiation).
+// OPRAVA (16.8.2026): relation/pravo NEPATŘÍ sem — GuildsDB je STATICKÁ
+// definice (mirror ContactsDB, který taky nedrží relation přímo).
+// Mutable per-hráč stav žije v GameState.guildRelation[id] (number,
+// lazy-init mirror GameState.contactRelation) a GameState.guildPravo[id]
+// ({status, mechanism}, lazy-init). Bez týhle opravy by GuildsDB
+// (statický soubor, přepisuje se při každym builds) ztrácel hráčův
+// postup při každym re-buildu — přesně proto to ContactsDB taky takhle
+// nedělá.
+//
+// `tension` (sdílený svět) žije v Chroniconu, čte se živě z
+// ChroniconSystem._snap.guilds[id].tension — nikdy sem nekopírovat.
 // ─────────────────────────────────────────────────────────────
 
 // Aktivní pro UI teď (cechy-a-prava-mrd.md §1) — zbytek existuje jako data,
@@ -15023,49 +15029,17 @@ const ContactsDB = {
 const GUILDS_ACTIVE = ['mlynarsky', 'truhlarsky', 'kolarsky', 'kovarsky'];
 
 const GuildsDB = {
-    mlynarsky: {
-        name: 'Mlynářský cech', name_en: "The Millers' Guild",
-        relation: 0,
-        pravo: { status: 'none', mechanism: null }, // mechanism: 'privilegium' | 'klasterni_dvur' | 'veletrh'
-    },
-    truhlarsky: {
-        name: 'Truhlářský cech', name_en: "The Cabinetmakers' Guild",
-        relation: 0,
-        pravo: { status: 'none', mechanism: null },
-    },
-    kolarsky: {
-        name: 'Kolářský cech', name_en: "The Wheelwrights' Guild",
-        relation: 0,
-        pravo: { status: 'none', mechanism: null },
-    },
-    kovarsky: {
-        name: 'Kovářský a hamernický cech', name_en: "The Smiths' and Forgemasters' Guild",
-        relation: 0,
-        pravo: { status: 'none', mechanism: null },
-    },
+    mlynarsky:  { name: 'Mlynářský cech',            name_en: "The Millers' Guild" },
+    truhlarsky: { name: 'Truhlářský cech',            name_en: "The Cabinetmakers' Guild" },
+    kolarsky:   { name: 'Kolářský cech',              name_en: "The Wheelwrights' Guild" },
+    kovarsky:   { name: 'Kovářský a hamernický cech', name_en: "The Smiths' and Forgemasters' Guild" },
     // Rezerva — čeká na Furnus (Pekařský/Řeznický) a jednotlivý provozy
-    // (cechy-a-prava-mrd.md §7 rollout). Přítomný teď, ať id sedí s
-    // Chroniconem od začátku, ne až se dopíšou.
-    pekarsky: {
-        name: 'Pekařský cech', name_en: "The Bakers' Guild",
-        relation: 0,
-        pravo: { status: 'none', mechanism: null },
-    },
-    reznicky: {
-        name: 'Řeznický cech', name_en: "The Butchers' Guild",
-        relation: 0,
-        pravo: { status: 'none', mechanism: null },
-    },
-    zlatnicky: {
-        name: 'Zlatnický cech', name_en: "The Goldsmiths' Guild",
-        relation: 0,
-        pravo: { status: 'none', mechanism: null },
-    },
-    kozeluzsky: {
-        name: 'Koželužský cech', name_en: "The Tanners' Guild",
-        relation: 0,
-        pravo: { status: 'none', mechanism: null },
-    },
+    // (cechy-a-prava-mrd.md §7 rollout). ID přítomná už teď, ať sedí
+    // s Chroniconem od začátku, ne až se dopíšou.
+    pekarsky:   { name: 'Pekařský cech',              name_en: "The Bakers' Guild" },
+    reznicky:   { name: 'Řeznický cech',              name_en: "The Butchers' Guild" },
+    zlatnicky:  { name: 'Zlatnický cech',             name_en: "The Goldsmiths' Guild" },
+    kozeluzsky: { name: 'Koželužský cech',            name_en: "The Tanners' Guild" },
 };
 // ═══ src/systems/theme.js ═══
 const ThemeSystem = {
@@ -24387,15 +24361,19 @@ const CellariumSystem = {
   },
 
   // Cechy — cechy-a-prava-mrd.md §3 / chronicon-cechy-mrd.md. Read-only
-  // status teď (K2 začátek) — `relation` zůstává 0, dokud nepřijde
-  // mechanismus jak ho zvednout (K3, TBD). `tension` se čte živě z
-  // Chroniconu, NIKDY se lokálně neukládá/nekopíruje — je to sdílený
-  // svět, ne hráčův stav. Jen 4 MVP aktivní cechy (GUILDS_ACTIVE),
-  // zbytek existuje v datech, ale nezobrazuje se, dokud nepřijde Furnus.
+  // status (K2). Mutable stav (relation/pravo) žije v GameState.
+  // guildRelation/guildPravo, NE v GuildsDB (ten je statická definice,
+  // mirror ContactsDB — viz oprava 16.8.2026 v data/guilds.js).
+  // `tension` se čte živě z Chroniconu, NIKDY se lokálně neukládá —
+  // je to sdílený svět, ne hráčův stav. Jen 4 MVP aktivní cechy
+  // (GUILDS_ACTIVE), zbytek existuje v datech, ale nezobrazuje se,
+  // dokud nepřijde Furnus.
   renderCechyStatus: function(lang) {
     if (typeof GuildsDB === 'undefined' || typeof GUILDS_ACTIVE === 'undefined') return '';
     const snap = (typeof ChroniconSystem !== 'undefined' && ChroniconSystem._snap) ? ChroniconSystem._snap : null;
     const worldGuilds = (snap && snap.guilds) || null;
+    const guildRelation = GameState.guildRelation || {};
+    const guildPravo    = GameState.guildPravo || {};
 
     let rows = '';
     GUILDS_ACTIVE.forEach(id => {
@@ -24404,14 +24382,16 @@ const CellariumSystem = {
       const name = lang === 'en' ? g.name_en : g.name;
       const tension = (worldGuilds && worldGuilds[id]) ? Math.round(worldGuilds[id].tension) : null;
       const tensionLabel = tension === null ? (lang === 'en' ? 'unknown' : 'neznámo') : `${tension}/100`;
+      const rel = guildRelation[id] || 0;
+      const pravoStatus = (guildPravo[id] && guildPravo[id].status) || 'none';
       const pravoLabels = {
         none:        lang === 'en' ? 'none'      : 'žádné',
         negotiating: lang === 'en' ? 'in talks'   : 'vyjednává se',
         granted:     lang === 'en' ? 'granted'    : 'uděleno',
       };
-      const pravoLabel = pravoLabels[g.pravo.status] || g.pravo.status;
+      const pravoLabel = pravoLabels[pravoStatus] || pravoStatus;
       rows += `<div style="display:flex; justify-content:space-between; font-size:0.74rem; opacity:0.8; padding:2px 0;">
-        <span>${name}</span>
+        <span>${name} (${lang === 'en' ? 'relation' : 'vztah'} ${rel}/100)</span>
         <span>${lang === 'en' ? 'tension' : 'napětí'} ${tensionLabel} · ${lang === 'en' ? 'right' : 'právo'}: ${pravoLabel}</span>
       </div>`;
     });
@@ -42714,6 +42694,15 @@ const CommitmentsSystem = {
                 if (!GameState.contactRelation) GameState.contactRelation = {};
                 const cur = GameState.contactRelation[raw.actorId] || 0;
                 GameState.contactRelation[raw.actorId] = Math.max(0, Math.min(100, cur + item.contactRelationReward));
+            }
+            // Cechy (cechy-a-prava-mrd.md §3, K3, 16.8.2026) — stejná odměna,
+            // jiný cíl. guildRelationReward odlišuje od Clientela kontaktů
+            // (item.contactRelationReward zůstává jen pro ContactsDB, ať se
+            // dva různé systémy nepletou přes stejné klíče v datech).
+            if (item.guildRelationReward && typeof GuildsDB !== 'undefined' && GuildsDB[raw.actorId]) {
+                if (!GameState.guildRelation) GameState.guildRelation = {};
+                const cur = GameState.guildRelation[raw.actorId] || 0;
+                GameState.guildRelation[raw.actorId] = Math.max(0, Math.min(100, cur + item.guildRelationReward));
             }
             // Pověst (povest-frakcni-reputace-mrd.md) — Kategorie A→lidovost, B→slechta
             if (item.reputationKey && typeof PersonaSystem !== 'undefined' && PersonaSystem.addReputation) {
