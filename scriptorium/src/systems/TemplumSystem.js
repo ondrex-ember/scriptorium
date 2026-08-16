@@ -53,7 +53,16 @@ const TemplumSystem = {
     _donationHistoryHtml: function(lang) {
         const entries = this._logEntries('donation', 5);
         if (!entries.length) return '';
+        const penanceNames = {
+            penance_small:  lang==='en' ? 'Small alms'  : 'Malá almužna',
+            penance_medium: lang==='en' ? 'Medium alms' : 'Střední almužna',
+            penance_large:  lang==='en' ? 'Large alms'  : 'Velká almužna',
+        };
         const rows = entries.map(e => {
+            if (penanceNames[e.itemId]) {
+                const cool = e.heatCool || 0;
+                return `<div style="font-size:0.68rem; opacity:0.65; margin-top:2px;">${penanceNames[e.itemId]} — ${lang==='en'?'suspicion':'podezření'} −${cool} · ${this._timeAgo(e.ts, lang)}</div>`;
+            }
             const nm = (typeof iName === 'function') ? iName(e.itemId) : e.itemId;
             return `<div style="font-size:0.68rem; opacity:0.65; margin-top:2px;">${nm} — Ecclesia +${e.influence} · ${this._timeAgo(e.ts, lang)}</div>`;
         }).join('');
@@ -495,7 +504,7 @@ const TemplumSystem = {
                               : (lang==='en'?'turned away':'odmítnut')) : null;
         h += `<div style="padding:12px; background:rgba(255,255,255,0.4); border:1px solid rgba(197,160,89,0.25); border-radius:8px;">
                 <div style="font-size:1.5rem; margin-bottom:4px;">🙏</div>
-                <div style="font-weight:bold; font-size:0.82rem;">${lang==='en'?'Confession':'Zpověď'}</div>
+                <div style="font-weight:bold; font-size:0.82rem;">${lang==='en'?'Confessional':'Zpovědnice'}</div>
                 <div style="font-size:0.7rem; margin-top:5px; opacity:0.75;">⏳ ${lang==='en'?'next penitent in':'další zpovědník za'} ${confDays} d</div>
                 ${this._confessionHistoryHtml(lang)}
                 <div style="font-size:0.62rem; opacity:0.55; font-style:italic; margin-top:5px;">${lang==='en'?'the countryside comes to confess · your word weighs':'kraj se přichází vyznat · tvé slovo má váhu'}</div>
@@ -507,9 +516,12 @@ const TemplumSystem = {
         const waxN = inv['beeswax'] || 0;
         const crayfishN = inv['crayfish_boiled'] || 0;
         const ld = t.lastDonation;
+        const curZboznost = (GameState.persona && GameState.persona.zboznost) || 0;
+        const curHeat = Math.round((GameState.secrets && GameState.secrets.inquisitionHeat) || 0);
         h += `<div style="padding:12px; background:rgba(255,255,255,0.4); border:1px solid rgba(197,160,89,0.25); border-radius:8px;">
                 <div style="font-size:1.5rem; margin-bottom:4px;">📿</div>
                 <div style="font-weight:bold; font-size:0.82rem;">${lang==='en'?'Offerings':'Dary'}</div>
+                <div style="font-size:0.68rem; opacity:0.7; margin-top:3px; margin-bottom:4px;">🙏 ${lang==='en'?'Piety':'Zbožnost'}: <strong>${curZboznost}/100</strong> &nbsp; 👁️ ${lang==='en'?'Suspicion':'Podezření'}: <strong style="color:${curHeat>=60?'#c0392b':curHeat>=30?'#c5a059':'#5a9a5a'};">${curHeat}/100</strong></div>
                 <div style="display:flex; align-items:center; gap:6px; font-size:0.7rem; margin-top:5px;">
                   <span style="flex:1;">📿 ${lang==='en'?'Paternoster beads':'Páteříky'} (${beadsN}) → +5</span>
                   <button class="craft-btn" style="padding:2px 8px; font-size:0.66rem;" ${beadsN >= 1 ? '' : 'disabled'} onclick="Game.templumDonate('paternoster_beads')">${lang==='en'?'Offer':'Darovat'}</button>

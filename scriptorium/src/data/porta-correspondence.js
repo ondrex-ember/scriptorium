@@ -51,6 +51,34 @@ const OutgoingLettersDB = [
                     notify_cs: 'Dorazilo: 3× Papír z opatovy sbírky.',
                     notify_en: 'Arrived: 3× Paper from the Abbot\'s collection.'
                 }
+            },
+            {
+                // vrchcaby-hrich-mrd (15.8.2026): žádost o návštěvu, potřeba pro
+                // osobní zpověď (presence gate). Skrytá, když je opat už tu.
+                id: 'opat_pozadat_navstevu',
+                label_cs: 'Požádat opata o návštěvu',
+                label_en: "Ask the Abbot to visit",
+                cost: { pigeon: 1, paper: 1, ink: 1 },
+                travelHours: function () {
+                    return (GameState.abbotLocation === 'traveling') ? 24 : 60;
+                },
+                riskLoss: 0.05,
+                hideIf: function () {
+                    return GameState.abbotLocation === 'present';
+                },
+                reply: {
+                    title_cs: 'Odpověď Opata',
+                    title_en: 'Reply from the Abbot',
+                    text_cs: '„Bratře, vyslyšel jsem tvé volání a vydávám se na cestu do kláštera. Buď trpělivý — cesty jsou, jaké jsou. — Opat"',
+                    text_en: '"Brother, I have heard your call and set out for the monastery. Be patient — the roads are as they are. — The Abbot"',
+                    effect: function () {
+                        GameState.abbotLocation = 'present';
+                        GameState.abbotLocationNextTick = Date.now() + 2 * 24 * 3600000;
+                        if (typeof AbbotSystem !== 'undefined' && AbbotSystem.renderPill) AbbotSystem.renderPill();
+                    },
+                    notify_cs: 'Opat dorazil do kláštera.',
+                    notify_en: 'The Abbot has arrived at the monastery.'
+                }
             }
         ]
     },

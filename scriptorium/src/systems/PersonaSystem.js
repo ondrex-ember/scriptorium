@@ -540,9 +540,21 @@ const PersonaSystem = {
                 // Haeresis Occulta MRD — Cesta B, dedikovaná mimo villager zpověď
                 let confessLine = '';
                 if (id === 'haeresis_occulta') {
-                    confessLine = `<button onclick="Game.confessHeresy()" class="craft-btn" style="margin-top:8px; font-size:0.75rem;">
-                        🙏 ${lang==='en'?'Confess to the Abbot':'Vyznat se opatovi'}
-                    </button>`;
+                    // vrchcaby-hrich-mrd (15.8.2026): presence gate — zpověď vyžaduje
+                    // opata fyzicky v klášteře, mirror stejné podmínky u nové hazardní zpovědi.
+                    const abbotPresent = (GameState.abbotLocation || 'present') === 'present';
+                    if (abbotPresent) {
+                        confessLine = `<button onclick="Game.confessHeresy()" class="craft-btn" style="margin-top:8px; font-size:0.75rem;">
+                            🙏 ${lang==='en'?'Confess to the Abbot':'Vyznat se opatovi'}
+                        </button>`;
+                    } else {
+                        confessLine = `<div style="margin-top:8px; font-size:0.72rem; opacity:0.7; font-style:italic;">
+                            ${lang==='en'?'The Abbot is not at the monastery.':'Opat není v klášteře.'}
+                        </div>
+                        <button onclick="UI.switchLoreTab('porta')" class="craft-btn" style="margin-top:4px; font-size:0.72rem; opacity:0.85;">
+                            🕊️ ${lang==='en'?'Ask him to visit (Porta)':'Požádat o návštěvu (Porta)'}
+                        </button>`;
+                    }
                 }
 
                 return `<div style="padding:12px 14px;margin-bottom:10px;background:rgba(197,160,89,0.08);border-left:3px solid var(--accent-gold);border-radius:6px;">
@@ -672,6 +684,26 @@ const PersonaSystem = {
             </div>`;
         };
 
+        // vrchcaby-hrich-mrd (15.8.2026): pro Podezření je vysoká hodnota ŠPATNĚ
+        // (opak ostatních barů) — barva invertovaná: nízko=zelená, vysoko=červená.
+        const barDanger = (icon, name, value, desc) => {
+            const pct = Math.min(100, Math.round(value || 0));
+            const color = pct >= 60 ? '#c0392b' : pct >= 30 ? 'var(--accent-gold)' : '#5a9a5a';
+            return `<div style="margin-bottom:12px;padding:12px;background:var(--bg-card);border:1px solid rgba(197,160,89,0.2);border-radius:8px;">
+                <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+                    <span style="font-size:1.3rem;">${icon}</span>
+                    <div style="flex:1;">
+                        <div style="font-weight:bold;font-size:0.88rem;">${name}</div>
+                        <div style="font-size:0.74rem;opacity:0.65;font-style:italic;">${desc}</div>
+                    </div>
+                    <strong style="color:${color};">${pct}/100</strong>
+                </div>
+                <div style="height:5px;background:rgba(0,0,0,0.1);border-radius:3px;">
+                    <div style="height:100%;width:${pct}%;background:${color};border-radius:3px;transition:width 0.4s;"></div>
+                </div>
+            </div>`;
+        };
+
         let h = `<div style="font-size:0.75rem;font-weight:bold;letter-spacing:0.06em;text-transform:uppercase;opacity:0.55;margin-bottom:10px;">${lang==='en'?'NPC relations':'Vztahy s NPC'}</div>`;
 
         h += bar('🖋️', lang==='en'?'Master Bartoloměj':'Mistr Bartoloměj',
@@ -715,6 +747,9 @@ const PersonaSystem = {
         h += bar('🙏', lang==='en'?'Piety':'Zbožnost',
             (GameState.persona && GameState.persona.zboznost) || 0,
             lang==='en'?'Personal, inward — distinct from Church (institutional). Grows through Mass, confession, quiet endurance.':'Osobní, vnitřní — odlišné od Církve (institucionální). Roste mší, zpovědí, tichou vytrvalostí.', false);
+        h += barDanger('👁️', lang==='en'?'Suspicion':'Podezření',
+            (GameState.secrets && GameState.secrets.inquisitionHeat) || 0,
+            lang==='en'?'What the world notices — high suspicion draws the Inquisition, keeps the Abbot away.':'Co si svět všímá — vysoké podezření přitahuje inkvizici, drží opata pryč.');
 
         // Clientela — jen promítnutí souhrnu; ovládání a jednání probíhá v Saeculum → Clientela
         const clientelaTier = (typeof RankSystem !== 'undefined' && RankSystem.getSecularRankTier) ? RankSystem.getSecularRankTier() : 1;

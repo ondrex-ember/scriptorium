@@ -53,9 +53,10 @@ const PortaSystem = {
 
         const now = Date.now();
         const lost = Math.random() < (topic.riskLoss || 0);
+        const travelHours = typeof topic.travelHours === 'function' ? topic.travelHours() : (topic.travelHours || 24);
         GameState.letters.outgoing.push({
             contactId: contactId, topicId: topicId,
-            sentAt: now, arrivesAt: now + (topic.travelHours || 24) * 3600000,
+            sentAt: now, arrivesAt: now + travelHours * 3600000,
             lost: lost
         });
 
@@ -149,6 +150,7 @@ const PortaSystem = {
             h += `<div style="margin-bottom:10px; padding:8px 10px; background:rgba(0,0,0,0.03); border-radius:8px;">
                 <div style="font-size:0.82rem; font-weight:bold; margin-bottom:6px;">${contact.icon} ${lang === 'en' ? contact.name_en : contact.name_cs}</div>`;
             contact.topics.forEach(function (topic) {
+                if (topic.hideIf && topic.hideIf()) return;
                 const label = lang === 'en' ? topic.label_en : topic.label_cs;
                 const cost = topic.cost || {};
                 const canAfford = pigeonsAvailable >= (cost.pigeon || 0) && paper >= (cost.paper || 0) && ink >= (cost.ink || 0);

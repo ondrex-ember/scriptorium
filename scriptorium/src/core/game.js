@@ -5608,7 +5608,7 @@ const Game = {
         GameState.secrets.inquisitionHeat = Math.max(0, (GameState.secrets.inquisitionHeat || 0) - p.heatCool);
         if (!GameState.templum) GameState.templum = {};
         GameState.templum.lastDonation = { id: 'penance_' + tier, ts: Date.now() };
-        Game._templumLog({ type: 'donation', itemId: 'penance_' + tier, influence: 0 });
+        Game._templumLog({ type: 'donation', itemId: 'penance_' + tier, influence: 0, heatCool: p.heatCool });
         Game.save();
         UI.notify('📿 ' + (lang==='en'
             ? 'Alms given — suspicion cooled by ' + p.heatCool + '.'
@@ -5803,6 +5803,7 @@ const Game = {
     // inquisitionHeat víc než Cesta A (Elixir Purgationis).
     confessHeresy: function() {
         if (!(GameState.health && GameState.health.active && GameState.health.active['haeresis_occulta'])) return;
+        if ((GameState.abbotLocation || 'present') !== 'present') return;
         if (typeof NotificationSystem === 'undefined' || !NotificationSystem.modal) return;
         const lang = (GameState.settings && GameState.settings.language) || 'cs';
         const cool = (amount) => { if (GameState.secrets) GameState.secrets.inquisitionHeat = Math.max(0, (GameState.secrets.inquisitionHeat || 0) - amount); };

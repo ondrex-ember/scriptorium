@@ -469,6 +469,14 @@ const AbbotSystem = {
                 <div style="font-size:0.8rem; margin-top:10px; padding-top:10px; border-top:1px solid rgba(197,160,89,0.2);">
                     ${this._favorFuzzy(favor, isCs)}
                 </div>
+                ${(() => {
+                    const heat = Math.round((GameState.secrets && GameState.secrets.inquisitionHeat) || 0);
+                    const color = heat >= 60 ? '#c0392b' : heat >= 30 ? '#c5a059' : '#5a9a5a';
+                    return `<div style="font-size:0.78rem; margin-top:8px;">
+                        👁️ ${isCs ? 'Podezření' : 'Suspicion'}: <strong style="color:${color};">${heat}/100</strong>
+                        <span style="opacity:0.6; font-style:italic;"> — ${isCs ? 'vysoké podezření drží opata pryč, v Olomouci' : 'high suspicion keeps the abbot away, in Olomouc'}</span>
+                    </div>`;
+                })()}
             </div>
             ${this._chroniconLiveSection(isCs)}
             ${(() => {
