@@ -1,5 +1,5 @@
 // ═══════════════════════════════════════════════════════════════════════════════
-// TAVERN DICE SYSTEM — Vrhcáby & Středověký Hazard v Hospodě
+// TAVERN DICE SYSTEM — Středověký Hazard v Hospodě
 // 3 historical dice games: Hazard (2d6 Craps), Passage (3d6), Zara (3d6)
 // ═══════════════════════════════════════════════════════════════════════════════
 
@@ -30,6 +30,44 @@ const TavernDice = {
                7: 12, 14: 12, 8: 8.7, 13: 8.7, 9: 7.3, 12: 7.3, 10: 6.8, 11: 6.8 },
   getZaraMult: function(target) {
     return this.ZARA_MULT[target] || 6.8;
+  },
+
+  // vrchcaby-hrich-mrd (15.8.2026): hřích a podezření z hazardu, volané jednou
+  // za DOKONČENÉ kolo (ne za mezistavy Hazardu jako Chance-continues).
+  // Zbožnost (soukromé svědomí) — jen za PROHRU, škáluje se mírně se sázkou.
+  // inquisitionHeat (sdílená nádrž — Athanor hereze/dopisy/Commitments) —
+  // roste NEZÁVISLE na výsledku (za pouhou účast), plus navíc při velkém
+  // výkyvu (výhra i prohra > 50g v kole).
+  _settleGamblingConsequences: function(won, payout) {
+    if (typeof PersonaSystem !== 'undefined' && PersonaSystem.addZboznost && !won) {
+      PersonaSystem.addZboznost(this.bet >= 20 ? -2 : -1);
+    }
+    if (!GameState.secrets) return;
+    const net = won ? (payout - this.bet) : this.bet;
+    let heat = 0.5;
+    if (net > 50) heat += won ? 5 : 3;
+    GameState.secrets.inquisitionHeat = Math.min(100, (GameState.secrets.inquisitionHeat || 0) + heat);
+    this._checkGamblingHeatThreshold();
+  },
+
+  _checkGamblingHeatThreshold: function() {
+    const heat = GameState.secrets.inquisitionHeat || 0;
+    if (!GameState.secrets.gamblingHeatNotified) GameState.secrets.gamblingHeatNotified = {};
+    const notified = GameState.secrets.gamblingHeatNotified;
+    [30, 50, 80].forEach(threshold => {
+      if (heat >= threshold && !notified[threshold]) {
+        notified[threshold] = true;
+        if (typeof VigorSystem !== 'undefined' && VigorSystem.addFatigue) VigorSystem.addFatigue(5);
+        if (typeof Game !== 'undefined' && Game.addKronikaEntry) {
+          Game.addKronikaEntry('minor',
+            '🎲 Bratři si šeptají o tvých kostkách u Benedikta.',
+            "🎲 The brothers whisper about your dice at Benedikt's table.",
+            '🎲 Fratres de aleis tuis susurrant.');
+        }
+      } else if (heat < threshold && notified[threshold]) {
+        notified[threshold] = false;
+      }
+    });
   },
 
   // Web Audio sound effects for dice rolling
@@ -184,6 +222,9 @@ const TavernDice = {
     setTimeout(() => {
       this.isRolling = false;
       this.evaluateGame();
+      if (this.lastResult && this.lastResult.win !== null) {
+        this._settleGamblingConsequences(this.lastResult.win, this.lastResult.payout);
+      }
       if (typeof Game !== 'undefined' && Game.save) Game.save();
       this.render();
     }, 1200);
@@ -398,7 +439,7 @@ const TavernDice = {
         <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid rgba(197, 160, 89, 0.4); padding-bottom: 12px; margin-bottom: 16px;">
           <div>
             <h3 style="margin: 0; color: #e6c687; font-size: 1.2rem; display: flex; align-items: center; gap: 8px;">
-              🎲 <span>${lang==='en'?'Medieval Dice Gambling':'Středověký Hazard & Vrhcáby'}</span>
+              🎲 <span>${lang==='en'?'Medieval Dice Gambling':'Středověký Hazard'}</span>
             </h3>
             <div style="font-size: 0.78rem; color: #a89474; margin-top: 3px; font-style: italic;">
               "Surová krčemní hra v kostky. Vsaď, kolik odvahy máš — i celý měšec grošů."

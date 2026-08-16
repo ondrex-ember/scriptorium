@@ -1362,7 +1362,7 @@ const CellariumSystem = {
           🍺 ${lang==='en'?'Tavern Store':'Šenk & Obchod'}
         </button>
         <button class="filter-btn${sub==='dice'?' active':''}" onclick="GameState.ui.tavernSubtab='dice'; SaeculumSystem.switchEntity('tavern');" style="padding:6px 14px; font-weight:bold; background:${sub==='dice'?'var(--accent-gold)':'rgba(197,160,89,0.1)'}; color:${sub==='dice'?'#000':'var(--ink-primary)'};">
-          🎲 ${lang==='en'?'Gambling Table':'Hazardní Stůl & Vrhcáby'}
+          🎲 ${lang==='en'?'Gambling Table':'Hazardní Stůl'}
         </button>
       </div>
       `;
