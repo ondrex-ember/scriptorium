@@ -2483,6 +2483,40 @@ const CellariumSystem = {
       </div>`;
     }
 
+    // Vodní mlýn — mlynar-vlastni-mlyn-mrd.md §4.9 (v1.3, 16.8.2026).
+    // Zobrazí se, jakmile je mlynsky_nahon vlastněná (i před tím jako
+    // hint, ať hráč ví proč to tam chybí — mirror "otevřená mezera"
+    // principu, ne skrytá podmínka).
+    const _mlynParcelOwned = GameState.landParcels && GameState.landParcels.mlynsky_nahon && GameState.landParcels.mlynsky_nahon.status === 'owned';
+    if (GameState.flags && GameState.flags.pozemky_active) {
+      const _m = (GameState.storage && GameState.storage.mlyn) || { tier: -1 };
+      const _mTier = (typeof _m.tier === 'number') ? _m.tier : -1;
+      h += `<div style="padding:12px 14px; margin-bottom:14px; background:rgba(197,160,89,0.06); border-radius:8px; border-left:3px solid var(--accent-gold);">`;
+      h += `<div style="font-weight:bold; font-size:0.9rem; margin-bottom:6px;">🏛️ ${lang === 'en' ? 'Water Mill' : 'Vodní mlýn'}</div>`;
+      if (!_mlynParcelOwned) {
+        h += `<div style="font-size:0.78rem; opacity:0.6; font-style:italic;">${lang === 'en' ? 'Requires the Mill Race parcel (Cellarium → Land).' : 'Vyžaduje vlastněnou parcelu Mlýnský náhon (Cellarium → Pozemky).'}</div>`;
+      } else if (_m.buildUntil) {
+        const hoursLeft = Math.max(0, Math.ceil((_m.buildUntil - Date.now()) / 3600000));
+        const buildingName = lang === 'en' ? Game.MLYN_TIERS[_m.buildTargetTier].name_en : Game.MLYN_TIERS[_m.buildTargetTier].name;
+        h += `<div style="font-size:0.78rem; opacity:0.7;">⏳ ${lang === 'en' ? `Building ${buildingName}, ~${hoursLeft}h` : `Staví se ${buildingName}, ~${hoursLeft}h`}</div>`;
+      } else if (_mTier >= Game.MLYN_TIERS.length - 1) {
+        h += `<div style="font-size:0.78rem;">✅ ${lang === 'en' ? 'Complete: The Mechanism' : 'Dokončeno: Mechanismus'}</div>`;
+      } else {
+        const next = Game.MLYN_TIERS[_mTier + 1];
+        const nextName = lang === 'en' ? next.name_en : next.name;
+        const curLabel = _mTier === -1 ? (lang==='en'?'not started':'nezahájeno') : (lang === 'en' ? Game.MLYN_TIERS[_mTier].name_en : Game.MLYN_TIERS[_mTier].name);
+        const matsStr = Object.entries(next.materials).map(([id, qty]) => `${qty}× ${(typeof iName === 'function') ? iName(id) : id}`).join(', ');
+        const blocked = next.needsSekernik;
+        h += `<div style="font-size:0.78rem; opacity:0.7; margin-bottom:6px;">${lang === 'en' ? 'Current' : 'Aktuálně'}: ${curLabel} → ${nextName} (${next.cost}g, ${matsStr})</div>`;
+        if (blocked) {
+          h += `<div style="font-size:0.72rem; opacity:0.5; font-style:italic;">🔨 ${lang === 'en' ? 'Needs the millwright — not yet available.' : 'Potřebuje sekerníka — zatím není k dispozici.'}</div>`;
+        } else {
+          h += `<button onclick="Game.upgradeMlynTier()" class="craft-btn" style="font-size:0.78rem;">🏗️ ${lang === 'en' ? 'Build' : 'Postavit'}</button>`;
+        }
+      }
+      h += `</div>`;
+    }
+
     if (!hasCarp) {
       h += `<div style="text-align:center; padding:20px; opacity:0.6; border:1px dashed rgba(197,160,89,0.3); border-radius:8px;">
         <div style="font-size:2rem; margin-bottom:8px;">🪚</div>

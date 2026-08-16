@@ -415,6 +415,7 @@ const Game = {
 		Game.checkUbytovnaPetitions();
 		Game.checkGuildPetitions();
 		Game.checkLandParcels();
+		Game.checkMlynBuildComplete();
 		// Krok B — vážený denní report Clientela↔Chronicon vztahů (mirror registrum)
 		if (typeof ChroniconSystem !== 'undefined' && ChroniconSystem._reportContactRelationIfNewDay) {
 			ChroniconSystem._reportContactRelationIfNewDay();
@@ -876,6 +877,7 @@ const Game = {
                     if (typeof Game !== 'undefined' && Game.checkUbytovnaPetitions) Game.checkUbytovnaPetitions();
                     if (typeof Game !== 'undefined' && Game.checkGuildPetitions) Game.checkGuildPetitions();
                     if (typeof Game !== 'undefined' && Game.checkLandParcels) Game.checkLandParcels();
+                    if (typeof Game !== 'undefined' && Game.checkMlynBuildComplete) Game.checkMlynBuildComplete();
                     // Columbarium — denní riziko predátora (self-guarded 24h, jen level 1)
                     if (typeof FarmyardSystem !== 'undefined' && FarmyardSystem.columbariumPredatorTick) FarmyardSystem.columbariumPredatorTick();
                     // Columbarium — pasivní přírůstek do stropu 13 (self-guarded 24h, holubnik-mrd)
@@ -6305,6 +6307,84 @@ const Game = {
             '🏛️ Fabrica: ' + name + ' dokončena.',
             '🏛️ Fabrica: ' + name + ' completed.',
             '🏛️ Fabrica ecclesiae perfecta est.');
+    },
+
+    // ── VLASTNÍ VODNÍ MLÝN — mlynar-vlastni-mlyn-mrd.md §4.9 (v1.3,
+    // 16.8.2026). Mirror FABRICA_TIERS/upgradeFabrica/checkFabricaBuild
+    // Complete přesně, jedna podmínka navíc: vlastněná parcela
+    // mlynsky_nahon (pozemky-mrd.md §0.1 hard rule). tier: -1 = nic
+    // postaveno (na rozdíl od Fabrica, kde tier 0 = Kaple už existuje
+    // vždy). Tier 0 (Základy) JEDINÝ implementovanej teď — Tier 1/2
+    // (Kolo/Mechanismus, sekerník najímání) čekaj na budoucí krok,
+    // data pro ně tady jsou kompletní (§4.4/4.9), jen upgradeMlynTier
+    // je zatím nepustí dál (viz kontrola níž).
+    MLYN_TIERS: [
+        { name: 'Základy',     name_en: 'Foundations',  cost: 300, materials: { cut_stone: 100 }, buildDays: 3 },
+        { name: 'Kolo',        name_en: 'The Wheel',    cost: 350, materials: { oak_log_seasoned: 15, iron_ingot: 5 }, buildDays: 5, needsSekernik: true },
+        { name: 'Mechanismus', name_en: 'The Mechanism', cost: 350, materials: { plank: 80, iron_ingot: 5 }, buildDays: 7, needsSekernik: true },
+    ],
+
+    upgradeMlynTier: function() {
+        if (typeof CellariumSystem === 'undefined') return;
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        if (!GameState.storage) GameState.storage = {};
+        if (!GameState.storage.mlyn) GameState.storage.mlyn = { tier: -1, buildUntil: null, buildTargetTier: null };
+        const m = GameState.storage.mlyn;
+        const tier = (typeof m.tier === 'number') ? m.tier : -1;
+
+        // Pozemky hard rule (pozemky-mrd.md §0.1) — bez vlastněný parcely ani Tier 0 nejde.
+        const parcelOwned = GameState.landParcels && GameState.landParcels.mlynsky_nahon && GameState.landParcels.mlynsky_nahon.status === 'owned';
+        if (!parcelOwned) {
+            UI.notify(lang==='en' ? '❌ Requires the Mill Race parcel (owned).' : '❌ Vyžaduje vlastněnou parcelu Mlýnský náhon.', true);
+            return;
+        }
+        if (tier >= this.MLYN_TIERS.length - 1) return;
+        if (m.buildUntil) { UI.notify('⚠️ ' + (lang==='en'?'Construction already underway.':'Stavba už probíhá.'), true); return; }
+        const nextTier = tier + 1;
+        const next = this.MLYN_TIERS[nextTier];
+        // Tier 1/2 čekaj na Sekerníka (§4.6, budoucí krok) — teď zablokováno,
+        // ne tiše přeskočeno, ať je jasný, že to není bug.
+        if (next.needsSekernik) {
+            UI.notify(lang==='en' ? '🔨 This tier needs the millwright — not yet available.' : '🔨 Tahle fáze potřebuje sekerníka — zatím není k dispozici.', true);
+            return;
+        }
+        if (CellariumSystem.getGrose() < next.cost) { UI.notify('⚠️ ' + (lang==='en'?'Not enough groschen.':'Nedostatek grošů.'), true); return; }
+        for (const matId in next.materials) {
+            if ((GameState.inventory[matId] || 0) < next.materials[matId]) {
+                UI.notify('⚠️ ' + (lang==='en'?'Not enough materials.':'Nedostatek materiálu.'), true); return;
+            }
+        }
+        CellariumSystem.spendGrose(next.cost);
+        for (const matId in next.materials) this.removeItem(matId, next.materials[matId]);
+        const name = lang==='en' ? next.name_en : next.name;
+        m.buildUntil = Date.now() + next.buildDays * 24 * 60 * 60 * 1000;
+        m.buildTargetTier = nextTier;
+        Game.save();
+        UI.notifyPanel('🏗️ ' + (lang==='en'?'Construction begins: ':'Stavba začíná: ') + name + '.', 'success');
+        Game.addKronikaEntry('important',
+            '🏗️ Mlýn: stavba ' + name + ' zahájena. Potrvá ' + next.buildDays + ' dní.',
+            '🏗️ Mill: construction of ' + name + ' begun. Will take ' + next.buildDays + ' days.',
+            '🏗️ Mola aedificatur.');
+    },
+
+    checkMlynBuildComplete: function() {
+        if (!(GameState.storage && GameState.storage.mlyn)) return;
+        const m = GameState.storage.mlyn;
+        if (!m.buildUntil || Date.now() < m.buildUntil) return;
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        const targetTier = m.buildTargetTier;
+        const def = this.MLYN_TIERS[targetTier];
+        m.tier = targetTier;
+        m.buildUntil = null;
+        m.buildTargetTier = null;
+        const name = lang==='en' ? def.name_en : def.name;
+        Game.save();
+        UI.notifyPanel('🏛️ ' + (lang==='en'?'Construction complete: ':'Stavba dokončena: ') + name + '.', 'success');
+        Game.addKronikaEntry('important',
+            '🏛️ Mlýn: ' + name + ' dokončena.',
+            '🏛️ Mill: ' + name + ' completed.',
+            '🏛️ Mola perfecta est.');
+        if (typeof UI !== 'undefined' && UI.renderAll) UI.renderAll();
     },
 
     buildNahrobek: function(ts) {
