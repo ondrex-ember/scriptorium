@@ -1112,7 +1112,11 @@ const CommitmentsSystem = {
         }
         Game.removeItem(c.requiredItem.id, c.requiredItem.qty);
         if (c.reward) {
-            if (c.reward.grose && typeof CellariumSystem !== 'undefined' && CellariumSystem.addGrose) CellariumSystem.addGrose(c.reward.grose);
+            if (c.reward.grose && typeof CellariumSystem !== 'undefined' && CellariumSystem.addGrose) {
+                CellariumSystem.addGrose(c.reward.grose);
+                if (CellariumSystem.recordCommissionIncome) CellariumSystem.recordCommissionIncome(
+                    (letter.title_cs || 'Zakázka'), c.reward.grose, (letter.sender_cs || 'Skriptorium'), (letter.sender_en || 'Scriptorium'));
+            }
             if (c.reward.influenceKey && typeof PersonaSystem !== 'undefined' && PersonaSystem.addInfluence) PersonaSystem.addInfluence(c.reward.influenceKey, c.reward.influenceAmt || 0);
             // Pověst (povest-frakcni-reputace-mrd.md) — volitelné, jen pokud dopis reputationKey definuje
             if (c.reward.reputationKey && typeof PersonaSystem !== 'undefined' && PersonaSystem.addReputation) PersonaSystem.addReputation(c.reward.reputationKey, c.reward.reputationAmt || 0);
@@ -1161,7 +1165,11 @@ const CommitmentsSystem = {
                 // z bývalého _resolveAdvisory catchallu (teď mrtvý kód, viz
                 // krok 3c cleanup), žádná změna čísel.
                 const gift = Math.round((item.wealth || 60) * 1.2);
-                if (typeof CellariumSystem !== 'undefined' && CellariumSystem.addGrose) CellariumSystem.addGrose(gift);
+                if (typeof CellariumSystem !== 'undefined' && CellariumSystem.addGrose) {
+                    CellariumSystem.addGrose(gift);
+                    if (CellariumSystem.recordCommissionIncome) CellariumSystem.recordCommissionIncome(
+                        (item.title || (lang==='en'?'Right of sepulture':'Právo sepultury')), gift, 'Vrchnost', 'Nobility');
+                }
                 if (typeof PersonaSystem !== 'undefined' && PersonaSystem.addInfluence) PersonaSystem.addInfluence('church', 3);
                 if (typeof Game !== 'undefined' && Game.addKronikaEntry) Game.addKronikaEntry('important',
                     '⚱️ Právo sepultury uděleno — pohřben uvnitř kostelních zdí, za dar ' + gift + ' grošů.',
@@ -1170,7 +1178,11 @@ const CommitmentsSystem = {
                 if (typeof UI !== 'undefined') UI.notify('⚱️ ' + (lang==='en' ? 'Right of sepulture granted.' : 'Právo sepultury uděleno.'));
                 this._pushHistory({ icon: '⚱️', title: item.title, outcome: 'accept', detail: gift + (lang==='en'?' groschen':' grošů') });
             } else if (item.kind === 'material') {
-                if (typeof CellariumSystem !== 'undefined' && CellariumSystem.addGrose) CellariumSystem.addGrose(item.rewardGrose || 0);
+                if (typeof CellariumSystem !== 'undefined' && CellariumSystem.addGrose) {
+                    CellariumSystem.addGrose(item.rewardGrose || 0);
+                    if (CellariumSystem.recordCommissionIncome) CellariumSystem.recordCommissionIncome(
+                        (item.title || 'Zakázka'), (item.rewardGrose || 0), (item.actorName || 'Klášter'), (item.actorName || 'Monastery'));
+                }
                 if (typeof Game !== 'undefined' && Game.addKronikaEntry) Game.addKronikaEntry('minor',
                     '📦 Zakázka odevzdána — ' + (item.rewardGrose||0) + ' grošů.',
                     '📦 Commission delivered — ' + (item.rewardGrose||0) + ' groschen.',
@@ -1186,7 +1198,10 @@ const CommitmentsSystem = {
                     PersonaSystem.addInfluence('village', 2);
                 }
                 if (item.farniType === 'wedding' && typeof CellariumSystem !== 'undefined' && CellariumSystem.addGrose) {
-                    CellariumSystem.addGrose(5 + Math.floor(Math.random() * 10));
+                    const _wg = 5 + Math.floor(Math.random() * 10);
+                    CellariumSystem.addGrose(_wg);
+                    if (CellariumSystem.recordCommissionIncome) CellariumSystem.recordCommissionIncome(
+                        (item.title || (lang==='en'?'Wedding':'Svatba')), _wg, (lang==='en'?'Parish':'Farnost'), 'Parish');
                 }
                 if (item.farniType === 'funeral') {
                     if (!GameState.cemetery) GameState.cemetery = { condition: 100, graves: [] };
@@ -1266,7 +1281,10 @@ const CommitmentsSystem = {
                 PersonaSystem.addInfluence('village', 2);
             }
             if (item.farniType === 'wedding' && typeof CellariumSystem !== 'undefined' && CellariumSystem.addGrose) {
-                CellariumSystem.addGrose(5 + Math.floor(Math.random() * 10));
+                const _wg2 = 5 + Math.floor(Math.random() * 10);
+                CellariumSystem.addGrose(_wg2);
+                if (CellariumSystem.recordCommissionIncome) CellariumSystem.recordCommissionIncome(
+                    (item.title || (lang==='en'?'Wedding':'Svatba')), _wg2, (lang==='en'?'Parish':'Farnost'), 'Parish');
             }
             if (item.farniType === 'funeral') {
                 if (!GameState.cemetery) GameState.cemetery = { condition: 100, graves: [] };
@@ -1326,7 +1344,10 @@ const CommitmentsSystem = {
             if (item.rewardGrose && typeof CellariumSystem !== 'undefined' && CellariumSystem.addGrose) {
                 const rewardMult = (typeof ChroniconSystem !== 'undefined' && ChroniconSystem.getBuffs)
                     ? ChroniconSystem.getBuffs().abbotFavorRewardMult : 1.0;
-                CellariumSystem.addGrose(Math.round(item.rewardGrose * rewardMult));
+                const _finalGrose = Math.round(item.rewardGrose * rewardMult);
+                CellariumSystem.addGrose(_finalGrose);
+                if (CellariumSystem.recordCommissionIncome) CellariumSystem.recordCommissionIncome(
+                    (item.title || 'Zakázka'), _finalGrose, (item.actorName || 'Klášter'), (item.actorName || 'Monastery'));
             }
             // contactRelation jen pro skutečné Clientela kontakty (sklar/kovar/mlynar, Kategorie A)
             if (item.contactRelationReward && typeof ContactsDB !== 'undefined' && ContactsDB[raw.actorId]) {

@@ -41,6 +41,7 @@ const JS_MAIN = [
     'src/data/dormitorium.js',      // DormitoriumRosterDB, DormitoriumSpecializationDB
     'src/data/contacts.js',         // ContactsDB (Clientela)
     'src/data/guilds.js',           // GuildsDB (Cechy) — K1 infrastruktura
+    'src/data/land.js',             // LandParcelsDB (Pozemky) — K1 infrastruktura
 
     // Systémy
     'src/systems/theme.js',         // ThemeSystem

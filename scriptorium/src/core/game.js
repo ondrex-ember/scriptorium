@@ -413,6 +413,7 @@ const Game = {
 		// Vyhodnotit čekající žádosti po načtení
 		Game.checkAbbotPetitions();
 		Game.checkUbytovnaPetitions();
+		Game.checkGuildPetitions();
 		// Krok B — vážený denní report Clientela↔Chronicon vztahů (mirror registrum)
 		if (typeof ChroniconSystem !== 'undefined' && ChroniconSystem._reportContactRelationIfNewDay) {
 			ChroniconSystem._reportContactRelationIfNewDay();
@@ -872,6 +873,7 @@ const Game = {
                     // (7.8.2026 fix). Funkce jsou už interně self-guarded (kontrola per-petici).
                     if (typeof Game !== 'undefined' && Game.checkAbbotPetitions) Game.checkAbbotPetitions();
                     if (typeof Game !== 'undefined' && Game.checkUbytovnaPetitions) Game.checkUbytovnaPetitions();
+                    if (typeof Game !== 'undefined' && Game.checkGuildPetitions) Game.checkGuildPetitions();
                     // Columbarium — denní riziko predátora (self-guarded 24h, jen level 1)
                     if (typeof FarmyardSystem !== 'undefined' && FarmyardSystem.columbariumPredatorTick) FarmyardSystem.columbariumPredatorTick();
                     // Columbarium — pasivní přírůstek do stropu 13 (self-guarded 24h, holubnik-mrd)
@@ -6622,6 +6624,152 @@ const Game = {
         if (typeof Game !== 'undefined' && Game.save) Game.save();
     },
 
+    // Cechy — Privilegium (cechy-a-prava-mrd.md §3.1, 16.8.2026). Mirror
+    // submitUbytovnaPetition (plně inline text, ŽÁDNÝ t() — GuildsDB
+    // nemá i18n klíče a nemáme je přidávat bez aktuálních cs.js/en.js).
+    // Cena strhává se HNED při odeslání (historicky přesně — lobbing
+    // stál peníze bez ohledu na výsledek), ne až při schválení.
+    submitGuildPetition: function(guildId) {
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        if (typeof GuildsDB === 'undefined' || !GuildsDB[guildId]) return;
+        const guildName = lang === 'en' ? GuildsDB[guildId].name_en : GuildsDB[guildId].name;
+
+        if (!GameState.guildPetition) GameState.guildPetition = {};
+        if (!GameState.guildPetition[guildId]) GameState.guildPetition[guildId] = { status: 'none', submittedAt: null };
+        const pet = GameState.guildPetition[guildId];
+
+        if (pet.status === 'pending') {
+            UI.notify(lang==='en' ? '⏳ Petition already submitted. Await the Abbot\'s reply.' : '⏳ Žádost už byla odeslána. Čekej na odpověď opata.', true);
+            return;
+        }
+        if ((GameState.guildPravo && GameState.guildPravo[guildId] && GameState.guildPravo[guildId].status === 'granted')) {
+            UI.notify(lang==='en' ? '✅ This guild has already granted you the Privilege.' : '✅ Tenhle cech ti už Privilegium udělil.', true);
+            return;
+        }
+        if (!(GameState.researchedTechs && GameState.researchedTechs.includes('tech_ius_terrae'))) {
+            UI.notify(lang==='en' ? '❌ Requires the "Ius Terrae" technology.' : '❌ Vyžaduje technologii "Ius Terrae — Zemské právo".', true);
+            return;
+        }
+        const rel = (GameState.guildRelation && GameState.guildRelation[guildId]) || 0;
+        if (rel < 50) {
+            UI.notify(lang==='en' ? `❌ ${guildName} does not trust you enough yet (${rel}/50).` : `❌ ${guildName} ti ještě dost nedůvěřuje (${rel}/50).`, true);
+            return;
+        }
+        if ((GameState.inventory['zlaty_prut'] || 0) < 1) {
+            UI.notify(lang==='en' ? '❌ Requires 1 gold ingot — this must hurt.' : '❌ Vyžaduje 1 zlatý prut — musí to bolet.', true);
+            return;
+        }
+
+        Game.removeItem('zlaty_prut', 1);
+        pet.status = 'pending';
+        pet.submittedAt = Date.now();
+        if (!GameState.guildPravo) GameState.guildPravo = {};
+        GameState.guildPravo[guildId] = { status: 'negotiating', mechanism: 'privilegium' };
+
+        if (typeof UI !== 'undefined' && UI.notifyPanel) UI.notifyPanel('📜 ' + (lang==='en'
+            ? `Petition for a Privilege sent to the Abbot on ${guildName}'s behalf. Reply expected in 24h.`
+            : `Žádost o Privilegium k ${guildName} odeslána opatovi. Odpověď se čeká za 24 hodin.`), 'system');
+        if (typeof Game !== 'undefined' && Game.addKronikaEntry) Game.addKronikaEntry('important',
+            `📜 Žádost o Privilegium — ${GuildsDB[guildId].name}.`,
+            `📜 Petition for a Privilege — ${GuildsDB[guildId].name_en}.`,
+            `📜 Petitio de privilegio missa est.`);
+        if (typeof Game !== 'undefined' && Game.save) Game.save();
+        if (typeof UI !== 'undefined' && UI.renderAll) UI.renderAll();
+    },
+
+    // Cechy — Dary/úplatky (cechy-a-prava-mrd.md §3.0, K3 Cesta B, 16.8.2026).
+    // "Rychlá záchranná brzda" — okamžitej relation boost za cenu surovin,
+    // na rozdíl od Cesty A (zakázky, náhodný, levnější) je tohle na
+    // vyžádání, ale drahý a s cooldownem, ať nejde relation nafarmit
+    // spamováním. Sud piva + med + svíce = "sud prémiového piva, medovina,
+    // luxusní svíce" z historickýho podkladu, mapováno na existující itemy
+    // (žádný nový items.js záznam — surgical).
+    GUILD_GIFT_COST: { beer: 5, honey: 3, candle: 2 },
+    GUILD_GIFT_RELATION: 10,
+    GUILD_GIFT_COOLDOWN_MS: 86400000, // 24h na cech
+
+    sendGuildGift: function(guildId) {
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        if (typeof GuildsDB === 'undefined' || !GuildsDB[guildId]) return;
+        const guildName = lang === 'en' ? GuildsDB[guildId].name_en : GuildsDB[guildId].name;
+
+        if (!GameState.guildGiftCooldown) GameState.guildGiftCooldown = {};
+        const lastGift = GameState.guildGiftCooldown[guildId] || 0;
+        if (Date.now() - lastGift < Game.GUILD_GIFT_COOLDOWN_MS) {
+            const hoursLeft = Math.ceil((Game.GUILD_GIFT_COOLDOWN_MS - (Date.now() - lastGift)) / 3600000);
+            UI.notify(lang==='en' ? `⏳ ${guildName} needs time to digest the last gift (${hoursLeft}h).` : `⏳ ${guildName} ještě tráví minulej dar (${hoursLeft}h).`, true);
+            return;
+        }
+
+        for (const [item, amt] of Object.entries(Game.GUILD_GIFT_COST)) {
+            if ((GameState.inventory[item] || 0) < amt) {
+                const itemName = (typeof iName === 'function') ? iName(item) : item;
+                UI.notify((lang==='en' ? 'Not enough: ' : 'Nedostatek: ') + itemName + ' x' + amt, true);
+                return;
+            }
+        }
+        for (const [item, amt] of Object.entries(Game.GUILD_GIFT_COST)) { Game.removeItem(item, amt); }
+
+        if (!GameState.guildRelation) GameState.guildRelation = {};
+        const cur = GameState.guildRelation[guildId] || 0;
+        GameState.guildRelation[guildId] = Math.max(0, Math.min(100, cur + Game.GUILD_GIFT_RELATION));
+        GameState.guildGiftCooldown[guildId] = Date.now();
+
+        if (typeof UI !== 'undefined' && UI.notifyPanel) UI.notifyPanel('🎁 ' + (lang==='en'
+            ? `A barrel of beer, honey and fine candles sent to ${guildName}. The wheels of politics turn a little smoother.`
+            : `Sud piva, med a jemné svíce poslány cechu: ${guildName}. Politická kolečka se protočila hladčeji.`), 'success');
+        if (typeof Game !== 'undefined' && Game.addKronikaEntry) Game.addKronikaEntry('minor',
+            `🎁 Dar cechu — ${GuildsDB[guildId].name}.`,
+            `🎁 A gift to the guild — ${GuildsDB[guildId].name_en}.`,
+            `🎁 Munus collegio missum est.`);
+        if (typeof Game !== 'undefined' && Game.save) Game.save();
+        if (typeof UI !== 'undefined' && UI.renderAll) UI.renderAll();
+    },
+
+    // Pozemky — rozhovor s opatem (pozemky-mrd.md §2, v1.3, 16.8.2026).
+    // Dvoukrokovej, opakovatelnej dotaz — bez tech_regalia jen nasměruje
+    // co studovat, s techem odemyká GameState.flags.pozemky_active natrvalo.
+    // Mirror ostatních modal vzorů (NotificationSystem.modal), žádnej t().
+    askAbbotAboutLand: function() {
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        const hasTech = GameState.researchedTechs && GameState.researchedTechs.includes('tech_regalia');
+
+        if (GameState.flags && GameState.flags.pozemky_active) {
+            UI.notify(lang==='en' ? '✅ The Abbot already agreed — land is managed through the Scriptorium.' : '✅ Opat už souhlasil — pozemky spravuješ přes Scriptorium.', true);
+            return;
+        }
+
+        if (!hasTech) {
+            if (typeof NotificationSystem !== 'undefined' && NotificationSystem.modal) NotificationSystem.modal({
+                icon: '🏛️',
+                title: lang==='en' ? 'A word with the Abbot' : 'Slovo s opatem',
+                text: lang==='en'
+                    ? "\"I welcome the thought of expanding our estate,\" the Abbot says, \"but such dealings with the Lord of the Manor demand more than good will. Study the Regalia first — then we shall speak again.\""
+                    : '"Vítám myšlenku rozšířit naše panství," praví opat, "ale jednání se Zemským pánem si žádá víc než dobrou vůli. Nejdřív prostuduj Regálie — pak si znovu promluvíme."',
+                choices: [{ label: lang==='en' ? 'Understood' : 'Rozumím' }]
+            });
+            return;
+        }
+
+        if (!GameState.flags) GameState.flags = {};
+        GameState.flags.pozemky_active = true;
+
+        if (typeof NotificationSystem !== 'undefined' && NotificationSystem.modal) NotificationSystem.modal({
+            icon: '🏛️',
+            title: lang==='en' ? 'A word with the Abbot' : 'Slovo s opatem',
+            text: lang==='en'
+                ? "\"Now thou speakest with knowledge,\" the Abbot nods. \"I shall open dealings with the Lord of the Manor. Seek what land may be had in the Scriptorium — Maps.\""
+                : '"Teď mluvíš se znalostí," přikývne opat. "Zahájím jednání se Zemským pánem. Co je k mání za pozemky, hledej ve Scriptoriu — Mapy."',
+            choices: [{ label: lang==='en' ? 'Understood' : 'Rozumím' }]
+        });
+        if (typeof Game !== 'undefined' && Game.addKronikaEntry) Game.addKronikaEntry('important',
+            '🏛️ Opat zahájil jednání se Zemským pánem o rozšíření panství.',
+            '🏛️ The Abbot opened dealings with the Lord of the Manor to expand the estate.',
+            '🏛️ Abbas cum domino de ampliatione fundi agere coepit.');
+        if (typeof Game !== 'undefined' && Game.save) Game.save();
+        if (typeof UI !== 'undefined' && UI.renderAll) UI.renderAll();
+    },
+
     buildUbytovnaTier: function(tier) {
         const lang = (GameState.settings && GameState.settings.language) || 'cs';
         const cfg = Game.UBYTOVNA_TIER_COSTS[tier];
@@ -6679,6 +6827,46 @@ const Game = {
                 '📜 Opat schválil rozšíření Ubytovny.',
                 '📜 The Abbot approved the expansion of the Guesthouse.',
                 '📜 Abbas hospitii ampliationem approbavit.');
+            if (typeof Game !== 'undefined' && Game.save) Game.save();
+            if (typeof UI !== 'undefined' && UI.renderAll) UI.renderAll();
+        });
+    },
+
+    // Cechy — Privilegium schválení (cechy-a-prava-mrd.md §3.1, 16.8.2026).
+    // Mirror checkUbytovnaPetitions přesně. Re-validace relation při
+    // schválení (na rozdíl od Ubytovny) — cena (zlaty_prut) se strhla už
+    // při odeslání, ale vztah teoreticky mohl mezitím klesnout.
+    checkGuildPetitions: function() {
+        if (!GameState.guildPetition) return;
+        if (typeof GUILDS_ACTIVE === 'undefined') return;
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        const now = Date.now();
+        const DAY_MS = 86400000;
+        GUILDS_ACTIVE.forEach(guildId => {
+            const pet = GameState.guildPetition[guildId];
+            if (!pet || pet.status !== 'pending') return;
+            if (now - pet.submittedAt < DAY_MS) return;
+
+            const guildName = lang === 'en' ? GuildsDB[guildId].name_en : GuildsDB[guildId].name;
+            const rel = (GameState.guildRelation && GameState.guildRelation[guildId]) || 0;
+
+            if (rel < 50) {
+                pet.status = 'none';
+                GameState.guildPravo[guildId] = { status: 'none', mechanism: null };
+                if (typeof UI !== 'undefined' && UI.notifyPanel) UI.notifyPanel('❌ ' + (lang==='en'
+                    ? `${guildName} withdrew — trust had faded before the Abbot could conclude the matter.`
+                    : `${guildName} žádost stáhl — důvěra vyprchala dřív, než opat věc dojednal.`), 'system');
+            } else {
+                pet.status = 'approved';
+                GameState.guildPravo[guildId] = { status: 'granted', mechanism: 'privilegium' };
+                if (typeof UI !== 'undefined' && UI.notifyPanel) UI.notifyPanel('✅ ' + (lang==='en'
+                    ? `The Abbot secured a Privilege from ${guildName}.`
+                    : `Opat vyjednal Privilegium od cechu: ${guildName}.`), 'success');
+                if (typeof Game !== 'undefined' && Game.addKronikaEntry) Game.addKronikaEntry('important',
+                    `📜 Opat vyjednal Privilegium — ${GuildsDB[guildId].name}.`,
+                    `📜 The Abbot secured a Privilege — ${GuildsDB[guildId].name_en}.`,
+                    `📜 Abbas privilegium impetravit.`);
+            }
             if (typeof Game !== 'undefined' && Game.save) Game.save();
             if (typeof UI !== 'undefined' && UI.renderAll) UI.renderAll();
         });
