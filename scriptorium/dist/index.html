@@ -41899,6 +41899,74 @@ const CommitmentsSystem = {
         ],
     },
 
+    // Cechy (cechy-a-prava-mrd.md §3.0, K3 Cesta A, 16.8.2026) — mirror
+    // _VRCHNOST_ZAKAZKY_CATALOG vzoru (abstraktní odesílatel bez
+    // ContactsDB záznamu), ale víc odesílatelů (4 aktivní cechy, ne 1).
+    // guildRelationReward zapisuje do GameState.guildRelation[actorId],
+    // NE contactRelation — CommitmentsSystem resolver to už rozlišuje.
+    // 1 zakázka na cech = 1 historicky doložený motiv (podklad č.1/2):
+    // cechovní listiny/stanovy (skriptorium jako "cloud"), surovinové
+    // injekce (dubové klády, uhlí). Rozšíření o další varianty per cech
+    // — TBD, viz cechy-a-prava-mrd.md §8.
+    _CECH_ZAKAZKY_CATALOG: {
+        mlynarsky: [
+            {
+                key: 'cechovni_artikule',
+                icon: '⚖️',
+                senderName_cs: 'Mlynářský cech', senderName_en: "The Millers' Guild",
+                title_cs: 'Opis cechovních artikulí',
+                title_en: 'A Copy of the Guild Articles',
+                text_cs: 'Cechmistr mlynářů žádá o čistopis jejich starých, ohořelých artikulí — originál přežil požár krámu jen z poloviny, kopie musí sedět do puntíku, jinak neplatí u soudu.',
+                text_en: "The millers' guildmaster asks for a fair copy of their old, singed articles — the original survived a shop fire only by half, and the copy must match to the letter, or it holds no weight in court.",
+                requiredItems: [{ id: 'paper', qty: 2 }, { id: 'ink', qty: 1 }],
+                rewardGrose: 12,
+                guildRelationReward: 6,
+            },
+        ],
+        truhlarsky: [
+            {
+                key: 'dubove_klady',
+                icon: '🪵',
+                senderName_cs: 'Truhlářský cech', senderName_en: "The Cabinetmakers' Guild",
+                title_cs: 'Dubové klády z klášterního lesa',
+                title_en: 'Oak Logs from the Monastery Forest',
+                text_cs: 'Truhláři došlo kvalitní dubové dřevo — městský les je vytěžený, klášterní ne. Prosí o pár klád výměnou za dobrou vůli do budoucna.',
+                text_en: "The cabinetmakers have run short of good oak — the town forest is logged out, the monastery's is not. They ask for a few logs, in exchange for goodwill toward the future.",
+                requiredItems: [{ id: 'wood', qty: 6 }],
+                rewardGrose: 5,
+                guildRelationReward: 6,
+            },
+        ],
+        kolarsky: [
+            {
+                key: 'jasanova_kola',
+                icon: '🛞',
+                senderName_cs: 'Kolářský cech', senderName_en: "The Wheelwrights' Guild",
+                title_cs: 'Jasanové dřevo na loukotě',
+                title_en: 'Ash Wood for Wheel Rims',
+                text_cs: 'Koláři potřebují pružné jasanové dřevo na loukotě — dub je na to moc tvrdý a láme se. V klášterním hvozdu prý jasany rostou.',
+                text_en: "The wheelwrights need supple ash wood for wheel rims — oak is too hard for it and cracks. Ash, they say, grows in the monastery's woods.",
+                requiredItems: [{ id: 'wood', qty: 4 }],
+                rewardGrose: 5,
+                guildRelationReward: 6,
+            },
+        ],
+        kovarsky: [
+            {
+                key: 'uhli_pro_vyhen',
+                icon: '⚒️',
+                senderName_cs: 'Kovářský a hamernický cech', senderName_en: "The Smiths' and Forgemasters' Guild",
+                title_cs: 'Dřevěné uhlí pro výheň',
+                title_en: 'Charcoal for the Forge',
+                text_cs: 'Uhlíři z okolí zklamali dodávku — kovářský cech prosí klášter o výpomoc uhlím, než se řetězec dodávek napraví.',
+                text_en: "The local charcoal burners have failed to deliver — the smiths' guild asks the monastery to help with charcoal until the supply chain recovers.",
+                requiredItems: [{ id: 'charcoal', qty: 5 }],
+                rewardGrose: 8,
+                guildRelationReward: 6,
+            },
+        ],
+    },
+
     // zakazky-rozsireni-ctyri-kategorie-mrd.md, Kategorie C (9.8.2026) —
     // kacířská/hříšná zakázka. Historicky přesně na rok 1465: srpen 1465
     // papež Pavel II. obnovil půhon proti Jiřímu z Poděbrad, 28.11.1465
@@ -42188,6 +42256,55 @@ const CommitmentsSystem = {
         }
     },
 
+    // Cechy (cechy-a-prava-mrd.md §3.0, K3 Cesta A, 16.8.2026) — mirror
+    // akterZakazkyTick přesně (víc odesílatelů, max 1 aktivní na cech),
+    // gate na GuildsDB místo ContactsDB. Žádnej tech/book gate — cechy
+    // jsou městská instituce, ne odemykatelnej kontakt.
+    cechZakazkyTick: function () {
+        if (!Array.isArray(GameState.localAkterZakazky)) GameState.localAkterZakazky = [];
+        const DAY = 24 * 60 * 60 * 1000;
+        if (!GameState.cechZakazkyNextTick) {
+            GameState.cechZakazkyNextTick = Date.now() + Math.round(DAY * 0.3);
+            return;
+        }
+        if (Date.now() < GameState.cechZakazkyNextTick) return;
+        GameState.cechZakazkyNextTick = Date.now() + DAY;
+        if (Math.random() >= 0.20) return; // ~20 %/den na cech
+
+        if (typeof GUILDS_ACTIVE === 'undefined') return;
+        let changedCech = false;
+
+        GUILDS_ACTIVE.forEach(guildId => {
+            if (typeof GuildsDB === 'undefined' || !GuildsDB[guildId]) return;
+            if (GameState.localAkterZakazky.some(z => z.actorId === guildId)) return;
+
+            const options = this._CECH_ZAKAZKY_CATALOG[guildId];
+            if (!options || !options.length) return;
+            const opt = options[Math.floor(Math.random() * options.length)];
+            GameState.localAkterZakazky.push({
+                id: 'akter_' + guildId + '_' + opt.key + '_' + Date.now(),
+                actorId: guildId,
+                key: opt.key,
+                createdAt: Date.now(),
+                deadlineDays: 10,
+            });
+            changedCech = true;
+            const _lang = (GameState.settings && GameState.settings.language) || 'cs';
+            const _senderName = _lang === 'en' ? opt.senderName_en : opt.senderName_cs;
+            if (typeof UI !== 'undefined' && UI.notifyPanel) UI.notifyPanel(
+                (_lang === 'en' ? `📜 ${_senderName} has a request for you.` : `📜 ${_senderName} má pro tebe žádost.`), 'obchod');
+            if (typeof Game !== 'undefined' && Game.addKronikaEntry) Game.addKronikaEntry('minor',
+                `📜 Zakázka od ${opt.senderName_cs}.`,
+                `📜 A commission from ${opt.senderName_en}.`,
+                `📜 Opus novum oblatum est.`);
+        });
+
+        if (changedCech) {
+            if (typeof Game !== 'undefined' && Game.save) Game.save();
+            this.render();
+        }
+    },
+
     _getLocalAkterCommitments: function () {
         if (!Array.isArray(GameState.localAkterZakazky)) return [];
         return GameState.localAkterZakazky.map(z => this._normalizeLocalAkterEvent(z)).filter(Boolean);
@@ -42195,18 +42312,19 @@ const CommitmentsSystem = {
 
     _normalizeLocalAkterEvent: function (z) {
         const lang = (GameState.settings && GameState.settings.language) || 'cs';
-        // Hledá napříč všemi 5 katalogy (sklar/kovar/mlynar, Klientela A,
-        // Vrchnost B, Kacírská C, Církevní D — zakazky-rozsireni-ctyri-
-        // kategorie-mrd.md, 9.8.2026)
+        // Hledá napříč všemi 6 katalogy (sklar/kovar/mlynar, Klientela A,
+        // Vrchnost B, Kacírská C, Církevní D, Cechy — zakazky-rozsireni-
+        // ctyri-kategorie-mrd.md, 9.8.2026 + cechy-a-prava-mrd.md, 16.8.2026)
         const options = this._AKTER_ZAKAZKY_CATALOG[z.actorId]
             || this._KLIENTELA_A_CATALOG[z.actorId]
             || this._VRCHNOST_ZAKAZKY_CATALOG[z.actorId]
             || this._KACIRSKA_ZAKAZKY_CATALOG[z.actorId]
-            || this._CIRKEVNI_ZAKAZKY_CATALOG[z.actorId];
+            || this._CIRKEVNI_ZAKAZKY_CATALOG[z.actorId]
+            || this._CECH_ZAKAZKY_CATALOG[z.actorId];
         const opt = options && options.find(o => o.key === z.key);
         if (!opt) return null;
         const contact = (typeof ContactsDB !== 'undefined') ? ContactsDB[z.actorId] : null;
-        // senderName_cs/en override — pro odesílatele bez ContactsDB záznamu (Vrchnost, Kacírská, Církevní)
+        // senderName_cs/en override — pro odesílatele bez ContactsDB záznamu (Vrchnost, Kacírská, Církevní, Cechy)
         const actorName = opt.senderName_cs
             ? (lang === 'en' ? opt.senderName_en : opt.senderName_cs)
             : (contact ? (lang === 'en' ? contact.name_en : contact.name) : z.actorId);
@@ -42223,6 +42341,9 @@ const CommitmentsSystem = {
             requiredItems: opt.requiredItems,
             rewardGrose: opt.rewardGrose,
             contactRelationReward: opt.contactRelationReward,
+            // Cechy (cechy-a-prava-mrd.md §3.0, 16.8.2026) — samostatné pole,
+            // resolver ho odlišuje od contactRelationReward (jiný cíl zápisu).
+            guildRelationReward: opt.guildRelationReward,
             reputationKey: opt.reputationKey,
             reputationAmt: opt.reputationAmt,
             bonusItem: opt.bonusItem,
