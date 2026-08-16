@@ -42,6 +42,10 @@ const TavernDice = {
     if (typeof PersonaSystem !== 'undefined' && PersonaSystem.addZboznost && !won) {
       PersonaSystem.addZboznost(this.bet >= 20 ? -2 : -1);
     }
+    if (!won) {
+      if (!GameState.gamblingStats) GameState.gamblingStats = { netLoss: 0 };
+      GameState.gamblingStats.netLoss = (GameState.gamblingStats.netLoss || 0) + this.bet;
+    }
     if (!GameState.secrets) return;
     const net = won ? (payout - this.bet) : this.bet;
     let heat = 0.5;

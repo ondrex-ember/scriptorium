@@ -502,12 +502,18 @@ const TemplumSystem = {
         const lcChoiceTxt = lc ? (lc.choice === 'strict' ? (lang==='en'?'strict penance':'přísné pokání')
                               : lc.choice === 'lenient' ? (lang==='en'?'leniency':'shovívavost')
                               : (lang==='en'?'turned away':'odmítnut')) : null;
+        const abbotPresentNow = (GameState.abbotLocation || 'present') === 'present';
         h += `<div style="padding:12px; background:rgba(255,255,255,0.4); border:1px solid rgba(197,160,89,0.25); border-radius:8px;">
                 <div style="font-size:1.5rem; margin-bottom:4px;">🙏</div>
                 <div style="font-weight:bold; font-size:0.82rem;">${lang==='en'?'Confessional':'Zpovědnice'}</div>
                 <div style="font-size:0.7rem; margin-top:5px; opacity:0.75;">⏳ ${lang==='en'?'next penitent in':'další zpovědník za'} ${confDays} d</div>
                 ${this._confessionHistoryHtml(lang)}
                 <div style="font-size:0.62rem; opacity:0.55; font-style:italic; margin-top:5px;">${lang==='en'?'the countryside comes to confess · your word weighs':'kraj se přichází vyznat · tvé slovo má váhu'}</div>
+                <div style="font-size:0.66rem; opacity:0.6; margin-top:8px; border-top:1px solid rgba(197,160,89,0.2); padding-top:6px;">${lang==='en'?'Your own confession':'Tvá vlastní zpověď'}</div>
+                ${abbotPresentNow
+                    ? `<button class="craft-btn" style="margin-top:6px; font-size:0.72rem;" onclick="Game.confessGambling()">🙏 ${lang==='en'?'Confess to the Abbot':'Vyznat se opatovi'}</button>`
+                    : `<div style="font-size:0.7rem; margin-top:6px; opacity:0.7; font-style:italic;">${lang==='en'?'The Abbot is not at the monastery.':'Opat není v klášteře.'}</div>
+                       <button class="craft-btn" style="margin-top:4px; font-size:0.7rem; opacity:0.85;" onclick="UI.switchLoreTab('porta')">🕊️ ${lang==='en'?'Ask him to visit (Porta)':'Požádat o návštěvu (Porta)'}</button>`}
               </div>`;
 
         // Pilíř Dary (T5) — páteříky/vosk → Ecclesia

@@ -5841,6 +5841,112 @@ const Game = {
         });
     },
 
+    // vrchcaby-hrich-mrd (15.8.2026): zpověď z hazardu — živý AI rozhovor
+    // (mirror scribeAIChat, vlastní kvóta 4/den) + mechanické tlačítka
+    // (mirror confessHeresy). Chat = atmosféra, tlačítka = jediný zdroj
+    // mechanického efektu — AI odpověď nikdy nemění Zbožnost/heat sama.
+    confessGambling: function() {
+        if ((GameState.abbotLocation || 'present') !== 'present') return;
+        if (typeof NotificationSystem === 'undefined' || !NotificationSystem.modal) return;
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        const cool = (amount) => { if (GameState.secrets) GameState.secrets.inquisitionHeat = Math.max(0, (GameState.secrets.inquisitionHeat || 0) - amount); };
+        const abbotName = (typeof AbbotSystem !== 'undefined' && AbbotSystem.getCurrentAbbot) ? AbbotSystem.getCurrentAbbot().name : 'Opat';
+
+        if (!GameState.confessorState) GameState.confessorState = { aiQuota: { count: 0, resetAt: 0 } };
+        const quota = GameState.confessorState.aiQuota;
+        const DAY_MS = 24 * 3600000;
+        const DAILY_LIMIT = 4;
+        if (Date.now() - quota.resetAt > DAY_MS) { quota.count = 0; quota.resetAt = Date.now(); }
+        const remaining = Math.max(0, DAILY_LIMIT - quota.count);
+
+        const chatHtml = remaining > 0 ? `
+            <div style="margin-bottom:8px; font-size:0.85rem; opacity:0.8;">
+                ${lang==='en' ? `Speak with him (${remaining} left today):` : `Promluv k němu (zbývá ${remaining} dnes):`}
+            </div>
+            <textarea id="confessor-chat-input" rows="2" maxlength="300"
+                style="width:100%; box-sizing:border-box; padding:8px; border-radius:4px; border:1px solid var(--border-color); background:rgba(0,0,0,0.15); color:inherit; font-family:inherit;"
+                placeholder="${lang==='en'?'Confess...':'Vyznej se...'}"></textarea>
+            <button class="craft-btn" style="margin-top:8px;" onclick="Game.confessorAISend()">📨 ${lang==='en'?'Speak':'Promluvit'}</button>
+            <div id="confessor-chat-reply" style="margin-top:10px; font-style:italic; min-height:20px;"></div>
+        ` : `<div style="font-size:0.82rem; opacity:0.7; font-style:italic;">${lang==='en'?'He has heard enough confessions for today.':'Dnes už vyslechl dost zpovědí.'}</div>`;
+
+        NotificationSystem.modal({
+            icon: '🙏',
+            title: (lang==='en'?'Confess to ':'Vyznat se — ') + abbotName,
+            text: `<div style="margin-bottom:10px;">${lang==='en'
+                ? 'You kneel to confess: you have been gambling at dice, and it weighs on you.'
+                : 'Klekáš ke zpovědi: hrál jsi v kostky, a tíží tě to.'}</div>${chatHtml}`,
+            choices: [
+                { label: (lang==='en'?'⚖️ Strict penance':'⚖️ Přísné pokání'), type: 'danger', effect: () => {
+                    if (typeof PersonaSystem !== 'undefined' && PersonaSystem.addZboznost) PersonaSystem.addZboznost(2);
+                    cool(20);
+                    Game.addKronikaEntry('minor',
+                        '🙏 Vyznal ses opatovi z hazardu. Přísné pokání.',
+                        '🙏 You confessed the gambling to the Abbot. Strict penance.',
+                        '🙏 Confessio facta est de alea. Poenitentia severa.');
+                    Game.save();
+                    if (typeof PersonaSystem !== 'undefined') PersonaSystem.render();
+                }},
+                { label: (lang==='en'?'🕊️ Ask for leniency':'🕊️ Prosit o shovívavost'), effect: () => {
+                    if (typeof PersonaSystem !== 'undefined' && PersonaSystem.addZboznost) PersonaSystem.addZboznost(1);
+                    cool(12);
+                    Game.addKronikaEntry('minor',
+                        '🙏 Vyznal ses opatovi z hazardu. Shovívavost.',
+                        '🙏 You confessed the gambling to the Abbot. Leniency.',
+                        '🙏 Confessio facta est de alea. Misericordia data.');
+                    Game.save();
+                    if (typeof PersonaSystem !== 'undefined') PersonaSystem.render();
+                }}
+            ]
+        });
+    },
+
+    // Typovaná pole pro confessor-chat kontext — žádný syrový text, backend stejně revaliduje.
+    _gatherConfessorContext: function() {
+        return {
+            zboznost: (GameState.persona && GameState.persona.zboznost) || 0,
+            inquisitionHeat: (GameState.secrets && GameState.secrets.inquisitionHeat) || 0,
+            gamblingNetLoss: (GameState.gamblingStats && GameState.gamblingStats.netLoss) || 0
+        };
+    },
+
+    confessorAISend: function() {
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        const input = document.getElementById('confessor-chat-input');
+        const replyEl = document.getElementById('confessor-chat-reply');
+        if (!input || !replyEl) return;
+        const message = input.value.trim();
+        if (!message) return;
+
+        replyEl.textContent = lang === 'en' ? 'He ponders...' : 'Přemýšlí...';
+        input.disabled = true;
+
+        if (!GameState.confessorState) GameState.confessorState = { aiQuota: { count: 0, resetAt: 0 } };
+        const quota = GameState.confessorState.aiQuota;
+        const abbotId = GameState.knownAbbotId || 'bernard';
+
+        fetch('/api/confessor-chat', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ message: message.slice(0, 300), lang, abbotId, context: Game._gatherConfessorContext() })
+        })
+        .then(function(res) { return res.json(); })
+        .then(function(data) {
+            replyEl.textContent = data && data.reply
+                ? data.reply
+                : (lang === 'en' ? '...' : '...');
+            if (!(data && data.filtered)) {
+                quota.count++;
+                Game.save();
+            }
+            input.disabled = false;
+        })
+        .catch(function() {
+            replyEl.textContent = lang === 'en' ? 'He does not answer.' : 'Neodpovídá.';
+            input.disabled = false;
+        });
+    },
+
     // ── monastery-decay-mrd, Vrstva 1 — denní trigger kontrola pro nemoci,
     // které nejsou vázané na konkrétní akci (rheumatism, scurvy, gout, lice,
     // scabies). dysentery (studna) a ergot_fire (chléb) jsou u svých akcí. ──
