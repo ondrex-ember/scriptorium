@@ -806,15 +806,19 @@ const CellariumSystem = {
   },
 
   // Cechy — cechy-a-prava-mrd.md §3 / chronicon-cechy-mrd.md. Read-only
-  // status teď (K2 začátek) — `relation` zůstává 0, dokud nepřijde
-  // mechanismus jak ho zvednout (K3, TBD). `tension` se čte živě z
-  // Chroniconu, NIKDY se lokálně neukládá/nekopíruje — je to sdílený
-  // svět, ne hráčův stav. Jen 4 MVP aktivní cechy (GUILDS_ACTIVE),
-  // zbytek existuje v datech, ale nezobrazuje se, dokud nepřijde Furnus.
+  // status (K2). Mutable stav (relation/pravo) žije v GameState.
+  // guildRelation/guildPravo, NE v GuildsDB (ten je statická definice,
+  // mirror ContactsDB — viz oprava 16.8.2026 v data/guilds.js).
+  // `tension` se čte živě z Chroniconu, NIKDY se lokálně neukládá —
+  // je to sdílený svět, ne hráčův stav. Jen 4 MVP aktivní cechy
+  // (GUILDS_ACTIVE), zbytek existuje v datech, ale nezobrazuje se,
+  // dokud nepřijde Furnus.
   renderCechyStatus: function(lang) {
     if (typeof GuildsDB === 'undefined' || typeof GUILDS_ACTIVE === 'undefined') return '';
     const snap = (typeof ChroniconSystem !== 'undefined' && ChroniconSystem._snap) ? ChroniconSystem._snap : null;
     const worldGuilds = (snap && snap.guilds) || null;
+    const guildRelation = GameState.guildRelation || {};
+    const guildPravo    = GameState.guildPravo || {};
 
     let rows = '';
     GUILDS_ACTIVE.forEach(id => {
@@ -823,14 +827,16 @@ const CellariumSystem = {
       const name = lang === 'en' ? g.name_en : g.name;
       const tension = (worldGuilds && worldGuilds[id]) ? Math.round(worldGuilds[id].tension) : null;
       const tensionLabel = tension === null ? (lang === 'en' ? 'unknown' : 'neznámo') : `${tension}/100`;
+      const rel = guildRelation[id] || 0;
+      const pravoStatus = (guildPravo[id] && guildPravo[id].status) || 'none';
       const pravoLabels = {
         none:        lang === 'en' ? 'none'      : 'žádné',
         negotiating: lang === 'en' ? 'in talks'   : 'vyjednává se',
         granted:     lang === 'en' ? 'granted'    : 'uděleno',
       };
-      const pravoLabel = pravoLabels[g.pravo.status] || g.pravo.status;
+      const pravoLabel = pravoLabels[pravoStatus] || pravoStatus;
       rows += `<div style="display:flex; justify-content:space-between; font-size:0.74rem; opacity:0.8; padding:2px 0;">
-        <span>${name}</span>
+        <span>${name} (${lang === 'en' ? 'relation' : 'vztah'} ${rel}/100)</span>
         <span>${lang === 'en' ? 'tension' : 'napětí'} ${tensionLabel} · ${lang === 'en' ? 'right' : 'právo'}: ${pravoLabel}</span>
       </div>`;
     });

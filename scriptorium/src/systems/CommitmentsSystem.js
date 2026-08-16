@@ -1213,6 +1213,15 @@ const CommitmentsSystem = {
                 const cur = GameState.contactRelation[raw.actorId] || 0;
                 GameState.contactRelation[raw.actorId] = Math.max(0, Math.min(100, cur + item.contactRelationReward));
             }
+            // Cechy (cechy-a-prava-mrd.md §3, K3, 16.8.2026) — stejná odměna,
+            // jiný cíl. guildRelationReward odlišuje od Clientela kontaktů
+            // (item.contactRelationReward zůstává jen pro ContactsDB, ať se
+            // dva různé systémy nepletou přes stejné klíče v datech).
+            if (item.guildRelationReward && typeof GuildsDB !== 'undefined' && GuildsDB[raw.actorId]) {
+                if (!GameState.guildRelation) GameState.guildRelation = {};
+                const cur = GameState.guildRelation[raw.actorId] || 0;
+                GameState.guildRelation[raw.actorId] = Math.max(0, Math.min(100, cur + item.guildRelationReward));
+            }
             // Pověst (povest-frakcni-reputace-mrd.md) — Kategorie A→lidovost, B→slechta
             if (item.reputationKey && typeof PersonaSystem !== 'undefined' && PersonaSystem.addReputation) {
                 PersonaSystem.addReputation(item.reputationKey, item.reputationAmt || 0);
