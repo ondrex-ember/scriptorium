@@ -7934,7 +7934,13 @@ const ItemsDB = {
     "primitive_torch": { name: "Louč (tuková)", name_en: "Torch (fat)", icon: "🪵", type: "tool", tier: "fire", lightHours: 1, desc: "Nouzová louč napuštěná tukem. Tuk je na pochodeň nevhodný — rychle se rozteče a hoří jen krátce, navíc čadí. 1h světla.", desc_en: "Emergency torch soaked in fat. Fat is a poor torch fuel — melts fast, burns only briefly, and smokes badly. 1h of light." },
     "torch_tallow": { name: "Louč (lojová)", name_en: "Torch (tallow)", icon: "🪵", type: "tool", tier: "fire", lightHours: 3, desc: "Louč z klacku napuštěného lojem. Lůj po vychladnutí ztuhne a hoří stabilně a jasně, bez velkého kapání. 3h světla.", desc_en: "A torch soaked in tallow. Tallow hardens as it cools and burns stable and bright, without much dripping. 3h of light." },
     "torch_resin": { name: "Louč (smolná)", name_en: "Torch (resin)", icon: "🔥", type: "tool", tier: "fire", lightHours: 6, desc: "Louč napuštěná pryskyřicí jehličnanů. Hoří jasně, stabilně a odolá i větru. 6h světla.", desc_en: "A torch soaked in conifer resin. Burns bright, stable, and holds up against wind. 6h of light." },
-    "candle": { name: "Svíčka", name_en: "Candle", icon: "🕯️", type: "tool", tier: "fire", lightHours: 24, desc: "24h světla.", desc_en: "24 hours of light." },
+    "candle": { name: "Svíčka (tuková)", name_en: "Candle (fat)", icon: "🕯️", type: "tool", tier: "fire", lightHours: 4, desc: "Ze zvířecího tuku. Čadí a páchne jako přepálený omastek, plamen skomírá — nejhorší dostupná svíce. 4h světla.", desc_en: "Made of animal fat. Smokes and reeks of scorched grease, the flame gutters — the poorest candle available. 4h of light." },
+    // svitidla-mrd (16.8.2026) — lůj a vosk existovaly jako itemy dřív
+    // (tallow, beeswax), ale žádnej recept je nikdy nepoužil na svíčku.
+    // 'candle' id zůstává netknutý (Mše/pohřby/svatby/dary/Chronicon —
+    // 15+ míst) — tyhle dva jsou nový, samostatný tiery vedle, ne náhrada.
+    "candle_tallow": { name: "Svíčka (lojová)", name_en: "Candle (tallow)", icon: "🕯️", type: "tool", tier: "fire", lightHours: 8, desc: "Z hovězího či skopového loje. Standard obyčejných lidí — hoří stabilně, bez velkého čadění, na rozdíl od tukové.", desc_en: "Made of beef or mutton tallow. The common standard — burns steadily, without heavy smoke, unlike the fat candle." },
+    "candle_wax": { name: "Voskavka", name_en: "Beeswax Candle", icon: "🕯️", type: "tool", tier: "fire", lightHours: 14, desc: "Z čistého včelího vosku. Jasný, stabilní plamen, téměř bez kouře a s příjemnou vůní — jediná svíce hodná oltáře a skriptoria.", desc_en: "Pure beeswax. A bright, steady flame, almost smokeless and sweetly scented — the only candle fit for the altar and the scriptorium." },
     "rope": { name: "Provaz", name_en: "Rope", icon: "➰", type: "mat", desc: "Pevný spoj.", desc_en: "Strong binding." },
     "hoe": { name: "Motyka", name_en: "Hoe", icon: "⚒️", type: "tool", desc: "K farmě.", desc_en: "For the garden." },
     "fishing_rod": { name: "Udice", name_en: "Fishing Rod", icon: "🎣", type: "tool", desc: "Na ryby.", desc_en: "For fishing." },
@@ -9290,6 +9296,9 @@ const RecipesDB = [
     
     // ALCHEMY - základní
     { id: "candle", output: "candle", qty: 1, req: { "fat": 1, "rope": 1 }, cat: "fire", locked: true }, 
+    // svitidla-mrd (16.8.2026) — mirror candle receptu přesně, jiný materiál
+    { id: "candle_tallow", output: "candle_tallow", qty: 1, req: { "tallow": 1, "rope": 1 }, cat: "fire", locked: true },
+    { id: "candle_wax", output: "candle_wax", qty: 1, req: { "beeswax": 1, "rope": 1 }, cat: "fire", locked: true },
     { id: "glue", output: "glue", qty: 1, req: { "bone": 2, "water": 1 }, cat: "craft", locked: true,
       desc: "Kostní klíh — kosti se hodiny vyvařují, dokud nevznikne hustá želatina.", desc_en: "Bone glue — bones boiled for hours into a thick gelatin." },
     { id: "potion_heal", output: "potion_heal", qty: 1, req: { "herb_red": 1, "fat": 1, "pestle": 0 }, cat: "alchemy", locked: true },
@@ -10858,7 +10867,7 @@ const LoreDB = {
 // ═══ src/data/tech.js ═══
 const TechTree = [
   // TIER 1
-  { id: "tech_candle", name: "Zpracování Tuku", name_en: "Fat Rendering", cost: 2, desc: "Odemkne: Svíčky, Klíh", desc_en: "Unlocks: Candles, Glue", unlocks: ["candle", "glue"] },
+  { id: "tech_candle", name: "Zpracování Tuku", name_en: "Fat Rendering", cost: 2, desc: "Odemkne: Svíčky (tuková — nejhorší, čadí — i lojová), Klíh", desc_en: "Unlocks: Candles (fat — worst, smoky — and tallow), Glue", unlocks: ["candle", "candle_tallow", "glue"] },
   { id: "tech_meteorologica", name: "Meteorologica — Živly a Oheň", name_en: "Meteorologica — Elements and Fire", cost: 20, desc: "Aristotelovo pojednání o povětří a živlech. Oheň jako horký a suchý element stoupající k nebi. Odemkne: správu paliva v krbu, subtab Ohniště.", desc_en: "Aristotle's treatise on weather and the elements. Fire as a hot, dry element rising toward heaven. Unlocks: hearth fuel management, the Foculus subtab.", unlocks: ["fireplace_fuel"], requires: ["tech_candle"] },
   { id: "tech_backpack", name: "Organizace Batohu", name_en: "Satchel Organisation", cost: 3, desc: "Odemkne: Třídění předmětů", desc_en: "Unlocks: Item sorting", unlocks: [] },
   { id: "tech_backpack_ii", name: "Registrum Cellarii — Katalog Zásob", name_en: "Registrum Cellarii — Stock Catalogue", cost: 10, desc: "Cellarius sestavil podrobný rejstřík, kde má každá věc své místo — od nástrojů po nalezené drobnosti. Odemkne: filtrování podle kategorií v Inventariu (Cellarium → Zásoby). Vše, co nemá jasné zařazení, spadne do kategorie Ostatní.", desc_en: "The cellarius compiled a detailed register where every item has its place — from tools to found trinkets. Unlocks: category filtering in the Inventarium (Cellarium → Stores). Anything without a clear place falls under Miscellaneous.", unlocks: [], requires: ["tech_backpack"] },
@@ -11012,7 +11021,7 @@ const TechTree = [
     cost: 12,
     desc: "Kniha o včelách. Columella, Isidor ze Sevilly i Hildegarda z Bingenu psali o včelách s úctou. Med léčil rány, vosk svítil při večerních modlitbách. Odemkne: Včelín (Apiarium) — med a vosk.",
     desc_en: "The Book of Bees. Columella, Isidore of Seville and Hildegard of Bingen all wrote of bees with reverence. Honey healed wounds, wax lit the evening prayers. Unlocks: Apiary (Apiarium) — honey and wax.",
-    unlocks: [], requires: ["tech_monastery_wisdom"]
+    unlocks: ["candle_wax"], requires: ["tech_monastery_wisdom"]
   },
 
   // VČELAŘINA II (Custos Apium) — odemkne Velký úl v Buildings, vyžaduje přečtenou knihu Ruralia Commoda
@@ -22254,6 +22263,15 @@ const VigorSystem = {
         return 1.0 + (ChroniconSystem.getBuffs().vigorRegenBonus || 0);
     },
 
+    // svitidla-mrd (16.8.2026) — voskavka snižuje únavu z craftu (jasné,
+    // stabilní světlo šetří oči a šetří sílu). Lojová/tuková beze změny
+    // (1.0×, baseline). Jen onCraft — scavenge/mine jsou venkovní práce,
+    // svíčka na ně nemá vliv.
+    _lightQualityMult: function () {
+        if (GameState.flags && GameState.flags.candleLit && GameState.candleItemId === 'candle_wax') return 0.8;
+        return 1.0;
+    },
+
     // Noční spánek: 8h+ neaktivity → plný reset únavy
     SLEEP_HOURS_FOR_FULL_REST: 8,
 
@@ -22637,7 +22655,7 @@ const VigorSystem = {
 
     // ── Craft hook ────────────────────────────────────────────────────────────
     onCraft: function(itemId) {
-        const cost = this.FATIGUE_COSTS[itemId] || 2; // default lehký craft
+        const cost = (this.FATIGUE_COSTS[itemId] || 2) * this._lightQualityMult(); // default lehký craft
         this.addFatigue(cost);
     },
 
@@ -60248,13 +60266,18 @@ const Game = {
     lightSource: function(type) {
         if (!GameState.flags.fireplaceLit) { UI.notify(t('game.needFire'), true); return; }
         // Louč: preferuj smolovou (torch_resin), pak lojovou (torch_tallow), jinak nouzová tuková (primitive_torch)
-        let item = (type === 'candle') ? 'candle' : ((GameState.inventory['torch_resin'] || 0) > 0 ? 'torch_resin' : ((GameState.inventory['torch_tallow'] || 0) > 0 ? 'torch_tallow' : 'primitive_torch'));
+        // Svíčka: stejná kaskáda — voskavka (candle_wax), pak lojová (candle_tallow), jinak tuková (candle)
+        // svitidla-mrd (16.8.2026), mirror torch vzoru přesně.
+        let item = (type === 'candle')
+            ? ((GameState.inventory['candle_wax'] || 0) > 0 ? 'candle_wax' : ((GameState.inventory['candle_tallow'] || 0) > 0 ? 'candle_tallow' : 'candle'))
+            : ((GameState.inventory['torch_resin'] || 0) > 0 ? 'torch_resin' : ((GameState.inventory['torch_tallow'] || 0) > 0 ? 'torch_tallow' : 'primitive_torch'));
         if (!GameState.inventory[item]) { UI.notify(t('game.missingItem').replace('{item}', ItemsDB[item].name), true); return; }
         
         if (type === 'candle') { 
             GameState.flags.torchLit = false; 
             GameState.flags.candleLit = true; 
             GameState.candleStart = Date.now();
+            GameState.candleItemId = item;
             
             // Track candles lit
             if(GameState.achievements) {
@@ -62905,7 +62928,12 @@ const Game = {
             // svetlo-detail-mrd (9.8.2026): slovní odhad zbývající doby —
             // schválně bez přesných minut/hodin, jen "čerstvá/stabilní/dohořívá".
             if (lightDesc) {
-                const _candlePct = 1 - Math.max(0, Math.min(1, (Date.now() - (GameState.candleStart || 0)) / CONFIG.CANDLE_DURATION));
+                // svitidla-mrd (16.8.2026) — per-tier lightHours (candleItemId),
+                // fallback na starou CONFIG konstantu pro save předcházející tuhle opravu.
+                const _candleDurMs = (GameState.candleItemId && ItemsDB[GameState.candleItemId] && ItemsDB[GameState.candleItemId].lightHours)
+                    ? ItemsDB[GameState.candleItemId].lightHours * 3600000
+                    : CONFIG.CANDLE_DURATION;
+                const _candlePct = 1 - Math.max(0, Math.min(1, (Date.now() - (GameState.candleStart || 0)) / _candleDurMs));
                 const _cTier = _candlePct > 0.66 ? 'fresh' : _candlePct > 0.25 ? 'steady' : 'low';
                 lightDesc.innerText = t('light.candleDescs.' + _cTier);
             }
@@ -63018,7 +63046,7 @@ const Game = {
             if (!VigorSystem.canAct()) { UI.notify(t('game.vigor.exhausted'), true); return; }
             const heavyItems = ['vellum','codex_luxury','illuminated_page','vellum_codex','printing_type','ink_gallic'];
             const isHeavy = heavyItems.includes(r.output);
-            const isLight = ['paper','ink','candle','tinderbox','quill','tallow_candle'].includes(r.output);
+            const isLight = ['paper','ink','candle','candle_tallow','candle_wax','tinderbox','quill','tallow_candle'].includes(r.output);
             if (isHeavy && !VigorSystem.canHeavy()) {
                 const lang = (GameState.settings && GameState.settings.language) || 'cs';
                 UI.notify(lang === 'en'
@@ -63096,7 +63124,9 @@ const Game = {
         // (fat:1/tallow:1), takže % sleva = % šance na vrácení té konkrétní
         // suroviny místo zlomkového snížení ceny.
         let _tallowDiscount = 0;
-        if ((r.output === 'candle' || r.output === 'torch_tallow') && typeof ChroniconSystem !== 'undefined' && ChroniconSystem.getBuffs) {
+        // svitidla-mrd (16.8.2026) — candle_tallow patří do stejný podmínky,
+        // spotřebovává tallow přesně jako torch_tallow.
+        if ((r.output === 'candle' || r.output === 'torch_tallow' || r.output === 'candle_tallow') && typeof ChroniconSystem !== 'undefined' && ChroniconSystem.getBuffs) {
             _tallowDiscount = ChroniconSystem.getBuffs().tallowCostDiscount || 0;
         }
         for(let [item, amt] of Object.entries(r.req)) {
