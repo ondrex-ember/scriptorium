@@ -502,6 +502,7 @@ const TemplumSystem = {
               </div>`;
 
         // Pilíř Dary (T5) — páteříky/vosk → Ecclesia
+        const grose = CellariumSystem.getGrose();
         const beadsN = inv['paternoster_beads'] || 0;
         const waxN = inv['beeswax'] || 0;
         const crayfishN = inv['crayfish_boiled'] || 0;
@@ -520,6 +521,19 @@ const TemplumSystem = {
                 <div style="display:flex; align-items:center; gap:6px; font-size:0.7rem; margin-top:3px;">
                   <span style="flex:1;">🦞 ${lang==='en'?'crayfish boiled in beer':'raci vaření v pivu'} (${crayfishN}) → +3</span>
                   <button class="craft-btn" style="padding:2px 8px; font-size:0.66rem;" ${crayfishN >= 1 ? '' : 'disabled'} onclick="Game.templumDonate('crayfish_boiled')">${lang==='en'?'Offer':'Darovat'}</button>
+                </div>
+                <div style="font-size:0.66rem; opacity:0.6; margin-top:8px; border-top:1px solid rgba(197,160,89,0.2); padding-top:6px;">${lang==='en'?'Penitential alms — cools suspicion, not piety':'Kající almužna — chladí podezření, ne zbožnost'}</div>
+                <div style="display:flex; align-items:center; gap:6px; font-size:0.7rem; margin-top:4px;">
+                  <span style="flex:1;">15g → ${lang==='en'?'suspicion':'podezření'} −8</span>
+                  <button class="craft-btn" style="padding:2px 8px; font-size:0.66rem;" ${grose >= 15 ? '' : 'disabled'} onclick="Game.templumPenance('small')">${lang==='en'?'Give':'Dát'}</button>
+                </div>
+                <div style="display:flex; align-items:center; gap:6px; font-size:0.7rem; margin-top:3px;">
+                  <span style="flex:1;">40g → ${lang==='en'?'suspicion':'podezření'} −20</span>
+                  <button class="craft-btn" style="padding:2px 8px; font-size:0.66rem;" ${grose >= 40 ? '' : 'disabled'} onclick="Game.templumPenance('medium')">${lang==='en'?'Give':'Dát'}</button>
+                </div>
+                <div style="display:flex; align-items:center; gap:6px; font-size:0.7rem; margin-top:3px;">
+                  <span style="flex:1;">100g → ${lang==='en'?'suspicion':'podezření'} −45</span>
+                  <button class="craft-btn" style="padding:2px 8px; font-size:0.66rem;" ${grose >= 100 ? '' : 'disabled'} onclick="Game.templumPenance('large')">${lang==='en'?'Give':'Dát'}</button>
                 </div>
                 ${ld ? `<div style="font-size:0.66rem; opacity:0.6; margin-top:4px;">${lang==='en'?'last offering':'poslední dar'}: ${(typeof iName==='function')?iName(ld.id):ld.id}</div>` : ''}
                 ${this._donationHistoryHtml(lang)}

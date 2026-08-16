@@ -5585,6 +5585,42 @@ const Game = {
         // TODO: relikvie — item přijde s vizitací / Porta biskupským řetězem
     },
 
+    // vrchcaby-hrich-mrd (15.8.2026): almužna za groše, cílí na inquisitionHeat
+    // (veřejné gesto — chladí podezření), ne na Zbožnost (to řeší existující
+    // item-based Dary výše, +1 flat). Cena za bod roste s velikostí, ať
+    // bohatství neumaže podezření zadarmo.
+    PENANCE_TIERS: {
+        small:  { cost: 15,  heatCool: 8  },
+        medium: { cost: 40,  heatCool: 20 },
+        large:  { cost: 100, heatCool: 45 },
+    },
+
+    templumPenance: function(tier) {
+        if (typeof TemplumSystem === 'undefined' || !TemplumSystem.isUnlocked()) return;
+        const p = this.PENANCE_TIERS[tier];
+        if (!p) return;
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        if (typeof CellariumSystem === 'undefined' || CellariumSystem.getGrose() < p.cost) {
+            UI.notify('⚠️ Non habes sufficiens!', true); return;
+        }
+        CellariumSystem.spendGrose(p.cost);
+        if (!GameState.secrets) GameState.secrets = {};
+        GameState.secrets.inquisitionHeat = Math.max(0, (GameState.secrets.inquisitionHeat || 0) - p.heatCool);
+        if (!GameState.templum) GameState.templum = {};
+        GameState.templum.lastDonation = { id: 'penance_' + tier, ts: Date.now() };
+        Game._templumLog({ type: 'donation', itemId: 'penance_' + tier, influence: 0 });
+        Game.save();
+        UI.notify('📿 ' + (lang==='en'
+            ? 'Alms given — suspicion cooled by ' + p.heatCool + '.'
+            : 'Almužna dána — podezření sníženo o ' + p.heatCool + '.'));
+        Game.addKronikaEntry('minor',
+            '📿 Almužna do Templa — ' + p.cost + ' grošů.',
+            '📿 Alms to the Temple — ' + p.cost + ' groschen.',
+            '📿 Eleemosyna templo data.');
+        const el = document.getElementById('home-templum-content');
+        if (el && typeof TemplumSystem !== 'undefined') el.innerHTML = TemplumSystem.renderTemplumTab();
+    },
+
     templumDonate: function(itemId) {
         if (typeof TemplumSystem === 'undefined' || !TemplumSystem.isUnlocked()) return;
         const d = this.TEMPLUM_DONATIONS[itemId];
