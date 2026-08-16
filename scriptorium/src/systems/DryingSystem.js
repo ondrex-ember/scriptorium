@@ -12,10 +12,20 @@ const DryingSystem = {
 
     DRY_TYPES: {
         cannabis: { input: 'cannabis', inputQty: 2, output: 'dried_cannabis', dryDays: 1 },
+        // mlynar-vlastni-mlyn-mrd.md §4.5 (16.8.2026) — dub na hřídel/kolo vodního
+        // mlýna. dryDays herně zkráceno z historickejch "i několik let" na 5 dní.
+        oak: { input: 'oak_log_raw', inputQty: 1, output: 'oak_log_seasoned', dryDays: 5 },
     },
 
     isActive: function() {
         return !!(GameState.researchedTechs && GameState.researchedTechs.includes('tech_susarna'));
+    },
+
+    // Tier 2 — samostatná brána jen pro Sušárnu (Pracovna tab), Foculus
+    // (isActive výš) zůstává na tech_susarna, mlynar-vlastni-mlyn-mrd.md
+    // §4.5, upřesněno 16.8.2026.
+    isIndustrialActive: function() {
+        return !!(GameState.researchedTechs && GameState.researchedTechs.includes('tech_susarna_industria'));
     },
 
     _ensureState: function() {
@@ -97,6 +107,64 @@ const DryingSystem = {
             if (!can) h += `<div style="font-size:0.72rem;opacity:0.55;margin-top:6px;text-align:center;">${lang === 'en' ? 'Need 2× hemp' : 'Potřeba 2× konopí'}</div>`;
         }
         h += `</div>`;
+        return h;
+    },
+
+    // ── Sušárna — průmyslová verze, Pracovna vlastní tab (mlynar-vlastni-
+    // mlyn-mrd.md §4.5, 16.8.2026). NEZÁVISLÁ na renderFoculus (ten zůstává
+    // soukromej, jen konopí) — tahle je generická přes celou DRY_TYPES,
+    // víc instancí najednou na typ. Stejná data (GameState.dryingInstances,
+    // stejnej dailyTick), jen jinej vstupní bod a jiná UI vrstva.
+    renderSusarna: function() {
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        if (!this.isIndustrialActive()) {
+            return `<div style="padding:20px; text-align:center; opacity:0.6; font-style:italic;">${lang === 'en' ? 'Requires research first (Susarna Industria).' : 'Vyžaduje nejdřív výzkum (Sušárna Industria).'}</div>`;
+        }
+        // mlynar-vlastni-mlyn-mrd.md §4.5 (16.8.2026) — tech odemyká jen
+        // MOŽNOST postavit, samotná funkčnost čeká na fyzickou budovu
+        // (Cellarium → Budovy → Sušárna), mirror Fodina tech-vs-petice vzoru.
+        if (!(GameState.storage && GameState.storage.susarna && GameState.storage.susarna.built)) {
+            return `<div style="padding:20px; text-align:center; opacity:0.6; font-style:italic;">${lang === 'en' ? 'Build the Drying Rack first (Cellarium → Buildings).' : 'Nejdřív postav Sušárnu (Cellarium → Budovy).'}</div>`;
+        }
+        const list = this._ensureState();
+        let h = '';
+
+        Object.keys(this.DRY_TYPES).forEach(typeKey => {
+            const def = this.DRY_TYPES[typeKey];
+            const inName = (typeof iName === 'function') ? iName(def.input) : def.input;
+            const outName = (typeof iName === 'function') ? iName(def.output) : def.output;
+            const active = list.filter(inst => inst.type === typeKey);
+            const have = GameState.inventory[def.input] || 0;
+            const can = have >= def.inputQty;
+
+            h += `<div style="background:rgba(0,0,0,0.05); padding:14px; border-radius:10px; border-left:3px solid var(--accent-gold); margin-bottom:12px;">`;
+            h += `<h4 style="margin:0 0 10px 0; color:var(--ink-primary);">🌾 ${outName}</h4>`;
+
+            active.forEach(inst => {
+                const totalMs = def.dryDays * this.DAY_MS;
+                const elapsed = Date.now() - inst.startedAt;
+                const pct = Math.min(100, Math.round(elapsed / totalMs * 100));
+                h += `<div style="display:flex; align-items:center; gap:8px; margin-bottom:6px; font-size:0.78rem;">
+                    <div style="flex:1; background:rgba(0,0,0,0.1); border-radius:4px; height:8px;">
+                        <div style="width:${pct}%; background:var(--accent-gold); height:8px; border-radius:4px; transition:width 0.3s;"></div>
+                    </div>
+                    <span style="opacity:0.65; white-space:nowrap;">${pct}%</span>
+                </div>`;
+            });
+            if (active.length === 0) {
+                h += `<div style="font-size:0.78rem; opacity:0.5; font-style:italic; margin-bottom:8px;">${lang === 'en' ? 'Nothing drying right now.' : 'Momentálně se nic neschne.'}</div>`;
+            }
+
+            h += `<button onclick="DryingSystem.startDrying('${typeKey}')" ${can ? '' : 'disabled'}
+                style="width:100%; padding:8px; border-radius:6px; border:1px solid var(--accent-gold);
+                background:${can ? 'rgba(197,160,89,0.15)' : 'rgba(197,160,89,0.07)'};
+                color:var(--accent-gold); cursor:${can ? 'pointer' : 'default'};
+                font-size:0.82rem; opacity:${can ? '1' : '0.5'};">
+                🌾 ${lang === 'en' ? 'Start drying' : 'Zahájit sušení'} (${def.inputQty}× ${inName}, ${def.dryDays}${lang === 'en' ? 'd' : 'd'})
+            </button>`;
+            h += `</div>`;
+        });
+
         return h;
     },
 };

@@ -720,3 +720,13 @@ RecipesDB.push(
     { id: "tvaroh", output: "tvaroh", qty: 1, req: { "milk": 3, "cooking_pot": 0 }, cat: "food", locked: true },
     { id: "tvarohove_tasticky", output: "tvarohove_tasticky", qty: 1, req: { "tvaroh": 2, "flour": 2, "egg": 1, "cooking_pot": 0 }, cat: "food", locked: true }
 );
+
+// ── SUŠÁRNA — mirror DryingSystem.DRY_TYPES (mlynar-vlastni-mlyn-mrd.md
+// §4.5, 16.8.2026), stejnej vzor jako COQUINA blok výš. id MUSÍ sedět
+// přesně s DRY_TYPES klíčem, jinak Game.craft() redirect na Drying
+// System.startDrying() nespustí (core/game.js). RecipesDB req jen k
+// zobrazení/enable stavu karty, skutečná spotřeba uvnitř startDrying().
+RecipesDB.push(
+    { id: "cannabis", output: "dried_cannabis", qty: 1, req: { "cannabis": 2 }, cat: "mat", locked: true },
+    { id: "oak", output: "oak_log_seasoned", qty: 1, req: { "oak_log_raw": 1 }, cat: "mat", locked: true }
+);

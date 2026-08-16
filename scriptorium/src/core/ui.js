@@ -183,6 +183,10 @@ const UI = {
         const _commitBtn = document.getElementById('lore-tab-commitments');
         if (_commitBtn) _commitBtn.style.display = (GameState.flags && GameState.flags.porta_active) ? '' : 'none';
 
+        // Sušárna — mlynar-vlastni-mlyn-mrd.md §4.5 (16.8.2026), mirror Porta vzoru přesně
+        const _dryingBtn = document.getElementById('home-sub-drying');
+        if (_dryingBtn) _dryingBtn.style.display = (GameState.researchedTechs && GameState.researchedTechs.includes('tech_susarna_industria')) ? '' : 'none';
+
         this.renderResourceTracker();
 
         const s = this.currentScreen || 'home';
@@ -2037,9 +2041,11 @@ const UI = {
         const scav = document.getElementById('home-scavenge-content');
         const mine = document.getElementById('home-mine-content');
         const cooking = document.getElementById('home-cooking-content');
+        const drying = document.getElementById('home-drying-content');
         if (scav) scav.style.display = tab === 'scavenge' ? 'block' : 'none';
         if (mine) mine.style.display = tab === 'mine' ? 'block' : 'none';
         if (cooking) cooking.style.display = tab === 'cooking' ? 'block' : 'none';
+        if (drying) drying.style.display = tab === 'drying' ? 'block' : 'none';
         document.querySelectorAll('#home-main-content .filter-btn').forEach(b => b.classList.remove('active'));
         if (btn) btn.classList.add('active');
         if (tab === 'mine') { this.renderMineYieldInfo(); this.renderFodinaPetitionPanel(); this.renderMineActions(); }
@@ -2048,6 +2054,10 @@ const UI = {
             // uvnitř CookingSystem.render() (grid stanic), mirror ostatních
             // stanic — CheeseSystem samostatný systém, ale ne samostatné HTML.
             cooking.innerHTML = CookingSystem.render();
+        }
+        // Sušárna — mlynar-vlastni-mlyn-mrd.md §4.5, 16.8.2026. Mirror cooking dispatch.
+        if (tab === 'drying' && drying && typeof DryingSystem !== 'undefined') {
+            drying.innerHTML = DryingSystem.renderSusarna();
         }
     },
 

@@ -414,6 +414,7 @@ const Game = {
 		Game.checkAbbotPetitions();
 		Game.checkUbytovnaPetitions();
 		Game.checkGuildPetitions();
+		Game.checkLandParcels();
 		// Krok B — vážený denní report Clientela↔Chronicon vztahů (mirror registrum)
 		if (typeof ChroniconSystem !== 'undefined' && ChroniconSystem._reportContactRelationIfNewDay) {
 			ChroniconSystem._reportContactRelationIfNewDay();
@@ -874,6 +875,7 @@ const Game = {
                     if (typeof Game !== 'undefined' && Game.checkAbbotPetitions) Game.checkAbbotPetitions();
                     if (typeof Game !== 'undefined' && Game.checkUbytovnaPetitions) Game.checkUbytovnaPetitions();
                     if (typeof Game !== 'undefined' && Game.checkGuildPetitions) Game.checkGuildPetitions();
+                    if (typeof Game !== 'undefined' && Game.checkLandParcels) Game.checkLandParcels();
                     // Columbarium — denní riziko predátora (self-guarded 24h, jen level 1)
                     if (typeof FarmyardSystem !== 'undefined' && FarmyardSystem.columbariumPredatorTick) FarmyardSystem.columbariumPredatorTick();
                     // Columbarium — pasivní přírůstek do stropu 13 (self-guarded 24h, holubnik-mrd)
@@ -3277,6 +3279,9 @@ const Game = {
                     // Smůla — na louč (torch_resin-mrd, 6.8.2026): kácení dává víc než průzkum
                     if(this._seasonRoll('resin_spruce', 0.25)) this.addItem('resin_spruce', Math.random() < 0.4 ? 2 : 1);
                     if(this._seasonRoll('resin_pine', 0.15)) this.addItem('resin_pine', 1);
+                    // Dub — mlynar-vlastni-mlyn-mrd.md §4.5 (16.8.2026), vzácnej nález,
+                    // syrovej, potřebuje DryingSystem sušení (tech_susarna) než jde použít.
+                    if(Math.random() < 0.08) this.addItem('oak_log_raw', 1);
         }
         else if (type === 'worms_dig') {
                     this.addItem('worms', Math.random() < 0.5 ? 3 : 2);
@@ -3978,6 +3983,13 @@ const Game = {
         // ostatní (cat != food) beze změny — okamžitá cesta níž.
         if (r && r.cat === 'food' && typeof CookingSystem !== 'undefined' && CookingSystem.COOK_TYPES && CookingSystem.COOK_TYPES[id]) {
             CookingSystem.startCooking(id);
+            return;
+        }
+        // Sušárna — mirror cooking redirect přesně (mlynar-vlastni-mlyn-mrd.md
+        // §4.5, 16.8.2026). cat 'mat' + shoda v DRY_TYPES = přesměruj na
+        // časovanej proces, jinak normální okamžitá cesta níž beze změny.
+        if (r && r.cat === 'mat' && typeof DryingSystem !== 'undefined' && DryingSystem.DRY_TYPES && DryingSystem.DRY_TYPES[id]) {
+            DryingSystem.startDrying(id);
             return;
         }
         if(!GameState.flags.fireplaceLit && !r.blind) { UI.notify(t('game.frozenHands'), true); return; }
@@ -4760,6 +4772,7 @@ const Game = {
 		if (!GameState.storage.cerna_kuchyne)       GameState.storage.cerna_kuchyne       = {built:false};
 		if (!GameState.storage.velky_hmozdir)       GameState.storage.velky_hmozdir       = {built:false};
 		if (!GameState.storage.rozen)               GameState.storage.rozen               = {built:false};
+		if (!GameState.storage.susarna)             GameState.storage.susarna             = {built:false};
 		if (!GameState.storage.old_cellars)        GameState.storage.old_cellars        = {built:false};
 		if (!GameState.storage.domus_conversorum_i) GameState.storage.domus_conversorum_i = {built:false};
 		if (!GameState.storage.domus_conversorum_ii) GameState.storage.domus_conversorum_ii = {built:false};
@@ -4831,6 +4844,9 @@ const Game = {
 		if (type === 'vapenice' && !(GameState.researchedTechs && GameState.researchedTechs.includes('tech_calcaria'))) {
 			UI.notify(lang==='en' ? 'Research Calcaria first.' : 'Nejprve prozkoumej tech Calcaria.', true); return;
 		}
+		if (type === 'susarna' && !(GameState.researchedTechs && GameState.researchedTechs.includes('tech_susarna_industria'))) {
+			UI.notify(lang==='en' ? 'Research Susarna Industria first.' : 'Nejprve prozkoumej tech Sušárna Industria.', true); return;
+		}
 		if (GameState.storage[type] && GameState.storage[type].built) {
 			UI.notify(lang==='en' ? 'Already built.' : 'Jiz postaveno.', true); return;
 		}
@@ -4853,6 +4869,9 @@ const Game = {
 			prelum_olei:       { plank: 10, rope: 4,  rock: 4,  iron_ingot: 1, hrebiky: 5 },
 			fornax_ferraria:   { rock: 40, cut_stone: 15, clay: 20, plank: 20, charcoal: 15, hrebiky: 10 },
 			vapenice:          { plank: 15, cut_stone: 20, clay: 20, hrebiky: 7 },
+			// mlynar-vlastni-mlyn-mrd.md §4.5 (16.8.2026) — kámen+železo+vápno,
+			// mirror Udírna/Vápenice škály (mid-tier utility budova).
+			susarna:           { cut_stone: 25, iron_ingot: 5, vapno_hasene_mature: 10, plank: 8, hrebiky: 5 },
 			old_cellars:       { cut_stone: 15, plank: 10, rope: 5, hrebiky: 5 },
 			domus_conversorum_i: { cut_stone: 40, plank: 25, rope: 10, hrebiky: 12 },
 			domus_conversorum_ii: { cut_stone: 150, plank: 90, rope: 35, hrebiky: 35 },
@@ -6871,6 +6890,85 @@ const Game = {
             if (typeof UI !== 'undefined' && UI.renderAll) UI.renderAll();
         });
     },
+
+    // Pozemky — nákup parcely (pozemky-mrd.md §6, v1.3, 16.8.2026). Mirror
+    // ubytovnaPetition/guildPetition vzoru, plně inline text. LandParcelsDB
+    // je statická (mirror GuildsDB oprava) — mutable stav žije tady.
+    LAND_DESKY_MS: 86400000, // 24h, "byrokracie ne fyzická práce" — mirror abbotPetition/guildPetition, ne Mola (4h)
+
+    buyLandParcel: function(parcelId) {
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        if (!(GameState.flags && GameState.flags.pozemky_active)) {
+            UI.notify(lang==='en' ? '❌ Speak with the Abbot first.' : '❌ Nejdřív promluv s opatem.', true);
+            return;
+        }
+        if (typeof LandParcelsDB === 'undefined' || !LandParcelsDB[parcelId]) return;
+        const parcel = LandParcelsDB[parcelId];
+        const name = lang === 'en' ? (parcel.name_en || parcel.name) : parcel.name;
+
+        if (!GameState.landParcels) GameState.landParcels = {};
+        const existing = GameState.landParcels[parcelId];
+        if (existing && existing.status !== 'none') {
+            UI.notify(lang==='en' ? '❌ Already acquired (or in progress).' : '❌ Už koupeno (nebo se vyřizuje).', true);
+            return;
+        }
+        if ((typeof CellariumSystem !== 'undefined' ? CellariumSystem.getGrose() : 0) < parcel.price) {
+            UI.notify((lang==='en'?'Not enough groats: ':'Nedostatek grošů: ')+parcel.price, true);
+            return;
+        }
+
+        if (typeof CellariumSystem !== 'undefined' && CellariumSystem.addGrose) CellariumSystem.addGrose(-parcel.price);
+        if (typeof CellariumSystem !== 'undefined' && CellariumSystem.recordCommissionIncome) {
+            // Reuse jako výdaj — recordCommissionIncome píše 'sell'/kladně,
+            // tady chceme zápornou položku, proto přímej zápis do transactions.
+            if (!GameState.treasury) GameState.treasury = {};
+            if (!GameState.treasury.transactions) GameState.treasury.transactions = [];
+            GameState.treasury.transactions.unshift({
+                date: new Date().toLocaleDateString('cs-CZ', { day: '2-digit', month: '2-digit' }),
+                type: 'buy', itemId: null, name: name, qty: 1, price: parcel.price,
+                entity: 'land', entityName: 'Zemský pán', entityName_en: 'Lord of the Manor',
+                total: parcel.price,
+            });
+        }
+
+        GameState.landParcels[parcelId] = { status: 'pending', purchasedAt: Date.now(), deskyCompleteAt: Date.now() + Game.LAND_DESKY_MS };
+
+        if (typeof UI !== 'undefined' && UI.notifyPanel) UI.notifyPanel('📜 ' + (lang==='en'
+            ? `${name} purchased — awaiting entry into the Land Register (~24h).`
+            : `${name} koupen — čeká na zápis do Zemských desek (~24h).`), 'system');
+        if (typeof Game !== 'undefined' && Game.addKronikaEntry) Game.addKronikaEntry('important',
+            `🏛️ Koupen pozemek — ${parcel.name}.`,
+            `🏛️ Land purchased — ${parcel.name_en || parcel.name}.`,
+            `🏛️ Fundus emptus est.`);
+        if (typeof Game !== 'undefined' && Game.save) Game.save();
+        if (typeof UI !== 'undefined' && UI.renderAll) UI.renderAll();
+    },
+
+    checkLandParcels: function() {
+        if (!GameState.landParcels) return;
+        if (typeof LandParcelsDB === 'undefined') return;
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        const now = Date.now();
+        Object.keys(GameState.landParcels).forEach(parcelId => {
+            const p = GameState.landParcels[parcelId];
+            if (!p || p.status !== 'pending') return;
+            if (now < p.deskyCompleteAt) return;
+            const parcel = LandParcelsDB[parcelId];
+            if (!parcel) return;
+            p.status = 'owned';
+            const name = lang === 'en' ? (parcel.name_en || parcel.name) : parcel.name;
+            if (typeof UI !== 'undefined' && UI.notifyPanel) UI.notifyPanel('✅ ' + (lang==='en'
+                ? `${name} entered into the Land Register — the parcel is now thine.`
+                : `${name} zapsán do Zemských desek — parcela je teď tvoje.`), 'success');
+            if (typeof Game !== 'undefined' && Game.addKronikaEntry) Game.addKronikaEntry('important',
+                `🏛️ Zápis do Zemských desek dokončen — ${parcel.name}.`,
+                `🏛️ Land Register entry complete — ${parcel.name_en || parcel.name}.`,
+                `🏛️ Fundus in tabulas terrae inscriptus est.`);
+            if (typeof Game !== 'undefined' && Game.save) Game.save();
+            if (typeof UI !== 'undefined' && UI.renderAll) UI.renderAll();
+        });
+    },
+
 
     // ── DORMITORIUM — kapacita bratrů (mniši/skriptoři, manažerská vrstva) ──
     dormitoriumCapacity: function() {

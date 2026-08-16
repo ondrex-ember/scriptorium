@@ -1348,6 +1348,10 @@ const CellariumSystem = {
       // práva, hráč to musí vidět průběžně, ne až po výzkumu. Vždy dostupný,
       // mirror personal/buildings (žádný open/closed hodinovej gate).
       { id: 'cechy', icon: '⚖️', label: 'Cechy', label_en: 'Guilds' },
+      // Pozemky — pozemky-mrd.md §6, 16.8.2026. Podmíněnej, na rozdíl od
+      // Cechů — dokud hráč nepromluví s opatem (Budovy tab), tab se
+      // vůbec nezobrazí. Jakmile flags.pozemky_active, zůstává natrvalo.
+      ...((GameState.flags && GameState.flags.pozemky_active) ? [{ id: 'pozemky', icon: '🏛️', label: 'Pozemky', label_en: 'Land' }] : []),
     ];
     const lang = (GameState.settings && GameState.settings.language) || 'cs';
     if (!GameState.ui) GameState.ui = {};
@@ -1396,6 +1400,7 @@ const CellariumSystem = {
     if (entity === 'old_cellars')    return this.renderOldCellars();
     if (entity === 'buildings')      return this.renderBuildings();
     if (entity === 'cechy')          return this.renderCechyPanel();
+    if (entity === 'pozemky')        return this.renderPozemkyPanel();
     if (entity === 'manufaktura')    return (typeof SaeculumSystem !== 'undefined') ? SaeculumSystem.renderManufactura() : '';
     if (entity === 'personal')       return (typeof SaeculumSystem !== 'undefined') ? SaeculumSystem.renderPersonal() : '';
 
@@ -1682,7 +1687,56 @@ const CellariumSystem = {
     return h;
   },
 
-  // Cechy — plná stránka na úrovni Inventarium/Budovy (cechy-a-prava-mrd.md
+  // Pozemky — plná stránka na úrovni Cechy/Inventarium (pozemky-mrd.md
+  // §6.1, 16.8.2026). Fáze 1: jen mlynsky_nahon. Tři stavy per parcela:
+  // available (koupit), pending (čeká na Zemské desky, 24h), owned
+  // (koupena — stavba Mlýna samotná je samostatnej, budoucí krok).
+  renderPozemkyPanel: function() {
+    const lang = (GameState.settings && GameState.settings.language) || 'cs';
+    if (typeof LandParcelsDB === 'undefined') {
+      return `<div style="padding:20px; opacity:0.6; text-align:center;">🏛️</div>`;
+    }
+    const landParcels = GameState.landParcels || {};
+
+    let h = `<div style="padding:15px; background:rgba(0,0,0,0.03); border-radius:8px; border-left:3px solid var(--accent-gold);">`;
+    h += `<div style="font-size:0.85rem; opacity:0.75; font-style:italic; margin-bottom:14px;">
+      ${lang === 'en'
+        ? 'Land the Abbot has secured leave to acquire from the Lord of the Manor.'
+        : 'Pozemky, co opat vyjednal možnost získat od Zemského pána.'}
+    </div>`;
+
+    Object.keys(LandParcelsDB).forEach(id => {
+      const parcel = LandParcelsDB[id];
+      const name = lang === 'en' ? (parcel.name_en || parcel.name) : parcel.name;
+      const desc = lang === 'en' ? (parcel.desc_en || parcel.desc) : parcel.desc;
+      const state = (landParcels[id] && landParcels[id].status) || 'none';
+
+      let actionHtml = '';
+      if (state === 'none') {
+        actionHtml = `<button onclick="Game.buyLandParcel('${id}')" style="font-size:0.78rem; padding:6px 14px; cursor:pointer;">${lang === 'en' ? `Buy — ${parcel.price}g` : `Koupit — ${parcel.price}g`}</button>`;
+      } else if (state === 'pending') {
+        const p = landParcels[id];
+        const hoursLeft = Math.max(0, Math.ceil((p.deskyCompleteAt - Date.now()) / 3600000));
+        actionHtml = `<span style="font-size:0.78rem; opacity:0.7;">⏳ ${lang === 'en' ? `Land Register, ~${hoursLeft}h` : `Zemské desky, ~${hoursLeft}h`}</span>`;
+      } else if (state === 'owned') {
+        actionHtml = `<span style="font-size:0.78rem;">✅ ${lang === 'en' ? 'Owned' : 'Vlastníš'}</span>`;
+      }
+
+      h += `<div style="padding:12px 14px; margin-bottom:10px; background:rgba(197,160,89,0.06); border-radius:6px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+          <div style="font-weight:bold; font-size:0.9rem;">${name}</div>
+          ${actionHtml}
+        </div>
+        <div style="font-size:0.78rem; opacity:0.75; font-style:italic; margin-bottom:4px;">${desc}</div>
+        <div style="font-size:0.72rem; opacity:0.6;">${lang === 'en' ? 'tags' : 'tagy'}: ${parcel.tags.join(', ')} · ${lang === 'en' ? 'slots' : 'sloty'}: ${parcel.slotsCapacity}</div>
+      </div>`;
+    });
+
+    h += `</div>`;
+    return h;
+  },
+
+
   // §3, přesun z Trh 16.8.2026 — Bouvard: "trhy jsou otevřené jen o víkendu,
   // vztah s cechy se buduje pořád, potřebuju přehled pořád"). Vždy dostupná,
   // NEgatováno tech_ius_terrae na úrovni viditelnosti taby (jen petiční
@@ -2160,6 +2214,10 @@ const CellariumSystem = {
     const hasUdirna = GameState.researchedTechs && GameState.researchedTechs.includes('tech_udirna');
     const hasTacuinum = GameState.researchedTechs && GameState.researchedTechs.includes('tech_tacuinum_sanitatis');
     const hasPlatina = GameState.researchedTechs && GameState.researchedTechs.includes('tech_platina_honesta');
+    // mlynar-vlastni-mlyn-mrd.md §4.5 (16.8.2026) — Sušárna jako skutečná
+    // budova, ne jen tech. Historický podklad: kámen+cihly (požární
+    // bezpečnost), železné rošty, vápno/hlína jako pojivo.
+    const hasSusarnaIndustria = GameState.researchedTechs && GameState.researchedTechs.includes('tech_susarna_industria');
 
     const title = lang === 'en' ? 'Buildings' : 'Budovy';
 
@@ -2261,6 +2319,14 @@ const CellariumSystem = {
         desc_en: 'A kiln by the quarry. Days and nights of unbroken fire turn limestone into quicklime.',
         cost: { plank: 15, cut_stone: 20, clay: 20, hrebiky: 7 },
         req_tech: hasCalcaria, req_build: true, req_label: null,
+      },
+      {
+        id: 'susarna', icon: '🏛️',
+        name: 'Sušárna', name_en: 'Drying Rack',
+        desc: 'Kamenná stavba se železnými rošty nad tlejícím ohništěm — nikdy otevřený plamen, jen sálavé teplo a kouř. Syrové dřevo tu vyzraje za týdny, ne za roky.',
+        desc_en: 'A stone structure with iron grates over a smouldering hearth — never an open flame, only radiant heat and smoke. Green timber seasons here in weeks, not years.',
+        cost: { cut_stone: 25, iron_ingot: 5, vapno_hasene_mature: 10, plank: 8, hrebiky: 5 },
+        req_tech: hasSusarnaIndustria, req_build: true, req_label: null,
       },
       {
         id: 'cerna_kuchyne', icon: '🏚️',

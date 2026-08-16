@@ -1,26 +1,49 @@
 // ─────────────────────────────────────────────────────────────
 // LandParcelsDB — Pozemky: rozšíření panství
-// MRD: pozemky-mrd.md (v1.3, schváleno 16.8.2026)
+// MRD: pozemky-mrd.md (v1.5, 16.8.2026)
 // K1: infrastruktura. Hra tento soubor zatím NEČTE mimo rozhovor s
-// opatem (Game.askAbbotAboutLand). Picker/nákup samotnej = další krok.
+// opatem (Game.askAbbotAboutLand) a nákup samotnej (Game.buyLandParcel).
+// Stavba budov NA parcele = další krok, dosud nikde neimplementováno.
 //
 // Statická definice, mirror GuildsDB (data/guilds.js) — mutable stav
-// (owned/status) půjde do GameState.landParcels, NE sem, stejná chyba
-// jako se opravovala u GuildsDB v1.0 (relation nepatřilo do static DB).
+// (owned/status) půjde do GameState.landParcels, NE sem.
 //
-// Fáze 1 (teď): jen mlynsky_nahon. Zbytek matrixu (Návrší/Hvozd/Cesta/
-// Vesnice, pozemky-mrd.md §3) se přidá stejným vzorem, až přijde na
-// řadu — žádná architektura navíc potřeba, jen nové záznamy.
+// slotsCapacity (přejmenováno ze `slots` 16.8.2026, pozemky-mrd.md §3.1):
+// KAPACITA, ne obsazení. Parcela nenese konkrétní budovy — jen tag +
+// kolik slotů unese. Který budovy tam půjdou, řeší katalog nároků
+// budov (pozemky-mrd.md §3.2, zatím jen v MRD, ne v kódu — čeká, až
+// se bude řešit skutečná stavba).
 // ─────────────────────────────────────────────────────────────
 
 const LandParcelsDB = {
     mlynsky_nahon: {
         name: 'Mlýnský náhon', name_en: 'The Mill Race',
         tags: ['voda'],
-        slots: 1,
+        slotsCapacity: 1,
         price: 250,
         phase: 1,
         desc: 'Úzký pruh země podél odbočky z potoka, s náhonem už napůl vyhloubeným — někdejší majetek souseda, co ho klášteru nabídl k prodeji. Stačí pár úprav a voda potáhne kolo.',
         desc_en: "A narrow strip of land along a stream's offshoot, its race already half-dug — once a neighbour's land, now offered to the monastery for sale. A little adjustment, and the water will turn a wheel.",
+    },
+    navrsi: {
+        name: 'Návrší', name_en: 'The Rise',
+        tags: ['kopec'],
+        slotsCapacity: 2,
+        price: 250,
+        phase: 2,
+        desc: 'Holý hřeben nad klášterem, otevřený všem větrům — pastviny nahoře řídké, ale vítr tu nikdy neustává. Přesně to místo, kde by se otáčela mlýnská křídla.',
+        desc_en: "A bare ridge above the monastery, open to every wind — the pasture up top is thin, but the wind never stops. Just the place for a mill's sails to turn.",
+    },
+    // Nový tag `slunce` (pozemky-mrd.md §3.2, 16.8.2026) — žádnej z
+    // předchozích pěti neseděl na "sluneční svah" z historickýho
+    // podkladu o vinařství. Přesná shoda, ne kompromis na existujícím.
+    vinice: {
+        name: 'Vinice', name_en: 'The Vineyard Slope',
+        tags: ['slunce'],
+        slotsCapacity: 2,
+        price: 300,
+        phase: 3,
+        desc: 'Jižní svah nad řekou, kam slunce dopadá od rána do večera. Réva by se tu držela dobře — je jen otázka, kdo ji vysadí a jak dlouho počká na první úrodu.',
+        desc_en: 'A south-facing slope above the river, where the sun falls from morning to evening. Vines would hold well here — only a question of who plants them, and how long they wait for the first harvest.',
     },
 };

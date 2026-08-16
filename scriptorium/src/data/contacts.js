@@ -326,6 +326,9 @@ const ContactsDB = {
                 verzino: { price: 16, stock: 2, minRelation: 24 },
                 incense_styrax: { price: 10, stock: 2, minRelation: 20 },
                 incense_olibanum: { price: 16, stock: 1, minRelation: 28, minReputation: { axis: 'slechta', value: 28 } },
+                // mlynar-vlastni-mlyn-mrd.md §4.5 (16.8.2026) — tržní zkratka k
+                // vyzrálýmu dubu, alternativa k vlastnímu kácení+sušení (DryingSystem).
+                oak_log_seasoned: { price: 18, stock: 3, minRelation: 20 },
             }
         }, // incense_styrax/olibanum: Clientela pool MRD 25.7.2026, exotický dovoz vedle koření
         desc: 'Benátský obchodník. Přiváží, co jinde nekoupíš — ale jen když je jeho loď v přístavu.',

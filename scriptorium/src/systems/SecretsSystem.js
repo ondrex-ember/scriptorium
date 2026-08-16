@@ -286,7 +286,121 @@ const SecretsSystem = {
     }
   },
 
+  // Mapy — pozemky-mrd.md §6.1, 16.8.2026. Ukazuje LandParcelsDB stav
+  // (GameState.landParcels) jako klikatelný Authentica listiny — mirror
+  // renderFolioCard/openFolio interakčního vzoru (list → klik → detail
+  // → zpět), ale vlastní datová struktura (LandParcelsDB, ne folia —
+  // ty maj 3vrstvý Lectio/Glossa/Arcanum čtení, sem se nehodí).
+  renderMapyContent: function() {
+    const lang = (GameState.settings && GameState.settings.language) || 'cs';
+    if (typeof LandParcelsDB === 'undefined') {
+      return `<div style="padding:40px; text-align:center; opacity:0.5;"><p style="font-style:italic;">In constructione...</p></div>`;
+    }
+    const landParcels = GameState.landParcels || {};
+    const known = Object.keys(landParcels).filter(id => landParcels[id] && landParcels[id].status !== 'none');
+
+    if (known.length === 0) {
+      return `<div style="padding:40px; text-align:center; opacity:0.5;">
+        <p style="font-style:italic;">${lang==='en' ? 'No deed yet rests in this drawer.' : 'V týhle zásuvce zatím neleží žádná listina.'}</p>
+      </div>`;
+    }
+
+    let h = '<div style="display:flex; flex-direction:column; gap:12px;">';
+    known.forEach(id => {
+      const parcel = LandParcelsDB[id];
+      if (!parcel) return;
+      const p = landParcels[id];
+      const name = lang === 'en' ? (parcel.name_en || parcel.name) : parcel.name;
+      const isOwned = p.status === 'owned';
+      const statusBadge = isOwned
+        ? `<span style="font-size:0.75rem; background:rgba(60,120,60,0.15); color:#2a6a2a; padding:2px 8px; border-radius:3px;">✓ ${lang==='en'?'Registered':'Zapsáno'}</span>`
+        : `<span style="font-size:0.75rem; background:rgba(80,80,160,0.12); color:#444; padding:2px 8px; border-radius:3px;">⏳ ${lang==='en'?'Pending':'Vyřizuje se'}</span>`;
+      h += `<div onclick="SecretsSystem.openLandFolio('${id}')" style="cursor:pointer; padding:14px 16px;
+        background:rgba(0,0,0,0.03); border-radius:6px; border:1px solid rgba(0,0,0,0.1);
+        transition:background 0.15s;"
+        onmouseover="this.style.background='rgba(0,0,0,0.07)'"
+        onmouseout="this.style.background='rgba(0,0,0,0.03)'">
+        <div style="display:flex; align-items:center; gap:10px;">
+          <span style="font-size:1.5rem;">🗺️</span>
+          <div style="flex:1;">
+            <div style="font-weight:600; font-size:1rem;">${name}</div>
+            <div style="font-size:0.8rem; opacity:0.6; margin-top:2px;">${lang==='en'?'Deed of purchase':'Kupní listina'}</div>
+          </div>
+          ${statusBadge}
+        </div>
+      </div>`;
+    });
+    h += '</div>';
+    return h;
+  },
+
+  // Detail Authentica listiny — mirror openFolio/renderFolioDetail
+  // interakce (← zpět tlačítko, switchSubtab('mapy')). Sekce "Mapa
+  // pozemku" je vědomej placeholder — vizuál (poloha/směr ke vsi/ke
+  // klášteru dle tagů) je budoucí práce, ne teď.
+  openLandFolio: function(parcelId) {
+    const el = document.getElementById('scrinium-subtab-content');
+    if (!el) return;
+    el.innerHTML = this.renderLandFolioDetail(parcelId);
+  },
+
+  renderLandFolioDetail: function(parcelId) {
+    const lang = (GameState.settings && GameState.settings.language) || 'cs';
+    const parcel = (typeof LandParcelsDB !== 'undefined') ? LandParcelsDB[parcelId] : null;
+    const p = (GameState.landParcels || {})[parcelId];
+    if (!parcel || !p) return '';
+
+    const name = lang === 'en' ? (parcel.name_en || parcel.name) : parcel.name;
+    const desc = lang === 'en' ? (parcel.desc_en || parcel.desc) : parcel.desc;
+    const isOwned = p.status === 'owned';
+    // Herní datum, ne reálný — mirror _toGameDate vzoru z abbotPetition
+    // (core/game.js), DATE DISPLAY hard rule: nikdy neexponovat reálnej rok.
+    const _toGameDate = (ts) => { const d = new Date(ts); return new Date(1465, d.getMonth(), d.getDate()); };
+    const purchDate = _toGameDate(p.purchasedAt).toLocaleDateString(lang==='en'?'en-GB':'cs-CZ');
+    const statusLine = isOwned
+      ? (lang==='en' ? 'Entered into the Land Register.' : 'Zapsáno do Zemských desek.')
+      : (lang==='en' ? `Registration in progress (~${Math.max(0, Math.ceil((p.deskyCompleteAt - Date.now())/3600000))}h).` : `Zápis se vyřizuje (~${Math.max(0, Math.ceil((p.deskyCompleteAt - Date.now())/3600000))}h).`);
+
+    let html = `
+      <button onclick="SecretsSystem.switchSubtab('mapy')"
+        style="margin-bottom:16px; background:none; border:1px solid rgba(0,0,0,0.2);
+               border-radius:4px; padding:5px 12px; cursor:pointer;
+               font-family:'Crimson Text'; font-size:0.9rem;">
+        ← ${lang==='en' ? 'Maps' : 'Mapy'}
+      </button>
+      <div style="max-width:680px;">
+        <h3 style="font-size:1.2rem; margin-bottom:4px;">🗺️ ${name}</h3>
+        <p style="font-size:0.8rem; opacity:0.55; margin-bottom:20px;">
+          ${lang==='en' ? 'Deed of purchase (Authentica)' : 'Kupní listina (Authentica)'}
+        </p>
+
+        <div style="margin-bottom:16px; padding:16px; background:rgba(0,0,0,0.03); border-radius:6px; border-left:3px solid rgba(138,51,36,0.3);">
+          <div style="font-style:italic; line-height:1.7;">${desc}</div>
+        </div>
+
+        <div style="margin-bottom:16px; font-size:0.85rem; opacity:0.8;">
+          <div>${lang==='en'?'Status':'Stav'}: ${statusLine}</div>
+          <div>${lang==='en'?'Acquired':'Získáno'}: ${purchDate}</div>
+          <div>${lang==='en'?'Tags':'Tagy'}: ${parcel.tags.join(', ')} · ${lang==='en'?'Building slots':'Stavební sloty'}: ${parcel.slotsCapacity}</div>
+        </div>
+
+        <div style="padding:24px; text-align:center; opacity:0.45; border:1px dashed rgba(0,0,0,0.2); border-radius:6px;">
+          <div style="font-size:1.8rem; margin-bottom:6px;">🧭</div>
+          <p style="font-style:italic; font-size:0.85rem;">
+            ${lang==='en' ? 'A map of the parcel — its place by the monastery, the road to the village — will be drawn here in time.' : 'Mapa pozemku — jeho poloha u kláštera, cesta do vsi — se sem vykreslí časem.'}
+          </p>
+        </div>
+      </div>`;
+    return html;
+  },
+
   renderSubtabContent: function(subtabId) {
+    // Mapy — pozemky-mrd.md §6.1, 16.8.2026. Vlastní obsah, ne generický
+    // folio systém (ten je pro nálezy/tajemství se 3vrstvym čtením —
+    // koupenej pozemek je evidence, ne rozluštění). Plně inline text,
+    // žádnej t() — LandParcelsDB nemá i18n klíče.
+    if (subtabId === 'mapy') return this.renderMapyContent();
+
     // Folia tohoto subtabu
     const foliosInTab = ScriniumDB.folios.filter(function(f) {
       return f.subtab === subtabId;

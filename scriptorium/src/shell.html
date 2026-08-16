@@ -3735,6 +3735,13 @@
                             <span data-i18n="screens.mine"></span></button>
                         <button id="home-sub-cooking" class="filter-btn" onclick="UI.switchHomeSubTab('cooking', this)">🍲
                             <span data-i18n="screens.cooking">Vaření</span></button>
+                        <!-- mlynar-vlastni-mlyn-mrd.md §4.5 (16.8.2026) — žádnej data-i18n
+                             (i18n hard rule, nesahat do cs.js/en.js bez aktuálních souborů
+                             od Ondrexe), statickej text, doplnit i18n klíč později.
+                             display:none defaultně — UI.renderAll() odhaluje po tech_susarna_industria,
+                             mirror lore-tab-porta vzoru. -->
+                        <button id="home-sub-drying" class="filter-btn" onclick="UI.switchHomeSubTab('drying', this)" style="display:none;">🌾
+                            Sušárna</button>
                     </div>
 
                     <!-- SCAVENGE content -->
@@ -3761,6 +3768,8 @@
                     </div>
 
                     <div id="home-cooking-content" style="display:none;"></div>
+
+                    <div id="home-drying-content" style="display:none;"></div>
 
                 </div><!-- end home-main-content -->
 
