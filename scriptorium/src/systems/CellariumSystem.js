@@ -2506,10 +2506,16 @@ const CellariumSystem = {
         const nextName = lang === 'en' ? next.name_en : next.name;
         const curLabel = _mTier === -1 ? (lang==='en'?'not started':'nezahájeno') : (lang === 'en' ? Game.MLYN_TIERS[_mTier].name_en : Game.MLYN_TIERS[_mTier].name);
         const matsStr = Object.entries(next.materials).map(([id, qty]) => `${qty}× ${(typeof iName === 'function') ? iName(id) : id}`).join(', ');
-        const blocked = next.needsSekernik;
         h += `<div style="font-size:0.78rem; opacity:0.7; margin-bottom:6px;">${lang === 'en' ? 'Current' : 'Aktuálně'}: ${curLabel} → ${nextName} (${next.cost}g, ${matsStr})</div>`;
-        if (blocked) {
-          h += `<div style="font-size:0.72rem; opacity:0.5; font-style:italic;">🔨 ${lang === 'en' ? 'Needs the millwright — not yet available.' : 'Potřebuje sekerníka — zatím není k dispozici.'}</div>`;
+        // Sekerník — mlynar-vlastni-mlyn-mrd.md §4.6, 16.8.2026. Tři stavy:
+        // potřeba najmout / na cestě (čeká) / připravenej (buduj).
+        if (next.needsSekernik && _m.sekernikReadyForTier !== (_mTier + 1)) {
+          if (_m.sekernikHireUntil) {
+            const sHoursLeft = Math.max(0, Math.ceil((_m.sekernikHireUntil - Date.now()) / 3600000));
+            h += `<div style="font-size:0.72rem; opacity:0.6; font-style:italic;">🔨 ${lang === 'en' ? `Millwright on his way, ~${sHoursLeft}h` : `Sekerník na cestě, ~${sHoursLeft}h`}</div>`;
+          } else {
+            h += `<button onclick="Game.hireSekernik()" class="craft-btn" style="font-size:0.78rem;">🔨 ${lang === 'en' ? `Hire the millwright (${Game.SEKERNIK_COST}g)` : `Najmout sekerníka (${Game.SEKERNIK_COST}g)`}</button>`;
+          }
         } else {
           h += `<button onclick="Game.upgradeMlynTier()" class="craft-btn" style="font-size:0.78rem;">🏗️ ${lang === 'en' ? 'Build' : 'Postavit'}</button>`;
         }

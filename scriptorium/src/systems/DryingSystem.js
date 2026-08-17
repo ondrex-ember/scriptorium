@@ -46,6 +46,15 @@ const DryingSystem = {
         this._ensureState().push({ type: typeKey, startedAt: Date.now() });
         Game.save();
         if (typeof FireplaceSystem !== 'undefined') FireplaceSystem.render();
+        // mlynar-vlastni-mlyn-mrd.md §4.5 (17.8.2026) — oprava: startDrying
+        // psanej ještě jen na Foculus, nikdy neosvěžil novej Sušárna tab.
+        // Bez tohohle klik na "Zahájit sušení" v Pracovně vypadal, že nic
+        // nedělá — data se měnila, UI ne.
+        const _dryingEl = document.getElementById('home-drying-content');
+        if (_dryingEl && _dryingEl.style.display !== 'none') {
+            _dryingEl.innerHTML = this.renderSusarna();
+        }
+        if (typeof UI !== 'undefined' && UI.notify) UI.notify('🌾 ' + (lang === 'en' ? 'Drying started.' : 'Sušení zahájeno.'));
     },
 
     // ── Denní tick (self-guarded, volán z game.js tick batch) ──────────────
@@ -135,33 +144,43 @@ const DryingSystem = {
             const outName = (typeof iName === 'function') ? iName(def.output) : def.output;
             const active = list.filter(inst => inst.type === typeKey);
             const have = GameState.inventory[def.input] || 0;
+            const haveOutput = GameState.inventory[def.output] || 0;
             const can = have >= def.inputQty;
 
             h += `<div style="background:rgba(0,0,0,0.05); padding:14px; border-radius:10px; border-left:3px solid var(--accent-gold); margin-bottom:12px;">`;
             h += `<h4 style="margin:0 0 10px 0; color:var(--ink-primary);">🌾 ${outName}</h4>`;
+            // Aktuální zásoba syroviny — "kolik čeho mám ve zdrojích", mirror
+            // požadavku (17.8.2026). Bez tohohle nešlo poznat, jestli je co sušit.
+            h += `<div style="font-size:0.78rem; opacity:0.65; margin-bottom:8px;">${lang === 'en' ? 'You have' : 'Máš'}: ${have}× ${inName}</div>`;
 
-            active.forEach(inst => {
-                const totalMs = def.dryDays * this.DAY_MS;
-                const elapsed = Date.now() - inst.startedAt;
-                const pct = Math.min(100, Math.round(elapsed / totalMs * 100));
-                h += `<div style="display:flex; align-items:center; gap:8px; margin-bottom:6px; font-size:0.78rem;">
-                    <div style="flex:1; background:rgba(0,0,0,0.1); border-radius:4px; height:8px;">
-                        <div style="width:${pct}%; background:var(--accent-gold); height:8px; border-radius:4px; transition:width 0.3s;"></div>
-                    </div>
-                    <span style="opacity:0.65; white-space:nowrap;">${pct}%</span>
-                </div>`;
-            });
             if (active.length === 0) {
-                h += `<div style="font-size:0.78rem; opacity:0.5; font-style:italic; margin-bottom:8px;">${lang === 'en' ? 'Nothing drying right now.' : 'Momentálně se nic neschne.'}</div>`;
+                h += `<div style="font-size:0.78rem; opacity:0.5; font-style:italic; margin-bottom:6px;">${lang === 'en' ? 'Nothing in progress.' : 'Momentálně nic nezraje.'}</div>`;
+            } else {
+                // Zbývající dny, ne holé %, mirror LimeSystem._renderStage přesně —
+                // "1%" nikomu neřekne, jestli je to za hodinu, nebo za týden.
+                active.forEach(inst => {
+                    const totalMs = def.dryDays * this.DAY_MS;
+                    const elapsedDays = (Date.now() - inst.startedAt) / this.DAY_MS;
+                    const pct = Math.min(100, Math.round(elapsedDays / def.dryDays * 100));
+                    const remainDays = Math.max(0, Math.ceil(def.dryDays - elapsedDays));
+                    h += `<div style="display:flex; align-items:center; gap:8px; margin-bottom:6px; font-size:0.78rem;">
+                        <div style="flex:1; background:rgba(0,0,0,0.1); border-radius:4px; height:8px;">
+                            <div style="width:${pct}%; background:var(--accent-gold); height:8px; border-radius:4px; transition:width 0.3s;"></div>
+                        </div>
+                        <span style="opacity:0.65; white-space:nowrap;">${remainDays}${lang === 'en' ? 'd left' : 'd zbývá'}</span>
+                    </div>`;
+                });
             }
 
             h += `<button onclick="DryingSystem.startDrying('${typeKey}')" ${can ? '' : 'disabled'}
                 style="width:100%; padding:8px; border-radius:6px; border:1px solid var(--accent-gold);
                 background:${can ? 'rgba(197,160,89,0.15)' : 'rgba(197,160,89,0.07)'};
                 color:var(--accent-gold); cursor:${can ? 'pointer' : 'default'};
-                font-size:0.82rem; opacity:${can ? '1' : '0.5'};">
+                font-size:0.82rem; opacity:${can ? '1' : '0.5'}; margin-top:6px;">
                 🌾 ${lang === 'en' ? 'Start drying' : 'Zahájit sušení'} (${def.inputQty}× ${inName}, ${def.dryDays}${lang === 'en' ? 'd' : 'd'})
             </button>`;
+            // "Máš hotovo" — aktuální sklad hotovýho výstupu, mirror Vápenice přesně.
+            h += `<div style="font-size:0.72rem; opacity:0.6; margin-top:6px;">${lang === 'en' ? 'In stock' : 'Máš hotovo'}: ${haveOutput}×</div>`;
             h += `</div>`;
         });
 

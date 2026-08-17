@@ -416,6 +416,7 @@ const Game = {
 		Game.checkGuildPetitions();
 		Game.checkLandParcels();
 		Game.checkMlynBuildComplete();
+		Game.checkSekernikHireComplete();
 		// Krok B — vážený denní report Clientela↔Chronicon vztahů (mirror registrum)
 		if (typeof ChroniconSystem !== 'undefined' && ChroniconSystem._reportContactRelationIfNewDay) {
 			ChroniconSystem._reportContactRelationIfNewDay();
@@ -878,6 +879,7 @@ const Game = {
                     if (typeof Game !== 'undefined' && Game.checkGuildPetitions) Game.checkGuildPetitions();
                     if (typeof Game !== 'undefined' && Game.checkLandParcels) Game.checkLandParcels();
                     if (typeof Game !== 'undefined' && Game.checkMlynBuildComplete) Game.checkMlynBuildComplete();
+                    if (typeof Game !== 'undefined' && Game.checkSekernikHireComplete) Game.checkSekernikHireComplete();
                     // Columbarium — denní riziko predátora (self-guarded 24h, jen level 1)
                     if (typeof FarmyardSystem !== 'undefined' && FarmyardSystem.columbariumPredatorTick) FarmyardSystem.columbariumPredatorTick();
                     // Columbarium — pasivní přírůstek do stropu 13 (self-guarded 24h, holubnik-mrd)
@@ -6328,7 +6330,7 @@ const Game = {
         if (typeof CellariumSystem === 'undefined') return;
         const lang = (GameState.settings && GameState.settings.language) || 'cs';
         if (!GameState.storage) GameState.storage = {};
-        if (!GameState.storage.mlyn) GameState.storage.mlyn = { tier: -1, buildUntil: null, buildTargetTier: null };
+        if (!GameState.storage.mlyn) GameState.storage.mlyn = { tier: -1, buildUntil: null, buildTargetTier: null, sekernikHireUntil: null, sekernikReadyForTier: null };
         const m = GameState.storage.mlyn;
         const tier = (typeof m.tier === 'number') ? m.tier : -1;
 
@@ -6342,10 +6344,11 @@ const Game = {
         if (m.buildUntil) { UI.notify('⚠️ ' + (lang==='en'?'Construction already underway.':'Stavba už probíhá.'), true); return; }
         const nextTier = tier + 1;
         const next = this.MLYN_TIERS[nextTier];
-        // Tier 1/2 čekaj na Sekerníka (§4.6, budoucí krok) — teď zablokováno,
-        // ne tiše přeskočeno, ať je jasný, že to není bug.
-        if (next.needsSekernik) {
-            UI.notify(lang==='en' ? '🔨 This tier needs the millwright — not yet available.' : '🔨 Tahle fáze potřebuje sekerníka — zatím není k dispozici.', true);
+        // Tier 1/2 potřebujou najatýho sekerníka pro TENHLE konkrétní tier
+        // (mlynar-vlastni-mlyn-mrd.md §4.6 — opakovaná akce per fáze, ne
+        // trvalej kontakt). Sekerník se najímá zvlášť (Game.hireSekernik).
+        if (next.needsSekernik && m.sekernikReadyForTier !== nextTier) {
+            UI.notify(lang==='en' ? '🔨 Hire the millwright for this stage first.' : '🔨 Nejdřív najmi sekerníka na tuhle fázi.', true);
             return;
         }
         if (CellariumSystem.getGrose() < next.cost) { UI.notify('⚠️ ' + (lang==='en'?'Not enough groschen.':'Nedostatek grošů.'), true); return; }
@@ -6356,6 +6359,7 @@ const Game = {
         }
         CellariumSystem.spendGrose(next.cost);
         for (const matId in next.materials) this.removeItem(matId, next.materials[matId]);
+        if (next.needsSekernik) m.sekernikReadyForTier = null; // spotřebováno, další tier potřebuje novej nájem
         const name = lang==='en' ? next.name_en : next.name;
         m.buildUntil = Date.now() + next.buildDays * 24 * 60 * 60 * 1000;
         m.buildTargetTier = nextTier;
@@ -6365,6 +6369,11 @@ const Game = {
             '🏗️ Mlýn: stavba ' + name + ' zahájena. Potrvá ' + next.buildDays + ' dní.',
             '🏗️ Mill: construction of ' + name + ' begun. Will take ' + next.buildDays + ' days.',
             '🏗️ Mola aedificatur.');
+        // mlynar-vlastni-mlyn-mrd.md §4.9 (17.8.2026) — oprava: tahle funkce
+        // dřív neměla ŽÁDNEJ render call, klik na "Postavit" vypadal, že nic
+        // nedělá (data se měnila, panel ne). Mirror cellarium-content vzoru.
+        const _cel1 = document.getElementById('cellarium-content');
+        if (_cel1) _cel1.outerHTML = CellariumSystem.renderCellariumContent();
     },
 
     checkMlynBuildComplete: function() {
@@ -6385,6 +6394,72 @@ const Game = {
             '🏛️ Mill: ' + name + ' completed.',
             '🏛️ Mola perfecta est.');
         if (typeof UI !== 'undefined' && UI.renderAll) UI.renderAll();
+        const _cel2 = document.getElementById('cellarium-content');
+        if (_cel2) _cel2.outerHTML = CellariumSystem.renderCellariumContent();
+    },
+
+    // Sekerník — najatá práce (mlynar-vlastni-mlyn-mrd.md §4.6, 16.8.2026).
+    // Opakovaná akce PER FÁZI stavby, ne trvalej kontakt ani jednorázovka.
+    // 100g + 1 den čekání, mirror abbotPetition/Mola timerový vzoru.
+    SEKERNIK_COST: 100,
+    SEKERNIK_WAIT_MS: 86400000,
+
+    hireSekernik: function() {
+        if (typeof CellariumSystem === 'undefined') return;
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        if (!GameState.storage) GameState.storage = {};
+        if (!GameState.storage.mlyn) GameState.storage.mlyn = { tier: -1, buildUntil: null, buildTargetTier: null, sekernikHireUntil: null, sekernikReadyForTier: null };
+        const m = GameState.storage.mlyn;
+        const tier = (typeof m.tier === 'number') ? m.tier : -1;
+        const nextTier = tier + 1;
+        const next = this.MLYN_TIERS[nextTier];
+
+        if (!next || !next.needsSekernik) {
+            UI.notify(lang==='en' ? '❌ No stage currently needs the millwright.' : '❌ Žádná fáze teď sekerníka nepotřebuje.', true);
+            return;
+        }
+        if (m.sekernikReadyForTier === nextTier) {
+            UI.notify(lang==='en' ? '✅ The millwright is already ready for this stage.' : '✅ Sekerník je na tuhle fázi už připravenej.', true);
+            return;
+        }
+        if (m.sekernikHireUntil) {
+            UI.notify('⏳ ' + (lang==='en'?'The millwright is already on his way.':'Sekerník už je na cestě.'), true);
+            return;
+        }
+        if (CellariumSystem.getGrose() < this.SEKERNIK_COST) {
+            UI.notify('⚠️ ' + (lang==='en'?'Not enough groschen.':'Nedostatek grošů.'), true);
+            return;
+        }
+        CellariumSystem.spendGrose(this.SEKERNIK_COST);
+        m.sekernikHireUntil = Date.now() + this.SEKERNIK_WAIT_MS;
+        m.sekernikHireForTier = nextTier;
+        Game.save();
+        UI.notifyPanel('🔨 ' + (lang==='en'?'A millwright has been sent for.':'Pro sekerníka bylo posláno.'), 'success');
+        Game.addKronikaEntry('minor',
+            '🔨 Sekerník najat na mlýn.',
+            '🔨 A millwright hired for the mill.',
+            '🔨 Molendinarius conductus est.');
+        if (typeof UI !== 'undefined' && UI.renderAll) UI.renderAll();
+        const _cel3 = document.getElementById('cellarium-content');
+        if (_cel3) _cel3.outerHTML = CellariumSystem.renderCellariumContent();
+    },
+
+    checkSekernikHireComplete: function() {
+        if (!(GameState.storage && GameState.storage.mlyn)) return;
+        const m = GameState.storage.mlyn;
+        if (!m.sekernikHireUntil || Date.now() < m.sekernikHireUntil) return;
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        m.sekernikReadyForTier = m.sekernikHireForTier;
+        m.sekernikHireUntil = null;
+        m.sekernikHireForTier = null;
+        Game.save();
+        UI.notifyPanel('🔨 ' + (lang==='en'?'The millwright has arrived and is ready to work.':'Sekerník dorazil a je připravenej k práci.'), 'success');
+        if (typeof UI !== 'undefined' && UI.renderAll) UI.renderAll();
+        // mlynar-vlastni-mlyn-mrd.md §4.6 (17.8.2026) — oprava: UI.renderAll()
+        // sám o sobě needosahuje Cellarium panel obsah (mirror stejná chyba
+        // jako startDrying dřív), karta zůstávala zamrzlá na "na cestě".
+        const _cel = document.getElementById('cellarium-content');
+        if (_cel) _cel.outerHTML = CellariumSystem.renderCellariumContent();
     },
 
     buildNahrobek: function(ts) {
