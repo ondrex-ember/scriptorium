@@ -5,8 +5,8 @@
 //        1 kus mezi inventářovými sloty (_fresh → _mature).
 // Mirror CheeseSystem.js — dva samostatné jednofázové řetězy (vzor syrecky,
 // bez aged fáze), zřetězené přes hráčovu craft akci (hašení) uprostřed.
-//   vapno_paleny: pálení v peci (4 dny)
-//   vapno_hasene: hašení + zrání v jámě (18 dní)
+//   vapno_paleny: pálení v peci (2 dny)
+//   vapno_hasene: hašení + zrání v jámě (1 den)
 // ═══════════════════════════════════════════════════════════════════════════
 
 const LimeSystem = {
@@ -15,8 +15,8 @@ const LimeSystem = {
 
     // ── Definice typů — base itemId (bez _fresh/_mature přípony) ───────────
     LIME_TYPES: {
-        vapno_paleny: { matureDays: 4,  agedDays: null },  // pálení v peci
-        vapno_hasene: { matureDays: 18, agedDays: null },  // hašení + zrání v jámě
+        vapno_paleny: { matureDays: 2, agedDays: null },  // pálení v peci (zkráceno z 4, 16.8.2026)
+        vapno_hasene: { matureDays: 1, agedDays: null },  // hašení + zrání v jámě (zkráceno z 18, 16.8.2026)
     },
 
     isActive: function() {
