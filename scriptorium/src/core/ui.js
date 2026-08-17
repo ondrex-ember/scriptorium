@@ -187,6 +187,12 @@ const UI = {
         const _dryingBtn = document.getElementById('home-sub-drying');
         if (_dryingBtn) _dryingBtn.style.display = (GameState.researchedTechs && GameState.researchedTechs.includes('tech_susarna_industria')) ? '' : 'none';
 
+        // Vápenice — 16.8.2026. Gate na built, ne na tech (tech_calcaria je už
+        // req_tech pro stavbu samotnou v CellariumSystem.js — žádná smysluplná
+        // mezera "tech mám, budova ne", na rozdíl od Sušárny).
+        const _vapeniceBtn = document.getElementById('home-sub-vapenice');
+        if (_vapeniceBtn) _vapeniceBtn.style.display = (GameState.storage && GameState.storage.vapenice && GameState.storage.vapenice.built) ? '' : 'none';
+
         this.renderResourceTracker();
 
         const s = this.currentScreen || 'home';
@@ -2042,10 +2048,12 @@ const UI = {
         const mine = document.getElementById('home-mine-content');
         const cooking = document.getElementById('home-cooking-content');
         const drying = document.getElementById('home-drying-content');
+        const vapenice = document.getElementById('home-vapenice-content');
         if (scav) scav.style.display = tab === 'scavenge' ? 'block' : 'none';
         if (mine) mine.style.display = tab === 'mine' ? 'block' : 'none';
         if (cooking) cooking.style.display = tab === 'cooking' ? 'block' : 'none';
         if (drying) drying.style.display = tab === 'drying' ? 'block' : 'none';
+        if (vapenice) vapenice.style.display = tab === 'vapenice' ? 'block' : 'none';
         document.querySelectorAll('#home-main-content .filter-btn').forEach(b => b.classList.remove('active'));
         if (btn) btn.classList.add('active');
         if (tab === 'mine') { this.renderMineYieldInfo(); this.renderFodinaPetitionPanel(); this.renderMineActions(); }
@@ -2058,6 +2066,10 @@ const UI = {
         // Sušárna — mlynar-vlastni-mlyn-mrd.md §4.5, 16.8.2026. Mirror cooking dispatch.
         if (tab === 'drying' && drying && typeof DryingSystem !== 'undefined') {
             drying.innerHTML = DryingSystem.renderSusarna();
+        }
+        // Vápenice — 16.8.2026, mirror drying dispatch (pec + jáma v LimeSystem.render()).
+        if (tab === 'vapenice' && vapenice && typeof LimeSystem !== 'undefined') {
+            vapenice.innerHTML = LimeSystem.render();
         }
     },
 

@@ -3742,6 +3742,10 @@
                              mirror lore-tab-porta vzoru. -->
                         <button id="home-sub-drying" class="filter-btn" onclick="UI.switchHomeSubTab('drying', this)" style="display:none;">🌾
                             Sušárna</button>
+                        <!-- Vápenice — gate na GameState.storage.vapenice.built (ui.js renderAll),
+                             ne na tech (tech_calcaria je už req_tech pro stavbu samotnou). -->
+                        <button id="home-sub-vapenice" class="filter-btn" onclick="UI.switchHomeSubTab('vapenice', this)" style="display:none;">🏭
+                            Vápenice</button>
                     </div>
 
                     <!-- SCAVENGE content -->
@@ -3770,6 +3774,8 @@
                     <div id="home-cooking-content" style="display:none;"></div>
 
                     <div id="home-drying-content" style="display:none;"></div>
+
+                    <div id="home-vapenice-content" style="display:none;"></div>
 
                 </div><!-- end home-main-content -->
 
