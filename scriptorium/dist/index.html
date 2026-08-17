@@ -66011,7 +66011,7 @@ const Game = {
         const hasTech = GameState.researchedTechs && GameState.researchedTechs.includes('tech_regalia');
 
         if (GameState.flags && GameState.flags.pozemky_active) {
-            UI.notify(lang==='en' ? '✅ The Abbot already agreed — land is managed through the Scriptorium.' : '✅ Opat už souhlasil — pozemky spravuješ přes Scriptorium.', true);
+            UI.notify(lang==='en' ? '✅ The Abbot already agreed — land is managed through Cellarium — Land.' : '✅ Opat už souhlasil — pozemky spravuješ přes Cellarium — Pozemky.', true);
             return;
         }
 
@@ -66034,8 +66034,8 @@ const Game = {
             icon: '🏛️',
             title: lang==='en' ? 'A word with the Abbot' : 'Slovo s opatem',
             text: lang==='en'
-                ? "\"Now thou speakest with knowledge,\" the Abbot nods. \"I shall open dealings with the Lord of the Manor. Seek what land may be had in the Scriptorium — Maps.\""
-                : '"Teď mluvíš se znalostí," přikývne opat. "Zahájím jednání se Zemským pánem. Co je k mání za pozemky, hledej ve Scriptoriu — Mapy."',
+                ? "\"Now thou speakest with knowledge,\" the Abbot nods. \"I shall open dealings with the Lord of the Manor. Seek what land may be had in Cellarium — Land.\""
+                : '"Teď mluvíš se znalostí," přikývne opat. "Zahájím jednání se Zemským pánem. Co je k mání za pozemky, hledej v Cellariu — Pozemky."',
             choices: [{ label: lang==='en' ? 'Understood' : 'Rozumím' }]
         });
         if (typeof Game !== 'undefined' && Game.addKronikaEntry) Game.addKronikaEntry('important',
