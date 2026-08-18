@@ -222,6 +222,7 @@ const CellariumSystem = {
     raw_hide:       4,
     feather_hen:    1,
     pollen:         3,
+    bee_bread:      9,   // pyl-prepracovani-mrd (18.8.2026): zpracovaný z 10x pollen
     linden_blossom: 3,
     beeswax:        6,
     propolis:       7,   // MRD 5.5 — drobná šance při sklizni, vzácnější než pyl
@@ -308,7 +309,7 @@ const CellariumSystem = {
     rowan: 'food', linden_fruit: 'mat',
     // Produkty dvora
     egg: 'food', milk: 'food', wool: 'mat', raw_hide: 'mat',
-    feather_hen: 'mat', pollen: 'mat', linden_blossom: 'mat', beeswax: 'mat', propolis: 'mat', propolis_tinktura: 'mat', propolis_tinktura_vyzrala: 'mat',
+    feather_hen: 'mat', pollen: 'mat', bee_bread: 'mat', linden_blossom: 'mat', beeswax: 'mat', propolis: 'mat', propolis_tinktura: 'mat', propolis_tinktura_vyzrala: 'mat',
     // Semena
     seed_apple: 'mat', seed_pear: 'mat', seed_plum: 'mat', seed_cherry: 'mat',
     seed_walnut: 'mat', seed_mulberry: 'mat', seed_quince: 'mat', seed_sorb: 'mat',
