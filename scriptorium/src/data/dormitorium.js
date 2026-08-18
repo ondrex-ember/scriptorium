@@ -106,6 +106,106 @@ const DormitoriumRosterDB = {
         },
         voice_hint: 'Suchý humor, mírně škrobený, ale s vřelostí ke knihám a mladším bratřím, které učí.'
     },
+
+    b_borek: {
+        name: 'Bořek',
+        icon: '🗝️',
+        origin_cs: 'Kdysi žoldák, který viděl víc bitev, než chce počítat. Do kláštera přišel s mečem u pasu a odešel s ním do kovárny na přetavení. Hlídá bránu, jako by od toho stále záviselo přežití posádky.',
+        origin_en: 'Once a mercenary who saw more battles than he cares to count. He arrived at the monastery with a sword at his hip and walked it straight to the forge to be melted down. He guards the gate as if a garrison\u2019s survival still depended on it.',
+        quotes: {
+            hire:     { cs: 'Meč jsem složil. Ostražitost ne.',
+                        en: 'I laid down the sword. Not the watchfulness.' },
+            work:     { cs: 'Nepřítel nečeká na pozvání. Ani zloděj.',
+                        en: 'An enemy does not wait for an invitation. Neither does a thief.' },
+            tired:    { cs: 'Spím jedním okem otevřeným. Zvyk z tažení.',
+                        en: 'I sleep with one eye open. A habit from the campaigns.' },
+            refuse:   { cs: 'Ten muž lže tak, jak jiní dýchají. Pryč s ním.',
+                        en: 'That man lies the way others breathe. Away with him.' },
+            officium: { cs: 'Modlím se kratčeji než ostatní. Bůh slyší i krátké modlitby vojáků.',
+                        en: 'I pray shorter than the others. God hears even a soldier\u2019s short prayers.' }
+        },
+        voice_hint: 'Úsečný, ostražitý, mluví vojenskou zkratkou. Nedůvěřuje snadno, ale je věrný, komu jednou slouží.'
+    },
+
+    b_jaroslav: {
+        name: 'Jaroslav',
+        icon: '🐝',
+        origin_cs: 'Nejstarší z bratří u úlů, o včelách mluví, jako by to byla jeho vlastní obec. Tvrdí, že mu jednou předpověděly mráz o dva dny dřív, než to poznal opat z oblohy.',
+        origin_en: 'The eldest of the brothers at the hives, he speaks of bees as though they were his own parish. He claims they once foretold a frost two days before the Abbot read it in the sky.',
+        quotes: {
+            hire:     { cs: 'Úl neodpouští netrpělivost. Doufám, že vy ano.',
+                        en: 'The hive forgives no impatience. I hope you do.' },
+            work:     { cs: 'Včela nikdy nepracuje pro sebe. Měli bychom se od ní učit.',
+                        en: 'A bee never labors for herself alone. We should learn from her.' },
+            tired:    { cs: 'Odpočinu si, až si odpočine úl. Tedy nikdy.',
+                        en: 'I will rest when the hive rests. So, never.' },
+            refuse:   { cs: 'Kouřil od úlů dýmkou. Ať se drží dál.',
+                        en: 'He smoked his pipe near the hives. Let him keep his distance.' },
+            officium: { cs: 'Bzučení úlů je taky žalm, jen ho zatím nikdo nezapsal.',
+                        en: 'The hum of the hives is a psalm too — no one has written it down yet.' }
+        },
+        voice_hint: 'Klidný, mluví v přirovnáních ke včelám a úlu, mírně tajemný ohledně toho, co všechno od nich ví.'
+    },
+
+    b_vratislav: {
+        name: 'Vratislav',
+        icon: '🖋️',
+        origin_cs: 'Nejmladší z bratří, přišel z německy mluvící kupecké rodiny z Olomouce. Zapisuje si všechno — počasí, sny, i to, kolik kroků má cesta od cely ke kapitulní síni.',
+        origin_en: 'The youngest of the brothers, he came from a German-speaking merchant family in Olomouc. He writes everything down — the weather, his dreams, even how many steps it is from his cell to the chapter house.',
+        quotes: {
+            hire:     { cs: 'Otec chtěl, abych počítal groše. Radši budu počítat milosti.',
+                        en: 'Father wanted me to count coins. I would rather count graces.' },
+            work:     { cs: 'Kdo si nezapíše, zapomene. Já nezapomínám nic.',
+                        en: 'He who writes nothing down forgets. I forget nothing.' },
+            tired:    { cs: 'Ruka se třese, ale poznámky počkají do zítřka jen neochotně.',
+                        en: 'My hand shakes, but my notes wait until tomorrow only reluctantly.' },
+            refuse:   { cs: 'Roztrhl mi sešit. To se neodpouští snadno.',
+                        en: 'He tore my notebook. That is not easily forgiven.' },
+            officium: { cs: 'Počítám verše žalmů. Je jich přesně tolik, kolik jsem čekal.',
+                        en: 'I count the verses of the psalms. There are exactly as many as I expected.' }
+        },
+        voice_hint: 'Horlivý, trochu úzkostlivý, mluví o číslech a záznamech. Mladická dychtivost, ještě nezocelená klášterní rutinou.'
+    },
+
+    b_nezamysl: {
+        name: 'Nezamysl',
+        icon: '🎣',
+        origin_cs: 'Mlčenlivý rybář z okolí Litovle, věří, že obloha a hladina rybníka mluví, jen jim málokdo naslouchá. S lidmi mluví míň než s rybami.',
+        origin_en: 'A quiet fisherman from around Litovel, he believes the sky and the pond\u2019s surface speak — few simply listen. He talks less with people than with fish.',
+        quotes: {
+            hire:     { cs: 'Ryba nikdy nelže o počasí. Lidé ano.',
+                        en: 'A fish never lies about the weather. People do.' },
+            work:     { cs: 'Trpělivost u vody se počítá jinak než trpělivost jinde.',
+                        en: 'Patience by the water counts differently than patience elsewhere.' },
+            tired:    { cs: 'Únava odplyne s proudem, když se dost dlouho dívám na hladinu.',
+                        en: 'Fatigue drifts off with the current, if I watch the surface long enough.' },
+            refuse:   { cs: 'Plašil ryby křikem. Ať křičí jinde.',
+                        en: 'He scared the fish with shouting. Let him shout elsewhere.' },
+            officium: { cs: 'Modlím se tiše, jako když se vrhá síť — bez rozruchu.',
+                        en: 'I pray quietly, the way a net is cast — without commotion.' }
+        },
+        voice_hint: 'Málomluvný, věcný, přirovnání k vodě a rybám. Dlouhé pauzy v řeči, nikdy nespěchá s odpovědí.'
+    },
+
+    b_ctirad: {
+        name: 'Ctirad',
+        icon: '📅',
+        origin_cs: 'Kronikář posedlý přesností — data, jména, pořadí událostí. Tvrdí, že chyba jednoho dne v zápisu je stejný hřích jako chyba jednoho slova v modlitbě.',
+        origin_en: 'A chronicler obsessed with precision — dates, names, the order of events. He claims an error of a single day in the record is the same sin as an error of a single word in prayer.',
+        quotes: {
+            hire:     { cs: 'Dějiny bez přesných dat jsou jen povídačky. Nechci psát povídačky.',
+                        en: 'History without exact dates is mere gossip. I refuse to write gossip.' },
+            work:     { cs: 'Zapsal jsem to třikrát, aby se to nepopletlo. Podruhé se to popletlo.',
+                        en: 'I wrote it down three times so it would not get muddled. It got muddled the second time.' },
+            tired:    { cs: 'I unavená ruka musí zapsat správné datum. Zítřek to nezachrání.',
+                        en: 'Even a tired hand must record the correct date. Tomorrow will not save it.' },
+            refuse:   { cs: 'Přepsal datum bitvy o rok. To se neomlouvá.',
+                        en: 'He copied the date of the battle a year wrong. That is not excused.' },
+            officium: { cs: 'Znám přesně, kolikátý je dnes den liturgického roku. Ptejte se, budu-li vám k službám.',
+                        en: 'I know precisely which day of the liturgical year it is today. Ask, and I am at your service.' }
+        },
+        voice_hint: 'Suchý, přesný, trochu pedantský, ale s tichou hrdostí na svou práci. Cituje data jako jiní citují žalmy.'
+    },
 };
 
 // Specializace odvozené z přiřazení na tab — mapování tab → titul.
