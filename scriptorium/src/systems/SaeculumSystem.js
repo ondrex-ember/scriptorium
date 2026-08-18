@@ -628,13 +628,15 @@ const SaeculumSystem = {
           && !(typeof StudovnaSystem !== 'undefined' && StudovnaSystem.isUnlocked && StudovnaSystem.isUnlocked()
             && StudovnaSystem.isBuilt && StudovnaSystem.isBuilt()))
         || (tabId === 'kantor'
-          && !(GameState.researchedTechs && GameState.researchedTechs.includes('tech_schola_cantorum')));
+          && !(GameState.researchedTechs && GameState.researchedTechs.includes('tech_schola_cantorum')))
+        || (tabId === 'athanor_research'
+          && !(GameState.researchedTechs && GameState.researchedTechs.includes('tech_athanor_ars_magna')));
       const disabled = (takenBy && !isCur) || locked;
       const bg = isCur ? '#8a3324' : disabled ? 'rgba(0,0,0,0.04)' : 'rgba(197,160,89,0.15)';
       const fg = isCur ? '#fcf5e5' : 'inherit';
       const opac = disabled && !isCur ? '0.55' : '1';
       const specName = lang === 'en' ? spec.name_en : spec.name;
-      const lockedName = tabId === 'studovna' ? 'Studovna' : tabId === 'kantor' ? 'Schola Cantorum' : 'Infirmarium';
+      const lockedName = tabId === 'studovna' ? 'Studovna' : tabId === 'kantor' ? 'Schola Cantorum' : tabId === 'athanor_research' ? 'Ars Magna' : 'Infirmarium';
       const hint = locked ? (lang==='en'?'needs: ':'chybí: ') + lockedName
                  : (takenBy && !isCur ? specName + ' (' + takenBy.name + ')' : specName);
       h += `<div onclick="${disabled ? '' : `Game.assignBrotherTab('${b.id}', ${isCur ? 'null' : `'${tabId}'`})`}" style="cursor:${disabled ? 'default' : 'pointer'}; opacity:${opac}; padding:6px 10px; border-radius:6px; background:${bg}; color:${fg}; font-size:0.74rem; text-align:center;">
