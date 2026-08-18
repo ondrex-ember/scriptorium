@@ -129,6 +129,7 @@ const ContactsDB = {
                 palice_zelezna: { price: 16, stock: 2 },
                 kovani: { price: 8, stock: 4 },
                 hrebiky: { price: 2.5, stock: 5 }, // kovani-rozsireni-mrd (7.8.2026): nejlevnější kanál, ale nejvíc omezený
+                brass_rivet: { price: 4, stock: 2 }, // athanor-research-mrd: mosaz je dražší a vzácnější než železo
                 britva_kovarska: { price: 12, stock: 1 },
                 sada_podkov: { price: 14, stock: 2 }
             }
