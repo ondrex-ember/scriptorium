@@ -378,6 +378,10 @@ const RecipesDB = [
       desc: "Chladivej odvar proti pálivýmu svědění a horkým kloubům — Žlutá žluč se léčí chladem a vlhkem.", desc_en: "A cooling decoction against burning itch and hot joints — Yellow bile is cured by cold and moisture." },
     { id: "spongia_somnifera", output: "spongia_somnifera", qty: 1, req: { "mandrake": 1, "belladonna": 1, "poppy": 1, "pestle": 0 }, cat: "alchemy", locked: true,
       desc: "Guy de Chauliac — mandragora, rulík, mák. Zmírní šok z těžkýho zranění.", desc_en: "Guy de Chauliac — mandrake, belladonna, poppy. Eases the shock of severe injury." },
+    // athanor-research-mrd (Tier 1 — Llull) — nástroj pro filtrovaný Výzkum,
+    // ne surovina pro Athanor combos. Craftí ho hráč/bratr jednou, trvanlivé.
+    { id: "circulus_lullianus", output: "circulus_lullianus", qty: 1, req: { "vellum": 1, "brass_rivet": 1 }, cat: "alchemy", locked: true,
+      desc: "Vrstvená kola pergamenu na mosazném cvočku podle Llullovy Ars Magna.", desc_en: "Layered parchment wheels on a brass rivet, following Llull's Ars Magna." },
     { id: "stamina_tonic", output: "stamina_tonic", qty: 1, req: { "herb_yellow": 1, "honey": 1, "roots": 1, "pestle": 0 }, cat: "alchemy", locked: true },
     { id: "preservation_oil", output: "preservation_oil", qty: 1, req: { "resin": 2, "ash": 1, "herb_blue": 1, "pestle": 0 }, cat: "alchemy", locked: true },
     { id: "sleep_potion", output: "sleep_potion", qty: 1, req: { "herb_blue": 2, "mushroom_poison": 1, "honey": 1, "pestle": 0 }, cat: "alchemy", locked: true },
