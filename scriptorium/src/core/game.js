@@ -7236,6 +7236,11 @@ const Game = {
         b_prokulus:    ['erudition', 'focus'],             // Skriptor — ruka se netřese, pyšný na řemeslo
         b_teofil:      ['erudition', 'focus'],             // Alchymista — tajemný, přemýšlivý
         b_radim:       ['erudition', 'eloquence'],         // Knihovník — nejstarší, vřelost k mladším
+        b_borek:       ['obedience', 'vigor'],             // Bývalý žoldák — kázeň, ostražitost
+        b_jaroslav:    ['craftsmanship', 'piety'],         // Včelař — trpělivý, mluví o včelách jako o obci
+        b_vratislav:   ['erudition', 'obedience'],         // Nejmladší — horlivý, zapisuje si vše
+        b_nezamysl:    ['focus', 'piety'],                 // Rybář — mlčenlivá trpělivost u vody
+        b_ctirad:      ['erudition', 'craftsmanship'],     // Kronikář — posedlý přesností dat
     },
 
     // Sestaví jméno pro _reportWork hlášku — když bratr i konvrš pracují
