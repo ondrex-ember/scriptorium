@@ -3746,6 +3746,10 @@
                              ne na tech (tech_calcaria je už req_tech pro stavbu samotnou). -->
                         <button id="home-sub-vapenice" class="filter-btn" onclick="UI.switchHomeSubTab('vapenice', this)" style="display:none;">🏭
                             Vápenice</button>
+                        <!-- Vodní mlýn — gate na GameState.storage.mill.tier >= 2 (ui.js renderAll),
+                             mirror Vápenice vzoru přesně. mlynar-vlastni-mlyn-mrd.md §4.7, 16.8.2026. -->
+                        <button id="home-sub-mill" class="filter-btn" onclick="UI.switchHomeSubTab('mill', this)" style="display:none;">🏛️
+                            Mlýn</button>
                     </div>
 
                     <!-- SCAVENGE content -->
@@ -3776,6 +3780,8 @@
                     <div id="home-drying-content" style="display:none;"></div>
 
                     <div id="home-vapenice-content" style="display:none;"></div>
+
+                    <div id="home-mill-content" style="display:none;"></div>
 
                 </div><!-- end home-main-content -->
 
@@ -26148,7 +26154,7 @@ const CellariumSystem = {
     // principu, ne skrytá podmínka).
     const _mlynParcelOwned = GameState.landParcels && GameState.landParcels.mlynsky_nahon && GameState.landParcels.mlynsky_nahon.status === 'owned';
     if (GameState.flags && GameState.flags.pozemky_active) {
-      const _m = (GameState.storage && GameState.storage.mlyn) || { tier: -1 };
+      const _m = (GameState.storage && GameState.storage.mill) || { tier: -1 };
       const _mTier = (typeof _m.tier === 'number') ? _m.tier : -1;
       h += `<div style="padding:12px 14px; margin-bottom:14px; background:rgba(197,160,89,0.06); border-radius:8px; border-left:3px solid var(--accent-gold);">`;
       h += `<div style="font-weight:bold; font-size:0.9rem; margin-bottom:6px;">🏛️ ${lang === 'en' ? 'Water Mill' : 'Vodní mlýn'}</div>`;
@@ -26156,27 +26162,27 @@ const CellariumSystem = {
         h += `<div style="font-size:0.78rem; opacity:0.6; font-style:italic;">${lang === 'en' ? 'Requires the Mill Race parcel (Cellarium → Land).' : 'Vyžaduje vlastněnou parcelu Mlýnský náhon (Cellarium → Pozemky).'}</div>`;
       } else if (_m.buildUntil) {
         const hoursLeft = Math.max(0, Math.ceil((_m.buildUntil - Date.now()) / 3600000));
-        const buildingName = lang === 'en' ? Game.MLYN_TIERS[_m.buildTargetTier].name_en : Game.MLYN_TIERS[_m.buildTargetTier].name;
+        const buildingName = lang === 'en' ? Game.MILL_TIERS[_m.buildTargetTier].name_en : Game.MILL_TIERS[_m.buildTargetTier].name;
         h += `<div style="font-size:0.78rem; opacity:0.7;">⏳ ${lang === 'en' ? `Building ${buildingName}, ~${hoursLeft}h` : `Staví se ${buildingName}, ~${hoursLeft}h`}</div>`;
-      } else if (_mTier >= Game.MLYN_TIERS.length - 1) {
+      } else if (_mTier >= Game.MILL_TIERS.length - 1) {
         h += `<div style="font-size:0.78rem;">✅ ${lang === 'en' ? 'Complete: The Mechanism' : 'Dokončeno: Mechanismus'}</div>`;
       } else {
-        const next = Game.MLYN_TIERS[_mTier + 1];
+        const next = Game.MILL_TIERS[_mTier + 1];
         const nextName = lang === 'en' ? next.name_en : next.name;
-        const curLabel = _mTier === -1 ? (lang==='en'?'not started':'nezahájeno') : (lang === 'en' ? Game.MLYN_TIERS[_mTier].name_en : Game.MLYN_TIERS[_mTier].name);
+        const curLabel = _mTier === -1 ? (lang==='en'?'not started':'nezahájeno') : (lang === 'en' ? Game.MILL_TIERS[_mTier].name_en : Game.MILL_TIERS[_mTier].name);
         const matsStr = Object.entries(next.materials).map(([id, qty]) => `${qty}× ${(typeof iName === 'function') ? iName(id) : id}`).join(', ');
         h += `<div style="font-size:0.78rem; opacity:0.7; margin-bottom:6px;">${lang === 'en' ? 'Current' : 'Aktuálně'}: ${curLabel} → ${nextName} (${next.cost}g, ${matsStr})</div>`;
         // Sekerník — mlynar-vlastni-mlyn-mrd.md §4.6, 16.8.2026. Tři stavy:
         // potřeba najmout / na cestě (čeká) / připravenej (buduj).
-        if (next.needsSekernik && _m.sekernikReadyForTier !== (_mTier + 1)) {
-          if (_m.sekernikHireUntil) {
-            const sHoursLeft = Math.max(0, Math.ceil((_m.sekernikHireUntil - Date.now()) / 3600000));
+        if (next.needsSekernik && _m.millwrightReadyForTier !== (_mTier + 1)) {
+          if (_m.millwrightHireUntil) {
+            const sHoursLeft = Math.max(0, Math.ceil((_m.millwrightHireUntil - Date.now()) / 3600000));
             h += `<div style="font-size:0.72rem; opacity:0.6; font-style:italic;">🔨 ${lang === 'en' ? `Millwright on his way, ~${sHoursLeft}h` : `Sekerník na cestě, ~${sHoursLeft}h`}</div>`;
           } else {
-            h += `<button onclick="Game.hireSekernik()" class="craft-btn" style="font-size:0.78rem;">🔨 ${lang === 'en' ? `Hire the millwright (${Game.SEKERNIK_COST}g)` : `Najmout sekerníka (${Game.SEKERNIK_COST}g)`}</button>`;
+            h += `<button onclick="Game.hireMillwright()" class="craft-btn" style="font-size:0.78rem;">🔨 ${lang === 'en' ? `Hire the millwright (${Game.MILLWRIGHT_COST}g)` : `Najmout sekerníka (${Game.MILLWRIGHT_COST}g)`}</button>`;
           }
         } else {
-          h += `<button onclick="Game.upgradeMlynTier()" class="craft-btn" style="font-size:0.78rem;">🏗️ ${lang === 'en' ? 'Build' : 'Postavit'}</button>`;
+          h += `<button onclick="Game.upgradeMillTier()" class="craft-btn" style="font-size:0.78rem;">🏗️ ${lang === 'en' ? 'Build' : 'Postavit'}</button>`;
         }
       }
       h += `</div>`;
@@ -30406,6 +30412,102 @@ const LimeSystem = {
     },
 };
 
+// ═══ src/systems/MillSystem.js ═══
+// ─────────────────────────────────────────────────────────────
+// MillSystem — vlastní vodní mlýn, PROVOZ (ne stavba — ta je
+// Game.MILL_TIERS/upgradeMillTier v core/game.js).
+// mlynar-vlastni-mlyn-mrd.md §4.7 (v1.3, 16.8.2026). Anglifikace názvů
+// (systém, funkce, pole) 16.8.2026 — zobrazovaný text zůstává bilingvní.
+//
+// Odemyká se, jakmile GameState.storage.mill.tier >= 2 (Mechanismus
+// dokončen) — mirror Vápenice vzoru (gate na built, ne na tech, žádná
+// smysluplná mezera "mám právo, ale ne budovu" tady existuje).
+//
+// Payoff oproti Mola (SaeculumSystem, Fáze 1): žádný poplatek (měřičné),
+// žádný 4h čekání — melí se okamžitě, dokud vydrží voda. Výkon vázanej
+// na srážky (WeatherSystem.countDryDays), ne na vítr (to je budoucí
+// Fáze 2, větrný mlýn, jinej vzorec).
+//
+// Vizuální/interakční vzor přebranej z Mola/Mlynář panelu
+// (SaeculumSystem.renderMola/renderMolaInner) — collapsible <details>,
+// plnošířkový buttony. Neni to mirror (žádná fronta/poplatek), jen
+// stejnej interakční jazyk.
+// ─────────────────────────────────────────────────────────────
+
+const MillSystem = {
+    isBuilt: function() {
+        return !!(GameState.storage && GameState.storage.mill && GameState.storage.mill.tier >= 2);
+    },
+
+    // Sucho = míň vody v náhonu = pomalejší mletí. 3denní okno, mirror
+    // Pole vzoru (countDryDays/countWetDays), jen jinej práh/efekt.
+    _productionMult: function() {
+        if (typeof WeatherSystem === 'undefined' || !WeatherSystem.countDryDays) return 1.0;
+        const { dry, total } = WeatherSystem.countDryDays(3);
+        if (!total) return 1.0;
+        const dryRatio = dry / total;
+        if (dryRatio >= 1.0) return 0.2;   // 3/3 suchý dny — náhon skoro na dně
+        if (dryRatio >= 0.66) return 0.5;  // 2/3 suchý dny — slabej průtok
+        return 1.0;                         // dost srážek — plnej výkon
+    },
+
+    grind: function(inputId) {
+        if (!this.isBuilt()) return;
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        const inp = (typeof SaeculumSystem !== 'undefined') ? SaeculumSystem.MOLA_INPUTS.find(x => x.id === inputId) : null;
+        if (!inp) return;
+        const have = GameState.inventory[inputId] || 0;
+        if (have <= 0) { UI.notify(lang==='en' ? 'Nothing to grind.' : 'Není co mlít.', true); return; }
+
+        const mult = this._productionMult();
+        const outputQty = Math.max(1, Math.floor(have * mult));
+        Game.removeItem(inputId, have);
+        Game.addItem(inp.outputId, outputQty);
+        Game.save();
+        const outName = (typeof iName === 'function') ? iName(inp.outputId) : inp.outputId;
+        UI.notifyPanel('🌾 ' + (lang==='en' ? `Ground into ${outputQty}× ${outName}.` : `Semleto na ${outputQty}× ${outName}.`), 'success');
+        if (typeof UI !== 'undefined' && UI.renderAll) UI.renderAll();
+        const el = document.getElementById('home-mill-content');
+        if (el) el.innerHTML = this.render();
+    },
+
+    render: function() {
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        if (!this.isBuilt()) {
+            return `<div style="padding:20px; text-align:center; opacity:0.6; font-style:italic;">${lang === 'en' ? 'The mill is not yet complete.' : 'Mlýn ještě není dokončenej.'}</div>`;
+        }
+        const mult = this._productionMult();
+        const pct = Math.round(mult * 100);
+        const flowLabel = mult >= 1.0
+            ? (lang === 'en' ? 'Full flow' : 'Plnej průtok')
+            : (mult >= 0.5 ? (lang === 'en' ? 'Weak flow — dry spell' : 'Slabej průtok — sucho') : (lang === 'en' ? 'Race nearly dry' : 'Náhon skoro na dně'));
+
+        if (!GameState.ui) GameState.ui = {};
+        const millOpen = GameState.ui.millSystemOpen !== false;
+        let h = `<details ${millOpen ? 'open' : ''} ontoggle="GameState.ui.millSystemOpen = this.open; Game.save();" style="margin-bottom:16px; background:rgba(0,0,0,0.03);
+                             border-radius:8px; border-left:3px solid var(--accent-gold);">`;
+        h += `<summary style="cursor:pointer; padding:10px 14px; font-size:0.92rem; font-weight:bold; list-style:none; user-select:none; display:flex; align-items:center; justify-content:space-between; gap:6px;">
+                <span>💧 ${lang === 'en' ? 'Water Mill' : 'Vodní mlýn'}</span><span style="opacity:0.5; font-weight:normal;">▾</span>
+              </summary>`;
+        h += `<div style="padding:10px 14px 14px;">`;
+        h += `<div style="font-size:0.76rem; opacity:0.6; margin-bottom:8px;">${lang === 'en' ? 'Own mill — no fee, no wait, only the water decides.' : 'Vlastní mlýn — žádnej poplatek, žádný čekání, rozhoduje jen voda.'} · 💧 ${flowLabel} (${pct}%)</div>`;
+        h += `<div style="display:flex;flex-direction:column;gap:6px;">`;
+        if (typeof SaeculumSystem !== 'undefined') {
+            SaeculumSystem.MOLA_INPUTS.filter(inp => !inp.mult).forEach(inp => { // jen zrní (log/bark mají mult, patří Mlynáři/Mole, ne sem)
+                const have = GameState.inventory[inp.id] || 0;
+                const label = lang === 'en' ? inp.label_en : inp.label;
+                const outName = (typeof iName === 'function') ? iName(inp.outputId) : inp.outputId;
+                const verb = lang === 'en' ? 'grind to' : 'semlít na';
+                h += `<button class="craft-btn" onclick="MillSystem.grind('${inp.id}')" ${have > 0 ? '' : 'disabled'}
+                        style="text-align:left; white-space:normal; word-break:break-word; line-height:1.25; width:100%;">
+                        ${inp.icon} ${label} (${have}) → ${verb} ${outName}
+                      </button>`;
+            });
+        }
+        h += `</div></div></details>`;
+        return h;
+    },
+};
 // ═══ src/systems/DryingSystem.js ═══
 // ═══════════════════════════════════════════════════════════════════════════
 // DRYING SYSTEM v1 — Susarna
@@ -59328,6 +59430,25 @@ const Game = {
             GameState.lastSeen = 0;
         }
 
+        // Přejmenování mlyn→mill (16.8.2026, anglifikace názvů) — OPRAVA:
+        // dřív žilo uvnitř buildStorage(type), co se spustí jen při KLIKNUTÍ
+        // na stavbu — u už hotovýho mlýna se to nikdy nezavolalo, migrace
+        // nikdy neproběhla. Teď běží tady, mirror firstVisit/forceDark vzoru
+        // výš — jednou za načtení hry, bez ohledu na hráčovu akci.
+        if (!GameState.storage) GameState.storage = {};
+        if (GameState.storage.mlyn && !GameState.storage.mill) {
+            const oldMlyn = GameState.storage.mlyn;
+            GameState.storage.mill = {
+                tier: oldMlyn.tier,
+                buildUntil: oldMlyn.buildUntil,
+                buildTargetTier: oldMlyn.buildTargetTier,
+                millwrightHireUntil: oldMlyn.sekernikHireUntil,
+                millwrightReadyForTier: oldMlyn.sekernikReadyForTier,
+                millwrightHireForTier: oldMlyn.sekernikHireForTier,
+            };
+            delete GameState.storage.mlyn;
+        }
+
         const _nowInit = Date.now();
         const _daysSinceLastSeen = GameState.lastSeen > 0
             ? (_nowInit - GameState.lastSeen) / (1000 * 60 * 60 * 24)
@@ -59605,8 +59726,8 @@ const Game = {
 		Game.checkUbytovnaPetitions();
 		Game.checkGuildPetitions();
 		Game.checkLandParcels();
-		Game.checkMlynBuildComplete();
-		Game.checkSekernikHireComplete();
+		Game.checkMillBuildComplete();
+		Game.checkMillwrightHireComplete();
 		// Krok B — vážený denní report Clientela↔Chronicon vztahů (mirror registrum)
 		if (typeof ChroniconSystem !== 'undefined' && ChroniconSystem._reportContactRelationIfNewDay) {
 			ChroniconSystem._reportContactRelationIfNewDay();
@@ -60068,8 +60189,8 @@ const Game = {
                     if (typeof Game !== 'undefined' && Game.checkUbytovnaPetitions) Game.checkUbytovnaPetitions();
                     if (typeof Game !== 'undefined' && Game.checkGuildPetitions) Game.checkGuildPetitions();
                     if (typeof Game !== 'undefined' && Game.checkLandParcels) Game.checkLandParcels();
-                    if (typeof Game !== 'undefined' && Game.checkMlynBuildComplete) Game.checkMlynBuildComplete();
-                    if (typeof Game !== 'undefined' && Game.checkSekernikHireComplete) Game.checkSekernikHireComplete();
+                    if (typeof Game !== 'undefined' && Game.checkMillBuildComplete) Game.checkMillBuildComplete();
+                    if (typeof Game !== 'undefined' && Game.checkMillwrightHireComplete) Game.checkMillwrightHireComplete();
                     // Columbarium — denní riziko predátora (self-guarded 24h, jen level 1)
                     if (typeof FarmyardSystem !== 'undefined' && FarmyardSystem.columbariumPredatorTick) FarmyardSystem.columbariumPredatorTick();
                     // Columbarium — pasivní přírůstek do stropu 13 (self-guarded 24h, holubnik-mrd)
@@ -65508,20 +65629,20 @@ const Game = {
     // postaveno (na rozdíl od Fabrica, kde tier 0 = Kaple už existuje
     // vždy). Tier 0 (Základy) JEDINÝ implementovanej teď — Tier 1/2
     // (Kolo/Mechanismus, sekerník najímání) čekaj na budoucí krok,
-    // data pro ně tady jsou kompletní (§4.4/4.9), jen upgradeMlynTier
+    // data pro ně tady jsou kompletní (§4.4/4.9), jen upgradeMillTier
     // je zatím nepustí dál (viz kontrola níž).
-    MLYN_TIERS: [
+    MILL_TIERS: [
         { name: 'Základy',     name_en: 'Foundations',  cost: 300, materials: { cut_stone: 100 }, buildDays: 3 },
         { name: 'Kolo',        name_en: 'The Wheel',    cost: 350, materials: { oak_log_seasoned: 15, iron_ingot: 5 }, buildDays: 5, needsSekernik: true },
         { name: 'Mechanismus', name_en: 'The Mechanism', cost: 350, materials: { plank: 80, iron_ingot: 5 }, buildDays: 7, needsSekernik: true },
     ],
 
-    upgradeMlynTier: function() {
+    upgradeMillTier: function() {
         if (typeof CellariumSystem === 'undefined') return;
         const lang = (GameState.settings && GameState.settings.language) || 'cs';
         if (!GameState.storage) GameState.storage = {};
-        if (!GameState.storage.mlyn) GameState.storage.mlyn = { tier: -1, buildUntil: null, buildTargetTier: null, sekernikHireUntil: null, sekernikReadyForTier: null };
-        const m = GameState.storage.mlyn;
+        if (!GameState.storage.mill) GameState.storage.mill = { tier: -1, buildUntil: null, buildTargetTier: null, millwrightHireUntil: null, millwrightReadyForTier: null };
+        const m = GameState.storage.mill;
         const tier = (typeof m.tier === 'number') ? m.tier : -1;
 
         // Pozemky hard rule (pozemky-mrd.md §0.1) — bez vlastněný parcely ani Tier 0 nejde.
@@ -65530,14 +65651,14 @@ const Game = {
             UI.notify(lang==='en' ? '❌ Requires the Mill Race parcel (owned).' : '❌ Vyžaduje vlastněnou parcelu Mlýnský náhon.', true);
             return;
         }
-        if (tier >= this.MLYN_TIERS.length - 1) return;
+        if (tier >= this.MILL_TIERS.length - 1) return;
         if (m.buildUntil) { UI.notify('⚠️ ' + (lang==='en'?'Construction already underway.':'Stavba už probíhá.'), true); return; }
         const nextTier = tier + 1;
-        const next = this.MLYN_TIERS[nextTier];
+        const next = this.MILL_TIERS[nextTier];
         // Tier 1/2 potřebujou najatýho sekerníka pro TENHLE konkrétní tier
         // (mlynar-vlastni-mlyn-mrd.md §4.6 — opakovaná akce per fáze, ne
-        // trvalej kontakt). Sekerník se najímá zvlášť (Game.hireSekernik).
-        if (next.needsSekernik && m.sekernikReadyForTier !== nextTier) {
+        // trvalej kontakt). Sekerník se najímá zvlášť (Game.hireMillwright).
+        if (next.needsSekernik && m.millwrightReadyForTier !== nextTier) {
             UI.notify(lang==='en' ? '🔨 Hire the millwright for this stage first.' : '🔨 Nejdřív najmi sekerníka na tuhle fázi.', true);
             return;
         }
@@ -65549,7 +65670,7 @@ const Game = {
         }
         CellariumSystem.spendGrose(next.cost);
         for (const matId in next.materials) this.removeItem(matId, next.materials[matId]);
-        if (next.needsSekernik) m.sekernikReadyForTier = null; // spotřebováno, další tier potřebuje novej nájem
+        if (next.needsSekernik) m.millwrightReadyForTier = null; // spotřebováno, další tier potřebuje novej nájem
         const name = lang==='en' ? next.name_en : next.name;
         m.buildUntil = Date.now() + next.buildDays * 24 * 60 * 60 * 1000;
         m.buildTargetTier = nextTier;
@@ -65566,13 +65687,13 @@ const Game = {
         if (_cel1) _cel1.outerHTML = CellariumSystem.renderCellariumContent();
     },
 
-    checkMlynBuildComplete: function() {
-        if (!(GameState.storage && GameState.storage.mlyn)) return;
-        const m = GameState.storage.mlyn;
+    checkMillBuildComplete: function() {
+        if (!(GameState.storage && GameState.storage.mill)) return;
+        const m = GameState.storage.mill;
         if (!m.buildUntil || Date.now() < m.buildUntil) return;
         const lang = (GameState.settings && GameState.settings.language) || 'cs';
         const targetTier = m.buildTargetTier;
-        const def = this.MLYN_TIERS[targetTier];
+        const def = this.MILL_TIERS[targetTier];
         m.tier = targetTier;
         m.buildUntil = null;
         m.buildTargetTier = null;
@@ -65591,38 +65712,38 @@ const Game = {
     // Sekerník — najatá práce (mlynar-vlastni-mlyn-mrd.md §4.6, 16.8.2026).
     // Opakovaná akce PER FÁZI stavby, ne trvalej kontakt ani jednorázovka.
     // 100g + 1 den čekání, mirror abbotPetition/Mola timerový vzoru.
-    SEKERNIK_COST: 100,
-    SEKERNIK_WAIT_MS: 86400000,
+    MILLWRIGHT_COST: 100,
+    MILLWRIGHT_WAIT_MS: 86400000,
 
-    hireSekernik: function() {
+    hireMillwright: function() {
         if (typeof CellariumSystem === 'undefined') return;
         const lang = (GameState.settings && GameState.settings.language) || 'cs';
         if (!GameState.storage) GameState.storage = {};
-        if (!GameState.storage.mlyn) GameState.storage.mlyn = { tier: -1, buildUntil: null, buildTargetTier: null, sekernikHireUntil: null, sekernikReadyForTier: null };
-        const m = GameState.storage.mlyn;
+        if (!GameState.storage.mill) GameState.storage.mill = { tier: -1, buildUntil: null, buildTargetTier: null, millwrightHireUntil: null, millwrightReadyForTier: null };
+        const m = GameState.storage.mill;
         const tier = (typeof m.tier === 'number') ? m.tier : -1;
         const nextTier = tier + 1;
-        const next = this.MLYN_TIERS[nextTier];
+        const next = this.MILL_TIERS[nextTier];
 
         if (!next || !next.needsSekernik) {
             UI.notify(lang==='en' ? '❌ No stage currently needs the millwright.' : '❌ Žádná fáze teď sekerníka nepotřebuje.', true);
             return;
         }
-        if (m.sekernikReadyForTier === nextTier) {
+        if (m.millwrightReadyForTier === nextTier) {
             UI.notify(lang==='en' ? '✅ The millwright is already ready for this stage.' : '✅ Sekerník je na tuhle fázi už připravenej.', true);
             return;
         }
-        if (m.sekernikHireUntil) {
+        if (m.millwrightHireUntil) {
             UI.notify('⏳ ' + (lang==='en'?'The millwright is already on his way.':'Sekerník už je na cestě.'), true);
             return;
         }
-        if (CellariumSystem.getGrose() < this.SEKERNIK_COST) {
+        if (CellariumSystem.getGrose() < this.MILLWRIGHT_COST) {
             UI.notify('⚠️ ' + (lang==='en'?'Not enough groschen.':'Nedostatek grošů.'), true);
             return;
         }
-        CellariumSystem.spendGrose(this.SEKERNIK_COST);
-        m.sekernikHireUntil = Date.now() + this.SEKERNIK_WAIT_MS;
-        m.sekernikHireForTier = nextTier;
+        CellariumSystem.spendGrose(this.MILLWRIGHT_COST);
+        m.millwrightHireUntil = Date.now() + this.MILLWRIGHT_WAIT_MS;
+        m.millwrightHireForTier = nextTier;
         Game.save();
         UI.notifyPanel('🔨 ' + (lang==='en'?'A millwright has been sent for.':'Pro sekerníka bylo posláno.'), 'success');
         Game.addKronikaEntry('minor',
@@ -65634,14 +65755,14 @@ const Game = {
         if (_cel3) _cel3.outerHTML = CellariumSystem.renderCellariumContent();
     },
 
-    checkSekernikHireComplete: function() {
-        if (!(GameState.storage && GameState.storage.mlyn)) return;
-        const m = GameState.storage.mlyn;
-        if (!m.sekernikHireUntil || Date.now() < m.sekernikHireUntil) return;
+    checkMillwrightHireComplete: function() {
+        if (!(GameState.storage && GameState.storage.mill)) return;
+        const m = GameState.storage.mill;
+        if (!m.millwrightHireUntil || Date.now() < m.millwrightHireUntil) return;
         const lang = (GameState.settings && GameState.settings.language) || 'cs';
-        m.sekernikReadyForTier = m.sekernikHireForTier;
-        m.sekernikHireUntil = null;
-        m.sekernikHireForTier = null;
+        m.millwrightReadyForTier = m.millwrightHireForTier;
+        m.millwrightHireUntil = null;
+        m.millwrightHireForTier = null;
         Game.save();
         UI.notifyPanel('🔨 ' + (lang==='en'?'The millwright has arrived and is ready to work.':'Sekerník dorazil a je připravenej k práci.'), 'success');
         if (typeof UI !== 'undefined' && UI.renderAll) UI.renderAll();
@@ -69164,6 +69285,11 @@ const UI = {
         const _vapeniceBtn = document.getElementById('home-sub-vapenice');
         if (_vapeniceBtn) _vapeniceBtn.style.display = (GameState.storage && GameState.storage.vapenice && GameState.storage.vapenice.built) ? '' : 'none';
 
+        // Vodní mlýn — gate na tier >= 2 (Mechanismus dokončen), mirror Vápenice.
+        // mlynar-vlastni-mlyn-mrd.md §4.7, 16.8.2026.
+        const _millBtn = document.getElementById('home-sub-mill');
+        if (_millBtn) _millBtn.style.display = (typeof MillSystem !== 'undefined' && MillSystem.isBuilt()) ? '' : 'none';
+
         this.renderResourceTracker();
 
         const s = this.currentScreen || 'home';
@@ -71020,11 +71146,13 @@ const UI = {
         const cooking = document.getElementById('home-cooking-content');
         const drying = document.getElementById('home-drying-content');
         const vapenice = document.getElementById('home-vapenice-content');
+        const mill = document.getElementById('home-mill-content');
         if (scav) scav.style.display = tab === 'scavenge' ? 'block' : 'none';
         if (mine) mine.style.display = tab === 'mine' ? 'block' : 'none';
         if (cooking) cooking.style.display = tab === 'cooking' ? 'block' : 'none';
         if (drying) drying.style.display = tab === 'drying' ? 'block' : 'none';
         if (vapenice) vapenice.style.display = tab === 'vapenice' ? 'block' : 'none';
+        if (mill) mill.style.display = tab === 'mill' ? 'block' : 'none';
         document.querySelectorAll('#home-main-content .filter-btn').forEach(b => b.classList.remove('active'));
         if (btn) btn.classList.add('active');
         if (tab === 'mine') { this.renderMineYieldInfo(); this.renderFodinaPetitionPanel(); this.renderMineActions(); }
@@ -71041,6 +71169,10 @@ const UI = {
         // Vápenice — 16.8.2026, mirror drying dispatch (pec + jáma v LimeSystem.render()).
         if (tab === 'vapenice' && vapenice && typeof LimeSystem !== 'undefined') {
             vapenice.innerHTML = LimeSystem.render();
+        }
+        // Vodní mlýn — provoz (mlynar-vlastni-mlyn-mrd.md §4.7, 16.8.2026), mirror vapenice dispatch.
+        if (tab === 'mill' && mill && typeof MillSystem !== 'undefined') {
+            mill.innerHTML = MillSystem.render();
         }
     },
 
