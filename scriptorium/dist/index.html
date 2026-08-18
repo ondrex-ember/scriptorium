@@ -9998,7 +9998,24 @@ const HealthConditionsDB = {
         tickHour: { fatigue: 1 },
         cures: ["elixir_purgationis"],
     },
+
+    // ── athanor-research-mrd (Tier 1 — Llull) — nehoda při Výzkumu ──
+    "alchemical_burn": {
+        name: "Popáleniny z Athanoru", name_en: "Alchemical Burns", icon: "🩹",
+        desc: "Vystříknutá horká směs při neúspěšném pokusu.",
+        desc_en: "A hot mixture splashed out during a failed experiment.",
+        causeShort: "Nehoda při alchymistickém výzkumu.",
+        causeShort_en: "An accident during alchemical research.",
+        advice: "Mast urychlí hojení. Vyhýbej se dalšímu Výzkumu, dokud nezmizí.",
+        advice_en: "A salve speeds healing. Avoid further Research until it clears.",
+        durationHours: 48,
+        onApply: { fatigue: 20 },
+        tickHour: { fatigue: 1 },
+        cures: ["mast_universalni", "potion_heal", "mast_kostivalova"],
+        humor: "cholera",
+    },
 };
+
 // ═══ src/data/lore.js ═══
 const LoreDB = {
     // TOOLS
