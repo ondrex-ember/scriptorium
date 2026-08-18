@@ -7210,6 +7210,7 @@ const Game = {
     // (Officium/Kapitula), řešeno jinde, ne zde.
     DORMITORIUM_TAB_TRAITS: {
         athanor:     { primary: 'erudition',     secondary: 'focus' },
+        athanor_research: { primary: 'erudition', secondary: 'focus' },
         scriptorium: { primary: 'erudition',     secondary: 'focus' },
         zahony:      { primary: 'craftsmanship', secondary: 'vigor' },
         sad:         { primary: 'craftsmanship', secondary: 'vigor' },
@@ -9677,6 +9678,139 @@ const Game = {
                             if (typeof AthanorSystem !== 'undefined' && AthanorSystem.refreshIfOpen) {
                                 AthanorSystem.refreshIfOpen();
                             }
+                        }
+                    }
+                }
+            }
+        }
+
+        // ── Athanor Výzkum (athanor-research-mrd, Tier 1 — Llull): přiřazený
+        //    bratr "Badatel" zkouší NEobjevené kombinace, self-guarded 24h.
+        //    Tier 1 (Circulus Lullianus): filtrovaný pokus — před spotřebou
+        //    surovin se kombinace "na zkoušku" vyhodnotí; pokud padne do
+        //    CORRUPTIO (thermal/moisture mimo rozsah), zahodí se BEZ nákladu
+        //    a zkusí se jiná. Denní budget dle náročnosti procesu, ne pevný
+        //    počet pokusů. UNKNOWN se blacklistuje natrvalo (failedAttempts),
+        //    LOCKED ne — recept může být později odemčen foliem. ──
+        const RESEARCH_ATTEMPT_COST = { trituratio: 1, coctio: 1, maceratio: 1, destillatio: 2, calcinatio: 2 };
+        const RESEARCH_DAILY_BUDGET = 3;
+        const researchBrother = (GameState.dormitorium && GameState.dormitorium.brothers || [])
+            .find(b => b.assignedTab === 'athanor_research');
+        if ((!onlyTab || onlyTab === 'athanor_research') && researchBrother && GameState.athanor
+            && typeof AthanorDB !== 'undefined' && typeof CombinationEngine !== 'undefined'
+            && GameState.researchedTechs && GameState.researchedTechs.includes('tech_athanor_ars_magna')
+            && (GameState.inventory['circulus_lullianus'] || 0) > 0) {
+            if (!GameState.conversiAthanorResearchLastTick) GameState.conversiAthanorResearchLastTick = 0;
+            if (Date.now() - GameState.conversiAthanorResearchLastTick >= DAY) {
+                GameState.conversiAthanorResearchLastTick = Date.now();
+                const state = GameState.athanor;
+                if (!state.failedAttempts) state.failedAttempts = [];
+
+                if (!state.brewing) {
+                    let budget = RESEARCH_DAILY_BUDGET;
+                    let attempts = 0, successes = 0, newFinds = [], accident = false;
+
+                    while (budget > 0 && !accident) {
+                        // Najdi kombinaci "na zkoušku" — až 5 rerollů, bez nákladu,
+                        // dokud nenarazí na něco, co stojí za skutečný pokus.
+                        let picked = null;
+                        for (let reroll = 0; reroll < 5 && !picked; reroll++) {
+                            const feasibleProcs = AthanorDB.processes.filter(p => {
+                                const cost = RESEARCH_ATTEMPT_COST[p.id] || 1;
+                                if (cost > budget) return false;
+                                if (p.unlock && !(GameState.researchedTechs && GameState.researchedTechs.includes(p.unlock))) return false;
+                                if (p.id === 'destillatio' && !((GameState.inventory['alembic'] || 0) > 0 && (GameState.inventory['glass_flask'] || 0) > 0)) return false;
+                                return true;
+                            });
+                            if (!feasibleProcs.length) break; // žádný proces se dnes už nevejde/není odemčen
+                            const process = feasibleProcs[Math.floor(Math.random() * feasibleProcs.length)];
+
+                            const pool = AthanorDB.ingredients.filter(ing => (GameState.inventory[ing.id] || 0) > 0);
+                            if (!pool.length) break; // nic na skladě k pokusu
+
+                            const maxSlots = (typeof AthanorSystem !== 'undefined' && AthanorSystem.maxSlots) ? AthanorSystem.maxSlots() : 3;
+                            const n = 2 + Math.floor(Math.random() * (maxSlots - 1)); // 2..maxSlots
+                            const slotIds = [];
+                            for (let i = 0; i < n; i++) slotIds.push(pool[Math.floor(Math.random() * pool.length)].id);
+                            const counts = {};
+                            slotIds.forEach(id => { counts[id] = (counts[id] || 0) + 1; });
+                            const hasAll = Object.entries(counts).every(([id, qty]) => (GameState.inventory[id] || 0) >= qty);
+                            if (!hasAll) continue; // reroll, nestálo to náklad
+
+                            const key = [...slotIds].sort().join('+') + ':' + process.id;
+                            if (state.failedAttempts.includes(key)) continue; // už víme, že je to slepá ulička
+
+                            const preview = CombinationEngine.evaluate(slotIds, process.id);
+                            if (!preview.success && preview.failure && preview.failure.id === 'CORRUPTIO') continue; // Llullův filtr — přeskočí bez nákladu
+
+                            picked = { slotIds, process, key, result: preview };
+                        }
+
+                        if (!picked) break; // 5 rerollů bez výsledku — dnes už dál nejde
+
+                        // Skutečný pokus — teď se to počítá.
+                        const cost = RESEARCH_ATTEMPT_COST[picked.process.id] || 1;
+                        budget -= cost;
+                        attempts++;
+                        picked.slotIds.forEach(id => this.removeItem(id, 1));
+                        if (picked.process.id === 'destillatio') this.removeItem('glass_flask', 1);
+
+                        const result = picked.result;
+                        if (result.success) {
+                            const { combo, isCritical } = result;
+                            const qty = combo.result.qty + (isCritical ? 1 : 0);
+                            this.addItem(combo.result.id, qty);
+                            if (combo.effect && typeof AthanorSystem !== 'undefined' && AthanorSystem.applyEffect) {
+                                AthanorSystem.applyEffect(combo.effect, combo.name);
+                            }
+                            const isNewDiscovery = !state.discovered.includes(picked.key);
+                            if (isNewDiscovery) { state.discovered.push(picked.key); newFinds.push(combo.name); }
+                            successes++;
+                        } else {
+                            if (result.failure && result.failure.id === 'UNKNOWN' && !state.failedAttempts.includes(picked.key)) {
+                                state.failedAttempts.push(picked.key);
+                            }
+                            // 4 % šance na nehodu při neúspěchu — popáleniny + zapečetěný Athanor
+                            if (Math.random() < 0.04) {
+                                accident = true;
+                                if (!researchBrother.conditions) researchBrother.conditions = {};
+                                if (!researchBrother.conditions['alchemical_burn']) {
+                                    const def = HealthConditionsDB['alchemical_burn'];
+                                    researchBrother.conditions['alchemical_burn'] = { startedAt: Date.now(), expiresAt: Date.now() + def.durationHours * 3600000 };
+                                    if (def.onApply && typeof def.onApply.fatigue === 'number') {
+                                        researchBrother.fatigue = Math.min(100, (researchBrother.fatigue || 0) + def.onApply.fatigue);
+                                    }
+                                }
+                                if (!GameState.flags) GameState.flags = {};
+                                GameState.flags.athanorSealedUntil = Date.now() + (2 * 3600000);
+                            }
+                        }
+                        researchBrother.fatigue = Math.min(100, (researchBrother.fatigue || 0) + 15);
+                        this.dormitoriumAddXp(researchBrother, 'athanor_research');
+                    }
+
+                    if (attempts > 0) {
+                        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+                        let msg_cs = `🎡 ${researchBrother.name} (Výzkum) provedl ${attempts}× pokus`;
+                        let msg_en = `🎡 ${researchBrother.name} (Research) ran ${attempts} attempt${attempts > 1 ? 's' : ''}`;
+                        if (newFinds.length) {
+                            msg_cs += ` — 📜 nový objev: ${newFinds.join(', ')}!`;
+                            msg_en += ` — 📜 new discovery: ${newFinds.join(', ')}!`;
+                        } else if (successes > 0) {
+                            msg_cs += `, ${successes}× úspěšně (už známé recepty)`;
+                            msg_en += `, ${successes} successful (already-known recipes)`;
+                        } else {
+                            msg_cs += `, bez úspěchu`;
+                            msg_en += `, no success`;
+                        }
+                        if (accident) {
+                            msg_cs += `. 🩹 Nehoda — ${researchBrother.name} se popálil, Athanor je poškozený.`;
+                            msg_en += `. 🩹 Accident — ${researchBrother.name} was burned, the Athanor is damaged.`;
+                        }
+                        this._reportWork(msg_cs + '.', msg_en + '.');
+                        Game.save();
+                        if (typeof AthanorSystem !== 'undefined' && AthanorSystem.refreshIfOpen) {
+                            AthanorSystem.refreshIfOpen();
                         }
                     }
                 }
