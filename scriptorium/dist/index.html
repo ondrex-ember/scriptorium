@@ -8504,6 +8504,7 @@ const ItemsDB = {
     "pigment_green": { name: "Zelený pigment", name_en: "Green Pigment", icon: "🟢", type: "lore", desc: "Měděnka v tempera. Časem koroduje pergamen.", desc_en: "Verdigris in tempera. Corrodes vellum over time." },
     "pigment_blue": { name: "Ultramarín", name_en: "Ultramarine", icon: "💙", type: "lore", desc: "Z lapis lazuli. Dražší než zlato.", desc_en: "From lapis lazuli. More precious than gold." },
     "potion_vigor_minor": { name: "Heřmánkový odvar", name_en: "Chamomile Draught", icon: "🌼", type: "potion", desc: "Obnoví síly. Vigor +20.", desc_en: "Restores strength. Vigor +20." },
+    "potion_vigor_major": { name: "Brtnické tonikum", name_en: "Beeman's Tonic", icon: "🍯", type: "potion", desc: "Včelí chléb louhovaný v medu. Obnoví síly. Vigor +35.", desc_en: "Bee bread steeped in honey. Restores strength. Vigor +35." },
     "potion_craft_boost": { name: "Třezalkový lektvar", name_en: "St. John's Tincture", icon: "🌻", type: "potion", desc: "Crafting ×1.5 po dobu 1 hodiny.", desc_en: "Crafting ×1.5 for 1 hour." },
     "potion_hunger_remedy": { name: "Hojivá mast", name_en: "Healing Salve", icon: "🕯️", type: "potion", desc: "Zpomalí hlad o 4 hodiny.", desc_en: "Slows hunger by 4 hours." },
     "herbal_tea": { name: "Bylinný čaj", name_en: "Herbal Tea", icon: "🍵", type: "food", desc: "Heřmánek, tymián nebo máta s vodou. Uklidní tělo a sníží únavu.", desc_en: "Chamomile, thyme or mint with water. Calms the body and eases fatigue." },
@@ -8625,7 +8626,8 @@ const ItemsDB = {
     "feather_hen": { name: "Peří", name_en: "Hen Feather", icon: "🪶", type: "mat", desc: "Husté peří. Na polštáře i brky.", desc_en: "Thick feathers. For pillows and quills." },
 
     // ── Produkty zahrady / včelína ─────────────────────────────────────────
-    "pollen": { name: "Pyl", name_en: "Pollen", icon: "🌼", type: "mat", desc: "Včelí pyl. Léčivý a vzácný.", desc_en: "Bee pollen. Medicinal and rare." },
+    "pollen": { name: "Pyl", name_en: "Pollen", icon: "🌼", type: "mat", desc: "Včelí pyl z plástve. Sám o sobě k ničemu — teprve zkvašený s medem dá Včelí chléb.", desc_en: "Bee pollen from the comb. Useless on its own — only once fermented with honey does it become Bee Bread." },
+    "bee_bread": { name: "Včelí chléb", name_en: "Bee Bread", icon: "🟫", type: "mat", desc: "Tmavá, kysele vonící hmota z plástve — pyl zkvašený s medem. Staří léčitelé (Hippokrates, Plinius) ji chválili jako posilující. Mniši věří totéž, i když nevědí proč.", desc_en: "A dark, sour-smelling mass from the comb — pollen fermented with honey. Ancient healers (Hippocrates, Pliny) praised it as fortifying. The monks believe the same, though they know not why." },
     "linden_blossom": { name: "Lipový květ", name_en: "Linden Blossom", icon: "🌸", type: "mat", desc: "Sušený lipový květ. Do čaje i léčiv.", desc_en: "Dried linden blossom. For tea and remedies." , seasonCat: "lipovy_kvet" },
     "apple": { name: "Jablko", name_en: "Apple", icon: "🍎", type: "food_raw", desc: "Ze sadu. Skladuje se do jara.", desc_en: "From the orchard. Keeps until spring." },
     "pear": { name: "Hruška", name_en: "Pear", icon: "🍐", type: "food_raw", desc: "Ze sadu. Šťavnatá, ale rychle měkne.", desc_en: "From the orchard. Juicy but softens quickly." },
@@ -8968,6 +8970,7 @@ Object.assign(ItemsDB, {
         desc: "Potřísněný list nalezený mezi zkaženými zásobami. Někdo si zapsal, co znamená, když zanedbání přivolá roj.", desc_en: "A stained page found among the spoiled stores. Someone once wrote down what it means when neglect draws a swarm."
     },
 });
+
 // ═══ src/data/recipes.js ═══
 const RecipesDB = [
     // BASIC TOOLS
