@@ -120,6 +120,7 @@ const DecaySystem = {
         herb_blue: { rate: 0.13 },
         mint: { rate: 0.13 },
         pollen: { rate: 0.13 },
+        bee_bread: { rate: 0.05 },
         linden_blossom: { rate: 0.13 },
         grass: { rate: 0.13 },
         leaves: { rate: 0.13 },
