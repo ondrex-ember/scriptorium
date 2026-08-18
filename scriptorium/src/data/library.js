@@ -88,6 +88,32 @@ const FontSpecimensDB = {
 const LibraryDB = {
     books: [
         // TIER 1 - První týden (day 1-7)
+        {
+            id: 'book_ars_magna',
+            title: 'Ars Magna — Velké umění Ramona Llulla',
+            category: 'technical',
+            unlockDay: 0,
+            icon: '🎡',
+            author: 'Ramon Llull',
+            year: 1308,
+            content: `**Mallorský kazatel, co chtěl obrátit svět kolem**
+
+Ramon Llull se nenarodil jako učenec. Byl dvořanem na Mallorce, mužem světa, než ho — podle vlastních slov — oslovilo vidění Krista na kříži a obrátilo jeho život vzhůru nohama. Zbytek života zasvětil jedinému cíli: najít způsob, jak rozumem, ne mečem, přesvědčit muslimy a Židy o pravdě křesťanství. Z téhle posedlosti vzešlo něco, co nikdo nečekal — první pokus v evropských dějinách o mechanický stroj na myšlení.
+
+**Kola místo hádání**
+
+Llullovo Velké umění (Ars Magna, ve své poslední verzi Ars generalis ultima z počátku 14. století) stojí na jednoduché, ale podivuhodné myšlence: pokud jsou Boží vlastnosti — Dobrota, Velikost, Věčnost, Moc a další — konečný soubor základních pojmů, dají se zapsat jako písmena na okraj otáčivých papírových kol, vrstvených na společném čepu. Otočením kol proti sobě vzniknou nové a nové kombinace písmen — a tedy nové a nové kombinace výroků o světě. Místo aby teolog hádal, jaké argumenty existují, mechanicky je vygeneruje otáčením kruhu a projde je všechny.
+
+**Stroj, co pravdu nezaručí, ale prohledá ji celou**
+
+Je důležité říct, co Llullova kola NEdělala: nevěděla dopředu, která kombinace je pravdivá. Nebyla to věštba ani zkratka k odpovědi. Byl to nástroj vyčerpávajícího, systematického průzkumu — projít všechny myslitelné kombinace, aby žádná možnost neunikla pozornosti jen proto, že si na ni nikdo nevzpomněl. V tom je ten skutečný skok: Llull byl možná první, kdo pravdu hledal kombinatorikou, ne intuicí.
+
+**Odkaz o čtyři století později**
+
+Llull zemřel roku 1316, podle legendy jako mučedník při misii v severní Africe — ač historikové se v podrobnostech jeho smrti rozcházejí. Jeho kola upadla na staletí v zapomnění jako kuriozita podivína. Až v 17. století na ně narazil mladý německý polyhistor Gottfried Wilhelm Leibniz a v spisku *Dissertatio de arte combinatoria* (1666) přiznal, kde načerpal inspiraci pro vlastní úvahy o mechanickém výpočtu myšlenek. Co začalo jako pomůcka mallorského kazatele, tak stojí na počátku cesty, která o staletí později vede k logickým strojům a počítání jako takovému.
+
+*Kdo otáčí koly dost trpělivě, jednou projde všemi možnostmi, které svět skrývá.*`
+        },
 
 // TIER 2 - Druhý týden (day 8-14)
         {
