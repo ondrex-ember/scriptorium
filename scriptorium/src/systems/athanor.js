@@ -77,6 +77,22 @@ const AthanorDB = {
       lore: 'Klášterní med. Sladí i váže. Hildegarda ho chválila.'
     },
     {
+      id: 'propolis',
+      name: 'Propolis', name_lat: 'Propolis',
+      rarity: 'uncommon', source: 'existing',
+      color: '#5a3a1a', icon: '🟤',
+      thermal: 1, moisture: -2,
+      lore: 'Pryskyřičný tmel z úlu. Včely jím utěsňují škvíry proti chladu i hnilobě.'
+    },
+    {
+      id: 'bee_bread',
+      name: 'Včelí chléb', name_lat: 'Panis Apium',
+      rarity: 'uncommon', source: 'existing',
+      color: '#6b4423', icon: '🟫',
+      thermal: 3, moisture: 1,
+      lore: 'Pyl zkvašený s medem v plástvi. Hippokratés a Plinius jej chválili jako posilující.'
+    },
+    {
       id: 'carbon_black',
       name: 'Saze', name_lat: 'Carbo Niger',
       rarity: 'common', source: 'foraging',
@@ -696,6 +712,31 @@ const AthanorDB = {
     },
 
     // ── Discoverable: skryté kombinace ──
+    // pyl-prepracovani-mrd (18.8.2026): propolis chybělo v ingredients i zde,
+    // ačkoliv CellariumSystem cenu a decay pro propolis_tinktura má už od
+    // MRD 5.5 — doplňuje rozjetou, nikdy nedokončenou mechaniku.
+    'propolis+spiritus_vini:maceratio': {
+      result: { id: 'propolis_tinktura', qty: 1 },
+      name: 'Propolisová tinktura',
+      name_lat: 'Tinctura Propolis',
+      icon: '🧪',
+      effect: null,
+      lore: 'Propolis louhovaný ve vinném lihu. Klášterní lék proti ranám a bolesti v krku.'
+    },
+    'bee_bread+honey:maceratio': {
+      result: { id: 'potion_vigor_major', qty: 1 },
+      name: 'Brtnické tonikum',
+      name_lat: 'Tonicum Apium',
+      icon: '🍯',
+      effect: {
+        type: 'vigor_restore',
+        value: 35,
+        duration_ms: 0,
+        label: 'Vigor +35'
+      },
+      unlock: 'tech_apium_medicina',
+      lore: 'Egypťané tomu říkali prach dávající život. Galén jím léčil vyčerpání. Bratr lékárník neví proč to funguje — jen že funguje.'
+    },
     'chamomile+honey:maceratio': {
       result: { id: 'potion_vigor_minor', qty: 1 },
       name: 'Heřmánkový sirup',
