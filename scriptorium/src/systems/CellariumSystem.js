@@ -2489,7 +2489,7 @@ const CellariumSystem = {
     // principu, ne skrytá podmínka).
     const _mlynParcelOwned = GameState.landParcels && GameState.landParcels.mlynsky_nahon && GameState.landParcels.mlynsky_nahon.status === 'owned';
     if (GameState.flags && GameState.flags.pozemky_active) {
-      const _m = (GameState.storage && GameState.storage.mlyn) || { tier: -1 };
+      const _m = (GameState.storage && GameState.storage.mill) || { tier: -1 };
       const _mTier = (typeof _m.tier === 'number') ? _m.tier : -1;
       h += `<div style="padding:12px 14px; margin-bottom:14px; background:rgba(197,160,89,0.06); border-radius:8px; border-left:3px solid var(--accent-gold);">`;
       h += `<div style="font-weight:bold; font-size:0.9rem; margin-bottom:6px;">🏛️ ${lang === 'en' ? 'Water Mill' : 'Vodní mlýn'}</div>`;
@@ -2497,27 +2497,27 @@ const CellariumSystem = {
         h += `<div style="font-size:0.78rem; opacity:0.6; font-style:italic;">${lang === 'en' ? 'Requires the Mill Race parcel (Cellarium → Land).' : 'Vyžaduje vlastněnou parcelu Mlýnský náhon (Cellarium → Pozemky).'}</div>`;
       } else if (_m.buildUntil) {
         const hoursLeft = Math.max(0, Math.ceil((_m.buildUntil - Date.now()) / 3600000));
-        const buildingName = lang === 'en' ? Game.MLYN_TIERS[_m.buildTargetTier].name_en : Game.MLYN_TIERS[_m.buildTargetTier].name;
+        const buildingName = lang === 'en' ? Game.MILL_TIERS[_m.buildTargetTier].name_en : Game.MILL_TIERS[_m.buildTargetTier].name;
         h += `<div style="font-size:0.78rem; opacity:0.7;">⏳ ${lang === 'en' ? `Building ${buildingName}, ~${hoursLeft}h` : `Staví se ${buildingName}, ~${hoursLeft}h`}</div>`;
-      } else if (_mTier >= Game.MLYN_TIERS.length - 1) {
+      } else if (_mTier >= Game.MILL_TIERS.length - 1) {
         h += `<div style="font-size:0.78rem;">✅ ${lang === 'en' ? 'Complete: The Mechanism' : 'Dokončeno: Mechanismus'}</div>`;
       } else {
-        const next = Game.MLYN_TIERS[_mTier + 1];
+        const next = Game.MILL_TIERS[_mTier + 1];
         const nextName = lang === 'en' ? next.name_en : next.name;
-        const curLabel = _mTier === -1 ? (lang==='en'?'not started':'nezahájeno') : (lang === 'en' ? Game.MLYN_TIERS[_mTier].name_en : Game.MLYN_TIERS[_mTier].name);
+        const curLabel = _mTier === -1 ? (lang==='en'?'not started':'nezahájeno') : (lang === 'en' ? Game.MILL_TIERS[_mTier].name_en : Game.MILL_TIERS[_mTier].name);
         const matsStr = Object.entries(next.materials).map(([id, qty]) => `${qty}× ${(typeof iName === 'function') ? iName(id) : id}`).join(', ');
         h += `<div style="font-size:0.78rem; opacity:0.7; margin-bottom:6px;">${lang === 'en' ? 'Current' : 'Aktuálně'}: ${curLabel} → ${nextName} (${next.cost}g, ${matsStr})</div>`;
         // Sekerník — mlynar-vlastni-mlyn-mrd.md §4.6, 16.8.2026. Tři stavy:
         // potřeba najmout / na cestě (čeká) / připravenej (buduj).
-        if (next.needsSekernik && _m.sekernikReadyForTier !== (_mTier + 1)) {
-          if (_m.sekernikHireUntil) {
-            const sHoursLeft = Math.max(0, Math.ceil((_m.sekernikHireUntil - Date.now()) / 3600000));
+        if (next.needsSekernik && _m.millwrightReadyForTier !== (_mTier + 1)) {
+          if (_m.millwrightHireUntil) {
+            const sHoursLeft = Math.max(0, Math.ceil((_m.millwrightHireUntil - Date.now()) / 3600000));
             h += `<div style="font-size:0.72rem; opacity:0.6; font-style:italic;">🔨 ${lang === 'en' ? `Millwright on his way, ~${sHoursLeft}h` : `Sekerník na cestě, ~${sHoursLeft}h`}</div>`;
           } else {
-            h += `<button onclick="Game.hireSekernik()" class="craft-btn" style="font-size:0.78rem;">🔨 ${lang === 'en' ? `Hire the millwright (${Game.SEKERNIK_COST}g)` : `Najmout sekerníka (${Game.SEKERNIK_COST}g)`}</button>`;
+            h += `<button onclick="Game.hireMillwright()" class="craft-btn" style="font-size:0.78rem;">🔨 ${lang === 'en' ? `Hire the millwright (${Game.MILLWRIGHT_COST}g)` : `Najmout sekerníka (${Game.MILLWRIGHT_COST}g)`}</button>`;
           }
         } else {
-          h += `<button onclick="Game.upgradeMlynTier()" class="craft-btn" style="font-size:0.78rem;">🏗️ ${lang === 'en' ? 'Build' : 'Postavit'}</button>`;
+          h += `<button onclick="Game.upgradeMillTier()" class="craft-btn" style="font-size:0.78rem;">🏗️ ${lang === 'en' ? 'Build' : 'Postavit'}</button>`;
         }
       }
       h += `</div>`;

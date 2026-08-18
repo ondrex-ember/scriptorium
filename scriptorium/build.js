@@ -66,6 +66,7 @@ const JS_MAIN = [
     'src/systems/DecaySystem.js',
     'src/systems/CheeseSystem.js',
     'src/systems/LimeSystem.js',
+    'src/systems/MillSystem.js',           // Vodní mlýn — provoz (mlynar-vlastni-mlyn-mrd.md §4.7)
     'src/systems/DryingSystem.js',
     'src/systems/CoquinaVisuals.js', // coquina-visuals-mrd (9.8.2026), SVG ilustrace stanic, mirror Athanor techniky
     'src/systems/CookingSystem.js', // udirna-mrd (7.8.2026), mirror DryingSystem

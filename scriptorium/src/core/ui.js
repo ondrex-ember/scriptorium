@@ -193,6 +193,11 @@ const UI = {
         const _vapeniceBtn = document.getElementById('home-sub-vapenice');
         if (_vapeniceBtn) _vapeniceBtn.style.display = (GameState.storage && GameState.storage.vapenice && GameState.storage.vapenice.built) ? '' : 'none';
 
+        // Vodní mlýn — gate na tier >= 2 (Mechanismus dokončen), mirror Vápenice.
+        // mlynar-vlastni-mlyn-mrd.md §4.7, 16.8.2026.
+        const _millBtn = document.getElementById('home-sub-mill');
+        if (_millBtn) _millBtn.style.display = (typeof MillSystem !== 'undefined' && MillSystem.isBuilt()) ? '' : 'none';
+
         this.renderResourceTracker();
 
         const s = this.currentScreen || 'home';
@@ -2049,11 +2054,13 @@ const UI = {
         const cooking = document.getElementById('home-cooking-content');
         const drying = document.getElementById('home-drying-content');
         const vapenice = document.getElementById('home-vapenice-content');
+        const mill = document.getElementById('home-mill-content');
         if (scav) scav.style.display = tab === 'scavenge' ? 'block' : 'none';
         if (mine) mine.style.display = tab === 'mine' ? 'block' : 'none';
         if (cooking) cooking.style.display = tab === 'cooking' ? 'block' : 'none';
         if (drying) drying.style.display = tab === 'drying' ? 'block' : 'none';
         if (vapenice) vapenice.style.display = tab === 'vapenice' ? 'block' : 'none';
+        if (mill) mill.style.display = tab === 'mill' ? 'block' : 'none';
         document.querySelectorAll('#home-main-content .filter-btn').forEach(b => b.classList.remove('active'));
         if (btn) btn.classList.add('active');
         if (tab === 'mine') { this.renderMineYieldInfo(); this.renderFodinaPetitionPanel(); this.renderMineActions(); }
@@ -2070,6 +2077,10 @@ const UI = {
         // Vápenice — 16.8.2026, mirror drying dispatch (pec + jáma v LimeSystem.render()).
         if (tab === 'vapenice' && vapenice && typeof LimeSystem !== 'undefined') {
             vapenice.innerHTML = LimeSystem.render();
+        }
+        // Vodní mlýn — provoz (mlynar-vlastni-mlyn-mrd.md §4.7, 16.8.2026), mirror vapenice dispatch.
+        if (tab === 'mill' && mill && typeof MillSystem !== 'undefined') {
+            mill.innerHTML = MillSystem.render();
         }
     },
 
