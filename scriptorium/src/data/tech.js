@@ -166,6 +166,17 @@ const TechTree = [
     unlocks: ["velky_ul_1", "velky_ul_2"], requires: ["tech_liber_apium"], requiresBook: "book_ruralia_apibus"
   },
 
+  // APIUM MEDICINA — pyl-prepracovani-mrd (18.8.2026): Hippokratés, Plinius
+  // a staří Egypťané chválili včelí chléb jako posilující — mniši věří
+  // témuž, byť neznají příčinu. Odemyká Athanor combo (bee_bread+honey).
+  {
+    id: "tech_apium_medicina", name: "Apium Medicina", name_en: "Apium Medicina",
+    cost: 15,
+    desc: "Hippokratés, Plinius i staří Egypťané chválili včelí chléb z plástve jako 'prach dávající život'. Bratr lékárník neví proč to funguje — jen že funguje. Odemkne: Athanor recept na Brtnické tonikum.",
+    desc_en: "Hippocrates, Pliny, and the ancient Egyptians praised bee bread from the comb as a 'life-giving dust'. The apothecary brother knows not why it works — only that it does. Unlocks: an Athanor recipe for the Beeman's Tonic.",
+    unlocks: [], requires: ["tech_custos_apium"]
+  },
+
   // SKLADOVÉ HOSPODÁŘSTVÍ
   {
     id: "tech_carpentaria", name: "Carpentaria — Tesařství", name_en: "Carpentaria — Carpentry",
