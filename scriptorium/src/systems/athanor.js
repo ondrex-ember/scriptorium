@@ -1657,6 +1657,7 @@ const AthanorSystem = {
         activeProcess: 'coctio',
         brewing: null,
         discovered: [],
+        failedAttempts: [],
         lastResult: null
       };
     } else {
@@ -1665,6 +1666,7 @@ const AthanorSystem = {
       if (!GameState.athanor.activeProcess) GameState.athanor.activeProcess = 'coctio';
       if (!GameState.athanor.brewing) GameState.athanor.brewing = null;
       if (!GameState.athanor.discovered) GameState.athanor.discovered = [];
+      if (!GameState.athanor.failedAttempts) GameState.athanor.failedAttempts = [];
       if (!('lastResult' in GameState.athanor)) GameState.athanor.lastResult = null;
     }
     setInterval(() => AthanorSystem.tick(), 2000);
