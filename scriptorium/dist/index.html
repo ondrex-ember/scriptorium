@@ -4528,6 +4528,32 @@ const FontSpecimensDB = {
 const LibraryDB = {
     books: [
         // TIER 1 - První týden (day 1-7)
+        {
+            id: 'book_ars_magna',
+            title: 'Ars Magna — Velké umění Ramona Llulla',
+            category: 'technical',
+            unlockDay: 0,
+            icon: '🎡',
+            author: 'Ramon Llull',
+            year: 1308,
+            content: `**Mallorský kazatel, co chtěl obrátit svět kolem**
+
+Ramon Llull se nenarodil jako učenec. Byl dvořanem na Mallorce, mužem světa, než ho — podle vlastních slov — oslovilo vidění Krista na kříži a obrátilo jeho život vzhůru nohama. Zbytek života zasvětil jedinému cíli: najít způsob, jak rozumem, ne mečem, přesvědčit muslimy a Židy o pravdě křesťanství. Z téhle posedlosti vzešlo něco, co nikdo nečekal — první pokus v evropských dějinách o mechanický stroj na myšlení.
+
+**Kola místo hádání**
+
+Llullovo Velké umění (Ars Magna, ve své poslední verzi Ars generalis ultima z počátku 14. století) stojí na jednoduché, ale podivuhodné myšlence: pokud jsou Boží vlastnosti — Dobrota, Velikost, Věčnost, Moc a další — konečný soubor základních pojmů, dají se zapsat jako písmena na okraj otáčivých papírových kol, vrstvených na společném čepu. Otočením kol proti sobě vzniknou nové a nové kombinace písmen — a tedy nové a nové kombinace výroků o světě. Místo aby teolog hádal, jaké argumenty existují, mechanicky je vygeneruje otáčením kruhu a projde je všechny.
+
+**Stroj, co pravdu nezaručí, ale prohledá ji celou**
+
+Je důležité říct, co Llullova kola NEdělala: nevěděla dopředu, která kombinace je pravdivá. Nebyla to věštba ani zkratka k odpovědi. Byl to nástroj vyčerpávajícího, systematického průzkumu — projít všechny myslitelné kombinace, aby žádná možnost neunikla pozornosti jen proto, že si na ni nikdo nevzpomněl. V tom je ten skutečný skok: Llull byl možná první, kdo pravdu hledal kombinatorikou, ne intuicí.
+
+**Odkaz o čtyři století později**
+
+Llull zemřel roku 1316, podle legendy jako mučedník při misii v severní Africe — ač historikové se v podrobnostech jeho smrti rozcházejí. Jeho kola upadla na staletí v zapomnění jako kuriozita podivína. Až v 17. století na ně narazil mladý německý polyhistor Gottfried Wilhelm Leibniz a v spisku *Dissertatio de arte combinatoria* (1666) přiznal, kde načerpal inspiraci pro vlastní úvahy o mechanickém výpočtu myšlenek. Co začalo jako pomůcka mallorského kazatele, tak stojí na počátku cesty, která o staletí později vede k logickým strojům a počítání jako takovému.
+
+*Kdo otáčí koly dost trpělivě, jednou projde všemi možnostmi, které svět skrývá.*`
+        },
 
 // TIER 2 - Druhý týden (day 8-14)
         {
@@ -6837,6 +6863,7 @@ Každý mnich měl přidělený svůj vlastní záhon, a každý tento záhon by
 // ================================================
 // 3. EASTER EGGS - Skryté achievementy a speciální itemy
 // ================================================
+
 // ═══ src/data/library-helpers.js ═══
 const EasterEggsDB = {
     achievements: [
@@ -8595,6 +8622,7 @@ const ItemsDB = {
     "metal_bosses": { name: "Kovové puklice", name_en: "Metal Bosses", icon: "🔘", type: "mat", desc: "Rohové a středové hrboly. Chrání kožený potah, když kniha leží na pultu.", desc_en: "Corner and centre bosses. Protect the leather cover when the book lies on a lectern." },
     // kovani-rozsireni-mrd (7.8.2026): mirror metal_clasps/metal_bosses vzoru — vedlejší produkt Kovářiny
     "hrebiky": { name: "Hřebíky", name_en: "Nails", icon: "📌", type: "mat", desc: "Kované hřebíky. Drží prkna pohromadě tam, kde provaz a čep nestačí.", desc_en: "Forged nails. Hold planks together where rope and peg fall short." },
+    "brass_rivet": { name: "Mosazný cvoček", name_en: "Brass Rivet", icon: "🔸", type: "mat", desc: "Malý cvoček z mosazi, ne z obyčejného železa. Kovář ho umí ukovat, ale musíš si říct — na rozdíl od hřebíků ho nedrží skladem běžně.", desc_en: "A small rivet of brass, not common iron. The blacksmith can forge one, but you must ask — unlike nails, he does not keep them in stock as a matter of course." },
     "quires": { name: "Složky", name_en: "Quires", icon: "📑", type: "mat", desc: "Popsaný pergamen přehnutý a vložený do sebe — kvaterny, základ knižního bloku.", desc_en: "Written vellum folded and nested — quaternions, the basis of the book block." },
     "sewn_block": { name: "Ušitý blok", name_en: "Sewn Block", icon: "📗", type: "mat", desc: "Složky sešité na kožených vazech lněnou nití. Ještě bez desek.", desc_en: "Quires sewn onto leather cords with linen thread. Still without boards." },
     "unfitted_codex": { name: "Neokovaná kniha", name_en: "Unfitted Codex", icon: "📕", type: "mat", desc: "Ušitý blok mezi dřevěnými deskami, potažený kůží. Čeká na kování.", desc_en: "Sewn block between wooden boards, covered in leather. Awaiting its fittings." },
@@ -8733,6 +8761,7 @@ const ItemsDB = {
     "roucho_zelene": { name: "Roucho — zelené", name_en: "Vestment — Green", icon: "💚", type: "tool", desc: "Pro liturgické mezidobí. Trvanlivé — nespotřebovává se.", desc_en: "For Ordinary Time. Durable — not consumed." },
     "roucho_cervene": { name: "Roucho — červené", name_en: "Vestment — Red", icon: "❤️", type: "tool", desc: "Pro Letnice a svátky mučedníků. Trvanlivé — nespotřebovává se.", desc_en: "For Pentecost and martyrs' feasts. Durable — not consumed." },
     "alembic": { name: "Alembik", name_en: "Alembic", icon: "⚗️", type: "tool", desc: "Destilační nádoba z čirého skla. Bez alembiku není destilace.", desc_en: "A distillation vessel of clear glass. No alembic, no distillation." },
+    "circulus_lullianus": { name: "Circulus Lullianus", name_en: "Circulus Lullianus", icon: "🎡", type: "tool", desc: "Vrstvená kola z pergamenu na mosazném cvočku, popsaná vlastnostmi živlů. Podle Llullovy Ars Magna umožňují systematicky procházet kombinace, místo aby se hádalo naslepo.", desc_en: "Layered parchment wheels on a brass rivet, inscribed with the properties of the elements. Following Llull's Ars Magna, they allow combinations to be worked through systematically instead of guessed blindly." },
     "glass_mirror": { name: "Zrcadlo", name_en: "Glass Mirror", icon: "🪞", type: "tool", desc: "Broušené zrcadlo — vzácnost hodná biskupského stolu.", desc_en: "A polished mirror — a rarity fit for a bishop's table." },
 
     "hostia": { name: "Hostie", name_en: "Host Wafers", icon: "🫓", type: "mat", desc: "Nekvašené oplatky z pšeničné mouky. Pečené v kleštích s vyrytým beránkem.", desc_en: "Unleavened wafers of wheat flour. Baked in irons engraved with the Lamb." },
