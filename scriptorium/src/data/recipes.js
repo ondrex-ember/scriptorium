@@ -10,6 +10,10 @@ const RecipesDB = [
     // Alternativní cesta k provazu z konopného vlákna (tech_susarna řetězec
     // beze změny) — kvalitnější surovina, méně kusů na výsledek.
     { id: "rope_hemp", output: "rope", qty: 1, req: { "hemp_fiber": 1 }, cat: "craft" },
+    // pyl-prepracovani-mrd (18.8.2026): sink pro nahromaděný pyl — fermentace
+    // s medem. Bez vlastního tech gate, tech_liber_apium (Apiarium) už gatuje
+    // pyl samotný.
+    { id: "bee_bread_from_pollen", output: "bee_bread", qty: 1, req: { "pollen": 10 }, cat: "craft" },
     { id: "stone_knife", output: "stone_knife", qty: 1, req: { "sharp_stone": 1, "stick": 1, "rope": 1 }, cat: "stone" },
     { id: "charcoal", output: "charcoal", qty: 2, req: { "stick": 2 }, cat: "fire" },
     { id: "pestle", output: "pestle", qty: 1, req: { "rock": 2, "sharp_stone": 1 }, cat: "stone" },
