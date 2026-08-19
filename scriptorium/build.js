@@ -111,6 +111,7 @@ const JS_MAIN = [
     // Manažeři (Krok 2, refactoring-audit-mrd-19-8-2026.md) — extrahováno z game.js
     'src/core/managers/LootModalManager.js', // D2: Fireplace/Loot modály (19.8.2026)
     'src/core/managers/GardenManager.js', // D3: Zahony/Sad (19.8.2026)
+    'src/core/managers/ApiaryManager.js', // D4: Apiarium (19.8.2026)
 
     // Herní logika — závisí na všem výše
     'src/core/game.js',             // Game
