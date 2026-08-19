@@ -1,0 +1,7 @@
+{
+  "name": "scriptorium",
+  "private": true,
+  "devDependencies": {
+    "terser": "^5.50.0"
+  }
+}
