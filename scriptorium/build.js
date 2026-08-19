@@ -113,6 +113,9 @@ const JS_MAIN = [
     'src/core/managers/GardenManager.js', // D3: Zahony/Sad (19.8.2026)
     'src/core/managers/ApiaryManager.js', // D4: Apiarium (19.8.2026)
     'src/core/managers/PiscinaManager.js', // D5: Piscina (19.8.2026)
+    'src/core/managers/ChronicleManager.js', // D9: Kronika (19.8.2026)
+    'src/core/managers/MillManager.js', // D12: Mlýn (19.8.2026)
+    'src/core/managers/PetitionManager.js', // D10: Petice/Ubytovna/Cechy/Pozemky (19.8.2026)
 
     // Herní logika — závisí na všem výše
     'src/core/game.js',             // Game
