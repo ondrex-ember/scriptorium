@@ -309,166 +309,266 @@ const AthanorDB = {
     // ── Doplnění (athanor-integrity-audit.md) — 31 ingrediencí použitých
     // v combos, ale dosud nezaregistrovaných zde. Bez tohoto záznamu je
     // ingredience v pickeru neviditelná, i když ji hráč v inventáři má.
-    { id: 'rosemary', name: 'Rozmarýn', name_lat: 'Rosmarinus', rarity: 'common', source: 'existing',
+    {
+      id: 'rosemary', name: 'Rozmarýn', name_lat: 'Rosmarinus', rarity: 'common', source: 'existing',
       color: '#6b8e4e', icon: '🌿', thermal: 2, moisture: -2,
-      lore: 'Prohřívací a vysušující bylina Středomoří.' },
-    { id: 'substantia_ignota', name: 'Neznámá substance', name_lat: 'Substantia Ignota', rarity: 'rare', source: 'trade',
+      lore: 'Prohřívací a vysušující bylina Středomoří.'
+    },
+    {
+      id: 'substantia_ignota', name: 'Neznámá substance', name_lat: 'Substantia Ignota', rarity: 'rare', source: 'trade',
       color: '#7f8c8d', icon: '❓', thermal: 0, moisture: 0,
       lore: 'Nikdo neví, co to je. Ani poutník sám to neřekl.',
-      dropNote: 'Vzácný dar tajemného poutníka.' },
-    { id: 'poppy', name: 'Mák', name_lat: 'Papaver', rarity: 'uncommon', source: 'existing',
+      dropNote: 'Vzácný dar tajemného poutníka.'
+    },
+    {
+      id: 'poppy', name: 'Mák', name_lat: 'Papaver', rarity: 'uncommon', source: 'existing',
       color: '#e91e63', icon: '🌸', thermal: -3, moisture: 1,
-      lore: 'Chladivý a uspávající. Hildegarda znala jeho moc.' },
-    { id: 'herb_blue', name: 'Levandule', name_lat: 'Lavandula', rarity: 'common', source: 'existing',
+      lore: 'Chladivý a uspávající. Hildegarda znala jeho moc.'
+    },
+    {
+      id: 'herb_blue', name: 'Levandule', name_lat: 'Lavandula', rarity: 'common', source: 'existing',
       color: '#b39ddb', icon: '💜', thermal: 2, moisture: -1,
-      lore: 'Prohřívací vůně proti neklidu a hmyzu.' },
-    { id: 'resin_pine', name: 'Borová pryskyřice', name_lat: 'Resina Pini', rarity: 'common', source: 'foraging',
+      lore: 'Prohřívací vůně proti neklidu a hmyzu.'
+    },
+    {
+      id: 'resin_pine', name: 'Borová pryskyřice', name_lat: 'Resina Pini', rarity: 'common', source: 'foraging',
       color: '#cc9944', icon: '🌲', thermal: 2, moisture: -2,
-      lore: 'Hořlavá, lepkavá míza. Základ terpentýnu a laků.' },
-    { id: 'berries', name: 'Bobule', name_lat: 'Baccae', rarity: 'common', source: 'foraging',
+      lore: 'Hořlavá, lepkavá míza. Základ terpentýnu a laků.'
+    },
+    {
+      id: 'berries', name: 'Bobule', name_lat: 'Baccae', rarity: 'common', source: 'foraging',
       color: '#4a6fa5', icon: '🫐', thermal: -1, moisture: 2,
-      lore: 'Chladivé, šťavnaté lesní plody.' },
-    { id: 'ink_gallic', name: 'Železitoduběnkový inkoust', name_lat: 'Atramentum Gallicum', rarity: 'uncommon', source: 'crafted',
+      lore: 'Chladivé, šťavnaté lesní plody.'
+    },
+    {
+      id: 'ink_gallic', name: 'Železitoduběnkový inkoust', name_lat: 'Atramentum Gallicum', rarity: 'uncommon', source: 'crafted',
       color: '#1a1a1a', icon: '✒️', thermal: 0, moisture: -1,
-      lore: 'Hotový inkoust — sám o sobě i vstupní surovina pro dokonalejší verze.' },
-    { id: 'lead', name: 'Olovo', name_lat: 'Plumbum', rarity: 'uncommon', source: 'existing',
+      lore: 'Hotový inkoust — sám o sobě i vstupní surovina pro dokonalejší verze.'
+    },
+    {
+      id: 'lead', name: 'Olovo', name_lat: 'Plumbum', rarity: 'uncommon', source: 'existing',
       color: '#4a4a4a', icon: '⚫', thermal: -3, moisture: -3,
       lore: 'Těžký, chladný a suchý kov — Saturnův kov podle staré nauky.',
-      dropNote: 'Vzácný byproduct z Dolů.' },
-    { id: 'cerusa', name: 'Olověná běloba', name_lat: 'Cerusa', rarity: 'uncommon', source: 'crafted',
+      dropNote: 'Vzácný byproduct z Dolů.'
+    },
+    {
+      id: 'cerusa', name: 'Olověná běloba', name_lat: 'Cerusa', rarity: 'uncommon', source: 'crafted',
       color: '#f5f5f0', icon: '⚪', thermal: -1, moisture: -2,
-      lore: 'Olovo zpracované octem na nejzásadnější bělobu středověku.' },
-    { id: 'copper', name: 'Měď', name_lat: 'Cuprum', rarity: 'uncommon', source: 'existing',
+      lore: 'Olovo zpracované octem na nejzásadnější bělobu středověku.'
+    },
+    {
+      id: 'copper', name: 'Měď', name_lat: 'Cuprum', rarity: 'uncommon', source: 'existing',
       color: '#b87333', icon: '🟠', thermal: 1, moisture: -2,
       lore: 'Červenozlatý kov. Základ měděnky, azuritu i sklářského barvení.',
-      dropNote: 'Vzácný byproduct z Dolů.' },
-    { id: 'tin', name: 'Cín', name_lat: 'Stannum', rarity: 'uncommon', source: 'existing',
+      dropNote: 'Vzácný byproduct z Dolů.'
+    },
+    {
+      id: 'tin', name: 'Cín', name_lat: 'Stannum', rarity: 'uncommon', source: 'existing',
       color: '#c0c0c0', icon: '⚪', thermal: -1, moisture: -2,
       lore: 'Čechy jsou cínová velmoc — Krušné hory dodávají cín celé Evropě.',
-      dropNote: 'Vzácný byproduct z Dolů.' },
-    { id: 'ash', name: 'Popel', name_lat: 'Cinis', rarity: 'common', source: 'crafted',
+      dropNote: 'Vzácný byproduct z Dolů.'
+    },
+    {
+      id: 'ash', name: 'Popel', name_lat: 'Cinis', rarity: 'common', source: 'crafted',
       color: '#999999', icon: '🌫️', thermal: 3, moisture: -4,
-      lore: 'Krbový zbytek. Horký a suchý — základ louhu.' },
-    { id: 'ash_water', name: 'Louh', name_lat: 'Aqua Cinerum', rarity: 'uncommon', source: 'crafted',
+      lore: 'Krbový zbytek. Horký a suchý — základ louhu.'
+    },
+    {
+      id: 'ash_water', name: 'Louh', name_lat: 'Aqua Cinerum', rarity: 'uncommon', source: 'crafted',
       color: '#d4c9a8', icon: '💧', thermal: 2, moisture: -2,
-      lore: 'Voda protažená popelem. Zásaditý louh.' },
-    { id: 'tartarus', name: 'Vinný kámen', name_lat: 'Tartarus', rarity: 'uncommon', source: 'crafted',
+      lore: 'Voda protažená popelem. Zásaditý louh.'
+    },
+    {
+      id: 'tartarus', name: 'Vinný kámen', name_lat: 'Tartarus', rarity: 'uncommon', source: 'crafted',
       color: '#7a5c3d', icon: '🍇', thermal: 1, moisture: -2,
-      lore: 'Krystalická usazenina ze stěn sudu se zralým vínem.' },
-    { id: 'bone', name: 'Kost', name_lat: 'Os', rarity: 'common', source: 'existing',
+      lore: 'Krystalická usazenina ze stěn sudu se zralým vínem.'
+    },
+    {
+      id: 'bone', name: 'Kost', name_lat: 'Os', rarity: 'common', source: 'existing',
       color: '#e8e0d0', icon: '☠️', thermal: 0, moisture: -3,
-      lore: 'Chladná a suchá — odpad z kuchyně, surovina pro Athanor.' },
-    { id: 'cornu_cervi', name: 'Jelení paroh', name_lat: 'Cornu Cervi', rarity: 'uncommon', source: 'foraging',
+      lore: 'Chladná a suchá — odpad z kuchyně, surovina pro Athanor.'
+    },
+    {
+      id: 'cornu_cervi', name: 'Jelení paroh', name_lat: 'Cornu Cervi', rarity: 'uncommon', source: 'foraging',
       color: '#d4c4a0', icon: '🦌', thermal: 0, moisture: -3,
       lore: 'Sesbíraný shozený paroh z lesa. Chladný a suchý jako kost.',
-      dropNote: 'Vzácný nález při sběru v lese.' },
-    { id: 'egg', name: 'Vejce', name_lat: 'Ovum', rarity: 'common', source: 'existing',
+      dropNote: 'Vzácný nález při sběru v lese.'
+    },
+    {
+      id: 'egg', name: 'Vejce', name_lat: 'Ovum', rarity: 'common', source: 'existing',
       color: '#f5e6c8', icon: '🥚', thermal: 1, moisture: 2,
-      lore: 'Prohřívací a vlhký — živí i pojí pigment.' },
-    { id: 'wood', name: 'Dřevo', name_lat: 'Lignum', rarity: 'common', source: 'foraging',
+      lore: 'Prohřívací a vlhký — živí i pojí pigment.'
+    },
+    {
+      id: 'wood', name: 'Dřevo', name_lat: 'Lignum', rarity: 'common', source: 'foraging',
       color: '#8b5a2b', icon: '🪵', thermal: 2, moisture: -2,
-      lore: 'Klestí a větve. Hořlavé, suché.' },
-    { id: 'aqua_ardens', name: 'Ohnivá voda', name_lat: 'Aqua Ardens', rarity: 'uncommon', source: 'crafted',
+      lore: 'Klestí a větve. Hořlavé, suché.'
+    },
+    {
+      id: 'aqua_ardens', name: 'Ohnivá voda', name_lat: 'Aqua Ardens', rarity: 'uncommon', source: 'crafted',
       color: '#f0d060', icon: '🔥', thermal: 4, moisture: -2,
-      lore: 'První destilát vína. Hořlavý, prudce prohřívací.' },
-    { id: 'sal_petrae', name: 'Ledek', name_lat: 'Sal Petrae', rarity: 'rare', source: 'existing',
+      lore: 'První destilát vína. Hořlavý, prudce prohřívací.'
+    },
+    {
+      id: 'sal_petrae', name: 'Ledek', name_lat: 'Sal Petrae', rarity: 'rare', source: 'existing',
       color: '#e8e8e0', icon: '⚪', thermal: 3, moisture: -3,
       lore: 'Hořlavý výkvět ze stěn hlubších štol.',
-      dropNote: 'Vzácný byproduct z Dolů.' },
-    { id: 'aqua_fortis', name: 'Kyselina dusičná', name_lat: 'Aqua Fortis', rarity: 'rare', source: 'crafted',
+      dropNote: 'Vzácný byproduct z Dolů.'
+    },
+    {
+      id: 'aqua_fortis', name: 'Kyselina dusičná', name_lat: 'Aqua Fortis', rarity: 'rare', source: 'crafted',
       color: '#d4e157', icon: '🧪', thermal: 5, moisture: -3,
-      lore: 'Prudce žíravá lučavka. Pseudo-Geberova Summa Perfectionis.' },
-    { id: 'sal_ammoniac', name: 'Salmiak', name_lat: 'Sal Ammoniacum', rarity: 'rare', source: 'trade',
+      lore: 'Prudce žíravá lučavka. Pseudo-Geberova Summa Perfectionis.'
+    },
+    {
+      id: 'sal_ammoniac', name: 'Salmiak', name_lat: 'Sal Ammoniacum', rarity: 'rare', source: 'trade',
       color: '#e0e0e0', icon: '⚪', thermal: 2, moisture: -2,
-      lore: 'Dovážen draze z Egypta přes Benátky. Hlavní tavidlo metalurgie.' },
-    { id: 'arsenicum', name: 'Arsen', name_lat: 'Arsenicum', rarity: 'rare', source: 'existing',
+      lore: 'Dovážen draze z Egypta přes Benátky. Hlavní tavidlo metalurgie.'
+    },
+    {
+      id: 'arsenicum', name: 'Arsen', name_lat: 'Arsenicum', rarity: 'rare', source: 'existing',
       color: '#d4d420', icon: '🟡', thermal: 4, moisture: -4,
       lore: 'Prudce jedovatý. Albertus Magnus: jed i bělidlo mědi.',
-      dropNote: 'Vzácný byproduct z Dolů.' },
-    { id: 'mercury', name: 'Rtuť', name_lat: 'Argentum Vivum', rarity: 'rare', source: 'trade',
+      dropNote: 'Vzácný byproduct z Dolů.'
+    },
+    {
+      id: 'mercury', name: 'Rtuť', name_lat: 'Argentum Vivum', rarity: 'rare', source: 'trade',
       color: '#b8b8c8', icon: '🔘', thermal: -2, moisture: 3,
-      lore: 'Živé stříbro. Tekutý kov, co se nikdy nezastaví.' },
-    { id: 'spiritus_vini', name: 'Vinný líh', name_lat: 'Spiritus Vini Rectificatus', rarity: 'uncommon', source: 'crafted',
+      lore: 'Živé stříbro. Tekutý kov, co se nikdy nezastaví.'
+    },
+    {
+      id: 'spiritus_vini', name: 'Vinný líh', name_lat: 'Spiritus Vini Rectificatus', rarity: 'uncommon', source: 'crafted',
       color: '#f5f0d0', icon: '🔥', thermal: 5, moisture: -3,
-      lore: 'Čistý, vysoce hořlavý alkohol z opakované destilace.' },
-    { id: 'acetum_destillatum', name: 'Destilovaný ocet', name_lat: 'Spiritus Aceti', rarity: 'uncommon', source: 'crafted',
+      lore: 'Čistý, vysoce hořlavý alkohol z opakované destilace.'
+    },
+    {
+      id: 'acetum_destillatum', name: 'Destilovaný ocet', name_lat: 'Spiritus Aceti', rarity: 'uncommon', source: 'crafted',
       color: '#e8d8b0', icon: '🍶', thermal: -2, moisture: -2,
-      lore: 'Koncentrovaná kyselina octová, zbavená vinných nečistot.' },
-    { id: 'mandrake', name: 'Mandragora', name_lat: 'Mandragora', rarity: 'rare', source: 'existing',
+      lore: 'Koncentrovaná kyselina octová, zbavená vinných nečistot.'
+    },
+    {
+      id: 'mandrake', name: 'Mandragora', name_lat: 'Mandragora', rarity: 'rare', source: 'existing',
       color: '#6b4c3a', icon: '🌿', thermal: -4, moisture: -1,
-      lore: 'Nebezpečně chladivý kořen. Uspává — nebo hůř.' },
-    { id: 'gentian', name: 'Hořec', name_lat: 'Gentiana', rarity: 'uncommon', source: 'foraging',
+      lore: 'Nebezpečně chladivý kořen. Uspává — nebo hůř.'
+    },
+    {
+      id: 'gentian', name: 'Hořec', name_lat: 'Gentiana', rarity: 'uncommon', source: 'foraging',
       color: '#4a90d9', icon: '🌼', thermal: 2, moisture: -2,
-      lore: 'Hořká horská bylina, základ theriaku od antiky.' },
-    { id: 'wormwood', name: 'Pelyněk', name_lat: 'Absinthium', rarity: 'common', source: 'existing',
+      lore: 'Hořká horská bylina, základ theriaku od antiky.'
+    },
+    {
+      id: 'wormwood', name: 'Pelyněk', name_lat: 'Absinthium', rarity: 'common', source: 'existing',
       color: '#8a9a5b', icon: '🌿', thermal: -3, moisture: -3,
-      lore: 'Nejsilnější chladivá a suchá bylina proti horečce.' },
-    { id: 'charcoal', name: 'Uhel', name_lat: 'Carbo', rarity: 'common', source: 'existing',
+      lore: 'Nejsilnější chladivá a suchá bylina proti horečce.'
+    },
+    {
+      id: 'charcoal', name: 'Uhel', name_lat: 'Carbo', rarity: 'common', source: 'existing',
       color: '#2a2a2a', icon: '⚫', thermal: 3, moisture: -4,
-      lore: 'Žíhané dřevo. Horké a suché skrz naskrz.' },
-    { id: 'stick', name: 'Větev', name_lat: 'Ramus', rarity: 'common', source: 'foraging',
+      lore: 'Žíhané dřevo. Horké a suché skrz naskrz.'
+    },
+    {
+      id: 'stick', name: 'Větev', name_lat: 'Ramus', rarity: 'common', source: 'foraging',
       color: '#8b6b47', icon: '🪵', thermal: 1, moisture: -2,
-      lore: 'Suchá větévka na podpal nebo žíhání.' },
+      lore: 'Suchá větévka na podpal nebo žíhání.'
+    },
 
     // ── Doplnění #2 — vstupy pro Media/Ultima Materia a Scrinium recepty
-    { id: 'minium', name: 'Suřík', name_lat: 'Minium', rarity: 'uncommon', source: 'crafted',
+    {
+      id: 'minium', name: 'Suřík', name_lat: 'Minium', rarity: 'uncommon', source: 'crafted',
       color: '#c0392b', icon: '🔴', thermal: 3, moisture: -4,
-      lore: 'Žíhaná olověná běloba. Zářivě červeno-oranžová.' },
-    { id: 'ochra_flava', name: 'Zušlechtěný okr', name_lat: 'Ochra Flava Preparata', rarity: 'uncommon', source: 'crafted',
+      lore: 'Žíhaná olověná běloba. Zářivě červeno-oranžová.'
+    },
+    {
+      id: 'ochra_flava', name: 'Zušlechtěný okr', name_lat: 'Ochra Flava Preparata', rarity: 'uncommon', source: 'crafted',
       color: '#d4a017', icon: '🟡', thermal: 0, moisture: -1,
-      lore: 'Surový okr donekonečna plavený ve vodě.' },
-    { id: 'palette_membrana', name: 'Tělová barva', name_lat: 'Palette Membrana', rarity: 'rare', source: 'crafted',
+      lore: 'Surový okr donekonečna plavený ve vodě.'
+    },
+    {
+      id: 'palette_membrana', name: 'Tělová barva', name_lat: 'Palette Membrana', rarity: 'rare', source: 'crafted',
       color: '#d9a679', icon: '🎨', thermal: 0, moisture: -1,
-      lore: 'Běloba, suřík a okr utřené dohromady.' },
-    { id: 'sinopia_tosta', name: 'Žíhaná sinopia', name_lat: 'Sinopia Tosta', rarity: 'uncommon', source: 'crafted',
+      lore: 'Běloba, suřík a okr utřené dohromady.'
+    },
+    {
+      id: 'sinopia_tosta', name: 'Žíhaná sinopia', name_lat: 'Sinopia Tosta', rarity: 'uncommon', source: 'crafted',
       color: '#a0522d', icon: '🟤', thermal: 3, moisture: -4,
-      lore: 'Žlutý okr žíhaný, dokud nezčervená.' },
-    { id: 'verdigris_purum', name: 'Krystalická měděnka', name_lat: 'Viride Aeris Purificatum', rarity: 'rare', source: 'crafted',
+      lore: 'Žlutý okr žíhaný, dokud nezčervená.'
+    },
+    {
+      id: 'verdigris_purum', name: 'Krystalická měděnka', name_lat: 'Viride Aeris Purificatum', rarity: 'rare', source: 'crafted',
       color: '#1a9e6b', icon: '🟢', thermal: 1, moisture: 0,
-      lore: 'Měděnka rozpuštěná v octě a nechaná krystalizovat.' },
-    { id: 'calx_cupri', name: 'Žíhaná měď', name_lat: 'Calx Cupri', rarity: 'uncommon', source: 'crafted',
+      lore: 'Měděnka rozpuštěná v octě a nechaná krystalizovat.'
+    },
+    {
+      id: 'calx_cupri', name: 'Žíhaná měď', name_lat: 'Calx Cupri', rarity: 'uncommon', source: 'crafted',
       color: '#3a3a3a', icon: '⚫', thermal: 3, moisture: -3,
-      lore: 'Černý oxid měďnatý ze žíhání.' },
-    { id: 'sal_alkali', name: 'Louhová sůl', name_lat: 'Sal Alkali', rarity: 'uncommon', source: 'crafted',
+      lore: 'Černý oxid měďnatý ze žíhání.'
+    },
+    {
+      id: 'sal_alkali', name: 'Louhová sůl', name_lat: 'Sal Alkali', rarity: 'uncommon', source: 'crafted',
       color: '#e8e4d8', icon: '⚪', thermal: 3, moisture: -4,
-      lore: 'Odpařený a žíhaný popelový louh.' },
-    { id: 'cinere_stanni', name: 'Cínový popel', name_lat: 'Cinere Stanni', rarity: 'uncommon', source: 'crafted',
+      lore: 'Odpařený a žíhaný popelový louh.'
+    },
+    {
+      id: 'cinere_stanni', name: 'Cínový popel', name_lat: 'Cinere Stanni', rarity: 'uncommon', source: 'crafted',
       color: '#d4d4d4', icon: '⚪', thermal: 2, moisture: -4,
-      lore: 'Oxid cíničitý ze žíhaného cínu.' },
-    { id: 'lithargyrum', name: 'Klejt', name_lat: 'Lithargyrum', rarity: 'uncommon', source: 'crafted',
+      lore: 'Oxid cíničitý ze žíhaného cínu.'
+    },
+    {
+      id: 'lithargyrum', name: 'Klejt', name_lat: 'Lithargyrum', rarity: 'uncommon', source: 'crafted',
       color: '#c9a94a', icon: '🟡', thermal: 2, moisture: -3,
-      lore: 'Žlutý oxid olovnatý z taveného olova.' },
-    { id: 'comfrey', name: 'Kostival', name_lat: 'Symphytum', rarity: 'common', source: 'existing',
+      lore: 'Žlutý oxid olovnatý z taveného olova.'
+    },
+    {
+      id: 'comfrey', name: 'Kostival', name_lat: 'Symphytum', rarity: 'common', source: 'existing',
       color: '#6b8f5a', icon: '🌿', thermal: -1, moisture: 1,
-      lore: 'Základ středověké ortopedie. Slizovitý, chladivý.' },
-    { id: 'yarrow', name: 'Řebříček', name_lat: 'Millefolium', rarity: 'common', source: 'existing',
+      lore: 'Základ středověké ortopedie. Slizovitý, chladivý.'
+    },
+    {
+      id: 'yarrow', name: 'Řebříček', name_lat: 'Millefolium', rarity: 'common', source: 'existing',
       color: '#e8d5a8', icon: '🌿', thermal: 1, moisture: -2,
-      lore: 'Achillova bylina. Svíravá, hojí rány.' },
-    { id: 'juniper', name: 'Jalovec', name_lat: 'Juniperus', rarity: 'common', source: 'existing',
+      lore: 'Achillova bylina. Svíravá, hojí rány.'
+    },
+    {
+      id: 'juniper', name: 'Jalovec', name_lat: 'Juniperus', rarity: 'common', source: 'existing',
       color: '#4a6b4a', icon: '🌲', thermal: 3, moisture: -2,
-      lore: 'Silně prohřívací silice, oblíbená na revma.' },
-    { id: 'hyssop', name: 'Yzop', name_lat: 'Hyssopus', rarity: 'common', source: 'existing',
+      lore: 'Silně prohřívací silice, oblíbená na revma.'
+    },
+    {
+      id: 'hyssop', name: 'Yzop', name_lat: 'Hyssopus', rarity: 'common', source: 'existing',
       color: '#7a8b6a', icon: '🌿', thermal: 2, moisture: -1,
-      lore: 'Benediktinská bylina proti kašli.' },
-    { id: 'theriacum_simplex', name: 'Základní theriak', name_lat: 'Theriacum Simplex', rarity: 'rare', source: 'crafted',
+      lore: 'Benediktinská bylina proti kašli.'
+    },
+    {
+      id: 'theriacum_simplex', name: 'Základní theriak', name_lat: 'Theriacum Simplex', rarity: 'rare', source: 'crafted',
       color: '#8b6914', icon: '🍯', thermal: 1, moisture: 1,
-      lore: 'Pelyněk, hořec a med svařené s vínem.' },
-    { id: 'lazulium_mellitum', name: 'Medový ultramarín', name_lat: 'Lazulium Mellitum', rarity: 'rare', source: 'crafted',
+      lore: 'Pelyněk, hořec a med svařené s vínem.'
+    },
+    {
+      id: 'lazulium_mellitum', name: 'Medový ultramarín', name_lat: 'Lazulium Mellitum', rarity: 'rare', source: 'crafted',
       color: '#2a52be', icon: '💙', thermal: 0, moisture: 1,
-      lore: 'Lapis lazuli hnětený v medu a gumě.' },
-    { id: 'fennel', name: 'Fenykl', name_lat: 'Foeniculum', rarity: 'common', source: 'existing',
+      lore: 'Lapis lazuli hnětený v medu a gumě.'
+    },
+    {
+      id: 'fennel', name: 'Fenykl', name_lat: 'Foeniculum', rarity: 'common', source: 'existing',
       color: '#c9d97a', icon: '🌿', thermal: 2, moisture: -1,
-      lore: 'Dobrý na trávení, Hildegarda jej doporučovala.' },
-    { id: 'malachite', name: 'Malachit', name_lat: 'Malachitum', rarity: 'uncommon', source: 'existing',
+      lore: 'Dobrý na trávení, Hildegarda jej doporučovala.'
+    },
+    {
+      id: 'malachite', name: 'Malachit', name_lat: 'Malachitum', rarity: 'uncommon', source: 'existing',
       color: '#2a8a5a', icon: '🟢', thermal: -1, moisture: -3,
       lore: 'Zelená měděná ruda z dolu.',
-      dropNote: 'Vzácný byproduct z Dolů.' },
-    { id: 'spodium', name: 'Kostní popel', name_lat: 'Spodium', rarity: 'uncommon', source: 'crafted',
+      dropNote: 'Vzácný byproduct z Dolů.'
+    },
+    {
+      id: 'spodium', name: 'Kostní popel', name_lat: 'Spodium', rarity: 'uncommon', source: 'crafted',
       color: '#e8e0d0', icon: '⚪', thermal: 2, moisture: -5,
-      lore: 'Extrémně suchý bílý prášek ze žíhané kosti.' },
-    { id: 'auripigmentum', name: 'Auripigment', name_lat: 'Auripigmentum', rarity: 'rare', source: 'crafted',
+      lore: 'Extrémně suchý bílý prášek ze žíhané kosti.'
+    },
+    {
+      id: 'auripigmentum', name: 'Auripigment', name_lat: 'Auripigmentum', rarity: 'rare', source: 'crafted',
       color: '#f0d020', icon: '🟡', thermal: 4, moisture: -4,
-      lore: 'Sulfid arsenitý. Zářivě žlutý — a smrtelně jedovatý.' }
+      lore: 'Sulfid arsenitý. Zářivě žlutý — a smrtelně jedovatý.'
+    }
   ],
 
   // ----------------------------------------------------------
@@ -1657,7 +1757,6 @@ const AthanorSystem = {
         activeProcess: 'coctio',
         brewing: null,
         discovered: [],
-        failedAttempts: [],
         lastResult: null
       };
     } else {
@@ -1666,7 +1765,6 @@ const AthanorSystem = {
       if (!GameState.athanor.activeProcess) GameState.athanor.activeProcess = 'coctio';
       if (!GameState.athanor.brewing) GameState.athanor.brewing = null;
       if (!GameState.athanor.discovered) GameState.athanor.discovered = [];
-      if (!GameState.athanor.failedAttempts) GameState.athanor.failedAttempts = [];
       if (!('lastResult' in GameState.athanor)) GameState.athanor.lastResult = null;
     }
     setInterval(() => AthanorSystem.tick(), 2000);
@@ -2413,8 +2511,8 @@ const AthanorSystem = {
       const hoursLeft = Math.ceil((GameState.flags.athanorSealedUntil - Date.now()) / 3600000);
       el.innerHTML = `<div style="text-align:center; padding:2rem; opacity:0.75;">
         <div style="font-size:2rem;">🔒</div>
-        <div style="margin-top:0.5rem;">${lang==='en' ? 'The Athanor is sealed.' : 'Athanor je zapečetěný.'}</div>
-        <div style="font-size:0.8rem; opacity:0.6; margin-top:0.3rem;">${lang==='en' ? `Reopens in ~${hoursLeft}h.` : `Otevře se za ~${hoursLeft}h.`}</div>
+        <div style="margin-top:0.5rem;">${lang === 'en' ? 'The Athanor is sealed.' : 'Athanor je zapečetěný.'}</div>
+        <div style="font-size:0.8rem; opacity:0.6; margin-top:0.3rem;">${lang === 'en' ? `Reopens in ~${hoursLeft}h.` : `Otevře se za ~${hoursLeft}h.`}</div>
       </div>`;
       return;
     }
@@ -2777,7 +2875,7 @@ const AthanorSystem = {
     `;
     const boxAnim = !isSuccess ? 'athanorResultShake 0.4s ease-out'
       : (result.isCritical ? 'athanorResultCriticalIn 0.5s cubic-bezier(0.34,1.56,0.64,1)'
-                            : 'athanorResultBoxIn 0.35s cubic-bezier(0.34,1.56,0.64,1)');
+        : 'athanorResultBoxIn 0.35s cubic-bezier(0.34,1.56,0.64,1)');
     modal.innerHTML = `
       <style>
         @keyframes athanorResultOverlayIn { from{opacity:0} to{opacity:1} }
