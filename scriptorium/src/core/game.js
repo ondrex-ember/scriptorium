@@ -3231,7 +3231,7 @@ const Game = {
                 { id: 'roots', qty: 1, w: 0.15 },
                 { id: 'seeds_vegetable', qty: 1, w: 0.10 },
                 { id: 'nightshade', qty: 1, w: 0.10 },
-                { id: 'fiber', qty: 1, w: 0.10 },
+                { id: 'fiber', qty: 1, w: 0.05 },
             ]);
             this.addItem(_forPick.id, _forPick.qty);
             if (this._seasonRoll('viticis_baco', 0.02)) this.addItem('viticis_baco', 1);
@@ -3284,7 +3284,7 @@ const Game = {
                 { id: 'frog', qty: 1, w: 0.40 },
                 { id: 'slug', qty: 2, w: 0.30 },
                 { id: 'water', qty: 2, w: 0.15 },
-                { id: 'fiber', qty: 1, w: 0.15 },
+                { id: 'fiber', qty: 1, w: 0.10 },
             ]);
             this.addItem(_wetPick.id, _wetPick.qty);
             // v8.x: plůdek — vzácný nález v mokřadu
@@ -3300,7 +3300,7 @@ const Game = {
         }
         else if (type === 'grass_gather') {
             this.addItem('grass', Math.random() < 0.5 ? 3 : 2);
-            this.addItem('fiber', Math.random() < 0.5 ? 3 : 2);
+            if (this._seasonRoll('fiber', 0.40)) this.addItem('fiber', Math.random() < 0.5 ? 3 : 2);
             if (this._seasonRoll('linden_blossom', 0.30)) this.addItem('linden_blossom', 1);
             if (this._seasonRoll('chamomile', 0.20)) this.addItem('chamomile', 1);
             if (this._seasonRoll('thyme', 0.10)) this.addItem('thyme', 1);
@@ -3381,7 +3381,7 @@ const Game = {
                 { id: 'herb_yellow', qty: 1, w: 0.04 },
                 { id: 'herb_blue', qty: 1, w: 0.04 },
                 { id: 'mint', qty: 1, w: 0.04 },
-                { id: 'fiber', qty: 2, w: 0.30 },
+                { id: 'fiber', qty: 2, w: 0.20 },
                 { id: 'water', qty: 1, w: 0.20 },
                 { id: 'seeds_herb', qty: 1, w: 0.10 },
                 { id: 'seeds_yellow', qty: 1, w: 0.10 },
