@@ -13,14 +13,18 @@ const TechTree = [
   { id: "tech_fishing", name: "Rybolov", name_en: "Fishing", cost: 3, desc: "Odemkne: Udice", desc_en: "Unlocks: Fishing rod", unlocks: ["fishing_rod"] },
   { id: "tech_foraging", name: "Sběr Potravy", name_en: "Foraging", cost: 3, desc: "Odemkne: Koš, houby", desc_en: "Unlocks: Basket, mushrooms", unlocks: ["basket"] },
   { id: "tech_cooking_2", name: "Pokročilé Vaření", name_en: "Advanced Cooking", cost: 5, desc: "Odemkne: Guláš, polévky", desc_en: "Unlocks: Stew, pottages", unlocks: ["stew", "mushroom_soup", "berry_pie", "tea_kettle", "herbal_tea", "herbal_tea_alt", "acorn_brew", "chicory_drink", "linden_tea", "acorn_roasted", "chicory_roasted"], requires: ["tech_cooking_1"] },
-  { id: "tech_ars_coquinaria", name: "Ars Coquinaria", name_en: "Ars Coquinaria", cost: 8,
+  {
+    id: "tech_ars_coquinaria", name: "Ars Coquinaria", name_en: "Ars Coquinaria", cost: 8,
     desc: "Umění vařit raky, hlemýždě a žabí stehýnka podle italského mistra Martina de Rossi. Rychleji se odemyká přečtením jeho knihy v Knihovně.",
     desc_en: "The art of preparing crayfish, snails, and frog legs after the Italian master Martino de Rossi. Unlocks faster by reading his book in the Library.",
-    unlocks: ["crayfish_boiled", "snails_black_sauce", "frog_legs_prep", "frog_legs_fried"], requires: ["tech_cooking_2"] },
-  { id: "tech_cultus_herbarum", name: "Cultus Herbarum", name_en: "Cultus Herbarum", cost: 10,
+    unlocks: ["crayfish_boiled", "snails_black_sauce", "frog_legs_prep", "frog_legs_fried"], requires: ["tech_cooking_2"]
+  },
+  {
+    id: "tech_cultus_herbarum", name: "Cultus Herbarum", name_en: "Cultus Herbarum", cost: 10,
     desc: "Lidová znalost divokých bylin, kořenů a hub — z klášterního herbáře. Rychleji se odemyká přečtením knihy v Knihovně.",
     desc_en: "Folk knowledge of wild herbs, roots and mushrooms — from the monastery's herbal manuscript. Unlocks faster by reading the book in the Library.",
-    unlocks: ["spring_herb_porridge", "burdock_root_baked", "couch_grass_flour", "cattail_root_flour", "rosehip_sauce", "famine_bread", "dried_wild_fruit", "sloe_jam", "morel_stuffed", "pickled_mushrooms"], requires: ["tech_de_re_rustica"] },
+    unlocks: ["spring_herb_porridge", "burdock_root_baked", "couch_grass_flour", "cattail_root_flour", "rosehip_sauce", "famine_bread", "dried_wild_fruit", "sloe_jam", "morel_stuffed", "pickled_mushrooms"], requires: ["tech_de_re_rustica"]
+  },
 
   // TIER 2 - horticulture
   { id: "tech_garden_expand", name: "Rozšíření Zahrady", name_en: "Garden Expansion", cost: 4, desc: "Odemkne: 4 políčka zahrady.", desc_en: "Unlocks: 4 garden plots.", unlocks: [] },
@@ -484,147 +488,147 @@ const TechTree = [
 ];
 // ── KADIDLO (Thuribulum) ─────────────────────────────────────────────────
 TechTree.push({
-    id: "tech_thuribulum",
-    name: "Thuribulum — Umění vykuřování",
-    name_en: "Thuribulum — Art of Incense",
-    cost: 12,
-    desc: "Antická medicína i mnišská liturgie znají sílu dýmu. Dioscorides psal o pryskyřicích Pitys a Peuce i o pravém Olibanu z Arábie. Odemkne: výrobu a pálení kadidla v Ohništi pro regeneraci Vigoru.",
-    desc_en: "Ancient medicine and monastic liturgy alike know the power of smoke. Dioscorides wrote of Pitys and Peuce resins and of true Olibanum from Arabia. Unlocks: crafting and burning incense at the Hearth for Vigor regeneration.",
-    unlocks: ["incense_spruce", "incense_pine", "incense_styrax", "incense_olibanum"],
-    requires: ["tech_meteorologica"]
+  id: "tech_thuribulum",
+  name: "Thuribulum — Umění vykuřování",
+  name_en: "Thuribulum — Art of Incense",
+  cost: 12,
+  desc: "Antická medicína i mnišská liturgie znají sílu dýmu. Dioscorides psal o pryskyřicích Pitys a Peuce i o pravém Olibanu z Arábie. Odemkne: výrobu a pálení kadidla v Ohništi pro regeneraci Vigoru.",
+  desc_en: "Ancient medicine and monastic liturgy alike know the power of smoke. Dioscorides wrote of Pitys and Peuce resins and of true Olibanum from Arabia. Unlocks: crafting and burning incense at the Hearth for Vigor regeneration.",
+  unlocks: ["incense_spruce", "incense_pine", "incense_styrax", "incense_olibanum"],
+  requires: ["tech_meteorologica"]
 });
 // ── ČERVEC (Karmín) ──────────────────────────────────────────────────────
 TechTree.push({
-    id: "tech_cervec",
-    name: "Ars Coccinea — Umění karmínu",
-    name_en: "Ars Coccinea — The Art of Cochineal",
-    cost: 40,
-    desc: "Polský červec (Porphyrophora polonica) se sbírá u kořenů luk kolem svatojánské noci a drtí na karmínově rudý pigment — cennou barvu pro purpurové iniciály, dostupnou střední Evropě dávno před dovozem mexického košenilu. Odemkne: recept karmínu z červce.",
-    desc_en: "Polish cochineal (Porphyrophora polonica) is gathered from meadow roots around Midsummer and crushed into a crimson pigment — a prized colour for purple initials, available to Central Europe long before Mexican cochineal was imported. Unlocks: the cochineal dye recipe from grubs.",
-    unlocks: ["karmin"],
-    requires: ["tech_meteorologica"]
+  id: "tech_cervec",
+  name: "Ars Coccinea — Umění karmínu",
+  name_en: "Ars Coccinea — The Art of Cochineal",
+  cost: 40,
+  desc: "Polský červec (Porphyrophora polonica) se sbírá u kořenů luk kolem svatojánské noci a drtí na karmínově rudý pigment — cennou barvu pro purpurové iniciály, dostupnou střední Evropě dávno před dovozem mexického košenilu. Odemkne: recept karmínu z červce.",
+  desc_en: "Polish cochineal (Porphyrophora polonica) is gathered from meadow roots around Midsummer and crushed into a crimson pigment — a prized colour for purple initials, available to Central Europe long before Mexican cochineal was imported. Unlocks: the cochineal dye recipe from grubs.",
+  unlocks: ["karmin"],
+  requires: ["tech_meteorologica"]
 });
 // ── MAGISTER CONVERSORUM ─────────────────────────────────────────────────
 TechTree.push({
-    id: "tech_magister",
-    name: "Magister conversorum",
-    name_en: "Magister conversorum",
-    cost: 35,
-    desc: "Dosud každou při na Kapitule soudíš sám a každý konvrš je najatý natrvalo, nebo vůbec. Magister conversorum spory urovná sám, a otevře dveře i těm, co nechtějí zůstat navždy — famulům na sezónu, oblátům na vyrůstání. Odemyká: najímání Famula a Obláta, automatické řešení Kapituly.",
-    desc_en: "Until now you alone judge every dispute at Chapter, and every lay brother is hired for life or not at all. The Magister conversorum settles disputes himself, and opens the door to those who won't stay forever — seasonal famuli, growing oblates. Unlocks: hiring Famulus and Oblate, automatic resolution of Chapter disputes.",
-    unlocks: [],
-    requires: []
+  id: "tech_magister",
+  name: "Magister conversorum",
+  name_en: "Magister conversorum",
+  cost: 35,
+  desc: "Dosud každou při na Kapitule soudíš sám a každý konvrš je najatý natrvalo, nebo vůbec. Magister conversorum spory urovná sám, a otevře dveře i těm, co nechtějí zůstat navždy — famulům na sezónu, oblátům na vyrůstání. Odemyká: najímání Famula a Obláta, automatické řešení Kapituly.",
+  desc_en: "Until now you alone judge every dispute at Chapter, and every lay brother is hired for life or not at all. The Magister conversorum settles disputes himself, and opens the door to those who won't stay forever — seasonal famuli, growing oblates. Unlocks: hiring Famulus and Oblate, automatic resolution of Chapter disputes.",
+  unlocks: [],
+  requires: []
 });
 // ── INFIRMARIUM — Ošetřovna ───────────────────────────────────────────────
 TechTree.push({
-    id: "tech_infirmarium",
-    name: "Infirmarium",
-    name_en: "Infirmarium",
-    cost: 30,
-    desc: "Nemocní dosud leží tam, kde je nemoc zastihla. Infirmarium jim dá vlastní síň, oddělenou od zdravého společenství. Odemyká: budovu Infirmarium a přístup k jejím čtyřem stanovištím péče.",
-    desc_en: "The sick still lie wherever illness finds them. The Infirmarium gives them their own hall, set apart from the healthy community. Unlocks: the Infirmarium building and access to its four stations of care.",
-    unlocks: [],
-    requires: []
+  id: "tech_infirmarium",
+  name: "Infirmarium",
+  name_en: "Infirmarium",
+  cost: 30,
+  desc: "Nemocní dosud leží tam, kde je nemoc zastihla. Infirmarium jim dá vlastní síň, oddělenou od zdravého společenství. Odemyká: budovu Infirmarium a přístup k jejím čtyřem stanovištím péče.",
+  desc_en: "The sick still lie wherever illness finds them. The Infirmarium gives them their own hall, set apart from the healthy community. Unlocks: the Infirmarium building and access to its four stations of care.",
+  unlocks: [],
+  requires: []
 });
 TechTree.push({
-    id: "tech_infirmarium_servitor",
-    name: "Servitor infirmariae",
-    name_en: "Servitor infirmariae",
-    cost: 12,
-    desc: "Fyzická obsluha nemocných — převlékání lůžek, podávání léků, hygiena sálu. Odemyká: konvrší úkol Ošetřovatel.",
-    desc_en: "Physical care of the sick — changing linens, giving medicine, keeping the hall clean. Unlocks: the Servitor lay-brother task.",
-    unlocks: [],
-    requires: ["tech_infirmarium"]
+  id: "tech_infirmarium_servitor",
+  name: "Servitor infirmariae",
+  name_en: "Servitor infirmariae",
+  cost: 12,
+  desc: "Fyzická obsluha nemocných — převlékání lůžek, podávání léků, hygiena sálu. Odemyká: konvrší úkol Ošetřovatel.",
+  desc_en: "Physical care of the sick — changing linens, giving medicine, keeping the hall clean. Unlocks: the Servitor lay-brother task.",
+  unlocks: [],
+  requires: ["tech_infirmarium"]
 });
 TechTree.push({
-    id: "tech_infirmarium_coquus",
-    name: "Coquus infirmariae",
-    name_en: "Coquus infirmariae",
-    cost: 12,
-    desc: "Vlastní kuchyně ošetřovny — maso a bílý chléb povolené i mimo půst, k posílení nemocných. Odemyká: konvrší úkol Kuchař infirmaria.",
-    desc_en: "The infirmary's own kitchen — meat and white bread allowed even outside fast days, to strengthen the sick. Unlocks: the Coquus lay-brother task.",
-    unlocks: [],
-    requires: ["tech_infirmarium"]
+  id: "tech_infirmarium_coquus",
+  name: "Coquus infirmariae",
+  name_en: "Coquus infirmariae",
+  cost: 12,
+  desc: "Vlastní kuchyně ošetřovny — maso a bílý chléb povolené i mimo půst, k posílení nemocných. Odemyká: konvrší úkol Kuchař infirmaria.",
+  desc_en: "The infirmary's own kitchen — meat and white bread allowed even outside fast days, to strengthen the sick. Unlocks: the Coquus lay-brother task.",
+  unlocks: [],
+  requires: ["tech_infirmarium"]
 });
 TechTree.push({
-    id: "tech_infirmarium_hortulanus",
-    name: "Hortulanus medicus",
-    name_en: "Hortulanus medicus",
-    cost: 12,
-    desc: "Zahrádka léčivek při ošetřovně — šalvěj, meduňka, mandragora. Odemyká: konvrší úkol Bylinář.",
-    desc_en: "A physic garden by the infirmary — sage, lemon balm, mandrake. Unlocks: the Hortulanus lay-brother task.",
-    unlocks: [],
-    requires: ["tech_infirmarium"]
+  id: "tech_infirmarium_hortulanus",
+  name: "Hortulanus medicus",
+  name_en: "Hortulanus medicus",
+  cost: 12,
+  desc: "Zahrádka léčivek při ošetřovně — šalvěj, meduňka, mandragora. Odemyká: konvrší úkol Bylinář.",
+  desc_en: "A physic garden by the infirmary — sage, lemon balm, mandrake. Unlocks: the Hortulanus lay-brother task.",
+  unlocks: [],
+  requires: ["tech_infirmarium"]
 });
 TechTree.push({
-    id: "tech_infirmarium_balneator",
-    name: "Balneator / Focarius",
-    name_en: "Balneator / Focarius",
-    cost: 12,
-    desc: "Topič a koupelník — udržuje oheň a teplou vodu pro léčebné koupele. Odemyká: konvrší úkol Topič.",
-    desc_en: "The stoker and bath-keeper — tends the fire and warm water for healing baths. Unlocks: the Balneator lay-brother task.",
-    unlocks: [],
-    requires: ["tech_infirmarium"]
+  id: "tech_infirmarium_balneator",
+  name: "Balneator / Focarius",
+  name_en: "Balneator / Focarius",
+  cost: 12,
+  desc: "Topič a koupelník — udržuje oheň a teplou vodu pro léčebné koupele. Odemyká: konvrší úkol Topič.",
+  desc_en: "The stoker and bath-keeper — tends the fire and warm water for healing baths. Unlocks: the Balneator lay-brother task.",
+  unlocks: [],
+  requires: ["tech_infirmarium"]
 });
 TechTree.push({
-    id: "tech_infirmarium_apothecarius",
-    name: "Ars Apothecaria",
-    name_en: "Ars Apothecaria",
-    cost: 12,
-    desc: "Contraria contrariis curantur — nemocný humor se léčí opačnou kvalitou. Odemyká: první léčivé recepty pro Athanor (Odvar z duběnek, Mast ze lněného oleje).",
-    desc_en: "Contraria contrariis curantur — an unbalanced humor is cured by its opposite quality. Unlocks: first medicinal recipes for the Athanor (Oak Gall Decoction, Linseed Oil Salve).",
-    unlocks: ["odvar_z_dubenek", "mast_ze_lneneho_oleje", "odvar_z_vrby"],
-    requires: ["tech_infirmarium"]
+  id: "tech_infirmarium_apothecarius",
+  name: "Ars Apothecaria",
+  name_en: "Ars Apothecaria",
+  cost: 12,
+  desc: "Contraria contrariis curantur — nemocný humor se léčí opačnou kvalitou. Odemyká: první léčivé recepty pro Athanor (Odvar z duběnek, Mast ze lněného oleje).",
+  desc_en: "Contraria contrariis curantur — an unbalanced humor is cured by its opposite quality. Unlocks: first medicinal recipes for the Athanor (Oak Gall Decoction, Linseed Oil Salve).",
+  unlocks: ["odvar_z_dubenek", "mast_ze_lneneho_oleje", "odvar_z_vrby"],
+  requires: ["tech_infirmarium"]
 });
 TechTree.push({
-    id: "tech_chirurgus",
-    name: "Chirurgia Magna",
-    name_en: "Chirurgia Magna",
-    cost: 15,
-    desc: "Guy de Chauliac, 1365. Nejmodernější chirurgický spis doby — ošetřování ran, zlomenin, a spongia somnifera: mořská houba napuštěná opiem, blínem a mandragorou k utlumení bolesti před řezáním. Odemyká: Uspávací houbu.",
-    desc_en: "Guy de Chauliac, 1365. The most advanced surgical treatise of the age — wound care, fractures, and the spongia somnifera: a sea sponge soaked with opium, henbane and mandrake to dull pain before cutting. Unlocks: the Sleeping Sponge.",
-    unlocks: ["spongia_somnifera"],
-    requires: ["tech_infirmarium"]
+  id: "tech_chirurgus",
+  name: "Chirurgia Magna",
+  name_en: "Chirurgia Magna",
+  cost: 15,
+  desc: "Guy de Chauliac, 1365. Nejmodernější chirurgický spis doby — ošetřování ran, zlomenin, a spongia somnifera: mořská houba napuštěná opiem, blínem a mandragorou k utlumení bolesti před řezáním. Odemyká: Uspávací houbu.",
+  desc_en: "Guy de Chauliac, 1365. The most advanced surgical treatise of the age — wound care, fractures, and the spongia somnifera: a sea sponge soaked with opium, henbane and mandrake to dull pain before cutting. Unlocks: the Sleeping Sponge.",
+  unlocks: ["spongia_somnifera"],
+  requires: ["tech_infirmarium"]
 });
 TechTree.push({
-    id: "tech_studovna",
-    name: "Studovna",
-    name_en: "Studiolum",
-    cost: 18,
-    desc: "Šlechta odedávna hledala v klášterních archivech doklady k pozemkovým sporům, rodokmenům i závětem. Vlastní studovna při knihovně nabídne světskému hostu klid a soukromí, aniž naruší řád kláštera. Odemyká: přijímání žádostí Vrchnosti o přístup ke klášterním listinám.",
-    desc_en: "Nobility had long sought in monastery archives the proof needed for land disputes, lineage claims, and testaments. A private study room by the library offers a secular guest quiet and privacy without disrupting the monastery's order. Unlocks: receiving the Lord's requests for access to the monastery's charters.",
-    unlocks: [],
-    requires: []
+  id: "tech_studovna",
+  name: "Studovna",
+  name_en: "Studiolum",
+  cost: 18,
+  desc: "Šlechta odedávna hledala v klášterních archivech doklady k pozemkovým sporům, rodokmenům i závětem. Vlastní studovna při knihovně nabídne světskému hostu klid a soukromí, aniž naruší řád kláštera. Odemyká: přijímání žádostí Vrchnosti o přístup ke klášterním listinám.",
+  desc_en: "Nobility had long sought in monastery archives the proof needed for land disputes, lineage claims, and testaments. A private study room by the library offers a secular guest quiet and privacy without disrupting the monastery's order. Unlocks: receiving the Lord's requests for access to the monastery's charters.",
+  unlocks: [],
+  requires: []
 });
 TechTree.push({
-    id: "tech_klenotnictvi",
-    name: "Klenotnictví",
-    name_en: "Goldsmith's Art",
-    cost: 22,
-    desc: "Zlatnictví je cech oddělený od kamenictví — jiný výcvik, jiná pravidla, jiná čtvrť města. Skrze Kameníkovy styky se otevírá cesta ke klenotníkovi ve městě, který obchoduje se stříbrem a zlatem.",
-    desc_en: "Goldsmithing is a guild apart from stonemasonry — different training, different rules, a different quarter of the city. Through the Stonemason's connections, a path opens to a goldsmith in the city who trades in silver and gold.",
-    unlocks: [],
-    requires: []
+  id: "tech_klenotnictvi",
+  name: "Klenotnictví",
+  name_en: "Goldsmith's Art",
+  cost: 22,
+  desc: "Zlatnictví je cech oddělený od kamenictví — jiný výcvik, jiná pravidla, jiná čtvrť města. Skrze Kameníkovy styky se otevírá cesta ke klenotníkovi ve městě, který obchoduje se stříbrem a zlatem.",
+  desc_en: "Goldsmithing is a guild apart from stonemasonry — different training, different rules, a different quarter of the city. Through the Stonemason's connections, a path opens to a goldsmith in the city who trades in silver and gold.",
+  unlocks: [],
+  requires: []
 });
 // ── PORTA — Holubí pošta ─────────────────────────────────────────────────
 TechTree.push({
-    id: "tech_porta",
-    name: "Porta — Holubí pošta",
-    name_en: "Porta — Pigeon Post",
-    cost: 15,
-    desc: "Opat žije daleko a jezdí jen na návštěvu. Nabízí hejno holubů pro výcvik a spojení. Odemkne: budovu Porta a recept Ptačího papíru — bez něj holubí pošta nedoletí.",
-    desc_en: "The Abbot lives far away and visits only occasionally. He offers a flock of pigeons for training and connection. Unlocks: the Porta building and the Bird Paper recipe — without it, the pigeon post cannot fly.",
-    unlocks: ["bird_paper"],
-    requires: []
+  id: "tech_porta",
+  name: "Porta — Holubí pošta",
+  name_en: "Porta — Pigeon Post",
+  cost: 15,
+  desc: "Opat žije daleko a jezdí jen na návštěvu. Nabízí hejno holubů pro výcvik a spojení. Odemkne: budovu Porta a recept Ptačího papíru — bez něj holubí pošta nedoletí.",
+  desc_en: "The Abbot lives far away and visits only occasionally. He offers a flock of pigeons for training and connection. Unlocks: the Porta building and the Bird Paper recipe — without it, the pigeon post cannot fly.",
+  unlocks: ["bird_paper"],
+  requires: []
 });
 // ── VÁPENICE (Calcaria) ──────────────────────────────────────────────────
 TechTree.push({
-    id: "tech_calcaria",
-    name: "Calcaria — Vápenice",
-    name_en: "Calcaria — Lime Kiln",
-    cost: 25,
-    desc: "Vápenec sám o sobě k ničemu není. Teprve dny a noci ohně ve vápenici z něj udělají pálené vápno, a hašení s trpělivým zráním v jámě dá maltu, omítku i pergamen. Odemkne: budovu Vápenice, pálení a hašení vápna.",
-    desc_en: "Limestone alone is worth nothing. Only days and nights of fire in the kiln turn it into quicklime, and slaking with patient maturation in the pit yields mortar, plaster, and parchment. Unlocks: the Lime Kiln building, lime burning and slaking.",
-    unlocks: ["burn_lime", "slake_lime", "soaked_hide_lime", "premium_soaked_hide", "premium_soaked_hide_goat", "premium_stretched_hide", "premium_vellum"],
-    requires: ["tech_fodina"]
+  id: "tech_calcaria",
+  name: "Calcaria — Vápenice",
+  name_en: "Calcaria — Lime Kiln",
+  cost: 25,
+  desc: "Vápenec sám o sobě k ničemu není. Teprve dny a noci ohně ve vápenici z něj udělají pálené vápno, a hašení s trpělivým zráním v jámě dá maltu, omítku i pergamen. Odemkne: budovu Vápenice, pálení a hašení vápna.",
+  desc_en: "Limestone alone is worth nothing. Only days and nights of fire in the kiln turn it into quicklime, and slaking with patient maturation in the pit yields mortar, plaster, and parchment. Unlocks: the Lime Kiln building, lime burning and slaking.",
+  unlocks: ["burn_lime", "slake_lime", "soaked_hide_lime", "premium_soaked_hide", "premium_soaked_hide_goat", "premium_stretched_hide", "premium_vellum"],
+  requires: ["tech_fodina"]
 });

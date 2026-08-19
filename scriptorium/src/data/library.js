@@ -91,6 +91,7 @@ const LibraryDB = {
         {
             id: 'book_ars_magna',
             title: 'Ars Magna — Velké umění Ramona Llulla',
+            title_en: 'Ars Magna — The Great Art of Ramon Llull',
             category: 'technical',
             unlockDay: 0,
             icon: '🎡',
@@ -112,10 +113,27 @@ Je důležité říct, co Llullova kola NEdělala: nevěděla dopředu, která k
 
 Llull zemřel roku 1316, podle legendy jako mučedník při misii v severní Africe — ač historikové se v podrobnostech jeho smrti rozcházejí. Jeho kola upadla na staletí v zapomnění jako kuriozita podivína. Až v 17. století na ně narazil mladý německý polyhistor Gottfried Wilhelm Leibniz a v spisku *Dissertatio de arte combinatoria* (1666) přiznal, kde načerpal inspiraci pro vlastní úvahy o mechanickém výpočtu myšlenek. Co začalo jako pomůcka mallorského kazatele, tak stojí na počátku cesty, která o staletí později vede k logickým strojům a počítání jako takovému.
 
-*Kdo otáčí koly dost trpělivě, jednou projde všemi možnostmi, které svět skrývá.*`
+*Kdo otáčí koly dost trpělivě, jednou projde všemi možnostmi, které svět skrývá.*`,
+            content_en: `**The Majorcan Preacher Who Wanted to Turn the World Around**
+
+Ramon Llull was not born a scholar. He was a courtier on Majorca, a man of the world, until — by his own account — a vision of Christ on the cross struck him and turned his life upside down. He devoted the rest of his life to a single goal: finding a way to convince Muslims and Jews of the truth of Christianity through reason, not the sword. Out of that obsession came something nobody expected — the first attempt in European history at a mechanical thinking-machine.
+
+**Wheels Instead of Guessing**
+
+Llull's Great Art (Ars Magna, in its final version titled Ars generalis ultima, from the early 14th century) rests on an idea both simple and strange: if the attributes of God — Goodness, Greatness, Eternity, Power, and others — form a finite set of basic concepts, they can be written as letters around the rim of rotating paper wheels, layered on a shared pin. Turning the wheels against one another produces ever-new combinations of letters — and so ever-new combinations of statements about the world. Instead of a theologian guessing which arguments exist, the wheel mechanically generates them and works through every one.
+
+**A Machine That Doesn't Guarantee Truth, but Searches All of It**
+
+It matters what Llull's wheels did NOT do: they did not know in advance which combination was true. They were no oracle, no shortcut to an answer. They were a tool for exhaustive, systematic search — working through every conceivable combination so that no possibility slipped past unnoticed simply because nobody thought of it. That is the real leap: Llull may have been the first to hunt for truth through combinatorics rather than intuition.
+
+**A Legacy, Four Centuries Later**
+
+Llull died in 1316, by legend a martyr on a mission to North Africa — though historians disagree on the details of his death. His wheels fell into centuries of obscurity as an eccentric's curiosity. Not until the 17th century did a young German polymath, Gottfried Wilhelm Leibniz, encounter them, and in his tract Dissertatio de arte combinatoria (1666) acknowledge where he drew the inspiration for his own thinking on the mechanical computation of ideas. What began as an aid for a Majorcan preacher thus stands at the start of a road that, centuries later, leads to logical machines — and to computing itself.
+
+*Whoever turns the wheels patiently enough will, in time, pass through every possibility the world conceals.*`
         },
 
-// TIER 2 - Druhý týden (day 8-14)
+        // TIER 2 - Druhý týden (day 8-14)
         {
             id: 'book_prague_mystery',
             title: 'Záhada pražského tiskaře: Zrození v utajení',
@@ -190,8 +208,8 @@ Melantrich byl bystrý a okouzlující stratég. [cite_start]Nejdříve se nená
 
 *"V obchodu, stejně jako v tisku, není nikdy místo pro slabé a nerozhodné. Pouze dravci přežijí a napíší pravidla, podle kterých budou hrát ti ostatní."* - Připisováno Jiřímu Melantrichovi`
         },
-		
-// TIER 3 - Třetí týden (day 15-21)
+
+        // TIER 3 - Třetí týden (day 15-21)
         {
             id: 'book_pfister',
             title: 'Muž s obrázky: Albrecht Pfister a první komiks',
@@ -252,7 +270,7 @@ S nadsázkou se mezi historiky říká, že to byl právě on, kdo svou neúnavn
         },
 
 
-// TIER 4 - Čtvrtý týden (day 22-28)
+        // TIER 4 - Čtvrtý týden (day 22-28)
         {
             id: 'book_czech_glass',
             title: 'Křehká válka: České sklářství vs. Benátky',
@@ -277,8 +295,8 @@ Navzdory zabijákům se však Čechům díky špionům, kupcům a uprchlíkům p
 
 *"Naše sklo je zmrzlé světlo, vytesané z potu lesních dělníků a slz benátských kupců."* - Mistr huťmistr ze severu`
         },
-        
-// TIER 4 - Poslední týden (day 26-30)
+
+        // TIER 4 - Poslední týden (day 26-30)
         {
             id: 'book_de_arte_predicandi',
             title: 'De arte predicandi: Prokletý prvotisk z Mohuče',
@@ -354,8 +372,8 @@ Zásadní dilema: Extrémní dosah textu vs. neomezená trvanlivost média? [cit
 
 [cite_start]**HERNÍ EFEKT:** Získáš prastarou vědomost mistrů – navždy si odemkneš vrcholný výrobní řetězec na pergamenové svazky (vellum crafting chain): **surová kůže (hide) → zpracovaný pergamen (vellum) → luxusní pergamenový kodex (vellum_codex)**. [cite: 111] Budeš muset pečlivě balancovat svou ekonomiku. Tyto exkluzivní Vellum kodexy sice mají na trzích neuvěřitelnou, **5x větší prodejní hodnotu** než obyčejné papírové knihy, ale jejich výroba tě bude stát **10x více základního materiálu a času**, čímž riskneš prázdné sklady!`
         },
-		
-		// TIER 5 - Klenoty a kontroverze (day 31-40)
+
+        // TIER 5 - Klenoty a kontroverze (day 31-40)
         {
             id: 'book_kronika_trojanska',
             title: 'Záhada Kroniky trojánské: Pýcha a vodoznaky',
@@ -456,8 +474,8 @@ Je to naprosto dokonalá a mrazivá ukázka moci knihtisku a médií obecně: Po
 
 *"Holá pravda je mnohdy nudná a velmi špatně se prodává na trzích. Lež zasazená v tvrdém olovu a obalená zlatem žije věčně."*`
         },
-		
-		// TIER 6 - Paměť národa (day 41-48)
+
+        // TIER 6 - Paměť národa (day 41-48)
         {
             id: 'book_kosmas',
             title: 'Kosmova kronika: Mýty a politika',
@@ -736,7 +754,7 @@ Jednota bratrská byla pronásledovaná a musela svou tiskárnu neustále přeso
 
 *"Když ztratíš zemi, krále i svobodu, domovem se ti stane jazyk skrytý mezi stránkami jediné knihy."*`
         },
-		// TIER 10 (Pokračování) - Baroko a vzdor (day 66-70)
+        // TIER 10 (Pokračování) - Baroko a vzdor (day 66-70)
         {
             id: 'book_bible_prazska',
             title: 'Bible pražská: Zrození české sazby',
@@ -809,7 +827,7 @@ Právě díky obrovským nákladům těchto tištěných kalendářů se začal 
 
 *"Kdo ovládne kalendář, ovládne čas. A kdo ovládne čas, řídí celý svět."*`
         },
-		{
+        {
             id: 'book_codex_gigas',
             title: 'Codex Gigas: Ďáblova bible a její prokletí',
             category: 'local',
@@ -950,7 +968,7 @@ Moderní radiokarbonová analýza (C-14) prokázala, že pergamen byl prokazatel
 
 Je to zašifrovaný deník kacířských alchymistů? Deník středověké ženské bylinářské komunity psaný v tajném argotu, aby unikly inkvizici? Nebo mistrovský podvod ze 15. století s cílem vytáhnout peníze z bohatých evropských panovníků? Voynichův rukopis zůstává svatým grálem kryptografie – dokonalým zámkem, ke kterému svět navždy ztratil klíč.`
         },
-		{
+        {
             id: 'book_koldin',
             title: 'Práva městská: Koldínův kodex a konec chaosu',
             category: 'innovation',
@@ -1072,7 +1090,7 @@ Aby Apologie splnila svůj účel, musela se šířit rychleji než císařova a
 
 Zafungovala. Kniha poskytla protestantským kurfiřtům právní a morální záminku, aby se do českého konfliktu zapojili. Tato malá tiskovina, sešitá z několika archů papíru, nakonec nesloužila k uklidnění situace, ale jako formální vyhlášení nejkrvavějšího konfliktu 17. století. Z lokálního konfliktu v Praze vytvořila Třicetiletou válku, která za sebou nechala spálenou Evropu a miliony mrtvých.`
         },
-		{
+        {
             id: 'book_jenson_spy',
             title: 'Špion, který se nevrátil: Jensonovo tajemství',
             category: 'history',
@@ -1210,7 +1228,7 @@ Po tomto úžasném zjištění se kniha přes noc změnila z běžného evropsk
 
 Tato událost vyvolala mezi archiváři po celém světě příjemné mrazení a jednu zásadní, děsivou otázku: Kolik tisíců dalších nedoceněných "běžných" německých či benátských tisků, roztroušených v obrovských depozitářích a zapadlých klášterech, jsou ve skutečnosti vzácné národní prvotisky pod falešnou identitou? Kolik historické pravdy zůstává bezpečně ukryto pod vrstvami dobrých úmyslů, omyvatelných štítků a omylů knihovníků z 19. století? Archivy nejsou mrtvá místa; jsou to spící detektivky, které jen čekají, až někdo otevře správnou stránku.`
         },
-		{
+        {
             id: 'book_gutenberg_betrayal',
             title: 'Mohučská zrada: Krvavý úsvit tisku',
             category: 'history',
@@ -2317,12 +2335,12 @@ The manuscript describes how to clarify wine and beer using fish bladders — th
         }
     ],
 
-    
-// ================================================
-// 2. TECH TREE LORE - Flavor text pro každou technologii
-// ================================================
 
-// Kategorie pro filtrování
+    // ================================================
+    // 2. TECH TREE LORE - Flavor text pro každou technologii
+    // ================================================
+
+    // Kategorie pro filtrování
     categories: {
         'history': { name: 'Historie Tisku', icon: '📜', desc: 'Krvavé počátky, zrady a triumfy prvních tiskařů.' },
         'innovation': { name: 'Inovace', icon: '💡', desc: 'Technologické milníky, které navždy změnily tvář knih.' },
@@ -2336,83 +2354,83 @@ const TechLoreDB = {
     'tech_candle': `*"Pan Fust tiskl tak rychle a neúnavně, že si prostý lid šeptal o smlouvě s temnotami. Ale skutečným démonem byla jen lidská ctižádost a světlo svíček odhalující tajemství inkoustu..."*
 
 Čistý včelí vosk byl v temném středověku považován za téměř posvátný materiál, vyhrazený oltářům. Obyčejný lid svítil páchnoucím lojem. Rané tiskařské dílny však musely pracovat dlouho do noci – lisy nesměly stát, investice byly obrovské. Každá hodina navíc, vykoupená drahou voskovou svící, znamenala drtivou konkurenční výhodu. Světlo znamenalo vědění.`,
-    
+
     'tech_backpack': `*"Pořádek v batohu je odrazem pořádku v tvé mysli. Chaos je nástrojem ďábla."*
 
 Organizace je absolutním základem každého klášterního scriptoria i tiskařské dílny. Věděl jsi, že přísné benediktinské kláštery měly dokonalé katalogizační systémy a pojízdné knihovny již ve 12. století? Mniši na cestách museli nosit těžké pergamenové kodexy a relikvie tisíce mil přes nebezpečné hvozdy. Dobré zavazadlo znamenalo rozdíl mezi uchováním vědomostí a jejich ztrátou v bahně.`,
-    
+
     'tech_alchemy_1': `*"Alchymisté Rudolfa II. bláhově hledali zlato a elixír mládí, ale v dýmu svých pecí nalezli něco cennějšího – skutečnou moudrost. Bylinky často léčí víc než zaříkávání..."*
 
 Dlouho předtím, než se zrodila moderní medicína, představovaly rozlehlé klášterní zahrady na pražském Strahově vrchol vědy. Pěstovaly přes 500 druhů pečlivě roztříděných léčivých rostlin. První alchymie nehledala jen transmutaci kovů, ale i rovnováhu čtyř lidských humorů (šťáv).`,
-    
+
     'tech_cooking_1': `Klášterní kuchyně byly obrovskými laboratořemi přežití. Nasycení stovek bratrů a poutníků vyžadovalo železnou logistiku. Vaření zde nebylo jen řemeslem, byla to každodenní alchymie – proměna syrových, často tvrdých darů země v živící pokrm. 
 
 Když přišel přísný půst a maso bylo zakázáno, mniši se spoléhali na husté polévky a silné pivo, zvané "tekutý chléb". *"Teplé jídlo zahřívá prokřehlé tělo, ale poctivé studium zahřívá nesmrtelnou duši."*`,
-    
+
     'tech_fishing': `*"Rybář čeká v tichu, naprosto odevzdán, jako mnich čekající na Boha."* - oblíbená klášterní analogie z 13. století.
 
 Pátek byl tradičně dnem odříkání a rybím dnem. Mocné rody a kláštery (např. v jižních Čechách) proměnily krajinu výstavbou monumentálních rybníků. Český kapr, šlechtěný pro maso, je vlastně husitský vynález! Rybníky představovaly bezpečné zlato středověku.`,
-    
+
     'tech_foraging': `Bratři bylináři a lesníci znali každý jedovatý druh houby, každý prospěšný kořínek a každou bobuli ukrytou v hlubokých hvozdech. Zatímco pro obyčejný lid byl hluboký les plný děsivých pohanských běsů a vlků, pro vzdělané mnichy to byla jen další kniha.
 
 Jejich znalost byla ústně i písemně předávána z generace na generaci. *"Hluboký les je jen nespoutaná knihovna přírody. Stačí umět číst v listí."*`,
-    
+
     'tech_cooking_2': `Pokročilé receptury vyžadovaly suroviny z dovozu, jako šafrán či pepř, a hlavně nadlidskou trpělivost. Pece a ohniště v klášterech nikdy nevyhasly. Tradiční masový guláš či kaše se vařily celý boží den, silná kostní polévka probublávala nad řeřavými uhlíky celou noc.
 
 *"Dobrá a silná polévka potřebuje svůj čas, aby vydala sílu, úplně stejně jako dobrá kniha potřebuje čas, aby vydala svou myšlenku."*`,
-    
+
     'tech_garden_expand': `Přísná benediktinská řehole, sepsaná v 6. století, stála na tvrdé zásadě: *"Ora et labora"* - modli se a pracuj. Fyzická práce v hlíně byla vnímána jako očista od hříchů.
 
 Každý mnich měl přidělený svůj vlastní záhon, a každý tento záhon byl vnímán jako malý, symbolický kousek ztraceného Ráje. Rozšíření vaší zahrady neznamená jen více bylin, znamená to rozšíření hranic vašeho osobního Edenu.`,
-    
+
     'tech_herbalism_2': `České klášterní bylinářství bylo proslulé napříč Svatou říší římskou. Měsíček na hnisající rány, třezalka (lidově zvaná krevníček) na melancholii a zahnání zlých duchů, dobromysl na čistou mysl – to vše bylo precizně katalogizováno již ve 12. století.
 
 *"Byliny jsou přímý dar matky Země moudrým, kteří umí naslouchat a ne jen brát."*`,
-    
+
     'tech_composting': `Byla to hnilobná, zapáchající alchymie – zázračná proměna zbytečného odpadu v životodárnou živinu. Benediktinští mniši nevnímali hnůj jako špínu, ale jako základ života. Měli kompostové jámy vystavěné s takovou pečlivostí, jako by šlo o katedrály pro žížaly.
 
 *"Nic nevznikne z ničeho, a nic se na tomto světě neztratí, jen to změní svou formu."* - Aristoteles (a každý moudrý zahradník).`,
-    
+
     'tech_alchemy_2': `Pokročilá alchymistická a lékařská praxe vyžadovala nesmírně nebezpečné, hraniční ingredience. Rulík zlomocný (belladonna) – rostlina temně krásná, způsobující halucinace a při špatném dávkování naprosto smrtící. Ženy si ji kapaly do očí pro krásu, mniši ji používali proti křečím.
 
 *"Jed je to, co léčí, a lék je to, co zabíjí. Rozdíl mezi oběma je jen a pouze ve správné dávce."* - Paracelsus`,
-    
+
     'tech_alchemy_3': `Mistrovské bylinné lektvary kombinovaly i desítky vzácných složek a minerálů z celého světa. Každá konkrétní bylina měla svůj přesně stanovený čas sběru (např. o svatojánské noci) a vyžadovala správnou fázi měsíce, aby měla tu nejvyšší astrologickou potenci.
 
 *"Alchymie není jen míchání, je to trpělivost sama. Zlaté dílo nelze uspěchat."*`,
-    
+
     'tech_alchemy_4': `Pověstný Lektvar spánku neboli *Spongia somnifera* (soporifiká houba) představovala středověkou anestézii, která zachraňovala příčetnost. Obsahovala extrakty z muchomůrky, opiového máku a rulíku. Zkušení ranhojiči a chirurgové houbu napustili lektvarem a přiložili pacientovi na tvář před drastickými operacemi a amputacemi.
 
 *"Spánek je malá smrt, probuzení z něj je znovuzrození do nového dne."*`,
-    
+
     'tech_monastery_wisdom': `Kláštery nebyly jen domy modliteb. Byla to opevněná centra prežití. Studium českých klášterů, jako je starobylý Břevnov (založen již 993) či vznešená Zlatá Koruna (1263), zachránilo antickou vzdělanost. Mniši za tlustými kamennými zdmi trpělivě uchovávali znalosti po celý temný středověk.
 
 *"Klášter je nedobytná pevnost vědění, osamělý maják v nekonečném moři lidské nevědomosti a válek."*`,
-    
+
     'tech_czech_herbs': `Věhlas českých léčivých bylin a bylinných mastí sahal daleko za hranice království. Byly exportovány do celé Evropy jako luxusní farmaceutické zboží. Mniši si své speciální receptury na masti bedlivě střežili jako obchodní tajemství.
 
 *"Tato země zná léky na každou bolest, jen je třeba pokleknout do hlíny a naslouchat."*`,
-    
+
     'tech_advanced_farming': `Již vzpomínané zahrady strahovských premonstrátů nepěstovaly jen pár cibulek, ale plných 500 druhů užitkových rostlin. Zavedli systematickou rotaci plodin (trojpolní systém), pokročilé kompostování a rané metody křížení a šlechtění osiva. Skutečná středověká agrární revoluce!
 
 **HERNÍ EFEKT: +50% rychlejší růst všech plodin na záhoncích!**`,
-    
+
     'tech_preservation': `Přežití dlouhých, krutých zim znamenalo přežití národa. Kláštery mistrně zvládaly nasolování, uzení, kvašení a sušení. Dokonce uchovávaly cenná semena rostlin ponořená v sudech s medem – v tomto stavu vydržela klíčivá i přes 50 let! Byla to vlastně úplně první genová banka na světě.
 
 **HERNÍ EFEKT: Veškeré vyprodukované jídlo se kazí o polovinu pomaleji (vydrží 2x déle)!**`,
-    
+
     'tech_master_alchemist': `Císař Rudolf II. se na přelomu 16. a 17. století rozhodl proměnit Prahu v hlavní město magie. Shromáždil přes 300 špičkových alchymistů, astrologů i prachobyčejných podvodníků z celého známého světa (1583). Zlatá ulička bzučela jako úl podivuhodnými experimenty. Ačkoliv bájné zlato z olova nikdy nevytvořili, mimoděk tím nastartovali obory moderní chemie, metalurgie a farmacie.`,
-    
+
     'tech_illumination': `Slovo iluminace pochází z latinského *illuminare* (osvětlit). Je to dechberoucí umění ručního zdobení pergamenových rukopisů plátkovým zlatem a drcenými drahokamy (např. lapis lazuli pro modrou). České bohatě iluminované bible (např. Bible Václava IV.) představují absolutní vizuální vrchol gotického umění v Evropě.
 
 *"Každá vymalovaná stránka je modlitbou otisknutou v barvách a zlatém prachu."*`,
-    
+
     'tech_astrology': `Pozice planet podle středověkého přesvědčení určovaly nejen počasí a úrodu, ale i samotný osud králů. Pověstný dánský astronom Tycho Brahe našel útočiště na dvoře v Praze, kde roku 1601 za podivných okolností zemřel. Geniální Pražský orloj (dokončený roku 1410 mistrem Mikulášem z Kadaně) ukazuje přesné pozice Slunce, Měsíce a znamení zvířetníku do dnešních dnů a zůstává mechanickým zázrakem světa.
 
 *"Hvězdy nepíšou jen na oblohu, hvězdy píší přímo naše osudy."*`,
-    
+
     'tech_czech_glass': `Lesní sklářské hutě produkovaly od 13. století hotové zázraky. Naše potašové sklo bylo pro svou čistotu a tvrdost naprostým fenoménem. Samotné pyšné Benátky se po staletí marně snažily okopírovat naše výrobní techniky a brusy. Český krvavý granát zasazený ve zlatě byl často ceněn výše než diamanty a sloužil jako platidlo šlechty.`,
-    
+
     'tech_games': `Když večer utichly modlitby a přestaly klapat tiskařské lisy, nastoupil hazard. Středověké deskové a karetní hry (Trumf, Vrhcáby, Karnöffel nebo mystický Tarot s ručně malovanými kartami) vládly krčmám i šlechtickým dvorům. Církev i úřady je zuřivě zakazovaly pro marnotratnost, karban a opilství, které je vždy provázelo.
 
 *"Ukaž mi, jak a s čím hraješ, a já ti řeknu, jaký máš odraz na duši."*`
