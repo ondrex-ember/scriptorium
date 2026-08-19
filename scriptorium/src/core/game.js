@@ -794,6 +794,16 @@ const Game = {
                     }
                 }
 
+                // Vodní mlýn — mletí countdown (mlynar-vlastni-mlyn-mrd.md §4.10,
+                // 19.8.2026). Stejný vzor jako eye_strain výš: re-render jen dokud
+                // zakázka běží a panel je zrovna otevřenej.
+                if (GameState.storage && GameState.storage.mill && GameState.storage.mill.grindOrder) {
+                    const _millEl = document.getElementById('home-mill-content');
+                    if (_millEl && typeof MillSystem !== 'undefined' && MillSystem.render) {
+                        _millEl.innerHTML = MillSystem.render();
+                    }
+                }
+
                 // Infirmerie — 24h léčebný odpočet (titivillus-infirmary-mrd).
                 // Self-guarded uvnitř checkInfirmaryTimer, jen kontroluje čas.
                 if (typeof HealthSystem !== 'undefined' && HealthSystem.checkInfirmaryTimer) {
