@@ -110,6 +110,7 @@ const JS_MAIN = [
 
     // Manažeři (Krok 2, refactoring-audit-mrd-19-8-2026.md) — extrahováno z game.js
     'src/core/managers/LootModalManager.js', // D2: Fireplace/Loot modály (19.8.2026)
+    'src/core/managers/GardenManager.js', // D3: Zahony/Sad (19.8.2026)
 
     // Herní logika — závisí na všem výše
     'src/core/game.js',             // Game
@@ -230,9 +231,4 @@ async function build() {
     console.log(`   Modulů:   ${JS_MAIN.length + JS_BOOTSTRAP.length}`);
 }
 
-<<<<<<< HEAD
 build().catch(err => { console.error('❌ Build selhal:', err); process.exit(1); });
-=======
-build().catch(err => { console.error('❌ Build selhal:', err); process.exit(1); });
-
->>>>>>> 009ea5720f71d43ba93934fcfa288dad4e24a41b
