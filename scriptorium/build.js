@@ -12,6 +12,7 @@
 
 const fs = require('fs');
 const path = require('path');
+const { minify } = require('terser');
 
 const BASE = __dirname;
 const DIST = path.join(BASE, 'dist');
@@ -131,7 +132,7 @@ function readFile(relPath) {
     return fs.readFileSync(fullPath, 'utf-8');
 }
 
-function build() {
+async function build() {
     console.log('🔨 Scriptorium build...\n');
 
     // Vytvořit dist/ pokud neexistuje
@@ -191,6 +192,22 @@ function build() {
         jsBootstrap += readFile(file);
     }
 
+    // Minifikace (Krok M, refactoring-audit-mrd-19-8-2026.md) — mangle vypnutý
+    // záměrně: 82 souborů sdílí globály (GameState, ChroniconSystem, ...) napříč
+    // konkatenací, přejmenování by tohle riskovalo rozbít. compress+strip
+    // komentářů samo dává ~30% úsporu bez toho rizika.
+    const jsMainBeforeKB = Math.round(Buffer.byteLength(jsMain, 'utf-8') / 1024);
+    const minMain = await minify(jsMain, { compress: true, mangle: false, format: { comments: false } });
+    if (minMain.error) throw minMain.error;
+    jsMain = minMain.code;
+    const jsMainAfterKB = Math.round(Buffer.byteLength(jsMain, 'utf-8') / 1024);
+
+    const minBootstrap = await minify(jsBootstrap, { compress: true, mangle: false, format: { comments: false } });
+    if (minBootstrap.error) throw minBootstrap.error;
+    jsBootstrap = minBootstrap.code;
+
+    console.log(`🗜️  Minifikace: jsMain ${jsMainBeforeKB} KB → ${jsMainAfterKB} KB (${(100 - jsMainAfterKB / jsMainBeforeKB * 100).toFixed(1)}% úspora)`);
+
     if (!shell.includes('/* BUILD:JS_MAIN */')) throw new Error('Placeholder JS_MAIN chybí v shell.html!');
     if (!shell.includes('/* BUILD:JS_BOOTSTRAP */')) throw new Error('Placeholder JS_BOOTSTRAP chybí v shell.html!');
 
@@ -210,4 +227,4 @@ function build() {
     console.log(`   Modulů:   ${JS_MAIN.length + JS_BOOTSTRAP.length}`);
 }
 
-build();
+build().catch(err => { console.error('❌ Build selhal:', err); process.exit(1); });
