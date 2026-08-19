@@ -108,6 +108,9 @@ const JS_MAIN = [
     'src/i18n/strings.js',          // STRINGS assembler + t() + iName() + iDesc()
     'src/i18n/lang.js',             // LangSystem
 
+    // Manažeři (Krok 2, refactoring-audit-mrd-19-8-2026.md) — extrahováno z game.js
+    'src/core/managers/LootModalManager.js', // D2: Fireplace/Loot modály (19.8.2026)
+
     // Herní logika — závisí na všem výše
     'src/core/game.js',             // Game
     'src/core/ui.js',               // UI
@@ -227,4 +230,9 @@ async function build() {
     console.log(`   Modulů:   ${JS_MAIN.length + JS_BOOTSTRAP.length}`);
 }
 
+<<<<<<< HEAD
 build().catch(err => { console.error('❌ Build selhal:', err); process.exit(1); });
+=======
+build().catch(err => { console.error('❌ Build selhal:', err); process.exit(1); });
+
+>>>>>>> 009ea5720f71d43ba93934fcfa288dad4e24a41b
