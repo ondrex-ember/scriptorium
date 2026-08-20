@@ -117,7 +117,8 @@ const JS_MAIN = [
     'src/core/managers/MillManager.js', // D12: Mlýn (19.8.2026)
     'src/core/managers/PetitionManager.js', // D10: Petice/Ubytovna/Cechy/Pozemky (19.8.2026)
     'src/core/managers/SaveManager.js', // D1: Save/Settings (19.8.2026)
-    'src/core/managers/HealthCareManager.js', // D13: Zdraví/Infirmarium (19.8.2026)
+    'src/core/managers/HealthcareManager.js', // D13: Zdraví/Infirmarium (19.8.2026) — POZOR: soubor na disku má malé "c" (case-sensitive Linux CI fix, 20.8.2026)
+    'src/core/managers/InventoryManager.js', // D8: Inventory/Crafting (19.8.2026)
 
     // Herní logika — závisí na všem výše
     'src/core/game.js',             // Game
