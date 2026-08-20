@@ -117,6 +117,7 @@ const JS_MAIN = [
     'src/core/managers/MillManager.js', // D12: Mlýn (19.8.2026)
     'src/core/managers/PetitionManager.js', // D10: Petice/Ubytovna/Cechy/Pozemky (19.8.2026)
     'src/core/managers/SaveManager.js', // D1: Save/Settings (19.8.2026)
+    'src/core/managers/HealthCareManager.js', // D13: Zdraví/Infirmarium (19.8.2026)
 
     // Herní logika — závisí na všem výše
     'src/core/game.js',             // Game
