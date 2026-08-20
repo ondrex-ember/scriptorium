@@ -1728,7 +1728,7 @@ const ConversiManager = {
                     if (season === 'summer') {
                         const hasFlowers = GameState.garden && GameState.garden.some(p => p.state === 2 && p.water);
                         const hasTrees = GameState.orchard && GameState.orchard.some(s => s.state === 'mature');
-                        if (hasFlowers || hasTrees) Game.addItem('pollen', 1);
+                        if (hasFlowers || hasTrees) Game.addItem('bee_bread', 1);
                     }
 
                     hive.strength = Math.min(10, (hive.strength || 3) + 1);

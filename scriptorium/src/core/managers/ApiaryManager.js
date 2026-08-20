@@ -333,7 +333,7 @@ const ApiaryManager = {
         Game.addItem('beeswax', waxYield);
 
         // Celoživotní statistiky — "high stats" pro Včelařův přehled
-        if (!GameState.apiaryStats) GameState.apiaryStats = { totalHoney: 0, totalWax: 0, totalPropolis: 0, totalPollen: 0, totalCollections: 0 };
+        if (!GameState.apiaryStats) GameState.apiaryStats = { totalHoney: 0, totalWax: 0, totalPropolis: 0, totalBeeBread: 0, totalCollections: 0 };
         GameState.apiaryStats.totalHoney += honeyYield;
         GameState.apiaryStats.totalWax += waxYield;
         GameState.apiaryStats.totalCollections += 1;
@@ -342,7 +342,7 @@ const ApiaryManager = {
         if (season === 'summer') {
             const hasFlowers = GameState.garden && GameState.garden.some(p => p.state === 2 && p.water);
             const hasTrees = GameState.orchard && GameState.orchard.some(s => s.state === 'mature');
-            if (hasFlowers || hasTrees) { Game.addItem('pollen', 1); GameState.apiaryStats.totalPollen += 1; }
+            if (hasFlowers || hasTrees) { Game.addItem('bee_bread', 1); GameState.apiaryStats.totalBeeBread += 1; }
         }
 
         // Propolis — vzácnější drobná šance při každé sklizni (MRD 5.5), Velký úl ji zdvojí

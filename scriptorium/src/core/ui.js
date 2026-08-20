@@ -2012,7 +2012,7 @@ const UI = {
                 if (!success) {
                     UI.toggleManuscriptAutomation();
                 }
-            }, 3000);
+            }, 3600000); // 1 folium/hodinu — realistický tvůrčí čas (dřív 3s, exploit)
         } else {
             UI.notify('⚡ Automatika opisování vypnuta');
         }

@@ -735,7 +735,7 @@ const GardenSystem = {
         // Dashboard — agregované "high stats", trvale viditelné (ne za klikem)
         const built = apiary.filter(h => h.built);
         const withQueen = built.filter(h => h.hasQueen);
-        const stats = GameState.apiaryStats || { totalHoney: 0, totalWax: 0, totalPropolis: 0, totalPollen: 0, totalCollections: 0 };
+        const stats = GameState.apiaryStats || { totalHoney: 0, totalWax: 0, totalPropolis: 0, totalBeeBread: 0, totalCollections: 0 };
         let dashboardRow = '';
         if (built.length > 0) {
             const avgQueen = withQueen.length > 0
@@ -804,7 +804,7 @@ const GardenSystem = {
 
         // Celoživotní statistiky apiária — "high stats" pro Včelařův přehled (dashboard)
         if (!GameState.apiaryStats) {
-            GameState.apiaryStats = { totalHoney: 0, totalWax: 0, totalPropolis: 0, totalPollen: 0, totalCollections: 0 };
+            GameState.apiaryStats = { totalHoney: 0, totalWax: 0, totalPropolis: 0, totalBeeBread: 0, totalCollections: 0 };
         }
 
         // Migrace starých save — přidej chybějící pole (varroaRisk boolean → varroa gradient)

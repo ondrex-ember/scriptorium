@@ -4,7 +4,7 @@ const ItemsDB = {
     "rock": { name: "Kámen", name_en: "Stone", icon: "🪨", type: "mat", desc: "Tvrdý.", desc_en: "Hard stone." , seasonCat: "nerosty" },
     "clay": { name: "Hlína", name_en: "Clay", icon: "🟤", type: "mat", desc: "Jílovitá hlína z břehu potoka. Vhodná pro hrnčířství a stavbu.", desc_en: "Clay from a streambank. Good for pottery and construction." , seasonCat: "nerosty" },
     "pottery_vessel": { name: "Hliněná nádoba", name_en: "Clay Vessel", icon: "🏺", type: "mat", desc: "Vypálená hrnčířská nádoba z městského trhu. Základní kuchyňské a skladovací nádobí.", desc_en: "A fired pottery vessel from the town market. Basic kitchen and storage ware." },
-    "wood": { name: "Dřevo", name_en: "Wood", icon: "🪵", type: "mat", desc: "Klestí a větve sebrané při hledání. Palivo i stavební materiál.", desc_en: "Brushwood and branches gathered while foraging. Fuel and building material." },
+    "wood": { name: "Dřevo", name_en: "Wood", icon: "🪵", type: "mat", desc: "Svazek menšího dřeva — větve a kulatina nasekané sekerou na míru pro Athanor. Palivo i stavební materiál.", desc_en: "A bundle of smaller wood — branches and logs cut down by axe to the right size for the Athanor. Fuel and building material." },
     "wicker": { name: "Proutí", name_en: "Wicker", icon: "🧺", type: "mat", desc: "Ohebné vrbové pruty z mokřadu. Na pletení košů i konstrukcí.", desc_en: "Pliant willow withies from the wetlands. For weaving baskets and structures." , seasonCat: "prouti" },
     "stick": { name: "Větev", name_en: "Branch", icon: "🪵", type: "mat", desc: "Dřevo.", desc_en: "A length of wood." , seasonCat: "drevo_kura" },
     "fiber": { name: "Vlákno", name_en: "Fiber", icon: "🌾", type: "mat", desc: "Vlákna.", desc_en: "Plant fibres." , seasonCat: "vlakno" },

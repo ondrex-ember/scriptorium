@@ -447,6 +447,19 @@ const Game = {
         // Initialize tool uses tracking
         if (!GameState.toolUses) GameState.toolUses = {};
 
+        // pyl-bee-bread-mrd (20.8.2026): úl teď dává rovnou Bee bread místo
+        // Pylu — jednorázově převeď nahromaděný Pyl u existujících hráčů
+        // poměrem 10:1 (stejný poměr jako recept bee_bread_from_pollen).
+        if (!GameState.flags.pollenToBeeBreadMigrated) {
+            GameState.flags.pollenToBeeBreadMigrated = true;
+            const oldPollen = GameState.inventory['pollen'] || 0;
+            if (oldPollen > 0) {
+                const converted = Math.floor(oldPollen / 10);
+                if (converted > 0) GameState.inventory['bee_bread'] = (GameState.inventory['bee_bread'] || 0) + converted;
+                GameState.inventory['pollen'] = oldPollen % 10;
+            }
+        }
+
         // Migrate guard — doplnit chybějící unlocks ze všech již odemčených techů
         if (typeof TechTree !== 'undefined' && GameState.researchedTechs) {
             GameState.researchedTechs.forEach(techId => {

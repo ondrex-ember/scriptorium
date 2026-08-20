@@ -293,8 +293,10 @@ const VigorSystem = {
             GameState.satiety = Math.max(0, (GameState.satiety || 80) - satDrain);
 
             // Fatigue recovery — průměr dne/noci pro offline
+            // offline-regenmult-fix (20.8.2026): stejný _regenMult() jako
+            // v _tick(), jinak offline delta ignorovala Chronicon napětí.
             const avgRecovery = (this.FATIGUE_RECOVERY_DAY + this.FATIGUE_RECOVERY_NIGHT) / 2;
-            const fatRecovery = hoursElapsed * avgRecovery;
+            const fatRecovery = hoursElapsed * avgRecovery * this._regenMult();
             GameState.fatigue = Math.max(0, (GameState.fatigue || 0) - fatRecovery);
         }
 

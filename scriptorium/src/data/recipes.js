@@ -14,6 +14,12 @@ const RecipesDB = [
     // s medem. Bez vlastního tech gate, tech_liber_apium (Apiarium) už gatuje
     // pyl samotný.
     { id: "bee_bread_from_pollen", output: "bee_bread", qty: 1, req: { "pollen": 10 }, cat: "craft" },
+    // drevo-athanor-mrd (20.8.2026): generic 'wood' po scavenge refaktoru
+    // (wood_harvest dává jen log+stick) neměl žádný zdroj — Athanor
+    // wood:calcinatio i cechovní zakázky (truhlarsky/kolarsky) byly
+    // nedosažitelné. Dřevo teď = svazek menšího dřeva připravený sekerou.
+    { id: "wood_from_stick", output: "wood", qty: 1, req: { "stick": 3 }, toolReq: [{ item: "stone_axe" }, { item: "iron_axe" }], cat: "craft" },
+    { id: "wood_from_log", output: "wood", qty: 2, req: { "log": 1 }, toolReq: [{ item: "stone_axe" }, { item: "iron_axe" }], cat: "craft" },
     { id: "stone_knife", output: "stone_knife", qty: 1, req: { "sharp_stone": 1, "stick": 1, "rope": 1 }, cat: "stone" },
     { id: "charcoal", output: "charcoal", qty: 2, req: { "stick": 2 }, cat: "fire" },
     { id: "pestle", output: "pestle", qty: 1, req: { "rock": 2, "sharp_stone": 1 }, cat: "stone" },
