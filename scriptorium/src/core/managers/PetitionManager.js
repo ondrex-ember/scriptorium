@@ -148,49 +148,6 @@ const PetitionManager = {
         if (typeof UI !== 'undefined' && UI.renderAll) UI.renderAll();
     },
 
-    // ── VITREA V1: startovní pool + denní opotřebení (MRD vitrea-equipment-reference.md) ──
-    VITREA_BREAKABLE: ['glass_stopper', 'glass_flask', 'fly_trap_glass', 'glass_goblet', 'glass_tankard', 'glass_jug', 'glass_bowl', 'glass_pitcher', 'glass_vase', 'window_roundel', 'paternoster_beads', 'alembic', 'glass_mirror'],
-
-    vitreaGrantStartPool: function () {
-        if (GameState.vitreaGranted) return;
-        GameState.vitreaGranted = true;
-        // Klášter začíná s vybavením (~18 ks); alembik záměrně NE — hard gate přes Skláře
-        Game.addItem('glass_bowl', 3);
-        Game.addItem('glass_jug', 3);
-        Game.addItem('glass_goblet', 4);
-        Game.addItem('glass_pitcher', 1);
-        Game.addItem('glass_stopper', 5);
-        Game.addItem('glass_flask', 2);
-        Game.save();
-    },
-
-    vitreaWearTick: function () {
-        const last = GameState.vitreaLastWear || 0;
-        if (Date.now() - last < 24 * 60 * 60 * 1000) return;
-        GameState.vitreaLastWear = Date.now();
-        const lang = (GameState.settings && GameState.settings.language) || 'cs';
-        const conversiCnt = (GameState.conversi || []).length;
-        const jilji = (GameState.conversi || []).some(k => k.rosterId === 'k_jilji');
-        const chance = Math.min(0.35, 0.05 + 0.02 * conversiCnt + (jilji ? 0.05 : 0));
-        if (Math.random() >= chance) { Game.save(); return; }
-        const owned = this.VITREA_BREAKABLE.filter(id => (GameState.inventory[id] || 0) > 0);
-        if (!owned.length) { Game.save(); return; }
-        const victim = owned[Math.floor(Math.random() * owned.length)];
-        Game.removeItem(victim, 1);
-        GameState.vitreaLastBroken = { id: victim, ts: Date.now() };
-        const itemName = (typeof iName === 'function') ? iName(victim) : victim;
-        const blameJilji = jilji && Math.random() < 0.5;
-        if (typeof UI !== 'undefined' && UI.notifyPanel) {
-            UI.notifyPanel('💥 ' + (lang === 'en'
-                ? itemName + ' broke' + (blameJilji ? ' — Jiljí swears it slipped by itself.' : '.')
-                : itemName + ' se rozbil' + (blameJilji ? ' — Jiljí přísahá, že to vyklouzlo samo.' : '.')), 'warning');
-        }
-        Game.addKronikaEntry('minor',
-            '💥 Rozbil se kus vybavení: ' + itemName + (blameJilji ? '. Jiljí u toho byl. Samozřejmě.' : '.'),
-            '💥 A piece of equipment broke: ' + itemName + (blameJilji ? '. Jiljí was there. Of course.' : '.'),
-            '💥 Vas fractum est.');
-        Game.save();
-    },
 
     checkAbbotPetitions: function () {
         if (!GameState.abbotPetition) return;
