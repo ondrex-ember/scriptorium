@@ -241,8 +241,10 @@ const GardenManager = {
         Game.addItem(fruit, qty);
         // Lípa dává navíc lipový květ
         if (slot.treeType === 'seed_linden') Game.addItem('linden_blossom', 1);
-        // Pyl při každé sklizni
-        Game.addItem('pollen', 1);
+        // Pyl při sklizni — pyl-frekvence-mrd (20.8.2026): drobná vedlejší
+        // surovina, ne garantovaný drop. Jen jaro/léto (kvetení), 8 % šance.
+        const _pollenSeason = (typeof Game !== 'undefined' && Game._getApiarySeason) ? Game._getApiarySeason() : null;
+        if ((_pollenSeason === 'spring' || _pollenSeason === 'summer') && Math.random() < 0.08) Game.addItem('pollen', 1);
         slot.lastHarvestAt = Date.now();
         Game.save();
         UI.renderOrchard();

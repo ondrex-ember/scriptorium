@@ -1618,6 +1618,7 @@ const ConversiManager = {
                     seed_linden: 'linden_fruit',
                 };
 
+                const season = Game._getApiarySeason();
                 (GameState.orchard || []).forEach(slot => {
                     if (slot.state !== 'mature') return;
                     const td = TREE_DATA[slot.treeType];
@@ -1631,7 +1632,7 @@ const ConversiManager = {
                     Game.addItem(fruit, qty);
                     harvested[fruit] = (harvested[fruit] || 0) + qty;
                     if (slot.treeType === 'seed_linden') Game.addItem('linden_blossom', 1);
-                    Game.addItem('pollen', 1);
+                    if ((season === 'spring' || season === 'summer') && Math.random() < 0.08) Game.addItem('pollen', 1);
                     slot.lastHarvestAt = Date.now();
                     didHarvest = true;
                 });

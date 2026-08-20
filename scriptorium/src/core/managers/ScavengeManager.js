@@ -382,7 +382,7 @@ const ScavengeManager = {
                 if (typeof SecretsSystem !== 'undefined') SecretsSystem.addLaboratoryClue();
             }
             // v8.x: Sad & Apiarium drops
-            if (this._seasonRoll('pollen', 0.04)) Game.addItem('pollen', 1);          // 4% — pyl z luk
+            if (this._seasonRoll('pollen', 0.01)) Game.addItem('pollen', 1);          // 1% (dřív 4%) — pyl z luk
             if (this._seasonRoll('linden_blossom', 0.03)) Game.addItem('linden_blossom', 1);  // 3% — lipový květ
             // Semena stromů — vzácné nálezy při sběru v přírodě
             const treeSeedRoll = Math.random();
@@ -407,7 +407,7 @@ const ScavengeManager = {
             Game.addItem(_resinPick.id, _resinPick.qty);
             if (Math.random() < 0.20) Game.addItem('beeswax', 1);
             if (this._seasonRoll('linden_blossom', 0.05)) Game.addItem('linden_blossom', 1);
-            if (this._seasonRoll('pollen', 0.03)) Game.addItem('pollen', 1);
+            if (this._seasonRoll('pollen', 0.01)) Game.addItem('pollen', 1);
             if (this._seasonRoll('viticis_baco', 0.03)) Game.addItem('viticis_baco', 1);
             // Kadidlo: smrková a borová pryskyřice
             if (this._seasonRoll('resin_spruce', 0.40)) Game.addItem('resin_spruce', 1);
@@ -418,7 +418,7 @@ const ScavengeManager = {
             if (Math.random() < 0.40) Game.addItem('feather_hen', 1);
             if (Math.random() < 0.30) Game.addItem('wool', 1);
             if (Math.random() < 0.20) Game.addItem('egg', 1);
-            if (Math.random() < 0.10) Game.addItem('pollen', 1);
+            if (Math.random() < 0.03) Game.addItem('pollen', 1);
             if (Math.random() < 0.05) Game.addItem('bone', 1);
             Game.addItem('rags', 1);                             // staré hadry z hospodářství
             if (Math.random() < 0.35) Game.addItem('rags', 1);   // bonus
