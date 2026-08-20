@@ -121,6 +121,7 @@ const JS_MAIN = [
     'src/core/managers/InventoryManager.js', // D8: Inventory/Crafting (19.8.2026)
     'src/core/managers/ScavengeManager.js', // D7: Scavenge/core actions (19.8.2026)
     'src/core/managers/TemplumManager.js', // D11: Templum (20.8.2026)
+    'src/core/managers/ConversiManager.js', // D14+D15: Conversi/Dormitorium/Manufaktura (20.8.2026)
 
     // Herní logika — závisí na všem výše
     'src/core/game.js',             // Game
