@@ -164,6 +164,13 @@ const TemplumSystem = {
         if (el) el.innerHTML = this.renderTemplumTab();
     },
 
+    toggleCemeteryMap: function() {
+        if (!GameState.ui) GameState.ui = {};
+        GameState.ui.cemeteryMapExpanded = !GameState.ui.cemeteryMapExpanded;
+        const el = document.getElementById('home-templum-content');
+        if (el) el.innerHTML = this.renderTemplumTab();
+    },
+
     _renderCemeteryPanel: function(lang) {
         if (!GameState.cemetery) GameState.cemetery = { condition: 100, graves: [] };
         const cem = GameState.cemetery;
@@ -185,6 +192,11 @@ const TemplumSystem = {
             <div style="font-size:0.7rem; opacity:0.65;">${Math.round(cond)} %${cem.lastCleaner ? ' · ' + (lang==='en'?'last tended by ':'naposled udržoval ') + cem.lastCleaner : ''}</div>
             <div style="font-size:0.62rem; opacity:0.55; font-style:italic; margin-top:5px;">${lang==='en'?'daily · a lay brother or the Sacristan keeps it clear':'denně · udržuje konvrš přiřazený na Hřbitov, nebo Kostelník'}</div>
           </div>`;
+
+        const mapExpanded = !!(GameState.ui && GameState.ui.cemeteryMapExpanded);
+        const mapSvg = (typeof TemplumManager !== 'undefined') ? TemplumManager.renderCemeteryScene(cem, lang) : '';
+        h += `<div onclick="TemplumSystem.toggleCemeteryMap()" style="cursor:pointer; margin-bottom:4px; border:1px solid rgba(197,160,89,0.25); border-radius:8px; overflow:hidden; max-height:${mapExpanded ? '340px' : '70px'}; transition:max-height 0.25s ease;">${mapSvg}</div>
+                <div onclick="TemplumSystem.toggleCemeteryMap()" style="text-align:center; font-size:0.65rem; opacity:0.55; margin:0 0 16px; cursor:pointer;">${mapExpanded ? (lang==='en'?'▲ Collapse map':'▲ Sbalit mapu') : (lang==='en'?'▼ Show full map':'▼ Zobrazit celou mapu')}</div>`;
 
         const graves = (cem.graves || []).slice().reverse();
         h += `<div style="padding:12px 15px; background:rgba(255,255,255,0.4); border:1px solid rgba(197,160,89,0.25); border-radius:8px;">
