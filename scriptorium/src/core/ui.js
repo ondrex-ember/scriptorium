@@ -3483,9 +3483,12 @@ const UI = {
                 if (btnToggle) {
                     btnToggle.textContent = isRunning ? '⏸️ POZASTAVIT TUTORIAL' : '🚀 SPUSTIT TUTORIAL REŽIM';
                     btnToggle.onclick = function() {
-                        if (isRunning) TutorialSystem.stopTutorial();
-                        else TutorialSystem.startTutorialFromModal();
-                        UI.openAboutModal();
+                        if (isRunning) {
+                            TutorialSystem.stopTutorial();
+                            UI.openAboutModal();
+                        } else {
+                            TutorialSystem.startTutorialFromModal();
+                        }
                     };
                 }
                 if (btnReset) {
