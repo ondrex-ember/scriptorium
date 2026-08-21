@@ -1152,4 +1152,76 @@ const TemplumManager = {
             '💥 Vas fractum est.');
         Game.save();
     },
+
+    // ── HŘBITOV V1: mapová vizualizace (MRD hřbitov-vizuál-v1, 21.8.2026) ──
+    // Vektorová scéna nad existujícím seznamem hrobů. Den/noc = kosmetika,
+    // proto device-local hodina (mirror isQuietHours, canonical.js), NE TimeSys.
+    CEMETERY_MAP_SLOTS: 17,
+    CEMETERY_RECENT_DAYS: 30,
+    CEMETERY_CHAPEL_RATIO: 0.5,
+
+    // Souřadnice 17 slotů — 3 řady (6+6+5), viewBox 680x310.
+    CEMETERY_MAP_COORDS: [
+        { x: 70, y: 158 }, { x: 150, y: 158 }, { x: 230, y: 158 },
+        { x: 430, y: 158 }, { x: 510, y: 158 }, { x: 590, y: 158 },
+        { x: 70, y: 196 }, { x: 150, y: 196 }, { x: 230, y: 196 },
+        { x: 430, y: 196 }, { x: 510, y: 196 }, { x: 590, y: 196 },
+        { x: 70, y: 234 }, { x: 150, y: 234 }, { x: 230, y: 234 },
+        { x: 510, y: 234 }, { x: 590, y: 234 }
+    ],
+
+    _cemMarker: function (cx, cy, built) {
+        if (built) {
+            return '<rect x="' + (cx - 7) + '" y="' + (cy - 9) + '" width="14" height="18" rx="4" fill="#c9beac" stroke="#4a4038" stroke-width="0.5"/>';
+        }
+        return '<line x1="' + cx + '" y1="' + (cy - 9) + '" x2="' + cx + '" y2="' + (cy + 9) + '" stroke="#4a4038" stroke-width="3" stroke-linecap="round"/>'
+            + '<line x1="' + (cx - 6) + '" y1="' + (cy - 3) + '" x2="' + (cx + 6) + '" y2="' + (cy - 3) + '" stroke="#4a4038" stroke-width="3" stroke-linecap="round"/>';
+    },
+
+    _cemCandle: function (cx, cy) {
+        return '<rect x="' + (cx + 10) + '" y="' + cy + '" width="2" height="7" fill="#e8ded1"/>'
+            + '<ellipse cx="' + (cx + 11) + '" cy="' + (cy - 2) + '" rx="2.2" ry="3.3" fill="#f2c14e"/>';
+    },
+
+    renderCemeteryScene: function (cem, lang) {
+        const graves = cem.graves || [];
+        const shown = graves.slice().reverse().slice(0, this.CEMETERY_MAP_SLOTS);
+        const builtCount = graves.filter(g => g.nahrobek).length;
+        const chapelOn = graves.length > 0 && (builtCount / graves.length) >= this.CEMETERY_CHAPEL_RATIO;
+        const hour = new Date().getHours(); // kosmetika — device-local, mirror isQuietHours
+        const night = hour < 6 || hour >= 20;
+        const neglected = (cem.condition != null ? cem.condition : 100) < 40;
+        const recentMs = this.CEMETERY_RECENT_DAYS * 24 * 60 * 60 * 1000;
+        const now = Date.now();
+
+        const groundFill = night ? '#3d4a3d' : '#a3ad7c';
+        const pathFill = night ? '#8a7f63' : '#d8c9a3';
+        const canopyFill = night ? '#3d4a30' : '#5f7a4a';
+
+        const markers = shown.map((g, i) => {
+            const c = this.CEMETERY_MAP_COORDS[i];
+            if (!c) return '';
+            const isRecent = (now - g.ts) < recentMs;
+            const isRandomLit = night && (g.ts % 5 === 0);
+            const lit = isRecent || isRandomLit;
+            return this._cemMarker(c.x, c.y, !!g.nahrobek) + (lit ? this._cemCandle(c.x, c.y) : '');
+        }).join('');
+
+        const chapelSvg = chapelOn
+            ? '<rect x="310" y="92" width="60" height="48" fill="#8a7a63"/><path d="M304 92L340 58L376 92Z" fill="#5a4a3a"/><rect x="330" y="112" width="20" height="28" fill="#8a3324"/><line x1="340" y1="46" x2="340" y2="58" stroke="#c5a059" stroke-width="2"/><line x1="335" y1="50" x2="345" y2="50" stroke="#c5a059" stroke-width="2"/>'
+            : '<line x1="340" y1="90" x2="340" y2="140" stroke="#5a4a3a" stroke-width="5" stroke-linecap="round"/><line x1="325" y1="110" x2="355" y2="110" stroke="#5a4a3a" stroke-width="5" stroke-linecap="round"/>';
+
+        const weedsSvg = neglected
+            ? '<path d="M296 180L300 170L304 180" stroke="#5a6a3a" stroke-width="1.5" fill="none"/><path d="M296 220L300 210L304 220" stroke="#5a6a3a" stroke-width="1.5" fill="none"/><path d="M386 180L390 170L394 180" stroke="#5a6a3a" stroke-width="1.5" fill="none"/><path d="M386 255L390 245L394 255" stroke="#5a6a3a" stroke-width="1.5" fill="none"/><path d="M611 215L615 205L619 215" stroke="#5a6a3a" stroke-width="1.5" fill="none"/>'
+            : '';
+
+        return '<svg width="100%" viewBox="0 0 680 310" role="img" style="display:block;"><title>' + (lang === 'en' ? 'Cemetery' : 'Hřbitov') + '</title>'
+            + '<rect x="40" y="140" width="600" height="130" rx="8" fill="' + groundFill + '"/>'
+            + '<rect x="335" y="140" width="20" height="130" fill="' + pathFill + '"/>'
+            + '<circle cx="86" cy="100" r="20" fill="' + canopyFill + '"/>'
+            + '<circle cx="72" cy="108" r="13" fill="' + canopyFill + '"/>'
+            + '<circle cx="100" cy="108" r="13" fill="' + canopyFill + '"/>'
+            + '<rect x="82" y="118" width="8" height="22" fill="#5a4636"/>'
+            + chapelSvg + markers + weedsSvg + '</svg>';
+    },
 };
