@@ -1160,14 +1160,14 @@ const TemplumManager = {
     CEMETERY_RECENT_DAYS: 30,
     CEMETERY_CHAPEL_RATIO: 0.5,
 
-    // Souřadnice 17 slotů — 3 řady (6+6+5), viewBox 680x310.
+    // Souřadnice 17 slotů — 3 řady (6+6+5), viewBox 680x210 (kompaktní obloha).
     CEMETERY_MAP_COORDS: [
-        { x: 70, y: 158 }, { x: 150, y: 158 }, { x: 230, y: 158 },
-        { x: 430, y: 158 }, { x: 510, y: 158 }, { x: 590, y: 158 },
-        { x: 70, y: 196 }, { x: 150, y: 196 }, { x: 230, y: 196 },
-        { x: 430, y: 196 }, { x: 510, y: 196 }, { x: 590, y: 196 },
-        { x: 70, y: 234 }, { x: 150, y: 234 }, { x: 230, y: 234 },
-        { x: 510, y: 234 }, { x: 590, y: 234 }
+        { x: 70, y: 88 }, { x: 150, y: 88 }, { x: 230, y: 88 },
+        { x: 430, y: 88 }, { x: 510, y: 88 }, { x: 590, y: 88 },
+        { x: 70, y: 126 }, { x: 150, y: 126 }, { x: 230, y: 126 },
+        { x: 430, y: 126 }, { x: 510, y: 126 }, { x: 590, y: 126 },
+        { x: 70, y: 164 }, { x: 150, y: 164 }, { x: 230, y: 164 },
+        { x: 510, y: 164 }, { x: 590, y: 164 }
     ],
 
     _cemMarker: function (cx, cy, built) {
@@ -1208,20 +1208,20 @@ const TemplumManager = {
         }).join('');
 
         const chapelSvg = chapelOn
-            ? '<rect x="310" y="92" width="60" height="48" fill="#8a7a63"/><path d="M304 92L340 58L376 92Z" fill="#5a4a3a"/><rect x="330" y="112" width="20" height="28" fill="#8a3324"/><line x1="340" y1="46" x2="340" y2="58" stroke="#c5a059" stroke-width="2"/><line x1="335" y1="50" x2="345" y2="50" stroke="#c5a059" stroke-width="2"/>'
-            : '<line x1="340" y1="90" x2="340" y2="140" stroke="#5a4a3a" stroke-width="5" stroke-linecap="round"/><line x1="325" y1="110" x2="355" y2="110" stroke="#5a4a3a" stroke-width="5" stroke-linecap="round"/>';
+            ? '<rect x="312" y="40" width="56" height="30" fill="#8a7a63"/><path d="M306 40L340 15L374 40Z" fill="#5a4a3a"/><rect x="330" y="52" width="18" height="18" fill="#8a3324"/><line x1="340" y1="6" x2="340" y2="15" stroke="#c5a059" stroke-width="2"/><line x1="335" y1="9" x2="345" y2="9" stroke="#c5a059" stroke-width="2"/>'
+            : '<line x1="340" y1="18" x2="340" y2="70" stroke="#5a4a3a" stroke-width="5" stroke-linecap="round"/><line x1="325" y1="36" x2="355" y2="36" stroke="#5a4a3a" stroke-width="5" stroke-linecap="round"/>';
 
         const weedsSvg = neglected
-            ? '<path d="M296 180L300 170L304 180" stroke="#5a6a3a" stroke-width="1.5" fill="none"/><path d="M296 220L300 210L304 220" stroke="#5a6a3a" stroke-width="1.5" fill="none"/><path d="M386 180L390 170L394 180" stroke="#5a6a3a" stroke-width="1.5" fill="none"/><path d="M386 255L390 245L394 255" stroke="#5a6a3a" stroke-width="1.5" fill="none"/><path d="M611 215L615 205L619 215" stroke="#5a6a3a" stroke-width="1.5" fill="none"/>'
+            ? '<path d="M296 110L300 100L304 110" stroke="#5a6a3a" stroke-width="1.5" fill="none"/><path d="M296 150L300 140L304 150" stroke="#5a6a3a" stroke-width="1.5" fill="none"/><path d="M386 110L390 100L394 110" stroke="#5a6a3a" stroke-width="1.5" fill="none"/><path d="M386 185L390 175L394 185" stroke="#5a6a3a" stroke-width="1.5" fill="none"/><path d="M611 145L615 135L619 145" stroke="#5a6a3a" stroke-width="1.5" fill="none"/>'
             : '';
 
-        return '<svg width="100%" viewBox="0 0 680 310" role="img" style="display:block;"><title>' + (lang === 'en' ? 'Cemetery' : 'Hřbitov') + '</title>'
-            + '<rect x="40" y="140" width="600" height="130" rx="8" fill="' + groundFill + '"/>'
-            + '<rect x="335" y="140" width="20" height="130" fill="' + pathFill + '"/>'
-            + '<circle cx="86" cy="100" r="20" fill="' + canopyFill + '"/>'
-            + '<circle cx="72" cy="108" r="13" fill="' + canopyFill + '"/>'
-            + '<circle cx="100" cy="108" r="13" fill="' + canopyFill + '"/>'
-            + '<rect x="82" y="118" width="8" height="22" fill="#5a4636"/>'
+        return '<svg width="100%" viewBox="0 0 680 210" role="img" style="display:block;"><title>' + (lang === 'en' ? 'Cemetery' : 'Hřbitov') + '</title>'
+            + '<rect x="40" y="70" width="600" height="130" rx="8" fill="' + groundFill + '"/>'
+            + '<rect x="335" y="70" width="20" height="130" fill="' + pathFill + '"/>'
+            + '<circle cx="86" cy="32" r="14" fill="' + canopyFill + '"/>'
+            + '<circle cx="76" cy="38" r="9" fill="' + canopyFill + '"/>'
+            + '<circle cx="96" cy="38" r="9" fill="' + canopyFill + '"/>'
+            + '<rect x="82" y="44" width="8" height="26" fill="#5a4636"/>'
             + chapelSvg + markers + weedsSvg + '</svg>';
     },
 };
