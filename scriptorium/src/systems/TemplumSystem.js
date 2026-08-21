@@ -195,7 +195,7 @@ const TemplumSystem = {
 
         const mapExpanded = !!(GameState.ui && GameState.ui.cemeteryMapExpanded);
         const mapSvg = (typeof TemplumManager !== 'undefined') ? TemplumManager.renderCemeteryScene(cem, lang) : '';
-        h += `<div onclick="TemplumSystem.toggleCemeteryMap()" style="cursor:pointer; margin-bottom:4px; border:1px solid rgba(197,160,89,0.25); border-radius:8px; overflow:hidden; max-height:${mapExpanded ? '340px' : '70px'}; transition:max-height 0.25s ease;">${mapSvg}</div>
+        h += `<div onclick="TemplumSystem.toggleCemeteryMap()" style="cursor:pointer; margin-bottom:4px; border:1px solid rgba(197,160,89,0.25); border-radius:8px; overflow:hidden; max-height:${mapExpanded ? '230px' : '95px'}; transition:max-height 0.25s ease;"><div style="transform:${mapExpanded ? 'none' : 'translateY(-33%)'};">${mapSvg}</div></div>
                 <div onclick="TemplumSystem.toggleCemeteryMap()" style="text-align:center; font-size:0.65rem; opacity:0.55; margin:0 0 16px; cursor:pointer;">${mapExpanded ? (lang==='en'?'▲ Collapse map':'▲ Sbalit mapu') : (lang==='en'?'▼ Show full map':'▼ Zobrazit celou mapu')}</div>`;
 
         const graves = (cem.graves || []).slice().reverse();
