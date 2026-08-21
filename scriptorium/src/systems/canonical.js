@@ -403,25 +403,30 @@ const CanonicalHours = {
     // 7 modliteb. Odměna: Zbožnost +3, malá šance na kadidlo jako plod.
     pray: function () {
         if (!this.currentHour) return;
-        const lang = (GameState.settings && GameState.settings.language) || 'cs';
-        const today = new Date().toISOString().slice(0, 10);
-        const key = today + '_' + this.currentHour.id;
-        if (GameState.canonicalPrayedKeys && GameState.canonicalPrayedKeys.includes(key)) {
-            if (typeof UI !== 'undefined') UI.notify(lang === 'en' ? '🙏 Already prayed this hour.' : '🙏 Tuhle hodinu ses už modlil.', true);
-            return;
+        if (typeof UI !== 'undefined' && typeof UI.prayCanonicalHour === 'function') {
+            UI.prayCanonicalHour(this.currentHour.id);
+        } else {
+            const lang = (GameState.settings && GameState.settings.language) || 'cs';
+            const today = new Date().toISOString().slice(0, 10);
+            const key = today + '_' + this.currentHour.id;
+            if (GameState.canonicalPrayedKeys && GameState.canonicalPrayedKeys.includes(key)) {
+                if (typeof UI !== 'undefined') UI.notify(lang === 'en' ? '🙏 Already prayed this hour.' : '🙏 Tuhle hodinu ses už modlil.', true);
+                return;
+            }
+            if (!GameState.canonicalPrayedKeys) GameState.canonicalPrayedKeys = [];
+            GameState.canonicalPrayedKeys.push(key);
+            if (GameState.canonicalPrayedKeys.length > 30) GameState.canonicalPrayedKeys.shift();
+
+            const currentRealHour = new Date().getHours();
+            if (currentRealHour === this.currentHour.time) {
+                if (typeof PersonaSystem !== 'undefined' && PersonaSystem.addZboznost) PersonaSystem.addZboznost(5);
+                if (typeof UI !== 'undefined') UI.notify(lang === 'en' ? '✨ Prayer performed on time! Bonus granted.' : '✨ Modlitba vykonána včas! Získán bonus.');
+            } else {
+                if (typeof UI !== 'undefined') UI.notify(lang === 'en' ? '🙏 Prayer fulfilled outside canonical window.' : '🙏 Modlitba splněna mimo kanonický čas.', true);
+            }
+            if (typeof Game !== 'undefined' && Game.save) Game.save();
+            this.renderPill();
         }
-        if (!GameState.canonicalPrayedKeys) GameState.canonicalPrayedKeys = [];
-        GameState.canonicalPrayedKeys.push(key);
-        if (GameState.canonicalPrayedKeys.length > 30) GameState.canonicalPrayedKeys.shift(); // jen krátká historie, ne trvalý růst
-
-        if (typeof PersonaSystem !== 'undefined' && PersonaSystem.addZboznost) PersonaSystem.addZboznost(3);
-        if (Math.random() < 0.15 && typeof Game !== 'undefined' && Game.addItem) Game.addItem('candle', 1);
-
-        const hourName = lang === 'en' ? this.currentHour.nameEN : this.currentHour.name;
-        if (typeof NotificationSystem !== 'undefined') NotificationSystem.panel(
-            '🙏 ' + (lang === 'en' ? `Prayer at ${hourName} — piety +3.` : `Modlitba na ${hourName} — zbožnost +3.`), 'system');
-        if (typeof Game !== 'undefined' && Game.save) Game.save();
-        this.renderPill();
     },
 
     renderPill: function () {
