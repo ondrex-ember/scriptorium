@@ -1628,13 +1628,20 @@ const UI = {
         if (!GameState.tasksState) {
             GameState.tasksState = {
                 completedToday: {},
+                canonicalCompletedToday: {},
                 lastResetDay: GameState.stats ? GameState.stats.day : 1
             };
         }
+        if (!GameState.tasksState.canonicalCompletedToday) {
+            GameState.tasksState.canonicalCompletedToday = {};
+        }
 
         const currentDay = GameState.stats ? GameState.stats.day : 1;
-        if (GameState.tasksState.lastResetDay !== currentDay) {
+        const todayDate = new Date().toISOString().slice(0, 10);
+        if (GameState.tasksState.lastResetDay !== currentDay || GameState.tasksState.lastResetDate !== todayDate) {
             GameState.tasksState.completedToday = {};
+            GameState.tasksState.canonicalCompletedToday = {};
+            GameState.tasksState.lastResetDate = todayDate;
             GameState.tasksState.lastResetDay = currentDay;
         }
 
@@ -1655,33 +1662,59 @@ const UI = {
         h += `<div style="font-size:0.75rem; font-weight:bold; letter-spacing:1.5px; color:#2b6cb0; text-transform:uppercase; margin-bottom:6px;">📜 ${isEn ? 'DAILY SCHEDULE (HORARIUM MONASTICUM)' : 'DENNÍ ŘÁD (HORARIUM MONASTICUM)'}</div>`;
         h += `<div style="font-size:0.85rem; color:#4a5568; margin-bottom:16px;">${isEn ? 'Rule of Saint Benedict: Ora et labora. Fulfill daily duties for spiritual and practical benefit of the monastery.' : 'Řehole svatého Benedikta: Ora et labora. Plň každodenní povinnosti pro duchovní i praktický užitek kláštera.'}</div>`;
 
-        // Canonical Hours Grid matching Screenshot 2
+        // Canonical Hours Grid matching Horarium
         const canonicalGrid = [
-            { id: 'vigilie', name: 'Vigilie', time: '02:00', icon: '🌙' },
-            { id: 'laudes', name: 'Laudes', time: '06:00', icon: '🌅' },
-            { id: 'prima', name: 'Prima', time: '09:00', icon: '☀️' },
-            { id: 'sexta', name: 'Sexta', time: '12:00', icon: '☀️' },
-            { id: 'nona', name: 'Nona', time: '15:00', icon: '🌤️' },
-            { id: 'vesperae', name: 'Vesperae', time: '18:00', icon: '🏙️' }
+            { id: 'vigilie', name: 'Vigilie', nameEn: 'Vigils', time: '02:00', targetHour: 2, icon: '🌙' },
+            { id: 'laudes', name: 'Laudes', nameEn: 'Lauds', time: '06:00', targetHour: 6, icon: '🌅' },
+            { id: 'prima', name: 'Prima', nameEn: 'Prime', time: '09:00', targetHour: 9, icon: '☀️' },
+            { id: 'sexta', name: 'Sexta', nameEn: 'Sext', time: '12:00', targetHour: 12, icon: '☀️' },
+            { id: 'nona', name: 'Nona', nameEn: 'None', time: '15:00', targetHour: 15, icon: '🌤️' },
+            { id: 'vesperae', name: 'Vesperae', nameEn: 'Vespers', time: '18:00', targetHour: 18, icon: '🏙️' }
         ];
+
+        const realHour = new Date().getHours();
 
         h += `<div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(90px, 1fr)); gap:8px; margin-bottom:12px;">`;
         canonicalGrid.forEach(ch => {
-            h += `<div style="padding:10px 6px; background:rgba(255,255,255,0.7); border:1px solid rgba(197,160,89,0.4); border-radius:6px; text-align:center;">
+            const isDone = !!GameState.tasksState.canonicalCompletedToday[ch.id];
+            const isOnTime = (realHour === ch.targetHour);
+            const name = isEn ? ch.nameEn : ch.name;
+
+            h += `<div onclick="${isDone ? '' : `UI.prayCanonicalHour('${ch.id}')`}" style="padding:10px 6px; background:${isDone ? 'rgba(230,244,234,0.9)' : (isOnTime ? 'rgba(255,248,225,0.95)' : 'rgba(255,255,255,0.7)')}; border:1px solid ${isDone ? 'rgba(76,175,80,0.45)' : (isOnTime ? '#f1c40f' : 'rgba(197,160,89,0.4)')}; border-radius:6px; text-align:center; position:relative; cursor:${isDone ? 'default' : 'pointer'}; ${isOnTime && !isDone ? 'box-shadow:0 0 8px rgba(241,196,15,0.5);' : ''}">
                 <div style="font-size:1.3rem; margin-bottom:2px;">${ch.icon}</div>
-                <div style="font-weight:bold; font-size:0.8rem; color:#2c3e50;">${ch.name}</div>
-                <div style="font-size:0.68rem; opacity:0.65;">${ch.time}</div>
-            </div>`;
+                <div style="font-weight:bold; font-size:0.8rem; color:#2c3e50;">${name}</div>
+                <div style="font-size:0.68rem; opacity:0.65; margin-bottom:4px;">${ch.time}</div>`;
+
+            if (isDone) {
+                h += `<div style="color:#27ae60; font-size:0.75rem; font-weight:bold; margin-top:2px;">✔ ${isEn ? 'Completed' : 'Splněno'}</div>`;
+            } else {
+                h += `<button class="medieval-btn" onclick="event.stopPropagation(); UI.prayCanonicalHour('${ch.id}')" style="padding:2px 6px; font-size:0.72rem; border-radius:4px; font-weight:bold; cursor:pointer; background:${isOnTime ? 'linear-gradient(180deg, #27ae60 0%, #1e8449 100%)' : 'linear-gradient(180deg, #8b4513 0%, #5a2a0a 100%)'}; color:#fff; border:1px solid ${isOnTime ? '#27ae60' : '#d4af37'}; width:100%; margin-top:2px;" title="${isOnTime ? (isEn ? 'Pray now for time bonus!' : 'Pomodlit se nyní včas (+Bonus)') : (isEn ? 'Fulfill outside hour (no bonus)' : 'Splnit mimo čas (bez bonusu)')}">
+                    ${isEn ? 'Pray' : 'Splnit'} ${isOnTime ? '⚡' : ''}
+                </button>`;
+            }
+            h += `</div>`;
         });
         h += `</div>`;
 
+        // Completorium card below grid
+        const compDone = !!GameState.tasksState.canonicalCompletedToday['completorium'];
+        const compOnTime = (realHour === 21);
+        const compName = isEn ? 'Compline' : 'Completorium';
+
         h += `<div style="display:flex; justify-content:center; margin-bottom:20px;">`;
-        h += `<div style="padding:8px 24px; background:rgba(255,255,255,0.7); border:1px solid rgba(197,160,89,0.4); border-radius:6px; text-align:center; min-width:140px;">
+        h += `<div onclick="${compDone ? '' : `UI.prayCanonicalHour('completorium')`}" style="padding:10px 24px; background:${compDone ? 'rgba(230,244,234,0.9)' : (compOnTime ? 'rgba(255,248,225,0.95)' : 'rgba(255,255,255,0.7)')}; border:1px solid ${compDone ? 'rgba(76,175,80,0.45)' : (compOnTime ? '#f1c40f' : 'rgba(197,160,89,0.4)')}; border-radius:6px; text-align:center; min-width:150px; cursor:${compDone ? 'default' : 'pointer'}; ${compOnTime && !compDone ? 'box-shadow:0 0 8px rgba(241,196,15,0.5);' : ''}">
             <div style="font-size:1.3rem; margin-bottom:2px;">🕯️</div>
-            <div style="font-weight:bold; font-size:0.8rem; color:#2c3e50;">Completorium</div>
-            <div style="font-size:0.68rem; opacity:0.65;">21:00</div>
-        </div>`;
-        h += `</div>`;
+            <div style="font-weight:bold; font-size:0.8rem; color:#2c3e50;">${compName}</div>
+            <div style="font-size:0.68rem; opacity:0.65; margin-bottom:4px;">21:00</div>`;
+
+        if (compDone) {
+            h += `<div style="color:#27ae60; font-size:0.75rem; font-weight:bold; margin-top:2px;">✔ ${isEn ? 'Completed' : 'Splněno'}</div>`;
+        } else {
+            h += `<button class="medieval-btn" onclick="event.stopPropagation(); UI.prayCanonicalHour('completorium')" style="padding:2px 10px; font-size:0.72rem; border-radius:4px; font-weight:bold; cursor:pointer; background:${compOnTime ? 'linear-gradient(180deg, #27ae60 0%, #1e8449 100%)' : 'linear-gradient(180deg, #8b4513 0%, #5a2a0a 100%)'}; color:#fff; border:1px solid ${compOnTime ? '#27ae60' : '#d4af37'}; margin-top:2px;" title="${compOnTime ? (isEn ? 'Pray now for time bonus!' : 'Pomodlit se nyní včas (+Bonus)') : (isEn ? 'Fulfill outside hour (no bonus)' : 'Splnit mimo čas (bez bonusu)')}">
+                ${isEn ? 'Pray' : 'Splnit'} ${compOnTime ? '⚡' : ''}
+            </button>`;
+        }
+        h += `</div></div>`;
 
         // Decorative divider
         h += `<div style="position:relative; height:1px; background:#90cdf4; margin:16px 0 20px 0;">`;
@@ -1709,6 +1742,109 @@ const UI = {
         });
         h += `</div></div>`;
         el.innerHTML = h;
+    },
+
+    prayCanonicalHour: function (hourId) {
+        if (!GameState.tasksState) {
+            GameState.tasksState = {
+                completedToday: {},
+                canonicalCompletedToday: {},
+                lastResetDay: GameState.stats ? GameState.stats.day : 1
+            };
+        }
+        if (!GameState.tasksState.canonicalCompletedToday) {
+            GameState.tasksState.canonicalCompletedToday = {};
+        }
+
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        const isEn = lang === 'en';
+
+        if (GameState.tasksState.canonicalCompletedToday[hourId]) {
+            UI.notify(isEn ? '🙏 Already prayed this canonical hour today.' : '🙏 Tato modlitba již byla dnes splněna.', true);
+            return;
+        }
+
+        const prayerWindows = {
+            vigilie: { name: 'Vigilie', nameEn: 'Vigils', targetHour: 2, icon: '🌙' },
+            laudes: { name: 'Laudes', nameEn: 'Lauds', targetHour: 6, icon: '🌅' },
+            prima: { name: 'Prima', nameEn: 'Prime', targetHour: 9, icon: '☀️' },
+            sexta: { name: 'Sexta', nameEn: 'Sext', targetHour: 12, icon: '🌞' },
+            nona: { name: 'Nona', nameEn: 'None', targetHour: 15, icon: '🌤️' },
+            vesperae: { name: 'Vesperae', nameEn: 'Vespers', targetHour: 18, icon: '🌇' },
+            completorium: { name: 'Completorium', nameEn: 'Compline', targetHour: 21, icon: '🕯️' }
+        };
+
+        const prayer = prayerWindows[hourId];
+        if (!prayer) return;
+
+        // Mark completed for today
+        GameState.tasksState.canonicalCompletedToday[hourId] = true;
+
+        // Sync with canonicalPrayedKeys
+        const today = new Date().toISOString().slice(0, 10);
+        const key = today + '_' + hourId;
+        if (!GameState.canonicalPrayedKeys) GameState.canonicalPrayedKeys = [];
+        if (!GameState.canonicalPrayedKeys.includes(key)) GameState.canonicalPrayedKeys.push(key);
+
+        // Check real time hour window (1 hour window: 2:00-2:59, 6:00-6:59, 9:00-9:59, 12:00-12:59, 15:00-15:59, 18:00-18:59, 21:00-21:59)
+        const currentRealHour = new Date().getHours();
+        const isOnTime = (currentRealHour === prayer.targetHour);
+
+        const prayerName = isEn ? prayer.nameEn : prayer.name;
+
+        if (isOnTime) {
+            // GRANT BONUS ONLY WHEN ON TIME IN REAL 1-HOUR WINDOW
+            if (typeof PersonaSystem !== 'undefined' && PersonaSystem.addZboznost) {
+                PersonaSystem.addZboznost(5);
+            }
+            if (typeof VigorSystem !== 'undefined' && VigorSystem.addFatigue) {
+                VigorSystem.addFatigue(-10);
+            }
+            if (typeof GameState.rank !== 'undefined') {
+                GameState.rank.canonicalStreak = (GameState.rank.canonicalStreak || 0) + 1;
+            }
+
+            if (hourId === 'vigilie') {
+                UI.notify(isEn ? '🌙 Vigil prayer bonus active (+10% Alchemy success, +5 Piety)' : '🌙 Modlitba Vigilie včas (+10% Alchymie, +5 Zbožnost)');
+            } else if (hourId === 'laudes') {
+                UI.notify(isEn ? '🌅 Lauds prayer bonus active (+25% Crafting speed, +5 Piety)' : '🌅 Modlitba Laudes včas (+25% Rychlost výroby, +5 Zbožnost)');
+            } else if (hourId === 'prima') {
+                if (typeof Game !== 'undefined' && Game.addItem) Game.addItem('research', 5);
+                UI.notify(isEn ? '☀️ Prime prayer bonus active (+5 Research, +5 Piety)' : '☀️ Modlitba Prima včas (+5 Výzkum, +5 Zbožnost)');
+            } else if (hourId === 'sexta') {
+                if (typeof Game !== 'undefined' && Game.addItem) Game.addItem('herbs', 2);
+                UI.notify(isEn ? '🌞 Sext prayer bonus active (+2 Herbs, +5 Piety)' : '🌞 Modlitba Sexta včas (+2 Byliny, +5 Zbožnost)');
+            } else if (hourId === 'nona') {
+                UI.notify(isEn ? '🌤️ None prayer bonus active (+15% Foraging yield, +5 Piety)' : '🌤️ Modlitba Nona včas (+15% Výnos sběru, +5 Zbožnost)');
+            } else if (hourId === 'vesperae') {
+                UI.notify(isEn ? '🌇 Vespers prayer bonus active (+5 Piety, Vigor recovered)' : '🌇 Modlitba Vesperae včas (+5 Zbožnost, zotavení energie)');
+            } else if (hourId === 'completorium') {
+                if (typeof Game !== 'undefined' && Game.addItem) Game.addItem('research', 10);
+                UI.notify(isEn ? '🕯️ Compline prayer bonus active (+10 Research, +20% Study, +5 Piety)' : '🕯️ Modlitba Completorium včas (+10 Výzkum, +20% Studium, +5 Zbožnost)');
+            }
+
+            if (Math.random() < 0.25 && typeof Game !== 'undefined' && Game.addItem) {
+                Game.addItem('candle', 1);
+            }
+        } else {
+            // NO BONUS WHEN OUTSIDE TIME WINDOW, JUST MARK AS COMPLETED
+            const msg = isEn
+                ? `🙏 ${prayer.icon} ${prayerName} completed outside canonical window (no bonus).`
+                : `🙏 ${prayer.icon} Modlitba ${prayerName} splněna mimo kanonický čas (bez bonusu).`;
+
+            if (typeof NotificationSystem !== 'undefined') {
+                NotificationSystem.panel(msg, 'system');
+            } else {
+                UI.notify(msg, true);
+            }
+        }
+
+        if (typeof CanonicalHours !== 'undefined' && typeof CanonicalHours.renderPill === 'function') {
+            CanonicalHours.renderPill();
+        }
+
+        UI.renderMonasticTasks();
+        if (typeof Game !== 'undefined' && Game.save) Game.save();
     },
 
     completeMonasticTask: function (taskId) {
