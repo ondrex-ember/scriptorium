@@ -194,9 +194,39 @@ const TemplumSystem = {
           </div>`;
 
         const mapExpanded = !!(GameState.ui && GameState.ui.cemeteryMapExpanded);
-        const mapSvg = (typeof TemplumManager !== 'undefined') ? TemplumManager.renderCemeteryScene(cem, lang) : '';
-        h += `<div onclick="TemplumSystem.toggleCemeteryMap()" style="cursor:pointer; margin-bottom:4px; border:1px solid rgba(197,160,89,0.25); border-radius:8px; overflow:hidden; max-height:${mapExpanded ? '230px' : '95px'}; transition:max-height 0.25s ease;"><div style="transform:${mapExpanded ? 'none' : 'translateY(-33%)'};">${mapSvg}</div></div>
-                <div onclick="TemplumSystem.toggleCemeteryMap()" style="text-align:center; font-size:0.65rem; opacity:0.55; margin:0 0 16px; cursor:pointer;">${mapExpanded ? (lang==='en'?'▲ Collapse map':'▲ Sbalit mapu') : (lang==='en'?'▼ Show full map':'▼ Zobrazit celou mapu')}</div>`;
+        const mapSvg = (typeof TemplumManager !== 'undefined') ? TemplumManager.renderCemeteryScene(cem, lang, mapExpanded) : '';
+        const env = (typeof TemplumManager !== 'undefined') ? TemplumManager._getCemeteryEnv() : { isNight: false, timeSlot: 'day', condition: 'clear' };
+        
+        let timeBadge = lang === 'en' ? '☀️ Day' : '☀️ Den';
+        if (env.isNight) timeBadge = lang === 'en' ? '🌙 Night' : '🌙 Noc';
+        else if (env.timeSlot === 'morning') timeBadge = lang === 'en' ? '🌅 Morning' : '🌅 Ráno';
+        else if (env.timeSlot === 'evening') timeBadge = lang === 'en' ? '🌆 Evening' : '🌆 Podvečer';
+
+        let weatherBadge = lang === 'en' ? 'Clear' : 'Jasno';
+        if (env.isSnow) weatherBadge = lang === 'en' ? 'Snow' : 'Sněžení';
+        else if (env.condition === 'rain') weatherBadge = lang === 'en' ? 'Rain' : 'Déšť';
+        else if (env.isFog) weatherBadge = lang === 'en' ? 'Fog' : 'Mlha';
+        else if (env.isCloudy) weatherBadge = lang === 'en' ? 'Cloudy' : 'Zataženo';
+
+        const gravesCount = (cem.graves || []).length;
+
+        h += `<div onclick="TemplumSystem.toggleCemeteryMap()" style="cursor:pointer; margin-bottom:16px; border:1px solid rgba(197,160,89,0.3); border-radius:10px; overflow:hidden; background:rgba(0,0,0,0.25); box-shadow:0 4px 12px rgba(0,0,0,0.15); transition:all 0.25s ease;">
+                <div style="position:relative;">
+                    ${mapSvg}
+                </div>
+                <div style="display:flex; justify-content:space-between; align-items:center; padding:8px 12px; background:rgba(22,17,13,0.9); border-top:1px solid rgba(197,160,89,0.25); font-size:0.75rem; color:#e2d8c3;">
+                    <div style="display:flex; align-items:center; gap:8px;">
+                        <span>${timeBadge} · ${weatherBadge}</span>
+                        <span style="opacity:0.4;">|</span>
+                        <span style="color:${condColor}; font-weight:bold;">${condLabel} (${Math.round(cond)}%)</span>
+                    </div>
+                    <div style="color:var(--accent-gold); font-weight:bold; font-size:0.72rem;">
+                        ${mapExpanded 
+                            ? (lang==='en' ? '▲ Collapse map' : '▲ Sbalit hřbitov') 
+                            : (lang==='en' ? '▼ Show full map (' + gravesCount + ')' : '▼ Zobrazit celý hřbitov (' + gravesCount + ' hrobů)')}
+                    </div>
+                </div>
+            </div>`;
 
         const graves = (cem.graves || []).slice().reverse();
         h += `<div style="padding:12px 15px; background:rgba(255,255,255,0.4); border:1px solid rgba(197,160,89,0.25); border-radius:8px;">
