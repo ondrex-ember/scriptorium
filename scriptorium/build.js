@@ -12,7 +12,12 @@
 
 const fs = require('fs');
 const path = require('path');
-const { minify } = require('terser');
+let minify;
+try {
+    minify = require('terser').minify;
+} catch (e) {
+    console.warn('⚠️ Terser library not found, build will proceed without JS minification.');
+}
 
 const BASE = __dirname;
 const DIST = path.join(BASE, 'dist');
@@ -212,16 +217,27 @@ async function build() {
     // konkatenací, přejmenování by tohle riskovalo rozbít. compress+strip
     // komentářů samo dává ~30% úsporu bez toho rizika.
     const jsMainBeforeKB = Math.round(Buffer.byteLength(jsMain, 'utf-8') / 1024);
-    const minMain = await minify(jsMain, { compress: true, mangle: false, format: { comments: false } });
-    if (minMain.error) throw minMain.error;
-    jsMain = minMain.code;
-    const jsMainAfterKB = Math.round(Buffer.byteLength(jsMain, 'utf-8') / 1024);
+    if (minify) {
+        try {
+            const minMain = await minify(jsMain, { compress: true, mangle: false, format: { comments: false } });
+            if (!minMain.error && minMain.code) {
+                jsMain = minMain.code;
+                const jsMainAfterKB = Math.round(Buffer.byteLength(jsMain, 'utf-8') / 1024);
+                console.log(`🗜️  Minifikace: jsMain ${jsMainBeforeKB} KB → ${jsMainAfterKB} KB (${(100 - jsMainAfterKB / jsMainBeforeKB * 100).toFixed(1)}% úspora)`);
+            }
+        } catch (e) {
+            console.warn('⚠️ Minifikace jsMain selhala, použije se neminifikovaný kód:', e.message);
+        }
 
-    const minBootstrap = await minify(jsBootstrap, { compress: true, mangle: false, format: { comments: false } });
-    if (minBootstrap.error) throw minBootstrap.error;
-    jsBootstrap = minBootstrap.code;
-
-    console.log(`🗜️  Minifikace: jsMain ${jsMainBeforeKB} KB → ${jsMainAfterKB} KB (${(100 - jsMainAfterKB / jsMainBeforeKB * 100).toFixed(1)}% úspora)`);
+        try {
+            const minBootstrap = await minify(jsBootstrap, { compress: true, mangle: false, format: { comments: false } });
+            if (!minBootstrap.error && minBootstrap.code) {
+                jsBootstrap = minBootstrap.code;
+            }
+        } catch (e) {
+            console.warn('⚠️ Minifikace jsBootstrap selhala:', e.message);
+        }
+    }
 
     if (!shell.includes('/* BUILD:JS_MAIN */')) throw new Error('Placeholder JS_MAIN chybí v shell.html!');
     if (!shell.includes('/* BUILD:JS_BOOTSTRAP */')) throw new Error('Placeholder JS_BOOTSTRAP chybí v shell.html!');
