@@ -2089,8 +2089,26 @@ const ConversiManager = {
                             if (typeof AthanorSystem !== 'undefined' && AthanorSystem.refreshIfOpen) {
                                 AthanorSystem.refreshIfOpen();
                             }
+                        } else {
+                            // Zná recept, má i suroviny, ale chybí alembik/baňka na destilaci
+                            this._reportWork(
+                                `⚗️ ${athanorBrother.name} (Athanor) zná recept, ale chybí mu alembik nebo baňka.`,
+                                `⚗️ ${athanorBrother.name} (Athanor) knows a recipe, but lacks an alembic or flask.`
+                            );
                         }
+                    } else {
+                        // Zná recept(y), ale na žádný nemá momentálně suroviny
+                        this._reportWork(
+                            `⚗️ ${athanorBrother.name} (Athanor) nemá po ruce suroviny na žádnou známou kombinaci.`,
+                            `⚗️ ${athanorBrother.name} (Athanor) has no ingredients on hand for any known combination.`
+                        );
                     }
+                } else if (!state.brewing) {
+                    // Nezná zatím žádnou kombinaci — musí ji hráč objevit ručně první
+                    this._reportWork(
+                        `⚗️ ${athanorBrother.name} (Athanor) zatím nezná žádnou kombinaci — čeká, až něco objevíš.`,
+                        `⚗️ ${athanorBrother.name} (Athanor) doesn't know any combination yet — waiting for you to discover one.`
+                    );
                 }
             }
         }
@@ -2223,6 +2241,14 @@ const ConversiManager = {
                         if (typeof AthanorSystem !== 'undefined' && AthanorSystem.refreshIfOpen) {
                             AthanorSystem.refreshIfOpen();
                         }
+                    } else {
+                        // Žádný proveditelný pokus dnes — chybí suroviny/nástroje, nebo
+                        // vše dostupné je buď na blacklistu (failedAttempts), nebo padá
+                        // do CORRUPTIO při Llullově filtru.
+                        this._reportWork(
+                            `🎡 ${researchBrother.name} (Výzkum) dnes nenašel žádný proveditelný pokus — chybí suroviny nebo nástroje.`,
+                            `🎡 ${researchBrother.name} (Research) found no feasible experiment today — missing ingredients or tools.`
+                        );
                     }
                 }
             }
@@ -2233,12 +2259,21 @@ const ConversiManager = {
         //    1) Opisuje folia aktivního kodexu v Scriptorium (dle své úrovně Skriptor, spotřebovává Inkoust + Papír/Pergamen)
         //    2) Čte odemčené, dosud nepřečtené knihy v knihovně jako doplňkovou činnost.
         const scriptoriumBrother = (GameState.dormitorium && GameState.dormitorium.brothers || [])
-            .find(b => b.assignedTab === 'scriptorium' && (b.fatigue || 0) < 90);
+            .find(b => b.assignedTab === 'scriptorium');
 
         if ((!onlyTab || onlyTab === 'scriptorium') && scriptoriumBrother && GameState.library) {
             if (!GameState.conversiScriptoriumLastTick) GameState.conversiScriptoriumLastTick = 0;
             if (Date.now() - GameState.conversiScriptoriumLastTick >= DAY) {
                 GameState.conversiScriptoriumLastTick = Date.now();
+
+                if ((scriptoriumBrother.fatigue || 0) >= 90) {
+                    // Dřív byl bratr při únavě >=90 tiše vyfiltrován z .find() —
+                    // tab vypadal jako mrtvý bez jakékoli hlášky proč.
+                    this._reportWork(
+                        `✒️ ${scriptoriumBrother.name} (Skriptor) je příliš unavený na práci — potřebuje odpočinek.`,
+                        `✒️ ${scriptoriumBrother.name} (Scriptor) is too tired to work — needs rest.`
+                    );
+                } else {
 
                 let workDone = false;
 
@@ -2326,6 +2361,7 @@ const ConversiManager = {
 
                 if (workDone) {
                     Game.save();
+                }
                 }
             }
         }
