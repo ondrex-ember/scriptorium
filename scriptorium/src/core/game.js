@@ -378,6 +378,11 @@ const Game = {
         Game.checkAbbotPetitions();
         Game.checkUbytovnaPetitions();
         Game.checkGuildPetitions();
+        // Dashboard historie/vývoj/šipky (MRD v0.5 §2) — denní snapshot vztahu.
+        // Vlastní dedup uvnitř (last.day === gameDay), bezpečné volat víckrát/den.
+        if (typeof recordGuildRelationSnapshot === 'function') {
+            recordGuildRelationSnapshot(new Date().toISOString().slice(0, 10));
+        }
         Game.checkLandParcels();
         Game.checkMillBuildComplete();
         Game.checkMillwrightHireComplete();
@@ -1204,7 +1209,8 @@ const Game = {
     // ═══ D10: Ubytovna/Cechy/Pozemky (2/12) — extrahováno do PetitionManager.js ═══
     ubytovnaCapacity: function () { return PetitionManager.ubytovnaCapacity(); },
     submitUbytovnaPetition: function (tier) { return PetitionManager.submitUbytovnaPetition(tier); },
-    submitGuildPetition: function (guildId) { return PetitionManager.submitGuildPetition(guildId); },
+    submitGuildPhase0Petition: function (guildId, matterKey) { return PetitionManager.submitGuildPhase0Petition(guildId, matterKey); },
+    submitGuildPetition: function (guildId, matterKey) { return PetitionManager.submitGuildPetition(guildId, matterKey); },
     sendGuildGift: function (guildId) { return PetitionManager.sendGuildGift(guildId); },
     askAbbotAboutLand: function () { return PetitionManager.askAbbotAboutLand(); },
     buildUbytovnaTier: function (tier) { return PetitionManager.buildUbytovnaTier(tier); },

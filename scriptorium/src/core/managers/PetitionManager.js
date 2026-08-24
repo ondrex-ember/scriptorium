@@ -286,26 +286,105 @@ const PetitionManager = {
         if (typeof Game !== 'undefined' && Game.save) Game.save();
     },
 
+    // Cechy — Fáze 0: Otevření jednání s opatem (MRD v0.4/v0.5/v0.6)
+    // Hráč žádá opata o povolení vyjednávat s cechmistrem pro KONKRÉTNÍ
+    // věc (matterKey, např. 'pekarsky:furnus' vs 'pekarsky:chleba' —
+    // v0.6 bod 4, per cech×věc, ne jen per cech).
+    submitGuildPhase0Petition: function (guildId, matterKey) {
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        if (typeof GuildsDB === 'undefined' || !GuildsDB[guildId]) return;
+        const g = GuildsDB[guildId];
+        const matter = (g.matters || []).find(m => m.key === matterKey);
+        if (!matter) return;
+
+        if (!GameState.guildPhase0) GameState.guildPhase0 = {};
+        if (!GameState.guildPhase0[matterKey]) GameState.guildPhase0[matterKey] = { status: 'none', submittedAt: null };
+        const p0 = GameState.guildPhase0[matterKey];
+
+        if (p0.status === 'pending') {
+            UI.notify(lang === 'en' ? '⏳ Petition to open negotiations already submitted to Abbot.' : '⏳ Žádost o otevření jednání s opatem už byla odeslána.', true);
+            return;
+        }
+        if (p0.status === 'approved') {
+            UI.notify(lang === 'en' ? '✅ Abbot already granted permission to negotiate about this matter.' : '✅ Opat už udělení souhlasu k jednání o téhle věci schválil.', true);
+            return;
+        }
+
+        p0.status = 'pending';
+        p0.submittedAt = Date.now();
+
+        if (typeof UI !== 'undefined' && UI.notifyPanel) UI.notifyPanel('📜 ' + (lang === 'en'
+            ? `Petition submitted to the Abbot to open negotiations regarding ${matter.label_en || matter.label}. Reply expected in 24h.`
+            : `Žádost odeslána opatovi o otevření jednání: ${matter.label}. Odpověď se čeká za 24 hodin.`), 'system');
+        if (typeof Game !== 'undefined' && Game.addKronikaEntry) Game.addKronikaEntry('important',
+            `📜 Žádost opatovi o zahájení jednání — ${g.name} (${matter.label}).`,
+            `📜 Petition to Abbot to open negotiations — ${g.name_en} (${matter.label_en}).`,
+            `📜 Petitio ad abbatem missa est.`);
+        if (typeof Game !== 'undefined' && Game.save) Game.save();
+        if (typeof UI !== 'undefined' && UI.renderAll) UI.renderAll();
+    },
+
+    checkGuildPhase0Petitions: function () {
+        if (!GameState.guildPhase0) return;
+        if (typeof GuildsDB === 'undefined') return;
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        const now = Date.now();
+        const DAY_MS = 86400000;
+        Object.keys(GameState.guildPhase0).forEach(matterKey => {
+            const p0 = GameState.guildPhase0[matterKey];
+            if (!p0 || p0.status !== 'pending') return;
+            if (now - p0.submittedAt < DAY_MS) return;
+
+            const guildId = matterKey.split(':')[0];
+            const g = GuildsDB[guildId];
+            if (!g) return;
+            const matter = (g.matters || []).find(m => m.key === matterKey);
+            if (!matter) return;
+            p0.status = 'approved';
+
+            if (typeof UI !== 'undefined' && UI.notifyPanel) UI.notifyPanel('✅ ' + (lang === 'en'
+                ? `The Abbot approved opening negotiations with ${g.name_en} (${g.masterName}) — ${matter.label_en}.`
+                : `Opat schválil zahájení jednání s cechem: ${g.name} (${g.masterName}) — ${matter.label}.`), 'success');
+            if (typeof Game !== 'undefined' && Game.addKronikaEntry) Game.addKronikaEntry('important',
+                `📜 Opat schválil zahájení jednání — ${g.name} (${matter.label}).`,
+                `📜 The Abbot approved opening negotiations — ${g.name_en} (${matter.label_en}).`,
+                `📜 Abbas negotiationem cum collegio approbavit.`);
+            if (typeof Game !== 'undefined' && Game.save) Game.save();
+            if (typeof UI !== 'undefined' && UI.renderAll) UI.renderAll();
+        });
+    },
+
     // Cechy — Privilegium (cechy-a-prava-mrd.md §3.1, 16.8.2026). Mirror
     // submitUbytovnaPetition (plně inline text, ŽÁDNÝ t() — GuildsDB
     // nemá i18n klíče a nemáme je přidávat bez aktuálních cs.js/en.js).
     // Cena strhává se HNED při odeslání (historicky přesně — lobbing
     // stál peníze bez ohledu na výsledek), ne až při schválení.
-    submitGuildPetition: function (guildId) {
+    submitGuildPetition: function (guildId, matterKey) {
         const lang = (GameState.settings && GameState.settings.language) || 'cs';
         if (typeof GuildsDB === 'undefined' || !GuildsDB[guildId]) return;
-        const guildName = lang === 'en' ? GuildsDB[guildId].name_en : GuildsDB[guildId].name;
+        const g = GuildsDB[guildId];
+        const matter = (g.matters || []).find(m => m.key === matterKey);
+        if (!matter) return;
+        const guildName = lang === 'en' ? g.name_en : g.name;
+        const matterLabel = lang === 'en' ? (matter.privilegeLabel_en || matter.privilegeLabel) : matter.privilegeLabel;
+
+        // Kontrola Fáze 0 (Musí mít schválené otevření jednání od opata pro TUTO věc)
+        const p0 = GameState.guildPhase0 && GameState.guildPhase0[matterKey];
+        if (!p0 || p0.status !== 'approved') {
+            UI.notify(lang === 'en' ? '❌ Must first petition the Abbot to open negotiations (Phase 0).' : '❌ Nejprve musíš požádat opata o zahájení jednání (Fáze 0).', true);
+            return;
+        }
 
         if (!GameState.guildPetition) GameState.guildPetition = {};
-        if (!GameState.guildPetition[guildId]) GameState.guildPetition[guildId] = { status: 'none', submittedAt: null };
-        const pet = GameState.guildPetition[guildId];
+        if (!GameState.guildPetition[matterKey]) GameState.guildPetition[matterKey] = { status: 'none', submittedAt: null };
+        const pet = GameState.guildPetition[matterKey];
 
         if (pet.status === 'pending') {
             UI.notify(lang === 'en' ? '⏳ Petition already submitted. Await the Abbot\'s reply.' : '⏳ Žádost už byla odeslána. Čekej na odpověď opata.', true);
             return;
         }
-        if ((GameState.guildPravo && GameState.guildPravo[guildId] && GameState.guildPravo[guildId].status === 'granted')) {
-            UI.notify(lang === 'en' ? '✅ This guild has already granted you the Privilege.' : '✅ Tenhle cech ti už Privilegium udělil.', true);
+        if ((GameState.guildPravo && GameState.guildPravo[matterKey] && GameState.guildPravo[matterKey].status === 'granted')) {
+            UI.notify(lang === 'en' ? '✅ This guild has already granted you this Privilege.' : '✅ Tenhle cech ti tohle Privilegium už udělil.', true);
             return;
         }
         if (!(GameState.researchedTechs && GameState.researchedTechs.includes('tech_ius_terrae'))) {
@@ -326,14 +405,14 @@ const PetitionManager = {
         pet.status = 'pending';
         pet.submittedAt = Date.now();
         if (!GameState.guildPravo) GameState.guildPravo = {};
-        GameState.guildPravo[guildId] = { status: 'negotiating', mechanism: 'privilegium' };
+        GameState.guildPravo[matterKey] = { status: 'negotiating', mechanism: 'privilegium' };
 
         if (typeof UI !== 'undefined' && UI.notifyPanel) UI.notifyPanel('📜 ' + (lang === 'en'
-            ? `Petition for a Privilege sent to the Abbot on ${guildName}'s behalf. Reply expected in 24h.`
-            : `Žádost o Privilegium k ${guildName} odeslána opatovi. Odpověď se čeká za 24 hodin.`), 'system');
+            ? `Petition for a Privilege (${matterLabel}) sent to the Abbot on ${guildName}'s behalf. Reply expected in 24h.`
+            : `Žádost o Privilegium (${matterLabel}) k ${guildName} odeslána opatovi. Odpověď se čeká za 24 hodin.`), 'system');
         if (typeof Game !== 'undefined' && Game.addKronikaEntry) Game.addKronikaEntry('important',
-            `📜 Žádost o Privilegium — ${GuildsDB[guildId].name}.`,
-            `📜 Petition for a Privilege — ${GuildsDB[guildId].name_en}.`,
+            `📜 Žádost o Privilegium — ${g.name} (${matter.privilegeLabel}).`,
+            `📜 Petition for a Privilege — ${g.name_en} (${matter.privilegeLabel_en}).`,
             `📜 Petitio de privilegio missa est.`);
         if (typeof Game !== 'undefined' && Game.save) Game.save();
         if (typeof UI !== 'undefined' && UI.renderAll) UI.renderAll();
@@ -499,34 +578,42 @@ const PetitionManager = {
     // schválení (na rozdíl od Ubytovny) — cena (zlaty_prut) se strhla už
     // při odeslání, ale vztah teoreticky mohl mezitím klesnout.
     checkGuildPetitions: function () {
+        this.checkGuildPhase0Petitions();
         if (!GameState.guildPetition) return;
-        if (typeof GUILDS_ACTIVE === 'undefined') return;
         const lang = (GameState.settings && GameState.settings.language) || 'cs';
         const now = Date.now();
         const DAY_MS = 86400000;
-        GUILDS_ACTIVE.forEach(guildId => {
-            const pet = GameState.guildPetition[guildId];
+        // Iterace přes matterKey (ne přes seznam aktivních cechů) — Pekařský
+        // má dvě samostatné věci, obě potřebují vlastní vyhodnocení (v0.6 bod 4).
+        Object.keys(GameState.guildPetition).forEach(matterKey => {
+            const pet = GameState.guildPetition[matterKey];
             if (!pet || pet.status !== 'pending') return;
             if (now - pet.submittedAt < DAY_MS) return;
 
-            const guildName = lang === 'en' ? GuildsDB[guildId].name_en : GuildsDB[guildId].name;
+            const guildId = matterKey.split(':')[0];
+            const g = GuildsDB[guildId];
+            if (!g) return;
+            const matter = (g.matters || []).find(m => m.key === matterKey);
+            if (!matter) return;
+            const guildName = lang === 'en' ? g.name_en : g.name;
+            const matterLabel = lang === 'en' ? (matter.privilegeLabel_en || matter.privilegeLabel) : matter.privilegeLabel;
             const rel = (GameState.guildRelation && GameState.guildRelation[guildId]) || 0;
 
             if (rel < 50) {
                 pet.status = 'none';
-                GameState.guildPravo[guildId] = { status: 'none', mechanism: null };
+                GameState.guildPravo[matterKey] = { status: 'none', mechanism: null };
                 if (typeof UI !== 'undefined' && UI.notifyPanel) UI.notifyPanel('❌ ' + (lang === 'en'
-                    ? `${guildName} withdrew — trust had faded before the Abbot could conclude the matter.`
-                    : `${guildName} žádost stáhl — důvěra vyprchala dřív, než opat věc dojednal.`), 'system');
+                    ? `${guildName} withdrew — trust had faded before the Abbot could conclude the matter (${matterLabel}).`
+                    : `${guildName} žádost stáhl — důvěra vyprchala dřív, než opat věc dojednal (${matterLabel}).`), 'system');
             } else {
                 pet.status = 'approved';
-                GameState.guildPravo[guildId] = { status: 'granted', mechanism: 'privilegium' };
+                GameState.guildPravo[matterKey] = { status: 'granted', mechanism: 'privilegium' };
                 if (typeof UI !== 'undefined' && UI.notifyPanel) UI.notifyPanel('✅ ' + (lang === 'en'
-                    ? `The Abbot secured a Privilege from ${guildName}.`
-                    : `Opat vyjednal Privilegium od cechu: ${guildName}.`), 'success');
+                    ? `The Abbot secured a Privilege from ${guildName} (${matterLabel}).`
+                    : `Opat vyjednal Privilegium od cechu: ${guildName} (${matterLabel}).`), 'success');
                 if (typeof Game !== 'undefined' && Game.addKronikaEntry) Game.addKronikaEntry('important',
-                    `📜 Opat vyjednal Privilegium — ${GuildsDB[guildId].name}.`,
-                    `📜 The Abbot secured a Privilege — ${GuildsDB[guildId].name_en}.`,
+                    `📜 Opat vyjednal Privilegium — ${g.name} (${matter.privilegeLabel}).`,
+                    `📜 The Abbot secured a Privilege — ${g.name_en} (${matter.privilegeLabel_en}).`,
                     `📜 Abbas privilegium impetravit.`);
             }
             if (typeof Game !== 'undefined' && Game.save) Game.save();

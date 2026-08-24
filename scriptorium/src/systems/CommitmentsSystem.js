@@ -789,10 +789,16 @@ const CommitmentsSystem = {
         GameState.cechZakazkyNextTick = Date.now() + DAY;
         if (Math.random() >= 0.20) return; // ~20 %/den na cech
 
-        if (typeof GUILDS_ACTIVE === 'undefined') return;
+        // v0.6 oprava — GUILDS_ACTIVE nikdy neexistoval jako reálná konstanta
+        // v data/guilds.js (jen GUILDS_BASE_ACTIVE + getActiveGuilds()), takže
+        // tahle pojistka byla VŽDY pravdivá a auto-Zakázky se negenerovaly
+        // ani pro původní 4 cechy. Oprava — použít getActiveGuilds() jako
+        // všude jinde (mirror PetitionManager.js).
+        const activeList = (typeof getActiveGuilds === 'function') ? getActiveGuilds() : [];
+        if (!activeList.length) return;
         let changedCech = false;
 
-        GUILDS_ACTIVE.forEach(guildId => {
+        activeList.forEach(guildId => {
             if (typeof GuildsDB === 'undefined' || !GuildsDB[guildId]) return;
             if (GameState.localAkterZakazky.some(z => z.actorId === guildId)) return;
 

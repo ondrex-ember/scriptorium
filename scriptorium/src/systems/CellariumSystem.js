@@ -427,6 +427,39 @@ const CellariumSystem = {
 
     const result = this._calcSaturatedSale(baseNoSat, qty, soldBefore, null);
     let total = result.total;
+
+    // Cechovní regulace & 10% poplatek (MRD v0.1-v0.6). Matter-level (ne
+    // guild-level) — Pekařský má dvě různé věci, mouka je vždy jen
+    // Mlynářského (v0.6 bod 4).
+    let guildFee = 0;
+    const affectedMatter = (typeof getItemGuildMatter === 'function') ? getItemGuildMatter(itemId) : null;
+    // Cechy si hráče "všimly" až po GM zprávě (unlock_flags: guilds_noticed) —
+    // do té doby fušerství nehlásíme, aby stará rozjetá hra nedostala tension
+    // bez jakýhokoliv varování (v0.6 bod 5).
+    const guildsNoticedPlayer = GameState.unlockedFlags && GameState.unlockedFlags.includes('guilds_noticed');
+    if (affectedMatter && guildsNoticedPlayer) {
+        const guildId = affectedMatter.guild.id;
+        const matterKey = affectedMatter.matter.key;
+        const privilegeStatus = GameState.guildPravo && GameState.guildPravo[matterKey] && GameState.guildPravo[matterKey].status;
+        if (privilegeStatus === 'granted') {
+            // Privilegium uděleno -> 10% poplatek cechu
+            guildFee = Math.round(total * 0.10);
+            total = Math.max(1, total - guildFee);
+        } else {
+            // Privilegium NENÍ uděleno -> fušerství (neoprávněný prodej), hlášení do Chroniconu.
+            // count ořezán na klientovi i na serveru (MAX_COUNT_PER_REPORT) — jeden
+            // velký prodej nesmí vychýlit napětí neúměrně (v0.6 bod 3).
+            const todayStr = new Date().toISOString().slice(0, 10);
+            if (typeof fetch === 'function') {
+                fetch('/api/guild-tension-report', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ guildId: guildId, day: todayStr, count: Math.min(qty, 5) })
+                }).catch(err => console.warn('[guild-tension-report] send error:', err.message));
+            }
+        }
+    }
+
     // abbot-persona-mrd (9.8.2026) — konečně zapojený cellariumExtraYield,
     // dřív jen dekorativní pilulka. Mlynářovo jmění = "štědřejší váha" —
     // hráč dostane zaplaceno za +1 kus navíc, aniž by ho fyzicky odevzdal
@@ -442,6 +475,13 @@ const CellariumSystem = {
     GameState.shopStock.dailySold[soldKey] = result.soldAfter;
     this.recordTransaction('sell', itemId, qty, Math.round(total / qty), entity);
     GameState.economy.tradesTotal++;
+
+    if (guildFee > 0 && affectedMatter) {
+        const _lang = (GameState.settings && GameState.settings.language) || 'cs';
+        UI.notify(_lang === 'en'
+            ? `🏛️ Paid 10% guild fee (${guildFee} groats) to ${affectedMatter.guild.name_en}`
+            : `🏛️ Zaplacen 10% cechovní poplatek (${guildFee} grošů) cechu ${affectedMatter.guild.name}`);
+    }
     // Reputace — obchod zvyšuje vztah k entitě (+1 základ + Celerarius bonus navrch)
     if (typeof PersonaSystem !== 'undefined' && PersonaSystem.addInfluence) {
         const repAxis = entity === 'tavern' ? 'benedikt' : entity === 'market' ? 'mercatus' : entity === 'shop' ? 'village' : null;
@@ -815,52 +855,57 @@ const CellariumSystem = {
   // (GUILDS_ACTIVE), zbytek existuje v datech, ale nezobrazuje se,
   // dokud nepřijde Furnus.
   renderCechyStatus: function(lang) {
-    if (typeof GuildsDB === 'undefined' || typeof GUILDS_ACTIVE === 'undefined') return '';
+    if (typeof GuildsDB === 'undefined') return '';
+    const activeGuilds = (typeof getActiveGuilds === 'function') ? getActiveGuilds() : GUILDS_BASE_ACTIVE;
     const snap = (typeof ChroniconSystem !== 'undefined' && ChroniconSystem._snap) ? ChroniconSystem._snap : null;
     const worldGuilds = (snap && snap.guilds) || null;
     const guildRelation = GameState.guildRelation || {};
     const guildPravo    = GameState.guildPravo || {};
+    const guildPhase0   = GameState.guildPhase0 || {};
 
     let rows = '';
-    GUILDS_ACTIVE.forEach(id => {
+    activeGuilds.forEach(id => {
       const g = GuildsDB[id];
       if (!g) return;
       const name = lang === 'en' ? g.name_en : g.name;
       const tension = (worldGuilds && worldGuilds[id]) ? Math.round(worldGuilds[id].tension) : null;
       const tensionLabel = tension === null ? (lang === 'en' ? 'unknown' : 'neznámo') : `${tension}/100`;
       const rel = guildRelation[id] || 0;
-      const pravoStatus = (guildPravo[id] && guildPravo[id].status) || 'none';
-      const pravoLabels = {
-        none:        lang === 'en' ? 'none'      : 'žádné',
-        negotiating: lang === 'en' ? 'in talks'   : 'vyjednává se',
-        granted:     lang === 'en' ? 'granted'    : 'uděleno',
-      };
-      const pravoLabel = pravoLabels[pravoStatus] || pravoStatus;
-      // Tlačítko na Privilegium — viditelný od relation 40 (dřív než skutečně
-      // jde odeslat, ať hráč vidí cíl), samotná validace v submitGuildPetition
-      // vyžaduje 50 + tech_ius_terrae + zlaty_prut. cechy-a-prava-mrd.md §3.1.
-      const hasTech = GameState.researchedTechs && GameState.researchedTechs.includes('tech_ius_terrae');
-      let actionHtml = '';
-      if (hasTech && pravoStatus === 'none' && rel >= 40) {
-        actionHtml = `<button onclick="Game.submitGuildPetition('${id}')" style="font-size:0.68rem; padding:2px 8px; margin-left:8px; cursor:pointer;">${lang === 'en' ? 'Petition' : 'Žádost'}</button>`;
-      } else if (pravoStatus === 'negotiating') {
-        actionHtml = `<span style="font-size:0.68rem; opacity:0.6; margin-left:8px;">⏳</span>`;
-      }
-      rows += `<div style="display:flex; justify-content:space-between; align-items:center; font-size:0.74rem; opacity:0.8; padding:2px 0;">
-        <span>${name} (${lang === 'en' ? 'relation' : 'vztah'} ${rel}/100)</span>
-        <span>${lang === 'en' ? 'tension' : 'napětí'} ${tensionLabel} · ${lang === 'en' ? 'right' : 'právo'}: ${pravoLabel}${actionHtml}</span>
-      </div>`;
+
+      // Jeden řádek na VĚC (matterKey) — Pekařský má dvě, ostatní jednu
+      // (v0.6 bod 4, mirror per cech×věc granularity).
+      (g.matters || []).forEach(matter => {
+        const matterLabel = lang === 'en' ? (matter.label_en || matter.label) : matter.label;
+        const p0Status = (guildPhase0[matter.key] && guildPhase0[matter.key].status) || 'none';
+        const pravoStatus = (guildPravo[matter.key] && guildPravo[matter.key].status) || 'none';
+
+        let statusBadge = '';
+        if (pravoStatus === 'granted') {
+          statusBadge = `✅ ${lang === 'en' ? 'Privilege' : 'Privilegium'}`;
+        } else if (pravoStatus === 'pending' || pravoStatus === 'negotiating') {
+          statusBadge = `⏳ ${lang === 'en' ? 'Phase 2' : 'Fáze 2'}`;
+        } else if (p0Status === 'approved') {
+          statusBadge = `🔓 ${lang === 'en' ? 'Phase 0 Open' : 'Jednání'}`;
+        } else if (p0Status === 'pending') {
+          statusBadge = `⏳ ${lang === 'en' ? 'Phase 0' : 'Fáze 0'}`;
+        } else {
+          statusBadge = `🔒 ${lang === 'en' ? 'None' : 'Žádné'}`;
+        }
+
+        rows += `<div style="display:flex; justify-content:space-between; align-items:center; font-size:0.74rem; opacity:0.85; padding:3px 0; border-bottom:1px dashed rgba(197,160,89,0.15);">
+          <span>${g.masterIcon || '📜'} <strong>${name}</strong> — ${matterLabel} (${lang === 'en' ? 'rel' : 'vztah'} ${rel}/100)</span>
+          <span>🔥 ${tensionLabel} · ${statusBadge}</span>
+        </div>`;
+      });
     });
 
     if (!rows) return '';
 
     if (!GameState.ui) GameState.ui = {};
-    // Default ZABALENÝ (na rozdíl od cheeseAgingOpen vzoru) — na výslovnou
-    // žádost, ať to nezabírá místo dokud hráč sám nechce vidět detail.
     const cechyOpen = GameState.ui.cechyStatusOpen === true;
     return `<details ${cechyOpen ? 'open' : ''} ontoggle="GameState.ui.cechyStatusOpen = this.open; Game.save();" style="font-size:0.78rem;opacity:0.85;margin-bottom:10px;background:rgba(197,160,89,0.08);border-radius:6px;">
       <summary style="cursor:pointer; padding:8px 10px; font-weight:bold; list-style:none; user-select:none; display:flex; align-items:center; justify-content:space-between; gap:6px;">
-        <span>⚖️ ${lang === 'en' ? 'Guilds' : 'Cechy'}</span><span style="opacity:0.5; font-weight:normal;">▾</span>
+        <span>⚖️ ${lang === 'en' ? 'Guild Status' : 'Stav cechů'}</span><span style="opacity:0.5; font-weight:normal;">▾</span>
       </summary>
       <div style="padding:0 10px 8px;">
         ${rows}
@@ -1738,85 +1783,165 @@ const CellariumSystem = {
   },
 
 
-  // §3, přesun z Trh 16.8.2026 — Bouvard: "trhy jsou otevřené jen o víkendu,
-  // vztah s cechy se buduje pořád, potřebuju přehled pořád"). Vždy dostupná,
-  // NEgatováno tech_ius_terrae na úrovni viditelnosti taby (jen petiční
-  // tlačítko níž to potřebuje) — mirror renderCechyStatus logiky, ale s
-  // místem navíc a odkazem do Zakázek/Porta.
-  renderCechyPanel: function() {
+  checkGuildActivations: function() {
+    if (typeof GameState === 'undefined') return;
+    if (!GameState.activeGuilds || !Array.isArray(GameState.activeGuilds)) {
+      GameState.activeGuilds = ['mlynarsky', 'truhlarsky', 'kolarsky', 'kovarsky'];
+    }
+
+    const triggers = {
+      pekarsky: (GameState.researchedTechs && GameState.researchedTechs.includes('tech_fornax')) ||
+                (GameState.storage && GameState.storage.fornax && GameState.storage.fornax.built) ||
+                ((GameState.inventory && GameState.inventory['flour'] || 0) >= 10),
+      reznicky: (GameState.inventory && ((GameState.inventory['meat'] || 0) + (GameState.inventory['sausage'] || 0)) >= 10),
+      zlatnicky: (GameState.inventory && ((GameState.inventory['zlaty_prut'] || 0) >= 1 || (GameState.inventory['jeweled_binding'] || 0) >= 1 || (GameState.inventory['gold_leaf'] || 0) >= 1)),
+      kozeluzsky: (GameState.researchedTechs && (GameState.researchedTechs.includes('tech_ligatura') || GameState.researchedTechs.includes('tech_compactura')))
+    };
+
     const lang = (GameState.settings && GameState.settings.language) || 'cs';
-    if (typeof GuildsDB === 'undefined' || typeof GUILDS_ACTIVE === 'undefined') {
+
+    Object.keys(triggers).forEach(id => {
+      if (triggers[id] && !GameState.activeGuilds.includes(id)) {
+        GameState.activeGuilds.push(id);
+        const g = GuildsDB[id];
+        if (g) {
+          const gName = lang === 'en' ? g.name_en : g.name;
+          if (typeof UI !== 'undefined' && UI.notifyPanel) {
+            UI.notifyPanel('📜 ' + (lang === 'en'
+              ? `New Guild activated: ${gName} (${g.masterName})`
+              : `Aktivován nový cech: ${gName} (${g.masterName})`), 'system');
+          }
+        }
+      }
+    });
+  },
+
+  // §3 — Cechovní panel (MRD v0.1 - v0.5 Dashboard)
+  renderCechyPanel: function() {
+    this.checkGuildActivations();
+    const lang = (GameState.settings && GameState.settings.language) || 'cs';
+    if (typeof GuildsDB === 'undefined') {
       return `<div style="padding:20px; opacity:0.6; text-align:center;">⚖️</div>`;
     }
+    const activeGuilds = (typeof getActiveGuilds === 'function') ? getActiveGuilds() : GUILDS_BASE_ACTIVE;
     const snap = (typeof ChroniconSystem !== 'undefined' && ChroniconSystem._snap) ? ChroniconSystem._snap : null;
     const worldGuilds = (snap && snap.guilds) || null;
     const guildRelation = GameState.guildRelation || {};
     const guildPravo    = GameState.guildPravo || {};
+    const guildPhase0   = GameState.guildPhase0 || {};
     const hasTech = GameState.researchedTechs && GameState.researchedTechs.includes('tech_ius_terrae');
 
     let h = `<div style="padding:15px; background:rgba(0,0,0,0.03); border-radius:8px; border-left:3px solid var(--accent-gold);">`;
     h += `<div style="font-size:0.85rem; opacity:0.75; font-style:italic; margin-bottom:8px;">
       ${lang === 'en'
-        ? 'Guild trust is built continuously through commissions — check it here, not just when the Market is open.'
-        : 'Důvěra cechů se buduje průběžně skrz zakázky — sleduj ji tady, ne jen když je otevřenej Trh.'}
+        ? 'Guild relationship is built with Guild Masters via gifts and commissions. Negotiations require Abbot permission (Phase 0) and ratification (Phase 2).'
+        : 'Vztahy s cechmistry se budují přes dary a zakázky. Jednání vyžaduje povolení opata (Fáze 0) a ratifikaci Privilegia (Fáze 2).'}
     </div>`;
     h += `<div style="font-size:0.72rem; opacity:0.6; margin-bottom:14px;">
-      🎁 ${lang === 'en' ? 'Gift costs' : 'Dar stojí'}: 5× ${lang==='en'?'beer':'pivo'}, 3× ${lang==='en'?'honey':'med'}, 2× ${lang==='en'?'candle':'svíčka'} → +${Game.GUILD_GIFT_RELATION} ${lang === 'en' ? 'relation, 24h cooldown per guild' : 'vztahu, cooldown 24h na cech'}
+      🎁 ${lang === 'en' ? 'Gift costs' : 'Dar stojí'}: 5× ${lang==='en'?'beer':'pivo'}, 3× ${lang==='en'?'honey':'med'}, 2× ${lang==='en'?'candle':'svíčka'} → +${(typeof PetitionManager !== 'undefined' ? PetitionManager.GUILD_GIFT_RELATION : 10)} ${lang === 'en' ? 'relation, 24h cooldown per guild' : 'vztahu, cooldown 24h na cech'}
     </div>`;
 
-    GUILDS_ACTIVE.forEach(id => {
+    activeGuilds.forEach(id => {
       const g = GuildsDB[id];
       if (!g) return;
       const name = lang === 'en' ? g.name_en : g.name;
+      const masterName = g.masterName || 'Cechmistr';
+      const masterIcon = g.masterIcon || '📜';
+      const desc = lang === 'en' ? (g.desc_en || g.desc) : g.desc;
+      const matters = g.matters || [];
+
       const tension = (worldGuilds && worldGuilds[id]) ? Math.round(worldGuilds[id].tension) : null;
       const tensionLabel = tension === null ? (lang === 'en' ? 'unknown' : 'neznámo') : `${tension}/100`;
-      const rel = guildRelation[id] || 0;
-      const pravoStatus = (guildPravo[id] && guildPravo[id].status) || 'none';
-      const pravoLabels = {
-        none:        lang === 'en' ? 'none'      : 'žádné',
-        negotiating: lang === 'en' ? 'in talks'   : 'vyjednává se',
-        granted:     lang === 'en' ? 'granted'    : 'uděleno',
-      };
-      const pravoLabel = pravoLabels[pravoStatus] || pravoStatus;
 
-      let actionHtml = '';
-      if (hasTech && pravoStatus === 'none' && rel >= 40) {
-        actionHtml = `<button onclick="Game.submitGuildPetition('${id}')" style="font-size:0.72rem; padding:4px 10px; margin-left:10px; cursor:pointer;">${lang === 'en' ? 'Petition the Abbot' : 'Žádost u opata'}</button>`;
-      } else if (pravoStatus === 'negotiating') {
-        actionHtml = `<span style="font-size:0.72rem; opacity:0.6; margin-left:10px;">⏳ ${lang === 'en' ? 'awaiting reply' : 'čeká na odpověď'}</span>`;
-      } else if (pravoStatus === 'granted') {
-        actionHtml = `<span style="font-size:0.72rem; margin-left:10px;">✅</span>`;
-      }
-      // Dar (K3 Cesta B) — vždy nabídnutý, dokud právo není granted, i bez
-      // techu/dostatečnýho vztahu (dar relation TVOŘÍ, ne jen spotřebovává).
-      // Cooldown info přímo v labelu, ať hráč vidí proč je disabled.
-      if (pravoStatus !== 'granted') {
+      const rel = guildRelation[id] || 0;
+      const sparkline = (typeof getGuildSparkline === 'function') ? getGuildSparkline(id) : '──────';
+      const trend = (typeof getGuildTrend === 'function') ? getGuildTrend(id) : { arrow: '→', delta: '0', color: 'opacity:0.6;' };
+
+      // Jedna karta na cech, ale UVNITŘ jeden řádek na věc (matterKey) —
+      // Pekařský má dvě samostatné petice/ratifikace (v0.6 bod 4).
+      let mattersHtml = '';
+      let allGranted = matters.length > 0;
+      matters.forEach(matter => {
+        const matterKey = matter.key;
+        const matterLabel = lang === 'en' ? (matter.label_en || matter.label) : matter.label;
+        const privilegeLabel = lang === 'en' ? (matter.privilegeLabel_en || matter.privilegeLabel) : matter.privilegeLabel;
+        const p0 = guildPhase0[matterKey] || { status: 'none' };
+        const p2 = guildPravo[matterKey] || { status: 'none' };
+        if (p2.status !== 'granted') allGranted = false;
+
+        let phase0Html = '';
+        if (p0.status === 'none') {
+          phase0Html = `<button onclick="Game.submitGuildPhase0Petition('${id}','${matterKey}')" style="font-size:0.72rem; padding:4px 10px; cursor:pointer; background:rgba(197,160,89,0.15); border:1px solid var(--accent-gold); border-radius:4px;">📜 ${lang === 'en' ? 'Phase 0: Ask Abbot to open negotiations' : '📜 Fáze 0: Požádat opata o zahájení jednání'}</button>`;
+        } else if (p0.status === 'pending') {
+          phase0Html = `<span style="font-size:0.72rem; opacity:0.7; font-style:italic;">⏳ ${lang === 'en' ? 'Phase 0: Abbot negotiating (~24h)...' : 'Fáze 0: Opat vyjednává (~24h)...'}</span>`;
+        } else {
+          phase0Html = `<span style="font-size:0.72rem; color:#4CAF50; font-weight:bold;">✅ ${lang === 'en' ? 'Phase 0: Negotiations Open' : 'Fáze 0: Jednání otevřeno'}</span>`;
+        }
+
+        let phase2Html = '';
+        if (p0.status === 'approved') {
+          if (p2.status === 'none') {
+            if (rel >= 50 && hasTech) {
+              phase2Html = `<button onclick="Game.submitGuildPetition('${id}','${matterKey}')" style="font-size:0.72rem; padding:4px 10px; margin-left:8px; cursor:pointer; background:rgba(76,175,80,0.15); border:1px solid #4CAF50; border-radius:4px;">📜 ${lang === 'en' ? 'Phase 2: Request Privilege (1 gold ingot)' : '📜 Fáze 2: Žádost o Privilegium (1× zlatý prut)'}</button>`;
+            } else {
+              const missingTech = !hasTech ? (lang === 'en' ? 'requires tech "Ius Terrae"' : 'vyžaduje tech "Ius Terrae"') : '';
+              const missingRel = rel < 50 ? (lang === 'en' ? 'requires relation 50+' : 'vyžaduje vztah 50+') : '';
+              const reason = [missingTech, missingRel].filter(Boolean).join(' & ');
+              phase2Html = `<span style="font-size:0.68rem; opacity:0.6; margin-left:8px; font-style:italic;">🔒 Phase 2: ${reason}</span>`;
+            }
+          } else if (p2.status === 'pending' || p2.status === 'negotiating') {
+            phase2Html = `<span style="font-size:0.72rem; opacity:0.7; margin-left:8px; font-style:italic;">⏳ ${lang === 'en' ? 'Phase 2: Ratification in progress (~24h)' : 'Fáze 2: Ratifikace probíhá (~24h)'}</span>`;
+          } else if (p2.status === 'granted') {
+            phase2Html = `<span style="font-size:0.72rem; color:#4CAF50; font-weight:bold; margin-left:8px;">✅ ${lang === 'en' ? 'Privilege Granted (10% fee)' : 'Privilegium Uděleno (10% poplatek)'}</span>`;
+          }
+        }
+
+        mattersHtml += `<div style="margin-bottom:8px; padding-bottom:8px; border-bottom:1px dashed rgba(197,160,89,0.15);">
+          <div style="font-size:0.73rem; opacity:0.7; margin-bottom:4px;">⚖️ ${lang === 'en' ? 'Scope' : 'Účinek'}: <strong>${privilegeLabel}</strong></div>
+          <div style="display:flex; justify-content:flex-start; align-items:center; flex-wrap:wrap; gap:4px;">${phase0Html} ${phase2Html}</div>
+        </div>`;
+      });
+
+      let giftHtml = '';
+      if (!allGranted) {
         const cd = (GameState.guildGiftCooldown && GameState.guildGiftCooldown[id]) || 0;
-        const cdLeftMs = Game.GUILD_GIFT_COOLDOWN_MS - (Date.now() - cd);
+        const cdMs = (typeof PetitionManager !== 'undefined' ? PetitionManager.GUILD_GIFT_COOLDOWN_MS : 86400000);
+        const cdLeftMs = cdMs - (Date.now() - cd);
         if (cdLeftMs > 0) {
           const hrs = Math.ceil(cdLeftMs / 3600000);
-          actionHtml += `<span style="font-size:0.68rem; opacity:0.5; margin-left:8px;">🎁 ${hrs}h</span>`;
+          giftHtml = `<span style="font-size:0.68rem; opacity:0.5; margin-left:8px;">🎁 ${hrs}h</span>`;
         } else {
-          actionHtml += `<button onclick="Game.sendGuildGift('${id}')" style="font-size:0.72rem; padding:4px 10px; margin-left:8px; cursor:pointer;">🎁 ${lang === 'en' ? 'Gift' : 'Dar'}</button>`;
+          giftHtml = `<button onclick="Game.sendGuildGift('${id}')" style="font-size:0.72rem; padding:4px 10px; margin-left:8px; cursor:pointer;">🎁 ${lang === 'en' ? 'Send Gift' : 'Poslat dar'}</button>`;
         }
       }
 
-      h += `<div style="display:flex; justify-content:space-between; align-items:center; padding:10px 12px; margin-bottom:8px; background:rgba(197,160,89,0.06); border-radius:6px;">
-        <div>
-          <div style="font-weight:bold; font-size:0.88rem;">${name}</div>
-          <div style="font-size:0.74rem; opacity:0.75;">${lang === 'en' ? 'relation' : 'vztah'} ${rel}/100 · ${lang === 'en' ? 'tension' : 'napětí'} ${tensionLabel} · ${lang === 'en' ? 'right' : 'právo'}: ${pravoLabel}</div>
+      h += `<div style="padding:12px 14px; margin-bottom:10px; background:rgba(197,160,89,0.06); border-radius:8px; border:1px solid rgba(197,160,89,0.2);">
+        <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:6px;">
+          <div>
+            <div style="font-weight:bold; font-size:0.95rem;">${masterIcon} ${name} — <span style="font-size:0.85rem; font-weight:normal; opacity:0.85;">${masterName}</span></div>
+            <div style="font-size:0.76rem; opacity:0.75; font-style:italic; margin-top:2px;">"${desc}"</div>
+          </div>
+          <div style="text-align:right; font-family:monospace; font-size:0.8rem; background:rgba(0,0,0,0.05); padding:4px 8px; border-radius:4px;">
+            <div>${lang === 'en' ? 'Rel' : 'Vztah'}: <strong>${rel}/100</strong> <span style="${trend.color}">${trend.arrow} ${trend.delta}</span></div>
+            <div style="font-size:0.7rem; opacity:0.8; letter-spacing:1px; margin-top:2px;">[ ${sparkline} ]</div>
+          </div>
         </div>
-        <div>${actionHtml}</div>
+
+        <div style="font-size:0.73rem; opacity:0.7; margin-bottom:8px;">
+          🔥 ${lang === 'en' ? 'World Tension' : 'Světové napětí'}: <strong>${tensionLabel}</strong>
+        </div>
+
+        ${mattersHtml}
+
+        <div style="display:flex; justify-content:flex-end; align-items:center; padding-top:2px;">
+          ${giftHtml}
+        </div>
       </div>`;
     });
 
-    // Do Zakázek (Lore → Commitments) — odtamtud se plní cechovní dopisy,
-    // co budují relation (K3 Cesta A). "Do Porty" v duchu zadání, cíleno
-    // přesně na Zakázky tab, ne na Portu samotnou (jiná záložka, stejná
-    // viditelnostní podmínka GameState.flags.porta_active).
     h += `<button onclick="UI.switchScreen('lore', document.getElementById('nav-lore')); UI.switchLoreTab('commitments');"
-            style="width:100%; margin-top:6px; padding:10px; cursor:pointer; font-size:0.82rem;">
-      📜 ${lang === 'en' ? 'Go to Commissions' : 'Do Zakázek'}
+            style="width:100%; margin-top:6px; padding:10px; cursor:pointer; font-size:0.82rem; background:rgba(197,160,89,0.1); border:1px solid var(--accent-gold); border-radius:6px;">
+      📜 ${lang === 'en' ? 'Go to Guild Commissions (Lore → Commitments)' : 'Do Zakázek cechů (Lore → Commitments)'}
     </button>`;
 
     h += `</div>`;
