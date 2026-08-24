@@ -483,6 +483,72 @@ const CommitmentsSystem = {
                 guildRelationReward: 6,
             },
         ],
+        // Rezervní cechy (v0.6, doplněno 24.8.2026) — dobově podložené motivy:
+        // Assisa Panis (dobová váha/cena chleba vázaná na cenu obilí, doložený
+        // institut napříč středověkou Evropou), martinská zabijačka (11.11.,
+        // hlavní podzimní porážkový termín, sůl = jediné konzervační médium
+        // před chladem), ztracenovoskové lití (cire perdue, doložená
+        // zlatnická technika, potřebuje čistý včelí vosk), a přímo z podkladu
+        // (nahraný historický rozbor cechů) — bezpečné uložení cechovních
+        // stanov v kamenné knihovně, tady jako kontrast k mlynářské příhodě
+        // s ohořelými artikuliemi (dílny koželuhů byly obzvlášť požárově
+        // rizikové — třísla, oleje, kůže).
+        pekarsky: [
+            {
+                key: 'pujcka_mouky',
+                icon: '🥖',
+                senderName_cs: 'Pekařský cech', senderName_en: "The Bakers' Guild",
+                title_cs: 'Výpůjčka mouky do pece',
+                title_en: 'A Loan of Flour for the Ovens',
+                text_cs: 'Obecní radou předepsaná váha chleba nečeká na zpožděný povoz s obilím. Pekařský cech prosí klášter o výpomoc moukou, než dorazí vlastní dodávka — jinak hrozí pokuta za odlehčené bochníky.',
+                text_en: "The town-mandated weight of bread will not wait for a delayed grain wagon. The bakers' guild asks the monastery for flour to tide them over until their own delivery arrives — or they risk a fine for underweight loaves.",
+                requiredItems: [{ id: 'flour', qty: 4 }],
+                rewardGrose: 6,
+                guildRelationReward: 6,
+            },
+        ],
+        reznicky: [
+            {
+                key: 'sul_na_zabijacku',
+                icon: '🧂',
+                senderName_cs: 'Řeznický cech', senderName_en: "The Butchers' Guild",
+                title_cs: 'Sůl na podzimní zabijačku',
+                title_en: 'Salt for the Autumn Slaughter',
+                text_cs: 'Kolem svatého Martina se zabíjí dobytek, co by přes zimu jen žral zbytečně — a bez soli maso do jara nevydrží. Řeznický cech došla sůl dřív, než skončila porážka, a prosí klášter o výpomoc.',
+                text_en: "Around Martinmas the cattle that would only eat through winter are slaughtered — and without salt, the meat will not last to spring. The butchers' guild ran out of salt before the slaughter was done, and asks the monastery for help.",
+                requiredItems: [{ id: 'salt', qty: 4 }],
+                rewardGrose: 8,
+                guildRelationReward: 6,
+            },
+        ],
+        zlatnicky: [
+            {
+                key: 'vosk_na_odlevani',
+                icon: '👑',
+                senderName_cs: 'Zlatnický cech', senderName_en: "The Goldsmiths' Guild",
+                title_cs: 'Vosk na odlévání',
+                title_en: 'Wax for Lost-Wax Casting',
+                text_cs: 'Na jemný reliéf klenotových spon a desk potřebuje zlatník čistý, nezaprášený vosk pro techniku ztraceného vosku — a klášterní úly prý dávají ten nejčistší v kraji.',
+                text_en: "For the fine relief of jeweled clasps and covers the goldsmith needs pure, unsullied wax for the lost-wax casting technique — and the monastery's hives, they say, yield the purest in the region.",
+                requiredItems: [{ id: 'beeswax', qty: 3 }],
+                rewardGrose: 10,
+                guildRelationReward: 6,
+            },
+        ],
+        kozeluzsky: [
+            {
+                key: 'stanovy_do_kamene',
+                icon: '📜',
+                senderName_cs: 'Koželužský cech', senderName_en: "The Tanners' Guild",
+                title_cs: 'Stanovy do kamenné knihovny',
+                title_en: 'Statutes for the Stone Archive',
+                text_cs: 'Doslechli se, jak mlynářům skoro shořely artikule v krámě. Koželužská dílna, plná třísel, olejů a kůží, hoří ještě snáz — cech prosí, aby Armarius jejich stanovy přepsal na pergamen a uložil v kamenné knihovně, kam jiskra nedosáhne.',
+                text_en: "Word reached them of how the millers nearly lost their articles to a shop fire. A tannery — thick with tanbark, oils, and hides — burns easier still. The guild asks that the Armarius copy their statutes onto vellum and lodge them in the stone library, beyond any spark's reach.",
+                requiredItems: [{ id: 'vellum', qty: 1 }, { id: 'ink', qty: 1 }],
+                rewardGrose: 10,
+                guildRelationReward: 6,
+            },
+        ],
     },
 
     // zakazky-rozsireni-ctyri-kategorie-mrd.md, Kategorie C (9.8.2026) —
