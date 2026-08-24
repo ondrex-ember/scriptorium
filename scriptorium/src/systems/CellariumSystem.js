@@ -856,7 +856,7 @@ const CellariumSystem = {
   // dokud nepřijde Furnus.
   renderCechyStatus: function(lang) {
     if (typeof GuildsDB === 'undefined') return '';
-    const activeGuilds = (typeof getActiveGuilds === 'function') ? getActiveGuilds() : GUILDS_BASE_ACTIVE;
+    const activeGuilds = (typeof getActiveGuilds === 'function') ? getActiveGuilds() : (typeof GUILDS_BASE_ACTIVE !== 'undefined' ? GUILDS_BASE_ACTIVE : []);
     const snap = (typeof ChroniconSystem !== 'undefined' && ChroniconSystem._snap) ? ChroniconSystem._snap : null;
     const worldGuilds = (snap && snap.guilds) || null;
     const guildRelation = GameState.guildRelation || {};
@@ -1823,7 +1823,7 @@ const CellariumSystem = {
     if (typeof GuildsDB === 'undefined') {
       return `<div style="padding:20px; opacity:0.6; text-align:center;">⚖️</div>`;
     }
-    const activeGuilds = (typeof getActiveGuilds === 'function') ? getActiveGuilds() : GUILDS_BASE_ACTIVE;
+    const activeGuilds = (typeof getActiveGuilds === 'function') ? getActiveGuilds() : (typeof GUILDS_BASE_ACTIVE !== 'undefined' ? GUILDS_BASE_ACTIVE : []);
     const snap = (typeof ChroniconSystem !== 'undefined' && ChroniconSystem._snap) ? ChroniconSystem._snap : null;
     const worldGuilds = (snap && snap.guilds) || null;
     const guildRelation = GameState.guildRelation || {};
