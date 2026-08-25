@@ -1136,15 +1136,12 @@ const ConversiManager = {
                 : 'ℹ️ Nic nesebráno — zkontroluj, že tam někdo je přiřazený a pracuje.', true);
         }
         // switchEntity() cílilo přímo na #cellarium-content, ale nad ním je
-        // v shell.html obalový #home-cellarium-content s vlastním dirty-flag
-        // systémem — bez nastavení UI._dirty.cellarium se refresh nepromítne
-        // hned (musel se počkat na nějaký JINÝ trigger, odtud dojem "funguje
-        // až na druhý klik"). Přepojeno na stejný ověřený vzor jako well.js.
-        if (typeof UI !== 'undefined') {
-            if (!UI._dirty) UI._dirty = {};
-            UI._dirty.cellarium = true;
-            UI.renderAll();
-        }
+        // v shell.html obalový #home-cellarium-content — dřív potřeboval
+        // vlastní dirty-flag, aby se refresh promítl hned (jinak dojem
+        // "funguje až na druhý klik"). subtab-refresh-manager (25.8.2026,
+        // core/ui.js) teď pokrývá home-cellarium-content centrálně přes
+        // UI.renderAll() -> refreshVisibleSubtabs(), žádný dirty-flag netřeba.
+        if (typeof UI !== 'undefined') UI.renderAll();
     },
 
     // Jen čte, nic nemění. Pro dashboard kartu jednoho tabu.
