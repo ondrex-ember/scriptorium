@@ -28,6 +28,29 @@ const ConversiManager = {
         return 0;
     },
 
+    // TECH DEBT #24 (memory 17.7.2026) — sdílený výkonový hook napříč
+    // task-tick funkcemi. Mirror dormitoriumBrotherMult, ale pro
+    // konvrš/famula/obláta místo bratra. Řeší mezeru: Oblát dřív
+    // produkoval identicky jako zaučený Konvrš, i když MRD
+    // (clientela-conversi-porta-reference.md §2.2) ho popisuje jako
+    // "málo platný zpočátku, investice do budoucna".
+    // Schváleno (conversi-efficiency-mrd-25-8-2026.md): Oblát rampa
+    // 0.4→1.0 lineárně přes 30denní dozrávání (k.hiredAt/k.matureAt už
+    // existují z hireOblat). Famulus i řádný Konvrš (type null) = 1.0,
+    // beze změny. Traity (pilny/silak) zůstávají nezávislé — řeší
+    // fatigue-gate a workGain samy, tenhle hook je nekombinuje.
+    // Scope v1 = 8 numerických tasků (zahony/sad/apiarium/piscina/pole/
+    // vinohrad/kostel/hrbitov). Dvůr (boolean task) vědomě mimo scope.
+    conversiEfficiency: function (k) {
+        if (!k) return 1.0;
+        if (k.type === 'oblat') {
+            if (!k.hiredAt || !k.matureAt) return 0.4;
+            const progress = (Date.now() - k.hiredAt) / (k.matureAt - k.hiredAt);
+            return 0.4 + 0.6 * Math.max(0, Math.min(1, progress));
+        }
+        return 1.0;
+    },
+
     // ── DORMITORIUM — kapacita bratrů (mniši/skriptoři, manažerská vrstva) ──
     dormitoriumCapacity: function () {
         const s = GameState.storage || {};
@@ -1500,6 +1523,7 @@ const ConversiManager = {
                 let growthSpeed = CONFIG.GROWTH_SPEED;
                 if (GameState.researchedTechs.includes('tech_advanced_farming')) growthSpeed *= 2.0;
                 const brotherMult = gardenBrother ? this.dormitoriumBrotherMult(gardenBrother, 'zahony') : 1.0;
+                const kEff = this.conversiEfficiency(gardener); // TECH DEBT #24 — Oblát rampa
                 const harvested = {};
 
                 GameState.garden.forEach(plot => {
@@ -1536,7 +1560,7 @@ const ConversiManager = {
                         let _fertMultAuto = 0.6;
                         if (_wasFertStage >= 1) _fertMultAuto = (_wasFertQuality === 2) ? 1.15 : 1.0;
                         if (_wasMidGrowFertilized) _fertMultAuto = 1.3;
-                        const totalMult = _yieldMult * brotherMult * _fertMultAuto;
+                        const totalMult = _yieldMult * brotherMult * kEff * _fertMultAuto;
                         const track = (id, qty) => { harvested[id] = (harvested[id] || 0) + qty; };
                         if (_gp) {
                             const q = Math.max(1, Math.round(_gp.yield * totalMult));
@@ -1599,6 +1623,7 @@ const ConversiManager = {
                 GameState.conversiOrchardLastTick = Date.now();
                 let didHarvest = false;
                 const brotherMult = orchardBrother ? this.dormitoriumBrotherMult(orchardBrother, 'sad') : 1.0;
+                const kEff = this.conversiEfficiency(orchardKeeper); // TECH DEBT #24 — Oblát rampa
                 const harvested = {};
 
                 const TREE_DATA = {
@@ -1625,7 +1650,7 @@ const ConversiManager = {
                     const fruit = TREE_FRUITS[slot.treeType];
                     if (!fruit) return;
                     const baseQty = (slot.treeType === 'seed_walnut' || slot.treeType === 'seed_sorb') ? 2 : 3;
-                    const qty = Math.max(1, Math.round(baseQty * brotherMult));
+                    const qty = Math.max(1, Math.round(baseQty * brotherMult * kEff));
                     Game.addItem(fruit, qty);
                     harvested[fruit] = (harvested[fruit] || 0) + qty;
                     if (slot.treeType === 'seed_linden') Game.addItem('linden_blossom', 1);
@@ -1674,6 +1699,7 @@ const ConversiManager = {
                 const now = Date.now();
                 const weatherMod = Game._apiaryWeatherMod();
                 const brotherMult = apiaryBrother ? this.dormitoriumBrotherMult(apiaryBrother, 'apiarium') : 1.0;
+                const kEff = this.conversiEfficiency(beekeeper); // TECH DEBT #24 — Oblát rampa
                 let honeyGained = 0, waxGained = 0, varroaTreated = 0, fedHives = 0, veteranQueens = 0;
 
                 GameState.apiary.forEach(hive => {
@@ -1717,8 +1743,8 @@ const ConversiManager = {
                     const queenMod = (hive.queenStrength || 3) / 3;
                     const honeyBase = { spring: 1, summer: 3, autumn: 1 };
                     const waxBase = { spring: 1, summer: 1, autumn: 2 };
-                    const hQty = Math.max(1, Math.round(honeyBase[season] * strengthMod * queenMod * weatherMod * varroaPenalty * brotherMult));
-                    const wQty = Math.max(1, Math.round(waxBase[season] * strengthMod * varroaPenalty * brotherMult));
+                    const hQty = Math.max(1, Math.round(honeyBase[season] * strengthMod * queenMod * weatherMod * varroaPenalty * brotherMult * kEff));
+                    const wQty = Math.max(1, Math.round(waxBase[season] * strengthMod * varroaPenalty * brotherMult * kEff));
                     Game.addItem('honey', hQty);
                     Game.addItem('beeswax', wQty);
                     honeyGained += hQty; waxGained += wQty;
@@ -1798,6 +1824,7 @@ const ConversiManager = {
                 const p = GameState.piscina;
                 let didWork = false;
                 const brotherMult = piscinaBrother ? this.dormitoriumBrotherMult(piscinaBrother, 'piscina') : 1.0;
+                const kEff = this.conversiEfficiency(fisherman); // TECH DEBT #24 — Oblát rampa
                 let didFeed = false, didTransfer = false, carpCaught = 0;
 
                 // Krmení — spotřebuje fiber podle počtu ryb všech stupňů
@@ -1822,7 +1849,7 @@ const ConversiManager = {
                 // sklidily jako 'carp' bez ohledu na skutečný druh (viz Sprint 4).
                 const carpTotal = (p.fish || []).filter(r => r.stage === 'adult' && r.species === 'kapr').reduce((s, r) => s + r.qty, 0);
                 if (carpTotal > 0) {
-                    const qty = Math.max(carpTotal, Math.round(carpTotal * brotherMult));
+                    const qty = Math.max(carpTotal, Math.round(carpTotal * brotherMult * kEff));
                     (p.fish || []).forEach(r => { if (r.stage === 'adult' && r.species === 'kapr') r.qty = 0; });
                     Game.addItem('carp', qty);
                     didWork = true; carpCaught = qty;
@@ -1877,6 +1904,7 @@ const ConversiManager = {
                 const techs = GameState.researchedTechs || [];
                 const waterCost = techs.includes('tech_field_irrigation') ? 1 : 2;
                 const brotherMult = fieldBrother ? this.dormitoriumBrotherMult(fieldBrother, 'pole') : 1.0;
+                const kEff = this.conversiEfficiency(plowman); // TECH DEBT #24 — Oblát rampa
                 const harvested = {};
 
                 GameState.fields.forEach((field, idx) => {
@@ -1896,8 +1924,9 @@ const ConversiManager = {
                         Object.keys(GameState.inventory).forEach(itemId => {
                             let gained = (GameState.inventory[itemId] || 0) - (before[itemId] || 0);
                             if (gained <= 0) return;
-                            if (brotherMult > 1.0) {
-                                const bonus = Math.round(gained * (brotherMult - 1.0));
+                            const combinedMult = brotherMult * kEff;
+                            if (combinedMult > 1.0) {
+                                const bonus = Math.round(gained * (combinedMult - 1.0));
                                 if (bonus > 0) { Game.addItem(itemId, bonus); gained += bonus; }
                             }
                             harvested[itemId] = (harvested[itemId] || 0) + gained;
@@ -1950,6 +1979,7 @@ const ConversiManager = {
                 const techs = GameState.researchedTechs || [];
                 const waterCost = techs.includes('tech_field_irrigation') ? 1 : 2;
                 const brotherMult = vineaBrother ? this.dormitoriumBrotherMult(vineaBrother, 'vinohrad') : 1.0;
+                const kEff = this.conversiEfficiency(vintner); // TECH DEBT #24 — Oblát rampa
                 let prunedCount = 0;
                 const harvested = {};
 
@@ -1983,8 +2013,9 @@ const ConversiManager = {
                         Object.keys(GameState.inventory).forEach(itemId => {
                             let gained = (GameState.inventory[itemId] || 0) - (before[itemId] || 0);
                             if (gained <= 0) return;
-                            if (brotherMult > 1.0) {
-                                const bonus = Math.round(gained * (brotherMult - 1.0));
+                            const combinedMult = brotherMult * kEff;
+                            if (combinedMult > 1.0) {
+                                const bonus = Math.round(gained * (combinedMult - 1.0));
                                 if (bonus > 0) { Game.addItem(itemId, bonus); gained += bonus; }
                             }
                             harvested[itemId] = (harvested[itemId] || 0) + gained;
