@@ -673,6 +673,33 @@ const CalendarSystem = {
         CalendarSystem._showSamhainModal();
     },
 
+    // Header quick-glance (kalendar-widget-audit-25-8-2026.md §2, schváleno
+    // 25.8.2026) — mirror AbbotSystem.renderPill()/openTab() vzoru. Gate
+    // stejný jako render(): tech_astronomy + vyrobený perpetuum_calendarium.
+    // Zobrazuje lunární ikonu dneška + zkrácené latinské datum (žádný
+    // reálný rok, jen den+měsíc — GAME_YEAR zůstává mimo scope tohohle patche).
+    renderPill: function () {
+        const pill = document.getElementById('pill-calendarium');
+        if (!pill) return;
+        const hasTech = GameState.researchedTechs && GameState.researchedTechs.includes('tech_astronomy');
+        const hasCal = (GameState.inventory && (GameState.inventory['perpetuum_calendarium'] || 0) > 0);
+        if (!hasTech || !hasCal) { pill.style.display = 'none'; return; }
+        pill.style.display = '';
+        const now = new Date();
+        const moon = this.getLunarPhase(now).icon8;
+        const monthLat = this.MONTHS_LAT[now.getMonth()];
+        const iconEl = document.getElementById('pill-calendarium-icon');
+        const valEl = document.getElementById('pill-calendarium-val');
+        if (iconEl) iconEl.textContent = moon;
+        if (valEl) valEl.textContent = now.getDate() + '. ' + monthLat.slice(0, 3);
+    },
+
+    openTab: function () {
+        if (typeof UI === 'undefined') return;
+        UI.switchScreen('lore', document.getElementById('nav-lore'));
+        UI.switchLoreTab('calendarium', document.getElementById('lore-tab-calendarium'));
+    },
+
     // ── Hlavní render ─────────────────────────────────────────────────────────
     render: function () {
         const el = document.getElementById('lore-calendarium-content');
