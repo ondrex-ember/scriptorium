@@ -337,6 +337,111 @@ const EventsSystem = {
             ]
         },
 
+        // B-Cechy — Cechovní rváči (guild tension >= 70, důsledek fušerství —
+        // mirror inq_raid, MRD v0.2 §2.3 / v0.7, 25.8.2026). Tension je sdílená
+        // world-hodnota z CHRONICONu — event ji lokálně NERESETUJE (to by bylo
+        // falešné přepsání sdíleného stavu). Volby řeší jen lokální důsledek
+        // TÉHLE konkrétní srážky, ne politické napětí samotné — to dál řídí
+        // kurzor v engine.js (klesá samo, když fušerství přestane).
+        {
+            id: 'guild_raid',
+            icon: '⚔️',
+            title: () => (GameState.settings && GameState.settings.language === 'en') ? 'Guild Enforcers' : 'Cechovní rváči',
+            text: () => {
+                const en = GameState.settings && GameState.settings.language === 'en';
+                const gid = GameState.flags && GameState.flags.guildRaidTarget;
+                const g = (typeof GuildsDB !== 'undefined' && gid) ? GuildsDB[gid] : null;
+                const gName = g ? (en ? g.name_en : g.name) : (en ? 'a guild' : 'nějaký cech');
+                return en
+                    ? `*Word of your dealings reached the wrong ears at ${gName}. Rough men with cudgels stop the next wagon on the road out — not yet a war, but the message is plain: sell without leave, and the road grows unsafe.*`
+                    : `*Zvěsti o vašich kšeftech dolehly ke špatným uším u cechu ${gName}. Drsní muži s obušky zastaví příští povoz na cestě z brány — zatím ne válka, ale poselství je jasné: prodávej bez povolení, a cesta přestane být bezpečná.*`;
+            },
+            cooldownDays: 21,
+            trigger: () => {
+                const snap = (typeof ChroniconSystem !== 'undefined' && ChroniconSystem._snap) ? ChroniconSystem._snap : null;
+                const worldGuilds = (snap && snap.guilds) || null;
+                if (!worldGuilds) return false;
+                const active = (typeof getActiveGuilds === 'function') ? getActiveGuilds() : [];
+                for (const gid of active) {
+                    const gState = worldGuilds[gid];
+                    if (gState && (gState.tension || 0) >= 70) {
+                        if (!GameState.flags) GameState.flags = {};
+                        GameState.flags.guildRaidTarget = gid;
+                        return true;
+                    }
+                }
+                return false;
+            },
+            choices: [
+                {
+                    label: () => (GameState.settings && GameState.settings.language === 'en') ? 'Pay off the enforcers (200 groše)' : 'Vyplatit rváče (200 grošů)',
+                    desc: () => (GameState.settings && GameState.settings.language === 'en')
+                        ? 'Costly, but the wagon and its cargo stay untouched.'
+                        : 'Drahé, ale povoz i náklad zůstanou netknuté.',
+                    action: () => {
+                        const en = GameState.settings && GameState.settings.language === 'en';
+                        if (CellariumSystem.getGrose() < 200) {
+                            const msg = en
+                                ? 'You do not have 200 groše. They take what they please instead.'
+                                : 'Nemáte 200 grošů. Místo toho si vezmou, co se jim zlíbí.';
+                            UI.notifyPanel(msg, 'warning');
+                            return msg;
+                        }
+                        CellariumSystem.spendGrose(200);
+                        const msg = en
+                            ? 'A purse changes hands on the road. The men step aside — the wagon rolls on, cargo intact.'
+                            : 'Na cestě mění měšec majitele. Muži uhýbají — povoz jede dál, náklad netknutý.';
+                        UI.notifyPanel(msg, 'system');
+                        EventsSystem._addKronika(msg);
+                        return msg;
+                    }
+                },
+                {
+                    label: () => (GameState.settings && GameState.settings.language === 'en') ? 'Refuse — let it be' : 'Odmítnout — nechat být',
+                    desc: () => (GameState.settings && GameState.settings.language === 'en')
+                        ? 'Free, but they take goods from the wagon as their toll.'
+                        : 'Zadarmo, ale vezmou si z povozu zboží jako svoje mýto.',
+                    action: () => {
+                        const en = GameState.settings && GameState.settings.language === 'en';
+                        const gid = GameState.flags && GameState.flags.guildRaidTarget;
+                        const g = (typeof GuildsDB !== 'undefined' && gid) ? GuildsDB[gid] : null;
+                        // Vezmou přednostně zboží z kategorie napadeného cechu (tematicky
+                        // přesné — "povoz s fušersky prodávanou mlékou"), jinak pár grošů.
+                        let stolenLabel = null, stolenQty = 0;
+                        if (g && g.matters) {
+                            for (const m of g.matters) {
+                                for (const itemId of (m.affectedGoods || [])) {
+                                    const have = GameState.inventory[itemId] || 0;
+                                    if (have > 0) {
+                                        stolenQty = Math.min(have, Math.max(1, Math.floor(have * 0.3)));
+                                        Game.removeItem(itemId, stolenQty);
+                                        stolenLabel = itemId;
+                                        break;
+                                    }
+                                }
+                                if (stolenLabel) break;
+                            }
+                        }
+                        let msg;
+                        if (stolenLabel) {
+                            msg = en
+                                ? `They ransack the wagon and make off with ${stolenQty}× ${stolenLabel}.`
+                                : `Vyrabují povoz a odnesou si ${stolenQty}× ${stolenLabel}.`;
+                        } else {
+                            const groseLost = Math.min(CellariumSystem.getGrose(), 80);
+                            CellariumSystem.spendGrose(groseLost);
+                            msg = en
+                                ? `The wagon carried little of value — they take ${groseLost} groše from your purse instead.`
+                                : `Povoz vezl málo cenného — vezmou si tedy ${groseLost} grošů z měšce.`;
+                        }
+                        UI.notifyPanel(msg, 'warning');
+                        EventsSystem._addKronika(msg);
+                        return msg;
+                    }
+                }
+            ]
+        },
+
         // B3 — Záhadný poutník s ingrediencí
         {
             id: 'athanor_pilgrim_ingredient',
