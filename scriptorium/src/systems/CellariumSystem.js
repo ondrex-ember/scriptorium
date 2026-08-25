@@ -1789,12 +1789,15 @@ const CellariumSystem = {
       GameState.activeGuilds = ['mlynarsky', 'truhlarsky', 'kolarsky', 'kovarsky'];
     }
 
+    // v0.7 oprava (24.8.2026) — 'sausage'/'jeweled_binding'/'gold_leaf' jsou
+    // fiktivní ID bez krytí v items.js (stejný nález jako affectedGoods audit).
+    // Mapováno na reálné itemy — jinak tyhle větve OR podmínky nikdy nesplní.
     const triggers = {
       pekarsky: (GameState.researchedTechs && GameState.researchedTechs.includes('tech_fornax')) ||
                 (GameState.storage && GameState.storage.fornax && GameState.storage.fornax.built) ||
                 ((GameState.inventory && GameState.inventory['flour'] || 0) >= 10),
-      reznicky: (GameState.inventory && ((GameState.inventory['meat'] || 0) + (GameState.inventory['sausage'] || 0)) >= 10),
-      zlatnicky: (GameState.inventory && ((GameState.inventory['zlaty_prut'] || 0) >= 1 || (GameState.inventory['jeweled_binding'] || 0) >= 1 || (GameState.inventory['gold_leaf'] || 0) >= 1)),
+      reznicky: (GameState.inventory && ((GameState.inventory['meat'] || 0) + (GameState.inventory['cured_meat'] || 0)) >= 10),
+      zlatnicky: (GameState.inventory && ((GameState.inventory['zlaty_prut'] || 0) >= 1 || (GameState.inventory['aurum_musicum'] || 0) >= 1)),
       kozeluzsky: (GameState.researchedTechs && (GameState.researchedTechs.includes('tech_ligatura') || GameState.researchedTechs.includes('tech_compactura')))
     };
 
