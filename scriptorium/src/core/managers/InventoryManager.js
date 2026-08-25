@@ -459,6 +459,22 @@ const InventoryManager = {
         if (!item || (item.type !== 'food' && !_isPotionCure && !_isRawEdible)) { UI.notify(t('game.notFood'), true); return; }
         if (!(GameState.inventory[foodId] > 0)) { UI.notify(t('game.noFood'), true); return; }
 
+        // B6 smart no-op guard (eating-noop-guard-spec-25-8-2026, schváleno
+        // 9.8.2026) — jen za tech_mensura_ciborum. Blokuje JEN plain food
+        // bez vedlejšího efektu, když je satiety už na stropu. Záporný
+        // FOOD_FATIGUE (stew/tisane) guard neblokuje — ten efekt platí i
+        // při plné sytosti. _isPotionCure/_isRawEdible mimo scope.
+        if (item.type === 'food' && !_isRawEdible && typeof VigorSystem !== 'undefined'
+            && GameState.researchedTechs && GameState.researchedTechs.includes('tech_mensura_ciborum')) {
+            const atCap = (GameState.satiety || 0) >= VigorSystem.MAX_SATIETY;
+            const fatChange = VigorSystem.FOOD_FATIGUE[foodId] || 0;
+            if (atCap && fatChange >= 0) {
+                const lang = (GameState.settings && GameState.settings.language) || 'cs';
+                UI.notify(lang === 'en' ? 'Already full — this would do nothing.' : 'Už jsi sytý — tohle by nic nezměnilo.', true);
+                return;
+            }
+        }
+
         InventoryManager.removeItem(foodId, 1);
 
         // Vigor systém v2 — VigorSystem.eat() zpracuje Satiety + Fatigue ('food' i syrové jedlé položky)
