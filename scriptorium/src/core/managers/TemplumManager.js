@@ -1029,12 +1029,16 @@ const TemplumManager = {
             .sort((a, b) => a.fatigue - b.fatigue)[0];
         if (cleaner || kostelBrother) {
             const brotherMult = kostelBrother ? Game.dormitoriumBrotherMult(kostelBrother, 'kostel') : 1.0;
+            const kEff = Game.conversiEfficiency(cleaner); // TECH DEBT #24 — Oblát rampa
             if (cleaner) cleaner.fatigue = Math.min(100, cleaner.fatigue + 5);
             if (kostelBrother) {
                 Game.dormitoriumAddXp(kostelBrother, 'kostel');
                 kostelBrother.fatigue = Math.min(100, (kostelBrother.fatigue || 0) + 5);
             }
-            t.cleanUntil = now + Math.round(48 * 60 * 60 * 1000 * brotherMult);
+            // Nezaučený Oblát odvede horší práci — kEff<1 zkrátí cleanUntil,
+            // kostel se zašpiní dřív. Stejná pozice jako brotherMult, jen
+            // násobí totéž trvání dolů místo nahoru.
+            t.cleanUntil = now + Math.round(48 * 60 * 60 * 1000 * brotherMult * kEff);
             t.lastCleaner = Game._workCredit(kostelBrother, cleaner);
         }
         // Fabrica: strukturální stav budovy pomalu chátrá, rychleji u vyšších úrovní
@@ -1060,12 +1064,13 @@ const TemplumManager = {
             .sort((a, b) => a.fatigue - b.fatigue)[0];
         if (cemCleaner || templumBrother) {
             const brotherMult = templumBrother ? Game.dormitoriumBrotherMult(templumBrother, 'kostel') : 1.0;
+            const kEff = Game.conversiEfficiency(cemCleaner); // TECH DEBT #24 — Oblát rampa
             if (cemCleaner) cemCleaner.fatigue = Math.min(100, cemCleaner.fatigue + 5);
             if (templumBrother) {
                 Game.dormitoriumAddXp(templumBrother, 'kostel');
                 templumBrother.fatigue = Math.min(100, (templumBrother.fatigue || 0) + 5);
             }
-            cem.condition = Math.min(100, cem.condition + 5 * brotherMult);
+            cem.condition = Math.min(100, cem.condition + 5 * brotherMult * kEff);
             cem.lastCleaner = Game._workCredit(templumBrother, cemCleaner);
         }
         cem.condition = Math.max(0, cem.condition - 1); // pomalé zarůstání bez péče
