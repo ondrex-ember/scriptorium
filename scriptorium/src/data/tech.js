@@ -49,6 +49,10 @@ const TechTree = [
 
   // TIER 4 - Klášterní tradice
   { id: "tech_monastery_wisdom", name: "Klášterní Moudrost", name_en: "Monastic Wisdom", cost: 10, desc: "Studium českých klášterů (Břevnov 993, Zlatá Koruna 1263). Mniši uchovávali znalosti tisíc let.", desc_en: "Study of Bohemian monasteries (Břevnov 993, Zlatá Koruna 1263). Monks preserved knowledge for a thousand years.", unlocks: [] },
+  // B6 (eating-noop-guard-spec-25-8-2026) — smart no-op guard schváleno
+  // 9.8.2026 v memory, čeká za tímhle techem. requiresBook vzor mirror
+  // tech_liber_apium (book_ruralia_apibus).
+  { id: "tech_mensura_ciborum", name: "Míra v jídle", name_en: "Measure in Food", cost: 30, desc: "Regula Benedicti, Caput XXXIX (De mensura ciborum) — Benedikt radí mírnost ve stravě. Klášter se učí nejíst nazmar.", desc_en: "Rule of St. Benedict, Chapter XXXIX (De mensura ciborum) — Benedict counsels moderation in food. The monastery learns not to waste what it eats.", unlocks: [], requires: ["tech_monastery_wisdom"], requiresBook: "book_regula_mensura_ciborum" },
   { id: "tech_czech_herbs", name: "České Bylinkářství", name_en: "Bohemian Herbalism", cost: 8, desc: "Měsíček, třezalka, dobromysl — české léčivé byliny od 12. století.", desc_en: "Calendula, St. John's Wort, marjoram — Bohemian healing herbs since the 12th century.", unlocks: [], requires: ["tech_alchemy_2"] },
   { id: "tech_advanced_farming", name: "Pokročilé Farmaření", name_en: "Advanced Farming", cost: 9, desc: "Klášterní zahrady na Strahově pěstovaly 500 druhů rostlin. +50% rychlejší růst!", desc_en: "The Strahov monastery gardens cultivated 500 plant species. +50% faster growth!", unlocks: [], requires: ["tech_garden_expand"] },
   { id: "tech_preservation", name: "Konzervace Potravin", name_en: "Food Preservation", cost: 7, desc: "Kláštery uchovávaly semena v medu 50+ let. Jídlo vydrží 2x déle!", desc_en: "Monasteries stored seeds in honey for 50+ years. Food lasts twice as long!", unlocks: [], requires: ["tech_cooking_2"] },
