@@ -2,7 +2,7 @@ const UI = {
     currentInvFilter: 'all',
     currentFilter: 'all',
     currentScreen: 'home',
-    _dirty: { home: false, inv: false, craft: false, lore: false, garden: false, cellarium: false },
+    _dirty: { home: false, inv: false, craft: false, lore: false, garden: false },
     _hashInv: '', _hashCraft: '', _hashActions: '',
     switchScreen: function (name, btn) {
         if (name === 'saeculum') {
@@ -32,25 +32,12 @@ const UI = {
             if (name === 'garden') { this.renderGarden(); }
             if (name === 'home') { this.renderActions(); this.renderWell(); }
         }
-        if (name === 'home') {
-            const celEl = document.getElementById('home-cellarium-content');
-            if (this._dirty.cellarium && celEl && celEl.style.display !== 'none') {
-                this._dirty.cellarium = false;
-                celEl.innerHTML = CellariumSystem.renderCellariumTab();
-            }
-            // vareni-refresh-fix (9.8.2026): mirror renderAll() níže — Vaření
-            // subtab se dřív nepřekresloval při přepnutí zpět na Home.
-            // coquina-dashboard-mrd (9.8.2026): Sýrárna teď vlastní panel
-            // uvnitř CookingSystem.render() (grid stanic) — cheeseHtml pryč.
-            // coquina-visibility-fix (9.8.2026): style.display samo o sobě
-            // nestačí — .screen/.screen.active skrývá CELOU Home obrazovku
-            // přes CSS třídu, ne přes inline styl na home-cooking-content.
-            // offsetParent===null pokrývá i skrytí přes rodiče (robustní test).
-            const cookEl = document.getElementById('home-cooking-content');
-            if (cookEl && cookEl.offsetParent !== null && typeof CookingSystem !== 'undefined') {
-                cookEl.innerHTML = CookingSystem.render();
-            }
-        }
+        // subtab-refresh-manager (25.8.2026): nahrazuje bývalý ad-hoc cellarium/
+        // cooking blok (vareni-refresh-fix 9.8.2026 + coquina-visibility-fix).
+        // refreshVisibleSubtabs() projde CELOU _SUBTAB_REFRESH_MAP a překreslí
+        // jen to, co je aktuálně viditelné (offsetParent test) — pokrývá i
+        // sub-taby, kam se dřív vůbec nedívalo (Zakázky, Athanor, Saeculum...).
+        this.refreshVisibleSubtabs();
         if (name === 'garden') this.renderGarden();
         if (name === 'inv') this._updateInvFilterBar();
         if (name === 'library') {
@@ -174,6 +161,69 @@ const UI = {
         }
     },
 
+    // subtab-refresh-manager (25.8.2026) — konzoliduje ad-hoc re-render výjimky
+    // (bývalý _dirty.cellarium blok, vareni-refresh-fix pro cooking, mine
+    // visibility case) do jedné tabulky. Symptom co řeší: hráč sedí na
+    // sub-tabu (Zakázky, Athanor, Saeculum, Vaření...), pod ním se mezitím
+    // změní stav (inventář) jinou akcí, karta zůstane zamrzlá na starých
+    // číslech dokud tab neopustí a nevrátí se — protože renderAll() dřív
+    // uměl překreslit jen aktivní TOP screen (home/inv/craft/lore/garden),
+    // ne konkrétní sub-tab uvnitř něj. Nový vzor: každý sub-tab má tu jeden
+    // řádek (elId + render volání), refreshVisibleSubtabs() je zavolá jen
+    // pokud je element aktuálně viditelný (offsetParent test — pokrývá i
+    // skrytí přes rodiče, ne jen vlastní style.display, mirror
+    // coquina-visibility-fix 9.8.2026). Žádná herní mechanika/balance se
+    // nemění — čistě rendering infrastruktura.
+    _SUBTAB_REFRESH_MAP: [
+        // Scriptorium (screen 'lore') — research pokrývá renderScriptorium() přímo
+        { elId: 'lore-tasks-content', fn: () => { if (typeof MonasticTasksSystem !== 'undefined') MonasticTasksSystem.render(); else UI.renderMonasticTasks(); } },
+        { elId: 'lore-manuscripts-content', fn: () => { if (typeof ManuscriptCopySystem !== 'undefined') ManuscriptCopySystem.renderPage(); else UI.renderManuscriptCopying(); } },
+        { elId: 'lore-codex-content', fn: () => UI.renderCodex() },
+        { elId: 'lore-notebooks-content', fn: () => UI.renderNotebooks() },
+        { elId: 'lore-achievements-content', fn: () => UI.renderAchievements() },
+        { elId: 'lore-iching-content', fn: () => UI.renderIChing() },
+        { elId: 'lore-calendarium-content', fn: () => { if (typeof CalendarSystem !== 'undefined') CalendarSystem.render(); } },
+        { elId: 'lore-persona-content', fn: () => { if (typeof PersonaSystem !== 'undefined') PersonaSystem.render(); } },
+        { elId: 'lore-porta-content', fn: () => { if (typeof PortaSystem !== 'undefined') PortaSystem.render(); } },
+        { elId: 'lore-commitments-content', fn: () => { if (typeof CommitmentsSystem !== 'undefined') CommitmentsSystem.render(); } },
+        // Knihovna (screen 'library') — 'games' pokrývá renderGamesTab() volaný globálně níž
+        { elId: 'library-books-content', fn: () => UI.renderLibrary() },
+        { elId: 'library-news-content', fn: () => UI.renderLibraryNews() },
+        { elId: 'library-scrinium-content', fn: () => { if (typeof SecretsSystem !== 'undefined') SecretsSystem.renderScriniumScreen('library-scrinium-content'); } },
+        { elId: 'library-kronika-content', fn: () => UI.renderKronika() },
+        { elId: 'library-kraj-content', fn: () => UI.renderChroniconWindow() },
+        { elId: 'library-studovna-content', fn: () => { if (typeof StudovnaSystem !== 'undefined') StudovnaSystem.render(); } },
+        { elId: 'library-opat-content', fn: () => { if (typeof AbbotSystem !== 'undefined') AbbotSystem.render(); } },
+        // Home — horní sub-taby
+        { elId: 'home-athanor-content', fn: () => { if (typeof AthanorSystem !== 'undefined') AthanorSystem.render('home-athanor-content'); } },
+        { elId: 'home-cellarium-content', fn: () => { const el = document.getElementById('home-cellarium-content'); if (el && typeof CellariumSystem !== 'undefined') el.innerHTML = CellariumSystem.renderCellariumTab(); } },
+        { elId: 'home-saeculum-content', fn: () => { const el = document.getElementById('home-saeculum-content'); if (el && typeof SaeculumSystem !== 'undefined') el.innerHTML = SaeculumSystem.renderSaeculumTab(); } },
+        { elId: 'home-foculus-content', fn: () => { if (typeof FireplaceSystem !== 'undefined') FireplaceSystem.render(); } },
+        { elId: 'home-templum-content', fn: () => { const el = document.getElementById('home-templum-content'); if (el && typeof TemplumSystem !== 'undefined') el.innerHTML = TemplumSystem.renderTemplumTab(); } },
+        { elId: 'home-infirmarium-content', fn: () => { const el = document.getElementById('home-infirmarium-content'); if (el && typeof InfirmariumSystem !== 'undefined') el.innerHTML = InfirmariumSystem.renderInfirmariumTab(); } },
+        // Home — sub-sub-taby uvnitř 'main' (scavenge pokrývá renderActions() přímo)
+        { elId: 'home-mine-content', fn: () => { UI.renderMineYieldInfo(); UI.renderFodinaPetitionPanel(); UI.renderMineActions(); } },
+        { elId: 'home-cooking-content', fn: () => { const el = document.getElementById('home-cooking-content'); if (el && typeof CookingSystem !== 'undefined') el.innerHTML = CookingSystem.render(); } },
+        { elId: 'home-drying-content', fn: () => { const el = document.getElementById('home-drying-content'); if (el && typeof DryingSystem !== 'undefined') el.innerHTML = DryingSystem.renderSusarna(); } },
+        { elId: 'home-vapenice-content', fn: () => { const el = document.getElementById('home-vapenice-content'); if (el && typeof LimeSystem !== 'undefined') el.innerHTML = LimeSystem.render(); } },
+        { elId: 'home-mill-content', fn: () => { const el = document.getElementById('home-mill-content'); if (el && typeof MillSystem !== 'undefined') el.innerHTML = MillSystem.render(); } },
+        { elId: 'home-furnus-content', fn: () => { const el = document.getElementById('home-furnus-content'); if (el && typeof CellariumSystem !== 'undefined') el.innerHTML = CellariumSystem.renderFurnusTab(); } },
+        // Zahrada (screen 'garden') — zahony pokrývá renderGarden() přímo
+        { elId: 'garden-tab-dvur', fn: () => { if (typeof GardenSystem !== 'undefined') GardenSystem.renderFarmyard(); } },
+        { elId: 'garden-tab-sad', fn: () => { if (typeof GardenSystem !== 'undefined') GardenSystem.renderOrchard(); } },
+        { elId: 'garden-tab-apiarium', fn: () => { if (typeof GardenSystem !== 'undefined') GardenSystem.renderApiary(); } },
+        { elId: 'garden-tab-piscina', fn: () => { if (typeof GardenSystem !== 'undefined') GardenSystem.renderPiscina(); } },
+        { elId: 'garden-tab-pole', fn: () => { if (typeof GardenSystem !== 'undefined') GardenSystem.renderFieldTab(); } },
+        { elId: 'garden-tab-vinohrad', fn: () => { if (typeof GardenSystem !== 'undefined') GardenSystem.renderVinohrad(); } },
+    ],
+
+    refreshVisibleSubtabs: function () {
+        this._SUBTAB_REFRESH_MAP.forEach(entry => {
+            const el = document.getElementById(entry.elId);
+            if (el && el.offsetParent !== null) entry.fn();
+        });
+    },
+
     renderAll: function () {
         // Porta — odhalit tlačítko v navigaci, jakmile GameState.flags.porta_active naskočí (Chronicon most)
         const _portaBtn = document.getElementById('lore-tab-porta');
@@ -208,34 +258,23 @@ const UI = {
         const s = this.currentScreen || 'home';
         if (s === 'home') {
             this.renderActions();
-            if (document.getElementById('home-mine-content') &&
-                document.getElementById('home-mine-content').style.display !== 'none') {
-                this.renderMineActions();
-            }
             this.renderWell();
             this.updateStreak();
-            const celEl = document.getElementById('home-cellarium-content');
-            if (this._dirty.cellarium && celEl && celEl.style.display !== 'none') {
-                this._dirty.cellarium = false;
-                celEl.innerHTML = CellariumSystem.renderCellariumTab();
-            }
-            // vareni-refresh-fix (9.8.2026): home-cooking-content se dřív nikdy
-            // nepřekresloval z renderAll() — po craftu (sýr, Coquina recept)
-            // zůstala tlačítka "can"/disabled stav zamrzlý na stavu PŘED
-            // spotřebou surovin, dokud hráč neopustil a nevrátil se na Vaření.
-            const cookEl = document.getElementById('home-cooking-content');
-            if (cookEl && cookEl.offsetParent !== null && typeof CookingSystem !== 'undefined') {
-                cookEl.innerHTML = CookingSystem.render();
-            }
         } else if (s === 'inv') { this.renderInventory(); }
         else if (s === 'craft') { this.renderCrafting(); }
         else if (s === 'lore') { this.renderScriptorium(); }
         else if (s === 'garden') { this.renderGarden(); }
+        // subtab-refresh-manager (25.8.2026): nahrazuje bývalé ad-hoc case
+        // pro mine/cellarium/cooking (vareni-refresh-fix 9.8.2026) — teď jedna
+        // tabulka pro VŠECHNY sub-taby napříč home/lore/library/garden, viz
+        // _SUBTAB_REFRESH_MAP výše. Řeší symptom: hráč sedí na sub-tabu
+        // (např. Zakázky), stav (inventář) se změní jinou akcí, karta zůstane
+        // zamrzlá na starých číslech, dokud tab neopustí a nevrátí se.
+        this.refreshVisibleSubtabs();
         this.renderRecords();
         this.renderGamesTab();
         const allScreens = ['home', 'inv', 'craft', 'lore', 'garden'];
         allScreens.forEach(sc => { if (sc !== s) this._dirty[sc] = true; });
-        this._dirty.cellarium = true;
     },
 
     toggleResourceTracker: function (e) {
