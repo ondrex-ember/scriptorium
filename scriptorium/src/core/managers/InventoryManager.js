@@ -103,6 +103,15 @@ const InventoryManager = {
             }
         }
 
+        // Gate: bread_fine vyžaduje Furnus (dilny-pozemky-mrd.md v0.3, 25.8.2026)
+        if (r.id === 'bread_fine') {
+            if (!(GameState.storage && GameState.storage.furnus && GameState.storage.furnus.built)) {
+                const _gl = (GameState.settings && GameState.settings.language) || 'cs';
+                UI.notify(_gl === 'en' ? '❌ Requires Furnus (bakery oven).' : '❌ Vyžaduje Furnus (pekařská pec).', true);
+                return;
+            }
+        }
+
         // maxStack check — iron nástroje max 1 ks (repair_ recepty vyjmuty, ty vlastnictví worn_ verze vyžadují)
         const outItem = ItemsDB[r.output];
         if (outItem && outItem.maxStack && !r.id.startsWith('repair_')) {
@@ -844,6 +853,7 @@ const InventoryManager = {
         if (!GameState.storage.prelum_olei) GameState.storage.prelum_olei = { built: false };
         if (!GameState.storage.fodina) GameState.storage.fodina = { built: false };
         if (!GameState.storage.fornax_ferraria) GameState.storage.fornax_ferraria = { built: false };
+        if (!GameState.storage.furnus) GameState.storage.furnus = { built: false };
         if (!GameState.storage.vapenice) GameState.storage.vapenice = { built: false };
         if (!GameState.storage.udirna) GameState.storage.udirna = { built: false };
         if (!GameState.storage.cerna_kuchyne) GameState.storage.cerna_kuchyne = { built: false };
@@ -890,6 +900,12 @@ const InventoryManager = {
         }
         if (type === 'fornax_ferraria') {
             if (!(GameState.abbotPetition && GameState.abbotPetition.fornax && GameState.abbotPetition.fornax.status === 'approved')) {
+                UI.notify(lang === 'en' ? '❌ Abbot approval required. Submit a petition first.' : '❌ Vyžaduje souhlas opata. Nejprve zašli žádost.', true); return;
+            }
+        }
+        // dilny-pozemky-mrd.md v0.3 — Furnus (25.8.2026), mirror fornax_ferraria
+        if (type === 'furnus') {
+            if (!(GameState.abbotPetition && GameState.abbotPetition.furnus && GameState.abbotPetition.furnus.status === 'approved')) {
                 UI.notify(lang === 'en' ? '❌ Abbot approval required. Submit a petition first.' : '❌ Vyžaduje souhlas opata. Nejprve zašli žádost.', true); return;
             }
         }
@@ -945,6 +961,9 @@ const InventoryManager = {
             uvarium: { plank: 8, rock: 4, rope: 3, hrebiky: 4 },
             prelum_olei: { plank: 10, rope: 4, rock: 4, iron_ingot: 1, hrebiky: 5 },
             fornax_ferraria: { rock: 40, cut_stone: 15, clay: 20, plank: 20, charcoal: 15, hrebiky: 10 },
+            // dilny-pozemky-mrd.md v0.3 — Furnus (25.8.2026), i18n build_cost
+            // (cs.js/en.js abbotPetition.furnus.build_cost) musí sedět s tímhle.
+            furnus: { clay: 20, rock: 15, plank: 10, hrebiky: 5 },
             vapenice: { plank: 15, cut_stone: 20, clay: 20, hrebiky: 7 },
             // mlynar-vlastni-mlyn-mrd.md §4.5 (16.8.2026) — kámen+železo+vápno,
             // mirror Udírna/Vápenice škály (mid-tier utility budova).
@@ -999,6 +1018,7 @@ const InventoryManager = {
             foudres: 'Foudres', cellarium_vini: 'Cellarium Vini',
             uvarium: 'Uvarium', prelum_olei: 'Prelum Olei',
             fornax_ferraria: 'Fornax Ferraria',
+            furnus: 'Furnus',
             vapenice: 'Vápenice',
             old_cellars: 'Staré sklepy',
             domus_conversorum_i: 'Domus Conversorum I',

@@ -373,6 +373,9 @@ const Game = {
         if (!GameState.abbotPetition.fodina) GameState.abbotPetition.fodina = { status: 'none', submittedAt: null, deniedReason: null, inspectionPending: false };
         if (!GameState.abbotPetition.fornax) GameState.abbotPetition.fornax = { status: 'none', submittedAt: null, deniedReason: null, inspectionPending: false };
         if (!GameState.abbotPetition.domus_ii) GameState.abbotPetition.domus_ii = { status: 'none', submittedAt: null, deniedReason: null, inspectionPending: false };
+        // dilny-pozemky-mrd.md v0.3 — Furnus, první ze čtyř dílen (25.8.2026)
+        if (!GameState.abbotPetition.furnus) GameState.abbotPetition.furnus = { status: 'none', submittedAt: null, deniedReason: null, inspectionPending: false };
+        if (!GameState.abbotPetition.land_dvur_pekarsky) GameState.abbotPetition.land_dvur_pekarsky = { status: 'none', submittedAt: null, deniedReason: null, inspectionPending: false };
         if (!GameState.ubytovnaPetition) GameState.ubytovnaPetition = {};
         // Vyhodnotit čekající žádosti po načtení
         Game.checkAbbotPetitions();

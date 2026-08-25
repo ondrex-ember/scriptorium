@@ -457,6 +457,13 @@ const CellariumSystem = {
                     body: JSON.stringify({ guildId: guildId, day: todayStr, count: Math.min(qty, 5) })
                 }).catch(err => console.warn('[guild-tension-report] send error:', err.message));
             }
+            // v0.9 (25.8.2026) — hráč dřív neviděl, že se něco děje (jen tichej
+            // report na pozadí). Teď jasně řekni, co riskuje a jak to napravit.
+            const _flang = (GameState.settings && GameState.settings.language) || 'cs';
+            const _gName = _flang === 'en' ? affectedMatter.guild.name_en : affectedMatter.guild.name;
+            UI.notify(_flang === 'en'
+                ? `⚠️ Sold without ${_gName}'s leave — fušerství. No privilege, no fee, but the guild's suspicion grows. Negotiate in Cellarium — Guilds to sell legally.`
+                : `⚠️ Prodáno bez svolení cechu (${_gName}) — fušerství. Bez privilegia, bez poplatku, ale podezření cechu roste. Vyjednej si prodej v Cellariu — Cechy.`, true);
         }
     }
 
@@ -1737,12 +1744,75 @@ const CellariumSystem = {
   // §6.1, 16.8.2026). Fáze 1: jen mlynsky_nahon. Tři stavy per parcela:
   // available (koupit), pending (čeká na Zemské desky, 24h), owned
   // (koupena — stavba Mlýna samotná je samostatnej, budoucí krok).
+  // Furnus (Pekárna) — obsah sub-tabu (dilny-pozemky-mrd.md v0.3, 25.8.2026).
+  // Mirror LimeSystem.render() stylově, ale jednodušší — jeden recept
+  // (bread_fine), žádné vícefázové zrání. §8 MRD — trvalá cechovní
+  // připomínka musí být VIDĚT tady, ne schovaná jinde.
+  renderFurnusTab: function() {
+    const lang = (GameState.settings && GameState.settings.language) || 'cs';
+    let h = `<div style="background:rgba(0,0,0,0.05); padding:14px; border-radius:10px; border-left:3px solid var(--accent-gold); margin-bottom:12px;">
+      <h4 style="margin:0 0 8px 0; color:var(--ink-primary);">🍞 ${lang === 'en' ? 'Furnus — Bakery Oven' : 'Furnus — Pekařská pec'}</h4>
+      <div style="font-size:0.82rem; opacity:0.75; font-style:italic;">
+        ${lang === 'en'
+          ? "The clay vault holds heat evenly through the whole batch — flour and water go in, fine bread comes out."
+          : 'Hliněná klenba drží žár rovnoměrně po celou várku — dovnitř jde mouka a voda, ven jde bílý chléb.'}
+      </div>
+    </div>`;
+
+    // §8 — trvalá, viditelná připomínka cechovního rizika
+    const guildId = 'pekarsky';
+    const g = (typeof GuildsDB !== 'undefined') ? GuildsDB[guildId] : null;
+    const gName = g ? (lang === 'en' ? g.name_en : g.name) : 'Pekařský cech';
+    const matterKey = 'pekarsky:chleba';
+    const pravoStatus = (GameState.guildPravo && GameState.guildPravo[matterKey] && GameState.guildPravo[matterKey].status) || 'none';
+    if (pravoStatus === 'granted') {
+      h += `<div style="background:rgba(76,175,80,0.1); border:1px solid #4CAF50; padding:10px 14px; border-radius:6px; margin-bottom:12px; font-size:0.78rem;">
+        ✅ ${lang === 'en'
+          ? `Legal sale right with ${gName} — 10% fee applies, no risk.`
+          : `Máš právo prodeje od cechu ${gName} — platí se 10 % poplatek, bez rizika.`}
+      </div>`;
+    } else {
+      h += `<div style="background:rgba(197,90,60,0.1); border:1px solid #b05a3c; padding:10px 14px; border-radius:6px; margin-bottom:12px; font-size:0.78rem;">
+        ⚠️ ${lang === 'en'
+          ? `Selling bread on the Market without ${gName}'s leave is fušerství — no fee, but suspicion grows and a raid may follow. Negotiate in Cellarium — Guilds.`
+          : `Prodej chleba na Trhu bez svolení cechu ${gName} je fušerství — bez poplatku, ale podezření roste a časem hrozí nájezd. Vyjednej si to v Cellariu — Cechy.`}
+      </div>`;
+    }
+
+    // Craft panel — bread_fine
+    const r = (typeof RecipesDB !== 'undefined') ? RecipesDB.find(x => x.id === 'bread_fine') : null;
+    h += `<div style="background:rgba(0,0,0,0.03); padding:14px; border-radius:8px;">`;
+    if (!(GameState.storage && GameState.storage.furnus && GameState.storage.furnus.built)) {
+      h += `<div style="opacity:0.6; font-style:italic; font-size:0.82rem;">${lang === 'en' ? 'Furnus not yet built.' : 'Furnus ještě není postaven.'}</div>`;
+    } else if (r) {
+      let can = true; let reqStr = '';
+      Object.entries(r.req).forEach(([id, amt]) => {
+        const has = GameState.inventory[id] || 0;
+        const missing = (amt > 0 && has < amt) || (amt === 0 && !has);
+        if (missing) can = false;
+        const iN = (typeof iName === 'function') ? iName(id) : id;
+        reqStr += `<span style="color:${missing ? '#b05a3c' : 'inherit'};">${iN} ${amt > 0 ? has + '/' + amt : ''}</span> `;
+      });
+      h += `<div style="font-size:0.8rem; margin-bottom:8px;">${reqStr}</div>`;
+      h += `<button onclick="Game.craft('bread_fine')" ${can ? '' : 'disabled'} style="padding:8px 16px; border-radius:6px; cursor:pointer; font-size:0.85rem;">🍞 ${lang === 'en' ? 'Bake bread' : 'Upéct chléb'}</button>`;
+    }
+    h += `</div>`;
+    return h;
+  },
+
   renderPozemkyPanel: function() {
     const lang = (GameState.settings && GameState.settings.language) || 'cs';
     if (typeof LandParcelsDB === 'undefined') {
       return `<div style="padding:20px; opacity:0.6; text-align:center;">🏛️</div>`;
     }
     const landParcels = GameState.landParcels || {};
+    // dilny-pozemky-mrd.md v0.3 §8 (25.8.2026) — proč ten tag, vysvětleno hráči.
+    const TAG_HINTS = {
+      voda: { cs: 'voda — pohon mlýnského/hamerského kola', en: 'water — power for a mill or trip-hammer wheel' },
+      kopec: { cs: 'kopec — otevřeno větru', en: 'hill — open to the wind' },
+      slunce: { cs: 'slunce — jižní svah pro vinnou révu', en: 'sun — south-facing slope for vines' },
+      les: { cs: 'les — přístup ke dřevu pro dřevozpracující dílny', en: 'forest — timber access for woodworking workshops' },
+    };
 
     let h = `<div style="padding:15px; background:rgba(0,0,0,0.03); border-radius:8px; border-left:3px solid var(--accent-gold);">`;
     h += `<div style="font-size:0.85rem; opacity:0.75; font-style:italic; margin-bottom:14px;">
@@ -1758,7 +1828,20 @@ const CellariumSystem = {
       const state = (landParcels[id] && landParcels[id].status) || 'none';
 
       let actionHtml = '';
-      if (state === 'none') {
+      // dilny-pozemky-mrd.md v0.3 (25.8.2026) — parcely pro dílny mají
+      // vlastní opatovu petici PŘED nákupem (land_<id>). Parcely bez ní
+      // (mlynsky_nahon/navrsi/vinice) se chovají přesně jako dřív.
+      const landPetKey = 'land_' + id;
+      const landPet = GameState.abbotPetition && GameState.abbotPetition[landPetKey];
+      if (state === 'none' && landPet) {
+        if (landPet.status === 'none') {
+          actionHtml = `<button onclick="Game.submitAbbotPetition('${landPetKey}')" style="font-size:0.78rem; padding:6px 14px; cursor:pointer;">🏛️ ${lang === 'en' ? 'Ask the Abbot' : 'Požádat opata'}</button>`;
+        } else if (landPet.status === 'pending') {
+          actionHtml = `<span style="font-size:0.78rem; opacity:0.7;">⏳ ${lang === 'en' ? 'Abbot considers…' : 'Opat zvažuje…'}</span>`;
+        } else if (landPet.status === 'approved') {
+          actionHtml = `<button onclick="Game.buyLandParcel('${id}')" style="font-size:0.78rem; padding:6px 14px; cursor:pointer;">${lang === 'en' ? `Buy — ${parcel.price}g` : `Koupit — ${parcel.price}g`}</button>`;
+        }
+      } else if (state === 'none') {
         actionHtml = `<button onclick="Game.buyLandParcel('${id}')" style="font-size:0.78rem; padding:6px 14px; cursor:pointer;">${lang === 'en' ? `Buy — ${parcel.price}g` : `Koupit — ${parcel.price}g`}</button>`;
       } else if (state === 'pending') {
         const p = landParcels[id];
@@ -1774,7 +1857,7 @@ const CellariumSystem = {
           ${actionHtml}
         </div>
         <div style="font-size:0.78rem; opacity:0.75; font-style:italic; margin-bottom:4px;">${desc}</div>
-        <div style="font-size:0.72rem; opacity:0.6;">${lang === 'en' ? 'tags' : 'tagy'}: ${parcel.tags.join(', ')} · ${lang === 'en' ? 'slots' : 'sloty'}: ${parcel.slotsCapacity}</div>
+        <div style="font-size:0.72rem; opacity:0.6;">${lang === 'en' ? 'tags' : 'tagy'}: ${parcel.tags.length ? parcel.tags.map(tg => TAG_HINTS[tg] ? (lang==='en'?TAG_HINTS[tg].en:TAG_HINTS[tg].cs) : tg).join(', ') : (lang === 'en' ? 'no special terrain' : 'bez zvláštního terénu')} · ${lang === 'en' ? 'slots' : 'sloty'}: ${parcel.slotsCapacity}</div>
       </div>`;
     });
 
@@ -1792,9 +1875,12 @@ const CellariumSystem = {
     // v0.7 oprava (24.8.2026) — 'sausage'/'jeweled_binding'/'gold_leaf' jsou
     // fiktivní ID bez krytí v items.js (stejný nález jako affectedGoods audit).
     // Mapováno na reálné itemy — jinak tyhle větve OR podmínky nikdy nesplní.
+    // v0.9 oprava (25.8.2026) — 'tech_fornax' byla ŠPATNÁ tech (Fornax
+    // Ferraria = kovářská huť, ne pekárna, jen sdílený latinský kořen).
+    // Furnus má teď vlastní tech_furnus + storage.furnus (dilny-pozemky-mrd.md v0.3).
     const triggers = {
-      pekarsky: (GameState.researchedTechs && GameState.researchedTechs.includes('tech_fornax')) ||
-                (GameState.storage && GameState.storage.fornax && GameState.storage.fornax.built) ||
+      pekarsky: (GameState.researchedTechs && GameState.researchedTechs.includes('tech_furnus')) ||
+                (GameState.storage && GameState.storage.furnus && GameState.storage.furnus.built) ||
                 ((GameState.inventory && GameState.inventory['flour'] || 0) >= 10),
       reznicky: (GameState.inventory && ((GameState.inventory['meat'] || 0) + (GameState.inventory['cured_meat'] || 0)) >= 10),
       zlatnicky: (GameState.inventory && ((GameState.inventory['zlaty_prut'] || 0) >= 1 || (GameState.inventory['aurum_musicum'] || 0) >= 1)),
@@ -2402,6 +2488,24 @@ const CellariumSystem = {
         req_build: GameState.abbotPetition && GameState.abbotPetition.fornax && GameState.abbotPetition.fornax.status === 'approved',
         req_label: lang === 'en' ? 'Requires: Abbot approval (petition) + Fodina open' : 'Nutné: Souhlas opata (žádost) + Fodina otevřena',
         petition_type: 'fornax',
+      },
+      {
+        // dilny-pozemky-mrd.md v0.3 (25.8.2026) — první ze čtyř dílen.
+        // req_build kombinuje DVĚ podmínky: opatova petice o Furnus SAMOTNÝ
+        // (mirror fornax_ferraria) A vlastnictví parcely Pekařský dvůr
+        // (nová vrstva parcela→budova, §5 MRD) — obojí musí platit.
+        id: 'furnus', icon: '🍞',
+        name: 'Furnus (Pekárna)', name_en: 'Furnus (Bakery Oven)',
+        desc: 'Hliněná pec s klenutým stropem na pečení chleba ve velkém. Vyžaduje souhlas opata a vlastní pozemek (Pekařský dvůr).',
+        desc_en: 'Clay-vaulted oven for baking bread at scale. Requires Abbot consent and its own parcel (the Bakers\' Yard).',
+        cost: { clay: 20, rock: 15, plank: 10, hrebiky: 5 },
+        req_tech: (GameState.researchedTechs && GameState.researchedTechs.includes('tech_furnus')),
+        req_build: (GameState.abbotPetition && GameState.abbotPetition.furnus && GameState.abbotPetition.furnus.status === 'approved')
+          && (GameState.landParcels && GameState.landParcels['dvur_pekarsky'] && GameState.landParcels['dvur_pekarsky'].status === 'owned'),
+        req_label: lang === 'en'
+          ? 'Requires: own the Bakers\' Yard parcel (Cellarium — Land) + Abbot approval (petition)'
+          : 'Nutné: vlastnit parcelu Pekařský dvůr (Cellarium — Pozemky) + souhlas opata (žádost)',
+        petition_type: 'furnus',
       },
       {
         id: 'sulci', icon: '🪠',

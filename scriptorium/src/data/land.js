@@ -46,4 +46,18 @@ const LandParcelsDB = {
         desc: 'Jižní svah nad řekou, kam slunce dopadá od rána do večera. Réva by se tu držela dobře — je jen otázka, kdo ji vysadí a jak dlouho počká na první úrodu.',
         desc_en: 'A south-facing slope above the river, where the sun falls from morning to evening. Vines would hold well here — only a question of who plants them, and how long they wait for the first harvest.',
     },
+    // dilny-pozemky-mrd.md v0.3 — dílny (25.8.2026). Klášter praská ve
+    // švech, každá nová dílna potřebuje vlastní parcelu, ne sdílený slot.
+    // Přístup je PŘÍSNĚJŠÍ než u parcel výš — nestačí obecné otevření
+    // jednání (pozemky_active), každá vyžaduje SAMOSTATNOU opatovu petici
+    // (abbotPetition.land_<id>), teprve pak jde koupit.
+    dvur_pekarsky: {
+        name: 'Pekařský dvůr', name_en: "The Bakers' Yard",
+        tags: [],
+        slotsCapacity: 1,
+        price: 150,
+        phase: 4,
+        desc: 'Klidný dvorek při zadní zdi, dost daleko od skriptoria, aby kouř z pece nevadil opisovačům, a dost blízko kuchyně, aby se mouka nemusela nosit přes půl kláštera.',
+        desc_en: "A quiet yard by the back wall, far enough from the scriptorium that oven smoke won't trouble the copyists, close enough to the kitchen that flour needn't be carried across half the monastery.",
+    },
 };

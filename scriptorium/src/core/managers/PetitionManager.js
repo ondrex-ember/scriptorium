@@ -91,6 +91,31 @@ const PetitionManager = {
             }
         }
 
+        // Validace podmínek — pro Furnus (Pekárnu), dilny-pozemky-mrd.md v0.3
+        if (type === 'furnus') {
+            if (!(GameState.researchedTechs && GameState.researchedTechs.includes('tech_furnus'))) {
+                UI.notify(t('abbotPetition.furnus.denied_tech'), true); return;
+            }
+            if (!(GameState.landParcels && GameState.landParcels['dvur_pekarsky'] && GameState.landParcels['dvur_pekarsky'].status === 'owned')) {
+                UI.notify(t('abbotPetition.furnus.denied_parcel'), true); return;
+            }
+            if ((typeof CellariumSystem !== 'undefined' ? CellariumSystem.getGrose() : 0) < 60) {
+                UI.notify(t('abbotPetition.furnus.denied_groats'), true); return;
+            }
+            if ((GameState.inventory['clay'] || 0) < 20) {
+                UI.notify(t('abbotPetition.furnus.denied_clay'), true); return;
+            }
+        }
+
+        // Validace podmínek — pro Pekařský dvůr (parcela), dilny-pozemky-mrd.md v0.3.
+        // Přísnější brána než u parcel bez matter na dílnu — mirror fornax, ne
+        // jen obecný pozemky_active flag (v0.2 §5.1).
+        if (type === 'land_dvur_pekarsky') {
+            if (!(GameState.flags && GameState.flags.pozemky_active)) {
+                UI.notify(t('abbotPetition.land_dvur_pekarsky.denied_regalia'), true); return;
+            }
+        }
+
         // Validace podmínek — pro Columbarium (Porta)
         if (type === 'columbarium') {
             if (!(GameState.researchedTechs && GameState.researchedTechs.includes('tech_porta'))) {
@@ -156,7 +181,7 @@ const PetitionManager = {
         const now = Date.now();
         const DAY_MS = 86400000;
 
-        ['fodina', 'fornax', 'columbarium', 'domus_ii', 'domus_iii', 'probost'].forEach(type => {
+        ['fodina', 'fornax', 'furnus', 'land_dvur_pekarsky', 'columbarium', 'domus_ii', 'domus_iii', 'probost'].forEach(type => {
             const pet = GameState.abbotPetition[type];
             if (!pet || pet.status !== 'pending') return;
             if (now - pet.submittedAt < DAY_MS) return;
@@ -180,6 +205,17 @@ const PetitionManager = {
                 else if (!(GameState.abbotPetition.fodina && GameState.abbotPetition.fodina.status === 'approved')) deniedKey = 'denied_fodina';
                 else if ((typeof CellariumSystem !== 'undefined' ? CellariumSystem.getGrose() : 0) < 80) deniedKey = 'denied_groats';
                 else if ((GameState.inventory['charcoal'] || 0) < 15) deniedKey = 'denied_charcoal';
+            }
+
+            if (type === 'furnus') {
+                if (!(GameState.researchedTechs && GameState.researchedTechs.includes('tech_furnus'))) deniedKey = 'denied_tech';
+                else if (!(GameState.landParcels && GameState.landParcels['dvur_pekarsky'] && GameState.landParcels['dvur_pekarsky'].status === 'owned')) deniedKey = 'denied_parcel';
+                else if ((typeof CellariumSystem !== 'undefined' ? CellariumSystem.getGrose() : 0) < 60) deniedKey = 'denied_groats';
+                else if ((GameState.inventory['clay'] || 0) < 20) deniedKey = 'denied_clay';
+            }
+
+            if (type === 'land_dvur_pekarsky') {
+                if (!(GameState.flags && GameState.flags.pozemky_active)) deniedKey = 'denied_regalia';
             }
 
             if (type === 'columbarium') {
@@ -631,6 +667,22 @@ const PetitionManager = {
         if (!(GameState.flags && GameState.flags.pozemky_active)) {
             UI.notify(lang === 'en' ? '❌ Speak with the Abbot first.' : '❌ Nejdřív promluv s opatem.', true);
             return;
+        }
+        // dilny-pozemky-mrd.md v0.3 (25.8.2026) — parcely pro dílny mají
+        // PŘÍSNĚJŠÍ bránu než obecné pozemky_active: vlastní opatova petice
+        // (abbotPetition.land_<parcelId>), musí bejt 'approved', než jde
+        // vůbec zaplatit. Kontrola generická — funguje pro libovolnou
+        // parcelu, co takovou petici má; parcely bez ní (mlynsky_nahon,
+        // navrsi, vinice) touhle podmínkou neprojdou vůbec (petice pro ně
+        // neexistuje), takže se přeskočí beze změny chování.
+        const landPetKey = 'land_' + parcelId;
+        if (GameState.abbotPetition && GameState.abbotPetition[landPetKey]) {
+            if (GameState.abbotPetition[landPetKey].status !== 'approved') {
+                UI.notify(lang === 'en'
+                    ? '❌ This parcel requires the Abbot\'s consent first — submit a petition.'
+                    : '❌ Tahle parcela vyžaduje nejdřív souhlas opata — zašli žádost.', true);
+                return;
+            }
         }
         if (typeof LandParcelsDB === 'undefined' || !LandParcelsDB[parcelId]) return;
         const parcel = LandParcelsDB[parcelId];

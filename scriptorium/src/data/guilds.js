@@ -1,11 +1,13 @@
 // ─────────────────────────────────────────────────────────────
 // GuildsDB — Cechy: městská regulace mimo klášterní zdi
-// MRD: cechy-a-prava-mrd.md v0.1-v0.6 (v0.6, 24.8.2026)
+// MRD: cechy-a-prava-mrd.md v0.1-v0.9 (v0.9, 25.8.2026)
 // Cechmistři, Fáze 0 (Opatova brána PER cech×věc — matters[]), Fáze 1
 // (Cechmistr), Fáze 2 (Privilegium + 10% poplatek), Sparkline + Trend.
-// v0.6: každý cech má pole `matters` — u většiny cechů jedna položka,
-// Pekařský má DVĚ (stavba Furnusu, pak samostatně prodej chleba) —
-// dvě samostatné petice, dvě samostatné ratifikace (mirror v0.3 §1).
+// v0.9: Typ B (stavební povolení) ZRUŠEN úplně — stavba dílny vždy
+// přes opata (mirror Fornax Ferraria, dilny-pozemky-mrd.md §3), cech
+// řeší JEN prodej hotovýho výstupu. Všechny matters teď Typ A.
+// Pekařský ztratil matter 'furnus' (stavba přes opata), zůstal jen
+// 'chleba' (prodej).
 // ─────────────────────────────────────────────────────────────
 
 const GUILDS_BASE_ACTIVE = ['mlynarsky', 'truhlarsky', 'kolarsky', 'kovarsky'];
@@ -51,13 +53,21 @@ const GuildsDB = {
         desc_en: 'Proud of fine work, looks down on coarse crafts. Loves talking about wood quality and honest joinery.',
         matters: [
             {
+                // v0.9 (25.8.2026) — Typ B zrušen napříč všemi cechy. Stavba
+                // (Truhlárna) jde vždy přes opata (mirror Fornax Ferraria,
+                // dilny-pozemky-mrd.md §3) — cech řeší JEN prodej výstupu.
                 key: 'truhlarsky:truhlarna',
-                label: 'Povolení k jednání o stavbě Truhlárny',
-                label_en: 'Permission to negotiate Cabinetry Workshop',
-                privilegeType: 'B',
-                privilegeLabel: 'Stavební povolení na Truhlárnu',
-                privilegeLabel_en: 'Building Permit for Cabinetry Workshop',
-                affectedGoods: ['plank', 'truhla_ii'],
+                label: 'Povolení k jednání o prodeji truhlářského zboží',
+                label_en: 'Permission to negotiate cabinetry sales',
+                privilegeType: 'A',
+                privilegeLabel: 'Právo prodeje truhlářského zboží na Trhu bez fušerství (průběžný poplatek 10%)',
+                privilegeLabel_en: 'Right to sell cabinetry goods at Market without botching (10% ongoing fee)',
+                // truhla_ii OPRAVENO na truhla_i (v0.8 audit 25.8.2026) — truhla_ii
+                // je dle vlastního popisu "dílo zlatníka nebo dovoz z trhu" (1700g),
+                // NENÍ truhlářský produkt. truhla_i (plank+iron_ingot+kovani+leather+
+                // rope, NEzamčený, craftovatelný už dnes) je skutečná truhlářská
+                // práce a patří sem místo toho.
+                affectedGoods: ['plank', 'truhla_i'],
             },
         ],
     },
@@ -72,11 +82,11 @@ const GuildsDB = {
         matters: [
             {
                 key: 'kolarsky:kolarna',
-                label: 'Povolení k jednání o stavbě Kolárny',
-                label_en: 'Permission to negotiate Wheelwright Workshop',
-                privilegeType: 'B',
-                privilegeLabel: 'Stavební povolení na Kolárnu',
-                privilegeLabel_en: 'Building Permit for Wheelwright Workshop',
+                label: 'Povolení k jednání o prodeji kol a vozů',
+                label_en: 'Permission to negotiate wheel and cart sales',
+                privilegeType: 'A',
+                privilegeLabel: 'Právo prodeje kol a vozů na Trhu bez fušerství (průběžný poplatek 10%)',
+                privilegeLabel_en: 'Right to sell wheels and carts at Market without botching (10% ongoing fee)',
                 // Kolárna zatím neexistuje — žádný reálný item k regulaci,
                 // prázdné dokud dílna nepřijde (mirror pekarsky:furnus,
                 // v0.7 audit itemů 24.8.2026). Wheel/cart/axle byly
@@ -96,11 +106,11 @@ const GuildsDB = {
         matters: [
             {
                 key: 'kovarsky:hamr',
-                label: 'Povolení k jednání o stavbě Hamru',
-                label_en: 'Permission to negotiate Forge',
-                privilegeType: 'B',
-                privilegeLabel: 'Stavební povolení na Hamr',
-                privilegeLabel_en: 'Building Permit for Forge',
+                label: 'Povolení k jednání o prodeji kovářských výrobků',
+                label_en: 'Permission to negotiate smithy goods sales',
+                privilegeType: 'A',
+                privilegeLabel: 'Právo prodeje kovářských výrobků na Trhu bez fušerství (průběžný poplatek 10%)',
+                privilegeLabel_en: 'Right to sell smithy goods at Market without botching (10% ongoing fee)',
                 affectedGoods: ['iron_ingot', 'iron_pickaxe', 'iron_knife', 'hrebiky', 'scythe', 'worn_iron_pickaxe'],
             },
         ],
@@ -113,21 +123,10 @@ const GuildsDB = {
         masterIcon: '🥖',
         desc: 'Přísný na váhu chleba a čistotu mouky. Klášterní pec a prodej pečiva hlídá ostřížím zrakem.',
         desc_en: 'Strict on bread weight and flour purity. Watches the monastery oven and pastry sales like a hawk.',
-        // ZVLÁŠTNÍ PŘÍPAD (MRD v0.3 §1) — dvě samostatné věci, dvě petice:
-        // 1) stavební povolení na Furnus (Typ B, žádné affectedGoods —
-        //    neřeší prodej, jen stavbu), 2) až Furnus stojí, samostatně
-        //    právo prodeje chleba (Typ A, ovlivňuje Trh). Mouka zůstává
-        //    výhradně u Mlynářského cechu — pečivo je jiná komodita.
+        // v0.9 (25.8.2026) — matter 'pekarsky:furnus' ZRUŠEN. Furnus se staví
+        // přes opata (mirror Fornax Ferraria), ne přes cech — Pekařský cech
+        // řeší jen prodej hotovýho chleba/pečiva ven, jedinej matter.
         matters: [
-            {
-                key: 'pekarsky:furnus',
-                label: 'Povolení k jednání o stavbě Furnusu (Pekárny)',
-                label_en: 'Permission to negotiate Bakery Oven (Furnus)',
-                privilegeType: 'B',
-                privilegeLabel: 'Stavební povolení na Furnus',
-                privilegeLabel_en: 'Building Permit for Bakery Oven (Furnus)',
-                affectedGoods: [],
-            },
             {
                 key: 'pekarsky:chleba',
                 label: 'Povolení k jednání o prodeji chleba',
