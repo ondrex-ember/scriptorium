@@ -133,6 +133,47 @@ Llull died in 1316, by legend a martyr on a mission to North Africa — though h
 *Whoever turns the wheels patiently enough will, in time, pass through every possibility the world conceals.*`
         },
 
+        {
+            id: 'book_regula_mensura_ciborum',
+            title: 'Regula Benedicti, Caput XXXIX — O míře jídla',
+            title_en: 'The Rule of St. Benedict, Chapter XXXIX — On the Measure of Food',
+            category: 'technical',
+            unlockDay: 0,
+            icon: '🍞',
+            author: 'Benedikt z Nursie',
+            year: 530,
+            content: `**Kapitola čtená třikrát do roka**
+
+Řehole svatého Benedikta se v klášteře předčítá nahlas třikrát ročně — 18. března, 18. července a 17. listopadu. Kapitola třicátá devátá, De mensura ciborum, patří k nejpraktičtějším: neřeší modlitbu ani poslušnost, ale prostý talíř na stole.
+
+**Dva vařené pokrmy, libra chleba**
+
+Benedikt předepisuje pro oba denní pokrmy — polední i odpolední — dva vařené pokrmy, "aby ten, kdo jednomu nemůže, mohl jíst z druhého". Je-li po ruce ovoce nebo čerstvá zelenina, smí se přidat třetí. Na den připadá jedna libra chleba, rozdělená mezi obě jídla. Maso čtvernohých zvířat je zapovězeno — s výjimkou nemocných a slabých, kterým se podává jako lék, ne jako požitek.
+
+**Míra, ne odříkání**
+
+Řehole tu nekáže hladovění. Benedikt sám varuje před přehnanou askezí stejně jako před přejídáním — cesta uprostřed, ne krajnost. Jídlo má sloužit životu a práci kláštera, ne naopak. Opat smí míru zvýšit, uzná-li potřebu, ale vždy s rozvahou a nikdy ne z rozmaru.
+
+**Odkaz pro klášterní hospodářství**
+
+Tahle kapitola je jeden z důvodů, proč benediktinské kláštery po staletí přežívaly hladomory lépe než okolní vesnice — ne zázrakem, ale spočítanou mírou. Kdo se naučí nejíst nazmar, naučí se i skladovat na horší časy.`,
+            content_en: `**A Chapter Read Three Times a Year**
+
+The Rule of St. Benedict is read aloud in the monastery three times a year — 18 March, 18 July, and 17 November. Chapter thirty-nine, De mensura ciborum, is among its most practical: it settles neither prayer nor obedience, but the plain plate on the table.
+
+**Two Cooked Dishes, a Pound of Bread**
+
+Benedict prescribes two cooked dishes for both daily meals — the noon and the afternoon one — "so that he who cannot eat of the one may make his meal of the other." If fruit or fresh vegetables are at hand, a third may be added. A pound of bread is allotted per day, divided between the two meals. The flesh of four-footed animals is forbidden — except to the sick and the weak, to whom it is given as medicine, not as pleasure.
+
+**Measure, Not Deprivation**
+
+The Rule does not preach starvation here. Benedict warns as much against excessive asceticism as against overindulgence — a middle way, not an extreme. Food is to serve the life and work of the monastery, not the reverse. The abbot may raise the measure if he judges it needful, but always with deliberation, never on a whim.
+
+**A Legacy for Monastic Husbandry**
+
+This chapter is one reason Benedictine houses outlasted famines that emptied the surrounding villages for centuries — not by miracle, but by measured provision. Whoever learns not to eat to waste also learns to store against leaner days.`
+        },
+
         // TIER 2 - Druhý týden (day 8-14)
         {
             id: 'book_prague_mystery',
