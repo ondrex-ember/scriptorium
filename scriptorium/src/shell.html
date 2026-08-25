@@ -3281,6 +3281,21 @@
 </head>
 
 <body>
+    <!-- data-save-safety-mrd (25.8.2026) — Loading gate proti ztrátě save
+         souboru: hráč testoval v terénu se slabým signálem, IDB load
+         neproběhl (async, race condition), klikl akci dřív, než se save
+         skutečně načetl, a autosave (SaveManager.save(), volá se po skoro
+         každé akci) přepsal reálný postup čerstvým/prázdným stavem.
+         Tenhle overlay blokuje VŠECHNO, dokud SaveManager.load() nepotvrdí
+         dokončení (localStorage SYNC krok + IDB ASYNC krok, s timeoutem,
+         viz core/managers/SaveManager.js). Skrývá se přes JS
+         (SaveManager._hideLoadingGate()), NIKDY ne přes CSS default —
+         musí bránit interakci i kdyby JS chyba nastala jinde. -->
+    <div id="save-loading-gate" style="position:fixed; inset:0; z-index:99999; background:var(--bg-parchment,#fcf5e5); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:14px; font-family:'Crimson Text',serif;">
+        <div style="font-size:2.2rem;">📜</div>
+        <div id="save-loading-gate-text" style="color:var(--ink-primary,#2c241b); font-size:1rem; opacity:0.8;">Načítám uložený postup…</div>
+    </div>
+
     <!-- Google Tag Manager (noscript) -->
     <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-NZSGNPD8" height="0" width="0"
             style="display:none;visibility:hidden"></iframe></noscript>
