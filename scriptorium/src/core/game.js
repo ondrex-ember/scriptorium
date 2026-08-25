@@ -639,6 +639,7 @@ const Game = {
                 Game.checkDailyReward();
             }
             if (typeof CalendarSystem !== 'undefined') CalendarSystem.checkCalendarEvents();
+            if (typeof CalendarSystem !== 'undefined' && CalendarSystem.renderPill) CalendarSystem.renderPill();
         }, 500);
 
         document.body.addEventListener('click', () => {
@@ -1207,6 +1208,7 @@ const Game = {
     // KONVRS_NAMES čtena i z ChroniconSystem.js — alias, ne kopie.
     KONVRS_NAMES: ConversiManager.KONVRS_NAMES,
     conversiCapacity: function () { return ConversiManager.conversiCapacity(); },
+    conversiEfficiency: function (k) { return ConversiManager.conversiEfficiency(k); },
 
 
     // ═══ D10: Ubytovna/Cechy/Pozemky (2/12) — extrahováno do PetitionManager.js ═══
