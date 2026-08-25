@@ -11,6 +11,20 @@
 // kód mimo D1 blok, co je mimo rozsah tohoto kroku. SaveManager na něj
 // odkazuje přes Game._saveHint (cross-doménová závislost, jako removeItem).
 const SaveManager = {
+    // data-save-safety-mrd (25.8.2026) — baseline "kolik pokroku jsme
+    // NAČETLI" (počet výzkumů — monotónní, v normální hře nikdy neklesá).
+    // Nastaví se JEDNOU, když loading gate zavírá (viz load() níž).
+    // undefined = load ještě neproběhl / gate ještě neuzavřen.
+    _loadedProgressBaseline: undefined,
+
+    _hideLoadingGate: function () {
+        const gate = document.getElementById('save-loading-gate');
+        if (gate && gate.style.display !== 'none') {
+            gate.style.display = 'none';
+            SaveManager._loadedProgressBaseline = (GameState.researchedTechs || []).length;
+        }
+    },
+
     _idbOpen: function () {
         return new Promise((resolve, reject) => {
             if (!window.indexedDB) { reject('IDB not supported'); return; }
@@ -75,6 +89,24 @@ const SaveManager = {
     },
 
     save: function () {
+        // data-save-safety-mrd (25.8.2026) — pojistka proti přepsání reálnýho
+        // postupu čerstvým/resetnutým stavem (viz _loadedProgressBaseline výš).
+        // researchedTechs.length je monotónní — v normální hře nikdy neklesá,
+        // takže pokles oproti tomu, co jsme při loadu skutečně viděli, je
+        // silnej signál něčeho špatnýho (neúplný load, race condition),
+        // ne legitimní hráčova akce.
+        const _curProgress = (GameState.researchedTechs || []).length;
+        const _baseline = SaveManager._loadedProgressBaseline;
+        if (_baseline !== undefined && _curProgress < _baseline) {
+            console.error(`❌ SAVE BLOCKED — GameState má míň pokroku (${_curProgress} techů), než bylo při loadu (${_baseline}). Vypadá to na neúplně načtenej stav, ne skutečnej reset. Ukládání odmítnuto, ať se nepřepíše reálnej postup.`);
+            if (typeof UI !== 'undefined' && UI.notifyPanel) {
+                const lang = (GameState.settings && GameState.settings.language) || 'cs';
+                UI.notifyPanel('🛑 ' + (lang === 'en'
+                    ? 'Save blocked — your progress looks incomplete (fewer techs than were loaded). Reload the page before continuing, or you may lose progress.'
+                    : 'Uložení zablokováno — tvůj postup vypadá neúplně (míň techů, než se načetlo). Než budeš pokračovat, obnov stránku (F5), jinak riskuješ ztrátu postupu.'), 'warning');
+            }
+            return;
+        }
         try {
             GameState.lastSeen = Date.now();
             const _sd = JSON.stringify(GameState);
@@ -165,6 +197,19 @@ const SaveManager = {
         }
         SaveManager._seedHistoricalGraves();
 
+        // data-save-safety-mrd (25.8.2026) — gate zavíráme až TEĎ, ne hned.
+        // Timeout 4s je pojistka proti věčně visícímu IDB (hráč by jinak
+        // zůstal navěky zaseknutý na loading obrazovce) — po timeoutu
+        // se pokračuje s tím, co localStorage stihlo načíst, a IDB krok
+        // níž dál běží na pozadí a případně GameState ještě doplní.
+        let _gateClosed = false;
+        const _closeGateOnce = () => {
+            if (_gateClosed) return;
+            _gateClosed = true;
+            SaveManager._hideLoadingGate();
+        };
+        const _gateTimeout = setTimeout(_closeGateOnce, 4000);
+
         // STEP 2 — async IDB check: if IDB has newer save, patch GameState + re-render
         SaveManager._idbLoad().then(idbRecord => {
             if (!idbRecord) return;
@@ -190,7 +235,8 @@ const SaveManager = {
                     console.error('❌ IDB patch error:', e);
                 }
             }
-        }).catch(e => console.warn('IDB load skipped:', e));
+        }).catch(e => console.warn('IDB load skipped:', e))
+          .finally(() => { clearTimeout(_gateTimeout); _closeGateOnce(); });
     },
 
 
