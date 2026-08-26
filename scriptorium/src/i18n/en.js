@@ -467,7 +467,10 @@ const STRINGS_en = {
             innovation: "Innovations",
             conflict: "Conflicts",
             local: "Prague & Bohemia",
-            viticis: "Viticulture"
+            viticis: "Viticulture",
+            technical: "Crafts & Learning",
+            coquina: "Culinary Arts",
+            valetudo: "Health & Care"
         },
         npc_scribe: {
             name: "Master Bartholomew, The Elder Scribe",
