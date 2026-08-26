@@ -143,7 +143,7 @@ const UI = {
         }
     },
 
-    navigateToSaeculum: function(entity) {
+    navigateToSaeculum: function (entity) {
         this.switchScreen('home', document.getElementById('nav-home'));
         const tabBtn = document.getElementById('home-tab-saeculum');
         this.switchHomeTab('saeculum', tabBtn);
@@ -152,7 +152,7 @@ const UI = {
         }
     },
 
-    navigateToCellarium: function(entity) {
+    navigateToCellarium: function (entity) {
         this.switchScreen('home', document.getElementById('nav-home'));
         const tabBtn = document.getElementById('home-tab-cellarium');
         this.switchHomeTab('cellarium', tabBtn);
@@ -755,9 +755,9 @@ const UI = {
                     const msg = lang === 'en' ? 'Instant only — well cannot be timed' : 'Jen okamžitě — studna nepodporuje časovaný sběr';
                     wellCards += `<div class="action-card" style="opacity:0.5;">
                         <div class="action-header"><span class="action-icon">🚰</span>
-                        <div class="action-info"><div class="action-name">${lang==='en'?'Draw water':'Jít pro vodu'}</div>
+                        <div class="action-info"><div class="action-name">${lang === 'en' ? 'Draw water' : 'Jít pro vodu'}</div>
                         <div class="action-desc" style="font-style:italic;">${msg}</div></div></div>
-                        <button class="craft-btn" disabled>⏱️ ${lang==='en'?'Instant only':'Jen okamžitě'}</button></div>`;
+                        <button class="craft-btn" disabled>⏱️ ${lang === 'en' ? 'Instant only' : 'Jen okamžitě'}</button></div>`;
                     return;
                 }
 
@@ -779,7 +779,7 @@ const UI = {
             const actName = (lang === 'en' && act.name_en) ? act.name_en : act.name;
             const actDesc = (lang === 'en' && act.desc_en) ? act.desc_en : act.desc;
 
-            const _actionBtnKeys = ['hunt','bark','basic','wetlands','nature','foraging','resin_harvest','fishing','well_water','grass_gather','wood_harvest','worms_dig','dig_clay','yard_cleanup'];
+            const _actionBtnKeys = ['hunt', 'bark', 'basic', 'wetlands', 'nature', 'foraging', 'resin_harvest', 'wild_beekeeping', 'fishing', 'well_water', 'grass_gather', 'wood_harvest', 'worms_dig', 'dig_clay', 'yard_cleanup'];
             let btnText = t('actions.' + (_actionBtnKeys.includes(act.id) ? act.id : 'default'));
             let btnClass = "craft-btn";
             let btnDisabled = "";
@@ -830,16 +830,16 @@ const UI = {
         const groupTitleStyle = 'font-size:0.72rem;font-weight:bold;letter-spacing:0.06em;text-transform:uppercase;opacity:0.55;margin:14px 0 8px 0;';
         let newHTML = '';
         if (terrainCards) {
-            newHTML += `<div style="${groupTitleStyle}">🌲 ${lang==='en'?'Terrain':'Krajina'}</div>`;
+            newHTML += `<div style="${groupTitleStyle}">🌲 ${lang === 'en' ? 'Terrain' : 'Krajina'}</div>`;
             if (typeof TerrainSystem !== 'undefined') newHTML += TerrainSystem.renderIndicator();
             newHTML += terrainCards;
         }
         if (wellCards) {
-            newHTML += `<div style="${groupTitleStyle}">🚰 ${lang==='en'?'Well':'Studna'}</div>`;
+            newHTML += `<div style="${groupTitleStyle}">🚰 ${lang === 'en' ? 'Well' : 'Studna'}</div>`;
             newHTML += wellCards;
         }
         if (otherCards) {
-            newHTML += `<div style="${groupTitleStyle}">🏡 ${lang==='en'?'Household':'Hospodářství'}</div>`;
+            newHTML += `<div style="${groupTitleStyle}">🏡 ${lang === 'en' ? 'Household' : 'Hospodářství'}</div>`;
             if (typeof CuriaSystem !== 'undefined') newHTML += CuriaSystem.renderIndicator();
             newHTML += otherCards;
         }
@@ -851,19 +851,19 @@ const UI = {
         if (snareInv > 0 || caughtInv > 0 || traps.length > 0) {
             const now = Date.now();
             const readyCnt = traps.filter(s => now >= s.readyAt).length;
-            newHTML += `<div style="${groupTitleStyle}">🪤 ${lang==='en'?'Snares':'Oka'}</div>`;
+            newHTML += `<div style="${groupTitleStyle}">🪤 ${lang === 'en' ? 'Snares' : 'Oka'}</div>`;
             let trapLines = '';
             traps.forEach(s => {
                 const remH = Math.max(0, Math.ceil((s.readyAt - now) / 3600000));
-                trapLines += `<div class="text-sm">${now >= s.readyAt ? '✅ ' + (lang==='en'?'catch ready':'úlovek čeká') : '⏳ ' + remH + ' h'}</div>`;
+                trapLines += `<div class="text-sm">${now >= s.readyAt ? '✅ ' + (lang === 'en' ? 'catch ready' : 'úlovek čeká') : '⏳ ' + remH + ' h'}</div>`;
             });
-            newHTML += `<div class="card"><div class="item-icon">🪤</div><div><strong>${lang==='en'?'Set snares':'Nalíčená oka'} (${traps.length}/3)</strong>${trapLines || `<div class="text-sm">${lang==='en'?'None set.':'Žádné nalíčeno.'}</div>`}</div><div style="display:flex;flex-direction:column;gap:4px;">
-                <button class="action-btn" onclick="Game.setSnare()" ${snareInv > 0 && traps.length < 3 ? '' : 'disabled'}>${lang==='en'?'Set':'Nalíčit'} (${snareInv})</button>
-                <button class="action-btn" onclick="Game.collectSnares()" ${readyCnt > 0 ? '' : 'disabled'}>${lang==='en'?'Collect':'Sebrat'} (${readyCnt})</button>
+            newHTML += `<div class="card"><div class="item-icon">🪤</div><div><strong>${lang === 'en' ? 'Set snares' : 'Nalíčená oka'} (${traps.length}/3)</strong>${trapLines || `<div class="text-sm">${lang === 'en' ? 'None set.' : 'Žádné nalíčeno.'}</div>`}</div><div style="display:flex;flex-direction:column;gap:4px;">
+                <button class="action-btn" onclick="Game.setSnare()" ${snareInv > 0 && traps.length < 3 ? '' : 'disabled'}>${lang === 'en' ? 'Set' : 'Nalíčit'} (${snareInv})</button>
+                <button class="action-btn" onclick="Game.collectSnares()" ${readyCnt > 0 ? '' : 'disabled'}>${lang === 'en' ? 'Collect' : 'Sebrat'} (${readyCnt})</button>
             </div></div>`;
             if (caughtInv > 0) {
                 const hasKnife = (GameState.inventory['stone_knife'] || 0) > 0;
-                newHTML += `<div class="card"><div class="item-icon">🐿️</div><div><strong>${lang==='en'?'Caught small game':'Ulovená drobná zvěř'} (${caughtInv})</strong><div class="text-sm">${lang==='en'?'Dress with a knife: wild meat + fat + scraps (bone by chance). Or sell whole to the Hunter.':'Zpracuj nožem: divoké maso + tuk + zbytky (kost s šancí). Nebo prodej vcelku Lovci.'}</div></div><button class="action-btn" onclick="Game.processCaughtGame()" ${hasKnife ? '' : 'disabled'}>🔪 ${lang==='en'?'Dress ×1':'Zpracovat ×1'}</button></div>`;
+                newHTML += `<div class="card"><div class="item-icon">🐿️</div><div><strong>${lang === 'en' ? 'Caught small game' : 'Ulovená drobná zvěř'} (${caughtInv})</strong><div class="text-sm">${lang === 'en' ? 'Dress with a knife: wild meat + fat + scraps (bone by chance). Or sell whole to the Hunter.' : 'Zpracuj nožem: divoké maso + tuk + zbytky (kost s šancí). Nebo prodej vcelku Lovci.'}</div></div><button class="action-btn" onclick="Game.processCaughtGame()" ${hasKnife ? '' : 'disabled'}>🔪 ${lang === 'en' ? 'Dress ×1' : 'Zpracovat ×1'}</button></div>`;
             }
         }
 
@@ -1442,15 +1442,15 @@ const UI = {
             if (!hasTechCatalogus) return true;
             const isDone = GameState.researchedTechs.includes(tech.id);
             switch (techFilter) {
-                case 'researched':   return isDone;
+                case 'researched': return isDone;
                 case 'unresearched': return !isDone;
-                default:             return true; // 'all'
+                default: return true; // 'all'
             }
         };
         if (hasTechCatalogus) {
             const techFilters = [
-                { key: 'all',          label: _lang === 'en' ? 'All' : 'Vše' },
-                { key: 'researched',   label: _lang === 'en' ? 'Researched' : 'Vyzkoumané' },
+                { key: 'all', label: _lang === 'en' ? 'All' : 'Vše' },
+                { key: 'researched', label: _lang === 'en' ? 'Researched' : 'Vyzkoumané' },
                 { key: 'unresearched', label: _lang === 'en' ? 'Unresearched' : 'Nevyzkoumané' },
             ];
             h += `<div style="grid-column:1/-1;display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;">`;
@@ -1486,7 +1486,7 @@ const UI = {
                     canResearch = false;
                     const bookDef = typeof LibraryDB !== 'undefined' ? LibraryDB[tech.requiresBook] : null;
                     const bookName = bookDef ? ((lang !== 'cs' && bookDef.name_en) ? bookDef.name_en : bookDef.name) : tech.requiresBook;
-                    reqText += `<div class="text-sm text-danger">📖 ${lang==='en' ? 'Requires reading:' : 'Vyžaduje přečtení:'} ${bookName}</div>`;
+                    reqText += `<div class="text-sm text-danger">📖 ${lang === 'en' ? 'Requires reading:' : 'Vyžaduje přečtení:'} ${bookName}</div>`;
                 }
             }
 
@@ -1976,12 +1976,12 @@ const UI = {
             h += `<div style="font-weight:bold; color:#2c3e50; font-family:'Cinzel', serif, Georgia; font-size:0.95rem;">📿 ${isEn ? 'Assigned Scriptor' : 'Přiřazený Skriptor'}: <span style="color:#2b6cb0;">${scriptoriumBrother.name}</span> (${isEn ? 'Level' : 'Úroveň'} ${skLvl}/4)</div>`;
             h += `<div style="font-size:0.8rem; color:#5a4a3a; margin-top:4px;">`;
             if (hasSupplies) {
-                h += isEn 
-                    ? `⚙️ Automatically copies up to <strong>${maxFolios} folios</strong> per day during daily monastery tick (and reads in library).` 
+                h += isEn
+                    ? `⚙️ Automatically copies up to <strong>${maxFolios} folios</strong> per day during daily monastery tick (and reads in library).`
                     : `⚙️ Automaticky opisuje až <strong>${maxFolios} folií</strong> za den při denním cyklu kláštera (a čte v knihovně).`;
             } else {
-                h += isEn 
-                    ? `⚠️ Missing supplies! Ink and Paper/Parchment required for automated copying.` 
+                h += isEn
+                    ? `⚠️ Missing supplies! Ink and Paper/Parchment required for automated copying.`
                     : `⚠️ Chybí psací potřeby! Pro automatické opisování je potřeba Inkoust + Papír/Pergamen.`;
             }
             h += `</div></div>`;
@@ -2037,9 +2037,9 @@ const UI = {
         h += `<div style="display:flex; flex-wrap:wrap; gap:6px; justify-content:center; margin:16px 0 20px 0;">`;
         for (let i = 0; i < totalFolios; i++) {
             if (i < currentProgress) {
-                h += `<div style="width:16px; height:16px; background:#3182ce; border:1px solid #2b6cb0; border-radius:3px; box-shadow:inset 0 1px 2px rgba(255,255,255,0.3);" title="Folium ${i+1}"></div>`;
+                h += `<div style="width:16px; height:16px; background:#3182ce; border:1px solid #2b6cb0; border-radius:3px; box-shadow:inset 0 1px 2px rgba(255,255,255,0.3);" title="Folium ${i + 1}"></div>`;
             } else {
-                h += `<div style="width:16px; height:16px; background:rgba(144, 205, 244, 0.25); border:1px solid #7bc5d8; border-radius:3px;" title="Folium ${i+1}"></div>`;
+                h += `<div style="width:16px; height:16px; background:rgba(144, 205, 244, 0.25); border:1px solid #7bc5d8; border-radius:3px;" title="Folium ${i + 1}"></div>`;
             }
         }
         h += `</div>`;
@@ -2310,7 +2310,7 @@ const UI = {
             });
             tierBtns += '</div>';
             if (horseCount > 0) {
-                tierBtns += `<div style="font-size:0.72rem;opacity:0.55;margin-bottom:8px;">🐴 ${lang==='en' ? `${horseCount} horse(s) — real time in parentheses` : `${horseCount} kůň/koně — reálný čas v závorce`}</div>`;
+                tierBtns += `<div style="font-size:0.72rem;opacity:0.55;margin-bottom:8px;">🐴 ${lang === 'en' ? `${horseCount} horse(s) — real time in parentheses` : `${horseCount} kůň/koně — reálný čas v závorce`}</div>`;
             }
             h += tierBtns;
             if (typeof MineSystem !== 'undefined') h += MineSystem.renderIndicator();
@@ -2608,12 +2608,12 @@ const UI = {
                 const activeContact = GameState.ui && GameState.ui.clientelaContact;
                 let statusLine;
                 if (present) {
-                    statusLine = lang==='en' ? 'In Olomouc now — the book fair caravan has arrived.' : 'Teď v Olomouci — dorazil s knižním veletrhem.';
+                    statusLine = lang === 'en' ? 'In Olomouc now — the book fair caravan has arrived.' : 'Teď v Olomouci — dorazil s knižním veletrhem.';
                 } else {
                     const lastVisit = (GameState.library && GameState.library.lastStationariusVisit) || 0;
                     const nextAt = lastVisit + CellariumSystem.STATIONARIUS_INTERVAL_MS;
-                    const daysLeft = Math.max(0, Math.ceil((nextAt - Date.now()) / (24*3600000)));
-                    statusLine = lang==='en'
+                    const daysLeft = Math.max(0, Math.ceil((nextAt - Date.now()) / (24 * 3600000)));
+                    statusLine = lang === 'en'
                         ? 'On the road between fairs — back in ' + daysLeft + ' d.'
                         : 'Na cestě mezi veletrhy — vrací se za ' + daysLeft + ' dní.';
                 }
@@ -2621,10 +2621,10 @@ const UI = {
                         <div style="display:flex;align-items:center;gap:10px;${present ? '' : 'opacity:0.6;'}">
                           <div style="font-size:1.6rem;">${stat.icon}</div>
                           <div style="flex:1;">
-                            <strong>${lang==='en'?stat.name_en:stat.name}</strong>
+                            <strong>${lang === 'en' ? stat.name_en : stat.name}</strong>
                             <div class="text-sm" style="opacity:0.75;">${statusLine}</div>
                           </div>
-                          ${present ? `<button class="craft-btn" onclick="SaeculumSystem.openContact('stationarius'); UI.renderLibrary();">📖 ${lang==='en'?'Meeting':'Schůzka'}</button>` : ''}
+                          ${present ? `<button class="craft-btn" onclick="SaeculumSystem.openContact('stationarius'); UI.renderLibrary();">📖 ${lang === 'en' ? 'Meeting' : 'Schůzka'}</button>` : ''}
                         </div>
                         ${(present && activeContact === 'stationarius' && typeof SaeculumSystem !== 'undefined') ? SaeculumSystem.renderContactPanel('stationarius') : ''}
                       </div>`;
@@ -2681,17 +2681,17 @@ const UI = {
             const isUnlocked = GameState.library.unlockedBooks.includes(book.id);
             const isRead = GameState.library.readBooks.includes(book.id);
             switch (libFilter) {
-                case 'read':   return isUnlocked && isRead;
+                case 'read': return isUnlocked && isRead;
                 case 'toread': return isUnlocked && !isRead;
                 case 'locked': return !isUnlocked && book.unlockDay > 0;
-                default:       return true; // 'all'
+                default: return true; // 'all'
             }
         };
 
         if (hasCatalogus) {
             const libFilters = [
-                { key: 'all',    label: lang === 'en' ? 'All' : 'Vše' },
-                { key: 'read',   label: lang === 'en' ? 'Read' : 'Přečteno' },
+                { key: 'all', label: lang === 'en' ? 'All' : 'Vše' },
+                { key: 'read', label: lang === 'en' ? 'Read' : 'Přečteno' },
                 { key: 'toread', label: lang === 'en' ? 'To Read' : 'Ke čtení' },
                 { key: 'locked', label: lang === 'en' ? 'Unacquired' : 'Bez akvizice' },
             ];
@@ -3668,7 +3668,7 @@ const UI = {
                 const isRunning = GameState.tutorial && GameState.tutorial.active;
                 if (btnToggle) {
                     btnToggle.textContent = isRunning ? '⏸️ POZASTAVIT TUTORIAL' : '🚀 SPUSTIT TUTORIAL REŽIM';
-                    btnToggle.onclick = function() {
+                    btnToggle.onclick = function () {
                         if (isRunning) {
                             TutorialSystem.stopTutorial();
                             UI.openAboutModal();
@@ -3690,7 +3690,7 @@ const UI = {
     },
 
     // ─── KRONIKA ─────────────────────────────────────────────────────
-    _kronikaPage:   0,
+    _kronikaPage: 0,
     _kronikaFilter: 'all',  // 'all' | 'local' | 'chronicon'
 
     renderKronika: function (page) {
@@ -3759,22 +3759,22 @@ const UI = {
             </button>`).join('');
 
         const CHRONICON_SOURCE_LABEL = {
-            local_events:       t('kronika.chroniconSrc.local_events'),
-            distant_events:     t('kronika.chroniconSrc.distant_events'),
+            local_events: t('kronika.chroniconSrc.local_events'),
+            distant_events: t('kronika.chroniconSrc.distant_events'),
             monastery_internal: t('kronika.chroniconSrc.monastery_internal'),
-            engine:             t('kronika.chroniconSrc.engine'),
-            gm:                 t('kronika.chroniconSrc.gm'),
+            engine: t('kronika.chroniconSrc.engine'),
+            gm: t('kronika.chroniconSrc.gm'),
         };
 
         const entriesHtml = slice.length === 0
             ? `<p style="color:var(--ink-secondary); font-style:italic;">${t('kronika.empty')}</p>`
             : slice.map(e => {
-                const isImportant  = e.type === 'important';
-                const isChronicon  = e.type === 'chronicon';
+                const isImportant = e.type === 'important';
+                const isChronicon = e.type === 'chronicon';
 
                 if (isChronicon) {
                     const srcLabel = CHRONICON_SOURCE_LABEL[e.source] || '☩';
-                    const icon     = e.icon ? e.icon + ' ' : '☩ ';
+                    const icon = e.icon ? e.icon + ' ' : '☩ ';
                     return `<div style="
                         display:flex; gap:12px; align-items:baseline;
                         padding:8px 0 8px 8px;
