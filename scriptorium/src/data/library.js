@@ -2387,7 +2387,10 @@ The manuscript describes how to clarify wine and beer using fish bladders — th
         'innovation': { name: 'Inovace', icon: '💡', desc: 'Technologické milníky, které navždy změnily tvář knih.' },
         'conflict': { name: 'Konflikty', icon: '⚔️', desc: 'Cenzura, války písařů a zničené knihovny.' },
         'local': { name: 'Praha & Čechy', icon: '🏰', desc: 'Tajemství pražských uliček a českých luhů.' },
-        'viticis': { name: 'Vinohradnictví', icon: '🍇', desc: 'Réva, víno a tajemství klášterních vinohradů.' }
+        'viticis': { name: 'Vinohradnictví', icon: '🍇', desc: 'Réva, víno a tajemství klášterních vinohradů.' },
+        'technical': { name: 'Řemesla a vědění', icon: '🔧', desc: 'Traktáty o řemeslech, technikách a přírodní vědě.' },
+        'coquina': { name: 'Kuchařství', icon: '🍲', desc: 'Recepty, byliny a tajemství klášterní kuchyně.' },
+        'valetudo': { name: 'Zdraví a péče', icon: '🩺', desc: 'Léčitelství, infirmárium a péče o tělo i duši.' }
     }
 };
 
