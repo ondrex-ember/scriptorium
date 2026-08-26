@@ -2633,6 +2633,7 @@ const UI = {
 
         const _bartolomejRel = (GameState.persona && GameState.persona.influence && GameState.persona.influence.bartolomej) || 0;
         const _libLang = (GameState.settings && GameState.settings.language) || 'cs';
+        const _scribePrice = (typeof LibraryHelpers !== 'undefined' && LibraryHelpers.getScribePrice) ? LibraryHelpers.getScribePrice() : 10;
         h += `
             <div style="margin-bottom:20px;padding:12px;background:var(--bg-card);border:1px solid var(--border-color);border-radius:5px;">
                 <div style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px;">
@@ -2641,7 +2642,7 @@ const UI = {
                         <div>
                             <strong>${t('library_lore.npc_scribe.name')}</strong>
                             <div class="text-sm" style="color:var(--ink-secondary);">
-                                ${t('library_lore.npc_scribe.scribe_short')}
+                                ${t('library_lore.npc_scribe.scribe_short').replace('{cost}', _scribePrice)}
                             </div>
                         </div>
                     </div>
@@ -2656,11 +2657,11 @@ const UI = {
                             ${_libLang === 'en' ? '🗨️ Chat' : '🗨️ Pokecat'}
                         </button>
                         <button class="craft-btn" style="font-size:0.75rem;padding:4px 8px;min-width:auto;min-height:32px;white-space:nowrap;" onclick="LibraryHelpers.scribeTrade()">
-                            ${t('library_lore.npc_scribe.opt_trade')}
+                            ${t('library_lore.npc_scribe.opt_trade').replace('{cost}', _scribePrice)}
                         </button>
                         ${_bartolomejRel >= 25 ? `
                         <button class="craft-btn" style="font-size:0.75rem;padding:4px 8px;min-width:auto;min-height:32px;white-space:nowrap;" onclick="LibraryHelpers.scribeTradeChoice()">
-                            ${_libLang === 'en' ? '🖋️ Choose Book (10x Paper)' : '🖋️ Vybrat knihu (10x Papír)'}
+                            ${_libLang === 'en' ? `🖋️ Choose Book (${_scribePrice}x Paper)` : `🖋️ Vybrat knihu (${_scribePrice}x Papír)`}
                         </button>` : ''}
                     </div>
                 </div>
